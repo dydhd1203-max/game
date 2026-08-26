@@ -4068,6 +4068,41 @@ function loop(){
   }
   for(const c of clouds){ c.position.x += dt*0.55; if(c.position.x > 160) c.position.x = -160; }
   renderer.render(scene, camera);
+  if(diagEl) updDiag(dt);
+}
+
+/* ══════════════ 진단 화면 ══════════════
+   주소 끝에 ?diag=1 을 붙이면 왼쪽 위에 성능 정보가 뜬다. 평소엔 안 나온다.
+   애들 기기에서 실제로 몇 프레임 나오는지 볼 때 쓴다. */
+const diagEl = (()=>{
+  if(!new URLSearchParams(location.search).has('diag')) return null;
+  const d = document.createElement('div');
+  d.style.cssText = 'position:fixed;left:6px;top:6px;z-index:99999;background:rgba(0,0,0,.80);'
+    + 'color:#9de89d;font:600 12px/1.5 ui-monospace,Menlo,Consolas,monospace;padding:8px 11px;'
+    + 'border-radius:8px;white-space:pre;pointer-events:none;max-width:86vw';
+  document.body.appendChild(d);
+  return d;
+})();
+let diagGpu = null, diagT = 0;
+function updDiag(dt){
+  diagT -= dt; if(diagT > 0) return; diagT = 0.5;
+  if(diagGpu === null){
+    try{ const gl = renderer.getContext();
+      const e = gl.getExtension('WEBGL_debug_renderer_info');
+      diagGpu = String(e ? gl.getParameter(e.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+    }catch(err){ diagGpu = '알수없음'; }
+    if(diagGpu.length > 46) diagGpu = diagGpu.slice(0,46);
+  }
+  const i = renderer.info.render, c = renderer.domElement;
+  diagEl.textContent =
+    'FPS      ' + fpsVal + '\n' +
+    'GPU      ' + diagGpu + '\n' +
+    '화면배율  ' + devicePixelRatio + ' → ' + renderer.getPixelRatio().toFixed(2) + '\n' +
+    '그리는칸 ' + c.width + '×' + c.height + '  (' + (c.width*c.height/1e6).toFixed(2) + '백만)\n' +
+    '보이는칸 ' + c.clientWidth + '×' + c.clientHeight + '\n' +
+    '드로우콜  ' + i.calls + '   삼각형 ' + Math.round(i.triangles/1000) + 'K\n' +
+    '친구 ' + G.players.size + '  늑대 ' + G.wolves.length + '  건물 ' + STRU.size + '\n' +
+    G.day + '일차 ' + G.phase + '   터치 ' + (isTouch ? 'O' : 'X');
 }
 el('load').style.display = 'none';
 paintBar(); refreshNodeCells(); recomputeRes();
