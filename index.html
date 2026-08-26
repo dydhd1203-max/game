@@ -834,7 +834,7 @@ const matC = (hex)=> new THREE.MeshLambertMaterial({map:ATLAS, color:hex});
 
 /* ═══════════════════════ 지형 데이터 ═══════════════════════ */
 const terrH = new Int16Array(WS*WS).fill(-999);   // 지형 윗면 y (없으면 -999)
-const bldH  = new Int16Array(WS*WS).fill(-999);   // 구조물 윗면 y
+const bldH  = new Float32Array(WS*WS).fill(-999);   // 구조물 윗면 y
 const blockG= new Int8Array(WS*WS).fill(-1);      // 칸의 모둠 번호
 function topAt(x,z){ if(!inW(x,z)) return 999; const i=gi(x,z);
   return Math.max(terrH[i], bldH[i]); }
@@ -1059,7 +1059,7 @@ const NODE_DEF = {
   rock: {give:'s', amt:3, hits:8, per:2, icon:'🪨', name:'돌'},     // 4칸 × 3 = 12 돌/바위
   gold: {give:'g', amt:1, hits:8, per:2, icon:'✨', name:'금'}      // 4칸 × 1 = 4 금/광맥
 };
-const NODE_S = 0.66;    // 자원 덩어리 크기 배수 — 작을수록 많이 깔 수 있다
+const NODE_S = 0.45;    // 자원 덩어리 크기 배수 — 작을수록 많이 깔 수 있다
 const LEAF_LIT = matC(0xbfe89a), LEAF_DK = matC(0x6f9c52);
 function mkTree(x,z,dec){
   const S = NODE_S;
@@ -1378,15 +1378,15 @@ const BUILD = {
           hp:[340, 620, 1000],
           up:[{w:2,s:11,g:0}, {w:4,s:18,g:3}],
           desc:'나무벽 3배로 튼튼. 산길 정면은 돌벽으로.' },
-  arrow:{ name:'화살탑', icon:'🏹', cost:{w:10,s:7,g:0}, size:2, hi:5, cap:6,
+  arrow:{ name:'화살탑', icon:'🏹', cost:{w:10,s:7,g:0}, size:2, hi:3.5, cap:6,
           hp:[380, 600, 900], range:[13, 13.5, 14], dmg:[13, 18, 24], rate:[0.70, 0.65, 0.60],
           up:[{w:13,s:10,g:3}, {w:20,s:16,g:11}],
           desc:'마을 안에만. 가까이 온 늑대를 자동으로 쏩니다. 모둠당 6개.' },
-  ice:  { name:'얼음탑', icon:'❄️', cost:{w:6,s:9,g:2},  size:2, hi:4, cap:3,
+  ice:  { name:'얼음탑', icon:'❄️', cost:{w:6,s:9,g:2},  size:2, hi:3, cap:3,
           hp:[300, 480, 700], range:[10, 11, 12], slow:[0.42, 0.34, 0.26],
           up:[{w:9,s:12,g:4}, {w:14,s:18,g:10}],
           desc:'마을 안에만. 늑대를 느리게. 화살탑 옆에 두세요. 모둠당 3개.' },
-  barr: { name:'배럭',   icon:'🐑', cost:{w:14,s:11,g:4},size:3, hi:4, cap:2,
+  barr: { name:'배럭',   icon:'🐑', cost:{w:14,s:11,g:4},size:3, hi:3.2, cap:2,
           hp:[700, 1050, 1500], sold:[3, 3, 3], spawn:[9, 8, 7], sbuff:[1.0, 1.25, 1.5],
           up:[{w:19,s:15,g:7}, {w:28,s:22,g:14}],
           desc:'마을 안에만. Lv2는 갑옷병, Lv3은 마법사까지 나옵니다. 모둠당 2개.' }
@@ -1418,6 +1418,10 @@ const TOOLS = [
    크기 2(화살탑·얼음탑)의 한가운데는 0.5, 크기 3(배럭)의 한가운데는 0 이다.        */
 const BANNER = 0xc8402f, RUNE = 0xa96bff, FROST = 0xbfe9ff, IRON = 0x8f97a4;
 
+/* ★ 겉모습 축소 배수 [가로, 세로].  점유 칸수(size)는 건드리지 않는다.
+   세로는 원래 아트 높이 기준: 화살탑 5→3.5, 얼음탑 4→3, 배럭 4→3.2.
+   BUILD 의 hi 값과 반드시 같이 움직여야 한다 (hi 는 올라설 수 있는 높이). */
+const VSCALE = { arrow:[0.80, 0.70], ice:[0.80, 0.75], barr:[0.75, 0.80] };
 function blocksOf(t, lv){
   lv = Math.max(1, Math.min(MAXLV, lv||1));
   const out = [];
@@ -1657,6 +1661,15 @@ function blocksOf(t, lv){
         P(cx+Math.cos(a)*1.05, 3.75, cz+Math.sin(a)*1.05, T.crystal, 0.20,0.26,0.20, RUNE); }
     }
   }
+
+  /* ★ 겉모습만 축소 — 땅면(y=-0.5)을 기준으로 눌러서 공중에 뜨지 않게 한다.
+     b = [x, y, z, tile, w, h, d, tint] */
+  const vs = VSCALE[t];
+  if(vs){ const kx = vs[0], ky = vs[1];
+    for(const b of out){
+      b[0] *= kx; b[2] *= kx; b[4] *= kx; b[6] *= kx;
+      b[1] = -0.5 + (b[1] + 0.5) * ky; b[5] *= ky;
+    } }
 
   /* 완전히 같은 자리에 같은 블록이 두 번 들어가면 화면이 지글거린다(z-fighting) */
   const seen = new Map();
@@ -3252,7 +3265,7 @@ function hostSim(dt){
       if(o.cd <= 0){
         const t = towerTarget(o.x+0.5, o.z+0.5, bs(o.t,'range',o.lv));
         if(t){ o.cd = bs(o.t,'rate',o.lv); t.hp -= bs(o.t,'dmg',o.lv); t.hurt = 0.16;
-          shootArrow(o.x+0.5, GY+5.4, o.z+0.5, t.x, t.y+0.8, t.z);
+          shootArrow(o.x+0.5, GY+b.hi+0.3, o.z+0.5, t.x, t.y+0.8, t.z);
           if(window.__sfxAt) window.__sfxAt('bow', o.x, o.z, 24, 110); }
         else o.cd = 0.25;
       }
@@ -3360,7 +3373,7 @@ function clientTowerFx(dt){
     let c = (cliCd.get(o.id)||0) - dt;
     if(c <= 0){
       const t = nearestWolf(o.x+0.5, o.z+0.5, bs(o.t,'range',o.lv));
-      if(t){ c = bs(o.t,'rate',o.lv); shootArrow(o.x+0.5, GY+4.4, o.z+0.5, t.x, t.y+0.8, t.z); }
+      if(t){ c = bs(o.t,'rate',o.lv); shootArrow(o.x+0.5, GY+b.hi+0.3, o.z+0.5, t.x, t.y+0.8, t.z); }
       else c = 0.3;
     }
     cliCd.set(o.id, c);
@@ -3576,10 +3589,12 @@ function joinRoom(code, asHost){
   net.child('b').on('child_removed', s=>{ if(STRU.has(s.key)) delStru(s.key); });
   net.child('p').on('value', s=>{
     const v = s.val()||{}; const keep = new Set();
-    for(const k in v){ if(k===uid) continue; keep.add(k);
-      const p = G.players.get(k) || {x:v.x,z:v.z,y:v.y,ph:Math.random()*6};
-      p.tx=v.x; p.tz=v.z; p.y=v.y; p.ry=v.r; p.g=v.g|0; p.n=v.n; p.mv=!!v.m;
-      if(p.x===undefined){p.x=v.x;p.z=v.z;}
+    for(const k in v){ if(k===uid) continue;
+      const d = v[k]; if(!d || d.x===undefined) continue;   /* ★ v 는 묶음, 실제 값은 v[k] */
+      keep.add(k);
+      const p = G.players.get(k) || {x:d.x,z:d.z,y:d.y,ph:Math.random()*6};
+      p.tx=d.x; p.tz=d.z; p.y=d.y; p.ry=d.r||0; p.g=d.g|0; p.n=d.n; p.mv=!!d.m;
+      if(p.x===undefined){p.x=d.x;p.z=d.z;}
       G.players.set(k,p); }
     for(const k of [...G.players.keys()]) if(!keep.has(k)) G.players.delete(k); });
 
@@ -4054,7 +4069,8 @@ Object.assign(window, {
   __step:(n, dt=1/30)=>{ for(let i=0;i<n;i++){ hostPhase(dt);
       if(G.phase==='night') hostSim(dt); else if(flowDirty){ buildFlow(); flowDirty=false; } } },
   __BAL:BAL, __waveFor:waveFor, __bossDays:bossDays, __prog:prog,
-  __fps:()=>fpsVal
+  __fps:()=>fpsVal,
+  __drawSheep:drawSheep, __Pmesh:()=>[P_body,P_head,P_legs], __GHEX:GHEX, __render:()=>renderer.render(scene,camera)
 });
 window.__READY = true;
 </script>
