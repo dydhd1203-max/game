@@ -2057,7 +2057,9 @@ const W_body = imesh(gFur, MAT, MAXW, 1), W_head = imesh(gFur, MAT, MAXW, 1),
       W_chest= imesh(gFur, MAT, MAXW, 1),        // 어깨 — 실루엣에 무게를 준다
       W_hack = imesh(gFurD,MAT, MAXW*3, 1),      // 등갈기 — 화나면 솟는다
       W_paw  = imesh(gDark,MAT, MAXW*4, 1),      // 앞발
-      W_horn = imesh(cube(T.wool), MAT, 12, 1);
+      W_horn = imesh(cube(T.wool), MAT, 12, 1),
+      W_nose = imesh(gDark, MAT, MAXW, 1),      // 검은 코끝 — 늑대 인상의 핵심
+      W_ruff = imesh(gFurD, MAT, MAXW, 1);      // 목덜미 갈기
 const auraMat = new THREE.MeshBasicMaterial({color:0xff4444, transparent:true, opacity:.24,
   depthWrite:false, side:THREE.DoubleSide});
 const W_aura = new THREE.InstancedMesh(new THREE.RingGeometry(1.6, 3.4, 20), auraMat, 6);
@@ -2073,8 +2075,17 @@ const S_body = imesh(gWool,MAT, MAXS, 1), S_head = imesh(gWoolD,MAT,MAXS,1),
       S_orb  = imesh(cube(T.crystal),
         new THREE.MeshLambertMaterial({map:ATLAS, color:0xd9b6ff,
           emissive:0x8a4aff, emissiveIntensity:1.5}), MAXS, 1);
-const P_body = imesh(gWool,MAT, MAXP, 1), P_head = imesh(gWoolD,MAT,MAXP,1),
-      P_legs = imesh(gDark,MAT, MAXP*4, 1);
+/* 플레이어(양) — 부위를 늘려 귀엽게. 큐브 하나 = 12삼각형이라
+   22명 × 부위 7개 늘려도 2천 삼각형(전체의 0.8%)뿐이다. */
+const P_body = imesh(gWool, MAT, MAXP,   1),   // 몸통
+      P_puff = imesh(gWoolD,MAT, MAXP,   1),   // 등에 얹은 털뭉치
+      P_head = imesh(gWoolD,MAT, MAXP,   1),   // 얼굴
+      P_frng = imesh(gWoolD,MAT, MAXP,   1),   // 이마 앞머리
+      P_ear  = imesh(gWoolD,MAT, MAXP*2, 1),   // 귀 2개
+      P_eye  = imesh(gEye,  MAT, MAXP*2, 1),   // 눈 2개
+      P_nose = imesh(gSnout,MAT, MAXP,   1),   // 코
+      P_tail = imesh(gWoolD,MAT, MAXP,   1),   // 꼬리
+      P_legs = imesh(gDark, MAT, MAXP*4, 1);   // 다리 4개
 
 function setI(mesh, idx, x,y,z, ry, sx,sy,sz, col){
   _v.set(x,y,z); _q.setFromAxisAngle(UPV, ry); _s.set(sx,sy,sz);
@@ -2147,6 +2158,11 @@ function drawWolves(list, t, dt){
     setIR(W_chest, n, w.x+fx*0.36*sc+bx*0.72, y+(0.80+bite*0.02)*sc + bob, w.z+fz*0.36*sc+bz*0.72,
       ry + roll, lean, (0.86+ag*0.03)*sc, (0.72+ag*0.03)*sc, 0.54*sc, col);
 
+    /* 목덜미 갈기 — 어깨와 머리 사이를 메워 목이 굵어 보이게.
+       늑대는 목·어깨가 두껍고 엉덩이가 가늘다. 이 실루엣이 개와 다른 점이다. */
+    setIR(W_ruff, n, w.x+fx*0.60*sc+bx*0.86, y+(0.86+bite*0.02)*sc + bob, w.z+fz*0.60*sc+bz*0.86,
+      ry + roll, lean, (0.92+ag*0.06)*sc, (0.80+ag*0.05)*sc, 0.30*sc, col);
+
     /* ── 머리 뭉치 ──
        주둥이·눈·귀는 "머리에 붙은 것"이라 머리가 숙이고 돌면 같이 따라가야 한다.
        예전엔 눈이 제자리에 고정돼 있어서 걸을 때마다 머리 면과 겹쳐 화면이 지글거렸다.  */
@@ -2169,9 +2185,15 @@ function drawWolves(list, t, dt){
       0.60*sc, (0.58+bite*0.10)*sc, 0.62*sc, col);
     /* 주둥이 — 뒤쪽 절반이 머리 속에 박히게 */
     /* 크게 벌릴수록 앞으로 나가되, 그만큼 길어져야 머리에서 떨어지지 않는다 */
-    const snF = (0.40+bite*0.12)*sc, snU = -0.10*sc;
+    /* 주둥이 — 길고 좁게. 늑대는 개보다 주둥이가 길다. */
+    const snL = (0.56+bite*0.14)*sc;                  // 길이
+    const snF = (0.48+bite*0.10)*sc, snU = -0.10*sc;  // 뒤쪽 절반이 머리에 박히게
     setIR(W_snout, n, HX(snF,snU,0), HY(snF,snU), HZ(snF,snU,0), hYaw, hPit,
-      0.33*sc, (0.26+bite*0.12)*sc, (0.42+bite*0.12)*sc, col);
+      0.28*sc, (0.23+bite*0.12)*sc, snL, col);
+    /* 코끝 — 주둥이 맨 앞에 붙이는 까만 점 */
+    const noF = snF + snL*0.5 - 0.03*sc, noU = snU + 0.05*sc;
+    setIR(W_nose, n, HX(noF,noU,0), HY(noF,noU), HZ(noF,noU,0), hYaw, hPit,
+      0.20*sc, 0.15*sc, 0.10*sc, 0x14121a);
     /* 귀 — 머리 위에 절반 박아 넣는다 */
     for(const si of [1,-1]){
       const eF = -0.10*sc, eU = 0.34*sc;
@@ -2191,7 +2213,7 @@ function drawWolves(list, t, dt){
     const tw = Math.sin(gait - 1.1)*0.30*stride + ag*0.10;
     setIR(W_tail, n, w.x-fx*0.94*sc + rx*tw*0.30*sc, y+(0.88+bite*0.18+ag*0.10)*sc + bob,
       w.z-fz*0.94*sc + rz*tw*0.30*sc, ry + tw*0.55, -0.30 - ag*0.35,
-      0.18*sc,0.18*sc,0.70*sc, col);
+      0.27*sc,0.27*sc,0.78*sc, col);
 
     /* 다리 — 대각선 걸음(앞왼+뒤오른 / 앞오른+뒤왼) + 앞으로 나갈 때 살짝 들린다 */
     const legPh = [0, Math.PI, Math.PI, 0];
@@ -2244,8 +2266,9 @@ function drawWolves(list, t, dt){
   W_horn.count = bn*2; W_aura.count = bn;
   W_aura.instanceMatrix.needsUpdate = true;
   W_body.count=n; W_chest.count=n; W_head.count=n; W_snout.count=n; W_tail.count=n;
+  W_nose.count=n; W_ruff.count=n;
   W_legs.count=ln; W_paw.count=pn; W_eyes.count=en; W_ears.count=en; W_hack.count=hn;
-  flush(W_body,W_chest,W_head,W_snout,W_tail,W_legs,W_paw,W_eyes,W_ears,W_hack,W_horn);
+  flush(W_body,W_chest,W_head,W_snout,W_tail,W_legs,W_paw,W_eyes,W_ears,W_hack,W_horn,W_nose,W_ruff);
 }
 /* 병정 양 — 창병 / 갑옷병 / 마법사 세 종류 */
 function drawSoldiers(list, t){
@@ -2323,28 +2346,67 @@ function drawSoldiers(list, t){
 }
 
 /* 친구들(플레이어) — 모둠 색 양 */
-function drawSheep(list, t, meshes, cap, colOf, scale){
-  const [B,H,L,SP] = meshes;
-  let n=0, ln=0;
+/* 플레이어(양) 그리기.
+   ★ 방향 주의 — 플레이어의 전방은 (-sin(yaw), -cos(yaw)) 다 (2403줄 updPlayer 참고).
+     늑대·병사는 atan2(dx,dz) 라 (+sin,+cos) 로 정반대다.
+     예전엔 여기서 늑대 규칙을 써서 양이 통째로 뒤를 보고 있었다.
+     ry 에 PI 를 더해 한 번에 맞춘다. */
+/* 색을 흰쪽으로 밝힌다 — 털뭉치를 몸통보다 밝게 해서 복슬복슬해 보이게 */
+const lighten = (c,k)=>{ const r=(c>>16)&255, g=(c>>8)&255, b=c&255,
+  m=v=>Math.min(255, Math.round(v + (255-v)*k));
+  return (m(r)<<16)|(m(g)<<8)|m(b); };
+
+function drawSheep(list, t, cap, colOf, scale){
+  let n=0, ln=0, earN=0, eyeN=0;
   for(const s of list){
     if(n>=cap) break;
-    const y = s.y!==undefined ? s.y : GY;
-    const ry = s.ry||0, sc = scale;
-    const fx = Math.sin(ry), fz = Math.cos(ry), rx = Math.cos(ry), rz = -Math.sin(ry);
+    const y  = s.y!==undefined ? s.y : GY;
+    const sc = scale;
+    const ry = (s.ry||0) + Math.PI;                 // ★ 전방 보정
+    const fx = Math.sin(ry), fz = Math.cos(ry);     // 앞
+    const rx = Math.cos(ry), rz = -Math.sin(ry);    // 오른쪽
     const walk = s.mv ? Math.sin(t*8 + (s.ph||0))*0.5 : 0;
-    const col = colOf(s);
-    setI(B, n, s.x, y+0.72*sc, s.z, ry, 0.98*sc,0.86*sc,1.20*sc, col);
-    setI(H, n, s.x+fx*0.72*sc, y+0.98*sc, s.z+fz*0.72*sc, ry, 0.52*sc,0.50*sc,0.48*sc, 0xf2ece0);
+    const bob  = s.mv ? Math.abs(Math.sin(t*8 + (s.ph||0)))*0.035*sc : 0;
+    const col  = colOf(s);
+    const wool = lighten(col, 0.34);                // 털뭉치
+    const frng = lighten(col, 0.20);                // 앞머리
+    /* 양 기준 좌표(앞 f · 옆 sd) → 화면 좌표 */
+    const X=(f,sd)=> s.x + fx*f*sc + rx*sd*sc;
+    const Z=(f,sd)=> s.z + fz*f*sc + rz*sd*sc;
+    const Y=(u)=> y + u*sc + bob;
+
+    // 몸통 — 작고 낮게. 덩치는 위에 얹는 털뭉치가 만든다.
+    setI(P_body, n, X(0,0), Y(0.60), Z(0,0), ry, 0.88*sc, 0.70*sc, 1.04*sc, col);
+    // 등털 — 몸통보다 넓게 빼서 처마처럼 걸치게 하면 복슬복슬해 보인다
+    setI(P_puff, n, X(-0.06,0), Y(1.02), Z(-0.06,0), ry, 1.08*sc, 0.62*sc, 1.20*sc, wool);
+    // 얼굴
+    setI(P_head, n, X(0.74,0), Y(1.04), Z(0.74,0), ry, 0.60*sc, 0.58*sc, 0.54*sc, 0xf4efe3);
+    // 앞머리 — 이마에 얹은 털. 이게 있어야 양처럼 보인다.
+    setI(P_frng, n, X(0.76,0), Y(1.34), Z(0.76,0), ry, 0.58*sc, 0.22*sc, 0.32*sc, frng);
+    // 귀 — 양옆으로 축 늘어뜨린다
+    for(const si of [1,-1])
+      setIR(P_ear, earN++, X(0.66,0.37*si), Y(1.08), Z(0.66,0.37*si),
+        ry, 0.70, 0.17*sc, 0.27*sc, 0.13*sc, 0xe9dfd0);
+    // 눈 — 얼굴 앞면보다 확실히 튀어나오게(딱 붙이면 깊이가 겹쳐 깜빡인다)
+    for(const si of [1,-1])
+      setI(P_eye, eyeN++, X(1.03,0.16*si), Y(1.10), Z(1.03,0.16*si), ry,
+        0.13*sc, 0.15*sc, 0.06*sc, 0x241f1c);
+    // 코
+    setI(P_nose, n, X(1.03,0), Y(0.90), Z(1.03,0), ry, 0.22*sc, 0.14*sc, 0.07*sc, 0xe3a6a0);
+    // 꼬리 — 뒤에 붙은 털뭉치
+    setI(P_tail, n, X(-0.62,0), Y(0.94), Z(-0.62,0), ry, 0.30*sc, 0.30*sc, 0.22*sc, wool);
+    // 다리
     let li=0;
-    for(const [fo,si] of [[0.34,1],[0.34,-1],[-0.34,1],[-0.34,-1]]){
-      const sw = (li<2? walk : -walk);
-      setI(L, ln++, s.x+fx*fo*sc+rx*0.30*sc*si+fx*sw*0.16*sc, y+0.22*sc,
-           s.z+fz*fo*sc+rz*0.30*sc*si+fz*sw*0.16*sc, ry, 0.19*sc,0.46*sc,0.19*sc, 0x55504a); li++;
+    for(const [fo,si] of [[0.32,1],[0.32,-1],[-0.32,1],[-0.32,-1]]){
+      const sw = (li<2 ? walk : -walk);
+      setI(P_legs, ln++, X(fo + sw*0.16, 0.28*si), y+0.21*sc, Z(fo + sw*0.16, 0.28*si),
+        ry, 0.18*sc, 0.44*sc, 0.18*sc, 0x55504a); li++;
     }
     n++;
   }
-  B.count=n; H.count=n; L.count=ln; if(SP) SP.count=0;
-  flush(B,H,L); if(SP) flush(SP);
+  P_body.count=n; P_puff.count=n; P_head.count=n; P_frng.count=n; P_nose.count=n;
+  P_tail.count=n; P_ear.count=earN; P_eye.count=eyeN; P_legs.count=ln;
+  flush(P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_tail,P_legs);
 }
 
 /* 이름표 */
@@ -4061,8 +4123,7 @@ function loop(){
     if(struDirty && (flowDirty || struT <= 0)){ rebuildStru(); struT = 1/12; }
     drawWolves(G.wolves, tAcc, dt);
     drawSoldiers(G.soldiers, tAcc);
-    drawSheep([...G.players.values()], tAcc, [P_body,P_head,P_legs,null], MAXP,
-      s=>GHEX[s.g|0], 1.0);
+    drawSheep([...G.players.values()], tAcc, MAXP, s=>GHEX[s.g|0], 1.0);
     updTags();
     updParts(dt); updArrows(dt); updOrbs(dt, tAcc);
     updSky(dt, G.phase==='night');
@@ -4128,9 +4189,12 @@ Object.assign(window, {
       if(G.phase==='night') hostSim(dt); else if(flowDirty){ buildFlow(); flowDirty=false; } } },
   __BAL:BAL, __waveFor:waveFor, __bossDays:bossDays, __prog:prog,
   __fps:()=>fpsVal,
-  __drawSheep:drawSheep, __Pmesh:()=>[P_body,P_head,P_legs], __GHEX:GHEX, __render:()=>renderer.render(scene,camera),
+  __drawSheep:drawSheep, __Pmesh:()=>[P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_tail,P_legs], __GHEX:GHEX, __render:()=>renderer.render(scene,camera),
   __rebuild:rebuildStru, __goNight:goNight, __goDay:goDay, __hostSim:(dt)=>hostSim(dt),
-  __blocksRaw:blocksOfRaw, __blkCache:_blkCache
+  __blocksRaw:blocksOfRaw, __blkCache:_blkCache,
+  __drawWolves:drawWolves,
+  __Wmesh:()=>({body:W_body, chest:W_chest, ruff:W_ruff, head:W_head, snout:W_snout,
+                nose:W_nose, tail:W_tail, ears:W_ears, eyes:W_eyes, legs:W_legs})
 });
 window.__READY = true;
 </script>
