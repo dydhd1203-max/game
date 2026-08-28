@@ -4268,15 +4268,17 @@ function loop(){
     if(PROF_ON) pE('조작조준');
 
     if(PROF_ON) pS();
-    if(G.host){ hostPhase(dt); if(G.phase==='night') hostSim(dt);
-                else if(flowDirty){ buildFlow(); flowDirty = false; } }
-    else lerpMobs(dt);
-    if(!G.host && G.phase==='night') clientTowerFx(dt);
+    if(!DBG.noSim){
+      if(G.host){ hostPhase(dt); if(G.phase==='night') hostSim(dt);
+                  else if(flowDirty){ buildFlow(); flowDirty = false; } }
+      else lerpMobs(dt);
+      if(!G.host && G.phase==='night') clientTowerFx(dt);
+    }
     if(PROF_ON) pE('시뮬');
     if(G.phase==='win' || G.phase==='lose') showEnd();
 
     if(PROF_ON) pS();
-    netTick(dt); metaTick(dt);
+    if(!DBG.noSim){ netTick(dt); metaTick(dt); }
     if(PROF_ON) pE('통신');
 
     // 친구들 보간
@@ -4288,19 +4290,19 @@ function loop(){
     if(struDirty && (flowDirty || struT <= 0)){ rebuildStru(); struT = 1/12; }
     if(PROF_ON) pE('건물메시');
     if(PROF_ON) pS();
-    drawWolves(G.wolves, tAcc, dt);
+    if(!DBG.noInst) drawWolves(G.wolves, tAcc, dt);
     if(PROF_ON) pE('늑대');
     if(PROF_ON) pS();
-    drawSoldiers(G.soldiers, tAcc);
+    if(!DBG.noInst) drawSoldiers(G.soldiers, tAcc);
     if(PROF_ON) pE('병사');
     if(PROF_ON) pS();
-    drawSheep([...G.players.values()], tAcc, MAXP, s=>GHEX[s.g|0], 1.0);
+    if(!DBG.noInst) drawSheep([...G.players.values()], tAcc, MAXP, s=>GHEX[s.g|0], 1.0);
     if(PROF_ON) pE('양');
     if(PROF_ON) pS();
-    updTags();
+    if(!DBG.noTags) updTags();
     if(PROF_ON) pE('이름표');
     if(PROF_ON) pS();
-    updParts(dt); updArrows(dt); updOrbs(dt, tAcc);
+    if(!DBG.noInst){ updParts(dt); updArrows(dt); updOrbs(dt, tAcc); }
     if(PROF_ON) pE('효과');
     if(PROF_ON) pS();
     updSky(dt, G.phase==='night');
@@ -4309,7 +4311,7 @@ function loop(){
 
     if(stageT>0){ stageT -= dt; if(stageT<=0) el('stageTitle').classList.remove('on'); }
     hudT -= dt;
-    if(hudT<=0){ hudT = 0.12;
+    if(hudT<=0 && !DBG.noHUD){ hudT = 0.12;
       if(PROF_ON) pS();
       paintHUD();
       if(PROF_ON){ pE('HUD글자'); pS(); }
@@ -4347,7 +4349,8 @@ function loop(){
    느린 기기가 선생님 교실에만 있어서, 개발 PC 로는 원인을 못 가른다.
    그래서 실제 기기에서 직접 재도록 스위치를 만들어 뒀다. */
 const DBG = { noRender:false, noLogic:false, pr:1, noPoint:false,
-              flatGround:false, noTerrain:false };
+              flatGround:false, noTerrain:false,
+              noHUD:false, noInst:false, noSim:false, noTags:false };
 let sweep = null, sweepOut = null;        // 자동 측정 상태 / 결과표
 if(new URLSearchParams(location.search).has('diag')){
 
@@ -4374,14 +4377,19 @@ if(new URLSearchParams(location.search).has('diag')){
      그래서 한 항목씩 켜고 → 재고 → 반드시 되돌리고 → 다음으로 간다.
      조명·재질을 바꾸면 셰이더를 새로 컴파일하느라 잠깐 멈추므로,
      시작할 때 모든 조합을 한 번씩 미리 그려서 컴파일을 끝내 놓는다(워밍업). */
+  /* 교실 실측으로 이미 정리된 것 — 다시 안 잰다:
+       해상도 0.85/0.70/0.55 모두 +2~3 (0.55 까지 내려도 안 늘어남 = 픽셀 문제 아님)
+       점광원 +1, 바닥조명 -2, 지형숨김 0, 화면그리기 아예 끔 +3 (= GPU 는 범인이 아님)
+       게임로직 끔 +21  <-- 여기 하나에 다 있다.
+     그래서 이번엔 그 로직을 네 조각으로 쪼개서 어느 것인지만 가린다. */
   const CASES = [
-    ['해상도 0.85',   ()=>setPR(0.85),   ()=>setPR(1)],
-    ['해상도 0.70',   ()=>setPR(0.70),   ()=>setPR(1)],
-    ['해상도 0.55',   ()=>setPR(0.55),   ()=>setPR(1)],
-    ['점광원2개 끔',  ()=>setPoint(true),()=>setPoint(false)],
-    ['바닥조명 끔',   ()=>setFlat(true), ()=>setFlat(false)],
-    ['지형 숨김',     ()=>setTerr(true), ()=>setTerr(false)],
-    ['게임로직 끔',   ()=>{DBG.noLogic=true;},  ()=>{DBG.noLogic=false;}],
+    ['HUD 끔',        ()=>{DBG.noHUD=true;},   ()=>{DBG.noHUD=false;}],
+    ['캐릭터갱신 끔', ()=>{DBG.noInst=true;},  ()=>{DBG.noInst=false;}],
+    ['이름표 끔',     ()=>{DBG.noTags=true;},  ()=>{DBG.noTags=false;}],
+    ['시뮬·통신 끔',  ()=>{DBG.noSim=true;},   ()=>{DBG.noSim=false;}],
+    ['넷다 끔',       ()=>{DBG.noHUD=DBG.noInst=DBG.noTags=DBG.noSim=true;},
+                      ()=>{DBG.noHUD=DBG.noInst=DBG.noTags=DBG.noSim=false;}],
+    ['게임로직 통째로 끔', ()=>{DBG.noLogic=true;},  ()=>{DBG.noLogic=false;}],
     ['화면그리기 끔', ()=>{DBG.noRender=true;}, ()=>{DBG.noRender=false;}],
   ];
   /* ★ 항목마다 바로 직전에 기준을 다시 잰다.
