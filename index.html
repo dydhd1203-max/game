@@ -2643,7 +2643,18 @@ function selectBuild(b){ if(!BUILD[b]) return; curBuild = b; curTool = 'build'; 
 function afford(t){ const c = BUILD[t].cost, r = myRes();
   return r.w>=c.w && r.s>=c.s && r.g>=c.g; }
 
+/* ★ 아래 도구·건물 칸은 바뀔 때만 다시 만든다.
+   paintHUD 마지막 줄에서 이걸 부르는데, paintHUD 는 초당 8번 돈다.
+   그때마다 innerHTML='' 로 칸을 전부 부수고 다시 만들고 있었다.
+   자바스크립트가 노드를 만드는 시간은 얼마 안 되지만, 그 뒤에 브라우저가
+   스타일을 다시 계산하고 배치하고 다시 칠하는 일은 rAF 콜백이 끝난 뒤에 벌어진다.
+   그래서 구간별 측정기에는 안 잡히면서 프레임만 잡아먹었다.
+   실제로 바뀌는 건 고른 도구·고른 건물·자원이 모자란지 여부뿐이라, 그것만 열쇠로 삼는다. */
+let barKey = '';
 function paintBar(){
+  const k = curTool + '|' + curBuild + '|' + BKEYS.map(afford).join('');
+  if(k === barKey) return;
+  barKey = k;
   const tw = el('tools'); tw.innerHTML = '';
   for(const t of TOOLS){
     const d = document.createElement('div');
