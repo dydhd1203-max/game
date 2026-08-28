@@ -1,0 +1,6 @@
+# 손으로 만든 백업 파일은 올리지 않는다.
+# git 이 이미 모든 버전을 갖고 있어서(=커밋 히스토리) 백업본은 중복이다.
+# 옛날 파일이 필요하면 아래처럼 꺼내 쓰면 된다:
+#   git log --oneline           <- 원하는 시점의 번호를 찾고
+#   git show 3cf8f0f:index.html > 옛날.html
+index.backup-*.html
