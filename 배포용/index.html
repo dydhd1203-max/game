@@ -916,7 +916,8 @@ const HEMI_DS = new THREE.Color(0xcfe8ff), HEMI_NS = new THREE.Color(0x9dc0ff);
 const HEMI_DG = new THREE.Color(0x5a7a4a), HEMI_NG = new THREE.Color(0x46618c);
 const SUN_D   = new THREE.Color(0xffffff), SUN_N   = new THREE.Color(0xc3daff);
 scene.background = SKY_DAY.clone();
-scene.fog = new THREE.Fog(SKY_DAY.getHex(), 68, 152);
+const FOG_REF = new THREE.Fog(SKY_DAY.getHex(), 68, 152);
+scene.fog = FOG_REF;
 
 const camera = new THREE.PerspectiveCamera(74, innerWidth/innerHeight, 0.08, 420);
 scene.add(camera);                       // 손에 든 도구를 그리려면 카메라가 씬 안에 있어야 한다
@@ -1002,6 +1003,7 @@ const EMITC= new THREE.MeshLambertMaterial({map:ATLAS, color:0xfff2c0,
 
 /* ═══════════════════════ 해 · 달 · 별 ═══════════════════════ */
 let skyPivot, sunDisc, moonDisc, stars;
+let groundDisc, groundRim;        // 진단 화면에서 바닥 재질을 바꿔 보려고 들고 있는다
 function buildSky(){
   skyPivot = new THREE.Group(); scene.add(skyPivot);
   const mk=(size,col,em)=>{
@@ -1042,11 +1044,11 @@ function buildWorldMesh(){
   const gt = tileTex(T.grassTop, FIELD_R*2);
   const disc = new THREE.Mesh(new THREE.CircleGeometry(FIELD_R, 72),
                 new THREE.MeshLambertMaterial({map:gt}));
-  disc.rotation.x = -Math.PI/2; disc.position.y = GY; scene.add(disc);
+  disc.rotation.x = -Math.PI/2; disc.position.y = GY; scene.add(disc); groundDisc = disc;
   // 바닥 옆면(흙)
   const rim = new THREE.Mesh(new THREE.CylinderGeometry(FIELD_R,FIELD_R,5,72,1,true),
                 new THREE.MeshLambertMaterial({map:tileTex(T.dirt, 1), side:THREE.BackSide}));
-  rim.material.map.repeat.set(FIELD_R*2, 5); rim.position.y = GY-2.5; scene.add(rim);
+  rim.material.map.repeat.set(FIELD_R*2, 5); rim.position.y = GY-2.5; scene.add(rim); groundRim = rim;
 
   const gRock = cube(T.rock), gMoss = cube(T.mossy), gStone = cube(T.stone);
   const gGrass = boxGeo(T.grassSide,T.grassSide,T.grassTop,T.dirt,T.grassSide,T.grassSide);
@@ -4144,7 +4146,7 @@ function loop(){
   let dt = Math.min(0.05, now - last); last = now; tAcc += dt;
   fpsN++; fpsT += dt; if(fpsT>0.5){ fpsVal = Math.round(fpsN/fpsT); fpsN=0; fpsT=0; }
 
-  if(G.started){
+  if(G.started && !DBG.noLogic){
     if(!popOpen()) updPlayer(dt); else { PL.mv=false; }
     if(shakeT > 0){ shakeT -= dt;
       const a = shakeT*shakeP;
@@ -4186,8 +4188,49 @@ function loop(){
     if(toastT>0){ toastT -= dt; if(toastT<=0) el('toast').classList.remove('on'); }
   }
   for(const c of clouds){ c.position.x += dt*0.55; if(c.position.x > 160) c.position.x = -160; }
-  renderer.render(scene, camera);
+  if(!DBG.noRender) renderer.render(scene, camera);
   if(diagEl) updDiag(dt);
+}
+
+/* ══════════════ 성능 원인 찾기 스위치 ══════════════
+   ?diag=1 일 때만 켜진다. 숫자키로 하나씩 껐다 켜면서 FPS 가 어디서 뛰는지 본다.
+   느린 기기가 선생님 교실에만 있어서, 개발 PC 로는 원인을 못 가른다.
+   그래서 실제 기기에서 직접 재도록 스위치를 만들어 뒀다. */
+const DBG = { noRender:false, noLogic:false, pr:1, noPoint:false,
+              flatGround:false, noFog:false, noTerrain:false };
+if(new URLSearchParams(location.search).has('diag')){
+  const PRS = [1, 0.85, 0.7, 0.55];
+  let prI = 0;
+  const flatMat = [];                       // 조명 없는 바닥 재질 (원본과 교체용)
+  addEventListener('keydown', e=>{
+    // Shift + 숫자. 그냥 숫자는 게임에서 건물 고르는 키라 겹친다.
+    // e.code 를 쓰면 자판 배열과 상관없이 같은 자리를 가리킨다.
+    if(!e.shiftKey || !/^Digit[0-6]$/.test(e.code)) return;
+    e.preventDefault();
+    const k = e.code.slice(5);
+    if(k==='0'){ DBG.noRender = !DBG.noRender; }
+    else if(k==='1'){ prI = (prI+1) % PRS.length; DBG.pr = PRS[prI];
+      // 평소 쓰는 배율에 곱한다. devicePixelRatio 로 다시 자르면 배율 1인 기기에서 안 먹는다.
+      const baseR = Math.min(devicePixelRatio, isTouch ? 1.0 : 1.6);
+      renderer.setPixelRatio(baseR * DBG.pr);
+      renderer.setSize(innerWidth, innerHeight); }
+    else if(k==='2'){ DBG.noPoint = !DBG.noPoint;
+      if(DBG.noPoint){ camera.remove(heldLight); if(crystalLight) crystalLight.parent && crystalLight.parent.remove(crystalLight); }
+      else { camera.add(heldLight); if(crystalLight && crystalGroup) crystalGroup.add(crystalLight); } }
+    else if(k==='3'){ DBG.flatGround = !DBG.flatGround;
+      for(const m of [groundDisc, groundRim]){ if(!m) continue;
+        if(!m.userData.lit) m.userData.lit = m.material;
+        if(!m.userData.flat) m.userData.flat = new THREE.MeshBasicMaterial(
+          {map:m.userData.lit.map, side:m.userData.lit.side});
+        m.material = DBG.flatGround ? m.userData.flat : m.userData.lit; } }
+    else if(k==='4'){ DBG.noFog = !DBG.noFog;
+      scene.fog = DBG.noFog ? null : FOG_REF;
+      scene.traverse(o=>{ if(o.material){ const ms = Array.isArray(o.material)?o.material:[o.material];
+        for(const m of ms) m.needsUpdate = true; } }); }
+    else if(k==='5'){ DBG.noTerrain = !DBG.noTerrain;
+      for(const b of banks.values()) if(b.chunks) for(const m of b.chunks) m.visible = !DBG.noTerrain; }
+    else if(k==='6'){ DBG.noLogic = !DBG.noLogic; }
+  });
 }
 
 /* ══════════════ 진단 화면 ══════════════
@@ -4221,7 +4264,15 @@ function updDiag(dt){
     '보이는칸 ' + c.clientWidth + '×' + c.clientHeight + '\n' +
     '드로우콜  ' + i.calls + '   삼각형 ' + Math.round(i.triangles/1000) + 'K\n' +
     '친구 ' + G.players.size + '  늑대 ' + G.wolves.length + '  건물 ' + STRU.size + '\n' +
-    G.day + '일차 ' + G.phase + '   터치 ' + (isTouch ? 'O' : 'X');
+    G.day + '일차 ' + G.phase + '   터치 ' + (isTouch ? 'O' : 'X') + '\n' +
+    '─── Shift+숫자로 껐다 켜기 ───\n' +
+    'Sh+0 화면그리기 ' + (DBG.noRender ? '★끔' : '켬') + '\n' +
+    'Sh+1 해상도 ' + DBG.pr.toFixed(2) + (DBG.pr<1 ? ' ★' : '') + '\n' +
+    'Sh+2 점광원2개 ' + (DBG.noPoint ? '★끔' : '켬') + '\n' +
+    'Sh+3 바닥조명 ' + (DBG.flatGround ? '★끔' : '켬') + '\n' +
+    'Sh+4 안개 ' + (DBG.noFog ? '★끔' : '켬') + '\n' +
+    'Sh+5 지형 ' + (DBG.noTerrain ? '★숨김' : '보임') + '\n' +
+    'Sh+6 게임로직 ' + (DBG.noLogic ? '★끔' : '켬');
 }
 el('load').style.display = 'none';
 paintBar(); refreshNodeCells(); recomputeRes();
