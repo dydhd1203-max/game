@@ -936,22 +936,65 @@ const banks = new Map();
 const _v=new THREE.Vector3(), _q=new THREE.Quaternion(), _s=new THREE.Vector3(), _m=new THREE.Matrix4();
 function bpush(key, geo, mat, x,y,z, ry=0, sx=1,sy=1,sz=1){
   let b = banks.get(key);
-  if(!b){ b = {geo, mat, ms:[], mesh:null}; banks.set(key, b); }
+  if(!b){ b = {geo, mat, ms:[], chunks:null, map:null}; banks.set(key, b); }
   _v.set(x,y,z); _q.setFromAxisAngle(UPV, ry); _s.set(sx,sy,sz);
   b.ms.push(new THREE.Matrix4().compose(_v,_q,_s));
-  return (banks.size, [key, b.ms.length-1]);
+  return [key, b.ms.length-1];
 }
+/* ★ 정적 월드를 BCHUNK 칸짜리 정사각형 구역으로 쪼갠다.
+   예전엔 뱅크 하나가 통짜 메시라 월드 전체(117×116)에 걸쳐 있었다.
+   그러면 어디를 보든 절두체에 걸려서 20만 삼각형을 매 프레임 전부 GPU 로 보냈다.
+   Mali 같은 타일 GPU 는 안 보이는 삼각형도 일단 정점 처리하고 타일에 분류한 뒤에야
+   버리기 때문에, "어차피 하드웨어가 걸러 준다"는 말은 맞지 않는다.
+   실측(60개 시점 평균): 화면에 실제로 들어오는 건 22% 뿐이었다.
+   구역으로 나누면 three.js 가 안 보이는 구역을 통째로 건너뛴다.
+   BCHUNK=18 은 실측으로 고른 값 — 그리는 삼각형 38%, 드로우콜 88개.
+   더 잘게 쪼개도 삼각형은 별로 안 줄고 드로우콜만 는다. */
+const BCHUNK = 18;
+const BSPLIT = 300;   // 이보다 인스턴스가 적은 뱅크는 안 쪼갠다 (쪼개 봤자 드로우콜만 는다)
 function bbuild(){
   for(const [k,b] of banks){
-    if(b.mesh){ scene.remove(b.mesh); b.mesh.dispose(); }
-    const im = new THREE.InstancedMesh(b.geo, b.mat, Math.max(1,b.ms.length));
-    for(let i=0;i<b.ms.length;i++) im.setMatrixAt(i, b.ms[i]);
-    im.count = b.ms.length; im.instanceMatrix.needsUpdate = true;
-    im.frustumCulled = false; b.mesh = im; scene.add(im);
+    if(b.chunks) for(const m of b.chunks){ scene.remove(m); m.dispose(); }
+    const n = b.ms.length;
+    b.chunks = []; b.map = new Int32Array(n*2);
+    if(!n) continue;
+    // 구역별로 인스턴스 번호를 모은다
+    const buck = new Map();
+    if(n < BSPLIT){ const all=[]; for(let i=0;i<n;i++) all.push(i); buck.set(0, all); }
+    else for(let i=0;i<n;i++){
+      const e = b.ms[i].elements;
+      const kk = Math.floor(e[12]/BCHUNK)*1000 + Math.floor(e[14]/BCHUNK);
+      let a = buck.get(kk); if(!a){ a=[]; buck.set(kk,a); }
+      a.push(i);
+    }
+    for(const idxs of buck.values()){
+      const im = new THREE.InstancedMesh(b.geo, b.mat, idxs.length);
+      for(let j=0;j<idxs.length;j++){
+        im.setMatrixAt(j, b.ms[idxs[j]]);
+        b.map[idxs[j]*2] = b.chunks.length; b.map[idxs[j]*2+1] = j;
+      }
+      im.count = idxs.length; im.instanceMatrix.needsUpdate = true;
+      // 지금 재 둬야 한다. 나중에(블록이 캐여서 사라진 뒤에) 재면 원점으로 눌린
+      // 인스턴스까지 품어서 구가 쓸데없이 커지고, 그러면 컬링이 안 먹는다.
+      im.computeBoundingSphere();
+      b.chunks.push(im); scene.add(im);
+    }
   }
 }
-function bset(h, on){ const b = banks.get(h[0]); if(!b||!b.mesh) return;
-  b.mesh.setMatrixAt(h[1], on ? b.ms[h[1]] : ZEROM); b.mesh.instanceMatrix.needsUpdate = true; }
+function bset(h, on){
+  const b = banks.get(h[0]); if(!b || !b.chunks) return;
+  const gx = h[1], m = b.chunks[b.map[gx*2]], li = b.map[gx*2+1];
+  if(!m) return;
+  m.setMatrixAt(li, on ? b.ms[gx] : ZEROM);
+  /* ★ 바뀐 한 칸(행렬 값 16개)만 올린다. 예전엔 뱅크 전체를 통째로 다시 올렸다.
+     r160 에서 updateRange 는 폐기됐고 addUpdateRange(시작, 개수) 를 써야 한다.
+     단위는 바이트가 아니라 배열 원소. 업로드 뒤 three.js 가 알아서 비운다.
+     구역이 화면 밖이면 업로드가 미뤄져 범위가 쌓이므로, 너무 쌓이면 통째로 전환. */
+  const a = m.instanceMatrix;
+  if(a.updateRanges.length >= 64){ a.clearUpdateRanges(); a.addUpdateRange(0, a.array.length); }
+  else a.addUpdateRange(li*16, 16);
+  a.needsUpdate = true;
+}
 
 const EMIT = new THREE.MeshLambertMaterial({map:ATLAS, emissive:0xffc860, emissiveIntensity:0.0});
 const EMITC= new THREE.MeshLambertMaterial({map:ATLAS, color:0xfff2c0,
@@ -2843,11 +2886,16 @@ function doAction(dt){
 }
 hlMat.color.set(0xffffff);
 
-/* 남은 체력만큼 블록을 지워서, 캐는 게 눈에 보이게 한다 */
+/* 남은 체력만큼 블록을 지워서, 캐는 게 눈에 보이게 한다.
+   ★ 곡괭이질 한 번에 블록 55개를 전부 다시 쓰던 걸, 실제로 바뀐 몇 개만 손대게 바꿨다. */
 function nodeVisual(n){
   const total = n.hs.length;
-  const gone = Math.round(total * (1 - Math.max(0,n.hp)/n.max));
-  for(let i=0;i<total;i++) bset(n.hs[i], i < total-gone);
+  const want = total - Math.round(total * (1 - Math.max(0,n.hp)/n.max));
+  const cur = n.shown === undefined ? total : n.shown;
+  if(want === cur) return;
+  if(want < cur) for(let i=want;i<cur;i++) bset(n.hs[i], false);
+  else           for(let i=cur;i<want;i++) bset(n.hs[i], true);
+  n.shown = want;
 }
 function hitNode(n){
   const d = NODE_DEF[n.type];
@@ -2867,7 +2915,7 @@ function hitNode(n){
   nodeVisual(n);
   if(n.hp <= 0){
     n.alive = false;
-    for(const h of n.hs) bset(h, false);
+    for(const h of n.hs) bset(h, false); n.shown = 0;
     burst(n.x+0.5, cy, n.z+0.5, n.type==='tree'?0x4a8f3a:0x9aa0a8, 16, 1.4);
     refreshNodeCells();
     if(window.__sfx) window.__sfx('get');
@@ -3471,7 +3519,7 @@ function clientTowerFx(dt){
 function nodeRespawn(){
   for(const n of NODES){
     n.alive = true; n.hp = n.max;
-    for(const h of n.hs) bset(h, true);
+    for(const h of n.hs) bset(h, true); n.shown = n.hs.length;
   }
   refreshNodeCells();
   if(net) net.child('nd').remove();
@@ -3658,8 +3706,8 @@ function joinRoom(code, asHost){
     const v = s.val()||{};
     for(const k in v){ const n = NODES[+k]; if(!n) continue;
       const hp = v[k];
-      if(hp<=0 && n.alive){ n.alive=false; for(const h of n.hs) bset(h,false); }
-      else if(hp>0 && !n.alive){ n.alive=true; for(const h of n.hs) bset(h,true); }
+      if(hp<=0 && n.alive){ n.alive=false; for(const h of n.hs) bset(h,false); n.shown=0; }
+      else if(hp>0 && !n.alive){ n.alive=true; for(const h of n.hs) bset(h,true); n.shown=n.hs.length; }
       n.hp = hp; }
     refreshNodeCells(); });
   net.child('b').on('child_added', s=>{
@@ -3772,7 +3820,8 @@ function onPhaseChange(from, to){
   if(to==='night'){ toast('🌙 늑대가 옵니다! 어느 입구로 올지 몰라요', 3.4, '#ffc4c4'); }
   if(to==='day'){ showStage();
     G.wolves.length=0; G.soldiers.length=0;
-    for(const n of NODES){ if(!n.alive){ n.alive=true; n.hp=n.max; for(const h of n.hs) bset(h,true);} }
+    for(const n of NODES){ if(!n.alive){ n.alive=true; n.hp=n.max;
+      for(const h of n.hs) bset(h,true); n.shown=n.hs.length; } }
     refreshNodeCells(); }
   if(to==='night' && window.__sfx) window.__sfx('dusk');
   if(to==='win' || to==='lose') showEnd();
