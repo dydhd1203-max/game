@@ -2463,8 +2463,10 @@ function tagSprite(){
   sp.scale.set(3.2,0.8,1); sp.renderOrder = 999; scene.add(sp); sp.visible=false;
   return {c, tx, sp, txt:''};
 }
+let tagRedraws = 0;                 // 이름표를 다시 그린 횟수 (진단용)
 function setTag(t, text, color){
   if(t.txt === text+color) return; t.txt = text+color;
+  tagRedraws++;
   const g = t.c.getContext('2d'); g.clearRect(0,0,256,64);
   g.font = '900 34px -apple-system, "Noto Sans KR", sans-serif';
   g.textAlign='center'; g.textBaseline='middle';
@@ -4120,22 +4122,61 @@ let NIGHTK = 0;      // 0=한낮 1=한밤 — 늑대 눈이 이걸 보고 타오
 
 /* ═══════════════════════ 이름표 ═══════════════════════ */
 for(let i=0;i<14;i++) tagPool.push(tagSprite());
+/* ★ 이름표 칸을 사람한테 고정한다.
+   예전엔 거리순으로 줄 세워서 i번째 사람을 i번 칸에 넣었다.
+   그런데 애들이 뛰어다니면 순서가 계속 바뀐다. 칸에 들어가는 이름이 바뀌면
+   setTag 가 한글을 캔버스에 다시 그리고 256x64 텍스처(64KB)를 GPU 로 다시 올린다.
+   21명 기준으로 재 보니 초당 75.7회, 즉 초당 4.9MB 를 올리고 있었다.
+   칸을 사람한테 붙여 두면 이름이 안 바뀌므로 다시 그릴 일도 없다. */
+const tagOwner = new Map();     // uid -> tagPool 칸 번호
+const _tagCand = [];            // 가까운 사람 uid (매 프레임 새 배열 안 만들려고 재사용)
+const _tagD2 = new Map();       // uid -> 거리의 제곱
 function updTags(){
-  const list = [...G.players.values()]
-    .map(p=>({p, d:Math.hypot(p.x-PL.x, p.z-PL.z)}))
-    .filter(o=>o.d<40).sort((a,b)=>a.d-b.d).slice(0,14);
-  list.forEach((o,i)=>{ const t = tagPool[i];
-    setTag(t, o.p.n||'?', GCOL[o.p.g|0]);
-    t.sp.position.set(o.p.x, (o.p.y||GY)+2.15, o.p.z);
-    const sc = Math.max(1, o.d*0.075);
+  _tagCand.length = 0; _tagD2.clear();
+  for(const [uid,p] of G.players){
+    const dx = p.x-PL.x, dz = p.z-PL.z, d2 = dx*dx + dz*dz;
+    if(d2 < 1600){ _tagCand.push(uid); _tagD2.set(uid, d2); }   // 40m 안
+  }
+  _tagCand.sort((a,b)=> _tagD2.get(a) - _tagD2.get(b));
+  if(_tagCand.length > tagPool.length) _tagCand.length = tagPool.length;
+
+  // 이번에 안 보이는 사람은 칸을 반납한다
+  for(const [uid, idx] of tagOwner){
+    if(_tagCand.indexOf(uid) < 0){ tagPool[idx].sp.visible = false; tagOwner.delete(uid); }
+  }
+  // 새로 들어온 사람에게 빈 칸을 준다
+  for(const uid of _tagCand){
+    if(tagOwner.has(uid)) continue;
+    for(let i=0;i<tagPool.length;i++){
+      let taken = false;
+      for(const v of tagOwner.values()) if(v===i){ taken = true; break; }
+      if(!taken){ tagOwner.set(uid, i); break; }
+    }
+  }
+  // 글자는 그대로 두고 위치·크기만 매 프레임 갱신한다
+  for(const uid of _tagCand){
+    const idx = tagOwner.get(uid); if(idx === undefined) continue;
+    const p = G.players.get(uid), t = tagPool[idx];
+    setTag(t, p.n||'?', GCOL[p.g|0]);          // 이름이 그대로면 아무 일도 안 한다
+    t.sp.position.set(p.x, (p.y||GY)+2.15, p.z);
+    const sc = Math.max(1, Math.sqrt(_tagD2.get(uid))*0.075);
     t.sp.scale.set(3.2*sc*0.55, 0.8*sc*0.55, 1);
-    t.sp.visible = true; });
-  for(let i=list.length;i<tagPool.length;i++) tagPool[i].sp.visible = false;
+    t.sp.visible = true;
+  }
 }
 
 let shakeT = 0, shakeP = 1;
 function shake(power, sec){ shakeP = power; shakeT = Math.max(shakeT, sec); }
 window.__shake = shake;
+
+/* ══════════════ 구간별 시간 재기 ══════════════
+   ?diag=1 일 때만 잰다. 어느 구간이 프레임을 잡아먹는지 기기에서 바로 보려고.
+   느린 기기가 교실에만 있어서 개발 PC 로는 비율이 전혀 달라진다.
+   튀는 값에 휘둘리지 않게 지수이동평균으로 눌러 준다. */
+const PROF = {}, PROF_ON = new URLSearchParams(location.search).has('diag');
+let _pt0 = 0;
+const pS = ()=>{ _pt0 = performance.now(); };
+const pE = k=>{ PROF[k] = (PROF[k]||0)*0.9 + (performance.now()-_pt0)*0.1; };
 
 /* ═══════════════════════ 메인 루프 ═══════════════════════ */
 let last = performance.now()/1000, tAcc = 0, hudT = 0;
@@ -4147,6 +4188,7 @@ function loop(){
   fpsN++; fpsT += dt; if(fpsT>0.5){ fpsVal = Math.round(fpsN/fpsT); fpsN=0; fpsT=0; }
 
   if(G.started && !DBG.noLogic){
+    if(PROF_ON) pS();
     if(!popOpen()) updPlayer(dt); else { PL.mv=false; }
     if(shakeT > 0){ shakeT -= dt;
       const a = shakeT*shakeP;
@@ -4157,39 +4199,62 @@ function loop(){
     if(!popOpen()) doAction(dt); else { hl.visible=false; ghost.visible=false; }
     const isMining = acting && curTool==='mine' && mineHold && G.phase==='day';
     updHeld(dt, isMining, isMining ? mineProg/MINE_T : 0);
+    if(PROF_ON) pE('조작조준');
 
+    if(PROF_ON) pS();
     if(G.host){ hostPhase(dt); if(G.phase==='night') hostSim(dt);
                 else if(flowDirty){ buildFlow(); flowDirty = false; } }
     else lerpMobs(dt);
     if(!G.host && G.phase==='night') clientTowerFx(dt);
+    if(PROF_ON) pE('시뮬');
     if(G.phase==='win' || G.phase==='lose') showEnd();
 
+    if(PROF_ON) pS();
     netTick(dt); metaTick(dt);
+    if(PROF_ON) pE('통신');
 
     // 친구들 보간
     const kk = Math.min(1, dt*10);
     for(const p of G.players.values()){ if(p.tx!==undefined){ p.x+=(p.tx-p.x)*kk; p.z+=(p.tz-p.z)*kk; } }
 
     struT -= dt;
+    if(PROF_ON) pS();
     if(struDirty && (flowDirty || struT <= 0)){ rebuildStru(); struT = 1/12; }
+    if(PROF_ON) pE('건물메시');
+    if(PROF_ON) pS();
     drawWolves(G.wolves, tAcc, dt);
+    if(PROF_ON) pE('늑대');
+    if(PROF_ON) pS();
     drawSoldiers(G.soldiers, tAcc);
+    if(PROF_ON) pE('병사');
+    if(PROF_ON) pS();
     drawSheep([...G.players.values()], tAcc, MAXP, s=>GHEX[s.g|0], 1.0);
+    if(PROF_ON) pE('양');
+    if(PROF_ON) pS();
     updTags();
+    if(PROF_ON) pE('이름표');
+    if(PROF_ON) pS();
     updParts(dt); updArrows(dt); updOrbs(dt, tAcc);
+    if(PROF_ON) pE('효과');
+    if(PROF_ON) pS();
     updSky(dt, G.phase==='night');
-
     updCrystal(dt, tAcc, G.crystal/G.set.crystalMax, !!G.lastLight, skyK);
+    if(PROF_ON) pE('하늘수정');
 
     if(stageT>0){ stageT -= dt; if(stageT<=0) el('stageTitle').classList.remove('on'); }
     hudT -= dt;
-    if(hudT<=0){ hudT = 0.12; paintHUD(); drawMini(); updBoss(); updDanger();
-      if(el('popTeach').classList.contains('on')) paintTeach(); }
+    if(hudT<=0){ hudT = 0.12;
+      if(PROF_ON) pS();
+      paintHUD(); drawMini(); updBoss(); updDanger();
+      if(el('popTeach').classList.contains('on')) paintTeach();
+      if(PROF_ON) pE('HUD미니맵'); }
     if(toastT>0){ toastT -= dt; if(toastT<=0) el('toast').classList.remove('on'); }
   }
   for(const c of clouds){ c.position.x += dt*0.55; if(c.position.x > 160) c.position.x = -160; }
+  if(PROF_ON) pS();
   if(!DBG.noRender) renderer.render(scene, camera);
   else renderer.clear();          // 화면이 얼어붙은 걸로 안 보이게 (거의 공짜다)
+  if(PROF_ON) pE('★그리기');
   if(window.__sweepTick) window.__sweepTick(dt);
   if(diagEl) updDiag(dt);
 }
@@ -4325,6 +4390,11 @@ function updDiag(dt){
     '드로우콜  ' + i.calls + '   삼각형 ' + Math.round(i.triangles/1000) + 'K\n' +
     '친구 ' + G.players.size + '  늑대 ' + G.wolves.length + '  건물 ' + STRU.size + '\n' +
     G.day + '일차 ' + G.phase + '   터치 ' + (isTouch ? 'O' : 'X') + '\n' +
+    '─── 구간별 걸린 시간 ───\n' +
+    Object.keys(PROF).sort((a,b)=>PROF[b]-PROF[a])
+      .map(k=> k.padEnd(9,' ') + PROF[k].toFixed(2) + 'ms').join('\n') + '\n' +
+    '(HUD미니맵=8회/초, 건물메시=12회/초 라 매 프레임 값 아님)\n' +
+    '이름표재생성 ' + tagRedraws + '회\n' +
     '───────────────\n' +
     '★ Shift+9 = 자동으로 전부 측정\n' +
     '   (30초, 밤에 하세요)\n' +
@@ -4349,7 +4419,7 @@ Object.assign(window, {
   __step:(n, dt=1/30)=>{ for(let i=0;i<n;i++){ hostPhase(dt);
       if(G.phase==='night') hostSim(dt); else if(flowDirty){ buildFlow(); flowDirty=false; } } },
   __BAL:BAL, __waveFor:waveFor, __bossDays:bossDays, __prog:prog,
-  __fps:()=>fpsVal,
+  __fps:()=>fpsVal, __tagRedraws:()=>tagRedraws, __updTags:()=>updTags(),
   __drawSheep:drawSheep, __Pmesh:()=>[P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_tail,P_legs], __GHEX:GHEX, __render:()=>renderer.render(scene,camera),
   __rebuild:rebuildStru, __goNight:goNight, __goDay:goDay, __hostSim:(dt)=>hostSim(dt),
   __blocksRaw:blocksOfRaw, __blkCache:_blkCache,
