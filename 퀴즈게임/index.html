@@ -1,0 +1,2677 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>퀴즈나라 — 우리 반 퀴즈</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='52' font-size='54'%3E%F0%9F%8E%AA%3C/text%3E%3C/svg%3E">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ★ 선생님 설정 구역 ★  여기만 고치면 됩니다
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+window.TEACHER_CODE = "1234";        // 선생님 화면 암호 (애들한테는 비밀)
+window.CLASS_NAME   = "3학년 2반";   // 화면 위에 뜨는 우리 반 이름
+
+// 지난 게임(양들의 밤)의 FIREBASE_CONFIG 를 그대로 붙여넣어도 됩니다.
+// 이 게임은 데이터를 'quiz' 아래에 따로 저장하므로 섞이지 않습니다.
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDhSjj0njnKPrtQVbxyol_ipjIUxUkqb0A",
+  authDomain: "sheep-night.firebaseapp.com",
+  databaseURL: "https://sheep-night-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "sheep-night",
+  storageBucket: "sheep-night.firebasestorage.app",
+  messagingSenderId: "113615361729",
+  appId: "1:113615361729:web:5472c874a949dcb82de640"
+};
+
+window.RULES = {
+  startGold:      300,   // 처음 가입할 때 주는 골드
+  practicePerQ:   10,    // 연습 모드에서 한 문제 맞힐 때 골드
+  practiceCap:    300,   // 연습 모드로 하루에 벌 수 있는 최대 골드
+  practiceCount:  10,    // 연습 한 판에 나오는 문제 수
+  livePerQ:       25,    // 수업 모드에서 한 문제 맞힐 때 골드
+  liveRankBonus:  [120, 80, 50],  // 수업 끝나고 1·2·3등 보너스 골드
+  answerSec:      20,    // 한 문제 제한 시간(초) — 선생님이 방에서 바꿀 수 있음
+  oxMoveSec:      12     // OX 에서 자리 옮길 시간(초)
+};
+</script>
+<!-- ═══════════════════ 선생님 설정 구역 끝 ═══════════════════ -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<style>
+/* ── 크롬북(1280×632)에서 스크롤 없이 들어가도록 짠 레이아웃 ──
+   무거운 blur/filter 는 안 씁니다. Mali GPU 에서 비쌉니다.
+   움직이는 건 transform/opacity 만 씁니다. */
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;overflow:hidden}
+body{
+  font-family:"Pretendard","Apple SD Gothic Neo","Noto Sans KR","맑은 고딕",sans-serif;
+  font-size:15px; color:#123; user-select:none;
+  background:#2e7fd4;
+  background-image:linear-gradient(#7fd0ff 0%,#4aa6ee 45%,#2a72c8 100%);
+}
+button{font-family:inherit;font-size:inherit;color:inherit;border:0;background:none;cursor:pointer}
+input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-thumb{background:#8fc4ec;border-radius:8px;border:3px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+
+/* ── 공용 부품 ── */
+.pnl{background:#eaf6ff;border:3px solid #2b6cb0;border-radius:16px;box-shadow:0 4px 0 #1b4d84}
+.pnl-h{background:linear-gradient(#4aa6ee,#2b7fd0);color:#fff;font-weight:800;
+  padding:7px 14px;border-radius:12px 12px 0 0;letter-spacing:-.02em;
+  text-shadow:0 1px 0 #1b4d84;display:flex;align-items:center;gap:8px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 18px;border-radius:12px;font-weight:800;letter-spacing:-.02em;
+  background:linear-gradient(#7cc4f7,#3d94e4);color:#fff;text-shadow:0 1px 0 #1b4d84;
+  box-shadow:0 4px 0 #1f5f9e;transition:transform .06s,box-shadow .06s}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #1f5f9e}
+.btn.y{background:linear-gradient(#ffdd6b,#ffb724);color:#6b3d00;text-shadow:0 1px 0 #ffe9a8;box-shadow:0 4px 0 #c98800}
+.btn.y:active{box-shadow:0 1px 0 #c98800}
+.btn.p{background:linear-gradient(#ffa3c9,#ff5f9e);color:#fff;text-shadow:0 1px 0 #c2306a;box-shadow:0 4px 0 #d13d79}
+.btn.p:active{box-shadow:0 1px 0 #d13d79}
+.btn.g{background:linear-gradient(#9ce88a,#4cc23c);color:#fff;text-shadow:0 1px 0 #2c7a22;box-shadow:0 4px 0 #37962b}
+.btn.g:active{box-shadow:0 1px 0 #37962b}
+.btn.gray{background:linear-gradient(#dfe9f2,#b8c9d8);color:#2b4a63;text-shadow:none;box-shadow:0 4px 0 #8ea3b6}
+.btn.gray:active{box-shadow:0 1px 0 #8ea3b6}
+.btn[disabled]{opacity:.45;pointer-events:none}
+.btn.big{padding:14px 26px;font-size:19px;border-radius:14px}
+.btn.sm{padding:6px 12px;font-size:13px;border-radius:9px;box-shadow:0 3px 0 #1f5f9e}
+.btn.sm.gray{box-shadow:0 3px 0 #8ea3b6}
+.btn.sm.y{box-shadow:0 3px 0 #c98800}
+.btn.sm.p{box-shadow:0 3px 0 #d13d79}
+.btn.sm.g{box-shadow:0 3px 0 #37962b}
+.inp{padding:10px 12px;border:2px solid #8fc0e4;border-radius:10px;background:#fff;outline:none;width:100%}
+.inp:focus{border-color:#2b7fd0;background:#f4fbff}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:12px;font-weight:800}
+
+/* ── 화면 전환 ── */
+.scr{position:fixed;inset:0;display:none}
+.scr.on{display:block}
+#stage{position:fixed;inset:0}
+
+/* ── 로그인 ── */
+/* 크롬북 세로(632px)에 다 들어가야 한다. 넘치면 위아래가 잘린다. */
+#login{display:none;place-items:center;overflow:auto;padding:8px 0}
+#login.on{display:grid}
+.loginbox{width:372px;padding:14px 16px 12px;text-align:center}
+.logo{font-size:34px;font-weight:900;letter-spacing:-.04em;color:#fff;line-height:1.1;
+  text-shadow:0 3px 0 #1b4d84,0 5px 0 rgba(0,0,0,.18);margin:0 0 8px}
+.logo small{display:block;font-size:14px;font-weight:700;letter-spacing:0;
+  color:#e8f5ff;text-shadow:0 2px 0 #1b4d84;margin-top:3px}
+.pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.pinpad button{padding:9px 0;font-size:20px;font-weight:800;border-radius:11px;
+  background:linear-gradient(#fff,#dcecf9);color:#1b4d84;box-shadow:0 4px 0 #9dbcd6}
+.pinpad button:active{transform:translateY(3px);box-shadow:0 1px 0 #9dbcd6}
+.pindots{display:flex;gap:10px;justify-content:center;margin:7px 0 2px}
+.pindots i{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid #8fc0e4}
+.pindots i.f{background:#2b7fd0;border-color:#1b4d84}
+
+/* ── 위쪽 띠 ── */
+.top{position:absolute;left:0;right:0;top:0;height:54px;display:flex;align-items:center;
+  gap:10px;padding:0 12px;background:linear-gradient(#2b7fd0,#1e63aa);
+  border-bottom:3px solid #164d86;color:#fff;z-index:5}
+.top .nm{font-weight:900;font-size:17px;letter-spacing:-.02em;text-shadow:0 1px 0 #123}
+.gold{display:flex;align-items:center;gap:5px;background:#0e3f70;border:2px solid #ffd24a;
+  border-radius:20px;padding:3px 12px 3px 5px;font-weight:900;color:#ffe38a}
+.gold b{font-size:16px;color:#fff}
+.coin{width:20px;height:20px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3b0,#ffc32b 60%,#e09400);
+  border:1px solid #b57700;display:inline-block;flex:none}
+
+/* ── 홈 ── */
+.homewrap{position:absolute;inset:54px 0 0 0;display:grid;
+  grid-template-columns:300px 1fr;gap:14px;padding:14px}
+.mecard{display:flex;flex-direction:column;overflow:hidden}
+.mestage{flex:1;display:grid;place-items:center;padding:6px;
+  background:linear-gradient(#cdeaff,#a5d4f6);position:relative}
+.menu{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:14px}
+.mtile{border:3px solid #2b6cb0;border-radius:18px;padding:16px;text-align:left;
+  background:linear-gradient(#ffffff,#dcefff);box-shadow:0 5px 0 #1b4d84;
+  transition:transform .07s,box-shadow .07s;min-height:118px}
+.mtile:active{transform:translateY(4px);box-shadow:0 1px 0 #1b4d84}
+.mtile{display:flex;flex-direction:column;justify-content:center}
+.mtile h3{margin:0 0 4px;font-size:23px;letter-spacing:-.03em;color:#12467e}
+.mtile p{margin:0;font-size:13px;color:#4a6b8a;line-height:1.45}
+.mtile .ic{font-size:38px;line-height:1;margin-bottom:8px;display:block}
+.mtile.lock{filter:grayscale(.7);opacity:.65}
+
+/* ── 상점 ── */
+.shopwrap{position:absolute;inset:54px 0 0 0;display:grid;
+  grid-template-columns:260px 1fr 300px;gap:12px;padding:12px}
+.tabs{display:flex;gap:6px;padding:8px 10px 0;flex-wrap:wrap}
+.tab{padding:7px 13px;border-radius:10px 10px 0 0;font-weight:800;font-size:13px;
+  background:#c3ddf2;color:#2b5b85;box-shadow:inset 0 -3px 0 #9dbcd6}
+.tab.on{background:#fff;color:#12467e;box-shadow:inset 0 -3px 0 #ffb724}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));
+  gap:9px;padding:10px;overflow-y:auto;align-content:start}
+.itm{border:2px solid #9dc6e6;border-radius:12px;background:#fff;padding:5px 4px 4px;
+  text-align:center;position:relative;transition:transform .07s}
+.itm:active{transform:scale(.95)}
+.itm.on{border-color:#ff9a24;background:#fff6e6;box-shadow:0 0 0 2px #ffd08a}
+.itm.own{border-color:#57bb45}
+.itm .thumb{height:64px;display:grid;place-items:center;overflow:hidden}
+.itm .nm2{font-size:11px;font-weight:700;color:#2b5b85;line-height:1.2;height:26px;
+  display:flex;align-items:center;justify-content:center;text-align:center}
+.itm .pr{font-size:11px;font-weight:900;color:#b57700}
+.itm .pr.free{color:#3d8f2e}
+.itm .badge{position:absolute;top:-6px;right:-5px;font-size:10px;font-weight:900;
+  padding:2px 6px;border-radius:20px;background:#57bb45;color:#fff;border:2px solid #fff}
+.itm .badge.eq{background:#ff9a24}
+.rare1{--rc:#9dc6e6} .rare2{--rc:#7a5cd6} .rare3{--rc:#ff9a24}
+.itm.r2{border-color:#a98ce8;background:#faf6ff}
+.itm.r3{border-color:#ffb35c;background:#fff8ee}
+
+/* ── 문제 화면 공용 ── */
+.qbox{background:linear-gradient(#fffdf3,#fff2cf);border:4px solid #d8a63a;border-radius:18px;
+  padding:16px 20px;box-shadow:0 5px 0 #a97c1e;position:relative}
+.qbox .qno{position:absolute;left:-2px;top:-16px;background:#e8534f;color:#fff;
+  font-weight:900;font-size:13px;padding:4px 14px;border-radius:20px;border:3px solid #fff}
+.qtext{font-size:26px;font-weight:800;line-height:1.4;letter-spacing:-.03em;color:#3a2a08;
+  word-break:keep-all}
+.choices{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.ch{display:flex;align-items:center;gap:10px;padding:14px 16px;border-radius:14px;
+  border:3px solid #2b6cb0;background:linear-gradient(#fff,#e6f3ff);
+  font-size:19px;font-weight:800;color:#12467e;text-align:left;
+  box-shadow:0 4px 0 #1b4d84;transition:transform .07s,box-shadow .07s;word-break:keep-all}
+.ch:active{transform:translateY(3px);box-shadow:0 1px 0 #1b4d84}
+.ch .n{width:30px;height:30px;flex:none;border-radius:50%;background:#2b7fd0;color:#fff;
+  display:grid;place-items:center;font-size:16px}
+.ch.pick{border-color:#ff9a24;background:linear-gradient(#fff4e0,#ffe3b8);box-shadow:0 4px 0 #c98800}
+.ch.ok{border-color:#3d8f2e;background:linear-gradient(#e8ffe0,#c8f5b8);box-shadow:0 4px 0 #2c7a22}
+.ch.ok .n{background:#3d8f2e}
+.ch.no{border-color:#d94b46;background:linear-gradient(#ffecec,#ffd0ce);box-shadow:0 4px 0 #a83531;opacity:.75}
+.ch.no .n{background:#d94b46}
+.timebar{height:16px;border-radius:10px;background:#0e3f70;overflow:hidden;border:2px solid #164d86}
+.timebar i{display:block;height:100%;background:linear-gradient(#8ce86a,#3fbb2a);
+  transition:width .25s linear;transform-origin:left}
+.timebar i.warn{background:linear-gradient(#ffd35c,#ff9a24)}
+.timebar i.hot{background:linear-gradient(#ff8a80,#e8342c)}
+
+/* ── 알림/토스트 ── */
+#toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:60;
+  display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:none}
+.tt{background:#0e3f70;color:#fff;font-weight:800;padding:9px 18px;border-radius:20px;
+  border:2px solid #7fd0ff;animation:tin .2s}
+@keyframes tin{from{transform:translateY(-10px);opacity:0}}
+#modal{position:fixed;inset:0;background:rgba(8,30,55,.55);display:none;place-items:center;z-index:70}
+#modal.on{display:grid}
+.mbox{width:min(560px,92vw);max-height:88vh;overflow:auto;padding:0}
+.mbody{padding:16px}
+
+/* ── 순위표 ── */
+.rank{display:flex;align-items:center;gap:9px;padding:6px 10px;border-radius:11px;
+  background:#fff;border:2px solid #cfe4f5;margin-bottom:6px}
+.rank .no{width:26px;height:26px;flex:none;border-radius:50%;display:grid;place-items:center;
+  font-weight:900;font-size:13px;background:#c3ddf2;color:#2b5b85}
+.rank.t1 .no{background:linear-gradient(#ffe27a,#ffb724);color:#6b3d00}
+.rank.t2 .no{background:linear-gradient(#eef3f7,#c3ced8);color:#4a5b6b}
+.rank.t3 .no{background:linear-gradient(#f0c08a,#d1934c);color:#5b3410}
+.rank .rn{flex:1;font-weight:800;letter-spacing:-.02em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank .rs{font-weight:900;color:#12467e}
+.rank.me{background:#fff6e6;border-color:#ffb724}
+
+/* ── 참가자 카드(수업 대기실) ── */
+.plist{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;
+  padding:10px;overflow-y:auto;align-content:start}
+.pcard{border:2px solid #9dc6e6;border-radius:12px;background:#fff;padding:4px;text-align:center}
+.pcard .pn{font-size:11px;font-weight:800;color:#2b5b85;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.pcard.ansd{border-color:#57bb45;background:#f0fff0}
+.pcard.dead{opacity:.4;filter:grayscale(1)}
+.pcard .st{font-size:10px;font-weight:900;color:#3d8f2e}
+
+/* ── OX 무대 ── */
+.oxstage{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr}
+.oxzone{position:relative;display:grid;place-items:center;overflow:hidden}
+.oxzone.o{background:radial-gradient(circle at 50% 45%,#ffe9a8,#f6c95e 60%,#e0a52e)}
+.oxzone.x{background:radial-gradient(circle at 50% 45%,#c9e6ff,#8ec6f2 60%,#4d9ad8)}
+.oxzone .mark{position:absolute;font-size:min(34vh,300px);font-weight:900;opacity:.32;
+  pointer-events:none;line-height:1}
+.oxzone.o .mark{color:#c46f00} .oxzone.x .mark{color:#0d4a80}
+.oxzone.sel{box-shadow:inset 0 0 0 8px #fff,inset 0 0 0 14px #ff5f9e}
+.oxfield{position:absolute;inset:0;pointer-events:none}
+.oxdot{position:absolute;width:74px;margin-left:-37px;text-align:center;
+  transition:left .45s cubic-bezier(.3,1.4,.5,1),top .45s cubic-bezier(.3,1.4,.5,1)}
+.oxdot .lb{font-size:11px;font-weight:800;background:#0e3f70cc;color:#fff;
+  border-radius:8px;padding:1px 6px;display:inline-block;max-width:74px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.oxdot.me .lb{background:#ff5f9e}
+
+/* ── 가로세로 격자 ── */
+.cwrap{display:grid;place-items:center;overflow:auto;padding:10px}
+.cgrid{display:grid;gap:2px;background:#2b6cb0;padding:2px;border-radius:6px}
+.cc{width:var(--cs,34px);height:var(--cs,34px);background:#123a5e;position:relative}
+.cc.open{background:#fdf6e4;border-radius:2px}
+.cc.open.done{background:#c8f5b8}
+.cc.open.mine{background:#ffe3b8}
+.cc.hi{background:#ffd9ea}
+.cc .cn{position:absolute;left:2px;top:0;font-weight:900;color:#8a6a2a;
+  font-size:calc(var(--cs,34px)*.3);line-height:1.1}
+.cc .cv{position:absolute;inset:0;display:grid;place-items:center;font-weight:800;color:#2a1a05;
+  font-size:calc(var(--cs,34px)*.56)}
+.clue{padding:5px 8px;border-radius:9px;background:#fff;border:2px solid #cfe4f5;
+  margin-bottom:5px;font-size:13px;line-height:1.35;cursor:pointer}
+.clue.on{border-color:#ff9a24;background:#fff6e6}
+.clue.done{opacity:.5;text-decoration:line-through}
+.clue b{color:#12467e}
+
+/* ── 선생님 화면 ── */
+.tsplit{position:absolute;inset:54px 0 0 0;display:grid;grid-template-columns:1fr 1fr;
+  gap:12px;padding:12px}
+.tarea{width:100%;height:100%;min-height:150px;border:2px solid #8fc0e4;border-radius:10px;
+  padding:10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;
+  line-height:1.6;resize:none;outline:none;background:#fff}
+.qrow{display:flex;gap:8px;align-items:center;padding:6px 9px;border-radius:9px;
+  background:#fff;border:2px solid #cfe4f5;margin-bottom:5px;font-size:13px}
+.qrow .qq{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.qrow .qa{font-weight:800;color:#3d8f2e;flex:none;max-width:120px;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.setrow{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:10px;
+  background:#fff;border:2px solid #cfe4f5;margin-bottom:6px}
+.setrow.on{border-color:#ff9a24;background:#fff6e6}
+.setrow .sn{flex:1;font-weight:800;color:#12467e}
+.setrow .sc{font-size:12px;color:#6b8aa5;font-weight:700}
+.hint{font-size:12px;color:#4a6b8a;line-height:1.5}
+.scroll{overflow-y:auto}
+.row{display:flex;gap:8px;align-items:center}
+.col{display:flex;flex-direction:column}
+.gap{gap:8px} .gap4{gap:4px} .f1{flex:1} .mt8{margin-top:8px} .mt12{margin-top:12px}
+.center{display:grid;place-items:center}
+.hide{display:none!important}
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<div id="toast"></div>
+<div id="modal"><div class="pnl mbox"><div class="pnl-h" id="mTitle">알림</div><div class="mbody" id="mBody"></div></div></div>
+
+<script>
+"use strict";
+/* ═══════════════════════════════════════════════════════════════════
+   1) 자잘한 도구들
+   ═══════════════════════════════════════════════════════════════════ */
+const $  = (s,r)=> (r||document).querySelector(s);
+const $$ = (s,r)=> Array.from((r||document).querySelectorAll(s));
+const el = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp = (v,a,b)=> v<a?a:v>b?b:v;
+const now = ()=> Date.now();
+const today = ()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const R = window.RULES;
+
+function toast(msg, ms){
+  const d = document.createElement('div');
+  d.className='tt'; d.textContent = msg; el('toast').appendChild(d);
+  setTimeout(()=>{ d.style.transition='opacity .3s'; d.style.opacity='0';
+    setTimeout(()=>d.remove(),320); }, ms||1800);
+}
+function modal(title, html, onOpen){
+  el('mTitle').textContent = title; el('mBody').innerHTML = html;
+  el('modal').classList.add('on'); if(onOpen) onOpen();
+}
+function closeModal(){ el('modal').classList.remove('on'); }
+el('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
+
+/* 답을 견주는 규칙 — 초등학생이 띄어쓰기 하나 틀렸다고 오답이 되면 안 된다.
+   공백/문장부호를 지우고, 영문 대소문자를 맞추고, 전각 숫자를 반각으로 바꾼다. */
+function norm(s){
+  return String(s==null?'':s)
+    .replace(/[０-９]/g, c=>String.fromCharCode(c.charCodeAt(0)-0xFEE0))
+    .replace(/[\s​]/g,'')
+    .replace(/[.,!?~"'`·…“”‘’(){}\[\]<>]/g,'')
+    .toLowerCase();
+}
+/* 답이 여러 개 허용될 때는 / 로 나눠 적는다: "태평양/태평양바다" */
+function isRight(user, ans){
+  const u = norm(user); if(!u) return false;
+  return String(ans).split('/').some(a=> norm(a)===u );
+}
+
+/* 4자리 비번을 그대로 저장하지 않으려고 쓰는 아주 간단한 섞기.
+   ※ 진짜 암호학적 보호가 아니다. 교실에서 옆자리 애가 값만 보고
+     바로 알아채지 못하게 하는 정도다. 자세한 건 사용법 문서를 봐라. */
+function pinHash(id, pin){
+  let h = 2166136261 >>> 0; const s = 'qz1|'+id+'|'+pin;
+  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  let g = h; for(let i=0;i<3;i++){ g ^= g<<13; g>>>=0; g ^= g>>17; g ^= g<<5; g>>>=0; }
+  return (h.toString(36)+'-'+g.toString(36));
+}
+/* 파이어베이스 키에 못 쓰는 글자( . $ # [ ] / )를 피해 아이디를 키로 만든다 */
+function idKey(name){
+  return String(name).trim().replace(/[.$#\[\]\/\s]/g,'_').slice(0,24);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   2) 아바타 — 코드로 그리는 2등신 캐릭터
+      그림 파일이 하나도 없다. 모양 함수 × 색 = 아이템 수백 종.
+   ═══════════════════════════════════════════════════════════════════ */
+const AVW = 200, AVH = 300;
+
+function sh(hex, a){            // a: 양수면 밝게, 음수면 어둡게
+  const n = parseInt(hex.slice(1),16);
+  let r = n>>16&255, g = n>>8&255, b = n&255;
+  if(a>=0){ r+=(255-r)*a; g+=(255-g)*a; b+=(255-b)*a; }
+  else    { r*=1+a; g*=1+a; b*=1+a; }
+  const h2 = v => Math.round(clamp(v,0,255)).toString(16).padStart(2,'0');
+  return '#'+h2(r)+h2(g)+h2(b);
+}
+const E = (cx,cy,rx,ry,f,x)=>`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${f}"${x||''}/>`;
+const C = (cx,cy,r,f,x)=>`<circle cx="${cx}" cy="${cy}" r="${r}" fill="${f}"${x||''}/>`;
+const RC= (x,y,w,h,r,f,ex)=>`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${f}"${ex||''}/>`;
+const PA= (d,f,x)=>`<path d="${d}" fill="${f}"${x||''}/>`;
+const LN= (d,s,w,x)=>`<path d="${d}" fill="none" stroke="${s}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"${x||''}/>`;
+
+/* ── 색 팔레트 ─────────────────────────────────────────────── */
+const PAL = {
+  basic: [['#ff6f91','빨강'],['#ff9f5a','주황'],['#ffd24a','노랑'],['#8fd94a','초록'],
+          ['#4ad0c0','민트'],['#5aa8ff','파랑'],['#9b7bff','보라'],['#ff8ad4','분홍'],
+          ['#ffffff','하양'],['#556074','검정']],
+  hair:  [['#2f2018','검정'],['#5a3a24','갈색'],['#8a5a34','밤색'],['#c9954a','금발'],
+          ['#efd79a','노랑'],['#e85a5a','빨강'],['#f291c6','분홍'],['#8a7ce0','보라'],
+          ['#5aa8ff','파랑'],['#57cfbe','민트'],['#c4ccd8','은발'],['#fbf3e4','백발']],
+  metal: [['#ffd24a','금'],['#dfe6ee','은'],['#ff8ad4','분홍'],['#7fe0ff','하늘'],
+          ['#9b7bff','보라'],['#8fd94a','초록']],
+  skin:  [['#ffe2cc','살구'],['#ffd0ac','밝은'],['#efb68d','보통'],['#c78a5e','건강'],['#a4693f','진한']]
+};
+PAL.eye  = [['#4a3324','갈색'],['#1f2a38','검정'],['#2f7fd0','파랑'],['#3aa06a','초록'],
+            ['#8a5ad6','보라'],['#d04a6a','빨강']];
+
+/* ── 몸 ─────────────────────────────────────────────────────
+   좌표 기준: 머리중심(100,96) 몸통(100,152~216) 다리(216~256) */
+function drawBody(sk){
+  const d = sh(sk,-.13), l = sh(sk,.35);
+  return ''
+  + E(100,282,50,10,'rgba(20,60,100,.18)')                       // 바닥 그림자
+  + RC(84,132,32,26,10,d)                                        // 목
+  + PA('M100 150 C74 150 66 168 66 190 L66 218 C66 226 74 230 100 230 C126 230 134 226 134 218 L134 190 C134 168 126 150 100 150 Z', sk)  // 몸통
+  + PA('M72 166 C60 174 54 194 54 212 C54 220 62 224 68 218 C74 212 76 190 80 176 Z', sk)  // 왼팔
+  + PA('M128 166 C140 174 146 194 146 212 C146 220 138 224 132 218 C126 212 124 190 120 176 Z', sk) // 오른팔
+  + C(60,220,11,sk) + C(140,220,11,sk)                            // 손
+  + PA('M82 224 L82 258 C82 264 96 264 96 258 L98 224 Z', sk)     // 왼다리
+  + PA('M118 224 L118 258 C118 264 104 264 104 258 L102 224 Z', sk)// 오른다리
+  + E(100,232,34,7,sh(sk,-.06));                                  // 허리 그늘
+}
+function drawHead(sk){
+  const d = sh(sk,-.12), l = sh(sk,.4);
+  return ''
+  + E(48,100,10,14,d) + E(152,100,10,14,d)                        // 귀
+  + E(48,100,5,8,sh(sk,-.25)) + E(152,100,5,8,sh(sk,-.25))
+  + PA('M100 40 C58 40 42 68 42 100 C42 134 66 152 100 152 C134 152 158 134 158 100 C158 68 142 40 100 40 Z', sk)  // 얼굴
+  + E(100,58,40,18,l,' opacity=".45"');                           // 이마 하이라이트
+}
+/* ── 눈 8종 ── */
+const EYES = {
+  round:['동그란 눈',(c)=>{
+    const w=(x)=> C(x,104,15,'#fff')+C(x,105,11,c)+C(x,106,6,'#1a1410')
+      + C(x-4,100,4.5,'#fff')+C(x+5,110,2.4,'#fff','  opacity=".8"');
+    return w(74)+w(126);
+  }],
+  big:['왕눈이',(c)=>{ const w=(x)=> E(x,104,17,19,'#fff')+E(x,106,13,15,c)+E(x,108,7,8,'#12100c')
+      + C(x-5,99,5.5,'#fff')+C(x+6,112,2.8,'#fff','  opacity=".85"');
+    return w(73)+w(127); }],
+  sleepy:['졸린 눈',(c)=>{ const w=(x)=> C(x,105,13,'#fff')+C(x,106,10,c)+C(x,107,5,'#1a1410')
+      + PA(`M${x-15} 100 Q${x} 90 ${x+15} 100 L${x+15} 96 Q${x} 84 ${x-15} 96 Z`,'#f0c9ac')
+      + LN(`M${x-14} 99 Q${x} 92 ${x+14} 99`,'#7a5340',3); return w(74)+w(126); }],
+  star:['별눈',(c)=>{ const st=(x,y,r,f)=>{ let d='';
+      for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.45:r;
+        d += (i?'L':'M')+(x+Math.cos(a)*rr).toFixed(1)+' '+(y+Math.sin(a)*rr).toFixed(1); }
+      return PA(d+'Z',f); };
+    const w=(x)=> C(x,104,15,'#fff')+C(x,105,11,c)+st(x,105,10,'#fff8d0')+st(x,105,5,'#fff');
+    return w(74)+w(126); }],
+  smile:['웃는 눈',(c)=>{ const w=(x)=> LN(`M${x-13} 108 Q${x} 92 ${x+13} 108`,'#3a2a1e',6);
+    return w(74)+w(126); }],
+  cat:['고양이 눈',(c)=>{ const w=(x)=> E(x,104,13,17,'#fff')+E(x,105,10,14,c)
+      + PA(`M${x} 94 C${x+4} 100 ${x+4} 112 ${x} 118 C${x-4} 112 ${x-4} 100 ${x} 94 Z`,'#12100c')
+      + C(x-4,99,4,'#fff'); return w(74)+w(126); }],
+  wink:['윙크',(c)=>{ return C(74,104,15,'#fff')+C(74,105,11,c)+C(74,106,6,'#1a1410')+C(70,100,4.5,'#fff')
+      + LN('M113 106 Q126 94 139 106','#3a2a1e',6); }],
+  heart:['하트눈',(c)=>{ const hp=(x,y,s,f)=> PA(`M${x} ${y+s*.85} C${x-s*1.15} ${y-s*.15} ${x-s*.6} ${y-s} ${x} ${y-s*.35} C${x+s*.6} ${y-s} ${x+s*1.15} ${y-s*.15} ${x} ${y+s*.85} Z`,f);
+    const w=(x)=> C(x,104,15,'#fff')+C(x,105,11,c)+hp(x,104,10,'#ff5f8f')+hp(x-2,101,4,'#ffd0dd');
+    return w(74)+w(126); }]
+};
+function drawFace(av){
+  const sk = PAL.skin[av.sk||0][0];
+  const ec = PAL.eye[av.ec||0][0];
+  const eye = EYES[av.eyes] || EYES.round;
+  return eye[1](ec)
+  + E(64,124,11,7,'#ff9db4',' opacity=".55"') + E(136,124,11,7,'#ff9db4',' opacity=".55"')  // 볼터치
+  + PA('M92 132 Q100 141 108 132 Q100 137 92 132 Z','#c4574f')                                // 입
+  + E(100,118,3,2.2,sh(sk,-.18),' opacity=".7"');                                             // 코
+}
+
+/* ── 머리 12종 ── {b:뒷머리, f:앞머리} ── */
+const HAIR = {
+  bob:['단발머리',120,(c,d,l)=>({
+    b: PA('M100 26 C52 26 34 62 34 106 C34 140 40 168 48 178 C54 172 52 140 56 120 L144 120 C148 140 146 172 152 178 C160 168 166 140 166 106 C166 62 148 26 100 26 Z',c)
+     + PA('M48 178 C54 172 52 140 56 120 L60 122 C58 146 58 170 52 180 Z',d),
+    f: PA('M100 26 C58 26 38 58 36 96 C46 74 62 62 84 60 C96 78 128 80 150 66 C158 74 162 84 164 96 C162 56 142 26 100 26 Z',c)
+     + PA('M84 60 C96 78 128 80 150 66 C144 58 132 52 120 52 C104 52 92 55 84 60 Z',l,' opacity=".28"')})],
+  long:['긴 생머리',180,(c,d,l)=>({
+    b: PA('M100 24 C50 24 32 62 32 108 C32 160 36 216 42 252 C48 258 62 258 66 252 C60 208 58 156 60 116 L140 116 C142 156 140 208 134 252 C138 258 152 258 158 252 C164 216 168 160 168 108 C168 62 150 24 100 24 Z',c)
+     + PA('M60 116 C58 156 58 210 64 250 L58 252 C52 210 52 158 54 116 Z',d,' opacity=".55"')
+     + PA('M140 116 C142 156 142 210 136 250 L142 252 C148 210 148 158 146 116 Z',d,' opacity=".55"'),
+    f: PA('M100 24 C56 24 36 56 34 96 C44 70 60 58 82 56 C96 76 126 78 148 62 C157 70 162 82 165 96 C163 54 144 24 100 24 Z',c)
+     + PA('M34 96 C36 118 40 134 44 142 C42 116 44 100 48 84 Z',c)
+     + PA('M166 96 C164 118 160 134 156 142 C158 116 156 100 152 84 Z',c)
+     + E(96,50,32,12,l,' opacity=".3"')})],
+  twin:['양갈래',200,(c,d,l)=>({
+    b: PA('M100 26 C54 26 36 62 36 104 C36 130 40 150 46 160 L154 160 C160 150 164 130 164 104 C164 62 146 26 100 26 Z',c)
+     + PA('M44 118 C22 124 14 152 18 184 C22 214 34 232 48 232 C62 232 66 214 60 190 C54 166 56 136 62 122 Z',c)
+     + PA('M156 118 C178 124 186 152 182 184 C178 214 166 232 152 232 C138 232 134 214 140 190 C146 166 144 136 138 122 Z',c)
+     + E(33,196,12,20,d,' opacity=".4"') + E(167,196,12,20,d,' opacity=".4"'),
+    f: PA('M100 26 C58 26 38 58 36 96 C46 72 62 60 84 58 C96 78 128 80 150 64 C158 72 162 84 164 96 C162 56 142 26 100 26 Z',c)
+     + E(96,48,30,11,l,' opacity=".3"')})],
+  pony:['포니테일',200,(c,d,l)=>({
+    b: PA('M100 26 C54 26 36 62 36 106 C36 132 40 152 46 162 L154 162 C160 152 164 132 164 106 C164 62 146 26 100 26 Z',c)
+     + PA('M158 78 C186 82 198 112 194 150 C190 188 176 216 160 224 C150 229 142 222 148 210 C162 180 168 140 156 108 Z',c)
+     + PA('M158 78 C176 84 186 104 188 128 C182 106 170 90 154 84 Z',l,' opacity=".3"'),
+    f: PA('M100 26 C58 26 38 58 36 96 C48 70 68 58 92 60 C110 80 138 78 154 62 C160 72 163 84 164 96 C162 56 142 26 100 26 Z',c)})],
+  curly:['곱슬 단발',220,(c,d,l)=>{
+    let puff=''; for(let i=0;i<9;i++){ const a=Math.PI*(0.08+i*0.105);
+      puff += C((100-Math.cos(a)*72).toFixed(1), (112-Math.sin(a)*4-Math.abs(4-i)*2).toFixed(1), 17, c); }
+    return { b: PA('M100 24 C50 24 32 62 32 106 C32 136 38 158 46 170 L154 170 C162 158 168 136 168 106 C168 62 150 24 100 24 Z',c)+puff,
+      f: PA('M100 24 C58 24 36 56 34 94 C46 68 66 56 90 58 C108 78 138 76 154 60 C161 70 164 82 166 94 C164 54 142 24 100 24 Z',c)
+       + C(60,58,15,c)+C(84,46,16,c)+C(112,44,16,c)+C(138,54,15,c)
+       + C(80,44,9,l,' opacity=".3"')+C(112,42,8,l,' opacity=".3"') }; }],
+  short:['짧은 머리',80,(c,d,l)=>({
+    b: PA('M100 28 C56 28 38 62 38 104 C38 126 42 142 48 150 L152 150 C158 142 162 126 162 104 C162 62 144 28 100 28 Z',c),
+    f: PA('M100 28 C58 28 38 60 38 98 C44 78 56 66 74 62 C86 76 122 80 146 66 C156 74 160 86 162 98 C162 60 142 28 100 28 Z',c)
+     + PA('M74 62 C86 76 122 80 146 66 C136 56 118 50 100 50 C88 50 80 55 74 62 Z',l,' opacity=".25"')})],
+  spiky:['스포츠머리',80,(c,d,l)=>{
+    let sp=''; const pts=[[52,74],[66,52],[84,42],[102,38],[120,42],[138,52],[150,74]];
+    pts.forEach((p,i)=>{ const dx=(i-3)*3; sp += PA(`M${p[0]-13} ${p[1]+22} L${p[0]+dx} ${p[1]-14} L${p[0]+13} ${p[1]+22} Z`,c); });
+    return { b: PA('M100 30 C58 30 40 62 40 100 C40 120 44 136 50 144 L150 144 C156 136 160 120 160 100 C160 62 142 30 100 30 Z',c),
+      f: PA('M100 30 C58 30 40 62 40 96 C48 74 66 60 100 60 C134 60 152 74 160 96 C160 62 142 30 100 30 Z',c)+sp }; }],
+  wave:['웨이브 롱',260,(c,d,l)=>({
+    b: PA('M100 24 C50 24 30 62 30 110 C30 150 26 190 34 224 C40 248 56 254 64 244 C54 224 60 196 58 160 L142 160 C140 196 146 224 136 244 C144 254 160 248 166 224 C174 190 170 150 170 110 C170 62 150 24 100 24 Z',c)
+     + PA('M58 160 C56 190 50 214 44 232 C56 220 62 194 64 162 Z',d,' opacity=".5"')
+     + PA('M142 160 C144 190 150 214 156 232 C144 220 138 194 136 162 Z',d,' opacity=".5"')
+     + C(40,236,15,c)+C(160,236,15,c),
+    f: PA('M100 24 C54 24 34 56 32 98 C44 66 66 54 92 58 C112 82 142 76 156 58 C162 70 165 84 167 98 C165 54 144 24 100 24 Z',c)
+     + E(94,46,34,13,l,' opacity=".3"')})],
+  bun:['만두 머리',240,(c,d,l)=>({
+    b: PA('M100 26 C54 26 36 62 36 104 C36 130 40 150 46 160 L154 160 C160 150 164 130 164 104 C164 62 146 26 100 26 Z',c)
+     + C(34,54,23,c)+C(166,54,23,c)
+     + C(28,48,9,l,' opacity=".3"')+C(160,48,9,l,' opacity=".3"'),
+    f: PA('M100 26 C58 26 38 58 36 96 C46 70 62 58 84 56 C96 76 128 78 150 62 C158 70 162 84 164 96 C162 56 142 26 100 26 Z',c)
+     + PA('M56 62 C48 76 46 92 48 106 C42 92 42 74 48 60 Z',c)
+     + PA('M144 62 C152 76 154 92 152 106 C158 92 158 74 152 60 Z',c)})],
+  hime:['히메컷',240,(c,d,l)=>({
+    b: PA('M100 24 C52 24 32 62 32 108 C32 156 34 208 40 244 C46 250 58 250 62 244 C56 206 54 156 56 118 L144 118 C146 156 144 206 138 244 C142 250 154 250 160 244 C166 208 168 156 168 108 C168 62 148 24 100 24 Z',c),
+    f: PA('M100 24 C54 24 34 58 34 92 L166 92 C166 58 146 24 100 24 Z',c)
+     + PA('M34 92 L34 168 C42 172 52 172 58 168 L58 92 Z',c)
+     + PA('M166 92 L166 168 C158 172 148 172 142 168 L142 92 Z',c)
+     + PA('M34 92 L166 92 L166 84 L34 84 Z',d,' opacity=".35"')
+     + E(96,48,32,12,l,' opacity=".3"')})],
+  afro:['뽀글머리',260,(c,d,l)=>{ let p=''; const N=14;
+    for(let i=0;i<N;i++){ const a=Math.PI*(1.04+i*(0.92/(N-1)));
+      p += C((100+Math.cos(a)*74).toFixed(1),(102+Math.sin(a)*74).toFixed(1),20,c); }
+    return { b: p + E(100,86,74,66,c), f: E(100,52,60,30,c)+E(96,42,40,14,l,' opacity=".28"') }; }],
+  braid:['땋은 머리',280,(c,d,l)=>{
+    let br=(x,dir)=>{ let s=''; for(let i=0;i<5;i++){ const y=170+i*20;
+      s += E(x+dir*i*3, y, 15-i*1.2, 12, i%2?d:c); } return s; };
+    return { b: PA('M100 26 C52 26 34 62 34 106 C34 136 38 158 46 168 L154 168 C162 158 166 136 166 106 C166 62 148 26 100 26 Z',c)
+       + br(48,-1)+br(152,1),
+      f: PA('M100 26 C56 26 36 58 34 96 C46 70 64 58 88 58 C104 80 136 78 152 62 C160 72 164 84 166 96 C164 56 144 26 100 26 Z',c)
+       + E(94,48,30,11,l,' opacity=".3"') }; }]
+};
+
+/* ── 상의 14종 ── */
+const TOPS = {
+  tee:['반팔 티셔츠',60,(c,d,l)=>
+    PA('M100 148 C76 148 66 166 64 190 L64 226 C68 232 132 232 136 226 L136 190 C134 166 124 148 100 148 Z',c)
+  + PA('M70 158 C58 166 52 186 52 206 C52 214 64 218 70 210 C74 198 76 176 80 166 Z',c)
+  + PA('M130 158 C142 166 148 186 148 206 C148 214 136 218 130 210 C126 198 124 176 120 166 Z',c)
+  + PA('M84 148 C90 162 110 162 116 148 C110 145 90 145 84 148 Z',sh(c,-.2))
+  + PA('M64 214 L136 214 L136 226 C132 232 68 232 64 226 Z',d,' opacity=".35"')],
+  hood:['후드티',180,(c,d,l)=>
+    PA('M100 148 C74 148 62 168 60 194 L60 232 C66 238 134 238 140 232 L140 194 C138 168 126 148 100 148 Z',c)
+  + PA('M66 158 C54 168 48 190 48 210 C48 220 62 224 68 214 C72 200 74 176 78 166 Z',c)
+  + PA('M134 158 C146 168 152 190 152 210 C152 220 138 224 132 214 C128 200 126 176 122 166 Z',c)
+  + PA('M76 146 C82 172 118 172 124 146 C112 140 88 140 76 146 Z',d)
+  + LN('M92 160 L88 186','#fff',4)+LN('M108 160 L112 186','#fff',4)
+  + RC(74,200,52,24,8,l,' opacity=".45"')
+  + LN('M60 214 L140 214',d,3)],
+  shirt:['카라 셔츠',120,(c,d,l)=>
+    PA('M100 148 C76 148 66 166 64 190 L64 226 C68 232 132 232 136 226 L136 190 C134 166 124 148 100 148 Z',c)
+  + PA('M70 158 C58 166 52 186 52 206 C52 214 64 218 70 210 C74 198 76 176 80 166 Z',c)
+  + PA('M130 158 C142 166 148 186 148 206 C148 214 136 218 130 210 C126 198 124 176 120 166 Z',c)
+  + PA('M82 146 L100 168 L84 172 L74 152 Z',l) + PA('M118 146 L100 168 L116 172 L126 152 Z',l)
+  + LN('M100 170 L100 228',d,2) + C(100,186,3.5,d)+C(100,206,3.5,d)],
+  dress:['원피스',260,(c,d,l)=>
+    PA('M100 148 C78 148 70 164 68 186 L58 246 C74 256 126 256 142 246 L132 186 C130 164 122 148 100 148 Z',c)
+  + PA('M74 156 C64 164 60 180 60 196 C60 204 70 206 74 198 C77 186 78 166 82 160 Z',c)
+  + PA('M126 156 C136 164 140 180 140 196 C140 204 130 206 126 198 C123 186 122 166 118 160 Z',c)
+  + PA('M68 200 L132 200 L136 220 L64 220 Z',l,' opacity=".5"')
+  + PA('M58 246 C74 256 126 256 142 246 L140 238 C124 246 76 246 60 238 Z',d)
+  + C(100,158,5,l)],
+  vest:['조끼',140,(c,d,l)=>
+    PA('M100 148 C76 148 66 166 64 190 L64 226 C68 232 132 232 136 226 L136 190 C134 166 124 148 100 148 Z','#fdfaf2')
+  + PA('M78 150 C70 156 66 172 64 190 L64 226 C68 230 84 232 92 232 L96 158 Z',c)
+  + PA('M122 150 C130 156 134 172 136 190 L136 226 C132 230 116 232 108 232 L104 158 Z',c)
+  + LN('M100 170 L100 230','#d8cdb8',2)
+  + PA('M86 148 L100 168 L114 148 C108 145 92 145 86 148 Z',d)],
+  cardi:['가디건',200,(c,d,l)=>
+    PA('M100 148 C76 148 66 166 64 190 L64 226 C68 232 132 232 136 226 L136 190 C134 166 124 148 100 148 Z','#fff6ea')
+  + PA('M80 148 C70 154 66 172 64 190 L64 226 C68 230 82 232 90 232 L94 156 Z',c)
+  + PA('M120 148 C130 154 134 172 136 190 L136 226 C132 230 118 232 110 232 L106 156 Z',c)
+  + PA('M70 158 C58 166 52 186 52 206 C52 214 64 218 70 210 C74 198 76 176 80 166 Z',c)
+  + PA('M130 158 C142 166 148 186 148 206 C148 214 136 218 130 210 C126 198 124 176 120 166 Z',c)
+  + C(97,178,3.5,l)+C(97,198,3.5,l)+C(97,218,3.5,l)],
+  sailor:['교복 (세라복)',280,(c,d,l)=>
+    PA('M100 148 C76 148 66 166 64 190 L64 226 C68 232 132 232 136 226 L136 190 C134 166 124 148 100 148 Z','#fbfdff')
+  + PA('M70 158 C58 166 52 186 52 206 C52 214 64 218 70 210 C74 198 76 176 80 166 Z','#fbfdff')
+  + PA('M130 158 C142 166 148 186 148 206 C148 214 136 218 130 210 C126 198 124 176 120 166 Z','#fbfdff')
+  + PA('M78 146 L68 154 L74 200 L100 176 L126 200 L132 154 L122 146 C116 158 84 158 78 146 Z',c)
+  + PA('M86 148 L100 174 L114 148 C108 152 92 152 86 148 Z','#fbfdff')
+  + LN('M74 196 L74 168','#fff',3)+LN('M126 196 L126 168','#fff',3)
+  + PA('M100 172 L110 186 L100 200 L90 186 Z','#e8534f')
+  + LN('M52 204 L70 204',d,3)+LN('M148 204 L130 204',d,3)],
+  jacket:['야구 점퍼',300,(c,d,l)=>
+    PA('M100 148 C76 148 66 166 64 190 L64 226 C68 232 132 232 136 226 L136 190 C134 166 124 148 100 148 Z',c)
+  + PA('M70 158 C58 166 52 186 52 206 C52 214 64 218 70 210 C74 198 76 176 80 166 Z','#fdfaf2')
+  + PA('M130 158 C142 166 148 186 148 206 C148 214 136 218 130 210 C126 198 124 176 120 166 Z','#fdfaf2')
+  + RC(78,142,44,12,6,l) + RC(64,218,72,12,4,l)
+  + LN('M100 158 L100 220',d,3)
+  + PA('M108 176 L124 176 L124 182 L114 182 L114 200 L108 200 Z','#fff')],
+  knit:['니트',180,(c,d,l)=>{
+    let tex=''; for(let y=168;y<226;y+=9) tex += LN(`M66 ${y} Q100 ${y+5} 134 ${y}`,d,1.6,' opacity=".5"');
+    return PA('M100 148 C76 148 66 166 64 190 L64 226 C68 232 132 232 136 226 L136 190 C134 166 124 148 100 148 Z',c)
+  + PA('M70 158 C58 166 52 186 52 206 C52 214 64 218 70 210 C74 198 76 176 80 166 Z',c)
+  + PA('M130 158 C142 166 148 186 148 206 C148 214 136 218 130 210 C126 198 124 176 120 166 Z',c)
+  + tex + RC(80,140,40,14,7,d) + RC(64,220,72,10,4,d); }],
+  tank:['민소매',80,(c,d,l)=>
+    PA('M100 150 C82 150 74 166 72 190 L72 226 C76 232 124 232 128 226 L128 190 C126 166 118 150 100 150 Z',c)
+  + PA('M84 150 C90 164 110 164 116 150 C110 147 90 147 84 150 Z',d)
+  + PA('M72 214 L128 214 L128 226 C124 232 76 232 72 226 Z',l,' opacity=".4"')],
+  hanbok:['한복 저고리',360,(c,d,l)=>
+    PA('M100 146 C74 146 62 164 60 192 L60 210 C66 216 134 216 140 210 L138 192 C136 164 126 146 100 146 Z',c)
+  + PA('M64 156 C50 164 44 184 44 202 C44 210 58 214 64 206 C68 194 70 168 74 160 Z',c)
+  + PA('M136 156 C150 164 156 184 156 202 C156 210 142 214 136 206 C132 194 130 168 126 160 Z',c)
+  + PA('M80 144 L100 180 L120 144 C112 150 88 150 80 144 Z','#fdfaf2')
+  + PA('M80 144 L100 180 L120 144 L116 141 L100 172 L84 141 Z','#e8534f')
+  + PA('M100 178 C96 190 88 200 78 206 L84 212 C96 204 104 192 106 180 Z','#e8534f')
+  + RC(60,206,80,10,5,d)],
+  robe:['마법사 로브',400,(c,d,l)=>
+    PA('M100 146 C74 146 64 166 60 192 L52 250 C74 258 126 258 148 250 L140 192 C136 166 126 146 100 146 Z',c)
+  + PA('M66 156 C52 166 46 190 46 210 C46 220 60 224 66 214 C70 200 72 170 76 162 Z',c)
+  + PA('M134 156 C148 166 154 190 154 210 C154 220 140 224 134 214 C130 200 128 170 124 162 Z',c)
+  + PA('M84 146 L100 176 L116 146 C110 150 90 150 84 146 Z',l)
+  + LN('M74 206 Q100 214 126 206',l,3,' opacity=".6"')
+  + PA('M100 186 l5 11 12 1 -9 8 3 12 -11 -6 -11 6 3 -12 -9 -8 12 -1 Z','#fff6c0')],
+  overall:['멜빵바지',240,(c,d,l)=>
+    PA('M100 152 C82 152 76 168 74 190 L74 228 C78 234 122 234 126 228 L126 190 C124 168 118 152 100 152 Z',c)
+  + PA('M78 152 L86 148 L90 168 L82 172 Z',c) + PA('M122 152 L114 148 L110 168 L118 172 Z',c)
+  + RC(84,176,32,22,4,l,' opacity=".55"')
+  + C(84,170,3.5,'#ffd24a')+C(116,170,3.5,'#ffd24a')],
+  space:['우주복',420,(c,d,l)=>
+    PA('M100 146 C74 146 64 166 62 192 L62 228 C68 234 132 234 138 228 L138 192 C136 166 126 146 100 146 Z',c)
+  + PA('M68 156 C56 166 50 188 50 208 C50 218 62 222 68 212 C72 198 74 174 78 164 Z',c)
+  + PA('M132 156 C144 166 150 188 150 208 C150 218 138 222 132 212 C128 198 126 174 122 164 Z',c)
+  + RC(78,142,44,12,6,'#dfe6ee')
+  + C(100,190,15,'#9fe8ff') + C(100,190,10,'#e8fbff') + C(96,186,4,'#fff')
+  + RC(62,216,76,10,4,'#dfe6ee') + C(80,224,3,'#ff6f91')+C(92,224,3,'#8fd94a')+C(104,224,3,'#ffd24a')]
+};
+
+/* ── 하의 11종 ── */
+const BOTS = {
+  shorts:['반바지',50,(c,d,l)=>
+    PA('M70 218 L130 218 L128 250 C124 254 110 254 106 250 L100 232 L94 250 C90 254 76 254 72 250 Z',c)
+  + PA('M70 218 L130 218 L129 228 L71 228 Z',d)],
+  jeans:['청바지',120,(c,d,l)=>
+    PA('M70 218 L130 218 L128 266 C124 270 110 270 106 266 L100 234 L94 266 C90 270 76 270 72 266 Z',c)
+  + PA('M70 218 L130 218 L129 226 L71 226 Z',d)
+  + LN('M78 232 L76 262','#fff',1.5,' opacity=".35"')+LN('M122 232 L124 262','#fff',1.5,' opacity=".35"')
+  + C(80,224,2.5,'#ffd24a')],
+  skirt:['치마',110,(c,d,l)=>
+    PA('M70 216 L130 216 L142 254 C124 262 76 262 58 254 Z',c)
+  + PA('M70 216 L130 216 L131 226 L69 226 Z',d)
+  + PA('M58 254 C76 262 124 262 142 254 L140 248 C122 254 78 254 60 248 Z',l,' opacity=".5"')],
+  pleat:['주름치마',170,(c,d,l)=>{ let p=''; for(let i=0;i<7;i++){ const x=72+i*8.4;
+      p += PA(`M${x} 224 L${x+4.2} 258 L${x+8.4} 224 Z`, i%2?d:l, ' opacity=".45"'); }
+    return PA('M70 216 L130 216 L140 256 C122 264 78 264 60 256 Z',c)+p
+      + PA('M70 216 L130 216 L131 226 L69 226 Z',d); }],
+  track:['츄리닝',140,(c,d,l)=>
+    PA('M70 218 L130 218 L128 268 C124 272 110 272 106 268 L100 236 L94 268 C90 272 76 272 72 268 Z',c)
+  + LN('M76 222 L74 266','#fff',3)+LN('M124 222 L126 266','#fff',3)
+  + PA('M70 218 L130 218 L129 226 L71 226 Z',d)],
+  legging:['레깅스',100,(c,d,l)=>
+    PA('M74 218 L126 218 L122 268 C118 272 108 272 104 268 L100 240 L96 268 C92 272 82 272 78 268 Z',c)
+  + PA('M74 218 L126 218 L125 226 L75 226 Z',d)],
+  hanbok:['한복 치마',300,(c,d,l)=>
+    PA('M66 206 L134 206 L152 262 C126 272 74 272 48 262 Z',c)
+  + LN('M78 214 L66 260',l,2,' opacity=".5"')+LN('M100 212 L100 264',l,2,' opacity=".5"')
+  + LN('M122 214 L134 260',l,2,' opacity=".5"')
+  + RC(64,202,72,12,6,'#fdfaf2')],
+  tutu:['튜튜',260,(c,d,l)=>{ let f='';
+    for(let i=0;i<5;i++){ f += E(72+i*14, 240, 15, 20, i%2?l:c, ' opacity=".9"'); }
+    return f + PA('M70 214 L130 214 L132 232 L68 232 Z',d)+RC(68,210,64,10,5,c); }],
+  cargo:['카고 바지',180,(c,d,l)=>
+    PA('M70 218 L130 218 L128 268 C124 272 110 272 106 268 L100 236 L94 268 C90 272 76 272 72 268 Z',c)
+  + RC(72,238,14,16,3,d)+RC(114,238,14,16,3,d)
+  + PA('M70 218 L130 218 L129 226 L71 226 Z',d)],
+  jean_skirt:['청치마',160,(c,d,l)=>
+    PA('M70 216 L130 216 L138 252 C122 260 78 260 62 252 Z',c)
+  + PA('M70 216 L130 216 L131 226 L69 226 Z',d)
+  + LN('M100 228 L100 256','#fff',1.5,' opacity=".4"')
+  + C(82,222,2.5,'#ffd24a')+C(118,222,2.5,'#ffd24a')],
+  star_skirt:['별무늬 치마',300,(c,d,l)=>{
+    const st=(x,y,s)=>PA(`M${x} ${y-s} l${s*.28} ${s*.62} ${s*.68} .06 -${s*.54} ${s*.42} ${s*.2} ${s*.66} -${s*.62} -${s*.38} -${s*.62} ${s*.38} ${s*.2} -${s*.66} -${s*.54} -${s*.42} ${s*.68} -.06 Z`,'#fff8c0');
+    return PA('M70 216 L130 216 L142 256 C124 264 76 264 58 256 Z',c)
+      + st(80,238,7)+st(102,246,8)+st(122,236,6)
+      + PA('M70 216 L130 216 L131 226 L69 226 Z',d); }]
+};
+
+/* ── 신발 9종 ── */
+const SHOES = {
+  sneaker:['운동화',40,(c,d,l)=>
+    PA('M74 254 L94 254 L94 268 C94 274 74 276 70 270 C68 264 70 258 74 254 Z',c)
+  + PA('M126 254 L106 254 L106 268 C106 274 126 276 130 270 C132 264 130 258 126 254 Z',c)
+  + RC(68,268,28,7,3,'#fdfaf2') + RC(104,268,28,7,3,'#fdfaf2')
+  + LN('M74 260 L92 260','#fff',2)+LN('M126 260 L108 260','#fff',2)],
+  dress:['구두',110,(c,d,l)=>
+    PA('M74 254 L94 254 L94 266 C94 272 72 274 68 268 C66 262 70 256 74 254 Z',c)
+  + PA('M126 254 L106 254 L106 266 C106 272 128 274 132 268 C134 262 130 256 126 254 Z',c)
+  + C(80,262,3,l,' opacity=".6"')+C(120,262,3,l,' opacity=".6"')],
+  boots:['부츠',200,(c,d,l)=>
+    RC(72,238,24,34,6,c) + RC(104,238,24,34,6,c)
+  + RC(68,264,32,9,4,d) + RC(100,264,32,9,4,d)
+  + LN('M74 246 L94 246',l,3)+LN('M126 246 L106 246',l,3)],
+  sandal:['샌들',70,(c,d,l)=>
+    RC(70,262,28,8,4,c) + RC(102,262,28,8,4,c)
+  + LN('M76 262 L88 252',c,4)+LN('M92 262 L82 252',c,4)
+  + LN('M124 262 L112 252',c,4)+LN('M108 262 L118 252',c,4)],
+  hitop:['하이탑',180,(c,d,l)=>
+    RC(72,244,24,28,7,c) + RC(104,244,24,28,7,c)
+  + RC(68,264,32,9,4,'#fdfaf2') + RC(100,264,32,9,4,'#fdfaf2')
+  + LN('M76 250 L92 250','#fff',2)+LN('M76 256 L92 256','#fff',2)
+  + LN('M124 250 L108 250','#fff',2)+LN('M124 256 L108 256','#fff',2)],
+  ballet:['발레슈즈',180,(c,d,l)=>
+    PA('M72 258 L96 258 L96 268 C96 273 74 274 70 268 Z',c)
+  + PA('M128 258 L104 258 L104 268 C104 273 126 274 130 268 Z',c)
+  + LN('M78 258 L84 244',c,2.5)+LN('M90 258 L84 244',c,2.5)
+  + LN('M122 258 L116 244',c,2.5)+LN('M110 258 L116 244',c,2.5)
+  + C(84,244,3,l)+C(116,244,3,l)],
+  rain:['장화',160,(c,d,l)=>
+    RC(72,236,25,36,8,c) + RC(103,236,25,36,8,c)
+  + RC(70,266,30,7,3,d) + RC(100,266,30,7,3,d)
+  + LN('M78 242 L92 242',l,3)+LN('M122 242 L108 242',l,3)],
+  slipper:['슬리퍼',40,(c,d,l)=>
+    RC(70,264,28,8,4,c) + RC(102,264,28,8,4,c)
+  + PA('M74 264 Q84 254 94 264 Z',c) + PA('M126 264 Q116 254 106 264 Z',c)],
+  wing_shoes:['날개 신발',520,(c,d,l)=>
+    PA('M74 254 L94 254 L94 268 C94 274 74 276 70 270 C68 264 70 258 74 254 Z',c)
+  + PA('M126 254 L106 254 L106 268 C106 274 126 276 130 270 C132 264 130 258 126 254 Z',c)
+  + RC(68,268,28,7,3,'#fdfaf2') + RC(104,268,28,7,3,'#fdfaf2')
+  + PA('M68 254 C58 248 50 250 46 258 C54 258 62 258 68 260 Z','#fff8c0')
+  + PA('M132 254 C142 248 150 250 154 258 C146 258 138 258 132 260 Z','#fff8c0')]
+};
+
+/* ── 모자·머리장식 11종 ── */
+const HATS = {
+  cap:['야구모자',150,(c,d,l)=>
+    PA('M100 18 C64 18 46 42 46 66 L154 66 C154 42 136 18 100 18 Z',c)
+  + PA('M46 62 C24 64 14 74 16 80 C40 82 132 82 154 78 L154 62 Z',d)
+  + C(100,20,6,l) + LN('M100 26 L100 60',l,2,' opacity=".4"')],
+  straw:['밀짚모자',220,(c,d,l)=>
+    PA('M100 22 C72 22 58 44 58 66 L142 66 C142 44 128 22 100 22 Z',c)
+  + E(100,68,72,14,l) + E(100,66,72,12,c)
+  + RC(58,54,84,10,4,'#e8534f')],
+  beanie:['니트 비니',170,(c,d,l)=>
+    PA('M100 16 C64 16 48 42 48 68 L152 68 C152 42 136 16 100 16 Z',c)
+  + RC(44,60,112,16,8,d) + C(100,14,9,l)
+  + LN('M72 24 L66 62',d,2,' opacity=".5"')+LN('M100 18 L100 60',d,2,' opacity=".5"')+LN('M128 24 L134 62',d,2,' opacity=".5"')],
+  crown:['왕관',900,(c,d,l)=>
+    PA('M52 62 L58 20 L80 44 L100 12 L120 44 L142 20 L148 62 Z',c)
+  + PA('M52 62 L148 62 L148 72 L52 72 Z',d)
+  + C(58,20,5,'#ff5f8f')+C(100,12,6,'#5ad0ff')+C(142,20,5,'#8fd94a')
+  + C(70,66,3.5,'#fff6c0')+C(100,66,3.5,'#fff6c0')+C(130,66,3.5,'#fff6c0')],
+  witch:['마녀 모자',560,(c,d,l)=>
+    PA('M100 0 C92 18 78 48 66 66 L134 66 C122 48 108 18 100 0 Z',c)
+  + E(100,68,66,13,c) + E(100,66,66,11,l,' opacity=".35"')
+  + RC(66,54,68,12,4,d)
+  + PA('M100 30 l4 8 9 1 -7 6 2 9 -8 -5 -8 5 2 -9 -7 -6 9 -1 Z','#fff8c0')],
+  ribbon:['리본',200,(c,d,l)=>
+    PA('M100 40 C86 24 58 26 56 44 C54 62 84 62 100 48 Z',c)
+  + PA('M100 40 C114 24 142 26 144 44 C146 62 116 62 100 48 Z',c)
+  + C(100,44,10,d) + C(96,40,4,l,' opacity=".6"')],
+  cat_ears:['고양이 귀',320,(c,d,l)=>
+    PA('M52 62 L58 16 L94 46 Z',c) + PA('M148 62 L142 16 L106 46 Z',c)
+  + PA('M62 56 L64 30 L84 46 Z','#ffb0c8') + PA('M138 56 L136 30 L116 46 Z','#ffb0c8')],
+  santa:['산타 모자',300,(c,d,l)=>
+    PA('M100 14 C68 14 50 40 50 66 L150 66 C150 40 132 14 100 14 Z','#e8433f')
+  + PA('M100 14 C124 14 146 30 150 56 C168 40 178 22 172 12 C160 4 130 8 100 14 Z','#e8433f')
+  + RC(44,58,112,18,9,'#fdfaf2') + C(176,10,12,'#fdfaf2')],
+  grad:['학사모',480,(c,d,l)=>
+    PA('M100 26 L166 48 L100 70 L34 48 Z','#2b3444')
+  + RC(72,50,56,16,4,'#2b3444')
+  + LN('M160 50 L160 76','#ffd24a',3) + C(160,80,5,'#ffd24a')],
+  flower:['꽃핀',180,(c,d,l)=>{ let f=''; for(let i=0;i<5;i++){ const a=i*Math.PI*2/5-Math.PI/2;
+      f += E(48+Math.cos(a)*11, 52+Math.sin(a)*11, 8, 8, c); }
+    return f + C(48,52,6,'#ffd24a') + LN('M60 62 Q72 70 84 66','#6fbf4a',3); }],
+  halo_hat:['천사 고리',700,(c,d,l)=>
+    E(100,14,34,10,'none',` stroke="${c}" stroke-width="7"`)
+  + E(100,14,34,10,'none',` stroke="#fff8c0" stroke-width="2.5"`)],
+  horn:['악마 뿔',420,(c,d,l)=>
+    PA('M58 58 C50 44 52 26 62 20 C68 32 70 46 70 56 Z',c)
+  + PA('M142 58 C150 44 148 26 138 20 C132 32 130 46 130 56 Z',c)
+  + PA('M60 52 C56 42 57 32 62 27 C64 36 65 45 65 51 Z',l,' opacity=".5"')]
+};
+
+/* ── 안경 9종 ── */
+const GLASSES = {
+  round:['동그란 안경',120,(c,d,l)=>
+    C(74,104,17,'none',` stroke="${c}" stroke-width="4"`) + C(126,104,17,'none',` stroke="${c}" stroke-width="4"`)
+  + LN('M91 104 L109 104',c,4) + LN('M57 100 L44 96',c,3.5) + LN('M143 100 L156 96',c,3.5)],
+  square:['네모 안경',120,(c,d,l)=>
+    RC(56,90,36,28,6,'none',` stroke="${c}" stroke-width="4"`) + RC(108,90,36,28,6,'none',` stroke="${c}" stroke-width="4"`)
+  + LN('M92 104 L108 104',c,4) + LN('M56 98 L44 94',c,3.5) + LN('M144 98 L156 94',c,3.5)],
+  sun:['선글라스',260,(c,d,l)=>
+    PA('M54 90 L94 90 L92 116 C86 122 62 122 56 116 Z',c)
+  + PA('M106 90 L146 90 L144 116 C138 122 114 122 108 116 Z',c)
+  + LN('M94 94 L106 94',c,5) + LN('M54 92 L44 90',c,3.5) + LN('M146 92 L156 90',c,3.5)
+  + LN('M62 96 L74 96','#fff',3,' opacity=".55"') + LN('M114 96 L126 96','#fff',3,' opacity=".55"')],
+  heart:['하트 선글라스',420,(c,d,l)=>{
+    const hp=(x,y,s)=>`M${x} ${y+s*.8} C${x-s*1.2} ${y-s*.2} ${x-s*.6} ${y-s*1.05} ${x} ${y-s*.35} C${x+s*.6} ${y-s*1.05} ${x+s*1.2} ${y-s*.2} ${x} ${y+s*.8} Z`;
+    return PA(hp(74,102,17),c)+PA(hp(126,102,17),c)
+      + LN('M92 100 L108 100',c,5) + LN('M56 96 L44 92',c,3.5) + LN('M144 96 L156 92',c,3.5)
+      + PA(hp(70,98,6),'#fff',' opacity=".5"'); }],
+  star_g:['별 안경',420,(c,d,l)=>{
+    const st=(x,y,r)=>{ let p=''; for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.45:r;
+      p += (i?'L':'M')+(x+Math.cos(a)*rr).toFixed(1)+' '+(y+Math.sin(a)*rr).toFixed(1); } return p+'Z'; };
+    return PA(st(74,104,19),c)+PA(st(126,104,19),c)+LN('M92 104 L108 104',c,5)
+      + LN('M56 100 L44 96',c,3.5) + LN('M144 100 L156 96',c,3.5); }],
+  goggle:['물안경',300,(c,d,l)=>
+    RC(52,88,44,32,14,c) + RC(104,88,44,32,14,c)
+  + RC(58,94,32,20,10,'#bfe9ff',' opacity=".85"') + RC(110,94,32,20,10,'#bfe9ff',' opacity=".85"')
+  + LN('M96 104 L104 104',c,6) + LN('M52 100 L38 96',c,5) + LN('M148 100 L162 96',c,5)],
+  thick:['뿔테 안경',160,(c,d,l)=>
+    RC(54,88,38,30,8,'none',` stroke="${c}" stroke-width="7"`) + RC(108,88,38,30,8,'none',` stroke="${c}" stroke-width="7"`)
+  + LN('M92 100 L108 100',c,6) + LN('M54 96 L42 92',c,4) + LN('M146 96 L158 92',c,4)],
+  mono:['외알 안경',380,(c,d,l)=>
+    C(126,104,19,'none',` stroke="${c}" stroke-width="4"`)
+  + LN('M145 108 Q152 130 142 146',c,2.5) + C(142,148,4,c)],
+  eyepatch:['안대',340,(c,d,l)=>
+    PA('M56 88 L94 88 L92 120 C84 126 62 126 56 118 Z',c)
+  + LN('M94 92 Q120 82 152 88',c,3.5) + LN('M92 116 Q120 124 152 116',c,3.5)
+  + PA('M66 98 l3 6 7 .5 -5 5 1.6 7 -6.6 -4 -6.6 4 1.6 -7 -5 -5 7 -.5 Z','#fff8c0')]
+};
+
+/* ── 귀걸이 9종 ── */
+const EARR = {
+  dot:['방울 귀걸이',90,(c,d,l)=>C(46,118,6,c)+C(154,118,6,c)+C(44,116,2,'#fff',' opacity=".7"')+C(152,116,2,'#fff',' opacity=".7"')],
+  star_e:['별 귀걸이',200,(c,d,l)=>{ const st=(x,y,r)=>{ let p=''; for(let i=0;i<10;i++){
+      const a=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.45:r;
+      p += (i?'L':'M')+(x+Math.cos(a)*rr).toFixed(1)+' '+(y+Math.sin(a)*rr).toFixed(1); } return p+'Z'; };
+    return LN('M46 110 L46 116',c,2)+LN('M154 110 L154 116',c,2)+PA(st(46,122,8),c)+PA(st(154,122,8),c); }],
+  heart_e:['하트 귀걸이',200,(c,d,l)=>{
+    const hp=(x,y,s)=>`M${x} ${y+s*.8} C${x-s*1.2} ${y-s*.2} ${x-s*.6} ${y-s*1.05} ${x} ${y-s*.35} C${x+s*.6} ${y-s*1.05} ${x+s*1.2} ${y-s*.2} ${x} ${y+s*.8} Z`;
+    return LN('M46 108 L46 114',c,2)+LN('M154 108 L154 114',c,2)+PA(hp(46,120,8),c)+PA(hp(154,120,8),c); }],
+  drop:['물방울 귀걸이',240,(c,d,l)=>
+    PA('M46 110 C40 120 40 128 46 132 C52 128 52 120 46 110 Z',c)
+  + PA('M154 110 C148 120 148 128 154 132 C160 128 160 120 154 110 Z',c)
+  + C(46,110,3,l)+C(154,110,3,l)],
+  ring:['링 귀걸이',150,(c,d,l)=>
+    C(46,124,9,'none',` stroke="${c}" stroke-width="3.5"`) + C(154,124,9,'none',` stroke="${c}" stroke-width="3.5"`)],
+  flower_e:['꽃 귀걸이',240,(c,d,l)=>{ let f=(x)=>{ let s=''; for(let i=0;i<5;i++){ const a=i*Math.PI*2/5;
+      s += C(x+Math.cos(a)*5.5, 120+Math.sin(a)*5.5, 4, c); } return s+C(x,120,3,'#ffd24a'); };
+    return f(46)+f(154); }],
+  cross_e:['십자 귀걸이',260,(c,d,l)=>
+    RC(43.5,112,5,20,2,c)+RC(38,118,16,5,2,c)
+  + RC(151.5,112,5,20,2,c)+RC(146,118,16,5,2,c)],
+  bell:['방울',280,(c,d,l)=>
+    PA('M46 112 C39 112 36 122 36 128 L56 128 C56 122 53 112 46 112 Z',c)+C(46,131,3.5,d)
+  + PA('M154 112 C147 112 144 122 144 128 L164 128 C164 122 161 112 154 112 Z',c)+C(154,131,3.5,d)],
+  long_e:['긴 귀걸이',380,(c,d,l)=>
+    LN('M46 108 L46 130',c,2.5)+C(46,134,7,c)+C(46,120,4,l)
+  + LN('M154 108 L154 130',c,2.5)+C(154,134,7,c)+C(154,120,4,l)]
+};
+
+/* ── 목걸이 9종 ── */
+const NECK = {
+  bead:['구슬 목걸이',130,(c,d,l)=>{ let s=''; for(let i=0;i<9;i++){ const a=-Math.PI*.82+i*(Math.PI*.64/8);
+      s += C((100+Math.cos(a+Math.PI/2)*30).toFixed(1),(150+Math.sin(a+Math.PI/2)*26+6).toFixed(1),4.5,c); }
+    return s; }],
+  heart_n:['하트 목걸이',260,(c,d,l)=>{
+    const hp=(x,y,s2)=>`M${x} ${y+s2*.8} C${x-s2*1.2} ${y-s2*.2} ${x-s2*.6} ${y-s2*1.05} ${x} ${y-s2*.35} C${x+s2*.6} ${y-s2*1.05} ${x+s2*1.2} ${y-s2*.2} ${x} ${y+s2*.8} Z`;
+    return LN('M78 152 Q100 176 122 152',c,2.5)+PA(hp(100,176,10),c)+PA(hp(97,173,3.5),'#fff',' opacity=".6"'); }],
+  star_n:['별 목걸이',260,(c,d,l)=>{ const st=(x,y,r)=>{ let p=''; for(let i=0;i<10;i++){
+      const a=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.45:r;
+      p+=(i?'L':'M')+(x+Math.cos(a)*rr).toFixed(1)+' '+(y+Math.sin(a)*rr).toFixed(1); } return p+'Z'; };
+    return LN('M78 152 Q100 176 122 152',c,2.5)+PA(st(100,176,11),c)+PA(st(100,176,5),'#fff8c0'); }],
+  choker:['리본 초커',200,(c,d,l)=>
+    RC(76,152,48,9,4,c) + PA('M100 156 C90 148 76 149 75 158 C74 167 92 165 100 158 Z',c)
+  + PA('M100 156 C110 148 124 149 125 158 C126 167 108 165 100 158 Z',c) + C(100,157,5,d)],
+  pearl:['진주 목걸이',340,(c,d,l)=>{ let s=''; for(let i=0;i<11;i++){ const a=-Math.PI*.85+i*(Math.PI*.7/10);
+      s += C((100+Math.cos(a+Math.PI/2)*32).toFixed(1),(152+Math.sin(a+Math.PI/2)*28+4).toFixed(1),5,'#fdfaf2')
+        + C((100+Math.cos(a+Math.PI/2)*32-1.4).toFixed(1),(152+Math.sin(a+Math.PI/2)*28+2.6).toFixed(1),1.8,'#fff'); }
+    return s; }],
+  cross_n:['십자 목걸이',300,(c,d,l)=>
+    LN('M78 152 Q100 174 122 152',c,2.5)+RC(96.5,168,7,26,2,c)+RC(88,176,24,7,2,c)],
+  key:['열쇠 목걸이',360,(c,d,l)=>
+    LN('M78 152 Q100 174 122 152',c,2.5)
+  + C(100,176,7,'none',` stroke="${c}" stroke-width="4"`) + RC(97.5,182,5,18,2,c) + RC(102,192,7,4,1,c)],
+  scarf:['스카프',240,(c,d,l)=>
+    PA('M74 150 C82 166 118 166 126 150 L126 160 C118 174 82 174 74 160 Z',c)
+  + PA('M100 168 L94 196 L110 194 L106 168 Z',c) + PA('M100 168 L106 168 L108 182 L100 180 Z',d)],
+  gem:['보석 목걸이',700,(c,d,l)=>
+    LN('M78 152 Q100 174 122 152',c,2.5)
+  + PA('M100 166 L112 176 L100 192 L88 176 Z',c) + PA('M100 166 L112 176 L100 178 Z',l)
+  + PA('M100 166 L88 176 L100 178 Z',d)]
+};
+
+/* ── 등 장식 9종 (몸 뒤에 그린다) ── */
+const BACKS = {
+  angel:['천사 날개',800,(c,d,l)=>
+    PA('M78 152 C50 130 20 136 12 160 C6 180 20 202 44 208 C62 212 76 200 78 182 Z','#fdfaf2')
+  + PA('M122 152 C150 130 180 136 188 160 C194 180 180 202 156 208 C138 212 124 200 122 182 Z','#fdfaf2')
+  + PA('M78 152 C50 130 20 136 12 160 C6 180 20 202 44 208 C62 212 76 200 78 182 Z','none',' stroke="#b8d2e6" stroke-width="2.5"')
+  + PA('M122 152 C150 130 180 136 188 160 C194 180 180 202 156 208 C138 212 124 200 122 182 Z','none',' stroke="#b8d2e6" stroke-width="2.5"')
+  + LN('M70 160 C50 152 32 156 24 168','#dbe8f2',2.5)+LN('M70 176 C50 172 34 178 28 190','#dbe8f2',2.5)
+  + LN('M130 160 C150 152 168 156 176 168','#dbe8f2',2.5)+LN('M130 176 C150 172 166 178 172 190','#dbe8f2',2.5)],
+  devil:['악마 날개',800,(c,d,l)=>
+    PA('M78 152 C56 132 26 130 14 148 C28 150 36 158 34 168 C48 164 56 170 58 180 C66 176 74 180 78 188 Z','#7b3a5e')
+  + PA('M122 152 C144 132 174 130 186 148 C172 150 164 158 166 168 C152 164 144 170 142 180 C134 176 126 180 122 188 Z','#7b3a5e')],
+  fairy:['요정 날개',700,(c,d,l)=>
+    E(58,166,32,24,c,' opacity=".62" transform="rotate(-22 58 166)"')
+  + E(64,198,24,17,c,' opacity=".62" transform="rotate(-14 64 198)"')
+  + E(142,166,32,24,c,' opacity=".62" transform="rotate(22 142 166)"')
+  + E(136,198,24,17,c,' opacity=".62" transform="rotate(14 136 198)"')
+  + E(58,166,32,24,'none',` opacity=".8" stroke="#fff" stroke-width="2" transform="rotate(-22 58 166)"`)
+  + E(142,166,32,24,'none',` opacity=".8" stroke="#fff" stroke-width="2" transform="rotate(22 142 166)"`)],
+  butterfly:['나비 날개',700,(c,d,l)=>
+    E(56,162,30,26,c,' transform="rotate(-18 56 162)"') + E(62,202,22,19,d,' transform="rotate(-12 62 202)"')
+  + E(144,162,30,26,c,' transform="rotate(18 144 162)"') + E(138,202,22,19,d,' transform="rotate(12 138 202)"')
+  + C(48,158,6,'#fff',' opacity=".65"')+C(152,158,6,'#fff',' opacity=".65"')],
+  cape:['망토',450,(c,d,l)=>
+    PA('M72 148 C40 172 30 220 34 258 C68 268 132 268 166 258 C170 220 160 172 128 148 Z',c)
+  + PA('M100 150 C96 190 96 226 100 262 L108 262 C112 226 112 190 108 150 Z',d,' opacity=".35"')
+  + RC(70,142,60,12,6,l)],
+  bag:['책가방',260,(c,d,l)=>
+    RC(52,156,96,70,14,c) + RC(60,184,80,30,9,d)
+  + RC(86,146,28,14,6,l) + C(100,199,6,l)
+  + PA('M74 152 C62 160 56 178 56 198 L68 198 C68 180 72 164 80 158 Z',d)
+  + PA('M126 152 C138 160 144 178 144 198 L132 198 C132 180 128 164 120 158 Z',d)],
+  halo:['후광',600,(c,d,l)=>{ let r=''; for(let i=0;i<12;i++){ const a=i*Math.PI/6;
+      r += LN(`M${(100+Math.cos(a)*62).toFixed(1)} ${(140+Math.sin(a)*62).toFixed(1)} L${(100+Math.cos(a)*84).toFixed(1)} ${(140+Math.sin(a)*84).toFixed(1)}`, c, 5, ' opacity=".55"'); }
+    return r + C(100,140,64,c,' opacity=".18"'); }],
+  balloon:['풍선',380,(c,d,l)=>
+    E(160,120,26,31,c) + PA('M160 151 l-5 8 10 0 Z',c) + LN('M160 158 Q152 190 158 218',d,2)
+  + E(151,110,8,10,'#fff',' opacity=".5"')],
+  star_back:['별빛',520,(c,d,l)=>{ const st=(x,y,r,f,o)=>{ let p=''; for(let i=0;i<10;i++){
+      const a=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.42:r;
+      p+=(i?'L':'M')+(x+Math.cos(a)*rr).toFixed(1)+' '+(y+Math.sin(a)*rr).toFixed(1); }
+      return PA(p+'Z',f,o||''); };
+    return st(38,150,20,c)+st(166,168,16,c)+st(52,214,13,c)+st(154,116,11,c,' opacity=".8"')
+      + st(180,220,10,c,' opacity=".7"'); }]
+};
+
+/* ── 펫 10종 (오른쪽 아래에 앉는다) ── */
+const PETS = {
+  dog:['강아지',600,(c,d,l)=>
+    E(168,258,22,17,c) + C(168,236,15,c)
+  + E(156,228,7,10,d,' transform="rotate(-20 156 228)"') + E(180,228,7,10,d,' transform="rotate(20 180 228)"')
+  + C(163,235,2.6,'#2a2019')+C(173,235,2.6,'#2a2019')+E(168,241,4,3,'#2a2019')
+  + PA('M188 254 C196 246 198 258 190 262 Z',c)],
+  cat:['고양이',600,(c,d,l)=>
+    E(168,258,21,17,c) + C(168,236,15,c)
+  + PA('M156 226 L154 214 L166 222 Z',c) + PA('M180 226 L182 214 L170 222 Z',c)
+  + E(163,235,2.4,3.4,'#2a2019')+E(173,235,2.4,3.4,'#2a2019')
+  + PA('M165 241 Q168 244 171 241',d) + LN('M186 256 C196 248 194 236 186 234',c,3.5)],
+  chick:['병아리',450,(c,d,l)=>
+    E(168,258,20,18,c) + C(168,238,14,c)
+  + PA('M182 238 l9 3 -9 4 Z','#ff9f2a')
+  + C(164,236,2.4,'#2a2019')+C(173,236,2.4,'#2a2019')
+  + LN('M162 274 L160 280',  '#ff9f2a',3)+LN('M174 274 L176 280','#ff9f2a',3)],
+  rabbit:['토끼',650,(c,d,l)=>
+    E(168,260,20,16,c) + C(168,240,14,c)
+  + E(161,220,5,15,c) + E(176,220,5,15,c) + E(161,221,2.4,10,'#ffc0d0') + E(176,221,2.4,10,'#ffc0d0')
+  + C(164,239,2.4,'#2a2019')+C(173,239,2.4,'#2a2019')+E(168,244,3,2,'#ff8fa8')
+  + C(186,264,7,l)],
+  bear:['곰',700,(c,d,l)=>
+    E(168,258,22,18,c) + C(168,236,16,c)
+  + C(156,224,7,c)+C(180,224,7,c)+C(156,224,3.5,d)+C(180,224,3.5,d)
+  + C(163,234,2.6,'#2a2019')+C(174,234,2.6,'#2a2019')
+  + E(168,242,7,5,l) + E(168,240,3,2.4,'#2a2019')],
+  penguin:['펭귄',750,(c,d,l)=>
+    E(168,254,20,24,'#2b3444') + E(168,258,13,18,'#fdfaf2')
+  + C(163,240,2.6,'#2a2019')+C(174,240,2.6,'#2a2019')
+  + PA('M164 246 l8 0 -4 6 Z','#ff9f2a')
+  + E(148,254,6,13,'#2b3444',' transform="rotate(14 148 254)"')
+  + E(188,254,6,13,'#2b3444',' transform="rotate(-14 188 254)"')
+  + LN('M162 278 L158 282','#ff9f2a',3.5)+LN('M175 278 L179 282','#ff9f2a',3.5)],
+  dino:['공룡',900,(c,d,l)=>
+    E(168,258,22,18,c) + C(170,236,14,c)
+  + PA('M148 250 L138 258 L150 262 Z',c)
+  + PA('M156 224 l5 -9 5 9 Z',d)+PA('M168 220 l5 -10 5 10 Z',d)+PA('M180 226 l5 -8 4 8 Z',d)
+  + C(166,235,2.6,'#2a2019')+C(176,235,2.6,'#2a2019') + LN('M166 243 L178 243','#2a2019',2)],
+  ghost:['유령',850,(c,d,l)=>
+    PA('M168 216 C152 216 146 232 146 248 L146 272 L153 264 L160 272 L168 264 L176 272 L183 264 L190 272 L190 248 C190 232 184 216 168 216 Z',c,' opacity=".88"')
+  + E(161,240,3.4,4.6,'#2a2019')+E(176,240,3.4,4.6,'#2a2019')
+  + E(168,250,5,4,'#2a2019',' opacity=".7"')],
+  fish:['물고기',500,(c,d,l)=>
+    E(166,252,22,15,c) + PA('M186 252 L200 242 L200 262 Z',d)
+  + C(158,248,3.2,'#fdfaf2')+C(158,248,1.8,'#2a2019')
+  + PA('M164 238 L172 232 L174 240 Z',d) + LN('M172 252 Q178 256 172 260',l,2.5)],
+  hamster:['햄스터',600,(c,d,l)=>
+    E(168,258,21,19,c) + C(158,242,6,c)+C(178,242,6,c)
+  + E(168,262,13,11,l) + C(163,250,2.4,'#2a2019')+C(174,250,2.4,'#2a2019')
+  + E(168,256,3,2.2,'#ff8fa8') + LN('M158 258 L148 256',d,1.6)+LN('M178 258 L188 256',d,1.6)]
+};
+
+/* ── 카탈로그 만들기 ──────────────────────────────────────────
+   모양 함수 × 색 팔레트 = 아이템. 그림 파일은 한 장도 안 쓴다. */
+const CATS = [
+  {k:'hair',   n:'머리',   src:HAIR,    pal:'hair',  crop:'18 4 164 168',  off:false},
+  {k:'top',    n:'상의',   src:TOPS,    pal:'basic', crop:'30 126 140 134',off:false},
+  {k:'bottom', n:'하의',   src:BOTS,    pal:'basic', crop:'44 204 112 82', off:false},
+  {k:'shoes',  n:'신발',   src:SHOES,   pal:'basic', crop:'48 226 104 62', off:false},
+  {k:'hat',    n:'모자',   src:HATS,    pal:'basic', crop:'6 0 188 104',   off:true},
+  {k:'glass',  n:'안경',   src:GLASSES, pal:'basic', crop:'28 74 144 62',  off:true},
+  {k:'ear',    n:'귀걸이', src:EARR,    pal:'metal', crop:'16 88 168 64',  off:true},
+  {k:'neck',   n:'목걸이', src:NECK,    pal:'metal', crop:'56 136 88 72',  off:true},
+  {k:'back',   n:'등장식', src:BACKS,   pal:'basic', crop:'0 96 200 184',  off:true},
+  {k:'pet',    n:'펫',     src:PETS,    pal:'basic', crop:'136 208 76 78', off:true}
+];
+const CAT = {}; CATS.forEach(c=>CAT[c.k]=c);
+
+/* 처음 가입하면 공짜로 갖고 시작하는 아이템 */
+const STARTER = ['hair:short:0','hair:short:1','hair:bob:1','hair:bob:5',
+  'top:tee:5','top:tee:7','top:tee:3','bottom:shorts:5','bottom:jeans:5',
+  'bottom:skirt:7','shoes:sneaker:9','shoes:sneaker:8'];
+const STARTER_SET = new Set(STARTER);
+
+const ITEMS = {};      // id -> {id,cat,shape,ci,name,price,color}
+(function buildCatalog(){
+  for(const c of CATS){
+    const pal = PAL[c.pal];
+    for(const sk in c.src){
+      const [sname, sprice] = c.src[sk];
+      for(let i=0;i<pal.length;i++){
+        const id = c.k+':'+sk+':'+i;
+        ITEMS[id] = { id, cat:c.k, shape:sk, ci:i, color:pal[i][0],
+          name: sname + ' ('+pal[i][1]+')', short: sname,
+          price: STARTER_SET.has(id) ? 0 : sprice };
+      }
+    }
+  }
+})();
+const ITEM_COUNT = Object.keys(ITEMS).length;
+
+/* 한 파츠를 그린다. val 은 "모양:색번호". 없으면 빈 문자열 */
+function part(catKey, val, want){
+  if(!val) return '';
+  const c = CAT[catKey]; if(!c) return '';
+  const [sk, ciS] = String(val).split(':');
+  const entry = c.src[sk]; if(!entry) return '';
+  const pal = PAL[c.pal];
+  const col = (pal[+ciS] || pal[0])[0];
+  const out = entry[2](col, sh(col,-.22), sh(col,.34));
+  if(typeof out === 'string') return out;
+  return out[want] || '';           // 머리처럼 {b,f} 를 돌려주는 것
+}
+
+/* ── 아바타 한 장 그리기 ──────────────────────────────────────
+   lod 2 = 크게(홈·상점), lod 1 = 작게(명단·OX). 작을 땐 등장식을 뺀다. */
+const avCache = new Map();
+function avKey(a){
+  return [a.sk,a.ec,a.eyes,a.hair,a.top,a.bottom,a.shoes,a.hat,a.glass,a.ear,a.neck,a.back,a.pet].join('|');
+}
+function avatarSVG(av, size, lod){
+  av = av || newAvatar(); lod = lod==null?2:lod;
+  const key = avKey(av)+'#'+size+'#'+lod;
+  const hit = avCache.get(key); if(hit) return hit;
+  const sk = (PAL.skin[av.sk] || PAL.skin[0])[0];
+  let s = '';
+  if(lod >= 2) s += part('back', av.back);
+  s += part('hair', av.hair, 'b');
+  s += drawBody(sk);
+  s += part('bottom', av.bottom);
+  s += part('shoes', av.shoes);
+  s += part('top', av.top);
+  s += part('neck', av.neck);
+  s += drawHead(sk);
+  s += drawFace(av);
+  s += part('glass', av.glass);
+  s += part('hair', av.hair, 'f');
+  s += part('ear', av.ear);
+  s += part('hat', av.hat);
+  if(lod >= 2) s += part('pet', av.pet);
+  const svg = `<svg viewBox="0 0 ${AVW} ${AVH}" width="${size*AVW/AVH}" height="${size}" `
+    + `shape-rendering="geometricPrecision" style="display:block">${s}</svg>`;
+  if(avCache.size > 260) avCache.clear();
+  avCache.set(key, svg);
+  return svg;
+}
+/* 상점 미리보기 — 그 파츠가 잘 보이도록 잘라서 보여 준다 */
+function partThumb(catKey, shape, ci, h){
+  const c = CAT[catKey];
+  const base = { sk:1, ec:0, eyes:'round', hair:'', top:'', bottom:'', shoes:'',
+                 hat:'', glass:'', ear:'', neck:'', back:'', pet:'' };
+  base[catKey] = shape+':'+ci;
+  if(catKey==='pet'){                       // 펫은 사람 없이 펫만 보여 준다
+    const [px,py,pw,ph2] = c.crop.split(' ').map(Number);
+    return `<svg viewBox="${c.crop}" height="${h}" width="${(h*pw/ph2)|0}" style="display:block">`
+      + part('pet', base.pet) + `</svg>`;
+  }
+  if(catKey==='top')    base.bottom = 'shorts:9';
+  if(catKey==='bottom') base.top    = 'tee:8';
+  if(catKey==='hair'||catKey==='hat'||catKey==='glass'||catKey==='ear') base.hair = (catKey==='hair'?shape+':'+ci:'short:0');
+  const sks = (PAL.skin[base.sk])[0];
+  let s = '';
+  if(catKey==='back' || catKey==='pet') s += part(catKey, base[catKey]);
+  s += part('hair', base.hair, 'b');
+  s += drawBody(sks);
+  s += part('bottom', base.bottom) + part('shoes', base.shoes) + part('top', base.top)
+     + part('neck', base.neck);
+  s += drawHead(sks) + drawFace(base);
+  s += part('glass', base.glass) + part('hair', base.hair, 'f')
+     + part('ear', base.ear) + part('hat', base.hat);
+  const [cx,cy,cw,ch] = c.crop.split(' ').map(Number);
+  return `<svg viewBox="${c.crop}" height="${h}" width="${(h*cw/ch)|0}" style="display:block">${s}</svg>`;
+}
+
+function newAvatar(){
+  const pick = a => a[(Math.random()*a.length)|0];
+  const eyeKeys = Object.keys(EYES);
+  return {
+    sk: (Math.random()*PAL.skin.length)|0,
+    ec: (Math.random()*PAL.eye.length)|0,
+    eyes: pick(eyeKeys),
+    hair:   pick(['short:0','short:1','bob:1','bob:5']),
+    top:    pick(['tee:5','tee:7','tee:3']),
+    bottom: pick(['shorts:5','jeans:5','skirt:7']),
+    shoes:  pick(['sneaker:9','sneaker:8']),
+    hat:'', glass:'', ear:'', neck:'', back:'', pet:''
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   3) 파이어베이스 — 데이터는 전부 'quiz' 아래에만 쓴다
+   ═══════════════════════════════════════════════════════════════════ */
+const DBR = 'quiz';
+const FB = { db:null, ok:false, why:'' };
+function initFB(){
+  if(FB.ok) return true;
+  if(typeof firebase === 'undefined'){ FB.why='인터넷이 안 되나 봐요'; return false; }
+  const cfg = window.FIREBASE_CONFIG;
+  if(!cfg || !cfg.databaseURL){ FB.why='파이어베이스 설정이 비어 있어요'; return false; }
+  try{
+    if(!firebase.apps.length) firebase.initializeApp(cfg);
+    FB.db = firebase.database(); FB.ok = true; return true;
+  }catch(e){ FB.why = e.message; return false; }
+}
+const uref  = k => FB.db.ref(DBR+'/users/'+k);
+const bref  = ()  => FB.db.ref(DBR+'/bank');
+const rref  = ()  => FB.db.ref(DBR+'/room');
+
+/* ═══════════════════════════════════════════════════════════════════
+   4) 내 계정
+   ═══════════════════════════════════════════════════════════════════ */
+let ME = null;          // {k,name,gold,av,owned,stat,day}
+let IS_TEACHER = false;
+const LS = { get(k,d){ try{ const v=localStorage.getItem('qz_'+k); return v==null?d:JSON.parse(v); }catch(e){ return d; } },
+             set(k,v){ try{ localStorage.setItem('qz_'+k, JSON.stringify(v)); }catch(e){} },
+             del(k){ try{ localStorage.removeItem('qz_'+k); }catch(e){} } };
+
+let saveTimer = null, savePend = {};
+function save(patch, now2){
+  if(!ME) return;
+  Object.assign(ME, patch); Object.assign(savePend, patch);
+  paintGold();
+  if(!FB.ok) return;
+  clearTimeout(saveTimer);
+  const flush = ()=>{ const p = savePend; savePend = {};
+    if(Object.keys(p).length) uref(ME.k).update(p).catch(e=>toast('저장 실패: '+e.message,3000)); };
+  if(now2) flush(); else saveTimer = setTimeout(flush, 500);
+}
+function owns(id){ return !!(ME && ME.owned && ME.owned[id]) || STARTER_SET.has(id); }
+function paintGold(){ const g = el('goldNum'); if(g && ME) g.textContent = (ME.gold||0).toLocaleString(); }
+
+/* 골드 더하기 — 연습 모드는 하루 상한을 지킨다 */
+function addGold(n, fromPractice){
+  if(!ME || n<=0) return 0;
+  let give = n;
+  if(fromPractice){
+    const d = ME.day && ME.day.d===today() ? ME.day : {d:today(), g:0};
+    give = Math.max(0, Math.min(n, R.practiceCap - d.g));
+    d.g += give; ME.day = d; save({day:d});
+  }
+  if(give>0) save({gold:(ME.gold||0)+give});
+  return give;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   5) 화면 바꾸기
+   ═══════════════════════════════════════════════════════════════════ */
+const SCREENS = {};
+let leaveFn = null, curScr = '';
+function go(name, arg){
+  if(leaveFn){ try{ leaveFn(); }catch(e){} leaveFn = null; }
+  curScr = name; closeModal();
+  el('stage').innerHTML = '';
+  SCREENS[name](el('stage'), arg);
+}
+function topbar(title, back){
+  return `<div class="top">
+    ${back? `<button class="btn sm gray" id="tbBack">◀ 뒤로</button>`:''}
+    <div class="nm">${esc(title)}</div>
+    <div class="f1"></div>
+    ${ME? `<div class="gold"><span class="coin"></span>골드 <b id="goldNum">${(ME.gold||0).toLocaleString()}</b></div>`:''}
+    ${ME? `<button class="btn sm gray" id="tbOut">나가기</button>`:''}
+  </div>`;
+}
+function wireTop(backTo){
+  const b = el('tbBack'); if(b) b.onclick = ()=> go(backTo||'home');
+  const o = el('tbOut');  if(o) o.onclick = ()=>{
+    modal('나갈까요?', `<div style="text-align:center">
+      <p style="font-size:16px;font-weight:700">골드랑 옷은 다 저장돼 있어요.<br>다음에 같은 아이디로 들어오면 그대로예요.</p>
+      <div class="row gap mt12" style="justify-content:center">
+        <button class="btn gray" onclick="closeModal()">그냥 있을래요</button>
+        <button class="btn p" id="mOut">나가기</button></div></div>`,
+      ()=>{ el('mOut').onclick = ()=>{ LS.del('login'); ME=null; IS_TEACHER=false; go('login'); }; });
+  };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   6) 로그인 화면
+   ═══════════════════════════════════════════════════════════════════ */
+SCREENS.login = function(st){
+  let pin = '', mode = 'in';       // in = 들어가기, up = 처음 가입
+  let pin2 = '', step = 1;
+  st.innerHTML = `<div id="login" class="on"><div>
+    <div class="logo">퀴즈나라<small>${esc(window.CLASS_NAME||'우리 반')} 퀴즈 게임</small></div>
+    <div class="pnl loginbox">
+      <div style="text-align:left">
+        <label style="font-weight:800;color:#12467e;font-size:13px">아이디 (내 이름이나 별명)</label>
+        <input class="inp" style="margin-top:5px" id="lgId" maxlength="12" placeholder="예) 하늘이" autocomplete="off">
+      </div>
+      <div style="margin-top:9px">
+        <div style="font-weight:800;color:#12467e;font-size:13px;text-align:left" id="lgLab">비밀번호 — 숫자 4개</div>
+        <div class="pindots" id="lgDots"><i></i><i></i><i></i><i></i></div>
+        <div class="pinpad" id="lgPad"></div>
+      </div>
+      <div class="row gap" style="margin-top:9px"><button class="btn f1 y" id="lgGo">들어가기</button></div>
+      <div class="row gap4 mt8">
+        <button class="btn sm gray f1" id="lgNew">처음이에요 (가입)</button>
+        <button class="btn sm gray" id="lgT">선생님</button>
+      </div>
+      <div class="hint mt8" id="lgMsg" style="min-height:30px"></div>
+    </div></div></div>`;
+
+  const dots = ()=> $$('#lgDots i').forEach((d,i)=> d.classList.toggle('f', i < pin.length));
+  const msg  = t => el('lgMsg').innerHTML = t;
+  const pad  = el('lgPad');
+  ['1','2','3','4','5','6','7','8','9','지우기','0','◀'].forEach(k=>{
+    const b = document.createElement('button'); b.textContent = k;
+    if(k==='지우기'||k==='◀') b.style.fontSize='14px';
+    b.onclick = ()=>{
+      if(k==='지우기') pin='';
+      else if(k==='◀') pin = pin.slice(0,-1);
+      else if(pin.length<4) pin += k;
+      dots();
+    };
+    pad.appendChild(b);
+  });
+  document.onkeydown = e=>{
+    if(curScr!=='login') return;
+    if(/^[0-9]$/.test(e.key)){ if(pin.length<4) pin+=e.key; dots(); }
+    else if(e.key==='Backspace' && document.activeElement.id!=='lgId'){ pin=pin.slice(0,-1); dots(); }
+    else if(e.key==='Enter') el('lgGo').click();
+  };
+
+  function setMode(m){
+    mode = m; step = 1; pin=''; pin2=''; dots();
+    el('lgGo').textContent  = m==='up' ? '이 비밀번호로 만들기' : '들어가기';
+    el('lgNew').textContent = m==='up' ? '이미 있어요 (돌아가기)' : '처음이에요 (가입)';
+    el('lgLab').textContent = m==='up' ? '쓸 비밀번호 — 숫자 4개' : '비밀번호 — 숫자 4개';
+    msg(m==='up' ? '아이디는 한글도 돼요. 비밀번호는 <b>꼭 기억할 수 있는 숫자 4개</b>로 정하세요.' : '');
+  }
+  el('lgNew').onclick = ()=> setMode(mode==='up'?'in':'up');
+
+  el('lgT').onclick = ()=>{
+    const pw = prompt('선생님 암호');
+    if(pw == null) return;
+    if(String(pw) !== String(window.TEACHER_CODE)){ msg('<b style="color:#c0392b">암호가 달라요.</b>'); return; }
+    if(!initFB()){ msg('<b style="color:#c0392b">파이어베이스 연결이 안 돼요 — '+esc(FB.why)+'</b>'); return; }
+    IS_TEACHER = true;
+    ME = { k:'__teacher', name:'선생님', gold:0, av:newAvatar(), owned:{}, stat:{}, day:{} };
+    go('teacher');
+  };
+
+  el('lgGo').onclick = ()=>{
+    const raw = (el('lgId').value||'').trim();
+    if(raw.length < 1){ msg('<b style="color:#c0392b">아이디를 적어 주세요.</b>'); el('lgId').focus(); return; }
+    if(pin.length !== 4){ msg('<b style="color:#c0392b">숫자 4개를 눌러 주세요.</b>'); return; }
+    if(!initFB()){ msg('<b style="color:#c0392b">인터넷 연결을 확인해 주세요. ('+esc(FB.why)+')</b>'); return; }
+    const k = idKey(raw); const h = pinHash(k, pin);
+    msg('확인하는 중…');
+    uref(k).once('value').then(sn=>{
+      const u = sn.val();
+      if(mode==='up'){
+        if(u){ msg('<b style="color:#c0392b">그 아이디는 이미 있어요. 다른 이름으로 해 보세요.</b>'); return; }
+        if(step===1){ pin2 = pin; pin=''; step=2; dots();
+          el('lgLab').textContent = '한 번 더 — 같은 숫자 4개';
+          msg('안 잊어버리게 <b>한 번 더</b> 눌러 주세요.'); return; }
+        if(pinHash(k,pin) !== pinHash(k,pin2)){ pin=''; pin2=''; step=1; dots();
+          el('lgLab').textContent='쓸 비밀번호 — 숫자 4개';
+          msg('<b style="color:#c0392b">두 번이 서로 달라요. 처음부터 다시.</b>'); return; }
+        const fresh = { name:raw, pin:pinHash(k,pin), gold:R.startGold, av:newAvatar(),
+          owned:{}, stat:{solved:0,correct:0}, day:{d:today(),g:0}, made:now() };
+        uref(k).set(fresh).then(()=>{ enter(k, fresh); })
+          .catch(e=> msg('<b style="color:#c0392b">만들기 실패: '+esc(e.message)+'</b>'));
+        return;
+      }
+      if(!u){ msg('<b style="color:#c0392b">그런 아이디가 없어요. "처음이에요"를 눌러 만들어 주세요.</b>'); return; }
+      if(u.pin !== h){ pin=''; dots(); msg('<b style="color:#c0392b">비밀번호가 달라요. 다시 눌러 보세요.</b>'); return; }
+      enter(k, u);
+    }).catch(e=> msg('<b style="color:#c0392b">연결 실패: '+esc(e.message)+'</b>'));
+  };
+
+  function enter(k, u){
+    ME = { k, name:u.name||k, gold:u.gold||0, av:Object.assign(newAvatar(), u.av||{}),
+           owned:u.owned||{}, stat:u.stat||{solved:0,correct:0},
+           day:(u.day && u.day.d===today()) ? u.day : {d:today(), g:0} };
+    IS_TEACHER = false;
+    LS.set('login', {k, h:u.pin});
+    if(!ME.day || ME.day.d!==today()) save({day:{d:today(),g:0}});
+    go('home');
+  }
+
+  /* 지난번에 들어왔던 아이디면 바로 들어간다 */
+  const saved = LS.get('login', null);
+  if(saved && saved.k && initFB()){
+    msg('지난번 아이디로 들어가는 중…');
+    uref(saved.k).once('value').then(sn=>{
+      const u = sn.val();
+      if(u && u.pin===saved.h) enter(saved.k, u);
+      else { LS.del('login'); msg(''); }
+    }).catch(()=>{ msg(''); });
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   7) 홈 화면
+   ═══════════════════════════════════════════════════════════════════ */
+SCREENS.home = function(st){
+  const ownedN = Object.keys(ME.owned||{}).length + STARTER.length;
+  const s = ME.stat||{};
+  st.innerHTML = topbar((window.CLASS_NAME||'우리 반')+' 퀴즈나라') + `
+  <div class="homewrap">
+    <div class="pnl mecard">
+      <div class="pnl-h">내 캐릭터</div>
+      <div class="mestage" id="meStage"></div>
+      <div style="padding:9px 12px;background:#dceffd;border-top:2px solid #b8d8f0">
+        <div style="font-size:19px;font-weight:900;color:#12467e;letter-spacing:-.03em">${esc(ME.name)}</div>
+        <div class="hint mt8">맞힌 문제 <b>${s.correct||0}</b>개 · 푼 문제 <b>${s.solved||0}</b>개<br>
+          가진 아이템 <b>${ownedN}</b>개 / 전체 ${ITEM_COUNT}개</div>
+      </div>
+    </div>
+    <div class="menu">
+      <button class="mtile" id="mPractice"><span class="ic">📚</span>
+        <h3>혼자 연습하기</h3><p>문제를 풀면 골드를 벌어요.<br>오늘 더 벌 수 있는 골드 <b id="capLeft"></b></p></button>
+      <button class="mtile" id="mLive"><span class="ic">🎪</span>
+        <h3>수업 참가하기</h3><p id="liveHint">선생님이 방을 열었는지 보고 있어요…</p></button>
+      <button class="mtile" id="mShop"><span class="ic">👗</span>
+        <h3>옷 가게</h3><p>옷·모자·안경·펫이 ${ITEM_COUNT}가지!<br>골드로 사서 꾸며요.</p></button>
+      <button class="mtile" id="mRank"><span class="ic">🏆</span>
+        <h3>우리 반 순위</h3><p>누가 제일 많이 맞혔을까?</p></button>
+    </div>
+  </div>`;
+  wireTop();
+  el('meStage').innerHTML = avatarSVG(ME.av, 250, 2);
+  const left = Math.max(0, R.practiceCap - ((ME.day&&ME.day.d===today())?ME.day.g:0));
+  el('capLeft').textContent = left + '골드';
+  el('mPractice').onclick = ()=> go('practice');
+  el('mShop').onclick     = ()=> go('shop');
+  el('mLive').onclick     = ()=> go('live');
+  el('mRank').onclick     = showRank;
+
+  /* 선생님이 방을 열었으면 알려 준다 */
+  if(FB.ok){
+    const rf = rref().child('meta');
+    const cb = rf.on('value', sn=>{
+      const m = sn.val(); const h = el('liveHint'); if(!h) return;
+      if(m && m.open) h.innerHTML = '<b style="color:#c0392b">지금 수업이 열려 있어요! 눌러서 들어가기</b>';
+      else h.textContent = '아직 안 열렸어요. 선생님이 열면 여기에 표시돼요.';
+    });
+    leaveFn = ()=> rf.off('value', cb);
+  }
+};
+
+function showRank(){
+  if(!FB.ok){ toast('연결이 안 돼 있어요'); return; }
+  modal('우리 반 순위', '<div class="center" style="height:120px">불러오는 중…</div>');
+  FB.db.ref(DBR+'/users').once('value').then(sn=>{
+    const arr = [];
+    sn.forEach(c=>{ const v=c.val(); if(c.key==='__teacher') return;
+      arr.push({k:c.key, name:v.name||c.key, gold:v.gold||0,
+        correct:(v.stat&&v.stat.correct)||0, av:v.av}); });
+    const draw = (key, unit)=>{
+      const s = arr.slice().sort((a,b)=> (b[key]-a[key]) || a.name.localeCompare(b.name));
+      return s.slice(0,30).map((u,i)=>`<div class="rank ${i<3?'t'+(i+1):''} ${u.k===ME.k?'me':''}">
+        <div class="no">${i+1}</div>
+        <div style="width:30px;flex:none">${avatarSVG(Object.assign(newAvatar(),u.av||{}), 40, 1)}</div>
+        <div class="rn">${esc(u.name)}</div><div class="rs">${u[key].toLocaleString()}${unit}</div></div>`).join('')
+        || '<div class="hint">아직 아무도 없어요.</div>';
+    };
+    el('mBody').innerHTML = `<div class="row gap" style="margin-bottom:10px">
+        <button class="btn sm y f1" id="rkA">맞힌 문제</button>
+        <button class="btn sm gray f1" id="rkB">모은 골드</button></div>
+      <div id="rkList" style="max-height:52vh;overflow:auto">${draw('correct','개')}</div>`;
+    const A = el('rkA'), B = el('rkB');
+    A.onclick = ()=>{ A.className='btn sm y f1'; B.className='btn sm gray f1'; el('rkList').innerHTML = draw('correct','개'); };
+    B.onclick = ()=>{ B.className='btn sm y f1'; A.className='btn sm gray f1'; el('rkList').innerHTML = draw('gold','골드'); };
+  }).catch(e=> el('mBody').innerHTML = '<div class="hint">불러오지 못했어요: '+esc(e.message)+'</div>');
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   8) 옷 가게 (상점 + 꾸미기)
+   ═══════════════════════════════════════════════════════════════════ */
+SCREENS.shop = function(st){
+  const S = { cat:'hair', ci:0, sel:null, pv:Object.assign({}, ME.av) };
+
+  st.innerHTML = topbar('옷 가게', true) + `
+  <div class="shopwrap">
+    <div class="pnl col">
+      <div class="pnl-h">입어 보기</div>
+      <div class="mestage f1" id="pvStage"></div>
+      <div style="padding:8px;background:#dceffd;border-top:2px solid #b8d8f0">
+        <div class="row gap4">
+          <button class="btn sm gray f1" id="btnRand">✨ 아무거나</button>
+          <button class="btn sm gray f1" id="btnReset">되돌리기</button>
+        </div>
+        <div class="row gap4 mt8">
+          <button class="btn sm p f1" id="btnFace">얼굴·눈 바꾸기</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="pnl col" style="overflow:hidden">
+      <div class="tabs" id="shTabs"></div>
+      <div style="padding:8px 10px;background:#fff;border-bottom:2px solid #cfe4f5">
+        <div class="row gap4" id="shPal" style="flex-wrap:wrap"></div>
+      </div>
+      <div class="grid f1" id="shGrid"></div>
+    </div>
+
+    <div class="pnl col">
+      <div class="pnl-h">고른 것</div>
+      <div id="shInfo" style="padding:12px" class="f1 scroll"></div>
+    </div>
+  </div>`;
+  wireTop();
+
+  const paintPv = ()=>{ el('pvStage').innerHTML = avatarSVG(S.pv, 236, 2); };
+
+  function paintTabs(){
+    el('shTabs').innerHTML = CATS.map(c=>
+      `<button class="tab ${c.k===S.cat?'on':''}" data-c="${c.k}">${c.n}</button>`).join('');
+    $$('#shTabs .tab').forEach(b=> b.onclick = ()=>{ S.cat=b.dataset.c; S.ci=0; S.sel=null;
+      paintTabs(); paintPal(); paintGrid(); paintInfo(); });
+  }
+  function paintPal(){
+    const pal = PAL[CAT[S.cat].pal];
+    el('shPal').innerHTML = pal.map((p,i)=>
+      `<button data-i="${i}" title="${p[1]}" style="width:26px;height:26px;border-radius:50%;
+        background:${p[0]};border:3px solid ${i===S.ci?'#ff9a24':'#b8d8f0'};box-shadow:0 2px 0 #9dbcd6"></button>`
+    ).join('') + `<span class="hint" style="margin-left:6px">색 ${pal.length}가지</span>`;
+    $$('#shPal button').forEach(b=> b.onclick = ()=>{ S.ci = +b.dataset.i;
+      if(S.sel){ const it=ITEMS[S.sel]; S.sel = it.cat+':'+it.shape+':'+S.ci; S.pv[S.cat] = it.shape+':'+S.ci; paintPv(); }
+      paintPal(); paintGrid(); paintInfo(); });
+  }
+  function paintGrid(){
+    const c = CAT[S.cat]; let h = '';
+    if(c.off) h += `<button class="itm" data-none="1" style="grid-column:span 1">
+      <div class="thumb" style="font-size:26px;color:#8fb4d0">✕</div>
+      <div class="nm2">안 쓰기</div><div class="pr free">공짜</div></button>`;
+    for(const sk in c.src){
+      const id = S.cat+':'+sk+':'+S.ci, it = ITEMS[id];
+      const own = owns(id), eq = ME.av[S.cat] === sk+':'+S.ci;
+      const rare = it.price>=600?' r3':it.price>=300?' r2':'';
+      h += `<button class="itm${rare} ${own?'own':''} ${S.sel===id?'on':''}" data-id="${id}">
+        ${eq?'<span class="badge eq">입음</span>':(own?'<span class="badge">보유</span>':'')}
+        <div class="thumb">${partThumb(S.cat, sk, S.ci, 62)}</div>
+        <div class="nm2">${esc(it.short)}</div>
+        <div class="pr ${own?'free':''}">${own?'가지고 있음':it.price.toLocaleString()+'골드'}</div></button>`;
+    }
+    el('shGrid').innerHTML = h;
+    $$('#shGrid .itm').forEach(b=> b.onclick = ()=>{
+      if(b.dataset.none){ S.sel='__none'; S.pv[S.cat]=''; }
+      else { S.sel = b.dataset.id; S.pv[S.cat] = ITEMS[S.sel].shape+':'+ITEMS[S.sel].ci; }
+      paintPv(); paintGrid(); paintInfo();
+    });
+  }
+  function paintInfo(){
+    const box = el('shInfo');
+    if(!S.sel){ box.innerHTML = `<div class="hint">가운데에서 옷을 눌러 보세요.<br>
+      바로 <b>입어 볼 수 있어요.</b> 마음에 들면 사면 돼요.<br><br>
+      위쪽 동그란 색을 누르면 <b>같은 옷이 색깔별로</b> 바뀌어요.</div>
+      <div class="mt12" style="border-top:2px dashed #cfe4f5;padding-top:10px">
+      <div style="font-weight:800;color:#12467e;margin-bottom:6px">지금 입고 있는 것</div>
+      ${CATS.map(c=>{ const v=ME.av[c.k]; const it = v? ITEMS[c.k+':'+v] : null;
+        return `<div class="row" style="font-size:12px;color:#4a6b8a;padding:2px 0">
+          <span style="width:52px;color:#12467e;font-weight:800">${c.n}</span>
+          <span>${it?esc(it.name):'없음'}</span></div>`; }).join('')}</div>`;
+      return;
+    }
+    if(S.sel==='__none'){
+      box.innerHTML = `<div style="font-weight:900;font-size:18px;color:#12467e">안 쓰기</div>
+        <div class="hint mt8">${CAT[S.cat].n}를 빼고 다닐 수 있어요.</div>
+        <button class="btn g mt12" style="width:100%" id="btnWear">벗기</button>`;
+      el('btnWear').onclick = ()=>{ const av=Object.assign({},ME.av); av[S.cat]='';
+        save({av}); ME.av=av; S.pv=Object.assign({},av); paintPv(); paintGrid(); paintInfo(); toast('벗었어요'); };
+      return;
+    }
+    const it = ITEMS[S.sel], own = owns(it.id), eq = ME.av[it.cat]===it.shape+':'+it.ci;
+    const rare = it.price>=600?'<span class="tag" style="background:#ffe6c8;color:#a35f00">희귀</span>'
+               : it.price>=300?'<span class="tag" style="background:#eee2ff;color:#5b3ba8">고급</span>':'';
+    box.innerHTML = `
+      <div class="center" style="background:#eef7ff;border-radius:12px;padding:6px;margin-bottom:10px">
+        ${partThumb(it.cat, it.shape, it.ci, 96)}</div>
+      <div style="font-weight:900;font-size:18px;color:#12467e;letter-spacing:-.03em">${esc(it.name)} ${rare}</div>
+      <div class="hint mt8">${CAT[it.cat].n} · ${own?'<b style="color:#3d8f2e">이미 가지고 있어요</b>'
+        :'<b style="color:#b57700">'+it.price.toLocaleString()+'골드</b>'}</div>
+      <div class="mt12">${
+        eq ? `<button class="btn gray" style="width:100%" disabled>지금 입고 있어요</button>`
+        : own ? `<button class="btn g" style="width:100%" id="btnWear">이걸로 입기</button>`
+        : `<button class="btn y" style="width:100%" id="btnBuy" ${(ME.gold||0)<it.price?'disabled':''}>
+             ${(ME.gold||0)<it.price?'골드가 모자라요':'사기 · '+it.price.toLocaleString()+'골드'}</button>`}</div>
+      ${(!own && (ME.gold||0)<it.price)? `<div class="hint mt8" style="color:#c0392b">
+        ${(it.price-(ME.gold||0)).toLocaleString()}골드가 더 있어야 해요. 퀴즈를 더 풀어 보세요!</div>`:''}`;
+    const wear = ()=>{ const av=Object.assign({},ME.av); av[it.cat]=it.shape+':'+it.ci;
+      ME.av=av; save({av}); S.pv=Object.assign({},av); paintPv(); paintGrid(); paintInfo(); };
+    const bw = el('btnWear'); if(bw) bw.onclick = ()=>{ wear(); toast('입었어요!'); };
+    const bb = el('btnBuy');  if(bb) bb.onclick = ()=>{
+      if((ME.gold||0) < it.price){ toast('골드가 모자라요'); return; }
+      const owned = Object.assign({}, ME.owned); owned[it.id] = 1;
+      ME.owned = owned; save({owned, gold:ME.gold - it.price}, true);
+      wear(); toast('샀어요! ' + it.name, 2200);
+    };
+  }
+
+  el('btnRand').onclick = ()=>{
+    /* 가지고 있는 것 중에서만 아무렇게나 입혀 본다 */
+    const av = Object.assign({}, ME.av);
+    for(const c of CATS){
+      const mine = Object.keys(ITEMS).filter(id=> ITEMS[id].cat===c.k && owns(id));
+      if(!mine.length){ continue; }
+      if(c.off && Math.random()<0.3){ av[c.k]=''; continue; }
+      const it = ITEMS[mine[(Math.random()*mine.length)|0]];
+      av[c.k] = it.shape+':'+it.ci;
+    }
+    ME.av = av; save({av}); S.pv = Object.assign({},av); paintPv(); paintGrid(); paintInfo();
+  };
+  el('btnReset').onclick = ()=>{ S.pv = Object.assign({}, ME.av); S.sel=null; paintPv(); paintGrid(); paintInfo(); };
+  el('btnFace').onclick = ()=>{
+    const eyeKeys = Object.keys(EYES);
+    modal('얼굴 바꾸기', `
+      <div style="font-weight:800;color:#12467e;margin-bottom:6px">피부색</div>
+      <div class="row gap4" id="fSk" style="flex-wrap:wrap;margin-bottom:12px"></div>
+      <div style="font-weight:800;color:#12467e;margin-bottom:6px">눈 색깔</div>
+      <div class="row gap4" id="fEc" style="flex-wrap:wrap;margin-bottom:12px"></div>
+      <div style="font-weight:800;color:#12467e;margin-bottom:6px">눈 모양 (공짜)</div>
+      <div class="grid" style="grid-template-columns:repeat(4,1fr);padding:0" id="fEy"></div>`, ()=>{
+      const rowBtn = (arr, cur, on)=> arr.map((p,i)=>
+        `<button data-i="${i}" style="width:30px;height:30px;border-radius:50%;background:${p[0]};
+          border:3px solid ${i===cur?'#ff9a24':'#b8d8f0'};box-shadow:0 2px 0 #9dbcd6"></button>`).join('');
+      const redraw = ()=>{
+        el('fSk').innerHTML = rowBtn(PAL.skin, ME.av.sk);
+        el('fEc').innerHTML = rowBtn(PAL.eye,  ME.av.ec);
+        el('fEy').innerHTML = eyeKeys.map(k=>`<button class="itm ${ME.av.eyes===k?'on':''}" data-k="${k}">
+          <div class="thumb"><svg viewBox="40 74 120 66" height="52" style="display:block">
+            ${drawHead(PAL.skin[ME.av.sk][0])}${drawFace({sk:ME.av.sk,ec:ME.av.ec,eyes:k})}</svg></div>
+          <div class="nm2">${EYES[k][0]}</div></button>`).join('');
+        $$('#fSk button').forEach(b=> b.onclick=()=>{ ME.av.sk=+b.dataset.i; save({av:ME.av}); S.pv=Object.assign({},ME.av); paintPv(); redraw(); });
+        $$('#fEc button').forEach(b=> b.onclick=()=>{ ME.av.ec=+b.dataset.i; save({av:ME.av}); S.pv=Object.assign({},ME.av); paintPv(); redraw(); });
+        $$('#fEy .itm').forEach(b=> b.onclick=()=>{ ME.av.eyes=b.dataset.k; save({av:ME.av}); S.pv=Object.assign({},ME.av); paintPv(); redraw(); });
+      };
+      redraw();
+    });
+  };
+
+  paintTabs(); paintPal(); paintGrid(); paintInfo(); paintPv();
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   9) 문제 은행
+   문제 한 개 = {q:문제, a:답, c:[오답 보기들]}
+   c 가 없으면 답을 직접 쓰는 주관식. a 가 O/X 면 OX 문제.
+   ═══════════════════════════════════════════════════════════════════ */
+let BANK = {};                       // setId -> {title, qs:[...]}
+function loadBank(){
+  return new Promise((res,rej)=>{
+    if(!FB.ok) return rej(new Error('연결 안 됨'));
+    bref().once('value').then(sn=>{ BANK = sn.val()||{}; res(BANK); }).catch(rej);
+  });
+}
+function setList(){
+  return Object.keys(BANK).map(id=>({id, title:BANK[id].title||'이름 없음',
+    n:(BANK[id].qs||[]).length, made:BANK[id].made||0}))
+    .sort((a,b)=> b.made - a.made);
+}
+/* 붙여넣은 여러 줄을 문제로 바꾼다.
+   탭이 있으면 탭으로, 없으면 쉼표로 나눈다.
+   첫 칸 = 문제, 둘째 칸 = 답, 나머지 = 오답 보기 */
+function parsePaste(text){
+  const out = [], bad = [];
+  String(text).split(/\r?\n/).forEach((line,i)=>{
+    const t = line.trim(); if(!t) return;
+    if(/^(문제|질문)\s*[\t,]/.test(t) && i===0) return;         // 표 머리글은 건너뛴다
+    const f = (t.indexOf('\t')>=0 ? t.split('\t') : t.split(',')).map(x=>x.trim()).filter((x,j)=> j<2 || x!=='');
+    if(f.length < 2 || !f[0] || !f[1]){ bad.push(t); return; }
+    const q = { q:f[0], a:f[1] };
+    const ch = f.slice(2).filter(Boolean);
+    if(ch.length) q.c = ch.slice(0,5);
+    out.push(q);
+  });
+  return {ok:out, bad};
+}
+/* 객관식 보기 만들기 — 정답 + 오답들을 섞는다 */
+function makeChoices(item, seed){
+  if(!item.c || !item.c.length) return null;
+  const arr = [item.a].concat(item.c);
+  let s = seed==null? Math.random()*99991 : seed;
+  const rnd = ()=>{ s = (s*9301 + 49297) % 233280; return s/233280; };
+  for(let i=arr.length-1;i>0;i--){ const j=(rnd()*(i+1))|0; const t=arr[i]; arr[i]=arr[j]; arr[j]=t; }
+  return arr;
+}
+const isOX = it => /^(o|x|O|X|ㅇ|ㅁ|맞|틀)/.test(String(it.a).trim()) && String(it.a).trim().length<=2;
+
+/* ═══════════════════════════════════════════════════════════════════
+   10) 선생님 화면
+   ═══════════════════════════════════════════════════════════════════ */
+SCREENS.teacher = function(st){
+  let tab = 'make', curSet = null;
+  st.innerHTML = `<div class="top">
+      <div class="nm">선생님 화면 — ${esc(window.CLASS_NAME||'우리 반')}</div>
+      <div class="f1"></div>
+      <div class="tabs" style="padding:0">
+        <button class="tab on" data-t="make">문제 만들기</button>
+        <button class="tab" data-t="live">수업 열기</button>
+        <button class="tab" data-t="kids">학생 명단</button>
+      </div>
+      <button class="btn sm gray" id="tbOut">나가기</button>
+    </div><div id="tBody" class="tsplit"></div>`;
+  el('tbOut').onclick = ()=>{ IS_TEACHER=false; ME=null; go('login'); };
+  $$('.top .tab').forEach(b=> b.onclick = ()=>{
+    $$('.top .tab').forEach(x=>x.classList.remove('on')); b.classList.add('on');
+    tab = b.dataset.t; paint();
+  });
+
+  function paint(){ if(tab==='make') paintMake(); else if(tab==='live') paintLive(); else paintKids(); }
+
+  /* ── 문제 만들기 ─────────────────────────────────────────── */
+  function paintMake(){
+    el('tBody').innerHTML = `
+      <div class="pnl col" style="overflow:hidden">
+        <div class="pnl-h">문제 묶음 <div class="f1"></div>
+          <button class="btn sm y" id="bNewSet">+ 새 묶음</button></div>
+        <div class="scroll f1" style="padding:10px" id="setBox">불러오는 중…</div>
+      </div>
+      <div class="pnl col" style="overflow:hidden">
+        <div class="pnl-h" id="qHead">문제</div>
+        <div class="f1 scroll" style="padding:10px" id="qBox">
+          <div class="hint">왼쪽에서 묶음을 고르거나 새로 만들어 주세요.</div></div>
+      </div>`;
+    el('bNewSet').onclick = newSet;
+    drawSets();
+  }
+  function drawSets(){
+    const box = el('setBox'); if(!box) return;
+    const L = setList();
+    box.innerHTML = L.length ? L.map(s=>`
+      <div class="setrow ${curSet===s.id?'on':''}" data-id="${s.id}">
+        <div class="sn">${esc(s.title)}<div class="sc">문제 ${s.n}개</div></div>
+        <button class="btn sm gray" data-del="${s.id}">삭제</button>
+      </div>`).join('')
+      : '<div class="hint">아직 묶음이 없어요. <b>+ 새 묶음</b>을 눌러 만들어 주세요.<br><br>예) “3학년 1학기 수학”, “사회 우리 고장”, “속담 퀴즈”</div>';
+    $$('#setBox .setrow').forEach(r=> r.onclick = e=>{
+      if(e.target.dataset.del) return;
+      curSet = r.dataset.id; drawSets(); drawQs();
+    });
+    $$('#setBox [data-del]').forEach(b=> b.onclick = e=>{
+      e.stopPropagation();
+      const id = b.dataset.del;
+      if(!confirm('“'+(BANK[id].title||'')+'” 묶음을 통째로 지울까요?')) return;
+      bref().child(id).remove().then(()=>{ delete BANK[id]; if(curSet===id) curSet=null; drawSets(); drawQs(); });
+    });
+  }
+  function newSet(){
+    const t = prompt('묶음 이름을 적어 주세요.\n예) 3학년 1학기 수학 / 사회 우리 고장 / 속담 퀴즈');
+    if(!t) return;
+    const id = 's'+now().toString(36);
+    const v = { title:t.trim().slice(0,40), made:now(), qs:[] };
+    bref().child(id).set(v).then(()=>{ BANK[id]=v; curSet=id; drawSets(); drawQs(); });
+  }
+  function drawQs(){
+    const box = el('qBox'), head = el('qHead'); if(!box) return;
+    if(!curSet || !BANK[curSet]){ head.textContent='문제';
+      box.innerHTML='<div class="hint">왼쪽에서 묶음을 고르거나 새로 만들어 주세요.</div>'; return; }
+    const S2 = BANK[curSet], qs = S2.qs||[];
+    head.textContent = S2.title + ' — 문제 ' + qs.length + '개';
+    box.innerHTML = `
+      <div class="row gap">
+        <button class="btn sm y" id="bPaste">📋 여러 개 붙여넣기</button>
+        <button class="btn sm g" id="bOne">＋ 한 개 넣기</button>
+        <div class="f1"></div>
+        <button class="btn sm gray" id="bHelp">쓰는 법</button>
+      </div>
+      <div class="mt12" id="qList"></div>`;
+    const list = el('qList');
+    list.innerHTML = qs.length ? qs.map((q,i)=>`
+      <div class="qrow"><span style="color:#8fb4d0;font-weight:800;width:22px">${i+1}</span>
+        <span class="qq">${esc(q.q)}</span>
+        <span class="qa">${esc(q.a)}</span>
+        ${q.c? '<span class="tag" style="background:#e6f3ff;color:#2b6cb0">보기'+(q.c.length+1)+'</span>'
+              : (isOX(q)? '<span class="tag" style="background:#fff0d8;color:#a35f00">OX</span>'
+                        : '<span class="tag" style="background:#eafbe4;color:#3d8f2e">주관식</span>')}
+        <button class="btn sm gray" data-i="${i}">지움</button></div>`).join('')
+      : '<div class="hint">아직 문제가 없어요.</div>';
+    $$('#qList [data-i]').forEach(b=> b.onclick = ()=>{
+      const i = +b.dataset.i; const arr = (BANK[curSet].qs||[]).slice(); arr.splice(i,1);
+      bref().child(curSet+'/qs').set(arr).then(()=>{ BANK[curSet].qs=arr; drawQs(); });
+    });
+    el('bHelp').onclick = ()=> modal('문제 쓰는 법', `
+      <div style="line-height:1.7">
+      <b>1. 답만 쓰는 문제 (주관식)</b><br>
+      <code>지구에서 가장 큰 바다는?　태평양</code><br>
+      아이들이 답을 칸에 씁니다. 띄어쓰기·물음표는 알아서 무시해요.<br><br>
+      <b>2. 보기에서 고르는 문제 (객관식)</b><br>
+      <code>7 × 8 은?　56　54　63　48</code><br>
+      <b>둘째 칸이 정답</b>, 그 뒤는 전부 오답 보기예요. 순서는 알아서 섞입니다.<br><br>
+      <b>3. OX 문제</b><br>
+      <code>고래는 물고기이다.　X</code><br>
+      답을 <b>O</b> 또는 <b>X</b> 로 쓰면 OX 문제가 됩니다.<br><br>
+      <b>4. 답이 여러 개 맞을 때</b><br>
+      <code>세종대왕이 만든 글자는?　한글/훈민정음</code><br>
+      <b>/</b> 로 나눠 쓰면 둘 다 정답 처리해요.<br><br>
+      <b>붙여넣기</b>는 한글·엑셀 표를 그대로 복사해도 되고(칸이 탭으로 나뉨),
+      그냥 <b>쉼표</b>로 나눠 써도 됩니다.
+      </div>`);
+    el('bOne').onclick = ()=> modal('문제 한 개 넣기', `
+      <label class="hint">문제</label><input class="inp mt8" id="f1q" placeholder="예) 지구에서 가장 큰 바다는?">
+      <label class="hint mt12" style="display:block">정답 (여러 개면 / 로 나누기)</label>
+      <input class="inp mt8" id="f1a" placeholder="예) 태평양">
+      <label class="hint mt12" style="display:block">오답 보기 — 쉼표로 나눠 적으면 객관식이 됩니다 (안 적으면 주관식)</label>
+      <input class="inp mt8" id="f1c" placeholder="예) 대서양, 인도양, 북극해">
+      <div class="row gap mt12"><button class="btn gray f1" onclick="closeModal()">그만</button>
+        <button class="btn g f1" id="f1ok">넣기</button></div>`, ()=>{
+      el('f1q').focus();
+      el('f1ok').onclick = ()=>{
+        const q = el('f1q').value.trim(), a = el('f1a').value.trim();
+        if(!q||!a){ toast('문제와 정답을 적어 주세요'); return; }
+        const c = el('f1c').value.split(',').map(x=>x.trim()).filter(Boolean);
+        const item = c.length? {q,a,c} : {q,a};
+        const arr = (BANK[curSet].qs||[]).concat([item]);
+        bref().child(curSet+'/qs').set(arr).then(()=>{ BANK[curSet].qs=arr; closeModal(); drawQs(); toast('넣었어요'); });
+      };
+    });
+    el('bPaste').onclick = ()=> modal('여러 개 붙여넣기', `
+      <div class="hint">한 줄에 문제 하나씩. 칸은 <b>탭</b>이나 <b>쉼표</b>로 나눕니다.<br>
+        첫 칸 = 문제, 둘째 칸 = 정답, 그 뒤 = 오답 보기.</div>
+      <textarea class="tarea mt8" id="pTa" style="height:190px" placeholder="지구에서 가장 큰 바다는?, 태평양, 대서양, 인도양, 북극해
+7 × 8 은?, 56, 54, 63, 48
+고래는 물고기이다., X
+세종대왕이 만든 글자는?, 한글/훈민정음"></textarea>
+      <div id="pPrev" class="hint mt8"></div>
+      <div class="row gap mt12"><button class="btn gray f1" onclick="closeModal()">그만</button>
+        <button class="btn g f1" id="pOk">넣기</button></div>`, ()=>{
+      const ta = el('pTa'), pv = el('pPrev');
+      const upd = ()=>{ const r = parsePaste(ta.value);
+        pv.innerHTML = `<b style="color:#3d8f2e">${r.ok.length}개</b>를 넣을 수 있어요.`
+          + (r.bad.length? ` <b style="color:#c0392b">${r.bad.length}줄은 칸이 모자라 건너뜁니다.</b>`:'')
+          + (r.ok.length? '<br>맨 앞: '+esc(r.ok[0].q)+' → <b>'+esc(r.ok[0].a)+'</b>':''); };
+      ta.oninput = upd; ta.focus(); upd();
+      el('pOk').onclick = ()=>{
+        const r = parsePaste(ta.value);
+        if(!r.ok.length){ toast('넣을 게 없어요'); return; }
+        const arr = (BANK[curSet].qs||[]).concat(r.ok);
+        bref().child(curSet+'/qs').set(arr).then(()=>{ BANK[curSet].qs=arr; closeModal(); drawQs();
+          toast(r.ok.length+'개 넣었어요', 2400); });
+      };
+    });
+  }
+
+  /* ── 학생 명단 ───────────────────────────────────────────── */
+  function paintKids(){
+    el('tBody').innerHTML = `
+      <div class="pnl col" style="grid-column:span 2;overflow:hidden">
+        <div class="pnl-h">학생 명단 <div class="f1"></div>
+          <button class="btn sm gray" id="kRe">새로 읽기</button>
+          <button class="btn sm y" id="kGiveAll">모두에게 골드 주기</button></div>
+        <div class="f1 scroll" style="padding:10px" id="kBox">불러오는 중…</div></div>`;
+    el('kRe').onclick = drawKids;
+    el('kGiveAll').onclick = ()=>{
+      const n = parseInt(prompt('모두에게 줄 골드 (예: 100)'),10);
+      if(!n || n<=0) return;
+      FB.db.ref(DBR+'/users').once('value').then(sn=>{
+        const ups = {};
+        sn.forEach(c=>{ if(c.key==='__teacher') return; ups[c.key+'/gold'] = (c.val().gold||0)+n; });
+        FB.db.ref(DBR+'/users').update(ups).then(()=>{ toast('모두에게 '+n+'골드 줬어요'); drawKids(); });
+      });
+    };
+    drawKids();
+  }
+  function drawKids(){
+    const box = el('kBox'); if(!box) return; box.innerHTML='불러오는 중…';
+    FB.db.ref(DBR+'/users').once('value').then(sn=>{
+      const arr=[]; sn.forEach(c=>{ if(c.key!=='__teacher') arr.push(Object.assign({k:c.key}, c.val())); });
+      arr.sort((a,b)=> String(a.name||'').localeCompare(String(b.name||'')));
+      box.innerHTML = `<div class="hint" style="margin-bottom:8px">모두 <b>${arr.length}명</b>.
+        비밀번호를 잊은 아이는 <b>비번 초기화</b>를 누르면 <b>0000</b> 이 됩니다.</div>`
+      + (arr.map(u=>`<div class="setrow">
+          <div style="width:26px">${avatarSVG(Object.assign(newAvatar(),u.av||{}),36,1)}</div>
+          <div class="sn">${esc(u.name||u.k)}
+            <div class="sc">골드 ${(u.gold||0).toLocaleString()} · 맞힘 ${(u.stat&&u.stat.correct)||0} / 푼 것 ${(u.stat&&u.stat.solved)||0}</div></div>
+          <button class="btn sm gray" data-pin="${u.k}">비번 초기화</button>
+          <button class="btn sm y" data-gold="${u.k}">골드 주기</button>
+          <button class="btn sm p" data-del="${u.k}">삭제</button></div>`).join('')
+        || '<div class="hint">아직 들어온 학생이 없어요.</div>');
+      $$('#kBox [data-pin]').forEach(b=> b.onclick=()=>{ const k=b.dataset.pin;
+        if(!confirm(k+' 의 비밀번호를 0000 으로 바꿀까요?')) return;
+        uref(k).update({pin:pinHash(k,'0000')}).then(()=>toast('0000 으로 바꿨어요',2400)); });
+      $$('#kBox [data-gold]').forEach(b=> b.onclick=()=>{ const k=b.dataset.gold;
+        const n=parseInt(prompt(k+' 에게 줄 골드'),10); if(!n) return;
+        uref(k).once('value').then(s2=> uref(k).update({gold:Math.max(0,(s2.val().gold||0)+n)}).then(()=>{ toast('줬어요'); drawKids(); })); });
+      $$('#kBox [data-del]').forEach(b=> b.onclick=()=>{ const k=b.dataset.del;
+        if(!confirm(k+' 계정을 지울까요? 골드와 옷이 전부 사라집니다.')) return;
+        uref(k).remove().then(()=>{ toast('지웠어요'); drawKids(); }); });
+    }).catch(e=> box.innerHTML='<div class="hint">불러오지 못했어요: '+esc(e.message)+'</div>');
+  }
+
+  function paintLive(){ el('tBody').innerHTML=''; hostPanel(el('tBody')); }
+
+  loadBank().then(()=>{ paint(); }).catch(e=>{
+    el('tBody').innerHTML = '<div class="pnl" style="padding:20px">연결 실패: '+esc(e.message)+'</div>'; });
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   11) 문제 한 개를 화면에 그리는 공용 부품
+   ═══════════════════════════════════════════════════════════════════ */
+function answerUI(item, seed){
+  if(isOX(item)){
+    return `<div class="choices" style="grid-template-columns:1fr 1fr;gap:18px">
+      <button class="ch" data-v="O" style="justify-content:center;font-size:52px;padding:18px;
+        background:linear-gradient(#fff6da,#ffe1a0);border-color:#d8a63a;box-shadow:0 5px 0 #a97c1e;color:#a35f00">O</button>
+      <button class="ch" data-v="X" style="justify-content:center;font-size:52px;padding:18px;
+        background:linear-gradient(#e6f4ff,#c2e0f8);border-color:#3d94e4;box-shadow:0 5px 0 #1f5f9e;color:#12467e">X</button></div>`;
+  }
+  const ch = makeChoices(item, seed);
+  if(ch){
+    const num = ['①','②','③','④','⑤','⑥'];
+    return `<div class="choices">` + ch.map((c,i)=>
+      `<button class="ch" data-v="${esc(c)}"><span class="n">${num[i]}</span><span>${esc(c)}</span></button>`).join('') + `</div>`;
+  }
+  return `<div class="row gap mt12">
+    <input class="inp f1" id="ansIn" placeholder="답을 여기에 쓰세요" autocomplete="off"
+      style="font-size:22px;padding:14px;font-weight:800;text-align:center">
+    <button class="btn y big" id="ansOk">확인</button></div>`;
+}
+function wireAnswer(root, cb){
+  $$('.ch', root).forEach(b=> b.onclick = ()=> cb(b.dataset.v, b));
+  const inp = $('#ansIn', root), ok = $('#ansOk', root);
+  if(inp){ inp.focus();
+    inp.onkeydown = e=>{ if(e.key==='Enter'){ e.preventDefault(); cb(inp.value, null); } };
+    ok.onclick = ()=> cb(inp.value, null);
+  }
+}
+function markAnswer(root, item, picked){
+  const right = String(item.a).split('/')[0].trim();
+  $$('.ch', root).forEach(b=>{
+    const v = b.dataset.v;
+    b.disabled = true;
+    if(isRight(v, item.a)) b.classList.add('ok');
+    else if(v===picked)    b.classList.add('no');
+  });
+  const inp = $('#ansIn', root); if(inp){ inp.disabled = true; const ok=$('#ansOk',root); if(ok) ok.disabled=true; }
+  return right;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   12) 연습 모드 — 혼자 풀기
+   ═══════════════════════════════════════════════════════════════════ */
+SCREENS.practice = function(st){
+  st.innerHTML = topbar('혼자 연습하기', true) + `<div id="prWrap" style="position:absolute;inset:54px 0 0 0;
+    display:grid;place-items:center;padding:14px"><div class="pnl" style="padding:20px;width:min(760px,94vw)">
+    불러오는 중…</div></div>`;
+  wireTop();
+  const wrap = el('prWrap');
+  const capLeft = ()=> Math.max(0, R.practiceCap - ((ME.day&&ME.day.d===today())?ME.day.g:0));
+
+  loadBank().then(()=>{
+    const L = setList().filter(s=> s.n>0);
+    if(!L.length){ wrap.innerHTML = `<div class="pnl" style="padding:24px;width:min(680px,94vw);text-align:center">
+      <div style="font-size:20px;font-weight:900;color:#12467e">아직 문제가 없어요</div>
+      <div class="hint mt12">선생님이 문제를 넣으면 여기에 나와요.</div>
+      <button class="btn mt12" onclick="go('home')">돌아가기</button></div>`; return; }
+    wrap.innerHTML = `<div class="pnl" style="padding:18px;width:min(760px,94vw)">
+      <div style="font-size:22px;font-weight:900;color:#12467e;letter-spacing:-.03em">어떤 걸 풀어 볼까요?</div>
+      <div class="hint mt8">한 판에 ${R.practiceCount}문제. 한 개 맞힐 때마다 <b>${R.practicePerQ}골드</b>.
+        오늘 더 벌 수 있는 골드 <b>${capLeft()}</b>.</div>
+      <div class="mt12" style="max-height:46vh;overflow:auto">${L.map(s=>
+        `<div class="setrow" data-id="${s.id}"><div class="sn">${esc(s.title)}<div class="sc">문제 ${s.n}개</div></div>
+         <button class="btn sm y">풀기</button></div>`).join('')}</div></div>`;
+    $$('#prWrap .setrow').forEach(r=> r.onclick = ()=> start(r.dataset.id));
+  }).catch(e=>{ wrap.innerHTML = '<div class="pnl" style="padding:20px">연결 실패: '+esc(e.message)+'</div>'; });
+
+  function start(setId){
+    const all = (BANK[setId].qs||[]).slice();
+    for(let i=all.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; const t=all[i]; all[i]=all[j]; all[j]=t; }
+    const qs = all.slice(0, Math.min(R.practiceCount, all.length));
+    let i = 0, right = 0, earned = 0;
+
+    function step(){
+      if(i >= qs.length) return done();
+      const item = qs[i];
+      wrap.innerHTML = `<div style="width:min(860px,96vw)">
+        <div class="row gap" style="margin-bottom:10px">
+          <div class="tag" style="background:#0e3f70;color:#fff;font-size:14px;padding:5px 14px">
+            ${i+1} / ${qs.length}</div>
+          <div class="tag" style="background:#fff;color:#3d8f2e;font-size:14px;padding:5px 14px"
+            id="prOk">맞힘 ${right}</div>
+          <div class="f1"></div>
+          <div class="tag" style="background:#fff6e6;color:#b57700;font-size:14px;padding:5px 14px"
+            id="prGold">이번 판 +${earned}골드</div></div>
+        <div class="qbox"><div class="qno">문제 ${i+1}</div>
+          <div class="qtext">${esc(item.q)}</div></div>
+        <div id="ansArea">${answerUI(item, i*7919+setId.length)}</div>
+        <div id="fb" style="min-height:64px;margin-top:12px"></div>
+        <div class="center mt12" style="opacity:.9">${avatarSVG(ME.av, 132, 1)}</div></div>`;
+      wireAnswer(wrap, (v, btn)=> judge(item, v));
+    }
+    function judge(item, v){
+      if(!String(v||'').trim()){ toast('답을 골라 주세요'); return; }
+      const ok = isRight(v, item.a);
+      const right2 = markAnswer(wrap, item, v);
+      const s = ME.stat||{solved:0,correct:0};
+      s.solved = (s.solved||0)+1; if(ok) s.correct = (s.correct||0)+1;
+      save({stat:s});
+      let got = 0;
+      if(ok){ right++; got = addGold(R.practicePerQ, true); earned += got; }
+      el('prOk').textContent = '맞힘 ' + right;
+      el('prGold').textContent = '이번 판 +' + earned + '골드';
+      el('fb').innerHTML = ok
+        ? `<div class="pnl" style="padding:12px 16px;background:#eafbe4;border-color:#3d8f2e">
+            <b style="color:#2c7a22;font-size:20px">정답이에요! 🎉</b>
+            ${got? `<b style="color:#b57700">  +${got}골드</b>`
+                 : `<span class="hint">  (오늘 벌 수 있는 골드를 다 채웠어요)</span>`}
+            <button class="btn g" style="float:right" id="nx">다음 ▶</button></div>`
+        : `<div class="pnl" style="padding:12px 16px;background:#fff0ef;border-color:#d94b46">
+            <b style="color:#a83531;font-size:19px">아쉬워요.</b>
+            <span style="font-size:17px;font-weight:800;color:#12467e">정답은 <b>${esc(right2)}</b></span>
+            <button class="btn" style="float:right" id="nx">다음 ▶</button></div>`;
+      el('nx').onclick = ()=>{ i++; step(); };
+      document.onkeydown = e=>{ if(curScr==='practice' && e.key==='Enter'){ const n=el('nx'); if(n) n.click(); } };
+    }
+    function done(){
+      wrap.innerHTML = `<div class="pnl" style="padding:24px;width:min(680px,94vw);text-align:center">
+        <div style="font-size:30px;font-weight:900;color:#12467e;letter-spacing:-.04em">다 풀었어요!</div>
+        <div class="center" style="margin:10px 0">${avatarSVG(ME.av, 170, 2)}</div>
+        <div style="font-size:20px;font-weight:800;color:#2b5b85">
+          ${qs.length}문제 중 <b style="color:#3d8f2e">${right}개</b> 정답</div>
+        <div class="tag mt8" style="background:#fff6e6;color:#b57700;font-size:17px;padding:7px 18px">
+          이번 판에 번 골드 +${earned}</div>
+        <div class="hint mt8">오늘 더 벌 수 있는 골드 ${capLeft()}</div>
+        <div class="row gap mt12" style="justify-content:center">
+          <button class="btn gray" id="dHome">홈으로</button>
+          <button class="btn" id="dAgain">한 판 더</button>
+          <button class="btn y" id="dShop">옷 사러 가기</button></div></div>`;
+      el('dHome').onclick = ()=> go('home');
+      el('dShop').onclick = ()=> go('shop');
+      el('dAgain').onclick = ()=> start(setId);
+    }
+    step();
+  }
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   13) 수업 모드 — 방 규칙
+   ★ 정답은 '공개' 하기 전까지 절대 방에 안 올린다.
+     채점은 선생님 화면이 한다. 학생 화면은 자기 점수를 스스로 못 올린다.
+   ═══════════════════════════════════════════════════════════════════ */
+let SVOFF = 0, clockOn = false;
+function ensureClock(){
+  if(clockOn || !FB.ok) return;
+  clockOn = true;
+  FB.db.ref('.info/serverTimeOffset').on('value', s=>{ SVOFF = s.val()||0; });
+}
+const svNow = ()=> Date.now() + SVOFF;
+
+/* 같은 씨앗(seed)이면 언제 다시 돌려도 같은 순서가 나온다.
+   선생님 화면을 새로고침해도 문제 순서가 안 흐트러진다. */
+function seedRnd(seed){ let s = seed>>>0 || 1;
+  return ()=>{ s ^= s<<13; s>>>=0; s ^= s>>17; s ^= s<<5; s>>>=0; return s/4294967296; }; }
+function pickQs(setId, seed, count, onlyOX){
+  let all = (BANK[setId] && BANK[setId].qs || []).slice();
+  if(onlyOX) all = all.filter(isOX);
+  const rnd = seedRnd(seed);
+  for(let i=all.length-1;i>0;i--){ const j=(rnd()*(i+1))|0; const t=all[i]; all[i]=all[j]; all[j]=t; }
+  return all.slice(0, Math.min(count||all.length, all.length));
+}
+
+/* ── 가로세로 격자 짜기 ────────────────────────────────────────
+   한 칸에 한 글자. 이미 놓인 글자와 겹치게 이어 붙인다. */
+function buildCross(items, seed, maxWords){
+  const seen = new Set(), pool = [];
+  for(const it of items){
+    const a = String(it.a).split('/')[0].replace(/\s/g,'');
+    if(a.length<2 || a.length>7) continue;
+    if(seen.has(a)) continue; seen.add(a);
+    pool.push({a, clue: it.q});
+  }
+  const rnd = seedRnd(seed);
+  for(let i=pool.length-1;i>0;i--){ const j=(rnd()*(i+1))|0; const t=pool[i]; pool[i]=pool[j]; pool[j]=t; }
+  pool.sort((x,y)=> y.a.length - x.a.length);
+  const use = pool.slice(0, maxWords||14);
+  if(!use.length) return null;
+
+  const G = new Map(); const at = (r,c)=> G.get(r+','+c);
+  const placed = [];
+  const put = (w,r,c,dir)=>{ for(let i=0;i<w.length;i++) G.set((dir?r+i:r)+','+(dir?c:c+i), w[i]); };
+  const fits = (w,r,c,dir)=>{
+    if(dir){ if(at(r-1,c)!=null || at(r+w.length,c)!=null) return -1; }
+    else   { if(at(r,c-1)!=null || at(r,c+w.length)!=null) return -1; }
+    let cross = 0;
+    for(let i=0;i<w.length;i++){
+      const rr = dir? r+i : r, cc = dir? c : c+i, cur = at(rr,cc);
+      if(cur!=null){ if(cur!==w[i]) return -1; cross++; }
+      else if(dir ? (at(rr,cc-1)!=null || at(rr,cc+1)!=null)
+                  : (at(rr-1,cc)!=null || at(rr+1,cc)!=null)) return -1;
+    }
+    return cross;
+  };
+  const box = ()=>{ let a=1e9,b=-1e9,c2=1e9,d=-1e9;
+    G.forEach((v,key)=>{ const [r,c]=key.split(',').map(Number);
+      a=Math.min(a,r); b=Math.max(b,r); c2=Math.min(c2,c); d=Math.max(d,c); });
+    return {minR:a, maxR:b, minC:c2, maxC:d}; };
+  const areaIf = (r,c,dir,len)=>{ const b = box();
+    const r2 = r+(dir?len:1)-1, c2 = c+(dir?1:len)-1;
+    const H = Math.max(b.maxR,r2)-Math.min(b.minR,r)+1, W = Math.max(b.maxC,c2)-Math.min(b.minC,c)+1;
+    return H*W + Math.abs(H-W)*3;                 // 너무 길쭉해지지 않게 살짝 벌점
+  };
+
+  put(use[0].a, 0, 0, 0); placed.push({a:use[0].a, r:0, c:0, dir:0, clue:use[0].clue});
+  const left = use.slice(1);
+  /* 두 번 돌린다 — 처음에 자리가 없던 단어도 뒤에 놓인 단어와 겹칠 수 있다 */
+  for(let pass=0; pass<2 && left.length; pass++){
+    for(let k=left.length-1; k>=0; k--){
+      const w = left[k].a; let best = null;
+      /* ① 이미 놓인 글자와 겹치는 자리를 먼저 찾는다 */
+      for(const p of placed){
+        for(let i=0;i<p.a.length;i++) for(let j=0;j<w.length;j++){
+          if(p.a[i] !== w[j]) continue;
+          const dir = p.dir ? 0 : 1;
+          const r = p.dir ? p.r+i : p.r - j;
+          const c = p.dir ? p.c - j : p.c + i;
+          const sc = fits(w, r, c, dir);
+          if(sc < 1) continue;
+          const score = sc*10000 - areaIf(r,c,dir,w.length);
+          if(!best || score > best.score) best = {r, c, dir, score};
+        }
+      }
+      /* ② 한글은 음절이 통째로 겹쳐야 해서 겹칠 데가 없는 일이 흔하다.
+            그럴 땐 옆 빈자리에 따로 놓는다. 다음 판에서 다른 단어가 여기에 걸릴 수도 있다. */
+      if(!best && pass===1){
+        const b = box();
+        for(let r=b.minR-1; r<=b.maxR+2; r++) for(let c=b.minC-1; c<=b.maxC+2; c++)
+          for(const dir of [0,1]){
+            if(fits(w,r,c,dir) !== 0) continue;
+            const score = -areaIf(r,c,dir,w.length);
+            if(!best || score > best.score) best = {r, c, dir, score};
+          }
+      }
+      if(best){ put(w, best.r, best.c, best.dir);
+        placed.push({a:w, r:best.r, c:best.c, dir:best.dir, clue:left[k].clue});
+        left.splice(k,1); }
+    }
+  }
+  if(placed.length < 2) return null;
+
+  let minR=1e9,minC=1e9,maxR=-1e9,maxC=-1e9;
+  G.forEach((v,key)=>{ const [r,c]=key.split(',').map(Number);
+    minR=Math.min(minR,r); maxR=Math.max(maxR,r); minC=Math.min(minC,c); maxC=Math.max(maxC,c); });
+  const rows = maxR-minR+1, cols = maxC-minC+1;
+  const open = []; for(let r=0;r<rows;r++){ let s=''; for(let c=0;c<cols;c++) s += at(r+minR,c+minC)!=null?'1':'0'; open.push(s); }
+  placed.forEach(p=>{ p.r -= minR; p.c -= minC; });
+  placed.sort((a,b)=> (a.r-b.r) || (a.c-b.c) || (a.dir-b.dir));
+  const numAt = {}; let n = 0;
+  const w = placed.map(p=>{
+    const key = p.r+','+p.c;
+    if(numAt[key]==null) numAt[key] = ++n;
+    return { n:numAt[key], r:p.r, c:p.c, dir:p.dir, len:p.a.length, clue:p.clue, a:p.a };
+  });
+  return { rows, cols, open, num:numAt, w };
+}
+/* 학생한테 보낼 때는 정답 글자를 뺀다 */
+function crossPublic(cr){
+  return { rows:cr.rows, cols:cr.cols, open:cr.open, num:cr.num,
+    w: cr.w.map(x=>({n:x.n, r:x.r, c:x.c, dir:x.dir, len:x.len, clue:x.clue})) };
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   14) 선생님 — 수업 조종판
+   ═══════════════════════════════════════════════════════════════════ */
+const MODES = { quiz:{n:'일반 퀴즈', ic:'🎪', d:'문제를 내면 다 같이 답을 고릅니다. 빨리 맞힐수록 점수가 높아요.'},
+                ox:  {n:'OX 게임',  ic:'⭕', d:'O 나 X 쪽으로 옮겨 갑니다. 틀리면 탈락, 끝까지 남으면 큰 보너스.'},
+                cross:{n:'가로세로',ic:'🔠', d:'낱말 격자를 다 같이 채웁니다. 먼저 맞힌 사람이 칸을 차지해요.'} };
+let HOST = null;
+
+function hostPanel(box){
+  ensureClock();
+  const R2 = rref();
+  const st = { meta:null, players:{}, tick:null, subs:[] };
+  HOST = st;
+  leaveFn = ()=>{ st.subs.forEach(f=>f()); clearInterval(st.tick); HOST=null; };
+
+  const sub = (ref, ev, cb)=>{ const h = ref.on(ev, cb); st.subs.push(()=> ref.off(ev, h)); };
+  sub(R2.child('meta'), 'value', s=>{ st.meta = s.val(); paint(); });
+  sub(R2.child('p'),    'value', s=>{ st.players = s.val()||{}; paint(); });
+  sub(R2.child('cross/try'), 'value', s=>{ if(st.meta && st.meta.mode==='cross') gradeTries(s.val()||{}); });
+
+  clearInterval(st.tick);
+  st.tick = setInterval(()=>{
+    const m = st.meta; if(!m || !m.open) return;
+    const t = el('hTime'); const left = Math.max(0, (m.tEnd||0) - svNow());
+    if(t) t.textContent = Math.ceil(left/1000)+'초';
+    const bar = el('hBar'); if(bar && m.sec) bar.style.width = clamp(left/(m.sec*1000)*100,0,100)+'%';
+    if(m.phase==='ask' && left<=0){ if(m.mode==='cross') finishCross(); else doReveal(); }
+    if(m.phase==='ask' && m.mode!=='cross'){
+      const alive = Object.keys(st.players).filter(k=> st.players[k].alive!==false);
+      if(alive.length && alive.every(k=> st.players[k].ansAt)) doReveal();
+    }
+  }, 300);
+
+  /* ── 방 열기 화면 ── */
+  function paintSetup(){
+    const L = setList().filter(s=> s.n>0);
+    box.innerHTML = `<div class="pnl col" style="grid-column:span 2;overflow:hidden">
+      <div class="pnl-h">수업 열기</div>
+      <div class="f1 scroll" style="padding:14px">
+        ${L.length? '' : '<div class="hint">먼저 <b>문제 만들기</b> 탭에서 문제를 넣어 주세요.</div>'}
+        <div style="font-weight:900;color:#12467e;margin-bottom:8px">1. 무엇으로 할까요?</div>
+        <div class="menu" style="grid-template-columns:repeat(3,1fr);margin-bottom:16px">
+          ${Object.keys(MODES).map(k=>`<button class="mtile" data-m="${k}" style="min-height:96px">
+            <span class="ic">${MODES[k].ic}</span><h3>${MODES[k].n}</h3><p>${MODES[k].d}</p></button>`).join('')}
+        </div>
+        <div style="font-weight:900;color:#12467e;margin-bottom:8px">2. 어떤 문제 묶음으로?</div>
+        <div id="hSets" style="max-height:26vh;overflow:auto;margin-bottom:16px">
+          ${L.map(s=>`<div class="setrow" data-id="${s.id}"><div class="sn">${esc(s.title)}
+            <div class="sc">문제 ${s.n}개</div></div></div>`).join('')}</div>
+        <div class="row gap" style="align-items:flex-end">
+          <div><div class="hint">문제 수</div><input class="inp" id="hCnt" type="number" value="10" min="1" max="50" style="width:100px"></div>
+          <div><div class="hint">한 문제 시간(초)</div><input class="inp" id="hSec" type="number" value="${R.answerSec}" min="5" max="300" style="width:120px"></div>
+          <div class="f1"></div>
+          <button class="btn y big" id="hOpen" disabled>방 열기</button>
+        </div>
+        <div class="hint mt12" id="hNote"></div>
+      </div></div>`;
+    let mode = null, setId = null;
+    const upd = ()=>{ el('hOpen').disabled = !(mode && setId);
+      const n = el('hNote');
+      if(mode==='cross'){ el('hSec').value = 300; el('hCnt').value = 12;
+        n.innerHTML = '가로세로는 <b>정답이 2~7글자</b>인 문제만 씁니다. 한글은 글자가 통째로 겹쳐야 해서, '
+          + '겹칠 데가 없는 낱말은 옆 빈자리에 따로 놓입니다.'; }
+      else if(mode==='ox'){ el('hSec').value = R.oxMoveSec;
+        n.innerHTML = '정답을 <b>O</b> 또는 <b>X</b> 로 적은 문제만 나옵니다. 틀리면 그 판에서 탈락해요.'; }
+      else if(mode){ el('hSec').value = R.answerSec; n.innerHTML = ''; }
+    };
+    $$('[data-m]', box).forEach(b=> b.onclick = ()=>{ mode=b.dataset.m;
+      $$('[data-m]',box).forEach(x=> x.style.outline=''); b.style.outline='4px solid #ff9a24'; upd(); });
+    $$('#hSets .setrow', box).forEach(r=> r.onclick = ()=>{ setId=r.dataset.id;
+      $$('#hSets .setrow',box).forEach(x=>x.classList.remove('on')); r.classList.add('on'); upd(); });
+    el('hOpen').onclick = ()=> openRoom(mode, setId,
+      clamp(parseInt(el('hCnt').value,10)||10,1,50), clamp(parseInt(el('hSec').value,10)||20,5,600));
+  }
+
+  function openRoom(mode, setId, count, sec){
+    const seed = (now() & 0x7fffffff) || 1;
+    const round = ((st.meta && st.meta.round)||0) + 1;
+    let total = count, cross = null;
+    if(mode==='cross'){
+      cross = buildCross(BANK[setId].qs||[], seed, count);
+      if(!cross){ toast('가로세로로 만들 수 있는 낱말이 모자라요 (2~7글자 정답이 2개 이상 필요)', 3600); return; }
+      total = cross.w.length;
+    } else {
+      const qs = pickQs(setId, seed, count, mode==='ox');
+      if(!qs.length){ toast(mode==='ox' ? '정답이 O/X 인 문제가 없어요' : '문제가 없어요', 3200); return; }
+      total = qs.length;
+    }
+    const meta = { open:true, mode, setId, seed, count, sec, total, round,
+      title: (BANK[setId].title||''), phase:'lobby', qi:-1, tEnd:0 };
+    R2.set({ meta, cross: cross? crossPublic(cross) : null }).then(()=> toast('방을 열었어요!'));
+  }
+  function closeRoom(){
+    if(!confirm('수업을 닫을까요? 지금 점수는 사라집니다.')) return;
+    R2.child('meta/open').set(false).then(()=> R2.remove());
+  }
+
+  /* ── 문제 내기 / 채점 ── */
+  function myQs(){ const m = st.meta; return pickQs(m.setId, m.seed, m.count, m.mode==='ox'); }
+  function myCross(){ const m = st.meta; return buildCross(BANK[m.setId].qs||[], m.seed, m.count); }
+
+  function startQ(i){
+    const m = st.meta, qs = myQs();
+    if(i >= qs.length) return doEnd();
+    const it = qs[i];
+    const pub = { t: it.q, n: i+1, tot: qs.length };
+    if(!isOX(it)){ const ch = makeChoices(it, m.seed + i*7919); if(ch) pub.c = ch; }
+    else pub.ox = true;
+    const ups = {};
+    ups['q'] = pub; ups['ans'] = null; ups['reveal'] = null;
+    ups['meta/phase'] = 'ask'; ups['meta/qi'] = i; ups['meta/tEnd'] = svNow() + m.sec*1000;
+    Object.keys(st.players).forEach(k=>{ ups['p/'+k+'/ansAt'] = null; ups['p/'+k+'/ox'] = null; });
+    R2.update(ups);
+  }
+  function doReveal(){
+    const m = st.meta; if(!m || m.phase!=='ask') return;
+    const qs = myQs(), it = qs[m.qi]; if(!it) return;
+    R2.child('ans').once('value').then(sn=>{
+      const ans = sn.val()||{}, ups = {}, tops = [];
+      Object.keys(st.players).forEach(k=>{
+        const p = st.players[k]; if(p.alive===false) return;
+        const a = ans[k]; const ok = a && isRight(a.v, it.a);
+        let pts = 0, gold = 0;
+        if(ok){
+          const usedMs = clamp((a.t||0) - ((m.tEnd||0) - m.sec*1000), 0, m.sec*1000);
+          pts = 100 + Math.round(60 * (1 - usedMs/(m.sec*1000)));
+          gold = R.livePerQ;
+          tops.push({k, name:p.name, ms:usedMs});
+          ups['p/'+k+'/ok'] = (p.ok||0)+1;
+        } else if(m.mode==='ox'){
+          ups['p/'+k+'/alive'] = false;
+        }
+        ups['p/'+k+'/sc']   = (p.sc||0) + pts;
+        ups['p/'+k+'/gain'] = gold;
+        ups['p/'+k+'/gqi']  = m.qi;
+      });
+      tops.sort((a,b)=> a.ms-b.ms);
+      ups['reveal'] = { a: String(it.a).split('/')[0], tops: tops.slice(0,3) };
+      ups['meta/phase'] = 'reveal';
+      R2.update(ups);
+    });
+  }
+  function doEnd(){
+    const arr = Object.keys(st.players).map(k=> Object.assign({k}, st.players[k]))
+      .sort((a,b)=> (b.sc||0)-(a.sc||0));
+    const ups = {};
+    arr.forEach((p,i)=>{
+      let bonus = R.liveRankBonus[i] || 0;
+      if(st.meta.mode==='ox' && p.alive!==false) bonus += 150;
+      ups['p/'+p.k+'/gain'] = bonus; ups['p/'+p.k+'/gqi'] = 'F';
+    });
+    ups['meta/phase'] = 'end';
+    R2.update(ups).then(()=> toast('수업을 마쳤어요'));
+  }
+
+  /* ── 가로세로 채점 ── */
+  let grading = false;
+  function gradeTries(tries){
+    const m = st.meta;
+    if(grading || !m || m.mode!=='cross' || m.phase!=='ask') return;
+    const keys = Object.keys(tries); if(!keys.length) return;
+    grading = true;
+    const cr = myCross(); const byN = {}; cr.w.forEach(w=> byN[w.n]=w);
+    R2.child('cross/f').once('value').then(sn=>{
+      const filled = sn.val()||{}, ups = {};
+      for(const k of keys){
+        const t = tries[k]; ups['cross/try/'+k] = null;
+        const w = byN[t.n]; if(!w || filled[t.n]) continue;
+        if(!isRight(t.v, w.a)) continue;
+        filled[t.n] = 1;
+        const p = st.players[t.by]||{};
+        ups['cross/f/'+t.n] = { a:w.a, by:t.by, name:t.name||p.name||'' };
+        ups['p/'+t.by+'/sc']   = (p.sc||0) + 100 + w.len*20;
+        ups['p/'+t.by+'/ok']   = (p.ok||0) + 1;
+        ups['p/'+t.by+'/gain'] = R.livePerQ;
+        ups['p/'+t.by+'/gqi']  = 'c'+t.n;
+      }
+      R2.update(ups).then(()=>{ grading=false;
+        if(Object.keys(filled).length >= cr.w.length) finishCross(); })
+        .catch(()=>{ grading=false; });
+    }).catch(()=>{ grading=false; });
+  }
+  function finishCross(){
+    const m = st.meta; if(!m || m.phase!=='ask') return;
+    const cr = myCross();
+    R2.update({ 'reveal': { all: cr.w.map(w=>({n:w.n, a:w.a})) }, 'meta/phase':'reveal' });
+  }
+
+  /* ── 방이 열려 있을 때 화면 ── */
+  function paint(){
+    const m = st.meta;
+    if(!m || !m.open) return paintSetup();
+    const arr = Object.keys(st.players).map(k=> Object.assign({k}, st.players[k]))
+      .sort((a,b)=> (b.sc||0)-(a.sc||0));
+    const answered = arr.filter(p=> p.ansAt).length;
+    const alive = arr.filter(p=> p.alive!==false).length;
+    const qs = m.mode==='cross'? [] : myQs();
+    const it = qs[m.qi];
+
+    box.innerHTML = `
+      <div class="pnl col" style="overflow:hidden">
+        <div class="pnl-h">${MODES[m.mode].ic} ${MODES[m.mode].n} — ${esc(m.title)}
+          <div class="f1"></div><button class="btn sm p" id="hClose">방 닫기</button></div>
+        <div style="padding:10px 12px;background:#dceffd;border-bottom:2px solid #b8d8f0">
+          <div class="row gap">
+            <div class="tag" style="background:#0e3f70;color:#fff;padding:5px 12px;font-size:13px">
+              들어온 사람 ${arr.length}명${m.mode==='ox'?' · 살아남음 '+alive:''}</div>
+            ${m.phase==='ask'&&m.mode!=='cross'? `<div class="tag" style="background:#fff;color:#3d8f2e;padding:5px 12px;font-size:13px">답한 사람 ${answered}</div>`:''}
+            <div class="f1"></div>
+            ${m.phase==='ask'? `<div class="tag" style="background:#fff;color:#c0392b;padding:5px 12px;font-size:13px" id="hTime">–</div>`:''}
+          </div>
+          ${m.phase==='ask'? `<div class="timebar mt8"><i id="hBar" style="width:100%"></i></div>`:''}
+        </div>
+        <div class="plist f1" id="hPl"></div>
+      </div>
+      <div class="pnl col" style="overflow:hidden">
+        <div class="pnl-h">조종</div>
+        <div class="f1 scroll" style="padding:14px" id="hCtl"></div>
+      </div>`;
+    el('hClose').onclick = closeRoom;
+    el('hPl').innerHTML = arr.length ? arr.map(p=>`
+      <div class="pcard ${p.ansAt?'ansd':''} ${p.alive===false?'dead':''}">
+        ${avatarSVG(Object.assign(newAvatar(), p.av||{}), 58, 1)}
+        <div class="pn">${esc(p.name||p.k)}</div>
+        <div class="st">${p.sc||0}점</div></div>`).join('')
+      : '<div class="hint">아직 아무도 안 들어왔어요. 아이들에게 <b>수업 참가하기</b>를 누르라고 해 주세요.</div>';
+
+    const ctl = el('hCtl');
+    if(m.mode==='cross'){
+      ctl.innerHTML = `
+        <div class="hint">낱말 ${m.total}개짜리 격자예요. 아이들이 먼저 맞힌 칸을 차지합니다.</div>
+        <div class="mt12 row gap">
+          ${m.phase==='lobby'? `<button class="btn y big f1" id="hGo">시작!</button>`:''}
+          ${m.phase==='ask'?   `<button class="btn p f1" id="hStop">그만하고 정답 보기</button>`:''}
+          ${m.phase==='reveal'?`<button class="btn g f1" id="hEnd">점수 매기고 끝내기</button>`:''}
+          ${m.phase==='end'?   `<button class="btn f1" id="hAgain">다시 열기</button>`:''}
+        </div>
+        <div class="mt12" id="hAns"></div>`;
+      const cr = myCross();
+      el('hAns').innerHTML = (m.phase==='lobby')? '' :
+        '<div style="font-weight:800;color:#12467e;margin-bottom:6px">정답 (선생님만 보임)</div>'
+        + cr.w.map(w=>`<div class="qrow"><span style="width:44px;color:#8fb4d0;font-weight:800">${w.n}${w.dir?'세로':'가로'}</span>
+            <span class="qq">${esc(w.clue)}</span><span class="qa">${esc(w.a)}</span></div>`).join('');
+      const g=el('hGo'); if(g) g.onclick = ()=> R2.update({'meta/phase':'ask','meta/tEnd':svNow()+m.sec*1000});
+      const s2=el('hStop'); if(s2) s2.onclick = finishCross;
+      const e2=el('hEnd'); if(e2) e2.onclick = doEnd;
+    } else {
+      ctl.innerHTML = `
+        ${m.phase==='lobby'? `<div class="hint">아이들이 다 들어오면 시작하세요. 문제 ${m.total}개.</div>
+          <button class="btn y big mt12" style="width:100%" id="hGo">첫 문제 내기</button>`:''}
+        ${it? `<div class="qbox mt12"><div class="qno">${m.qi+1} / ${m.total}</div>
+            <div class="qtext" style="font-size:21px">${esc(it.q)}</div>
+            <div class="mt12" style="font-size:16px;font-weight:900;color:#3d8f2e">
+              정답: ${esc(String(it.a).split('/')[0])} <span class="hint">(선생님만 보임)</span></div></div>`:''}
+        <div class="row gap mt12">
+          ${m.phase==='ask'?   `<button class="btn p f1" id="hRev">지금 정답 공개</button>`:''}
+          ${m.phase==='reveal'? (m.qi+1 < m.total
+              ? `<button class="btn g big f1" id="hNext">다음 문제 ▶</button>
+                 <button class="btn gray" id="hEnd">여기서 끝</button>`
+              : `<button class="btn g big f1" id="hEnd">점수 매기고 끝내기</button>`):''}
+          ${m.phase==='end'?   `<button class="btn f1" id="hAgain">다시 열기</button>`:''}
+        </div>
+        ${m.phase==='end'? `<div class="mt12"><div style="font-weight:900;color:#12467e;margin-bottom:6px">최종 순위</div>
+          ${arr.map((p,i)=>`<div class="rank ${i<3?'t'+(i+1):''}"><div class="no">${i+1}</div>
+            <div class="rn">${esc(p.name)}</div><div class="rs">${p.sc||0}점</div></div>`).join('')}</div>`:''}`;
+      const g=el('hGo');   if(g) g.onclick = ()=> startQ(0);
+      const r3=el('hRev'); if(r3) r3.onclick = doReveal;
+      const n2=el('hNext');if(n2) n2.onclick = ()=> startQ(m.qi+1);
+      const e3=el('hEnd'); if(e3) e3.onclick = doEnd;
+    }
+    const a2=el('hAgain'); if(a2) a2.onclick = ()=> R2.remove().then(paintSetup);
+  }
+  paintSetup();
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   15) 학생 — 수업 참가 화면
+   ═══════════════════════════════════════════════════════════════════ */
+SCREENS.live = function(st){
+  ensureClock();
+  const R2 = rref(), MK = ME.k;
+  const S = { meta:null, p:{}, q:null, rev:null, cf:{}, subs:[], tick:null,
+              phaseKey:'', picked:null, pickedQi:-99, joined:false, appliedGqi:null,
+              clue:null, oxNodes:null };
+  /* 내가 이번 문제에 낸 답. 문제 번호가 다르면 안 낸 것으로 본다. */
+  const myPick = ()=> (S.meta && S.pickedQi === S.meta.qi) ? S.picked : null;
+
+  st.innerHTML = topbar('수업', true) + `<div id="lvWrap" style="position:absolute;inset:54px 0 0 0"></div>`;
+  wireTop();
+  const wrap = el('lvWrap');
+
+  const sub = (ref, ev, cb)=>{ const h = ref.on(ev, cb); S.subs.push(()=> ref.off(ev, h)); };
+  leaveFn = ()=>{ S.subs.forEach(f=>f()); clearInterval(S.tick);
+    if(S.joined) R2.child('p/'+MK).remove().catch(()=>{}); };
+
+  sub(R2.child('meta'),   'value', s=>{ S.meta = s.val(); ensureJoin(); render(); });
+  sub(R2.child('q'),      'value', s=>{ S.q   = s.val(); render(true); });
+  sub(R2.child('reveal'), 'value', s=>{ S.rev = s.val(); render(true); });
+  sub(R2.child('p'),      'value', s=>{ S.p   = s.val()||{}; onMine(); render(); });
+  sub(R2.child('cross/f'),'value', s=>{ S.cf  = s.val()||{}; if(S.meta&&S.meta.mode==='cross') render(true); });
+
+  S.tick = setInterval(()=>{
+    const m = S.meta; if(!m || m.phase!=='ask') return;
+    const left = Math.max(0, (m.tEnd||0) - svNow());
+    const t = el('lvTime'); if(t) t.textContent = Math.ceil(left/1000);
+    const bar = el('lvBar');
+    if(bar && m.sec){ const p = clamp(left/(m.sec*1000)*100,0,100); bar.style.width = p+'%';
+      bar.className = p<20?'hot':p<50?'warn':''; }
+  }, 250);
+
+  function ensureJoin(){
+    const m = S.meta;
+    if(!m || !m.open){ S.joined=false; return; }
+    if(S.joined) return;
+    S.joined = true;
+    const ref = R2.child('p/'+MK);
+    ref.onDisconnect().remove();
+    ref.update({ name:ME.name, av:ME.av, sc:0, ok:0, alive:true });
+  }
+  /* 선생님이 매긴 점수만큼 골드를 받는다 (한 문제에 한 번만) */
+  function onMine(){
+    const mine = S.p[MK]; if(!mine) return;
+    if(mine.gqi != null && mine.gqi !== S.appliedGqi){
+      S.appliedGqi = mine.gqi;
+      const g = mine.gain||0;
+      if(g > 0){ addGold(g, false); toast('+'+g+'골드!', 1600); }
+      const s2 = ME.stat||{solved:0,correct:0};
+      s2.solved = (s2.solved||0)+1; if(g>0) s2.correct = (s2.correct||0)+1;
+      save({stat:s2});
+    }
+  }
+  function sendAnswer(v){
+    const m = S.meta;
+    if(!m || m.phase!=='ask') return;
+    if(myPick() != null) return;
+    S.picked = v; S.pickedQi = m.qi;
+    const t = svNow();
+    R2.child('ans/'+MK).set({v:String(v), t});
+    R2.child('p/'+MK+'/ansAt').set(t);
+    render(true);
+  }
+
+  /* ── 그리기 ── */
+  function render(force){
+    const m = S.meta;
+    const mine = S.p[MK] || {};
+    const key = !m||!m.open ? 'closed'
+      : m.phase+'|'+m.qi+'|'+m.mode+'|'+(m.round||0)+'|'+(myPick()!=null)+'|'+(mine.alive===false)
+        +'|'+(m.mode==='cross'? Object.keys(S.cf).length+'|'+(S.clue||'') : '');
+    if(!force && key === S.phaseKey) { paintLight(); return; }
+    S.phaseKey = key;
+
+    if(!m || !m.open){
+      wrap.innerHTML = `<div class="center" style="height:100%"><div class="pnl" style="padding:26px;text-align:center;width:min(560px,92vw)">
+        <div style="font-size:46px">⏳</div>
+        <div style="font-size:22px;font-weight:900;color:#12467e">아직 수업이 안 열렸어요</div>
+        <div class="hint mt8">선생님이 방을 열면 <b>여기가 저절로 바뀝니다.</b> 기다려 주세요.</div>
+        <div class="row gap mt12" style="justify-content:center">
+          <button class="btn gray" onclick="go('home')">홈으로</button>
+          <button class="btn y" onclick="go('practice')">그동안 혼자 연습하기</button></div></div></div>`;
+      return;
+    }
+    if(m.phase==='lobby')  return paintLobby();
+    if(m.phase==='end')    return paintEnd();
+    if(m.mode==='cross')   return paintCross();
+    if(m.mode==='ox')      return paintOX();
+    return paintQuiz();
+  }
+  function seatHTML(){
+    /* 큐플레이 의자처럼, 반 친구들이 답했는지 한눈에 보이게 */
+    return plArr().sort((a,b)=> String(a.name||'').localeCompare(String(b.name||''))).map(p=>
+      `<div class="pcard ${p.ansAt?'ansd':''} ${p.alive===false?'dead':''}">
+        ${avatarSVG(Object.assign(newAvatar(),p.av||{}),52,1)}
+        <div class="pn">${esc(p.name||p.k)}</div>
+        <div class="st">${p.ansAt?'냈어요':'&nbsp;'}</div></div>`).join('');
+  }
+  function paintLight(){
+    const m = S.meta; if(!m) return;
+    const seat = el('lvSeat'); if(seat) seat.innerHTML = seatHTML();
+    if(m.phase==='lobby' || m.phase==='end'){ const b = el('lvPl');
+      if(b) b.innerHTML = plHTML(); }
+    if(m.mode==='ox' && m.phase==='ask') moveOX();
+    if(m.phase==='reveal'){ const b=el('lvRank'); if(b) b.innerHTML = rankHTML(); }
+  }
+  const plArr = ()=> Object.keys(S.p).map(k=> Object.assign({k}, S.p[k]));
+  function plHTML(){
+    const a = plArr().sort((x,y)=>(y.sc||0)-(x.sc||0));
+    return a.map(p=>`<div class="pcard ${p.alive===false?'dead':''} ${p.k===MK?'ansd':''}">
+      ${avatarSVG(Object.assign(newAvatar(),p.av||{}),58,1)}
+      <div class="pn">${esc(p.name||p.k)}</div><div class="st">${p.sc||0}점</div></div>`).join('')
+      || '<div class="hint">아직 아무도 없어요.</div>';
+  }
+  function rankHTML(){
+    const a = plArr().sort((x,y)=>(y.sc||0)-(x.sc||0)).slice(0,10);
+    return a.map((p,i)=>`<div class="rank ${i<3?'t'+(i+1):''} ${p.k===MK?'me':''}">
+      <div class="no">${i+1}</div><div class="rn">${esc(p.name)}</div>
+      <div class="rs">${p.sc||0}점</div></div>`).join('');
+  }
+  const timeBar = ()=> `<div class="row gap" style="align-items:center;margin-bottom:8px">
+      <div class="timebar f1"><i id="lvBar" style="width:100%"></i></div>
+      <div class="tag" style="background:#0e3f70;color:#fff;font-size:16px;padding:4px 12px"
+        ><span id="lvTime">–</span>초</div></div>`;
+
+  function paintLobby(){
+    const m = S.meta;
+    wrap.innerHTML = `<div style="display:grid;grid-template-rows:auto 1fr;height:100%;padding:12px;gap:10px">
+      <div class="pnl" style="padding:14px 18px;text-align:center">
+        <div style="font-size:26px;font-weight:900;color:#12467e;letter-spacing:-.03em">
+          ${MODES[m.mode].ic} ${MODES[m.mode].n} — ${esc(m.title)}</div>
+        <div class="hint mt8">${MODES[m.mode].d}<br>선생님이 시작하면 바로 문제가 나와요!</div></div>
+      <div class="pnl col" style="overflow:hidden"><div class="pnl-h">들어온 친구들</div>
+        <div class="plist f1" id="lvPl">${plHTML()}</div></div></div>`;
+  }
+  function paintEnd(){
+    const a = plArr().sort((x,y)=>(y.sc||0)-(x.sc||0));
+    const me = a.findIndex(p=>p.k===MK);
+    wrap.innerHTML = `<div class="center" style="height:100%;padding:12px">
+      <div class="pnl" style="padding:20px;width:min(720px,94vw);text-align:center">
+        <div style="font-size:30px;font-weight:900;color:#12467e;letter-spacing:-.04em">수업 끝!</div>
+        <div class="center" style="margin:6px 0">${avatarSVG(ME.av,150,2)}</div>
+        <div style="font-size:20px;font-weight:800;color:#2b5b85">
+          ${me>=0? '나는 <b style="color:#b57700">'+(me+1)+'등</b> · '+(a[me].sc||0)+'점' : '구경했어요'}</div>
+        <div class="mt12" style="max-height:34vh;overflow:auto;text-align:left">${rankHTML()}</div>
+        <div class="row gap mt12" style="justify-content:center">
+          <button class="btn gray" onclick="go('home')">홈으로</button>
+          <button class="btn y" onclick="go('shop')">번 골드로 옷 사기</button></div></div></div>`;
+  }
+
+  function paintQuiz(){
+    const m = S.meta, mine = S.p[MK]||{};
+    const showRev = m.phase==='reveal';
+    wrap.innerHTML = `<div style="display:grid;grid-template-columns:1fr 250px;height:100%;padding:12px;gap:10px">
+      <div class="col" style="overflow:hidden">
+        ${m.phase==='ask'? timeBar():''}
+        <div class="qbox"><div class="qno">${(S.q&&S.q.n)||m.qi+1} / ${m.total}</div>
+          <div class="qtext">${esc((S.q&&S.q.t)||'')}</div></div>
+        <div class="f1 scroll mt12" id="lvAns"></div>
+        <div class="pnl mt12" style="flex:none;overflow:hidden">
+          <div class="plist" id="lvSeat" style="max-height:172px;padding:8px">${seatHTML()}</div></div>
+      </div>
+      <div class="pnl col" style="overflow:hidden">
+        <div class="pnl-h">점수</div>
+        <div style="padding:10px;text-align:center;background:#dceffd">
+          ${avatarSVG(ME.av,92,1)}
+          <div style="font-weight:900;color:#12467e">${esc(ME.name)}</div>
+          <div style="font-size:22px;font-weight:900;color:#b57700">${mine.sc||0}점</div></div>
+        <div class="f1 scroll" style="padding:8px" id="lvRank">${rankHTML()}</div></div></div>`;
+    const area = el('lvAns');
+    if(showRev){
+      const pk = myPick();
+      const ok = pk!=null && S.rev && isRight(pk, S.rev.a);
+      area.innerHTML = `<div class="pnl" style="padding:16px;text-align:center;
+          background:${ok?'#eafbe4':'#fff0ef'};border-color:${ok?'#3d8f2e':'#d94b46'}">
+          <div style="font-size:26px;font-weight:900;color:${ok?'#2c7a22':'#a83531'}">
+            ${ok?'정답이에요! 🎉':(pk==null?'시간이 다 됐어요':'아쉬워요')}</div>
+          <div class="mt8" style="font-size:22px;font-weight:800;color:#12467e">
+            정답은 <b>${esc((S.rev&&S.rev.a)||'')}</b></div>
+          ${(S.rev&&S.rev.tops&&S.rev.tops.length)? `<div class="hint mt12">가장 빨리 맞힌 친구 —
+            ${S.rev.tops.map((t,i)=>['🥇','🥈','🥉'][i]+' '+esc(t.name)).join('  ')}</div>`:''}
+          <div class="hint mt8">선생님이 다음 문제를 낼 때까지 기다려요.</div></div>`;
+      return;
+    }
+    if(myPick() != null){
+      area.innerHTML = `<div class="pnl" style="padding:20px;text-align:center;background:#fff8e6">
+        <div style="font-size:22px;font-weight:900;color:#b57700">답을 냈어요!</div>
+        <div style="font-size:26px;font-weight:900;color:#12467e;margin-top:6px">${esc(myPick())}</div>
+        <div class="hint mt8">친구들이 다 낼 때까지 잠깐만요…</div></div>`;
+      return;
+    }
+    if(mine.alive===false){ area.innerHTML = '<div class="pnl" style="padding:20px;text-align:center">'
+      + '<b>이번 판은 구경이에요.</b><div class="hint mt8">다음 판에 다시 도전!</div></div>'; return; }
+    const it = { q:(S.q&&S.q.t)||'', a:'', c:(S.q&&S.q.c)||null };
+    area.innerHTML = (S.q&&S.q.ox)
+      ? answerUI({q:it.q, a:'O'})
+      : ((S.q&&S.q.c) ? `<div class="choices">` + S.q.c.map((c,i)=>
+          `<button class="ch" data-v="${esc(c)}"><span class="n">${['①','②','③','④','⑤','⑥'][i]}</span><span>${esc(c)}</span></button>`).join('')+`</div>`
+        : `<div class="row gap"><input class="inp f1" id="ansIn" placeholder="답을 여기에 쓰세요" autocomplete="off"
+             style="font-size:22px;padding:14px;font-weight:800;text-align:center">
+           <button class="btn y big" id="ansOk">확인</button></div>`);
+    wireAnswer(area, v=>{ if(!String(v||'').trim()){ toast('답을 골라 주세요'); return; } sendAnswer(v); });
+  }
+
+  function paintOX(){
+    const m = S.meta, mine = S.p[MK]||{};
+    const dead = mine.alive===false;
+    wrap.innerHTML = `<div style="position:absolute;inset:0">
+      <div class="oxstage">
+        <div class="oxzone o" data-z="0"><div class="mark">O</div></div>
+        <div class="oxzone x" data-z="1"><div class="mark">X</div></div>
+      </div>
+      <div class="oxfield" id="oxField"></div>
+      <div style="position:absolute;left:12px;right:12px;top:8px;pointer-events:none">
+        <div class="qbox" style="padding:12px 18px">
+          <div class="qno">${(S.q&&S.q.n)||m.qi+1} / ${m.total}</div>
+          <div class="qtext" style="font-size:22px">${esc((S.q&&S.q.t)||'')}</div></div>
+        <div class="mt8">${m.phase==='ask'? timeBar():''}</div></div>
+      <div style="position:absolute;left:0;right:0;bottom:10px;text-align:center;pointer-events:none" id="oxMsg"></div></div>`;
+    $$('.oxzone', wrap).forEach(z=>{
+      if(myPick() === (z.dataset.z==='0'?'O':'X')) z.classList.add('sel');
+      z.onclick = ()=>{
+      if(m.phase!=='ask' || dead) return;
+      const v = z.dataset.z==='0' ? 'O' : 'X';
+      S.picked = v; S.pickedQi = m.qi;
+      R2.child('ans/'+MK).set({v, t:svNow()});
+      R2.child('p/'+MK).update({ ansAt:svNow(), ox:+z.dataset.z,
+        px:0.12+Math.random()*0.76, py:0.10+Math.random()*0.74 });
+      render(true);
+    };});
+    S.oxNodes = null; moveOX();
+    const msg = el('oxMsg');
+    if(m.phase==='reveal'){
+      const ok = myPick() && S.rev && isRight(myPick(), S.rev.a);
+      msg.innerHTML = `<div class="tag" style="font-size:22px;padding:10px 24px;
+        background:${ok?'#3d8f2e':'#d94b46'};color:#fff">정답은 ${esc((S.rev&&S.rev.a)||'')} —
+        ${ok?'살아남았어요!':'탈락…'}</div>`;
+    } else if(dead) msg.innerHTML = '<div class="tag" style="font-size:17px;padding:8px 20px;background:#0e3f70;color:#fff">탈락했어요 — 친구들을 응원해 주세요</div>';
+    else if(myPick()) msg.innerHTML = '<div class="tag" style="font-size:17px;padding:8px 20px;background:#0e3f70;color:#fff">'+myPick()+' 를 골랐어요 (마음이 바뀌면 다시 눌러도 돼요)</div>';
+    else msg.innerHTML = '<div class="tag" style="font-size:17px;padding:8px 20px;background:#0e3f70;color:#fff">맞으면 O, 틀리면 X 쪽을 눌러요!</div>';
+  }
+  function moveOX(){
+    const f = el('oxField'); if(!f) return;
+    const keys = Object.keys(S.p);
+    if(!S.oxNodes || keys.join(',') !== S.oxNodes.sig){
+      f.innerHTML = keys.map(k=>{ const p=S.p[k];
+        return `<div class="oxdot ${k===MK?'me':''}" data-k="${k}">
+          ${avatarSVG(Object.assign(newAvatar(),p.av||{}),72,1)}
+          <div class="lb">${esc(p.name||k)}</div></div>`; }).join('');
+      S.oxNodes = { sig:keys.join(','), map:{} };
+      $$('.oxdot', f).forEach(n=> S.oxNodes.map[n.dataset.k] = n);
+    }
+    keys.forEach((k,i)=>{
+      const n = S.oxNodes.map[k], p = S.p[k]; if(!n) return;
+      const has = p.ox===0 || p.ox===1;
+      const px = p.px!=null? p.px : ((i%7)/7+0.07), py = p.py!=null? p.py : 0.62;
+      n.style.left = (has ? (p.ox===1?50:0) + px*50 : 8 + (i%9)*4) + '%';
+      n.style.top  = (has ? 26 + py*58 : 88) + '%';
+      n.style.opacity = p.alive===false ? '.35' : '1';
+      n.style.filter  = p.alive===false ? 'grayscale(1)' : '';
+    });
+  }
+
+  function paintCross(){
+    const m = S.meta, mine = S.p[MK]||{};
+    R2.child('cross').once('value').then(sn=>{
+      const cr = sn.val(); if(!cr){ wrap.innerHTML='<div class="center" style="height:100%">격자를 불러오는 중…</div>'; return; }
+      const byN = {}; (cr.w||[]).forEach(w=> byN[w.n]=w);
+      const letters = {};                       // "r,c" -> 글자
+      Object.keys(S.cf).forEach(n=>{ const w = byN[n], f = S.cf[n]; if(!w||!f) return;
+        for(let i=0;i<w.len;i++) letters[(w.dir?w.r+i:w.r)+','+(w.dir?w.c:w.c+i)]
+          = { ch:String(f.a)[i]||'', by:f.by }; });
+      const hi = {};
+      if(S.clue && byN[S.clue]){ const w=byN[S.clue];
+        for(let i=0;i<w.len;i++) hi[(w.dir?w.r+i:w.r)+','+(w.dir?w.c:w.c+i)]=1; }
+      const numByCell = cr.num||{};
+      let grid = `<div class="cgrid" id="cGrid" style="grid-template-columns:repeat(${cr.cols},var(--cs,34px))">`;
+      for(let r=0;r<cr.rows;r++) for(let c=0;c<cr.cols;c++){
+        const open = cr.open[r][c]==='1', key=r+','+c, L=letters[key];
+        grid += `<div class="cc ${open?'open':''} ${L?(L.by===MK?'mine':'done'):''} ${hi[key]&&!L?'hi':''}">`
+          + (numByCell[key]? `<span class="cn">${numByCell[key]}</span>`:'')
+          + (L? `<span class="cv">${esc(L.ch)}</span>`:'') + `</div>`;
+      }
+      grid += `</div>`;
+      const clueRow = (dir)=> (cr.w||[]).filter(w=>w.dir===dir).sort((a,b)=>a.n-b.n).map(w=>
+        `<div class="clue ${S.clue==w.n?'on':''} ${S.cf[w.n]?'done':''}" data-n="${w.n}">
+          <b>${w.n}.</b> ${esc(w.clue)} <span class="hint">(${w.len}글자)</span>
+          ${S.cf[w.n]? '<b style="color:#3d8f2e"> ✔ '+esc(S.cf[w.n].name||'')+'</b>':''}</div>`).join('');
+      const doneN = Object.keys(S.cf).length;
+      wrap.innerHTML = `<div style="display:grid;grid-template-columns:1fr 330px;height:100%;padding:10px;gap:10px">
+        <div class="pnl col" style="overflow:hidden">
+          <div class="pnl-h">${esc(m.title)} — ${doneN}/${(cr.w||[]).length} 칸 채움
+            <div class="f1"></div>${m.phase==='ask'? '<span id="lvTimeW"><span id="lvTime">–</span>초</span>':''}</div>
+          ${m.phase==='ask'? `<div style="padding:6px 10px 0"><div class="timebar"><i id="lvBar" style="width:100%"></i></div></div>`:''}
+          <div class="cwrap f1">${grid}</div>
+          <div style="padding:8px 10px;background:#dceffd;border-top:2px solid #b8d8f0">
+            <div class="row gap">
+              <div class="tag" style="background:#0e3f70;color:#fff;padding:8px 12px" id="cSel">
+                ${S.clue? S.clue+'번 ('+ (byN[S.clue].dir?'세로':'가로') +', '+byN[S.clue].len+'글자)' : '오른쪽에서 문제를 골라요'}</div>
+              <input class="inp f1" id="cIn" placeholder="답안지" autocomplete="off"
+                style="font-size:19px;font-weight:800;text-align:center" ${S.clue?'':'disabled'}>
+              <button class="btn y" id="cOk" ${S.clue?'':'disabled'}>내기</button></div></div>
+        </div>
+        <div class="pnl col" style="overflow:hidden">
+          <div class="pnl-h">문제</div>
+          <div class="f1 scroll" style="padding:8px">
+            <div style="font-weight:900;color:#12467e;margin:4px 0">가로</div>${clueRow(0)}
+            <div style="font-weight:900;color:#12467e;margin:8px 0 4px">세로</div>${clueRow(1)}
+            <div style="font-weight:900;color:#12467e;margin:10px 0 4px">점수</div>${rankHTML()}
+          </div></div></div>`;
+      $$('.clue', wrap).forEach(c=> c.onclick = ()=>{ S.clue = +c.dataset.n; render(true);
+        const i2 = el('cIn'); if(i2) i2.focus(); });
+      const send = ()=>{
+        const v = (el('cIn').value||'').trim();
+        if(!S.clue || !v){ toast('문제를 고르고 답을 써 주세요'); return; }
+        if(S.cf[S.clue]){ toast('이미 채워진 칸이에요'); return; }
+        R2.child('cross/try/'+MK+'_'+S.clue).set({ n:S.clue, v, by:MK, name:ME.name, t:svNow() });
+        el('cIn').value=''; toast('냈어요!');
+      };
+      const ok = el('cOk'); if(ok) ok.onclick = send;
+      const inp = el('cIn'); if(inp) inp.onkeydown = e=>{ if(e.key==='Enter') send(); };
+      /* 칸 크기를 남은 자리에 맞춰 키운다 (크롬북 화면에서 글씨가 커 보이게) */
+      const box2 = $('.cwrap', wrap);
+      if(box2){ const cs = clamp(Math.floor(Math.min(
+          (box2.clientWidth  - 24) / cr.cols,
+          (box2.clientHeight - 24) / cr.rows)), 24, 56);
+        const g = el('cGrid'); if(g) g.style.setProperty('--cs', cs+'px'); }
+      if(m.phase==='reveal' && S.rev && S.rev.all && S.revToast !== m.round){
+        S.revToast = m.round;
+        toast('정답 공개! 못 채운 칸은 선생님 화면에서 볼 수 있어요', 3000);
+      }
+    });
+  }
+  render();
+};
+
+/* ═══════════════════════════════════════════════════════════════════
+   16) 시작
+   ═══════════════════════════════════════════════════════════════════ */
+window.go = go; window.closeModal = closeModal;
+window.addEventListener('error', e=>{ console.error(e.error||e.message); });
+go('login');
+</script>
+</body>
+</html>
