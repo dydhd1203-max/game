@@ -395,51 +395,83 @@ function drawBody(sk){
   + E(100,232,34,7,sh(sk,-.06));                                  // 허리 그늘
 }
 function drawHead(sk){
-  const d = sh(sk,-.12), l = sh(sk,.4);
+  const d = sh(sk,-.12), l = sh(sk,.42);
   return ''
-  + E(48,100,10,14,d) + E(152,100,10,14,d)                        // 귀
-  + E(48,100,5,8,sh(sk,-.25)) + E(152,100,5,8,sh(sk,-.25))
-  + PA('M100 40 C58 40 42 68 42 100 C42 134 66 152 100 152 C134 152 158 134 158 100 C158 68 142 40 100 40 Z', sk)  // 얼굴
-  + E(100,58,40,18,l,' opacity=".45"');                           // 이마 하이라이트
+  /* 귀 — 턱보다 조금 위, 작게 */
+  + PA('M46 92 C38 92 34 100 36 108 C38 116 46 120 50 116 L52 96 Z', sk)
+  + PA('M154 92 C162 92 166 100 164 108 C162 116 154 120 150 116 L148 96 Z', sk)
+  + LN('M44 100 C41 104 42 110 46 112', sh(sk,-.3), 2)
+  + LN('M156 100 C159 104 158 110 154 112', sh(sk,-.3), 2)
+  /* 얼굴 — 위는 둥글고 턱은 갸름하게. 그냥 동그라미면 아기처럼 보인다 */
+  + PA('M100 34 C60 34 42 60 42 94 C42 114 49 129 62 139 C73 148 87 154 100 154'
+     + ' C113 154 127 148 138 139 C151 129 158 114 158 94 C158 60 140 34 100 34 Z', sk)
+  + PA('M100 34 C74 34 58 45 49 62 C62 50 79 44 100 44 C121 44 138 50 151 62'
+     + ' C142 45 126 34 100 34 Z', l, ' opacity=".5"')
+  + PA('M62 139 C73 148 87 154 100 154 C113 154 127 148 138 139'
+     + ' C126 145 114 148 100 148 C86 148 74 145 62 139 Z', d, ' opacity=".45"');
 }
-/* ── 눈 8종 ── */
+
+/* ── 눈 ──────────────────────────────────────────────────────
+   홍채를 겹쳐 그리고, 윗속눈썹을 두껍게 얹고, 반짝이를 두 개 넣는다.
+   이 세 가지가 빠지면 인형 눈처럼 밋밋해진다. */
+function iris(x, c, rx, ry){
+  const id = sh(c,-.45), il = sh(c,.3);
+  return E(x,105,rx,ry,'#fff')
+   + E(x,107,rx*.80,ry*.80,il)
+   + E(x,108,rx*.62,ry*.62,c)
+   + E(x,109,rx*.34,ry*.36,'#17120e')
+   + E(x,107,rx*.80,ry*.80,'none',` stroke="${id}" stroke-width="2.2"`)
+   + C(x-rx*.34,101,rx*.30,'#fff')
+   + C(x+rx*.36,112,rx*.16,'#fff',' opacity=".85"');
+}
+function lash(x, dir, y, w){                       // 윗속눈썹 + 바깥쪽 삐침
+  y = y||90; w = w||4.6;
+  return LN(`M${x-15} ${y+9} Q${x} ${y-1} ${x+15} ${y+9}`, '#4a3428', w)
+   + PA(`M${x+dir*15} ${y+8} L${x+dir*22} ${y+5} L${x+dir*17} ${y+13} Z`, '#4a3428');
+}
 const EYES = {
-  round:['동그란 눈',(c)=>{
-    const w=(x)=> C(x,104,15,'#fff')+C(x,105,11,c)+C(x,106,6,'#1a1410')
-      + C(x-4,100,4.5,'#fff')+C(x+5,110,2.4,'#fff','  opacity=".8"');
-    return w(74)+w(126);
-  }],
-  big:['왕눈이',(c)=>{ const w=(x)=> E(x,104,17,19,'#fff')+E(x,106,13,15,c)+E(x,108,7,8,'#12100c')
-      + C(x-5,99,5.5,'#fff')+C(x+6,112,2.8,'#fff','  opacity=".85"');
-    return w(73)+w(127); }],
-  sleepy:['졸린 눈',(c)=>{ const w=(x)=> C(x,105,13,'#fff')+C(x,106,10,c)+C(x,107,5,'#1a1410')
-      + PA(`M${x-15} 100 Q${x} 90 ${x+15} 100 L${x+15} 96 Q${x} 84 ${x-15} 96 Z`,'#f0c9ac')
-      + LN(`M${x-14} 99 Q${x} 92 ${x+14} 99`,'#7a5340',3); return w(74)+w(126); }],
+  round:['동그란 눈',(c)=> iris(74,c,15,16.5)+iris(126,c,15,16.5)+lash(74,-1)+lash(126,1)],
+  big:['왕눈이',(c)=> iris(73,c,17.5,19)+iris(127,c,17.5,19)+lash(73,-1,87,6)+lash(127,1,87,6)
+     + LN('M58 124 Q74 128 90 124','#c9a189',2)+LN('M110 124 Q126 128 142 124','#c9a189',2)],
+  sleepy:['졸린 눈',(c)=> iris(74,c,14,15)+iris(126,c,14,15)
+     + LN('M58 100 Q74 88 90 100','#39281f',6)+LN('M110 100 Q126 88 142 100','#39281f',6)
+     + LN('M60 108 Q74 114 88 108','#c9a189',2)+LN('M112 108 Q126 114 140 108','#c9a189',2)],
   star:['별눈',(c)=>{ const st=(x,y,r,f)=>{ let d='';
-      for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.45:r;
+      for(let i=0;i<10;i++){ const a=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.44:r;
         d += (i?'L':'M')+(x+Math.cos(a)*rr).toFixed(1)+' '+(y+Math.sin(a)*rr).toFixed(1); }
       return PA(d+'Z',f); };
-    const w=(x)=> C(x,104,15,'#fff')+C(x,105,11,c)+st(x,105,10,'#fff8d0')+st(x,105,5,'#fff');
-    return w(74)+w(126); }],
-  smile:['웃는 눈',(c)=>{ const w=(x)=> LN(`M${x-13} 108 Q${x} 92 ${x+13} 108`,'#3a2a1e',6);
-    return w(74)+w(126); }],
-  cat:['고양이 눈',(c)=>{ const w=(x)=> E(x,104,13,17,'#fff')+E(x,105,10,14,c)
-      + PA(`M${x} 94 C${x+4} 100 ${x+4} 112 ${x} 118 C${x-4} 112 ${x-4} 100 ${x} 94 Z`,'#12100c')
-      + C(x-4,99,4,'#fff'); return w(74)+w(126); }],
-  wink:['윙크',(c)=>{ return C(74,104,15,'#fff')+C(74,105,11,c)+C(74,106,6,'#1a1410')+C(70,100,4.5,'#fff')
-      + LN('M113 106 Q126 94 139 106','#3a2a1e',6); }],
-  heart:['하트눈',(c)=>{ const hp=(x,y,s,f)=> PA(`M${x} ${y+s*.85} C${x-s*1.15} ${y-s*.15} ${x-s*.6} ${y-s} ${x} ${y-s*.35} C${x+s*.6} ${y-s} ${x+s*1.15} ${y-s*.15} ${x} ${y+s*.85} Z`,f);
-    const w=(x)=> C(x,104,15,'#fff')+C(x,105,11,c)+hp(x,104,10,'#ff5f8f')+hp(x-2,101,4,'#ffd0dd');
-    return w(74)+w(126); }]
+    const one=(x)=> E(x,105,15,16.5,'#fff')+E(x,107,12,13,sh(c,.15))+st(x,107,11,'#fff9d8')+st(x,107,5.5,'#fff');
+    return one(74)+one(126)+lash(74,-1)+lash(126,1); }],
+  smile:['웃는 눈',(c)=> LN('M60 110 Q74 90 88 110','#39281f',6.5)+LN('M112 110 Q126 90 140 110','#39281f',6.5)
+     + LN('M62 116 Q74 122 86 116','#f0a8b8',2.5,' opacity=".7"')
+     + LN('M114 116 Q126 122 138 116','#f0a8b8',2.5,' opacity=".7"')],
+  cat:['고양이 눈',(c)=>{ const one=(x)=> E(x,105,13.5,17,'#fff')+E(x,107,11,14,sh(c,.2))+E(x,108,8.5,11.5,c)
+      + PA(`M${x} 96 C${x+4.5} 102 ${x+4.5} 116 ${x} 122 C${x-4.5} 116 ${x-4.5} 102 ${x} 96 Z`,'#17120e')
+      + C(x-4.5,101,4.2,'#fff')+C(x+4,114,1.9,'#fff',' opacity=".8"');
+    return one(74)+one(126)+lash(74,-1,88,5)+lash(126,1,88,5); }],
+  wink:['윙크',(c)=> iris(74,c,15,16.5)+lash(74,-1)
+     + LN('M112 106 Q126 92 140 106','#39281f',6.5)
+     + PA('M140 100 L149 96 L143 108 Z','#39281f')],
+  heart:['하트눈',(c)=>{ const hp=(x,y,s2,f)=> PA(`M${x} ${y+s2*.85} C${x-s2*1.15} ${y-s2*.15} ${x-s2*.6} ${y-s2} ${x} ${y-s2*.35} C${x+s2*.6} ${y-s2} ${x+s2*1.15} ${y-s2*.15} ${x} ${y+s2*.85} Z`,f);
+    const one=(x)=> E(x,105,15,16.5,'#fff')+E(x,107,12,13,sh(c,.2))+hp(x,106,10.5,'#ff5f8f')+hp(x-2.5,103,4,'#ffd6e2');
+    return one(74)+one(126)+lash(74,-1)+lash(126,1); }]
 };
 function drawFace(av){
   const sk = PAL.skin[av.sk||0][0];
   const ec = PAL.eye[av.ec||0][0];
   const eye = EYES[av.eyes] || EYES.round;
-  return eye[1](ec)
-  + E(64,124,11,7,'#ff9db4',' opacity=".55"') + E(136,124,11,7,'#ff9db4',' opacity=".55"')  // 볼터치
-  + PA('M92 132 Q100 141 108 132 Q100 137 92 132 Z','#c4574f')                                // 입
-  + E(100,118,3,2.2,sh(sk,-.18),' opacity=".7"');                                             // 코
+  /* 눈썹 색은 머리 색을 따라간다 — 안 그러면 가발 쓴 것처럼 따로 논다 */
+  let bc = '#6b4a33';
+  if(av.hair){ const ci = +String(av.hair).split(':')[1];
+    if(PAL.hair[ci]) bc = sh(PAL.hair[ci][0], -.18); }
+  return LN('M59 80 Q73 72 88 77', bc, 4.4) + LN('M141 80 Q127 72 112 77', bc, 4.4)
+  + eye[1](ec)
+  + E(60,126,11.5,6.5,'#ff9db4',' opacity=".5"') + E(140,126,11.5,6.5,'#ff9db4',' opacity=".5"')
+  + LN('M97 119 Q101 122 99 125', sh(sk,-.28), 2.4)
+  + PA('M90 132 C94 131 97 135 100 135 C103 135 106 131 110 132'
+     + ' C108 143 92 143 90 132 Z','#c0504a')
+  + PA('M93 134 C96 137 104 137 107 134 C104 132.5 96 132.5 93 134 Z','#fff',' opacity=".8"')
+  + LN('M90 132 C94 131 97 135 100 135 C103 135 106 131 110 132','#8f342f',2);
 }
 
 /* ── 머리 12종 ── {b:뒷머리, f:앞머리} ── */
@@ -876,16 +908,16 @@ const BACKS = {
     PA('M78 152 C56 132 26 130 14 148 C28 150 36 158 34 168 C48 164 56 170 58 180 C66 176 74 180 78 188 Z','#7b3a5e')
   + PA('M122 152 C144 132 174 130 186 148 C172 150 164 158 166 168 C152 164 144 170 142 180 C134 176 126 180 122 188 Z','#7b3a5e')],
   fairy:['요정 날개',700,(c,d,l)=>
-    E(58,166,32,24,c,' opacity=".62" transform="rotate(-22 58 166)"')
-  + E(64,198,24,17,c,' opacity=".62" transform="rotate(-14 64 198)"')
-  + E(142,166,32,24,c,' opacity=".62" transform="rotate(22 142 166)"')
-  + E(136,198,24,17,c,' opacity=".62" transform="rotate(14 136 198)"')
-  + E(58,166,32,24,'none',` opacity=".8" stroke="#fff" stroke-width="2" transform="rotate(-22 58 166)"`)
-  + E(142,166,32,24,'none',` opacity=".8" stroke="#fff" stroke-width="2" transform="rotate(22 142 166)"`)],
+    E(42,158,36,26,c,' opacity=".6" transform="rotate(-28 42 158)"')
+  + E(52,200,27,19,c,' opacity=".6" transform="rotate(-16 52 200)"')
+  + E(158,158,36,26,c,' opacity=".6" transform="rotate(28 158 158)"')
+  + E(148,200,27,19,c,' opacity=".6" transform="rotate(16 148 200)"')
+  + LN('M74 172 C58 162 46 154 34 150',sh(c,-.3),2,' opacity=".7"')
+  + LN('M126 172 C142 162 154 154 166 150',sh(c,-.3),2,' opacity=".7"')],
   butterfly:['나비 날개',700,(c,d,l)=>
-    E(56,162,30,26,c,' transform="rotate(-18 56 162)"') + E(62,202,22,19,d,' transform="rotate(-12 62 202)"')
-  + E(144,162,30,26,c,' transform="rotate(18 144 162)"') + E(138,202,22,19,d,' transform="rotate(12 138 202)"')
-  + C(48,158,6,'#fff',' opacity=".65"')+C(152,158,6,'#fff',' opacity=".65"')],
+    E(44,154,33,28,c,' transform="rotate(-24 44 154)"') + E(52,204,25,21,d,' transform="rotate(-14 52 204)"')
+  + E(156,154,33,28,c,' transform="rotate(24 156 154)"') + E(148,204,25,21,d,' transform="rotate(14 148 204)"')
+  + C(36,148,7,'#fff',' opacity=".6"')+C(164,148,7,'#fff',' opacity=".6"')],
   cape:['망토',450,(c,d,l)=>
     PA('M72 148 C40 172 30 220 34 258 C68 268 132 268 166 258 C170 220 160 172 128 148 Z',c)
   + PA('M100 150 C96 190 96 226 100 262 L108 262 C112 226 112 190 108 150 Z',d,' opacity=".35"')
@@ -1014,6 +1046,22 @@ function part(catKey, val, want){
   return out[want] || '';           // 머리처럼 {b,f} 를 돌려주는 것
 }
 
+/* 그림에 선을 두른다.
+   paint-order="stroke" 는 선을 칠 밑에 깔아서, 도형이 안 깎이고 테두리만 생긴다.
+   이 한 줄로 아이템 992종 전부에 선이 들어간다 — 함수를 하나씩 고칠 필요가 없다. */
+const INK = '#4a3427';
+function ink(str, w){
+  return str ? `<g stroke="${INK}" stroke-width="${w||3}" stroke-linejoin="round"`
+    + ` stroke-linecap="round" paint-order="stroke fill markers">${str}</g>` : '';
+}
+/* 머리를 통째로 조금 줄인다. 머리·머리카락·모자·안경이 같이 줄어야 비율이 안 깨진다 */
+const HEADT = ' transform="translate(100 96) scale(.93) translate(-100 -96)"';
+/* 앞머리는 조금 내려 덮는다. 이마가 훤하면 사람 얼굴로 안 보인다 */
+const BANGT = ' transform="translate(100 96) scale(.93) translate(-100 -96) translate(0 11) scale(1.04 1) translate(-4 0)"';
+/* 몸은 조금 홀쭉하고 길게. 옷·신발이 같은 상자 안에 있어서 같이 늘어난다 */
+const BODYT = ' transform="translate(100 214) scale(.91 1.07) translate(-100 -214)"';
+
+
 /* ── 아바타 한 장 그리기 ──────────────────────────────────────
    lod 2 = 크게(홈·상점), lod 1 = 작게(명단·OX). 작을 땐 등장식을 뺀다. */
 const avCache = new Map();
@@ -1026,20 +1074,23 @@ function avatarSVG(av, size, lod){
   const hit = avCache.get(key); if(hit) return hit;
   const sk = (PAL.skin[av.sk] || PAL.skin[0])[0];
   let s = '';
-  if(lod >= 2) s += part('back', av.back);
-  s += part('hair', av.hair, 'b');
-  s += drawBody(sk);
-  s += part('bottom', av.bottom);
-  s += part('shoes', av.shoes);
-  s += part('top', av.top);
-  s += part('neck', av.neck);
-  s += drawHead(sk);
-  s += drawFace(av);
-  s += part('glass', av.glass);
-  s += part('hair', av.hair, 'f');
-  s += part('ear', av.ear);
-  s += part('hat', av.hat);
-  if(lod >= 2) s += part('pet', av.pet);
+  if(lod >= 2) s += ink(part('back', av.back), 2.8);
+  s += `<g${HEADT}>` + ink(part('hair', av.hair, 'b'), 3.2) + `</g>`;
+  s += `<g${BODYT}>` + ink(drawBody(sk), 3)
+     + ink(part('bottom', av.bottom), 2.8)
+     + ink(part('shoes', av.shoes), 2.8)
+     + ink(part('top', av.top), 2.8)
+     + ink(part('neck', av.neck), 2.2) + `</g>`;
+  s += `<g${HEADT}>`
+     + ink(drawHead(sk), 3)
+     + drawFace(av)                       /* 얼굴은 선이 이미 들어 있어서 안 두른다 */
+     + ink(part('glass', av.glass), 2.2)
+     + `</g><g${BANGT}>` + ink(part('hair', av.hair, 'f'), 3.2)
+     + `</g><g${HEADT}>`
+     + ink(part('ear', av.ear), 2.2)
+     + ink(part('hat', av.hat), 2.8)
+     + `</g>`;
+  if(lod >= 2) s += ink(part('pet', av.pet), 2.8);
   const svg = `<svg viewBox="0 0 ${AVW} ${AVH}" width="${size*AVW/AVH}" height="${size}" `
     + `shape-rendering="geometricPrecision" style="display:block">${s}</svg>`;
   if(avCache.size > 260) avCache.clear();
@@ -1055,21 +1106,22 @@ function partThumb(catKey, shape, ci, h){
   if(catKey==='pet'){                       // 펫은 사람 없이 펫만 보여 준다
     const [px,py,pw,ph2] = c.crop.split(' ').map(Number);
     return `<svg viewBox="${c.crop}" height="${h}" width="${(h*pw/ph2)|0}" style="display:block">`
-      + part('pet', base.pet) + `</svg>`;
+      + ink(part('pet', base.pet), 2.8) + `</svg>`;
   }
   if(catKey==='top')    base.bottom = 'shorts:9';
   if(catKey==='bottom') base.top    = 'tee:8';
   if(catKey==='hair'||catKey==='hat'||catKey==='glass'||catKey==='ear') base.hair = (catKey==='hair'?shape+':'+ci:'short:0');
   const sks = (PAL.skin[base.sk])[0];
   let s = '';
-  if(catKey==='back' || catKey==='pet') s += part(catKey, base[catKey]);
-  s += part('hair', base.hair, 'b');
-  s += drawBody(sks);
-  s += part('bottom', base.bottom) + part('shoes', base.shoes) + part('top', base.top)
-     + part('neck', base.neck);
-  s += drawHead(sks) + drawFace(base);
-  s += part('glass', base.glass) + part('hair', base.hair, 'f')
-     + part('ear', base.ear) + part('hat', base.hat);
+  if(catKey==='back') s += ink(part('back', base.back), 2.8);
+  s += `<g${HEADT}>` + ink(part('hair', base.hair, 'b'), 3.2) + `</g>`;
+  s += `<g${BODYT}>` + ink(drawBody(sks), 3)
+     + ink(part('bottom', base.bottom), 2.8) + ink(part('shoes', base.shoes), 2.8)
+     + ink(part('top', base.top), 2.8) + ink(part('neck', base.neck), 2.2) + `</g>`;
+  s += `<g${HEADT}>` + ink(drawHead(sks), 3) + drawFace(base)
+     + ink(part('glass', base.glass), 2.2) + `</g>`
+     + `<g${BANGT}>` + ink(part('hair', base.hair, 'f'), 3.2) + `</g>`
+     + `<g${HEADT}>` + ink(part('ear', base.ear), 2.2) + ink(part('hat', base.hat), 2.8) + `</g>`;
   const [cx,cy,cw,ch] = c.crop.split(' ').map(Number);
   return `<svg viewBox="${c.crop}" height="${h}" width="${(h*cw/ch)|0}" style="display:block">${s}</svg>`;
 }
@@ -1522,8 +1574,8 @@ SCREENS.shop = function(st){
         el('fSk').innerHTML = rowBtn(PAL.skin, ME.av.sk);
         el('fEc').innerHTML = rowBtn(PAL.eye,  ME.av.ec);
         el('fEy').innerHTML = eyeKeys.map(k=>`<button class="itm ${ME.av.eyes===k?'on':''}" data-k="${k}">
-          <div class="thumb"><svg viewBox="40 74 120 66" height="52" style="display:block">
-            ${drawHead(PAL.skin[ME.av.sk][0])}${drawFace({sk:ME.av.sk,ec:ME.av.ec,eyes:k})}</svg></div>
+          <div class="thumb"><svg viewBox="40 70 120 70" height="52" style="display:block">
+            ${ink(drawHead(PAL.skin[ME.av.sk][0]),3)}${drawFace({sk:ME.av.sk,ec:ME.av.ec,eyes:k,hair:ME.av.hair})}</svg></div>
           <div class="nm2">${EYES[k][0]}</div></button>`).join('');
         $$('#fSk button').forEach(b=> b.onclick=()=>{ ME.av.sk=+b.dataset.i; save({av:ME.av}); S.pv=Object.assign({},ME.av); paintPv(); redraw(); });
         $$('#fEc button').forEach(b=> b.onclick=()=>{ ME.av.ec=+b.dataset.i; save({av:ME.av}); S.pv=Object.assign({},ME.av); paintPv(); redraw(); });
