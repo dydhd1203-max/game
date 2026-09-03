@@ -1,7 +1,9 @@
 /* 9차 손질 검사 — 체력바·화면 배치·할 일 안내·지도 상인·쓰러짐 */
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve2.mjs';
-const srv = serve(9340, '/home/user/game/index.html');
+import { GAME } from './gamefile.mjs';
+const PORT = +(process.argv[3] || 9340);
+const srv = serve(PORT, process.argv[2] || GAME);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
 const errs=[];
 const R=[];
@@ -11,7 +13,7 @@ const ok=(n,c,v)=>R.push([n,!!c,v===undefined?'':String(v)]);
 for(const [w,h] of [[1400,860],[1280,800],[1180,700],[1024,640],[900,600],[820,1180],[760,420]]){
   const pg = await b.newPage({viewport:{width:w,height:h}});
   pg.on('pageerror', e=>errs.push(e.message));
-  await pg.goto('http://127.0.0.1:9340/', {waitUntil:'load', timeout:60000});
+  await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
   await pg.waitForFunction('window.__READY===true', {timeout:60000});
   await pg.fill('#iName','t'); await pg.evaluate(()=>document.querySelector('#bSolo').click());
   await pg.waitForTimeout(800);
@@ -39,7 +41,7 @@ for(const [w,h] of [[1400,860],[1280,800],[1180,700],[1024,640],[900,600],[820,1
 const pg = await b.newPage({viewport:{width:1180,height:700}});
 pg.on('pageerror', e=>errs.push(e.message));
 pg.on('console', m=>{ if(m.type()==='error') errs.push('console '+m.text()); });
-await pg.goto('http://127.0.0.1:9340/', {waitUntil:'load', timeout:60000});
+await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
 await pg.waitForFunction('window.__READY===true', {timeout:60000});
 await pg.fill('#iName','김하늘'); await pg.evaluate(()=>document.querySelector('#bSolo').click());
 await pg.waitForTimeout(900);

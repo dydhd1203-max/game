@@ -1,7 +1,8 @@
 /* 11차 검사 — 넷리파이 배지 자리 · HUD 겹침 · 최적화(그리기 횟수·색만 고치기) */
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve2.mjs';
-const FILE = process.argv[2] || '/home/user/game/index.html';
+import { GAME } from './gamefile.mjs';
+const FILE = process.argv[2] || GAME;
 const PORT = +(process.argv[3] || 9600);
 const srv = serve(PORT, FILE);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});

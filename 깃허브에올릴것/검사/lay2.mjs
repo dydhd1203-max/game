@@ -1,11 +1,13 @@
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve2.mjs';
-const srv = serve(10320, '/home/user/game/index.html');
+import { GAME } from './gamefile.mjs';
+const PORT = +(process.argv[3] || 10320);
+const srv = serve(PORT, process.argv[2] || GAME);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
 for(const [w,h,t] of [[1366,768,1],[1024,768,1],[1024,640,1],[1024,640,0],[900,600,1],[900,600,0],[820,500,1],[760,420,0]]){
   const ctx=await b.newContext({viewport:{width:w,height:h},hasTouch:!!t,isMobile:!!t});
   const pg=await ctx.newPage();
-  await pg.goto('http://127.0.0.1:10320/',{waitUntil:'load',timeout:60000});
+  await pg.goto('http://127.0.0.1:'+PORT+'/',{waitUntil:'load',timeout:60000});
   await pg.waitForFunction('window.__READY===true',{timeout:60000});
   await pg.fill('#iName','t'); await pg.evaluate(()=>document.querySelector('#bSolo').click());
   await pg.waitForTimeout(700);

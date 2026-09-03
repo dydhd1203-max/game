@@ -1,13 +1,15 @@
 /* 8차 패치 검사 — T 공격모드 · FPS 조준 · 총 타격감 · 인벤토리 */
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve2.mjs';
-const srv = serve(9210, '/home/user/game/index.html');
+import { GAME } from './gamefile.mjs';
+const PORT = +(process.argv[3] || 9210);
+const srv = serve(PORT, process.argv[2] || GAME);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
 const ctx = await b.newContext({viewport:{width:1180,height:700}});
 const pg = await ctx.newPage();
 const errs=[]; pg.on('pageerror', e=>errs.push(e.message));
 pg.on('console', m=>{ if(m.type()==='error') errs.push('console '+m.text()); });
-await pg.goto('http://127.0.0.1:9210/', {waitUntil:'load', timeout:60000});
+await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
 await pg.waitForFunction('window.__READY===true', {timeout:60000});
 await pg.fill('#iName','김하늘');
 await pg.evaluate(()=>document.querySelector('#bSolo').click());

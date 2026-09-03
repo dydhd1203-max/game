@@ -1,7 +1,9 @@
 /* 화면 배치 검사 — 잘리거나 겹치는 자리가 없는지 실제 크기를 재서 본다 */
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve2.mjs';
-const srv = serve(8901, '/home/user/game/index.html');
+import { GAME } from './gamefile.mjs';
+const PORT = +(process.argv[3] || 8901);
+const srv = serve(PORT, process.argv[2] || GAME);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
 let pass=0, fail=0;
 const ok=(c,n,d)=>{ if(c){pass++;console.log('  OK  '+n+(d?'   → '+d:''));} else {fail++;console.log('  ✗   '+n+(d?'   → '+d:''));} };
@@ -9,7 +11,7 @@ const errs=[];
 async function screen(tag, w, h, touch){
   const pg = await b.newPage({viewport:{width:w,height:h}, hasTouch:!!touch, isMobile:!!touch});
   pg.on('pageerror', e=>errs.push(tag+': '+e.message));
-  await pg.goto('http://127.0.0.1:8901/', {waitUntil:'load', timeout:60000});
+  await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
   await pg.waitForFunction('window.__READY===true', {timeout:60000});
   await pg.fill('#iName','김하늘'); await pg.evaluate(()=>document.querySelector('#bSolo').click());
   await pg.waitForTimeout(1300);

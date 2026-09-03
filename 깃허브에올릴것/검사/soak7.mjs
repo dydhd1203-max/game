@@ -1,12 +1,14 @@
 /* 실제로 몇 밤을 돌려 본다 — 상점·물약·총·숫자·체력바가 다 켜진 채로 오류가 없는지 */
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve2.mjs';
-const srv = serve(9160, '/home/user/game/index.html');
+import { GAME } from './gamefile.mjs';
+const PORT = +(process.argv[3] || 9160);
+const srv = serve(PORT, process.argv[2] || GAME);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
 const pg = await b.newPage({viewport:{width:1100,height:700}});
 const errs=[]; pg.on('pageerror', e=>errs.push(e.message));
 pg.on('console', m=>{ if(m.type()==='error') errs.push('console '+m.text()); });
-await pg.goto('http://127.0.0.1:9160/', {waitUntil:'load', timeout:60000});
+await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
 await pg.waitForFunction('window.__READY===true', {timeout:60000});
 await pg.fill('#iName','김하늘'); await pg.evaluate(()=>document.querySelector('#bSolo').click());
 await pg.waitForTimeout(1200);

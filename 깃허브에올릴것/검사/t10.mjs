@@ -1,13 +1,15 @@
 /* 7차 패치 검사 — 꾸미기 · 3인칭 죽음 · 상인 · 데미지 숫자 · 늑대 AI · 밸런스 */
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve2.mjs';
-const srv = serve(8931, '/home/user/game/index.html');
+import { GAME } from './gamefile.mjs';
+const PORT = +(process.argv[3] || 8931);
+const srv = serve(PORT, process.argv[2] || GAME);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
 const ctx = await b.newContext({viewport:{width:1180,height:700}});
 const pg = await ctx.newPage();
 const errs=[]; pg.on('pageerror', e=>errs.push(e.message));
 pg.on('console', m=>{ if(m.type()==='error') errs.push('console '+m.text()); });
-await pg.goto('http://127.0.0.1:8931/', {waitUntil:'load', timeout:60000});
+await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
 await pg.waitForFunction('window.__READY===true', {timeout:60000});
 
 const out = await pg.evaluate(async ()=>{
@@ -274,7 +276,12 @@ const out = await pg.evaluate(async ()=>{
   const wm = W.__spawnWolf(0, 0);
   ok('★ 배수가 진짜 늑대에게 먹었다 (기본 40 × 성장 × 1.85)',
      wm.mx > 40*1.85, Math.round(wm.mx));
-  ok('★ 금 광맥이 2배 (4 → 8)', W.__NODE_DEF.gold.amt===2, W.__NODE_DEF.gold.amt);
+  /* ★ 칸당 보상(amt) 하나만 보면 안 된다 — 14차에 칸 수(hits/per)도 같이 바뀌면서
+     amt 는 2→3 인데 광맥당 총 산출은 8→15 가 됐다. 아이가 실제로 얻는 건 '총 산출'이다.
+     그래서 총 산출로 잰다 (7차의 '금 2배' 취지를 그대로 지킨다). */
+  const gd0 = W.__NODE_DEF.gold, goldPerVein = (gd0.hits/gd0.per)*gd0.amt;
+  ok('★ 금 광맥 산출이 예전(4)의 두 배를 넘는다', goldPerVein >= 8,
+     goldPerVein + ' 금/광맥 (칸 ' + (gd0.hits/gd0.per) + ' × ' + gd0.amt + ')');
   const A = W.__BUILD.arrow;
   ok('★ 화살탑 간격이 2배 (0.70 → 1.40)', Math.abs(A.rate[0]-1.40)<0.001, A.rate[0]);
   ok('★ 화살탑 한 방이 1.7배 (13 → 22)', A.dmg[0]===22, A.dmg[0]);

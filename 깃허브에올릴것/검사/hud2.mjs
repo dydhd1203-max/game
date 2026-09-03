@@ -1,6 +1,7 @@
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve2.mjs';
-const FILE=process.argv[2]||'/home/user/game/index.html', PORT=+(process.argv[3]||8995);
+import { GAME } from './gamefile.mjs';
+const FILE=process.argv[2]||GAME, PORT=+(process.argv[3]||8995);
 const srv = serve(PORT, FILE);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
 const pg = await b.newPage({viewport:{width:1280,height:720}});

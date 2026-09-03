@@ -1,14 +1,16 @@
 /* 6차 패치 검사 — 망루·모둠띠·철거·멈춤·기록·기억 */
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve2.mjs';
-const srv = serve(8915, '/home/user/game/index.html');
+import { GAME } from './gamefile.mjs';
+const PORT = +(process.argv[3] || 8915);
+const srv = serve(PORT, process.argv[2] || GAME);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
 const ctx = await b.newContext({viewport:{width:1180,height:660}});
 const pg = await ctx.newPage();
 const errs=[]; pg.on('pageerror', e=>errs.push(e.message));
 let pass=0, fail=0;
 const ok=(c,n,d)=>{ if(c){pass++;console.log('  OK  '+n+(d?'   → '+d:''));} else {fail++;console.log('  ✗   '+n+(d?'   → '+d:''));} };
-await pg.goto('http://127.0.0.1:8915/', {waitUntil:'load', timeout:60000});
+await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
 await pg.waitForFunction('window.__READY===true', {timeout:60000});
 await pg.fill('#iName','김하늘');
 await pg.evaluate(()=>document.querySelectorAll('#grpPick button')[2].click());   // 3모둠
@@ -180,7 +182,7 @@ const before = await pg.evaluate(()=>({uid:window.__uid, ls:{
   u:localStorage.getItem('sheepUid'), n:localStorage.getItem('sheepName'),
   g:localStorage.getItem('sheepG')}}));
 const pg2 = await ctx.newPage();
-await pg2.goto('http://127.0.0.1:8915/', {waitUntil:'load', timeout:60000});
+await pg2.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
 await pg2.waitForFunction('window.__READY===true', {timeout:60000});
 const after = await pg2.evaluate(()=>({uid:window.__uid,
   name:document.getElementById('iName').value,

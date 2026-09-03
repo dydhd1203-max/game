@@ -1,7 +1,8 @@
 /* 12차 검사 — 경험치·레벨·스텟(C) · 늑대 강화 · 탑 개수 제한 풀기 */
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve2.mjs';
-const FILE = process.argv[2] || '/home/user/game/index.html';
+import { GAME } from './gamefile.mjs';
+const FILE = process.argv[2] || GAME;
 const PORT = +(process.argv[3] || 10400);
 const srv = serve(PORT, FILE);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
@@ -75,7 +76,11 @@ const r = await pg.evaluate(()=>{
   /* ── 무엇을 하면 경험치가 오르나 ── */
   W.__xpReset();
   const gains = {};
-  const probe = (name, f)=>{ const a = X.xp + 0; f(); gains[name] = X.xp - a; };
+  /* ★ 지금까지 쌓은 경험치를 '합계' 로 재야 한다. 레벨이 오르는 순간 X.xp 는 줄어들어서
+     '강화하면 경험치를 준다' 가 음수로 나온다(실제로 −20 이 나왔다).
+     레벨 곡선이 눕는 순간(14차) 바로 터졌다. t15 에서 같은 이유로 고친 적이 있다. */
+  const xpTot = ()=>{ let t = X.xp; for(let L=1;L<X.lv;L++) t += W.__XP_NEED[L]; return t; };
+  const probe = (name, f)=>{ const a = xpTot(); f(); gains[name] = xpTot() - a; };
   for(let i=0;i<5;i++) W.__base[i]={w:99999,s:99999,o:99999}; W.__recompute();
   /* 캐기 */
   const node = W.__NODES.find(n=>n.alive && n.type==='tree');
@@ -113,15 +118,19 @@ const r = await pg.evaluate(()=>{
   return o;
 });
 
-ok('만렙은 10', r.lvMax === 10, r.lvMax);
+ok('만렙은 25', r.lvMax === 25, r.lvMax);
 ok('레벨이 오를수록 필요한 경험치가 는다', r.needRises, r.need.join('/'));
-ok('★ 만렙까지 필요한 경험치 합계 (성실한 아이 15일치)', r.needTotal > 8000 && r.needTotal < 11000, r.needTotal);
-ok('★ 선생님이 날짜를 줄이면 표도 같이 줄어든다 (8일 = 15일의 절반쯤)',
-   Math.abs(r.shortTotal/r.needTotal - 8/15) < 0.02, r.shortTotal + ' / ' + r.needTotal);
+/* ★ 14차 — 만렙이 25 가 되면서 합계도 통째로 바뀌었다.
+   하네스(lvsim)로 '열심히 한 아이(0.7)가 18일차에 만렙' 이 되게 맞춘 값이다. */
+ok('★ 만렙까지 필요한 경험치 합계 (열심히 한 아이 18일치)',
+   r.needTotal > 15000 && r.needTotal < 21000, r.needTotal);
+/* 기준 날짜가 15 에서 18 로 바뀌었으므로 비율도 8/18 이다 */
+ok('★ 선생님이 날짜를 줄이면 표도 같이 줄어든다 (8일 = 18일의 8/18)',
+   Math.abs(r.shortTotal/r.needTotal - 8/18) < 0.02, r.shortTotal + ' / ' + r.needTotal);
 ok('처음엔 레벨 1 · 점수 1 · 스텟 0', r.startLv===1 && r.startPts===1 && r.startSt.every(v=>v===0));
 ok('경험치를 받으면 레벨이 오른다', r.afterLv === 3, 'Lv'+r.afterLv);
 ok('★ 레벨마다 점수가 딱 한 점씩 (처음 1점 + 레벨마다 1점)', r.ptsMatch, r.afterPts+'점');
-ok('만렙에 닿으면 거기서 멈춘다', r.capLv === 10, 'Lv'+r.capLv);
+ok('만렙에 닿으면 거기서 멈춘다', r.capLv === r.lvMax, 'Lv'+r.capLv);
 ok('★ 만렙 뒤에는 경험치가 더 안 쌓인다', r.capNoGain);
 ok('★ 점수가 없으면 못 찍는다', r.noFreePts);
 ok('★ 스텟은 최대치를 못 넘는다', r.noOverMax);
@@ -257,7 +266,11 @@ const ui = await pg.evaluate(async ()=>{
   cards[0].querySelector('button').click();
   o.clicked = W.__XP.st[0] === st0 + 1;
   o.stillOpen = document.getElementById('popStat').classList.contains('on');
-  o.refreshed = /1\/5/.test(cards[0].textContent) || /1\/5/.test(document.querySelector('#stList .stIt').textContent);
+  /* ★ '1/5' 를 박아 두면 상한을 고칠 때마다 죽는다(14차에 5→8 이 됐다).
+     게임의 STATS 에서 상한을 읽어 그 글자를 찾는다. */
+  const want = '1/' + W.__STATS[0].max;
+  o.refreshed = document.querySelector('#stList .stIt').textContent.includes(want);
+  o.wantTxt = want;
   dispatchEvent(new KeyboardEvent('keydown',{key:'c'}));
   await new Promise(r=>setTimeout(r,60));
   o.closed = !document.getElementById('popStat').classList.contains('on');
@@ -272,7 +285,7 @@ ok('★ C 를 누르면 스텟 창이 열린다', ui.opened);
 ok('스텟이 여섯 개 다 나온다', ui.cards === 6, ui.cards + '개');
 ok('★ ＋ 를 누르면 실제로 찍힌다', ui.clicked);
 ok('찍어도 창이 안 닫힌다 (연달아 찍을 수 있게)', ui.stillOpen);
-ok('찍으면 창이 바로 다시 그려진다', ui.refreshed);
+ok('찍으면 창이 바로 다시 그려진다', ui.refreshed, ui.wantTxt);
 ok('C 를 다시 누르면 닫힌다', ui.closed);
 ok('★ HUD 에 레벨이 뜬다', /Lv\.\d+/.test(ui.chip), ui.chip);
 ok('★ 남은 점수가 HUD 에 뜬다', /＋/.test(ui.pts), ui.pts);
