@@ -2943,11 +2943,14 @@ function buildShop(){
   const RY = Math.PI/2 - SHOP_A, cr = Math.cos(RY), sr = Math.sin(RY);
   /* ★ 조각의 방향만 돌리면 안 되고 놓이는 자리(dx 옆 · dz 앞)도 같이 돌려야 한다.
      안 그러면 차양은 돌아가 있는데 기둥은 제자리에 남아 좌판이 어긋난다. */
-  const put = (key, geo, dx,dy,dz, sx,sy,sz, col)=>
+  /* ★ rz(옆으로 기울이기)를 열어 둔다 — 4차에서 배운 것이다.
+     기울어진 면이 하나도 없으면 아무리 조각을 붙여도 '상자 더미'로 보인다.
+     팔을 조금 벌리고 모자 챙을 기울이는 것만으로 인형 티가 크게 준다. */
+  const put = (key, geo, dx,dy,dz, sx,sy,sz, col, tilt)=>
     bpush(key, geo, MAT, SHOP_X + dx*cr + dz*sr, y0+dy, SHOP_Z - dx*sr + dz*cr,
-          RY, sx,sy,sz, 0, col||0);
-  const P = (dx,dy,dz,sx,sy,sz,col)=> put('shopW', gP, dx,dy,dz, sx,sy,sz, col);
-  const C = (dx,dy,dz,sx,sy,sz,col)=> put('shopC', gC, dx,dy,dz, sx,sy,sz, col);
+          RY, sx,sy,sz, tilt||0, col||0);
+  const P = (dx,dy,dz,sx,sy,sz,col,t)=> put('shopW', gP, dx,dy,dz, sx,sy,sz, col, t);
+  const C = (dx,dy,dz,sx,sy,sz,col,t)=> put('shopC', gC, dx,dy,dz, sx,sy,sz, col, t);
 
 
   P( 0, 0.10, 0,     2.60,0.20,1.10);                       // 좌판 상판
@@ -2961,13 +2964,41 @@ function buildShop(){
   C( 0, 0.28, 0.20,  0.34,0.16,0.34, 0xffd94a);             // 좌판 위 금덩이
   P( 0.80,0.30,-0.10, 0.30,0.20,0.30, 0x9a5f3a);            // 상자
   P(-0.80,0.30,-0.10, 0.30,0.20,0.30, 0x9a5f3a);
-  /* 상인 — 양보다 크고 챙 넓은 모자를 쓴 실루엣이라야 멀리서도 "저기 뭐가 있다"고 읽힌다 */
-  C( 0, 0.52,-0.85, 0.62,1.05,0.50, 0x5b6ea8);              // 몸
-  C( 0, 1.22,-0.85, 0.52,0.44,0.46, 0xf0d8b8);              // 얼굴
-  C( 0, 1.50,-0.85, 0.92,0.12,0.84, 0x3c4a78);              // 챙
-  C( 0, 1.62,-0.85, 0.46,0.22,0.44, 0x3c4a78);              // 모자 위
-  for(const s of [-1,1]) C(s*0.14, 1.24,-0.60, 0.10,0.10,0.08, 0x241f1c);   // 눈
-  C( 0, 1.12,-0.60, 0.16,0.06,0.08, 0xd08a80);              // 입
+  /* ── 상인 ──
+     ★ 예전 모습이 "이상한 인형" 이었던 이유는 셋이었다:
+       ① 머리가 몸통만큼 넓었다 (0.52 대 0.62). 사람은 어깨가 머리보다 훨씬 넓다.
+       ② 목도 다리도 없었다 — 몸통 한 덩이가 바닥까지 내려왔다.
+       ③ 팔이 아예 없었다.
+     어깨를 넓히고, 목을 넣고, 다리를 둘로 가르고, 팔을 조금 벌려 달았다.
+     4차에서 병정을 고칠 때와 같은 처방이다("가로가 세로보다 길어서 판자처럼 보였다"). */
+  const SKIN = 0xf0d2ae, ROBE = 0x4a5c96, ROBE_D = 0x36457a, TRIM = 0xd8b45a;
+  // 다리 — 둘로 가르면 그것만으로 '서 있는 사람'이 된다
+  for(const s of [-1,1]){
+    C(s*0.14, 0.20,-0.85, 0.19,0.42,0.22, ROBE_D);
+    P(s*0.14, 0.03,-0.85, 0.21,0.10,0.26, 0x5a4632);        // 신발
+  }
+  // 몸통 — 아래가 좁고 어깨가 넓다. 두 단으로 나누면 허리가 생긴다
+  C( 0, 0.52,-0.85, 0.46,0.42,0.38, ROBE);                  // 허리
+  C( 0, 0.72,-0.85, 0.14,0.09,0.42, TRIM);                  // 허리띠
+  C( 0, 0.95,-0.85, 0.62,0.44,0.44, ROBE);                  // 가슴·어깨 (허리보다 넓다)
+  C( 0, 1.02,-0.63, 0.30,0.34,0.06, TRIM);                  // 앞섶 장식
+  // 팔 — 살짝 벌어지게 기울인다. 곧게 내리면 다시 인형이 된다
+  for(const s of [-1,1]){
+    C(s*0.37, 0.90,-0.85, 0.17,0.44,0.20, ROBE_D, s*0.16);  // 위팔
+    C(s*0.44, 0.62,-0.78, 0.15,0.26,0.17, SKIN,  s*0.10);   // 손·팔뚝
+  }
+  // 목 — 이거 하나로 머리가 '얹힌' 게 아니라 '달린' 것이 된다
+  C( 0, 1.20,-0.85, 0.17,0.10,0.17, SKIN);
+  // 머리 — 어깨(0.62)보다 확실히 좁게
+  C( 0, 1.38,-0.85, 0.38,0.36,0.36, SKIN);
+  C( 0, 1.30,-0.85, 0.40,0.14,0.38, 0x8a6a4a);              // 구레나룻·수염
+  C( 0, 1.22,-0.68, 0.20,0.13,0.10, 0x8a6a4a);              // 턱수염
+  for(const s of [-1,1]) C(s*0.10, 1.42,-0.69, 0.07,0.08,0.06, 0x2a2420);   // 눈
+  C( 0, 1.34,-0.69, 0.11,0.05,0.06, 0xc07a70);              // 입
+  // 챙 넓은 모자 — 멀리서 이 실루엣 하나로 "상인" 이 읽힌다. 살짝 기울여 쓴다
+  C( 0, 1.58,-0.85, 0.94,0.09,0.86, ROBE_D, 0.07);
+  C( 0, 1.68,-0.85, 0.40,0.20,0.38, ROBE_D, 0.07);
+  C( 0, 1.62,-0.85, 0.42,0.07,0.40, TRIM,   0.07);          // 모자 띠
 }
 
 
@@ -2983,12 +3014,12 @@ function buildForge(){
   const gS = cube(T.stone), gP = cube(T.plank), gC = cube(T.cloth), gG = cube(T.glow);
   const y0 = terrAt(Math.round(FORGE_X), Math.round(FORGE_Z));
   const RY = Math.PI/2 - FORGE_A, cr = Math.cos(RY), sr = Math.sin(RY);
-  const put = (key, geo, dx,dy,dz, sx,sy,sz, col)=>
+  const put = (key, geo, dx,dy,dz, sx,sy,sz, col, tilt)=>
     bpush(key, geo, MAT, FORGE_X + dx*cr + dz*sr, y0+dy, FORGE_Z - dx*sr + dz*cr,
-          RY, sx,sy,sz, 0, col||0);
-  const S = (dx,dy,dz,sx,sy,sz,col)=> put('forgeS', gS, dx,dy,dz, sx,sy,sz, col);
-  const P = (dx,dy,dz,sx,sy,sz,col)=> put('forgeP', gP, dx,dy,dz, sx,sy,sz, col);
-  const C = (dx,dy,dz,sx,sy,sz,col)=> put('forgeC', gC, dx,dy,dz, sx,sy,sz, col);
+          RY, sx,sy,sz, tilt||0, col||0);
+  const S = (dx,dy,dz,sx,sy,sz,col,t)=> put('forgeS', gS, dx,dy,dz, sx,sy,sz, col, t);
+  const P = (dx,dy,dz,sx,sy,sz,col,t)=> put('forgeP', gP, dx,dy,dz, sx,sy,sz, col, t);
+  const C = (dx,dy,dz,sx,sy,sz,col,t)=> put('forgeC', gC, dx,dy,dz, sx,sy,sz, col, t);
   /* 화덕 불 — 스스로 밝은 재질(EMITC). 성문 번호판과 같은 방법이다.
      밤에도 대장간이 어디 있는지 이것 하나로 보인다. 뱅크가 하나 더 들지만
      열쇠 하나 = 그리기 한 번이라 값이 싸다. */
@@ -3015,14 +3046,50 @@ function buildForge(){
   for(const sx of [-1,1]) P(sx*0.46, 0.23, -0.95, 0.12,0.42,0.12, 0xc09a68);
   P( 0.10, 0.62, -0.95, 0.10,0.20,0.10, 0xc09a68);          // 세워 둔 망치 자루
   S( 0.10, 0.76, -0.95, 0.24,0.15,0.15, 0xdfe4ea);          // 망치 머리
-  /* 대장장이 — 상인보다 어깨가 넓고 앞치마를 둘렀다. 멀리서 실루엣으로 갈린다 */
-  C( 0, 0.56, -0.10, 0.74,1.06,0.54, 0xa87a52);             // 몸
-  C( 0, 0.40,  0.19, 0.58,0.68,0.10, 0x8a6440);             // 가죽 앞치마
-  C( 0, 1.28, -0.10, 0.50,0.44,0.44, 0xf2d4ac);             // 얼굴
-  C( 0, 1.53, -0.10, 0.58,0.13,0.54, 0x6b5c48);             // 두건
-  for(const sx of [-1,1]) C(sx*0.13, 1.30, 0.13, 0.09,0.09,0.07, 0x3a322c);   // 눈
-  C( 0, 1.14, 0.13, 0.19,0.06,0.07, 0xc07a6a);              // 입
-  for(const sx of [-1,1]) C(sx*0.46, 0.70, 0.02, 0.20,0.52,0.22, 0xe8c49a);   // 팔
+  /* ── 대장장이 ──
+     ★ 상인과 같은 처방(목·다리·어깨)에 더해, 이 사람은 '대장장이답게' 보여야 한다:
+       어깨가 상인보다 넓고, 팔뚝이 굵고, 가죽 앞치마가 무릎까지 오고, 수염이 덥수룩하다.
+       한쪽 팔은 망치를 든 채 위로 들려 있다 — 가만히 선 사람보다 훨씬 살아 보인다.
+     ★ 상인과 실루엣이 확실히 갈려야 한다. 둘 다 '수정 옆에 선 사람' 이라
+       멀리서 헷갈리면 애들이 엉뚱한 데로 간다. 상인은 챙 넓은 모자, 이쪽은 넓은 어깨다. */
+  /* ★ 처음엔 웃옷·앞치마·바지를 다 짙은 갈색으로 뒀다가 화면에서 '갈색 덩어리 하나' 가 됐다.
+     4차에 건물에서 배운 것과 같다 — 재질 대비가 없으면 조각을 아무리 붙여도 안 읽힌다.
+     웃옷을 밝은 적갈색으로 올리고 앞치마·바지는 짙게 남겨 세 층이 갈리게 했다. */
+  const SKIN2 = 0xf0d0a8, TUNIC = 0xc2765a, APRON = 0x5a3a22, APRON_D = 0x44290f;
+  /* ★ 처음엔 모루와 화덕 딱 가운데(dz -0.10)에 세웠더니 양옆에 끼어 답답했다.
+     0.35칸 앞으로 내보내면 셋이 '작업하는 자리' 처럼 배치된다. */
+  // 다리 — 앞치마 밑으로 장화가 보인다
+  for(const sx of [-1,1]){
+    C(sx*0.17, 0.22, 0.25, 0.22,0.46,0.24, 0x4a3a2a);
+    P(sx*0.17, 0.04, 0.25, 0.25,0.11,0.30, 0x3a2c1e);       // 장화
+  }
+  // 몸통 — 어깨가 아주 넓다(0.86). 상인(0.62)과 한눈에 갈린다
+  C( 0, 0.55,  0.25, 0.56,0.46,0.42, TUNIC);                // 허리
+  C( 0, 1.00,  0.25, 0.86,0.48,0.48, TUNIC);                // 가슴·어깨
+  // 가죽 앞치마 — 무릎까지. 위는 좁고 아래로 벌어진다
+  C( 0, 1.06,  0.51, 0.34,0.34,0.07, APRON);                // 가슴받이
+  C( 0, 0.62,  0.52, 0.56,0.56,0.08, APRON);                // 몸통 앞
+  C( 0, 0.26,  0.51, 0.60,0.30,0.08, APRON_D, 0.06);        // 무릎 앞 (살짝 벌어짐)
+  C( 0, 0.80,  0.52, 0.62,0.09,0.09, APRON_D);              // 앞치마 끈
+  // 팔 — 왼팔은 내리고, 오른팔은 망치를 든 채 들려 있다
+  C(-0.50, 0.92,  0.25, 0.22,0.50,0.24, SKIN2, -0.13);      // 왼 위팔
+  C(-0.58, 0.62,  0.30, 0.20,0.28,0.21, SKIN2, -0.08);      // 왼 손
+  C( 0.50, 0.98,  0.33, 0.22,0.46,0.24, SKIN2,  0.30);      // 오른 위팔 (들림)
+  C( 0.66, 1.26,  0.41, 0.20,0.30,0.21, SKIN2,  0.50);      // 오른 손
+  P( 0.74, 1.46,  0.45, 0.09,0.36,0.09, 0xa87a48, 0.50);    // 든 망치 자루
+  S( 0.82, 1.64,  0.47, 0.30,0.18,0.18, 0xdfe4ea, 0.50);    // 망치 머리
+  // 목 · 머리
+  C( 0, 1.28,  0.25, 0.20,0.11,0.20, SKIN2);
+  C( 0, 1.48,  0.25, 0.42,0.38,0.40, SKIN2);
+  C( 0, 1.38,  0.45, 0.42,0.20,0.15, 0x7a5a40);             // 덥수룩한 수염
+  C( 0, 1.27,  0.42, 0.22,0.13,0.13, 0x6b4d38);             // 턱수염 끝
+  for(const sx of [-1,1]) C(sx*0.11, 1.53, 0.43, 0.08,0.08,0.07, 0x2e2822);   // 눈
+  /* ★ '눈썹 위 그늘' 로 어두운 띠를 하나 얹었다가 이마를 통째로 덮어 얼굴이 안 보였다.
+     빼고, 눈썹만 가늘게 남긴다. */
+  for(const sx of [-1,1]) C(sx*0.11, 1.59, 0.43, 0.10,0.04,0.06, 0x5a4030);   // 눈썹
+  // 머리 두건 — 뒤로 묶은 천. 살짝 기울여야 천처럼 보인다
+  C( 0, 1.70,  0.25, 0.46,0.14,0.44, 0x7a2f26, 0.05);
+  C( 0, 1.66,  0.01, 0.16,0.10,0.16, 0x7a2f26, 0.05);       // 뒤로 묶인 끝
 }
 
 /* ★ 성문을 자원보다 먼저 세운다 — 망루 계단 자리를 먼저 잡아 놔야
@@ -3996,7 +4063,47 @@ function mkFist(){
 /* 무기 번호 -> 손에 드는 모형 */
 const gunModels = [mkFist(), mkSling(), mkMusket(), mkRifle(), mkSMG(), mkSniper(), mkLaser()];
 
-for(const g of gunModels) if(g){ bakeHeld(g); g.visible = false; held.add(g); }
+/* ═══════ 강화한 총이 내 손에서도 빛난다 (14차 손질) ═══════
+   ★ 처음엔 남의 총(P_gunF)에만 빛을 붙였다. 그런데 아이가 제일 많이 보는 총은
+     '자기가 든 총'이다 — 대장간에서 +6 을 만들고 나와도 자기 화면에서는 아무 일도
+     안 일어났다. "강화했는데 안 빛나요" 가 그것이었다.
+   ★ 총 하나에 빛 조각 둘: 총열을 감싸는 후광 + 총구 끝의 불티.
+     한 번에 한 자루만 보이므로 늘어나는 그리기는 최대 2 번이다.
+   ★ 재질은 하나를 돌려 쓴다. 한 번에 한 자루만 보이니 색을 그때그때 바꿔도 안 섞인다.
+     MeshBasicMaterial + 가산합성이라 조명을 안 받고 스스로 빛나 보인다
+     (Lambert 의 emissive 로 만들면 색이 안 먹는다 — 남의 총에서 이미 겪었다). */
+const matEnhGlow = new THREE.MeshBasicMaterial({
+  map:ATLAS, color:0xffffff, transparent:true, opacity:0.85,
+  depthWrite:false, blending:THREE.AdditiveBlending, fog:false });
+const gunGlow = [];                       // 무기 번호 -> {halo, tip}
+const _gbb = new THREE.Box3(), _gsz = new THREE.Vector3(), _gct = new THREE.Vector3();
+for(let i=0;i<gunModels.length;i++){
+  const g = gunModels[i];
+  if(!g){ gunGlow.push(null); continue; }
+  bakeHeld(g); g.visible = false; held.add(g);
+  /* ★ 굽고 나서 붙인다. 굽기(bakeHeld)는 재질끼리 지오메트리를 합치면서
+     자식을 갈아치우므로, 먼저 붙이면 빛이 총 몸통에 합쳐져 색을 못 바꾼다. */
+  if(i === 0){ gunGlow.push(null); continue; }        // 맨손 돌은 강화 못 한다
+  _gbb.setFromObject(g); _gbb.getSize(_gsz); _gbb.getCenter(_gct);
+  /* 총은 +z 가 앞(총구)이다. 모형 좌표 그대로 붙이므로 총이 어떻게 돌아가든 따라간다. */
+  /* ★ 후광은 총보다 '살짝 커야' 보인다. 재 보니 총 몸통이 0.30~0.42 인데
+     처음엔 후광을 0.55배로 만들어 놓고 크기까지 줄여서 0.17 이 됐다 — 총 속에 파묻혔다.
+     반대로 크게 하면 총구 밖으로 삐져나와 화면을 덮는다(10차 총구 화염과 같은 함정).
+     그래서 몸통 크기 그대로 만들고, 1.05~1.45배 사이에서만 키운다 —
+     어느 단계에서도 '총을 감싼 테두리' 로 보이고, 절대 화면을 안 덮는다. */
+  const halo = new THREE.Mesh(
+    boxGeo(T.glow,T.glow,T.glow,T.glow,T.glow,T.glow,
+           _gsz.x, _gsz.y, _gsz.z), matEnhGlow);
+  halo.position.copy(_gct); halo.frustumCulled = false; halo.renderOrder = 11;
+  const t = Math.max(_gsz.x, _gsz.y) * 0.42;
+  const tip = new THREE.Mesh(
+    boxGeo(T.glow,T.glow,T.glow,T.glow,T.glow,T.glow, t, t, t), matEnhGlow);
+  tip.position.set(_gct.x, _gct.y, _gbb.max.z - t*0.3);
+  tip.frustumCulled = false; tip.renderOrder = 11;
+  halo.visible = tip.visible = false;
+  g.add(halo); g.add(tip);
+  gunGlow.push({halo, tip, base:{hx:halo.scale.x, tx:tip.scale.x}});
+}
 
 let gunKick = 0;
 /* ★ 총구 화염은 '손에 든 모형'에 붙이지 않는다.
@@ -4065,17 +4172,50 @@ function updHeld(dt, mining, minePct){
   /* ★ -0.26 으로 뒀더니 총이 아래 트레이 뒤에 완전히 가려져 "총이 안 보인다" 였다.
      화면에 찍어 보고 -0.16 으로 올렸다(트레이 위쪽 y≈470). */
   const BX = holdGun ? 0.24 : 0.50, BY = holdGun ? -0.20 : -0.40, BZ = holdGun ? -0.48 : -0.74;
+  /* ── 강화한 총이 손에서 빛난다 ──
+     단계별 모습은 남의 총(ENH_FX)과 똑같은 표를 쓴다 — 두 곳이 어긋나면
+     "친구 총은 빨간데 내 총은 안 빨개요" 가 된다. */
+  let shake = 0;
+  const gg = holdGun ? gunGlow[KIT.wpn] : null;
+  const eLv = gg ? enhOf(KIT.wpn) : 0;
+  for(let i=1;i<gunGlow.length;i++){
+    const q = gunGlow[i]; if(!q) continue;
+    const on = (q === gg) && eLv > 0;
+    if(q.halo.visible !== on){ q.halo.visible = on; q.tip.visible = on && eLv >= 3; }
+    else if(on) q.tip.visible = eLv >= 3;
+  }
+  if(gg && eLv > 0){
+    const FX = ENH_FX[eLv];
+    /* 숨쉬듯 커졌다 작아진다. 단계가 높을수록 빠르게.
+       ★ 폭은 ±7% 로 묶는다. 처음엔 ±14% 로 뛰게 했는데 단계 사이 간격보다 커서,
+         어느 순간에는 +1 이 +3 보다 커 보였다. 단계는 크기보다 '색' 으로 갈리게 하고,
+         크기는 은은하게만 움직인다. */
+    const pulse = 0.93 + Math.sin(bobT*FX.pulse*0.9)*0.07;
+    /* 1.02배(테두리가 겨우 보임) ~ 1.48배(확 빛남) 사이.
+       1.0 밑이면 총 속에 파묻히고, 1.5 를 넘으면 화면을 덮는다 — 둘 다 실제로 겪었다. */
+    const k = (1.02 + FX.fp*0.50) * pulse;
+    gg.halo.scale.setScalar(k);
+    gg.tip.scale.setScalar((0.50 + FX.fp*0.80) * pulse);
+    matEnhGlow.color.setHex(FX.col || wpnNow().tr);
+    /* 가산합성이라 진하게 두면 흰색으로 날아간다. 0.72 에서 묶는다. */
+    matEnhGlow.opacity = Math.min(0.72, 0.42 + FX.fp*0.34);
+    shake = FX.sh;                       // +4 부터 손이 떨린다
+  }
 
 
 
 
 
 
-  held.rotation.x = -a*1.25 + Math.sin(bobT)*0.012 - kx*0.30;
-  held.rotation.z =  a*0.42;
+  /* ★ 떨림은 화면 흔들림이 아니라 '손에 든 것'만 떤다. 화면을 흔들면 조준이 어려워져
+     강화가 벌이 된다 — 9살이 +6 을 만들고 나서 더 못 맞히면 안 된다. */
+  const shx = shake ? Math.sin(tAcc*47)*shake*0.6 : 0;
+  const shy = shake ? Math.sin(tAcc*61 + 1.7)*shake*0.6 : 0;
+  held.rotation.x = -a*1.25 + Math.sin(bobT)*0.012 - kx*0.30 + shy*0.5;
+  held.rotation.z =  a*0.42 + shx*0.5;
   held.position.set(
-    BX + Math.sin(bobT)*0.012 - a*0.07,
-    BY + Math.abs(Math.sin(bobT*2))*0.012 - a*0.07 + kx*0.045,
+    BX + Math.sin(bobT)*0.012 - a*0.07 + shx,
+    BY + Math.abs(Math.sin(bobT*2))*0.012 - a*0.07 + kx*0.045 + shy,
     BZ + a*0.07 + kx*0.16);
 }
 
@@ -4483,18 +4623,23 @@ const P_gun  = imesh(cube(T.stone), MAT, MAXP*3, 1),
 /* 강화 단계마다 어떻게 보이나 — 선생님 요청 그대로다.
      +0 안 빛남 · +1 미세하게 · +2 더 · +3 아주 반짝반짝 ·
      +4 부터 떨림(진동) · +5 파란 빛 · +6 붉은 빛
-   glow = 빛 조각의 크기(0이면 아예 안 그린다) · sh = 떨리는 폭 · col = 빛 색(0이면 무기 색) */
+   glow = 빛 조각의 크기(0이면 아예 안 그린다) · sh = 떨리는 폭 · col = 빛 색(0이면 무기 색)
+   ★ fp = '내가 든 총(1인칭)' 에서 쓰는 크기. glow 를 그대로 쓰면 안 된다 —
+     1인칭 총은 카메라에서 반 칸 앞이라, 남의 총에서 알맞던 크기가 여기서는
+     화면 오른쪽 아래를 통째로 덮는 주황 덩어리가 된다. 화면에 찍어 보고 알았다.
+     (총구 화염에서 10차에, 레벨업 축포에서 12차에 똑같이 겪었다 —
+      카메라 코앞에 두는 것은 반드시 따로 잰다.) */
 /* ★ 그리는 순서를 못 박는다. 투명한 두 메시가 같은 자리에 있으면 어느 것을 나중에
    그릴지가 프레임마다 뒤집혀 빛이 총 뒤로 숨는다 — 9차에 늑대 체력막대에서 겪은 그 병이다. */
 P_gun.renderOrder = 2; P_gunF.renderOrder = 3;
 const ENH_FX = [
-  {glow:0.00, sh:0.000, col:0,        pulse:0.0},
-  {glow:0.30, sh:0.000, col:0,        pulse:1.4},   // +1 미세하게
-  {glow:0.48, sh:0.000, col:0,        pulse:2.0},   // +2 더 빛남
-  {glow:0.70, sh:0.000, col:0xfff0a0, pulse:3.2},   // +3 아주 반짝반짝
-  {glow:0.85, sh:0.020, col:0xffd24a, pulse:4.2},   // +4 떨리기 시작
-  {glow:1.05, sh:0.032, col:0x4aa8ff, pulse:5.4},   // +5 파란 빛
-  {glow:1.30, sh:0.046, col:0xff4a2a, pulse:7.0}    // +6 붉은 빛
+  {glow:0.00, fp:0.00, sh:0.000, col:0,        pulse:0.0},
+  {glow:0.30, fp:0.34, sh:0.000, col:0,        pulse:1.4},   // +1 미세하게
+  {glow:0.48, fp:0.45, sh:0.000, col:0,        pulse:2.0},   // +2 더 빛남
+  {glow:0.70, fp:0.58, sh:0.000, col:0xfff0a0, pulse:3.2},   // +3 아주 반짝반짝
+  {glow:0.85, fp:0.66, sh:0.020, col:0xffd24a, pulse:4.2},   // +4 떨리기 시작
+  {glow:1.05, fp:0.74, sh:0.032, col:0x4aa8ff, pulse:5.4},   // +5 파란 빛
+  {glow:1.30, fp:0.84, sh:0.046, col:0xff4a2a, pulse:7.0}    // +6 붉은 빛
 ];
 /* ═══════════ 꾸미기 — 모자 · 안경 · 옷 ═══════════
    조각 하나 = [앞f, 위u, 옆sd, 가로, 세로, 깊이, 색]
@@ -5638,9 +5783,14 @@ const ENH_DROP = 0.35;                                   // 위험 구간에서 
      즉 '싼 총을 올리면 초당 화력', '비싼 총은 한 방과 사거리' 로 갈린다.
      그리고 강화 값이 원래 값에 비례하므로 저격총을 +6 하는 데 드는 재료가
      소총을 +6 하는 것의 3배 가까이 든다 — 어느 한쪽이 늘 정답이 되지 않는다. */
-const ENH_MUL  = [1, 1.12, 1.26, 1.42, 1.62, 1.86, 2.15];
-/* 단계마다 드는 값 = 그 무기 원래 값 × 이 배수 (+ 금은 최소 1) */
-const ENH_COST = [0.35, 0.50, 0.70, 0.95, 1.30, 1.75];
+/* ★ 14차 손질 — 선생님 요청으로 공격력 증가분을 10% 낮췄다(오른 몫에만 곱한다).
+     +6 이 2.15배 → 2.035배. 강화가 여전히 눈에 띄게 세지만, 좋은 총을 사는 쪽과의
+     거리가 조금 더 좁혀진다. */
+const ENH_MUL  = [1, 1.108, 1.234, 1.378, 1.558, 1.774, 2.035];
+/* 단계마다 드는 값 = 그 무기 원래 값 × 이 배수 (+ 금은 최소 1)
+   ★ 14차 손질 — 값을 20% 낮췄다. 재 보니 +6 까지 기대 재료가 한 모둠이 18일 동안
+     캐는 양에 육박해서, 강화를 하면 벽·탑을 못 짓는 지경이었다. */
+const ENH_COST = [0.28, 0.40, 0.56, 0.76, 1.04, 1.40];
 const enhOf   = i => Math.max(0, Math.min(ENH_MAX, KIT.enh[i]|0));
 const enhMul  = i => ENH_MUL[enhOf(i)];
 const enhTxt  = e => e > 0 ? ' +' + e : '';
