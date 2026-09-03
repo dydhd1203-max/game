@@ -248,6 +248,76 @@ ok('★ +4 부터 떨린다 (그 아래는 안 떨린다)',
    gun.단계별[3][1] === 0 && gun.단계별[4][1] > 0,
    '+3 흔들림 '+gun.단계별[3][1]+' · +4 흔들림 '+gun.단계별[4][1]);
 
+/* ═══════ ⑥-2 내가 든 총도 빛난다 (14차 손질) ═══════
+   ★ 처음엔 남의 총에만 빛을 붙였다 — 아이가 제일 많이 보는 '자기 총' 이 안 빛나서
+     "강화했는데 안 보여요" 가 나왔다. 그 다음엔 크기를 두 번 헛짚었다:
+     너무 크면 화면을 덮고(10차 총구 화염과 같은 함정), 너무 작으면 총 속에 파묻힌다.
+     그래서 '총보다 크되 1.5배는 안 넘는다' 를 여기서 못 박는다. */
+const fp = await pg.evaluate(async ()=>{
+  const W=window, T3=W.__THREE, o={};
+  const gms = W.__gunModels();
+  const glowOf = g => g.children.filter(c=> c.material && c.material.blending === T3.AdditiveBlending);
+  o.맨손없음 = glowOf(gms[0]).length === 0;              // 맨손 돌은 강화 못 한다
+  o.총마다있음 = true;
+  for(let i=1;i<gms.length;i++) if(glowOf(gms[i]).length !== 2) o.총마다있음 = false;
+
+  W.__KIT.ownW=[true,true,true,true,true,true,true];
+  W.__equipWeapon(5); W.__setAim(true);
+
+  const g = gms[5], gl = glowOf(g);
+  /* 총 몸통 크기를 잰다 (빛은 빼고) */
+  gl.forEach(c=>c.visible=false);
+  const body = new T3.Vector3();
+  new T3.Box3().setFromObject(g).getSize(body);
+
+  const meas = async (e)=>{
+    W.__setEnh(5, e);
+    W.__updHeld(1/60, false, 0);            // 갱신 한 번
+    const halo = gl[0];
+    return { on:halo.visible, k:halo.scale.x,
+             col:'#'+halo.material.color.getHexString(),
+             op:halo.material.opacity };
+  };
+  o.plain = await meas(0);
+  o.lv1   = await meas(1);
+  o.lv3   = await meas(3);
+  o.lv5   = await meas(5);
+  o.lv6   = await meas(6);
+  /* 빛 조각의 실제 크기 = 몸통 크기 × 배율 (기하가 몸통과 같은 크기로 만들어져 있다) */
+  o.몸통 = [+body.x.toFixed(3), +body.y.toFixed(3), +body.z.toFixed(3)];
+  W.__setEnh(5,0); W.__setAim(false);
+  o.fx = W.__enh.fx.map(f=>[f.glow, f.fp, f.sh]);
+  return o;
+});
+ok('★ 맨손 돌에는 강화 빛이 없다', fp.맨손없음);
+ok('★ 총 여섯 자루 모두 빛 조각(후광+총구)을 가진다', fp.총마다있음);
+ok('★ +0 은 안 빛난다', fp.plain.on === false);
+ok('★ +1 부터 빛난다', fp.lv1.on === true);
+ok('★ 빛이 총 몸통보다 크다 (안 그러면 총 속에 파묻혀 안 보인다)',
+   fp.lv1.k > 1.0, '+1 배율 ' + fp.lv1.k.toFixed(2) + '배');
+ok('★ 빛이 총의 1.5배를 안 넘는다 (넘으면 화면을 덮는다 — 10차 총구 화염)',
+   fp.lv6.k < 1.5, '+6 배율 ' + fp.lv6.k.toFixed(2) + '배');
+/* ★ 화면에 그려진 '순간 크기' 로 순서를 재면 안 된다 — 숨쉬는 맥동이 얹혀 있어서
+   재는 순간마다 값이 흔들리고, 이웃한 단계끼리는 띠가 겹친다(검사가 실제로 뒤집혔다).
+   흔들리는 검사는 검사가 아니다. 흔들리지 않는 것 둘로 나눠 본다:
+     ① 표(fp)가 단계마다 커지는가   ② 그려진 크기가 언제나 안전한 띠 안에 있는가
+   단계끼리의 구분은 크기가 아니라 '색' 이 맡는다(아래 항목에서 따로 본다). */
+ok('★ 표(fp)가 단계마다 커진다',
+   fp.fx.every((v,i)=> i===0 || v[1] > fp.fx[i-1][1]),
+   fp.fx.map(v=>v[1]).join(' < '));
+ok('★ 어느 단계에서도 크기가 안전한 띠(1.0~1.5배) 안에 있다',
+   [fp.lv1,fp.lv3,fp.lv5,fp.lv6].every(v=> v.k > 1.0 && v.k < 1.5),
+   [fp.lv1,fp.lv3,fp.lv5,fp.lv6].map(v=>v.k.toFixed(2)).join(' '));
+ok('★ +5 는 파란 빛, +6 은 붉은 빛 (단계마다 색이 다르다)',
+   fp.lv5.col !== fp.lv6.col && fp.lv5.col === '#4aa8ff' && fp.lv6.col === '#ff4a2a',
+   '+5 ' + fp.lv5.col + ' · +6 ' + fp.lv6.col);
+ok('★ 가산합성이 흰색으로 날아가지 않게 진하기를 묶었다', fp.lv6.op <= 0.72, fp.lv6.op.toFixed(2));
+ok('★ +4 부터 손이 떨린다 (그 아래는 안 떤다)',
+   fp.fx[3][2] === 0 && fp.fx[4][2] > 0, '+3 ' + fp.fx[3][2] + ' · +4 ' + fp.fx[4][2]);
+ok('★ 1인칭 크기(fp)는 남의 총 크기(glow)와 따로 둔다 — 카메라 코앞은 따로 재야 한다',
+   fp.fx.every((v,i)=> i===0 || (v[1] > 0 && v[1] !== v[0])),
+   fp.fx.map(v=>v[1]).join(' '));
+
 /* ═══════ ⑦ 레벨 순위 ═══════ */
 const rk = await pg.evaluate(async ()=>{
   const W=window, o={};
