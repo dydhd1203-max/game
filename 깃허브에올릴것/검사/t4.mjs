@@ -1,11 +1,12 @@
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve.mjs';
-const srv = serve(8734);
+const PORT = +(process.argv[3] || 8734);
+const srv = serve(PORT);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
 const pg = await b.newPage({viewport:{width:1100,height:700}});
 const errs=[];
 pg.on('pageerror', e=> errs.push('PAGEERROR: '+e.message));
-await pg.goto('http://127.0.0.1:8734/?diag=1', {waitUntil:'load', timeout:60000});
+await pg.goto('http://127.0.0.1:'+PORT+'/?diag=1', {waitUntil:'load', timeout:60000});
 await pg.waitForFunction('window.__READY===true', {timeout:60000});
 
 const r = await pg.evaluate(()=>{
@@ -63,12 +64,15 @@ const r = await pg.evaluate(()=>{
   W.__doAction(1/60);
   const wk = W.__work();
   ok('누르면 공사가 시작된다', !!wk && wk.kind==='build', wk?wk.kind:'없음');
-  tick(60*3);                                // 3초 (필요 3.5초)
-  ok('3초에는 아직 안 세워진다', W.__STRU.size===0, W.__STRU.size+'채');
-  ok('3초 지점 진행률 ~86%', Math.abs(W.__work().prog/3.5 - 0.86)<0.06,
-     Math.round(W.__work().prog/3.5*100)+'%');
-  tick(60*1);                                // 총 4초
-  ok('★ 3.5초 넘으면 나무벽이 선다', W.__STRU.size===1, W.__STRU.size+'채');
+  /* ★ 걸리는 시간은 게임에서 읽는다. 검사에 3.5 를 박아 두면 밸런스를 고칠 때마다
+     검사가 죽는다(14차에 2.8초로 바뀌면서 실제로 그랬다). */
+  const WSEC = W.__workSec('wwall');
+  tick(Math.round(60*WSEC*0.86));            // 필요 시간의 86% 지점
+  ok('다 되기 전에는 안 세워진다', W.__STRU.size===0, W.__STRU.size+'채 / 필요 '+WSEC.toFixed(2)+'초');
+  ok('그 지점 진행률 ~86%', Math.abs(W.__work().prog/WSEC - 0.86)<0.06,
+     Math.round(W.__work().prog/WSEC*100)+'%');
+  tick(Math.round(60*WSEC*0.30));            // 넘겨서
+  ok('★ 시간이 다 차면 나무벽이 선다', W.__STRU.size===1, W.__STRU.size+'채');
   ok('공사 끝나면 상태가 비워진다', W.__work()===null);
 
   // 도중에 손을 떼면 없던 일이 된다
@@ -95,20 +99,22 @@ const r = await pg.evaluate(()=>{
   W.__setActing(true); W.__doAction(1/60);
   ok('세팅: 화살탑 공사가 시작됐다', !!W.__work(),
      W.__work()? (W.__work().X+','+W.__work().Z)+' / 노린 칸 '+tX+','+tZ : '안 됨');
-  tick(60*7);
-  ok('화살탑은 7초에 아직 안 선다', W.__STRU.size===0, W.__STRU.size+'채');
-  tick(60*1.5);
-  ok('★ 화살탑은 8초에 선다', W.__STRU.size===1, W.__STRU.size+'채');
+  const ASEC = W.__workSec('arrow');
+  tick(Math.round(60*ASEC*0.87));
+  ok('화살탑은 다 되기 전엔 안 선다', W.__STRU.size===0, W.__STRU.size+'채 / 필요 '+ASEC.toFixed(2)+'초');
+  tick(Math.round(60*ASEC*0.30));
+  ok('★ 화살탑은 시간이 다 차면 선다', W.__STRU.size===1, W.__STRU.size+'채');
   W.__setActing(false); W.__doAction(1/60);
 
   /* 강화 5초 */
   const o = [...W.__STRU.values()][0];
   G.res[G.me.g]={w:99,s:99,g:99};
   W.__selTool('up'); look(o.x-3, o.z, o.x+1, o.z, -0.1);
-  W.__setActing(true); tick(60*4);
-  ok('강화는 4초엔 아직', (o.lv||1)===1, 'Lv.'+(o.lv||1));
-  tick(60*1.5);
-  ok('★ 강화는 5초에 된다', o.lv===2, 'Lv.'+(o.lv||1));
+  const USEC = W.__upSec();
+  W.__setActing(true); tick(Math.round(60*USEC*0.85));
+  ok('강화는 다 되기 전엔 아직', (o.lv||1)===1, 'Lv.'+(o.lv||1)+' / 필요 '+USEC.toFixed(2)+'초');
+  tick(Math.round(60*USEC*0.35));
+  ok('★ 강화는 시간이 다 차면 된다', o.lv===2, 'Lv.'+(o.lv||1));
   W.__setActing(false); W.__doAction(1/60);
 
   /* 수리 2.5초 */

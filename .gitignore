@@ -4,3 +4,9 @@
 #   git log --oneline           <- 원하는 시점의 번호를 찾고
 #   git show 3cf8f0f:index.html > 옛날.html
 index.backup-*.html
+
+# 검사 하네스가 npm 으로 받아 오는 것들 (three · playwright).
+# 처음 한 번 `cd 깃허브에올릴것/검사 && npm i three playwright` 로 받는다 (검사/README.md 참고).
+node_modules/
+깃허브에올릴것/검사/package.json
+깃허브에올릴것/검사/package-lock.json

@@ -1,12 +1,13 @@
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve.mjs';
-const srv = serve(8761);
+const PORT = +(process.argv[3] || 8761);
+const srv = serve(PORT);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
 const pg = await b.newPage({viewport:{width:1100,height:700}});
 const errs=[];
 pg.on('pageerror', e=> errs.push('PAGEERROR: '+e.message));
 pg.on('console', m=>{ if(m.type()==='error') errs.push('CONSOLE: '+m.text()); });
-await pg.goto('http://127.0.0.1:8761/?diag=1', {waitUntil:'load', timeout:60000});
+await pg.goto('http://127.0.0.1:'+PORT+'/?diag=1', {waitUntil:'load', timeout:60000});
 await pg.waitForFunction('window.__READY===true', {timeout:60000});
 await pg.fill('#iName','테스트'); await pg.click('#bSolo'); await pg.waitForTimeout(900);
 
