@@ -132,13 +132,24 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 
 /* ── 로그인 ── */
 /* 크롬북 세로(632px)에 다 들어가야 한다. 넘치면 위아래가 잘린다. */
-#login{display:none;place-items:center;overflow:auto;padding:8px 0}
+#login{display:none;place-items:center;overflow:auto;padding:6px 0}
 #login.on{display:grid}
-.loginbox{width:372px;padding:14px 16px 12px;text-align:center}
-.logo{font-size:34px;font-weight:900;letter-spacing:-.04em;color:#fff;line-height:1.1;
-  text-shadow:0 3px 0 #1b4d84,0 5px 0 rgba(0,0,0,.18);margin:0 0 8px}
-.logo small{display:block;font-size:14px;font-weight:700;letter-spacing:0;
-  color:#e8f5ff;text-shadow:0 2px 0 #1b4d84;margin-top:3px}
+.lgStage{display:grid;grid-template-columns:150px auto 150px;align-items:end;gap:6px}
+.lgSide{line-height:0;padding-bottom:6px}
+.lgSide svg{filter:drop-shadow(0 4px 0 rgba(10,50,90,.25))}
+.loginbox{width:376px;padding:13px 16px 11px;text-align:center}
+/* 큐플레이 로고처럼 두툼하게 — 그림자를 층층이 쌓아 3D 로 보이게 한다 */
+.logo{font-size:52px;font-weight:900;letter-spacing:-.05em;line-height:1;
+  color:#ffe27a;margin:0 0 10px;
+  text-shadow:
+    -3px -3px 0 #14406e, 3px -3px 0 #14406e, -3px 3px 0 #14406e, 3px 3px 0 #14406e,
+    -4px 0 0 #14406e, 4px 0 0 #14406e, 0 -4px 0 #14406e, 0 4px 0 #14406e,
+    0 7px 0 #0f3a66, 0 10px 0 #0b2d51}
+.logo small{display:block;font-size:15px;font-weight:800;letter-spacing:0;
+  color:#fff;margin-top:12px;
+  text-shadow:-2px -2px 0 #14406e,2px -2px 0 #14406e,-2px 2px 0 #14406e,2px 2px 0 #14406e,0 4px 0 #0f3a66}
+.lgFoot{margin-top:8px;text-align:center;color:#cfe6fb;font-size:11px;
+  text-shadow:0 1px 0 #14406e}
 .pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
 .pinpad button{padding:9px 0;font-size:20px;font-weight:800;border-radius:11px;
   background:linear-gradient(#fff,#dcecf9);color:#1b4d84;box-shadow:0 4px 0 #9dbcd6}
@@ -384,6 +395,47 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
   background:linear-gradient(#fff6e2,#ffd9a0);color:#a35f00;box-shadow:inset 0 1px 0 #fff,0 3px 0 #d09330}
 .sw .who{line-height:0;margin-bottom:1px}
 
+/* ── 결과판 (큐플레이 Winner 화면처럼) ── */
+.winwrap{position:absolute;inset:0;display:grid;grid-template-rows:auto auto 1fr;
+  gap:8px;padding:10px 14px 12px;align-items:start}
+.winbanner{text-align:center;font-size:52px;font-weight:900;letter-spacing:.02em;line-height:1;
+  color:#ffd24a;font-family:Impact,"Arial Black",system-ui;
+  text-shadow:-3px -3px 0 #8a3b00,3px -3px 0 #8a3b00,-3px 3px 0 #8a3b00,3px 3px 0 #8a3b00,
+    -4px 0 0 #8a3b00,4px 0 0 #8a3b00,0 -4px 0 #8a3b00,0 4px 0 #8a3b00,
+    0 8px 0 #6b2d00,0 12px 0 #4d2000}
+.podium{display:flex;justify-content:center;align-items:flex-end;gap:16px}
+.pod{text-align:center}
+.pod .who{line-height:0}
+.pod .base{border-radius:9px 9px 0 0;border:3px solid #164a80;border-bottom:0;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.6);display:grid;place-items:center;
+  font-weight:900;color:#0e3f70;font-size:19px;padding-top:5px}
+.pod.p1 .base{height:62px;background:linear-gradient(#ffe27a,#ffb724)}
+.pod.p2 .base{height:44px;background:linear-gradient(#eef3f7,#c3ced8)}
+.pod.p3 .base{height:34px;background:linear-gradient(#f3cba0,#d1934c)}
+.pod .nm3{font-weight:900;color:#12467e;font-size:14px;margin-top:2px;
+  background:#fff;border:2px solid #7fb4dd;border-radius:20px;padding:1px 10px;display:inline-block}
+.wintab{width:100%;border-collapse:separate;border-spacing:0 4px;font-size:13px}
+.wintab th{color:#cfe6fb;font-size:11px;font-weight:800;padding:0 8px 2px;text-align:left}
+.wintab td{background:#fff;padding:5px 8px;font-weight:800;color:#2b5b85}
+.wintab tr.me td{background:#fff6e6}
+.wintab tr.t1 td{background:linear-gradient(#fff6da,#ffe6a8)}
+.wintab td:first-child{border-radius:9px 0 0 9px;width:34px;text-align:center;color:#8fb4d0}
+.wintab td:last-child{border-radius:0 9px 9px 0;text-align:right;color:#b57700}
+
+/* ── 가로세로 성 (큐플레이 성 화면처럼) ── */
+.castle{display:grid;grid-template-columns:92px 1fr 92px;gap:8px;height:100%;min-height:0}
+.castle > *{min-height:0}
+.tower{display:flex;flex-direction:column;gap:6px;padding-top:2px;min-height:0;overflow:hidden}
+.tw{flex:0 0 auto}
+.tw{border:3px solid #1e5c9e;border-radius:10px 10px 4px 4px;overflow:hidden;
+  background:linear-gradient(#f8fcff,#d8ecfd);box-shadow:inset 0 2px 0 #fff,0 3px 0 #164a80}
+.tw .roof{height:16px;background:linear-gradient(#7ec8ff,#2c7ccd);
+  clip-path:polygon(0 100%,50% 0,100% 100%)}
+.tw .flag{font-size:11px;font-weight:900;color:#fff;padding:3px 6px;text-align:center;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  text-shadow:0 1px 0 rgba(0,0,0,.3)}
+.tw .who2{line-height:0;text-align:center;padding:2px 0 4px}
+
 /* ── 패션왕 대회 ── */
 .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:10px;
   padding:10px;overflow-y:auto;align-content:start}
@@ -619,17 +671,18 @@ function drawHead(sk){
    홍채를 겹쳐 그리고, 윗속눈썹을 두껍게 얹고, 반짝이를 두 개 넣는다.
    이 세 가지가 빠지면 인형 눈처럼 밋밋해진다. */
 function iris(x, c, rx, ry){
-  const id = sh(c,-.45), il = sh(c,.32), ib = sh(c,-.18);
+  const id = sh(c,-.5), il = sh(c,.22), ib = sh(c,-.2);
+  /* 흰자를 조금만 남기고 홍채가 눈을 거의 채우게 한다.
+     흰자가 넓으면 인형 눈처럼 보인다 */
   return E(x,105,rx,ry,'#fff')
-   + E(x,106,rx*.86,ry*.86,il)                       // 홍채 바깥(밝은 테)
-   + E(x,108,rx*.70,ry*.70,c)                        // 홍채
-   + E(x,111,rx*.52,ry*.44,ib)                       // 아래쪽 그늘 — 이게 있어야 깊어 보인다
-   + E(x,109,rx*.34,ry*.36,'#17120e')                // 눈동자
-   + E(x,106,rx*.86,ry*.86,'none',` stroke="${id}" stroke-width="2.4"`)
-   + E(x,116,rx*.52,ry*.13,'#fff',' opacity=".38"')  // 아랫눈꺼풀 빛
-   + C(x-rx*.33,100,rx*.33,'#fff')                   // 큰 반짝
-   + C(x+rx*.32,112,rx*.17,'#fff',' opacity=".9"')   // 작은 반짝
-   + C(x-rx*.02,115,rx*.10,'#fff',' opacity=".65"'); // 아래 반짝
+   + E(x,106,rx*.95,ry*.94,il)                       // 홍채 바깥(밝은 테)
+   + E(x,107,rx*.82,ry*.82,c)                        // 홍채
+   + E(x,110,rx*.62,ry*.52,ib)                       // 아래쪽 그늘 — 깊어 보이게
+   + E(x,108,rx*.40,ry*.42,'#17120e')                // 눈동자
+   + E(x,106,rx*.95,ry*.94,'none',` stroke="${id}" stroke-width="2.2"`)
+   + C(x-rx*.30,100,rx*.30,'#fff')                   // 큰 반짝
+   + C(x+rx*.34,111,rx*.15,'#fff',' opacity=".9"')   // 작은 반짝
+   + E(x,115,rx*.40,ry*.11,'#fff',' opacity=".3"');  // 아랫눈꺼풀 빛
 }
 /* 남녀 차이는 몸이 아니라 얼굴에서 난다.
    속눈썹 두께 / 눈썹 굵기와 각도 / 볼터치 / 입 너비 / 눈 크기 — 이 다섯이다.
@@ -643,30 +696,30 @@ function lash(x, dir, y, w){
    + PA(`M${x+dir*15} ${y+8} L${x+dir*22} ${y+5} L${x+dir*17} ${y+13} Z`, '#4a3428');
 }
 const EYES = {
-  round:['동그란 눈',(c)=> iris(74,c,16.5,18)+iris(126,c,16.5,18)+lash(74,-1)+lash(126,1)],
-  big:['왕눈이',(c)=> iris(73,c,19,20.5)+iris(127,c,19,20.5)+lash(73,-1,86,6.4)+lash(127,1,86,6.4)
+  round:['동그란 눈',(c)=> iris(74,c,15,16.5)+iris(126,c,15,16.5)+lash(74,-1)+lash(126,1)],
+  big:['왕눈이',(c)=> iris(73,c,17,18.5)+iris(127,c,17,18.5)+lash(73,-1,86,6.4)+lash(127,1,86,6.4)
      + LN('M58 124 Q74 128 90 124','#c9a189',2)+LN('M110 124 Q126 128 142 124','#c9a189',2)],
-  sleepy:['졸린 눈',(c)=> iris(74,c,15.5,16)+iris(126,c,15.5,16)
+  sleepy:['졸린 눈',(c)=> iris(74,c,14.5,15)+iris(126,c,14.5,15)
      + LN('M58 100 Q74 88 90 100','#39281f',6)+LN('M110 100 Q126 88 142 100','#39281f',6)
      + LN('M60 108 Q74 114 88 108','#c9a189',2)+LN('M112 108 Q126 114 140 108','#c9a189',2)],
   star:['별눈',(c)=>{ const st=(x,y,r,f)=>{ let d='';
       for(let i=0;i<10;i++){ const a2=-Math.PI/2+i*Math.PI/5, rr=i%2?r*.44:r;
         d += (i?'L':'M')+(x+Math.cos(a2)*rr).toFixed(1)+' '+(y+Math.sin(a2)*rr).toFixed(1); }
       return PA(d+'Z',f); };
-    const one=(x)=> E(x,105,16.5,18,'#fff')+E(x,106,13.5,14.5,sh(c,.15))+st(x,107,12.5,'#fff9d8')+st(x,107,6.5,'#fff');
+    const one=(x)=> E(x,105,15,16.5,'#fff')+E(x,106,13.5,14.5,sh(c,.15))+st(x,106,12,'#fff9d8')+st(x,106,6.2,'#fff');
     return one(74)+one(126)+lash(74,-1)+lash(126,1); }],
   smile:['웃는 눈',(c)=> LN('M60 110 Q74 90 88 110','#39281f',6.5)+LN('M112 110 Q126 90 140 110','#39281f',6.5)
      + LN('M62 116 Q74 122 86 116','#f0a8b8',2.5,' opacity=".7"')
      + LN('M114 116 Q126 122 138 116','#f0a8b8',2.5,' opacity=".7"')],
-  cat:['고양이 눈',(c)=>{ const one=(x)=> E(x,105,15,18.5,'#fff')+E(x,106,12.5,15.5,sh(c,.2))+E(x,108,9.5,12.5,c)
+  cat:['고양이 눈',(c)=>{ const one=(x)=> E(x,105,14,17,'#fff')+E(x,106,12.5,15,sh(c,.2))+E(x,107,10.5,13,c)
       + PA(`M${x} 96 C${x+4.5} 102 ${x+4.5} 116 ${x} 122 C${x-4.5} 116 ${x-4.5} 102 ${x} 96 Z`,'#17120e')
       + C(x-4.5,101,4.2,'#fff')+C(x+4,114,1.9,'#fff',' opacity=".8"');
     return one(74)+one(126)+lash(74,-1,88,5)+lash(126,1,88,5); }],
-  wink:['윙크',(c)=> iris(74,c,16.5,18)+lash(74,-1)
+  wink:['윙크',(c)=> iris(74,c,15,16.5)+lash(74,-1)
      + LN('M112 106 Q126 92 140 106','#39281f',6.5)
      + PA('M140 100 L149 96 L143 108 Z','#39281f')],
   heart:['하트눈',(c)=>{ const hp=(x,y,s2,f)=> PA(`M${x} ${y+s2*.85} C${x-s2*1.15} ${y-s2*.15} ${x-s2*.6} ${y-s2} ${x} ${y-s2*.35} C${x+s2*.6} ${y-s2} ${x+s2*1.15} ${y-s2*.15} ${x} ${y+s2*.85} Z`,f);
-    const one=(x)=> E(x,105,16.5,18,'#fff')+E(x,106,13.5,14.5,sh(c,.2))+hp(x,107,12,'#ff5f8f')+hp(x-3,103,4.5,'#ffd6e2');
+    const one=(x)=> E(x,105,15,16.5,'#fff')+E(x,106,13.5,14.5,sh(c,.2))+hp(x,106,11.5,'#ff5f8f')+hp(x-3,102,4.2,'#ffd6e2');
     return one(74)+one(126)+lash(74,-1)+lash(126,1); }],
   sharp:['날카로운 눈',(c)=>{ const one=(x,d2)=> E(x,106,15,15,'#fff')+E(x,107,12,12,sh(c,.2))
       + E(x,108,9,9,c) + E(x,109,4.6,4.8,'#17120e') + C(x-4.6,102,4.4,'#fff')
@@ -699,8 +752,8 @@ function drawFace(av){
     ? PA('M87 133 C92 132 96 134 100 134 C104 134 108 132 113 133'
        + ' C111 140 89 140 87 133 Z','#bd554e')
       + LN('M87 133 C92 132 96 134 100 134 C104 134 108 132 113 133','#8f342f',2)
-    : PA('M90 132 C94 131 97 135 100 135 C103 135 106 131 110 132'
-       + ' C108 143 92 143 90 132 Z','#c0504a')
+    : PA('M88 132 C93 131 96 136 100 136 C104 136 107 131 112 132'
+       + ' C110 145 90 145 88 132 Z','#c0504a')
       + PA('M93 134 C96 137 104 137 107 134 C104 132.5 96 132.5 93 134 Z','#fff',' opacity=".8"')
       + LN('M90 132 C94 131 97 135 100 135 C103 135 106 131 110 132','#8f342f',2);
   /* 눈 깜빡임용 눈꺼풀 — 살색 네모를 눈 위에 덮었다 폈다 한다 */
@@ -712,7 +765,7 @@ function drawFace(av){
   + mouth + lid;
 }
 
-const gl = (d,c) => PA(d, sh(c,.45), ' opacity=".62"');
+const gl = (d,c) => PA(d, sh(c,.42), ' opacity=".34"');
 const hl = (d,c) => LN(d,c,1.8,' opacity=".5"');
 const HAIR = {
   bob:['단발머리',120,(c,d,l)=>({
@@ -912,13 +965,13 @@ const HAIR = {
 /* ── 상의 14종 ── (c 고른 색 / d 어두운 색 / l 밝은 색) ── */
 const TOPS = {
   tee:['반팔 티셔츠',60,(c,d,l)=>
-    PA(T_BASE,c) + slv('s',c) + collarR(d)
+    slv('s',c) + PA(T_BASE,c) + collarR(d)
   + RC(71,222,58,11,4,d,' opacity=".5"')
   + LN('M58 189 Q67 195 76 192',d,2.2) + LN('M142 189 Q133 195 124 192',d,2.2)
   + fold(d) + sfold(d)],
 
   hood:['후드티',180,(c,d,l)=>
-    PA(T_LONG,c) + slv('l',c) + cuff(d)
+    slv('l',c) + PA(T_LONG,c) + cuff(d)
   + PA('M77 142 C83 168 117 168 123 142 C112 136 88 136 77 142 Z',d)
   + PA('M83 146 C88 160 112 160 117 146 C110 142 90 142 83 146 Z',sh(d,-.15))
   + LN('M91 155 L88 184','#fdfaf2',3.5) + LN('M109 155 L112 184','#fdfaf2',3.5)
@@ -928,7 +981,7 @@ const TOPS = {
   + RC(71,231,58,12,5,d) + sfold(d)],
 
   shirt:['카라 셔츠',120,(c,d,l)=>
-    PA(T_BASE,c) + slv('l',c) + cuff(l)
+    slv('l',c) + PA(T_BASE,c) + cuff(l)
   + PA('M84 145 L100 167 L85 173 L75 151 Z',l) + PA('M116 145 L100 167 L115 173 L125 151 Z',l)
   + RC(95,162,10,68,2,d,' opacity=".45"')
   + C(100,178,2.7,d) + C(100,198,2.7,d) + C(100,218,2.7,d)
@@ -936,14 +989,14 @@ const TOPS = {
   + fold(d) + sfold(d)],
 
   dress:['원피스',260,(c,d,l)=>
-    PA(T_FLARE,c) + slv('p',c) + collarR(l)
+    slv('p',c) + PA(T_FLARE,c) + collarR(l)
   + RC(69,194,62,13,5,d) + C(100,200,6,l) + C(98,198,2.2,'#fff',' opacity=".7"')
   + LN('M80 210 L70 248',d,2,' opacity=".4"') + LN('M100 210 L100 252',d,2,' opacity=".4"')
   + LN('M120 210 L130 248',d,2,' opacity=".4"')
   + PA('M58 250 C74 258 126 258 142 250 L140 243 C124 250 76 250 60 243 Z',d)],
 
   vest:['조끼',140,(c,d,l)=>
-    PA(T_BASE,'#fdfaf2') + slv('l','#fdfaf2') + cuff('#f0ead9')
+    slv('l','#fdfaf2') + PA(T_BASE,'#fdfaf2') + cuff('#f0ead9')
   + PA('M80 147 C74 152 72 162 71 178 L71 211 C72 225 78 233 94 233 L96 158 Z',c)
   + PA('M120 147 C126 152 128 162 129 178 L129 211 C128 225 122 233 106 233 L104 158 Z',c)
   + LN('M100 168 L100 231','#e6dfcc',2)
@@ -951,16 +1004,16 @@ const TOPS = {
   + C(94,190,2.6,d) + C(94,208,2.6,d) + sfold('#e6dfcc')],
 
   cardi:['가디건',200,(c,d,l)=>
-    PA(T_BASE,'#fff6ea') + collarR('#efe4d3')
+    slv('l',c) + PA(T_BASE,'#fff6ea') + collarR('#efe4d3')
   + PA('M80 147 C73 152 71 164 70 178 L70 212 C71 226 77 233 92 233 L95 156 Z',c)
   + PA('M120 147 C127 152 129 164 130 178 L130 212 C129 226 123 233 108 233 L105 156 Z',c)
-  + slv('l',c) + cuff(d)
+  + cuff(d)
   + C(96,176,3.2,l) + C(96,196,3.2,l) + C(96,216,3.2,l)
   + LN('M74 170 Q79 190 77 214',d,1.8,' opacity=".4"')
   + LN('M126 170 Q121 190 123 214',d,1.8,' opacity=".4"')],
 
   sailor:['교복 (세라복)',280,(c,d,l)=>
-    PA(T_BASE,'#fbfdff') + slv('l','#fbfdff')
+    slv('l','#fbfdff') + PA(T_BASE,'#fbfdff')
   + PA('M79 144 L70 152 L76 200 L100 176 L124 200 L130 152 L121 144'
      + ' C115 157 85 157 79 144 Z',c)
   + PA('M86 146 L100 174 L114 146 C108 150 92 150 86 146 Z','#fbfdff')
@@ -970,7 +1023,7 @@ const TOPS = {
   + RC(71,224,58,9,4,d,' opacity=".5"')],
 
   jacket:['야구 점퍼',300,(c,d,l)=>
-    PA(T_BASE,c) + slv('l','#fdfaf2') + cuff('#e6ded0')
+    slv('l','#fdfaf2') + PA(T_BASE,c) + cuff('#e6ded0')
   + RC(78,140,44,13,6,l) + RC(71,222,58,12,5,l)
   + LN('M100 152 L100 224',d,3)
   + C(93,168,2.4,d)+C(93,184,2.4,d)+C(93,200,2.4,d)
@@ -980,7 +1033,7 @@ const TOPS = {
   knit:['니트',180,(c,d,l)=>{
     let tex=''; for(let y=162;y<226;y+=8) tex += LN(`M73 ${y} Q100 ${y+5} 127 ${y}`,d,1.5,' opacity=".45"');
     let rib=''; for(let x=74;x<128;x+=6) rib += LN(`M${x} 224 L${x} 233`,d,1.4,' opacity=".5"');
-    return PA(T_BASE,c) + slv('l',c) + tex + rib
+    return slv('l',c) + PA(T_BASE,c) + tex + rib
     + RC(80,140,40,14,7,d) + RC(71,222,58,11,4,d,' opacity=".35"')
     + RC(51,206,21,14,7,d) + RC(128,206,21,14,7,d); }],
 
@@ -993,10 +1046,10 @@ const TOPS = {
   + RC(77,222,46,11,4,l,' opacity=".45"') + fold(d)],
 
   hanbok:['한복 저고리',360,(c,d,l)=>
-    PA('M100 146 C84 146 74 154 72 166 C70 180 71 194 72 204'
+    slv('w',c)
+  + PA('M100 146 C84 146 74 154 72 166 C70 180 71 194 72 204'
      + ' C74 214 80 218 100 218 C120 218 126 214 128 204'
      + ' C129 194 130 180 128 166 C126 154 116 146 100 146 Z',c)
-  + slv('w',c)
   + PA('M80 143 L100 184 L120 143 C112 150 88 150 80 143 Z','#fdfaf2')
   + PA('M80 143 L100 184 L104 180 L86 141 Z','#e8534f')
   + PA('M100 180 C96 194 88 204 78 210 L84 216 C97 208 106 195 108 182 Z','#e8534f')
@@ -1005,7 +1058,7 @@ const TOPS = {
   + LN('M150 196 Q136 204 120 200',d,2)],
 
   robe:['마법사 로브',400,(c,d,l)=>
-    PA(T_FLARE,c) + slv('w',c)
+    slv('w',c) + PA(T_FLARE,c)
   + PA('M84 145 L100 176 L116 145 C110 149 90 149 84 145 Z',l)
   + RC(69,196,62,12,4,d)
   + LN('M78 212 L68 248',d,2,' opacity=".45"') + LN('M100 212 L100 252',d,2,' opacity=".45"')
@@ -1022,7 +1075,7 @@ const TOPS = {
   + LN('M84 206 L84 230',d,1.8,' opacity=".45"') + LN('M116 206 L116 230',d,1.8,' opacity=".45"')],
 
   space:['우주복',420,(c,d,l)=>
-    PA(T_BASE,c) + slv('l',c)
+    slv('l',c) + PA(T_BASE,c)
   + RC(78,140,44,13,6,'#dfe6ee') + RC(51,204,21,16,8,'#dfe6ee') + RC(128,204,21,16,8,'#dfe6ee')
   + C(100,186,15,'#9fe8ff') + C(100,186,10,'#e8fbff') + C(96,182,4,'#fff')
   + C(100,186,15,'none',` stroke="${d}" stroke-width="2.5"`)
@@ -1881,10 +1934,10 @@ function partThumb(catKey, shape, ci, h){
   return `<svg viewBox="${c.crop}" height="${h}" width="${(h*cw/ch)|0}" style="display:block">${s}</svg>`;
 }
 
-function newAvatar(){
+function newAvatar(wantSex){
   const pick = a => a[(Math.random()*a.length)|0];
   const eyeKeys = Object.keys(EYES);
-  const boy = Math.random() < 0.5;
+  const boy = wantSex ? wantSex==='m' : Math.random() < 0.5;
   return {
     sk: (Math.random()*PAL.skin.length)|0,
     ec: (Math.random()*PAL.eye.length)|0,
@@ -1897,6 +1950,121 @@ function newAvatar(){
     hat:'', glass:'', ear:'', neck:'', back:'', pet:'', bg:'', face:''
   };
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   2.5) 소리 — 파일을 하나도 안 쓴다
+   브라우저가 직접 소리를 만든다(웹오디오). 그래서 받아올 게 없고,
+   크롬북에서 로딩이 안 늘어난다. 브라우저 규칙상 아이가 한 번
+   화면을 누른 뒤에야 소리가 나기 시작한다.
+   ═══════════════════════════════════════════════════════════════════ */
+const SND = {
+  ctx:null, master:null, musicGain:null,
+  on:  (()=>{ try{ const v=localStorage.getItem('qz_snd'); return v==null?true:JSON.parse(v); }catch(e){ return true; } })(),
+  bgm: (()=>{ try{ const v=localStorage.getItem('qz_bgm'); return v==null?true:JSON.parse(v); }catch(e){ return true; } })(),
+  timer:null, next:0, step:0,
+
+  wake(){
+    if(this.ctx) { if(this.ctx.state==='suspended') this.ctx.resume(); return true; }
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return false;
+    try{
+      this.ctx = new AC();
+      this.master = this.ctx.createGain(); this.master.gain.value = 0.5;
+      this.master.connect(this.ctx.destination);
+      this.musicGain = this.ctx.createGain(); this.musicGain.gain.value = 0.16;
+      this.musicGain.connect(this.master);
+    }catch(e){ return false; }
+    return true;
+  },
+  /* 음 하나 */
+  note(freq, t, dur, type, vol, dest){
+    if(!this.on || !this.ctx) return;
+    const c = this.ctx, o = c.createOscillator(), g = c.createGain();
+    o.type = type||'square'; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol||0.2, t+0.012);
+    g.gain.exponentialRampToValueAtTime(0.0001, t+dur);
+    o.connect(g); g.connect(dest || this.master);
+    o.start(t); o.stop(t+dur+0.02);
+  },
+  noise(t, dur, vol){
+    if(!this.on || !this.ctx) return;
+    const c = this.ctx, n = Math.floor(c.sampleRate*dur);
+    const buf = c.createBuffer(1, n, c.sampleRate), d = buf.getChannelData(0);
+    for(let i=0;i<n;i++) d[i] = (Math.random()*2-1) * (1 - i/n);
+    const src = c.createBufferSource(); src.buffer = buf;
+    const g = c.createGain(); g.gain.value = vol||0.06;
+    const f = c.createBiquadFilter(); f.type='highpass'; f.frequency.value=4000;
+    src.connect(f); f.connect(g); g.connect(this.musicGain);
+    src.start(t);
+  },
+  /* 효과음 */
+  seq(list, type, vol){
+    if(!this.wake() || !this.on) return;
+    const t0 = this.ctx.currentTime + 0.01;
+    list.forEach(v=> this.note(v[0], t0+v[1], v[2], type, vol));
+  },
+  click(){ this.seq([[880,0,0.05]], 'square', 0.10); },
+  pick(){  this.seq([[660,0,0.05],[990,0.05,0.07]], 'square', 0.12); },
+  ok(){    this.seq([[784,0,0.09],[988,0.08,0.09],[1319,0.16,0.20]], 'square', 0.16); },
+  no(){    this.seq([[311,0,0.13],[233,0.12,0.22]], 'sawtooth', 0.12); },
+  coin(){  this.seq([[1319,0,0.05],[1976,0.05,0.14]], 'square', 0.13); },
+  buy(){   this.seq([[523,0,0.06],[659,0.06,0.06],[784,0.12,0.06],[1047,0.18,0.16]],'triangle',0.16); },
+  tick(){  this.seq([[1200,0,0.03]], 'square', 0.07); },
+  hurry(){ this.seq([[1400,0,0.04],[1400,0.1,0.04]], 'square', 0.10); },
+  fanfare(){ this.seq([[523,0,0.12],[659,0.11,0.12],[784,0.22,0.12],
+                       [1047,0.33,0.30],[784,0.33,0.30],[1319,0.55,0.45]], 'square', 0.17); },
+  sad(){   this.seq([[440,0,0.18],[392,0.17,0.18],[330,0.34,0.34]], 'triangle', 0.14); },
+  start(){ this.seq([[523,0,0.10],[784,0.12,0.10],[1047,0.24,0.22]], 'square', 0.16); },
+
+  /* 배경음악 — 통통 튀는 8마디를 계속 돈다 */
+  TUNE: [
+    /* [음높이(반음), 길이] 0 = 쉼 */
+    [72,1],[76,1],[79,1],[76,1], [81,1],[79,1],[76,1],[72,1],
+    [74,1],[77,1],[81,1],[77,1], [79,1],[77,1],[74,2],[0,0],
+    [72,1],[76,1],[79,1],[84,1], [83,1],[79,1],[76,1],[72,1],
+    [74,1],[71,1],[74,1],[77,1], [76,2],[0,0],[72,2],[0,0]
+  ],
+  BASS: [48,48,53,53,55,55,48,48, 48,48,53,53,55,55,48,48,
+         45,45,50,50,52,52,45,45, 48,48,53,53,55,55,48,48],
+  hz(m){ return 440 * Math.pow(2, (m-69)/12); },
+  music(go){
+    this.bgm = go; try{ localStorage.setItem('qz_bgm', JSON.stringify(go)); }catch(e){}
+    if(!go){ clearInterval(this.timer); this.timer=null; return; }
+    if(!this.wake()) return;
+    if(this.timer) return;
+    this.next = this.ctx.currentTime + 0.1; this.step = 0;
+    const SPB = 0.24;                            // 한 박 길이 (약 125BPM 느낌)
+    this.timer = setInterval(()=>{
+      if(!this.ctx || !this.on || !this.bgm) return;
+      while(this.next < this.ctx.currentTime + 0.6){
+        const i = this.step % this.TUNE.length;
+        const n = this.TUNE[i];
+        if(n[0]) this.note(this.hz(n[0]), this.next, SPB*n[1]*0.85, 'square', 0.16, this.musicGain);
+        const b = this.BASS[i % this.BASS.length];
+        if(i%2===0) this.note(this.hz(b), this.next, SPB*1.6, 'triangle', 0.20, this.musicGain);
+        if(i%2===1) this.noise(this.next, 0.05, 0.05);
+        this.next += SPB * n[1];
+        this.step++;
+      }
+    }, 120);
+  },
+  setOn(v){
+    this.on = v; try{ localStorage.setItem('qz_snd', JSON.stringify(v)); }catch(e){}
+    if(this.master) this.master.gain.value = v ? 0.5 : 0;
+    if(v && this.bgm) this.music(true);
+  }
+};
+/* 아무 데나 처음 누르면 소리가 깨어난다 (브라우저 규칙) */
+document.addEventListener('pointerdown', function wakeOnce(){
+  SND.wake(); if(SND.bgm) SND.music(true);
+  document.removeEventListener('pointerdown', wakeOnce);
+}, {once:false});
+/* 버튼을 누르면 딸깍 */
+document.addEventListener('pointerdown', e=>{
+  const b = e.target.closest && e.target.closest('.btn,.icb,.tab,.mtile,.itm,.ch,.setrow,.clue,.stone,.oxzone,.fcard.pick,.pinpad button');
+  if(b) SND.click();
+}, true);
 
 /* ═══════════════════════════════════════════════════════════════════
    3) 파이어베이스 — 데이터는 전부 'quiz' 아래에만 쓴다
@@ -1949,7 +2117,7 @@ function watchMe(){
     if(savePend.gold === undefined && typeof u.gold === 'number' && u.gold !== ME.gold){
       const diff = u.gold - ME.gold;
       ME.gold = u.gold; paintGold();
-      if(diff > 0) toast('선물 도착! +' + diff + '골드 🎁', 2600);
+      if(diff > 0){ toast('선물 도착! +' + diff + '골드 🎁', 2600); SND.coin(); }
     }
     if((u.crown||0) !== (ME.crown||0)) ME.crown = u.crown||0;
   });
@@ -1987,6 +2155,7 @@ function topbar(title, back){
     ${back? `<button class="btn sm gray" id="tbBack">◀ 뒤로</button>`:''}
     <div class="nm">${esc(title)}</div>
     <div class="f1"></div>
+    <button class="icb" id="tbSnd" title="소리">${SND.on?'🔊':'🔇'}</button>
     ${ME&&!IS_TEACHER? `<button class="icb" id="tbHome" title="홈">🏠</button>
        <button class="icb y" id="tbShop" title="옷 가게">👗</button>
        <button class="icb" id="tbRank" title="순위">🏆</button>`:''}
@@ -1996,6 +2165,11 @@ function topbar(title, back){
 }
 function wireTop(backTo){
   const b = el('tbBack'); if(b) b.onclick = ()=> go(backTo||'home');
+  const sd = el('tbSnd'); if(sd) sd.onclick = ()=>{
+    SND.setOn(!SND.on); sd.textContent = SND.on?'🔊':'🔇';
+    if(!SND.on){ clearInterval(SND.timer); SND.timer=null; }
+    toast(SND.on?'소리 켰어요':'소리 껐어요', 1200);
+  };
   const h2 = el('tbHome'); if(h2) h2.onclick = ()=> go('home');
   const s2 = el('tbShop'); if(s2) s2.onclick = ()=> go('shop');
   const r2 = el('tbRank'); if(r2) r2.onclick = showRank;
@@ -2015,13 +2189,24 @@ function wireTop(backTo){
    ═══════════════════════════════════════════════════════════════════ */
 SCREENS.login = function(st){
   let pin = '', mode = 'in';       // in = 들어가기, up = 처음 가입
-  let pin2 = '', step = 1;
-  st.innerHTML = `<div id="login" class="on"><div>
-    <div class="logo">퀴즈나라<small>${esc(window.CLASS_NAME||'우리 반')} 퀴즈 게임</small></div>
+  let pin2 = '', step = 1, sex = 'f';
+  /* 로고 옆에 캐릭터를 세워 둔다 — 큐플레이 로그인 화면처럼 */
+  const guestA = newAvatar('f'), guestB = newAvatar('m');
+  guestA.hat = 'ribbon:7'; guestA.pet = 'cat:9'; guestA.top = 'dress:7';
+  guestB.hat = 'cap:5';    guestB.pet = 'dog:1'; guestB.top = 'hood:5';
+  st.innerHTML = `<div id="login" class="on"><div class="lgStage">
+    <div class="lgSide">${avatarSVG(guestA, 210, 3)}</div>
+    <div><div class="logo">퀴즈나라<small>${esc(window.CLASS_NAME||'우리 반')} 퀴즈 게임</small></div>
     <div class="pnl loginbox">
       <div style="text-align:left">
         <label style="font-weight:800;color:#12467e;font-size:13px">아이디 (내 이름이나 별명)</label>
         <input class="inp" style="margin-top:5px" id="lgId" maxlength="12" placeholder="예) 하늘이" autocomplete="off">
+      </div>
+      <div id="lgSexBox" class="hide" style="margin-top:9px;text-align:left">
+        <div style="font-weight:800;color:#12467e;font-size:13px">남자 / 여자</div>
+        <div class="row gap4" style="margin-top:5px">
+          <button class="btn p f1" id="lgF">여자</button>
+          <button class="btn gray f1" id="lgM">남자</button></div>
       </div>
       <div style="margin-top:9px">
         <div style="font-weight:800;color:#12467e;font-size:13px;text-align:left" id="lgLab">비밀번호 — 숫자 4개</div>
@@ -2034,7 +2219,11 @@ SCREENS.login = function(st){
         <button class="btn sm gray" id="lgT">선생님</button>
       </div>
       <div class="hint mt8" id="lgMsg" style="min-height:30px"></div>
-    </div></div></div>`;
+    </div>
+    <div class="lgFoot">퀴즈를 풀어 골드를 모으고 아바타를 꾸며요 · 아이템 ${ITEM_COUNT}가지</div>
+    </div>
+    <div class="lgSide">${avatarSVG(guestB, 210, 3)}</div>
+  </div></div>`;
 
   const dots = ()=> $$('#lgDots i').forEach((d,i)=> d.classList.toggle('f', i < pin.length));
   const msg  = t => el('lgMsg').innerHTML = t;
@@ -2062,9 +2251,17 @@ SCREENS.login = function(st){
     el('lgGo').textContent  = m==='up' ? '이 비밀번호로 만들기' : '들어가기';
     el('lgNew').textContent = m==='up' ? '이미 있어요 (돌아가기)' : '처음이에요 (가입)';
     el('lgLab').textContent = m==='up' ? '쓸 비밀번호 — 숫자 4개' : '비밀번호 — 숫자 4개';
+    el('lgSexBox').classList.toggle('hide', m!=='up');
     msg(m==='up' ? '아이디는 한글도 돼요. 비밀번호는 <b>꼭 기억할 수 있는 숫자 4개</b>로 정하세요.' : '');
   }
   el('lgNew').onclick = ()=> setMode(mode==='up'?'in':'up');
+  const paintSex = ()=>{
+    el('lgF').className = 'btn f1 ' + (sex==='f'?'p':'gray');
+    el('lgM').className = 'btn f1 ' + (sex==='m'?'':'gray');
+  };
+  el('lgF').onclick = ()=>{ sex='f'; paintSex(); };
+  el('lgM').onclick = ()=>{ sex='m'; paintSex(); };
+  paintSex();
 
   el('lgT').onclick = ()=>{
     const pw = prompt('선생님 암호');
@@ -2093,7 +2290,7 @@ SCREENS.login = function(st){
         if(pinHash(k,pin) !== pinHash(k,pin2)){ pin=''; pin2=''; step=1; dots();
           el('lgLab').textContent='쓸 비밀번호 — 숫자 4개';
           msg('<b style="color:#c0392b">두 번이 서로 달라요. 처음부터 다시.</b>'); return; }
-        const fresh = { name:raw, pin:pinHash(k,pin), gold:R.startGold, av:newAvatar(),
+        const fresh = { name:raw, pin:pinHash(k,pin), gold:R.startGold, av:newAvatar(sex),
           owned:{}, stat:{solved:0,correct:0}, day:{d:today(),g:0}, made:now() };
         uref(k).set(fresh).then(()=>{ enter(k, fresh); })
           .catch(e=> msg('<b style="color:#c0392b">만들기 실패: '+esc(e.message)+'</b>'));
@@ -2370,7 +2567,7 @@ SCREENS.shop = function(st){
       if((ME.gold||0) < it.price){ toast('골드가 모자라요'); return; }
       const owned = Object.assign({}, ME.owned); owned[it.id] = 1;
       ME.owned = owned; save({owned, gold:ME.gold - it.price}, true);
-      wear(); toast('샀어요! ' + it.name, 2200);
+      wear(); SND.buy(); toast('샀어요! ' + it.name, 2200);
     };
   }
 
@@ -2824,7 +3021,8 @@ SCREENS.practice = function(st){
       s.solved = (s.solved||0)+1; if(ok) s.correct = (s.correct||0)+1;
       save({stat:s});
       let got = 0;
-      if(ok){ right++; got = addGold(R.practicePerQ, true); earned += got; }
+      if(ok){ right++; got = addGold(R.practicePerQ, true); earned += got; SND.ok(); }
+      else SND.no();
       marks[i] = ok ? 1 : 0;
       el('prOk').textContent = '맞힘 ' + right;
       el('prGold').textContent = '이번 판 +' + earned + '골드';
@@ -2845,6 +3043,7 @@ SCREENS.practice = function(st){
     }
     function done(){
       wrap.style.placeItems = 'center';
+      if(right >= qs.length*0.7) SND.fanfare(); else SND.sad();
       wrap.innerHTML = `<div class="pnl" style="padding:24px;width:min(680px,94vw);text-align:center">
         <div style="font-size:30px;font-weight:900;color:#12467e;letter-spacing:-.04em">다 풀었어요!</div>
         <div class="center avframe" style="margin:10px 0">${avatarSVG(ME.av, 170, 3)}</div>
@@ -2889,6 +3088,127 @@ function pickQs(setId, seed, count, onlyOX){
   for(let i=all.length-1;i>0;i--){ const j=(rnd()*(i+1))|0; const t=all[i]; all[i]=all[j]; all[j]=t; }
   return all.slice(0, Math.min(count||all.length, all.length));
 }
+
+/* ── 낱말 사전 ─────────────────────────────────────────────────
+   가로세로는 낱말끼리 글자가 겹쳐야 격자가 예쁘게 짜인다.
+   아무 낱말이나 넣으면 겹칠 데가 없어 밋밋해지므로, 3학년 교과에 맞으면서
+   서로 글자가 잘 겹치는 낱말을 주제별로 담아 뒀다.
+   선생님은 주제만 고르면 격자가 저절로 만들어진다. */
+const WORDBANK = {
+  '동물': [
+    ['강아지','멍멍 짖는 우리 집 애완동물'],['고양이','야옹 하고 우는 동물'],
+    ['호랑이','옛이야기에 자주 나오는 큰 고양잇과 동물'],
+    ['코끼리','코가 아주 긴 큰 동물'],['원숭이','나무를 잘 타고 사람과 닮은 동물'],
+    ['다람쥐','도토리를 볼에 넣고 다니는 작은 동물'],['거북이','등에 딱딱한 껍데기를 지고 느린 동물'],
+    ['개구리','올챙이가 자라면 되는 것'],['병아리','닭의 새끼'],['오리','물에 떠서 헤엄치는 새, 꽥꽥'],
+    ['부엉이','밤에 활동하는 눈이 큰 새'],['독수리','하늘 높이 나는 크고 힘센 새'],
+    ['고래','바다에 사는 가장 큰 동물'],['상어','바다의 무서운 이빨을 가진 물고기'],
+    ['오징어','다리가 열 개인 바다 동물'],['문어','다리가 여덟 개인 바다 동물'],
+    ['나비','꽃에 앉아 꿀을 먹는 예쁜 곤충'],['잠자리','날개가 넷이고 눈이 큰 곤충'],
+    ['개미','줄지어 다니며 힘이 센 작은 곤충'],['거미','줄을 쳐서 먹이를 잡는 것'],
+    ['여우','꾀가 많다고 하는 동물'],['사슴','뿔이 나뭇가지처럼 생긴 동물'],
+    ['토끼','귀가 길고 깡충깡충 뛰는 동물'],['펭귄','남극에 사는 날지 못하는 새'],
+    ['기린','목이 아주 긴 동물'],['하마','물속에 사는 입이 큰 동물'],
+    ['달팽이','집을 지고 느리게 기어가는 것'],['지렁이','땅속에서 흙을 좋게 해 주는 것'],
+    ['참새','짹짹 우는 우리 주변의 작은 새'],['제비','봄에 돌아오는 강남 갔던 새']],
+
+  '식물': [
+    ['나무','줄기가 굵고 오래 사는 식물'],['뿌리','땅속에서 물을 빨아들이는 부분'],
+    ['줄기','뿌리와 잎을 이어 주는 부분'],['열매','꽃이 지고 나서 생기는 것'],
+    ['씨앗','심으면 싹이 나는 것'],['새싹','씨앗에서 처음 돋아나는 것'],
+    ['꽃잎','꽃에서 색깔이 고운 부분'],['단풍','가을에 잎이 붉게 물드는 것'],
+    ['소나무','사철 푸른 바늘잎 나무'],['대나무','속이 비고 마디가 있는 나무'],
+    ['잔디','운동장이나 마당에 깔린 낮은 풀'],['버섯','축축한 곳에서 자라는 갓 모양'],
+    ['민들레','노란 꽃이 지면 씨가 바람에 날아가는 풀'],['진달래','봄에 분홍색으로 피는 꽃'],
+    ['개나리','봄에 노랗게 피는 꽃'],['무궁화','우리나라를 나타내는 꽃'],
+    ['해바라기','해를 따라 도는 큰 노란 꽃'],['벚꽃','봄에 잠깐 피었다 지는 분홍 꽃'],
+    ['나뭇잎','나무에 달린 초록색 잎'],['국화','가을에 피는 향이 진한 꽃'],
+    ['연꽃','물 위에 피는 꽃'],['광합성','잎이 햇빛으로 양분을 만드는 일']],
+
+  '우리 몸': [
+    ['머리카락','머리에 나는 것'],['눈썹','눈 위에 난 털'],['입술','입 둘레의 붉은 부분'],
+    ['어깨','팔이 몸에 붙는 곳'],['손가락','손에 다섯 개 있는 것'],['손톱','손가락 끝의 딱딱한 것'],
+    ['발가락','발에 다섯 개 있는 것'],['무릎','다리를 굽히는 곳'],['배꼽','배 가운데 있는 자국'],
+    ['심장','피를 온몸으로 보내는 기관'],['허파','숨을 쉬게 해 주는 기관'],
+    ['근육','힘을 쓰게 해 주는 살'],['핏줄','피가 흐르는 길'],
+    ['이빨','음식을 씹는 것'],['목구멍','음식이 넘어가는 길'],['콧구멍','냄새가 들어오는 구멍'],
+    ['눈물','슬프면 눈에서 나오는 것'],['땀방울','더울 때 몸에서 나오는 것'],
+    ['척추','등 한가운데를 지나는 뼈'],['갈비뼈','가슴을 감싸는 뼈']],
+
+  '날씨와 계절': [
+    ['여름','일 년 중 가장 더운 계절'],['가을','단풍이 들고 곡식이 익는 계절'],
+    ['겨울','눈이 내리고 가장 추운 계절'],['장마','여름에 오래 비가 오는 때'],
+    ['태풍','비바람이 아주 센 것'],['무지개','비 온 뒤 하늘에 뜨는 일곱 빛깔'],
+    ['안개','앞이 뿌옇게 보이지 않는 것'],['서리','추운 아침 풀잎에 하얗게 앉는 것'],
+    ['눈사람','눈을 뭉쳐 만드는 것'],['소나기','갑자기 세게 오다 그치는 비'],
+    ['우박','얼음 알갱이가 떨어지는 것'],['번개','하늘이 번쩍하는 것'],
+    ['천둥','번개 뒤에 우르릉 하는 소리'],['구름','하늘에 뜬 물방울 덩어리'],
+    ['바람','공기가 움직이는 것'],['이슬','새벽에 풀잎에 맺히는 물방울'],
+    ['홍수','비가 너무 많이 와서 물이 넘치는 것'],['가뭄','비가 오래 오지 않는 것'],
+    ['일기예보','내일 날씨를 미리 알려 주는 것'],['봄비','봄에 조용히 내리는 비']],
+
+  '우리 고장': [
+    ['시장','물건을 사고파는 곳'],['학교','공부하러 가는 곳'],['병원','아프면 가는 곳'],
+    ['우체국','편지와 소포를 부치는 곳'],['은행','돈을 맡기고 찾는 곳'],
+    ['도서관','책을 빌려 읽는 곳'],['경찰서','도둑을 잡고 우리를 지켜 주는 곳'],
+    ['소방서','불을 끄러 출동하는 곳'],['공원','나무가 많고 쉬는 곳'],
+    ['지하철','땅속으로 다니는 기차'],['버스','여러 사람이 같이 타는 차'],
+    ['지도','땅의 모습을 줄여서 그린 것'],['동쪽','해가 뜨는 쪽'],['서쪽','해가 지는 쪽'],
+    ['남쪽','따뜻한 쪽'],['북쪽','추운 쪽'],['마을','사람들이 모여 사는 곳'],
+    ['논밭','곡식을 기르는 땅'],['바닷가','바다와 땅이 만나는 곳'],
+    ['시청','우리 시의 일을 하는 곳'],['박물관','옛 물건을 모아 둔 곳'],
+    ['미술관','그림을 걸어 두고 보는 곳']],
+
+  '수학': [
+    ['덧셈','더하는 셈'],['뺄셈','빼는 셈'],['곱셈','여러 번 더하는 셈'],
+    ['나눗셈','똑같이 나누는 셈'],['삼각형','변이 세 개인 도형'],['사각형','변이 네 개인 도형'],
+    ['각도','각의 크기'],['길이','얼마나 긴지 잰 것'],
+    ['무게','얼마나 무거운지 잰 것'],['시간','시계로 재는 것'],['분수','전체를 나눈 몇 조각'],
+    ['짝수','둘로 나누어떨어지는 수'],['홀수','둘로 나누어떨어지지 않는 수'],
+    ['도형','모양을 나타내는 말'],['그래프','자료를 그림으로 나타낸 것'],
+    ['넓이','평평한 곳이 얼마나 큰지'],['부피','물체가 차지하는 공간의 크기'],
+    ['자릿수','수가 몇 자리인지'],['소수','점을 찍어 나타내는 수'],
+    ['둘레','도형의 가장자리를 한 바퀴 잰 길이']],
+
+  '국어': [
+    ['낱말','뜻을 가진 말의 덩어리'],['문장','생각을 하나로 나타낸 말'],
+    ['받침','글자 아래에 붙는 자음'],['자음','ㄱ ㄴ ㄷ 같은 글자'],['모음','ㅏ ㅑ ㅓ 같은 글자'],
+    ['높임말','어른께 쓰는 말'],['반대말','뜻이 서로 반대인 말'],
+    ['이야기','줄거리가 있는 글'],['주인공','이야기에서 가장 중요한 인물'],
+    ['일기','하루 있었던 일을 적은 글'],['편지','멀리 있는 사람에게 쓰는 글'],
+    ['독서','책을 읽는 일'],['발표','여러 사람 앞에서 말하는 것'],
+    ['동시','아이들을 위해 쓴 시'],['속담','옛날부터 전해 오는 짧은 가르침'],
+    ['수수께끼','묻고 답을 맞히는 놀이'],['사전','낱말의 뜻을 찾는 책'],
+    ['훈민정음','세종대왕이 만든 우리 글자'],['한글','우리나라 글자'],
+    ['글쓴이','글을 쓴 사람'],['제목','글의 이름']],
+
+  '학교생활': [
+    ['교실','우리가 공부하는 방'],['운동장','뛰어놀고 체육하는 넓은 곳'],
+    ['급식','학교에서 먹는 점심'],['칠판','선생님이 글씨를 쓰는 판'],
+    ['책상','앉아서 공부하는 가구'],['사물함','내 물건을 넣어 두는 곳'],
+    ['실내화','교실에서 신는 신발'],['연필','글씨를 쓰는 도구'],
+    ['지우개','틀린 것을 지우는 것'],['색연필','색칠할 때 쓰는 연필'],
+    ['공책','글씨를 쓰는 노트'],['시간표','무슨 공부를 하는지 적은 표'],
+    ['청소','교실을 깨끗이 하는 일'],['체육','운동을 배우는 과목'],
+    ['음악','노래를 배우는 과목'],['미술','그림을 그리는 과목'],
+    ['방학','학교를 쉬는 기간'],['가방','책을 넣어 메고 다니는 것'],
+    ['수업','선생님과 함께 배우는 시간'],['친구','같이 놀고 공부하는 사람'],
+    ['숙제','집에서 해 오는 공부']],
+
+  '음식': [
+    ['김치','배추로 담근 우리나라 반찬'],['국수','길게 뽑은 면 요리'],
+    ['라면','끓여 먹는 꼬불꼬불한 면'],['만두','속을 넣고 빚어 찐 음식'],
+    ['떡볶이','고추장에 볶은 떡'],['김밥','김에 밥과 재료를 말아 만든 것'],
+    ['계란','닭이 낳은 것'],['우유','소에서 나오는 흰 음료'],
+    ['사과','빨갛고 아삭한 과일'],['딸기','봄에 나는 빨간 과일'],
+    ['수박','여름에 먹는 크고 시원한 과일'],['포도','알이 송이로 달린 과일'],
+    ['바나나','노랗고 길쭉한 과일'],['당근','토끼가 좋아하는 주황색 채소'],
+    ['감자','땅속에서 캐는 둥근 것'],['고구마','달고 노란 땅속 작물'],
+    ['시금치','뽀빠이가 먹던 초록 채소'],['두부','콩으로 만든 하얀 음식'],
+    ['미역국','생일에 먹는 국'],['불고기','양념한 소고기 구이']]
+};
+const bankTopics = ()=> Object.keys(WORDBANK);
+const topicWords = t => (WORDBANK[t]||[]).map(v=>({a:v[0], q:v[1]}));
 
 /* ── 가로세로 격자 짜기 ────────────────────────────────────────
    한 칸에 한 글자. 이미 놓인 글자와 겹치게 이어 붙인다. */
@@ -3034,7 +3354,16 @@ function hostPanel(box){
           ${Object.keys(MODES).map(k=>`<button class="mtile" data-m="${k}" style="min-height:96px">
             <span class="ic">${MODES[k].ic}</span><h3>${MODES[k].n}</h3><p>${MODES[k].d}</p></button>`).join('')}
         </div>
-        <div style="font-weight:900;color:#12467e;margin-bottom:8px">2. 어떤 문제 묶음으로?</div>
+        <div id="hTopicBox" class="hide" style="margin-bottom:16px">
+          <div style="font-weight:900;color:#12467e;margin-bottom:8px">2. 낱말 주제를 고르세요
+            <span class="hint">(선생님이 문제를 안 만들어도 됩니다)</span></div>
+          <div class="row gap4" style="flex-wrap:wrap" id="hTopics">
+            ${bankTopics().map(t=>`<button class="btn sm gray" data-t="${esc(t)}">${esc(t)}</button>`).join('')}
+          </div>
+          <div class="hint mt8">주제를 고르면 <b>서로 글자가 겹치는 낱말</b>로 격자를 저절로 만듭니다.
+            아래 내 문제 묶음으로 하고 싶으면 묶음을 고르세요.</div>
+        </div>
+        <div style="font-weight:900;color:#12467e;margin-bottom:8px" id="hSetLab">2. 어떤 문제 묶음으로?</div>
         <div id="hSets" style="max-height:26vh;overflow:auto;margin-bottom:16px">
           ${L.map(s=>`<div class="setrow" data-id="${s.id}"><div class="sn">${esc(s.title)}
             <div class="sc">문제 ${s.n}개</div></div></div>`).join('')}</div>
@@ -3046,8 +3375,10 @@ function hostPanel(box){
         </div>
         <div class="hint mt12" id="hNote"></div>
       </div></div>`;
-    let mode = null, setId = null;
-    const upd = ()=>{ el('hOpen').disabled = !(mode && setId);
+    let mode = null, setId = null, topic = null;
+    const upd = ()=>{ el('hOpen').disabled = !(mode && (setId || topic));
+      el('hTopicBox').classList.toggle('hide', mode!=='cross');
+      el('hSetLab').textContent = mode==='cross' ? '3. 아니면 내 문제 묶음으로' : '2. 어떤 문제 묶음으로?';
       const n = el('hNote');
       if(mode==='cross'){ el('hSec').value = 300; el('hCnt').value = 12;
         n.innerHTML = '가로세로는 <b>정답이 2~7글자</b>인 문제만 씁니다. 한글은 글자가 통째로 겹쳐야 해서, '
@@ -3058,18 +3389,22 @@ function hostPanel(box){
     };
     $$('[data-m]', box).forEach(b=> b.onclick = ()=>{ mode=b.dataset.m;
       $$('[data-m]',box).forEach(x=> x.style.outline=''); b.style.outline='4px solid #ff9a24'; upd(); });
-    $$('#hSets .setrow', box).forEach(r=> r.onclick = ()=>{ setId=r.dataset.id;
+    $$('#hSets .setrow', box).forEach(r=> r.onclick = ()=>{ setId=r.dataset.id; topic=null;
+      $$('#hTopics button',box).forEach(x=>x.className='btn sm gray');
       $$('#hSets .setrow',box).forEach(x=>x.classList.remove('on')); r.classList.add('on'); upd(); });
+    $$('#hTopics button', box).forEach(t2=> t2.onclick = ()=>{ topic=t2.dataset.t; setId=null;
+      $$('#hTopics button',box).forEach(x=>x.className='btn sm gray'); t2.className='btn sm y';
+      $$('#hSets .setrow',box).forEach(x=>x.classList.remove('on')); upd(); });
     el('hOpen').onclick = ()=> openRoom(mode, setId,
-      clamp(parseInt(el('hCnt').value,10)||10,1,50), clamp(parseInt(el('hSec').value,10)||20,5,600));
+      clamp(parseInt(el('hCnt').value,10)||10,1,50), clamp(parseInt(el('hSec').value,10)||20,5,600), topic);
   }
 
-  function openRoom(mode, setId, count, sec){
+  function openRoom(mode, setId, count, sec, topic){
     const seed = (now() & 0x7fffffff) || 1;
     const round = ((st.meta && st.meta.round)||0) + 1;
     let total = count, cross = null;
     if(mode==='cross'){
-      cross = buildCross(BANK[setId].qs||[], seed, count);
+      cross = buildCross(topic ? topicWords(topic) : (BANK[setId].qs||[]), seed, count);
       if(!cross){ toast('가로세로로 만들 수 있는 낱말이 모자라요 (2~7글자 정답이 2개 이상 필요)', 3600); return; }
       total = cross.w.length;
     } else {
@@ -3077,8 +3412,10 @@ function hostPanel(box){
       if(!qs.length){ toast(mode==='ox' ? '정답이 O/X 인 문제가 없어요' : '문제가 없어요', 3200); return; }
       total = qs.length;
     }
-    const meta = { open:true, mode, setId, seed, count, sec, total, round,
-      title: (BANK[setId].title||''), phase:'lobby', qi:-1, tEnd:0 };
+    const meta = { open:true, mode, setId: setId||null, topic: topic||null,
+      seed, count, sec, total, round,
+      title: topic ? ('낱말 — '+topic) : (BANK[setId].title||''),
+      phase:'lobby', qi:-1, tEnd:0 };
     R2.set({ meta, cross: cross? crossPublic(cross) : null }).then(()=> toast('방을 열었어요!'));
   }
   function closeRoom(){
@@ -3088,7 +3425,8 @@ function hostPanel(box){
 
   /* ── 문제 내기 / 채점 ── */
   function myQs(){ const m = st.meta; return pickQs(m.setId, m.seed, m.count, m.mode==='ox'); }
-  function myCross(){ const m = st.meta; return buildCross(BANK[m.setId].qs||[], m.seed, m.count); }
+  function myCross(){ const m = st.meta;
+    return buildCross(m.topic ? topicWords(m.topic) : (BANK[m.setId].qs||[]), m.seed, m.count); }
 
   function startQ(i){
     const m = st.meta, qs = myQs();
@@ -3272,7 +3610,7 @@ SCREENS.live = function(st){
   const R2 = rref(), MK = ME.k;
   const S = { meta:null, p:{}, q:null, rev:null, cf:{}, subs:[], tick:null,
               phaseKey:'', picked:null, pickedQi:-99, joined:false, appliedGqi:null,
-              clue:null, oxNodes:null };
+              clue:null, oxNodes:null, revSnd:null, lastTick:null, revToast:null };
   /* 내가 이번 문제에 낸 답. 문제 번호가 다르면 안 낸 것으로 본다. */
   const myPick = ()=> (S.meta && S.pickedQi === S.meta.qi) ? S.picked : null;
 
@@ -3293,7 +3631,9 @@ SCREENS.live = function(st){
   S.tick = setInterval(()=>{
     const m = S.meta; if(!m || m.phase!=='ask') return;
     const left = Math.max(0, (m.tEnd||0) - svNow());
-    const t = el('lvTime'); if(t) t.textContent = Math.ceil(left/1000);
+    const sec = Math.ceil(left/1000);
+    if(sec <= 5 && sec >= 1 && S.lastTick !== sec){ S.lastTick = sec; SND.hurry(); }
+    const t = el('lvTime'); if(t) t.textContent = sec;
     const bar = el('lvBar');
     if(bar && m.sec){ const p = clamp(left/(m.sec*1000)*100,0,100); bar.style.width = p+'%';
       bar.className = p<20?'hot':p<50?'warn':''; }
@@ -3314,7 +3654,7 @@ SCREENS.live = function(st){
     if(mine.gqi != null && mine.gqi !== S.appliedGqi){
       S.appliedGqi = mine.gqi;
       const g = mine.gain||0;
-      if(g > 0){ addGold(g, false); toast('+'+g+'골드!', 1600); }
+      if(g > 0){ addGold(g, false); toast('+'+g+'골드!', 1600); SND.coin(); }
       const s2 = ME.stat||{solved:0,correct:0};
       s2.solved = (s2.solved||0)+1; if(g>0) s2.correct = (s2.correct||0)+1;
       save({stat:s2});
@@ -3324,7 +3664,7 @@ SCREENS.live = function(st){
     const m = S.meta;
     if(!m || m.phase!=='ask') return;
     if(myPick() != null) return;
-    S.picked = v; S.pickedQi = m.qi;
+    S.picked = v; S.pickedQi = m.qi; SND.pick();
     const t = svNow();
     R2.child('ans/'+MK).set({v:String(v), t});
     R2.child('p/'+MK+'/ansAt').set(t);
@@ -3351,8 +3691,13 @@ SCREENS.live = function(st){
           <button class="btn y" onclick="go('practice')">그동안 혼자 연습하기</button></div></div></div>`;
       return;
     }
+    if(m.phase==='reveal' && S.revSnd !== m.qi){
+      S.revSnd = m.qi;
+      const pk2 = myPick();
+      if(pk2!=null && S.rev && isRight(pk2, S.rev.a)) SND.ok(); else SND.no();
+    }
     if(m.phase==='lobby')  return paintLobby();
-    if(m.phase==='end')    return paintEnd();
+    if(m.phase==='end')    { SND.fanfare(); return paintEnd(); }
     if(m.mode==='cross')   return paintCross();
     if(m.mode==='ox')      return paintOX();
     return paintQuiz();
@@ -3405,16 +3750,28 @@ SCREENS.live = function(st){
   function paintEnd(){
     const a = plArr().sort((x,y)=>(y.sc||0)-(x.sc||0));
     const me = a.findIndex(p=>p.k===MK);
-    wrap.innerHTML = `<div class="center" style="height:100%;padding:12px">
-      <div class="pnl" style="padding:20px;width:min(720px,94vw);text-align:center">
-        <div style="font-size:30px;font-weight:900;color:#12467e;letter-spacing:-.04em">수업 끝!</div>
-        <div class="center avframe" style="margin:6px 0">${avatarSVG(ME.av,150,3)}</div>
-        <div style="font-size:20px;font-weight:800;color:#2b5b85">
-          ${me>=0? '나는 <b style="color:#b57700">'+(me+1)+'등</b> · '+(a[me].sc||0)+'점' : '구경했어요'}</div>
-        <div class="mt12" style="max-height:34vh;overflow:auto;text-align:left">${rankHTML()}</div>
-        <div class="row gap mt12" style="justify-content:center">
+    const pod = (i, cls)=>{ const p = a[i]; if(!p) return '';
+      return `<div class="pod ${cls}">
+        <div class="who">${avatarSVG(Object.assign(newAvatar(),p.av||{}), i===0?150:120, i===0?3:2)}</div>
+        <div class="nm3">${esc(p.name)}</div>
+        <div class="base">${i+1}</div></div>`; };
+    wrap.innerHTML = `<div class="winwrap">
+      <div class="winbanner">WINNER</div>
+      <div class="podium">${pod(1,'p2')}${pod(0,'p1')}${pod(2,'p3')}</div>
+      <div class="pnl" style="overflow:hidden;display:flex;flex-direction:column;min-height:0">
+        <div class="pnl-h">최종 순위
+          <div class="f1"></div>
+          <span style="font-size:13px">${me>=0? '나는 '+(me+1)+'등 · '+(a[me].sc||0)+'점' : '구경했어요'}</span></div>
+        <div class="f1 scroll" style="padding:8px 10px;min-height:0">
+          <table class="wintab"><tr><th></th><th>이름</th><th>점수</th><th style="text-align:right">맞힌 문제</th></tr>
+          ${a.map((p,i)=>`<tr class="${i===0?'t1':''} ${p.k===MK?'me':''}">
+            <td>${i+1}</td><td>${esc(p.name)}${crownStr(p.crown)}</td>
+            <td>${p.sc||0}</td><td>${p.ok||0}개</td></tr>`).join('')}
+          </table></div>
+        <div class="row gap" style="padding:8px;justify-content:center;background:#dceffd;border-top:2px solid #b8d8f0">
           <button class="btn gray" onclick="go('home')">홈으로</button>
-          <button class="btn y" onclick="go('shop')">번 골드로 옷 사기</button></div></div></div>`;
+          <button class="btn y" onclick="go('shop')">번 골드로 옷 사기</button></div>
+      </div></div>`;
   }
 
   function paintQuiz(){
@@ -3552,10 +3909,24 @@ SCREENS.live = function(st){
       if(S.clue && byN[S.clue]){ const w=byN[S.clue];
         for(let i=0;i<w.len;i++) hi[(w.dir?w.r+i:w.r)+','+(w.dir?w.c:w.c+i)]=1; }
       const numByCell = cr.num||{};
+      /* 칸 → 그 칸을 지나는 낱말 번호. 아이들은 오른쪽 목록이 아니라 격자를 누른다 */
+      const cellWords = {};
+      (cr.w||[]).forEach(w=>{ for(let i=0;i<w.len;i++){
+        const k2 = (w.dir?w.r+i:w.r)+','+(w.dir?w.c:w.c+i);
+        (cellWords[k2] = cellWords[k2]||[]).push(w.n); } });
+      /* 아무것도 안 골라져 있으면 아직 안 푼 것 중 첫 번째를 골라 준다 */
+      if(m.phase==='ask' && (!S.clue || S.cf[S.clue])){
+        const nx = (cr.w||[]).slice().sort((a,b)=>a.n-b.n).find(w=> !S.cf[w.n]);
+        if(nx) S.clue = nx.n;
+      }
+      const hi2 = {};
+      if(S.clue && byN[S.clue]){ const w=byN[S.clue];
+        for(let i=0;i<w.len;i++) hi2[(w.dir?w.r+i:w.r)+','+(w.dir?w.c:w.c+i)]=1; }
       let grid = `<div class="cgrid" id="cGrid" style="grid-template-columns:repeat(${cr.cols},var(--cs,34px))">`;
       for(let r=0;r<cr.rows;r++) for(let c=0;c<cr.cols;c++){
         const open = cr.open[r][c]==='1', key=r+','+c, L=letters[key];
-        grid += `<div class="cc ${open?'open':''} ${L?(L.by===MK?'mine':'done'):''} ${hi[key]&&!L?'hi':''}">`
+        grid += `<div class="cc ${open?'open':''} ${L?(L.by===MK?'mine':'done'):''} ${hi2[key]&&!L?'hi':''}"`
+          + (open? ` data-cell="${key}"`:'') + `>`
           + (numByCell[key]? `<span class="cn">${numByCell[key]}</span>`:'')
           + (L? `<span class="cv">${esc(L.ch)}</span>`:'') + `</div>`;
       }
@@ -3565,7 +3936,17 @@ SCREENS.live = function(st){
           <b>${w.n}.</b> ${esc(w.clue)} <span class="hint">(${w.len}글자)</span>
           ${S.cf[w.n]? '<b style="color:#3d8f2e"> ✔ '+esc(S.cf[w.n].name||'')+'</b>':''}</div>`).join('');
       const doneN = Object.keys(S.cf).length;
-      wrap.innerHTML = `<div style="display:grid;grid-template-columns:1fr 330px;height:100%;padding:10px;gap:10px">
+      /* 성 좌우 탑에 잘하는 친구 넷을 세운다 (큐플레이 가로세로 화면처럼) */
+      const rk = plArr().sort((x,y)=>(y.sc||0)-(x.sc||0));
+      const cols = ['#4cb34c','#e8534f','#f0a020','#3d8fe0'];
+      const tower = (from)=> [0,1].map(i=>{ const p = rk[from+i]; if(!p) return '';
+        return `<div class="tw"><div class="roof"></div>
+          <div class="flag" style="background:${cols[(from+i)%4]}">${esc(p.name)}</div>
+          <div class="who2">${avatarSVG(Object.assign(newAvatar(),p.av||{}),74,1)}</div>
+          <div class="flag" style="background:#0e3f70">${p.sc||0}점</div></div>`; }).join('');
+      wrap.innerHTML = `<div class="castle" style="padding:6px 8px 8px">
+        <div class="tower">${tower(0)}</div>
+        <div style="display:grid;grid-template-columns:1fr 296px;gap:8px;min-width:0;min-height:0;height:100%">
         <div class="pnl col" style="overflow:hidden">
           <div class="pnl-h">${esc(m.title)} — ${doneN}/${(cr.w||[]).length} 칸 채움
             <div class="f1"></div>${m.phase==='ask'? '<span id="lvTimeW"><span id="lvTime">–</span>초</span>':''}</div>
@@ -3574,8 +3955,10 @@ SCREENS.live = function(st){
           <div style="padding:8px 10px;background:#dceffd;border-top:2px solid #b8d8f0">
             <div class="row gap">
               <div class="tag" style="background:#0e3f70;color:#fff;padding:8px 12px" id="cSel">
-                ${S.clue? S.clue+'번 ('+ (byN[S.clue].dir?'세로':'가로') +', '+byN[S.clue].len+'글자)' : '오른쪽에서 문제를 골라요'}</div>
-              <input class="inp f1" id="cIn" placeholder="답안지" autocomplete="off"
+                ${S.clue&&byN[S.clue]? S.clue+'번 '+(byN[S.clue].dir?'세로':'가로')+' · '+byN[S.clue].len+'글자'
+                  : '칸을 눌러 골라요'}</div>
+              <input class="inp f1" id="cIn" placeholder="${S.clue&&byN[S.clue]? esc(byN[S.clue].clue) : '먼저 칸이나 문제를 눌러 주세요'}"
+                autocomplete="off"
                 style="font-size:19px;font-weight:800;text-align:center" ${S.clue?'':'disabled'}>
               <button class="btn y" id="cOk" ${S.clue?'':'disabled'}>내기</button></div></div>
         </div>
@@ -3585,9 +3968,19 @@ SCREENS.live = function(st){
             <div style="font-weight:900;color:#12467e;margin:4px 0">가로</div>${clueRow(0)}
             <div style="font-weight:900;color:#12467e;margin:8px 0 4px">세로</div>${clueRow(1)}
             <div style="font-weight:900;color:#12467e;margin:10px 0 4px">점수</div>${rankHTML()}
-          </div></div></div>`;
+          </div></div></div>
+        <div class="tower">${tower(2)}</div></div>`;
       $$('.clue', wrap).forEach(c=> c.onclick = ()=>{ S.clue = +c.dataset.n; render(true);
         const i2 = el('cIn'); if(i2) i2.focus(); });
+      /* 격자 칸을 눌러도 골라진다. 두 낱말이 지나면 번갈아 고른다 */
+      $$('.cc[data-cell]', wrap).forEach(cell=> cell.onclick = ()=>{
+        const list = (cellWords[cell.dataset.cell]||[]).filter(n2=> !S.cf[n2]);
+        if(!list.length){ toast('이미 채워진 칸이에요'); return; }
+        const i3 = list.indexOf(S.clue);
+        S.clue = list[(i3+1) % list.length];
+        SND.pick(); render(true);
+        const i2 = el('cIn'); if(i2) i2.focus();
+      });
       const send = ()=>{
         const v = (el('cIn').value||'').trim();
         if(!S.clue || !v){ toast('문제를 고르고 답을 써 주세요'); return; }
@@ -3633,7 +4026,7 @@ const crownStr = n => n>0 ? ' ' + '👑'.repeat(Math.min(n,3)) : '';
 
 /* ── 학생 화면 ── */
 SCREENS.fashion = function(st){
-  const F = { cur:null, ents:{}, votes:{}, res:null, subs:[], key:'' };
+  const F = { cur:null, ents:{}, votes:{}, res:null, subs:[], key:'', sndDone:null };
   st.innerHTML = topbar('패션왕 대회', true) + `<div id="fWrap" style="position:absolute;inset:54px 0 0 0"></div>`;
   wireTop();
   const wrap = el('fWrap');
@@ -3689,7 +4082,7 @@ SCREENS.fashion = function(st){
           <div class="fgrid f1">${A.map(p=>card(p, p.k===ME.k?'me':'')).join('') || '<div class="hint">아직 아무도 없어요.</div>'}</div></div></div>`;
       el('fJoin').onclick = ()=>{
         fref().child('entries/'+ME.k).set({ name:ME.name, av:ME.av, votes:(F.ents[ME.k]||{}).votes||0, ts:now() })
-          .then(()=> toast('참가했어요! 👑', 2200));
+          .then(()=>{ SND.start(); toast('참가했어요! 👑', 2200); });
       };
       return;
     }
@@ -3708,11 +4101,12 @@ SCREENS.fashion = function(st){
         if(k===ME.k){ toast('자기한테는 못 해요'); return; }
         fref().child('votes/'+ME.k).set(k);
         fref().child('entries/'+k+'/votes').transaction(v=> (v||0)+1);
-        toast('투표했어요!');
+        SND.pick(); toast('투표했어요!');
       });
       return;
     }
     /* 결과 */
+    if(F.sndDone !== c.wk){ F.sndDone = c.wk; SND.fanfare(); }
     const top = (F.res && F.res.top) || A.slice(0,3);
     const meRank = A.findIndex(p=>p.k===ME.k);
     wrap.innerHTML = `<div style="display:grid;grid-template-rows:auto 1fr;height:100%;padding:12px;gap:10px">
