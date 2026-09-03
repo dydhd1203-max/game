@@ -1,0 +1,4202 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>양들의 밤 — 수정을 지켜라</title>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     ★ 선생님 설정 구역 ★  여기만 고치면 됩니다
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+window.TEACHER_CODE = "1234";          // 방 만들기 암호 (애들한테는 비밀)
+
+// ★ 지난 게임(교실 대소동)의 FIREBASE_CONFIG 를 그대로 복사해 붙여넣어도 됩니다.
+//    이 게임은 데이터를 'sheepnight' 아래에 따로 저장하므로 섞이지 않습니다.
+window.FIREBASE_CONFIG = {
+  apiKey: "AIzaSyDhSjj0njnKPrtQVbxyol_ipjIUxUkqb0A",
+  authDomain: "sheep-night.firebaseapp.com",
+  databaseURL: "https://sheep-night-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "sheep-night",
+  storageBucket: "sheep-night.firebasestorage.app",
+  messagingSenderId: "113615361729",
+  appId: "1:113615361729:web:5472c874a949dcb82de640"
+};
+
+window.DEFAULTS = {
+  daySec:     150,   // 낮(짓기) 시간 — 초
+  nightSec:   130,   // 밤(늑대) 제한 시간 — 초
+  goalDay:    15,    // 며칠 버티면 이기는가 (보스는 5·9·12·15일차)
+  crystalMax: 200,   // 수정 체력
+  wolfPower:  1.0    // 늑대 세기 배수 (0.7 쉬움 / 1.0 보통 / 1.4 어려움)
+};
+</script>
+<!-- ═══════════════════ 선생님 설정 구역 끝 ═══════════════════ -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
+<style>
+:root{
+  --ink:#0d120e; --panel:rgba(16,22,17,.82); --line:rgba(255,255,255,.20);
+  --line2:rgba(255,255,255,.34); --gold:#f2c044; --wood:#c08a4e; --stone:#b7bcc2;
+  --g1:#ff6b6b; --g2:#4dabf7; --g3:#51cf66; --g4:#ffd43b; --g5:#cc7bff;
+  --hp:#5fdd5f; --danger:#ff5252;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#8ec9ef;word-break:keep-all;
+  font-family:-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+  color:#fff;user-select:none;-webkit-user-select:none;touch-action:none}
+canvas{display:block}
+#app{position:fixed;inset:0}
+
+/* ── 공통 패널 ── */
+.pnl{background:var(--panel);border:2px solid var(--line);border-radius:8px;
+  box-shadow:0 3px 0 rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08)}
+.btn{background:rgba(30,40,32,.9);border:2px solid var(--line2);border-radius:8px;color:#fff;
+  font:700 15px/1.1 inherit;padding:11px 16px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.4);
+  transition:transform .06s, background .12s}
+.btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
+.btn:hover{background:rgba(52,68,55,.95)}
+.btn.pri{background:#3d8b40;border-color:#7ede82}
+.btn.pri:hover{background:#48a44c}
+.btn.warn{background:#8b3d3d;border-color:#ff9d9d}
+.btn.sm{font-size:13px;padding:7px 11px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font:800 12px/1.6 inherit}
+
+/* ── 시작 화면 ── */
+#title{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#79c0ea 0%,#a9dcf5 45%,#cfeacc 100%);z-index:60;overflow:auto;padding:16px}
+#titleCard{width:min(560px,100%);text-align:center}
+#titleCard h1{margin:0 0 2px;font-size:clamp(30px,7vw,46px);font-weight:900;letter-spacing:-1px;
+  color:#fff;text-shadow:0 3px 0 #2c5e33,0 6px 14px rgba(0,0,0,.35)}
+#titleCard .sub{margin:0 0 18px;font-weight:700;font-size:14px;color:#204a26;opacity:.85}
+.card{background:rgba(14,20,15,.86);border:2px solid var(--line);border-radius:14px;padding:18px;text-align:left}
+label.f{display:block;font-weight:800;font-size:13px;margin:14px 0 6px;opacity:.9}
+label.f:first-child{margin-top:0}
+input.f,select.f{width:100%;padding:12px;border-radius:8px;border:2px solid var(--line2);
+  background:rgba(0,0,0,.35);color:#fff;font:700 16px inherit}
+input.f::placeholder{color:rgba(255,255,255,.4)}
+.grp{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+.grp button{padding:13px 0;border-radius:8px;border:2px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.08);color:#fff;font:800 15px inherit;cursor:pointer}
+.grp button.on{background:var(--c);border-color:#fff;color:#101510;box-shadow:0 0 0 3px rgba(255,255,255,.25)}
+.row{display:flex;gap:8px;margin-top:16px}
+.row .btn{flex:1}
+#tmsg{margin-top:12px;font-weight:700;font-size:13px;color:#ffd9d9;min-height:18px;text-align:center}
+.hint{font-size:12px;opacity:.62;margin-top:10px;line-height:1.6}
+
+/* ── HUD ── */
+#hud{position:absolute;inset:0;pointer-events:none;z-index:20;display:none}
+#hud.on{display:block}
+#hud > *{pointer-events:auto}
+/* ★ 표시만 하는 패널은 터치를 통과시킨다.
+   안 그러면 오른쪽 시점 패드 위에 얹혀서, 애들이 그 자리를 문질러도 화면이 안 돈다.
+   (측정: 이 규칙 없으면 시점 패드의 31%가 막힌다)  버튼만 다시 살린다. */
+#miniWrap,#crystalWrap,#dayBox,#topRight2,#bossWrap,#aimInfo,#resBox{pointer-events:none}
+#topRight2 .btn{pointer-events:auto}
+
+#resBox{position:absolute;left:10px;top:10px;padding:8px 10px;display:flex;gap:4px;flex-direction:column}
+#grpName{font:900 14px inherit;margin-bottom:3px}
+.resline{display:flex;gap:10px;font:800 15px inherit;align-items:center}
+.res{display:flex;align-items:center;gap:4px;min-width:62px}
+.res i{font-style:normal;font-size:16px}
+.res b{font-variant-numeric:tabular-nums}
+.res.up{animation:pop .35s}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.35);color:#9cff9c}100%{transform:scale(1)}}
+
+#dayBox{position:absolute;right:10px;top:10px;padding:7px 11px;display:flex;align-items:center;gap:9px;
+  font:900 15px inherit}
+#dayPhase{font-size:13px;opacity:.9}
+#timeBar{width:74px;height:9px;border-radius:5px;background:rgba(0,0,0,.5);overflow:hidden;border:1px solid rgba(255,255,255,.25)}
+#timeFill{height:100%;width:100%;background:var(--gold);transition:width .3s linear}
+#dayBox.night #timeFill{background:#7f9bff}
+
+#miniWrap{position:absolute;right:10px;top:52px;padding:3px;line-height:0}
+#mini{border-radius:4px;display:block}
+
+#crystalWrap{position:absolute;left:50%;top:10px;transform:translateX(-50%);padding:6px 12px;text-align:center;min-width:220px}
+#crystalWrap .lb{font:800 12px inherit;opacity:.85;margin-bottom:4px}
+#cBar{height:14px;border-radius:7px;background:rgba(0,0,0,.55);overflow:hidden;border:2px solid rgba(255,255,255,.3)}
+#cFill{height:100%;width:100%;background:linear-gradient(90deg,#66e0ff,#37c6ff);transition:width .3s}
+#cNum{position:absolute;left:50%;top:26px;transform:translateX(-50%);font:900 11px inherit;text-shadow:0 1px 2px #000}
+#crystalWrap.hurt{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(-50%)}25%{transform:translate(-52%,2px)}75%{transform:translate(-48%,-2px)}}
+
+#bossWrap{position:absolute;left:50%;top:76px;transform:translateX(-50%);padding:7px 14px;
+  text-align:center;min-width:300px;display:none;border-color:#ff8b8b}
+#bossWrap.on{display:block;animation:bIn .5s}
+@keyframes bIn{from{opacity:0;transform:translate(-50%,-14px)}}
+#bossWrap .lb{font:900 14px inherit;margin-bottom:5px;color:#ffbcbc;text-shadow:0 1px 3px #000}
+#bBar{height:16px;border-radius:8px;background:rgba(0,0,0,.6);overflow:hidden;border:2px solid rgba(255,140,140,.55)}
+#bFill{background:linear-gradient(90deg,#ff9b3d,#ff3b3b);transition:width .25s}
+
+#crosshair{position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;pointer-events:none}
+#crosshair:before,#crosshair:after{content:'';position:absolute;background:rgba(255,255,255,.9);
+  box-shadow:0 0 2px rgba(0,0,0,.9)}
+#crosshair:before{left:10px;top:0;width:2px;height:22px}
+#crosshair:after{top:10px;left:0;height:2px;width:22px}
+
+#aimInfo{position:absolute;left:50%;top:50%;transform:translateX(-50%);margin-top:96px;
+  background:rgba(12,18,13,.86);border:2px solid rgba(255,255,255,.24);border-radius:8px;
+  padding:7px 13px;font:700 13px/1.5 inherit;text-align:center;white-space:nowrap;
+  opacity:0;transition:opacity .12s;pointer-events:none}
+#aimInfo.on{opacity:1}
+#aimInfo .lv{padding:1px 6px;border-radius:5px;font-size:11px;font-weight:900;margin-left:3px}
+#aimInfo .lv1{background:rgba(255,255,255,.18)}
+#aimInfo .lv2{background:#c9a227;color:#1a1405}
+#aimInfo .lv3{background:linear-gradient(90deg,#ffd43b,#fff1a8);color:#1a1405;
+  box-shadow:0 0 8px rgba(255,212,59,.7)}
+#aimInfo .hp{opacity:.7;font-size:11px;margin-left:5px}
+
+#look{position:absolute;right:0;top:0;width:56%;height:78%;pointer-events:auto}
+/* 시점 패드는 터치 전용. PC 에 깔려 있으면 클릭이 캔버스에 안 닿아 마우스 잠금이 안 걸린다 */
+body:not(.touch) #look{display:none}
+
+/* 도구/핫바 */
+#tools{position:absolute;left:50%;bottom:108px;transform:translateX(-50%);display:flex;gap:6px}
+#bar{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);display:flex;gap:5px;
+  max-width:96vw;overflow-x:auto;padding:2px;scrollbar-width:none}
+#bar::-webkit-scrollbar{display:none}
+.slot{width:84px;min-width:84px;height:86px;overflow:hidden;border-radius:8px;border:2px solid rgba(255,255,255,.22);
+  background:rgba(16,22,17,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1px;cursor:pointer;position:relative;box-shadow:0 3px 0 rgba(0,0,0,.4)}
+.slot .ic{font-size:22px;line-height:1}
+.slot .nm{font:800 11px inherit;white-space:nowrap}
+.slot .ky{position:absolute;right:4px;bottom:2px;font:800 9px inherit;opacity:.5}
+.slot .cost{font:700 9.5px/1.25 inherit;opacity:.9;letter-spacing:-.4px;
+  max-width:80px;text-align:center;word-spacing:2px}
+.slot.on{border-color:#fff;background:rgba(70,96,72,.95);box-shadow:0 0 0 2px rgba(255,255,255,.35),0 3px 0 rgba(0,0,0,.4)}
+.slot.no{opacity:.42}
+.slot.no .cost{color:#ff9b9b}
+.slot.tool{width:78px;min-width:78px;height:46px}
+.slot.tool .ic{font-size:18px}
+
+/* 모바일 조작 */
+#stick{position:absolute;left:16px;bottom:16px;width:130px;height:130px;border-radius:50%;
+  background:rgba(0,0,0,.28);border:2px solid rgba(255,255,255,.22);touch-action:none;display:none}
+#knob{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;
+  background:rgba(255,255,255,.5);border:2px solid rgba(255,255,255,.7)}
+#mbtns{position:absolute;right:14px;bottom:16px;display:none;flex-direction:column;gap:9px;align-items:flex-end}
+.mb{width:74px;height:74px;border-radius:50%;border:2px solid rgba(255,255,255,.4);
+  background:rgba(20,28,21,.8);color:#fff;font:800 12px inherit;display:flex;align-items:center;
+  justify-content:center;flex-direction:column;gap:1px;cursor:pointer}
+.mb .ic{font-size:22px}
+.mb:active{background:rgba(70,96,72,.95);transform:scale(.94)}
+.mb.big{width:94px;height:94px}
+.mb.big .ic{font-size:30px}
+body.touch #stick,body.touch #mbtns{display:flex}
+body.touch #hint{display:none}
+
+#hint{position:absolute;left:12px;bottom:12px;font:700 12px/1.75 inherit;opacity:.55;text-shadow:0 1px 2px #000}
+
+/* 알림 */
+#toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin-top:70px;
+  font:900 20px inherit;text-shadow:0 3px 8px rgba(0,0,0,.85);pointer-events:none;opacity:0;text-align:center;
+  transition:opacity .25s;width:min(560px,86vw);word-break:keep-all}
+#toast.on{opacity:1}
+#feed{position:absolute;left:10px;top:100px;width:296px;font:700 12px/1.5 inherit;
+  text-shadow:0 1px 3px rgba(0,0,0,.9);pointer-events:none}
+#feed div{margin-bottom:3px;opacity:.92;animation:fin .3s}
+@keyframes fin{from{opacity:0;transform:translateX(-8px)}}
+#dmgFlash{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 100px rgba(255,0,0,.7);
+  opacity:0;transition:opacity .35s}
+#danger{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .6s;
+  box-shadow:inset 0 0 130px rgba(200,0,0,.75)}
+#danger.on{animation:pulseD 1.5s infinite}
+@keyframes pulseD{0%,100%{opacity:.32}50%{opacity:.72}}
+
+#bossWrap{position:absolute;left:50%;top:64px;transform:translateX(-50%);width:min(460px,84vw);
+  padding:8px 14px;display:none;text-align:center}
+#bossWrap.on{display:block;animation:bossIn .5s}
+@keyframes bossIn{from{opacity:0;transform:translate(-50%,-14px)}}
+#bossName{font:900 15px inherit;margin-bottom:5px;color:#ffd0d0;text-shadow:0 2px 4px #000}
+#bBar{height:16px;border-radius:8px;background:rgba(0,0,0,.6);overflow:hidden;
+  border:2px solid rgba(255,120,120,.6)}
+#bFill{height:100%;width:100%;background:linear-gradient(90deg,#ff5252,#ff9d3b);transition:width .2s}
+#bAdds{font:800 11px inherit;opacity:.85;margin-top:3px}
+
+#stageTitle{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);pointer-events:none;
+  text-align:center;opacity:0;transition:opacity .5s}
+#stageTitle.on{opacity:1}
+#stageTitle .d{font:900 46px inherit;text-shadow:0 4px 0 rgba(0,0,0,.5),0 8px 22px rgba(0,0,0,.6);letter-spacing:-1px}
+#stageTitle .n{font:900 19px inherit;margin-top:2px;text-shadow:0 2px 6px rgba(0,0,0,.9)}
+
+/* 아래 버튼 묶음 */
+#topRight2{position:absolute;right:10px;top:218px;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+#topRight2 .btn{padding:7px 11px;font-size:12px}
+
+/* 팝업 공통 */
+.pop{position:absolute;inset:0;background:rgba(4,8,5,.72);z-index:40;display:none;
+  align-items:center;justify-content:center;padding:14px;overflow:auto}
+.pop.on{display:flex}
+.popC{width:min(520px,100%);max-height:92vh;overflow:auto;background:rgba(14,20,15,.97);
+  border:2px solid var(--line2);border-radius:14px;padding:18px}
+.popC h2{margin:0 0 12px;font-size:20px;font-weight:900}
+.popC h3{margin:16px 0 8px;font-size:14px;font-weight:900;opacity:.85}
+.sl{display:flex;align-items:center;gap:10px;margin:9px 0;font:800 13px inherit}
+.sl input[type=range]{flex:1;accent-color:#7ede82}
+.sl b{min-width:56px;text-align:right;font-variant-numeric:tabular-nums}
+.gline{display:flex;align-items:center;gap:8px;margin:6px 0;font:800 13px inherit}
+.gline .dot{width:14px;height:14px;border-radius:4px}
+.gline .v{margin-left:auto;font-variant-numeric:tabular-nums;opacity:.9}
+.gv{display:flex;gap:8px;font-variant-numeric:tabular-nums}
+.gv span{min-width:52px}
+table.rank{width:100%;border-collapse:collapse;font:700 13px inherit}
+table.rank th,table.rank td{padding:6px 4px;text-align:left;border-bottom:1px solid rgba(255,255,255,.12)}
+table.rank th{opacity:.6;font-size:11px}
+table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
+
+#giveWrap{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
+#giveWrap button{padding:9px 0;border-radius:8px;border:2px solid rgba(255,255,255,.25);
+  background:rgba(255,255,255,.08);color:#fff;font:800 13px inherit;cursor:pointer}
+
+#resultC{text-align:center}
+#resultC .big{font-size:44px;font-weight:900;margin:6px 0 2px;text-shadow:0 4px 0 rgba(0,0,0,.4)}
+#resultC .msg{font-weight:700;opacity:.85;margin-bottom:16px}
+
+@media (max-width:620px){
+  #mini{width:112px;height:112px}
+  #topRight2{top:178px}
+  #feed{width:200px;font-size:11px;top:92px}
+  #aimInfo{margin-top:74px;font-size:11px}
+  #feed{width:200px;font-size:11px}
+  #feed{width:200px;font-size:11px}
+  #topRight2 .btn{padding:6px 9px;font-size:11px}
+  #crystalWrap{min-width:170px;padding:5px 9px}
+  #bossWrap{min-width:210px;top:68px}
+  .slot{width:72px;min-width:72px;height:80px}
+  .slot .nm{font-size:10px}
+  .slot .cost{font-size:8.5px;max-width:68px}
+  .slot .ic{font-size:19px}
+  #tools{bottom:100px}
+}
+@media (max-height:480px){
+  #tools{bottom:82px}
+  .slot{height:62px}
+}
+#load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;
+  gap:12px;background:#79c0ea;z-index:70;font:800 15px inherit;color:#12331a}
+#load .bar{width:190px;height:10px;border-radius:5px;background:rgba(0,0,0,.2);overflow:hidden}
+#load .bar i{display:block;height:100%;width:0;background:#2f7a37;transition:width .3s}
+
+/* ══════════════════ 마무리 정돈 — 숫자 폰트 · 간격 · 대비 ══════════════════ */
+:root{
+  --num: ui-monospace, SFMono-Regular, "SF Mono", "Cascadia Mono", Menlo,
+         Consolas, "Roboto Mono", "DejaVu Sans Mono", monospace;
+  --panel2: linear-gradient(180deg, rgba(26,34,27,.90), rgba(11,17,12,.92));
+}
+/* 숫자는 전부 고정폭 — 값이 바뀌어도 자리가 안 흔들린다 */
+#resBox .res b, #tSec, #dayNum, #cNum, #bNum, .slot .cost, .slot .ky,
+#aimInfo .hp, #aimInfo .lv, table.rank td.n, .sl b, .gline .gv span, #tRoom span{
+  font-family:var(--num); font-variant-numeric:tabular-nums; letter-spacing:-.01em;
+}
+
+.pnl{background:var(--panel2); border:1.5px solid rgba(255,255,255,.17); border-radius:10px;
+  box-shadow:0 2px 0 rgba(0,0,0,.45), 0 6px 18px rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.10)}
+
+/* ── 자원 ── */
+#resBox{padding:9px 13px 10px}
+#grpName{font:900 12px inherit;letter-spacing:.5px;margin-bottom:7px;opacity:.95}
+.resline{gap:13px}
+.res{gap:5px;min-width:0}
+.res i{font-size:15px;line-height:1;filter:drop-shadow(0 1px 1px rgba(0,0,0,.55))}
+.res b{font-size:15px;font-weight:800;min-width:38px;text-align:right;display:inline-block}
+
+/* ── 일차 / 시간 ── */
+#dayBox{padding:8px 13px;gap:10px;font:800 12.5px inherit}
+#dayNum{font-size:15px;font-weight:900;letter-spacing:-.2px}
+#dayPhase{font-size:12.5px;opacity:.88}
+#timeBar{width:84px;height:8px;border-radius:4px}
+#tSec{font-size:13px;font-weight:800;min-width:32px;opacity:.92}
+
+/* ── 수정 체력 바 ── */
+#crystalWrap{padding:7px 14px 9px;min-width:248px}
+#crystalWrap .lb{font:800 11px inherit;letter-spacing:.4px;opacity:.78;margin-bottom:6px}
+#cBar{height:19px;border-radius:10px;position:relative;border-width:1.5px}
+#cNum{position:absolute;inset:0;left:0;top:0;transform:none;
+  display:flex;align-items:center;justify-content:center;
+  font:900 11.5px/1 inherit;text-shadow:0 1px 2px rgba(0,0,0,.92),0 0 3px rgba(0,0,0,.6);
+  letter-spacing:.02em}
+#crystalWrap.hurt{animation:shake .4s}
+
+/* ── 보스 바 ── */
+#bossWrap{padding:8px 16px 10px;min-width:320px;border-color:rgba(255,150,150,.55)}
+#bossWrap .lb{font:900 13.5px inherit;margin-bottom:6px;letter-spacing:.2px}
+#bBar{height:17px;border-radius:9px;position:relative;background:rgba(0,0,0,.62);
+  overflow:hidden;border:1.5px solid rgba(255,150,150,.5)}
+#bNum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font:900 11px/1 inherit;text-shadow:0 1px 2px rgba(0,0,0,.92)}
+
+/* ── 핫바 ── */
+#tools{gap:7px}
+#bar{gap:6px}
+.slot{width:90px;min-width:90px;height:106px;border-radius:10px;border-width:1.5px;
+  padding:7px 5px 6px;justify-content:flex-start;gap:2px;
+  background:linear-gradient(180deg,rgba(26,34,27,.90),rgba(11,17,12,.93));
+  box-shadow:0 2px 0 rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.07)}
+.slot .ic{font-size:24px;line-height:1.05;margin-top:1px;
+  filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+.slot .nm{font:800 11.5px/1.2 inherit;letter-spacing:-.2px;opacity:.96}
+.slot .cost{margin-top:auto;width:100%;padding-top:4px;min-height:26px;
+  font:700 9.5px/1.35 inherit;display:flex;align-items:center;justify-content:center;
+  flex-wrap:wrap;gap:0 5px;min-height:30px;
+  border-top:1px solid rgba(255,255,255,.11);opacity:.9;letter-spacing:-.2px;max-width:none}
+.slot .ky{position:absolute;right:6px;top:5px;bottom:auto;font-size:9px;font-weight:800;
+  opacity:.38}
+.slot.on{border-color:rgba(255,255,255,.9);
+  background:linear-gradient(180deg,rgba(84,116,88,.95),rgba(46,68,49,.95));
+  box-shadow:0 0 0 2px rgba(255,255,255,.30), 0 2px 0 rgba(0,0,0,.45)}
+.slot.no{opacity:.44}
+.slot.tool{width:84px;min-width:84px;height:52px;padding:6px 5px 5px}
+.slot.tool .ic{font-size:18px;margin-top:0}
+.slot.tool .nm{font-size:11px;margin-top:1px}
+.slot.tool .ky{top:4px;right:5px}
+
+/* ── 조준 정보 ── */
+#aimInfo{padding:6px 13px;border-radius:9px;font:700 12px/1.45 inherit;border-width:1.5px;
+  margin-top:96px;
+  background:linear-gradient(180deg,rgba(20,27,21,.92),rgba(10,15,11,.94))}
+#aimInfo .lv{font-size:10.5px;padding:2px 7px;border-radius:6px}
+#aimInfo .hp{font-size:11px;opacity:.72;margin-left:6px;font-weight:800}
+#aimInfo .segs{display:flex;gap:3px;justify-content:center;margin:6px 0 5px}
+#aimInfo .segs i{width:14px;height:6px;border-radius:2px;background:rgba(255,255,255,.16)}
+#aimInfo .segs i.f{background:#8fd66a;box-shadow:0 0 4px rgba(143,214,106,.5)}
+#aimInfo .prog{height:6px;border-radius:3px;background:rgba(0,0,0,.5);overflow:hidden;
+  margin:0 0 5px;border:1px solid rgba(255,255,255,.14)}
+#aimInfo .prog i{display:block;height:100%;background:#ffd43b;transition:width .05s linear}
+
+/* ── 버튼 ── */
+.btn{border-radius:9px;border-width:1.5px;font-weight:800;letter-spacing:-.1px}
+#topRight2{gap:7px}
+#topRight2 .btn{padding:8px 12px;font-size:12px;
+  background:linear-gradient(180deg,rgba(40,52,42,.92),rgba(22,30,23,.94))}
+
+/* ── 알림 ── */
+#feed{font:700 12px/1.6 inherit;text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 8px rgba(0,0,0,.7)}
+#toast{font:900 21px inherit;letter-spacing:-.3px}
+#hint{font:700 11.5px/1.7 inherit;opacity:.42}
+
+/* ── 팝업 ── */
+.popC{border-radius:16px;border-width:1.5px;padding:20px 22px}
+.popC h2{font-size:21px;letter-spacing:-.4px;margin-bottom:14px}
+.popC h3{font-size:12.5px;letter-spacing:.4px;opacity:.66;margin:18px 0 9px;
+  text-transform:none;font-weight:900}
+table.rank th{font-size:10.5px;letter-spacing:.4px;opacity:.55;padding-bottom:8px}
+table.rank td{padding:7px 4px;font-size:12.5px}
+table.rank td.n{font-weight:800}
+.sl{font:800 12.5px inherit;margin:11px 0}
+.sl b{font-size:12.5px;min-width:60px}
+.gline{font:800 12.5px inherit;margin:7px 0}
+.gline .gv span{font-size:12px;min-width:56px;text-align:right}
+
+/* ── 시작 화면 ── */
+#titleCard h1{letter-spacing:-1.5px}
+.card{padding:20px;border-radius:16px}
+label.f{font-size:12px;letter-spacing:.4px;opacity:.75;margin:16px 0 7px}
+input.f,select.f{border-width:1.5px;border-radius:9px;padding:13px}
+#iRoom{font-family:var(--num);letter-spacing:3px;font-size:18px;text-align:center}
+.grp{gap:8px}
+.grp button{padding:14px 0;border-radius:9px;border-width:1.5px;font-family:var(--num);
+  font-size:16px;font-weight:800}
+.hint{font-size:11.5px;line-height:1.75;opacity:.55}
+
+@media (max-width:620px){
+  .slot{width:76px;min-width:76px;height:100px;padding:6px 3px 5px}
+  .slot .ic{font-size:20px}
+  .slot .nm{font-size:10.5px}
+  .slot .cost{font-size:8.5px}
+  .slot.tool{width:72px;min-width:72px;height:48px}
+  #crystalWrap{min-width:180px}
+  #bossWrap{min-width:230px}
+  #resBox{padding:7px 10px 8px}
+  .res b{font-size:13px;min-width:32px}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<!-- 로딩 -->
+<div id="load"><div>🐑 마을을 만드는 중…</div><div class="bar"><i id="loadBar"></i></div></div>
+
+<!-- 시작 화면 -->
+<div id="title">
+ <div id="titleCard">
+  <h1>양들의 밤</h1>
+  <p class="sub">밤마다 늑대가 옵니다. 우리 반 수정을 지켜 주세요.</p>
+  <div class="card">
+    <label class="f">이름</label>
+    <input class="f" id="iName" maxlength="6" placeholder="예) 김하늘" autocomplete="off">
+
+    <label class="f">우리 모둠</label>
+    <div class="grp" id="grpPick"></div>
+
+    <label class="f">방 코드</label>
+    <input class="f" id="iRoom" maxlength="6" placeholder="선생님이 알려준 4글자" autocomplete="off"
+           style="text-transform:uppercase">
+
+    <div class="row">
+      <button class="btn pri" id="bJoin">들어가기</button>
+      <button class="btn" id="bSolo">혼자 연습</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <button class="btn sm" id="bMake" style="flex:0 0 auto">🔑 선생님 · 방 만들기</button>
+    </div>
+    <div id="tmsg"></div>
+    <div class="hint">
+      🕹️ 컴퓨터: WASD 이동 · 마우스 보기 · 좌클릭 캐기/짓기 · 1~8 도구 · Space 점프<br>
+      📱 태블릿: 왼쪽 동그라미로 이동 · 오른쪽 화면 문질러 보기 · 큰 버튼으로 캐기/짓기
+    </div>
+  </div>
+ </div>
+</div>
+
+<!-- HUD -->
+<div id="hud">
+  <div id="crosshair"></div>
+  <div id="aimInfo"></div>
+  <div id="look"></div>
+
+  <div id="resBox" class="pnl">
+    <div id="grpName">1모둠</div>
+    <div class="resline">
+      <div class="res" id="rW"><i>🪵</i><b>0</b></div>
+      <div class="res" id="rS"><i>🪨</i><b>0</b></div>
+      <div class="res" id="rG"><i>✨</i><b>0</b></div>
+    </div>
+  </div>
+
+  <div id="dayBox" class="pnl"><span id="dayNum">1일차</span><span id="dayPhase">☀️ 낮</span>
+    <div id="timeBar"><i id="timeFill" style="display:block;height:100%"></i></div>
+    <span id="tSec" style="font-size:13px;min-width:26px;text-align:right">0</span></div>
+
+  <div id="miniWrap" class="pnl"><canvas id="mini" width="150" height="150"></canvas></div>
+
+  <div id="crystalWrap" class="pnl">
+    <div class="lb">💎 우리 반 수정</div>
+    <div id="cBar"><i id="cFill" style="display:block;height:100%"></i><span id="cNum">100 / 100</span></div>
+  </div>
+
+  <div id="bossWrap" class="pnl">
+    <div class="lb"><span id="bossIc">🐺</span> <span id="bossName"></span></div>
+    <div id="bBar"><i id="bFill" style="display:block;height:100%"></i><span id="bNum">100%</span></div>
+  </div>
+
+  <div id="topRight2">
+    <button class="btn sm" id="bGive">🎁 자원 보내기</button>
+    <button class="btn sm" id="bBook">📖 도움말</button>
+    <button class="btn sm" id="bSnd">🔊 소리 켬</button>
+    <button class="btn sm" id="bTeach" style="display:none">🔧 선생님</button>
+  </div>
+
+  <div id="bossWrap" class="pnl">
+    <div id="bossName"></div>
+    <div id="bBar"><i id="bFill" style="display:block;height:100%"></i><span id="bNum">100%</span></div>
+    <div id="bAdds"></div>
+  </div>
+
+  <div id="feed"></div>
+  <div id="stageTitle"><div class="d"></div><div class="n"></div></div>
+  <div id="toast"></div>
+  <div id="dmgFlash"></div>
+  <div id="danger"></div>
+
+  <div id="tools"></div>
+  <div id="bar"></div>
+
+  <div id="stick"><div id="knob"></div></div>
+  <div id="mbtns">
+    <button class="mb" id="mbJump"><span class="ic">⤴️</span>점프</button>
+    <button class="mb big" id="mbAct"><span class="ic">⛏️</span>캐기</button>
+  </div>
+  <div id="hint">WASD 이동 · 좌클릭 사용 · 1~8 도구 · Space 점프 · Tab 마우스 풀기</div>
+</div>
+
+<!-- 자원 보내기 -->
+<div class="pop" id="popGive"><div class="popC">
+  <h2>🎁 자원 보내기</h2>
+  <p style="font-size:13px;opacity:.8;margin:0 0 4px">밀리는 모둠을 도와주세요. 우리 반이 같이 이기는 게임입니다.</p>
+  <h3>어느 모둠에게?</h3>
+  <div id="giveWrap"></div>
+  <h3>얼마나?</h3>
+  <div class="sl">🪵 나무 <input type="range" id="gvW" min="0" max="50" step="5" value="10"><b id="gvWv">10</b></div>
+  <div class="sl">🪨 돌 <input type="range" id="gvS" min="0" max="50" step="5" value="10"><b id="gvSv">10</b></div>
+  <div class="sl">✨ 금 <input type="range" id="gvG" min="0" max="20" step="1" value="0"><b id="gvGv">0</b></div>
+  <div class="row"><button class="btn pri" id="bGiveGo">보내기</button><button class="btn" data-close="popGive">닫기</button></div>
+</div></div>
+
+<!-- 도움말 -->
+<div class="pop" id="popBook"><div class="popC">
+  <h2>📖 어떻게 하는 게임?</h2>
+  <div style="font-size:13.5px;line-height:1.85">
+    <b>☀️ 낮</b> — 나무·돌·금을 캐고, 우리 모둠 입구를 막을 것을 짓습니다.<br>
+    <b>🌙 밤</b> — 늑대가 옵니다. 밤에는 <b>새로 짓기와 수리만</b> 됩니다. 캐기는 안 됩니다.<br>
+    <b>💎 수정</b> — 다섯 입구 중 <b>한 군데만 뚫려도</b> 수정이 깎입니다. 0이 되면 다 같이 집니다.<br><br>
+    <b>자원은 모둠끼리 따로예요.</b> 우리 모둠이 안 캐면 우리 입구가 빕니다.<br>
+    <b>하지만 이기고 지는 건 반 전체 하나입니다.</b> 남으면 🎁 보내기로 도와주세요.<br><br>
+    <b>늑대가 어느 입구로 몰릴지는 아무도 모릅니다.</b> 매일 밤 달라져요.<br>
+    그러니 <b>다섯 모둠이 다 준비해야</b> 합니다.<br>
+    다섯 모둠 모두 자기 입구를 든든히 막아 두어야 해요. 우상단 지도에 늑대가 빨간 점으로 보입니다.<br><br>
+    <b>👑 보스</b> — 4·7·10일차 밤에 커다란 우두머리가 옵니다. 작은 늑대를 계속 불러내니
+    화살탑을 미리 여러 개 지어 두세요. <b>잡으면 온 모둠에 자원이 쏟아지고 수정도 회복됩니다.</b>
+  </div>
+  <h3>⬆️ 강화 (Lv.1 → Lv.2 → Lv.3)</h3>
+  <div style="font-size:13.5px;line-height:1.85">
+    이미 지은 벽·탑·배럭을 <b>더 세게</b> 만들 수 있어요. ⬆️강화를 들고 건물을 보면 값이 뜹니다.<br>
+    <b>Lv.2 = 금색 테두리, Lv.3 = 반짝이는 왕관</b> — 멀리서도 보입니다.<br>
+    강화하면 <b>체력도 꽉 찹니다.</b> 밤에 급하면 수리 대신 강화도 좋아요.<br>
+    <span style="color:#ffd43b">✨금은 강화에 주로 씁니다. 금광맥을 꼭 캐세요.</span>
+  </div>
+  <h3>지을 수 있는 것</h3>
+  <div id="bookList" style="font-size:12.5px;line-height:1.9"></div>
+  <div class="row"><button class="btn pri" data-close="popBook">알겠어요</button></div>
+</div></div>
+
+<!-- 선생님 패널 -->
+<div class="pop" id="popTeach"><div class="popC">
+  <h2>🔧 선생님 패널</h2>
+  <div id="tRoom" style="font:900 17px inherit;margin-bottom:10px"></div>
+  <h3>모둠 현황</h3>
+  <div id="tGroups"></div>
+  <h3>지금 바로</h3>
+  <div style="display:flex;flex-wrap:wrap;gap:6px">
+    <button class="btn sm" id="tSkip">⏭️ 다음 단계로</button>
+    <button class="btn sm" id="tHeal">💎 수정 회복</button>
+    <button class="btn sm" id="tClear">🐺 늑대 없애기</button>
+    <button class="btn sm" id="tGift">🎁 전 모둠 자원 +30</button>
+    <button class="btn sm warn" id="tReset">🔄 처음부터</button>
+  </div>
+  <h3>설정 (다음 날부터 적용)</h3>
+  <div class="sl">낮 시간 <input type="range" id="sDay" min="60" max="300" step="10"><b id="sDayV"></b></div>
+  <div class="sl">밤 제한 <input type="range" id="sNight" min="60" max="240" step="10"><b id="sNightV"></b></div>
+  <div class="sl">목표 일수 <input type="range" id="sGoal" min="3" max="20" step="1"><b id="sGoalV"></b></div>
+  <div class="sl">늑대 세기 <input type="range" id="sPow" min="0.5" max="2" step="0.1"><b id="sPowV"></b></div>
+  <h3>누가 얼마나 했나</h3>
+  <div style="max-height:200px;overflow:auto"><table class="rank" id="tRank"></table></div>
+  <div class="row"><button class="btn pri" data-close="popTeach">닫기</button></div>
+</div></div>
+
+<!-- 결과 -->
+<div class="pop" id="popEnd"><div class="popC" id="resultC">
+  <div class="big" id="endBig"></div>
+  <div class="msg" id="endMsg"></div>
+  <div style="max-height:44vh;overflow:auto"><table class="rank" id="endRank"></table></div>
+  <div class="row"><button class="btn pri" id="bAgain">다시 하기</button></div>
+</div></div>
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* ═══════════════════════ 상수 ═══════════════════════ */
+const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
+const GY = 9;                         // 땅 윗면 높이
+const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
+const RING_A = 40, RING_D = 53;       // 산 시작 / 협곡 끝
+const FIELD_R = 59;                   // 세상 끝
+const MTN_H = 15;                     // 산 높이
+const GAP_HALF = 6.6;                 // 입구 통로 반너비 — 통로 폭 약 13칸
+const NG = 5;                         // 모둠 수
+const GCOL = ['#ff6b6b','#4dabf7','#51cf66','#ffd43b','#cc7bff'];
+const GHEX = [0xff6b6b,0x4dabf7,0x51cf66,0xffd43b,0xcc7bff];
+const SPAWN_R = 56;
+const gi = (x,z)=> (x+HW) + (z+HW)*WS;
+const inW = (x,z)=> x>=-HW && x<=HW && z>=-HW && z<=HW;
+
+// 모둠 입구 방향 (1모둠 = 북쪽)
+const DIRS = [];
+for(let i=0;i<NG;i++){ const a = -Math.PI/2 + i*(Math.PI*2/NG);
+  DIRS.push({a, dx:Math.cos(a), dz:Math.sin(a)}); }
+
+/* ═══════════════════════ 텍스처 아틀라스 ═══════════════════════ */
+const T = { grassTop:0, grassSide:1, dirt:2, stone:3, rock:4, sand:5, logSide:6, logTop:7,
+  leaves:8, plank:9, brick:10, goldOre:11, crystal:12, wool:13, fur:14, furDark:15,
+  ice:16, sbrick:17, goldBlk:18, dark:19, hay:20, water:21, eye:22, snout:23,
+  woolDirty:24, tower:25, roofRed:26, glow:27, thatch:28, bark:29, mossy:30, cloth:31 };
+
+const ART = 16, PAD = 16, TS = 64, INNER = TS - PAD*2, AC = 8, ATS = TS*AC;  // 여백 16px
+
+/* 16×16 픽셀 아트를 그리는 작은 캔버스 */
+function art(draw){
+  const c = document.createElement('canvas'); c.width = c.height = ART;
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+  const px = (x,y,col)=>{ g.fillStyle = col; g.fillRect(x,y,1,1); };
+  draw(px, g);
+  return c;
+}
+/* 결정적 난수 */
+function rnd(s){ const v = Math.sin(s*127.1 + s*s*0.017)*43758.5453; return v - Math.floor(v); }
+/* 색 계산 — 밝기만 단계적으로 흔든다 (지저분한 픽셀 노이즈 대신 덩어리감) */
+function shade(base, k){
+  return `rgb(${Math.min(255,base[0]*k)|0},${Math.min(255,base[1]*k)|0},${Math.min(255,base[2]*k)|0})`;
+}
+/* 2×2 덩어리 얼룩 — 마인크래프트 특유의 굵은 질감 */
+function speckle(px, base, tones, seed, blockSize){
+  const bsz = blockSize || 2;
+  for(let y=0;y<ART;y++) for(let x=0;x<ART;x++){
+    const bx = Math.floor(x/bsz), by = Math.floor(y/bsz);
+    const r = rnd(seed + bx*13.7 + by*57.3);
+    const k = tones[Math.min(tones.length-1, Math.floor(r*tones.length))];
+    px(x,y, shade(base, k));
+  }
+}
+
+function makeAtlas(){
+  const c = document.createElement('canvas'); c.width = c.height = ATS;
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+
+  /* 타일 하나를 여백(gutter) 포함해 아틀라스에 굽는다.
+     가장자리 픽셀을 바깥으로 복제해 두면 밉맵에서 옆 타일이 번지지 않는다. */
+  function bake(t, canvas){
+    const cx = (t%AC)*TS, cy = Math.floor(t/AC)*TS;
+    g.drawImage(canvas, 0,0,ART,ART, cx+PAD, cy+PAD, INNER, INNER);
+    g.drawImage(canvas, 0,0,1,ART,          cx,              cy+PAD, PAD, INNER); // 왼
+    g.drawImage(canvas, ART-1,0,1,ART,      cx+PAD+INNER,    cy+PAD, PAD, INNER); // 오
+    g.drawImage(canvas, 0,0,ART,1,          cx+PAD, cy,              INNER, PAD); // 위
+    g.drawImage(canvas, 0,ART-1,ART,1,      cx+PAD, cy+PAD+INNER,    INNER, PAD); // 아래
+    g.drawImage(canvas, 0,0,1,1,            cx,           cy,           PAD,PAD);
+    g.drawImage(canvas, ART-1,0,1,1,        cx+PAD+INNER, cy,           PAD,PAD);
+    g.drawImage(canvas, 0,ART-1,1,1,        cx,           cy+PAD+INNER, PAD,PAD);
+    g.drawImage(canvas, ART-1,ART-1,1,1,    cx+PAD+INNER, cy+PAD+INNER, PAD,PAD);
+  }
+
+  const GRASS=[106,190,74], DIRT=[150,108,68], STONE=[142,146,152], ROCK=[116,120,128],
+        SAND=[224,212,160], BARK=[112,80,46], WOOD=[176,136,86], LEAF=[70,150,58],
+        GOLD=[246,200,72], CYAN=[112,224,250], WOOL=[238,238,232], FUR=[136,138,144],
+        FURD=[76,78,86], ICE=[156,216,246], HAY=[212,178,88], RED=[176,74,62];
+
+  bake(T.grassTop,  art(px=> speckle(px, GRASS, [0.88,0.95,1.0,1.06], 3)));
+  bake(T.dirt,      art(px=> speckle(px, DIRT,  [0.86,0.94,1.0,1.07], 7)));
+  bake(T.grassSide, art(px=>{
+    speckle(px, DIRT, [0.86,0.94,1.0,1.07], 7);
+    for(let x=0;x<ART;x++){
+      const h = 3 + Math.floor(rnd(11+x*3.3)*2.6);
+      for(let y=0;y<h;y++) px(x,y, shade(GRASS, y===h-1?0.9:(0.92+rnd(x*7+y*3)*0.16)));
+    }
+  }));
+  bake(T.stone,     art(px=> speckle(px, STONE, [0.90,0.96,1.0,1.05], 13, 2)));
+  bake(T.rock,      art((px,g2)=>{
+    speckle(px, ROCK, [0.88,0.95,1.0,1.06], 17, 2);
+    for(let i=0;i<3;i++){ let x=Math.floor(rnd(21+i)*14)+1, y=Math.floor(rnd(31+i)*6)+1;
+      for(let k=0;k<5+i;k++){ px(x,y, shade(ROCK,0.74)); x+=rnd(41+i*7+k)>0.5?1:0; y+=1;
+        if(y>=ART||x>=ART) break; } }
+  }));
+  bake(T.sand,      art(px=> speckle(px, SAND, [0.94,0.98,1.0,1.04], 19)));
+  bake(T.bark,      art(px=>{
+    speckle(px, BARK, [0.90,0.97,1.0,1.05], 23, 2);
+    for(const x of [2,3,8,12,13]) for(let y=0;y<ART;y++)
+      if(rnd(x*5+y)>0.22) px(x,y, shade(BARK, 0.76));
+  }));
+  bake(T.logSide,   art(px=>{
+    speckle(px, BARK, [0.92,0.98,1.0,1.04], 29, 2);
+    for(const x of [1,6,11,14]) for(let y=0;y<ART;y++) px(x,y, shade(BARK, 0.78));
+  }));
+  bake(T.logTop,    art(px=>{
+    speckle(px, WOOD, [0.94,0.99,1.0,1.03], 31, 2);
+    for(let y=0;y<ART;y++) for(let x=0;x<ART;x++){
+      const d = Math.max(Math.abs(x-7.5), Math.abs(y-7.5));
+      if(Math.round(d)%3===0) px(x,y, shade(WOOD, 0.80));
+    }
+  }));
+  bake(T.leaves,    art(px=>{
+    speckle(px, LEAF, [0.80,0.92,1.0,1.10], 37, 2);
+    for(let y=0;y<ART;y++) for(let x=0;x<ART;x++)
+      if(rnd(x*13.1+y*29.7)>0.90) px(x,y, shade(LEAF, 0.66));
+  }));
+  bake(T.plank,     art(px=>{
+    speckle(px, WOOD, [0.93,0.98,1.0,1.04], 41, 2);
+    for(const y of [0,5,10,15]) for(let x=0;x<ART;x++) px(x,y, shade(WOOD, 0.78));
+    for(const [y,x] of [[2,4],[7,11],[12,6]]) for(let k=0;k<3;k++) px(x+k,y, shade(WOOD,0.86));
+  }));
+  bake(T.brick,     art(px=>{
+    speckle(px, RED, [0.94,0.99,1.0,1.04], 43, 2);
+    for(let y=0;y<ART;y++) for(let x=0;x<ART;x++){
+      const row = Math.floor(y/4), off = (row%2)*4;
+      if(y%4===3 || (x+off)%8===0) px(x,y,'rgb(214,206,198)');
+    }
+  }));
+  bake(T.sbrick,    art(px=>{
+    speckle(px, STONE, [0.93,0.98,1.0,1.04], 47, 2);
+    for(let y=0;y<ART;y++) for(let x=0;x<ART;x++){
+      const row = Math.floor(y/4), off = (row%2)*4;
+      if(y%4===3 || (x+off)%8===0) px(x,y, shade(STONE, 0.72));
+    }
+  }));
+  bake(T.mossy,     art(px=>{
+    speckle(px, STONE, [0.92,0.98,1.0,1.04], 139, 2);
+    for(let y=0;y<ART;y++) for(let x=0;x<ART;x++)
+      if(rnd(x*7.7+y*11.3)>0.62) px(x,y, shade([104,138,88], 0.9+rnd(x+y)*0.2));
+  }));
+  bake(T.goldOre,   art(px=>{
+    speckle(px, STONE, [0.92,0.98,1.0,1.04], 53, 2);
+    for(const [cx,cy,r] of [[4,4,2],[11,6,1.6],[7,12,1.8],[13,12,1.2]])
+      for(let y=0;y<ART;y++) for(let x=0;x<ART;x++)
+        if((x-cx)**2+(y-cy)**2 < r*r) px(x,y, shade(GOLD, 0.94+rnd(x+y*3)*0.14));
+  }));
+  bake(T.goldBlk,   art(px=>{
+    speckle(px, GOLD, [0.96,1.0,1.04], 61, 4);
+    for(let x=0;x<ART;x++){ px(x,0, shade(GOLD,1.12)); px(x,ART-1, shade(GOLD,0.86)); }
+    for(let y=0;y<ART;y++){ px(0,y, shade(GOLD,1.10)); px(ART-1,y, shade(GOLD,0.88)); }
+    for(const [x,y] of [[4,4],[5,4],[4,5],[11,10],[12,10],[11,11]]) px(x,y, shade(GOLD,1.18));
+  }));
+  bake(T.crystal,   art(px=>{
+    speckle(px, CYAN, [0.90,0.98,1.06], 67, 4);
+    for(let y=0;y<ART;y++) for(let x=0;x<ART;x++)
+      if((x+y)%6===0) px(x,y, shade(CYAN, 1.14));
+  }));
+  bake(T.ice,       art(px=>{
+    speckle(px, ICE, [0.94,1.0,1.05], 89, 4);
+    for(let y=0;y<ART;y++) for(let x=0;x<ART;x++)
+      if((x*3+y*5)%13===0) px(x,y, shade(ICE, 1.12));
+  }));
+  bake(T.wool,      art(px=> speckle(px, WOOL, [0.96,0.99,1.0,1.02], 71, 2)));
+  bake(T.woolDirty, art(px=> speckle(px, [216,210,198], [0.95,0.99,1.0,1.03], 73, 2)));
+  bake(T.cloth,     art(px=> speckle(px, [242,242,242], [0.97,1.0,1.02], 149, 4)));
+  bake(T.fur,       art(px=>{
+    speckle(px, FUR, [0.88,0.95,1.0,1.06], 79, 2);
+    for(const x of [3,9,13]) for(let y=2;y<ART-2;y++) if(rnd(x+y*3)>0.4) px(x,y, shade(FUR,0.84));
+  }));
+  bake(T.furDark,   art(px=> speckle(px, FURD, [0.86,0.95,1.0,1.07], 83, 2)));
+  bake(T.dark,      art(px=> speckle(px, [74,78,86], [0.94,0.99,1.0,1.04], 97, 2)));
+  bake(T.hay,       art(px=>{
+    speckle(px, HAY, [0.90,0.97,1.0,1.05], 101, 2);
+    for(let y=0;y<ART;y+=3) for(let x=0;x<ART;x++) px(x,y, shade(HAY, 0.80));
+  }));
+  bake(T.thatch,    art(px=>{
+    speckle(px, [180,144,74], [0.90,0.97,1.0,1.05], 103, 2);
+    for(let x=0;x<ART;x+=4) for(let y=0;y<ART;y++) px(x,y, shade([180,144,74], 0.78));
+  }));
+  bake(T.water,     art(px=> speckle(px, [66,142,216], [0.93,0.99,1.0,1.05], 107, 4)));
+  bake(T.eye,       art(px=>{
+    for(let y=0;y<ART;y++) for(let x=0;x<ART;x++) px(x,y,'rgb(250,250,250)');
+    for(let y=4;y<12;y++) for(let x=4;x<12;x++) px(x,y,'rgb(48,48,56)');
+  }));
+  bake(T.snout,     art(px=> speckle(px, [238,170,180], [0.95,1.0,1.04], 113, 4)));
+  bake(T.tower,     art(px=>{
+    speckle(px, STONE, [0.90,0.96,1.0,1.05], 127, 2);
+    for(let x=0;x<ART;x++){ px(x,0, shade(STONE,0.74)); px(x,1, shade(STONE,0.80)); }
+    for(let y=0;y<ART;y++) for(let x=0;x<ART;x++){
+      const row = Math.floor(y/5), off=(row%2)*4;
+      if(y%5===4 || (x+off)%8===0) px(x,y, shade(STONE, 0.78));
+    }
+  }));
+  bake(T.roofRed,   art(px=>{
+    speckle(px, RED, [0.92,0.98,1.0,1.04], 131, 2);
+    for(let y=0;y<ART;y+=4) for(let x=0;x<ART;x++) px(x,y, shade(RED, 0.76));
+  }));
+  bake(T.glow,      art(px=>{
+    speckle(px, [255,222,120], [0.96,1.0,1.05], 137, 4);
+    for(let y=0;y<ART;y++) for(let x=0;x<ART;x++){
+      if(x===0||y===0||x===ART-1||y===ART-1) px(x,y,'rgb(214,160,58)');
+      else if(Math.abs(x-7.5)<1.5 || Math.abs(y-7.5)<1.5) px(x,y,'rgb(255,246,196)');
+    }
+  }));
+
+  const tx = new THREE.CanvasTexture(c);
+  tx.magFilter = THREE.NearestFilter; tx.minFilter = THREE.NearestMipmapLinearFilter;
+  tx.generateMipmaps = true; tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 1;
+  return tx;
+}
+const ATLAS = makeAtlas();
+
+/* 반복용 단일 타일 텍스처 (넓은 바닥 한 장) */
+function tileTex(tile, rep){
+  const c = document.createElement('canvas'); c.width = c.height = INNER;
+  const g = c.getContext('2d'); g.imageSmoothingEnabled = false;
+  g.drawImage(ATLAS.image, (tile%AC)*TS+PAD, Math.floor(tile/AC)*TS+PAD, INNER, INNER,
+              0, 0, INNER, INNER);
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rep,rep);
+  t.magFilter = THREE.NearestFilter; t.minFilter = THREE.NearestMipmapLinearFilter;
+  t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  return t;
+}
+
+/* 6면 타일을 지정한 박스 지오메트리 */
+const _geoCache = new Map();
+function boxGeo(px,nx,py,ny,pz,nz, w=1,h=1,d=1){
+  const key = [px,nx,py,ny,pz,nz,w,h,d].join(',');
+  if(_geoCache.has(key)) return _geoCache.get(key);
+  const g = new THREE.BoxGeometry(w,h,d);
+  const uv = g.attributes.uv;
+  const cs = TS/ATS, inner = INNER/ATS, off = PAD/ATS, eps = 0.35/ATS;
+  const faces = [px,nx,py,ny,pz,nz];
+  for(let f=0; f<6; f++){
+    const t = faces[f];
+    const u0 = (t%AC)*cs + off, v0 = 1 - (Math.floor(t/AC)*cs + off);
+    const a=u0+eps, b=u0+inner-eps, c=v0-eps, d2=v0-inner+eps;
+    uv.setXY(f*4+0, a, c); uv.setXY(f*4+1, b, c);
+    uv.setXY(f*4+2, a, d2); uv.setXY(f*4+3, b, d2);
+  }
+  uv.needsUpdate = true; _geoCache.set(key, g); return g;
+}
+const cube = (t)=> boxGeo(t,t,t,t,t,t);
+const MAT = new THREE.MeshLambertMaterial({map:ATLAS});
+const matC = (hex)=> new THREE.MeshLambertMaterial({map:ATLAS, color:hex});
+
+/* ═══════════════════════ 지형 데이터 ═══════════════════════ */
+const terrH = new Int16Array(WS*WS).fill(-999);   // 지형 윗면 y (없으면 -999)
+const bldH  = new Float32Array(WS*WS).fill(-999);   // 구조물 윗면 y
+const blockG= new Int8Array(WS*WS).fill(-1);      // 칸의 모둠 번호
+function topAt(x,z){ if(!inW(x,z)) return 999; const i=gi(x,z);
+  return Math.max(terrH[i], bldH[i]); }
+function terrAt(x,z){ return inW(x,z) ? terrH[gi(x,z)] : -999; }
+
+function corridorDist(x,z){       // 입구 통로 안이면 [모둠번호, 축거리], 아니면 null
+  for(let i=0;i<NG;i++){ const d=DIRS[i];
+    const t = x*d.dx + z*d.dz; if(t<=0) continue;
+    const perp = Math.abs(-x*d.dz + z*d.dx);
+    if(perp < gapHalfAt(t)+3) return [i,t,perp];
+  }
+  return null;
+}
+function sectorOf(x,z){
+  let a = Math.atan2(z,x), best=0, bd=9;
+  for(let i=0;i<NG;i++){ let d=Math.abs(((a-DIRS[i].a+Math.PI*3)%(Math.PI*2))-Math.PI);
+    if(d<bd){bd=d;best=i;} }
+  return best;
+}
+// 마을 바깥은 통째로 산. 여기에 모둠별 협곡 5개만 뚫려 있다.
+function mtnHeight(r){
+  if(r <= RING_A) return 0;
+  return Math.min(MTN_H, (r-RING_A)*2.7);
+}
+// 협곡 반너비 — 바깥으로 갈수록 살짝 넓어져 늑대가 모이는 마당이 된다
+function gapHalfAt(r){ return GAP_HALF + Math.max(0, (r-RING_D))*0.85; }
+function genTerrain(){
+  for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){
+    const r = Math.hypot(x+0.5, z+0.5); const i = gi(x,z);
+    if(r > FIELD_R){ terrH[i] = -999; continue; }
+    let h = GY;
+    let m = mtnHeight(r);
+    if(m > 0){
+      const cd = corridorDist(x+0.5, z+0.5);
+      if(cd){
+        const gh = gapHalfAt(r);
+        const fade = (cd[2] - gh) / 2.6;        // 협곡 안은 완전 평지, 밖으로 2.6칸 만에 산
+        m *= Math.max(0, Math.min(1, fade));
+      }
+      if(m > 0.35){
+        const n = Math.sin(x*0.7)*Math.cos(z*0.61)*1.3 + Math.sin((x+z)*0.33)*1.0;
+        h = GY + Math.max(1, Math.round(m + n));
+      }
+    }
+    terrH[i] = h;
+    blockG[i] = (r < FIELD_R) ? sectorOf(x+0.5,z+0.5) : -1;
+  }
+  // 수정 단상 9x9
+  for(let z=-4; z<=4; z++) for(let x=-4; x<=4; x++) terrH[gi(x,z)] = GY+1;
+  for(let z=-5; z<=5; z++) for(let x=-5; x<=5; x++)
+    if(Math.max(Math.abs(x),Math.abs(z))===5) terrH[gi(x,z)] = GY+1;
+}
+genTerrain();
+
+/* ═══════════════════════ 씬 ═══════════════════════ */
+const app = document.getElementById('app');
+/* ★ 아이패드는 devicePixelRatio 가 2다. 1.6을 곱하면 그릴 픽셀이 2.56배로 늘어난다.
+   이 게임 재질은 MeshLambertMaterial(three r132+ 부터 조명이 픽셀 단위) + Fog 라
+   픽셀 수가 곧 비용이다. 터치 기기(아이패드)는 1배로 간다.
+   HUD 는 DOM, 미니맵은 따로 2D 캔버스라 글자·미니맵은 하나도 안 흐려진다. */
+const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
+const renderer = new THREE.WebGLRenderer({antialias:false, powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio, isTouch ? 1.0 : 1.6));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+app.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const SKY_DAY = new THREE.Color(0x8ec9ef), SKY_NIGHT = new THREE.Color(0x2e4b86);
+// 밤은 밝기를 거의 안 내리고 색만 달빛 톤으로 — 애들이 잘 봐야 한다
+const HEMI_DS = new THREE.Color(0xcfe8ff), HEMI_NS = new THREE.Color(0x9dc0ff);
+const HEMI_DG = new THREE.Color(0x5a7a4a), HEMI_NG = new THREE.Color(0x46618c);
+const SUN_D   = new THREE.Color(0xffffff), SUN_N   = new THREE.Color(0xc3daff);
+scene.background = SKY_DAY.clone();
+scene.fog = new THREE.Fog(SKY_DAY.getHex(), 68, 152);
+
+const camera = new THREE.PerspectiveCamera(74, innerWidth/innerHeight, 0.08, 420);
+scene.add(camera);                       // 손에 든 도구를 그리려면 카메라가 씬 안에 있어야 한다
+const heldLight = new THREE.PointLight(0xffffff, 1.6, 4.5);
+heldLight.position.set(0.55, 0.15, -0.25); camera.add(heldLight);
+const hemi = new THREE.HemisphereLight(0xcfe8ff, 0x5a7a4a, 1.18); scene.add(hemi);
+const sun  = new THREE.DirectionalLight(0xffffff, 0.92); sun.position.set(50,90,30); scene.add(sun);
+const amb  = new THREE.AmbientLight(0xffffff, 0.40); scene.add(amb);
+
+addEventListener('resize', ()=>{ camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+
+/* ═══════════════════════ 인스턴스 뱅크 (정적 월드) ═══════════════════════ */
+const UPV = new THREE.Vector3(0,1,0);
+const ZEROM = new THREE.Matrix4().makeScale(0,0,0);
+const banks = new Map();
+const _v=new THREE.Vector3(), _q=new THREE.Quaternion(), _s=new THREE.Vector3(), _m=new THREE.Matrix4();
+function bpush(key, geo, mat, x,y,z, ry=0, sx=1,sy=1,sz=1){
+  let b = banks.get(key);
+  if(!b){ b = {geo, mat, ms:[], mesh:null}; banks.set(key, b); }
+  _v.set(x,y,z); _q.setFromAxisAngle(UPV, ry); _s.set(sx,sy,sz);
+  b.ms.push(new THREE.Matrix4().compose(_v,_q,_s));
+  return (banks.size, [key, b.ms.length-1]);
+}
+function bbuild(){
+  for(const [k,b] of banks){
+    if(b.mesh){ scene.remove(b.mesh); b.mesh.dispose(); }
+    const im = new THREE.InstancedMesh(b.geo, b.mat, Math.max(1,b.ms.length));
+    for(let i=0;i<b.ms.length;i++) im.setMatrixAt(i, b.ms[i]);
+    im.count = b.ms.length; im.instanceMatrix.needsUpdate = true;
+    im.frustumCulled = false; b.mesh = im; scene.add(im);
+  }
+}
+function bset(h, on){ const b = banks.get(h[0]); if(!b||!b.mesh) return;
+  b.mesh.setMatrixAt(h[1], on ? b.ms[h[1]] : ZEROM); b.mesh.instanceMatrix.needsUpdate = true; }
+
+const EMIT = new THREE.MeshLambertMaterial({map:ATLAS, emissive:0xffc860, emissiveIntensity:0.0});
+const EMITC= new THREE.MeshLambertMaterial({map:ATLAS, color:0xfff2c0,
+              emissive:0xffb040, emissiveIntensity:0.0});
+
+/* ═══════════════════════ 해 · 달 · 별 ═══════════════════════ */
+let skyPivot, sunDisc, moonDisc, stars;
+function buildSky(){
+  skyPivot = new THREE.Group(); scene.add(skyPivot);
+  const mk=(size,col,em)=>{
+    const g = new THREE.Group();
+    const m = new THREE.Mesh(new THREE.BoxGeometry(size,size,1.2),
+      new THREE.MeshBasicMaterial({color:col, fog:false}));
+    g.add(m);
+    const halo = new THREE.Mesh(new THREE.BoxGeometry(size*1.55,size*1.55,0.6),
+      new THREE.MeshBasicMaterial({color:em, fog:false, transparent:true, opacity:.22}));
+    halo.position.z = -0.6; g.add(halo);
+    return g;
+  };
+  sunDisc  = mk(26, 0xfff3b0, 0xffd257); sunDisc.position.set(0, 0, -195);
+  moonDisc = mk(20, 0xe8f0ff, 0x9fc0ff); moonDisc.position.set(0, 0,  195);
+  moonDisc.rotation.y = Math.PI;
+  skyPivot.add(sunDisc); skyPivot.add(moonDisc);
+  // 달 표면 얼룩
+  for(const [dx,dy,sz] of [[-4,3,4],[3,-2,5],[5,4,3]]){
+    const c = new THREE.Mesh(new THREE.BoxGeometry(sz,sz,0.4),
+      new THREE.MeshBasicMaterial({color:0xc9d6ee, fog:false}));
+    c.position.set(dx,dy,-0.9); moonDisc.add(c);
+  }
+  // 별
+  const N=460, pos=new Float32Array(N*3);
+  for(let i=0;i<N;i++){
+    const th=Math.random()*Math.PI*2, ph=Math.acos(Math.random()*0.95+0.03), R=230;
+    pos[i*3]=Math.sin(ph)*Math.cos(th)*R; pos[i*3+1]=Math.cos(ph)*R; pos[i*3+2]=Math.sin(ph)*Math.sin(th)*R;
+  }
+  const gg=new THREE.BufferGeometry(); gg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  stars = new THREE.Points(gg, new THREE.PointsMaterial({color:0xffffff, size:2.1,
+    sizeAttenuation:false, transparent:true, opacity:0, fog:false}));
+  scene.add(stars);
+}
+
+/* ═══════════════════════ 지형 메시 ═══════════════════════ */
+function buildWorldMesh(){
+  // 넓은 잔디 바닥 한 장
+  const gt = tileTex(T.grassTop, FIELD_R*2);
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(FIELD_R, 72),
+                new THREE.MeshLambertMaterial({map:gt}));
+  disc.rotation.x = -Math.PI/2; disc.position.y = GY; scene.add(disc);
+  // 바닥 옆면(흙)
+  const rim = new THREE.Mesh(new THREE.CylinderGeometry(FIELD_R,FIELD_R,5,72,1,true),
+                new THREE.MeshLambertMaterial({map:tileTex(T.dirt, 1), side:THREE.BackSide}));
+  rim.material.map.repeat.set(FIELD_R*2, 5); rim.position.y = GY-2.5; scene.add(rim);
+
+  const gRock = cube(T.rock), gMoss = cube(T.mossy), gStone = cube(T.stone);
+  const gGrass = boxGeo(T.grassSide,T.grassSide,T.grassTop,T.dirt,T.grassSide,T.grassSide);
+  const gSB = cube(T.sbrick), gGold = cube(T.goldBlk);
+
+  for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){
+    const h = terrH[gi(x,z)]; if(h <= GY) continue;
+    let hn = 99;
+    for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){
+      const t = inW(x+dx,z+dz) ? terrH[gi(x+dx,z+dz)] : GY-3;
+      hn = Math.min(hn, t<-900 ? GY-3 : t);
+    }
+    const n = Math.max(1, Math.min(7, h - hn));
+    const r = Math.hypot(x+0.5,z+0.5);
+    const plat = Math.max(Math.abs(x),Math.abs(z)) <= 5 && r < 9;
+    for(let k=0;k<n;k++){
+      const y = h - 0.5 - k;
+      if(plat){ bpush('sb', gSB, MAT, x+0.5, y, z+0.5); }
+      else if(k===0 && h <= GY+3){ bpush('gr', gGrass, MAT, x+0.5, y, z+0.5); }
+      else {
+        const mossy = ((x*7+z*13)%17+17)%17 < 3 && k===0;
+        bpush(mossy?'mo':'rk', mossy?gMoss:gRock, MAT, x+0.5, y, z+0.5);
+      }
+    }
+  }
+  // 단상 테두리 금블록
+  for(let i=-5;i<=5;i++){ for(const p of [[i,-5],[i,5],[-5,i],[5,i]])
+    if(Math.abs(p[0])===5||Math.abs(p[1])===5) bpush('gb', gGold, MAT, p[0]+0.5, GY+1.5, p[1]+0.5); }
+
+  // 협곡 벽 위 모둠 깃발 + 바닥 색 띠
+  const gFlat = boxGeo(T.cloth,T.cloth,T.cloth,T.cloth,T.cloth,T.cloth,1,0.08,1);
+  for(let g=0; g<NG; g++){
+    const d = DIRS[g], mc = matC(GHEX[g]);
+    for(const rr of [ARENA_R+2, RING_D-2]){
+      const gh = gapHalfAt(rr);
+      for(const side of [-1,1]){
+        const px = Math.round(d.dx*rr - (-d.dz)*side*(gh+2.4));
+        const pz = Math.round(d.dz*rr - ( d.dx)*side*(gh+2.4));
+        if(!inW(px,pz)) continue;
+        const base = terrH[gi(px,pz)];
+        for(let k=0;k<4;k++) bpush('flag'+g, cube(T.cloth), mc, px+0.5, base+0.5+k, pz+0.5);
+        bpush('flagT'+g, cube(T.glow), matC(0xfff0a0), px+0.5, base+4.5, pz+0.5);
+      }
+    }
+    // 협곡 바닥 색 띠 — 여기가 우리 모둠 문
+    for(let t=ARENA_R-5; t<RING_D-1; t+=1){
+      if(t%2) continue;
+      const gh = Math.min(gapHalfAt(t), GAP_HALF+0.5);
+      for(const side of [-1,1]){
+        const px = Math.round(d.dx*t - (-d.dz)*side*(gh-0.5));
+        const pz = Math.round(d.dz*t - ( d.dx)*side*(gh-0.5));
+        if(!inW(px,pz) || terrH[gi(px,pz)] !== GY) continue;
+        bpush('mk'+g, gFlat, mc, px+0.5, GY+0.05, pz+0.5);
+      }
+    }
+  }
+}
+
+/* ═══════════════════════ 나무·바위·금 (자원 노드) ═══════════════════════ */
+const NODES = [];       // {type,x,z,hp,max,hs:[handle], alive}
+/* hits = 곡괭이질 횟수, per = 몇 번 쳐야 한 칸이 떨어지는가.
+   칸 수(=hits/per)와 칸당 보상(amt)은 예전 그대로 → 총 산출량 불변, 캐는 시간만 2배 */
+const NODE_DEF = {
+  tree: {give:'w', amt:3, hits:8, per:2, icon:'🪵', name:'나무'},   // 4칸 × 3 = 12 나무/그루
+  rock: {give:'s', amt:3, hits:8, per:2, icon:'🪨', name:'돌'},     // 4칸 × 3 = 12 돌/바위
+  gold: {give:'g', amt:1, hits:8, per:2, icon:'✨', name:'금'}      // 4칸 × 1 = 4 금/광맥
+};
+const NODE_S = 0.45;    // 자원 덩어리 크기 배수 — 작을수록 많이 깔 수 있다
+const LEAF_LIT = matC(0xbfe89a), LEAF_DK = matC(0x6f9c52);
+function mkTree(x,z,dec){
+  const S = NODE_S;
+  const hs=[], H = 4 + (Math.abs(Math.sin(x*3.3+z*7.7))*2|0);
+  const gLog = boxGeo(T.bark,T.bark,T.logTop,T.logTop,T.bark,T.bark), gLf = cube(T.leaves);
+  const P = (dx,dy,dz)=>[x+0.5+dx*S, GY+(0.5+dy)*S, z+0.5+dz*S];
+  const put = (key,g,m,dx,dy,dz,s)=>{ const p=P(dx,dy,dz);
+    return bpush(key,g,m,p[0],p[1],p[2],0,(s||1)*S,(s||1)*S,(s||1)*S); };
+  for(let k=0;k<H;k++) hs.push(put('log', gLog, MAT, 0,k,0));
+  // 밑동을 살짝 넓혀 뿌리 느낌
+  for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]])
+    if(rnd(x*5.1+z*2.7+dx*3+dz*7) < 0.45) hs.push(put('root', gLog, MAT, dx,0,dz, 0.62));
+  for(let dy=0; dy<3; dy++){
+    const rad = dy===2 ? 1 : 2;
+    for(let dx=-rad; dx<=rad; dx++) for(let dz=-rad; dz<=rad; dz++){
+      if(Math.abs(dx)===rad && Math.abs(dz)===rad && dy!==1) continue;
+      if(dx===0&&dz===0&&dy<2) continue;
+      // 위·바깥은 밝게, 안쪽 아래는 어둡게 — 입체감
+      const r = rnd(x*1.7+z*4.3+dx*11+dz*23+dy*41);
+      const m = (dy===2 || r<0.22) ? LEAF_LIT : (dy===0 && r<0.5) ? LEAF_DK : MAT;
+      const key = m===LEAF_LIT?'leafL' : m===LEAF_DK?'leafD' : 'leaf';
+      hs.push(put(key, gLf, m, dx, H+dy-1, dz));
+    }
+  }
+  return hs;
+}
+function mkRock(x,z){
+  const S = NODE_S;
+  const hs=[], g = cube(T.stone), gm = cube(T.mossy), gr = cube(T.rock);
+  const put = (key,gg,m,dx,dy,dz,s)=>bpush(key,gg,m,
+    x+0.5+dx*S, GY+(0.5+dy)*S, z+0.5+dz*S, 0, (s||1)*S,(s||1)*S,(s||1)*S);
+  const pat = [[0,0,3],[1,0,2],[-1,0,1],[0,1,2],[0,-1,1],[1,1,1]];
+  for(const [dx,dz,hh] of pat){ for(let k=0;k<hh;k++){
+    const top = (k===hh-1);
+    const mossy = top && rnd(x*3.1+z*6.7+dx*17+dz*29) < 0.42;
+    hs.push(put(mossy?'rockM':'rockN', mossy?gm:g, MAT, dx,k,dz));
+  } }
+  // 발치 자갈 — 덩어리가 땅에 박힌 느낌
+  for(const [dx,dz] of [[-1,-1],[2,0],[-1,1],[1,-1]])
+    if(rnd(x*7.7+z*1.3+dx*5+dz*13) < 0.55) hs.push(put('rockP', gr, MAT, dx,0,dz, 0.44));
+  return hs;
+}
+const ORE_GLOW = new THREE.MeshLambertMaterial({map:ATLAS, color:0xffe9a0,
+  emissive:0xffb020, emissiveIntensity:0.55});
+function mkGold(x,z){
+  const S = NODE_S;
+  const hs=[], g = cube(T.goldOre), gs = cube(T.stone), gb = cube(T.goldBlk);
+  const put = (key,gg,m,dx,dy,dz,s)=>bpush(key,gg,m,
+    x+0.5+dx*S, GY+(0.5+dy)*S, z+0.5+dz*S, 0, (s||1)*S,(s||1)*S,(s||1)*S);
+  for(const [dx,dz,hh,go] of [[0,0,3,1],[1,0,2,1],[-1,0,2,0],[0,1,2,1],[0,-1,1,0],[1,1,1,0]]){
+    for(let k=0;k<hh;k++) hs.push(put(go?'ore':'oreS', go?g:gs, MAT, dx,k,dz));
+  }
+  // 튀어나온 금 결정 — 멀리서도 "저기 금이다" 하고 눈에 띈다
+  hs.push(put('oreG', gb, ORE_GLOW, 0, 3, 0, 0.52));
+  hs.push(put('oreG', gb, ORE_GLOW, 1, 2, 0, 0.38));
+  return hs;
+}
+function placeNodes(){
+  const taken = [];
+  const ok = (x,z,minD)=>{
+    for(const t of taken) if(Math.hypot(t[0]-x,t[1]-z) < minD) return false;
+    return true;
+  };
+  for(let g=0; g<NG; g++){
+    const base = DIRS[g].a;
+    const spec = [['tree',9],['rock',9],['gold',4]];   // 작아진 만큼 촘촘히
+    for(const [type,cnt] of spec){
+      let made=0, tries=0;
+      while(made<cnt && tries++<1200){
+        const a = base + (Math.random()-0.5)*(Math.PI*2/NG)*0.98;
+        const r = 13.0 + Math.random()*24;
+        const x = Math.round(Math.cos(a)*r), z = Math.round(Math.sin(a)*r);
+        if(Math.hypot(x,z) < 12 || Math.hypot(x,z) > 37.5) continue;
+        const cd = corridorDist(x+0.5,z+0.5);
+        if(cd && cd[2] < GAP_HALF+2.5) continue;
+        if(!ok(x,z, type==='tree'?3.4:2.8)) continue;
+        taken.push([x,z]);
+        const hs = type==='tree'? mkTree(x,z) : type==='rock'? mkRock(x,z) : mkGold(x,z);
+        NODES.push({type,x,z,g,hs,alive:true,hp:NODE_DEF[type].hits,max:NODE_DEF[type].hits});
+        made++;
+      }
+    }
+  }
+  // 산 위·협곡 마당 장식 숲
+  for(let i=0;i<210;i++){
+    const a = Math.random()*Math.PI*2, r = ARENA_R+3 + Math.random()*(FIELD_R-ARENA_R-5);
+    const x = Math.round(Math.cos(a)*r), z = Math.round(Math.sin(a)*r);
+    if(!inW(x,z)) continue;
+    const cd0 = corridorDist(x+0.5,z+0.5);
+    if(cd0 && cd0[2] < gapHalfAt(r)+1.5) continue;
+    if(terrAt(x,z) < GY) continue;
+    const y0 = terrAt(x,z);
+    const gLog = boxGeo(T.bark,T.bark,T.logTop,T.logTop,T.bark,T.bark), gLf = cube(T.leaves);
+    const H = 4+(Math.random()*3|0);
+    for(let k=0;k<H;k++) bpush('log', gLog, MAT, x+0.5, y0-0.5+k, z+0.5);
+    for(let dy=0;dy<2;dy++) for(let dx=-1;dx<=1;dx++) for(let dz=-1;dz<=1;dz++)
+      bpush('leaf', gLf, MAT, x+0.5+dx, y0+H-1.5+dy, z+0.5+dz);
+  }
+}
+
+/* ═══════════════════════ 꽃 · 풀 · 돌멩이 ═══════════════════════ */
+function scatterDecor(){
+  const gBush  = boxGeo(T.leaves,T.leaves,T.leaves,T.leaves,T.leaves,T.leaves, .52,.34,.52);
+  const gBushS = boxGeo(T.leaves,T.leaves,T.leaves,T.leaves,T.leaves,T.leaves, .36,.24,.36);
+  const gPetal = new Map();
+  const petalCol = [0xff6f6f, 0xffd84d, 0xffffff, 0xc98cff, 0x6fb8ff];
+  const petalMat = petalCol.map(c=> new THREE.MeshLambertMaterial({map:ATLAS, color:c}));
+  const gP = boxGeo(T.cloth,T.cloth,T.cloth,T.cloth,T.cloth,T.cloth, .23,.17,.23);
+  const gStem= boxGeo(T.leaves,T.leaves,T.leaves,T.leaves,T.leaves,T.leaves, .07,.17,.07);
+  const gPeb = boxGeo(T.stone,T.stone,T.stone,T.stone,T.stone,T.stone, .22,.15,.22);
+  let n=0, guard=0;
+  while(n<700 && guard++<6000){
+    const a=Math.random()*Math.PI*2, r=9+Math.random()*(FIELD_R-11);
+    const x=Math.round(Math.cos(a)*r), z=Math.round(Math.sin(a)*r);
+    if(!inW(x,z) || terrAt(x,z)!==GY) continue;
+    if(Math.max(Math.abs(x),Math.abs(z))<=6) continue;
+    const k=Math.random();
+    if(k<0.55){                                   // 수풀 — 덩어리 하나로
+      const small = Math.random()<0.42;
+      bpush(small?'bushS':'bush', small?gBushS:gBush, MAT,
+            x+0.5, GY+(small?0.12:0.17), z+0.5, Math.random()*Math.PI*2);
+    } else if(k<0.88){                            // 들꽃
+      const ci=(Math.random()*petalCol.length)|0;
+      bpush('stem', gStem, MAT, x+0.5, GY+0.085, z+0.5);
+      bpush('petal'+ci, gP, petalMat[ci], x+0.5, GY+0.22, z+0.5, Math.random()*Math.PI*2);
+    } else {                                      // 돌멩이
+      bpush('peb', gPeb, MAT, x+0.5, GY+0.075, z+0.5, Math.random()*3);
+    }
+    n++;
+  }
+}
+
+/* ═══════════════════════ 수정 ═══════════════════════ */
+let crystal, crystalLight, crystalGroup, beam, cMat, cCore, cShards, cHalo, cSpark, cGlow;
+const cSparks = [];
+function buildCrystal(){
+  crystalGroup = new THREE.Group(); crystalGroup.position.set(0, GY+1, 0); scene.add(crystalGroup);
+  crystal = new THREE.Group(); crystalGroup.add(crystal);
+
+  /* 재질 — 세 겹으로 겹쳐 영롱하게 */
+  cMat = {
+    gem:  new THREE.MeshLambertMaterial({map:ATLAS, color:0xcaf6ff,
+            emissive:0x2fb4d8, emissiveIntensity:1.15, transparent:true, opacity:0.94}),
+    shell:new THREE.MeshLambertMaterial({map:ATLAS, color:0xffffff,
+            emissive:0x7fe8ff, emissiveIntensity:0.9, transparent:true, opacity:0.22,
+            depthWrite:false, side:THREE.DoubleSide}),
+    core: new THREE.MeshBasicMaterial({color:0xf2ffff, fog:false}),
+    spark:new THREE.MeshBasicMaterial({color:0xd8fbff, transparent:true, opacity:0.95, fog:false})
+  };
+
+  /* 보석 실루엣 — 아래 뾰족 → 넓은 허리 → 위 뾰족 */
+  const LV = [[0.18,0.44,0.30],[0.56,0.44,0.58],[1.06,0.62,0.86],
+              [1.74,0.78,1.02],[2.44,0.66,0.80],[3.00,0.52,0.50],[3.44,0.44,0.24]];
+  for(const [y,h,w] of LV){
+    const m = new THREE.Mesh(cube(T.crystal), cMat.gem);
+    m.position.y = y; m.scale.set(w*2, h, w*2);
+    m.rotation.y = Math.PI/4;                 // 45° 돌려 마름모 실루엣
+    crystal.add(m);
+  }
+  /* 바깥 껍질 — 은은한 후광 */
+  const sh = new THREE.Mesh(cube(T.crystal), cMat.shell);
+  sh.position.y = 1.8; sh.scale.set(2.85, 4.3, 2.85); sh.rotation.y = Math.PI/4;
+  crystal.add(sh);
+  /* 속심 — 안에서 빛나는 알맹이 */
+  cCore = new THREE.Mesh(cube(T.crystal), cMat.core);
+  cCore.position.y = 1.75; cCore.scale.set(0.62, 1.5, 0.62); cCore.rotation.y = Math.PI/4;
+  crystal.add(cCore);
+
+  /* 주위를 도는 조각들 */
+  cShards = new THREE.Group(); crystalGroup.add(cShards);
+  for(let i=0;i<7;i++){
+    const m = new THREE.Mesh(cube(T.crystal), cMat.gem);
+    const a2 = i/7*Math.PI*2, r = 2.1 + (i%3)*0.35;
+    const sc = 0.20 + (i%4)*0.055;
+    m.position.set(Math.cos(a2)*r, 1.1 + (i%5)*0.42, Math.sin(a2)*r);
+    m.scale.set(sc, sc*1.9, sc); m.rotation.set(0.4, a2, 0.3);
+    m.userData = {a:a2, r, base:m.position.y, sp:0.5+(i%3)*0.22};
+    cShards.add(m);
+  }
+  /* 고리 — 반짝이는 알갱이 12개 */
+  cHalo = new THREE.Group(); crystalGroup.add(cHalo);
+  for(let i=0;i<12;i++){
+    const m = new THREE.Mesh(cube(T.crystal), cMat.spark);
+    const a2 = i/12*Math.PI*2;
+    m.position.set(Math.cos(a2)*2.7, 1.85, Math.sin(a2)*2.7);
+    m.scale.setScalar(0.14); m.userData = {ph:i*0.52};
+    cHalo.add(m);
+  }
+  /* 위로 피어오르는 반짝임 */
+  cSpark = new THREE.InstancedMesh(cube(T.crystal), cMat.spark, 34);
+  cSpark.frustumCulled = false; crystalGroup.add(cSpark);
+  for(let i=0;i<34;i++){
+    const a2 = Math.random()*Math.PI*2;
+    cSparks.push({a:a2, r:0.6+Math.random()*1.9, y:Math.random()*4.2,
+                  sp:0.5+Math.random()*0.9, s:0.06+Math.random()*0.09});
+  }
+  /* 바닥에 번지는 빛 */
+  cGlow = new THREE.Mesh(new THREE.CircleGeometry(4.6, 32),
+    new THREE.MeshBasicMaterial({color:0x7fe6ff, transparent:true, opacity:0.20,
+      depthWrite:false, blending:THREE.AdditiveBlending, fog:false}));
+  cGlow.rotation.x = -Math.PI/2; cGlow.position.y = 0.06; crystalGroup.add(cGlow);
+
+  crystalLight = new THREE.PointLight(0x8feaff, 2.8, 34); crystalLight.position.y = 2.0;
+  crystalGroup.add(crystalLight);
+
+  /* 하늘로 뻗는 빛기둥 — 멀리서도 우리 수정이 보인다 */
+  beam = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 2.4, 80, 10, 1, true),
+    new THREE.MeshBasicMaterial({color:0x7fe6ff, transparent:true, opacity:.13,
+      depthWrite:false, side:THREE.DoubleSide, fog:false}));
+  beam.position.y = 42; crystalGroup.add(beam);
+
+  /* 받침 */
+  const bm = matC(0xffffff);
+  for(let dx=-2;dx<=2;dx++) for(let dz=-2;dz<=2;dz++){
+    if(Math.abs(dx)===2&&Math.abs(dz)===2) continue;
+    bpush('cb', cube(T.goldBlk), bm, dx+0.5, GY+1.5, dz+0.5);
+  }
+}
+
+/* 수정 애니메이션 — 체력이 떨어지면 파랑 → 주황 → 빨강 */
+const _cv = new THREE.Vector3(), _cq = new THREE.Quaternion(), _cs = new THREE.Vector3(),
+      _cm2 = new THREE.Matrix4();
+function updCrystal(dt, t, cp, lastLight, skyK){
+  const hue = cp > 0.5 ? 0.52 : cp > 0.25 ? 0.09 : 0.01;
+  const pulse = 0.5 + 0.5*Math.sin(t*1.6);
+  const alive = 0.45 + cp*0.55;
+
+  crystal.rotation.y += dt*0.30;
+  crystal.position.y = Math.sin(t*1.15)*0.16;
+  cCore.scale.set(0.62+pulse*0.10, 1.5+pulse*0.16, 0.62+pulse*0.10);
+
+  cMat.gem.emissive.setHSL(hue, 0.85, 0.20 + pulse*0.10*alive);
+  cMat.gem.color.setHSL(hue, 0.30, 0.86);
+  cMat.shell.emissive.setHSL(hue, 0.9, 0.34 + pulse*0.12);
+  cMat.shell.opacity = 0.16 + pulse*0.12*alive;
+  cMat.core.color.setHSL(hue, 0.35, 0.90 + pulse*0.06);
+  cMat.spark.color.setHSL(hue, 0.5, 0.86);
+
+  cShards.rotation.y -= dt*0.42;
+  for(const m of cShards.children){
+    const u = m.userData;
+    m.position.y = u.base + Math.sin(t*u.sp + u.a*3)*0.30;
+    m.rotation.x += dt*0.7; m.rotation.z += dt*0.5;
+  }
+  cHalo.rotation.y += dt*0.62;
+  for(const m of cHalo.children){
+    const k = 0.09 + 0.11*Math.abs(Math.sin(t*2.4 + m.userData.ph));
+    m.scale.setScalar(k);
+  }
+  /* 피어오르는 반짝임 */
+  for(let i=0;i<cSparks.length;i++){
+    const p = cSparks[i];
+    p.y += dt*p.sp; p.a += dt*0.5;
+    if(p.y > 4.6){ p.y = 0; p.r = 0.6+Math.random()*1.9; }
+    const fade = Math.sin(Math.min(1,p.y/4.6)*Math.PI);
+    const sc = p.s*fade*(0.6+alive*0.8);
+    _cv.set(Math.cos(p.a)*p.r*(1-p.y/6), p.y, Math.sin(p.a)*p.r*(1-p.y/6));
+    _cq.setFromAxisAngle(UPV, p.a*2); _cs.set(sc,sc,sc);
+    cSpark.setMatrixAt(i, _cm2.compose(_cv,_cq,_cs));
+  }
+  cSpark.instanceMatrix.needsUpdate = true;
+
+  cGlow.material.opacity = (0.12 + pulse*0.10) * alive * (0.6 + skyK*0.8);
+  cGlow.material.color.setHSL(hue, 0.85, 0.62);
+  cGlow.scale.setScalar(1 + pulse*0.06);
+
+  crystalLight.intensity = 1.3 + cp*1.8 + pulse*0.5;
+  crystalLight.color.setHSL(hue, 0.9, 0.64);
+
+  beam.rotation.y -= dt*0.22;
+  beam.material.opacity = (lastLight ? 0.22 + Math.sin(t*9)*0.09
+    : 0.06 + cp*0.10 + Math.sin(t*1.7)*0.02) * (0.5 + skyK*0.9);
+  beam.scale.setScalar(lastLight ? 1.25 + Math.sin(t*7)*0.12 : 1);
+  beam.material.color.setHSL(hue, 0.9, 0.64);
+}
+
+
+/* ═══════════════════════ 구름 ═══════════════════════ */
+const clouds = [];
+function buildClouds(){
+  const cm = new THREE.MeshLambertMaterial({color:0xffffff, fog:false});
+  for(let i=0;i<16;i++){
+    const g = new THREE.Group();
+    const n = 3+(Math.random()*4|0);
+    for(let k=0;k<n;k++){
+      const m = new THREE.Mesh(new THREE.BoxGeometry(1,1,1), cm);
+      m.scale.set(7+Math.random()*10, 3+Math.random()*2, 6+Math.random()*8);
+      m.position.set((Math.random()-.5)*18, (Math.random()-.5)*2, (Math.random()-.5)*14);
+      g.add(m);
+    }
+    g.position.set((Math.random()-.5)*230, 52+Math.random()*22, (Math.random()-.5)*230);
+    scene.add(g); clouds.push(g);
+  }
+}
+
+/* ═══════════════════════ 반딧불이 (밤에만) ═══════════════════════ */
+const FN = 70;
+const fireMat = new THREE.MeshBasicMaterial({color:0xffe27a, transparent:true, opacity:.9, fog:false});
+const fireMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(.14,.14,.14), fireMat, FN);
+fireMesh.frustumCulled = false; fireMesh.count = 0; scene.add(fireMesh);
+const flies = [];
+for(let i=0;i<FN;i++){ const a=Math.random()*Math.PI*2, r=8+Math.random()*30;
+  flies.push({x:Math.cos(a)*r, z:Math.sin(a)*r, y:GY+0.7+Math.random()*2.4,
+    p:Math.random()*9, s:0.25+Math.random()*0.5}); }
+
+buildSky(); buildWorldMesh(); placeNodes(); scatterDecor(); buildCrystal(); buildClouds(); bbuild();
+
+/* ═══════════════════════ 건물 정의 ═══════════════════════ */
+/* 모든 건물은 Lv1 → Lv2 → Lv3.  배열은 [Lv1, Lv2, Lv3] */
+const BUILD = {
+  wwall:{ name:'나무벽', icon:'🪵', cost:{w:4,s:0,g:0},  size:1, hi:3, pass:1,
+          hp:[120, 230, 400],
+          up:[{w:6,s:2,g:0}, {w:10,s:8,g:2}],
+          desc:'싸고 빠름. 첫날 산길은 이걸로 막으세요.' },
+  swall:{ name:'돌벽',   icon:'🧱', cost:{w:1,s:6,g:0},  size:1, hi:3, pass:1,
+          hp:[340, 620, 1000],
+          up:[{w:2,s:11,g:0}, {w:4,s:18,g:3}],
+          desc:'나무벽 3배로 튼튼. 산길 정면은 돌벽으로.' },
+  arrow:{ name:'화살탑', icon:'🏹', cost:{w:10,s:7,g:0}, size:2, hi:3.5, cap:6,
+          hp:[380, 600, 900], range:[13, 13.5, 14], dmg:[13, 18, 24], rate:[0.70, 0.65, 0.60],
+          up:[{w:13,s:10,g:3}, {w:20,s:16,g:11}],
+          desc:'마을 안에만. 가까이 온 늑대를 자동으로 쏩니다. 모둠당 6개.' },
+  ice:  { name:'얼음탑', icon:'❄️', cost:{w:6,s:9,g:2},  size:2, hi:3, cap:3,
+          hp:[300, 480, 700], range:[10, 11, 12], slow:[0.42, 0.34, 0.26],
+          up:[{w:9,s:12,g:4}, {w:14,s:18,g:10}],
+          desc:'마을 안에만. 늑대를 느리게. 화살탑 옆에 두세요. 모둠당 3개.' },
+  barr: { name:'배럭',   icon:'🐑', cost:{w:14,s:11,g:4},size:3, hi:3.2, cap:2,
+          hp:[700, 1050, 1500], sold:[3, 3, 3], spawn:[9, 8, 7], sbuff:[1.0, 1.25, 1.5],
+          up:[{w:19,s:15,g:7}, {w:28,s:22,g:14}],
+          desc:'마을 안에만. Lv2는 갑옷병, Lv3은 마법사까지 나옵니다. 모둠당 2개.' }
+};
+const MAXLV = 3;
+/* 배럭 등급별 병종 구성 — 0:창병 1:갑옷병 2:마법사 */
+const SOL_COMP = [ [0,0,0], [1,1,1], [1,1,2] ];
+const SOL_DEF = [
+  {n:'창병',   hp:1.00, dmg:1.00, rng:1.7, rate:0.80, sc:0.62, spd:3.4},
+  {n:'갑옷병', hp:1.85, dmg:1.55, rng:1.8, rate:0.76, sc:0.67, spd:3.1},
+  {n:'마법사', hp:0.95, dmg:2.30, rng:11.0,rate:1.15, sc:0.62, spd:3.0}
+];
+/* 레벨에 맞는 수치를 꺼낸다 (배열이면 레벨별, 아니면 그대로) */
+function bs(t, key, lv){ const v = BUILD[t][key];
+  return Array.isArray(v) ? v[Math.min(v.length-1, (lv||1)-1)] : v; }
+function upCost(t, lv){ const u = BUILD[t].up; return (lv>=MAXLV || !u) ? null : u[lv-1]; }
+
+
+const BKEYS = Object.keys(BUILD);
+const TOOLS = [
+  {id:'mine',  name:'캐기', icon:'⛏️', key:'Q'},
+  {id:'repair',name:'수리', icon:'🔧', key:'R'},
+  {id:'up',    name:'강화', icon:'⬆️', key:'E'},
+  {id:'del',   name:'철거', icon:'💥', key:'F'}
+];
+
+/* ══ 건물 한 채의 블록 배치 ══
+   [dx, dy, dz, tile, w, h, d, tint]  — dx/dz는 발자국 원점 칸 중심 기준(소수 가능)
+   크기 2(화살탑·얼음탑)의 한가운데는 0.5, 크기 3(배럭)의 한가운데는 0 이다.        */
+const BANNER = 0xc8402f, RUNE = 0xa96bff, FROST = 0xbfe9ff, IRON = 0x8f97a4;
+
+/* ★ 겉모습 축소 배수 [가로, 세로].  점유 칸수(size)는 건드리지 않는다.
+   세로는 원래 아트 높이 기준: 화살탑 5→3.5, 얼음탑 4→3, 배럭 4→3.2.
+   BUILD 의 hi 값과 반드시 같이 움직여야 한다 (hi 는 올라설 수 있는 높이). */
+const VSCALE = { arrow:[0.80, 0.70], ice:[0.80, 0.75], barr:[0.75, 0.80] };
+/* ★ 같은 종류·레벨이면 블록 배치는 늘 똑같다 — 한 번 만들고 재사용.
+   rebuildStru 가 초당 12번까지 도는데 매번 새로 만들 이유가 없다. */
+const _blkCache = new Map();
+function blocksOf(t, lv){
+  lv = Math.max(1, Math.min(MAXLV, lv||1));
+  const key = t + "#" + lv;
+  let r = _blkCache.get(key);
+  if(!r){ r = blocksOfRaw(t, lv); _blkCache.set(key, r); }
+  return r;
+}
+function blocksOfRaw(t, lv){
+  lv = Math.max(1, Math.min(MAXLV, lv||1));
+  const out = [];
+  /* P: 중심좌표 + 크기.  V: y0~y1 기둥(0 = 땅바닥).  S: 밑면 y에 깔리는 판.
+     한 조각이 1칸을 넘으면 잘게 쪼갠다 — 안 그러면 텍스처가 늘어나서 흐릿해 보인다. */
+  const RAW = (x,y,z,tile,w,h,d,tint)=> out.push([x,y,z,tile,w,h,d,tint]);
+  const P = (x,y,z,tile,w,h,d,tint)=>{
+    w = w===undefined?1:w; h = h===undefined?1:h; d = d===undefined?1:d;
+    const nx = Math.max(1, Math.round(w/1.05)), ny = Math.max(1, Math.round(h/1.05)),
+          nz = Math.max(1, Math.round(d/1.05));
+    if(nx===1 && ny===1 && nz===1) return RAW(x,y,z,tile,w,h,d,tint);
+    const sw = w/nx, sh = h/ny, sd = d/nz;
+    for(let i=0;i<nx;i++) for(let j=0;j<ny;j++) for(let k=0;k<nz;k++)
+      RAW(x-w/2+sw*(i+0.5), y-h/2+sh*(j+0.5), z-d/2+sd*(k+0.5), tile, sw,sh,sd, tint);
+  };
+  const V = (x,z,y0,y1,tile,w,d,tint)=> P(x,(y0+y1)/2-0.5,z,tile,w,y1-y0,d===undefined?w:d,tint);
+  const S = (x,z,y,tile,w,d,h,tint)=>{ h = h===undefined?0.30:h;
+        P(x,y+h/2-0.5,z,tile,w,h,d===undefined?w:d,tint); };
+  /* 네 모서리에 같은 걸 하나씩 */
+  const Q4 = (cx,cz,r,fn)=>{ for(const sx of [1,-1]) for(const sz of [1,-1]) fn(cx+r*sx, cz+r*sz, sx, sz); };
+  /* 성가퀴 — 한 칸 걸러 이가 빠진 성벽 */
+  const CREN = (cx,cz,r,y0,y1,tile,n)=>{
+    n = n||3; const step = (r*2)/(n-1);
+    for(let i=0;i<n;i++){ const p = -r + step*i;
+      V(cx+p, cz-r, y0,y1, tile, 0.34); V(cx+p, cz+r, y0,y1, tile, 0.34);
+      if(i>0 && i<n-1){ V(cx-r, cz+p, y0,y1, tile, 0.34); V(cx+r, cz+p, y0,y1, tile, 0.34); } }
+  };
+  /* 깃대 + 펄럭이는 천 */
+  const FLAG = (x,z,y0,h,tint)=>{ V(x,z,y0,y0+h,T.logSide,0.11);
+    P(x+0.34, y0+h-0.55, z, T.cloth, 0.62, 0.44, 0.07, tint);
+    P(x+0.30, y0+h-0.95, z, T.cloth, 0.50, 0.30, 0.07, tint); };
+  /* 벽에 뚫린 창 */
+  const WIN = (x,y,z,w,h,d)=> P(x,y,z,T.dark,w,h,d,0x1a1c22);
+
+  /* ─────────────── 나무벽 ─────────────── */
+  if(t==='wwall'){
+    S(0,0, 0, T.plank, 0.96, 0.96, 1.0);
+    S(0,0, 1.0, T.plank, 0.96, 0.96, 1.0);
+    S(0,0, 2.0, T.logSide, 1.0, 1.0, 0.86);
+    V(-0.42,0, 0, 2.9, T.logSide, 0.16, 0.9);        // 세로 보강대
+    V( 0.42,0, 0, 2.9, T.logSide, 0.16, 0.9);
+    if(lv>=2){ S(0,0, 2.86, T.goldBlk, 1.02, 1.02, 0.16); V(0,-0.42, 0.9, 1.1, T.logSide, 0.9,0.14); }
+    if(lv>=3){ P(0, 2.62, 0, T.glow, 0.30,0.30,0.30); S(0,0, 2.30, T.goldBlk, 1.04,1.04, 0.12); }
+  }
+  /* ─────────────── 돌벽 ─────────────── */
+  else if(t==='swall'){
+    S(0,0, 0, T.sbrick, 0.98, 0.98, 1.0);
+    S(0,0, 1.0, T.sbrick, 0.98, 0.98, 1.0);
+    S(0,0, 2.0, T.stone, 1.0, 1.0, 0.72);
+    for(const sx of [1,-1]) V(sx*0.33, 0, 2.72, 3.05, T.stone, 0.30, 0.9);  // 작은 성가퀴
+    if(lv>=2){ S(0,0, 2.66, T.goldBlk, 1.0,1.0, 0.1); V(0,0, 1.35, 1.5, T.goldBlk, 1.0, 0.94); }
+    if(lv>=3){ P(0, 2.62, 0, T.glow, 0.32,0.32,0.32); for(const sz of [1,-1]) P(0, 1.35, sz*0.5, T.glow, 0.26,0.26,0.1); }
+  }
+
+  /* ═══════════ 화살탑 — 진짜 망루 ═══════════ */
+  else if(t==='arrow'){
+    const cx = 0.5, cz = 0.5;
+    if(lv===1){
+      /* Lv1 — 통나무 다리를 세우고 판자를 얹은 시골 망루 (높이 5.4) */
+      Q4(cx,cz,0.62,(x,z)=> V(x,z, 0, 3.05, T.logSide, 0.34));
+      P(cx, 0.85, cz-0.62, T.plank, 1.5, 0.16, 0.20);          // 가로 보강대
+      P(cx, 0.85, cz+0.62, T.plank, 1.5, 0.16, 0.20);
+      P(cx-0.62, 0.85, cz, T.plank, 0.20, 0.16, 1.5);
+      P(cx+0.62, 0.85, cz, T.plank, 0.20, 0.16, 1.5);
+      S(cx,cz, 3.05, T.plank, 2.45, 2.45, 0.26);                // 평상
+      for(const s of [1,-1]){                                    // 난간
+        P(cx, 3.60, cz+s*1.14, T.plank, 2.45, 0.56, 0.14);
+        P(cx+s*1.14, 3.60, cz, T.plank, 0.14, 0.56, 2.45);
+      }
+      Q4(cx,cz,0.60,(x,z)=> V(x,z, 3.31, 4.75, T.logSide, 0.20));   // 지붕 기둥
+      S(cx,cz, 4.72, T.thatch, 2.85, 2.85, 0.28);               // 천막 지붕 3단
+      S(cx,cz, 4.98, T.thatch, 1.95, 1.95, 0.28);
+      S(cx,cz, 5.24, T.thatch, 1.05, 1.05, 0.26);
+      for(let i=0;i<5;i++) P(cx, 0.55+i*0.62, cz-1.26, T.logSide, 0.62, 0.10, 0.10);  // 사다리
+      V(cx-0.26, cz-1.26, 0.3, 3.1, T.logSide, 0.09);
+      V(cx+0.26, cz-1.26, 0.3, 3.1, T.logSide, 0.09);
+      P(cx+0.78, 3.55, cz+0.72, T.bark, 0.28, 0.52, 0.28);      // 화살통
+      P(cx+0.78, 3.88, cz+0.72, T.cloth, 0.20, 0.26, 0.20, 0xf2e2c0);
+      P(cx-0.80, 3.40, cz-0.74, T.hay, 0.52, 0.32, 0.52);       // 짚더미
+      P(cx-0.62, 3.62, cz+0.62, T.glow, 0.24, 0.24, 0.24);      // 등불
+    } else if(lv===2){
+      /* Lv2 — 돌 기단 위에 올린 목석 혼합 망루 (높이 6.0) */
+      S(cx,cz, 0, T.sbrick, 2.70, 2.70, 0.46);
+      V(cx,cz, 0.46, 3.10, T.sbrick, 1.82);                      // 돌 몸통
+      Q4(cx,cz,0.86,(x,z)=> V(x,z, 0.46, 3.10, T.stone, 0.30));  // 모서리 돌기둥
+      for(const s of [1,-1]){ WIN(cx, 1.75, cz+s*0.93, 0.46,0.62,0.06); WIN(cx+s*0.93, 1.75, cz, 0.06,0.62,0.46); }
+      S(cx,cz, 3.10, T.plank, 2.95, 2.95, 0.28);                 // 발코니
+      CREN(cx,cz,1.30, 3.38, 3.98, T.sbrick, 3);
+      Q4(cx,cz,0.62,(x,z)=> V(x,z, 3.38, 4.90, T.logSide, 0.22));
+      S(cx,cz, 4.86, T.goldBlk, 2.70, 2.70, 0.26);               // 금테 지붕
+      S(cx,cz, 5.12, T.roofRed, 1.85, 1.85, 0.28);
+      S(cx,cz, 5.40, T.roofRed, 0.95, 0.95, 0.26);
+      FLAG(cx, cz, 5.60, 1.05, BANNER);
+      for(const s of [1,-1]) P(cx+s*1.16, 3.86, cz+s*1.16, T.glow, 0.26,0.26,0.26);   // 횃불 2
+      P(cx+0.80, 3.58, cz+0.70, T.bark, 0.28, 0.52, 0.28);
+    } else {
+      /* Lv3 — 성탑 (높이 6.6) */
+      S(cx,cz, 0, T.sbrick, 2.90, 2.90, 0.50);
+      S(cx,cz, 0.50, T.stone, 2.55, 2.55, 0.24);
+      V(cx,cz, 0.74, 3.30, T.sbrick, 1.90);
+      Q4(cx,cz,0.92,(x,z)=> V(x,z, 0.74, 3.60, T.stone, 0.34));  // 부벽
+      for(const s of [1,-1]){ WIN(cx, 1.55, cz+s*0.97, 0.42,0.70,0.06); WIN(cx+s*0.97, 1.55, cz, 0.06,0.70,0.42);
+                              WIN(cx, 2.55, cz+s*0.97, 0.42,0.50,0.06); WIN(cx+s*0.97, 2.55, cz, 0.06,0.50,0.42); }
+      P(cx, 2.05, cz, T.goldBlk, 1.96, 0.18, 1.96);              // 금 허리띠
+      S(cx,cz, 3.30, T.stone, 3.15, 3.15, 0.30);                 // 튀어나온 발코니
+      CREN(cx,cz,1.42, 3.60, 4.30, T.sbrick, 4);
+      V(cx,cz, 3.60, 5.05, T.sbrick, 1.35);                      // 윗층
+      for(const s of [1,-1]) WIN(cx, 4.32, cz+s*0.70, 0.40,0.56,0.06);
+      S(cx,cz, 5.05, T.goldBlk, 2.30, 2.30, 0.26);
+      S(cx,cz, 5.31, T.roofRed, 1.60, 1.60, 0.28);
+      S(cx,cz, 5.59, T.roofRed, 0.85, 0.85, 0.26);
+      P(cx, 5.92, cz, T.glow, 0.32, 0.32, 0.32);                 // 왕관
+      FLAG(cx+1.10, cz+1.10, 4.30, 1.30, BANNER);
+      Q4(cx,cz,1.30,(x,z)=> P(x, 4.18, z, T.glow, 0.24,0.24,0.24));  // 횃불 4
+      /* 공중에 뜬 룬 고리 — 강화된 게 멀리서도 보인다 */
+      for(let i=0;i<6;i++){ const a = i/6*Math.PI*2;
+        P(cx+Math.cos(a)*1.34, 4.95, cz+Math.sin(a)*1.34, T.crystal, 0.22,0.30,0.22, RUNE); }
+    }
+  }
+
+  /* ═══════════ 얼음탑 — 서리 첨탑 ═══════════ */
+  else if(t==='ice'){
+    const cx = 0.5, cz = 0.5;
+    if(lv===1){
+      /* Lv1 — 언 바위에서 솟은 얼음 기둥 (높이 4.4) */
+      S(cx,cz, 0, T.sbrick, 2.30, 2.30, 0.42);
+      S(cx,cz, 0.42, T.stone, 1.90, 1.90, 0.22);
+      V(cx,cz, 0.64, 2.70, T.ice, 1.42);
+      Q4(cx,cz,0.74,(x,z)=> V(x,z, 0.64, 1.90, T.ice, 0.40));
+      V(cx,cz, 2.70, 3.55, T.ice, 0.95);
+      V(cx,cz, 3.55, 4.15, T.ice, 0.52);                          // 뾰족한 끝
+      P(cx, 2.35, cz, T.crystal, 0.60, 0.60, 0.60, FROST);        // 코어
+      for(const s of [1,-1]){ P(cx+s*0.88, 1.30, cz, T.ice, 0.24,0.60,0.24); P(cx, 1.30, cz+s*0.88, T.ice, 0.24,0.60,0.24); }
+    } else if(lv===2){
+      /* Lv2 — 서리 낀 석조 + 떠 있는 얼음 조각 (높이 5.0) */
+      S(cx,cz, 0, T.sbrick, 2.55, 2.55, 0.46);
+      S(cx,cz, 0.46, T.ice, 2.10, 2.10, 0.24);
+      V(cx,cz, 0.70, 2.60, T.sbrick, 1.50);
+      Q4(cx,cz,0.80,(x,z)=> V(x,z, 0.70, 2.60, T.ice, 0.36));
+      P(cx, 1.60, cz, T.goldBlk, 1.62, 0.16, 1.62);
+      V(cx,cz, 2.60, 3.70, T.ice, 1.15);
+      V(cx,cz, 3.70, 4.60, T.ice, 0.62);
+      P(cx, 4.80, cz, T.crystal, 0.44, 0.52, 0.44, FROST);
+      P(cx, 3.05, cz, T.crystal, 0.70, 0.70, 0.70, FROST);
+      for(let i=0;i<4;i++){ const a = i/4*Math.PI*2 + 0.4;        // 공중에 뜬 얼음 조각
+        P(cx+Math.cos(a)*1.16, 3.30, cz+Math.sin(a)*1.16, T.ice, 0.34,0.46,0.34, FROST); }
+      for(const s of [1,-1]) P(cx+s*1.14, 0.95, cz+s*1.14, T.ice, 0.26,0.72,0.26);  // 고드름
+    } else {
+      /* Lv3 — 눈보라를 두른 부유 코어 (높이 5.6) */
+      S(cx,cz, 0, T.sbrick, 2.75, 2.75, 0.50);
+      S(cx,cz, 0.50, T.ice, 2.30, 2.30, 0.26);
+      Q4(cx,cz,0.92,(x,z)=> V(x,z, 0.76, 3.20, T.stone, 0.34));   // 네 기둥
+      V(cx,cz, 0.76, 2.20, T.ice, 1.30);
+      P(cx, 2.05, cz, T.goldBlk, 1.44, 0.18, 1.44);
+      S(cx,cz, 3.20, T.ice, 2.45, 2.45, 0.28);                    // 위 받침
+      CREN(cx,cz,1.10, 3.48, 3.95, T.ice, 3);
+      P(cx, 4.35, cz, T.crystal, 0.86, 0.98, 0.86, FROST);        // 떠 있는 코어
+      V(cx,cz, 4.86, 5.42, T.ice, 0.46);
+      for(let i=0;i<6;i++){ const a = i/6*Math.PI*2;              // 눈보라 고리
+        P(cx+Math.cos(a)*1.30, 4.40, cz+Math.sin(a)*1.30, T.ice, 0.26,0.40,0.26, FROST);
+        P(cx+Math.cos(a+0.5)*0.96, 2.80, cz+Math.sin(a+0.5)*0.96, T.crystal, 0.20,0.28,0.20, FROST); }
+      Q4(cx,cz,1.16,(x,z)=> P(x, 1.10, z, T.ice, 0.28,0.90,0.28));  // 큰 고드름
+      P(cx, 5.62, cz, T.glow, 0.28, 0.28, 0.28, FROST);
+    }
+  }
+
+  /* ═══════════ 배럭 — 양 병사들이 사는 집 ═══════════ */
+  else if(t==='barr'){
+    const cx = 0, cz = 0, R = 1.24;
+    if(lv===1){
+      /* Lv1 — 짚지붕 통나무 오두막 (높이 3.6) */
+      S(cx,cz, 0, T.sbrick, 2.70, 2.70, 0.26);
+      Q4(cx,cz,R,(x,z)=> V(x,z, 0.26, 2.05, T.logSide, 0.26));
+      for(const s of [1,-1]) P(cx+s*R, 1.15, cz, T.plank, 0.14, 1.78, 2.30);   // 좌우 벽
+      P(cx, 1.15, cz-R, T.plank, 2.30, 1.78, 0.14);                            // 뒷벽
+      P(cx-0.78, 1.15, cz+R, T.plank, 0.74, 1.78, 0.14);                       // 앞벽(문 남김)
+      P(cx+0.78, 1.15, cz+R, T.plank, 0.74, 1.78, 0.14);
+      P(cx, 1.92, cz+R, T.logSide, 0.86, 0.24, 0.16);                          // 문 상인방
+      WIN(cx-R-0.01, 1.30, cz, 0.06, 0.50, 0.62); WIN(cx+R+0.01, 1.30, cz, 0.06, 0.50, 0.62);
+      S(cx,cz, 2.05, T.thatch, 3.00, 3.00, 0.30);                              // 짚 지붕 3단
+      S(cx,cz, 2.35, T.thatch, 2.25, 2.25, 0.30);
+      S(cx,cz, 2.65, T.thatch, 1.35, 1.35, 0.30);
+      P(cx, 3.05, cz, T.logSide, 1.50, 0.22, 0.22);                            // 용마루
+      for(let i=0;i<3;i++) V(cx-0.62+i*0.60, cz+R+0.42, 0.26, 1.55, T.logSide, 0.09);  // 창 걸이대
+      P(cx, 1.52, cz+R+0.42, T.logSide, 1.60, 0.10, 0.10);
+      P(cx+1.05, 0.55, cz+1.05, T.hay, 0.62, 0.42, 0.62);                      // 건초더미
+      P(cx-1.10, 0.42, cz+1.06, T.glow, 0.30, 0.24, 0.30);                     // 모닥불
+      Q4(cx,cz,1.06,(x,z)=> P(x, 0.36, z, T.rock, 0.18,0.16,0.18));
+      P(cx+0.86, 1.62, cz+R+0.06, T.glow, 0.22, 0.22, 0.22);                   // 문 옆 등불
+    } else if(lv===2){
+      /* Lv2 — 기와 지붕 석조 막사 (높이 4.0) */
+      S(cx,cz, 0, T.sbrick, 2.85, 2.85, 0.34);
+      Q4(cx,cz,R,(x,z)=> V(x,z, 0.34, 2.30, T.stone, 0.30));
+      for(const s of [1,-1]) P(cx+s*R, 1.32, cz, T.sbrick, 0.16, 1.96, 2.28);
+      P(cx, 1.32, cz-R, T.sbrick, 2.28, 1.96, 0.16);
+      P(cx-0.80, 1.32, cz+R, T.sbrick, 0.70, 1.96, 0.16);
+      P(cx+0.80, 1.32, cz+R, T.sbrick, 0.70, 1.96, 0.16);
+      P(cx, 2.16, cz+R, T.goldBlk, 0.92, 0.24, 0.18);
+      WIN(cx-R-0.01, 1.45, cz-0.40, 0.06, 0.56, 0.52); WIN(cx-R-0.01, 1.45, cz+0.40, 0.06, 0.56, 0.52);
+      WIN(cx+R+0.01, 1.45, cz-0.40, 0.06, 0.56, 0.52); WIN(cx+R+0.01, 1.45, cz+0.40, 0.06, 0.56, 0.52);
+      P(cx, 1.90, cz, T.goldBlk, 2.60, 0.14, 2.60);
+      S(cx,cz, 2.30, T.roofRed, 3.10, 3.10, 0.32);                             // 기와 지붕
+      S(cx,cz, 2.62, T.roofRed, 2.35, 2.35, 0.32);
+      S(cx,cz, 2.94, T.roofRed, 1.45, 1.45, 0.30);
+      P(cx, 3.36, cz, T.goldBlk, 1.55, 0.22, 0.22);
+      FLAG(cx-1.30, cz+1.30, 2.30, 1.15, BANNER);
+      for(const s of [1,-1]) P(cx+s*0.55, 1.45, cz+R+0.10, T.plank, 0.46,0.56,0.10, IRON);  // 방패 걸이
+      V(cx+1.36, cz-1.10, 0.34, 1.70, T.logSide, 0.12);                        // 허수아비
+      P(cx+1.36, 1.30, cz-1.10, T.logSide, 0.90, 0.10, 0.10);
+      P(cx+1.36, 1.82, cz-1.10, T.hay, 0.34, 0.34, 0.34);
+      for(const s of [1,-1]) P(cx+s*0.92, 2.16, cz+R+0.06, T.glow, 0.22,0.22,0.22);
+    } else {
+      /* Lv3 — 마법사가 사는 성채 (높이 4.6) */
+      S(cx,cz, 0, T.sbrick, 3.00, 3.00, 0.40);
+      S(cx,cz, 0.40, T.stone, 2.70, 2.70, 0.20);
+      Q4(cx,cz,R,(x,z)=> V(x,z, 0.60, 2.70, T.sbrick, 0.36));
+      for(const s of [1,-1]) P(cx+s*R, 1.62, cz, T.sbrick, 0.18, 2.04, 2.20);
+      P(cx, 1.62, cz-R, T.sbrick, 2.20, 2.04, 0.18);
+      P(cx-0.84, 1.62, cz+R, T.sbrick, 0.62, 2.04, 0.18);
+      P(cx+0.84, 1.62, cz+R, T.sbrick, 0.62, 2.04, 0.18);
+      P(cx, 2.42, cz+R, T.goldBlk, 1.10, 0.26, 0.20);                          // 아치 문틀
+      for(const s of [1,-1]) P(cx+s*0.56, 2.28, cz+R, T.goldBlk, 0.24, 0.24, 0.20);
+      P(cx, 1.30, cz+R+0.02, T.crystal, 0.30, 0.44, 0.10, RUNE);               // 문 룬
+      WIN(cx-R-0.01, 1.70, cz-0.42, 0.06, 0.64, 0.50); WIN(cx-R-0.01, 1.70, cz+0.42, 0.06, 0.64, 0.50);
+      WIN(cx+R+0.01, 1.70, cz-0.42, 0.06, 0.64, 0.50); WIN(cx+R+0.01, 1.70, cz+0.42, 0.06, 0.64, 0.50);
+      P(cx, 2.30, cz, T.goldBlk, 2.66, 0.16, 2.66);
+      CREN(cx,cz,1.34, 2.70, 3.22, T.sbrick, 4);                               // 옥상 성가퀴
+      S(cx,cz, 2.70, T.stone, 2.60, 2.60, 0.24);
+      V(cx-0.62, cz-0.62, 2.94, 4.10, T.sbrick, 0.72);                         // 마법사 첨탑
+      S(cx-0.62,cz-0.62, 4.10, T.roofRed, 1.05, 1.05, 0.26);
+      V(cx-0.62, cz-0.62, 4.36, 4.75, T.roofRed, 0.46);
+      P(cx-0.62, 4.92, cz-0.62, T.crystal, 0.30, 0.36, 0.30, RUNE);
+      P(cx+0.66, 3.20, cz+0.66, T.hay, 0.70, 0.32, 0.70);                      // 옥상 양털 침구
+      FLAG(cx+1.34, cz+1.34, 3.22, 1.25, BANNER);
+      Q4(cx,cz,1.30,(x,z)=> P(x, 2.60, z, T.glow, 0.24,0.24,0.24, RUNE));      // 룬 등 4개
+      for(let i=0;i<5;i++){ const a = i/5*Math.PI*2;                            // 떠 있는 수정
+        P(cx+Math.cos(a)*1.05, 3.75, cz+Math.sin(a)*1.05, T.crystal, 0.20,0.26,0.20, RUNE); }
+    }
+  }
+
+  /* ★ 겉모습만 축소 — 땅면(y=-0.5)을 기준으로 눌러서 공중에 뜨지 않게 한다.
+     b = [x, y, z, tile, w, h, d, tint] */
+  const vs = VSCALE[t];
+  if(vs){ const kx = vs[0], ky = vs[1];
+    for(const b of out){
+      b[0] *= kx; b[2] *= kx; b[4] *= kx; b[6] *= kx;
+      b[1] = -0.5 + (b[1] + 0.5) * ky; b[5] *= ky;
+    } }
+
+  /* 완전히 같은 자리에 같은 블록이 두 번 들어가면 화면이 지글거린다(z-fighting) */
+  const seen = new Map();
+  for(const b of out) seen.set(b.slice(0,7).join(','), b);
+  return [...seen.values()];
+}
+function footprint(t,X,Z){
+  const s = BUILD[t].size, out=[];
+  if(s===1) out.push([X,Z]);
+  else if(s===2){ for(let a=0;a<2;a++) for(let b=0;b<2;b++) out.push([X+a,Z+b]); }
+  else { for(let a=-1;a<=1;a++) for(let b=-1;b<=1;b++) out.push([X+a,Z+b]); }
+  return out;
+}
+
+/* ═══════════════════════ 구조물 상태 ═══════════════════════ */
+const STRU = new Map();     // id -> {id,t,x,z,hp,mx,g,by,cd,sol}
+const cellOwner = new Map();// "x,z" -> id
+let struDirty = true, flowDirty = true;
+
+function struCount(g,t){ let n=0; for(const o of STRU.values()) if(o.g===g&&o.t===t) n++; return n; }
+function canPlace(t,X,Z, ignoreRes){
+  const B0 = BUILD[t];
+  if(B0.cap && struCount(G.me.g, t) >= B0.cap)
+    return `${B0.name}은 모둠당 ${B0.cap}개까지예요`;
+  const cells = footprint(t,X,Z);
+  for(const [cx,cz] of cells){
+    if(!inW(cx,cz)) return '여긴 안 돼요';
+    const rr = Math.hypot(cx+0.5,cz+0.5);
+    if(rr < 7.5) return '수정에 너무 가까워요';
+    if(rr > ARENA_R-0.5){
+      if(!BUILD[t].pass) return BUILD[t].name+'은 마을 안에만 지어요';
+      const cd = corridorDist(cx+0.5, cz+0.5);
+      if(!cd) return '산에는 못 지어요';
+      if(rr > RING_D+0.5) return '너무 멀어요 (늑대 마당)';
+    }
+    if(terrH[gi(cx,cz)] !== GY) return '평평한 땅에만 지어요';
+    if(cellOwner.has(cx+','+cz)) return '이미 뭔가 있어요';
+    if(nodeCellBlocked(cx,cz)) return '나무·바위 자리예요';
+  }
+  return null;
+}
+const nodeCells = new Set();
+function refreshNodeCells(){
+  nodeCells.clear();
+  for(const n of NODES){ if(!n.alive) continue;
+    const r = n.type==='tree'?1:1;
+    for(let dx=-r;dx<=r;dx++) for(let dz=-r;dz<=r;dz++) nodeCells.add((n.x+dx)+','+(n.z+dz)); }
+}
+function nodeCellBlocked(x,z){ return nodeCells.has(x+','+z); }
+
+function addStru(o){
+  STRU.set(o.id, o);
+  for(const [cx,cz] of footprint(o.t,o.x,o.z)){
+    cellOwner.set(cx+','+cz, o.id);
+    if(inW(cx,cz)) bldH[gi(cx,cz)] = GY + BUILD[o.t].hi;
+  }
+  struDirty = true; flowDirty = true;
+}
+function delStru(id){
+  const o = STRU.get(id); if(!o) return;
+  for(const [cx,cz] of footprint(o.t,o.x,o.z)){
+    cellOwner.delete(cx+','+cz);
+    if(inW(cx,cz)) bldH[gi(cx,cz)] = -999;
+  }
+  STRU.delete(id); struDirty = true; flowDirty = true;
+}
+
+/* 구조물 인스턴스 메시 (변경 시 다시 만듦) */
+const struMeshes = new Map();   // tile -> InstancedMesh
+const _c1 = new THREE.Color();
+function rebuildStru(){
+  struDirty = false;
+  /* 블록 크기는 인스턴스 행렬 스케일로 준다 → 지오메트리는 여전히 타일당 하나,
+     즉 드로우콜은 예전 그대로다. 조각이 1칸을 넘지 않게 blocksOf가 미리 쪼개 준다. */
+  const byTile = new Map();
+  for(const o of STRU.values()){
+    const dmg = o.hp / o.mx;
+    for(const b of blocksOf(o.t, o.lv)){
+      if(!byTile.has(b[3])) byTile.set(b[3], []);
+      byTile.get(b[3]).push([o.x+b[0]+0.5, GY+0.5+b[1], o.z+b[2]+0.5, dmg,
+        b[4]===undefined?1:b[4], b[5]===undefined?1:b[5], b[6]===undefined?1:b[6], b[7]]);
+    }
+  }
+  for(const [tile, mesh] of struMeshes){
+    if(!byTile.has(tile)){ mesh.count = 0; mesh.instanceMatrix.needsUpdate = true; }
+  }
+  for(const [tile, arr] of byTile){
+    let mesh = struMeshes.get(tile);
+    if(!mesh || mesh.instanceMatrix.count < arr.length){
+      if(mesh){ scene.remove(mesh); mesh.dispose(); }
+      const cap = Math.max(96, Math.ceil(arr.length*1.6));
+      mesh = new THREE.InstancedMesh(cube(tile), tile===T.glow ? EMIT : MAT, cap);
+      mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap*3).fill(1),3);
+      mesh.frustumCulled = false; scene.add(mesh); struMeshes.set(tile, mesh);
+    }
+    for(let i=0;i<arr.length;i++){
+      const [x,y,z,dmg,bw,bh,bd,tint] = arr[i];
+      _v.set(x,y,z); _q.identity(); _s.set(bw,bh,bd);
+      mesh.setMatrixAt(i, _m.compose(_v,_q,_s));
+      const k = 0.35 + 0.65*dmg;      // 다칠수록 어두워지고
+      const hurt = 1 - dmg;             // 붉게 물든다
+      if(tint!==undefined){ _c1.set(tint);
+        _c1.setRGB(_c1.r*k*(1+hurt*0.30), _c1.g*k*(1-hurt*0.28), _c1.b*k*(1-hurt*0.32)); }
+      else _c1.setRGB(k*(1+hurt*0.34), k*0.92*(1-hurt*0.26), k*0.9*(1-hurt*0.32));
+      mesh.setColorAt(i, _c1);
+    }
+    mesh.count = arr.length;
+    mesh.instanceMatrix.needsUpdate = true;
+    if(mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  }
+}
+
+/* ═══════════════════════ 미리보기(고스트) ═══════════════════════ */
+const ghost = new THREE.Group(); scene.add(ghost);
+let ghostType = null;
+const ghostMatOK = new THREE.MeshBasicMaterial({color:0x7cf07c, transparent:true, opacity:.42, depthWrite:false});
+const ghostMatNO = new THREE.MeshBasicMaterial({color:0xff6b6b, transparent:true, opacity:.35, depthWrite:false});
+const ghostEdge  = new THREE.LineBasicMaterial({color:0xffffff, transparent:true, opacity:.65});
+function setGhost(t){
+  if(ghostType === t) return; ghostType = t;
+  ghost.clear();
+  if(!t) return;
+  for(const b of blocksOf(t, 1)){
+    const m = new THREE.Mesh(new THREE.BoxGeometry(
+      b[4]===undefined?1:b[4], b[5]===undefined?1:b[5], b[6]===undefined?1:b[6]), ghostMatOK);
+    m.position.set(b[0]+0.5, 0.5+b[1], b[2]+0.5); ghost.add(m);
+  }
+  const s = BUILD[t].size;
+  const box = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(s,0.06,s)), ghostEdge);
+  box.position.set(s===1?0.5:(s===2?1:0), 0.04, s===1?0.5:(s===2?1:0));
+  ghost.add(box);
+}
+function ghostSet(ok){ for(const c of ghost.children) if(c.isMesh) c.material = ok?ghostMatOK:ghostMatNO; }
+
+/* ═══════════════════════ 손에 든 도구 (1인칭) ═══════════════════════ */
+const held = new THREE.Group();
+held.position.set(0.50, -0.40, -0.74);
+held.scale.setScalar(0.60);
+held.frustumCulled = false;
+camera.add(held);
+
+function boxM(tile, w,h,d, x,y,z, mat){
+  const m = new THREE.Mesh(boxGeo(tile,tile,tile,tile,tile,tile, w,h,d), mat||MAT);
+  m.position.set(x,y,z); m.frustumCulled = false; m.renderOrder = 10; return m;
+}
+/* 양털 팔 + 도구 자루 + 머리 */
+function mkTool(headTile, headMat){
+  const g = new THREE.Group();
+  g.add(boxM(T.wool, 0.19,0.30,0.19, 0.01,-0.20,0.10));            // 양털 팔
+  g.add(boxM(T.bark, 0.075,0.56,0.075, 0.00,0.02,0.00));           // 자루
+  const hm = headMat || MAT;
+  g.add(boxM(headTile, 0.30,0.10,0.10, 0.00,0.28,0.00, hm));       // 머리 가로대
+  g.add(boxM(headTile, 0.09,0.09,0.09, -0.16,0.22,0.00, hm));      // 뾰족한 끝
+  g.add(boxM(headTile, 0.09,0.09,0.09,  0.16,0.22,0.00, hm));
+  g.rotation.set(-0.22, 0.46, 0.34);
+  return g;
+}
+const matRed  = new THREE.MeshLambertMaterial({map:ATLAS, color:0xff8a7a});
+const matGold = new THREE.MeshLambertMaterial({map:ATLAS, color:0xffe9a0});
+const HELD = {
+  mine:   mkTool(T.stone),                    // ⛏️ 곡괭이
+  repair: mkTool(T.plank),                    // 🔧 나무 망치
+  up:     mkTool(T.goldBlk, matGold),         // ⬆️ 금 망치
+  del:    mkTool(T.stone, matRed)             // 💥 붉은 곡괭이
+};
+for(const k in HELD){ HELD[k].visible = false; held.add(HELD[k]); }
+/* 건물을 들었을 때는 그 블록을 손에 든다 */
+const heldBlocks = {};
+for(const k of Object.keys(BUILD)){
+  const tile = blocksOf(k,1)[0][3];
+  const g = new THREE.Group();
+  g.add(boxM(T.wool, 0.19,0.30,0.19, -0.13,-0.22,0.10));
+  g.add(boxM(tile, 0.34,0.34,0.34, 0.02,0.02,0.00));
+  g.rotation.set(-0.14, 0.50, 0.16);
+  g.visible = false; held.add(g); heldBlocks[k] = g;
+}
+let heldCur = null;
+function setHeld(key){
+  if(heldCur === key) return; heldCur = key;
+  for(const k in HELD) HELD[k].visible = false;
+  for(const k in heldBlocks) heldBlocks[k].visible = false;
+  if(HELD[key]) HELD[key].visible = true;
+  else if(heldBlocks[key]) heldBlocks[key].visible = true;
+}
+let swingT = 0, bobT = 0;
+function swing(){ swingT = 1; }
+function updHeld(dt, mining, minePct){
+  setHeld(curTool === 'build' ? curBuild : curTool);
+  bobT += dt * (PL.mv ? 7.5 : 1.6);
+  let a;
+  if(mining){                       // 캘 때는 캐는 속도에 맞춰 계속 휘두른다
+    a = Math.sin(minePct * Math.PI);
+    swingT = 0;
+  } else {
+    if(swingT > 0) swingT -= dt/0.26;
+    a = swingT > 0 ? Math.sin((1-swingT) * Math.PI) : 0;
+  }
+  held.rotation.x = -a*1.25 + Math.sin(bobT)*0.012;
+  held.rotation.z =  a*0.42;
+  held.position.set(
+    0.50 + Math.sin(bobT)*0.012 - a*0.07,
+    -0.40 + Math.abs(Math.sin(bobT*2))*0.012 - a*0.07,
+    -0.74 + a*0.07);
+}
+
+/* ═══════════════════════ 파티클 ═══════════════════════ */
+const PN = 160;
+const pGeo = boxGeo(T.cloth,T.cloth,T.cloth,T.cloth,T.cloth,T.cloth, 0.17,0.17,0.17);
+const pMesh = new THREE.InstancedMesh(pGeo, new THREE.MeshLambertMaterial({map:ATLAS}), PN);
+pMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(PN*3).fill(1),3);
+pMesh.frustumCulled = false; scene.add(pMesh);
+const parts = []; for(let i=0;i<PN;i++) parts.push({t:0,x:0,y:0,z:0,vx:0,vy:0,vz:0,c:new THREE.Color()});
+let pI = 0;
+function burst(x,y,z,color,n=10,pow=1){
+  for(let i=0;i<n;i++){
+    const p = parts[pI = (pI+1)%PN];
+    p.t = 0.55+Math.random()*0.35; p.x=x; p.y=y; p.z=z;
+    p.vx=(Math.random()-.5)*4*pow; p.vy=1.6+Math.random()*3.4*pow; p.vz=(Math.random()-.5)*4*pow;
+    p.c.set(color);
+  }
+}
+function updParts(dt){
+  for(let i=0;i<PN;i++){
+    const p = parts[i];
+    if(p.t>0){ p.t-=dt; p.vy-=17*dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.z+=p.vz*dt;
+      if(p.y < GY+0.1){ p.y = GY+0.1; p.vy *= -0.32; p.vx*=.6; p.vz*=.6; } }
+    const sc = p.t>0 ? Math.min(1,p.t*3) : 0;
+    _v.set(p.x,p.y,p.z); _q.identity(); _s.set(sc,sc,sc);
+    pMesh.setMatrixAt(i, _m.compose(_v,_q,_s));
+    pMesh.setColorAt(i, p.c);
+  }
+  pMesh.instanceMatrix.needsUpdate = true; pMesh.instanceColor.needsUpdate = true;
+}
+
+/* 화살 */
+const AN = 60;
+const arrows = [];
+const aMesh = new THREE.InstancedMesh(
+  boxGeo(T.bark,T.bark,T.bark,T.bark,T.bark,T.bark, 0.1,0.1,1.0),
+  new THREE.MeshLambertMaterial({map:ATLAS, color:0xd8c8a0}), AN);
+aMesh.frustumCulled = false; scene.add(aMesh);
+for(let i=0;i<AN;i++) arrows.push({t:0,x:0,y:0,z:0,tx:0,ty:0,tz:0,d:1});
+let aI = 0;
+function shootArrow(x,y,z, tx,ty,tz){
+  const a = arrows[aI = (aI+1)%AN];
+  a.t = 1; a.x=x; a.y=y; a.z=z; a.tx=tx; a.ty=ty; a.tz=tz;
+  a.d = Math.max(0.1, Math.hypot(tx-x,ty-y,tz-z))/44;
+}
+/* 마법사 구슬 */
+const ON = 26;
+const orbs = [];
+const oMesh = new THREE.InstancedMesh(cube(T.crystal),
+  new THREE.MeshLambertMaterial({map:ATLAS, color:0xd9b6ff, emissive:0x8a4aff,
+    emissiveIntensity:1.4}), ON);
+oMesh.frustumCulled = false; oMesh.count = ON; scene.add(oMesh);
+for(let i=0;i<ON;i++) orbs.push({t:0,x:0,y:0,z:0,tx:0,ty:0,tz:0,d:1});
+let oI = 0;
+function shootOrb(x,y,z, tx,ty,tz){
+  const a = orbs[oI = (oI+1)%ON];
+  a.t = 1; a.x=x; a.y=y; a.z=z; a.tx=tx; a.ty=ty; a.tz=tz;
+  a.d = Math.max(0.1, Math.hypot(tx-x,ty-y,tz-z))/26;
+}
+function updOrbs(dt, tt){
+  for(let i=0;i<ON;i++){
+    const a = orbs[i];
+    if(a.t>0){ a.t -= dt/a.d; if(a.t<0) a.t=0; }
+    if(a.t<=0){ oMesh.setMatrixAt(i, ZEROM); continue; }
+    const k = 1-a.t;
+    const x = a.x+(a.tx-a.x)*k, y = a.y+(a.ty-a.y)*k + Math.sin(k*Math.PI)*0.5, z = a.z+(a.tz-a.z)*k;
+    const sc = 0.22 + Math.sin(tt*18+i)*0.04;
+    _v.set(x,y,z); _q.setFromAxisAngle(UPV, tt*6+i); _s.set(sc,sc,sc);
+    oMesh.setMatrixAt(i, _m.compose(_v,_q,_s));
+  }
+  oMesh.instanceMatrix.needsUpdate = true;
+}
+
+const _up2 = new THREE.Vector3(0,1,0), _dir = new THREE.Vector3(), _mm = new THREE.Matrix4();
+function updArrows(dt){
+  for(let i=0;i<AN;i++){
+    const a = arrows[i];
+    if(a.t>0){ a.t -= dt/a.d; if(a.t<0) a.t=0; }
+    if(a.t<=0){ aMesh.setMatrixAt(i, ZEROM); continue; }
+    const k = 1-a.t;
+    const x = a.x+(a.tx-a.x)*k, y = a.y+(a.ty-a.y)*k + Math.sin(k*Math.PI)*0.9, z = a.z+(a.tz-a.z)*k;
+    _dir.set(a.tx-a.x, a.ty-a.y, a.tz-a.z).normalize();
+    _mm.lookAt(new THREE.Vector3(0,0,0), _dir, _up2);
+    _q.setFromRotationMatrix(_mm);
+    _v.set(x,y,z); _s.set(1,1,1);
+    aMesh.setMatrixAt(i, _m.compose(_v,_q,_s));
+  }
+  aMesh.instanceMatrix.needsUpdate = true;
+}
+
+/* ═══════════════════════ 길찾기 (흐름장) ═══════════════════════ */
+const N2 = WS*WS;
+const fCost = new Float32Array(N2), fNext = new Int32Array(N2);
+const fExtra = new Float32Array(N2), fDone = new Uint8Array(N2);
+const HCAP = N2*6;
+const heapV = new Float32Array(HCAP), heapI = new Int32Array(HCAP);
+let heapN = 0;
+function hPush(c,i){ if(heapN>=HCAP) return; let k=heapN++; heapV[k]=c; heapI[k]=i;
+  while(k>0){ const p=(k-1)>>1; if(heapV[p]<=heapV[k]) break;
+    const tv=heapV[p],ti=heapI[p]; heapV[p]=heapV[k];heapI[p]=heapI[k]; heapV[k]=tv;heapI[k]=ti; k=p; } }
+function hPop(){ const ri=heapI[0]; heapN--;
+  if(heapN>0){ heapV[0]=heapV[heapN]; heapI[0]=heapI[heapN];
+    let k=0; for(;;){ let l=k*2+1,r=l+1,m=k;
+      if(l<heapN&&heapV[l]<heapV[m])m=l; if(r<heapN&&heapV[r]<heapV[m])m=r;
+      if(m===k)break; const tv=heapV[m],ti=heapI[m]; heapV[m]=heapV[k];heapI[m]=heapI[k];
+      heapV[k]=tv;heapI[k]=ti; k=m; } }
+  return ri; }
+
+const NB = [[1,0,1],[-1,0,1],[0,1,1],[0,-1,1],[1,1,1.41],[1,-1,1.41],[-1,1,1.41],[-1,-1,1.41]];
+function walkable(x,z){
+  if(!inW(x,z)) return false;
+  const t = terrH[gi(x,z)];
+  return t >= GY && t <= GY+1;
+}
+function buildFlow(){
+  fCost.fill(Infinity); fNext.fill(-1); fExtra.fill(0); fDone.fill(0); heapN = 0;
+  for(const o of STRU.values())
+    for(const [cx,cz] of footprint(o.t,o.x,o.z))
+      if(inW(cx,cz)) fExtra[gi(cx,cz)] = 8 + o.hp*0.05;
+  for(let z=-3;z<=3;z++) for(let x=-3;x<=3;x++){
+    const i = gi(x,z); if(fCost[i]===0) continue; fCost[i]=0; hPush(0,i);
+  }
+  while(heapN>0){
+    const i = hPop();
+    if(fDone[i]) continue;
+    fDone[i] = 1;
+    const c = fCost[i];
+    const x = (i%WS)-HW, z = ((i/WS)|0)-HW;
+    for(const [dx,dz,w] of NB){
+      const nx=x+dx, nz=z+dz; if(!walkable(nx,nz)) continue;
+      if(dx&&dz && (!walkable(x+dx,z)||!walkable(x,z+dz))) continue;
+      const j = gi(nx,nz);
+      if(fDone[j]) continue;
+      const nc = c + w + fExtra[j];
+      if(nc < fCost[j]){ fCost[j] = nc; fNext[j] = i; hPush(nc, j); }
+    }
+  }
+}
+function flowStep(x,z){
+  const i = gi(x,z), j = fNext[i];
+  if(j < 0) return null;
+  return [(j%WS)-HW, ((j/WS)|0)-HW];
+}
+
+/* ═══════════════════════ 몹 렌더러 ═══════════════════════ */
+const MAXW = 92, MAXS = 96, MAXP = 40;   // 늑대 렌더 상한 (waveCap + 보스 + 부하보다 커야 함)
+function imesh(geo, mat, cap, color){
+  const m = new THREE.InstancedMesh(geo, mat, cap);
+  if(color){ m.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap*3).fill(1),3); }
+  m.frustumCulled = false; m.count = 0; scene.add(m); return m;
+}
+const gFur=cube(T.fur), gFurD=cube(T.furDark), gWool=cube(T.wool), gWoolD=cube(T.woolDirty),
+      gEye=cube(T.eye), gSnout=cube(T.snout), gDark=cube(T.dark);
+/* 눈 — 밤이 되면 스스로 타오른다. 어둠 속에서 눈만 여럿 다가오는 게 제일 무섭다. */
+const eyeMat = new THREE.MeshLambertMaterial({map:ATLAS, emissive:0xff3300, emissiveIntensity:0.0});
+const W_body = imesh(gFur, MAT, MAXW, 1), W_head = imesh(gFur, MAT, MAXW, 1),
+      W_snout= imesh(gFurD,MAT, MAXW, 1), W_tail = imesh(gFur, MAT, MAXW, 1),
+      W_legs = imesh(gFurD,MAT, MAXW*4, 1), W_eyes = imesh(gEye, eyeMat, MAXW*2, 1),
+      W_ears = imesh(gFurD,MAT, MAXW*2, 1),
+      W_chest= imesh(gFur, MAT, MAXW, 1),        // 어깨 — 실루엣에 무게를 준다
+      W_hack = imesh(gFurD,MAT, MAXW*3, 1),      // 등갈기 — 화나면 솟는다
+      W_paw  = imesh(gDark,MAT, MAXW*4, 1),      // 앞발
+      W_horn = imesh(cube(T.wool), MAT, 12, 1),
+      W_nose = imesh(gDark, MAT, MAXW, 1),      // 검은 코끝 — 늑대 인상의 핵심
+      W_ruff = imesh(gFurD, MAT, MAXW, 1);      // 목덜미 갈기
+const auraMat = new THREE.MeshBasicMaterial({color:0xff4444, transparent:true, opacity:.24,
+  depthWrite:false, side:THREE.DoubleSide});
+const W_aura = new THREE.InstancedMesh(new THREE.RingGeometry(1.6, 3.4, 20), auraMat, 6);
+W_aura.frustumCulled = false; W_aura.count = 0; scene.add(W_aura);
+const S_body = imesh(gWool,MAT, MAXS, 1), S_head = imesh(gWoolD,MAT,MAXS,1),
+      S_legs = imesh(gDark,MAT, MAXS*4, 1), S_spear= imesh(cube(T.logSide),MAT,MAXS,1),
+      S_helm = imesh(cube(T.sbrick),MAT,MAXS,1), S_tip = imesh(cube(T.stone),MAT,MAXS,1),
+      S_face = imesh(gEye, MAT, MAXS*2, 1),
+      S_bodyA= imesh(cube(T.sbrick),MAT,MAXS,1),      // 갑옷 몸통
+      S_crest= imesh(cube(T.roofRed),MAT,MAXS,1),     // 투구 깃털
+      S_shield=imesh(cube(T.plank),MAT,MAXS,1),       // 방패
+      S_hat  = imesh(cube(T.cloth),MAT,MAXS*3,1),     // 마법사 고깔
+      S_orb  = imesh(cube(T.crystal),
+        new THREE.MeshLambertMaterial({map:ATLAS, color:0xd9b6ff,
+          emissive:0x8a4aff, emissiveIntensity:1.5}), MAXS, 1);
+/* 플레이어(양) — 부위를 늘려 귀엽게. 큐브 하나 = 12삼각형이라
+   22명 × 부위 7개 늘려도 2천 삼각형(전체의 0.8%)뿐이다. */
+const P_body = imesh(gWool, MAT, MAXP,   1),   // 몸통
+      P_puff = imesh(gWoolD,MAT, MAXP,   1),   // 등에 얹은 털뭉치
+      P_head = imesh(gWoolD,MAT, MAXP,   1),   // 얼굴
+      P_frng = imesh(gWoolD,MAT, MAXP,   1),   // 이마 앞머리
+      P_ear  = imesh(gWoolD,MAT, MAXP*2, 1),   // 귀 2개
+      P_eye  = imesh(gEye,  MAT, MAXP*2, 1),   // 눈 2개
+      P_nose = imesh(gSnout,MAT, MAXP,   1),   // 코
+      P_tail = imesh(gWoolD,MAT, MAXP,   1),   // 꼬리
+      P_legs = imesh(gDark, MAT, MAXP*4, 1);   // 다리 4개
+
+function setI(mesh, idx, x,y,z, ry, sx,sy,sz, col){
+  _v.set(x,y,z); _q.setFromAxisAngle(UPV, ry); _s.set(sx,sy,sz);
+  mesh.setMatrixAt(idx, _m.compose(_v,_q,_s));
+  if(col!==undefined && mesh.instanceColor){ _c1.set(col); mesh.setColorAt(idx, _c1); }
+}
+/* 좌우 회전(ry) + 앞뒤 기울임(rx). YXZ 순서라 rx는 "바라보는 방향 기준" 피치가 된다. */
+const _eu = new THREE.Euler(0,0,0,'YXZ');
+function setIR(mesh, idx, x,y,z, ry, rx, sx,sy,sz, col){
+  _v.set(x,y,z); _eu.set(rx, ry, 0, 'YXZ'); _q.setFromEuler(_eu); _s.set(sx,sy,sz);
+  mesh.setMatrixAt(idx, _m.compose(_v,_q,_s));
+  if(col!==undefined && mesh.instanceColor){ _c1.set(col); mesh.setColorAt(idx, _c1); }
+}
+function flush(...ms){ for(const m of ms){ m.instanceMatrix.needsUpdate = true;
+  if(m.instanceColor) m.instanceColor.needsUpdate = true; } }
+
+const fxq = (r)=> Math.sin(r), fzq = (r)=> Math.cos(r);
+/* 늑대 렌더 */
+const WOLF_T = [
+  //                                dmg = 건물 부수는 힘 / cd = 수정 깎는 힘
+  {n:'늑대',      hp:34, spd:2.6, dmg:9,  cd:1.3, sc:1.00, col:0x9aa0a8},
+  {n:'날쌘늑대',  hp:22, spd:4.5, dmg:6,  cd:1.0, sc:0.80, col:0xc8b090},
+  {n:'큰늑대',    hp:130,spd:1.9, dmg:24, cd:2.8, sc:1.52, col:0x6d7078},
+  {n:'👑 우두머리 늑대', hp:1,spd:1.75,dmg:34, cd:2.2, sc:2.30, col:0x59475e, boss:1},
+  {n:'🔥 불꽃 늑대',    hp:1,spd:1.95,dmg:46, cd:2.8, sc:2.55, col:0xa84a32, boss:2},
+  {n:'❄️ 눈보라 대장',  hp:1,spd:1.70,dmg:50, cd:3.0, sc:2.90, col:0x3f6a96, boss:3},
+  {n:'🌑 늑대왕',      hp:1,spd:1.62,dmg:62, cd:3.0, sc:3.40, col:0x2e2340, boss:4}
+];
+const isBoss = k => k >= 3;
+function drawWolves(list, t, dt){
+  dt = Math.min(0.05, dt || 0.016);
+  let n=0, ln=0, en=0, hn=0, pn=0;
+  // 밤이 깊을수록 눈이 타오른다
+  eyeMat.emissiveIntensity = 0.15 + NIGHTK*1.55;
+  for(const w of list){
+    if(n>=MAXW) break;
+    const d = WOLF_T[w.k], sc = w.sc || d.sc;
+    const gy = (topAt(Math.floor(w.x), Math.floor(w.z))||GY);
+    const y = (gy>900?GY:gy) + 0.02;
+    const ry = w.ry;
+    const fx = Math.sin(ry), fz = Math.cos(ry);
+    const rx = Math.cos(ry), rz = -Math.sin(ry);
+
+    /* 공격성 — 멈춰서 물기 시작하면 서서히 1로 차오른다. 등갈기가 이걸 따라 솟는다. */
+    w.ag = (w.ag===undefined ? 0 : w.ag) + ((w.mv?0:1) - (w.ag||0)) * Math.min(1, dt*5.0);
+    const ag = w.ag;
+
+    /* 걸음 — 대각선 걸음(트로트). 앞왼+뒤오른 / 앞오른+뒤왼이 한 쌍으로 움직인다.
+       개체마다 위상(ph)이 달라서 무리가 한 몸처럼 움직이지 않는다. */
+    w.gt = (w.gt||0) + dt * (6.4 + d.spd*2.0) * (w.mv?1:0.12);
+    const gait = w.gt + w.ph, stride = w.mv ? 1 : 0.12;
+
+    /* 물기 — 확 튀어나갔다 천천히 돌아온다.
+       손님 화면에는 atkT가 안 오므로 시간으로 흉내 낸다. */
+    let ap;
+    if(w.atkT !== undefined) ap = (!w.mv && w.atkT > 0) ? (0.85 - w.atkT)/0.85 : 1;
+    else ap = w.mv ? 1 : ((t*1.18 + w.ph*0.37) % 1);
+    const bite = ap < 0.34 ? Math.sin(Math.pow(ap/0.34, 0.60)*Math.PI) : 0;
+
+    const col = w.hurt>0 ? 0xff8080 : (w.col!==undefined ? w.col : d.col);
+    const bx = fx*bite*0.42*sc, bz = fz*bite*0.42*sc;
+    const bob   = stride * Math.abs(Math.sin(gait)) * 0.060 * sc;   // 상하 반동
+    const roll  = stride * Math.sin(gait) * 0.05;                    // 좌우 흔들림
+    const lean  = -(stride*0.12 + bite*0.34 + ag*0.06);              // 달릴수록 앞으로 기움
+
+    /* 몸통 — 모든 부위가 같은 bob을 써야 걸을 때 서로 어긋나지 않는다 */
+    setIR(W_body, n, w.x+bx*0.40, y+0.70*sc + bob, w.z+bz*0.40,
+      ry + roll, lean, 0.72*sc, (0.64-bite*0.05)*sc, (1.34+bite*0.14)*sc, col);
+    /* 어깨 — 몸통 앞면(0.67) 안쪽에 완전히 파묻는다. 살짝 튀어나오면 면끼리 지글거린다. */
+    setIR(W_chest, n, w.x+fx*0.36*sc+bx*0.72, y+(0.80+bite*0.02)*sc + bob, w.z+fz*0.36*sc+bz*0.72,
+      ry + roll, lean, (0.86+ag*0.03)*sc, (0.72+ag*0.03)*sc, 0.54*sc, col);
+
+    /* 목덜미 갈기 — 어깨와 머리 사이를 메워 목이 굵어 보이게.
+       늑대는 목·어깨가 두껍고 엉덩이가 가늘다. 이 실루엣이 개와 다른 점이다. */
+    setIR(W_ruff, n, w.x+fx*0.60*sc+bx*0.86, y+(0.86+bite*0.02)*sc + bob, w.z+fz*0.60*sc+bz*0.86,
+      ry + roll, lean, (0.92+ag*0.06)*sc, (0.80+ag*0.05)*sc, 0.30*sc, col);
+
+    /* ── 머리 뭉치 ──
+       주둥이·눈·귀는 "머리에 붙은 것"이라 머리가 숙이고 돌면 같이 따라가야 한다.
+       예전엔 눈이 제자리에 고정돼 있어서 걸을 때마다 머리 면과 겹쳐 화면이 지글거렸다.  */
+    const hnod = stride*Math.sin(gait*2 + 0.7)*0.035*sc;
+    const hYaw = ry + roll*0.5;
+    const hPit = lean*0.4 - bite*0.42;
+    const cph = Math.cos(hPit), sph = Math.sin(hPit);
+    const hfx = Math.sin(hYaw), hfz = Math.cos(hYaw);      // 머리 기준 '앞'
+    const hrx = Math.cos(hYaw), hrz = -Math.sin(hYaw);     // 머리 기준 '오른쪽'
+    // 머리 중심 — 뒷면(-0.31)이 몸통 앞면(0.67) 안으로 파묻히도록 0.90에 둔다
+    const hx0 = w.x + fx*0.90*sc + bx,
+          hy0 = y + (0.96-bite*0.30)*sc + bob + hnod,
+          hz0 = w.z + fz*0.90*sc + bz;
+    /* 머리 안쪽 좌표(앞 f · 위 u · 옆 s) → 화면 좌표 */
+    const HX=(f,u,s)=> hx0 + hfx*cph*f + hfx*sph*u + hrx*s;
+    const HY=(f,u)  => hy0 - sph*f + cph*u;
+    const HZ=(f,u,s)=> hz0 + hfz*cph*f + hfz*sph*u + hrz*s;
+
+    setIR(W_head, n, hx0, hy0, hz0, hYaw, hPit,
+      0.60*sc, (0.58+bite*0.10)*sc, 0.62*sc, col);
+    /* 주둥이 — 뒤쪽 절반이 머리 속에 박히게 */
+    /* 크게 벌릴수록 앞으로 나가되, 그만큼 길어져야 머리에서 떨어지지 않는다 */
+    /* 주둥이 — 길고 좁게. 늑대는 개보다 주둥이가 길다. */
+    const snL = (0.56+bite*0.14)*sc;                  // 길이
+    const snF = (0.48+bite*0.10)*sc, snU = -0.10*sc;  // 뒤쪽 절반이 머리에 박히게
+    setIR(W_snout, n, HX(snF,snU,0), HY(snF,snU), HZ(snF,snU,0), hYaw, hPit,
+      0.28*sc, (0.23+bite*0.12)*sc, snL, col);
+    /* 코끝 — 주둥이 맨 앞에 붙이는 까만 점 */
+    const noF = snF + snL*0.5 - 0.03*sc, noU = snU + 0.05*sc;
+    setIR(W_nose, n, HX(noF,noU,0), HY(noF,noU), HZ(noF,noU,0), hYaw, hPit,
+      0.20*sc, 0.15*sc, 0.10*sc, 0x14121a);
+    /* 귀 — 머리 위에 절반 박아 넣는다 */
+    for(const si of [1,-1]){
+      const eF = -0.10*sc, eU = 0.34*sc;
+      setIR(W_ears, en++, HX(eF,eU,0.22*sc*si), HY(eF,eU), HZ(eF,eU,0.22*sc*si),
+        hYaw + si*0.12, hPit - 0.15 + ag*0.75, 0.16*sc, 0.30*sc, 0.10*sc, col);
+    }
+    en -= 2;
+    /* 눈 — 머리 앞면(0.31)보다 0.09만큼 확실히 튀어나오게. 딱 붙이면 깊이값이 겹쳐 깜빡인다. */
+    const ec = w.k>=3 ? 0xff2a2a : (w.k===1 ? 0xffc93a : 0xff6a2a);
+    for(const si of [1,-1]){
+      const yF = 0.34*sc, yU = 0.19*sc, yS = 0.17*sc*si;
+      setIR(W_eyes, en++, HX(yF,yU,yS), HY(yF,yU), HZ(yF,yU,yS), hYaw, hPit,
+        0.15*sc, 0.13*sc, 0.12*sc, ec);
+    }
+
+    /* 꼬리 — 몸보다 한 박자 늦게 따라 흔들린다 */
+    const tw = Math.sin(gait - 1.1)*0.30*stride + ag*0.10;
+    setIR(W_tail, n, w.x-fx*0.94*sc + rx*tw*0.30*sc, y+(0.88+bite*0.18+ag*0.10)*sc + bob,
+      w.z-fz*0.94*sc + rz*tw*0.30*sc, ry + tw*0.55, -0.30 - ag*0.35,
+      0.27*sc,0.27*sc,0.78*sc, col);
+
+    /* 다리 — 대각선 걸음(앞왼+뒤오른 / 앞오른+뒤왼) + 앞으로 나갈 때 살짝 들린다 */
+    const legPh = [0, Math.PI, Math.PI, 0];
+    let li = 0;
+    for(const [fo,si] of [[0.52,1],[0.52,-1],[-0.50,1],[-0.50,-1]]){
+      const p  = gait + legPh[li];
+      const sw = Math.sin(p) * stride;
+      const lift = Math.max(0, Math.sin(p)) * stride * 0.13 * sc;
+      const px = w.x + fx*fo*sc + rx*0.29*sc*si + fx*sw*0.22*sc;
+      const pz = w.z + fz*fo*sc + rz*0.29*sc*si + fz*sw*0.22*sc;
+      const th = sw*0.34, cth = Math.cos(th), sth = Math.sin(th);
+      const lh = (0.68-lift*0.5)*sc, lcy = y + 0.34*sc + lift + bob*0.35;
+      setIR(W_legs, ln, px, lcy, pz, ry, th, 0.19*sc, lh, 0.19*sc, col);
+      /* 발 — 다리가 흔들리는 각도를 그대로 받아 발끝에 붙는다 */
+      const hh = lh*0.5 - 0.06*sc;
+      setIR(W_paw, pn++, px - fx*sth*hh, lcy - cth*hh, pz - fz*sth*hh,
+        ry, th, 0.23*sc, 0.15*sc, 0.27*sc, 0x2b2b30);
+      ln++; li++;
+    }
+
+    /* 등갈기 — 물기 직전에 솟는다. 곧 덤빈다는 예고. */
+    for(let h=0; h<3; h++){
+      const fo = 0.30 - h*0.40;
+      const up = (0.20 + ag*0.34) * sc;
+      setIR(W_hack, hn++, w.x+fx*fo*sc, y+0.94*sc + bob + up*0.5, w.z+fz*fo*sc,
+        ry + roll, lean, 0.11*sc, up, (0.30-h*0.04)*sc, 0x3a3236);
+    }
+
+    n++;
+  }
+  // 보스 — 뿔과 발밑 붉은 오라
+  let bn=0;
+  for(const w of list){
+    if(w.k < 3 || bn>=6) continue;
+    const d = WOLF_T[w.k], sc = w.sc || d.sc;
+    const gy2 = topAt(Math.floor(w.x), Math.floor(w.z));
+    const y2 = (gy2>900?GY:gy2) + 0.02;
+    const fx = Math.sin(w.ry), fz = Math.cos(w.ry);
+    const rx = Math.cos(w.ry), rz = -Math.sin(w.ry);
+    for(const si of [1,-1]){
+      setIR(W_horn, bn*2 + (si>0?0:1), w.x+fx*0.86*sc+rx*0.26*sc*si, y2+1.48*sc,
+        w.z+fz*0.86*sc+rz*0.26*sc*si, w.ry, -0.34, 0.15*sc, 0.46*sc, 0.15*sc, 0xf2e6cf);
+    }
+    _v.set(w.x, y2+0.06, w.z); _q.setFromAxisAngle(new THREE.Vector3(1,0,0), -Math.PI/2);
+    const pulse = 0.72 + Math.sin(t*3.1)*0.06;
+    _s.set(sc*pulse, sc*pulse, 1);
+    W_aura.setMatrixAt(bn, _m.compose(_v,_q,_s));
+    bn++;
+  }
+  W_horn.count = bn*2; W_aura.count = bn;
+  W_aura.instanceMatrix.needsUpdate = true;
+  W_body.count=n; W_chest.count=n; W_head.count=n; W_snout.count=n; W_tail.count=n;
+  W_nose.count=n; W_ruff.count=n;
+  W_legs.count=ln; W_paw.count=pn; W_eyes.count=en; W_ears.count=en; W_hack.count=hn;
+  flush(W_body,W_chest,W_head,W_snout,W_tail,W_legs,W_paw,W_eyes,W_ears,W_hack,W_horn,W_nose,W_ruff);
+}
+/* 병정 양 — 창병 / 갑옷병 / 마법사 세 종류 */
+function drawSoldiers(list, t){
+  let nB=0, nA=0, ln=0, en=0, nHelm=0, nCrest=0, nShield=0, nHat=0, nOrb=0, nSp=0, nTip=0, nHead=0;
+  for(const s of list){
+    if(nHead>=MAXS) break;
+    const k = s.k||0, D = SOL_DEF[k], sc = D.sc;
+    const y = s.y!==undefined ? s.y : GY;
+    const ry = s.ry||0;
+    const fx = Math.sin(ry), fz = Math.cos(ry), rx = Math.cos(ry), rz = -Math.sin(ry);
+    const walk = s.mv ? Math.sin(t*11 + (s.ph||0))*0.5 : 0;
+    const idle = Math.sin(t*2.4 + (s.ph||0))*0.02;
+    const ap = (s.atkT > 0) ? (D.rate - s.atkT)/D.rate : 1;
+    const jab = ap < 0.40 ? Math.sin(ap/0.40*Math.PI) : 0;
+    const hurt = (s.hurt||0) > 0;
+    const wool = hurt ? 0xffb0b0 : 0xffffff;
+
+    // 몸통 — 갑옷병은 금속, 나머지는 양털
+    if(k===1) setI(S_bodyA, nA++, s.x, y+(0.62+idle)*sc, s.z, ry,
+                   1.16*sc, 1.02*sc, 1.30*sc, hurt?0xffb0b0:0xb9c2cc);
+    else      setI(S_body,  nB++, s.x, y+(0.62+idle)*sc, s.z, ry,
+                   1.16*sc, 1.02*sc, 1.30*sc, wool);
+
+    // 머리 + 눈
+    const hy = y+(0.92+idle)*sc;
+    setI(S_head, nHead, s.x+fx*0.68*sc, hy, s.z+fz*0.68*sc, ry,
+         0.56*sc,0.54*sc,0.50*sc, hurt?0xffb0b0:0xe8e2d4);
+    for(const si of [1,-1]) setI(S_face, en++, s.x+fx*0.93*sc+rx*0.16*sc*si, hy+0.06*sc,
+        s.z+fz*0.93*sc+rz*0.16*sc*si, ry, 0.11*sc,0.13*sc,0.08*sc, 0xffffff);
+
+    if(k===2){
+      // 마법사 — 보라 고깔모자 3단
+      const hc = 0xa678e8;
+      setI(S_hat, nHat++, s.x+fx*0.60*sc, hy+0.32*sc, s.z+fz*0.60*sc, ry, 0.72*sc,0.16*sc,0.70*sc, hc);
+      setI(S_hat, nHat++, s.x+fx*0.58*sc, hy+0.52*sc, s.z+fz*0.58*sc, ry, 0.44*sc,0.26*sc,0.44*sc, hc);
+      setI(S_hat, nHat++, s.x+fx*0.56*sc, hy+0.72*sc, s.z+fz*0.56*sc, ry, 0.20*sc,0.22*sc,0.20*sc, hc);
+      // 지팡이 + 구슬
+      const sx = s.x + fx*(0.34+jab*0.40)*sc + rx*0.46*sc;
+      const sz = s.z + fz*(0.34+jab*0.40)*sc + rz*0.46*sc;
+      setI(S_spear, nSp++, sx, y+(0.86)*sc, sz, ry, 0.10*sc, 1.72*sc, 0.10*sc, 0x9a7a52);
+      setI(S_orb, nOrb++, sx, y+(1.76)*sc, sz, ry,
+           (0.30+jab*0.14)*sc, (0.30+jab*0.14)*sc, (0.30+jab*0.14)*sc, 0xffffff);
+    } else {
+      // 투구
+      setI(S_helm, nHelm++, s.x+fx*0.62*sc, hy+0.34*sc, s.z+fz*0.62*sc, ry,
+           (k===1?0.70:0.64)*sc, (k===1?0.34:0.28)*sc, (k===1?0.66:0.60)*sc,
+           k===1?0xdfe4ea:0xc9ccd2);
+      if(k===1){  // 갑옷병 투구 깃털 + 방패
+        setI(S_crest, nCrest++, s.x+fx*0.60*sc, hy+0.60*sc, s.z+fz*0.60*sc, ry,
+             0.14*sc, 0.30*sc, 0.52*sc, 0xffffff);
+        setI(S_shield, nShield++, s.x+fx*0.30*sc - rx*0.52*sc, y+0.66*sc,
+             s.z+fz*0.30*sc - rz*0.52*sc, ry, 0.16*sc, 0.78*sc, 0.66*sc, 0xd8b06a);
+      }
+      // 창
+      const px = s.x + fx*(0.55+jab*0.85)*sc + rx*0.46*sc;
+      const pz = s.z + fz*(0.55+jab*0.85)*sc + rz*0.46*sc;
+      setI(S_spear, nSp++, px, y+(0.95-jab*0.18)*sc, pz, ry, 0.10*sc, 0.10*sc, 1.55*sc, 0xffffff);
+      setI(S_tip,   nTip++, px+fx*0.86*sc, y+(0.95-jab*0.18)*sc, pz+fz*0.86*sc, ry,
+           0.15*sc, 0.15*sc, 0.34*sc, 0xdfe4ea);
+    }
+    // 짧고 통통한 다리
+    let li=0;
+    for(const [fo,si] of [[0.36,1],[0.36,-1],[-0.36,1],[-0.36,-1]]){
+      const sw = (li<2 ? walk : -walk);
+      setI(S_legs, ln++, s.x+fx*fo*sc+rx*0.34*sc*si+fx*sw*0.16*sc, y+0.17*sc,
+           s.z+fz*fo*sc+rz*0.34*sc*si+fz*sw*0.16*sc, ry, 0.20*sc,0.36*sc,0.20*sc, 0x55504a);
+      li++;
+    }
+    nHead++;
+  }
+  S_body.count=nB; S_bodyA.count=nA; S_head.count=nHead; S_face.count=en;
+  S_legs.count=ln; S_helm.count=nHelm; S_crest.count=nCrest; S_shield.count=nShield;
+  S_hat.count=nHat; S_orb.count=nOrb; S_spear.count=nSp; S_tip.count=nTip;
+  flush(S_body,S_bodyA,S_head,S_face,S_legs,S_helm,S_crest,S_shield,S_hat,S_orb,S_spear,S_tip);
+}
+
+/* 친구들(플레이어) — 모둠 색 양 */
+/* 플레이어(양) 그리기.
+   ★ 방향 주의 — 플레이어의 전방은 (-sin(yaw), -cos(yaw)) 다 (2403줄 updPlayer 참고).
+     늑대·병사는 atan2(dx,dz) 라 (+sin,+cos) 로 정반대다.
+     예전엔 여기서 늑대 규칙을 써서 양이 통째로 뒤를 보고 있었다.
+     ry 에 PI 를 더해 한 번에 맞춘다. */
+/* 색을 흰쪽으로 밝힌다 — 털뭉치를 몸통보다 밝게 해서 복슬복슬해 보이게 */
+const lighten = (c,k)=>{ const r=(c>>16)&255, g=(c>>8)&255, b=c&255,
+  m=v=>Math.min(255, Math.round(v + (255-v)*k));
+  return (m(r)<<16)|(m(g)<<8)|m(b); };
+
+function drawSheep(list, t, cap, colOf, scale){
+  let n=0, ln=0, earN=0, eyeN=0;
+  for(const s of list){
+    if(n>=cap) break;
+    const y  = s.y!==undefined ? s.y : GY;
+    const sc = scale;
+    const ry = (s.ry||0) + Math.PI;                 // ★ 전방 보정
+    const fx = Math.sin(ry), fz = Math.cos(ry);     // 앞
+    const rx = Math.cos(ry), rz = -Math.sin(ry);    // 오른쪽
+    const walk = s.mv ? Math.sin(t*8 + (s.ph||0))*0.5 : 0;
+    const bob  = s.mv ? Math.abs(Math.sin(t*8 + (s.ph||0)))*0.035*sc : 0;
+    const col  = colOf(s);
+    const wool = lighten(col, 0.34);                // 털뭉치
+    const frng = lighten(col, 0.20);                // 앞머리
+    /* 양 기준 좌표(앞 f · 옆 sd) → 화면 좌표 */
+    const X=(f,sd)=> s.x + fx*f*sc + rx*sd*sc;
+    const Z=(f,sd)=> s.z + fz*f*sc + rz*sd*sc;
+    const Y=(u)=> y + u*sc + bob;
+
+    // 몸통 — 작고 낮게. 덩치는 위에 얹는 털뭉치가 만든다.
+    setI(P_body, n, X(0,0), Y(0.60), Z(0,0), ry, 0.88*sc, 0.70*sc, 1.04*sc, col);
+    // 등털 — 몸통보다 넓게 빼서 처마처럼 걸치게 하면 복슬복슬해 보인다
+    setI(P_puff, n, X(-0.06,0), Y(1.02), Z(-0.06,0), ry, 1.08*sc, 0.62*sc, 1.20*sc, wool);
+    // 얼굴
+    setI(P_head, n, X(0.74,0), Y(1.04), Z(0.74,0), ry, 0.60*sc, 0.58*sc, 0.54*sc, 0xf4efe3);
+    // 앞머리 — 이마에 얹은 털. 이게 있어야 양처럼 보인다.
+    setI(P_frng, n, X(0.76,0), Y(1.34), Z(0.76,0), ry, 0.58*sc, 0.22*sc, 0.32*sc, frng);
+    // 귀 — 양옆으로 축 늘어뜨린다
+    for(const si of [1,-1])
+      setIR(P_ear, earN++, X(0.66,0.37*si), Y(1.08), Z(0.66,0.37*si),
+        ry, 0.70, 0.17*sc, 0.27*sc, 0.13*sc, 0xe9dfd0);
+    // 눈 — 얼굴 앞면보다 확실히 튀어나오게(딱 붙이면 깊이가 겹쳐 깜빡인다)
+    for(const si of [1,-1])
+      setI(P_eye, eyeN++, X(1.03,0.16*si), Y(1.10), Z(1.03,0.16*si), ry,
+        0.13*sc, 0.15*sc, 0.06*sc, 0x241f1c);
+    // 코
+    setI(P_nose, n, X(1.03,0), Y(0.90), Z(1.03,0), ry, 0.22*sc, 0.14*sc, 0.07*sc, 0xe3a6a0);
+    // 꼬리 — 뒤에 붙은 털뭉치
+    setI(P_tail, n, X(-0.62,0), Y(0.94), Z(-0.62,0), ry, 0.30*sc, 0.30*sc, 0.22*sc, wool);
+    // 다리
+    let li=0;
+    for(const [fo,si] of [[0.32,1],[0.32,-1],[-0.32,1],[-0.32,-1]]){
+      const sw = (li<2 ? walk : -walk);
+      setI(P_legs, ln++, X(fo + sw*0.16, 0.28*si), y+0.21*sc, Z(fo + sw*0.16, 0.28*si),
+        ry, 0.18*sc, 0.44*sc, 0.18*sc, 0x55504a); li++;
+    }
+    n++;
+  }
+  P_body.count=n; P_puff.count=n; P_head.count=n; P_frng.count=n; P_nose.count=n;
+  P_tail.count=n; P_ear.count=earN; P_eye.count=eyeN; P_legs.count=ln;
+  flush(P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_tail,P_legs);
+}
+
+/* 이름표 */
+const tagPool = [];
+function tagSprite(){
+  const c = document.createElement('canvas'); c.width=256; c.height=64;
+  const tx = new THREE.CanvasTexture(c);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:tx, depthTest:false, transparent:true}));
+  sp.scale.set(3.2,0.8,1); sp.renderOrder = 999; scene.add(sp); sp.visible=false;
+  return {c, tx, sp, txt:''};
+}
+function setTag(t, text, color){
+  if(t.txt === text+color) return; t.txt = text+color;
+  const g = t.c.getContext('2d'); g.clearRect(0,0,256,64);
+  g.font = '900 34px -apple-system, "Noto Sans KR", sans-serif';
+  g.textAlign='center'; g.textBaseline='middle';
+  g.lineWidth = 8; g.strokeStyle='rgba(0,0,0,.8)'; g.strokeText(text,128,34);
+  g.fillStyle = color; g.fillText(text,128,34);
+  t.tx.needsUpdate = true;
+}
+
+/* ═══════════════════════ 게임 상태 ═══════════════════════ */
+const D = window.DEFAULTS;
+const G = {
+  phase:'title', day:1, t:0, crystal:D.crystalMax, sub:0,
+  set:{daySec:D.daySec, nightSec:D.nightSec, goalDay:D.goalDay,
+       crystalMax:D.crystalMax, wolfPower:D.wolfPower},
+  res:[], me:{name:'', g:0, uid:''}, host:false, solo:false, room:'', focus:0,
+  wolves:[], soldiers:[], players:new Map(), stats:new Map(), started:false,
+  bossTier:-1, bossId:0
+};
+for(let i=0;i<NG;i++) G.res.push({w:30,s:20,g:0});
+const myRes = ()=> G.res[G.me.g];
+
+/* ═══════════════════════ 플레이어 ═══════════════════════ */
+const PL = { x:0, y:GY, z:0, vy:0, yaw:0, pitch:0, ground:true, R:0.36, EYE:1.58, mv:false };
+function solidTop(x,z){
+  if(!inW(x,z)) return 999;
+  const i = gi(x,z); const t = Math.max(terrH[i], bldH[i]);
+  return t < -900 ? 999 : t;
+}
+function groundUnder(x,z,R){
+  let m = -999;
+  for(const [ox,oz] of [[-R,-R],[R,-R],[-R,R],[R,R],[0,0]])
+    m = Math.max(m, solidTop(Math.floor(x+ox), Math.floor(z+oz)));
+  return m;
+}
+function spawnPoint(g){
+  const d = DIRS[g], r = 26 + Math.random()*7;
+  const off = (Math.random()-0.5)*9;
+  return [d.dx*r - (-d.dz)*off, d.dz*r - (d.dx)*off];
+}
+function placePlayer(){
+  const [x,z] = spawnPoint(G.me.g);
+  PL.x = x; PL.z = z; PL.y = groundUnder(x,z,PL.R); PL.vy = 0;
+  PL.yaw = Math.atan2(x, z);   // 카메라 정면은 (-sin,-cos) — 수정 쪽을 보게
+}
+
+const KEY = {};
+let mvx=0, mvz=0, wantJump=false, acting=false;
+const STEP = 0.68, SPD = 5.4, GRAV = 26, JUMP = 8.4;
+function updPlayer(dt){
+  const s = Math.sin(PL.yaw), c = Math.cos(PL.yaw);
+  let fx=0, fz=0;
+  if(KEY['w']) fz+=1; if(KEY['s']) fz-=1; if(KEY['a']) fx-=1; if(KEY['d']) fx+=1;
+  fx += mvx; fz += mvz;
+  const len = Math.hypot(fx,fz);
+  if(len>1){ fx/=len; fz/=len; }
+  PL.mv = len > 0.06;
+  const wx = (fx*c - fz*s) * SPD, wz = (fx*(-s) - fz*c) * SPD;
+  // X
+  let nx = PL.x + wx*dt;
+  if(groundUnder(nx, PL.z, PL.R) <= PL.y + STEP) PL.x = nx;
+  // Z
+  let nz = PL.z + wz*dt;
+  if(groundUnder(PL.x, nz, PL.R) <= PL.y + STEP) PL.z = nz;
+  // 중력
+  const gnd = groundUnder(PL.x, PL.z, PL.R);
+  if(wantJump && PL.ground){ PL.vy = JUMP; PL.ground = false; }
+  wantJump = false;
+  PL.vy -= GRAV*dt; PL.y += PL.vy*dt;
+  if(PL.y <= gnd){ PL.y = gnd; PL.vy = 0; PL.ground = true; }
+  else PL.ground = false;
+  if(PL.y < -20) placePlayer();
+  camera.position.set(PL.x, PL.y + PL.EYE, PL.z);
+  camera.rotation.set(PL.pitch, PL.yaw, 0, 'YXZ');
+}
+
+/* ═══════════════════════ 입력 ═══════════════════════ */
+const el = id=>document.getElementById(id);
+const cv = renderer.domElement;
+if(isTouch) document.body.classList.add('touch');
+
+addEventListener('keydown', e=>{
+  const k = e.key.toLowerCase();
+  KEY[k] = true;
+  if(k===' '){ wantJump = true; e.preventDefault(); }
+  if(k>='1' && k<='5'){ selectBuild(BKEYS[+k-1]); }
+  if(k==='q') selectTool('mine');
+  if(k==='r') selectTool('repair');
+  if(k==='e') selectTool('up');
+  if(k==='f') selectTool('del');
+  if(k==='tab'){ e.preventDefault(); document.exitPointerLock(); }
+  if(k==='escape') document.exitPointerLock();
+});
+addEventListener('keyup', e=>{ KEY[e.key.toLowerCase()] = false; });
+
+cv.addEventListener('click', ()=>{ if(!isTouch && G.phase!=='title' && !popOpen()) cv.requestPointerLock(); });
+addEventListener('mousemove', e=>{
+  if(document.pointerLockElement === cv){
+    PL.yaw -= e.movementX*0.0024;
+    PL.pitch = Math.max(-1.5, Math.min(1.5, PL.pitch - e.movementY*0.0024));
+  }
+});
+addEventListener('mousedown', e=>{ if(document.pointerLockElement===cv){ if(e.button===0) acting=true;
+  if(e.button===2){ selectTool(curTool==='mine'?'repair':'mine'); } } });
+addEventListener('mouseup', ()=>{ acting=false; });
+addEventListener('contextmenu', e=>e.preventDefault());
+
+// 터치 — 시점
+/* 위치·크기는 스타일시트(#look 150줄)에 맡긴다.
+   여기서 inset:0 을 덮어쓰면 left+right+width 가 동시에 지정돼 과잉제약이 나고,
+   브라우저가 right 를 버려서 시점 패드가 오른쪽이 아니라 왼쪽으로 밀린다.
+   그러면 애들 오른손 엄지가 닿는 자리가 통째로 죽는다. */
+const look = el('look');
+let lookId = null, lx=0, ly=0;
+look.addEventListener('touchstart', e=>{ const t=e.changedTouches[0];
+  if(lookId!==null) return; lookId=t.identifier; lx=t.clientX; ly=t.clientY; }, {passive:true});
+look.addEventListener('touchmove', e=>{
+  for(const t of e.changedTouches) if(t.identifier===lookId){
+    PL.yaw -= (t.clientX-lx)*0.0055;
+    PL.pitch = Math.max(-1.5, Math.min(1.5, PL.pitch - (t.clientY-ly)*0.0055));
+    lx=t.clientX; ly=t.clientY;
+  }
+}, {passive:true});
+const endLook = e=>{ for(const t of e.changedTouches) if(t.identifier===lookId) lookId=null; };
+look.addEventListener('touchend', endLook); look.addEventListener('touchcancel', endLook);
+
+// 터치 — 조이스틱
+const stick = el('stick'), knob = el('knob');
+let stId = null, sx0=0, sy0=0;
+stick.addEventListener('touchstart', e=>{ const t=e.changedTouches[0]; stId=t.identifier;
+  const r=stick.getBoundingClientRect(); sx0=r.left+r.width/2; sy0=r.top+r.height/2;
+  e.preventDefault(); }, {passive:false});
+stick.addEventListener('touchmove', e=>{
+  for(const t of e.changedTouches) if(t.identifier===stId){
+    let dx=t.clientX-sx0, dy=t.clientY-sy0; const L=Math.hypot(dx,dy), M=52;
+    if(L>M){ dx=dx/L*M; dy=dy/L*M; }
+    knob.style.transform = `translate(${dx}px,${dy}px)`;
+    mvx = dx/M; mvz = -dy/M;
+  } e.preventDefault(); }, {passive:false});
+const endSt = e=>{ for(const t of e.changedTouches) if(t.identifier===stId){
+  stId=null; mvx=mvz=0; knob.style.transform=''; } };
+stick.addEventListener('touchend', endSt); stick.addEventListener('touchcancel', endSt);
+
+// 터치 — 버튼
+const mbAct = el('mbAct'), mbJump = el('mbJump');
+const hold = (elm, on, off)=>{
+  elm.addEventListener('touchstart', e=>{ on(); e.preventDefault(); }, {passive:false});
+  elm.addEventListener('touchend', e=>{ off&&off(); e.preventDefault(); }, {passive:false});
+  elm.addEventListener('touchcancel', ()=> off&&off());
+  elm.addEventListener('mousedown', ()=>on()); elm.addEventListener('mouseup', ()=>off&&off());
+};
+hold(mbAct, ()=>acting=true, ()=>acting=false);
+hold(mbJump, ()=>wantJump=true);
+
+/* ═══════════════════════ 핫바 / 도구 ═══════════════════════ */
+let curTool = 'mine', curBuild = null;
+function selectTool(t){ curTool = t; curBuild = null; setGhost(null); paintBar(); }
+function selectBuild(b){ if(!BUILD[b]) return; curBuild = b; curTool = 'build'; setGhost(b); paintBar(); }
+function afford(t){ const c = BUILD[t].cost, r = myRes();
+  return r.w>=c.w && r.s>=c.s && r.g>=c.g; }
+
+function paintBar(){
+  const tw = el('tools'); tw.innerHTML = '';
+  for(const t of TOOLS){
+    const d = document.createElement('div');
+    d.className = 'slot tool' + (curTool===t.id?' on':'');
+    d.innerHTML = `<div class="ic">${t.icon}</div><div class="nm">${t.name}</div><div class="ky">${t.key}</div>`;
+    d.onclick = ()=> selectTool(t.id);
+    tw.appendChild(d);
+  }
+  const bw = el('bar'); bw.innerHTML = '';
+  BKEYS.forEach((k,i)=>{
+    const b = BUILD[k], ok = afford(k);
+    const d = document.createElement('div');
+    d.className = 'slot' + (curBuild===k?' on':'') + (ok?'':' no');
+    const cs = [b.cost.w?`<span>🪵${b.cost.w}</span>`:'', b.cost.s?`<span>🪨${b.cost.s}</span>`:'',
+      b.cost.g?`<span>✨${b.cost.g}</span>`:''].filter(Boolean).join('');
+    d.innerHTML = `<div class="ic">${b.icon}</div><div class="nm">${b.name}</div>
+      <div class="cost">${cs}</div><div class="ky">${i+1}</div>`;
+    d.onclick = ()=> selectBuild(k);
+    bw.appendChild(d);
+  });
+}
+
+/* ═══════════════════════ 알림 ═══════════════════════ */
+let toastT = 0;
+function toast(msg, sec=2.2, color='#fff'){
+  const t = el('toast'); t.textContent = msg; t.style.color = color; t.classList.add('on'); toastT = sec;
+}
+function feed(msg){
+  const f = el('feed'); const d = document.createElement('div'); d.innerHTML = msg;
+  f.appendChild(d); while(f.children.length>7) f.removeChild(f.firstChild);
+  setTimeout(()=>{ if(d.parentNode) d.remove(); }, 8000);
+}
+function flash(){ const f = el('dmgFlash'); f.style.opacity = 1;
+  setTimeout(()=> f.style.opacity = 0, 90); }
+
+/* ═══════════════════════ HUD 갱신 ═══════════════════════ */
+let lastRes = {w:-1,s:-1,g:-1};
+function paintHUD(){
+  const r = myRes();
+  el('grpName').textContent = (G.me.g+1)+'모둠';
+  el('grpName').style.color = GCOL[G.me.g];
+  for(const [k,id] of [['w','rW'],['s','rS'],['g','rG']]){
+    const b = el(id).querySelector('b'); b.textContent = r[k]|0;
+    if(r[k] > lastRes[k] && lastRes[k]>=0){ el(id).classList.remove('up'); void el(id).offsetWidth;
+      el(id).classList.add('up'); }
+    lastRes[k] = r[k];
+  }
+  el('dayNum').textContent = G.day + '일차';
+  const night = G.phase==='night';
+  el('dayPhase').textContent = night ? '🌙 밤' : (G.phase==='day' ? '☀️ 낮' : '⏳');
+  el('dayBox').classList.toggle('night', night);
+  const tot = night ? G.set.nightSec : G.set.daySec;
+  el('timeFill').style.width = Math.max(0, Math.min(100, G.t/tot*100)) + '%';
+  el('tSec').textContent = Math.max(0, Math.ceil(G.t));
+  const pct = Math.max(0, G.crystal/G.set.crystalMax*100);
+  el('cFill').style.width = pct + '%';
+  el('cFill').style.background = G.healing ? 'linear-gradient(90deg,#8dff8d,#3ddb6a)'
+    : pct>50 ? 'linear-gradient(90deg,#66e0ff,#37c6ff)'
+    : pct>25 ? 'linear-gradient(90deg,#ffd66b,#ffa726)' : 'linear-gradient(90deg,#ff8a8a,#ff3b3b)';
+  el('cNum').textContent = Math.max(0,Math.ceil(G.crystal)) + ' / ' + G.set.crystalMax;
+  el('cNum').style.color = G.healing ? '#0e2a14' : '#fff';
+  const bw = G.wolves.find(w=>w.k>=3);
+  if(bw){ const B = WOLF_T[bw.k];
+    el('bossWrap').classList.add('on');
+    el('bossIc').textContent = '';
+    el('bossName').textContent = B.n;
+    const bp = bw.mx ? Math.max(0, bw.hp/bw.mx*100) : Math.max(0,bw.hp);
+    el('bFill').style.width = bp + '%';
+    el('bNum').textContent = Math.ceil(bp) + '%';
+  } else el('bossWrap').classList.remove('on');
+  paintBar();
+}
+
+/* ═══════════════════════ 미니맵 ═══════════════════════ */
+const mini = el('mini'), mg = mini.getContext('2d');
+const MSC = 150/(FIELD_R*2+6);
+const mpx = (x)=> 75 + x*MSC, mpz = (z)=> 75 + z*MSC;
+function drawMini(){
+  mg.clearRect(0,0,150,150);
+  mg.fillStyle = G.phase==='night' ? '#1b2a3f' : '#2f5c33';
+  mg.beginPath(); mg.arc(75,75,FIELD_R*MSC,0,7); mg.fill();
+  // 산
+  mg.strokeStyle = '#6b6f78'; mg.lineWidth = (FIELD_R-RING_A)*MSC;
+  mg.beginPath(); mg.arc(75,75,(RING_A+FIELD_R)/2*MSC,0,7); mg.stroke();
+  // 입구
+  for(let i=0;i<NG;i++){
+    const d = DIRS[i];
+    mg.strokeStyle = GCOL[i]; mg.lineWidth = GAP_HALF*2*MSC;
+    mg.beginPath(); mg.moveTo(mpx(d.dx*(RING_A-3)), mpz(d.dz*(RING_A-3)));
+    mg.lineTo(mpx(d.dx*FIELD_R), mpz(d.dz*FIELD_R)); mg.stroke();
+    mg.fillStyle = GCOL[i]; mg.font='900 10px sans-serif'; mg.textAlign='center';
+    mg.strokeStyle='rgba(0,0,0,.8)'; mg.lineWidth=2;
+    mg.strokeText((i+1), mpx(d.dx*(RING_A-7)), mpz(d.dz*(RING_A-7))+3);
+    mg.fillText((i+1), mpx(d.dx*(RING_A-7)), mpz(d.dz*(RING_A-7))+3);
+  }
+  // 구조물
+  mg.fillStyle = '#d9c9a6';
+  for(const o of STRU.values()) mg.fillRect(mpx(o.x)-1, mpz(o.z)-1, 2.4, 2.4);
+  // 수정
+  mg.fillStyle = '#66e0ff'; mg.beginPath(); mg.arc(75,75,4,0,7); mg.fill();
+  // 늑대
+  mg.fillStyle = '#ff3b3b';
+  for(const w of G.wolves){ mg.beginPath(); mg.arc(mpx(w.x), mpz(w.z), w.k>=2?2.6:1.8, 0,7); mg.fill(); }
+  // 병정
+  mg.fillStyle = '#ffffff';
+  for(const s of G.soldiers){ mg.fillRect(mpx(s.x)-1, mpz(s.z)-1, 2,2); }
+  // 친구들
+  for(const p of G.players.values()){ mg.fillStyle = GCOL[p.g]; mg.beginPath();
+    mg.arc(mpx(p.x), mpz(p.z), 2.2, 0,7); mg.fill(); }
+  // 나
+  mg.save(); mg.translate(mpx(PL.x), mpz(PL.z)); mg.rotate(-PL.yaw);
+  mg.fillStyle='#fff'; mg.beginPath(); mg.moveTo(0,-5); mg.lineTo(3.6,4); mg.lineTo(-3.6,4);
+  mg.closePath(); mg.fill(); mg.strokeStyle='#000'; mg.lineWidth=1; mg.stroke(); mg.restore();
+}
+
+/* ═══════════════════════ 팝업 ═══════════════════════ */
+function popOpen(){ return !!document.querySelector('.pop.on'); }
+document.querySelectorAll('[data-close]').forEach(b=>
+  b.onclick = ()=> el(b.dataset.close).classList.remove('on'));
+function openPop(id){ document.exitPointerLock(); el(id).classList.add('on'); }
+
+/* ═══════════════════════ 조준 / 행동 ═══════════════════════ */
+const hlGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(1,1,1));
+const hlMat = new THREE.LineBasicMaterial({color:0xffffff, transparent:true, opacity:.9});
+const hl = new THREE.LineSegments(hlGeo, hlMat); hl.visible = false; scene.add(hl);
+
+const _fwd = new THREE.Vector3();
+function forward(){ camera.getWorldDirection(_fwd); return _fwd; }
+function aimNode(){
+  const f = forward(); let best=null, bd=1e9;
+  for(const n of NODES){
+    if(!n.alive) continue;
+    const dx = n.x+0.5-PL.x, dz = n.z+0.5-PL.z, d = Math.hypot(dx,dz);
+    if(d > 6.5) continue;
+    const dot = (dx*f.x + dz*f.z)/(d||1);
+    if(d > 2.6 && dot < 0.45) continue;
+    const score = d - dot*2.2;
+    if(score < bd){ bd = score; best = n; }
+  }
+  return best;
+}
+function aimStru(){
+  const f = forward(); let best=null, bd=1e9;
+  for(const o of STRU.values()){
+    const dx = o.x+0.5-PL.x, dz = o.z+0.5-PL.z, d = Math.hypot(dx,dz);
+    if(d > 6) continue;
+    const dot = (dx*f.x + dz*f.z)/(d||1);
+    if(d > 2.4 && dot < 0.35) continue;
+    const score = d - dot*2;
+    if(score < bd){ bd = score; best = o; }
+  }
+  return best;
+}
+function aimCell(){
+  const f = forward();
+  if(f.y > -0.03) return null;
+  const t = (GY - (PL.y+PL.EYE)) / f.y;
+  if(t < 0 || t > 16) return null;
+  let x = PL.x + f.x*t, z = PL.z + f.z*t;
+  const d = Math.hypot(x-PL.x, z-PL.z);
+  if(d > 9){ x = PL.x + (x-PL.x)/d*9; z = PL.z + (z-PL.z)/d*9; }
+  return [Math.floor(x), Math.floor(z)];
+}
+
+let actCd = 0, mineHold = null, mineProg = 0;
+const MINE_T = 0.40;   // 한 번 캐는 데 걸리는 시간(초)
+const MY = { mined:0, built:0 };
+let _aimEl = null;
+function aimNodeInfo(n, prog){
+  if(!_aimEl) _aimEl = document.getElementById('aimInfo');
+  if(!_aimEl) return;
+  if(!n){ _aimEl.classList.remove('on'); return; }
+  const d = NODE_DEF[n.type];
+  const seg = [];
+  for(let i=0;i<n.max;i++) seg.push(`<i class="${i < n.hp ? 'f':''}"></i>`);
+  const night = G.phase === 'night';
+  _aimEl.innerHTML =
+    `<b>${d.icon} ${d.name}</b> <span class="hp">${n.hp}/${n.max}</span>` +
+    `<div class="segs">${seg.join('')}</div>` +
+    (night ? '<span style="color:#ffb0b0">🌙 밤에는 캘 수 없어요</span>'
+           : `<div class="prog"><i style="width:${Math.round(prog*100)}%"></i></div>` +
+             `<span style="color:#c8ffb0">한 번 캘 때 ${d.icon} +${d.amt}</span>`);
+  _aimEl.classList.add('on');
+}
+function aimInfo(o){
+  if(!_aimEl) _aimEl = document.getElementById('aimInfo');
+  if(!_aimEl) return;
+  if(!o){ _aimEl.classList.remove('on'); return; }
+  const b = BUILD[o.t], lv = o.lv||1;
+  const pct = Math.max(0, Math.round(o.hp/o.mx*100));
+  let line2;
+  if(curTool === 'del') line2 = '<span style="color:#ff9b9b">철거하면 절반 돌려받아요</span>';
+  else if(curTool === 'repair') line2 = pct>=100 ? '<span style="opacity:.6">멀쩡해요</span>'
+       : `<span style="color:#9cff9c">🔧 고치기 🪵2</span>`;
+  else { const c = upCost(o.t, lv);
+    line2 = c ? `<span style="color:#ffd43b">⬆️ Lv.${lv+1}로 — ${costTxt(c)}</span>`
+              : '<span style="color:#ffd43b">Lv.3 · 최고 등급</span>'; }
+  _aimEl.innerHTML =
+    `<b>${b.icon} ${b.name}</b> <span class="lv lv${lv}">Lv.${lv}</span>
+     <span class="hp">${pct}%</span><br>${line2}`;
+  _aimEl.classList.add('on');
+}
+function doAction(dt){
+  hl.visible = false; ghost.visible = false;
+  if(curTool !== 'repair' && curTool !== 'del' && curTool !== 'up') aimInfo(null);
+  if(G.phase!=='day' && G.phase!=='night'){ return; }
+
+  if(curTool === 'mine'){
+    const n = aimNode();
+    if(n){ hl.visible = true;
+      hl.position.set(n.x+0.5, GY+1.0, n.z+0.5);
+      hl.scale.set(n.type==='tree'?1.15:2.2, n.type==='tree'?2.4:1.6, n.type==='tree'?1.15:2.2);
+    }
+    aimNodeInfo(n, n===mineHold ? mineProg/MINE_T : 0);
+    if(!acting){ mineHold=null; mineProg=0; return; }
+    if(G.phase === 'night'){ if(actCd<=0){ toast('🌙 밤에는 캐지 못해요. 짓고 고치세요!', 1.6, '#ffd9d9'); actCd=1.4; } return; }
+    if(!n){ return; }
+    if(mineHold !== n){ mineHold = n; mineProg = 0; }
+    mineProg += dt;
+    if(mineProg >= MINE_T){
+      mineProg = 0; hitNode(n);
+    }
+    return;
+  }
+  if(curTool === 'repair' || curTool === 'del' || curTool === 'up'){
+    const o = aimStru();
+    aimInfo(o);
+    if(o){ const b = BUILD[o.t]; hl.visible = true;
+      hl.position.set(o.x + (b.size===2?0.5:0) + 0.5*(b.size===1?1:0) + (b.size===2?0.5:0) - (b.size===1?0:0),
+                      GY + b.hi/2, o.z);
+      hl.position.set(o.x + (b.size===1?0.5:b.size===2?1:0.5)-(b.size===3?0.5:0),
+                      GY + b.hi/2, o.z + (b.size===1?0.5:b.size===2?1:0.5)-(b.size===3?0.5:0));
+      hl.scale.set(b.size+0.08, b.hi+0.08, b.size+0.08);
+      hlMat.color.set(curTool==='del' ? 0xff6b6b : curTool==='up' ? 0xffd43b : 0x7cf07c);
+    }
+    if(!acting || actCd>0 || !o) return;
+    actCd = curTool==='up' ? 0.45 : 0.30;
+    swing();
+    if(curTool === 'repair') repairStru(o);
+    else if(curTool === 'up') upgradeStru(o);
+    else removeStru(o);
+    return;
+  }
+  if(curTool === 'build' && curBuild){
+    const c = aimCell();
+    if(!c){ return; }
+    const b = BUILD[curBuild];
+    let [X,Z] = c;
+    if(b.size===2){ X = Math.round(X - 0.5); Z = Math.round(Z - 0.5); }
+    ghost.visible = true; ghost.position.set(X, GY, Z);
+    const err = canPlace(curBuild, X, Z);
+    const money = afford(curBuild);
+    ghostSet(!err && money);
+    if(!acting || actCd>0) return;
+    actCd = 0.28;
+    if(err){ toast(err, 1.2, '#ffbdbd'); return; }
+    if(!money){ toast('자원이 모자라요', 1.2, '#ffbdbd'); return; }
+    swing(); placeStru(curBuild, X, Z);
+  }
+}
+hlMat.color.set(0xffffff);
+
+/* 남은 체력만큼 블록을 지워서, 캐는 게 눈에 보이게 한다 */
+function nodeVisual(n){
+  const total = n.hs.length;
+  const gone = Math.round(total * (1 - Math.max(0,n.hp)/n.max));
+  for(let i=0;i<total;i++) bset(n.hs[i], i < total-gone);
+}
+function hitNode(n){
+  const d = NODE_DEF[n.type];
+  n.hp--;
+  const per = d.per || 1;
+  // per번 쳐야 한 칸이 떨어진다. 떨어질 때만 자원을 준다.
+  const broke = ((d.hits - n.hp) % per === 0);
+  const cy = GY + (n.type==='tree'?2.5*NODE_S:1.2*NODE_S);
+  const col = n.type==='tree'?0x4a8f3a:n.type==='gold'?0xf2c044:0x9aa0a8;
+  burst(n.x+0.5, cy, n.z+0.5, col, broke?11:5, broke?1.25:0.7);
+  if(window.__sfx) window.__sfx('chop');
+  if(broke){
+    gain(d.give, d.amt);
+    MY.mined += d.amt;
+    toast(`+${d.amt} ${d.icon}`, 0.7, '#c8ffb0');
+  }
+  nodeVisual(n);
+  if(n.hp <= 0){
+    n.alive = false;
+    for(const h of n.hs) bset(h, false);
+    burst(n.x+0.5, cy, n.z+0.5, n.type==='tree'?0x4a8f3a:0x9aa0a8, 16, 1.4);
+    refreshNodeCells();
+    if(window.__sfx) window.__sfx('get');
+    netNode(NODES.indexOf(n), 0);
+  } else netNode(NODES.indexOf(n), n.hp);
+}
+function gain(k, v){
+  const key = k==='w'?'w':k==='s'?'s':'o';
+  myPC[key] = (myPC[key]||0) + v; recomputeRes(); netPCDirty = true;
+}
+function spend(c){
+  myPC.sw = (myPC.sw||0)+c.w; myPC.ss = (myPC.ss||0)+c.s; myPC.so = (myPC.so||0)+c.g;
+  recomputeRes(); netPCDirty = true;
+}
+function refund(c){
+  myPC.sw = (myPC.sw||0)-c.w; myPC.ss = (myPC.ss||0)-c.s; myPC.so = (myPC.so||0)-c.g;
+  recomputeRes(); netPCDirty = true;
+}
+
+let nextId = 1;
+function placeStru(t, X, Z){
+  const b = BUILD[t];
+  const id = (G.me.uid||'x').slice(0,4) + '_' + (nextId++);
+  const mx = bs(t,'hp',1);
+  const o = {id, t, x:X, z:Z, lv:1, hp:mx, mx, g:G.me.g, n:G.me.name, cd:b.spawn?2:0, sol:[]};
+  addStru(o); spend(b.cost);
+  MY.built++;
+  burst(X+0.5, GY+1, Z+0.5, 0xffe2a0, 12, 1.2);
+  if(window.__sfx) window.__sfx('build');
+  netBuild(o);
+  toast(b.icon+' '+b.name+' 완성!', 0.9, '#c8ffb0');
+}
+function repairStru(o){
+  if(o.hp >= o.mx){ toast('멀쩡해요', 0.8); return; }
+  const r = myRes(); if(r.w < 2){ toast('나무가 모자라요', 1); return; }
+  spend({w:2,s:0,g:0});
+  o.hp = Math.min(o.mx, o.hp + o.mx*0.35);
+  struDirty = true;
+  burst(o.x+0.5, GY+1.5, o.z+0.5, 0x9cff9c, 7);
+  toast('🔧 고쳤어요', 0.7, '#c8ffb0');
+  if(window.__sfx) window.__sfx('fix');
+  netBuildHp(o);
+}
+function upgradeStru(o){
+  const b = BUILD[o.t], lv = o.lv||1;
+  if(lv >= MAXLV){ toast('이미 최고 등급이에요 (Lv.3)', 1.2, '#ffe9a0'); return; }
+  const c = upCost(o.t, lv);
+  const r = myRes();
+  if(r.w < (c.w||0) || r.s < (c.s||0) || r.g < (c.g||0)){
+    toast(`자원이 모자라요 — ${costTxt(c)}`, 1.6, '#ffbdbd'); return; }
+  spend({w:c.w||0, s:c.s||0, g:c.g||0});
+  o.lv = lv+1;
+  o.mx = bs(o.t,'hp',o.lv);
+  o.hp = o.mx;                                  // 강화하면 체력도 꽉 참
+  struDirty = true; flowDirty = true;
+  MY.built++;
+  const cx = o.x+0.5, cz = o.z+0.5;
+  burst(cx, GY+3, cz, 0xffd43b, 22, 1.8);
+  setTimeout(()=>burst(cx, GY+4, cz, 0xfff2c0, 14, 1.4), 130);
+  toast(`⬆️ ${b.name} Lv.${o.lv}!`, 1.4, '#ffe066');
+  if(window.__sfx) window.__sfx('up');
+  if(o.lv === MAXLV) feed(`⬆️ <b style="color:${GCOL[o.g]}">${o.g+1}모둠</b> ${b.name} <b style="color:#ffd43b">Lv.3 완성!</b>`);
+  netBuild(o);
+}
+function costTxt(c){
+  return [c.w?`🪵${c.w}`:'', c.s?`🪨${c.s}`:'', c.g?`✨${c.g}`:''].filter(Boolean).join(' ');
+}
+function removeStru(o){
+  if(o.n !== G.me.name && o.g !== G.me.g){ toast('다른 모둠 건물이에요', 1.2, '#ffbdbd'); return; }
+  const c = BUILD[o.t].cost;
+  let rw=c.w, rs=c.s, rg=c.g;
+  for(let L=1; L<(o.lv||1); L++){ const u=BUILD[o.t].up[L-1];
+    rw+=u.w||0; rs+=u.s||0; rg+=u.g||0; }
+  refund({w:Math.floor(rw/2), s:Math.floor(rs/2), g:Math.floor(rg/2)});
+  burst(o.x+0.5, GY+1, o.z+0.5, 0xd9c9a6, 12);
+  delStru(o.id); netUnbuild(o.id);
+}
+
+/* ═══════════════════════ 밸런스 수치 ═══════════════════════ */
+const BAL = {
+  waveBase: 5, waveGrow: 78,        // 늑대 마리수 = base + grow×진행도
+  waveCap: 62,                      // 한 밤에 나올 수 있는 최대 마리수 (MAXW보다 작아야 함)
+                                    //  ※ 여기가 예전엔 56 하드코딩이라 10일차 이후 난이도가 멈춰 있었다
+  spawnRush: 0.22,                  // 후반에 늑대가 몰려나오는 정도 (0 = 예전과 동일)
+  hpGrow: 5.3, dmgGrow: 5.6,        // 체력/건물피해 = 기본 × (1 + grow×진행도)
+  crystalGrow: 1.0,                 // 수정 깎는 힘 증가폭
+  fastFrom: 0.10, fastMax: 0.44,    // 날쌘늑대 등장 시점/최대 비율
+  bigFrom: 0.34,  bigMax: 0.22,     // 큰늑대
+  focusShare: 0.38,                 // 늑대가 몰리는 입구가 받는 비율 (어디일지는 안 알려 준다)
+  morningHeal: 26,
+  regenDelay: 5, regenRate: 2.6,
+  lastLightAt: 0.38, lastLightR: 13,        // 수정이 위험하면 스스로 늑대를 태운다
+  lastLightDmg: 24, lastLightGrow: 5.5,     // (밀리는 반만 도와주는 역전 장치)     // 늑대가 안 때린 지 6초 뒤부터 초당 1.6씩 자가회복                  // 아침마다 수정 회복
+  bossCut: 0.72,                    // 보스 날은 잡몹을 이만큼으로
+  bossHP: [1700, 4100, 7200, 10000],
+  bossSummon: [9.0, 7.5, 6.5, 5.5], // 부하 부르는 주기(초)
+  bossAdds: [2, 2, 3, 3],
+  bossAddCap: [4, 8, 12, 14],       // 보스가 부를 수 있는 총 마리수 (무한 소환 금지)
+  bossReward: [{w:45,s:45,g:8,heal:30},{w:70,s:70,g:14,heal:45},
+               {w:100,s:100,g:20,heal:60},{w:0,s:0,g:0,heal:0}],
+  soldierDmg: 6.6, soldierDmgGrow: 0.66, soldierHP: 46, soldierHPGrow: 6.0,
+
+  /* ── 늑대가 탑·배럭을 직접 노린다 ──
+     벽은 원래대로 다 맞지만 탑·배럭은 이 비율만큼만 맞는다.
+     안 그러면 후반에 한 마리한테 3방 만에 부서져서 지을 이유가 없어진다. */
+  struDmgMul: { arrow:0.26, ice:0.26, barr:0.30 },
+  struBiteCd: 1.10,          // 탑·배럭 무는 주기(초) — 벽(0.85)보다 느리게
+  siegeShare: 0.35,          // 일반 늑대 중 건물부터 노리는 비율
+  siegeRange: 15,            // 이 안에 있는 탑·배럭만 노린다
+  siegePerStru: 3,           // 한 건물에 최대 몇 마리까지 달라붙나 (몰매 방지)
+  struHealPct: 0.35,         // 아침마다 최대 체력의 이만큼 저절로 수리된다
+  struRefund: 0.40           // 밤에 부서지면 자재를 이만큼 돌려준다
+};
+
+function curve(d){ return Math.pow(Math.max(0,d), 0.72); }
+function prog(day){ const gd = G.set.goalDay; return Math.min(1, (day-1)/Math.max(1, gd-1)); }
+function bossDays(){                       // 보스 4번 — 15일이면 5·9·12·15일차
+  const gd = G.set.goalDay;
+  const raw = [Math.round(gd*0.33), Math.round(gd*0.60), Math.round(gd*0.80), gd];
+  const out = [];
+  for(let i=0;i<raw.length;i++){
+    let v = Math.max(2, Math.min(gd, raw[i]));
+    while(out.includes(v)) v++;
+    if(v<=gd) out.push(v);
+  }
+  while(out.length<4) out.unshift(Math.max(2, out[0]-2));
+  return out.slice(-4).sort((a,b)=>a-b);
+}
+function bossIndex(day){ const bd = bossDays(); return bd.indexOf(day); }
+const STAGE_NAME = ['조용한 밤','늑대가 늘었다','날쌘 무리','굶주린 밤','커다란 그림자',
+  '사방에서','쉴 틈 없이','산이 우는 밤','끝없는 무리','가장 긴 밤','마지막 밤'];
+function stageName(day){
+  const bi = bossIndex(day);
+  if(bi>=0) return WOLF_T[3+bi].n + ' 출현!';
+  const d = prog(day);
+  return STAGE_NAME[Math.min(STAGE_NAME.length-1, Math.round(d*(STAGE_NAME.length-1)))];
+}
+
+/* ═══════════════════════ 웨이브 ═══════════════════════ */
+function waveFor(day){
+  const bi = bossIndex(day), d = prog(day);
+  const cut = bi>=0 ? BAL.bossCut : 1;
+  let tot = Math.min(BAL.waveCap, Math.round((BAL.waveBase + BAL.waveGrow*curve(d)) * cut));
+  const fr = d < BAL.fastFrom ? 0 : BAL.fastMax * Math.min(1,(d-BAL.fastFrom)/0.45);
+  const br = d < BAL.bigFrom  ? 0 : BAL.bigMax  * Math.min(1,(d-BAL.bigFrom )/0.5);
+  const nF = Math.round(tot*fr), nB = Math.round(tot*br);
+  const nN = Math.max(2, tot - nF - nB);
+  const out = [];
+  for(let i=0;i<nN;i++) out.push(0);
+  for(let i=0;i<nF;i++) out.push(1);
+  for(let i=0;i<nB;i++) out.push(2);
+  if(bi>=0) out.push(3+bi);
+  return {kinds:out, boss:bi};
+}
+let spawnQ = [], spawnT = 0, wid = 1;
+function startWave(){
+  const day = G.day;
+  G.focus = (Math.random()*NG)|0;
+  const wv = waveFor(day);
+  const kinds = wv.kinds;
+  G.bossTier = wv.boss;
+  const bossK = kinds.filter(k=>k>=3);
+  const mobs  = kinds.filter(k=>k<3);
+  const focusN = Math.round(mobs.length*BAL.focusShare);
+  const others = [0,1,2,3,4].filter(i=>i!==G.focus);
+  const q = [];
+  mobs.forEach((k,i)=> q.push({k, gate: i<focusN ? G.focus : others[i%others.length]}));
+  for(let i=q.length-1;i>0;i--){ const j=(Math.random()*(i+1))|0; const t=q[i]; q[i]=q[j]; q[j]=t; }
+  // 큰늑대는 집중 입구로 몰아 주기
+  for(const e of q) if(e.k===2 && Math.random()<0.4) e.gate = G.focus;
+  // 보스는 절반쯤 지났을 때 집중 입구로
+  bossK.forEach(k=> q.splice(Math.floor(q.length*0.45), 0, {k, gate:G.focus, boss:true}));
+  spawnQ = q; spawnT = 0.5;
+}
+function spawnWolf(k, gate, atX, atZ){
+  const d = DIRS[gate];
+  let x, z;
+  if(atX !== undefined){ x = atX + (Math.random()-0.5)*2.6; z = atZ + (Math.random()-0.5)*2.6; }
+  else { const off = (Math.random()-0.5)*(GAP_HALF*1.5), r = SPAWN_R + Math.random()*2;
+    x = d.dx*r - (-d.dz)*off; z = d.dz*r - (d.dx)*off; }
+  const T0 = WOLF_T[k], P = G.set.wolfPower, day = G.day, dd = prog(day);
+  const bi = T0.boss ? T0.boss-1 : -1;
+  const hp = bi>=0 ? BAL.bossHP[bi]*P : T0.hp * (1 + BAL.hpGrow*curve(dd)) * P;
+  const dmg = bi>=0 ? T0.dmg*P : T0.dmg * (1 + BAL.dmgGrow*curve(dd)) * P;
+  const cd = bi>=0 ? T0.cd*P : T0.cd * (1 + BAL.crystalGrow*curve(dd)) * P;
+  const w = { id:wid++, k, x, z, y:GY, ry:Math.atan2(-x,-z), hp, mx:hp, dmg, cd,
+    spd: T0.spd*(1+Math.min(0.30, dd*0.30)), slow:0, atkT:0, hurt:0, mv:true,
+    ph:Math.random()*6, gate, bi, sumT: bi>=0 ? BAL.bossSummon[bi] : 0,
+    addLeft: bi>=0 ? BAL.bossAddCap[bi] : 0, stuck:0,
+    /* 큰늑대는 힘이 세니 탑부터 부순다. 날쌘늑대는 그냥 수정으로 달린다.
+       일반 늑대는 일부만 공성 — 전부 탑만 때리면 밤이 한없이 늘어진다. */
+    siege: (k===2) || (k===0 && Math.random() < BAL.siegeShare),
+    tgt:null, retgt:0 };
+  G.wolves.push(w);
+  if(bi>=0){
+    toast(T0.n + ' 등장!', 4, '#ff9b9b');
+    if(window.__shake) window.__shake(1.6, 1.0);
+    feed(`👑 <b style="color:#ff9b9b">${T0.n}</b>이(가) 나타났습니다! 지도에서 찾아보세요`);
+  }
+  return w;
+}
+function onBossDown(w){
+  const bi = w.bi, R = BAL.bossReward[bi];
+  burst(w.x, GY+2, w.z, 0xffe066, 40, 2.2);
+  for(let i=0;i<3;i++) setTimeout(()=>burst(w.x,GY+2,w.z,0xffd43b,26,2.4), i*160);
+  if(R.w||R.s||R.g){
+    for(let i=0;i<NG;i++){ base[i].w += R.w; base[i].s += R.s; base[i].o += R.g; }
+    recomputeRes(); netBase();
+  }
+  if(R.heal){ G.crystal = Math.min(G.set.crystalMax, G.crystal + R.heal); }
+  toast(`🎉 ${WOLF_T[w.k].n} 처치!`, 4.5, '#ffe066');
+  feed(`🏆 <b style="color:#ffe066">보스 처치!</b> 전 모둠 🪵+${R.w} 🪨+${R.s} ✨+${R.g}` +
+       (R.heal?` · 💎+${R.heal}`:''));
+}
+
+/* ═══════════════════════ 호스트 시뮬레이션 ═══════════════════════ */
+/* 진행 방향 1.1칸 앞에 건물이 있으면 그 id */
+function struAhead(x, z, dirx, dirz){
+  for(const step of [0.75, 1.25]){
+    const cx = Math.floor(x + dirx*step), cz = Math.floor(z + dirz*step);
+    const id = cellOwner.get(cx+','+cz);
+    if(id) return id;
+  }
+  return null;
+}
+/* 건물 한가운데 좌표 — 크기 2짜리는 칸 두 개에 걸쳐 있어서 중심이 다르다 */
+function struCX(o){ return o.x + (BUILD[o.t].size===2 ? 1.0 : 0.5); }
+function struCZ(o){ return o.z + (BUILD[o.t].size===2 ? 1.0 : 0.5); }
+const SIEGE_T = {arrow:1, ice:1, barr:1};
+/* 공성 늑대가 노릴 탑·배럭 고르기 — 이미 붐비는 건물은 건너뛴다 */
+function pickSiege(w, sgCnt){
+  let best = null, bd = BAL.siegeRange*BAL.siegeRange;
+  for(const o of STRU.values()){
+    if(!SIEGE_T[o.t]) continue;
+    if((sgCnt.get(o.id)||0) >= BAL.siegePerStru) continue;
+    const dx = struCX(o)-w.x, dz = struCZ(o)-w.z, d2 = dx*dx+dz*dz;
+    if(d2 < bd){ bd = d2; best = o; }
+  }
+  return best ? best.id : null;
+}
+/* 내 주변 한 칸의 건물 (끼임 탈출용) */
+function struNear(x, z){
+  const bx = Math.floor(x), bz = Math.floor(z);
+  for(const [ox,oz] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){
+    const id = cellOwner.get((bx+ox)+','+(bz+oz));
+    if(id) return id;
+  }
+  return null;
+}
+/* 옆으로 최대 3칸 안에 뚫린 곳이 있으면 그 좌표 */
+function findGap(x, z, dirx, dirz){
+  const px = -dirz, pz = dirx;
+  for(let s=1; s<=3; s++){
+    for(const sg of [1,-1]){
+      const gx = x + px*sg*s, gz = z + pz*sg*s;
+      const ax = gx + dirx*1.1, az = gz + dirz*1.1;
+      if(cellOwner.has(Math.floor(ax)+','+Math.floor(az))) continue;
+      if(cellOwner.has(Math.floor(gx)+','+Math.floor(gz))) continue;
+      if(solidTop(Math.floor(gx), Math.floor(gz)) > GY+1) continue;
+      if(solidTop(Math.floor(ax), Math.floor(az)) > GY+1) continue;
+      return [ax, az];
+    }
+  }
+  return null;
+}
+
+/* 같은 건물로 경고가 도배되지 않게 6초에 한 번만 알린다 */
+const warnT = new Map();
+function warnStru(o){
+  const now = performance.now();
+  if((warnT.get(o.id)||0) > now) return;
+  warnT.set(o.id, now + 6000);
+  const pct = Math.max(0, Math.round(o.hp/o.mx*100));
+  feed(`⚠️ <b style="color:${GCOL[o.g]}">${o.g+1}모둠</b> ${BUILD[o.t].name}이(가) 물어뜯기고 있어요 (${pct}%) — <b>🔧R키로 수리!</b>`);
+  if(o.g === G.me.g) toast(`⚠️ 우리 ${BUILD[o.t].name}이 공격받는 중! 🔧R`, 2.6, '#ffb0b0');
+}
+/* 부서졌을 때 — 탑·배럭은 들인 자재를 일부 돌려준다.
+   안 그러면 한 번 부서질 때마다 진도가 통째로 밀려서 애들이 의욕을 잃는다. */
+function onStruBroken(o){
+  feed(`💥 <b style="color:${GCOL[o.g]}">${o.g+1}모둠</b> ${BUILD[o.t].name} 부서짐`);
+  if(!SIEGE_T[o.t]) return;
+  const B0 = BUILD[o.t]; let tw = B0.cost.w, ts = B0.cost.s, tg = B0.cost.g;
+  for(let l=1; l<(o.lv||1); l++){ const u = B0.up[l-1]; tw+=u.w; ts+=u.s; tg+=u.g; }
+  const k = BAL.struRefund;
+  const rw = Math.round(tw*k), rs = Math.round(ts*k), rg = Math.round(tg*k);
+  base[o.g].w += rw; base[o.g].s += rs; base[o.g].o += rg;
+  recomputeRes(); netBase();
+  feed(`↩️ 잔해에서 자재를 건졌습니다 — <b style="color:${GCOL[o.g]}">${o.g+1}모둠</b> 🪵+${rw} 🪨+${rs} ✨+${rg}`);
+  if(o.g === G.me.g) toast('💥 부서짐! 자재 일부 회수 — 다시 지으세요', 3.2, '#ffc4a0');
+}
+/* 늑대가 건물을 한 번 문다 */
+function biteStru(o, w, ix, iz){
+  const mul = BAL.struDmgMul[o.t];
+  w.atkT = mul ? BAL.struBiteCd : 0.85;     // 탑·배럭은 무는 데 더 오래 걸린다
+  o.hp -= w.dmg * (mul || 1);
+  struDirty = true;
+  burst(ix, GY+1.5, iz, 0xd8bc90, 9, 1.2);
+  burst(ix, GY+1.5, iz, 0xfff0c0, 4, 1.6);
+  if(window.__sfxAt) window.__sfxAt('bite', ix, iz, 28, 90);
+  if(SIEGE_T[o.t]) warnStru(o);
+  if(o.hp <= 0){
+    burst(struCX(o), GY+1.6, struCZ(o), 0xb08a5a, SIEGE_T[o.t]?30:20, 1.7);
+    if(SIEGE_T[o.t]) burst(struCX(o), GY+2.4, struCZ(o), 0x8a6a44, 18, 2.0);
+    onStruBroken(o);
+    delStru(o.id); netUnbuild(o.id);
+    warnT.delete(o.id);
+  } else netBuildHp(o);
+}
+
+let flowT = 0, sndT = 0;
+function hostSim(dt){
+  // 수정 자가회복 — 뚫려도 되돌릴 시간을 준다
+  G.regenT = (G.regenT||0) + dt;
+  if(G.regenT > BAL.regenDelay && G.crystal > 0 && G.crystal < G.set.crystalMax){
+    G.crystal = Math.min(G.set.crystalMax, G.crystal + BAL.regenRate*dt);
+    G.healing = true;
+  } else G.healing = false;
+
+  /* 마지막 빛 — 수정 체력이 32% 아래로 떨어지면 주변 늑대를 태운다.
+     잘 막는 반에는 아무 영향이 없고, 밀리는 반만 살려 주는 장치. */
+  const cp = G.crystal / G.set.crystalMax;
+  if(G.crystal > 0 && cp < BAL.lastLightAt){
+    if(!G.lastLight){ G.lastLight = true;
+      toast('💎 수정이 마지막 빛을 냅니다!', 3, '#9de8ff');
+      feed('💎 <b style="color:#9de8ff">마지막 빛</b> — 수정 주변 늑대가 타들어 갑니다'); }
+    const dps = BAL.lastLightDmg + G.day*BAL.lastLightGrow;
+    G.llT = (G.llT||0) + dt;
+    for(const w of G.wolves){
+      if(Math.hypot(w.x, w.z) < BAL.lastLightR){ w.hp -= dps*dt; w.hurt = 0.12; }
+    }
+    if(G.llT > 0.25){ G.llT = 0;
+      const a = Math.random()*Math.PI*2, r = 3+Math.random()*7;
+      burst(Math.cos(a)*r, GY+1.2, Math.sin(a)*r, 0x9de8ff, 4, 0.9);
+    }
+  } else if(G.lastLight && cp >= BAL.lastLightAt + 0.08){
+    G.lastLight = false;
+    feed('💎 수정이 안정을 되찾았습니다');
+  }
+  // 흐름장
+  flowT -= dt;
+  if(flowDirty || flowT <= 0){ buildFlow(); flowDirty = false; flowT = 1.8; }
+
+  // 스폰
+  if(spawnQ.length){
+    spawnT -= dt;
+    if(spawnT <= 0){ const s = spawnQ.shift(); spawnWolf(s.k, s.gate, s.bt);
+      // 후반일수록 촘촘히 쏟아진다 — 띄엄띄엄 오면 탑이 한 마리씩 골라 잡는다
+      spawnT = (0.32 + Math.random()*0.5) * (1 - BAL.spawnRush*prog(G.day)); }
+  }
+  // 늑대
+  const cx0 = 0, cz0 = 0;
+  /* 한 건물에 몇 마리가 달라붙어 있나 — 몰매를 막기 위한 정원 확인용 */
+  const sgCnt = new Map();
+  for(const o of G.wolves) if(o.tgt) sgCnt.set(o.tgt, (sgCnt.get(o.tgt)||0)+1);
+
+  for(let i=G.wolves.length-1;i>=0;i--){
+    const w = G.wolves[i];
+    if(w.hurt>0) w.hurt -= dt;
+    if(w.slow>0) w.slow -= dt;
+    if(w.atkT>0) w.atkT -= dt;
+    const dc = Math.hypot(w.x, w.z);
+    let moved = false;
+
+    /* ── 공성 늑대는 마을에 들어오면 가까운 탑·배럭부터 물어뜯는다 ──
+       전부가 그러면 수정이 안 깎여 밤이 늘어지므로 일부만 공성이다.       */
+    let sTgt = null;
+    if(w.siege && dc < ARENA_R-1){
+      if(w.tgt && !STRU.has(w.tgt)) w.tgt = null;
+      w.retgt = (w.retgt||0) - dt;
+      if(!w.tgt && w.retgt <= 0){
+        w.retgt = 0.5 + Math.random()*0.7;
+        w.tgt = pickSiege(w, sgCnt);
+        if(w.tgt) sgCnt.set(w.tgt, (sgCnt.get(w.tgt)||0)+1);
+      }
+      sTgt = w.tgt ? (STRU.get(w.tgt) || null) : null;
+      // 너무 멀어졌으면 놓아 준다
+      if(sTgt && Math.hypot(struCX(sTgt)-w.x, struCZ(sTgt)-w.z) > BAL.siegeRange*1.5){
+        sgCnt.set(w.tgt, Math.max(0,(sgCnt.get(w.tgt)||1)-1)); w.tgt = null; sTgt = null; }
+    } else if(w.tgt) w.tgt = null;
+
+    if(!sTgt && dc < 6.6){
+      // 수정 공격
+      w.mv = false;
+      w.ry = Math.atan2(-w.x, -w.z);
+      if(w.atkT <= 0){ w.atkT = 0.9;
+        G.crystal = Math.max(0, G.crystal - w.cd); G.regenT = 0;
+        burst(w.x, GY+2, w.z, 0x66e0ff, 10, 1.3);
+        burst(w.x, GY+2, w.z, 0xff8080, 5, 1.5);
+        if(window.__sfxAt) window.__sfxAt('hurt', w.x, w.z, 60, 300);
+        onCrystalHit();
+      }
+    } else {
+      /* ── 목표 지점 정하기 ──
+         협곡(마을 밖)에서는 "내 모둠 입구 축을 따라 안쪽으로"만 간다.
+         → 자기 입구가 막혔다고 다른 모둠 입구로 우회하지 않는다.
+         마을 안(r<36)에서는 흐름장을 따라 수정으로 간다.               */
+      let tx, tz;
+      if(sTgt){ tx = struCX(sTgt); tz = struCZ(sTgt); }
+      else if(dc > ARENA_R-3){
+        const d = DIRS[w.gate];
+        const t  = w.x*d.dx + w.z*d.dz;
+        const pp = -w.x*d.dz + w.z*d.dx;
+        const nt = t - 2.0, np = pp*0.86;
+        tx = d.dx*nt - (-d.dz)*np;
+        tz = d.dz*nt - ( d.dx)*np;
+      } else {
+        const nx = flowStep(Math.floor(w.x), Math.floor(w.z));
+        if(nx){ tx = nx[0]+0.5; tz = nx[1]+0.5; } else { tx = 0; tz = 0; }
+      }
+      let dx = tx-w.x, dz = tz-w.z;
+      let L = Math.hypot(dx,dz)||1;
+      const sp = w.spd * (w.slow>0 ? (w.slowK||0.42) : 1);
+
+      /* ── 앞을 막은 건물 찾기 ── */
+      let hitId = struAhead(w.x, w.z, dx/L, dz/L);
+
+      /* ── 옆에 빈 틈이 있으면 그리로 (작은 구멍은 뚫린다) ──
+         단, 지금 노리고 있는 탑·배럭이면 피하지 않고 그대로 문다. ── */
+      if(hitId && !(sTgt && hitId === sTgt.id)){
+        const gap = findGap(w.x, w.z, dx/L, dz/L);
+        if(gap){ dx = gap[0]-w.x; dz = gap[1]-w.z; L = Math.hypot(dx,dz)||1;
+          hitId = struAhead(w.x, w.z, dx/L, dz/L); }
+      }
+
+      if(hitId && STRU.has(hitId)){
+        const o = STRU.get(hitId);
+        w.mv = false; w.stuck = 0;
+        w.ry = Math.atan2(dx, dz);
+        if(w.atkT <= 0) biteStru(o, w, w.x + dx/L*0.9, w.z + dz/L*0.9);
+      } else {
+        let mx = dx/L*sp*dt, mz = dz/L*sp*dt;
+        for(let j=0;j<G.wolves.length;j++){
+          if(j===i) continue; const o = G.wolves[j];
+          const ax = w.x-o.x, az = w.z-o.z, ad = Math.hypot(ax,az);
+          if(ad < 1.0 && ad > 0.001){ mx += ax/ad*(1.0-ad)*dt*2.6; mz += az/ad*(1.0-ad)*dt*2.6; }
+        }
+        const ox = w.x, oz = w.z;
+        const bx = w.x+mx, bz = w.z+mz;
+        if(solidTop(Math.floor(bx), Math.floor(w.z)) <= GY+1) w.x = bx;
+        if(solidTop(Math.floor(w.x), Math.floor(bz)) <= GY+1) w.z = bz;
+        w.ry = Math.atan2(dx, dz); w.mv = true;
+        /* ── 끼임 방지: 못 움직이면 옆 건물이라도 부순다 ── */
+        if(Math.hypot(w.x-ox, w.z-oz) < sp*dt*0.25){
+          w.stuck += dt;
+          if(w.stuck > 0.6){
+            const id = struNear(w.x, w.z);
+            if(id && STRU.has(id)){
+              const o = STRU.get(id);
+              if(w.atkT <= 0) biteStru(o, w, w.x, w.z);
+            } else { // 건물이 아니라 지형에 끼었으면 축 쪽으로 살짝 밀어 준다
+              const d = DIRS[w.gate];
+              w.x -= (-d.dz) * ((-w.x*d.dz + w.z*d.dx) > 0 ? 1 : -1) * sp*dt*0.8;
+              w.z -= ( d.dx) * ((-w.x*d.dz + w.z*d.dx) > 0 ? 1 : -1) * sp*dt*0.8;
+            }
+            w.stuck = 0;
+          }
+        } else w.stuck = 0;
+      }
+    }
+    w.y = Math.min(GY+1, Math.max(GY, solidTop(Math.floor(w.x), Math.floor(w.z))));
+    // 보스 소환 — 총량 제한 + 마을 밖(협곡)에서만. 안에서 무한 소환하면 손 쓸 방법이 없다.
+    if(w.bi >= 0 && w.hp > 0 && w.addLeft > 0 && dc > ARENA_R-4){
+      w.sumT -= dt;
+      if(w.sumT <= 0){ w.sumT = BAL.bossSummon[w.bi];
+        for(let a=0; a<BAL.bossAdds[w.bi] && w.addLeft>0; a++){
+          if(G.wolves.length >= 54) break;
+          spawnWolf(0, w.gate, w.x, w.z); w.addLeft--;
+        }
+        burst(w.x, GY+1.6, w.z, 0x8a5aff, 14, 1.4); }
+    }
+    if(w.hp <= 0){
+      burst(w.x, GY+0.9, w.z, 0x8a4a4a, 14, 1.2);
+      if(w.bi >= 0) onBossDown(w);
+      G.wolves.splice(i,1);
+    }
+  }
+  // 타워 공격 (피해는 호스트만)
+  for(const o of STRU.values()){
+    const b = BUILD[o.t];
+    if(b.dmg){
+      o.cd -= dt;
+      if(o.cd <= 0){
+        const t = towerTarget(o.x+0.5, o.z+0.5, bs(o.t,'range',o.lv));
+        if(t){ o.cd = bs(o.t,'rate',o.lv); t.hp -= bs(o.t,'dmg',o.lv); t.hurt = 0.16;
+          shootArrow(o.x+0.5, GY+b.hi+0.3, o.z+0.5, t.x, t.y+0.8, t.z);
+          if(window.__sfxAt) window.__sfxAt('bow', o.x, o.z, 24, 110); }
+        else o.cd = 0.25;
+      }
+    }
+    if(b.slow){
+      o.cd -= dt;
+      if(o.cd <= 0){ o.cd = 0.4;
+        for(const w of G.wolves)
+          if(Math.hypot(w.x-o.x-0.5, w.z-o.z-0.5) < bs(o.t,'range',o.lv)){
+            w.slow = 0.55; w.slowK = bs(o.t,'slow',o.lv); }
+      }
+    }
+    if(b.sold){
+      o.cd -= dt;
+      o.sol = o.sol.filter(id => G.soldiers.some(s=>s.id===id));
+      const comp = SOL_COMP[(o.lv||1)-1];
+      const alive = G.soldiers.filter(s=>s.bid===o.id);
+      const need = comp.slice();
+      for(const s of alive){ const q = need.indexOf(s.k); if(q>=0) need.splice(q,1); }
+      if(o.cd <= 0 && need.length){
+        o.cd = bs(o.t,'spawn',o.lv);
+        const k = need[0], D = SOL_DEF[k];
+        const shp = (BAL.soldierHP + G.day*BAL.soldierHPGrow) * D.hp;
+        const s = { id:wid++, bid:o.id, k, x:o.x+0.5+(Math.random()-.5)*2, z:o.z+2.2,
+          y:GY, ry:0, hp:shp, mx:shp, atkT:0, hurt:0, mv:false, ph:Math.random()*6,
+          dmg:(BAL.soldierDmg + G.day*BAL.soldierDmgGrow) * D.dmg, g:o.g };
+        G.soldiers.push(s); o.sol.push(s.id);
+        burst(s.x, GY+1, s.z, k===2?0xc9a0ff:0xffffff, 10, 1.2);
+        if(window.__sfxAt) window.__sfxAt('build', s.x, s.z, 22, 120);
+      }
+    }
+  }
+  // 병정
+  for(let i=G.soldiers.length-1;i>=0;i--){
+    const s = G.soldiers[i];
+    if(s.atkT>0) s.atkT -= dt;
+    if(s.hurt>0) s.hurt -= dt;
+    const home = STRU.get(s.bid);
+    const hx = home? home.x+0.5 : s.x, hz = home? home.z+0.5 : s.z;
+    if(!home){ G.soldiers.splice(i,1); continue; }
+    const D = SOL_DEF[s.k||0];
+    const t = nearestWolf(hx, hz, 22, s.x, s.z);
+    let tx = hx + Math.sin(s.id)*2.4, tz = hz + Math.cos(s.id)*2.4;
+    if(t){ tx = t.x; tz = t.z; }
+    const dx = tx-s.x, dz = tz-s.z, L = Math.hypot(dx,dz);
+    if(t && L < D.rng){
+      s.mv = false; s.ry = Math.atan2(dx,dz);
+      if(s.atkT<=0){ s.atkT = D.rate; t.hp -= s.dmg; t.hurt = 0.18;
+        if(s.k===2){
+          shootOrb(s.x, s.y+1.35, s.z, t.x, t.y+0.8, t.z);
+          burst(t.x, t.y+0.9, t.z, 0xc9a0ff, 8, 1.4);
+          if(window.__sfxAt) window.__sfxAt('magic', t.x, t.z, 26, 90);
+        } else {
+          burst(t.x, t.y+0.9, t.z, 0xffe8e8, 7, 1.3);
+          burst(t.x, t.y+0.9, t.z, 0xffffff, 3, 1.7);
+          if(window.__sfxAt) window.__sfxAt('hit', t.x, t.z, 26, 80);
+        }
+        if(t.hp>0 && t.atkT<=0 && s.k!==2){ t.atkT=0.85; s.hp -= t.dmg*0.7; s.hurt = 0.25; } }
+    } else if(L > (s.k===2 ? Math.min(L, D.rng*0.8) : 0.6)){
+      const sp = D.spd;
+      const bx = s.x + dx/L*sp*dt, bz = s.z + dz/L*sp*dt;
+      if(solidTop(Math.floor(bx), Math.floor(s.z)) <= GY+1) s.x = bx;
+      if(solidTop(Math.floor(s.x), Math.floor(bz)) <= GY+1) s.z = bz;
+      s.ry = Math.atan2(dx,dz); s.mv = true;
+    } else s.mv = false;
+    s.y = Math.min(GY+1, Math.max(GY, solidTop(Math.floor(s.x), Math.floor(s.z))));
+    if(s.hp <= 0){ burst(s.x, GY+1, s.z, s.k===2?0xc9a0ff:0xffffff, 14, 1.3);
+      G.soldiers.splice(i,1); }
+  }
+}
+function nearestWolf(x,z,range, fx, fz){
+  let best=null, bd=Infinity;
+  const ux = fx!==undefined?fx:x, uz = fz!==undefined?fz:z;
+  for(const w of G.wolves){
+    if(Math.hypot(w.x-x, w.z-z) > range) continue;
+    const d = (w.x-ux)**2 + (w.z-uz)**2;
+    if(d < bd){ bd=d; best=w; }
+  }
+  return best;
+}
+/* 타워 조준 — 사거리 안에서 '수정에 가장 가까이 온' 늑대부터.
+   뚫고 들어온 놈을 먼저 잡아야 수정이 버틴다. */
+function towerTarget(x,z,range){
+  let best=null, bd=Infinity;
+  for(const w of G.wolves){
+    if(Math.hypot(w.x-x, w.z-z) > range) continue;
+    const d = w.x*w.x + w.z*w.z;
+    if(d < bd){ bd=d; best=w; }
+  }
+  return best;
+}
+let hurtCd = 0;
+function onCrystalHit(){
+  if(hurtCd>0) return; hurtCd = 0.5;
+  el('crystalWrap').classList.remove('hurt'); void el('crystalWrap').offsetWidth;
+  el('crystalWrap').classList.add('hurt'); flash();
+  if(window.__shake) window.__shake(0.5, 0.28);
+}
+
+/* 클라이언트에서도 타워 화살 시늉 (피해 없음) */
+const cliCd = new Map();
+function clientTowerFx(dt){
+  for(const o of STRU.values()){
+    const b = BUILD[o.t]; if(!b.dmg) continue;
+    let c = (cliCd.get(o.id)||0) - dt;
+    if(c <= 0){
+      const t = nearestWolf(o.x+0.5, o.z+0.5, bs(o.t,'range',o.lv));
+      if(t){ c = bs(o.t,'rate',o.lv); shootArrow(o.x+0.5, GY+b.hi+0.3, o.z+0.5, t.x, t.y+0.8, t.z); }
+      else c = 0.3;
+    }
+    cliCd.set(o.id, c);
+  }
+}
+
+/* ═══════════════════════ 단계 전환 ═══════════════════════ */
+function nodeRespawn(){
+  for(const n of NODES){
+    n.alive = true; n.hp = n.max;
+    for(const h of n.hs) bset(h, true);
+  }
+  refreshNodeCells();
+  if(net) net.child('nd').remove();
+}
+function dayReward(){
+  const day = G.day;
+  const w = 12 + day*4, s = 8 + day*4, o = day>=3 ? Math.floor(day/2) : 0;
+  for(let i=0;i<NG;i++){ base[i].w += w; base[i].s += s; base[i].o += o; }
+  recomputeRes(); netBase();
+  feed(`🌅 <b>${day}일차 아침</b> — 모든 모둠 🪵+${w} 🪨+${s} ✨+${o}`);
+}
+function goDay(){
+  G.phase = 'day'; G.t = G.set.daySec;
+  G.bossId = 0;
+  G.wolves.length = 0; G.soldiers.length = 0; spawnQ = [];
+  nodeRespawn(); dayReward();
+  if(G.day > 1) G.crystal = Math.min(G.set.crystalMax, G.crystal + BAL.morningHeal);
+  /* 밤새 물어뜯긴 탑·배럭이 아침에 얼마쯤 저절로 아문다.
+     이게 없으면 매일 수리만 하다 하루가 끝나서 강화까지 못 간다. */
+  if(G.day > 1){
+    let healed = 0;
+    for(const o of STRU.values()){
+      if(!SIEGE_T[o.t] || o.hp >= o.mx) continue;
+      o.hp = Math.min(o.mx, o.hp + o.mx*BAL.struHealPct); netBuildHp(o); healed++;
+    }
+    if(healed){ struDirty = true; feed(`🔨 밤새 다친 탑·배럭 ${healed}채가 아침에 조금 아물었습니다`); }
+  }
+  warnT.clear();
+
+  showStage();
+  netMeta();
+}
+function goNight(){
+  G.phase = 'night'; G.t = G.set.nightSec;
+  startWave();
+  const bi = bossIndex(G.day);
+  toast(bi>=0 ? '🌙 보스가 옵니다! 다섯 입구 전부 조심!' : '🌙 늑대가 옵니다! 어느 입구로 올지 몰라요',
+        3.6, bi>=0?'#ffd0a0':'#ffc4c4');
+  feed(`🌙 <b>${G.day}일차 밤</b> — ${stageName(G.day)}. 오늘은 어느 입구가 위험할지 모릅니다`);
+  netMeta();
+}
+function hostPhase(dt){
+  G.t -= dt;
+  if(G.phase === 'day'){
+    if(G.t <= 0) goNight();
+  } else if(G.phase === 'night'){
+    if(G.crystal <= 0){ G.phase='lose'; netMeta(); return; }
+    if(spawnQ.length===0 && G.wolves.length===0){
+      if(G.day >= G.set.goalDay){ G.phase='win'; netMeta(); return; }
+      G.day++; goDay(); return;
+    }
+    if(G.t <= 0){
+      for(const w of G.wolves) burst(w.x, GY+1, w.z, 0x777777, 8);
+      G.wolves.length = 0; spawnQ = [];
+      toast('🌅 늑대가 물러갔어요!', 2.6, '#c8ffb0');
+      if(G.day >= G.set.goalDay){ G.phase='win'; netMeta(); return; }
+      G.day++; goDay();
+    }
+  }
+  if(G.crystal <= 0 && G.phase!=='lose'){ G.phase='lose'; netMeta(); }
+}
+
+/* ═══════════════════════ 자원 장부 ═══════════════════════ */
+const START = {w:70, s:55, o:0};
+const base = []; for(let i=0;i<NG;i++) base.push({...START});
+const pcMap = new Map();                       // uid -> {g,w,s,o,sw,ss,so,n,mined,built}
+let myPC = {g:0,w:0,s:0,o:0,sw:0,ss:0,so:0,n:'',mined:0,built:0};
+let netPCDirty = false;
+function recomputeRes(){
+  for(let i=0;i<NG;i++) G.res[i] = {w:base[i].w, s:base[i].s, g:base[i].o};
+  for(const [uid,p] of pcMap){
+    const r = G.res[p.g|0]; if(!r) continue;
+    r.w += (p.w||0)-(p.sw||0); r.s += (p.s||0)-(p.ss||0); r.g += (p.o||0)-(p.so||0);
+  }
+  for(let i=0;i<NG;i++){ const r=G.res[i]; r.w=Math.max(0,r.w); r.s=Math.max(0,r.s); r.g=Math.max(0,r.g); }
+}
+
+/* ═══════════════════════ Firebase ═══════════════════════ */
+/* 다른 게임(교실 대소동 등)과 데이터가 섞이지 않도록 방 저장 위치를 분리 */
+const DB_ROOT = 'sheepnight';
+let fb = null, net = null, myRef = null;
+function fbOK(){
+  const c = window.FIREBASE_CONFIG;
+  return c && c.databaseURL && !String(c.databaseURL).includes('여기에');
+}
+function initFB(){
+  if(fb) return true;
+  if(!fbOK()) return false;
+  try{ firebase.initializeApp(window.FIREBASE_CONFIG); fb = firebase.database(); return true; }
+  catch(e){ console.warn('Firebase 실패', e); return false; }
+}
+const uid = 'u' + Math.random().toString(36).slice(2,9);
+
+function netMeta(){
+  if(!net || !G.host) return;
+  net.child('meta').set({ph:G.phase, day:G.day, t:Math.round(G.t*10)/10, focus:G.focus,
+    crystal:Math.round(G.crystal*10)/10, host:uid, set:G.set, ts:Date.now()});
+}
+function netBase(){ if(!net) return; net.child('base').set(base); }
+function netNode(i,hp){ if(!net) return; net.child('nd/'+i).set(hp); }
+function netBuild(o){ if(!net) return;
+  net.child('b/'+o.id).set({t:o.t,x:o.x,z:o.z,hp:o.hp,g:o.g,n:o.n,lv:o.lv||1}); }
+function netUnbuild(id){ if(!net) return; net.child('b/'+id).remove(); }
+function netBuildHp(o){ if(!net) return; net.child('b/'+o.id+'/hp').set(Math.round(o.hp)); }
+function netPC(){ if(!net) return;
+  myPC.g = G.me.g; myPC.n = G.me.name; myPC.mined = MY.mined; myPC.built = MY.built;
+  net.child('pc/'+uid).set(myPC); netPCDirty = false; }
+
+function packSim(){
+  const w = [];
+  for(const o of G.wolves) w.push(o.id, o.k, Math.round(o.x*8), Math.round(o.z*8),
+    Math.round(o.ry*100), Math.round(o.hp/o.mx*100), o.mv?1:0);
+  const s = [];
+  for(const o of G.soldiers) s.push(o.id, Math.round(o.x*8), Math.round(o.z*8),
+    Math.round(o.ry*100), o.mv?1:0);
+  /* bh(구조물 체력)는 뺐다 — 이미 netBuildHp -> b/<id>/hp -> child_changed 로 간다.
+     같은 값을 초당 7번 통째로 또 보내고 있었다. */
+  return {w, s, c:Math.round(G.crystal*10)};
+}
+function applySim(d){
+  if(!d) return;
+  G.crystal = (d.c||0)/10;
+  const seen = new Set();
+  const arr = d.w||[];
+  for(let i=0;i<arr.length;i+=7){
+    const id=arr[i], k=arr[i+1], x=arr[i+2]/8, z=arr[i+3]/8, ry=arr[i+4]/100,
+          hp=arr[i+5], mv=arr[i+6];
+    seen.add(id);
+    let w = G.wolves.find(o=>o.id===id);
+    if(!w){ w = {id,k,x,z,y:GY,ry,hp:hp,mx:100,mv:!!mv,ph:Math.random()*6,hurt:0,tx:x,tz:z};
+      if(k>=3){ const B = WOLF_T[k]; w.sc = B.sc; w.col = B.col; w.bi = k-3;
+        burst(x, GY+3, z, 0x882222, 24, 2.2);
+        toast(B.n + ' 등장!', 4, '#ff9b9b'); }
+      G.wolves.push(w); }
+    w.tx = x; w.tz = z; w.ry = ry; w.k = k; w.mv = !!mv;
+    if(hp < w.hp) w.hurt = 0.18;
+    w.hp = hp;
+  }
+  for(let i=G.wolves.length-1;i>=0;i--) if(!seen.has(G.wolves[i].id)){
+    const w = G.wolves[i]; burst(w.x, GY+0.9, w.z, 0x8a4a4a, 10, 1.1); G.wolves.splice(i,1); }
+  const sa = d.s||[], ss = new Set();
+  for(let i=0;i<sa.length;i+=5){
+    const id=sa[i], x=sa[i+1]/8, z=sa[i+2]/8, ry=sa[i+3]/100, mv=sa[i+4];
+    ss.add(id);
+    let s = G.soldiers.find(o=>o.id===id);
+    if(!s){ s={id,x,z,y:GY,ry,mv:!!mv,ph:Math.random()*6,tx:x,tz:z}; G.soldiers.push(s); }
+    s.tx=x; s.tz=z; s.ry=ry; s.mv=!!mv;
+  }
+  for(let i=G.soldiers.length-1;i>=0;i--) if(!ss.has(G.soldiers[i].id)) G.soldiers.splice(i,1);
+}
+function lerpMobs(dt){
+  const k = Math.min(1, dt*11);
+  for(const w of G.wolves){ if(w.tx!==undefined){ w.x += (w.tx-w.x)*k; w.z += (w.tz-w.z)*k;
+    w.y = Math.min(GY+1, Math.max(GY, solidTop(Math.floor(w.x), Math.floor(w.z)))); } }
+  for(const s of G.soldiers){ if(s.tx!==undefined){ s.x += (s.tx-s.x)*k; s.z += (s.tz-s.z)*k;
+    s.y = Math.min(GY+1, Math.max(GY, solidTop(Math.floor(s.x), Math.floor(s.z)))); } }
+}
+
+function joinRoom(code, asHost){
+  net = fb.ref(DB_ROOT+'/'+code); G.room = code; G.host = asHost;
+  myRef = net.child('p/'+uid);
+  myRef.onDisconnect().remove();
+
+  net.child('meta').on('value', s=>{
+    const m = s.val(); if(!m) return;
+    if(m.set) G.set = Object.assign(G.set, m.set);
+    if(G.host) return;
+    const wasPh = G.phase;
+    G.phase = m.ph; G.day = m.day; G.t = m.t; G.focus = m.focus||0;
+    if(m.crystal!==undefined) G.crystal = m.crystal;
+    if(wasPh !== G.phase) onPhaseChange(wasPh, G.phase);
+  });
+  net.child('sim').on('value', s=>{ if(!G.host) applySim(s.val()); });
+  net.child('base').on('value', s=>{ const v = s.val();
+    if(v) for(let i=0;i<NG;i++) if(v[i]) base[i] = v[i];
+    recomputeRes(); });
+  net.child('pc').on('value', s=>{
+    const v = s.val()||{};
+    pcMap.clear();
+    for(const k in v){ if(k===uid) continue; pcMap.set(k, v[k]); }
+    pcMap.set(uid, myPC);
+    recomputeRes(); });
+  net.child('nd').on('value', s=>{
+    const v = s.val()||{};
+    for(const k in v){ const n = NODES[+k]; if(!n) continue;
+      const hp = v[k];
+      if(hp<=0 && n.alive){ n.alive=false; for(const h of n.hs) bset(h,false); }
+      else if(hp>0 && !n.alive){ n.alive=true; for(const h of n.hs) bset(h,true); }
+      n.hp = hp; }
+    refreshNodeCells(); });
+  net.child('b').on('child_added', s=>{
+    const v = s.val(); if(STRU.has(s.key)) return;
+    const lv = v.lv||1;
+    addStru({id:s.key, t:v.t, x:v.x, z:v.z, lv, hp:v.hp, mx:bs(v.t,'hp',lv),
+      g:v.g, n:v.n, cd:0, sol:[]}); });
+  net.child('b').on('child_changed', s=>{
+    const o = STRU.get(s.key); const v = s.val();
+    if(o){ if(v.lv && v.lv !== o.lv){ o.lv = v.lv; o.mx = bs(o.t,'hp',o.lv); }
+      o.hp = v.hp; struDirty = true; } });
+  net.child('b').on('child_removed', s=>{ if(STRU.has(s.key)) delStru(s.key); });
+  net.child('p').on('value', s=>{
+    const v = s.val()||{}; const keep = new Set();
+    for(const k in v){ if(k===uid) continue;
+      const d = v[k]; if(!d || d.x===undefined) continue;   /* ★ v 는 묶음, 실제 값은 v[k] */
+      keep.add(k);
+      const p = G.players.get(k) || {x:d.x,z:d.z,y:d.y,ph:Math.random()*6};
+      p.tx=d.x; p.tz=d.z; p.y=d.y; p.ry=d.r||0; p.g=d.g|0; p.n=d.n; p.mv=!!d.m;
+      if(p.x===undefined){p.x=d.x;p.z=d.z;}
+      G.players.set(k,p); }
+    for(const k of [...G.players.keys()]) if(!keep.has(k)) G.players.delete(k); });
+
+  if(asHost){
+    net.child('meta').once('value', s=>{ if(!s.val()) { G.day=1; G.crystal=G.set.crystalMax; } });
+  }
+}
+let netT = 0, pcT = 0, simT = 0;
+function netTick(dt){
+  if(!net) return;
+  netT -= dt;
+  if(netT <= 0){ netT = 1/6;
+    myRef.set({n:G.me.name, g:G.me.g, x:+PL.x.toFixed(2), y:+PL.y.toFixed(2),
+      z:+PL.z.toFixed(2), r:+PL.yaw.toFixed(2), m:PL.mv?1:0}); }
+  pcT -= dt;
+  if(pcT <= 0 && netPCDirty){ pcT = 0.9; netPC(); }
+  if(G.host){
+    simT -= dt;
+    if(simT <= 0){ simT = 1/7; net.child('sim').set(packSim()); }
+  }
+}
+let metaT = 0;
+function metaTick(dt){
+  if(!net || !G.host) return;
+  metaT -= dt; if(metaT<=0){ metaT = 1; netMeta(); }
+}
+
+/* ═══════════════════════ 시작 화면 ═══════════════════════ */
+let pickG = 0;
+function buildPicker(){
+  const w = el('grpPick'); w.innerHTML='';
+  for(let i=0;i<NG;i++){
+    const b = document.createElement('button');
+    b.textContent = (i+1); b.style.setProperty('--c', GCOL[i]);
+    if(i===pickG) b.classList.add('on');
+    b.onclick = ()=>{ pickG = i; buildPicker(); };
+    w.appendChild(b);
+  }
+}
+buildPicker();
+function tmsg(s){ el('tmsg').textContent = s; }
+
+el('bSolo').onclick = ()=>{
+  const n = (el('iName').value||'').trim();
+  if(!n){ tmsg('이름을 적어 주세요'); return; }
+  G.solo = true; G.host = true; G.me = {name:n, g:pickG, uid};
+  startGame();
+};
+el('bJoin').onclick = ()=>{
+  const n = (el('iName').value||'').trim();
+  const c = (el('iRoom').value||'').trim().toUpperCase();
+  if(!n){ tmsg('이름을 적어 주세요'); return; }
+  if(c.length < 3){ tmsg('방 코드를 확인해 주세요'); return; }
+  if(!initFB()){ tmsg('아직 Firebase 설정이 안 됐어요. "혼자 연습"으로 해 보세요.'); return; }
+  G.me = {name:n, g:pickG, uid}; myPC.g = pickG;
+  tmsg('들어가는 중…');
+  fb.ref(DB_ROOT+'/'+c+'/meta').once('value').then(s=>{
+    if(!s.val()){ tmsg('그런 방이 없어요. 코드를 다시 확인해 주세요.'); return; }
+    joinRoom(c, false); startGame();
+  }).catch(e=>{ tmsg('연결 실패: '+e.message); });
+};
+el('bMake').onclick = ()=>{
+  const pw = prompt('선생님 암호');
+  if(pw !== String(window.TEACHER_CODE)){ tmsg('암호가 달라요'); return; }
+  const n = (el('iName').value||'').trim() || '선생님';
+  if(!initFB()){ tmsg('Firebase 설정을 먼저 채워 주세요 (파일 맨 위)'); return; }
+  const L='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c='';
+  for(let i=0;i<4;i++) c += L[(Math.random()*L.length)|0];
+  G.me = {name:n, g:pickG, uid}; myPC.g = pickG;
+  joinRoom(c, true);
+  el('iRoom').value = c;
+  alert('방 코드: ' + c + '\n\n칠판에 적어 주세요.\n이 창(선생님 화면)은 게임이 끝날 때까지 켜 두어야 합니다.');
+  startGame();
+};
+
+function startGame(){
+  el('title').style.display = 'none';
+  el('hud').classList.add('on');
+  el('bTeach').style.display = G.host ? '' : 'none';
+  myPC.g = G.me.g; pcMap.set(uid, myPC);
+  refreshNodeCells(); recomputeRes(); paintBar();
+  placePlayer();
+  G.started = true;
+  if(G.host){ G.day = 1; G.crystal = G.set.crystalMax; goDay(); netBase(); }
+  else { toast('들어왔어요! ' + (G.me.g+1) + '모둠 입구를 지켜 주세요', 3, '#c8ffb0'); }
+  if(!isTouch) setTimeout(()=>cv.requestPointerLock(), 300);
+  selectTool('mine');
+}
+function onPhaseChange(from, to){
+  if(to==='night'){ toast('🌙 늑대가 옵니다! 어느 입구로 올지 몰라요', 3.4, '#ffc4c4'); }
+  if(to==='day'){ showStage();
+    G.wolves.length=0; G.soldiers.length=0;
+    for(const n of NODES){ if(!n.alive){ n.alive=true; n.hp=n.max; for(const h of n.hs) bset(h,true);} }
+    refreshNodeCells(); }
+  if(to==='night' && window.__sfx) window.__sfx('dusk');
+  if(to==='win' || to==='lose') showEnd();
+}
+
+/* ═══════════════════════ 결과 ═══════════════════════ */
+let endShown = false;
+function showEnd(){
+  if(endShown) return; endShown = true;
+  const win = G.phase==='win';
+  sfx(win ? 'win' : 'lose');
+  el('endBig').textContent = win ? '🎉 우리 반 승리!' : '💔 수정이 깨졌어요';
+  el('endBig').style.color = win ? '#9cff9c' : '#ff9b9b';
+  el('endMsg').textContent = win
+    ? `${G.set.goalDay}일 밤을 모두 막아 냈습니다. 다섯 입구 전부 지켜 냈어요.`
+    : `${G.day}일차 밤에 수정이 부서졌습니다. 다음엔 더 단단하게 막아 봐요.`;
+  const rows = [...pcMap.entries()].map(([k,p])=>p)
+    .filter(p=>p.n).sort((a,b)=>(b.mined+b.built*8)-(a.mined+a.built*8));
+  let h = '<tr><th>이름</th><th>모둠</th><th style="text-align:right">캔 자원</th><th style="text-align:right">지은 것</th></tr>';
+  for(const p of rows) h += `<tr><td>${esc(p.n)}</td>
+    <td><span class="tag" style="background:${GCOL[p.g|0]};color:#111">${(p.g|0)+1}모둠</span></td>
+    <td class="n">${p.mined|0}</td><td class="n">${p.built|0}</td></tr>`;
+  el('endRank').innerHTML = h;
+  openPop('popEnd');
+}
+const esc = s => String(s).replace(/[<>&"]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]));
+el('bAgain').onclick = ()=>{
+  el('popEnd').classList.remove('on'); endShown = false;
+  if(G.host){ G.day=1; G.crystal=G.set.crystalMax;
+    for(const id of [...STRU.keys()]) { delStru(id); netUnbuild(id); }
+    for(let i=0;i<NG;i++) base[i]={...START};
+    myPC={g:G.me.g,w:0,s:0,o:0,sw:0,ss:0,so:0,n:G.me.name,mined:0,built:0};
+    MY.mined=0; MY.built=0; pcMap.set(uid,myPC);
+    if(net) net.child('pc').remove();
+    netBase(); goDay(); }
+};
+
+/* ═══════════════════════ 자원 보내기 ═══════════════════════ */
+let giveTo = -1;
+function buildGive(){
+  const w = el('giveWrap'); w.innerHTML='';
+  for(let i=0;i<NG;i++){
+    const b = document.createElement('button');
+    b.innerHTML = (i+1)+'모둠';
+    if(i===G.me.g){ b.style.opacity=.35; b.disabled=true; b.innerHTML += '<br><small>우리</small>'; }
+    b.style.borderColor = GCOL[i];
+    if(i===giveTo){ b.style.background = GCOL[i]; b.style.color='#111'; }
+    b.onclick = ()=>{ giveTo = i; buildGive(); };
+    w.appendChild(b);
+  }
+}
+for(const [s,v] of [['gvW','gvWv'],['gvS','gvSv'],['gvG','gvGv']])
+  el(s).oninput = ()=> el(v).textContent = el(s).value;
+el('bGive').onclick = ()=>{ giveTo = -1; buildGive(); openPop('popGive'); };
+el('bGiveGo').onclick = ()=>{
+  if(giveTo < 0){ alert('어느 모둠에 보낼지 골라 주세요'); return; }
+  const w = +el('gvW').value, s = +el('gvS').value, g = +el('gvG').value;
+  const r = myRes();
+  if(w>r.w || s>r.s || g>r.g){ alert('가진 것보다 많이 보낼 수 없어요'); return; }
+  if(w+s+g===0){ alert('보낼 양을 정해 주세요'); return; }
+  base[G.me.g].w -= w; base[G.me.g].s -= s; base[G.me.g].o -= g;
+  base[giveTo].w += w; base[giveTo].s += s; base[giveTo].o += g;
+  recomputeRes(); netBase();
+  feed(`🎁 <b style="color:${GCOL[G.me.g]}">${G.me.g+1}모둠</b> → <b style="color:${GCOL[giveTo]}">${giveTo+1}모둠</b> 🪵${w} 🪨${s} ✨${g}`);
+  toast('보냈어요!', 1.4, '#c8ffb0');
+  el('popGive').classList.remove('on');
+};
+
+/* ═══════════════════════ 도움말 ═══════════════════════ */
+el('bSnd').onclick = ()=>{
+  sndOn = !sndOn; audioInit();
+  el('bSnd').textContent = sndOn ? '🔊 소리 켬' : '🔇 소리 끔';
+  if(sndOn) sfx('get');
+};
+el('bBook').onclick = ()=>{
+  let h='';
+  for(const k of BKEYS){ const b=BUILD[k];
+    const cs=[b.cost.w?`🪵${b.cost.w}`:'',b.cost.s?`🪨${b.cost.s}`:'',b.cost.g?`✨${b.cost.g}`:''].filter(Boolean).join(' ');
+    let ext = `체력 ${b.hp[0]}→${b.hp[1]}→${b.hp[2]}`;
+    if(b.dmg) ext += ` · 공격 ${b.dmg.join('→')}`;
+    if(b.sold) ext += ` · 병정 ${b.sold.join('→')}마리`;
+    if(b.slow) ext += ` · 감속 ${b.slow.map(v=>Math.round((1-v)*100)+'%').join('→')}`;
+    h += `${b.icon} <b>${b.name}</b> — ${cs}<br>
+      <span style="opacity:.72">　${ext}</span><br>
+      <span style="opacity:.6">　강화 ${costTxt(b.up[0])} → ${costTxt(b.up[1])}</span><br>
+      <span style="opacity:.7">　${b.desc}</span><br><br>`; }
+  h += `🔧 <b>수리</b> — 🪵1 · 부서진 걸 다시 튼튼하게<br>💥 <b>철거</b> — 절반 돌려받음`;
+  el('bookList').innerHTML = h; openPop('popBook');
+};
+
+/* ═══════════════════════ 선생님 패널 ═══════════════════════ */
+el('bTeach').onclick = ()=>{
+  el('tRoom').innerHTML = G.solo ? '혼자 연습 중' : `방 코드 <span style="color:#ffd43b">${G.room}</span>`;
+  for(const [s,v,f] of [['sDay','sDayV',x=>x+'초'],['sNight','sNightV',x=>x+'초'],
+      ['sGoal','sGoalV',x=>x+'일'],['sPow','sPowV',x=>'×'+x]]){
+    el(s).value = s==='sDay'?G.set.daySec : s==='sNight'?G.set.nightSec :
+                  s==='sGoal'?G.set.goalDay : G.set.wolfPower;
+    el(v).textContent = f(el(s).value);
+    el(s).oninput = ()=>{ el(v).textContent = f(el(s).value);
+      G.set.daySec=+el('sDay').value; G.set.nightSec=+el('sNight').value;
+      G.set.goalDay=+el('sGoal').value; G.set.wolfPower=+el('sPow').value; netMeta(); };
+  }
+  paintTeach(); openPop('popTeach');
+};
+function paintTeach(){
+  let h='';
+  for(let i=0;i<NG;i++){ const r=G.res[i];
+    const cnt = [...STRU.values()].filter(o=>o.g===i).length;
+    const ppl = [...pcMap.values()].filter(p=>p.g===i && p.n).length;
+    h += `<div class="gline"><span class="dot" style="background:${GCOL[i]}"></span>
+      ${i+1}모둠 <span style="opacity:.6">(${ppl}명·건물 ${cnt})</span>
+      <span class="v gv"><span>🪵${r.w}</span><span>🪨${r.s}</span><span>✨${r.g}</span></span></div>`; }
+  el('tGroups').innerHTML = h;
+  let t = '<tr><th>이름</th><th>모둠</th><th style="text-align:right">캔 자원</th><th style="text-align:right">지은 것</th></tr>';
+  for(const p of [...pcMap.values()].filter(p=>p.n).sort((a,b)=>(b.mined|0)-(a.mined|0)))
+    t += `<tr><td>${esc(p.n)}</td><td>${(p.g|0)+1}</td><td class="n">${p.mined|0}</td><td class="n">${p.built|0}</td></tr>`;
+  el('tRank').innerHTML = t;
+}
+el('tSkip').onclick = ()=>{ if(!G.host) return;
+  if(G.phase==='day') goNight(); else { G.wolves.length=0; spawnQ=[];
+    if(G.day>=G.set.goalDay){ G.phase='win'; netMeta(); showEnd(); } else { G.day++; goDay(); } } };
+el('tHeal').onclick = ()=>{ G.crystal = G.set.crystalMax; netMeta(); toast('💎 수정 회복!',1.6,'#c8ffb0'); };
+el('tClear').onclick = ()=>{ for(const w of G.wolves) burst(w.x,GY+1,w.z,0x999999,8);
+  G.wolves.length=0; spawnQ=[]; };
+el('tGift').onclick = ()=>{ for(let i=0;i<NG;i++){ base[i].w+=30; base[i].s+=30; base[i].o+=5; }
+  recomputeRes(); netBase(); feed('🎁 선생님이 모든 모둠에 자원을 주셨습니다'); paintTeach(); };
+el('tReset').onclick = ()=>{ if(!confirm('처음부터 다시 시작할까요?')) return;
+  for(const id of [...STRU.keys()]){ delStru(id); netUnbuild(id); }
+  for(let i=0;i<NG;i++) base[i]={...START};
+  G.day=1; G.crystal=G.set.crystalMax; endShown=false;
+  if(net) net.child('pc').remove();
+  myPC={g:G.me.g,w:0,s:0,o:0,sw:0,ss:0,so:0,n:G.me.name,mined:0,built:0};
+  MY.mined=0; MY.built=0; pcMap.set(uid,myPC);
+  netBase(); goDay(); el('popTeach').classList.remove('on'); };
+
+/* ═══════════════════════ 스테이지 안내 / 보스바 ═══════════════════════ */
+let stageT = 0;
+function showStage(){
+  const w = el('stageTitle');
+  w.querySelector('.d').textContent = G.day + '일차';
+  const bi = bossIndex(G.day);
+  const nx = bossIndex(G.day) < 0 && bossDays().includes(G.day+1);
+  w.querySelector('.n').textContent = '오늘 밤 · ' + stageName(G.day);
+  w.querySelector('.n').style.color = bi>=0 ? '#ffc78a' : '#ffffff';
+  w.classList.add('on'); stageT = 3.4;
+  if(nx) setTimeout(()=> feed('⚠️ <b style="color:#ffc78a">내일 밤은 보스입니다.</b> 화살탑을 미리 늘려 두세요'), 900);
+  if(bi>=0) setTimeout(()=>{
+    feed(`⚠️ <b style="color:#ff9b9b">오늘 밤 ${WOLF_T[3+bi].n} 등장!</b> 다섯 입구 모두 돌벽으로 막고 탑을 채우세요`);
+    toast('⚠️ 오늘 밤은 보스입니다!', 3.2, '#ffc78a');
+  }, 3600);
+}
+function updBoss(){
+  const b = G.wolves.find(w=>w.k>=3);
+  const wrap = el('bossWrap');
+  if(!b){ wrap.classList.remove('on'); return; }
+  wrap.classList.add('on');
+  const pct = G.host ? (b.hp/b.mx*100) : b.hp;
+  el('bossName').textContent = WOLF_T[b.k].n;
+  el('bFill').style.width = Math.max(0,Math.min(100,pct)) + '%';
+  const adds = G.wolves.length - 1;
+  const dist = Math.hypot(b.x, b.z);
+  el('bAdds').textContent = `부하 ${adds}마리 · 수정까지 ${Math.max(0,Math.round(dist-6))}칸`;
+}
+function updDanger(){
+  const p = G.crystal / G.set.crystalMax;
+  const d = el('danger');
+  if(G.phase==='night' && p < 0.3){ d.style.opacity = 1; d.classList.add('on'); }
+  else { d.style.opacity = 0; d.classList.remove('on'); }
+}
+
+/* ═══════════════════════ 소리 (파일 없이 코드로 합성) ═══════════════════════ */
+let AUD = null, sndOn = true, bgmStep = 0;
+function audioInit(){
+  if(AUD) return;
+  try{ AUD = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ AUD = null; }
+}
+function tone(f1, f2, dur, type, vol, when){
+  if(!AUD || !sndOn) return;
+  if(AUD.state==='suspended') AUD.resume();
+  const t0 = when || AUD.currentTime;
+  const o = AUD.createOscillator(), g = AUD.createGain();
+  o.type = type || 'square';
+  o.frequency.setValueAtTime(f1, t0);
+  if(f2 && f2 !== f1) o.frequency.exponentialRampToValueAtTime(Math.max(24,f2), t0+dur);
+  g.gain.setValueAtTime(0.0001, t0);
+  g.gain.exponentialRampToValueAtTime(vol || 0.10, t0 + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(g); g.connect(AUD.destination);
+  o.start(t0); o.stop(t0 + dur + 0.03);
+}
+function noise(dur, vol, cut){
+  if(!AUD || !sndOn) return;
+  const n = (AUD.sampleRate*dur)|0;
+  const buf = AUD.createBuffer(1, n, AUD.sampleRate), d = buf.getChannelData(0);
+  for(let i=0;i<n;i++) d[i] = (Math.random()*2-1) * (1 - i/n);
+  const src = AUD.createBufferSource(); src.buffer = buf;
+  const f = AUD.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = cut || 900;
+  const g = AUD.createGain(); g.gain.value = vol || 0.10;
+  src.connect(f); f.connect(g); g.connect(AUD.destination); src.start();
+}
+const now0 = ()=> AUD ? AUD.currentTime : 0;
+const SFX = {
+  chop: ()=>{ noise(0.09,0.14,1300); tone(230,120,0.08,'square',0.05); },
+  get:  ()=>{ tone(880,1320,0.11,'triangle',0.08); },
+  build:()=>{ tone(300,470,0.13,'square',0.09); noise(0.08,0.07,600); },
+  fix:  ()=>{ tone(520,760,0.09,'triangle',0.07); },
+  up:   ()=>{ [660,880,1170].forEach((f,i)=> tone(f,null,0.13,'triangle',0.10, now0()+i*0.09)); },
+  bite: ()=>{ noise(0.07,0.09,700); tone(170,90,0.07,'sawtooth',0.045); },
+  hit:  ()=>{ tone(560,320,0.07,'square',0.045); },
+  bow:  ()=>{ tone(950,420,0.06,'triangle',0.035); },
+  magic:()=>{ tone(520,1180,0.16,'sine',0.06); tone(780,1560,0.12,'triangle',0.035); },
+  hurt: ()=>{ tone(210,80,0.30,'sawtooth',0.12); noise(0.20,0.09,420); },
+  boss: ()=>{ [120,95,70].forEach((f,i)=> tone(f,null,0.45,'sawtooth',0.13, now0()+i*0.16)); },
+  win:  ()=>{ [523,659,784,1047].forEach((f,i)=> tone(f,null,0.24,'triangle',0.11, now0()+i*0.14)); },
+  lose: ()=>{ [392,330,262,196].forEach((f,i)=> tone(f,null,0.32,'sawtooth',0.10, now0()+i*0.19)); },
+  dawn: ()=>{ [523,659,784].forEach((f,i)=> tone(f,null,0.22,'triangle',0.09, now0()+i*0.11)); },
+  dusk: ()=>{ [392,330,247].forEach((f,i)=> tone(f,null,0.30,'sawtooth',0.09, now0()+i*0.15)); }
+};
+const _sfxT = {};
+function sfx(k){ audioInit(); if(SFX[k]) SFX[k](); }
+/* 멀리서 나는 소리는 무시하고, 같은 소리가 몰리면 솎아 낸다 */
+function sfxAt(k, x, z, maxD, gap){
+  if(!sndOn) return;
+  const d = Math.hypot(x-PL.x, z-PL.z);
+  if(d > (maxD||26)) return;
+  const t = performance.now();
+  if(_sfxT[k] && t - _sfxT[k] < (gap||70)) return;
+  _sfxT[k] = t; sfx(k);
+}
+window.__sfx = sfx; window.__sfxAt = sfxAt;
+
+/* 배경음 — 낮은 밝은 아르페지오, 밤은 낮고 불안한 음 */
+const BGM_DAY   = [0,4,7,12,7,4, 0,5,9,12,9,5];
+const BGM_NIGHT = [0,3,7,10,7,3, -2,3,7,10,7,3];
+function bgmTick(){
+  if(!AUD || !sndOn || !G.started || popOpen()) return;
+  const night = G.phase === 'night';
+  const seq = night ? BGM_NIGHT : BGM_DAY;
+  const root = night ? 110 : 130.81;
+  const f = root * Math.pow(2, seq[bgmStep % seq.length]/12);
+  tone(f, null, night?0.52:0.34, night?'sawtooth':'triangle', night?0.030:0.026);
+  if(bgmStep % 4 === 0) tone(f/2, null, 0.62, 'sine', 0.032);
+  bgmStep++;
+}
+setInterval(bgmTick, 430);
+addEventListener('pointerdown', audioInit, {once:true});
+addEventListener('touchstart', audioInit, {once:true});
+
+/* ═══════════════════════ 하늘 / 조명 ═══════════════════════ */
+const _cA = new THREE.Color(), _cB = new THREE.Color();
+function updSky(dt, night){
+  const k = night ? 1 : 0;
+  skyK += (k - skyK) * Math.min(1, dt*1.3);
+  NIGHTK = skyK;
+  // 해·달이 하늘을 가로지른다
+  const th = Math.PI/2 + skyK*Math.PI - 0.34;
+  skyPivot.rotation.x = th;
+  sun.position.set(Math.cos(th*0.6)*60, Math.max(18, Math.abs(Math.sin(th))*95), 40);
+  skyPivot.position.copy(camera.position);
+  stars.position.copy(camera.position);
+  stars.material.opacity = Math.max(0, skyK*1.35 - 0.32);
+  stars.rotation.y += dt*0.006;
+  // 횃불은 밤에 켜지고 살짝 흔들린다
+  const fl = skyK * (0.85 + Math.sin(tAcc*7.3)*0.07 + Math.sin(tAcc*3.1)*0.05);
+  EMIT.emissiveIntensity = fl;
+  EMITC.emissiveIntensity = fl*1.1;
+  fireMesh.count = skyK > 0.35 ? FN : 0;
+  if(fireMesh.count){
+    for(let i=0;i<FN;i++){ const f = flies[i];
+      f.p += dt*f.s;
+      const fx2 = f.x + Math.sin(f.p*1.7)*2.2, fz2 = f.z + Math.cos(f.p*1.3)*2.2;
+      const fy2 = f.y + Math.sin(f.p*2.6)*0.5;
+      const bl = 0.6+0.4*Math.sin(f.p*5.0);
+      _v.set(fx2, fy2, fz2); _q.identity(); _s.set(bl,bl,bl);
+      fireMesh.setMatrixAt(i, _m.compose(_v,_q,_s));
+    }
+    fireMesh.instanceMatrix.needsUpdate = true;
+    fireMat.opacity = 0.45 + 0.5*Math.sin(tAcc*2.2)*0.3 + 0.3;
+  }
+  _cA.copy(SKY_DAY).lerp(SKY_NIGHT, skyK);
+  scene.background.copy(_cA);
+  scene.fog.color.copy(_cA);
+  scene.fog.near = 68 - skyK*14; scene.fog.far = 152 - skyK*38;
+  hemi.color.copy(HEMI_DS).lerp(HEMI_NS, skyK);
+  hemi.groundColor.copy(HEMI_DG).lerp(HEMI_NG, skyK);
+  hemi.intensity = 1.18 - skyK*0.30;
+  sun.color.copy(SUN_D).lerp(SUN_N, skyK);
+  sun.intensity = 0.92 - skyK*0.42;
+  amb.intensity = 0.40 + skyK*0.06;
+  clouds[0].children[0].material.color.setScalar(1-skyK*0.66);
+}
+let skyK = 0;
+let NIGHTK = 0;      // 0=한낮 1=한밤 — 늑대 눈이 이걸 보고 타오른다
+
+/* ═══════════════════════ 이름표 ═══════════════════════ */
+for(let i=0;i<14;i++) tagPool.push(tagSprite());
+function updTags(){
+  const list = [...G.players.values()]
+    .map(p=>({p, d:Math.hypot(p.x-PL.x, p.z-PL.z)}))
+    .filter(o=>o.d<40).sort((a,b)=>a.d-b.d).slice(0,14);
+  list.forEach((o,i)=>{ const t = tagPool[i];
+    setTag(t, o.p.n||'?', GCOL[o.p.g|0]);
+    t.sp.position.set(o.p.x, (o.p.y||GY)+2.15, o.p.z);
+    const sc = Math.max(1, o.d*0.075);
+    t.sp.scale.set(3.2*sc*0.55, 0.8*sc*0.55, 1);
+    t.sp.visible = true; });
+  for(let i=list.length;i<tagPool.length;i++) tagPool[i].sp.visible = false;
+}
+
+let shakeT = 0, shakeP = 1;
+function shake(power, sec){ shakeP = power; shakeT = Math.max(shakeT, sec); }
+window.__shake = shake;
+
+/* ═══════════════════════ 메인 루프 ═══════════════════════ */
+let last = performance.now()/1000, tAcc = 0, hudT = 0;
+let fpsVal = 0, fpsN = 0, fpsT = 0, struT = 0;
+function loop(){
+  requestAnimationFrame(loop);
+  const now = performance.now()/1000;
+  let dt = Math.min(0.05, now - last); last = now; tAcc += dt;
+  fpsN++; fpsT += dt; if(fpsT>0.5){ fpsVal = Math.round(fpsN/fpsT); fpsN=0; fpsT=0; }
+
+  if(G.started){
+    if(!popOpen()) updPlayer(dt); else { PL.mv=false; }
+    if(shakeT > 0){ shakeT -= dt;
+      const a = shakeT*shakeP;
+      camera.position.x += (Math.random()-.5)*a; camera.position.y += (Math.random()-.5)*a;
+      camera.position.z += (Math.random()-.5)*a; }
+    if(actCd>0) actCd -= dt;
+    if(hurtCd>0) hurtCd -= dt;
+    if(!popOpen()) doAction(dt); else { hl.visible=false; ghost.visible=false; }
+    const isMining = acting && curTool==='mine' && mineHold && G.phase==='day';
+    updHeld(dt, isMining, isMining ? mineProg/MINE_T : 0);
+
+    if(G.host){ hostPhase(dt); if(G.phase==='night') hostSim(dt);
+                else if(flowDirty){ buildFlow(); flowDirty = false; } }
+    else lerpMobs(dt);
+    if(!G.host && G.phase==='night') clientTowerFx(dt);
+    if(G.phase==='win' || G.phase==='lose') showEnd();
+
+    netTick(dt); metaTick(dt);
+
+    // 친구들 보간
+    const kk = Math.min(1, dt*10);
+    for(const p of G.players.values()){ if(p.tx!==undefined){ p.x+=(p.tx-p.x)*kk; p.z+=(p.tz-p.z)*kk; } }
+
+    struT -= dt;
+    if(struDirty && (flowDirty || struT <= 0)){ rebuildStru(); struT = 1/12; }
+    drawWolves(G.wolves, tAcc, dt);
+    drawSoldiers(G.soldiers, tAcc);
+    drawSheep([...G.players.values()], tAcc, MAXP, s=>GHEX[s.g|0], 1.0);
+    updTags();
+    updParts(dt); updArrows(dt); updOrbs(dt, tAcc);
+    updSky(dt, G.phase==='night');
+
+    updCrystal(dt, tAcc, G.crystal/G.set.crystalMax, !!G.lastLight, skyK);
+
+    if(stageT>0){ stageT -= dt; if(stageT<=0) el('stageTitle').classList.remove('on'); }
+    hudT -= dt;
+    if(hudT<=0){ hudT = 0.12; paintHUD(); drawMini(); updBoss(); updDanger();
+      if(el('popTeach').classList.contains('on')) paintTeach(); }
+    if(toastT>0){ toastT -= dt; if(toastT<=0) el('toast').classList.remove('on'); }
+  }
+  for(const c of clouds){ c.position.x += dt*0.55; if(c.position.x > 160) c.position.x = -160; }
+  renderer.render(scene, camera);
+  if(diagEl) updDiag(dt);
+}
+
+/* ══════════════ 진단 화면 ══════════════
+   주소 끝에 ?diag=1 을 붙이면 왼쪽 위에 성능 정보가 뜬다. 평소엔 안 나온다.
+   애들 기기에서 실제로 몇 프레임 나오는지 볼 때 쓴다. */
+const diagEl = (()=>{
+  if(!new URLSearchParams(location.search).has('diag')) return null;
+  const d = document.createElement('div');
+  d.style.cssText = 'position:fixed;left:6px;top:6px;z-index:99999;background:rgba(0,0,0,.80);'
+    + 'color:#9de89d;font:600 12px/1.5 ui-monospace,Menlo,Consolas,monospace;padding:8px 11px;'
+    + 'border-radius:8px;white-space:pre;pointer-events:none;max-width:86vw';
+  document.body.appendChild(d);
+  return d;
+})();
+let diagGpu = null, diagT = 0;
+function updDiag(dt){
+  diagT -= dt; if(diagT > 0) return; diagT = 0.5;
+  if(diagGpu === null){
+    try{ const gl = renderer.getContext();
+      const e = gl.getExtension('WEBGL_debug_renderer_info');
+      diagGpu = String(e ? gl.getParameter(e.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
+    }catch(err){ diagGpu = '알수없음'; }
+    if(diagGpu.length > 46) diagGpu = diagGpu.slice(0,46);
+  }
+  const i = renderer.info.render, c = renderer.domElement;
+  diagEl.textContent =
+    'FPS      ' + fpsVal + '\n' +
+    'GPU      ' + diagGpu + '\n' +
+    '화면배율  ' + devicePixelRatio + ' → ' + renderer.getPixelRatio().toFixed(2) + '\n' +
+    '그리는칸 ' + c.width + '×' + c.height + '  (' + (c.width*c.height/1e6).toFixed(2) + '백만)\n' +
+    '보이는칸 ' + c.clientWidth + '×' + c.clientHeight + '\n' +
+    '드로우콜  ' + i.calls + '   삼각형 ' + Math.round(i.triangles/1000) + 'K\n' +
+    '친구 ' + G.players.size + '  늑대 ' + G.wolves.length + '  건물 ' + STRU.size + '\n' +
+    G.day + '일차 ' + G.phase + '   터치 ' + (isTouch ? 'O' : 'X');
+}
+el('load').style.display = 'none';
+paintBar(); refreshNodeCells(); recomputeRes();
+loop();
+
+/* 개발/검사용 훅 */
+Object.assign(window, {
+  __G:G, __PL:PL, __R:renderer, __NODES:NODES, __STRU:STRU, __DIRS:DIRS, __base:base,
+  __hitNode:hitNode, __canPlace:canPlace, __place:placeStru, __recompute:recomputeRes,
+  __spawnQ:()=>spawnQ, __scene:scene, __GY:GY, __terrH:terrH, __bldH:bldH,
+  __setSky:(v)=>{ skyK=v; }, __up:upgradeStru, __bset:bset, __cam:camera, __held:held, __curTool:()=>curTool, __parts:()=>parts, __selTool:selectTool, __upCost:upCost, __bs:bs, __blocks:blocksOf, __myPC:()=>myPC, __cellOwner:()=>cellOwner, __flow:buildFlow, __fCost:fCost, __walkable:walkable, __BUILD:BUILD, __del:delStru,
+  __wave:waveFor, __clear:()=>{ for(const id of [...STRU.keys()]) delStru(id); },
+  __step:(n, dt=1/30)=>{ for(let i=0;i<n;i++){ hostPhase(dt);
+      if(G.phase==='night') hostSim(dt); else if(flowDirty){ buildFlow(); flowDirty=false; } } },
+  __BAL:BAL, __waveFor:waveFor, __bossDays:bossDays, __prog:prog,
+  __fps:()=>fpsVal,
+  __drawSheep:drawSheep, __Pmesh:()=>[P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_tail,P_legs], __GHEX:GHEX, __render:()=>renderer.render(scene,camera),
+  __rebuild:rebuildStru, __goNight:goNight, __goDay:goDay, __hostSim:(dt)=>hostSim(dt),
+  __blocksRaw:blocksOfRaw, __blkCache:_blkCache,
+  __drawWolves:drawWolves,
+  __Wmesh:()=>({body:W_body, chest:W_chest, ruff:W_ruff, head:W_head, snout:W_snout,
+                nose:W_nose, tail:W_tail, ears:W_ears, eyes:W_eyes, legs:W_legs})
+});
+window.__READY = true;
+</script>
+</body>
+</html>
