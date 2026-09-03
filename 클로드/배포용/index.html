@@ -4146,6 +4146,13 @@ function setHeld(key){
 }
 
 let swingT = 0, bobT = 0, gunT = 0;
+/* 강화 떨림 전용 시계.
+   ★ 처음엔 게임 시간(tAcc)을 썼는데, 그러면 updHeld 를 직접 불러 재는 검사에서
+     시간이 안 흘러 떨림이 '늘 같은 값' 으로 나온다(실제로 0 으로 쟀다).
+     화면에서는 멀쩡해 보여도 잴 수가 없으면 고쳤는지 확인할 방법이 없다.
+     dt 로 스스로 도는 시계를 두면 검사에서도 실제와 똑같이 흔들린다.
+   ★ 이름 주의 — shakeT 는 이미 '화면 흔들림'(__shake)이 쓰고 있다. 다른 이름을 쓴다. */
+let gunShakeT = 0;
 function swing(){ swingT = 1; }
 function updHeld(dt, mining, minePct){
   /* ★ 공격 모드(T)면 총을 계속 들고 있고, 아니면 쏜 직후 잠깐만 든다. */
@@ -4154,6 +4161,7 @@ function updHeld(dt, mining, minePct){
   setHeld(work ? 'work' : holdGun ? 'gun' : (curTool === 'build' ? curBuild : curTool));
 
   if(gunKick > 0) gunKick = Math.max(0, gunKick - dt*7.0);   // 0.14초쯤에 걸쳐 돌아온다
+  gunShakeT += dt;
 
   bobT += dt * (PL.mv ? 7.5 : 1.6);
   let a;
@@ -4209,10 +4217,18 @@ function updHeld(dt, mining, minePct){
 
   /* ★ 떨림은 화면 흔들림이 아니라 '손에 든 것'만 떤다. 화면을 흔들면 조준이 어려워져
      강화가 벌이 된다 — 9살이 +6 을 만들고 나서 더 못 맞히면 안 된다. */
-  const shx = shake ? Math.sin(tAcc*47)*shake*0.6 : 0;
-  const shy = shake ? Math.sin(tAcc*61 + 1.7)*shake*0.6 : 0;
-  held.rotation.x = -a*1.25 + Math.sin(bobT)*0.012 - kx*0.30 + shy*0.5;
-  held.rotation.z =  a*0.42 + shx*0.5;
+  /* ★ 선생님: "진동이 너무 심해. 아주 살짝 떨리게만." — 두 가지가 겹쳐 심했다:
+       ① 폭이 컸다 (0.6 배)
+       ② 빠르기가 7.5~9.7Hz 라 '떨림' 이 아니라 '버저' 로 보였다.
+     폭을 0.6 → 0.17 로, 빠르기를 절반쯤(3.8~4.9Hz)으로 낮췄다.
+     자리 흔들림이 최대 0.028 → 0.008 칸이다. 눈에 겨우 걸리는 정도 —
+     "살아 있는 물건을 쥐고 있다" 는 느낌만 남기고 조준에는 지장이 없다.
+     ★ 남의 총(P_gunF)의 떨림은 안 건드렸다. 거기는 원래도 미세해서
+       (양 크기 0.7 이 곱해진다) 더 줄이면 아예 안 보인다. */
+  const shx = shake ? Math.sin(gunShakeT*24)*shake*0.17 : 0;
+  const shy = shake ? Math.sin(gunShakeT*31 + 1.7)*shake*0.17 : 0;
+  held.rotation.x = -a*1.25 + Math.sin(bobT)*0.012 - kx*0.30 + shy*0.35;
+  held.rotation.z =  a*0.42 + shx*0.35;
   held.position.set(
     BX + Math.sin(bobT)*0.012 - a*0.07 + shx,
     BY + Math.abs(Math.sin(bobT*2))*0.012 - a*0.07 + kx*0.045 + shy,

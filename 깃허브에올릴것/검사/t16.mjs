@@ -314,6 +314,42 @@ ok('★ +5 는 파란 빛, +6 은 붉은 빛 (단계마다 색이 다르다)',
 ok('★ 가산합성이 흰색으로 날아가지 않게 진하기를 묶었다', fp.lv6.op <= 0.72, fp.lv6.op.toFixed(2));
 ok('★ +4 부터 손이 떨린다 (그 아래는 안 떤다)',
    fp.fx[3][2] === 0 && fp.fx[4][2] > 0, '+3 ' + fp.fx[3][2] + ' · +4 ' + fp.fx[4][2]);
+
+/* ★ 떨림이 '아주 살짝' 인지 실제로 흔들려서 잰다.
+   정지 화면으로는 볼 수 없다 — 여러 프레임의 자리를 모아 폭을 재야 한다.
+   선생님이 "진동이 너무 심해" 라고 한 판은 자리 0.055칸 · 각도 1.58도였다.
+   ★ 떨림은 자기 시계(gunShakeT)를 쓴다. 게임 시간(tAcc)을 쓰면 updHeld 를 직접 부르는
+     여기서 시간이 안 흘러 '늘 같은 값' 이 나온다 — 실제로 0 으로 쟀다가 알았다. */
+const sh = await pg.evaluate(()=>{
+  const W=window, held=W.__held, o={};
+  W.__KIT.ownW=[true,true,true,true,true,true,true];
+  W.__equipWeapon(5); W.__setAim(true);
+  W.__PL.mv = false;                       // 걸음 반동을 빼고 떨림만 본다
+  const span = (e)=>{
+    W.__setEnh(5, e);
+    let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9,r0=1e9,r1=-1e9;
+    for(let i=0;i<240;i++){                // 4초치
+      W.__updHeld(1/60, false, 0);
+      x0=Math.min(x0,held.position.x); x1=Math.max(x1,held.position.x);
+      y0=Math.min(y0,held.position.y); y1=Math.max(y1,held.position.y);
+      r0=Math.min(r0,held.rotation.z);  r1=Math.max(r1,held.rotation.z);
+    }
+    return { pos:Math.max(x1-x0, y1-y0), deg:(r1-r0)*180/Math.PI };
+  };
+  o.lv0 = span(0); o.lv3 = span(3); o.lv4 = span(4); o.lv6 = span(6);
+  W.__setEnh(5,0); W.__setAim(false);
+  return o;
+});
+ok('★ +3 까지는 아예 안 떤다 (숨쉬는 움직임만)',
+   sh.lv3.deg < 0.001 && Math.abs(sh.lv3.pos - sh.lv0.pos) < 0.0005,
+   '+0 ' + sh.lv0.pos.toFixed(4) + ' · +3 ' + sh.lv3.pos.toFixed(4) + '칸');
+ok('★ +4 부터는 실제로 떤다', sh.lv4.pos > sh.lv0.pos && sh.lv4.deg > 0.05,
+   '+' + (sh.lv4.pos - sh.lv0.pos).toFixed(4) + '칸 · ' + sh.lv4.deg.toFixed(2) + '도');
+ok('★ 단계가 오를수록 더 떤다', sh.lv6.pos > sh.lv4.pos,
+   '+4 ' + sh.lv4.pos.toFixed(4) + ' < +6 ' + sh.lv6.pos.toFixed(4) + '칸');
+ok('★ 그래도 "아주 살짝" 이다 — +6 이 0.025칸·0.6도를 안 넘는다',
+   (sh.lv6.pos - sh.lv0.pos) < 0.025 && sh.lv6.deg < 0.6,
+   '+' + (sh.lv6.pos - sh.lv0.pos).toFixed(4) + '칸 · ' + sh.lv6.deg.toFixed(2) + '도');
 ok('★ 1인칭 크기(fp)는 남의 총 크기(glow)와 따로 둔다 — 카메라 코앞은 따로 재야 한다',
    fp.fx.every((v,i)=> i===0 || (v[1] > 0 && v[1] !== v[0])),
    fp.fx.map(v=>v[1]).join(' '));
