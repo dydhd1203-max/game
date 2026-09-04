@@ -132,12 +132,9 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 
 /* ── 로그인 ── */
 /* 크롬북 세로(632px)에 다 들어가야 한다. 넘치면 위아래가 잘린다. */
-#login{display:none;place-items:center;overflow:auto;padding:6px 0}
+#login{display:none;height:100%;place-items:center;place-content:center;overflow:auto;padding:6px 0}
 #login.on{display:grid}
-.lgStage{display:grid;grid-template-columns:150px auto 150px;align-items:end;gap:6px}
-.lgSide{line-height:0;padding-bottom:6px}
-.lgSide svg{filter:drop-shadow(0 4px 0 rgba(10,50,90,.25))}
-.loginbox{width:376px;padding:13px 16px 11px;text-align:center}
+
 /* 큐플레이 로고처럼 두툼하게 — 그림자를 층층이 쌓아 3D 로 보이게 한다 */
 .logo{font-size:52px;font-weight:900;letter-spacing:-.05em;line-height:1;
   color:#ffe27a;margin:0 0 10px;
@@ -148,15 +145,6 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 .logo small{display:block;font-size:15px;font-weight:800;letter-spacing:0;
   color:#fff;margin-top:12px;
   text-shadow:-2px -2px 0 #14406e,2px -2px 0 #14406e,-2px 2px 0 #14406e,2px 2px 0 #14406e,0 4px 0 #0f3a66}
-.lgFoot{margin-top:8px;text-align:center;color:#cfe6fb;font-size:11px;
-  text-shadow:0 1px 0 #14406e}
-.pinpad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
-.pinpad button{padding:9px 0;font-size:20px;font-weight:800;border-radius:11px;
-  background:linear-gradient(#fff,#dcecf9);color:#1b4d84;box-shadow:0 4px 0 #9dbcd6}
-.pinpad button:active{transform:translateY(3px);box-shadow:0 1px 0 #9dbcd6}
-.pindots{display:flex;gap:10px;justify-content:center;margin:7px 0 2px}
-.pindots i{width:16px;height:16px;border-radius:50%;background:#fff;border:2px solid #8fc0e4}
-.pindots i.f{background:#2b7fd0;border-color:#1b4d84}
 
 /* ── 위쪽 띠 ── */
 .top{position:absolute;left:0;right:0;top:0;height:54px;display:flex;align-items:center;
@@ -299,14 +287,6 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 .pcard .st{font-size:10px;font-weight:900;color:#3d8f2e}
 
 /* ── OX 무대 ── */
-.oxstage{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr}
-.oxzone{position:relative;display:grid;place-items:center;overflow:hidden}
-.oxzone.o{background:radial-gradient(circle at 50% 45%,#ffe9a8,#f6c95e 60%,#e0a52e)}
-.oxzone.x{background:radial-gradient(circle at 50% 45%,#c9e6ff,#8ec6f2 60%,#4d9ad8)}
-.oxzone .mark{position:absolute;font-size:min(34vh,300px);font-weight:900;opacity:.32;
-  pointer-events:none;line-height:1}
-.oxzone.o .mark{color:#c46f00} .oxzone.x .mark{color:#0d4a80}
-.oxzone.sel{box-shadow:inset 0 0 0 8px #fff,inset 0 0 0 14px #ff5f9e}
 .oxfield{position:absolute;inset:0;pointer-events:none}
 .oxdot{position:absolute;width:74px;margin-left:-37px;text-align:center;
   transition:left .45s cubic-bezier(.3,1.4,.5,1),top .45s cubic-bezier(.3,1.4,.5,1)}
@@ -395,47 +375,6 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
   background:linear-gradient(#fff6e2,#ffd9a0);color:#a35f00;box-shadow:inset 0 1px 0 #fff,0 3px 0 #d09330}
 .sw .who{line-height:0;margin-bottom:1px}
 
-/* ── 결과판 (큐플레이 Winner 화면처럼) ── */
-.winwrap{position:absolute;inset:0;display:grid;grid-template-rows:auto auto 1fr;
-  gap:8px;padding:10px 14px 12px;align-items:start}
-.winbanner{text-align:center;font-size:52px;font-weight:900;letter-spacing:.02em;line-height:1;
-  color:#ffd24a;font-family:Impact,"Arial Black",system-ui;
-  text-shadow:-3px -3px 0 #8a3b00,3px -3px 0 #8a3b00,-3px 3px 0 #8a3b00,3px 3px 0 #8a3b00,
-    -4px 0 0 #8a3b00,4px 0 0 #8a3b00,0 -4px 0 #8a3b00,0 4px 0 #8a3b00,
-    0 8px 0 #6b2d00,0 12px 0 #4d2000}
-.podium{display:flex;justify-content:center;align-items:flex-end;gap:16px}
-.pod{text-align:center}
-.pod .who{line-height:0}
-.pod .base{border-radius:9px 9px 0 0;border:3px solid #164a80;border-bottom:0;
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.6);display:grid;place-items:center;
-  font-weight:900;color:#0e3f70;font-size:19px;padding-top:5px}
-.pod.p1 .base{height:62px;background:linear-gradient(#ffe27a,#ffb724)}
-.pod.p2 .base{height:44px;background:linear-gradient(#eef3f7,#c3ced8)}
-.pod.p3 .base{height:34px;background:linear-gradient(#f3cba0,#d1934c)}
-.pod .nm3{font-weight:900;color:#12467e;font-size:14px;margin-top:2px;
-  background:#fff;border:2px solid #7fb4dd;border-radius:20px;padding:1px 10px;display:inline-block}
-.wintab{width:100%;border-collapse:separate;border-spacing:0 4px;font-size:13px}
-.wintab th{color:#cfe6fb;font-size:11px;font-weight:800;padding:0 8px 2px;text-align:left}
-.wintab td{background:#fff;padding:5px 8px;font-weight:800;color:#2b5b85}
-.wintab tr.me td{background:#fff6e6}
-.wintab tr.t1 td{background:linear-gradient(#fff6da,#ffe6a8)}
-.wintab td:first-child{border-radius:9px 0 0 9px;width:34px;text-align:center;color:#8fb4d0}
-.wintab td:last-child{border-radius:0 9px 9px 0;text-align:right;color:#b57700}
-
-/* ── 가로세로 성 (큐플레이 성 화면처럼) ── */
-.castle{display:grid;grid-template-columns:92px 1fr 92px;gap:8px;height:100%;min-height:0}
-.castle > *{min-height:0}
-.tower{display:flex;flex-direction:column;gap:6px;padding-top:2px;min-height:0;overflow:hidden}
-.tw{flex:0 0 auto}
-.tw{border:3px solid #1e5c9e;border-radius:10px 10px 4px 4px;overflow:hidden;
-  background:linear-gradient(#f8fcff,#d8ecfd);box-shadow:inset 0 2px 0 #fff,0 3px 0 #164a80}
-.tw .roof{height:16px;background:linear-gradient(#7ec8ff,#2c7ccd);
-  clip-path:polygon(0 100%,50% 0,100% 100%)}
-.tw .flag{font-size:11px;font-weight:900;color:#fff;padding:3px 6px;text-align:center;
-  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
-  text-shadow:0 1px 0 rgba(0,0,0,.3)}
-.tw .who2{line-height:0;text-align:center;padding:2px 0 4px}
-
 /* ── 패션왕 대회 ── */
 .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(152px,1fr));gap:10px;
   padding:10px;overflow-y:auto;align-content:start}
@@ -480,6 +419,362 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 .gap{gap:8px} .gap4{gap:4px} .f1{flex:1} .mt8{margin-top:8px} .mt12{margin-top:12px}
 .center{display:grid;place-items:center}
 .hide{display:none!important}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ★ 참고 사진(큐플레이)을 보고 다시 그린 화면들 ★
+   그림 파일은 하나도 안 씁니다. 배치와 분위기만 따라 그렸습니다.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 시작화면 — 하늘에 뜬 물방울 ── */
+#login{position:relative}
+.lgSky{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+@keyframes qz-bfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.lgSky .bub{position:absolute;border-radius:50%;
+  background:
+    radial-gradient(circle at 30% 22%,rgba(255,255,255,.95),rgba(255,255,255,.3) 24%,rgba(255,255,255,0) 44%),
+    radial-gradient(circle at 70% 78%,rgba(255,255,255,.45),rgba(255,255,255,0) 38%),
+    radial-gradient(circle at 50% 52%,var(--b2,#c6ecff),var(--b1,#5fb6ee) 74%);
+  box-shadow:inset 0 -9px 20px rgba(10,60,110,.25),0 6px 16px rgba(9,48,90,.2);
+  border:1px solid rgba(255,255,255,.5);
+  animation:qz-bfloat 6.4s ease-in-out infinite}
+.lgWho{position:absolute;line-height:0;z-index:0;
+  animation:qz-bfloat 6.4s ease-in-out infinite}
+.lgWho svg{filter:drop-shadow(0 5px 0 rgba(10,50,90,.2))}
+.lgMid{position:relative;z-index:1;width:398px;text-align:center}
+.lgSup{font-size:15px;font-weight:900;color:#fff;letter-spacing:.04em;
+  font-style:italic;margin-bottom:4px;
+  text-shadow:-2px -2px 0 #14406e,2px -2px 0 #14406e,-2px 2px 0 #14406e,2px 2px 0 #14406e}
+.lgPanel{border-radius:16px;padding:11px 16px 12px;margin-top:8px;
+  background:linear-gradient(rgba(19,66,120,.87),rgba(9,40,80,.91));
+  border:2px solid rgba(160,214,255,.75);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.32),0 6px 0 rgba(7,32,62,.55)}
+.lgTitle{font-size:16px;font-weight:900;color:#ffe27a;letter-spacing:.38em;
+  margin:0 0 9px;text-shadow:0 2px 0 #0b2d51;padding-left:.38em}
+.lgForm{display:grid;grid-template-columns:70px 1fr 74px;gap:6px 7px;align-items:center}
+.lgForm label{font-size:13px;font-weight:900;color:#dff0ff;text-align:right;
+  text-shadow:0 1px 0 #0b2d51}
+.lgGoBtn{grid-row:span 2;height:100%;min-height:54px;border-radius:13px;
+  font-size:18px;white-space:nowrap;font-weight:900;font-style:italic;color:#6b3d00;letter-spacing:-.02em;
+  background:linear-gradient(#fff3b8 0%,#ffd24a 46%,#ffbe2a 54%,#ff9f10 100%);
+  border:2px solid #c98800;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),0 4px 0 #a86e00;
+  transition:transform .06s,box-shadow .06s}
+.lgGoBtn:active{transform:translateY(3px);box-shadow:0 1px 0 #a86e00}
+.lgDots{display:flex;gap:9px;align-items:center;justify-content:center;
+  height:40px;padding:0 12px;border-radius:10px;background:#fff;border:2px solid #8fc0e4}
+.lgDots i{width:15px;height:15px;border-radius:50%;background:#e4eef7;border:2px solid #b9d3e8}
+.lgDots i.f{background:#2b7fd0;border-color:#1b4d84}
+.lgPad{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:7px}
+.lgPad button{padding:7px 0;font-size:17px;font-weight:900;border-radius:9px;
+  background:linear-gradient(#fff,#dcecf9);color:#1b4d84;box-shadow:0 3px 0 #7ea8c8;
+  transition:transform .06s,box-shadow .06s}
+.lgPad button:active{transform:translateY(2px);box-shadow:0 1px 0 #7ea8c8}
+.lgPad button.w{font-size:12px}
+.lgWide{display:block;width:100%;margin-top:8px;padding:9px 0;border-radius:12px;
+  font-size:16px;font-weight:900;color:#fff;text-shadow:0 1px 1px #0e3a68;letter-spacing:-.02em;
+  background:linear-gradient(#7ec8ff 0%,#3f97e6 46%,#2c7ccd 54%,#1f66b4 100%);
+  border:2px solid #9fd4ff;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 0 #14456f;
+  transition:transform .06s,box-shadow .06s}
+.lgWide:active{transform:translateY(3px);box-shadow:0 1px 0 #14456f}
+.lgWide.ex{background:linear-gradient(#f8fbfe,#c6d6e4);color:#2b4a63;text-shadow:none;
+  border-color:#fff;box-shadow:inset 0 1px 0 #fff,0 4px 0 #8ea3b6}
+.lgWide.ex:active{box-shadow:0 1px 0 #8ea3b6}
+.lgSex{display:grid;grid-template-columns:70px 1fr;gap:7px;align-items:center;margin-bottom:6px}
+.lgMsg{min-height:26px;margin-top:7px;font-size:12px;line-height:1.45;color:#cfe6fb}
+.lgMsg b{color:#fff}
+.lgBar{margin-top:9px;text-align:center;font-size:11px;font-weight:700;color:#eaf6ff;
+  background:rgba(11,45,81,.55);border-radius:20px;padding:4px 12px;display:inline-block}
+
+/* ── 퀴즈 화면 — 방송국 스튜디오 ── */
+.studio{position:absolute;inset:0;overflow:hidden;
+  background:
+    linear-gradient(rgba(255,255,255,.1),rgba(0,20,45,.22)),
+    repeating-linear-gradient(90deg,#2f92cd 0 24px,#1f6ea6 24px 48px,#3aa9de 48px 72px)}
+.stFloor{position:absolute;left:0;right:0;bottom:0;height:118px;pointer-events:none;
+  background:
+    radial-gradient(120% 92% at 50% 0%,rgba(255,255,255,.3),rgba(255,255,255,0) 62%),
+    linear-gradient(#1d6296 0%,#12446e 48%,#0c3253 100%);
+  border-top:3px solid #0b2f4e;box-shadow:inset 0 3px 0 rgba(255,255,255,.28)}
+.stTruss{position:absolute;left:0;right:0;top:0;height:24px;display:flex;
+  justify-content:space-around;align-items:flex-start;pointer-events:none;
+  background:linear-gradient(#123a5e,#0c2a45);border-bottom:3px solid #08203a;z-index:1}
+.stTruss i{width:24px;height:18px;margin-top:3px;border-radius:3px 3px 9px 9px;
+  background:linear-gradient(#9db4c6,#4d6577);border:1px solid #2b3f50;position:relative}
+.stTruss i::after{content:'';position:absolute;left:50%;top:100%;
+  transform:translateX(-50%);border-left:26px solid transparent;
+  border-right:26px solid transparent;border-top:132px solid rgba(255,255,255,.085)}
+.stRig{position:absolute;top:24px;bottom:150px;width:40px;pointer-events:none;
+  background:linear-gradient(#eef3f8,#a9bccb);border:3px solid #6f8496}
+.stRig.l{left:5px;border-radius:0 9px 9px 0;border-left:0}
+.stRig.r{right:5px;border-radius:9px 0 0 9px;border-right:0}
+.stRig b{position:absolute;left:50%;transform:translateX(-50%);width:18px;height:18px;
+  border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#d3e3f0 58%,#8ea6ba);
+  border:2px solid #6f8496}
+.stGrid{position:absolute;left:52px;right:52px;top:28px;bottom:6px;
+  display:grid;grid-template-columns:1fr 204px;gap:9px;min-height:0}
+.stGrid>*{min-height:0}
+.tvcol{display:flex;flex-direction:column;gap:7px;min-height:0}
+.tvset{flex:1;min-height:0;display:flex;flex-direction:column;border-radius:16px;padding:9px;
+  background:linear-gradient(#fbfdff 0%,#d7e2ec 14%,#a8bbc9 52%,#8298aa 86%,#eef3f7 100%);
+  border:3px solid #64798a;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.9),0 6px 0 #4a5c6b}
+.tvin{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px;padding:10px 12px;
+  border-radius:8px;border:3px solid #14283a;
+  background:
+    radial-gradient(130% 80% at 50% -6%,rgba(255,255,255,.26),rgba(255,255,255,0) 58%),
+    linear-gradient(#33b0d4,#1a80af 55%,#12628c);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.16)}
+.tvhead{display:flex;align-items:center;gap:8px;flex:none;
+  color:#eaf8ff;font-weight:900;font-size:13px;text-shadow:0 1px 2px rgba(0,0,0,.45)}
+.tvhead .cam{margin-left:auto;font-size:15px;opacity:.8}
+.tvq{flex:none;background:linear-gradient(#fffdf3,#fff0c6);border:4px solid #d8a63a;
+  border-radius:16px;padding:11px 18px;box-shadow:0 5px 0 #a97c1e;position:relative}
+.tvq .qno{position:absolute;left:-2px;top:-15px;background:#e8534f;color:#fff;
+  font-weight:900;font-size:12px;padding:3px 13px;border-radius:20px;border:3px solid #fff}
+.tvbody{flex:1;min-height:0;overflow:auto}
+.deskrow{flex:none;display:grid;grid-template-columns:repeat(auto-fit,72px);
+  justify-content:center;gap:5px;max-height:176px;overflow:auto;padding:2px 2px 4px}
+.desk{text-align:center}
+.desk .dwho{line-height:0;margin-bottom:-11px;position:relative;z-index:1}
+.desk .dbox{border-radius:7px 7px 4px 4px;padding:2px 3px 3px;position:relative;
+  background:linear-gradient(#f6fafd 0%,#d3e0ea 40%,#9fb3c3 100%);
+  border:2px solid #56697a;box-shadow:0 3px 0 #3d4d5c}
+.desk .dnm{font-size:10px;font-weight:900;background:#0e3f70;color:#cfeaff;
+  border-radius:4px;padding:1px 3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.desk .dsc{font-size:12px;font-weight:900;color:#22384a;line-height:1.25}
+.desk.ansd .dbox{border-color:#3d8f2e;background:linear-gradient(#eaffe2,#a8dd96);
+  box-shadow:0 3px 0 #2c7a22}
+.desk.me .dnm{background:#ff5f9e;color:#fff}
+.desk.dead{opacity:.4;filter:grayscale(1)}
+.stSide{display:flex;flex-direction:column;gap:7px;min-height:0}
+.stMon{border-radius:12px;padding:7px;min-height:0;display:flex;flex-direction:column;
+  background:linear-gradient(#f4f8fb,#a8bbc9 60%,#7f95a7);
+  border:3px solid #64798a;box-shadow:inset 0 2px 0 rgba(255,255,255,.85),0 5px 0 #4a5c6b}
+.stMon .mh{flex:none;font-size:12px;font-weight:900;color:#eaf8ff;padding:3px 8px;
+  border-radius:6px 6px 0 0;background:linear-gradient(#1a80af,#12628c);
+  border:2px solid #14283a;border-bottom:0;text-shadow:0 1px 1px rgba(0,0,0,.4)}
+.stMon .mb{flex:1;min-height:0;overflow:auto;padding:6px;border-radius:0 0 6px 6px;
+  background:linear-gradient(#e9f4fd,#cfe4f5);border:2px solid #14283a;border-top:0}
+
+/* ── 결과 — 밤하늘 Winner ── */
+.night{position:absolute;inset:0;overflow:hidden;
+  background:
+    radial-gradient(1.6px 1.6px at 8% 14%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1.4px 1.4px at 22% 33%,rgba(255,255,255,.7),transparent),
+    radial-gradient(2px 2px at 37% 9%,rgba(255,255,255,.95),transparent),
+    radial-gradient(1.4px 1.4px at 54% 25%,rgba(255,255,255,.68),transparent),
+    radial-gradient(2px 2px at 71% 12%,rgba(255,255,255,.9),transparent),
+    radial-gradient(1.5px 1.5px at 86% 29%,rgba(255,255,255,.78),transparent),
+    radial-gradient(1.5px 1.5px at 93% 58%,rgba(255,255,255,.66),transparent),
+    radial-gradient(1.5px 1.5px at 15% 67%,rgba(255,255,255,.6),transparent),
+    radial-gradient(2px 2px at 62% 78%,rgba(255,255,255,.74),transparent),
+    radial-gradient(1.4px 1.4px at 44% 57%,rgba(255,255,255,.58),transparent),
+    radial-gradient(1.4px 1.4px at 31% 87%,rgba(255,255,255,.5),transparent),
+    radial-gradient(1.6px 1.6px at 78% 92%,rgba(255,255,255,.6),transparent),
+    linear-gradient(#08103a 0%,#122a63 52%,#1d4a94 100%)}
+@keyframes qz-twinkle{0%,100%{opacity:.25}50%{opacity:1}}
+.night::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(2px 2px at 30% 45%,#fff,transparent),
+    radial-gradient(2px 2px at 79% 39%,#fff,transparent),
+    radial-gradient(2px 2px at 50% 13%,#fff,transparent),
+    radial-gradient(2px 2px at 12% 50%,#fff,transparent);
+  animation:qz-twinkle 2.8s ease-in-out infinite}
+.planet{position:absolute;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 32% 27%,var(--p2,#ffd9f0),var(--p1,#b0518f) 72%);
+  box-shadow:inset -9px -11px 20px rgba(0,0,0,.35)}
+.winwrap2{position:absolute;inset:0;display:grid;grid-template-rows:auto 1fr auto;
+  gap:6px;padding:6px 14px 10px;min-height:0;z-index:1}
+.winwrap2>*{min-height:0}
+.winword{position:relative;z-index:2;text-align:center;font-size:56px;font-weight:900;line-height:1;
+  font-family:Impact,"Arial Black",system-ui;letter-spacing:.03em;color:#ffbe3a;
+  text-shadow:
+    -3px -3px 0 #7a2f00,3px -3px 0 #7a2f00,-3px 3px 0 #7a2f00,3px 3px 0 #7a2f00,
+    -4px 0 0 #7a2f00,4px 0 0 #7a2f00,0 -4px 0 #7a2f00,0 4px 0 #7a2f00,
+    0 8px 0 #5b2200,0 13px 0 #3d1700}
+.winrow{display:grid;grid-template-columns:286px 1fr;gap:14px;min-height:0;align-items:end}
+.winped{position:relative;display:flex;flex-direction:column;align-items:center;
+  justify-content:flex-end;min-height:0;height:100%}
+.winped .arc{position:absolute;left:50%;bottom:34px;width:238px;height:158px;
+  transform:translateX(-50%);border-radius:50% 50% 0 0;pointer-events:none;
+  border:10px solid rgba(150,225,255,.34);border-bottom:0;
+  box-shadow:inset 0 0 0 5px rgba(255,255,255,.14)}
+.winped .who4{line-height:0;position:relative;z-index:1;margin-bottom:-6px}
+.winped .ped{width:158px;height:42px;border-radius:9px 9px 4px 4px;position:relative;z-index:1;
+  background:linear-gradient(#f0d79a,#c9a24a 55%,#9a7228);
+  border:3px solid #6b4718;box-shadow:inset 0 2px 0 rgba(255,255,255,.55),0 5px 0 #4d3210;
+  display:grid;place-items:center;font-weight:900;color:#5b3a0d;font-size:15px;
+  letter-spacing:-.02em}
+.wintbl{border-radius:14px;padding:8px 10px 9px;min-height:0;height:100%;
+  display:flex;flex-direction:column;
+  background:linear-gradient(rgba(16,48,104,.74),rgba(9,28,68,.82));
+  border:2px solid rgba(150,200,255,.55);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 6px 0 rgba(5,18,44,.5)}
+.wintbl .wh,.wrow{display:grid;grid-template-columns:30px 1fr 58px 62px 58px;gap:6px;
+  align-items:center}
+.wintbl .wh{color:#9fc8f0;font-size:11px;font-weight:900;padding:0 6px 5px;flex:none}
+.wintbl .wh span:nth-child(n+3){text-align:right}
+.wintbl .wb{flex:1;min-height:0;overflow:auto;padding-right:2px}
+.wrow{padding:4px 6px;border-radius:8px;color:#dcecff;font-weight:800;font-size:13px}
+.wrow+.wrow{margin-top:3px}
+.wrow .wno{width:23px;height:23px;border-radius:50%;display:grid;place-items:center;
+  font-size:12px;font-weight:900;background:#2a5da8;color:#dff0ff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
+.wrow .wnm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wrow .wsc{text-align:right;color:#ffe38a}
+.wrow .wok{text-align:right;color:#bcdcf5;font-size:12px}
+.wrow .wgd{text-align:right;color:#9fe8a0}
+.wrow.t1{background:linear-gradient(#3d8de3,#2266bd);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35)}
+.wrow.t1 .wno{background:linear-gradient(#ffe27a,#ffb724);color:#6b3d00}
+.wrow.t1 .wnm{color:#fff}
+.wrow.me{box-shadow:inset 0 0 0 2px #ffb724}
+.winbtns{display:flex;gap:10px;justify-content:center}
+
+/* ── OX — 잔디 들판 ── */
+.oxland{position:absolute;inset:0;overflow:hidden;
+  background:
+    repeating-linear-gradient(101deg,rgba(255,255,255,.055) 0 8px,rgba(0,40,0,.035) 8px 17px),
+    radial-gradient(130% 84% at 50% 4%,#b3ea74,#71cb3e 44%,#4aa529 100%)}
+.oxland .rock{position:absolute;border-radius:46% 54% 50% 50%/60% 58% 42% 40%;
+  background:linear-gradient(#dfe6ea,#a9b6bf);border:2px solid #8b9aa3;pointer-events:none}
+.oxland .flw{position:absolute;width:19px;height:19px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 50% 50%,#ffe66a 4px,transparent 4.5px),
+    radial-gradient(circle at 50% 16%,var(--f,#ff85b6) 4.4px,transparent 4.8px),
+    radial-gradient(circle at 84% 50%,var(--f,#ff85b6) 4.4px,transparent 4.8px),
+    radial-gradient(circle at 50% 84%,var(--f,#ff85b6) 4.4px,transparent 4.8px),
+    radial-gradient(circle at 16% 50%,var(--f,#ff85b6) 4.4px,transparent 4.8px)}
+.oxdirt{position:absolute;left:50%;top:57%;transform:translate(-50%,-50%);
+  width:min(90%,980px);height:min(64%,330px);border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle at 50% 38%,#f2dca4,#ddbd78 52%,#c69a4e 100%);
+  box-shadow:inset 0 0 0 11px rgba(186,146,82,.5),0 7px 0 rgba(60,110,30,.22)}
+.oxzone{position:absolute;top:57%;transform:translateY(-50%);
+  width:184px;height:184px;display:grid;place-items:center;border-radius:50%;
+  cursor:pointer;transition:transform .08s}
+.oxzone:active{transform:translateY(-50%) scale(.95)}
+.oxzone.o{left:12%;border:23px solid #f0568e;
+  background:radial-gradient(circle,rgba(255,196,218,.42),rgba(255,150,190,.12) 68%,transparent 70%);
+  box-shadow:inset 0 0 0 6px rgba(255,255,255,.45),0 0 0 4px rgba(170,36,86,.3)}
+.oxzone.x{right:12%}
+.oxzone.x b{position:absolute;width:184px;height:25px;border-radius:6px;
+  background:linear-gradient(#9fd9ff,#2f8fd8);border:3px solid #12558f;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.55)}
+.oxzone.x b:first-child{transform:rotate(45deg)}
+.oxzone.x b:last-child{transform:rotate(-45deg)}
+.oxzone.sel{box-shadow:0 0 0 7px #fff,0 0 0 13px #ffb724}
+.oxtop{position:absolute;left:0;right:0;top:6px;text-align:center;pointer-events:none;z-index:2;
+  padding:0 14px}
+.woodsign{position:relative;display:inline-block;max-width:860px;text-align:left;
+  border-radius:13px;padding:9px 22px 11px;
+  background:
+    repeating-linear-gradient(90deg,rgba(0,0,0,.045) 0 44px,rgba(255,255,255,.05) 44px 88px),
+    linear-gradient(#ecc98e,#cb9852 60%,#ab763c);
+  border:5px solid #7d4f22;box-shadow:inset 0 2px 0 rgba(255,255,255,.45),0 6px 0 #5c3915}
+.woodsign::before,.woodsign::after{content:'';position:absolute;top:7px;width:10px;height:10px;
+  border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff8d8,#c9a24a 60%,#8a6a20)}
+.woodsign::before{left:9px} .woodsign::after{right:9px}
+.woodsign .wl{display:inline-block;background:#7d4f22;color:#ffe9c0;font-size:12px;
+  font-weight:900;padding:2px 11px;border-radius:20px;margin-bottom:4px}
+.woodsign .wq{font-size:22px;font-weight:900;color:#3a2405;line-height:1.35;
+  word-break:keep-all;text-shadow:0 1px 0 rgba(255,255,255,.35)}
+.oxtally{display:inline-flex;align-items:center;gap:12px;margin-top:7px;
+  padding:4px 18px;border-radius:10px;
+  background:linear-gradient(#242424,#020202);border:3px solid #5b5b5b;color:#fff;
+  font-weight:900;font-size:23px;letter-spacing:.05em;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 4px 0 rgba(0,0,0,.4)}
+.oxtally .o1{color:#ff8ab8} .oxtally .x1{color:#7fc8ff}
+.oxtally .vs{font-size:13px;color:#aaa;letter-spacing:.12em}
+.oxbot{position:absolute;left:0;right:0;bottom:9px;text-align:center;
+  pointer-events:none;z-index:2}
+.oxsay{display:inline-block;background:rgba(10,45,80,.9);color:#fff;font-weight:900;
+  padding:8px 22px;border-radius:22px;border:2px solid #7fd0ff;font-size:17px;
+  box-shadow:0 4px 0 rgba(5,25,48,.5)}
+.oxsay.ok{background:rgba(45,120,30,.94);border-color:#a8f28a}
+.oxsay.no{background:rgba(150,40,36,.94);border-color:#ffb0ab}
+
+/* ── 가로세로 — 성문 ── */
+.gateland{position:absolute;inset:0;overflow:hidden;
+  background:
+    radial-gradient(66% 46% at 50% 104%,rgba(255,255,255,.4),transparent 70%),
+    linear-gradient(#c9edff 0%,#93d6fb 44%,#63b7ee 100%)}
+.gateland .cld{position:absolute;border-radius:50%;background:rgba(255,255,255,.55);
+  pointer-events:none}
+/* 성벽 — 위쪽 톱니와 돌 줄눈 */
+.gateland .wall{position:absolute;left:0;right:0;top:104px;bottom:48px;pointer-events:none;
+  background:
+    repeating-linear-gradient(0deg,rgba(150,168,186,.26) 0 1px,transparent 1px 26px),
+    repeating-linear-gradient(90deg,rgba(150,168,186,.22) 0 1px,transparent 1px 40px),
+    linear-gradient(#eef4f9,#dbe6ef 46%,#bfcedb);
+  border-top:4px solid #b4c4d2;box-shadow:0 4px 0 rgba(110,138,164,.28)}
+.gateland .wall::before{content:'';position:absolute;left:0;right:0;top:-22px;height:22px;
+  background:repeating-linear-gradient(90deg,#e7eff6 0 34px,transparent 34px 60px)}
+.castle2{position:absolute;inset:0;display:grid;grid-template-columns:116px 1fr 116px;
+  gap:6px;padding:6px 8px 8px;min-height:0;z-index:1}
+.castle2>*{min-height:0}
+.twr{display:flex;flex-direction:column;gap:6px;min-height:0;overflow:hidden}
+.tw2{flex:0 0 auto;position:relative}
+.tw2 .rf{height:38px;background:linear-gradient(#9fdfff,#2f8fd8 58%,#1d6aa6);
+  clip-path:polygon(50% 0,100% 100%,0 100%)}
+.tw2 .bd{position:relative;border:3px solid #c2cfda;border-top:0;border-radius:0 0 9px 9px;
+  padding:4px;
+  background:
+    repeating-linear-gradient(0deg,rgba(150,170,190,.3) 0 1px,transparent 1px 15px),
+    repeating-linear-gradient(90deg,rgba(150,170,190,.26) 0 1px,transparent 1px 24px),
+    linear-gradient(#ffffff,#e6edf3 58%,#d0dae4);
+  box-shadow:inset 0 2px 0 #fff,0 3px 0 #a4b4c2}
+.tw2 .bd::after{content:'';position:absolute;left:1px;top:10px;width:15px;height:64%;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 62% 8%,#5fbf4a 5.5px,transparent 6px),
+    radial-gradient(circle at 18% 30%,#49a636 5px,transparent 5.5px),
+    radial-gradient(circle at 78% 52%,#5fbf4a 5px,transparent 5.5px),
+    radial-gradient(circle at 26% 74%,#49a636 5.5px,transparent 6px),
+    linear-gradient(#3f9430,#3f9430) 50% 0/3px 100% no-repeat}
+.tw2 .win{border-radius:24px 24px 5px 5px;line-height:0;text-align:center;padding:3px 0 0;
+  background:linear-gradient(#1d3145,#0b141d);border:2px solid #93a5b4}
+.tw2 .bn{margin:4px 3px 0;font-size:11px;font-weight:900;color:#fff;padding:3px 4px 9px;
+  text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  clip-path:polygon(0 0,100% 0,100% 100%,50% 74%,0 100%);
+  text-shadow:0 1px 0 rgba(0,0,0,.35)}
+.tw2 .bn.sc{font-size:12px;background:#0e3f70}
+.gatemid{display:grid;grid-template-rows:auto 1fr;gap:6px;min-height:0}
+.gatemsg{border-radius:10px;padding:6px 14px;font-weight:900;color:#12467e;font-size:14px;
+  display:flex;align-items:center;gap:10px;
+  background:linear-gradient(rgba(255,255,255,.94),rgba(224,240,255,.92));
+  border:2px solid #a5d8ff;box-shadow:0 3px 0 rgba(30,92,158,.3)}
+.gatemsg .gm2{margin-left:auto;font-size:13px;color:#2b5b85}
+.arch{position:relative;min-height:0;display:grid;grid-template-rows:38px 1fr;
+  border-radius:150px 150px 12px 12px;overflow:hidden;
+  background:linear-gradient(#fdfefe,#eaf0f5 42%,#d2dde6);
+  border:6px solid #a8bbcd;box-shadow:inset 0 3px 0 #fff,0 7px 0 #8b9fb2,0 0 0 3px rgba(255,255,255,.7)}
+.archTop{background:repeating-linear-gradient(90deg,#59697a 0 7px,#93a5b4 7px 14px);
+  border-bottom:3px solid #7b8c9b}
+.archIn{display:grid;grid-template-columns:1fr 262px;gap:8px;min-height:0;padding:8px 10px 10px}
+.archIn>*{min-height:0}
+.gatecol{display:flex;flex-direction:column;gap:6px;min-height:0}
+.clueboard{border-radius:11px;padding:7px;min-height:0;display:flex;flex-direction:column;
+  background:linear-gradient(#fffaeb,#f4e4c0);border:3px solid #c9a44f;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.8),0 4px 0 #9e7c30}
+.clueboard .cbh{flex:none;font-size:13px;font-weight:900;color:#6b4718;padding:0 3px 5px}
+.clueboard .cbb{flex:1;min-height:0;overflow:auto;padding-right:2px}
+.cwrap{display:grid;place-items:center;overflow:auto;padding:4px;min-height:0}
+.cgrid{display:grid;gap:1px;background:#8b98a4;padding:3px;border-radius:5px}
+.cc{width:var(--cs,34px);height:var(--cs,34px);position:relative;border-radius:2px;
+  background:linear-gradient(#dbc99e,#bfa46c);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 1px rgba(120,95,45,.5)}
+.cc.open{background:#fff;box-shadow:inset 0 0 0 1px #b9c4ce}
+.cc.open.done{background:#d6f7c6;box-shadow:inset 0 0 0 1px #6cbb52}
+.cc.open.mine{background:#ffe9c4;box-shadow:inset 0 0 0 1px #e0a53c}
+.cc.hi{background:#ffe6f2;box-shadow:inset 0 0 0 2px #ff85b6}
+.cbar{flex:none;border-radius:10px;padding:7px 9px;
+  background:linear-gradient(#eaf4fd,#cfe4f5);border:2px solid #9fc8e8;
+  box-shadow:inset 0 1px 0 #fff}
+/* 문제 목록 — 양피지판 위에 얹은 쪽지 */
+.clueboard .clue{background:#fffdf6;border:2px solid #dcc48a;font-size:13px}
+.clueboard .clue.on{border-color:#e8894f;background:#fff2e2}
+.clueboard .clue.done{opacity:1;text-decoration:none;background:#eef7e6;
+  border-color:#a8d894;color:#4a6b4a}
+.clueboard .cbb .dh{font-weight:900;color:#6b4718;margin:4px 0 4px;font-size:13px}
 </style>
 </head>
 <body>
@@ -2062,7 +2357,7 @@ document.addEventListener('pointerdown', function wakeOnce(){
 }, {once:false});
 /* 버튼을 누르면 딸깍 */
 document.addEventListener('pointerdown', e=>{
-  const b = e.target.closest && e.target.closest('.btn,.icb,.tab,.mtile,.itm,.ch,.setrow,.clue,.stone,.oxzone,.fcard.pick,.pinpad button');
+  const b = e.target.closest && e.target.closest('.btn,.icb,.tab,.mtile,.itm,.ch,.setrow,.clue,.stone,.oxzone,.fcard.pick,.lgPad button,.oxzone,.cc.open');
   if(b) SND.click();
 }, true);
 
@@ -2194,45 +2489,58 @@ SCREENS.login = function(st){
   const guestA = newAvatar('f'), guestB = newAvatar('m');
   guestA.hat = 'ribbon:7'; guestA.pet = 'cat:9'; guestA.top = 'dress:7';
   guestB.hat = 'cap:5';    guestB.pet = 'dog:1'; guestB.top = 'hood:5';
-  st.innerHTML = `<div id="login" class="on"><div class="lgStage">
-    <div class="lgSide">${avatarSVG(guestA, 210, 3)}</div>
-    <div><div class="logo">퀴즈나라<small>${esc(window.CLASS_NAME||'우리 반')} 퀴즈 게임</small></div>
-    <div class="pnl loginbox">
-      <div style="text-align:left">
-        <label style="font-weight:800;color:#12467e;font-size:13px">아이디 (내 이름이나 별명)</label>
-        <input class="inp" style="margin-top:5px" id="lgId" maxlength="12" placeholder="예) 하늘이" autocomplete="off">
-      </div>
-      <div id="lgSexBox" class="hide" style="margin-top:9px;text-align:left">
-        <div style="font-weight:800;color:#12467e;font-size:13px">남자 / 여자</div>
-        <div class="row gap4" style="margin-top:5px">
-          <button class="btn p f1" id="lgF">여자</button>
-          <button class="btn gray f1" id="lgM">남자</button></div>
-      </div>
-      <div style="margin-top:9px">
-        <div style="font-weight:800;color:#12467e;font-size:13px;text-align:left" id="lgLab">비밀번호 — 숫자 4개</div>
-        <div class="pindots" id="lgDots"><i></i><i></i><i></i><i></i></div>
-        <div class="pinpad" id="lgPad"></div>
-      </div>
-      <div class="row gap" style="margin-top:9px"><button class="btn f1 y" id="lgGo">들어가기</button></div>
-      <div class="row gap4 mt8">
-        <button class="btn sm gray f1" id="lgNew">처음이에요 (가입)</button>
-        <button class="btn sm gray" id="lgT">선생님</button>
-      </div>
-      <div class="hint mt8" id="lgMsg" style="min-height:30px"></div>
+  /* 참고 사진처럼 — 하늘에 물방울이 뜨고 그 위에 캐릭터가 서 있다 */
+  const bubs = [
+    [ 34, 200, 176, '#cfeeff', '#57b0ea', 0],
+    [168, 372, 122, '#ffe0f0', '#f18cc0', 1.4],
+    [948, 186, 200, '#d9f2c9', '#77c55a', .7],
+    [1104,392, 124, '#ffeec2', '#ffbe45', 2.1],
+    [268,  64,  76, '#e6f6ff', '#7fc6ef', 1.1],
+    [1006, 46,  62, '#e6f6ff', '#7fc6ef', 2.6],
+    [286, 486,  84, '#ffe6f4', '#f2a0cd', 1.8],
+    [904, 496,  76, '#e2f8d8', '#8fd06f', .4]
+  ];
+  const sky = bubs.map(b=>`<i class="bub" style="left:${b[0]}px;top:${b[1]}px;width:${b[2]}px;`
+    + `height:${b[2]}px;--b2:${b[3]};--b1:${b[4]};animation-delay:${b[5]}s"></i>`).join('');
+  st.innerHTML = `<div id="login" class="on">
+    <div class="lgSky">${sky}
+      <div class="lgWho" style="left:38px;top:58px;animation-delay:0s">${avatarSVG(guestA,168,3)}</div>
+      <div class="lgWho" style="left:964px;top:36px;animation-delay:.7s">${avatarSVG(guestB,168,3)}</div>
     </div>
-    <div class="lgFoot">퀴즈를 풀어 골드를 모으고 아바타를 꾸며요 · 아이템 ${ITEM_COUNT}가지</div>
-    </div>
-    <div class="lgSide">${avatarSVG(guestB, 210, 3)}</div>
-  </div></div>`;
+    <div class="lgMid">
+      <div class="lgSup">우리 반 퀴즈 놀이터</div>
+      <div class="logo">퀴즈나라<small>${esc(window.CLASS_NAME||'우리 반')}</small></div>
+      <div class="lgPanel">
+        <div class="lgTitle">L·O·G·I·N</div>
+        <div id="lgSexBox" class="lgSex hide">
+          <label>성별</label>
+          <div class="row gap4">
+            <button class="btn sm p f1" id="lgF">여자</button>
+            <button class="btn sm gray f1" id="lgM">남자</button></div>
+        </div>
+        <div class="lgForm">
+          <label for="lgId">아이디</label>
+          <input class="inp" id="lgId" maxlength="12" placeholder="예) 하늘이" autocomplete="off">
+          <button class="lgGoBtn" id="lgGo">GO</button>
+          <label id="lgLab">비밀번호</label>
+          <div class="lgDots" id="lgDots"><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="lgPad" id="lgPad"></div>
+        <button class="lgWide" id="lgNew">처음이에요 — 무료 회원가입</button>
+        <button class="lgWide ex" id="lgT">선생님 들어가기</button>
+        <div class="lgMsg" id="lgMsg"></div>
+      </div>
+      <div class="lgBar">퀴즈를 풀어 골드를 모으고 아바타를 꾸며요 · 아이템 ${ITEM_COUNT}가지</div>
+    </div></div>`;
 
   const dots = ()=> $$('#lgDots i').forEach((d,i)=> d.classList.toggle('f', i < pin.length));
   const msg  = t => el('lgMsg').innerHTML = t;
   const pad  = el('lgPad');
-  ['1','2','3','4','5','6','7','8','9','지우기','0','◀'].forEach(k=>{
+  ['1','2','3','4','5','6','7','8','9','0','◀','지움'].forEach(k=>{
     const b = document.createElement('button'); b.textContent = k;
-    if(k==='지우기'||k==='◀') b.style.fontSize='14px';
+    if(k==='지움'||k==='◀') b.className = 'w';
     b.onclick = ()=>{
-      if(k==='지우기') pin='';
+      if(k==='지움') pin='';
       else if(k==='◀') pin = pin.slice(0,-1);
       else if(pin.length<4) pin += k;
       dots();
@@ -2248,16 +2556,16 @@ SCREENS.login = function(st){
 
   function setMode(m){
     mode = m; step = 1; pin=''; pin2=''; dots();
-    el('lgGo').textContent  = m==='up' ? '이 비밀번호로 만들기' : '들어가기';
-    el('lgNew').textContent = m==='up' ? '이미 있어요 (돌아가기)' : '처음이에요 (가입)';
-    el('lgLab').textContent = m==='up' ? '쓸 비밀번호 — 숫자 4개' : '비밀번호 — 숫자 4개';
+    el('lgGo').textContent  = m==='up' ? '만들기' : 'GO';
+    el('lgNew').textContent = m==='up' ? '이미 있어요 — 돌아가기' : '처음이에요 — 무료 회원가입';
+    el('lgLab').textContent = m==='up' ? '쓸 비밀번호' : '비밀번호';
     el('lgSexBox').classList.toggle('hide', m!=='up');
     msg(m==='up' ? '아이디는 한글도 돼요. 비밀번호는 <b>꼭 기억할 수 있는 숫자 4개</b>로 정하세요.' : '');
   }
   el('lgNew').onclick = ()=> setMode(mode==='up'?'in':'up');
   const paintSex = ()=>{
-    el('lgF').className = 'btn f1 ' + (sex==='f'?'p':'gray');
-    el('lgM').className = 'btn f1 ' + (sex==='m'?'':'gray');
+    el('lgF').className = 'btn sm f1 ' + (sex==='f'?'p':'gray');
+    el('lgM').className = 'btn sm f1 ' + (sex==='m'?'':'gray');
   };
   el('lgF').onclick = ()=>{ sex='f'; paintSex(); };
   el('lgM').onclick = ()=>{ sex='m'; paintSex(); };
@@ -2285,10 +2593,10 @@ SCREENS.login = function(st){
       if(mode==='up'){
         if(u){ msg('<b style="color:#c0392b">그 아이디는 이미 있어요. 다른 이름으로 해 보세요.</b>'); return; }
         if(step===1){ pin2 = pin; pin=''; step=2; dots();
-          el('lgLab').textContent = '한 번 더 — 같은 숫자 4개';
+          el('lgLab').textContent = '한 번 더';
           msg('안 잊어버리게 <b>한 번 더</b> 눌러 주세요.'); return; }
         if(pinHash(k,pin) !== pinHash(k,pin2)){ pin=''; pin2=''; step=1; dots();
-          el('lgLab').textContent='쓸 비밀번호 — 숫자 4개';
+          el('lgLab').textContent='쓸 비밀번호';
           msg('<b style="color:#c0392b">두 번이 서로 달라요. 처음부터 다시.</b>'); return; }
         const fresh = { name:raw, pin:pinHash(k,pin), gold:R.startGold, av:newAvatar(sex),
           owned:{}, stat:{solved:0,correct:0}, day:{d:today(),g:0}, made:now() };
@@ -3702,20 +4010,20 @@ SCREENS.live = function(st){
     if(m.mode==='ox')      return paintOX();
     return paintQuiz();
   }
-  function seatHTML(){
-    /* 큐플레이 의자처럼, 반 친구들이 답했는지 한눈에 보이게 */
-    return plArr().sort((a,b)=> String(a.name||'').localeCompare(String(b.name||''))).map(p=>
-      `<div class="pcard ${p.ansAt?'ansd':''} ${p.alive===false?'dead':''}">
-        ${avatarSVG(Object.assign(newAvatar(),p.av||{}),52,1)}
-        <div class="pn">${esc(p.name||p.k)}</div>
-        <div class="st">${p.ansAt?'냈어요':'&nbsp;'}</div></div>`).join('');
-  }
   function paintLight(){
     const m = S.meta; if(!m) return;
-    const seat = el('lvSeat'); if(seat) seat.innerHTML = seatHTML();
+    const seat = el('lvSeat');
+    if(seat) seat.innerHTML = deskHTML();
     if(m.phase==='lobby' || m.phase==='end'){ const b = el('lvPl');
       if(b) b.innerHTML = plHTML(); }
-    if(m.mode==='ox' && m.phase==='ask') moveOX();
+    if(m.mode==='ox'){
+      if(m.phase==='ask') moveOX();
+      /* O·X 몇 명인지는 친구들이 움직일 때마다 바뀐다 */
+      const cN = k=> plArr().filter(p=>p.ox===k && p.alive!==false).length;
+      const bo = el('oxO'), bx = el('oxX');
+      if(bo) bo.textContent = cN(0);
+      if(bx) bx.textContent = cN(1);
+    }
     if(m.phase==='reveal'){ const b=el('lvRank'); if(b) b.innerHTML = rankHTML(); }
   }
   const plArr = ()=> Object.keys(S.p).map(k=> Object.assign({k}, S.p[k]));
@@ -3750,108 +4058,151 @@ SCREENS.live = function(st){
   function paintEnd(){
     const a = plArr().sort((x,y)=>(y.sc||0)-(x.sc||0));
     const me = a.findIndex(p=>p.k===MK);
-    const pod = (i, cls)=>{ const p = a[i]; if(!p) return '';
-      return `<div class="pod ${cls}">
-        <div class="who">${avatarSVG(Object.assign(newAvatar(),p.av||{}), i===0?150:120, i===0?3:2)}</div>
-        <div class="nm3">${esc(p.name)}</div>
-        <div class="base">${i+1}</div></div>`; };
-    wrap.innerHTML = `<div class="winwrap">
-      <div class="winbanner">WINNER</div>
-      <div class="podium">${pod(1,'p2')}${pod(0,'p1')}${pod(2,'p3')}</div>
-      <div class="pnl" style="overflow:hidden;display:flex;flex-direction:column;min-height:0">
-        <div class="pnl-h">최종 순위
-          <div class="f1"></div>
-          <span style="font-size:13px">${me>=0? '나는 '+(me+1)+'등 · '+(a[me].sc||0)+'점' : '구경했어요'}</span></div>
-        <div class="f1 scroll" style="padding:8px 10px;min-height:0">
-          <table class="wintab"><tr><th></th><th>이름</th><th>점수</th><th style="text-align:right">맞힌 문제</th></tr>
-          ${a.map((p,i)=>`<tr class="${i===0?'t1':''} ${p.k===MK?'me':''}">
-            <td>${i+1}</td><td>${esc(p.name)}${crownStr(p.crown)}</td>
-            <td>${p.sc||0}</td><td>${p.ok||0}개</td></tr>`).join('')}
-          </table></div>
-        <div class="row gap" style="padding:8px;justify-content:center;background:#dceffd;border-top:2px solid #b8d8f0">
-          <button class="btn gray" onclick="go('home')">홈으로</button>
-          <button class="btn y" onclick="go('shop')">번 골드로 옷 사기</button></div>
-      </div></div>`;
+    const w = a[0];
+    const bonus = R.liveRankBonus || [];
+    wrap.innerHTML = `<div class="night">
+      <div class="planet" style="left:6%;top:9%;width:88px;height:88px;--p2:#ffd9f0;--p1:#a8479a"></div>
+      <div class="planet" style="right:7%;top:16%;width:118px;height:118px;--p2:#cfe6ff;--p1:#2f5fa8"></div>
+      <div class="planet" style="right:26%;top:4%;width:34px;height:34px;--p2:#fff2c8;--p1:#c98800"></div>
+    </div>
+    <div class="winwrap2">
+      <div class="winword">WINNER</div>
+      <div class="winrow">
+        <div class="winped">
+          <div class="arc"></div>
+          ${w? `<div class="who4">${avatarSVG(Object.assign(newAvatar(),w.av||{}),190,3)}</div>
+                <div class="ped">🏆 ${esc(w.name)}</div>` : '<div class="ped">아직 없어요</div>'}
+        </div>
+        <div class="wintbl">
+          <div class="wh"><span></span><span>이름</span><span>점수</span><span>맞힌 문제</span><span>보너스</span></div>
+          <div class="wb">${a.map((p,i)=>`
+            <div class="wrow ${i===0?'t1':''} ${p.k===MK?'me':''}">
+              <div class="wno">${i+1}</div>
+              <div class="wnm">${esc(p.name)}${crownStr(p.crown)}</div>
+              <div class="wsc">${p.sc||0}</div>
+              <div class="wok">${p.ok||0}개</div>
+              <div class="wgd">${bonus[i]? '+'+bonus[i] : '–'}</div>
+            </div>`).join('') || '<div class="wrow">아무도 없어요</div>'}</div>
+          <div class="hint" style="color:#9fc8f0;text-align:center;padding-top:6px">
+            ${me>=0? '나는 <b style="color:#ffe38a">'+(me+1)+'등</b> · '+(a[me].sc||0)+'점' : '이번 판은 구경했어요'}</div>
+        </div>
+      </div>
+      <div class="winbtns">
+        <button class="btn gray" onclick="go('home')">홈으로</button>
+        <button class="btn y" onclick="go('shop')">번 골드로 옷 사기</button></div>
+    </div>`;
+  }
+
+  /* 참고 사진의 방송국 스튜디오 — 큰 모니터에 문제, 아래에 책상과 친구들 */
+  const stageDeco = ()=>{
+    let t = '<div class="stTruss">';
+    for(let i=0;i<7;i++) t += '<i></i>';
+    t += '</div><div class="stFloor"></div>';
+    ['l','r'].forEach(sd=>{ t += `<div class="stRig ${sd}">`;
+      for(let i=0;i<7;i++) t += `<b style="top:${16+i*54}px"></b>`;
+      t += '</div>'; });
+    return t;
+  };
+  /* 친구들이 책상 뒤에 서 있는 줄 */
+  function deskHTML(){
+    return plArr().sort((a,b)=> String(a.name||'').localeCompare(String(b.name||''))).map(p=>
+      `<div class="desk ${p.ansAt?'ansd':''} ${p.alive===false?'dead':''} ${p.k===MK?'me':''}">
+        <div class="dwho">${avatarSVG(Object.assign(newAvatar(),p.av||{}),52,1)}</div>
+        <div class="dbox"><div class="dnm">${esc(p.name||p.k)}</div>
+          <div class="dsc">${p.ansAt?'✔':(p.sc||0)}</div></div></div>`).join('');
   }
 
   function paintQuiz(){
     const m = S.meta, mine = S.p[MK]||{};
     const showRev = m.phase==='reveal';
-    wrap.innerHTML = `<div style="display:grid;grid-template-columns:196px 1fr 236px;height:100%;padding:10px;gap:10px">
-      <div class="pnl col" style="overflow:hidden">
-        <div class="pnl-h">나</div>
-        <div class="mestage f1" style="min-height:0">${avatarSVG(ME.av,190,3)}</div>
-        <div style="padding:8px;background:#dceffd;border-top:2px solid #b8d8f0;text-align:center">
-          <div style="font-weight:900;color:#12467e;font-size:13px">${esc(ME.name)}${crownStr(ME.crown)}</div>
-          <div style="font-size:22px;font-weight:900;color:#b57700">${mine.sc||0}점</div>
-          <div class="hint">맞힌 문제 ${mine.ok||0}개</div></div>
-      </div>
-      <div class="pnl col" style="overflow:hidden;min-width:0">
-        <div class="pnl-h">${esc(m.title||'수업')}
-          <div class="f1"></div>
-          <span style="font-size:13px">${(S.q&&S.q.n)||m.qi+1} / ${m.total}</span></div>
-        <div class="col" style="padding:12px 12px 0;flex:none">
-          ${m.phase==='ask'? timeBar():''}
-          <div class="qbox"><div class="qno">문제 ${(S.q&&S.q.n)||m.qi+1}</div>
-            <div class="qtext">${esc((S.q&&S.q.t)||'')}</div></div>
+    wrap.innerHTML = `<div class="studio">${stageDeco()}
+      <div class="stGrid">
+        <div class="tvcol">
+          <div class="tvset"><div class="tvin">
+            <div class="tvhead">🎬 ${esc(m.title||'수업')}
+              <span>${(S.q&&S.q.n)||m.qi+1} / ${m.total}</span>
+              <span class="cam">📹 ON AIR</span></div>
+            ${m.phase==='ask'? timeBar():''}
+            <div class="tvq"><div class="qno">문제 ${(S.q&&S.q.n)||m.qi+1}</div>
+              <div class="qtext">${esc((S.q&&S.q.t)||'')}</div></div>
+            <div class="tvbody" id="lvAns"></div>
+          </div></div>
+          <div class="deskrow" id="lvSeat">${deskHTML()}</div>
         </div>
-        <div class="f1 scroll" style="padding:12px;min-height:0" id="lvAns"></div>
-        <div class="roadbox" style="padding:0">
-          <div class="plist" id="lvSeat" style="max-height:168px;padding:8px">${seatHTML()}</div></div>
-      </div>
-      <div class="pnl col" style="overflow:hidden">
-        <div class="pnl-h">점수판</div>
-        <div class="f1 scroll" style="padding:8px" id="lvRank">${rankHTML()}</div></div></div>`;
+        <div class="stSide">
+          <div class="stMon" style="flex:none">
+            <div class="mh">나</div>
+            <div class="mb" style="text-align:center;padding:4px">
+              ${avatarSVG(ME.av,120,2)}
+              <div style="font-weight:900;color:#12467e;font-size:13px">${esc(ME.name)}${crownStr(ME.crown)}</div>
+              <div style="font-size:20px;font-weight:900;color:#b57700">${mine.sc||0}점</div>
+            </div></div>
+          <div class="stMon" style="flex:1">
+            <div class="mh">점수판</div>
+            <div class="mb" id="lvRank">${rankHTML()}</div></div>
+        </div></div></div>`;
     const area = el('lvAns');
     if(showRev){
       const pk = myPick();
       const ok = pk!=null && S.rev && isRight(pk, S.rev.a);
-      area.innerHTML = `<div class="pnl" style="padding:16px;text-align:center;
+      area.innerHTML = `<div class="pnl" style="padding:14px;text-align:center;
           background:${ok?'#eafbe4':'#fff0ef'};border-color:${ok?'#3d8f2e':'#d94b46'}">
-          <div style="font-size:26px;font-weight:900;color:${ok?'#2c7a22':'#a83531'}">
+          <div style="font-size:25px;font-weight:900;color:${ok?'#2c7a22':'#a83531'}">
             ${ok?'정답이에요! 🎉':(pk==null?'시간이 다 됐어요':'아쉬워요')}</div>
-          <div class="mt8" style="font-size:22px;font-weight:800;color:#12467e">
+          <div class="mt8" style="font-size:21px;font-weight:800;color:#12467e">
             정답은 <b>${esc((S.rev&&S.rev.a)||'')}</b></div>
-          ${(S.rev&&S.rev.tops&&S.rev.tops.length)? `<div class="hint mt12">가장 빨리 맞힌 친구 —
+          ${(S.rev&&S.rev.tops&&S.rev.tops.length)? `<div class="hint mt8">가장 빨리 맞힌 친구 —
             ${S.rev.tops.map((t,i)=>['🥇','🥈','🥉'][i]+' '+esc(t.name)).join('  ')}</div>`:''}
           <div class="hint mt8">선생님이 다음 문제를 낼 때까지 기다려요.</div></div>`;
       return;
     }
     if(myPick() != null){
-      area.innerHTML = `<div class="pnl" style="padding:20px;text-align:center;background:#fff8e6">
-        <div style="font-size:22px;font-weight:900;color:#b57700">답을 냈어요!</div>
-        <div style="font-size:26px;font-weight:900;color:#12467e;margin-top:6px">${esc(myPick())}</div>
+      area.innerHTML = `<div class="pnl" style="padding:16px;text-align:center;background:#fff8e6">
+        <div style="font-size:21px;font-weight:900;color:#b57700">답을 냈어요!</div>
+        <div style="font-size:25px;font-weight:900;color:#12467e;margin-top:5px">${esc(myPick())}</div>
         <div class="hint mt8">친구들이 다 낼 때까지 잠깐만요…</div></div>`;
       return;
     }
-    if(mine.alive===false){ area.innerHTML = '<div class="pnl" style="padding:20px;text-align:center">'
+    if(mine.alive===false){ area.innerHTML = '<div class="pnl" style="padding:18px;text-align:center">'
       + '<b>이번 판은 구경이에요.</b><div class="hint mt8">다음 판에 다시 도전!</div></div>'; return; }
     const it = { q:(S.q&&S.q.t)||'', a:'', c:(S.q&&S.q.c)||null };
     area.innerHTML = (S.q&&S.q.ox)
       ? answerUI({q:it.q, a:'O'})
-      : ((S.q&&S.q.c) ? `<div class="choices">` + S.q.c.map((c,i)=>
+      : ((S.q&&S.q.c) ? `<div class="choices" style="margin-top:0">` + S.q.c.map((c,i)=>
           `<button class="ch" data-v="${esc(c)}"><span class="n">${['①','②','③','④','⑤','⑥'][i]}</span><span>${esc(c)}</span></button>`).join('')+`</div>`
         : `<div class="row gap"><input class="inp f1" id="ansIn" placeholder="답을 여기에 쓰세요" autocomplete="off"
-             style="font-size:22px;padding:14px;font-weight:800;text-align:center">
+             style="font-size:22px;padding:13px;font-weight:800;text-align:center">
            <button class="btn y big" id="ansOk">확인</button></div>`);
     wireAnswer(area, v=>{ if(!String(v||'').trim()){ toast('답을 골라 주세요'); return; } sendAnswer(v); });
   }
 
+  /* 참고 사진의 잔디 들판 — 흙마당 위 O 고리와 X 표, 위에는 나무 현판 */
+  const OX_DECO = (()=>{
+    const rk = [[3,12,54,30],[92,80,38,22],[8,74,44,26],[95,26,30,18]];
+    const fl = [[7,34,'#ff85b6'],[15,88,'#fff'],[88,52,'#ffd24a'],[97,84,'#ff85b6'],
+                [2,56,'#c9a0ff'],[80,10,'#fff'],[24,6,'#ffd24a'],[68,94,'#c9a0ff']];
+    return rk.map(r=>`<i class="rock" style="left:${r[0]}%;top:${r[1]}%;width:${r[2]}px;height:${r[3]}px"></i>`).join('')
+      + fl.map(f=>`<i class="flw" style="left:${f[0]}%;top:${f[1]}%;--f:${f[2]}"></i>`).join('');
+  })();
+
   function paintOX(){
     const m = S.meta, mine = S.p[MK]||{};
     const dead = mine.alive===false;
-    wrap.innerHTML = `<div style="position:absolute;inset:0">
-      <div class="oxstage">
-        <div class="oxzone o" data-z="0"><div class="mark">O</div></div>
-        <div class="oxzone x" data-z="1"><div class="mark">X</div></div>
-      </div>
+    const cnt = k=> plArr().filter(p=>p.ox===k && p.alive!==false).length;
+    wrap.innerHTML = `<div class="oxland">${OX_DECO}
+      <div class="oxdirt"></div>
+      <div class="oxzone o" data-z="0"></div>
+      <div class="oxzone x" data-z="1"><b></b><b></b></div>
       <div class="oxfield" id="oxField"></div>
-      <div style="position:absolute;left:12px;right:12px;top:8px;pointer-events:none">
-        <div class="qbox" style="padding:12px 18px">
-          <div class="qno">${(S.q&&S.q.n)||m.qi+1} / ${m.total}</div>
-          <div class="qtext" style="font-size:22px">${esc((S.q&&S.q.t)||'')}</div></div>
-        <div class="mt8">${m.phase==='ask'? timeBar():''}</div></div>
-      <div style="position:absolute;left:0;right:0;bottom:10px;text-align:center;pointer-events:none" id="oxMsg"></div></div>`;
+      <div class="oxtop">
+        <div class="woodsign">
+          <div class="wl">[ 문 제 ] ${(S.q&&S.q.n)||m.qi+1} / ${m.total}</div>
+          <div class="wq">${esc((S.q&&S.q.t)||'')}</div></div>
+        <div><span class="oxtally"><span class="o1">O <b id="oxO">${cnt(0)}</b></span>
+          <span class="vs">vs</span><span class="x1"><b id="oxX">${cnt(1)}</b> X</span></span></div>
+        ${m.phase==='ask'? `<div style="max-width:520px;margin:7px auto 0">${timeBar()}</div>`:''}
+      </div>
+      <div class="oxbot" id="oxMsg"></div></div>`;
     $$('.oxzone', wrap).forEach(z=>{
       if(myPick() === (z.dataset.z==='0'?'O':'X')) z.classList.add('sel');
       z.onclick = ()=>{
@@ -3860,19 +4211,18 @@ SCREENS.live = function(st){
       S.picked = v; S.pickedQi = m.qi;
       R2.child('ans/'+MK).set({v, t:svNow()});
       R2.child('p/'+MK).update({ ansAt:svNow(), ox:+z.dataset.z,
-        px:0.12+Math.random()*0.76, py:0.10+Math.random()*0.74 });
+        px:Math.random(), py:Math.random() });
       render(true);
     };});
     S.oxNodes = null; moveOX();
     const msg = el('oxMsg');
     if(m.phase==='reveal'){
       const ok = myPick() && S.rev && isRight(myPick(), S.rev.a);
-      msg.innerHTML = `<div class="tag" style="font-size:22px;padding:10px 24px;
-        background:${ok?'#3d8f2e':'#d94b46'};color:#fff">정답은 ${esc((S.rev&&S.rev.a)||'')} —
+      msg.innerHTML = `<div class="oxsay ${ok?'ok':'no'}">정답은 ${esc((S.rev&&S.rev.a)||'')} —
         ${ok?'살아남았어요!':'탈락…'}</div>`;
-    } else if(dead) msg.innerHTML = '<div class="tag" style="font-size:17px;padding:8px 20px;background:#0e3f70;color:#fff">탈락했어요 — 친구들을 응원해 주세요</div>';
-    else if(myPick()) msg.innerHTML = '<div class="tag" style="font-size:17px;padding:8px 20px;background:#0e3f70;color:#fff">'+myPick()+' 를 골랐어요 (마음이 바뀌면 다시 눌러도 돼요)</div>';
-    else msg.innerHTML = '<div class="tag" style="font-size:17px;padding:8px 20px;background:#0e3f70;color:#fff">맞으면 O, 틀리면 X 쪽을 눌러요!</div>';
+    } else if(dead) msg.innerHTML = '<div class="oxsay">탈락했어요 — 친구들을 응원해 주세요</div>';
+    else if(myPick()) msg.innerHTML = '<div class="oxsay">'+myPick()+' 쪽에 섰어요 (마음이 바뀌면 다시 눌러도 돼요)</div>';
+    else msg.innerHTML = '<div class="oxsay">맞으면 O, 틀리면 X 쪽으로 뛰어가요!</div>';
   }
   function moveOX(){
     const f = el('oxField'); if(!f) return;
@@ -3888,9 +4238,10 @@ SCREENS.live = function(st){
     keys.forEach((k,i)=>{
       const n = S.oxNodes.map[k], p = S.p[k]; if(!n) return;
       const has = p.ox===0 || p.ox===1;
-      const px = p.px!=null? p.px : ((i%7)/7+0.07), py = p.py!=null? p.py : 0.62;
-      n.style.left = (has ? (p.ox===1?50:0) + px*50 : 8 + (i%9)*4) + '%';
-      n.style.top  = (has ? 26 + py*58 : 88) + '%';
+      const px = p.px!=null? p.px : (i%7)/7, py = p.py!=null? p.py : .5;
+      /* 고른 쪽 마당 안에 흩어 세운다. 안 골랐으면 가운데에 몰려 있다 */
+      n.style.left = (has ? (p.ox===1 ? 62 + px*26 : 13 + px*26) : 40 + (i%8)*2.6) + '%';
+      n.style.top  = (has ? 34 + py*42 : 62) + '%';
       n.style.opacity = p.alive===false ? '.35' : '1';
       n.style.filter  = p.alive===false ? 'grayscale(1)' : '';
     });
@@ -3936,40 +4287,56 @@ SCREENS.live = function(st){
           <b>${w.n}.</b> ${esc(w.clue)} <span class="hint">(${w.len}글자)</span>
           ${S.cf[w.n]? '<b style="color:#3d8f2e"> ✔ '+esc(S.cf[w.n].name||'')+'</b>':''}</div>`).join('');
       const doneN = Object.keys(S.cf).length;
-      /* 성 좌우 탑에 잘하는 친구 넷을 세운다 (큐플레이 가로세로 화면처럼) */
+      /* 참고 사진의 성 — 좌우 탑 창문에 친구들, 가운데 성문 안에 낱말판 */
       const rk = plArr().sort((x,y)=>(y.sc||0)-(x.sc||0));
-      const cols = ['#4cb34c','#e8534f','#f0a020','#3d8fe0'];
-      const tower = (from)=> [0,1].map(i=>{ const p = rk[from+i]; if(!p) return '';
-        return `<div class="tw"><div class="roof"></div>
-          <div class="flag" style="background:${cols[(from+i)%4]}">${esc(p.name)}</div>
-          <div class="who2">${avatarSVG(Object.assign(newAvatar(),p.av||{}),74,1)}</div>
-          <div class="flag" style="background:#0e3f70">${p.sc||0}점</div></div>`; }).join('');
-      wrap.innerHTML = `<div class="castle" style="padding:6px 8px 8px">
-        <div class="tower">${tower(0)}</div>
-        <div style="display:grid;grid-template-columns:1fr 296px;gap:8px;min-width:0;min-height:0;height:100%">
-        <div class="pnl col" style="overflow:hidden">
-          <div class="pnl-h">${esc(m.title)} — ${doneN}/${(cr.w||[]).length} 칸 채움
-            <div class="f1"></div>${m.phase==='ask'? '<span id="lvTimeW"><span id="lvTime">–</span>초</span>':''}</div>
-          ${m.phase==='ask'? `<div style="padding:6px 10px 0"><div class="timebar"><i id="lvBar" style="width:100%"></i></div></div>`:''}
-          <div class="cwrap f1">${grid}</div>
-          <div style="padding:8px 10px;background:#dceffd;border-top:2px solid #b8d8f0">
-            <div class="row gap">
-              <div class="tag" style="background:#0e3f70;color:#fff;padding:8px 12px" id="cSel">
-                ${S.clue&&byN[S.clue]? S.clue+'번 '+(byN[S.clue].dir?'세로':'가로')+' · '+byN[S.clue].len+'글자'
-                  : '칸을 눌러 골라요'}</div>
-              <input class="inp f1" id="cIn" placeholder="${S.clue&&byN[S.clue]? esc(byN[S.clue].clue) : '먼저 칸이나 문제를 눌러 주세요'}"
-                autocomplete="off"
-                style="font-size:19px;font-weight:800;text-align:center" ${S.clue?'':'disabled'}>
-              <button class="btn y" id="cOk" ${S.clue?'':'disabled'}>내기</button></div></div>
+      const cols = ['#4cb34c','#e8534f','#f0a020','#3d8fe0','#8a5cd6','#2fb3a8'];
+      /* 잘하는 친구부터 좌·우 탑에 번갈아 세운다. 한쪽만 비지 않게 */
+      const tower = (side)=>{
+        const up = rk.filter((p,i)=> i%2===side).slice(0,3);
+        if(!up.length) return '<div class="tw2"><div class="rf"></div><div class="bd">'
+          + '<div class="bn" style="background:#7fa8c8">빈 탑</div></div></div>';
+        return up.map((p,i)=>`<div class="tw2"><div class="rf"></div><div class="bd">
+          <div class="win">${avatarSVG(Object.assign(newAvatar(),p.av||{}),68,1)}</div>
+          <div class="bn" style="background:${cols[(side+i*2)%6]}">${esc(p.name)}</div>
+          <div class="bn sc">${p.sc||0}점</div></div></div>`).join('');
+      };
+      const sel = S.clue&&byN[S.clue];
+      wrap.innerHTML = `<div class="gateland">
+        <i class="cld" style="left:5%;top:8%;width:120px;height:34px"></i>
+        <i class="cld" style="left:16%;top:5%;width:78px;height:26px"></i>
+        <i class="cld" style="right:8%;top:11%;width:104px;height:30px"></i>
+        <i class="cld" style="right:20%;top:6%;width:66px;height:22px"></i>
+        <i class="wall"></i></div>
+      <div class="castle2">
+        <div class="twr">${tower(0)}</div>
+        <div class="gatemid">
+          <div class="gatemsg">🏰 ${esc(m.title)}
+            <span class="gm2">${doneN} / ${(cr.w||[]).length} 칸 채움</span>
+            ${m.phase==='ask'? '<span class="gm2"><b id="lvTime">–</b>초</span>':''}</div>
+          <div class="arch"><div class="archTop"></div>
+            <div class="archIn">
+              <div class="gatecol">
+                ${m.phase==='ask'? `<div class="timebar" style="flex:none"><i id="lvBar" style="width:100%"></i></div>`:''}
+                <div class="cwrap f1">${grid}</div>
+                <div class="cbar">
+                  <div class="row gap">
+                    <div class="tag" style="background:#0e3f70;color:#fff;padding:8px 12px;flex:none" id="cSel">
+                      ${sel? S.clue+'번 '+(sel.dir?'세로':'가로')+' · '+sel.len+'글자' : '칸을 눌러 골라요'}</div>
+                    <input class="inp f1" id="cIn" placeholder="${sel? esc(sel.clue) : '먼저 칸이나 문제를 눌러 주세요'}"
+                      autocomplete="off" style="font-size:19px;font-weight:800;text-align:center"
+                      ${S.clue?'':'disabled'}>
+                    <button class="btn y" id="cOk" ${S.clue?'':'disabled'}>내기</button></div></div>
+              </div>
+              <div class="clueboard">
+                <div class="cbh">📜 문제</div>
+                <div class="cbb">
+                  <div class="dh">가로</div>${clueRow(0)}
+                  <div class="dh">세로</div>${clueRow(1)}
+                  <div class="dh">점수</div>${rankHTML()}
+                </div></div>
+            </div></div>
         </div>
-        <div class="pnl col" style="overflow:hidden">
-          <div class="pnl-h">문제</div>
-          <div class="f1 scroll" style="padding:8px">
-            <div style="font-weight:900;color:#12467e;margin:4px 0">가로</div>${clueRow(0)}
-            <div style="font-weight:900;color:#12467e;margin:8px 0 4px">세로</div>${clueRow(1)}
-            <div style="font-weight:900;color:#12467e;margin:10px 0 4px">점수</div>${rankHTML()}
-          </div></div></div>
-        <div class="tower">${tower(2)}</div></div>`;
+        <div class="twr">${tower(1)}</div></div>`;
       $$('.clue', wrap).forEach(c=> c.onclick = ()=>{ S.clue = +c.dataset.n; render(true);
         const i2 = el('cIn'); if(i2) i2.focus(); });
       /* 격자 칸을 눌러도 골라진다. 두 낱말이 지나면 번갈아 고른다 */
