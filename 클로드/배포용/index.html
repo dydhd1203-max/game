@@ -3107,11 +3107,13 @@ const BUILD = {
           /* ★ 14차 — 애들이 "벽은 금방 부서진다"며 벽을 안 믿고 탑만 지었다.
              벽은 원래 제일 두꺼워야 하는 물건이다. 탑(380~1650)·배럭(700~2650)보다
              확실히 위가 되게 올렸다. U 키 정보창에서 이 숫자를 직접 볼 수 있다. */
-          hp:[620, 950, 1400, 2000, 2800, 3800],
+          /* ★ 15차 — 학교에서 더 올려 달라고 하셨다. 40% 상향.
+             건물에는 '방어력' 수치가 따로 없다 — 체력 하나가 곧 버티는 힘이다. */
+          hp:[870, 1330, 1960, 2800, 3920, 5320],
           up:[{w:5,s:1,g:0},{w:8,s:4,g:0},{w:12,s:8,g:2},{w:18,s:13,g:4},{w:26,s:19,g:8}],
           desc:'싸고 빠름. 첫날 산길은 이걸로 막으세요. 낮아서 화살이 넘어갑니다. 탑보다 훨씬 튼튼해요.' },
   swall:{ name:'돌벽',   icon:'🧱', cost:{w:1,s:6,g:0},  size:1, hi:1.4, pass:1,
-          hp:[1150, 1700, 2450, 3450, 4750, 6400],
+          hp:[1500, 2210, 3190, 4490, 6180, 8320],   // ★ 15차 — 30% 상향
           up:[{w:2,s:9,g:0},{w:3,s:14,g:1},{w:5,s:21,g:3},{w:8,s:30,g:7},{w:12,s:40,g:12}],
           desc:'나무벽보다 훨씬 튼튼. 이 게임에서 제일 단단한 물건입니다. 산길 정면은 돌벽으로.' },
   arrow:{ name:'화살탑', icon:'🏹', cost:{w:10,s:7,g:0}, size:2,
@@ -5439,9 +5441,18 @@ function updPlayer(dt){
    낮 150초가 캐기만 반복이라 지루했다. 하루에 두 번, 어딘가에 상자가 뜬다.
    ★ 메시는 두 개(판자·금)뿐이고 상자가 하나도 없으면 통째로 숨긴다 → 드로우콜 0.
    ★ 몸으로 부딪히면 열린다. 9살한테 급할 때 클릭까지 시키면 놓친다. */
+/* ★ 15차 — "진짜 보물상자처럼" 만들어 달라는 요청.
+   예전 모습은 판자 세 겹 + 금 띠 두 줄이라 '나무 상자' 였지 '보물상자' 가 아니었다.
+   진짜 보물상자로 읽히게 하는 것은 셋이다:
+     ① 둥근 뚜껑 — 평평한 뚜껑은 그냥 상자다. 널을 기울여 아치를 만든다(setIR3 의 rz).
+     ② 쇠 테와 모서리 쇠 — 나무만 있으면 궤짝이다. 세로 띠 둘 + 모서리 보강.
+     ③ 자물쇠 판과 열쇠구멍 — 이게 있어야 "열고 싶은 것" 이 된다.
+   ★ 메시는 그대로 둘이다. 쇠는 금 타일에 회색을 물들여 쓴다
+     (재질 색은 텍스처에 곱해지므로 어둡게는 된다 — 4차에서 배운 것).
+     칸 수만 늘렸다: 몸통 6→11, 금·쇠 7→14. 상자가 없으면 통째로 숨기는 것도 그대로. */
 const CH_MAX = 3, CH_LIFE = 50, CH_R = 1.7;
-const chBody = new THREE.InstancedMesh(cube(T.plank),   MAT, CH_MAX*6);
-const chTrim = new THREE.InstancedMesh(cube(T.goldBlk), MAT, CH_MAX*7);
+const chBody = new THREE.InstancedMesh(cube(T.plank),   MAT, CH_MAX*11);
+const chTrim = new THREE.InstancedMesh(cube(T.goldBlk), MAT, CH_MAX*17);
 for(const m of [chBody, chTrim]){
   m.instanceColor = new THREE.InstancedBufferAttribute(
     new Float32Array(m.instanceMatrix.count*3).fill(1), 3);
@@ -5449,8 +5460,13 @@ for(const m of [chBody, chTrim]){
 }
 let chSeq = 1, chGrabN = 0;
 function chestReward(day){
-  return { w: 12 + day*2, s: 12 + day*2, g: 4 + Math.floor(day/1.5) };   // 금 2배
-
+  /* ★ 15차 — 50% 상향. 상자를 보고 달려갈 만한 값이어야 '보물' 이다.
+     예전: 1일차 🪵14 🪨14 ✨4 → 18일차 🪵48 🪨48 ✨16
+     지금: 1일차 🪵21 🪨21 ✨6 → 18일차 🪵72 🪨72 ✨24 */
+  const k = 1.5;
+  return { w: Math.round((12 + day*2)*k),
+           s: Math.round((12 + day*2)*k),
+           g: Math.round((4 + Math.floor(day/1.5))*k) };
 }
 /* 상자를 놓을 자리 — 평평하고, 수정에서 멀고, 나무·바위·건물이 없는 칸 */
 function chestSpot(g){
@@ -5509,18 +5525,56 @@ function updChests(dt, tt){
     if(Math.hypot(c.x-PL.x, c.z-PL.z) < CH_R){ grabChest(c); break; }
 
   let nb=0, nt=0;
+  /* ★ 테는 금색으로 통일했다. 처음엔 '쇠' 로 하려고 회색을 물들였는데,
+     재질 색은 텍스처에 곱해질 뿐이라 금 타일에 회색을 얹어도 노란 기가 남는다
+     (4차에 바위에서, 14차에 대장간에서 겪은 그것). 보물상자에는 금이 더 맞기도 하다. */
+  const GOLD = 0xffe9a0, GOLD_D = 0xc9a24a, WOOD = 0xc08a52, WOOD_D = 0x8a5f33;
   for(const c of G.chests){
-    if(nb+3 > CH_MAX*6 || nt+6 > CH_MAX*7) break;
+    if(nb+11 > CH_MAX*11 || nt+17 > CH_MAX*17) break;
     const bob = Math.sin(tt*2.2 + c.id)*0.05;
-    const y = GY + 0.30 + bob, ry = Math.sin(tt*0.7 + c.id)*0.25;
-    // 몸통 — 앞뒤 두 쪽 + 뚜껑
-    setI(chBody, nb++, c.x, y,        c.z, ry, 1.05, 0.52, 0.72, 0xc99a5a);
-    setI(chBody, nb++, c.x, y+0.40,   c.z, ry, 1.10, 0.30, 0.76, 0xd8b070);
-    setI(chBody, nb++, c.x, y-0.28,   c.z, ry, 1.12, 0.10, 0.80, 0x8a6a44);
-    // 금 테 + 자물쇠
-    for(const sx of [1,-1])
-      setI(chTrim, nt++, c.x, y+0.06, c.z, ry, 1.14, 0.12, 0.20, 0xffe9a0);
-    setI(chTrim, nt++, c.x, y+0.30, c.z, ry, 0.22, 0.34, 0.86, 0xffe9a0);
+    const y = GY + 0.34 + bob, ry = Math.sin(tt*0.7 + c.id)*0.25;
+    /* 상자 기준 좌표(앞 f · 옆 sd) → 세계 좌표. 상자가 천천히 도는 것을 따라간다.
+       ★ 상자는 sd 쪽이 길고(1.02) f 쪽이 짧다(0.68). 뚜껑 아치는 짧은 쪽으로 굽어야 한다. */
+    const cr = Math.cos(ry), sr = Math.sin(ry);
+    const X=(f,sd)=> c.x + f*sr + sd*cr, Z=(f,sd)=> c.z + f*cr - sd*sr;
+
+    /* ── 아래 궤짝 ── */
+    setI(chBody, nb++, c.x, y-0.02, c.z, ry, 1.02, 0.46, 0.68, WOOD);
+    setI(chBody, nb++, c.x, y-0.30, c.z, ry, 1.10, 0.10, 0.76, WOOD_D);   // 굽
+    for(const sx of [1,-1])                                                // 발
+      setI(chBody, nb++, X(0, sx*0.40), y-0.40, Z(0, sx*0.40), ry, 0.20, 0.12, 0.62, WOOD_D);
+    for(const sd of [-0.26, 0.26])                                         // 널 사이 홈
+      setI(chBody, nb++, X(0.35, sd), y-0.02, Z(0.35, sd), ry, 0.03, 0.44, 0.02, WOOD_D);
+
+    /* ── 둥근 뚜껑 ──
+       ★ 널을 '앞뒤(f)' 로 벌려 놓고 '긴 축(로컬 X)' 을 중심으로 기울여야 통 모양 아치가 된다.
+         처음에 옆(sd)으로 벌리고 rz 로 기울였더니 널이 바깥으로 벌어져
+         뚜껑이 아니라 왕관처럼 보였다 — 화면에 찍어서 잡았다. */
+    const LY = y + 0.30;
+    setI(chBody, nb++, c.x, LY+0.17, c.z, ry, 0.98, 0.15, 0.34, WOOD);     // 마루
+    for(const sx of [1,-1]){
+      setIR3(chBody, nb++, X(sx*0.17, 0), LY+0.11, Z(sx*0.17, 0), ry, sx*0.60, 0,
+             0.99, 0.14, 0.30, WOOD);
+      setIR3(chBody, nb++, X(sx*0.30, 0), LY-0.03, Z(sx*0.30, 0), ry, sx*1.10, 0,
+             0.99, 0.14, 0.26, WOOD_D);
+    }
+
+    /* ── 금 테 ── */
+    for(const sd of [-0.34, 0.34]){
+      setI(chTrim, nt++, X(0, sd), y-0.02, Z(0, sd), ry, 0.13, 0.50, 0.72, GOLD);  // 몸통 세로 띠
+      setI(chTrim, nt++, X(0, sd), LY+0.12, Z(0, sd), ry, 0.13, 0.13, 0.74, GOLD); // 뚜껑 위 띠
+    }
+    for(const sx of [1,-1]) for(const sz of [1,-1])                        // 모서리 보강
+      setI(chTrim, nt++, X(sz*0.33, sx*0.50), y-0.02, Z(sz*0.33, sx*0.50), ry,
+           0.09, 0.48, 0.09, GOLD_D);
+    /* ── 자물쇠 — 이게 있어야 "열고 싶은 것" 이 된다 ──
+       ★ 넓은 면 '양쪽' 에 붙인다. 한쪽에만 붙였더니 상자가 조금밖에 안 돌아서
+         뒤에 놓인 자물쇠를 영영 못 봤다 — 아이는 아무 방향에서나 달려온다. */
+    for(const sf of [1,-1]){
+      setI(chTrim, nt++, X(sf*0.36, 0), y+0.13, Z(sf*0.36, 0), ry, 0.30, 0.30, 0.09, GOLD);
+      setI(chTrim, nt++, X(sf*0.41, 0), y+0.11, Z(sf*0.41, 0), ry, 0.09, 0.14, 0.05, 0x2e2620);
+      setI(chTrim, nt++, X(sf*0.35, 0), y+0.32, Z(sf*0.35, 0), ry, 0.15, 0.14, 0.08, GOLD_D);
+    }
     /* 위로 곧게 뜬 금 조각 셋 — 나무 사이로도 보이는 '깃발' 노릇을 한다.
        빙 둘러 흩어 놨더니 멀리서는 그냥 반짝이로 보여서 세로로 세웠다. */
     for(let k=0;k<3;k++){
@@ -5768,9 +5822,11 @@ function kitReset(){
      금이 남아돌아도 쓸 데가 없으니 캘 이유도 같이 줄었다.
      강화는 '끝이 없는 쓸 곳' 이면서, 성공/실패가 있어서 교실이 같이 조마조마해진다.
 
-   ★ 확률 — +1 80% · +2 65% · +3 50% · +4 35% · +5 20% · +6 20%.
-     (선생님이 준 다섯 값을 그대로 쓰고, +6 은 마지막 값을 이어 썼다.
-      −15%p 를 한 번 더 내리면 5% 라, 40분 수업 안에 아무도 +6 을 못 본다.)
+   ★ 확률 — +1 100% · +2 90% · +3 80% · +4 70% · +5 60% · +6 50%.
+     ★ 15차 — 학교에서 해 보니 "+6이 너무 어렵더라" 였다. 하네스로는 40회면 되는데,
+       한 아이가 40분 수업에서 대장간에 40번 가는 일은 없다. 재는 것과 겪는 것이 달랐다.
+       선생님이 준 값으로 바꾸니 +6 까지 기대 시도가 **40회 → 9.7회** 가 된다.
+       한 반에 여럿이 +6 을 보게 된다 — 그게 원래 노린 그림이다.
 
    ★ 실패하면 — +1·+2·+3 은 그대로 남고 재료만 없어진다(안전 구간),
      +4 부터는 내려갈 수 있다. 9살에게 처음부터 잃게 하면 두 번째 시도를 안 한다.
@@ -5786,7 +5842,7 @@ function kitReset(){
    ★ 값 — 그 무기의 원래 값에 비례한다. 그래서 새총 +6 은 싸고 저격총 +6 은 아주 비싸다.
      이게 '강화만 하는 게 늘 이득' 을 막는 장치다 (아래 균형 설명 참고). */
 const ENH_MAX  = 6;
-const ENH_ODDS = [0.80, 0.65, 0.50, 0.35, 0.20, 0.20];   // +1 ~ +6 성공 확률
+const ENH_ODDS = [1.00, 0.90, 0.80, 0.70, 0.60, 0.50];   // +1 ~ +6 성공 확률
 const ENH_SAFE = 3;                                      // 여기까지는 실패해도 안 떨어진다
 const ENH_DROP = 0.35;                                   // 위험 구간에서 실패했을 때 내려갈 확률
 /* 강화 한 단계마다 붙는 공격력.
@@ -10023,6 +10079,7 @@ Object.assign(window, {
 
   __throwCd:()=>throwCd, __stoneDmg:stoneDmg, __hostHit:hostStoneHit,
   __spawnChest:spawnChest, __updChests:updChests, __chests:()=>G.chests,
+  __chestReward:chestReward, __chMeshes:()=>[chBody, chTrim],
   __dawn:dawnPraise, __danger:dangerCheck, __MY:MY, __mvpSnap:mvpSnap,
   __fx:()=>({arrow:aMesh, orb:oMesh, ice:iMesh, stone:stMesh, chBody, chTrim, hat:P_deco}),
 

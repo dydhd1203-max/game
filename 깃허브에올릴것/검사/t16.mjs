@@ -109,7 +109,7 @@ const fg = await pg.evaluate(()=>{
   W.__PL.x = fx + 40; W.__PL.z = fz; o.멀면닫힘 = !W.__forgeOpenable();
   W.__PL.x = fx + 1.2; W.__PL.z = fz; o.가까우면열림 = W.__forgeOpenable();
 
-  o.단계 = E.max; o.확률 = E.odds.slice(); o.안전 = E.safe;
+  o.단계 = E.max; o.확률 = E.odds.slice(); o.안전 = E.safe; o.하락 = E.drop;
   o.확률이내려간다 = E.odds.every((v,i)=> i===0 || v <= E.odds[i-1]);
   o.배수가오른다 = E.mul.every((v,i)=> i===0 || v > E.mul[i-1]);
   o.값이오른다 = E.cost.every((v,i)=> i===0 || v > E.cost[i-1]);
@@ -131,9 +131,25 @@ ok('밤에는 대장간이 닫힌다', fg.밤에닫힘);
 ok('멀면 안 열린다', fg.멀면닫힘);
 ok('가까이 가면 열린다', fg.가까우면열림);
 ok('+6 까지 올라간다', fg.단계===6, fg.단계);
-ok('★ 확률이 80·65·50·35·20 로 내려간다',
-   fg.확률[0]===0.8 && fg.확률[1]===0.65 && fg.확률[2]===0.5 && fg.확률[3]===0.35 && fg.확률[4]===0.2,
+/* ★ 확률 숫자를 검사에 복사해 두지 않는다 — 선생님이 교실에서 겪고 고치는 값이다.
+   (14차에 80/65/50/35/20 을 박아 뒀다가 15차에 100/90/80/70/60/50 으로 바뀌자 바로 죽었다.)
+   대신 '수업 안에 +6 이 나오는가' 를 잰다 — 이 값을 고치는 진짜 이유가 그것이다. */
+ok('★ +1 은 반드시 성공한다 (첫 강화에서 좌절하지 않게)', fg.확률[0] >= 1,
+   Math.round(fg.확률[0]*100)+'%');
+ok('★ 단계가 오를수록 확률이 낮아진다', fg.확률이내려간다,
    fg.확률.map(v=>Math.round(v*100)+'%').join(' → '));
+{ /* +6 까지 기대 시도 수를 확률·하락규칙에서 직접 푼다 (반복법) */
+  const o = fg.확률, SAFE = fg.안전, D = fg.하락, U = new Array(7).fill(0);
+  for(let it=0; it<50000; it++)
+    for(let e=5; e>=0; e--){
+      const p = o[e], down = ((e+1) > SAFE && e > 0) ? D : 0;
+      U[e] = (1 + p*U[e+1] + (1-p)*down*(e>0?U[e-1]:0)) / (1 - (1-p)*(1-down));
+    }
+  ok('★ 40분 수업 안에 +6 이 나올 만하다 (기대 시도 20회 이하)', U[0] <= 20,
+     '+6 까지 기대 ' + U[0].toFixed(1) + '회');
+  ok('그래도 +6 이 거저는 아니다 (한 번에는 안 된다)', U[0] >= 6,
+     U[0].toFixed(1) + '회');
+}
 ok('확률이 단계마다 낮아지기만 한다', fg.확률이내려간다);
 ok('★ +3 까지가 안전 구간이다', fg.안전===3, '+'+fg.안전);
 ok('강화할수록 공격력 배수가 오른다', fg.배수가오른다);
@@ -353,6 +369,36 @@ ok('★ 그래도 "아주 살짝" 이다 — +6 이 0.025칸·0.6도를 안 넘�
 ok('★ 1인칭 크기(fp)는 남의 총 크기(glow)와 따로 둔다 — 카메라 코앞은 따로 재야 한다',
    fp.fx.every((v,i)=> i===0 || (v[1] > 0 && v[1] !== v[0])),
    fp.fx.map(v=>v[1]).join(' '));
+
+/* ═══════ ⑥-3 보물 상자 (15차) ═══════ */
+const ch = await pg.evaluate(async ()=>{
+  const W=window, G=W.__G, o={};
+  /* 보상 — 날이 갈수록 커지고, 예전(12+day*2)보다 확실히 많다 */
+  o.d1 = W.__chestReward(1); o.d18 = W.__chestReward(18);
+  o.자란다 = o.d18.w > o.d1.w && o.d18.g > o.d1.g;
+  o.늘었다 = o.d1.w >= Math.round((12+1*2)*1.4);      // 50% 상향(반올림 여유)
+  /* 모형 — 상자가 없으면 통째로 숨고, 있으면 그려진다 */
+  G.chests.length = 0;
+  W.__updChests(1/60, 0);
+  const [B0,T0] = W.__chMeshes();
+  o.빈칸숨김 = !B0.visible && !T0.visible;
+  G.chests.push({id:1, x:W.__PL.x+6, z:W.__PL.z+6, g:0, t:50});
+  W.__updChests(1/60, 0);
+  const [B1,T1] = W.__chMeshes();
+  o.보임 = B1.visible && T1.visible;
+  o.몸통칸 = B1.count; o.금칸 = T1.count;
+  /* 정원을 안 넘는가 — 넘치면 setMatrixAt 이 조용히 깨진다 */
+  o.정원안 = B1.count <= B1.instanceMatrix.count && T1.count <= T1.instanceMatrix.count;
+  G.chests.length = 0; W.__updChests(1/60, 0);
+  return o;
+});
+ok('★ 보물이 예전보다 많아졌다 (50% 상향)', ch.늘었다,
+   '1일차 🪵' + ch.d1.w + ' 🪨' + ch.d1.s + ' ✨' + ch.d1.g);
+ok('보물이 날이 갈수록 커진다', ch.자란다,
+   '18일차 🪵' + ch.d18.w + ' 🪨' + ch.d18.s + ' ✨' + ch.d18.g);
+ok('★ 상자가 없으면 통째로 숨는다 (그리기 0)', ch.빈칸숨김);
+ok('★ 상자가 있으면 그려진다', ch.보임, '몸통 ' + ch.몸통칸 + '칸 · 금 ' + ch.금칸 + '칸');
+ok('★ 조각이 정원을 안 넘는다 (넘치면 조용히 깨진다)', ch.정원안);
 
 /* ═══════ ⑦ 레벨 순위 ═══════ */
 const rk = await pg.evaluate(async ()=>{
