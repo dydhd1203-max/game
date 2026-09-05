@@ -1,0 +1,11 @@
+import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { serve } from './serve2.mjs';
+const srv = serve(+process.argv[3], process.argv[2]);
+const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
+const pg = await b.newPage({viewport:{width:900,height:600}});
+pg.on('pageerror', e=>console.log('PAGEERROR: '+e.message+'\n'+(e.stack||'').split('\n').slice(0,4).join('\n')));
+pg.on('console', m=>{ if(m.type()==='error') console.log('CONSOLE: '+m.text()); });
+await pg.goto('http://127.0.0.1:'+process.argv[3]+'/', {waitUntil:'load', timeout:60000});
+await pg.waitForTimeout(4000);
+console.log('READY =', await pg.evaluate(()=>window.__READY));
+await b.close(); srv.close();
