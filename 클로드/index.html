@@ -769,7 +769,25 @@ input.f:focus,select.f:focus{outline:none;border-color:var(--honey);
 .grp.deco button{padding-top:13px;font-size:22px}
 .grp.deco button:before{height:0}
 
+/* ══ 시작 화면 단장 (17차f) ══
+   ★ 왜 손댔나 — 카드가 너무 길어서 1366×768 교실 크롬북에서 제목("양들의 밤")이
+     화면 위로 잘려 나갔다. 아이들이 제일 먼저 보는 글자가 안 보이면 안 된다.
+     이름·방 코드를 한 줄로 묶고, 고르는 칸을 여섯 줄로 넓혀 세로를 줄였다.
+   ★ 숫자로 top/bottom 을 잡지 않는다 — 격자와 flex 로만 짠다(13차에 세 번 겹쳤다). */
+#idRow{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+#idRow label.f{margin-top:0}
+@media (max-width:520px){ #idRow{grid-template-columns:1fr} }
+/* 제목 뒤에 은은한 달빛 — 밋밋한 하늘에 초점을 만든다 */
+#titleCard h1{position:relative}
+#titleCard h1:after{content:'';position:absolute;left:50%;top:52%;width:min(420px,86vw);
+  height:150px;transform:translate(-50%,-50%);z-index:-1;pointer-events:none;
+  background:radial-gradient(closest-side, rgba(255,246,220,.55), rgba(255,246,220,0) 72%)}
+#titleCard .ver{display:inline-block;margin:4px 0 0;padding:3px 10px;border-radius:999px;
+  background:rgba(12,20,30,.28);color:rgba(255,255,255,.82)}
+
 /* ══ 착장 고르기 — 왼쪽 미리보기 · 오른쪽 단추 ══ */
+/* ★ align-items 를 stretch 로 뒀더니 미리보기 상자만 오른쪽 칸 높이만큼 늘어나
+   양이 텅 빈 판 한가운데 떠 있었다. 상자는 제 내용만큼만 잡는다. */
 #dressRow{display:flex;gap:14px;align-items:flex-start;margin-top:2px}
 #pvwBox{flex:0 0 auto;width:152px;border-radius:16px;padding:6px 6px 4px;
   background:radial-gradient(120% 90% at 50% 18%, rgba(126,198,255,.30), rgba(0,0,0,.30));
@@ -779,10 +797,18 @@ input.f:focus,select.f:focus{outline:none;border-color:var(--honey);
   margin-top:2px}
 #dressPick{flex:1 1 auto;min-width:0}
 #dressPick label.f{margin:9px 0 5px;display:flex;gap:6px;align-items:baseline}
-#dressPick label.f:first-child{margin-top:0}
+#dressPick .dsec:first-child label.f{margin-top:0}
+/* ★ 1366×768 교실 크롬북에서 카드가 109px 넘쳐 제목이 잘렸다(재서 확인했다).
+   넓은 화면에서는 고르는 칸을 두 줄로 나눠 앉힌다 — 세로가 그만큼 줄어든다. */
+@media (min-width:900px){
+  #dressPick{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;align-content:start}
+  #dressPick .dsec label.f{margin-top:0}
+  #dressPick .dsec{margin-bottom:8px}
+}
 #dressPick label.f b{font-weight:800;font-size:11.5px;color:#fff;opacity:.72}
-#dressPick .grp{grid-template-columns:repeat(5,1fr);gap:5px}
-#dressPick .grp button{padding:9px 0;font-size:19px}
+/* ★ 다섯 줄이면 아이템이 아홉·열하나가 되면서 석 줄로 늘어난다 — 여섯 줄로 넓힌다 */
+#dressPick .grp{grid-template-columns:repeat(6,1fr);gap:5px}
+#dressPick .grp button{padding:8px 0;font-size:18px}
 /* 좁은 화면에선 미리보기를 위로 올리고 가운데 정렬 */
 @media (max-width:520px){
   #dressRow{flex-direction:column;align-items:center}
@@ -1024,6 +1050,11 @@ body.touch #topRight2 .kk{display:none}
 
 /* ── 스텟 창 ── */
 #popStat .popC{width:min(660px,94vw)}
+/* 전직 화면 — 길 설명이 길어서 두 칸 격자에 넣으면 한 줄에 두 글자씩 끊긴다.
+   한 줄에 한 길씩, 넓게 놓는다. */
+#popJob .popC{width:min(680px,94vw)}
+#jobList{grid-template-columns:1fr}
+#jobList .stIt .sd{line-height:1.5}
 .stGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0 4px}
 @media (max-width:620px){ .stGrid{grid-template-columns:1fr} }
 .stIt{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:13px;
@@ -1325,8 +1356,17 @@ body.touch #forgeTip .tp{display:inline}
        설정 화면이 아니라 시작 화면에 둔다 — 애들이 들어오기 전에 보이는 자리다. -->
   <p class="ver" id="verTag"></p>
   <div class="card">
-    <label class="f">이름</label>
-    <input class="f" id="iName" maxlength="6" placeholder="예) 김하늘" autocomplete="off">
+    <div id="idRow">
+      <div>
+        <label class="f">이름</label>
+        <input class="f" id="iName" maxlength="6" placeholder="예) 김하늘" autocomplete="off">
+      </div>
+      <div>
+        <label class="f">방 코드</label>
+        <input class="f" id="iRoom" maxlength="6" placeholder="ABCD" autocomplete="off"
+               style="text-transform:uppercase">
+      </div>
+    </div>
 
     <!-- ★ 왼쪽에 진짜 3D 미리보기, 오른쪽에 고르는 칸.
          고르는 순간 옆에서 바로 바뀌는 게 보여야 애들이 이것저것 눌러 본다. -->
@@ -1335,22 +1375,19 @@ body.touch #forgeTip .tp{display:inline}
         <canvas id="pvw" width="230" height="270"></canvas>
         <div id="pvwCap">내 양</div>
       </div>
+      <!-- ★ 칸마다 label + 단추판을 한 덩어리(dsec)로 묶는다.
+           넓은 화면에서 두 줄로 나눠 앉히려면 짝이 붙어 있어야 한다. -->
       <div id="dressPick">
-        <label class="f">우리 모둠</label>
-        <div class="grp" id="grpPick"></div>
-        <label class="f">모자 <b id="hatNm"></b></label>
-        <div class="grp deco" id="hatPick"></div>
-        <label class="f">안경 <b id="glsNm"></b></label>
-        <div class="grp deco" id="glsPick"></div>
-        <label class="f">옷 <b id="cloNm"></b></label>
-        <div class="grp deco" id="cloPick"></div>
+        <div class="dsec"><label class="f">우리 모둠</label>
+          <div class="grp" id="grpPick"></div></div>
+        <div class="dsec"><label class="f">모자 <b id="hatNm"></b></label>
+          <div class="grp deco" id="hatPick"></div></div>
+        <div class="dsec"><label class="f">안경 <b id="glsNm"></b></label>
+          <div class="grp deco" id="glsPick"></div></div>
+        <div class="dsec"><label class="f">옷 <b id="cloNm"></b></label>
+          <div class="grp deco" id="cloPick"></div></div>
       </div>
     </div>
-
-    <label class="f">방 코드</label>
-
-    <input class="f" id="iRoom" maxlength="6" placeholder="ABCD" autocomplete="off"
-           style="text-transform:uppercase">
 
     <div class="row">
       <button class="btn pri" id="bJoin">들어가기</button>
@@ -1524,6 +1561,14 @@ body.touch #forgeTip .tp{display:inline}
   <div id="stTop"></div>
   <div id="stList" class="stGrid"></div>
   <div class="row"><button class="btn pri" data-close="popStat">닫기</button></div>
+</div></div>
+
+<!-- 전직 -->
+<div class="pop" id="popJob"><div class="popC">
+  <h2 id="jobTitle">✨ 전직!</h2>
+  <p class="shopHint" id="jobHint"></p>
+  <div id="jobList" class="stGrid"></div>
+  <div class="row"><button class="btn" data-close="popJob">나중에 고를래요</button></div>
 </div></div>
 
 <!-- 내 가방 -->
@@ -1753,7 +1798,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '17차e · 농장 · 자원 바꾸기';
+const GAME_VER = '17차f · 농장 · 바꾸기 · 전직';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -5050,7 +5095,11 @@ const P_body = imesh(gWool, MAT, MAXP,   1),   // 몸통
       /* ★ 꾸미기(모자·안경·옷) — 종류가 몇이든 메시는 하나다.
          천 텍스처에 색·크기만 바꿔 끼우므로, 아이템을 아무리 늘려도 드로우콜은 1개다.
          아무도 아무것도 안 걸치면 통째로 숨긴다. */
-      P_deco = imesh(cube(T.cloth), MAT, MAXP*18, 1);
+      /* ★ 칸은 '제일 많이 걸친 아이' 기준이다. 모자 5 + 안경 7 + 옷 6 = 18 이라
+         예전 칸(18)에는 여유가 한 칸도 없었고, 전직 차림새(최대 14)가 붙으면
+         그냥 잘렸다 — 오류도 안 내고 조각이 사라진다. 40 으로 잡는다
+         (22명 × 40 = 880개, 인스턴스 하나 값은 거의 없다). */
+      P_deco = imesh(cube(T.cloth), MAT, MAXP*40, 1);
 /* ═══════════ 친구가 든 총 (14차) ═══════════
    ★ 왜 넣었나 — 강화가 생기면서 "누가 뭘 들었나" 가 교실에서 제일 궁금한 것이 됐다.
      내 총만 내 화면에 보이면 자랑할 데가 없다. +5·+6 이 빛나는 걸 남이 봐야 의미가 있다.
@@ -5097,8 +5146,8 @@ const ENH_FX = [
        몸통 = f 0,    u 0.56, 크기 0.84×0.62×0.94  → 앞면 f 0.47 · 옆 ±0.42
        등털 = f -0.05,u 0.98, 크기 1.08×0.68×1.16  → 뒤 f -0.63 · 위 u 1.32 · 옆 ±0.54
      '가로'는 옆폭, '깊이'는 앞뒤 길이다. 등털보다 좁으면 털 속에 파묻혀 안 보인다. */
-const HAT_ICON = ['🚫','👒','👑','🎀','😈','🧙','🧶','☠️','🌸'];
-const HAT_NAME = ['없음','밀짚모자','왕관','리본','작은 뿔','마법사 고깔','털모자','해적 모자','꽃 화관'];
+const HAT_ICON = ['🚫','👒','👑','🎀','😈','🧙','🧶','☠️','🌸','🐱','🚀'];
+const HAT_NAME = ['없음','밀짚모자','왕관','리본','작은 뿔','마법사 고깔','털모자','해적 모자','꽃 화관','고양이 귀','우주 헬멧'];
 const HATS = [
   [],
   [[0.66,1.46,0,  1.02,0.10,1.02, 0xe8cf8a], [0.66,1.56,0, 0.62,0.20,0.62, 0xdcbe72]],
@@ -5121,10 +5170,134 @@ const HATS = [
   /* 꽃 화관 */
   [[0.66,1.42,0, 0.90,0.10,0.84, 0x5da84f],
    [0.90,1.48, 0.26, 0.16,0.15,0.16, 0xff9ec4], [0.90,1.48,-0.26, 0.16,0.15,0.16, 0xfff08a],
-   [0.42,1.48, 0.30, 0.16,0.15,0.16, 0xa8c8ff], [0.42,1.48,-0.30, 0.16,0.15,0.16, 0xff9ec4]]
+   [0.42,1.48, 0.30, 0.16,0.15,0.16, 0xa8c8ff], [0.42,1.48,-0.30, 0.16,0.15,0.16, 0xff9ec4]],
+  /* 고양이 귀 — 머리 위 삼각 두 쪽 + 안쪽 분홍. 17차f에 더했다 */
+  [[0.60,1.52, 0.30, 0.26,0.30,0.16, 0xf7f2e8], [0.60,1.52,-0.30, 0.26,0.30,0.16, 0xf7f2e8],
+   [0.66,1.50, 0.30, 0.14,0.18,0.10, 0xff9ec4], [0.66,1.50,-0.30, 0.14,0.18,0.10, 0xff9ec4],
+   [0.66,1.42,0,    0.66,0.10,0.62, 0xffb0cd]],
+  /* 우주 헬멧 — 투명 대신 흰 테를 두르고 앞에 하늘빛 창을 낸다 */
+  [[0.66,1.46,0, 1.00,0.14,0.96, 0xf2f4f8],
+   [0.66,1.60,0, 0.82,0.28,0.78, 0xe6ebf2],
+   [0.98,1.50,0, 0.14,0.34,0.62, 0x8fd0ff],
+   [0.66,1.82,0, 0.16,0.18,0.16, 0xffd94a]]
 ];
-const GLS_ICON = ['🚫','🤓','😎','💖','🥽','🩹','⭐'];
-const GLS_NAME = ['없음','동그란 안경','선글라스','하트 안경','물안경','안대','별 안경'];
+/* ═══════════ 전직한 양의 차림새 (17차f) ═══════════
+   ★ 꾸미기(모자·안경·옷)와 똑같은 형식이다 — [앞f, 높이u, 옆sd, 가로,세로,깊이, 색].
+     같은 P_deco 메시에 얹으므로 **드로우콜이 하나도 안 는다.**
+   ★ "여자아이들도 좋아할 수 있을만큼" — 파스텔·금테·하트·별·리본으로 갔다.
+     세 직업 다 '무섭게' 가 아니라 '멋지고 예쁘게' 로 잡았다.
+   ★ 2차는 1차 위에 얹는 게 아니라 **통째로 갈아입는다** — 1차보다 확실히 화려해야
+     "전직했다" 가 눈에 보인다. 덩치는 drawSheep 에서 따로 키운다.
+   ★ 얼굴 앞면은 f=0.99 다. 얼굴에 붙는 것은 그보다 앞으로 나와야 안 파묻힌다. */
+const JOB_LOOK = [
+  /* ── ⚔️ 전투양 ── 장미금 갑옷 · 하트 보석 · 뒤로 흐르는 깃털 · 망토 */
+  [
+   [ /* 1차 */
+    /* ★ 챙을 두르지 않는다 — 세 직업 머리쓰개가 다 '넓은 챙 + 돔' 이었더니
+       멀리서 셋이 똑같아 보였다. 전투양은 머리에 딱 붙는 둥근 투구다. */
+    [0.66,1.50,0,     0.80,0.30,0.76, 0xffe9b0, 1],  // 둥근 투구 (금빛)
+    [0.74,1.28, 0.34, 0.20,0.26,0.14, 0xffe9b0, 1],  // 볼 가리개 2
+    [0.74,1.28,-0.34, 0.20,0.26,0.14, 0xffe9b0, 1],
+    [0.44,1.62,0,     0.40,0.18,0.22, 0xff8fa6, 1],  // 깃털 (뒤로 흐른다)
+    [0.20,1.54,0,     0.32,0.16,0.20, 0xffb0cd, 1],
+    [0.50,0.62,0,     0.86,0.60,0.12, 0xffe9b0],     // 가슴판 (금빛 — 어느 모둠 색에도 묻히지 않는다)
+    /* ★ 하트는 u 0.55 다. 처음에 0.72 에 뒀더니 머리(u 0.74~1.38)에 가려
+       정면에서 안 보였다. 가슴에서 보이는 창은 u 0.25~0.74 뿐이다. */
+    [0.57,0.55,0,     0.26,0.24,0.10, 0xff5577],     // 하트 보석
+    [0.00,1.04, 0.52, 0.34,0.26,0.34, 0xffe9b0],     // 어깨 2
+    [0.00,1.04,-0.52, 0.34,0.26,0.34, 0xffe9b0],
+    [-0.72,0.84,0,    0.92,1.00,0.10, 0xff8fa6]      // 망토
+   ],
+   [ /* 2차 */
+    [0.66,1.54,0,     0.86,0.34,0.82, 0xffd94a, 1],  // 큰 둥근 투구
+    [0.74,1.28, 0.36, 0.22,0.30,0.16, 0xffe9b0, 1],  // 볼 가리개 2
+    [0.74,1.28,-0.36, 0.22,0.30,0.16, 0xffe9b0, 1],
+    [0.94,1.46,0,     0.18,0.18,0.16, 0xfff0a0, 1],  // 이마 별
+    [0.60,1.74, 0.42, 0.16,0.30,0.20, 0xfff6d8, 1],  // 옆으로 솟은 날개 2
+    [0.60,1.74,-0.42, 0.16,0.30,0.20, 0xfff6d8, 1],
+    [0.44,1.70,0,     0.40,0.18,0.22, 0xff8fa6, 1],  // 긴 깃털 3단
+    [0.20,1.62,0,     0.34,0.16,0.20, 0xffb0cd, 1],
+    [-0.02,1.52,0,    0.26,0.14,0.18, 0xffd9e0, 1],
+    [0.50,0.62,0,     0.90,0.64,0.12, 0xffe9b0],     // 금 가슴판
+    [0.58,0.55,0,     0.30,0.28,0.10, 0xff5577],     // 큰 하트
+    [0.60,0.70,0,     0.14,0.12,0.10, 0xfff0a0],     // 반짝이
+    [0.00,0.62, 0.47, 0.10,0.60,0.94, 0xffd9e0],     // 옆구리 2
+    [0.00,0.62,-0.47, 0.10,0.60,0.94, 0xffd9e0],
+    [0.00,1.06, 0.56, 0.40,0.30,0.40, 0xffe9b0],     // 큰 어깨 2
+    [0.00,1.06,-0.56, 0.40,0.30,0.40, 0xffe9b0],
+    [0.00,1.28, 0.56, 0.14,0.16,0.14, 0xffd94a],     // 어깨 별 2
+    [0.00,1.28,-0.56, 0.14,0.16,0.14, 0xffd94a],
+    [-0.74,0.86,0,    1.00,1.16,0.10, 0xff6b8a],     // 큰 망토
+    [-0.74,0.30,0,    1.00,0.12,0.12, 0xffd94a]      // 망토 금단
+   ]
+  ],
+  /* ── 🔨 건축가양 ── 안전모 · 멜빵 앞치마 · 연장띠 · 등에 멘 망치 */
+  [
+   [ /* 1차 */
+    /* 안전모 챙은 앞으로만 나온다 — 빙 두르면 밀짚모자와 구분이 안 된다 */
+    [0.98,1.44,0,     0.34,0.10,0.74, 0xffd257, 1],  // 앞챙
+    [0.66,1.52,0,     0.80,0.28,0.76, 0xffc233, 1],  // 돔
+    [0.66,1.70,0,     0.18,0.10,0.62, 0xfff0b0, 1],  // 등마루
+    [0.50,0.56,0,     0.82,0.56,0.12, 0xfff0d0],     // 앞치마
+    [0.57,0.42,0,     0.34,0.22,0.10, 0xffd257],     // 주머니
+    [0.52,1.00, 0.24, 0.12,0.34,0.10, 0xffd257],     // 멜빵 2
+    [0.52,1.00,-0.24, 0.12,0.34,0.10, 0xffd257],
+    [0.50,0.30,0,     0.86,0.14,0.12, 0xc98a4a],     // 연장띠
+    [0.00,0.30, 0.47, 0.10,0.14,0.94, 0xc98a4a],
+    [0.00,0.30,-0.47, 0.10,0.14,0.94, 0xc98a4a]
+   ],
+   [ /* 2차 */
+    [1.02,1.44,0,     0.38,0.12,0.80, 0xffe9b0, 1],  // 금빛 앞챙
+    [0.66,1.54,0,     0.84,0.32,0.80, 0xffd257, 1],
+    [0.66,1.72,0,     0.20,0.14,0.66, 0xfff6d8, 1],
+    [0.66,1.78, 0.30, 0.14,0.14,0.14, 0xfff0a0, 1],  // 별 2
+    [0.66,1.78,-0.30, 0.14,0.14,0.14, 0xfff0a0, 1],
+    [0.50,0.56,0,     0.90,0.62,0.12, 0xfff6e0],
+    [0.58,0.60,0,     0.30,0.28,0.10, 0xffb84a],     // 앞치마 무늬
+    [0.52,1.02, 0.26, 0.13,0.36,0.11, 0xffd257],
+    [0.52,1.02,-0.26, 0.13,0.36,0.11, 0xffd257],
+    [0.00,1.04, 0.52, 0.32,0.24,0.32, 0xffd257],     // 어깨 2
+    [0.00,1.04,-0.52, 0.32,0.24,0.32, 0xffd257],
+    [0.50,0.30,0,     0.92,0.16,0.12, 0xd9a05a],
+    [0.58,0.30,0,     0.26,0.24,0.10, 0xffd94a],     // 금 버클
+    [-0.62,1.10,0,    0.18,0.86,0.18, 0xc98a4a],     // 등에 멘 망치 자루
+    [-0.62,1.52,0,    0.30,0.30,0.62, 0xe8e2d8]      // 망치 머리
+   ]
+  ],
+  /* ── 🌾 일꾼양 ── 밀짚모자 · 꽃 · 초록 앞치마 · 등에 멘 광주리 */
+  [
+   [ /* 1차 */
+    [0.68,1.42,0,     1.14,0.10,1.08, 0xf0d89a, 1],  // 밀짚 챙
+    [0.66,1.54,0,     0.70,0.24,0.66, 0xe8c87a, 1],
+    [0.66,1.48,0,     0.74,0.10,0.70, 0xa8e6a1, 1],  // 모자 띠
+    [0.94,1.48, 0.30, 0.16,0.15,0.16, 0xff9ec4, 1],  // 꽃
+    [0.50,0.56,0,     0.82,0.54,0.12, 0xa8e6a1],     // 앞치마
+    [0.52,1.00, 0.24, 0.12,0.32,0.10, 0x7cc47a],     // 멜빵 2
+    [0.52,1.00,-0.24, 0.12,0.32,0.10, 0x7cc47a],
+    [0.60,0.92,0,     0.84,0.24,0.34, 0xffd9e0]      // 목 스카프
+   ],
+   [ /* 2차 */
+    [0.68,1.40,0,     1.20,0.12,1.14, 0xf6e4b0, 1],
+    [0.66,1.54,0,     0.74,0.26,0.70, 0xf0d89a, 1],
+    [0.66,1.48,0,     0.78,0.12,0.74, 0xffb0cd, 1],  // 리본 띠
+    [0.30,1.52, 0.20, 0.18,0.18,0.14, 0xff8fb8, 1],  // 리본 매듭 2
+    [0.30,1.52,-0.20, 0.18,0.18,0.14, 0xff8fb8, 1],
+    [0.98,1.48, 0.32, 0.17,0.16,0.17, 0xff9ec4, 1],  // 꽃 화관 4
+    [0.98,1.48,-0.32, 0.17,0.16,0.17, 0xfff08a, 1],
+    [0.34,1.50, 0.36, 0.17,0.16,0.17, 0xa8c8ff, 1],
+    [0.34,1.50,-0.36, 0.17,0.16,0.17, 0xff9ec4, 1],
+    [0.50,0.56,0,     0.90,0.60,0.12, 0xbcf0b4],
+    [0.58,0.58,0,     0.26,0.24,0.10, 0xfff0a0],     // 앞치마 꽃무늬
+    [0.52,1.02, 0.26, 0.13,0.34,0.11, 0x7cc47a],
+    [0.52,1.02,-0.26, 0.13,0.34,0.11, 0x7cc47a],
+    [0.60,0.94,0,     0.90,0.26,0.38, 0xffb0cd],     // 스카프
+    [-0.62,1.06,0,    0.58,0.44,0.56, 0xe0bd88],     // 등에 멘 광주리
+    [-0.62,1.30,0,    0.64,0.10,0.60, 0xc9a06a]
+   ]
+  ]
+];
+const GLS_ICON = ['🚫','🤓','😎','💖','🥽','🩹','⭐','🌈','✨'];
+const GLS_NAME = ['없음','동그란 안경','선글라스','하트 안경','물안경','안대','별 안경','무지개 안경','볼 주근깨'];
 const GLASSES = [
   [],
   /* 동그란 안경 — 검은 테 + 옅은 알 + 코걸이 + 다리 두 개 */
@@ -5155,10 +5328,20 @@ const GLASSES = [
   [[1.05,1.15,-0.21, 0.30,0.30,0.05, 0xffd94a], [1.05,1.15, 0.21, 0.30,0.30,0.05, 0xffd94a],
    [1.08,1.15,-0.21, 0.14,0.14,0.04, 0x2b2b33], [1.08,1.15, 0.21, 0.14,0.14,0.04, 0x2b2b33],
    [1.05,1.15,0,     0.16,0.05,0.05, 0xffd94a],
-   [0.86,1.15,-0.32, 0.05,0.05,0.40, 0xffd94a], [0.86,1.15, 0.32, 0.05,0.05,0.40, 0xffd94a]]
+   [0.86,1.15,-0.32, 0.05,0.05,0.40, 0xffd94a], [0.86,1.15, 0.32, 0.05,0.05,0.40, 0xffd94a]],
+  /* 무지개 알 안경 — 알 두 쪽 색을 달리한다. 17차f에 더했다 */
+  [[1.05,1.15,-0.21, 0.30,0.30,0.05, 0xff8fb8], [1.05,1.15, 0.21, 0.30,0.30,0.05, 0x8fd0ff],
+   [1.08,1.15,-0.21, 0.20,0.20,0.04, 0xffd0e4], [1.08,1.15, 0.21, 0.20,0.20,0.04, 0xd0ecff],
+   [1.05,1.15,0,     0.16,0.05,0.05, 0xfff0a0],
+   [0.86,1.15,-0.32, 0.05,0.05,0.40, 0xfff0a0], [0.86,1.15, 0.32, 0.05,0.05,0.40, 0xfff0a0]],
+  /* 볼 주근깨 — 안경 대신 얼굴에 점을 찍는다. 안경이 싫은 아이 몫이다 */
+  [[1.04,1.00,-0.30, 0.06,0.06,0.05, 0xd98a7a], [1.04,1.06,-0.24, 0.06,0.06,0.05, 0xd98a7a],
+   [1.04,0.96,-0.20, 0.06,0.06,0.05, 0xd98a7a],
+   [1.04,1.00, 0.30, 0.06,0.06,0.05, 0xd98a7a], [1.04,1.06, 0.24, 0.06,0.06,0.05, 0xd98a7a],
+   [1.04,0.96, 0.20, 0.06,0.06,0.05, 0xd98a7a]]
 ];
-const CLO_ICON = ['🚫','🦸','🦺','🧣','🛡️','👔','🌈'];
-const CLO_NAME = ['없음','빨간 망토','파란 조끼','노란 목도리','은빛 갑옷','나비넥타이','무지개 판초'];
+const CLO_ICON = ['🚫','🦸','🦺','🧣','🛡️','👔','🌈','🧚','🌛'];
+const CLO_NAME = ['없음','빨간 망토','파란 조끼','노란 목도리','은빛 갑옷','나비넥타이','무지개 판초','요정 날개','별무늬 잠옷'];
 const CLOTHES = [
   [],
   /* 빨간 망토 — 등털 뒤(f -0.63)보다 더 뒤로 빼야 보인다 */
@@ -5191,6 +5374,23 @@ const CLOTHES = [
   /* 무지개 판초 — 아래로 갈수록 넓어져 펄럭이는 모양이 된다 */
   [[-0.05,1.28,0, 1.14,0.14,1.22, 0xff6b6b], [-0.05,1.14,0, 1.18,0.14,1.26, 0xffd43b],
    [-0.05,1.00,0, 1.22,0.14,1.30, 0x51cf66], [-0.05,0.86,0, 1.26,0.14,1.34, 0x4dabf7]]
+,
+  /* 요정 날개 — 등 뒤에 펼친 연분홍 날개 두 쌍. 17차f에 더했다 */
+  /* ★ 처음엔 옆으로 ±0.44 에 뒀는데 등털(반너비 0.54)에 가려 앞에서 안 보였다.
+     날개는 옆으로 확실히 내밀어야 어느 쪽에서 봐도 '날개' 로 읽힌다. */
+  [[-0.50,1.10, 0.64, 0.30,0.52,0.16, 0xffd0e4], [-0.50,1.10,-0.64, 0.30,0.52,0.16, 0xffd0e4],
+   [-0.44,0.74, 0.56, 0.24,0.36,0.14, 0xffe4f0], [-0.44,0.74,-0.56, 0.24,0.36,0.14, 0xffe4f0],
+   [-0.56,1.36, 0.52, 0.12,0.12,0.10, 0xfff0a0], [-0.56,1.36,-0.52, 0.12,0.12,0.10, 0xfff0a0],
+   [-0.58,1.00,0,    0.20,0.30,0.14, 0xffb0cd]],
+  /* 별무늬 잠옷 — 온몸을 감싼 밤하늘색에 노란 별 */
+  [[ 0.50,0.60,0,     0.84,0.62,0.10, 0x4a5aa8],
+   [-0.50,0.60,0,     0.84,0.62,0.10, 0x3d4b90],
+   [ 0.00,0.60, 0.47, 0.10,0.62,0.94, 0x44539c],
+   [ 0.00,0.60,-0.47, 0.10,0.62,0.94, 0x44539c],
+   [ 0.56,0.74, 0.20, 0.12,0.12,0.06, 0xfff0a0],
+   [ 0.56,0.48,-0.16, 0.10,0.10,0.06, 0xfff0a0],
+   [ 0.00,0.60, 0.50, 0.12,0.12,0.10, 0xfff0a0],
+   [ 0.60,0.94,0,     0.78,0.16,0.30, 0xffd0e4]]
 ];
 
 
@@ -5582,7 +5782,11 @@ function drawSheep(list, t, cap, colOf, scale){
   for(const s of list){
     if(n>=cap) break;
     const y  = s.y!==undefined ? s.y : GY;
-    const sc = scale;
+    /* ★ 전직하면 덩치가 커진다 — "전보다 좀 더 덩치도 커지고" 가 주문이었다.
+       한 단계에 9%씩. 이보다 키우면 문틀·사다리 같은 데서 몸이 박혀 보인다
+       (실제 충돌 크기는 그대로다 — 보이는 것만 커진다). */
+    const jt = Math.max(0, Math.min(2, s.jt|0));
+    const sc = scale * (1 + 0.09*jt);
     const down = !!s.down;                          // 쓰러진 양
     const ry = (s.ry||0) + Math.PI;                 // ★ 전방 보정
     const fx = Math.sin(ry), fz = Math.cos(ry);     // 앞
@@ -5669,6 +5873,20 @@ function drawSheep(list, t, cap, colOf, scale){
       for(const h of pick(arr, idx)){
         if(decoN >= P_deco.count_max) break;
         setI(P_deco, decoN++, X(h[0], h[2]), (onHead?YH:Y)(h[1]), Z(h[0], h[2]), ry,
+          h[3]*sc, h[4]*sc, h[5]*sc, h[6]);
+      }
+    }
+    /* ── 전직한 양의 차림새 ──
+       ★ 꾸미기와 같은 메시(P_deco)에 얹는다 — 드로우콜이 하나도 안 는다.
+       ★ 쓰러졌을 때도 그대로 입고 있다(Y 가 뒤집혀 있어 옷도 같이 뒤집힌다).
+       ★ 높이가 1.0 을 넘는 조각(투구·모자)은 머리를 따라 끄덕이게 한다 —
+         안 그러면 걸을 때 투구만 뻣뻣하게 떠 있다. */
+    if(jt > 0 && s.jb >= 0 && s.jb < JOB_LOOK.length){
+      for(const h of JOB_LOOK[s.jb][jt-1]){
+        if(decoN >= P_deco.count_max) break;
+        /* ★ 여덟 번째 칸이 1 이면 머리를 따라 끄덕인다(투구·모자).
+           높이로 어림잡았더니 등에 멘 망치(u 1.52)까지 머리를 따라 흔들렸다. */
+        setI(P_deco, decoN++, X(h[0], h[2]), (h[7] ? YH : Y)(h[1]), Z(h[0], h[2]), ry,
           h[3]*sc, h[4]*sc, h[5]*sc, h[6]);
       }
     }
@@ -6444,11 +6662,46 @@ const STATS = [
   {ic:'❤️', n:'튼튼한 양', max:8, d:'최대 체력 <b>+22</b>'},
   {ic:'🛡️', n:'가죽 등',   max:8, d:'방어력 <b>+5</b>'}
 ];
-const XP = { lv:1, xp:0, pts:1, st:[0,0,0,0,0,0], lvT:0 };
+/* ═══════════════════════ 전직 (17차f) ═══════════════════════
+   선생님 주문: "레벨 15,30에 전직. 전투양(총 쏘기) / 건축가양(건물 짓고, 수리) /
+   일꾼양(자원캐고 농부 일) 셋 중 하나. 각 직업에 맞게 max 스텟을 2개씩 더 찍게.
+   전보다 덩치도 커지고 더 멋있어져야지. 여자아이들도 좋아할 수 있을만큼
+   양의 그래픽에 신경을 아주 많이 써줘."
+
+   ★ 왜 스텟 상한만 올리고 능력치를 직접 안 건드렸나 —
+     이 게임의 세기는 전부 STATS 를 거쳐 계산된다(mineTime·workMul·무기 배수…).
+     전직이 따로 배수를 곱하기 시작하면 밸런스를 두 군데서 재야 한다.
+     '더 찍을 수 있는 칸' 으로 주면 기존 계산이 그대로 맞고, 아이도 이해하기 쉽다 —
+     찍는 재미가 늘어난 것이지 공짜로 세진 게 아니다.
+   ★ 전직은 한 번 고르면 안 바꾼다. 2차는 같은 길을 더 깊게 간다.
+     고른 걸 되돌릴 수 있으면 아이들이 하루 종일 갈아 끼우다 만다. */
+const JOB_LV = [15, 30];                       // 1차 · 2차 전직 레벨
+const JOB_STEP = 2;                            // 전직마다 상한 +2
+const JOBS = [
+  {k:'fight', ic:'⚔️', n:'전투양',   st:3, col:'#ff9aa8',
+   d:'<b>사격 솜씨</b>를 더 찍을 수 있어요', d2:'늑대를 제일 잘 잡는 양이 됩니다'},
+  {k:'build', ic:'🔨', n:'건축가양', st:2, col:'#ffd257',
+   d:'<b>빠른 망치</b>를 더 찍을 수 있어요', d2:'짓기·수리·강화가 제일 빠른 양이 됩니다'},
+  {k:'work',  ic:'🌾', n:'일꾼양',   st:0, col:'#a8e6a1',
+   d:'<b>캐는 손</b>을 더 찍을 수 있어요', d2:'자원 캐기와 농장 일이 제일 빠른 양이 됩니다'}
+];
+const XP = { lv:1, xp:0, pts:1, st:[0,0,0,0,0,0], lvT:0, job:-1, jt:0 };
+/* 이 스텟을 몇 단계까지 찍을 수 있나 — 내 직업의 스텟이면 전직 단계마다 +2 */
+function statMax(i){
+  const S = STATS[i]; if(!S) return 0;
+  const J = JOBS[XP.job];
+  return S.max + (J && J.st === i ? JOB_STEP * XP.jt : 0);
+}
+/* 지금 전직할 수 있나 — 레벨이 되었는데 아직 그 단계를 안 밟았으면 */
+function jobDue(){
+  for(let t=0; t<JOB_LV.length; t++)
+    if(XP.lv >= JOB_LV[t] && XP.jt <= t) return t+1;   // 1 또는 2 (밟을 단계)
+  return 0;
+}
 xpTable();
 function xpReset(){
   xpTable();
-  XP.lv=1; XP.xp=0; XP.pts=1; XP.st=[0,0,0,0,0,0]; XP.lvT=0;
+  XP.lv=1; XP.xp=0; XP.pts=1; XP.st=[0,0,0,0,0,0]; XP.lvT=0; XP.job=-1; XP.jt=0;
   hudPrev.xp=''; hudPrev.kit='';
 }
 const stLv      = i => XP.st[i]|0;
@@ -6472,6 +6725,13 @@ function xpGain(n, why){
     feed(`⭐ <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b> <b>레벨 ${XP.lv}</b>`
        + (XP.lv >= LV_MAX ? ' — 만렙! 🏆' : ' — 스텟 1점을 받았어요 (C)'));
     netPCDirty = true;
+    /* 전직할 레벨이면 화면을 열어 준다 — 전직이 있는 줄 모르면 소용이 없다.
+       ★ 다른 창이 떠 있으면 안 연다(jobCheck 안에서 본다). 놓쳐도 스텟 창에
+         '전직할 수 있어요' 가 남으므로 영영 못 하는 일은 없다. */
+    /* ★ 한 번에 여러 레벨이 오르면(경험치를 왕창 받으면) 예약이 그만큼 쌓인다.
+       레벨 서른네 번이 한꺼번에 오르면 타이머가 서른네 개 걸려서, 아이가 창을 닫아도
+       뒤이어 또 열렸다. 예약은 하나만 건다. */
+    if(jobDue() && !jobPend){ jobPend = 1; setTimeout(()=>{ jobPend = 0; jobCheck(); }, 900); }
   }
   if(XP.lv >= LV_MAX) XP.xp = 0;
   hudPrev.xp = '';
@@ -6479,7 +6739,7 @@ function xpGain(n, why){
 /* 스텟 한 점 찍기 */
 function takeStat(i){
   const S = STATS[i]; if(!S) return;
-  if(XP.pts <= 0 || XP.st[i] >= S.max) return;
+  if(XP.pts <= 0 || XP.st[i] >= statMax(i)) return;
   XP.pts--; XP.st[i]++;
   hudPrev.xp=''; hudPrev.kit='';
   if(i === 4) PL.hp = Math.min(maxHP(), PL.hp + 22);   // 체력을 올리면 그만큼 바로 채워 준다
@@ -6950,6 +7210,66 @@ function buyPotion(i){
      바꿔 쓸 수가 없었다(망루에 올라갈 땐 저격총, 문 앞에선 연발총). */
 /* ═══════ 스텟 창 (C) ═══════ */
 function openStat(){ buildStatUI(); openPop('popStat'); }
+
+/* ═══════════ 전직 고르기 ═══════════
+   ★ 1차에서 고른 길로만 2차를 간다 — 길을 갈아탈 수 있으면
+     아이들이 하루 종일 갈아 끼우다 끝난다. 2차 화면은 확인만 받는다. */
+function buildJobUI(){
+  const due = jobDue();                       // 밟을 단계 (1 또는 2)
+  const w = el('jobList'); if(!w) return;
+  el('jobTitle').textContent = due >= 2 ? '✨ 2차 전직!' : '✨ 전직!';
+  el('jobHint').innerHTML = due >= 2
+    ? '같은 길을 더 깊이 갑니다. 차림새가 더 멋있어지고, '
+      + `<b>찍을 수 있는 칸이 ${JOB_STEP}개 더</b> 늘어나요.`
+    : '길을 하나 고르세요. <b>한 번 고르면 못 바꿔요.</b> '
+      + `고른 길의 스텟을 <b>${JOB_STEP}칸 더</b> 찍을 수 있고, 양의 차림새가 바뀝니다.`;
+  w.innerHTML = '';
+  /* 2차는 이미 고른 길 하나만 보여 준다 */
+  const list = (due >= 2 && XP.job >= 0) ? [JOBS[XP.job]] : JOBS;
+  for(const J of list){
+    const i = JOBS.indexOf(J), S = STATS[J.st];
+    const now = statMax(J.st), after = S.max + JOB_STEP*due;
+    const d = document.createElement('div');
+    d.className = 'stIt';
+    d.innerHTML = `<div class="si">${J.ic}</div><div class="sb">
+      <div class="sn" style="color:${J.col}">${J.n}</div>
+      <div class="sd">${J.d2}<br>${S.ic} <b>${S.n}</b> ${now}칸 → <b>${after}칸</b></div></div>`;
+    const b = document.createElement('button');
+    b.textContent = due >= 2 ? '2차 전직!' : '이 길로!';
+    b.className = 'buy';
+    b.onclick = ()=> takeJob(i);
+    d.appendChild(b);
+    w.appendChild(d);
+  }
+}
+function takeJob(i){
+  const due = jobDue(); if(!due) return;
+  const J = JOBS[i]; if(!J) return;
+  if(XP.jt > 0 && XP.job !== i) return;        // 2차는 고른 길로만
+  XP.job = i; XP.jt = due;
+  hudPrev.xp=''; hudPrev.kit='';
+  netPCDirty = true; syncMyPC();
+  el('popJob').classList.remove('on');
+  if(window.__sfx) window.__sfx('up');
+  { const f = forward();
+    burst(PL.x + f.x*3.0, PL.y + 1.9, PL.z + f.z*3.0, 0xffd94a, 30, 1.3);
+    burst(PL.x + f.x*3.0, PL.y + 2.4, PL.z + f.z*3.0, 0xfff2c0, 16, 1.0); }
+  toast(`${J.ic} ${J.n}${due>=2?' 2차':''}가 되었어요! ${STATS[J.st].ic} ${STATS[J.st].n}를 더 찍을 수 있어요`,
+        3.4, J.col);
+  feed(`${J.ic} <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
+     + `<b style="color:${J.col}">${J.n}</b>${due>=2?' <b>2차</b>':''}(으)로 전직했어요!`);
+  if(popOpen() && el('popStat').classList.contains('on')) buildStatUI();
+}
+/* 레벨이 차면 저절로 열어 준다 — 아이가 '전직' 이 있는 줄도 모르면 소용이 없다 */
+let jobPend = 0;                       // 전직 화면 예약이 걸려 있나
+function jobCheck(){
+  if(!G.started || !jobDue() || popOpen()) return;
+  /* ★ 낮에만, 그리고 쓰러져 있지 않을 때만 연다.
+     처음엔 레벨이 차면 언제든 열었는데, 밤에 늑대에 둘러싸인 채로 화면이 덮이면
+     그대로 물린다. 놓쳐도 스텟 창(C)에 '전직하러 가기' 단추가 남아 있다. */
+  if(G.phase !== 'day' || PL.down) return;
+  buildJobUI(); openPop('popJob');
+}
 function buildStatUI(){
   const top = el('stTop'), w = el('stList');
   if(!top || !w) return;
@@ -6958,16 +7278,35 @@ function buildStatUI(){
     + (XP.lv < LV_MAX
         ? ` · 다음까지 <b>${Math.max(0, Math.ceil(need - XP.xp))}</b> 경험치`
         : ` · <b>만렙!</b> 🏆`)
-    + ` · 남은 점수 <b>${XP.pts}</b></div>`;
+    + ` · 남은 점수 <b>${XP.pts}</b>`
+    + (XP.jt > 0 && JOBS[XP.job]
+        ? ` · <b style="color:${JOBS[XP.job].col}">${JOBS[XP.job].ic} ${JOBS[XP.job].n}`
+          + `${XP.jt >= 2 ? ' 2차' : ''}</b>` : '')
+    + `</div>`;
   w.innerHTML = '';
+  /* 전직할 수 있는데 아직 안 했으면, 스텟 창에서 다시 열 수 있게 해 준다.
+     ('나중에 고를래요' 로 닫은 아이가 다시 찾아올 곳이 여기밖에 없다) */
+  if(jobDue()){
+    const b = document.createElement('button');
+    b.className = 'btn pri';
+    b.style.gridColumn = '1/-1';
+    b.textContent = jobDue() >= 2 ? '✨ 2차 전직하러 가기!' : '✨ 전직하러 가기!';
+    b.onclick = ()=>{ el('popStat').classList.remove('on'); buildJobUI(); openPop('popJob'); };
+    w.appendChild(b);
+  }
   STATS.forEach((S,i)=>{
-    const lv = XP.st[i], full = lv >= S.max, can = XP.pts > 0 && !full;
+    const mx = statMax(i);                     // 전직하면 내 길의 스텟만 칸이 늘어난다
+    const lv = XP.st[i], full = lv >= mx, can = XP.pts > 0 && !full;
     const d = document.createElement('div');
     d.className = 'stIt';
     let pips = '';
-    for(let k=0;k<S.max;k++) pips += `<i class="${k<lv?'on':''}"></i>`;
+    /* 전직으로 늘어난 칸은 표시를 달리한다 — '내가 얻은 칸' 이 눈에 보여야 한다 */
+    for(let k=0;k<mx;k++)
+      pips += `<i class="${k<lv?'on':''}"${k>=S.max?' style="outline:1.5px solid #ffd257"':''}></i>`;
     d.innerHTML = `<div class="si">${S.ic}</div><div class="sb">
-      <div class="sn">${S.n} <span style="opacity:.65;font-size:11.5px">${lv}/${S.max}</span></div>
+      <div class="sn">${S.n} <span style="opacity:.65;font-size:11.5px">${lv}/${mx}</span>`
+      + (mx > S.max ? ` <span style="color:#ffd257;font-size:11.5px">+${mx-S.max} 전직</span>` : '')
+      + `</div>
       <div class="sd">${S.d}</div><div class="stPips">${pips}</div></div>`;
     const btn = document.createElement('button');
     btn.textContent = full ? '끝' : '＋';
@@ -9689,6 +10028,9 @@ function syncMyPC(){
   /* ★ 거둔 개수 — 농장을 챙긴 아이의 이름이 '으뜸' 판에 남는 자리다.
      이 칸이 없으면 밤새 먹이 주고 청소한 아이는 화면 어디에도 안 나온다. */
   myPC.farmed = MY.farmed;
+  /* 전직 — 친구 화면에 그 아이의 차림새를 그려 주려고 보낸다. 칸 2개.
+     자리(위치) 통로는 초당 13번 나가는 곳이라 여기에 얹지 않는다. */
+  myPC.jb = XP.job; myPC.jt = XP.jt;
   myPC.lv = XP.lv;                       // 이름표·선생님 화면에 뜨는 레벨
   /* ★ 지금 든 무기와 강화 단계 — 친구들 화면에 내 총을 그려 주려고 보낸다.
      자리(위치) 통로는 초당 13번 나가는 곳이라 여기에 칸을 더하지 않는다.
@@ -10768,12 +11110,14 @@ function loop(){
          한 프레임에 스물한 번 찾아보는 값은 잰 값으로 0.001ms 아래다. */
       for(const q of shList){
         const pc = q.uid !== undefined ? pcMap.get(q.uid) : undefined;
-        if(pc){ q.wp = pc.wp|0; q.we = pc.we|0; }
+        if(pc){ q.wp = pc.wp|0; q.we = pc.we|0;
+                q.jb = pc.jb===undefined ? -1 : pc.jb|0; q.jt = pc.jt|0; }
       }
       /* ★ 쓰러지면 3인칭이 되므로 내 몸도 그려야 한다. 평소엔 1인칭이라 안 그린다. */
       if(PL.down){
         meSheep.x=PL.x; meSheep.y=PL.y; meSheep.z=PL.z; meSheep.ry=PL.yaw;
         meSheep.g=G.me.g|0; meSheep.hat=G.me.hat|0; meSheep.gls=G.me.gls|0; meSheep.clo=G.me.clo|0;
+        meSheep.jb=XP.job; meSheep.jt=XP.jt;
         shList.push(meSheep);
       }
       drawSheep(shList, tAcc, MAXP, s=>GHEX[s.g|0], SHEEP_S);
@@ -11198,6 +11542,9 @@ Object.assign(window, {
   __farmMorning:farmMorning, __farmFeed:farmFeed, __farmClean:farmClean, __farmTake:farmTake,
   __buyAnimal:buyAnimal, __sellFarm:sellFarm, __basketWorth:basketWorth,
   __basketCount:basketCount, __farmCount:farmCount, __farmStock:farmStock,
+  __JOBS:JOBS, __JOB_LV:JOB_LV, __JOB_STEP:()=>JOB_STEP, __JOB_LOOK:JOB_LOOK,
+  __statMax:statMax, __jobDue:jobDue, __takeJob:takeJob, __buildJobUI:buildJobUI,
+  __jobCheck:jobCheck,
   __TRADE_VAL:TRADE_VAL, __TRADE_KEEP:()=>TRADE_KEEP, __TRADE_PACK:TRADE_PACK,
   __TRADE_MULS:TRADE_MULS, __tradeGive:tradeGive, __tradeGet:tradeGet, __doTrade:doTrade,
   __tradeMul:(m)=>{ tradeMul = m; }, __shopTab:(t)=>{ shopTab = t; },

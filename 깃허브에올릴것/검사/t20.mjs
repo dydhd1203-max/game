@@ -1,4 +1,4 @@
-/* 17차d·e 검사 — 모둠 농장 · 상인에게 자원 바꾸기
+/* 17차d·e·f 검사 — 모둠 농장 · 자원 바꾸기 · 전직
    ★ 값을 검사에 박지 않는다. 게임에서 읽어 '관계'만 본다.
      (가격표를 여기에 베껴 두면, 값을 고칠 때마다 검사가 빨간불이 되고
       결국 아무도 검사를 안 믿게 된다.) */
@@ -213,6 +213,11 @@ const rank = await pg.evaluate(()=>{
   o.도는갈래 = W.__rankCats().map(c=>c.k);
   o.농장이돈다 = o.도는갈래.includes('farmed');
   W.__pcMap.delete('zz');
+  /* ★ 앞 항목(⑦)에서 내가 직접 거뒀기 때문에 내 기록에도 farmed 가 남아 있다.
+     그걸 안 지우고 '아무도 안 했을 때' 를 재면, 페이지 타이머가 syncMyPC 를
+     부른 뒤냐 전이냐에 따라 통과했다 실패했다 한다 — 열 번에 한 번 빨개졌다.
+     게임이 아니라 검사가 흔들린 것이다. */
+  W.__MY.farmed = 0; W.__syncMyPC();
   o.아무도안했을때 = W.__rankCats().map(c=>c.k).includes('farmed');
   return o;
 });
@@ -319,6 +324,98 @@ ok('★ 바꾸면 실제로 자원이 오간다',
    trade.낸금 === trade.한번에낼금 && trade.받은나무 > 0,
    '✨'+trade.낸금+' → 🪵'+trade.받은나무);
 ok('★ 자원이 모자라면 안 바뀐다', !trade.빈손으로바뀜);
+
+/* ═══════ ⑫ 전직 — 고른 길의 칸만 늘어난다 ═══════ */
+const job = await pg.evaluate(()=>{
+  const W=window, X=W.__XP, o={};
+  const reset = ()=>{ X.job=-1; X.jt=0; X.lv=1; X.st=[0,0,0,0,0,0]; };
+  o.레벨 = W.__JOB_LV.slice();
+  o.칸늘어남 = W.__JOB_STEP();
+  o.길 = W.__JOBS.map(j=>j.k);
+  o.길마다다른스텟 = new Set(W.__JOBS.map(j=>j.st)).size === W.__JOBS.length;
+  /* 아직 레벨이 안 되면 전직 못 한다 */
+  reset(); X.lv = W.__JOB_LV[0]-1;
+  o.이른레벨 = W.__jobDue();
+  W.__takeJob(0);
+  o.이른레벨에전직됨 = X.jt > 0;
+  /* 레벨이 되면 전직할 수 있고, 내 길의 칸만 늘어난다 */
+  reset(); X.lv = W.__JOB_LV[0];
+  o.때가되면 = W.__jobDue();
+  const before = W.__STATS.map((S,i)=>W.__statMax(i));
+  W.__takeJob(0);
+  const after = W.__STATS.map((S,i)=>W.__statMax(i));
+  o.늘어난칸 = after.map((v,i)=>v-before[i]);
+  o.내스텟 = W.__JOBS[0].st;
+  /* 한 번 고른 길은 못 바꾼다 */
+  X.lv = W.__JOB_LV[1];
+  W.__takeJob(1);
+  o.길바뀜 = X.job !== 0;
+  /* 2차는 같은 길로 또 늘어난다 */
+  W.__takeJob(0);
+  o.이차단계 = X.jt;
+  o.이차뒤내칸 = W.__statMax(W.__JOBS[0].st) - W.__STATS[W.__JOBS[0].st].max;
+  /* 늘어난 칸까지 실제로 찍힌다 */
+  X.pts = 99;
+  const si = W.__JOBS[0].st;
+  for(let k=0;k<40;k++) W.__takeStat(si);
+  o.찍은단계 = X.st[si];
+  o.내최대 = W.__statMax(si);
+  /* 남의 길 스텟은 원래 상한에서 멈춘다 */
+  const other = W.__JOBS[1].st;
+  for(let k=0;k<40;k++) W.__takeStat(other);
+  o.남의길찍은단계 = X.st[other];
+  o.남의길최대 = W.__STATS[other].max;
+  /* 다 밟으면 더 뜨지 않는다 */
+  o.다밟은뒤 = W.__jobDue();
+  reset();
+  return o;
+});
+ok('★ 전직은 두 번, 레벨 15·30에서 한다', job.레벨.length === 2, job.레벨.join(' · '));
+ok('★ 세 길이 저마다 다른 스텟을 키운다 (뭘 고르든 똑같으면 고를 이유가 없다)',
+   job.길마다다른스텟 && job.길.length === 3, job.길.join(' '));
+ok('★ 레벨이 안 되면 전직할 수 없다', job.이른레벨 === 0 && !job.이른레벨에전직됨);
+ok('★ 전직하면 고른 길의 칸만 늘어난다 (남의 길은 그대로)',
+   job.늘어난칸.filter(v=>v>0).length === 1 && job.늘어난칸[job.내스텟] === job.칸늘어남,
+   '늘어난 칸 ['+job.늘어난칸.join(',')+']');
+ok('★ 한 번 고른 길은 못 바꾼다', !job.길바뀜);
+ok('★ 2차 전직하면 칸이 또 늘어난다',
+   job.이차단계 === 2 && job.이차뒤내칸 === job.칸늘어남*2,
+   '내 길 칸 +'+job.이차뒤내칸);
+ok('★ 늘어난 칸까지 실제로 찍힌다',
+   job.찍은단계 === job.내최대 && job.내최대 > job.남의길최대,
+   '내 길 '+job.찍은단계+'단계 · 남의 길 '+job.남의길찍은단계+'단계');
+ok('★ 남의 길 스텟은 원래 상한에서 멈춘다', job.남의길찍은단계 === job.남의길최대);
+ok('★ 두 번 다 밟으면 전직 안내가 더 안 뜬다', job.다밟은뒤 === 0);
+
+/* ═══════ ⑬ 전직한 양이 화면에 다르게 보인다 ═══════ */
+const jlook = await pg.evaluate(async ()=>{
+  const W=window, o={};
+  const frame=()=>new Promise(r=>requestAnimationFrame(()=>{ W.__render&&W.__render(); r(); }));
+  /* 길·단계마다 조각이 다 있고, 2차가 1차보다 화려한가 */
+  o.조각수 = W.__JOB_LOOK.map(j=>j.map(t=>t.length));
+  o.이차가더화려 = o.조각수.every(j=>j[1] > j[0]);
+  o.빈차림 = o.조각수.some(j=>j.some(n=>n===0));
+  /* 제일 많이 걸친 아이 — 꾸미기 다 하고 2차 전직까지. 칸이 안 넘쳐야 한다 */
+  const most = (arr)=>arr.reduce((a,e,i)=>e.length>arr[a].length?i:a,0);
+  const maxDeco = Math.max(...o.조각수.map(j=>j[1]));
+  const P = {uid:'jj', n:'멋쟁이', g:0, x:0, z:-6, y:W.__GY, ry:0,
+             hat:most(W.__HATS), gls:most(W.__GLASSES), clo:most(W.__CLOTHES),
+             jb:o.조각수.findIndex(j=>j[1]===maxDeco), jt:2};
+  W.__G.players.set('jj', P);
+  W.__pcMap.set('jj', {u:'jj', n:'멋쟁이', g:0, jb:P.jb, jt:2});
+  await frame(); await frame();
+  const m = W.__Pdeco();
+  o.꾸밈칸 = m.instanceMatrix.count;
+  o.쓴칸 = m.count;
+  o.넘침 = m.count > m.instanceMatrix.count;
+  W.__G.players.delete('jj'); W.__pcMap.delete('jj');
+  return o;
+});
+ok('★ 길마다·단계마다 차림새가 있다 (빈 차림이 없다)', !jlook.빈차림,
+   JSON.stringify(jlook.조각수));
+ok('★ 2차 차림새가 1차보다 화려하다', jlook.이차가더화려);
+ok('★ 제일 많이 걸친 아이도 그릴 칸이 안 넘친다 (넘치면 조각이 조용히 사라진다)',
+   !jlook.넘침, '쓴 칸 '+jlook.쓴칸+' / '+jlook.꾸밈칸);
 
 console.log('');
 let bad=0;
