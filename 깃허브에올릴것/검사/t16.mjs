@@ -82,6 +82,7 @@ const wt = await pg.evaluate(()=>{
   o.벽스텟 = W.__workSec('wwall');
   return o;
 });
+
 ok('나무벽 2.8초', Math.abs(wt.벽-2.8)<0.001, wt.벽);
 ok('화살탑 6.4초', Math.abs(wt.탑-6.4)<0.001, wt.탑);
 ok('강화 4초', Math.abs(wt.강화-4)<0.001, wt.강화);
@@ -445,9 +446,13 @@ ok('혼자 할 때는 판을 숨긴다', rk.혼자면숨김);
 /* ═══════ ⑧ U 수치표 ═══════ */
 const info = await pg.evaluate(async ()=>{
   const W=window, o={};
+  /* ★ 창이 하나라도 열려 있으면 U 는 표를 안 연다. 앞 항목에서 레벨을 왕창 올려
+     전직 화면이 떠 있을 수 있으므로(17차f), 여는 검사는 제 앞을 스스로 치운다. */
+  document.querySelectorAll('.pop.on').forEach(e=>e.classList.remove('on'));
   dispatchEvent(new KeyboardEvent('keydown',{key:'u'}));
   await new Promise(r=>setTimeout(r,80));
   o.열림 = document.getElementById('popInfo').classList.contains('on');
+  o.열린창 = [...document.querySelectorAll('.pop.on')].map(e=>e.id).join(',');
   const t = document.getElementById('infoTable').textContent;
   o.막대수 = document.querySelectorAll('#infoBars .ifBar').length;
   o.줄수 = document.querySelectorAll('#infoTable .ifT tr').length - 1;   // 머리줄 빼고
@@ -459,7 +464,7 @@ const info = await pg.evaluate(async ()=>{
   o.닫힘 = !document.getElementById('popInfo').classList.contains('on');
   return o;
 });
-ok('★ U 로 수치표가 열린다', info.열림);
+ok('★ U 로 수치표가 열린다', info.열림, '열린 창: '+(info.열린창||'없음'));
 ok('다섯 건물이 다 나온다', info.막대수 === 5 && info.줄수 === 5, '막대 '+info.막대수+' · 표 '+info.줄수+'줄');
 ok('★ 표가 게임 값을 그대로 읽는다 (손으로 옮겨 적지 않았다)',
    info.돌벽체력있음 && info.화살탑공격있음);
