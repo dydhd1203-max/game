@@ -1,5 +1,6 @@
-/* 마지막 밤(15일차) 만 여러 배수로 쓸어 본다.
-   인자: <파일> <포트> <총 쏘는 아이 수> <무기번호> <hpMul 목록> */
+/* 16차 전용 — bal5 와 같은 밤을 돌리되, 뛰는 늑대의 체력과 비율을 갈아 가며 잰다.
+   인자: ... <뛰는늑대체력 목록> <뛰는늑대비율>
+   ★ 판을 10판으로 늘렸다. 5판이면 2/5 와 4/5 가 그냥 운으로 갈린다. */
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve2.mjs';
 const FILE=process.argv[2], PORT=+process.argv[3];
@@ -10,6 +11,8 @@ const HIT=+(process.argv[9]||1);   // 아이가 겨눠서 맞히는 비율 (FPS 
 const DAYS=(process.argv[7]||'12,15').split(',').map(Number);
 const TOW=(process.argv[10]||'many');   // 'old'=예전 개수 제한 / 'many'=제한 푼 뒤
 const ATK=+(process.argv[11]||1);       // 스텟(사격 솜씨)으로 오른 공격 배수
+const JHP=(process.argv[13]||'30').split(',').map(Number);
+const JSH=process.argv[14]!==undefined?+process.argv[14]:-1;
 const LV=+(process.argv[12]!==undefined?process.argv[12]:6);  // 0 = 섞인 등급(mix)        // 방어선 등급 (교실에서 실제로 나올 법한 값)
 const srv = serve(PORT, FILE);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
@@ -18,7 +21,7 @@ const errs=[]; pg.on('pageerror', e=> errs.push(e.message));
 await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
 await pg.waitForFunction('window.__READY===true', {timeout:60000});
 await pg.fill('#iName','t'); await pg.click('#bSolo'); await pg.waitForTimeout(800);
-const rows = await pg.evaluate(([SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV])=>{
+const rows = await pg.evaluate(([SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV,JHP,JSH])=>{
   const W=window, G=W.__G, out=[];
   G.started=false; if(W.__PL) W.__PL.down=true;
   /* ★ 'mix' = 교실에서 실제로 나오는 모습 — 몇 채만 Lv6 이고 나머지는 아래 등급이다.
@@ -55,11 +58,15 @@ const rows = await pg.evaluate(([SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV])=>{
     for(let i=0;i<SHOOT;i++){ const d=W.__DIRS[i%5], off=((i/5|0)-1)*3;
       k.push({x:d.dx*38-d.dz*off, z:d.dz*38+d.dx*off, cd:Math.random()*Wp.cd, boss:(i%2)===0}); }
     return k; };
+  const KJ = W.__K_JUMP();
+  const JHP0 = KJ>=0 ? W.__WOLF_T[KJ].hp : 0, JSH0 = W.__BAL.jumpShare;
+  for(const jhp of JHP){
+  if(KJ>=0){ W.__WOLF_T[KJ].hp = jhp; W.__BAL.jumpShare = JSH>=0 ? JSH : JSH0; }
   for(const mul of MULS){
     W.__BAL.hpMul = mul;
     for(const day of DAYS){
       let win=0, note='';
-      for(let run=0; run<5; run++){
+      for(let run=0; run<10; run++){
         build(LV);
         G.day=day; G.crystal=G.set.crystalMax; G.wolves.length=0; G.soldiers.length=0;
         W.__goNight();
@@ -112,12 +119,14 @@ const rows = await pg.evaluate(([SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV])=>{
         if(G.crystal > 0) win++;
         note += ' ' + Math.round(G.crystal);
       }
-      out.push(`hpMul ${mul.toFixed(2)} · ${day}일차 · 탑 ${TOW} ${LV>0?'Lv'+LV:'등급섞임'} · 공격×${ATK} · 명중률 ${Math.round(HIT*100)}%`
-        + ` · 건물 ${W.__STRU.size}채 → 5판 중 ${win}판 버팀 (남은 수정${note})`);
+      out.push(`뛰는늑대 체력 ${jhp} · 비율 ${(W.__BAL.jumpShare*100).toFixed(0)}% · ${day}일차 · ${LV>0?'Lv'+LV:'등급섞임'}`
+        + ` → 10판 중 ${win}판 버팀 (남은 수정${note})`);
     }
   }
+  }
+  if(KJ>=0){ W.__WOLF_T[KJ].hp = JHP0; W.__BAL.jumpShare = JSH0; }
   return out;
-}, [SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV]);
+}, [SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV,JHP,JSH]);
 console.log(rows.join('\n'));
 if(errs.length) console.log('ERR: '+errs.slice(0,3).join(' | '));
 await b.close(); srv.close();
