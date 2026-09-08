@@ -29,15 +29,18 @@ const r = await pg.evaluate(()=>{
   ok('성문 블록이 실제로 놓였다', gateBlocks>1500 && gateBlocks<5000, gateBlocks+' 개');
 
   // 통로 한가운데는 여전히 평지 (벽 지을 수 있어야 한다)
+  /* ★ 17차 — 통로 자리를 검사가 손수 계산하면 안 된다. 입구가 옆으로 밀리자(off)
+     dd.dx*t 가 엉뚱한 칸(산 한가운데)을 가리켜 검사만 빨갛게 됐다.
+     게임의 좌표 변환(__gX/__gZ)에 물어본다. */
   const d=DIRS[0];
-  const cx=Math.floor(d.dx*T), cz=Math.floor(d.dz*T);
+  const cx=Math.floor(W.__gX(0,T,0)), cz=Math.floor(W.__gZ(0,T,0));
   ok('성문 한가운데 = 평지', W.__terrH[gi(cx,cz)]===GY, W.__terrH[gi(cx,cz)]-GY);
   ok('성문 한가운데 = 늑대가 지나갈 수 있음', W.__walkable(cx,cz)===true);
   ok('성문 한가운데 = 벽 지을 수 있음', W.__canPlace('swall',cx,cz)===null, W.__canPlace('swall',cx,cz));
 
   // 망루 자리는 산이 됐다
   const TP=6.6+1.8+0.6;
-  const tx=Math.floor(d.dx*T - d.dz*TP), tz=Math.floor(d.dz*T + d.dx*TP);
+  const tx=Math.floor(W.__gX(0,T,TP)), tz=Math.floor(W.__gZ(0,T,TP));
   ok('망루 자리 = 산', W.__terrH[gi(tx,tz)]>GY+5, W.__terrH[gi(tx,tz)]-GY);
   ok('망루 자리 = 늑대 못 지나감', W.__walkable(tx,tz)===false);
   ok('망루 자리 = 건물 못 놓음', W.__canPlace('swall',tx,tz)!==null, W.__canPlace('swall',tx,tz));
@@ -45,9 +48,9 @@ const r = await pg.evaluate(()=>{
   // 다섯 문 다 통로가 살아 있는지 + 늑대가 수정까지 길이 이어지는지
   W.__flow();
   let allOpen=true, allPath=true;
-  for(let g=0; g<5; g++){ const dd=DIRS[g];
+  for(let g=0; g<5; g++){
     for(const t of [41,45,50]){
-      const x=Math.floor(dd.dx*t), z=Math.floor(dd.dz*t);
+      const x=Math.floor(W.__gX(g,t,0)), z=Math.floor(W.__gZ(g,t,0));
       if(!W.__walkable(x,z)) allOpen=false;
       if(!isFinite(W.__fCost[gi(x,z)])) allPath=false;
     } }
