@@ -1443,7 +1443,7 @@ body.touch #forgeTip .tp{display:inline}
        세로가 짧은 화면에서 지도를 덮는다 — 위 가운데·왼쪽 위에서 세 번 겪은 일이다. -->
   <div id="miniRow">
     <div id="rankWrap" class="pnl">
-      <div id="rankHead">🏆 레벨 순위</div>
+      <div id="rankHead">⭐ 레벨</div>
       <div id="rankList"></div>
     </div>
     <div id="miniWrap" class="pnl"><canvas id="mini" width="150" height="150"></canvas></div>
@@ -6848,6 +6848,16 @@ function josa(name, withBat, without){
   return ((c - 0xAC00) % 28) ? withBat : without;
 }
 let sayN = 0;
+/* 친구가 벽을 살렸다는 소식 — 6초에 한 번만. 나쁜 밤에는 이게 계속 일어난다. */
+let rescueSayT = 0;
+function rescueSay(p){
+  const t = performance.now();
+  if(t - rescueSayT < 6000) return;
+  rescueSayT = t;
+  const g = Math.max(0, Math.min(NG-1, p.g|0));
+  feed(`🔧 <b style="color:${GCOL[g]}">${esc(p.n)}</b>${josa(p.n,'이','가')} `
+     + `부서지기 직전이던 건물을 <b>살렸어요!</b>`);
+}
 function say(msg){
   feed(msg);
   if(net && G.host) net.child('say').set({n:++sayN, m:msg});
@@ -6960,18 +6970,48 @@ function paintXP(){
      프레임을 갉아먹는다(도구줄·이름표에서 이미 겪었다). 그래서 순위가 실제로
      바뀌었을 때만 다시 만든다 — 열쇠 한 줄로 먼저 본다. */
 const RANK_SHOW = 8;                    // 몇 등까지 보여 주나
+/* ═══════ 오늘의 으뜸 — 여러 갈래로 돌려 보여 준다 (17차b) ═══════
+   ★ 예전엔 레벨 하나뿐이었다. 그런데 이 게임이 소리 내어 칭찬하는 것은 전부 '쏘기' 다 —
+     처치 알림 · 연속 명중 · 강화 무기 빛 · 보스 막타 이름 부르기 · 그리고 이 레벨 순위.
+     밤새 벽을 고치고 자원을 캐 온 아이는 아무 흔적도 안 남았다. 여자아이만이 아니라
+     조용한 남자아이도 같이 지워진다.
+   ★ 여섯 갈래를 돌아가며 보여 주면 여섯 아이가 저마다 1등이 된다.
+   ★ 값은 이미 pc 통로로 다 오고 있다(lv·mined·built·fixed·helped·hits) —
+     통신은 한 글자도 안 늘고, 화면만 붙이면 되는 일이었다. */
+const RANK_CATS = [
+  {k:'lv',     h:'⭐ 레벨'},
+  {k:'mined',  h:'⛏️ 캐기 으뜸'},
+  {k:'built',  h:'🔨 짓기 으뜸'},
+  {k:'fixed',  h:'🔧 수리 으뜸'},
+  {k:'helped', h:'🤝 도움 으뜸'},
+  {k:'hits',   h:'🎯 명중 으뜸'}
+];
+const RANK_SEC = 5;                     // 한 갈래를 몇 초씩 보여 주나
+/* 아직 아무도 안 한 갈래는 건너뛴다 — 첫날부터 '수리 으뜸: 0' 이 뜨면 뜻이 없다.
+   레벨은 늘 있으므로 목록이 비는 일은 없다. */
+function rankCats(){
+  const out = [RANK_CATS[0]];
+  for(let i=1;i<RANK_CATS.length;i++){
+    for(const [,p] of pcMap)
+      if(p && p.n && (p[RANK_CATS[i].k]|0) > 0){ out.push(RANK_CATS[i]); break; }
+  }
+  return out;
+}
 const _rkArr = [];                      // 매 프레임 새 배열을 안 만들려고 재사용
 function paintRank(){
   const on = G.started && G.phase !== 'title';
+  const cats = rankCats();
+  const cat = cats[Math.floor(performance.now()/(RANK_SEC*1000)) % cats.length];
   _rkArr.length = 0;
-  if(on) for(const [k,p] of pcMap) if(p && p.n) _rkArr.push([k, p.n, p.lv|0, p.g|0]);
-  /* 레벨 높은 순, 같으면 이름 순 — 순서가 매 프레임 뒤집히면 눈이 아프다 */
+  if(on) for(const [k,p] of pcMap) if(p && p.n) _rkArr.push([k, p.n, p[cat.k]|0, p.g|0]);
+  /* 값 높은 순, 같으면 이름 순 — 순서가 매 프레임 뒤집히면 눈이 아프다 */
   _rkArr.sort((a,b)=> (b[2]-a[2]) || (a[1] < b[1] ? -1 : a[1] > b[1] ? 1 : 0));
   if(_rkArr.length > RANK_SHOW) _rkArr.length = RANK_SHOW;
-  let key = on ? '' : 'off';
+  let key = (on ? '' : 'off') + cat.k + '|';
   for(const r of _rkArr) key += r[0] + ':' + r[2] + '|';
   if(hudPrev.rank === key) return;
   hudPrev.rank = key;
+  setTxt('rankHead', cat.h);
   const w = el('rankWrap');
   /* 혼자 하거나 아직 아무도 안 들어왔으면 판 자체를 숨긴다 — 빈 상자는 자리만 먹는다 */
   const show = on && _rkArr.length >= 2;
@@ -6980,6 +7020,7 @@ function paintRank(){
   let h = '';
   for(let i=0;i<_rkArr.length;i++){
     const [k, nm, lv, g] = _rkArr[i];
+    if(cat.k !== 'lv' && lv <= 0) break;      // 아직 안 한 아이까지 줄 세우지 않는다
     const medal = i===0 ? ' m1' : i===1 ? ' m2' : i===2 ? ' m3' : '';
     h += `<div class="rkRow${k===uid?' me':''}">`
        + `<span class="rkNo${medal}">${i===0?'①':i===1?'②':i===2?'③':(i+1)}</span>`
@@ -7493,7 +7534,16 @@ function upCheck(o){
     return [`자원이 모자라요 — ${costTxt(c)}`, 1.6, '#ffbdbd'];
   return null;
 }
-const MY = { mined:0, built:0, hits:0, saved:0, helped:0, fixed:0 };
+/* rescue = 부서지기 직전이던 건물을 되살린 횟수 — 반 전체에 알리는 기준이다.
+   ★ 17차b — 여태 이 게임이 소리 내어 칭찬한 것은 전부 '쏘기' 였다(처치 알림·연속 명중·
+     강화 무기 빛·보스 막타 이름 부르기·레벨 순위). 밤새 벽을 고친 아이는 자국이 안 남아서
+     애들이 "고치는 건 재미없는 일" 로 배웠다. 그 균형을 맞추는 칸이다. */
+/* 이 아래로 내려간 건물을 도로 올려놓으면 '살렸다' 로 친다 */
+const RESCUE_MARK = 0.35;
+const MY = { mined:0, built:0, hits:0, saved:0, helped:0, fixed:0, rescue:0 };
+/* 처음부터 다시 시작할 때 여섯 칸을 한 번에 지운다 — 예전엔 mined·built 만 지워서
+   '으뜸' 판에 지난 판 숫자가 남았다. */
+function myReset(){ for(const k in MY) MY[k] = 0; }
 let _aimEl = null, _chEl = null, _chOn = null;
 /* ★ 조준선을 조준 정보와 같이 켠다. 캘 수 있는 자리·고칠 수 있는 건물 앞에서
    십자가 꿀색으로 커지므로, 애들이 "여기 눌러도 되나?" 를 안 헷갈린다.
@@ -7724,7 +7774,9 @@ function repairStru(o){
   if(o.hp >= o.mx){ toast('멀쩡해요', 0.8); return; }
   const r = myRes(); if(r.w < 2){ toast('나무가 모자라요', 1); return; }
   spend({w:2,s:0,g:0});
+  const hp0 = o.hp;
   o.hp = Math.min(o.mx, o.hp + o.mx*0.35);
+  const healed = Math.round(o.hp - hp0);
   markHp(o);
   MY.fixed++;
   xpGain(XP_FIX);
@@ -7732,9 +7784,26 @@ function repairStru(o){
      이제 세어 두었다가 아침에 이름을 불러 준다. */
   const helping = (o.g !== G.me.g);
   if(helping) MY.helped++;
+  /* ★ 17차b — 고치는 일을 쏘는 일만큼 눈에 보이게.
+     늑대를 때리면 빨간 숫자가 뜨는데, 벽을 살리면 아무것도 안 떴다.
+     같은 자리에 초록 +숫자를 띄우고 불티도 두 겹으로 키운다. */
+  const cx = struCX(o), cz = struCZ(o);
+  popDmg(cx, GY + 2.0, cz, healed, 3);                    // 초록 +숫자
+  burst(cx, GY+1.5, cz, 0x9cff9c, 14, 1.5);
+  burst(cx, GY+2.2, cz, 0xeaffea, 8, 1.9);
+  /* ★ 부서지기 직전이던 걸 살렸을 때만 반 전체에 알린다.
+     고칠 때마다 알리면 밤새 도배가 되어, 정작 중요한 순간이 안 읽힌다. */
+  const wasLow = hp0 < o.mx*RESCUE_MARK, nowOk = o.hp >= o.mx*RESCUE_MARK;
+  if(wasLow && nowOk){
+    MY.rescue++;
+    feed(`🔧 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
+       + `<b style="color:${GCOL[o.g]}">${o.g+1}모둠</b> ${BUILD[o.t].name}을(를) <b>살렸어요!</b>`);
+    toast(`🔧 ${BUILD[o.t].name}을(를) 살렸어요!`, 1.6, '#9cff9c');
+    burst(cx, GY+2.8, cz, 0xffe066, 16, 2.2);
+  }
   netPCDirty = true;
-  burst(o.x+0.5, GY+1.5, o.z+0.5, 0x9cff9c, 7);
-  toast(helping ? `🤝 ${o.g+1}모둠을 도왔어요!` : '🔧 고쳤어요', helping?1.2:0.7, '#c8ffb0');
+  if(!wasLow || !nowOk)
+    toast(helping ? `🤝 ${o.g+1}모둠을 도왔어요!` : '🔧 고쳤어요', helping?1.2:0.7, '#c8ffb0');
   if(window.__sfx) window.__sfx('fix');
   netBuildHp(o);
 }
@@ -8917,6 +8986,7 @@ function netBuildHp(o){ if(!net) return; net.child('b/'+o.id+'/hp').set(Math.rou
 function syncMyPC(){
   myPC.g = G.me.g; myPC.n = G.me.name; myPC.mined = MY.mined; myPC.built = MY.built;
   myPC.hits = MY.hits; myPC.saved = MY.saved; myPC.helped = MY.helped; myPC.fixed = MY.fixed;
+  myPC.rsc = MY.rescue;                  // 살린 횟수 — 친구들은 이 숫자가 는 걸 보고 알아챈다
   myPC.lv = XP.lv;                       // 이름표·선생님 화면에 뜨는 레벨
   /* ★ 지금 든 무기와 강화 단계 — 친구들 화면에 내 총을 그려 주려고 보낸다.
      자리(위치) 통로는 초당 13번 나가는 곳이라 여기에 칸을 더하지 않는다.
@@ -9033,6 +9103,15 @@ function joinRoom(code, asHost){
     recomputeRes(); });
   net.child('pc').on('value', s=>{
     const v = s.val()||{};
+    /* ★ 17차b — 친구가 벽을 '살렸다' 는 소식.
+       새 통로를 파지 않고, 이미 오는 rsc(살린 횟수)가 늘어난 것만 보고 알린다.
+       ★ 처음 들어온 친구(prev 없음)는 안 알린다 — 안 그러면 들어오자마자
+         그 아이가 여태 살린 횟수만큼 소식이 쏟아진다. */
+    for(const k in v){
+      if(k===uid) continue;
+      const prev = pcMap.get(k), now = v[k];
+      if(prev && now && (now.rsc|0) > (prev.rsc|0) && now.n) rescueSay(now);
+    }
     pcMap.clear();
     for(const k in v){ if(k===uid) continue; pcMap.set(k, v[k]); }
     pcMap.set(uid, myPC);
@@ -9426,7 +9505,7 @@ el('bAgain').onclick = ()=>{
     for(const id of [...STRU.keys()]) { delStru(id); netUnbuild(id); }
     for(let i=0;i<NG;i++) base[i]={...START};
     myPC={g:G.me.g,w:0,s:0,o:0,sw:0,ss:0,so:0,n:G.me.name,mined:0,built:0};
-    MY.mined=0; MY.built=0; pcMap.set(uid,myPC);
+    myReset(); pcMap.set(uid,myPC);
     if(net) net.child('pc').remove();
     netBase(); goDay(); }
 };
@@ -9549,7 +9628,7 @@ el('tReset').onclick = ()=>{ if(!confirm('처음부터 다시 시작할까요?')
   G.day=1; G.crystal=G.set.crystalMax; endShown=false;
   if(net) net.child('pc').remove();
   myPC={g:G.me.g,w:0,s:0,o:0,sw:0,ss:0,so:0,n:G.me.name,mined:0,built:0};
-  MY.mined=0; MY.built=0; pcMap.set(uid,myPC);
+  myReset(); pcMap.set(uid,myPC);
   /* 산 무기·갑옷·물약도 같이 처음으로 — 자원만 되돌리면 총만 남아 첫날부터 무적이 된다 */
   kitReset(); xpReset(); setAimMode(false, true);
 
@@ -10380,10 +10459,10 @@ Object.assign(window, {
   __throwCd:()=>throwCd, __stoneDmg:stoneDmg, __hostHit:hostStoneHit,
   __spawnChest:spawnChest, __updChests:updChests, __chests:()=>G.chests,
   __chestReward:chestReward, __chMeshes:()=>[chBody, chTrim],
-  __dawn:dawnPraise, __danger:dangerCheck, __MY:MY, __mvpSnap:mvpSnap,
+  __dawn:dawnPraise, __danger:dangerCheck, __mvpSnap:mvpSnap,   /* __MY 는 위에 이미 있다 */
   __fx:()=>({arrow:aMesh, orb:oMesh, ice:iMesh, stone:stMesh, chBody, chTrim, hat:P_deco}),
 
-  __repair:repairStru, __goDayF:goDay, __HATS:HATS, __josa:josa,
+  __goDayF:goDay, __HATS:HATS, __josa:josa,                     /* __repair 도 위에 이미 있다 */
   /* 7차 패치 검사용 */
   __GLASSES:GLASSES, __CLOTHES:CLOTHES, __Pdeco:()=>P_deco, __pvw:()=>pvw,
   __KIT:KIT, __WEAPONS:WEAPONS, __ARMORS:ARMORS, __POTIONS:POTIONS,
@@ -10404,6 +10483,12 @@ Object.assign(window, {
      여기에 또 쓰면 나중에 쓴 것이 이기면서 모양이 바뀌어(배열 → 함수) 검사가 죽는다.
      실제로 t15 의 경험치 검사가 그렇게 NaN 이 됐다. 중복을 두지 않는다. */
   __paintRank:paintRank,          /* __pcMap 은 아래(9877줄 근처)에 이미 있다 — 또 쓰면 모양이 바뀐다 */
+  /* 17차b — 오늘의 으뜸 · 수리 연출. 검사가 값을 베끼지 않고 게임에 물어보게. */
+  __RANK_CATS:RANK_CATS, __rankCats:rankCats, __RANK_SEC:RANK_SEC,
+  __RESCUE_MARK:()=>RESCUE_MARK, __myReset:myReset, __hudPrev:()=>hudPrev,
+  __feedLen:()=>el('feed').children.length,
+  __dnLive:()=>dnums.filter(d=>d.t>0).length,
+  __dnLast:()=>{ const d = dnums[(dnNext-1+DN_MAX)%DN_MAX]; return {cls:d.cls, txt:d.txt}; },
   __WORK_SEC:WORK_SEC, __UP_SEC:()=>UP_SEC, __workSec:workSec, __upSec:upSec,
   __gunMeshes:()=>[P_gun, P_gunF],
   __wpnDmg:wpnDmg, __defNow:defNow, __atkMul:atkMul, __spdMul:spdMul,
