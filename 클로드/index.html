@@ -72,6 +72,8 @@ canvas{display:block}
 #title{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   background:linear-gradient(180deg,#79c0ea 0%,#a9dcf5 45%,#cfeacc 100%);z-index:60;overflow:auto;padding:16px}
 #titleCard{width:min(660px,100%);text-align:center}
+#titleCard .ver{margin:2px 0 0;font-size:11px;font-weight:800;letter-spacing:.2px;
+  color:rgba(255,255,255,.55)}
 #titleCard h1{margin:0 0 2px;font-size:clamp(30px,7vw,46px);font-weight:900;letter-spacing:-1px;
   color:#fff;text-shadow:0 3px 0 #2c5e33,0 6px 14px rgba(0,0,0,.35)}
 #titleCard .sub{margin:0 0 18px;font-weight:700;font-size:14px;color:#204a26;opacity:.85}
@@ -1318,6 +1320,10 @@ body.touch #forgeTip .tp{display:inline}
  <div id="titleCard">
   <h1>🐑 양들의 밤 🌙</h1>
   <p class="sub">밤마다 늑대가 옵니다. 우리 반 수정을 지켜 주세요.</p>
+  <!-- ★ 17차 — 판 번호. 예전엔 이게 없어서, 새 파일을 올렸는데도 화면이 그대로면
+       "잘못 보낸 건가" 를 확인할 방법이 아예 없었다. 선생님이 한눈에 아셔야 한다.
+       설정 화면이 아니라 시작 화면에 둔다 — 애들이 들어오기 전에 보이는 자리다. -->
+  <p class="ver" id="verTag"></p>
   <div class="card">
     <label class="f">이름</label>
     <input class="f" id="iName" maxlength="6" placeholder="예) 김하늘" autocomplete="off">
@@ -1732,6 +1738,9 @@ body.touch #forgeTip .tp{display:inline}
 import * as THREE from 'three';
 
 /* ═══════════════════════ 상수 ═══════════════════════ */
+/* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
+   이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
+const GAME_VER = '17차 · 격자 오각형 맵';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -2126,6 +2135,7 @@ function genTerrain(){
     if(Math.max(Math.abs(x),Math.abs(z))===5) terrH[gi(x,z)] = GY+1;
 }
 genTerrain();
+{ const vt = document.getElementById('verTag'); if(vt) vt.textContent = GAME_VER; }
 
 /* ═══════════════════════ 씬 ═══════════════════════ */
 const app = document.getElementById('app');
