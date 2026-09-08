@@ -3111,11 +3111,11 @@ const BUILD = {
              건물에는 '방어력' 수치가 따로 없다 — 체력 하나가 곧 버티는 힘이다. */
           hp:[870, 1330, 1960, 2800, 3920, 5320],
           up:[{w:5,s:1,g:0},{w:8,s:4,g:0},{w:12,s:8,g:2},{w:18,s:13,g:4},{w:26,s:19,g:8}],
-          desc:'싸고 빠름. 첫날 산길은 이걸로 막으세요. 낮아서 화살이 넘어갑니다. 탑보다 훨씬 튼튼해요.' },
+          desc:'싸고 빠름. 첫날 산길은 이걸로 막으세요. 낮아서 화살이 넘어갑니다. 탑보다 훨씬 튼튼해요. 🦘 뛰는 늑대는 벽을 뛰어넘으니 벽 안쪽에 탑도 세우세요.' },
   swall:{ name:'돌벽',   icon:'🧱', cost:{w:1,s:6,g:0},  size:1, hi:1.4, pass:1,
           hp:[1500, 2210, 3190, 4490, 6180, 8320],   // ★ 15차 — 30% 상향
           up:[{w:2,s:9,g:0},{w:3,s:14,g:1},{w:5,s:21,g:3},{w:8,s:30,g:7},{w:12,s:40,g:12}],
-          desc:'나무벽보다 훨씬 튼튼. 이 게임에서 제일 단단한 물건입니다. 산길 정면은 돌벽으로.' },
+          desc:'나무벽보다 훨씬 튼튼. 이 게임에서 제일 단단한 물건입니다. 산길 정면은 돌벽으로. 🦘 뛰는 늑대는 벽을 뛰어넘으니 벽 안쪽에 탑도 세우세요.' },
   arrow:{ name:'화살탑', icon:'🏹', cost:{w:10,s:7,g:0}, size:2,
           hi:[2.85, 2.85, 3.05, 3.05, 3.30, 3.30],
           hp:[380, 520, 700, 950, 1260, 1650],
@@ -4574,9 +4574,10 @@ function drawWolfHP(){
     const dx = w.x-PL.x, dz = w.z-PL.z;
     if(dx*dx + dz*dz > HB_R2) continue;
     const T0 = WOLF_T[w.k] || WOLF_T[0];
-    const boss = w.bi >= 0 || w.k >= 3;
+    const boss = w.bi >= 0 || isBoss(w.k);
     const wd = HB_W * (boss ? 1.75 : 1) * (0.7 + T0.sc*0.45);
-    const y = (w.y||GY) + T0.sc*1.55 + 0.62;
+    /* 뛰는 늑대는 몸이 뜬 만큼 체력 막대도 같이 따라 올라간다 */
+    const y = (w.y||GY) + (w.jy||0) + T0.sc*1.55 + 0.62;
     const f = Math.max(0, Math.min(1, w.mx ? w.hp/w.mx : 0));
     setI(HB_BG, n, w.x, y, w.z, ry, wd+0.09, HB_H+0.07, 1, 0x1a1218);
     /* 채움은 왼쪽 끝에 붙여야 줄어드는 게 보인다 — 가운데 정렬이면 양쪽에서 줄어든다 */
@@ -4812,9 +4813,23 @@ const WOLF_T = [
   /* ★ 14차 — 마지막 밤이 18일차가 되면서, 예전에 마지막을 맡던 늑대왕을 18일차로 보내고
      15일차에 새 보스를 넣었다. 15일차의 세기는 예전 늑대왕과 같게 맞춰 뒀다(bossHP). */
   {n:'🔥 지옥의 늑대',  hp:1,spd:2.14,dmg:58, cd:3.0, sc:2.20, col:0x7a2418, boss:4},
-  {n:'🌑 늑대왕',      hp:1,spd:1.95,dmg:70, cd:3.2, sc:2.52, col:0x2e2340, boss:5}
+  {n:'🌑 늑대왕',      hp:1,spd:1.95,dmg:70, cd:3.2, sc:2.52, col:0x2e2340, boss:5},
+  /* ★ 16차 — 벽을 뛰어넘는 늑대. 벽은 아예 물지 않는다 — 진짜로 펄쩍 뛰어 넘어간다.
+     대신 안쪽의 탑·배럭·양·수정을 노린다. 그래서 "벽만 쌓으면 끝" 이 아니게 된다.
+     ★ 보스 뒤에 붙었다. 예전처럼 k>=3 으로 보스를 가리면 이 늑대까지 보스가 되어
+       체력 막대·경고음·뿔이 다 붙는다. 그래서 보스 판정을 표(boss 칸)로 바꿨다.
+     ★ 몸집을 작게(0.64) 두고 색을 붉은 갈색으로 확실히 갈라 놨다 —
+       9살이 "저건 뛰는 놈이다" 를 한눈에 알아야 벽 뒤에 탑을 세운다. */
+  /* ★ 체력 62 는 재서 고른 값이다. 뛰는 늑대는 벽을 안 갉고 곧장 탑으로 가므로
+     '수정을 노리는 늑대' 한 마리를 '탑을 노리는 늑대' 로 바꾸는 셈이 된다 —
+     체력 46 으로 뒀더니 18일차가 20판 내리 안 뚫려서(기준 15/20) 밤이 되레 쉬워졌다.
+     62 에서 16/20 으로 기준과 같아졌다. 일반 늑대(40)보다 단단한 것도 제 몫에 맞다. */
+  {n:'🦘 뛰는 늑대',   hp:62,spd:3.55,dmg:12, cd:1.3, sc:0.64, col:0xb0794a, jump:1}
 ];
-const isBoss = k => k >= 3;
+/* ★ 보스인지 아닌지는 표를 본다. 번호로 가리면 표에 한 줄 붙일 때마다 조용히 틀어진다. */
+const isBoss   = k => !!(WOLF_T[k] && WOLF_T[k].boss);
+const isJumper = k => !!(WOLF_T[k] && WOLF_T[k].jump);
+const K_JUMP   = WOLF_T.findIndex(t => t.jump);
 /* ── 늑대 등급 ──
    밤이 깊어질수록 같은 '늑대'라도 더 크고, 더 검고, 등갈기가 솟고, 눈이 붉어진다.
    ★ 등급은 날짜만 보고 정한다 — 그래서 통신에 한 칸도 더 안 실어도
@@ -4845,7 +4860,7 @@ function drawWolves(list, t, dt){
   eyeMat.emissiveIntensity = 0.15 + NIGHTK*(1.55 + RK*0.35);
   for(const w of list){
     if(n>=MAXW) break;
-    const d = WOLF_T[w.k], boss = w.k>=3, rk = boss ? 3 : RK;
+    const d = WOLF_T[w.k], boss = isBoss(w.k), rk = boss ? 3 : RK;
     /* ★ 맞으면 잠깐 움찔한다 — 몸이 눌렸다 펴진다.
        색만 붉게 바꿨을 땐 밤이라 잘 안 보여서 "맞고 있는지" 를 몰랐다.
        그리기만 건드리므로 길찾기·판정에는 아무 영향이 없다. */
@@ -4853,7 +4868,12 @@ function drawWolves(list, t, dt){
     const sc = (w.sc || d.sc) * (boss ? 1 : (1 + rk*0.085)) * (1 - flin*0.10);
 
     const gy = (topAt(Math.floor(w.x), Math.floor(w.z))||GY);
-    const y = (gy>900?GY:gy) + 0.02;
+    /* ★ 16차 — 뛰는 늑대는 몸 전체가 jy 만큼 떠오른다. 부위 좌표가 전부 이 y 에서
+       나오므로, 여기 한 줄이면 머리·다리·꼬리가 통째로 같이 뜬다. */
+    const jy = w.jy || 0;
+    /* air: 0=땅, 1=충분히 떴다. 걸음을 끄고 도약 자세로 갈아타는 세기다. */
+    const air = Math.min(1, jy / 0.55);
+    const y = (gy>900?GY:gy) + 0.02 + jy;
     const ry = w.ry;
     const fx = Math.sin(ry), fz = Math.cos(ry);
     const rx = Math.cos(ry), rz = -Math.sin(ry);
@@ -4864,8 +4884,8 @@ function drawWolves(list, t, dt){
 
     /* 걸음 — 대각선 걸음(트로트). 앞왼+뒤오른 / 앞오른+뒤왼이 한 쌍으로 움직인다.
        개체마다 위상(ph)이 달라서 무리가 한 몸처럼 움직이지 않는다. */
-    w.gt = (w.gt||0) + dt * (6.4 + d.spd*2.0) * (w.mv?1:0.12);
-    const gait = w.gt + w.ph, stride = w.mv ? 1 : 0.12;
+    w.gt = (w.gt||0) + dt * (6.4 + d.spd*2.0) * (w.mv?1:0.12) * (1-air);
+    const gait = w.gt + w.ph, stride = (w.mv ? 1 : 0.12) * (1-air);
 
     /* 물기 — 확 튀어나갔다 천천히 돌아온다.
        손님 화면에는 atkT가 안 오므로 시간으로 흉내 낸다. */
@@ -4878,7 +4898,11 @@ function drawWolves(list, t, dt){
     const bx = fx*bite*0.42*sc, bz = fz*bite*0.42*sc;
     const bob   = stride * Math.abs(Math.sin(gait)) * 0.060 * sc;   // 상하 반동
     const roll  = stride * Math.sin(gait) * 0.05;                    // 좌우 흔들림
-    const lean  = -(stride*0.12 + bite*0.34 + ag*0.06);              // 달릴수록 앞으로 기움
+    /* ★ 도약 자세 — 솟을 땐 코를 들고, 떨어질 땐 코를 박는다.
+       이 한 줄이 "떠 있는 그림" 과 "진짜 뛰는 것" 을 가른다. 다만 세게 주면
+       공중제비가 되므로 ±0.5 로 막아 뒀다. */
+    const jPit  = Math.max(-0.50, Math.min(0.50, (w.jv||0) * 0.135));
+    const lean  = -(stride*0.12 + bite*0.34 + ag*0.06) + jPit;      // 달릴수록 앞으로 기움
 
     /* 몸통 — 모든 부위가 같은 bob을 써야 걸을 때 서로 어긋나지 않는다 */
     setIR(W_body, n, w.x+bx*0.40, y+0.70*sc + bob, w.z+bz*0.40,
@@ -4941,9 +4965,10 @@ function drawWolves(list, t, dt){
     }
 
     /* 꼬리 — 몸보다 한 박자 늦게 따라 흔들린다 */
+    /* 공중에서는 꼬리가 뒤로 곧게 뻗는다 — 뛰는 짐승은 꼬리로 균형을 잡는다 */
     const tw = Math.sin(gait - 1.1)*0.30*stride + ag*0.10;
     setIR(W_tail, n, w.x-fx*0.94*sc + rx*tw*0.30*sc, y+(0.88+bite*0.18+ag*0.10)*sc + bob,
-      w.z-fz*0.94*sc + rz*tw*0.30*sc, ry + tw*0.55, -0.30 - ag*0.35,
+      w.z-fz*0.94*sc + rz*tw*0.30*sc, ry + tw*0.55, -0.30 - ag*0.35 + air*0.52,
       0.27*sc,0.27*sc,0.78*sc, col);
 
     /* 다리 — 대각선 걸음(앞왼+뒤오른 / 앞오른+뒤왼) + 앞으로 나갈 때 살짝 들린다 */
@@ -4952,10 +4977,13 @@ function drawWolves(list, t, dt){
     for(const [fo,si] of [[0.52,1],[0.52,-1],[-0.50,1],[-0.50,-1]]){
       const p  = gait + legPh[li];
       const sw = Math.sin(p) * stride;
-      const lift = Math.max(0, Math.sin(p)) * stride * 0.13 * sc;
-      const px = w.x + fx*fo*sc + rx*0.29*sc*si + fx*sw*0.22*sc;
-      const pz = w.z + fz*fo*sc + rz*0.29*sc*si + fz*sw*0.22*sc;
-      const th = sw*0.34, cth = Math.cos(th), sth = Math.sin(th);
+      /* ★ 도약 자세 — 앞다리는 앞으로, 뒷다리는 뒤로 쭉. 개가 도랑을 넘을 때의 그 모양이다.
+         걸음(sw)과 같은 칸에 더하므로 뜨는 동안 걸음이 자연스럽게 이 자세로 녹아든다. */
+      const ext = air * (fo > 0 ? 0.62 : -0.62);
+      const lift = Math.max(0, Math.sin(p)) * stride * 0.13 * sc + air*0.09*sc;
+      const px = w.x + fx*fo*sc + rx*0.29*sc*si + fx*(sw*0.22 + ext*0.40)*sc;
+      const pz = w.z + fz*fo*sc + rz*0.29*sc*si + fz*(sw*0.22 + ext*0.40)*sc;
+      const th = sw*0.34 + ext*0.80, cth = Math.cos(th), sth = Math.sin(th);
       const lh = (0.68-lift*0.5)*sc, lcy = y + 0.34*sc + lift + bob*0.35;
       setIR(W_legs, ln, px, lcy, pz, ry, th, 0.19*sc, lh, 0.19*sc, col);
       /* 발 — 다리가 흔들리는 각도를 그대로 받아 발끝에 붙는다 */
@@ -4986,7 +5014,7 @@ function drawWolves(list, t, dt){
   // 보스 — 뿔과 발밑 붉은 오라
   let bn=0;
   for(const w of list){
-    if(w.k < 3 || bn>=6) continue;
+    if(!isBoss(w.k) || bn>=6) continue;
     const d = WOLF_T[w.k], sc = w.sc || d.sc;
     const gy2 = topAt(Math.floor(w.x), Math.floor(w.z));
     const y2 = (gy2>900?GY:gy2) + 0.02;
@@ -5337,9 +5365,13 @@ const MORNING_HEAL = 20;
 /* 늑대 한 입에 깎이는 양의 피.
    ★ 손님 화면에는 늑대의 실제 공격력이 안 온다(통신 칸을 아끼려고 안 보낸다).
      대신 종류·날짜·등급만으로 같은 값을 다시 계산한다 — 모두 같은 식을 쓰므로 어긋나지 않는다. */
-const SHEEP_BITE = [10, 7, 17, 26, 29, 32, 36];
+/* ★ 16차에 찾은 구멍 — 14차에 '지옥의 늑대' 를 표 중간에 끼워 넣으면서 이 표가
+   한 칸 밀렸다. 늑대왕(7번)이 표 밖이 되어 `||10` 으로 떨어져서, 18일차 마지막
+   보스가 양을 제일 약한 늑대와 똑같이 10 으로 물고 있었다. 칸을 채워 맞춘다.
+   6번(지옥의 늑대)은 원래 값 그대로다 — 15일차까지의 밤은 건드리지 않는다. */
+const SHEEP_BITE = [10, 7, 17, 26, 29, 32, 36, 42, 11];
 function sheepBiteDmg(w){
-  const dd = prog(G.day), rk = w.k>=3 ? 3 : wolfRank(G.day);
+  const dd = prog(G.day), rk = isBoss(w.k) ? 3 : wolfRank(G.day);
   /* 위 55 로 막아 둔다 — 늑대왕 한 방에 반 넘게 날아가면 손 쓸 새가 없다.
      최소 두 번, 보통 서너 번은 물려야 쓰러지도록. */
   return Math.max(3, Math.min(55,
@@ -6523,6 +6555,9 @@ function sheepHurt(dt){
        7칸 밑을 지나가는 늑대에게 물렸다. 그러면 높은 자리에 올라갈 이유가 없다.
        내 벽(1.4) 위는 여전히 물린다 — 늑대가 앞발을 걸치면 닿는 높이다. */
     if(Math.abs((w.y||GY) - PL.y) > SHEEP_REACH_Y) continue;
+    /* ★ 벽을 뛰어넘는 중에는 못 문다 — 머리 위를 날아가면서 무는 건 말이 안 된다.
+       넘어와서 내려선 뒤부터가 진짜다. */
+    if((w.jy||0) > 0.8) continue;
     const dx=w.x-PL.x, dz=w.z-PL.z, d2=dx*dx+dz*dz;
     if(d2 < bd){ bd=d2; best=w; }
   }
@@ -7083,7 +7118,7 @@ function paintHUD(){
 
   paintGrp();
 
-  const bw = G.wolves.find(w=>w.k>=3);
+  const bw = G.wolves.find(w=>isBoss(w.k));
   if(bw){ const B = WOLF_T[bw.k];
     if(!hudPrev.boss){ hudPrev.boss = true; el('bossWrap').classList.add('on'); }
     setTxt('bossIc', '');
@@ -7711,6 +7746,10 @@ const BAL = {
   rankHP: 0.14, rankDmg: 0.11,      // 등급 한 칸마다 더 붙는 몫
   fastFrom: 0.10, fastMax: 0.44,    // 날쌘늑대 등장 시점/최대 비율
   bigFrom: 0.34,  bigMax: 0.22,     // 큰늑대
+  /* ★ 16차 — 벽을 뛰어넘는 늑대는 첫날부터 어느 밤에나 전체의 10% 다.
+     마리수를 늘리는 게 아니라 일반 늑대 자리를 대신 채운다 — 밤의 총량은 그대로 두고,
+     "벽만 두껍게 쌓으면 끝" 이던 밤에만 구멍을 낸다. */
+  jumpShare: 0.10,
   focusShare: 0.38,                 // 늑대가 몰리는 입구가 받는 비율 (어디일지는 안 알려 준다)
   morningHeal: 26,
   regenDelay: 5, regenRate: 2.6,
@@ -7849,11 +7888,15 @@ function waveFor(day){
   const fr = d < BAL.fastFrom ? 0 : BAL.fastMax * Math.min(1,(d-BAL.fastFrom)/0.45);
   const br = d < BAL.bigFrom  ? 0 : BAL.bigMax  * Math.min(1,(d-BAL.bigFrom )/0.5);
   const nF = Math.round(tot*fr), nB = Math.round(tot*br);
-  const nN = Math.max(2, tot - nF - nB);
+  /* 뛰는 늑대 — 총량에서 떼어 온다. 적어도 한 마리는 나오게 해서
+     "오늘은 안 나왔네" 로 벽만 쌓는 밤이 생기지 않게 한다. */
+  const nJ = K_JUMP >= 0 ? Math.max(1, Math.round(tot*BAL.jumpShare)) : 0;
+  const nN = Math.max(2, tot - nF - nB - nJ);
   const out = [];
   for(let i=0;i<nN;i++) out.push(0);
   for(let i=0;i<nF;i++) out.push(1);
   for(let i=0;i<nB;i++) out.push(2);
+  for(let i=0;i<nJ;i++) out.push(K_JUMP);
   if(bi>=0) out.push(bossWolfK(bi));
   return {kinds:out, boss:bi};
 }
@@ -7864,8 +7907,8 @@ function startWave(){
   const wv = waveFor(day);
   const kinds = wv.kinds;
   G.bossTier = wv.boss;
-  const bossK = kinds.filter(k=>k>=3);
-  const mobs  = kinds.filter(k=>k<3);
+  const bossK = kinds.filter(k=>isBoss(k));
+  const mobs  = kinds.filter(k=>!isBoss(k));
   const focusN = Math.round(mobs.length*BAL.focusShare);
   const others = [0,1,2,3,4].filter(i=>i!==G.focus);
   const q = [];
@@ -7906,7 +7949,9 @@ function spawnWolf(k, gate, atX, atZ){
     addLeft: bi>=0 ? BAL.bossAddCap[bi] : 0, stuck:0,
     /* 큰늑대는 힘이 세니 탑부터 부순다. 날쌘늑대는 그냥 수정으로 달린다.
        일반 늑대는 일부만 공성 — 전부 탑만 때리면 밤이 한없이 늘어진다. */
-    siege: (k===2) || (k===0 && Math.random() < BAL.siegeShare),
+    /* ★ 뛰는 늑대는 늘 공성이다 — 벽을 넘어 들어와서 탑·배럭부터 문다.
+       이게 없으면 벽만 넘고 수정으로 직행해서, 넘어온 게 티가 안 난다. */
+    siege: (k===2) || isJumper(k) || (k===0 && Math.random() < BAL.siegeShare),
     /* ★ 건물을 물고 늘어질 수 있는 시간. 다 쓰면 그 늑대는 수정만 노린다.
        이게 없으면 벽이 두꺼운 밤에 늑대 떼가 마당 밖에서 벽만 갉다가 밤이 끝났다 —
        수정은 멀쩡한데 아무 일도 안 일어나서 애들이 지루해했다. */
@@ -7944,6 +7989,50 @@ function struAhead(x, z, dirx, dirz){
   }
   return null;
 }
+/* ═════════ 벽 뛰어넘기 (16차) ═════════
+   벽을 '통과' 시키지 않는다. 벽 너머에 진짜로 내려설 빈 칸을 먼저 찾고,
+   찾았을 때만 뛴다. 뛰는 동안만 칸 검사를 건너뛴다 — 착지점이 이미
+   빈 칸으로 확인된 자리라, 벽 속에서 튀어나오는 일이 생기지 않는다.
+   peak: 벽(1.4)보다 확실히 높게. spd: 가로로 나아가는 빠르기(칸/초).
+   min/max: 몇 칸 건너에 내려설지. 벽이 두 겹이어도 넘어갈 수 있게 4칸까지 본다. */
+/* 이름은 WJUMP — JUMP 는 이미 양(플레이어)의 점프 속도다. */
+const WJUMP = { peak: 2.30, spd: 7.0, min: 2, max: 4, cool: 0.9, stallBite: 3.0 };
+/* 이 방향으로 몇 칸 앞에 '비어 있고 밟을 수 있는' 칸이 있나 */
+function jumpLand(w, dirx, dirz){
+  for(let s = WJUMP.min; s <= WJUMP.max; s++){
+    const cx = Math.floor(w.x + dirx*s), cz = Math.floor(w.z + dirz*s);
+    if(!inW(cx, cz)) continue;
+    if(cellOwner.has(cx+','+cz)) continue;        // 건물 위로는 안 내린다
+    if(solidTop(cx, cz) > GY+1) continue;         // 지형(바위·언덕)에 막힌 곳도 안 된다
+    return [cx+0.5, cz+0.5];
+  }
+  return null;
+}
+/* 도약 시작 — 내려설 곳이 없으면 false 를 돌려주고 아무것도 안 한다 */
+function startJump(w, dirx, dirz){
+  if(w.jT !== undefined || (w.jCool||0) > 0) return false;
+  const L = jumpLand(w, dirx, dirz);
+  if(!L) return false;
+  w.jsx = w.x; w.jsz = w.z; w.jex = L[0]; w.jez = L[1];
+  const dist = Math.hypot(w.jex-w.jsx, w.jez-w.jsz);
+  w.jDur  = Math.max(0.40, dist / WJUMP.spd);      // 멀리 뛸수록 오래 떠 있다
+  w.jPeak = WJUMP.peak * (0.88 + dist*0.045);      // 멀리 뛸수록 조금 더 높이
+  w.jT = 0; w.jy = 0; w.jv = 0; w.jStall = 0;
+  w.mv = true; w.stuck = 0;
+  w.ry = Math.atan2(w.jex-w.jsx, w.jez-w.jsz);
+  burst(w.x, GY+0.25, w.z, 0xc8b48c, 8, 1.1);     // 발밑에 흙먼지
+  if(window.__sfxAt) window.__sfxAt('bite', w.x, w.z, 20, 60);
+  /* ★ 밤마다 딱 한 번만 알려 준다. 애들은 14차에서 겨우 벽을 믿기 시작했다 —
+     설명 없이 벽이 뚫리는 걸 보면 "벽은 소용없다" 로 되돌아간다.
+     막는 방법(벽 안쪽에 탑)을 같이 말해 줘야 배움이 된다. */
+  if(!G.jumpSeen){
+    G.jumpSeen = true;
+    feed('🦘 <b style="color:#ffd0a0">뛰는 늑대</b>가 벽을 뛰어넘었어요! ' +
+         '벽만으로는 못 막습니다 — <b>벽 안쪽에 탑·배럭</b>을 세우세요');
+    toast('🦘 뛰는 늑대! 벽을 뛰어넘어요 — 벽 안쪽에 탑을!', 3.4, '#ffd0a0');
+  }
+  return true;
+}
 /* 건물 한가운데 좌표 — 크기 2짜리는 칸 두 개에 걸쳐 있어서 중심이 다르다 */
 function struCX(o){ return o.x + (BUILD[o.t].size===2 ? 1.0 : 0.5); }
 function struCZ(o){ return o.z + (BUILD[o.t].size===2 ? 1.0 : 0.5); }
@@ -7961,9 +8050,11 @@ function pickSiege(w, sgCnt){
 }
 /* ★ 쫓는 중에 곁눈질할 건물 — 벽도 포함해서 제일 가까운 것 하나.
    양을 쫓는 늑대만, 그것도 0.6초에 한 번만 부르므로 값이 거의 안 든다. */
-function nearStruId(w, r){
+function nearStruId(w, r, noWall){
   let best = null, bd = r*r;
   for(const o of STRU.values()){
+    /* ★ 뛰는 늑대는 벽을 아예 목표로 삼지 않는다 — 곁눈질로도 벽을 물지 않게. */
+    if(noWall && !SIEGE_T[o.t]) continue;
     const dx = struCX(o)-w.x, dz = struCZ(o)-w.z, d2 = dx*dx+dz*dz;
     if(d2 < bd){ bd = d2; best = o; }
   }
@@ -8103,6 +8194,7 @@ function hostSim(dt){
     if(w.hurt>0) w.hurt -= dt;
     if(w.slow>0) w.slow -= dt;
     if(w.atkT>0) w.atkT -= dt;
+    if(w.jCool>0) w.jCool -= dt;
     const dc = Math.hypot(w.x, w.z);
     let moved = false;
 
@@ -8171,7 +8263,7 @@ function hostSim(dt){
         } else {                                    // 아니면 곁에 있는 아무 건물(벽 포함)
           w.oppT = (w.oppT||0) - dt;
           if(w.oppT <= 0){ w.oppT = BAL.oppRetgt*(1+Math.random());
-                           w.opp = nearStruId(w, BAL.oppStruR); }
+                           w.opp = nearStruId(w, BAL.oppStruR, isJumper(w.k)); }
           const o2 = w.opp ? STRU.get(w.opp) : null;
           if(o2){ const d2 = Math.hypot(struCX(o2)-w.x, struCZ(o2)-w.z);
                   if(d2 < rival){ rival = d2; rivalStru = o2; } }
@@ -8184,7 +8276,24 @@ function hostSim(dt){
         }
       }
     }
-    if(shTgt && Math.hypot(shTgt.x-w.x, shTgt.z-w.z) < 1.35){
+    if(w.jT !== undefined){
+      /* ── 공중 ── 가로는 일정하게, 세로는 포물선. 그게 도약으로 보이는 최소 조건이다.
+         뛰는 동안에는 칸 검사를 안 한다 — 내려설 칸을 뛰기 전에 이미 확인해 뒀다.
+         jv(오르는 중인지 내리는 중인지)는 몸을 젖히고 숙이는 데만 쓴다. */
+      w.jT += dt;
+      const jp = Math.min(1, w.jT / w.jDur);
+      w.x  = w.jsx + (w.jex - w.jsx) * jp;
+      w.z  = w.jsz + (w.jez - w.jsz) * jp;
+      w.jy = w.jPeak * 4 * jp * (1 - jp);
+      w.jv = w.jPeak * 4 * (1 - 2*jp) / w.jDur;
+      w.mv = true; w.stuck = 0;
+      if(jp >= 1){                                   // 착지
+        w.jT = undefined; w.jy = 0; w.jv = 0; w.jCool = WJUMP.cool;
+        w.x = w.jex; w.z = w.jez;
+        burst(w.x, GY+0.25, w.z, 0xbfa77e, 12, 1.3);
+        if(window.__sfxAt) window.__sfxAt('bite', w.x, w.z, 26, 80);
+      }
+    } else if(shTgt && Math.hypot(shTgt.x-w.x, shTgt.z-w.z) < 1.35){
       /* 양을 문다 — 피는 그 양이 자기 화면에서 스스로 깎는다(sheepHurt) */
       w.mv = false; w.ry = Math.atan2(shTgt.x-w.x, shTgt.z-w.z);
       w.chLeft = BAL.chaseBudget;              // 물었으면 다시 흥미가 생긴다
@@ -8241,9 +8350,30 @@ function hostSim(dt){
 
       if(hitId && STRU.has(hitId)){
         const o = STRU.get(hitId);
-        w.mv = false; w.stuck = 0;
-        w.ry = Math.atan2(dx, dz);
-        if(w.atkT <= 0) biteStru(o, w, w.x + dx/L*0.9, w.z + dz/L*0.9);
+        /* ★ 뛰는 늑대 × 벽 — 물지 않는다. 벽 너머 빈 칸을 찾아 진짜로 뛰어넘는다.
+           탑·배럭(SIEGE_T)은 예전 그대로 물어뜯는다. */
+        const wantJump = isJumper(w.k) && !SIEGE_T[o.t];
+        if(wantJump && startJump(w, dx/L, dz/L)){
+          /* 떴다 — 이 프레임엔 더 할 게 없다 */
+        } else if(wantJump){
+          /* 내려설 곳이 없다(벽이 아주 두껍거나 뒤가 다 막혔다).
+             벽을 물지 않고 벽을 따라 옆으로 비켜서 틈을 찾는다.
+             그래도 오래(stallBite 초) 못 넘으면 그때는 물어서라도 길을 낸다 —
+             안 그러면 그 늑대는 밤새 벽 앞에서 제자리걸음만 한다. */
+          w.jStall = (w.jStall||0) + dt;
+          const sg = (w.id % 2) ? 1 : -1;
+          const px = -dz/L*sg, pz = dx/L*sg;
+          const nx2 = w.x + px*sp*dt, nz2 = w.z + pz*sp*dt;
+          if(solidTop(Math.floor(nx2), Math.floor(w.z)) <= GY+1) w.x = nx2;
+          if(solidTop(Math.floor(w.x), Math.floor(nz2)) <= GY+1) w.z = nz2;
+          w.ry = Math.atan2(px, pz); w.mv = true;
+          if(w.jStall > WJUMP.stallBite && w.atkT <= 0){
+            biteStru(o, w, w.x + dx/L*0.9, w.z + dz/L*0.9); w.jStall = 0; }
+        } else {
+          w.mv = false; w.stuck = 0;
+          w.ry = Math.atan2(dx, dz);
+          if(w.atkT <= 0) biteStru(o, w, w.x + dx/L*0.9, w.z + dz/L*0.9);
+        }
       } else {
         let mx = dx/L*sp*dt, mz = dz/L*sp*dt;
         /* 늑대끼리 겹치지 않게 밀어낸다. 모든 늑대쌍을 돌기 때문에 늑대 수의 제곱으로
@@ -8268,7 +8398,9 @@ function hostSim(dt){
             const id = struNear(w.x, w.z);
             if(id && STRU.has(id)){
               const o = STRU.get(id);
-              if(w.atkT <= 0) biteStru(o, w, w.x, w.z);
+              /* ★ 뛰는 늑대는 끼었을 때도 벽은 안 문다 — 가던 쪽으로 뛰어 빠져나간다 */
+              if(isJumper(w.k) && !SIEGE_T[o.t]) startJump(w, dx/L, dz/L);
+              else if(w.atkT <= 0) biteStru(o, w, w.x, w.z);
             } else { // 건물이 아니라 지형에 끼었으면 축 쪽으로 살짝 밀어 준다
               const d = DIRS[w.gate];
               w.x -= (-d.dz) * ((-w.x*d.dz + w.z*d.dx) > 0 ? 1 : -1) * sp*dt*0.8;
@@ -8545,6 +8677,7 @@ function goDay(){
 }
 function goNight(){
   G.phase = 'night'; G.t = G.set.nightSec;
+  G.jumpSeen = false;                       // '벽을 뛰어넘었다' 안내는 밤마다 한 번
   if(G.chests.length){ G.chests.length = 0; if(G.host) netChests(); }
   startWave();
   const bi = bossIndex(G.day);
@@ -8653,8 +8786,13 @@ function netPC(){ syncMyPC(); if(!net) return;
 
 function packSim(){
   const w = [];
+  /* ★ 16차 — 뛰는 늑대의 '뜬 높이' 를 손님 화면에도 보내야 도약이 보인다.
+     칸을 하나 더 늘리는 대신 mv 칸에 같이 실었다 — 맨 아래 1비트가 mv,
+     그 위가 높이(1/8칸 단위)다. 뛰는 늑대가 없는 밤이면 값이 예전과 똑같은 0/1 이라
+     통신량이 한 글자도 안 늘어난다. 옛 판이 받아도 !!25 = true 라 걸음만 어긋난다. */
   for(const o of G.wolves) w.push(o.id, o.k, Math.round(o.x*8), Math.round(o.z*8),
-    Math.round(o.ry*100), Math.round(o.hp/o.mx*100), o.mv?1:0);
+    Math.round(o.ry*100), Math.round(o.hp/o.mx*100),
+    (o.mv?1:0) | (Math.min(40, Math.max(0, Math.round((o.jy||0)*8))) << 1));
   const s = [];
   /* ★ 예전엔 종류(k)를 안 보내서 손님 화면에는 전부 창병으로 보였다.
      등급(lv)도 같이 보내야 갑옷·깃털이 배럭 등급을 따라간다. */
@@ -8678,15 +8816,15 @@ function applySim(d){
   const arr = typeof d.w === 'string' ? (d.w ? d.w.split(',') : []) : (d.w||[]);
   for(let i=0;i<arr.length;i+=7){
     const id=+arr[i], k=+arr[i+1], x=arr[i+2]/8, z=arr[i+3]/8, ry=arr[i+4]/100,
-          hp=+arr[i+5], mv=+arr[i+6];
+          hp=+arr[i+5], mvj=+arr[i+6], mv = mvj & 1, jy = (mvj>>1)/8;
     seen.add(id);
     let w = G.wolves.find(o=>o.id===id);
-    if(!w){ w = {id,k,x,z,y:GY,ry,hp:hp,mx:100,mv:!!mv,ph:Math.random()*6,hurt:0,tx:x,tz:z};
-      if(k>=3){ const B = WOLF_T[k]; w.sc = B.sc; w.col = B.col; w.bi = k-3;
+    if(!w){ w = {id,k,x,z,y:GY,ry,hp:hp,mx:100,mv:!!mv,ph:Math.random()*6,hurt:0,tx:x,tz:z,jy:jy,jv:0};
+      if(isBoss(k)){ const B = WOLF_T[k]; w.sc = B.sc; w.col = B.col; w.bi = B.boss-1;
         burst(x, GY+3, z, 0x882222, 24, 2.2);
         toast(B.n + ' 등장!', 4, '#ff9b9b'); }
       G.wolves.push(w); }
-    w.tx = x; w.tz = z; w.ry = ry; w.k = k; w.mv = !!mv;
+    w.tx = x; w.tz = z; w.ry = ry; w.k = k; w.mv = !!mv; w.tjy = jy;
     if(hp < w.hp) w.hurt = 0.18;
     w.hp = hp;
   }
@@ -8707,7 +8845,14 @@ function applySim(d){
 function lerpMobs(dt){
   const k = Math.min(1, dt*11);
   for(const w of G.wolves){ if(w.tx!==undefined){ w.x += (w.tx-w.x)*k; w.z += (w.tz-w.z)*k;
-    w.y = Math.min(GY+1, Math.max(GY, solidTop(Math.floor(w.x), Math.floor(w.z)))); } }
+    w.y = Math.min(GY+1, Math.max(GY, solidTop(Math.floor(w.x), Math.floor(w.z))));
+    /* 뛴 높이는 7Hz 로 띄엄띄엄 오므로 자리와 똑같이 부드럽게 따라간다.
+       오르는 중인지 내리는 중인지(jv)는 그 변화에서 뽑아 몸 기울기에만 쓴다. */
+    if(w.tjy !== undefined){
+      const nj = (w.jy||0) + (w.tjy - (w.jy||0))*k;
+      w.jv = (w.jv||0) + ((nj - (w.jy||0))/Math.max(dt,0.001) - (w.jv||0)) * Math.min(1, dt*9);
+      w.jy = nj;
+    } } }
   for(const s of G.soldiers){ if(s.tx!==undefined){ s.x += (s.tx-s.x)*k; s.z += (s.tz-s.z)*k;
     s.y = Math.min(GY+1, Math.max(GY, solidTop(Math.floor(s.x), Math.floor(s.z)))); } }
 }
@@ -9286,7 +9431,7 @@ function showStage(){
   }, 3600);
 }
 function updBoss(){
-  const b = G.wolves.find(w=>w.k>=3);
+  const b = G.wolves.find(w=>isBoss(w.k));
   const wrap = el('bossWrap');
   if(!b){ wrap.classList.remove('on'); return; }
   wrap.classList.add('on');
@@ -9420,7 +9565,7 @@ function bgmTick(){
   // 위험할수록 낮은 북이 붙는다
   if(night && h > 0.30 && bgmStep % 2 === 1) noise(0.10, 0.030 + h*0.045, 190);
   // 보스가 있으면 드론 한 겹
-  if(night && G.wolves.some(w=>w.k>=3) && bgmStep % 4 === 0)
+  if(night && G.wolves.some(w=>isBoss(w.k)) && bgmStep % 4 === 0)
     tone(root/2*0.75, null, 1.6, 'sawtooth', 0.020);
   bgmStep++;
 }
@@ -10061,6 +10206,11 @@ Object.assign(window, {
   __sheepHurt:sheepHurt, __goDown:goDown, __reviveMe:reviveMe, __aimDown:aimDown,
   __wolfRank:wolfRank, __sheepBite:sheepBiteDmg, __blockedAt:blockedAt,
   __packSim:packSim, __applySim:applySim, __MAXLV:()=>MAXLV, __spawnWolf:spawnWolf,
+  /* 16차 — 벽 뛰어넘기. 검사에서 값을 베끼지 않고 게임에서 직접 읽게 내보낸다. */
+  __isBoss:isBoss, __isJumper:isJumper, __K_JUMP:()=>K_JUMP, __WJUMP:WJUMP,
+  __startJump:startJump, __jumpLand:jumpLand, __sheepBiteDmg:sheepBiteDmg,
+  __wolfMesh:(n)=>({body:W_body, legs:W_legs, head:W_head, chest:W_chest,
+                    tail:W_tail, paw:W_paw}[n]),
   __onPhase:onPhaseChange, __soldiers:()=>G.soldiers, __SOL_COMP:SOL_COMP, __foot:footprint,
   __throw:fireWeapon, __aimWolf:aimWolf, __setThrow:v=>{ throwing = v; },
   __setAim:setAimMode, __aimMode:()=>aimMode, __bullets:()=>bullets, __bMesh:()=>bMesh,
