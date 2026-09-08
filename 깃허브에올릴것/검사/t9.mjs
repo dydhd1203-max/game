@@ -22,8 +22,10 @@ for(const r of await pg.evaluate(()=>{
   const W=window, PL=W.__PL, GY=W.__GY, out=[];
   // 다섯 문 · 양쪽 다 걸어서 올라가지나
   let worstH=99, reached=0;
+  /* ★ 17차 — 좌표 변환을 검사가 손수 하면 안 된다. 입구가 옆으로 밀리자(off)
+     이 식이 엉뚱한 칸을 가리켰다. 게임의 __gX/__gZ 에 물어본다. */
   for(let g=0; g<5; g++){ const d=W.__DIRS[g];
-    const WX=(t,p)=>d.dx*t-d.dz*p, WZ=(t,p)=>d.dz*t+d.dx*p;
+    const WX=(t,p)=>W.__gX(g,t,p), WZ=(t,p)=>W.__gZ(g,t,p);
     for(const side of [-1,1]){
       const pc=8.7*side;
       PL.x=WX(27.0,pc); PL.z=WZ(27.0,pc);
@@ -38,11 +40,11 @@ for(const r of await pg.evaluate(()=>{
   out.push(['걸어서 망루에 올라간다 (열 군데 다)', reached===10, reached+'/10 · 제일 낮은 곳 '+worstH.toFixed(1)]);
   // 통로 안으로 안 들어간다
   let mn=99;
-  for(let g=0;g<5;g++){ const d=W.__DIRS[g];
+  for(let g=0;g<5;g++){
     for(const k of W.__rampCells){ const [x,z]=k.split(',').map(Number);
-      const cx=x+0.5, cz=z+0.5, t=cx*d.dx+cz*d.dz;
+      const cx=x+0.5, cz=z+0.5, t=W.__gT(g,cx,cz);
       if(t<20||t>50) continue;
-      const p=Math.abs(-cx*d.dz+cz*d.dx); if(p>20) continue;
+      const p=Math.abs(W.__gPP(g,cx,cz)); if(p>20) continue;
       if(p<mn) mn=p; } }
   out.push(['계단이 통로를 안 막는다 (벽에 구멍 안 남)', mn>6.6, '통로중심에서 '+mn.toFixed(2)+'칸 (반너비 6.6)']);
   // 계단 자리엔 못 짓는다

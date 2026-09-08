@@ -29,9 +29,17 @@ const rows = await pg.evaluate(([SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV,JHP,JSH]
   const MIXLV=[6,6,5,5,4,4,4,3,3,3,2,2,2,2,2,2,2];
   const build=(lv)=>{
     W.__clear();
-    for(let g=0; g<5; g++){ const d=W.__DIRS[g]; G.me.g=g; G.res[g]={w:999999,s:999999,g:999999};
+    /* ★ 17차 — 자리 계산을 하네스가 손수 하면 안 된다. 입구가 옆으로 밀리자(off)
+       벽·탑이 산 한가운데에 놓이려다 실패해서 방어선이 통째로 비었다.
+       게임의 좌표 변환(__gX/__gZ)에 물어본다. */
+    /* 옛 판에는 __gX 가 없다 — 하네스는 두 판을 다 잴 수 있어야 비교가 된다 */
+    const oldXf = (g,t,p)=>{ const d=W.__DIRS[g]; return [d.dx*t - d.dz*p, d.dz*t + d.dx*p]; };
+    for(let g=0; g<5; g++){
+      const GX=(t,p)=> W.__gX ? W.__gX(g,t,p) : oldXf(g,t,p)[0];
+      const GZ=(t,p)=> W.__gZ ? W.__gZ(g,t,p) : oldXf(g,t,p)[1];
+      G.me.g=g; G.res[g]={w:999999,s:999999,g:999999};
       for(let pp=-8; pp<=8; pp+=0.5){
-        const x=Math.round(d.dx*42 - d.dz*pp), z=Math.round(d.dz*42 + d.dx*pp);
+        const x=Math.round(GX(42,pp)), z=Math.round(GZ(42,pp));
         if(W.__canPlace('swall',x,z)===null){ W.__place('swall',x,z);
           const o=[...W.__STRU.values()].pop();
           const L2 = lv>0 ? lv : 4;              // 벽은 mix 여도 Lv4 로 본다
@@ -46,17 +54,25 @@ const rows = await pg.evaluate(([SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV,JHP,JSH]
            ['ice',33,-5],['ice',33,5],['ice',28,0],['ice',38,-3],['ice',38,3],
            ['barr',24,-3],['barr',24,3],['barr',22,0]];
       TSET.forEach(([t,rr,pp], ti)=>{
-        const x=Math.round(d.dx*rr - d.dz*pp), z=Math.round(d.dz*rr + d.dx*pp);
+        const x=Math.round(GX(rr,pp)), z=Math.round(GZ(rr,pp));
         if(W.__canPlace(t,x,z)===null){ W.__place(t,x,z);
           const o=[...W.__STRU.values()].pop();
           const L2 = lv>0 ? lv : MIXLV[Math.min(MIXLV.length-1, ti)];
           o.lv=L2; o.mx=W.__bs(t,'hp',L2); o.hp=o.mx; } }); }
     G.me.g=0; W.__rebuild();
   };
+  const oldXf2 = (g,t,p)=>{ const d=W.__DIRS[g]; return [d.dx*t - d.dz*p, d.dz*t + d.dx*p]; };
+  /* 아이들 자리 — 밤 도중에도 옮기므로 바깥 자리(scope)에 둔다 */
+  const KX=(g,t,p)=> W.__gX ? W.__gX(g,t,p) : oldXf2(g,t,p)[0];
+  const KZ=(g,t,p)=> W.__gZ ? W.__gZ(g,t,p) : oldXf2(g,t,p)[1];
+  const sectorAt = (x,z)=> W.__sectorOf ? W.__sectorOf(x,z) : (()=>{
+      const a=Math.atan2(z,x); let bg=0,bd=9;
+      for(let g=0;g<5;g++){ const dd=Math.abs(((a-W.__DIRS[g].a+Math.PI*3)%(Math.PI*2))-Math.PI);
+        if(dd<bd){bd=dd;bg=g;} } return bg; })();
   const Wp = W.__WEAPONS[WPN];
   const mkKids=()=>{ const k=[];
-    for(let i=0;i<SHOOT;i++){ const d=W.__DIRS[i%5], off=((i/5|0)-1)*3;
-      k.push({x:d.dx*38-d.dz*off, z:d.dz*38+d.dx*off, cd:Math.random()*Wp.cd, boss:(i%2)===0}); }
+    for(let i=0;i<SHOOT;i++){ const g=i%5, off=((i/5|0)-1)*3;
+      k.push({x:KX(g,38,off), z:KZ(g,38,off), cd:Math.random()*Wp.cd, boss:(i%2)===0}); }
     return k; };
   const KJ = W.__K_JUMP();
   const JHP0 = KJ>=0 ? W.__WOLF_T[KJ].hp : 0, JSH0 = W.__BAL.jumpShare;
@@ -94,16 +110,13 @@ const rows = await pg.evaluate(([SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV,JHP,JSH]
              제자리에 못 박아 두면 집중 입구가 뚫리는 걸 아무도 못 막는 것으로 잰다. */
           if(i % 100 === 0){
             const cnt = [0,0,0,0,0];
-            for(const w of G.wolves){ const a=Math.atan2(w.z,w.x);
-              let bg=0, bd2=9; for(let g=0;g<5;g++){
-                let dd2=Math.abs(((a-W.__DIRS[g].a+Math.PI*3)%(Math.PI*2))-Math.PI);
-                if(dd2<bd2){ bd2=dd2; bg=g; } }
-              cnt[bg]++; }
+            for(const w of G.wolves){
+              cnt[sectorAt(w.x, w.z)]++; }
             let hot=0; for(let g=1;g<5;g++) if(cnt[g]>cnt[hot]) hot=g;
-            const dh = W.__DIRS[hot];
+            
             kids.forEach((k,ki)=>{ if(ki%2) return;          // 절반만 이동
               const off=((ki/2|0)-2)*3;
-              k.x = dh.dx*38 - dh.dz*off; k.z = dh.dz*38 + dh.dx*off; });
+              k.x = KX(hot,38,off); k.z = KZ(hot,38,off); });
           }
           /* ★ 밤에 애들이 수리한다 — 수리 한 번 2.5초, 한 번에 최대 체력의 40%가 찬다.
              이걸 안 넣으면 탑이 부서진 채로 밤이 끝나서, 실제보다 훨씬 어렵게 나온다. */

@@ -32,7 +32,9 @@ const lv = await pg.evaluate(()=>{
   o.statSum = o.statMax.reduce((a,c)=>a+c,0);
   return o;
 });
-ok('만렙이 25 다', lv.max === 25, lv.max);
+/* ★ 17차 — '25' 를 박아 뒀었다. 만렙은 교실에서 겪고 고치는 값이라 박으면 안 된다.
+   14차의 뜻은 "10에서 크게 늘렸다" 이므로 그것만 본다 (지금 값은 t18 이 따로 본다). */
+ok('만렙을 크게 늘렸다 (14차 이전 10 → 지금)', lv.max >= 25, 'Lv'+lv.max);
 ok('레벨이 오를수록 필요한 경험치가 는다', lv.needRises);
 ok('★ 만렙에 닿으면 거기서 멈춘다', lv.capLv === lv.max, 'Lv'+lv.capLv);
 ok('★ 점수는 레벨 수만큼 준다 (처음 1점 + 레벨마다 1점)', lv.pts === lv.max, lv.pts+'점');
@@ -54,10 +56,18 @@ const nd = await pg.evaluate(()=>{
   o.한번캐면 = W.__G.res[W.__G.me.g].w - g0;
   return o;
 });
-ok('나무 한 그루가 5칸 × 4 = 20', nd.tree.칸===5 && nd.tree.칸당===4 && nd.tree.총===20,
-   nd.tree.칸+'칸 × '+nd.tree.칸당+' = '+nd.tree.총);
-ok('바위 한 덩이도 20', nd.rock.총===20, nd.rock.총);
-ok('금 광맥이 5칸 × 3 = 15', nd.gold.총===15, nd.gold.칸+'칸 × '+nd.gold.칸당+' = '+nd.gold.총);
+/* ★ 17차 — 여기도 20·20·15 를 박아 뒀었다. 자원 양은 교실에서 겪고 고치는 값이다.
+   박아 두면 고칠 때마다 검사가 죽는다. 뜻(관계)만 본다. */
+ok('한 덩이는 다섯 칸이다 (세 가지 다)',
+   nd.tree.칸===5 && nd.rock.칸===5 && nd.gold.칸===5,
+   [nd.tree.칸, nd.rock.칸, nd.gold.칸].join('/'));
+ok('덩이 하나 = 칸 수 × 칸당 (셈이 맞는다)',
+   nd.tree.총===nd.tree.칸*nd.tree.칸당 && nd.rock.총===nd.rock.칸*nd.rock.칸당
+   && nd.gold.총===nd.gold.칸*nd.gold.칸당,
+   nd.tree.총+' / '+nd.rock.총+' / '+nd.gold.총);
+ok('나무와 돌은 같고, 금이 제일 귀하다',
+   nd.tree.총===nd.rock.총 && nd.gold.총 < nd.tree.총,
+   '나무 '+nd.tree.총+' · 돌 '+nd.rock.총+' · 금 '+nd.gold.총);
 ok('★ 표만 바꾼 게 아니라 실제로 그만큼 들어온다',
    nd.한번캐면 === nd.tree.칸당, '한 번 캐서 +'+nd.한번캐면);
 
