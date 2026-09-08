@@ -1,0 +1,277 @@
+/* 17차d 검사 — 모둠 농장 (동물 · 먹이 · 청소 · 거두기 · 팔기)
+   ★ 값을 검사에 박지 않는다. 게임에서 읽어 '관계'만 본다.
+     (가격표를 여기에 베껴 두면, 값을 고칠 때마다 검사가 빨간불이 되고
+      결국 아무도 검사를 안 믿게 된다.) */
+import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { serve } from './serve2.mjs';
+import { GAME } from './gamefile.mjs';
+const FILE = process.argv[2] || GAME;
+const PORT = +(process.argv[3] || 12000);
+const srv = serve(PORT, FILE);
+const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
+const errs=[], R=[];
+const ok=(n,c,v)=>R.push([n,!!c,v===undefined?'':String(v)]);
+const pg = await b.newPage({viewport:{width:1366,height:768}});
+pg.on('pageerror', e=>errs.push(e.message));
+pg.on('console', m=>{ if(m.type()==='error') errs.push('console '+m.text()); });
+await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
+await pg.waitForFunction('window.__READY===true', {timeout:60000});
+await pg.fill('#iName','김하늘'); await pg.click('#bSolo'); await pg.waitForTimeout(1500);
+await pg.evaluate(()=>document.querySelectorAll('.pop').forEach(e=>e.classList.remove('on')));
+
+/* ═══════ ① 자리 — 모둠마다 하나, 수정 옆, 서로 안 겹친다 ═══════ */
+const pos = await pg.evaluate(()=>{
+  const W=window, X=W.__FARM_X(), Z=W.__FARM_Z(), o={};
+  o.수 = X.length;
+  o.모둠수 = W.__G.farm.length;
+  /* 수정까지의 거리 — 다섯이 같아야 어느 모둠도 손해가 아니다 */
+  const d = X.map((x,i)=>Math.hypot(x, Z[i]));
+  o.수정까지 = Math.round(d[0]*10)/10;
+  o.거리차 = Math.round((Math.max(...d)-Math.min(...d))*1000)/1000;
+  /* 서로 얼마나 떨어져 있나 — 우리 반지름의 두 배보다는 멀어야 안 겹친다 */
+  let near = 1e9;
+  for(let i=0;i<X.length;i++) for(let j=i+1;j<X.length;j++)
+    near = Math.min(near, Math.hypot(X[i]-X[j], Z[i]-Z[j]));
+  o.제일가까운두농장 = Math.round(near*10)/10;
+  /* 성벽(입구) 쪽으로 나가 있으면 늑대 길을 막는다 — 수정보다 가까이 */
+  o.입구보다안쪽 = d.every(v => v < W.__ARENA_R);
+  return o;
+});
+ok('★ 농장이 모둠마다 하나씩 있다', pos.수 === pos.모둠수 && pos.수 === 5, pos.수+'개');
+ok('★ 다섯 농장이 수정에서 똑같이 떨어져 있다 (어느 모둠도 손해가 없다)',
+   pos.거리차 < 0.01, '수정까지 '+pos.수정까지+'칸 · 차이 '+pos.거리차);
+ok('★ 농장끼리 겹치지 않는다', pos.제일가까운두농장 > 8, '제일 가까운 두 농장 '+pos.제일가까운두농장+'칸');
+ok('★ 농장이 마당 안에 있다 (늑대 길을 막지 않는다)', pos.입구보다안쪽);
+
+/* ═══════ ② 일하는 자리 — 먹이·청소·거두기가 서로 다른 곳이다 ═══════ */
+const spot = await pg.evaluate(()=>{
+  const W=window, o={}, S={};
+  for(const w of ['feed','clean','take','buy']) S[w] = W.__farmSpotXZ(0, w);
+  o.자리 = S;
+  let near = 1e9;
+  const ks = ['feed','clean','take'];
+  for(let i=0;i<ks.length;i++) for(let j=i+1;j<ks.length;j++)
+    near = Math.min(near, Math.hypot(S[ks[i]][0]-S[ks[j]][0], S[ks[i]][1]-S[ks[j]][1]));
+  o.제일가까운두자리 = Math.round(near*100)/100;
+  /* 각 자리에 서면 그 일이 잡히나 — farmAt 은 제일 가까운 일을 돌려준다 */
+  /* ★ farmAt() 은 인자를 안 받고 '지금 내 양이 선 자리'(PL)를 본다.
+     자리 좌표를 넘겨 부르면 늘 null 이라, 검사가 게임이 아니라 검사 탓에 빨개진다. */
+  o.잡힘 = {};
+  const stand = (x,z)=>{ W.__PL.x=x; W.__PL.z=z; return W.__farmAt(); };
+  for(const w of ks){
+    const hit = stand(S[w][0], S[w][1]);
+    o.잡힘[w] = hit ? (hit.g + ':' + hit.w) : null;
+  }
+  /* 농장에서 멀리 떨어지면 아무 일도 안 잡혀야 한다 */
+  o.멀리서 = stand(W.__FARM_X()[0] + 40, W.__FARM_Z()[0] + 40);
+  return o;
+});
+ok('★ 먹이·청소·거두기가 서로 다른 자리다 (한 자리에서 다 되면 뭘 하는지 모른다)',
+   spot.제일가까운두자리 > 0.9, '제일 가까운 두 자리 '+spot.제일가까운두자리+'칸');
+ok('★ 자리마다 그 일이 잡힌다',
+   spot.잡힘.feed==='0:feed' && spot.잡힘.clean==='0:clean' && spot.잡힘.take==='0:take',
+   JSON.stringify(spot.잡힘));
+ok('★ 농장에서 멀면 아무 일도 안 잡힌다', !spot.멀리서);
+
+/* ═══════ ③ 값 — 비쌀수록 많이 준다, 본전 뽑는 데 여러 날 걸린다 ═══════ */
+const eco = await pg.evaluate(()=>{
+  const W=window, A=W.__FARM_ANIMALS, o={};
+  o.동물 = A.map(a=>a.k);
+  o.값 = A.map(a=>a.cost);
+  o.하루금 = A.map(a=>a.gold);
+  /* 자원 하나를 금 몇으로 칠까 — 게임이 쓰는 환산이 없으니 '금 한 개' 기준으로만 본다.
+     비싼 동물이 더 많이 줘야 한다(순서가 뒤집히면 싼 걸 사는 게 늘 이득이다). */
+  o.값순서 = A.map(a=>(a.cost.w||0)+(a.cost.s||0)+(a.cost.g||0)*4);
+  o.오름차순 = o.값순서.every((v,i)=> i===0 || v > o.값순서[i-1]);
+  o.금도오름차순 = o.하루금.every((v,i)=> i===0 || v > o.하루금[i-1]);
+  /* 본전 뽑는 날 — 금값만으로. 하루 이틀에 뽑히면 '비싼 초기 투자'가 아니다 */
+  o.본전날 = A.map(a=> Math.ceil(o.값순서[A.indexOf(a)] / a.gold));
+  o.우리정원 = W.__FARM_CAP();
+  return o;
+});
+ok('★ 비싼 동물이 더 많이 준다 (싼 것만 사는 게 늘 이득이면 고를 이유가 없다)',
+   eco.오름차순 && eco.금도오름차순, eco.동물.join('<')+' · 하루 ✨'+eco.하루금.join('/'));
+ok('★ 초반 비용이 비싸다 — 본전 뽑는 데 여러 날 걸린다',
+   eco.본전날.every(d=>d >= 8), '본전까지 '+eco.본전날.join('/')+'일');
+ok('★ 우리 정원이 있다 (무한정 늘려 혼자 다 먹지 못한다)',
+   eco.우리정원 > 0 && eco.우리정원 <= 8, '정원 '+eco.우리정원+'마리');
+
+/* ═══════ ④ 사기 — 자원을 내고, 정원을 넘지 않는다 ═══════ */
+const buy = await pg.evaluate(()=>{
+  const W=window, o={}, g=W.__G.me.g, f=W.__G.farm[g];
+  const A = W.__FARM_ANIMALS[0];
+  /* ★ G.res 는 base + 각자 캔 것 − 각자 쓴 것 으로 '다시 계산되는' 값이다.
+     여기에 직접 써 넣으면 다음 recomputeRes 에서 지워진다. 창고(base)에 넣어야 한다. */
+  W.__myPC.g = g; W.__syncMyPC();
+  const base = W.__base[g];
+  base.w = 100000; base.s = 100000; base.o = 100000; W.__recompute();
+  const r0 = Object.assign({}, W.__myRes());
+  f.hen=0; f.pig=0; f.cow=0;
+  W.__buyAnimal(A.k);
+  o.한마리 = W.__farmCount(f);
+  const r1 = W.__myRes();
+  o.낸나무 = r0.w - r1.w; o.낸돌 = r0.s - r1.s; o.낸금 = r0.g - r1.g;
+  /* 정원까지 채우고 한 마리 더 — 안 늘어야 한다 */
+  for(let i=0;i<W.__FARM_CAP()+3;i++) W.__buyAnimal(A.k);
+  o.꽉찬뒤 = W.__farmCount(f);
+  /* 자원이 없으면 못 산다 */
+  base.w = 0; base.s = 0; base.o = 0;
+  W.__myPC.w = 0; W.__myPC.s = 0; W.__myPC.o = 0;
+  W.__myPC.sw = 0; W.__myPC.ss = 0; W.__myPC.so = 0;
+  W.__recompute();
+  f.hen=0; f.pig=0; f.cow=0;
+  W.__buyAnimal(A.k);
+  o.빈손으로 = W.__farmCount(f);
+  return o;
+});
+ok('★ 동물을 사면 자원을 낸다', buy.한마리===1 && buy.낸나무>0 && buy.낸돌>0,
+   '🪵'+buy.낸나무+' 🪨'+buy.낸돌+' ✨'+buy.낸금);
+ok('★ 우리 정원을 넘겨 살 수 없다', buy.꽉찬뒤 <= 6, buy.꽉찬뒤+'마리에서 멈춤');
+ok('★ 자원이 없으면 못 산다', buy.빈손으로 === 0);
+
+/* ═══════ ⑤ 하루 — 먹이를 줬으면 나오고, 안 줬으면 굶다가 떠난다 ═══════ */
+const day = await pg.evaluate(()=>{
+  const W=window, G=W.__G, o={}, g=G.me.g, f=G.farm[g];
+  const base = W.__base[g]; base.w=100000; base.s=100000; base.o=100000; W.__recompute();
+  f.hen=2; f.pig=1; f.cow=0; f.dirt=0; f.hun=0;
+  for(const A of W.__FARM_ANIMALS){ f[A.prod]=0; f['b_'+A.prod]=0; }
+  /* 먹이를 주고 하루를 넘긴다 */
+  f.fed = G.day;
+  G.day++; W.__farmMorning();
+  o.먹인다음날 = W.__farmStock(f);
+  o.마리수 = W.__farmCount(f);
+  o.더러워짐 = Math.round((f.dirt||0)*100)/100;
+  /* 안 주고 여러 날 넘긴다 — 언젠가 떠난다 */
+  const n0 = W.__farmCount(f);
+  let days = 0;
+  while(W.__farmCount(f) === n0 && days < 12){ G.day++; W.__farmMorning(); days++; }
+  o.떠나기까지 = days;
+  o.떠난뒤 = W.__farmCount(f);
+  return o;
+});
+ok('★ 먹이를 주면 다음 날 아침에 마리수만큼 나온다',
+   day.먹인다음날 === day.마리수, day.마리수+'마리 → '+day.먹인다음날+'개');
+ok('★ 하루 지나면 우리가 더러워진다', day.더러워짐 > 0, 'dirt '+day.더러워짐);
+ok('★ 먹이를 안 주면 굶다가 떠난다 (하루 빠뜨렸다고 바로는 아니다)',
+   day.떠난뒤 < day.마리수 && day.떠나기까지 >= 2, day.떠나기까지+'일 만에 한 마리 떠남');
+
+/* ═══════ ⑥ 더러우면 덜 나온다 ═══════ */
+const dirty = await pg.evaluate(()=>{
+  const W=window, G=W.__G, o={}, g=G.me.g, f=G.farm[g];
+  const set=(dirt)=>{ f.hen=4; f.pig=0; f.cow=0; f.hun=0; f.dirt=dirt;
+    for(const A of W.__FARM_ANIMALS){ f[A.prod]=0; f['b_'+A.prod]=0; }
+    f.fed=G.day; G.day++; W.__farmMorning(); return W.__farmStock(f); };
+  o.깨끗할때 = set(0);
+  o.더러울때 = set(1.0);
+  /* 더러움 눈금 — 청소하면 0 이 된다 */
+  f.dirt = 1.0; W.__farmClean(g); o.청소뒤 = f.dirt||0;
+  return o;
+});
+ok('★ 우리가 더러우면 덜 나온다 (0 이 아니라 절반 — 왜 적은지 배울 수 있게)',
+   dirty.더러울때 < dirty.깨끗할때 && dirty.더러울때 > 0,
+   '깨끗 '+dirty.깨끗할때+'개 · 더러움 '+dirty.더러울때+'개');
+ok('★ 청소하면 깨끗해진다', dirty.청소뒤 === 0);
+
+/* ═══════ ⑦ 거두기 → 광주리 → 팔기 ═══════ */
+const sell = await pg.evaluate(()=>{
+  const W=window, G=W.__G, o={}, g=G.me.g, f=G.farm[g];
+  const base = W.__base[g]; base.w=100000; base.s=100000; base.o=100000; W.__recompute();
+  W.__myPC.g = g; W.__syncMyPC();
+  f.hen=3; f.pig=2; f.cow=1; f.dirt=0; f.hun=0; f.fed=G.day;
+  for(const A of W.__FARM_ANIMALS){ f[A.prod]=0; f['b_'+A.prod]=0; }
+  G.day++; W.__farmMorning();
+  o.우리에쌓인것 = W.__farmStock(f);
+  /* XP 에 '누계' 칸은 없다 — 레벨과 그 레벨 안에서의 경험치로 잰다 */
+  const xp0 = W.__XP.lv*1e6 + W.__XP.xp;
+  W.__farmTake(g);
+  o.거둔뒤우리 = W.__farmStock(f);
+  o.광주리 = W.__basketCount(f);
+  o.값어치 = W.__basketWorth(f);
+  o.거두기경험치 = (W.__XP.lv*1e6 + W.__XP.xp) - xp0;
+  const gold0 = W.__myRes().g;
+  W.__sellFarm();
+  o.받은금 = W.__myRes().g - gold0;
+  o.판뒤광주리 = W.__basketCount(f);
+  return o;
+});
+ok('★ 거두면 우리가 비고 광주리로 옮겨진다',
+   sell.거둔뒤우리 === 0 && sell.광주리 === sell.우리에쌓인것,
+   sell.우리에쌓인것+'개 → 광주리 '+sell.광주리+'개');
+ok('★ 거두면 경험치를 받는다 (밤새 싸운 아이만 레벨이 오르면 안 된다)',
+   sell.거두기경험치 > 0, '+'+sell.거두기경험치+'xp');
+ok('★ 상인에게 팔면 값어치만큼 금이 들어온다',
+   sell.받은금 === sell.값어치 && sell.받은금 > 0, '✨'+sell.받은금);
+ok('★ 판 뒤에는 광주리가 빈다', sell.판뒤광주리 === 0);
+
+/* ═══════ ⑧ 농장 일이 '으뜸' 판에 남는다 ═══════ */
+const rank = await pg.evaluate(()=>{
+  const W=window, o={};
+  o.갈래 = W.__RANK_CATS.map(c=>c.k);
+  o.농장갈래있나 = o.갈래.includes('farmed');
+  /* 거둔 아이가 있으면 그 갈래가 돌아가는 목록에 낀다 */
+  W.__pcMap.set('zz', {u:'zz', n:'나래', g:1, lv:3, farmed:12});
+  o.도는갈래 = W.__rankCats().map(c=>c.k);
+  o.농장이돈다 = o.도는갈래.includes('farmed');
+  W.__pcMap.delete('zz');
+  o.아무도안했을때 = W.__rankCats().map(c=>c.k).includes('farmed');
+  return o;
+});
+ok('★ 농장을 잘한 아이 이름이 남는 자리가 있다', rank.농장갈래있나, rank.갈래.join(','));
+ok('★ 거둔 아이가 있으면 농장 갈래가 순위판에 돈다', rank.농장이돈다);
+ok('★ 아무도 농장을 안 했으면 빈 갈래는 안 돈다', !rank.아무도안했을때);
+
+/* ═══════ ⑨ 그리기 — 마리수만큼 그리고, 더러울 때만 자국·파리 ═══════ */
+const draw = await pg.evaluate(async ()=>{
+  const W=window, G=W.__G, o={}, f=G.farm[0];
+  const cnt=()=>({몸:W.__farmMesh('body').count, 자국:W.__farmMesh('muck').count,
+                  파리:W.__farmMesh('fly').count});
+  const frame=()=>new Promise(r=>requestAnimationFrame(()=>{ W.__render&&W.__render(); r(); }));
+  for(const ff of G.farm){ ff.hen=0; ff.pig=0; ff.cow=0; ff.dirt=0; }
+  f.hen=2; f.pig=2; f.cow=2; f.dirt=0; W.__farmDirty(true);
+  await frame(); o.깨끗 = cnt();
+  f.dirt = 1.0; W.__farmDirty(true);
+  await frame(); o.더러움 = cnt();
+  /* 동물이 없으면 자국도 없다 — 빈 우리가 저절로 더러워지면 이상하다 */
+  f.hen=0; f.pig=0; f.cow=0; f.dirt=1.0; W.__farmDirty(true);
+  await frame(); o.빈우리 = cnt();
+  o.정원 = W.__FARM_CAP();
+  return o;
+});
+ok('★ 산 마리수만큼만 그린다', draw.깨끗.몸 === 6, draw.깨끗.몸+'마리');
+ok('★ 깨끗하면 자국도 파리도 없다',
+   draw.깨끗.자국 === 0 && draw.깨끗.파리 === 0, JSON.stringify(draw.깨끗));
+ok('★ 더러우면 자국이 생기고 파리가 꾄다 (안 보이면 아이가 청소를 안 한다)',
+   draw.더러움.자국 > 0 && draw.더러움.파리 > 0,
+   '자국 '+draw.더러움.자국+' · 파리 '+draw.더러움.파리);
+ok('★ 빈 우리는 더러워지지 않는다', draw.빈우리.자국 === 0);
+
+/* ═══════ ⑩ 그릴 칸이 모자라지 않는다 ═══════ */
+const cap = await pg.evaluate(async ()=>{
+  const W=window, G=W.__G, o={};
+  const frame=()=>new Promise(r=>requestAnimationFrame(()=>{ W.__render&&W.__render(); r(); }));
+  /* 제일 많이 그리게 되는 짜임 — 다섯 우리를 꾸밈 조각이 제일 많은 종류로 꽉 채운다.
+     ★ 17차d 때 꾸밈 칸을 마리당 3개로 잡았는데 닭 한 마리가 벌써 4개(볏 셋+부리)를
+       썼다. 우리를 닭으로 채우면 조용히 넘쳤다. 종류마다 다 채워 보고 확인한다. */
+  const over = [];
+  for(const A of W.__FARM_ANIMALS){
+    for(const f of G.farm){ f.hen=0; f.pig=0; f.cow=0; f[A.k]=W.__FARM_CAP(); f.dirt=1.2; }
+    W.__farmDirty(true); await frame();
+    for(const nm of ['body','head','deco','eyes','legs','muck','fly']){
+      const m = W.__farmMesh(nm);
+      if(m.count > m.instanceMatrix.count) over.push(A.k+':'+nm+' '+m.count+'>'+m.instanceMatrix.count);
+    }
+  }
+  o.넘친것 = over;
+  return o;
+});
+ok('★ 어느 동물로 꽉 채워도 그릴 칸이 안 넘친다 (넘치면 조용히 잘린다)',
+   cap.넘친것.length === 0, cap.넘친것.join(' / ') || '전부 넉넉함');
+
+console.log('');
+let bad=0;
+for(const [n,c,v] of R){ if(!c) bad++; console.log((c?'  OK  ':'FAIL  ')+n+(v?'   → '+v:'')); }
+console.log('');
+console.log(errs.length ? ('오류: '+errs.slice(0,5).join(' | ')) : '(오류 없음)');
+console.log(bad ? (bad+'개 실패 / '+R.length+'항목') : (R.length+'항목 전부 통과'));
+await b.close(); srv.close();
+process.exit(bad?1:0);
