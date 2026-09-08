@@ -1553,6 +1553,7 @@ body.touch #forgeTip .tp{display:inline}
     <button class="btn sm" data-tab="b">🔸 총알</button>
     <button class="btn sm" data-tab="p">🧪 물약</button>
     <button class="btn sm" data-tab="f">🧺 농장</button>
+    <button class="btn sm" data-tab="x">🔄 바꾸기</button>
   </div>
   <div id="shopList"></div>
   <div class="row"><button class="btn pri" data-close="popShop">다 샀어요</button></div>
@@ -1752,7 +1753,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '17차d · 모둠 농장';
+const GAME_VER = '17차e · 농장 · 자원 바꾸기';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -6737,7 +6738,7 @@ function shopCard(ic, name, desc, cost, state, label, onBuy){
   d.className = 'sItem' + (state ? ' '+state : '');
   d.innerHTML = `<div class="si">${ic}</div><div class="sb">
     <div class="sn">${name}</div><div class="sd">${desc}</div>
-    <div class="sc">${cost ? costTxt(cost) : '공짜'}</div></div>`;
+    <div class="sc">${cost ? costTxt(cost) : ''}</div></div>`;
   const b = document.createElement('button');
   b.textContent = label;
   if(state === 'own'){ b.disabled = true; }
@@ -6745,6 +6746,37 @@ function shopCard(ic, name, desc, cost, state, label, onBuy){
   else { b.className = 'buy'; b.onclick = onBuy; }
   d.querySelector('.sb').appendChild(b);
   return d;
+}
+/* ═══════════ 상인에게 자원 바꾸기 (17차e) ═══════════
+   선생님 주문: "남는 나무·돌·금을 필요한 것으로 바꾸되, 좀 비싸게 지불해서 바꾸는 것"
+   ★ 값어치를 매기고, 그 중 일부만 돌려준다. 나머지가 상인 몫이다.
+     한 번 바꿀 때마다 30%를 잃으므로, 왕복하면 절반이 사라진다 —
+     '남는 걸 급할 때 돌려쓰는 길' 이지 '자원을 불리는 길' 이 아니다.
+   ★ 금을 제일 값지게 잡았다. 금은 캐는 자리가 제일 적고 강화·총알이 다 금을 먹는다.
+   ★ 나눗셈은 내림이다 — 상인이 손해 보는 쪽으로 반올림하면 아이들이
+     1개씩 잘라 바꾸는 요령을 금세 찾아낸다. */
+const TRADE_VAL  = {w:1, s:1.15, g:5.2};        // 자원 하나의 값어치
+const TRADE_KEEP = 0.7;                          // 값어치의 70%만 받는다
+const TRADE_PACK = {w:40, s:35, g:8};            // 한 번에 내놓는 양
+const TRADE_MULS = [1, 3, 10];
+let tradeMul = 1;
+const RES_IC = {w:'🪵', s:'🪨', g:'✨'};
+const RES_NM = {w:'나무', s:'돌', g:'금'};
+const tradeGive = (from, mul)=> TRADE_PACK[from] * mul;
+const tradeGet  = (from, to, mul)=>
+  Math.floor(tradeGive(from, mul) * TRADE_VAL[from] * TRADE_KEEP / TRADE_VAL[to]);
+function doTrade(from, to){
+  const give = tradeGive(from, tradeMul), get = tradeGet(from, to, tradeMul);
+  if(!get) return;
+  const r = myRes();
+  if(r[from] < give){ toast(`${RES_IC[from]} ${RES_NM[from]}이 ${give} 필요해요`, 1.8, '#ffbdbd'); return; }
+  spend({w: from==='w'?give:0, s: from==='s'?give:0, g: from==='g'?give:0});
+  gain(to, get);
+  toast(`🔄 ${RES_IC[from]}${give} → ${RES_IC[to]}${get} 바꿨어요!`, 2.0, '#ffe066');
+  if(window.__sfx) window.__sfx('get');
+  feed(`🔄 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
+     + `${RES_IC[from]}${give}을 ${RES_IC[to]}${get}으로 바꿨어요`);
+  buildShopUI();
 }
 function buildShopUI(){
   const r = myRes();
@@ -6786,6 +6818,39 @@ function buildShopUI(){
       w.appendChild(shopCard(P.ic, P.n, `${P.d}<br>가진 것 <b>${KIT.pot[i]}개</b> · <b>${i+6}</b> 키로 사용`,
         P.cost, canPay(P.cost) ? '' : 'no', '사기', ()=>buyPotion(i)));
     });
+  } else if(shopTab === 'x'){
+    /* ── 자원 바꾸기 ──
+       ★ 여섯 짝(나무↔돌↔금)을 한 장씩 놓고, 한 번에 얼마나 바꿀지는 위에서 고른다.
+         짝마다 크기별로 카드를 만들면 열여덟 장이 되어 아무도 안 읽는다. */
+    const pick = document.createElement('div');
+    pick.className = 'shopTabs';
+    /* 목록이 두 칸짜리 격자라, 그냥 넣으면 고르는 줄과 안내가 나란히 앉는다 */
+    pick.style.gridColumn = '1/-1';
+    pick.style.marginBottom = '6px';
+    for(const m of TRADE_MULS){
+      const b = document.createElement('button');
+      b.className = 'btn sm' + (m === tradeMul ? ' on' : '');
+      b.textContent = m === 1 ? '조금' : m === 3 ? '보통' : '가득';
+      b.onclick = ()=>{ tradeMul = m; buildShopUI(); };
+      pick.appendChild(b);
+    }
+    w.appendChild(pick);
+    const hint = document.createElement('p');
+    hint.className = 'shopHint';
+    hint.style.gridColumn = '1/-1';
+    hint.innerHTML = '상인이 <b>수고비를 떼어 갑니다</b> — 바꿀수록 줄어드니, '
+                   + '<b>정말 모자랄 때만</b> 쓰세요.';
+    w.appendChild(hint);
+    for(const from of ['w','s','g']) for(const to of ['w','s','g']){
+      if(from === to) continue;
+      const give = tradeGive(from, tradeMul), get = tradeGet(from, to, tradeMul);
+      const can  = r[from] >= give && get > 0;
+      w.appendChild(shopCard(RES_IC[from] + '→' + RES_IC[to],
+        `${RES_NM[from]} ${give} → ${RES_NM[to]} ${get}`,
+        `${RES_IC[from]} <b>${give}</b>을 내고 ${RES_IC[to]} <b>${get}</b>을 받아요.` +
+        (r[from] < give ? `<br><span style="color:#ffbdbd">지금 ${RES_IC[from]}${r[from]} 밖에 없어요</span>` : ''),
+        null, can ? '' : 'no', '바꾸기', ()=>doTrade(from, to)));
+    }
   } else {
     /* ── 농장에서 거둔 것 팔기 ──
        ★ 알·우유·고기를 네 번째 자원으로 만들지 않았다. 지금 건물값·상점·강화가
@@ -11133,6 +11198,9 @@ Object.assign(window, {
   __farmMorning:farmMorning, __farmFeed:farmFeed, __farmClean:farmClean, __farmTake:farmTake,
   __buyAnimal:buyAnimal, __sellFarm:sellFarm, __basketWorth:basketWorth,
   __basketCount:basketCount, __farmCount:farmCount, __farmStock:farmStock,
+  __TRADE_VAL:TRADE_VAL, __TRADE_KEEP:()=>TRADE_KEEP, __TRADE_PACK:TRADE_PACK,
+  __TRADE_MULS:TRADE_MULS, __tradeGive:tradeGive, __tradeGet:tradeGet, __doTrade:doTrade,
+  __tradeMul:(m)=>{ tradeMul = m; }, __shopTab:(t)=>{ shopTab = t; },
   __buildFarmUI:buildFarmUI, __farmSpots:()=>farmSpots,
   __farmMesh:(n)=>({body:F_body, head:F_head, deco:F_deco,
                      eyes:F_eyes, legs:F_legs, muck:F_muck, fly:F_fly}[n]),

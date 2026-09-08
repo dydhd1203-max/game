@@ -1,4 +1,4 @@
-/* 17차d 검사 — 모둠 농장 (동물 · 먹이 · 청소 · 거두기 · 팔기)
+/* 17차d·e 검사 — 모둠 농장 · 상인에게 자원 바꾸기
    ★ 값을 검사에 박지 않는다. 게임에서 읽어 '관계'만 본다.
      (가격표를 여기에 베껴 두면, 값을 고칠 때마다 검사가 빨간불이 되고
       결국 아무도 검사를 안 믿게 된다.) */
@@ -266,6 +266,59 @@ const cap = await pg.evaluate(async ()=>{
 });
 ok('★ 어느 동물로 꽉 채워도 그릴 칸이 안 넘친다 (넘치면 조용히 잘린다)',
    cap.넘친것.length === 0, cap.넘친것.join(' / ') || '전부 넉넉함');
+
+/* ═══════ ⑪ 상인 바꾸기 — 늘 손해라야 한다 ═══════ */
+const trade = await pg.evaluate(()=>{
+  const W=window, o={}, g=W.__G.me.g;
+  const base = W.__base[g]; base.w=100000; base.s=100000; base.o=100000; W.__recompute();
+  const ks = ['w','s','g'];
+  /* 값어치 기준으로 늘 손해인가 — 받은 것의 값이 낸 것의 값보다 적어야 한다 */
+  const V = W.__TRADE_VAL;
+  o.손해 = []; o.공짜 = [];
+  for(const m of W.__TRADE_MULS) for(const a of ks) for(const b of ks){
+    if(a===b) continue;
+    const give = W.__tradeGive(a,m), get = W.__tradeGet(a,b,m);
+    if(get*V[b] >= give*V[a]) o.손해.push(a+'→'+b+' ×'+m);
+    if(get <= 0) o.공짜.push(a+'→'+b+' ×'+m);
+  }
+  /* 왕복하면 확 줄어든다 — '자원 불리는 길' 이 되면 안 된다.
+     ★ 처음엔 실제로 두 번 바꿔 보고 나무가 얼마나 남았나를 쟀는데,
+       두 번째 바꾸기가 방금 받은 돌이 아니라 쌓아 둔 돌더미에서 나가는 바람에
+       왕복이 아니라 '한 번 바꾸기' 를 재고 있었다. 값어치로 재야 맞다. */
+  W.__tradeMul(1);
+  let worst = 0;
+  for(const a of ks) for(const b of ks){
+    if(a===b) continue;
+    const rate = W.__tradeGet(a,b,1)*V[b] / (W.__tradeGive(a,1)*V[a]);
+    worst = Math.max(worst, rate);          // 제일 후한 짝으로 왕복해도
+  }
+  o.왕복남은비율 = Math.round(worst*worst*100)/100;
+  /* 실제로 자원이 오간다 */
+  const r0 = Object.assign({}, W.__myRes());
+  W.__doTrade('g','w');
+  const r1 = W.__myRes();
+  o.낸금 = r0.g - r1.g; o.받은나무 = r1.w - r0.w;
+  o.한번에낼금 = W.__tradeGive('g',1);
+  /* 모자라면 못 바꾼다 */
+  base.w=0; base.s=0; base.o=0;
+  W.__myPC.w=0; W.__myPC.s=0; W.__myPC.o=0;
+  W.__myPC.sw=0; W.__myPC.ss=0; W.__myPC.so=0; W.__recompute();
+  const before = Object.assign({}, W.__myRes());
+  W.__doTrade('w','g');
+  o.빈손으로바뀜 = W.__myRes().g !== before.g;
+  return o;
+});
+ok('★ 어느 짝을 어떻게 바꿔도 상인이 수고비를 뗀다 (바꿔서 이득 보는 길이 없다)',
+   trade.손해.length === 0, trade.손해.join(' ') || '여섯 짝 × 세 크기 모두 손해');
+ok('★ 그래도 0개를 주지는 않는다 (내고 아무것도 못 받으면 속은 기분이 든다)',
+   trade.공짜.length === 0, trade.공짜.join(' ') || '전부 1개 이상');
+ok('★ 왕복하면 확 줄어든다 — 자원을 불리는 길이 아니다',
+   trade.왕복남은비율 < 0.6 && trade.왕복남은비율 > 0.2,
+   '제일 후한 짝으로 왕복해도 값어치의 '+Math.round(trade.왕복남은비율*100)+'%만 남는다');
+ok('★ 바꾸면 실제로 자원이 오간다',
+   trade.낸금 === trade.한번에낼금 && trade.받은나무 > 0,
+   '✨'+trade.낸금+' → 🪵'+trade.받은나무);
+ok('★ 자원이 모자라면 안 바뀐다', !trade.빈손으로바뀜);
 
 console.log('');
 let bad=0;
