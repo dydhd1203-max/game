@@ -129,9 +129,13 @@ const out = await pg.evaluate(async ()=>{
      [...document.querySelectorAll('.pop.on')].map(e=>e.id).join(',') || '없음');
 
   /* ───── 손에 드는 총 모형 ───── */
-  const T3 = W.__THREE, models = W.__gunModels();
-  ok('무기마다 손에 드는 모형이 따로 있다 (0~6)', models.length === 7 && models.every(Boolean),
-     models.length + '개');
+  const T3 = W.__THREE, models = W.__gunModels(), WP = W.__WEAPONS;
+  /* ★ 개수를 검사에 박지 않는다 — 18차에 미니게임용 '연습용 총' 이 하나 늘자
+     게임은 멀쩡한데 검사만 빨개졌다(17차d 농장 갈래 때와 같은 함정).
+     세어야 할 것은 '일곱 개' 가 아니라 '무기 표의 줄 수만큼 모형이 있는가' 다. */
+  ok('무기마다 손에 드는 모형이 따로 있다 (무기 표와 같은 개수)',
+     models.length === WP.length && models.every(Boolean),
+     models.length + '개 / 무기 ' + WP.length + '가지');
   /* ★ 모형은 재질끼리 미리 합쳐 구워 둔다(그리기 횟수를 줄이려고).
      그래서 '자식 수' 대신 굽기 전 조각 목록(userData.parts)을 본다. */
   const counts = models.map(g => (g.userData.parts||[]).length);

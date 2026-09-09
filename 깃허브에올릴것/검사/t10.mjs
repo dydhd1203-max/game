@@ -18,18 +18,25 @@ const out = await pg.evaluate(async ()=>{
   const sleep = ms=> new Promise(r=>setTimeout(r,ms));
 
   /* ───────── 꾸미기 ───────── */
-  ok('모자 9가지', W.__HATS.length===9, W.__HATS.length);
-  ok('안경 7가지', W.__GLASSES.length===7, W.__GLASSES.length);
-  ok('옷 7가지',   W.__CLOTHES.length===7, W.__CLOTHES.length);
+  /* ★ 가짓수를 검사에 박지 않는다 — 17차g에 셋 다 두 가지씩 늘자 한꺼번에 빨개졌다.
+     세어야 할 것은 개수가 아니라 '모양 표와 이름·아이콘 표의 길이가 같은가' 다.
+     길이가 어긋나면 아이들 착장 번호가 통째로 밀린다(SHEEP_BITE 때와 같은 함정). */
+  ok('모자 — 모양·이름 표의 길이가 같다', W.__HATS.length === W.__HAT_NAME.length, W.__HATS.length+'가지');
+  ok('안경 — 모양·이름 표의 길이가 같다', W.__GLASSES.length === W.__GLS_N.length, W.__GLASSES.length+'가지');
+  ok('옷 — 모양·이름 표의 길이가 같다', W.__CLOTHES.length === W.__CLO_N.length, W.__CLOTHES.length+'가지');
   /* 안경은 눈(f 1.02) 보다 앞에 있어야 얼굴에 파묻히지 않는다 */
   ok('★ 안경은 눈보다 앞에 있다',
      W.__GLASSES.slice(1).every(g=>g.some(p=>p[0] > 1.02)),
      '가장 앞 ' + Math.max(...W.__GLASSES[1].map(p=>p[0])).toFixed(2));
   /* 옷은 등털(옆 ±0.54, 뒤 -0.63) 밖으로 나와야 보인다 */
-  ok('★ 옷은 등털 밖으로 나온다',
-     W.__CLOTHES.slice(1).every(c=>c.some(p=>Math.abs(p[3])/2 > 0.54 || p[0] < -0.63
-                                          || (p[0] > 0.53 && p[1] < 1.32))),
-     '');
+  /* ★ 조각의 '너비' 만 보고 옆으로 밀린 자리(p[2])를 안 봤다. 그래서 요정 날개처럼
+     가운데가 좁고 옆으로 ±0.64 내민 옷이 '가려졌다' 고 잘못 나왔다 — 게임은 멀쩡했다.
+     실제로 삐져나오는 끝은 |옆으로 밀린 만큼| + 너비/2 다. */
+  const 삐져나옴 = c=> c.some(p=> Math.abs(p[2]) + Math.abs(p[3])/2 > 0.54
+                              || p[0] < -0.63 || (p[0] > 0.53 && p[1] < 1.32));
+  ok('★ 옷은 등털 밖으로 나온다 (안 나오면 몸에 파묻혀 화면에 없다)',
+     W.__CLOTHES.slice(1).every(삐져나옴),
+     W.__CLOTHES.map((c,i)=> i && !삐져나옴(c) ? W.__CLO_N[i] : '').filter(Boolean).join(',') || '전부 보임');
   /* 미리보기 */
   ok('시작 화면 미리보기가 살아 있다', !!W.__pvw());
   const pvDeco = W.__pvw() ? W.__pvw().deco.filter(m=>m.visible).length : -1;
@@ -266,11 +273,16 @@ const out = await pg.evaluate(async ()=>{
 
   /* ───────── 밸런스 ───────── */
   ok('★ 낮이 140초 (150 → 140)', G.set.daySec===140, G.set.daySec);
-  ok('★ 늑대 체력이 3.1배 (12차에서 1.85 -> 3.10)', W.__BAL.hpMul===3.10, W.__BAL.hpMul);
+  /* ★ 밸런스 숫자를 검사에 베껴 두면, 값을 고칠 때마다 검사가 빨간불이 되고
+     결국 아무도 검사를 안 믿게 된다. 값이 아니라 '관계' 를 본다 —
+     늑대가 예전(1.0)보다 훨씬 튼튼하고, 건물보다 수정을 덜 아프게 깎는가. */
+  ok('★ 늑대 체력이 크게 올라 있다 (12차 이전 기준의 세 배 남짓)',
+     W.__BAL.hpMul >= 2.5 && W.__BAL.hpMul <= 4.5, W.__BAL.hpMul+'배');
   ok('★ 늑대의 건물 피해가 2배', W.__BAL.dmgMul===2, W.__BAL.dmgMul);
   /* 수정 깎는 힘만 따로 두는 이유: 2배로 하면 한 마리만 새도 20초 만에 끝난다 */
   ok('★ 수정 깎는 힘은 따로 1.4배', W.__BAL.crystalMul===1.4, W.__BAL.crystalMul);
-  ok('★ 보스 체력 배수는 따로 1.35배', W.__BAL.bossMul===1.35, W.__BAL.bossMul);
+  ok('★ 보스는 같은 날 늑대보다 확실히 튼튼하다 (배수가 따로 있다)',
+     W.__BAL.bossMul > 1.1 && W.__BAL.bossMul < 2, W.__BAL.bossMul+'배');
   /* 실제로 늑대에 값이 먹었는지 확인한다 — 표만 바꾸고 안 쓰면 소용없다 */
   G.wolves.length = 0; G.day = 8;
   const wm = W.__spawnWolf(0, 0);
