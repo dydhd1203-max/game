@@ -1812,7 +1812,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '17차h · 농장 단장 · 살아 있는 상인';
+const GAME_VER = '17차i · 자원 자리 고르게';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -2453,6 +2453,8 @@ const NODE_DEF = {
   gold: {give:'g', amt:4, hits:10, per:2, icon:'✨', name:'금'}     // 5칸 × 4 = 20 금/광맥
 };
 const NODE_S = 0.32;    // 자원 덩어리 크기 배수 — 작을수록 많이 깔 수 있다 (0.45에서 30% 축소)
+/* 자원이 깔리는 고리 — 안쪽은 농장 바깥, 바깥쪽은 마당 끝 */
+const NODE_R0 = 17.0, NODE_R1 = 37.5;
 /* ── 자원 덩어리 ──
    ★ 예전 나무는 통나무 한 줄에 네모난 잎 뭉치라 '초록 상자'로 보였다.
      밑동을 넓히고(뿌리) 가지를 비스듬히 뻗고 잎을 둥글게 깎으니 나무가 됐다.
@@ -2548,33 +2550,74 @@ function mkGold(x,z){
     hs.push(put('oreG', gb, ORE_GLOW, dx, 2.6+h*0.3, dz, 0.62, rnd(dx*3+dz)*3, h, tilt));
   return hs;
 }
+/* ── 자원이 놓이면 안 되는 곳: 모둠 농장 ──
+   ★ 자원은 아침마다 '제자리에서' 되살아난다(goDay). 그래서 한 번 우리 안에 놓이면
+     그 나무는 영영 우리 한가운데에 서 있게 된다 — 동물이 가리고, 캐러 들어간 아이가
+     울타리에 막힌다. 꾸밈 조각(scatterDecor)에는 이 걸름이 있었는데 자원에는 없었다.
+   ★ 우리는 마리수에 따라 제일 큰 단계까지 자라므로 그 크기로 비운다. 헛간도 같이. */
+function inFarmYard(x, z){
+  const RMAX = FARM_R2[FARM_R2.length-1];
+  for(let g2=0; g2<NG; g2++){
+    if(Math.hypot(x-FARM_X[g2], z-FARM_Z[g2]) < RMAX+1.4) return true;   // 우리 + 꽃밭·널판
+    const openA = Math.atan2(-FARM_Z[g2], -FARM_X[g2]);
+    const bx = FARM_X[g2] - Math.cos(openA)*(RMAX+1.8);
+    const bz = FARM_Z[g2] - Math.sin(openA)*(RMAX+1.8);
+    if(Math.hypot(x-bx, z-bz) < 2.6) return true;                        // 헛간
+  }
+  return false;
+}
+/* ═══════ 자원을 깐다 — 놓을 수 있는 칸을 먼저 모으고, 모둠별로 나눠 쓴다 ═══════
+   ★ 예전엔 마당 어디서나 무작위로 뽑고 '내 구역(sectorOf)인가' 로 걸렀다.
+     배치가 바뀌어도 늘 맞는 방법이라 좋았는데, 재 보니 결과가 공평하지 않았다 —
+     아래쪽 두 입구(3·4모둠)는 붙어 있어서 구역이 다른 모둠의 3분의 1이다.
+     뽑기 1200번으로는 스물두 개를 못 채우고 3모둠 15개 · 4모둠 9개에서 멈췄다.
+     같은 반에서 4모둠만 자원이 절반 이하였는데, 무작위라 아무도 못 알아챘다.
+   ★ 이제 놓을 수 있는 칸을 한 번에 모아 모둠별 주머니에 나눠 두고 거기서 고른다.
+     구역이 좁아도 그 안을 남김없이 쓰므로 다섯 모둠이 똑같이 채워진다.
+     칸을 훑는 것은 세상을 지을 때 딱 한 번이라 값도 싸다(4천 칸 남짓).
+   ★ 자리가 정말 모자라면 간격을 조금씩 좁혀 가며 다시 본다 —
+     아이에게는 '간격 3.4칸' 보다 '우리 모둠도 스물두 개' 가 훨씬 중요하다. */
 function placeNodes(){
-  const taken = [];
-  const ok = (x,z,minD)=>{
-    for(const t of taken) if(Math.hypot(t[0]-x,t[1]-z) < minD) return false;
-    return true;
-  };
+  const pool = [];                                   // pool[모둠] = 놓을 수 있는 칸
+  for(let g=0; g<NG; g++) pool.push([]);
+  const RI = Math.ceil(NODE_R1);
+  for(let x=-RI; x<=RI; x++) for(let z=-RI; z<=RI; z++){
+    const cx = x+0.5, cz = z+0.5, d = Math.hypot(cx,cz);
+    if(d < NODE_R0 || d > NODE_R1) continue;
+    if(!inW(x,z) || terrAt(x,z) !== GY) continue;    // 평지에만
+    if(inFarmYard(cx,cz)) continue;                  // 우리 안에는 안 놓는다
+    const cd = corridorDist(cx,cz);
+    if(cd && cd[2] < GAP_HALF+2.5) continue;         // 통로 한가운데는 비운다
+    if(rampNear(x,z)) continue;                      // 망루 계단 자리도
+    pool[sectorOf(cx,cz)].push([x,z,0]);
+  }
+  const taken = [];                                  // 모둠을 가리지 않고 서로 안 붙게
+  const spec = [['tree',9],['rock',9],['gold',4]];
   for(let g=0; g<NG; g++){
-    const spec = [['tree',9],['rock',9],['gold',4]];   // 작아진 만큼 촘촘히
+    const cells = pool[g];
+    /* 섞는다 — 순서대로 고르면 구역 한쪽 구석부터 채워진다 */
+    for(let i=cells.length-1; i>0; i--){
+      const j = (Math.random()*(i+1))|0, t = cells[i]; cells[i] = cells[j]; cells[j] = t;
+    }
     for(const [type,cnt] of spec){
-      let made=0, tries=0;
-      while(made<cnt && tries++<1200){
-        /* ★ 예전엔 '입구 각도 ± 36도' 부채꼴에서 뽑았다. 아래쪽 두 입구는 각도가
-           똑같아서 그러면 3·4모둠 자원이 통째로 겹친다. 그냥 마당에서 아무 데나 뽑고
-           '내 구역(sectorOf)인가' 로 거른다 — 배치가 어떻게 바뀌든 늘 맞는다. */
-        const a = Math.random()*Math.PI*2;
-        const r = 13.0 + Math.random()*24;
-        const x = Math.round(Math.cos(a)*r), z = Math.round(Math.sin(a)*r);
-        if(Math.hypot(x,z) < 12 || Math.hypot(x,z) > 37.5) continue;
-        if(sectorOf(x+0.5, z+0.5) !== g) continue;
-        const cd = corridorDist(x+0.5,z+0.5);
-        if(cd && cd[2] < GAP_HALF+2.5) continue;
-        if(rampNear(x,z)) continue;                      // 망루 계단 자리는 비운다
-        if(!ok(x,z, type==='tree'?3.4:2.8)) continue;
-        taken.push([x,z]);
-        const hs = type==='tree'? mkTree(x,z) : type==='rock'? mkRock(x,z) : mkGold(x,z);
-        NODES.push({type,x,z,g,hs,alive:true,hp:NODE_DEF[type].hits,max:NODE_DEF[type].hits});
-        made++;
+      const base = type==='tree' ? 3.4 : 2.8;
+      let made = 0;
+      for(let pass=0; pass<4 && made<cnt; pass++){
+        const minD = base * (1 - pass*0.18);
+        for(const c of cells){
+          if(made >= cnt) break;
+          if(c[2]) continue;                         // 이미 쓴 칸
+          let bad = false;
+          for(const t of taken)
+            if(Math.hypot(t[0]-c[0], t[1]-c[1]) < minD){ bad = true; break; }
+          if(bad) continue;
+          c[2] = 1; taken.push(c);
+          const hs = type==='tree' ? mkTree(c[0],c[1])
+                   : type==='rock' ? mkRock(c[0],c[1]) : mkGold(c[0],c[1]);
+          NODES.push({type, x:c[0], z:c[1], g, hs, alive:true,
+                      hp:NODE_DEF[type].hits, max:NODE_DEF[type].hits});
+          made++;
+        }
       }
     }
   }
@@ -3271,18 +3314,22 @@ function buildFarms(){
       for(const hy of [0.34, 0.94])                       // 짚단을 묶은 끈
         put('farmRail', gRail, hbx, hy, hbz, hy>0.5?0.86:1.02, 0.10, 0.10, 0xa07a4a);
       /* ── 허수아비 — 아이들이 제일 먼저 알아보는 농장 표시다 ── */
+      /* ★ 처음엔 머리 0.50 · 옷 0.50 · 챙 0.62 로 세웠는데, 소(sc 0.98)보다 굵어서
+         우리 안에서 제일 큰 덩어리가 됐다. 허수아비는 '막대기에 옷 걸친 것' 이라
+         가늘어야 허수아비로 읽힌다 — 키는 두고 굵기만 30% 줄였다.
+       ★ 얼굴은 대문 쪽(로컬 +Z)을 보게 돌렸다. 들어오는 아이와 눈이 마주친다. */
       const scx = R-0.95, scz = R*0.34;
-      put('farmPost', gPost,  scx, 0.78, scz, 0.14, 1.56, 0.14, 0xb98b58);
-      put('farmRail', gRail,  scx, 1.24, scz, 0.11, 0.11, 1.24, 0xb98b58, 0, Math.PI/2);
+      put('farmPost', gPost,  scx, 0.80, scz, 0.11, 1.60, 0.11, 0xb98b58);
+      put('farmRail', gRail,  scx, 1.26, scz, 0.09, 0.09, 1.06, 0xb98b58, 0, Math.PI/2);
       for(const s2 of [1,-1])                                              // 소매 끝 짚단
-        put('farmHay', gHay, scx, 1.24, scz + s2*0.62, 0.16, 0.20, 0.22, 0xf0dca8);
-      put('farmCloth',gClothF,scx, 1.12, scz, 0.50, 0.66, 0.34, GHEX[g]);  // 모둠색 옷
-      put('farmHay',  gHay,   scx, 1.66, scz, 0.50, 0.48, 0.48, 0xf3e0a8); // 짚 머리
-      put('farmHay',  gHay,   scx, 1.92, scz, 0.62, 0.10, 0.62, 0xd9b26a); // 밀짚모자 챙
-      put('farmHay',  gHay,   scx, 2.00, scz, 0.34, 0.16, 0.34, 0xd9b26a);
+        put('farmHay', gHay, scx, 1.26, scz + s2*0.53, 0.13, 0.16, 0.18, 0xf0dca8);
+      put('farmCloth',gClothF,scx, 1.14, scz, 0.34, 0.62, 0.24, GHEX[g]);  // 모둠색 옷
+      put('farmHay',  gHay,   scx, 1.62, scz, 0.34, 0.36, 0.34, 0xf3e0a8); // 짚 머리
+      put('farmHay',  gHay,   scx, 1.84, scz, 0.46, 0.08, 0.46, 0xd9b26a); // 밀짚모자 챙
+      put('farmHay',  gHay,   scx, 1.92, scz, 0.24, 0.14, 0.24, 0xd9b26a);
       for(const s2 of [1,-1])                                              // 단추 눈
-        put('farmCloth', gClothF, scx+0.26, 1.70, scz + s2*0.13, 0.08,0.10,0.08, 0x2a2420);
-      put('farmCloth', gClothF, scx+0.26, 1.56, scz, 0.06, 0.08, 0.24, 0xd06a5a);  // 웃는 입
+        put('farmCloth', gClothF, scx + s2*0.09, 1.66, scz+0.18, 0.06,0.08,0.06, 0x2a2420);
+      put('farmCloth', gClothF, scx, 1.54, scz+0.18, 0.16, 0.05, 0.06, 0xd06a5a);  // 웃는 입
       /* ── 헛간 — 우리 뒤. 지붕을 양쪽으로 기울여 얹고 다락 창을 낸다 ── */
       const bz = -(R+1.8);
       put('farmWood', gPlank, 0, 0.95, bz, 2.30, 1.90, 1.80, 0xe6b98c);
@@ -11847,6 +11894,7 @@ Object.assign(window, {
   __SHOP:()=>({x:SHOP_X, z:SHOP_Z, a:SHOP_A, near:SHOP_NEAR}),
   __FORGE:()=>({x:FORGE_X, z:FORGE_Z, a:FORGE_A, near:FORGE_NEAR}),
   __NPCS:()=>NPCS, __drawNPCs:drawNPCs, __N_body:()=>N_body, __DIGIT:DIGIT,
+  __NODE_R:(i)=> i ? NODE_R1 : NODE_R0, __inFarmYard:inFarmYard, __placeNodes:placeNodes,
   /* 17차d — 농장. 검사가 값을 베끼지 않고 게임에 물어보게 내보낸다. */
   __FARM_X:()=>FARM_X, __FARM_Z:()=>FARM_Z, __FARM_ANIMALS:FARM_ANIMALS,
   __FARM_CAP:()=>FARM_CAP, __FARM_FEED:()=>FARM_FEED, __FARM_LEAVE:()=>FARM_LEAVE,
