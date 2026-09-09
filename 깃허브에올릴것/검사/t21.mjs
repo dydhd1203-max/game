@@ -286,6 +286,36 @@ const tip = await pg.evaluate(()=>{
 ok('★ 우리 앞에 서면 "H 를 눌러 농장 열기" 안내가 뜬다', tip.있음 && tip.가까이);
 ok('★ 멀어지면 안내가 사라진다', !tip.멀리);
 
+/* ═══════ ⑩ 자원이 깔리는 자리 ═══════
+   ★ 무작위라 '한 판 보고 괜찮네' 로 넘어가면 안 된다. 개수는 판마다 똑같아야 하고,
+     반지름은 분포로 봐야 한다. */
+const nodes = await pg.evaluate(()=>{
+  const W=window, X=W.__FARM_X(), Z=W.__FARM_Z(), o={모둠별:[0,0,0,0,0], 반지름:[]};
+  const RMAX = W.__FARM_R2()[W.__FARM_R2().length-1];
+  o.우리안 = 0;
+  for(const n of W.__NODES){
+    o.모둠별[n.g]++;
+    o.반지름.push(Math.hypot(n.x+0.5, n.z+0.5));
+    for(let g=0; g<5; g++)
+      if(Math.hypot(n.x+0.5-X[g], n.z+0.5-Z[g]) < RMAX){ o.우리안++; break; }
+  }
+  o.반지름.sort((a,b)=>a-b);
+  o.개수 = W.__NODES.length;
+  o.안쪽끝 = W.__NODE_R(); o.바깥끝 = W.__NODE_R(1);
+  return o;
+});
+const 적음 = Math.min(...nodes.모둠별), 많음 = Math.max(...nodes.모둠별);
+ok('★ 다섯 모둠이 자원을 똑같이 받는다 (예전엔 4모둠만 22개 중 9개였다)',
+   적음 === 많음, nodes.모둠별.join(' · ')+'개');
+ok('★ 놓기로 한 개수를 다 채운다', nodes.개수 === 110, nodes.개수+'개');
+ok('★ 우리 안에는 자원이 없다 (자원은 아침마다 그 자리에서 되살아난다)',
+   nodes.우리안 === 0, nodes.우리안+'개');
+ok('★ 제일 가까운 자원도 농장 바깥이다', nodes.반지름[0] >= nodes.안쪽끝 - 0.75,
+   '수정에서 '+nodes.반지름[0].toFixed(1)+'칸 (안쪽 끝 '+nodes.안쪽끝+')');
+const 가운데 = nodes.반지름[nodes.반지름.length>>1], 고리한가운데 = (nodes.안쪽끝+nodes.바깥끝)/2;
+ok('★ 수정 쪽에 몰려 있지 않다 (가운데값이 고리 한가운데보다 바깥)',
+   가운데 > 고리한가운데, '가운데값 '+가운데.toFixed(1)+'칸 · 고리 한가운데 '+고리한가운데.toFixed(1)+'칸');
+
 console.log('');
 let bad=0;
 for(const [n,c,v] of R){ if(!c) bad++; console.log((c?'  OK  ':'FAIL  ')+n+(v?'   → '+v:'')); }
