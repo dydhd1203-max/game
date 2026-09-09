@@ -126,6 +126,42 @@ ok('★ 틀리면 아무것도 못 받는다 (내 점수도 안 오른다)',
 ok('★ 두 우리 사이는 어느 쪽도 아니다', ox.밖자리==='', '"'+ox.밖자리+'"');
 ok('★ 우리에 안 들어간 아이는 무조건 오답이고, 몇 명인지 세어 보여 준다 (가만히 서 있는 게 이득이면 안 걷는다)',
    ox.틀림.none===1 && ox.틀림.ok===1 && ox.틀림.o===1 && ox.틀림.x===1, JSON.stringify(ox.틀림));
+/* ═══ 문제 현수막 (18차h) ═══ */
+const bn = await ev(()=>{
+  const W=window, G=W.__G, M=W.__MINI(), o={};
+  const px = (x)=> parseFloat(getComputedStyle(document.querySelector(x)).fontSize);
+  o.소리 = W.__SFX_KEYS().includes('quiz');
+  /* 문제를 하나 걸어 본다 */
+  W.__quizBanner('2번', '늑대는 밤에만 나타난다', false);
+  const b = document.getElementById('quizBanner');
+  o.문제 = {뜸:b.classList.contains('on'), 초록:b.classList.contains('ans'),
+           글:document.getElementById('qbQ').textContent,
+           번호:document.getElementById('qbNo').textContent,
+           몸에표시:document.body.classList.contains('qbOn')};
+  o.크기 = {현수막:px('#quizBanner .qbQ'), 판:px('#miniBar .mq'), 토스트:px('#toast')};
+  /* 정답이 공개되면 초록으로 */
+  W.__quizBanner('정답', '⭕ O · 3명이 맞혔어요', true);
+  o.정답 = {초록:b.classList.contains('ans'), 글:document.getElementById('qbQ').textContent};
+  /* 내린다 */
+  W.__quizBanner(null, null);
+  o.내림 = {뜸:b.classList.contains('on'), 몸에표시:document.body.classList.contains('qbOn')};
+  return o;
+});
+ok('★ 문제가 나올 때 터지는 소리가 있다', bn.소리);
+ok('★ 문제가 현수막에 크게 뜬다 (번호 딱지 + 문제 글)',
+   bn.문제.뜸 && !bn.문제.초록 && bn.문제.번호 === '2번'
+   && bn.문제.글 === '늑대는 밤에만 나타난다' && bn.문제.몸에표시,
+   JSON.stringify(bn.문제));
+/* ★ 글자 크기를 못 박는 이유 — `font: 900 46px inherit` 처럼 쓰면 CSS 가 그 줄을 통째로
+   버린다(font 줄임표기에서 글꼴 자리에 inherit 은 못 쓴다). 그러면 아무 오류 없이
+   브라우저 기본값 16px 로 나온다. 실제로 파일 전체에 82군데가 그랬다. */
+ok('★ 큰 글씨로 정한 것이 실제로 크다 (글자 크기 규칙이 조용히 버려지지 않는다)',
+   bn.크기.현수막 >= 30 && bn.크기.판 >= 20 && bn.크기.토스트 >= 18,
+   '현수막 '+bn.크기.현수막+'px · 판 '+bn.크기.판+'px · 토스트 '+bn.크기.토스트+'px');
+ok('★ 정답이 공개되면 현수막이 초록으로 바뀐다', bn.정답.초록 && /맞혔어요/.test(bn.정답.글),
+   JSON.stringify(bn.정답));
+ok('★ 퀴즈가 끝나면 현수막이 내려간다', !bn.내림.뜸 && !bn.내림.몸에표시);
+
 ok('★ 남은 5초면 화면이 비상으로 빨갛게 깜빡인다 (그 전엔 안 깜빡인다)',
    ox.비상 === true && ox.아직 === false, '5초 '+ox.비상+' · 그 전 '+ox.아직);
 ok('★ 세 문제가 끝나면 마무리 판이 뜬다', ox.끝.st==='done' && ox.끝.qn===3 && ox.끝.sc[0]===2, JSON.stringify(ox.끝));
@@ -333,6 +369,43 @@ ok('★ 남은 목숨 합계로 순위, 같으면 맞힌 수 (3모둠 3목숨 9�
    sv.순위.rank[0]===3 && sv.순위.rank[1]===2 && sv.순위.rank[2]===4, JSON.stringify(sv.순위.rank));
 ok('★ 끝나면 총을 내리고 땅으로 돌아온다', sv.끝.ph==='day' && !sv.끝.aiming && !sv.순위.aiming, JSON.stringify(sv.끝));
 ok('★ 연습용 총은 가게에 안 나온다', !/연습용/.test(sv.가게), sv.가게);
+
+/* ═══════ ⑥-2 소리와 판정 연출 ═══════
+   ★ 서바이벌 총은 snd:'musket' 인데 소리 표에 musket 이 없어서 내내 조용했다.
+     sfx() 는 없는 이름이면 조용히 아무것도 안 한다 — 그래서 아무도 못 알아챘다.
+     이름 하나가 아니라 '무기가 부르는 소리가 전부 표에 있나' 를 본다. */
+const snd = await ev(()=>{
+  const W=window, o={};
+  const keys = W.__SFX_KEYS();
+  o.빠진소리 = W.__WEAPONS.filter(w=>w.snd && !keys.includes(w.snd)).map(w=>w.n+':'+w.snd);
+  o.무기수 = W.__WEAPONS.length;
+  o.있음 = ['musket','phit','phead','trip','hurt','gun'].filter(k=>keys.includes(k));
+  o.줄딩 = typeof W.__sfxJump === 'function';
+  /* 판정 — 맞았을 때 초록, 틀렸을 때 빨강 */
+  W.__verdict(true, '🎉', '정답!');
+  const v = document.getElementById('verdict');
+  o.맞음판정 = {on:v.classList.contains('on'), good:v.classList.contains('good'),
+               글:v.textContent};
+  W.__verdict(false, '❌', '땡!');
+  o.틀림판정 = {on:v.classList.contains('on'), bad:v.classList.contains('bad')};
+  W.__verdict(true, '⭐', '5번!', {quick:true});
+  o.짧은판정 = v.classList.contains('quick');
+  /* 초록 번쩍이 실제로 켜진다 */
+  W.__goodFlash(60);
+  o.초록번쩍 = +document.getElementById('goodFlash').style.opacity;
+  return o;
+});
+ok('★ 무기가 부르는 소리가 전부 소리 표에 있다 (없는 이름은 조용히 아무것도 안 한다)',
+   snd.빠진소리.length === 0, snd.무기수+'자루 중 빠진 것: '+(snd.빠진소리.join(' ')||'없음'));
+ok('★ 미니게임에 필요한 소리가 다 있다 (총·맞힘·헤드샷·걸림)',
+   snd.있음.length === 6, snd.있음.join(' '));
+ok('★ 줄을 넘을 때마다 높아지는 딩이 있다', snd.줄딩);
+ok('★ 맞히면 한가운데에 초록 판정이 크게 뜬다',
+   snd.맞음판정.on && snd.맞음판정.good && /정답/.test(snd.맞음판정.글), JSON.stringify(snd.맞음판정));
+ok('★ 틀리면 한가운데에 빨간 판정이 크게 뜬다',
+   snd.틀림판정.on && snd.틀림판정.bad, JSON.stringify(snd.틀림판정));
+ok('★ 줄넘기처럼 자주 뜨는 것은 작은 판정으로 뜬다 (매번 화면을 가리면 판이 안 보인다)', snd.짧은판정);
+ok('★ 잘했을 때의 초록 번쩍이 켜진다', snd.초록번쩍 === 1, String(snd.초록번쩍));
 
 /* ═══════ ⑦ 서바이벌 지형 — 높은 자리 · 가림벽 · 상자 ═══════
    ★ 판판한 바닥에 똑같은 기둥만 세우면 FPS 가 아니라 '서로 마주 보고 쏘기' 가 된다.

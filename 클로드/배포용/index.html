@@ -57,7 +57,7 @@ canvas{display:block}
 .pnl{background:var(--panel);border:2px solid var(--line);border-radius:8px;
   box-shadow:0 3px 0 rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08)}
 .btn{background:rgba(30,40,32,.9);border:2px solid var(--line2);border-radius:8px;color:#fff;
-  font:700 15px/1.1 inherit;padding:11px 16px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.4);
+  font-weight:700;font-size:15px;line-height:1.1;padding:11px 16px;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.4);
   transition:transform .06s, background .12s}
 .btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.4)}
 .btn:hover{background:rgba(52,68,55,.95)}
@@ -66,7 +66,7 @@ canvas{display:block}
 .btn.warn{background:#8b3d3d;border-color:#ff9d9d}
 .btn.sm{font-size:13px;padding:7px 11px}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.tag{display:inline-block;padding:2px 8px;border-radius:999px;font:800 12px/1.6 inherit}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:800;font-size:12px;line-height:1.6}
 
 /* ── 시작 화면 ── */
 #title{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -81,11 +81,11 @@ canvas{display:block}
 label.f{display:block;font-weight:800;font-size:13px;margin:14px 0 6px;opacity:.9}
 label.f:first-child{margin-top:0}
 input.f,select.f{width:100%;padding:12px;border-radius:8px;border:2px solid var(--line2);
-  background:rgba(0,0,0,.35);color:#fff;font:700 16px inherit}
+  background:rgba(0,0,0,.35);color:#fff;font-weight:700;font-size:16px}
 input.f::placeholder{color:rgba(255,255,255,.4)}
 .grp{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
 .grp button{padding:13px 0;border-radius:8px;border:2px solid rgba(255,255,255,.25);
-  background:rgba(255,255,255,.08);color:#fff;font:800 15px inherit;cursor:pointer}
+  background:rgba(255,255,255,.08);color:#fff;font-weight:800;font-size:15px;cursor:pointer}
 .grp button.on{background:var(--c);border-color:#fff;color:#101510;box-shadow:0 0 0 3px rgba(255,255,255,.25)}
 .row{display:flex;gap:8px;margin-top:16px}
 .row .btn{flex:1}
@@ -103,8 +103,8 @@ input.f::placeholder{color:rgba(255,255,255,.4)}
 #topRight2 .btn{pointer-events:auto}
 
 #resBox{position:absolute;left:10px;top:10px;padding:8px 10px;display:flex;gap:4px;flex-direction:column}
-#grpName{font:900 14px inherit;margin-bottom:3px}
-.resline{display:flex;gap:10px;font:800 15px inherit;align-items:center}
+#grpName{font-weight:900;font-size:14px;margin-bottom:3px}
+.resline{display:flex;gap:10px;font-weight:800;font-size:15px;align-items:center}
 .res{display:flex;align-items:center;gap:4px;min-width:62px}
 .res i{font-style:normal;font-size:16px}
 .res b{font-variant-numeric:tabular-nums}
@@ -112,7 +112,7 @@ input.f::placeholder{color:rgba(255,255,255,.4)}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.35);color:#9cff9c}100%{transform:scale(1)}}
 
 #dayBox{position:absolute;right:10px;top:10px;padding:7px 11px;display:flex;align-items:center;gap:9px;
-  font:900 15px inherit}
+  font-weight:900;font-size:15px}
 #dayPhase{font-size:13px;opacity:.9}
 #timeBar{width:74px;height:9px;border-radius:5px;background:rgba(0,0,0,.5);overflow:hidden;border:1px solid rgba(255,255,255,.25)}
 #timeFill{height:100%;width:100%;background:var(--gold);transition:width .3s linear}
@@ -122,10 +122,10 @@ input.f::placeholder{color:rgba(255,255,255,.4)}
 #mini{border-radius:4px;display:block}
 
 #crystalWrap{position:absolute;left:50%;top:10px;transform:translateX(-50%);padding:6px 12px;text-align:center;min-width:220px}
-#crystalWrap .lb{font:800 12px inherit;opacity:.85;margin-bottom:4px}
+#crystalWrap .lb{font-weight:800;font-size:12px;opacity:.85;margin-bottom:4px}
 #cBar{height:14px;border-radius:7px;background:rgba(0,0,0,.55);overflow:hidden;border:2px solid rgba(255,255,255,.3)}
 #cFill{height:100%;width:100%;background:linear-gradient(90deg,#66e0ff,#37c6ff);transition:width .3s}
-#cNum{position:absolute;left:50%;top:26px;transform:translateX(-50%);font:900 11px inherit;text-shadow:0 1px 2px #000}
+#cNum{position:absolute;left:50%;top:26px;transform:translateX(-50%);font-weight:900;font-size:11px;text-shadow:0 1px 2px #000}
 #crystalWrap.hurt{animation:shake .4s}
 @keyframes shake{0%,100%{transform:translateX(-50%)}25%{transform:translate(-52%,2px)}75%{transform:translate(-48%,-2px)}}
 
@@ -133,7 +133,7 @@ input.f::placeholder{color:rgba(255,255,255,.4)}
   text-align:center;min-width:300px;display:none;border-color:#ff8b8b}
 #bossWrap.on{display:block;animation:bIn .45s}
 @keyframes bIn{from{opacity:0;transform:translate(-50%,0) scale(.88)}}
-#bossWrap .lb{font:900 14px inherit;margin-bottom:5px;color:#ffbcbc;text-shadow:0 1px 3px #000}
+#bossWrap .lb{font-weight:900;font-size:14px;margin-bottom:5px;color:#ffbcbc;text-shadow:0 1px 3px #000}
 #bBar{height:16px;border-radius:8px;background:rgba(0,0,0,.6);overflow:hidden;border:2px solid rgba(255,140,140,.55)}
 #bFill{background:linear-gradient(90deg,#ff9b3d,#ff3b3b);transition:width .25s}
 
@@ -145,7 +145,7 @@ input.f::placeholder{color:rgba(255,255,255,.4)}
 
 #aimInfo{position:absolute;left:50%;top:50%;transform:translateX(-50%);margin-top:96px;
   background:rgba(12,18,13,.86);border:2px solid rgba(255,255,255,.24);border-radius:8px;
-  padding:7px 13px;font:700 13px/1.5 inherit;text-align:center;white-space:nowrap;
+  padding:7px 13px;font-weight:700;font-size:13px;line-height:1.5;text-align:center;white-space:nowrap;
   opacity:0;transition:opacity .12s;pointer-events:none}
 #aimInfo.on{opacity:1}
 #aimInfo .lv{padding:1px 6px;border-radius:5px;font-size:11px;font-weight:900;margin-left:3px}
@@ -174,9 +174,9 @@ body:not(.touch) #look{display:none}
   background:rgba(16,22,17,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:1px;cursor:pointer;position:relative;box-shadow:0 3px 0 rgba(0,0,0,.4)}
 .slot .ic{font-size:22px;line-height:1}
-.slot .nm{font:800 11px inherit;white-space:nowrap}
-.slot .ky{position:absolute;right:4px;bottom:2px;font:800 9px inherit;opacity:.5}
-.slot .cost{font:700 9.5px/1.25 inherit;opacity:.9;letter-spacing:-.4px;
+.slot .nm{font-weight:800;font-size:11px;white-space:nowrap}
+.slot .ky{position:absolute;right:4px;bottom:2px;font-weight:800;font-size:9px;opacity:.5}
+.slot .cost{font-weight:700;font-size:9.5px;line-height:1.25;opacity:.9;letter-spacing:-.4px;
   max-width:80px;text-align:center;word-spacing:2px}
 .slot.on{border-color:#fff;background:rgba(70,96,72,.95);box-shadow:0 0 0 2px rgba(255,255,255,.35),0 3px 0 rgba(0,0,0,.4)}
 .slot.no{opacity:.42}
@@ -202,7 +202,7 @@ body:not(.touch) #look{display:none}
   display:none;flex-direction:column;gap:9px;align-items:flex-end}
 
 .mb{width:74px;height:74px;border-radius:50%;border:2px solid rgba(255,255,255,.4);
-  background:rgba(20,28,21,.8);color:#fff;font:800 12px inherit;display:flex;align-items:center;
+  background:rgba(20,28,21,.8);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;
   justify-content:center;flex-direction:column;gap:1px;cursor:pointer}
 .mb .ic{font-size:22px}
 .mb:active{background:rgba(70,96,72,.95);transform:scale(.94)}
@@ -211,19 +211,44 @@ body:not(.touch) #look{display:none}
 body.touch #stick,body.touch #mbtns{display:flex}
 body.touch #hint{display:none}
 
-#hint{position:absolute;left:12px;bottom:12px;font:700 12px/1.75 inherit;opacity:.55;text-shadow:0 1px 2px #000}
+#hint{position:absolute;left:12px;bottom:12px;font-weight:700;font-size:12px;line-height:1.75;opacity:.55;text-shadow:0 1px 2px #000}
 
 /* 알림 */
 #toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin-top:70px;
-  font:900 20px inherit;text-shadow:0 3px 8px rgba(0,0,0,.85);pointer-events:none;opacity:0;text-align:center;
+  font-weight:900;font-size:20px;text-shadow:0 3px 8px rgba(0,0,0,.85);pointer-events:none;opacity:0;text-align:center;
   transition:opacity .25s;width:min(560px,86vw);word-break:keep-all}
 #toast.on{opacity:1}
-#feed{position:absolute;left:10px;top:136px;width:296px;font:700 12px/1.5 inherit;
+#feed{position:absolute;left:10px;top:136px;width:296px;font-weight:700;font-size:12px;line-height:1.5;
   text-shadow:0 1px 3px rgba(0,0,0,.9);pointer-events:none}
 #feed div{margin-bottom:3px;opacity:.92;animation:fin .3s}
 @keyframes fin{from{opacity:0;transform:translateX(-8px)}}
 #dmgFlash{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 100px rgba(255,0,0,.7);
   opacity:0;transition:opacity .35s}
+/* 잘했을 때의 초록 번쩍 — 빨간 번쩍(dmgFlash)과 짝이다.
+   ★ 18차e — 줄을 넘었는지 걸렸는지가 글자로만 떠서 몸으로 안 느껴졌다.
+     빨강/초록은 아이들이 0.1초 만에 읽는다. 글자보다 훨씬 빠르다. */
+#goodFlash{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 110px rgba(60,230,120,.75);
+  opacity:0;transition:opacity .30s}
+/* 한가운데 판정 — 정답/오답, 넘음/걸림을 크게 때려 준다 */
+#verdict{position:absolute;inset:0;pointer-events:none;z-index:30;display:none;
+  align-items:center;justify-content:center;flex-direction:column;gap:2px}
+#verdict.on{display:flex}
+#verdict .vWash{position:absolute;inset:0;animation:vWash .75s both}
+#verdict .vIco{font-size:clamp(84px,17vw,190px);line-height:1;
+  filter:drop-shadow(0 6px 0 rgba(0,0,0,.35));animation:vPop .55s cubic-bezier(.2,1.7,.4,1) both}
+#verdict .vTx{font-weight:900;font-size:clamp(24px,4.6vw,54px);line-height:1;color:#fff;
+  text-shadow:0 3px 0 rgba(0,0,0,.6),0 0 24px currentColor;animation:vUp .45s .06s both}
+#verdict.bad .vIco{animation:vShake .55s both}
+/* 줄넘기처럼 자주 뜨는 것은 작고 짧게 — 매번 화면을 가리면 판이 안 보인다 */
+#verdict.quick .vIco{font-size:clamp(52px,9vw,104px)}
+#verdict.quick .vTx{font-size:clamp(18px,3vw,34px)}
+@keyframes vWash{0%{opacity:.9}100%{opacity:0}}
+@keyframes vPop{0%{transform:scale(.2) rotate(-18deg);opacity:0}
+  60%{transform:scale(1.16) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes vUp{0%{transform:translateY(16px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes vShake{0%{transform:scale(.4);opacity:0}22%{transform:scale(1.22) rotate(-10deg);opacity:1}
+  42%{transform:scale(1.04) rotate(10deg)}62%{transform:rotate(-7deg)}82%{transform:rotate(5deg)}
+  100%{transform:none}}
 #danger{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .6s;
   box-shadow:inset 0 0 130px rgba(200,0,0,.75)}
 #danger.on{animation:pulseD 1.5s infinite}
@@ -236,17 +261,17 @@ body.touch #hint{display:none}
   padding:8px 14px;display:none;text-align:center}
 #bossWrap.on{display:block;animation:bossIn .45s}
 @keyframes bossIn{from{opacity:0;transform:translate(-50%,0) scale(.88)}}
-#bossName{font:900 15px inherit;margin-bottom:5px;color:#ffd0d0;text-shadow:0 2px 4px #000}
+#bossName{font-weight:900;font-size:15px;margin-bottom:5px;color:#ffd0d0;text-shadow:0 2px 4px #000}
 #bBar{height:16px;border-radius:8px;background:rgba(0,0,0,.6);overflow:hidden;
   border:2px solid rgba(255,120,120,.6)}
 #bFill{height:100%;width:100%;background:linear-gradient(90deg,#ff5252,#ff9d3b);transition:width .2s}
-#bAdds{font:800 11px inherit;opacity:.85;margin-top:3px}
+#bAdds{font-weight:800;font-size:11px;opacity:.85;margin-top:3px}
 
 #stageTitle{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);pointer-events:none;
   text-align:center;opacity:0;transition:opacity .5s}
 #stageTitle.on{opacity:1}
-#stageTitle .d{font:900 46px inherit;text-shadow:0 4px 0 rgba(0,0,0,.5),0 8px 22px rgba(0,0,0,.6);letter-spacing:-1px}
-#stageTitle .n{font:900 19px inherit;margin-top:2px;text-shadow:0 2px 6px rgba(0,0,0,.9)}
+#stageTitle .d{font-weight:900;font-size:46px;text-shadow:0 4px 0 rgba(0,0,0,.5),0 8px 22px rgba(0,0,0,.6);letter-spacing:-1px}
+#stageTitle .n{font-weight:900;font-size:19px;margin-top:2px;text-shadow:0 2px 6px rgba(0,0,0,.9)}
 
 /* 아래 버튼 묶음 */
 #topRight2{position:absolute;right:10px;top:218px;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
@@ -260,22 +285,22 @@ body.touch #hint{display:none}
   border:2px solid var(--line2);border-radius:14px;padding:18px}
 .popC h2{margin:0 0 12px;font-size:20px;font-weight:900}
 .popC h3{margin:16px 0 8px;font-size:14px;font-weight:900;opacity:.85}
-.sl{display:flex;align-items:center;gap:10px;margin:9px 0;font:800 13px inherit}
+.sl{display:flex;align-items:center;gap:10px;margin:9px 0;font-weight:800;font-size:13px}
 .sl input[type=range]{flex:1;accent-color:#7ede82}
 .sl b{min-width:56px;text-align:right;font-variant-numeric:tabular-nums}
-.gline{display:flex;align-items:center;gap:8px;margin:6px 0;font:800 13px inherit}
+.gline{display:flex;align-items:center;gap:8px;margin:6px 0;font-weight:800;font-size:13px}
 .gline .dot{width:14px;height:14px;border-radius:4px}
 .gline .v{margin-left:auto;font-variant-numeric:tabular-nums;opacity:.9}
 .gv{display:flex;gap:8px;font-variant-numeric:tabular-nums}
 .gv span{min-width:52px}
-table.rank{width:100%;border-collapse:collapse;font:700 13px inherit}
+table.rank{width:100%;border-collapse:collapse;font-weight:700;font-size:13px}
 table.rank th,table.rank td{padding:6px 4px;text-align:left;border-bottom:1px solid rgba(255,255,255,.12)}
 table.rank th{opacity:.6;font-size:11px}
 table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
 
 #giveWrap{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
 #giveWrap button{padding:9px 0;border-radius:8px;border:2px solid rgba(255,255,255,.25);
-  background:rgba(255,255,255,.08);color:#fff;font:800 13px inherit;cursor:pointer}
+  background:rgba(255,255,255,.08);color:#fff;font-weight:800;font-size:13px;cursor:pointer}
 
 #resultC{text-align:center}
 #resultC .big{font-size:44px;font-weight:900;margin:6px 0 2px;text-shadow:0 4px 0 rgba(0,0,0,.4)}
@@ -302,7 +327,7 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
   .slot{height:62px}
 }
 #load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;
-  gap:12px;background:#79c0ea;z-index:70;font:800 15px inherit;color:#12331a}
+  gap:12px;background:#79c0ea;z-index:70;font-weight:800;font-size:15px;color:#12331a}
 #load .bar{width:190px;height:10px;border-radius:5px;background:rgba(0,0,0,.2);overflow:hidden}
 #load .bar i{display:block;height:100%;width:0;background:#2f7a37;transition:width .3s}
 
@@ -323,7 +348,7 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
 
 /* ── 자원 ── */
 #resBox{padding:10px 12px 11px;min-width:206px}
-#grpName{display:inline-block;font:900 12px inherit;letter-spacing:.4px;
+#grpName{display:inline-block;font-weight:900;font-size:12px;letter-spacing:.4px;
   padding:3px 11px;border-radius:999px;color:#141f10;margin-bottom:9px;
   box-shadow:0 2px 0 rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.5)}
 .resline{gap:6px}
@@ -336,6 +361,12 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
 .res.w{background:rgba(150,108,68,.30);border-color:rgba(200,152,98,.42)}
 .res.s{background:rgba(142,146,152,.28);border-color:rgba(192,198,206,.38)}
 .res.g{background:rgba(246,200,72,.22);border-color:rgba(255,216,110,.44)}
+/* ── 농장 산물 세 가지 — 달걀은 크림색, 우유는 하늘색, 고기는 분홍 ── */
+.res.eg{background:rgba(248,236,206,.24);border-color:rgba(255,244,214,.46)}
+.res.mk{background:rgba(186,222,255,.24);border-color:rgba(206,236,255,.48)}
+.res.pk{background:rgba(255,166,176,.24);border-color:rgba(255,190,198,.48)}
+.farmres{margin-top:6px;display:none}
+.farmres.on{display:flex}
 
 /* ── 내 체력 ── */
 #hpRow{display:flex;align-items:center;gap:7px;margin-top:9px;padding-top:9px;
@@ -345,13 +376,13 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
   border:1px solid rgba(255,255,255,.14);overflow:hidden}
 #hpFill{display:block;height:100%;width:100%;border-radius:4px;
   background:linear-gradient(90deg,#8dff8d,#3ddb6a)}
-#hpNum{font:900 12px inherit;min-width:30px;text-align:right;opacity:.95}
+#hpNum{font-weight:900;font-size:12px;min-width:30px;text-align:right;opacity:.95}
 #hpRow.down{animation:hpblink 1.1s infinite}
 #hpRow.down #hpNum{color:#ff9b9b}
 @keyframes hpblink{0%,100%{opacity:1}50%{opacity:.5}}
 
 /* ── 일차 / 시간 ── */
-#dayBox{padding:8px 13px;gap:10px;font:800 12.5px inherit}
+#dayBox{padding:8px 13px;gap:10px;font-weight:800;font-size:12.5px}
 #dayNum{font-size:15px;font-weight:900;letter-spacing:-.2px}
 #dayPhase{font-size:12.5px;opacity:.88}
 #timeBar{width:84px;height:8px;border-radius:4px}
@@ -359,21 +390,21 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
 
 /* ── 수정 체력 바 ── */
 #crystalWrap{padding:7px 14px 9px;min-width:248px}
-#crystalWrap .lb{font:800 11px inherit;letter-spacing:.4px;opacity:.78;margin-bottom:6px}
+#crystalWrap .lb{font-weight:800;font-size:11px;letter-spacing:.4px;opacity:.78;margin-bottom:6px}
 #cBar{height:19px;border-radius:10px;position:relative;border-width:1.5px}
 #cNum{position:absolute;inset:0;left:0;top:0;transform:none;
   display:flex;align-items:center;justify-content:center;
-  font:900 11.5px/1 inherit;text-shadow:0 1px 2px rgba(0,0,0,.92),0 0 3px rgba(0,0,0,.6);
+  font-weight:900;font-size:11.5px;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.92),0 0 3px rgba(0,0,0,.6);
   letter-spacing:.02em}
 #crystalWrap.hurt{animation:shake .4s}
 
 /* ── 보스 바 ── */
 #bossWrap{padding:8px 16px 10px;min-width:320px;border-color:rgba(255,150,150,.55)}
-#bossWrap .lb{font:900 13.5px inherit;margin-bottom:6px;letter-spacing:.2px}
+#bossWrap .lb{font-weight:900;font-size:13.5px;margin-bottom:6px;letter-spacing:.2px}
 #bBar{height:17px;border-radius:9px;position:relative;background:rgba(0,0,0,.62);
   overflow:hidden;border:1.5px solid rgba(255,150,150,.5)}
 #bNum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font:900 11px/1 inherit;text-shadow:0 1px 2px rgba(0,0,0,.92)}
+  font-weight:900;font-size:11px;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.92)}
 
 /* ── 핫바 ── */
 #tools{gap:8px}
@@ -385,14 +416,14 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
   transition:transform .13s ease, box-shadow .13s ease}
 .slot .ic{font-size:26px;line-height:1.05;margin-top:1px;
   filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}
-.slot .nm{font:900 11.5px/1.2 inherit;letter-spacing:-.2px;opacity:.97}
+.slot .nm{font-weight:900;font-size:11.5px;line-height:1.2;letter-spacing:-.2px;opacity:.97}
 .slot .cost{margin-top:auto;width:100%;padding-top:4px;
-  font:800 9.5px/1.3 inherit;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:9.5px;line-height:1.3;display:flex;align-items:center;justify-content:center;
   flex-wrap:wrap;gap:3px; min-height:26px;
   border-top:1px solid rgba(255,255,255,.12);opacity:.95;letter-spacing:-.2px;max-width:none}
 .slot .cost span{padding:1.5px 6px;border-radius:999px;background:rgba(0,0,0,.38);
   border:1px solid rgba(255,255,255,.09)}
-.slot .ky{position:absolute;right:7px;top:6px;bottom:auto;font:800 9px inherit;
+.slot .ky{position:absolute;right:7px;top:6px;bottom:auto;font-weight:800;font-size:9px;
   opacity:.34;padding:1px 5px;border-radius:6px;background:rgba(255,255,255,.10)}
 .slot.on{border-color:rgba(255,255,255,.92); transform:translateY(-6px);
   background:linear-gradient(180deg,rgba(122,170,126,.96),rgba(52,84,56,.96));
@@ -407,7 +438,7 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
 .slot.tool .ky{top:5px;right:6px}
 
 /* ── 조준 정보 ── */
-#aimInfo{padding:6px 13px;border-radius:9px;font:700 12px/1.45 inherit;border-width:1.5px;
+#aimInfo{padding:6px 13px;border-radius:9px;font-weight:700;font-size:12px;line-height:1.45;border-width:1.5px;
   margin-top:96px;
   background:linear-gradient(180deg,rgba(20,27,21,.92),rgba(10,15,11,.94))}
 #aimInfo .lv{font-size:10.5px;padding:2px 7px;border-radius:6px}
@@ -426,9 +457,9 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
   background:linear-gradient(180deg,rgba(40,52,42,.92),rgba(22,30,23,.94))}
 
 /* ── 알림 ── */
-#feed{font:700 12px/1.6 inherit;text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 8px rgba(0,0,0,.7)}
-#toast{font:900 21px inherit;letter-spacing:-.3px}
-#hint{font:700 11.5px/1.7 inherit;opacity:.42}
+#feed{font-weight:700;font-size:12px;line-height:1.6;text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 8px rgba(0,0,0,.7)}
+#toast{font-weight:900;font-size:21px;letter-spacing:-.3px}
+#hint{font-weight:700;font-size:11.5px;line-height:1.7;opacity:.42}
 
 /* ── 팝업 ── */
 .popC{border-radius:16px;border-width:1.5px;padding:20px 22px}
@@ -438,9 +469,9 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
 table.rank th{font-size:10.5px;letter-spacing:.4px;opacity:.55;padding-bottom:8px}
 table.rank td{padding:7px 4px;font-size:12.5px}
 table.rank td.n{font-weight:800}
-.sl{font:800 12.5px inherit;margin:11px 0}
+.sl{font-weight:800;font-size:12.5px;margin:11px 0}
 .sl b{font-size:12.5px;min-width:60px}
-.gline{font:800 12.5px inherit;margin:7px 0}
+.gline{font-weight:800;font-size:12.5px;margin:7px 0}
 .gline .gv span{font-size:12px;min-width:56px;text-align:right}
 
 /* ── 시작 화면 ── */
@@ -547,7 +578,7 @@ body{color:var(--cream)}
   padding:5px 14px;border-radius:999px;
   background:linear-gradient(180deg,rgba(92,26,26,.88),rgba(46,12,12,.92));
   border:1px solid rgba(255,140,140,.5);color:#ffdcdc;
-  font:900 13px/1 inherit;letter-spacing:.3px;
+  font-weight:900;font-size:13px;line-height:1;letter-spacing:.3px;
   text-shadow:0 1px 0 rgba(0,0,0,.7)}
 #aimBadge.on{display:block;animation:pvIn .2s}
 body.aiming #hint{opacity:.28}
@@ -555,7 +586,7 @@ body.aiming #hint{opacity:.28}
 
 /* ── 자원 패널 ── */
 #resBox{padding:11px 13px 12px;min-width:216px;left:12px;top:12px}
-#grpName{font:900 12.5px inherit;letter-spacing:.6px;padding:4px 13px;margin-bottom:10px;
+#grpName{font-weight:900;font-size:12.5px;letter-spacing:.6px;padding:4px 13px;margin-bottom:10px;
   box-shadow:0 2px 0 rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.55)}
 .resline{gap:7px}
 .res{padding:5px 11px 5px 6px;border-radius:999px;border-width:1.5px}
@@ -576,7 +607,7 @@ body.aiming #hint{opacity:.28}
 #hpNum{font-size:12.5px}
 
 /* ── 일차 / 시간 ── */
-#dayBox{right:12px;top:12px;padding:9px 14px;gap:11px;font:800 13px inherit}
+#dayBox{right:12px;top:12px;padding:9px 14px;gap:11px;font-weight:800;font-size:13px}
 #dayNum{font-size:15.5px}
 #dayPhase{font-size:13px;opacity:.92}
 #timeBar{width:88px;height:9px;border-radius:5px;border-color:rgba(255,246,228,.22)}
@@ -597,16 +628,16 @@ body.aiming #hint{opacity:.28}
 
 /* ── 수정 체력 바 — 가장 중요한 정보라 크게 ── */
 #crystalWrap{padding:8px 16px 10px;min-width:262px;border-radius:18px}
-#crystalWrap .lb{font:900 11.5px inherit;letter-spacing:.6px;opacity:.85;margin-bottom:7px}
+#crystalWrap .lb{font-weight:900;font-size:11.5px;letter-spacing:.6px;opacity:.85;margin-bottom:7px}
 #cBar{height:21px;border-radius:11px;border:1.5px solid rgba(255,246,228,.30);
   background:rgba(0,0,0,.55);box-shadow:inset 0 2px 5px rgba(0,0,0,.55)}
 #cFill{border-radius:10px;box-shadow:0 0 12px rgba(102,224,255,.45)}
-#cNum{font:900 12px/1 inherit}
+#cNum{font-weight:900;font-size:12px;line-height:1}
 
 /* ── 보스 바 — 수정 바 바로 밑에. top:64 였을 때 수정 바를 덮고 있었다 ── */
 #bossWrap{border-radius:18px;padding:9px 18px 11px;width:min(430px,46vw);min-width:0;
   border-color:rgba(255,150,150,.55)}
-#bAdds{font:800 11px inherit;opacity:.85;margin-top:5px;color:#ffd0d0}
+#bAdds{font-weight:800;font-size:11px;opacity:.85;margin-top:5px;color:#ffd0d0}
 #bossWrap .lb{color:#ffd0d0}
 #bFill{box-shadow:0 0 12px rgba(255,90,90,.45)}
 
@@ -633,7 +664,7 @@ body.aiming #hint{opacity:.28}
   transition:transform .13s ease, box-shadow .13s ease, background .13s ease}
 .slot:hover{background:linear-gradient(180deg,rgba(80,64,124,.95),rgba(36,28,64,.96))}
 .slot .ic{font-size:27px;margin-top:2px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
-.slot .nm{font:900 12px/1.2 inherit;letter-spacing:-.2px;opacity:.98}
+.slot .nm{font-weight:900;font-size:12px;line-height:1.2;letter-spacing:-.2px;opacity:.98}
 /* ★ 값 표시는 알약을 벗겼다. 알약 테두리 때문에 값 세 개(🪵14 🪨11 ✨4)가
    88px 칸에 안 들어가 ✨ 가 잘려 나갔다. 벗기니 여유 있게 들어가고 더 깔끔하다. */
 /* ★ 값 세 개(🪵14 🪨11 ✨4)는 한 줄에 안 들어간다 — 그림문자가 넓어서 어느 글자
@@ -671,7 +702,7 @@ body.aiming #hint{opacity:.28}
 #hint{left:50%;right:auto;bottom:150px;transform:translateX(-50%);z-index:13;
 
   text-align:center;max-width:min(660px, 84vw);
-  font:800 12.5px/1.45 inherit;opacity:.92;
+  font-weight:800;font-size:12.5px;line-height:1.45;opacity:.92;
   padding:6px 16px;border-radius:999px;background:rgba(17,13,32,.66);
 
   border:1px solid rgba(255,214,120,.22);
@@ -685,7 +716,7 @@ body.touch #hint{display:block;font-size:12px}
 
 
 /* ── 알림 줄 — 하늘 위에서도 읽히게 알약으로 ── */
-#feed{left:12px;top:150px;width:268px;font:800 11.5px/1.45 inherit;text-shadow:none}
+#feed{left:12px;top:150px;width:268px;font-weight:800;font-size:11.5px;line-height:1.45;text-shadow:none}
 #feed div{margin-bottom:4px;opacity:1;padding:5px 10px;border-radius:11px;
   background:rgba(17,13,32,.72);border:1px solid rgba(255,246,228,.10);
   box-shadow:0 2px 6px -2px rgba(0,0,0,.6);
@@ -693,7 +724,7 @@ body.touch #hint{display:block;font-size:12px}
   animation:fin .32s; word-break:keep-all}
 @keyframes fin{from{opacity:0;transform:translateX(-10px)}}
 
-#toast{font:900 22px inherit;letter-spacing:-.3px;
+#toast{font-weight:900;font-size:22px;letter-spacing:-.3px;
   text-shadow:0 2px 0 rgba(24,14,44,.9), 0 4px 14px rgba(0,0,0,.8)}
 #stageTitle .d{font-size:48px;text-shadow:0 4px 0 rgba(24,14,44,.65),0 10px 26px rgba(0,0,0,.6)}
 
@@ -705,7 +736,7 @@ body.touch #hint{display:block;font-size:12px}
 #aimInfo .prog i{background:var(--honey)}
 
 /* ── 모바일 버튼 — 색으로 구분해서 헷갈리지 않게 ── */
-.mb{border-radius:22px;border-width:2px;font:800 11.5px inherit;
+.mb{border-radius:22px;border-width:2px;font-weight:800;font-size:11.5px;
   background:linear-gradient(180deg,rgba(58,46,92,.88),rgba(26,20,48,.92));
   border-color:rgba(255,246,228,.30);box-shadow:0 3px 0 rgba(0,0,0,.38)}
 .mb.big{border-radius:50%}
@@ -796,7 +827,7 @@ input.f:focus,select.f:focus{outline:none;border-color:var(--honey);
   background:radial-gradient(120% 90% at 50% 18%, rgba(126,198,255,.30), rgba(0,0,0,.30));
   border:1px solid rgba(255,246,228,.20);text-align:center}
 #pvw{display:block;width:140px;height:164px;margin:0 auto}
-#pvwCap{font:800 11.5px inherit;color:var(--honey);opacity:.85;letter-spacing:.3px;
+#pvwCap{font-weight:800;font-size:11.5px;color:var(--honey);opacity:.85;letter-spacing:.3px;
   margin-top:2px}
 #dressPick{flex:1 1 auto;min-width:0}
 #dressPick label.f{margin:9px 0 5px;display:flex;gap:6px;align-items:baseline}
@@ -848,31 +879,31 @@ body.touch .slot.on{transform:translateY(-4px)}
 #endCard{margin:4px 0 6px;padding:14px 15px 15px;border-radius:16px;text-align:left;
   background:linear-gradient(180deg,rgba(255,246,228,.09),rgba(255,246,228,.04));
   border:1px solid rgba(255,246,228,.14)}
-.ec-t{font:900 14px inherit;color:var(--honey);letter-spacing:.3px;margin-bottom:11px}
-.ec-t2{font:900 11.5px inherit;opacity:.62;letter-spacing:.4px;margin:14px 0 8px}
+.ec-t{font-weight:900;font-size:14px;color:var(--honey);letter-spacing:.3px;margin-bottom:11px}
+.ec-t2{font-weight:900;font-size:11.5px;opacity:.62;letter-spacing:.4px;margin:14px 0 8px}
 .ec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
 .ec-i{padding:9px 8px 8px;border-radius:12px;text-align:center;
   background:rgba(0,0,0,.26);border:1px solid rgba(255,246,228,.09)}
 .ec-i b{display:block;font:900 21px/1.15 var(--num);letter-spacing:-.5px}
-.ec-i span{display:block;font:800 10.5px inherit;opacity:.72;margin-top:3px}
+.ec-i span{display:block;font-weight:800;font-size:10.5px;opacity:.72;margin-top:3px}
 .ec-bars{display:flex;flex-direction:column;gap:6px}
-.ec-b{display:flex;align-items:center;gap:8px;font:800 11.5px inherit}
+.ec-b{display:flex;align-items:center;gap:8px;font-weight:800;font-size:11.5px}
 .ec-b i{font-style:normal;width:44px;flex:0 0 44px}
 .ec-b .tr{flex:1;height:11px;border-radius:6px;background:rgba(0,0,0,.4);overflow:hidden}
 .ec-b .tr u{display:block;height:100%;border-radius:6px;text-decoration:none}
 .ec-b em{font-style:normal;font:800 11px var(--num);opacity:.8;min-width:36px;text-align:right}
-.ec-note{margin-top:12px;font:800 12px/1.65 inherit;opacity:.9}
+.ec-note{margin-top:12px;font-weight:800;font-size:12px;line-height:1.65;opacity:.9}
 .ec-note b{color:var(--honey)}
 
 /* ── 일시정지 ── */
 #pauseVeil{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
   background:rgba(10,7,24,.66);z-index:30;pointer-events:none;text-align:center;
-  font:900 38px/1.4 inherit;letter-spacing:-.8px;
+  font-weight:900;font-size:38px;line-height:1.4;letter-spacing:-.8px;
   text-shadow:0 3px 0 rgba(14,8,30,.85), 0 8px 26px rgba(0,0,0,.7)}
 #pauseVeil.on{display:flex;animation:pvIn .22s}
 @keyframes pvIn{from{opacity:0}}
 #pauseVeil .pIc{font-size:52px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))}
-#pauseVeil small{font:800 16px inherit;opacity:.85}
+#pauseVeil small{font-weight:800;font-size:16px;opacity:.85}
 
 /* ══ 왼쪽 위 세로줄 — 자원 패널 · 알림 글 ══
    ★ 위 가운데(#topMid)와 같은 이유다. 둘이 각자 top 을 들고 있어서,
@@ -1010,7 +1041,7 @@ body.touch #topRight2 .kk{display:none}
 .sItem .sc{margin-top:5px;font:800 12px/1 var(--num);color:var(--honey)}
 .sItem button{margin-top:6px;width:100%;padding:7px 0;border-radius:9px;
   border:1px solid rgba(255,246,228,.3);background:rgba(255,255,255,.1);
-  color:#fff;font:800 12.5px inherit;cursor:pointer}
+  color:#fff;font-weight:800;font-size:12.5px;cursor:pointer}
 .sItem button:disabled{opacity:.5;cursor:default}
 .sItem button.buy{background:linear-gradient(180deg,#57a45b,#357a3c);border-color:#a8e8ac}
 
@@ -1066,16 +1097,16 @@ body.touch #topRight2 .kk{display:none}
   filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
 .stIt .sb{flex:1 1 auto;min-width:0}
 .stIt .sn{font-weight:900;font-size:13.5px}
-.stIt .sd{font:700 11.5px/1.35 inherit;opacity:.78;margin-top:2px}
+.stIt .sd{font-weight:700;font-size:11.5px;line-height:1.35;opacity:.78;margin-top:2px}
 .stPips{display:flex;gap:3px;margin-top:5px}
 .stPips i{width:13px;height:7px;border-radius:3px;background:rgba(255,255,255,.16)}
 .stPips i.on{background:linear-gradient(90deg,#ffe27a,#ffa726)}
 .stIt button{flex:0 0 auto;padding:8px 13px;border-radius:11px;cursor:pointer;
-  border:1px solid rgba(255,214,120,.6);color:#0e2a14;font:900 15px/1 inherit;
+  border:1px solid rgba(255,214,120,.6);color:#0e2a14;font-weight:900;font-size:15px;line-height:1;
   background:linear-gradient(180deg,#ffe27a,#f4b53c)}
 .stIt button:disabled{background:rgba(255,255,255,.09);color:#fff;opacity:.4;
   border-color:rgba(255,246,228,.2);cursor:default}
-#stPts{font:900 14px inherit;color:#ffe08a}
+#stPts{font-weight:900;font-size:14px;color:#ffe08a}
 #stPts b{font-size:18px}
 
 #statRow{display:flex;gap:8px;align-items:center;margin-top:5px;
@@ -1086,14 +1117,14 @@ body.touch #topRight2 .kk{display:none}
 #statRow span.buffed{box-shadow:0 0 0 2px rgba(255,201,74,.55)}
 #potRow{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
 #potRow button{padding:4px 8px;border-radius:9px;border:1px solid rgba(255,246,228,.26);
-  background:rgba(255,255,255,.09);color:#fff;font:800 12px/1 inherit;cursor:pointer;
+  background:rgba(255,255,255,.09);color:#fff;font-weight:800;font-size:12px;line-height:1;cursor:pointer;
   display:flex;gap:4px;align-items:center}
 #potRow button:disabled{display:none}
 #potRow button i{font-style:normal;font-size:14px}
 #potRow button b{font:800 10.5px var(--num);opacity:.75}
 /* ── 오늘의 임무 ── */
 #misWrap{display:none;align-items:center;gap:7px;padding:5px 11px;pointer-events:none;
-  font:800 11.5px/1 inherit;white-space:nowrap}
+  font-weight:800;font-size:11.5px;line-height:1;white-space:nowrap}
 #misWrap.on{display:flex}
 #misIc{font-size:14px}
 #misName{opacity:.86}
@@ -1130,7 +1161,7 @@ body.touch #topRight2 .kk{display:none}
   padding:9px 18px;border-radius:14px;display:none;z-index:15;pointer-events:none;
   background:linear-gradient(180deg,rgba(60,44,14,.9),rgba(30,22,8,.92));
   border:1px solid rgba(255,214,120,.5);color:#ffe9a0;
-  font:900 17px/1.3 inherit;text-shadow:0 2px 0 rgba(0,0,0,.7)}
+  font-weight:900;font-size:17px;line-height:1.3;text-shadow:0 2px 0 rgba(0,0,0,.7)}
 #shopTip.on{display:block}
 body.touch #shopTip{pointer-events:auto;cursor:pointer}
 #shopTip .tp{display:none}
@@ -1165,12 +1196,60 @@ body.touch #farmTip .tp{display:inline}
 /* 미니게임 동안은 모둠 현황·오늘의 임무를 숨긴다 — 그 자리에 문제가 앉는다.
    (짓기·캐기가 없는 판이라 그 둘은 볼 일이 없다) */
 body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, body.mini #forgeTip{display:none!important}
+/* ═══ OX 문제 현수막 (18차h) ═══
+   ★ 문제를 미니게임 판(miniBar) 안의 작은 글상자에 넣었더니 "글자도 작고 밋밋" 했다.
+     퀴즈는 그 순간 화면에서 제일 중요한 것이다 — 운동회 현수막처럼 위에서 툭 내려와
+     화면 폭을 다 쓰고, 글자도 그만큼 커야 한다. */
+/* ★ 가운데 맞추기(translateX(-50%))를 요소 자체에 걸어 두면 내려오는 연출이
+   그 transform 을 덮어써서 현수막이 오른쪽으로 밀려난다 — 화면을 찍어 보고 알았다.
+   바깥은 flex 로 가운데를 잡고, 연출은 안쪽 상자에만 건다. */
+#quizBanner{position:absolute;left:0;right:0;top:8px;z-index:16;pointer-events:none;
+  display:none;justify-content:center}
+#quizBanner.on{display:flex}
+#quizBanner .qbWrap{position:relative;width:min(95vw,980px);
+  animation:qbDrop .55s cubic-bezier(.18,1.5,.42,1) both}
+@keyframes qbDrop{0%{transform:translateY(-130%) rotate(-2.5deg);opacity:0}
+  62%{transform:translateY(6%) rotate(1.2deg);opacity:1}
+  82%{transform:translateY(-2%) rotate(-.6deg)}100%{transform:none;opacity:1}}
+/* 매다는 줄과 삼각 깃발 — 이게 있어야 '걸어 놓은 현수막' 이 된다 */
+#quizBanner .qbFlags{display:flex;justify-content:center;gap:4px;height:19px;margin-bottom:-3px}
+#quizBanner .qbFlags i{width:0;height:0;border-left:9px solid transparent;
+  border-right:9px solid transparent;border-top:19px solid currentColor;
+  filter:drop-shadow(0 2px 0 rgba(0,0,0,.28))}
+#quizBanner .qbRope{position:absolute;left:0;right:0;top:9px;height:3px;border-radius:2px;
+  background:linear-gradient(90deg,rgba(120,74,36,0),#8a5a2c 12%,#8a5a2c 88%,rgba(120,74,36,0))}
+/* 천 — 크림빛 종이에 굵은 갈색 테. 아래는 리본처럼 살짝 파였다 */
+#quizBanner .qbCloth{position:relative;padding:14px 26px 22px;
+  background:linear-gradient(180deg,#fff8e6 0%,#ffeecb 58%,#ffe3ae 100%);
+  border:4px solid #c9762f;border-radius:16px;
+  box-shadow:0 9px 0 rgba(90,44,12,.30), 0 14px 26px rgba(0,0,0,.35),
+             inset 0 3px 0 rgba(255,255,255,.75);
+  display:flex;align-items:center;gap:16px;
+  animation:qbSway 3.4s ease-in-out infinite}
+@keyframes qbSway{0%,100%{transform:rotate(-.5deg)}50%{transform:rotate(.5deg)}}
+/* 문제 번호 딱지 */
+#quizBanner .qbNo{flex:0 0 auto;min-width:58px;padding:6px 12px;border-radius:999px;
+  background:linear-gradient(180deg,#ffd257,#f0a51e);border:3px solid #b26a10;
+  font-weight:900;font-size:clamp(14px,1.7vw,19px);line-height:1.15;color:#4a2a06;text-align:center;
+  box-shadow:0 3px 0 rgba(90,44,12,.35), inset 0 2px 0 rgba(255,255,255,.6)}
+#quizBanner .qbQ{flex:1;font-weight:900;font-size:clamp(23px,4.2vw,54px);line-height:1.22;color:#4a2a06;
+  text-align:center;word-break:keep-all;text-shadow:0 2px 0 rgba(255,255,255,.65)}
+/* 정답이 공개되면 천 색이 바뀐다 */
+#quizBanner.ans .qbCloth{background:linear-gradient(180deg,#e6ffe2 0%,#c8f4c0 60%,#aeeaa4 100%);
+  border-color:#3f9a44}
+#quizBanner.ans .qbQ{color:#1d5220}
 #miniBar{position:absolute;left:50%;top:86px;transform:translateX(-50%);display:none;
   z-index:14;pointer-events:none;text-align:center;max-width:min(92vw,760px)}
 #miniBar.on{display:block}
-#miniBar .mn{display:inline-block;padding:5px 16px;border-radius:999px;font:900 15px inherit;
+/* 현수막이 떠 있으면 미니게임 판을 그 아래로 내린다 — 겹치면 둘 다 못 읽는다.
+   수정 막대는 잠깐 감춘다 — 하늘 섬에서는 수정이 깎일 일이 없고, 자리가 정확히 겹친다. */
+body.qbOn #miniBar{top:min(30vh,222px)}
+/* 퀴즈가 뜬 18초 동안은 위쪽 판들을 잠깐 비운다 — 하늘 섬에서는 캘 수도, 지을 수도,
+   지도를 볼 일도 없다. 현수막이 무대를 다 쓰게 해 준다(끝나면 바로 돌아온다). */
+body.qbOn #crystalWrap, body.qbOn #resBox, body.qbOn #topRight{display:none}
+#miniBar .mn{display:inline-block;padding:5px 16px;border-radius:999px;font-weight:900;font-size:15px;
   color:#ffe9a0;background:rgba(40,28,10,.85);border:1.5px solid rgba(255,214,120,.55)}
-#miniBar .mq{margin-top:8px;padding:12px 22px;border-radius:16px;font:900 clamp(20px,3.2vw,34px)/1.3 inherit;
+#miniBar .mq{margin-top:8px;padding:12px 22px;border-radius:16px;font-weight:900;font-size:clamp(20px,3.2vw,34px);line-height:1.3;
   color:#fff;background:rgba(14,18,30,.86);border:2px solid rgba(255,255,255,.25);
   text-shadow:0 2px 0 rgba(0,0,0,.6);white-space:pre-wrap;word-break:keep-all}
 #miniBar .mq:empty{display:none}
@@ -1178,13 +1257,13 @@ body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, b
   text-shadow:0 2px 0 rgba(0,0,0,.7)}
 #miniBar .mt:empty{display:none}
 #miniBar .ms{margin-top:6px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
-#miniBar .ms span{padding:4px 10px;border-radius:999px;font:900 13px inherit;color:#fff;
+#miniBar .ms span{padding:4px 10px;border-radius:999px;font-weight:900;font-size:13px;color:#fff;
   background:rgba(0,0,0,.55);border:1.5px solid currentColor}
-#miniBar .mh{margin-top:6px;font:900 22px/1 inherit;letter-spacing:3px;text-shadow:0 2px 0 rgba(0,0,0,.7)}
+#miniBar .mh{margin-top:6px;font-weight:900;font-size:22px;line-height:1;letter-spacing:3px;text-shadow:0 2px 0 rgba(0,0,0,.7)}
 #miniBar .mh:empty{display:none}
 /* 선생님 패널의 문제 입력 */
 #tQ{width:100%;box-sizing:border-box;padding:9px 11px;border-radius:10px;border:1.5px solid rgba(255,255,255,.3);
-  background:rgba(0,0,0,.35);color:#fff;font:800 15px inherit;margin:6px 0}
+  background:rgba(0,0,0,.35);color:#fff;font-weight:800;font-size:15px;margin:6px 0}
 #tQ:focus{outline:none;border-color:#ffd257}
 /* 강화 목록 — 상점 칸과 같은 모양을 쓰되 확률 막대를 하나 얹는다 */
 .enhOdds{margin-top:5px;height:7px;border-radius:4px;background:rgba(0,0,0,.45);overflow:hidden}
@@ -1219,11 +1298,11 @@ body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, b
   padding:12px 26px;border-radius:16px;
   background:linear-gradient(180deg,rgba(60,14,20,.86),rgba(28,8,14,.9));
   border:1px solid rgba(255,150,150,.4);
-  font:900 26px/1.32 inherit;color:#ffd9d9;
+  font-weight:900;font-size:26px;line-height:1.32;color:#ffd9d9;
   text-shadow:0 2px 0 rgba(24,4,8,.9), 0 6px 20px rgba(0,0,0,.6)}
 #downVeil.on{display:block;animation:pvIn .25s}
 #downVeil .dIc{font-size:34px}
-#downVeil small{display:block;margin-top:4px;font:800 14px inherit;color:#ffb9b9;opacity:.92}
+#downVeil small{display:block;margin-top:4px;font-weight:800;font-size:14px;color:#ffb9b9;opacity:.92}
 
 
 /* ══ 위 가운데 세로줄 — 수정 바 · 모둠 띠 · 보스 바 ══
@@ -1268,14 +1347,14 @@ body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, b
   animation:gpulse 1.1s infinite}
 @keyframes gpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,90,100,.55)}
   50%{box-shadow:0 0 0 5px rgba(255,90,100,0)}}
-#grpBar .hint2{align-self:center;font:800 10px inherit;opacity:.6;padding:0 4px;
+#grpBar .hint2{align-self:center;font-weight:800;font-size:10px;opacity:.6;padding:0 4px;
   max-width:74px;line-height:1.3}
 
 /* ── 도움말 — 글 벽이던 걸 아이콘 붙은 줄로 쪼갰다. 3학년이 훑어볼 수 있게 ── */
 .hgrid{display:flex;flex-direction:column;gap:2px;margin:2px 0 4px}
 .hrow{display:flex;gap:11px;align-items:flex-start;padding:9px 11px;border-radius:12px;
   background:rgba(255,246,228,.05);border:1px solid rgba(255,246,228,.08);
-  font:700 12.5px/1.65 inherit}
+  font-weight:700;font-size:12.5px;line-height:1.65}
 .hrow i{font-style:normal;font-size:19px;line-height:1.25;flex:0 0 24px;text-align:center;
   filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
 .hrow b{color:var(--honey)}
@@ -1464,6 +1543,13 @@ body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, b
       <div class="res s" id="rS"><i>🪨</i><b>0</b></div>
       <div class="res g" id="rG"><i>✨</i><b>0</b></div>
     </div>
+    <!-- 농장 산물 — 우리에 동물이 있거나 주운 게 있을 때만 뜬다.
+         처음부터 0 세 개가 떠 있으면 자원 창이 복잡하기만 하다. -->
+    <div class="resline farmres" id="resFarm">
+      <div class="res eg" id="rE"><i>🥚</i><b>0</b></div>
+      <div class="res mk" id="rM"><i>🥛</i><b>0</b></div>
+      <div class="res pk" id="rP"><i>🍖</i><b>0</b></div>
+    </div>
     <div id="hpRow"><span class="hpIc">🐑</span>
       <div id="hpBar"><i id="hpFill"></i></div><span id="hpNum">100</span></div>
     <!-- 내 공격력·방어력·총알 — 무기를 사면 여기서 바로 오른다 -->
@@ -1549,10 +1635,17 @@ body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, b
   <div id="stageTitle"><div class="d"></div><div class="n"></div></div>
   <div id="toast"></div>
   <div id="dmgFlash"></div>
+  <div id="goodFlash"></div>
+  <div id="verdict"></div>
   <div id="dmgLayer"></div>
   <div id="shopTip">🛒 <span class="kb"><b>B</b> 를 눌러 </span><span class="tp">여기를 눌러 </span>상인과 거래하기</div>
   <div id="forgeTip">🔨 <span class="kb"><b>G</b> 를 눌러 </span><span class="tp">여기를 눌러 </span>무기 강화하기</div>
   <div id="farmTip">🐔 <span class="kb"><b>H</b> 를 눌러 </span><span class="tp">여기를 눌러 </span>우리 모둠 농장 열기</div>
+  <div id="quizBanner"><div class="qbWrap" id="qbWrap">
+    <div class="qbRope"></div>
+    <div class="qbFlags" id="qbFlags"></div>
+    <div class="qbCloth"><div class="qbNo" id="qbNo">1번</div><div class="qbQ" id="qbQ"></div></div>
+  </div></div>
   <div id="miniBar"><div class="mn" id="mbN"></div><div class="mq" id="mbQ"></div><div class="mt" id="mbT"></div><div class="mh" id="mbH"></div><div class="ms" id="mbS"></div></div>
   <div id="aimBadge">🔫 <span id="aimName">공격 모드</span> · 왼쪽 클릭으로 쏘기 · <b>T</b> 로 풀기</div>
 
@@ -1795,7 +1888,7 @@ body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, b
 <!-- 선생님 패널 -->
 <div class="pop" id="popTeach"><div class="popC">
   <h2>🔧 선생님 패널</h2>
-  <div id="tRoom" style="font:900 17px inherit;margin-bottom:10px"></div>
+  <div id="tRoom" style="font-weight:900;font-size:17px;margin-bottom:10px"></div>
   <h3>모둠 현황</h3>
   <div id="tGroups"></div>
   <h3>지금 바로</h3>
@@ -1860,7 +1953,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '18차d · 넓힌 하늘 섬 · 헤드샷';
+const GAME_VER = '18차h · OX 문제 현수막';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -3232,11 +3325,11 @@ for(let g=0; g<NG; g++){
    ★ 되돌려 받는 데 걸리는 날을 넉넉히 잡아, 3~5일차에 산 모둠은 크게 남고
      14일차에 산 모둠은 거의 못 건지게 했다. 그게 '일찍 투자' 를 가르친다. */
 const FARM_ANIMALS = [
-  {k:'hen', ic:'🐔', n:'닭',   prod:'egg',  pic:'🥚', pn:'알',
+  {k:'hen', ic:'🐔', n:'닭',   prod:'egg',  pic:'🥚', pn:'달걀', res:'eg', col:0xfff2d8,
    cost:{w:60,  s:30,  g:5},  gold:6,  desc:'제일 싸고 빠릅니다. 날마다 알을 하나씩.'},
-  {k:'pig', ic:'🐖', n:'돼지', prod:'meat', pic:'🍖', pn:'고기',
+  {k:'pig', ic:'🐖', n:'돼지', prod:'meat', pic:'🍖', pn:'돼지고기', res:'pk', col:0xff9aa6,
    cost:{w:110, s:60,  g:12}, gold:14, desc:'닭보다 비싸지만 두 배 넘게 돌아옵니다.'},
-  {k:'cow', ic:'🐄', n:'소',   prod:'milk', pic:'🥛', pn:'우유',
+  {k:'cow', ic:'🐄', n:'소',   prod:'milk', pic:'🥛', pn:'우유', res:'mk', col:0xf2fbff,
    cost:{w:180, s:110, g:25}, gold:26, desc:'제일 비쌉니다. 일찍 살수록 많이 쌓여요.'}
 ];
 /* ═══ 농장 일 세 가지 ═══
@@ -3246,7 +3339,9 @@ const FARM_ANIMALS = [
    ★ 청소를 넣은 이유: 먹이만 있으면 하루 한 번 여물통만 찍고 끝이라 심심하다.
      청소가 있으면 모둠 안에서 "너는 먹이, 나는 청소" 로 역할이 갈린다.
      안 하면 죽는 게 아니라 '덜 나온다' 라, 안 챙긴 아이를 벌주지 않는다. */
-const FARM_SEC   = {feed:3.0, clean:4.0, take:2.2};   // 꾹 누르는 시간
+/* ★ 18차f — '거두기' 를 뺐다. 산물이 우리 안에 진짜로 놓이고 몸으로 부딪혀 줍게 되어서,
+   헛간 앞에서 또 꾹 누를 이유가 없어졌다. 두 가지 방법이 있으면 아이들이 헷갈린다. */
+const FARM_SEC   = {feed:3.0, clean:4.0};            // 꾹 누르는 시간
 const XP_FEED = 8, XP_CLEAN = 10, XP_TAKE = 4;        // 농장 일 경험치
 const FARM_DIRT_UP  = 0.34;                 // 하루에 이만큼 더러워진다 (마리수에 비례)
 const FARM_DIRT_BAD = 0.55;                 // 이 위로 더러우면 산출이 절반
@@ -6507,7 +6602,7 @@ const G = {
        crystalMax:D.crystalMax, wolfPower:D.wolfPower},
   res:[], me:{name:'', g:0, uid:'', hat:0, gls:0, clo:0}, host:false, solo:false, room:'', focus:0,
   wolves:[], soldiers:[], players:new Map(), stats:new Map(), started:false, paused:false,
-  bossTier:-1, bossId:0, chests:[], chT:0, danger:-1,
+  bossTier:-1, bossId:0, chests:[], chT:0, drops:[], danger:-1,
   mis:0, misD:0,                                  // 오늘의 임무 진행도 / 다 했나
   /* 모둠 농장 — fed 는 '마지막으로 먹인 날', hun 은 '내리 굶은 날수' */
   farm:[]
@@ -6527,7 +6622,6 @@ function farmSpotXZ(g, which){
   const fx = Math.cos(openA), fz = Math.sin(openA);   // 로컬 +Z (앞)
   const ux = fz, uz = -fx;                            // 로컬 +X (옆)
   if(which === 'feed')  return [cx - fx*(R-0.95) - ux*1.05, cz - fz*(R-0.95) - uz*1.05];
-  if(which === 'take')  return [cx - fx*(R+0.55), cz - fz*(R+0.55)];
   if(which === 'buy')   return [cx + fx*(R+0.75), cz + fz*(R+0.75)];
   return [cx, cz];                                    // 'clean' = 우리 한가운데
 }
@@ -6535,7 +6629,7 @@ function farmSpotXZ(g, which){
 function farmAt(){
   let best = null, bd = FARM_NEAR*FARM_NEAR;
   for(let g=0; g<NG; g++){
-    for(const w of ['feed','clean','take','buy']){
+    for(const w of ['feed','clean','buy']){
       const [x,z] = farmSpotXZ(g,w);
       const dx = PL.x-x, dz = PL.z-z, d2 = dx*dx+dz*dz;
       /* 자리마다 반경이 다르다 — 우리 바닥(청소)은 넓고, 나머지는 좁다 */
@@ -6549,12 +6643,7 @@ const myFarm    = ()=> G.farm[G.me.g];
 const farmCount = f => (f.hen|0) + (f.pig|0) + (f.cow|0);
 const farmStock = f => (f.egg|0) + (f.meat|0) + (f.milk|0);
 /* 우리에 쌓인 것을 다 팔면 금이 얼마인가 */
-function farmWorth(f){
-  let g = 0;
-  for(const A of FARM_ANIMALS) g += (f[A.prod]|0) * A.gold;
-  return g;
-}
-for(let i=0;i<NG;i++) G.res.push({w:30,s:20,g:0});
+for(let i=0;i<NG;i++) G.res.push({w:30,s:20,g:0,eg:0,mk:0,pk:0});
 const myRes = ()=> G.res[G.me.g];
 
 /* ═══════════════════════ 플레이어 ═══════════════════════ */
@@ -6795,6 +6884,149 @@ for(const m of [chBody, chTrim]){
   m.frustumCulled = false; m.visible = false; scene.add(m);
 }
 let chSeq = 1, chGrabN = 0;
+
+/* ═══════════ 농장 산물 — 우리 안에 진짜로 놓인다 (18차f) ═══════════
+   ★ 선생님 주문: "소가 있으면 우유, 닭이 있으면 달걀, 돼지가 있으면 고기가
+     농장 안에 마치 보물상자처럼 나왔으면 좋겠어. 애들이 그걸 먹으면 자원 창에 같이 뜨는 거야."
+   ★ 예전에는 산출이 숫자로만 쌓이고 헛간 앞에서 '거두기' 를 꾹 눌러야 했다.
+     9살에게 "우리에 알이 3개 있다" 는 글자는 아무 느낌이 없다.
+     우리 안에 알이 놓여 있고, 뛰어가서 몸으로 부딪히면 자원 창의 🥚 가 오르는 것 —
+     이건 설명이 필요 없다. 보물 상자와 똑같은 방식이라 아이들이 이미 안다.
+   ★ 다른 모둠 우리 것은 못 줍는다. 남의 농장에 뛰어들어 훔치는 판이 되면
+     교실이 아수라장이 되고, 농장을 챙길 이유도 사라진다. */
+const FD_PER = 8;                 // 우리 하나에 한 번에 놓이는 산물 수
+const FD_R   = 1.55;              // 몸으로 닿아야 하는 거리
+const FD_MAX = NG * FD_PER;
+/* 한 알(또는 병·고기)에 몸통 조각 최대 7개 + 빛 2개.
+   메시는 둘뿐이고, 놓인 게 하나도 없으면 통째로 숨긴다 → 드로우콜 0. */
+const fdBody = new THREE.InstancedMesh(cube(T.cloth), MAT,   FD_MAX*7);
+const fdGlow = new THREE.InstancedMesh(cube(T.glow),  EMITC, FD_MAX*2);
+for(const m of [fdBody, fdGlow]){
+  m.instanceColor = new THREE.InstancedBufferAttribute(
+    new Float32Array(m.instanceMatrix.count*3).fill(1), 3);
+  m.frustumCulled = false; m.visible = false; scene.add(m);
+}
+let fdSeq = 1, fdPickN = 0;
+const FD_OF = {};                 // prod 이름 → 동물 표
+for(const A of FARM_ANIMALS) FD_OF[A.prod] = A;
+/* 우리 안 빈자리 하나 — 이미 놓인 것과 겹치지 않게 */
+function farmDropSpot(g){
+  const cx = FARM_X[g], cz = FARM_Z[g], R = farmR2(g) - 1.15;
+  const mine = G.drops.filter(d=>d.g === g);
+  for(let t=0;t<24;t++){
+    const a = Math.random()*Math.PI*2, rr = R*Math.sqrt(Math.random());
+    const x = cx + Math.sin(a)*rr, z = cz + Math.cos(a)*rr;
+    let ok = true;
+    for(const d of mine) if(Math.hypot(d.x-x, d.z-z) < 1.15){ ok = false; break; }
+    if(ok) return [x, z];
+  }
+  return null;
+}
+/* 우리에 쌓인 산출(f.egg/meat/milk)을 눈에 보이는 것으로 꺼내 놓는다.
+   ★ 쌓인 것을 전부 내놓지는 않는다 — 우리가 알로 덮이면 동물이 안 보인다.
+     여덟 개까지만 놓고, 하나 주울 때마다 다음 것이 나온다. */
+function farmDropTop(g){
+  if(!G.host) return 0;
+  const f = G.farm[g]; if(!f) return 0;
+  let have = 0; for(const d of G.drops) if(d.g === g) have++;
+  let added = 0;
+  while(have < FD_PER){
+    /* 제일 많이 쌓인 것부터 꺼낸다 — 한 종류만 잔뜩 나오는 일이 덜하다 */
+    let A = null, best = 0;
+    for(const B of FARM_ANIMALS){ const v = f[B.prod]|0; if(v > best){ best = v; A = B; } }
+    if(!A) break;
+    const sp = farmDropSpot(g); if(!sp) break;
+    f[A.prod] = (f[A.prod]|0) - 1;
+    G.drops.push({id:fdSeq++, g, k:A.prod, x:sp[0], z:sp[1]});
+    have++; added++;
+  }
+  return added;
+}
+function farmDropAll(){ let n = 0; for(let g=0; g<NG; g++) n += farmDropTop(g); 
+  if(n){ netDrops(); netFarm(); } return n; }
+function netDrops(){ if(net && G.host) net.child('drop').set(G.drops); }
+/* 하나 주웠다 — 주운 아이 모둠 자원으로 들어간다 */
+function pickDrop(d){
+  const A = FD_OF[d.k]; if(!A) return;
+  gain(A.res, 1);
+  MY.farmed = (MY.farmed|0) + 1;
+  xpGain(XP_TAKE);
+  burst(d.x, GY+0.75, d.z, A.col, 14, 1.3);
+  burst(d.x, GY+1.15, d.z, 0xfff2c0, 8, 1.0);
+  toast(`${A.pic} ${A.pn} +1`, 1.2, '#ffe9a0');
+  if(window.__sfx) window.__sfx('get');
+  if(G.host) hostTakeDrop(d.id);
+  else if(net) net.child('pick').set({n:++fdPickN + '_' + uid, id:d.id, g:G.me.g});
+  const k = G.drops.indexOf(d); if(k>=0) G.drops.splice(k,1);
+}
+function hostTakeDrop(id){
+  const k = G.drops.findIndex(d=>d.id === id);
+  if(k < 0) return;
+  const g = G.drops[k].g;
+  G.drops.splice(k,1);
+  farmDropTop(g);            // 하나 빠지면 쌓여 있던 다음 것이 나온다
+  netDrops(); netFarm();
+}
+/* 매 프레임 — 내가 닿았는지 보고, 그리고 그린다 */
+function updDrops(dt, tt){
+  /* 우리 모둠 우리 것만 줍는다 */
+  if(G.started && !PL.down && G.phase !== 'mini')
+    for(const d of G.drops){
+      if(d.g !== G.me.g) continue;
+      if(Math.hypot(d.x-PL.x, d.z-PL.z) < FD_R){ pickDrop(d); break; }
+    }
+  let nb = 0, ng = 0;
+  const capB = fdBody.instanceMatrix.count, capG = fdGlow.instanceMatrix.count;
+  for(const d of G.drops){
+    if(nb+7 > capB || ng+2 > capG) break;
+    const A = FD_OF[d.k]; if(!A) continue;
+    const ph  = tt*1.9 + d.id*1.7;
+    const bob = Math.sin(ph)*0.032;
+    const ry  = tt*0.7 + d.id;
+    const y   = GY + 0.20 + bob;          // 산물 한가운데 높이
+    /* ★ 산물 자체는 작게 두되(우리가 안 가려지게), 발밑 빛판은 넉넉하게 둔다.
+       작게 만들었더니 마당 건너에서 우리 안에 뭐가 있는지 안 보였다 —
+       '뭔가 있다' 는 빛판이 말하고, '뭔지' 는 가까이 가서 본다. */
+    setI(fdGlow, ng++, d.x, GY+0.045, d.z, ry*0.5, 0.46, 0.035, 0.46, A.col);
+    /* 위로 뜬 반짝이 — 울타리 너머에서도 보이라고 조금 높이 띄운다.
+       ★ 가만히 있는 물건은 배경이 된다. 도는 점 하나면 눈이 따라온다. */
+    setI(fdGlow, ng++, d.x + Math.sin(ph*0.9)*0.17, y + 0.30 + Math.cos(ph*1.3)*0.05,
+         d.z + Math.cos(ph*0.9)*0.17, ph, 0.062, 0.062, 0.062, 0xfff6d0);
+    /* ★ 18차g — 처음엔 받침(짚 둥지·나무 접시)을 깔고 그 위에 겹을 쌓았다.
+         "이상한 탑 같다" 는 말씀 그대로였다 — 받침이 있으면 어떤 물건이든 '단 위의 탑' 이 되고,
+         겹을 높이 쌓으면 그 느낌이 더 심해진다. 받침을 없애고(아래 빛판이 받침이다),
+         키를 낮추고 통통하게, 덩어리 수도 서넛으로 줄였다. 크기는 절반 가까이 줄였다 —
+         우리에 여덟 개가 놓이는데 하나가 크면 동물이 통째로 가려진다.
+       ★ 같은 크기 상자 둘을 45도로 겹쳐 팔각을 만들어 봤는데, 그건 팔각이 아니라
+         팔각 별이 된다(합집합은 모서리를 깎지 못한다 — 화면으로 확인). 겹치기는 그만두고
+         '넓고 낮은 덩어리 + 작은 뚜껑' 으로 잡는다. 멀리서는 이쪽이 훨씬 둥글게 읽힌다. */
+    if(d.k === 'egg'){
+      /* 달걀 — 폭 0.19 · 높이 0.22. 통통하고 낮게, 크림빛 */
+      setI(fdBody, nb++, d.x, y-0.075, d.z, ry, 0.150, 0.045, 0.150, 0xffefd8);   // 바닥
+      setI(fdBody, nb++, d.x, y-0.010, d.z, ry, 0.192, 0.090, 0.192, 0xfff7e6);   // 배
+      setI(fdBody, nb++, d.x, y+0.058, d.z, ry, 0.142, 0.048, 0.142, 0xfffbf2);   // 어깨
+      setI(fdBody, nb++, d.x, y+0.098, d.z, ry, 0.080, 0.034, 0.080, 0xfffdf8);   // 끝
+    } else if(d.k === 'milk'){
+      /* 우유병 — 폭 0.18 · 높이 0.26. 파스텔 하늘색 뚜껑 */
+      setI(fdBody, nb++, d.x, y-0.045, d.z, ry, 0.180, 0.130, 0.180, 0xfcfeff);   // 몸통
+      setI(fdBody, nb++, d.x, y-0.010, d.z, ry, 0.172, 0.028, 0.172, 0xcdeeff);   // 허리 띠
+      setI(fdBody, nb++, d.x, y+0.048, d.z, ry, 0.112, 0.056, 0.112, 0xfcfeff);   // 어깨·목
+      setI(fdBody, nb++, d.x, y+0.098, d.z, ry, 0.104, 0.038, 0.104, 0x9ad9ff);   // 뚜껑
+    } else {
+      /* 돼지고기 — 폭 0.21 · 높이 0.15. 넓고 낮게, 분홍 살 + 흰 비계 + 뼈 두 마디 */
+      const bx = Math.sin(ry+Math.PI/2), bz = Math.cos(ry+Math.PI/2);
+      setI(fdBody, nb++, d.x, y-0.030, d.z, ry, 0.205, 0.095, 0.160, 0xffa3b4);   // 살
+      setI(fdBody, nb++, d.x, y+0.032, d.z, ry, 0.168, 0.035, 0.132, 0xfff2f4);   // 비계
+      for(const q of [1,-1])
+        setI(fdBody, nb++, d.x + bx*q*0.125, y-0.022, d.z + bz*q*0.125, ry,
+             0.060, 0.052, 0.052, 0xfffaf2);                                       // 뼈
+    }
+  }
+  fdBody.count = nb; fdGlow.count = ng;
+  fdBody.visible = nb > 0; fdGlow.visible = ng > 0;
+  if(nb) flush(fdBody);
+  if(ng) flush(fdGlow);
+}
 function chestReward(day){
   /* ★ 15차 — 50% 상향. 상자를 보고 달려갈 만한 값이어야 '보물' 이다.
      예전: 1일차 🪵14 🪨14 ✨4 → 18일차 🪵48 🪨48 ✨16
@@ -7041,7 +7273,9 @@ function fireWeapon(){
       popDmg(A.x, A.y + 0.75, A.z, dmg, A.head ? 1 : 0);   // 늑대와 같은 숫자 — 헤드샷은 노란 '20!'
       burst(A.x, A.y, A.z, A.head ? 0xffd45a : 0xff7a7a, A.head ? 10 : 6, A.head ? 1.15 : 0.7);
       MINE.k++; survSend(q.uid, dmg, A.head);
-      if(window.__sfx){ window.__sfx(W.snd || 'gun'); window.__sfx(A.head ? 'up' : 'hit'); }
+      /* ★ 총소리(musket)는 이제 진짜로 난다 — 표에 없는 이름이라 여태 조용했다.
+         맞힌 소리도 늑대용 'hit'(작은 삑) 대신 두꺼운 것으로 바꾼다. */
+      if(window.__sfx){ window.__sfx(W.snd || 'gun'); window.__sfx(A.head ? 'phead' : 'phit'); }
     } else {
       const tx = PL.x + f.x*W.rng, ty = PL.y + PL.EYE + f.y*W.rng, tz = PL.z + f.z*W.rng;
       shootBullet(hx, hy, hz, tx, Math.max(MINI_Y+0.2, ty), tz, false, W.tr, W.len); muzzleFx(hx, hy, hz, f, W);
@@ -7605,12 +7839,13 @@ function buildFarmUI(){
     ? '<b style="color:#ffb0b0">🧹 더러움 — 나오는 양이 절반</b>'
     : dirt >= 0.25 ? '<b style="color:#ffd9a0">🧹 조금 더러움</b>'
     : '<b style="color:#9cff9c">🧹 깨끗함</b>');
-  const stock = farmStock(f), bask = basketCount(f);
+  const stock = farmStock(f), out = G.drops.filter(d=>d.g===g).length;
   el('farmState').innerHTML =
     `<div class="fst"><span>🐾 ${n} / ${FARM_CAP}마리</span> ${fedTxt} ${dirtTxt}</div>`
-    + `<div class="fst2">🧺 우리에 <b>${stock}개</b> 쌓임`
-    + (stock ? ' — 헛간 앞에서 <b>거두기</b>' : '')
-    + (bask ? ` · 광주리에 <b>${bask}개</b> (상인에게 팔면 <b>✨${basketWorth(f)}</b>)` : '')
+    + `<div class="fst2">`
+    + (out ? `🧺 우리 안에 <b>${out}개</b>가 놓여 있어요 — <b>뛰어가서 주우세요!</b>`
+           : stock ? `🧺 곧 <b>${stock}개</b>가 우리에 나와요`
+                   : '🧺 아직 나온 게 없어요 — 먹이를 주면 다음 날 아침에 나옵니다')
     + `</div>`;
   const w = el('farmList'); w.innerHTML = '';
   w.appendChild(farmBuyHint());
@@ -7696,8 +7931,16 @@ const TRADE_KEEP = 0.7;                          // 값어치의 70%만 받는�
 const TRADE_PACK = {w:40, s:35, g:8};            // 한 번에 내놓는 양
 const TRADE_MULS = [1, 3, 10];
 let tradeMul = 1;
-const RES_IC = {w:'🪵', s:'🪨', g:'✨'};
-const RES_NM = {w:'나무', s:'돌', g:'금'};
+/* ★ 18차f — 농장 산물을 진짜 자원으로 올렸다.
+     예전에는 '숫자만 쌓이니 넷째 자원으로 만들지 말자' 고 적어 뒀는데,
+     선생님 주문이 "달걀·우유·돼지고기가 자원 창에 같이 뜨고 상인과 교환"이다.
+     쓸 데(상인 교환)를 같이 주므로 이제 자원으로 세워도 숫자만 쌓이지 않는다. */
+const RES_IC = {w:'🪵', s:'🪨', g:'✨', eg:'🥚', mk:'🥛', pk:'🍖'};
+const RES_NM = {w:'나무', s:'돌', g:'금', eg:'달걀', mk:'우유', pk:'돼지고기'};
+const RES_KEYS = ['w','s','g','eg','mk','pk'];
+/* 내 칸(pc)에서 쓰는 이름 — 번 것과 쓴 것 */
+const RES_PC  = {w:'w',  s:'s',  g:'o',  eg:'eg',  mk:'mk',  pk:'pk'};
+const RES_SPC = {w:'sw', s:'ss', g:'so', eg:'seg', mk:'smk', pk:'spk'};
 const tradeGive = (from, mul)=> TRADE_PACK[from] * mul;
 const tradeGet  = (from, to, mul)=>
   Math.floor(tradeGive(from, mul) * TRADE_VAL[from] * TRADE_KEEP / TRADE_VAL[to]);
@@ -7796,7 +8039,9 @@ function buildShopUI(){
     /* ★ 여기서는 '팔기' 만 됐다. 그런데 아이들은 동물도 여기서 살 수 있다고 여겼다 —
        가게에 🧺 농장 칸이 있는데 살 게 하나도 없으면 그게 더 이상하다.
        사는 것을 위에, 파는 것을 아래에 둔다. 우리 정원·값은 농장 화면과 같은 함수를 쓴다. */
-    const f = myFarm(), have = basketCount(f), worth = basketWorth(f);
+    const f = myFarm(), r = myRes();
+    const have = FARM_ANIMALS.reduce((a,A)=> a + (r[A.res]|0), 0);
+    const worth = FARM_ANIMALS.reduce((a,A)=> a + (r[A.res]|0)*A.gold, 0);
     const buyHead = document.createElement('p');
     buyHead.className = 'shopHint'; buyHead.style.gridColumn = '1/-1';
     buyHead.innerHTML = `🐔 <b>동물 사기</b> — 산 동물은 <b style="color:${GCOL[G.me.g]}">`
@@ -7805,42 +8050,44 @@ function buildShopUI(){
     for(const A of FARM_ANIMALS) w.appendChild(animalCard(A));
     const sellHead = document.createElement('p');
     sellHead.className = 'shopHint'; sellHead.style.gridColumn = '1/-1';
-    sellHead.innerHTML = '🧺 <b>거둔 것 팔기</b>';
+    sellHead.innerHTML = '🧺 <b>농장 산물 교환</b> — 🥚 🥛 🍖 를 ✨금으로 바꿉니다';
     w.appendChild(sellHead);
     if(!have){
       const line = document.createElement('p');
       line.className = 'shopHint'; line.style.gridColumn = '1/-1';
-      line.innerHTML = '아직 팔 게 없어요. 농장에서 <b>🧺 거두기</b>를 하고 오세요.';
+      line.innerHTML = '아직 바꿀 게 없어요. <b>농장 우리 안에 놓인 🥚 🥛 🍖 를 주워</b> 오세요.';
       w.appendChild(line);
     } else {
       for(const A of FARM_ANIMALS){
-        const v = f['b_'+A.prod]|0; if(!v) continue;
+        const v = r[A.res]|0; if(!v) continue;
         w.appendChild(shopCard(A.pic, `${A.pn} ${v}개`,
-          `하나에 <b>✨${A.gold}</b> — 다 팔면 <b>✨${v*A.gold}</b>`,
-          null, '', '팔기', ()=>sellFarm(A.prod)));
+          `하나에 <b>✨${A.gold}</b> — 다 바꾸면 <b>✨${v*A.gold}</b>`,
+          null, '', '바꾸기', ()=>sellFarm(A.res)));
       }
-      w.appendChild(shopCard('🧺', '전부 팔기',
-        `광주리에 있는 <b>${have}개</b>를 한꺼번에 팝니다.`,
+      w.appendChild(shopCard('🧺', '전부 바꾸기',
+        `모둠이 가진 <b>${have}개</b>를 한꺼번에 바꿉니다.`,
         null, '', `✨${worth} 받기`, ()=>sellFarm(null)));
     }
   }
 }
-/* 농장에서 거둔 것을 금으로 — 하나만 팔 수도, 전부 팔 수도 있다 */
-function sellFarm(prod){
-  const f = myFarm();
+/* 농장 산물을 금으로 — 한 가지만, 또는 전부.
+   ★ 산물은 이제 모둠 자원이다(자원 창의 🥚 🥛 🍖). 쓰는 것도 나무·돌과 똑같이
+     spend() 로 처리한다 — 따로 세는 곳을 만들면 반드시 어긋난다. */
+function sellFarm(res){
+  const r = myRes();
   let gold = 0, cnt = 0;
+  const cost = {};
   for(const A of FARM_ANIMALS){
-    if(prod && A.prod !== prod) continue;
-    const v = f['b_'+A.prod]|0; if(!v) continue;
-    gold += v * A.gold; cnt += v; f['b_'+A.prod] = 0;
+    if(res && A.res !== res) continue;
+    const v = r[A.res]|0; if(!v) continue;
+    gold += v * A.gold; cnt += v; cost[A.res] = v;
   }
   if(!gold) return;
-  gain('g', gold);
-  netFarm();
-  toast(`✨ ${cnt}개를 팔아 금 ${gold}을 받았어요!`, 2.4, '#ffe066');
+  spend(cost); gain('g', gold);
+  toast(`✨ ${cnt}개를 바꿔 금 ${gold}을 받았어요!`, 2.4, '#ffe066');
   if(window.__sfx) window.__sfx('get');
   feed(`🧺 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
-     + `농장 것을 팔아 <b>✨${gold}</b>을 벌었어요`);
+     + `농장 산물을 바꿔 <b>✨${gold}</b>을 벌었어요`);
   buildShopUI();
 }
 /* ── 장착 ── */
@@ -8461,6 +8708,27 @@ function say(msg){
 }
 function flash(){ const f = el('dmgFlash'); f.style.opacity = 1;
   setTimeout(()=> f.style.opacity = 0, 90); }
+/* 잘했을 때의 초록 번쩍 */
+function goodFlash(ms){ const f = el('goodFlash'); if(!f) return; f.style.opacity = 1;
+  setTimeout(()=> f.style.opacity = 0, ms || 110); }
+/* 한가운데에 크게 판정을 때린다.
+   ★ 18차e — "맞춘 거야 안 맞춘 거야 밋밋해" 가 주문이었다. 토스트 한 줄은
+     화면 구석에 작게 뜨고 3초를 기다려야 읽힌다. 아이들은 그걸 안 읽는다.
+     큰 그림 + 색 + 소리 셋이 같이 와야 0.1초 만에 안다. */
+let verdictN = 0;
+function verdict(good, ico, tx, opt){
+  const v = el('verdict'); if(!v) return;
+  const my = ++verdictN, quick = !!(opt && opt.quick);
+  const col = good ? '#9cffb0' : '#ffb0b0';
+  const wash = good ? 'rgba(60,225,115,.55)' : 'rgba(255,55,55,.60)';
+  v.innerHTML = `<div class="vWash" style="background:radial-gradient(circle at 50% 46%,`
+              + `${wash} 0%, rgba(0,0,0,0) 72%)"></div>`
+              + `<div class="vIco">${ico}</div>`
+              + (tx ? `<div class="vTx" style="color:${col}">${esc(tx)}</div>` : '');
+  v.className = 'on ' + (good ? 'good' : 'bad') + (quick ? ' quick' : '');
+  setTimeout(()=>{ if(verdictN === my) v.className = ''; },
+             (opt && opt.ms) || (quick ? 620 : 1450));
+}
 
 /* ═══════════════════════ 뜨는 데미지 숫자 ═══════════════════════
    ★ 늑대를 때리는 게 '먹히고 있다'는 걸 보여 주는 장치.
@@ -8781,12 +9049,20 @@ function paintHUD(){
 
   setTxt('grpName', (G.me.g+1)+'모둠');
   setSty('grpName', 'background', GCOL[G.me.g]);
-  for(const [k,id] of [['w','rW'],['s','rS'],['g','rG']]){
+  for(const [k,id] of [['w','rW'],['s','rS'],['g','rG'],['eg','rE'],['mk','rM'],['pk','rP']]){
     const v = r[k]|0;
     if(hudPrev['r'+id] !== v){ hudPrev['r'+id] = v; el(id).querySelector('b').textContent = v; }
-    if(r[k] > lastRes[k] && lastRes[k]>=0){ el(id).classList.remove('up'); void el(id).offsetWidth;
+    if(r[k] > (lastRes[k]||0) && lastRes[k] >= 0){ el(id).classList.remove('up'); void el(id).offsetWidth;
       el(id).classList.add('up'); }
     lastRes[k] = r[k];
+  }
+  /* 산물 줄 — 우리에 동물이 있거나 주운 게 있을 때만 보인다.
+     처음부터 0 세 개가 떠 있으면 자원 창이 복잡하기만 하다. */
+  {
+    const f = G.farm[G.me.g];
+    const show = !!f && (farmCount(f) > 0 || (r.eg|0) + (r.mk|0) + (r.pk|0) > 0);
+    if(hudPrev.farmRes !== show){ hudPrev.farmRes = show;
+      el('resFarm').classList.toggle('on', show); }
   }
   setTxt('dayNum', G.day + '일차');
   const night = G.phase==='night';
@@ -9137,30 +9413,7 @@ function farmClean(g){
   toast('🧹 우리가 반짝반짝해졌어요!', 1.8, '#bfe8ff');
   if(window.__sfx) window.__sfx('fix');
 }
-function farmTake(g){
-  const f = G.farm[g], got = farmStock(f);
-  if(!got){ toast('🧺 아직 거둘 게 없어요', 1.3, '#ffd0a0'); return; }
-  /* 거둔 것은 우리에서 내 모둠 창고로 옮겨진다 — 파는 건 상인에게 가서 한다 */
-  let line = [];
-  for(const A of FARM_ANIMALS){ const v = f[A.prod]|0;
-    if(v){ line.push(`${A.pic}${v}`); } }
-  MY.farmed = (MY.farmed|0) + got;
-  xpGain(XP_TAKE * got);
-  const [x,z] = farmSpotXZ(g,'take');
-  burst(x, GY+1.2, z, 0xfff0a0, 6+Math.min(24,got*2), 1.7);
-  toast(`🧺 ${line.join(' ')} 거뒀어요! 상인에게 팔면 ✨${farmWorth(f)}`, 2.6, '#ffe066');
-  if(window.__sfx) window.__sfx('get');
-  /* 거둔 것은 '모둠 광주리' 로 옮긴다 — 상인 화면에서 한꺼번에 판다 */
-  for(const A of FARM_ANIMALS){ f['b_'+A.prod] = (f['b_'+A.prod]|0) + (f[A.prod]|0); f[A.prod] = 0; }
-  netFarm(); netPCDirty = true;
-}
-/* 광주리(거둬 놓은 것)의 값어치 */
-function basketWorth(f){
-  let g = 0;
-  for(const A of FARM_ANIMALS) g += (f['b_'+A.prod]|0) * A.gold;
-  return g;
-}
-const basketCount = f => FARM_ANIMALS.reduce((a,A)=> a + (f['b_'+A.prod]|0), 0);
+/* 광주리는 없어졌다 — 산물은 우리 안에 놓이고, 주우면 바로 모둠 자원이 된다(18차f). */
 function workStop(){ work = null; }
 /* 진행시키고, 박자마다 뚝-딱 소리를 낸다. 다 됐으면 true */
 function workTick(dt, need){
@@ -9277,12 +9530,11 @@ function doAction(dt){
   const fs = farmAt();
   if(fs && fs.w !== 'buy' && G.phase === 'day'){
     const f = G.farm[fs.g];
-    const LBL = {feed:'🌾 먹이 주기', clean:'🧹 청소하기', take:'🧺 거두기'}[fs.w];
+    const LBL = {feed:'🌾 먹이 주기', clean:'🧹 청소하기'}[fs.w];
     const need = FARM_SEC[fs.w];
     /* 할 일이 없으면 안내만 하고 지나간다 — 헛되이 꾹 누르게 두지 않는다 */
-    const idle = fs.w==='feed'  ? (farmCount(f)===0 ? '동물이 없어요' : f.fed===G.day ? '오늘은 다 먹였어요' : null)
-               : fs.w==='clean' ? ((f.dirt||0) < 0.05 ? '깨끗해요' : null)
-               :                  (farmStock(f)===0 ? '거둘 게 없어요' : null);
+    const idle = fs.w==='feed' ? (farmCount(f)===0 ? '동물이 없어요' : f.fed===G.day ? '오늘은 다 먹였어요' : null)
+               :                   ((f.dirt||0) < 0.05 ? '깨끗해요' : null);
     if(idle){ workStop(); aimInfo(null);
       workInfo(`${LBL} — ${idle}`, 0); return; }
     if(!acting){ workInfo(LBL, 0); return; }
@@ -9291,8 +9543,7 @@ function doAction(dt){
     if(workTick(dt, need)){
       workStop();
       if(fs.w==='feed') farmFeed(fs.g);
-      else if(fs.w==='clean') farmClean(fs.g);
-      else farmTake(fs.g);
+      else farmClean(fs.g);
     } else workInfo(LBL + ' 중', work.prog/need);
     return;
   }
@@ -9426,15 +9677,16 @@ function hitNode(n){
   } else netNode(NODES.indexOf(n), n.hp);
 }
 function gain(k, v){
-  const key = k==='w'?'w':k==='s'?'s':'o';
+  const key = RES_PC[k] || 'o';
   myPC[key] = (myPC[key]||0) + v; recomputeRes(); netPCDirty = true;
 }
+/* 값 꾸러미는 {w,s,g} 였고 이제 {eg,mk,pk} 도 올 수 있다 — 있는 것만 센다 */
 function spend(c){
-  myPC.sw = (myPC.sw||0)+c.w; myPC.ss = (myPC.ss||0)+c.s; myPC.so = (myPC.so||0)+c.g;
+  for(const k of RES_KEYS) if(c[k]) myPC[RES_SPC[k]] = (myPC[RES_SPC[k]]||0) + c[k];
   recomputeRes(); netPCDirty = true;
 }
 function refund(c){
-  myPC.sw = (myPC.sw||0)-c.w; myPC.ss = (myPC.ss||0)-c.s; myPC.so = (myPC.so||0)-c.g;
+  for(const k of RES_KEYS) if(c[k]) myPC[RES_SPC[k]] = (myPC[RES_SPC[k]]||0) - c[k];
   recomputeRes(); netPCDirty = true;
 }
 
@@ -10630,6 +10882,8 @@ function farmMorning(){
   }
   for(const m of say2) feed(m);
   netFarm();
+  /* 쌓인 것을 우리 안에 꺼내 놓는다 — 아이들이 뛰어가서 주울 수 있게 */
+  farmDropAll();
 }
 /* ═══════════════════════ 미니게임 (18차) ═══════════════════════
    선생님 주문: "5·10·15라운드 밤이 끝나면 미니게임장으로 이동하자."
@@ -10768,7 +11022,9 @@ function miniOnState(){
     toast(say2, 6, '#ffe9a0');
   } else if(M.st === 'run' && M.k === 0){
     toast(`❓ ${M.qn+1}번 문제! ⭕ 또는 ❌ 로 가세요`, 2.5, '#ffe9a0');
-    if(window.__sfx) window.__sfx('up');
+    /* 현수막이 툭 내려오는 순간에 팡파르가 같이 터진다 */
+    if(window.__sfx) window.__sfx('quiz');
+    if(window.__shake) window.__shake(0.18, 0.12);
   } else if(M.st === 'run' && M.k === 2){
     KIT.wpn = MINI_GUN; KIT.ammo = 9999; setAimMode(true, true); hudPrev.kit = '';
     toast('🎯 시작! 왼쪽 클릭으로 쏘세요', 2.2, '#ffd0a0');
@@ -10776,10 +11032,25 @@ function miniOnState(){
     toast('🪢 줄이 돕니다 — 발밑에 올 때 스페이스!', 2.2, '#ffd0a0');
   } else if(M.st === 'reveal' && M.rv){
     const ok = (M.rv.ok||[]).includes(uid);
-    if(ok){ gain('w', MINI_OK.w); gain('s', MINI_OK.s); gain('g', MINI_OK.g);
+    /* ★ 18차e — 예전엔 구석에 토스트 한 줄이 전부라 "맞은 거야 아닌 거야" 가 밋밋했다.
+       큰 그림 + 화면 색 + 소리 + 종이꽃(불티)을 한꺼번에 준다. */
+    if(ok){
+      gain('w', MINI_OK.w); gain('s', MINI_OK.s); gain('g', MINI_OK.g);
+      verdict(true, '🎉', '정답!');
+      goodFlash(320);
+      /* 종이꽃 — 모둠색 한 줌 + 노란 한 줌. 머리 위로 터뜨려 내 눈앞에 쏟아지게 한다 */
+      burst(PL.x, PL.y + 2.1, PL.z, GHEX[G.me.g|0], 16, 1.7);
+      burst(PL.x, PL.y + 1.8, PL.z, 0xffe066, 14, 1.4);
+      burst(PL.x, PL.y + 1.5, PL.z, 0x9cffb0, 12, 1.2);
       toast(`⭕ 맞았어요! 🪵${MINI_OK.w} 🪨${MINI_OK.s} ✨${MINI_OK.g}`, 3.2, '#9cff9c');
-      if(window.__sfx) window.__sfx('get'); }
-    else toast(`정답은 ${M.rv.ans==='O'?'⭕':'❌'} — ${MINE.zone ? '아쉬워요' : '우리 안에 못 들어갔어요'}`, 3.2, '#ffbdbd');
+      if(window.__sfx) window.__sfx('win');
+    } else {
+      verdict(false, '❌', MINE.zone ? '땡!' : '안 들어갔어요');
+      flash();
+      if(window.__shake) window.__shake(0.45, 0.22);
+      if(window.__sfx) window.__sfx('lose');
+      toast(`정답은 ${M.rv.ans==='O'?'⭕':'❌'} — ${MINE.zone ? '아쉬워요' : '우리 안에 못 들어갔어요'}`, 3.2, '#ffbdbd');
+    }
   } else if(M.st === 'done'){
     if(M.k === 2) setAimMode(false, true);
     if(M.rank){
@@ -10849,7 +11120,9 @@ function oxReveal(){
    모두가 같은 식을 쓰므로 통신 없이도 스물한 명의 줄이 똑같이 돈다.
    ★ 속도가 오르내려야 재미있다 — 적분이 닫힌 꼴이라 어긋남이 안 쌓인다:
      각속도 = W·(1 + 0.42·sin(0.40t) + 0.09·sin(0.17t)) → 느릴 때 0.5배 · 빠를 때 1.5배 */
-const ROPE_W = 2.05;                              // 기본 각속도 — 한 바퀴 약 3초
+/* ★ 18차e — 30% 빠르게(2.05 → 2.67). 한 바퀴 3.1초가 2.4초가 된다.
+   1분에 스무 번 남짓 넘던 것이 스물여섯 번쯤 된다. */
+const ROPE_W = 2.67;                              // 기본 각속도 — 한 바퀴 약 2.4초
 function ropePhase(t){ return ROPE_W*(t + 1.05*(1-Math.cos(t*0.40)) + 0.55*(1-Math.cos(t*0.17))); }
 function ropeElapsed(){ return Math.max(0, ROPE_SEC - G.t); }
 let ropeLastTurn = -1, ropeMsgT = 0;
@@ -10862,9 +11135,27 @@ function ropeTick(dt){
   /* 줄이 발밑을 지났다 — 우리 모둠 자리에 서 있을 때만 센다 */
   const onPad = Math.abs(PL.x - miniPadX(G.me.g)) < 3.6 && Math.abs(PL.z - MINI_PADZ) < 3.6;
   if(!onPad) return;
-  if(!PL.ground || PL.airT < 0.16){ MINE.j++; popDmg(PL.x, PL.y+1.6, PL.z, MINE.j, 2); if(window.__sfx) window.__sfx('tak'); }
-  else { MINE.f++; MINE.rs = 0.9; toast('걸렸어요! 다시!', 0.9, '#ffbdbd'); if(window.__shake) window.__shake(0.25, 0.12); }
+  /* ★ 18차e — 예전엔 넘어도 '-20' 이 빨갛게 떴다(kind 2 는 '아팠다' 는 표시다).
+     넘은 것과 걸린 것이 둘 다 빨간 숫자라 몸으로 구분이 안 됐다.
+     넘음은 초록(+N)·올라가는 딩·초록 번쩍, 걸림은 빨강·낮은 퍽·화면 흔들림으로 갈랐다. */
+  const f2 = forward();
+  if(!PL.ground || PL.airT < 0.16){
+    MINE.j++;
+    popDmg(PL.x + f2.x*2.4, PL.y + 1.5, PL.z + f2.z*2.4, MINE.j, 3);
+    goodFlash(95);
+    verdict(true, '⭐', MINE.j + '번!', {quick:true});
+    burst(PL.x, PL.y + 0.45, PL.z, GHEX[G.me.g|0], 7, 0.85);
+    if(window.__sfxJump) window.__sfxJump(MINE.j);
+  } else {
+    MINE.f++; MINE.rs = 0.9; ropeHitT = 0.55;
+    verdict(false, '💥', '걸렸다!', {ms:850});
+    flash();
+    burst(PL.x, PL.y + 0.30, PL.z, 0xff6b6b, 11, 1.15);
+    if(window.__shake) window.__shake(0.60, 0.28);
+    if(window.__sfx) window.__sfx('trip');
+  }
 }
+let ropeHitT = 0;                                 // 걸린 직후 줄이 잠깐 빨개진다
 /* 모둠 점수 = 모둠원 평균(내림). '제일 못 넘은 사람' 으로 하면 한 명만 손을 놔도 0 이 된다 */
 function ropeScores(){
   const sum = [0,0,0,0,0], n = [0,0,0,0,0];
@@ -10897,7 +11188,8 @@ function survHit(byUid, byName, byG, dmg, head){
     popDmg(PL.x + f2.x*2.6, PL.y + 1.5, PL.z + f2.z*2.6, d, 2); }
   burst(PL.x, PL.y + 0.7, PL.z, 0xff6b6b, head ? 9 : 6, head ? 1.3 : 0.9);
   PL.hurtFx = 0.4;
-  if(window.__sfx) window.__sfx('hurt');
+  /* 총알이 박히는 소리 + 아파하는 소리 — 둘이 겹쳐야 '총에 맞았다' 로 들린다 */
+  if(window.__sfx){ window.__sfx('phit'); window.__sfx('hurt'); }
   if(MINE.hp > 0){
     toast(`💥 ${esc(byName)}${head ? ' 에게 머리를' : ' 에게'} 맞았어요! (체력 ${MINE.hp})`, 1.3, '#ffbdbd');
     miniReport(true); return;
@@ -10966,6 +11258,7 @@ function miniTick(dt){
   if(!miniOn() || !G.mini) return;
   miniOnState();
   if(G.mini.k === 1) ropeTick(dt);
+  if(ropeHitT > 0) ropeHitT -= dt;
   if(MINE.rs > 0){ MINE.rs -= dt; if(MINE.rs <= 0 && G.mini.k === 2 && !MINE.out) survRespawn(); }
   miniRepT -= dt; if(miniRepT <= 0){ miniRepT = 1; miniReport(); }
   MINE.zone = oxZoneOf(PL.x, PL.z);
@@ -11076,28 +11369,62 @@ function drawRope(){
         /* ★ 줄을 모둠색으로 칠했더니 모둠색 발판 위에서 감쪽같이 사라졌다(빨간 줄, 빨간 바닥).
            줄은 짙은 갈색, 양끝 손잡이만 모둠색이다. */
         const hand = i < 4 || i >= ROPE_SEG-4;
+        /* 걸린 직후 잠깐 줄이 빨개진다 — "이 줄에 걸렸다" 를 줄 자체가 말해 준다 */
+        const hot = ropeHitT > 0 && g === (G.me.g|0);
         setIR(R_rope, n++, (_rpA[0]+_rpB[0])/2, (_rpA[1]+_rpB[1])/2, (_rpA[2]+_rpB[2])/2,
               ry, rx, hand ? 0.17 : 0.13, hand ? 0.17 : 0.13, len*1.30,
-              hand ? GHEX[g] : 0x4a3626);
+              hot ? 0xff5a5a : (hand ? GHEX[g] : 0x4a3626));
         _rpA[0]=_rpB[0]; _rpA[1]=_rpB[1]; _rpA[2]=_rpB[2];
       }
     }
   }
   R_rope.count = n; flush(R_rope);
 }
+/* ═══ OX 문제 현수막 ═══
+   ★ 깃발은 한 번만 만든다 — 문제마다 다시 만들면 깜빡인다 */
+let qbReady = false;
+function quizBanner(no, q, ans){
+  const b = el('quizBanner'); if(!b) return;
+  if(!qbReady){
+    qbReady = true;
+    const f = el('qbFlags');
+    let h = '';
+    for(let i=0;i<16;i++) h += `<i style="color:${GCOL[i%NG]}"></i>`;
+    f.innerHTML = h;
+  }
+  if(q === null){                       // 내린다
+    if(b.classList.contains('on')){ b.classList.remove('on','ans'); document.body.classList.remove('qbOn'); }
+    return;
+  }
+  const fresh = !b.classList.contains('on') || hudPrev.qbQ !== q;
+  if(hudPrev.qbNo !== no){ hudPrev.qbNo = no; setTxt('qbNo', no); }
+  if(hudPrev.qbQ !== q){ hudPrev.qbQ = q; setTxt('qbQ', q); }
+  b.classList.toggle('ans', !!ans);
+  if(fresh){
+    /* 글이 바뀌면 다시 툭 내려온다 — 두 번째 문제가 조용히 갈아 끼워지면 못 알아챈다 */
+    b.classList.remove('on'); void el('qbWrap').offsetWidth;
+    b.classList.add('on'); document.body.classList.add('qbOn');
+  }
+  return fresh;
+}
 /* 화면 위 판 */
 function paintMini(){
   const M = G.mini, bar = el('miniBar');
-  if(!miniOn() || !M){ if(bar.classList.contains('on')) bar.classList.remove('on'); return; }
+  if(!miniOn() || !M){ if(bar.classList.contains('on')) bar.classList.remove('on');
+    quizBanner(null, null); return; }
   if(!bar.classList.contains('on')) bar.classList.add('on');
   const t = Math.max(0, Math.ceil(G.t));
   let nm = MINI_NAME[M.k], q = '', tm = '', hearts = '', chips = '';
   if(M.st === 'intro'){ q = M.k===0 ? '선생님이 문제를 내면\n⭕ 또는 ❌ 우리 안으로!' : M.k===1 ? '줄이 발밑에 올 때\n스페이스로 뛰어요!' : '모두 같은 총 · 나에게 목숨 셋\n머리를 맞히면 두 배!'; tm = t+''; }
   else if(M.st === 'ask'){ q = '선생님이 문제를 내는 중…'; }
-  else if(M.st === 'run' && M.k === 0){ nm += ` · ${M.qn+1} / ${MINI_QN}번`; q = M.q; tm = t+''; }
+  else if(M.st === 'run' && M.k === 0){
+    /* 문제는 현수막에 크게 뜬다 — 여기에 또 적으면 같은 글이 두 번 뜬다 */
+    nm += ` · ${M.qn+1} / ${MINI_QN}번`; tm = t+'';
+    quizBanner(`${M.qn+1}번`, M.q, false);
+  }
   else if(M.st === 'reveal' && M.rv){
-    q = `정답은 ${M.rv.ans==='O'?'⭕ O':'❌ X'}!\n${M.rv.ok.length}명이 맞혔어요`
-      + (M.rv.none ? ` (우리 밖 ${M.rv.none}명 오답)` : '');
+    quizBanner('정답', `${M.rv.ans==='O'?'⭕ O':'❌ X'} · ${M.rv.ok.length}명이 맞혔어요`
+      + (M.rv.none ? ` (우리 밖 ${M.rv.none}명 오답)` : ''), true);
   }
   else if(M.st === 'run' && M.k === 1){ q = `나 ${MINE.j}번` + (MINE.f ? ` · 걸림 ${MINE.f}` : ''); tm = t+''; }
   else if(M.st === 'run' && M.k === 2){
@@ -11120,6 +11447,7 @@ function paintMini(){
     const sc = M.k===1 ? ropeScores() : survScores();
     chips = sc.map((v,g)=> `<span style="color:${GCOL[g]}">${g+1}모둠 ${M.k===1 ? v+'번' : Math.floor(v/100)+'목숨'}</span>`).join('');
   }
+  if(!(M.k === 0 && (M.st === 'run' || (M.st === 'reveal' && M.rv)))) quizBanner(null, null);
   setTxt('mbN', nm); setTxt('mbQ', q); setTxt('mbT', tm); setTxt('mbH', hearts);
   if(hudPrev.mchips !== chips){ hudPrev.mchips = chips; el('mbS').innerHTML = chips; }
 }
@@ -11167,15 +11495,18 @@ function hostPhase(dt){
 const START = {w:70, s:55, o:0};
 const base = []; for(let i=0;i<NG;i++) base.push({...START});
 const pcMap = new Map();                       // uid -> {g,w,s,o,sw,ss,so,n,mined,built}
-let myPC = {g:0,w:0,s:0,o:0,sw:0,ss:0,so:0,n:'',mined:0,built:0};
+let myPC = {g:0,w:0,s:0,o:0,sw:0,ss:0,so:0,n:'',mined:0,built:0,
+            eg:0,mk:0,pk:0,seg:0,smk:0,spk:0};
 let netPCDirty = false;
 function recomputeRes(){
-  for(let i=0;i<NG;i++) G.res[i] = {w:base[i].w, s:base[i].s, g:base[i].o};
+  /* 나무·돌·금은 선생님이 나눠 준 밑천(base)이 있고, 농장 산물은 아이들이 주운 것뿐이다 */
+  for(let i=0;i<NG;i++) G.res[i] = {w:base[i].w, s:base[i].s, g:base[i].o, eg:0, mk:0, pk:0};
   for(const [uid,p] of pcMap){
     const r = G.res[p.g|0]; if(!r) continue;
-    r.w += (p.w||0)-(p.sw||0); r.s += (p.s||0)-(p.ss||0); r.g += (p.o||0)-(p.so||0);
+    for(const k of RES_KEYS) r[k] += (p[RES_PC[k]]||0) - (p[RES_SPC[k]]||0);
   }
-  for(let i=0;i<NG;i++){ const r=G.res[i]; r.w=Math.max(0,r.w); r.s=Math.max(0,r.s); r.g=Math.max(0,r.g); }
+  for(let i=0;i<NG;i++){ const r = G.res[i];
+    for(const k of RES_KEYS) r[k] = Math.max(0, r[k]); }
 }
 
 /* ═══════════════════════ Firebase ═══════════════════════ */
@@ -11354,6 +11685,9 @@ function joinRoom(code, asHost){
     for(const k in v){ if(k===uid) continue; miniPl.set(k, v[k]); }
     for(const k of [...miniPl.keys()]) if(k!==uid && !v[k]) miniPl.delete(k); });
   net.child('chest').on('value', s=>{ if(!G.host) G.chests = s.val() || []; });
+  net.child('drop').on('value', s=>{ if(!G.host) G.drops = s.val() || []; });
+  net.child('pick').on('value', s=>{ const v = s.val();
+    if(v && G.host && v.n !== pickSeen){ pickSeen = v.n; hostTakeDrop(v.id); } });
   net.child('grab').on('value', s=>{ const v = s.val();
     if(v && G.host && v.n !== grabSeen){ grabSeen = v.n; hostRemoveChest(v.id, v.nm||'친구', v.g|0); } });
   net.child('say').on('value', s=>{ const v = s.val();
@@ -11432,7 +11766,7 @@ function joinRoom(code, asHost){
     net.child('meta').once('value', s=>{ if(!s.val()) { G.day=1; G.crystal=G.set.crystalMax; } });
   }
 }
-let netT = 0, pcT = 0, simT = 0, saySeen = -1, grabSeen = -1;
+let netT = 0, pcT = 0, simT = 0, saySeen = -1, grabSeen = -1, pickSeen = '';
 const thSeen = new Map();   // uid -> 마지막으로 본 던진 횟수
 function netTick(dt){
   if(!net) return;
@@ -12019,6 +12353,24 @@ const SFX = {
   bite: ()=>{ noise(0.07,0.09,700); tone(170,90,0.07,'sawtooth',0.045); },
   hit:  ()=>{ tone(560,320,0.07,'square',0.045); },
   bow:  ()=>{ tone(950,420,0.06,'triangle',0.035); },
+  /* ★ 18차e — 미니게임 총(연습용 총)은 snd:'musket' 인데 이 표에 musket 이 없었다.
+     sfx() 는 없는 이름이면 조용히 아무것도 안 한다 — 그래서 서바이벌 내내 총소리가 없었다.
+     화승총다운 소리로 새로 넣는다: 굵은 파열음 + 낮게 깔리는 몸통 + 짧은 쇳소리. */
+  musket:()=>{ noise(0.055,0.22,3000); tone(155,52,0.13,'square',0.095);
+               tone(920,250,0.06,'sawtooth',0.055); },
+  /* 친구를 맞혔다 — 늑대의 'hit'(작은 삑) 보다 확실히 두껍다 */
+  phit: ()=>{ noise(0.05,0.14,1600); tone(430,185,0.09,'square',0.080); },
+  /* 머리를 맞혔다 — 높고 맑게 '팅' */
+  phead:()=>{ noise(0.035,0.10,5200); tone(1500,720,0.07,'triangle',0.090);
+              tone(2350,1150,0.05,'sine',0.050); },
+  /* 문제가 나왔다 — 둥! 하고 터지는 팡파르. 세 음이 올라가고 끝에 반짝 */
+  quiz: ()=>{ noise(0.07,0.16,1100); tone(150,64,0.20,'square',0.085);
+              [523,698,880].forEach((f,i)=> tone(f, f*1.5, 0.17, 'triangle', 0.10, now0()+i*0.075));
+              tone(1320,1980,0.13,'sine',0.055, now0()+0.23);
+              tone(1760,2640,0.10,'sine',0.035, now0()+0.30); },
+  /* 줄에 걸렸다 — 낮고 텁텁하게 '퍽' */
+  trip: ()=>{ noise(0.13,0.17,480); tone(180,68,0.22,'sawtooth',0.110);
+              tone(300,120,0.16,'square',0.060); },
   /* 총 소리 — 짧고 날카로운 파열음(잡음) + 낮게 깔리는 몸통 */
   gun:  ()=>{ noise(0.055,0.16,4200); tone(190,62,0.09,'square',0.075);
               tone(1300,420,0.045,'sawtooth',0.05); },
@@ -12037,6 +12389,15 @@ const SFX = {
 };
 const _sfxT = {};
 function sfx(k){ audioInit(); if(SFX[k]) SFX[k](); }
+/* 줄을 넘을 때마다 반음씩 높아지는 딩 — 연속으로 넘을수록 신이 난다.
+   (한 옥타브까지만 올린다. 그 위는 귀가 따갑다) */
+function sfxJump(n){
+  audioInit();
+  const k = Math.min(12, Math.max(0, (n|0) - 1));
+  const f = 620 * Math.pow(2, k/12);
+  tone(f, f*1.5, 0.10, 'triangle', 0.090);
+  tone(f*2, null, 0.06, 'sine', 0.032);
+}
 /* 멀리서 나는 소리는 무시하고, 같은 소리가 몰리면 솎아 낸다 */
 function sfxAt(k, x, z, maxD, gap){
   if(!sndOn) return;
@@ -12046,7 +12407,7 @@ function sfxAt(k, x, z, maxD, gap){
   if(_sfxT[k] && t - _sfxT[k] < (gap||70)) return;
   _sfxT[k] = t; sfx(k);
 }
-window.__sfx = sfx; window.__sfxAt = sfxAt;
+window.__sfx = sfx; window.__sfxAt = sfxAt; window.__sfxJump = sfxJump;
 
 /* ═══════════════════════ 배경음 ═══════════════════════
    원래도 아르페지오 한 줄은 있었지만 늘 같은 빠르기, 같은 세기라 배경 소음에 가까웠다.
@@ -12380,7 +12741,8 @@ function loop(){
     if(PROF_ON) pE('이름표');
 
     if(PROF_ON) pS();
-    if(!DBG.noInst){ updParts(dt); updArrows(dt); updBullets(dt); updOrbs(dt, tAcc); updChests(dt, tAcc); }
+    if(!DBG.noInst){ updParts(dt); updArrows(dt); updBullets(dt); updOrbs(dt, tAcc);
+                     updChests(dt, tAcc); updDrops(dt, tAcc); }
 
     fireworks(dt);
     if(PROF_ON) pE('효과');
@@ -12772,6 +13134,7 @@ Object.assign(window, {
   __GLASSES:GLASSES, __CLOTHES:CLOTHES, __CLO_N:CLO_NAME, __HAT_NAME:HAT_NAME, __GLS_N:GLS_NAME,
   __Pdeco:()=>P_deco, __pvw:()=>pvw,
   __KIT:KIT, __WEAPONS:WEAPONS, __ARMORS:ARMORS, __POTIONS:POTIONS,
+  __SFX_KEYS:()=>Object.keys(SFX), __verdict:verdict, __goodFlash:goodFlash,
   __buyWeapon:buyWeapon, __buyArmor:buyArmor, __buyAmmo:buyAmmo,
   __buyPotion:buyPotion, __usePotion:usePotion, __openShop:openShop,
   __shopXZ:()=>[SHOP_X, SHOP_Z], __shopOpenable:shopOpenable,
@@ -12809,7 +13172,7 @@ Object.assign(window, {
                ROPE:ROPE_SEC, SURV:SURV_SEC, PRIZE:MINI_PRIZE, OK:MINI_OK, GUN:MINI_GUN, LIVES:SURV_LIVES,
                DMG:SURV_DMG, HEAD:SURV_HEAD, HEAD_R:SURV_HEAD_R, HP:SURV_HP, WARN:MINI_WARN,
                SPAWN_R:SURV_SPAWN_R, SEG:ROPE_SEG}),
-  __updDanger:updDanger, __drawRope:drawRope,
+  __updDanger:updDanger, __drawRope:drawRope, __quizBanner:quizBanner, __paintMini:paintMini,
   __applyHitNode:applyHitNode, __survSend:survSend,
   __hitState:()=>({dealt:[...survDealt], tot:[...hitTot], seen:[...hitSeen]}),
   __survAimPart:survAimPart, __survHeadPos:(q)=>survHeadPos(q,[0,0,0]),
@@ -12823,9 +13186,15 @@ Object.assign(window, {
   __FARM_CAP:()=>FARM_CAP, __FARM_FEED:()=>FARM_FEED, __FARM_LEAVE:()=>FARM_LEAVE,
   __FARM_DIRT_BAD:()=>FARM_DIRT_BAD, __FARM_STOCK:()=>FARM_STOCK,
   __farmDirty:(v)=>{ farmDirty = v!==false; }, __farmSpotXZ:farmSpotXZ, __farmAt:farmAt,
-  __farmMorning:farmMorning, __farmFeed:farmFeed, __farmClean:farmClean, __farmTake:farmTake,
-  __buyAnimal:buyAnimal, __sellFarm:sellFarm, __basketWorth:basketWorth,
-  __basketCount:basketCount, __farmCount:farmCount, __farmStock:farmStock,
+  __farmMorning:farmMorning, __farmFeed:farmFeed, __farmClean:farmClean,
+  __buyAnimal:buyAnimal, __sellFarm:sellFarm,
+  __farmCount:farmCount, __farmStock:farmStock,
+  /* 농장 산물 (18차f) */
+  __drops:()=>G.drops, __farmDropAll:farmDropAll, __farmDropTop:farmDropTop,
+  __pickDrop:pickDrop, __hostTakeDrop:hostTakeDrop, __updDrops:updDrops,
+  __FD:()=>({PER:FD_PER, R:FD_R, MAX:FD_MAX}), __fdMesh:()=>[fdBody, fdGlow],
+  __RES_KEYS:()=>RES_KEYS, __RES_IC:RES_IC, __RES_NM:RES_NM, __myRes:myRes,
+  __gain:gain, __spend:spend,
   __JOBS:JOBS, __JOB_LV:JOB_LV, __JOB_STEP:()=>JOB_STEP, __JOB_LOOK:JOB_LOOK,
   __statMax:statMax, __jobDue:jobDue, __takeJob:takeJob, __buildJobUI:buildJobUI,
   __jobCheck:jobCheck,
