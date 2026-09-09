@@ -39,9 +39,9 @@ await shot('farm-drop-close', new Function(look + `
   /* 세 가지가 나란히 보이게 자리를 다시 잡는다 */
   const cx=W.__FARM_X()[g], cz=W.__FARM_Z()[g];
   const kinds=['egg','milk','meat'];
-  ds.forEach((d,i)=>{ d.k=kinds[i%3]; d.x=cx+(i%3-1)*0.95; d.z=cz+1.5+Math.floor(i/3)*3.0; });
+  ds.forEach((d,i)=>{ d.k=kinds[i%3]; d.x=cx+(i%3-1)*0.62; d.z=cz+1.5+Math.floor(i/3)*3.0; });
   W.__updDrops(0.016, 1.2);
-  setCam(W.__cam, cx, GY+0.95, cz-0.9, cx, GY+0.34, cz+1.5, 46); W.__render();`));
+  setCam(W.__cam, cx, GY+1.12, cz-1.1, cx, GY+0.20, cz+1.5, 55); W.__render();`));
 /* 자원 창 — 나무·돌·금 아래에 달걀·우유·돼지고기가 같이 뜬다 */
 await pg.evaluate(()=>{ const W=window, G=W.__G, g=G.me.g;
   /* 몇 개씩 주운 것으로 만들어 둔다 */

@@ -126,6 +126,42 @@ ok('★ 틀리면 아무것도 못 받는다 (내 점수도 안 오른다)',
 ok('★ 두 우리 사이는 어느 쪽도 아니다', ox.밖자리==='', '"'+ox.밖자리+'"');
 ok('★ 우리에 안 들어간 아이는 무조건 오답이고, 몇 명인지 세어 보여 준다 (가만히 서 있는 게 이득이면 안 걷는다)',
    ox.틀림.none===1 && ox.틀림.ok===1 && ox.틀림.o===1 && ox.틀림.x===1, JSON.stringify(ox.틀림));
+/* ═══ 문제 현수막 (18차h) ═══ */
+const bn = await ev(()=>{
+  const W=window, G=W.__G, M=W.__MINI(), o={};
+  const px = (x)=> parseFloat(getComputedStyle(document.querySelector(x)).fontSize);
+  o.소리 = W.__SFX_KEYS().includes('quiz');
+  /* 문제를 하나 걸어 본다 */
+  W.__quizBanner('2번', '늑대는 밤에만 나타난다', false);
+  const b = document.getElementById('quizBanner');
+  o.문제 = {뜸:b.classList.contains('on'), 초록:b.classList.contains('ans'),
+           글:document.getElementById('qbQ').textContent,
+           번호:document.getElementById('qbNo').textContent,
+           몸에표시:document.body.classList.contains('qbOn')};
+  o.크기 = {현수막:px('#quizBanner .qbQ'), 판:px('#miniBar .mq'), 토스트:px('#toast')};
+  /* 정답이 공개되면 초록으로 */
+  W.__quizBanner('정답', '⭕ O · 3명이 맞혔어요', true);
+  o.정답 = {초록:b.classList.contains('ans'), 글:document.getElementById('qbQ').textContent};
+  /* 내린다 */
+  W.__quizBanner(null, null);
+  o.내림 = {뜸:b.classList.contains('on'), 몸에표시:document.body.classList.contains('qbOn')};
+  return o;
+});
+ok('★ 문제가 나올 때 터지는 소리가 있다', bn.소리);
+ok('★ 문제가 현수막에 크게 뜬다 (번호 딱지 + 문제 글)',
+   bn.문제.뜸 && !bn.문제.초록 && bn.문제.번호 === '2번'
+   && bn.문제.글 === '늑대는 밤에만 나타난다' && bn.문제.몸에표시,
+   JSON.stringify(bn.문제));
+/* ★ 글자 크기를 못 박는 이유 — `font: 900 46px inherit` 처럼 쓰면 CSS 가 그 줄을 통째로
+   버린다(font 줄임표기에서 글꼴 자리에 inherit 은 못 쓴다). 그러면 아무 오류 없이
+   브라우저 기본값 16px 로 나온다. 실제로 파일 전체에 82군데가 그랬다. */
+ok('★ 큰 글씨로 정한 것이 실제로 크다 (글자 크기 규칙이 조용히 버려지지 않는다)',
+   bn.크기.현수막 >= 30 && bn.크기.판 >= 20 && bn.크기.토스트 >= 18,
+   '현수막 '+bn.크기.현수막+'px · 판 '+bn.크기.판+'px · 토스트 '+bn.크기.토스트+'px');
+ok('★ 정답이 공개되면 현수막이 초록으로 바뀐다', bn.정답.초록 && /맞혔어요/.test(bn.정답.글),
+   JSON.stringify(bn.정답));
+ok('★ 퀴즈가 끝나면 현수막이 내려간다', !bn.내림.뜸 && !bn.내림.몸에표시);
+
 ok('★ 남은 5초면 화면이 비상으로 빨갛게 깜빡인다 (그 전엔 안 깜빡인다)',
    ox.비상 === true && ox.아직 === false, '5초 '+ox.비상+' · 그 전 '+ox.아직);
 ok('★ 세 문제가 끝나면 마무리 판이 뜬다', ox.끝.st==='done' && ox.끝.qn===3 && ox.끝.sc[0]===2, JSON.stringify(ox.끝));

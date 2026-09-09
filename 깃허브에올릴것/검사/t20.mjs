@@ -295,6 +295,40 @@ ok('★ 자원 창에 여섯 칸이 다 있다', rbox.칸 === 6, rbox.칸+'칸')
 ok('★ 산물 줄은 동물이 있어야 뜬다 (처음부터 0 세 개면 자원 창이 복잡하기만 하다)',
    rbox.동물없을때 === false && rbox.동물있을때 === true,
    '동물 없을 때 '+rbox.동물없을때+' · 있을 때 '+rbox.동물있을때);
+/* ═══════ ⑨ 산물 크기 — 우리를 덮으면 안 된다 (18차g) ═══════
+   ★ 처음에 크게 만들었더니 "농장에 여러 개 떠야 되잖아, 지금 이상한 탑 같다" 셨다.
+     눈으로 보고 줄였는데, 눈으로 본 것은 다음에 또 커진다 — 숫자로 못 박는다. */
+const size = await pg.evaluate(()=>{
+  const W=window, G=W.__G, o={}, g=G.me.g, f=G.farm[g];
+  W.__drops().length = 0;
+  for(const A of W.__FARM_ANIMALS) f[A.prod]=0;
+  f.hen=2; f.pig=2; f.cow=2; f.fed=G.day; G.day++; W.__farmMorning();
+  W.__updDrops(0.016, 1.0);
+  const [body] = W.__fdMesh();
+  const a = body.instanceMatrix.array;
+  let maxW = 0, maxH = 0;
+  for(let i=0;i<body.count;i++){
+    const o2 = i*16;
+    /* 행렬 각 열의 길이가 그 축의 크기다 (회전이 섞여 있어도 길이는 안 변한다) */
+    maxW = Math.max(maxW, Math.hypot(a[o2],a[o2+1],a[o2+2]), Math.hypot(a[o2+8],a[o2+9],a[o2+10]));
+    maxH = Math.max(maxH, Math.hypot(a[o2+4],a[o2+5],a[o2+6]));
+  }
+  o.제일넓은조각 = +maxW.toFixed(3);
+  o.제일높은조각 = +maxH.toFixed(3);
+  o.조각수 = body.count;
+  o.산물수 = W.__drops().filter(d=>d.g===g).length;
+  o.조각당 = +(body.count / Math.max(1,W.__drops().length)).toFixed(1);
+  /* 한 산물이 차지하는 키 — 제일 높은 칸에서 제일 낮은 칸까지 */
+  let lo = 1e9, hi = -1e9;
+  for(let i=0;i<body.count;i++){ const yy = a[i*16+13]; lo = Math.min(lo,yy); hi = Math.max(hi,yy); }
+  o.높이폭 = +(hi-lo).toFixed(2);
+  return o;
+});
+ok('★ 산물 한 조각이 1칸(양 한 마리 너비)의 4분의 1을 안 넘는다 — 우리가 산물로 덮이면 동물이 안 보인다',
+   size.제일넓은조각 <= 0.25 && size.제일높은조각 <= 0.15,
+   '제일 넓은 조각 '+size.제일넓은조각+'칸 · 제일 높은 조각 '+size.제일높은조각+'칸');
+ok('★ 한 산물이 덩어리 넷 안팎이다 (많이 쌓으면 탑처럼 보인다)',
+   size.조각당 <= 5, '산물 하나에 '+size.조각당+'덩어리');
 ok('★ 남의 모둠 우리에 놓인 것은 못 줍는다 (남의 농장을 털면 교실이 아수라장이 된다)',
    rbox.남의것 > 0 && rbox.남의것주움 === 0 && rbox.남의것남음 === rbox.남의것,
    '남의 우리 '+rbox.남의것+'개 · 주워진 것 '+rbox.남의것주움+'개');
