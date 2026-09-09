@@ -43,13 +43,14 @@ ok('★ 다섯 농장이 수정에서 똑같이 떨어져 있다 (어느 모둠�
 ok('★ 농장끼리 겹치지 않는다', pos.제일가까운두농장 > 8, '제일 가까운 두 농장 '+pos.제일가까운두농장+'칸');
 ok('★ 농장이 마당 안에 있다 (늑대 길을 막지 않는다)', pos.입구보다안쪽);
 
-/* ═══════ ② 일하는 자리 — 먹이·청소·거두기가 서로 다른 곳이다 ═══════ */
+/* ═══════ ② 일하는 자리 — 먹이·청소가 서로 다른 곳이다 ═══════
+   ★ 18차f 부터 '거두기' 는 없다. 산물이 우리 안에 놓이고 몸으로 부딪혀 줍는다. */
 const spot = await pg.evaluate(()=>{
   const W=window, o={}, S={};
-  for(const w of ['feed','clean','take','buy']) S[w] = W.__farmSpotXZ(0, w);
+  for(const w of ['feed','clean','buy']) S[w] = W.__farmSpotXZ(0, w);
   o.자리 = S;
   let near = 1e9;
-  const ks = ['feed','clean','take'];
+  const ks = ['feed','clean'];
   for(let i=0;i<ks.length;i++) for(let j=i+1;j<ks.length;j++)
     near = Math.min(near, Math.hypot(S[ks[i]][0]-S[ks[j]][0], S[ks[i]][1]-S[ks[j]][1]));
   o.제일가까운두자리 = Math.round(near*100)/100;
@@ -66,10 +67,10 @@ const spot = await pg.evaluate(()=>{
   o.멀리서 = stand(W.__FARM_X()[0] + 40, W.__FARM_Z()[0] + 40);
   return o;
 });
-ok('★ 먹이·청소·거두기가 서로 다른 자리다 (한 자리에서 다 되면 뭘 하는지 모른다)',
+ok('★ 먹이·청소가 서로 다른 자리다 (한 자리에서 다 되면 뭘 하는지 모른다)',
    spot.제일가까운두자리 > 0.9, '제일 가까운 두 자리 '+spot.제일가까운두자리+'칸');
 ok('★ 자리마다 그 일이 잡힌다',
-   spot.잡힘.feed==='0:feed' && spot.잡힘.clean==='0:clean' && spot.잡힘.take==='0:take',
+   spot.잡힘.feed==='0:feed' && spot.잡힘.clean==='0:clean',
    JSON.stringify(spot.잡힘));
 ok('★ 농장에서 멀면 아무 일도 안 잡힌다', !spot.멀리서);
 
@@ -134,11 +135,15 @@ const day = await pg.evaluate(()=>{
   const W=window, G=W.__G, o={}, g=G.me.g, f=G.farm[g];
   const base = W.__base[g]; base.w=100000; base.s=100000; base.o=100000; W.__recompute();
   f.hen=2; f.pig=1; f.cow=0; f.dirt=0; f.hun=0;
-  for(const A of W.__FARM_ANIMALS){ f[A.prod]=0; f['b_'+A.prod]=0; }
+  for(const A of W.__FARM_ANIMALS) f[A.prod]=0;
+  W.__drops().length = 0;
+  /* ★ 18차f — 나온 것은 곧바로 우리 안에 놓인다(farmStock 이 0 이 된다).
+     '얼마나 나왔나' 는 '우리에 남은 것 + 우리 안에 놓인 것' 으로 세야 한다. */
+  const made = ()=> W.__farmStock(f) + W.__drops().filter(d=>d.g===g).length;
   /* 먹이를 주고 하루를 넘긴다 */
   f.fed = G.day;
   G.day++; W.__farmMorning();
-  o.먹인다음날 = W.__farmStock(f);
+  o.먹인다음날 = made();
   o.마리수 = W.__farmCount(f);
   o.더러워짐 = Math.round((f.dirt||0)*100)/100;
   /* 안 주고 여러 날 넘긴다 — 언젠가 떠난다 */
@@ -159,8 +164,10 @@ ok('★ 먹이를 안 주면 굶다가 떠난다 (하루 빠뜨렸다고 바로�
 const dirty = await pg.evaluate(()=>{
   const W=window, G=W.__G, o={}, g=G.me.g, f=G.farm[g];
   const set=(dirt)=>{ f.hen=4; f.pig=0; f.cow=0; f.hun=0; f.dirt=dirt;
-    for(const A of W.__FARM_ANIMALS){ f[A.prod]=0; f['b_'+A.prod]=0; }
-    f.fed=G.day; G.day++; W.__farmMorning(); return W.__farmStock(f); };
+    for(const A of W.__FARM_ANIMALS) f[A.prod]=0;
+    W.__drops().length = 0;
+    f.fed=G.day; G.day++; W.__farmMorning();
+    return W.__farmStock(f) + W.__drops().filter(d=>d.g===g).length; };
   o.깨끗할때 = set(0);
   o.더러울때 = set(1.0);
   /* 더러움 눈금 — 청소하면 0 이 된다 */
@@ -172,36 +179,125 @@ ok('★ 우리가 더러우면 덜 나온다 (0 이 아니라 절반 — 왜 적
    '깨끗 '+dirty.깨끗할때+'개 · 더러움 '+dirty.더러울때+'개');
 ok('★ 청소하면 깨끗해진다', dirty.청소뒤 === 0);
 
-/* ═══════ ⑦ 거두기 → 광주리 → 팔기 ═══════ */
+/* ═══════ ⑦ 우리에 놓임 → 몸으로 주움 → 자원 창 → 상인 교환 (18차f) ═══════
+   ★ 예전에는 숫자로만 쌓이고 헛간 앞에서 '거두기' 를 꾹 눌렀다.
+     이제 알·우유·고기가 우리 안에 진짜로 놓이고, 뛰어가 부딪히면 자원 창의 🥚🥛🍖 가 오른다. */
 const sell = await pg.evaluate(()=>{
   const W=window, G=W.__G, o={}, g=G.me.g, f=G.farm[g];
   const base = W.__base[g]; base.w=100000; base.s=100000; base.o=100000; W.__recompute();
   W.__myPC.g = g; W.__syncMyPC();
+  W.__drops().length = 0;
   f.hen=3; f.pig=2; f.cow=1; f.dirt=0; f.hun=0; f.fed=G.day;
-  for(const A of W.__FARM_ANIMALS){ f[A.prod]=0; f['b_'+A.prod]=0; }
+  for(const A of W.__FARM_ANIMALS) f[A.prod]=0;
   G.day++; W.__farmMorning();
-  o.우리에쌓인것 = W.__farmStock(f);
-  /* XP 에 '누계' 칸은 없다 — 레벨과 그 레벨 안에서의 경험치로 잰다 */
+  const mine = ()=> W.__drops().filter(d=>d.g===g);
+  o.놓인것 = mine().length;
+  o.남은것 = W.__farmStock(f);
+  o.PER = W.__FD().PER;
+  /* 전부 우리 안인가 */
+  const cx = W.__FARM_X()[g], cz = W.__FARM_Z()[g], R = W.__farmR2(g);
+  o.우리안 = mine().every(d=>Math.hypot(d.x-cx, d.z-cz) <= R);
+  /* 서로 겹치지 않는가 */
+  let near = 1e9, ds = mine();
+  for(let i=0;i<ds.length;i++) for(let j2=i+1;j2<ds.length;j2++)
+    near = Math.min(near, Math.hypot(ds[i].x-ds[j2].x, ds[i].z-ds[j2].z));
+  o.제일가까운둘 = +near.toFixed(2);
+  /* 종류가 동물에 맞나 — 닭·돼지·소를 다 뒀으니 세 가지가 다 나와야 한다 */
+  o.종류 = [...new Set(mine().map(d=>d.k))].sort();
+  /* 한 개 주워 본다 — 자원 창의 그 칸이 1 오른다 */
   const xp0 = W.__XP.lv*1e6 + W.__XP.xp;
-  W.__farmTake(g);
-  o.거둔뒤우리 = W.__farmStock(f);
-  o.광주리 = W.__basketCount(f);
-  o.값어치 = W.__basketWorth(f);
-  o.거두기경험치 = (W.__XP.lv*1e6 + W.__XP.xp) - xp0;
+  const before = {...W.__myRes()};
+  const d0 = mine()[0];
+  const A0 = W.__FARM_ANIMALS.find(A=>A.prod === d0.k);
+  W.__pickDrop(d0);
+  const after = W.__myRes();
+  o.주움 = {종류:A0.res, 오름:(after[A0.res]|0) - (before[A0.res]|0),
+           남은개수:mine().length};
+  o.줍기경험치 = (W.__XP.lv*1e6 + W.__XP.xp) - xp0;
+  /* 나머지도 다 줍는다 */
+  while(mine().length) W.__pickDrop(mine()[0]);
+  const r = W.__myRes();
+  o.자원창 = {eg:r.eg|0, mk:r.mk|0, pk:r.pk|0};
+  o.모두 = (r.eg|0)+(r.mk|0)+(r.pk|0);
+  /* 상인 교환 — 산물이 금으로 바뀌고 산물 칸은 0 이 된다 */
+  const 값 = W.__FARM_ANIMALS.reduce((a,A)=> a + (r[A.res]|0)*A.gold, 0);
   const gold0 = W.__myRes().g;
   W.__sellFarm();
-  o.받은금 = W.__myRes().g - gold0;
-  o.판뒤광주리 = W.__basketCount(f);
+  o.받은금 = W.__myRes().g - gold0; o.값어치 = 값;
+  const r2 = W.__myRes();
+  o.판뒤 = (r2.eg|0)+(r2.mk|0)+(r2.pk|0);
   return o;
 });
-ok('★ 거두면 우리가 비고 광주리로 옮겨진다',
-   sell.거둔뒤우리 === 0 && sell.광주리 === sell.우리에쌓인것,
-   sell.우리에쌓인것+'개 → 광주리 '+sell.광주리+'개');
-ok('★ 거두면 경험치를 받는다 (밤새 싸운 아이만 레벨이 오르면 안 된다)',
-   sell.거두기경험치 > 0, '+'+sell.거두기경험치+'xp');
-ok('★ 상인에게 팔면 값어치만큼 금이 들어온다',
+ok('★ 아침이면 산물이 우리 안에 진짜로 놓인다 (숫자로만 쌓이면 9살에겐 아무 느낌이 없다)',
+   sell.놓인것 > 0 && sell.놓인것 <= sell.PER, sell.놓인것+'개 (한 번에 최대 '+sell.PER+'개)');
+ok('★ 놓인 것은 전부 우리 울타리 안이다', sell.우리안);
+ok('★ 서로 겹쳐 놓이지 않는다 (겹치면 하나만 보이고 나머지는 못 찾는다)',
+   sell.제일가까운둘 > 1.0, '제일 가까운 둘 '+sell.제일가까운둘+'칸');
+ok('★ 기르는 동물에 맞는 것이 나온다 (닭→달걀 · 돼지→고기 · 소→우유)',
+   sell.종류.length === 3, sell.종류.join(' '));
+ok('★ 몸으로 부딪히면 그 자원이 1 오르고 놓인 것이 하나 준다',
+   sell.주움.오름 === 1 && sell.주움.남은개수 === sell.놓인것 - 1,
+   sell.주움.종류+' +'+sell.주움.오름);
+ok('★ 주우면 경험치를 받는다 (밤새 싸운 아이만 레벨이 오르면 안 된다)',
+   sell.줍기경험치 > 0, '+'+sell.줍기경험치+'xp');
+ok('★ 주운 것이 자원 창에 나무·돌·금과 나란히 쌓인다',
+   sell.모두 === sell.놓인것, JSON.stringify(sell.자원창));
+ok('★ 상인에게 바꾸면 값어치만큼 금이 들어온다',
    sell.받은금 === sell.값어치 && sell.받은금 > 0, '✨'+sell.받은금);
-ok('★ 판 뒤에는 광주리가 빈다', sell.판뒤광주리 === 0);
+ok('★ 바꾼 뒤에는 산물 칸이 빈다', sell.판뒤 === 0);
+
+/* ═══════ ⑧ 자원 창 · 남의 우리 것 (18차f) ═══════ */
+const rbox = await pg.evaluate(()=>{
+  const W=window, G=W.__G, o={}, g=G.me.g, f=G.farm[g];
+  o.자원종류 = W.__RES_KEYS();
+  o.아이콘 = o.자원종류.map(k=>W.__RES_IC[k]);
+  o.이름 = o.자원종류.map(k=>W.__RES_NM[k]);
+  /* 아이콘·이름이 빠짐없이 있나 */
+  o.빠진것 = o.자원종류.filter(k=>!W.__RES_IC[k] || !W.__RES_NM[k]);
+  /* 자원 창에 여섯 칸이 다 있나 */
+  o.칸 = ['rW','rS','rG','rE','rM','rP'].filter(id=>!!document.getElementById(id)).length;
+  /* 동물이 있으면 산물 줄이 뜬다 */
+  W.__drops().length = 0;
+  for(const A of W.__FARM_ANIMALS) f[A.prod]=0;
+  f.hen=0; f.pig=0; f.cow=0;
+  /* ★ __myPC 는 '값' 이 아니라 '값을 돌려주는 함수' 다. W.__myPC.eg = 0 은
+     함수에 칸을 하나 붙일 뿐 아무 일도 안 한다 — 화면을 찍어 보고 알았다. */
+  const pc = W.__myPC();
+  pc.eg=0; pc.mk=0; pc.pk=0; pc.seg=0; pc.smk=0; pc.spk=0; W.__recompute();
+  /* ★ 화면이 저절로 다시 칠해지기를 기다리면(setTimeout) 기계가 바쁠 때 흔들린다.
+     칠하는 함수를 직접 부른다 — 캐시(hudPrev)를 지워 줘야 다시 칠한다. */
+  const repaint = ()=>{ W.__hudPrev().farmRes = undefined; W.__paintHUD(); };
+  repaint();
+  o.동물없을때 = document.getElementById('resFarm').classList.contains('on');
+  f.hen = 2;
+  repaint();
+  o.동물있을때 = document.getElementById('resFarm').classList.contains('on');
+  /* 남의 모둠 우리에 놓인 것은 못 줍는다 */
+  const og = (g+1)%5;
+  const of2 = G.farm[og]; of2.hen = 3; of2.fed = G.day;
+  G.day++; W.__farmMorning();
+  const theirs = W.__drops().filter(d=>d.g===og);
+  o.남의것 = theirs.length;
+  if(theirs.length){
+    const t0 = theirs[0];
+    W.__PL.x = t0.x; W.__PL.z = t0.z;          // 남의 우리 산물 위에 선다
+    const before = (W.__myRes().eg|0);
+    W.__updDrops(0.05, 1);
+    o.남의것주움 = (W.__myRes().eg|0) - before;
+    o.남의것남음 = W.__drops().filter(d=>d.g===og).length;
+  }
+  return o;
+});
+ok('★ 자원이 여섯 가지다 — 나무·돌·금 + 달걀·우유·돼지고기',
+   rbox.자원종류.length === 6 && rbox.빠진것.length === 0,
+   rbox.자원종류.map((k,i)=>rbox.아이콘[i]+rbox.이름[i]).join(' '));
+ok('★ 자원 창에 여섯 칸이 다 있다', rbox.칸 === 6, rbox.칸+'칸');
+ok('★ 산물 줄은 동물이 있어야 뜬다 (처음부터 0 세 개면 자원 창이 복잡하기만 하다)',
+   rbox.동물없을때 === false && rbox.동물있을때 === true,
+   '동물 없을 때 '+rbox.동물없을때+' · 있을 때 '+rbox.동물있을때);
+ok('★ 남의 모둠 우리에 놓인 것은 못 줍는다 (남의 농장을 털면 교실이 아수라장이 된다)',
+   rbox.남의것 > 0 && rbox.남의것주움 === 0 && rbox.남의것남음 === rbox.남의것,
+   '남의 우리 '+rbox.남의것+'개 · 주워진 것 '+rbox.남의것주움+'개');
 
 /* ═══════ ⑧ 농장 일이 '으뜸' 판에 남는다 ═══════ */
 const rank = await pg.evaluate(()=>{

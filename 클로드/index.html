@@ -361,6 +361,12 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
 .res.w{background:rgba(150,108,68,.30);border-color:rgba(200,152,98,.42)}
 .res.s{background:rgba(142,146,152,.28);border-color:rgba(192,198,206,.38)}
 .res.g{background:rgba(246,200,72,.22);border-color:rgba(255,216,110,.44)}
+/* ── 농장 산물 세 가지 — 달걀은 크림색, 우유는 하늘색, 고기는 분홍 ── */
+.res.eg{background:rgba(248,236,206,.24);border-color:rgba(255,244,214,.46)}
+.res.mk{background:rgba(186,222,255,.24);border-color:rgba(206,236,255,.48)}
+.res.pk{background:rgba(255,166,176,.24);border-color:rgba(255,190,198,.48)}
+.farmres{margin-top:6px;display:none}
+.farmres.on{display:flex}
 
 /* ── 내 체력 ── */
 #hpRow{display:flex;align-items:center;gap:7px;margin-top:9px;padding-top:9px;
@@ -1489,6 +1495,13 @@ body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, b
       <div class="res s" id="rS"><i>🪨</i><b>0</b></div>
       <div class="res g" id="rG"><i>✨</i><b>0</b></div>
     </div>
+    <!-- 농장 산물 — 우리에 동물이 있거나 주운 게 있을 때만 뜬다.
+         처음부터 0 세 개가 떠 있으면 자원 창이 복잡하기만 하다. -->
+    <div class="resline farmres" id="resFarm">
+      <div class="res eg" id="rE"><i>🥚</i><b>0</b></div>
+      <div class="res mk" id="rM"><i>🥛</i><b>0</b></div>
+      <div class="res pk" id="rP"><i>🍖</i><b>0</b></div>
+    </div>
     <div id="hpRow"><span class="hpIc">🐑</span>
       <div id="hpBar"><i id="hpFill"></i></div><span id="hpNum">100</span></div>
     <!-- 내 공격력·방어력·총알 — 무기를 사면 여기서 바로 오른다 -->
@@ -1887,7 +1900,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '18차e · 크게 티 나는 판정 · 총소리';
+const GAME_VER = '18차f · 농장 산물 (🥚 🥛 🍖)';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -3259,11 +3272,11 @@ for(let g=0; g<NG; g++){
    ★ 되돌려 받는 데 걸리는 날을 넉넉히 잡아, 3~5일차에 산 모둠은 크게 남고
      14일차에 산 모둠은 거의 못 건지게 했다. 그게 '일찍 투자' 를 가르친다. */
 const FARM_ANIMALS = [
-  {k:'hen', ic:'🐔', n:'닭',   prod:'egg',  pic:'🥚', pn:'알',
+  {k:'hen', ic:'🐔', n:'닭',   prod:'egg',  pic:'🥚', pn:'달걀', res:'eg', col:0xfff2d8,
    cost:{w:60,  s:30,  g:5},  gold:6,  desc:'제일 싸고 빠릅니다. 날마다 알을 하나씩.'},
-  {k:'pig', ic:'🐖', n:'돼지', prod:'meat', pic:'🍖', pn:'고기',
+  {k:'pig', ic:'🐖', n:'돼지', prod:'meat', pic:'🍖', pn:'돼지고기', res:'pk', col:0xff9aa6,
    cost:{w:110, s:60,  g:12}, gold:14, desc:'닭보다 비싸지만 두 배 넘게 돌아옵니다.'},
-  {k:'cow', ic:'🐄', n:'소',   prod:'milk', pic:'🥛', pn:'우유',
+  {k:'cow', ic:'🐄', n:'소',   prod:'milk', pic:'🥛', pn:'우유', res:'mk', col:0xf2fbff,
    cost:{w:180, s:110, g:25}, gold:26, desc:'제일 비쌉니다. 일찍 살수록 많이 쌓여요.'}
 ];
 /* ═══ 농장 일 세 가지 ═══
@@ -3273,7 +3286,9 @@ const FARM_ANIMALS = [
    ★ 청소를 넣은 이유: 먹이만 있으면 하루 한 번 여물통만 찍고 끝이라 심심하다.
      청소가 있으면 모둠 안에서 "너는 먹이, 나는 청소" 로 역할이 갈린다.
      안 하면 죽는 게 아니라 '덜 나온다' 라, 안 챙긴 아이를 벌주지 않는다. */
-const FARM_SEC   = {feed:3.0, clean:4.0, take:2.2};   // 꾹 누르는 시간
+/* ★ 18차f — '거두기' 를 뺐다. 산물이 우리 안에 진짜로 놓이고 몸으로 부딪혀 줍게 되어서,
+   헛간 앞에서 또 꾹 누를 이유가 없어졌다. 두 가지 방법이 있으면 아이들이 헷갈린다. */
+const FARM_SEC   = {feed:3.0, clean:4.0};            // 꾹 누르는 시간
 const XP_FEED = 8, XP_CLEAN = 10, XP_TAKE = 4;        // 농장 일 경험치
 const FARM_DIRT_UP  = 0.34;                 // 하루에 이만큼 더러워진다 (마리수에 비례)
 const FARM_DIRT_BAD = 0.55;                 // 이 위로 더러우면 산출이 절반
@@ -6534,7 +6549,7 @@ const G = {
        crystalMax:D.crystalMax, wolfPower:D.wolfPower},
   res:[], me:{name:'', g:0, uid:'', hat:0, gls:0, clo:0}, host:false, solo:false, room:'', focus:0,
   wolves:[], soldiers:[], players:new Map(), stats:new Map(), started:false, paused:false,
-  bossTier:-1, bossId:0, chests:[], chT:0, danger:-1,
+  bossTier:-1, bossId:0, chests:[], chT:0, drops:[], danger:-1,
   mis:0, misD:0,                                  // 오늘의 임무 진행도 / 다 했나
   /* 모둠 농장 — fed 는 '마지막으로 먹인 날', hun 은 '내리 굶은 날수' */
   farm:[]
@@ -6554,7 +6569,6 @@ function farmSpotXZ(g, which){
   const fx = Math.cos(openA), fz = Math.sin(openA);   // 로컬 +Z (앞)
   const ux = fz, uz = -fx;                            // 로컬 +X (옆)
   if(which === 'feed')  return [cx - fx*(R-0.95) - ux*1.05, cz - fz*(R-0.95) - uz*1.05];
-  if(which === 'take')  return [cx - fx*(R+0.55), cz - fz*(R+0.55)];
   if(which === 'buy')   return [cx + fx*(R+0.75), cz + fz*(R+0.75)];
   return [cx, cz];                                    // 'clean' = 우리 한가운데
 }
@@ -6562,7 +6576,7 @@ function farmSpotXZ(g, which){
 function farmAt(){
   let best = null, bd = FARM_NEAR*FARM_NEAR;
   for(let g=0; g<NG; g++){
-    for(const w of ['feed','clean','take','buy']){
+    for(const w of ['feed','clean','buy']){
       const [x,z] = farmSpotXZ(g,w);
       const dx = PL.x-x, dz = PL.z-z, d2 = dx*dx+dz*dz;
       /* 자리마다 반경이 다르다 — 우리 바닥(청소)은 넓고, 나머지는 좁다 */
@@ -6576,12 +6590,7 @@ const myFarm    = ()=> G.farm[G.me.g];
 const farmCount = f => (f.hen|0) + (f.pig|0) + (f.cow|0);
 const farmStock = f => (f.egg|0) + (f.meat|0) + (f.milk|0);
 /* 우리에 쌓인 것을 다 팔면 금이 얼마인가 */
-function farmWorth(f){
-  let g = 0;
-  for(const A of FARM_ANIMALS) g += (f[A.prod]|0) * A.gold;
-  return g;
-}
-for(let i=0;i<NG;i++) G.res.push({w:30,s:20,g:0});
+for(let i=0;i<NG;i++) G.res.push({w:30,s:20,g:0,eg:0,mk:0,pk:0});
 const myRes = ()=> G.res[G.me.g];
 
 /* ═══════════════════════ 플레이어 ═══════════════════════ */
@@ -6822,6 +6831,159 @@ for(const m of [chBody, chTrim]){
   m.frustumCulled = false; m.visible = false; scene.add(m);
 }
 let chSeq = 1, chGrabN = 0;
+
+/* ═══════════ 농장 산물 — 우리 안에 진짜로 놓인다 (18차f) ═══════════
+   ★ 선생님 주문: "소가 있으면 우유, 닭이 있으면 달걀, 돼지가 있으면 고기가
+     농장 안에 마치 보물상자처럼 나왔으면 좋겠어. 애들이 그걸 먹으면 자원 창에 같이 뜨는 거야."
+   ★ 예전에는 산출이 숫자로만 쌓이고 헛간 앞에서 '거두기' 를 꾹 눌러야 했다.
+     9살에게 "우리에 알이 3개 있다" 는 글자는 아무 느낌이 없다.
+     우리 안에 알이 놓여 있고, 뛰어가서 몸으로 부딪히면 자원 창의 🥚 가 오르는 것 —
+     이건 설명이 필요 없다. 보물 상자와 똑같은 방식이라 아이들이 이미 안다.
+   ★ 다른 모둠 우리 것은 못 줍는다. 남의 농장에 뛰어들어 훔치는 판이 되면
+     교실이 아수라장이 되고, 농장을 챙길 이유도 사라진다. */
+const FD_PER = 8;                 // 우리 하나에 한 번에 놓이는 산물 수
+const FD_R   = 1.55;              // 몸으로 닿아야 하는 거리
+const FD_MAX = NG * FD_PER;
+/* 한 알(또는 병·고기)에 몸통 조각 최대 7개 + 빛 2개.
+   메시는 둘뿐이고, 놓인 게 하나도 없으면 통째로 숨긴다 → 드로우콜 0. */
+const fdBody = new THREE.InstancedMesh(cube(T.cloth), MAT,   FD_MAX*7);
+const fdGlow = new THREE.InstancedMesh(cube(T.glow),  EMITC, FD_MAX*2);
+for(const m of [fdBody, fdGlow]){
+  m.instanceColor = new THREE.InstancedBufferAttribute(
+    new Float32Array(m.instanceMatrix.count*3).fill(1), 3);
+  m.frustumCulled = false; m.visible = false; scene.add(m);
+}
+let fdSeq = 1, fdPickN = 0;
+const FD_OF = {};                 // prod 이름 → 동물 표
+for(const A of FARM_ANIMALS) FD_OF[A.prod] = A;
+/* 우리 안 빈자리 하나 — 이미 놓인 것과 겹치지 않게 */
+function farmDropSpot(g){
+  const cx = FARM_X[g], cz = FARM_Z[g], R = farmR2(g) - 1.15;
+  const mine = G.drops.filter(d=>d.g === g);
+  for(let t=0;t<24;t++){
+    const a = Math.random()*Math.PI*2, rr = R*Math.sqrt(Math.random());
+    const x = cx + Math.sin(a)*rr, z = cz + Math.cos(a)*rr;
+    let ok = true;
+    for(const d of mine) if(Math.hypot(d.x-x, d.z-z) < 1.15){ ok = false; break; }
+    if(ok) return [x, z];
+  }
+  return null;
+}
+/* 우리에 쌓인 산출(f.egg/meat/milk)을 눈에 보이는 것으로 꺼내 놓는다.
+   ★ 쌓인 것을 전부 내놓지는 않는다 — 우리가 알로 덮이면 동물이 안 보인다.
+     여덟 개까지만 놓고, 하나 주울 때마다 다음 것이 나온다. */
+function farmDropTop(g){
+  if(!G.host) return 0;
+  const f = G.farm[g]; if(!f) return 0;
+  let have = 0; for(const d of G.drops) if(d.g === g) have++;
+  let added = 0;
+  while(have < FD_PER){
+    /* 제일 많이 쌓인 것부터 꺼낸다 — 한 종류만 잔뜩 나오는 일이 덜하다 */
+    let A = null, best = 0;
+    for(const B of FARM_ANIMALS){ const v = f[B.prod]|0; if(v > best){ best = v; A = B; } }
+    if(!A) break;
+    const sp = farmDropSpot(g); if(!sp) break;
+    f[A.prod] = (f[A.prod]|0) - 1;
+    G.drops.push({id:fdSeq++, g, k:A.prod, x:sp[0], z:sp[1]});
+    have++; added++;
+  }
+  return added;
+}
+function farmDropAll(){ let n = 0; for(let g=0; g<NG; g++) n += farmDropTop(g); 
+  if(n){ netDrops(); netFarm(); } return n; }
+function netDrops(){ if(net && G.host) net.child('drop').set(G.drops); }
+/* 하나 주웠다 — 주운 아이 모둠 자원으로 들어간다 */
+function pickDrop(d){
+  const A = FD_OF[d.k]; if(!A) return;
+  gain(A.res, 1);
+  MY.farmed = (MY.farmed|0) + 1;
+  xpGain(XP_TAKE);
+  burst(d.x, GY+0.75, d.z, A.col, 14, 1.3);
+  burst(d.x, GY+1.15, d.z, 0xfff2c0, 8, 1.0);
+  toast(`${A.pic} ${A.pn} +1`, 1.2, '#ffe9a0');
+  if(window.__sfx) window.__sfx('get');
+  if(G.host) hostTakeDrop(d.id);
+  else if(net) net.child('pick').set({n:++fdPickN + '_' + uid, id:d.id, g:G.me.g});
+  const k = G.drops.indexOf(d); if(k>=0) G.drops.splice(k,1);
+}
+function hostTakeDrop(id){
+  const k = G.drops.findIndex(d=>d.id === id);
+  if(k < 0) return;
+  const g = G.drops[k].g;
+  G.drops.splice(k,1);
+  farmDropTop(g);            // 하나 빠지면 쌓여 있던 다음 것이 나온다
+  netDrops(); netFarm();
+}
+/* 매 프레임 — 내가 닿았는지 보고, 그리고 그린다 */
+function updDrops(dt, tt){
+  /* 우리 모둠 우리 것만 줍는다 */
+  if(G.started && !PL.down && G.phase !== 'mini')
+    for(const d of G.drops){
+      if(d.g !== G.me.g) continue;
+      if(Math.hypot(d.x-PL.x, d.z-PL.z) < FD_R){ pickDrop(d); break; }
+    }
+  let nb = 0, ng = 0;
+  const capB = fdBody.instanceMatrix.count, capG = fdGlow.instanceMatrix.count;
+  for(const d of G.drops){
+    if(nb+7 > capB || ng+2 > capG) break;
+    const A = FD_OF[d.k]; if(!A) continue;
+    const ph  = tt*1.9 + d.id*1.7;
+    const bob = Math.sin(ph)*0.045;
+    const ry  = tt*0.7 + d.id;
+    const y   = GY + 0.30 + bob;          // 산물 한가운데 높이
+    /* 발밑에 깔리는 빛 — 우리 안 어디에 있는지 멀리서도 보인다 */
+    setI(fdGlow, ng++, d.x, GY+0.05, d.z, ry*0.5, 0.50, 0.04, 0.50, A.col);
+    /* 둘레를 도는 반짝이 — '주울 수 있는 것' 이라는 표시.
+       ★ 가만히 있는 물건은 배경이 된다. 도는 점 하나면 눈이 따라온다. */
+    setI(fdGlow, ng++, d.x + Math.sin(ph*0.9)*0.30, y + 0.26 + Math.cos(ph*1.3)*0.06,
+         d.z + Math.cos(ph*0.9)*0.30, ph, 0.075, 0.075, 0.075, 0xfff6d0);
+    if(d.k === 'egg'){
+      /* 달걀 — 짚 둥지 위. 아래가 통통하고 위가 좁은 다섯 겹.
+         ★ 겹의 폭을 타원 곡선으로 잡아야 알로 읽힌다. 같은 폭 세 겹은 '흰 주사위' 다.
+           겹은 얇게(0.055) 두고 개수로 곡선을 만든다. */
+      /* 둥지는 작고 낮게 — 크면 알이 '케이크 받침 위' 로 보인다 */
+      setI(fdBody, nb++, d.x, GY+0.045, d.z, ry+0.4, 0.30, 0.05, 0.30, 0xd0aa66);
+      /* ★ 겹을 45도씩 엇갈려 쌓아 봤는데, 폭이 층마다 다르니 팔각이 아니라
+         뾰족뾰족한 돌무더기가 됐다(화면으로 확인). 각도를 하나로 두고
+         '아래 굽 · 통통한 몸 · 좁은 어깨 · 뾰족한 끝' 네 덩어리로 잡는 편이
+         작게 보일 때 훨씬 알처럼 읽힌다. */
+      setI(fdBody, nb++, d.x, y-0.115, d.z, ry, 0.165, 0.055, 0.165, 0xfff6e8);  // 굽
+      setI(fdBody, nb++, d.x, y-0.015, d.z, ry, 0.232, 0.150, 0.232, 0xfffaf0);  // 몸
+      setI(fdBody, nb++, d.x, y+0.090, d.z, ry, 0.160, 0.062, 0.160, 0xfffdf6);  // 어깨
+      setI(fdBody, nb++, d.x, y+0.140, d.z, ry, 0.086, 0.042, 0.086, 0xfffdf6);  // 끝
+      /* 볼우물 같은 점 — 이게 있어야 알이 귀여워진다 */
+      setI(fdBody, nb++, d.x + Math.sin(ry+0.6)*0.118, y-0.015, d.z + Math.cos(ry+0.6)*0.118,
+           ry+0.6, 0.048, 0.048, 0.02, 0xf0d8b4);
+    } else if(d.k === 'milk'){
+      /* 우유병 — 통통한 몸통 + 좁은 목 + 하늘색 뚜껑 + 옆구리 흰 빛줄기(유리) */
+      /* ★ 몸통·어깨·목을 엇갈려(45도) 쌓아 둥근 병으로 읽히게 한다.
+         파란 띠를 바닥에 두껍게 둘렀더니 '케이크' 로 보였다 — 얇게 허리에만 두른다. */
+      setI(fdBody, nb++, d.x, GY+0.05, d.z, ry+0.4, 0.34, 0.06, 0.34, 0xbcd6ea);       // 받침
+      setI(fdBody, nb++, d.x, y-0.05,  d.z, ry, 0.235, 0.21, 0.235, 0xfbffff);         // 몸통
+      setI(fdBody, nb++, d.x, y-0.02,  d.z, ry+Math.PI/4, 0.225, 0.05, 0.225, 0xe9f6ff); // 허리 띠
+      setI(fdBody, nb++, d.x, y+0.085, d.z, ry+Math.PI/4, 0.170, 0.055, 0.170, 0xfbffff); // 어깨
+      setI(fdBody, nb++, d.x, y+0.150, d.z, ry, 0.100, 0.075, 0.100, 0xfbffff);        // 목
+      setI(fdBody, nb++, d.x, y+0.200, d.z, ry+Math.PI/4, 0.140, 0.045, 0.140, 0x7ec6ff); // 뚜껑
+      setI(fdBody, nb++, d.x + Math.sin(ry+0.8)*0.110, y-0.05, d.z + Math.cos(ry+0.8)*0.110,
+           ry+0.8, 0.035, 0.15, 0.025, 0xffffff);                                       // 빛줄기
+    } else {
+      /* 돼지고기 — 나무 접시 + 분홍 살 + 흰 비계 + 양쪽으로 나온 뼈.
+         ★ 뼈가 있어야 만화 고기로 읽힌다. 없으면 그냥 분홍 상자다. */
+      const sx = Math.sin(ry+Math.PI/2), sz = Math.cos(ry+Math.PI/2);
+      setI(fdBody, nb++, d.x, GY+0.05, d.z, ry, 0.42, 0.06, 0.34, 0xc98a6a);    // 접시
+      setI(fdBody, nb++, d.x, y-0.03,  d.z, ry, 0.30, 0.19, 0.23, 0xff96a4);    // 살
+      setI(fdBody, nb++, d.x, y+0.095, d.z, ry, 0.255, 0.06, 0.195, 0xffd6dc);  // 비계
+      for(const q of [1,-1]){
+        setI(fdBody, nb++, d.x + sx*q*0.195, y-0.01, d.z + sz*q*0.195, ry, 0.115, 0.065, 0.065, 0xfff6ea);
+        setI(fdBody, nb++, d.x + sx*q*0.255, y-0.01, d.z + sz*q*0.255, ry, 0.075, 0.105, 0.105, 0xfff6ea);
+      }
+    }
+  }
+  fdBody.count = nb; fdGlow.count = ng;
+  fdBody.visible = nb > 0; fdGlow.visible = ng > 0;
+  if(nb) flush(fdBody);
+  if(ng) flush(fdGlow);
+}
 function chestReward(day){
   /* ★ 15차 — 50% 상향. 상자를 보고 달려갈 만한 값이어야 '보물' 이다.
      예전: 1일차 🪵14 🪨14 ✨4 → 18일차 🪵48 🪨48 ✨16
@@ -7634,12 +7796,13 @@ function buildFarmUI(){
     ? '<b style="color:#ffb0b0">🧹 더러움 — 나오는 양이 절반</b>'
     : dirt >= 0.25 ? '<b style="color:#ffd9a0">🧹 조금 더러움</b>'
     : '<b style="color:#9cff9c">🧹 깨끗함</b>');
-  const stock = farmStock(f), bask = basketCount(f);
+  const stock = farmStock(f), out = G.drops.filter(d=>d.g===g).length;
   el('farmState').innerHTML =
     `<div class="fst"><span>🐾 ${n} / ${FARM_CAP}마리</span> ${fedTxt} ${dirtTxt}</div>`
-    + `<div class="fst2">🧺 우리에 <b>${stock}개</b> 쌓임`
-    + (stock ? ' — 헛간 앞에서 <b>거두기</b>' : '')
-    + (bask ? ` · 광주리에 <b>${bask}개</b> (상인에게 팔면 <b>✨${basketWorth(f)}</b>)` : '')
+    + `<div class="fst2">`
+    + (out ? `🧺 우리 안에 <b>${out}개</b>가 놓여 있어요 — <b>뛰어가서 주우세요!</b>`
+           : stock ? `🧺 곧 <b>${stock}개</b>가 우리에 나와요`
+                   : '🧺 아직 나온 게 없어요 — 먹이를 주면 다음 날 아침에 나옵니다')
     + `</div>`;
   const w = el('farmList'); w.innerHTML = '';
   w.appendChild(farmBuyHint());
@@ -7725,8 +7888,16 @@ const TRADE_KEEP = 0.7;                          // 값어치의 70%만 받는�
 const TRADE_PACK = {w:40, s:35, g:8};            // 한 번에 내놓는 양
 const TRADE_MULS = [1, 3, 10];
 let tradeMul = 1;
-const RES_IC = {w:'🪵', s:'🪨', g:'✨'};
-const RES_NM = {w:'나무', s:'돌', g:'금'};
+/* ★ 18차f — 농장 산물을 진짜 자원으로 올렸다.
+     예전에는 '숫자만 쌓이니 넷째 자원으로 만들지 말자' 고 적어 뒀는데,
+     선생님 주문이 "달걀·우유·돼지고기가 자원 창에 같이 뜨고 상인과 교환"이다.
+     쓸 데(상인 교환)를 같이 주므로 이제 자원으로 세워도 숫자만 쌓이지 않는다. */
+const RES_IC = {w:'🪵', s:'🪨', g:'✨', eg:'🥚', mk:'🥛', pk:'🍖'};
+const RES_NM = {w:'나무', s:'돌', g:'금', eg:'달걀', mk:'우유', pk:'돼지고기'};
+const RES_KEYS = ['w','s','g','eg','mk','pk'];
+/* 내 칸(pc)에서 쓰는 이름 — 번 것과 쓴 것 */
+const RES_PC  = {w:'w',  s:'s',  g:'o',  eg:'eg',  mk:'mk',  pk:'pk'};
+const RES_SPC = {w:'sw', s:'ss', g:'so', eg:'seg', mk:'smk', pk:'spk'};
 const tradeGive = (from, mul)=> TRADE_PACK[from] * mul;
 const tradeGet  = (from, to, mul)=>
   Math.floor(tradeGive(from, mul) * TRADE_VAL[from] * TRADE_KEEP / TRADE_VAL[to]);
@@ -7825,7 +7996,9 @@ function buildShopUI(){
     /* ★ 여기서는 '팔기' 만 됐다. 그런데 아이들은 동물도 여기서 살 수 있다고 여겼다 —
        가게에 🧺 농장 칸이 있는데 살 게 하나도 없으면 그게 더 이상하다.
        사는 것을 위에, 파는 것을 아래에 둔다. 우리 정원·값은 농장 화면과 같은 함수를 쓴다. */
-    const f = myFarm(), have = basketCount(f), worth = basketWorth(f);
+    const f = myFarm(), r = myRes();
+    const have = FARM_ANIMALS.reduce((a,A)=> a + (r[A.res]|0), 0);
+    const worth = FARM_ANIMALS.reduce((a,A)=> a + (r[A.res]|0)*A.gold, 0);
     const buyHead = document.createElement('p');
     buyHead.className = 'shopHint'; buyHead.style.gridColumn = '1/-1';
     buyHead.innerHTML = `🐔 <b>동물 사기</b> — 산 동물은 <b style="color:${GCOL[G.me.g]}">`
@@ -7834,42 +8007,44 @@ function buildShopUI(){
     for(const A of FARM_ANIMALS) w.appendChild(animalCard(A));
     const sellHead = document.createElement('p');
     sellHead.className = 'shopHint'; sellHead.style.gridColumn = '1/-1';
-    sellHead.innerHTML = '🧺 <b>거둔 것 팔기</b>';
+    sellHead.innerHTML = '🧺 <b>농장 산물 교환</b> — 🥚 🥛 🍖 를 ✨금으로 바꿉니다';
     w.appendChild(sellHead);
     if(!have){
       const line = document.createElement('p');
       line.className = 'shopHint'; line.style.gridColumn = '1/-1';
-      line.innerHTML = '아직 팔 게 없어요. 농장에서 <b>🧺 거두기</b>를 하고 오세요.';
+      line.innerHTML = '아직 바꿀 게 없어요. <b>농장 우리 안에 놓인 🥚 🥛 🍖 를 주워</b> 오세요.';
       w.appendChild(line);
     } else {
       for(const A of FARM_ANIMALS){
-        const v = f['b_'+A.prod]|0; if(!v) continue;
+        const v = r[A.res]|0; if(!v) continue;
         w.appendChild(shopCard(A.pic, `${A.pn} ${v}개`,
-          `하나에 <b>✨${A.gold}</b> — 다 팔면 <b>✨${v*A.gold}</b>`,
-          null, '', '팔기', ()=>sellFarm(A.prod)));
+          `하나에 <b>✨${A.gold}</b> — 다 바꾸면 <b>✨${v*A.gold}</b>`,
+          null, '', '바꾸기', ()=>sellFarm(A.res)));
       }
-      w.appendChild(shopCard('🧺', '전부 팔기',
-        `광주리에 있는 <b>${have}개</b>를 한꺼번에 팝니다.`,
+      w.appendChild(shopCard('🧺', '전부 바꾸기',
+        `모둠이 가진 <b>${have}개</b>를 한꺼번에 바꿉니다.`,
         null, '', `✨${worth} 받기`, ()=>sellFarm(null)));
     }
   }
 }
-/* 농장에서 거둔 것을 금으로 — 하나만 팔 수도, 전부 팔 수도 있다 */
-function sellFarm(prod){
-  const f = myFarm();
+/* 농장 산물을 금으로 — 한 가지만, 또는 전부.
+   ★ 산물은 이제 모둠 자원이다(자원 창의 🥚 🥛 🍖). 쓰는 것도 나무·돌과 똑같이
+     spend() 로 처리한다 — 따로 세는 곳을 만들면 반드시 어긋난다. */
+function sellFarm(res){
+  const r = myRes();
   let gold = 0, cnt = 0;
+  const cost = {};
   for(const A of FARM_ANIMALS){
-    if(prod && A.prod !== prod) continue;
-    const v = f['b_'+A.prod]|0; if(!v) continue;
-    gold += v * A.gold; cnt += v; f['b_'+A.prod] = 0;
+    if(res && A.res !== res) continue;
+    const v = r[A.res]|0; if(!v) continue;
+    gold += v * A.gold; cnt += v; cost[A.res] = v;
   }
   if(!gold) return;
-  gain('g', gold);
-  netFarm();
-  toast(`✨ ${cnt}개를 팔아 금 ${gold}을 받았어요!`, 2.4, '#ffe066');
+  spend(cost); gain('g', gold);
+  toast(`✨ ${cnt}개를 바꿔 금 ${gold}을 받았어요!`, 2.4, '#ffe066');
   if(window.__sfx) window.__sfx('get');
   feed(`🧺 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
-     + `농장 것을 팔아 <b>✨${gold}</b>을 벌었어요`);
+     + `농장 산물을 바꿔 <b>✨${gold}</b>을 벌었어요`);
   buildShopUI();
 }
 /* ── 장착 ── */
@@ -8831,12 +9006,20 @@ function paintHUD(){
 
   setTxt('grpName', (G.me.g+1)+'모둠');
   setSty('grpName', 'background', GCOL[G.me.g]);
-  for(const [k,id] of [['w','rW'],['s','rS'],['g','rG']]){
+  for(const [k,id] of [['w','rW'],['s','rS'],['g','rG'],['eg','rE'],['mk','rM'],['pk','rP']]){
     const v = r[k]|0;
     if(hudPrev['r'+id] !== v){ hudPrev['r'+id] = v; el(id).querySelector('b').textContent = v; }
-    if(r[k] > lastRes[k] && lastRes[k]>=0){ el(id).classList.remove('up'); void el(id).offsetWidth;
+    if(r[k] > (lastRes[k]||0) && lastRes[k] >= 0){ el(id).classList.remove('up'); void el(id).offsetWidth;
       el(id).classList.add('up'); }
     lastRes[k] = r[k];
+  }
+  /* 산물 줄 — 우리에 동물이 있거나 주운 게 있을 때만 보인다.
+     처음부터 0 세 개가 떠 있으면 자원 창이 복잡하기만 하다. */
+  {
+    const f = G.farm[G.me.g];
+    const show = !!f && (farmCount(f) > 0 || (r.eg|0) + (r.mk|0) + (r.pk|0) > 0);
+    if(hudPrev.farmRes !== show){ hudPrev.farmRes = show;
+      el('resFarm').classList.toggle('on', show); }
   }
   setTxt('dayNum', G.day + '일차');
   const night = G.phase==='night';
@@ -9187,30 +9370,7 @@ function farmClean(g){
   toast('🧹 우리가 반짝반짝해졌어요!', 1.8, '#bfe8ff');
   if(window.__sfx) window.__sfx('fix');
 }
-function farmTake(g){
-  const f = G.farm[g], got = farmStock(f);
-  if(!got){ toast('🧺 아직 거둘 게 없어요', 1.3, '#ffd0a0'); return; }
-  /* 거둔 것은 우리에서 내 모둠 창고로 옮겨진다 — 파는 건 상인에게 가서 한다 */
-  let line = [];
-  for(const A of FARM_ANIMALS){ const v = f[A.prod]|0;
-    if(v){ line.push(`${A.pic}${v}`); } }
-  MY.farmed = (MY.farmed|0) + got;
-  xpGain(XP_TAKE * got);
-  const [x,z] = farmSpotXZ(g,'take');
-  burst(x, GY+1.2, z, 0xfff0a0, 6+Math.min(24,got*2), 1.7);
-  toast(`🧺 ${line.join(' ')} 거뒀어요! 상인에게 팔면 ✨${farmWorth(f)}`, 2.6, '#ffe066');
-  if(window.__sfx) window.__sfx('get');
-  /* 거둔 것은 '모둠 광주리' 로 옮긴다 — 상인 화면에서 한꺼번에 판다 */
-  for(const A of FARM_ANIMALS){ f['b_'+A.prod] = (f['b_'+A.prod]|0) + (f[A.prod]|0); f[A.prod] = 0; }
-  netFarm(); netPCDirty = true;
-}
-/* 광주리(거둬 놓은 것)의 값어치 */
-function basketWorth(f){
-  let g = 0;
-  for(const A of FARM_ANIMALS) g += (f['b_'+A.prod]|0) * A.gold;
-  return g;
-}
-const basketCount = f => FARM_ANIMALS.reduce((a,A)=> a + (f['b_'+A.prod]|0), 0);
+/* 광주리는 없어졌다 — 산물은 우리 안에 놓이고, 주우면 바로 모둠 자원이 된다(18차f). */
 function workStop(){ work = null; }
 /* 진행시키고, 박자마다 뚝-딱 소리를 낸다. 다 됐으면 true */
 function workTick(dt, need){
@@ -9327,12 +9487,11 @@ function doAction(dt){
   const fs = farmAt();
   if(fs && fs.w !== 'buy' && G.phase === 'day'){
     const f = G.farm[fs.g];
-    const LBL = {feed:'🌾 먹이 주기', clean:'🧹 청소하기', take:'🧺 거두기'}[fs.w];
+    const LBL = {feed:'🌾 먹이 주기', clean:'🧹 청소하기'}[fs.w];
     const need = FARM_SEC[fs.w];
     /* 할 일이 없으면 안내만 하고 지나간다 — 헛되이 꾹 누르게 두지 않는다 */
-    const idle = fs.w==='feed'  ? (farmCount(f)===0 ? '동물이 없어요' : f.fed===G.day ? '오늘은 다 먹였어요' : null)
-               : fs.w==='clean' ? ((f.dirt||0) < 0.05 ? '깨끗해요' : null)
-               :                  (farmStock(f)===0 ? '거둘 게 없어요' : null);
+    const idle = fs.w==='feed' ? (farmCount(f)===0 ? '동물이 없어요' : f.fed===G.day ? '오늘은 다 먹였어요' : null)
+               :                   ((f.dirt||0) < 0.05 ? '깨끗해요' : null);
     if(idle){ workStop(); aimInfo(null);
       workInfo(`${LBL} — ${idle}`, 0); return; }
     if(!acting){ workInfo(LBL, 0); return; }
@@ -9341,8 +9500,7 @@ function doAction(dt){
     if(workTick(dt, need)){
       workStop();
       if(fs.w==='feed') farmFeed(fs.g);
-      else if(fs.w==='clean') farmClean(fs.g);
-      else farmTake(fs.g);
+      else farmClean(fs.g);
     } else workInfo(LBL + ' 중', work.prog/need);
     return;
   }
@@ -9476,15 +9634,16 @@ function hitNode(n){
   } else netNode(NODES.indexOf(n), n.hp);
 }
 function gain(k, v){
-  const key = k==='w'?'w':k==='s'?'s':'o';
+  const key = RES_PC[k] || 'o';
   myPC[key] = (myPC[key]||0) + v; recomputeRes(); netPCDirty = true;
 }
+/* 값 꾸러미는 {w,s,g} 였고 이제 {eg,mk,pk} 도 올 수 있다 — 있는 것만 센다 */
 function spend(c){
-  myPC.sw = (myPC.sw||0)+c.w; myPC.ss = (myPC.ss||0)+c.s; myPC.so = (myPC.so||0)+c.g;
+  for(const k of RES_KEYS) if(c[k]) myPC[RES_SPC[k]] = (myPC[RES_SPC[k]]||0) + c[k];
   recomputeRes(); netPCDirty = true;
 }
 function refund(c){
-  myPC.sw = (myPC.sw||0)-c.w; myPC.ss = (myPC.ss||0)-c.s; myPC.so = (myPC.so||0)-c.g;
+  for(const k of RES_KEYS) if(c[k]) myPC[RES_SPC[k]] = (myPC[RES_SPC[k]]||0) - c[k];
   recomputeRes(); netPCDirty = true;
 }
 
@@ -10680,6 +10839,8 @@ function farmMorning(){
   }
   for(const m of say2) feed(m);
   netFarm();
+  /* 쌓인 것을 우리 안에 꺼내 놓는다 — 아이들이 뛰어가서 주울 수 있게 */
+  farmDropAll();
 }
 /* ═══════════════════════ 미니게임 (18차) ═══════════════════════
    선생님 주문: "5·10·15라운드 밤이 끝나면 미니게임장으로 이동하자."
@@ -11256,15 +11417,18 @@ function hostPhase(dt){
 const START = {w:70, s:55, o:0};
 const base = []; for(let i=0;i<NG;i++) base.push({...START});
 const pcMap = new Map();                       // uid -> {g,w,s,o,sw,ss,so,n,mined,built}
-let myPC = {g:0,w:0,s:0,o:0,sw:0,ss:0,so:0,n:'',mined:0,built:0};
+let myPC = {g:0,w:0,s:0,o:0,sw:0,ss:0,so:0,n:'',mined:0,built:0,
+            eg:0,mk:0,pk:0,seg:0,smk:0,spk:0};
 let netPCDirty = false;
 function recomputeRes(){
-  for(let i=0;i<NG;i++) G.res[i] = {w:base[i].w, s:base[i].s, g:base[i].o};
+  /* 나무·돌·금은 선생님이 나눠 준 밑천(base)이 있고, 농장 산물은 아이들이 주운 것뿐이다 */
+  for(let i=0;i<NG;i++) G.res[i] = {w:base[i].w, s:base[i].s, g:base[i].o, eg:0, mk:0, pk:0};
   for(const [uid,p] of pcMap){
     const r = G.res[p.g|0]; if(!r) continue;
-    r.w += (p.w||0)-(p.sw||0); r.s += (p.s||0)-(p.ss||0); r.g += (p.o||0)-(p.so||0);
+    for(const k of RES_KEYS) r[k] += (p[RES_PC[k]]||0) - (p[RES_SPC[k]]||0);
   }
-  for(let i=0;i<NG;i++){ const r=G.res[i]; r.w=Math.max(0,r.w); r.s=Math.max(0,r.s); r.g=Math.max(0,r.g); }
+  for(let i=0;i<NG;i++){ const r = G.res[i];
+    for(const k of RES_KEYS) r[k] = Math.max(0, r[k]); }
 }
 
 /* ═══════════════════════ Firebase ═══════════════════════ */
@@ -11443,6 +11607,9 @@ function joinRoom(code, asHost){
     for(const k in v){ if(k===uid) continue; miniPl.set(k, v[k]); }
     for(const k of [...miniPl.keys()]) if(k!==uid && !v[k]) miniPl.delete(k); });
   net.child('chest').on('value', s=>{ if(!G.host) G.chests = s.val() || []; });
+  net.child('drop').on('value', s=>{ if(!G.host) G.drops = s.val() || []; });
+  net.child('pick').on('value', s=>{ const v = s.val();
+    if(v && G.host && v.n !== pickSeen){ pickSeen = v.n; hostTakeDrop(v.id); } });
   net.child('grab').on('value', s=>{ const v = s.val();
     if(v && G.host && v.n !== grabSeen){ grabSeen = v.n; hostRemoveChest(v.id, v.nm||'친구', v.g|0); } });
   net.child('say').on('value', s=>{ const v = s.val();
@@ -11521,7 +11688,7 @@ function joinRoom(code, asHost){
     net.child('meta').once('value', s=>{ if(!s.val()) { G.day=1; G.crystal=G.set.crystalMax; } });
   }
 }
-let netT = 0, pcT = 0, simT = 0, saySeen = -1, grabSeen = -1;
+let netT = 0, pcT = 0, simT = 0, saySeen = -1, grabSeen = -1, pickSeen = '';
 const thSeen = new Map();   // uid -> 마지막으로 본 던진 횟수
 function netTick(dt){
   if(!net) return;
@@ -12491,7 +12658,8 @@ function loop(){
     if(PROF_ON) pE('이름표');
 
     if(PROF_ON) pS();
-    if(!DBG.noInst){ updParts(dt); updArrows(dt); updBullets(dt); updOrbs(dt, tAcc); updChests(dt, tAcc); }
+    if(!DBG.noInst){ updParts(dt); updArrows(dt); updBullets(dt); updOrbs(dt, tAcc);
+                     updChests(dt, tAcc); updDrops(dt, tAcc); }
 
     fireworks(dt);
     if(PROF_ON) pE('효과');
@@ -12935,9 +13103,15 @@ Object.assign(window, {
   __FARM_CAP:()=>FARM_CAP, __FARM_FEED:()=>FARM_FEED, __FARM_LEAVE:()=>FARM_LEAVE,
   __FARM_DIRT_BAD:()=>FARM_DIRT_BAD, __FARM_STOCK:()=>FARM_STOCK,
   __farmDirty:(v)=>{ farmDirty = v!==false; }, __farmSpotXZ:farmSpotXZ, __farmAt:farmAt,
-  __farmMorning:farmMorning, __farmFeed:farmFeed, __farmClean:farmClean, __farmTake:farmTake,
-  __buyAnimal:buyAnimal, __sellFarm:sellFarm, __basketWorth:basketWorth,
-  __basketCount:basketCount, __farmCount:farmCount, __farmStock:farmStock,
+  __farmMorning:farmMorning, __farmFeed:farmFeed, __farmClean:farmClean,
+  __buyAnimal:buyAnimal, __sellFarm:sellFarm,
+  __farmCount:farmCount, __farmStock:farmStock,
+  /* 농장 산물 (18차f) */
+  __drops:()=>G.drops, __farmDropAll:farmDropAll, __farmDropTop:farmDropTop,
+  __pickDrop:pickDrop, __hostTakeDrop:hostTakeDrop, __updDrops:updDrops,
+  __FD:()=>({PER:FD_PER, R:FD_R, MAX:FD_MAX}), __fdMesh:()=>[fdBody, fdGlow],
+  __RES_KEYS:()=>RES_KEYS, __RES_IC:RES_IC, __RES_NM:RES_NM, __myRes:myRes,
+  __gain:gain, __spend:spend,
   __JOBS:JOBS, __JOB_LV:JOB_LV, __JOB_STEP:()=>JOB_STEP, __JOB_LOOK:JOB_LOOK,
   __statMax:statMax, __jobDue:jobDue, __takeJob:takeJob, __buildJobUI:buildJobUI,
   __jobCheck:jobCheck,
