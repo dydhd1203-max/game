@@ -1144,6 +1144,19 @@ body.touch #forgeTip{pointer-events:auto;cursor:pointer}
 #forgeTip .tp{display:none}
 body.touch #forgeTip .kb{display:none}
 body.touch #forgeTip .tp{display:inline}
+/* 농장 안내 — 상인·대장간과 같은 자리·같은 규칙.
+   ★ 이게 없어서 "농장에서 뭘 어떻게 하는지 모르겠어요" 가 나왔다.
+     좌판에는 안내가 뜨는데 우리 앞에는 아무것도 안 떴다. */
+#farmTip{position:absolute;left:50%;bottom:31%;transform:translateX(-50%);
+  display:none;pointer-events:none;padding:7px 15px;border-radius:999px;
+  background:rgba(26,54,22,.86);border:1.5px solid rgba(150,230,130,.6);
+  font-size:13.5px;font-weight:800;color:#ddffcc;white-space:nowrap;
+  box-shadow:0 4px 16px rgba(0,0,0,.5)}
+#farmTip.on{display:block}
+body.touch #farmTip{pointer-events:auto;cursor:pointer}
+#farmTip .tp{display:none}
+body.touch #farmTip .kb{display:none}
+body.touch #farmTip .tp{display:inline}
 /* 강화 목록 — 상점 칸과 같은 모양을 쓰되 확률 막대를 하나 얹는다 */
 .enhOdds{margin-top:5px;height:7px;border-radius:4px;background:rgba(0,0,0,.45);overflow:hidden}
 .enhOdds i{display:block;height:100%;border-radius:4px}
@@ -1510,6 +1523,7 @@ body.touch #forgeTip .tp{display:inline}
   <div id="dmgLayer"></div>
   <div id="shopTip">🛒 <span class="kb"><b>B</b> 를 눌러 </span><span class="tp">여기를 눌러 </span>상인과 거래하기</div>
   <div id="forgeTip">🔨 <span class="kb"><b>G</b> 를 눌러 </span><span class="tp">여기를 눌러 </span>무기 강화하기</div>
+  <div id="farmTip">🐔 <span class="kb"><b>H</b> 를 눌러 </span><span class="tp">여기를 눌러 </span>우리 모둠 농장 열기</div>
   <div id="aimBadge">🔫 <span id="aimName">공격 모드</span> · 왼쪽 클릭으로 쏘기 · <b>T</b> 로 풀기</div>
 
 
@@ -1798,7 +1812,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '17차f · 농장 · 바꾸기 · 전직';
+const GAME_VER = '17차h · 농장 단장 · 살아 있는 상인';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -2621,7 +2635,10 @@ function scatterDecor(){
        동물이 안 보이고, 무엇보다 '돌보는 곳' 처럼 안 보인다. */
     { let inFarm = false;
       for(let g2=0; g2<NG; g2++)
-        if(Math.hypot(x+0.5-FARM_X[g2], z+0.5-FARM_Z[g2]) < 4.6){ inFarm = true; break; }
+        /* ★ 제일 큰 단계(FARM_R2 의 끝값)를 기준으로 비운다. 지금 우리 크기로 재면
+           나중에 우리가 커졌을 때 덤불이 우리 안에 남는다 — 한 번 심은 것은 안 사라진다. */
+        if(Math.hypot(x+0.5-FARM_X[g2], z+0.5-FARM_Z[g2]) < FARM_R2[FARM_R2.length-1]+0.8){
+          inFarm = true; break; }
       if(inFarm) continue; }
     const k=Math.random();
     if(k<0.55){                                   // 수풀 — 덩어리 하나로
@@ -3088,41 +3105,8 @@ function buildShop(){
   C( 0, 0.28, 0.20,  0.34,0.16,0.34, 0xffd94a);             // 좌판 위 금덩이
   P( 0.80,0.30,-0.10, 0.30,0.20,0.30, 0x9a5f3a);            // 상자
   P(-0.80,0.30,-0.10, 0.30,0.20,0.30, 0x9a5f3a);
-  /* ── 상인 ──
-     ★ 예전 모습이 "이상한 인형" 이었던 이유는 셋이었다:
-       ① 머리가 몸통만큼 넓었다 (0.52 대 0.62). 사람은 어깨가 머리보다 훨씬 넓다.
-       ② 목도 다리도 없었다 — 몸통 한 덩이가 바닥까지 내려왔다.
-       ③ 팔이 아예 없었다.
-     어깨를 넓히고, 목을 넣고, 다리를 둘로 가르고, 팔을 조금 벌려 달았다.
-     4차에서 병정을 고칠 때와 같은 처방이다("가로가 세로보다 길어서 판자처럼 보였다"). */
-  const SKIN = 0xf0d2ae, ROBE = 0x4a5c96, ROBE_D = 0x36457a, TRIM = 0xd8b45a;
-  // 다리 — 둘로 가르면 그것만으로 '서 있는 사람'이 된다
-  for(const s of [-1,1]){
-    C(s*0.14, 0.20,-0.85, 0.19,0.42,0.22, ROBE_D);
-    P(s*0.14, 0.03,-0.85, 0.21,0.10,0.26, 0x5a4632);        // 신발
-  }
-  // 몸통 — 아래가 좁고 어깨가 넓다. 두 단으로 나누면 허리가 생긴다
-  C( 0, 0.52,-0.85, 0.46,0.42,0.38, ROBE);                  // 허리
-  C( 0, 0.72,-0.85, 0.14,0.09,0.42, TRIM);                  // 허리띠
-  C( 0, 0.95,-0.85, 0.62,0.44,0.44, ROBE);                  // 가슴·어깨 (허리보다 넓다)
-  C( 0, 1.02,-0.63, 0.30,0.34,0.06, TRIM);                  // 앞섶 장식
-  // 팔 — 살짝 벌어지게 기울인다. 곧게 내리면 다시 인형이 된다
-  for(const s of [-1,1]){
-    C(s*0.37, 0.90,-0.85, 0.17,0.44,0.20, ROBE_D, s*0.16);  // 위팔
-    C(s*0.44, 0.62,-0.78, 0.15,0.26,0.17, SKIN,  s*0.10);   // 손·팔뚝
-  }
-  // 목 — 이거 하나로 머리가 '얹힌' 게 아니라 '달린' 것이 된다
-  C( 0, 1.20,-0.85, 0.17,0.10,0.17, SKIN);
-  // 머리 — 어깨(0.62)보다 확실히 좁게
-  C( 0, 1.38,-0.85, 0.38,0.36,0.36, SKIN);
-  C( 0, 1.30,-0.85, 0.40,0.14,0.38, 0x8a6a4a);              // 구레나룻·수염
-  C( 0, 1.22,-0.68, 0.20,0.13,0.10, 0x8a6a4a);              // 턱수염
-  for(const s of [-1,1]) C(s*0.10, 1.42,-0.69, 0.07,0.08,0.06, 0x2a2420);   // 눈
-  C( 0, 1.34,-0.69, 0.11,0.05,0.06, 0xc07a70);              // 입
-  // 챙 넓은 모자 — 멀리서 이 실루엣 하나로 "상인" 이 읽힌다. 살짝 기울여 쓴다
-  C( 0, 1.58,-0.85, 0.94,0.09,0.86, ROBE_D, 0.07);
-  C( 0, 1.68,-0.85, 0.40,0.20,0.38, ROBE_D, 0.07);
-  C( 0, 1.62,-0.85, 0.42,0.07,0.40, TRIM,   0.07);          // 모자 띠
+  /* ★ 상인 사람은 여기서 굽지 않는다 — 움직여야 해서 NPC(인스턴스 메시)로 옮겼다.
+     아래 '상인 · 대장장이 — 살아 있게' 를 보라. */
 }
 
 
@@ -3181,72 +3165,169 @@ const FARM_LEAVE = 2;                       // 며칠 내리 굶으면 한 마�
 const FORGE_A = DIRS[2].a + Math.PI/NG, FORGE_R = 8.4;
 const FORGE_X = Math.cos(FORGE_A)*FORGE_R, FORGE_Z = Math.sin(FORGE_A)*FORGE_R;
 const FORGE_NEAR = 3.6;
-/* ═══════ 모둠 농장 — 울타리 · 여물통 · 번호판 (세상과 함께 한 번만 굽는다) ═══════ */
+/* ═══════ 모둠 농장 — 울타리 · 여물통 · 헛간 · 번호판 ═══════
+   ★ 좌표를 손으로 더하고 빼지 않는다. 대장간·상인 좌판과 똑같이
+     '이 농장만의 로컬 좌표' 를 한 번 잡고 그 안에서만 숫자를 쓴다 —
+       로컬 +Z = 수정 쪽(문)  ·  로컬 +X = 옆
+     17차d 는 이걸 안 하고 세계 좌표에 각도를 섞어 썼다. 그래서
+     번호판이 90도 돌아 모로 서 있었고(멀리서 빨간 막대 하나로 보였다),
+     숫자 다섯 칸은 판에서 떨어져 허공에 떠 있었다.
+     같은 이유로 가로대도 접선이 아니라 거울상으로 누워 있었고,
+     '수정 쪽 60도를 문으로 비운다' 는 것도 실제로는 반대쪽이 비어 있었다.
+     화면을 찍고서야 다 보였다 — 코드만 봐서는 셋 다 맞아 보인다.
+   ★ 세계 방향 (dx,dz) 로 향하게 하려면 ry = atan2(dx,dz) 다 —
+     three.js 의 Y 회전은 로컬 +Z 를 (sin ry, cos ry) 로 보낸다.
+     성문 번호판이 쓰는 규칙과 같은 것이고, 여기서만 어겨져 있었다.
+
+   ★ 우리는 마리수에 따라 세 단계로 커진다(FARM_R2).
+     세 단계를 통째로 구워 두고 bset 으로 켜고 끈다 — 캐낸 블록을 감출 때 쓰는
+     바로 그 방법이다. 단계가 바뀔 때 월드를 다시 굽지 않아도 된다.
+     바닥 짚만은 '고리' 로 쌓아 겹쳐 켠다(같은 칸을 세 번 굽지 않는다). */
+const FARM_R2   = [3.0, 3.8, 4.6];   // 우리 반너비 — 0~2마리 · 3~4마리 · 5마리 이상
+const FARM_DOOR = 0.30;              // 문(수정 쪽)으로 비워 두는 각도 (±)
+const farmStageOf = n => n<=2 ? 0 : n<=4 ? 1 : 2;
+const farmParts = [];                       // farmParts[모둠][단계] = {p:[울타리…], gnd:[짚 고리]}
+const farmVis   = new Array(NG).fill(0);    // 지금 켜 둔 단계
+const farmY     = [];                       // 우리 바닥 높이
 function buildFarms(){
-  const gPost = boxGeo(T.bark,T.bark,T.logTop,T.logTop,T.bark,T.bark,1,1,1);
-  const gRail = cube(T.bark), gPlank = cube(T.plank);
-  const gHay  = cube(T.hay),  gDark3 = cube(T.dark), gClothF = cube(T.cloth);
-  const R2 = 3.0;                                   // 우리 반너비
+  const gPost  = boxGeo(T.bark,T.bark,T.logTop,T.logTop,T.bark,T.bark,1,1,1);
+  const gRail  = cube(T.bark),  gPlank  = cube(T.plank), gHay  = cube(T.hay);
+  /* ★ 마당 바닥을 짚 타일(T.hay)로 깔았더니 위에서 볼 때 '마룻바닥' 이 됐다 —
+     짚 타일에는 세 줄마다 가로 어두운 띠가 있어서, 넓게 깔면 판자 이음매로 읽힌다.
+     흙마당(T.sand)에 짚단·허수아비를 얹는 쪽이 훨씬 농장답다. */
+  const gYard  = cube(T.sand);
+  const gClothF = cube(T.cloth), gRoof = cube(T.roofRed);
+  const gGlow  = cube(T.glow);
   for(let g=0; g<NG; g++){
     const cx = FARM_X[g], cz = FARM_Z[g];
     const y0 = terrAt(Math.round(cx), Math.round(cz));
-    /* ── 바닥 — 짚 깔린 흙마당. 잔디 위에 얹어 '여기가 우리 안' 이 읽히게 ── */
-    for(let a=-R2+0.5; a<R2; a+=1) for(let b=-R2+0.5; b<R2; b+=1){
-      /* ★ 울타리는 둥근데 바닥을 네모로 깔았더니 위에서 볼 때 네 귀퉁이의 짚이
-         울타리 밖으로 삐져나왔다. 바닥도 같은 원이라야 '우리 안' 으로 읽힌다. */
-      const d2 = Math.hypot(a, b);
-      if(d2 > R2-0.15) continue;
-      bpush('farmGround', gHay, MAT, cx+a, y0+0.03, cz+b, 0, 1.0, 0.06, 1.0,
-            0, ((a+b)%2) ? 0xdcc38a : 0xe8d5a2);
+    farmY.push(y0);
+    const openA = Math.atan2(-cz, -cx);          // 수정을 보는 쪽
+    const RY = Math.PI/2 - openA, cr = Math.cos(RY), sr = Math.sin(RY);
+    const stages = []; farmParts.push(stages);
+    for(let st=0; st<FARM_R2.length; st++){
+      const hs = [], gnd = []; stages.push({p:hs, gnd});
+      const R = FARM_R2[st], Rin = st ? FARM_R2[st-1] : 0;
+      /* dy 는 바닥에서의 높이, rot 는 로컬 안에서 더 돌리는 각(로컬 +Z 기준) */
+      const at = (dx,dz)=> [cx + dx*cr + dz*sr, cz - dx*sr + dz*cr];
+      const putIn = (list, key, geo, mat, dx,dy,dz, sx,sy,sz, col, tilt, rot)=>{
+        const w = at(dx,dz);
+        list.push(bpush(key, geo, mat, w[0], y0+dy, w[1],
+                        RY + (rot||0), sx,sy,sz, tilt||0, col||0));
+      };
+      const put  = (key,geo, dx,dy,dz, sx,sy,sz, col,tilt,rot)=>
+        putIn(hs, key, geo, MAT, dx,dy,dz, sx,sy,sz, col,tilt,rot);
+
+      /* ── 바닥 — 밟아 다져진 흙마당. 단계마다 '더 넓어진 고리' 만 새로 깐다 ── */
+      const TQ = 1.15, nq = Math.ceil(R/TQ);
+      for(let a=-nq; a<=nq; a++) for(let b=-nq; b<=nq; b++){
+        const px = a*TQ, pz = b*TQ, d = Math.hypot(px,pz);
+        if(d > R-0.18 || d <= Rin-0.18) continue;
+        putIn(gnd, 'farmGround', gYard, MAT, px, 0.03, pz, TQ, 0.06, TQ,
+              ((a+b)%2) ? 0xd8c9a4 : 0xe6dabb);
+      }
+      /* ── 울타리 — 기둥 + 가로대 두 줄. 문(수정 쪽)만 터 둔다 ──
+         ★ 가로대는 기둥과 기둥 '사이' 를 잇는다. 결이 접선으로 누워야 하고,
+           길이는 기둥 간격보다 조금 길어야 이가 안 빠진다. */
+      const NP = Math.max(18, Math.round(R*6.2));
+      const step = Math.PI*2/NP, seg = R*step*1.16;
+      for(let i=0;i<NP;i++){
+        let th = i*step; if(th > Math.PI) th -= Math.PI*2;   // -π ~ π (0 = 문 쪽)
+        if(Math.abs(th) < FARM_DOOR) continue;               // 문은 비운다
+        const px = Math.sin(th)*R, pz = Math.cos(th)*R;
+        if(i%2===0) put('farmPost', gPost, px, 0.52, pz, 0.17, 1.04, 0.17, 0, 0, th);
+        for(const hy of [0.42, 0.80])
+          put('farmRail', gRail, px, hy, pz, 0.09, 0.12, seg, 0xcda071, 0, th+Math.PI/2);
+      }
+      /* ── 대문 — 굵은 기둥 둘에 들보 하나. 그 위에 모둠 번호판을 건다 ──
+         ★ 번호판을 문 위로 올렸다. 예전엔 울타리 옆 기둥에 걸려 있어서
+           우리 안 동물에 가렸다. 문 위는 멀리서도 가려질 일이 없다. */
+      const gpx = Math.sin(FARM_DOOR+0.10)*R, gpz = Math.cos(FARM_DOOR+0.10)*R;
+      for(const s2 of [1,-1]){
+        put('farmPost', gPost, s2*gpx, 0.98, gpz, 0.24, 1.96, 0.24, 0xc8a070);
+        put('farmCloth', gClothF, s2*(gpx-0.30), 1.72, gpz, 0.56, 0.40, 0.09, GHEX[g]);
+      }
+      put('farmRail', gRail, 0, 2.06, gpz, 0.20, 0.22, gpx*2+0.30, 0xc8a070, 0, Math.PI/2);
+      /* 번호판 — 검은 판에 밝은 숫자. 성문 번호판과 같은 3×5 점 글씨 */
+      const SGY = 2.72, PX2 = 0.15;
+      put('farmCloth', gClothF, 0, SGY, gpz, 1.12, 0.92, 0.13, GHEX[g]);
+      put('farmCloth', gClothF, 0, SGY, gpz+0.09, 0.88, 0.70, 0.10, 0x171a22);
+      const rows = DIGIT[g+1];
+      for(let r=0;r<5;r++) for(let c=0;c<3;c++){
+        if(rows[r][c] !== '1') continue;
+        putIn(hs, 'farmGlow', gGlow, EMITC, (c-1)*PX2, SGY+(2-r)*PX2, gpz+0.16,
+              PX2*0.92, PX2*0.92, 0.09);
+      }
+      /* ── 여물통(왼쪽) · 물통(오른쪽) — 우리 뒤쪽 울타리에 붙여 둔다 ── */
+      const bkz = -(R-0.95);
+      put('farmWood', gPlank, -1.05, 0.20, bkz, 1.70, 0.36, 0.72, 0x9a6b3f);
+      put('farmHay',  gHay,   -1.05, 0.38, bkz, 1.40, 0.18, 0.48, 0xf0dc9a);
+      put('farmWood', gPlank,  1.05, 0.20, bkz, 1.10, 0.36, 0.72, 0x9a6b3f);
+      put('farmCloth',gClothF, 1.05, 0.36, bkz, 0.86, 0.16, 0.50, 0x7fd0f0);   // 물
+      /* ── 볏짚 더미 — 우리 안 한쪽. 농장다운 실루엣을 하나 더 준다 ── */
+      const hbx = -(R-0.95), hbz = R*0.34;
+      put('farmHay', gHay, hbx, 0.34, hbz, 0.98, 0.68, 0.74, 0xe6cf92);
+      put('farmHay', gHay, hbx, 0.94, hbz, 0.82, 0.56, 0.62, 0xf0dca8, 0, 0.5);
+      for(const hy of [0.34, 0.94])                       // 짚단을 묶은 끈
+        put('farmRail', gRail, hbx, hy, hbz, hy>0.5?0.86:1.02, 0.10, 0.10, 0xa07a4a);
+      /* ── 허수아비 — 아이들이 제일 먼저 알아보는 농장 표시다 ── */
+      const scx = R-0.95, scz = R*0.34;
+      put('farmPost', gPost,  scx, 0.78, scz, 0.14, 1.56, 0.14, 0xb98b58);
+      put('farmRail', gRail,  scx, 1.24, scz, 0.11, 0.11, 1.24, 0xb98b58, 0, Math.PI/2);
+      for(const s2 of [1,-1])                                              // 소매 끝 짚단
+        put('farmHay', gHay, scx, 1.24, scz + s2*0.62, 0.16, 0.20, 0.22, 0xf0dca8);
+      put('farmCloth',gClothF,scx, 1.12, scz, 0.50, 0.66, 0.34, GHEX[g]);  // 모둠색 옷
+      put('farmHay',  gHay,   scx, 1.66, scz, 0.50, 0.48, 0.48, 0xf3e0a8); // 짚 머리
+      put('farmHay',  gHay,   scx, 1.92, scz, 0.62, 0.10, 0.62, 0xd9b26a); // 밀짚모자 챙
+      put('farmHay',  gHay,   scx, 2.00, scz, 0.34, 0.16, 0.34, 0xd9b26a);
+      for(const s2 of [1,-1])                                              // 단추 눈
+        put('farmCloth', gClothF, scx+0.26, 1.70, scz + s2*0.13, 0.08,0.10,0.08, 0x2a2420);
+      put('farmCloth', gClothF, scx+0.26, 1.56, scz, 0.06, 0.08, 0.24, 0xd06a5a);  // 웃는 입
+      /* ── 헛간 — 우리 뒤. 지붕을 양쪽으로 기울여 얹고 다락 창을 낸다 ── */
+      const bz = -(R+1.8);
+      put('farmWood', gPlank, 0, 0.95, bz, 2.30, 1.90, 1.80, 0xe6b98c);
+      put('farmWood', gPlank, 0, 0.95, bz, 2.36, 0.16, 1.86, 0xc4703f);      // 허리 띠장
+      for(const s2 of [1,-1]){
+        put('farmWood', gPlank, s2*1.10, 0.95, bz, 0.20, 1.94, 0.20, 0xc4703f);
+        put('farmRoof', gRoof, s2*0.62, 2.16, bz, 1.32, 0.22, 2.10, 0xc0563f, -s2*0.62);
+      }
+      put('farmRoof', gRoof, 0, 2.44, bz, 0.34, 0.24, 2.16, 0xa8452f);       // 용마루
+      put('farmCloth',gClothF, 0, 0.62, bz+0.92, 0.94, 1.26, 0.10, 0x4a2f1c); // 문
+      put('farmWood', gPlank, 0, 1.32, bz+0.94, 1.08, 0.14, 0.10, 0xf2e2c4);
+      putIn(hs,'farmGlow', gGlow, EMITC, 0, 1.88, bz+0.92, 0.42, 0.36, 0.10); // 다락 창
+      put('farmRail', gRail, 1.58, 0.44, bz+0.34, 0.10, 0.88, 0.88, 0xb98b58, 0.7); // 수레바퀴
+      /* ── 문 앞 꽃밭과 디딤판 — 알록달록해야 아이들이 좋아한다 ── */
+      const FLC = [0xff8fb0, 0xffe07a, 0xa8e4ff, 0xffb35c, 0xd7a8ff, 0xa0f0b0];
+      for(let i=0;i<6;i++){
+        const th = FARM_DOOR + 0.26 + (i%3)*0.34, s2 = i<3 ? 1 : -1;
+        const rr = R + 0.62, fx = s2*Math.sin(th)*rr, fz = Math.cos(th)*rr;
+        /* ★ 잎사귀를 한 조각 더 붙였더니 짚 뱅크가 정확히 300개가 되어 구역이 넷으로
+           쪼개졌다(BSPLIT). 조각 하나에 드로우콜 셋이다 — 줄기 하나로 줄인다. */
+        put('farmHay',   gHay,    fx, 0.20, fz, 0.13, 0.40, 0.13, 0x7bbf5a);   // 줄기
+        put('farmCloth', gClothF, fx, 0.42, fz, 0.24, 0.18, 0.24, FLC[(i+g)%6]);
+      }
+      for(let i=0;i<3;i++)
+        put('farmWood', gPlank, (i%2?0.34:-0.34), 0.05, R+0.55+i*0.85,
+            0.66, 0.09, 0.66, 0xd8cdbc);
     }
-    /* ── 울타리 — 기둥 + 가로대 두 줄. 앞쪽(수정 쪽)은 터서 드나들게 ── */
-    const openA = Math.atan2(-cz, -cx);             // 수정을 보는 쪽
-    for(let i=0;i<24;i++){
-      const a = i/24*Math.PI*2;
-      /* 수정 쪽 60도는 비워 둔다 — 문이다 */
-      let da = Math.abs(((a-openA+Math.PI*3)%(Math.PI*2))-Math.PI);
-      if(da > Math.PI-0.52) continue;
-      const px = cx+Math.cos(a)*R2, pz = cz+Math.sin(a)*R2;
-      /* ★ 가로대는 기둥과 기둥 '사이'를 잇는다 — 그러려면 결이 옆(접선)으로 누워야
-         한다. 처음에 기둥과 같은 각도(a)를 줬더니 가로대가 전부 밖으로 삐죽 나와서
-         울타리가 아니라 십자가 스물넉 개가 늘어선 것처럼 보였다. a+90도가 접선이다.
-         길이도 기둥 간격(2πR/24 ≈ 0.79)만큼은 돼야 끊기지 않고 이어진다. */
-      if(i%2===0) bpush('farmPost', gPost, MAT, px, y0+0.52, pz, a, 0.16, 1.04, 0.16, 0, 0xb98b58);
-      bpush('farmRail', gRail, MAT, px, y0+0.42, pz, a+Math.PI/2, 0.84, 0.11, 0.09, 0, 0xcda071);
-      bpush('farmRail', gRail, MAT, px, y0+0.80, pz, a+Math.PI/2, 0.84, 0.11, 0.09, 0, 0xcda071);
-    }
-    /* ── 여물통 — 문 맞은편에 둔다. 여기가 '먹이 주는 곳' ── */
-    const tx = cx-Math.cos(openA)*(R2-0.8), tz = cz-Math.sin(openA)*(R2-0.8);
-    bpush('farmTrough', gPlank, MAT, tx, y0+0.20, tz, openA, 1.60, 0.34, 0.70, 0, 0x9a6b3f);
-    bpush('farmTrough', gHay,   MAT, tx, y0+0.36, tz, openA, 1.30, 0.16, 0.46, 0, 0xf0dc9a);
-    /* ── 번호판 — 어느 모둠 농장인지 멀리서 보이게. 문 옆 기둥에 건다 ── */
-    const sx2 = cx+Math.cos(openA+0.55)*R2, sz2 = cz+Math.sin(openA+0.55)*R2;
-    bpush('farmPost', gPost, MAT, sx2, y0+1.20, sz2, 0, 0.22, 2.40, 0.22, 0, 0xb98b58);
-    /* ★ 모둠마다 색이 다르다고 뱅크를 다섯 개(farmSign0..4)로 쪼개면
-       드로우콜이 넷 늘어난다 — 잎사귀 때 배운 것과 똑같은 실수다.
-       색을 인스턴스로 내리면 뱅크 하나로 끝난다. */
-    bpush('farmSign', gClothF, MAT, sx2, y0+2.10, sz2, openA, 1.10, 0.86, 0.10, 0, GHEX[g]);
-    bpush('farmSignD', gDark3, matC(0x171a22), sx2+Math.cos(openA)*0.07, y0+2.10,
-          sz2+Math.sin(openA)*0.07, openA, 0.86, 0.66, 0.10);
-    /* 판 위에 모둠 숫자 — 성문에서 쓰는 것과 같은 3×5 점 글씨 */
-    const rows = DIGIT[g+1], PX2 = 0.15;
-    const ux = Math.cos(openA+Math.PI/2), uz = Math.sin(openA+Math.PI/2);
-    for(let r=0;r<5;r++) for(let c=0;c<3;c++){
-      if(rows[r][c] !== '1') continue;
-      bpush('farmGlow', cube(T.glow), EMITC,
-        sx2 + Math.cos(openA)*0.12 + ux*(c-1)*PX2, y0+2.10+(2-r)*PX2,
-        sz2 + Math.sin(openA)*0.12 + uz*(c-1)*PX2, openA, PX2*0.9, PX2*0.9, 0.08);
-    }
-    /* ── 작은 헛간 — 우리 뒤에 하나. 농장처럼 보이게 하는 실루엣이다 ── */
-    const bx = cx-Math.cos(openA)*(R2+1.1), bz = cz-Math.sin(openA)*(R2+1.1);
-    bpush('farmBarn', gPlank, MAT, bx, y0+0.85, bz, openA, 1.9, 1.70, 1.5, 0, 0xc4703f);
-    bpush('farmBarn', gPlank, MAT, bx, y0+1.82, bz, openA, 2.1, 0.24, 1.7, 0, 0xf2e2c4);
-    for(const s2 of [1,-1])
-      bpush('farmBarn', gPlank, MAT, bx+ux*s2*0.52, y0+2.16, bz+uz*s2*0.52,
-            openA, 1.14, 0.20, 1.7, -s2*0.62, 0xa8542c);
-    bpush('farmBarnD', gDark3, matC(0x3a2415), bx+Math.cos(openA)*0.78, y0+0.66,
-          bz+Math.sin(openA)*0.78, openA, 0.80, 1.20, 0.10);
   }
+}
+/* 마리수에 맞는 단계만 켠다 — '동물이 늘면 우리가 커진다' 가 바로 이 함수다.
+   울타리·헛간은 그 단계 것만, 바닥 짚은 그 단계까지 전부 켠다(고리로 쌓았다). */
+function applyFarmStage(){
+  if(!farmParts.length) return false;
+  let moved = false;
+  for(let g=0; g<NG; g++){
+    const st = farmStageOf(farmCount(G.farm[g]));
+    if(farmVis[g] === st) continue;
+    const S = farmParts[g];
+    for(let s=0; s<S.length; s++){
+      for(const h of S[s].p)   bset(h, s === st);
+      for(const h of S[s].gnd) bset(h, s <= st);
+    }
+    farmVis[g] = st; moved = true;
+  }
+  return moved;
 }
 function buildForge(){
   const gS = cube(T.stone), gP = cube(T.plank), gC = cube(T.cloth), gG = cube(T.glow);
@@ -3284,56 +3365,20 @@ function buildForge(){
   for(const sx of [-1,1]) P(sx*0.46, 0.23, -0.95, 0.12,0.42,0.12, 0xc09a68);
   P( 0.10, 0.62, -0.95, 0.10,0.20,0.10, 0xc09a68);          // 세워 둔 망치 자루
   S( 0.10, 0.76, -0.95, 0.24,0.15,0.15, 0xdfe4ea);          // 망치 머리
-  /* ── 대장장이 ──
-     ★ 상인과 같은 처방(목·다리·어깨)에 더해, 이 사람은 '대장장이답게' 보여야 한다:
-       어깨가 상인보다 넓고, 팔뚝이 굵고, 가죽 앞치마가 무릎까지 오고, 수염이 덥수룩하다.
-       한쪽 팔은 망치를 든 채 위로 들려 있다 — 가만히 선 사람보다 훨씬 살아 보인다.
-     ★ 상인과 실루엣이 확실히 갈려야 한다. 둘 다 '수정 옆에 선 사람' 이라
-       멀리서 헷갈리면 애들이 엉뚱한 데로 간다. 상인은 챙 넓은 모자, 이쪽은 넓은 어깨다. */
-  /* ★ 처음엔 웃옷·앞치마·바지를 다 짙은 갈색으로 뒀다가 화면에서 '갈색 덩어리 하나' 가 됐다.
-     4차에 건물에서 배운 것과 같다 — 재질 대비가 없으면 조각을 아무리 붙여도 안 읽힌다.
-     웃옷을 밝은 적갈색으로 올리고 앞치마·바지는 짙게 남겨 세 층이 갈리게 했다. */
-  const SKIN2 = 0xf0d0a8, TUNIC = 0xc2765a, APRON = 0x5a3a22, APRON_D = 0x44290f;
-  /* ★ 처음엔 모루와 화덕 딱 가운데(dz -0.10)에 세웠더니 양옆에 끼어 답답했다.
-     0.35칸 앞으로 내보내면 셋이 '작업하는 자리' 처럼 배치된다. */
-  // 다리 — 앞치마 밑으로 장화가 보인다
-  for(const sx of [-1,1]){
-    C(sx*0.17, 0.22, 0.25, 0.22,0.46,0.24, 0x4a3a2a);
-    P(sx*0.17, 0.04, 0.25, 0.25,0.11,0.30, 0x3a2c1e);       // 장화
-  }
-  // 몸통 — 어깨가 아주 넓다(0.86). 상인(0.62)과 한눈에 갈린다
-  C( 0, 0.55,  0.25, 0.56,0.46,0.42, TUNIC);                // 허리
-  C( 0, 1.00,  0.25, 0.86,0.48,0.48, TUNIC);                // 가슴·어깨
-  // 가죽 앞치마 — 무릎까지. 위는 좁고 아래로 벌어진다
-  C( 0, 1.06,  0.51, 0.34,0.34,0.07, APRON);                // 가슴받이
-  C( 0, 0.62,  0.52, 0.56,0.56,0.08, APRON);                // 몸통 앞
-  C( 0, 0.26,  0.51, 0.60,0.30,0.08, APRON_D, 0.06);        // 무릎 앞 (살짝 벌어짐)
-  C( 0, 0.80,  0.52, 0.62,0.09,0.09, APRON_D);              // 앞치마 끈
-  // 팔 — 왼팔은 내리고, 오른팔은 망치를 든 채 들려 있다
-  C(-0.50, 0.92,  0.25, 0.22,0.50,0.24, SKIN2, -0.13);      // 왼 위팔
-  C(-0.58, 0.62,  0.30, 0.20,0.28,0.21, SKIN2, -0.08);      // 왼 손
-  C( 0.50, 0.98,  0.33, 0.22,0.46,0.24, SKIN2,  0.30);      // 오른 위팔 (들림)
-  C( 0.66, 1.26,  0.41, 0.20,0.30,0.21, SKIN2,  0.50);      // 오른 손
-  P( 0.74, 1.46,  0.45, 0.09,0.36,0.09, 0xa87a48, 0.50);    // 든 망치 자루
-  S( 0.82, 1.64,  0.47, 0.30,0.18,0.18, 0xdfe4ea, 0.50);    // 망치 머리
-  // 목 · 머리
-  C( 0, 1.28,  0.25, 0.20,0.11,0.20, SKIN2);
-  C( 0, 1.48,  0.25, 0.42,0.38,0.40, SKIN2);
-  C( 0, 1.38,  0.45, 0.42,0.20,0.15, 0x7a5a40);             // 덥수룩한 수염
-  C( 0, 1.27,  0.42, 0.22,0.13,0.13, 0x6b4d38);             // 턱수염 끝
-  for(const sx of [-1,1]) C(sx*0.11, 1.53, 0.43, 0.08,0.08,0.07, 0x2e2822);   // 눈
-  /* ★ '눈썹 위 그늘' 로 어두운 띠를 하나 얹었다가 이마를 통째로 덮어 얼굴이 안 보였다.
-     빼고, 눈썹만 가늘게 남긴다. */
-  for(const sx of [-1,1]) C(sx*0.11, 1.59, 0.43, 0.10,0.04,0.06, 0x5a4030);   // 눈썹
-  // 머리 두건 — 뒤로 묶은 천. 살짝 기울여야 천처럼 보인다
-  C( 0, 1.70,  0.25, 0.46,0.14,0.44, 0x7a2f26, 0.05);
-  C( 0, 1.66,  0.01, 0.16,0.10,0.16, 0x7a2f26, 0.05);       // 뒤로 묶인 끝
+  /* ★ 대장장이도 NPC 로 옮겼다 — 망치질을 해야 대장간처럼 보인다.
+     아래 '상인 · 대장장이 — 살아 있게' 를 보라. */
 }
 
 /* ★ 성문을 자원보다 먼저 세운다 — 망루 계단 자리를 먼저 잡아 놔야
    나무·바위가 계단 위에 박히지 않는다. */
 buildSky(); buildWorldMesh(); buildGates(); buildShop(); buildForge(); buildFarms(); placeNodes(); scatterDecor();
 buildCrystal(); buildClouds(); bbuild();
+/* 처음엔 다섯 우리가 다 비어 있다 — 제일 작은 단계만 남기고 나머지는 감춘다.
+   (여기선 아직 G 가 없다. 마리수를 보는 applyFarmStage 는 게임이 돌면서 부른다.) */
+for(const S of farmParts) for(let s=1;s<S.length;s++){
+  for(const h of S[s].p) bset(h, false);
+  for(const h of S[s].gnd) bset(h, false);
+}
 
 /* ═══════════════════════ 건물 정의 ═══════════════════════ */
 /* 모든 건물은 Lv1 → … → Lv6.  배열 칸은 레벨 순서다.
@@ -3932,7 +3977,9 @@ function canPlace(t,X,Z, ignoreRes){
     if(Math.hypot(cx+0.5-SHOP_X, cz+0.5-SHOP_Z) < 2.8) return '상인 자리예요';
     if(Math.hypot(cx+0.5-FORGE_X, cz+0.5-FORGE_Z) < 2.8) return '대장간 자리예요';
     for(let g2=0; g2<NG; g2++)
-      if(Math.hypot(cx+0.5-FARM_X[g2], cz+0.5-FARM_Z[g2]) < 4.4) return `${g2+1}모둠 농장 자리예요`;
+      /* 제일 큰 단계까지 비워 둔다 — 안 그러면 우리가 커질 때 벽이 울타리 속에 박힌다 */
+      if(Math.hypot(cx+0.5-FARM_X[g2], cz+0.5-FARM_Z[g2]) < FARM_R2[FARM_R2.length-1]+1.0)
+        return `${g2+1}모둠 농장 자리예요`;
 
     if(cellOwner.has(cx+','+cz)) return '이미 뭔가 있어요';
     if(nodeCellBlocked(cx,cz)) return '나무·바위 자리예요';
@@ -4169,18 +4216,36 @@ function bakeHeld(g){
 function mkArm(){ return boxM(T.wool, 0.19,0.30,0.19, 0.01,-0.20,0.10); }   // 양털 팔
 
 /* 곡괭이 — 가운데가 솟고 양 끝이 아래로 휘어 내려오는 그 실루엣.
-   한 단씩 내리면서 좁혀 가면 픽셀 아트 곡괭이가 된다. */
+   ★ 17차g까지는 상자 일곱 개를 계단처럼 한 단씩 내려 놓기만 했다. 화면에 크게 띄워 보니
+     조각 사이가 벌어져 '떠 있는 돌덩이 일곱 개' 로 보였고, 끝이 뭉툭해서
+     곡괭이보다 쌍망치에 가까웠다. 아이들이 제일 오래 들고 있는 물건인데 그랬다.
+   ★ 고친 방법 — 조각마다 기울기(rz)를 줘서 호(弧)를 따라 눕히고, 이웃끼리 겹치게 했다.
+     boxM 이 돌려주는 것은 그냥 메시라 rotation.z 를 줄 수 있고, bakeHeld 가 그 회전까지
+     구워서 합친다. 그리기 횟수는 그대로다(재질 수만큼).
+   ★ 끝은 확실히 뾰족하게 좁힌다. 실루엣이 갈려야 종류가 갈린다 — 망치와 헷갈리면 안 된다. */
 function mkPick(headTile, headMat){
   const g = new THREE.Group();
   const hm = headMat || MAT;
   g.add(mkArm());
-  g.add(boxM(T.bark, 0.070,0.62,0.070, 0.00,0.00,0.00));            // 자루
-  g.add(boxM(T.logSide, 0.105,0.075,0.105, 0.00,0.245,0.00));       // 자루를 묶은 끈
-  g.add(boxM(headTile, 0.19,0.115,0.115, 0.00,0.325,0.00, hm));     // 머리 가운데(제일 높다)
-  for(const s of [1,-1]){
-    g.add(boxM(headTile, 0.13,0.10,0.105, s*0.155,0.285,0.00, hm)); // 한 단 내려간 어깨
-    g.add(boxM(headTile, 0.11,0.09,0.095, s*0.255,0.215,0.00, hm)); // 두 단
-    g.add(boxM(headTile, 0.09,0.08,0.085, s*0.330,0.140,0.00, hm)); // 뾰족한 끝
+  g.add(boxM(T.bark,    0.068,0.66,0.068, 0.00, 0.00, 0.00));       // 자루
+  for(const y of [-0.20, -0.28])                                     // 손잡이 가죽끈
+    g.add(boxM(T.logSide, 0.088,0.045,0.088, 0.00, y, 0.00));
+  g.add(boxM(T.goldBlk, 0.100,0.070,0.100, 0.00, 0.255, 0.00));      // 쇠테
+  g.add(boxM(headTile,  0.175,0.120,0.120,  0.00, 0.345, 0.00, hm)); // 머리 가운데(제일 높다)
+  /* 호를 따라 다섯 마디씩 — 자리·크기·기울기를 한 식에서 뽑는다.
+     손으로 일곱 개를 따로 적으면 하나만 어긋나도 호가 꺾인다(예전이 그랬다). */
+  /* ★ 마디 길이는 '이웃 두 마디의 반지름 합 ≥ 중심 사이 거리' 라야 안 끊긴다.
+     끝으로 갈수록 길이까지 줄였더니 마지막 두 마디 사이가 벌어져 조각이 떨어져 보였다.
+     길이는 거의 그대로 두고 두께(H2)만 줄인다 — 그래야 이어지면서도 뾰족해진다. */
+  const XS = [0.078, 0.144, 0.202, 0.250, 0.288];
+  const YS = [0.336, 0.310, 0.268, 0.212, 0.146];
+  const W2 = [0.108, 0.104, 0.098, 0.092, 0.086];
+  const H2 = [0.112, 0.100, 0.086, 0.070, 0.052];
+  const RZ = [0.19, 0.50, 0.75, 0.96, 1.10];
+  for(const s of [1,-1]) for(let k=0;k<5;k++){
+    const m = boxM(headTile, W2[k], H2[k], H2[k]+0.008, s*XS[k], YS[k], 0.00, hm);
+    m.rotation.z = -s*RZ[k];
+    g.add(m);
   }
   g.rotation.set(-0.20, 0.50, 0.30);
   return g;
@@ -4869,6 +4934,120 @@ const F_body = imesh(gSoft,  MAT, MAXF, 1),
       F_deco = imesh(gSoftD, MAT, MAXF*8, 1),  // 볏 · 귀 · 뿔 · 코 · 얼룩
       F_eyes = imesh(cube(T.eye), MAT, MAXF*4, 1),   // 흰자 2 + 눈동자 2
       F_legs = imesh(gSoftD, MAT, MAXF*4, 1);
+/* ═══════════════════════ 상인 · 대장장이 (17차h) ═══════════════════════
+   ★ 둘 다 정적 뱅크(bpush)에 박혀 있었다. 그래서 아이들이 "상인이 벽 같아요" 했다.
+     사람은 가만히 서 있어도 숨을 쉬고 몸무게를 옮기고 소리 나는 쪽을 본다 —
+     그게 없으면 아무리 잘 깎아도 인형이다.
+   ★ 조각을 전부 '천 타일' 하나로 통일해서 뱅크 하나에 담는다.
+     돌·판자로 나누면 그리기가 셋이 된다. 조각이 다 작아서 결은 화면에서 안 보인다
+     (신발·망치머리는 색으로 가른다). 그리기는 딱 하나 는다.
+   ★ 조각마다 어느 덩이에 속하는지(grp)를 적어 둔다 —
+     0 몸 · 1 머리(목을 축으로 돌아간다) · 2 팔A(+X) · 3 팔B(−X).
+     머리와 팔만 따로 돌리면 나머지는 몸을 따라간다. */
+const NPC_CAP = 96;
+const N_body = imesh(cube(T.cloth), MAT, NPC_CAP, 1);
+/* [grp, dx,dy,dz, sx,sy,sz, 색, 기울기] — 로컬 +Z 가 그 사람이 보는 쪽 */
+const SKIN_M = 0xf0d2ae, ROBE = 0x4a5c96, ROBE_D = 0x36457a, TRIM = 0xd8b45a;
+const NPC_SHOP = [
+  [0,-0.14,0.20,-0.85, 0.19,0.42,0.22, ROBE_D], [0, 0.14,0.20,-0.85, 0.19,0.42,0.22, ROBE_D],
+  [0,-0.14,0.03,-0.85, 0.21,0.10,0.26, 0x5a4632],[0, 0.14,0.03,-0.85, 0.21,0.10,0.26, 0x5a4632],
+  [0, 0,0.52,-0.85, 0.46,0.42,0.38, ROBE],       [0, 0,0.72,-0.85, 0.14,0.09,0.42, TRIM],
+  [0, 0,0.95,-0.85, 0.62,0.44,0.44, ROBE],       [0, 0,1.02,-0.63, 0.30,0.34,0.06, TRIM],
+  [0, 0,1.20,-0.85, 0.17,0.10,0.17, SKIN_M],
+  /* ★ 손을 어깨에서 너무 멀리(0.44, 0.62) 두면 팔을 들었을 때 소매와 손 사이가
+     벌어져 손이 따로 떠 보인다. 팔을 든 자세로 재 보고 붙는 자리로 당겼다. */
+  [2, 0.37,0.90,-0.85, 0.17,0.44,0.20, ROBE_D, 0.16],
+  [2, 0.42,0.66,-0.82, 0.16,0.28,0.18, SKIN_M,  0.10],
+  [3,-0.37,0.90,-0.85, 0.17,0.44,0.20, ROBE_D,-0.16],
+  [3,-0.42,0.66,-0.82, 0.16,0.28,0.18, SKIN_M, -0.10],
+  [1, 0,1.38,-0.85, 0.38,0.36,0.36, SKIN_M],     [1, 0,1.30,-0.85, 0.40,0.14,0.38, 0x8a6a4a],
+  [1, 0,1.22,-0.68, 0.20,0.13,0.10, 0x8a6a4a],
+  [1,-0.10,1.42,-0.69, 0.07,0.08,0.06, 0x2a2420],[1, 0.10,1.42,-0.69, 0.07,0.08,0.06, 0x2a2420],
+  [1, 0,1.34,-0.69, 0.11,0.05,0.06, 0xc07a70],
+  [1, 0,1.58,-0.85, 0.94,0.09,0.86, ROBE_D, 0.07],
+  [1, 0,1.68,-0.85, 0.40,0.20,0.38, ROBE_D, 0.07],
+  [1, 0,1.62,-0.85, 0.42,0.07,0.40, TRIM,   0.07]
+];
+const SKIN2 = 0xf0d0a8, TUNIC = 0xc2765a, APRON = 0x5a3a22, APRON_D = 0x44290f;
+const NPC_FORGE = [
+  [0,-0.17,0.22,0.25, 0.22,0.46,0.24, 0x4a3a2a], [0, 0.17,0.22,0.25, 0.22,0.46,0.24, 0x4a3a2a],
+  [0,-0.17,0.04,0.25, 0.25,0.11,0.30, 0x3a2c1e], [0, 0.17,0.04,0.25, 0.25,0.11,0.30, 0x3a2c1e],
+  [0, 0,0.55,0.25, 0.56,0.46,0.42, TUNIC],       [0, 0,1.00,0.25, 0.86,0.48,0.48, TUNIC],
+  [0, 0,1.06,0.51, 0.34,0.34,0.07, APRON],       [0, 0,0.62,0.52, 0.56,0.56,0.08, APRON],
+  [0, 0,0.26,0.51, 0.60,0.30,0.08, APRON_D, 0.06],
+  [0, 0,0.80,0.52, 0.62,0.09,0.09, APRON_D],     [0, 0,1.28,0.25, 0.20,0.11,0.20, SKIN2],
+  [3,-0.50,0.92,0.25, 0.22,0.50,0.24, SKIN2, -0.13],
+  [3,-0.58,0.62,0.30, 0.20,0.28,0.21, SKIN2, -0.08],
+  [2, 0.50,0.98,0.33, 0.22,0.46,0.24, SKIN2,  0.30],
+  [2, 0.66,1.26,0.41, 0.20,0.30,0.21, SKIN2,  0.50],
+  [2, 0.74,1.46,0.45, 0.09,0.36,0.09, 0xa87a48, 0.50],
+  [2, 0.82,1.64,0.47, 0.30,0.18,0.18, 0xdfe4ea, 0.50],
+  [1, 0,1.48,0.25, 0.42,0.38,0.40, SKIN2],       [1, 0,1.38,0.45, 0.42,0.20,0.15, 0x7a5a40],
+  [1, 0,1.27,0.42, 0.22,0.13,0.13, 0x6b4d38],
+  [1,-0.11,1.53,0.43, 0.08,0.08,0.07, 0x2e2822], [1, 0.11,1.53,0.43, 0.08,0.08,0.07, 0x2e2822],
+  [1,-0.11,1.59,0.43, 0.10,0.04,0.06, 0x5a4030], [1, 0.11,1.59,0.43, 0.10,0.04,0.06, 0x5a4030],
+  [1, 0,1.70,0.25, 0.46,0.14,0.44, 0x7a2f26, 0.05],
+  [1, 0,1.66,0.01, 0.16,0.10,0.16, 0x7a2f26, 0.05]
+];
+/* 사람 하나 = 자리 · 보는 쪽 · 조각표 · 목 자리 · 어깨 두 자리 */
+function npcMake(x, z, a, parts, hp, apA, apB, kind, ph){
+  const RY = Math.PI/2 - a;
+  return {x, z, y0: terrAt(Math.round(x), Math.round(z)), RY,
+          cr: Math.cos(RY), sr: Math.sin(RY), parts, hp, apA, apB, kind, ph};
+}
+const NPCS = [
+  npcMake(SHOP_X,  SHOP_Z,  SHOP_A,  NPC_SHOP,  [0,1.26,-0.85], [ 0.37,1.10,-0.85], [-0.37,1.10,-0.85], 'shop',  0),
+  npcMake(FORGE_X, FORGE_Z, FORGE_A, NPC_FORGE, [0,1.34, 0.25], [ 0.50,1.18, 0.33], [-0.50,1.14, 0.25], 'smith', 1.7)
+];
+function drawNPCs(t){
+  let n = 0;
+  for(const N of NPCS){
+    /* ── 제일 가까운 아이 쪽으로 고개를 돌린다 ── */
+    let bx = 0, bz = 0, bd = 1e9;
+    const see = (px,pz)=>{ const d = (px-N.x)*(px-N.x) + (pz-N.z)*(pz-N.z);
+                           if(d < bd){ bd = d; bx = px; bz = pz; } };
+    if(G.started) see(PL.x, PL.z);
+    for(const q of G.players.values()) see(q.x, q.z);
+    let yaw = Math.sin(t*0.45 + N.ph)*0.16;          // 아무도 없으면 천천히 두리번
+    if(bd < 260){
+      let w = Math.atan2(bx - N.x, bz - N.z) - N.RY;
+      w = ((w + Math.PI*3) % (Math.PI*2)) - Math.PI;
+      yaw = Math.max(-0.9, Math.min(0.9, w));        // 고개는 몸통보다 더 못 돈다
+    }
+    const bob  = Math.sin(t*1.7  + N.ph)*0.022;      // 숨쉬기
+    const sway = Math.sin(t*0.75 + N.ph)*0.028;      // 몸무게 옮기기
+    /* ── 팔 ── 대장장이는 쉬지 않고 망치질을 하고,
+       상인은 아이가 가까이 오면 손을 흔든다(멀면 팔이 살짝 흔들릴 뿐) */
+    const near = bd < 46 && G.phase === 'day';
+    const swA = N.kind === 'smith' ? -0.95 + Math.abs(Math.sin(t*2.4))*1.25
+              : near ? 2.15 + Math.sin(t*8.5)*0.30
+                     : Math.sin(t*1.1 + N.ph)*0.09;
+    const swB = N.kind === 'smith' ? Math.sin(t*1.3)*0.06
+                                   : Math.sin(t*1.1 + N.ph + 2.1)*0.09;
+    for(const P of N.parts){
+      if(n >= NPC_CAP) break;
+      const grp = P[0];
+      let dx = P[1], dy = P[2], dz = P[3], tilt = P[8] || 0, ry = 0;
+      if(grp === 1){                                  // 머리 — 목을 축으로 돈다
+        const H = N.hp, px = dx-H[0], py = dy-H[1], pz = dz-H[2];
+        const c = Math.cos(yaw), s2 = Math.sin(yaw);
+        dx = H[0] + px*c + pz*s2; dy = H[1] + py; dz = H[2] - px*s2 + pz*c;
+        ry = yaw;
+      } else if(grp >= 2){                            // 팔 — 어깨를 축으로 든다
+        const A = grp === 2 ? N.apA : N.apB, w = grp === 2 ? swA : swB;
+        const px = dx-A[0], py = dy-A[1];
+        const c = Math.cos(w), s2 = Math.sin(w);
+        dx = A[0] + px*c - py*s2; dy = A[1] + px*s2 + py*c;
+        tilt += w;
+      }
+      dx += sway; dy += bob;
+      setIR3(N_body, n++, N.x + dx*N.cr + dz*N.sr, N.y0 + dy, N.z - dx*N.sr + dz*N.cr,
+             N.RY + ry, 0, tilt, P[4], P[5], P[6], P[7]);
+    }
+  }
+  N_body.count = n;
+  flush(N_body);
+}
 /* ★ "짚이 거뭇해지고 파리가 꾄다" — 선생님 주문이다.
    이게 없으면 아이가 우리가 더러워진 걸 알 방법이 없어서 청소를 안 한다.
    바닥 짚은 세상과 함께 한 번 구워 둔 것이라 색을 못 바꾼다.
@@ -4889,17 +5068,23 @@ function farmLayout(){
   for(let g=0; g<NG; g++){
     const f = G.farm[g], cx = FARM_X[g], cz = FARM_Z[g];
     const y0 = terrAt(Math.round(cx), Math.round(cz));
+    /* ★ 우리가 커지면 동물도 같이 흩어져야 한다. 안 그러면 넓어진 우리 한가운데에
+       여섯 마리가 옹기종기 모여 있어서 '커진 것' 이 도리어 허전해 보인다. */
+    const RR = farmR2(g);
     let i = 0;
     for(const A of FARM_ANIMALS){
       for(let k=0; k<(f[A.k]|0) && i<FARM_CAP; k++, i++){
         /* 우리 안에 고르게 흩어 놓는다. 같은 자리 번호면 늘 같은 곳이라 안 흔들린다. */
         const a = (i/FARM_CAP)*Math.PI*2 + g*0.7;
-        const r = 0.9 + (i%2)*0.9;
+        const r = RR*(0.28 + (i%2)*0.28);
         farmSpots.push({g, kind:A.k, x:cx+Math.cos(a)*r, z:cz+Math.sin(a)*r, y:y0,
                         ry:a+Math.PI/2, ph:(g*7+i*13)%10});
       }
     }
   }
+  /* 마리수가 바뀌었으니 우리 크기도 같이 맞춘다 — 울타리·헛간이 밖으로 나간다.
+     막는 자리도 같이 다시 잡는다(처음 한 번은 여기서 채워진다). */
+  applyFarmStage(); solidRebuild();
   farmDirty = false;
 }
 function drawFarm(t){
@@ -4994,7 +5179,7 @@ function drawFarm(t){
     /* 자국 — 더러울수록 수가 늘고 짙어진다. 자리는 늘 같아서 안 어른거린다. */
     const nm = Math.min(10, Math.round(dirt*10));
     for(let i=0;i<nm && mk<MAXMUCK;i++){
-      const a = (i*2.39996 + g), r = 0.5 + (i%3)*0.85;
+      const a = (i*2.39996 + g), r = farmR2(g)*(0.16 + (i%3)*0.26);
       const k = Math.min(1, dirt);
       /* ★ 바닥 짚은 y0+0.03 에 두께 0.06 으로 깔려 있다 — 윗면이 y0+0.06 이다.
          자국을 y0+0.05 에 뒀더니 짚 속에 파묻혀 화면에 아예 안 나왔다.
@@ -5986,14 +6171,20 @@ const G = {
 for(let i=0;i<NG;i++)
   G.farm.push({hen:0, pig:0, cow:0, egg:0, meat:0, milk:0, fed:0, hun:0, dirt:0});
 let farmDirty = true;                        // 마리수가 바뀌면 우리 안을 다시 그린다
-/* 농장 세 자리 — 여물통 · 우리 한가운데 · 헛간 앞.
-   울타리를 그릴 때 쓴 것과 똑같은 식으로 뽑는다(둘이 어긋나면 안 된다). */
+/* 지금 이 모둠 우리가 얼마나 큰가 — 마리수가 늘면 울타리가 밖으로 나간다 */
+function farmR2(g){ return FARM_R2[farmStageOf(farmCount(G.farm[g]))]; }
+/* 농장 네 자리 — 여물통 · 우리 한가운데 · 헛간 앞 · 대문.
+   우리를 그릴 때 쓴 로컬 좌표(로컬 +Z = 수정 쪽)를 그대로 쓴다.
+   ★ 여기와 buildFarms 가 어긋나면 아이는 아무것도 없는 데서 꾹 누르게 된다.
+     그래서 반너비 R 도 같은 표(FARM_R2)에서 읽는다. */
 function farmSpotXZ(g, which){
-  const cx = FARM_X[g], cz = FARM_Z[g], R2 = 3.0;
+  const cx = FARM_X[g], cz = FARM_Z[g], R = farmR2(g);
   const openA = Math.atan2(-cz, -cx);                 // 수정을 보는 쪽 = 문
-  if(which === 'feed')  return [cx-Math.cos(openA)*(R2-0.8), cz-Math.sin(openA)*(R2-0.8)];
-  if(which === 'take')  return [cx-Math.cos(openA)*(R2+1.1), cz-Math.sin(openA)*(R2+1.1)];
-  if(which === 'buy'){  const a=openA+0.55; return [cx+Math.cos(a)*R2, cz+Math.sin(a)*R2]; }
+  const fx = Math.cos(openA), fz = Math.sin(openA);   // 로컬 +Z (앞)
+  const ux = fz, uz = -fx;                            // 로컬 +X (옆)
+  if(which === 'feed')  return [cx - fx*(R-0.95) - ux*1.05, cz - fz*(R-0.95) - uz*1.05];
+  if(which === 'take')  return [cx - fx*(R+0.55), cz - fz*(R+0.55)];
+  if(which === 'buy')   return [cx + fx*(R+0.75), cz + fz*(R+0.75)];
   return [cx, cz];                                    // 'clean' = 우리 한가운데
 }
 /* 내가 지금 어느 농장 어느 자리에 서 있나 — 제일 가까운 것 하나 */
@@ -6082,6 +6273,61 @@ function groundUnder(x,z,R){
     m = Math.max(m, solidTop(Math.floor(x+ox), Math.floor(z+oz)));
   return m;
 }
+/* ═══════════ 통과 못 하는 것들 — 울타리 · 헛간 · 좌판 · 화덕 ═══════════
+   ★ 마당의 세간(농장·상인 좌판·대장간)은 전부 정적 뱅크로 쌓여 있다.
+     뱅크는 terrH/bldH 를 안 건드리므로 몸이 그냥 통과했다 — 아이들이
+     "울타리가 유령이에요" 하던 그 화면이다.
+   ★ 그렇다고 terrH 를 올리면 안 된다. 늑대 길찾기(walkable)도 건물 놓기도
+     전부 terrH 를 보기 때문에, 우리를 산으로 만들면 늑대 길이 통째로 바뀐다.
+     그래서 지형은 그대로 두고 '막는 동그라미' 목록을 따로 둔다.
+   ★ 높이(top)를 같이 적는다. 울타리는 1칸이 안 되니 점프로 넘을 수 있고,
+     헛간은 못 넘는다 — 아이들이 제일 먼저 해 보는 것이 '뛰어넘기' 다. */
+const SOLID = [];                       // {x,z,r,top}
+function solidPush(x,z,r,top){ SOLID.push({x,z,r,top}); }
+function solidRebuild(){
+  SOLID.length = 0;
+  /* 상인 좌판 · 대장간 화덕 — 가운데만 막는다(가까이 서서 사고팔 수는 있어야 한다) */
+  solidPush(SHOP_X, SHOP_Z, 1.25, terrAt(Math.round(SHOP_X), Math.round(SHOP_Z)) + 1.30);
+  solidPush(FORGE_X, FORGE_Z, 1.45, terrAt(Math.round(FORGE_X), Math.round(FORGE_Z)) + 1.70);
+  /* 모둠 농장 — 여물통·물통·볏짚·헛간. 울타리는 고리라서 따로 본다(farmSolidRing) */
+  for(let g=0; g<NG; g++){
+    const cx = FARM_X[g], cz = FARM_Z[g], R = farmR2(g), y0 = farmY[g] || GY;
+    const openA = Math.atan2(-cz, -cx);
+    const fx = Math.cos(openA), fz = Math.sin(openA), ux = fz, uz = -fx;
+    const at = (dx,dz)=> [cx + ux*dx + fx*dz, cz + uz*dx + fz*dz];
+    let q;
+    q = at(-1.05, -(R-0.95)); solidPush(q[0], q[1], 0.92, y0+0.60);   // 여물통
+    q = at( 1.05, -(R-0.95)); solidPush(q[0], q[1], 0.70, y0+0.60);   // 물통
+    q = at(-(R-0.9), R*0.34); solidPush(q[0], q[1], 0.62, y0+1.45);   // 볏짚 더미
+    q = at(0, -(R+1.8));      solidPush(q[0], q[1], 1.45, y0+3.20);   // 헛간
+  }
+}
+/* 울타리 고리 — 문(수정 쪽) 쪽만 뚫려 있다. 동그라미 서른 개 대신 고리 하나로 본다. */
+function farmRingHit(x, z, y){
+  for(let g=0; g<NG; g++){
+    const dx = x - FARM_X[g], dz = z - FARM_Z[g];
+    const R = farmR2(g);
+    if(Math.abs(dx) > R+1 || Math.abs(dz) > R+1) continue;
+    const d = Math.hypot(dx, dz);
+    if(Math.abs(d - R) > 0.30) continue;
+    if(y >= (farmY[g] || GY) + 0.95) continue;         // 뛰어넘을 수 있다
+    /* 문에서 벗어난 각도에만 울타리가 있다 */
+    const openA = Math.atan2(-FARM_Z[g], -FARM_X[g]);
+    let th = Math.atan2(dz, dx) - openA;
+    th = Math.abs(((th + Math.PI*3) % (Math.PI*2)) - Math.PI);
+    if(th > FARM_DOOR) return true;
+  }
+  return false;
+}
+function solidHit(x, z, y){
+  for(let i=0;i<SOLID.length;i++){
+    const s2 = SOLID[i];
+    if(y >= s2.top) continue;
+    const dx = x - s2.x, dz = z - s2.z;
+    if(dx*dx + dz*dz < s2.r*s2.r) return true;
+  }
+  return farmRingHit(x, z, y);
+}
 function spawnPoint(g){
   const r = 26 + Math.random()*7, off = (Math.random()-0.5)*9;
   return [gX(g, r, off), gZ(g, r, off)];
@@ -6109,12 +6355,15 @@ function updPlayer(dt){
   PL.mv = len > 0.06;
   const SP2 = SPD * spdMul();          // 날쌘 물약을 마셨으면 더 빠르다
   const wx = (fx*c - fz*s) * SP2, wz = (fx*(-s) - fz*c) * SP2;
+  /* ★ 이미 무언가에 박혀 있으면(자리를 옮겨 놨거나 우리가 커져서 울타리가 몸을 지나갔거나)
+     막지 않는다. 안 그러면 그 자리에서 영영 못 빠져나온다. */
+  const stuck = solidHit(PL.x, PL.z, PL.y);
   // X
   let nx = PL.x + wx*dt;
-  if(groundUnder(nx, PL.z, PL.R) <= PL.y + STEP) PL.x = nx;
+  if(groundUnder(nx, PL.z, PL.R) <= PL.y + STEP && (stuck || !solidHit(nx, PL.z, PL.y))) PL.x = nx;
   // Z
   let nz = PL.z + wz*dt;
-  if(groundUnder(PL.x, nz, PL.R) <= PL.y + STEP) PL.z = nz;
+  if(groundUnder(PL.x, nz, PL.R) <= PL.y + STEP && (stuck || !solidHit(PL.x, nz, PL.y))) PL.z = nz;
   // 중력
   const gnd = groundUnder(PL.x, PL.z, PL.R);
   /* ★ 쓰러진 양은 점프도 못 한다. 예전엔 이동만 막아 놔서, 쓰러진 채로 스페이스를 누르면
@@ -6961,14 +7210,33 @@ function buildFarmUI(){
     + (bask ? ` · 광주리에 <b>${bask}개</b> (상인에게 팔면 <b>✨${basketWorth(f)}</b>)` : '')
     + `</div>`;
   const w = el('farmList'); w.innerHTML = '';
-  for(const A of FARM_ANIMALS){
-    const have = f[A.k]|0, full = n >= FARM_CAP;
-    const st = full ? 'no' : canPay(A.cost) ? '' : 'no';
-    w.appendChild(shopCard(A.ic, `${A.n} ${have?`(${have}마리)`:''}`,
-      `${A.desc}<br>날마다 ${A.pic} ${A.pn} 하나 — 팔면 <b>✨${A.gold}</b>`
-      + `<br>먹이 🪵${FARM_FEED}/일`,
-      A.cost, st, full ? '우리가 꽉 참' : '사기', ()=>buyAnimal(A.k)));
-  }
+  w.appendChild(farmBuyHint());
+  for(const A of FARM_ANIMALS) w.appendChild(animalCard(A));
+}
+/* 우리에 동물을 들이는 카드 — 농장 화면과 상인 가게가 같은 것을 쓴다.
+   ★ 한 곳에서만 만든다. 두 군데에 따로 적어 두면 값이 바뀔 때 반드시 어긋난다. */
+function animalCard(A){
+  const f = myFarm(), n = farmCount(f), have = f[A.k]|0, full = n >= FARM_CAP;
+  const can = canPay(A.cost);
+  const st = (full || !can) ? 'no' : '';
+  return shopCard(A.ic, `${A.n} ${have?`(${have}마리)`:''}`,
+    `${A.desc}<br>날마다 ${A.pic} ${A.pn} 하나 — 팔면 <b>✨${A.gold}</b>`
+    + `<br>먹이 🪵${FARM_FEED}/일`
+    + (full ? '<br><span style="color:#ffbdbd">우리가 꽉 찼어요</span>' : lackTxt(A.cost)),
+    A.cost, st, full ? '우리가 꽉 참' : can ? '사기' : '모자라요',
+    ()=>buyAnimal(A.k));
+}
+/* 동물이 하나도 없으면 무엇부터 해야 하는지 한 줄로 알려 준다 */
+function farmBuyHint(){
+  const f = myFarm(), pp = document.createElement('p');
+  pp.className = 'shopHint'; pp.style.gridColumn = '1/-1';
+  pp.innerHTML = farmCount(f)
+    ? `동물이 늘면 <b>우리도 같이 넓어져요</b> (지금 ${farmCount(f)}마리 · `
+      + `${FARM_CAP}마리까지)`
+    : '먼저 <b>동물을 한 마리</b> 데려오세요. 자원이 모자라면 '
+      + '<b>🪨 돌·🪵 나무를 캐서</b> 모으고, <b>✨ 금</b>은 금광을 캐거나 '
+      + '<b>🛒 상인에게 바꾸기</b>로 얻을 수 있어요.';
+  return pp;
 }
 function buyAnimal(kind){
   const f = myFarm(), A = FARM_ANIMALS.find(a=>a.k===kind);
@@ -6984,7 +7252,12 @@ function buyAnimal(kind){
   burst(x, GY+1.4, z, 0xfff0a0, 20, 1.8);
   feed(`${A.ic} <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
      + `<b style="color:${GCOL[G.me.g]}">${G.me.g+1}모둠</b> 농장에 ${A.n}${josa(A.n,'을','를')} 들였어요`);
-  buildFarmUI();
+  /* 우리가 커지는 단계를 넘었으면 그것도 알려 준다 — 아이가 제일 좋아하는 순간이다 */
+  if(farmStageOf(farmCount(f)) !== farmStageOf(farmCount(f)-1))
+    toast('🏡 동물이 늘어서 우리가 더 넓어졌어요!', 2.6, '#9cff9c');
+  /* 어디서 샀든 열려 있는 화면을 다시 그린다 */
+  if(el('popFarm').classList.contains('on')) buildFarmUI();
+  if(el('popShop').classList.contains('on')) buildShopUI();
 }
 /* ── 가게 화면 ── */
 let shopTab = 'w';
@@ -7117,10 +7390,23 @@ function buildShopUI(){
          전부 나무·돌·금 셋으로 짜여 있어서, 쓸 데를 새로 만들어 주지 않으면
          숫자만 쌓인다. 상인에게 팔아 금으로 바꾸는 편이 이야기도 자연스럽고
          '농장 → 상인 → 무기' 로 이어지는 제 길이 생긴다. */
+    /* ★ 여기서는 '팔기' 만 됐다. 그런데 아이들은 동물도 여기서 살 수 있다고 여겼다 —
+       가게에 🧺 농장 칸이 있는데 살 게 하나도 없으면 그게 더 이상하다.
+       사는 것을 위에, 파는 것을 아래에 둔다. 우리 정원·값은 농장 화면과 같은 함수를 쓴다. */
     const f = myFarm(), have = basketCount(f), worth = basketWorth(f);
+    const buyHead = document.createElement('p');
+    buyHead.className = 'shopHint'; buyHead.style.gridColumn = '1/-1';
+    buyHead.innerHTML = `🐔 <b>동물 사기</b> — 산 동물은 <b style="color:${GCOL[G.me.g]}">`
+      + `${G.me.g+1}모둠 우리</b>로 바로 갑니다 (지금 ${farmCount(f)}/${FARM_CAP}마리)`;
+    w.appendChild(buyHead);
+    for(const A of FARM_ANIMALS) w.appendChild(animalCard(A));
+    const sellHead = document.createElement('p');
+    sellHead.className = 'shopHint'; sellHead.style.gridColumn = '1/-1';
+    sellHead.innerHTML = '🧺 <b>거둔 것 팔기</b>';
+    w.appendChild(sellHead);
     if(!have){
       const line = document.createElement('p');
-      line.className = 'shopHint';
+      line.className = 'shopHint'; line.style.gridColumn = '1/-1';
       line.innerHTML = '아직 팔 게 없어요. 농장에서 <b>🧺 거두기</b>를 하고 오세요.';
       w.appendChild(line);
     } else {
@@ -8080,6 +8366,9 @@ function paintHUD(){
   if(hudPrev.stip !== tip){ hudPrev.stip = tip; el('shopTip').classList.toggle('on', tip); }
   const ftip = forgeOpenable() && !popOpen();
   if(hudPrev.ftip !== ftip){ hudPrev.ftip = ftip; el('forgeTip').classList.toggle('on', ftip); }
+  /* 우리 앞이면 농장 안내. 세 안내는 자리가 멀어서 같이 뜰 일이 없다. */
+  const htip = farmOpenable() && G.phase === 'day' && !popOpen();
+  if(hudPrev.htip !== htip){ hudPrev.htip = htip; el('farmTip').classList.toggle('on', htip); }
   const gt = goalText();
   if(hudPrev.goal !== gt){ hudPrev.goal = gt;
     const h = el('hint'); h.textContent = gt; h.classList.toggle('gone', !gt); fitHint(); }
@@ -8318,6 +8607,9 @@ el('shopTip').addEventListener('touchstart', e=>{
 el('forgeTip').addEventListener('click', ()=>{ if(forgeOpenable()) openForge(); });
 el('forgeTip').addEventListener('touchstart', e=>{
   if(forgeOpenable()){ openForge(); e.preventDefault(); } }, {passive:false});
+el('farmTip').addEventListener('click', ()=>{ if(farmOpenable()) openFarm(); });
+el('farmTip').addEventListener('touchstart', e=>{
+  if(farmOpenable()){ openFarm(); e.preventDefault(); } }, {passive:false});
 
 function openPop(id){ document.exitPointerLock(); el(id).classList.add('on'); }
 
@@ -8823,6 +9115,16 @@ function upgradeStru(o){
 }
 function costTxt(c){
   return [c.w?`🪵${c.w}`:'', c.s?`🪨${c.s}`:'', c.g?`✨${c.g}`:''].filter(Boolean).join(' ');
+}
+/* 왜 못 사는지 — '사기' 가 눌리지도 않는데 까닭이 없으면 아이 눈에는 고장난 단추다.
+   ★ 실제로 이것 때문에 "상점에서 동물을 못 사요" 라는 말이 나왔다.
+     자원이 모자란 것뿐이었는데, 화면에는 그 말이 어디에도 없었다. */
+function lackTxt(c){
+  if(!c) return '';
+  const r = myRes(), n = [];
+  for(const k of ['w','s','g']){ const d = (c[k]||0) - r[k];
+    if(d > 0) n.push(`${RES_IC[k]}${RES_NM[k]} ${d}`); }
+  return n.length ? `<br><span style="color:#ffbdbd">${n.join(' · ')} 더 모아야 해요</span>` : '';
 }
 function removeStru(o){
   if(o.n !== G.me.name && o.g !== G.me.g){ toast('다른 모둠 건물이에요', 1.2, '#ffbdbd'); return; }
@@ -11164,6 +11466,9 @@ function loop(){
   }
   for(const c of clouds){ c.position.x += dt*0.55; if(c.position.x > 160) c.position.x = -160; }
   if(PROF_ON){ pS(); gpuBegin(); }
+  /* ★ 상인·대장장이는 시작 화면에서도 서 있어야 한다 — G.started 밖에서 그린다.
+     조각이 마흔여덟 개뿐이라 값은 거의 안 든다(뱅크 하나, 그리기 한 번). */
+  if(!DBG.noInst) drawNPCs(tAcc);
   if(!DBG.noRender) renderer.render(scene, camera);
   else renderer.clear();          // 화면이 얼어붙은 걸로 안 보이게 (거의 공짜다)
   if(PROF_ON){ gpuEnd(); pE('★그리기'); }
@@ -11534,6 +11839,14 @@ Object.assign(window, {
      실제로 t15 의 경험치 검사가 그렇게 NaN 이 됐다. 중복을 두지 않는다. */
   __paintRank:paintRank,          /* __pcMap 은 아래(9877줄 근처)에 이미 있다 — 또 쓰면 모양이 바뀐다 */
   /* 17차b — 오늘의 으뜸 · 수리 연출. 검사가 값을 베끼지 않고 게임에 물어보게. */
+  /* 17차h — 우리 크기 · 막는 자리 · 상인 움직임. */
+  __FARM_R2:()=>FARM_R2, __farmR2:farmR2, __FARM_DOOR:()=>FARM_DOOR,
+  __farmStageOf:farmStageOf, __farmParts:()=>farmParts, __farmVis:()=>farmVis,
+  __applyFarmStage:applyFarmStage, __solidHit:solidHit, __SOLID:()=>SOLID,
+  __solidRebuild:solidRebuild, __updPlayer:updPlayer,
+  __SHOP:()=>({x:SHOP_X, z:SHOP_Z, a:SHOP_A, near:SHOP_NEAR}),
+  __FORGE:()=>({x:FORGE_X, z:FORGE_Z, a:FORGE_A, near:FORGE_NEAR}),
+  __NPCS:()=>NPCS, __drawNPCs:drawNPCs, __N_body:()=>N_body, __DIGIT:DIGIT,
   /* 17차d — 농장. 검사가 값을 베끼지 않고 게임에 물어보게 내보낸다. */
   __FARM_X:()=>FARM_X, __FARM_Z:()=>FARM_Z, __FARM_ANIMALS:FARM_ANIMALS,
   __FARM_CAP:()=>FARM_CAP, __FARM_FEED:()=>FARM_FEED, __FARM_LEAVE:()=>FARM_LEAVE,
