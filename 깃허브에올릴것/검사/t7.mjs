@@ -123,7 +123,12 @@ const r = await pg.evaluate(()=>{
      '하늘'+W.__josa('하늘','이','가')+' / 지수'+W.__josa('지수','이','가'));
 
   /* ── 모자 ── */
-  ok('모자 아홉 가지 (7차 패치에서 5 -> 9)', W.__HATS.length===9, W.__HATS.length);
+  /* ★ '아홉 가지' 를 박아 뒀다가 17차g에 두 가지가 늘자 빨개졌다.
+     세어야 할 것은 개수가 아니라 '모자 표와 이름·아이콘 표의 길이가 같은가' 다 —
+     길이가 어긋나면 아이 착장이 통째로 밀린다(SHEEP_BITE 때와 같은 함정). */
+  ok('모자 표와 이름·아이콘 표의 길이가 같다',
+     W.__HATS.length >= 9 && W.__HAT_N.length === W.__HATS.length,
+     W.__HATS.length+'가지');
   const list=[{x:0,z:-5,y:GY,ry:0,g:0,mv:false,ph:0,hat:2},
               {x:2,z:-5,y:GY,ry:0,g:1,mv:false,ph:1,hat:0}];
   W.__drawSheep(list, 1, 40, s=>W.__GHEX[s.g], 0.7);

@@ -19,8 +19,11 @@ const r = await pg.evaluate(()=>{
   ok('늑대 크기 0.70', W.__G && true);
   const B=W.__BUILD;
   ok('나무벽 hi 1.4 (한 칸 낮춤)', B.wwall.hi===1.4, B.wwall.hi);
-  ok('화살탑 hi 는 등급별', Array.isArray(B.arrow.hi) && B.arrow.hi.length===6);
-  ok('배럭 hi 는 등급별', Array.isArray(B.barr.hi) && B.barr.hi.length===6);
+  /* ★ 길이 6 을 박아 뒀다가 17차c에 Lv7 이 열리자 둘 다 빨개졌다.
+     게임에 등급 수를 물어본다 — 표에 한 줄이 늘어도 안 흔들린다. */
+  const MAXLV_ = W.__MAXLV();
+  ok('화살탑 hi 는 등급별', Array.isArray(B.arrow.hi) && B.arrow.hi.length===MAXLV_, B.arrow.hi.length);
+  ok('배럭 hi 는 등급별', Array.isArray(B.barr.hi) && B.barr.hi.length===MAXLV_, B.barr.hi.length);
 
   /* ── 2·3. 성문 ── */
   let gateBlocks=0, gateKeys=[];

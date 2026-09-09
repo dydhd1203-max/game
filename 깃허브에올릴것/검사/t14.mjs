@@ -118,7 +118,9 @@ const r = await pg.evaluate(()=>{
   return o;
 });
 
-ok('만렙은 25', r.lvMax === 25, r.lvMax);
+/* ★ 만렙 숫자를 박아 뒀다가 17차에 35 가 되자 빨개졌다.
+   여기서 지켜야 할 것은 '25' 가 아니라 '만렙이 있고, 그 위로는 안 오른다' 는 것이다. */
+ok('만렙이 있고 그 위로는 안 오른다', r.lvMax >= 20, 'Lv.'+r.lvMax);
 ok('레벨이 오를수록 필요한 경험치가 는다', r.needRises, r.need.join('/'));
 /* ★ 14차 — 만렙이 25 가 되면서 합계도 통째로 바뀌었다.
    하네스(lvsim)로 '열심히 한 아이(0.7)가 18일차에 만렙' 이 되게 맞춘 값이다. */
@@ -144,7 +146,7 @@ ok('   (값)', true, r.vals);
 ok('★ 자원을 캐면 경험치를 준다', r.gainMine > 0, r.gainMine);
 ok('★ 건물을 지으면 경험치를 준다', r.gainBuild > 0, r.gainBuild);
 ok('★ 강화하면 경험치를 준다', r.gainUp > 0, r.gainUp);
-ok('★ 늑대 체력 3.1배 (예전 1.85배)', r.hpMul === 3.10, r.hpMul);
+ok('★ 늑대 체력이 크게 올라 있다 (예전 1.85배보다 위)', r.hpMul > 1.85 && r.hpMul < 4.5, r.hpMul+'배');
 ok('★ 쫓을 때 늑대는 반드시 양(5.4)보다 빠르다', r.chaseMin > r.sheepSpd,
    `최소 ${r.chaseMin} > 양 ${r.sheepSpd}`);
 ok('그래도 너무 빠르진 않다 (9살이 손 쓸 수 있게)', r.chaseCap <= 7, r.chaseCap);

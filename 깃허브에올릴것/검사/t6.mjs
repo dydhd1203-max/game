@@ -18,22 +18,25 @@ const r = await pg.evaluate(()=>{
   G.started=false;
 
   /* ── 5. Lv6 승급 ── */
-  ok('최고 등급 6', MAX===6, MAX);
+  /* ★ 등급 수를 검사에 박지 않는다 — 17차c에 Lv7 이 열리자 게임은 멀쩡한데
+     여기 네 항목이 한꺼번에 빨개졌고 그 뒤로 계속 빨간 채였다.
+     세어야 할 것은 '여섯 단계인가' 가 아니라 '표가 서로 길이가 맞고 계속 오르는가' 다. */
+  ok('최고 등급이 표와 맞는다', MAX >= 6, 'Lv'+MAX);
   let allGrow=true, allDiff=true;
   for(const t of ['wwall','swall','arrow','ice','barr']){
     const hp=B[t].hp;
-    if(hp.length!==6) allGrow=false;
-    for(let i=1;i<6;i++) if(hp[i]<=hp[i-1]) allGrow=false;
-    if((B[t].up||[]).length!==5) allGrow=false;
+    if(hp.length!==MAX) allGrow=false;
+    for(let i=1;i<MAX;i++) if(hp[i]<=hp[i-1]) allGrow=false;
+    if((B[t].up||[]).length!==MAX-1) allGrow=false;
     const seen=new Set();
-    for(let lv=1;lv<=6;lv++) seen.add(JSON.stringify(W.__blocks(t,lv)));
-    if(seen.size!==6) allDiff=false;
+    for(let lv=1;lv<=MAX;lv++) seen.add(JSON.stringify(W.__blocks(t,lv)));
+    if(seen.size!==MAX) allDiff=false;
   }
-  ok('다섯 건물 다 6단계 · 체력이 계속 오른다', allGrow);
-  ok('★ 여섯 등급의 생김새가 전부 다르다', allDiff);
+  ok('다섯 건물 다 Lv'+MAX+'까지 있고 체력이 계속 오른다', allGrow);
+  ok('★ 등급마다 생김새가 전부 다르다', allDiff);
   let hiUp=true;
   for(const t of ['arrow','ice','barr']){ const h=B[t].hi;
-    if(!Array.isArray(h) || h.length!==6 || h[5]<=h[0]) hiUp=false; }
+    if(!Array.isArray(h) || h.length!==MAX || h[MAX-1]<=h[0]) hiUp=false; }
   ok('등급이 오르면 탑이 실제로 높아진다', hiUp, B.arrow.hi.join('/'));
 
   /* ── 3. 벽 높이 · 화살이 넘어간다 ── */
@@ -114,9 +117,28 @@ const r = await pg.evaluate(()=>{
   G.players.delete('friend');
 
   /* ── 병정 ── */
-  ok('배럭 등급마다 병종 구성이 다르다', W.__SOL_COMP.length===6 &&
-     W.__SOL_COMP[5].length > W.__SOL_COMP[0].length,
+  /* ★ 여기도 개수를 박아 뒀었다. 배럭은 '등급이 오르면 병정이 세지는가' 가 핵심이다 —
+     구성이 다른 것만으로는 세졌다는 뜻이 안 된다. 체력과 초당 피해를 직접 재 본다. */
+  ok('배럭 등급마다 병종 구성이 다르다', W.__SOL_COMP.length===MAX &&
+     W.__SOL_COMP[MAX-1].length > W.__SOL_COMP[0].length,
      W.__SOL_COMP.map(a=>a.length).join('/'));
+  /* ★ 배럭을 올리면 병정이 '실제로' 세지나 — 구성이 바뀌는 것만으로는 세졌다는 뜻이 안 된다.
+     한 배럭이 동시에 데리고 있는 병정을 다 합쳐, 등급마다 체력과 초당 피해를 잰다. */
+  const barrHP=[], barrDPS=[];
+  for(let lv=1; lv<=MAX; lv++){
+    const buff = W.__bs('barr','sbuff',lv), hpB = W.__BAL.soldierHP + 5*W.__BAL.soldierHPGrow;
+    let hp=0, dps=0;
+    for(const k of W.__SOL_COMP[lv-1]){ const D = W.__SOL_DEF()[k];
+      hp += hpB*D.hp*buff; dps += W.__solDmg(k, lv)/D.rate; }
+    barrHP.push(Math.round(hp)); barrDPS.push(Math.round(dps*10)/10);
+  }
+  ok('★ 배럭을 올리면 병정이 실제로 세진다 (초당 피해가 등급마다 오른다)',
+     barrDPS.every((v,i)=> i===0 || v > barrDPS[i-1]), barrDPS.join(' → '));
+  ok('★ 병정 무리의 체력도 줄지 않는다', barrHP.every((v,i)=> i===0 || v >= barrHP[i-1]),
+     barrHP.join(' → '));
+  ok('★ 병정이 나오는 간격도 짧아진다',
+     W.__bs('barr','spawn',MAX) < W.__bs('barr','spawn',1),
+     W.__bs('barr','spawn',1)+'초 → '+W.__bs('barr','spawn',MAX)+'초');
   // 벽 통과 금지
   W.__clear(); G.res[G.me.g]={w:999,s:999,g:999};
   W.__place('swall', 20, 0);

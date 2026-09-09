@@ -20,6 +20,8 @@ await pg.waitForFunction('window.__READY===true', {timeout:60000});
 await pg.fill('#iName','김하늘'); await pg.click('#bSolo'); await pg.waitForTimeout(1500);
 await pg.evaluate(()=>document.querySelectorAll('.pop').forEach(e=>e.classList.remove('on')));
 const ev = (f,a)=> pg.evaluate(f,a);
+const NG_ = await ev(()=>window.__G.res.length);
+await ev((n)=>{ window.NG_ = n; }, NG_);
 
 /* ═══════ ① 건물값 20% ═══════ */
 const cost = await ev(()=>{ const B=window.__BUILD, o={mul:window.__COST_MUL()};
@@ -191,6 +193,62 @@ ok('★ 남은 목숨 합계로 순위, 같으면 맞힌 수 (3모둠 3목숨 9�
    sv.순위.rank[0]===3 && sv.순위.rank[1]===2 && sv.순위.rank[2]===4, JSON.stringify(sv.순위.rank));
 ok('★ 끝나면 총을 내리고 땅으로 돌아온다', sv.끝.ph==='day' && !sv.끝.aiming && !sv.순위.aiming, JSON.stringify(sv.끝));
 ok('★ 연습용 총은 가게에 안 나온다', !/연습용/.test(sv.가게), sv.가게);
+
+/* ═══════ ⑦ 서바이벌 지형 — 높은 자리 · 가림벽 · 상자 ═══════
+   ★ 판판한 바닥에 똑같은 기둥만 세우면 FPS 가 아니라 '서로 마주 보고 쏘기' 가 된다.
+     눈에 보이는 것과 발·총알이 보는 것이 같은 표에서 나오는지도 같이 본다. */
+const arena = await ev(()=>{
+  const W=window, G=W.__G, M=W.__MINI(), o={};
+  W.__goMini(2); G.paused = true;
+  o.모양 = {상자:W.__SURV_BOX().length, 단:W.__SURV_CYL().length};
+  o.높이 = {가운데:W.__survTopAt(0,0), 아래단:W.__survTopAt(0,5), 밖:W.__survTopAt(0,20)};
+  /* 스폰 다섯이 고리로 흩어지고, 전부 평지에서 시작한다 */
+  const sp=[]; for(let g=0;g<NG_;g++){ const q=W.__miniSpawnXZ(g); sp.push(q); }
+  o.스폰평지 = sp.every(q=>W.__survTopAt(q[0],q[1]) === 0);
+  o.스폰반지름 = sp.map(q=>+Math.hypot(q[0],q[1]).toFixed(1));
+  let near=1e9; for(let i=0;i<sp.length;i++) for(let j=i+1;j<sp.length;j++)
+    near = Math.min(near, Math.hypot(sp[i][0]-sp[j][0], sp[i][1]-sp[j][1]));
+  o.스폰사이 = +near.toFixed(1);
+  /* 스폰에서 섬 한가운데를 보는 길이 벽으로 막혀 있지 않다 */
+  o.앞이막힘 = sp.map(q=>{ let hit=false;
+    for(let t=0.08;t<0.75;t+=0.06){ if(W.__survTopAt(q[0]*(1-t), q[1]*(1-t)) > 1.9) hit=true; }
+    return hit; });
+  /* 발이 실제로 지형 위에 선다 */
+  o.발 = {가운데:+(W.__groundUnder(0,0,0.28)-M.Y).toFixed(1), 빈곳:+(W.__groundUnder(0,20,0.28)-M.Y).toFixed(1)};
+  /* 총알 — 가림벽 뒤는 막히고 트인 데는 안 막힌다 */
+  const a0 = Math.PI + Math.PI/NG_, R = 11.5, wx = Math.sin(a0)*R, wz = Math.cos(a0)*R;
+  o.벽뒤 = W.__survBlocked(wx*1.55, M.Y+1.12, wz*1.55, wx*0.45, M.Y+0.9, wz*0.45);
+  o.트인데 = W.__survBlocked(0, M.Y+2.9, 0, sp[0][0], M.Y+0.9, sp[0][1]);
+  /* 얼굴 바꾸기 — 퀴즈 때는 지형이 없고 O·X 우리가 있다 */
+  o.서바얼굴 = W.__miVis();
+  W.__miniExit(); W.__goMini(0);
+  o.퀴즈얼굴 = W.__miVis();
+  o.퀴즈땅 = +(W.__groundUnder(0,0,0.28)-M.Y).toFixed(1);
+  o.퀴즈스폰 = W.__miniSpawnXZ(0);
+  o.조각 = {퀴즈:W.__miParts().quiz.length, 서바:W.__miParts().surv.length};
+  W.__miniExit();
+  return o;
+});
+ok('★ 지형이 실제로 있다 (가림벽·상자·두 단 대)', arena.모양.상자 >= 20 && arena.모양.단 === 2,
+   '상자·벽 '+arena.모양.상자+'개 · 단 '+arena.모양.단+'층');
+ok('★ 가운데가 높다 — 올라가면 넓게 보인다 (두 단)',
+   arena.높이.가운데 > arena.높이.아래단 && arena.높이.아래단 > 0 && arena.높이.밖 === 0,
+   '가운데 '+arena.높이.가운데+' · 아래단 '+arena.높이.아래단+' · 밖 '+arena.높이.밖);
+ok('★ 그 높이를 발이 실제로 밟는다 (눈에만 있는 지형이 아니다)',
+   arena.발.가운데 === arena.높이.가운데 && arena.발.빈곳 === 0, JSON.stringify(arena.발));
+ok('★ 다섯 모둠이 고리로 흩어져 시작한다 (한 줄로 서면 끝의 두 모둠만 불리하다)',
+   arena.스폰사이 > 14 && arena.스폰반지름.every(r=>Math.abs(r-arena.스폰반지름[0]) < 0.1),
+   '스폰 사이 '+arena.스폰사이+'칸 · 반지름 '+arena.스폰반지름.join('/'));
+ok('★ 스폰은 평지고, 스폰에서 가운데로 가는 길이 벽으로 막혀 있지 않다',
+   arena.스폰평지 && arena.앞이막힘.every(v=>!v), arena.앞이막힘.map(v=>v?'막힘':'열림').join(' '));
+ok('★ 가림벽 뒤에 숨으면 총알이 막힌다 (엄폐물이 장식이 아니다)', arena.벽뒤);
+ok('★ 트인 데서는 안 막힌다', !arena.트인데);
+ok('★ 퀴즈·줄넘기 때는 지형을 걷고 O·X 우리를 켠다 (한 섬을 두 얼굴로 쓴다)',
+   arena.서바얼굴 === 'surv' && arena.퀴즈얼굴 === 'quiz' && arena.퀴즈땅 === 0
+   && arena.조각.퀴즈 > 50 && arena.조각.서바 > 50,
+   '퀴즈 조각 '+arena.조각.퀴즈+' · 서바 조각 '+arena.조각.서바);
+ok('★ 퀴즈 때 시작 자리는 한 줄 출발선이다', Math.abs(arena.퀴즈스폰[1] - (-15)) < 0.1,
+   JSON.stringify(arena.퀴즈스폰));
 
 console.log('');
 let bad=0;
