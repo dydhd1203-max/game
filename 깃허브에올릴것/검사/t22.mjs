@@ -334,6 +334,43 @@ ok('★ 남은 목숨 합계로 순위, 같으면 맞힌 수 (3모둠 3목숨 9�
 ok('★ 끝나면 총을 내리고 땅으로 돌아온다', sv.끝.ph==='day' && !sv.끝.aiming && !sv.순위.aiming, JSON.stringify(sv.끝));
 ok('★ 연습용 총은 가게에 안 나온다', !/연습용/.test(sv.가게), sv.가게);
 
+/* ═══════ ⑥-2 소리와 판정 연출 ═══════
+   ★ 서바이벌 총은 snd:'musket' 인데 소리 표에 musket 이 없어서 내내 조용했다.
+     sfx() 는 없는 이름이면 조용히 아무것도 안 한다 — 그래서 아무도 못 알아챘다.
+     이름 하나가 아니라 '무기가 부르는 소리가 전부 표에 있나' 를 본다. */
+const snd = await ev(()=>{
+  const W=window, o={};
+  const keys = W.__SFX_KEYS();
+  o.빠진소리 = W.__WEAPONS.filter(w=>w.snd && !keys.includes(w.snd)).map(w=>w.n+':'+w.snd);
+  o.무기수 = W.__WEAPONS.length;
+  o.있음 = ['musket','phit','phead','trip','hurt','gun'].filter(k=>keys.includes(k));
+  o.줄딩 = typeof W.__sfxJump === 'function';
+  /* 판정 — 맞았을 때 초록, 틀렸을 때 빨강 */
+  W.__verdict(true, '🎉', '정답!');
+  const v = document.getElementById('verdict');
+  o.맞음판정 = {on:v.classList.contains('on'), good:v.classList.contains('good'),
+               글:v.textContent};
+  W.__verdict(false, '❌', '땡!');
+  o.틀림판정 = {on:v.classList.contains('on'), bad:v.classList.contains('bad')};
+  W.__verdict(true, '⭐', '5번!', {quick:true});
+  o.짧은판정 = v.classList.contains('quick');
+  /* 초록 번쩍이 실제로 켜진다 */
+  W.__goodFlash(60);
+  o.초록번쩍 = +document.getElementById('goodFlash').style.opacity;
+  return o;
+});
+ok('★ 무기가 부르는 소리가 전부 소리 표에 있다 (없는 이름은 조용히 아무것도 안 한다)',
+   snd.빠진소리.length === 0, snd.무기수+'자루 중 빠진 것: '+(snd.빠진소리.join(' ')||'없음'));
+ok('★ 미니게임에 필요한 소리가 다 있다 (총·맞힘·헤드샷·걸림)',
+   snd.있음.length === 6, snd.있음.join(' '));
+ok('★ 줄을 넘을 때마다 높아지는 딩이 있다', snd.줄딩);
+ok('★ 맞히면 한가운데에 초록 판정이 크게 뜬다',
+   snd.맞음판정.on && snd.맞음판정.good && /정답/.test(snd.맞음판정.글), JSON.stringify(snd.맞음판정));
+ok('★ 틀리면 한가운데에 빨간 판정이 크게 뜬다',
+   snd.틀림판정.on && snd.틀림판정.bad, JSON.stringify(snd.틀림판정));
+ok('★ 줄넘기처럼 자주 뜨는 것은 작은 판정으로 뜬다 (매번 화면을 가리면 판이 안 보인다)', snd.짧은판정);
+ok('★ 잘했을 때의 초록 번쩍이 켜진다', snd.초록번쩍 === 1, String(snd.초록번쩍));
+
 /* ═══════ ⑦ 서바이벌 지형 — 높은 자리 · 가림벽 · 상자 ═══════
    ★ 판판한 바닥에 똑같은 기둥만 세우면 FPS 가 아니라 '서로 마주 보고 쏘기' 가 된다.
      눈에 보이는 것과 발·총알이 보는 것이 같은 표에서 나오는지도 같이 본다. */

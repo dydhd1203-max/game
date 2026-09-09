@@ -224,6 +224,31 @@ body.touch #hint{display:none}
 @keyframes fin{from{opacity:0;transform:translateX(-8px)}}
 #dmgFlash{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 100px rgba(255,0,0,.7);
   opacity:0;transition:opacity .35s}
+/* 잘했을 때의 초록 번쩍 — 빨간 번쩍(dmgFlash)과 짝이다.
+   ★ 18차e — 줄을 넘었는지 걸렸는지가 글자로만 떠서 몸으로 안 느껴졌다.
+     빨강/초록은 아이들이 0.1초 만에 읽는다. 글자보다 훨씬 빠르다. */
+#goodFlash{position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 110px rgba(60,230,120,.75);
+  opacity:0;transition:opacity .30s}
+/* 한가운데 판정 — 정답/오답, 넘음/걸림을 크게 때려 준다 */
+#verdict{position:absolute;inset:0;pointer-events:none;z-index:30;display:none;
+  align-items:center;justify-content:center;flex-direction:column;gap:2px}
+#verdict.on{display:flex}
+#verdict .vWash{position:absolute;inset:0;animation:vWash .75s both}
+#verdict .vIco{font-size:clamp(84px,17vw,190px);line-height:1;
+  filter:drop-shadow(0 6px 0 rgba(0,0,0,.35));animation:vPop .55s cubic-bezier(.2,1.7,.4,1) both}
+#verdict .vTx{font:900 clamp(24px,4.6vw,54px)/1 inherit;color:#fff;
+  text-shadow:0 3px 0 rgba(0,0,0,.6),0 0 24px currentColor;animation:vUp .45s .06s both}
+#verdict.bad .vIco{animation:vShake .55s both}
+/* 줄넘기처럼 자주 뜨는 것은 작고 짧게 — 매번 화면을 가리면 판이 안 보인다 */
+#verdict.quick .vIco{font-size:clamp(52px,9vw,104px)}
+#verdict.quick .vTx{font-size:clamp(18px,3vw,34px)}
+@keyframes vWash{0%{opacity:.9}100%{opacity:0}}
+@keyframes vPop{0%{transform:scale(.2) rotate(-18deg);opacity:0}
+  60%{transform:scale(1.16) rotate(4deg);opacity:1}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes vUp{0%{transform:translateY(16px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes vShake{0%{transform:scale(.4);opacity:0}22%{transform:scale(1.22) rotate(-10deg);opacity:1}
+  42%{transform:scale(1.04) rotate(10deg)}62%{transform:rotate(-7deg)}82%{transform:rotate(5deg)}
+  100%{transform:none}}
 #danger{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .6s;
   box-shadow:inset 0 0 130px rgba(200,0,0,.75)}
 #danger.on{animation:pulseD 1.5s infinite}
@@ -1549,6 +1574,8 @@ body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, b
   <div id="stageTitle"><div class="d"></div><div class="n"></div></div>
   <div id="toast"></div>
   <div id="dmgFlash"></div>
+  <div id="goodFlash"></div>
+  <div id="verdict"></div>
   <div id="dmgLayer"></div>
   <div id="shopTip">🛒 <span class="kb"><b>B</b> 를 눌러 </span><span class="tp">여기를 눌러 </span>상인과 거래하기</div>
   <div id="forgeTip">🔨 <span class="kb"><b>G</b> 를 눌러 </span><span class="tp">여기를 눌러 </span>무기 강화하기</div>
@@ -1860,7 +1887,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '18차d · 넓힌 하늘 섬 · 헤드샷';
+const GAME_VER = '18차e · 크게 티 나는 판정 · 총소리';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -7041,7 +7068,9 @@ function fireWeapon(){
       popDmg(A.x, A.y + 0.75, A.z, dmg, A.head ? 1 : 0);   // 늑대와 같은 숫자 — 헤드샷은 노란 '20!'
       burst(A.x, A.y, A.z, A.head ? 0xffd45a : 0xff7a7a, A.head ? 10 : 6, A.head ? 1.15 : 0.7);
       MINE.k++; survSend(q.uid, dmg, A.head);
-      if(window.__sfx){ window.__sfx(W.snd || 'gun'); window.__sfx(A.head ? 'up' : 'hit'); }
+      /* ★ 총소리(musket)는 이제 진짜로 난다 — 표에 없는 이름이라 여태 조용했다.
+         맞힌 소리도 늑대용 'hit'(작은 삑) 대신 두꺼운 것으로 바꾼다. */
+      if(window.__sfx){ window.__sfx(W.snd || 'gun'); window.__sfx(A.head ? 'phead' : 'phit'); }
     } else {
       const tx = PL.x + f.x*W.rng, ty = PL.y + PL.EYE + f.y*W.rng, tz = PL.z + f.z*W.rng;
       shootBullet(hx, hy, hz, tx, Math.max(MINI_Y+0.2, ty), tz, false, W.tr, W.len); muzzleFx(hx, hy, hz, f, W);
@@ -8461,6 +8490,27 @@ function say(msg){
 }
 function flash(){ const f = el('dmgFlash'); f.style.opacity = 1;
   setTimeout(()=> f.style.opacity = 0, 90); }
+/* 잘했을 때의 초록 번쩍 */
+function goodFlash(ms){ const f = el('goodFlash'); if(!f) return; f.style.opacity = 1;
+  setTimeout(()=> f.style.opacity = 0, ms || 110); }
+/* 한가운데에 크게 판정을 때린다.
+   ★ 18차e — "맞춘 거야 안 맞춘 거야 밋밋해" 가 주문이었다. 토스트 한 줄은
+     화면 구석에 작게 뜨고 3초를 기다려야 읽힌다. 아이들은 그걸 안 읽는다.
+     큰 그림 + 색 + 소리 셋이 같이 와야 0.1초 만에 안다. */
+let verdictN = 0;
+function verdict(good, ico, tx, opt){
+  const v = el('verdict'); if(!v) return;
+  const my = ++verdictN, quick = !!(opt && opt.quick);
+  const col = good ? '#9cffb0' : '#ffb0b0';
+  const wash = good ? 'rgba(60,225,115,.55)' : 'rgba(255,55,55,.60)';
+  v.innerHTML = `<div class="vWash" style="background:radial-gradient(circle at 50% 46%,`
+              + `${wash} 0%, rgba(0,0,0,0) 72%)"></div>`
+              + `<div class="vIco">${ico}</div>`
+              + (tx ? `<div class="vTx" style="color:${col}">${esc(tx)}</div>` : '');
+  v.className = 'on ' + (good ? 'good' : 'bad') + (quick ? ' quick' : '');
+  setTimeout(()=>{ if(verdictN === my) v.className = ''; },
+             (opt && opt.ms) || (quick ? 620 : 1450));
+}
 
 /* ═══════════════════════ 뜨는 데미지 숫자 ═══════════════════════
    ★ 늑대를 때리는 게 '먹히고 있다'는 걸 보여 주는 장치.
@@ -10776,10 +10826,25 @@ function miniOnState(){
     toast('🪢 줄이 돕니다 — 발밑에 올 때 스페이스!', 2.2, '#ffd0a0');
   } else if(M.st === 'reveal' && M.rv){
     const ok = (M.rv.ok||[]).includes(uid);
-    if(ok){ gain('w', MINI_OK.w); gain('s', MINI_OK.s); gain('g', MINI_OK.g);
+    /* ★ 18차e — 예전엔 구석에 토스트 한 줄이 전부라 "맞은 거야 아닌 거야" 가 밋밋했다.
+       큰 그림 + 화면 색 + 소리 + 종이꽃(불티)을 한꺼번에 준다. */
+    if(ok){
+      gain('w', MINI_OK.w); gain('s', MINI_OK.s); gain('g', MINI_OK.g);
+      verdict(true, '🎉', '정답!');
+      goodFlash(320);
+      /* 종이꽃 — 모둠색 한 줌 + 노란 한 줌. 머리 위로 터뜨려 내 눈앞에 쏟아지게 한다 */
+      burst(PL.x, PL.y + 2.1, PL.z, GHEX[G.me.g|0], 16, 1.7);
+      burst(PL.x, PL.y + 1.8, PL.z, 0xffe066, 14, 1.4);
+      burst(PL.x, PL.y + 1.5, PL.z, 0x9cffb0, 12, 1.2);
       toast(`⭕ 맞았어요! 🪵${MINI_OK.w} 🪨${MINI_OK.s} ✨${MINI_OK.g}`, 3.2, '#9cff9c');
-      if(window.__sfx) window.__sfx('get'); }
-    else toast(`정답은 ${M.rv.ans==='O'?'⭕':'❌'} — ${MINE.zone ? '아쉬워요' : '우리 안에 못 들어갔어요'}`, 3.2, '#ffbdbd');
+      if(window.__sfx) window.__sfx('win');
+    } else {
+      verdict(false, '❌', MINE.zone ? '땡!' : '안 들어갔어요');
+      flash();
+      if(window.__shake) window.__shake(0.45, 0.22);
+      if(window.__sfx) window.__sfx('lose');
+      toast(`정답은 ${M.rv.ans==='O'?'⭕':'❌'} — ${MINE.zone ? '아쉬워요' : '우리 안에 못 들어갔어요'}`, 3.2, '#ffbdbd');
+    }
   } else if(M.st === 'done'){
     if(M.k === 2) setAimMode(false, true);
     if(M.rank){
@@ -10849,7 +10914,9 @@ function oxReveal(){
    모두가 같은 식을 쓰므로 통신 없이도 스물한 명의 줄이 똑같이 돈다.
    ★ 속도가 오르내려야 재미있다 — 적분이 닫힌 꼴이라 어긋남이 안 쌓인다:
      각속도 = W·(1 + 0.42·sin(0.40t) + 0.09·sin(0.17t)) → 느릴 때 0.5배 · 빠를 때 1.5배 */
-const ROPE_W = 2.05;                              // 기본 각속도 — 한 바퀴 약 3초
+/* ★ 18차e — 30% 빠르게(2.05 → 2.67). 한 바퀴 3.1초가 2.4초가 된다.
+   1분에 스무 번 남짓 넘던 것이 스물여섯 번쯤 된다. */
+const ROPE_W = 2.67;                              // 기본 각속도 — 한 바퀴 약 2.4초
 function ropePhase(t){ return ROPE_W*(t + 1.05*(1-Math.cos(t*0.40)) + 0.55*(1-Math.cos(t*0.17))); }
 function ropeElapsed(){ return Math.max(0, ROPE_SEC - G.t); }
 let ropeLastTurn = -1, ropeMsgT = 0;
@@ -10862,9 +10929,27 @@ function ropeTick(dt){
   /* 줄이 발밑을 지났다 — 우리 모둠 자리에 서 있을 때만 센다 */
   const onPad = Math.abs(PL.x - miniPadX(G.me.g)) < 3.6 && Math.abs(PL.z - MINI_PADZ) < 3.6;
   if(!onPad) return;
-  if(!PL.ground || PL.airT < 0.16){ MINE.j++; popDmg(PL.x, PL.y+1.6, PL.z, MINE.j, 2); if(window.__sfx) window.__sfx('tak'); }
-  else { MINE.f++; MINE.rs = 0.9; toast('걸렸어요! 다시!', 0.9, '#ffbdbd'); if(window.__shake) window.__shake(0.25, 0.12); }
+  /* ★ 18차e — 예전엔 넘어도 '-20' 이 빨갛게 떴다(kind 2 는 '아팠다' 는 표시다).
+     넘은 것과 걸린 것이 둘 다 빨간 숫자라 몸으로 구분이 안 됐다.
+     넘음은 초록(+N)·올라가는 딩·초록 번쩍, 걸림은 빨강·낮은 퍽·화면 흔들림으로 갈랐다. */
+  const f2 = forward();
+  if(!PL.ground || PL.airT < 0.16){
+    MINE.j++;
+    popDmg(PL.x + f2.x*2.4, PL.y + 1.5, PL.z + f2.z*2.4, MINE.j, 3);
+    goodFlash(95);
+    verdict(true, '⭐', MINE.j + '번!', {quick:true});
+    burst(PL.x, PL.y + 0.45, PL.z, GHEX[G.me.g|0], 7, 0.85);
+    if(window.__sfxJump) window.__sfxJump(MINE.j);
+  } else {
+    MINE.f++; MINE.rs = 0.9; ropeHitT = 0.55;
+    verdict(false, '💥', '걸렸다!', {ms:850});
+    flash();
+    burst(PL.x, PL.y + 0.30, PL.z, 0xff6b6b, 11, 1.15);
+    if(window.__shake) window.__shake(0.60, 0.28);
+    if(window.__sfx) window.__sfx('trip');
+  }
 }
+let ropeHitT = 0;                                 // 걸린 직후 줄이 잠깐 빨개진다
 /* 모둠 점수 = 모둠원 평균(내림). '제일 못 넘은 사람' 으로 하면 한 명만 손을 놔도 0 이 된다 */
 function ropeScores(){
   const sum = [0,0,0,0,0], n = [0,0,0,0,0];
@@ -10897,7 +10982,8 @@ function survHit(byUid, byName, byG, dmg, head){
     popDmg(PL.x + f2.x*2.6, PL.y + 1.5, PL.z + f2.z*2.6, d, 2); }
   burst(PL.x, PL.y + 0.7, PL.z, 0xff6b6b, head ? 9 : 6, head ? 1.3 : 0.9);
   PL.hurtFx = 0.4;
-  if(window.__sfx) window.__sfx('hurt');
+  /* 총알이 박히는 소리 + 아파하는 소리 — 둘이 겹쳐야 '총에 맞았다' 로 들린다 */
+  if(window.__sfx){ window.__sfx('phit'); window.__sfx('hurt'); }
   if(MINE.hp > 0){
     toast(`💥 ${esc(byName)}${head ? ' 에게 머리를' : ' 에게'} 맞았어요! (체력 ${MINE.hp})`, 1.3, '#ffbdbd');
     miniReport(true); return;
@@ -10966,6 +11052,7 @@ function miniTick(dt){
   if(!miniOn() || !G.mini) return;
   miniOnState();
   if(G.mini.k === 1) ropeTick(dt);
+  if(ropeHitT > 0) ropeHitT -= dt;
   if(MINE.rs > 0){ MINE.rs -= dt; if(MINE.rs <= 0 && G.mini.k === 2 && !MINE.out) survRespawn(); }
   miniRepT -= dt; if(miniRepT <= 0){ miniRepT = 1; miniReport(); }
   MINE.zone = oxZoneOf(PL.x, PL.z);
@@ -11076,9 +11163,11 @@ function drawRope(){
         /* ★ 줄을 모둠색으로 칠했더니 모둠색 발판 위에서 감쪽같이 사라졌다(빨간 줄, 빨간 바닥).
            줄은 짙은 갈색, 양끝 손잡이만 모둠색이다. */
         const hand = i < 4 || i >= ROPE_SEG-4;
+        /* 걸린 직후 잠깐 줄이 빨개진다 — "이 줄에 걸렸다" 를 줄 자체가 말해 준다 */
+        const hot = ropeHitT > 0 && g === (G.me.g|0);
         setIR(R_rope, n++, (_rpA[0]+_rpB[0])/2, (_rpA[1]+_rpB[1])/2, (_rpA[2]+_rpB[2])/2,
               ry, rx, hand ? 0.17 : 0.13, hand ? 0.17 : 0.13, len*1.30,
-              hand ? GHEX[g] : 0x4a3626);
+              hot ? 0xff5a5a : (hand ? GHEX[g] : 0x4a3626));
         _rpA[0]=_rpB[0]; _rpA[1]=_rpB[1]; _rpA[2]=_rpB[2];
       }
     }
@@ -12019,6 +12108,19 @@ const SFX = {
   bite: ()=>{ noise(0.07,0.09,700); tone(170,90,0.07,'sawtooth',0.045); },
   hit:  ()=>{ tone(560,320,0.07,'square',0.045); },
   bow:  ()=>{ tone(950,420,0.06,'triangle',0.035); },
+  /* ★ 18차e — 미니게임 총(연습용 총)은 snd:'musket' 인데 이 표에 musket 이 없었다.
+     sfx() 는 없는 이름이면 조용히 아무것도 안 한다 — 그래서 서바이벌 내내 총소리가 없었다.
+     화승총다운 소리로 새로 넣는다: 굵은 파열음 + 낮게 깔리는 몸통 + 짧은 쇳소리. */
+  musket:()=>{ noise(0.055,0.22,3000); tone(155,52,0.13,'square',0.095);
+               tone(920,250,0.06,'sawtooth',0.055); },
+  /* 친구를 맞혔다 — 늑대의 'hit'(작은 삑) 보다 확실히 두껍다 */
+  phit: ()=>{ noise(0.05,0.14,1600); tone(430,185,0.09,'square',0.080); },
+  /* 머리를 맞혔다 — 높고 맑게 '팅' */
+  phead:()=>{ noise(0.035,0.10,5200); tone(1500,720,0.07,'triangle',0.090);
+              tone(2350,1150,0.05,'sine',0.050); },
+  /* 줄에 걸렸다 — 낮고 텁텁하게 '퍽' */
+  trip: ()=>{ noise(0.13,0.17,480); tone(180,68,0.22,'sawtooth',0.110);
+              tone(300,120,0.16,'square',0.060); },
   /* 총 소리 — 짧고 날카로운 파열음(잡음) + 낮게 깔리는 몸통 */
   gun:  ()=>{ noise(0.055,0.16,4200); tone(190,62,0.09,'square',0.075);
               tone(1300,420,0.045,'sawtooth',0.05); },
@@ -12037,6 +12139,15 @@ const SFX = {
 };
 const _sfxT = {};
 function sfx(k){ audioInit(); if(SFX[k]) SFX[k](); }
+/* 줄을 넘을 때마다 반음씩 높아지는 딩 — 연속으로 넘을수록 신이 난다.
+   (한 옥타브까지만 올린다. 그 위는 귀가 따갑다) */
+function sfxJump(n){
+  audioInit();
+  const k = Math.min(12, Math.max(0, (n|0) - 1));
+  const f = 620 * Math.pow(2, k/12);
+  tone(f, f*1.5, 0.10, 'triangle', 0.090);
+  tone(f*2, null, 0.06, 'sine', 0.032);
+}
 /* 멀리서 나는 소리는 무시하고, 같은 소리가 몰리면 솎아 낸다 */
 function sfxAt(k, x, z, maxD, gap){
   if(!sndOn) return;
@@ -12046,7 +12157,7 @@ function sfxAt(k, x, z, maxD, gap){
   if(_sfxT[k] && t - _sfxT[k] < (gap||70)) return;
   _sfxT[k] = t; sfx(k);
 }
-window.__sfx = sfx; window.__sfxAt = sfxAt;
+window.__sfx = sfx; window.__sfxAt = sfxAt; window.__sfxJump = sfxJump;
 
 /* ═══════════════════════ 배경음 ═══════════════════════
    원래도 아르페지오 한 줄은 있었지만 늘 같은 빠르기, 같은 세기라 배경 소음에 가까웠다.
@@ -12772,6 +12883,7 @@ Object.assign(window, {
   __GLASSES:GLASSES, __CLOTHES:CLOTHES, __CLO_N:CLO_NAME, __HAT_NAME:HAT_NAME, __GLS_N:GLS_NAME,
   __Pdeco:()=>P_deco, __pvw:()=>pvw,
   __KIT:KIT, __WEAPONS:WEAPONS, __ARMORS:ARMORS, __POTIONS:POTIONS,
+  __SFX_KEYS:()=>Object.keys(SFX), __verdict:verdict, __goodFlash:goodFlash,
   __buyWeapon:buyWeapon, __buyArmor:buyArmor, __buyAmmo:buyAmmo,
   __buyPotion:buyPotion, __usePotion:usePotion, __openShop:openShop,
   __shopXZ:()=>[SHOP_X, SHOP_Z], __shopOpenable:shopOpenable,
