@@ -71,6 +71,14 @@ canvas{display:block}
 /* ── 시작 화면 ── */
 #title{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   background:linear-gradient(180deg,#79c0ea 0%,#a9dcf5 45%,#cfeacc 100%);z-index:60;overflow:auto;padding:16px}
+/* ★ 19차 — 가운데 정렬(align-items:center)은 내용이 화면보다 길어지면 **위쪽을 잘라 먹는다.**
+   넘친 만큼이 위아래로 반씩 삐져나가는데, 위로 삐져나간 부분은 스크롤로도 못 간다.
+   그래서 17차g에 카드를 줄여 놓고도 1024×600·태블릿 세로에서는 제목이 여전히 잘려 있었다
+   (재 보고 알았다 — 제목 top 이 −31px · −130px 였다).
+   'safe center' 는 '넘치면 가운데 대신 위에 붙여라' 다. 모르는 브라우저는 이 줄만 조용히
+   버리고 윗줄(center)을 그대로 쓰므로, 되돌아가도 지금까지와 똑같이 동작한다.
+   이걸 넣으면 넘쳐도 제목부터 보이고, 아래는 스크롤로 닿는다. */
+#title{align-items:safe center}
 #titleCard{width:min(660px,100%);text-align:center}
 #titleCard .ver{margin:2px 0 0;font-size:11px;font-weight:800;letter-spacing:.2px;
   color:rgba(255,255,255,.55)}
@@ -830,19 +838,22 @@ input.f:focus,select.f:focus{outline:none;border-color:var(--honey);
 #pvwCap{font-weight:800;font-size:11.5px;color:var(--honey);opacity:.85;letter-spacing:.3px;
   margin-top:2px}
 #dressPick{flex:1 1 auto;min-width:0}
-#dressPick label.f{margin:9px 0 5px;display:flex;gap:6px;align-items:baseline}
+#dressPick label.f{margin:8px 0 4px;display:flex;gap:6px;align-items:baseline}
 #dressPick .dsec:first-child label.f{margin-top:0}
 /* ★ 1366×768 교실 크롬북에서 카드가 109px 넘쳐 제목이 잘렸다(재서 확인했다).
    넓은 화면에서는 고르는 칸을 두 줄로 나눠 앉힌다 — 세로가 그만큼 줄어든다. */
 @media (min-width:900px){
   #dressPick{display:grid;grid-template-columns:1fr 1fr;gap:0 12px;align-content:start}
   #dressPick .dsec label.f{margin-top:0}
-  #dressPick .dsec{margin-bottom:8px}
+  #dressPick .dsec{margin-bottom:5px}
 }
 #dressPick label.f b{font-weight:800;font-size:11.5px;color:#fff;opacity:.72}
 /* ★ 다섯 줄이면 아이템이 아홉·열하나가 되면서 석 줄로 늘어난다 — 여섯 줄로 넓힌다 */
-#dressPick .grp{grid-template-columns:repeat(6,1fr);gap:5px}
-#dressPick .grp button{padding:8px 0;font-size:18px}
+/* ★ 19차 — 모자가 열셋, 옷이 열하나가 되고 '짝꿍' 줄이 생겼다. 여섯 줄로는 모자만
+   석 줄이 되어 카드가 80px 길어졌다(재서 확인했다 — 1366×768 에서 제목 top 53 → −27).
+   일곱 줄로 넓히면 모자·안경·옷이 다 두 줄, 짝꿍이 한 줄로 앉는다. */
+#dressPick .grp{grid-template-columns:repeat(7,1fr);gap:4px}
+#dressPick .grp button{padding:6px 0;font-size:17px}
 /* 좁은 화면에선 미리보기를 위로 올리고 가운데 정렬 */
 @media (max-width:520px){
   #dressRow{flex-direction:column;align-items:center}
@@ -1507,6 +1518,8 @@ body.qbOn #crystalWrap, body.qbOn #resBox, body.qbOn #topRight{display:none}
           <div class="grp deco" id="glsPick"></div></div>
         <div class="dsec"><label class="f">옷 <b id="cloNm"></b></label>
           <div class="grp deco" id="cloPick"></div></div>
+        <div class="dsec"><label class="f">짝꿍 <b id="petNm"></b></label>
+          <div class="grp deco" id="petPick"></div></div>
       </div>
     </div>
 
@@ -1871,6 +1884,27 @@ body.qbOn #crystalWrap, body.qbOn #resBox, body.qbOn #topRight{display:none}
       남으면 🎁보내기로 도와주세요.</div></div>
   </div>
 
+  <h3>🌷 꽃밭 — 마을을 예쁘게, 그리고 쉼터로</h3>
+  <div class="hgrid">
+    <div class="hrow"><i>🌱</i><div><b>Z</b> 를 누르고 땅을 보면 씨앗을 심을 수 있어요
+      (<span class="chip">🪵2</span><span class="chip">1.1초</span>). 마당 안 <b>평평한 빈 땅</b>이면 어디든 됩니다.
+      <b>밤에도 심을 수 있어요.</b></div></div>
+    <div class="hrow"><i>🌷</i><div>심은 꽃은 <b>낮 동안 자라서</b> 활짝 핍니다 (밤에는 안 자라요).
+      우리 모둠은 <b>14송이</b>까지 심을 수 있어요.</div></div>
+    <div class="hrow"><i>💚</i><div><b>활짝 핀 꽃 곁에 서 있으면 체력이 차요.</b>
+      <span style="color:#ffb4b4">다만 늑대에게 물린 직후 2.5초는 안 나아요</span> —
+      싸우면서 버티는 자리가 아니라, <b>물러나서 쉬는 자리</b>입니다.</div></div>
+    <div class="hrow"><i>🏆</i><div>많이 심은 사람은 오른쪽 순위판 <b>🌷 꽃 으뜸</b>에 이름이 올라가요.
+      늑대는 꽃을 부수지 않으니 <b>심어 둔 건 그대로 남습니다.</b></div></div>
+  </div>
+
+  <h3>🐰 짝꿍</h3>
+  <div class="hgrid">
+    <div class="hrow"><i>🐰</i><div>시작 화면에서 <b>짝꿍</b>을 고르면 작은 동물이 내 곁을 따라다녀요 —
+      토끼 · 고양이 · 병아리 · 나비 · 강아지 · 유니콘.
+      <b>친구들 화면에도 보입니다.</b> 모자·안경·옷처럼 언제든 바꿀 수 있어요.</div></div>
+  </div>
+
   <h3>🐺 늑대</h3>
   <div class="hgrid">
     <div class="hrow"><i>📈</i><div>날이 갈수록 <b>커지고 사나워집니다</b> — 몸집·갈기·눈빛이 달라져요.</div></div>
@@ -1953,7 +1987,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '18차h · OX 문제 현수막';
+const GAME_VER = '19차 · 꽃밭과 짝꿍';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -3343,6 +3377,8 @@ const FARM_ANIMALS = [
    헛간 앞에서 또 꾹 누를 이유가 없어졌다. 두 가지 방법이 있으면 아이들이 헷갈린다. */
 const FARM_SEC   = {feed:3.0, clean:4.0};            // 꾹 누르는 시간
 const XP_FEED = 8, XP_CLEAN = 10, XP_TAKE = 4;        // 농장 일 경험치
+/* 꽃 한 송이 — 먹이(8)보다 조금 아래. 값이 싸고(🪵2) 여러 번 하는 일이라 낮게 잡는다 */
+const XP_PLANT = 6;
 const FARM_DIRT_UP  = 0.34;                 // 하루에 이만큼 더러워진다 (마리수에 비례)
 const FARM_DIRT_BAD = 0.55;                 // 이 위로 더러우면 산출이 절반
 const FARM_FEED  = 2;                       // 한 마리 하루 먹이 (나무)
@@ -3893,7 +3929,9 @@ const TOOLS = [
   {id:'mine',  name:'캐기', icon:'⛏️', key:'Q'},
   {id:'repair',name:'수리', icon:'🔧', key:'R'},
   {id:'up',    name:'강화', icon:'⬆️', key:'E'},
-  {id:'del',   name:'철거', icon:'💥', key:'F'}
+  {id:'del',   name:'철거', icon:'💥', key:'F'},
+  /* 19차 — 꽃 심기. Q·R·E·F 옆이라 왼손을 안 옮겨도 된다. */
+  {id:'plant', name:'꽃 심기', icon:'🌷', key:'Z'}
 ];
 
 /* ══ 건물 한 채의 블록 배치 ══
@@ -5721,9 +5759,15 @@ const P_body = imesh(gWool, MAT, MAXP,   1),   // 몸통
          아무도 아무것도 안 걸치면 통째로 숨긴다. */
       /* ★ 칸은 '제일 많이 걸친 아이' 기준이다. 모자 5 + 안경 7 + 옷 6 = 18 이라
          예전 칸(18)에는 여유가 한 칸도 없었고, 전직 차림새(최대 14)가 붙으면
-         그냥 잘렸다 — 오류도 안 내고 조각이 사라진다. 40 으로 잡는다
-         (22명 × 40 = 880개, 인스턴스 하나 값은 거의 없다). */
-      P_deco = imesh(cube(T.cloth), MAT, MAXP*40, 1);
+         그냥 잘렸다 — 오류도 안 내고 조각이 사라진다.
+         ★ 19차 — 40 도 이미 딱 맞는 칸이었다. 모자 5 + 안경 7 + 옷 8 + 전직 20 = 40.
+           '딱 맞는 칸은 모자란 칸' 이라 새 모자(6칸)·새 옷을 넣자마자 잘릴 자리였다.
+           52 로 올린다. 지금 제일 많이 걸친 아이는 6+7+8+20 = 41 이다.
+           검사(t23)가 표에서 이 최대값을 세어 칸과 맞대 본다 — 다음에 또 늘려도 바로 걸린다. */
+      P_deco = imesh(cube(T.cloth), MAT, MAXP*52, 1),
+      /* ★ 짝꿍 — 주인 곁을 도는 작은 동물. 몸이 아니라 땅바닥에 서므로 메시를 따로 쓴다.
+         종류가 몇이든 메시는 하나. 아무도 안 데리고 다니면 통째로 숨긴다. 한 마리 최대 9칸. */
+      P_pet  = imesh(cube(T.cloth), MAT, MAXP*9, 1);
 /* ═══════════ 친구가 든 총 (14차) ═══════════
    ★ 왜 넣었나 — 강화가 생기면서 "누가 뭘 들었나" 가 교실에서 제일 궁금한 것이 됐다.
      내 총만 내 화면에 보이면 자랑할 데가 없다. +5·+6 이 빛나는 걸 남이 봐야 의미가 있다.
@@ -5770,8 +5814,8 @@ const ENH_FX = [
        몸통 = f 0,    u 0.56, 크기 0.84×0.62×0.94  → 앞면 f 0.47 · 옆 ±0.42
        등털 = f -0.05,u 0.98, 크기 1.08×0.68×1.16  → 뒤 f -0.63 · 위 u 1.32 · 옆 ±0.54
      '가로'는 옆폭, '깊이'는 앞뒤 길이다. 등털보다 좁으면 털 속에 파묻혀 안 보인다. */
-const HAT_ICON = ['🚫','👒','👑','🎀','😈','🧙','🧶','☠️','🌸','🐱','🚀'];
-const HAT_NAME = ['없음','밀짚모자','왕관','리본','작은 뿔','마법사 고깔','털모자','해적 모자','꽃 화관','고양이 귀','우주 헬멧'];
+const HAT_ICON = ['🚫','👒','👑','🎀','😈','🧙','🧶','☠️','🌸','🐱','🚀','🦄','🦋'];
+const HAT_NAME = ['없음','밀짚모자','왕관','리본','작은 뿔','마법사 고깔','털모자','해적 모자','꽃 화관','고양이 귀','우주 헬멧','유니콘 뿔','나비 머리핀'];
 const HATS = [
   [],
   [[0.66,1.46,0,  1.02,0.10,1.02, 0xe8cf8a], [0.66,1.56,0, 0.62,0.20,0.62, 0xdcbe72]],
@@ -5803,7 +5847,24 @@ const HATS = [
   [[0.66,1.46,0, 1.00,0.14,0.96, 0xf2f4f8],
    [0.66,1.60,0, 0.82,0.28,0.78, 0xe6ebf2],
    [0.98,1.50,0, 0.14,0.34,0.62, 0x8fd0ff],
-   [0.66,1.82,0, 0.16,0.18,0.16, 0xffd94a]]
+   [0.66,1.82,0, 0.16,0.18,0.16, 0xffd94a]],
+  /* 유니콘 뿔 (19차) — 금빛 뿔 하나 + 뒤로 흐르는 무지개 갈기 셋.
+     ★ 실루엣이 갈려야 종류가 갈린다. 다른 모자는 다 '머리를 덮는' 모양이라,
+       이건 위로 뾰족하게 하나만 솟게 잡았다 — 멀리서도 바로 유니콘으로 읽힌다.
+     ★ 갈기는 등털 꼭대기(u 1.32)보다 위로 흐르게 둔다. 그 아래로 내리면 털에 묻힌다. */
+  [[0.80,1.64,0, 0.13,0.34,0.13, 0xffd94a],
+   [0.78,1.44,0, 0.19,0.12,0.19, 0xfff0a0],
+   [0.46,1.54,0, 0.30,0.18,0.34, 0xff9ec4],
+   [0.20,1.46,0, 0.28,0.16,0.32, 0xa8c8ff],
+   [-0.04,1.38,0, 0.24,0.14,0.28, 0xc9a8ff]],
+  /* 나비 머리핀 (19차) — 분홍 띠 위에 나비 한 마리가 옆으로 앉았다.
+     ★ 한쪽에만 다는 것이 핀답다. 양쪽에 달면 그냥 '뿔 두 개' 로 보인다. */
+  [[0.66,1.42,0,     0.86,0.09,0.80, 0xffb0cd],
+   [0.70,1.56, 0.28, 0.09,0.16,0.08, 0xfff0a0],
+   [0.70,1.60, 0.40, 0.18,0.20,0.10, 0xff8fb8],
+   [0.70,1.60, 0.16, 0.18,0.20,0.10, 0xff8fb8],
+   [0.70,1.46, 0.38, 0.13,0.14,0.08, 0xffd0e4],
+   [0.70,1.46, 0.18, 0.13,0.14,0.08, 0xffd0e4]]
 ];
 /* ═══════════ 전직한 양의 차림새 (17차f) ═══════════
    ★ 꾸미기(모자·안경·옷)와 똑같은 형식이다 — [앞f, 높이u, 옆sd, 가로,세로,깊이, 색].
@@ -5964,8 +6025,8 @@ const GLASSES = [
    [1.04,1.00, 0.30, 0.06,0.06,0.05, 0xd98a7a], [1.04,1.06, 0.24, 0.06,0.06,0.05, 0xd98a7a],
    [1.04,0.96, 0.20, 0.06,0.06,0.05, 0xd98a7a]]
 ];
-const CLO_ICON = ['🚫','🦸','🦺','🧣','🛡️','👔','🌈','🧚','🌛'];
-const CLO_NAME = ['없음','빨간 망토','파란 조끼','노란 목도리','은빛 갑옷','나비넥타이','무지개 판초','요정 날개','별무늬 잠옷'];
+const CLO_ICON = ['🚫','🦸','🦺','🧣','🛡️','👔','🌈','🧚','🌛','🩰','👗'];
+const CLO_NAME = ['없음','빨간 망토','파란 조끼','노란 목도리','은빛 갑옷','나비넥타이','무지개 판초','요정 날개','별무늬 잠옷','발레 치마','꽃 원피스'];
 const CLOTHES = [
   [],
   /* 빨간 망토 — 등털 뒤(f -0.63)보다 더 뒤로 빼야 보인다 */
@@ -6014,9 +6075,97 @@ const CLOTHES = [
    [ 0.56,0.74, 0.20, 0.12,0.12,0.06, 0xfff0a0],
    [ 0.56,0.48,-0.16, 0.10,0.10,0.06, 0xfff0a0],
    [ 0.00,0.60, 0.50, 0.12,0.12,0.10, 0xfff0a0],
-   [ 0.60,0.94,0,     0.78,0.16,0.30, 0xffd0e4]]
+   [ 0.60,0.94,0,     0.78,0.16,0.30, 0xffd0e4]],
+  /* 발레 치마 (19차) — 몸통 옆폭(반너비 0.42)·등털(0.54)보다 확실히 넓게 세 겹.
+     ★ 좁게 잡으면 털 속에 파묻혀 아예 안 보인다. 튀튀는 '옆으로 뻗은 것' 이라야 튀튀다.
+     ★ 높이는 u 0.42~0.62 — 등털 아래, 다리 위. 여기가 몸통 옆이 실제로 보이는 띠다. */
+  [[0.00,0.42,0, 1.26,0.12,1.32, 0xff9ec4],
+   [0.00,0.53,0, 1.08,0.12,1.14, 0xffd0e4],
+   [0.00,0.63,0, 0.94,0.10,1.00, 0xfff0f6],
+   [0.58,0.70,0, 0.26,0.16,0.12, 0xff5c9c]],
+  /* 꽃 원피스 (19차) — 종아리까지 내려오는 치마 + 가슴 앞판 + 꽃 두 송이.
+     ★ 꽃은 u 0.46~0.58 에 둔다. 가슴에서 실제로 보이는 창은 u 0.25~0.74 뿐이라
+       그 위로 올리면 머리(u 0.74~1.38)에 가려 정면에서 통째로 사라진다. */
+  [[0.00,0.36,0,     1.16,0.28,1.22, 0xffc0d8],
+   [0.00,0.23,0,     1.24,0.09,1.30, 0xfff0f6],
+   [0.52,0.60,0,     0.86,0.36,0.12, 0xff9ec4],
+   [0.59,0.58, 0.20, 0.16,0.15,0.08, 0xfff0a0],
+   [0.59,0.46,-0.16, 0.14,0.13,0.08, 0xfff6d8]]
 ];
 
+
+/* ═══════════════════════ 🐰 짝꿍 (19차) ═══════════════════════
+   ★ 왜 넣었나 — 이 게임에서 '내 것' 이라고 부를 수 있는 건 착장뿐이었다.
+     그런데 착장은 1인칭이라 정작 자기 눈에는 안 보인다. 짝꿍은 곁을 돌아다니므로
+     내 화면에도 계속 나타난다. 아이가 화면에서 제일 자주 보는 '내 것' 이 된다.
+   ★ 꾸미기와 같은 형식이다 — [앞f, 높이u, 옆sd, 가로,세로,깊이, 색].
+     다만 붙는 자리가 양 몸이 아니라 '주인 곁 땅바닥' 이라 메시를 따로 쓴다.
+     종류가 몇이든 메시는 하나다 — 아무도 안 데리고 다니면 통째로 숨긴다(드로우콜 0).
+   ★ 목록에 넣을 때는 끝에 넣는다. 번호로 저장되고 번호로 전송된다. */
+const PET_ICON = ['🚫','🐰','🐱','🐥','🦋','🐶','🦄'];
+const PET_NAME = ['없음','토끼','고양이','병아리','나비','강아지','유니콘'];
+/* 뛰는 높이 · 떠다니나 — 나비만 공중에 뜬다 */
+const PET_HOP  = [0, 0.115, 0.055, 0.100, 0, 0.070, 0.060];
+const PET_FLY  = [0, 0, 0, 0, 1, 0, 0];
+const PETS = [
+  [],
+  /* 🐰 토끼 — 긴 귀가 실루엣을 만든다. 귀 안쪽 분홍이 있어야 귀로 읽힌다 */
+  [[ 0.00,0.20,0,     0.34,0.30,0.42, 0xfffaf2],
+   [ 0.26,0.42,0,     0.28,0.26,0.26, 0xfffaf2],
+   [ 0.20,0.66, 0.09, 0.10,0.30,0.09, 0xfffaf2],
+   [ 0.20,0.66,-0.09, 0.10,0.30,0.09, 0xfffaf2],
+   [ 0.23,0.66, 0.09, 0.06,0.21,0.05, 0xffb0cd],
+   [ 0.23,0.66,-0.09, 0.06,0.21,0.05, 0xffb0cd],
+   [ 0.40,0.44, 0.09, 0.05,0.07,0.04, 0x241f1c],
+   [ 0.40,0.44,-0.09, 0.05,0.07,0.04, 0x241f1c],
+   [-0.20,0.28,0,     0.15,0.15,0.11, 0xffffff]],
+  /* 🐱 고양이 — 세모 귀 + 위로 선 꼬리 */
+  [[ 0.00,0.20,0,     0.34,0.28,0.44, 0xf2a65a],
+   [ 0.28,0.42,0,     0.28,0.26,0.26, 0xf7b878],
+   [ 0.22,0.60, 0.10, 0.12,0.15,0.08, 0xf2a65a],
+   [ 0.22,0.60,-0.10, 0.12,0.15,0.08, 0xf2a65a],
+   [ 0.25,0.59, 0.10, 0.07,0.09,0.05, 0xffc9d8],
+   [ 0.25,0.59,-0.10, 0.07,0.09,0.05, 0xffc9d8],
+   [ 0.42,0.44, 0.09, 0.05,0.07,0.04, 0x2f7a4a],
+   [ 0.42,0.44,-0.09, 0.05,0.07,0.04, 0x2f7a4a],
+   [-0.26,0.40,0,     0.09,0.32,0.09, 0xf2a65a]],
+  /* 🐥 병아리 — 동글동글 노랑. 부리와 볏이 주황이라야 병아리로 보인다 */
+  [[ 0.00,0.20,0,     0.32,0.32,0.34, 0xffe06a],
+   [ 0.16,0.46,0,     0.26,0.24,0.24, 0xffe98a],
+   [ 0.32,0.44,0,     0.11,0.08,0.11, 0xff9a3c],
+   [ 0.28,0.50, 0.09, 0.05,0.07,0.04, 0x241f1c],
+   [ 0.28,0.50,-0.09, 0.05,0.07,0.04, 0x241f1c],
+   [ 0.00,0.22, 0.18, 0.07,0.17,0.21, 0xfff0b0],
+   [ 0.00,0.22,-0.18, 0.07,0.17,0.21, 0xfff0b0],
+   [ 0.12,0.60,0,     0.09,0.09,0.11, 0xff9a3c]],
+  /* 🦋 나비 — 땅에 안 붙는다. 날개 두 쌍이 옆으로 확실히 뻗어야 나비다 */
+  [[ 0.00,0.50,0,     0.09,0.11,0.26, 0x8a6a4a],
+   [ 0.04,0.60, 0.21, 0.10,0.28,0.30, 0xff9ec4],
+   [ 0.04,0.60,-0.21, 0.10,0.28,0.30, 0xff9ec4],
+   [-0.11,0.47, 0.17, 0.08,0.19,0.21, 0xa8c8ff],
+   [-0.11,0.47,-0.17, 0.08,0.19,0.21, 0xa8c8ff],
+   [ 0.11,0.68, 0.05, 0.03,0.11,0.03, 0x8a6a4a],
+   [ 0.11,0.68,-0.05, 0.03,0.11,0.03, 0x8a6a4a],
+   [ 0.00,0.76,0,     0.08,0.08,0.08, 0xfff0a0]],
+  /* 🐶 강아지 — 축 늘어진 귀 + 까만 코 */
+  [[ 0.00,0.20,0,     0.34,0.28,0.44, 0xf0dcb4],
+   [ 0.28,0.42,0,     0.30,0.28,0.26, 0xf7e8c8],
+   [ 0.22,0.42, 0.18, 0.09,0.23,0.13, 0xd9b47a],
+   [ 0.22,0.42,-0.18, 0.09,0.23,0.13, 0xd9b47a],
+   [ 0.45,0.38,0,     0.10,0.08,0.08, 0x3b322a],
+   [ 0.42,0.47, 0.09, 0.05,0.07,0.04, 0x241f1c],
+   [ 0.42,0.47,-0.09, 0.05,0.07,0.04, 0x241f1c],
+   [-0.24,0.36,0,     0.11,0.20,0.11, 0xf0dcb4]],
+  /* 🦄 유니콘 — 금뿔 + 분홍·하늘 갈기. 모자 쪽 유니콘 뿔과 색을 맞춰 뒀다 */
+  [[ 0.00,0.24,0,     0.34,0.30,0.48, 0xfffaf6],
+   [ 0.30,0.48,0,     0.24,0.26,0.26, 0xfffaf6],
+   [ 0.34,0.70,0,     0.07,0.19,0.07, 0xffd94a],
+   [ 0.16,0.60,0,     0.17,0.17,0.15, 0xffb0cd],
+   [ 0.02,0.53,0,     0.17,0.15,0.15, 0xa8c8ff],
+   [ 0.42,0.50, 0.08, 0.05,0.07,0.04, 0x241f1c],
+   [ 0.42,0.50,-0.08, 0.05,0.07,0.04, 0x241f1c],
+   [-0.26,0.38,0,     0.13,0.23,0.11, 0xc9a8ff]]
+];
 
 function setI(mesh, idx, x,y,z, ry, sx,sy,sz, col){
   _v.set(x,y,z); _q.setFromAxisAngle(UPV, ry); _s.set(sx,sy,sz);
@@ -6562,6 +6711,75 @@ function drawSheep(list, t, cap, colOf, scale){
   flush(P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_tail,P_legs,P_deco,P_gun,P_gunF);
 }
 
+/* ═══════════ 짝꿍 그리기 (19차) ═══════════
+   ★ 왜 '따라오게' 가 아니라 '곁을 돌게' 인가 —
+     뒤를 졸졸 따라오게 만들었더니 1인칭인 주인 눈에는 영영 안 보였다.
+     천천히 원을 그리며 돌게 하면 몇 초에 한 번씩 시야를 가로지른다.
+     자기 짝꿍이 자기 화면에 안 나오면 고른 보람이 없다.
+   ★ 자리는 사람마다 따로 기억한다(petAt). 매 프레임 목표 쪽으로 조금씩 당겨서
+     주인이 뛰면 뒤로 처지고, 멈추면 곁으로 다가온다. */
+const PET_S     = 0.72;          // 양(0.70)과 비슷하되 키는 절반쯤이다
+/* ★ 곁을 도는 반지름. '내 눈에 보이는가' 가 이 기능의 전부라, 눈이 아니라 자로 쟀다.
+   짝꿍은 키가 0.5칸인데 내 눈높이는 1.12칸이다. 가까이 붙을수록 화면 아래로 내려가고,
+   아래 도구 칸(1366×768 에서 top 624px)에 통째로 가린다. 반지름별로 재 보면:
+
+     반지름 1.25 → 머리 y 647 · 몸통 776   (도구 칸에 완전히 가림 — 처음 값이 이거였다)
+     반지름 2.0  → 머리 y 548 · 몸통 629   (몸통이 가림)
+     반지름 2.6  → 머리 y 510 · 몸통 572   ← 도구 칸 위에 온전히 뜬다
+     반지름 3.2  → 머리 y 487 · 몸통 537   (여유는 있지만 '곁' 이 아니라 '저만치' 다)
+
+   그래서 2.6 이다. 짧은 화면(1024×600, 도구 칸 top 412)에서는 몸통 아래가 조금 걸리지만
+   머리는 늘 보인다 — 더 늘리면 짝꿍이 아니라 남이 된다. */
+const PET_ORBIT = 2.6;
+const petAt = new Map();         // uid -> {x,z,y,ry,ph}
+function updPets(dt, tt){
+  let n = 0;
+  const cap = P_pet.count_max;
+  const live = new Set();
+  const put = (key, pk, ax, ay, az)=>{
+    pk = pk|0;
+    if(pk <= 0 || pk >= PETS.length) return;
+    live.add(key);
+    let s = petAt.get(key);
+    if(!s){ s = {x:ax, z:az, y:ay, ry:0, ph:Math.random()*6.28}; petAt.set(key, s); }
+    const a  = tt*0.62 + s.ph;
+    const tx = ax + Math.cos(a)*PET_ORBIT, tz = az + Math.sin(a)*PET_ORBIT;
+    const dx = tx - s.x, dz = tz - s.z;
+    const k  = Math.min(1, dt*3.2);
+    s.x += dx*k; s.z += dz*k;
+    s.y += (ay - s.y) * Math.min(1, dt*6);
+    const mv = Math.hypot(dx, dz);
+    if(mv > 0.05) s.ry = Math.atan2(dx, dz);
+    const parts = PETS[pk];
+    if(n + parts.length > cap) return;                  // 넘치면 그냥 안 그린다(조용히 잘리지 않게)
+    const ry = s.ry;
+    const fx = Math.sin(ry), fz = Math.cos(ry);
+    const rx = Math.cos(ry), rz = -Math.sin(ry);
+    /* 걷는 만큼 통통 뛴다. 나비는 뛰는 대신 위아래로 떠다닌다. */
+    const hop = PET_FLY[pk]
+      ? 0.34 + Math.sin(tt*1.9 + s.ph)*0.10
+      : Math.abs(Math.sin(tt*7.5 + s.ph)) * PET_HOP[pk] * (0.35 + Math.min(1, mv*3.2));
+    for(const p of parts){
+      setI(P_pet, n++, s.x + fx*p[0]*PET_S + rx*p[2]*PET_S,
+                       s.y + (p[1] + hop)*PET_S,
+                       s.z + fz*p[0]*PET_S + rz*p[2]*PET_S,
+           ry, p[3]*PET_S, p[4]*PET_S, p[5]*PET_S, p[6]);
+    }
+  };
+  if(G.started){
+    if(!PL.down) put(uid, G.me.pet, PL.x, PL.y, PL.z);
+    for(const [k, q] of G.players){
+      if(q.down || q.x === undefined) continue;
+      const pc = pcMap.get(k);
+      put(k, pc ? pc.pet : 0, q.x, q.y===undefined?GY:q.y, q.z);
+    }
+  }
+  /* 나간 아이의 자리는 지운다 — 안 지우면 판이 길어질수록 Map 이 자란다 */
+  if(petAt.size > live.size) for(const k of [...petAt.keys()]) if(!live.has(k)) petAt.delete(k);
+  P_pet.count = n; P_pet.visible = n > 0;
+  if(n) flush(P_pet);
+}
+
 /* 이름표 */
 const tagPool = [];
 function tagSprite(){
@@ -6600,9 +6818,9 @@ const G = {
   phase:'title', day:1, t:0, crystal:D.crystalMax, sub:0,
   set:{daySec:D.daySec, nightSec:D.nightSec, goalDay:D.goalDay,
        crystalMax:D.crystalMax, wolfPower:D.wolfPower},
-  res:[], me:{name:'', g:0, uid:'', hat:0, gls:0, clo:0}, host:false, solo:false, room:'', focus:0,
+  res:[], me:{name:'', g:0, uid:'', hat:0, gls:0, clo:0, pet:0}, host:false, solo:false, room:'', focus:0,
   wolves:[], soldiers:[], players:new Map(), stats:new Map(), started:false, paused:false,
-  bossTier:-1, bossId:0, chests:[], chT:0, drops:[], danger:-1,
+  bossTier:-1, bossId:0, chests:[], chT:0, drops:[], garden:[], danger:-1,
   mis:0, misD:0,                                  // 오늘의 임무 진행도 / 다 했나
   /* 모둠 농장 — fed 는 '마지막으로 먹인 날', hun 은 '내리 굶은 날수' */
   farm:[]
@@ -6651,7 +6869,7 @@ const myRes = ()=> G.res[G.me.g];
    달리기·점프·발끝 높이(SPD/JUMP/GRAV/STEP)는 그대로 — 지형은 안 줄였기 때문이다. */
 const SHEEP_S = 0.70;
 const PL = { x:0, y:GY, z:0, vy:0, yaw:0, pitch:0, ground:true, R:0.28, EYE:1.12, mv:false,
-             hp:100, down:false, biteT:0, hurtFx:0 };
+             hp:100, down:false, biteT:0, hurtFx:0, grdHurt:0 };
 /* 쓰러졌을 때 3인칭으로 보여 줄 '내 몸' — 매 프레임 새로 만들지 않으려고 하나만 둔다 */
 const meSheep = { x:0, y:GY, z:0, ry:0, g:0, hat:0, gls:0, clo:0,
                   down:true, mv:false, ph:1.7 };
@@ -7027,6 +7245,207 @@ function updDrops(dt, tt){
   if(nb) flush(fdBody);
   if(ng) flush(fdGlow);
 }
+/* ═══════════════════════ 🌷 꽃밭 (19차) ═══════════════════════
+   ★ 왜 넣었나 — CLAUDE.md 에 적어 둔 그 문제다. 이 게임이 소리 내어 칭찬하는 것이
+     오랫동안 전부 '쏘기' 였고, 17차b에 캐기·짓기·수리·도움·농장 갈래를 늘렸다.
+     그래도 '마을을 예쁘게 만드는 일' 은 아직 아무 자리가 없었다.
+     꽃밭은 그 일에 **쓸모까지** 얹은 것이다 — 활짝 핀 꽃 곁에 서 있으면 체력이 찬다.
+     그러면 꽃을 심은 아이는 '예쁘게 꾸민 아이' 이면서 동시에 '반을 살린 아이' 가 된다.
+   ★ 이걸 잘한 아이의 이름은 어디에 남나 — 순위판의 🌷 꽃 으뜸 갈래다(MY.flowers).
+     새 장치를 넣을 때는 이걸 같이 정한다.
+   ★ 체력은 여태 아침(+20)과 물약으로만 찼다. 밤중에 회복할 방법이 없어서
+     초반에 크게 물린 아이는 그 밤을 그냥 견뎠다. 꽃밭이 그 자리를 메운다 —
+     다만 '물린 직후에는 안 낫는다'. 그래야 꽃밭에 서서 버티는 판이 안 된다. */
+const GRD_CAP   = 14;             // 모둠 하나가 심을 수 있는 꽃 (다섯 모둠 = 70송이)
+const GRD_MAX   = NG * GRD_CAP;
+const GRD_COST  = {w:2, s:0, g:0};
+const GRD_SEC   = 1.1;            // 심는 데 걸리는 시간 — 벽(2.8초)보다 가볍다
+const GRD_BLOOM = 26;             // 심고 활짝 필 때까지 (낮에만 자란다)
+const GRD_R     = 3.6;            // 꽃향기가 닿는 거리
+const GRD_HEAL  = 2.4;            // 그 안에서 초당 회복
+const GRD_HURT  = 2.5;            // 물린 뒤 이만큼은 안 낫는다
+const GRD_GAP   = 1.05;           // 꽃과 꽃 사이 최소 거리
+/* 여섯 빛깔 — p 는 꽃잎, m 은 꽃심.
+   ★ 색은 텍스처에 곱해진다. 어두운 색을 주면 검은 상자가 된다(네 번 겪었다).
+     전부 바탕보다 밝은 파스텔로 잡았다. */
+const PETAL = [
+  {n:'분홍 코스모스', p:0xff9ec4, m:0xfff0a0},
+  {n:'노랑 데이지',   p:0xffe06a, m:0xfff6d8},
+  {n:'하늘 물망초',   p:0x9ad0ff, m:0xfff0a0},
+  {n:'보라 제비꽃',   p:0xc9a8ff, m:0xfff0a0},
+  {n:'하양 안개꽃',   p:0xfff2f6, m:0xffb8d4},
+  {n:'주홍 튤립',     p:0xff9a76, m:0xfff0a0}
+];
+/* 한 송이에 몸통 8칸(활짝 폈을 때) + 빛 2칸. 메시는 둘뿐이고
+   한 송이도 없으면 통째로 숨긴다 → 드로우콜 0.
+   ★ 칸은 8·2 가 아니라 10·3 으로 잡는다. 처음에 딱 맞게(8) 잡았더니 일흔 송이가
+     다 피었을 때 495/560 이 아니라 **560/560** 이었다 — 여유가 한 칸도 없는 자리다.
+     '딱 맞는 칸은 모자란 칸' 이라, 꽃잎 한 장만 더해도 그때부터 조용히 잘린다
+     (17차f에 전직 차림새가 그렇게 잘렸다). */
+const grdBody = imesh(cube(T.cloth), MAT,   GRD_MAX*10, 1);
+const grdGlow = imesh(cube(T.glow),  EMITC, GRD_MAX*3, 1);
+grdBody.visible = false; grdGlow.visible = false;
+let grdSeq = 1, grdSend = 0;
+const grdT = new Map();           // 호스트만 쓴다: 꽃 id -> 자란 시간. 통신에는 안 싣는다.
+
+const grdMine = ()=>{ let n=0; for(const f of G.garden) if((f.g|0) === G.me.g) n++; return n; };
+/* 여기 심어도 되나 — 안 되면 그 까닭을 글로 돌려준다(아이가 왜 안 되는지 알아야 한다) */
+function grdCheck(X, Z){
+  const cx = X+0.5, cz = Z+0.5;
+  if(!inW(X,Z)) return '여긴 안 돼요';
+  if(terrH[gi(X,Z)] !== GY) return '평평한 땅에만 심어요';
+  if(oct(cx,cz) > ARENA_R-0.5) return '마당 안에만 심을 수 있어요';
+  if(Math.hypot(cx,cz) < 4.2) return '수정에 너무 가까워요';
+  if(cellOwner.has(X+','+Z)) return '이미 뭔가 있어요';
+  if(nodeCellBlocked(X,Z)) return '나무·바위 자리예요';
+  if(rampCells.has(X+','+Z)) return '망루 계단 자리예요';
+  if(inFarmYard(cx,cz)) return '농장 자리예요';
+  if(Math.hypot(cx-SHOP_X, cz-SHOP_Z) < 2.4) return '상인 자리예요';
+  if(Math.hypot(cx-FORGE_X, cz-FORGE_Z) < 2.4) return '대장간 자리예요';
+  for(const f of G.garden) if(Math.hypot(f.x-cx, f.z-cz) < GRD_GAP) return '꽃끼리 너무 붙어요';
+  if(grdMine() >= GRD_CAP) return `우리 모둠 꽃밭은 ${GRD_CAP}송이까지예요`;
+  return null;
+}
+function netGarden(){ if(net && G.host) net.child('grd').set(G.garden); }
+/* 한 송이 심는다 — 호스트면 바로 꽂고, 손님이면 부탁을 보낸다(산물 줍기와 같은 방식) */
+function plantFlower(X, Z){
+  const c = (Math.random()*PETAL.length)|0;
+  /* ★ id 에 시각을 섞는다. uid 는 기기에 남고 grdSeq 는 새로고침하면 1부터 다시 세므로,
+     한 아이가 새로고침한 뒤 심으면 예전 꽃과 id 가 겹친다 —
+     hostSeed 가 '같은 부탁이 두 번 왔다' 로 보고 조용히 버린다. */
+  const f = {i:(G.me.uid||uid||'x').slice(0,4)+'_'+Date.now().toString(36).slice(-4)+(grdSeq++), g:G.me.g|0,
+             x:X+0.5, z:Z+0.5, c, r:+(Math.random()*6.28).toFixed(2), b:0, n:G.me.name};
+  spend(GRD_COST);
+  MY.flowers = (MY.flowers|0) + 1;
+  xpGain(XP_PLANT);
+  G.garden.push(f);
+  if(G.host){ grdT.set(f.i, 0); netGarden(); }
+  else if(net) net.child('seed').set({n:++grdSend + '_' + uid, f});
+  burst(f.x, GY+0.35, f.z, PETAL[c].p, 12, 1.0);
+  if(window.__sfx) window.__sfx('plant');
+  /* ★ 경험치는 처음부터 줬는데(XP_PLANT) 화면에 아무 표시가 없어서
+     "꽃 심기는 경험치를 안 준다" 로 보였다. 캐기가 `+20 🪵` 를 띄우듯 여기도 띄운다.
+     받는 것과 받는 줄 아는 것은 다른 일이다. */
+  /* ★ 높이를 정하는 데 두 번 헛짚었다. 1.2 는 가운데 알림 글자 뒤에 겹쳤고,
+     2.1 로 올렸더니 가까이서 아래를 보며 심을 때 **화면 위로 빠져나갔다**
+     (dnTick 은 위아래로 벗어난 것을 안 잘라 낸다 — 그냥 화면 밖에 그린다).
+     1.5 면 겹치지도 않고 코앞에서 심어도 화면 안에 든다. 안 보이면 안 띄운 것과 같다. */
+  popDmg(X+0.5, GY+1.5, Z+0.5, XP_PLANT, 3);
+  toast(`🌱 ${PETAL[c].n} 씨앗을 심었어요 — 곧 피어요 (⭐+${XP_PLANT})`, 1.6, '#c8ffb0');
+}
+/* 호스트가 손님의 부탁을 받는다 */
+function hostSeed(f){
+  if(!G.host || !f || G.garden.length >= GRD_MAX) return;
+  if(G.garden.some(q=>q.i === f.i)) return;                 // 같은 부탁이 두 번 오면 한 번만
+  let mine = 0; for(const q of G.garden) if((q.g|0) === (f.g|0)) mine++;
+  if(mine >= GRD_CAP) return;
+  G.garden.push(f); grdT.set(f.i, 0); netGarden();
+}
+/* 자란다 — 낮에만. 활짝 필 때만 통신이 한 번 나간다(다 자란 뒤엔 아무것도 안 나간다) */
+function gardenGrow(dt){
+  if(!G.host || G.phase !== 'day') return;
+  let bloomed = 0;
+  for(const f of G.garden){
+    if(f.b) continue;
+    const t = (grdT.get(f.i) || 0) + dt;
+    grdT.set(f.i, t);
+    if(t >= GRD_BLOOM){ f.b = 1; bloomed++; }
+  }
+  if(bloomed){ netGarden();
+    if(G.started) toast(`🌷 꽃 ${bloomed}송이가 활짝 피었어요!`, 1.8, '#ffd0e4');
+    if(window.__sfx) window.__sfx('bloom'); }
+}
+/* 활짝 핀 꽃이 몇 송이나 내 곁에 있나 (0이면 회복 없음) */
+function grdNear(x, z){
+  let n = 0;
+  for(const f of G.garden) if(f.b && Math.hypot(f.x-x, f.z-z) < GRD_R) n++;
+  return n;
+}
+let grdHealAcc = 0, grdSaid = false;
+/* 매 프레임 — 자라고, 낫게 하고, 그린다 */
+function updGarden(dt, tt){
+  gardenGrow(dt);
+  /* ── 꽃향기 — 활짝 핀 꽃 곁에서 체력이 찬다 ── */
+  if(PL.grdHurt > 0) PL.grdHurt -= dt;
+  const hpMx = maxHP();
+  if(G.started && !PL.down && G.phase !== 'mini' && PL.hp < hpMx && PL.grdHurt <= 0 && grdNear(PL.x, PL.z)){
+    /* 여러 송이가 겹쳐도 회복 속도는 그대로다 — 한 칸에 꽃을 몰아 심는 판이 되면 안 된다 */
+    PL.hp = Math.min(hpMx, PL.hp + GRD_HEAL*dt);
+    grdHealAcc += GRD_HEAL*dt;
+    if(grdHealAcc >= 6){ popDmg(PL.x, PL.y+1.3, PL.z, grdHealAcc, 3); grdHealAcc = 0; }
+    if(!grdSaid){ grdSaid = true;
+      toast('🌷 꽃향기가 나요 — 여기 있으면 체력이 차요', 2.4, '#ffd0e4'); }
+  } else if(grdHealAcc > 0 && !(G.started && !PL.down)) grdHealAcc = 0;
+  /* ── 그리기 ── */
+  /* 빛판을 켤 상태인가 — 매 송이마다 다시 재지 않으려고 한 번만 본다 */
+  const near = G.started && !PL.down && G.phase !== 'mini';
+  let nb = 0, ng = 0;
+  const capB = grdBody.count_max, capG = grdGlow.count_max;
+  for(const f of G.garden){
+    if(nb+8 > capB || ng+2 > capG) break;
+    const P = PETAL[Math.max(0, Math.min(PETAL.length-1, f.c|0))];
+    const ry = f.r || 0;
+    const sway = Math.sin(tt*1.3 + f.x*0.7 + f.z*0.4)*0.035;      // 바람에 살랑
+    const bx = Math.sin(ry), bz = Math.cos(ry);                    // 앞
+    const sx = Math.cos(ry), sz = -Math.sin(ry);                   // 옆
+    if(!f.b){
+      /* 새싹 — 아직 안 폈다. 잎 두 장뿐이라 멀리서도 '아직' 이 읽힌다 */
+      setI(grdBody, nb++, f.x, GY+0.09, f.z, ry, 0.05, 0.18, 0.05, 0x5da84f);
+      for(const q of [1,-1])
+        setI(grdBody, nb++, f.x + sx*q*0.07, GY+0.15, f.z + sz*q*0.07, ry + q*0.4,
+             0.12, 0.045, 0.08, 0x8fd47a);
+      continue;
+    }
+    /* 활짝 핀 꽃 — 줄기 · 잎 둘 · 꽃잎 넷 · 꽃심.
+       ★ 키는 0.42칸으로 낮게 잡는다. 산물(18차g)에서 배운 것과 같다 —
+         폭보다 키가 크면 꽃이 아니라 탑으로 보인다.
+       ★ 꽃잎은 '얇고 넓게' 눕힌다. 정육면체에 가까우면 꽃이 아니라 상자 네 개로 보인다. */
+    setI(grdBody, nb++, f.x + sway*0.3, GY+0.14, f.z, ry, 0.052, 0.28, 0.052, 0x5da84f);
+    for(const q of [1,-1])
+      setI(grdBody, nb++, f.x + sx*q*0.10, GY+0.12, f.z + sz*q*0.10, ry + q*0.5,
+           0.15, 0.042, 0.085, 0x7cc47a);
+    const fy = GY + 0.34;
+    for(const [ox,oz] of [[bx,bz],[-bx,-bz],[sx,sz],[-sx,-sz]])
+      setI(grdBody, nb++, f.x + ox*0.110 + sway, fy, f.z + oz*0.110, ry,
+           0.118, 0.060, 0.118, P.p);
+    /* 꽃심은 꽃잎보다 확실히 위로 올린다 — 같은 높이면 네 조각이 한 덩어리로 뭉쳐
+       꽃이 아니라 색칠한 판때기로 보인다(가까이서 찍어 보고 알았다) */
+    setI(grdBody, nb++, f.x + sway, fy+0.050, f.z, ry, 0.100, 0.085, 0.100, P.m);
+    /* ★ 발밑 빛판은 '늘' 깔면 안 된다 — 18차g에 산물에서 배운 그 함정이다.
+         받침이 있으면 무슨 물건이든 '단 위에 얹힌 것' 이 되고, 꽃 열두 송이가
+         알록달록한 깔개 위에 선 것처럼 보였다(화면으로 확인했다).
+       ★ 대신 **내가 꽃향기 안에 들어왔을 때만** 켠다. 그러면 깔개가 아니라
+         '여기 있으면 낫는다' 는 신호가 된다 — 마당을 걸어 들어가면 꽃밭이 확 켜진다. */
+    /* 둘레를 도는 반짝이 — 가만히 있는 물건은 배경이 된다. 도는 점 하나면 눈이 따라온다.
+       ★ 발밑에 빛판을 깔아 봤다가 도로 뺐다. 산물에서 배운 그대로였다(18차g) —
+         받침이 있으면 무슨 물건이든 '깔개 위에 얹힌 것' 이 되고, 화면으로 보니
+         꽃 열두 송이가 알록달록한 방석 위에 서 있었다.
+       ★ 대신 **내가 꽃향기 안에 들어오면 반짝이가 하나 더 늘고 커진다.**
+         깔개가 아니라 '꽃이 반응한다' 로 읽히고, 마당을 걸어 들어가면 꽃밭이 확 살아난다. */
+    const ph = tt*1.6 + f.x + f.z;
+    const on = near && Math.hypot(f.x-PL.x, f.z-PL.z) < GRD_R;
+    const gs = on ? 0.085 : 0.055;
+    setI(grdGlow, ng++, f.x + Math.sin(ph)*0.20, GY+0.50 + Math.cos(ph*1.3)*0.05,
+         f.z + Math.cos(ph)*0.20, ph, gs, gs, gs, 0xfff6d0);
+    if(on) setI(grdGlow, ng++, f.x + Math.sin(ph+2.1)*0.24, GY+0.34 + Math.cos(ph*1.1+1)*0.06,
+         f.z + Math.cos(ph+2.1)*0.24, ph, 0.070, 0.070, 0.070, lighten(P.p, 0.5));
+  }
+  grdBody.count = nb; grdGlow.count = ng;
+  grdBody.visible = nb > 0; grdGlow.visible = ng > 0;
+  if(nb) flush(grdBody);
+  if(ng) flush(grdGlow);
+}
+
+/* 처음부터 다시 하기 — 마당에 깔린 꽃도 같이 지운다.
+   ★ 17차b에 '으뜸 판에 지난 판 숫자가 남는다' 로 한 번 겪은 자리다.
+     새 판을 시작했는데 지난 반이 심어 둔 꽃이 그대로 있으면 같은 종류의 버그다. */
+function gardenReset(){
+  G.garden.length = 0; grdT.clear(); grdSaid = false; grdHealAcc = 0;
+  grdBody.count = 0; grdGlow.count = 0;
+  grdBody.visible = false; grdGlow.visible = false;
+  if(G.host) netGarden();
+}
+
 function chestReward(day){
   /* ★ 15차 — 50% 상향. 상자를 보고 달려갈 만한 값이어야 '보물' 이다.
      예전: 1일차 🪵14 🪨14 ✨4 → 18일차 🪵48 🪨48 ✨16
@@ -8478,6 +8897,8 @@ function sheepHurt(dt){
   /* ★ 방어구가 여기서 일한다. 최소 1은 남겨서 "갑옷 사면 아예 안 아파요" 가 안 되게. */
   const bd2 = Math.max(1, Math.round(sheepBiteDmg(best) * (1 - defNow()/100)));
   PL.hp = Math.max(0, PL.hp - bd2);
+  /* 꽃향기는 물린 직후에는 안 듣는다 — 안 그러면 꽃밭에 서서 버티는 판이 된다 */
+  PL.grdHurt = GRD_HURT;
   {  const f2 = forward();
      popDmg(PL.x + f2.x*2.6, PL.y + 1.5, PL.z + f2.z*2.6, bd2, 2); }
   PL.hurtFx = 0.4;
@@ -8532,6 +8953,7 @@ addEventListener('keydown', e=>{
   if(k==='r') selectTool('repair');
   if(k==='e') selectTool('up');
   if(k==='f') selectTool('del');
+  if(k==='z') selectTool('plant');
   if(k==='b'){ if(popOpen()) return; if(shopOpenable()) openShop();
                else if(G.started) toast(G.phase==='night'
                  ? '🌙 밤에는 상인이 문을 닫아요'
@@ -8850,7 +9272,10 @@ const RANK_CATS = [
   {k:'fixed',  h:'🔧 수리 으뜸'},
   {k:'helped', h:'🤝 도움 으뜸'},
   {k:'hits',   h:'🎯 명중 으뜸'},
-  {k:'farmed', h:'🧺 농장 으뜸'}
+  {k:'farmed', h:'🧺 농장 으뜸'},
+  /* 19차 — 마을을 예쁘게 만든 아이의 자리. 이 갈래가 없으면 꽃밭은
+     '해도 아무 데도 안 남는 일' 이 되고, 그러면 아무도 안 한다. */
+  {k:'flw',    h:'🌷 꽃 으뜸'}
 ];
 const RANK_SEC = 5;                     // 한 갈래를 몇 초씩 보여 주나
 /* 아직 아무도 안 한 갈래는 건너뛴다 — 첫날부터 '수리 으뜸: 0' 이 뜨면 뜻이 없다.
@@ -9450,7 +9875,7 @@ function upCheck(o){
      애들이 "고치는 건 재미없는 일" 로 배웠다. 그 균형을 맞추는 칸이다. */
 /* 이 아래로 내려간 건물을 도로 올려놓으면 '살렸다' 로 친다 */
 const RESCUE_MARK = 0.35;
-const MY = { mined:0, built:0, hits:0, saved:0, helped:0, fixed:0, rescue:0, farmed:0 };
+const MY = { mined:0, built:0, hits:0, saved:0, helped:0, fixed:0, rescue:0, farmed:0, flowers:0 };
 /* 처음부터 다시 시작할 때 여섯 칸을 한 번에 지운다 — 예전엔 mined·built 만 지워서
    '으뜸' 판에 지난 판 숫자가 남았다. */
 function myReset(){ for(const k in MY) MY[k] = 0; }
@@ -9606,6 +10031,36 @@ function doAction(dt){
                   : '🔧 고치는 중 — ' + BUILD[o.t].name;
       workInfo(title, work.prog/need);
     }
+    return;
+  }
+
+  /* ── 🌷 꽃 심기 (19차) ──
+     ★ 짓기와 같은 손버릇이다: 땅을 겨누고 꾹 누른다. 다만 값이 싸고 빠르다(🪵2 · 1.1초).
+       도구를 새로 익히게 하지 않으려고 흐름을 짓기와 똑같이 맞췄다.
+     ★ 밤에도 심을 수 있다 — 밤에 할 일이 '싸우기' 뿐이면 싸우기 싫은 아이는 할 게 없다.
+       다만 꽃은 낮에만 자란다(gardenGrow). */
+  if(curTool === 'plant'){
+    let X, Z;
+    if(work && work.kind==='plant'){ X = work.X; Z = work.Z; }
+    else { const c = aimCell(); if(!c){ workStop(); aimOn(false); return; } X = c[0]; Z = c[1]; }
+    const err = grdCheck(X, Z), money = myRes().w >= GRD_COST.w;
+    /* 겨눈 칸에 납작한 테두리를 띄운다 — 어디에 심히는지 눈에 보여야 한다 */
+    hl.visible = true;
+    hl.position.set(X+0.5, GY+0.10, Z+0.5);
+    hl.scale.set(1.0, 0.16, 1.0);
+    hlMat.color.set(!err && money ? 0xff9ec4 : 0xff6b6b);
+    if(!acting){
+      workInfo(err ? '🌷 ' + err
+             : !money ? `🌷 꽃 심기 — 🪵${GRD_COST.w} 이 모자라요`
+             : `🌷 꽃 심기 — 🪵${GRD_COST.w} · 우리 모둠 ${grdMine()}/${GRD_CAP}송이`, 0);
+      return;
+    }
+    if(err || !money){ workStop();
+      if(actCd<=0){ toast(err || '🪵 나무가 모자라요', 1.2, '#ffbdbd'); actCd = 1.0; } return; }
+    if(!work || work.kind!=='plant' || work.X!==X || work.Z!==Z)
+      work = {kind:'plant', X, Z, prog:0, tok:-1};
+    if(workTick(dt, GRD_SEC)){ workStop(); plantFlower(X, Z); }
+    else workInfo('🌷 씨앗 심는 중', work.prog/GRD_SEC);
     return;
   }
 
@@ -11454,6 +11909,7 @@ function paintMini(){
 function goNight(){
   G.phase = 'night'; G.t = G.set.nightSec;
   G.jumpSeen = false;                       // '벽을 뛰어넘었다' 안내는 밤마다 한 번
+  grdSaid = false;                          // 🌷 꽃향기 안내도 밤마다 한 번 (꽃밭에 실제로 섰을 때만 뜬다)
   if(G.chests.length){ G.chests.length = 0; if(G.host) netChests(); }
   startWave();
   const bi = bossIndex(G.day);
@@ -11561,9 +12017,13 @@ function syncMyPC(){
   /* ★ 거둔 개수 — 농장을 챙긴 아이의 이름이 '으뜸' 판에 남는 자리다.
      이 칸이 없으면 밤새 먹이 주고 청소한 아이는 화면 어디에도 안 나온다. */
   myPC.farmed = MY.farmed;
+  /* 심은 꽃 — 순위판의 🌷 꽃 으뜸 갈래가 읽는 칸이다 */
+  myPC.flw = MY.flowers;
   /* 전직 — 친구 화면에 그 아이의 차림새를 그려 주려고 보낸다. 칸 2개.
      자리(위치) 통로는 초당 13번 나가는 곳이라 여기에 얹지 않는다. */
   myPC.jb = XP.job; myPC.jt = XP.jt;
+  /* 짝꿍 — 가끔 바뀌는 값이라 pc 통로가 맞는 자리다. 칸 1개. */
+  myPC.pet = G.me.pet|0;
   myPC.lv = XP.lv;                       // 이름표·선생님 화면에 뜨는 레벨
   /* ★ 지금 든 무기와 강화 단계 — 친구들 화면에 내 총을 그려 주려고 보낸다.
      자리(위치) 통로는 초당 13번 나가는 곳이라 여기에 칸을 더하지 않는다.
@@ -11688,6 +12148,12 @@ function joinRoom(code, asHost){
   net.child('drop').on('value', s=>{ if(!G.host) G.drops = s.val() || []; });
   net.child('pick').on('value', s=>{ const v = s.val();
     if(v && G.host && v.n !== pickSeen){ pickSeen = v.n; hostTakeDrop(v.id); } });
+  /* 🌷 꽃밭 — 산물(drop/pick)과 똑같은 짜임이다.
+     호스트가 grd 를 통째로 내려 주고, 손님은 seed 로 '심어 주세요' 를 올린다.
+     꽃은 하루에 몇 송이 심고 한 번 피는 게 전부라 통신은 거의 안 난다. */
+  net.child('grd').on('value', s=>{ if(!G.host) G.garden = s.val() || []; });
+  net.child('seed').on('value', s=>{ const v = s.val();
+    if(v && G.host && v.n !== seedSeen){ seedSeen = v.n; hostSeed(v.f); } });
   net.child('grab').on('value', s=>{ const v = s.val();
     if(v && G.host && v.n !== grabSeen){ grabSeen = v.n; hostRemoveChest(v.id, v.nm||'친구', v.g|0); } });
   net.child('say').on('value', s=>{ const v = s.val();
@@ -11766,7 +12232,7 @@ function joinRoom(code, asHost){
     net.child('meta').once('value', s=>{ if(!s.val()) { G.day=1; G.crystal=G.set.crystalMax; } });
   }
 }
-let netT = 0, pcT = 0, simT = 0, saySeen = -1, grabSeen = -1, pickSeen = '';
+let netT = 0, pcT = 0, simT = 0, saySeen = -1, grabSeen = -1, pickSeen = '', seedSeen = '';
 const thSeen = new Map();   // uid -> 마지막으로 본 던진 횟수
 function netTick(dt){
   if(!net) return;
@@ -11800,7 +12266,8 @@ const clampPick = (v, arr)=> Math.max(0, Math.min(arr.length-1, +v || 0));
 let pickHat = clampPick(LS.get('sheepHat', 0), HATS);
 let pickGls = clampPick(LS.get('sheepGls', 0), GLASSES);
 let pickClo = clampPick(LS.get('sheepClo', 0), CLOTHES);
-const myDress = ()=> ({hat:pickHat, gls:pickGls, clo:pickClo});
+let pickPet = clampPick(LS.get('sheepPet', 0), PETS);
+const myDress = ()=> ({hat:pickHat, gls:pickGls, clo:pickClo, pet:pickPet});
 
 /* 이름도 채워 둔다 — 새로고침한 아이가 이름을 다시 안 쳐도 되게 */
 el('iName').value = LS.get('sheepName', '');
@@ -11817,7 +12284,8 @@ function buildPicker(){
   const rows = [
     ['hatPick', HAT_ICON, HAT_NAME, 'hatNm', 'sheepHat', ()=>pickHat, v=>pickHat=v],
     ['glsPick', GLS_ICON, GLS_NAME, 'glsNm', 'sheepGls', ()=>pickGls, v=>pickGls=v],
-    ['cloPick', CLO_ICON, CLO_NAME, 'cloNm', 'sheepClo', ()=>pickClo, v=>pickClo=v]
+    ['cloPick', CLO_ICON, CLO_NAME, 'cloNm', 'sheepClo', ()=>pickClo, v=>pickClo=v],
+    ['petPick', PET_ICON, PET_NAME, 'petNm', 'sheepPet', ()=>pickPet, v=>pickPet=v]
   ];
   for(const [wid, icons, names, nmId, key, get, set] of rows){
     const w2 = el(wid); w2.innerHTML='';
@@ -11902,6 +12370,13 @@ function pvwDress(){
   const want = [];
   for(const [arr, idx] of [[HATS,pickHat],[GLASSES,pickGls],[CLOTHES,pickClo]])
     for(const h of (arr[idx]||[])) want.push(h);
+  /* 짝꿍은 양 왼쪽 땅바닥에 앉힌다 — 뒤에 두면 미리보기가 돌 때 몸에 가려 안 보인다.
+     조각 값은 게임과 같은 표(PETS)를 그대로 읽으므로 여기서 본 모습이 게임과 안 어긋난다. */
+  /* 미리보기에서는 조금 크게 — 230×270 판 안에서 양 옆에 서면 실제 비율로는 너무 작다 */
+  const PS = PET_S * 1.2;
+  for(const p of (PETS[pickPet]||[]))
+    want.push([p[0]*PS + 0.10, p[1]*PS, p[2]*PS - 0.96,
+               p[3]*PS, p[4]*PS, p[5]*PS, p[6]]);
   while(pvw.deco.length < want.length){
     const m = new THREE.Mesh(pvw.geo, new THREE.MeshLambertMaterial({map:ATLAS}));
     pvw.grp.add(m); pvw.deco.push(m);
@@ -12106,7 +12581,7 @@ el('bAgain').onclick = ()=>{
     for(const id of [...STRU.keys()]) { delStru(id); netUnbuild(id); }
     for(let i=0;i<NG;i++) base[i]={...START};
     myPC={g:G.me.g,w:0,s:0,o:0,sw:0,ss:0,so:0,n:G.me.name,mined:0,built:0};
-    myReset(); pcMap.set(uid,myPC);
+    myReset(); gardenReset(); pcMap.set(uid,myPC);
     if(net) net.child('pc').remove();
     netBase(); goDay(); }
 };
@@ -12252,7 +12727,7 @@ el('tReset').onclick = ()=>{ if(!confirm('처음부터 다시 시작할까요?')
   G.day=1; G.crystal=G.set.crystalMax; endShown=false;
   if(net) net.child('pc').remove();
   myPC={g:G.me.g,w:0,s:0,o:0,sw:0,ss:0,so:0,n:G.me.name,mined:0,built:0};
-  myReset(); pcMap.set(uid,myPC);
+  myReset(); gardenReset(); pcMap.set(uid,myPC);
   /* 산 무기·갑옷·물약도 같이 처음으로 — 자원만 되돌리면 총만 남아 첫날부터 무적이 된다 */
   kitReset(); xpReset(); setAimMode(false, true);
 
@@ -12347,6 +12822,12 @@ const SFX = {
   fire: ()=>{ noise(0.10,0.10,1500); [880,1180,1560].forEach((f,i)=>
            tone(f,f*1.6,0.14,'triangle',0.07, now0()+i*0.05)); },
   get:  ()=>{ tone(880,1320,0.11,'triangle',0.08); },
+  /* 씨앗을 심었다 — 흙을 톡톡 두드리는 낮고 부드러운 소리 */
+  plant:()=>{ noise(0.06,0.09,700); tone(360,250,0.10,'sine',0.055);
+              tone(720,900,0.07,'triangle',0.035); },
+  /* 꽃이 피었다 — 위로 올라가는 반짝임 셋. 아침에 한 번 들리는 소리다 */
+  bloom:()=>{ [784,988,1319].forEach((f,i)=> tone(f, f*1.35, 0.16, 'sine', 0.055, now0()+i*0.07));
+              tone(1760,2640,0.12,'sine',0.030, now0()+0.22); },
   build:()=>{ tone(300,470,0.13,'square',0.09); noise(0.08,0.07,600); },
   fix:  ()=>{ tone(520,760,0.09,'triangle',0.07); },
   up:   ()=>{ [660,880,1170].forEach((f,i)=> tone(f,null,0.13,'triangle',0.10, now0()+i*0.09)); },
@@ -12742,7 +13223,8 @@ function loop(){
 
     if(PROF_ON) pS();
     if(!DBG.noInst){ updParts(dt); updArrows(dt); updBullets(dt); updOrbs(dt, tAcc);
-                     updChests(dt, tAcc); updDrops(dt, tAcc); }
+                     updChests(dt, tAcc); updDrops(dt, tAcc); updPets(dt, tAcc);
+                     updGarden(dt, tAcc); }
 
     fireworks(dt);
     if(PROF_ON) pE('효과');
@@ -13205,6 +13687,17 @@ Object.assign(window, {
   __farmMesh:(n)=>({body:F_body, head:F_head, deco:F_deco,
                      eyes:F_eyes, legs:F_legs, muck:F_muck, fly:F_fly}[n]),
   __RANK_CATS:RANK_CATS, __rankCats:rankCats, __RANK_SEC:RANK_SEC,
+  /* ── 19차 — 꽃밭 · 짝꿍 ── 검사가 값을 베끼지 않고 게임에 물어보게 내보낸다 */
+  __garden:()=>G.garden, __PETAL:PETAL, __plantFlower:plantFlower, __hostSeed:hostSeed,
+  __grdCheck:grdCheck, __grdMine:grdMine, __grdNear:grdNear, __gardenGrow:gardenGrow,
+  __updGarden:updGarden, __gardenReset:gardenReset, __grdMesh:()=>[grdBody, grdGlow],
+  __GRD:()=>({CAP:GRD_CAP, MAX:GRD_MAX, COST:GRD_COST, SEC:GRD_SEC, BLOOM:GRD_BLOOM,
+              R:GRD_R, HEAL:GRD_HEAL, HURT:GRD_HURT, GAP:GRD_GAP}),
+  __PETS:PETS, __PET_ICON:PET_ICON, __PET_NAME:PET_NAME, __PET_HOP:()=>PET_HOP,
+  __PET_FLY:()=>PET_FLY, __petMesh:()=>P_pet, __updPets:updPets, __petAt:()=>petAt,
+  __setPet:(v)=>{ G.me.pet = v|0; myPC.pet = v|0; },
+  __TOOLS:TOOLS, __selTool:selectTool, __curTool:()=>curTool, __XP_PLANT:()=>XP_PLANT,
+  __sheepHurt:sheepHurt, __PET_S:()=>PET_S, __PET_ORBIT:()=>PET_ORBIT, __myPC:()=>myPC,
   __RESCUE_MARK:()=>RESCUE_MARK, __myReset:myReset, __hudPrev:()=>hudPrev,
   __feedLen:()=>el('feed').children.length,
   __dnLive:()=>dnums.filter(d=>d.t>0).length,
