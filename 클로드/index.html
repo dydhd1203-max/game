@@ -9449,7 +9449,14 @@ function badgeNext(p){
 }
 /* 이미 받은 칭호 번호 — 숫자에서 다시 계산할 수 있지만, '방금 받았다'를 알려면 기억이 필요하다.
    저장하거나 보내지 않는다. 화면에 한 번 띄우려고 들고 있는 것뿐이다. */
-const bgGot = new Set(), bgNudged = new Set(), bgSeen = new Map();   // bgSeen: uid -> 마지막으로 본 친구 칭호
+const bgGot = new Set(), bgNudged = new Set();
+/* uid -> 머리 위에 뜰 칭호 번호. **0.5초마다 한 번만 센다.**
+   ★ 처음엔 이름표를 그릴 때마다(매 프레임) 그 자리에서 셌다. 재 보니 스물한 명이 곁에 있을 때
+     updTags 가 0.019ms → 0.034ms 로 늘었다(제일 나쁜 경우 0.044ms). 예산 16.7ms 에 견주면
+     0.1%도 안 되지만, **같은 답을 초당 예순 번 다시 셀 이유가 없다** — 이 값은 문턱을 넘는
+     순간에만 바뀌고, 그 순간을 이미 badgeCheck 가 0.5초마다 보고 있다.
+   ★ 친구가 새 칭호를 받았는지도 이 칸의 전후를 견줘서 안다 — 표를 두 번 훑지 않는다. */
+const bgTop = new Map();
 /* ★ 한 번에 여러 개가 걸리면 **줄을 세워 하나씩** 내보낸다.
    첫날에는 한 번의 곡괭이질로 문턱 두세 개를 동시에 넘는다. 그때 축하를 한꺼번에 쏟으면
    가운데 큰 그림이 서로를 덮어써서 **마지막 하나만 보이고 나머지는 없던 일이 된다**
@@ -9458,7 +9465,7 @@ const bgQueue = [];
 const BG_TICK = 0.5;             // badgeCheck 가 불리는 간격(초) — 아래 misT 시계와 같아야 한다
 const BG_GAP  = 2.0;             // 칭호와 칭호 사이 (앞의 축하가 끝나고 다음이 온다)
 let bgWait = 0;                  // 남은 대기 횟수
-function bgReset(){ bgGot.clear(); bgNudged.clear(); bgSeen.clear(); bgQueue.length = 0; bgWait = 0; }
+function bgReset(){ bgGot.clear(); bgNudged.clear(); bgTop.clear(); bgQueue.length = 0; bgWait = 0; }
 function bgEarn(i){
   const B = BADGES[i], col = BG_COL[B.t-1];
   /* ★ 큰 그림 + 색 + 소리 셋이 같이 와야 0.1초 만에 안다 (18차e에서 배운 것).
@@ -9494,12 +9501,12 @@ function badgeCheck(){
   /* ★ 친구가 3단계 칭호를 받으면 내 화면에도 뜬다 — 통신 한 칸 없이, 이미 오는 숫자로.
      1·2단계까지 다 띄우면 첫날에만 백 줄이 넘어가 정작 귀한 것이 안 읽힌다. */
   for(const [k,p] of pcMap){
-    if(!p || !p.n || k === uid) continue;
-    const top = badgeTop(p), first = !bgSeen.has(k), was = first ? -1 : bgSeen.get(k);
-    bgSeen.set(k, top);
+    if(!p || !p.n) continue;
+    const top = badgeTop(p), first = !bgTop.has(k), was = first ? -1 : bgTop.get(k);
+    bgTop.set(k, top);                       // 이름표가 매 프레임 읽어 갈 값이다
     /* 처음 본 친구는 적어만 두고 넘어간다 — 늦게 들어온 아이가 남의 지난 칭호를
        한꺼번에 받아 보면 그건 소식이 아니라 도배다 */
-    if(first || top <= was) continue;
+    if(k === uid || first || top <= was) continue;
     if(BADGES[top].t === 3)
       feed(`🎖️ <b style="color:${GCOL[Math.max(0,Math.min(NG-1,p.g|0))]}">${esc(p.n)}</b>`
          + `${josa(p.n,'이','가')} <b style="color:${BG_COL[2]}">${BADGES[top].ic} `
@@ -13515,8 +13522,11 @@ function updTags(){
     const idx = tagOwner.get(uid); if(idx === undefined) continue;
     const p = G.players.get(uid), t = tagPool[idx];
     /* 레벨은 pc 통로로 이미 오고 있다(선생님 표에 쓰던 값). 자리 통로에는 한 칸도 안 더한다.
-       ★ 칭호도 같은 칸에서 **계산해서** 얻는다 — 보내는 값이 아니라 읽는 방법이다. */
-    const pc = pcMap.get(uid), bi = badgeTop(pc);
+       ★ 칭호도 같은 칸에서 **계산해서** 얻는다 — 보내는 값이 아니라 읽는 방법이다.
+         다만 여기서 세지는 않는다. badgeCheck 가 0.5초마다 세어 둔 것을 읽기만 한다
+         (아직 안 센 사람만 그 자리에서 센다 — 들어온 직후 한 번뿐이다). */
+    const pc = pcMap.get(uid);
+    const bi = bgTop.has(uid) ? bgTop.get(uid) : badgeTop(pc);
     setTag(t, p.n||'?', GCOL[p.g|0], pc && pc.lv ? pc.lv : 0,
            bi >= 0 ? BADGES[bi].ic : '');                        // 그대로면 아무 일도 안 한다
     t.sp.position.set(p.x, (p.y||GY)+2.15, p.z);
@@ -14226,7 +14236,7 @@ Object.assign(window, {
      (__MY · __pcMap · __syncMyPC · __setTag · __tagPool 은 위에 이미 있다 — 또 쓰면 모양이 바뀐다) */
   __BADGES:BADGES, __BG_COL:BG_COL, __BG_NUDGE:BG_NUDGE,
   __badgeList:badgeList, __badgeTop:badgeTop, __badgeNext:badgeNext,
-  __badgeCheck:badgeCheck, __bgReset:bgReset, __bgGot:()=>bgGot,
+  __badgeCheck:badgeCheck, __bgReset:bgReset, __bgGot:()=>bgGot, __bgTop:()=>bgTop,
   __bgQueue:()=>bgQueue, __BG_GAP:BG_GAP, __BG_TICK:BG_TICK,
   __buildBadgeUI:buildBadgeUI
 });
