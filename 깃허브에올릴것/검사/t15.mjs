@@ -44,11 +44,15 @@ const tag = await pg.evaluate(()=>{
   o.f2b = pool[own.get('f2')].txt;
   return o;
 });
-ok('★ 이름표에 레벨이 들어간다', /\|7$/.test(tag.f1), tag.f1);
-ok('레벨이 다른 친구는 다른 값', /\|2$/.test(tag.f2), tag.f2);
+/* ★ 이름표 열쇠는 '이름+색 | 레벨 | 칭호' 다. 예전엔 레벨이 맨 끝이라 /\|7$/ 로 봤는데,
+   22차에 칭호가 뒤에 한 칸 붙자 게임은 멀쩡한데 이 검사만 네 개가 빨개졌다.
+   **끝에 무엇이 붙든 안 흔들리게 칸 번호로 읽는다** — 열쇠 모양을 베끼지 않는다. */
+const lvOf = key => String(key).split('|')[1] || '';
+ok('★ 이름표에 레벨이 들어간다', lvOf(tag.f1) === '7', tag.f1);
+ok('레벨이 다른 친구는 다른 값', lvOf(tag.f2) === '2', tag.f2);
 ok('값이 그대로면 이름표를 다시 안 그린다', tag.noRedraw);
-ok('★ 레벨이 오르면 이름표를 다시 그린다', tag.redrew && /\|8$/.test(tag.f1b), tag.f1b);
-ok('레벨을 모르는 사람은 이름만', /\|0$/.test(tag.f2b), tag.f2b);
+ok('★ 레벨이 오르면 이름표를 다시 그린다', tag.redrew && lvOf(tag.f1b) === '8', tag.f1b);
+ok('레벨을 모르는 사람은 이름만', lvOf(tag.f2b) === '0', tag.f2b);
 
 /* ───────── 혼자 일어나기 ───────── */
 const dn = await pg.evaluate(()=>{
