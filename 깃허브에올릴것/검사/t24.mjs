@@ -31,6 +31,19 @@ const enter = ()=> ev(()=>{
   G.mini.st = 'run'; G.paused = true;
   PL.x = M.padX(G.me.g); PL.z = M.PADZ; PL.y = M.Y; PL.vy = 0; PL.ground = true;
   PL.down = false; PL.landT = 0;
+  /* ★ 21차b — 여기서 한 바퀴를 미리 돌려 준다.
+     게임은 '줄이 몇 바퀴째인가'(ropeLastTurn)를 들고 판정하는데, goMini 가 그 칸을 비워(-1) 둔다.
+     비어 있는 채로 맞는 첫 바퀴는 **기준점이라 판정이 안 난다** — 맞는 동작이다.
+     그런데 검사는 이 칸이 이미 채워져 있다고 보고 첫 바퀴부터 셌다.
+     지금까지는 enter() 와 다음 검사 사이에 **진짜 화면 프레임이 한 번 돌아** 대신 채워 줬는데,
+     기계가 바쁘면 그 프레임이 안 돌아서 첫 판정이 통째로 안 세졌다
+     (여덟 번에 한 번쯤 '4연속' 이 '3연속' 으로 나왔다. 게임이 아니라 검사가 흔들린 것이다).
+     프레임에 기대지 않고 여기서 직접 채운다. */
+  let t = M.ROPE - G.t;
+  const ph0 = Math.floor(W.__ropePhase(t)/(Math.PI*2));
+  for(let i=0;i<4000;i++){ t += 0.01; G.t = M.ROPE - t;
+    if(Math.floor(W.__ropePhase(t)/(Math.PI*2)) !== ph0) break; }
+  W.__miniTick(0.01);
   const MI = W.__MINE; MI.j=0; MI.f=0; MI.c=0; MI.b=0; MI.rs=0;
   W.__ropeHit(0);
   return true;

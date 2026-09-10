@@ -176,14 +176,56 @@ const prize = await ev(()=>{
   o.졌을때 = run(false);
   W.__miniExit();
   o.상 = M.PRIZE[0];
+  o.참가상 = M.CONSOL;
+  o.꼴찌상 = M.PRIZE[M.PRIZE.length-1];
   return o;
 });
 ok('★ 이긴 모둠은 1등 상을 받는다',
    prize.이겼을때.dw === prize.상.w && prize.이겼을때.ds === prize.상.s && prize.이겼을때.dg === prize.상.g,
    JSON.stringify(prize.이겼을때));
-ok('★ 진 모둠은 빈손이다 (등수를 나눠 주지 않는다)',
-   prize.졌을때.dw === 0 && prize.졌을때.ds === 0 && prize.졌을때.dg === 0,
-   JSON.stringify(prize.졌을때));
+/* ═══ 21차b — 참가상. 다섯 중 넷이 빈손이면 다음 판엔 안 하려 든다 ═══ */
+ok('★ 진 모둠도 참가상을 받는다 (빈손으로 안 내보낸다)',
+   prize.졌을때.dw === prize.참가상.w && prize.졌을때.ds === prize.참가상.s
+   && prize.졌을때.dg === prize.참가상.g,
+   JSON.stringify(prize.졌을때) + ' / 참가상 ' + JSON.stringify(prize.참가상));
+ok('참가상은 세 자원 다 0보다 크다',
+   prize.참가상.w > 0 && prize.참가상.s > 0 && prize.참가상.g > 0, JSON.stringify(prize.참가상));
+/* ★ 여기가 핵심이다 — 참가상이 커지면 '이겨도 그만' 이 된다.
+     숫자를 검사에 박지 않고 1등 상과의 **비율**을 본다 (1/5 ~ 1/2). */
+const 비 = (a,b)=> a/b;
+ok('★ 참가상은 1등 상의 1/5 ~ 1/2 사이다 (이기는 쪽이 훨씬 낫다)',
+   ['w','s','g'].every(k=> 비(prize.참가상[k], prize.상[k]) >= 0.2
+                        && 비(prize.참가상[k], prize.상[k]) <= 0.5),
+   ['w','s','g'].map(k=> k+' '+(비(prize.참가상[k], prize.상[k])).toFixed(2)).join(' · '));
+ok('★ 참가상은 순위 상 꼴찌보다 많지 않다 (줄넘기 꼴찌보다 나으면 안 된다)',
+   ['w','s','g'].every(k=> prize.참가상[k] <= prize.꼴찌상[k]),
+   JSON.stringify(prize.참가상) + ' vs 꼴찌 ' + JSON.stringify(prize.꼴찌상));
+
+/* ★ 21차b — 끝나는 알림에 '내가 넣은 피해' 가 뜬다.
+     전에는 전광판(넷까지)에서 내 이름을 찾아 띄웠다 — 스물한 명 중 열일곱 명은 안 떴다.
+     여기서는 일부러 나를 다섯째로 만들어(전광판 밖) 그래도 뜨는지 본다. */
+const 내피해 = await ev(()=>{
+  const W=window, G=W.__G, M=W.__MINI(), o={};
+  G.paused = false; W.__goMini(2);
+  for(let i=0;i<Math.ceil((M.INTRO+1)*30);i++) W.__miniTick(1/30);
+  G.mini.st = 'run'; G.paused = true;
+  W.__MINE.out = true; W.__MINE.dm = 7; W.__PL.down = true;
+  W.__miniPl.clear();
+  W.__miniPl.set(W.__uid, {g:G.me.g, n:'김하늘', dm:7, o:1});
+  /* 나보다 많이 넣은 아이 넷 → 나는 전광판 밖(다섯째)이다 */
+  const rows = [['a',1,'가',90,0],['b',1,'나',80,0],['c',1,'다',70,0],['d',1,'라',60,0]];
+  for(const [k,g,n,dm,ou] of rows) W.__miniPl.set(k, {g, n, dm, o:ou});
+  G.paused = false; W.__miniFinish(); G.paused = true;
+  o.전광판이름 = (G.mini.top||[]).map(p=>p.n);
+  W.__miniOnState && W.__miniOnState();
+  o.알림 = (document.getElementById('toast')||{}).textContent || '';
+  W.__miniExit();
+  return o;
+});
+ok('나는 전광판 밖이다 (넷까지만 뜬다)',
+   !내피해.전광판이름.includes('김하늘'), 내피해.전광판이름.join(','));
+ok('★ 전광판에 못 든 아이도 끝나는 알림에서 자기가 넣은 피해를 본다',
+   /내가 넣은 피해 7/.test(내피해.알림), 내피해.알림);
 
 /* ═══════ ⑤ 한 사람(또는 한 모둠)만 남으면 일찍 끝난다 ═══════ */
 const early = await ev(()=>{
