@@ -146,6 +146,10 @@ input.f::placeholder{color:rgba(255,255,255,.4)}
 #bFill{background:linear-gradient(90deg,#ff9b3d,#ff3b3b);transition:width .25s}
 
 #crosshair{position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;pointer-events:none}
+/* ★ 20차 — 3인칭인 판(줄넘기·OX 퀴즈)에서는 조준점을 숨긴다.
+   겨눌 것이 없는데 화면 한가운데 십자가 떠 있으면 "저기를 맞춰야 하나?" 가 된다.
+   서바이벌은 1인칭이라 그대로 둔다. */
+body.tpv #crosshair{display:none}
 #crosshair:before,#crosshair:after{content:'';position:absolute;background:rgba(255,255,255,.9);
   box-shadow:0 0 2px rgba(0,0,0,.9)}
 #crosshair:before{left:10px;top:0;width:2px;height:22px}
@@ -1934,6 +1938,18 @@ body.qbOn #crystalWrap, body.qbOn #resBox, body.qbOn #topRight{display:none}
     <button class="btn sm" id="tGift">🎁 전 모둠 자원 +30</button>
     <button class="btn sm warn" id="tReset">🔄 처음부터</button>
   </div>
+  <h3>🪢 모둠 줄넘기 — 어떻게 뛰나</h3>
+  <div class="hgrid">
+    <div class="hrow"><i>🟡</i><div><b>줄이 금색이 되면 스페이스!</b> 그때가 뛸 때예요.
+      금색인 동안 아무 때나 눌러도 넘습니다.
+      <span style="color:#ffb4b4">꾹 누르고 있으면 안 돼요 — 한 번 누르면 한 번 뜁니다.</span></div></div>
+    <div class="hrow"><i>👂</i><div>줄이 바닥을 칠 때마다 <b>'탁' 소리</b>가 납니다.
+      눈보다 <b>귀로 박자를 잡는 게 훨씬 쉬워요.</b> 줄은 <b>갈수록 빨라집니다.</b></div></div>
+    <div class="hrow"><i>🤝</i><div><b>우리 모둠 연속</b>은 <b>모둠에서 제일 낮은 사람</b>의 숫자예요.
+      한 명이라도 걸리면 <b>같이 0</b>이 됩니다 — 다 같이 다섯 번, 열 번을 노려 보세요.</div></div>
+    <div class="hrow"><i>😵</i><div>걸리면 줄에 <b>엉켜서 잠깐 못 뜁니다.</b> 한 박자 쉬고 다시 붙으세요.</div></div>
+  </div>
+
   <h3>🎪 미니게임 — 5·10·15일차 밤이 끝나면 저절로 열립니다</h3>
   <div id="tMiniBox">
     <div id="tMiniSt" style="opacity:.8;margin-bottom:4px">지금은 미니게임이 아닙니다. 연습해 보려면 아래에서 바로 열 수 있어요.</div>
@@ -3693,6 +3709,8 @@ function survBlocked(ax, ay, az, bx, by, bz){
 const miParts = {quiz:[], surv:[]};
 let miVis = 'quiz';
 function miniShow(k){
+  /* 3인칭인 판인지 몸에 표시해 둔다 — 조준점을 숨기는 데 쓴다 */
+  document.body.classList.toggle('tpv', k < 2);
   const want = k === 2 ? 'surv' : 'quiz';
   if(miVis === want) return;
   for(const h of miParts.quiz) bset(h, want === 'quiz');
@@ -6869,7 +6887,7 @@ const myRes = ()=> G.res[G.me.g];
    달리기·점프·발끝 높이(SPD/JUMP/GRAV/STEP)는 그대로 — 지형은 안 줄였기 때문이다. */
 const SHEEP_S = 0.70;
 const PL = { x:0, y:GY, z:0, vy:0, yaw:0, pitch:0, ground:true, R:0.28, EYE:1.12, mv:false,
-             hp:100, down:false, biteT:0, hurtFx:0, grdHurt:0 };
+             hp:100, down:false, biteT:0, hurtFx:0, grdHurt:0, landT:0 };
 /* 쓰러졌을 때 3인칭으로 보여 줄 '내 몸' — 매 프레임 새로 만들지 않으려고 하나만 둔다 */
 const meSheep = { x:0, y:GY, z:0, ry:0, g:0, hat:0, gls:0, clo:0,
                   down:true, mv:false, ph:1.7 };
@@ -7016,6 +7034,17 @@ const KEY = {};
 let mvx=0, mvz=0, wantJump=false, acting=false, throwing=false, rampSeen=false;
 const STEP = 0.68, SPD = 5.4, GRAV = 26, JUMP = 8.4;
 const DOWN_CAM = 4.6;           // 쓰러졌을 때 시체에서 물러나는 거리
+/* ★ 20차 — 줄넘기·OX 퀴즈는 3인칭으로 본다.
+   ① 줄넘기: 판정은 '발이 줄 위에 있나' 인데 1인칭에서는 자기 발이 안 보인다.
+      물러나서 보면 줄이 도는 것도, 내가 뜬 것도, 옆 친구가 걸리는 것도 한눈에 보인다.
+      단체 줄넘기는 원래 '옆을 보면서' 하는 놀이다.
+   ② OX 퀴즈: 내가 지금 O 우리 안에 있는지 X 우리 안에 있는지가 제일 중요한데,
+      1인칭에서는 발밑 선이 안 보여서 "나 들어간 거 맞아?" 를 계속 물었다.
+   ③ 서바이벌은 그대로 1인칭이다 — 총을 겨누는 판이라 물러나면 조준이 안 맞는다.
+   카메라를 뒤로 빼는 장치는 '쓰러졌을 때' 것을 그대로 쓴다. 거리만 다르다. */
+const MINI_CAM = [4.8, 4.4];    // 0: OX 퀴즈 · 1: 줄넘기 (찍어 보고 늘렸다 — 3.6 은 양이 화면을 덮었다)
+const tpvKind = ()=> (miniOn() && G.mini && G.mini.k < 2) ? (G.mini.k|0) : -1;
+const tpvOn   = ()=> PL.down || tpvKind() >= 0;
 function updPlayer(dt){
   const s = Math.sin(PL.yaw), c = Math.cos(PL.yaw);
   let fx=0, fz=0;
@@ -7045,10 +7074,22 @@ function updPlayer(dt){
   const gnd = groundUnder(PL.x, PL.z, PL.R);
   /* ★ 쓰러진 양은 점프도 못 한다. 예전엔 이동만 막아 놔서, 쓰러진 채로 스페이스를 누르면
      누운 몸이 통통 튀었다 — 애들이 "죽었는데 점프가 돼요" 하던 그 화면이다. */
-  if(wantJump && PL.ground && !PL.down){ PL.vy = JUMP; PL.ground = false; }
+  /* ★ 20차 — 줄넘기 때는 뜀이 따로다.
+     마을 점프는 1.36칸을 0.65초 동안 뜬다. 한 바퀴 2.4초짜리 줄에 견주면 주기의 27% 라,
+     아무 때나 뛰어도 넘어졌다. 줄넘기는 **짧고 빠른 제자리뜀**(0.88칸·0.41초)에
+     착지 뒤 숨 고르기(0.20초)를 붙인다. 그래야 '언제 뛰나' 가 실제 실력이 된다. */
+  const rj = ropeRun();
+  if(PL.landT > 0) PL.landT -= dt;
+  const canJump = PL.ground && !PL.down && !(rj && (PL.landT > 0 || MINE.rs > 0));
+  if(wantJump && canJump){
+    PL.vy = rj ? RJ_JUMP : JUMP; PL.ground = false;
+    if(rj) ropeHop();
+  }
   wantJump = false;
-  PL.vy -= GRAV*dt; PL.y += PL.vy*dt;
-  if(PL.y <= gnd){ PL.y = gnd; PL.vy = 0; PL.ground = true; PL.airT = (PL.airT||0) + dt; }
+  PL.vy -= (rj ? RJ_GRAV : GRAV)*dt; PL.y += PL.vy*dt;
+  if(PL.y <= gnd){
+    if(!PL.ground){ PL.landT = rj ? RJ_LAND : 0; if(rj) ropeLand(); }
+    PL.y = gnd; PL.vy = 0; PL.ground = true; PL.airT = (PL.airT||0) + dt; }
   else { PL.ground = false; PL.airT = 0; }
   if(PL.y < -20) placePlayer();
   /* ★ 망루에 처음 올라가면 알려 준다. 안 알려 주면 9살은 계단이 있어도 안 올라간다. */
@@ -7058,26 +7099,32 @@ function updPlayer(dt){
     if(window.__sfx) window.__sfx('up');
   }
   camera.rotation.set(PL.pitch, PL.yaw, 0, 'YXZ');
-  /* ★ 쓰러지면 3인칭으로 물러난다.
-     예전엔 눈높이만 0.42 로 낮춘 1인칭이라, 누운 얼굴이 땅에 박혀서
+  /* ★ 3인칭으로 물러난다 — 쓰러졌을 때(9차부터)와 줄넘기·OX 퀴즈(20차).
+     쓰러졌을 때: 예전엔 눈높이만 0.42 로 낮춘 1인칭이라, 누운 얼굴이 땅에 박혀서
      흙바닥만 보였다. 무슨 일이 벌어지는지 하나도 안 보이니 "화면이 깨졌다"고 느낀다.
-     이제 내 시체 뒤 위쪽에서 내려다본다 — 친구가 나를 일으키러 오는 게 보인다. */
-  if(PL.down){
-    const tx = PL.x, ty = PL.y + 0.95, tz = PL.z;
+     이제 내 몸 뒤 위쪽에서 내려다본다 — 친구가 나를 일으키러 오는 게 보인다. */
+  const tk = tpvKind();
+  const back = PL.down ? DOWN_CAM : tk >= 0 ? MINI_CAM[tk] : 0;
+  if(back > 0){
+    /* ★ 카메라 높이는 **땅** 을 기준으로 잡는다(쓰러졌을 때만 몸을 따라간다).
+       줄넘기에서 카메라가 몸을 따라 같이 뜨면, 뛰어도 줄과의 위아래 관계가 화면에서
+       그대로라 '넘고 있다' 가 안 보인다. 땅에 고정해야 내가 줄 위로 솟는 게 보인다. */
+    const tx = PL.x, tz = PL.z;
+    const ty = PL.down ? PL.y + 0.95 : groundUnder(PL.x, PL.z, PL.R) + 1.55;
     const cp = Math.cos(PL.pitch);
     const dx = -Math.sin(PL.yaw)*cp, dy = Math.sin(PL.pitch), dz = -Math.cos(PL.yaw)*cp;
     /* 벽·산을 뚫고 나가지 않게, 막히기 직전까지만 물러난다 */
-    let d = DOWN_CAM;
+    let d = back;
     for(let k=1;k<=6;k++){
-      const s = DOWN_CAM*k/6;
+      const s = back*k/6;
       const px = tx - dx*s, pz = tz - dz*s, py = ty - dy*s;
-      if(py < solidTop(Math.floor(px), Math.floor(pz)) + 0.3){ d = DOWN_CAM*(k-1)/6; break; }
+      if(py < solidTop(Math.floor(px), Math.floor(pz)) + 0.3){ d = back*(k-1)/6; break; }
     }
     camera.position.set(tx - dx*Math.max(1.1,d), ty - dy*Math.max(1.1,d), tz - dz*Math.max(1.1,d));
   } else {
     camera.position.set(PL.x, PL.y + PL.EYE, PL.z);
   }
-  held.visible = !PL.down;              // 3인칭인데 손이 화면에 떠 있으면 이상하다
+  held.visible = back <= 0;             // 3인칭인데 손이 화면에 떠 있으면 이상하다
 }
 
 /* ═══════════ 보물 상자 ═══════════
@@ -8947,7 +8994,11 @@ if(isTouch) document.body.classList.add('touch');
 addEventListener('keydown', e=>{
   const k = e.key.toLowerCase();
   KEY[k] = true;
-  if(k===' '){ wantJump = true; e.preventDefault(); }
+  /* ★ 20차 — 키를 꾹 누르고 있으면 브라우저가 keydown 을 초당 서른 번씩 다시 보낸다(e.repeat).
+     그래서 스페이스를 누르고만 있으면 착지하는 프레임마다 다시 뛰어서, 줄넘기 내내
+     거의 공중에 떠 있었다. 애들이 찾아낸 그 방법이다 — 한 번 누르면 한 번 뛴다.
+     (태블릿 점프 단추는 원래 누를 때 한 번만 났다. 이제 둘이 같아졌다.) */
+  if(k===' '){ if(!e.repeat) wantJump = true; e.preventDefault(); }
   if(k>='1' && k<='5'){ selectBuild(BKEYS[+k-1]); }
   if(k==='q') selectTool('mine');
   if(k==='r') selectTool('repair');
@@ -11384,11 +11435,13 @@ G.mini = null;
 const miniPl = new Map();                       // uid -> {g,n,j,l,k}  (내 것도 여기 있다)
 let miniBack = null, miniRepT = 0, miniWasOn = false, miniSeenSt = '';
 /* 내 미니게임 값 — 줄넘기 j(넘은 수)·f(걸린 수), 서바이벌 hp·l(목숨)·k(넘어뜨림)·out */
-const MINE = {j:0, f:0, hp:SURV_HP, l:SURV_LIVES, k:0, out:false, rs:0, zone:''};
+/* c = 지금 몇 연속인가 · b = 오늘 최고 연속 (20차) */
+const MINE = {j:0, f:0, c:0, b:0, hp:SURV_HP, l:SURV_LIVES, k:0, out:false, rs:0, zone:''};
 function netMini(){ if(net && G.host && G.mini) net.child('mini').set(G.mini); }
 function miniReport(force){
   if(!miniOn()) return;
-  const d = {g:G.me.g, n:G.me.name, j:MINE.j, l:MINE.out?0:MINE.l, k:MINE.k, hp:MINE.hp};
+  const d = {g:G.me.g, n:G.me.name, j:MINE.j, l:MINE.out?0:MINE.l, k:MINE.k, hp:MINE.hp,
+             c:MINE.c|0, b:MINE.b|0};
   miniPl.set(uid, d);
   if(net && (force || true)) net.child('mini/pl/'+uid).set(d);
 }
@@ -11406,9 +11459,13 @@ function miniEnter(){
   PL.x = px; PL.z = pz; PL.y = MINI_Y; PL.vy = 0; PL.ground = true;
   PL.down = false; PL.hp = maxHP(); PL.biteT = 0;
   /* 퀴즈면 O·X 쪽, 서바이벌이면 섬 한가운데를 보게 세운다 */
-  PL.yaw = Math.atan2(px, pz - (G.mini && G.mini.k === 2 ? 0 : MINI_OZ)); PL.pitch = -0.12;
+  PL.yaw = Math.atan2(px, pz - (G.mini && G.mini.k === 2 ? 0 : MINI_OZ));
+  /* 3인칭인 판(퀴즈·줄넘기)은 조금 더 내려다본다 — 내 양과 발밑이 같이 들어와야 한다 */
+  PL.pitch = (G.mini && G.mini.k < 2) ? -0.20 : -0.12;
   setAimMode(false, true); workStop(); mineHold = null;
-  MINE.j = 0; MINE.f = 0; MINE.hp = SURV_HP; MINE.l = SURV_LIVES; MINE.k = 0; MINE.out = false; MINE.rs = 0;
+  MINE.j = 0; MINE.f = 0; MINE.c = 0; MINE.b = 0;
+  MINE.hp = SURV_HP; MINE.l = SURV_LIVES; MINE.k = 0; MINE.out = false; MINE.rs = 0;
+  ropeLastTurn = -1; ropeTeamSaid = 0; PL.landT = 0;
   miniPl.clear(); miniSeenSt = '';
   /* ★ 맞은 기록은 판마다 비운다. 안 지우면 지난 판에 쌓인 합계가 새 판 첫 발에
      한꺼번에 들어와서 시작하자마자 쓰러진다. 쏜 쪽·맞은 쪽 둘 다 비운다. */
@@ -11416,6 +11473,7 @@ function miniEnter(){
   if(net) net.child('mini/hit/'+uid).remove();
   miniShow(G.mini ? G.mini.k : 0);
   document.body.classList.add('mini');
+  document.body.classList.toggle('tpv', !!G.mini && G.mini.k < 2);
   miniReport(true);
   if(window.__sfx) window.__sfx('up');
   toast('🎪 하늘 섬 미니게임장으로 왔어요!', 3, '#ffe9a0');
@@ -11429,6 +11487,7 @@ function miniLeave(){
   PL.y = groundUnder(PL.x, PL.z, PL.R); PL.vy = 0; PL.down = false; PL.hp = maxHP();
   hudPrev.kit = ''; netPCDirty = true;
   document.body.classList.remove('mini');
+  document.body.classList.remove('tpv');      // 마을로 돌아오면 1인칭 — 조준점을 다시 켠다
   el('miniBar').classList.remove('on');
   toast('🌅 마을로 돌아왔어요 — 새 아침이에요!', 2.6, '#c8ffb0');
 }
@@ -11484,7 +11543,9 @@ function miniOnState(){
     KIT.wpn = MINI_GUN; KIT.ammo = 9999; setAimMode(true, true); hudPrev.kit = '';
     toast('🎯 시작! 왼쪽 클릭으로 쏘세요', 2.2, '#ffd0a0');
   } else if(M.st === 'run' && M.k === 1){
-    toast('🪢 줄이 돕니다 — 발밑에 올 때 스페이스!', 2.2, '#ffd0a0');
+    /* ★ 규칙을 한 문장으로. '발밑에 올 때' 는 사실 못 본다 — 그때 줄은 시선보다 62° 아래다.
+       볼 수 있는 신호는 '금색' 하나뿐이라 그것만 말한다. */
+    toast('🪢 줄이 금색이 되면 스페이스! (꾹 누르지 말고 한 번씩)', 3.0, '#ffd0a0');
   } else if(M.st === 'reveal' && M.rv){
     const ok = (M.rv.ok||[]).includes(uid);
     /* ★ 18차e — 예전엔 구석에 토스트 한 줄이 전부라 "맞은 거야 아닌 거야" 가 밋밋했다.
@@ -11578,31 +11639,97 @@ function oxReveal(){
 /* ★ 18차e — 30% 빠르게(2.05 → 2.67). 한 바퀴 3.1초가 2.4초가 된다.
    1분에 스무 번 남짓 넘던 것이 스물여섯 번쯤 된다. */
 const ROPE_W = 2.67;                              // 기본 각속도 — 한 바퀴 약 2.4초
-function ropePhase(t){ return ROPE_W*(t + 1.05*(1-Math.cos(t*0.40)) + 0.55*(1-Math.cos(t*0.17))); }
+/* ★ 20차 — 1분 동안 줄이 점점 빨라진다. 끝에 가면 기본 속도의 1.4배다.
+   적분이 여전히 닫힌 꼴이라(t + RAMP·t²/2) 스물한 대의 줄이 통신 없이도 똑같이 돈다.
+   앞부분은 지금까지와 거의 같고, 뒤로 갈수록 숨이 찬다 — 진짜 단체 줄넘기가 그렇다. */
+const ROPE_RAMP = 0.4 / ROPE_SEC;                 // 60초에 1.0 → 1.4배
+function ropePhase(t){ return ROPE_W*(t + ROPE_RAMP*t*t*0.5
+                                        + 1.05*(1-Math.cos(t*0.40)) + 0.55*(1-Math.cos(t*0.17))); }
 function ropeElapsed(){ return Math.max(0, ROPE_SEC - G.t); }
-let ropeLastTurn = -1, ropeMsgT = 0;
+const ropeRun = ()=> miniOn() && !!G.mini && G.mini.k === 1 && G.mini.st === 'run';
+/* ── 줄넘기 전용 제자리뜀 ──
+   ★ 값을 재서 정했다. 뜀 0.41초 · 착지 뒤 0.20초 = 한 번 뛰는 데 0.61초.
+     발이 줄 높이(0.42칸) 위에 있는 시간은 그중 0.30초다.
+     그래서 아무 박자로나 마구 뛰면 절반쯤(0.30/0.61)만 넘어진다 —
+     줄을 보고 맞춰 뛰면 다 넘는다. '보고 뛴 아이' 와 '누르고만 있는 아이' 가 갈린다. */
+const RJ_GRAV = 42, RJ_JUMP = 8.6;                // 최고 0.88칸 · 뜬 시간 0.41초
+const RJ_LAND = 0.20;                             // 착지하고 이만큼은 다시 못 뛴다
+const ROPE_CLEAR = 0.42;                          // 줄이 발밑으로 지나가려면 이만큼 떠 있어야
+const ROPE_TIGHT = 0.26;                          // 이보다 아슬아슬하면 '아슬!' 판정
+const ROPE_STUN  = 0.9;                           // 걸리면 이만큼 엉켜서 못 뛴다
+/* ★ 바닥을 치기 이만큼 전부터 줄이 금색이 된다. 규칙이 한 문장이 되게 맞춘 값이다 —
+   **"금색이면 뛴다."** 켜자마자 눌러도 넘고, 조금 늦게 눌러도 넘는다.
+   ★ 계산으로 잡았다가 틀렸다. 종이 위 포물선으로는 발이 줄 높이(0.42칸) 위에 있는 구간이
+     누른 뒤 0.057~0.353초인데, **실제로 updPlayer 를 굴려 재 보니 0.05~0.30초**였다
+     (오일러 적분이라 최고 높이가 0.88 이 아니라 0.81 로 나온다).
+     그걸 모르고 0.34초 전에 켰더니 '금색 보고 바로 눌렀는데 걸린다' 가 31번 중 29번이었다.
+     0.27초로 내리니 그대로 다 넘는다. **뜀 곡선은 계산하지 말고 굴려서 잰다.** */
+const ROPE_CUE = 0.27;
+/* 뛰는 순간 · 착지하는 순간 — 1인칭이라 '내 몸' 이 안 보인다. 발밑 먼지와 소리가 몸이다 */
+function ropeHop(){
+  burst(PL.x, PL.y + 0.06, PL.z, 0xefe6d2, 5, 0.55);
+  if(window.__sfx) window.__sfx('hop');
+}
+function ropeLand(){
+  burst(PL.x, PL.y + 0.05, PL.z, 0xe4dbc6, 6, 0.62);
+  if(window.__shake) window.__shake(0.14, 0.09);
+  if(window.__sfx) window.__sfx('land');
+}
+/* 우리 모둠이 지금 몇 번째 연속인가 — 한 명이라도 걸리면 0 이다.
+   ★ 이게 '단체 줄넘기' 다. 내 숫자가 아니라 모둠에서 제일 낮은 숫자가 우리 숫자다.
+   ★ 내 값만 실시간이고 친구 값은 1초에 한 번 온다 — 그래도 '누가 걸리면 같이 떨어진다' 는
+     느낌은 그대로 산다. 점수(순위)는 여전히 넘은 횟수 평균이라 이 값이 등수를 흔들지 않는다. */
+function ropeTeam(g){
+  let mn = Infinity, n = 0;
+  for(const [k,d] of miniPl){
+    if((d.g|0) !== g) continue;
+    mn = Math.min(mn, k === uid ? MINE.c : (d.c|0)); n++;
+  }
+  return n ? mn : 0;
+}
+let ropeLastTurn = -1, ropeTeamSaid = 0;
 function ropeTick(dt){
   const M = G.mini; if(!M || M.k !== 1 || M.st !== 'run') return;
   const ph = ropePhase(ropeElapsed()), turn = Math.floor(ph/(Math.PI*2));
   if(ropeLastTurn < 0){ ropeLastTurn = turn; return; }
   if(turn === ropeLastTurn) return;
   ropeLastTurn = turn;
+  /* ★ 줄이 바닥을 칠 때마다 '탁'. 단체 줄넘기에서 박자를 잡아 주는 건 눈이 아니라 이 소리다.
+     발판 밖에 있어도 들린다 — 기다리는 동안 박자를 익히라고. */
+  if(window.__sfx) window.__sfx('rtap');
   /* 줄이 발밑을 지났다 — 우리 모둠 자리에 서 있을 때만 센다 */
   const onPad = Math.abs(PL.x - miniPadX(G.me.g)) < 3.6 && Math.abs(PL.z - MINI_PADZ) < 3.6;
   if(!onPad) return;
-  /* ★ 18차e — 예전엔 넘어도 '-20' 이 빨갛게 떴다(kind 2 는 '아팠다' 는 표시다).
-     넘은 것과 걸린 것이 둘 다 빨간 숫자라 몸으로 구분이 안 됐다.
-     넘음은 초록(+N)·올라가는 딩·초록 번쩍, 걸림은 빨강·낮은 퍽·화면 흔들림으로 갈랐다. */
+  /* ★ 20차 — '떠 있나' 가 아니라 '줄 위에 있나' 로 본다.
+     예전 규칙(`!PL.ground || PL.airT < 0.16`)은 착지 직후 0.16초까지 봐줘서,
+     발이 땅에 붙어 있어도 넘은 것으로 셌다. 이제 실제 발 높이를 잰다 —
+     줄은 이 순간 바닥을 스치므로, 발이 ROPE_CLEAR 위에 있어야 줄이 밑으로 지나간다. */
+  const clear = PL.y - groundUnder(PL.x, PL.z, PL.R);
   const f2 = forward();
-  if(!PL.ground || PL.airT < 0.16){
-    MINE.j++;
+  if(clear >= ROPE_CLEAR && MINE.rs <= 0){
+    MINE.j++; MINE.c = (MINE.c|0) + 1;
+    if(MINE.c > (MINE.b|0)) MINE.b = MINE.c;
+    /* 아슬아슬하게 넘은 것과 여유 있게 넘은 것을 갈라서 보여 준다 — 이게 스릴이다 */
+    const tight = clear < ROPE_CLEAR + ROPE_TIGHT;
     popDmg(PL.x + f2.x*2.4, PL.y + 1.5, PL.z + f2.z*2.4, MINE.j, 3);
-    goodFlash(95);
-    verdict(true, '⭐', MINE.j + '번!', {quick:true});
-    burst(PL.x, PL.y + 0.45, PL.z, GHEX[G.me.g|0], 7, 0.85);
-    if(window.__sfxJump) window.__sfxJump(MINE.j);
+    goodFlash(tight ? 70 : 95);
+    verdict(true, tight ? '😮' : '⭐',
+            (tight ? '아슬! ' : '') + MINE.c + '연속', {quick:true});
+    burst(PL.x, PL.y + 0.45, PL.z, tight ? 0xffd257 : GHEX[G.me.g|0], tight ? 10 : 7, 0.85);
+    if(tight && window.__shake) window.__shake(0.22, 0.12);
+    if(window.__sfxJump) window.__sfxJump(MINE.c);
+    /* 우리 모둠이 다 같이 다섯 번째 · 열 번째… 를 넘었다 */
+    const tm = ropeTeam(G.me.g|0);
+    if(tm >= 5 && tm % 5 === 0 && tm !== ropeTeamSaid){
+      ropeTeamSaid = tm;
+      toast(`🪢 우리 모둠 다 같이 ${tm}연속!`, 1.8, '#ffe066');
+      burst(PL.x, PL.y + 1.8, PL.z, GHEX[G.me.g|0], 20, 1.6);
+      burst(PL.x, PL.y + 2.1, PL.z, 0xfff2c0, 12, 1.3);
+      if(window.__sfx) window.__sfx('win');
+    }
   } else {
-    MINE.f++; MINE.rs = 0.9; ropeHitT = 0.55;
+    /* 걸렸다 — 줄에 엉켜서 잠깐 못 뛴다. 내 연속도, 우리 모둠 연속도 0 으로 떨어진다 */
+    MINE.f++; MINE.c = 0; MINE.rs = ROPE_STUN; ropeHitT = 0.55; ropeTeamSaid = 0;
     verdict(false, '💥', '걸렸다!', {ms:850});
     flash();
     burst(PL.x, PL.y + 0.30, PL.z, 0xff6b6b, 11, 1.15);
@@ -11796,7 +11923,9 @@ function aimPlayer(){
        ③ 그러고 나면 마디를 늘리는 게 값을 한다(30 → 48). 그려도 뱅크 하나라 드로우콜은 그대로다.
      처짐도 sin 그대로가 아니라 0.82 제곱을 준다 — 진짜 줄은 아래가 더 넓게 퍼진다. */
 const ROPE_SEG = 48, ROPE_AX = 1.35, ROPE_HW = 3.4;
-const R_rope = imesh(cube(T.cloth), MAT, NG*ROPE_SEG, 1);
+/* ★ 20차 — 칸에 여유를 둔다. 예전 칸이 NG*48 = 240 이었는데 실제로 쓰는 것도 240 이라
+   여유가 한 칸도 없었다 (17차f·19차에 이어 또다. 딱 맞는 칸은 모자란 칸이다). */
+const R_rope = imesh(cube(T.cloth), MAT, NG*(ROPE_SEG + 8), 1);
 /* 줄 위의 한 점 — u 는 0(왼손잡이) ~ 1(오른손잡이) */
 function ropePt(g, u, ph, out){
   const sag = Math.pow(Math.sin(u*Math.PI), 0.82);
@@ -11813,6 +11942,18 @@ function drawRope(){
   const M = G.mini;
   if(miniOn() && M && M.k === 1 && M.st !== 'done'){
     const ph = M.st === 'run' ? ropePhase(ropeElapsed()) : 0.9;
+    /* ── '지금 뛰어' (20차) ──
+       ★ 판정하는 순간(줄이 바닥을 칠 때) 줄은 이미 발밑이라 1인칭에서는 안 보인다.
+         재 보니 그때 줄은 시선보다 62° 아래라 아래 도구 칸에 가려 있다.
+         바닥 그림자도 같은 이유로 못 쓴다(반지름이 1.35칸뿐이라 늘 발치다).
+       ★ 그래서 **줄 자체가 말하게** 했다 — 바닥을 치기 ROPE_CUE 초 전부터 금색으로 물든다.
+         그 순간 줄은 눈앞을 스쳐 내려가는 중이라 잘 보인다.
+         "금색이 되면 뛴다" 한 문장이면 9살도 박자를 잡는다. */
+    const wNow = ROPE_W*(1 + ROPE_RAMP*ropeElapsed()
+                         + 1.05*0.40*Math.sin(ropeElapsed()*0.40)
+                         + 0.55*0.17*Math.sin(ropeElapsed()*0.17));
+    const left = (Math.PI*2) - (ph % (Math.PI*2));       // 바닥을 치기까지 남은 각도
+    const now = M.st === 'run' && left <= Math.max(0.05, wNow)*ROPE_CUE;
     for(let g=0; g<NG; g++){
       ropePt(g, 0, ph, _rpA);
       for(let i=0;i<ROPE_SEG;i++){
@@ -11828,7 +11969,7 @@ function drawRope(){
         const hot = ropeHitT > 0 && g === (G.me.g|0);
         setIR(R_rope, n++, (_rpA[0]+_rpB[0])/2, (_rpA[1]+_rpB[1])/2, (_rpA[2]+_rpB[2])/2,
               ry, rx, hand ? 0.17 : 0.13, hand ? 0.17 : 0.13, len*1.30,
-              hot ? 0xff5a5a : (hand ? GHEX[g] : 0x4a3626));
+              hot ? 0xff5a5a : now ? 0xffd94a : (hand ? GHEX[g] : 0x4a3626));
         _rpA[0]=_rpB[0]; _rpA[1]=_rpB[1]; _rpA[2]=_rpB[2];
       }
     }
@@ -11870,7 +12011,7 @@ function paintMini(){
   if(!bar.classList.contains('on')) bar.classList.add('on');
   const t = Math.max(0, Math.ceil(G.t));
   let nm = MINI_NAME[M.k], q = '', tm = '', hearts = '', chips = '';
-  if(M.st === 'intro'){ q = M.k===0 ? '선생님이 문제를 내면\n⭕ 또는 ❌ 우리 안으로!' : M.k===1 ? '줄이 발밑에 올 때\n스페이스로 뛰어요!' : '모두 같은 총 · 나에게 목숨 셋\n머리를 맞히면 두 배!'; tm = t+''; }
+  if(M.st === 'intro'){ q = M.k===0 ? '선생님이 문제를 내면\n⭕ 또는 ❌ 우리 안으로!' : M.k===1 ? '줄이 금색이 되면\n스페이스! 꾹 누르면 안 돼요' : '모두 같은 총 · 나에게 목숨 셋\n머리를 맞히면 두 배!'; tm = t+''; }
   else if(M.st === 'ask'){ q = '선생님이 문제를 내는 중…'; }
   else if(M.st === 'run' && M.k === 0){
     /* 문제는 현수막에 크게 뜬다 — 여기에 또 적으면 같은 글이 두 번 뜬다 */
@@ -11881,7 +12022,15 @@ function paintMini(){
     quizBanner('정답', `${M.rv.ans==='O'?'⭕ O':'❌ X'} · ${M.rv.ok.length}명이 맞혔어요`
       + (M.rv.none ? ` (우리 밖 ${M.rv.none}명 오답)` : ''), true);
   }
-  else if(M.st === 'run' && M.k === 1){ q = `나 ${MINE.j}번` + (MINE.f ? ` · 걸림 ${MINE.f}` : ''); tm = t+''; }
+  else if(M.st === 'run' && M.k === 1){
+    /* ★ 20차 — '우리 모둠 연속' 을 앞에 크게 둔다. 단체 줄넘기에서 아이들이 세는 숫자가 이것이다.
+       한 명이라도 걸리면 같이 0 이 되므로, 자기 차례가 아니어도 화면을 보게 된다. */
+    const tmv = ropeTeam(G.me.g|0);
+    q = (MINE.rs > 0 ? '😵 엉켰다! ' : '')
+      + `🪢 우리 모둠 ${tmv}연속 · 나 ${MINE.c}연속(최고 ${MINE.b|0})`
+      + ` · ${MINE.j}번` + (MINE.f ? ` · 걸림 ${MINE.f}` : '');
+    tm = t+'';
+  }
   else if(M.st === 'run' && M.k === 2){
     /* ★ '내' 를 앞에 붙인다 — 하트 셋이 모둠 것인 줄 알고 "네 명인데 셋?" 하고 물으셨다.
        목숨은 아이마다 셋이다(모둠 넷이면 모둠에 열둘). 체력도 같이 적는다. */
@@ -12849,6 +12998,11 @@ const SFX = {
               [523,698,880].forEach((f,i)=> tone(f, f*1.5, 0.17, 'triangle', 0.10, now0()+i*0.075));
               tone(1320,1980,0.13,'sine',0.055, now0()+0.23);
               tone(1760,2640,0.10,'sine',0.035, now0()+0.30); },
+  /* ★ 20차 줄넘기 — 뜀·착지·줄이 바닥 치는 소리.
+     '탁' 은 박자를 잡아 주는 소리라 짧고 또렷해야 한다. 길면 다음 박자를 덮는다. */
+  hop:  ()=>{ noise(0.035,0.05,2200); tone(430,700,0.07,'sine',0.045); },
+  land: ()=>{ noise(0.055,0.08,900);  tone(190,120,0.07,'square',0.045); },
+  rtap: ()=>{ noise(0.030,0.11,5200); tone(1150,620,0.045,'triangle',0.055); },
   /* 줄에 걸렸다 — 낮고 텁텁하게 '퍽' */
   trip: ()=>{ noise(0.13,0.17,480); tone(180,68,0.22,'sawtooth',0.110);
               tone(300,120,0.16,'square',0.060); },
@@ -13206,11 +13360,15 @@ function loop(){
         if(pc){ q.wp = pc.wp|0; q.we = pc.we|0;
                 q.jb = pc.jb===undefined ? -1 : pc.jb|0; q.jt = pc.jt|0; }
       }
-      /* ★ 쓰러지면 3인칭이 되므로 내 몸도 그려야 한다. 평소엔 1인칭이라 안 그린다. */
-      if(PL.down){
+      /* ★ 3인칭일 때는 내 몸도 그려야 한다. 평소(1인칭)엔 안 그린다.
+         쓰러졌을 때 · 줄넘기 · OX 퀴즈 셋 다 여기로 온다(20차). */
+      if(tpvOn()){
         meSheep.x=PL.x; meSheep.y=PL.y; meSheep.z=PL.z; meSheep.ry=PL.yaw;
         meSheep.g=G.me.g|0; meSheep.hat=G.me.hat|0; meSheep.gls=G.me.gls|0; meSheep.clo=G.me.clo|0;
         meSheep.jb=XP.job; meSheep.jt=XP.jt;
+        /* ★ meSheep 은 '쓰러진 몸' 으로 만들어 둔 것이라 down 이 켜져 있다.
+           서서 뛰는 데도 배를 뒤집고 누워 있으면 안 된다 — 매 프레임 지금 상태로 맞춘다. */
+        meSheep.down = PL.down; meSheep.mv = PL.mv && !PL.down;
         shList.push(meSheep);
       }
       drawSheep(shList, tAcc, MAXP, s=>GHEX[s.g|0], SHEEP_S);
@@ -13627,9 +13785,7 @@ Object.assign(window, {
   __enh:{max:ENH_MAX, odds:ENH_ODDS, safe:ENH_SAFE, drop:ENH_DROP,
          mul:ENH_MUL, cost:ENH_COST, fx:ENH_FX},
   __enhOf:enhOf, __enhMul:enhMul, __enhCost:enhCost, __doEnhance:doEnhance,
-  __setEnh:(i,v)=>{ KIT.enh[i]=v; hudPrev.kit=''; },
-  __bossDays:bossDays, __bossWolfK:bossWolfK, __bossIndex:bossIndex,
-  __prog:prog, __waveFor:waveFor, __stageName:stageName,
+  __setEnh:(i,v)=>{ KIT.enh[i]=v; hudPrev.kit=''; }, __bossWolfK:bossWolfK, __bossIndex:bossIndex, __stageName:stageName,
   /* ★ __XP_NEED · __LV_MAX · __STATS 는 위(9782줄 근처)에 이미 있다.
      여기에 또 쓰면 나중에 쓴 것이 이기면서 모양이 바뀌어(배열 → 함수) 검사가 죽는다.
      실제로 t15 의 경험치 검사가 그렇게 NaN 이 됐다. 중복을 두지 않는다. */
@@ -13653,7 +13809,16 @@ Object.assign(window, {
                DAYS:MINI_DAYS, QN:MINI_QN, QSEC:MINI_QSEC, RSEC:MINI_RSEC, INTRO:MINI_INTRO, DONE:MINI_DONE,
                ROPE:ROPE_SEC, SURV:SURV_SEC, PRIZE:MINI_PRIZE, OK:MINI_OK, GUN:MINI_GUN, LIVES:SURV_LIVES,
                DMG:SURV_DMG, HEAD:SURV_HEAD, HEAD_R:SURV_HEAD_R, HP:SURV_HP, WARN:MINI_WARN,
-               SPAWN_R:SURV_SPAWN_R, SEG:ROPE_SEG}),
+               SPAWN_R:SURV_SPAWN_R, SEG:ROPE_SEG,
+               /* 20차 줄넘기 — 검사가 값을 베끼지 않고 게임에 물어보게 */
+               W:ROPE_W, RAMP:ROPE_RAMP, CLEAR:ROPE_CLEAR, TIGHT:ROPE_TIGHT, STUN:ROPE_STUN,
+               CUE:ROPE_CUE,
+               RJ_GRAV:RJ_GRAV, RJ_JUMP:RJ_JUMP, RJ_LAND:RJ_LAND}),
+  __ropeRun:ropeRun, __ropeTeam:ropeTeam, __ropeTick:ropeTick,
+  __ropeHit:(v)=>{ ropeHitT = v||0; }, __ropeHitT:()=>ropeHitT,
+  __tpvOn:tpvOn, __tpvKind:tpvKind, __MINI_CAM:()=>MINI_CAM, __DOWN_CAM:()=>DOWN_CAM,
+  __camPos:()=>({x:camera.position.x, y:camera.position.y, z:camera.position.z}),
+  __meSheep:()=>meSheep,
   __updDanger:updDanger, __drawRope:drawRope, __quizBanner:quizBanner, __paintMini:paintMini,
   __applyHitNode:applyHitNode, __survSend:survSend,
   __hitState:()=>({dealt:[...survDealt], tot:[...hitTot], seen:[...hitSeen]}),
@@ -13696,28 +13861,25 @@ Object.assign(window, {
   __PETS:PETS, __PET_ICON:PET_ICON, __PET_NAME:PET_NAME, __PET_HOP:()=>PET_HOP,
   __PET_FLY:()=>PET_FLY, __petMesh:()=>P_pet, __updPets:updPets, __petAt:()=>petAt,
   __setPet:(v)=>{ G.me.pet = v|0; myPC.pet = v|0; },
-  __TOOLS:TOOLS, __selTool:selectTool, __curTool:()=>curTool, __XP_PLANT:()=>XP_PLANT,
-  __sheepHurt:sheepHurt, __PET_S:()=>PET_S, __PET_ORBIT:()=>PET_ORBIT, __myPC:()=>myPC,
+  __TOOLS:TOOLS, __XP_PLANT:()=>XP_PLANT, __PET_S:()=>PET_S, __PET_ORBIT:()=>PET_ORBIT,
   __RESCUE_MARK:()=>RESCUE_MARK, __myReset:myReset, __hudPrev:()=>hudPrev,
   __feedLen:()=>el('feed').children.length,
   __dnLive:()=>dnums.filter(d=>d.t>0).length,
   __dnLast:()=>{ const d = dnums[(dnNext-1+DN_MAX)%DN_MAX]; return {cls:d.cls, txt:d.txt}; },
-  __WORK_SEC:WORK_SEC, __UP_SEC:()=>UP_SEC, __workSec:workSec, __upSec:upSec,
+  __WORK_SEC:WORK_SEC, __UP_SEC:()=>UP_SEC,
   __gunMeshes:()=>[P_gun, P_gunF],
-  __wpnDmg:wpnDmg, __defNow:defNow, __atkMul:atkMul, __spdMul:spdMul,
+  __wpnDmg:wpnDmg, __spdMul:spdMul,
   __HB:()=>[HB_BG, HB_FG], __drawWolfHP:drawWolfHP,
   __dnums:()=>dnums, __popDmg:popDmg, __dnTick:dnTick,
   __setCrit:(p)=>{ critForce = p; },
-  __wantJump:()=>{ wantJump = true; }, __setThrowCd:(v)=>{ throwCd = v; },
-  __BAL:BAL, __NODE_DEF:NODE_DEF, __THROW_CD:THROW_CD, __myRes:myRes,
+  __wantJump:()=>{ wantJump = true; }, __setThrowCd:(v)=>{ throwCd = v; }, __NODE_DEF:NODE_DEF, __THROW_CD:THROW_CD,
 
 
-  __feed:feed, __paintHUD:paintHUD, __toast:toast, __stage:showStage,
-  __updPlayer:updPlayer, __KEY:KEY, __rampCells:rampCells, __solidTop:solidTop,
+  __feed:feed, __paintHUD:paintHUD, __toast:toast, __stage:showStage, __KEY:KEY, __rampCells:rampCells, __solidTop:solidTop,
   __setPaused:setPaused, __hostPhase:hostPhase, __paintEndCard:paintEndCard,
   __pcMap:pcMap, __uid:uid, __removeStru:removeStru,
   __mine:()=>({lock:mineLock, prog:mineProg, done:mineDone}),
-  __selBuild:selectBuild, __aimNode:aimNode, __banks:banks, __GATE_T:GATE_T,
+  __selBuild:selectBuild, __aimNode:aimNode, __GATE_T:GATE_T,
   __Wmesh:()=>({body:W_body, chest:W_chest, ruff:W_ruff, head:W_head, snout:W_snout,
                 nose:W_nose, tail:W_tail, ears:W_ears, eyes:W_eyes, legs:W_legs})
 });

@@ -179,15 +179,23 @@ const rope = await ev(()=>{ const W=window, G=W.__G, M=W.__MINI(), PL=W.__PL, o=
   W.__goMini(1); W.__step((M.INTRO+1)*30, 1/30); W.__miniTick(0.05); G.paused = true;
   o.단계 = G.mini.st;
   PL.x = M.padX(G.me.g); PL.z = M.PADZ;
+  /* ★ 20차 — 판정이 '떠 있나(PL.ground)' 에서 '줄 위에 있나(발 높이)' 로 바뀌었다.
+     그래서 깃발을 손으로 세우는 대신 **실제 높이를 세워** 잰다.
+     (게임이 규칙을 바꿨으니 검사도 같은 것을 재게 고치는 게 맞다 —
+      깃발만 세우면 이제 아무것도 안 재는 검사가 된다.) */
+  const gy = W.__groundUnder(PL.x, PL.z, PL.R);
   for(let t=0; t<M.ROPE; t+=0.05){ G.t = M.ROPE - t;
     const ph = W.__ropePhase(t) % (Math.PI*2), near = ph < 0.35 || ph > Math.PI*2-0.35;
-    PL.ground = !near; PL.airT = near ? 0 : 1; W.__miniTick(0.05); }
+    PL.ground = !near; PL.airT = near ? 0 : 1;
+    PL.y = gy + (near ? M.CLEAR + 0.3 : 0);          // 줄이 올 때만 확실히 떠 있다
+    W.__miniTick(0.05); }
   o.맞춰뜀 = {j:W.__MINE.j, f:W.__MINE.f};
-  W.__MINE.j = 0; W.__MINE.f = 0;
-  for(let t=0; t<M.ROPE; t+=0.05){ G.t = M.ROPE - t; PL.ground = true; PL.airT = 1; W.__miniTick(0.05); }
+  W.__MINE.j = 0; W.__MINE.f = 0; W.__MINE.rs = 0;
+  for(let t=0; t<M.ROPE; t+=0.05){ G.t = M.ROPE - t;
+    PL.ground = true; PL.airT = 1; PL.y = gy; W.__MINE.rs = 0; W.__miniTick(0.05); }
   o.안뜀 = {j:W.__MINE.j, f:W.__MINE.f};
   /* 발판 밖에 서 있으면 세지 않는다 */
-  W.__MINE.j = 0; W.__MINE.f = 0; PL.x = 0; PL.z = 0;
+  W.__MINE.j = 0; W.__MINE.f = 0; W.__MINE.rs = 0; PL.x = 0; PL.z = 0;
   for(let t=0; t<M.ROPE; t+=0.05){ G.t = M.ROPE - t; PL.ground = true; PL.airT = 1; W.__miniTick(0.05); }
   o.밖 = {j:W.__MINE.j, f:W.__MINE.f};
   return o; });
