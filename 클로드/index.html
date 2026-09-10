@@ -1950,6 +1950,19 @@ body.qbOn #crystalWrap, body.qbOn #resBox, body.qbOn #topRight{display:none}
     <div class="hrow"><i>😵</i><div>걸리면 줄에 <b>엉켜서 잠깐 못 뜁니다.</b> 한 박자 쉬고 다시 붙으세요.</div></div>
   </div>
 
+  <h3>🎯 모둠 서바이벌 — 목숨은 하나</h3>
+  <div class="hgrid">
+    <div class="hrow"><i>💀</i><div><b>한 번 쓰러지면 그 판은 끝이에요.</b> 아침에 쓰러졌을 때처럼
+      그 자리에 눕고, 남은 시간은 구경하며 응원합니다. <b>다시 살아나지 않아요.</b></div></div>
+    <div class="hrow"><i>🧱</i><div>모두 <b>같은 총</b>이고 체력은 100입니다 —
+      몸통 <b>일곱 방</b>, 머리 <b>네 방</b>이면 쓰러져요.
+      <span style="color:#ffc94a">엄폐물 뒤에 숨어서 먼저 쏘는 쪽이 이깁니다.</span></div></div>
+    <div class="hrow"><i>📊</i><div>화면 아래 <b>전광판</b>에 <b>피해를 많이 넣은 사람</b>이 뜹니다.
+      일찍 쓰러져도 내가 몇 등이었는지는 남아요.</div></div>
+    <div class="hrow"><i>🏆</i><div><b>마지막까지 살아남은 사람의 모둠만</b> 자원 상을 받아요.
+      (시간이 다 됐는데 여럿 남아 있으면 그중 <b>피해를 제일 많이 넣은 사람</b>의 모둠이 이깁니다.)</div></div>
+  </div>
+
   <h3>🎪 미니게임 — 5·10·15일차 밤이 끝나면 저절로 열립니다</h3>
   <div id="tMiniBox">
     <div id="tMiniSt" style="opacity:.8;margin-bottom:4px">지금은 미니게임이 아닙니다. 연습해 보려면 아래에서 바로 열 수 있어요.</div>
@@ -7738,7 +7751,8 @@ function fireWeapon(){
       hitMark(A.head);                              // 헤드샷은 조준점이 크게 번쩍인다
       popDmg(A.x, A.y + 0.75, A.z, dmg, A.head ? 1 : 0);   // 늑대와 같은 숫자 — 헤드샷은 노란 '20!'
       burst(A.x, A.y, A.z, A.head ? 0xffd45a : 0xff7a7a, A.head ? 10 : 6, A.head ? 1.15 : 0.7);
-      MINE.k++; survSend(q.uid, dmg, A.head);
+      MINE.k++; MINE.dm = (MINE.dm|0) + dmg;    // 전광판이 읽는 칸 (21차)
+      survSend(q.uid, dmg, A.head);
       /* ★ 총소리(musket)는 이제 진짜로 난다 — 표에 없는 이름이라 여태 조용했다.
          맞힌 소리도 늑대용 'hit'(작은 삑) 대신 두꺼운 것으로 바꾼다. */
       if(window.__sfx){ window.__sfx(W.snd || 'gun'); window.__sfx(A.head ? 'phead' : 'phit'); }
@@ -8981,7 +8995,10 @@ function reviveMe(by, self){
 }
 /* 쓰러져 있는 동안만 도는 시계 — 다 차면 혼자 일어난다 */
 function downTick(dt){
-  if(!G.started || G.paused || !PL.down) return;
+  /* ★ 21차 — 미니게임에서는 혼자 일어나지 않는다.
+     서바이벌은 목숨이 하나인데, 이 시계가 그대로 돌면 24초 뒤에 되살아나서
+     '한 번 쓰러지면 끝' 이 통째로 무너진다. 마을에서만 도는 시계다. */
+  if(!G.started || G.paused || !PL.down || miniOn()) return;
   PL.downT = (PL.downT||0) + dt;
   if(PL.downT >= SELF_REVIVE) reviveMe(null, true);
 }
@@ -9484,6 +9501,8 @@ function goalText(){
   if(!isTouch && tAcc - startedAt < 25)
     return 'WASD 이동 · 좌클릭 사용/사격 · T 총 · C 스텟 · I 가방 · B 상인 · G 대장간 · U 수치표';
   if(PL.down){
+    /* 미니게임에서 쓰러진 것은 그 판이 끝난 것이다 — 일으켜 주는 사람도, 혼자 일어나는 것도 없다 */
+    if(miniOn()) return '💀 쓰러졌어요 — 이 판은 여기까지. 구경하며 응원해요!';
     const left = Math.max(0, Math.ceil(SELF_REVIVE - (PL.downT||0)));
     return `💫 쓰러졌어요 — 친구가 앞에서 ${REVIVE_SEC}초 눌러 주면 바로 일어나요`
          + ` (혼자서는 ${left}초 뒤, 체력 절반)`;
@@ -9569,9 +9588,14 @@ function paintHUD(){
     : hpPct > 25 ? 'linear-gradient(90deg,#ffd66b,#ffa726)'
                  : 'linear-gradient(90deg,#ff8a8a,#ff3b3b)');
   setTxt('hpNum', PL.down ? '쓰러짐' : String(Math.ceil(PL.hp)));
-  if(hudPrev.dn !== PL.down){ hudPrev.dn = PL.down;
+  /* ★ 21차 — 미니게임에서 쓰러진 것은 '일으켜 주면 일어난다' 가 아니다.
+     마을 안내판(친구가 8초 눌러 주면…)이 그대로 뜨면 아이들이 친구를 찾아 달려온다.
+     그래서 안내판은 마을에서만 띄운다 — 미니게임은 가운데 큰 글씨가 대신 말해 준다. */
+  const veil = PL.down && !miniOn();
+  if(hudPrev.dn !== PL.down || hudPrev.veil !== veil){
+    hudPrev.dn = PL.down; hudPrev.veil = veil;
     el('hpRow').classList.toggle('down', PL.down);
-    el('downVeil').classList.toggle('on', PL.down);
+    el('downVeil').classList.toggle('on', veil);
     /* 3인칭인데 화면 한가운데 조준점이 떠 있으면 뭘 겨누는 건지 헷갈린다 */
     el('crosshair').style.display = PL.down ? 'none' : ''; }
 
@@ -11395,11 +11419,11 @@ function farmMorning(){
    선생님 주문: "5·10·15라운드 밤이 끝나면 미니게임장으로 이동하자."
    ① OX 퀴즈 — 선생님이 즉석에서 문제를 내고, 아이들이 O·X 우리 안으로 걸어 들어간다. 세 문제.
    ② 모둠 줄넘기 — 다섯 모둠이 동시에 1분. 줄 속도가 오르내리고 스페이스(점프)로 넘는다.
-   ③ 모둠 서바이벌 — 모두 같은 기본총, 목숨 셋. 남은 목숨 합계로 순위.
+   ③ 모둠 서바이벌 — 모두 같은 기본총, 목숨 하나. 마지막까지 살아남은 사람의 모둠이 이긴다(21차).
    ★ 흐름은 호스트(선생님 컴퓨터)가 끌고 간다. 단계(st)·문제·순위는 mini 통로로,
      남은 시간은 이미 있는 meta 통로의 t 로 간다 — 새 통로는 mini 하나뿐이다.
    ★ 자리(위치) 통로에는 칸을 더하지 않는다(초당 13번 나가는 곳이다).
-     내 점수(넘은 수·목숨·넘어뜨린 수)는 mini/pl/<나> 에 1초에 한 번만 쓴다. */
+     내 점수(넘은 수·쓰러졌나·준 피해)는 mini/pl/<나> 에 1초에 한 번만 쓴다. */
 const MINI_DAYS  = [5, 10, 15];                 // 이 날 밤이 끝나면 미니게임
 const MINI_NAME  = ['⭕❌ OX 퀴즈', '🪢 모둠 줄넘기', '🎯 모둠 서바이벌'];
 const MINI_INTRO = 7, MINI_DONE = 10;           // 설명 · 순위 보여 주는 시간
@@ -11419,12 +11443,22 @@ const MINI_OK = {w:14, s:10, g:2};              // OX 한 문제 맞힐 때마�
    ★ OX 문제마다 주는 몫(MINI_OK)은 '우승 상' 이 아니라 아이마다 받는 것이라 그대로 뒀다.
    ★ 꼴찌도 받는다 — 아무것도 못 받으면 다음엔 안 하려 든다. */
 const MINI_PRIZE = [{w:48,s:36,g:14},{w:38,s:29,g:11},{w:30,s:22,g:7},{w:24,s:18,g:5},{w:19,s:14,g:4}];
+/* ═══ 참가상 — 서바이벌에서 진 모둠 (21차b) ═══
+   ★ 서바이벌은 등수를 안 나눈다. 마지막까지 살아남은 한 모둠만 1등 상을 받으니,
+     그대로 두면 **다섯 중 넷이 빈손**이다. 바로 윗줄 주석에 적어 둔 것과 같은 이유로
+     — 아무것도 못 받으면 다음 판엔 안 하려 든다 — 진 모둠도 이만큼은 받는다.
+   ★ 1등 상의 1/3 로 잘랐다(48·36·14 → 16·12·4). 순위 상 꼴찌(19·14·4)보다도 적으니
+     '이기는 쪽이 훨씬 낫다' 는 그대로다. 이건 위로지 보상이 아니다. */
+const MINI_CONSOL = {w:16, s:12, g:4};
 /* ★ 18차c — 한 방 50(두 방에 한 목숨)이었다. 스치기만 해도 반이 날아가니
      '맞았다' 는 느낌이 없고 그냥 죽어 있었다. 잘게 쪼갠다.
    ★ 18차d — 10/20 은 한 목숨에 몸통 열 방이라 너무 질겼다. 몸통 15 · 머리 30 —
      한 목숨에 몸통 일곱 방 · 머리 네 방. 맞히는 맛도 피하는 맛도 남으면서
      3분 안에 판이 난다. */
-const SURV_HP = 100, SURV_LIVES = 3, SURV_DMG = 15, SURV_HEAD = 30, SURV_RESPAWN = 4;
+/* ★ 21차 — 목숨을 없앴다. 셋이면 잘 안 죽어서 3분 내내 서로 스치기만 하다 끝났다.
+   이제 **한 번 쓰러지면 그 판은 끝** — 아침에 쓰러졌을 때처럼 시체로 눕고 구경한다.
+   목숨이 하나뿐이라 '숨을 곳' 과 '먼저 쏘기' 가 갑자기 중요해진다. */
+const SURV_HP = 100, SURV_DMG = 15, SURV_HEAD = 30;
 /* 머리 판정 — 겨눈 줄이 머리 점에 이만큼 안쪽으로 지나가고, 몸통 점보다 머리 점에
    더 가까울 때만 헤드샷이다. 반지름만 보면 가까이서 배를 쏴도 머리로 잡힌다
    (양은 키가 1칸인데 머리와 몸통 사이가 0.35칸밖에 안 된다). */
@@ -11434,14 +11468,16 @@ const miniOn = ()=> G.phase === 'mini';
 G.mini = null;
 const miniPl = new Map();                       // uid -> {g,n,j,l,k}  (내 것도 여기 있다)
 let miniBack = null, miniRepT = 0, miniWasOn = false, miniSeenSt = '';
-/* 내 미니게임 값 — 줄넘기 j(넘은 수)·f(걸린 수), 서바이벌 hp·l(목숨)·k(넘어뜨림)·out */
-/* c = 지금 몇 연속인가 · b = 오늘 최고 연속 (20차) */
-const MINE = {j:0, f:0, c:0, b:0, hp:SURV_HP, l:SURV_LIVES, k:0, out:false, rs:0, zone:''};
+/* 내 미니게임 값 — 줄넘기 j(넘은 수)·f(걸린 수)·c/b(연속, 20차),
+   서바이벌 hp·k(넘어뜨림)·dm(준 피해 합계, 21차)·out(쓰러졌나) */
+const MINE = {j:0, f:0, c:0, b:0, hp:SURV_HP, k:0, dm:0, out:false, rs:0, zone:''};
 function netMini(){ if(net && G.host && G.mini) net.child('mini').set(G.mini); }
 function miniReport(force){
   if(!miniOn()) return;
-  const d = {g:G.me.g, n:G.me.name, j:MINE.j, l:MINE.out?0:MINE.l, k:MINE.k, hp:MINE.hp,
-             c:MINE.c|0, b:MINE.b|0};
+  const d = {g:G.me.g, n:G.me.name, j:MINE.j, k:MINE.k, hp:MINE.hp,
+             c:MINE.c|0, b:MINE.b|0,
+             /* 21차 — o: 쓰러졌나 · dm: 이 판에 내가 준 피해 합계(전광판이 읽는 칸) */
+             o:MINE.out?1:0, dm:MINE.dm|0};
   miniPl.set(uid, d);
   if(net && (force || true)) net.child('mini/pl/'+uid).set(d);
 }
@@ -11464,7 +11500,7 @@ function miniEnter(){
   PL.pitch = (G.mini && G.mini.k < 2) ? -0.20 : -0.12;
   setAimMode(false, true); workStop(); mineHold = null;
   MINE.j = 0; MINE.f = 0; MINE.c = 0; MINE.b = 0;
-  MINE.hp = SURV_HP; MINE.l = SURV_LIVES; MINE.k = 0; MINE.out = false; MINE.rs = 0;
+  MINE.hp = SURV_HP; MINE.k = 0; MINE.dm = 0; MINE.out = false; MINE.rs = 0;
   ropeLastTurn = -1; ropeTeamSaid = 0; PL.landT = 0;
   miniPl.clear(); miniSeenSt = '';
   /* ★ 맞은 기록은 판마다 비운다. 안 지우면 지난 판에 쌓인 합계가 새 판 첫 발에
@@ -11505,6 +11541,9 @@ function goMini(k){
 }
 function miniExit(){
   const M = G.mini; if(!M) return;
+  /* ★ 서바이벌에서 쓰러진 채로 나가면 마을에서도 누운 채로 시작한다.
+     미니게임의 죽음은 그 판에서만 끝나는 것이다 — 아침에는 다들 멀쩡히 일어난다. */
+  PL.down = false; PL.hp = maxHP(); PL.vy = 0;
   G.mini = null;
   if(net){ net.child('mini').remove(); }
   G.day++; goDay();          // 아침 — phase 가 'day' 가 되어 손님들도 내려온다
@@ -11516,11 +11555,17 @@ function miniFinish(){
   /* ★ 내 점수는 1초에 한 번만 올라간다 — 순위를 매기기 직전에 내 것부터 새로 적는다.
      안 그러면 호스트(선생님) 모둠만 마지막 1초치 점수가 빠진 채로 순위가 난다. */
   miniReport(true);
-  if(M.k === 1) M.sc = ropeScores();
-  else if(M.k === 2) M.sc = survScores();
-  if(M.k > 0){
-    const order = [0,1,2,3,4].sort((a,b)=> (M.sc[b]-M.sc[a]) || (a-b));
-    M.rank = order;            // rank[i] = i등 모둠
+  if(M.k === 1){
+    M.sc = ropeScores();
+    M.rank = [0,1,2,3,4].sort((a,b)=> (M.sc[b]-M.sc[a]) || (a-b));   // rank[i] = i등 모둠
+  } else if(M.k === 2){
+    /* ★ 21차 — 서바이벌은 등수를 나누지 않는다. **마지막까지 살아남은 사람의 모둠 하나**만
+       상을 받는다. 등수를 다섯으로 나누면 '조금 더 오래 버틴 모둠' 이 2등을 먹는데,
+       한 목숨짜리 판에서는 그게 운에 가깝다. 이기거나 아니거나로 끝낸다. */
+    M.sc = survScores();                 // 모둠별 피해 합계 (보여 주기용)
+    M.win = survWinner();
+    M.top = survTop().slice(0, SURV_BOARD).map(p=>({n:p.n, g:p.g, dm:p.dm, out:p.out?1:0}));
+    M.rank = null;
   }
   miniSet('done', MINI_DONE);
 }
@@ -11532,7 +11577,7 @@ function miniOnState(){
   if(M.st === 'intro'){
     const say2 = M.k===0 ? '선생님이 문제를 내면 ⭕ 또는 ❌ 우리 안으로 걸어 들어가세요!'
                : M.k===1 ? '우리 모둠 자리에 서서, 줄이 발밑을 지날 때 스페이스로 뛰세요! 1분 동안 많이!'
-               :           '모두 같은 총이에요. 목숨은 셋! 우리 모둠 목숨을 지키면서 다른 모둠을 넘어뜨리세요';
+               :           '모두 같은 총이에요. 목숨은 하나! 한 번 맞고 쓰러지면 끝이니 엄폐물 뒤에 숨어서 노리세요';
     toast(say2, 6, '#ffe9a0');
   } else if(M.st === 'run' && M.k === 0){
     toast(`❓ ${M.qn+1}번 문제! ⭕ 또는 ❌ 로 가세요`, 2.5, '#ffe9a0');
@@ -11569,7 +11614,31 @@ function miniOnState(){
     }
   } else if(M.st === 'done'){
     if(M.k === 2) setAimMode(false, true);
-    if(M.rank){
+    if(M.k === 2){
+      /* ★ 21차 — 1등 상은 이긴 모둠 하나만. 나머지는 참가상(21차b). */
+      const won = (M.win|0) === (G.me.g|0), P = MINI_PRIZE[0];
+      /* ★ 21차b — 내가 넣은 피해는 MINE.dm 에서 바로 읽는다.
+         전에는 전광판(M.top)에서 내 이름을 찾았는데, 전광판은 넷까지라
+         **스물한 명 중 열일곱 명은 이 줄이 통째로 안 떴다.** 정작 필요한 아이들이다.
+         이름으로 찾는 것도 위험했다 — 한 반에 같은 이름이 둘이면 남의 숫자가 뜬다. */
+      const mine2 = ` (내가 넣은 피해 ${MINE.dm|0})`;
+      if(won){
+        gain('w', P.w); gain('s', P.s); gain('g', P.g);
+        verdict(true, '🏆', '우리 모둠 우승!');
+        goodFlash(320);
+        burst(PL.x, PL.y + 2.1, PL.z, GHEX[G.me.g|0], 20, 1.8);
+        burst(PL.x, PL.y + 1.8, PL.z, 0xffe066, 16, 1.5);
+        toast(`🏆 마지막까지 살아남았어요! 🪵${P.w} 🪨${P.s} ✨${P.g}`, 5, '#ffe066');
+        if(window.__sfx) window.__sfx('win');
+      } else {
+        /* ★ 21차b — 진 모둠도 참가상. 소리도 '해 질 녘'(dusk) 이 아니라 '받았다'(get) 로 바꿨다 */
+        const C = MINI_CONSOL;
+        gain('w', C.w); gain('s', C.s); gain('g', C.g);
+        toast(`🏆 ${(M.win|0)+1}모둠이 이겼어요 — 참가상 🪵${C.w} 🪨${C.s} ✨${C.g}${mine2}`, 5, '#ffe9a0');
+        if(window.__sfx) window.__sfx('get');
+      }
+    }
+    else if(M.rank){
       const my = M.rank.indexOf(G.me.g), P = MINI_PRIZE[my] || MINI_PRIZE[4];
       gain('w', P.w); gain('s', P.s); gain('g', P.g);
       toast(`🏅 우리 모둠 ${my+1}등! 🪵${P.w} 🪨${P.s} ✨${P.g}`, 5, my===0 ? '#ffe066' : '#ffe9a0');
@@ -11579,6 +11648,19 @@ function miniOnState(){
     }
   }
 }
+/* ═══ 서바이벌 전광판 — 피해를 많이 넣은 사람 넷 (21차) ═══
+   ★ 모둠 점수가 아니라 **사람 이름**이 뜬다. 3분 동안 한 번도 못 맞히는 아이는 거의 없어서,
+     일찍 쓰러진 아이도 "나 아까 3등이었는데" 가 남는다.
+   ★ 쓰러진 사람은 이름 앞에 💀 가 붙는다 — 살아 있는 사람과 눈으로 갈려야 한다. */
+const SURV_BOARD = 4;
+function survPodium(list){
+  const L = (list || []).filter(p=> (p.dm|0) > 0).slice(0, SURV_BOARD);
+  if(!L.length) return '<span style="opacity:.7">아직 아무도 못 맞혔어요</span>';
+  const medal = ['🥇','🥈','🥉','4️⃣'];
+  return L.map((p,i)=> `<span style="color:${GCOL[p.g|0]}">`
+    + `${medal[i]||''} ${p.out ? '💀' : ''}${esc(p.n||'')} ${p.dm|0}</span>`).join('');
+}
+
 /* 호스트의 미니게임 시계 — 시간이 다 되면 다음 단계로 */
 function hostMini(dt){
   const M = G.mini; if(!M) return;
@@ -11744,18 +11826,59 @@ function ropeScores(){
   for(const d of miniPl.values()){ const g = Math.max(0, Math.min(NG-1, d.g|0)); sum[g] += d.j|0; n[g]++; }
   return sum.map((v,g)=> n[g] ? Math.floor(v/n[g]) : 0);
 }
-/* ── ③ 서바이벌 ── 목숨 셋. 두 방이면 한 목숨. 모둠 점수 = 남은 목숨 합계 (+ 넘어뜨린 수는 동점 처리) */
+/* ── ③ 서바이벌 (21차에 다시 짰다) ──
+   목숨 하나. 쓰러지면 그 판은 끝이고 시체로 눕는다.
+   ★ 상은 **마지막까지 살아남은 사람의 모둠 하나만** 받는다. 등수를 나눠 주지 않는다.
+   ★ 전광판은 모둠 점수가 아니라 **사람** 을 보여 준다 — 피해를 제일 많이 넣은 순서다.
+     3분 동안 한 번도 못 맞히는 아이는 거의 없으므로, 죽어서 구경하는 아이도
+     "나 아까 3등이었는데" 가 남는다. */
+/* 이 판에서 아직 안 쓰러진 사람들 */
+function survAlive(){
+  const out = [];
+  for(const [k,d] of miniPl){
+    const dead = k === uid ? MINE.out : !!(d.o|0);
+    if(!dead) out.push({uid:k, g:Math.max(0,Math.min(NG-1,d.g|0)), n:d.n||'', dm:d.dm|0});
+  }
+  return out;
+}
+/* 전광판 — 피해 많이 넣은 순서. 내 값만 실시간이고 친구 값은 1초에 한 번 온다 */
+function survTop(){
+  const out = [];
+  for(const [k,d] of miniPl){
+    out.push({uid:k, n:d.n||'', g:Math.max(0,Math.min(NG-1,d.g|0)),
+              dm: k === uid ? (MINE.dm|0) : (d.dm|0),
+              out: k === uid ? MINE.out : !!(d.o|0)});
+  }
+  out.sort((a,b)=> (b.dm-a.dm) || (a.n < b.n ? -1 : a.n > b.n ? 1 : 0));
+  return out;
+}
+/* 이긴 모둠 하나 — 마지막까지 살아남은 사람의 모둠.
+   ★ 시간이 다 됐는데 여럿이 살아 있으면 그중 **피해를 제일 많이 넣은 사람**의 모둠이다.
+     '살아 있기만 하고 아무것도 안 한 아이' 가 이기면 숨어만 있는 판이 된다.
+   ★ 아무도 안 남았으면(다 같이 쓰러졌으면) 그 판에서 제일 많이 넣은 사람의 모둠이다. */
+function survWinner(){
+  const alive = survAlive();
+  if(alive.length){
+    alive.sort((a,b)=> (b.dm-a.dm) || (a.n < b.n ? -1 : a.n > b.n ? 1 : 0));
+    return alive[0].g;
+  }
+  const top = survTop();
+  return top.length ? top[0].g : 0;
+}
+/* 모둠별 피해 합계 — 전광판 아래 줄에 쓴다 */
 function survScores(){
-  const l = [0,0,0,0,0], k = [0,0,0,0,0];
-  for(const d of miniPl.values()){ const g = Math.max(0, Math.min(NG-1, d.g|0)); l[g] += d.l|0; k[g] += d.k|0; }
-  return l.map((v,g)=> v*100 + Math.min(99, k[g]));
+  const s = [0,0,0,0,0];
+  for(const [k,d] of miniPl){
+    const g = Math.max(0, Math.min(NG-1, d.g|0));
+    s[g] += (k === uid ? (MINE.dm|0) : (d.dm|0));
+  }
+  return s;
 }
 function survHostTick(dt){
   const M = G.mini; if(M.st !== 'run') return;
-  /* 한 모둠만 남으면 일찍 끝낸다 */
-  const alive = new Set();
-  for(const d of miniPl.values()) if((d.l|0) > 0) alive.add(d.g|0);
-  if(miniPl.size >= 2 && alive.size <= 1) miniFinish();
+  /* 한 사람만 남으면(또는 한 모둠만 남으면) 일찍 끝낸다 */
+  const alive = survAlive();
+  if(miniPl.size >= 2 && (alive.length <= 1 || new Set(alive.map(a=>a.g)).size <= 1)) miniFinish();
 }
 function survHit(byUid, byName, byG, dmg, head){
   if(!miniOn() || !G.mini || G.mini.k !== 2 || G.mini.st !== 'run' || MINE.out || MINE.rs > 0) return;
@@ -11776,14 +11899,15 @@ function survHit(byUid, byName, byG, dmg, head){
     toast(`💥 ${esc(byName)}${head ? ' 에게 머리를' : ' 에게'} 맞았어요! (체력 ${MINE.hp})`, 1.3, '#ffbdbd');
     miniReport(true); return;
   }
-  MINE.l--; MINE.hp = SURV_HP;
-  if(MINE.l <= 0){ MINE.out = true; MINE.l = 0;
-    toast('💀 목숨을 다 썼어요 — 구경하면서 응원해요!', 4, '#ffbdbd');
-    setAimMode(false, true);
-  } else {
-    MINE.rs = SURV_RESPAWN;
-    toast(`💫 쓰러졌어요! ${SURV_RESPAWN}초 뒤 우리 모둠 자리에서 다시 (남은 목숨 ${MINE.l})`, 3, '#ffd0a0');
-  }
+  /* ★ 21차 — 목숨이 하나다. 쓰러지면 그 판은 끝이고, **아침에 쓰러졌을 때와 똑같이**
+     시체로 눕는다(PL.down). 카메라가 3인칭으로 물러나고, 친구들 화면에도 누운 몸으로 보인다
+     — 자리(위치) 통로가 이미 dn 을 보내고 있어서 통신은 한 칸도 안 늘었다. */
+  MINE.hp = 0; MINE.out = true; MINE.rs = 0;
+  PL.down = true; PL.downT = 0; PL.hp = 0; PL.vy = 0;
+  setAimMode(false, true);
+  verdict(false, '💀', '쓰러졌다!', {ms:1600});
+  toast(`💀 ${esc(byName)} 에게 당했어요 — 이제 구경하며 응원해요!`, 4.5, '#ffbdbd');
+  if(window.__sfx) window.__sfx('lose');
   miniReport(true);
 }
 let survHitN = 0;
@@ -11829,11 +11953,6 @@ function survSend(victim, dmg, head){
   net.child('mini/hit/'+victim+'/'+uid).set({n:++survHitN, t:tot, d:dmg|0,
                                              bn:G.me.name, bg:G.me.g, h:head ? 1 : 0});
 }
-function survRespawn(){
-  const sp = miniSpawnXZ(G.me.g);
-  PL.x = sp[0] + (Math.random()-0.5)*3; PL.z = sp[1] + (Math.random()-0.5)*3;
-  PL.y = MINI_Y + survTopAt(PL.x, PL.z); PL.vy = 0;
-}
 /* 내 화면에서 매 프레임 — 호스트도 손님도 */
 let oxBeepAt = -1;
 function miniTick(dt){
@@ -11841,7 +11960,7 @@ function miniTick(dt){
   miniOnState();
   if(G.mini.k === 1) ropeTick(dt);
   if(ropeHitT > 0) ropeHitT -= dt;
-  if(MINE.rs > 0){ MINE.rs -= dt; if(MINE.rs <= 0 && G.mini.k === 2 && !MINE.out) survRespawn(); }
+  if(MINE.rs > 0) MINE.rs -= dt;        /* 줄넘기에서 걸렸을 때 엉킨 시간 (21차부터 서바이벌은 안 쓴다) */
   miniRepT -= dt; if(miniRepT <= 0){ miniRepT = 1; miniReport(); }
   MINE.zone = oxZoneOf(PL.x, PL.z);
   /* 남은 5초 초읽기 — 화면이 빨갛게 깜빡이는 것(updDanger)에 소리를 맞춘다.
@@ -11896,7 +12015,7 @@ function aimPlayer(){
   let best = null, bs = 1e9;
   for(const q of G.players.values()){
     if((q.g|0) === G.me.g) continue;
-    const d = miniPl.get(q.uid); if(d && !(d.l|0)) continue;    // 목숨을 다 쓴 아이는 안 맞는다
+    const d = miniPl.get(q.uid); if(d && (d.o|0)) continue;    // 이미 쓰러진 아이는 안 맞는다 (21차)
     const dx = q.x-ex, dy = (q.y||MINI_Y)+0.9-ey, dz = q.z-ez;
     const along = dx*f.x + dy*f.y + dz*f.z;
     if(along <= 0.4 || along > R) continue;
@@ -12011,7 +12130,7 @@ function paintMini(){
   if(!bar.classList.contains('on')) bar.classList.add('on');
   const t = Math.max(0, Math.ceil(G.t));
   let nm = MINI_NAME[M.k], q = '', tm = '', hearts = '', chips = '';
-  if(M.st === 'intro'){ q = M.k===0 ? '선생님이 문제를 내면\n⭕ 또는 ❌ 우리 안으로!' : M.k===1 ? '줄이 금색이 되면\n스페이스! 꾹 누르면 안 돼요' : '모두 같은 총 · 나에게 목숨 셋\n머리를 맞히면 두 배!'; tm = t+''; }
+  if(M.st === 'intro'){ q = M.k===0 ? '선생님이 문제를 내면\n⭕ 또는 ❌ 우리 안으로!' : M.k===1 ? '줄이 금색이 되면\n스페이스! 꾹 누르면 안 돼요' : '모두 같은 총 · 목숨은 하나\n마지막까지 살아남으세요!'; tm = t+''; }
   else if(M.st === 'ask'){ q = '선생님이 문제를 내는 중…'; }
   else if(M.st === 'run' && M.k === 0){
     /* 문제는 현수막에 크게 뜬다 — 여기에 또 적으면 같은 글이 두 번 뜬다 */
@@ -12032,24 +12151,33 @@ function paintMini(){
     tm = t+'';
   }
   else if(M.st === 'run' && M.k === 2){
-    /* ★ '내' 를 앞에 붙인다 — 하트 셋이 모둠 것인 줄 알고 "네 명인데 셋?" 하고 물으셨다.
-       목숨은 아이마다 셋이다(모둠 넷이면 모둠에 열둘). 체력도 같이 적는다. */
+    /* ★ 21차 — 목숨이 하나다. 하트 셋 대신 **남은 사람 수**를 크게 둔다.
+       "몇 명 남았지" 가 이 판에서 아이들이 제일 궁금해하는 숫자다. */
     tm = t+'';
-    hearts = '내 ' + '❤️'.repeat(MINE.l) + '🖤'.repeat(Math.max(0, SURV_LIVES-MINE.l))
-           + (MINE.out ? '' : ` · 체력 ${Math.max(0, MINE.hp)}`);
-    if(MINE.out) q = '구경 중 — 우리 모둠을 응원해요!';
-    else if(MINE.rs > 0) q = `${Math.ceil(MINE.rs)}초 뒤 다시…`;
-    else q = MINE.hp <= SURV_DMG*2 ? '체력이 얼마 안 남았어요! 숨어요!' : '';
+    const al = survAlive().length;
+    hearts = MINE.out ? '💀 쓰러짐'
+           : `❤️ 체력 ${Math.max(0, MINE.hp)} · 내가 넣은 피해 ${MINE.dm|0}`;
+    q = MINE.out ? '구경 중 — 마지막 한 사람을 응원해요!'
+      : al <= 2 ? `🔥 ${al}명 남았어요! 마지막 승부!`
+      : MINE.hp <= SURV_DMG*2 ? '체력이 얼마 안 남았어요! 숨어요!'
+      : `🫀 ${al}명 남음`;
   }
   else if(M.st === 'done'){
-    if(M.rank){ q = '🏅 순위'; chips = M.rank.map((g,i)=> `<span style="color:${GCOL[g]}">${i+1}등 ${g+1}모둠 ${M.k===1 ? M.sc[g]+'번' : Math.floor(M.sc[g]/100)+'목숨'}</span>`).join(''); }
+    if(M.k === 2){
+      /* 이긴 모둠 하나 + 피해를 많이 넣은 사람들 */
+      const w = M.win|0;
+      q = `🏆 ${w+1}모둠이 마지막까지 살아남았어요!`;
+      chips = survPodium(M.top);
+    }
+    else if(M.rank){ q = '🏅 순위'; chips = M.rank.map((g,i)=> `<span style="color:${GCOL[g]}">${i+1}등 ${g+1}모둠 ${M.sc[g]}번</span>`).join(''); }
     else { q = '퀴즈 끝!'; chips = M.sc.map((v,g)=> `<span style="color:${GCOL[g]}">${g+1}모둠 ${v}개</span>`).join(''); }
     tm = t+'';
   }
-  /* 서바이벌·줄넘기 중에는 모둠 현황을 작은 알약으로 */
-  if(M.st === 'run' && M.k > 0){
-    const sc = M.k===1 ? ropeScores() : survScores();
-    chips = sc.map((v,g)=> `<span style="color:${GCOL[g]}">${g+1}모둠 ${M.k===1 ? v+'번' : Math.floor(v/100)+'목숨'}</span>`).join('');
+  /* 줄넘기는 모둠 현황을, 서바이벌은 **전광판(사람별 피해)** 을 작은 알약으로 */
+  if(M.st === 'run' && M.k === 1){
+    chips = ropeScores().map((v,g)=> `<span style="color:${GCOL[g]}">${g+1}모둠 ${v}번</span>`).join('');
+  } else if(M.st === 'run' && M.k === 2){
+    chips = survPodium(survTop());
   }
   if(!(M.k === 0 && (M.st === 'run' || (M.st === 'reveal' && M.rv)))) quizBanner(null, null);
   setTxt('mbN', nm); setTxt('mbQ', q); setTxt('mbT', tm); setTxt('mbH', hearts);
@@ -13804,10 +13932,13 @@ Object.assign(window, {
   __goMini:goMini, __miniExit:miniExit, __oxAsk:oxAsk, __oxReveal:oxReveal, __MINE:MINE,
   __miniOn:miniOn, __hostMini:hostMini, __miniPl:miniPl, __ropePhase:ropePhase, __miniTick:miniTick,
   __miniFinish:miniFinish, __miniSet:miniSet, __survHit:survHit, __aimPlayer:aimPlayer,
-  __ropeScores:ropeScores, __survScores:survScores, __COST_MUL:()=>COST_MUL, __oxZoneOf:oxZoneOf,
+  __ropeScores:ropeScores, __survScores:survScores,
+  __survAlive:survAlive, __survTop:survTop, __survWinner:survWinner, __survPodium:survPodium,
+  __miniReport:miniReport, __miniOnState:miniOnState, __COST_MUL:()=>COST_MUL, __oxZoneOf:oxZoneOf,
   __MINI:()=>({Y:MINI_Y, R:MINI_R, OX:MINI_OX, OZ:MINI_OZ, ZR:MINI_ZR, PADZ:MINI_PADZ, padX:miniPadX,
                DAYS:MINI_DAYS, QN:MINI_QN, QSEC:MINI_QSEC, RSEC:MINI_RSEC, INTRO:MINI_INTRO, DONE:MINI_DONE,
-               ROPE:ROPE_SEC, SURV:SURV_SEC, PRIZE:MINI_PRIZE, OK:MINI_OK, GUN:MINI_GUN, LIVES:SURV_LIVES,
+               ROPE:ROPE_SEC, SURV:SURV_SEC, PRIZE:MINI_PRIZE, CONSOL:MINI_CONSOL, OK:MINI_OK,
+               GUN:MINI_GUN, BOARD:SURV_BOARD,
                DMG:SURV_DMG, HEAD:SURV_HEAD, HEAD_R:SURV_HEAD_R, HP:SURV_HP, WARN:MINI_WARN,
                SPAWN_R:SURV_SPAWN_R, SEG:ROPE_SEG,
                /* 20차 줄넘기 — 검사가 값을 베끼지 않고 게임에 물어보게 */

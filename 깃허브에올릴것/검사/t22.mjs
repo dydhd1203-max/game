@@ -262,7 +262,7 @@ ok('★ 꼴찌도 빈손은 아니다', rope.순위.PRIZE[4].w > 0 && rope.순�
 const sv = await ev(()=>{ const W=window, G=W.__G, M=W.__MINI(), PL=W.__PL, o={};
   W.__goMini(2); W.__step((M.INTRO+1)*30, 1/30); W.__miniTick(0.05); G.paused = true;
   W.__syncMyPC(); o.시작 = {st:G.mini.st, aiming:document.body.classList.contains('aiming'), wp:W.__myPC().wp, gun:M.GUN};
-  /* 조준 — 앞에 선 다른 모둠 아이는 맞고, 같은 모둠·목숨 다 쓴 아이는 안 맞는다.
+  /* 조준 — 앞에 선 다른 모둠 아이는 맞고, 같은 모둠·이미 쓰러진 아이는 안 맞는다.
      ★ 자리를 숫자로 박지 않는다. 지형이 바뀌면 그 자리가 대(臺) 속이 되어
        "총알이 지형에 막혀서" 조준이 안 되는데, 검사는 조준 기능이 깨진 줄 안다.
        스폰에서 가운데로 가는 길 위에서 '트인 두 점' 을 게임에 물어서 쓴다. */
@@ -279,7 +279,7 @@ const sv = await ev(()=>{ const W=window, G=W.__G, M=W.__MINI(), PL=W.__PL, o={}
   const put = (id,g)=>{ G.players.set(id,{uid:id,x:B[0],y:M.Y,z:B[1],g,n:id,ry:0,jt:0}); };
   put('e1', (G.me.g+1)%5); o.적 = W.__aimPlayer() && W.__aimPlayer().uid;
   G.players.clear(); put('f1', G.me.g); o.같은모둠 = W.__aimPlayer();
-  G.players.clear(); put('e2', (G.me.g+1)%5); W.__miniPl.set('e2',{g:(G.me.g+1)%5,n:'e2',l:0,k:0}); o.죽은아이 = W.__aimPlayer();
+  G.players.clear(); put('e2', (G.me.g+1)%5); W.__miniPl.set('e2',{g:(G.me.g+1)%5,n:'e2',o:1,k:0}); o.죽은아이 = W.__aimPlayer();
   G.players.clear(); W.__miniPl.delete('e2');
   /* 머리 판정 — 위를 겨누면 머리, 몸을 겨누면 몸통. 그리고 머리 창이 조준 창보다 좁아야
      '헤드샷' 이 실력이 된다(가까이서 배를 쏴도 머리로 잡히면 두 배가 공짜다). */
@@ -306,21 +306,23 @@ const sv = await ev(()=>{ const W=window, G=W.__G, M=W.__MINI(), PL=W.__PL, o={}
   o.머리높이 = +(W.__survHeadPos(tgt)[1] - W.__survBodyPos(tgt)[1]).toFixed(2);
   G.players.clear();
   PL.pitch = 0; PL.yaw = Math.atan2(-(B[0]-A[0]), -(B[1]-A[1])); W.__updPlayer(1/30);
-  /* 맞기 — 몸통 몇 방에 한 목숨인지는 게임에서 읽는다(체력 ÷ 몸통 피해) */
+  /* ★ 21차 — 목숨이 하나다. 몸통 몇 방에 쓰러지는지는 게임에서 읽는다(체력 ÷ 몸통 피해) */
   const perLife = Math.ceil(M.HP / M.DMG);
   o.한목숨 = perLife;
-  const seq=[]; for(let i=0;i<perLife*M.LIVES;i++){
-    W.__survHit('x','친구',1, M.DMG, false); seq.push([W.__MINE.hp, W.__MINE.l, W.__MINE.out]); W.__MINE.rs = 0; }
-  o.한방 = seq[0]; o.첫목숨끝 = seq[perLife-1]; o.끝맞음 = seq[seq.length-1];
-  o.더맞음 = (W.__survHit('x','친구',1, M.DMG, false), W.__MINE.l);
+  const rev = ()=>{ W.__MINE.out=false; W.__MINE.hp=M.HP; W.__MINE.rs=0; PL.down=false; };
+  rev();
+  const seq=[]; for(let i=0;i<perLife;i++){
+    W.__survHit('x','친구',1, M.DMG, false); seq.push([W.__MINE.hp, W.__MINE.out, PL.down]); }
+  o.한방 = seq[0]; o.쓰러짐 = seq[seq.length-1];
+  o.더맞음 = (W.__survHit('x','친구',1, M.DMG, false), W.__MINE.hp);
   /* 머리는 몸통의 두 배로 깎인다 */
-  W.__MINE.out = false; W.__MINE.l = M.LIVES; W.__MINE.hp = M.HP; W.__MINE.rs = 0;
+  rev();
   W.__survHit('x','친구',1, M.HEAD, true);  o.머리깎임 = M.HP - W.__MINE.hp;
-  W.__MINE.hp = M.HP; W.__MINE.rs = 0;
+  rev();
   W.__survHit('x','친구',1, M.DMG, false);  o.몸통깎임 = M.HP - W.__MINE.hp;
   /* ★ 우르르 맞기 — 예전엔 맞은 아이마다 칸이 하나여서 두 명이 동시에 쏘면
      한 발만 들어갔다. 이제 쏜 아이마다 칸이 따로다: 한 번에 다 들어가야 한다. */
-  W.__MINE.out = false; W.__MINE.l = M.LIVES; W.__MINE.hp = M.HP; W.__MINE.rs = 0;
+  rev();
   const hp0 = W.__MINE.hp;
   o.동시 = W.__applyHitNode({
     a:{n:1, t:M.DMG,  d:M.DMG,  bn:'가', bg:1, h:0},
@@ -335,11 +337,17 @@ const sv = await ev(()=>{ const W=window, G=W.__G, M=W.__MINI(), PL=W.__PL, o={}
   const hp1 = W.__MINE.hp;
   W.__applyHitNode({a:{n:3, t:M.DMG*3, d:M.DMG, bn:'가', bg:1, h:0}});
   o.뭉침깎임 = hp1 - W.__MINE.hp; o.DMG = M.DMG;
-  W.__MINE.hp = 0; W.__MINE.l = 0; W.__MINE.out = true; W.__MINE.rs = 0;
-  /* 순위 — 남은 목숨 합계, 같으면 맞힌 수 */
-  W.__miniPl.set('b1',{g:2,n:'다',l:3,k:4}); W.__miniPl.set('b2',{g:3,n:'라',l:3,k:9}); W.__miniPl.set('b3',{g:4,n:'마',l:1,k:0});
+  /* ★ 21차 — 등수가 아니라 '마지막까지 살아남은 사람의 모둠 하나' 가 이긴다.
+     나는 쓰러졌고, 3모둠(라)만 살아 있다 → 3모둠이 이겨야 한다. */
+  W.__MINE.hp = 0; W.__MINE.out = true; W.__MINE.dm = 0; W.__MINE.rs = 0; PL.down = true;
+  W.__miniPl.set('b1',{g:2,n:'다',o:1,dm:40,k:4});
+  W.__miniPl.set('b2',{g:3,n:'라',o:0,dm:25,k:2});
+  W.__miniPl.set('b3',{g:4,n:'마',o:1,dm:90,k:6});
+  o.살아있는사람 = W.__survAlive().map(a=>a.n);
+  o.전광판 = W.__survTop().map(p=>p.n+':'+p.dm);
   G.paused = false; W.__miniFinish();
-  o.순위 = {st:G.mini.st, rank:[...G.mini.rank], aiming:document.body.classList.contains('aiming')};
+  o.순위 = {st:G.mini.st, win:G.mini.win, rank:G.mini.rank,
+            top:(G.mini.top||[]).map(p=>p.n), aiming:document.body.classList.contains('aiming')};
   W.__step((M.DONE+1)*30, 1/30);
   o.끝 = {ph:G.phase, aiming:document.body.classList.contains('aiming'), y:+PL.y.toFixed(1)};
   /* 가게에는 연습용 총이 없다 */
@@ -349,13 +357,13 @@ const sv = await ev(()=>{ const W=window, G=W.__G, M=W.__MINI(), PL=W.__PL, o={}
 ok('★ 시작하면 모두 같은 연습용 총을 들고 조준 모드가 켜진다', sv.시작.st==='run' && sv.시작.aiming && sv.시작.wp===sv.시작.gun, JSON.stringify(sv.시작));
 ok('★ 앞에 선 다른 모둠 아이가 조준된다', sv.적==='e1', String(sv.적));
 ok('★ 같은 모둠 아이는 안 맞는다', sv.같은모둠===null);
-ok('★ 목숨을 다 쓴 아이는 안 맞는다', sv.죽은아이===null);
+ok('★ 이미 쓰러진 아이는 안 맞는다', sv.죽은아이===null);
 ok('★ 한 방에 조금씩 깎인다 (한 방에 반이 날아가면 맞은 줄도 모르고 죽는다)',
-   sv.한목숨 >= 4 && sv.한방[1] === 3, '한 목숨에 몸통 '+sv.한목숨+'방 · 첫 방 뒤 체력 '+sv.한방[0]);
-ok('★ 몸통으로 체력을 다 깎으면 목숨 하나가 준다', sv.첫목숨끝[1] === 2,
-   '몸통 '+sv.한목숨+'방 뒤 → '+JSON.stringify(sv.첫목숨끝));
-ok('★ 목숨을 다 쓰면 구경만 하고, 그 뒤엔 더 안 깎인다',
-   sv.끝맞음[1] === 0 && sv.끝맞음[2] === true && sv.더맞음 === 0, JSON.stringify(sv.끝맞음));
+   sv.한목숨 >= 4, '쓰러지기까지 몸통 '+sv.한목숨+'방 · 첫 방 뒤 체력 '+sv.한방[0]);
+ok('★ 21차 — 체력을 다 깎이면 그 판은 끝이다 (목숨이 하나다)',
+   sv.쓰러짐[1] === true, '몸통 '+sv.한목숨+'방 뒤 → 체력 '+sv.쓰러짐[0]+' · 쓰러짐 '+sv.쓰러짐[1]);
+ok('★ 쓰러지면 아침에 쓰러졌을 때처럼 시체로 눕는다 (PL.down)', sv.쓰러짐[2] === true);
+ok('★ 쓰러진 뒤에는 더 안 깎인다 (구경만 한다)', sv.더맞음 === 0, '체력 '+sv.더맞음);
 ok('★ 머리를 맞으면 몸통의 두 배로 깎인다', sv.머리깎임 === sv.몸통깎임*2,
    '머리 '+sv.머리깎임+' · 몸통 '+sv.몸통깎임);
 ok('★ 머리 점을 겨누면 머리, 몸통 점을 겨누면 몸통으로 잡힌다',
@@ -373,8 +381,13 @@ ok('★ 머리 창이 조준 창보다 훨씬 좁다 — 헤드샷이 공짜가 
    '조준되는 각 '+sv.머리창.조준칸+'칸 중 머리 '+sv.머리창.머리칸+'칸 ('+Math.round(sv.머리창.비율*100)+'%)');
 ok('★ 조준은 지형이 트인 자리에서 잰다 (대 속에서 재면 늘 막힌다)',
    sv.자리 && sv.자리.나 && sv.자리.적, JSON.stringify(sv.자리));
-ok('★ 남은 목숨 합계로 순위, 같으면 맞힌 수 (3모둠 3목숨 9맞힘 > 2모둠 3목숨 4맞힘 > 4모둠 1목숨 > 나 0)',
-   sv.순위.rank[0]===3 && sv.순위.rank[1]===2 && sv.순위.rank[2]===4, JSON.stringify(sv.순위.rank));
+ok('★ 21차 — 마지막까지 살아남은 사람의 모둠 하나가 이긴다 (등수를 안 나눈다)',
+   sv.순위.win === 3 && !sv.순위.rank,
+   '이긴 모둠 '+(sv.순위.win+1)+'모둠 · 살아 있던 사람 '+JSON.stringify(sv.살아있는사람));
+ok('★ 전광판은 피해 많이 넣은 사람 순서다 (모둠 점수가 아니라 사람)',
+   sv.전광판[0].startsWith('마:90') && sv.전광판[1].startsWith('다:40'),
+   sv.전광판.join(' · '));
+ok('★ 끝난 판에도 전광판이 남는다', (sv.순위.top||[]).length >= 3, JSON.stringify(sv.순위.top));
 ok('★ 끝나면 총을 내리고 땅으로 돌아온다', sv.끝.ph==='day' && !sv.끝.aiming && !sv.순위.aiming, JSON.stringify(sv.끝));
 ok('★ 연습용 총은 가게에 안 나온다', !/연습용/.test(sv.가게), sv.가게);
 

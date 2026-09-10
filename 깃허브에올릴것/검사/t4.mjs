@@ -25,17 +25,27 @@ const r = await pg.evaluate(()=>{
 
   /* ── 6. 캐기: 한 번 누를 때 하나만 ── */
   W.__selTool('mine');
-  // 서로 가까운 자원 두 개 찾기
-  let A=null,Bn=null,best=1e9;
+  /* 서로 가까운 자원 두 개(A 뒤에 서서 A→B 를 본다)
+     ★ 21차b — 예전에는 '제일 가까운 한 쌍' 을 그냥 집었다. 자원 자리는 판마다 새로 나므로
+       그 둘 사이에 세 번째가 끼는 판이 가끔 나왔고, 그때는 A 대신 그 세 번째가 조준돼서
+       이 아래 세 항목이 통째로 빨개졌다. **게임이 아니라 검사가 흔들린 것이다.**
+       가까운 쌍을 차례로 놓고 서 보면서 **조건이 실제로 서는 쌍을 찾아** 쓴다. */
+  let A=null;
+  const cand=[];
   for(const n of NODES){ if(!n.alive) continue;
     for(const m of NODES){ if(n===m||!m.alive) continue;
       const dd=Math.hypot(n.x-m.x,n.z-m.z);
-      if(dd>2.0 && dd<best){best=dd;A=n;Bn=m;} } }
-  const ax=A.x+0.5, az=A.z+0.5, bx=Bn.x+0.5, bz=Bn.z+0.5;
-  const ux=(bx-ax)/best, uz=(bz-az)/best;
-  look(ax-ux*2.0, az-uz*2.0, bx, bz);      // A 뒤에 서서 A→B 방향을 본다
-  const aimed = W.__aimNode();
-  ok('세팅: A 를 조준했다', aimed===A, aimed===A?'':'다른 걸 조준함');
+      if(dd>2.0) cand.push({n,m,dd}); } }
+  cand.sort((p,q)=> p.dd-q.dd);
+  for(const c of cand.slice(0,80)){
+    const ax=c.n.x+0.5, az=c.n.z+0.5, bx=c.m.x+0.5, bz=c.m.z+0.5;
+    const ux=(bx-ax)/c.dd, uz=(bz-az)/c.dd;
+    look(ax-ux*2.0, az-uz*2.0, bx, bz);
+    if(W.__aimNode()===c.n){ A=c.n; break; }            // 서 보고 정한다
+  }
+  ok('세팅: A 를 조준했다', !!A && W.__aimNode()===A,
+     A ? '' : '조건이 서는 쌍을 '+cand.length+'개 중에서 못 찾음');
+  if(!A) A = W.__aimNode() || NODES.find(n=>n.alive);   // 못 찾아도 아래는 마저 돌린다
 
   const before = totHp();
   W.__setActing(true);
