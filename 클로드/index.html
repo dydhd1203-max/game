@@ -31,7 +31,15 @@ window.DEFAULTS = {
   nightSec:   130,   // 밤(늑대) 제한 시간 — 초
   goalDay:    18,    // 며칠 버티면 이기는가 (보스는 5·9·12·15·18일차)
   crystalMax: 200,   // 수정 체력
-  wolfPower:  1.0    // 늑대 세기 배수 (0.7 쉬움 / 1.0 보통 / 1.4 어려움)
+  wolfPower:  1.0,   // 늑대 세기 배수 (0.7 쉬움 / 1.0 보통 / 1.4 어려움)
+
+  /* 그래픽 품질 (25차) — 교실 기기가 크롬북에서 노트북으로 바뀌면서 생긴 손잡이다.
+     'high' 그림자 + 빛 번짐 + 계단 없는 가장자리   ← 기본
+     'mid'  그림자만 (그림자 해상도도 절반)
+     'low'  전부 끔 — 24차까지와 똑같은 화면
+     교실에서 느리면 한 칸씩 내려라. 어느 것이 얼마나 무거운지는
+     주소 끝에 ?diag=1 을 붙이고 Shift+9 를 누르면 항목별로 나온다. */
+  gfx: 'high'
 };
 </script>
 <!-- ═══════════════════ 선생님 설정 구역 끝 ═══════════════════ -->
@@ -2567,10 +2575,68 @@ const app = document.getElementById('app');
    픽셀 수가 곧 비용이다. 터치 기기(아이패드)는 1배로 간다.
    HUD 는 DOM, 미니맵은 따로 2D 캔버스라 글자·미니맵은 하나도 안 흐려진다. */
 const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
-const renderer = new THREE.WebGLRenderer({antialias:false, powerPreference:'high-performance'});
-renderer.setPixelRatio(Math.min(devicePixelRatio, isTouch ? 1.0 : 1.6));
+
+/* ═══ 그래픽 품질 (25차) ═══
+   ★ 24차까지는 교실이 크롬북(Mali-G72 MP3)이라 그림자도 빛 번짐도 아예 검토 대상이 아니었다.
+     기기가 노트북(내장그래픽)으로 바뀌어서 켤 수 있게 됐다.
+   ★ 그런데 교실에서 실제로 잰 값은 "GPU 는 범인이 아니다" 였다(화면 그리기를 통째로 꺼도 +3fps).
+     그러니 이걸 켜는 것이 생각보다 싸다 — 대신 **화면이 2.2배 넓어졌으니** 채움률은 처음 겪는 일이다.
+     빛 번짐만 전체 화면을 여러 번 읽고 쓰므로, 절반 크기로 그려서 그 몫을 줄여 둔다.
+   ★ 터치 기기는 예전 그대로 간다(아이패드는 devicePixelRatio 가 2라 픽셀이 2.56배가 된다).
+   ★ 여기 값을 손으로 고치지 마라 — 선생님 설정 구역의 DEFAULTS.gfx 가 고르는 자리다. */
+const GFX_PRESET = {
+  high: {shadow:2048, bloom:1, aa:4, pr:1.6},
+  mid:  {shadow:1024, bloom:0, aa:4, pr:1.5},
+  low:  {shadow:0,    bloom:0, aa:0, pr:1.3}
+};
+/* 주소 끝에 ?gfx=low 처럼 붙이면 그 판만 바꿔 본다 — 파일을 고치지 않고 교실에서 견줘 보려고.
+   선생님 설정(DEFAULTS.gfx)은 그대로 두고 이번 한 판만 달라진다. */
+const GFX_Q = new URLSearchParams(location.search).get('gfx')
+           || (window.DEFAULTS||{}).gfx || 'high';
+const GFX = Object.assign({}, GFX_PRESET[GFX_Q] || GFX_PRESET.high);
+if(isTouch){ GFX.shadow = 0; GFX.bloom = 0; GFX.aa = 0; GFX.pr = 1.0; }
+
+/* ★ 그래픽 카드가 없는 판을 알아본다 (25차).
+   드라이버가 죽거나 원격 화면이면 브라우저가 **소프트웨어 렌더링**으로 떨어진다.
+   그때는 그림자 하나로 프레임이 1.5 -> 1.0 으로 주저앉는다(검사기에서 실제로 쟀다).
+   교실에서도 한 대쯤 이럴 수 있고, 그 아이만 게임이 기어간다 — 오류는 안 나니 아무도 모른다.
+   그래서 스스로 알아보고 내려간다. ?gfx= 로 일부러 지정했으면 그 뜻을 존중한다. */
+if(!new URLSearchParams(location.search).get('gfx')){
+  try{
+    const c = document.createElement('canvas');
+    const g = c.getContext('webgl2') || c.getContext('webgl');
+    const dbg = g && g.getExtension('WEBGL_debug_renderer_info');
+    const nm = dbg ? String(g.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : '';
+    if(/swiftshader|llvmpipe|software|basic render/i.test(nm)){
+      GFX.shadow = 0; GFX.bloom = 0; GFX.aa = 0;
+      window.__GFX_SOFT = nm;                 // 진단 화면에 그대로 보여 준다
+    }
+  }catch(e){}
+}
+
+const renderer = new THREE.WebGLRenderer({
+  antialias: GFX.aa > 0,          // 빛 번짐이 꺼진 판에서 가장자리를 매끈하게 하는 자리
+  powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio, GFX.pr));
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+/* 톤매핑 — 밝은 곳이 하얗게 뭉개지지 않고 색을 지킨다. 빛 번짐을 켜면
+   직접 짠 합치기 셰이더가 같은 곡선을 쓰므로, 품질을 바꿔도 색이 안 튄다. */
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+/* ★ 노출 1.6 은 재서 고른 값이다. 처음엔 "노출을 올리면 그늘이 씻긴다" 고 짐작하고
+   1.0 에 뒀는데, 재 보니 **정반대로 그늘 깊이는 거의 안 변했다**(97 → 95).
+   톤매핑은 밝은 쪽을 눌러 주는 곡선이라, 노출을 올리면 화면만 밝아지고 대비는 남는다.
+
+     노출   낮 밝기(옛 판 93.8)   제일 진한 그늘
+     1.00        69.4                 97
+     1.60        90.0                 95   ← 고름
+
+   밝기를 옛 판의 96% 로 되돌리면서 그늘은 예전(46)의 두 배가 됐다. 맞바꿀 것이 없었다. */
+renderer.toneMappingExposure = 1.60;
+if(GFX.shadow){
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+}
 app.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
@@ -2587,9 +2653,51 @@ const camera = new THREE.PerspectiveCamera(74, innerWidth/innerHeight, 0.08, 420
 scene.add(camera);                       // 손에 든 도구를 그리려면 카메라가 씬 안에 있어야 한다
 const heldLight = new THREE.PointLight(0xffffff, 1.6, 4.5);
 heldLight.position.set(0.55, 0.15, -0.25); camera.add(heldLight);
-const hemi = new THREE.HemisphereLight(0xcfe8ff, 0x5a7a4a, 1.18); scene.add(hemi);
-const sun  = new THREE.DirectionalLight(0xffffff, 0.92); sun.position.set(50,90,30); scene.add(sun);
-const amb  = new THREE.AmbientLight(0xffffff, 0.40); scene.add(amb);
+/* ★ 빛의 배분 (25차에 다시 잡았다).
+   24차까지는 하늘빛 1.18 + 환경광 0.40 vs 해 0.92 라 **해가 전체의 37%뿐**이었다.
+   그림자를 켜 보니 켠 판과 끈 판이 2.26% 픽셀에서만, 그것도 최대 47/255 차이였다 —
+   코드는 맞는데 화면에서 안 보였다. 그늘은 '해만 빠진 자리' 라 해의 몫이 곧 그림자의 진하기다.
+   그래서 해 쪽으로 몫을 옮겼다. 눈대중이 아니라 **화면 픽셀을 직접 읽어서 골랐다**:
+
+     조합            제일 진한 그늘   화면 밝기
+     예전값               46             83
+     해↑보통 ← 고름       93             70
+     해↑많이             117             67
+
+   노출을 내리는 쪽은 대비까지 같이 깎여서 헛일이었다(93→91 인데 밝기만 70→62).
+   '해↑많이' 가 제일 극적이지만 밤에 늑대를 못 보면 안 되므로 가운데를 골랐다. */
+const hemi = new THREE.HemisphereLight(0xcfe8ff, 0x5a7a4a, 0.45); scene.add(hemi);
+const sun  = new THREE.DirectionalLight(0xffffff, 1.55); sun.position.set(50,90,30); scene.add(sun);
+const amb  = new THREE.AmbientLight(0xffffff, 0.14); scene.add(amb);
+
+/* ═══ 해 그림자 (25차) ═══
+   ★ 세상은 반지름이 아주 넓은데 그림자 지도는 정사각형 한 장뿐이다.
+     세상 전체를 덮으면 한 칸이 수십 센티가 돼서 그림자가 뭉개진다.
+     그래서 **사람 주변 SH_R 칸만** 덮고, 사람을 따라다니게 한다(shadowFollow).
+   ★ 따라다니게 하려면 빛의 '방향' 을 지켜야 한다. 방향은 position - target 이므로
+     둘을 같이 옮긴다. target 은 씬에 넣어 줘야 행렬이 갱신된다(안 넣으면 조용히 원점을 본다).
+   ★ 한 칸 단위로 끊어서 옮긴다 — 안 그러면 걸을 때마다 그림자 가장자리가 지글거린다. */
+const SH_R = 46;                          // 그림자가 덮는 반지름(칸)
+const sunTarget = new THREE.Object3D(); scene.add(sunTarget); sun.target = sunTarget;
+if(GFX.shadow){
+  sun.castShadow = true;
+  sun.shadow.mapSize.set(GFX.shadow, GFX.shadow);
+  const sc = sun.shadow.camera;
+  sc.left = -SH_R; sc.right = SH_R; sc.top = SH_R; sc.bottom = -SH_R;
+  sc.near = 1; sc.far = 260;
+  sun.shadow.bias = -0.0012;              // 제 몸에 제 그림자가 얼룩지는 것(그림자 여드름) 막기
+  sun.shadow.normalBias = 0.035;
+  sc.updateProjectionMatrix();
+}
+const _sunDir = new THREE.Vector3();
+function shadowFollow(cx, cz){
+  if(!GFX.shadow) return;
+  const texel = (SH_R*2) / GFX.shadow;    // 그림자 한 칸의 크기
+  const qx = Math.round(cx/texel)*texel, qz = Math.round(cz/texel)*texel;
+  _sunDir.copy(sun.position).normalize();  // 지금 해가 있는 방향
+  sunTarget.position.set(qx, GY, qz);
+  sun.position.set(qx + _sunDir.x*150, GY + Math.max(40, _sunDir.y*150), qz + _sunDir.z*150);
+}
 
 addEventListener('resize', ()=>{ camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
@@ -2661,6 +2769,7 @@ function bbuild(){
       // 지금 재 둬야 한다. 나중에(블록이 캐여서 사라진 뒤에) 재면 원점으로 눌린
       // 인스턴스까지 품어서 구가 쓸데없이 커지고, 그러면 컬링이 안 먹는다.
       im.computeBoundingSphere();
+      if(GFX.shadow){ im.castShadow = true; im.receiveShadow = true; }   // 25차 — 산·나무·바위가 그늘을 만든다
       b.chunks.push(im); scene.add(im);
     }
   }
@@ -2727,7 +2836,9 @@ function buildWorldMesh(){
   const gt = tileTex(T.grassTop, FIELD_R*2);
   const disc = new THREE.Mesh(new THREE.CircleGeometry(FIELD_R, 72),
                 new THREE.MeshLambertMaterial({map:gt}));
-  disc.rotation.x = -Math.PI/2; disc.position.y = GY; scene.add(disc); groundDisc = disc;
+  disc.rotation.x = -Math.PI/2; disc.position.y = GY;
+  if(GFX.shadow) disc.receiveShadow = true;       // 바닥은 받기만 한다 (드리울 것이 없다)
+  scene.add(disc); groundDisc = disc;
   // 바닥 옆면(흙)
   const rim = new THREE.Mesh(new THREE.CylinderGeometry(FIELD_R,FIELD_R,5,72,1,true),
                 new THREE.MeshLambertMaterial({map:tileTex(T.dirt, 1), side:THREE.BackSide}));
@@ -4739,6 +4850,7 @@ function rebuildStru(){
       mesh = new THREE.InstancedMesh(cube(tile), tile===T.glow ? EMIT : MAT, cap);
       mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap*3).fill(1),3);
       mesh.frustumCulled = false;
+      if(GFX.shadow){ mesh.castShadow = true; mesh.receiveShadow = true; }  // 25차 — 아이가 지은 벽이 그늘을 만든다
       scene.add(mesh); struMeshes.set(key, mesh);
     }
     for(let i=0;i<arr.length;i++){
@@ -5603,7 +5715,12 @@ function imesh(geo, mat, cap, color){
   const m = new THREE.InstancedMesh(geo, mat, cap);
   m.count_max = cap;                  // 정원 — 넘치면 setMatrixAt 이 조용히 깨진다
   if(color){ m.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap*3).fill(1),3); }
-  m.frustumCulled = false; m.count = 0; scene.add(m); return m;
+  m.frustumCulled = false; m.count = 0;
+  /* ★ 그림자는 여기 한 곳에서 켠다 (25차).
+     인스턴스 메시가 마흔 벌이 넘어서 부르는 자리마다 켜면 반드시 하나를 빠뜨린다 —
+     그러면 "저 나무만 그림자가 없어요" 가 되고, 오류는 안 나니 화면에서만 보인다. */
+  if(GFX.shadow){ m.castShadow = true; m.receiveShadow = true; }
+  scene.add(m); return m;
 }
 const gFur=cube(T.fur), gFurD=cube(T.furDark), gWool=cube(T.wool), gWoolD=cube(T.woolDirty),
       gEye=cube(T.eye), gSnout=cube(T.snout), gDark=cube(T.dark);
@@ -13809,7 +13926,11 @@ function updSky(dt, night){
   // 해·달이 하늘을 가로지른다
   const th = Math.PI/2 + skyK*Math.PI - 0.34;
   skyPivot.rotation.x = th;
-  sun.position.set(Math.cos(th*0.6)*60, Math.max(18, Math.abs(Math.sin(th))*95), 40);
+  /* ★ 해를 낮춘다 (25차) — 95로 두면 한낮 고도가 56°라 그림자가 발밑에 눌려 안 보인다.
+     62로 내리면 45° 남짓이 되어 그림자가 옆으로 길게 눕는다. 해 그림 자체는
+     skyPivot 이 따로 돌리므로, 여기 숫자는 '빛이 오는 방향' 만 정한다. */
+  sun.position.set(Math.cos(th*0.6)*60, Math.max(14, Math.abs(Math.sin(th))*62), 40);
+  shadowFollow(camera.position.x, camera.position.z);   // 25차 — 그림자 상자를 사람 주변으로
   skyPivot.position.copy(camera.position);
   stars.position.copy(camera.position);
   stars.material.opacity = Math.max(0, skyK*1.35 - 0.32);
@@ -13837,10 +13958,14 @@ function updSky(dt, night){
   scene.fog.near = 68 - skyK*14; scene.fog.far = 152 - skyK*38;
   hemi.color.copy(HEMI_DS).lerp(HEMI_NS, skyK);
   hemi.groundColor.copy(HEMI_DG).lerp(HEMI_NG, skyK);
-  hemi.intensity = 1.18 - skyK*0.30;
+  /* ★ 밤 밝기는 옛 판과 맞춰 둔다 — 낮의 그늘을 진하게 하려고 밤까지 어두워지면
+     아이가 늑대를 못 본다. 낮 총량 2.14 의 77%(1.64)를 밤 목표로 잡았다.
+     옛 판도 1.98 의 78% 였으니, 바뀐 것은 그늘의 진하기지 밤의 밝기가 아니다. */
+  hemi.intensity = 0.45 + skyK*0.10;
   sun.color.copy(SUN_D).lerp(SUN_N, skyK);
-  sun.intensity = 0.92 - skyK*0.42;
-  amb.intensity = 0.40 + skyK*0.06;
+  /* 밤에도 달빛 그림자는 남긴다 — 낮에만 그림자가 있으면 밤이 평평해 보인다. */
+  sun.intensity = 1.55 - skyK*0.70;
+  amb.intensity = 0.14 + skyK*0.10;
   clouds[0].children[0].material.color.setScalar(1-skyK*0.66);
 }
 let skyK = 0;
@@ -14424,6 +14549,9 @@ Object.assign(window, {
   __curveL:curveL, __curve:curve, __WOLF_R:WOLF_R, __separate:separateWolves,
   __hitNode:hitNode, __canPlace:canPlace, __place:placeStru, __recompute:recomputeRes,
   __spawnQ:()=>spawnQ, __scene:scene, __GY:GY, __terrH:terrH, __bldH:bldH,
+  /* 25차 그래픽 — 검사가 '켜졌나' 를 게임에 직접 물어보게 한다 */
+  __GFX:GFX, __sun:sun, __sunTarget:sunTarget, __shadowFollow:shadowFollow, __SH_R:SH_R,
+  __hemi:hemi, __amb:amb, __skyK:()=>skyK,   /* __goNight 는 아래에 이미 있다 — 두 번 쓰면 조용히 딴 게 나간다 */
   __setSky:(v)=>{ skyK=v; }, __up:upgradeStru, __bset:bset, __cam:camera, __held:held, __curTool:()=>curTool, __parts:()=>parts, __selTool:selectTool, __upCost:upCost, __bs:bs, __blocks:blocksOf, __myPC:()=>myPC, __cellOwner:()=>cellOwner, __flow:buildFlow, __fCost:fCost, __walkable:walkable, __BUILD:BUILD, __del:delStru,
   __wave:waveFor, __clear:()=>{ for(const id of [...STRU.keys()]) delStru(id); },
   __step:(n, dt=1/30)=>{ for(let i=0;i<n;i++){ hostPhase(dt);
