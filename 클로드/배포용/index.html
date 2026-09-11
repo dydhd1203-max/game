@@ -2669,7 +2669,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
      1.60        90.0                 95   ← 고름
 
    밝기를 옛 판의 96% 로 되돌리면서 그늘은 예전(46)의 두 배가 됐다. 맞바꿀 것이 없었다. */
-renderer.toneMappingExposure = 1.60;
+renderer.toneMappingExposure = 1.30;
 if(GFX.shadow){
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -2721,18 +2721,50 @@ heldLight.position.set(0.55, 0.15, -0.25); camera.add(heldLight);
    24차까지는 하늘빛 1.18 + 환경광 0.40 vs 해 0.92 라 **해가 전체의 37%뿐**이었다.
    그림자를 켜 보니 켠 판과 끈 판이 2.26% 픽셀에서만, 그것도 최대 47/255 차이였다 —
    코드는 맞는데 화면에서 안 보였다. 그늘은 '해만 빠진 자리' 라 해의 몫이 곧 그림자의 진하기다.
-   그래서 해 쪽으로 몫을 옮겼다. 눈대중이 아니라 **화면 픽셀을 직접 읽어서 골랐다**:
+   그래서 해 쪽으로 몫을 옮겼다. 눈대중이 아니라 화면 픽셀을 직접 읽어서 골랐다.
 
-     조합            제일 진한 그늘   화면 밝기
-     예전값               46             83
-     해↑보통 ← 고름       93             70
-     해↑많이             117             67
+   ★ 그런데 25차b에 **"눈이 아프다"** 는 말을 듣고 다시 쟀다. 원인은 명암이었고,
+     숫자가 분명했다(같은 자리·같은 각도, 화면 픽셀):
 
-   노출을 내리는 쪽은 대비까지 같이 깎여서 헛일이었다(93→91 인데 밝기만 70→62).
-   '해↑많이' 가 제일 극적이지만 밤에 늑대를 못 보면 안 되므로 가운데를 골랐다. */
-const hemi = new THREE.HemisphereLight(0xcfe8ff, 0x5a7a4a, 0.45); scene.add(hemi);
-const sun  = new THREE.DirectionalLight(0xffffff, 1.55); sun.position.set(50,90,30); scene.add(sun);
-const amb  = new THREE.AmbientLight(0xffffff, 0.14); scene.add(amb);
+       25차 전  밝기 113.4 · 채도 45.0% · 대비(표준편차) 44.0 · 눈부신칸 0.55%
+       25차 후  밝기 114.0 · 채도 47.6% · 대비(표준편차) 66.2 · 눈부신칸 0.00%
+
+     눈부신 것도 색이 튄 것도 아니었다. **밝은 데와 어두운 데의 폭만 1.5배로 벌어졌다.**
+     이웃 픽셀 차는 4.17 → 4.38 로 그대로인데 전체 표준편차만 커졌다 —
+     넓은 면적끼리 밝기가 갈린다는 뜻이고, 눈이 계속 조리개를 여닫아야 한다.
+
+   ★ 무엇이 그랬는지 하나씩 빼서 갈랐다. 이걸 안 했으면 그림자를 괜히 깎았을 것이다:
+
+       25차 그대로     대비 66.6
+       빛번짐만 뺌          66.5   ← 무관
+       그림자만 뺌          66.8   ← **무관! 드리운 그림자는 범인이 아니다**
+       하늘 결만 뺌         69.5   ← 오히려 대비를 낮추고 있었다
+       빛 배분만 옛것       50.3   ← 범인
+
+     드리운 그림자는 면적이 작다. 넓게 퍼지는 것은 **해를 안 받는 면이 통째로 어두워지는 것**이다.
+     그래서 그림자는 그대로 두고 **채움광(하늘빛·환경광)만 올렸다.**
+     밝기를 114 로 맞춰 놓고 견준 표에서 가운데를 골랐다:
+
+       조합              노출   대비   그림자 깊이
+       해 1.55 (25차)    1.81   68.1      106
+       해 1.15 ← 고름    1.40   56.6       69
+       해 1.00           1.29   53.5       54
+       옛 배분           1.11   50.5       42
+
+     대비를 늘어난 몫의 절반만큼 되돌리면서(66.6→56.6) 그림자는 69 로 남는다.
+
+   ★ 노출은 1.30 이다. 여기서도 짐작이 틀렸다 — **노출을 내리면 채도가 오히려 오른다**
+     (ACES 는 밝은 쪽을 눌러 색을 빼는 곡선이라, 낮은 노출은 그 구간을 덜 쓴다):
+
+       노출   밝기    채도   대비
+       1.40   116.7   49.5   56.8
+       1.30   112.5   50.5   55.9   ← 밝기가 25차 전(113.4)과 맞는 자리
+       1.06   100.8   53.5   53.1
+
+     밝기를 25차 전과 맞추는 쪽을 골랐다. 어두우면 아이가 늑대를 못 본다. */
+const hemi = new THREE.HemisphereLight(0xcfe8ff, 0x5a7a4a, 0.75); scene.add(hemi);
+const sun  = new THREE.DirectionalLight(0xffffff, 1.15); sun.position.set(50,90,30); scene.add(sun);
+const amb  = new THREE.AmbientLight(0xffffff, 0.30); scene.add(amb);
 
 /* ═══ 해 그림자 (25차) ═══
    ★ 세상은 반지름이 아주 넓은데 그림자 지도는 정사각형 한 장뿐이다.
@@ -14159,11 +14191,11 @@ function updSky(dt, night){
      2.8% 는 아이 눈에 안 보이는 차이고, 그만큼 밤 기분은 낫다. 더 맞추는 건 과한 손질이다.
 
      낮은 처음부터 옛 판과 같았다(96.0 vs 96.8). 바뀐 것은 그늘의 진하기지 밝기가 아니다. */
-  hemi.intensity = 0.45 + skyK*0.06;
+  hemi.intensity = 0.75 + skyK*0.06;
   sun.color.copy(SUN_D).lerp(SUN_N, skyK);
   /* 밤에도 달빛 그림자는 남긴다 — 낮에만 그림자가 있으면 밤이 평평해 보인다. */
-  sun.intensity = 1.55 - skyK*0.88;
-  amb.intensity = 0.14 + skyK*0.07;
+  sun.intensity = 1.15 - skyK*0.65;
+  amb.intensity = 0.30 + skyK*0.07;
   clouds[0].children[0].material.color.setScalar(1-skyK*0.66);
 }
 let skyK = 0;
