@@ -2730,9 +2730,12 @@ scene.fog = FOG_REF;
 const skyDome = (()=>{
   const c = document.createElement('canvas'); c.width = 4; c.height = 128;
   const g = c.getContext('2d'), gr = g.createLinearGradient(0,0,0,128);
-  gr.addColorStop(0.00, '#6f9fd8');   // 천정 — 짙다
-  gr.addColorStop(0.45, '#a9cdee');
-  gr.addColorStop(0.72, '#d6e7f6');   // 지평선 — 옅고 살짝 따뜻하다
+  /* ★ 결을 세게 굽는다. 25차c 에 곡선을 AgX 로 바꾸니 **밝은 쪽이 눌려서** 하늘 결이
+     위아래 차 23 → 2 로 뭉개졌다(같은 그림인데 곡선만 바꿨다). 곡선이 누르는 만큼
+     그림에서 미리 벌려 놔야 화면에서 남는다. */
+  gr.addColorStop(0.00, '#2f63a8');   // 천정 — 짙다
+  gr.addColorStop(0.45, '#82b6e6');
+  gr.addColorStop(0.72, '#cfe3f4');   // 지평선 — 옅고 살짝 따뜻하다
   gr.addColorStop(1.00, '#e8eef2');
   g.fillStyle = gr; g.fillRect(0,0,4,128);
   const tex = new THREE.CanvasTexture(c);

@@ -64,13 +64,24 @@ const rot = await pg.evaluate(async ()=>{
   const W=window, seen=new Set(), rows=[];
   /* 갈래가 다 살아 있게 값을 채워 둔다 */
   for(const [,p] of W.__pcMap) if(p&&p.n){ p.fixed=3; p.helped=2; p.hits=4; p.mined=7; p.built=5; }
-  const T = W.__RANK_SEC;
-  for(let i=0; i<7; i++){
-    W.__hudPrev().rank = '';                 // 값이 그대로여도 다시 칠하게
-    W.__paintRank();
-    seen.add(document.getElementById('rankHead').textContent);
+  /* ★ 벽시계로 기다리면 안 된다. 갈래를 돌리는 것은 **게임 시계**인데 그건 프레임마다
+     dt 로 도는 값이고, 검사기는 1~3fps 라 벽시계보다 훨씬 느리게 간다.
+     RANK_SEC*1000+120 밀리초를 일곱 번 기다려도 게임 안에서는 몇 칸 못 넘어간다
+     (24차 t16 이 600ms 를 기다렸는데 그게 0.9프레임이었던 것과 같은 종류다).
+     그래서 '제목이 바뀔 때까지' 기다린다 — 보려는 것은 '몇 초에 바뀌나' 가 아니라
+     '시간이 지나면 돌아가나' 다. 안 돌면 천장에서 손을 떼고 그대로 빨간불이 된다. */
+  const head = ()=>{ W.__hudPrev().rank = ''; W.__paintRank();
+                     return document.getElementById('rankHead').textContent; };
+  const waitChange = last => new Promise(res=>{
+    let n=0; const t=()=>{ const h=head();
+      if(h!==last || ++n>600) return res(h); requestAnimationFrame(t); };
+    requestAnimationFrame(t); });
+  let cur = head();
+  seen.add(cur); rows.push(document.querySelectorAll('#rankList .rkRow').length);
+  for(let i=0; i<6; i++){
+    cur = await waitChange(cur);
+    seen.add(cur);
     rows.push(document.querySelectorAll('#rankList .rkRow').length);
-    await new Promise(r=>setTimeout(r, T*1000 + 120));
   }
   return {제목수:seen.size, 제목:[...seen], 줄수:rows,
           보임:document.getElementById('rankWrap').style.display !== 'none'};
