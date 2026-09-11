@@ -339,7 +339,7 @@ ok('★ 민첩을 다 찍어도 이동 속도가 크게 안 뛴다 (여기를 �
    +' · 제일 빠른 '+spd.name+' '+spd.wolf+')');
 
 /* ═══════ ⑪ 스탯 창이 교실 화면에서 닿나 ═══════ */
-const fit = [];
+const fit = [], spill = [];
 for(const [w,h,nm] of [[1366,768,'1366×768'],[1280,800,'1280×800'],[1024,768,'1024×768'],
                        [1024,600,'1024×600'],[820,1180,'태블릿'],[800,500,'800×500']]){
   await pg.setViewportSize({width:w, height:h});
@@ -352,10 +352,26 @@ for(const [w,h,nm] of [[1366,768,'1366×768'],[1280,800,'1280×800'],[1024,768,'
       .filter(x=>{ const r=x.getBoundingClientRect();
         return r.bottom > c.bottom + 0.5 || r.top < c.top - 0.5; }).length;
   })]);
+  /* ★ 아래 '지금 내 능력치' 줄이 칸 밖으로 삐져나가 옆 칸 글씨 위로 올라타지 않나 (24차).
+     ★ 함정 — 위 고리는 xpReset() 뒤라 스탯이 0이고, 그러면 값이 ×1 · 0% 빠름 · 100 으로
+       **제일 짧다.** 그 상태로 재면 겹쳐 있어도 통과한다(23차에 이동 속도 항목이 xpReset()
+       뒤에 값을 읽어 늘 ×1.000 이던 것과 같은 함정이다). 그래서 다 찍어 놓고 잰다.
+     ★ 자식 폭을 더해서 재지 않는다 — flex-wrap 으로 얌전히 아래로 접힌 줄까지 빨간불이 된다.
+       보려는 것은 '안 들어갔나' 가 아니라 **'옆으로 삐져나갔나'** 라서 scrollWidth 로 본다. */
+  spill.push([nm, await ev(()=>{
+    const W=window, XP=W.__XP, S=W.__STATS;
+    for(let i=0;i<XP.st.length;i++) XP.st[i]=S[i].max;    // 값이 제일 길어지게
+    W.__openStat();
+    const rows=[...document.querySelectorAll('#stDeriv .dRow')];
+    return [rows.length, rows.filter(d=>d.scrollWidth > d.clientWidth + 0.5).length];
+  })]);
 }
 await pg.setViewportSize({width:1100, height:760});
 ok('★ 어느 교실 화면에서도 스탯 ＋ 단추 넷이 스크롤 없이 닿는다 (찍는 자리는 위에 있어야 한다)',
    fit.every(x=>x[1] === 0), fit.map(x=>x[0]+':'+(x[1]?('못 닿음 '+x[1]):'닿음')).join(' · '));
+ok('★ 능력치 줄이 칸 밖으로 삐져나가 옆 칸 글씨를 덮지 않는다 (값이 제일 길 때)',
+   spill.every(x=>x[1][0] > 0 && x[1][1] === 0),
+   spill.map(x=>x[0]+':'+(x[1][0]?(x[1][1]?('삐져나감 '+x[1][1]+'줄'):(x[1][0]+'줄 멀쩡')):'줄을 못 찾음')).join(' · '));
 
 console.log('');
 let bad=0;

@@ -233,6 +233,18 @@ ok('최고 단계에서는 값이 안 뜬다', roll.최고값없음);
 /* ═══════ ⑥ 남의 무기가 보인다 ═══════ */
 const gun = await pg.evaluate(async ()=>{
   const W=window, G=W.__G, PL=W.__PL, o={};
+  /* ★ 시간이 아니라 **프레임**을 센다.
+     남의 총은 drawSheep 안에서 매 프레임 P_gun.visible 을 다시 정한다 — 그러니 여기서 기다려야
+     하는 것은 '600ms' 가 아니라 '진짜 프레임이 몇 번 돌아 주는 것' 이다.
+     24차에 전체 판(동시 4개)에서 '아무도 총을 안 들면 통째로 숨는다' 가 한 번 빨개졌는데,
+     혼자서도 여섯 개를 같이 돌려도 재현이 안 됐다. 소프트웨어 렌더링으로 한 프레임이
+     600ms 를 넘으면 게임은 멀쩡한데 검사만 먼저 읽는다 — 21차b의 t24 와 똑같은 자리다.
+     프레임으로 세면 기계가 느려도 같은 횟수를 기다린다. rAF 가 아예 멈추면 5초에서 손을 뗀다. */
+  const frames = n => new Promise(res=>{
+    let i=0; const stop = setTimeout(res, 5000);
+    const tick = ()=>{ if(++i >= n){ clearTimeout(stop); return res(); } requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
   /* 통신 — 자리 통로에 칸을 더하지 않았나 */
   W.__KIT.ownW[5]=true; W.__equipWeapon ? 0 : 0;
   W.__setEnh(5,6); W.__KIT.wpn=5; W.__setAim ? 0 : 0;
@@ -248,7 +260,7 @@ const gun = await pg.evaluate(async ()=>{
                        hp:100, hat:0, gls:0, clo:0, g:i, n:'친구'+i, ph:i});
     W.__pcMap.set(uid,{n:'친구'+i, g:i, lv:20, wp, we, mined:0, built:0});
   });
-  await new Promise(r=>setTimeout(r,600));
+  await frames(8);
   const [G1,G2] = W.__gunMeshes();
   o.총칸 = G1.count; o.빛칸 = G2.count;
   o.총보임 = G1.visible; o.빛보임 = G2.visible;
@@ -256,14 +268,14 @@ const gun = await pg.evaluate(async ()=>{
 
   /* 아무도 총을 안 들면 통째로 숨는다 */
   for(const k of W.__pcMap.keys()) W.__pcMap.get(k).wp = 0;
-  await new Promise(r=>setTimeout(r,600));
+  await frames(8);
   const [H1,H2] = W.__gunMeshes();
   o.빈칸숨김 = !H1.visible && !H2.visible;
 
   /* 쓰러진 친구는 총을 놓는다 */
   for(const k of W.__pcMap.keys()) W.__pcMap.get(k).wp = 5;
   for(const p of G.players.values()) p.down = true;
-  await new Promise(r=>setTimeout(r,600));
+  await frames(8);
   o.쓰러지면숨김 = !W.__gunMeshes()[0].visible;
   for(const p of G.players.values()) p.down = false;
 
