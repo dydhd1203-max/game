@@ -187,12 +187,18 @@ const out = await pg.evaluate(async ()=>{
   /* ───── 인벤토리 ───── */
   W.__openKit();
   ok('★ I 로 가방이 열린다', document.getElementById('popKit').classList.contains('on'));
-  const wCards = document.querySelectorAll('#kitW .kitIt').length;
+  /* ★ 23차에 가방이 인형옷 화면으로 바뀌었다. 예전엔 `#kitW .kitIt` 처럼 **화면 모양을 베껴**
+     세고 있어서, 게임은 멀쩡한데 검사만 셋이 빨개졌다(22차 t15 와 같은 종류).
+     이제 게임에 '가방에 뭐가 깔리나'(__kitItems)를 물어보고, 화면은 '켜진 칸이 있나' 만 본다. */
+  const items = W.__kitItems();
+  const wCards = items.filter(x=>x.t === 'wpn').length;
   ok('★ 산 무기만 목록에 나온다 (맨손 돌 + 산 3자루 = 4)', wCards === 4, wCards);
   ok('산 갑옷만 나온다 (털만 믿기 + 산 2벌 = 3)',
-     document.querySelectorAll('#kitA .kitIt').length === 3,
-     document.querySelectorAll('#kitA .kitIt').length);
-  ok('지금 든 것에 표시가 붙는다', document.querySelectorAll('#kitW .kitIt.on').length === 1);
+     items.filter(x=>x.t === 'arm').length === 3, items.filter(x=>x.t === 'arm').length);
+  ok('지금 든 것에 표시가 붙는다',
+     items.filter(x=>x.t === 'wpn' && x.on).length === 1
+     && document.querySelectorAll('#kitGrid .kCell.on').length >= 1,
+     '켜진 칸 ' + document.querySelectorAll('#kitGrid .kCell.on').length);
   /* 낮은 무기로 바꿔도 산 기록이 남는다 (예전 버그: 숫자 하나가 두 뜻을 겸했다) */
   W.__equipW(2);
   ok('★ 낮은 무기로 바꿔 껴도 비싼 무기가 사라지지 않는다',

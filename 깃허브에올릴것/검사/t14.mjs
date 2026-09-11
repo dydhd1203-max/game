@@ -262,8 +262,11 @@ const ui = await pg.evaluate(async ()=>{
   dispatchEvent(new KeyboardEvent('keydown',{key:'c'}));
   await new Promise(r=>setTimeout(r,60));
   o.opened = document.getElementById('popStat').classList.contains('on');
-  const cards = document.querySelectorAll('#stList .stIt');
+  /* ★ 23차에 스텟 창이 넷짜리 큰 칸(.stBig)으로 바뀌었다. 화면 모양을 베끼지 않으려고
+     '스텟 칸 안의 단추' 로 찾는다 — 클래스 이름이 또 바뀌어도 안 깨진다. */
+  const cards = document.querySelectorAll('#stList > div');
   o.cards = cards.length;
+  o.statN = W.__STATS.length;
   const st0 = W.__XP.st[0];
   cards[0].querySelector('button').click();
   o.clicked = W.__XP.st[0] === st0 + 1;
@@ -271,7 +274,7 @@ const ui = await pg.evaluate(async ()=>{
   /* ★ '1/5' 를 박아 두면 상한을 고칠 때마다 죽는다(14차에 5→8 이 됐다).
      게임의 STATS 에서 상한을 읽어 그 글자를 찾는다. */
   const want = '1/' + W.__STATS[0].max;
-  o.refreshed = document.querySelector('#stList .stIt').textContent.includes(want);
+  o.refreshed = document.querySelector('#stList > div').textContent.replace(/\s+/g,'').includes(want);
   o.wantTxt = want;
   dispatchEvent(new KeyboardEvent('keydown',{key:'c'}));
   await new Promise(r=>setTimeout(r,60));
@@ -284,7 +287,9 @@ const ui = await pg.evaluate(async ()=>{
   return o;
 });
 ok('★ C 를 누르면 스텟 창이 열린다', ui.opened);
-ok('스텟이 여섯 개 다 나온다', ui.cards === 6, ui.cards + '개');
+/* ★ 개수를 박지 않는다 — 23차에 여섯에서 넷으로 줄었다(17차d 갈래 개수 때와 같은 함정).
+   세어야 할 것은 '몇 개' 가 아니라 '표에 있는 것이 다 나오나' 다. */
+ok('스텟 표에 있는 것이 창에 다 나온다', ui.cards === ui.statN, ui.cards + '개 / 표 ' + ui.statN + '개');
 ok('★ ＋ 를 누르면 실제로 찍힌다', ui.clicked);
 ok('찍어도 창이 안 닫힌다 (연달아 찍을 수 있게)', ui.stillOpen);
 ok('찍으면 창이 바로 다시 그려진다', ui.refreshed, ui.wantTxt);

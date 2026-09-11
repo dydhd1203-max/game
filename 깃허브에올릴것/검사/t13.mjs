@@ -108,8 +108,18 @@ for(const [w,h,touch] of SIZES){
     for(const [k,m] of W.__struMeshes){ const a=snap.get(k); if(!a||!m.instanceColor) continue;
       for(let i=0;i<a.length;i++){ cells++; if(Math.abs(a[i]-m.instanceColor.array[i])>1e-5) diff++; } }
     out.tintDiff=diff; out.tintCells=cells;
-    const bench=(n,f)=>{ for(let i=0;i<3;i++) f(); const t0=performance.now();
-      for(let i=0;i<n;i++) f(); return (performance.now()-t0)/n; };
+    /* ★ 한 판만 재서 평균을 쓰면 바쁜 기계에서 흔들린다. 23차에 여섯 개를 같이 돌렸더니
+       색칠 쪽이 다섯 판에서 0.013~0.029ms 였다가 한 판에서만 0.234ms 로 튀어 비율이 5배로
+       떨어져 빨개졌다 — 통째로 다시 만들기는 그 판에서도 멀쩡했으니 느려진 게 아니라
+       **멈칫 한 번이 200번 반복 쪽에 떨어진 것**이다. 그래서 세 판을 재서 제일 빠른 판을 쓴다.
+       멈칫은 값을 늘리기만 하므로 최솟값에는 섞이지 않는다. 보려는 것은 '절대 몇 ms' 가 아니라
+       '색칠이 구조적으로 더 싼가' 이므로 최솟값이 오히려 맞는 자다. */
+    const bench=(n,f)=>{ for(let i=0;i<3;i++) f();
+      let best=Infinity;
+      for(let r=0;r<3;r++){ const t0=performance.now();
+        for(let i=0;i<n;i++) f();
+        const ms=(performance.now()-t0)/n; if(ms<best) best=ms; }
+      return best; };
     out.mReb = bench(20, ()=>W.__rebuild());
     out.mTint = bench(200, ()=>{ for(const o of hurt) W.__struTint.add(o); W.__tint(); });
     /* 부수면 표가 어긋나지 않게 통째로 다시 만들기로 돌아가나 */

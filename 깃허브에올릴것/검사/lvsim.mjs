@@ -15,8 +15,11 @@ console.log(await pg.evaluate((EFF)=>{
   const W=window, G=W.__G, X=W.__XP, C=W.__XPC, L=[];
   W.__xpReset();
   for(let i=0;i<5;i++) W.__base[i]={w:99999,s:99999,o:99999}; W.__recompute();
-  /* 스텟 찍는 순서 — 애들이 흔히 고를 법한 순서(캐기 -> 사격 -> 체력) */
-  const PICK=[0,3,0,4,3,0,2,4,3,1];
+  /* 스텟 찍는 순서 — 애들이 흔히 고를 법한 순서.
+     ★ 23차에 스탯이 넷(힘·체력·민첩·지능)으로 바뀌었다. 번호를 박지 않고 게임에 물어본다 —
+       표가 또 바뀌어도 이 하네스가 저절로 따라온다. */
+  const S = W.__ST();
+  const PICK=[S.agi, S.str, S.agi, S.int, S.str, S.vit, S.agi, S.int, S.str, S.vit];
   let pi=0;
   const spend=()=>{ while(X.pts>0 && pi<PICK.length){ const before=X.pts; W.__takeStat(PICK[pi]);
     if(X.pts===before) pi++; else if(X.st[PICK[pi]]>=W.__STATS[PICK[pi]].max) pi++; } };

@@ -1061,7 +1061,7 @@ body.touch #topRight2 .kk{display:none}
 .sItem button.buy{background:linear-gradient(180deg,#57a45b,#357a3c);border-color:#a8e8ac}
 
 /* ══ 내 가방 ══ */
-#popKit .popC{width:min(720px,94vw)}
+#popKit .popC{width:min(880px,94vw)}      /* 23차 — 인형옷 + 가진 것이 나란히 서려면 넓어야 한다 */
 #kitStat{display:flex;gap:12px;justify-content:center;margin-bottom:4px;
   font:800 14px/1 var(--num);padding:9px;border-radius:12px;background:rgba(0,0,0,.28)}
 .kitGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:7px}
@@ -1076,6 +1076,81 @@ body.touch #topRight2 .kk{display:none}
 .kitIt .kb{flex:1 1 auto;min-width:0}
 .kitIt .kn{font-weight:900;font-size:13px}
 .kitIt .kd{font:800 11px/1.3 var(--num);opacity:.75;margin-top:1px}
+
+/* ═══════ 🎒 가방 — 입은 자리 · 내 양 · 가진 것 (23차) ═══════
+   ★ 예전 가방은 '무기 목록 / 방어구 목록 / 물약 목록' 세 덩이였다. 뭘 입고 있는지는
+     글씨로만 알 수 있었고(들고 있음), 모자·안경·옷은 **시작 화면에서 고른 뒤로는 못 바꿨다.**
+   ★ 이제 가운데 내 양이 서 있고 양옆에 입은 자리가, 오른쪽에 가진 것이 깔린다.
+     누른 것이 바로 양에게 입혀진다 — '고른 것' 과 '보이는 것' 사이에 글씨가 없다.
+   ★ 폭을 숫자로 잡지 않는다. 좁아지면 가진 것이 양 아래로 내려간다(flex-wrap). */
+/* ★ 여기에 `.popC.wide` 를 새로 쓰려다 한 번 헛돌았다 — 이 파일에는 이미
+   `#popKit .popC{width:...}` 처럼 **아이디로 폭을 잡는 규칙**이 있고, 아이디가 클래스를 이긴다.
+   나중에 썼는데도 졌다. 순서가 아니라 **힘(specificity)** 이 이긴다 —
+   폭을 바꿀 때는 새 규칙을 만들지 말고 이미 있는 그 줄을 고친다. */
+#kitWrap{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap}
+#kitDoll{display:flex;gap:8px;align-items:center;justify-content:center;
+  flex:0 0 auto;margin:0 auto;padding:10px 8px;border-radius:16px;
+  background:radial-gradient(ellipse at 50% 62%,rgba(120,90,190,.30),rgba(0,0,0,.34) 68%);
+  border:1px solid rgba(255,255,255,.10)}
+.kSlots{display:flex;flex-direction:column;gap:7px}
+.kSlot{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;
+  justify-content:center;font-size:24px;line-height:1;cursor:pointer;position:relative;
+  background:rgba(0,0,0,.34);border:1.5px solid rgba(255,255,255,.16);transition:.12s}
+.kSlot:hover{border-color:rgba(255,214,120,.75);background:rgba(255,255,255,.10)}
+.kSlot.empty{opacity:.38}
+.kSlot .kTag{position:absolute;bottom:-2px;left:0;right:0;text-align:center;
+  font:900 8.5px/1 -apple-system,"Noto Sans KR",sans-serif;opacity:.62;letter-spacing:-.2px}
+#kitFig{width:200px;height:250px;flex:0 0 auto;position:relative}
+#kitPvw{width:200px;height:250px;display:block}
+#kitFigOff{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:64px;opacity:.5}
+#kitBag{flex:1 1 300px;min-width:262px}
+#kitTabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px}
+#kitTabs button{padding:5px 11px;border-radius:999px;cursor:pointer;font-weight:900;font-size:11.5px;
+  border:1.5px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff}
+#kitTabs button.on{background:linear-gradient(180deg,#ffe27a,#f4b53c);color:#1a1208;
+  border-color:rgba(255,214,120,.8)}
+.kGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px;
+  max-height:min(250px,34vh);overflow:auto;padding:2px}
+.kCell{aspect-ratio:1/1;border-radius:11px;display:flex;align-items:center;justify-content:center;
+  font-size:23px;line-height:1;cursor:pointer;position:relative;
+  background:rgba(0,0,0,.32);border:1.5px solid rgba(255,255,255,.13);transition:.12s}
+.kCell:hover{border-color:rgba(255,214,120,.8);background:rgba(255,255,255,.11);transform:translateY(-1px)}
+/* 입고 있는 것은 초록 테 — 화면에서 한눈에 갈려야 한다 */
+.kCell.on{border-color:#6ee27a;box-shadow:0 0 0 1.5px rgba(110,226,122,.45) inset}
+.kCell .kNum{position:absolute;right:3px;bottom:1px;font:900 10px/1 var(--num);
+  color:#ffe08a;text-shadow:0 1px 2px #000}
+#kitFoot{display:flex;justify-content:space-between;align-items:center;gap:8px;
+  margin-top:6px;font-weight:800;font-size:12px;min-height:18px}
+#kitPick{opacity:.9;text-align:right;flex:1 1 auto;min-width:0}
+#kitCount{font:900 12px/1 var(--num);color:#ffe08a;flex:0 0 auto}
+
+/* ═══════ ✨ 전직 고르기 — 어떤 모습이 되는지 보고 고른다 (23차) ═══════
+   ★ 예전에는 글씨 두 줄이었다("<b>사격 솜씨</b>를 더 찍을 수 있어요"). 9살에게 이건
+     고르는 화면이 아니라 **읽는 화면**이다. 그래서 대부분 아무거나 눌렀다.
+   ★ 이제 카드마다 **그 차림새를 입은 내 양**이 서 있다. 고르는 근거가 그림이 된다.
+     한 번 고르면 못 바꾸는 선택이라 더욱 그렇다. */
+#jobCards{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:4px 0 2px}
+.jobCard{flex:0 1 210px;min-width:168px;border-radius:18px;cursor:pointer;overflow:hidden;
+  border:2.5px solid rgba(255,255,255,.16);background:rgba(0,0,0,.30);transition:.14s;
+  display:flex;flex-direction:column}
+.jobCard:hover{transform:translateY(-3px);border-color:rgba(255,214,120,.85);
+  box-shadow:0 12px 26px -12px rgba(0,0,0,.85)}
+.jobCard .jFig{position:relative;height:184px;display:flex;align-items:center;
+  justify-content:center;overflow:hidden;
+  background:radial-gradient(ellipse at 50% 64%,rgba(120,90,190,.34),rgba(0,0,0,.40) 70%)}
+.jobCard .jFig img{height:184px;width:auto;display:block;image-rendering:auto}
+.jobCard .jFig .jNone{font-size:62px;opacity:.55}
+.jobCard .jBadge{position:absolute;top:7px;left:7px;font-size:22px;line-height:1;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.7))}
+.jobCard .jName{font-weight:900;font-size:17px;text-align:center;padding:8px 6px 2px;
+  letter-spacing:-.3px}
+.jobCard .jDesc{font-weight:800;font-size:11.5px;line-height:1.45;opacity:.82;
+  text-align:center;padding:0 10px 8px}
+.jobCard .jStat{font:900 11.5px/1 var(--num);text-align:center;padding:0 8px 10px;color:#ffe08a}
+.jobCard .jGo{margin:0 10px 11px;padding:9px 0;border-radius:12px;text-align:center;
+  font-weight:900;font-size:13.5px;border:1px solid rgba(255,214,120,.6);color:#1a1208;
+  background:linear-gradient(180deg,#ffe27a,#f4b53c)}
 .kitIt.on .kd{color:var(--honey);opacity:1}
 .kitNone{grid-column:1/-1;padding:12px;text-align:center;font-size:12.5px;opacity:.6;
   border:1px dashed rgba(255,246,228,.22);border-radius:12px}
@@ -1101,9 +1176,7 @@ body.touch #topRight2 .kk{display:none}
 #popStat .popC{width:min(660px,94vw)}
 /* 전직 화면 — 길 설명이 길어서 두 칸 격자에 넣으면 한 줄에 두 글자씩 끊긴다.
    한 줄에 한 길씩, 넓게 놓는다. */
-#popJob .popC{width:min(680px,94vw)}
-#jobList{grid-template-columns:1fr}
-#jobList .stIt .sd{line-height:1.5}
+#popJob .popC{width:min(740px,94vw)}      /* 23차 — 전직 카드 셋이 한 줄에 서는 폭 */
 .stGrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0 4px}
 @media (max-width:620px){ .stGrid{grid-template-columns:1fr} }
 .stIt{display:flex;gap:10px;align-items:center;padding:10px 12px;border-radius:13px;
@@ -1124,12 +1197,45 @@ body.touch #topRight2 .kk{display:none}
 #stPts{font-weight:900;font-size:14px;color:#ffe08a}
 #stPts b{font-size:18px}
 
+/* ═══════ 스탯 창 — 기본 넷 + 거기서 나오는 능력치 (23차) ═══════
+   ★ 위는 '내가 찍는 것'(힘·체력·민첩·지능), 아래는 '그래서 얼마가 되었나'.
+     둘을 한 화면에 두어야 찍기 전에 무엇이 오르는지 눈으로 이어진다. */
+.stMain{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 4px}
+.stBig{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:13px;
+  background:rgba(255,255,255,.055);border:1.5px solid rgba(255,255,255,.13)}
+.stBig.full{background:rgba(120,220,130,.12);border-color:rgba(150,240,160,.38)}
+.stBig .sIc{font-size:25px;line-height:1;flex:0 0 auto}
+.stBig .sMid{flex:1 1 auto;min-width:0}
+.stBig .sTop{display:flex;align-items:baseline;gap:6px}
+.stBig .sNm{font-weight:900;font-size:15px}
+.stBig .sVal{font:900 20px/1 var(--num);color:#ffe08a;margin-left:auto}
+.stBig .sMax{font:800 11px/1 var(--num);opacity:.55}
+.stBig .sWhat{font-weight:800;font-size:11px;line-height:1.35;opacity:.8;margin-top:2px}
+.stBig .sSub{font-weight:800;font-size:10.5px;line-height:1.3;opacity:.55;margin-top:1px}
+.stBig button{flex:0 0 auto;width:34px;height:34px;border-radius:10px;cursor:pointer;
+  border:1px solid rgba(255,214,120,.6);color:#0e2a14;font-weight:900;font-size:17px;line-height:1;
+  background:linear-gradient(180deg,#ffe27a,#f4b53c)}
+.stBig button:disabled{background:rgba(255,255,255,.09);color:#fff;opacity:.35;
+  border-color:rgba(255,246,228,.2);cursor:default}
+/* 아래 — 스탯에서 나오는 값들 */
+.stDeriv{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:5px 12px;
+  padding:10px 12px;border-radius:13px;background:rgba(0,0,0,.30);
+  border:1px solid rgba(255,255,255,.10)}
+.stDeriv .dRow{display:flex;align-items:baseline;gap:8px;font-weight:800;font-size:12px}
+.stDeriv .dNm{opacity:.78;white-space:nowrap}
+.stDeriv .dVal{margin-left:auto;font:900 13px/1 var(--num);color:#ffe9b0;white-space:nowrap}
+.stDeriv .dFrom{font-weight:800;font-size:10px;opacity:.45;white-space:nowrap}
+
 /* ── 🎖️ 칭호 칸 (22차) — 받은 것과 아직 못 받은 것을 한 판에 같이 둔다.
    ★ 못 받은 것을 숨기면 '다음에 뭘 하지' 가 안 보인다. 흐리게 두되 조건은 읽히게 한다.
    ★ 칸 너비를 숫자로 잡지 않는다 — auto-fill 로 화면 폭에 맡긴다(좁으면 한 줄에 하나). */
 #bgTop{font-weight:900;font-size:13px;color:#ffe08a;margin-bottom:2px}
 #bgNext{font-weight:800;font-size:12px;opacity:.85;margin:3px 0 8px}
-.bgGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:7px}
+/* ★ 23차 — 스탯 창에 '나오는 능력치' 판이 붙으면서 창이 길어졌다. 재 보니 교실 크롬북
+   (1024×600)에서 641px 이 스크롤 뒤로 숨었다. 스크롤 막대가 잘 안 보여서 '아래에 더 있다' 를
+   아무도 모르는 건 이 파일이 이미 겪은 함정이다. 칭호 칸에 제 높이를 줘서 창 자체를 묶는다. */
+.bgGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:7px;
+  max-height:min(224px,30vh);overflow:auto;padding:2px}
 .bgIt{display:flex;gap:8px;align-items:center;padding:7px 9px;border-radius:11px;
   border:1.5px solid rgba(255,255,255,.13);background:rgba(255,255,255,.04);opacity:.45}
 .bgIt.on{opacity:1;background:rgba(255,255,255,.07)}
@@ -1724,11 +1830,13 @@ body.qbOn #crystalWrap, body.qbOn #resBox, body.qbOn #topRight{display:none}
 <!-- 스텟 -->
 <div class="pop" id="popStat"><div class="popC">
   <h2>⭐ 내 스텟</h2>
-  <p class="shopHint">캐고 · 짓고 · 늑대를 쏘면 <b>경험치</b>가 올라요.
-    레벨이 오를 때마다 <b>1점</b>씩 받아서 원하는 곳에 찍습니다.
+  <p class="shopHint">레벨이 오를 때마다 <b>1점</b>씩 받아서 <b>힘·체력·민첩·지능</b>에 찍습니다.
+    하나가 <b>여러 곳에 걸쳐</b> 있어요 — 캐는 속도는 민첩이 크게, 힘이 조금 올립니다.
     <b>한 번 찍으면 못 바꿔요</b> — 모둠끼리 서로 다른 걸 찍으면 더 셉니다.</p>
   <div id="stTop"></div>
-  <div id="stList" class="stGrid"></div>
+  <div id="stList" class="stMain"></div>
+  <h3>📊 지금 내 능력치</h3>
+  <div id="stDeriv" class="stDeriv"></div>
   <h3>🎖️ 내 칭호</h3>
   <p class="shopHint">남과 겨루는 것이 아닙니다. <b>조건만 넘으면 누구나</b> 받아요.
     받은 칭호 중 <b>제일 어려운 것</b>이 머리 위 이름표에 뜹니다.</p>
@@ -1742,22 +1850,32 @@ body.qbOn #crystalWrap, body.qbOn #resBox, body.qbOn #topRight{display:none}
 <div class="pop" id="popJob"><div class="popC">
   <h2 id="jobTitle">✨ 전직!</h2>
   <p class="shopHint" id="jobHint"></p>
-  <div id="jobList" class="stGrid"></div>
+  <div id="jobCards"></div>
   <div class="row"><button class="btn" data-close="popJob">나중에 고를래요</button></div>
 </div></div>
+<!-- 전직 카드에 붙일 사진을 찍는 판. 화면에는 안 보인다 (찍고 나면 그림만 남는다) -->
+<canvas id="jobShot" width="220" height="260"
+        style="position:absolute;left:-9999px;top:0;width:220px;height:260px"></canvas>
 
 <!-- 내 가방 -->
 <div class="pop" id="popKit"><div class="popC">
   <h2>🎒 내 가방</h2>
-  <p class="shopHint">상인에게 산 것이 여기 모입니다. 눌러서 <b>장착</b>하거나 <b>풀 수</b> 있어요.
-    총을 장착하면 <b>T</b> 로 공격 모드를 켜고 왼쪽 클릭으로 쏩니다.</p>
+  <p class="shopHint">오른쪽에서 <b>누르면 바로 입습니다.</b> 입은 것은 <b style="color:#6ee27a">초록 테</b>.
+    왼쪽·오른쪽 칸을 누르면 <b>벗습니다.</b> 총을 들면 <b>T</b> 로 공격 모드를 켜고 왼쪽 클릭으로 쏩니다.</p>
+  <div id="kitWrap">
+    <div id="kitDoll">
+      <div class="kSlots" id="kSlotL"></div>
+      <div id="kitFig"><canvas id="kitPvw" width="200" height="250"></canvas>
+        <div id="kitFigOff" style="display:none">🐑</div></div>
+      <div class="kSlots" id="kSlotR"></div>
+    </div>
+    <div id="kitBag">
+      <div id="kitTabs"></div>
+      <div id="kitGrid" class="kGrid"></div>
+      <div id="kitFoot"><span id="kitCount">0/0</span><span id="kitPick"></span></div>
+    </div>
+  </div>
   <div id="kitStat"></div>
-  <h3>🔫 무기</h3>
-  <div id="kitW" class="kitGrid"></div>
-  <h3>🛡️ 방어구</h3>
-  <div id="kitA" class="kitGrid"></div>
-  <h3>🧪 물약</h3>
-  <div id="kitP" class="kitGrid"></div>
   <div class="row"><button class="btn pri" data-close="popKit">닫기</button></div>
 </div></div>
 
@@ -5011,6 +5129,56 @@ let gunKick = 0;
    크기가 예측 가능하고, 예광탄과 같은 메시를 쓰므로 그리기도 안 는다. */
 function gunRecoil(kick){ gunKick = Math.min(1.6, kick || 0.7); }
 
+/* ═══════════════════════ 총기 반동 — 조준선이 들린다 (23차) ═══════════════════════
+   ★ 여태 '반동' 이라고 부르던 것은 **총 모형만** 들리는 것이었다(gunKick).
+     화면도 잠깐 흔들렸지만(shake) 흔들림은 제자리로 돌아오므로 **조준은 하나도 안 흔들렸다.**
+     그래서 연발총을 누르고만 있어도 첫 발과 열째 발이 똑같은 자리에 박혔다.
+   ★ 진짜 반동은 **총구가 위로 들려서 다음 발이 위로 빗나가는 것**이다.
+     그래서 카메라의 pitch 에 얹는다 — `forward()` 가 카메라를 읽으므로
+     조준·예광탄·명중 판정이 **전부 저절로** 들린 방향을 따라간다.
+     (덧붙이는 화면 효과가 아니라 진짜로 조준이 틀어진다는 뜻이다.)
+   ★ 쏜 그 순간의 발은 안 틀어진다 — 카메라 회전은 updPlayer 가 프레임마다 세우는데
+     fireWeapon 은 그 뒤에 총알을 이미 내보낸 뒤다. 총알이 나가고 나서 총구가 들린다.
+     **현실과 같은 순서**이고, 덕분에 한 발씩 겨눠 쏘는 아이는 아무 손해도 안 본다.
+   ★ 되돌아온다. 3학년에게 '반동을 내려 잡는 법' 을 가르칠 수는 없다.
+     대신 **되돌아오는 데 시간이 걸려서**, 연달아 쏘면 들린 것이 쌓인다.
+     한 발씩 = 손해 없음 · 드르륵 = 위로 솟는다. 이 차이가 이번에 넣는 전부다.
+   ★ 세기는 무기 표의 `kick` 을 그대로 쓴다(새총 0.30 ~ 저격총 1.60).
+     새 총을 표에 한 줄 넣으면 반동도 저절로 따라온다 — 숫자를 두 곳에 두지 않는다. */
+let aimKick = 0, aimSway = 0, recoilHold = 0, recoilRun = 0;
+const RECOIL_UP   = 0.030;   // kick 1.0 한 발이 들어 올리는 각도(라디안)
+const RECOIL_SIDE = 0.009;   // 좌우로 흔들리는 폭 (한쪽으로만 밀리면 총이 고장 난 것 같다)
+const RECOIL_HOLD = 0.50;    // 쏜 뒤 이 시간 안에 또 쏘면 '아직 쏘는 중' 으로 본다
+const RECOIL_SLOW = 0.80;    // 쏘는 중에 내려오는 빠르기 — 느리다. 그래서 쌓인다
+const RECOIL_BACK = 9.0;     // 손을 뗀 뒤 내려오는 빠르기 — 빠르다. 0.4초면 제자리
+const RECOIL_MAX  = 0.09;    // 아무리 갈겨도 이보다 위로는 안 들린다(5.2°). 하늘만 보면 판이 안 보인다
+/* ★ 되돌아오는 빠르기가 **하나뿐이면 반동이 쌓이질 않는다.**
+   처음엔 8.5/초 하나로 뒀는데, 재 보니 연발총(0.42초마다)을 3초 갈겨도 최고 0.69° —
+   한 발(0.77°)보다도 낮았다. 다음 발이 오기 전에 이미 97% 가 내려와 있어서다.
+   그렇다고 느리게 하나로 잡으면 한 발 쏘고 겨누는 아이의 조준선이 한참 떠 있는다
+   (실제로 그렇게 만들었다가 검사가 "0.6초 뒤에도 0.47° 남음" 으로 잡아냈다).
+   ★ 그래서 **몇 발째인가**로 가른다 — 첫 발은 바로 내려오고,
+     앞 발이 채 가시기 전에 또 쏘면(2발째부터) 그때부터 안 내려온다.
+     한 문장으로: **한 발씩 겨눠 쏘면 손해가 없고, 드르륵 갈기면 총구가 솟는다.** */
+function fireRecoil(kick){
+  const k = kick === undefined ? 0.5 : kick;
+  aimKick = Math.min(RECOIL_MAX, aimKick + k * RECOIL_UP);
+  aimSway += (Math.random()*2 - 1) * k * RECOIL_SIDE;
+  recoilRun = recoilHold > 0 ? recoilRun + 1 : 1;   // 아직 안 가셨으면 '이어 쏘는 중'
+  recoilHold = RECOIL_HOLD;
+}
+/* 되돌아오기 — 지수 감쇠다. dt 가 얼마든 같은 속도로 돌아온다(프레임 수에 안 흔들린다) */
+function recoilTick(dt){
+  if(recoilHold > 0){ recoilHold -= dt; if(recoilHold <= 0) recoilRun = 0; }
+  if(!aimKick && !aimSway) return;
+  const spray = recoilRun >= 2 && recoilHold > 0;   // 두 발째부터가 '갈기는 중' 이다
+  const k = 1 - Math.exp(-dt * (spray ? RECOIL_SLOW : RECOIL_BACK));
+  aimKick -= aimKick * k; aimSway -= aimSway * k;
+  if(Math.abs(aimKick) < 1e-5) aimKick = 0;
+  if(Math.abs(aimSway) < 1e-5) aimSway = 0;
+}
+function recoilReset(){ aimKick = 0; aimSway = 0; recoilHold = 0; recoilRun = 0; }
+
 
 const HELD = {
   mine:   mkPick(T.stone),                        // ⛏️ 곡괭이
@@ -7137,7 +7305,10 @@ function updPlayer(dt){
     toast('🏰 망루에 올랐어요! 여기선 늑대가 못 물어요 — 돌을 던져 보세요', 3.4, '#ffe9a0');
     if(window.__sfx) window.__sfx('up');
   }
-  camera.rotation.set(PL.pitch, PL.yaw, 0, 'YXZ');
+  /* ★ 반동을 카메라에 얹는다. forward() 가 카메라를 읽으므로 조준·명중 판정이 다 따라온다 —
+     화면에만 덧그리는 효과가 아니라 **진짜로 총구가 들린 것**이다. */
+  recoilTick(dt);
+  camera.rotation.set(PL.pitch + aimKick, PL.yaw + aimSway, 0, 'YXZ');
   /* ★ 3인칭으로 물러난다 — 쓰러졌을 때(9차부터)와 줄넘기·OX 퀴즈(20차).
      쓰러졌을 때: 예전엔 눈높이만 0.42 로 낮춘 1인칭이라, 누운 얼굴이 땅에 박혀서
      흙바닥만 보였다. 무슨 일이 벌어지는지 하나도 안 보이니 "화면이 깨졌다"고 느낀다.
@@ -7747,7 +7918,7 @@ function fireWeapon(){
   throwCd = W.cd;
   if(W.ammo > 0) KIT.ammo -= W.ammo;
   const isGun = W !== WEAPONS[0];
-  if(isGun){ gunT = 0.55; gunRecoil(W.kick); }
+  if(isGun){ gunT = 0.55; gunRecoil(W.kick); fireRecoil(W.kick); }
   else swing();
 
   if(window.__shake) window.__shake(0.10 + (W.kick||0.3)*0.14, 0.09);
@@ -8046,14 +8217,28 @@ const XP_KILL  = 12;                                         // 내가 잡았을
 /* ★ 17차 — '큰 주머니' 상한을 5 → 8 로. 선생님 주문이다:
    열심히 캔 아이가 후반에도 자재로 버틸 수 있어야 한다. 한 점당 +1 은 그대로라
    다 찍으면 한 번에 나무 5+8 = 13 이 들어온다 (예전 최대 9). */
+/* ═══════════════════════ 스탯 — 힘 · 체력 · 민첩 · 지능 (23차) ═══════════════════════
+   ★ 예전에는 능력 여섯이 **하는 일 이름**이었다(캐는 손·큰 주머니·빠른 망치·사격 솜씨…).
+     찍으면 그것 하나만 좋아지니, 고르는 것이 아니라 '할 일 목록에 체크' 하는 느낌이었다.
+   ★ 이제 넷뿐이고, 하나가 **여러 곳에 걸친다.** 그래서 고르는 것이 성격이 된다 —
+     힘을 찍은 아이와 민첩을 찍은 아이는 캐는 속도도 싸움도 서로 다르게 는다.
+   ★ **살짝 겹치게 둔다.** 캐는 속도는 민첩(크게)과 힘(조금)이 같이 올린다.
+     겹치면 "내가 찍은 것도 여기에 쓸모가 있네" 가 생기고, 잘못 찍어도 쓸모없어지지 않는다.
+     겹치되 **주·곁이 분명해야** 한다 — 둘이 똑같이 올리면 고를 이유가 사라진다.
+   ★ 상한이 8에서 12로 올랐다. 넷뿐이라 8이면 레벨 35(점수 35개)에 4×8=32 로
+     **다 찍고도 점수가 남는다** — 그러면 고르는 게임이 아니다. 12×4=48 이라야 골라야 한다.
+   ★ `sub` = 이 스탯이 곁들여 올리는 것. 창에 작게 적어 준다. */
 const STATS = [
-  {ic:'⛏️', n:'캐는 손',   max:8, d:'자원 캐는 속도 <b>11% 빨라짐</b>'},
-  {ic:'🎒', n:'큰 주머니', max:8, d:'한 번 캘 때 자원 <b>+1</b>'},
-  {ic:'🔨', n:'빠른 망치', max:8, d:'짓기·강화·수리 시간 <b>11% 줄어듦</b>'},
-  {ic:'🎯', n:'사격 솜씨', max:8, d:'무기 공격력 <b>+12%</b>'},
-  {ic:'❤️', n:'튼튼한 양', max:8, d:'최대 체력 <b>+22</b>'},
-  {ic:'🛡️', n:'가죽 등',   max:8, d:'방어력 <b>+5</b>'}
+  {ic:'💪', n:'힘',   max:12, d:'🎯 사격 공격력 <b>+8%</b>',
+   sub:'⛏️ 캐는 속도 · 🛡️ 방어력도 조금'},
+  {ic:'❤️', n:'체력', max:12, d:'❤️ 최대 체력 <b>+15</b> · 🛡️ 방어력 <b>+3</b>',
+   sub:'맞아도 오래 버틴다'},
+  {ic:'🍃', n:'민첩', max:12, d:'⛏️ 캐는 속도 <b>8% 빨라짐</b> · 👟 이동 속도 <b>+1.5%</b>',
+   sub:'🔨 짓기·수리도 조금'},
+  {ic:'📘', n:'지능', max:12, d:'🎒 캐는 양 <b>+2</b>(세 칸에) · 🔨 짓기·수리 <b>8% 빨라짐</b>',
+   sub:'🧺 농장 일도 그만큼 빨라진다'}
 ];
+const ST_STR = 0, ST_VIT = 1, ST_AGI = 2, ST_INT = 3;
 /* ═══════════════════════ 전직 (17차f) ═══════════════════════
    선생님 주문: "레벨 15,30에 전직. 전투양(총 쏘기) / 건축가양(건물 짓고, 수리) /
    일꾼양(자원캐고 농부 일) 셋 중 하나. 각 직업에 맞게 max 스텟을 2개씩 더 찍게.
@@ -8069,15 +8254,18 @@ const STATS = [
      고른 걸 되돌릴 수 있으면 아이들이 하루 종일 갈아 끼우다 만다. */
 const JOB_LV = [15, 30];                       // 1차 · 2차 전직 레벨
 const JOB_STEP = 2;                            // 전직마다 상한 +2
+/* ★ 23차 — 스탯이 넷으로 바뀌면서 직업이 가리키는 칸도 옮겼다.
+   셋이 서로 다른 스탯을 가리켜야 '길이 갈린다' 가 성립한다.
+   체력만 직업이 없는데, 체력은 누구나 조금은 찍는 칸이라 그대로 둔다. */
 const JOBS = [
-  {k:'fight', ic:'⚔️', n:'전투양',   st:3, col:'#ff9aa8',
-   d:'<b>사격 솜씨</b>를 더 찍을 수 있어요', d2:'늑대를 제일 잘 잡는 양이 됩니다'},
-  {k:'build', ic:'🔨', n:'건축가양', st:2, col:'#ffd257',
-   d:'<b>빠른 망치</b>를 더 찍을 수 있어요', d2:'짓기·수리·강화가 제일 빠른 양이 됩니다'},
-  {k:'work',  ic:'🌾', n:'일꾼양',   st:0, col:'#a8e6a1',
-   d:'<b>캐는 손</b>을 더 찍을 수 있어요', d2:'자원 캐기와 농장 일이 제일 빠른 양이 됩니다'}
+  {k:'fight', ic:'⚔️', n:'전투양',   st:0, col:'#ff9aa8',
+   d:'<b>힘</b>을 더 찍을 수 있어요', d2:'늑대를 제일 잘 잡는 양이 됩니다'},
+  {k:'build', ic:'🔨', n:'건축가양', st:3, col:'#ffd257',
+   d:'<b>지능</b>을 더 찍을 수 있어요', d2:'짓기·수리·강화가 제일 빠른 양이 됩니다'},
+  {k:'work',  ic:'🌾', n:'일꾼양',   st:2, col:'#a8e6a1',
+   d:'<b>민첩</b>을 더 찍을 수 있어요', d2:'자원 캐기와 농장 일이 제일 빠른 양이 됩니다'}
 ];
-const XP = { lv:1, xp:0, pts:1, st:[0,0,0,0,0,0], lvT:0, job:-1, jt:0 };
+const XP = { lv:1, xp:0, pts:1, st:[0,0,0,0], lvT:0, job:-1, jt:0 };
 /* 이 스텟을 몇 단계까지 찍을 수 있나 — 내 직업의 스텟이면 전직 단계마다 +2 */
 function statMax(i){
   const S = STATS[i]; if(!S) return 0;
@@ -8093,14 +8281,27 @@ function jobDue(){
 xpTable();
 function xpReset(){
   xpTable();
-  XP.lv=1; XP.xp=0; XP.pts=1; XP.st=[0,0,0,0,0,0]; XP.lvT=0; XP.job=-1; XP.jt=0;
+  XP.lv=1; XP.xp=0; XP.pts=1; XP.st=[0,0,0,0]; XP.lvT=0; XP.job=-1; XP.jt=0;
   hudPrev.xp=''; hudPrev.kit='';
 }
 const stLv      = i => XP.st[i]|0;
-const mineTime  = ()=> MINE_T * Math.pow(0.89, stLv(0));
-const mineBonus = ()=> stLv(1);
-const workMul   = ()=> Math.pow(0.89, stLv(2));
-const maxHP     = ()=> SHEEP_HP + 22*stLv(4);
+/* ── 네 스탯에서 뽑아 쓰는 능력치 ──
+   ★ 게임의 나머지는 여기만 부른다(캐기·짓기·싸움·달리기). 그래서 스탯 표를 갈아 끼워도
+     아래쪽 코드는 한 줄도 안 바뀐다 — 능력치를 부르는 이름이 그대로다.
+   ★ 곱으로 겹친다. 민첩만 12면 0.92^12=0.37, 힘까지 12면 ×0.96^12=0.61 → 0.23.
+     한쪽만 찍어도 쓸 만하고, 둘 다 찍으면 확실히 빠르다. */
+/* ★ 눈금은 **12칸이 예전 8칸과 같아지게** 잡았다.
+   상한만 8→12 로 올리고 칸당 값을 그대로 두었더니 재 보니 세기가 통째로 부풀었다
+   (체력 276→412 · 공격 ×1.96→×2.80). 그러면 늑대 세기·자원·레벨 곡선을 전부 다시 재야 한다.
+   지금 값은 한 갈래를 끝까지(12칸) 찍었을 때 예전 한 갈래 만렙(8칸)과 거의 같다 —
+   **바뀐 것은 세기가 아니라 고르는 방식**이고, 그래서 지금까지 잰 밸런스가 그대로 산다. */
+const mineTime  = ()=> MINE_T * Math.pow(0.92, stLv(ST_AGI)) * Math.pow(0.98, stLv(ST_STR));
+/* 캐는 양은 세 칸에 +2 — 칸마다 +1 이면 12칸에 +12 가 되어 자원 수입이 통째로 는다(예전 +8) */
+const mineBonus = ()=> Math.round(stLv(ST_INT) * 2/3);
+const workMul   = ()=> Math.pow(0.92, stLv(ST_INT)) * Math.pow(0.98, stLv(ST_AGI));
+/* 농장 일(먹이·청소)도 짓기와 같은 손이다 — 지능이 주, 민첩이 곁 */
+const farmMul   = ()=> workMul();
+const maxHP     = ()=> SHEEP_HP + 15*stLv(ST_VIT);
 function xpGain(n, why){
   if(!G.started || n <= 0 || XP.lv >= LV_MAX) return;
   XP.xp += n;
@@ -8134,7 +8335,7 @@ function takeStat(i){
   if(XP.pts <= 0 || XP.st[i] >= statMax(i)) return;
   XP.pts--; XP.st[i]++;
   hudPrev.xp=''; hudPrev.kit='';
-  if(i === 4) PL.hp = Math.min(maxHP(), PL.hp + 22);   // 체력을 올리면 그만큼 바로 채워 준다
+  if(i === ST_VIT) PL.hp = Math.min(maxHP(), PL.hp + 15); // 체력을 올리면 그만큼 바로 채워 준다
   if(window.__sfx) window.__sfx('up');
   toast(`${S.ic} ${S.n} ${XP.st[i]}단계!`, 1.8, '#c8ffb0');
   if(popOpen() && el('popStat').classList.contains('on')) buildStatUI();
@@ -8174,9 +8375,13 @@ function showCombo(n){
   _cbEl.classList.remove('cbHit'); void _cbEl.offsetWidth; _cbEl.classList.add('on','cbHit');
 }
 
-const atkMul  = ()=> (KIT.bAtk > 0 ? 1.6 : 1) * (1 + 0.12*stLv(3));
-const spdMul  = ()=> KIT.bSpd > 0 ? 1.35 : 1;
-const defNow  = ()=> Math.min(85, ARMORS[KIT.arm].def + (KIT.bDef > 0 ? 25 : 0) + 5*stLv(5));
+const atkMul  = ()=> (KIT.bAtk > 0 ? 1.6 : 1) * (1 + 0.08*stLv(ST_STR) + 0.03*stLv(ST_AGI));
+/* ★ 이동 속도는 아주 조금만 준다. 양이 5.4, 날쌘늑대가 5.35 다 —
+   여기를 크게 주면 **날쌘늑대가 영영 못 쫓는다.** 12칸 다 찍어도 +18% 로 묶는다
+   (물약 1.35배는 그대로). kite2 로 재 보고 정했다. */
+const spdMul  = ()=> (KIT.bSpd > 0 ? 1.35 : 1) * (1 + 0.015*stLv(ST_AGI));
+const defNow  = ()=> Math.min(85, ARMORS[KIT.arm].def + (KIT.bDef > 0 ? 25 : 0)
+                                + 3*stLv(ST_VIT) + 1*stLv(ST_STR));
 const wpnNow  = ()=> WEAPONS[Math.max(0, Math.min(WEAPONS.length-1, KIT.wpn))];
 /* 무기 한 방의 힘 (크리티컬 전) */
 function wpnDmg(){
@@ -8656,31 +8861,58 @@ function openStat(){ buildStatUI(); openPop('popStat'); }
 /* ═══════════ 전직 고르기 ═══════════
    ★ 1차에서 고른 길로만 2차를 간다 — 길을 갈아탈 수 있으면
      아이들이 하루 종일 갈아 끼우다 끝난다. 2차 화면은 확인만 받는다. */
+/* ═══════ ✨ 전직 카드 — 그 차림새를 입은 내 양을 찍어 붙인다 (23차) ═══════
+   ★ WebGL 판을 셋 켜지 않는다. 판 하나로 직업마다 한 번씩 그려 **사진(toDataURL)** 을 떠서
+     <img> 에 붙이고 판은 바로 버린다. 카드는 그냥 그림이라 열어 두어도 한 프레임도 안 쓴다.
+   ★ preserveDrawingBuffer 를 켜야 한다 — 안 켜면 그린 것이 다음 프레임에 지워져
+     **빈 그림**이 나온다(오류는 안 난다).
+   ★ 몸·차림새는 게임과 같은 표를 그대로 읽는다(pvwSet). 카드에서 본 모습과 전직한 뒤
+     모습이 어긋나면, 한 번 고르면 못 바꾸는 선택에서 그건 속인 것이 된다. */
+function jobShots(tier){
+  const out = JOBS.map(()=> null);
+  const P = mkPvw(el('jobShot'), 220, 260, true);
+  if(!P) return out;                          // WebGL 판이 모자라면 그림 없이 글씨만
+  P.grp.rotation.y = 0.42;                    // 살짝 비스듬히 — 정면은 망토·등짐이 안 보인다
+  /* 카드 안에서는 꽉 차게 잡는다 — 기본 자리(z 6.4)로 찍으면 양이 판 가운데 작게 뜬다 */
+  P.cam.position.set(0, 0.92, 4.9); P.cam.lookAt(0, 0.80, 0);
+  JOBS.forEach((J,i)=>{
+    pvwSet(P, {g:G.me.g|0, hat:G.me.hat|0, gls:G.me.gls|0, clo:G.me.clo|0,
+               pet:0, job:i, jt:tier});
+    P.r.render(P.sc, P.cam);
+    try{ out[i] = P.r.domElement.toDataURL('image/png'); }catch(e){}
+  });
+  pvwKill(P);
+  return out;
+}
 function buildJobUI(){
   const due = jobDue();                       // 밟을 단계 (1 또는 2)
-  const w = el('jobList'); if(!w) return;
+  const w = el('jobCards'); if(!w) return;
   el('jobTitle').textContent = due >= 2 ? '✨ 2차 전직!' : '✨ 전직!';
   el('jobHint').innerHTML = due >= 2
-    ? '같은 길을 더 깊이 갑니다. 차림새가 더 멋있어지고, '
-      + `<b>찍을 수 있는 칸이 ${JOB_STEP}개 더</b> 늘어나요.`
-    : '길을 하나 고르세요. <b>한 번 고르면 못 바꿔요.</b> '
-      + `고른 길의 스텟을 <b>${JOB_STEP}칸 더</b> 찍을 수 있고, 양의 차림새가 바뀝니다.`;
+    ? '같은 길을 더 깊이 갑니다. <b>차림새가 이렇게 바뀌어요.</b> '
+      + `찍을 수 있는 칸도 <b>${JOB_STEP}개 더</b> 늘어납니다.`
+    : '<b>어떤 모습이 될지 보고</b> 길을 하나 고르세요. <b>한 번 고르면 못 바꿔요.</b> '
+      + `고른 길의 스텟을 <b>${JOB_STEP}칸 더</b> 찍을 수 있습니다.`;
   w.innerHTML = '';
+  const shot = jobShots(due);
   /* 2차는 이미 고른 길 하나만 보여 준다 */
-  const list = (due >= 2 && XP.job >= 0) ? [JOBS[XP.job]] : JOBS;
-  for(const J of list){
-    const i = JOBS.indexOf(J), S = STATS[J.st];
+  const list = (due >= 2 && XP.job >= 0) ? [XP.job] : JOBS.map((J,i)=>i);
+  for(const i of list){
+    const J = JOBS[i], S = STATS[J.st];
     const now = statMax(J.st), after = S.max + JOB_STEP*due;
     const d = document.createElement('div');
-    d.className = 'stIt';
-    d.innerHTML = `<div class="si">${J.ic}</div><div class="sb">
-      <div class="sn" style="color:${J.col}">${J.n}</div>
-      <div class="sd">${J.d2}<br>${S.ic} <b>${S.n}</b> ${now}칸 → <b>${after}칸</b></div></div>`;
-    const b = document.createElement('button');
-    b.textContent = due >= 2 ? '2차 전직!' : '이 길로!';
-    b.className = 'buy';
-    b.onclick = ()=> takeJob(i);
-    d.appendChild(b);
+    d.className = 'jobCard';
+    d.style.borderColor = J.col;
+    d.innerHTML =
+      `<div class="jFig"><span class="jBadge">${J.ic}</span>`
+      + (shot[i] ? `<img alt="${esc(J.n)}" src="${shot[i]}">`
+                 : `<span class="jNone">🐑</span>`)
+      + `</div>`
+      + `<div class="jName" style="color:${J.col}">${J.n}${due>=2?' 2차':''}</div>`
+      + `<div class="jDesc">${J.d2}</div>`
+      + `<div class="jStat">${S.ic} ${S.n} ${now}칸 → <b>${after}칸</b></div>`
+      + `<div class="jGo">${due >= 2 ? '2차 전직!' : '이 길로!'}</div>`;
+    d.onclick = ()=> takeJob(i);
     w.appendChild(d);
   }
 }
@@ -8740,24 +8972,43 @@ function buildStatUI(){
     const mx = statMax(i);                     // 전직하면 내 길의 스텟만 칸이 늘어난다
     const lv = XP.st[i], full = lv >= mx, can = XP.pts > 0 && !full;
     const d = document.createElement('div');
-    d.className = 'stIt';
-    let pips = '';
-    /* 전직으로 늘어난 칸은 표시를 달리한다 — '내가 얻은 칸' 이 눈에 보여야 한다 */
-    for(let k=0;k<mx;k++)
-      pips += `<i class="${k<lv?'on':''}"${k>=S.max?' style="outline:1.5px solid #ffd257"':''}></i>`;
-    d.innerHTML = `<div class="si">${S.ic}</div><div class="sb">
-      <div class="sn">${S.n} <span style="opacity:.65;font-size:11.5px">${lv}/${mx}</span>`
-      + (mx > S.max ? ` <span style="color:#ffd257;font-size:11.5px">+${mx-S.max} 전직</span>` : '')
-      + `</div>
-      <div class="sd">${S.d}</div><div class="stPips">${pips}</div></div>`;
+    d.className = 'stBig' + (full ? ' full' : '');
+    d.innerHTML = `<div class="sIc">${S.ic}</div><div class="sMid">
+      <div class="sTop"><span class="sNm">${S.n}</span>`
+      + (mx > S.max ? ` <span style="color:#ffd257;font-size:11px">+${mx-S.max} 전직</span>` : '')
+      + `<span class="sVal">${lv}</span><span class="sMax">/${mx}</span></div>
+      <div class="sWhat">${S.d}</div><div class="sSub">${S.sub || ''}</div></div>`;
     const btn = document.createElement('button');
-    btn.textContent = full ? '끝' : '＋';
+    btn.textContent = full ? '✓' : '＋';
     btn.disabled = !can;
+    btn.title = full ? '더 못 찍어요' : (XP.pts > 0 ? S.n + ' 올리기' : '남은 점수가 없어요');
     btn.onclick = ()=> takeStat(i);
     d.appendChild(btn);
     w.appendChild(d);
   });
+  buildDerivUI();
   buildBadgeUI();
+}
+/* ═══════ 📊 스탯에서 나오는 값들 (23차) ═══════
+   ★ 값을 여기서 다시 계산하지 않는다 — 게임이 실제로 쓰는 함수를 그대로 부른다.
+     두 군데서 계산하면 창에 뜬 숫자와 진짜 세기가 어긋난다(그런 어긋남은 아무도 못 잡는다).
+   ★ 어느 스탯에서 나온 값인지 옆에 작게 적는다. 이게 있어야 '무엇을 찍을까' 가 생각이 된다. */
+function buildDerivUI(){
+  const w = el('stDeriv'); if(!w) return;
+  const pct = v => Math.round(v*100) + '%';
+  const rows = [
+    ['🎯 사격 공격력', '×' + (Math.round(atkMul()*100)/100), '힘·민첩'],
+    ['⛏️ 캐는 속도',   pct(1 - mineTime()/MINE_T) + ' 빠름', '민첩·힘'],
+    ['🎒 한 번에 캐는 양', '+' + mineBonus(), '지능'],
+    ['🔨 짓기·수리 속도', pct(1 - workMul()) + ' 빠름', '지능·민첩'],
+    ['🧺 농장 일 속도', pct(1 - farmMul()) + ' 빠름', '지능·민첩'],
+    ['❤️ 최대 체력',   String(maxHP()), '체력'],
+    ['🛡️ 방어력',      defNow() + '%', '체력·힘'],
+    ['👟 이동 속도',   '×' + (Math.round(spdMul()*100)/100), '민첩']
+  ];
+  w.innerHTML = rows.map(([n,v,from])=>
+    `<div class="dRow"><span class="dNm">${n}</span>`
+    + `<span class="dFrom">${from}</span><span class="dVal">${v}</span></div>`).join('');
 }
 /* ═══════ 🎖️ 칭호 칸 (22차) ═══════
    ★ 창을 열 때만 그린다 — 매 프레임 도는 자리가 아니다. */
@@ -8777,46 +9028,132 @@ function buildBadgeUI(){
     + `<div class="bd">${got.has(i)?'✔ 받음':esc(B.d)}</div></div></div>`).join('');
 }
 
-function openKit(){ buildKitUI(); openPop('popKit'); }
-function kitCard(ic, name, sub, on, onClick){
-  const d = document.createElement('div');
-  d.className = 'kitIt' + (on ? ' on' : '');
-  d.innerHTML = `<div class="ki">${ic}</div><div class="kb">
-    <div class="kn">${name}</div><div class="kd">${sub}</div></div>`;
-  d.onclick = onClick;
-  return d;
+/* ═══════════════════════ 🎒 가방 (23차에 새로 지었다) ═══════════════════════
+   ★ 예전 가방은 '무기 목록 / 방어구 목록 / 물약 목록' 세 덩이였다.
+     ① 뭘 입고 있는지가 **글씨로만**(들고 있음) 보였고
+     ② 모자·안경·옷·짝꿍은 **시작 화면에서 고른 뒤로는 영영 못 바꿨다.**
+   ★ 이제 가운데에 내 양이 서 있고, 양옆이 입은 자리, 오른쪽이 가진 것이다.
+     누르면 그 자리에서 양이 갈아입는다 — '고른 것' 과 '보이는 것' 사이에 글씨가 없다.
+   ★ **통신은 한 칸도 안 늘었다.** 모자·안경·옷은 이미 자리 통로에(ht/gl/cl),
+     짝꿍은 pc 통로에 실려 나가고 있었다. 바꾸면 친구 화면에서도 그대로 갈아입는다.
+   ★ 미리보기는 시작 화면과 **같은 함수**(mkPvw/pvwSet)를 쓴다. 두 벌을 만들면 반드시
+     어긋난다 — "가방에선 리본인데 게임에선 왕관" 이 되는 종류의 어긋남이다. */
+const KIT_TABS = [['all','전체'], ['wpn','🔫 무기'], ['arm','🛡️ 방어구'],
+                  ['pot','🧪 물약'], ['deco','✨ 꾸미기']];
+const KSLOT_L = ['hat','gls','clo'];        // 왼쪽 — 꾸미기
+const KSLOT_R = ['wpn','arm','pet'];        // 오른쪽 — 싸움과 짝꿍
+let kitTab = 'all', kitPvw = null, kitPvwOff = false;
+
+/* 지금 그 자리에 뭐가 들어 있나 — {ic, n, empty} */
+function kitSlot(k){
+  if(k === 'wpn'){ const W = WEAPONS[KIT.wpn] || WEAPONS[0];
+    return {ic:W.ic, n:W.n, empty:KIT.wpn === 0}; }
+  if(k === 'arm'){ const A = ARMORS[KIT.arm] || ARMORS[0];
+    return {ic:A.ic, n:A.n, empty:KIT.arm === 0}; }
+  const T = {hat:[HAT_ICON, HAT_NAME, G.me.hat|0], gls:[GLS_ICON, GLS_NAME, G.me.gls|0],
+             clo:[CLO_ICON, CLO_NAME, G.me.clo|0], pet:[PET_ICON, PET_NAME, G.me.pet|0]}[k];
+  if(!T) return {ic:'', n:'', empty:true};
+  const i = Math.max(0, Math.min(T[0].length-1, T[2]));
+  return {ic:i ? T[0][i] : '🚫', n:T[1][i], empty:i === 0};
 }
+const KSLOT_NAME = {hat:'모자', gls:'안경', clo:'옷', pet:'짝꿍', wpn:'무기', arm:'방어구'};
+
+/* 가진 것 전부 — 무기·방어구·물약·꾸미기를 한 줄로 편다.
+   ★ '없음'(0번 꾸미기)은 칸에 안 깐다. 벗는 것은 입은 자리를 눌러서 한다. */
+function kitItems(){
+  const out = [];
+  WEAPONS.forEach((W,i)=>{ if(!KIT.ownW[i] || W.mini) return;
+    out.push({t:'wpn', i, ic:W.ic, n:W.n + enhTxt(enhOf(i)), on:KIT.wpn === i,
+      sub:`한 방 ${Math.round((i ? W.dmg*WDAY() : stoneDmg()) * enhMul(i))} · 사거리 ${W.rng}`
+          + (W.ammo ? ` · 총알 ${W.ammo}발` : '')}); });
+  ARMORS.forEach((A,i)=>{ if(!KIT.ownA[i]) return;
+    out.push({t:'arm', i, ic:A.ic, n:A.n, on:KIT.arm === i, sub:`방어력 ${A.def}`}); });
+  POTIONS.forEach((P,i)=>{ if(KIT.pot[i] <= 0) return;
+    out.push({t:'pot', i, ic:P.ic, n:P.n, cnt:KIT.pot[i], on:false,
+      sub:`눌러서 마시기 (${i+6} 키)`}); });
+  const deco = [['hat', HAT_ICON, HAT_NAME, G.me.hat|0], ['gls', GLS_ICON, GLS_NAME, G.me.gls|0],
+                ['clo', CLO_ICON, CLO_NAME, G.me.clo|0], ['pet', PET_ICON, PET_NAME, G.me.pet|0]];
+  for(const [t, ICO, NM, cur] of deco)
+    for(let i=1;i<ICO.length;i++)
+      out.push({t, i, ic:ICO[i], n:NM[i], on:cur === i, sub:KSLOT_NAME[t]});
+  return out;
+}
+/* 꾸미기를 갈아입는다 — 기기에도 남겨서 새로고침해도 그대로 나온다 */
+function wearDeco(t, i){
+  if(t === 'hat'){ G.me.hat = i; pickHat = i; LS.set('sheepHat', i); }
+  else if(t === 'gls'){ G.me.gls = i; pickGls = i; LS.set('sheepGls', i); }
+  else if(t === 'clo'){ G.me.clo = i; pickClo = i; LS.set('sheepClo', i); }
+  else if(t === 'pet'){ G.me.pet = i; pickPet = i; LS.set('sheepPet', i);
+                        netPCDirty = true; syncMyPC(); }
+  else return;
+  if(window.__sfx) window.__sfx('get');
+  buildKitUI();
+}
+function kitClick(it){
+  if(it.t === 'wpn') equipWeapon(it.on && it.i !== 0 ? 0 : it.i);
+  else if(it.t === 'arm') equipArmor(it.on && it.i !== 0 ? 0 : it.i);
+  else if(it.t === 'pot'){ usePotion(it.i); buildKitUI(); }
+  else wearDeco(it.t, it.on ? 0 : it.i);
+}
+function openKit(){ buildKitUI(); openPop('popKit'); }
 function buildKitUI(){
   const W = wpnNow(), A = ARMORS[KIT.arm];
   el('kitStat').innerHTML =
     `${W.ic} 공격력 <b>${wpnDmg()}</b>${enhTxt(enhOf(KIT.wpn))}　${A.ic} 방어력 <b>${defNow()}</b>　🔸 총알 <b>${KIT.ammo}</b>`;
-  const wv = el('kitW'); wv.innerHTML = '';
-  WEAPONS.forEach((W2,i)=>{
-    if(!KIT.ownW[i]) return;
-    const eq = KIT.wpn === i;
-    const e2 = enhOf(i);
-    const sub = eq ? '들고 있음 — 눌러서 풀기'
-      : `한 방 ${Math.round((i?W2.dmg*WDAY():stoneDmg()) * enhMul(i))} · 사거리 ${W2.rng}`
-        + (W2.ammo ? ` · 총알 ${W2.ammo}발` : ' · 총알 안 씀');
-
-    wv.appendChild(kitCard(W2.ic, W2.n + enhTxt(e2), sub, eq,
-      ()=> equipWeapon(eq && i !== 0 ? 0 : i)));
-  });
-  const av = el('kitA'); av.innerHTML = '';
-  ARMORS.forEach((A2,i)=>{
-    if(!KIT.ownA[i]) return;
-    const eq = KIT.arm === i;
-    av.appendChild(kitCard(A2.ic, A2.n, eq ? '입고 있음 — 눌러서 벗기' : `방어력 ${A2.def}`, eq,
-      ()=> equipArmor(eq && i !== 0 ? 0 : i)));
-  });
-  const pv = el('kitP'); pv.innerHTML = '';
-  let any = 0;
-  POTIONS.forEach((P,i)=>{
-    if(KIT.pot[i] <= 0) return; any++;
-    pv.appendChild(kitCard(P.ic, P.n, `${KIT.pot[i]}개 · 눌러서 마시기 (${i+6} 키)`, false,
-      ()=>{ usePotion(i); buildKitUI(); }));
-  });
-  if(!any) pv.innerHTML = '<div class="kitNone">물약이 없어요 — 낮에 🛒상인에게 사 두세요</div>';
+  /* ── 입은 자리 ── */
+  for(const [wid, keys] of [['kSlotL', KSLOT_L], ['kSlotR', KSLOT_R]]){
+    const w = el(wid); if(!w) continue;
+    w.innerHTML = '';
+    for(const k of keys){
+      const q = kitSlot(k);
+      const d = document.createElement('div');
+      d.className = 'kSlot' + (q.empty ? ' empty' : '');
+      d.title = KSLOT_NAME[k] + (q.empty ? '' : ' — ' + q.n + ' (눌러서 벗기)');
+      d.innerHTML = `${q.ic || '＋'}<span class="kTag">${KSLOT_NAME[k]}</span>`;
+      d.onclick = ()=>{
+        if(q.empty) return;
+        if(k === 'wpn') equipWeapon(0); else if(k === 'arm') equipArmor(0);
+        else wearDeco(k, 0);
+      };
+      w.appendChild(d);
+    }
+  }
+  /* ── 고르는 칸 ── */
+  const tw = el('kitTabs'); tw.innerHTML = '';
+  for(const [k, n] of KIT_TABS){
+    const b = document.createElement('button');
+    b.textContent = n; if(k === kitTab) b.classList.add('on');
+    b.onclick = ()=>{ kitTab = k; buildKitUI(); };
+    tw.appendChild(b);
+  }
+  const all = kitItems();
+  const DECO = new Set(['hat','gls','clo','pet']);
+  const show = all.filter(it => kitTab === 'all' ? true
+                              : kitTab === 'deco' ? DECO.has(it.t) : it.t === kitTab);
+  const gw = el('kitGrid'); gw.innerHTML = '';
+  for(const it of show){
+    const d = document.createElement('div');
+    d.className = 'kCell' + (it.on ? ' on' : '');
+    d.title = it.n + ' — ' + it.sub;
+    d.innerHTML = it.ic + (it.cnt ? `<span class="kNum">${it.cnt}</span>` : '');
+    const tell = ()=>{ el('kitPick').innerHTML =
+      `<b>${esc(it.n)}</b> <span style="opacity:.7">· ${esc(it.sub)}</span>`; };
+    d.onmouseenter = tell; d.onclick = ()=>{ tell(); kitClick(it); };
+    gw.appendChild(d);
+  }
+  el('kitCount').textContent = show.length + '/' + all.length;
+  /* ★ 이 줄이 비어 있으면 아이들이 아이콘만 보고 이름을 영영 모른다 */
+  el('kitPick').textContent = show.length ? '칸에 손을 올리면 이름이 여기 떠요'
+                                          : '이 칸에는 아직 아무것도 없어요';
+  /* ── 가운데 내 양 ── */
+  if(!kitPvw && !kitPvwOff){
+    kitPvw = mkPvw(el('kitPvw'), 200, 250);
+    if(!kitPvw){ kitPvwOff = true;                  // WebGL 판이 모자란 기기
+      const c = el('kitPvw'), o = el('kitFigOff');
+      if(c) c.style.display = 'none'; if(o) o.style.display = 'flex'; }
+  }
+  pvwSet(kitPvw, {g:G.me.g|0, hat:G.me.hat|0, gls:G.me.gls|0, clo:G.me.clo|0,
+                  pet:G.me.pet|0, job:XP.job, jt:XP.jt});
 }
 function usePotion(i){
   if(!G.started || i < 0 || i >= POTIONS.length) return;
@@ -10223,7 +10560,7 @@ function doAction(dt){
   if(fs && fs.w !== 'buy' && G.phase === 'day'){
     const f = G.farm[fs.g];
     const LBL = {feed:'🌾 먹이 주기', clean:'🧹 청소하기'}[fs.w];
-    const need = FARM_SEC[fs.w];
+    const need = FARM_SEC[fs.w] * farmMul();   // 📘 지능이 높으면 먹이·청소가 빠르다 (23차)
     /* 할 일이 없으면 안내만 하고 지나간다 — 헛되이 꾹 누르게 두지 않는다 */
     const idle = fs.w==='feed' ? (farmCount(f)===0 ? '동물이 없어요' : f.fed===G.day ? '오늘은 다 먹였어요' : null)
                :                   ((f.dirt||0) < 0.05 ? '깨끗해요' : null);
@@ -12799,76 +13136,93 @@ const PVW_BODY = [
   [-0.30,0.17,-0.27,  0.20,0.36,0.20, 0x5c564f]
 ];
 let pvw = null;
-function pvwInit(){
-  const cvs = el('pvw'); if(!cvs || pvw) return;
+/* ═══════ 미리보기 만들기 (23차에 시작 화면 전용에서 **아무 데나 쓸 수 있게** 바꿨다) ═══════
+   ★ 가방(23차)과 전직 카드(23차)도 같은 양을 보여 줘야 한다. 몸·착장 표를 두 벌 만들면
+     반드시 어긋난다("미리보기에선 리본인데 게임에선 왕관") — 그래서 하나를 돌려 쓴다.
+   ★ keep = 그린 그림을 toDataURL 로 떠 갈 것인가. 전직 카드는 **사진을 찍어 붙이므로**
+     이게 켜져 있어야 한다(안 켜면 다음 프레임에 지워져 빈 그림이 나온다).
+   ★ 못 만들면 null 을 준다 — WebGL 판이 모자란 기기에서는 미리보기만 조용히 없어진다. */
+function mkPvw(cvs, W, H, keep){
+  if(!cvs) return null;
   let r;
-  try{ r = new THREE.WebGLRenderer({canvas:cvs, antialias:false, alpha:true}); }
-  catch(e){ return; }                       // WebGL 판이 모자라면 그냥 미리보기만 없다
+  try{ r = new THREE.WebGLRenderer({canvas:cvs, antialias:false, alpha:true,
+                                    preserveDrawingBuffer:!!keep}); }
+  catch(e){ return null; }
   r.setPixelRatio(Math.min(2, devicePixelRatio||1));
-  r.setSize(230, 270, false);
+  r.setSize(W, H, false);
   const sc = new THREE.Scene();
-  const cam = new THREE.PerspectiveCamera(30, 230/270, 0.1, 40);
+  const cam = new THREE.PerspectiveCamera(30, W/H, 0.1, 40);
   cam.position.set(0, 1.06, 6.4); cam.lookAt(0, 1.00, 0);
-
   sc.add(new THREE.AmbientLight(0xffffff, 0.86));
   const dl = new THREE.DirectionalLight(0xfff3d8, 1.05);
   dl.position.set(2.4, 4.0, 3.2); sc.add(dl);
   const grp = new THREE.Group(); sc.add(grp);
-  pvw = {r, sc, cam, grp, body:[], deco:[], t:0, geo:cube(T.cloth)};
+  const P = {r, sc, cam, grp, body:[], deco:[], t:0, geo:cube(T.cloth)};
   for(const p of PVW_BODY){
-    const m = new THREE.Mesh(pvw.geo, new THREE.MeshLambertMaterial({map:ATLAS}));
-    grp.add(m); pvw.body.push(m);
+    const m = new THREE.Mesh(P.geo, new THREE.MeshLambertMaterial({map:ATLAS}));
+    grp.add(m); P.body.push(m);
   }
-  pvwDress();
+  return P;
 }
-/* 지금 고른 착장으로 다시 세운다 — 단추를 누를 때만 부른다(매 프레임 아님) */
-function pvwDress(){
-  if(!pvw) return;
-  const base = GHEX[pickG] || 0xffffff;
+/* 착장을 입힌다 — d = {g, hat, gls, clo, pet, job, jt}. 단추를 누를 때만 부른다(매 프레임 아님).
+   ★ 조각 값은 게임과 **같은 표**(HATS/GLASSES/CLOTHES/PETS/JOB_LOOK)를 그대로 읽는다. */
+function pvwSet(P, d){
+  if(!P) return;
+  d = d || {};
+  const base = GHEX[d.g|0] || 0xffffff;
   const wool = lighten(base, 0.34), frng = lighten(base, 0.20);
-  const put = (m, f,u,sd, w,h,d, col)=>{
-    m.position.set(sd, u, f); m.scale.set(w, h, d);
+  const put = (m, f,u,sd, w,h,dp, col)=>{
+    m.position.set(sd, u, f); m.scale.set(w, h, dp);
     m.material.color.setHex(col); m.visible = true;
   };
   PVW_BODY.forEach((p,i)=>{
     const c = p[6]==='body' ? base : p[6]==='wool' ? wool : p[6]==='frng' ? frng : p[6];
-    put(pvw.body[i], p[0],p[1],p[2], p[3],p[4],p[5], c);
+    put(P.body[i], p[0],p[1],p[2], p[3],p[4],p[5], c);
   });
   /* 귀는 살짝 늘어뜨린다 — 이게 없으면 머리에 상자를 붙인 것처럼 보인다 */
-  pvw.body[4].rotation.z = -0.55; pvw.body[5].rotation.z = 0.55;
+  P.body[4].rotation.z = -0.55; P.body[5].rotation.z = 0.55;
   const want = [];
-  for(const [arr, idx] of [[HATS,pickHat],[GLASSES,pickGls],[CLOTHES,pickClo]])
-    for(const h of (arr[idx]||[])) want.push(h);
+  for(const [arr, idx] of [[HATS,d.hat|0],[GLASSES,d.gls|0],[CLOTHES,d.clo|0]])
+    for(const h of (arr[Math.max(0, Math.min(arr.length-1, idx))]||[])) want.push(h);
+  /* 전직 차림새 — 게임과 같은 표를 그대로 얹는다. 안 그러면 고르기 전에 본 모습과 달라진다 */
+  const jt = d.jt|0, jb = d.job === undefined ? -1 : d.job|0;
+  if(jt > 0 && jb >= 0 && jb < JOB_LOOK.length)
+    for(const h of (JOB_LOOK[jb][Math.min(jt, JOB_LOOK[jb].length) - 1] || [])) want.push(h);
   /* 짝꿍은 양 왼쪽 땅바닥에 앉힌다 — 뒤에 두면 미리보기가 돌 때 몸에 가려 안 보인다.
-     조각 값은 게임과 같은 표(PETS)를 그대로 읽으므로 여기서 본 모습이 게임과 안 어긋난다. */
-  /* 미리보기에서는 조금 크게 — 230×270 판 안에서 양 옆에 서면 실제 비율로는 너무 작다 */
+     미리보기에서는 조금 크게 — 작은 판 안에서 양 옆에 서면 실제 비율로는 너무 작다 */
+  /* ★ 0.96 이었는데 가방 판(200px)에서는 짝꿍이 왼쪽으로 잘렸다 — 화면에 찍어 보고 0.82 로 당겼다 */
   const PS = PET_S * 1.2;
-  for(const p of (PETS[pickPet]||[]))
-    want.push([p[0]*PS + 0.10, p[1]*PS, p[2]*PS - 0.96,
+  for(const p of (PETS[Math.max(0, Math.min(PETS.length-1, d.pet|0))]||[]))
+    want.push([p[0]*PS + 0.10, p[1]*PS, p[2]*PS - 0.82,
                p[3]*PS, p[4]*PS, p[5]*PS, p[6]]);
-  while(pvw.deco.length < want.length){
-    const m = new THREE.Mesh(pvw.geo, new THREE.MeshLambertMaterial({map:ATLAS}));
-    pvw.grp.add(m); pvw.deco.push(m);
+  while(P.deco.length < want.length){
+    const m = new THREE.Mesh(P.geo, new THREE.MeshLambertMaterial({map:ATLAS}));
+    P.grp.add(m); P.deco.push(m);
   }
-  pvw.deco.forEach((m,i)=>{
+  P.deco.forEach((m,i)=>{
     if(i >= want.length){ m.visible = false; return; }
     const h = want[i];
     put(m, h[0],h[1],h[2], h[3],h[4],h[5], h[6]);
   });
 }
-function pvwTick(dt){
-  if(!pvw) return;
-  pvw.t += dt;
-  /* 천천히 돌려서 등에 걸친 망토도 보이게. 앞모습에서 시작해 좌우로 흔들린다. */
-  pvw.grp.rotation.y = Math.sin(pvw.t*0.55)*0.85;
-  pvw.grp.position.y = Math.sin(pvw.t*1.7)*0.018;
-  pvw.r.render(pvw.sc, pvw.cam);
+/* 천천히 돌린다 — 등에 걸친 망토도 보이게. 앞모습에서 시작해 좌우로 흔들린다 */
+function pvwSpin(P, dt){
+  if(!P) return;
+  P.t += dt;
+  P.grp.rotation.y = Math.sin(P.t*0.55)*0.85;
+  P.grp.position.y = Math.sin(P.t*1.7)*0.018;
+  P.r.render(P.sc, P.cam);
 }
-function pvwDispose(){
-  if(!pvw) return;
-  for(const m of pvw.body.concat(pvw.deco)) m.material.dispose();
-  pvw.r.dispose(); pvw = null;
+function pvwKill(P){
+  if(!P) return;
+  for(const m of P.body.concat(P.deco)) m.material.dispose();
+  P.r.dispose();
 }
+/* ── 시작 화면 미리보기 (지금 고르고 있는 착장) ── */
+function pvwInit(){ if(!pvw) pvw = mkPvw(el('pvw'), 230, 270); pvwDress(); }
+function pvwDress(){ pvwSet(pvw, {g:pickG, hat:pickHat, gls:pickGls, clo:pickClo, pet:pickPet}); }
+function pvwTick(dt){ pvwSpin(pvw, dt); }
+function pvwDispose(){ pvwKill(pvw); pvw = null; }
 
 buildPicker();
 pvwInit();
@@ -13625,6 +13979,8 @@ function loop(){
   }
 
   if(pvw) pvwTick(dt);          // 시작 화면 착장 미리보기 (게임이 시작되면 사라진다)
+  /* 가방 속 내 양 — **가방을 열어 놓은 동안만** 돈다. 닫혀 있으면 한 프레임도 안 쓴다 */
+  if(kitPvw && el('popKit').classList.contains('on')) pvwSpin(kitPvw, dt);
 
   if(G.started && !DBG.noLogic){
     if(PROF_ON) pS();
@@ -14097,6 +14453,16 @@ Object.assign(window, {
   __throw:fireWeapon, __aimWolf:aimWolf, __setThrow:v=>{ throwing = v; },
   __setAim:setAimMode, __aimMode:()=>aimMode, __bullets:()=>bullets, __bMesh:()=>bMesh,
   __gunKick:()=>gunKick, __openKit:openKit, __equipW:equipWeapon,
+  /* 가방에 깔리는 것들 (23차) — 검사가 화면 모양(#kitW .kitIt)을 베끼지 않게 게임이 준다 */
+  __kitItems:kitItems, __wearDeco:wearDeco,
+  /* 총기 반동 (23차) — 검사가 값을 베끼지 않게 상수와 함수를 그대로 내준다 */
+  __aimKick:()=>aimKick, __aimSway:()=>aimSway, __fireRecoil:fireRecoil,
+  /* 조준이 보는 쪽 — 반동이 '진짜로' 조준을 틀어 놓는지는 이걸로만 확인할 수 있다.
+     ★ 돌려 쓰는 벡터 하나를 그대로 준다. 들고 있지 말고 그 자리에서 읽어야 한다. */
+  __forward:forward,
+  __recoilTick:recoilTick, __recoilReset:recoilReset,
+  __RECOIL:()=>({up:RECOIL_UP, side:RECOIL_SIDE, back:RECOIL_BACK, max:RECOIL_MAX,
+                 hold:RECOIL_HOLD, slow:RECOIL_SLOW}),
   __ghostVisible:()=>ghost.visible, __buildShopUI:buildShopUI, __buildKitUI:buildKitUI,
   __goalText:goalText, __drawMini:drawMini, __THREE:THREE, __mp:(x,z)=>[mpx(x),mpz(z)],
   __updHeld:updHeld, __gunModels:()=>gunModels,
@@ -14218,6 +14584,10 @@ Object.assign(window, {
   __WORK_SEC:WORK_SEC, __UP_SEC:()=>UP_SEC,
   __gunMeshes:()=>[P_gun, P_gunF],
   __wpnDmg:wpnDmg, __spdMul:spdMul,
+  /* 23차 스탯 — 검사가 값을 베끼지 않게 파생 함수와 칸 번호를 그대로 내준다 */
+  __farmMul:farmMul, __workMul:workMul, __MINE_T:()=>MINE_T,
+  __kitPvw:()=>kitPvw, __pvwSpin:pvwSpin,
+  __ST:()=>({str:ST_STR, vit:ST_VIT, agi:ST_AGI, int:ST_INT}),
   __HB:()=>[HB_BG, HB_FG], __drawWolfHP:drawWolfHP,
   __dnums:()=>dnums, __popDmg:popDmg, __dnTick:dnTick,
   __setCrit:(p)=>{ critForce = p; },
