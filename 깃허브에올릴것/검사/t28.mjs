@@ -79,10 +79,15 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
     o.칸단위 = (a === c) && (Math.abs(a/texel - Math.round(a/texel)) < 1e-6);
     W.__PL.x=16; W.__PL.z=22; W.__shadowFollow(16,22);
     /* ★ 제일 중요한 것 — 화면에 실제로 닿나 */
-    const cv=document.createElement('canvas'); cv.width=450; cv.height=260;
-    const cx=cv.getContext('2d',{willReadFrequently:true}); const N=450*260;
-    const grab=()=>{ W.__drawFrame(); cx.drawImage(R.domElement,0,0,450,260);
-                     return cx.getImageData(0,0,450,260).data; };
+    /* ★ 캔버스를 **원본 크기로** 읽는다. 줄여서 읽으면 이웃 픽셀이 평균돼
+       찾으려던 국소 봉우리가 깎인다 — 같은 화면인데 900x520 을 450x260 으로
+       줄여 읽었더니 제일 밝아진 곳이 79 → 37 로 반토막 났다.
+       '가장 큰 차이' 를 보는 항목은 절대로 줄여서 읽으면 안 된다. */
+    const dm=R.domElement, CW=dm.width, CH=dm.height, N=CW*CH;
+    const cv=document.createElement('canvas'); cv.width=CW; cv.height=CH;
+    const cx=cv.getContext('2d',{willReadFrequently:true});
+    const grab=()=>{ W.__drawFrame(); cx.drawImage(dm,0,0);
+                     return cx.getImageData(0,0,CW,CH).data; };
     W.__sun.castShadow=true;  R.shadowMap.needsUpdate=true; const on=grab();
     W.__sun.castShadow=false; R.shadowMap.needsUpdate=true; const off=grab();
     W.__sun.castShadow=true;  R.shadowMap.needsUpdate=true;
@@ -118,10 +123,15 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
     o.돎 = !!rt;
     /* 절반 크기로 흐린다 — 빛 번짐은 대역폭 장사라 내장그래픽에서 제일 먼저 걸린다 */
     o.절반 = rt ? (rt.half === (rt.w>>1)) : false;
-    const cv=document.createElement('canvas'); cv.width=450; cv.height=260;
-    const cx=cv.getContext('2d',{willReadFrequently:true}); const N=450*260;
-    const grab=()=>{ W.__drawFrame(); cx.drawImage(R.domElement,0,0,450,260);
-                     return cx.getImageData(0,0,450,260).data; };
+    /* ★ 캔버스를 **원본 크기로** 읽는다. 줄여서 읽으면 이웃 픽셀이 평균돼
+       찾으려던 국소 봉우리가 깎인다 — 같은 화면인데 900x520 을 450x260 으로
+       줄여 읽었더니 제일 밝아진 곳이 79 → 37 로 반토막 났다.
+       '가장 큰 차이' 를 보는 항목은 절대로 줄여서 읽으면 안 된다. */
+    const dm=R.domElement, CW=dm.width, CH=dm.height, N=CW*CH;
+    const cv=document.createElement('canvas'); cv.width=CW; cv.height=CH;
+    const cx=cv.getContext('2d',{willReadFrequently:true});
+    const grab=()=>{ W.__drawFrame(); cx.drawImage(dm,0,0);
+                     return cx.getImageData(0,0,CW,CH).data; };
     W.__DBG().noBloom=false; const on=grab();
     W.__DBG().noBloom=true;  const off=grab();
     W.__DBG().noBloom=false;

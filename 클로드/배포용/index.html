@@ -2621,9 +2621,14 @@ const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in wind
      빛 번짐만 전체 화면을 여러 번 읽고 쓰므로, 절반 크기로 그려서 그 몫을 줄여 둔다.
    ★ 터치 기기는 예전 그대로 간다(아이패드는 devicePixelRatio 가 2라 픽셀이 2.56배가 된다).
    ★ 여기 값을 손으로 고치지 마라 — 선생님 설정 구역의 DEFAULTS.gfx 가 고르는 자리다. */
+/* ★ aa(안티에일리어싱)는 0 이다 (25차c). 25차에 4로 켰다가 "좀 흐릿하다" 를 듣고 껐다.
+   이 게임 그림은 일부러 네모나다(16×16 타일). 모서리를 부드럽게 만드는 장치는
+   그 또렷함을 정면으로 깎는다 — 24차까지 antialias:false 였던 데는 성능 말고 이유가 하나 더 있었다.
+   검사기(소프트웨어 렌더링)는 이 값을 무시하므로 여기서는 잴 수가 없다.
+   다시 켜 보고 싶으면 이 표의 aa 를 4로 되돌리면 된다. */
 const GFX_PRESET = {
-  high: {shadow:2048, bloom:1, aa:4, pr:1.6},
-  mid:  {shadow:1024, bloom:0, aa:4, pr:1.5},
+  high: {shadow:2048, bloom:1, aa:0, pr:1.6},
+  mid:  {shadow:1024, bloom:0, aa:0, pr:1.5},
   low:  {shadow:0,    bloom:0, aa:0, pr:1.3}
 };
 /* 주소 끝에 ?gfx=low 처럼 붙이면 그 판만 바꿔 본다 — 파일을 고치지 않고 교실에서 견줘 보려고.
@@ -2659,17 +2664,44 @@ renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 /* 톤매핑 — 밝은 곳이 하얗게 뭉개지지 않고 색을 지킨다. 빛 번짐을 켜면
    직접 짠 합치기 셰이더가 같은 곡선을 쓰므로, 품질을 바꿔도 색이 안 튄다. */
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-/* ★ 노출 1.6 은 재서 고른 값이다. 처음엔 "노출을 올리면 그늘이 씻긴다" 고 짐작하고
-   1.0 에 뒀는데, 재 보니 **정반대로 그늘 깊이는 거의 안 변했다**(97 → 95).
-   톤매핑은 밝은 쪽을 눌러 주는 곡선이라, 노출을 올리면 화면만 밝아지고 대비는 남는다.
+/* ★ 곡선을 ACES 에서 Linear 로 바꿨다 (25차c). "눈이 아프다 · 좀 흐릿하다" 를 재 보니
+   **대비를 키운 것이 빛 배분이 아니라 톤매핑 곡선 자신**이었다. 같은 판·같은 프레임에서:
 
-     노출   낮 밝기(옛 판 93.8)   제일 진한 그늘
-     1.00        69.4                 97
-     1.60        90.0                 95   ← 고름
+     ACES       대비 56.0 · 채도 51.0 · 검정 13.3 · 밝은쪽 203.5
+     톤매핑 끔   대비 40.8 · 채도 49.2 · 검정 24.6 · 밝은쪽 177.1
 
-   밝기를 옛 판의 96% 로 되돌리면서 그늘은 예전(46)의 두 배가 됐다. 맞바꿀 것이 없었다. */
-renderer.toneMappingExposure = 1.30;
+   ACES 는 어두운 쪽을 더 어둡게, 밝은 쪽을 더 밝게 **양쪽으로 잡아당긴다.**
+   밝기를 114 로 맞춰 놓고 곡선을 견줬다(25차 전은 채도 45.0 · 대비 44.0):
+
+     곡선       노출   채도   대비   검정
+     ACES       1.30   51.0   56.0   13.3
+     Cineon     1.32   54.7   49.4   10.8
+     Linear     1.37   48.3   45.8   30.1   ← 골랐다
+     Reinhard   1.87   42.5   38.2   35.6   검정이 떠서 그게 '흐릿함' 이다
+     AgX        1.28   39.5   42.3   23.6   제일 좋은데 three 0.160 에 있는지 확인을 못 했다
+
+   AgX 가 채도·대비 둘 다 제일 낮지만, 게임이 받아오는 three 는 0.160.0 이고
+   검사기는 0.186.0 이라 **확인할 수가 없었다.** 없으면 undefined 가 들어가 조용히
+   톤매핑이 꺼진다(밝기가 114 → 99 로 떨어지는데 오류는 안 난다).
+   ★ 그런데 Linear 는 밝은 쪽을 굴리지 않고 **자른다.** 밝기 114 를 맞추려고 노출을 1.37 로
+     올렸더니 화면의 **9.38%가 새하얗게 탔다**(옛 판은 0.55%). 흰 칸도 눈을 아프게 한다.
+     노출을 1.15 로 내리면 안 타지만 밝기가 104.5 로 떨어진다(옛 판 113.4).
+
+       곡선            밝기    채도   대비   눈부신칸   검정
+       Linear 1.37    113.3   48.1   46.3    9.38%    30.1
+       Linear 1.15    104.5   48.7   43.5    0.58%    27.0
+       Reinhard 1.87  113.2   42.3   38.6    0.00%    35.6  ← 검정이 떠서 뿌옇다
+       AgX 1.28       113.4   39.6   42.8    0.00%    23.6  ← 모든 항목에서 이긴다
+
+   ★ 그래서 **AgX 가 있으면 AgX, 없으면 Linear** 로 간다. 판본마다 다르게 보이는 것은
+     좋지 않지만, 조용히 다른 것보다는 낫다 — 어느 것이 걸렸는지 진단 화면(?diag=1)에 찍는다.
+     게임이 받아오는 three(0.160.0)와 검사기의 three(0.186.0)가 다른 것이 진짜 문제고,
+     그건 따로 고쳐야 한다. */
+const TONE = (THREE.AgXToneMapping !== undefined)
+  ? {mode:THREE.AgXToneMapping,    exp:1.28, nm:'AgX'}
+  : {mode:THREE.LinearToneMapping, exp:1.15, nm:'Linear (AgX 없는 three)'};
+renderer.toneMapping = TONE.mode;
+renderer.toneMappingExposure = TONE.exp;
 if(GFX.shadow){
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -2852,37 +2884,21 @@ function bloomInit(){
         s += (texture2D(tD, vUv + dir*3.2308).rgb + texture2D(tD, vUv - dir*3.2308).rgb) * 0.070270;
         gl_FragColor = vec4(s, 1.0);
       }`});
-  mComp = new THREE.RawShaderMaterial({
-    uniforms:{tS:{value:null}, tB:{value:null},
-              strength:{value:BLOOM.strength}, expo:{value:renderer.toneMappingExposure}},
-    vertexShader: 'precision highp float;\nattribute vec3 position;\nattribute vec2 uv;\n' + FS_VERT,
-    fragmentShader:`precision highp float;
-      uniform sampler2D tS, tB; uniform float strength, expo; varying vec2 vUv;
-      /* ★ three 의 ACESFilmicToneMapping 과 글자 그대로 같은 식이다.
-         조금이라도 다르면 gfx 를 high↔mid 로 바꿀 때 화면 색이 튄다. */
-      vec3 RRTAndODTFit(vec3 v){
-        vec3 a = v * (v + 0.0245786) - 0.000090537;
-        vec3 b = v * (0.983729 * v + 0.4329510) + 0.238081;
-        return a / b;
-      }
-      vec3 aces(vec3 color){
-        const mat3 In = mat3(vec3(0.59719,0.07600,0.02840),
-                             vec3(0.35458,0.90834,0.13383),
-                             vec3(0.04823,0.01566,0.83777));
-        const mat3 Out= mat3(vec3( 1.60475,-0.10208,-0.00327),
-                             vec3(-0.53108, 1.10813,-0.07276),
-                             vec3(-0.07367,-0.00605, 1.07602));
-        color *= expo / 0.6;
-        color = In * color; color = RRTAndODTFit(color); color = Out * color;
-        return clamp(color, 0.0, 1.0);
-      }
-      /* 선형 -> sRGB. 대충 pow(1/2.2) 로 하면 어두운 쪽이 three 와 어긋난다 */
-      vec3 toSRGB(vec3 c){
-        return mix(pow(c, vec3(0.41666))*1.055 - 0.055, c*12.92, step(c, vec3(0.0031308)));
-      }
+  /* ★ 합치기 셰이더는 **three 파이프라인에 태운다**(RawShaderMaterial 이 아니라 ShaderMaterial).
+     25차에는 three 의 ACES 곡선을 손으로 옮겨 적었는데, 그러면 renderer.toneMapping 을
+     바꿀 때마다 두 길(빛번짐 켬/끔)의 색이 어긋난다 — 손으로 맞춰야 하는 짝이 생긴다.
+     ShaderMaterial 은 three 가 tonemapping·colorspace 조각을 끼워 주므로
+     **renderer 설정이 무엇이든 저절로 같아진다.** 맞춰야 할 짝이 아예 없어진다.
+     (마지막 패스가 화면(null)에 그리므로 three 가 톤매핑을 건너뛰지 않는다.) */
+  mComp = new THREE.ShaderMaterial({
+    uniforms:{tS:{value:null}, tB:{value:null}, strength:{value:BLOOM.strength}},
+    vertexShader: FS_VERT,
+    fragmentShader:`
+      uniform sampler2D tS, tB; uniform float strength; varying vec2 vUv;
       void main(){
-        vec3 c = texture2D(tS, vUv).rgb + texture2D(tB, vUv).rgb * strength;
-        gl_FragColor = vec4(toSRGB(aces(c)), 1.0);
+        gl_FragColor = vec4(texture2D(tS, vUv).rgb + texture2D(tB, vUv).rgb * strength, 1.0);
+        #include <tonemapping_fragment>
+        #include <colorspace_fragment>
       }`});
 
   fsQuad = new THREE.Mesh(new THREE.PlaneGeometry(2,2), mComp);
@@ -2909,7 +2925,8 @@ function drawFrame(){
   mBlur.uniforms.tD.value = rtA.texture; mBlur.uniforms.dir.value.set(px, 0); fsPass(mBlur, rtB);
   mBlur.uniforms.tD.value = rtB.texture; mBlur.uniforms.dir.value.set(0, py); fsPass(mBlur, rtA);
   mComp.uniforms.tS.value = rtScene.texture; mComp.uniforms.tB.value = rtA.texture;
-  mComp.uniforms.expo.value = renderer.toneMappingExposure;
+  /* 노출·톤매핑·색공간은 three 가 알아서 한다 — 여기서 손으로 넣던 줄은 지웠다.
+     그게 두 길(빛번짐 켬/끔)의 색이 어긋나던 원인이었다. */
   fsPass(mComp, null);
 }
 
@@ -14776,7 +14793,8 @@ function updDiag(dt){
     ' 5지형 ' + (DBG.noTerrain?'숨김':'보임') +
     ' 6로직 ' + (DBG.noLogic?'끔':'켬') + '\n' +
     /* 25차 — 이 줄이 없으면 교실에서 그래픽이 켜져 있는지도 모른 채 재게 된다 */
-    '그래픽 ' + GFX_Q + (window.__GFX_SOFT ? ' (그래픽카드 없음 → 자동으로 내림)' : '') +
+    '그래픽 ' + GFX_Q + ' · 색곡선 ' + TONE.nm +
+    (window.__GFX_SOFT ? ' (그래픽카드 없음 → 자동으로 내림)' : '') +
     '  4그림자 ' + (GFX.shadow ? (DBG.noShadow?'끔':'켬') : '없음') +
     '  빛번짐 ' + (GFX.bloom ? (DBG.noBloom?'끔':'켬') : '없음');
 }
@@ -14799,7 +14817,12 @@ Object.assign(window, {
   __GFX:GFX, __sun:sun, __sunTarget:sunTarget, __shadowFollow:shadowFollow, __SH_R:SH_R,
   __hemi:hemi, __amb:amb, __skyK:()=>skyK, __BLOOM:BLOOM, __skyDome:skyDome,
   __bloomRT:()=>rtScene ? {w:rtScene.width, h:rtScene.height, half:rtA.width} : null,
-  __drawFrame:drawFrame, __DBG:()=>DBG,   /* __goNight 는 아래에 이미 있다 — 두 번 쓰면 조용히 딴 게 나간다 */
+  __drawFrame:drawFrame, __DBG:()=>DBG, __TONE:TONE,
+  /* 문턱·세기를 판에 바로 먹인다 — 값만 바꾸면 셰이더는 옛 값을 계속 쓴다(조용히 안 먹는다) */
+  __setBloom:(k,v)=>{ BLOOM[k]=v;
+    if(mBright && k==='thr') mBright.uniforms.thr.value = v;
+    if(mBright && k==='knee') mBright.uniforms.knee.value = v;
+    if(mComp   && k==='strength') mComp.uniforms.strength.value = v; },   /* __goNight 는 아래에 이미 있다 — 두 번 쓰면 조용히 딴 게 나간다 */
   __setSky:(v)=>{ skyK=v; }, __up:upgradeStru, __bset:bset, __cam:camera, __held:held, __curTool:()=>curTool, __parts:()=>parts, __selTool:selectTool, __upCost:upCost, __bs:bs, __blocks:blocksOf, __myPC:()=>myPC, __cellOwner:()=>cellOwner, __flow:buildFlow, __fCost:fCost, __walkable:walkable, __BUILD:BUILD, __del:delStru,
   __wave:waveFor, __clear:()=>{ for(const id of [...STRU.keys()]) delStru(id); },
   __step:(n, dt=1/30)=>{ for(let i=0;i<n;i++){ hostPhase(dt);
