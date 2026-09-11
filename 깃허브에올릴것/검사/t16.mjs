@@ -76,9 +76,13 @@ const wt = await pg.evaluate(()=>{
   const W=window, X=W.__XP, o={};
   W.__xpReset();
   o.벽 = W.__workSec('wwall'); o.탑 = W.__workSec('arrow'); o.강화 = W.__upSec();
-  /* 🔨 빠른 망치를 찍으면 '줄어든 값에서' 더 줄어야 한다 */
+  /* 짓기를 크게 올리는 스탯을 찍으면 '줄어든 값에서' 더 줄어야 한다.
+     ★ 23차에 스탯이 넷으로 바뀌었다(짓기는 📘지능이 주). 번호를 박지 않고 게임에 물어본다 —
+       예전에는 2번(빠른 망치)이라고 박아 둬서, 표가 바뀌자 게임은 멀쩡한데 검사만 빨개졌다. */
   W.__xpGain(999999);
-  for(let i=0;i<3;i++) W.__takeStat(2);
+  const BUILD_ST = W.__ST ? W.__ST().int : 2;
+  W.__takeStat(BUILD_ST); o.벽1단계 = W.__workSec('wwall');
+  for(let i=0;i<2;i++) W.__takeStat(BUILD_ST);
   o.벽스텟 = W.__workSec('wwall');
   return o;
 });
@@ -86,7 +90,11 @@ const wt = await pg.evaluate(()=>{
 ok('나무벽 2.8초', Math.abs(wt.벽-2.8)<0.001, wt.벽);
 ok('화살탑 6.4초', Math.abs(wt.탑-6.4)<0.001, wt.탑);
 ok('강화 4초', Math.abs(wt.강화-4)<0.001, wt.강화);
-ok('★ 스텟은 줄어든 값에서 더 줄인다', wt.벽스텟 < wt.벽*0.75,
+/* ★ '0.75 보다 작아야 한다' 처럼 **칸당 몇 %인지를 박아 두면** 눈금을 고칠 때마다 죽는다
+   (23차에 11% → 8% 가 됐다). 재야 할 것은 세기가 아니라 **곱으로 쌓이는가** 다 —
+   한 칸의 비율을 세제곱한 값이 세 칸의 값과 같아야 한다(더하기였다면 안 맞는다). */
+ok('★ 스텟은 줄어든 값에서 더 줄인다 (더하기가 아니라 곱으로 쌓인다)',
+   Math.abs(wt.벽스텟 - wt.벽 * Math.pow(wt.벽1단계/wt.벽, 3)) < 0.01 && wt.벽스텟 < wt.벽1단계,
    wt.벽.toFixed(2)+'초 → '+wt.벽스텟.toFixed(2)+'초 (🔨3단계)');
 
 /* ═══════ ④ 벽이 탑·배럭보다 튼튼하다 ═══════ */
