@@ -79,10 +79,15 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
     o.칸단위 = (a === c) && (Math.abs(a/texel - Math.round(a/texel)) < 1e-6);
     W.__PL.x=16; W.__PL.z=22; W.__shadowFollow(16,22);
     /* ★ 제일 중요한 것 — 화면에 실제로 닿나 */
-    const cv=document.createElement('canvas'); cv.width=450; cv.height=260;
-    const cx=cv.getContext('2d',{willReadFrequently:true}); const N=450*260;
-    const grab=()=>{ W.__drawFrame(); cx.drawImage(R.domElement,0,0,450,260);
-                     return cx.getImageData(0,0,450,260).data; };
+    /* ★ 캔버스를 **원본 크기로** 읽는다. 줄여서 읽으면 이웃 픽셀이 평균돼
+       찾으려던 국소 봉우리가 깎인다 — 같은 화면인데 900x520 을 450x260 으로
+       줄여 읽었더니 제일 밝아진 곳이 79 → 37 로 반토막 났다.
+       '가장 큰 차이' 를 보는 항목은 절대로 줄여서 읽으면 안 된다. */
+    const dm=R.domElement, CW=dm.width, CH=dm.height, N=CW*CH;
+    const cv=document.createElement('canvas'); cv.width=CW; cv.height=CH;
+    const cx=cv.getContext('2d',{willReadFrequently:true});
+    const grab=()=>{ W.__drawFrame(); cx.drawImage(dm,0,0);
+                     return cx.getImageData(0,0,CW,CH).data; };
     W.__sun.castShadow=true;  R.shadowMap.needsUpdate=true; const on=grab();
     W.__sun.castShadow=false; R.shadowMap.needsUpdate=true; const off=grab();
     W.__sun.castShadow=true;  R.shadowMap.needsUpdate=true;
@@ -118,10 +123,15 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
     o.돎 = !!rt;
     /* 절반 크기로 흐린다 — 빛 번짐은 대역폭 장사라 내장그래픽에서 제일 먼저 걸린다 */
     o.절반 = rt ? (rt.half === (rt.w>>1)) : false;
-    const cv=document.createElement('canvas'); cv.width=450; cv.height=260;
-    const cx=cv.getContext('2d',{willReadFrequently:true}); const N=450*260;
-    const grab=()=>{ W.__drawFrame(); cx.drawImage(R.domElement,0,0,450,260);
-                     return cx.getImageData(0,0,450,260).data; };
+    /* ★ 캔버스를 **원본 크기로** 읽는다. 줄여서 읽으면 이웃 픽셀이 평균돼
+       찾으려던 국소 봉우리가 깎인다 — 같은 화면인데 900x520 을 450x260 으로
+       줄여 읽었더니 제일 밝아진 곳이 79 → 37 로 반토막 났다.
+       '가장 큰 차이' 를 보는 항목은 절대로 줄여서 읽으면 안 된다. */
+    const dm=R.domElement, CW=dm.width, CH=dm.height, N=CW*CH;
+    const cv=document.createElement('canvas'); cv.width=CW; cv.height=CH;
+    const cx=cv.getContext('2d',{willReadFrequently:true});
+    const grab=()=>{ W.__drawFrame(); cx.drawImage(dm,0,0);
+                     return cx.getImageData(0,0,CW,CH).data; };
     W.__DBG().noBloom=false; const on=grab();
     W.__DBG().noBloom=true;  const off=grab();
     W.__DBG().noBloom=false;
@@ -165,12 +175,30 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
     const mean=()=>{ W.__drawFrame(); cx.drawImage(R.domElement,0,0,450,260);
       const p=cx.getImageData(0,0,450,260).data; let s=0;
       for(let i=0;i<N;i++) s+=(p[i*4]+p[i*4+1]+p[i*4+2])/3; return s/N; };
-    /* 하늘 위와 아래의 밝기가 달라야 '결' 이다 — 색 하나면 위아래가 같다 */
-    W.__drawFrame(); cx.drawImage(R.domElement,0,0,450,260);
-    const px = cx.getImageData(0,0,450,260).data;
-    let top=0, mid=0;
-    for(let x=0;x<450;x++){ top += px[(10*450+x)*4+2]; mid += px[(70*450+x)*4+2]; }
-    o.위아래차 = Math.abs(top/450 - mid/450);
+    /* 하늘 위와 아래의 밝기가 달라야 '결' 이다 — 색 하나면 위아래가 같다.
+       ★ 지평선을 보는 각도로 재면 안 된다. 어느 줄이 하늘이고 어느 줄이 산인지가
+         판마다 달라서(지형이 무작위다) 같은 게임인데 23.5 였다가 1.1 이 나온다.
+         **하늘만 보이게 위를 보고** 잰다 — 위쪽 줄은 천정 가까이, 아래쪽 줄은
+         지평선 쪽이 되어 둘 다 확실히 하늘이다.
+       ★ 그리고 원본 크기로 읽는다. 줄여 읽으면 이웃 픽셀이 평균돼 결이 뭉개진다. */
+    /* ★ PL.pitch 를 바꾸는 것으로는 안 된다 — 카메라는 다음 프레임에 updPlayer 가 돌려준다.
+       그 사이에 프레임이 돌았는지에 따라 값이 달라져서 15.3 / 44.3 / 2.4 로 널뛰었다.
+       카메라를 **직접** 돌리고 바로 그린다. 그러면 그 사이에 아무 일도 안 일어난다. */
+    const _p = W.__PL.pitch;
+    W.__cam.rotation.set(0.95, W.__PL.yaw, 0, 'YXZ');   // 약 54도 위 — 산이 안 걸린다
+    W.__drawFrame();
+    const dm2=R.domElement, W2=dm2.width, H2=dm2.height;
+    const cv2=document.createElement('canvas'); cv2.width=W2; cv2.height=H2;
+    const cx2=cv2.getContext('2d',{willReadFrequently:true});
+    cx2.drawImage(dm2,0,0);
+    const px = cx2.getImageData(0,0,W2,H2).data;
+    /* ★ 열마다 위아래 차를 재고 **중앙값**을 쓴다. 평균을 쓰면 구름 한 덩이가
+       화면 일부를 덮었을 때 그 열들이 값을 통째로 끌고 간다(구름은 흘러다닌다). */
+    const yT = Math.floor(H2*0.08), yB = Math.floor(H2*0.55), col=[];
+    for(let x=0;x<W2;x+=4) col.push(Math.abs(px[(yT*W2+x)*4+2] - px[(yB*W2+x)*4+2]));
+    col.sort((a,b)=>a-b);
+    o.위아래차 = col[col.length>>1];
+    W.__PL.pitch = _p;
     /* ★ 밝기는 **놀 때 보는 각도**에서 잰다. 위 항목들은 하늘이 보여야 해서 위를 봤는데,
        하늘은 낮↔밤 색 차이가 제일 큰 곳이라 그대로 재면 62% 가 나온다(땅을 보면 77%).
        이 항목이 걱정하는 것은 '아이가 늑대를 보나' 지 하늘이 아니다 — 재는 자리를 옮긴다. */
