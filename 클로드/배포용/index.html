@@ -5960,6 +5960,61 @@ function flowStep(x,z){
 
 /* ═══════════════════════ 몹 렌더러 ═══════════════════════ */
 const MAXW = 92, MAXS = 96, MAXP = 40;   // 늑대 렌더 상한 (waveCap + 보스 + 부하보다 커야 함)
+/* ═══════════════════════ 27차 — 로블록스 룩 1단계: 캐릭터 ═══════════════════════
+   ★ 왜 — 26차 교실 실측이 "GPU 는 픽셀 쪽이 병목" 이었고, 선생님이 "마인크래프트를 벗고 로블록스처럼"
+     을 골랐다(눈이 아픈 것도 텍셀 노이즈·fps 떨림 쪽이었다). 캐릭터가 첫 단계다 — 아이 눈에 제일 먼저 들어온다.
+   ★ 어떻게 — 조립 코드(setI/setIR 로 부위를 놓는 곳)는 한 줄도 안 건드린다. 바뀌는 것은 둘뿐이다:
+       ① 조각의 **모양** — 네모 상자 → 모서리 둥근 상자(RB·RBs)와 공(BALL)
+       ② 조각의 **재질** — 아틀라스 타일 → 무늬 없는 색 하나(FM.*). 인스턴스 색은 전과 같이 곱해진다.
+   ★ 둥근 상자 — three 의 RoundedBoxGeometry 와 같은 셈법을 여기 적었다(addons 는 안 받아온다 —
+     교실 인터넷에서 받아올 파일이 느는 게 싫다). 상자를 홀수로 잘게 나눈 뒤 꼭짓점마다
+     '안쪽 상자의 모서리 + 반지름 × 그 꼭짓점 방향' 으로 옮기면 모서리가 구의 1/8 이 된다.
+     크기는 한 변 1 이라 예전 cube() 와 같은 배율로 쓴다. 한 축으로 길게 늘리면 그쪽 끝이 캡슐처럼 된다(창·다리).
+   ★ 재질의 기본색은 **그 타일의 평균색**에서 시작했다(26차b 에 아틀라스에서 잰 값). 그래야 조립 코드가
+     넘기던 인스턴스 색이 그대로 먹어 전과 같은 색이 난다. 거기서 장난감답게 조금 밝고 맑게 당겼다.
+     MeshStandard 는 무광 플라스틱의 옅은 하이라이트를 준다 — 로블록스 'Plastic' 이 그것이다.
+   ★ 비용 — 조각 하나가 12 → 108(RBs)·300(RB)·168(BALL) 삼각형. 캐릭터가 다 나와도 50만쯤이고,
+     이 규모에서 삼각형은 공짜다(26차 실측: 값은 픽셀에서 나온다). 텍스처를 안 읽으니 픽셀 값은 오히려 준다.
+   ★ 검사기(소프트웨어 렌더링)는 '둥글게 보이나' 를 못 잰다. t29 가 모양(꼭짓점·법선)·재질(무늬 없음)·
+     '화면에 모둠 색이 닿나' 를 본다. 예쁜지는 교실이 답한다. */
+function roundBox(seg, r){
+  const n = seg*2 + 1, rad = Math.min(0.5, r);
+  const g = new THREE.BoxGeometry(1,1,1, n,n,n).toNonIndexed();
+  const P = g.attributes.position, N = g.attributes.normal;
+  const box = 0.5 - rad, hs = 0.5/n, v = new THREE.Vector3(), d = new THREE.Vector3();
+  for(let i=0;i<P.count;i++){
+    v.fromBufferAttribute(P, i);
+    d.set(v.x - Math.sign(v.x)*hs, v.y - Math.sign(v.y)*hs, v.z - Math.sign(v.z)*hs).normalize();
+    P.setXYZ(i, box*Math.sign(v.x) + d.x*rad, box*Math.sign(v.y) + d.y*rad, box*Math.sign(v.z) + d.z*rad);
+    N.setXYZ(i, d.x, d.y, d.z);
+  }
+  return g;
+}
+const RB   = roundBox(2, 0.16);                        // 몸통·머리·다리 — 모서리가 두 칸으로 둥글다
+const RBr  = roundBox(2, 0.30);                        // 아주 둥근 상자 — 사람(상인·병사) 몸통. 베개처럼
+const RBs  = roundBox(1, 0.20);                        // 작은 조각(꾸미기·귀·장비) — 한 칸이면 충분하다
+const BALL = new THREE.SphereGeometry(0.5, 14, 10);    // 눈·코·볼·꼬리·털뭉치 — 지름 1 이라 상자와 같은 배율
+/* ★ 반지름은 조각 크기에 비례한다(지오메트리 하나를 배율로 늘려 쓰니까). 그래서 작은 조각은 거의 네모로,
+   큰 몸통은 둥글게 나온다 — 로블록스도 그렇다(큰 덩어리만 둥글고 작은 부품은 각지다). 사람 몸통처럼
+   작은데 둥글어야 하는 것만 RBr 을 쓴다. */
+const flatMat = (hex, o)=> new THREE.MeshStandardMaterial(
+  Object.assign({color:hex, roughness:0.70, metalness:0}, o||{}));
+/* 타일 평균색(26차b 실측)에서 조금 당긴 값. 주석의 # 이 잰 값이다. */
+const FM = {
+  wool:  flatMat(0xf4f1ea),   // 양털        #ebebe5
+  woolD: flatMat(0xdcd6cb),   // 때 탄 양털  #d5cfc4
+  fur:   flatMat(0x8a8c93),   // 늑대 털     #83858b — 늑대 색은 여기에 인스턴스 색(등급)이 곱해진다
+  furD:  flatMat(0x4d4f57),   // 어두운 털   #484a51
+  dark:  flatMat(0x4a4f57),   // 다리·발     #484d54
+  eye:   flatMat(0xffffff),   // 눈 — 흰자·눈동자·반짝이는 인스턴스 색이 가른다
+  snout: flatMat(0xf0aeb8),   // 코·볼       #eeaab4
+  cloth: flatMat(0xffffff),   // 천 — 색은 전부 인스턴스 색 (#f0f0f0)
+  stone: flatMat(0x8f9399),   //             #8b8f95
+  sbrick:flatMat(0x80838a),   //             #7c7f84
+  plank: flatMat(0xa8825a),   //             #a17c4e
+  log:   flatMat(0x6e4f2e),   //             #684a2a
+  dirt:  flatMat(0x8f6a45)    //             #926942
+};
 function imesh(geo, mat, cap, color){
   const m = new THREE.InstancedMesh(geo, mat, cap);
   m.count_max = cap;                  // 정원 — 넘치면 setMatrixAt 이 조용히 깨진다
@@ -5971,20 +6026,19 @@ function imesh(geo, mat, cap, color){
   if(GFX.shadow){ m.castShadow = true; m.receiveShadow = true; }
   scene.add(m); return m;
 }
-const gFur=cube(T.fur), gFurD=cube(T.furDark), gWool=cube(T.wool), gWoolD=cube(T.woolDirty),
-      gEye=cube(T.eye), gSnout=cube(T.snout), gDark=cube(T.dark);
 /* 눈 — 밤이 되면 스스로 타오른다. 어둠 속에서 눈만 여럿 다가오는 게 제일 무섭다. */
-const eyeMat = new THREE.MeshLambertMaterial({map:ATLAS, emissive:0xff3300, emissiveIntensity:0.0});
-const W_body = imesh(gFur, MAT, MAXW, 1), W_head = imesh(gFur, MAT, MAXW, 1),
-      W_snout= imesh(gFurD,MAT, MAXW, 1), W_tail = imesh(gFur, MAT, MAXW, 1),
-      W_legs = imesh(gFurD,MAT, MAXW*4, 1), W_eyes = imesh(gEye, eyeMat, MAXW*2, 1),
-      W_ears = imesh(gFurD,MAT, MAXW*2, 1),
-      W_chest= imesh(gFur, MAT, MAXW, 1),        // 어깨 — 실루엣에 무게를 준다
-      W_hack = imesh(gFurD,MAT, MAXW*3, 1),      // 등갈기 — 화나면 솟는다
-      W_paw  = imesh(gDark,MAT, MAXW*4, 1),      // 앞발
-      W_horn = imesh(cube(T.wool), MAT, MAXW*2, 1),   // 보스 + 흉포한 늑대의 뿔
-      W_nose = imesh(gDark, MAT, MAXW, 1),      // 검은 코끝 — 늑대 인상의 핵심
-      W_ruff = imesh(gFurD, MAT, MAXW, 1);      // 목덜미 갈기
+const eyeMat = flatMat(0xffffff, {emissive:0xff3300, emissiveIntensity:0.0});
+/* 27차 — 조각은 둥근 상자·공, 재질은 옛 타일의 평균색. 부위 배치(drawWolves)는 그대로다. */
+const W_body = imesh(RB,  FM.fur,  MAXW, 1), W_head = imesh(RB,  FM.fur,  MAXW, 1),
+      W_snout= imesh(RB,  FM.furD, MAXW, 1), W_tail = imesh(RB,  FM.fur,  MAXW, 1),
+      W_legs = imesh(RB,  FM.furD, MAXW*4, 1), W_eyes = imesh(BALL, eyeMat, MAXW*2, 1),
+      W_ears = imesh(RBs, FM.furD, MAXW*2, 1),
+      W_chest= imesh(RB,  FM.fur,  MAXW, 1),        // 어깨 — 실루엣에 무게를 준다
+      W_hack = imesh(RBs, FM.furD, MAXW*3, 1),      // 등갈기 — 화나면 솟는다
+      W_paw  = imesh(BALL,FM.dark, MAXW*4, 1),      // 앞발
+      W_horn = imesh(RBs, FM.wool, MAXW*2, 1),      // 보스 + 흉포한 늑대의 뿔
+      W_nose = imesh(BALL,FM.dark, MAXW, 1),        // 검은 코끝 — 늑대 인상의 핵심
+      W_ruff = imesh(RB,  FM.furD, MAXW, 1);        // 목덜미 갈기
 /* ═══════════════════════ 농장 동물 (17차d) ═══════════════════════
    ★ 아주 귀엽게 — 그게 주문이었다. 귀여움은 비율에서 나온다:
        ① 머리를 몸통만큼 크게 (아기 비율)
@@ -5995,16 +6049,15 @@ const W_body = imesh(gFur, MAT, MAXW, 1), W_head = imesh(gFur, MAT, MAXW, 1),
    ★ 메시는 다섯 개만 쓴다(몸·머리·귀/볏·눈·다리). 세 종류를 색과 크기로 가른다 —
      종류마다 메시를 따로 두면 드로우콜이 세 배가 된다. */
 const MAXF = NG * FARM_CAP;                    // 다섯 모둠 × 우리 정원
-const gSoft  = cube(T.wool);                   // 폭신한 몸 (양털 타일)
-const gSoftD = cube(T.woolDirty);
-const F_body = imesh(gSoft,  MAT, MAXF, 1),
-      F_head = imesh(gSoft,  MAT, MAXF, 1),
+/* 27차 — 둥근 상자·공 + 원색. 파스텔 몸색(FARM_LOOK)은 인스턴스 색으로 그대로 곱해진다. */
+const F_body = imesh(RB, FM.wool, MAXF, 1),
+      F_head = imesh(RB, FM.wool, MAXF, 1),
       /* ★ 칸을 넉넉히 잡는다 — 닭이 벌써 넷(볏 셋 + 부리), 소는 일곱을 쓴다.
          MAXF*3 으로 뒀더니 우리를 닭으로 채우면 24 > 18 로 넘쳤다. 30마리 × 8 이라야
          어떤 조합이든 안 넘친다(240개, 인스턴스 하나 값은 거의 없다). */
-      F_deco = imesh(gSoftD, MAT, MAXF*8, 1),  // 볏 · 귀 · 뿔 · 코 · 얼룩
-      F_eyes = imesh(cube(T.eye), MAT, MAXF*4, 1),   // 흰자 2 + 눈동자 2
-      F_legs = imesh(gSoftD, MAT, MAXF*4, 1);
+      F_deco = imesh(RBs, FM.woolD, MAXF*8, 1),  // 볏 · 귀 · 뿔 · 코 · 얼룩
+      F_eyes = imesh(BALL, FM.eye, MAXF*4, 1),    // 흰자 2 + 눈동자 2 — 공이라 인형 눈이 된다
+      F_legs = imesh(RB, FM.woolD, MAXF*4, 1);
 /* ═══════════════════════ 상인 · 대장장이 (17차h) ═══════════════════════
    ★ 둘 다 정적 뱅크(bpush)에 박혀 있었다. 그래서 아이들이 "상인이 벽 같아요" 했다.
      사람은 가만히 서 있어도 숨을 쉬고 몸무게를 옮기고 소리 나는 쪽을 본다 —
@@ -6016,7 +6069,7 @@ const F_body = imesh(gSoft,  MAT, MAXF, 1),
      0 몸 · 1 머리(목을 축으로 돌아간다) · 2 팔A(+X) · 3 팔B(−X).
      머리와 팔만 따로 돌리면 나머지는 몸을 따라간다. */
 const NPC_CAP = 96;
-const N_body = imesh(cube(T.cloth), MAT, NPC_CAP, 1);
+const N_body = imesh(RBr, FM.cloth, NPC_CAP, 1);  // 27차 — 아주 둥근 조각 + 원색(표의 색이 인스턴스 색)
 /* [grp, dx,dy,dz, sx,sy,sz, 색, 기울기] — 로컬 +Z 가 그 사람이 보는 쪽 */
 const SKIN_M = 0xf0d2ae, ROBE = 0x4a5c96, ROBE_D = 0x36457a, TRIM = 0xd8b45a;
 const NPC_SHOP = [
@@ -6124,8 +6177,8 @@ function drawNPCs(t){
    바닥 짚은 세상과 함께 한 번 구워 둔 것이라 색을 못 바꾼다.
    그래서 '더러운 자국' 을 그 위에 따로 얹고, 파리는 따로 띄운다. */
 const MAXMUCK = NG*10, MAXFLY = NG*8;
-const F_muck = imesh(cube(T.dirt), MAT, MAXMUCK, 1),
-      F_fly  = imesh(cube(T.dark), MAT, MAXFLY, 1);
+const F_muck = imesh(BALL, FM.dirt, MAXMUCK, 1),
+      F_fly  = imesh(BALL, FM.dark, MAXFLY, 1);
 /* 종류별 몸빛 — 파스텔로. 닭은 크림, 돼지는 분홍, 소는 흰 바탕에 갈색 점 */
 const FARM_LOOK = {
   hen: {body:0xfff3d0, deco:0xff7a6a, sc:0.62, legc:0xffc75e},   // 볏·부리는 붉은/주황
@@ -6326,28 +6379,28 @@ const auraMat = new THREE.MeshBasicMaterial({color:0xff4444, transparent:true, o
 
 const W_aura = new THREE.InstancedMesh(new THREE.RingGeometry(1.6, 3.4, 20), auraMat, 6);
 W_aura.frustumCulled = false; W_aura.count = 0; scene.add(W_aura);
-const S_body = imesh(gWool,MAT, MAXS, 1), S_head = imesh(gWoolD,MAT,MAXS,1),
-      S_legs = imesh(gDark,MAT, MAXS*4, 1), S_spear= imesh(cube(T.logSide),MAT,MAXS,1),
-      S_helm = imesh(cube(T.sbrick),MAT,MAXS,1), S_tip = imesh(cube(T.stone),MAT,MAXS,1),
-      S_face = imesh(gEye, MAT, MAXS*2, 1),
-      S_bodyA= imesh(cube(T.stone),MAT,MAXS,1),       // 갑옷 몸통(돌벽돌은 가슴에 벽돌담이 붙은 꼴이었다)
-      S_crest= imesh(cube(T.cloth),MAT,MAXS*2,1),     // 투구 깃털 + 망토
-      S_shield=imesh(cube(T.plank),MAT,MAXS*3,1),     // 방패 + 어깨 갑옷 2
-      S_hat  = imesh(cube(T.cloth),MAT,MAXS*3,1),     // 마법사 고깔
-      S_orb  = imesh(cube(T.crystal),
-        new THREE.MeshLambertMaterial({map:ATLAS, color:0xd9b6ff,
-          emissive:0x8a4aff, emissiveIntensity:1.5}), MAXS, 1);
+/* 27차 — 둥근 조각 + 원색. 창은 RBs 를 세로로 늘려 끝이 캡슐처럼 된다. */
+const S_body = imesh(RBr, FM.wool, MAXS, 1), S_head = imesh(RBr, FM.woolD, MAXS, 1),
+      S_legs = imesh(RB, FM.dark, MAXS*4, 1), S_spear= imesh(RBs, FM.log, MAXS, 1),
+      S_helm = imesh(RBs, FM.sbrick, MAXS, 1), S_tip = imesh(RBs, FM.stone, MAXS, 1),
+      S_face = imesh(RBs, FM.eye, MAXS*2, 1),
+      S_bodyA= imesh(RBr, FM.stone, MAXS, 1),         // 갑옷 몸통(돌벽돌은 가슴에 벽돌담이 붙은 꼴이었다)
+      S_crest= imesh(RBs, FM.cloth, MAXS*2, 1),       // 투구 깃털 + 망토
+      S_shield=imesh(RBs, FM.plank, MAXS*3, 1),       // 방패 + 어깨 갑옷 2
+      S_hat  = imesh(RBs, FM.cloth, MAXS*3, 1),       // 마법사 고깔
+      S_orb  = imesh(BALL, flatMat(0xd9b6ff, {emissive:0x8a4aff, emissiveIntensity:1.5}), MAXS, 1);
 /* 플레이어(양) — 부위를 늘려 귀엽게. 큐브 하나 = 12삼각형이라
    22명 × 부위 7개 늘려도 2천 삼각형(전체의 0.8%)뿐이다. */
-const P_body = imesh(gWool, MAT, MAXP,   1),   // 몸통
-      P_puff = imesh(gWoolD,MAT, MAXP,   1),   // 등에 얹은 털뭉치
-      P_head = imesh(gWoolD,MAT, MAXP,   1),   // 얼굴
-      P_frng = imesh(gWoolD,MAT, MAXP,   1),   // 이마 앞머리
-      P_ear  = imesh(gWoolD,MAT, MAXP*2, 1),   // 귀 2개
-      P_eye  = imesh(gEye,  MAT, MAXP*4, 1),   // 눈 2개 + 눈 반짝이 2개
-      P_nose = imesh(gSnout,MAT, MAXP*3, 1),   // 코 + 볼터치 2개
-      P_tail = imesh(gWoolD,MAT, MAXP,   1),   // 꼬리
-      P_legs = imesh(gDark, MAT, MAXP*4, 1),   // 다리 4개
+/* 27차 — 둥근 상자·공 + 원색. 눈·반짝이·코·볼·꼬리는 공이다(인형 눈·볼·꼬리 방울). */
+const P_body = imesh(RB,   FM.wool,  MAXP,   1),   // 몸통
+      P_puff = imesh(BALL, FM.woolD, MAXP*6, 1),   // 등에 얹은 털뭉치 — 공 여섯이 구름처럼 겹친다
+      P_head = imesh(RB,   FM.woolD, MAXP,   1),   // 얼굴
+      P_frng = imesh(RB,   FM.woolD, MAXP,   1),   // 이마 앞머리
+      P_ear  = imesh(RBs,  FM.woolD, MAXP*2, 1),   // 귀 2개
+      P_eye  = imesh(BALL, FM.eye,   MAXP*4, 1),   // 눈 2개 + 눈 반짝이 2개
+      P_nose = imesh(BALL, FM.snout, MAXP*3, 1),   // 코 + 볼터치 2개
+      P_tail = imesh(BALL, FM.woolD, MAXP,   1),   // 꼬리
+      P_legs = imesh(RB,   FM.dark,  MAXP*4, 1),   // 다리 4개
       /* ★ 꾸미기(모자·안경·옷) — 종류가 몇이든 메시는 하나다.
          천 텍스처에 색·크기만 바꿔 끼우므로, 아이템을 아무리 늘려도 드로우콜은 1개다.
          아무도 아무것도 안 걸치면 통째로 숨긴다. */
@@ -6358,10 +6411,10 @@ const P_body = imesh(gWool, MAT, MAXP,   1),   // 몸통
            '딱 맞는 칸은 모자란 칸' 이라 새 모자(6칸)·새 옷을 넣자마자 잘릴 자리였다.
            52 로 올린다. 지금 제일 많이 걸친 아이는 6+7+8+20 = 41 이다.
            검사(t23)가 표에서 이 최대값을 세어 칸과 맞대 본다 — 다음에 또 늘려도 바로 걸린다. */
-      P_deco = imesh(cube(T.cloth), MAT, MAXP*52, 1),
+      P_deco = imesh(RBs, FM.cloth, MAXP*52, 1),
       /* ★ 짝꿍 — 주인 곁을 도는 작은 동물. 몸이 아니라 땅바닥에 서므로 메시를 따로 쓴다.
          종류가 몇이든 메시는 하나. 아무도 안 데리고 다니면 통째로 숨긴다. 한 마리 최대 9칸. */
-      P_pet  = imesh(cube(T.cloth), MAT, MAXP*9, 1);
+      P_pet  = imesh(RBs, FM.cloth, MAXP*9, 1);
 /* ═══════════ 친구가 든 총 (14차) ═══════════
    ★ 왜 넣었나 — 강화가 생기면서 "누가 뭘 들었나" 가 교실에서 제일 궁금한 것이 됐다.
      내 총만 내 화면에 보이면 자랑할 데가 없다. +5·+6 이 빛나는 걸 남이 봐야 의미가 있다.
@@ -6370,14 +6423,14 @@ const P_body = imesh(gWool, MAT, MAXP,   1),   // 몸통
      아무도 총을 안 들면 둘 다 통째로 숨긴다(개수가 0이어도 안 숨기면 그리기가 돈다 —
      예전에 늑대 체력막대에서 실측으로 잡은 적이 있다).
    ★ 한 사람이 쓰는 칸은 몸통 3칸 + 빛 2칸이다. */
-const P_gun  = imesh(cube(T.stone), MAT, MAXP*3, 1),
+const P_gun  = imesh(RBs, FM.stone, MAXP*3, 1),
       /* ★ 빛 조각은 Lambert 의 emissive 로 만들면 안 된다 —
            emissive 에는 인스턴스 색이 안 곱해져서, +5(파랑)든 +6(빨강)이든
            전부 하얗게만 나온다. 화면에 찍어 보고 알았다.
          MeshBasicMaterial 은 색이 곧 화면 색이라(조명을 안 받는다) 단계별 색이 그대로 살고,
          인스턴스 색이 그대로 먹는다. 스스로 빛나 보이는 것도 그대로다. */
-      P_gunF = imesh(cube(T.glow),
-        new THREE.MeshBasicMaterial({map:ATLAS, transparent:true, opacity:0.85,
+      P_gunF = imesh(BALL,
+        new THREE.MeshBasicMaterial({transparent:true, opacity:0.85,
           depthWrite:false, blending:THREE.AdditiveBlending, fog:false}), MAXP*2, 1);
 /* 강화 단계마다 어떻게 보이나 — 선생님 요청 그대로다.
      +0 안 빛남 · +1 미세하게 · +2 더 · +3 아주 반짝반짝 ·
@@ -7143,8 +7196,15 @@ const lighten = (c,k)=>{ const r=(c>>16)&255, g=(c>>8)&255, b=c&255,
   m=v=>Math.min(255, Math.round(v + (255-v)*k));
   return (m(r)<<16)|(m(g)<<8)|m(b); };
 
+/* 양털 공 여섯 — [앞 f, 위 u, 옆 sd, 가로, 세로, 깊이]. 게임(drawSheep)과 미리보기(PVW_BODY)가 같이 쓴다 */
+const PUFF6 = [
+  [ 0.00, 0.98,  0.00, 1.00, 0.66, 1.06],
+  [ 0.32, 0.93,  0.30, 0.66, 0.52, 0.68], [ 0.32, 0.93, -0.30, 0.66, 0.52, 0.68],
+  [-0.36, 0.93,  0.30, 0.66, 0.52, 0.68], [-0.36, 0.93, -0.30, 0.66, 0.52, 0.68],
+  [-0.04, 1.14,  0.00, 0.74, 0.48, 0.82]
+];
 function drawSheep(list, t, cap, colOf, scale){
-  let n=0, ln=0, earN=0, eyeN=0, noseN=0, decoN=0, gunN=0, glowN=0;
+  let n=0, ln=0, earN=0, eyeN=0, noseN=0, decoN=0, gunN=0, glowN=0, puffN=0;
 
   for(const s of list){
     if(n>=cap) break;
@@ -7179,8 +7239,12 @@ function drawSheep(list, t, cap, colOf, scale){
 
     // 몸통 — 짧고 통통하게. 덩치는 위에 얹는 털뭉치가 만든다.
     setI(P_body, n, X(0,0), Y(0.56), Z(0,0), ry, 0.84*sc, 0.62*sc, 0.94*sc, col);
-    // 등털 — 몸통보다 넓게 빼서 처마처럼 걸치게 하면 복슬복슬해 보인다
-    setI(P_puff, n, X(-0.05,0), Y(0.98), Z(-0.05,0), ry, 1.08*sc, 0.68*sc, 1.16*sc, wool);
+    /* 등털 — 몸통보다 넓게 빼서 처마처럼 걸치게 하면 복슬복슬해 보인다.
+       27차: 상자 하나 → 공 여섯. 가운데 큰 알 + 네 귀퉁이 알 + 위에 얹은 알.
+       겹친 공의 실루엣이 곧 '양털' 이다 — 상자 하나로는 둥글어도 털이 아니었다. */
+    for(const q of PUFF6)
+      setI(P_puff, puffN++, X(-0.05+q[0], q[2]), Y(q[1]), Z(-0.05+q[0], q[2]), ry,
+        q[3]*sc, q[4]*sc, q[5]*sc, wool);
     /* 얼굴 — 몸통보다 크게. 머리가 클수록 아기 같아 보인다(귀여움의 8할).
        ★ 얼굴 앞면은 f=0.99 다. 얼굴에 붙는 것(눈·코·볼)은 그보다 앞으로 나와야 보인다.
          한 번 여기서 틀려서 볼터치가 머리 속에 통째로 파묻혔었다. */
@@ -7297,7 +7361,7 @@ function drawSheep(list, t, cap, colOf, scale){
     }
     n++;
   }
-  P_body.count=n; P_puff.count=n; P_head.count=n; P_frng.count=n; P_nose.count=noseN;
+  P_body.count=n; P_puff.count=puffN; P_head.count=n; P_frng.count=n; P_nose.count=noseN;
   P_tail.count=n; P_ear.count=earN; P_eye.count=eyeN; P_legs.count=ln; P_deco.count=decoN;
   P_deco.visible = decoN > 0;
   P_gun.count=gunN; P_gunF.count=glowN;
@@ -13495,9 +13559,11 @@ function buildPicker(){
    ★ 몸은 흉내지만 모자·안경·옷은 게임과 같은 표(HATS/GLASSES/CLOTHES)를 그대로 읽는다.
      아이가 고르는 건 그것뿐이라, 여기서 본 착장과 게임 속 모습이 어긋나지 않는다.
    ★ 게임이 시작되면 통째로 버린다. 크롬북에서 WebGL 판을 둘씩 켜 둘 이유가 없다. */
+/* 27차 — 여덟째 칸이 기하다: 'ball' 이면 공, 없으면 둥근 상자. 1번(옛 털뭉치 상자)은 비워 두고
+   맨 끝에 공 여섯(PUFF6)을 붙였다 — 앞 번호(귀 4·5 등)를 안 흔들려고. */
 const PVW_BODY = [
   [ 0.00,0.56, 0,     0.84,0.62,0.94, 'body'],
-  [-0.05,0.98, 0,     1.08,0.68,1.16, 'wool'],
+  [-0.05,0.98, 0,     0.00,0.00,0.00, 'wool'],     // (비움 — 털뭉치는 맨 끝 공 여섯)
   [ 0.68,1.06, 0,     0.68,0.64,0.62, 0xf7f2e8],
   [ 0.84,1.33, 0,     0.74,0.26,0.46, 'frng'],
   [ 0.60,1.02, 0.44,  0.20,0.36,0.15, 0xeee4d6],
@@ -13513,7 +13579,8 @@ const PVW_BODY = [
   [ 0.30,0.17, 0.27,  0.20,0.36,0.20, 0x5c564f],
   [ 0.30,0.17,-0.27,  0.20,0.36,0.20, 0x5c564f],
   [-0.30,0.17, 0.27,  0.20,0.36,0.20, 0x5c564f],
-  [-0.30,0.17,-0.27,  0.20,0.36,0.20, 0x5c564f]
+  [-0.30,0.17,-0.27,  0.20,0.36,0.20, 0x5c564f],
+  ...PUFF6.map(q=>[q[0]-0.05, q[1], q[2], q[3], q[4], q[5], 'wool', 'ball'])
 ];
 let pvw = null;
 /* ═══════ 미리보기 만들기 (23차에 시작 화면 전용에서 **아무 데나 쓸 수 있게** 바꿨다) ═══════
@@ -13537,11 +13604,12 @@ function mkPvw(cvs, W, H, keep){
   const dl = new THREE.DirectionalLight(0xfff3d8, 1.05);
   dl.position.set(2.4, 4.0, 3.2); sc.add(dl);
   const grp = new THREE.Group(); sc.add(grp);
-  const P = {r, sc, cam, grp, body:[], deco:[], t:0, geo:cube(T.cloth)};
-  for(const p of PVW_BODY){
-    const m = new THREE.Mesh(P.geo, new THREE.MeshLambertMaterial({map:ATLAS}));
+  /* 27차 — 게임과 같은 둥근 조각·원색 재질. 6~13 번(눈·반짝이·코·볼·꼬리)은 공이다 */
+  const P = {r, sc, cam, grp, body:[], deco:[], t:0, geo:RBs};
+  PVW_BODY.forEach((p,i)=>{
+    const m = new THREE.Mesh((p[7]==='ball' || (i>=6 && i<=13)) ? BALL : RB, flatMat(0xffffff));
     grp.add(m); P.body.push(m);
-  }
+  });
   return P;
 }
 /* 착장을 입힌다 — d = {g, hat, gls, clo, pet, job, jt}. 단추를 누를 때만 부른다(매 프레임 아님).
@@ -13576,7 +13644,7 @@ function pvwSet(P, d){
     want.push([p[0]*PS + 0.10, p[1]*PS, p[2]*PS - 0.82,
                p[3]*PS, p[4]*PS, p[5]*PS, p[6]]);
   while(P.deco.length < want.length){
-    const m = new THREE.Mesh(P.geo, new THREE.MeshLambertMaterial({map:ATLAS}));
+    const m = new THREE.Mesh(P.geo, flatMat(0xffffff));
     P.grp.add(m); P.deco.push(m);
   }
   P.deco.forEach((m,i)=>{
@@ -14934,6 +15002,13 @@ Object.assign(window, {
   /* 7차 패치 검사용 */
   __GLASSES:GLASSES, __CLOTHES:CLOTHES, __CLO_N:CLO_NAME, __HAT_NAME:HAT_NAME, __GLS_N:GLS_NAME,
   __Pdeco:()=>P_deco, __pvw:()=>pvw,
+  /* 27차 — 캐릭터 조각 전부 (t29: 무늬 없는 재질 · 둥근 모양) */
+  __charMeshes:()=>({
+    양:[P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_tail,P_legs,P_deco,P_pet,P_gun],
+    늑대:[W_body,W_chest,W_ruff,W_head,W_snout,W_nose,W_tail,W_ears,W_eyes,W_legs,W_paw,W_hack,W_horn],
+    농장:[F_body,F_head,F_deco,F_eyes,F_legs,F_muck,F_fly],
+    병사:[S_body,S_bodyA,S_head,S_legs,S_spear,S_helm,S_tip,S_face,S_crest,S_shield,S_hat,S_orb],
+    상인:[N_body]}),
   __KIT:KIT, __WEAPONS:WEAPONS, __ARMORS:ARMORS, __POTIONS:POTIONS,
   __SFX_KEYS:()=>Object.keys(SFX), __verdict:verdict, __goodFlash:goodFlash,
   __buyWeapon:buyWeapon, __buyArmor:buyArmor, __buyAmmo:buyAmmo,
