@@ -33,10 +33,12 @@ window.DEFAULTS = {
   crystalMax: 200,   // 수정 체력
   wolfPower:  1.0,   // 늑대 세기 배수 (0.7 쉬움 / 1.0 보통 / 1.4 어려움)
 
-  /* 그래픽 품질 (25차) — 교실 기기가 크롬북에서 노트북으로 바뀌면서 생긴 손잡이다.
-     'high' 그림자 + 빛 번짐 + 계단 없는 가장자리   ← 기본
-     'mid'  그림자만 (그림자 해상도도 절반)
-     'low'  전부 끔 — 24차까지와 똑같은 화면
+  /* 그래픽 품질 (25차 · 26차) — 교실 기기가 크롬북에서 노트북으로 바뀌면서 생긴 손잡이다.
+     'high' 그림자 2048 + 계단 없는 가장자리(MSAA 4)   ← 기본
+     'mid'  그림자 1024, 가장자리는 계단 그대로
+     'low'  그림자 없음 · 해상도 0.75 — 유난히 느린 한 대의 비상구
+     (26차: 셋 다 해상도 1.0 = 1707×1067 이고 빛 번짐은 뺐다. 교실에서 잰 값이 그렇게 시켰다 —
+      기준 28fps 에 빛 번짐 하나가 12fps 였다. 다시 보려면 주소 끝에 ?bloom=1)
      교실에서 느리면 한 칸씩 내려라. 어느 것이 얼마나 무거운지는
      주소 끝에 ?diag=1 을 붙이고 Shift+9 를 누르면 항목별로 나온다. */
   gfx: 'high'
@@ -2613,36 +2615,37 @@ const app = document.getElementById('app');
    HUD 는 DOM, 미니맵은 따로 2D 캔버스라 글자·미니맵은 하나도 안 흐려진다. */
 const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in window;
 
-/* ═══ 그래픽 품질 (25차) ═══
-   ★ 24차까지는 교실이 크롬북(Mali-G72 MP3)이라 그림자도 빛 번짐도 아예 검토 대상이 아니었다.
-     기기가 노트북(내장그래픽)으로 바뀌어서 켤 수 있게 됐다.
-   ★ 그런데 교실에서 실제로 잰 값은 "GPU 는 범인이 아니다" 였다(화면 그리기를 통째로 꺼도 +3fps).
-     그러니 이걸 켜는 것이 생각보다 싸다 — 대신 **화면이 2.2배 넓어졌으니** 채움률은 처음 겪는 일이다.
-     빛 번짐만 전체 화면을 여러 번 읽고 쓰므로, 절반 크기로 그려서 그 몫을 줄여 둔다.
+/* ═══ 그래픽 품질 (25차 · 26차) ═══
+   ★ 24차까지는 교실이 크롬북(Mali-G72 MP3)이라 그림자도 빛 번짐도 검토 대상이 아니었다.
+     기기가 gram(i7-1260P · Iris Xe · 2560×1600)으로 바뀌어서 25차에 둘 다 켰다.
+   ★ 26차 — 그 25차 판을 교실에서 실제로 쟀다 (?diag=1 + Shift+9, 낮은 값이 좋은 게 아니라 '끄면 얼마나 빨라지나'):
+        기준 28fps · 화면그리기 끔 60(+31.5) · 빛번짐 끔 40(+12) · 그림자 끔 32(+4)
+        HUD 끔 +2.5 · 캐릭터갱신 -1.5 · 이름표 -3 · 시뮬통신 0 · 게임로직 통째로 끔 -2
+     크롬북 시절("GPU 는 범인이 아니다")과 정반대다. 이제 **GPU 가 병목**이고 논리는 잡음 안이다.
+     그리고 그 값은 거의 전부 픽셀 쪽이다 — 410만 픽셀마다 텍스처를 읽고, 블러를 돌리고, 그림자 표본을 뜬다.
+     삼각형 수는 이 규모에선 공짜다.
+   ★ 그래서 예산을 다시 짰다 (로블록스 룩으로 가는 1단계 — 매끈한 면·원색·부드러운 그림자):
+     - pr 1.0 → 캔버스 1707×1067 (픽셀 44%). 매끈한 면은 해상도를 내려도 티가 안 난다.
+     - 빛 번짐은 프리셋에서 뺐다(12fps). 로블록스 룩엔 없다. ?bloom=1 로만 켜진다(실험·검사용).
+     - aa 4 (MSAA). 빛 번짐이 없으니 화면에 바로 그리고, 그 자리에서 MSAA 가 가장자리를 매끈하게 한다.
+       25차c 에 "흐릿하다" 고 껐던 건 네모난 텍셀 그림 기준이었다 — 룩이 바뀌면 이게 맞다.
+     - 그림자는 남긴다. 로블록스 룩의 핵심이고 값도 4fps 였다(픽셀이 줄면 더 싸진다).
    ★ 터치 기기는 예전 그대로 간다(아이패드는 devicePixelRatio 가 2라 픽셀이 2.56배가 된다).
-   ★ 여기 값을 손으로 고치지 마라 — 선생님 설정 구역의 DEFAULTS.gfx 가 고르는 자리다. */
-/* ★ aa(안티에일리어싱)는 0 이다 (25차c). 25차에 4로 켰다가 "좀 흐릿하다" 를 듣고 껐다.
-   이 게임 그림은 일부러 네모나다(16×16 타일). 모서리를 부드럽게 만드는 장치는
-   그 또렷함을 정면으로 깎는다 — 24차까지 antialias:false 였던 데는 성능 말고 이유가 하나 더 있었다.
-   검사기(소프트웨어 렌더링)는 이 값을 무시하므로 여기서는 잴 수가 없다.
-   다시 켜 보고 싶으면 이 표의 aa 를 4로 되돌리면 된다. */
-/* ★ pr(해상도 배율)은 교실 화면에 맞춰 다시 잡았다 (25차c).
-   교실 gram 은 2560×1600 이고 윈도우 배율 150% 라 devicePixelRatio 가 1.5 다.
-   예전 값(1.6 / 1.5 / 1.3)은 크롬북 시절 것이라 이 화면에선 셋 다 거의 원본 해상도가 되어
-   **품질을 내려도 픽셀 수가 안 줄었다** — 내릴 길이 없는 손잡이였다.
-   high·mid 는 원본 그대로(2560×1600, 네모난 그림이 또렷해야 하니 일부러 안 줄인다),
-   low 는 1.0 으로 1707×1067 — 픽셀이 44% 로 준다. 무거우면 여기가 진짜 비상구다.
-   빛 번짐은 이 픽셀 수에서 처음 걸릴 수 있는 자리다 — ?diag=1 + Shift+9 로 재기 전엔 모른다. */
+   ★ 여기 값을 손으로 고치지 마라 — 선생님 설정 구역의 DEFAULTS.gfx 가 고르는 자리다.
+   ★ 검사기(소프트웨어 렌더링)는 MSAA 도 GPU 비용도 못 잰다. 마지막 자는 늘 교실 진단 화면이다 —
+     이제 60 에서 막히면 fps 대신 '★GPU실제 ms' 줄을 본다. */
 const GFX_PRESET = {
-  high: {shadow:2048, bloom:1, aa:0, pr:2.0},
-  mid:  {shadow:1024, bloom:0, aa:0, pr:2.0},
-  low:  {shadow:0,    bloom:0, aa:0, pr:1.0}
+  high: {shadow:2048, bloom:0, aa:4, pr:1.0},
+  mid:  {shadow:1024, bloom:0, aa:0, pr:1.0},
+  low:  {shadow:0,    bloom:0, aa:0, pr:0.75}
 };
 /* 주소 끝에 ?gfx=low 처럼 붙이면 그 판만 바꿔 본다 — 파일을 고치지 않고 교실에서 견줘 보려고.
-   선생님 설정(DEFAULTS.gfx)은 그대로 두고 이번 한 판만 달라진다. */
+   선생님 설정(DEFAULTS.gfx)은 그대로 두고 이번 한 판만 달라진다.
+   ?bloom=1 은 빛 번짐을 이번 한 판만 켠다 — 어느 프리셋에도 없다(26차). */
 const GFX_Q = new URLSearchParams(location.search).get('gfx')
            || (window.DEFAULTS||{}).gfx || 'high';
 const GFX = Object.assign({}, GFX_PRESET[GFX_Q] || GFX_PRESET.high);
+if(new URLSearchParams(location.search).get('bloom') === '1') GFX.bloom = 1;
 if(isTouch){ GFX.shadow = 0; GFX.bloom = 0; GFX.aa = 0; GFX.pr = 1.0; }
 
 /* ★ 그래픽 카드가 없는 판을 알아본다 (25차).
@@ -14551,9 +14554,13 @@ let sweep = null, sweepOut = null;        // 자동 측정 상태 / 결과표
 if(new URLSearchParams(location.search).has('diag')){
 
   /* 켜고 끄는 동작을 함수로 모아 둔다. 손으로 누를 때도, 자동 측정도 이걸 쓴다. */
-  const baseR = Math.min(devicePixelRatio, isTouch ? 1.0 : 1.6);
+  /* 26차 — 기준 배율은 프리셋(GFX.pr)을 따른다. 예전엔 1.6 이 박혀 있어서 '1해상도' 를 누르면
+     프리셋과 무관한 크기로 돌아왔다. 크기를 바꾸면 빛 번짐 판(있으면)도 같이 맞춘다. */
+  const baseR = Math.min(devicePixelRatio, GFX.pr);
   const setPR = v=>{ DBG.pr = v; renderer.setPixelRatio(baseR*v);
-                     renderer.setSize(innerWidth, innerHeight); };
+                     renderer.setSize(innerWidth, innerHeight); bloomResize(); };
+  const setNative = on=>{ renderer.setPixelRatio(on ? devicePixelRatio : baseR*DBG.pr);
+                          renderer.setSize(innerWidth, innerHeight); bloomResize(); };
   const setPoint = off=>{ DBG.noPoint = off;
     if(off){ camera.remove(heldLight);
              if(crystalLight && crystalLight.parent) crystalLight.parent.remove(crystalLight); }
@@ -14592,11 +14599,15 @@ if(new URLSearchParams(location.search).has('diag')){
                       ()=>{DBG.noHUD=DBG.noInst=DBG.noTags=DBG.noSim=false;}],
     ['게임로직 통째로 끔', ()=>{DBG.noLogic=true;},  ()=>{DBG.noLogic=false;}],
     ['화면그리기 끔', ()=>{DBG.noRender=true;}, ()=>{DBG.noRender=false;}],
-    /* 25차 그래픽 — 켠 상태가 기본이라 '끄면 얼마나 빨라지나' 가 곧 그 기능의 값이다 */
+    /* 25차 그래픽 — 켠 상태가 기본이라 '끄면 얼마나 빨라지나' 가 곧 그 기능의 값이다.
+       26차 — 빛 번짐은 프리셋에서 빠졌다. ?bloom=1 로 켠 판에서만 그 줄이 나온다.
+       '해상도 원본' 은 반대로 켜서 잰다 — 1707×1067 로 내렸으니 원본(2560×1600)이 얼마나 비싼지. */
     ['그림자 끔',     ()=>setShadow(true),  ()=>setShadow(false)],
-    ['빛번짐 끔',     ()=>{DBG.noBloom=true;},  ()=>{DBG.noBloom=false;}],
-    ['그래픽 둘 다 끔',()=>{setShadow(true); DBG.noBloom=true;},
-                      ()=>{setShadow(false); DBG.noBloom=false;}],
+    ['해상도 원본',   ()=>setNative(true),  ()=>setNative(false)],
+    ...(GFX.bloom ? [
+      ['빛번짐 끔',     ()=>{DBG.noBloom=true;},  ()=>{DBG.noBloom=false;}],
+      ['그래픽 둘 다 끔',()=>{setShadow(true); DBG.noBloom=true;},
+                        ()=>{setShadow(false); DBG.noBloom=false;}] ] : []),
   ];
   /* ★ 항목마다 바로 직전에 기준을 다시 잰다.
      예전엔 처음에 한 번만 재고 쭉 갔는데, 재는 30초 동안 밤이 흘러 늑대가 계속 늘었다.
@@ -14815,7 +14826,10 @@ function updDiag(dt){
     '그래픽 ' + GFX_Q + ' · 색곡선 ' + TONE.nm +
     (window.__GFX_SOFT ? ' (그래픽카드 없음 → 자동으로 내림)' : '') +
     '  4그림자 ' + (GFX.shadow ? (DBG.noShadow?'끔':'켬') : '없음') +
-    '  빛번짐 ' + (GFX.bloom ? (DBG.noBloom?'끔':'켬') : '없음');
+    '  빛번짐 ' + (GFX.bloom ? (DBG.noBloom?'끔':'켬') : '없음') +
+    /* 26차 — 예산의 두 손잡이가 실제로 먹었는지 교실에서 눈으로 확인하는 줄 */
+    '  AA ' + (GFX.aa ? 'x'+GFX.aa : '없음') +
+    '  캔버스 ' + renderer.domElement.width + '×' + renderer.domElement.height;
 }
 el('load').style.display = 'none';
 paintBar(); refreshNodeCells(); recomputeRes(); dnInit();

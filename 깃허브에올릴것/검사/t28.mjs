@@ -1,5 +1,5 @@
 /* 25차 검사 — 그림자 · 하늘 돔 · 빛 번짐 · 품질 손잡이
-   ★ 이 검사만 ?gfx=high 로 연다. 검사기는 소프트웨어 렌더링이라 게임이 스스로
+   ★ 이 검사만 ?gfx=high 로 연다(빛 번짐 항목은 ?gfx=high&bloom=1). 검사기는 소프트웨어 렌더링이라 게임이 스스로
      품질을 내리기 때문이다(그게 옳다 — 안 내리면 교실의 고장난 한 대가 기어간다).
      그래서 '일부러 켠 판' 을 따로 열어서 본다.
    ★ 그리고 '켜졌나' 로 끝내지 않는다. 24차까지 여러 번 겪었듯 코드가 맞아도 화면은 다를 수 있다 —
@@ -33,13 +33,23 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
 
 /* ═══════ ① 품질 손잡이 ═══════ */
 {
-  const want = {high:{shadow:2048,bloom:1}, mid:{shadow:1024,bloom:0}, low:{shadow:0,bloom:0}};
+  /* 26차 — 예산을 다시 짰다. 교실 gram 실측(기준 28fps, 빛번짐 끔 +12, 그림자 끔 +4, 그리기 끔 60)이
+     "GPU 가 병목, 그것도 픽셀 쪽" 이라서: 해상도 1.0(1707×1067), 빛 번짐은 프리셋에서 뺌, MSAA 4.
+     빛 번짐은 ?bloom=1 로만 켜진다 — 아래 ③ 이 그 길로 연다. */
+  const want = {high:{shadow:2048,bloom:0,aa:4,pr:1.0}, mid:{shadow:1024,bloom:0,aa:0,pr:1.0},
+                low:{shadow:0,bloom:0,aa:0,pr:0.75}};
   for(const q of ['high','mid','low']){
     const pg = await open('?gfx='+q);
-    const g = await pg.evaluate(()=>({g:window.__GFX, sm:window.__R.shadowMap.enabled}));
+    const g = await pg.evaluate(()=>({g:window.__GFX, sm:window.__R.shadowMap.enabled,
+                                      pr:window.__R.getPixelRatio(), dpr:devicePixelRatio}));
     ok(`?gfx=${q} — 그림자 ${want[q].shadow||'없음'}`, g.g.shadow === want[q].shadow, g.g.shadow);
     ok(`?gfx=${q} — 빛번짐 ${want[q].bloom?'켬':'끔'}`, g.g.bloom === want[q].bloom, g.g.bloom);
     ok(`?gfx=${q} — 그림자 지도 ${want[q].shadow?'켬':'끔'}`, g.sm === (want[q].shadow>0));
+    ok(`?gfx=${q} — 계단 없애기 ${want[q].aa?'x'+want[q].aa:'없음'}`, g.g.aa === want[q].aa, g.g.aa);
+    ok(`?gfx=${q} — 해상도 배율 ${want[q].pr}`, g.g.pr === want[q].pr, g.g.pr);
+    /* '켜졌다' 와 '닿았다' — 표의 값이 아니라 렌더러가 실제로 쓰는 배율을 본다 */
+    ok(`?gfx=${q} — 그 배율이 렌더러에 실제로 먹는다`,
+       Math.abs(g.pr - Math.min(g.dpr, want[q].pr)) < 1e-6, g.pr);
     await pg.close();
   }
   const pg = await open('');
@@ -52,7 +62,9 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
 }
 
 /* ═══════ ② 그림자가 화면에 닿나 ═══════ */
-const pgG = await open('?gfx=high');
+const pgG = await open('?gfx=high&bloom=1');     // 26차 — 빛 번짐은 이 손잡이로만 켜진다(③ 이 쓴다)
+ok('?bloom=1 — 빛 번짐이 이번 한 판만 켜진다 (프리셋엔 없다)',
+   await pgG.evaluate(()=>window.__GFX.bloom === 1));
 {
   const pg = pgG;
   await pg.fill('#iName','검'); await pg.click('#bSolo');
