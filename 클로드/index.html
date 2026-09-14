@@ -14835,9 +14835,6 @@ Object.assign(window, {
   /* 25차 그래픽 — 검사가 '켜졌나' 를 게임에 직접 물어보게 한다 */
   __GFX:GFX, __sun:sun, __sunTarget:sunTarget, __shadowFollow:shadowFollow, __SH_R:SH_R,
   __hemi:hemi, __amb:amb, __skyK:()=>skyK, __BLOOM:BLOOM, __skyDome:skyDome,
-  /* 검사용 — 밤을 기다리지 않고 바로 놓는다. skyK 는 lerp 라 검사기(1~3fps)에서는
-     밤이 오는 데 30~60초가 걸린다. goNight() 뒤에 이걸 부르면 다음 프레임부터 밤 조명이다. */
-  __setSky:(k)=>{ skyK = k; NIGHTK = k; },
   __bloomRT:()=>rtScene ? {w:rtScene.width, h:rtScene.height, half:rtA.width} : null,
   __drawFrame:drawFrame, __DBG:()=>DBG, __TONE:TONE,
   /* 문턱·세기를 판에 바로 먹인다 — 값만 바꾸면 셰이더는 옛 값을 계속 쓴다(조용히 안 먹는다) */
@@ -14845,6 +14842,7 @@ Object.assign(window, {
     if(mBright && k==='thr') mBright.uniforms.thr.value = v;
     if(mBright && k==='knee') mBright.uniforms.knee.value = v;
     if(mComp   && k==='strength') mComp.uniforms.strength.value = v; },   /* __goNight 는 아래에 이미 있다 — 두 번 쓰면 조용히 딴 게 나간다 */
+  /* __setSky 는 검사가 밤을 바로 놓는 손잡이 (NIGHTK 는 updSky 가 skyK 를 따라간다) */
   __setSky:(v)=>{ skyK=v; }, __up:upgradeStru, __bset:bset, __cam:camera, __held:held, __curTool:()=>curTool, __parts:()=>parts, __selTool:selectTool, __upCost:upCost, __bs:bs, __blocks:blocksOf, __myPC:()=>myPC, __cellOwner:()=>cellOwner, __flow:buildFlow, __fCost:fCost, __walkable:walkable, __BUILD:BUILD, __del:delStru,
   __wave:waveFor, __clear:()=>{ for(const id of [...STRU.keys()]) delStru(id); },
   __step:(n, dt=1/30)=>{ for(let i=0;i<n;i++){ hostPhase(dt);
