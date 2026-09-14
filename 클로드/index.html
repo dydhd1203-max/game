@@ -5621,31 +5621,32 @@ function mkArm(){ return armPart(boxM(T.wool, 0.19,0.30,0.19, 0.01,-0.20,0.10));
      boxM 이 돌려주는 것은 그냥 메시라 rotation.z 를 줄 수 있고, bakeHeld 가 그 회전까지
      구워서 합친다. 그리기 횟수는 그대로다(재질 수만큼).
    ★ 끝은 확실히 뾰족하게 좁힌다. 실루엣이 갈려야 종류가 갈린다 — 망치와 헷갈리면 안 된다. */
+const matPickBlue = new THREE.MeshLambertMaterial({map:ATLAS, color:0x5661d8});
+const matPickDeep = new THREE.MeshLambertMaterial({map:ATLAS, color:0x3a42a8});
+const matHandleOr = new THREE.MeshLambertMaterial({map:ATLAS, color:0xe07a2a});
+/* ★ 29차 — 선생님이 보내 준 그림(로블록스 곡괭이) 그대로: 굵은 주황 자루, 파란 양날 머리가 넓고 납작하게 뻗어
+   끝이 아래로 살짝 처진다. 가운데는 봉우리처럼 솟는다. 머리 색은 headMat 으로 바꿔 쓴다(철거용 빨강 등). */
 function mkPick(headTile, headMat){
   const g = new THREE.Group();
-  const hm = headMat || MAT;
+  const hm = headMat || matPickBlue, hd = headMat || matPickDeep;
   g.add(mkArm());
-  g.add(boxM(T.bark,    0.068,0.66,0.068, 0.00, 0.00, 0.00));       // 자루
-  for(const y of [-0.20, -0.28])                                     // 손잡이 가죽끈
-    g.add(boxM(T.logSide, 0.088,0.045,0.088, 0.00, y, 0.00));
-  g.add(boxM(T.goldBlk, 0.100,0.070,0.100, 0.00, 0.255, 0.00));      // 쇠테
-  g.add(boxM(headTile,  0.175,0.120,0.120,  0.00, 0.345, 0.00, hm)); // 머리 가운데(제일 높다)
-  /* 호를 따라 다섯 마디씩 — 자리·크기·기울기를 한 식에서 뽑는다.
-     손으로 일곱 개를 따로 적으면 하나만 어긋나도 호가 꺾인다(예전이 그랬다). */
-  /* ★ 마디 길이는 '이웃 두 마디의 반지름 합 ≥ 중심 사이 거리' 라야 안 끊긴다.
-     끝으로 갈수록 길이까지 줄였더니 마지막 두 마디 사이가 벌어져 조각이 떨어져 보였다.
-     길이는 거의 그대로 두고 두께(H2)만 줄인다 — 그래야 이어지면서도 뾰족해진다. */
-  const XS = [0.078, 0.144, 0.202, 0.250, 0.288];
-  const YS = [0.336, 0.310, 0.268, 0.212, 0.146];
-  const W2 = [0.108, 0.104, 0.098, 0.092, 0.086];
-  const H2 = [0.112, 0.100, 0.086, 0.070, 0.052];
-  const RZ = [0.19, 0.50, 0.75, 0.96, 1.10];
-  for(const s of [1,-1]) for(let k=0;k<5;k++){
-    const m = boxM(headTile, W2[k], H2[k], H2[k]+0.008, s*XS[k], YS[k], 0.00, hm);
-    m.rotation.z = -s*RZ[k];
-    g.add(m);
+  g.add(boxM(T.cloth, 0.095,0.74,0.095, 0.00,-0.03, 0.00, matHandleOr));   // 굵은 주황 자루
+  g.add(boxM(T.cloth, 0.11,0.08,0.11,   0.00,-0.38, 0.00, matHandleOr));   // 자루 끝
+  g.add(boxM(T.cloth, 0.15,0.10,0.15,   0.00, 0.31, 0.00, hd));            // 목 테(짙은 파랑)
+  g.add(boxM(T.cloth, 0.20,0.15,0.12,   0.00, 0.39, 0.00, hm));            // 머리 가운데 — 솟은 봉우리
+  /* ★ 선생님: "돌멩이 몇 개 붙인 채로 두지 말고 매끈하게, 일자로 쭉, 진짜 곡괭이처럼."
+     양날은 한쪽에 **긴 상자 하나**다 — 살짝 아래로 기울어 쭉 뻗고, 끝에 뾰족한 촉 하나만 붙는다. */
+  for(const s of [1,-1]){
+    const arm = boxM(T.cloth, 0.46,0.105,0.10, s*0.30, 0.355, 0.00, hm);   // 날 — 한 덩어리로 쭉
+    arm.rotation.z = -s*0.20; g.add(arm);
+    const tip = boxM(T.cloth, 0.14,0.055,0.06, s*0.575, 0.285, 0.00, hm);  // 촉 — 얇고 뾰족하게
+    tip.rotation.z = -s*0.42; g.add(tip);
   }
-  g.rotation.set(-0.20, 0.50, 0.30);
+  /* ★ 옆면으로 내리친다 — 머리를 90° 돌려 양날이 앞뒤로 뻗게 한다. 그래야 내리칠 때(rotation.x) 앞날이
+     표적으로 내려가고, 화면에는 곡괭이의 옆모습이 보인다. 예전엔 양날이 좌우로 뻗어 납작한 면으로 찧었다.
+     ★ 뒷날이 눈 쪽으로 오므로 크게 보인다 — 한 뼘 뒤로 물린다. */
+  g.rotation.set(-0.20, 0.35 + Math.PI/2, 0.30);
+  g.position.set(0.04, -0.06, -0.22);
   return g;
 }
 /* 망치 — 한쪽은 넓적한 타격면, 반대쪽은 갈라진 발톱. 목에는 쇠테. */
@@ -5653,13 +5654,13 @@ function mkHammerTool(headTile, headMat){
   const g = new THREE.Group();
   const hm = headMat || MAT;
   g.add(mkArm());
-  g.add(boxM(T.bark, 0.080,0.64,0.080, 0.00,0.00,0.00));            // 자루
+  g.add(boxM(T.cloth, 0.090,0.66,0.090, 0.00,0.00,0.00, matHandleOr));   // 굵은 주황 자루 (29차 — 곡괭이와 같은 결)
   g.add(boxM(T.goldBlk, 0.115,0.075,0.115, 0.00,0.255,0.00));       // 쇠테
   g.add(boxM(headTile, 0.30,0.20,0.20, 0.045,0.340,0.00, hm));      // 머리 몸통
   g.add(boxM(headTile, 0.085,0.245,0.245, 0.235,0.340,0.00, hm));   // 넓적한 타격면
   for(const s of [1,-1])                                             // 갈라진 발톱 2개
     g.add(boxM(headTile, 0.13,0.085,0.070, -0.165,0.315,s*0.062, hm));
-  g.rotation.set(-0.20, 0.50, 0.30);
+  g.rotation.set(-0.20, 0.50 + Math.PI/2, 0.30);                    // 29차 — 타격면(+x)이 앞(-z)을 보게 90° 돌린다
   return g;
 }
 const matRed  = new THREE.MeshLambertMaterial({map:ATLAS, color:0xff8a7a});
@@ -5668,7 +5669,7 @@ const matGold = new THREE.MeshLambertMaterial({map:ATLAS, color:0xffe9a0});
 function mkHammer(){
   const g = new THREE.Group();
   g.add(mkArm());
-  g.add(boxM(T.bark, 0.095,0.70,0.095, 0.00,0.00,0.00));            // 굵은 자루
+  g.add(boxM(T.cloth, 0.095,0.70,0.095, 0.00,0.00,0.00, matHandleOr));   // 굵은 주황 자루 (29차)
   g.add(boxM(T.logSide, 0.125,0.09,0.125, 0.00,-0.30,0.00));        // 손잡이 끝
   g.add(boxM(T.goldBlk, 0.135,0.085,0.135, 0.00,0.275,0.00));       // 쇠테
   g.add(boxM(T.stone, 0.36,0.26,0.26, 0.055,0.375,0.00));           // 큰 머리
@@ -5676,7 +5677,7 @@ function mkHammer(){
   g.add(boxM(T.goldBlk, 0.045,0.285,0.285, 0.325,0.375,0.00));      // 타격면 테두리
   for(const s of [1,-1])                                             // 갈라진 발톱
     g.add(boxM(T.stone, 0.16,0.10,0.085, -0.190,0.345,s*0.075));
-  g.rotation.set(-0.20, 0.50, 0.30);
+  g.rotation.set(-0.20, 0.50 + Math.PI/2, 0.30);                    // 29차 — 타격면이 앞을 보게
   return g;
 }
 /* ★ 총은 한 자루만 만들고 색만 바꿔 끼운다 — 무기 6종에 모형 6개를 만들면
@@ -7703,25 +7704,23 @@ function drawSheep(list, t, cap, colOf, scale){
       // 혀 — 입에서 살짝 나온 분홍 조각
       setI(P_nose, noseN++, X(1.16,0), YH(0.98), Z(1.16,0), ry,
         0.13*sc, 0.07*sc, 0.24*sc, 0xff8fa6);
-      setI(P_nose, noseN++, X(1.02,0), YH(0.92), Z(1.02,0), ry,
-        0.20*sc, 0.13*sc, 0.09*sc, 0xd99a95);
     } else {
-    // 눈 — 크고 동그랗게 (딱 붙이면 깊이가 겹쳐 깜빡이므로 확실히 띄운다)
+    /* ★ 29차 얼굴 — 선생님: "얼굴 가운데 타원(코)이 입인 줄 알았다, 턱수염 같다. 그거 없애고 입을 위로."
+       로블록스 얼굴 그대로 — 눈 둘 + 넓은 U 미소, 코 없음. 볼터치는 입 옆 뺨에. 셋(게임·미리보기·아이콘)이 같은 값. */
+    // 눈 — 크고 세로로 긴 타원 (딱 붙이면 깊이가 겹쳐 깜빡이므로 확실히 띄운다)
     for(const si of [1,-1])
-      setI(P_eye, eyeN++, X(1.02,0.185*si), YH(1.13), Z(1.02,0.185*si), ry,
-        0.17*sc, 0.20*sc, 0.08*sc, 0x241f1c);
+      setI(P_eye, eyeN++, X(1.02,0.19*si), YH(1.11), Z(1.02,0.19*si), ry,
+        0.18*sc, 0.23*sc, 0.08*sc, 0x241f1c);
     // 눈 반짝이 — 눈 위쪽 바깥에 찍는 작은 흰 점. 이거 하나로 눈이 살아난다.
     for(const si of [1,-1])
-      setI(P_eye, eyeN++, X(1.07,0.228*si), YH(1.185), Z(1.07,0.228*si), ry,
-        0.055*sc, 0.065*sc, 0.05*sc, 0xffffff);
-    // 코
-    setI(P_nose, noseN++, X(1.03,0), YH(0.92), Z(1.03,0), ry, 0.22*sc, 0.14*sc, 0.09*sc, 0xe8a9a4);
-    // 입 — 코 아래 넓은 U. 로블록스 얼굴의 그 미소다 (28차)
-    setI(P_mouth, mouthN++, X(1.03,0), YH(0.83), Z(1.03,0), ry, 0.30*sc, 0.20*sc, 0.10*sc, 0x3a2f2c);
-    // 볼터치 — 눈 아래 뺨에 발그레하게. 코와 높이를 벌려 놔야 한 덩어리로 안 뭉친다.
+      setI(P_eye, eyeN++, X(1.07,0.235*si), YH(1.175), Z(1.07,0.235*si), ry,
+        0.06*sc, 0.07*sc, 0.05*sc, 0xffffff);
+    // 입 — 눈 바로 아래 넓은 U. 로블록스 얼굴의 그 미소다 (28차 → 29차에 위로, 더 넓게)
+    setI(P_mouth, mouthN++, X(1.03,0), YH(0.94), Z(1.03,0), ry, 0.36*sc, 0.22*sc, 0.10*sc, 0x3a2f2c);
+    // 볼터치 — 입 옆 뺨에 발그레하게
     for(const si of [1,-1])
-      setI(P_nose, noseN++, X(1.02,0.30*si), YH(1.00), Z(1.02,0.30*si), ry,
-        0.15*sc, 0.10*sc, 0.07*sc, 0xffb0bd);
+      setI(P_nose, noseN++, X(1.02,0.33*si), YH(0.99), Z(1.02,0.33*si), ry,
+        0.14*sc, 0.09*sc, 0.07*sc, 0xffb0bd);
     }
     // 꼬리 — 뒤에 붙은 동그란 털뭉치. 걸을 때 살랑거린다.
     const tw = (!down && s.mv) ? Math.sin(gait - 1.2)*0.22 : 0;
@@ -8163,8 +8162,14 @@ function updPlayer(dt){
      착지 뒤 숨 고르기(0.20초)를 붙인다. 그래야 '언제 뛰나' 가 실제 실력이 된다. */
   const rj = ropeRun();
   if(PL.landT > 0) PL.landT -= dt;
-  const canJump = PL.ground && !PL.down && !(rj && (PL.landT > 0 || MINE.rs > 0));
+  /* ★ 29차 2단 점프 — 선생님: "애들이 계속 건물 사이에 껴서 못 나오더라고." 공중에서 한 번 더 뛴다.
+     줄넘기 때는 안 된다(박자가 실력이다). 스페이스는 누를 때마다 한 번(keydown, repeat 아님)이라 한 번 뛰고
+     또 눌러야 두 번째가 나간다. 발밑에 흰 구름 한 줌 — 두 번째가 나갔다는 걸 손끝 말고 눈으로도 알게. */
+  const canJump = !PL.down && !(rj && (PL.landT > 0 || MINE.rs > 0))
+                && (PL.ground || (!rj && (PL.jumps|0) < 1 && PL.vy < JUMP*0.92));
   if(wantJump && canJump){
+    if(!PL.ground){ PL.jumps = (PL.jumps|0) + 1;
+      burst(PL.x, PL.y + 0.05, PL.z, 0xfffaf0, 9, 0.9); if(window.__sfx) window.__sfx('hop'); }
     PL.vy = rj ? RJ_JUMP : JUMP; PL.ground = false;
     if(rj) ropeHop();
   }
@@ -8172,7 +8177,7 @@ function updPlayer(dt){
   PL.vy -= (rj ? RJ_GRAV : GRAV)*dt; PL.y += PL.vy*dt;
   if(PL.y <= gnd){
     if(!PL.ground){ PL.landT = rj ? RJ_LAND : 0; if(rj) ropeLand(); }
-    PL.y = gnd; PL.vy = 0; PL.ground = true; PL.airT = (PL.airT||0) + dt; }
+    PL.y = gnd; PL.vy = 0; PL.ground = true; PL.jumps = 0; PL.airT = (PL.airT||0) + dt; }
   else { PL.ground = false; PL.airT = 0; }
   if(PL.y < -20) placePlayer();
   /* ★ 망루에 처음 올라가면 알려 준다. 안 알려 주면 9살은 계단이 있어도 안 올라간다. */
@@ -14210,20 +14215,19 @@ const PVW_BODY = [
   [ 0.84,1.33, 0,     0.74,0.26,0.46, 'frng'],
   [ 0.60,1.02, 0.44,  0.20,0.36,0.15, 0xeee4d6],
   [ 0.60,1.02,-0.44,  0.20,0.36,0.15, 0xeee4d6],
-  [ 1.02,1.13, 0.185, 0.17,0.20,0.08, 0x241f1c],
-  [ 1.02,1.13,-0.185, 0.17,0.20,0.08, 0x241f1c],
-  [ 1.07,1.185, 0.228,0.055,0.065,0.05, 0xffffff],
-  [ 1.07,1.185,-0.228,0.055,0.065,0.05, 0xffffff],
-  [ 1.03,0.92, 0,     0.22,0.14,0.09, 0xe8a9a4],
-  [ 1.02,1.00, 0.30,  0.15,0.10,0.07, 0xffb0bd],
-  [ 1.02,1.00,-0.30,  0.15,0.10,0.07, 0xffb0bd],
+  [ 1.02,1.11, 0.19,  0.18,0.23,0.08, 0x241f1c],   // 눈 (29차 — 코를 없애고 눈·입·볼을 다시 잡았다. drawSheep 과 같은 값)
+  [ 1.02,1.11,-0.19,  0.18,0.23,0.08, 0x241f1c],
+  [ 1.07,1.175, 0.235,0.06,0.07,0.05, 0xffffff],
+  [ 1.07,1.175,-0.235,0.06,0.07,0.05, 0xffffff],
+  [ 1.02,0.99, 0.33,  0.14,0.09,0.07, 0xffb0bd],   // 볼터치
+  [ 1.02,0.99,-0.33,  0.14,0.09,0.07, 0xffb0bd],
   [-0.58,0.94, 0,     0.34,0.34,0.26, 'wool'],
   [ 0.30,0.17, 0.27,  0.20,0.36,0.20, 0x5c564f],
   [ 0.30,0.17,-0.27,  0.20,0.36,0.20, 0x5c564f],
   [-0.30,0.17, 0.27,  0.20,0.36,0.20, 0x5c564f],
   [-0.30,0.17,-0.27,  0.20,0.36,0.20, 0x5c564f],
   ...PUFF6.map(q=>[q[0]-0.05, q[1], q[2], q[3], q[4], q[5], 'wool', 'ball']),
-  [ 1.03,0.83, 0,     0.30,0.20,0.10, 0x3a2f2c, 'smile']      // 입 (28차) — 게임(drawSheep)과 같은 자리
+  [ 1.03,0.94, 0,     0.36,0.22,0.10, 0x3a2f2c, 'smile']      // 입 (28차, 29차에 위로) — 게임(drawSheep)과 같은 자리
 ];
 let pvw = null;
 /* ═══════ 미리보기 만들기 (23차에 시작 화면 전용에서 **아무 데나 쓸 수 있게** 바꿨다) ═══════
@@ -14608,8 +14612,8 @@ function ICO_DEF_FLOWER(){ return ICO_DEF.flower.rows; }
 /* ★ 모자·안경·옷은 혼자 찍으면 조각 몇 개로 보인다(리본 두 쪽, 뿔 두 개…). 양 인형 위에 얹어 찍는다 —
    인형은 크림색이라 물건만 색으로 튄다. 모자·안경은 머리 인형, 옷은 몸 인형. */
 const DOLL_COL = {body:0xf4f1ea, wool:0xffffff, frng:0xf0e8dc};
-const dollHead = ()=> PVW_BODY.slice(2, 13).concat([PVW_BODY[PVW_BODY.length-1]]);  // 머리·앞머리·귀·눈·코·볼·입
-const dollBody = ()=> [PVW_BODY[0], ...PVW_BODY.slice(2, 13), ...PVW_BODY.slice(14)];  // + 몸통·다리·털뭉치
+const dollHead = ()=> PVW_BODY.slice(2, 12).concat([PVW_BODY[PVW_BODY.length-1]]);  // 머리·앞머리·귀·눈·볼·입 (29차 — 코 없음)
+const dollBody = ()=> [PVW_BODY[0], ...PVW_BODY.slice(2, 12), ...PVW_BODY.slice(13)];  // + 몸통·다리·털뭉치
 HATS.forEach((rows,i)=>{ if(i) ICO_DEF['hat'+i] = {emo:[HAT_ICON[i]], make:()=>tableGroup(dollHead().concat(rows), DOLL_COL), pose:{ry:-0.55}}; });
 GLASSES.forEach((rows,i)=>{ if(i) ICO_DEF['gls'+i] = {make:()=>tableGroup(dollHead().concat(rows), DOLL_COL), pose:{ry:-0.35}}; });
 CLOTHES.forEach((rows,i)=>{ if(i) ICO_DEF['clo'+i] = {make:()=>tableGroup(dollBody().concat(rows), DOLL_COL), pose:{ry:-0.55}}; });
