@@ -64,13 +64,26 @@ const rot = await pg.evaluate(async ()=>{
   const W=window, seen=new Set(), rows=[];
   /* 갈래가 다 살아 있게 값을 채워 둔다 */
   for(const [,p] of W.__pcMap) if(p&&p.n){ p.fixed=3; p.helped=2; p.hits=4; p.mined=7; p.built=5; }
-  const T = W.__RANK_SEC;
-  for(let i=0; i<7; i++){
-    W.__hudPrev().rank = '';                 // 값이 그대로여도 다시 칠하게
-    W.__paintRank();
-    seen.add(document.getElementById('rankHead').textContent);
+  /* ★ 고정 시간으로 기다리면 안 된다 — 이유가 처음 짐작(게임 시계)과 달랐다.
+     갈래는 performance.now()/RANK_SEC 로, 즉 **벽시계**로 돈다. 그런데 검사기가 바쁘면
+     (동시 4개, 1~3fps) setTimeout(5120) 이 10초, 13초 뒤에 깨어난다 — 한 프레임이 1초씩
+     주 스레드를 잡고 있어서다. 그러면 표본이 k, k+2, k+5… 로 건너뛰고, 갈래가 여덟이라
+     여덟 칸 주기와 **엇갈려서(aliasing)** 일곱 번 뽑아도 셋만 남는 판이 생긴다.
+     그래서 '제목이 바뀔 때까지' 기다린다 — 몇 초 걸리든 바뀔 때마다 하나씩 담으므로 못 건너뛴다.
+     보려는 것은 '몇 초에 바뀌나' 가 아니라 '시간이 지나면 돌아가나' 다. 안 돌면 천장에서
+     손을 떼고 그대로 빨간불이 된다(벽시계 5초 주기라 한 번 바뀌는 데 길어야 몇 프레임이다). */
+  const head = ()=>{ W.__hudPrev().rank = ''; W.__paintRank();
+                     return document.getElementById('rankHead').textContent; };
+  const waitChange = last => new Promise(res=>{
+    let n=0; const t=()=>{ const h=head();
+      if(h!==last || ++n>600) return res(h); requestAnimationFrame(t); };
+    requestAnimationFrame(t); });
+  let cur = head();
+  seen.add(cur); rows.push(document.querySelectorAll('#rankList .rkRow').length);
+  for(let i=0; i<6; i++){
+    cur = await waitChange(cur);
+    seen.add(cur);
     rows.push(document.querySelectorAll('#rankList .rkRow').length);
-    await new Promise(r=>setTimeout(r, T*1000 + 120));
   }
   return {제목수:seen.size, 제목:[...seen], 줄수:rows,
           보임:document.getElementById('rankWrap').style.display !== 'none'};

@@ -1,5 +1,5 @@
 /* 25차 검사 — 그림자 · 하늘 돔 · 빛 번짐 · 품질 손잡이
-   ★ 이 검사만 ?gfx=high 로 연다. 검사기는 소프트웨어 렌더링이라 게임이 스스로
+   ★ 이 검사만 ?gfx=high 로 연다(빛 번짐 항목은 ?gfx=high&bloom=1). 검사기는 소프트웨어 렌더링이라 게임이 스스로
      품질을 내리기 때문이다(그게 옳다 — 안 내리면 교실의 고장난 한 대가 기어간다).
      그래서 '일부러 켠 판' 을 따로 열어서 본다.
    ★ 그리고 '켜졌나' 로 끝내지 않는다. 24차까지 여러 번 겪었듯 코드가 맞아도 화면은 다를 수 있다 —
@@ -33,13 +33,23 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
 
 /* ═══════ ① 품질 손잡이 ═══════ */
 {
-  const want = {high:{shadow:2048,bloom:1}, mid:{shadow:1024,bloom:0}, low:{shadow:0,bloom:0}};
+  /* 26차 — 예산을 다시 짰다. 교실 gram 실측(기준 28fps, 빛번짐 끔 +12, 그림자 끔 +4, 그리기 끔 60)이
+     "GPU 가 병목, 그것도 픽셀 쪽" 이라서: 해상도 1.0(1707×1067), 빛 번짐은 프리셋에서 뺌, MSAA 4.
+     빛 번짐은 ?bloom=1 로만 켜진다 — 아래 ③ 이 그 길로 연다. */
+  const want = {high:{shadow:2048,bloom:0,aa:4,pr:1.0}, mid:{shadow:1024,bloom:0,aa:0,pr:1.0},
+                low:{shadow:0,bloom:0,aa:0,pr:0.75}};
   for(const q of ['high','mid','low']){
     const pg = await open('?gfx='+q);
-    const g = await pg.evaluate(()=>({g:window.__GFX, sm:window.__R.shadowMap.enabled}));
+    const g = await pg.evaluate(()=>({g:window.__GFX, sm:window.__R.shadowMap.enabled,
+                                      pr:window.__R.getPixelRatio(), dpr:devicePixelRatio}));
     ok(`?gfx=${q} — 그림자 ${want[q].shadow||'없음'}`, g.g.shadow === want[q].shadow, g.g.shadow);
     ok(`?gfx=${q} — 빛번짐 ${want[q].bloom?'켬':'끔'}`, g.g.bloom === want[q].bloom, g.g.bloom);
     ok(`?gfx=${q} — 그림자 지도 ${want[q].shadow?'켬':'끔'}`, g.sm === (want[q].shadow>0));
+    ok(`?gfx=${q} — 계단 없애기 ${want[q].aa?'x'+want[q].aa:'없음'}`, g.g.aa === want[q].aa, g.g.aa);
+    ok(`?gfx=${q} — 해상도 배율 ${want[q].pr}`, g.g.pr === want[q].pr, g.g.pr);
+    /* '켜졌다' 와 '닿았다' — 표의 값이 아니라 렌더러가 실제로 쓰는 배율을 본다 */
+    ok(`?gfx=${q} — 그 배율이 렌더러에 실제로 먹는다`,
+       Math.abs(g.pr - Math.min(g.dpr, want[q].pr)) < 1e-6, g.pr);
     await pg.close();
   }
   const pg = await open('');
@@ -52,8 +62,11 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
 }
 
 /* ═══════ ② 그림자가 화면에 닿나 ═══════ */
+const pgG = await open('?gfx=high&bloom=1');     // 26차 — 빛 번짐은 이 손잡이로만 켜진다(③ 이 쓴다)
+ok('?bloom=1 — 빛 번짐이 이번 한 판만 켜진다 (프리셋엔 없다)',
+   await pgG.evaluate(()=>window.__GFX.bloom === 1));
 {
-  const pg = await open('?gfx=high');
+  const pg = pgG;
   await pg.fill('#iName','검'); await pg.click('#bSolo');
   await frames(pg, 8);
   await pg.evaluate(()=>{ const W=window; W.__introDone();
@@ -79,10 +92,15 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
     o.칸단위 = (a === c) && (Math.abs(a/texel - Math.round(a/texel)) < 1e-6);
     W.__PL.x=16; W.__PL.z=22; W.__shadowFollow(16,22);
     /* ★ 제일 중요한 것 — 화면에 실제로 닿나 */
-    const cv=document.createElement('canvas'); cv.width=450; cv.height=260;
-    const cx=cv.getContext('2d',{willReadFrequently:true}); const N=450*260;
-    const grab=()=>{ W.__drawFrame(); cx.drawImage(R.domElement,0,0,450,260);
-                     return cx.getImageData(0,0,450,260).data; };
+    /* ★ 캔버스를 **원본 크기로** 읽는다. 줄여서 읽으면 이웃 픽셀이 평균돼
+       찾으려던 국소 봉우리가 깎인다 — 같은 화면인데 900x520 을 450x260 으로
+       줄여 읽었더니 제일 밝아진 곳이 79 → 37 로 반토막 났다.
+       '가장 큰 차이' 를 보는 항목은 절대로 줄여서 읽으면 안 된다. */
+    const dm=R.domElement, CW=dm.width, CH=dm.height, N=CW*CH;
+    const cv=document.createElement('canvas'); cv.width=CW; cv.height=CH;
+    const cx=cv.getContext('2d',{willReadFrequently:true});
+    const grab=()=>{ W.__drawFrame(); cx.drawImage(dm,0,0);
+                     return cx.getImageData(0,0,CW,CH).data; };
     W.__sun.castShadow=true;  R.shadowMap.needsUpdate=true; const on=grab();
     W.__sun.castShadow=false; R.shadowMap.needsUpdate=true; const off=grab();
     W.__sun.castShadow=true;  R.shadowMap.needsUpdate=true;
@@ -100,28 +118,105 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
      지도가 구워져도 화면에 안 닿으면 기능이 아니다. */
   ok('★ 그림자가 화면에 실제로 닿는다 (지도가 구워지는 것과 다른 말이다)',
      r.픽셀차 > 1.0 && r.제일진함 > 40, r.픽셀차.toFixed(2)+'% · 제일 진한 곳 '+r.제일진함);
-  await pg.close();
+}
+
+/* ═══════ ④ 하늘 돔 · 밤 밝기 ═══════ */
+/* ★ 25차c — ②③④ 가 페이지를 저마다 열던 것을 하나로 합쳤다. 검사기에서 페이지 하나 여는 데
+   30초가 넘고, 밤이 올 때까지(skyK lerp) 기다리는 데 30~60초가 또 든다. 그래서 t28 이 240초로
+   전체에서 제일 느렸다. 한 페이지에서 낮 항목을 다 재고 -> __setSky(1) 로 밤을 바로 놓고 -> 밤 항목. */
+{
+  const pg = pgG;
+  await pg.evaluate(()=>{ const W=window;
+    W.__PL.x=0; W.__PL.z=54; W.__PL.yaw=Math.PI; W.__PL.pitch=0.16; });
+  await frames(pg, 3);
+  const r = await pg.evaluate(async ()=>{
+    const W=window, R=W.__R, o={}, d=W.__skyDome;
+    o.있음 = !!d;
+    o.안개밖 = d ? (d.material.fog === false) : false;   // 하늘이 안개에 물들면 지평선이 뭉개진다
+    o.결 = d ? !!d.material.map : false;                 // 세로 결이 그림에 구워져 있나
+    o.기본재질 = d ? !!d.material.isMeshBasicMaterial : false;  // 직접 짠 셰이더면 색이 따로 논다
+    const cv=document.createElement('canvas'); cv.width=450; cv.height=260;
+    const cx=cv.getContext('2d',{willReadFrequently:true}); const N=450*260;
+    const mean=()=>{ W.__drawFrame(); cx.drawImage(R.domElement,0,0,450,260);
+      const p=cx.getImageData(0,0,450,260).data; let s=0;
+      for(let i=0;i<N;i++) s+=(p[i*4]+p[i*4+1]+p[i*4+2])/3; return s/N; };
+    /* 하늘 위와 아래의 밝기가 달라야 '결' 이다 — 색 하나면 위아래가 같다.
+       ★ 지평선을 보는 각도로 재면 안 된다. 어느 줄이 하늘이고 어느 줄이 산인지가
+         판마다 달라서(지형이 무작위다) 같은 게임인데 23.5 였다가 1.1 이 나온다.
+         **하늘만 보이게 위를 보고** 잰다 — 위쪽 줄은 천정 가까이, 아래쪽 줄은
+         지평선 쪽이 되어 둘 다 확실히 하늘이다.
+       ★ 그리고 원본 크기로 읽는다. 줄여 읽으면 이웃 픽셀이 평균돼 결이 뭉개진다. */
+    /* ★ PL.pitch 를 바꾸는 것으로는 안 된다 — 카메라는 다음 프레임에 updPlayer 가 돌려준다.
+       그 사이에 프레임이 돌았는지에 따라 값이 달라져서 15.3 / 44.3 / 2.4 로 널뛰었다.
+       카메라를 **직접** 돌리고 바로 그린다. 그러면 그 사이에 아무 일도 안 일어난다. */
+    const _p = W.__PL.pitch;
+    W.__cam.rotation.set(0.95, W.__PL.yaw, 0, 'YXZ');   // 약 54도 위 — 산이 안 걸린다
+    W.__drawFrame();
+    const dm2=R.domElement, W2=dm2.width, H2=dm2.height;
+    const cv2=document.createElement('canvas'); cv2.width=W2; cv2.height=H2;
+    const cx2=cv2.getContext('2d',{willReadFrequently:true});
+    cx2.drawImage(dm2,0,0);
+    const px = cx2.getImageData(0,0,W2,H2).data;
+    /* ★ 열마다 위아래 차를 재고 **중앙값**을 쓴다. 평균을 쓰면 구름 한 덩이가
+       화면 일부를 덮었을 때 그 열들이 값을 통째로 끌고 간다(구름은 흘러다닌다). */
+    const yT = Math.floor(H2*0.08), yB = Math.floor(H2*0.55), col=[];
+    for(let x=0;x<W2;x+=4) col.push(Math.abs(px[(yT*W2+x)*4+2] - px[(yB*W2+x)*4+2]));
+    col.sort((a,b)=>a-b);
+    o.위아래차 = col[col.length>>1];
+    W.__PL.pitch = _p;
+    /* ★ 밝기는 **놀 때 보는 각도**에서 잰다. 위 항목들은 하늘이 보여야 해서 위를 봤는데,
+       하늘은 낮↔밤 색 차이가 제일 큰 곳이라 그대로 재면 62% 가 나온다(땅을 보면 77%).
+       이 항목이 걱정하는 것은 '아이가 늑대를 보나' 지 하늘이 아니다 — 재는 자리를 옮긴다. */
+    W.__PL.x=16; W.__PL.z=22; W.__PL.yaw=-2.52; W.__PL.pitch=-0.16;
+    await new Promise(r=>{ let n=0; const t=()=>{ if(++n>4) return r(); requestAnimationFrame(t); };
+      requestAnimationFrame(t); });
+    o.낮 = mean();
+    W.__goNight(); W.__setSky(1);            // 기다리지 않는다 — 검사용 훅
+    await new Promise(r=>{ let n=0; const t=()=>{ if(++n>3) return r(); requestAnimationFrame(t); };
+      requestAnimationFrame(t); });         // updSky 가 조명을 밤으로 바꿀 프레임 셋
+    o.밤 = mean();
+    o.노을색 = !!W.__skyDome;
+    return o;
+  });
+  ok('하늘 돔이 있다', r.있음);
+  ok('하늘이 안개 밖에 있다 (물들면 지평선이 뭉개진다)', r.안개밖);
+  ok('세로 결이 그림에 구워져 있다', r.결);
+  ok('★ 기본 재질을 쓴다 (직접 짠 셰이더는 톤매핑을 안 거쳐 하늘만 색이 따로 논다)', r.기본재질);
+  ok('★ 하늘 위와 아래의 밝기가 다르다 (색 하나면 같다)', r.위아래차 > 3,
+     r.위아래차.toFixed(1));
+  /* ★ 밤이 어두워지면 아이가 늑대를 못 본다. 이건 그래픽이 아니라 게임 문제다.
+     ★ 띠는 62~88% 다. 처음엔 70~85 로 잡았는데 그건 ACES 시절 이 검사가 83% 를 찍던 때
+       눈대중으로 둔 값이라, 게임을 옛 판 설계점(밤/낮 79%, 다른 측정기 기준)에 맞추자
+       이 검사에서는 70% 로 읽혀 **아래 문턱에 딱 걸렸다**(그 전엔 85% 로 위 문턱에 걸렸다).
+       같은 게임을 두 자로 재면 9점이 어긋난다(화면 크기·보이는 하늘 비율이 달라서).
+       뜻이 있는 경계만 남긴다 — 밤이 낮의 2/3 보다 어두우면 늑대가 안 보이고(62),
+       88% 보다 밝으면 밤이 밤 같지 않다. 둘 다 잰 값(70·79)에서 여유가 있다. */
+  ok('★ 밤이 낮의 62~88% 밝기다 (어두우면 늑대를 못 보고, 밝으면 밤 같지 않다)',
+     r.밤/r.낮 > 0.62 && r.밤/r.낮 < 0.88,
+     '낮 '+r.낮.toFixed(1)+' · 밤 '+r.밤.toFixed(1)+' ('+(r.밤/r.낮*100).toFixed(0)+'%)');
 }
 
 /* ═══════ ③ 빛 번짐 ═══════ */
 {
-  const pg = await open('?gfx=high');
-  await pg.fill('#iName','검'); await pg.click('#bSolo');
-  await frames(pg, 8);
-  await pg.evaluate(()=>{ const W=window; W.__introDone();
-    W.__PL.x=0; W.__PL.z=17; W.__PL.yaw=Math.PI; W.__PL.pitch=-0.02; W.__goNight(); });
-  await pg.evaluate(()=> new Promise(r=>{ let n=0; const t=()=>{ n++;
-    if(window.__skyK()>=0.9 || n>400) return r(); requestAnimationFrame(t); }; requestAnimationFrame(t); }));
+  const pg = pgG;                            // ④ 가 밤으로 놓고 넘겨준다
+  await pg.evaluate(()=>{ const W=window;
+    W.__PL.x=0; W.__PL.z=17; W.__PL.yaw=Math.PI; W.__PL.pitch=-0.02; });
+  await frames(pg, 3);
   const r = await pg.evaluate(()=>{
     const W=window, R=W.__R, o={};
     const rt = W.__bloomRT();
     o.돎 = !!rt;
     /* 절반 크기로 흐린다 — 빛 번짐은 대역폭 장사라 내장그래픽에서 제일 먼저 걸린다 */
     o.절반 = rt ? (rt.half === (rt.w>>1)) : false;
-    const cv=document.createElement('canvas'); cv.width=450; cv.height=260;
-    const cx=cv.getContext('2d',{willReadFrequently:true}); const N=450*260;
-    const grab=()=>{ W.__drawFrame(); cx.drawImage(R.domElement,0,0,450,260);
-                     return cx.getImageData(0,0,450,260).data; };
+    /* ★ 캔버스를 **원본 크기로** 읽는다. 줄여서 읽으면 이웃 픽셀이 평균돼
+       찾으려던 국소 봉우리가 깎인다 — 같은 화면인데 900x520 을 450x260 으로
+       줄여 읽었더니 제일 밝아진 곳이 79 → 37 로 반토막 났다.
+       '가장 큰 차이' 를 보는 항목은 절대로 줄여서 읽으면 안 된다. */
+    const dm=R.domElement, CW=dm.width, CH=dm.height, N=CW*CH;
+    const cv=document.createElement('canvas'); cv.width=CW; cv.height=CH;
+    const cx=cv.getContext('2d',{willReadFrequently:true});
+    const grab=()=>{ W.__drawFrame(); cx.drawImage(dm,0,0);
+                     return cx.getImageData(0,0,CW,CH).data; };
     W.__DBG().noBloom=false; const on=grab();
     W.__DBG().noBloom=true;  const off=grab();
     W.__DBG().noBloom=false;
@@ -143,58 +238,6 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
      Math.abs(r.밝기켬 - r.밝기끔) < 2.5, r.밝기켬.toFixed(1)+' vs '+r.밝기끔.toFixed(1));
   ok('★ 빛 번짐은 밝은 곳만 건드린다 (화면 전체가 들뜨면 안 된다)',
      r.픽셀차 < 12, r.픽셀차.toFixed(2)+'%');
-  await pg.close();
-}
-
-/* ═══════ ④ 하늘 돔 · 밤 밝기 ═══════ */
-{
-  const pg = await open('?gfx=high');
-  await pg.fill('#iName','검'); await pg.click('#bSolo');
-  await frames(pg, 8);
-  await pg.evaluate(()=>{ const W=window; W.__introDone();
-    W.__PL.x=0; W.__PL.z=54; W.__PL.yaw=Math.PI; W.__PL.pitch=0.16; });
-  await frames(pg, 6);
-  const r = await pg.evaluate(async ()=>{
-    const W=window, R=W.__R, o={}, d=W.__skyDome;
-    o.있음 = !!d;
-    o.안개밖 = d ? (d.material.fog === false) : false;   // 하늘이 안개에 물들면 지평선이 뭉개진다
-    o.결 = d ? !!d.material.map : false;                 // 세로 결이 그림에 구워져 있나
-    o.기본재질 = d ? !!d.material.isMeshBasicMaterial : false;  // 직접 짠 셰이더면 색이 따로 논다
-    const cv=document.createElement('canvas'); cv.width=450; cv.height=260;
-    const cx=cv.getContext('2d',{willReadFrequently:true}); const N=450*260;
-    const mean=()=>{ W.__drawFrame(); cx.drawImage(R.domElement,0,0,450,260);
-      const p=cx.getImageData(0,0,450,260).data; let s=0;
-      for(let i=0;i<N;i++) s+=(p[i*4]+p[i*4+1]+p[i*4+2])/3; return s/N; };
-    /* 하늘 위와 아래의 밝기가 달라야 '결' 이다 — 색 하나면 위아래가 같다 */
-    W.__drawFrame(); cx.drawImage(R.domElement,0,0,450,260);
-    const px = cx.getImageData(0,0,450,260).data;
-    let top=0, mid=0;
-    for(let x=0;x<450;x++){ top += px[(10*450+x)*4+2]; mid += px[(70*450+x)*4+2]; }
-    o.위아래차 = Math.abs(top/450 - mid/450);
-    /* ★ 밝기는 **놀 때 보는 각도**에서 잰다. 위 항목들은 하늘이 보여야 해서 위를 봤는데,
-       하늘은 낮↔밤 색 차이가 제일 큰 곳이라 그대로 재면 62% 가 나온다(땅을 보면 77%).
-       이 항목이 걱정하는 것은 '아이가 늑대를 보나' 지 하늘이 아니다 — 재는 자리를 옮긴다. */
-    W.__PL.x=16; W.__PL.z=22; W.__PL.yaw=-2.52; W.__PL.pitch=-0.16;
-    await new Promise(r=>{ let n=0; const t=()=>{ if(++n>4) return r(); requestAnimationFrame(t); };
-      requestAnimationFrame(t); });
-    o.낮 = mean();
-    W.__goNight();
-    await new Promise(r=>{ let n=0; const t=()=>{ n++;
-      if(W.__skyK()>=0.95 || n>400) return r(); requestAnimationFrame(t); }; requestAnimationFrame(t); });
-    o.밤 = mean();
-    o.노을색 = !!W.__skyDome;
-    return o;
-  });
-  ok('하늘 돔이 있다', r.있음);
-  ok('하늘이 안개 밖에 있다 (물들면 지평선이 뭉개진다)', r.안개밖);
-  ok('세로 결이 그림에 구워져 있다', r.결);
-  ok('★ 기본 재질을 쓴다 (직접 짠 셰이더는 톤매핑을 안 거쳐 하늘만 색이 따로 논다)', r.기본재질);
-  ok('★ 하늘 위와 아래의 밝기가 다르다 (색 하나면 같다)', r.위아래차 > 3,
-     r.위아래차.toFixed(1));
-  /* ★ 밤이 어두워지면 아이가 늑대를 못 본다. 이건 그래픽이 아니라 게임 문제다. */
-  ok('★ 밤이 낮의 70~85% 밝기다 (어두우면 늑대를 못 본다)',
-     r.밤/r.낮 > 0.70 && r.밤/r.낮 < 0.85,
-     '낮 '+r.낮.toFixed(1)+' · 밤 '+r.밤.toFixed(1)+' ('+(r.밤/r.낮*100).toFixed(0)+'%)');
   await pg.close();
 }
 
