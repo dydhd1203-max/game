@@ -141,7 +141,7 @@ const bag = await ev(()=>{
   o.켜진칸 = cells.filter(c=>c.classList.contains('on')).length;
   o.미리보기 = !!document.querySelector('#kitPvw');
   /* 미니게임 총은 가방에 안 나온다 — 가게와 같은 규칙 */
-  const mini = W.__WEAPONS[W.__WEAPONS.length-1];
+  const mini = W.__WEAPONS[W.__MINI_GUN()];          // 29차 — 연습용 총은 더는 '마지막' 이 아니다(8~13 은 레어·유니크)
   o.미니총이름 = mini.n;
   o.미니총보임 = cells.some(c => (c.title||'').indexOf(mini.n) === 0);
   /* 안 산 무기는 안 나온다 */

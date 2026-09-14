@@ -143,7 +143,7 @@ const r = await pg.evaluate(()=>{
   const [body,puff,head,frng,ear,eye,nose,tail,legs]=W.__Pmesh();
   ok('양 2마리 = 몸통 2', body.count===2, body.count);
   ok('양 2마리 = 눈+반짝이 8', eye.count===8, eye.count);
-  ok('양 2마리 = 코+볼터치 6', nose.count===6, nose.count);
+  ok('양 2마리 = 볼터치 4 (29차 — 코는 없앴다, 입이 그 자리)', nose.count===4, nose.count);
   ok('양 2마리 = 다리 8', legs.count===8, legs.count);
   ok('눈 반짝이가 눈보다 앞·위에 있다', true);
 

@@ -66,7 +66,7 @@ const VIS_EMO = `(root)=>{ const w=document.createTreeWalker(root, NodeFilter.SH
   ok('제목 글자는 그대로다', pk.txt);
 }
 
-await pg.fill('#iName','검'); await pg.click('#bSolo');
+await pg.fill('#iName','검'); await pg.evaluate(()=>document.querySelector('#bSolo').click())   /* 29차 — page.click 은 시작 단추에서 hit-target 검사가 안 끝나 30초를 넘겼다(마우스는 되고 JS click 도 된다). 다른 검사와 같은 길로 */;
 await frames(pg, 8);
 await pg.evaluate(()=>{ window.__introDone(); window.__G.farm[0].hen = 1; window.__farmDirty(true); });
 await frames(pg, 4);
