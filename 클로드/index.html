@@ -8132,7 +8132,9 @@ let chSeq = 1, chGrabN = 0;
      교실이 아수라장이 되고, 농장을 챙길 이유도 사라진다. */
 const FD_PER = 8;                 // 우리 하나에 한 번에 놓이는 산물 수
 const FD_R   = 1.55;              // 몸으로 닿아야 하는 거리
-const FD_MAX = NG * FD_PER;
+const GD_MAX = 60;                // 늑대가 떨어뜨린 금 조각이 바닥에 한꺼번에 있을 수 있는 수 (29차)
+const GD_SEC = 45;                // 금 조각이 바닥에 남는 시간(초) — 안 주우면 사라진다
+const FD_MAX = NG * FD_PER + GD_MAX;
 /* 한 알(또는 병·고기)에 몸통 조각 최대 7개 + 빛 2개.
    메시는 둘뿐이고, 놓인 게 하나도 없으면 통째로 숨긴다 → 드로우콜 0. */
 const fdBody = new THREE.InstancedMesh(BALL, FM.cloth, FD_MAX*7);           // 28차 — 알·병·고기는 둥글다
@@ -8146,6 +8148,26 @@ for(const m of [fdBody, fdGlow]){
 let fdSeq = 1, fdPickN = 0;
 const FD_OF = {};                 // prod 이름 → 동물 표
 for(const A of FARM_ANIMALS) FD_OF[A.prod] = A;
+/* ═══ 29차 — 늑대가 떨어뜨리는 금 ═══
+   선생님: "늑대 잡으면 금 자원 좀 떨어지게. 달걀·우유·고기처럼 애들이 다가가서 주울 수 있게."
+   산물과 같은 통로(G.drops · pickDrop · netDrops · fdBody)를 탄다 — 아이들이 이미 아는 방식이다.
+   다른 점 둘: g:-1 이라 **아무 모둠이나** 줍고(선생님이 정했다), 45초 뒤에 사라진다(exp, 호스트가 치운다).
+   한 마리에 1~3 조각, 보스는 8~12 조각. 조각 하나가 금 1이다. */
+FD_OF.gold = {prod:'gold', res:'g', col:0xffd43b, pic:'✨', pn:'금'};
+function dropGold(w){
+  if(!G.host) return;
+  const boss = w.bi >= 0 || isBoss(w.k);
+  const n = boss ? 8 + Math.floor(Math.random()*5) : 1 + Math.floor(Math.random()*3);
+  const exp = performance.now()/1000 + GD_SEC;
+  for(let i=0;i<n;i++){
+    const a = Math.random()*Math.PI*2, r = 0.35 + Math.random()*1.1;
+    G.drops.push({id:fdSeq++, g:-1, k:'gold', x:w.x + Math.sin(a)*r, z:w.z + Math.cos(a)*r, exp});
+  }
+  /* 너무 많이 쌓이면 제일 오래된 금부터 치운다 — 그리기 칸(FD_MAX)이 정해져 있다 */
+  const gold = G.drops.filter(d=>d.k === 'gold');
+  while(gold.length > GD_MAX){ const o = gold.shift(); const k = G.drops.indexOf(o); if(k >= 0) G.drops.splice(k,1); }
+  netDrops();
+}
 /* 우리 안 빈자리 하나 — 이미 놓인 것과 겹치지 않게 */
 function farmDropSpot(g){
   const cx = FARM_X[g], cz = FARM_Z[g], R = farmR2(g) - 1.15;
@@ -8186,7 +8208,7 @@ function netDrops(){ if(net && G.host) net.child('drop').set(G.drops); }
 function pickDrop(d){
   const A = FD_OF[d.k]; if(!A) return;
   gain(A.res, 1);
-  MY.farmed = (MY.farmed|0) + 1;
+  if(d.k !== 'gold') MY.farmed = (MY.farmed|0) + 1;     // 금은 농장 산물이 아니다(칭호·순위판은 농장만 센다)
   xpGain(XP_TAKE);
   burst(d.x, GY+0.75, d.z, A.col, 14, 1.3);
   burst(d.x, GY+1.15, d.z, 0xfff2c0, 8, 1.0);
@@ -8201,15 +8223,21 @@ function hostTakeDrop(id){
   if(k < 0) return;
   const g = G.drops[k].g;
   G.drops.splice(k,1);
-  farmDropTop(g);            // 하나 빠지면 쌓여 있던 다음 것이 나온다
+  if(g >= 0) farmDropTop(g); // 하나 빠지면 쌓여 있던 다음 것이 나온다 (늑대 금(g:-1)은 우리가 없다)
   netDrops(); netFarm();
 }
 /* 매 프레임 — 내가 닿았는지 보고, 그리고 그린다 */
 function updDrops(dt, tt){
-  /* 우리 모둠 우리 것만 줍는다 */
+  /* 호스트 — 시간이 지난 금은 치운다 */
+  if(G.host && G.drops.length){
+    const now = performance.now()/1000; let gone = false;
+    for(let i=G.drops.length-1;i>=0;i--){ const d = G.drops[i]; if(d.exp && now > d.exp){ G.drops.splice(i,1); gone = true; } }
+    if(gone) netDrops();
+  }
+  /* 우리 모둠 우리 것만 줍는다 — 늑대 금(g:-1)은 누구나 */
   if(G.started && !PL.down && G.phase !== 'mini')
     for(const d of G.drops){
-      if(d.g !== G.me.g) continue;
+      if(d.g >= 0 && d.g !== G.me.g) continue;
       if(Math.hypot(d.x-PL.x, d.z-PL.z) < FD_R){ pickDrop(d); break; }
     }
   let nb = 0, ng = 0;
@@ -8237,7 +8265,12 @@ function updDrops(dt, tt){
        ★ 같은 크기 상자 둘을 45도로 겹쳐 팔각을 만들어 봤는데, 그건 팔각이 아니라
          팔각 별이 된다(합집합은 모서리를 깎지 못한다 — 화면으로 확인). 겹치기는 그만두고
          '넓고 낮은 덩어리 + 작은 뚜껑' 으로 잡는다. 멀리서는 이쪽이 훨씬 둥글게 읽힌다. */
-    if(d.k === 'egg'){
+    if(d.k === 'gold'){
+      /* 금 조각 — 통통한 덩어리 셋이 살짝 엇갈려 얹힌다. 빛판도 금색이라 멀리서 '금이다' 가 읽힌다 */
+      setI(fdBody, nb++, d.x,      y-0.030, d.z,      ry,     0.200, 0.120, 0.170, 0xf2c230);
+      setI(fdBody, nb++, d.x+0.07, y+0.040, d.z-0.03, ry+0.6, 0.120, 0.090, 0.110, 0xffd85a);
+      setI(fdBody, nb++, d.x-0.06, y+0.030, d.z+0.05, ry-0.4, 0.095, 0.075, 0.090, 0xfff0a8);
+    } else if(d.k === 'egg'){
       /* 달걀 — 폭 0.19 · 높이 0.22. 통통하고 낮게, 크림빛 */
       setI(fdBody, nb++, d.x, y-0.075, d.z, ry, 0.150, 0.045, 0.150, 0xffefd8);   // 바닥
       setI(fdBody, nb++, d.x, y-0.010, d.z, ry, 0.192, 0.090, 0.192, 0xfff7e6);   // 배
@@ -12426,6 +12459,7 @@ function hostSim(dt){
       burst(w.x, GY+0.9, w.z, 0x8a4a4a, 14, 1.2);
       if(w.byName) killPraise(w);              // 돌로 막타를 낸 아이 이름을 불러 준다
       if(w.bi >= 0) onBossDown(w);
+      dropGold(w);                             // 29차 — 금 조각을 바닥에 흘린다
       G.wolves.splice(i,1);
     }
   }
