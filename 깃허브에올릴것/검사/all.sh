@@ -16,8 +16,8 @@ cd "$(dirname "$0")" || exit 1
 GAME=${1:-../../클로드/index.html}
 JOBS=${2:-4}
 BASE=${3:-$((20000 + RANDOM % 20000))}
-ALL=1132                       # 지금 전체 항목 수 (늘면 이 줄을 고친다) — 29차: t31 +35 (1131 은 t29 -1 을 잘못 뺀 수, 30차에 바로잡음)
-TESTS="t3 t4 t6 t7 t8 t9 t10 t11 t12 t13 t14 t15 t16 t17 t18 t19 t20 t21 t22 t23 t24 t25 t26 t27 t28 t29 t30 t31"
+ALL=1170                       # 지금 전체 항목 수 (늘면 이 줄을 고친다) — 31차: t32 +38
+TESTS="t3 t4 t6 t7 t8 t9 t10 t11 t12 t13 t14 t15 t16 t17 t18 t19 t20 t21 t22 t23 t24 t25 t26 t27 t28 t29 t30 t31 t32"
 
 OUT=$(mktemp -d); i=0
 for t in $TESTS; do

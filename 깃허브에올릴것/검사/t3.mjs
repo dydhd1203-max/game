@@ -28,8 +28,8 @@ const r = await pg.evaluate(()=>{
   /* ── 2·3. 성문 ── */
   let gateBlocks=0, gateKeys=[];
   for(const [k,v] of W.__banks) if(k.startsWith('g')&&/^(gsb|ggb|gcl|gdk|gglow)/.test(k)){ gateBlocks+=v.ms.length; gateKeys.push(k+':'+v.ms.length); }
-  // 망루 계단·발판이 붙어 늘었다 (문마다 2채 × 5문)
-  ok('성문 블록이 실제로 놓였다', gateBlocks>1500 && gateBlocks<5000, gateBlocks+' 개');
+  /* 31차 — 조각을 1.25칸으로 자르지 않는다(원색이라 늘어날 무늬가 없다). 성문 하나가 2,500조각에서 140조각 남짓. */
+  ok('성문 블록이 실제로 놓였다 (다섯 문 · 안 자른 덩어리)', gateBlocks>300 && gateBlocks<1500, gateBlocks+' 개');
 
   // 통로 한가운데는 여전히 평지 (벽 지을 수 있어야 한다)
   /* ★ 17차 — 통로 자리를 검사가 손수 계산하면 안 된다. 입구가 옆으로 밀리자(off)
