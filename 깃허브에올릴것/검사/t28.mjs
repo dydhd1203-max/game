@@ -77,7 +77,7 @@ ok('?bloom=1 — 빛 번짐이 이번 한 판만 켜진다 (프리셋엔 없다)
    await pgG.evaluate(()=>window.__GFX.bloom === 1));
 {
   const pg = pgG;
-  await pg.fill('#iName','검'); await pg.click('#bSolo');
+  await pg.fill('#iName','검'); await pg.evaluate(()=>document.querySelector('#bSolo').click())   /* 29차 — page.click 은 시작 단추에서 hit-target 검사가 안 끝나 30초를 넘겼다(마우스는 되고 JS click 도 된다). 다른 검사와 같은 길로 */;
   await frames(pg, 8);
   await pg.evaluate(()=>{ const W=window; W.__introDone();
     W.__PL.x=16; W.__PL.z=22; W.__PL.yaw=-2.52; W.__PL.pitch=-0.16; });

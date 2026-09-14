@@ -4844,418 +4844,201 @@ function blocksOf(t, lv){
 function blocksOfRaw(t, lv){
   lv = Math.max(1, Math.min(MAXLV, lv||1));
   const out = [];
-  /* P: 중심좌표 + 크기.  V: y0~y1 기둥(0 = 땅바닥).  S: 밑면 y에 깔리는 판.
-     한 조각이 1칸을 넘으면 잘게 쪼갠다 — 안 그러면 텍스처가 늘어나서 흐릿해 보인다. */
+  /* ═══ 30차 — 다섯 건물 × 일곱 단계를 통째로 다시 그렸다 (로블록스 결) ═══
+     선생님: "타워·배럭·벽이 아직 로블록스풍이 아니다. 디자인이 너무 마음에 안 든다. 1~7단계 전부 갈아엎고
+     단계별로 진화해 가는 모습을 더, 미술적으로 멋있게."
+     ★ 무엇이 로블록스인가 — 무늬(타일)가 아니라 **원색 큰 조각 몇 개**, 모서리는 둥글고, 색 대비가 또렷하다.
+       그래서 조각은 전부 T.cloth(흰 원색) 에 색(tint)만 준다 → 뱅크가 하나(cloth)+빛(glow) 이라 그리기도 준다.
+       조각을 잘게 쪼개지 않는다(예전엔 텍스처가 늘어나서 쪼갰다 — 원색은 늘어날 무늬가 없다).
+     ★ 일곱 단계가 **전부 다르다** — 짝·홀 '대' 가 아니라 단계마다 골격이 자라고 장식이 는다. 1·2 나무 → 3·4 돌+나무 →
+       5·6 돌 성채 → 7 금관. 멀리서 실루엣만 봐도 몇 단계인지 읽히게 높이·너비도 같이 자란다. */
+  const C = T.cloth, GL = T.glow;
   const RAW = (x,y,z,tile,w,h,d,tint,ry,rz)=> out.push([x,y,z,tile,w,h,d,tint,ry||0,rz||0]);
-  const P = (x,y,z,tile,w,h,d,tint)=>{
-    w = w===undefined?1:w; h = h===undefined?1:h; d = d===undefined?1:d;
-    const nx = Math.max(1, Math.round(w/1.05)), ny = Math.max(1, Math.round(h/1.05)),
-          nz = Math.max(1, Math.round(d/1.05));
-    if(nx===1 && ny===1 && nz===1) return RAW(x,y,z,tile,w,h,d,tint);
-    const sw = w/nx, sh = h/ny, sd = d/nz;
-    for(let i=0;i<nx;i++) for(let j=0;j<ny;j++) for(let k=0;k<nz;k++)
-      RAW(x-w/2+sw*(i+0.5), y-h/2+sh*(j+0.5), z-d/2+sd*(k+0.5), tile, sw,sh,sd, tint);
-  };
-  /* R: 돌린 조각 하나 — 쪼개지 않는다(돌린 걸 쪼개면 서로 어긋난다).
-     대각 보강대·기울어진 깃대에 쓴다. rz 는 옆으로 눕히기. */
-  const R = (x,y,z,tile,w,h,d,ry,rz,tint)=> RAW(x,y,z,tile,w,h,d,tint,ry,rz);
-  /* ROOF: 진짜 맞배지붕 — 널판을 양쪽에서 기울여 맞댄다.
-     계단식으로 쌓던 걸 이걸로 바꾸면 건물이 통째로 달라 보인다.
-     (x,z 중심 · y 처마높이 · 폭 w · 길이 len · 경사 pitch · 두께 th) */
-  const ROOF = (x,y,z,tile,w,len,pitch,th,tint)=>{
-    const n = Math.max(2, Math.round(len/1.1));
-    const seg = len/n;
-    const half = w/2, rise = half*pitch;
-    const slope = Math.hypot(half, rise), ang = Math.atan2(rise, half);
-    for(let s2 of [1,-1]) for(let i=0;i<n;i++)
-      RAW(x + s2*half/2, y + rise/2, z - len/2 + seg*(i+0.5),
-          tile, slope, th, seg, tint, 0, -s2*ang);
-  };
-  const V = (x,z,y0,y1,tile,w,d,tint)=> P(x,(y0+y1)/2-0.5,z,tile,w,y1-y0,d===undefined?w:d,tint);
-  const S = (x,z,y,tile,w,d,h,tint)=>{ h = h===undefined?0.30:h;
-        P(x,y+h/2-0.5,z,tile,w,h,d===undefined?w:d,tint); };
-  /* 네 모서리에 같은 걸 하나씩 */
+  const P = (x,y,z,w,h,d,tint,tile)=> RAW(x,y,z,tile||C,w,h,d,tint);                 // 중심(y 는 실제 높이-0.5)
+  const R = (x,y,z,w,h,d,ry,rz,tint,tile)=> RAW(x,y,z,tile||C,w,h,d,tint,ry,rz);     // 돌린 조각
+  const V = (x,z,y0,y1,w,d,tint,tile)=> P(x,(y0+y1)/2-0.5,z,w,y1-y0,d===undefined?w:d,tint,tile);   // y0~y1 기둥
+  const S = (x,z,y,w,d,h,tint,tile)=> P(x,y+h/2-0.5,z,w,h,d,tint,tile);              // 밑면 y 에 깔리는 판
   const Q4 = (cx,cz,r,fn)=>{ for(const sx of [1,-1]) for(const sz of [1,-1]) fn(cx+r*sx, cz+r*sz, sx, sz); };
-  /* 성가퀴 — 한 칸 걸러 이가 빠진 성벽 */
-  const CREN = (cx,cz,r,y0,y1,tile,n)=>{
-    n = n||3; const step = (r*2)/(n-1);
-    for(let i=0;i<n;i++){ const p = -r + step*i;
-      V(cx+p, cz-r, y0,y1, tile, 0.34); V(cx+p, cz+r, y0,y1, tile, 0.34);
-      if(i>0 && i<n-1){ V(cx-r, cz+p, y0,y1, tile, 0.34); V(cx+r, cz+p, y0,y1, tile, 0.34); } }
-  };
-  /* 깃대 + 펄럭이는 천 */
-  const FLAG = (x,z,y0,h,tint)=>{ V(x,z,y0,y0+h,T.logSide,0.11);
-    P(x+0.34, y0+h-0.55, z, T.cloth, 0.62, 0.44, 0.07, tint);
-    P(x+0.30, y0+h-0.95, z, T.cloth, 0.50, 0.30, 0.07, tint); };
-  /* 벽에 뚫린 창 */
-  const WIN = (x,y,z,w,h,d)=> P(x,y,z,T.dark,w,h,d,0x1a1c22);
-  const GY0 = -0.5;                     // WIN 에 실제 높이를 넣을 때 쓰는 보정값
+  const RING = (cx,cz,r,n,fn,off)=>{ for(let i=0;i<n;i++){ const a=(off||0)+i/n*Math.PI*2; fn(cx+Math.cos(a)*r, cz+Math.sin(a)*r, a); } };
+  /* 고깔 — 아래로 갈수록 넓은 둥근 판을 쌓는다(로블록스 지붕·첨탑) */
+  const CONE = (x,z,y,h,w,tint,n)=>{ n=n||4; for(let i=0;i<n;i++){ const k=1-i/n; S(x,z,y+h*i/n, w*k, w*k, h/n+0.03, tint); } };
+  /* 네모 지붕 — 기울인 널판 넷을 맞댄다. ry=π/2 면 rz 가 z 방향 기울기가 된다(YXZ) */
+  const PYR = (x,z,y,w,h,th,tint)=>{ const half=w/2, slope=Math.hypot(half,h)+0.10, ang=Math.atan2(h,half), cy=y+h/2-0.5;
+    for(const s2 of [1,-1]){ R(x+s2*half/2, cy, z, slope, th, w+0.10, 0, -s2*ang, tint);
+                             R(x, cy, z+s2*half/2, slope, th, w+0.10, Math.PI/2, s2*ang, tint); } };
+  /* 깃대 + 펄럭이는 천 두 장 */
+  const FLAG = (x,z,y,h,tint,lean)=>{ R(x, y+h/2-0.5, z, 0.11, h, 0.11, 0, lean||0, WOODD);
+    P(x+0.34, y+h-0.30-0.5, z, 0.60, 0.42, 0.07, tint); P(x+0.30, y+h-0.66-0.5, z, 0.48, 0.28, 0.07, tint); };
+  /* 색 — 파스텔 원색. 짙은 것과 밝은 것을 붙여야 형태가 읽힌다 */
+  const WOOD=0xd08c4e, WOODD=0x8a5a30, WOODL=0xf2c58c, PLANK=0xe0a868;
+  const STONE=0xc3c8d0, STONED=0x8d939c, STONEL=0xe4e8ee, PLASTER=0xfbf7ef;
+  const ROOF=0xe8604f, ROOF2=0x4f86d8, GOLD=0xffd34d, IRON2=0x6f7784;
+  const ICE=0xa9dfff, ICED=0x6fb8f0, ICEL=0xe4f6ff, WIN=0x2b2f3a, GLOWC=0xfff0a0, EMBER=0xffb347;
 
-  /* ── 레벨 → 대(tier) 와 장식(plus) ──
-     ★ 여섯 단계를 전부 따로 그리면 코드가 네 배로 늘고 서로 안 닮게 된다.
-       그래서 두 레벨이 한 '대'를 이룬다 — 홀수에서 골격이 통째로 바뀌고,
-       짝수에서 금테·깃발·룬이 붙는다. 올릴 때마다 확실히 달라 보이면서
-       "같은 건물이 자란다"는 느낌이 유지된다. */
-  /* ★ Lv7 은 tier 를 새로 만들지 않고 3 에 머문다 — 대신 crown 이 붙는다.
-     plus(금테·깃발)도 Lv7 에서 계속 붙어 있어야 '자란 것' 으로 보인다. */
-  const tier  = Math.min(3, Math.ceil(lv/2));   // 1 · 2 · 3
-  const plus  = (lv % 2 === 0) || lv >= 7;      // 짝수 레벨 = 장식판 (Lv7 도 유지)
-  const crown = lv >= MAXLV;                    // 만렙 — 금 첨탑 + 붉은 룬
-  const GOLD = T.goldBlk;
-  /* ★ P 의 y 는 '실제 높이 - 0.5' 다 (땅바닥이 -0.5). 헷갈리기 쉬우므로
-     아래 두 도우미는 S 와 같은 실제 높이 기준으로 받는다. */
-  /* 뾰족한 끝 — 위로 갈수록 좁아지는 세 토막 */
-  const SPIKE = (x,z,y,tile,w,tint)=>{ S(x,z,y,tile,w,w,0.20,tint);
-    S(x,z,y+0.20,tile,w*0.66,w*0.66,0.14,tint); S(x,z,y+0.34,tile,w*0.34,w*0.34,0.12,tint); };
-  /* 룬 — Lv6 부터 붙는 빛나는 조각 */
-  const RUNEP = (x,y,z,sz)=> S(x,z,y-sz/2,T.glow, sz,sz,sz, RUNE);
-  /* ── 만렙(Lv7) 표시 ──
-     ★ 파란 룬(Lv6)과 확실히 갈리게 붉은 금빛으로 간다. 멀리서 색만 보고
-       "저 모둠은 다 키웠다" 가 읽혀야 아이들이 목표로 삼는다. */
-  const CROWN_C = 0xff7a3c;                       // 만렙 룬 — 붉은 주황
-  /* 금 첨탑 — 위로 갈수록 좁아지는 네 토막에 끝에 빛나는 구슬 */
-  const SPIRE = (x,z,y,h,w)=>{
-    const n = 4;
-    for(let i=0;i<n;i++)
-      S(x,z, y + h*i/n, GOLD, w*(1-i*0.19), w*(1-i*0.19), h/n);
-    S(x,z, y+h, T.glow, w*0.42, w*0.42, w*0.42, CROWN_C);
-  };
-  /* 금관 띠 — 건물을 한 바퀴 두르는 금테에 이가 솟은 모양 */
-  const CROWNBAND = (cx,cz,y,r,tint)=>{
-    S(cx,cz, y, GOLD, r*2, r*2, 0.14, tint);
-    for(let i=0;i<8;i++){ const a = i/8*Math.PI*2;
-      S(cx+Math.cos(a)*r*0.86, cz+Math.sin(a)*r*0.86, y+0.14, GOLD, 0.18, 0.18, 0.24, tint); }
-  };
-
-  /* ══ 다시 그린 건물들 ══
-     예전 것이 어설퍼 보인 이유를 셋으로 정리했다.
-       ① 지붕이 계단이었다 — 네모를 층층이 줄여 쌓았을 뿐 '기울어진 면'이 없었다
-       ② 실루엣이 밋밋했다 — 튀어나온 처마·받침대가 없어 통짜 상자로 보였다
-       ③ 재질 대비가 약했다 — 회색 돌에 회색 돌을 얹으니 형태가 안 읽혔다
-     그래서 회전(R·ROOF)을 열고, 처마와 받침대를 달고,
-     짙은 골조목 + 밝은 회벽처럼 대비가 큰 조합을 쓴다. */
-
-  /* 계단식 기단 — 아래로 갈수록 넓어지는 단. 건물이 '땅에 박혀' 보인다. */
-  const PLINTH = (cx,cz,y,w,steps,tile,tint)=>{
-    for(let i=0;i<steps;i++)
-      S(cx,cz, y+i*0.16, tile||T.cutStone, w-i*0.26, w-i*0.26, 0.16, tint);
-  };
-  /* 받침대 — 처마·발코니 밑을 받치는 짧은 팔. 이거 하나로 '지어진 것' 느낌이 난다. */
-  const CORBEL = (cx,cz,y,r,tile,n,tint)=>{
-    n = n||3; const step = (r*2)/(n-1);
-    for(let i=0;i<n;i++){ const p = -r + step*i;
-      S(cx+p, cz-r, y, tile, 0.24, 0.34, 0.30, tint);
-      S(cx+p, cz+r, y, tile, 0.24, 0.34, 0.30, tint);
-      if(i>0 && i<n-1){ S(cx-r, cz+p, y, tile, 0.30, 0.34, 0.24, tint);
-                        S(cx+r, cz+p, y, tile, 0.30, 0.34, 0.24, tint); } }
-  };
-  /* 하프팀버 한 면 — 회벽 + 위아래 가로대 + 대각 버팀목.
-     짙은 골조와 밝은 회벽의 대비가 이 게임에서 제일 잘 먹히는 조합이다. */
-  const PANEL = (cx,cz,y0,y1,r,face,thin)=>{
-    const h = y1-y0, cy = (y0+y1)/2, t = thin||0.18;
-    const yaw = face*Math.PI/2;                       // 0=앞(+Z) 1=우(+X) 2=뒤 3=좌
-    const fx = Math.round(Math.sin(yaw)), fz = Math.round(Math.cos(yaw));
-    const px2 = cx + fx*r, pz2 = cz + fz*r;
-    const w = 2*r;
-    P(px2, cy-0.5, pz2, T.cloth, fz? w : t, h, fz? t : w, TT.plaster);
-    P(px2, y0-0.5+0.10, pz2, T.bark, fz? w+0.06 : t+0.05, 0.20, fz? t+0.05 : w+0.06, TT.timber);
-    P(px2, y1-0.5-0.10, pz2, T.bark, fz? w+0.06 : t+0.05, 0.20, fz? t+0.05 : w+0.06, TT.timber);
-    const bl = Math.hypot(w*0.86, h*0.78), ang = Math.atan2(h*0.78, w*0.86);
-    R(px2, cy-0.5, pz2, T.bark, bl, 0.17, t+0.04, yaw,  ang, TT.timber);
-    R(px2, cy-0.5, pz2, T.bark, bl, 0.17, t+0.04, yaw, -ang, TT.timber);
-  };
-
-  /* ─────────────── 나무벽 (높이 2칸 고정) ───────────────
-     통나무를 촘촘히 박은 방책. 등급은 '보강'으로 보여 준다. */
+  /* ─────────────── 나무벽 — 통나무 방책. 단계마다 통나무가 늘고 높아지며 띠·쇠·발판·룬·금관이 붙는다 ─────────────── */
   if(t==='wwall'){
-    S(0,0, 0, T.bark, 1.0, 1.0, 0.22);                       // 밑동 침목
-    for(let i=0;i<4;i++){                                    // 통나무 넷 — 끝을 뾰족하게
-      const x = -0.36 + i*0.24, h = 1.62 + ((i%2)?0.08:0);
-      V(x, 0, 0.22, 0.22+h, T.logSide, 0.24, 0.86);
-      S(x, 0, 0.22+h, T.logSide, 0.20, 0.72, 0.12);
-      S(x, 0, 0.34+h, T.logSide, 0.13, 0.50, 0.10);
-    }
-    S(0,0, 0.78, T.bark, 1.02, 0.94, 0.16);                  // 가로 띠
-    if(tier>=2){
-      S(0,0, 0, T.stone, 1.02, 1.02, 0.26);                  // 돌 기초
-      S(0,0, 1.44, T.bark, 1.02, 0.94, 0.16);
-      for(const sz of [1,-1])                                 // 대각 버팀목
-        R(0, 0.62, sz*0.44, T.bark, 1.04, 0.16, 0.14, 0, 0.62, TT.timber);
-    }
-    if(tier>=3){
-      for(const sx of [1,-1]) V(sx*0.40, 0, 0.26, 1.90, T.stone, 0.14, 0.92, TT.iron);
-      S(0,0, 1.12, T.stone, 1.04, 0.96, 0.14, TT.iron);
-    }
-    if(plus){
-      S(0,0, 0.96, GOLD, 1.02, 0.92, 0.12);
-      for(const sx of [1,-1]) S(sx*0.36, 0, 1.94, GOLD, 0.20, 0.20, 0.14);
-    }
-    if(lv>=4) for(const sz of [1,-1])
-      S(0, sz*0.50, 0.82, T.cloth, 0.46, 0.06, 0.62, BANNER);
-    if(lv>=6){ for(const sz of [1,-1]) RUNEP(0, 1.38, sz*0.50, 0.26);
-      S(0,0, 2.06, T.crystal, 0.26, 0.26, 0.26, FROST); }
-    if(crown){                                   /* 만렙 — 금테 두른 통나무 + 작은 첨탑 */
-      S(0,0, 1.70, GOLD, 1.06, 1.00, 0.14);
-      for(const sx of [1,-1]) S(sx*0.42, 0, 2.06, GOLD, 0.18, 0.90, 0.16);
-      SPIRE(0, 0, 2.20, 0.62, 0.26);
-      for(const sz of [1,-1]) S(0, sz*0.52, 1.94, T.glow, 0.30, 0.10, 0.10, CROWN_C);
-    }
+    const n = lv>=3 ? 4 : 3, top = 1.70 + Math.min(4, lv-1)*0.14;
+    S(0,0, 0, 1.06,1.00,0.24, WOODD);                                             // 밑동 침목
+    for(let i=0;i<n;i++){ const x = -0.5 + (i+0.5)/n, h = top + ((i%2)?0.10:0);
+      V(x, 0, 0.24, h, 0.96/n-0.03, 0.84, i%2 ? WOOD : WOODL);                     // 통나무
+      S(x, 0, h, 0.96/n-0.08, 0.60, 0.16, WOODD); }                                // 뾰족한 끝
+    S(0,0, 0.78, 1.04, 0.94, 0.16, WOODD);                                        // 가로 띠
+    if(lv>=2) S(0,0, 1.36, 1.04, 0.94, 0.16, WOODD);
+    if(lv>=3) S(0,0, 0, 1.10,1.06,0.32, STONED);                                  // 돌 기초
+    if(lv>=4){ for(const sx of [1,-1]) V(sx*0.44, 0, 0.32, top+0.06, 0.12, 0.90, IRON2);   // 쇠 모서리
+               for(const sz of [1,-1]) S(0, sz*0.48, 0.92, 0.44, 0.06, 0.50, BANNER); }    // 깃발천
+    if(lv>=5){ S(0,0, top+0.16, 1.08, 0.64, 0.14, PLANK);                         // 위 발판
+               for(const sz of [1,-1]) S(0, sz*0.50, 1.18, 0.36,0.06,0.36, GOLD); }        // 둥근 금 방패
+    if(lv>=6){ for(const sz of [1,-1]) S(0, sz*0.50, 1.64, 0.22,0.10,0.22, RUNE, GL);      // 룬
+               S(0,0, top+0.30, 0.26,0.26,0.26, FROST); }
+    if(lv>=7){ S(0,0, top+0.30, 1.10, 1.00, 0.14, GOLD);                          // 금관 띠
+               for(const sx of [1,-1]) S(sx*0.36, 0, top+0.44, 0.20,0.20,0.18, GOLD);
+               CONE(0,0, top+0.44, 0.70, 0.42, GOLD, 3); S(0,0, top+1.16, 0.22,0.22,0.22, EMBER, GL); }
   }
-  /* ─────────────── 돌벽 (높이 2칸 고정) ─────────────── */
+  /* ─────────────── 돌벽 — 큰 둥근 돌 한 덩이 + 성가퀴. 단계마다 성가퀴·기둥·총안·쇠·룬·금관 ─────────────── */
   else if(t==='swall'){
-    const body = tier>=3 ? T.cutStone : T.sbrick;
-    S(0,0, 0, T.stone, 1.04, 1.04, 0.22);                    // 기단
-    V(0,0, 0.22, 1.62, body, 0.96, 0.92);                    // 몸통
-    S(0,0, 0.86, T.stone, 1.02, 0.98, 0.14);                 // 돌출 띠
-    for(const sx of [1,-1]) V(sx*0.30, 0, 1.62, 2.02, body, 0.30, 0.86);   // 성가퀴
-    S(0,0, 1.56, T.stone, 1.02, 0.96, 0.12);                 // 성가퀴 받침
-    if(tier>=2){
-      for(const sz of [1,-1]) S(0, sz*0.47, 1.06, T.dark, 0.13, 0.08, 0.34, 0x14161c); // 총안
-      for(const sx of [1,-1]) V(sx*0.42, 0, 0.22, 1.62, T.stone, 0.14, 0.94);          // 모서리 기둥
-    }
-    if(tier>=3){
-      S(0,0, 0, T.cutStone, 1.06, 1.06, 0.16);
-      S(0,0, 1.28, T.stone, 1.02, 0.96, 0.16, TT.iron);
-      for(const sx of [1,-1]) S(sx*0.30, 0, 2.02, T.stone, 0.30, 0.84, 0.18, TT.iron);
-    }
-    if(plus){
-      S(0,0, 1.44, GOLD, 1.02, 0.94, 0.12);
-      for(const sx of [1,-1]) S(sx*0.30, 0, 2.20, GOLD, 0.22, 0.62, 0.14);
-    }
-    if(lv>=4) for(const sz of [1,-1])
-      S(0, sz*0.50, 0.70, T.cloth, 0.42, 0.06, 0.66, BANNER);
-    if(lv>=6){ for(const sz of [1,-1]) RUNEP(0, 1.20, sz*0.50, 0.28);
-      S(0,0, 2.42, T.crystal, 0.28, 0.28, 0.28, RUNE); }
-    if(crown){                                   /* 만렙 — 금 성가퀴 + 가운데 첨탑 */
-      for(const sx of [1,-1]) S(sx*0.30, 0, 2.38, GOLD, 0.30, 0.86, 0.16);
-      S(0,0, 1.86, GOLD, 1.04, 0.98, 0.12);
-      SPIRE(0, 0, 2.56, 0.70, 0.28);
-      for(const sz of [1,-1]) S(0, sz*0.50, 2.20, T.glow, 0.34, 0.12, 0.10, CROWN_C);
-    }
+    const top = 1.60 + Math.min(4, lv-1)*0.12, m = lv>=2 ? 3 : 2;
+    S(0,0, 0, 1.06,1.06,0.24, STONED);                                            // 기단
+    V(0,0, 0.24, top, 0.98, 0.90, lv>=3 ? STONEL : STONE);                        // 몸통
+    S(0,0, 0.84, 1.04, 0.96, 0.14, STONED);                                       // 돌출 띠
+    for(let i=0;i<m;i++){ const x = -0.5+(i+0.5)/m; V(x,0, top, top+0.40, 0.92/m-0.06, 0.84, STONED); }   // 성가퀴
+    if(lv>=3) for(const sx of [1,-1]) V(sx*0.44, 0, 0.24, top, 0.14, 0.94, STONED);                       // 모서리 기둥
+    if(lv>=4){ for(const sz of [1,-1]) S(0, sz*0.47, 1.00, 0.14,0.08,0.44, WIN);                           // 총안
+               for(const sz of [1,-1]) S(0, sz*0.50, 0.58, 0.44,0.06,0.56, BANNER); }
+    if(lv>=5){ S(0,0, top-0.02, 1.08, 1.00, 0.16, IRON2);
+               for(const sx of [1,-1]) S(sx*0.34, 0, top+0.40, 0.26,0.60,0.14, IRON2); }
+    if(lv>=6){ for(const sz of [1,-1]) S(0, sz*0.50, 1.40, 0.24,0.10,0.24, RUNE, GL); S(0,0, top+0.54, 0.28,0.28,0.28, RUNE); }
+    if(lv>=7){ for(let i=0;i<m;i++){ const x=-0.5+(i+0.5)/m; S(x,0, top+0.40, 0.92/m-0.06, 0.84, 0.16, GOLD); }
+               CONE(0,0, top+0.56, 0.74, 0.46, GOLD, 3); S(0,0, top+1.32, 0.22,0.22,0.22, EMBER, GL); }
   }
-
-  /* ═══════════ 화살탑 ═══════════ */
+  /* ═══════════ 화살탑 — 1·2 나무 망루 → 3·4 돌 위 회벽 오두막 → 5·6 돌 성탑(파란 고깔) → 7 금관 ═══════════ */
   else if(t==='arrow'){
     const cx = 0.5, cz = 0.5;
-    if(tier===1){
-      /* Lv1·2 — 하프팀버 나무 망루 (높이 5.9) */
-      PLINTH(cx,cz, 0, 2.90, 2, T.rock);
-      Q4(cx,cz,0.80,(x,z)=> V(x,z, 0.32, 3.30, T.bark, 0.30, 0.30, TT.timber));  // 골조 기둥 4
-      for(let f=0; f<4; f++) PANEL(cx,cz, 0.32, 3.20, 0.80, f);        // 회벽 + 대각 버팀
-      CORBEL(cx,cz, 3.10, 0.94, T.bark, 3, TT.timber);                 // 처마 받침
-      S(cx,cz, 3.44, T.plank, 3.00, 3.00, 0.26);                       // 튀어나온 평상
-      for(const s2 of [1,-1]){                                          // 난간
-        V(cx, cz+s2*1.38, 3.70, 4.22, T.plank, 3.00, 0.16);
-        V(cx+s2*1.38, cz, 3.70, 4.22, T.plank, 0.16, 3.00);
-      }
-      Q4(cx,cz,1.10,(x,z)=> V(x,z, 3.70, 4.72, T.bark, 0.22, 0.22, TT.timber));  // 지붕 기둥
-      ROOF(cx, 4.72, cz, T.thatch, 3.40, 3.40, 0.62, 0.30);            // ★ 진짜 맞배지붕
-      V(cx, cz, 5.42, 5.72, T.bark, 0.26, 3.50, TT.timber);            // 용마루
-      for(let i=0;i<5;i++) S(cx, cz+1.06, 0.72+i*0.58, T.logSide, 0.76, 0.12, 0.12);  // 사다리
-      for(const s2 of [1,-1]) V(cx+s2*0.32, cz+1.06, 0.32, 3.44, T.logSide, 0.11);
-      S(cx+0.98, cz+0.92, 3.70, T.bark, 0.32, 0.32, 0.58);             // 화살통
-      S(cx+0.98, cz+0.92, 4.26, T.cloth, 0.26, 0.26, 0.26, 0xf2e2c0);
-      S(cx-1.00, cz+0.96, 3.70, T.glow, 0.26, 0.26, 0.26);             // 등불
-    } else if(tier===2){
-      /* Lv3·4 — 석조 망루 + 나무 회랑 (높이 6.3) */
-      PLINTH(cx,cz, 0, 3.20, 3, T.cutStone);
-      V(cx,cz, 0.48, 3.40, T.sbrick, 2.00);                            // 몸통
-      Q4(cx,cz,0.94,(x,z)=> V(x,z, 0.48, 3.66, T.cutStone, 0.32));     // 모서리 기둥
-      S(cx,cz, 1.70, T.stone, 2.16, 2.16, 0.18);                       // 허리 돌출 띠
-      for(const s2 of [1,-1]){ WIN(cx, GY0+2.30, cz+s2*1.01, 0.34,0.72,0.06);
-                               WIN(cx+s2*1.01, GY0+2.30, cz, 0.06,0.72,0.34); }
-      CORBEL(cx,cz, 3.06, 1.10, T.stone, 3);                           // 회랑 받침
-      S(cx,cz, 3.40, T.plank, 3.30, 3.30, 0.28);                       // 나무 회랑
-      for(let f=0; f<4; f++) PANEL(cx,cz, 3.68, 4.42, 1.44, f, 0.16);  // 회랑 난간(하프팀버)
-      Q4(cx,cz,1.44,(x,z)=> V(x,z, 3.68, 4.62, T.bark, 0.22, 0.22, TT.timber));
-      ROOF(cx, 4.62, cz, T.roofRed, 3.70, 3.70, 0.60, 0.30, TT.clay);  // ★ 기와 맞배지붕
-      V(cx, cz, 5.30, 5.62, GOLD, 0.24, 3.80);                         // 금 용마루
-      S(cx+1.06, cz+1.00, 3.68, T.bark, 0.32, 0.32, 0.58);
-      for(const s2 of [1,-1]) S(cx+s2*1.34, cz+s2*1.34, 3.68, T.glow, 0.26,0.26,0.26);
+    if(lv<=2){
+      S(cx,cz, 0, 2.60,2.60,0.30, STONED);                                        // 돌 기초판
+      Q4(cx,cz,0.92,(x,z)=> V(x,z, 0.30, 3.10, 0.34, 0.34, WOODD));                // 다리 넷
+      S(cx,cz, 1.40, 2.16, 2.16, 0.16, WOOD);                                     // 허리 가로대
+      S(cx,cz, 3.10, 2.90, 2.90, 0.30, PLANK);                                    // 평상
+      Q4(cx,cz,1.25,(x,z)=> V(x,z, 3.40, 4.60, 0.22, 0.22, WOODD));                // 지붕 기둥
+      for(const s2 of [1,-1]){ V(cx, cz+s2*1.36, 3.40, 3.92, 2.90, 0.14, WOOD);   // 난간
+                               V(cx+s2*1.36, cz, 3.40, 3.92, 0.14, 2.90, WOOD); }
+      for(let i=0;i<5;i++) S(cx, cz+1.12, 0.62+i*0.52, 0.76, 0.12, 0.12, WOODL);  // 사다리
+      for(const s2 of [1,-1]) V(cx+s2*0.32, cz+1.12, 0.30, 3.10, 0.11, 0.11, WOODD);
+      if(lv===1) S(cx,cz, 4.60, 3.20, 3.20, 0.26, ROOF);                          // 납작 붉은 지붕
+      else { PYR(cx,cz, 4.60, 3.30, 0.90, 0.28, ROOF); S(cx,cz, 5.48, 0.36,0.36,0.36, GOLD);
+             S(cx+1.02, cz+1.02, 3.40, 0.32,0.32,0.60, WOODD);                     // 화살통
+             S(cx-1.02, cz+1.02, 3.40, 0.26,0.26,0.26, GLOWC, GL); }              // 등불
+    } else if(lv<=4){
+      S(cx,cz, 0, 2.90,2.90,0.30, STONED); V(cx,cz, 0.30, 1.80, 2.30, 2.30, STONE);   // 돌 기초 덩어리
+      S(cx,cz, 1.80, 2.50, 2.50, 0.20, STONED);
+      V(cx,cz, 2.00, 3.60, 1.90, 1.90, PLASTER);                                  // 회벽 오두막
+      Q4(cx,cz,0.95,(x,z)=> V(x,z, 2.00, 3.70, 0.30, 0.30, WOODD));
+      for(const s2 of [1,-1]){ S(cx, cz+s2*0.96, 2.60, 0.44, 0.10, 0.56, WIN); S(cx+s2*0.96, cz, 2.60, 0.10, 0.44, 0.56, WIN); }
+      S(cx,cz, 3.60, 3.10, 3.10, 0.28, PLANK);                                    // 발코니
+      Q4(cx,cz,1.36,(x,z)=> V(x,z, 3.88, 5.00, 0.22, 0.22, WOODD));
+      for(const s2 of [1,-1]){ V(cx, cz+s2*1.46, 3.88, 4.40, 3.10, 0.14, WOOD); V(cx+s2*1.46, cz, 3.88, 4.40, 0.14, 3.10, WOOD); }
+      PYR(cx,cz, 5.00, 3.50, 1.20, 0.28, ROOF); S(cx,cz, 6.18, 0.36,0.36,0.36, GOLD);
+      S(cx+1.06, cz+1.06, 3.88, 0.32,0.32,0.60, WOODD); S(cx-1.06, cz+1.06, 3.88, 0.26,0.26,0.26, GLOWC, GL);
+      if(lv===4){ S(cx,cz, 3.60, 3.22,3.22,0.10, GOLD);                            // 금 테
+        for(const sx of [1,-1]) FLAG(cx+sx*1.56, cz+1.56, 3.88, 1.50, BANNER, sx*0.28); }
     } else {
-      /* Lv5·6 — 성탑 (높이 6.9) */
-      PLINTH(cx,cz, 0, 3.46, 3, T.cutStone);
-      V(cx,cz, 0.48, 3.70, T.cutStone, 2.06);                          // 몸통
-      Q4(cx,cz,1.00,(x,z)=> V(x,z, 0.48, 4.10, T.sbrick, 0.36));       // 부벽
-      S(cx,cz, 1.44, GOLD, 2.20, 2.20, 0.16);                          // 금 허리띠
-      S(cx,cz, 2.60, T.stone, 2.22, 2.22, 0.16);
-      for(const s2 of [1,-1]){ WIN(cx, GY0+2.02, cz+s2*1.05, 0.32,0.80,0.06);
-                               WIN(cx+s2*1.05, GY0+2.02, cz, 0.06,0.80,0.32);
-                               WIN(cx, GY0+3.26, cz+s2*1.05, 0.32,0.56,0.06);
-                               WIN(cx+s2*1.05, GY0+3.26, cz, 0.06,0.56,0.32); }
-      CORBEL(cx,cz, 3.36, 1.24, T.cutStone, 4);                        // 돌 회랑 받침
-      S(cx,cz, 3.70, T.cutStone, 3.52, 3.52, 0.30);                    // 튀어나온 회랑
-      CREN(cx,cz,1.58, 4.00, 4.72, T.sbrick, 4);                       // 성가퀴
-      V(cx,cz, 4.00, 5.30, T.cutStone, 1.60);                          // 윗층
-      S(cx,cz, 4.86, GOLD, 1.76, 1.76, 0.14);
-      for(const s2 of [1,-1]) WIN(cx, GY0+4.60, cz+s2*0.82, 0.30,0.56,0.06);
-      CORBEL(cx,cz, 5.14, 1.02, T.stone, 3);                           // 지붕 처마 받침
-      ROOF(cx, 5.30, cz, T.roofRed, 2.86, 2.86, 0.80, 0.30, TT.slate); // ★ 넓은 슬레이트 지붕
-      V(cx, cz, 6.36, 6.62, T.stone, 0.22, 2.96, TT.iron);             // 용마루
-      V(cx, cz, 6.62, 7.02, T.stone, 0.16, 0.16, TT.iron);             // 첨탑
-      Q4(cx,cz,1.46,(x,z)=> S(x, z, 4.72, T.glow, 0.26,0.26,0.26));    // 횃불 4
-    }
-    if(plus){
-      const topY = tier===1 ? 5.72 : tier===2 ? 5.62 : 6.62;
-      S(cx,cz, topY, T.crystal, 0.34, 0.34, 0.34, RUNE);               // 꼭대기 보석
-      const fy = tier===1 ? 3.44 : tier===2 ? 3.40 : 3.70;
-      const fr = tier===1 ? 1.46 : tier===2 ? 1.60 : 1.72;
-      for(const sx of [1,-1]){                                          // 비스듬히 꽂은 깃대
-        R(cx+sx*fr, fy+0.62, cz+fr, T.logSide, 0.11, 1.30, 0.11, 0, sx*0.34);
-        P(cx+sx*(fr+0.34), fy+1.06, cz+fr, T.cloth, 0.56, 0.42, 0.07, BANNER);
-        P(cx+sx*(fr+0.30), fy+0.68, cz+fr, T.cloth, 0.46, 0.30, 0.07, BANNER);
-      }
-    }
-    if(lv>=6){
-      for(let i=0;i<6;i++){ const a = i/6*Math.PI*2;
-        RUNEP(cx+Math.cos(a)*1.52, tier===3?5.60:4.90, cz+Math.sin(a)*1.52, 0.26);
-        RUNEP(cx+Math.cos(a+0.5)*1.12, 2.30, cz+Math.sin(a+0.5)*1.12, 0.18); }
-    }
-    if(crown){                                   /* 만렙 — 금관 띠 + 큰 첨탑 + 붉은 등불 넷 */
-      CROWNBAND(cx, cz, 5.02, 1.52);
-      SPIRE(cx, cz, 7.02, 1.10, 0.34);
-      Q4(cx,cz,1.30,(x,z)=> S(x, z, 5.34, T.glow, 0.24,0.24,0.24, CROWN_C));
-      for(const sx of [1,-1]){                   /* 길게 늘어뜨린 금빛 깃발 */
-        R(cx+sx*1.62, 4.30, cz-1.62, T.logSide, 0.12, 1.50, 0.12, 0, sx*0.22);
-        P(cx+sx*1.92, 4.66, cz-1.62, T.cloth, 0.62, 0.86, 0.07, CROWN_C);
-      }
+      const H = lv===5 ? 4.20 : 4.60, LANT = lv>=7 ? EMBER : GLOWC;
+      S(cx,cz, 0, 3.10,3.10,0.34, STONED); S(cx,cz, 0.34, 2.70,2.70,0.20, STONED);
+      V(cx,cz, 0.54, H, 2.10, 2.10, STONEL);                                       // 큰 돌 몸통
+      S(cx,cz, 1.90, 2.30, 2.30, 0.16, STONED);
+      for(const s2 of [1,-1]){ S(cx, cz+s2*1.06, 2.40, 0.40,0.10,0.70, WIN); S(cx+s2*1.06, cz, 2.40, 0.10,0.40,0.70, WIN); }
+      S(cx,cz, H, 2.80, 2.80, 0.24, STONED);                                        // 회랑 판
+      RING(cx,cz,1.28,8,(x,z)=> S(x,z, H+0.24, 0.34,0.34,0.46, STONE));             // 성가퀴 여덟
+      if(lv===5){ CONE(cx,cz, H+0.30, 1.60, 2.20, ROOF2, 5); S(cx,cz, H+1.92, 0.34,0.34,0.34, GOLD); }
+      else { V(cx,cz, H+0.24, H+1.30, 1.30, 1.30, STONEL); S(cx,cz, H+1.30, 1.60,1.60,0.16, STONED);   // 윗층
+             CONE(cx,cz, H+1.46, 1.40, 1.70, ROOF2, 5); S(cx,cz, H+2.88, 0.30,0.30,0.30, RUNE, GL);
+             RING(cx,cz,1.34,6,(x,z)=> S(x,z, 3.00, 0.22,0.22,0.22, RUNE, GL)); }
+      Q4(cx,cz,1.42,(x,z)=> S(x,z, H+0.24, 0.24,0.24,0.24, LANT, GL));              // 횃불 넷
+      for(const sx of [1,-1]) FLAG(cx+sx*1.50, cz+1.50, H+0.24, 1.50, BANNER, sx*0.26);
+      if(lv>=7){ S(cx,cz, H+0.10, 2.92,2.92,0.14, GOLD); RING(cx,cz,1.30,8,(x,z)=> S(x,z, H+0.72, 0.18,0.18,0.24, GOLD));
+                 CONE(cx,cz, H+2.88, 0.90, 0.62, GOLD, 3); S(cx,cz, H+3.80, 0.26,0.26,0.26, EMBER, GL); }
     }
   }
-
-  /* ═══════════ 얼음탑 — 각진 얼음 조각을 기울여 붙인다 ═══════════ */
+  /* ═══════════ 얼음탑 — 1·2 언 바위의 얼음 기둥 → 3·4 돌 대좌의 수정 첨탑 → 5·6 얼음 성탑 → 7 금관 ═══════════ */
   else if(t==='ice'){
     const cx = 0.5, cz = 0.5;
-    /* 비스듬히 솟은 얼음 가시 — 회전이 열리면서 처음 가능해진 모양이다 */
-    const SHARD = (x,z,y,len,w,tilt,yaw2,tile)=>
-      R(x, y+len*0.42-0.5, z, tile||T.ice, w, len, w, yaw2, tilt);
-    if(tier===1){
-      /* Lv1·2 — 언 바위에서 솟은 얼음 기둥 (높이 5.4) */
-      PLINTH(cx,cz, 0, 2.50, 2, T.rock);
-      S(cx,cz, 0.32, T.ice, 1.90, 1.90, 0.22);
-      V(cx,cz, 0.54, 2.00, T.ice, 1.16);                               // 아래 몸통
-      V(cx,cz, 2.00, 2.60, T.ice, 0.52);                               // ★ 허리를 잘록하게
-      S(cx,cz, 2.02, T.crystal, 0.92, 0.92, 0.56, FROST);              // 드러난 코어
-      V(cx,cz, 2.60, 3.90, T.ice, 0.90);
-      V(cx,cz, 3.90, 4.80, T.ice, 0.54);
-      V(cx,cz, 4.80, 5.42, T.ice, 0.26);                               // 뾰족한 끝
-      for(let i=0;i<5;i++){ const a = i/5*Math.PI*2 + 0.4;             // 활짝 벌린 가시
-        SHARD(cx+Math.cos(a)*0.86, cz+Math.sin(a)*0.86, 0.60, 2.00, 0.36, 0.58, a); }
-    } else if(tier===2){
-      /* Lv3·4 — 석조 대좌 위 얼음 첨탑 (높이 6.0) */
-      PLINTH(cx,cz, 0, 2.90, 3, T.cutStone);
-      V(cx,cz, 0.56, 2.90, T.sbrick, 1.40);
-      Q4(cx,cz,0.80,(x,z)=> V(x,z, 0.56, 3.20, T.ice, 0.32));
-      S(cx,cz, 1.86, T.stone, 1.66, 1.66, 0.16);
-      V(cx,cz, 2.90, 3.20, T.ice, 0.46);                               // ★ 잘록한 목
-      S(cx,cz, 2.94, T.crystal, 1.02, 1.02, 0.62, FROST);              // 드러난 코어
-      V(cx,cz, 3.34, 4.30, T.ice, 1.02);
-      V(cx,cz, 4.30, 5.34, T.ice, 0.62);
-      V(cx,cz, 5.34, 5.96, T.ice, 0.30);
-      for(let i=0;i<5;i++){ const a = i/5*Math.PI*2;                    // 떠 있는 조각
-        SHARD(cx+Math.cos(a)*1.14, cz+Math.sin(a)*1.14, 3.30, 0.90, 0.28, 0.52, a); }
-      Q4(cx,cz,1.10,(x,z)=> SHARD(x, z, 0.62, 1.05, 0.28, -0.20, 0));   // 고드름
+    const SHARD = (x,z,y,len,w,tilt,yaw,tint)=> R(x, y+len*0.42-0.5, z, w, len, w, yaw, tilt, tint||ICE);
+    if(lv<=2){
+      S(cx,cz, 0, 2.50,2.50,0.36, STONED); S(cx,cz, 0.36, 2.00,2.00,0.20, ICED);    // 언 바위
+      V(cx,cz, 0.56, 2.30, 1.40, 1.40, ICE);                                       // 얼음 몸통
+      V(cx,cz, 2.30, 3.30, 0.84, 0.84, ICEL); V(cx,cz, 3.30, 4.20, 0.42, 0.42, ICEL);   // 뾰족한 끝
+      RING(cx,cz,0.90, lv===1?3:4, (x,z,a)=> SHARD(x,z, 0.60, 1.90, 0.36, 0.55, a));     // 비스듬한 가시
+      if(lv===2){ S(cx,cz, 2.06, 0.80,0.80,0.60, FROST, GL); S(cx,cz, 4.20, 0.30,0.30,0.30, FROST, GL); }
+    } else if(lv<=4){
+      S(cx,cz, 0, 2.90,2.90,0.34, STONED); V(cx,cz, 0.34, 1.40, 2.10, 2.10, STONE);     // 돌 대좌
+      S(cx,cz, 1.40, 2.30, 2.30, 0.18, ICED);
+      Q4(cx,cz,0.82,(x,z)=> V(x,z, 1.58, 2.80, 0.34, 0.34, ICE));                   // 얼음 기둥 넷
+      V(cx,cz, 1.58, 3.80, 1.24, 1.24, ICE); V(cx,cz, 3.80, 4.90, 0.72, 0.72, ICEL); V(cx,cz, 4.90, 5.70, 0.34, 0.34, ICEL);   // 수정 첨탑
+      S(cx,cz, 2.90, 0.96,0.96,0.70, FROST, GL);                                    // 드러난 코어
+      RING(cx,cz,1.16,4,(x,z,a)=> SHARD(x,z, 0.60, 1.20, 0.30, -0.18, a), 0.4);     // 고드름
+      if(lv===4){ RING(cx,cz,1.20,4,(x,z,a)=> SHARD(x,z, 3.10, 0.90, 0.28, 0.55, a, ICEL));   // 떠 있는 조각
+                  S(cx,cz, 1.40, 2.40,2.40,0.12, GOLD); S(cx,cz, 5.70, 0.30,0.30,0.30, FROST, GL); }
     } else {
-      /* Lv5·6 — 눈보라를 두른 대첨탑 (높이 6.7) */
-      PLINTH(cx,cz, 0, 3.16, 3, T.cutStone);
-      V(cx,cz, 0.62, 3.30, T.cutStone, 1.52);
-      Q4(cx,cz,0.90,(x,z)=> V(x,z, 0.62, 3.80, T.stone, 0.30, 0.30, TT.iron));
-      S(cx,cz, 2.06, GOLD, 1.74, 1.74, 0.18);
-      S(cx,cz, 3.30, T.ice, 2.50, 2.50, 0.26);
-      CREN(cx,cz,1.12, 3.56, 4.10, T.ice, 3);
-      V(cx,cz, 3.56, 5.20, T.ice, 1.06);
-      V(cx,cz, 5.20, 6.16, T.ice, 0.58);
-      V(cx,cz, 6.16, 6.68, T.ice, 0.28);
-      S(cx,cz, 4.34, T.crystal, 1.00, 1.00, 1.00, FROST);               // 큰 코어
-      for(let i=0;i<6;i++){ const a = i/6*Math.PI*2;
-        SHARD(cx+Math.cos(a)*1.30, cz+Math.sin(a)*1.30, 4.10, 1.10, 0.30, 0.62, a); }
-      Q4(cx,cz,1.20,(x,z)=> SHARD(x, z, 0.66, 1.28, 0.30, -0.16, 0));
-    }
-    if(plus){
-      const cy = tier===1 ? 5.42 : tier===2 ? 5.96 : 6.68;
-      S(cx,cz, cy, T.glow, 0.30, 0.30, 0.30, FROST);
-      S(cx,cz, tier===1?0.32:0.56, GOLD,
-        tier===1?1.96:tier===2?2.30:2.56, tier===1?1.96:tier===2?2.30:2.56, 0.12);
-    }
-    if(lv>=6) for(let i=0;i<7;i++){ const a = i/7*Math.PI*2;
-      RUNEP(cx+Math.cos(a)*1.04, 2.90, cz+Math.sin(a)*1.04, 0.20); }
-    if(crown){                                   /* 만렙 — 금관 띠 + 서리 첨탑 + 솟은 얼음 가시 */
-      CROWNBAND(cx, cz, 0.68, 1.30);
-      SPIRE(cx, cz, tier===1?5.60:tier===2?6.14:6.86, 0.90, 0.30);
-      for(let i=0;i<8;i++){ const a = i/8*Math.PI*2;
-        S(cx+Math.cos(a)*1.42, cz+Math.sin(a)*1.42, 1.02, T.crystal, 0.22,0.22,0.72, FROST); }
-      for(let i=0;i<5;i++){ const a = i/5*Math.PI*2+0.3;
-        S(cx+Math.cos(a)*0.92, cz+Math.sin(a)*0.92, 3.66, T.glow, 0.20,0.20,0.20, CROWN_C); }
+      const H = lv===5 ? 2.40 : 2.80;
+      S(cx,cz, 0, 3.10,3.10,0.34, STONED); V(cx,cz, 0.34, H, 2.10, 2.10, STONEL);     // 돌 성탑 몸통
+      S(cx,cz, 1.40, 2.30,2.30,0.16, STONED); S(cx,cz, H, 2.70, 2.70, 0.22, ICED);
+      RING(cx,cz,1.22,6,(x,z)=> S(x,z, H+0.22, 0.34,0.34,0.44, ICE));               // 얼음 성가퀴
+      V(cx,cz, H+0.22, H+2.60, 1.34, 1.34, ICE); V(cx,cz, H+2.60, H+3.50, 0.72, 0.72, ICEL); V(cx,cz, H+3.50, H+4.20, 0.34, 0.34, ICEL);
+      S(cx,cz, H+1.40, 1.04,1.04,0.90, FROST, GL);                                  // 큰 코어
+      RING(cx,cz,1.34,6,(x,z,a)=> SHARD(x,z, H+1.10, 1.10, 0.30, 0.60, a, ICEL));
+      if(lv>=6){ V(cx,cz, H+0.30, H+1.10, 1.70, 1.70, ICEL);                         // 둘째 얼음 층
+                 RING(cx,cz,1.10,7,(x,z)=> S(x,z, H+2.80, 0.20,0.20,0.20, RUNE, GL)); S(cx,cz, H+4.20, 0.34,0.34,0.34, RUNE, GL); }
+      if(lv>=7){ S(cx,cz, 0.34, 2.40,2.40,0.14, GOLD); S(cx,cz, H+0.10, 2.80,2.80,0.14, GOLD);
+                 CONE(cx,cz, H+4.20, 0.90, 0.60, GOLD, 3); S(cx,cz, H+5.10, 0.26,0.26,0.26, EMBER, GL);
+                 RING(cx,cz,1.46,8,(x,z)=> S(x,z, 0.48, 0.22,0.22,0.74, ICEL)); }
     }
   }
-
-  /* ═══════════ 배럭 — 하프팀버 집 ═══════════ */
+  /* ═══════════ 배럭 — 1·2 회벽 오두막 → 3·4 돌+나무 이층집 → 5·6 성채(모퉁이 탑) → 7 금관 ═══════════ */
   else if(t==='barr'){
-    const cx = 0, cz = 0, R2 = 1.24;
-    if(tier===1){
-      /* Lv1·2 — 회벽 오두막 + 짚 맞배지붕 (높이 4.3) */
-      PLINTH(cx,cz, 0, 3.00, 2, T.rock);
-      Q4(cx,cz,R2,(x,z)=> V(x,z, 0.32, 2.90, T.bark, 0.30, 0.30, TT.timber));  // 골조 기둥
-      PANEL(cx,cz, 0.32, 2.80, R2, 1); PANEL(cx,cz, 0.32, 2.80, R2, 3);
-      PANEL(cx,cz, 0.32, 2.80, R2, 2);
-      for(const s2 of [1,-1])                                           // 앞면은 문을 남긴다
-        P(cx+s2*0.82, 1.55, cz+R2, T.cloth, 0.80, 2.48, 0.18, TT.plaster);
-      for(const s2 of [1,-1]) V(cx+s2*0.42, cz+R2, 0.32, 2.30, T.bark, 0.16, 0.22, TT.timber);
-      P(cx, 1.90, cz+R2, T.bark, 1.10, 0.24, 0.24, TT.timber);          // 문 상인방
-      S(cx, cz+R2+0.02, 0.32, T.dark, 0.84, 0.08, 1.98, 0x1a1512);      // 어두운 문간
-      CORBEL(cx,cz, 2.72, 1.34, T.bark, 3, TT.timber);                  // 처마 받침
-      ROOF(cx, 2.94, cz, T.thatch, 3.60, 3.20, 0.60, 0.32);             // ★ 짚 맞배지붕
-      V(cx, cz, 3.98, 4.28, T.logSide, 0.26, 3.30);                     // 용마루
-      S(cx+1.20, cz+1.20, 0.32, T.hay, 0.66, 0.66, 0.46);               // 건초더미
-      S(cx-1.24, cz+1.18, 0.32, T.glow, 0.30, 0.30, 0.26);              // 모닥불
-    } else if(tier===2){
-      /* Lv3·4 — 돌집 + 기와 지붕 + 굴뚝 (높이 4.8) */
-      PLINTH(cx,cz, 0, 3.20, 3, T.cutStone);
-      Q4(cx,cz,R2,(x,z)=> V(x,z, 0.48, 3.16, T.cutStone, 0.34));
-      for(const f of [1,2,3]) PANEL(cx,cz, 0.48, 3.06, R2, f);
-      for(const s2 of [1,-1]) P(cx+s2*0.84, 1.72, cz+R2, T.sbrick, 0.76, 2.52, 0.20);
-      P(cx, 2.14, cz+R2, GOLD, 1.06, 0.26, 0.24);
-      S(cx, cz+R2+0.02, 0.48, T.dark, 0.80, 0.08, 1.94, 0x1a1512);
-      CORBEL(cx,cz, 2.96, 1.36, T.stone, 3);
-      ROOF(cx, 3.20, cz, T.roofRed, 3.70, 3.30, 0.62, 0.32, TT.clay);   // ★ 기와 맞배지붕
-      V(cx, cz, 4.32, 4.66, GOLD, 0.24, 3.40);                          // 금 용마루
-      V(cx+0.92, cz-0.86, 3.10, 4.72, T.sbrick, 0.52);                  // 굴뚝
-      S(cx+0.92, cz-0.86, 4.72, T.stone, 0.68, 0.68, 0.16);
-      for(const s2 of [1,-1]) S(cx+s2*0.56, cz+R2+0.12, 1.66, T.stone, 0.50,0.10,0.58, TT.iron); // 방패
-      for(const s2 of [1,-1]) S(cx+s2*1.06, cz+R2+0.06, 2.26, T.glow, 0.24,0.24,0.24);
+    const cx = 0, cz = 0, F = 1.25;                                                  // F = 앞면(+z)
+    if(lv<=2){
+      S(cx,cz, 0, 3.10,3.10,0.30, STONED);
+      V(cx,cz, 0.30, 2.50, 2.50, 2.30, PLASTER);                                     // 회벽 몸통
+      Q4(cx,cz,1.18,(x,z)=> V(x,z, 0.30, 2.60, 0.28, 0.28, WOODD));                   // 골조 기둥
+      S(cx,cz, 1.40, 2.60, 2.40, 0.14, WOODD);                                       // 허리 가로대
+      S(cx, cz+F, 0.30, 0.86, 0.10, 1.70, WIN);                                      // 문
+      P(cx, 2.00-0.5, cz+F, 1.10, 0.20, 0.20, WOODD);                                // 문 상인방
+      PYR(cx,cz, 2.60, 3.30, 1.00, 0.30, ROOF);                                      // 붉은 지붕
+      S(cx-1.30, cz+1.30, 0.30, 0.30,0.30,0.26, GLOWC, GL);                          // 모닥불
+      if(lv===2){ for(const s2 of [1,-1]) S(cx+s2*1.16, cz, 1.30, 0.10, 0.44, 0.50, WIN);   // 옆 창
+                  V(cx+0.80, cz-0.70, 3.00, 4.10, 0.50, 0.50, STONE); S(cx+0.80, cz-0.70, 4.10, 0.62,0.62,0.14, STONED);   // 굴뚝
+                  S(cx+1.24, cz+1.24, 0.30, 0.66,0.66,0.46, 0xe8c25a); }                    // 건초더미
+    } else if(lv<=4){
+      S(cx,cz, 0, 3.30,3.30,0.34, STONED);
+      V(cx,cz, 0.34, 1.70, 2.60, 2.40, STONE);                                       // 돌 아래층
+      S(cx,cz, 1.70, 2.80, 2.60, 0.16, WOODD);
+      V(cx,cz, 1.86, 3.10, 2.50, 2.30, PLASTER);                                     // 회벽 위층
+      Q4(cx,cz,1.20,(x,z)=> V(x,z, 1.86, 3.20, 0.26, 0.26, WOODD));
+      S(cx, cz+F, 0.34, 0.84, 0.10, 1.40, WIN); P(cx, 1.80-0.5, cz+F, 1.14, 0.22, 0.20, GOLD);   // 문 + 금 상인방
+      for(const s2 of [1,-1]) S(cx+s2*0.62, cz+F, 2.20, 0.40, 0.10, 0.50, WIN);     // 위층 창
+      V(cx+0.86, cz-0.70, 3.40, 4.80, 0.50, 0.50, STONE); S(cx+0.86, cz-0.70, 4.80, 0.62,0.62,0.14, STONED);   // 굴뚝
+      PYR(cx,cz, 3.20, 3.40, 1.20, 0.30, ROOF); S(cx,cz, 4.36, 0.34,0.34,0.34, GOLD);
+      if(lv===4){ S(cx, cz+F+0.30, 1.86, 2.20, 0.60, 0.18, PLANK);                    // 발코니
+                  for(const s2 of [1,-1]) S(cx+s2*0.90, cz+F+0.06, 1.10, 0.44,0.10,0.50, IRON2);   // 방패
+                  for(const sx of [1,-1]) FLAG(cx+sx*1.46, cz+1.46, 2.04, 1.40, BANNER, sx*0.30); }
     } else {
-      /* Lv5·6 — 마법사 성채 (높이 5.6) */
-      PLINTH(cx,cz, 0, 3.44, 3, T.cutStone);
-      Q4(cx,cz,R2,(x,z)=> V(x,z, 0.60, 3.50, T.cutStone, 0.38));
-      for(const f of [1,2,3]) PANEL(cx,cz, 0.60, 3.36, R2, f);
-      for(const s2 of [1,-1]) P(cx+s2*0.86, 1.98, cz+R2, T.cutStone, 0.72, 2.76, 0.22);
-      P(cx, 2.62, cz+R2, GOLD, 1.16, 0.28, 0.26);                       // 아치 문틀
-      for(const s2 of [1,-1]) S(cx+s2*0.60, cz+R2, 2.34, GOLD, 0.26, 0.26, 0.28);
-      S(cx, cz+R2+0.02, 0.60, T.dark, 0.86, 0.08, 2.02, 0x140f1e);
-      S(cx, cz+R2+0.05, 1.30, T.crystal, 0.34, 0.10, 0.46, RUNE);       // 문 룬
-      S(cx,cz, 3.44, GOLD, 3.00, 3.00, 0.18);
-      CREN(cx,cz,1.40, 3.62, 4.24, T.sbrick, 4);                        // 옥상 성가퀴
-      S(cx,cz, 3.62, T.cutStone, 2.80, 2.80, 0.22);
-      V(cx-0.62, cz-0.62, 3.84, 5.06, T.cutStone, 0.84);                // 마법사 첨탑
-      ROOF(cx-0.62, 5.06, cz-0.62, T.roofRed, 1.30, 1.30, 0.92, 0.24, TT.slate);
-      S(cx-0.62, cz-0.62, 5.66, T.crystal, 0.34, 0.34, 0.40, RUNE);
-      S(cx+0.72, cz+0.72, 3.84, T.hay, 0.74, 0.74, 0.32);               // 옥상 침구
-    }
-    if(plus){
-      const fy = tier===1 ? 2.94 : tier===2 ? 3.20 : 4.30;
-      for(const sx of [1,-1]){                                           // 비스듬한 깃대
-        R(cx+sx*1.44, fy+0.60, cz+1.44, T.logSide, 0.11, 1.26, 0.11, 0, sx*0.32);
-        P(cx+sx*(1.44+0.32), fy+1.02, cz+1.44, T.cloth, 0.54, 0.42, 0.07, BANNER);
-        P(cx+sx*(1.44+0.28), fy+0.66, cz+1.44, T.cloth, 0.44, 0.28, 0.07, BANNER);
-      }
-      Q4(cx,cz,1.32,(x,z)=> S(x, z, tier===1?2.20:tier===2?2.46:3.00, T.glow, 0.24,0.24,0.24));
-    }
-    if(lv>=6) for(let i=0;i<6;i++){ const a = i/6*Math.PI*2;
-      RUNEP(cx+Math.cos(a)*1.20, 4.66, cz+Math.sin(a)*1.20, 0.22); }
-    if(crown){                                   /* 만렙 — 금 처마 + 첨탑 + 붉은 현판 */
-      CROWNBAND(cx, cz, tier===1?4.34:tier===2?4.62:5.30, 1.44);
-      SPIRE(cx, cz, tier===1?5.10:tier===2?5.40:6.10, 0.86, 0.30);
-      Q4(cx,cz,1.36,(x,z)=> S(x, z, tier===1?3.10:tier===2?3.36:3.96, T.glow, 0.22,0.22,0.22, CROWN_C));
-      P(cx, (tier===1?3.60:tier===2?3.90:4.50)-0.5, cz-1.40, T.cloth, 1.30, 0.52, 0.08, CROWN_C);
+      const H = lv===5 ? 3.30 : 3.60, LANT = lv>=7 ? EMBER : GLOWC;
+      S(cx,cz, 0, 3.40,3.40,0.36, STONED);
+      V(cx,cz, 0.36, H, 2.70, 2.50, STONEL);                                         // 성채 몸통
+      S(cx,cz, 1.60, 2.86, 2.66, 0.16, STONED);
+      Q4(cx,cz,1.30,(x,z)=> { V(x,z, 0.36, H+0.70, 0.66, 0.66, STONE); CONE(x,z, H+0.70, 0.70, 0.80, ROOF2, 3); });   // 모퉁이 탑 넷
+      S(cx, cz+F, 0.36, 0.86, 0.12, 1.60, WIN); P(cx, 2.10-0.5, cz+F, 1.30, 0.26, 0.24, GOLD);   // 아치 문
+      for(const s2 of [1,-1]){ S(cx+s2*0.62, cz+F, 2.40, 0.38, 0.10, 0.48, WIN); S(cx+s2*1.36, cz, 2.40, 0.10, 0.38, 0.48, WIN); }
+      S(cx,cz, H, 2.90, 2.70, 0.20, STONED); PYR(cx,cz, H+0.20, 2.60, 1.00, 0.30, ROOF2);   // 옥상 + 파란 지붕
+      Q4(cx,cz,1.30,(x,z)=> S(x,z, H+1.40, 0.22,0.22,0.22, LANT, GL));                    // 탑 등불
+      if(lv>=6){ V(cx-0.70, cz-0.60, H+0.20, H+2.10, 0.90, 0.90, STONEL);                  // 마법사 탑
+                 CONE(cx-0.70, cz-0.60, H+2.10, 1.00, 1.10, ROOF2, 4); S(cx-0.70, cz-0.60, H+3.10, 0.34,0.34,0.34, RUNE, GL);
+                 RING(cx,cz,1.30,6,(x,z)=> S(x,z, H+0.40, 0.20,0.20,0.20, RUNE, GL));
+                 S(cx, cz+F+0.06, 1.20, 0.34, 0.10, 0.46, RUNE, GL); }                    // 문 룬
+      for(const sx of [1,-1]) FLAG(cx+sx*1.50, cz+1.50, H-0.20, 1.40, BANNER, sx*0.30);
+      if(lv>=7){ S(cx,cz, H+0.06, 3.00,2.80,0.14, GOLD); CONE(cx,cz, H+1.22, 0.90, 0.60, GOLD, 3);
+                 S(cx,cz, H+2.12, 0.26,0.26,0.26, EMBER, GL);
+                 P(cx, 2.90-0.5, cz+F+0.10, 1.40, 0.56, 0.08, BANNER); }                    // 붉은 현판
     }
   }
 
@@ -5394,6 +5177,7 @@ function tintStru(){
   for(const m of _tintHit) m.instanceColor.needsUpdate = true;
   struTint.clear();
 }
+const STRU_GEO = roundBox(2, 0.09, 1, 1, 1);     // 30차 — 건물 조각의 단위 둥근 상자(인스턴스 배율로 늘인다)
 function rebuildStru(){
   struDirty = false;
   /* 블록 크기는 인스턴스 행렬 스케일로 준다 → 지오메트리는 여전히 타일당 하나,
@@ -5431,7 +5215,8 @@ function rebuildStru(){
     if(!mesh || mesh.instanceMatrix.count < arr.length){
       if(mesh){ scene.remove(mesh); mesh.dispose(); }
       const cap = Math.max(64, Math.ceil(arr.length*1.6));
-      mesh = new THREE.InstancedMesh(cube(tile), tile===T.glow ? EMIT : MAT, cap);
+      /* 30차 — 건물은 둥근 원색 조각(로블록스). 무늬 타일 대신 flatFor(tile)·둥근 상자. 빛(glow)은 발광 원색 */
+      mesh = new THREE.InstancedMesh(STRU_GEO, tile===T.glow ? flatFor(T.glow, EMIT) : flatFor(tile), cap);
       mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap*3).fill(1),3);
       mesh.frustumCulled = false;
       if(GFX.shadow){ mesh.castShadow = true; mesh.receiveShadow = true; }  // 25차 — 아이가 지은 벽이 그늘을 만든다
@@ -6129,10 +5914,10 @@ for(const k in HELD){ bakeHeld(HELD[k]); HELD[k].visible = false; held.add(HELD[
 /* 건물을 들었을 때는 그 블록을 손에 든다 */
 const heldBlocks = {};
 for(const k of Object.keys(BUILD)){
-  const tile = blocksOf(k,1)[0][3];
+  const b0 = blocksOf(k,1)[0], tile = b0[3];          // 30차 — 조각은 전부 원색 천 타일 + 색(tint). 첫 조각의 색을 든다
   const g = new THREE.Group();
   g.add(armPart(boxM(T.wool, 0.19,0.30,0.19, -0.13,-0.22,0.10)));
-  g.add(boxM(tile, 0.34,0.34,0.34, 0.02,0.02,0.00));
+  g.add(boxM(tile, 0.34,0.34,0.34, 0.02,0.02,0.00, b0[7] ? {color:new THREE.Color(b0[7])} : undefined));
   g.rotation.set(-0.14, 0.50, 0.16);
   bakeHeld(g); g.visible = false; held.add(g); heldBlocks[k] = g;
 }
