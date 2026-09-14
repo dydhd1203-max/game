@@ -52,6 +52,16 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
        Math.abs(g.pr - Math.min(g.dpr, want[q].pr)) < 1e-6, g.pr);
     await pg.close();
   }
+  /* 26차b — 교실 견주기 손잡이. 값이 표(GFX)에도, 렌더러에도 실제로 먹어야 한다 */
+  {
+    const pg = await open('?gfx=high&aa=2&pr=0.5&shadow=1024');
+    const g = await pg.evaluate(()=>({g:window.__GFX, pr:window.__R.getPixelRatio(),
+                                      sm:window.__sun.shadow.mapSize.x}));
+    ok('?aa=2 — 계단 없애기 손잡이가 먹는다', g.g.aa === 2, g.g.aa);
+    ok('?pr=0.5 — 해상도 손잡이가 렌더러에 먹는다', g.g.pr === 0.5 && Math.abs(g.pr-0.5) < 1e-6, g.pr);
+    ok('?shadow=1024 — 그림자 지도 손잡이가 먹는다', g.g.shadow === 1024 && g.sm === 1024, g.sm);
+    await pg.close();
+  }
   const pg = await open('');
   const g = await pg.evaluate(()=>({soft:!!window.__GFX_SOFT, g:window.__GFX}));
   /* 검사기는 소프트웨어 렌더링이다 — 게임이 스스로 알아보고 내려가야 한다.

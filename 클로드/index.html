@@ -2646,6 +2646,14 @@ const GFX_Q = new URLSearchParams(location.search).get('gfx')
            || (window.DEFAULTS||{}).gfx || 'high';
 const GFX = Object.assign({}, GFX_PRESET[GFX_Q] || GFX_PRESET.high);
 if(new URLSearchParams(location.search).get('bloom') === '1') GFX.bloom = 1;
+/* ★ 26차b — 교실에서 파일을 안 바꾸고 한 판씩 견주는 손잡이.
+     ?aa=0|2|4   ?pr=0.75|1|1.5   ?shadow=0|1024|2048   (?gfx= 와 같이 써도 된다, 이게 이긴다)
+   26차 교실 실측이 "해상도 원본 -17fps" 였다 — 픽셀 수가 제일 큰 손잡이인데, MSAA 4 가
+   그중 얼마인지는 여기서 못 잰다. 선생님이 ?aa=2 와 ?aa=0 을 열어 보면 바로 안다. */
+{ const q = new URLSearchParams(location.search);
+  if(q.has('aa'))     GFX.aa     = Math.max(0, q.get('aa')|0);
+  if(q.has('pr'))     GFX.pr     = Math.max(0.25, Math.min(3, +q.get('pr') || GFX.pr));
+  if(q.has('shadow')) GFX.shadow = Math.max(0, q.get('shadow')|0); }
 if(isTouch){ GFX.shadow = 0; GFX.bloom = 0; GFX.aa = 0; GFX.pr = 1.0; }
 
 /* ★ 그래픽 카드가 없는 판을 알아본다 (25차).
