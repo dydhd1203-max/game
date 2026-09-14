@@ -34,7 +34,7 @@ await pg.waitForFunction('window.__READY===true', {timeout:60000});
   ok('미리보기가 있다', !!r);
   ok('★ 미리보기 조각에 무늬(텍스처)가 없다', r && r.noMap);
   ok('★ 미리보기 조각이 둥글다 (꼭짓점이 상자 24개보다 많다)', r && r.round);
-  ok('미리보기 몸 조각이 털뭉치 공 여섯을 포함해 24개다', r && r.n === 24, r && r.n);
+  ok('미리보기 몸 조각이 털뭉치 공 여섯·입을 포함해 25개다', r && r.n === 25, r && r.n);
 }
 
 await pg.fill('#iName','검'); await pg.click('#bSolo');

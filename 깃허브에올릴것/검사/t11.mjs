@@ -148,15 +148,17 @@ const out = await pg.evaluate(async ()=>{
   W.__equipW(5); W.__setAim(true, true); W.__PL.pitch = 0; W.__updPlayer(0.001);
   W.__updHeld(0.016, false, 0);
   const cam = W.__cam; cam.updateMatrixWorld(true); W.__held.updateMatrixWorld(true);
-  const gg = models[5];
-  /* 구운 메시는 전부 제자리(0,0,0)에 있고 좌표가 꼭짓점에 구워져 있으므로,
-     자리 대신 실제로 차지하는 상자의 한가운데를 본다. */
-  const depth = (m)=>{ const v = new T3.Vector3();
-                       new T3.Box3().setFromObject(m).getCenter(v);
+  const gg = models[5]; gg.updateMatrixWorld(true);
+  /* ★ 28차에 조각을 꼭짓점 색으로 구워 재질 하나·메시 하나가 됐다 — 구운 메시의 한가운데를
+     보면 총 전체가 한 점(0.35 → 0.41)이라 방향을 못 잰다. 굽기 전 조각 자리(userData.parts,
+     아래 '떠 있는 조각' 검사와 같은 표)를 세계 좌표로 옮겨 조각마다 깊이를 본다. */
+  const depth = (p)=>{ const v = new T3.Vector3();
+                       new T3.Box3(new T3.Vector3(p[0],p[1],p[2]), new T3.Vector3(p[3],p[4],p[5]))
+                         .applyMatrix4(gg.matrixWorld).getCenter(v);
                        return -cam.worldToLocal(v).z; };
-  const ms = gg.children.filter(m=>m.isMesh);
-  const deep = Math.max(...ms.map(depth));
-  const near = Math.min(...ms.map(depth));
+  const ps = gg.userData.parts || [];
+  const deep = Math.max(...ps.map(depth));
+  const near = Math.min(...ps.map(depth));
   ok('★ 총구가 화면 안쪽을 향한다 (총열 끝이 개머리판보다 멀다)',
      deep - near > 0.15, '가까운 끝 '+near.toFixed(2)+' → 먼 끝 '+deep.toFixed(2));
   /* 떠 있는 조각이 없나 — 모든 조각이 다른 조각과 닿아 있어야 한다.

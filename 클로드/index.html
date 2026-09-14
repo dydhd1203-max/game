@@ -1253,7 +1253,8 @@ body.touch #topRight2 .kk{display:none}
    (1024×600)에서 641px 이 스크롤 뒤로 숨었다. 스크롤 막대가 잘 안 보여서 '아래에 더 있다' 를
    아무도 모르는 건 이 파일이 이미 겪은 함정이다. 칭호 칸에 제 높이를 줘서 창 자체를 묶는다. */
 .bgGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:7px;
-  max-height:min(224px,30vh);overflow:auto;padding:2px}
+  max-height:min(420px,56vh);overflow:auto;padding:2px}
+#popBadge .popC{width:min(760px,94vw)}
 .bgIt{display:flex;gap:8px;align-items:center;padding:7px 9px;border-radius:11px;
   border:1.5px solid rgba(255,255,255,.13);background:rgba(255,255,255,.04);opacity:.45}
 .bgIt.on{opacity:1;background:rgba(255,255,255,.07)}
@@ -1650,6 +1651,253 @@ body.qbOn #crystalWrap, body.qbOn #resBox, body.qbOn #topRight{display:none}
   50%{box-shadow:var(--soft), 0 0 26px -2px rgba(255,90,90,.75)}}
 #crystalWrap.danger{animation:cDanger 1.1s ease-in-out infinite;
   border-color:rgba(255,140,140,.62)}
+/* ═══════════════════════════════════════════════════════════════════════════
+   28차 — UI 키트: 파스텔 둥근 결 (로블록스 느낌) + 3D 아이콘 + 움직임
+   ★ 선생님: "스텟 창·가방·아이템 모양·인터페이스가 부족하다. 진짜 게임 같지가 않다.
+     파스텔 다 둥근 쪽으로, 이모지 다 3D 로, 움직임과 소리도."
+   ★ 규칙 — id 와 구조는 그대로 두고 **색·모양·그림·움직임**만 바꾼다(t13 이 열 화면에서
+     조각이 겹치는지 보고, 다른 검사가 id 로 창을 연다). 자리·크기 값은 위 규칙을 존중한다.
+   ★ 결 — 크림 판 위에 남색 잉크 글씨. 단추는 아래에 두꺼운 그림자가 있어 '눌리는' 것으로 읽힌다.
+     강조색은 민트·복숭아·하늘·레몬·분홍·라벤더 여섯 파스텔. 진한 보라 판은 여기서 끝난다.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --pk-bg: rgba(255,251,245,.95); --pk-bg2: rgba(255,255,255,.96);
+  --pk-ink:#3b3550; --pk-ink2:#7a7494; --pk-line:rgba(120,104,170,.18); --pk-line2:rgba(120,104,170,.30);
+  --pk-mint:#9be7c4; --pk-mint2:#5fcf9a; --pk-peach:#ffc9a3; --pk-sky:#a9d8ff; --pk-sky2:#6fb8ff;
+  --pk-lemon:#ffe89a; --pk-lemon2:#ffd257; --pk-pink:#ffb8d1; --pk-pink2:#ff7fa8; --pk-lav:#d9cff0; --pk-lav2:#b9a8ea;
+  --soft: 0 5px 0 rgba(150,130,200,.20), 0 16px 30px -14px rgba(70,50,120,.40), inset 0 1px 0 #fff;
+  --cream:#3b3550; --honey:#e0a200; --gold:#e0a200;
+}
+body{color:var(--pk-ink)}
+img.ic{display:inline-block;height:1.3em;width:auto;vertical-align:-.32em;margin:0 .05em;
+  pointer-events:none;user-select:none;-webkit-user-drag:none;
+  filter:drop-shadow(0 2px 2px rgba(60,40,100,.18))}
+.emoT{position:absolute;width:0;height:0;overflow:hidden;font-size:0;opacity:0;pointer-events:none}
+
+/* ── 판 ── */
+.pnl{background:var(--pk-bg);border:1.5px solid #fff;border-radius:18px;box-shadow:var(--soft)}
+#crystalWrap .lb,#bossWrap .lb,#grpName,.resline,.slot .nm{text-shadow:none}
+#cNum,#hpNum{text-shadow:none;color:var(--pk-ink)}
+#grpName{color:#3b3550;box-shadow:0 2px 0 rgba(120,104,170,.25), inset 0 1px 0 rgba(255,255,255,.7)}
+.res{background:#fff;border:1.5px solid var(--pk-line)}
+.res i{background:transparent;filter:none;width:24px;height:24px}
+.res i img.ic{height:22px;margin:0;vertical-align:middle}
+.res.w{background:#fff1e6;border-color:#ffd6b8} .res.s{background:#f0f2f6;border-color:#d3d8e2} .res.g{background:#fff6d6;border-color:#ffe2a0}
+.res.eg{background:#fff8ea;border-color:#f6e4c0} .res.mk{background:#eef6ff;border-color:#c9e2ff} .res.pk{background:#fff0f4;border-color:#ffc9d8}
+.res.up b{animation:popn .45s}
+@keyframes popn{0%{transform:scale(1);color:var(--pk-ink)}30%{transform:scale(1.4);color:#3fb37a}100%{transform:scale(1);color:var(--pk-ink)}}
+#hpRow{border-top:1px solid var(--pk-line)}
+#hpRow .hpIc{filter:none} #hpRow .hpIc img.ic{height:22px}
+#hpBar,#xpBar,#timeBar,#misBar,#cBar,#bBar{background:rgba(120,104,170,.14);border:none;box-shadow:inset 0 2px 3px rgba(60,40,100,.12)}
+#hpFill{background:linear-gradient(90deg,#b8f2d5,#5fcf9a)} #xpFill{background:linear-gradient(90deg,#ffe89a,#ffb347)}
+#timeFill{background:linear-gradient(90deg,#ffe89a,#ffc9a3)} #dayBox.night #timeFill{background:linear-gradient(90deg,#c9d4ff,#8ea4ff)}
+#cFill{box-shadow:none} #bFill{background:linear-gradient(90deg,#ff9ab8,#ff6b7a);box-shadow:none}
+#cFill:after,#bFill:after,#hpFill:after{background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,.05))}
+#lvChip{background:linear-gradient(180deg,#ffe89a,#ffd257);color:#4a3c00;box-shadow:0 2px 0 rgba(200,150,0,.25)}
+#lvPts{color:#d18a00}
+#statRow span{background:#f4f1fb;border:1px solid var(--pk-line)}
+#stAtk{color:#d17a3a} #stDef{color:#3a7fd1} #stAmmo{color:#c99500}
+#potRow button{background:#fff;border:1.5px solid var(--pk-line2);color:var(--pk-ink)}
+#dayBox{font-weight:900} #dayPhase{opacity:1} #dayPhase img.ic{height:20px}
+#tSec{color:var(--pk-ink2)} #dayBox.rush #tSec{color:#ff5b7a}
+#rankHead{color:#a07a00} #rankHead img.ic{height:14px}
+.rkRow.me{background:#fff3c4;box-shadow:inset 0 0 0 1px #ffd257}
+.rkNo.m1{color:#e0a200} .rkNo.m2{color:#8a94a6} .rkNo.m3{color:#c07a40} .rkLv{color:#a07a00}
+#crystalWrap .lb{color:var(--pk-ink2)} #crystalWrap .lb img.ic{height:16px}
+#bossWrap{border-color:#ffb8d1} #bossWrap .lb,#bossName{color:#d14a6a;text-shadow:none} #bAdds{color:#b06078}
+#bossIc img.ic,#misIc img.ic{height:18px}
+#misWrap{color:var(--pk-ink)} #misName{opacity:.9} #misNum{color:#a07a00} #misFill{background:linear-gradient(90deg,#ffe89a,#ffb347)}
+#misWrap.done{border-color:#9be7c4} #misWrap.done #misNum{color:#2f9a64} #misWrap.done #misFill{background:linear-gradient(90deg,#b8f2d5,#5fcf9a)}
+.gcell{background:#fff;border:1.5px solid var(--pk-line);color:var(--pk-ink)}
+.gcell:hover{background:#faf7ff} .gcell.me{border-color:var(--pk-lemon2);box-shadow:0 0 0 2px rgba(255,210,87,.35)}
+.gcell .gs img.ic{height:20px} .gcell.warn{background:#fff3d6} .gcell.bad{background:#ffe3ea;border-color:#ff9ab8}
+#grpBar .hint2{color:var(--pk-ink2)}
+@keyframes cDanger{0%,100%{box-shadow:var(--soft)}50%{box-shadow:var(--soft), 0 0 26px -2px rgba(255,90,120,.75)}}
+#crystalWrap.danger{border-color:#ff9ab8}
+#miniWrap{padding:5px} #mini{border-radius:13px}
+
+/* ── 단추 — 아래에 두꺼운 그림자, 누르면 내려간다 ── */
+.btn{background:linear-gradient(180deg,#ffffff,#f3eefc);border:2px solid #fff;color:var(--pk-ink);
+  border-radius:14px;box-shadow:0 4px 0 var(--pk-lav), 0 8px 16px -8px rgba(70,50,120,.35);
+  transition:transform .08s, box-shadow .08s, background .12s}
+.btn:hover{background:linear-gradient(180deg,#ffffff,#ebe4fa)}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--pk-lav)}
+.btn.pri{background:linear-gradient(180deg,#c6f3dc,#8fdcb4);border-color:#fff;color:#123d28;box-shadow:0 4px 0 #6fbf95, 0 8px 16px -8px rgba(40,120,80,.4)}
+.btn.pri:hover{background:linear-gradient(180deg,#d4f7e4,#9fe6c0)} .btn.pri:active{box-shadow:0 1px 0 #6fbf95}
+.btn.warn{background:linear-gradient(180deg,#ffd6e0,#ff9ab8);border-color:#fff;color:#5a1a2e;box-shadow:0 4px 0 #e0728f}
+.btn:disabled{opacity:.45}
+#topRight2 .btn{background:linear-gradient(180deg,#ffffff,#f3eefc);border-color:#fff;box-shadow:0 3px 0 var(--pk-lav)}
+#topRight2 .btn:hover{background:linear-gradient(180deg,#ffffff,#ebe4fa)}
+#topRight2 .btn img.ic{height:14px;vertical-align:-.22em}   /* 18px 로 두면 단추가 커져 터치 900×600 에서 큰 단추와 겹친다 */
+.tag{background:#f4f1fb;color:var(--pk-ink)}
+
+/* ── 아래 트레이 · 칸 ── */
+#dock{background:var(--pk-bg);border:2px solid #fff;box-shadow:var(--soft)}
+#dockLine{background:var(--pk-line)}
+.slot{background:linear-gradient(180deg,#ffffff,#f6f2fc);border:2px solid #fff;border-radius:16px;
+  box-shadow:0 3px 0 var(--pk-lav), inset 0 1px 0 #fff;color:var(--pk-ink);
+  transition:transform .13s ease, box-shadow .13s ease, background .13s ease}
+.slot:hover{background:linear-gradient(180deg,#ffffff,#ede6fb);transform:translateY(-3px)}
+.slot > .ic{filter:none;display:flex;align-items:center;justify-content:center;height:40px}
+.slot > .ic > img.ic{height:40px;margin:0}
+.slot.tool > .ic{height:34px} .slot.tool > .ic > img.ic{height:34px}
+.slot .nm{color:var(--pk-ink)}
+.slot .cost{border-top:1px solid var(--pk-line);color:var(--pk-ink2)} .slot .cost img.ic{height:12px;vertical-align:-.2em;margin:0 1px 0 0;filter:none}
+.slot .ky{background:var(--pk-lav);color:#4a3c78;opacity:.85}
+.slot.on{border-color:#fff;background:linear-gradient(180deg,#fff6cf,#ffe28a);
+  box-shadow:0 0 0 3px rgba(255,210,87,.45), 0 8px 18px -6px rgba(200,150,0,.45), 0 3px 0 #e0b040}
+.slot.on .ic{filter:none} .slot.on .ky{background:#ffd257;color:#4a3c00;opacity:1}
+.slot.no{opacity:.5} .slot.no .cost span{background:transparent;color:#c0405a;border-color:transparent;padding:0}
+body.touch .slot.tool{background:linear-gradient(180deg,#ffffff,#f6f2fc)}
+.mb{background:linear-gradient(180deg,#ffffff,#f3eefc);border:2px solid #fff;color:var(--pk-ink);box-shadow:0 4px 0 var(--pk-lav)}
+.mb .ic img.ic{height:26px}
+#mbAct{background:linear-gradient(180deg,#c6f3dc,#8fdcb4);border-color:#fff;color:#123d28;box-shadow:0 4px 0 #6fbf95}
+#mbThrow{background:linear-gradient(180deg,#e8dcff,#c8b4ff);border-color:#fff;color:#2e1f60;box-shadow:0 4px 0 #a48ce0}
+#mbJump{background:linear-gradient(180deg,#d6ebff,#a9d8ff);border-color:#fff;color:#123a60;box-shadow:0 4px 0 #6fb8ff}
+#stick{background:rgba(255,255,255,.35);border-color:#fff} #knob{background:rgba(255,255,255,.85);border-color:#fff}
+
+/* ── 안내 · 알림 ── */
+#hint{background:rgba(255,251,245,.92);border:1.5px solid #fff;color:var(--pk-ink);text-shadow:none;box-shadow:0 3px 0 var(--pk-lav)}
+#feed{text-shadow:none}
+#feed div{background:rgba(255,251,245,.94);border:1.5px solid #fff;color:var(--pk-ink);border-left:4px solid var(--pk-lemon2);
+  box-shadow:0 3px 0 rgba(150,130,200,.18);animation:fin .32s}
+#toast{text-shadow:0 2px 0 rgba(40,30,70,.55), 0 6px 16px rgba(0,0,0,.45)}
+#toast.on{animation:toastIn .28s cubic-bezier(.2,1.5,.4,1)}
+@keyframes toastIn{from{transform:translate(-50%,-50%) scale(.6);opacity:0}}
+#stageTitle .d,#stageTitle .n{color:#fff}
+#aimInfo{background:rgba(255,251,245,.94);border:2px solid #fff;color:var(--pk-ink);box-shadow:0 3px 0 var(--pk-lav)}
+#aimInfo .lv1{background:#f4f1fb;color:var(--pk-ink)} #aimInfo .hp{opacity:.8}
+#aimInfo .segs i{background:rgba(120,104,170,.18)} #aimInfo .segs i.f{background:#5fcf9a;box-shadow:none}
+#aimInfo .prog{background:rgba(120,104,170,.14);border:none} #aimInfo .prog i{background:#ffd257}
+#aimBadge{background:linear-gradient(180deg,#ffe3ea,#ffb8d1);border:2px solid #fff;color:#7a1a3a;text-shadow:none;box-shadow:0 3px 0 #e0728f}
+#shopTip,#forgeTip,#farmTip{background:rgba(255,251,245,.95);border:2px solid #fff;color:var(--pk-ink);text-shadow:none;box-shadow:0 4px 0 var(--pk-lav), 0 10px 20px -10px rgba(70,50,120,.4)}
+#shopTip img.ic,#forgeTip img.ic,#farmTip img.ic{height:1.3em}
+#miniBar .mn{background:rgba(255,251,245,.95);border:2px solid #fff;color:var(--pk-ink);box-shadow:0 3px 0 var(--pk-lav)}
+#miniBar .mq{background:rgba(255,251,245,.96);border:2px solid #fff;color:var(--pk-ink);text-shadow:none;box-shadow:var(--soft)}
+#miniBar .mt{color:#e0a200;text-shadow:0 2px 0 #fff}
+#miniBar .ms span{background:#fff;border-color:currentColor}
+#pauseVeil{background:rgba(120,104,170,.45)} #pauseVeil .pIc img.ic,#downVeil .dIc img.ic,#verdict .vIco img.ic{height:1em;vertical-align:-.15em}
+#downVeil{background:rgba(255,251,245,.95);border:2px solid #fff;color:#c0405a;text-shadow:none;box-shadow:var(--soft)} #downVeil small{color:#a06078}
+.dnum{color:#fff}
+
+/* ── 창 ── */
+.pop{background:rgba(90,70,140,.42)}
+.popC{background:linear-gradient(180deg,#fffdf9,#fbf7ff);border:3px solid #fff;border-radius:24px;color:var(--pk-ink);
+  box-shadow:0 24px 60px -20px rgba(50,30,100,.55), 0 6px 0 var(--pk-lav)}
+.pop.on .popC{animation:popIn .22s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes popIn{from{transform:scale(.88) translateY(14px);opacity:0}}
+.popC,#shopList,.kitGrid{scrollbar-color:var(--pk-lav2) rgba(120,104,170,.08)}
+.popC::-webkit-scrollbar-track,#shopList::-webkit-scrollbar-track{background:rgba(120,104,170,.08)}
+.popC::-webkit-scrollbar-thumb,#shopList::-webkit-scrollbar-thumb{background:var(--pk-lav2)}
+.popC h2{color:var(--pk-ink);font-size:22px} .popC h2 img.ic{height:1.15em;vertical-align:-.22em}
+.popC h3{color:#8a7fb8;opacity:1} .popC h3 img.ic{height:1.25em}
+.shopHint{color:var(--pk-ink2);opacity:1}
+.shopHint b,.hrow b{color:var(--pk-ink)} .shopHint b{background:#fff3c4;padding:0 4px;border-radius:6px}
+.sl b,.gline,.gv{color:var(--pk-ink)} .sl input[type=range]{accent-color:#5fcf9a}
+table.rank th,table.rank td{border-bottom:1px solid var(--pk-line);color:var(--pk-ink)}
+#giveWrap button{background:#fff;border:1.5px solid var(--pk-line2);color:var(--pk-ink)}
+#resultC .big{text-shadow:none}
+#endCard{background:#fff;border:1.5px solid var(--pk-line)} .ec-t{color:#a07a00} .ec-t2{color:var(--pk-ink2);opacity:1}
+.ec-i{background:#f6f2fc;border-color:var(--pk-line)} .ec-i span{opacity:.8} .ec-b .tr{background:rgba(120,104,170,.14)} .ec-note b{color:#a07a00}
+.hrow{background:#fff;border:1.5px solid var(--pk-line);color:var(--pk-ink)} .hrow i{filter:none} .hrow i img.ic{height:26px}
+.chip{background:#f4f1fb;border-color:var(--pk-line);color:var(--pk-ink)}
+.ifBar .tk{background:rgba(120,104,170,.14)} .ifBar .vl{color:#a07a00} .ifT th,.ifT td{border-bottom:1px solid var(--pk-line)} .ifT tr.wall td{background:#eafbf1}
+#shopRes,#kitStat{background:#fff;border:1.5px solid var(--pk-line);color:var(--pk-ink)}
+.shopTabs .btn.on{background:linear-gradient(180deg,#fff6cf,#ffe28a);border-color:#fff;color:#4a3c00;box-shadow:0 4px 0 #e0b040}
+.sItem{background:#fff;border:1.5px solid var(--pk-line);border-radius:16px;box-shadow:0 3px 0 rgba(150,130,200,.12);animation:cardIn .28s both}
+.sItem.own{background:#eafbf1;border-color:#9be7c4} .sItem.no{opacity:.5}
+.sItem .si{filter:none;width:52px;text-align:center} .sItem .si img.ic{height:46px}
+.sItem .sd{opacity:.85;color:var(--pk-ink2)} .sItem .sc{color:#a07a00}
+.sItem button{background:#fff;border:1.5px solid var(--pk-line2);color:var(--pk-ink);box-shadow:0 3px 0 var(--pk-lav);border-radius:11px}
+.sItem button.buy{background:linear-gradient(180deg,#c6f3dc,#8fdcb4);border-color:#fff;color:#123d28;box-shadow:0 3px 0 #6fbf95}
+.sItem button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--pk-lav)}
+.enhOdds{background:rgba(120,104,170,.14)} .enhLv{color:#a07a00}
+.kitIt{background:#fff;border:1.5px solid var(--pk-line)} .kitIt.on{background:#fff6cf;border-color:#ffd257;box-shadow:none} .kitIt .ki{filter:none}
+.kitIt .kd,.kitIt.on .kd{color:var(--pk-ink2)}
+/* 가방 — 인형·입은 자리·카드 */
+#kitDoll{background:radial-gradient(ellipse at 50% 62%,#e8dcff,#f6f2fc 70%);border:1.5px solid var(--pk-line)}
+.kSlot{background:#fff;border:1.5px solid var(--pk-line2);box-shadow:0 3px 0 rgba(150,130,200,.14)}
+.kSlot:hover{border-color:#ffd257;background:#fffaf0} .kSlot.empty{opacity:.55;background:#f6f2fc} .kSlot img.ic{height:36px;margin:0}
+.kSlot .kTag{color:var(--pk-ink2);opacity:1}
+#kitTabs button{background:#fff;border:1.5px solid var(--pk-line2);color:var(--pk-ink);box-shadow:0 2px 0 var(--pk-lav)}
+#kitTabs button.on{background:linear-gradient(180deg,#fff6cf,#ffe28a);border-color:#fff;color:#4a3c00;box-shadow:0 2px 0 #e0b040}
+#kitTabs button img.ic{height:16px}
+.kCell{background:#fff;border:2px solid #fff;box-shadow:0 3px 0 var(--pk-lav);border-radius:14px;animation:cardIn .28s both}
+.kCell:hover{border-color:#fff;background:#fffaf0;transform:translateY(-3px);box-shadow:0 6px 0 var(--pk-lav)}
+.kCell.on{border-color:#5fcf9a;background:#eafbf1;box-shadow:0 3px 0 #6fbf95, inset 0 0 0 2px rgba(95,207,154,.35)}
+.kCell.on:after{content:'✓';position:absolute;left:3px;top:0;font:900 11px/1.4 sans-serif;color:#2f9a64}
+.kCell img.ic{height:72%;margin:0}
+.kCell .kNum{color:#4a3c00;background:#ffe28a;text-shadow:none;padding:1px 5px;border-radius:999px;right:2px;bottom:2px}
+/* 강화 등급 색 — +1 초록 · +2 파랑 · +3 보라 · +4 주황 · +5 분홍 · +6 금 */
+.kCell.e1,.kSlot.e1{border-color:#9be7c4} .kCell.e2,.kSlot.e2{border-color:#a9d8ff} .kCell.e3,.kSlot.e3{border-color:#cdbcff}
+.kCell.e4,.kSlot.e4{border-color:#ffc9a3} .kCell.e5,.kSlot.e5{border-color:#ffb8d1} .kCell.e6,.kSlot.e6{border-color:#ffd257;box-shadow:0 3px 0 #e0b040, 0 0 14px rgba(255,210,87,.6)}
+#kitFoot{color:var(--pk-ink)} #kitCount{color:#a07a00} #kitPick{color:var(--pk-ink2)}
+.kitNone{color:var(--pk-ink2);border-color:var(--pk-line2);opacity:1}
+@keyframes cardIn{from{transform:translateY(8px) scale(.96);opacity:0}}
+.kCell:nth-child(2),.sItem:nth-child(2),.stBig:nth-child(2){animation-delay:.03s}
+.kCell:nth-child(3),.sItem:nth-child(3),.stBig:nth-child(3){animation-delay:.06s}
+.kCell:nth-child(4),.sItem:nth-child(4),.stBig:nth-child(4){animation-delay:.09s}
+.kCell:nth-child(5),.sItem:nth-child(5),.stBig:nth-child(5){animation-delay:.12s}
+.kCell:nth-child(6),.sItem:nth-child(6){animation-delay:.15s} .kCell:nth-child(7),.sItem:nth-child(7){animation-delay:.18s} .kCell:nth-child(8),.sItem:nth-child(8){animation-delay:.21s}
+/* 전직 카드 */
+.jobCard{background:#fff;border:2.5px solid var(--pk-line);box-shadow:0 4px 0 var(--pk-lav)}
+.jobCard:hover{border-color:#ffd257;box-shadow:0 8px 0 var(--pk-lav), 0 16px 30px -14px rgba(70,50,120,.4)}
+.jobCard .jFig{background:radial-gradient(ellipse at 50% 64%,#e8dcff,#f6f2fc 70%)} .jobCard .jBadge{filter:none} .jobCard .jBadge img.ic{height:30px}
+.jobCard .jDesc{color:var(--pk-ink2);opacity:1} .jobCard .jStat{color:#a07a00}
+.jobCard .jGo{background:linear-gradient(180deg,#fff6cf,#ffe28a);border:2px solid #fff;color:#4a3c00;box-shadow:0 3px 0 #e0b040}
+/* 스텟 창 */
+.stBig{background:#fff;border:2px solid #fff;border-radius:16px;box-shadow:0 3px 0 var(--pk-lav);animation:cardIn .28s both}
+.stBig.full{background:#eafbf1;border-color:#fff;box-shadow:0 3px 0 #6fbf95}
+.stBig .sIc{display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:14px;background:#f6f2fc}
+.stBig .sIc img.ic{height:38px;margin:0}
+.stBig .sVal{color:#e0a200} .stBig .sMax{color:var(--pk-ink2);opacity:1} .stBig .sWhat{color:var(--pk-ink);opacity:.9} .stBig .sSub{color:var(--pk-ink2);opacity:1}
+.stBig button{background:linear-gradient(180deg,#fff6cf,#ffe28a);border:2px solid #fff;color:#4a3c00;box-shadow:0 3px 0 #e0b040;
+  width:40px;height:40px;border-radius:13px;font-size:20px;transition:transform .08s, box-shadow .08s}
+.stBig button:not(:disabled){animation:plusPulse 1.4s ease-in-out infinite}
+.stBig button:active{transform:translateY(2px);box-shadow:0 1px 0 #e0b040;animation:none}
+.stBig button:disabled{background:#f4f1fb;border-color:#fff;color:var(--pk-ink2);opacity:.6;box-shadow:0 3px 0 var(--pk-lav)}
+@keyframes plusPulse{0%,100%{transform:scale(1);box-shadow:0 3px 0 #e0b040}50%{transform:scale(1.10);box-shadow:0 3px 0 #e0b040, 0 0 16px rgba(255,210,87,.7)}}
+#stPts{color:var(--pk-ink)} #stPts b{color:#e0a200}
+.stDeriv{background:#fff;border:1.5px solid var(--pk-line)} .stDeriv .dNm{opacity:1;color:var(--pk-ink)} .stDeriv .dVal{color:#a07a00} .stDeriv .dFrom{opacity:.7;color:var(--pk-ink2)}
+.stDeriv .dNm img.ic{height:20px}
+.stIt{background:#fff;border-color:var(--pk-line)} .stIt .si{filter:none} .stIt .sd{opacity:.85}
+.stPips i{background:rgba(120,104,170,.16)} .stPips i.on{background:linear-gradient(90deg,#ffe89a,#ffb347)}
+.stIt button{background:linear-gradient(180deg,#fff6cf,#ffe28a);border:2px solid #fff;color:#4a3c00;box-shadow:0 3px 0 #e0b040}
+/* 칭호 */
+#bgTop{color:#a07a00} #bgNext{color:var(--pk-ink);opacity:1}
+.bgIt{background:#fff;border:1.5px solid var(--pk-line);opacity:.55} .bgIt.on{opacity:1;background:#fff;box-shadow:0 3px 0 var(--pk-lav)}
+.bgIt .bi{filter:grayscale(1) opacity(.6)} .bgIt.on .bi{filter:none} .bgIt .bi img.ic{height:30px}
+.bgIt .bn{color:var(--pk-ink)!important} .bgIt.on .bn{color:inherit!important} .bgIt .bd{color:var(--pk-ink2);opacity:1}
+
+/* ── 시작 화면 ── */
+.card{background:linear-gradient(180deg,#fffdf9,#fbf7ff);border:3px solid #fff;color:var(--pk-ink);box-shadow:0 24px 60px -20px rgba(50,30,100,.45), 0 6px 0 var(--pk-lav)}
+.card:before{height:6px}
+label.f{color:var(--pk-ink2);opacity:1} #dressPick label.f b{color:var(--pk-ink);opacity:.8}
+input.f,select.f{background:#fff;border:2px solid var(--pk-line2);color:var(--pk-ink)}
+input.f::placeholder{color:#b8b2cc} #iRoom::placeholder{color:#b8b2cc}
+input.f:focus,select.f:focus{border-color:#ffd257;box-shadow:0 0 0 3px rgba(255,210,87,.3)}
+.grp button{background:#fff;border:2px solid #fff;color:var(--pk-ink);box-shadow:0 3px 0 var(--pk-lav);transition:transform .1s, background .12s, box-shadow .1s}
+.grp button:hover{background:#fffaf0;transform:translateY(-2px);box-shadow:0 5px 0 var(--pk-lav)}
+.grp button.on{background:var(--c);color:#1c1630;box-shadow:0 3px 0 rgba(0,0,0,.18), 0 0 0 3px rgba(255,210,87,.45)}
+.grp button.on:before{opacity:1}
+.grp.deco button{padding:6px 0;line-height:0} .grp.deco button img.ic{height:30px;margin:0;vertical-align:middle}
+.grp.deco button.on{background:linear-gradient(180deg,#fff6cf,#ffe28a);box-shadow:0 3px 0 #e0b040, 0 0 0 3px rgba(255,210,87,.35)}
+#dressPick .grp button{padding:5px 0}
+#pvwBox{background:radial-gradient(120% 90% at 50% 18%,#e8dcff,#f6f2fc);border:1.5px solid var(--pk-line)}
+#pvwCap{color:var(--pk-ink2);opacity:1}
+#tmsg{color:#c0405a} .hint{color:var(--pk-ink2);opacity:1}
+#titleCard h1 img.ic{height:.9em;vertical-align:-.1em;filter:drop-shadow(0 4px 6px rgba(40,30,80,.35))}
+#titleCard .ver{background:rgba(255,255,255,.55);color:#3b3550}
+#load{color:#3b3550} #load .bar{background:rgba(255,255,255,.5)} #load .bar i{background:#5fcf9a}
+#tQ{background:#fff;border-color:var(--pk-line2);color:var(--pk-ink)}
+#quizBanner .qbNo,#quizBanner .qbQ{color:#4a2a06}
+/* 작은 화면 — 그림이 글자보다 커서 위쪽 판이 조금씩 길어진다(t13 760×420 에서 겹쳤다). 같이 줄인다.
+   칭호 단추는 Y 로도 열리니 낮은 화면에서는 접는다. */
+@media (max-height:700px){ #bBadge{display:none} }
+@media (max-height:560px){
+  .gcell .gs img.ic{height:13px} #misIc img.ic,#bossIc img.ic{height:12px} #crystalWrap .lb img.ic{height:11px}
+  #topRight2 .btn img.ic{height:12px} #dayPhase img.ic{height:14px} #hpRow .hpIc img.ic{height:16px}
+  .res i img.ic{height:16px} .res i{width:18px;height:18px} }
 </style>
 </head>
 <body>
@@ -1812,6 +2060,7 @@ body.qbOn #crystalWrap, body.qbOn #resBox, body.qbOn #topRight{display:none}
          옆 단추가 여섯 개라 안 그러면 세 줄이 되어 아래 큰 버튼과 겹친다. -->
     <button class="btn sm" id="bStat">⭐ 스텟<span class="kk"> 창 (C)</span></button>
     <button class="btn sm" id="bKit">🎒 가방<span class="kk"> (I)</span></button>
+    <button class="btn sm" id="bBadge">🎖️ 칭호<span class="kk"> (Y)</span></button>
     <button class="btn sm" id="bGive">🎁 <span class="kk">자원 </span>보내기</button>
 
     <button class="btn sm" id="bInfo">📊 <span class="kk">건물 </span>수치<span class="kk"> (U)</span></button>
@@ -1892,13 +2141,18 @@ body.qbOn #crystalWrap, body.qbOn #resBox, body.qbOn #topRight{display:none}
   <div id="stList" class="stMain"></div>
   <h3>📊 지금 내 능력치</h3>
   <div id="stDeriv" class="stDeriv"></div>
-  <h3>🎖️ 내 칭호</h3>
+  <div class="row"><button class="btn pri" data-close="popStat">닫기</button></div>
+</div></div>
+
+<!-- 칭호 (28차 — 스텟 창에서 떼어 Y 로. "C 눌렀을 때 너무 길어") -->
+<div class="pop" id="popBadge"><div class="popC">
+  <h2>🎖️ 내 칭호</h2>
   <p class="shopHint">남과 겨루는 것이 아닙니다. <b>조건만 넘으면 누구나</b> 받아요.
     받은 칭호 중 <b>제일 어려운 것</b>이 머리 위 이름표에 뜹니다.</p>
   <div id="bgTop"></div>
   <div id="bgNext"></div>
   <div id="bgList" class="bgGrid"></div>
-  <div class="row"><button class="btn pri" data-close="popStat">닫기</button></div>
+  <div class="row"><button class="btn pri" data-close="popBadge">닫기</button></div>
 </div></div>
 
 <!-- 전직 -->
@@ -3811,7 +4065,7 @@ function buildClouds(){
 /* ═══════════════════════ 반딧불이 (밤에만) ═══════════════════════ */
 const FN = 70;
 const fireMat = new THREE.MeshBasicMaterial({color:0xffe27a, transparent:true, opacity:.9, fog:false});
-const fireMesh = new THREE.InstancedMesh(new THREE.BoxGeometry(.14,.14,.14), fireMat, FN);
+const fireMesh = new THREE.InstancedMesh(new THREE.SphereGeometry(.08, 8, 6), fireMat, FN);   // 28차 — 둥근 불티
 fireMesh.frustumCulled = false; fireMesh.count = 0; scene.add(fireMesh);
 const flies = [];
 for(let i=0;i<FN;i++){ const a=Math.random()*Math.PI*2, r=8+Math.random()*30;
@@ -5150,6 +5404,103 @@ function ghostFill(k){
     || (c.position.y - c.geometry.parameters.height/2) <= lim;
 }
 
+/* ═══════════════════════ 27차 — 로블록스 룩 1단계: 캐릭터 ═══════════════════════
+   ★ 왜 — 26차 교실 실측이 "GPU 는 픽셀 쪽이 병목" 이었고, 선생님이 "마인크래프트를 벗고 로블록스처럼"
+     을 골랐다(눈이 아픈 것도 텍셀 노이즈·fps 떨림 쪽이었다). 캐릭터가 첫 단계다 — 아이 눈에 제일 먼저 들어온다.
+   ★ 어떻게 — 조립 코드(setI/setIR 로 부위를 놓는 곳)는 한 줄도 안 건드린다. 바뀌는 것은 둘뿐이다:
+       ① 조각의 **모양** — 네모 상자 → 모서리 둥근 상자(RB·RBs)와 공(BALL)
+       ② 조각의 **재질** — 아틀라스 타일 → 무늬 없는 색 하나(FM.*). 인스턴스 색은 전과 같이 곱해진다.
+   ★ 둥근 상자 — three 의 RoundedBoxGeometry 와 같은 셈법을 여기 적었다(addons 는 안 받아온다 —
+     교실 인터넷에서 받아올 파일이 느는 게 싫다). 상자를 홀수로 잘게 나눈 뒤 꼭짓점마다
+     '안쪽 상자의 모서리 + 반지름 × 그 꼭짓점 방향' 으로 옮기면 모서리가 구의 1/8 이 된다.
+     크기는 한 변 1 이라 예전 cube() 와 같은 배율로 쓴다. 한 축으로 길게 늘리면 그쪽 끝이 캡슐처럼 된다(창·다리).
+   ★ 재질의 기본색은 **그 타일의 평균색**에서 시작했다(26차b 에 아틀라스에서 잰 값). 그래야 조립 코드가
+     넘기던 인스턴스 색이 그대로 먹어 전과 같은 색이 난다. 거기서 장난감답게 조금 밝고 맑게 당겼다.
+     MeshStandard 는 무광 플라스틱의 옅은 하이라이트를 준다 — 로블록스 'Plastic' 이 그것이다.
+   ★ 비용 — 조각 하나가 12 → 108(RBs)·300(RB)·168(BALL) 삼각형. 캐릭터가 다 나와도 50만쯤이고,
+     이 규모에서 삼각형은 공짜다(26차 실측: 값은 픽셀에서 나온다). 텍스처를 안 읽으니 픽셀 값은 오히려 준다.
+   ★ 검사기(소프트웨어 렌더링)는 '둥글게 보이나' 를 못 잰다. t29 가 모양(꼭짓점·법선)·재질(무늬 없음)·
+     '화면에 모둠 색이 닿나' 를 본다. 예쁜지는 교실이 답한다. */
+function roundBox(seg, r, w=1, h=1, d=1){
+  const n = seg*2 + 1, rad = Math.min(w/2, h/2, d/2, r);
+  /* ★ 28차 — toNonIndexed() 를 뺐다. BoxGeometry 는 면마다 꼭짓점이 따로 있어서 인덱스를 살려도
+     모서리 법선이 섞이지 않고, 손에 든 도구를 굽는 bakeHeld 가 geometry.index 를 읽는다. */
+  const g = new THREE.BoxGeometry(w,h,d, n,n,n);
+  const P = g.attributes.position, N = g.attributes.normal;
+  const bx = w/2 - rad, by = h/2 - rad, bz = d/2 - rad;
+  const hx = w/(2*n), hy = h/(2*n), hz = d/(2*n);
+  const v = new THREE.Vector3(), q = new THREE.Vector3();
+  for(let i=0;i<P.count;i++){
+    v.fromBufferAttribute(P, i);
+    q.set((v.x - Math.sign(v.x)*hx)/w, (v.y - Math.sign(v.y)*hy)/h, (v.z - Math.sign(v.z)*hz)/d).normalize();
+    P.setXYZ(i, bx*Math.sign(v.x) + q.x*rad, by*Math.sign(v.y) + q.y*rad, bz*Math.sign(v.z) + q.z*rad);
+    N.setXYZ(i, q.x, q.y, q.z);
+  }
+  return g;
+}
+const RB   = roundBox(2, 0.16);                        // 몸통·머리·다리 — 모서리가 두 칸으로 둥글다
+const RBr  = roundBox(2, 0.30);                        // 아주 둥근 상자 — 사람(상인·병사) 몸통. 베개처럼
+const RBs  = roundBox(1, 0.20);                        // 작은 조각(꾸미기·귀·장비) — 한 칸이면 충분하다
+const BALL = new THREE.SphereGeometry(0.5, 14, 10);    // 눈·코·볼·꼬리·털뭉치 — 지름 1 이라 상자와 같은 배율
+/* 28차 — 입. 로블록스 특유의 방긋 웃는 넓은 U. 반고리(위쪽 반원)를 뒤집어 아래로 볼록하게 두고,
+   가로로 넓게 세로로 납작하게 배율을 준다. 지름 1 이라 다른 조각과 같은 배율로 쓴다. */
+const SMILE = new THREE.TorusGeometry(0.5, 0.10, 8, 18, Math.PI); SMILE.rotateZ(Math.PI);
+/* ★ 반지름은 조각 크기에 비례한다(지오메트리 하나를 배율로 늘려 쓰니까). 그래서 작은 조각은 거의 네모로,
+   큰 몸통은 둥글게 나온다 — 로블록스도 그렇다(큰 덩어리만 둥글고 작은 부품은 각지다). 사람 몸통처럼
+   작은데 둥글어야 하는 것만 RBr 을 쓴다. */
+const flatMat = (hex, o)=> new THREE.MeshStandardMaterial(
+  Object.assign({color:hex, roughness:0.70, metalness:0}, o||{}));
+/* 타일 평균색(26차b 실측)에서 조금 당긴 값. 주석의 # 이 잰 값이다. */
+const FM = {
+  wool:  flatMat(0xf4f1ea),   // 양털        #ebebe5
+  woolD: flatMat(0xdcd6cb),   // 때 탄 양털  #d5cfc4
+  fur:   flatMat(0x8a8c93),   // 늑대 털     #83858b — 늑대 색은 여기에 인스턴스 색(등급)이 곱해진다
+  furD:  flatMat(0x4d4f57),   // 어두운 털   #484a51
+  dark:  flatMat(0x4a4f57),   // 다리·발     #484d54
+  eye:   flatMat(0xffffff),   // 눈 — 흰자·눈동자·반짝이는 인스턴스 색이 가른다
+  snout: flatMat(0xf0aeb8),   // 코·볼       #eeaab4
+  cloth: flatMat(0xffffff),   // 천 — 색은 전부 인스턴스 색 (#f0f0f0)
+  stone: flatMat(0x8f9399),   //             #8b8f95
+  sbrick:flatMat(0x80838a),   //             #7c7f84
+  plank: flatMat(0xa8825a),   //             #a17c4e
+  log:   flatMat(0x6e4f2e),   //             #684a2a
+  dirt:  flatMat(0x8f6a45)    //             #926942
+};
+/* ═══ 28차 — 타일 하나하나의 원색 (26차b 에 아틀라스에서 잰 평균색, 장난감답게 조금 밝힘) ═══
+   손에 든 도구·아이콘·떨어진 산물·상자가 이 표를 본다. 텍스처 타일 번호를 그대로 색으로 바꾼다. */
+const TILE_COL = [];
+{ const C = {grassTop:0x6fc44c, grassSide:0x8f8548, dirt:0x9a6f46, stone:0x9a9ea5, rock:0x767a82,
+    sand:0xe6dba8, logSide:0x74532f, logTop:0xb08a58, leaves:0x468a38, plank:0xb8895a, brick:0xc47e72,
+    goldOre:0x847a58, crystal:0x7fe6f6, wool:0xf4f1ea, fur:0x8a8c93, furDark:0x4d4f57, ice:0xa8dff8,
+    sbrick:0x868a90, goldBlk:0xf8cf50, dark:0x4a4f57, hay:0xc9a95a, water:0x4a95dc, eye:0xffffff,
+    snout:0xf0aeb8, woolDirty:0xdcd6cb, tower:0x878a90, roofRed:0xd6d3cf, glow:0xf8dc84, thatch:0xb08f4c,
+    bark:0x7a5533, mossy:0x879787, cloth:0xffffff, cutStone:0xa6a8ac};
+  for(const k in C) TILE_COL[T[k]] = C[k]; }
+/* 크기가 붙은 둥근 상자 — 손에 든 도구·아이콘처럼 인스턴스가 아닌 조각용.
+   반지름은 제일 짧은 변의 30% 라 자루는 살짝, 덩어리는 듬뿍 둥글다. 같은 크기는 한 번만 만든다. */
+const _rbCache = new Map();
+function rboxGeo(w,h,d){
+  const k = w.toFixed(3)+','+h.toFixed(3)+','+d.toFixed(3);
+  let g = _rbCache.get(k);
+  if(!g){ g = roundBox(1, Math.min(w,h,d)*0.30, w,h,d); _rbCache.set(k, g); }
+  return g;
+}
+/* 타일(+옛 재질) → 원색 재질. 옛 재질의 color 는 곱하고 emissive 는 따라간다.
+   같은 짝은 같은 재질을 돌려준다 — bakeHeld 가 재질별로 합치므로 새로 만들면 그리기가 는다. */
+const _flatCache = new Map();
+function flatFor(tile, mat){
+  const key = tile + '|' + (mat ? mat.uuid : '');
+  let m = _flatCache.get(key); if(m) return m;
+  const base = new THREE.Color(TILE_COL[tile] !== undefined ? TILE_COL[tile] : 0xffffff);
+  if(mat && mat.color) base.multiply(mat.color);
+  if(mat && mat.isMeshBasicMaterial)
+    m = new THREE.MeshBasicMaterial({color:base, transparent:mat.transparent, opacity:mat.opacity,
+          depthWrite:mat.depthWrite, blending:mat.blending, fog:mat.fog});
+  else { m = flatMat(base.getHex());
+         if(mat && mat.emissive){ m.emissive.copy(mat.emissive); m.emissiveIntensity = mat.emissiveIntensity; } }
+  _flatCache.set(key, m); return m;
+}
+
 /* ═══════════════════════ 손에 든 도구 (1인칭) ═══════════════════════ */
 const held = new THREE.Group();
 held.position.set(0.50, -0.40, -0.74);
@@ -5157,10 +5508,31 @@ held.scale.setScalar(0.60);
 held.frustumCulled = false;
 camera.add(held);
 
+/* 28차 — 손에 든 조각은 둥근 상자 + 타일 원색이다(로블록스 룩). 타일 번호와 옛 재질을 그대로 받는다 —
+   도구·총·블록을 만드는 코드는 한 줄도 안 바꿨다.
+   ★ 색은 **꼭짓점 색**으로 굽고 재질은 하나(HELD_VC)를 돌려 쓴다. 색마다 재질을 따로 두면 bakeHeld 가
+     재질별로 합치므로 곡괭이 하나가 그리기 5번이 됐다(t13 이 잡았다 — 기준 3번). 꼭짓점 색이면 색이
+     몇이든 그리기 한 번이다. 빛나는 것(emissive)과 가산합성(Basic)만 제 재질을 쓴다. */
+const HELD_VC = flatMat(0xffffff, {vertexColors:true});
 function boxM(tile, w,h,d, x,y,z, mat){
-  const m = new THREE.Mesh(boxGeo(tile,tile,tile,tile,tile,tile, w,h,d), mat||MAT);
+  const special = mat && (mat.isMeshBasicMaterial ||
+    (mat.emissive && (mat.emissive.r || mat.emissive.g || mat.emissive.b)));
+  let geo = rboxGeo(w,h,d), mm;
+  if(special) mm = flatFor(tile, mat);
+  else {
+    const c = new THREE.Color(TILE_COL[tile] !== undefined ? TILE_COL[tile] : 0xffffff);
+    if(mat && mat.color) c.multiply(mat.color);
+    geo = geo.clone();
+    const n = geo.attributes.position.count, arr = new Float32Array(n*3);
+    for(let i=0;i<n;i++){ arr[i*3] = c.r; arr[i*3+1] = c.g; arr[i*3+2] = c.b; }
+    geo.setAttribute('color', new THREE.BufferAttribute(arr, 3));
+    mm = HELD_VC;
+  }
+  const m = new THREE.Mesh(geo, mm);
   m.position.set(x,y,z); m.frustumCulled = false; m.renderOrder = 10; return m;
 }
+/* 손·팔 조각 표시 — 아이콘을 찍을 때 이것만 뗀다 */
+const armPart = m=>{ m.userData.arm = true; return m; };
 /* ── 손에 든 모형 굽기 ──
    ★ 손에 든 것은 인스턴스가 아니라 그냥 메시라, 상자 하나가 곧 그리기 한 번이다.
      곡괭이는 10칸, 저격총은 20칸이라 그것만 20번을 그렸다.
@@ -5183,17 +5555,20 @@ function bakeHeld(g){
     for(const m of list){ vc += m.geometry.attributes.position.count;
                           ic += m.geometry.index.count; }
     const pos = new Float32Array(vc*3), nor = new Float32Array(vc*3), uv = new Float32Array(vc*2);
+    const hasCol = !!list[0].geometry.attributes.color;          // 28차 — 꼭짓점 색도 같이 합친다
+    const col = hasCol ? new Float32Array(vc*3) : null;
     const idx = vc > 65535 ? new Uint32Array(ic) : new Uint16Array(ic);
     let vo=0, io=0;
     for(const m of list){
       m.updateMatrix();
       const gg = m.geometry, pa = gg.attributes.position, na = gg.attributes.normal,
-            ua = gg.attributes.uv, ix = gg.index;
+            ua = gg.attributes.uv, ix = gg.index, ca = gg.attributes.color;
       _bkN.getNormalMatrix(m.matrix);
       for(let i=0;i<pa.count;i++){
         _bkV.fromBufferAttribute(pa,i).applyMatrix4(m.matrix); _bkV.toArray(pos,(vo+i)*3);
         _bkV.fromBufferAttribute(na,i).applyMatrix3(_bkN).normalize(); _bkV.toArray(nor,(vo+i)*3);
         uv[(vo+i)*2] = ua.getX(i); uv[(vo+i)*2+1] = ua.getY(i);
+        if(col && ca){ col[(vo+i)*3] = ca.getX(i); col[(vo+i)*3+1] = ca.getY(i); col[(vo+i)*3+2] = ca.getZ(i); }
       }
       for(let i=0;i<ix.count;i++) idx[io+i] = ix.getX(i) + vo;
       vo += pa.count; io += ix.count;
@@ -5202,6 +5577,7 @@ function bakeHeld(g){
     geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
     geo.setAttribute('normal',   new THREE.BufferAttribute(nor,3));
     geo.setAttribute('uv',       new THREE.BufferAttribute(uv,2));
+    if(col) geo.setAttribute('color', new THREE.BufferAttribute(col,3));
     geo.setIndex(new THREE.BufferAttribute(idx,1));
     const mesh = new THREE.Mesh(geo, mat);
     mesh.frustumCulled = false; mesh.renderOrder = 10;
@@ -5228,7 +5604,7 @@ function bakeHeld(g){
 /* ── 손에 드는 도구 ──
    ★ 들고 있는 그룹은 yaw 0.46 으로 돌아가 있어서 로컬 X 가 화면 가로로 보인다.
      그래서 날은 X 축으로 뻗고, 자루는 Y 축으로 세운다. */
-function mkArm(){ return boxM(T.wool, 0.19,0.30,0.19, 0.01,-0.20,0.10); }   // 양털 팔
+function mkArm(){ return armPart(boxM(T.wool, 0.19,0.30,0.19, 0.01,-0.20,0.10)); }   // 양털 팔
 
 /* 곡괭이 — 가운데가 솟고 양 끝이 아래로 휘어 내려오는 그 실루엣.
    ★ 17차g까지는 상자 일곱 개를 계단처럼 한 단씩 내려 놓기만 했다. 화면에 크게 띄워 보니
@@ -5318,10 +5694,10 @@ const matEmber  = new THREE.MeshLambertMaterial({map:ATLAS, color:0xff9a3c,
   emissive:0xff5a10, emissiveIntensity:1.3});
 /* 쥔 손 + 팔뚝 — 어느 총에나 같은 자리에 붙는다 */
 function gunGrip(g, gx, gy, gz, front){
-  g.add(boxM(T.wool, 0.185,0.215,0.195, gx, gy, gz));                 // 주먹
-  g.add(boxM(T.wool, 0.155,0.26,0.155, gx-0.02, gy-0.21, gz-0.10));   // 팔뚝
-  if(front !== undefined)                                              // 총열을 받치는 앞손
-    g.add(boxM(T.wool, 0.165,0.165,0.185, 0, -0.03, front));
+  g.add(armPart(boxM(T.wool, 0.185,0.215,0.195, gx, gy, gz)));                 // 주먹
+  g.add(armPart(boxM(T.wool, 0.155,0.26,0.155, gx-0.02, gy-0.21, gz-0.10)));   // 팔뚝
+  if(front !== undefined)                                                       // 총열을 받치는 앞손
+    g.add(armPart(boxM(T.wool, 0.165,0.165,0.185, 0, -0.03, front)));
 }
 /* 총을 다 만든 뒤의 마무리 — 방향과 크기를 여기 한 곳에서만 정한다.
    ★ 모형은 +z 를 '앞'으로 놓고 만들지만, 카메라 앞은 -z 다. 그래서 반 바퀴 돌린다.
@@ -5458,8 +5834,8 @@ const gunModels = [mkFist(), mkSling(), mkMusket(), mkRifle(), mkSMG(), mkSniper
    ★ 재질은 하나를 돌려 쓴다. 한 번에 한 자루만 보이니 색을 그때그때 바꿔도 안 섞인다.
      MeshBasicMaterial + 가산합성이라 조명을 안 받고 스스로 빛나 보인다
      (Lambert 의 emissive 로 만들면 색이 안 먹는다 — 남의 총에서 이미 겪었다). */
-const matEnhGlow = new THREE.MeshBasicMaterial({
-  map:ATLAS, color:0xffffff, transparent:true, opacity:0.85,
+const matEnhGlow = new THREE.MeshBasicMaterial({          // 28차 — 무늬 없는 빛 (텍스처를 뗐다)
+  color:0xffffff, transparent:true, opacity:0.85,
   depthWrite:false, blending:THREE.AdditiveBlending, fog:false });
 const gunGlow = [];                       // 무기 번호 -> {halo, tip}
 const _gbb = new THREE.Box3(), _gsz = new THREE.Vector3(), _gct = new THREE.Vector3();
@@ -5562,7 +5938,7 @@ const heldBlocks = {};
 for(const k of Object.keys(BUILD)){
   const tile = blocksOf(k,1)[0][3];
   const g = new THREE.Group();
-  g.add(boxM(T.wool, 0.19,0.30,0.19, -0.13,-0.22,0.10));
+  g.add(armPart(boxM(T.wool, 0.19,0.30,0.19, -0.13,-0.22,0.10)));
   g.add(boxM(tile, 0.34,0.34,0.34, 0.02,0.02,0.00));
   g.rotation.set(-0.14, 0.50, 0.16);
   bakeHeld(g); g.visible = false; held.add(g); heldBlocks[k] = g;
@@ -5675,8 +6051,9 @@ function updHeld(dt, mining, minePct){
 
 /* ═══════════════════════ 파티클 ═══════════════════════ */
 const PN = 160;
-const pGeo = boxGeo(T.cloth,T.cloth,T.cloth,T.cloth,T.cloth,T.cloth, 0.17,0.17,0.17);
-const pMesh = new THREE.InstancedMesh(pGeo, new THREE.MeshLambertMaterial({map:ATLAS}), PN);
+/* 28차 — 입자는 작은 공(둥근 원색). 색은 인스턴스 색이 그대로 곱해진다 */
+const pGeo = new THREE.SphereGeometry(0.085, 8, 6);
+const pMesh = new THREE.InstancedMesh(pGeo, flatFor(T.cloth), PN);
 pMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(PN*3).fill(1),3);
 pMesh.frustumCulled = false; scene.add(pMesh);
 const parts = []; for(let i=0;i<PN;i++) parts.push({t:0,x:0,y:0,z:0,vx:0,vy:0,vz:0,c:new THREE.Color()});
@@ -5706,8 +6083,8 @@ function updParts(dt){
 const AN = 60;
 const arrows = [];
 const aMesh = new THREE.InstancedMesh(
-  boxGeo(T.bark,T.bark,T.bark,T.bark,T.bark,T.bark, 0.1,0.1,1.0),
-  new THREE.MeshLambertMaterial({map:ATLAS, color:0xd8c8a0}), AN);
+  rboxGeo(0.1,0.1,1.0),                                  // 28차 — 둥근 원색 화살대
+  flatFor(T.bark, {uuid:'arrow', color:new THREE.Color(0xd8c8a0)}), AN);
 aMesh.frustumCulled = false; scene.add(aMesh);
 for(let i=0;i<AN;i++) arrows.push({t:0,x:0,y:0,z:0,tx:0,ty:0,tz:0,d:1});
 let aI = 0;
@@ -5719,9 +6096,8 @@ function shootArrow(x,y,z, tx,ty,tz){
 /* 얼음탑 파편 — 마법사 구슬과 같은 방식, 색만 서리빛 */
 const IN_ = 26;
 const ices = [];
-const iMesh = new THREE.InstancedMesh(cube(T.ice),
-  new THREE.MeshLambertMaterial({map:ATLAS, color:0xcdeeff, emissive:0x4aa8ff,
-    emissiveIntensity:1.1}), IN_);
+const iMesh = new THREE.InstancedMesh(RBs,                // 28차 — 둥근 서리 조각
+  flatMat(0xcdeeff, {emissive:0x4aa8ff, emissiveIntensity:1.1}), IN_);
 iMesh.frustumCulled = false; iMesh.count = IN_; iMesh.visible = false; scene.add(iMesh);
 for(let i=0;i<IN_;i++) ices.push({t:0,x:0,y:0,z:0,tx:0,ty:0,tz:0,d:1});
 let iI = 0;
@@ -5735,7 +6111,7 @@ function shootIce(x,y,z, tx,ty,tz){
      "내가 잡았다"가 나온다. 메시는 하나뿐이고, 날아가는 돌이 없으면 통째로 숨긴다. */
 const StN = 14;
 const stones = [];
-const stMesh = new THREE.InstancedMesh(cube(T.stone), MAT, StN);
+const stMesh = new THREE.InstancedMesh(BALL, FM.stone, StN);          // 28차 — 둥근 돌멩이
 stMesh.frustumCulled = false; stMesh.count = StN; stMesh.visible = false; scene.add(stMesh);
 for(let i=0;i<StN;i++) stones.push({t:0,x:0,y:0,z:0,tx:0,ty:0,tz:0,d:1,hit:0});
 let stI = 0;
@@ -5752,12 +6128,9 @@ function shootStone(x,y,z, tx,ty,tz, hit){
    ★ 재질은 Basic(빛 계산 없음) + fog 끔이다. 밤에 안개에 먹히면 예광탄이 안 보인다. */
 const BuN = 20;
 const bullets = [];
-const bulletMat = new THREE.MeshBasicMaterial({map:ATLAS, fog:false,
-  transparent:true, opacity:0.96, depthWrite:false});
-const bMesh = new THREE.InstancedMesh(
-  boxGeo(T.goldBlk,T.goldBlk,T.goldBlk,T.goldBlk,T.goldBlk,T.goldBlk, 0.12,0.12,1.0),
-
-  bulletMat, BuN);
+const bulletMat = new THREE.MeshBasicMaterial({color:0xf8cf50, fog:false,
+  transparent:true, opacity:0.96, depthWrite:false});    // 28차 — 무늬 없는 금빛 총알
+const bMesh = new THREE.InstancedMesh(rboxGeo(0.12,0.12,1.0), bulletMat, BuN);
 bMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(BuN*3).fill(1), 3);
 bMesh.frustumCulled = false; bMesh.count = BuN; bMesh.visible = false; scene.add(bMesh);
 for(let i=0;i<BuN;i++)
@@ -5810,9 +6183,8 @@ function updBullets(dt){
 const ON = 26;
 
 const orbs = [];
-const oMesh = new THREE.InstancedMesh(cube(T.crystal),
-  new THREE.MeshLambertMaterial({map:ATLAS, color:0xd9b6ff, emissive:0x8a4aff,
-    emissiveIntensity:1.4}), ON);
+const oMesh = new THREE.InstancedMesh(BALL,               // 28차 — 빛나는 보라 구슬
+  flatMat(0xd9b6ff, {emissive:0x8a4aff, emissiveIntensity:1.4}), ON);
 oMesh.frustumCulled = false; oMesh.count = ON; oMesh.visible = false; scene.add(oMesh);
 for(let i=0;i<ON;i++) orbs.push({t:0,x:0,y:0,z:0,tx:0,ty:0,tz:0,d:1});
 let oI = 0;
@@ -5960,61 +6332,6 @@ function flowStep(x,z){
 
 /* ═══════════════════════ 몹 렌더러 ═══════════════════════ */
 const MAXW = 92, MAXS = 96, MAXP = 40;   // 늑대 렌더 상한 (waveCap + 보스 + 부하보다 커야 함)
-/* ═══════════════════════ 27차 — 로블록스 룩 1단계: 캐릭터 ═══════════════════════
-   ★ 왜 — 26차 교실 실측이 "GPU 는 픽셀 쪽이 병목" 이었고, 선생님이 "마인크래프트를 벗고 로블록스처럼"
-     을 골랐다(눈이 아픈 것도 텍셀 노이즈·fps 떨림 쪽이었다). 캐릭터가 첫 단계다 — 아이 눈에 제일 먼저 들어온다.
-   ★ 어떻게 — 조립 코드(setI/setIR 로 부위를 놓는 곳)는 한 줄도 안 건드린다. 바뀌는 것은 둘뿐이다:
-       ① 조각의 **모양** — 네모 상자 → 모서리 둥근 상자(RB·RBs)와 공(BALL)
-       ② 조각의 **재질** — 아틀라스 타일 → 무늬 없는 색 하나(FM.*). 인스턴스 색은 전과 같이 곱해진다.
-   ★ 둥근 상자 — three 의 RoundedBoxGeometry 와 같은 셈법을 여기 적었다(addons 는 안 받아온다 —
-     교실 인터넷에서 받아올 파일이 느는 게 싫다). 상자를 홀수로 잘게 나눈 뒤 꼭짓점마다
-     '안쪽 상자의 모서리 + 반지름 × 그 꼭짓점 방향' 으로 옮기면 모서리가 구의 1/8 이 된다.
-     크기는 한 변 1 이라 예전 cube() 와 같은 배율로 쓴다. 한 축으로 길게 늘리면 그쪽 끝이 캡슐처럼 된다(창·다리).
-   ★ 재질의 기본색은 **그 타일의 평균색**에서 시작했다(26차b 에 아틀라스에서 잰 값). 그래야 조립 코드가
-     넘기던 인스턴스 색이 그대로 먹어 전과 같은 색이 난다. 거기서 장난감답게 조금 밝고 맑게 당겼다.
-     MeshStandard 는 무광 플라스틱의 옅은 하이라이트를 준다 — 로블록스 'Plastic' 이 그것이다.
-   ★ 비용 — 조각 하나가 12 → 108(RBs)·300(RB)·168(BALL) 삼각형. 캐릭터가 다 나와도 50만쯤이고,
-     이 규모에서 삼각형은 공짜다(26차 실측: 값은 픽셀에서 나온다). 텍스처를 안 읽으니 픽셀 값은 오히려 준다.
-   ★ 검사기(소프트웨어 렌더링)는 '둥글게 보이나' 를 못 잰다. t29 가 모양(꼭짓점·법선)·재질(무늬 없음)·
-     '화면에 모둠 색이 닿나' 를 본다. 예쁜지는 교실이 답한다. */
-function roundBox(seg, r){
-  const n = seg*2 + 1, rad = Math.min(0.5, r);
-  const g = new THREE.BoxGeometry(1,1,1, n,n,n).toNonIndexed();
-  const P = g.attributes.position, N = g.attributes.normal;
-  const box = 0.5 - rad, hs = 0.5/n, v = new THREE.Vector3(), d = new THREE.Vector3();
-  for(let i=0;i<P.count;i++){
-    v.fromBufferAttribute(P, i);
-    d.set(v.x - Math.sign(v.x)*hs, v.y - Math.sign(v.y)*hs, v.z - Math.sign(v.z)*hs).normalize();
-    P.setXYZ(i, box*Math.sign(v.x) + d.x*rad, box*Math.sign(v.y) + d.y*rad, box*Math.sign(v.z) + d.z*rad);
-    N.setXYZ(i, d.x, d.y, d.z);
-  }
-  return g;
-}
-const RB   = roundBox(2, 0.16);                        // 몸통·머리·다리 — 모서리가 두 칸으로 둥글다
-const RBr  = roundBox(2, 0.30);                        // 아주 둥근 상자 — 사람(상인·병사) 몸통. 베개처럼
-const RBs  = roundBox(1, 0.20);                        // 작은 조각(꾸미기·귀·장비) — 한 칸이면 충분하다
-const BALL = new THREE.SphereGeometry(0.5, 14, 10);    // 눈·코·볼·꼬리·털뭉치 — 지름 1 이라 상자와 같은 배율
-/* ★ 반지름은 조각 크기에 비례한다(지오메트리 하나를 배율로 늘려 쓰니까). 그래서 작은 조각은 거의 네모로,
-   큰 몸통은 둥글게 나온다 — 로블록스도 그렇다(큰 덩어리만 둥글고 작은 부품은 각지다). 사람 몸통처럼
-   작은데 둥글어야 하는 것만 RBr 을 쓴다. */
-const flatMat = (hex, o)=> new THREE.MeshStandardMaterial(
-  Object.assign({color:hex, roughness:0.70, metalness:0}, o||{}));
-/* 타일 평균색(26차b 실측)에서 조금 당긴 값. 주석의 # 이 잰 값이다. */
-const FM = {
-  wool:  flatMat(0xf4f1ea),   // 양털        #ebebe5
-  woolD: flatMat(0xdcd6cb),   // 때 탄 양털  #d5cfc4
-  fur:   flatMat(0x8a8c93),   // 늑대 털     #83858b — 늑대 색은 여기에 인스턴스 색(등급)이 곱해진다
-  furD:  flatMat(0x4d4f57),   // 어두운 털   #484a51
-  dark:  flatMat(0x4a4f57),   // 다리·발     #484d54
-  eye:   flatMat(0xffffff),   // 눈 — 흰자·눈동자·반짝이는 인스턴스 색이 가른다
-  snout: flatMat(0xf0aeb8),   // 코·볼       #eeaab4
-  cloth: flatMat(0xffffff),   // 천 — 색은 전부 인스턴스 색 (#f0f0f0)
-  stone: flatMat(0x8f9399),   //             #8b8f95
-  sbrick:flatMat(0x80838a),   //             #7c7f84
-  plank: flatMat(0xa8825a),   //             #a17c4e
-  log:   flatMat(0x6e4f2e),   //             #684a2a
-  dirt:  flatMat(0x8f6a45)    //             #926942
-};
 function imesh(geo, mat, cap, color){
   const m = new THREE.InstancedMesh(geo, mat, cap);
   m.count_max = cap;                  // 정원 — 넘치면 setMatrixAt 이 조용히 깨진다
@@ -6399,6 +6716,7 @@ const P_body = imesh(RB,   FM.wool,  MAXP,   1),   // 몸통
       P_ear  = imesh(RBs,  FM.woolD, MAXP*2, 1),   // 귀 2개
       P_eye  = imesh(BALL, FM.eye,   MAXP*4, 1),   // 눈 2개 + 눈 반짝이 2개
       P_nose = imesh(BALL, FM.snout, MAXP*3, 1),   // 코 + 볼터치 2개
+      P_mouth= imesh(SMILE, FM.dark, MAXP,   1),   // 입 — 방긋 웃는 U (28차)
       P_tail = imesh(BALL, FM.woolD, MAXP,   1),   // 꼬리
       P_legs = imesh(RB,   FM.dark,  MAXP*4, 1),   // 다리 4개
       /* ★ 꾸미기(모자·안경·옷) — 종류가 몇이든 메시는 하나다.
@@ -7204,7 +7522,7 @@ const PUFF6 = [
   [-0.04, 1.14,  0.00, 0.74, 0.48, 0.82]
 ];
 function drawSheep(list, t, cap, colOf, scale){
-  let n=0, ln=0, earN=0, eyeN=0, noseN=0, decoN=0, gunN=0, glowN=0, puffN=0;
+  let n=0, ln=0, earN=0, eyeN=0, noseN=0, decoN=0, gunN=0, glowN=0, puffN=0, mouthN=0;
 
   for(const s of list){
     if(n>=cap) break;
@@ -7280,6 +7598,8 @@ function drawSheep(list, t, cap, colOf, scale){
         0.055*sc, 0.065*sc, 0.05*sc, 0xffffff);
     // 코
     setI(P_nose, noseN++, X(1.03,0), YH(0.92), Z(1.03,0), ry, 0.22*sc, 0.14*sc, 0.09*sc, 0xe8a9a4);
+    // 입 — 코 아래 넓은 U. 로블록스 얼굴의 그 미소다 (28차)
+    setI(P_mouth, mouthN++, X(1.03,0), YH(0.83), Z(1.03,0), ry, 0.30*sc, 0.20*sc, 0.10*sc, 0x3a2f2c);
     // 볼터치 — 눈 아래 뺨에 발그레하게. 코와 높이를 벌려 놔야 한 덩어리로 안 뭉친다.
     for(const si of [1,-1])
       setI(P_nose, noseN++, X(1.02,0.30*si), YH(1.00), Z(1.02,0.30*si), ry,
@@ -7361,12 +7681,12 @@ function drawSheep(list, t, cap, colOf, scale){
     }
     n++;
   }
-  P_body.count=n; P_puff.count=puffN; P_head.count=n; P_frng.count=n; P_nose.count=noseN;
+  P_body.count=n; P_puff.count=puffN; P_head.count=n; P_frng.count=n; P_nose.count=noseN; P_mouth.count=mouthN;
   P_tail.count=n; P_ear.count=earN; P_eye.count=eyeN; P_legs.count=ln; P_deco.count=decoN;
   P_deco.visible = decoN > 0;
   P_gun.count=gunN; P_gunF.count=glowN;
   P_gun.visible = gunN > 0; P_gunF.visible = glowN > 0;
-  flush(P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_tail,P_legs,P_deco,P_gun,P_gunF);
+  flush(P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_mouth,P_tail,P_legs,P_deco,P_gun,P_gunF);
 }
 
 /* ═══════════ 짝꿍 그리기 (19차) ═══════════
@@ -7789,8 +8109,8 @@ function updPlayer(dt){
      (재질 색은 텍스처에 곱해지므로 어둡게는 된다 — 4차에서 배운 것).
      칸 수만 늘렸다: 몸통 6→11, 금·쇠 7→14. 상자가 없으면 통째로 숨기는 것도 그대로. */
 const CH_MAX = 3, CH_LIFE = 50, CH_R = 1.7;
-const chBody = new THREE.InstancedMesh(cube(T.plank),   MAT, CH_MAX*11);
-const chTrim = new THREE.InstancedMesh(cube(T.goldBlk), MAT, CH_MAX*17);
+const chBody = new THREE.InstancedMesh(RB,  FM.plank, CH_MAX*11);           // 28차 — 둥근 원색 상자
+const chTrim = new THREE.InstancedMesh(RBs, flatFor(T.goldBlk), CH_MAX*17);
 for(const m of [chBody, chTrim]){
   m.instanceColor = new THREE.InstancedBufferAttribute(
     new Float32Array(m.instanceMatrix.count*3).fill(1), 3);
@@ -7812,8 +8132,9 @@ const FD_R   = 1.55;              // 몸으로 닿아야 하는 거리
 const FD_MAX = NG * FD_PER;
 /* 한 알(또는 병·고기)에 몸통 조각 최대 7개 + 빛 2개.
    메시는 둘뿐이고, 놓인 게 하나도 없으면 통째로 숨긴다 → 드로우콜 0. */
-const fdBody = new THREE.InstancedMesh(cube(T.cloth), MAT,   FD_MAX*7);
-const fdGlow = new THREE.InstancedMesh(cube(T.glow),  EMITC, FD_MAX*2);
+const fdBody = new THREE.InstancedMesh(BALL, FM.cloth, FD_MAX*7);           // 28차 — 알·병·고기는 둥글다
+const EMITC_F = flatFor(T.glow, EMITC);                  // 산물의 빛 — 원색 판. 밝기는 EMITC 를 따라 흔든다
+const fdGlow = new THREE.InstancedMesh(BALL, EMITC_F, FD_MAX*2);
 for(const m of [fdBody, fdGlow]){
   m.instanceColor = new THREE.InstancedBufferAttribute(
     new Float32Array(m.instanceMatrix.count*3).fill(1), 3);
@@ -8774,7 +9095,7 @@ function takeStat(i){
   XP.pts--; XP.st[i]++;
   hudPrev.xp=''; hudPrev.kit='';
   if(i === ST_VIT) PL.hp = Math.min(maxHP(), PL.hp + 15); // 체력을 올리면 그만큼 바로 채워 준다
-  if(window.__sfx) window.__sfx('up');
+  sfx('plus');
   toast(`${S.ic} ${S.n} ${XP.st[i]}단계!`, 1.8, '#c8ffb0');
   if(popOpen() && el('popStat').classList.contains('on')) buildStatUI();
 }
@@ -8923,7 +9244,7 @@ function buildForgeUI(){
                          : '✅ 실패해도 <b>안 내려가요</b> (재료만 없어져요)')
                  + '</div>');
     const st = maxed ? 'own' : (c && canPay(c)) ? '' : 'no';
-    w.appendChild(shopCard(W.ic, `${W.n}<span class="enhLv">${e ? '+'+e : ''}</span>`,
+    w.appendChild(shopCard(iconImg('wpn'+i, W.ic), `${W.n}<span class="enhLv">${e ? '+'+e : ''}</span>`,
       desc, c, st, maxed ? '최고 단계' : `+${e+1} 로 강화`, ()=>doEnhance(i)));
   });
   if(!any) w.innerHTML =
@@ -9006,7 +9327,7 @@ function animalCard(A){
   const f = myFarm(), n = farmCount(f), have = f[A.k]|0, full = n >= FARM_CAP;
   const can = canPay(A.cost);
   const st = (full || !can) ? 'no' : '';
-  return shopCard(A.ic, `${A.n} ${have?`(${have}마리)`:''}`,
+  return shopCard(iconImg('farm_'+A.k, A.ic), `${A.n} ${have?`(${have}마리)`:''}`,
     `${A.desc}<br>날마다 ${A.pic} ${A.pn} 하나 — 팔면 <b>✨${A.gold}</b>`
     + `<br>먹이 🪵${FARM_FEED}/일`
     + (full ? '<br><span style="color:#ffbdbd">우리가 꽉 찼어요</span>' : lackTxt(A.cost)),
@@ -9122,7 +9443,7 @@ function buildShopUI(){
       const dps = Math.round(W.dmg*WDAY()*em/W.cd);
       const desc = `${W.d}<br>한 방 <b>${Math.round(W.dmg*WDAY()*em)}</b> · 사거리 ${W.rng} · 초당 약 ${dps}`
                  + (e ? ` <span style="color:#ffd43b">(강화 +${e})</span>` : '');
-      w.appendChild(shopCard(W.ic, W.n + enhTxt(e), desc, W.cost, st,
+      w.appendChild(shopCard(iconImg('wpn'+i, W.ic), W.n + enhTxt(e), desc, W.cost, st,
         own ? (KIT.wpn===i ? '들고 있음' : '가방에 있음') : '사기', ()=>buyWeapon(i)));
     });
   } else if(shopTab === 'a'){
@@ -9130,7 +9451,7 @@ function buildShopUI(){
       if(i === 0) return;
       const own = !!KIT.ownA[i];
       const st = own ? 'own' : canPay(A.cost) ? '' : 'no';
-      w.appendChild(shopCard(A.ic, A.n, A.d, A.cost, st,
+      w.appendChild(shopCard(iconImg('arm'+i, A.ic), A.n, A.d, A.cost, st,
         own ? (KIT.arm===i ? '입고 있음' : '가방에 있음') : '사기', ()=>buyArmor(i)));
     });
 
@@ -9143,7 +9464,7 @@ function buildShopUI(){
     }
   } else if(shopTab === 'p'){
     POTIONS.forEach((P,i)=>{
-      w.appendChild(shopCard(P.ic, P.n, `${P.d}<br>가진 것 <b>${KIT.pot[i]}개</b> · <b>${i+6}</b> 키로 사용`,
+      w.appendChild(shopCard(iconImg('pot'+i, P.ic), P.n, `${P.d}<br>가진 것 <b>${KIT.pot[i]}개</b> · <b>${i+6}</b> 키로 사용`,
         P.cost, canPay(P.cost) ? '' : 'no', '사기', ()=>buyPotion(i)));
     });
   } else if(shopTab === 'x'){
@@ -9295,6 +9616,8 @@ function buyPotion(i){
      바꿔 쓸 수가 없었다(망루에 올라갈 땐 저격총, 문 앞에선 연발총). */
 /* ═══════ 스텟 창 (C) ═══════ */
 function openStat(){ buildStatUI(); openPop('popStat'); }
+/* 28차 — 칭호 창(Y). 스텟 창이 너무 길어서 뗐다 */
+function openBadge(){ buildBadgeUI(); openPop('popBadge'); }
 
 /* ═══════════ 전직 고르기 ═══════════
    ★ 1차에서 고른 길로만 2차를 간다 — 길을 갈아탈 수 있으면
@@ -9342,7 +9665,7 @@ function buildJobUI(){
     d.className = 'jobCard';
     d.style.borderColor = J.col;
     d.innerHTML =
-      `<div class="jFig"><span class="jBadge">${J.ic}</span>`
+      `<div class="jFig"><span class="jBadge">${iconImg('job_'+J.k, J.ic)}</span>`
       + (shot[i] ? `<img alt="${esc(J.n)}" src="${shot[i]}">`
                  : `<span class="jNone">🐑</span>`)
       + `</div>`
@@ -9392,7 +9715,7 @@ function buildStatUI(){
         : ` · <b>만렙!</b> 🏆`)
     + ` · 남은 점수 <b>${XP.pts}</b>`
     + (XP.jt > 0 && JOBS[XP.job]
-        ? ` · <b style="color:${JOBS[XP.job].col}">${JOBS[XP.job].ic} ${JOBS[XP.job].n}`
+        ? ` · <b style="color:${JOBS[XP.job].col}">${iconImg('job_'+JOBS[XP.job].k, JOBS[XP.job].ic)} ${JOBS[XP.job].n}`
           + `${XP.jt >= 2 ? ' 2차' : ''}</b>` : '')
     + `</div>`;
   w.innerHTML = '';
@@ -9411,7 +9734,7 @@ function buildStatUI(){
     const lv = XP.st[i], full = lv >= mx, can = XP.pts > 0 && !full;
     const d = document.createElement('div');
     d.className = 'stBig' + (full ? ' full' : '');
-    d.innerHTML = `<div class="sIc">${S.ic}</div><div class="sMid">
+    d.innerHTML = `<div class="sIc">${iconImg('stat'+i, S.ic)}</div><div class="sMid">
       <div class="sTop"><span class="sNm">${S.n}</span>`
       + (mx > S.max ? ` <span style="color:#ffd257;font-size:11px">+${mx-S.max} 전직</span>` : '')
       + `<span class="sVal">${lv}</span><span class="sMax">/${mx}</span></div>
@@ -9425,7 +9748,6 @@ function buildStatUI(){
     w.appendChild(d);
   });
   buildDerivUI();
-  buildBadgeUI();
 }
 /* ═══════ 📊 스탯에서 나오는 값들 (23차) ═══════
    ★ 값을 여기서 다시 계산하지 않는다 — 게임이 실제로 쓰는 함수를 그대로 부른다.
@@ -9485,14 +9807,14 @@ let kitTab = 'all', kitPvw = null, kitPvwOff = false;
 /* 지금 그 자리에 뭐가 들어 있나 — {ic, n, empty} */
 function kitSlot(k){
   if(k === 'wpn'){ const W = WEAPONS[KIT.wpn] || WEAPONS[0];
-    return {ic:W.ic, n:W.n, empty:KIT.wpn === 0}; }
+    return {ic:W.ic, key:'wpn'+KIT.wpn, e:enhOf(KIT.wpn), n:W.n, empty:KIT.wpn === 0}; }
   if(k === 'arm'){ const A = ARMORS[KIT.arm] || ARMORS[0];
-    return {ic:A.ic, n:A.n, empty:KIT.arm === 0}; }
+    return {ic:A.ic, key:'arm'+KIT.arm, n:A.n, empty:KIT.arm === 0}; }
   const T = {hat:[HAT_ICON, HAT_NAME, G.me.hat|0], gls:[GLS_ICON, GLS_NAME, G.me.gls|0],
              clo:[CLO_ICON, CLO_NAME, G.me.clo|0], pet:[PET_ICON, PET_NAME, G.me.pet|0]}[k];
   if(!T) return {ic:'', n:'', empty:true};
   const i = Math.max(0, Math.min(T[0].length-1, T[2]));
-  return {ic:i ? T[0][i] : '🚫', n:T[1][i], empty:i === 0};
+  return {ic:i ? T[0][i] : '🚫', key:i ? k+i : 'none', n:T[1][i], empty:i === 0};
 }
 const KSLOT_NAME = {hat:'모자', gls:'안경', clo:'옷', pet:'짝꿍', wpn:'무기', arm:'방어구'};
 
@@ -9501,19 +9823,19 @@ const KSLOT_NAME = {hat:'모자', gls:'안경', clo:'옷', pet:'짝꿍', wpn:'�
 function kitItems(){
   const out = [];
   WEAPONS.forEach((W,i)=>{ if(!KIT.ownW[i] || W.mini) return;
-    out.push({t:'wpn', i, ic:W.ic, n:W.n + enhTxt(enhOf(i)), on:KIT.wpn === i,
+    out.push({t:'wpn', i, ic:W.ic, key:'wpn'+i, e:enhOf(i), n:W.n + enhTxt(enhOf(i)), on:KIT.wpn === i,
       sub:`한 방 ${Math.round((i ? W.dmg*WDAY() : stoneDmg()) * enhMul(i))} · 사거리 ${W.rng}`
           + (W.ammo ? ` · 총알 ${W.ammo}발` : '')}); });
   ARMORS.forEach((A,i)=>{ if(!KIT.ownA[i]) return;
-    out.push({t:'arm', i, ic:A.ic, n:A.n, on:KIT.arm === i, sub:`방어력 ${A.def}`}); });
+    out.push({t:'arm', i, ic:A.ic, key:'arm'+i, n:A.n, on:KIT.arm === i, sub:`방어력 ${A.def}`}); });
   POTIONS.forEach((P,i)=>{ if(KIT.pot[i] <= 0) return;
-    out.push({t:'pot', i, ic:P.ic, n:P.n, cnt:KIT.pot[i], on:false,
+    out.push({t:'pot', i, ic:P.ic, key:'pot'+i, n:P.n, cnt:KIT.pot[i], on:false,
       sub:`눌러서 마시기 (${i+6} 키)`}); });
   const deco = [['hat', HAT_ICON, HAT_NAME, G.me.hat|0], ['gls', GLS_ICON, GLS_NAME, G.me.gls|0],
                 ['clo', CLO_ICON, CLO_NAME, G.me.clo|0], ['pet', PET_ICON, PET_NAME, G.me.pet|0]];
   for(const [t, ICO, NM, cur] of deco)
     for(let i=1;i<ICO.length;i++)
-      out.push({t, i, ic:ICO[i], n:NM[i], on:cur === i, sub:KSLOT_NAME[t]});
+      out.push({t, i, ic:ICO[i], key:t+i, n:NM[i], on:cur === i, sub:KSLOT_NAME[t]});
   return out;
 }
 /* 꾸미기를 갈아입는다 — 기기에도 남겨서 새로고침해도 그대로 나온다 */
@@ -9524,10 +9846,11 @@ function wearDeco(t, i){
   else if(t === 'pet'){ G.me.pet = i; pickPet = i; LS.set('sheepPet', i);
                         netPCDirty = true; syncMyPC(); }
   else return;
-  if(window.__sfx) window.__sfx('get');
+  sfx('equip');
   buildKitUI();
 }
 function kitClick(it){
+  if(it.t === 'wpn' || it.t === 'arm') sfx('equip');
   if(it.t === 'wpn') equipWeapon(it.on && it.i !== 0 ? 0 : it.i);
   else if(it.t === 'arm') equipArmor(it.on && it.i !== 0 ? 0 : it.i);
   else if(it.t === 'pot'){ usePotion(it.i); buildKitUI(); }
@@ -9537,7 +9860,7 @@ function openKit(){ buildKitUI(); openPop('popKit'); }
 function buildKitUI(){
   const W = wpnNow(), A = ARMORS[KIT.arm];
   el('kitStat').innerHTML =
-    `${W.ic} 공격력 <b>${wpnDmg()}</b>${enhTxt(enhOf(KIT.wpn))}　${A.ic} 방어력 <b>${defNow()}</b>　🔸 총알 <b>${KIT.ammo}</b>`;
+    `${iconImg('wpn'+KIT.wpn, W.ic)} 공격력 <b>${wpnDmg()}</b>${enhTxt(enhOf(KIT.wpn))}　${iconImg('arm'+KIT.arm, A.ic)} 방어력 <b>${defNow()}</b>　🔸 총알 <b>${KIT.ammo}</b>`;
   /* ── 입은 자리 ── */
   for(const [wid, keys] of [['kSlotL', KSLOT_L], ['kSlotR', KSLOT_R]]){
     const w = el(wid); if(!w) continue;
@@ -9545,9 +9868,9 @@ function buildKitUI(){
     for(const k of keys){
       const q = kitSlot(k);
       const d = document.createElement('div');
-      d.className = 'kSlot' + (q.empty ? ' empty' : '');
+      d.className = 'kSlot' + (q.empty ? ' empty' : '') + (q.e ? ' e'+q.e : '');
       d.title = KSLOT_NAME[k] + (q.empty ? '' : ' — ' + q.n + ' (눌러서 벗기)');
-      d.innerHTML = `${q.ic || '＋'}<span class="kTag">${KSLOT_NAME[k]}</span>`;
+      d.innerHTML = `${q.key ? iconImg(q.key, q.ic) : (q.ic || '＋')}<span class="kTag">${KSLOT_NAME[k]}</span>`;
       d.onclick = ()=>{
         if(q.empty) return;
         if(k === 'wpn') equipWeapon(0); else if(k === 'arm') equipArmor(0);
@@ -9561,7 +9884,7 @@ function buildKitUI(){
   for(const [k, n] of KIT_TABS){
     const b = document.createElement('button');
     b.textContent = n; if(k === kitTab) b.classList.add('on');
-    b.onclick = ()=>{ kitTab = k; buildKitUI(); };
+    b.onclick = ()=>{ kitTab = k; sfx('tab'); buildKitUI(); };
     tw.appendChild(b);
   }
   const all = kitItems();
@@ -9571,9 +9894,10 @@ function buildKitUI(){
   const gw = el('kitGrid'); gw.innerHTML = '';
   for(const it of show){
     const d = document.createElement('div');
-    d.className = 'kCell' + (it.on ? ' on' : '');
+    /* 28차 — 3D 아이콘 + 강화 등급 테(e1~e6). 흔함→전설이 색으로 읽힌다 */
+    d.className = 'kCell' + (it.on ? ' on' : '') + (it.e ? ' e'+it.e : '');
     d.title = it.n + ' — ' + it.sub;
-    d.innerHTML = it.ic + (it.cnt ? `<span class="kNum">${it.cnt}</span>` : '');
+    d.innerHTML = iconImg(it.key, it.ic) + (it.cnt ? `<span class="kNum">${it.cnt}</span>` : '');
     const tell = ()=>{ el('kitPick').innerHTML =
       `<b>${esc(it.n)}</b> <span style="opacity:.7">· ${esc(it.sub)}</span>`; };
     d.onmouseenter = tell; d.onclick = ()=>{ tell(); kitClick(it); };
@@ -9858,13 +10182,17 @@ addEventListener('keydown', e=>{
                  : '🔨 대장간은 수정 건너편에 있어요 — 가까이 가세요', 1.8, '#ffd0a0'); }
   if(k>='6' && k<='9'){ usePotion(+k-6); }
   if(k==='t'){ if(!popOpen() && G.started) setAimMode(!aimMode); }
-  if(k==='i'){ if(popOpen()) { if(el('popKit').classList.contains('on'))
-                                 el('popKit').classList.remove('on'); }
+  if(k==='i'){ if(popOpen()) { if(el('popKit').classList.contains('on')){
+                                 el('popKit').classList.remove('on'); sfx('close'); } }
                else if(G.started) openKit(); }
   /* ★ C — 스텟 창. 한 번 더 누르면 닫힌다(가방과 같은 버릇). */
-  if(k==='c'){ if(popOpen()) { if(el('popStat').classList.contains('on'))
-                                 el('popStat').classList.remove('on'); }
+  if(k==='c'){ if(popOpen()) { if(el('popStat').classList.contains('on')){
+                                 el('popStat').classList.remove('on'); sfx('close'); } }
                else if(G.started) openStat(); }
+  /* ★ Y — 칭호 창. C 와 같은 버릇(한 번 더 누르면 닫힌다) */
+  if(k==='y'){ if(popOpen()) { if(el('popBadge').classList.contains('on')){
+                                 el('popBadge').classList.remove('on'); sfx('close'); } }
+               else if(G.started) openBadge(); }
 
 
   if(k==='tab'){ e.preventDefault(); document.exitPointerLock(); }
@@ -9960,7 +10288,7 @@ function paintBar(){
   for(const t of TOOLS){
     const d = document.createElement('div');
     d.className = 'slot tool' + (curTool===t.id?' on':'');
-    d.innerHTML = `<div class="ic">${t.icon}</div><div class="nm">${t.name}</div><div class="ky">${t.key}</div>`;
+    d.innerHTML = `<div class="ic">${iconImg('tool_'+t.id, t.icon)}</div><div class="nm">${t.name}</div><div class="ky">${t.key}</div>`;
     d.onclick = ()=> selectTool(t.id);
     tw.appendChild(d);
   }
@@ -9971,7 +10299,7 @@ function paintBar(){
     d.className = 'slot' + (curBuild===k?' on':'') + (ok?'':' no');
     const cs = [b.cost.w?`<span>🪵${b.cost.w}</span>`:'', b.cost.s?`<span>🪨${b.cost.s}</span>`:'',
       b.cost.g?`<span>✨${b.cost.g}</span>`:''].filter(Boolean).join('');
-    d.innerHTML = `<div class="ic">${b.icon}</div><div class="nm">${b.name}</div>
+    d.innerHTML = `<div class="ic">${iconImg('bld_'+k, b.icon)}</div><div class="nm">${b.name}</div>
       <div class="cost">${cs}</div><div class="ky">${i+1}</div>`;
     d.onclick = ()=> selectBuild(k);
     bw.appendChild(d);
@@ -10740,14 +11068,21 @@ function drawMini(){
 /* ═══════════════════════ 팝업 ═══════════════════════ */
 function popOpen(){ return !!document.querySelector('.pop.on'); }
 document.querySelectorAll('[data-close]').forEach(b=>
-  b.onclick = ()=> el(b.dataset.close).classList.remove('on'));
+  b.onclick = ()=>{ el(b.dataset.close).classList.remove('on'); sfx('close'); });
+/* 28차 — 누르는 것마다 '톡'. 한 곳에서 잡는다(단추가 생길 때마다 붙이면 반드시 하나 빠진다) */
+document.addEventListener('click', e=>{
+  const t = e.target && e.target.closest && e.target.closest(
+    '.btn,.slot,.grp button,.kCell,.kSlot,#kitTabs button,.gcell,.jobCard,.sItem button,#giveWrap button,#potRow button,.mb');
+  if(t && !t.disabled) sfx('click');
+}, true);
 /* 가게 칸 바꾸기 */
 document.querySelectorAll('.shopTabs .btn').forEach(b=>
-  b.onclick = ()=>{ shopTab = b.dataset.tab; buildShopUI(); });
+  b.onclick = ()=>{ shopTab = b.dataset.tab; sfx('tab'); buildShopUI(); });
 /* 태블릿에는 키보드가 없다 — 안내 자체를 눌러서 열게 한다 */
 el('bKit').onclick = ()=>{ if(G.started) openKit(); };
 el('bInfo').onclick = ()=>{ if(G.started) openInfo(); };
 el('bStat').onclick = ()=>{ if(G.started) openStat(); };
+el('bBadge').onclick = ()=>{ if(G.started) openBadge(); };
 /* 체력줄 밑 레벨 막대를 눌러도 스텟 창이 열린다 — 터치 기기는 C 키가 없다 */
 el('lvRow').onclick = ()=>{ if(G.started && !popOpen()) openStat(); };
 el('shopTip').addEventListener('click', ()=>{ if(shopOpenable()) openShop(); });
@@ -10761,7 +11096,7 @@ el('farmTip').addEventListener('click', ()=>{ if(farmOpenable()) openFarm(); });
 el('farmTip').addEventListener('touchstart', e=>{
   if(farmOpenable()){ openFarm(); e.preventDefault(); } }, {passive:false});
 
-function openPop(id){ document.exitPointerLock(); el(id).classList.add('on'); }
+function openPop(id){ document.exitPointerLock(); el(id).classList.add('on'); sfx('open'); }
 
 /* ═══════════════════════ 조준 / 행동 ═══════════════════════ */
 const hlGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(1,1,1));
@@ -13542,7 +13877,10 @@ function buildPicker(){
     el(nmId).textContent = names[get()] || '';
     icons.forEach((ic,i)=>{
       const b = document.createElement('button');
-      b.textContent = ic; b.style.setProperty('--c', '#cbd5c0');
+      /* 28차 — 아이콘 키로 그린다. 이모지로 두면 🐱(모자 고양이 귀)와 🐱(짝꿍 고양이)가 같은 그림이 된다 */
+      b.innerHTML = i ? iconImg(key.replace('sheepHat','hat').replace('sheepGls','gls').replace('sheepClo','clo').replace('sheepPet','pet') + i, ic)
+                      : iconImg('none', ic);
+      b.style.setProperty('--c', '#cbd5c0');
       b.style.fontFamily = 'inherit'; b.title = names[i];
       if(i===get()) b.classList.add('on');
       b.onclick = ()=>{ set(i); LS.set(key, i); buildPicker(); pvwDress(); };
@@ -13580,7 +13918,8 @@ const PVW_BODY = [
   [ 0.30,0.17,-0.27,  0.20,0.36,0.20, 0x5c564f],
   [-0.30,0.17, 0.27,  0.20,0.36,0.20, 0x5c564f],
   [-0.30,0.17,-0.27,  0.20,0.36,0.20, 0x5c564f],
-  ...PUFF6.map(q=>[q[0]-0.05, q[1], q[2], q[3], q[4], q[5], 'wool', 'ball'])
+  ...PUFF6.map(q=>[q[0]-0.05, q[1], q[2], q[3], q[4], q[5], 'wool', 'ball']),
+  [ 1.03,0.83, 0,     0.30,0.20,0.10, 0x3a2f2c, 'smile']      // 입 (28차) — 게임(drawSheep)과 같은 자리
 ];
 let pvw = null;
 /* ═══════ 미리보기 만들기 (23차에 시작 화면 전용에서 **아무 데나 쓸 수 있게** 바꿨다) ═══════
@@ -13607,7 +13946,7 @@ function mkPvw(cvs, W, H, keep){
   /* 27차 — 게임과 같은 둥근 조각·원색 재질. 6~13 번(눈·반짝이·코·볼·꼬리)은 공이다 */
   const P = {r, sc, cam, grp, body:[], deco:[], t:0, geo:RBs};
   PVW_BODY.forEach((p,i)=>{
-    const m = new THREE.Mesh((p[7]==='ball' || (i>=6 && i<=13)) ? BALL : RB, flatMat(0xffffff));
+    const m = new THREE.Mesh(p[7]==='smile' ? SMILE : (p[7]==='ball' || (i>=6 && i<=13)) ? BALL : RB, flatMat(0xffffff));
     grp.add(m); P.body.push(m);
   });
   return P;
@@ -13671,6 +14010,339 @@ function pvwInit(){ if(!pvw) pvw = mkPvw(el('pvw'), 230, 270); pvwDress(); }
 function pvwDress(){ pvwSet(pvw, {g:pickG, hat:pickHat, gls:pickGls, clo:pickClo, pet:pickPet}); }
 function pvwTick(dt){ pvwSpin(pvw, dt); }
 function pvwDispose(){ pvwKill(pvw); pvw = null; }
+
+/* ═══════════════════════ 28차 — 3D 아이콘 공방 + 이모지 치환 ═══════════════════════
+   ★ 왜 — 선생님: "애들이 진짜 로블록스 하는 느낌을 받았으면". 아이콘이 전부 이모지(🪵 🧱 🐑)였다.
+     이모지는 채팅 글자이지 물건이 아니고, 윈도우에서는 납작하게 찍힌다. 창 속 그림과 세계의 물건이
+     다른 것도 문제였다. 그래서 **게임 안의 조각(둥근 상자·공·원색)으로 물건을 작은 판에 그려서**
+     그림으로 떠 두고, 화면의 이모지를 그 그림으로 바꾼다.
+   ★ 어떻게 — 96×96 투명 캔버스 하나에 작은 렌더러를 세워 물건을 하나씩 찍고(toDataURL) 버린다.
+     손에 든 도구·총은 **같은 조립 함수**(mkPick·mkMusket…)로 새로 만들어 손만 떼고 찍는다.
+     모자·안경·옷·짝꿍은 게임과 **같은 표**(HATS…)를 읽는다. 건물은 blocksOf 의 조각 그대로.
+     그러니 창에서 본 것과 세계에서 보는 것이 같은 물건이다.
+   ★ 이모지 치환 — 표(ic:'🐔')와 글 속 이모지는 안 건드린다. MutationObserver 가 화면에 놓이는
+     글자를 보고 아는 이모지면 <img class="ic"> 로 바꾼다. 원래 글자는 보이지 않는 <span class="emoT">
+     에 남긴다 — textContent 로 읽는 검사(t9 의 💚)와 복사가 그대로 된다.
+     이름이 겹치는 이모지(🐱 모자 고양이 귀 / 짝꿍 고양이)는 창 코드가 iconImg(키) 로 직접 그린다.
+   ★ 비용 — 시작할 때 한 번, 백 장쯤. 렌더 한 장이 1ms 안이라 로딩 화면 안에서 끝난다.
+     그림은 문자열이라 메모리 600KB 쯤. 그리고 나서 렌더러는 버린다(WebGL 판은 한 페이지에 몇 개 못 연다). */
+const ICON = {};                 // 키 → data URL
+const EMO2ICON = {};             // 이모지 → 키 (글 속 이모지 치환용)
+const _icoGeo = {};
+function icoGeo(sh, w,h,d){
+  if(sh==='b') return rboxGeo(w,h,d);
+  if(_icoGeo[sh]) return _icoGeo[sh];
+  let g;
+  if(sh==='o') g = new THREE.SphereGeometry(0.5, 20, 14);
+  else if(sh==='c') g = new THREE.CylinderGeometry(0.5, 0.5, 1, 24);
+  else if(sh==='k') g = new THREE.ConeGeometry(0.5, 1, 24);
+  else if(sh==='p') g = new THREE.CylinderGeometry(0.5, 0.5, 1, 3);
+  else if(sh==='t') g = new THREE.TorusGeometry(0.42, 0.08, 12, 32);
+  else if(sh==='T') g = new THREE.TorusGeometry(0.38, 0.13, 12, 32);
+  else if(sh==='a') g = new THREE.TorusGeometry(0.40, 0.11, 12, 32, Math.PI);
+  else if(sh==='d') g = new THREE.OctahedronGeometry(0.5, 0);
+  else if(sh==='m') g = SMILE;
+  else g = rboxGeo(1,1,1);
+  return _icoGeo[sh] = g;
+}
+/* 조각 한 줄: [모양, 색, 가로,세로,깊이, x,y,z, rx,ry,rz, 재질옵션]
+   모양 — b 둥근상자 · o 공 · c 원기둥 · k 원뿔 · p 삼각기둥 · t 고리 · T 굵은 고리 · a 반고리 · d 보석 */
+function partsGroup(rows){
+  const g = new THREE.Group();
+  for(const r of rows){
+    if(!r) continue;
+    const [sh, col, w,h,d, x,y,z, rx,ry,rz, opt] = r;
+    if(!(w>0 && h>0 && d>0)) continue;
+    const m = new THREE.Mesh(icoGeo(sh, w,h,d), flatMat(col, opt));
+    if(sh!=='b') m.scale.set(w,h,d);
+    m.position.set(x||0, y||0, z||0); m.rotation.set(rx||0, ry||0, rz||0);
+    g.add(m);
+  }
+  return g;
+}
+/* 게임 표([앞f, 위u, 옆sd, 가로,세로,깊이, 색, 모양?]) → 조각. 미리보기(pvwSet)와 같은 좌표 규칙 */
+function tableGroup(rows, colMap){
+  return partsGroup((rows||[]).map(r=>{
+    let c = r[6]; if(colMap && typeof c === 'string') c = colMap[c];
+    if(typeof c === 'string') c = 0xffffff;
+    return [r[7]==='ball' ? 'o' : r[7]==='smile' ? 'm' : 'b', c, r[3], r[4], r[5], r[2], r[1], r[0]]; }));
+}
+/* 손에 든 것(도구·총·블록)을 새로 만들어 손(양털 조각)만 뗀다 */
+function heldGroup(mk){
+  const g = mk();
+  for(const c of [...g.children]) if(c.isMesh && c.userData.arm) g.remove(c);
+  g.rotation.set(0,0,0); g.scale.setScalar(1); g.position.set(0,0,0);
+  return g;
+}
+/* 건물 — blocksOf 의 조각을 그대로 (타일 원색 × 물감) */
+function buildingGroup(k, lv){
+  const g = new THREE.Group();
+  for(const [x,y,z,tile,w,h,d,tint,ry,rz] of blocksOf(k, lv||1)){
+    const mat = tint ? flatFor(tile, {uuid:'tint'+tint, color:new THREE.Color(tint)}) : flatFor(tile);
+    const m = new THREE.Mesh(rboxGeo(w,h,d), mat);
+    m.position.set(x,y,z); m.rotation.set(0, ry||0, rz||0); g.add(m);
+  }
+  return g;
+}
+function mkIconStudio(size){
+  const cvs = document.createElement('canvas'); cvs.width = cvs.height = size;
+  let r;
+  try{ r = new THREE.WebGLRenderer({canvas:cvs, antialias:true, alpha:true, preserveDrawingBuffer:true}); }
+  catch(e){ return null; }
+  r.setPixelRatio(1); r.setSize(size, size, false); r.setClearColor(0x000000, 0);
+  r.outputColorSpace = THREE.SRGBColorSpace;
+  const sc = new THREE.Scene();
+  const cam = new THREE.PerspectiveCamera(26, 1, 0.1, 50);
+  cam.position.set(1.45, 1.25, 2.85); cam.lookAt(0, 0, 0);
+  sc.add(new THREE.AmbientLight(0xffffff, 0.95));
+  const key = new THREE.DirectionalLight(0xfff3d8, 1.45); key.position.set(2.5, 4.5, 3.5); sc.add(key);
+  const rim = new THREE.DirectionalLight(0xcfe8ff, 0.6); rim.position.set(-3, 1.2, -2.5); sc.add(rim);
+  const grp = new THREE.Group(); sc.add(grp);
+  return {r, sc, cam, grp, cvs};
+}
+const _ib = new THREE.Box3(), _isz = new THREE.Vector3(), _ict = new THREE.Vector3();
+function shootIcon(st, obj, opt){
+  opt = opt || {};
+  st.grp.clear();
+  obj.rotation.set(opt.rx||0, opt.ry||0, opt.rz||0);
+  /* ★ 그룹의 배율·자리를 되돌린 뒤 **그룹부터** 행렬을 새로 계산해야 한다. obj 만 갱신하면
+     부모(grp)의 옛 배율이 남아 두 번째 아이콘부터 크기가 어긋난다 — 판에 찍어 보고 알았다. */
+  st.grp.add(obj); st.grp.scale.setScalar(1); st.grp.position.set(0,0,0); st.grp.updateMatrixWorld(true);
+  _ib.setFromObject(obj); _ib.getSize(_isz); _ib.getCenter(_ict);
+  const mx = Math.max(_isz.x, _isz.y, _isz.z) || 1, s = (opt.fill || 1.15) / mx;
+  st.grp.scale.setScalar(s); st.grp.position.set(-_ict.x*s, -_ict.y*s, -_ict.z*s); st.grp.updateMatrixWorld(true);
+  st.r.render(st.sc, st.cam);
+  const url = st.cvs.toDataURL('image/png');
+  st.grp.clear();
+  obj.traverse(o=>{ if(o.isMesh && o.material && o.material._ico) o.material.dispose(); });
+  return url;
+}
+/* ── 물건 설계도 ── 짧은 도우미부터 */
+const Y0 = Math.PI/2;
+const heartRows = (c)=> [['o',c,0.52,0.52,0.42,-0.22,0.16,0],['o',c,0.52,0.52,0.42,0.22,0.16,0],
+                         ['b',c,0.58,0.58,0.40,0,-0.06,0, 0,0,Math.PI/4]];
+const flaskRows = (c)=> [['o',c,0.62,0.62,0.62,0,-0.10,0],['c',0xe8f6ff,0.26,0.36,0.26,0,0.30,0],
+                         ['c',0xb98b5a,0.30,0.10,0.30,0,0.50,0]];
+const vestRows  = (c, t)=> [['b',c,0.72,0.86,0.42,0,0,0],['b',t,0.20,0.60,0.44,-0.32,0.06,0.02],
+                           ['b',t,0.20,0.60,0.44,0.32,0.06,0.02],['b',t,0.30,0.10,0.44,0,0.34,0.02]];
+const medalRows = (c)=> [['c',c,0.62,0.10,0.62,0,-0.16,0, Y0],['b',0xff6b7a,0.16,0.50,0.06,-0.10,0.30,-0.02,0,0,0.25],
+                         ['b',0x6fa8ff,0.16,0.50,0.06,0.10,0.30,-0.02,0,0,-0.25]];
+const bookRows  = (c)=> [['b',c,0.70,0.90,0.18,0,0,0],['b',0xfffbf0,0.62,0.82,0.10,0.05,0,0.06],['b',c,0.10,0.90,0.20,-0.32,0,0]];
+const starRows  = (c)=>{ const r=[['o',c,0.44,0.44,0.30,0,0,0]];
+  for(let i=0;i<5;i++){ const a=i*Math.PI*2/5+Math.PI/2; r.push(['k',c,0.26,0.62,0.26, Math.cos(a)*0.34, Math.sin(a)*0.34, 0, 0,0, a-Math.PI/2]); } return r; };
+const animalRows = (L, kind)=>{ const b=L.body, d=L.deco, r=[
+  ['b',b,0.76,0.62,0.92,0,0.40,0],['b',b,0.66,0.62,0.60,0,0.72,0.50],
+  ['o',0xffffff,0.20,0.22,0.10,-0.20,0.78,0.80],['o',0xffffff,0.20,0.22,0.10,0.20,0.78,0.80],
+  ['o',0x2a2430,0.11,0.13,0.09,-0.20,0.77,0.85],['o',0x2a2430,0.11,0.13,0.09,0.20,0.77,0.85],
+  ['b',L.legc||b,0.18,0.30,0.18,-0.22,0.12,0.24],['b',L.legc||b,0.18,0.30,0.18,0.22,0.12,0.24],
+  ['b',L.legc||b,0.18,0.30,0.18,-0.22,0.12,-0.28],['b',L.legc||b,0.18,0.30,0.18,0.22,0.12,-0.28]];
+  if(kind==='hen'){ r.push(['b',d,0.18,0.20,0.14,0,1.08,0.50],['b',d,0.18,0.24,0.14,0,1.10,0.36],['b',0xffc75e,0.18,0.14,0.20,0,0.66,0.86]); }
+  if(kind==='pig'){ r.push(['b',d,0.30,0.26,0.14,0,0.66,0.84],['b',d,0.22,0.24,0.10,-0.26,0.98,0.44,-0.5,0,0.3],['b',d,0.22,0.24,0.10,0.26,0.98,0.44,-0.5,0,-0.3]); }
+  if(kind==='cow'){ r.push(['b',0xffc9c9,0.44,0.28,0.14,0,0.58,0.84],['b',d,0.22,0.20,0.10,0.16,0.98,0.76],['b',d,0.44,0.16,0.46,0,0.72,-0.16],
+                            ['b',d,0.22,0.14,0.16,-0.40,0.82,0.44],['b',d,0.22,0.14,0.16,0.40,0.82,0.44]); }
+  return r; };
+const wolfRows = [['b',0x5a5e66,0.72,0.64,1.30,0,0.70,0],['b',0x4d4f57,0.90,0.78,0.34,0,0.86,0.42],['b',0x5a5e66,0.60,0.58,0.62,0,0.96,0.86],
+  ['b',0x4d4f57,0.28,0.24,0.56,0,0.86,1.28],['o',0x14121a,0.20,0.15,0.12,0,0.92,1.56],
+  ['b',0x4d4f57,0.16,0.30,0.10,-0.22,1.30,0.76,-0.15,-0.12,0],['b',0x4d4f57,0.16,0.30,0.10,0.22,1.30,0.76,-0.15,0.12,0],
+  ['o',0xffa030,0.15,0.13,0.12,-0.17,1.12,1.18],['o',0xffa030,0.15,0.13,0.12,0.17,1.12,1.18],
+  ['b',0x4d4f57,0.20,0.44,0.20,-0.22,0.22,0.44],['b',0x4d4f57,0.20,0.44,0.20,0.22,0.22,0.44],
+  ['b',0x4d4f57,0.20,0.44,0.20,-0.22,0.22,-0.40],['b',0x4d4f57,0.20,0.44,0.20,0.22,0.22,-0.40],
+  ['b',0x5a5e66,0.26,0.26,0.78,0,0.90,-0.90,-0.30,0,0]];
+const ICO_DEF = {
+  /* 자원 · 산물 */
+  wood:   {emo:['🪵'], rows:[['c',0xa06a3a,0.52,1.00,0.52,0,0,0,0,0,Y0],['c',0xdcb582,0.42,0.06,0.42,0.50,0,0,0,0,Y0],['c',0xdcb582,0.42,0.06,0.42,-0.50,0,0,0,0,Y0],['b',0x8a5a30,0.30,0.12,0.10,0,0.30,0.14]], pose:{ry:0.4}},
+  stone:  {emo:['🪨'], rows:[['o',0x9aa0a8,0.92,0.72,0.82,0,0,0],['o',0xb8bec6,0.52,0.46,0.50,-0.28,0.22,0.16],['o',0x8a9098,0.42,0.36,0.40,0.34,-0.06,0.22]]},
+  gold:   {emo:['✨'], rows:[['b',0xffd24a,0.44,0.36,0.40,-0.20,-0.10,0.10,0,0.3,0],['b',0xffd24a,0.40,0.34,0.36,0.24,-0.12,-0.06,0,-0.4,0],['b',0xffe38a,0.38,0.32,0.34,0.02,0.20,0.02,0,0.2,0],
+            ...starRows(0xfff1a8).map(r=>[r[0],r[1],r[2]*0.42,r[3]*0.42,r[4]*0.42,r[5]*0.42+0.36,r[6]*0.42+0.40,r[7]*0.42+0.30,r[8],r[9],r[10]])]},
+  egg:    {emo:['🥚'], rows:[['o',0xfff3d6,0.70,0.90,0.70,0,0,0]]},
+  milk:   {emo:['🥛'], rows:[['c',0xf8fbff,0.56,0.86,0.56,0,-0.08,0],['c',0xf8fbff,0.34,0.20,0.34,0,0.40,0],['c',0x7fc0ff,0.40,0.14,0.40,0,0.54,0],['b',0x7fc0ff,0.30,0.30,0.02,0,-0.05,0.29]]},
+  meat:   {emo:['🍖'], rows:[['b',0xd9836f,0.78,0.62,0.44,0.10,0.06,0,0,0,0.2],['c',0xfff5e0,0.14,0.62,0.14,-0.42,-0.20,0,0,0,0.9],['o',0xfff5e0,0.22,0.22,0.22,-0.64,-0.34,0],['o',0xfff5e0,0.22,0.22,0.22,-0.52,-0.48,0.02]]},
+  sheep:  {emo:['🐑','😵','😮','😇','🤗'], make:()=>tableGroup(PVW_BODY, {body:0xf4f1ea, wool:0xffffff, frng:0xf0e8dc}), pose:{ry:-0.55}},
+  crystal:{emo:['💎'], rows:[['d',0x7fe6f6,0.80,1.10,0.80,0,0,0,0,0.6,0,{flatShading:true, emissive:0x3fb8cc, emissiveIntensity:0.35}]]},
+  /* 하늘 · 시간 */
+  sun:    {emo:['☀️','🌅'], rows:[['o',0xffd64a,0.62,0.62,0.62,0,0,0],['t',0xffb347,1.0,1.0,1.0,0,0,0]]},
+  moon:   {emo:['🌙','🌛'], rows:[['a',0xffe08a,1.1,1.1,1.1,0,0,0,0,0,-Y0-0.35],['o',0xffe08a,0.24,0.24,0.24,0.02,0.44,0],['o',0xffe08a,0.24,0.24,0.24,0.34,-0.30,0]]},
+  wolf:   {emo:['🐺'], rows:wolfRows, pose:{ry:-0.6}},
+  star:   {emo:['⭐','🌟'], rows:starRows(0xffd24a)},
+  clock:  {emo:['⏱️','⏰'], rows:[['c',0xfffbf0,0.92,0.14,0.92,0,0,0,Y0],['t',0x8a94a6,1.0,1.0,1.0,0,0,0],['b',0x4a4f57,0.06,0.34,0.05,0,0.14,0.08],['b',0x4a4f57,0.24,0.06,0.05,0.10,0,0.08]]},
+  hour:   {emo:['⏳'], rows:[['k',0xffd24a,0.60,0.44,0.60,0,-0.24,0],['k',0xffd24a,0.60,0.44,0.60,0,0.24,0,Math.PI],['c',0x8a5a30,0.70,0.08,0.70,0,0.50,0],['c',0x8a5a30,0.70,0.08,0.70,0,-0.50,0]]},
+  /* 도구 · 단추 */
+  bag:    {emo:['🎒'], rows:[['b',0xff9f6e,0.78,0.90,0.46,0,0,0],['b',0xe07a4a,0.80,0.36,0.50,0,0.30,0],['b',0xffc39a,0.42,0.34,0.14,0,-0.16,0.26],['b',0xe07a4a,0.10,0.56,0.10,-0.22,0.02,-0.26],['b',0xe07a4a,0.10,0.56,0.10,0.22,0.02,-0.26]]},
+  gift:   {emo:['🎁'], rows:[['b',0xffb3c7,0.86,0.70,0.86,0,-0.12,0],['b',0xff8fb0,0.92,0.22,0.92,0,0.30,0],['b',0xfff2f6,0.16,0.94,0.90,0,0,0],['b',0xfff2f6,0.90,0.94,0.16,0,0,0],['o',0xfff2f6,0.30,0.22,0.30,-0.14,0.50,0],['o',0xfff2f6,0.30,0.22,0.30,0.14,0.50,0]]},
+  chart:  {emo:['📊','📈'], rows:[['b',0xe8ecf2,1.0,0.10,0.60,0,-0.45,0],['b',0x7fd1ff,0.22,0.46,0.22,-0.30,-0.16,0],['b',0xffb86b,0.22,0.72,0.22,0,-0.03,0],['b',0x9be7c4,0.22,0.94,0.22,0.30,0.08,0]]},
+  book:   {emo:['📖','📋'], rows:bookRows(0x6fa8ff)},
+  bookB:  {emo:['📘'], rows:bookRows(0x4d8de6)},
+  sound:  {emo:['🔊','👂'], rows:[['b',0x8a94a6,0.24,0.36,0.24,-0.40,0,0],['k',0x8a94a6,0.66,0.42,0.66,-0.10,0,0,0,0,-Y0],['a',0x7fd1ff,0.5,0.5,0.5,0.14,0,0,0,0,-Y0],['a',0x7fd1ff,0.86,0.86,0.86,0.14,0,0,0,0,-Y0]]},
+  mute:   {emo:['🔇'], rows:[['b',0x8a94a6,0.24,0.36,0.24,-0.40,0,0],['k',0x8a94a6,0.66,0.42,0.66,-0.10,0,0,0,0,-Y0],['b',0xff6b6b,0.60,0.10,0.10,0.26,0,0,0,0,0.8],['b',0xff6b6b,0.60,0.10,0.10,0.26,0,0,0,0,-0.8]]},
+  wrench: {emo:['🔧','🛠️'], rows:[['b',0xb8c0cc,0.16,0.80,0.16,0,-0.16,0,0,0,0.35],['c',0xb8c0cc,0.46,0.20,0.46,0.16,0.30,0,Y0,0,0],['b',0xb8c0cc,0.18,0.24,0.22,0.08,0.44,0,0,0,0.35],['b',0xb8c0cc,0.18,0.24,0.22,0.28,0.36,0,0,0,0.35]]},
+  key:    {emo:['🔑'], rows:[['t',0xffd24a,0.80,0.80,0.80,-0.30,0.12,0],['b',0xffd24a,0.62,0.14,0.10,0.24,0.12,0],['b',0xffd24a,0.10,0.22,0.10,0.44,-0.04,0],['b',0xffd24a,0.10,0.16,0.10,0.28,-0.02,0]]},
+  cart:   {emo:['🛒','🚜'], rows:[['b',0x8a94a6,0.86,0.44,0.60,0,0.02,0],['b',0x8a94a6,0.08,0.64,0.08,0.44,0.34,0.26],['b',0x8a94a6,0.24,0.06,0.06,0.54,0.66,0.26],['c',0x4a4f57,0.30,0.12,0.30,-0.28,-0.32,0.30,Y0],['c',0x4a4f57,0.30,0.12,0.30,0.28,-0.32,0.30,Y0]]},
+  hammer: {emo:['🔨'], rows:[['c',0xa06a3a,0.14,0.92,0.14,0,-0.14,0],['b',0x9aa0a8,0.62,0.30,0.30,0,0.36,0],['b',0x8a9098,0.14,0.26,0.26,0.36,0.36,0]]},
+  up:     {emo:['⬆️','⤴','↗','⬆'], rows:[['k',0x9be7c4,0.70,0.50,0.30,0,0.24,0],['b',0x9be7c4,0.28,0.56,0.28,0,-0.24,0]]},
+  boom:   {emo:['💥'], rows:[['o',0xff8a5a,0.56,0.56,0.40,0,0,0], ...starRows(0xffd24a).map(r=>[r[0],r[1],r[2]*1.3,r[3]*1.3,r[4]*1.1,r[5]*1.3,r[6]*1.3,r[7]-0.05,r[8],r[9],r[10]])]},
+  flower: {emo:['🌷'], rows:[['c',0x6fc44c,0.10,0.70,0.10,0,-0.30,0],['b',0x8fd67a,0.30,0.12,0.16,0.18,-0.34,0,0,0,-0.6],['o',0xff9ab8,0.42,0.50,0.42,0,0.22,0],['b',0xff8fb0,0.16,0.30,0.16,-0.16,0.36,0],['b',0xff8fb0,0.16,0.30,0.16,0.16,0.36,0],['b',0xff8fb0,0.16,0.30,0.16,0,0.36,-0.14]]},
+  blossom:{emo:['🌸'], rows:[['o',0xffd24a,0.30,0.30,0.22,0,0,0.06], ...[0,1,2,3,4].map(i=>{ const a=i*Math.PI*2/5; return ['o',0xffb0cd,0.38,0.38,0.16, Math.cos(a)*0.30, Math.sin(a)*0.30, 0]; })]},
+  sprout: {emo:['🌱'], rows:[['c',0x6fc44c,0.10,0.60,0.10,0,-0.20,0],['o',0x8fd67a,0.44,0.24,0.20,-0.22,0.14,0,0,0,0.5],['o',0x8fd67a,0.44,0.24,0.20,0.22,0.18,0,0,0,-0.5]]},
+  target: {emo:['🎯'], rows:[['c',0xff6b6b,0.96,0.08,0.96,0,0,0,Y0],['c',0xfffbf0,0.66,0.10,0.66,0,0,0.02,Y0],['c',0xff6b6b,0.36,0.12,0.36,0,0,0.04,Y0],['o',0x4a4f57,0.12,0.12,0.12,0,0,0.10]]},
+  trophy: {emo:['🏆'], rows:[['c',0xffd24a,0.70,0.60,0.70,0,0.14,0],['c',0xffd24a,0.20,0.30,0.20,0,-0.26,0],['c',0xe0a828,0.56,0.10,0.56,0,-0.44,0],['a',0xffd24a,0.6,0.6,0.6,-0.40,0.20,0,0,0,-Y0],['a',0xffd24a,0.6,0.6,0.6,0.40,0.20,0,0,0,Y0]]},
+  medal:  {emo:['🎖️','🏅'], rows:medalRows(0xffd24a)},
+  medal1: {emo:['🥇'], rows:medalRows(0xffd24a)}, medal2:{emo:['🥈'], rows:medalRows(0xdfe6ef)}, medal3:{emo:['🥉'], rows:medalRows(0xe0a06a)},
+  shield: {emo:['🛡️'], rows:[['b',0x7fc0ff,0.72,0.88,0.20,0,0,0],['b',0xfffbf0,0.14,0.70,0.22,0,0,0.01],['b',0xfffbf0,0.56,0.14,0.22,0,0.10,0.01]]},
+  heart:  {emo:['❤️','🫀','💔'], rows:heartRows(0xff6b7a)},
+  heartG: {emo:['💚'], rows:heartRows(0x6fdc8a)},
+  heartY: {emo:['💛'], rows:heartRows(0xffd24a)},
+  heartP: {emo:['💞','💖'], rows:heartRows(0xff9ab8)},
+  muscle: {emo:['💪'], rows:[['c',0x8a94a6,0.12,0.80,0.12,0,0,0,0,0,Y0],['c',0x4a4f57,0.44,0.26,0.44,-0.36,0,0,0,0,Y0],['c',0x4a4f57,0.44,0.26,0.44,0.36,0,0,0,0,Y0]]},
+  leaf:   {emo:['🍃','👟'], rows:[['o',0x8fd67a,0.46,0.90,0.18,0,0,0,0,0,-0.5],['b',0x5fa84c,0.04,0.80,0.06,0,0,0.06,0,0,-0.5]]},
+  swords: {emo:['⚔️'], rows:[['b',0xd8dde6,0.10,0.90,0.06,-0.10,0.10,0,0,0,0.6],['b',0xffd24a,0.34,0.08,0.10,-0.34,-0.30,0,0,0,0.6],['b',0xa06a3a,0.10,0.26,0.10,-0.44,-0.44,0,0,0,0.6],
+            ['b',0xd8dde6,0.10,0.90,0.06,0.10,0.10,0.04,0,0,-0.6],['b',0xffd24a,0.34,0.08,0.10,0.34,-0.30,0.04,0,0,-0.6],['b',0xa06a3a,0.10,0.26,0.10,0.44,-0.44,0.04,0,0,-0.6]]},
+  wheat:  {emo:['🌾'], rows:[['c',0xc9a05a,0.06,0.90,0.06,0,-0.10,0], ...[0,1,2,3,4,5].map(i=>['o',0xe8c860,0.18,0.24,0.14, (i%2?0.10:-0.10), 0.14+i*0.10, 0, 0,0,(i%2?-0.5:0.5)])]},
+  potion: {emo:['🧪'], rows:flaskRows(0xff7a8a)},
+  bolt:   {emo:['⚡'], rows:[['b',0xffe066,0.22,0.56,0.10,-0.10,0.20,0,0,0,0.45],['b',0xffe066,0.22,0.56,0.10,0.10,-0.20,0,0,0,0.45],['b',0xffe066,0.30,0.14,0.10,0,0,0]]},
+  brick:  {emo:['🧱'], rows:[['b',0xc47e72,0.92,0.72,0.60,0,0,0],['b',0xf0e6dc,0.94,0.05,0.62,0,0,0],['b',0xf0e6dc,0.05,0.36,0.62,-0.20,0.19,0],['b',0xf0e6dc,0.05,0.36,0.62,0.20,-0.19,0]]},
+  bow:    {emo:['🏹'], rows:[['a',0xa06a3a,1.1,1.1,1.1,0,0,0,0,0,-Y0],['b',0xfffbf0,0.03,0.92,0.03,-0.44,0,0],['b',0xa06a3a,0.80,0.05,0.05,0,0,0.04],['k',0x9aa0a8,0.12,0.16,0.12,0.44,0,0.04,0,0,-Y0]]},
+  snow:   {emo:['❄️'], rows:[['b',0xa8dff8,0.08,0.96,0.08,0,0,0],['b',0xa8dff8,0.08,0.96,0.08,0,0,0,0,0,1.047],['b',0xa8dff8,0.08,0.96,0.08,0,0,0,0,0,-1.047],['o',0xd8f2ff,0.16,0.16,0.16,0,0,0]]},
+  ammo:   {emo:['🔸'], rows:[['c',0xffb347,0.24,0.44,0.24,0,-0.14,0],['k',0xffd27a,0.24,0.30,0.24,0,0.23,0]]},
+  ox_o:   {emo:['⭕'], rows:[['T',0xff6b6b,1.0,1.0,1.0,0,0,0]]},
+  ox_x:   {emo:['❌'], rows:[['b',0xff6b6b,0.18,0.96,0.14,0,0,0,0,0,Math.PI/4],['b',0xff6b6b,0.18,0.96,0.14,0,0,0,0,0,-Math.PI/4]]},
+  none:   {emo:['🚫'], rows:[['T',0x9aa0a8,1.0,1.0,1.0,0,0,0],['b',0x9aa0a8,0.16,0.80,0.10,0,0,0.02,0,0,Math.PI/4]]},
+  pause:  {emo:['⏸️'], rows:[['b',0x6f7a8a,0.26,0.80,0.20,-0.20,0,0],['b',0x6f7a8a,0.26,0.80,0.20,0.20,0,0]]},
+  play:   {emo:['▶️','⏭️','⏩','▶'], rows:[['p',0x6fdc8a,0.90,0.30,0.90,0,0,0,Y0,0,Y0]]},
+  stop:   {emo:['⏹️'], rows:[['b',0x6f7a8a,0.70,0.70,0.20,0,0,0]]},
+  skull:  {emo:['💀','☠️'], rows:[['o',0xf4f1ea,0.86,0.80,0.80,0,0.10,0],['b',0xf4f1ea,0.50,0.30,0.50,0,-0.30,0],['o',0x2a2430,0.22,0.24,0.14,-0.18,0.12,0.36],['o',0x2a2430,0.22,0.24,0.14,0.18,0.12,0.36],['b',0x2a2430,0.06,0.16,0.10,-0.08,-0.34,0.22],['b',0x2a2430,0.06,0.16,0.10,0.08,-0.34,0.22]]},
+  warn:   {emo:['⚠️','⚠','🚨'], rows:[['p',0xffd24a,1.0,0.24,1.0,0,0,0,Y0,0,0],['b',0x4a4f57,0.12,0.36,0.10,0,0.02,0.14],['o',0x4a4f57,0.14,0.14,0.10,0,-0.26,0.14]]},
+  fire:   {emo:['🔥'], rows:[['k',0xff7a3a,0.72,1.0,0.60,0,0,0],['k',0xffd24a,0.40,0.62,0.34,0,-0.14,0.12]]},
+  party:  {emo:['🎉','🎪'], rows:[['k',0xff9ab8,0.60,1.0,0.60,0,0,0,Math.PI,0,0.5],['o',0x7fd1ff,0.14,0.14,0.14,0.30,0.40,0],['o',0xffd24a,0.14,0.14,0.14,-0.10,0.52,0.10],['o',0x9be7c4,0.14,0.14,0.14,0.42,0.14,-0.10],['b',0xffd24a,0.12,0.22,0.06,0.20,0.62,0,0,0,0.6]]},
+  dizzy:  {emo:['💫'], rows:[['t',0xffd24a,1.0,1.0,1.0,0,0,0,1.2,0,0],['o',0xffe38a,0.20,0.20,0.20,0.36,0.14,0],['o',0xffe38a,0.16,0.16,0.16,-0.30,-0.10,0.2]]},
+  hands:  {emo:['🤝'], rows:[['o',0xffd9b3,0.50,0.36,0.36,-0.20,0,0,0,0,0.3],['o',0xf0c090,0.50,0.36,0.36,0.20,0.04,0.10,0,0,-0.3],['b',0x7fc0ff,0.30,0.30,0.34,-0.44,-0.02,0],['b',0xff9ab8,0.30,0.30,0.34,0.44,0.02,0.10]]},
+  basket: {emo:['🧺'], rows:[['c',0xc9a05a,0.80,0.52,0.60,0,-0.10,0],['a',0xa06a3a,0.9,0.9,0.9,0,0.14,0],['o',0xff8fb0,0.24,0.24,0.24,-0.16,0.20,0.06],['o',0xffd24a,0.22,0.22,0.22,0.14,0.22,-0.04]]},
+  bandage:{emo:['🩹'], rows:[['b',0xf0d0b0,0.96,0.34,0.12,0,0,0,0,0,0.5],['b',0xe0b898,0.30,0.30,0.14,0,0,0,0,0,0.5]]},
+  crown:  {emo:['👑'], rows:[['c',0xffd24a,0.80,0.36,0.80,0,-0.12,0],['k',0xffd24a,0.22,0.36,0.22,-0.28,0.24,0],['k',0xffd24a,0.22,0.44,0.22,0,0.28,0],['k',0xffd24a,0.22,0.36,0.22,0.28,0.24,0],['o',0xff6b7a,0.14,0.14,0.14,0,-0.10,0.40]]},
+  gemB:   {emo:['💠'], rows:[['d',0x7fc0ff,0.80,1.0,0.80,0,0,0,0,0.6,0,{flatShading:true}]]},
+  rainbow:{emo:['🌈'], rows:[['a',0xff6b6b,1.1,1.1,1.1,0,-0.2,0],['a',0xffd24a,0.86,0.86,0.86,0,-0.2,0.02],['a',0x7fc0ff,0.62,0.62,0.62,0,-0.2,0.04]]},
+  screw:  {emo:['🔩'], rows:[['c',0x9aa0a8,0.26,0.70,0.26,0,-0.10,0],['c',0xb8c0cc,0.50,0.16,0.50,0,0.34,0],['b',0x4a4f57,0.30,0.04,0.06,0,0.43,0]]},
+  wind:   {emo:['💨'], rows:[['b',0xd8f2ff,0.90,0.10,0.10,0,0.24,0,0,0,0.1],['b',0xd8f2ff,0.70,0.10,0.10,-0.10,0,0],['b',0xd8f2ff,0.50,0.10,0.10,-0.20,-0.24,0,0,0,-0.1]]},
+  hop:    {emo:['🦘'], rows:[['a',0x9aa0a8,1.0,1.0,1.0,0,-0.2,0],['o',0x5a5e66,0.34,0.30,0.34,0.40,0.30,0]]},
+  tent:   {emo:['🏕️'], rows:[['k',0xff9ab8,1.0,0.80,1.0,0,0,0],['b',0xfffbf0,0.10,0.80,0.10,0,0,0.30]]},
+  box:    {emo:['📦'], rows:[['b',0xc9a05a,0.86,0.70,0.86,0,0,0],['b',0xa06a3a,0.90,0.10,0.90,0,0.30,0]]},
+  flag:   {emo:['🚩'], rows:[['b',0x8a5a30,0.06,1.0,0.06,-0.30,0,0],['b',0xff6b6b,0.60,0.36,0.04,0.02,0.28,0]]},
+  map:    {emo:['🗺️'], rows:[['b',0x9be7c4,0.96,0.72,0.08,0,0,0],['o',0x7fc0ff,0.30,0.22,0.06,-0.16,0.06,0.06],['o',0xffd24a,0.10,0.10,0.10,0.24,-0.10,0.08]]},
+  inf:    {emo:['♾️'], rows:[['t',0x8a94a6,0.7,0.7,0.7,-0.24,0,0],['t',0x8a94a6,0.7,0.7,0.7,0.24,0,0]]},
+  dot:    {emo:['🟡'], rows:[['o',0xffd24a,0.80,0.80,0.80,0,0,0]]},
+  ambulance:{emo:['🚑'], rows:[['b',0xfffbf0,0.96,0.52,0.60,0,0,0],['b',0xff6b6b,0.12,0.36,0.62,0,0,0],['b',0xff6b6b,0.36,0.12,0.62,0,0,0],['c',0x4a4f57,0.26,0.10,0.26,-0.30,-0.30,0.30,Y0],['c',0x4a4f57,0.26,0.10,0.26,0.30,-0.30,0.30,Y0]]},
+  joy:    {emo:['🕹️'], rows:[['b',0x6f7a8a,0.80,0.30,0.60,0,-0.30,0],['c',0x4a4f57,0.10,0.60,0.10,0,0.06,0],['o',0xff6b6b,0.30,0.30,0.30,0,0.42,0]]},
+  tablet: {emo:['📱'], rows:[['b',0x4a4f57,0.60,0.96,0.08,0,0,0],['b',0x7fd1ff,0.50,0.80,0.04,0,0,0.04]]},
+  bulb:   {emo:['💡'], rows:[['o',0xffe38a,0.66,0.66,0.66,0,0.10,0],['c',0x9aa0a8,0.30,0.26,0.30,0,-0.36,0]]},
+  house:  {emo:['🏡'], rows:[['b',0xf0e6dc,0.80,0.60,0.70,0,-0.16,0],['p',0xff6b6b,0.96,0.86,0.96,0,0.28,0,Y0,0,0]]},
+  paw:    {emo:['🐾'], rows:[['o',0x4a4f57,0.44,0.40,0.20,0,-0.14,0],['o',0x4a4f57,0.16,0.18,0.16,-0.26,0.20,0],['o',0x4a4f57,0.16,0.18,0.16,-0.08,0.30,0],['o',0x4a4f57,0.16,0.18,0.16,0.10,0.30,0],['o',0x4a4f57,0.16,0.18,0.16,0.28,0.20,0]]},
+  broom:  {emo:['🧹'], rows:[['c',0xa06a3a,0.08,0.90,0.08,0,0.16,0,0,0,0.3],['b',0xe8c860,0.40,0.34,0.20,-0.14,-0.36,0,0,0,0.3]]},
+  refresh:{emo:['🔄','↩️','↔'], rows:[['a',0x7fc0ff,1.0,1.0,1.0,0,0,0,0,0,0.3],['k',0x7fc0ff,0.26,0.30,0.26,0.36,0.10,0,0,0,-1.6]]},
+  check:  {emo:['✅','✓','✔'], rows:[['b',0x6fdc8a,0.14,0.44,0.12,-0.16,-0.10,0,0,0,-0.8],['b',0x6fdc8a,0.14,0.80,0.12,0.14,0.04,0,0,0,0.7]]},
+  x2:     {emo:['✕'], rows:[['b',0x9aa0a8,0.14,0.90,0.10,0,0,0,0,0,Math.PI/4],['b',0x9aa0a8,0.14,0.90,0.10,0,0,0,0,0,-Math.PI/4]]},
+  q:      {emo:['❓'], rows:[['a',0x7fc0ff,0.7,0.7,0.7,0,0.22,0,0,0,-Y0],['b',0x7fc0ff,0.14,0.30,0.12,0,-0.10,0],['o',0x7fc0ff,0.16,0.16,0.16,0,-0.40,0]]},
+  castle: {emo:['🏰','🏯'], make:()=>buildingGroup('arrow', 3), pose:{ry:-0.4}},
+  knot:   {emo:['🪢'], rows:[['t',0xa06a3a,0.8,0.8,0.8,-0.18,0,0,0.6,0,0],['t',0xa06a3a,0.8,0.8,0.8,0.18,0,0,-0.6,0,0]]},
+  /* 농장 */
+  farm_hen:{emo:['🐔','🐥'], rows:animalRows(FARM_LOOK.hen,'hen'), pose:{ry:-0.6}},
+  farm_pig:{emo:['🐖'], rows:animalRows(FARM_LOOK.pig,'pig'), pose:{ry:-0.6}},
+  farm_cow:{emo:['🐄'], rows:animalRows(FARM_LOOK.cow,'cow'), pose:{ry:-0.6}},
+  /* 손에 드는 것 — 게임과 같은 조립 함수 */
+  tool_mine:  {emo:['⛏️'], make:()=>heldGroup(()=>mkPick(T.stone)), pose:{ry:-0.5, rz:0.15}},
+  tool_repair:{make:()=>heldGroup(()=>mkHammerTool(T.plank)), pose:{ry:-0.5, rz:0.15}},
+  tool_up:    {make:()=>heldGroup(()=>mkHammerTool(T.goldBlk, matGold)), pose:{ry:-0.5, rz:0.15}},
+  tool_del:   {make:()=>heldGroup(()=>mkPick(T.stone, matRed)), pose:{ry:-0.5, rz:0.15}},
+  tool_plant: {make:()=>partsGroup(ICO_DEF_FLOWER()), pose:{}},
+  tool_work:  {make:()=>heldGroup(mkHammer), pose:{ry:-0.5, rz:0.15}},
+  wpn0:{make:()=>partsGroup([['o',0x9aa0a8,0.72,0.60,0.66,0,0,0],['o',0xb8bec6,0.34,0.30,0.30,-0.16,0.16,0.14]])},
+  wpn1:{make:()=>heldGroup(mkSling), pose:{ry:-0.9, rx:0.2}},
+  wpn2:{emo:['🔫'], make:()=>heldGroup(mkMusket), pose:{ry:-1.15, rx:0.15}},
+  wpn3:{make:()=>heldGroup(mkRifle), pose:{ry:-1.15, rx:0.15}},
+  wpn4:{make:()=>heldGroup(mkSMG), pose:{ry:-1.15, rx:0.15}},
+  wpn5:{make:()=>heldGroup(mkSniper), pose:{ry:-1.15, rx:0.15}},
+  wpn6:{make:()=>heldGroup(mkLaser), pose:{ry:-1.15, rx:0.15}},
+  wpn7:{make:()=>heldGroup(mkMusket), pose:{ry:-1.15, rx:0.15}},
+  arm0:{rows:vestRows(0xf4f1ea, 0xe8e2d4)}, arm1:{emo:['🧥'], rows:vestRows(0xd9c3a3, 0xb8895a)},
+  arm2:{emo:['🦺'], rows:vestRows(0xb8895a, 0x8a5a30)}, arm3:{rows:vestRows(0xb8c0cc, 0x7f8794)},
+  arm4:{rows:vestRows(0xffd24a, 0xe0a828)}, arm5:{rows:vestRows(0x7fe6f6, 0x4fbcd0)},
+  pot0:{rows:flaskRows(0xff7a8a)}, pot1:{rows:flaskRows(0x7fc0ff)}, pot2:{rows:flaskRows(0xffa040)}, pot3:{rows:flaskRows(0x9aa0a8)},
+  stat0:{rows:[['c',0x8a94a6,0.12,0.80,0.12,0,0,0,0,0,Y0],['c',0x4a4f57,0.44,0.26,0.44,-0.36,0,0,0,0,Y0],['c',0x4a4f57,0.44,0.26,0.44,0.36,0,0,0,0,Y0]]},
+  stat1:{rows:heartRows(0xff6b7a)},
+  stat2:{rows:[['b',0x7fc0ff,0.80,0.36,0.44,0.06,-0.16,0],['b',0xfffbf0,0.86,0.12,0.48,0.06,-0.36,0],['b',0x7fc0ff,0.40,0.36,0.42,-0.16,0.10,0],['b',0xfffbf0,0.20,0.06,0.44,-0.10,-0.02,0]]},
+  stat3:{rows:bookRows(0x4d8de6)},
+  job_fight:{rows:[['b',0xd8dde6,0.10,0.90,0.06,-0.10,0.10,0,0,0,0.6],['b',0xffd24a,0.34,0.08,0.10,-0.34,-0.30,0,0,0,0.6],['b',0xa06a3a,0.10,0.26,0.10,-0.44,-0.44,0,0,0,0.6],
+            ['b',0xd8dde6,0.10,0.90,0.06,0.10,0.10,0.04,0,0,-0.6],['b',0xffd24a,0.34,0.08,0.10,0.34,-0.30,0.04,0,0,-0.6],['b',0xa06a3a,0.10,0.26,0.10,0.44,-0.44,0.04,0,0,-0.6]]},
+  job_build:{rows:[['c',0xa06a3a,0.14,0.92,0.14,0,-0.14,0],['b',0x9aa0a8,0.62,0.30,0.30,0,0.36,0],['b',0x8a9098,0.14,0.26,0.26,0.36,0.36,0]]},
+  job_work:{rows:[['c',0xc9a05a,0.06,0.90,0.06,0,-0.10,0], ...[0,1,2,3,4,5].map(i=>['o',0xe8c860,0.18,0.24,0.14, (i%2?0.10:-0.10), 0.14+i*0.10, 0, 0,0,(i%2?-0.5:0.5)])]}
+};
+function ICO_DEF_FLOWER(){ return ICO_DEF.flower.rows; }
+/* 모자·안경·옷·짝꿍·건물 — 게임 표에서 그대로 */
+/* ★ 모자·안경·옷은 혼자 찍으면 조각 몇 개로 보인다(리본 두 쪽, 뿔 두 개…). 양 인형 위에 얹어 찍는다 —
+   인형은 크림색이라 물건만 색으로 튄다. 모자·안경은 머리 인형, 옷은 몸 인형. */
+const DOLL_COL = {body:0xf4f1ea, wool:0xffffff, frng:0xf0e8dc};
+const dollHead = ()=> PVW_BODY.slice(2, 13).concat([PVW_BODY[PVW_BODY.length-1]]);  // 머리·앞머리·귀·눈·코·볼·입
+const dollBody = ()=> [PVW_BODY[0], ...PVW_BODY.slice(2, 13), ...PVW_BODY.slice(14)];  // + 몸통·다리·털뭉치
+HATS.forEach((rows,i)=>{ if(i) ICO_DEF['hat'+i] = {emo:[HAT_ICON[i]], make:()=>tableGroup(dollHead().concat(rows), DOLL_COL), pose:{ry:-0.55}}; });
+GLASSES.forEach((rows,i)=>{ if(i) ICO_DEF['gls'+i] = {make:()=>tableGroup(dollHead().concat(rows), DOLL_COL), pose:{ry:-0.35}}; });
+CLOTHES.forEach((rows,i)=>{ if(i) ICO_DEF['clo'+i] = {make:()=>tableGroup(dollBody().concat(rows), DOLL_COL), pose:{ry:-0.55}}; });
+PETS.forEach((rows,i)=>{ if(i) ICO_DEF['pet'+i] = {emo:[PET_ICON[i]], make:()=>tableGroup(rows), pose:{ry:-0.6}}; });
+for(const k of Object.keys(BUILD)) ICO_DEF['bld_'+k] = {make:()=>buildingGroup(k, 1), pose:{ry:-0.4}};
+/* 이름이 겹치는 이모지는 표에서 먼저 잡은 쪽이 이긴다 — 위 순서가 곧 우선순위다 */
+function buildIcons(){
+  const st = mkIconStudio(96);
+  if(!st){ window.__ICON_OFF = true; return; }
+  for(const [k, D] of Object.entries(ICO_DEF)){
+    try{
+      const g = D.make ? D.make() : partsGroup(D.rows);
+      ICON[k] = shootIcon(st, g, D.pose);
+    }catch(e){ console.warn('아이콘 실패', k, e); }
+    for(const e of (D.emo||[])) if(!EMO2ICON[e]) EMO2ICON[e] = k;
+  }
+  st.r.dispose(); st.r.forceContextLoss && st.r.forceContextLoss();
+  emoScan(document.body);
+}
+/* 창 코드가 직접 부르는 자리 — <img> + 보이지 않는 원래 글자 */
+function iconImg(key, alt, cls){
+  const src = ICON[key];
+  if(!src) return alt || '';
+  return `<img class="ic${cls ? ' '+cls : ''}" src="${src}" alt="" draggable="false"><span class="emoT">${alt||''}</span>`;
+}
+/* ── 이모지 치환 ── */
+const EMO_RE = /\p{Extended_Pictographic}(?:️|‍\p{Extended_Pictographic})*/gu;
+function emoKey(e){ return EMO2ICON[e] || EMO2ICON[e.replace(/️/g,'')] || EMO2ICON[e+'️']; }
+function emoSwap(node){
+  const t = node.nodeValue; if(!t) return;
+  EMO_RE.lastIndex = 0; if(!EMO_RE.test(t)) return;
+  /* ★ g 플래그 정규식은 test() 가 lastIndex 를 남기고, matchAll 은 그 자리부터 복사해 간다 —
+     첫 이모지를 건너뛰어 "🐑 양들의 밤 🌙" 에서 달만 바뀌었다. 되돌려 놓고 간다. */
+  EMO_RE.lastIndex = 0;
+  const p = node.parentNode; if(!p || !p.closest) return;
+  if(p.classList.contains('emoT') || p.closest('input,select,option,textarea,script,style,#diag,#loadDiag')) return;
+  const frag = document.createDocumentFragment(); let last = 0, changed = false;
+  for(const m of t.matchAll(EMO_RE)){
+    const e = m[0], k = emoKey(e); if(!k || !ICON[k]) continue;
+    if(m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index)));
+    const img = document.createElement('img'); img.className = 'ic'; img.src = ICON[k]; img.alt = ''; img.draggable = false;
+    const sp = document.createElement('span'); sp.className = 'emoT'; sp.textContent = e;
+    frag.appendChild(img); frag.appendChild(sp); last = m.index + e.length; changed = true;
+  }
+  if(!changed) return;
+  if(last < t.length) frag.appendChild(document.createTextNode(t.slice(last)));
+  p.replaceChild(frag, node);
+}
+function emoScan(root){
+  if(!root || root.nodeType !== 1) return;
+  const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT), list = [];
+  while(w.nextNode()) list.push(w.currentNode);
+  for(const n of list) emoSwap(n);
+}
+const emoObs = new MutationObserver(muts=>{
+  for(const m of muts){
+    if(m.type === 'characterData') emoSwap(m.target);
+    else for(const n of m.addedNodes){ if(n.nodeType === 3) emoSwap(n); else if(n.nodeType === 1) emoScan(n); }
+  }
+});
+emoObs.observe(document.body, {childList:true, subtree:true, characterData:true});
+buildIcons();
 
 buildPicker();
 pvwInit();
@@ -14098,6 +14770,14 @@ function noise(dur, vol, cut){
 }
 const now0 = ()=> AUD ? AUD.currentTime : 0;
 const SFX = {
+  /* ── 28차 UI 소리 — 눌림·열림·닫힘·장착·탭·점수. 파일 없이 합성, 아주 짧고 작게.
+     스물한 대가 한 교실에서 울리므로 '있는 줄 모르게 있는' 크기(0.03~0.06)로 잡았다. ── */
+  click: ()=>{ tone(880,620,0.045,'triangle',0.045); },
+  open:  ()=>{ tone(520,880,0.09,'sine',0.05); tone(780,1180,0.11,'sine',0.035, now0()+0.05); },
+  close: ()=>{ tone(760,420,0.09,'sine',0.045); },
+  equip: ()=>{ tone(660,990,0.08,'triangle',0.05); tone(990,1320,0.12,'triangle',0.04, now0()+0.07); },
+  tab:   ()=>{ tone(1050,1050,0.035,'square',0.028); },
+  plus:  ()=>{ [660,880,1100].forEach((f,i)=>tone(f,f,0.07,'sine',0.05, now0()+i*0.055)); },
   chop: ()=>{ noise(0.09,0.14,1300); tone(230,120,0.08,'square',0.05); },
   /* 공사 소리 — 뚝(높게) 딱(낮게) 번갈아 난다. 나무토막 두드리는 느낌으로 잡았다. */
   tok:  ()=>{ noise(0.05,0.10,2600); tone(700,430,0.07,'triangle',0.062); },
@@ -14261,7 +14941,7 @@ function updSky(dt, night){
   // 횃불은 밤에 켜지고 살짝 흔들린다
   const fl = skyK * (0.85 + Math.sin(tAcc*7.3)*0.07 + Math.sin(tAcc*3.1)*0.05);
   EMIT.emissiveIntensity = fl;
-  EMITC.emissiveIntensity = fl*1.1;
+  EMITC.emissiveIntensity = fl*1.1; EMITC_F.emissiveIntensity = fl*1.1;
   fireMesh.count = skyK > 0.35 ? FN : 0;
   if(fireMesh.count){
     for(let i=0;i<FN;i++){ const f = flies[i];
@@ -15002,9 +15682,13 @@ Object.assign(window, {
   /* 7차 패치 검사용 */
   __GLASSES:GLASSES, __CLOTHES:CLOTHES, __CLO_N:CLO_NAME, __HAT_NAME:HAT_NAME, __GLS_N:GLS_NAME,
   __Pdeco:()=>P_deco, __pvw:()=>pvw,
+  /* 28차 — 아이콘 공방 (t30) */
+  __ICON:()=>ICON, __EMO2ICON:()=>EMO2ICON, __iconImg:iconImg, __ICO_DEF:()=>ICO_DEF,
+  __SFXKEYS:()=>Object.keys(SFX), __itemMeshes:()=>[pMesh,aMesh,iMesh,stMesh,bMesh,oMesh,chBody,chTrim,fdBody,fdGlow],
+  __Pmouth:()=>P_mouth,
   /* 27차 — 캐릭터 조각 전부 (t29: 무늬 없는 재질 · 둥근 모양) */
   __charMeshes:()=>({
-    양:[P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_tail,P_legs,P_deco,P_pet,P_gun],
+    양:[P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_mouth,P_tail,P_legs,P_deco,P_pet,P_gun],
     늑대:[W_body,W_chest,W_ruff,W_head,W_snout,W_nose,W_tail,W_ears,W_eyes,W_legs,W_paw,W_hack,W_horn],
     농장:[F_body,F_head,F_deco,F_eyes,F_legs,F_muck,F_fly],
     병사:[S_body,S_bodyA,S_head,S_legs,S_spear,S_helm,S_tip,S_face,S_crest,S_shield,S_hat,S_orb],
