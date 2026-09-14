@@ -779,13 +779,15 @@ body.touch #hint{display:block;font-size:12px}
    끝나고 띄우는 기록판의 아랫부분(순위표)이 통째로 안 보였다. */
 .popC,#shopList,#vetList,.kitGrid{scrollbar-width:thin;
   scrollbar-color:rgba(255,214,120,.55) rgba(255,255,255,.06)}
-.popC::-webkit-scrollbar,#shopList,#vetList::-webkit-scrollbar{width:11px}
-.popC::-webkit-scrollbar-track,#shopList,#vetList::-webkit-scrollbar-track{
+/* ★ 31차b — 29차에 `#shopList` 를 ::-webkit-scrollbar 없이 적어서 **상점 목록 자체가 폭 11px** 이 됐다(교실에서 "상점에 아이템이
+   안 보여요"). 검사는 카드가 DOM 에 있나만 보고 폭은 안 쟀다 — t8 이 이제 목록 폭과 카드 크기를 잰다. */
+.popC::-webkit-scrollbar,#shopList::-webkit-scrollbar,#vetList::-webkit-scrollbar{width:11px}
+.popC::-webkit-scrollbar-track,#shopList::-webkit-scrollbar-track,#vetList::-webkit-scrollbar-track{
   background:rgba(255,255,255,.06);border-radius:999px}
-.popC::-webkit-scrollbar-thumb,#shopList,#vetList::-webkit-scrollbar-thumb{
+.popC::-webkit-scrollbar-thumb,#shopList::-webkit-scrollbar-thumb,#vetList::-webkit-scrollbar-thumb{
   background:rgba(255,214,120,.55);border-radius:999px;
   border:3px solid transparent;background-clip:padding-box}
-.popC::-webkit-scrollbar-thumb:hover,#shopList,#vetList::-webkit-scrollbar-thumb:hover{
+.popC::-webkit-scrollbar-thumb:hover,#shopList::-webkit-scrollbar-thumb:hover,#vetList::-webkit-scrollbar-thumb:hover{
   background:rgba(255,214,120,.85);background-clip:padding-box}
 
 .popC h2{letter-spacing:-.4px}
@@ -2216,7 +2218,7 @@ input.f:focus,select.f:focus{border-color:#ffd257;box-shadow:0 0 0 3px rgba(255,
   <h2>🛒 떠돌이 상인</h2>
   <p class="shopHint">낮에만 문을 엽니다. <b>자원은 우리 모둠 공용</b>이니 무엇을 살지 같이 정하세요.</p>
   <div id="shopRes"></div>
-  <div class="shopTabs">
+  <div class="shopTabs" id="shopTabs">
     <button class="btn sm on" data-tab="w">🔫 무기</button>
     <button class="btn sm" data-tab="a">🛡️ 방어구</button>
     <button class="btn sm" data-tab="b">🔸 총알</button>
@@ -9733,7 +9735,7 @@ function buildShopUI(){
   const r = myRes();
   el('shopRes').innerHTML =
     `🪵 ${r.w}　🪨 ${r.s}　✨ ${r.g}　<span style="opacity:.7">${G.me.g+1}모둠 공용</span>`;
-  for(const b of document.querySelectorAll('.shopTabs .btn'))
+  for(const b of document.querySelectorAll('#shopTabs .btn'))          // 31차b — 상점 탭만 (대장간 탭도 .shopTabs 를 입고 있다)
     b.classList.toggle('on', b.dataset.tab === shopTab);
   const w = el('shopList'); w.innerHTML = '';
   if(shopTab === 'w'){
@@ -11406,8 +11408,11 @@ document.addEventListener('click', e=>{
     '.btn,.slot,.grp button,.kCell,.kSlot,#kitTabs button,.gcell,.jobCard,.sItem button,#giveWrap button,#potRow button,.mb');
   if(t && !t.disabled) sfx('click');
 }, true);
-/* 가게 칸 바꾸기 */
-document.querySelectorAll('.shopTabs .btn').forEach(b=>
+/* 가게 칸 바꾸기
+   ★ 31차b — `.shopTabs .btn` 으로 잡았더니 **대장간 탭(#forgeTabs, 같은 class)까지** 여기 손잡이로 덮어써졌다. 조합표를 누르면
+     상점 탭 변수가 'craft' 가 되고 상점 목록만 다시 그려서 대장간 목록은 그대로였다(교실에서 "조합표 눌러도 아무것도 안 떠요").
+     검사(t31)는 탭 함수를 직접 불러서 못 잡았다 — 이제 t31 이 단추를 **눌러서** 본다. 상점 탭은 #shopTabs 로만 잡는다. */
+document.querySelectorAll('#shopTabs .btn').forEach(b=>
   b.onclick = ()=>{ shopTab = b.dataset.tab; sfx('tab'); buildShopUI(); });
 /* 태블릿에는 키보드가 없다 — 안내 자체를 눌러서 열게 한다 */
 el('bKit').onclick = ()=>{ if(G.started) openKit(); };

@@ -60,6 +60,25 @@ await screen('교실 크롬북', 1366, 768, false);
 await screen('노트북',      1280, 720, false);
 await screen('태블릿',      1024, 768, true);
 await screen('작은 태블릿',  820, 500, true);
+/* ═══ 31차b — 상점 목록이 **실제로 보이는 폭**인가.
+   29차에 스크롤바 CSS 를 `#shopList` 에 ::-webkit-scrollbar 없이 적어서 목록 자체가 폭 11px 이 됐다 — 카드는 DOM 에 다 있어서
+   개수를 세는 검사는 전부 초록이었고 교실에서 "상점에 아이템이 안 보여요" 로 터졌다. 폭과 카드 크기를 잰다. */
+{
+  const pg = await b.newPage({viewport:{width:1366,height:768}});
+  pg.on('pageerror', e=>errs.push(e.message));
+  await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
+  await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
+  await pg.fill('#iName','김하늘'); await pg.evaluate(()=>document.querySelector('#bSolo').click());
+  await pg.waitForTimeout(1200);
+  const r = await pg.evaluate(()=>{ const W=window, PL=W.__PL, s=W.__SHOP(); PL.x=s.x-1.2; PL.z=s.z-1.2; W.__updPlayer(0.001);
+    W.__shopTab('w'); W.__openShop();
+    const L=document.querySelector('#shopList'), pc=document.querySelector('#popShop .popC'), cards=[...document.querySelectorAll('#shopList .sItem')];
+    const lr=L.getBoundingClientRect(), pr=pc.getBoundingClientRect(), c0=cards[0].getBoundingClientRect();
+    return {lw:lr.width, pw:pr.width, n:cards.length, cw:c0.width, ch:c0.height}; });
+  ok(r.lw > r.pw*0.6 && r.n>=6, '★ 상점 목록이 창 폭의 60% 이상으로 실제로 펼쳐진다 (29차엔 11px 이었다)', Math.round(r.lw)+' / '+Math.round(r.pw));
+  ok(r.cw > 200 && r.ch < 220, '상점 카드 한 장이 가로로 넓고(200px+) 세로로 짓눌리지 않았다', Math.round(r.cw)+'×'+Math.round(r.ch));
+  await pg.close();
+}
 console.log('\n'+(errs.length?errs.slice(0,3).join('\n'):'(오류 없음)'));
 console.log(fail? `\n${fail}건 실패 / ${pass}건 통과` : `\n${pass}항목 전부 통과`);
 await b.close(); srv.close();
