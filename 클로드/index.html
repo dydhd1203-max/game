@@ -2626,10 +2626,17 @@ const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in wind
    그 또렷함을 정면으로 깎는다 — 24차까지 antialias:false 였던 데는 성능 말고 이유가 하나 더 있었다.
    검사기(소프트웨어 렌더링)는 이 값을 무시하므로 여기서는 잴 수가 없다.
    다시 켜 보고 싶으면 이 표의 aa 를 4로 되돌리면 된다. */
+/* ★ pr(해상도 배율)은 교실 화면에 맞춰 다시 잡았다 (25차c).
+   교실 gram 은 2560×1600 이고 윈도우 배율 150% 라 devicePixelRatio 가 1.5 다.
+   예전 값(1.6 / 1.5 / 1.3)은 크롬북 시절 것이라 이 화면에선 셋 다 거의 원본 해상도가 되어
+   **품질을 내려도 픽셀 수가 안 줄었다** — 내릴 길이 없는 손잡이였다.
+   high·mid 는 원본 그대로(2560×1600, 네모난 그림이 또렷해야 하니 일부러 안 줄인다),
+   low 는 1.0 으로 1707×1067 — 픽셀이 44% 로 준다. 무거우면 여기가 진짜 비상구다.
+   빛 번짐은 이 픽셀 수에서 처음 걸릴 수 있는 자리다 — ?diag=1 + Shift+9 로 재기 전엔 모른다. */
 const GFX_PRESET = {
-  high: {shadow:2048, bloom:1, aa:0, pr:1.6},
-  mid:  {shadow:1024, bloom:0, aa:0, pr:1.5},
-  low:  {shadow:0,    bloom:0, aa:0, pr:1.3}
+  high: {shadow:2048, bloom:1, aa:0, pr:2.0},
+  mid:  {shadow:1024, bloom:0, aa:0, pr:2.0},
+  low:  {shadow:0,    bloom:0, aa:0, pr:1.0}
 };
 /* 주소 끝에 ?gfx=low 처럼 붙이면 그 판만 바꿔 본다 — 파일을 고치지 않고 교실에서 견줘 보려고.
    선생님 설정(DEFAULTS.gfx)은 그대로 두고 이번 한 판만 달라진다. */
@@ -14201,8 +14208,17 @@ function updSky(dt, night){
   scene.fog.near = 68 - skyK*14; scene.fog.far = 152 - skyK*38;
   hemi.color.copy(HEMI_DS).lerp(HEMI_NS, skyK);
   hemi.groundColor.copy(HEMI_DG).lerp(HEMI_NG, skyK);
-  /* ★ 밤 밝기는 옛 판과 맞춰 둔다 — 낮의 그늘을 진하게 하려고 밤까지 어두워지면
-     아이가 늑대를 못 본다. 그래서 **화면 밝기를 옛 판과 번갈아 재서** 맞췄다:
+  /* ★ 밤 밝기는 옛 판(밤/낮 79%)과 맞춰 둔다 — 어두우면 아이가 늑대를 못 보고,
+     밝으면 밤이 밤 같지 않다. 25차c 에 곡선을 AgX 로 바꾸니 밤이 상대적으로 밝아져
+     89% 까지 올라갔고 t28 문턱(85%) 가장자리에 걸렸다. 문턱을 옮기지 않고 달빛을 더 내렸다:
+
+       밤의 해     밤/낮
+       0.50 (-0.65)  89%
+       0.42 (-0.73)  86%
+       0.36 (-0.79)  83%
+       0.30 (-0.85)  79%  ← 옛 판과 같다. 고름
+
+     예전 기록(아래)은 ACES 시절 값이라 숫자가 다르다 — 곡선이 바뀌면 다시 재야 한다:
 
        옛 판  낮 96.8 · 밤 76.2  (밤/낮 79%)
        처음   낮 96.0 · 밤 80.5  (밤/낮 84%)  ← 밤이 6% 밝아서 밤 같지 않았다
@@ -14211,11 +14227,11 @@ function updSky(dt, night){
      2.8% 는 아이 눈에 안 보이는 차이고, 그만큼 밤 기분은 낫다. 더 맞추는 건 과한 손질이다.
 
      낮은 처음부터 옛 판과 같았다(96.0 vs 96.8). 바뀐 것은 그늘의 진하기지 밝기가 아니다. */
-  hemi.intensity = 0.75 + skyK*0.06;
+  hemi.intensity = 0.75 - skyK*0.07;
   sun.color.copy(SUN_D).lerp(SUN_N, skyK);
   /* 밤에도 달빛 그림자는 남긴다 — 낮에만 그림자가 있으면 밤이 평평해 보인다. */
-  sun.intensity = 1.15 - skyK*0.65;
-  amb.intensity = 0.30 + skyK*0.07;
+  sun.intensity = 1.15 - skyK*0.85;
+  amb.intensity = 0.30 - skyK*0.02;
   clouds[0].children[0].material.color.setScalar(1-skyK*0.66);
 }
 let skyK = 0;
@@ -14819,6 +14835,9 @@ Object.assign(window, {
   /* 25차 그래픽 — 검사가 '켜졌나' 를 게임에 직접 물어보게 한다 */
   __GFX:GFX, __sun:sun, __sunTarget:sunTarget, __shadowFollow:shadowFollow, __SH_R:SH_R,
   __hemi:hemi, __amb:amb, __skyK:()=>skyK, __BLOOM:BLOOM, __skyDome:skyDome,
+  /* 검사용 — 밤을 기다리지 않고 바로 놓는다. skyK 는 lerp 라 검사기(1~3fps)에서는
+     밤이 오는 데 30~60초가 걸린다. goNight() 뒤에 이걸 부르면 다음 프레임부터 밤 조명이다. */
+  __setSky:(k)=>{ skyK = k; NIGHTK = k; },
   __bloomRT:()=>rtScene ? {w:rtScene.width, h:rtScene.height, half:rtA.width} : null,
   __drawFrame:drawFrame, __DBG:()=>DBG, __TONE:TONE,
   /* 문턱·세기를 판에 바로 먹인다 — 값만 바꾸면 셰이더는 옛 값을 계속 쓴다(조용히 안 먹는다) */

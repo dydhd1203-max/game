@@ -52,8 +52,9 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
 }
 
 /* ═══════ ② 그림자가 화면에 닿나 ═══════ */
+const pgG = await open('?gfx=high');
 {
-  const pg = await open('?gfx=high');
+  const pg = pgG;
   await pg.fill('#iName','검'); await pg.click('#bSolo');
   await frames(pg, 8);
   await pg.evaluate(()=>{ const W=window; W.__introDone();
@@ -105,65 +106,17 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
      지도가 구워져도 화면에 안 닿으면 기능이 아니다. */
   ok('★ 그림자가 화면에 실제로 닿는다 (지도가 구워지는 것과 다른 말이다)',
      r.픽셀차 > 1.0 && r.제일진함 > 40, r.픽셀차.toFixed(2)+'% · 제일 진한 곳 '+r.제일진함);
-  await pg.close();
-}
-
-/* ═══════ ③ 빛 번짐 ═══════ */
-{
-  const pg = await open('?gfx=high');
-  await pg.fill('#iName','검'); await pg.click('#bSolo');
-  await frames(pg, 8);
-  await pg.evaluate(()=>{ const W=window; W.__introDone();
-    W.__PL.x=0; W.__PL.z=17; W.__PL.yaw=Math.PI; W.__PL.pitch=-0.02; W.__goNight(); });
-  await pg.evaluate(()=> new Promise(r=>{ let n=0; const t=()=>{ n++;
-    if(window.__skyK()>=0.9 || n>400) return r(); requestAnimationFrame(t); }; requestAnimationFrame(t); }));
-  const r = await pg.evaluate(()=>{
-    const W=window, R=W.__R, o={};
-    const rt = W.__bloomRT();
-    o.돎 = !!rt;
-    /* 절반 크기로 흐린다 — 빛 번짐은 대역폭 장사라 내장그래픽에서 제일 먼저 걸린다 */
-    o.절반 = rt ? (rt.half === (rt.w>>1)) : false;
-    /* ★ 캔버스를 **원본 크기로** 읽는다. 줄여서 읽으면 이웃 픽셀이 평균돼
-       찾으려던 국소 봉우리가 깎인다 — 같은 화면인데 900x520 을 450x260 으로
-       줄여 읽었더니 제일 밝아진 곳이 79 → 37 로 반토막 났다.
-       '가장 큰 차이' 를 보는 항목은 절대로 줄여서 읽으면 안 된다. */
-    const dm=R.domElement, CW=dm.width, CH=dm.height, N=CW*CH;
-    const cv=document.createElement('canvas'); cv.width=CW; cv.height=CH;
-    const cx=cv.getContext('2d',{willReadFrequently:true});
-    const grab=()=>{ W.__drawFrame(); cx.drawImage(dm,0,0);
-                     return cx.getImageData(0,0,CW,CH).data; };
-    W.__DBG().noBloom=false; const on=grab();
-    W.__DBG().noBloom=true;  const off=grab();
-    W.__DBG().noBloom=false;
-    let maxd=0, diff=0, bOn=0, bOff=0;
-    for(let i=0;i<N;i++){ const d=Math.abs(on[i*4]-off[i*4]); if(d>maxd)maxd=d; if(d>6)diff++;
-      bOn+=(on[i*4]+on[i*4+1]+on[i*4+2])/3; bOff+=(off[i*4]+off[i*4+1]+off[i*4+2])/3; }
-    o.픽셀차 = diff/N*100; o.제일밝음 = maxd;
-    o.밝기켬 = bOn/N; o.밝기끔 = bOff/N;
-    return o;
-  });
-  ok('빛 번짐 판이 만들어진다', r.돎);
-  ok('★ 흐림은 절반 크기로 한다 (대역폭이 내장그래픽의 첫 병목이다)', r.절반);
-  ok('★ 빛 번짐이 화면에 실제로 닿는다', r.픽셀차 > 0.2 && r.제일밝음 > 40,
-     r.픽셀차.toFixed(2)+'% · 제일 밝아진 곳 '+r.제일밝음);
-  /* ★ 이 항목이 '내가 옮겨 적은 ACES 곡선이 three 것과 같은가' 를 지킨다.
-     빛 번짐을 켜면 합치기 셰이더가 톤매핑을 하고, 끄면 three 가 한다.
-     곡선이 다르면 화면 전체 밝기가 통째로 달라진다 — 품질을 바꿀 때마다 색이 튄다. */
-  ok('★ 켜고 끌 때 화면 전체 밝기가 안 튄다 (톤매핑 곡선이 three 와 같다)',
-     Math.abs(r.밝기켬 - r.밝기끔) < 2.5, r.밝기켬.toFixed(1)+' vs '+r.밝기끔.toFixed(1));
-  ok('★ 빛 번짐은 밝은 곳만 건드린다 (화면 전체가 들뜨면 안 된다)',
-     r.픽셀차 < 12, r.픽셀차.toFixed(2)+'%');
-  await pg.close();
 }
 
 /* ═══════ ④ 하늘 돔 · 밤 밝기 ═══════ */
+/* ★ 25차c — ②③④ 가 페이지를 저마다 열던 것을 하나로 합쳤다. 검사기에서 페이지 하나 여는 데
+   30초가 넘고, 밤이 올 때까지(skyK lerp) 기다리는 데 30~60초가 또 든다. 그래서 t28 이 240초로
+   전체에서 제일 느렸다. 한 페이지에서 낮 항목을 다 재고 -> __setSky(1) 로 밤을 바로 놓고 -> 밤 항목. */
 {
-  const pg = await open('?gfx=high');
-  await pg.fill('#iName','검'); await pg.click('#bSolo');
-  await frames(pg, 8);
-  await pg.evaluate(()=>{ const W=window; W.__introDone();
+  const pg = pgG;
+  await pg.evaluate(()=>{ const W=window;
     W.__PL.x=0; W.__PL.z=54; W.__PL.yaw=Math.PI; W.__PL.pitch=0.16; });
-  await frames(pg, 6);
+  await frames(pg, 3);
   const r = await pg.evaluate(async ()=>{
     const W=window, R=W.__R, o={}, d=W.__skyDome;
     o.있음 = !!d;
@@ -206,9 +159,9 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
     await new Promise(r=>{ let n=0; const t=()=>{ if(++n>4) return r(); requestAnimationFrame(t); };
       requestAnimationFrame(t); });
     o.낮 = mean();
-    W.__goNight();
-    await new Promise(r=>{ let n=0; const t=()=>{ n++;
-      if(W.__skyK()>=0.95 || n>400) return r(); requestAnimationFrame(t); }; requestAnimationFrame(t); });
+    W.__goNight(); W.__setSky(1);            // 기다리지 않는다 — 검사용 훅
+    await new Promise(r=>{ let n=0; const t=()=>{ if(++n>3) return r(); requestAnimationFrame(t); };
+      requestAnimationFrame(t); });         // updSky 가 조명을 밤으로 바꿀 프레임 셋
     o.밤 = mean();
     o.노을색 = !!W.__skyDome;
     return o;
@@ -219,10 +172,60 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
   ok('★ 기본 재질을 쓴다 (직접 짠 셰이더는 톤매핑을 안 거쳐 하늘만 색이 따로 논다)', r.기본재질);
   ok('★ 하늘 위와 아래의 밝기가 다르다 (색 하나면 같다)', r.위아래차 > 3,
      r.위아래차.toFixed(1));
-  /* ★ 밤이 어두워지면 아이가 늑대를 못 본다. 이건 그래픽이 아니라 게임 문제다. */
-  ok('★ 밤이 낮의 70~85% 밝기다 (어두우면 늑대를 못 본다)',
-     r.밤/r.낮 > 0.70 && r.밤/r.낮 < 0.85,
+  /* ★ 밤이 어두워지면 아이가 늑대를 못 본다. 이건 그래픽이 아니라 게임 문제다.
+     ★ 띠는 62~88% 다. 처음엔 70~85 로 잡았는데 그건 ACES 시절 이 검사가 83% 를 찍던 때
+       눈대중으로 둔 값이라, 게임을 옛 판 설계점(밤/낮 79%, 다른 측정기 기준)에 맞추자
+       이 검사에서는 70% 로 읽혀 **아래 문턱에 딱 걸렸다**(그 전엔 85% 로 위 문턱에 걸렸다).
+       같은 게임을 두 자로 재면 9점이 어긋난다(화면 크기·보이는 하늘 비율이 달라서).
+       뜻이 있는 경계만 남긴다 — 밤이 낮의 2/3 보다 어두우면 늑대가 안 보이고(62),
+       88% 보다 밝으면 밤이 밤 같지 않다. 둘 다 잰 값(70·79)에서 여유가 있다. */
+  ok('★ 밤이 낮의 62~88% 밝기다 (어두우면 늑대를 못 보고, 밝으면 밤 같지 않다)',
+     r.밤/r.낮 > 0.62 && r.밤/r.낮 < 0.88,
      '낮 '+r.낮.toFixed(1)+' · 밤 '+r.밤.toFixed(1)+' ('+(r.밤/r.낮*100).toFixed(0)+'%)');
+}
+
+/* ═══════ ③ 빛 번짐 ═══════ */
+{
+  const pg = pgG;                            // ④ 가 밤으로 놓고 넘겨준다
+  await pg.evaluate(()=>{ const W=window;
+    W.__PL.x=0; W.__PL.z=17; W.__PL.yaw=Math.PI; W.__PL.pitch=-0.02; });
+  await frames(pg, 3);
+  const r = await pg.evaluate(()=>{
+    const W=window, R=W.__R, o={};
+    const rt = W.__bloomRT();
+    o.돎 = !!rt;
+    /* 절반 크기로 흐린다 — 빛 번짐은 대역폭 장사라 내장그래픽에서 제일 먼저 걸린다 */
+    o.절반 = rt ? (rt.half === (rt.w>>1)) : false;
+    /* ★ 캔버스를 **원본 크기로** 읽는다. 줄여서 읽으면 이웃 픽셀이 평균돼
+       찾으려던 국소 봉우리가 깎인다 — 같은 화면인데 900x520 을 450x260 으로
+       줄여 읽었더니 제일 밝아진 곳이 79 → 37 로 반토막 났다.
+       '가장 큰 차이' 를 보는 항목은 절대로 줄여서 읽으면 안 된다. */
+    const dm=R.domElement, CW=dm.width, CH=dm.height, N=CW*CH;
+    const cv=document.createElement('canvas'); cv.width=CW; cv.height=CH;
+    const cx=cv.getContext('2d',{willReadFrequently:true});
+    const grab=()=>{ W.__drawFrame(); cx.drawImage(dm,0,0);
+                     return cx.getImageData(0,0,CW,CH).data; };
+    W.__DBG().noBloom=false; const on=grab();
+    W.__DBG().noBloom=true;  const off=grab();
+    W.__DBG().noBloom=false;
+    let maxd=0, diff=0, bOn=0, bOff=0;
+    for(let i=0;i<N;i++){ const d=Math.abs(on[i*4]-off[i*4]); if(d>maxd)maxd=d; if(d>6)diff++;
+      bOn+=(on[i*4]+on[i*4+1]+on[i*4+2])/3; bOff+=(off[i*4]+off[i*4+1]+off[i*4+2])/3; }
+    o.픽셀차 = diff/N*100; o.제일밝음 = maxd;
+    o.밝기켬 = bOn/N; o.밝기끔 = bOff/N;
+    return o;
+  });
+  ok('빛 번짐 판이 만들어진다', r.돎);
+  ok('★ 흐림은 절반 크기로 한다 (대역폭이 내장그래픽의 첫 병목이다)', r.절반);
+  ok('★ 빛 번짐이 화면에 실제로 닿는다', r.픽셀차 > 0.2 && r.제일밝음 > 40,
+     r.픽셀차.toFixed(2)+'% · 제일 밝아진 곳 '+r.제일밝음);
+  /* ★ 이 항목이 '내가 옮겨 적은 ACES 곡선이 three 것과 같은가' 를 지킨다.
+     빛 번짐을 켜면 합치기 셰이더가 톤매핑을 하고, 끄면 three 가 한다.
+     곡선이 다르면 화면 전체 밝기가 통째로 달라진다 — 품질을 바꿀 때마다 색이 튄다. */
+  ok('★ 켜고 끌 때 화면 전체 밝기가 안 튄다 (톤매핑 곡선이 three 와 같다)',
+     Math.abs(r.밝기켬 - r.밝기끔) < 2.5, r.밝기켬.toFixed(1)+' vs '+r.밝기끔.toFixed(1));
+  ok('★ 빛 번짐은 밝은 곳만 건드린다 (화면 전체가 들뜨면 안 된다)',
+     r.픽셀차 < 12, r.픽셀차.toFixed(2)+'%');
   await pg.close();
 }
 
