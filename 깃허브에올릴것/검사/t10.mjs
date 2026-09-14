@@ -10,7 +10,7 @@ const pg = await ctx.newPage();
 const errs=[]; pg.on('pageerror', e=>errs.push(e.message));
 pg.on('console', m=>{ if(m.type()==='error') errs.push('console '+m.text()); });
 await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
-await pg.waitForFunction('window.__READY===true', {timeout:60000});
+await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
 
 const out = await pg.evaluate(async ()=>{
   const W = window, G = W.__G, PL = W.__PL, R = [];

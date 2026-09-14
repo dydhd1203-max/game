@@ -19,7 +19,7 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
 const pg = await b.newPage({viewport:{width:1100,height:700}});
 pg.on('pageerror', e=>errs.push(e.message));
 await pg.goto('http://127.0.0.1:'+PORT+'/?gfx=high', {waitUntil:'load', timeout:60000});
-await pg.waitForFunction('window.__READY===true', {timeout:60000});
+await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
 
 /* 화면에 '보이는' 이모지 — 숨긴 원본 글자(.emoT)와 입력칸은 뺀다 */
 const VIS_EMO = `(root)=>{ const w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT), out=[];

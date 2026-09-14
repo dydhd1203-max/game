@@ -24,7 +24,7 @@ for(const [w,h] of SIZES){
   const pg = await ctx.newPage();
   pg.on('pageerror', e=>errs.push(e.message));
   await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
-  await pg.waitForFunction('window.__READY===true', {timeout:60000});
+  await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
   const r = await pg.evaluate(()=>{
     const t = document.getElementById('title');
     const h1 = document.querySelector('#titleCard h1');
@@ -44,7 +44,7 @@ const pg = await b.newPage({viewport:{width:1366,height:768}});
 pg.on('pageerror', e=>errs.push(e.message));
 pg.on('console', m=>{ if(m.type()==='error') errs.push('console '+m.text()); });
 await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
-await pg.waitForFunction('window.__READY===true', {timeout:60000});
+await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
 
 /* ═══════ ② 목록 — 아이콘·이름이 본 배열과 길이가 같나 ═══════
    ★ SHEEP_BITE 때와 같은 함정이다. 한 칸이 밀리면 오류가 아니라 **조용히 딴 것**이 나온다. */

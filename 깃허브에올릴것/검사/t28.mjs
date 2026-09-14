@@ -21,7 +21,7 @@ async function open(q){
   const pg = await b.newPage({viewport:{width:900,height:520}});
   pg.on('pageerror', e=>errs.push(e.message));
   await pg.goto('http://127.0.0.1:'+PORT+'/'+q, {waitUntil:'load', timeout:60000});
-  await pg.waitForFunction('window.__READY===true', {timeout:60000});
+  await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
   return pg;
 }
 /* 프레임을 센다. 검사기는 1~3fps 라 시간으로 기다리면 프레임이 한 번도 안 돌 수 있다

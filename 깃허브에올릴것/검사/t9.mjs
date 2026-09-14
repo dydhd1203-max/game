@@ -11,7 +11,7 @@ const errs=[]; pg.on('pageerror', e=>errs.push(e.message));
 let pass=0, fail=0;
 const ok=(c,n,d)=>{ if(c){pass++;console.log('  OK  '+n+(d?'   → '+d:''));} else {fail++;console.log('  ✗   '+n+(d?'   → '+d:''));} };
 await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
-await pg.waitForFunction('window.__READY===true', {timeout:60000});
+await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
 await pg.fill('#iName','김하늘');
 await pg.evaluate(()=>document.querySelectorAll('#grpPick button')[2].click());   // 3모둠
 await pg.evaluate(()=>document.querySelector('#bSolo').click());
@@ -185,7 +185,7 @@ const before = await pg.evaluate(()=>({uid:window.__uid, ls:{
   g:localStorage.getItem('sheepG')}}));
 const pg2 = await ctx.newPage();
 await pg2.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
-await pg2.waitForFunction('window.__READY===true', {timeout:60000});
+await pg2.waitForFunction('window.__READY===true', null, {timeout:60000});
 const after = await pg2.evaluate(()=>({uid:window.__uid,
   name:document.getElementById('iName').value,
   g:[...document.querySelectorAll('#grpPick button')].findIndex(b=>b.classList.contains('on'))}));

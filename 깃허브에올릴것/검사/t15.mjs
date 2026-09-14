@@ -12,9 +12,9 @@ const pg = await b.newPage({viewport:{width:1180,height:760}});
 pg.on('pageerror', e=>errs.push(e.message));
 pg.on('console', m=>{ if(m.type()==='error') errs.push('console '+m.text()); });
 await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
-await pg.waitForFunction('window.__READY===true', {timeout:60000});
+await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
 await pg.fill('#iName','하늘'); await pg.click('#bSolo');
-await pg.waitForFunction('window.__G && window.__G.started===true', {timeout:30000});
+await pg.waitForFunction('window.__G && window.__G.started===true', null, {timeout:30000});
 await pg.waitForTimeout(900);
 
 /* ───────── 이름표에 레벨 ───────── */
