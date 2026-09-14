@@ -163,8 +163,9 @@ const grow = await pg.evaluate(()=>{
       if(e[0] !== 0) n++;                    // 크기 0 이면 감춘 것
     }
     return n; };
-  for(const n of [0, 3, 6]){
-    f.hen = Math.min(n,2); f.pig = Math.max(0, Math.min(n-2, 2)); f.cow = Math.max(0, n-4);
+  /* 29차 — 정원이 10 이 되며 단계 문턱이 0~3 · 4~6 · 7+ 로 옮겨 갔다. 세 단계를 다 밟는 마리수로 */
+  for(const n of [0, 4, 7]){
+    f.hen = Math.min(n,3); f.pig = Math.max(0, Math.min(n-3, 3)); f.cow = Math.max(0, n-6);
     W.__farmDirty(true); W.__applyFarmStage(); W.__solidRebuild();
     o.단계.push(W.__farmVis()[g]);
     o.반너비.push(W.__farmR2(g));
@@ -175,7 +176,7 @@ const grow = await pg.evaluate(()=>{
   return o;
 });
 ok('★ 마리수가 늘면 우리 단계가 올라간다', grow.단계[0] < grow.단계[1] && grow.단계[1] < grow.단계[2],
-   '0마리→'+grow.단계[0]+' · 3마리→'+grow.단계[1]+' · 6마리→'+grow.단계[2]);
+   '0마리→'+grow.단계[0]+' · 4마리→'+grow.단계[1]+' · 7마리→'+grow.단계[2]);
 ok('★ 울타리가 실제로 밖으로 나간다', grow.반너비[0] < grow.반너비[1] && grow.반너비[1] < grow.반너비[2],
    grow.반너비.join(' → ')+'칸');
 ok('★ 마당(짚 깐 바닥)도 같이 넓어진다', grow.짚칸[0] < grow.짚칸[1] && grow.짚칸[1] < grow.짚칸[2],
@@ -184,50 +185,61 @@ ok('★ 일하는 자리(여물통)도 우리를 따라 움직인다',
    grow.여물통[0][0] !== grow.여물통[2][0] || grow.여물통[0][1] !== grow.여물통[2][1],
    JSON.stringify(grow.여물통[0])+' → '+JSON.stringify(grow.여물통[2]));
 
-/* ═══════ ⑥ 상점(상인)에서 동물을 살 수 있다 ═══════ */
+/* ═══════ ⑥ 동물 상인(상인 옆 아줌마)에게서 동물을 살 수 있다 — 29차에 상인 가게에서 여기로 옮겼다 ═══════ */
 const shop = await pg.evaluate(()=>{
   const W=window, o={};
   const r = W.__G.res[W.__G.me.g];
   r.w=0; r.s=0; r.g=0;
-  W.__shopTab('f'); W.__buildShopUI();
-  const list = document.getElementById('shopList');
+  W.__buildVetUI();
+  const list = document.getElementById('vetList');
   o.모자랄때글 = list.innerText;
   o.모자랄때단추 = [...list.querySelectorAll('button')].map(b=>[b.textContent, b.disabled]);
   r.w=999; r.s=999; r.g=999;
-  W.__buildShopUI();
+  W.__buildVetUI();
   const cards = [...list.querySelectorAll('.sItem')];
   o.칸이름 = cards.map(d=>d.querySelector('.sn').textContent.trim());
-  o.살수있는단추 = cards.filter(d=>!d.querySelector('button').disabled).length;
+  o.살수있는단추 = cards.filter(d=>{ const b = d.querySelector('button'); return b && !b.disabled; }).length;   // 사료 안내 카드에는 단추가 없다
   const before = W.__farmCount(W.__G.farm[W.__G.me.g]);
   cards[0].querySelector('button').click();
   o.늘었나 = W.__farmCount(W.__G.farm[W.__G.me.g]) - before;
   /* 사고 나면 그 자리에서 화면이 다시 그려져야 한다 */
-  o.다시그림 = document.getElementById('shopList').innerText.includes('마리');
+  o.다시그림 = document.getElementById('vetList').innerText.includes('마리');
+  /* 상인 가게의 농장 칸에는 이제 사는 카드가 없다(팔기만) */
+  W.__shopTab('f'); W.__buildShopUI();
+  o.상인가게에사는단추 = [...document.querySelectorAll('#shopList .sItem button')].filter(b=>/사기|모자라요|꽉/.test(b.textContent)).length;
   const f = W.__G.farm[W.__G.me.g]; f.hen=0; f.pig=0; f.cow=0;
   W.__farmDirty(true); W.__applyFarmStage();
   return o;
 });
-ok('★ 상인 가게 🧺 농장 칸에서 동물을 살 수 있다 (예전엔 파는 것만 있었다)',
-   shop.칸이름.some(n=>n.startsWith('닭')) && shop.칸이름.some(n=>n.startsWith('소')),
-   shop.칸이름.join(' · '));
+ok('★ 동물 상인 창에 닭·돼지·소 카드가 있다 (29차 — 상인 가게가 아니라 옆의 아줌마에게서 산다)',
+   shop.칸이름.some(n=>n.startsWith('닭')) && shop.칸이름.some(n=>n.startsWith('소')) && shop.상인가게에사는단추 === 0,
+   shop.칸이름.join(' · ') + ' · 상인 가게 사는 단추 ' + shop.상인가게에사는단추);
 ok('★ 자원이 넉넉하면 살 수 있는 단추가 열린다', shop.살수있는단추 >= 3, shop.살수있는단추+'개');
 ok('★ 눌렀을 때 진짜로 우리에 들어간다', shop.늘었나 === 1);
-ok('★ 산 뒤에 가게 화면이 그 자리에서 다시 그려진다', shop.다시그림);
+ok('★ 산 뒤에 동물 상인 화면이 그 자리에서 다시 그려진다', shop.다시그림);
 ok('★ 못 살 때는 왜 못 사는지 화면에 나온다 (단추만 죽어 있으면 고장난 줄 안다)',
    /더 모아야 해요/.test(shop.모자랄때글), shop.모자랄때글.split('\n').filter(l=>/더 모아야/.test(l))[0]||'없음');
 
-/* ═══════ ⑦ 농장 화면도 같은 것을 쓴다 ═══════ */
+/* ═══════ ⑦ 농장 창(H)은 상태 창이다 — 29차: 어디서나 열리고, 사는 단추는 없고, 누가 몇 마리인지 보인다 ═══════ */
 const farmUI = await pg.evaluate(()=>{
   const W=window, o={};
-  const r = W.__G.res[W.__G.me.g]; r.w=0; r.s=0; r.g=0;
+  const f = W.__G.farm[W.__G.me.g]; f.hen = 2; f.pig = 0; f.cow = 1;
   W.__buildFarmUI();
   o.글 = document.getElementById('farmList').innerText;
-  r.w=999; r.s=999; r.g=999; W.__buildFarmUI();
-  o.넉넉할때 = [...document.querySelectorAll('#farmList button')].filter(b=>!b.disabled).length;
+  o.사는단추 = [...document.querySelectorAll('#farmList button')].length;
+  o.카드 = document.querySelectorAll('#farmList .sItem').length;
+  /* 밤에도, 농장에서 멀어도 열린다 */
+  const PL = W.__PL; const x0 = PL.x, z0 = PL.z; PL.x = 0; PL.z = 0;
+  W.__goNight(); W.__openFarm();
+  o.밤에열림 = document.getElementById('popFarm').classList.contains('on');
+  document.getElementById('popFarm').classList.remove('on'); W.__goDay(); PL.x = x0; PL.z = z0;
+  f.hen=0; f.pig=0; f.cow=0;
   return o;
 });
-ok('★ 농장 화면에도 모자란 자원이 적힌다', /더 모아야 해요/.test(farmUI.글));
-ok('★ 농장 화면에서도 살 수 있다', farmUI.넉넉할때 >= 3, farmUI.넉넉할때+'개');
+ok('★ 농장 창에 동물마다 몇 마리인지 적힌다 (닭 2마리 · 소 1마리)', /닭 2마리/.test(farmUI.글) && /소 1마리/.test(farmUI.글) && farmUI.카드 === 3,
+   farmUI.글.replace(/\s+/g,' ').slice(0,60));
+ok('★ 농장 창에는 사는 단추가 없다(동물 상인에게서 산다) · 밤에도 어디서나 H 로 열린다', farmUI.사는단추 === 0 && farmUI.밤에열림,
+   '단추 '+farmUI.사는단추+' · 밤 '+farmUI.밤에열림);
 
 /* ═══════ ⑧ 상인·대장장이가 움직인다 ═══════ */
 const npc = await pg.evaluate(async ()=>{
@@ -283,7 +295,7 @@ const tip = await pg.evaluate(()=>{
   o.있음 = !!document.getElementById('farmTip');
   return o;
 });
-ok('★ 우리 앞에 서면 "H 를 눌러 농장 열기" 안내가 뜬다', tip.있음 && tip.가까이);
+ok('★ 우리 앞에 서도 "H 를 눌러 농장 열기" 안내가 더는 안 뜬다 (29차 — 선생님: 들어갈 때마다 거슬린다. H 는 어디서나)', tip.있음 && !tip.가까이 && !tip.멀리);
 ok('★ 멀어지면 안내가 사라진다', !tip.멀리);
 
 /* ═══════ ⑩ 자원이 깔리는 자리 ═══════
