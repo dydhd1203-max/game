@@ -8,7 +8,7 @@ const errs=[];
 pg.on('pageerror', e=> errs.push('PAGEERROR: '+e.message));
 pg.on('console', m=>{ if(m.type()==='error') errs.push('CONSOLE: '+m.text()); });
 await pg.goto('http://127.0.0.1:'+PORT+'/?diag=1', {waitUntil:'load', timeout:60000});
-await pg.waitForFunction('window.__READY===true', {timeout:60000});
+await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
 await pg.fill('#iName','테스트'); await pg.click('#bSolo'); await pg.waitForTimeout(900);
 
 const r = await pg.evaluate(()=>{

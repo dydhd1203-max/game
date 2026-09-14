@@ -12,7 +12,7 @@ async function screen(tag, w, h, touch){
   const pg = await b.newPage({viewport:{width:w,height:h}, hasTouch:!!touch, isMobile:!!touch});
   pg.on('pageerror', e=>errs.push(tag+': '+e.message));
   await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
-  await pg.waitForFunction('window.__READY===true', {timeout:60000});
+  await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
   await pg.fill('#iName','김하늘'); await pg.evaluate(()=>document.querySelector('#bSolo').click());
   await pg.waitForTimeout(1300);
   const r = await pg.evaluate(()=>{

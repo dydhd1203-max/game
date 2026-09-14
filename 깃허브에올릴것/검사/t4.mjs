@@ -7,7 +7,7 @@ const pg = await b.newPage({viewport:{width:1100,height:700}});
 const errs=[];
 pg.on('pageerror', e=> errs.push('PAGEERROR: '+e.message));
 await pg.goto('http://127.0.0.1:'+PORT+'/?diag=1', {waitUntil:'load', timeout:60000});
-await pg.waitForFunction('window.__READY===true', {timeout:60000});
+await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
 
 const r = await pg.evaluate(()=>{
   const W=window, out=[], ok=(n,c,x)=>out.push((c?'  OK  ':'FAIL  ')+n+(x!==undefined?'   → '+x:''));

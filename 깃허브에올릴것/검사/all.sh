@@ -29,14 +29,16 @@ wait
 
 tot=0; fail=0; dead=0
 for t in $TESTS; do
-  o=$(grep -c '  OK  ' "$OUT/$t.log"); f=$(grep -c '^FAIL' "$OUT/$t.log")
+  # ★ t8·t9 는 빨간 줄을 '  ✗   ' 로 찍는다(다른 검사는 'FAIL'). 28차 전체 판에서 t8 의 ✗ 하나가
+  #   안 세어져 '합계가 1개 모자람' 으로만 보였다 — 두 모양 다 센다.
+  o=$(grep -c '  OK  ' "$OUT/$t.log"); f=$(grep -c '^FAIL\|^  ✗ ' "$OUT/$t.log")
   tot=$((tot+o+f)); fail=$((fail+f))
   if [ $((o+f)) -eq 0 ]; then
     dead=$((dead+1))
     printf '%-5s 한 항목도 안 돌았다 ↓\n' "$t"; tail -5 "$OUT/$t.log" | sed 's/^/      /'
   elif [ "$f" -gt 0 ]; then
     printf '%-5s %d항목 · 실패 %d ↓\n' "$t" $((o+f)) "$f"
-    grep '^FAIL' "$OUT/$t.log" | sed 's/^/      /'
+    grep '^FAIL\|^  ✗ ' "$OUT/$t.log" | sed 's/^/      /'
   fi
 done
 

@@ -14,7 +14,7 @@ for(const [w,h] of [[1400,860],[1280,800],[1180,700],[1024,640],[900,600],[820,1
   const pg = await b.newPage({viewport:{width:w,height:h}});
   pg.on('pageerror', e=>errs.push(e.message));
   await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
-  await pg.waitForFunction('window.__READY===true', {timeout:60000});
+  await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
   await pg.fill('#iName','t'); await pg.evaluate(()=>document.querySelector('#bSolo').click());
   await pg.waitForTimeout(800);
   const r = await pg.evaluate(()=>{
@@ -42,7 +42,7 @@ const pg = await b.newPage({viewport:{width:1180,height:700}});
 pg.on('pageerror', e=>errs.push(e.message));
 pg.on('console', m=>{ if(m.type()==='error') errs.push('console '+m.text()); });
 await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
-await pg.waitForFunction('window.__READY===true', {timeout:60000});
+await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
 await pg.fill('#iName','김하늘'); await pg.evaluate(()=>document.querySelector('#bSolo').click());
 await pg.waitForTimeout(900);
 const r2 = await pg.evaluate(()=>{

@@ -18,7 +18,7 @@ for(const [w,h,touch] of SIZES){
   const pg = await ctx.newPage();
   pg.on('pageerror', e=>errs.push(e.message));
   await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
-  await pg.waitForFunction('window.__READY===true', {timeout:60000});
+  await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
   await pg.fill('#iName','t'); await pg.evaluate(()=>document.querySelector('#bSolo').click());
   await pg.waitForTimeout(700);
   const r = await pg.evaluate(([BW,BH])=>{
@@ -60,7 +60,7 @@ for(const [w,h,touch] of SIZES){
   const pg = await b.newPage({viewport:{width:1180,height:720}});
   pg.on('pageerror', e=>errs.push(e.message));
   await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
-  await pg.waitForFunction('window.__READY===true', {timeout:60000});
+  await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
   await pg.fill('#iName','t'); await pg.evaluate(()=>document.querySelector('#bSolo').click());
   await pg.waitForTimeout(1200);
   const r = await pg.evaluate(()=>{

@@ -1672,7 +1672,10 @@ body{color:var(--pk-ink)}
 img.ic{display:inline-block;height:1.3em;width:auto;vertical-align:-.32em;margin:0 .05em;
   pointer-events:none;user-select:none;-webkit-user-drag:none;
   filter:drop-shadow(0 2px 2px rgba(60,40,100,.18))}
-.emoT{position:absolute;width:0;height:0;overflow:hidden;font-size:0;opacity:0;pointer-events:none}
+.emoT{position:absolute;width:0;height:0;overflow:hidden;font-size:0;opacity:0;pointer-events:none;
+  /* ★ 어떤 'span' 규칙에도 상자를 얻으면 안 된다 — 핫바 값 칸의 `.cost span{padding:1.5px 6px}` 이 이 글자 칸에도
+     붙어 보이지 않는 14px 상자가 칸 밖으로 0.6px 삐져나갔다(t8 820×500). 값은 0 이고 자리만 차지하지 않는다. */
+  padding:0!important;border:0!important;margin:0!important;background:none!important;box-shadow:none!important}
 
 /* ── 판 ── */
 .pnl{background:var(--pk-bg);border:1.5px solid #fff;border-radius:18px;box-shadow:var(--soft)}
@@ -14084,12 +14087,18 @@ function buildingGroup(k, lv){
   }
   return g;
 }
-function mkIconStudio(size){
-  const cvs = document.createElement('canvas'); cvs.width = cvs.height = size;
+/* 공방 — 아이콘 n 장을 한 캔버스(cols×cols 칸)에 나눠 그린다. GPU 에서 읽어 오는 것은 끝에 **한 번**.
+   ★ 왜 한 캔버스인가 — 한가한 판에서는 96px 165장을 따로 읽으나(744ms) 한 장으로 모아 읽으나(844ms) 같다
+   (읽는 픽셀 수에 비례). 그런데 같은 브라우저에 게임이 돌고 있는 페이지가 하나라도 있으면 읽기 한 번마다
+   그 페이지의 프레임(swiftshader 200ms) 뒤에 줄을 서야 해서, 165번 읽기가 25초가 됐다(t9 둘째 페이지 READY
+   37초). 한 번 읽으면 한 번만 선다. 교실 GPU 에서도 읽기 한 번이 165번보다 싸다. */
+function mkIconStudio(size, n){
+  const cols = Math.ceil(Math.sqrt(Math.max(1, n||1))), W = cols*size;
+  const cvs = document.createElement('canvas'); cvs.width = cvs.height = W;
   let r;
   try{ r = new THREE.WebGLRenderer({canvas:cvs, antialias:true, alpha:true, preserveDrawingBuffer:true}); }
   catch(e){ return null; }
-  r.setPixelRatio(1); r.setSize(size, size, false); r.setClearColor(0x000000, 0);
+  r.setPixelRatio(1); r.setSize(W, W, false); r.setClearColor(0x000000, 0); r.setScissorTest(true);
   r.outputColorSpace = THREE.SRGBColorSpace;
   const sc = new THREE.Scene();
   const cam = new THREE.PerspectiveCamera(26, 1, 0.1, 50);
@@ -14098,10 +14107,11 @@ function mkIconStudio(size){
   const key = new THREE.DirectionalLight(0xfff3d8, 1.45); key.position.set(2.5, 4.5, 3.5); sc.add(key);
   const rim = new THREE.DirectionalLight(0xcfe8ff, 0.6); rim.position.set(-3, 1.2, -2.5); sc.add(rim);
   const grp = new THREE.Group(); sc.add(grp);
-  return {r, sc, cam, grp, cvs};
+  return {r, sc, cam, grp, cvs, size, cols, W};
 }
 const _ib = new THREE.Box3(), _isz = new THREE.Vector3(), _ict = new THREE.Vector3();
-function shootIcon(st, obj, opt){
+/* 물건 하나를 idx 번째 칸에 그린다(읽지는 않는다) */
+function shootIcon(st, obj, opt, idx){
   opt = opt || {};
   st.grp.clear();
   obj.rotation.set(opt.rx||0, opt.ry||0, opt.rz||0);
@@ -14111,11 +14121,26 @@ function shootIcon(st, obj, opt){
   _ib.setFromObject(obj); _ib.getSize(_isz); _ib.getCenter(_ict);
   const mx = Math.max(_isz.x, _isz.y, _isz.z) || 1, s = (opt.fill || 1.15) / mx;
   st.grp.scale.setScalar(s); st.grp.position.set(-_ict.x*s, -_ict.y*s, -_ict.z*s); st.grp.updateMatrixWorld(true);
+  const cx = (idx % st.cols) * st.size, cy = st.W - (Math.floor(idx / st.cols) + 1) * st.size;   // WebGL 은 아래가 0
+  st.r.setViewport(cx, cy, st.size, st.size); st.r.setScissor(cx, cy, st.size, st.size);
   st.r.render(st.sc, st.cam);
-  const url = st.cvs.toDataURL('image/png');
   st.grp.clear();
   obj.traverse(o=>{ if(o.isMesh && o.material && o.material._ico) o.material.dispose(); });
-  return url;
+}
+/* 다 그린 캔버스를 한 번 읽어(2D 로 복사) 칸마다 PNG 로 자른다 */
+function sliceIcons(st, slots, T){
+  const a = performance.now();
+  const A = document.createElement('canvas'); A.width = A.height = st.W;
+  A.getContext('2d').drawImage(st.cvs, 0, 0);                       // ← GPU 에서 읽어 오는 유일한 순간
+  T.read = performance.now() - a;
+  const cell = document.createElement('canvas'); cell.width = cell.height = st.size; const x = cell.getContext('2d');
+  const b = performance.now();
+  for(const [k, idx] of slots){
+    x.clearRect(0, 0, st.size, st.size);
+    x.drawImage(A, (idx % st.cols) * st.size, Math.floor(idx / st.cols) * st.size, st.size, st.size, 0, 0, st.size, st.size);
+    ICON[k] = cell.toDataURL('image/png');
+  }
+  T.png = performance.now() - b;
 }
 /* ── 물건 설계도 ── 짧은 도우미부터 */
 const Y0 = Math.PI/2;
@@ -14287,24 +14312,66 @@ CLOTHES.forEach((rows,i)=>{ if(i) ICO_DEF['clo'+i] = {make:()=>tableGroup(dollBo
 PETS.forEach((rows,i)=>{ if(i) ICO_DEF['pet'+i] = {emo:[PET_ICON[i]], make:()=>tableGroup(rows), pose:{ry:-0.6}}; });
 for(const k of Object.keys(BUILD)) ICO_DEF['bld_'+k] = {make:()=>buildingGroup(k, 1), pose:{ry:-0.4}};
 /* 이름이 겹치는 이모지는 표에서 먼저 잡은 쪽이 이긴다 — 위 순서가 곧 우선순위다 */
+const ICON_BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+/* 이모지 → 키 표는 굽기 전에 미리 채운다 — 아이콘이 아직 없어도 <img data-ic> 자리를 잡아 둘 수 있게 */
+for(const [k, D] of Object.entries(ICO_DEF)) for(const e of (D.emo||[])) if(!EMO2ICON[e]) EMO2ICON[e] = k;
+let iconsDone = false; const iconWaiters = [];
+function onIcons(fn){ if(iconsDone) fn(); else iconWaiters.push(fn); }
+/* ★ 굽기는 load 뒤, 제목 화면이 한 번 그려진 다음에 한 번에 한다.
+   28차 첫 판은 모듈 맨 위에서 165장을 구웠다 — 모듈 스크립트는 load 이벤트 전에 끝나야 하므로 load 가 그만큼
+   늦었다(swiftshader 한가한 판: load 0.7초 → 3.4초, 같은 브라우저의 둘째 페이지 9초 → 31초. 바쁜 판에서 t9 의
+   둘째 페이지가 60초를 넘겨 죽었다). 비싼 것은 그리기(225ms)가 아니라 WebGL 캔버스를 읽어 오는 toDataURL(744ms)
+   이고 읽는 픽셀 수에 비례한다 — 한 장짜리 아틀라스로 모아 한 번에 읽어도(844ms), readPixels 로 직접 읽어도
+   (901ms) 같다. 그래서 순서를 바꿨다: 제목 화면이 먼저 뜨고(load 도 그때 끝난다) 아이콘은 그 다음 한 덩어리로.
+   12ms 씩 잘라 setTimeout 으로 이어 봤더니 사이사이에 게임 프레임이 끼어 swiftshader 에서는 138장에 30초가
+   걸렸다(프레임 하나가 200ms) — 한 덩어리가 맞다. 그 사이 창 코드가 iconImg 로 만든 <img data-ic> 와 치환기가
+   잡아 둔 자리는 다 구운 뒤 src 를 채운다. __READY 는 아이콘까지 끝난 뒤에 켠다(t30 이 165장을 센다).
+   시간은 window.__ICON_MS 에 남는다. */
 function buildIcons(){
-  const st = mkIconStudio(96);
-  if(!st){ window.__ICON_OFF = true; return; }
-  for(const [k, D] of Object.entries(ICO_DEF)){
-    try{
-      const g = D.make ? D.make() : partsGroup(D.rows);
-      ICON[k] = shootIcon(st, g, D.pose);
-    }catch(e){ console.warn('아이콘 실패', k, e); }
-    for(const e of (D.emo||[])) if(!EMO2ICON[e]) EMO2ICON[e] = k;
-  }
-  st.r.dispose(); st.r.forceContextLoss && st.r.forceContextLoss();
-  emoScan(document.body);
+  const T = {n:0, make:0, render:0, read:0, png:0, studio:0, scan:0, busy:0, total:0}, t0 = performance.now();
+  const keys = Object.keys(ICO_DEF);
+  const st = mkIconStudio(96, keys.length);
+  T.studio = performance.now() - t0;
+  if(!st) window.__ICON_OFF = true;
+  let started = false;
+  const run = ()=>{
+    if(started) return; started = true;
+    if(st){
+      const slots = []; let idx = 0;
+      for(const k of keys){
+        const D = ICO_DEF[k];
+        try{
+          const a = performance.now();
+          const g = D.make ? D.make() : partsGroup(D.rows);
+          const b = performance.now();
+          shootIcon(st, g, D.pose, idx);
+          T.make += b - a; T.render += performance.now() - b;
+          slots.push([k, idx]); T.n++;
+        }catch(e){ console.warn('아이콘 실패', k, e); }
+        idx++;
+      }
+      sliceIcons(st, slots, T);
+      st.r.dispose(); st.r.forceContextLoss && st.r.forceContextLoss();
+    }
+    const a = performance.now();
+    for(const img of document.querySelectorAll('img.ic[data-ic]')){ const u = ICON[img.dataset.ic]; if(u && img.src !== u) img.src = u; }
+    emoScan(document.body);
+    T.scan = performance.now() - a;
+    T.total = performance.now() - t0; T.busy = T.studio + T.make + T.render + T.read + T.png + T.scan;
+    for(const k in T) T[k] = Math.round(T[k]);
+    window.__ICON_MS = T;
+    iconsDone = true; for(const fn of iconWaiters) fn(); iconWaiters.length = 0;
+  };
+  /* 한 프레임 그려진 뒤(rAF → 타이머). 숨은 탭에서는 rAF 가 안 오므로 400ms 타이머가 대신 간다 */
+  const kick = ()=>{ requestAnimationFrame(()=>setTimeout(run, 0)); setTimeout(run, 400); };
+  if(document.readyState === 'complete') kick();
+  else window.addEventListener('load', kick, {once:true});
+  emoScan(document.body);            // 제목 화면의 이모지는 지금 자리(빈 그림)만 잡아 둔다 — 글자가 보였다가 바뀌지 않게
 }
-/* 창 코드가 직접 부르는 자리 — <img> + 보이지 않는 원래 글자 */
+/* 창 코드가 직접 부르는 자리 — <img data-ic> + 보이지 않는 원래 글자. 아직 안 구워졌으면 빈 그림을 두고 뒤에 채운다 */
 function iconImg(key, alt, cls){
-  const src = ICON[key];
-  if(!src) return alt || '';
-  return `<img class="ic${cls ? ' '+cls : ''}" src="${src}" alt="" draggable="false"><span class="emoT">${alt||''}</span>`;
+  if(!ICON[key] && !ICO_DEF[key]) return alt || '';
+  return `<img class="ic${cls ? ' '+cls : ''}" data-ic="${key}" src="${ICON[key] || ICON_BLANK}" alt="" draggable="false"><span class="emoT">${alt||''}</span>`;
 }
 /* ── 이모지 치환 ── */
 const EMO_RE = /\p{Extended_Pictographic}(?:️|‍\p{Extended_Pictographic})*/gu;
@@ -14319,9 +14386,9 @@ function emoSwap(node){
   if(p.classList.contains('emoT') || p.closest('input,select,option,textarea,script,style,#diag,#loadDiag')) return;
   const frag = document.createDocumentFragment(); let last = 0, changed = false;
   for(const m of t.matchAll(EMO_RE)){
-    const e = m[0], k = emoKey(e); if(!k || !ICON[k]) continue;
+    const e = m[0], k = emoKey(e); if(!k || (!ICON[k] && !ICO_DEF[k])) continue;
     if(m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index)));
-    const img = document.createElement('img'); img.className = 'ic'; img.src = ICON[k]; img.alt = ''; img.draggable = false;
+    const img = document.createElement('img'); img.className = 'ic'; img.dataset.ic = k; img.src = ICON[k] || ICON_BLANK; img.alt = ''; img.draggable = false;
     const sp = document.createElement('span'); sp.className = 'emoT'; sp.textContent = e;
     frag.appendChild(img); frag.appendChild(sp); last = m.index + e.length; changed = true;
   }
@@ -15632,7 +15699,7 @@ Object.assign(window, {
   __tagOwner:()=>tagOwner, __MY:MY,
   __XPC:{mine:XP_MINE, build:XP_BUILD, up:XP_UP, fix:XP_FIX, dmg:XP_DMG, kill:XP_KILL},
   __repair:repairStru, __struCX:struCX, __struCZ:struCZ, __nearStru:nearStruId,
-  __LV_MAX:LV_MAX, __openStat:openStat, __maxHP:maxHP, __mineTime:mineTime,
+  __LV_MAX:LV_MAX, __openStat:openStat, __openBadge:openBadge, __maxHP:maxHP, __mineTime:mineTime,
   __workSec:workSec, __upSec:upSec, __fixSec:fixSec, __mineBonus:mineBonus,
   __atkMul:atkMul, __defNow:defNow, __xpReset:xpReset,
   __drawWolves:drawWolves, __drawSoldiers:drawSoldiers,
@@ -15818,7 +15885,7 @@ Object.assign(window, {
   __bgQueue:()=>bgQueue, __BG_GAP:BG_GAP, __BG_TICK:BG_TICK,
   __buildBadgeUI:buildBadgeUI
 });
-window.__READY = true;
+onIcons(()=>{ window.__READY = true; });   // 28차 — 아이콘까지 다 구워진 뒤에(t30 이 165장을 센다)
 </script>
 </body>
 </html>

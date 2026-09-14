@@ -21,7 +21,7 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
 const pg = await b.newPage({viewport:{width:900,height:520}});
 pg.on('pageerror', e=>errs.push(e.message));
 await pg.goto('http://127.0.0.1:'+PORT+'/?gfx=high', {waitUntil:'load', timeout:60000});
-await pg.waitForFunction('window.__READY===true', {timeout:60000});
+await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
 
 /* ═══════ ① 시작 화면 미리보기 — 게임과 같은 조각·재질이어야 한다 ═══════ */
 {

@@ -16,7 +16,7 @@ const pg = await b.newPage({viewport:{width:1100,height:760}});
 pg.on('pageerror', e=>errs.push(e.message));
 pg.on('console', m=>{ if(m.type()==='error') errs.push('console '+m.text()); });
 await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
-await pg.waitForFunction('window.__READY===true', {timeout:60000});
+await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
 await pg.fill('#iName','김하늘'); await pg.click('#bSolo'); await pg.waitForTimeout(1600);
 await pg.evaluate(()=>document.querySelectorAll('.pop').forEach(e=>e.classList.remove('on')));
 const ev = f => pg.evaluate(f);
@@ -269,13 +269,13 @@ const live = await ev(()=>{
 ok('★ 친구 머리 위 이름표에 그 아이의 칭호가 실제로 붙는다 (계산해서 얻는다 — 보내는 값이 아니다)',
    String(live.칭호).indexOf(live.기대) >= 0, live.칭호);
 
-/* ═══════ ⑦ 칭호 칸 (스텟 창) ═══════ */
+/* ═══════ ⑦ 칭호 칸 (칭호 창 Y — 28차에 스텟 창 C 에서 떼어 냈다) ═══════ */
 await clean();
 const panel = await ev(()=>{
   const W=window, B=W.__BADGES, o={};
   const mine = B.find(x=>x.k==='mined' && x.t===1);
   W.__MY.mined = mine.need; W.__syncMyPC();
-  W.__openStat();
+  W.__openBadge();                                   // Y 창. C(__openStat) 에는 이제 칭호 칸이 없다
   o.칸 = document.querySelectorAll('#bgList .bgIt').length;
   o.받은칸 = document.querySelectorAll('#bgList .bgIt.on').length;
   o.윗줄 = document.getElementById('bgTop').textContent;
@@ -289,7 +289,7 @@ const panel = await ev(()=>{
   W.__XP.lv = W.__LV_MAX;
   W.__syncMyPC(); W.__buildBadgeUI();
   o.다모은뒤 = document.getElementById('bgNext').textContent;
-  document.getElementById('popStat').classList.remove('on');
+  document.getElementById('popBadge').classList.remove('on');
   return o;
 });
 ok('칭호 칸에 표의 칭호가 다 그려진다', panel.칸 === tbl.수, panel.칸+'칸');

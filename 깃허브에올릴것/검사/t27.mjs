@@ -15,7 +15,7 @@ const pg = await b.newPage({viewport:{width:1100,height:760}});
 pg.on('pageerror', e=>errs.push(e.message));
 pg.on('console', m=>{ if(m.type()==='error') errs.push('console '+m.text()); });
 await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
-await pg.waitForFunction('window.__READY===true', {timeout:60000});
+await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
 await pg.fill('#iName','김하늘'); await pg.click('#bSolo'); await pg.waitForTimeout(1600);
 await pg.evaluate(()=>document.querySelectorAll('.pop').forEach(e=>e.classList.remove('on')));
 const ev = f => pg.evaluate(f);
@@ -221,12 +221,13 @@ const job = await ev(()=>{
   W.__buildJobUI(); document.getElementById('popJob').classList.add('on');
   const cards = [...document.querySelectorAll('.jobCard')];
   o.카드 = cards.length; o.직업수 = W.__JOBS.length;
-  o.그림 = document.querySelectorAll('.jobCard img').length;
+  /* ★ 28차에 카드마다 직업 아이콘(img.ic, 배지 안)이 하나 더 붙었다 — 차림새 그림은 .jFig 바로 아래 img 다 */
+  o.그림 = document.querySelectorAll('.jobCard .jFig > img').length;
   o.이름 = [...document.querySelectorAll('.jobCard .jName')].map(e=>e.textContent.trim());
   o.설명있나 = [...document.querySelectorAll('.jobCard .jDesc')].every(e=>e.textContent.trim().length > 3);
   o.스텟있나 = [...document.querySelectorAll('.jobCard .jStat')].every(e=>/→/.test(e.textContent));
   /* ★ 카드 그림이 직업마다 다른가 — 같으면 '어떤 모습이 되는지' 를 못 보여 준 것이다 */
-  const src = [...document.querySelectorAll('.jobCard img')].map(e=>e.src);
+  const src = [...document.querySelectorAll('.jobCard .jFig > img')].map(e=>e.src);
   o.그림종류 = new Set(src).size;
   o.그림빈것 = src.filter(x=>!x || x.length < 500).length;
   return o;
