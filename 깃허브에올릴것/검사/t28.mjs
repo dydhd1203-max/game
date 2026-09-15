@@ -36,8 +36,9 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
   /* 26차 — 예산을 다시 짰다. 교실 gram 실측(기준 28fps, 빛번짐 끔 +12, 그림자 끔 +4, 그리기 끔 60)이
      "GPU 가 병목, 그것도 픽셀 쪽" 이라서: 해상도 1.0(1707×1067), 빛 번짐은 프리셋에서 뺌, MSAA 4.
      빛 번짐은 ?bloom=1 로만 켜진다 — 아래 ③ 이 그 길로 연다. */
-  const want = {high:{shadow:2048,bloom:0,aa:4,pr:1.0}, mid:{shadow:1024,bloom:0,aa:0,pr:1.0},
-                low:{shadow:0,bloom:0,aa:0,pr:0.75}};
+  /* 33차 — 교실 실측(기준 40 · 화면 그리기 끔 +21)으로 가운데 칸을 해상도 0.85 + MSAA 2 로 내리고 기본으로 삼았다 */
+  const want = {high:{shadow:2048,bloom:0,aa:4,pr:1.0}, mid:{shadow:1024,bloom:0,aa:2,pr:0.85},
+                low:{shadow:0,bloom:0,aa:0,pr:0.7}};
   for(const q of ['high','mid','low']){
     const pg = await open('?gfx='+q);
     const g = await pg.evaluate(()=>({g:window.__GFX, sm:window.__R.shadowMap.enabled,
