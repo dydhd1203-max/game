@@ -34,10 +34,8 @@ const out = await pg.evaluate(async ()=>{
   W.__setAim(true, true);
   ok('★ T 를 누르면 총을 장착한다', W.__aimMode());
   ok('조준점이 총 모양으로 바뀐다', ch.classList.contains('gun'));
-  ok('공격 모드 알림이 뜬다', document.getElementById('aimBadge').classList.contains('on'));
-  ok('알림에 지금 든 무기 이름이 나온다',
-     document.getElementById('aimName').textContent === W.__WEAPONS[KIT.wpn].n,
-     document.getElementById('aimName').textContent);
+  ok('★ 조준점 위 말풍선(왼쪽 클릭으로 쏘기 · T 로 풀기)이 없다 — 33차, 아이들이 T 를 다 안다',
+     !document.getElementById('aimBadge') && !document.getElementById('aimName'));
 
   /* 공격 모드에서는 캐거나 짓지 못한다 */
   G.phase='day'; G.t=100;
@@ -109,7 +107,8 @@ const out = await pg.evaluate(async ()=>{
   ok('★ 맞으면 조준점이 번쩍인다', ch.classList.contains('hit'));
   ok('늑대가 실제로 다친다', wt.hp < wt.mx, Math.round(wt.hp)+'/'+Math.round(wt.mx));
   /* 크리티컬은 다른 표시 */
-  ch.classList.remove('hit','critHit');
+  ch.classList.remove('hit','critHit','killHit');
+  wt.hp = 1000; wt.mx = 1000;               // 33차 — 막타(예상)면 붉은 X(killHit)가 치명타 표시보다 앞선다. 체력을 넉넉히
   W.__setCrit(1); W.__setThrowCd(0); W.__throw();
   ok('크리티컬은 조준점 표시가 다르다', ch.classList.contains('critHit'));
   W.__setCrit(-1);

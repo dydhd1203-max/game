@@ -215,10 +215,24 @@ await pg.waitForTimeout(1500);
     W.__wantJump(); for(let i=0;i<80;i++){ W.__updPlayer(1/60); p2=Math.max(p2, PL.y-y0); }
     W.__wantJump(); for(let i=0;i<80;i++){ W.__updPlayer(1/60); p3=Math.max(p3, PL.y-y0); }
     o.jump = [+p1.toFixed(2), +p2.toFixed(2), +p3.toFixed(2)];
+    /* 33차 — 제일 높은 7단계 탑 윗면(hi) 에 발이 닿는가: 올라서려면 최고점 + STEP ≥ 윗면 이어야 한다 */
+    o.hi7 = Math.max(...Object.keys(W.__BUILD).map(t=>W.__bs(t,'hi',7)||0)); o.step = W.__STEP;
+    o.room = +(p2 + o.step - o.hi7).toFixed(2);
     const D = W.__DISP(); o.disp = D.length; o.dispVis = D.every(d=>d.m.visible);
+    /* 33차 — 자루 끝이 머리 위로 남는가(진짜 곡괭이 사진). boxM 은 색을 꼭짓점 색으로 구우므로 첫 꼭짓점 색으로 가른다:
+       주황(r≫b) = 자루, 파랑(b≫r) = 머리·목 테. 팔(userData.arm)은 뺀다. */
+    const g = W.__mkPick(); let hT=-9, dT=-9;
+    for(const c of g.children){ if(!c.isMesh||c.userData.arm) continue;
+      const col = c.geometry.attributes.color; if(!col) continue;
+      const cr = col.array[0], cb = col.array[2];
+      c.geometry.computeBoundingBox(); const top = c.position.y + c.geometry.boundingBox.max.y;
+      if(cr > cb*1.5) hT=Math.max(hT, top); else if(cb > cr*1.5) dT=Math.max(dT, top); }
+    o.handleOver = +(hT-dT).toFixed(3);
     return o; });
   ok('곡괭이 아이콘이 있다', r.pickIcon);
-  ok('★ 2단 점프 — 한 번 뛰고(≈1.3칸) 공중에서 한 번 더(≈2.6칸), 세 번째는 안 된다', r.jump[0] > 1.1 && r.jump[1] > r.jump[0]*1.7 && r.jump[2] < r.jump[0]*1.2, r.jump.join(' / '));
+  ok('★ 곡괭이 자루 끝이 머리 위로 살짝 남는다 (사진처럼 · 0.03~0.15)', r.handleOver >= 0.03 && r.handleOver <= 0.15, r.handleOver);
+  ok('★ 2단 점프 — 한 번 뛰고(≈1.3칸) 공중에서 한 번 더 세게(≈3.4칸 · 33차), 세 번째는 안 된다', r.jump[0] > 1.1 && r.jump[0] < 1.6 && r.jump[1] > r.jump[0]*2.2 && r.jump[2] < r.jump[0]*1.2, r.jump.join(' / '));
+  ok('★ 2단 점프로 7단계 탑 윗면에 올라선다 (최고점 + STEP 이 제일 높은 hi 보다 0.15 이상 위 · 33차)', r.room >= 0.15, '윗면 '+r.hi7+' · 여유 '+r.room);
   ok('★ 세계에 총 진열 여덟 — 대장간 받침대 둘 · 걸이 넷 · 상인 선반 둘, 다 보인다', r.disp===8 && r.dispVis, r.disp);
 }
 await pg.close();
