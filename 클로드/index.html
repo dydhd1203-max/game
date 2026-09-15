@@ -595,15 +595,8 @@ body{color:var(--cream)}
 #crosshair.critHit i{--hm:#ffd54a;width:20px;height:20px;left:8px;top:8px;animation:hitm .32s ease-out}
 @keyframes hitm{from{transform:scale(.45);opacity:1}to{transform:scale(1.5);opacity:.15}}
 
-/* ══ 공격 모드 알림 ══ */
-#aimBadge{position:absolute;left:50%;bottom:calc(50% + 46px);transform:translateX(-50%);
-  display:none;z-index:15;pointer-events:none;white-space:nowrap;
-  padding:5px 14px;border-radius:999px;
-  background:linear-gradient(180deg,rgba(92,26,26,.88),rgba(46,12,12,.92));
-  border:1px solid rgba(255,140,140,.5);color:#ffdcdc;
-  font-weight:900;font-size:13px;line-height:1;letter-spacing:.3px;
-  text-shadow:0 1px 0 rgba(0,0,0,.7)}
-#aimBadge.on{display:block;animation:pvIn .2s}
+/* ══ 공격 모드 — 33차: 조준점 위 '왼쪽 클릭으로 쏘기 · T 로 풀기' 말풍선(#aimBadge)을 없앴다.
+   선생님: "애들 이제 T 인 거 다 아니까." 든 총은 핫바와 조준점 모양이 이미 말해 준다. ══ */
 body.aiming #hint{opacity:.28}
 
 
@@ -1793,7 +1786,6 @@ body.touch .slot.tool{background:linear-gradient(180deg,#ffffff,#f6f2fc)}
 #aimInfo .lv1{background:#f4f1fb;color:var(--pk-ink)} #aimInfo .hp{opacity:.8}
 #aimInfo .segs i{background:rgba(120,104,170,.18)} #aimInfo .segs i.f{background:#5fcf9a;box-shadow:none}
 #aimInfo .prog{background:rgba(120,104,170,.14);border:none} #aimInfo .prog i{background:#ffd257}
-#aimBadge{background:linear-gradient(180deg,#ffe3ea,#ffb8d1);border:2px solid #fff;color:#7a1a3a;text-shadow:none;box-shadow:0 3px 0 #e0728f}
 #shopTip,#forgeTip,#farmTip{background:rgba(255,251,245,.95);border:2px solid #fff;color:var(--pk-ink);text-shadow:none;box-shadow:0 4px 0 var(--pk-lav), 0 10px 20px -10px rgba(70,50,120,.4)}
 #shopTip img.ic,#forgeTip img.ic,#farmTip img.ic{height:1.3em}
 #miniBar .mn{background:rgba(255,251,245,.95);border:2px solid #fff;color:var(--pk-ink);box-shadow:0 3px 0 var(--pk-lav)}
@@ -2123,7 +2115,6 @@ input.f:focus,select.f:focus{border-color:#ffd257;box-shadow:0 0 0 3px rgba(255,
     <div class="qbCloth"><div class="qbNo" id="qbNo">1번</div><div class="qbQ" id="qbQ"></div></div>
   </div></div>
   <div id="miniBar"><div class="mn" id="mbN"></div><div class="mq" id="mbQ"></div><div class="mt" id="mbT"></div><div class="mh" id="mbH"></div><div class="ms" id="mbS"></div></div>
-  <div id="aimBadge">🔫 <span id="aimName">공격 모드</span> · 왼쪽 클릭으로 쏘기 · <b>T</b> 로 풀기</div>
 
 
 
@@ -5732,7 +5723,11 @@ function mkPick(headTile, headMat){
   const g = new THREE.Group();
   const hm = headMat || matPickBlue, hd = headMat || matPickDeep;
   g.add(mkArm());
-  g.add(boxM(T.cloth, 0.095,0.74,0.095, 0.00,-0.03, 0.00, matHandleOr));   // 굵은 주황 자루
+  /* ★ 33차 — 선생님이 보낸 진짜 곡괭이 사진: 자루가 머리 구멍을 꿰뚫고 **윗부분이 살짝 남는다**. 그 나무 끝이
+     보여야 곡괭이답다. 자루를 머리 위(0.465)로 0.035 더 올리고, 끝에 살짝 벌어진 나무 마개(쐐기 자리)를 얹는다.
+     같은 재질이라 그리기 수는 그대로(t13 기준 3번). */
+  g.add(boxM(T.cloth, 0.095,0.90,0.095, 0.00, 0.05, 0.00, matHandleOr));   // 굵은 주황 자루 — 머리를 꿰뚫고 위로
+  g.add(boxM(T.cloth, 0.115,0.045,0.115, 0.00, 0.515, 0.00, matHandleOr)); // 자루 머리 끝 — 살짝 벌어진 나무 마개
   g.add(boxM(T.cloth, 0.11,0.08,0.11,   0.00,-0.38, 0.00, matHandleOr));   // 자루 끝
   g.add(boxM(T.cloth, 0.15,0.10,0.15,   0.00, 0.31, 0.00, hd));            // 목 테(짙은 파랑)
   g.add(boxM(T.cloth, 0.20,0.15,0.12,   0.00, 0.39, 0.00, hm));            // 머리 가운데 — 솟은 봉우리
@@ -8299,6 +8294,12 @@ function placePlayer(){
 const KEY = {};
 let mvx=0, mvz=0, wantJump=false, acting=false, throwing=false, rampSeen=false;
 const STEP = 0.68, SPD = 5.4, GRAV = 26, JUMP = 8.4;
+/* ★ 33차 — 두 번째 뜀은 더 세게. 선생님: "탑을 업그레이드하면 커져서 2단 점프로 못 넘더라고. 7레벨 타워도 올라가게."
+   한 번 뜀 최고 1.36칸(8.4²/2·26), 둘 다 8.4 면 최고 2.71칸. 화살탑 7단계 윗면은 3.55, 오르려면 발이
+   윗면 − STEP(0.68) = 2.87 위에 있어야 하는데 딱 맞춰 눌러도 2.71 이라 못 올랐다(5·6단계 3.30 도 아슬아슬).
+   두 번째만 10.5 로: 최고 2.12칸을 더 얹어 3.48(늦게 눌러 내려오는 중이어도 ≈3.1) — 7단계 위로 0.2 남는다.
+   첫 뜀은 그대로라 담·울타리 넘는 손맛과 줄넘기는 안 바뀐다. */
+const JUMP2 = 10.5;
 const DOWN_CAM = 4.6;           // 쓰러졌을 때 시체에서 물러나는 거리
 /* ★ 20차 — 줄넘기·OX 퀴즈는 3인칭으로 본다.
    ① 줄넘기: 판정은 '발이 줄 위에 있나' 인데 1인칭에서는 자기 발이 안 보인다.
@@ -8352,9 +8353,10 @@ function updPlayer(dt){
   const canJump = !PL.down && !(rj && (PL.landT > 0 || MINE.rs > 0))
                 && (PL.ground || (!rj && (PL.jumps|0) < 1 && PL.vy < JUMP*0.92));
   if(wantJump && canJump){
-    if(!PL.ground){ PL.jumps = (PL.jumps|0) + 1;
+    const second = !PL.ground;                                   // 33차 — 공중에서 한 번 더 = 더 센 뜀(JUMP2)
+    if(second){ PL.jumps = (PL.jumps|0) + 1;
       burst(PL.x, PL.y + 0.05, PL.z, 0xfffaf0, 9, 0.9); if(window.__sfx) window.__sfx('hop'); }
-    PL.vy = rj ? RJ_JUMP : JUMP; PL.ground = false;
+    PL.vy = rj ? RJ_JUMP : (second ? JUMP2 : JUMP); PL.ground = false;
     if(rj) ropeHop();
   }
   wantJump = false;
@@ -8991,13 +8993,12 @@ function setAimMode(on, quiet){
   if(on) setGhost(null); else if(curTool === 'build') setGhost(curBuild);
   const ch = el('crosshair');
   if(ch){ ch.classList.toggle('gun', on); ch.classList.remove('lock'); }
-  el('aimBadge').classList.toggle('on', on);
   document.body.classList.toggle('aiming', on);
   hudPrev.kit = '';
   netPCDirty = true;                 // 총을 들었다/놨다를 친구들 화면에 알린다
   if(!quiet){
     const W = wpnNow();
-    toast(on ? `${W.ic} ${W.n} 장착 — 왼쪽 클릭으로 쏘세요 (T 로 풀기)`
+    toast(on ? `${W.ic} ${W.n} 장착`
              : '⛏️ 일하기 모드 — 캐고 지을 수 있어요', 2.2, on ? '#ffd9a0' : '#c8ffb0');
     if(window.__sfx) window.__sfx(on ? 'fix' : 'tak');
   }
@@ -10050,7 +10051,6 @@ function equipWeapon(i){
   hudPrev.kit = '';
   netPCDirty = true;                 // 친구들 화면의 내 총도 같이 바뀌어야 한다
 
-  const nm = el('aimName'); if(nm) nm.textContent = WEAPONS[i].n;
   if(popOpen() && el('popKit').classList.contains('on')) buildKitUI();
 }
 function equipArmor(i){
@@ -11228,7 +11228,6 @@ function paintKit(){
   el('stAmmo').querySelector('b').textContent = KIT.ammo;
   el('stAtk').title = '공격력 — ' + W.n + enhTxt(enhOf(KIT.wpn));
   el('stDef').title = '방어력 — ' + A.n;
-  el('aimName').textContent = W.n + enhTxt(enhOf(KIT.wpn));
   /* 태블릿 큰 버튼도 지금 든 무기를 보여 준다 (태블릿엔 T 키가 없으니 이게 곧 방아쇠다) */
   const mb = el('mbThrow');
   mb.querySelector('.ic').textContent = W.ic;
@@ -16313,7 +16312,7 @@ Object.assign(window, {
   __GLASSES:GLASSES, __CLOTHES:CLOTHES, __CLO_N:CLO_NAME, __HAT_NAME:HAT_NAME, __GLS_N:GLS_NAME,
   __Pdeco:()=>P_deco, __pvw:()=>pvw,
   /* 28차 — 아이콘 공방 (t30) */
-  __ICON:()=>ICON, __EMO2ICON:()=>EMO2ICON, __iconImg:iconImg, __ICO_DEF:()=>ICO_DEF,
+  __ICON:()=>ICON, __EMO2ICON:()=>EMO2ICON, __iconImg:iconImg, __ICO_DEF:()=>ICO_DEF, __mkPick:mkPick /* 33차 — 자루 끝 (t31) */,
   __SFXKEYS:()=>Object.keys(SFX), __itemMeshes:()=>[pMesh,aMesh,iMesh,stMesh,bMesh,oMesh,chBody,chTrim,fdBody,fdGlow],
   __Pmouth:()=>P_mouth,
   /* 27차 — 캐릭터 조각 전부 (t29: 무늬 없는 재질 · 둥근 모양) */
@@ -16433,7 +16432,7 @@ Object.assign(window, {
   __HB:()=>[HB_BG, HB_FG], __drawWolfHP:drawWolfHP,
   __dnums:()=>dnums, __popDmg:popDmg, __dnTick:dnTick,
   __setCrit:(p)=>{ critForce = p; },
-  __wantJump:()=>{ wantJump = true; }, __setThrowCd:(v)=>{ throwCd = v; }, __NODE_DEF:NODE_DEF, __THROW_CD:THROW_CD,
+  __wantJump:()=>{ wantJump = true; }, __STEP:STEP, __JUMP:JUMP, __JUMP2:JUMP2 /* 33차 t31 */, __setThrowCd:(v)=>{ throwCd = v; }, __NODE_DEF:NODE_DEF, __THROW_CD:THROW_CD,
 
 
   __feed:feed, __paintHUD:paintHUD, __toast:toast, __stage:showStage, __KEY:KEY, __rampCells:rampCells, __solidTop:solidTop,

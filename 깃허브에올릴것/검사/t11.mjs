@@ -34,10 +34,8 @@ const out = await pg.evaluate(async ()=>{
   W.__setAim(true, true);
   ok('★ T 를 누르면 총을 장착한다', W.__aimMode());
   ok('조준점이 총 모양으로 바뀐다', ch.classList.contains('gun'));
-  ok('공격 모드 알림이 뜬다', document.getElementById('aimBadge').classList.contains('on'));
-  ok('알림에 지금 든 무기 이름이 나온다',
-     document.getElementById('aimName').textContent === W.__WEAPONS[KIT.wpn].n,
-     document.getElementById('aimName').textContent);
+  ok('★ 조준점 위 말풍선(왼쪽 클릭으로 쏘기 · T 로 풀기)이 없다 — 33차, 아이들이 T 를 다 안다',
+     !document.getElementById('aimBadge') && !document.getElementById('aimName'));
 
   /* 공격 모드에서는 캐거나 짓지 못한다 */
   G.phase='day'; G.t=100;

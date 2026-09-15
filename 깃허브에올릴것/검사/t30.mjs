@@ -91,7 +91,7 @@ await frames(pg, 4);
     await pg.keyboard.press(key); await frames(pg, 1);
   }
   for(const [btn, id] of [['bBook','popBook'],['bGive','popGive'],['bInfo','popInfo']]){
-    await pg.click('#'+btn); await frames(pg, 2);
+    await pg.evaluate(b=>document.getElementById(b).click(), btn)   /* 33차 — page.click 은 바쁜 판(동시 4개)에서 '예약된 이동 기다림' 에 걸려 30초를 넘겨 t30 이 통째로 죽었다(31b·33 전체 판). 시작 단추처럼 JS click */; await frames(pg, 2);
     const r = await pg.evaluate(new Function('id', 'const p=document.getElementById(id); return ('+VIS_EMO+')(p);'), id);
     if(r.length) left.push(id+':'+r.slice(0,5).join(''));
     await pg.evaluate(id=>document.getElementById(id).classList.remove('on'), id);
