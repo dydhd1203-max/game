@@ -109,7 +109,23 @@ await pg.waitForTimeout(1500);
   const r = await pg.evaluate(()=>{ const W=window, o={}, GY=W.__GY, S=0.32;
     const tree=W.__NODES.find(n=>n.type==='tree'), rock=W.__NODES.find(n=>n.type==='rock'), gold=W.__NODES.find(n=>n.type==='gold');
     o.treeN = tree.hs.length; o.treeKeys = tree.hs.map(h=>h[0]);
-    o.leafGeo = W.__banks.get('leaf').geo===W.__LEAFG; o.leafVerts = W.__LEAFG.attributes.position.count; o.leafIdx = !!W.__LEAFG.index;
+    const lb = W.__banks.get('leaf0'); o.leafGeo = !!lb && W.__LEAFV.includes(lb.geo); o.leafVerts = W.__LEAFV[0].attributes.position.count; o.leafIdx = !!W.__LEAFV[0].index;
+    /* 32차 — 질감: 잎은 꼭짓점 색(아래 어둡고 위 밝고) + 꼭짓점 흔들림(세 벌이 다르다), 줄기는 껍질 띠(같은 높이에 밝기 둘), 벽돌 판은 모따기 + 꼭짓점 색, 길이가 제각각 */
+    const grad = g=>{ const P=g.attributes.position, C=g.attributes.color; if(!C) return null; let lo=[0,0], hi=[0,0];
+      for(let i=0;i<P.count;i++){ const y=P.getY(i), c=C.getX(i); if(y<-0.3){ lo[0]+=c; lo[1]++; } else if(y>0.3){ hi[0]+=c; hi[1]++; } }
+      return [lo[0]/lo[1], hi[0]/hi[1]]; };
+    o.leafGrad = grad(W.__LEAFV[0]); o.leafMat = lb && lb.mat===W.__WMATV && !!lb.mat.vertexColors;
+    const dist = (a,b)=>{ const A=a.attributes.position, B=b.attributes.position; let d=0; for(let i=0;i<A.count;i++) d+=Math.abs(A.getX(i)-B.getX(i))+Math.abs(A.getY(i)-B.getY(i)); return d/A.count; };
+    o.leafDiff = [dist(W.__LEAFV[0],W.__LEAFV[1]), dist(W.__LEAFV[1],W.__LEAFV[2])];
+    { const P=W.__TRUNKV.attributes.position, C=W.__TRUNKV.attributes.color, set=new Set(); for(let i=0;i<P.count;i++) if(Math.abs(P.getY(i)-0.5)<0.01) set.add(C.getX(i).toFixed(2)); o.barkTones = set.size; }
+    o.trunkMat = W.__banks.get('trunk').mat.vertexColors===true;
+    o.brick = {tris:W.__BRICKV.attributes.position.count/3, col:!!W.__BRICKV.attributes.color, grad:grad(W.__BRICKV)};
+    { const gb=W.__banks.get('gbrick'); const lens=new Set(); for(const m of gb.ms){ const e=m.elements; lens.add(Math.max(e[0]*e[0]+e[1]*e[1]+e[2]*e[2], e[8]*e[8]+e[9]*e[9]+e[10]*e[10]).toFixed(2)); }
+      o.gbrickLens = lens.size; o.gbrickMat = gb.mat.vertexColors===true; o.gbrickGeo = gb.geo===W.__BRICKV; }
+    o.struBrick = (()=>{ /* 건물이 하나도 없으면 벽돌 메시도 없다 — 돌벽 하나를 세워서 본다 */
+      W.__STRU.set(7777, {id:7777, t:'swall', x:Math.round(W.__PL.x)+3, z:Math.round(W.__PL.z)+3, hp:1, mx:1, g:0, n:'', lv:1}); W.__rebuild();
+      const m=[...W.__struMeshes.values()].find(m=>m.geometry===W.__BRICKV); const okk = !!m && m.material.vertexColors===true && m.count>20;
+      W.__STRU.delete(7777); W.__rebuild(); return okk; })();
     const tb = W.__banks.get('trunk'), t0 = tree.hs[0]; const e = tb.ms[t0[1]].elements; o.trunkBottom = e[13] - e[5]/2 - GY;
     /* 캐면 잎부터 — 체력 4 깎고 그리기 */
     const vis = h=>{ const b=W.__banks.get(h[0]); const m=b.chunks[b.map[h[1]*2]]; const a=m.instanceMatrix.array, li=b.map[h[1]*2+1]; return a[li*16]!==0 || a[li*16+5]!==0; };
@@ -124,10 +140,14 @@ await pg.waitForTimeout(1500);
     o.decor = o.bush + o.petal + (n('peb') - 0);
     return o; });
   /* 31차b — 잎 일곱 + 가지 끝 뭉치 둘 + 껍질 골 셋(+ 사과 넷). 캐면 뒤(사과·잎)부터 사라지므로 잎·사과가 맨 뒤여야 한다 */
-  ok('★ 자원 나무 조각 19 이상 — 줄기가 맨 앞, 뒤 일곱은 잎(또는 사과)', r.treeN>=19 && r.treeKeys.slice(-7).every(k=>k==='leaf'||k==='apple') && r.treeKeys[0]==='trunk', r.treeN+' · '+r.treeKeys.join(','));
-  ok('잎은 각진 공(비인덱스 80면)', r.leafGeo && r.leafVerts===240 && !r.leafIdx, r.leafVerts);
+  ok('★ 자원 나무 조각 19 이상 — 줄기가 맨 앞, 뒤 일곱은 잎(또는 사과)', r.treeN>=19 && r.treeKeys.slice(-7).every(k=>k.startsWith('leaf')||k==='apple') && r.treeKeys[0]==='trunk', r.treeN+' · '+r.treeKeys.join(','));
+  ok('잎은 각진 공(비인덱스 80면) — 세 벌 중 하나', r.leafGeo && r.leafVerts===240 && !r.leafIdx, r.leafVerts);
+  ok('★ 질감 — 잎 덩어리에 꼭짓점 색이 있고 위(>0.3)가 아래(<-0.3)보다 25% 이상 밝다, 재질은 꼭짓점 색', r.leafGrad && r.leafGrad[1] > r.leafGrad[0]*1.25 && r.leafMat, r.leafGrad && r.leafGrad.map(v=>v.toFixed(2)).join(' → '));
+  ok('★ 질감 — 잎 세 벌이 서로 다르게 흔들려 있다(꼭짓점 자리 차 0.02 이상)', r.leafDiff.every(d=>d>0.02), r.leafDiff.map(v=>v.toFixed(3)).join(' / '));
+  ok('★ 질감 — 줄기 껍질 띠: 같은 높이에 밝기가 둘 이상, 줄기 뱅크가 꼭짓점 색 재질', r.barkTones>=2 && r.trunkMat, r.barkTones);
+  ok('★ 질감 — 벽돌 판이 모따기(44삼각형) + 꼭짓점 색(아래 어둡게), 성문·건물 벽돌 모두 그 재질, 길이가 제각각(다섯 가지 이상)', r.brick.tris===44 && r.brick.col && r.brick.grad[1]>r.brick.grad[0] && r.gbrickGeo && r.gbrickMat && r.struBrick && r.gbrickLens>=5, JSON.stringify(r.brick)+' · 길이 '+r.gbrickLens);
   ok('나무 밑동이 땅에 닿아 있다', Math.abs(r.trunkBottom) < 0.1, r.trunkBottom.toFixed(3));
-  ok('★ 캐면 잎(사과·가지)부터 사라지고 줄기는 남는다', r.hidden.length>=3 && r.hidden.every(k=>k==='leaf'||k==='branch'||k==='apple') && r.trunkShown, r.hidden.join(','));
+  ok('★ 캐면 잎(사과·가지)부터 사라지고 줄기는 남는다', r.hidden.length>=3 && r.hidden.every(k=>k.startsWith('leaf')||k==='branch'||k==='apple') && r.trunkShown, r.hidden.join(','));
   ok('되살리면 전부 돌아온다', r.allBack);
   ok('바위 조각 6 이상 — 큰 덩어리부터, 이끼 있음', r.rockN>=6 && r.rockKeys[0]==='rock' && r.rockKeys.includes('moss'), r.rockKeys.join(','));
   ok('★ 금광맥 — 빛나는 결정 넷(원색 발광 재질) + 금 알갱이', r.goldKeys.filter(k=>k==='oreG').length===4 && r.goldKeys.includes('nug') && r.oreMat, r.goldKeys.join(','));
