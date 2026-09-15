@@ -5892,7 +5892,8 @@ function boxM(tile, w,h,d, x,y,z, mat){
   const special = mat && (mat.isMeshBasicMaterial ||
     (mat.emissive && (mat.emissive.r || mat.emissive.g || mat.emissive.b)));
   let geo = rboxGeo(w,h,d), mm;
-  if(special) mm = flatFor(tile, mat);
+  if(mat && mat.userData.metal) mm = mat;          // 35차 — 쇠 재질은 그대로 쓴다(꼭짓점 색 없이, 그 재질만의 조각으로 구워진다)
+  else if(special) mm = flatFor(tile, mat);
   else {
     const c = new THREE.Color(TILE_COL[tile] !== undefined ? TILE_COL[tile] : 0xffffff);
     if(mat && mat.color) c.multiply(mat.color);
@@ -5988,8 +5989,35 @@ function mkArm(){ return armPart(boxM(T.wool, 0.19,0.30,0.19, 0.01,-0.20,0.10));
      boxM 이 돌려주는 것은 그냥 메시라 rotation.z 를 줄 수 있고, bakeHeld 가 그 회전까지
      구워서 합친다. 그리기 횟수는 그대로다(재질 수만큼).
    ★ 끝은 확실히 뾰족하게 좁힌다. 실루엣이 갈려야 종류가 갈린다 — 망치와 헷갈리면 안 된다. */
-const matPickBlue = new THREE.MeshLambertMaterial({map:ATLAS, color:0x5661d8});
-const matPickDeep = new THREE.MeshLambertMaterial({map:ATLAS, color:0x3a42a8});
+/* ═══ 35차 — 쇠 재질 (곡괭이·망치의 쇠붙이) ═══
+   선생님: "곡괭이·망치 모양은 이제 괜찮아졌는데 쇠붙이 쪽 색감이 마음에 안 들어. 쇠 느낌이 안 나."
+   손에 든 것은 전부 HELD_VC(Lambert, 꼭짓점 색)라 반사광이 없다 — 파란 머리는 그래서 플라스틱 장난감이었다.
+   쇠 느낌은 ① 반사 하이라이트(휘두를 때 번쩍) ② 위아래로 갈리는 반사(하늘은 밝고 땅은 어둡게) 에서 온다. 그래서 쇠붙이만
+   **Phong(스페큘러 70) + 작은 하늘·지평선·땅 그라데이션 env map(32×16, 등장방형)** 을 준다. Standard/PMREM 은 안 쓴다 — 크롬북에서
+   PMREM 굽기 100ms 가 아깝고, Phong 의 등장방형 반사는 그대로 샘플링이라 값이 안 든다. 픽셀은 머리 몇백 개뿐이다.
+   boxM 은 userData.metal 인 재질을 그대로 쓴다(꼭짓점 색 없이) — 굽기(bakeHeld)에서 그 재질만의 조각이 되어 드로우콜 +1. */
+const ENV_STEEL = (()=>{
+  const W = 32, H = 16, d = new Uint8Array(W*H*4);
+  for(let y=0;y<H;y++){
+    const up = (y+0.5)/H;                                   // 0 땅 → 1 하늘 (등장방형은 아랫줄이 아래다)
+    let r,g,b;
+    if(up > 0.58){ const k = (up-0.58)/0.42; r = 205-k*95; g = 228-k*78; b = 250-k*35; }        // 하늘 — 위로 갈수록 짙은 파랑
+    else if(up > 0.45){ const k = (up-0.45)/0.13; r = 225+k*25; g = 236+k*16; b = 246+k*8; }     // 지평선 띠 — 하얗게
+    else { const k = (0.45-up)/0.45; r = 118-k*70; g = 102-k*60; b = 84-k*50; }                  // 땅 — 어둡게
+    for(let x=0;x<W;x++){ const i = (y*W+x)*4, sun = Math.exp(-((x-9)*(x-9) + (y-12)*(y-12))/5)*60;
+      d[i] = Math.min(255, r+sun); d[i+1] = Math.min(255, g+sun); d[i+2] = Math.min(255, b+sun); d[i+3] = 255; }
+  }
+  const t = new THREE.DataTexture(d, W, H); t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace;
+  t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearFilter; t.needsUpdate = true; return t;
+})();
+function metalMat(hex, o){
+  const m = new THREE.MeshPhongMaterial(Object.assign({color:hex, specular:0xffffff, shininess:70, envMap:ENV_STEEL,
+                                                       combine:THREE.MixOperation, reflectivity:0.42}, o||{}));
+  m.userData.metal = true; return m;
+}
+const matPickBlue = metalMat(0xb4bfd0);                    // 35차 — 파란 플라스틱 → 푸른빛 도는 강철
+const matPickDeep = metalMat(0x6b7686);                    // 목 테 — 어두운 쇠
+const matHamSteel = metalMat(0xaab3c0);                    // 공사 망치 머리
 const matHandleOr = new THREE.MeshLambertMaterial({map:ATLAS, color:0xe07a2a});
 /* ★ 29차 — 선생님이 보내 준 그림(로블록스 곡괭이) 그대로: 굵은 주황 자루, 파란 양날 머리가 넓고 납작하게 뻗어
    끝이 아래로 살짝 처진다. 가운데는 봉우리처럼 솟는다. 머리 색은 headMat 으로 바꿔 쓴다(철거용 빨강 등). */
@@ -6034,7 +6062,7 @@ function mkHammerTool(headTile, headMat){
   g.rotation.set(-0.20, 0.50 + Math.PI/2, 0.30);                    // 29차 — 타격면(+x)이 앞(-z)을 보게 90° 돌린다
   return g;
 }
-const matRed  = new THREE.MeshLambertMaterial({map:ATLAS, color:0xff8a7a});
+const matRed  = metalMat(0xe8705f);                        // 35차 — 철거 곡괭이 머리도 쇠(붉은 쇠)
 const matGold = new THREE.MeshLambertMaterial({map:ATLAS, color:0xffe9a0});
 /* 공사용 큰 망치 — 짓는 동안 이걸 들고 뚝딱뚝딱 한다 */
 function mkHammer(){
@@ -6043,11 +6071,11 @@ function mkHammer(){
   g.add(boxM(T.cloth, 0.095,0.70,0.095, 0.00,0.00,0.00, matHandleOr));   // 굵은 주황 자루 (29차)
   g.add(boxM(T.logSide, 0.125,0.09,0.125, 0.00,-0.30,0.00));        // 손잡이 끝
   g.add(boxM(T.goldBlk, 0.135,0.085,0.135, 0.00,0.275,0.00));       // 쇠테
-  g.add(boxM(T.stone, 0.36,0.26,0.26, 0.055,0.375,0.00));           // 큰 머리
-  g.add(boxM(T.stone, 0.10,0.315,0.315, 0.275,0.375,0.00));         // 넓적한 타격면
+  g.add(boxM(T.stone, 0.36,0.26,0.26, 0.055,0.375,0.00, matHamSteel));   // 큰 머리 (35차 — 쇠)
+  g.add(boxM(T.stone, 0.10,0.315,0.315, 0.275,0.375,0.00, matHamSteel)); // 넓적한 타격면
   g.add(boxM(T.goldBlk, 0.045,0.285,0.285, 0.325,0.375,0.00));      // 타격면 테두리
   for(const s of [1,-1])                                             // 갈라진 발톱
-    g.add(boxM(T.stone, 0.16,0.10,0.085, -0.190,0.345,s*0.075));
+    g.add(boxM(T.stone, 0.16,0.10,0.085, -0.190,0.345,s*0.075, matHamSteel));
   g.rotation.set(-0.20, 0.50 + Math.PI/2, 0.30);                    // 29차 — 타격면이 앞을 보게
   return g;
 }
