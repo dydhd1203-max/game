@@ -3347,6 +3347,7 @@ function bpush(key, geo, mat, x,y,z, ry=0, sx=1,sy=1,sz=1, rz=0, col=0){
     }
     geo = SHARP_KEYS.has(key) ? BOXG : WGEO; sx *= tb.w; sy *= tb.h; sz *= tb.d;
   }
+  if(mat === WMAT && geo.attributes.color) mat = WMATV;     // 32차 — 꼭짓점 색이 있는 조각은 그 재질로
   let b = banks.get(key);
   if(!b){ b = {geo, mat, ms:[], cols:null, chunks:null, map:null}; banks.set(key, b); }
   /* ★ 인스턴스마다 색 — 같은 텍스처·같은 지오메트리인데 색만 다른 것들을
@@ -3535,7 +3536,7 @@ function buildWorldMesh(){
     const cap  = kind===0 ? MT_GRASS : kind===2 ? MT_MOSS : kind===3 ? MT_SNOW : MT_ROCKTOP;
     const ov   = kind===1 ? 0 : 0.12;
     const cx = x + w/2, cz = z + d/2;
-    bpush('mtB', BOXG, WMAT, cx, h - n/2 - 0.02, cz, 0, w, n, d, 0, body);
+    bpush('mtB', BOXV, WMAT, cx, h - n/2 - 0.02, cz, 0, w, n, d, 0, body);        // 32차 — 아래가 어두운 기둥
     bpush('mtC', BOXG, WMAT, cx, h - 0.14, cz, 0, w + ov, 0.30, d + ov, 0, cap);
     /* 31차b — 밍밍한 회색을 깬다: 높은 절벽엔 마을 쪽 면에 어두운 틈(세로 띠), 풀 뚜껑엔 수풀 한 포기, 바위 뚜껑엔 작은 바위 하나 */
     if(kind!==0 && n>=3 && hv===2){
@@ -3543,7 +3544,7 @@ function buildWorldMesh(){
       if(toX) bpush('mtK', BOXG, WMAT, cx + sg*(w/2+0.02), h - n*0.45, cz + u*d, 0, 0.06, n*0.62, 0.18, 0, 0x6a7079);
       else    bpush('mtK', BOXG, WMAT, cx + u*w, h - n*0.45, cz + sg*(d/2+0.02), 0, 0.18, n*0.62, 0.06, 0, 0x6a7079);
     }
-    if(kind===0 && hv===1) bpush('bush', LEAFG, WMAT, cx + (rnd(x+z*3)-0.5)*w*0.6, h + 0.14, cz + (rnd(x*2+z)-0.5)*d*0.6, rnd(x)*3, 0.55, 0.38, 0.55, 0, 0x74c853);
+    if(kind===0 && hv===1) bpush('bush', LEAFV[0], WMAT, cx + (rnd(x+z*3)-0.5)*w*0.6, h + 0.14, cz + (rnd(x*2+z)-0.5)*d*0.6, rnd(x)*3, 0.55, 0.38, 0.55, 0, 0x74c853);
     if(kind===1 && hv===4 && w*d >= 2) bpush('rock', ROCKG, WMAT, cx + (rnd(x*5+z)-0.5)*w*0.5, h + 0.28, cz + (rnd(x+z*5)-0.5)*d*0.5, rnd(z)*3, 1.1, 0.7, 0.9, 0, ROCK_C[0]);
     rects++;
   }
@@ -3609,6 +3610,41 @@ const PEBG   = new THREE.IcosahedronGeometry(0.5, 0);  PEBG.computeVertexNormals
 const TRUNKG = new THREE.CylinderGeometry(0.34, 0.46, 1, 7).toNonIndexed(); TRUNKG.computeVertexNormals();  // 줄기
 const CONEG  = new THREE.ConeGeometry(0.5, 1, 7).toNonIndexed(); CONEG.computeVertexNormals();             // 침엽
 const GEMG   = new THREE.OctahedronGeometry(0.5, 0);   GEMG.computeVertexNormals();    // 결정
+/* ═══ 32차 — 질감(質感). 선생님: "벽돌·나무의 질감 그래픽 디테일이 부족해."
+   무늬(텍스처)로 돌아가지 않고 **꼭짓점 색**과 **모양**으로 결을 만든다:
+   · shadeGeo — 아래는 어둡고 위는 밝게(덩어리감), 살짝 흔들어 얼룩. 인스턴스 색에 곱해지므로 색은 그대로 두고 밝기만 갈린다.
+   · jitterGeo — 잎 덩어리의 꼭짓점을 자리 해시로 흔들어 울퉁불퉁하게(같은 자리 꼭짓점은 같이 움직여 면이 안 벌어진다). 셋을 만들어 돌려 쓴다.
+   · 줄기는 일곱 면을 번갈아 어둡게 — 껍질 띠. 벽돌 판은 모따기 + 아래 어둡게. 산 기둥도 아래를 어둡게.
+   꼭짓점 색이 있는 지오메트리는 bpush 가 알아서 WMATV(vertexColors) 재질로 바꿔 넣는다. */
+const WMATV = flatMat(0xffffff, {vertexColors:true});
+function jitterGeo(g, amp, seed){
+  const P = g.attributes.position, v = new THREE.Vector3();
+  for(let i=0;i<P.count;i++){ v.fromBufferAttribute(P,i);
+    const k = 1 + (rnd(seed + v.x*57.1 + v.y*131.7 + v.z*71.3) - 0.5)*2*amp;
+    P.setXYZ(i, v.x*k, v.y*k, v.z*k); }
+  g.computeVertexNormals(); return g;
+}
+function shadeGeo(g, lo, hi, noise, seed){
+  const P = g.attributes.position, n = P.count, arr = new Float32Array(n*3);
+  let y0=1e9, y1=-1e9; for(let i=0;i<n;i++){ const y=P.getY(i); if(y<y0) y0=y; if(y>y1) y1=y; }
+  for(let i=0;i<n;i++){ const t = (P.getY(i)-y0)/Math.max(1e-6, y1-y0);
+    const k = lo + (hi-lo)*t + (noise ? (rnd((seed||0) + P.getX(i)*91.3 + P.getZ(i)*37.9 + P.getY(i)*13.1)-0.5)*2*noise : 0);
+    arr[i*3]=k; arr[i*3+1]=k; arr[i*3+2]=k; }
+  g.setAttribute('color', new THREE.BufferAttribute(arr,3)); return g;
+}
+const LEAFV  = [0,1,2].map(i=> shadeGeo(jitterGeo(new THREE.IcosahedronGeometry(0.5, 1), 0.11, 3.1+i*7.3), 0.64, 1.14, 0.05, i*11));
+const TRUNKV = (()=>{ const g = new THREE.CylinderGeometry(0.34, 0.46, 1, 7).toNonIndexed(); g.computeVertexNormals();
+  shadeGeo(g, 0.84, 1.02, 0, 0);
+  const P = g.attributes.position, C = g.attributes.color;                          // 껍질 띠 — 삼각형마다 가운데 각도로 면을 정해 번갈아 어둡게
+  for(let i=0;i<P.count;i+=3){
+    const ax=(P.getX(i)+P.getX(i+1)+P.getX(i+2))/3, az=(P.getZ(i)+P.getZ(i+1)+P.getZ(i+2))/3;
+    const face = Math.floor((Math.atan2(az, ax) + Math.PI) / (Math.PI*2/7)) % 7;
+    const sc = (face % 2) ? 0.78 : 1.0;
+    for(let j=i;j<i+3;j++) C.setXYZ(j, C.getX(j)*sc, C.getY(j)*sc, C.getZ(j)*sc); }
+  return g; })();
+const CONEV  = (()=>{ const g = new THREE.ConeGeometry(0.5, 1, 7).toNonIndexed(); g.computeVertexNormals(); return shadeGeo(g, 0.72, 1.10, 0.03, 5); })();
+const BRICKV = shadeGeo(chamferBox(0.16), 0.80, 1.06, 0, 0);                        // 벽돌 판 — 모따기 + 아래 어둡게
+const BOXV   = (()=>{ const g = new THREE.BoxGeometry(1,1,1).toNonIndexed(); return shadeGeo(g, 0.82, 1.04, 0, 0); })();   // 산 기둥
 const TREE_C = {trunk:0x8a5a30, trunk2:0x9c6a3a, bark:0x6a4222, dark:0x4d9a3a, mid:0x63bb47, lit:0x86d45e, top:0xa4e07a, pine:0x3f8f3a, pine2:0x4fa646};
 const ROCK_C = [0x7c828b, 0x949aa3, 0xaab0b8], ROCK_D = 0x5c6169, MOSS_C = 0x7cbf5a, NUG_C = 0xffd24a;
 /* 둥근 나무. (X,Y,Z) 발치, S 칸 배율, H 키(칸). out 이 있으면 손잡이를 쌓는다(자원 나무).
@@ -3619,22 +3655,23 @@ function treeRound(X,Y,Z,S,H,seed,out){
     const h = bpush(k,geo,WMAT, X+dx*S, Y+dy*S, Z+dz*S, ry||0, sx*S, sy*S, sz*S, rz||0, col);
     if(out) out.push(h); return h; };
   const r1 = rnd(seed), r2 = rnd(seed+7.7), r3 = rnd(seed+13.1), r4 = rnd(seed+21.3), ry0 = r1*Math.PI*2;
-  put('trunk', TRUNKG, 0, H*0.33, 0, 1.30, H*0.68, 1.30, TREE_C.trunk, ry0);
-  put('trunk', TRUNKG, 0, H*0.74, 0, 0.94, H*0.52, 0.94, TREE_C.trunk2, ry0+0.3);
+  let lk = (seed*7.3)|0; const LF = ()=> LEAFV[((lk++)%3+3)%3], LK = ()=> 'leaf'+(((lk)%3)+3)%3;   // 잎 덩어리 셋을 돌려 쓴다(뱅크 leaf0~2)
+  put('trunk', TRUNKV, 0, H*0.33, 0, 1.30, H*0.68, 1.30, TREE_C.trunk, ry0);
+  put('trunk', TRUNKV, 0, H*0.74, 0, 0.94, H*0.52, 0.94, TREE_C.trunk2, ry0+0.3);
   for(let i=0;i<3;i++){ const a = ry0 + i*2.1 + 0.7;                                   // 껍질 골 — 줄기에 붙은 어두운 세로 띠
     put('bark', WGEO, Math.sin(a)*0.58, H*0.34, Math.cos(a)*0.58, 0.16, H*0.52, 0.18, TREE_C.bark, a); }
   for(let i=0;i<3;i++){ const a = ry0 + i*2.1 + r2;                                   // 뿌리 — 바깥으로 뻗는 납작 토막
     put('root', WGEO, Math.sin(a)*0.55, 0.16, Math.cos(a)*0.55, 0.36, 0.30, 0.90, TREE_C.trunk, a, 0); }
   const D = 2.3 + r3*0.6;                                                              // 잎 덩어리 지름 배율
   for(const si of [1,-1]){ const a = ry0 + (si>0 ? 0.9 : 3.6);                          // 가지 둘 — 비스듬히, 끝에 잎 뭉치
-    put('branch', TRUNKG, Math.sin(a)*0.85, H*0.80, Math.cos(a)*0.85, 0.46, 2.0, 0.46, TREE_C.trunk2, a, si*0.82);
-    put('leaf', LEAFG, Math.sin(a)*1.85, H*0.80+0.75, Math.cos(a)*1.85, D*0.95, D*0.78, D*0.95, TREE_C.dark, a+0.5); }
-  put('leaf', LEAFG, 0, H+0.5, 0, D*2.1, D*1.7, D*2.1, TREE_C.mid, ry0);                 // 가운데 큰 덩어리
+    put('branch', TRUNKV, Math.sin(a)*0.85, H*0.80, Math.cos(a)*0.85, 0.46, 2.0, 0.46, TREE_C.trunk2, a, si*0.82);
+    put(LK(), LF(), Math.sin(a)*1.85, H*0.80+0.75, Math.cos(a)*1.85, D*0.95, D*0.78, D*0.95, TREE_C.dark, a+0.5); }
+  put(LK(), LF(), 0, H+0.5, 0, D*2.1, D*1.7, D*2.1, TREE_C.mid, ry0);                    // 가운데 큰 덩어리
   for(let i=0;i<3;i++){ const a = ry0 + i*2.1;                                          // 아래 어두운 셋
-    put('leaf', LEAFG, Math.sin(a)*1.35, H-0.3+(i%2)*0.3, Math.cos(a)*1.35, D*1.55, D*1.25, D*1.55, TREE_C.dark, a+1.0); }
-  put('leaf', LEAFG,  Math.sin(ry0+1.0)*0.9, H+1.6,  Math.cos(ry0+1.0)*0.9, D*1.3, D*1.1, D*1.3, TREE_C.lit, ry0+2.2);   // 위 밝은 둘
-  put('leaf', LEAFG, -Math.sin(ry0+2.5)*0.8, H+1.5, -Math.cos(ry0+2.5)*0.8, D*1.2, D*1.0, D*1.2, TREE_C.lit, ry0+3.1);
-  put('leaf', LEAFG, 0.2, H+2.35, -0.2, D*1.0, D*0.85, D*1.0, TREE_C.top, ry0+4.0);       // 꼭대기
+    put(LK(), LF(), Math.sin(a)*1.35, H-0.3+(i%2)*0.3, Math.cos(a)*1.35, D*1.55, D*1.25, D*1.55, TREE_C.dark, a+1.0); }
+  put(LK(), LF(),  Math.sin(ry0+1.0)*0.9, H+1.6,  Math.cos(ry0+1.0)*0.9, D*1.3, D*1.1, D*1.3, TREE_C.lit, ry0+2.2);   // 위 밝은 둘
+  put(LK(), LF(), -Math.sin(ry0+2.5)*0.8, H+1.5, -Math.cos(ry0+2.5)*0.8, D*1.2, D*1.0, D*1.2, TREE_C.lit, ry0+3.1);
+  put(LK(), LF(), 0.2, H+2.35, -0.2, D*1.0, D*0.85, D*1.0, TREE_C.top, ry0+4.0);          // 꼭대기
   if(out && r4 < 0.34) for(let i=0;i<4;i++){ const a = ry0 + i*1.57 + 0.4, rr = D*1.02;   // 사과 넷 — 잎 겉에
     put('apple', LEAFG, Math.sin(a)*rr, H+0.3+(i%2)*0.9, Math.cos(a)*rr, 0.36, 0.34, 0.36, 0xe5433a, a); }
 }
@@ -3642,11 +3679,11 @@ function treeRound(X,Y,Z,S,H,seed,out){
 function treePine(X,Y,Z,S,H,seed){
   const put = (k,geo,dx,dy,dz,sx,sy,sz,col,ry)=> bpush(k,geo,WMAT, X+dx*S, Y+dy*S, Z+dz*S, ry||0, sx*S, sy*S, sz*S, 0, col);
   const ry0 = rnd(seed)*Math.PI*2;
-  put('trunk', TRUNKG, 0, H*0.32, 0, 1.0, H*0.66, 1.0, TREE_C.trunk, ry0);
+  put('trunk', TRUNKV, 0, H*0.32, 0, 1.0, H*0.66, 1.0, TREE_C.trunk, ry0);
   for(let i=0;i<4;i++){ const w = 3.9 - i*0.80, y = H*0.36 + i*1.10;
-    put('cone', CONEG, 0, y + 1.0, 0, w, 2.15, w, i%2 ? TREE_C.pine2 : TREE_C.pine, ry0 + i*0.5); }
-  put('cone', CONEG, 0, H*0.36 + 4*1.10 + 0.55, 0, 1.1, 1.3, 1.1, TREE_C.lit, ry0 + 2.0);   // 꼭지
-  if(Y >= GY+13) put('cone', CONEG, 0, H*0.36 + 4*1.10 + 1.15, 0, 0.75, 0.75, 0.75, 0xffffff, ry0);   // 눈
+    put('cone', CONEV, 0, y + 1.0, 0, w, 2.15, w, i%2 ? TREE_C.pine2 : TREE_C.pine, ry0 + i*0.5); }
+  put('cone', CONEV, 0, H*0.36 + 4*1.10 + 0.55, 0, 1.1, 1.3, 1.1, TREE_C.lit, ry0 + 2.0);   // 꼭지
+  if(Y >= GY+13) put('cone', CONEV, 0, H*0.36 + 4*1.10 + 1.15, 0, 0.75, 0.75, 0.75, 0xffffff, ry0);   // 눈
 }
 function mkTree(x,z){
   const hs=[], H = 5 + (Math.abs(Math.sin(x*3.3+z*7.7))*2.4|0);
@@ -3796,7 +3833,7 @@ function scatterDecor(){
     const k=Math.random(), ry=Math.random()*Math.PI*2, X=x+0.5, Z=z+0.5;
     if(k<0.55){                                   // 수풀 — 각진 공 하나
       const small = Math.random()<0.42, sc = small ? 0.44 : 0.66;
-      bpush(small?'bushS':'bush', LEAFG, WMAT, X, GY+sc*0.30, Z, ry, sc, sc*0.68, sc, 0,
+      bpush(small?'bushS':'bush', LEAFV[small?1:0], WMAT, X, GY+sc*0.30, Z, ry, sc, sc*0.68, sc, 0,
             Math.random()<0.5 ? 0x5fb646 : 0x74c853);
     } else if(k<0.88){                            // 들꽃
       const ci=(Math.random()*petalCol.length)|0;
@@ -3848,7 +3885,7 @@ function buildGates(){
       bpush(key, geo, mat, WX(tc,pp), yc, WZ(tc,pp), ry, w, h, dp);
     /* 31차b — 벽돌 벽(선생님: "성벽 회색 벽돌이 벽돌같지 않고 밍밍해"). 몸통은 회반죽 색 그대로 두고 네 면에 엇갈린 벽돌 판을 붙인다.
        줄 높이 0.92 · 벽돌 1.5 · 반 칸씩 밀림 · 세 밝기. 조각은 각진 상자(BOXG) — 성문 하나에 500장 남짓. faces: 'p' 좌우 · 't' 앞뒤 */
-    const BRICK_T = [0x9ea4ac, 0xadb3bb, 0x929aa2];
+    const BRICK_T = [0x9ea4ac, 0xadb3bb, 0x929aa2, 0xb8bdc4, 0x868c95];   // 32차 — 다섯 밝기(끝은 드문 밝은 돌·어두운 돌)
     const BW = (pp, yc, tc, w, h, dp, faces)=>{
       B('gsb', gSB, MAT, pp, yc, tc, w, h, dp);
       const nR = Math.max(1, Math.round(h/0.92)), rH = h/nR; let k = (pp*3+tc)|0;
@@ -3860,9 +3897,10 @@ function buildGates(){
           for(const sgn of [1,-1]) for(let i=-1; i<n; i++){
             let a = (i+off)*bl, b2 = a + bl; a = Math.max(0,a); b2 = Math.min(len,b2);
             if(b2 - a < bl*0.3) continue;
-            const c = (a+b2)/2 - len/2, L = b2 - a - 0.10, col = BRICK_T[(k++)%3];
-            if(ax==='p') bpush('gbrick', BOXG, WMAT, WX(tc + c, pp + sgn*(w/2 + 0.02)), y, WZ(tc + c, pp + sgn*(w/2 + 0.02)), ry, 0.14, rH-0.10, L, 0, col);
-            else         bpush('gbrick', BOXG, WMAT, WX(tc + sgn*(dp/2 + 0.02), pp + c), y, WZ(tc + sgn*(dp/2 + 0.02), pp + c), ry, L, rH-0.10, 0.14, 0, col);
+            const hh = rnd(k*1.7 + r*3.3 + i*5.1), col = BRICK_T[hh < 0.08 ? 4 : hh > 0.92 ? 3 : (k++)%3], c = (a+b2)/2 - len/2;
+            const L = (b2 - a - 0.10) * (0.90 + rnd(k*2.9+i)*0.16), pr = 0.03 + rnd(k*4.1+r)*0.05;   // 32차 — 길이·도드라짐이 제각각(손으로 쌓은 결)
+            if(ax==='p') bpush('gbrick', BRICKV, WMAT, WX(tc + c, pp + sgn*(w/2 + pr)), y, WZ(tc + c, pp + sgn*(w/2 + pr)), ry, 0.16, rH-0.10, L, 0, col);
+            else         bpush('gbrick', BRICKV, WMAT, WX(tc + sgn*(dp/2 + pr), pp + c), y, WZ(tc + sgn*(dp/2 + pr), pp + c), ry, L, rH-0.10, 0.16, 0, col);
           }
         }
       }
@@ -4588,12 +4626,19 @@ function buildForge(){
      모루 위에 빨갛게 단 쇠막대(스스로 빛난다), 앞쪽(손님 쪽, +Z)에 유니크 받침대 둘과 레어 걸이. 총 모형은 손에 드는
      것을 그대로 복제해 얹는다(makeDisplays) — 창에서 본 것과 세계의 것이 같은 물건이다. */
   F(-0.75, 0.84,  0.10, 0.44,0.07,0.09);                    // 모루 위 달군 쇠막대
-  S(-0.60, 0.20,  1.35, 0.44,0.40,0.44, 0xbdb5ab);          // 유니크 받침대 둘 — 돌
-  S( 0.60, 0.20,  1.35, 0.44,0.40,0.44, 0xbdb5ab);
-  F(-0.60, 0.42,  1.35, 0.50,0.04,0.50);                    // 받침대 위 빛나는 판
-  F( 0.60, 0.42,  1.35, 0.50,0.04,0.50);
-  P( 0.00, 1.05,  1.75, 2.10,0.10,0.14, 0xd8b489);          // 레어 걸이 — 가로 막대
-  for(const sx of [-1,1]) P(sx*0.98, 0.52, 1.75, 0.12,1.06,0.12, 0xc09a68);   // 걸이 기둥
+  /* ★ 32차 — 선생님: "대장간 앞이 너저분해. 총 진열은 좋은데 깔끔하게."
+     29차엔 레어 걸이(막대 + 기둥 둘)가 **앞쪽 한가운데** 에 서서 대장장이·모루를 가렸고, 걸린 총 넷이 손님 쪽으로 총구를 향해
+     검은 덩어리로 보였다. 걸이를 **뒤쪽 벽(작업대 위)** 으로 옮기고 총을 벽과 나란히(옆모습) 걸어 실루엣이 읽히게, 유니크 받침대는
+     앞 양 모퉁이로 벌려 가운데를 비웠다. 앞엔 받침대 둘뿐이다. */
+  S(-1.25, 0.20,  1.20, 0.44,0.40,0.44, 0xbdb5ab);          // 유니크 받침대 둘 — 앞 양 모퉁이
+  S( 1.25, 0.20,  1.20, 0.44,0.40,0.44, 0xbdb5ab);
+  F(-1.25, 0.42,  1.20, 0.50,0.04,0.50);                    // 받침대 위 빛나는 판
+  F( 1.25, 0.42,  1.20, 0.50,0.04,0.50);
+  /* 걸이는 **왼쪽 옆(-X) 벽** 이다 — 뒤(-Z)에 세워 봤더니 대장간이 수정 단상에 붙어 있어 판이 단상 속에 묻혔다(화면으로 잡았다). */
+  P(-1.90, 1.60,  0.20, 0.10,0.96,1.90, 0xd8b489);          // 레어 걸이 — 옆 벽 판
+  P(-1.88, 2.12,  0.20, 0.16,0.10,2.00, 0xc09a68);          // 벽 판 위 처마 띠
+  for(const dz of [-0.72,1.12]) P(-1.90, 1.00, dz, 0.12,2.00,0.12, 0xc09a68);   // 벽 판 기둥
+  for(const dz of [-0.55,-0.05,0.45,0.95]) P(-1.82, 1.40, dz, 0.10,0.05,0.05, 0x8a6a48);   // 총 걸이 못
   /* ★ 대장장이도 NPC 로 옮겼다 — 망치질을 해야 대장간처럼 보인다.
      아래 '상인 · 대장장이 — 살아 있게' 를 보라. */
 }
@@ -5014,7 +5059,7 @@ function blocksOfRaw(t, lv){
      한 덩어리 돌 몸통 대신 **회반죽 색 몸통 + 네 면에 엇갈려 붙인 벽돌 판**. 벽돌은 줄마다 반 칸씩 밀리고(끝은 반 벽돌), 세 가지 밝기가 섞이며,
      면에서 0.04 도드라진다. 조각은 T.bricks 타일이라 각진 상자로 싸게 그려진다. tone 은 그 벽의 원래 돌 색(STONE / STONEL). */
   const BRK = (x,z,y0,y1,w,d,tone)=>{
-    V(x,z,y0,y1,w,d, tone===STONEL ? 0xa9afb7 : STONED);                             // 회반죽 몸통
+    V(x,z,y0,y1,w,d, tone===STONEL ? 0x9ea4ac : 0x7c828b);                           // 회반죽 몸통 — 32차: 더 어둡게(줄눈이 깊어 보인다)
     const tones = tone===STONEL ? [0xe4e8ee, 0xd5dae1, 0xeef1f5] : [0xc3c8d0, 0xb4bac2, 0xcfd4db];
     const nR = Math.max(2, Math.round((y1-y0)/0.34)), rH = (y1-y0)/nR;
     let k = 0;
@@ -5025,9 +5070,10 @@ function blocksOfRaw(t, lv){
         for(const sgn of [1,-1]) for(let i=-1; i<n; i++){
           let a = (i+off)*bl, b = a + bl; a = Math.max(0,a); b = Math.min(len,b);
           if(b - a < bl*0.3) continue;
-          const c = (a+b)/2 - len/2, L = b - a - 0.05, col = tones[(k++)%3];
-          if(ax===0) RAW(x + c, yc, z + sgn*(d/2 + 0.005), T.bricks, L, rH-0.05, 0.07, col);
-          else       RAW(x + sgn*(w/2 + 0.005), yc, z + c, T.bricks, 0.07, rH-0.05, L, col);
+          const hh = rnd(k*1.7 + r*3.3 + i*5.1), col = hh < 0.07 ? (tone===STONEL ? 0xb9bfc7 : 0x9aa0a8) : tones[(k++)%3], c = (a+b)/2 - len/2;
+          const L = (b - a - 0.05) * (0.90 + rnd(k*2.9+i)*0.16), pr = 0.005 + rnd(k*4.1+r)*0.03;   // 32차 — 길이·도드라짐 제각각
+          if(ax===0) RAW(x + c, yc, z + sgn*(d/2 + pr), T.bricks, L, rH-0.05, 0.08, col);
+          else       RAW(x + sgn*(w/2 + pr), yc, z + c, T.bricks, 0.08, rH-0.05, L, col);
         }
       }
     }
@@ -5374,7 +5420,8 @@ function rebuildStru(){
       if(mesh){ scene.remove(mesh); mesh.dispose(); }
       const cap = Math.max(64, Math.ceil(arr.length*1.6));
       /* 30차 — 건물은 둥근 원색 조각(로블록스). 무늬 타일 대신 flatFor(tile)·둥근 상자. 빛(glow)은 발광 원색 */
-      mesh = new THREE.InstancedMesh(tile===T.bricks ? BOXG : STRU_GEO, tile===T.glow ? flatFor(T.glow, EMIT) : flatFor(tile), cap);   // 31차b — 벽돌은 각진 상자
+      mesh = new THREE.InstancedMesh(tile===T.bricks ? BRICKV : STRU_GEO,
+        tile===T.glow ? flatFor(T.glow, EMIT) : tile===T.bricks ? WMATV : flatFor(tile), cap);   // 31차b·32차 — 벽돌은 모따기 판 + 꼭짓점 색
       mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap*3).fill(1),3);
       mesh.frustumCulled = false;
       if(GFX.shadow){ mesh.castShadow = true; mesh.receiveShadow = true; }  // 25차 — 아이가 지은 벽이 그늘을 만든다
@@ -6585,10 +6632,11 @@ function makeDisplays(){
   dispMade = true;
   { const RY = Math.PI/2 - FORGE_A, cr = Math.cos(RY), sr = Math.sin(RY), y0 = terrAt(Math.round(FORGE_X), Math.round(FORGE_Z));
     const at = (dx,dz)=> [FORGE_X + dx*cr + dz*sr, FORGE_Z - dx*sr + dz*cr];
-    let q = at(-0.60, 1.35); dispClone(12, q[0], y0+0.82, q[1], RY, 1.05, true);        // 천둥 벼락총 — 왼 받침대
-    q = at( 0.60, 1.35);     dispClone(13, q[0], y0+0.82, q[1], RY, 1.05, true);        // 화염 대포 — 오른 받침대
-    [[8,-0.72],[9,-0.24],[10,0.24],[11,0.72]].forEach(([i,dx])=>{                       // 레어 넷 — 걸이에 비스듬히
-      const p = at(dx, 1.75); dispClone(i, p[0], y0+1.28, p[1], RY + 0.35, 1.1, false); });
+    let q = at(-1.25, 1.20); dispClone(12, q[0], y0+0.82, q[1], RY, 1.05, true);        // 천둥 벼락총 — 왼 앞 받침대
+    q = at( 1.25, 1.20);     dispClone(13, q[0], y0+0.82, q[1], RY, 1.05, true);        // 화염 대포 — 오른 앞 받침대
+    /* 32차 — 레어 넷은 뒤쪽 벽 판에 벽과 나란히(옆모습). 총구가 손님을 향하면 검은 점으로만 보인다 — 옆으로 걸어야 총이다 */
+    [[8,-0.55],[9,-0.05],[10,0.45],[11,0.95]].forEach(([i,dz],k)=>{
+      const p = at(-1.78, dz); dispClone(i, p[0], y0+1.52, p[1], RY + (k%2 ? 0.10 : -0.10), 1.05, false); });
   }
   { const RY = Math.PI/2 - SHOP_A, cr = Math.cos(RY), sr = Math.sin(RY), y0 = terrAt(Math.round(SHOP_X), Math.round(SHOP_Z));
     const at = (dx,dz)=> [SHOP_X + dx*cr + dz*sr, SHOP_Z - dx*sr + dz*cr];
@@ -9119,22 +9167,23 @@ const WEAPONS = [
        새 총이 물려받는다(안 그러면 +6 을 만든 아이가 조합을 안 한다).
      ★ 주재료가 하나씩 다르다 — 나무(강궁) · 돌(산탄총) · 금(황금 연발총) · 농장 산물(목장 장총).
      ★ 번호로 저장·전송되므로 끝에만 붙인다(위 18차 주석 그대로). 8~13. */
-  {n:'참나무 강궁', ic:'🏹', tier:'rare', from:1, mat:{w:140,eg:6}, dmg:95, cd:0.62, rng:19, ammo:0,
+  /* 32차 — 조합 재료를 30% 내렸다(선생님: "레어·유니크 만드는 난이도를 30% 정도 낮추자"). 29차 값 ×0.7 을 반올림. */
+  {n:'참나무 강궁', ic:'🏹', tier:'rare', from:1, mat:{w:98,eg:4}, dmg:95, cd:0.62, rng:19, ammo:0,
    col:0x8a5a34, tr:0xa8ff8a, mz:0xd8ffb0, len:1.0, aimR:1.9, kick:0.40, snd:'oakbow', trait:'pierce',
    d:'참나무 통으로 깎은 큰 활. 화살이 늑대를 뚫고 뒤의 늑대까지 맞힙니다. 총알이 필요 없어요.'},
-  {n:'흑요석 산탄총', ic:'💥', tier:'rare', from:2, mat:{s:160,pk:6}, dmg:150, cd:1.05, rng:15, ammo:1,
+  {n:'흑요석 산탄총', ic:'💥', tier:'rare', from:2, mat:{s:112,pk:4}, dmg:150, cd:1.05, rng:15, ammo:1,
    col:0x2a2630, tr:0xc9a0ff, mz:0xe8c8ff, len:1.2, aimR:2.2, kick:1.10, snd:'shotgun', trait:'push',
    d:'검은 유리 같은 흑요석으로 만든 총. 가까이서 쾅! 맞은 늑대가 뒤로 밀려납니다. 총알 1발.'},
-  {n:'황금 연발총', ic:'✨', tier:'rare', from:4, mat:{g:45,mk:8}, dmg:70, cd:0.40, rng:21, ammo:1,
+  {n:'황금 연발총', ic:'✨', tier:'rare', from:4, mat:{g:32,mk:6}, dmg:70, cd:0.40, rng:21, ammo:1,
    col:0xe8b83a, tr:0xffe08a, mz:0xfff4c0, len:1.0, aimR:1.7, kick:0.50, snd:'goldsmg', trait:'leech',
    d:'금으로 만든 연발총. 맞힐 때마다 내 체력이 조금 찹니다. 총알 1발.'},
-  {n:'목장 장총', ic:'🐄', tier:'rare', from:3, mat:{w:60,eg:10,mk:10,pk:10}, dmg:210, cd:0.95, rng:28, ammo:1,
+  {n:'목장 장총', ic:'🐄', tier:'rare', from:3, mat:{w:42,eg:7,mk:7,pk:7}, dmg:210, cd:0.95, rng:28, ammo:1,
    col:0xf4f1ea, tr:0xfff6d0, mz:0xffffff, len:1.5, aimR:1.4, kick:0.90, snd:'ranch', trait:'crit',
    d:'목장 산물로 만든 얼룩소 무늬 장총. 치명타가 세 배 자주 터집니다. 총알 1발.'},
-  {n:'천둥 벼락총', ic:'⚡', tier:'unique', from:10, mat:{g:150,s:220,mk:20,eg:20}, dmg:150, cd:0.55, rng:25, ammo:2,
+  {n:'천둥 벼락총', ic:'⚡', tier:'unique', from:10, mat:{g:105,s:154,mk:14,eg:14}, dmg:150, cd:0.55, rng:25, ammo:2,
    col:0x3a3f66, tr:0x9ad8ff, mz:0xd8f4ff, len:1.4, aimR:1.7, kick:0.70, snd:'thunder', trait:'chain',
    d:'맞힌 늑대에서 번개가 튀어 옆의 늑대 셋까지 지집니다. 총알 2발.'},
-  {n:'화염 대포', ic:'🔥', tier:'unique', from:9, mat:{w:240,s:240,pk:30,g:90}, dmg:260, cd:1.25, rng:21, ammo:2,
+  {n:'화염 대포', ic:'🔥', tier:'unique', from:9, mat:{w:168,s:168,pk:21,g:63}, dmg:260, cd:1.25, rng:21, ammo:2,
    col:0x8a2f1e, tr:0xff8a3c, mz:0xffc070, len:1.6, aimR:2.4, kick:1.60, snd:'flame', trait:'blast',
    d:'불덩이가 날아가 터집니다. 맞은 자리 둘레의 늑대가 모두 탑니다. 빗나가도 땅에서 터져요. 총알 2발.'}
 ];
@@ -16111,6 +16160,7 @@ Object.assign(window, {
   /* __setSky 는 검사가 밤을 바로 놓는 손잡이 (NIGHTK 는 updSky 가 skyK 를 따라간다) */
   /* 31차 — 세계 원색 검사(t32) 손잡이 */
   __WGEO:WGEO, __BOXG:BOXG, __WMAT:WMAT, __chamferBox:chamferBox, __LEAFG:LEAFG, __ORE_F:ORE_F,
+  __LEAFV:LEAFV, __TRUNKV:TRUNKV, __CONEV:CONEV, __BRICKV:BRICKV, __BOXV:BOXV, __WMATV:WMATV,
   __cloudMesh:()=>cloudMesh, __cloudMat:()=>cloudMat, __clouds:()=>clouds, __updClouds:updClouds,
   __nodeVisual:nodeVisual, __EMIT_F:EMIT_F, __EMITC_F:EMITC_F, __sunDisc:()=>sunDisc, __moonDisc:()=>moonDisc,
   __cGem:()=>cGem, __cMat:()=>cMat, __groundDisc:()=>groundDisc, __groundRim:()=>groundRim, __RAMP_TOP:()=>RAMP_TOP,

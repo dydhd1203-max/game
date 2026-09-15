@@ -47,7 +47,7 @@ await pg.waitForTimeout(1500);
     const r0 = Object.assign({}, W.__myRes());
     W.__craftWeapon(8);
     const r1 = W.__myRes();
-    o.paid = {w:r0.w-r1.w, eg:r0.eg-r1.eg};
+    o.paid = {w:r0.w-r1.w, eg:r0.eg-r1.eg}; o.mat8 = W.__WEAPONS[8].mat;
     o.after = {own8:!!K.ownW[8], own1:!!K.ownW[1], wpn:K.wpn, enh8:K.enh[8]|0};
     W.__setForgeTab('craft'); W.__buildForgeUI();
     const cards = [...document.querySelectorAll('#forgeList .sItem')];
@@ -74,8 +74,9 @@ await pg.waitForTimeout(1500);
   ok('★ 조합표 단추를 **눌러서** 카드 여섯이 뜬다 (함수를 직접 부르면 못 잡는 버그였다)', c.craftByClick===6 && c.craftOn, c.craftByClick);
   ok('상점 탭을 눌러도 대장간 목록·탭은 그대로다 (같은 class 를 입어도 손잡이가 안 섞인다)', c.shopArm>0 && c.forgeStill===6 && c.forgeOnKept, c.shopArm+' / '+c.forgeStill);
   ok('★ 넣는 총이 없으면 조합이 안 되고, 있으면 된다', r.noBase===false && r.withBase===true);
-  ok('★ 조합하면 재료(나무 140 · 달걀 6)가 나가고 넣은 총은 없어지며 새 총을 바로 들고 강화 +3 을 물려받는다',
-     r.paid.w===140 && r.paid.eg===6 && r.after.own8 && !r.after.own1 && r.after.wpn===8 && r.after.enh8===3, JSON.stringify(r.paid)+' '+JSON.stringify(r.after));
+  /* 32차 — 재료를 30% 내렸다(140·6 → 98·4). 값을 박지 않고 표(WEAPONS[8].mat)와 맞춘다 */
+  ok('★ 조합하면 재료(표의 나무·달걀 만큼)가 나가고 넣은 총은 없어지며 새 총을 바로 들고 강화 +3 을 물려받는다',
+     r.paid.w===r.mat8.w && r.paid.eg===r.mat8.eg && r.mat8.w<=100 && r.after.own8 && !r.after.own1 && r.after.wpn===8 && r.after.enh8===3, JSON.stringify(r.paid)+' '+JSON.stringify(r.after));
   ok('★ 대장간 조합표 탭에 카드 여섯 — 만든 것은 "만들었어요", 못 만드는 것은 까닭이 적힌다', r.cards===6 && r.labels[0]==='만들었어요' && r.why>=4, r.labels.join('/')+' · 까닭 '+r.why);
   ok('유니크는 레어(황금 연발총)가 있어야 만들 수 있다 · 강화 탭에는 만든 강궁이 +3 으로 선다', r.unique12===false && r.enhCards.some(t=>/참나무 강궁/.test(t) && /\+3/.test(t)), r.enhCards.join('/'));
 }
