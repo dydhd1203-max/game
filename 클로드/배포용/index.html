@@ -5892,7 +5892,7 @@ function boxM(tile, w,h,d, x,y,z, mat){
   const special = mat && (mat.isMeshBasicMaterial ||
     (mat.emissive && (mat.emissive.r || mat.emissive.g || mat.emissive.b)));
   let geo = rboxGeo(w,h,d), mm;
-  if(mat && mat.userData.metal) mm = mat;          // 35차 — 쇠 재질은 그대로 쓴다(꼭짓점 색 없이, 그 재질만의 조각으로 구워진다)
+  if(mat && mat.userData && mat.userData.metal) mm = mat;   // 35차 — 쇠 재질은 그대로 쓴다(꼭짓점 색 없이, 그 재질만의 조각으로 구워진다). userData 없는 재질도 온다 — 없으면 건너뛴다
   else if(special) mm = flatFor(tile, mat);
   else {
     const c = new THREE.Color(TILE_COL[tile] !== undefined ? TILE_COL[tile] : 0xffffff);
