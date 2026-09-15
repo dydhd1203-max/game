@@ -295,70 +295,84 @@ ok('★ +4 부터 떨린다 (그 아래는 안 떨린다)',
    gun.단계별[3][1] === 0 && gun.단계별[4][1] > 0,
    '+3 흔들림 '+gun.단계별[3][1]+' · +4 흔들림 '+gun.단계별[4][1]);
 
-/* ═══════ ⑥-2 내가 든 총도 빛난다 (14차 손질) ═══════
+/* ═══════ ⑥-2 내가 든 총도 빛난다 (14차 손질 · 34차 재질 발광) ═══════
    ★ 처음엔 남의 총에만 빛을 붙였다 — 아이가 제일 많이 보는 '자기 총' 이 안 빛나서
-     "강화했는데 안 보여요" 가 나왔다. 그 다음엔 크기를 두 번 헛짚었다:
-     너무 크면 화면을 덮고(10차 총구 화염과 같은 함정), 너무 작으면 총 속에 파묻힌다.
-     그래서 '총보다 크되 1.5배는 안 넘는다' 를 여기서 못 박는다. */
+     "강화했는데 안 보여요" 가 나왔다. 28차엔 후광 조각(상자+총구 불티)을 띄웠는데 34차에
+     선생님이 "네모로 빛나는 게 이상해", 타원체로 바꾸자 "타원체도 이상해, 무기 자체가 발광했으면" —
+     조각을 다 없애고 총 재질 자체의 자체 발광(emissive)으로 바꿨다.
+   ★ 그래서 여기서 못 박는 것: 조각이 없다 · 총마다 자기만의 재질이다(공용 HELD_VC 를 그대로 쓰면
+     곡괭이까지 빛난다) · 세기가 1.0 을 안 넘는다(톤매핑이 흰색으로 날린다) · 안 든 총은 꺼진다. */
 const fp = await pg.evaluate(async ()=>{
   const W=window, T3=W.__THREE, o={};
-  const gms = W.__gunModels();
-  const glowOf = g => g.children.filter(c=> c.material && c.material.blending === T3.AdditiveBlending);
-  o.맨손없음 = glowOf(gms[0]).length === 0;              // 맨손 돌은 강화 못 한다
-  o.총마다있음 = true;
-  for(let i=1;i<gms.length;i++) if(glowOf(gms[i]).length !== 2) o.총마다있음 = false;
+  const gms = W.__gunModels(), gg = W.__gunGlow(), HELD_VC = W.__HELD_VC, HELD_ARM = W.__HELD_ARM;
+  const meshesOf = g => g.children.filter(c=>c.isMesh && c.material !== HELD_ARM);      // 팔 조각은 빛 재질이 아니다
+  const extraOf  = g => g.children.filter(c=> c.isMesh && c.material && (c.material.blending === T3.AdditiveBlending || c.material.transparent));
+  const sparksOf = g => g.children.filter(c=> c.isPoints);
+  o.맨손없음 = gg[0] === null && meshesOf(gms[0]).every(c=> c.material === HELD_VC);   // 맨손 돌은 강화 못 한다
+  o.총마다있음 = true; o.조각없음 = true; o.재질따로 = true; o.손따로 = true; o.층 = true;
+  const seen = new Set();
+  for(let i=1;i<gms.length;i++){
+    if(!gg[i] || !gg[i].mats.length || sparksOf(gms[i]).length !== 1) o.총마다있음 = false;
+    if(!meshesOf(gms[i]).every(c=> c.layers.isEnabled(1)) || gms[i].children.some(c=> c.isMesh && c.material === HELD_ARM && c.layers.isEnabled(1))) o.층 = false;
+    if(extraOf(gms[i]).length) o.조각없음 = false;
+    if(!gms[i].children.some(c=> c.isMesh && c.material === HELD_ARM)) o.손따로 = false;
+    for(const c of meshesOf(gms[i])){
+      const m = c.material;
+      if(m === HELD_VC || seen.has(m) || !gg[i] || !gg[i].mats.includes(m)) o.재질따로 = false;
+      seen.add(m);
+    }
+  }
 
   W.__KIT.ownW=[true,true,true,true,true,true,true];
   W.__equipWeapon(5); W.__setAim(true);
 
-  const g = gms[5], gl = glowOf(g);
-  /* 총 몸통 크기를 잰다 (빛은 빼고) */
-  gl.forEach(c=>c.visible=false);
-  const body = new T3.Vector3();
-  new T3.Box3().setFromObject(g).getSize(body);
-
   const meas = async (e)=>{
     W.__setEnh(5, e);
     W.__updHeld(1/60, false, 0);            // 갱신 한 번
-    const halo = gl[0];
-    return { on:halo.visible, k:halo.scale.x,
-             col:'#'+halo.material.color.getHexString(),
-             op:halo.material.opacity };
+    const ms = gg[5].mats;
+    return { on: ms.every(m=> m.emissiveIntensity > 0) && gg[5].sp.pts.visible && W.__gunGlowK() > 0,
+             off: ms.every(m=> m.emissiveIntensity === 0) && !gg[5].sp.pts.visible && W.__gunGlowK() === 0,
+             k: W.__gunGlowK(),
+             I: Math.max(...ms.map(m=> m.emissiveIntensity)),
+             col:'#'+ms[0].emissive.getHexString(),
+             same: ms.every(m=> m.emissiveIntensity === ms[0].emissiveIntensity && m.emissive.getHex() === ms[0].emissive.getHex()) };
   };
   o.plain = await meas(0);
   o.lv1   = await meas(1);
   o.lv3   = await meas(3);
   o.lv5   = await meas(5);
   o.lv6   = await meas(6);
-  /* 빛 조각의 실제 크기 = 몸통 크기 × 배율 (기하가 몸통과 같은 크기로 만들어져 있다) */
-  o.몸통 = [+body.x.toFixed(3), +body.y.toFixed(3), +body.z.toFixed(3)];
-  W.__setEnh(5,0); W.__setAim(false);
+  /* 다른 총으로 바꾸면 이전 총의 빛은 꺼져야 한다 — 안 든 총이 빛나면 렌더 비용만 든다 */
+  W.__setEnh(5, 6); W.__equipWeapon(2); W.__setEnh(2, 0); W.__updHeld(1/60, false, 0);
+  o.바꾼뒤 = { 이전: gg[5].mats.every(m=> m.emissiveIntensity === 0), 지금: gg[2].mats.every(m=> m.emissiveIntensity === 0) };
+  W.__equipWeapon(5); W.__setEnh(5,0); W.__setAim(false); W.__updHeld(1/60, false, 0);
   o.fx = W.__enh.fx.map(f=>[f.glow, f.fp, f.sh]);
   return o;
 });
 ok('★ 맨손 돌에는 강화 빛이 없다', fp.맨손없음);
-ok('★ 총 여섯 자루 모두 빛 조각(후광+총구)을 가진다', fp.총마다있음);
-ok('★ +0 은 안 빛난다', fp.plain.on === false);
-ok('★ +1 부터 빛난다', fp.lv1.on === true);
-ok('★ 빛이 총 몸통보다 크다 (안 그러면 총 속에 파묻혀 안 보인다)',
-   fp.lv1.k > 1.0, '+1 배율 ' + fp.lv1.k.toFixed(2) + '배');
-ok('★ 빛이 총의 1.5배를 안 넘는다 (넘으면 화면을 덮는다 — 10차 총구 화염)',
-   fp.lv6.k < 1.5, '+6 배율 ' + fp.lv6.k.toFixed(2) + '배');
-/* ★ 화면에 그려진 '순간 크기' 로 순서를 재면 안 된다 — 숨쉬는 맥동이 얹혀 있어서
-   재는 순간마다 값이 흔들리고, 이웃한 단계끼리는 띠가 겹친다(검사가 실제로 뒤집혔다).
-   흔들리는 검사는 검사가 아니다. 흔들리지 않는 것 둘로 나눠 본다:
-     ① 표(fp)가 단계마다 커지는가   ② 그려진 크기가 언제나 안전한 띠 안에 있는가
-   단계끼리의 구분은 크기가 아니라 '색' 이 맡는다(아래 항목에서 따로 본다). */
+ok('★ 총 여섯 자루 모두 자기만의 빛 재질·불티(Points 하나)를 가진다', fp.총마다있음);
+ok('★ 총 몸통은 발광 층(layer 1)에 있고 손·팔은 아니다 — 무기 발광 패스가 몸통만 실루엣으로 그린다', fp.층);
+ok('★ 후광 조각(가산합성·반투명 Mesh)이 하나도 없다 — 총 자체가 빛난다', fp.조각없음);
+ok('★ 총마다 재질을 따로 복제했고 손·팔은 빛 재질이 아니다 (공용 HELD_VC 를 그대로 쓰면 곡괭이까지 빛난다)', fp.재질따로 && fp.손따로, '재질 ' + fp.재질따로 + ' · 손 ' + fp.손따로);
+ok('★ +0 은 안 빛나고 불티도 숨고 발광 패스도 쉰다', fp.plain.off === true);
+ok('★ +1 부터 빛나고 불티가 뜨고 발광 패스가 돈다', fp.lv1.on === true, '+1 세기 ' + fp.lv1.I.toFixed(2) + ' · 패스 ' + fp.lv1.k.toFixed(2));
+ok('★ 발광 패스 세기는 단계가 오를수록 세다 (+1 < +3 < +5 · +3 < +6), 1.0 언저리를 안 넘는다', fp.lv1.k < fp.lv3.k && fp.lv3.k < fp.lv5.k && fp.lv3.k < fp.lv6.k && fp.lv6.k < 1.05,
+   [fp.lv1,fp.lv3,fp.lv5,fp.lv6].map(v=>v.k.toFixed(2)).join(' · '));
+ok('★ 세기가 1.0 을 안 넘는다 (넘으면 톤매핑이 흰색으로 날린다)',
+   [fp.lv1,fp.lv3,fp.lv5,fp.lv6].every(v=> v.I <= 1.0), '+6 세기 ' + fp.lv6.I.toFixed(2));
 ok('★ 표(fp)가 단계마다 커진다',
    fp.fx.every((v,i)=> i===0 || v[1] > fp.fx[i-1][1]),
    fp.fx.map(v=>v[1]).join(' < '));
-ok('★ 어느 단계에서도 크기가 안전한 띠(1.0~1.5배) 안에 있다',
-   [fp.lv1,fp.lv3,fp.lv5,fp.lv6].every(v=> v.k > 1.0 && v.k < 1.5),
-   [fp.lv1,fp.lv3,fp.lv5,fp.lv6].map(v=>v.k.toFixed(2)).join(' '));
+/* ★ 숨쉬는 맥동(±7%)이 얹혀 있어 이웃한 단계(+5·+6)끼리는 띠가 겹친다 — 전체 판에서 실제로 0.57 > 0.55 로 뒤집혔다.
+   두 단계씩 띄운 짝만 본다: +1 < +3 < +5, +3 < +6 */
+ok('★ 단계가 오를수록 더 밝다 (+1 < +3 < +5 · +3 < +6 — 이웃 단계는 맥동이 겹쳐 안 본다)',
+   fp.lv1.I < fp.lv3.I && fp.lv3.I < fp.lv5.I && fp.lv3.I < fp.lv6.I,
+   [fp.lv1,fp.lv3,fp.lv5,fp.lv6].map(v=>v.I.toFixed(2)).join(' · '));
 ok('★ +5 는 파란 빛, +6 은 붉은 빛 (단계마다 색이 다르다)',
    fp.lv5.col !== fp.lv6.col && fp.lv5.col === '#4aa8ff' && fp.lv6.col === '#ff4a2a',
    '+5 ' + fp.lv5.col + ' · +6 ' + fp.lv6.col);
-ok('★ 가산합성이 흰색으로 날아가지 않게 진하기를 묶었다', fp.lv6.op <= 0.72, fp.lv6.op.toFixed(2));
+ok('★ 총을 바꾸면 이전 총의 빛은 꺼진다 (안 든 총·+0 은 안 빛난다)',
+   fp.바꾼뒤.이전 && fp.바꾼뒤.지금 && fp.lv6.same, JSON.stringify(fp.바꾼뒤));
 ok('★ +4 부터 손이 떨린다 (그 아래는 안 떤다)',
    fp.fx[3][2] === 0 && fp.fx[4][2] > 0, '+3 ' + fp.fx[3][2] + ' · +4 ' + fp.fx[4][2]);
 
