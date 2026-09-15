@@ -131,6 +131,38 @@ ok('?bloom=1 — 빛 번짐이 이번 한 판만 켜진다 (프리셋엔 없다)
      r.픽셀차 > 1.0 && r.제일진함 > 40, r.픽셀차.toFixed(2)+'% · 제일 진한 곳 '+r.제일진함);
 }
 
+/* ═══════ ③b 34차 성능 3차 — Lambert · 그림자 15Hz/PCF · 잔 꾸밈 그림자 없음 · 손 조명 끔 · 청크 64 ═══════
+   한 프레임을 뜯어보니(calls34 탐침) 그리기 384번 · 삼각형 103만 — 절반이 그림자 패스였고 온 픽셀이 PBR 이었다.
+   고친 뒤 보통 프레임(그림자 안 그리는 프레임) 124번 · 59만. */
+{
+  const pg = await open('?gfx=high');
+  const r = await pg.evaluate(()=>{ const W=window, R=W.__R, o={};
+    o.lambert = W.__flatMat(0xffffff).type === 'MeshLambertMaterial' && W.__WMAT.type === 'MeshLambertMaterial';
+    o.gemPbr = W.__cMat().gem.type === 'MeshStandardMaterial';
+    o.auto = R.shadowMap.autoUpdate; o.hz = W.__SH_HZ; o.pcf = R.shadowMap.type === W.__THREE.PCFShadowMap;
+    let smallCast = 0, small = 0, bigCast = 0, big = 0;
+    for(const [k,b] of W.__banks){ if(!b.chunks) continue; for(const c of b.chunks){ if(W.__NO_CAST.has(k)){ small++; if(c.castShadow) smallCast++; } else { big++; if(c.castShadow) bigCast++; } } }
+    o.small = small; o.smallCast = smallCast; o.big = big; o.bigCast = bigCast;
+    o.heldOff = !W.__cam.children.includes(W.__heldLight);
+    o.chunk = W.__BCHUNK; o.litK = W.__LIT_K();
+    /* 늑대 조각은 하나도 없으면 visible 이 꺼진다 — 한 번 그려 봐야(flush) 정해진다 */
+    W.__drawWolves([], 0, 0.016);
+    o.emptyHidden = W.__charMeshes().늑대.every(m => m.count > 0 || m.visible === false);
+    return o; });
+  await pg.close();                                  // 무거운 high 페이지를 먼저 닫아야 다음 페이지가 60초 안에 뜬다
+  /* 진단 항목 넷은 ?diag=1 로 연 페이지에만 있다 */
+  const p3 = await open('?gfx=low&diag=1');
+  r.cases = await p3.evaluate(()=>(window.CASE_NAMES||[]).filter(n => /그림자 매 프레임|손 조명 켬|결 끔|작은 것 그림자 켬/.test(n)).length);
+  await p3.close();
+  ok('★ 원색 재질이 Lambert 다 (PBR 은 수정 보석만)', r.lambert && r.gemPbr);
+  ok('★ 그림자 지도는 매 프레임이 아니라 15Hz 로 다시 그린다 (autoUpdate 끔 · PCF)', r.auto === false && r.hz === 15 && r.pcf, r.hz+'Hz');
+  ok('★ 잔 꾸밈은 그림자를 안 드리우고 큰 것은 드리운다', r.small > 0 && r.smallCast === 0 && r.big > 0 && r.bigCast === r.big, r.smallCast+'/'+r.small+' · '+r.bigCast+'/'+r.big);
+  ok('★ 손 조명(카메라 점광)은 기본으로 꺼져 있다', r.heldOff);
+  ok('청크 64 · 조명 배율 0.85', r.chunk === 64 && Math.abs(r.litK - 0.85) < 1e-6, r.chunk+' · '+r.litK);
+  ok('늑대 조각은 하나도 없으면 그리기를 건너뛴다', r.emptyHidden);
+  ok('진단 자동 측정에 34차 항목 넷이 있다', r.cases === 4, r.cases);
+}
+
 /* ═══════ ④ 하늘 돔 · 밤 밝기 ═══════ */
 /* ★ 25차c — ②③④ 가 페이지를 저마다 열던 것을 하나로 합쳤다. 검사기에서 페이지 하나 여는 데
    30초가 넘고, 밤이 올 때까지(skyK lerp) 기다리는 데 30~60초가 또 든다. 그래서 t28 이 240초로
