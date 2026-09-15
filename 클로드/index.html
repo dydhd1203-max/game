@@ -6012,12 +6012,12 @@ const ENV_STEEL = (()=>{
 })();
 function metalMat(hex, o){
   const m = new THREE.MeshPhongMaterial(Object.assign({color:hex, specular:0xffffff, shininess:70, envMap:ENV_STEEL,
-                                                       combine:THREE.MixOperation, reflectivity:0.42}, o||{}));
+                                                       combine:THREE.MixOperation, reflectivity:0.50}, o||{}));
   m.userData.metal = true; return m;
 }
-const matPickBlue = metalMat(0xb4bfd0);                    // 35차 — 파란 플라스틱 → 푸른빛 도는 강철
+const matPickBlue = metalMat(0xa6b1c2);                    // 35차 — 파란 플라스틱 → 푸른빛 도는 강철 (0xb4bfd0 은 낮에 하얗게 떴다)
 const matPickDeep = metalMat(0x6b7686);                    // 목 테 — 어두운 쇠
-const matHamSteel = metalMat(0xaab3c0);                    // 공사 망치 머리
+const matHamSteel = metalMat(0x9ea8b6);                    // 공사 망치 머리
 const matHandleOr = new THREE.MeshLambertMaterial({map:ATLAS, color:0xe07a2a});
 /* ★ 29차 — 선생님이 보내 준 그림(로블록스 곡괭이) 그대로: 굵은 주황 자루, 파란 양날 머리가 넓고 납작하게 뻗어
    끝이 아래로 살짝 처진다. 가운데는 봉우리처럼 솟는다. 머리 색은 headMat 으로 바꿔 쓴다(철거용 빨강 등). */
@@ -16928,7 +16928,7 @@ Object.assign(window, {
                  hold:RECOIL_HOLD, slow:RECOIL_SLOW}),
   __ghostVisible:()=>ghost.visible, __buildShopUI:buildShopUI, __buildKitUI:buildKitUI,
   __goalText:goalText, __drawMini:drawMini, __THREE:THREE, __mp:(x,z)=>[mpx(x),mpz(z)],
-  __updHeld:updHeld, __gunModels:()=>gunModels, __gunGlow:()=>gunGlow, __gunGlowK:()=>GG.k, __GG:GG, __HELD_VC:HELD_VC, __HELD_ARM:HELD_ARM,
+  __updHeld:updHeld, __setHeld:setHeld, __gunModels:()=>gunModels, __gunGlow:()=>gunGlow, __gunGlowK:()=>GG.k, __GG:GG, __HELD_VC:HELD_VC, __HELD_ARM:HELD_ARM,
 
   __introDone:()=>{ startedAt = tAcc - 999; },
 
