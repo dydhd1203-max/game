@@ -143,7 +143,10 @@ for(const [w,h,touch] of SIZES){
   ok('색칠하고 나면 대기 목록이 빈다', r.queueEmpty);
   ok('★ 색만 고친 결과 = 통째로 다시 만든 결과',
      r.tintDiff===0, r.tintCells+'칸 중 다른 곳 '+r.tintDiff);
-  ok('★ 색만 고치기가 10배 넘게 빠르다', r.mReb/r.mTint > 10,
+  /* 31차b — 벽돌 판이 붙어 건물 하나가 12조각 → 60조각이 됐다. 색칠은 조각마다 setColorAt 이라 조각 수에 비례해 느는데
+     다시 만들기는 blocksOf 캐시라 덜 는다 → 비율이 12배에서 5배로 내려왔다. 색칠 한 판은 여전히 0.05ms 다.
+     '통째로 다시 만들지 않는다' 를 지키는 데는 3배면 충분하고, 절댓값(0.3ms 아래)을 같이 본다. */
+  ok('★ 색만 고치기가 3배 넘게 빠르고 0.3ms 아래다', r.mReb/r.mTint > 3 && r.mTint < 0.3,
      r.mReb.toFixed(3)+'ms → '+r.mTint.toFixed(3)+'ms ('+(r.mReb/r.mTint).toFixed(0)+'배)');
   ok('건물을 부수면 통째로 다시 만들기로 돌아간다', r.delShape);
   ok('건물을 부수면 색칠 대기 목록을 비운다', r.delQueue);
