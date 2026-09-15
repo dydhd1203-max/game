@@ -593,6 +593,7 @@ body{color:var(--cream)}
   animation:hitm .22s ease-out}
 #crosshair.gun.hit i,#crosshair.gun.critHit i{left:11px;top:11px}
 #crosshair.critHit i{--hm:#ffd54a;width:20px;height:20px;left:8px;top:8px;animation:hitm .32s ease-out}
+#crosshair.killHit i{--hm:#ff6a6a;width:26px;height:26px;left:5px;top:5px;animation:hitm .38s ease-out}   /* 33차 — 막타 */
 @keyframes hitm{from{transform:scale(.45);opacity:1}to{transform:scale(1.5);opacity:.15}}
 
 /* ══ 공격 모드 — 33차: 조준점 위 '왼쪽 클릭으로 쏘기 · T 로 풀기' 말풍선(#aimBadge)을 없앴다.
@@ -2502,7 +2503,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '33차 · 결 질감과 그래픽 단추';
+const GAME_VER = '33차 · 결 질감 · 타격감 · 세계 마무리 · 밤의 온도';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -2546,6 +2547,46 @@ const gT  = (g,x,z)=> x*DIRS[g].dx + z*DIRS[g].dz;
 const gPP = (g,x,z)=> (-x*DIRS[g].dz + z*DIRS[g].dx) - DIRS[g].off;
 const gX  = (g,t,pp)=> DIRS[g].dx*t - DIRS[g].dz*(pp + DIRS[g].off);
 const gZ  = (g,t,pp)=> DIRS[g].dz*t + DIRS[g].dx*(pp + DIRS[g].off);
+/* ═══ 33차 세계 마무리 — 흙길 · 연못 · 개울 자리 ═══
+   선생님: "마당 흙길(문에서 수정까지), 연못이나 개울, 산 실루엣 다듬기, 밤하늘 노을·별 결 — 지금 세계에서 눈에 남는 빈 곳."
+   흙길·연못·개울은 **바닥 원판의 꼭짓점 색**에 칠한다(그리기 0번 추가 · 연못은 바닥을 오목하게 판다).
+   연못에만 물 원판·물결 고리·갈대·연잎을 얹는다. 자원·꾸밈은 물과 길을 피해 놓는다(placeNodes·scatterDecor 가 아래를 묻는다). */
+/* 흙길은 성문마다 꺾은선(폴리라인) 하나 — 농장(축 위 14칸)·상인(1·2 사이)·대장간(3·4 사이)을 비켜 단상 모서리에 닿는다.
+   3·4모둠 입구는 축이 x ±13 이라 단상까지 비스듬히 들어온다. 성문 앞 마지막 토막은 통로 한가운데(pp 0)로 곧다. */
+let _paths = null;
+function pathLines(){
+  if(_paths) return _paths;
+  const T = GATE_T + 2.5;
+  _paths = [
+    [[0,-5.6],[-2,-8],[-8,-14],[-3,-22],[0,-28],[0,-T]],            // 1모둠(위) — 농장 1 을 왼쪽으로 돈다
+    [[5.6,0],[8,2],[14,8],[22,3],[28,0],[T,0]],                     // 2모둠(오른쪽) — 농장 2 를 아래로 돈다
+    [[5.6,4],[9,6],[13,12],[13,T]],                                 // 3모둠(아래 오른쪽) — 단상 모서리에서 비스듬히
+    [[-5.6,2],[-10,5],[-13,12],[-13,T]],                            // 4모둠(아래 왼쪽) — 대장간을 비켜
+    [[-5.6,0],[-8,-2],[-14,-8],[-22,-3],[-28,0],[-T,0]],            // 5모둠(왼쪽) — 농장 5 를 위로 돈다
+  ];
+  return _paths;
+}
+function pathDist(x, z){                               // 제일 가까운 흙길 가운데 선까지 (칸) — 가장자리는 살짝 울퉁불퉁
+  let best = 99;
+  for(const L of pathLines()) for(let i=0;i<L.length-1;i++){
+    const ax=L[i][0], az=L[i][1], bx=L[i+1][0], bz=L[i+1][1], dx=bx-ax, dz=bz-az;
+    const u = Math.max(0, Math.min(1, ((x-ax)*dx + (z-az)*dz) / (dx*dx + dz*dz)));
+    const d = Math.hypot(x - (ax + dx*u), z - (az + dz*u));
+    if(d < best) best = d;
+  }
+  return best + 0.25*Math.sin(x*0.9)*Math.cos(z*0.7);
+}
+const POND = {x:21, z:-17, r:4.2};                     // 1·2모둠 입구 사이 마당(반지름 27) — 농장·상인·통로·길에서 다 떨어져 있다
+const STREAM_U = [POND.x, POND.z].map(v => v / Math.hypot(POND.x, POND.z));   // 연못 → 산기슭(바깥) 방향
+function streamDist(x, z){                             // 개울 가운데 선까지 · 개울은 연못 가장자리(p 3.2)에서 산기슭(p 11.5)까지 구불구불
+  const dx = x - POND.x, dz = z - POND.z;
+  const p = dx*STREAM_U[0] + dz*STREAM_U[1], q = -dx*STREAM_U[1] + dz*STREAM_U[0];
+  if(p < 3.2 || p > 11.5) return 99;
+  const w = 1.6*Math.sin(p*0.55 + 0.4) + 0.7*Math.sin(p*1.3 + 2.0);
+  return Math.abs(q - w);
+}
+function waterNear(x, z, pad){ pad = pad || 0;
+  return Math.hypot(x-POND.x, z-POND.z) < POND.r + 1.0 + pad || streamDist(x,z) < 1.1 + pad; }
 /* ═══════ 마을 경계 — 모서리만 깎은 정사각형 ═══════
    네 변이 축과 나란해야 입구 어귀가 직선이 되고, 그래야 벽 한 줄이 산에 딱 맞물린다.
    원이면 어귀가 비스듬히 잘려서 벽 끝이 산에 안 닿는다.
@@ -2910,7 +2951,17 @@ function genTerrain(){
       }
       if(m > 0.35){
         const n = Math.sin(x*0.7)*Math.cos(z*0.61)*1.3 + Math.sin((x+z)*0.33)*1.0;
-        h = GY + Math.max(1, Math.round(m + n));
+        /* ★ 33차 세계 마무리 — 산 실루엣. 15 로 평평하던 마루에 봉우리와 안부를 준다: 둘레 각도의 느린 사인 셋(3·7·13배)
+           + 뒤로 갈수록 솟는다(세상 끝이 제일 높다). 협곡 안(fade 로 m 이 깎인 곳)에는 안 준다 — 성문 앞은 그대로다.
+           눈은 GY+18 부터라 봉우리에만 얹힌다(전엔 마루 전체가 눈이었다). */
+        let ridge = 0;
+        if(m >= MTN_H - 0.01){
+          const ang = Math.atan2(z+0.5, x+0.5);
+          ridge = 3.4*Math.sin(ang*3.0 + 0.8) + 2.6*Math.sin(ang*7.0 + 2.1) + 1.2*Math.sin(ang*13.0 + 0.5)
+                + (od - RING_A - MTN_H/2.7)*0.28;
+          ridge = Math.max(-3, Math.min(8, ridge));
+        }
+        h = GY + Math.max(1, Math.round(m + n*(ridge ? 0.6 : 1) + ridge));   // 마루 위에선 잔노이즈를 줄여 기둥이 덜 쪼개지게
       }
     }
     terrH[i] = h;
@@ -3068,21 +3119,54 @@ scene.fog = FOG_REF;
      세로 결은 그림에 굽고, 하루의 색은 material.color 로 매 프레임 섞는다 — 그리기 한 번이다.
    ★ 안개 밖에 있어야 한다(fog:false). 안개는 '멀어질수록 하늘색' 인데 하늘 자신이 물들면
      지평선이 뿌옇게 뭉개진다. */
+/* ★ 33차 — 돔 그림은 64×128 캔버스이고 **다시 칠할 수 있다**. 노을 띠(가로로 고르게)와 무서움의 온도의 '입구 쪽 붉은 하늘'
+   (가로로 한 방향에만)을 이 그림에 얹는다. 처음엔 따로 원통 두 개(반투명 · 카메라를 감싸는 반지름 270)로 만들었는데,
+   swiftshader(검사기)에서 그 원통 하나가 보이는 동안 한 프레임이 **6초**가 됐다(t34·하네스가 통째로 멈춘 원인).
+   돔 그림에 칠하면 그리기가 하나도 안 늘고, 값이 한 칸(0.05·0.1) 넘게 바뀔 때만, 0.5초에 한 번만 다시 칠한다(64×128 = 8천 픽셀).
+   세로: 0 이 천정, 64 가 지평선. 산마루가 15~20° 라 눈에 보이는 '지평선' 은 50 줄 언저리다 — 봉우리를 거기 둔다.
+   가로: 구(SphereGeometry) 의 u 는 -x 에서 시작해 +z(0.25) · +x(0.5) · -z(0.75) 로 돈다. */
+/* ★ 캔버스가 아니라 **DataTexture(바이트 배열)** 다. 캔버스 → 텍스처 올리기는 swiftshader 에서 한 번에 2~3초가 걸렸다
+   (그림을 GPU 캔버스로 그렸다가 되읽어 오는 길). 바이트 배열은 glTexImage2D 한 번이라 싸다. 다시 칠하기도 0.5초에 한 번으로 묶는다. */
+const SKY_W = 64, SKY_H = 128;
+const skyPx = new Uint8Array(SKY_W*SKY_H*4);
+let skyPaintD = -1, skyPaintT = -1, skyPaintU = -1, skyRepaintT = 0;
+function skyU(gx, gz){ const u = Math.atan2(gz, -gx)/(Math.PI*2); return u - Math.floor(u); }   // 세계 방향 → 돔 그림의 가로 자리
+const SKY_STOPS = [[0.00,0x2f,0x63,0xa8],[0.45,0x82,0xb6,0xe6],[0.72,0xcf,0xe3,0xf4],[1.00,0xe8,0xee,0xf2]];   // 천정 → 지평선 → 아래
+function paintSky(dusk, threat, threatU){
+  for(let r=0;r<SKY_H;r++){
+    const cy = SKY_H-1-r, t = cy/(SKY_H-1);                       // DataTexture 는 0줄이 아래(uv.y 0) — cy 는 '위에서부터'
+    let k = 1; while(k < SKY_STOPS.length-1 && SKY_STOPS[k][0] < t) k++;
+    const A = SKY_STOPS[k-1], B = SKY_STOPS[k], f = (t - A[0])/(B[0]-A[0]);
+    let br = A[1] + (B[1]-A[1])*f, bg = A[2] + (B[2]-A[2])*f, bb = A[3] + (B[3]-A[3])*f;
+    const p = (cy - 36)/30;                                        // 노을·붉은 하늘 띠: 36~66줄, 0.47 에서 제일 진하다
+    let da = 0, dr = 255, dg = 130, db = 50;
+    if(dusk > 0.01 && p >= 0 && p <= 1){
+      if(p < 0.47){ da = p/0.47*0.85; }
+      else if(p < 0.8){ const q = (p-0.47)/0.33; da = 0.85 - 0.25*q; dr = 255; dg = 130 - 50*q; db = 50 + 40*q; }
+      else { const q = (p-0.8)/0.2; da = 0.6*(1-q); dg = 80; db = 90 + 20*q; }
+      da *= dusk;
+    }
+    const tv = (threat > 0.01 && p >= 0 && p <= 1) ? (p < 0.47 ? p/0.47 : 1 - (p-0.47)/0.53) : 0;
+    for(let x=0;x<SKY_W;x++){
+      let cr = br, cg = bg, cb = bb;
+      if(da > 0){ cr += (dr-cr)*da; cg += (dg-cg)*da; cb += (db-cb)*da; }
+      if(tv > 0){
+        let du = (x+0.5)/SKY_W - threatU; du -= Math.round(du);
+        const ha = Math.exp(-(du/0.11)*(du/0.11)) * tv * threat;
+        if(ha > 0.01){ cr += (235-cr)*ha; cg += (40-cg)*ha; cb += (30-cb)*ha; }
+      }
+      const i = (r*SKY_W + x)*4; skyPx[i] = cr; skyPx[i+1] = cg; skyPx[i+2] = cb; skyPx[i+3] = 255;
+    }
+  }
+  skyPaintD = dusk; skyPaintT = threat; skyPaintU = threatU;
+  skyTex.needsUpdate = true;
+}
+const skyTex = new THREE.DataTexture(skyPx, SKY_W, SKY_H, THREE.RGBAFormat);
+skyTex.colorSpace = THREE.SRGBColorSpace; skyTex.minFilter = THREE.LinearFilter; skyTex.magFilter = THREE.LinearFilter; skyTex.generateMipmaps = false;
+paintSky(0, 0, 0);
 const skyDome = (()=>{
-  const c = document.createElement('canvas'); c.width = 4; c.height = 128;
-  const g = c.getContext('2d'), gr = g.createLinearGradient(0,0,0,128);
-  /* ★ 결을 세게 굽는다. 25차c 에 곡선을 AgX 로 바꾸니 **밝은 쪽이 눌려서** 하늘 결이
-     위아래 차 23 → 2 로 뭉개졌다(같은 그림인데 곡선만 바꿨다). 곡선이 누르는 만큼
-     그림에서 미리 벌려 놔야 화면에서 남는다. */
-  gr.addColorStop(0.00, '#2f63a8');   // 천정 — 짙다
-  gr.addColorStop(0.45, '#82b6e6');
-  gr.addColorStop(0.72, '#cfe3f4');   // 지평선 — 옅고 살짝 따뜻하다
-  gr.addColorStop(1.00, '#e8eef2');
-  g.fillStyle = gr; g.fillRect(0,0,4,128);
-  const tex = new THREE.CanvasTexture(c);
-  tex.colorSpace = THREE.SRGBColorSpace; tex.minFilter = THREE.LinearFilter;
   const m = new THREE.Mesh(new THREE.SphereGeometry(300, 24, 16),
-    new THREE.MeshBasicMaterial({map:tex, side:THREE.BackSide, fog:false, depthWrite:false}));
+    new THREE.MeshBasicMaterial({map:skyTex, side:THREE.BackSide, fog:false, depthWrite:false}));
   m.renderOrder = -1000; m.frustumCulled = false; scene.add(m); return m;
 })();
 /* 노을 — 낮과 밤 사이에만 지나간다. skyK 0.5 에서 제일 붉고 양 끝에서 사라진다.
@@ -3485,6 +3569,10 @@ const EMITC= new THREE.MeshLambertMaterial({map:ATLAS, color:0xfff2c0,
 /* ═══════════════════════ 해 · 달 · 별 ═══════════════════════ */
 let skyPivot, sunDisc, moonDisc, stars;
 let groundDisc, groundRim;        // 진단 화면에서 바닥 재질을 바꿔 보려고 들고 있는다
+let pondMesh, pondRipple;         // 33차 — 연못 물 원판 · 물결 고리
+let starsB, meteor, metT = 0, metWait = 8;             // 33차 — 큰별 · 별똥별 (노을 띠·붉은 하늘은 돔 그림에 칠한다 → paintSky)
+let threatK = 0;                                           // 33차 무서움의 온도 — 집중 입구 쪽 붉은 하늘의 세기
+const metP = new THREE.Vector3(), metD = new THREE.Vector3(), metL = new THREE.Vector3();
 function buildSky(){
   skyPivot = new THREE.Group(); scene.add(skyPivot);
   /* 31차 — 네모 해·달 → 동그라미 원판 + 뒤에 큰 후광 원판 */
@@ -3508,16 +3596,37 @@ function buildSky(){
       new THREE.MeshBasicMaterial({color:0xc9d6ee, fog:false}));
     c.position.set(dx,dy,0.5); moonDisc.add(c);     // 달은 π 돌아 있어 로컬 +z 가 카메라 쪽이다
   }
-  // 별
-  const N=460, pos=new Float32Array(N*3);
-  for(let i=0;i<N;i++){
-    const th=Math.random()*Math.PI*2, ph=Math.acos(Math.random()*0.95+0.03), R=230;
-    pos[i*3]=Math.sin(ph)*Math.cos(th)*R; pos[i*3+1]=Math.cos(ph)*R; pos[i*3+2]=Math.sin(ph)*Math.sin(th)*R;
-  }
-  const gg=new THREE.BufferGeometry(); gg.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  stars = new THREE.Points(gg, new THREE.PointsMaterial({color:0xffffff, size:2.1,
-    sizeAttenuation:false, transparent:true, opacity:0, fog:false}));
-  scene.add(stars);
+  /* ★ 33차 세계 마무리 — 별에 결을 준다. 전엔 흰 점 460개가 고르게 뿌려져 '별' 이 아니라 '점' 이었다.
+     잔별 520(밝기·색이 제각각 · 40% 는 기울어진 은하수 띠에 몰린다) + 큰별 70(따로 깜빡인다) + 별똥별 하나(밤에 14~30초에 하나). */
+  const mkStars = (N, band, size)=>{
+    const pos=new Float32Array(N*3), col=new Float32Array(N*3), c=new THREE.Color(), R=230;
+    const sb = Math.sin(0.95), cb = Math.cos(0.95);         // 은하수 큰 원의 기울기
+    for(let i=0;i<N;i++){
+      let x, y, z;
+      if(band && i < N*0.4){
+        const th = Math.random()*Math.PI*2, off = (Math.random()+Math.random()+Math.random()-1.5)*0.42;   // 띠 둘레 ± (가우스풍)
+        x = Math.cos(th); y = Math.sin(th)*sb + off*cb; z = Math.sin(th)*cb - off*sb;   // 큰 원 위 점 + 원의 법선 쪽으로 off
+        y = Math.abs(y);                                                                 // 지평선 아래는 위로 접는다
+      } else {
+        const th = Math.random()*Math.PI*2, ph = Math.acos(Math.random()*0.95+0.03);
+        x = Math.sin(ph)*Math.cos(th); y = Math.cos(ph); z = Math.sin(ph)*Math.sin(th);
+      }
+      const L = Math.hypot(x,y,z); pos[i*3]=x/L*R; pos[i*3+1]=Math.max(0.03, y/L)*R; pos[i*3+2]=z/L*R;
+      const br = 0.42 + Math.random()*0.58, warm = Math.random() < 0.22;
+      c.setRGB(br, br*(warm ? 0.9 : 0.96), br*(warm ? 0.72 : 1.0));                  // 대부분 희고 푸르스름, 몇은 노르스름
+      col[i*3]=c.r; col[i*3+1]=c.g; col[i*3+2]=c.b;
+    }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos,3)); g.setAttribute('color', new THREE.BufferAttribute(col,3));
+    const p = new THREE.Points(g, new THREE.PointsMaterial({vertexColors:true, size, sizeAttenuation:false, transparent:true, opacity:0, fog:false, depthWrite:false}));
+    scene.add(p); return p;
+  };
+  stars  = mkStars(520, true, 1.7);
+  starsB = mkStars(70, false, 3.4);
+  /* 노을 띠·입구 쪽 붉은 하늘은 하늘 돔 그림에 칠한다(paintSky) — 원통을 따로 띄우면 swiftshader 에서 한 프레임이 6초가 됐다 */
+  // 별똥별 — 흰 빛줄기 하나. 밤에만, 0.9초 동안 비스듬히 내려긋는다
+  meteor = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.5, 14),
+    new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0, depthWrite:false, fog:false, blending:THREE.AdditiveBlending}));
+  meteor.visible = false; meteor.frustumCulled = false; scene.add(meteor);
 }
 
 /* ═══════════════════════ 지형 메시 ═══════════════════════ */
@@ -3532,10 +3641,12 @@ const MT_DIRT = 0x9a6f46, MT_SNOW = 0xffffff, MT_MOSS = 0x7cbc57, MT_GRASS = 0x6
 const PLAT_C = 0xc9ccd3, PLAT_TOP = 0xdadde3, GOLD_C = 0xffcc33;
 function buildWorldMesh(){
   /* ── 바닥 — 꼭짓점 색 잔디 ── */
-  const SEG = 62;
+  const SEG = 124;                                   // 33차 — 1칸 격자. 흙길·개울을 칠하려면 이 촘촘함이 필요하다(62 는 2칸이라 길이 톱니였다)
   const gg = new THREE.PlaneGeometry(FIELD_R*2, FIELD_R*2, SEG, SEG); gg.rotateX(-Math.PI/2);
   const P = gg.attributes.position, cols = new Float32Array(P.count*3);
   const cA = new THREE.Color(GRASS_A), cB = new THREE.Color(GRASS_B), cC = new THREE.Color(GRASS_C), c = new THREE.Color();
+  const cD1 = new THREE.Color(0xb5905f), cD2 = new THREE.Color(0x9f7c4e),           // 흙길 두 흙색
+        cWs = new THREE.Color(0x4f9fe0), cBank = new THREE.Color(0x8d7454), cBed = new THREE.Color(0x6e5f45);   // 개울물 · 물가 · 연못 바닥
   for(let i=0;i<P.count;i++){
     let x = P.getX(i), z = P.getZ(i); const r = Math.hypot(x,z);
     if(r > FIELD_R){ x *= FIELD_R/r; z *= FIELD_R/r; P.setX(i,x); P.setZ(i,z); }   // 네모 격자를 원으로 오린다
@@ -3543,20 +3654,59 @@ function buildWorldMesh(){
     c.copy(cA);
     if(k < 0.35) c.lerp(cB, Math.min(1,(0.35-k)/0.35)*0.9);
     else if(k > 0.95) c.lerp(cC, Math.min(1,(k-0.95)/0.4));
+    /* ── 33차 세계 마무리 — 흙길(성문 → 수정) · 연못(오목) · 개울 ── */
+    const pd = pathDist(x, z);
+    if(pd < 2.1) c.lerp(rnd(x*1.7+z*3.1) < 0.5 ? cD1 : cD2, pd < 1.3 ? 1 : 1 - (pd-1.3)/0.8);
+    const pr = Math.hypot(x-POND.x, z-POND.z);
+    let dy = 0;
+    if(pr < POND.r + 1.2){
+      if(pr < POND.r){ c.copy(cBed).lerp(cBank, pr/POND.r); dy = -0.42*(1 - (pr/POND.r)*(pr/POND.r)); }   // 사발 모양 바닥
+      else c.lerp(cBank, 1 - (pr-POND.r)/1.2);
+    }
+    const sd = streamDist(x, z);
+    if(sd < 1.5 && pr >= POND.r){
+      if(sd < 0.75){ c.copy(cWs); dy = Math.min(dy, -0.14); }   // 개울물 — 살짝 파인 고랑에 칠한다
+      else c.lerp(cBank, 1 - (sd-0.75)/0.75);
+    }
+    if(dy) P.setY(i, dy);
     cols[i*3]=c.r; cols[i*3+1]=c.g; cols[i*3+2]=c.b;
   }
+  gg.computeVertexNormals();
   gg.setAttribute('color', new THREE.BufferAttribute(cols,3));
   const disc = new THREE.Mesh(gg, addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.grass, 0.35, 0.16));   // 33차 — 풀결
   disc.position.y = GY;
   if(GFX.shadow) disc.receiveShadow = true;       // 바닥은 받기만 한다 (드리울 것이 없다)
   scene.add(disc); groundDisc = disc;
+  /* ── 33차 연못 — 반투명 물 원판(바닥 사발이 비친다) + 물결 고리 하나 + 갈대(부들) · 연잎, 개울 머리엔 돌무더기 ── */
+  const water = new THREE.Mesh(new THREE.CircleGeometry(POND.r + 0.15, 40),
+    new THREE.MeshLambertMaterial({color:0x4fa9e6, transparent:true, opacity:0.70, depthWrite:false}));
+  water.rotation.x = -Math.PI/2; water.position.set(POND.x, GY - 0.03, POND.z); water.renderOrder = 2; scene.add(water); pondMesh = water;
+  const rip = new THREE.Mesh(new THREE.TorusGeometry(1, 0.05, 4, 40),
+    new THREE.MeshBasicMaterial({color:0xdff3ff, transparent:true, opacity:0.5, depthWrite:false}));
+  rip.rotation.x = -Math.PI/2; rip.position.set(POND.x + 0.6, GY - 0.005, POND.z - 0.4); scene.add(rip); pondRipple = rip;
+  for(let i=0;i<14;i++){
+    const a = i/14*Math.PI*2 + rnd(i*3.3)*0.4, rr = POND.r + 0.35 + rnd(i*1.7)*0.7;
+    const X = POND.x + Math.cos(a)*rr, Z = POND.z + Math.sin(a)*rr, hgt = 0.7 + rnd(i*2.1)*0.5, tilt = (rnd(i)-0.5)*0.16;
+    if(streamDist(X, Z) < 1.6) continue;                                             // 개울 어귀는 비운다
+    bpush('reed', WGEO, WMAT, X, GY + hgt/2, Z, 0, 0.07, hgt, 0.07, tilt, 0x6fb24a);
+    bpush('reed', WGEO, WMAT, X, GY + hgt + 0.12, Z, 0, 0.11, 0.26, 0.11, tilt, 0x7a5233);   // 부들 이삭
+  }
+  for(let i=0;i<6;i++){
+    const a = rnd(i*5.1)*Math.PI*2, rr = 1.0 + rnd(i*2.3)*(POND.r-1.6);
+    bpush('lily', LEAFG, WMAT, POND.x + Math.cos(a)*rr, GY - 0.01, POND.z + Math.sin(a)*rr, rnd(i)*6.28, 0.6, 0.05, 0.6, 0, i%3 ? 0x4fae4a : 0x62c258);
+  }
+  { const p = 11.2, X = POND.x + STREAM_U[0]*p, Z = POND.z + STREAM_U[1]*p;           // 개울 머리 — 산기슭 돌무더기(물이 여기서 난다)
+    for(const [ox,oz,sz] of [[0,0,0.9],[0.8,0.3,0.6],[-0.6,0.5,0.55],[0.2,-0.7,0.5]])
+      bpush('rock', ROCKG, WMAT, X+ox, GY + sz*0.35, Z+oz, rnd(ox+oz)*6.28, sz, sz*0.8, sz, 0, ROCK_C[1]); }
   // 바닥 옆면(흙)
   const rim = new THREE.Mesh(new THREE.CylinderGeometry(FIELD_R,FIELD_R,5,72,1,true),
                 flatMat(0x8a6342, {side:THREE.BackSide}));
   rim.position.y = GY-2.5; scene.add(rim); groundRim = rim;
 
   /* ── 산 — 칸 합치기 ── */
-  const capKind = (h,x,z)=> h <= GY+4 ? 0 : h >= GY+14 ? 3 : ((((x*7+z*13)%17)+17)%17 < 3 ? 2 : 1);   // 풀·바위·이끼·눈
+  /* 풀·바위·이끼·눈 — 33차: 눈은 봉우리(GY+18↑)에만, 이끼는 낮은 비탈(GY+11 아래)에만. 높은 마루가 이끼 무늬로 잘게 쪼개지면
+     기둥 합치기가 60% 를 넘긴다(t32) — 마루는 맨바위 한 색이라야 넓게 합쳐진다. */
+  const capKind = (h,x,z)=> h <= GY+4 ? 0 : h >= GY+18 ? 3 : h >= GY+11 ? 1 : ((((x*7+z*13)%17)+17)%17 < 3 ? 2 : 1);
   const key = new Int32Array(WS*WS).fill(-1), dep = new Uint8Array(WS*WS);
   for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){
     const h = terrH[gi(x,z)]; if(h <= GY) continue;
@@ -3813,6 +3963,7 @@ function placeNodes(){
     if(d < NODE_R0 || d > NODE_R1) continue;
     if(!inW(x,z) || terrAt(x,z) !== GY) continue;    // 평지에만
     if(inFarmYard(cx,cz)) continue;                  // 우리 안에는 안 놓는다
+    if(waterNear(cx,cz,1.4) || pathDist(cx,cz) < 2.3) continue;   // 33차 — 연못·개울·흙길 위에는 안 놓는다
     const cd = corridorDist(cx,cz);
     if(cd && cd[2] < GAP_HALF+2.5) continue;         // 통로 한가운데는 비운다
     if(rampNear(x,z)) continue;                      // 망루 계단 자리도
@@ -3885,6 +4036,7 @@ function scatterDecor(){
         if(Math.hypot(x+0.5-FARM_X[g2], z+0.5-FARM_Z[g2]) < FARM_R2[FARM_R2.length-1]+0.8){
           inFarm = true; break; }
       if(inFarm) continue; }
+    if(waterNear(x+0.5, z+0.5, 0.2) || pathDist(x+0.5, z+0.5) < 1.9) continue;   // 33차 — 물가·흙길엔 수풀도 꽃도 안 심는다
     const k=Math.random(), ry=Math.random()*Math.PI*2, X=x+0.5, Z=z+0.5;
     if(k<0.55){                                   // 수풀 — 각진 공 하나
       const small = Math.random()<0.42, sc = small ? 0.44 : 0.66;
@@ -6295,6 +6447,36 @@ function updParts(dt){
   pMesh.instanceMatrix.needsUpdate = true; pMesh.instanceColor.needsUpdate = true;
 }
 
+/* ★ 33차 타격감 — 맞은 자리의 충격 고리. 입자(burst)는 '튀는 것' 이고 고리는 '퍽 하고 퍼지는 것' 이다.
+   둘이 같이 있어야 한 대가 한 대로 보인다. 카메라를 보는 토러스를 0.2초 동안 0.15 → 1.1 로 키운다.
+   인스턴스 하나에 그리기 1번(보일 때만). 치명타는 금색·크게, 막타는 흰 고리 하나 더. */
+const RN = 12;
+const rings = []; for(let i=0;i<RN;i++) rings.push({t:0,d:0.2,x:0,y:0,z:0,r:1,c:new THREE.Color()});
+const rMesh = new THREE.InstancedMesh(new THREE.TorusGeometry(1, 0.075, 5, 22),
+  new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0.9, depthWrite:false,
+                               blending:THREE.AdditiveBlending, fog:false}), RN);
+rMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(RN*3).fill(1), 3);
+rMesh.frustumCulled = false; rMesh.count = RN; rMesh.visible = false; rMesh.renderOrder = 11; scene.add(rMesh);
+let rI = 0;
+function ring(x,y,z,col,size,dur){
+  const r = rings[rI = (rI+1)%RN];
+  r.t = 1; r.d = dur || 0.22; r.x = x; r.y = y; r.z = z; r.r = size || 1; r.c.set(col);
+}
+function updRings(dt){
+  let live = 0;
+  for(let i=0;i<RN;i++){
+    const r = rings[i];
+    if(r.t>0){ r.t -= dt/r.d; if(r.t<0) r.t = 0; }
+    if(r.t<=0){ rMesh.setMatrixAt(i, ZEROM); continue; }
+    live++;
+    const k = 1-r.t, sc = r.r*(0.15 + 0.95*Math.sqrt(k));
+    _v.set(r.x, r.y, r.z); _q.copy(camera.quaternion); _s.set(sc, sc, sc);
+    rMesh.setMatrixAt(i, _m.compose(_v,_q,_s)); rMesh.setColorAt(i, r.c);
+  }
+  rMesh.instanceMatrix.needsUpdate = true; if(rMesh.instanceColor) rMesh.instanceColor.needsUpdate = true;
+  rMesh.visible = live > 0;
+}
+
 /* 화살 */
 const AN = 60;
 const arrows = [];
@@ -6349,6 +6531,30 @@ const bulletMat = new THREE.MeshBasicMaterial({color:0xf8cf50, fog:false,
 const bMesh = new THREE.InstancedMesh(rboxGeo(0.12,0.12,1.0), bulletMat, BuN);
 bMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(BuN*3).fill(1), 3);
 bMesh.frustumCulled = false; bMesh.count = BuN; bMesh.visible = false; scene.add(bMesh);
+/* ★ 33차 타격감 — 총구 섬광. 예광탄 한 토막(muzzleFx)만으로는 '펑' 이 없었다. 캔버스 방사형 원판을 가산합성으로
+   총구에 0.06초 띄운다(2~4프레임). 그리기 1번, 보일 때만. 크기는 반동(kick), 색은 총마다(mz). 매번 제멋대로 돌린다. */
+const flashTex = (()=>{ const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  const r = g.createRadialGradient(32,32,2, 32,32,32);
+  r.addColorStop(0,'rgba(255,255,255,1)'); r.addColorStop(0.32,'rgba(255,255,255,0.75)'); r.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle = r; g.fillRect(0,0,64,64);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+const flashMat = new THREE.MeshBasicMaterial({map:flashTex, color:0xfff3c0, transparent:true, opacity:1,
+  depthWrite:false, blending:THREE.AdditiveBlending, fog:false});
+const flashMesh = new THREE.Mesh(new THREE.PlaneGeometry(1,1), flashMat);
+flashMesh.frustumCulled = false; flashMesh.visible = false; flashMesh.renderOrder = 11; scene.add(flashMesh);
+flashMesh.userData.gradient = true;      // 무늬가 아니라 하늘 돔 같은 '결 그림'(t32 는 이걸 무늬 검사에서 뺀다)
+let flashT = 0, flashS = 1;
+function muzzleFlash(x,y,z,col,size){
+  flashMesh.position.set(x,y,z); flashMesh.quaternion.copy(camera.quaternion); flashMesh.rotateZ(Math.random()*6.28);
+  flashMat.color.setHex(col); flashS = size; flashT = 0.06; flashMesh.visible = true;
+  const s0 = size*0.7; flashMesh.scale.set(s0, s0, 1); flashMat.opacity = 1;
+}
+function updFlash(dt){
+  if(flashT <= 0) return;
+  flashT -= dt; if(flashT <= 0){ flashMesh.visible = false; return; }
+  const k = flashT/0.06, sc = flashS*(0.7 + 0.5*(1-k));
+  flashMesh.scale.set(sc, sc, 1); flashMat.opacity = k;
+}
 for(let i=0;i<BuN;i++)
   bullets.push({t:0,x:0,y:0,z:0,tx:0,ty:0,tz:0,d:1,hit:0,col:0xffffff,len:1});
 let buI = 0;
@@ -7524,6 +7730,9 @@ function drawWolves(list, t, dt){
   eyeMat.emissiveIntensity = 0.15 + NIGHTK*(1.55 + RK*0.35);
   for(const w of list){
     if(n>=MAXW) break;
+    /* ★ 33차 — 맞은 직후 쏜 방향으로 밀렸다 돌아온다(그리기만 · 0.16초 · 최대 0.22칸). 판정·길찾기엔 손 안 댄다 */
+    let kox = 0, koz = 0;
+    if(w.kT > 0){ w.kT -= dt; const kk = Math.max(0, w.kT/0.16)*0.22; kox = (w.kx||0)*kk; koz = (w.kz||0)*kk; w.x += kox; w.z += koz; }
     const d = WOLF_T[w.k], boss = isBoss(w.k), rk = boss ? 3 : RK;
     /* ★ 맞으면 잠깐 움찔한다 — 몸이 눌렸다 펴진다.
        색만 붉게 바꿨을 땐 밤이라 잘 안 보여서 "맞고 있는지" 를 몰랐다.
@@ -7558,7 +7767,8 @@ function drawWolves(list, t, dt){
     else ap = w.mv ? 1 : ((t*1.18 + w.ph*0.37) % 1);
     const bite = ap < 0.34 ? Math.sin(Math.pow(ap/0.34, 0.60)*Math.PI) : 0;
 
-    const col = w.hurt>0 ? 0xff8080 : rankTint(w.col!==undefined ? w.col : d.col, boss?0:rk);
+    const col = w.hurt>0 ? (w.hurt > 0.12 ? 0xffffff : 0xff8080)                 // 33차 — 처음 0.06초는 흰 번쩍, 그다음 붉게
+                         : rankTint(w.col!==undefined ? w.col : d.col, boss?0:rk);
     const bx = fx*bite*0.42*sc, bz = fz*bite*0.42*sc;
     const bob   = stride * Math.abs(Math.sin(gait)) * 0.060 * sc;   // 상하 반동
     const roll  = stride * Math.sin(gait) * 0.05;                    // 좌우 흔들림
@@ -7673,6 +7883,7 @@ function drawWolves(list, t, dt){
           hYaw + si*0.18, hPit - 0.55, 0.11*sc, 0.34*sc, 0.11*sc, 0xd8ccb4);
     }
 
+    w.x -= kox; w.z -= koz;
     n++;
   }
   // 보스 — 뿔과 발밑 붉은 오라
@@ -9020,7 +9231,7 @@ function fireWeapon(){
   throwCd = W.cd;
   if(W.ammo > 0) KIT.ammo -= W.ammo;
   const isGun = W !== WEAPONS[0];
-  if(isGun){ gunT = 0.55; gunRecoil(W.kick); fireRecoil(W.kick); }
+  if(isGun){ gunT = 0.55; gunRecoil(W.kick); fireRecoil(W.kick); fovPunch(0.9 + (W.kick||0.5)*1.4); }   // 33차 — 시야 펀치
   else swing();
 
   if(window.__shake) window.__shake(0.10 + (W.kick||0.3)*0.14, 0.09);
@@ -9048,6 +9259,7 @@ function fireWeapon(){
       const dmg = A.head ? SURV_HEAD : SURV_DMG;
       shootBullet(hx, hy, hz, A.x, A.y, A.z, true, W.tr, W.len); muzzleFx(hx, hy, hz, f, W);
       hitMark(A.head);                              // 헤드샷은 조준점이 크게 번쩍인다
+      ring(A.x, A.y, A.z, A.head ? 0xffd54a : (W.tr || 0xfff2c0), A.head ? 1.5 : 1.0, A.head ? 0.26 : 0.20);   // 33차
       popDmg(A.x, A.y + 0.75, A.z, dmg, A.head ? 1 : 0);   // 늑대와 같은 숫자 — 헤드샷은 노란 '20!'
       burst(A.x, A.y, A.z, A.head ? 0xffd45a : 0xff7a7a, A.head ? 10 : 6, A.head ? 1.15 : 0.7);
       MINE.k++; MINE.dm = (MINE.dm|0) + dmg;    // 전광판이 읽는 칸 (21차)
@@ -9074,7 +9286,14 @@ function fireWeapon(){
     else shootStone(hx, hy, hz, w.x, (w.y||GY)+0.75, w.z, true);
 
     popDmg(w.x, (w.y||GY) + 1.3, w.z, dmg, crit ? 1 : 0);
-    hitMark(crit);                              // 맞았다는 걸 조준점으로도 알려 준다
+    /* ★ 33차 타격감 — 맞는 순간을 **내 화면에서 바로** 보여 준다: 움찔(hurt)·쏜 방향으로 밀림(k)·충격 고리·소리.
+       전엔 움찔이 호스트 왕복(최대 170ms) 뒤에 왔다. 막타(예상)는 흰 큰 고리 + 붉은 입자 + 흔들림 + 붉은 X. */
+    const kill = w.hp - dmg <= 0;
+    w.hurt = 0.18; w.kx = f.x; w.kz = f.z; w.kT = 0.16;
+    ring(w.x, (w.y||GY)+0.85, w.z, crit ? 0xffd54a : (W.tr || 0xfff2c0), crit ? 1.5 : 1.0, crit ? 0.26 : 0.20);
+    if(kill){ ring(w.x, (w.y||GY)+0.9, w.z, 0xffffff, 2.4, 0.34); burst(w.x, (w.y||GY)+0.9, w.z, 0xff6a6a, 8, 1.6);
+              shake(0.22, 0.14); fovPunch(1.6); }
+    hitMark(kill ? 2 : crit ? 1 : 0);           // 맞았다는 걸 조준점으로도 알려 준다
     MY.hits++; netPCDirty = true;
 
     /* ★ 늑대 체력은 호스트가 들고 있다. 여기서 직접 깎으면 다음 통신에 되돌아온다.
@@ -9086,7 +9305,7 @@ function fireWeapon(){
     thrown = (thrown + 1) & 255; thTgt = w.id; thDmg = dmg;
     thF = W.trait === 'push' ? [+f.x.toFixed(2), +f.z.toFixed(2)] : null;    // 29차 — 밀치기는 방향이 같이 간다
     if(G.host) hostStoneHit(w.id, 1, G.me.name, G.me.g, dmg, thF ? {push:thF} : null);
-    if(window.__sfx){ window.__sfx(W.snd || 'thud'); if(isGun) window.__sfx('hit'); }
+    if(window.__sfx){ window.__sfx(W.snd || 'thud'); window.__sfx(kill ? 'kill' : crit ? 'crit' : (isGun ? 'hit' : '')); }   // 33차 — 막타·치명타 소리
     if(W.trait) wpnTraitHit(W, w, dmg, f);                                   // 29차 — 관통·번개·폭발·흡혈
   } else {
     comboMiss();
@@ -9167,17 +9386,16 @@ function muzzleFx(hx, hy, hz, f, W){
      세 알이 총구 앞에 파란 상자 덩어리로 뭉쳤다. 빛줄기 한 토막이면 충분하다. */
   shootBullet(hx, hy, hz, hx + f.x*0.42, hy + f.y*0.42, hz + f.z*0.42,
               false, W.mz || 0xfff3c0, 1.0 + (W.kick||0.5)*0.5);     // 29차 — 총마다 화염 색(mz)
-
-
+  muzzleFlash(hx + f.x*0.22, hy + f.y*0.22, hz + f.z*0.22, W.mz || 0xfff3c0, 0.55 + (W.kick||0.5)*0.55);   // 33차 — 펑
 }
 /* 조준점 한가운데가 잠깐 X 로 번쩍인다 — "맞았다"를 손끝으로 알려 주는 장치 */
 
 let hitMarkT = 0;
-function hitMark(crit){
+function hitMark(crit){                     // crit: 0 맞음 · 1 치명타 · 2 막타(33차)
   const ch = el('crosshair'); if(!ch) return;
-  hitMarkT = crit ? 0.30 : 0.20;
-  ch.classList.remove('hit','critHit'); void ch.offsetWidth;
-  ch.classList.add(crit ? 'critHit' : 'hit');
+  hitMarkT = crit === 2 ? 0.38 : crit ? 0.30 : 0.20;
+  ch.classList.remove('hit','critHit','killHit'); void ch.offsetWidth;
+  ch.classList.add(crit === 2 ? 'killHit' : crit ? 'critHit' : 'hit');
 }
 
 /* 호스트가 실제로 피해를 준다 (자기 것도, 친구 것도 여기로 온다) */
@@ -10818,7 +11036,51 @@ function paintBar(){
 }
 
 /* ═══════════════════════ 알림 ═══════════════════════ */
-let toastT = 0, howled = false;
+let toastT = 0;
+/* ═══ 33차 무서움의 온도 ═══
+   선생님: "지금 밤은 '위험' 을 글자로 알린다. 아이들은 살짝 무서운 걸 좋아한다. 늑대 울음이 멀리서 가까워지는 소리,
+   우리 입구 쪽 하늘이 붉어지는 것, 보스가 산을 넘어오며 땅이 흔들리는 것 — 몸으로 느끼는 신호."
+   ① 울음: 낮 끝 12초 멀리서 작게 → 6초 조금 가까이 → 밤 1.5초 어귀에서 하나, 1.1초 뒤 다른 놈이 받는다 → 밤 중엔 18~30초마다 먼 울음.
+      낮의 울음은 아무 입구(아직 어디로 올지 모른다), 밤의 울음은 집중 입구(G.focus — 호스트가 meta 로 보낸다) 쪽에서 좌우 팬으로.
+   ② 하늘: updSky 가 집중 입구 쪽 지평선을 붉힌다(paintSky → 돔 그림). 늑대가 수정에 가까울수록 진하다.
+   ③ 보스: 보스 밤엔 보스가 보이기 전부터 땅이 떤다(밤 45% 지점에 오므로 갈수록 잦고 세게). 보이면 걸음마다 쿵 — 가까울수록 크게.
+   전부 있던 화면 흔들림(shake)과 소리표(SFX)로 만든다. 그리기는 하나도 안 는다(돔 그림을 다시 칠할 뿐). */
+let howlStage = 0, howlNext = 0, howlN = 0, howlGate = 0;
+let stompT = 0, tremT = 0, bossSeen = false;
+function howlFromGate(g, mul){ const m = GMOUTH[g] || [0,-45]; sfxFrom('howl', m[0], m[1], mul); howlN++; }
+function dreadHowls(dt){
+  if(G.phase === 'day'){
+    if(G.t > 12) howlStage = 0;                                    // 낮이 새로 시작됐다 — 밤(5단계)에서 곧장 낮으로 오므로 여기서 되감는다
+    if(G.t <= 12 && howlStage < 1){ howlStage = 1; howlGate = (Math.random()*NG)|0; howlFromGate(howlGate, 0.35); }
+    if(G.t <= 6 && howlStage < 2){ howlStage = 2; howlFromGate(howlGate, 0.6);
+      toast('🐺 멀리서 늑대 울음소리… 곧 밤이에요!', 3.4, '#ffd9d9'); }
+    howlNext = 1.5;
+  } else if(G.phase === 'night'){
+    if(howlStage < 3){ howlStage = 3; howlNext = 1.5; }
+    howlNext -= dt;
+    if(howlNext <= 0){
+      howlFromGate(G.focus|0, howlStage === 3 ? 1.0 : howlStage === 4 ? 0.8 : 0.45);
+      if(howlStage === 3){ howlStage = 4; howlNext = 1.1; }
+      else { howlStage = 5; howlNext = 18 + Math.random()*12; }
+    }
+  } else howlStage = 0;
+}
+function dreadBoss(dt){
+  if(G.phase !== 'night'){ bossSeen = false; tremT = 0; stompT = 0; return; }
+  const bw = G.wolves.find(w => isBoss(w.k));
+  if(bw){
+    bossSeen = true; stompT -= dt;
+    if(stompT <= 0){ stompT = 0.85;
+      const d = Math.hypot(bw.x - PL.x, bw.z - PL.z), k = Math.max(0, 1 - d/48);
+      if(k > 0){ shake(0.05 + 0.45*k*k, 0.16); sfxFrom('stomp', bw.x, bw.z, 0.25 + 0.75*k); } }
+  } else if(bossIndex(G.day) >= 0 && !bossSeen){
+    const el0 = Math.max(0, Math.min(1, (G.set.nightSec - G.t) / (G.set.nightSec*0.45)));
+    tremT -= dt;
+    if(tremT <= 0){ tremT = 7 - 4*el0; const m = GMOUTH[G.focus|0] || [0,-45];
+      shake(0.04 + 0.16*el0, 0.4 + 0.4*el0); sfxFrom('rumble', m[0], m[1], 0.3 + 0.7*el0); }
+  }
+}
+function dreadTick(dt){ dreadHowls(dt); dreadBoss(dt); }
 function toast(msg, sec=2.2, color='#fff'){
   const t = el('toast'); t.textContent = msg; t.style.color = color; t.classList.add('on'); toastT = sec;
 }
@@ -12420,6 +12682,7 @@ function spawnWolf(k, gate, atX, atZ){
   if(bi>=0){
     toast(T0.n + ' 등장!', 4, '#ff9b9b');
     if(window.__shake) window.__shake(1.6, 1.0);
+    if(window.__sfx) window.__sfx('boss');                    // 33차 — 있던 소리인데 아무도 안 불렀다
     feed(`👑 <b style="color:#ff9b9b">${T0.n}</b>이(가) 나타났습니다! 지도에서 찾아보세요`);
   }
   return w;
@@ -14174,7 +14437,8 @@ function applySim(d){
     if(!w){ w = {id,k,x,z,y:GY,ry,hp:hp,mx:100,mv:!!mv,ph:Math.random()*6,hurt:0,tx:x,tz:z,jy:jy,jv:0};
       if(isBoss(k)){ const B = WOLF_T[k]; w.sc = B.sc; w.col = B.col; w.bi = B.boss-1;
         burst(x, GY+3, z, 0x882222, 24, 2.2);
-        toast(B.n + ' 등장!', 4, '#ff9b9b'); }
+        toast(B.n + ' 등장!', 4, '#ff9b9b');
+        if(window.__shake) window.__shake(1.6, 1.0); if(window.__sfx) window.__sfx('boss'); }   // 33차 — 손님 화면도 흔들린다
       G.wolves.push(w); }
     w.tx = x; w.tz = z; w.ry = ry; w.k = k; w.mv = !!mv; w.tjy = jy;
     if(hp < w.hp) w.hurt = 0.18;
@@ -15347,6 +15611,20 @@ function audioInit(){
   if(AUD) return;
   try{ AUD = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){ AUD = null; }
 }
+/* ★ 33차 무서움의 온도 — 소리에 '어디서·얼마나 멀리서' 를 준다. sfxFrom(k, x, z, mul) 이 부르는 동안만
+   세기(SFX_MUL)와 좌우 팬(SFX_PAN)이 걸린다. tone/noise 는 이 둘을 읽어 게인과 출력 노드를 정한다. */
+let SFX_MUL = 1, SFX_PAN = 0, lastPan = 0;
+function sfxOut(){
+  if(!SFX_PAN || !AUD.createStereoPanner) return AUD.destination;
+  const p = AUD.createStereoPanner(); p.pan.value = SFX_PAN; p.connect(AUD.destination); return p;
+}
+function sfxFrom(k, x, z, mul){
+  const dx = x - PL.x, dz = z - PL.z, L = Math.hypot(dx, dz) || 1;
+  const c = Math.cos(PL.yaw), sn = Math.sin(PL.yaw);            // 내 오른쪽 = (cos yaw, -sin yaw)
+  lastPan = Math.max(-1, Math.min(1, (dx*c - dz*sn)/L)) * 0.8;
+  SFX_MUL = mul === undefined ? 1 : mul; SFX_PAN = lastPan;
+  try { sfx(k); } finally { SFX_MUL = 1; SFX_PAN = 0; }
+}
 function tone(f1, f2, dur, type, vol, when){
   if(!AUD || !sndOn) return;
   if(AUD.state==='suspended') AUD.resume();
@@ -15356,9 +15634,9 @@ function tone(f1, f2, dur, type, vol, when){
   o.frequency.setValueAtTime(f1, t0);
   if(f2 && f2 !== f1) o.frequency.exponentialRampToValueAtTime(Math.max(24,f2), t0+dur);
   g.gain.setValueAtTime(0.0001, t0);
-  g.gain.exponentialRampToValueAtTime(vol || 0.10, t0 + 0.008);
+  g.gain.exponentialRampToValueAtTime((vol || 0.10) * SFX_MUL, t0 + 0.008);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  o.connect(g); g.connect(AUD.destination);
+  o.connect(g); g.connect(sfxOut());
   o.start(t0); o.stop(t0 + dur + 0.03);
 }
 function noise(dur, vol, cut, when){              // 29차 — when: 조금 뒤에 (총소리의 두 번째 파열음)
@@ -15368,8 +15646,8 @@ function noise(dur, vol, cut, when){              // 29차 — when: 조금 뒤�
   for(let i=0;i<n;i++) d[i] = (Math.random()*2-1) * (1 - i/n);
   const src = AUD.createBufferSource(); src.buffer = buf;
   const f = AUD.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = cut || 900;
-  const g = AUD.createGain(); g.gain.value = vol || 0.10;
-  src.connect(f); f.connect(g); g.connect(AUD.destination); src.start(when || 0);
+  const g = AUD.createGain(); g.gain.value = (vol || 0.10) * SFX_MUL;
+  src.connect(f); f.connect(g); g.connect(sfxOut()); src.start(when || 0);
 }
 const now0 = ()=> AUD ? AUD.currentTime : 0;
 const SFX = {
@@ -15402,7 +15680,10 @@ const SFX = {
   fix:  ()=>{ tone(520,760,0.09,'triangle',0.07); },
   up:   ()=>{ [660,880,1170].forEach((f,i)=> tone(f,null,0.13,'triangle',0.10, now0()+i*0.09)); },
   bite: ()=>{ noise(0.07,0.09,700); tone(170,90,0.07,'sawtooth',0.045); },
-  hit:  ()=>{ tone(560,320,0.07,'square',0.045); },
+  /* ★ 33차 타격감 — 맞는 소리에 살을 붙였다: 둔탁한 파열음 + 몸통. 치명타는 위로 '띵', 막타는 낮게 '쿵' 내려앉는다 */
+  hit:  ()=>{ noise(0.045,0.13,1500); tone(520,260,0.075,'square',0.06); },
+  crit: ()=>{ noise(0.04,0.12,2400); tone(980,1560,0.09,'triangle',0.08); tone(420,220,0.07,'square',0.05); },
+  kill: ()=>{ noise(0.14,0.22,700); tone(210,52,0.26,'sawtooth',0.10); tone(660,330,0.12,'square',0.05, now0()+0.05); },
   bow:  ()=>{ tone(950,420,0.06,'triangle',0.035); },
   /* ★ 29차 — 'gun'·'boom'·'laser' 가 표에 없어서 화승총·소총·연발총·저격총·광선총이 **여태 조용했다**
      (18차e 의 musket 과 같은 함정. sfx() 는 없는 이름이면 아무것도 안 한다). 선생님: "지금 총들은 되게 밋밋해".
@@ -15456,6 +15737,9 @@ const SFX = {
   magic:()=>{ tone(520,1180,0.16,'sine',0.06); tone(780,1560,0.12,'triangle',0.035); },
   hurt: ()=>{ tone(210,80,0.30,'sawtooth',0.12); noise(0.20,0.09,420); },
   boss: ()=>{ [120,95,70].forEach((f,i)=> tone(f,null,0.45,'sawtooth',0.13, now0()+i*0.16)); },
+  /* 33차 무서움의 온도 — 보스 발소리(쿵) · 산 너머 땅울림(우르릉). 둘 다 낮고 둥글다 — 무섭되 시끄럽지 않게 */
+  stomp:  ()=>{ noise(0.09,0.22,260); tone(64,38,0.28,'sine',0.16); },
+  rumble: ()=>{ noise(0.7,0.14,160); tone(46,40,0.8,'sine',0.11); tone(92,60,0.5,'triangle',0.04); },
   win:  ()=>{ [523,659,784,1047].forEach((f,i)=> tone(f,null,0.24,'triangle',0.11, now0()+i*0.14)); },
   /* 🎖️ 칭호 — '레벨업(up)' 과 확실히 갈려야 한다. 둘 다 자주 나는데 뜻이 다르다.
      up 은 짧게 세 음이 오르고 끝나고, medal 은 팡파르처럼 **두 번 두드리고 위로 뻗는다**. */
@@ -15559,6 +15843,21 @@ function updSky(dt, night){
   stars.position.copy(camera.position);
   stars.material.opacity = Math.max(0, skyK*1.35 - 0.32);
   stars.rotation.y += dt*0.006;
+  /* 33차 — 큰별은 따로 깜빡이고, 별똥별은 밤에 가끔 긋는다. 연못 물결 고리는 늘 퍼진다 */
+  starsB.position.copy(camera.position); starsB.rotation.y = stars.rotation.y;
+  starsB.material.opacity = stars.material.opacity * (0.72 + 0.28*Math.sin(tAcc*2.3));
+  if(skyK > 0.6){
+    if(metT <= 0 && (metWait -= dt) <= 0){ metT = 0.9; metWait = 14 + Math.random()*16;
+      const a = Math.random()*Math.PI*2, el = 0.45 + Math.random()*0.5;
+      metP.set(Math.cos(a)*Math.cos(el)*200, Math.sin(el)*200, Math.sin(a)*Math.cos(el)*200);
+      metD.set(-Math.sin(a)*0.8 + (Math.random()-0.5), -0.55, Math.cos(a)*0.8 + (Math.random()-0.5)).normalize();
+      meteor.visible = true; }
+    if(metT > 0){ metT -= dt; const k = 1 - Math.max(0, metT)/0.9;
+      metL.copy(metP).addScaledVector(metD, k*120).add(camera.position); meteor.position.copy(metL);
+      meteor.lookAt(metL.addScaledVector(metD, 5)); meteor.scale.set(1, 1, 0.4 + Math.sin(k*Math.PI)*1.6);
+      meteor.material.opacity = Math.sin(k*Math.PI)*0.9; if(metT <= 0) meteor.visible = false; }
+  } else if(meteor.visible){ meteor.visible = false; metT = 0; }
+  if(pondRipple){ const ph = (tAcc*0.42) % 1, rs = 0.4 + ph*3.4; pondRipple.scale.set(rs, rs, 1); pondRipple.material.opacity = 0.55*(1-ph); }
   // 횃불은 밤에 켜지고 살짝 흔들린다
   const fl = skyK * (0.85 + Math.sin(tAcc*7.3)*0.07 + Math.sin(tAcc*3.1)*0.05);
   EMIT.emissiveIntensity = fl; EMIT_F.emissiveIntensity = fl;
@@ -15580,6 +15879,22 @@ function updSky(dt, night){
   /* 노을은 낮↔밤 **사이에서만** 뜬다. 0.5 에서 제일 세고 0과 1에서 0이 된다. */
   const dusk = Math.sin(Math.min(1, Math.max(0, skyK)) * Math.PI);
   _cA.lerp(SKY_DUSK, dusk * 0.42);
+  /* 33차 무서움의 온도 — 밤엔 집중 입구 쪽 지평선이 붉다. 늑대가 수정(0,0)에 가까울수록 진하고 천천히 숨 쉰다 */
+  let thr = 0;
+  if(G.phase === 'night' && skyK > 0.5){
+    let near = 99; for(const w of G.wolves){ const dw = Math.hypot(w.x, w.z); if(dw < near) near = dw; }
+    const appr = near > 90 ? 0 : Math.max(0, Math.min(1, 1 - (near - 10)/32));
+    thr = (0.30 + 0.60*appr) * (0.86 + 0.14*Math.sin(tAcc*1.7));
+  }
+  threatK += (thr - threatK) * Math.min(1, dt*1.2);
+  if(threatK < 0.005 && thr === 0) threatK = 0;
+  /* 노을 띠 + 붉은 하늘 → 돔 그림. 값이 0.02 넘게 바뀌거나 입구가 바뀔 때만 다시 칠한다 */
+  skyRepaintT -= dt;
+  if(skyRepaintT <= 0){
+    const gm = GMOUTH[G.focus|0] || [0,-45], tu = skyU(gm[0], gm[1]);
+    const dq = Math.round(dusk*20)/20, tq = Math.round(threatK*10)/10;        // 0.05 · 0.1 칸으로 끊어 자잘한 흔들림엔 안 칠한다
+    if(dq !== skyPaintD || tq !== skyPaintT || (tq > 0 && tu !== skyPaintU)){ paintSky(dq, tq, tu); skyRepaintT = 0.5; }
+  }
   scene.background.copy(_cA);
   scene.fog.color.copy(_cA);
   /* 하늘 돔은 안개보다 조금 더 진하게 — 안개와 똑같으면 지평선이 안 보인다 */
@@ -15671,6 +15986,15 @@ function updTags(){
 
 let shakeT = 0, shakeP = 1;
 function shake(power, sec){ shakeP = power; shakeT = Math.max(shakeT, sec); }
+/* ★ 33차 타격감 — 쏠 때 시야가 살짝 넓어졌다 돌아온다(FOV 펀치). 흔들림은 자리가 떨리는 것이고 이건 '밀리는' 느낌이다.
+   지수 감쇠라 dt 에 안 흔들린다. 4° 를 넘지 않는다 — 조준선은 그대로(forward 는 방향만 읽는다). */
+const FOV0 = 74; let fovKick = 0;
+function fovPunch(k){ fovKick = Math.min(4, fovKick + k); }
+function fovTick(dt){
+  if(fovKick <= 0) return;
+  fovKick *= Math.exp(-dt*16); if(fovKick < 0.02) fovKick = 0;
+  camera.fov = FOV0 + fovKick; camera.updateProjectionMatrix();
+}
 window.__shake = shake;
 
 /* ══════════════ 구간별 시간 재기 ══════════════
@@ -15768,6 +16092,7 @@ function loop(){
       const a = shakeT*shakeP;
       camera.position.x += (Math.random()-.5)*a; camera.position.y += (Math.random()-.5)*a;
       camera.position.z += (Math.random()-.5)*a; }
+    fovTick(dt);
     if(actCd>0) actCd -= dt;
     if(hurtCd>0) hurtCd -= dt;
     kitTick(dt); downTick(dt); comboTick(dt);
@@ -15783,7 +16108,7 @@ function loop(){
       if(hudPrev.lock !== lk){ hudPrev.lock = lk; el('crosshair').classList.toggle('lock', lk); }
     } else if(hudPrev.lock){ hudPrev.lock = false; el('crosshair').classList.remove('lock'); }
     if(hitMarkT > 0){ hitMarkT -= dt;
-      if(hitMarkT <= 0) el('crosshair').classList.remove('hit','critHit'); }
+      if(hitMarkT <= 0) el('crosshair').classList.remove('hit','critHit','killHit'); }
     const isMining = acting && curTool==='mine' && mineHold && G.phase==='day';
     const isWork = !!work;                     // 공사 중이면 망치질 박자로 휘두른다
     updHeld(dt, isMining || isWork,
@@ -15861,7 +16186,7 @@ function loop(){
     if(PROF_ON) pE('이름표');
 
     if(PROF_ON) pS();
-    if(!DBG.noInst){ updParts(dt); updArrows(dt); updBullets(dt); updOrbs(dt, tAcc);
+    if(!DBG.noInst){ updParts(dt); updArrows(dt); updBullets(dt); updRings(dt); updFlash(dt); updOrbs(dt, tAcc);
                      updChests(dt, tAcc); updDrops(dt, tAcc); updPets(dt, tAcc);
                      updGarden(dt, tAcc); }
 
@@ -15889,12 +16214,7 @@ function loop(){
            여기서 일부러 한 번 읽어 그 비용을 이 칸으로 끌어온다(진단할 때만). */
         pS(); void el('hud').offsetHeight; pE('DOM배치'); } }
     if(toastT>0){ toastT -= dt; if(toastT<=0) el('toast').classList.remove('on'); }
-    /* 밤이 오기 직전 — 멀리서 늑대 울음. 애들이 "온다!" 하고 뛰어간다. */
-    if(G.phase==='day'){
-      if(G.t <= 4.5 && !howled){ howled = true;
-        if(window.__sfx) window.__sfx('howl');
-        toast('🐺 멀리서 늑대 울음소리… 곧 밤이에요!', 3.4, '#ffd9d9'); }
-    } else howled = false;
+    dreadTick(dt);      // 33차 무서움의 온도 — 울음이 가까워지고, 보스는 발소리·땅울림으로 먼저 온다
   }
   updClouds(dt);
   if(PROF_ON){ pS(); gpuBegin(); }
@@ -16277,6 +16597,15 @@ Object.assign(window, {
   __onPhase:onPhaseChange, __soldiers:()=>G.soldiers, __SOL_COMP:SOL_COMP, __foot:footprint,
   __SOL_DEF:()=>SOL_DEF, __solDmg:solDmg,
   __throw:fireWeapon, __aimWolf:aimWolf, __setThrow:v=>{ throwing = v; },
+  /* 33차 타격감 (t34) */
+  __ring:ring, __rings:()=>rings, __rMesh:()=>rMesh, __flash:()=>flashMesh, __flashT:()=>flashT, __fovKick:()=>fovKick, __FOV0:FOV0, __fovPunch:fovPunch,
+  /* 33차 세계 마무리 (t34) */
+  __POND:POND, __pathDist:pathDist, __pathLines:pathLines, __streamDist:streamDist, __waterNear:waterNear, __pond:()=>pondMesh, __ripple:()=>pondRipple,
+  __skyPaint:()=>({dusk:skyPaintD, threat:skyPaintT, u:skyPaintU}), __skyU:skyU, __skyTex:()=>skyTex, __skyRepaintNow:()=>{ skyRepaintT = 0; },
+  __starsB:()=>starsB, __stars:()=>stars, __meteor:()=>meteor, __metFire:()=>{ metWait = 0; }, __updSky:updSky,
+  /* 33차 무서움의 온도 (t34) */
+  __dreadTick:dreadTick, __howlN:()=>howlN, __howlStage:()=>howlStage, __threatK:()=>threatK,
+  __shakeT:()=>shakeT, __shakeReset:()=>{ shakeT = 0; }, __sfxFrom:sfxFrom, __lastPan:()=>lastPan, __bossIndex:bossIndex, __PROF:()=>PROF,
   __setAim:setAimMode, __aimMode:()=>aimMode, __bullets:()=>bullets, __bMesh:()=>bMesh,
   __gunKick:()=>gunKick, __openKit:openKit, __equipW:equipWeapon,
   /* 가방에 깔리는 것들 (23차) — 검사가 화면 모양(#kitW .kitIt)을 베끼지 않게 게임이 준다 */

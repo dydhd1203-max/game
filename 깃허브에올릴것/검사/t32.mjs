@@ -28,7 +28,7 @@ await pg.waitForTimeout(1500);
     o.bankMap = banks.filter(([k,b])=>b.mat && b.mat.map).map(([k])=>k);
     o.mats = new Set(banks.map(([k,b])=>b.mat.uuid)).size;
     /* 씬 전체 — 하늘 돔(결 그림)·이름표(스프라이트) 빼고 map 을 쓰는 메시 */
-    const mapped=[]; W.__scene.traverse(x=>{ if(!(x.isMesh||x.isInstancedMesh)) return; if(x===W.__skyDome) return;
+    const mapped=[]; W.__scene.traverse(x=>{ if(!(x.isMesh||x.isInstancedMesh)) return; if(x===W.__skyDome || x.userData.gradient) return;   /* 33차 — 노을 띠·총구 섬광도 돔 같은 결 그림 */
       const ms = Array.isArray(x.material) ? x.material : [x.material];
       for(const m of ms) if(m && m.map) mapped.push((x.name||x.type)+':'+(m.type)); });
     o.mapped = mapped;
@@ -46,7 +46,7 @@ await pg.waitForTimeout(1500);
     o.rail = (()=>{ const b=W.__banks.get('farmRail'); return {geo:b.geo===W.__WGEO, mat:b.mat===W.__WMAT, cols:!!b.cols, n:b.ms.length}; })();
     return o; });
   ok('★ 뱅크(세계 조각)에 무늬(map)를 쓰는 재질이 하나도 없다', r.banks>40 && r.bankMap.length===0, r.banks+'뱅크 · 무늬:'+r.bankMap.join(','));
-  ok('★ 씬 전체에서도 무늬를 쓰는 메시가 없다 (하늘 돔·이름표 제외)', r.mapped.length===0, r.mapped.slice(0,6).join(' | '));
+  ok('★ 씬 전체에서도 무늬를 쓰는 메시가 없다 (하늘 돔·노을 띠·섬광 같은 결 그림·이름표 제외)', r.mapped.length===0, r.mapped.slice(0,6).join(' | '));
   ok('세계 조각의 재질 종류가 여덟 이하 (흰 원색 하나 + 발광 몇)', r.mats<=8, r.mats);
   ok('★ 모따기 상자 44삼각형 · 각진 상자 12삼각형', r.wTris===44 && r.boxTris===12, r.wTris+' / '+r.boxTris);
   ok('★ 모따기 상자의 면 법선이 전부 바깥을 본다 (안을 보면 검은 면이 된다)', r.inward===0, r.inward);

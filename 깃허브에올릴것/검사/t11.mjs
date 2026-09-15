@@ -107,7 +107,8 @@ const out = await pg.evaluate(async ()=>{
   ok('★ 맞으면 조준점이 번쩍인다', ch.classList.contains('hit'));
   ok('늑대가 실제로 다친다', wt.hp < wt.mx, Math.round(wt.hp)+'/'+Math.round(wt.mx));
   /* 크리티컬은 다른 표시 */
-  ch.classList.remove('hit','critHit');
+  ch.classList.remove('hit','critHit','killHit');
+  wt.hp = 1000; wt.mx = 1000;               // 33차 — 막타(예상)면 붉은 X(killHit)가 치명타 표시보다 앞선다. 체력을 넉넉히
   W.__setCrit(1); W.__setThrowCd(0); W.__throw();
   ok('크리티컬은 조준점 표시가 다르다', ch.classList.contains('critHit'));
   W.__setCrit(-1);
