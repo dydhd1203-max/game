@@ -123,15 +123,16 @@ await pg.waitForTimeout(1500);
     o.cone=n('cone'); o.trunk=n('trunk'); o.stem=n('stem'); o.petal=n('petal'); o.pist=n('pist'); o.bush=n('bush')+n('bushS'); o.petal0=!!W.__banks.get('petal0');
     o.decor = o.bush + o.petal + (n('peb') - 0);
     return o; });
-  ok('★ 자원 나무 조각 11 — 줄기 2 · 뿌리 3 · 가지 2 · 잎 4, 잎이 맨 뒤', r.treeN===11 && r.treeKeys.slice(-4).every(k=>k==='leaf') && r.treeKeys[0]==='trunk', r.treeKeys.join(','));
+  /* 31차b — 잎 일곱 + 가지 끝 뭉치 둘 + 껍질 골 셋(+ 사과 넷). 캐면 뒤(사과·잎)부터 사라지므로 잎·사과가 맨 뒤여야 한다 */
+  ok('★ 자원 나무 조각 19 이상 — 줄기가 맨 앞, 뒤 일곱은 잎(또는 사과)', r.treeN>=19 && r.treeKeys.slice(-7).every(k=>k==='leaf'||k==='apple') && r.treeKeys[0]==='trunk', r.treeN+' · '+r.treeKeys.join(','));
   ok('잎은 각진 공(비인덱스 80면)', r.leafGeo && r.leafVerts===240 && !r.leafIdx, r.leafVerts);
   ok('나무 밑동이 땅에 닿아 있다', Math.abs(r.trunkBottom) < 0.1, r.trunkBottom.toFixed(3));
-  ok('★ 캐면 잎(과 가지)부터 사라지고 줄기는 남는다', r.hidden.length>=3 && r.hidden.every(k=>k==='leaf'||k==='branch') && r.trunkShown, r.hidden.join(','));
+  ok('★ 캐면 잎(사과·가지)부터 사라지고 줄기는 남는다', r.hidden.length>=3 && r.hidden.every(k=>k==='leaf'||k==='branch'||k==='apple') && r.trunkShown, r.hidden.join(','));
   ok('되살리면 전부 돌아온다', r.allBack);
   ok('바위 조각 6 이상 — 큰 덩어리부터, 이끼 있음', r.rockN>=6 && r.rockKeys[0]==='rock' && r.rockKeys.includes('moss'), r.rockKeys.join(','));
   ok('★ 금광맥 — 빛나는 결정 넷(원색 발광 재질) + 금 알갱이', r.goldKeys.filter(k=>k==='oreG').length===4 && r.goldKeys.includes('nug') && r.oreMat, r.goldKeys.join(','));
   /* 숲 그루 수는 무작위(놓을 자리가 안 나오면 건너뛴다) — 개수를 박지 않고 '고깔은 셋씩(침엽수)' 과 넉넉한 하한만 본다 */
-  ok('장식 숲 — 침엽수 고깔이 셋씩 30 이상 · 줄기 100 이상', r.cone>=30 && r.cone%3===0 && r.trunk>=100, r.cone+' / '+r.trunk);
+  ok('장식 숲 — 침엽수 고깔(넷 + 꼭지) 40 이상 · 줄기 100 이상', r.cone>=40 && r.trunk>=100, r.cone+' / '+r.trunk);
   ok('풀꽃 — 꽃은 줄기·꽃송이·속이 한 벌씩, 꽃 뱅크는 하나(petal0~4 없음), 수풀+꽃 600 이상', r.stem===r.petal && r.petal===r.pist && !r.petal0 && r.bush+r.petal>=600, r.bush+' + '+r.petal);
 }
 

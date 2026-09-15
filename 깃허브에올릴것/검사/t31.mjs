@@ -58,6 +58,21 @@ await pg.waitForTimeout(1500);
     o.enhCards = [...document.querySelectorAll('#forgeList .sItem .sn')].map(e=>e.textContent);
     return o; });
   ok('★ 상인은 조합 무기를 안 판다 (무기 여섯 자루만)', r.shopWpn===6, r.shopWpn);
+  /* 31차b — 탭을 함수로 부르지 않고 **단추를 눌러서** 본다. 29차엔 상점 탭 손잡이가 대장간 탭까지 덮어써서
+     조합표 단추가 상점 목록만 다시 그렸다 — 함수를 직접 부른 검사는 통과했고 교실에서 터졌다. */
+  const c = await pg.evaluate(()=>{ const W=window, o={};
+    W.__setForgeTab('enh'); W.__buildForgeUI();
+    document.querySelector('#forgeTabs .btn[data-tab="craft"]').click();
+    o.craftByClick = document.querySelectorAll('#forgeList .sItem').length;
+    o.craftOn = document.querySelector('#forgeTabs .btn[data-tab="craft"]').classList.contains('on');
+    W.__shopTab('w'); W.__buildShopUI();
+    document.querySelector('#shopTabs .btn[data-tab="a"]').click();
+    o.shopArm = document.querySelectorAll('#shopList .sItem').length;
+    o.forgeStill = document.querySelectorAll('#forgeList .sItem').length;
+    o.forgeOnKept = document.querySelector('#forgeTabs .btn[data-tab="craft"]').classList.contains('on');
+    return o; });
+  ok('★ 조합표 단추를 **눌러서** 카드 여섯이 뜬다 (함수를 직접 부르면 못 잡는 버그였다)', c.craftByClick===6 && c.craftOn, c.craftByClick);
+  ok('상점 탭을 눌러도 대장간 목록·탭은 그대로다 (같은 class 를 입어도 손잡이가 안 섞인다)', c.shopArm>0 && c.forgeStill===6 && c.forgeOnKept, c.shopArm+' / '+c.forgeStill);
   ok('★ 넣는 총이 없으면 조합이 안 되고, 있으면 된다', r.noBase===false && r.withBase===true);
   ok('★ 조합하면 재료(나무 140 · 달걀 6)가 나가고 넣은 총은 없어지며 새 총을 바로 들고 강화 +3 을 물려받는다',
      r.paid.w===140 && r.paid.eg===6 && r.after.own8 && !r.after.own1 && r.after.wpn===8 && r.after.enh8===3, JSON.stringify(r.paid)+' '+JSON.stringify(r.after));
@@ -107,7 +122,10 @@ await pg.waitForTimeout(1500);
     o.exp = gold().every(d=>d.exp && d.exp - performance.now()/1000 > 40);
     const d0 = gold()[0]; PL.x = d0.x; PL.z = d0.z; W.__updDrops(0.016, 1);
     o.picked = W.__myRes().g - g0; o.left = gold().length;
-    for(const d of gold()) d.exp = 0; W.__updDrops(0.016, 2); o.afterExpire = gold().length;
+    /* ★ 31차b — exp 를 0 으로 두면 `d.exp && now > d.exp` 에서 거짓이라 **치워지지 않았다**. 그런데도 통과하던 것은 바로 앞줄에서
+       발밑에 둔 플레이어가 한 번에 하나씩 주워 갔기 때문 — 조각이 셋 나오는 판(1/3)에만 빨갰다(바쁜 판에서 셋 중 둘 빨강).
+       시한을 '아주 옛날'(0.001) 로 두고 플레이어는 멀리 치워 줍기가 안 섞이게 한다. */
+    PL.x += 40; for(const d of gold()) d.exp = 0.001; W.__updDrops(0.016, 2); o.afterExpire = gold().length; PL.x -= 40;
     const bossK = Object.keys(W.__WOLF_T).map(Number).find(k=>W.__isBoss(k));
     const wb = W.__spawnWolf(bossK, 0); wb.x = PL.x + 3; wb.z = PL.z; wb.y = PL.y; wb.hp = 0;
     W.__hostSim(0.016); o.boss = gold().length;
