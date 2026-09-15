@@ -6224,7 +6224,10 @@ const gunModels = [mkFist(), mkSling(), mkMusket(), mkRifle(), mkSMG(), mkSniper
      (Lambert 의 emissive 로 만들면 색이 안 먹는다 — 남의 총에서 이미 겪었다). */
 const matEnhGlow = new THREE.MeshBasicMaterial({          // 28차 — 무늬 없는 빛 (텍스처를 뗐다)
   color:0xffffff, transparent:true, opacity:0.85,
-  depthWrite:false, blending:THREE.AdditiveBlending, fog:false });
+  depthWrite:false, blending:THREE.AdditiveBlending, fog:false,
+  /* 34차 — 뒷면만 그린다. 앞면을 그리면 빛 덩어리가 총을 덮어 총이 안 보였다. 뒷면은 총 뒤에 있어 총이 가리므로
+     총의 윤곽 둘레로만 빛이 남는다 — '총을 감싼 후광'. 무늬 없는 재질이라 앞면·뒷면 색은 똑같다. */
+  side:THREE.BackSide });
 const gunGlow = [];                       // 무기 번호 -> {halo, tip}
 const _gbb = new THREE.Box3(), _gsz = new THREE.Vector3(), _gct = new THREE.Vector3();
 for(let i=0;i<gunModels.length;i++){
@@ -6241,13 +6244,14 @@ for(let i=0;i<gunModels.length;i++){
      반대로 크게 하면 총구 밖으로 삐져나와 화면을 덮는다(10차 총구 화염과 같은 함정).
      그래서 몸통 크기 그대로 만들고, 1.05~1.45배 사이에서만 키운다 —
      어느 단계에서도 '총을 감싼 테두리' 로 보이고, 절대 화면을 안 덮는다. */
-  const halo = new THREE.Mesh(
-    boxGeo(T.glow,T.glow,T.glow,T.glow,T.glow,T.glow,
-           _gsz.x, _gsz.y, _gsz.z), matEnhGlow);
+  /* ★ 34차 — 선생님: "강화 빛 색은 맘에 드는데 네모로 빛나는 게 좀 이상해." 후광이 총의 경계 상자 모양 그대로(네모 상자)였다.
+     총 크기만큼 늘인 **타원체**(구를 상자 크기로 늘여 지오메트리에 굽는다)로 바꾼다 — 총을 감싸는 둥근 빛 덩어리.
+     크기는 지오메트리에 구워 두므로 halo.scale 은 예전처럼 1.02~1.48 배율 그대로다(t16 이 그 배율을 본다). 촉도 작은 공. */
+  const haloGeo = new THREE.SphereGeometry(0.5, 16, 12); haloGeo.scale(_gsz.x*1.08, _gsz.y*1.08, _gsz.z*1.02);
+  const halo = new THREE.Mesh(haloGeo, matEnhGlow);
   halo.position.copy(_gct); halo.frustumCulled = false; halo.renderOrder = 11;
   const t = Math.max(_gsz.x, _gsz.y) * 0.42;
-  const tip = new THREE.Mesh(
-    boxGeo(T.glow,T.glow,T.glow,T.glow,T.glow,T.glow, t, t, t), matEnhGlow);
+  const tip = new THREE.Mesh(new THREE.SphereGeometry(t*0.5, 12, 9), matEnhGlow);
   tip.position.set(_gct.x, _gct.y, _gbb.max.z - t*0.3);
   tip.frustumCulled = false; tip.renderOrder = 11;
   halo.visible = tip.visible = false;
@@ -16409,9 +16413,17 @@ if(new URLSearchParams(location.search).has('diag')){
         rows.push([CASES[i][0], c.fps, Math.round((c.fps - base)*10)/10,
                    Math.min(b0.wMin, c.wMin, b1.wMin),
                    Math.max(b0.wMax, c.wMax, b1.wMax),
-                   b0.bad || c.bad || b1.bad]);
+                   b0.bad || c.bad || b1.bad,
+                   Math.round(base)]);                 // 34차 — 줄마다 기준도 남긴다
       }
-      sweepOut = {rows:rows, spoiled:rows.some(r=>r[5]), warn:sweep.warn};
+      /* ★ 34차 — 34차 뒤 교실 표가 첫 줄들은 기준 51 이다가 중간부터 30 으로 주저앉았고, 그 뒤론 '화면 그리기 끔' 이 +0.5,
+         '로직 통째로 끔' 이 0.0 이었다. 그리기도 로직도 꺼서 안 빨라지면 게임 밖 상한이다(발열·절전·탭 가림·30Hz 화면).
+         표만 봐선 몰라서 값이 다 '0' 으로 보였다. 두 가지를 표에 박는다: 기준이 무너졌나, 다 꺼도 느린가. */
+      const f0 = sweep.wins[0].fps, fN = sweep.wins[sweep.wins.length-1].fps;
+      const drift = fN < f0*0.75 ? '기준이 ' + f0 + ' → ' + fN + ' fps 로 무너졌습니다 — 기계가 느려진 것(발열·절전·탭 가림)이라 뒤쪽 줄은 못 씁니다.' : '';
+      const dr = rows.find(r => r[0] === '화면그리기 끔');
+      const capped = dr && dr[1] < Math.max(36, dr[6]*1.15) ? '그리기를 꺼도 ' + dr[1] + ' fps — 게임 밖 상한입니다(발열·절전·탭 가림·30Hz 화면). 전원을 꽂고 식힌 뒤 창을 앞에 두고 다시 재세요.' : '';
+      sweepOut = {rows:rows, spoiled:rows.some(r=>r[5]), warn:sweep.warn, drift, capped};
       sweep = null; return;
     }
     if(idx % 2 === 0) CASES[idx>>1][1]();          // 기준 창이 끝났으면 다음 항목을 켠다
@@ -16467,6 +16479,7 @@ function updDiag(dt){
      그 줄은 상황이 변한 것이라 차이값을 믿으면 안 된다. */
   const fmt = r => r[0].padEnd(14,' ') + String(r[1]).padStart(3,' ') + 'fps '
       + ((r[2] > 0 ? '+' : '') + r[2].toFixed(1)).padStart(5,' ')
+      + (r[6] !== undefined ? '  기준' + r[6] : '')                  // 34차 — 기준이 무너지는지 줄마다 보인다
       + (r[5] ? '  ⚠낮밤바뀜'
               : '  늑대' + (r[3]===r[4] ? r[3] : r[3] + '~' + r[4]));
   if(st && st.sweep){
@@ -16485,6 +16498,8 @@ function updDiag(dt){
       + '(오른쪽 숫자 = 바로 직전 기준과의 차이)\n\n'
       + o.rows.map(fmt).join('\n')
       + (o.warn ? '\n\n⚠ 시작할 때: ' + o.warn : '')
+      + (o.drift ? '\n\n⚠ ' + o.drift : '')
+      + (o.capped ? '\n\n⚠ ' + o.capped : '')
       + (o.spoiled ? '\n\n⚠ 재는 도중 낮밤이 바뀐 줄이 있습니다.\n'
                    + '   그 줄은 못 씁니다. 밤 시작하자마자 다시 재세요.' : '')
       + '\n\n다시 재려면 Shift+9';
