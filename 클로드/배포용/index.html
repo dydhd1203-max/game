@@ -6213,50 +6213,103 @@ const gunModels = [mkFist(), mkSling(), mkMusket(), mkRifle(), mkSMG(), mkSniper
                    mkMusket(),    // 연습용 총(18차) — 화승총 모형을 그대로 쓴다
                    mkOakBow(), mkObsidian(), mkGoldSMG(), mkRanch(), mkThunder(), mkFlame()];   // 29차 레어·유니크
 
-/* ═══════ 강화한 총이 내 손에서도 빛난다 (14차 손질) ═══════
-   ★ 처음엔 남의 총(P_gunF)에만 빛을 붙였다. 그런데 아이가 제일 많이 보는 총은
-     '자기가 든 총'이다 — 대장간에서 +6 을 만들고 나와도 자기 화면에서는 아무 일도
-     안 일어났다. "강화했는데 안 빛나요" 가 그것이었다.
-   ★ 총 하나에 빛 조각 둘: 총열을 감싸는 후광 + 총구 끝의 불티.
-     한 번에 한 자루만 보이므로 늘어나는 그리기는 최대 2 번이다.
-   ★ 재질은 하나를 돌려 쓴다. 한 번에 한 자루만 보이니 색을 그때그때 바꿔도 안 섞인다.
-     MeshBasicMaterial + 가산합성이라 조명을 안 받고 스스로 빛나 보인다
-     (Lambert 의 emissive 로 만들면 색이 안 먹는다 — 남의 총에서 이미 겪었다). */
-const matEnhGlow = new THREE.MeshBasicMaterial({          // 28차 — 무늬 없는 빛 (텍스처를 뗐다)
-  color:0xffffff, transparent:true, opacity:0.85,
-  depthWrite:false, blending:THREE.AdditiveBlending, fog:false,
-  /* 34차 — 뒷면만 그린다. 앞면을 그리면 빛 덩어리가 총을 덮어 총이 안 보였다. 뒷면은 총 뒤에 있어 총이 가리므로
-     총의 윤곽 둘레로만 빛이 남는다 — '총을 감싼 후광'. 무늬 없는 재질이라 앞면·뒷면 색은 똑같다. */
-  side:THREE.BackSide });
-const gunGlow = [];                       // 무기 번호 -> {halo, tip}
+/* ═══ 강화한 총이 손에서 빛난다 ═══
+   ★ 처음엔 남의 총(P_gunF)에만 빛을 붙였다. 그런데 아이가 제일 많이 보는 총은 '자기가 든 총' 이다 —
+     대장간에서 +6 을 만들고 나와도 자기 화면에서는 아무 일도 안 일어났다. "강화했는데 안 빛나요" 가 그것이었다.
+   ★ 28차엔 후광 조각 둘(총열을 감싸는 상자 + 총구 불티)을 가산합성으로 띄웠다. 34차에 선생님이 "네모로 빛나는 게 이상해",
+     타원체로 바꾸자 "타원체도 이상해, 무기 자체가 발광했으면" — 조각을 다 없애고 **총 재질의 자체 발광** 으로 바꿨다(gunGlow[i].mats). */
+const gunGlow = [];                       // 무기 번호 -> {mats, lit, sp} (34차 — 총 재질 자체가 빛난다 + 불티)
 const _gbb = new THREE.Box3(), _gsz = new THREE.Vector3(), _gct = new THREE.Vector3();
+/* ═══ 34차 — 강화 빛 셰이더: 총 재질 위에 ① 가장자리 림 빛 ② 흐르는 마법 결(글린트) 을 얹는다 ═══
+   ★ 자체 발광(emissive)만 주면 총이 그냥 '색칠' 된 것처럼 보였다 — 선생님: "그냥 색칠됐는데? 멋있게 빛나는 게 아니라".
+     빛나 보이려면 ① 가장자리가 가운데보다 밝고(림 — 빛이 새어 나오는 느낌) ② 빛이 총을 따라 흐르고(글린트 — 마인크래프트
+     마법 부여의 그 결) ③ 불티가 떠올라야 한다. 셋 다 '내 총의 조각' 에만 붙는다 — 장면 전체 셰이더엔 손대지 않는다
+     (손 조명을 뺀 이유와 같다: 조명 하나가 늘면 세상 모든 조각의 셰이더가 무거워진다).
+   ★ emissive 는 three 가 색×세기를 미리 곱해 vec3 로 내려 준다. 그걸 '가운데 0.10 · 가장자리 +1.2 · 결 +1.3' 로 나눠 쓴다 —
+     가운데를 낮게 두어 총 본래의 나무·쇠 색이 남고, 가장자리와 결만 환하다. */
+const GLOW_T = {value:0};
+/* 손·팔 조각은 빛나면 안 된다(살이 파랗게 빛나면 이상하다) — 굽기 전에 팔 재질을 따로 두어 팔만 다른 조각으로 구워지게 한다.
+   든 총 하나에 드로우콜 +1 이지만, 안 든 총은 안 그리므로 전체로는 +1 이다. */
+const HELD_ARM = HELD_VC.clone();
+function addGunGlow(mat){
+  mat.onBeforeCompile = (sh)=>{
+    sh.uniforms.uGlowT = GLOW_T;
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vGp;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvGp = transformed;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vGp; uniform float uGlowT;')
+      .replace('vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;',
+        'float gRim = pow(1.0 - clamp(dot(normalize(normal), normalize(vViewPosition)), 0.0, 1.0), 4.0);\n'+
+        'float gGl = smoothstep(0.78, 1.0, sin((vGp.x + vGp.y*0.6 + vGp.z*0.45) * 36.0 - uGlowT * 5.5));\n'+
+        'vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance * (0.10 + gRim * 1.2 + gGl * 1.3);');
+  };
+  mat.customProgramCacheKey = ()=> 'gunglow';
+  mat.needsUpdate = true; return mat;
+}
+/* 불티 — 총 둘레의 점 몇 개가 위로 떠오르며 사라진다(가산합성 점, 드로우콜 1). 총 모형(g) 의 자식이라 반동·떨림을 같이 탄다. */
+const sparkTex = (()=>{ const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d');
+  const r = g.createRadialGradient(16,16,1, 16,16,16);
+  r.addColorStop(0,'rgba(255,255,255,1)'); r.addColorStop(0.35,'rgba(255,255,255,0.7)'); r.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle = r; g.fillRect(0,0,32,32);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+const SPARK_N = 14;
+const _spc = new THREE.Color();
+/* 아우라 — 총열을 따라 부드러운 빛 덩이(스프라이트) 여섯을 줄지어 놓는다. 네모·타원체처럼 '모양' 이 아니라 가장자리 없는 안개다.
+   깊이 검사를 켜 두어 총 몸통 뒤쪽 절반은 가려지고, 실루엣 둘레만 번진다 — 그래서 총 모양대로 빛이 새어 나오는 것처럼 보인다. */
+const auraTex = (()=>{ const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  const r = g.createRadialGradient(32,32,0, 32,32,32);
+  r.addColorStop(0,'rgba(255,255,255,1)'); r.addColorStop(0.25,'rgba(255,255,255,0.55)'); r.addColorStop(0.55,'rgba(255,255,255,0.16)'); r.addColorStop(1,'rgba(255,255,255,0)');
+  g.fillStyle = r; g.fillRect(0,0,64,64);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })();
+const AURA_N = 6;
+/* 총 그룹(g) 의 '자기 자리' 상자 — Box3.setFromObject 는 세계 자리로 재서 gunFinish 의 회전·크기가 섞인다. 자식 지오메트리를 직접 모은다. */
+function localBox(g, out){
+  out.makeEmpty(); const bb = new THREE.Box3();
+  for(const c of g.children){ if(!c.isMesh) continue;
+    c.updateMatrix(); const gb = c.geometry.boundingBox || (c.geometry.computeBoundingBox(), c.geometry.boundingBox);
+    bb.copy(gb).applyMatrix4(c.matrix); out.union(bb); }
+  return out;
+}
+function mkSparks(g){
+  localBox(g, _gbb); _gbb.getSize(_gsz); _gbb.getCenter(_gct);
+  /* 아우라 스프라이트 */
+  const am = new THREE.SpriteMaterial({map:auraTex, color:0xffffff, transparent:true, opacity:0.25, depthWrite:false,
+                                       blending:THREE.AdditiveBlending, fog:false});
+  const au = new THREE.Group(); au.visible = false; au.userData.gradient = true;
+  const asz = Math.max(_gsz.x, _gsz.y) * 2.3;
+  for(let i=0;i<AURA_N;i++){
+    const sp = new THREE.Sprite(am); sp.frustumCulled = false; sp.renderOrder = 2; sp.userData.gradient = true;
+    sp.position.set(_gct.x, _gct.y, _gbb.min.z + _gsz.z * (i + 0.5) / AURA_N);
+    sp.scale.set(asz, asz, 1); au.add(sp); }
+  g.add(au);
+  const pos = new Float32Array(SPARK_N*3), col = new Float32Array(SPARK_N*3), ph = new Float32Array(SPARK_N), base = new Float32Array(SPARK_N*3);
+  for(let i=0;i<SPARK_N;i++){
+    base[i*3] = _gct.x + (Math.random()-0.5)*_gsz.x*1.1; base[i*3+1] = _gbb.min.y + Math.random()*_gsz.y; base[i*3+2] = _gct.z + (Math.random()-0.5)*_gsz.z*1.1;
+    ph[i] = Math.random(); }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const m = new THREE.PointsMaterial({map:sparkTex, size:0.022, sizeAttenuation:true, vertexColors:true, transparent:true,
+                                      depthWrite:false, blending:THREE.AdditiveBlending, fog:false});
+  const pts = new THREE.Points(geo, m); pts.frustumCulled = false; pts.visible = false; pts.userData.gradient = true; pts.renderOrder = 3;
+  g.add(pts);
+  return {pts, pos, col, ph, base, au, am, t:Math.random()*10};
+}
 for(let i=0;i<gunModels.length;i++){
   const g = gunModels[i];
   if(!g){ gunGlow.push(null); continue; }
+  if(i > 0) for(const c of g.children) if(c.isMesh && c.userData.arm) c.material = HELD_ARM;   // 팔은 따로 굽는다(안 빛난다)
   bakeHeld(g); g.visible = false; held.add(g);
   /* ★ 굽고 나서 붙인다. 굽기(bakeHeld)는 재질끼리 지오메트리를 합치면서
      자식을 갈아치우므로, 먼저 붙이면 빛이 총 몸통에 합쳐져 색을 못 바꾼다. */
   if(i === 0){ gunGlow.push(null); continue; }        // 맨손 돌은 강화 못 한다
-  _gbb.setFromObject(g); _gbb.getSize(_gsz); _gbb.getCenter(_gct);
-  /* 총은 +z 가 앞(총구)이다. 모형 좌표 그대로 붙이므로 총이 어떻게 돌아가든 따라간다. */
-  /* ★ 후광은 총보다 '살짝 커야' 보인다. 재 보니 총 몸통이 0.30~0.42 인데
-     처음엔 후광을 0.55배로 만들어 놓고 크기까지 줄여서 0.17 이 됐다 — 총 속에 파묻혔다.
-     반대로 크게 하면 총구 밖으로 삐져나와 화면을 덮는다(10차 총구 화염과 같은 함정).
-     그래서 몸통 크기 그대로 만들고, 1.05~1.45배 사이에서만 키운다 —
-     어느 단계에서도 '총을 감싼 테두리' 로 보이고, 절대 화면을 안 덮는다. */
-  /* ★ 34차 — 선생님: "강화 빛 색은 맘에 드는데 네모로 빛나는 게 좀 이상해." 후광이 총의 경계 상자 모양 그대로(네모 상자)였다.
-     총 크기만큼 늘인 **타원체**(구를 상자 크기로 늘여 지오메트리에 굽는다)로 바꾼다 — 총을 감싸는 둥근 빛 덩어리.
-     크기는 지오메트리에 구워 두므로 halo.scale 은 예전처럼 1.02~1.48 배율 그대로다(t16 이 그 배율을 본다). 촉도 작은 공. */
-  const haloGeo = new THREE.SphereGeometry(0.5, 16, 12); haloGeo.scale(_gsz.x*1.08, _gsz.y*1.08, _gsz.z*1.02);
-  const halo = new THREE.Mesh(haloGeo, matEnhGlow);
-  halo.position.copy(_gct); halo.frustumCulled = false; halo.renderOrder = 11;
-  const t = Math.max(_gsz.x, _gsz.y) * 0.42;
-  const tip = new THREE.Mesh(new THREE.SphereGeometry(t*0.5, 12, 9), matEnhGlow);
-  tip.position.set(_gct.x, _gct.y, _gbb.max.z - t*0.3);
-  tip.frustumCulled = false; tip.renderOrder = 11;
-  halo.visible = tip.visible = false;
-  g.add(halo); g.add(tip);
-  gunGlow.push({halo, tip, base:{hx:halo.scale.x, tx:tip.scale.x}});
+  /* ★ 34차 — 선생님: "타원체도 이상해. 무기 자체가 발광했으면 좋겠어." 후광 조각(네모 → 타원체)을 다 없애고
+     **총의 재질 자체**에 자체 발광(emissive)을 준다. 굽고 난 조각의 재질을 이 총만의 것으로 복제해 둔다 —
+     HELD_VC 는 곡괭이·망치와 공용이라 그대로 두면 곡괭이까지 빛난다. 단계별 색·세기는 아래 갱신에서 ENH_FX 로. */
+  const mats = [];
+  for(const c of g.children){ if(!c.isMesh || c.material === HELD_ARM) continue;
+    c.material = addGunGlow(c.material.clone()); c.material.emissive = new THREE.Color(0); c.material.emissiveIntensity = 0; mats.push(c.material); }
+  gunGlow.push({mats, lit:false, sp: mkSparks(g)});
 }
 
 let gunKick = 0;
@@ -6365,7 +6418,7 @@ function updHeld(dt, mining, minePct){
   setHeld(work ? 'work' : holdGun ? 'gun' : (curTool === 'build' ? curBuild : curTool));
 
   if(gunKick > 0) gunKick = Math.max(0, gunKick - dt*7.0);   // 0.14초쯤에 걸쳐 돌아온다
-  gunShakeT += dt;
+  gunShakeT += dt; GLOW_T.value += dt;
 
   bobT += dt * (PL.mv ? 7.5 : 1.6);
   let a;
@@ -6393,24 +6446,30 @@ function updHeld(dt, mining, minePct){
   for(let i=1;i<gunGlow.length;i++){
     const q = gunGlow[i]; if(!q) continue;
     const on = (q === gg) && eLv > 0;
-    if(q.halo.visible !== on){ q.halo.visible = on; q.tip.visible = on && eLv >= 3; }
-    else if(on) q.tip.visible = eLv >= 3;
+    if(!on && q.lit){ q.lit = false; for(const m of q.mats) m.emissiveIntensity = 0; q.sp.pts.visible = false; q.sp.au.visible = false; }   // 34차 — 안 든 총·+0 은 안 빛난다
   }
   if(gg && eLv > 0){
     const FX = ENH_FX[eLv];
-    /* 숨쉬듯 커졌다 작아진다. 단계가 높을수록 빠르게.
-       ★ 폭은 ±7% 로 묶는다. 처음엔 ±14% 로 뛰게 했는데 단계 사이 간격보다 커서,
-         어느 순간에는 +1 이 +3 보다 커 보였다. 단계는 크기보다 '색' 으로 갈리게 하고,
-         크기는 은은하게만 움직인다. */
+    /* 숨쉬듯 밝아졌다 어두워진다. 단계가 높을수록 빠르게. 폭은 ±7% — 단계는 세기보다 '색' 으로 갈린다. */
     const pulse = 0.93 + Math.sin(bobT*FX.pulse*0.9)*0.07;
-    /* 1.02배(테두리가 겨우 보임) ~ 1.48배(확 빛남) 사이.
-       1.0 밑이면 총 속에 파묻히고, 1.5 를 넘으면 화면을 덮는다 — 둘 다 실제로 겪었다. */
-    const k = (1.02 + FX.fp*0.50) * pulse;
-    gg.halo.scale.setScalar(k);
-    gg.tip.scale.setScalar((0.50 + FX.fp*0.80) * pulse);
-    matEnhGlow.color.setHex(FX.col || wpnNow().tr);
-    /* 가산합성이라 진하게 두면 흰색으로 날아간다. 0.72 에서 묶는다. */
-    matEnhGlow.opacity = Math.min(0.72, 0.42 + FX.fp*0.34);
+    /* 34차 — 총 재질의 자체 발광(림·글린트는 addGunGlow 셰이더가 이 값을 나눠 쓴다). +1 은 은은하게(≈0.37), +6 은 확(≈0.64).
+       1.0 을 넘기지 않는다 — 톤매핑이 흰색으로 날린다. 처음 (0.10 + fp) 로 뒀더니 총 전체가 그 색으로 '색칠' 돼 나무·쇠 색이
+       다 죽었다 — 가운데는 낮게, 가장자리·결·불티로 빛나 보이게 한다. 색은 표(+3 노랑 · +5 파랑 · +6 빨강), 그 아래는 예광탄 색. */
+    const I = Math.min(1.0, (0.18 + FX.fp*0.55) * pulse), col = FX.col || wpnNow().tr;
+    for(const m of gg.mats){ m.emissive.setHex(col); m.emissiveIntensity = I; }
+    gg.lit = true;
+    /* 불티 — 단계가 높을수록 많이(+1 5개 → +6 13개)·밝게. 위로 0.15칸 떠오르며 살짝 흔들리고 사라진다. */
+    const sp = gg.sp, nAct = 4 + eLv*1.5, pa = sp.pos, ca = sp.col;
+    sp.t += dt; _spc.setHex(col);
+    for(let i=0;i<SPARK_N;i++){
+      const life = (sp.t*0.8 + sp.ph[i]) % 1, k = i < nAct ? Math.sin(life*Math.PI) * (0.45 + FX.fp*0.7) : 0;
+      pa[i*3] = sp.base[i*3] + Math.sin(life*9.0 + i)*0.008; pa[i*3+1] = sp.base[i*3+1] + life*0.15; pa[i*3+2] = sp.base[i*3+2];
+      ca[i*3] = _spc.r*k; ca[i*3+1] = _spc.g*k; ca[i*3+2] = _spc.b*k;
+    }
+    sp.pts.geometry.attributes.position.needsUpdate = true; sp.pts.geometry.attributes.color.needsUpdate = true;
+    sp.pts.visible = true;
+    /* 아우라 — 색은 같고, 진하기는 +1 0.17 → +6 0.33 (가산합성이라 이보다 진하면 흰색으로 날린다) */
+    sp.am.color.setHex(col); sp.am.opacity = (0.08 + FX.fp*0.30) * pulse; sp.au.visible = true;
     shake = FX.sh;                       // +4 부터 손이 떨린다
   }
 
@@ -16669,7 +16728,7 @@ Object.assign(window, {
                  hold:RECOIL_HOLD, slow:RECOIL_SLOW}),
   __ghostVisible:()=>ghost.visible, __buildShopUI:buildShopUI, __buildKitUI:buildKitUI,
   __goalText:goalText, __drawMini:drawMini, __THREE:THREE, __mp:(x,z)=>[mpx(x),mpz(z)],
-  __updHeld:updHeld, __gunModels:()=>gunModels,
+  __updHeld:updHeld, __gunModels:()=>gunModels, __gunGlow:()=>gunGlow, __HELD_VC:HELD_VC, __HELD_ARM:HELD_ARM,
 
   __introDone:()=>{ startedAt = tAcc - 999; },
 
