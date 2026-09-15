@@ -2503,7 +2503,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '33차 · 결 질감 · 타격감 · 세계 마무리 · 밤의 온도';
+const GAME_VER = '34차 · 성능 3차 — Lambert · 그림자 15Hz · 청크 64';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -2870,8 +2870,13 @@ const MAT = new THREE.MeshLambertMaterial({map:ATLAS});
 const matC = (hex)=> new THREE.MeshLambertMaterial({map:ATLAS, color:hex});
 /* ═══ 31차 — 원색 재질·타일 색·번역 재질을 여기(세계를 짓기 전)로 올렸다.
    28차엔 손에 든 도구 자리(파일 중간)에 있었는데, 31차부터는 세계 조각(bpush)이 지어질 때 이미 있어야 한다. */
-const flatMat = (hex, o)=> new THREE.MeshStandardMaterial(
-  Object.assign({color:hex, roughness:0.70, metalness:0}, o||{}));
+/* ★ 34차 성능 3차 — 원색 재질을 Standard(PBR) 에서 **Lambert** 로. 한 프레임을 뜯어보니(칸마다 그리기 기록) 세계의 거의 모든
+   픽셀이 MeshStandardMaterial(GGX 반사·에너지 보존·조명마다 BRDF)로 칠해지고 있었다. 로블록스 룩은 확산광이면 충분하고,
+   Lambert 는 r155 부터 픽셀 조명이라 결(grain)·안개·꼭짓점 색이 다 그대로 먹는다. 픽셀당 값이 크게 준다.
+   roughness/metalness 는 Lambert 에 없으니 버린다. 수정 보석(반투명·발광)만 pbrMat 으로 남긴다(t32 가 그 재질을 본다). */
+const flatMat = (hex, o)=>{ const q = Object.assign({color:hex}, o||{}); delete q.roughness; delete q.metalness;
+  return new THREE.MeshLambertMaterial(q); };
+const pbrMat  = (hex, o)=> new THREE.MeshStandardMaterial(Object.assign({color:hex, roughness:0.70, metalness:0}, o||{}));
 /* ═══ 28차 — 타일 하나하나의 원색 (26차b 에 아틀라스에서 잰 평균색, 장난감답게 조금 밝힘) ═══
    손에 든 도구·아이콘·떨어진 산물·상자가 이 표를 본다. 텍스처 타일 번호를 그대로 색으로 바꾼다. */
 const TILE_COL = [];
@@ -3096,7 +3101,11 @@ renderer.toneMapping = TONE.mode;
 renderer.toneMappingExposure = TONE.exp;
 if(GFX.shadow){
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;      // 34차 — Soft(넓은 표본)보다 싸다. 장난감 룩엔 가장자리가 조금 딱딱해도 된다
+  /* ★ 34차 — 그림자 지도를 **매 프레임이 아니라 15Hz** 로 다시 그린다. 한 프레임을 뜯어보니 그림자 패스가 본 패스와 맞먹었다
+     (그리기 179번 · 삼각형 51만, 본 패스 205번 · 52만). 세계는 정지해 있고 해는 느리게 움직이니 15Hz 면 아무도 못 알아본다
+     (늑대 그림자가 최대 66ms 늦는다). 진단(?diag) 의 '그림자 매 프레임' 이 이 값을 잰다. */
+  renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
 }
 app.appendChild(renderer.domElement);
 
@@ -3104,6 +3113,9 @@ const scene = new THREE.Scene();
 const SKY_DAY = new THREE.Color(0x8ec9ef), SKY_NIGHT = new THREE.Color(0x2e4b86);
 // 밤은 밝기를 거의 안 내리고 색만 달빛 톤으로 — 애들이 잘 봐야 한다
 const HEMI_DS = new THREE.Color(0xcfe8ff), HEMI_NS = new THREE.Color(0x9dc0ff);
+/* ★ 34차 — 조명 배율. Standard → Lambert 로 바꾸니 평균 밝기는 같은데(바닥 127 vs 127) 색이 옅어 보였다 — 밝은 쪽이
+   톤매핑(AgX) 어깨에 올라가 채도가 빠진다. 셋(반구·해·환경)을 같은 배율로 내려 밤/낮 비(t28 62~88%)는 그대로 두고 채도를 되찾는다. */
+let LIT_K = 0.85;   // 잰 값: HEAD(Standard) 바닥 밝기 134.6·채도 0.447 / Lambert 1.0 → 131.6·0.417 / 0.85 → ≈124·0.44. 채도를 되찾고 밝기는 7% 만 양보
 const HEMI_DG = new THREE.Color(0x5a7a4a), HEMI_NG = new THREE.Color(0x46618c);
 const SUN_D   = new THREE.Color(0xffffff), SUN_N   = new THREE.Color(0xc3daff);
 scene.background = SKY_DAY.clone();
@@ -3176,7 +3188,9 @@ const SKY_DUSK = new THREE.Color(0xff9a5c);
 const camera = new THREE.PerspectiveCamera(74, innerWidth/innerHeight, 0.08, 420);
 scene.add(camera);                       // 손에 든 도구를 그리려면 카메라가 씬 안에 있어야 한다
 const heldLight = new THREE.PointLight(0xffffff, 1.6, 4.5);
-heldLight.position.set(0.55, 0.15, -0.25); camera.add(heldLight);
+heldLight.position.set(0.55, 0.15, -0.25);
+/* ★ 34차 — 카메라에 붙은 점광(heldLight)을 기본으로 **끈다**. 점광은 Lambert 에서도 픽셀 조명이라 온 화면 픽셀이 값을 치른다.
+   손에 든 것은 재질에 자체 발광 8% 를 줘서 밤에도 보이게 한다. 진단의 '손 조명 켬' 이 값을 잰다. */
 /* ★ 빛의 배분 (25차에 다시 잡았다).
    24차까지는 하늘빛 1.18 + 환경광 0.40 vs 해 0.92 라 **해가 전체의 37%뿐**이었다.
    그림자를 켜 보니 켠 판과 끈 판이 2.26% 픽셀에서만, 그것도 최대 47/255 차이였다 —
@@ -3446,10 +3460,13 @@ function mkGrainTex(kind){
   t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; t.anisotropy = 4; t.userData.kind = kind; return t;
 }
 const GRAIN = {rock:mkGrainTex('rock'), leaf:mkGrainTex('leaf'), grass:mkGrainTex('grass')};
+const GRAIN_MATS = [];                                   // 34차 — 진단 '결 끔' 이 여기 든 재질의 uGrainAmt 를 0 으로
 function addGrain(mat, tex, scale, amt){
   mat.userData.grain = {kind:tex.userData.kind, scale, amt};
+  GRAIN_MATS.push(mat);
   mat.onBeforeCompile = (sh)=>{
     sh.uniforms.tGrain = {value:tex}; sh.uniforms.uGrainScale = {value:scale}; sh.uniforms.uGrainAmt = {value:amt};
+    mat.userData.grainU = sh.uniforms.uGrainAmt;
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', '#include <common>\nvarying vec3 vWp;')
       .replace('#include <project_vertex>', '#include <project_vertex>\n{ vec4 wq = vec4(transformed, 1.0);\n#ifdef USE_INSTANCING\n  wq = instanceMatrix * wq;\n#endif\n  vWp = (modelMatrix * wq).xyz; }');
@@ -3513,7 +3530,10 @@ function bpush(key, geo, mat, x,y,z, ry=0, sx=1,sy=1,sz=1, rz=0, col=0){
    그런데 교실 크롬북에서 재 보니 콜당 약 60us — 55배 비쌌다. 판단이 틀렸다.
    32칸으로 하면 안 쪼갠 것보다 삼각형도 적고(45%) 드로우콜도 적다(61 vs 81).
    양쪽 다 이득이라 여기가 맞다. */
-const BCHUNK = 32;
+/* ★ 34차 — 잔 꾸밈(꽃잎·꽃술·줄기·작은 수풀·자갈·사과·금 알갱이·이삭·연잎·섬 표시·깃발·틈)은 그림자를 안 드리운다.
+   그림자 패스에서 삼각형 10만 남짓이 빠지고, 눈으론 차이가 없다(그늘이 콩알만 하다). 진단의 '작은 것 그림자 켬' 이 값을 잰다. */
+const NO_CAST = new Set(['petal','pist','stem','bushS','peb','apple','nug','farmGlow','gglow','miMark','miEdge','miGlow','miBase','flag','flagT','reed','lily','mtK']);
+const BCHUNK = 64;   // 34차 — 32 → 64. 교실 크롬북은 그리기 한 번이 60µs 라 청크 수를 반으로(삼각형은 조금 늘지만 콜이 훨씬 준다)
 const BSPLIT = 300;   // 이보다 인스턴스가 적은 뱅크는 안 쪼갠다 (쪼개 봤자 드로우콜만 는다)
 function bbuild(){
   for(const [k,b] of banks){
@@ -3542,7 +3562,7 @@ function bbuild(){
       // 지금 재 둬야 한다. 나중에(블록이 캐여서 사라진 뒤에) 재면 원점으로 눌린
       // 인스턴스까지 품어서 구가 쓸데없이 커지고, 그러면 컬링이 안 먹는다.
       im.computeBoundingSphere();
-      if(GFX.shadow){ im.castShadow = true; im.receiveShadow = true; }   // 25차 — 산·나무·바위가 그늘을 만든다
+      if(GFX.shadow){ im.castShadow = !NO_CAST.has(k); im.receiveShadow = true; }   // 25차 — 산·나무·바위가 그늘을 만든다 · 34차 — 잔 꾸밈은 안 드리운다
       b.chunks.push(im); scene.add(im);
     }
   }
@@ -4284,7 +4304,7 @@ function buildCrystal(){
   /* 재질 — 세 겹으로 겹쳐 영롱하게 */
   /* 31차 — 무늬 없는 원색(MeshStandard) 팔면체. 예전엔 수정 타일을 입힌 상자 일곱 층을 45° 돌려 쌓았다. */
   cMat = {
-    gem:  flatMat(0xcaf6ff, {emissive:0x2fb4d8, emissiveIntensity:1.15, transparent:true, opacity:0.94, roughness:0.35}),
+    gem:  pbrMat(0xcaf6ff, {emissive:0x2fb4d8, emissiveIntensity:1.15, transparent:true, opacity:0.94, roughness:0.35}),   // 34차 — 보석만 PBR
     shell:flatMat(0xffffff, {emissive:0x7fe8ff, emissiveIntensity:0.9, transparent:true, opacity:0.22,
             depthWrite:false, side:THREE.DoubleSide, roughness:0.4}),
     core: new THREE.MeshBasicMaterial({color:0xf2ffff, fog:false}),
@@ -5765,7 +5785,7 @@ camera.add(held);
    ★ 색은 **꼭짓점 색**으로 굽고 재질은 하나(HELD_VC)를 돌려 쓴다. 색마다 재질을 따로 두면 bakeHeld 가
      재질별로 합치므로 곡괭이 하나가 그리기 5번이 됐다(t13 이 잡았다 — 기준 3번). 꼭짓점 색이면 색이
      몇이든 그리기 한 번이다. 빛나는 것(emissive)과 가산합성(Basic)만 제 재질을 쓴다. */
-const HELD_VC = flatMat(0xffffff, {vertexColors:true});
+const HELD_VC = flatMat(0xffffff, {vertexColors:true, emissive:0xffffff, emissiveIntensity:0.03});   // 34차 — 손 조명 대신 살짝 자체 발광 (8% 는 곡괭이 파랑이 연보라로 바랬다)
 function boxM(tile, w,h,d, x,y,z, mat){
   const special = mat && (mat.isMeshBasicMaterial ||
     (mat.emissive && (mat.emissive.r || mat.emissive.g || mat.emissive.b)));
@@ -7660,6 +7680,7 @@ function setIR3(mesh, idx, x,y,z, ry, rx, rz, sx,sy,sz, col){
    addUpdateRange(0, 쓰는만큼) 를 주면 그 앞부분만 올린다. (r160 API, 올린 뒤 자동으로 비워진다) */
 function flush(...ms){ for(const m of ms){
   const n = m.count|0;
+  m.visible = n > 0;                     // 34차 — 하나도 없으면 그리기 자체를 건너뛴다(빈 인스턴스 메시도 콜 하나다)
   if(!n) continue;                       // 하나도 안 그리면 올릴 것도 없다
   const a = m.instanceMatrix;
   if(n < a.count) a.addUpdateRange(0, n*16);
@@ -15922,11 +15943,11 @@ function updSky(dt, night){
      2.8% 는 아이 눈에 안 보이는 차이고, 그만큼 밤 기분은 낫다. 더 맞추는 건 과한 손질이다.
 
      낮은 처음부터 옛 판과 같았다(96.0 vs 96.8). 바뀐 것은 그늘의 진하기지 밝기가 아니다. */
-  hemi.intensity = 0.75 - skyK*0.07;
+  hemi.intensity = (0.75 - skyK*0.07) * LIT_K;
   sun.color.copy(SUN_D).lerp(SUN_N, skyK);
   /* 밤에도 달빛 그림자는 남긴다 — 낮에만 그림자가 있으면 밤이 평평해 보인다. */
-  sun.intensity = 1.15 - skyK*0.85;
-  amb.intensity = 0.30 - skyK*0.02;
+  sun.intensity = (1.15 - skyK*0.85) * LIT_K;
+  amb.intensity = (0.30 - skyK*0.02) * LIT_K;
   cloudMat.color.setScalar(1-skyK*0.66);
 }
 let skyK = 0;
@@ -15986,6 +16007,7 @@ function updTags(){
 
 let shakeT = 0, shakeP = 1;
 function shake(power, sec){ shakeP = power; shakeT = Math.max(shakeT, sec); }
+const SH_HZ = 15; let shAcc = 1;                 // 34차 — 그림자 지도 갱신 빈도 (첫 프레임엔 바로)
 /* ★ 33차 타격감 — 쏠 때 시야가 살짝 넓어졌다 돌아온다(FOV 펀치). 흔들림은 자리가 떨리는 것이고 이건 '밀리는' 느낌이다.
    지수 감쇠라 dt 에 안 흔들린다. 4° 를 넘지 않는다 — 조준선은 그대로(forward 는 방향만 읽는다). */
 const FOV0 = 74; let fovKick = 0;
@@ -16221,6 +16243,7 @@ function loop(){
   /* ★ 상인·대장장이는 시작 화면에서도 서 있어야 한다 — G.started 밖에서 그린다.
      조각이 마흔여덟 개뿐이라 값은 거의 안 든다(뱅크 하나, 그리기 한 번). */
   if(!DBG.noInst){ drawNPCs(tAcc); drawRope(); }
+  shAcc += dt; if(shAcc >= 1/SH_HZ){ renderer.shadowMap.needsUpdate = true; shAcc = 0; }   // 34차 — 그림자 15Hz
   if(!DBG.noRender) drawFrame();
   else renderer.clear();          // 화면이 얼어붙은 걸로 안 보이게 (거의 공짜다)
   if(PROF_ON){ gpuEnd(); pE('★그리기'); }
@@ -16277,6 +16300,9 @@ if(new URLSearchParams(location.search).has('diag')){
      드로우콜은 세어서 알 수 있었지만 채움률은 아니다. 교실 노트북에서 눌러 봐야 안다. */
   const setShadow = off=>{ DBG.noShadow = off; renderer.shadowMap.enabled = !off && !!GFX.shadow;
     renderer.shadowMap.needsUpdate = true; };
+  const setGrain = k=>{ for(const m of GRAIN_MATS){ if(m.userData.grainU) m.userData.grainU.value = m.userData.grain.amt*k; } };
+  const setSmallCast = on=>{ for(const [k,b] of banks) if(b.chunks && NO_CAST.has(k)) for(const m of b.chunks) m.castShadow = on;
+    renderer.shadowMap.needsUpdate = true; };
 
   /* ★ 자동 측정 (Shift+9)
      사람이 손으로 하나씩 누르면 앞서 켠 게 그대로 남아서 뭐 덕분인지 구분이 안 된다.
@@ -16302,6 +16328,11 @@ if(new URLSearchParams(location.search).has('diag')){
        '해상도 원본' 은 반대로 켜서 잰다 — 1707×1067 로 내렸으니 원본(2560×1600)이 얼마나 비싼지. */
     ['그림자 끔',     ()=>setShadow(true),  ()=>setShadow(false)],
     ['해상도 원본',   ()=>setNative(true),  ()=>setNative(false)],
+    /* 34차 — 성능 3차에서 바꾼 넷을 '되돌리면 얼마나 느려지나' 로 잰다 */
+    ['그림자 매 프레임', ()=>{ renderer.shadowMap.autoUpdate = true; },  ()=>{ renderer.shadowMap.autoUpdate = false; }],
+    ['손 조명 켬',       ()=>{ camera.add(heldLight); },                 ()=>{ camera.remove(heldLight); }],
+    ['결 끔',            ()=>setGrain(0), ()=>setGrain(1)],
+    ['작은 것 그림자 켬', ()=>setSmallCast(true), ()=>setSmallCast(false)],
     ...(GFX.bloom ? [
       ['빛번짐 끔',     ()=>{DBG.noBloom=true;},  ()=>{DBG.noBloom=false;}],
       ['그래픽 둘 다 끔',()=>{setShadow(true); DBG.noBloom=true;},
@@ -16602,6 +16633,9 @@ Object.assign(window, {
   /* 33차 세계 마무리 (t34) */
   __POND:POND, __pathDist:pathDist, __pathLines:pathLines, __streamDist:streamDist, __waterNear:waterNear, __pond:()=>pondMesh, __ripple:()=>pondRipple,
   __skyPaint:()=>({dusk:skyPaintD, threat:skyPaintT, u:skyPaintU}), __skyU:skyU, __skyTex:()=>skyTex, __skyRepaintNow:()=>{ skyRepaintT = 0; },
+  __setLitK:(v)=>{ LIT_K = v; }, __LIT_K:()=>LIT_K,
+  /* 34차 성능 3차 (t28) */
+  __heldLight:heldLight, __NO_CAST:NO_CAST, __BCHUNK:BCHUNK, __SH_HZ:SH_HZ, __flatMat:flatMat, __pbrMat:pbrMat, __GRAIN_MATS:GRAIN_MATS,
   __starsB:()=>starsB, __stars:()=>stars, __meteor:()=>meteor, __metFire:()=>{ metWait = 0; }, __updSky:updSky,
   /* 33차 무서움의 온도 (t34) */
   __dreadTick:dreadTick, __howlN:()=>howlN, __howlStage:()=>howlStage, __threatK:()=>threatK,
