@@ -17,11 +17,13 @@ const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-s
 const errs=[], R=[];
 const ok=(n,c,v)=>R.push([n,!!c,v===undefined?'':String(v)]);
 
+/* ★ 35차 — 선명(gfx=high) 창은 전체 판(동시 4개, t35 의 오프라인 소리 렌더가 같은 시간대) 부하에서 60초를 넘겨 두 판 연속 통째로 죽었다.
+   낱개로는 셋 나란히도 47/47. 무거운 프리셋 창 열기는 120초까지 기다린다 */
 async function open(q){
   const pg = await b.newPage({viewport:{width:900,height:520}});
   pg.on('pageerror', e=>errs.push(e.message));
-  await pg.goto('http://127.0.0.1:'+PORT+'/'+q, {waitUntil:'load', timeout:60000});
-  await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
+  await pg.goto('http://127.0.0.1:'+PORT+'/'+q, {waitUntil:'load', timeout:120000});
+  await pg.waitForFunction('window.__READY===true', null, {timeout:120000});
   return pg;
 }
 /* 프레임을 센다. 검사기는 1~3fps 라 시간으로 기다리면 프레임이 한 번도 안 돌 수 있다
