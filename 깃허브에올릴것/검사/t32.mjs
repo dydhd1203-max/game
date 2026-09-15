@@ -78,7 +78,19 @@ await pg.waitForTimeout(1500);
     let cells=0; for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){ const h=W.__terrH[gi(x,z)]; if(h<=GY) continue;
       if(Math.max(Math.abs(x),Math.abs(z))<=5 && Math.hypot(x+0.5,z+0.5)<9) continue; cells++; }
     o.cells = cells;
-    let area=0; for(const m of B.ms){ const e=m.elements; area += e[0]*e[10]; } o.area = Math.round(area);
+    /* 33차 — 기둥은 뚜껑보다 0.04 좁다(면 겹침 떨림을 없애려고). 면적은 뚜껑(칸 크기 그대로)으로 센다 */
+    let area=0; for(const m of C.ms){ const e=m.elements; area += e[0]*e[10]; } o.area = Math.round(area);
+    let flush=0; for(let i=0;i<B.ms.length;i++){ const eb=B.ms[i].elements, ec=C.ms[i].elements;
+      if(Math.abs((ec[0]-eb[0])-0.04) > 0.005 || Math.abs((ec[10]-eb[10])-0.04) > 0.005) flush++; } o.flush = flush;
+    const gm = W.__WMAT.userData.grain, gv = W.__WMATV.userData.grain, gl = W.__WMATL.userData.grain, gg = d.material.userData.grain;
+    o.grain = {rock:gm && gm.kind, rockV:gv && gv.kind, leaf:gl && gl.kind, grass:gg && gg.kind, tex:W.__GRAIN.rock.image.width, amt:gm && gm.amt};
+    o.leafMatL = W.__banks.get('leaf0').mat===W.__WMATL;
+    o.brickPr = (()=>{ /* 건물 벽돌이 몸통 면에서 0.02 이상 도드라지나 — 돌벽 하나 세워서 본다 */
+      const raw = W.__blocksRaw('swall', 1);
+      const bricks = raw.filter(r=>r[3]===33); let minPr = 9;
+      /* 벽돌 판의 중심이 몸통 면(x ±0.49 · z ±0.45)에서 얼마나 밖에 있나 — 0.02 아래면 판 안쪽 면이 몸통 면과 겹쳐 떨린다 */
+      for(const r of bricks){ const dz = Math.abs(r[2]) - 0.45, dx = Math.abs(r[0]) - 0.49; const pr = Math.max(dz, dx); if(pr < minPr) minPr = pr; }
+      return {n:bricks.length, minPr}; })();
     /* 뚜껑이 지형 윗면에 붙었나 · 기둥 윗면이 뚜껑 밑인가 — 200개 표본 */
     let capOff=0, bodyOff=0, chk=0;
     for(let i=0;i<C.ms.length;i+=Math.max(1,(C.ms.length/200)|0)){ const e=C.ms[i].elements, eb=B.ms[i].elements;
@@ -98,6 +110,9 @@ await pg.waitForTimeout(1500);
   ok('★ 산 기둥·뚜껑 뱅크가 있고 수가 같다 (1000~6000)', r.nB===r.nC && r.nB>1000 && r.nB<6000, r.nB+' / '+r.nC);
   ok('★ 합친 기둥의 면적 합 = 산 칸 수 (한 칸도 빠지거나 겹치지 않는다)', r.area===r.cells, r.area+' vs '+r.cells);
   ok('★ 실제로 합쳐졌다 — 기둥 수가 칸 수의 60% 미만', r.nB < r.cells*0.6, r.nB+' / '+r.cells);
+  ok('★ 33차 — 기둥이 뚜껑보다 딱 0.04 좁다(면이 겹쳐 떨리지 않는다), 전부', r.flush===0, r.flush+' 개 어긋남');
+  ok('★ 33차 — 결(grain): 세계 재질은 돌결, 잎 재질은 얼룩, 바닥은 풀결, 그림은 128×128, 돌결 세기 0.4 이상', r.grain.rock==='rock' && r.grain.rockV==='rock' && r.grain.leaf==='leaf' && r.grain.grass==='grass' && r.grain.tex===128 && r.grain.amt>=0.4, JSON.stringify(r.grain));
+  ok('33차 — 건물 벽돌 판이 몸통 면에서 0.02 이상 도드라진다(붙어 있으면 멀리서 떨린다)', r.brickPr.n>20 && r.brickPr.minPr >= 0.015, r.brickPr.n+' · '+r.brickPr.minPr.toFixed(3));
   ok('★ 뚜껑 윗면이 지형 윗면(terrH)에 붙어 있다 — 표본 전부 (망루 칸 제외)', r.capOff===0 && r.chk>150, r.capOff+' / '+r.chk);
   ok('기둥 윗면이 뚜껑 바로 밑에서 끝난다', r.bodyOff===0, r.bodyOff+' / '+r.chk);
   ok('★ 뚜껑 색에 풀·눈이 다 있다 (낮은 산은 풀, 봉우리는 눈)', r.grass>0 && r.snow>0 && r.capCols.length>=3, r.capCols.join(' '));
@@ -114,7 +129,7 @@ await pg.waitForTimeout(1500);
     const grad = g=>{ const P=g.attributes.position, C=g.attributes.color; if(!C) return null; let lo=[0,0], hi=[0,0];
       for(let i=0;i<P.count;i++){ const y=P.getY(i), c=C.getX(i); if(y<-0.3){ lo[0]+=c; lo[1]++; } else if(y>0.3){ hi[0]+=c; hi[1]++; } }
       return [lo[0]/lo[1], hi[0]/hi[1]]; };
-    o.leafGrad = grad(W.__LEAFV[0]); o.leafMat = lb && lb.mat===W.__WMATV && !!lb.mat.vertexColors;
+    o.leafGrad = grad(W.__LEAFV[0]); o.leafMat = lb && lb.mat===W.__WMATL && !!lb.mat.vertexColors;
     const dist = (a,b)=>{ const A=a.attributes.position, B=b.attributes.position; let d=0; for(let i=0;i<A.count;i++) d+=Math.abs(A.getX(i)-B.getX(i))+Math.abs(A.getY(i)-B.getY(i)); return d/A.count; };
     o.leafDiff = [dist(W.__LEAFV[0],W.__LEAFV[1]), dist(W.__LEAFV[1],W.__LEAFV[2])];
     { const P=W.__TRUNKV.attributes.position, C=W.__TRUNKV.attributes.color, set=new Set(); for(let i=0;i<P.count;i++) if(Math.abs(P.getY(i)-0.5)<0.01) set.add(C.getX(i).toFixed(2)); o.barkTones = set.size; }
@@ -142,7 +157,7 @@ await pg.waitForTimeout(1500);
   /* 31차b — 잎 일곱 + 가지 끝 뭉치 둘 + 껍질 골 셋(+ 사과 넷). 캐면 뒤(사과·잎)부터 사라지므로 잎·사과가 맨 뒤여야 한다 */
   ok('★ 자원 나무 조각 19 이상 — 줄기가 맨 앞, 뒤 일곱은 잎(또는 사과)', r.treeN>=19 && r.treeKeys.slice(-7).every(k=>k.startsWith('leaf')||k==='apple') && r.treeKeys[0]==='trunk', r.treeN+' · '+r.treeKeys.join(','));
   ok('잎은 각진 공(비인덱스 80면) — 세 벌 중 하나', r.leafGeo && r.leafVerts===240 && !r.leafIdx, r.leafVerts);
-  ok('★ 질감 — 잎 덩어리에 꼭짓점 색이 있고 위(>0.3)가 아래(<-0.3)보다 25% 이상 밝다, 재질은 꼭짓점 색', r.leafGrad && r.leafGrad[1] > r.leafGrad[0]*1.25 && r.leafMat, r.leafGrad && r.leafGrad.map(v=>v.toFixed(2)).join(' → '));
+  ok('★ 질감 — 잎 덩어리에 꼭짓점 색이 있고 위(>0.3)가 아래(<-0.3)보다 25% 이상 밝다, 재질은 잎 얼룩(WMATL)', r.leafGrad && r.leafGrad[1] > r.leafGrad[0]*1.25 && r.leafMat, r.leafGrad && r.leafGrad.map(v=>v.toFixed(2)).join(' → '));
   ok('★ 질감 — 잎 세 벌이 서로 다르게 흔들려 있다(꼭짓점 자리 차 0.02 이상)', r.leafDiff.every(d=>d>0.02), r.leafDiff.map(v=>v.toFixed(3)).join(' / '));
   ok('★ 질감 — 줄기 껍질 띠: 같은 높이에 밝기가 둘 이상, 줄기 뱅크가 꼭짓점 색 재질', r.barkTones>=2 && r.trunkMat, r.barkTones);
   ok('★ 질감 — 벽돌 판이 모따기(44삼각형) + 꼭짓점 색(아래 어둡게), 성문·건물 벽돌 모두 그 재질, 길이가 제각각(다섯 가지 이상)', r.brick.tris===44 && r.brick.col && r.brick.grad[1]>r.brick.grad[0] && r.gbrickGeo && r.gbrickMat && r.struBrick && r.gbrickLens>=5, JSON.stringify(r.brick)+' · 길이 '+r.gbrickLens);

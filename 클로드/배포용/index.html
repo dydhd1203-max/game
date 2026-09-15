@@ -33,15 +33,15 @@ window.DEFAULTS = {
   crystalMax: 200,   // 수정 체력
   wolfPower:  1.0,   // 늑대 세기 배수 (0.7 쉬움 / 1.0 보통 / 1.4 어려움)
 
-  /* 그래픽 품질 (25차 · 26차) — 교실 기기가 크롬북에서 노트북으로 바뀌면서 생긴 손잡이다.
-     'high' 그림자 2048 + 계단 없는 가장자리(MSAA 4)   ← 기본
-     'mid'  그림자 1024, 가장자리는 계단 그대로
-     'low'  그림자 없음 · 해상도 0.75 — 유난히 느린 한 대의 비상구
-     (26차: 셋 다 해상도 1.0 = 1707×1067 이고 빛 번짐은 뺐다. 교실에서 잰 값이 그렇게 시켰다 —
-      기준 28fps 에 빛 번짐 하나가 12fps 였다. 다시 보려면 주소 끝에 ?bloom=1)
-     교실에서 느리면 한 칸씩 내려라. 어느 것이 얼마나 무거운지는
-     주소 끝에 ?diag=1 을 붙이고 Shift+9 를 누르면 항목별로 나온다. */
-  gfx: 'high'
+  /* 그래픽 품질 (25차 · 26차 · 33차) — 교실 기기가 크롬북에서 노트북으로 바뀌면서 생긴 손잡이다.
+     'high' 선명   — 그림자 2048 · 계단 없애기 4 · 해상도 1.0
+     'mid'  보통   — 그림자 1024 · 계단 없애기 2 · 해상도 0.85   ← 기본 (33차)
+     'low'  부드럽게 — 그림자 없음 · 계단 그대로 · 해상도 0.7 — 유난히 느린 한 대의 비상구
+     (33차: 31차 판을 교실에서 재니 '선명' 이 기준 40fps 에 화면 그리기를 끄면 +21, 해상도 원본이 −17 이었다 —
+      값은 픽셀 쪽이다. 그래서 기본을 '보통' 으로 내렸다. 아이마다 시작 화면의 그래픽 단추로 바꿀 수 있고(기기에 저장된다),
+      선생님이 견줄 땐 주소 끝에 ?gfx=high 처럼 붙이면 그 판만 그것이 이긴다.)
+     어느 것이 얼마나 무거운지는 주소 끝에 ?diag=1 을 붙이고 Shift+9 를 누르면 항목별로 나온다. */
+  gfx: 'mid'
 };
 </script>
 <!-- ═══════════════════ 선생님 설정 구역 끝 ═══════════════════ -->
@@ -232,6 +232,7 @@ body:not(.touch) #look{display:none}
 .mb.big .ic{font-size:30px}
 body.touch #stick,body.touch #mbtns{display:flex}
 body.touch #hint{display:none}
+body.touch #gfxRow{display:none}   /* 33차 — 터치는 그래픽이 고정값이라 단추가 뜻이 없다 */
 
 #hint{position:absolute;left:12px;bottom:12px;font-weight:700;font-size:12px;line-height:1.75;opacity:.55;text-shadow:0 1px 2px #000}
 
@@ -1981,6 +1982,15 @@ input.f:focus,select.f:focus{border-color:#ffd257;box-shadow:0 0 0 3px rgba(255,
     <div class="row" style="margin-top:8px">
       <button class="btn sm" id="bMake" style="flex:0 0 auto">🔑 선생님 · 방 만들기</button>
     </div>
+    <!-- 33차 — 그래픽 단추. 고르면 이 기기에 저장하고 다시 연다(계단 없애기는 켠 채로 못 바꾼다). 태블릿은 값이 고정이라 감춘다. -->
+    <div class="row" id="gfxRow" style="margin-top:8px;align-items:center;gap:8px">
+      <span class="f" style="font-size:12px;opacity:.75;white-space:nowrap">그래픽 <b id="gfxNm"></b></span>
+      <div class="shopTabs" id="gfxPick" style="margin:0">
+        <button class="btn sm" data-gfx="high">선명</button>
+        <button class="btn sm" data-gfx="mid">보통</button>
+        <button class="btn sm" data-gfx="low">부드럽게</button>
+      </div>
+    </div>
     <div id="tmsg"></div>
     <div class="hint">
       🕹️ 컴퓨터: WASD 이동 · 마우스 보기 · 좌클릭 캐기/짓기 · 1~8 도구 · Space 점프<br>
@@ -2501,7 +2511,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '19차 · 꽃밭과 짝꿍';
+const GAME_VER = '33차 · 결 질감과 그래픽 단추';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -2950,16 +2960,22 @@ const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in wind
    ★ 여기 값을 손으로 고치지 마라 — 선생님 설정 구역의 DEFAULTS.gfx 가 고르는 자리다.
    ★ 검사기(소프트웨어 렌더링)는 MSAA 도 GPU 비용도 못 잰다. 마지막 자는 늘 교실 진단 화면이다 —
      이제 60 에서 막히면 fps 대신 '★GPU실제 ms' 줄을 본다. */
+/* 33차 — 교실 실측(31차 판: 기준 40 · 화면 그리기 끔 +21 · 해상도 원본 −17)이 "여전히 픽셀" 이라
+   가운데 칸을 해상도 0.85 + MSAA 2 로 내리고 이것을 기본으로 삼았다. 픽셀 수는 선명의 72%, MSAA 표본은 절반.
+   최종 숫자는 교실에서 셋을 견줘 정한다(검사기는 GPU 를 못 잰다). */
 const GFX_PRESET = {
-  high: {shadow:2048, bloom:0, aa:4, pr:1.0},
-  mid:  {shadow:1024, bloom:0, aa:0, pr:1.0},
-  low:  {shadow:0,    bloom:0, aa:0, pr:0.75}
+  high: {shadow:2048, bloom:0, aa:4, pr:1.0},     // 선명
+  mid:  {shadow:1024, bloom:0, aa:2, pr:0.85},    // 보통 (기본)
+  low:  {shadow:0,    bloom:0, aa:0, pr:0.7}      // 부드럽게
 };
+const GFX_NAME = {high:'선명', mid:'보통', low:'부드럽게'};
 /* 주소 끝에 ?gfx=low 처럼 붙이면 그 판만 바꿔 본다 — 파일을 고치지 않고 교실에서 견줘 보려고.
    선생님 설정(DEFAULTS.gfx)은 그대로 두고 이번 한 판만 달라진다.
-   ?bloom=1 은 빛 번짐을 이번 한 판만 켠다 — 어느 프리셋에도 없다(26차). */
+   ?bloom=1 은 빛 번짐을 이번 한 판만 켠다 — 어느 프리셋에도 없다(26차).
+   33차 — 순서: 주소(?gfx=) > 시작 화면 단추로 고른 것(이 기기에 저장, gfxPick) > 선생님 기본값. 저장값이 표에 없으면 무시한다. */
+const GFX_PICK = (()=>{ try{ const v = localStorage.getItem('gfxPick'); return GFX_PRESET[v] ? v : null; }catch(e){ return null; } })();
 const GFX_Q = new URLSearchParams(location.search).get('gfx')
-           || (window.DEFAULTS||{}).gfx || 'high';
+           || GFX_PICK || (window.DEFAULTS||{}).gfx || 'mid';
 const GFX = Object.assign({}, GFX_PRESET[GFX_Q] || GFX_PRESET.high);
 if(new URLSearchParams(location.search).get('bloom') === '1') GFX.bloom = 1;
 /* ★ 26차b — 교실에서 파일을 안 바꾸고 한 판씩 견주는 손잡이.
@@ -3328,6 +3344,50 @@ const WGEO = chamferBox(0.09);
 const BOXG = new THREE.BoxGeometry(1, 1, 1);  // 각진 상자(12삼각형) — 산·단상·바닥 판처럼 크고 많은 것
 const SHARP_KEYS = new Set(['miFloor', 'farmGround']);   // 번역층에서 각진 상자를 쓸 열쇠
 const WMAT = flatMat(0xffffff);             // 색은 전부 인스턴스 색
+/* ═══ 33차 — 결(grain): 원색 위에 얹는 **세계 좌표 무늬** ═══
+   선생님(교실 화면): "이렇게 텅 비어 있는 질감이 맘에 안 들어. 벽·나무 질감을 더 추가해야 돼."
+   32차의 꼭짓점 색은 덩어리의 위아래 밝기만 갈랐다 — 큰 면(산 절벽·성문 몸통)은 여전히 한 색 판이다.
+   타일 무늬로 돌아가지 않고, **한 장짜리 회색 결 그림(직접 구운 128×128 노이즈)** 을 세계 좌표로 씌운다:
+   · 픽셀의 세계 자리(vWp)와 면의 방향(dFdx/dFdy 로 얻는 면 법선)으로 그 면이 보는 축을 골라 그 축의 두 좌표를 UV 로 쓴다 —
+     상자가 어떤 크기든, 몇 개가 붙었든 무늬가 **이어지고 늘어나지 않는다**(인스턴스 UV 가 필요 없다).
+   · 결은 diffuseColor 에 곱한다(0.5 를 중심으로 ±amt). 색·꼭짓점 색·인스턴스 색은 그대로고 밝기만 흔들린다.
+   · 세 가지 결: 돌(금 간 자갈결) · 잎(얼룩) · 풀(부드러운 얼룩). 재질마다 onBeforeCompile 로 끼운다 — three 의 조명·그림자는 그대로 탄다.
+   값: 픽셀마다 텍스처 한 번(128² 라 캐시에 다 든다). 교실에서 fps 로 본다. */
+function mkGrainTex(kind){
+  const N = 128, c = document.createElement('canvas'); c.width = c.height = N;
+  const g = c.getContext('2d'), img = g.createImageData(N, N);
+  const smooth = (x,y,f,sd)=>{ const gx = x*f/N, gy = y*f/N, x0 = Math.floor(gx), y0 = Math.floor(gy), tx = gx-x0, ty = gy-y0;
+    const sx = tx*tx*(3-2*tx), sy = ty*ty*(3-2*ty), wrap = v=>((v%f)+f)%f, v = (i,j)=>rnd(sd + wrap(i)*12.9898 + wrap(j)*78.233);
+    return (v(x0,y0)*(1-sx)+v(x0+1,y0)*sx)*(1-sy) + (v(x0,y0+1)*(1-sx)+v(x0+1,y0+1)*sx)*sy; };
+  const oct = kind==='leaf' ? [[8,1,1],[16,0.6,2],[32,0.35,3]] : kind==='grass' ? [[4,1,4],[8,0.5,5],[32,0.25,6]] : [[4,1,7],[8,0.55,8],[16,0.35,9],[32,0.2,10]];
+  for(let y=0;y<N;y++) for(let x=0;x<N;x++){
+    let v = 0, tot = 0; for(const [f,a,sd] of oct){ v += smooth(x,y,f,sd)*a; tot += a; } v /= tot;
+    if(kind==='rock'){ const cr = smooth(x,y,6,11); if(Math.abs(cr-0.5) < 0.012) v -= 0.25; }     // 가는 금
+    if(kind==='leaf'){ v = v < 0.45 ? v-0.12 : v > 0.55 ? v+0.10 : v; }                         // 얼룩을 또렷하게
+    const k = Math.max(0, Math.min(255, Math.round(128 + (v-0.5)*255*1.4)));
+    const i = (y*N+x)*4; img.data[i] = img.data[i+1] = img.data[i+2] = k; img.data[i+3] = 255; }
+  g.putImageData(img, 0, 0);
+  const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.NoColorSpace;
+  t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; t.anisotropy = 4; t.userData.kind = kind; return t;
+}
+const GRAIN = {rock:mkGrainTex('rock'), leaf:mkGrainTex('leaf'), grass:mkGrainTex('grass')};
+function addGrain(mat, tex, scale, amt){
+  mat.userData.grain = {kind:tex.userData.kind, scale, amt};
+  mat.onBeforeCompile = (sh)=>{
+    sh.uniforms.tGrain = {value:tex}; sh.uniforms.uGrainScale = {value:scale}; sh.uniforms.uGrainAmt = {value:amt};
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vWp;')
+      .replace('#include <project_vertex>', '#include <project_vertex>\n{ vec4 wq = vec4(transformed, 1.0);\n#ifdef USE_INSTANCING\n  wq = instanceMatrix * wq;\n#endif\n  vWp = (modelMatrix * wq).xyz; }');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vWp;\nuniform sampler2D tGrain; uniform float uGrainScale; uniform float uGrainAmt;')
+      .replace('#include <color_fragment>', '#include <color_fragment>\n{ vec3 gdx = dFdx(vWp), gdy = dFdy(vWp); vec3 wn = abs(normalize(cross(gdx, gdy)));\n  vec2 guv = wn.x > wn.y ? (wn.x > wn.z ? vWp.zy : vWp.xy) : (wn.y > wn.z ? vWp.xz : vWp.xy);\n  float gg = texture2D(tGrain, guv * uGrainScale).r;\n  diffuseColor.rgb *= 1.0 + (gg - 0.5) * uGrainAmt; }');
+  };
+  mat.customProgramCacheKey = ()=> 'grain';
+  mat.extensions = Object.assign(mat.extensions || {}, {derivatives:true});
+  mat.needsUpdate = true; return mat;
+}
+addGrain(WMAT, GRAIN.rock, 0.6, 0.46);                    // 세계 조각(산·성문·농장·가게) — 돌결, 1.7칸마다 반복
+addGrain(flatFor(T.cloth), GRAIN.rock, 0.7, 0.22);        // 건물 몸통(30차 조각) — 조금 옅게
 const _wc = new THREE.Color(), _wc2 = new THREE.Color();
 const banks = new Map();
 const _v=new THREE.Vector3(), _q=new THREE.Quaternion(), _s=new THREE.Vector3(), _m=new THREE.Matrix4();
@@ -3347,7 +3407,7 @@ function bpush(key, geo, mat, x,y,z, ry=0, sx=1,sy=1,sz=1, rz=0, col=0){
     }
     geo = SHARP_KEYS.has(key) ? BOXG : WGEO; sx *= tb.w; sy *= tb.h; sz *= tb.d;
   }
-  if(mat === WMAT && geo.attributes.color) mat = WMATV;     // 32차 — 꼭짓점 색이 있는 조각은 그 재질로
+  if(mat === WMAT && geo.attributes.color) mat = geo.userData.leaf ? WMATL : WMATV;     // 32차·33차 — 꼭짓점 색 조각은 그 재질로(잎은 얼룩 결)
   let b = banks.get(key);
   if(!b){ b = {geo, mat, ms:[], cols:null, chunks:null, map:null}; banks.set(key, b); }
   /* ★ 인스턴스마다 색 — 같은 텍스처·같은 지오메트리인데 색만 다른 것들을
@@ -3495,7 +3555,7 @@ function buildWorldMesh(){
     cols[i*3]=c.r; cols[i*3+1]=c.g; cols[i*3+2]=c.b;
   }
   gg.setAttribute('color', new THREE.BufferAttribute(cols,3));
-  const disc = new THREE.Mesh(gg, flatMat(0xffffff, {vertexColors:true}));
+  const disc = new THREE.Mesh(gg, addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.grass, 0.35, 0.16));   // 33차 — 풀결
   disc.position.y = GY;
   if(GFX.shadow) disc.receiveShadow = true;       // 바닥은 받기만 한다 (드리울 것이 없다)
   scene.add(disc); groundDisc = disc;
@@ -3534,10 +3594,12 @@ function buildWorldMesh(){
     const tone = Math.max(0, Math.min(2, ((h-GY-5)/4)|0)), hv = (((x*13+z*7)%5)+5)%5;   // 31차b — 칸마다 결
     const body = kind===0 ? MT_DIRT : MT_ROCK[(tone + (hv&1)) % 3];
     const cap  = kind===0 ? MT_GRASS : kind===2 ? MT_MOSS : kind===3 ? MT_SNOW : MT_ROCKTOP;
-    const ov   = kind===1 ? 0 : 0.12;
+    /* ★ 33차 — 움직이면 절벽 면이 떨렸다(교실). 바위 뚜껑(ov 0)이 기둥과 **같은 면**에 겹쳐 z-fighting 이었고,
+       풀 뚜껑은 이웃 뚜껑과 0.06 씩 겹쳐 윗면끼리 싸웠다. 이제 기둥이 뚜껑보다 0.04 좁고 뚜껑은 칸 크기 그대로다 —
+       겹치는 면이 하나도 없다(기둥 윗면은 뚜껑 속에 숨는다). */
     const cx = x + w/2, cz = z + d/2;
-    bpush('mtB', BOXV, WMAT, cx, h - n/2 - 0.02, cz, 0, w, n, d, 0, body);        // 32차 — 아래가 어두운 기둥
-    bpush('mtC', BOXG, WMAT, cx, h - 0.14, cz, 0, w + ov, 0.30, d + ov, 0, cap);
+    bpush('mtB', BOXV, WMAT, cx, h - n/2 - 0.02, cz, 0, w - 0.04, n, d - 0.04, 0, body);   // 32차 — 아래가 어두운 기둥
+    bpush('mtC', BOXG, WMAT, cx, h - 0.14, cz, 0, w, 0.30, d, 0, cap);
     /* 31차b — 밍밍한 회색을 깬다: 높은 절벽엔 마을 쪽 면에 어두운 틈(세로 띠), 풀 뚜껑엔 수풀 한 포기, 바위 뚜껑엔 작은 바위 하나 */
     if(kind!==0 && n>=3 && hv===2){
       const toX = Math.abs(cx) > Math.abs(cz), sg = toX ? -Math.sign(cx||1) : -Math.sign(cz||1), u = (rnd(x*1.3+z*2.9)-0.5)*0.6;
@@ -3616,7 +3678,8 @@ const GEMG   = new THREE.OctahedronGeometry(0.5, 0);   GEMG.computeVertexNormals
    · jitterGeo — 잎 덩어리의 꼭짓점을 자리 해시로 흔들어 울퉁불퉁하게(같은 자리 꼭짓점은 같이 움직여 면이 안 벌어진다). 셋을 만들어 돌려 쓴다.
    · 줄기는 일곱 면을 번갈아 어둡게 — 껍질 띠. 벽돌 판은 모따기 + 아래 어둡게. 산 기둥도 아래를 어둡게.
    꼭짓점 색이 있는 지오메트리는 bpush 가 알아서 WMATV(vertexColors) 재질로 바꿔 넣는다. */
-const WMATV = flatMat(0xffffff, {vertexColors:true});
+const WMATV = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.rock, 0.6, 0.40);   // 33차 — 돌결
+const WMATL = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.leaf, 1.4, 0.50);   // 33차 — 잎 얼룩
 function jitterGeo(g, amp, seed){
   const P = g.attributes.position, v = new THREE.Vector3();
   for(let i=0;i<P.count;i++){ v.fromBufferAttribute(P,i);
@@ -3633,6 +3696,7 @@ function shadeGeo(g, lo, hi, noise, seed){
   g.setAttribute('color', new THREE.BufferAttribute(arr,3)); return g;
 }
 const LEAFV  = [0,1,2].map(i=> shadeGeo(jitterGeo(new THREE.IcosahedronGeometry(0.5, 1), 0.11, 3.1+i*7.3), 0.64, 1.14, 0.05, i*11));
+for(const g of LEAFV) g.userData.leaf = true;   // bpush 가 잎 재질(WMATL)을 고른다
 const TRUNKV = (()=>{ const g = new THREE.CylinderGeometry(0.34, 0.46, 1, 7).toNonIndexed(); g.computeVertexNormals();
   shadeGeo(g, 0.84, 1.02, 0, 0);
   const P = g.attributes.position, C = g.attributes.color;                          // 껍질 띠 — 삼각형마다 가운데 각도로 면을 정해 번갈아 어둡게
@@ -5071,7 +5135,7 @@ function blocksOfRaw(t, lv){
           let a = (i+off)*bl, b = a + bl; a = Math.max(0,a); b = Math.min(len,b);
           if(b - a < bl*0.3) continue;
           const hh = rnd(k*1.7 + r*3.3 + i*5.1), col = hh < 0.07 ? (tone===STONEL ? 0xb9bfc7 : 0x9aa0a8) : tones[(k++)%3], c = (a+b)/2 - len/2;
-          const L = (b - a - 0.05) * (0.90 + rnd(k*2.9+i)*0.16), pr = 0.005 + rnd(k*4.1+r)*0.03;   // 32차 — 길이·도드라짐 제각각
+          const L = (b - a - 0.05) * (0.90 + rnd(k*2.9+i)*0.16), pr = 0.02 + rnd(k*4.1+r)*0.03;    // 32차 — 길이·도드라짐 제각각 (33차: 0.02 아래면 멀리서 면이 싸운다)
           if(ax===0) RAW(x + c, yc, z + sgn*(d/2 + pr), T.bricks, L, rH-0.05, 0.08, col);
           else       RAW(x + sgn*(w/2 + pr), yc, z + c, T.bricks, 0.08, rH-0.05, L, col);
         }
@@ -14316,6 +14380,20 @@ const myDress = ()=> ({hat:pickHat, gls:pickGls, clo:pickClo, pet:pickPet});
 
 /* 이름도 채워 둔다 — 새로고침한 아이가 이름을 다시 안 쳐도 되게 */
 el('iName').value = LS.get('sheepName', '');
+/* ═══ 33차 — 시작 화면 그래픽 단추 ═══
+   MSAA 는 렌더러를 만들 때 정해져서 켠 채로 못 바꾼다 — 그래서 고르면 저장하고 **다시 연다**. 다시 열리는 동안 쳐 둔 이름·방 코드는
+   sessionStorage 에 잠깐 넣었다가 되살린다. 지금 켜진 것을 또 누르면 아무 일도 없다. */
+{ const nm = el('gfxNm'); if(nm) nm.textContent = GFX_NAME[GFX_Q] || GFX_Q;
+  for(const b of document.querySelectorAll('#gfxPick .btn')){
+    b.classList.toggle('on', b.dataset.gfx === GFX_Q);
+    b.onclick = ()=>{ const q = b.dataset.gfx; if(q === GFX_Q || !GFX_PRESET[q]) return;
+      try{ localStorage.setItem('gfxPick', q);
+           sessionStorage.setItem('gfxKeep', JSON.stringify({n:el('iName').value, r:el('iRoom').value})); }catch(e){}
+      location.reload(); };
+  }
+  try{ const k = sessionStorage.getItem('gfxKeep');
+       if(k){ const o = JSON.parse(k); if(o.n) el('iName').value = o.n; if(o.r) el('iRoom').value = o.r; sessionStorage.removeItem('gfxKeep'); } }catch(e){}
+}
 function buildPicker(){
   const w = el('grpPick'); w.innerHTML='';
   for(let i=0;i<NG;i++){
@@ -16148,7 +16226,7 @@ Object.assign(window, {
   __hitNode:hitNode, __canPlace:canPlace, __place:placeStru, __recompute:recomputeRes,
   __spawnQ:()=>spawnQ, __scene:scene, __GY:GY, __terrH:terrH, __bldH:bldH,
   /* 25차 그래픽 — 검사가 '켜졌나' 를 게임에 직접 물어보게 한다 */
-  __GFX:GFX, __sun:sun, __sunTarget:sunTarget, __shadowFollow:shadowFollow, __SH_R:SH_R,
+  __GFX:GFX, __GFX_Q:GFX_Q, __GFX_PRESET:GFX_PRESET, __sun:sun, __sunTarget:sunTarget, __shadowFollow:shadowFollow, __SH_R:SH_R,
   __hemi:hemi, __amb:amb, __skyK:()=>skyK, __BLOOM:BLOOM, __skyDome:skyDome,
   __bloomRT:()=>rtScene ? {w:rtScene.width, h:rtScene.height, half:rtA.width} : null,
   __drawFrame:drawFrame, __DBG:()=>DBG, __TONE:TONE,
@@ -16160,7 +16238,7 @@ Object.assign(window, {
   /* __setSky 는 검사가 밤을 바로 놓는 손잡이 (NIGHTK 는 updSky 가 skyK 를 따라간다) */
   /* 31차 — 세계 원색 검사(t32) 손잡이 */
   __WGEO:WGEO, __BOXG:BOXG, __WMAT:WMAT, __chamferBox:chamferBox, __LEAFG:LEAFG, __ORE_F:ORE_F,
-  __LEAFV:LEAFV, __TRUNKV:TRUNKV, __CONEV:CONEV, __BRICKV:BRICKV, __BOXV:BOXV, __WMATV:WMATV,
+  __LEAFV:LEAFV, __TRUNKV:TRUNKV, __CONEV:CONEV, __BRICKV:BRICKV, __BOXV:BOXV, __WMATV:WMATV, __WMATL:WMATL, __GRAIN:GRAIN,
   __cloudMesh:()=>cloudMesh, __cloudMat:()=>cloudMat, __clouds:()=>clouds, __updClouds:updClouds,
   __nodeVisual:nodeVisual, __EMIT_F:EMIT_F, __EMITC_F:EMITC_F, __sunDisc:()=>sunDisc, __moonDisc:()=>moonDisc,
   __cGem:()=>cGem, __cMat:()=>cMat, __groundDisc:()=>groundDisc, __groundRim:()=>groundRim, __RAMP_TOP:()=>RAMP_TOP,
