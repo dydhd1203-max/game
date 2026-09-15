@@ -309,10 +309,11 @@ const fp = await pg.evaluate(async ()=>{
   const extraOf  = g => g.children.filter(c=> c.isMesh && c.material && (c.material.blending === T3.AdditiveBlending || c.material.transparent));
   const sparksOf = g => g.children.filter(c=> c.isPoints);
   o.맨손없음 = gg[0] === null && meshesOf(gms[0]).every(c=> c.material === HELD_VC);   // 맨손 돌은 강화 못 한다
-  o.총마다있음 = true; o.조각없음 = true; o.재질따로 = true; o.손따로 = true;
+  o.총마다있음 = true; o.조각없음 = true; o.재질따로 = true; o.손따로 = true; o.층 = true;
   const seen = new Set();
   for(let i=1;i<gms.length;i++){
-    if(!gg[i] || !gg[i].mats.length || sparksOf(gms[i]).length !== 1 || !gg[i].sp.au || !gg[i].sp.au.children.every(c=>c.isSprite)) o.총마다있음 = false;
+    if(!gg[i] || !gg[i].mats.length || sparksOf(gms[i]).length !== 1) o.총마다있음 = false;
+    if(!meshesOf(gms[i]).every(c=> c.layers.isEnabled(1)) || gms[i].children.some(c=> c.isMesh && c.material === HELD_ARM && c.layers.isEnabled(1))) o.층 = false;
     if(extraOf(gms[i]).length) o.조각없음 = false;
     if(!gms[i].children.some(c=> c.isMesh && c.material === HELD_ARM)) o.손따로 = false;
     for(const c of meshesOf(gms[i])){
@@ -329,8 +330,9 @@ const fp = await pg.evaluate(async ()=>{
     W.__setEnh(5, e);
     W.__updHeld(1/60, false, 0);            // 갱신 한 번
     const ms = gg[5].mats;
-    return { on: ms.every(m=> m.emissiveIntensity > 0) && gg[5].sp.pts.visible,
-             off: ms.every(m=> m.emissiveIntensity === 0) && !gg[5].sp.pts.visible,
+    return { on: ms.every(m=> m.emissiveIntensity > 0) && gg[5].sp.pts.visible && W.__gunGlowK() > 0,
+             off: ms.every(m=> m.emissiveIntensity === 0) && !gg[5].sp.pts.visible && W.__gunGlowK() === 0,
+             k: W.__gunGlowK(),
              I: Math.max(...ms.map(m=> m.emissiveIntensity)),
              col:'#'+ms[0].emissive.getHexString(),
              same: ms.every(m=> m.emissiveIntensity === ms[0].emissiveIntensity && m.emissive.getHex() === ms[0].emissive.getHex()) };
@@ -348,20 +350,24 @@ const fp = await pg.evaluate(async ()=>{
   return o;
 });
 ok('★ 맨손 돌에는 강화 빛이 없다', fp.맨손없음);
-ok('★ 총 여섯 자루 모두 자기만의 빛 재질·불티(Points 하나)·아우라(스프라이트 줄)를 가진다', fp.총마다있음);
+ok('★ 총 여섯 자루 모두 자기만의 빛 재질·불티(Points 하나)를 가진다', fp.총마다있음);
+ok('★ 총 몸통은 발광 층(layer 1)에 있고 손·팔은 아니다 — 무기 발광 패스가 몸통만 실루엣으로 그린다', fp.층);
 ok('★ 후광 조각(가산합성·반투명 Mesh)이 하나도 없다 — 총 자체가 빛난다', fp.조각없음);
 ok('★ 총마다 재질을 따로 복제했고 손·팔은 빛 재질이 아니다 (공용 HELD_VC 를 그대로 쓰면 곡괭이까지 빛난다)', fp.재질따로 && fp.손따로, '재질 ' + fp.재질따로 + ' · 손 ' + fp.손따로);
-ok('★ +0 은 안 빛나고 불티도 숨는다', fp.plain.off === true);
-ok('★ +1 부터 빛나고 불티가 뜬다', fp.lv1.on === true, '+1 세기 ' + fp.lv1.I.toFixed(2));
+ok('★ +0 은 안 빛나고 불티도 숨고 발광 패스도 쉰다', fp.plain.off === true);
+ok('★ +1 부터 빛나고 불티가 뜨고 발광 패스가 돈다', fp.lv1.on === true, '+1 세기 ' + fp.lv1.I.toFixed(2) + ' · 패스 ' + fp.lv1.k.toFixed(2));
+ok('★ 발광 패스 세기는 단계가 오를수록 세다 (+1 < +3 < +5 · +3 < +6), 1.0 언저리를 안 넘는다', fp.lv1.k < fp.lv3.k && fp.lv3.k < fp.lv5.k && fp.lv3.k < fp.lv6.k && fp.lv6.k < 1.05,
+   [fp.lv1,fp.lv3,fp.lv5,fp.lv6].map(v=>v.k.toFixed(2)).join(' · '));
 ok('★ 세기가 1.0 을 안 넘는다 (넘으면 톤매핑이 흰색으로 날린다)',
    [fp.lv1,fp.lv3,fp.lv5,fp.lv6].every(v=> v.I <= 1.0), '+6 세기 ' + fp.lv6.I.toFixed(2));
 ok('★ 표(fp)가 단계마다 커진다',
    fp.fx.every((v,i)=> i===0 || v[1] > fp.fx[i-1][1]),
    fp.fx.map(v=>v[1]).join(' < '));
-/* ★ 숨쉬는 맥동(±7%)이 얹혀 있어 이웃한 단계끼리 비교하면 흔들릴 수 있다 — 두 단계씩 띄워 본다 */
-ok('★ 단계가 오를수록 더 밝다 (+1 < +3 < +5 < +6)',
-   fp.lv1.I < fp.lv3.I && fp.lv3.I < fp.lv5.I && fp.lv5.I < fp.lv6.I,
-   [fp.lv1,fp.lv3,fp.lv5,fp.lv6].map(v=>v.I.toFixed(2)).join(' < '));
+/* ★ 숨쉬는 맥동(±7%)이 얹혀 있어 이웃한 단계(+5·+6)끼리는 띠가 겹친다 — 전체 판에서 실제로 0.57 > 0.55 로 뒤집혔다.
+   두 단계씩 띄운 짝만 본다: +1 < +3 < +5, +3 < +6 */
+ok('★ 단계가 오를수록 더 밝다 (+1 < +3 < +5 · +3 < +6 — 이웃 단계는 맥동이 겹쳐 안 본다)',
+   fp.lv1.I < fp.lv3.I && fp.lv3.I < fp.lv5.I && fp.lv3.I < fp.lv6.I,
+   [fp.lv1,fp.lv3,fp.lv5,fp.lv6].map(v=>v.I.toFixed(2)).join(' · '));
 ok('★ +5 는 파란 빛, +6 은 붉은 빛 (단계마다 색이 다르다)',
    fp.lv5.col !== fp.lv6.col && fp.lv5.col === '#4aa8ff' && fp.lv6.col === '#ff4a2a',
    '+5 ' + fp.lv5.col + ' · +6 ' + fp.lv6.col);

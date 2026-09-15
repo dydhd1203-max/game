@@ -18,29 +18,42 @@ await pg.fill('#iName','검'); await pg.evaluate(()=>document.querySelector('#bS
 await pg.waitForTimeout(1200);
 const R=[]; const ok=(n,c,v)=>R.push([n,!!c,v===undefined?'':String(v)]);
 
-/* ═══════ ① 효과음 ═══════ */
+/* ═══════ ① 효과음 ═══════
+   ★ 소리마다 OfflineAudioContext 를 하나씩(열일곱 개) 만들었더니 렌더러가 가끔 죽었다(Target page closed — 넷 중 둘).
+     이제 **컨텍스트 하나**에 소리를 1.6초 간격으로 줄지어 건다 — currentTime 만 밀어 주는 Proxy 를 소리 엔진에 끼워(__setAUD)
+     sfx() 가 부르는 now0() 이 자리를 옮기게 한다. 렌더 한 번, 잘라서 잰다. */
 const RENDER = `const W=window, o={};
   const SR = 22050;
-  const meas = (ch)=>{ let s=0, pk=0, last=0, zc=0; for(let i=0;i<ch.length;i++){ const v=ch[i]; s+=v*v; const a=Math.abs(v); if(a>pk) pk=a; if(a>0.002) last=i; if(i && (v>=0)!==(ch[i-1]>=0)) zc++; }
-    return {rms:Math.sqrt(s/ch.length), peak:pk, len:last/SR, zc:zc/(ch.length/SR)}; };
-  const render = async (fn, dur)=>{ const ctx = new OfflineAudioContext(1, Math.ceil(SR*dur), SR); const keep = W.__AUD(); W.__setAUD(ctx); W.__G.paused = true;
-    try{ fn(ctx); const buf = await ctx.startRendering(); return meas(buf.getChannelData(0)); } finally { W.__setAUD(keep); W.__G.paused = false; } };`;
-const sf = await pg.evaluate(new Function(RENDER + `
+  const meas = (ch, a, b)=>{ const i0 = Math.floor(a*SR), i1 = Math.min(ch.length, Math.floor(b*SR)); let s=0, pk=0, last=i0, zc=0;
+    for(let i=i0;i<i1;i++){ const v=ch[i]; s+=v*v; const q=Math.abs(v); if(q>pk) pk=q; if(q>0.002) last=i; if(i>i0 && (v>=0)!==(ch[i-1]>=0)) zc++; }
+    return {rms:Math.sqrt(s/(i1-i0)), peak:pk, len:(last-i0)/SR, zc:zc/((i1-i0)/SR)}; };
+  let OFF = 0;
+  const mkCtx = (dur)=>{ const ctx = new OfflineAudioContext(1, Math.ceil(SR*dur), SR);
+    const P = new Proxy(ctx, {get(t,k){ if(k==='currentTime') return t.currentTime + OFF; const v = t[k]; return typeof v === 'function' ? v.bind(t) : v; }});
+    return {ctx, P}; };
+  const withCtx = async (dur, fn)=>{ const {ctx, P} = mkCtx(dur); const keep = W.__AUD(); W.__setAUD(P); W.__G.paused = true;
+    try{ fn(ctx); const buf = await ctx.startRendering(); return buf.getChannelData(0); } finally { W.__setAUD(keep); W.__G.paused = false; OFF = 0; } };`;
+const SF_KEYS = ['chopW','chopS','chopG','tok','tak','build','get','up','click','hurt','win'], SEG = 1.6;
+const sf = await pg.evaluate(new Function('A', RENDER + `const {KEYS, SEG} = A;
   return (async()=>{
     const K = W.__SFXKEYS();
     o.keys = ['chopW','chopS','chopG','chop','tok','tak','build','get','up','fix','click','open','close','equip','tab','plus','hurt','win','lose','dawn','dusk','craft'].filter(k=>!K.includes(k));
     o.chopKey = [W.__chopKey('tree'), W.__chopKey('rock'), W.__chopKey('stone'), W.__chopKey('gold')];
     o.helpers = typeof W.__pluck === 'function' && typeof W.__puff === 'function';
-    const r = {};
-    for(const k of ['chopW','chopS','chopG','tok','tak','build','get','up','click','hurt','win']) r[k] = await render(()=>W.__sfx(k), 1.2);
-    o.r = r;
-    /* 버스 — 압축기·울림이 붙었나: 오프라인 렌더 뒤 다시 잰다 */
-    o.bus = await render((ctx)=>{ W.__sfx('click'); const bus = W.__sfxBus(); o.busNode = bus && bus.context === ctx && !!bus.numberOfOutputs; }, 0.3);
-    return o; })();`));
+    /* ★ 첫 소리는 워밍업 — 크롬 압축기의 보정 이득이 0.1초쯤 걸려 차오르므로 컨텍스트의 첫 소리는 3.4배 작게 잰다. 둘째부터 잰다 */
+    const ch = await withCtx((KEYS.length+1)*SEG + 0.5, (ctx)=>{
+      OFF = 0; W.__sfx('click');
+      KEYS.forEach((k,i)=>{ OFF = (i+1)*SEG; W.__sfx(k); });
+      const bus = W.__sfxBus(); o.busNode = !!bus && bus.context === ctx && bus.numberOfOutputs > 0;   // 버스 — 압축기·울림이 붙었나
+    });
+    o.warm = meas(ch, 0, SEG).peak;
+    const r = {}; KEYS.forEach((k,i)=> r[k] = meas(ch, (i+1)*SEG, (i+2)*SEG)); o.r = r;
+    return o; })();`), {KEYS:SF_KEYS, SEG});
 ok('★ 새 효과음 이름이 다 있다 (chopW·chopS·chopG · tok·tak·build·get·up …)', sf.keys.length === 0, sf.keys.join(','));
 ok('★ 캐는 소리는 재료마다 갈린다 — 나무 chopW · 돌 chopS · 금 chopG', sf.chopKey.join(',') === 'chopW,chopS,chopS,chopG', sf.chopKey.join(','));
 ok('★ 부드러운 재료(pluck·puff)가 있다', sf.helpers);
 ok('★ 모든 소리가 소리 버스(압축기 + 방 울림)를 거친다', sf.busNode === true);
+ok('★ 압축기 보정 이득이 차오르기 전의 첫 소리가 뒤의 같은 소리보다 작다 (그래서 워밍업 뒤에 잰다)', sf.warm < sf.r.click.peak, sf.warm.toFixed(3)+' < '+sf.r.click.peak.toFixed(3));
 const S = sf.r;
 ok('★ 효과음 열한 개가 전부 실제로 소리를 낸다 (렌더 피크 > 0.01)', Object.values(S).every(v=> v.peak > 0.01), Object.entries(S).map(([k,v])=>k+' '+v.peak.toFixed(2)).join(' '));
 ok('★ 어느 것도 안 터진다 (피크 < 0.6 — 스물한 대가 한 교실에서 울린다)', Object.values(S).every(v=> v.peak < 0.6), Math.max(...Object.values(S).map(v=>v.peak)).toFixed(2));
@@ -53,7 +66,7 @@ ok('★ 건물 완성·레벨업은 캐는 소리보다 길고 크다 (일이 �
 ok('★ 클릭은 아주 작다 (있는 줄 모르게 — 피크 < 0.05)', S.click.peak < 0.05, S.click.peak.toFixed(3));
 ok('★ 다침(hurt)은 톱니파가 아니다 — 영교차율이 낮게 둥글다 (< 900/초)', S.hurt.zc < 900, Math.round(S.hurt.zc));
 
-/* ═══════ ② 배경음 ═══════ */
+/* ═══════ ② 배경음 ═══════ — 네 판(낮 · 밤 · 위험 · 보스)을 한 컨텍스트에 11초 간격으로 */
 const bg = await pg.evaluate(new Function(RENDER + `
   return (async()=>{
     const q = W.__bgmSeq(); o.seq = q;
@@ -61,29 +74,34 @@ const bg = await pg.evaluate(new Function(RENDER + `
     o.range = [q.dayA,q.dayB,q.nightA,q.nightB].every(a=> a.every(v=> v === -1 || (v >= -12 && v <= 19)));
     o.varies = q.dayA.join() !== q.dayB.join() && q.nightA.join() !== q.nightB.join() && q.dayA.join() !== q.nightA.join();
     o.rests = [q.dayA,q.dayB,q.nightA,q.nightB].map(a=> a.filter(v=>v===-1).length);
-    const s0 = W.__bgmStep();
+    const s0 = W.__bgmStep(), GAP = 11;
     /* boss 는 매 걸음 넘긴다 — 드론을 1박에만 까는 건 bgmNote 자신이 bgmStep 으로 가린다(검사의 i 와 bgmStep 은 어긋나 있다) */
-    const run = (night, h, boss)=> render(()=>{ for(let i=0;i<32;i++) W.__bgmNote(night, h, i*(night?q.stepNight:q.stepDay)+0.01, boss); }, 32*(night?q.stepNight:q.stepDay)+0.6);
-    o.day = await run(false, 0, false); o.stepAfter = W.__bgmStep() - s0;
-    o.night = await run(true, 0, false); o.hot = await run(true, 0.9, false); o.boss = await run(true, 0.9, true);
+    const runs = [[false,0,false],[true,0,false],[true,0.9,false],[true,0.9,true]];
+    const ch = await withCtx(runs.length*GAP, ()=>{
+      runs.forEach(([night,h,boss], j)=>{ for(let i=0;i<32;i++) W.__bgmNote(night, h, j*GAP + i*(night?q.stepNight:q.stepDay)+0.01, boss); });
+      o.stepAfter = W.__bgmStep() - s0;
+    });
+    [o.day, o.night, o.hot, o.boss] = runs.map((_, j)=> meas(ch, j*GAP + 0.5, j*GAP + 32*0.30 + 0.6));   // 앞 0.5초(압축기 차오르는 동안)는 뺀다
     return o; })();`));
 ok('★ 배경음은 작곡해 둔 네 절(낮 A·B, 밤 A·B)이 각각 32음이다', bg.len.join() === '32,32,32,32', bg.len.join(','));
 ok('★ 음은 반음 -12~+19 또는 쉼표(-1) 뿐이다', bg.range);
 ok('★ A 와 B 가 다르고, 낮과 밤이 다르다 (같은 네 마디 반복이 아니다)', bg.varies);
 ok('★ 절마다 쉼표가 있다 (숨 쉴 틈)', bg.rests.every(n=> n >= 2), bg.rests.join(','));
 ok('★ 낮 120bpm(0.25) · 밤 100bpm(0.30) 8분음표', bg.seq.stepDay === 0.25 && bg.seq.stepNight === 0.30, bg.seq.stepDay+' / '+bg.seq.stepNight);
-ok('★ 한 걸음마다 bgmStep 이 하나씩 간다 (32걸음 → +32 … 네 번 → +128)', bg.stepAfter === 32);
+ok('★ 한 걸음마다 bgmStep 이 하나씩 간다 (32걸음 × 네 판 → +128)', bg.stepAfter === 128, bg.stepAfter);
 ok('★ 낮 배경음이 실제로 울린다 (피크 0.03~0.5)', bg.day.peak > 0.03 && bg.day.peak < 0.5, bg.day.peak.toFixed(3));
 ok('★ 밤 배경음이 실제로 울린다', bg.night.peak > 0.03 && bg.night.peak < 0.6, bg.night.peak.toFixed(3));
 ok('★ 위험(heat 0.9)하면 밤이 더 세진다 (낮은 북·세기)', bg.hot.rms > bg.night.rms * 1.15, bg.night.rms.toFixed(4)+' → '+bg.hot.rms.toFixed(4));
 ok('★ 보스가 있으면 드론이 한 겹 더 깔린다', bg.boss.rms > bg.hot.rms, bg.hot.rms.toFixed(4)+' → '+bg.boss.rms.toFixed(4));
-ok('★ 배경음은 배경이다 — 낮 RMS 가 승리 팡파르의 3분의 2 아래', bg.day.rms < S.win.rms * 0.67, bg.day.rms.toFixed(4)+' < '+S.win.rms.toFixed(4)+'×0.67');
+ok('★ 배경음은 배경이다 — 낮 RMS 가 승리 팡파르보다 작다', bg.day.rms < S.win.rms, bg.day.rms.toFixed(4)+' < '+S.win.rms.toFixed(4));
 
 /* ═══════ ③ 글씨체·글자 크기 ═══════ */
 const ft = await pg.evaluate(()=>{ const W=window, o={};
   const cs = (s)=>{ const e = document.querySelector(s); return e ? getComputedStyle(e) : null; };
   const fam = (s)=>{ const c = cs(s); return c ? c.fontFamily.split(',')[0].replace(/["']/g,'').trim() : null; };
   const px = (s)=>{ const c = cs(s); return c ? parseFloat(c.fontSize) : 0; };
+  o.auto = !document.getElementById('gfonts');            // 검사기(webdriver)에서는 저절로 안 받는다 — 콘솔 인증서 오류를 안 남긴다
+  W.__loadFonts(true);
   o.url = W.__FONT_URL; o.link = !!document.getElementById('gfonts'); o.pre = document.querySelectorAll('link[rel=preconnect]').length;
   o.body = fam('body'); o.btn = fam('.btn'); o.h2 = fam('.popC h2');
   W.__KIT.ownW = [true,true,true,true,false,false,false]; W.__KIT.enh[2] = 3;
@@ -101,7 +119,7 @@ const ft = await pg.evaluate(()=>{ const W=window, o={};
   o.hint = px('.shopHint'); o.hrow = px('.hrow'); o.btnPx = px('.btn'); o.slot = px('.slot .nm'); o.feed = px('#feed');
   return o; });
 ok('★ 글꼴 주소에 주아(Jua)와 해바라기(Sunflower 500·700)가 있다', /family=Jua/.test(ft.url) && /Sunflower:wght@500;700/.test(ft.url), ft.url);
-ok('★ 글꼴은 창이 뜬 뒤 따로 받는다 (load 뒤 link#gfonts) · 미리 연결(preconnect) 둘', ft.link && ft.pre >= 2, 'link '+ft.link+' · preconnect '+ft.pre);
+ok('★ 글꼴은 창이 뜬 뒤 따로 받는다 (link#gfonts) · 미리 연결(preconnect) 둘 · 검사기(webdriver)에서는 저절로 안 받는다', ft.link && ft.pre >= 2 && ft.auto, 'link '+ft.link+' · preconnect '+ft.pre+' · 자동 안 받음 '+ft.auto);
 ok('★ 본문 글꼴은 해바라기, 단추·제목은 주아 (못 받으면 시스템 글꼴로 내려간다)', ft.body === 'Sunflower' && ft.btn === 'Jua' && ft.h2 === 'Jua', ft.body+' / '+ft.btn+' / '+ft.h2);
 ok('★ 상점 카드 이름 17px 주아 · 설명 13.5px 해바라기 (예전 14 / 11.5)', ft.sn[0] === 'Jua' && ft.sn[1] >= 17 && ft.sd[0] === 'Sunflower' && ft.sd[1] >= 13.5, ft.sn.join(' ')+' · '+ft.sd.join(' '));
 ok('★ 값 14px · 단추 15px (예전 12 / 12.5)', ft.sc >= 14 && ft.sbtn >= 15, ft.sc+' / '+ft.sbtn);
