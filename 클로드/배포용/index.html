@@ -2469,7 +2469,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '42차 · 점프 손맛 · 경주 1.8배 · 3·2·1 · 총구·반동·총소리 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
+const GAME_VER = '43차 · 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -6325,6 +6325,9 @@ function mkSling(){                              // 🎯 나무 새총
     g.add(boxM(T.dark, 0.045,0.045,0.30, s*0.135, 0.46,-0.14));       // 고무줄
   }
   g.add(boxM(T.plank, 0.12,0.13,0.06, 0, 0.46,-0.30, matWoodDk));     // 가죽 주머니
+  /* 43차 — 고무줄 끝이 주머니에 감긴다. 주머니(x ±0.06)와 고무줄(x ±0.11~0.16) 사이가 0.05 비어 있었는데, 옛 38° 틀어진 손 방향에서는
+     세계 좌표 상자가 부풀어 닿아 보였다. 총열을 조준선에 맞추자 t11 '떠 있는 조각' 이 새총 주머니를 잡았다 — 진짜로 떠 있던 것. */
+  for(const s of [-1,1]) g.add(boxM(T.dark, 0.09,0.045,0.045, s*0.09, 0.46,-0.30));
   gunGrip(g, 0,-0.10, 0);
   return gunFinish(g, -0.04, 0.13, 0.06, 0.60);
 }
@@ -6533,6 +6536,10 @@ const gunModels = [mkFist(), mkSling(), mkMusket(), mkRifle(), mkSMG(), mkSniper
      타원체로 바꾸자 "타원체도 이상해, 무기 자체가 발광했으면" — 조각을 다 없애고 **총 재질의 자체 발광** 으로 바꿨다(gunGlow[i].mats). */
 const gunGlow = [];                       // 무기 번호 -> {mats, lit, sp} (34차 — 총 재질 자체가 빛난다 + 불티)
 const _gbb = new THREE.Box3(), _gsz = new THREE.Vector3(), _gct = new THREE.Vector3(), _mzW = new THREE.Vector3();   // _mzW — 42차 총구 세계 좌표
+/* 43차 — 총열 축이 조준점을 지나게 하는 셈의 임시 변수. AIM_D 는 수렴 거리(카메라 앞 칸) — 총열 축과 조준선이 여기서 만난다.
+   선생님: "조준선이랑 총구 방향이 맞지가 않아. 그래서 총알 이펙트 방향이 위를 향하게 돼." 여태 모든 총이 gunFinish 의 GUN_YAW(0.52) + 총마다 0.14 쯤 = **38°** 나
+   안쪽으로 틀어져 있었다(총열이 화면에 보이라고 넣은 값) — 12칸 앞에서 조준점보다 8칸 왼쪽을 겨눴고, 예광탄은 표적으로 곧게 가니 총구에서 꺾여 보였다. */
+const AIM_D = 10, _aimT = new THREE.Vector3(), _aimD = new THREE.Vector3(), _aimM = new THREE.Vector3(), _aimQ = new THREE.Quaternion(), _aimE = new THREE.Euler();
 /* ═══ 34차 — 강화 빛 셰이더: 총 재질 위에 ① 가장자리 림 빛 ② 흐르는 마법 결(글린트) 을 얹는다 ═══
    ★ 자체 발광(emissive)만 주면 총이 그냥 '색칠' 된 것처럼 보였다 — 선생님: "그냥 색칠됐는데? 멋있게 빛나는 게 아니라".
      빛나 보이려면 ① 가장자리가 가운데보다 밝고(림 — 빛이 새어 나오는 느낌) ② 빛이 총을 따라 흐르고(글린트 — 마인크래프트
@@ -6605,6 +6612,10 @@ for(let i=0;i<gunModels.length;i++){
   if(!g){ gunGlow.push(null); continue; }
   if(i > 0) for(const c of g.children) if(c.isMesh && c.userData.arm) c.material = HELD_ARM;   // 팔은 따로 굽는다(안 빛난다)
   g.userData.muzzle = i > 0 ? gunMuzzleLocal(g) : null;
+  /* 43차 — 총열 축(총 좌표 +z 가 gunFinish 의 회전을 거친 것)과 총구를 **손(held) 좌표**로도 적어 둔다.
+     updHeld 가 매 프레임 이 축이 조준점(카메라 앞 AIM_D)을 지나도록 손 방향을 정한다 — 총마다 기울기·길이가 달라도 같은 셈이다. */
+  if(g.userData.muzzle){ g.userData.axisH = new THREE.Vector3(0, 0, 1).applyEuler(g.rotation).normalize();
+    g.userData.muzzleH = g.userData.muzzle.clone().applyEuler(g.rotation).multiplyScalar(g.scale.x).add(g.position); }
   bakeHeld(g); g.visible = false; held.add(g);
   /* ★ 굽고 나서 붙인다. 굽기(bakeHeld)는 재질끼리 지오메트리를 합치면서
      자식을 갈아치우므로, 먼저 붙이면 빛이 총 몸통에 합쳐져 색을 못 바꾼다. */
@@ -6802,12 +6813,29 @@ function updHeld(dt, mining, minePct){
        (양 크기 0.7 이 곱해진다) 더 줄이면 아예 안 보인다. */
   const shx = shake ? Math.sin(gunShakeT*24)*shake*0.17 : 0;
   const shy = shake ? Math.sin(gunShakeT*31 + 1.7)*shake*0.17 : 0;
-  held.rotation.x = -a*1.25 + Math.sin(bobT)*0.012 - kx*0.42 + shy*0.35;   // 42차 — 총구가 더 들린다(0.30 → 0.42)
-  held.rotation.z =  a*0.42 + shx*0.35;
   held.position.set(
     BX + Math.sin(bobT)*0.012 - a*0.07 + shx,
     BY + Math.abs(Math.sin(bobT*2))*0.012 - a*0.07 + kx*0.06 + shy,
     BZ + a*0.07 + kx*0.20);   // 42차 — 몸 쪽으로 더 밀린다(0.16 → 0.20)
+  const gmA = holdGun ? gunModels[KIT.wpn] : null;
+  if(gmA && gmA.userData.axisH){
+    /* 43차 — 총열 축이 조준점(카메라 앞 AIM_D)을 지나게 손 방향을 정한다. 한 번은 손 자리에서, 한 번 더는 실제 총구 자리에서(총구는 손에서 0.4칸쯤 떨어져 있다).
+       그 위에 반동(총구가 **들리는** 쪽 — 42차까지는 부호가 거꾸로라 쏠 때 총구가 15° 숙여졌다)·걸음 흔들림·강화 떨림을 카메라 x·z 축 회전으로 얹는다. */
+    /* 조준 회전은 총마다 **한 번만** 셈해 적어 둔다(aimQ) — 기본 자리(BX·BY·BZ) 기준. 걸음·반동으로 자리가 1~2cm 흔들려도 방향은 그대로 두는데,
+       매 프레임 다시 셈하면 흔들림이 아주 작은 굴림(rotation.z)으로 새어 들어가 '+3 까지는 안 떤다'(t16) 가 깨졌다. 10칸 앞에서 0.01칸 차이는 눈에 안 보인다. */
+    let q = gmA.userData.aimQ;
+    if(!q){
+      _aimT.set(0, 0, -AIM_D);
+      _aimD.set(-BX, -BY, -AIM_D - BZ).normalize(); q = new THREE.Quaternion().setFromUnitVectors(gmA.userData.axisH, _aimD);
+      _aimM.copy(gmA.userData.muzzleH).applyQuaternion(q).multiplyScalar(held.scale.x); _aimM.x += BX; _aimM.y += BY; _aimM.z += BZ;
+      _aimD.subVectors(_aimT, _aimM).normalize(); q.setFromUnitVectors(gmA.userData.axisH, _aimD);
+      gmA.userData.aimQ = q;
+    }
+    held.quaternion.copy(q);
+    _aimE.set(Math.sin(bobT)*0.012 + kx*0.42 + shy*0.35, 0, shx*0.35); _aimQ.setFromEuler(_aimE); held.quaternion.premultiply(_aimQ);
+  } else {
+    held.rotation.set(-a*1.25 + Math.sin(bobT)*0.012 - kx*0.42 + shy*0.35, 0, a*0.42 + shx*0.35);   // 도구 — y 는 0 으로 되돌린다(총을 들었다 놓으면 남는다)
+  }
 }
 
 
@@ -9605,7 +9633,7 @@ function fireWeapon(){
          숫자가 뜨는 자리와 총알이 닿는 자리가 다르면 "내가 어디를 맞혔지" 를 알 수가 없다. */
       const A = survAimPart(q, f);
       const dmg = A.head ? SURV_HEAD : SURV_DMG;
-      shootBullet(hx, hy, hz, A.x, A.y, A.z, true, W.tr, W.len); muzzleFx(hx, hy, hz, f, W);
+      shootBullet(hx, hy, hz, A.x, A.y, A.z, true, W.tr, W.len); muzzleFx(hx, hy, hz, f, W, A.x, A.y, A.z);
       hitMark(A.head);                              // 헤드샷은 조준점이 크게 번쩍인다
       ring(A.x, A.y, A.z, A.head ? 0xffd54a : (W.tr || 0xfff2c0), A.head ? 1.5 : 1.0, A.head ? 0.26 : 0.20);   // 33차
       popDmg(A.x, A.y + 0.75, A.z, dmg, A.head ? 1 : 0);   // 늑대와 같은 숫자 — 헤드샷은 노란 '20!'
@@ -9617,7 +9645,7 @@ function fireWeapon(){
       if(window.__sfx){ window.__sfx(W.snd || 'gun', W.kick); window.__sfx(A.head ? 'phead' : 'phit'); }
     } else {
       const tx = PL.x + f.x*W.rng, ty = PL.y + PL.EYE + f.y*W.rng, tz = PL.z + f.z*W.rng;
-      shootBullet(hx, hy, hz, tx, Math.max(MINI_Y+0.2, ty), tz, false, W.tr, W.len); muzzleFx(hx, hy, hz, f, W);
+      shootBullet(hx, hy, hz, tx, Math.max(MINI_Y+0.2, ty), tz, false, W.tr, W.len); muzzleFx(hx, hy, hz, f, W, tx, Math.max(MINI_Y+0.2, ty), tz);
       if(window.__sfx) window.__sfx(W.snd || 'gun', W.kick);
     }
     hudPrev.kit = ''; return;
@@ -9630,7 +9658,7 @@ function fireWeapon(){
     const dmg = Math.max(1, Math.round(base * atkMul() * enhMul(KIT.wpn)
                                             * comboMul() * (crit ? CRIT_MUL : 1)));
     if(isGun){ shootBullet(hx, hy, hz, w.x, (w.y||GY)+0.85, w.z, true, W.tr, W.len);
-               muzzleFx(hx, hy, hz, f, W); }
+               muzzleFx(hx, hy, hz, f, W, w.x, (w.y||GY)+0.85, w.z); }
     else shootStone(hx, hy, hz, w.x, (w.y||GY)+0.75, w.z, true);
 
     popDmg(w.x, (w.y||GY) + 1.3, w.z, dmg, crit ? 1 : 0);
@@ -9664,7 +9692,7 @@ function fireWeapon(){
     if(W.trait === 'blast' && f.y < -0.02){ const tg = (PL.y + PL.EYE - GY - 0.3)/(-f.y); if(tg < R) R = tg; }
     const tx = PL.x + f.x*R, ty = PL.y + PL.EYE + f.y*R, tz = PL.z + f.z*R;
     if(isGun){ shootBullet(hx, hy, hz, tx, Math.max(GY+0.2, ty), tz, false, W.tr, W.len);
-               muzzleFx(hx, hy, hz, f, W); }
+               muzzleFx(hx, hy, hz, f, W, tx, Math.max(GY+0.2, ty), tz); }
     else shootStone(hx, hy, hz, tx, GY+0.3, tz, false);
     if(W.trait === 'blast')
       blastAt(tx, Math.max(GY+0.2, ty), tz, Math.round(W.dmg*WDAY()*atkMul()*enhMul(KIT.wpn)), null, W);
@@ -9729,12 +9757,15 @@ function blastAt(x, y, z, dmg, skip, W){
   if(window.__shake) window.__shake(0.35, 0.22);
 }
 /* 총구 화염 — 짧고 굵은 빛줄기 한 토막 + 불티. 예광탄과 같은 메시라 그리기가 안 는다. */
-function muzzleFx(hx, hy, hz, f, W){
+function muzzleFx(hx, hy, hz, f, W, tx, ty, tz){
   /* ★ 여기에 불티(burst)도 뿌려 봤는데, 눈에서 1.7칸이면 한 알이 화면의 7% 라
      세 알이 총구 앞에 파란 상자 덩어리로 뭉쳤다. 빛줄기 한 토막이면 충분하다. */
-  shootBullet(hx, hy, hz, hx + f.x*0.42, hy + f.y*0.42, hz + f.z*0.42,
+  /* 43차 — 방향은 카메라 앞(f)이 아니라 **총구→표적**. 총열이 조준점을 지나므로 이 방향이 곧 총열 방향이다 — 화염이 총열에서 곧게 뻗는다 */
+  let dx = f.x, dy = f.y, dz = f.z;
+  if(tx !== undefined){ dx = tx - hx; dy = ty - hy; dz = tz - hz; const L = Math.hypot(dx, dy, dz) || 1; dx /= L; dy /= L; dz /= L; }
+  shootBullet(hx, hy, hz, hx + dx*0.42, hy + dy*0.42, hz + dz*0.42,
               false, W.mz || 0xfff3c0, 1.0 + (W.kick||0.5)*0.5);     // 29차 — 총마다 화염 색(mz)
-  muzzleFlash(hx + f.x*0.22, hy + f.y*0.22, hz + f.z*0.22, W.mz || 0xfff3c0, 0.55 + (W.kick||0.5)*0.55);   // 33차 — 펑
+  muzzleFlash(hx + dx*0.22, hy + dy*0.22, hz + dz*0.22, W.mz || 0xfff3c0, 0.55 + (W.kick||0.5)*0.55);   // 33차 — 펑
 }
 /* 조준점 한가운데가 잠깐 X 로 번쩍인다 — "맞았다"를 손끝으로 알려 주는 장치 */
 
@@ -9769,13 +9800,13 @@ const WEAPONS = [
    tr:0xe8d8a8, len:0.7, aimR:2.0, kick:0.30, snd:'bow',
    d:'총알이 필요 없습니다. 첫 무기로 딱.'},
   {n:'돌 화승총', ic:'🔫', cost:{w:40,s:35,g:0}, dmg:50, cd:1.10, rng:18, ammo:1, col:0x8b8f96,
-   tr:0xffd08a, len:1.1, aimR:1.7, kick:0.85, snd:'gun',
+   tr:0xffd08a, len:1.1, aimR:1.7, kick:0.85, snd:'flint',      // 43차 — 부싯돌 딸깍·치익 → 둔중한 쾅
    d:'느리지만 한 방이 셉니다. 총알 1발.'},
   {n:'쇠 소총', ic:'🔩', cost:{w:20,s:70,g:8}, dmg:84, cd:0.85, rng:22, ammo:1, col:0x5f6874,
-   tr:0xffe9a0, len:1.3, aimR:1.5, kick:0.75, snd:'gun',
+   tr:0xffe9a0, len:1.3, aimR:1.5, kick:0.75, snd:'rifle',      // 43차 — 날카로운 크랙 · 노리쇠 철컥
    d:'멀리서 정확하게. 총알 1발.'},
   {n:'연발총', ic:'💨', cost:{w:60,s:90,g:16}, dmg:48, cd:0.42, rng:19, ammo:1, col:0x3f4a5c,
-   tr:0xffb45a, len:0.9, aimR:1.7, kick:0.45, snd:'gun',
+   tr:0xffb45a, len:0.9, aimR:1.7, kick:0.45, snd:'smg',        // 43차 — 짧고 탁탁 · 탄피 팅
    d:'드르륵! 누르고 있으면 계속 나갑니다. 총알이 빨리 닳아요.'},
   {n:'금빛 저격총', ic:'🏆', cost:{w:0,s:80,g:34}, dmg:240, cd:1.70, rng:34, ammo:2, col:0xd8a832,
    tr:0xfff0a0, len:2.4, aimR:1.1, kick:1.60, snd:'boom',
@@ -16086,16 +16117,27 @@ const SFX = {
   /* ★ 29차 — 'gun'·'boom'·'laser' 가 표에 없어서 화승총·소총·연발총·저격총·광선총이 **여태 조용했다**
      (18차e 의 musket 과 같은 함정. sfx() 는 없는 이름이면 아무것도 안 한다). 선생님: "지금 총들은 되게 밋밋해".
      총마다 다른 소리를 넣는다 — 파열음(noise)의 길이·밝기와 몸통(tone)의 높이로 무게를 가른다. */
-  /* 42차 — gunshot() 네 겹. 같은 'gun' 을 쓰는 화승총(kick 0.85)·소총(0.75)·연발총(0.45)은 kick 으로 갈린다 — 무거울수록 낮고 길게 */
+  /* 43차 — 총마다 제 소리(선생님: "총마다 특색에 맞게 총 소리가 달랐으면"). gunshot v2 위에 총의 성격을 얹는다:
+     flint 돌 화승총 — 부싯돌 딸깍 → 화약 치익(60ms) → 둔중한 쾅, 연기 같은 긴 꼬리 · rifle 쇠 소총 — 날카로운 크랙, 쏘고 0.25초 뒤 노리쇠 철컥철컥
+     smg 연발총 — 짧고 높게 탁, 탄피 팅(높이가 매번 조금 다르다), 메아리 없음 · boom 금빛 저격총 — 가슴을 치는 저음·긴 메아리, 0.45초 뒤 무거운 노리쇠
+     'gun' 은 예전 이름 — 소총 소리로 남겨 둔다(친구 총·옛 저장) */
   gun:    (k)=>{ k = k === undefined ? 0.8 : k; gunshot(0.85 + 0.35*k, 195 - 75*k, 2500 - 550*k, 0.55 + 0.65*k); },
-  boom:   ()=>{ gunshot(1.35, 74, 1500, 1.9); tone(50, 30, 0.42, 'sine', 0.12, now0()+0.02); },                                   // 저격총 — 가슴을 치는 저음과 긴 꼬리
-  laser:  ()=>{ noise(0.01, 0.25, 9000); tone(1800,400,0.16,'sawtooth',0.06); tone(2400,900,0.10,'sine',0.04); noise(0.04,0.06,6000); noise(0.25, 0.04, 700, now0()+0.05); },
+  flint:  ()=>{ const t = now0(); flintClick(t); gunshot(1.15, 118, 1500, 1.5, t + 0.065, {drive:1.9}); puff(0.4, 0.045, 1100, 0.5, t + 0.2); },
+  rifle:  ()=>{ const t = now0(); gunshot(1.0, 175, 2700, 0.95, t); boltClack(t + 0.26, false); },
+  smg:    ()=>{ const t = now0(); gunshot(0.72, 265, 3300, 0.32, t, {echo:false}); casingTing(t + 0.05); },
+  boom:   ()=>{ const t = now0(); gunshot(1.4, 62, 1300, 2.2, t, {drive:2.2}); thump(46, 26, 0.5, 0.10, t + 0.015, 1.2); echoes(0.7, 1.3, t + 0.2); boltClack(t + 0.45, true); },
+  laser:  ()=>{ const t = now0(); tone(500, 2600, 0.05, 'sine', 0.035, t); noise(0.01, 0.25, 9000, t + 0.04); tone(1800,400,0.16,'sawtooth',0.06, t + 0.04); tone(2400,900,0.10,'sine',0.04, t + 0.04);
+                pluck(3520, 0.16, 0.02, t + 0.05, 0.5); pluck(5274, 0.12, 0.012, t + 0.08, 0.4); noise(0.04,0.06,6000, t + 0.04); noise(0.25, 0.04, 700, t + 0.09); },   // 수정 광선총 — 충전 휘익 → 지익 → 수정 반짝
   oakbow: ()=>{ tone(1100,300,0.09,'triangle',0.05); noise(0.05,0.08,900); tone(420,260,0.05,'sine',0.03, now0()+0.03); },
-  shotgun:()=>{ gunshot(1.25, 105, 1700, 1.35); puff(0.06, 0.18, 900, 0.8, now0()+0.018); },                                    // 산탄 — 크랙이 둘
-  goldsmg:()=>{ gunshot(0.72, 235, 3000, 0.42); },
-  ranch:  ()=>{ gunshot(1.0, 150, 2000, 1.0); },
-  thunder:()=>{ noise(0.012, 0.3, 9000); noise(0.05,0.20,5000); tone(2200,300,0.14,'sawtooth',0.07); tone(90,60,0.25,'square',0.08); noise(0.4, 0.05, 500, now0()+0.06); },
-  flame:  ()=>{ noise(0.22,0.18,900); tone(140,70,0.22,'sawtooth',0.07); tone(400,200,0.15,'triangle',0.04); },
+  /* 43차 — 레어·유니크: shotgun 흑요석 산탄총 — 넓은 쾅에 크랙 둘, 0.32초 뒤 펌프 철컥철컥 · goldsmg 황금 연발총 — 밝고 또렷한 탁 + 금빛 종 울림, 탄피 팅
+     ranch 목장 장총 — 굵은 크랙, 0.28초 뒤 레버 철컥철컥 · thunder 천둥 벼락총 — 전기 지지직(잽 여섯) + 천둥 우르릉 꼬리 · flame 화염 대포 — 웅 하는 쿵 + 불 타닥타닥 */
+  shotgun:()=>{ const t = now0(); gunshot(1.3, 95, 1500, 1.4, t, {drive:2.0}); crackSweep(0.05, 0.2, 2200, 700, 1.0, t + 0.02); pumpChk(t + 0.32); },
+  goldsmg:()=>{ const t = now0(); gunshot(0.78, 240, 3400, 0.4, t, {echo:false}); pluck(5200, 0.18, 0.028, t + 0.01, 0.45); pluck(7800, 0.10, 0.012, t + 0.015); casingTing(t + 0.06); },
+  ranch:  ()=>{ const t = now0(); gunshot(1.1, 140, 2100, 1.1, t, {drive:1.7}); leverClack(t + 0.28); },
+  thunder:()=>{ const t = now0(); for(let i=0;i<6;i++) puff(0.012, 0.13, 3800 + Math.random()*2600, 4, t + i*0.011 + Math.random()*0.004);
+                tone(2200,300,0.14,'sawtooth',0.06, t); gunshot(0.9, 80, 1900, 1.6, t + 0.02, {drive:1.8}); noise(0.7, 0.06, 300, t + 0.10); thump(58, 30, 0.6, 0.07, t + 0.12, 1.2); },
+  flame:  ()=>{ const t = now0(); thump(95, 38, 0.38, 0.22, t, 2.4); noise(0.25, 0.20, 900, t); puff(0.30, 0.12, 600, 0.6, t + 0.02);
+                for(let i=0;i<9;i++) puff(0.02, 0.035, 2400 + Math.random()*1800, 3, t + 0.08 + i*0.05 + Math.random()*0.03); noise(0.7, 0.05, 420, t + 0.15); },
   zap:    ()=>{ tone(2600,900,0.06,'sawtooth',0.045); noise(0.03,0.12,6000); },
   blast:  ()=>{ noise(0.28,0.30,700); tone(70,30,0.35,'square',0.12); noise(0.20,0.12,300, now0()+0.10); },
   /* 조합 완성 — 망치 소리 두 번에 올라가는 네 음 */
@@ -16108,7 +16150,7 @@ const SFX = {
   /* ★ 18차e — 미니게임 총(연습용 총)은 snd:'musket' 인데 이 표에 musket 이 없었다.
      sfx() 는 없는 이름이면 조용히 아무것도 안 한다 — 그래서 서바이벌 내내 총소리가 없었다.
      화승총다운 소리로 새로 넣는다: 굵은 파열음 + 낮게 깔리는 몸통 + 짧은 쇳소리. */
-  musket:()=>{ gunshot(0.95, 140, 2000, 0.95); },   // 42차 — 네 겹
+  musket:()=>{ gunshot(0.95, 140, 2000, 0.95); },   // 42차 — 네 겹 · 43차 — v2(연습용 총은 평범한 소총 소리, 기계음 없음)
   /* 친구를 맞혔다 — 늑대의 'hit'(작은 삑) 보다 확실히 두껍다 */
   phit: ()=>{ noise(0.05,0.14,1600); tone(430,185,0.09,'square',0.080); },
   /* 머리를 맞혔다 — 높고 맑게 '팅' */
@@ -16172,10 +16214,40 @@ const _sfxT = {};
 /* 42차 — 진짜 총소리에 가깝게(선생님: "사운드도 더 리얼한 총소리에 더 가깝게"). 총소리는 네 겹이다:
    ① 파열(총구 폭발) — 아주 짧고 넓은 잡음 12ms ② 크랙 — 1~3kHz 띠 잡음 45ms ③ 몸통 — 60~230Hz 가 빠르게 떨어지는 사인(가슴을 치는 쿵) + 중역 잡음
    ④ 꼬리 — 저역 잡음이 0.3~1초 울리며 사라진다(멀리 퍼지는 잔향). 무거운 총일수록 몸통이 낮고 꼬리가 길다(v 세기 · lowF 몸통 · crackF 크랙 · tail 꼬리 배수) */
-function gunshot(v, lowF, crackF, tail, when){ const t0 = when || now0();
-  noise(0.012, 0.42*v, 9000, t0); puff(0.045, 0.30*v, crackF, 0.9, t0 + 0.004);
-  tone(lowF, lowF*0.38, 0.13 + 0.06*tail, 'sine', 0.26*v, t0); noise(0.08, 0.18*v, 1500, t0 + 0.008);
-  noise(0.30*tail, 0.075*v, 800, t0 + 0.04); noise(0.55*tail, 0.035*v, 350, t0 + 0.10); }
+/* 43차 — 합성기 v2(선생님: "총마다 특색에 맞게 다르게, 좀 더 리얼하게"). 42차 네 겹에 셋을 더했다:
+   ⑤ 크랙이 **활강**한다(crackSweep: 띠통과 필터 중심이 35ms 동안 1.7배 → 0.5배로 떨어진다 — 채찍 소리처럼 '따악') ⑥ 몸통을 **왜곡**한다(thump: 사인에 tanh 를 먹여
+   배음이 붙는다 — 맑은 '뿅' 이 아니라 '쿵') ⑦ **메아리** 둘(0.11·0.26초 뒤, 낮게 걸러서 — 밖에서 쏜 소리는 벽·산에서 되돌아온다).
+   기계음은 따로: boltClack(노리쇠) · pumpChk(펌프) · leverClack(레버) · casingTing(탄피) · flintClick(부싯돌). */
+function crackSweep(dur, vol, f1, f2, q, when){
+  if(!AUD || !sndOn) return;
+  if(!NOISE_BUF){ NOISE_BUF = AUD.createBuffer(1, AUD.sampleRate, AUD.sampleRate); const d = NOISE_BUF.getChannelData(0); for(let i=0;i<d.length;i++) d[i] = Math.random()*2-1; }
+  const t0 = when || AUD.currentTime, src = AUD.createBufferSource(); src.buffer = NOISE_BUF;
+  const fl = AUD.createBiquadFilter(); fl.type = 'bandpass'; fl.Q.value = q || 1.2;
+  fl.frequency.setValueAtTime(f1, t0); fl.frequency.exponentialRampToValueAtTime(Math.max(40, f2), t0 + dur);
+  const g = AUD.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime((vol || 0.1) * SFX_MUL, t0 + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(fl); fl.connect(g); g.connect(sfxOut()); src.start(t0, Math.random()*0.5, dur + 0.02);
+}
+let SHAPE_C = null;
+function thump(f1, f2, dur, vol, when, drive){
+  if(!AUD || !sndOn) return;
+  if(!SHAPE_C){ SHAPE_C = new Float32Array(257); for(let i=0;i<257;i++){ const x = i/128 - 1; SHAPE_C[i] = Math.tanh(x*3.2); } }
+  const t0 = when || AUD.currentTime, o = AUD.createOscillator(), g = AUD.createGain(), ws = AUD.createWaveShaper(), pre = AUD.createGain();
+  o.type = 'sine'; o.frequency.setValueAtTime(f1, t0); o.frequency.exponentialRampToValueAtTime(Math.max(20, f2), t0 + dur);
+  ws.curve = SHAPE_C; pre.gain.value = drive || 1.4;
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime((vol || 0.1) * SFX_MUL, t0 + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(pre); pre.connect(ws); ws.connect(g); g.connect(sfxOut()); o.start(t0); o.stop(t0 + dur + 0.03);
+}
+function echoes(v, tail, t0){ puff(0.09, 0.055*v*tail, 720, 0.7, t0 + 0.11); puff(0.14, 0.03*v*tail, 420, 0.7, t0 + 0.26); }
+function boltClack(t, heavy){ const h = heavy ? 1.35 : 1; puff(0.018, 0.07, 3000, 3, t); tone(230*h, 150*h, 0.045, 'triangle', 0.035, t); puff(0.02, 0.06, 2400, 3, t + 0.11); tone(190*h, 120*h, 0.05, 'triangle', 0.035, t + 0.11); }
+function pumpChk(t){ puff(0.03, 0.08, 1700, 2, t); tone(160, 110, 0.05, 'triangle', 0.04, t); puff(0.03, 0.08, 1500, 2, t + 0.14); tone(140, 95, 0.05, 'triangle', 0.045, t + 0.14); }
+function leverClack(t){ pluck(880, 0.05, 0.03, t, 0.3, 'triangle'); puff(0.022, 0.06, 2600, 2.5, t); pluck(660, 0.06, 0.03, t + 0.12, 0.3, 'triangle'); puff(0.025, 0.06, 2100, 2.5, t + 0.12); }
+function casingTing(t){ const f = 3900 + Math.random()*900; pluck(f, 0.14, 0.02, t, 0.5); pluck(f*1.42, 0.09, 0.011, t + 0.004); pluck(f*0.94, 0.08, 0.012, t + 0.10, 0.4); }
+function flintClick(t){ puff(0.012, 0.11, 3600, 2.2, t); puff(0.07, 0.06, 2400, 0.6, t + 0.012, 'highpass'); tone(2600, 1400, 0.03, 'triangle', 0.02, t + 0.01); }
+function gunshot(v, lowF, crackF, tail, when, o){ const t0 = when || now0(); o = o || {};
+  noise(0.012, 0.42*v, 9000, t0); crackSweep(0.035, 0.34*v, crackF*1.7, crackF*0.5, 1.2, t0 + 0.003); puff(0.045, 0.16*v, crackF, 0.9, t0 + 0.006);
+  thump(lowF, lowF*0.34, 0.13 + 0.06*tail, 0.24*v, t0, o.drive || 1.4); noise(0.08, 0.16*v, 1500, t0 + 0.008);
+  noise(0.30*tail, 0.075*v, 800, t0 + 0.04); noise(0.55*tail, 0.035*v, 350, t0 + 0.10);
+  if(o.echo !== false) echoes(v, Math.min(1.3, tail), t0); }
 function sfx(k, a){ audioInit(); if(SFX[k]) SFX[k](a); }      // 39차 — 세기 인자 하나(우르릉) · 42차 — 총은 kick
 /* 줄을 넘을 때마다 반음씩 높아지는 딩 — 연속으로 넘을수록 신이 난다.
    (한 옥타브까지만 올린다. 그 위는 귀가 따갑다) */
@@ -17101,11 +17173,11 @@ Object.assign(window, {
   __dreadTick:dreadTick, __howlN:()=>howlN, __howlStage:()=>howlStage, __threatK:()=>threatK,
   __shakeT:()=>shakeT, __shakeReset:()=>{ shakeT = 0; }, __sfxFrom:sfxFrom, __lastPan:()=>lastPan, __PROF:()=>PROF,   /* __bossIndex 는 위에 이미 있다 (t24 가 겹침을 잡았다) */
   __setAim:setAimMode, __aimMode:()=>aimMode, __bullets:()=>bullets, __bMesh:()=>bMesh,
-  __gunKick:()=>gunKick, __openKit:openKit, __equipW:equipWeapon,
+  __gunKick:()=>gunKick, __gunRecoil:gunRecoil, __fireWeapon:fireWeapon, __updBullets:updBullets, __updFlash:updFlash, __muzzleFx:muzzleFx, __openKit:openKit, __equipW:equipWeapon,   // 43차 — 검사용: 반동·발사
   /* 가방에 깔리는 것들 (23차) — 검사가 화면 모양(#kitW .kitIt)을 베끼지 않게 게임이 준다 */
   __kitItems:kitItems, __wearDeco:wearDeco,
   /* 총기 반동 (23차) — 검사가 값을 베끼지 않게 상수와 함수를 그대로 내준다 */
-  __aimKick:()=>aimKick, __aimSway:()=>aimSway, __aimRoll:()=>aimRoll, __gunVel:()=>gunVel, __gunshot:gunshot, __fireRecoil:fireRecoil,
+  __aimKick:()=>aimKick, __aimSway:()=>aimSway, __aimRoll:()=>aimRoll, __gunVel:()=>gunVel, __gunshot:gunshot, __crackSweep:crackSweep, __thump:thump, __AIM_D:AIM_D, __fireRecoil:fireRecoil,
   /* 조준이 보는 쪽 — 반동이 '진짜로' 조준을 틀어 놓는지는 이걸로만 확인할 수 있다.
      ★ 돌려 쓰는 벡터 하나를 그대로 준다. 들고 있지 말고 그 자리에서 읽어야 한다. */
   __forward:forward,
