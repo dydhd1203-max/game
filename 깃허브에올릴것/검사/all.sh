@@ -16,8 +16,8 @@ cd "$(dirname "$0")" || exit 1
 GAME=${1:-../../클로드/index.html}
 JOBS=${2:-4}
 BASE=${3:-$((20000 + RANDOM % 20000))}
-ALL=1283                       # 지금 전체 항목 수 (늘면 이 줄을 고친다) — 35차 1280 · 36차: t17(뛰는 늑대 36) 삭제, t36(39) 추가
-TESTS="t3 t4 t6 t7 t8 t9 t10 t11 t12 t13 t14 t15 t16 t18 t19 t20 t21 t22 t23 t24 t25 t26 t27 t28 t29 t30 t31 t32 t33 t34 t35 t36"
+ALL=1251                       # 지금 전체 항목 수 (늘면 이 줄을 고친다) — 36차 1283 · 37차: t24(줄넘기 38) 삭제, t22 78→47(OX·줄넘기 절 삭제), t37(37) 추가
+TESTS="t3 t4 t6 t7 t8 t9 t10 t11 t12 t13 t14 t15 t16 t18 t19 t20 t21 t22 t23 t25 t26 t27 t28 t29 t30 t31 t32 t33 t34 t35 t36 t37"
 
 OUT=$(mktemp -d); i=0
 for t in $TESTS; do
