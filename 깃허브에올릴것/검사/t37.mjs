@@ -1,6 +1,6 @@
 /* 37차 검사 — 🏁 장애물 경주 · 달리기(Shift) · 양끼리 부딪힘 · OX/줄넘기 없음
    ★ 코스는 seed 로 짓는다 — 같은 seed 면 발판 표가 같은지, 발판 길이·틈이 '네 가지 뜀이 다 떨어지는 셈' 을 지키는지 본다.
-   ★ 규칙(깃발·떨어짐·골인·아이템·바위·바나나·순위·상)은 실제로 굴려서 본다 — 값을 베끼지 않고 게임에 묻는다(__RACE, __MINI). */
+   ★ 규칙(깃발·떨어짐·골인·바위·공·진자·막대·순위·상)은 실제로 굴려서 본다 (39차: 아이템은 기능과 함께 뺐다) — 값을 베끼지 않고 게임에 묻는다(__RACE, __MINI). */
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
@@ -74,7 +74,12 @@ const course = await ev(()=>{ const W=window, G=W.__G, o={};
   const Y = W.__MINI().Y;
   o.top = {island:W.__raceTopAt(0,-19) - Y, bridge:W.__raceTopAt(0,35) - Y, voidZ:W.__raceTopAt(20, 60), stairTop:+(W.__raceTopAt(0, P.filter(p=>p.kind==='stair').sort((a,b)=>b.y-a.y)[0].z) - Y).toFixed(1), fin:+(W.__raceTopAt(0, W.__RACE_Z_FIN+2) - Y).toFixed(1)};
   o.ground = W.__groundUnder(20, 60, 0.35);
-  o.items = W.__RACE().items.length; o.itemKinds = [...new Set(W.__RACE().items.map(i=>i.k))].sort().join(',');
+  /* 39차 — 장애물: 공(계단)·진자(외다리)·막대(3·5번 깃발 판)도 바위처럼 시간의 식이다 */
+  o.hz20 = W.__raceHazards(20).map(h=>h.k).sort().join(','); o.hz5 = W.__raceHazards(5).map(h=>h.k).sort().join(',');
+  o.hzSame = JSON.stringify(W.__raceHazards(21.7)) === JSON.stringify(W.__raceHazards(21.7));
+  const bz = [9,10,11].map(tt=> W.__raceHazards(tt).find(h=>h.k==='ball')).map(b=> b ? +b.z.toFixed(1) : null); o.ballZ = bz;
+  const px = [0,0.8,1.6].map(tt=> +W.__raceHazards(tt).find(h=>h.k==='pend').x.toFixed(2)); o.pendX = px;
+  o.barTurn = W.__raceHazards(1).find(h=>h.k==='bar').ang !== W.__raceHazards(0).find(h=>h.k==='bar').ang;
   o.rocks = W.__raceRocks(20).length; o.rockAt = W.__raceRocks(20).map(r=> +r.z.toFixed(1));
   o.rockSame = JSON.stringify(W.__raceRocks(33.3)) === JSON.stringify(W.__raceRocks(33.3));
   return o; });
@@ -86,10 +91,11 @@ ok('★ 첫 깃발 판은 섬 가장자리에 걸친 넓은 다리(폭 40 넘게
 ok('★ 징검다리·사라지는 발판은 길이 4.0 · 틈 1.8 — 걷는 뜀 3.5 · 달리는 뜀 5.1 · 2단 7.8/11.3 이 전부 발판 위에 떨어진다', course.rule, '길이 '+course.stoneL.join(',')+' 틈 '+course.stoneG.join(','));
 ok('★ 높이 — 섬 바닥 0 · 다리 0 · 옆 허공은 -999 · 계단 꼭대기 7.2 · 골인 8.1', course.top.island === 0 && course.top.bridge === 0 && course.top.voidZ === -999 && course.top.stairTop === 7.2 && course.top.fin === 8.1, JSON.stringify(course.top));
 ok('★ groundUnder 가 경주에서 발판 높이를 땅으로 본다 (허공은 -999)', course.ground === -999, course.ground);
-ok('★ 아이템 상자 열 개 · 네 종류(부스터·깃털·방패·바나나)', course.items === 10 && course.itemKinds === 'banana,boost,feather,shield', course.items+' · '+course.itemKinds);
+ok('★ 장애물 — 진자 둘·막대 둘은 늘 있고, 계단 공은 3초 뒤부터 나와 계단을 따라 내려온다(시간의 식 — 전원 같다)', course.hz5 === 'bar,bar,pend,pend' && course.hz20 === 'ball,bar,bar,pend,pend' && course.hzSame && course.ballZ.every(z=>z !== null) && course.ballZ[0] > course.ballZ[1] && course.ballZ[1] > course.ballZ[2], course.hz20+' · 공 z '+course.ballZ.join('→'));
+ok('★ 진자는 좌우로 흔들리고 막대는 돈다', Math.abs(course.pendX[0]) > 2 && Math.abs(course.pendX[2]) > 2 && Math.sign(course.pendX[0]) !== Math.sign(course.pendX[2]) && course.barTurn, '진자 x '+course.pendX.join(' → '));
 ok('★ 바위는 시간의 식이다 — 같은 시각이면 같은 자리 (통신 없이 전원 같다)', course.rockSame && course.rocks >= 1, course.rockAt.join(' '));
 
-/* ═══════ ④ 규칙 — 깃발 · 떨어짐 · 방패 · 골인 · 움직이는 발판 ═══════ */
+/* ═══════ ④ 규칙 — 깃발 · 떨어짐 · 카메라 · 골인 · 움직이는 발판 ═══════ */
 const rule = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   const M = W.__MINI(), RACE = W.__RACE(), MINE = W.__MINE, Y = M.Y;
   G.paused = false; if(W.__miniOn()) W.__miniExit(); W.__goMini(0); G.mini.seed = 8; W.__raceBuild(8); const P = W.__RACE_P(); W.__miniSet('run', 90); G.t = 90; W.__miniTick(1/30);
@@ -101,8 +107,8 @@ const rule = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   /* 떨어짐 — 허공에 두면 1.5초 뒤 마지막 깃발로 */
   put(20, 60, 0); PL.ground = false; tick(60); o.fallT = +RACE.fallT.toFixed(2); o.fallY = +(PL.y - Y).toFixed(1);
   tick(30); o.backAt = [+PL.x.toFixed(1), +PL.z.toFixed(1)]; o.backCp = Math.abs(PL.z - cp2.z) < 0.6 && Math.abs(PL.x - cp2.x) < 1.2;
-  /* 방패 — 있으면 바로 돌아온다 */
-  RACE.shield = true; put(20, 60, 0); PL.ground = false; tick(45); o.shieldBack = Math.abs(PL.z - cp2.z) < 0.6 && !RACE.shield && RACE.fallT === 0;
+  /* 39차 — 허공 위에서도 3인칭 카메라가 땅 밑으로 안 꺼진다(점프할 때마다 화면이 하늘색이 됐다) */
+  RACE.fallT = 0; put(20, 60, 1.5); PL.ground = false; PL.pitch = -0.3; W.__updPlayer(1/30); o.camY = +(W.__cam.position.y - Y).toFixed(2);
   /* 움직이는 통나무 위에 서 있으면 같이 실려 간다 */
   const log = P.find(p=>p.kind==='log'); const off = t => Math.sin(t*log.mv.spd + log.mv.ph)*log.mv.amp;
   RACE.t = 10; G.t = 80; put(log.x + off(10), log.z, log.y); const x0 = PL.x; tick(30); o.carried = +(PL.x - x0).toFixed(2); o.logMoved = +(off(RACE.t) - off(10)).toFixed(2);
@@ -117,44 +123,48 @@ const rule = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
 ok('★ 출발하면 경주 상태가 켜지고 골인·깃발이 비어 있다', rule.started);
 ok('★ 깃발 판에 서면 그 깃발이 마지막 깃발이 된다', rule.cp === 2 && rule.cpAt[1] > 70, rule.cp+' · '+JSON.stringify(rule.cpAt));
 ok('★ 떨어지면 1.5초 동안 허공에 멈췄다가 마지막 깃발로 돌아온다', rule.fallT > 0 && rule.fallT <= 1.5 && rule.fallY < -6 && rule.backCp, `fallT ${rule.fallT} · y ${rule.fallY} · 돌아온 곳 ${JSON.stringify(rule.backAt)}`);
-ok('★ 방패가 있으면 기다리지 않고 바로 돌아오고 방패는 없어진다', rule.shieldBack);
+ok('★ 발판 사이 허공 위에서도 3인칭 카메라가 땅 밑으로 안 꺼진다 (39차 — 뛸 때마다 화면이 하늘색이 됐다)', rule.camY > 0 && rule.camY < 8, 'cam y '+rule.camY);
 ok('★ 흔들리는 통나무 위에 서 있으면 통나무와 같이 움직인다', Math.abs(rule.carried - rule.logMoved) < 0.15 && Math.abs(rule.logMoved) > 0.05, `나 ${rule.carried} · 통나무 ${rule.logMoved}`);
 ok('★ 사라지는 발판은 밟으면 1초 뒤 꺼졌다가 2초 뒤 돌아온다', rule.fadeArmed && rule.fadeGone && rule.fadeBack, `${rule.fadeArmed} ${rule.fadeGone} ${rule.fadeBack}`);
 ok('★ 골인 판에 서면 시간이 적히고(40초) 통신 칸에도 실린다', Math.abs(rule.fin - 40) < 0.2 && rule.rep === rule.fin && rule.prog === 1, `fin ${rule.fin} · 보고 ${rule.rep}`);
 
-/* ═══════ ⑤ 아이템 · 바위 · 바나나 · 부딪힘 ═══════ */
+/* ═══════ ⑤ 장애물 — 바위 · 공 · 진자 · 막대 · 우르릉 · 부딪힘 (39차: 아이템 절은 기능과 함께 뺐다) ═══════ */
 const item = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   const M = W.__MINI(), RACE = W.__RACE(), MINE = W.__MINE, Y = M.Y;
   G.paused = false; if(W.__miniOn()) W.__miniExit(); W.__goMini(0); G.mini.seed = 8; W.__raceBuild(8); W.__miniSet('run', 90); G.t = 90; W.__miniTick(1/30); RACE.t = 5;
   const put = (x,z,y)=>{ PL.x = x; PL.z = z; PL.y = Y + (y||0); PL.vy = 0; PL.ground = true; };
-  const tick = (n)=>{ for(let i=0;i<n;i++){ G.t -= 1/30; W.__updPlayer(1/30); W.__miniTick(1/30); } };
-  const grab = (k)=>{ const it = RACE.items.find(i=> i.k === k && !i.taken); put(it.x, it.z, it.y - 1.0); PL.y = Y + it.y - 0.2; tick(2); return it.taken; };
-  o.boost = grab('boost'); o.boostT = +RACE.boostT.toFixed(2); W.__setStamina(0.5);
-  put(0, 0, 0); PL.yaw = Math.PI; W.__KEY.w = true; const z0 = PL.z; for(let i=0;i<30;i++){ W.__updPlayer(1/30); W.__miniTick(1/30); } W.__KEY.w = false; o.boostSpd = +(PL.z - z0).toFixed(1);
-  o.stAfterBoost = +W.__stamina().toFixed(2);
-  o.feather = grab('feather'); o.featherOn = RACE.feather;
-  put(0, 0, 0); let air = 0; W.__wantJump(); W.__updPlayer(1/30); for(let i=0;i<8;i++) W.__updPlayer(1/30); W.__wantJump(); W.__updPlayer(1/30); for(let i=0;i<8;i++) W.__updPlayer(1/30); const vBefore = PL.vy; W.__wantJump(); W.__updPlayer(1/30); o.third = PL.vy > vBefore + 5; o.featherUsed = !RACE.feather;
-  o.shield = grab('shield'); o.shieldOn = RACE.shield;
-  /* 바나나 — 먹으면 뒤에 떨어지고, 남의 바나나를 밟으면 미끄러진다 */
-  put(0, 10, 0); PL.yaw = Math.PI; o.banana = grab('banana'); const mine = Object.values(W.__raceBanAll()); o.dropped = mine.length === 1 && mine[0].u === W.__uid;
-  const other = {u:'other', x:0, z:20, y:0, t:RACE.t}; RACE.bans['other-1'] = other;
-  put(0, 20, 0); tick(2); o.slipT = +RACE.slipT.toFixed(2); const zs = PL.z; tick(15); o.slidAhead = +(PL.z - zs).toFixed(2);
-  W.__KEY.w = false; tick(40); put(0, 20, 0); tick(2); o.slipOnce = RACE.slipT <= 0;   // 미끄러짐이 끝난 뒤 같은 바나나를 다시 밟아도 안 미끄러진다
+  const at = (tt)=>{ RACE.t = tt; G.t = 90 - tt; RACE.slipT = 0; RACE.hitCd = 0; };
   /* 바위 — 자리에 서 있으면 맞아서 튕기고 미끄러진다 */
-  RACE.slipT = 0; RACE.hitCd = 0; let hit = false; for(let s=0; s<40 && !hit; s++){ RACE.t = 12 + s*0.25; const rk = W.__raceRocks(RACE.t)[0]; if(!rk) continue; put(rk.x, rk.z, 0); G.t = 90 - RACE.t; W.__miniTick(1/30); if(RACE.slipT > 0) hit = true; }
+  let hit = false; for(let s=0; s<40 && !hit; s++){ at(12 + s*0.25); const rk = W.__raceRocks(RACE.t)[0]; if(!rk) continue; put(rk.x, rk.z, 0); W.__miniTick(1/30); if(RACE.slipT > 0) hit = true; }
   o.rockHit = hit && RACE.hitCd > 0;
+  /* 공 — 계단에서 공 자리에 서면 */
+  hit = false; for(let tt=4; tt<30 && !hit; tt+=0.2){ at(tt); const bl = W.__raceHazards(tt).find(h=>h.k==='ball'); if(!bl) continue; put(bl.x, bl.z, bl.y - bl.r); W.__miniTick(1/30); if(RACE.slipT > 0) hit = true; }
+  o.ballHit = hit;
+  /* 막대 — 판 위 막대 선 안에 서면 · 뛰어넘으면(발이 0.8 위) 안 맞는다 */
+  const P = W.__RACE_P(), cp3 = P.find(p=>p.cp===3); at(6); let bar = W.__raceHazards(6).find(h=>h.k==='bar' && h.id==='r3');
+  put(cp3.x + Math.cos(bar.ang)*2.0, cp3.z - Math.sin(bar.ang)*2.0, cp3.y); W.__miniTick(1/30); o.barHit = RACE.slipT > 0;
+  at(6); bar = W.__raceHazards(6).find(h=>h.k==='bar' && h.id==='r3'); put(cp3.x + Math.cos(bar.ang)*2.0, cp3.z - Math.sin(bar.ang)*2.0, cp3.y + 1.0); PL.ground = false; W.__miniTick(1/30); o.barJump = RACE.slipT <= 0;
+  /* 진자 — 공 자리에 서면 뒤로 밀린다 */
+  at(7); const pd = W.__raceHazards(7).find(h=>h.k==='pend'); put(pd.x, pd.z, 0); const z0 = PL.z; W.__miniTick(1/30); o.pendHit = RACE.slipT > 0; for(let i=0;i<10;i++) W.__miniTick(1/30); o.pendBack = PL.z < z0 - 0.5;
+  /* 우르릉 소리가 표에 있고, 바위가 가까우면 울린다(주기 재생 타이머) */
+  o.rumbleSfx = W.__SFXKEYS().includes('rumble');
+  at(12); const rk2 = W.__raceRocks(12)[0]; RACE.rumbleT = 0; put(rk2.x + 4, rk2.z, 0); W.__miniTick(1/30); o.rumbled = RACE.rumbleT > 0;
+  RACE.slipT = 0; RACE.hitCd = 0;
   /* 부딪힘 — 겹친 양은 벌어지고, 빨리 부딪힐수록 더 튕긴다 */
-  RACE.slipT = 0; G.players.set('p1', {uid:'p1', x:0.3, y:Y, z:-10, g:1, n:'p1', ry:0, jt:0});
+  G.players.set('p1', {uid:'p1', x:0.3, y:Y, z:-10, g:1, n:'p1', ry:0, jt:0});
   put(0, -10, 0); PL.yaw = 0; W.__KEY.w = false; W.__kbReset(); W.__sheepBump(1/30, 0, 0); const dNo = Math.hypot(PL.x - 0.3, PL.z + 10);
   put(0.6, -10, 0); W.__kbReset(); W.__sheepBump(1/30, -8, 0); const kbFast = Math.hypot(W.__kb().x, W.__kb().z);
   put(0.6, -10, 0); W.__kbReset(); W.__sheepBump(1/30, -2, 0); const kbSlow = Math.hypot(W.__kb().x, W.__kb().z);
   G.players.delete('p1'); o.bump = {sep:+dNo.toFixed(2), fast:+kbFast.toFixed(2), slow:+kbSlow.toFixed(2)};
+  /* 아이템이 없다 */
+  o.noItems = RACE.items === undefined && RACE.boostT === undefined && W.__raceDropBanana === undefined;
   return o; });
-ok('★ 🚀 부스터 — 먹으면 2초 동안 1.6배로 달리고 스태미나를 안 쓴다', item.boost && item.boostT > 1.8 && item.boostSpd > 7.5 && item.stAfterBoost >= 0.5, `boostT ${item.boostT} · 1초 ${item.boostSpd}칸 · 스태미나 ${item.stAfterBoost}`);
-ok('★ 🪶 깃털 — 공중에서 한 번 더(세 번째) 뛰고, 쓰면 없어진다', item.feather && item.featherOn && item.third && item.featherUsed);
-ok('★ 🛡️ 방패 — 품는다', item.shield && item.shieldOn);
-ok('★ 🍌 바나나 — 먹으면 내 뒤에 떨어지고(통신 칸), 남의 바나나를 밟으면 0.8초 미끄러진다(한 바나나에 한 번)', item.banana && item.dropped && item.slipT > 0.6 && item.slipOnce, `slipT ${item.slipT} · 밀림 ${item.slidAhead}`);
+ok('★ 아이템(부스터·깃털·방패·바나나)이 없다 (39차 — 선생님: "아이템은 그냥 없애고")', item.noItems);
 ok('★ 🪨 바위에 맞으면 튕기고 미끄러진다', item.rockHit);
+ok('★ ⚫ 계단을 굴러 내려오는 공에 맞으면 튕기고 미끄러진다', item.ballHit);
+ok('★ 🌀 도는 막대에 맞으면 옆으로 밀리고, 뛰어넘으면 안 맞는다', item.barHit && item.barJump, `맞음 ${item.barHit} · 뛰어넘음 ${item.barJump}`);
+ok('★ 🔔 진자에 맞으면 뒤로 밀린다 (외다리에서 옆으로 밀면 무조건 떨어져 너무 가혹하다)', item.pendHit && item.pendBack);
+ok('★ 바위·공이 가까우면 우르릉 소리가 울린다 (소리 표에 있고, 30칸 안에서 주기 타이머가 돈다)', item.rumbleSfx && item.rumbled);
 ok('★ 양끼리 겹치면 벌어지고(겹친 채로는 안 둔다), 빨리 부딪힐수록 더 튕긴다', item.bump.sep >= 0.3 && item.bump.fast > item.bump.slow * 1.5 && item.bump.slow >= 0, JSON.stringify(item.bump));
 
 /* ═══════ ⑥ 순위 · 상 ═══════ */
