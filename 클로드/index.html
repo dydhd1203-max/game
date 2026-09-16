@@ -5325,13 +5325,12 @@ function buildMiniIsle(){
   /* ⑧ 출발 광장(38차) — 섬 위를 회색 돌길(폭 44)과 잔디로 나누고 연석·가로등·분수·가게·나무·화단을 놓는다. 경주 얼굴에서만(Rp).
      바닥 흰 체크는 그대로 두고 그 위에 얇은 판(0.04)을 깐다 — 서바이벌 얼굴로 바뀌면 판만 숨는다. */
   { for(let a=-nq; a<=nq; a++) for(let b=-nq; b<=nq; b++){ const x = a*TQ, z = b*TQ; if(Math.hypot(x,z) > MINI_R-0.4) continue;
-      /* 38차 ⑥ — 카트라이더 마을 트랙: 길은 푸른 아스팔트, 출발 구역(z < -9)은 밝은 초록 큰 체크, 그 밖은 잔디 체크 */
+      /* 38차 ⑥ — 길은 밝은 회색 돌길(선생님: 푸른 아스팔트는 그 맵만의 색이라 안 따라도 된다), 출발 구역(z < -9)은 밝은 초록 큰 체크, 그 밖은 잔디 체크 */
       const road = Math.abs(x) < 22.1 && z > -25.5, startZone = road && z < -9;
-      BX(x, 0.015, z, TQ, 0.04, TQ, startZone ? (((a+b)%2) ? 0x6fd15a : 0xa9ea7a) : road ? (((a+b)%2) ? 0x46527a : 0x4b5882) : (((a+b)%2) ? 0x86cf5f : 0x93d86c)); }
-    /* 차선 — 가운데 노란 두 줄(이어짐) · 흰 점선 두 줄(x ±11) · 가장자리 흰 선. 다리 위(z 29.6~)는 R_trim 이 같은 무늬로 잇는다 */
-    for(const sx of [-1,1]) BX(sx*0.34, 0.045, 10.2, 0.16, 0.03, 38.8, 0xffd43b);
-    for(let k=0;k<12;k++) for(const sx of [-1,1]) BX(sx*11, 0.045, -8 + k*3.3, 0.22, 0.03, 1.7, 0xdfe6f5);
-    for(const sx of [-1,1]) BX(sx*21.6, 0.045, 10.2, 0.20, 0.03, 38.8, 0xdfe6f5);
+      BX(x, 0.015, z, TQ, 0.04, TQ, startZone ? (((a+b)%2) ? 0x6fd15a : 0xa9ea7a) : road ? (((a+b)%2) ? 0xc9ced6 : 0xd9dde4) : (((a+b)%2) ? 0x86cf5f : 0x93d86c)); }
+    /* 차선 — 가운데 흰 점선 · 가장자리 흰 선. 다리 위(z 29.6~)는 R_trim 이 같은 무늬로 잇는다 */
+    for(let k=0;k<12;k++) BX(0, 0.045, -8 + k*3.3, 0.36, 0.03, 1.7, 0xffffff);
+    for(const sx of [-1,1]) BX(sx*21.6, 0.045, 10.2, 0.20, 0.03, 38.8, 0xffffff);
     /* 출발 문 — 파란 현수막(노란 간판 + 흰 글자 자리) · 초록 기둥에 노란 별 · 밑동에 노랑·검정 차단봉 · 현수막 아래 체크 띠 */
     { const z = MINI_PADZ + 3.5, gGemS = new THREE.OctahedronGeometry(0.5, 0);
       for(const sx of [-1,1]){ BX(sx*12.6, 2.6, z, 0.8, 5.2, 0.8, 0x51cf66); BX(sx*12.6, 5.3, z, 1.1, 0.3, 1.1, 0xffd43b);
@@ -14298,11 +14297,10 @@ function raceDrawTrim(rt){
       if(k === 'beam') for(let s=0;s<=Math.floor(p.d/3);s++) for(const sx of [-1,1]) T(x + sx*(p.w/2 + 0.12), top + 0.28, p.z - p.d/2 + 0.3 + s*3, 0.10, 0.56, 0.10, 0x8a5a3a);
       else for(const sz of [-1,1]) T(x, top - p.h/2, p.z + sz*(p.d/2 + 0.02), p.w - 0.2, p.h - 0.2, 0.06, furLight(col, 0.5));
       continue; }
-    if(k === 'cp'){ T(x, top + 0.03, p.z, p.w - 0.34, 0.06, p.d - 0.34, 0x46527a);
-      if(p.w > 20){ for(const sx of [-1,1]) T(x + sx*0.34, top + 0.07, p.z, 0.16, 0.03, p.d - 0.4, 0xffd43b);
-        for(let s=0;s<Math.floor(p.d/3.3);s++) for(const sx of [-1,1]) T(x + sx*11, top + 0.07, p.z - p.d/2 + 1.0 + s*3.3, 0.22, 0.03, 1.7, 0xdfe6f5);
-        for(const sx of [-1,1]) T(x + sx*21.6, top + 0.07, p.z, 0.20, 0.03, p.d - 0.4, 0xdfe6f5); }
-      else for(let s=0;s<Math.floor(p.d/1.4);s++) T(x, top + 0.07, p.z - p.d/2 + 0.7 + s*1.4, 0.18, 0.03, 0.7, 0xdfe6f5); }
+    if(k === 'cp'){ T(x, top + 0.03, p.z, p.w - 0.34, 0.06, p.d - 0.34, p.w > 20 ? 0xd9dde4 : lite);
+      if(p.w > 20){ for(let s=0;s<Math.floor(p.d/3.3);s++) T(x, top + 0.07, p.z - p.d/2 + 1.0 + s*3.3, 0.36, 0.03, 1.7, 0xffffff);
+        for(const sx of [-1,1]) T(x + sx*21.6, top + 0.07, p.z, 0.20, 0.03, p.d - 0.4, 0xffffff); }
+      else for(let s=0;s<Math.floor(p.d/1.4);s++) T(x, top + 0.07, p.z - p.d/2 + 0.7 + s*1.4, 0.18, 0.03, 0.7, 0xffffff); }
     else T(x, top + 0.03, p.z, p.w - 0.34, 0.06, p.d - 0.34, lite);
     if(k === 'fade'){ for(const sz of [-1,1]) T(x, top + 0.06, p.z + sz*(p.d/2 - 0.14), p.w - 0.2, 0.05, 0.12, 0xffffff); for(const sx of [-1,1]) T(x + sx*(p.w/2 - 0.14), top + 0.06, p.z, 0.12, 0.05, p.d - 0.2, 0xffffff); continue; }
     if(k === 'block'){ for(let s=0;s<3;s++) for(const sz of [-1,1]) T(x, top - p.h + 0.2 + s*0.3, p.z + sz*(p.d/2 + 0.02), p.w*0.9, 0.14, 0.06, s%2 ? 0x1e1e26 : 0xffd43b); continue; }
