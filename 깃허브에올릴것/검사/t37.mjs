@@ -195,6 +195,45 @@ ok('★ 4~5등 제일 좋은 방어구 — 이미 있으면 자원으로', rank.
 ok('★ 2~3등 레어 총 — 없는 것 중 하나씩', rank.rare);
 ok('6~10등 자원 표 다섯 줄 · 골인 상', rank.RES === 5 && rank.FIN.w > 0 && rank.FIN.g > 0, rank.RES+' · '+JSON.stringify(rank.FIN));
 
+/* ═══════ ⑨ 41차 — 속도감: 가속·감속 · 순간이동 · 걸음 위상(거리) · 카메라 뒤처짐 · 출발선 두 줄 · 초읽기 큰 글씨 · 안내 띠 없음 · 효과음·부표 ═══════ */
+const spd = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={}; const Y=W.__MINI().Y, RACE=W.__RACE();
+  if(W.__miniOn()) W.__miniExit(); G.paused = false; G.phase = 'day'; G.t = 100; PL.down = false; W.__setStamina(1);
+  /* 가속 — 정지에서 앞키: 첫 틱은 걷기 속도의 30% 아래, 열두 틱 뒤엔 90% 위. 놓으면 네 틱 안에 5% 아래 (틱 = 1/30초, 값은 초당 칸) */
+  PL.x = 30; PL.z = 30; PL.yaw = 0; PL.y = W.__groundUnder(30,30,PL.R); W.__updPlayer(1/30); W.__updPlayer(1/30);
+  const step=()=>{ const z0=PL.z; W.__updPlayer(1/30); return Math.abs(PL.z - z0)*30; };
+  W.__KEY.w = true; const s1 = step(); let sN = 0; for(let i=0;i<12;i++) sN = step(); W.__KEY.w = false; step(); step(); step(); const s4 = step();
+  o.acc = {first:+s1.toFixed(2), cruise:+sN.toFixed(2), after4:+s4.toFixed(3)};
+  /* 순간이동(자리를 옮겨 놓음)하면 남은 속도를 버린다 */
+  W.__KEY.w = true; for(let i=0;i<20;i++) W.__updPlayer(1/30); W.__KEY.w = false; PL.x = 30; PL.z = 30; const z0 = PL.z; W.__updPlayer(1/30); o.tele = +Math.abs(PL.z - z0).toFixed(3);
+  /* 걸음 위상 — 간 거리 ÷ 1.3칸 = 바퀴 수 (내 양) · 친구 양은 객체마다 따로 */
+  PL.x = 30; PL.z = 30; W.__updPlayer(1/30); const g0 = W.__gaitMe(); W.__KEY.w = true; let moved = 0; for(let i=0;i<15;i++){ const a=PL.z; W.__updPlayer(1/30); moved += Math.abs(PL.z-a); } W.__KEY.w = false;
+  o.gait = {turns:+((W.__gaitMe()-g0)/(Math.PI*2)).toFixed(3), expect:+(moved/W.__STRIDE.walk).toFixed(3)};
+  const fs = {x:0, z:0, ph:0}; W.__sheepGait(fs, 10); fs.z = 0.3; const gs = W.__sheepGait(fs, 10.1); o.friend = +(gs.gp/(Math.PI*2)).toFixed(3); o.friendExpect = +(0.3/W.__STRIDE.walk).toFixed(3);
+  /* 경주 — 카메라 뒤처짐(섬 위 → 출발 다리, 발판이 이어진 자리) · 출발선 · 초읽기 · 안내 띠 · 부표 */
+  W.__goMini(0); G.mini.seed = 8; W.__raceBuild(8); W.__miniSet('run', 90); G.t = 90; W.__miniTick(1/30);
+  const put=(x,z,y)=>{ RACE.fallT = 0; PL.x=x; PL.z=z; PL.y=Y+(y||0); PL.vy=0; PL.ground=true; W.__updPlayer(1/30); };
+  put(0, 22, 0); PL.yaw = Math.PI; PL.pitch = -0.22; for(let i=0;i<5;i++) W.__updPlayer(1/30);
+  const camD=()=> Math.hypot(W.__cam.position.x-PL.x, W.__cam.position.z-PL.z);
+  const stand = camD(); W.__setStamina(1); W.__KEY.w = true; W.__KEY.shift = true; for(let i=0;i<25;i++) W.__updPlayer(1/30); const run = camD(); W.__KEY.w = false; W.__KEY.shift = false;
+  o.cam = {stand:+stand.toFixed(2), run:+run.toFixed(2), z:+PL.z.toFixed(1)};
+  o.slot = W.__raceSlotXZ(); o.rows = W.__RACE_ROWZ; o.slots = [9, 10, 11].map(sd=>{ G.mini.seed = sd; return W.__raceSlotXZ().join(','); }); G.mini.seed = 8;
+  o.cp = [RACE.cp.x, RACE.cp.z];
+  W.__cntShow(3, false); const c = document.getElementById('cnt'); o.cnt = {txt:c.textContent, pop:c.classList.contains('pop'), go:c.classList.contains('go')};
+  W.__cntShow('출발!', true); o.cntGo = c.classList.contains('go') && c.textContent === '출발!';
+  W.__miniSet('intro', 7); W.__paintMini(); o.introQ = document.getElementById('mbQ').textContent; o.introHint = /스페이스/.test(document.getElementById('miniBar').textContent);
+  o.sfx = ['step','go','wind'].every(k=> W.__SFXKEYS().includes(k));
+  o.buoy = !!W.__banks.get('rcBuoy');
+  W.__miniSet('run', 90); G.t = 90;
+  return o; });
+ok('★ 41차 가속·감속 — 앞키 첫 틱은 걷기 속도의 30% 아래, 열두 틱 뒤 90% 위, 놓고 네 틱이면 5% 아래', spd.acc.first < spd.acc.cruise*0.3 && spd.acc.cruise > 4.8 && spd.acc.after4 < spd.acc.cruise*0.05, JSON.stringify(spd.acc));
+ok('★ 순간이동하면 남은 속도를 버린다 (경주 복귀·섬 들어가기가 미끄러지지 않게)', spd.tele < 0.01, spd.tele);
+ok('★ 걸음 위상은 간 거리로 돈다 — 내 양(1.3칸에 한 바퀴)과 친구 양(객체마다)', Math.abs(spd.gait.turns - spd.gait.expect) < 0.02 && Math.abs(spd.friend - spd.friendExpect) < 0.01, JSON.stringify(spd.gait)+' · 친구 '+spd.friend+'/'+spd.friendExpect);
+ok('★ 3인칭 카메라가 달리면 뒤처진다 (0.5~1.6칸)', spd.cam.run > spd.cam.stand + 0.5 && spd.cam.run < spd.cam.stand + 1.6, JSON.stringify(spd.cam));
+ok('★ 출발선 두 줄 — 내 칸은 두 줄 중 하나·12칸 안, seed 마다 자리가 섞인다, 0번 깃발(복귀 자리)도 그 칸', spd.rows.length === 2 && spd.rows.includes(spd.slot[1]) && Math.abs(spd.slot[0]) <= 11 && new Set([spd.slot.join(','), ...spd.slots]).size >= 2 && spd.cp[0] === spd.slot[0] && spd.cp[1] === spd.slot[1], JSON.stringify(spd.slot)+' / seed 9~11 '+spd.slots.join(' ')+' cp '+JSON.stringify(spd.cp));
+ok('★ 초읽기는 큰 글씨(#cnt) — 3·2·1 은 노랑, 출발! 은 초록', spd.cnt.txt === '3' && spd.cnt.pop && !spd.cnt.go && spd.cntGo, JSON.stringify(spd.cnt));
+ok('★ 경주 안내 띠("Shift 달리기 · 스페이스 두 번 점프")가 없다 — 준비 중 위 판이 비어 있다', spd.introQ === '' && !spd.introHint, JSON.stringify(spd.introQ));
+ok('★ 발소리·출발·바람(세기) 효과음 · 코스 옆 구름 부표 뱅크(rcBuoy)', spd.sfx && spd.buoy, spd.sfx+' '+spd.buoy);
+
 await ev(()=>{ const W=window; if(W.__miniOn()) W.__miniExit(); });
 /* ═══════ 결과 ═══════ */
 console.log('');
