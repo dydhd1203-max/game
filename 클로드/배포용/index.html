@@ -5108,7 +5108,7 @@ function buildMiniIsle(){
   const arch = (z, y, col, span)=>{ for(const sx of [-1,1]) Rp(bpush('miEdge', gEdge, MAT, sx*span, MINI_Y+y+2.2, z, 0, 0.36, 4.4, 0.36, 0, 0xf4f1ea));
     for(let i=0;i<10;i++) Rp(bpush('miMark', gMark, MAT, -span + (i+0.5)*(span*2/10), MINI_Y+y+4.6, z, 0, span*2/10, 0.6, 0.36, 0, i%2 ? 0x1e1e26 : 0xf4f1ea));
     Rp(bpush('miGlow', gGlow, EMITC, 0, MINI_Y+y+5.3, z, 0, 0.7,0.7,0.7)); };
-  arch(MINI_PADZ + 3.5, 0, 0xffffff, 12);                          // 출발 아치
+  /* 출발 문은 ⑧ 광장 블록에서 카트라이더식으로 세운다(38차 ⑥) — 파란 현수막·별 기둥·노랑검정 차단봉 */
   arch(RACE_Z_FIN + 2, RACE_Y_FIN, 0xffe066, 4.2);                    // 골인 아치
   RACE_S.forEach((Sx,i)=>{ const z = Sx.z0 - 3.2;
     for(const sx of [-1,1]){ Rp(bpush('miEdge', gEdge, MAT, sx*3.4, MINI_Y+1.6+(i===4?0:0), z, 0, 0.16, 3.2, 0.16, 0, 0xb98b58));
@@ -5127,7 +5127,6 @@ function buildMiniIsle(){
   /* ① 출발 다리(z 29.6~37.6, 폭 44) — 양옆 연석 + 흰 난간 + 가운데 점선 + 가로등 */
   for(let i=0;i<8;i++){ const z = 29.6 + 0.5 + i*1.0;
     for(const sx of [-1,1]) BX(sx*21.7, 0.36, z, 0.6, 0.22, 1.0, i%2 ? 0xff5a5a : 0xffffff); }
-  for(let i=-2;i<=2;i++) BX(0, 0.34, 33.6 + i*1.7, 0.36, 0.04, 0.9, 0xffffff);
   for(const sx of [-1,1]) for(let i=0;i<7;i++){ const z = 30 + i*1.1;                      // 연석 안쪽 꽃 화단 + 생울타리
     BX(sx*20.6, 0.5, z, 0.9, 0.36, 1.1, 0x4faa5a); Rp(bpush('rcBall', gBall, WMAT, sx*20.6, MINI_Y+0.85, z, 0, 0.42, 0.42, 0.42, 0, FLAGC[(i+(sx>0?3:0))%6])); }
   for(const sx of [-1,1]) for(let i=0;i<3;i++){ const z = 30.4 + i*3.2;
@@ -5224,7 +5223,13 @@ function buildMiniIsle(){
     BX(x, y+3.2, z + 1.2, 1.3, 2.4, 1.3, wc); Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y+y+5.2, z+1.2, 0, 1.7, 1.8, 1.7, 0, rc)); BX(x, y+6.3, z+1.2, 0.08, 0.6, 0.08, 0xffd43b); BX(x, y+6.4, z+1.2, 0.36, 0.08, 0.08, 0xffd43b);
     Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y+2.1, z+2.03, 0, 0.9, 0.9, 0.08, 0, 0xa8e0ff)); BX(x, y+0.85, z+2.03, 0.8, 1.7, 0.08, 0x8a5a3a);
     for(const sx of [-1,1]) win(x + sx*1.5, y+1.6, z - 0.6, 0.5, 0.9, 0), win(x + sx*1.5, y+1.6, z + 0.6, 0.5, 0.9, 0); };
-  const KINDS = [house, shop, tower, mill, town, park, cafe, chapel];
+  const flat = (x,y,z, k)=>{ const wc = WALL[(k+2)%6], ac = ROOF[(k+5)%6], pc = ROOF[(k+1)%6];                    // 8 3층 건물 — 카트라이더 마을의 길가 건물(줄무늬 차양·창 두 줄씩·옥상 난간·간판)
+    BX(x, y+3.2, z, 3.6, 6.4, 3.2, wc); BX(x, y+6.55, z, 4.0, 0.3, 3.6, pc); for(let q=0;q<3;q++) BX(x - 1.4 + q*1.4, y+6.95, z, 0.9, 0.5, 3.4, furLight(pc, 0.2));
+    for(let r=0;r<2;r++) for(const sx of [-1,1]) win(x + sx*0.9, y+3.3 + r*1.8, z, 0.7, 0.9, 1.6);
+    for(let q=0;q<5;q++) BX(x - 1.6 + q*0.8, y+2.15, z + 1.95, 0.8, 0.10, 1.0, q%2 ? ac : 0xffffff, 0, 0); BX(x, y+2.1, z + 1.45, 3.8, 0.10, 0.1, ac);
+    BX(x - 0.8, y+0.95, z + 1.63, 1.4, 1.3, 0.06, 0xa8e0ff); BX(x + 1.0, y+0.85, z + 1.63, 0.8, 1.7, 0.08, 0x8a5a3a);
+    BX(x, y+2.6, z + 1.66, 2.6, 0.5, 0.08, 0xffffff); BX(x, y+2.6, z + 1.71, 1.8, 0.26, 0.04, ac); };
+  const KINDS = [house, shop, tower, mill, town, park, cafe, chapel, flat];
   const islet = (x, y, z, kind, k)=>{
     Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y+y-2.4, z, 0, 8.6, 4.4, 8.6, Math.PI, 0x7a5a3c));            // 흙 고깔
     Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y-0.35, z, 0, 8.8, 0.9, 8.8, 0, 0x7ed36a));                 // 풀 뚜껑
@@ -5264,8 +5269,12 @@ function buildMiniIsle(){
   { const x = 9, z = 68; Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y-3.0, z, 0, 5.0, 0.5, 5.0, 0, 0x6fd3ff)); BX(x, -1.9, z, 1.0, 2.4, 1.0, 0xe8e0d0); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y-0.6, z, 0, 2.0, 0.4, 2.0, 0, 0xe8e0d0));
     for(let k=0;k<6;k++) Rp(bpush('rcBall', gBall, WMAT, x + Math.sin(k)*0.9, MINI_Y - 0.2 + (k%3)*0.5, z + Math.cos(k)*0.9, 0, 0.35, 0.5, 0.35, 0, 0xc8f0ff)); }
   /* ② 좁은 다리 옆 — 등불 기둥 여섯 (다리 양옆 허공에 떠 있는 작은 받침 위) */
-  for(let i=0;i<6;i++){ const z = 86 + i*7.2, x = (i%2 ? 4.6 : -4.6);
-    BX(x, -0.9, z, 0.9, 0.5, 0.9, 0x8a5a3a); BX(x, 0.7, z, 0.14, 2.8, 0.14, 0x6b6f78); BX(x, 2.35, z, 0.7, 0.9, 0.7, 0xff9a3c); GL(x, 2.35, z, 0.42); }
+  /* 38차 ⑥ — 카트라이더 다리 트랙처럼 파란 철제 트러스 틀 넷이 외다리를 감싼다. 틀마다 주황 등 둘이 매달린다 */
+  for(let i=0;i<4;i++){ const z = 86 + i*9.6, TB = 0x3b7ddb;
+    for(const sx of [-1,1]){ BX(sx*4.6, -0.9, z, 1.0, 0.5, 1.0, 0x8a5a3a); BX(sx*4.6, 1.9, z, 0.36, 4.4, 0.36, TB);
+      BX(sx*2.6, 2.3, z, 0.22, 4.6, 0.22, TB, 0, sx*0.72); BX(sx*4.6, 0.2, z, 0.9, 0.22, 0.9, TB); }
+    BX(0, 4.15, z, 9.6, 0.36, 0.44, TB); BX(0, 4.55, z, 9.0, 0.20, 0.30, furLight(TB, 0.35));
+    for(const sx of [-1,1]){ BX(sx*2.4, 3.55, z, 0.04, 0.9, 0.04, 0x2b2b33); BX(sx*2.4, 2.8, z, 0.62, 0.8, 0.62, 0xff9a3c); GL(sx*2.4, 2.8, z, 0.42); } }
   /* ③ 사라지는 발판 옆 — 보랏빛 수정 무리 · 줄무늬 사탕 기둥 */
   for(let i=0;i<8;i++){ const z = 130 + i*5.5, x = (i%2 ? 6.5 : -6.5) + (i%3)*0.6, y = -0.6 - (i%3)*0.5;
     BX(x, y-0.5, z, 1.8, 0.6, 1.8, 0x5a4a6a);
@@ -5316,9 +5325,26 @@ function buildMiniIsle(){
   /* ⑧ 출발 광장(38차) — 섬 위를 회색 돌길(폭 44)과 잔디로 나누고 연석·가로등·분수·가게·나무·화단을 놓는다. 경주 얼굴에서만(Rp).
      바닥 흰 체크는 그대로 두고 그 위에 얇은 판(0.04)을 깐다 — 서바이벌 얼굴로 바뀌면 판만 숨는다. */
   { for(let a=-nq; a<=nq; a++) for(let b=-nq; b<=nq; b++){ const x = a*TQ, z = b*TQ; if(Math.hypot(x,z) > MINI_R-0.4) continue;
-      const road = Math.abs(x) < 22.1 && z > -25.5;
-      BX(x, 0.015, z, TQ, 0.04, TQ, road ? (((a+b)%2) ? 0xc9ced6 : 0xd9dde4) : (((a+b)%2) ? 0x86cf5f : 0x93d86c)); }
-    for(let k=0;k<25;k++) BX(0, 0.045, -13 + k*1.7, 0.36, 0.03, 0.9, 0xffffff);                                          // 가운데 점선 — 출발대에서 다리까지
+      /* 38차 ⑥ — 카트라이더 마을 트랙: 길은 푸른 아스팔트, 출발 구역(z < -9)은 밝은 초록 큰 체크, 그 밖은 잔디 체크 */
+      const road = Math.abs(x) < 22.1 && z > -25.5, startZone = road && z < -9;
+      BX(x, 0.015, z, TQ, 0.04, TQ, startZone ? (((a+b)%2) ? 0x6fd15a : 0xa9ea7a) : road ? (((a+b)%2) ? 0x46527a : 0x4b5882) : (((a+b)%2) ? 0x86cf5f : 0x93d86c)); }
+    /* 차선 — 가운데 노란 두 줄(이어짐) · 흰 점선 두 줄(x ±11) · 가장자리 흰 선. 다리 위(z 29.6~)는 R_trim 이 같은 무늬로 잇는다 */
+    for(const sx of [-1,1]) BX(sx*0.34, 0.045, 10.2, 0.16, 0.03, 38.8, 0xffd43b);
+    for(let k=0;k<12;k++) for(const sx of [-1,1]) BX(sx*11, 0.045, -8 + k*3.3, 0.22, 0.03, 1.7, 0xdfe6f5);
+    for(const sx of [-1,1]) BX(sx*21.6, 0.045, 10.2, 0.20, 0.03, 38.8, 0xdfe6f5);
+    /* 출발 문 — 파란 현수막(노란 간판 + 흰 글자 자리) · 초록 기둥에 노란 별 · 밑동에 노랑·검정 차단봉 · 현수막 아래 체크 띠 */
+    { const z = MINI_PADZ + 3.5, gGemS = new THREE.OctahedronGeometry(0.5, 0);
+      for(const sx of [-1,1]){ BX(sx*12.6, 2.6, z, 0.8, 5.2, 0.8, 0x51cf66); BX(sx*12.6, 5.3, z, 1.1, 0.3, 1.1, 0xffd43b);
+        Rp(bpush('rcGem', gGemS, WMAT, sx*12.6, MINI_Y+6.2, z, 0, 0.8, 1.5, 1.5, 0, 0xffd43b)); Rp(bpush('rcGem', gGemS, WMAT, sx*12.6, MINI_Y+6.2, z, Math.PI/4, 0.8, 1.1, 1.1, 0, 0x51cf66));
+        BX(sx*12.6, 0.5, z + 1.4, 2.4, 0.5, 0.3, 0xffd43b); for(let q=0;q<3;q++) BX(sx*12.6 - 0.8 + q*0.8, 0.5, z + 1.42, 0.3, 0.5, 0.3, 0x1e1e26, 0, 0.5); }
+      BX(0, 6.0, z, 25.2, 1.7, 0.5, 0x3b7ddb); BX(0, 6.0, z, 25.6, 0.16, 0.6, 0xffd43b); BX(0, 6.75, z, 25.6, 0.16, 0.6, 0xffd43b);
+      BX(0, 6.0, z + 0.3, 9.0, 0.9, 0.06, 0xffd43b); for(let q=0;q<5;q++) BX(-3.2 + q*1.6, 6.0, z + 0.36, 0.9, 0.5, 0.05, 0xffffff);
+      for(let q=0;q<12;q++) BX(-11.5 + q*2.1, 5.0, z, 2.1, 0.34, 0.5, q%2 ? 0x1e1e26 : 0xf4f1ea);
+      GL(0, 7.2, z, 0.6); }
+    /* 길가 광고판 — 카트라이더 드리프트 트랙의 담장 배너처럼 보라·노랑·파랑이 번갈아 */
+    for(let k=0;k<6;k++){ const z = -20 + k*9; if(Math.hypot(24.8, z) > MINI_R-1.0) continue;
+      for(const sx of [-1,1]){ const c = [0x7b4dff, 0xffd43b, 0x3b7ddb][(k + (sx>0?1:0)) % 3];
+        BX(sx*24.8, 1.0, z, 0.12, 1.2, 3.2, c); BX(sx*24.8 - sx*0.05, 1.0, z, 0.06, 0.7, 2.4, 0xffffff); for(const dz of [-1.4, 1.4]) BX(sx*24.8, 0.5, z + dz, 0.14, 1.0, 0.14, 0x6b6f78); } }
     for(let k=0;k<42;k++){ const z = -25 + k*1.3; if(Math.hypot(22.4, z) > MINI_R-0.6) continue;
       for(const sx of [-1,1]) BX(sx*22.4, 0.14, z, 0.6, 0.22, 1.3, k%2 ? 0xff5a5a : 0xffffff); }
     for(let k=0;k<5;k++){ const z = -22 + k*9; if(Math.hypot(23.6, z) > MINI_R-1.2) continue;
@@ -5326,8 +5352,8 @@ function buildMiniIsle(){
     { const x = 0, z = -29.5; Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+0.1, z, 0, 6.4, 0.6, 6.4, 0, 0xe8e0d0)); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+0.35, z, 0, 5.4, 0.4, 5.4, 0, 0x6fd3ff));   // 분수
       BX(x, 1.1, z, 0.9, 1.8, 0.9, 0xe8e0d0); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+2.1, z, 0, 2.2, 0.4, 2.2, 0, 0xe8e0d0)); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+2.5, z, 0, 0.8, 0.8, 0.8, 0, 0x6fd3ff));
       for(let k=0;k<8;k++) Rp(bpush('rcBall', gBall, WMAT, x + Math.sin(k*0.785)*1.4, MINI_Y + 1.6 + (k%2)*0.5, z + Math.cos(k*0.785)*1.4, 0, 0.35, 0.5, 0.35, 0, 0xc8f0ff)); }
-    shop(-27.5, 0.04, -4, 2); house(27.5, 0.04, -4, 4); cafe(-26.5, 0.04, 14, 1); chapel(26.5, 0.04, 14, 3);
-    for(const [tx,tz,h] of [[-27,-16,3.0],[27,-16,2.6],[-29,4,2.4],[29,4,2.8],[-24,24,2.4],[24,24,2.6],[-9,-31,2.2],[9,-31,2.2]]){
+    shop(-27.5, 0.04, -4, 2); house(27.5, 0.04, -4, 4); cafe(-26.5, 0.04, 14, 1); chapel(26.5, 0.04, 14, 3); flat(-27.5, 0.04, -19, 0); flat(27.5, 0.04, -19, 3);
+    for(const [tx,tz,h] of [[-30,-9,3.0],[30,-9,2.6],[-29,4,2.4],[29,4,2.8],[-24,24,2.4],[24,24,2.6],[-9,-31,2.2],[9,-31,2.2]]){
       Rp(bpush('rcTrunk', TRUNKG, WMAT, tx, MINI_Y+h*0.35, tz, 0, 0.9, h*0.7, 0.9, 0, 0x8a5a3a));
       Rp(bpush('rcBall', gBall, WMAT, tx, MINI_Y+h*0.85, tz, 0, 2.6, 2.2, 2.6, 0, 0x51cf66)); Rp(bpush('rcBall', gBall, WMAT, tx+0.7, MINI_Y+h*0.85+0.6, tz-0.4, 0, 1.6, 1.4, 1.6, 0, 0x8ae08a)); }
     for(let k=0;k<26;k++){ const a = k/26*Math.PI*2, r = 31.5, x = Math.sin(a)*r, z = Math.cos(a)*r; if(Math.abs(x) < 23 && z > -25) continue;   // 가장자리 화단
@@ -14272,7 +14298,12 @@ function raceDrawTrim(rt){
       if(k === 'beam') for(let s=0;s<=Math.floor(p.d/3);s++) for(const sx of [-1,1]) T(x + sx*(p.w/2 + 0.12), top + 0.28, p.z - p.d/2 + 0.3 + s*3, 0.10, 0.56, 0.10, 0x8a5a3a);
       else for(const sz of [-1,1]) T(x, top - p.h/2, p.z + sz*(p.d/2 + 0.02), p.w - 0.2, p.h - 0.2, 0.06, furLight(col, 0.5));
       continue; }
-    T(x, top + 0.03, p.z, p.w - 0.34, 0.06, p.d - 0.34, lite);
+    if(k === 'cp'){ T(x, top + 0.03, p.z, p.w - 0.34, 0.06, p.d - 0.34, 0x46527a);
+      if(p.w > 20){ for(const sx of [-1,1]) T(x + sx*0.34, top + 0.07, p.z, 0.16, 0.03, p.d - 0.4, 0xffd43b);
+        for(let s=0;s<Math.floor(p.d/3.3);s++) for(const sx of [-1,1]) T(x + sx*11, top + 0.07, p.z - p.d/2 + 1.0 + s*3.3, 0.22, 0.03, 1.7, 0xdfe6f5);
+        for(const sx of [-1,1]) T(x + sx*21.6, top + 0.07, p.z, 0.20, 0.03, p.d - 0.4, 0xdfe6f5); }
+      else for(let s=0;s<Math.floor(p.d/1.4);s++) T(x, top + 0.07, p.z - p.d/2 + 0.7 + s*1.4, 0.18, 0.03, 0.7, 0xdfe6f5); }
+    else T(x, top + 0.03, p.z, p.w - 0.34, 0.06, p.d - 0.34, lite);
     if(k === 'fade'){ for(const sz of [-1,1]) T(x, top + 0.06, p.z + sz*(p.d/2 - 0.14), p.w - 0.2, 0.05, 0.12, 0xffffff); for(const sx of [-1,1]) T(x + sx*(p.w/2 - 0.14), top + 0.06, p.z, 0.12, 0.05, p.d - 0.2, 0xffffff); continue; }
     if(k === 'block'){ for(let s=0;s<3;s++) for(const sz of [-1,1]) T(x, top - p.h + 0.2 + s*0.3, p.z + sz*(p.d/2 + 0.02), p.w*0.9, 0.14, 0.06, s%2 ? 0x1e1e26 : 0xffd43b); continue; }
     if(p.w >= 4.0 && p.w < 20){ const nC = Math.max(2, Math.round(p.d / 1.0)), cl = p.d / nC;
