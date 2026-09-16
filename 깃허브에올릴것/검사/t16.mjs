@@ -465,17 +465,17 @@ const rk = await pg.evaluate(async ()=>{
   for(let i=0;i<40;i++) W.__paintHUD();
   await new Promise(r=>setTimeout(r,60));
   o.DOM변경 = n; mo.disconnect();
-  /* 혼자면 판을 숨긴다 */
+  /* 42차 — 혼자여도 판이 뜬다(내 줄 하나). 선생님: "혼자 해서 안 뜨는 건가? 전처럼 뜨게" */
   W.__pcMap.clear(); W.__pcMap.set(W.__uid,{n:'김하늘',g:0,lv:1,mined:0,built:0});
   W.__paintHUD();
-  o.혼자면숨김 = getComputedStyle(document.getElementById('rankWrap')).display === 'none';
+  o.혼자면숨김 = getComputedStyle(document.getElementById('rankWrap')).display !== 'none' && document.querySelectorAll('#rankList .rkRow').length === 1;
   return o;
 });
 ok('★ 순위가 보인다', rk.보임 && rk.줄수 >= 2, rk.줄수+'줄');
 ok('★ 레벨 높은 순으로 줄 선다', rk.내려간다, rk.순서.join(' ≥ '));
 ok('★ 내 칸이 표시된다', rk.내칸표시);
 ok('★ 값이 그대로면 40번 칠해도 DOM 을 안 건드린다', rk.DOM변경 === 0, rk.DOM변경+'건');
-ok('혼자 할 때는 판을 숨긴다', rk.혼자면숨김);
+ok('혼자 할 때도 판이 뜬다 — 내 줄 하나 (42차)', rk.혼자면숨김);
 
 /* ═══════ ⑧ U 수치표 ═══════ */
 const info = await pg.evaluate(async ()=>{
