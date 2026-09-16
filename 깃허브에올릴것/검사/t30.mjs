@@ -36,7 +36,7 @@ const VIS_EMO = `(root)=>{ const w=document.createTreeWalker(root, NodeFilter.SH
     const I = window.__ICON(), D = window.__ICO_DEF(), keys = Object.keys(D), o = {n:keys.length, missing:[], blank:[]};
     for(const k of keys) if(!I[k]) o.missing.push(k);
     /* 그림이 실제로 있나 — 투명하지 않은 픽셀이 3% 넘어야 그림이다 */
-    const probe = ['wood','stone','gold','sheep','crystal','tool_mine','wpn2','bld_arrow','hat1','farm_hen','stat0','job_fight','pet1','clo1'];
+    const probe = ['wood','stone','gold','sheep','crystal','tool_mine','wpn2','bld_arrow','hat1','farm_hen','stat0','job_fight','clo1','gls1'];
     for(const k of probe){
       if(!I[k]){ o.blank.push(k+':없음'); continue; }
       const img = new Image(); img.src = I[k]; await img.decode();
@@ -58,11 +58,11 @@ const VIS_EMO = `(root)=>{ const w=document.createTreeWalker(root, NodeFilter.SH
 {
   const r = await pg.evaluate(new Function('return ('+VIS_EMO+')(document.getElementById("title"))'));
   const pk = await pg.evaluate(()=>({hat:document.querySelectorAll('#hatPick button img.ic').length,
-                                    pet:document.querySelectorAll('#petPick button img.ic').length,
+                                    clo:document.querySelectorAll('#cloPick button img.ic').length,
                                     txt:document.getElementById('titleCard').textContent.includes('양들의 밤')}));
   ok('★ 시작 화면에 보이는 이모지가 없다', r.length===0, r.slice(0,8).join(' '));
   ok('모자 고르기 단추가 전부 그림이다', pk.hat >= 12, pk.hat);
-  ok('짝꿍 고르기 단추가 전부 그림이다 (모자 🐱 와 안 겹친다)', pk.pet >= 6, pk.pet);
+  ok('옷 고르기 단추가 전부 그림이다 (38차 — 짝꿍 줄은 기능과 함께 뺐다)', pk.clo >= 10, pk.clo);
   ok('제목 글자는 그대로다', pk.txt);
 }
 
@@ -80,7 +80,7 @@ await frames(pg, 4);
                                       tool:document.querySelectorAll('#tools .slot > .ic > img.ic').length}));
   ok('★ 원본 글자는 남아 있다 (textContent 로 읽는 검사·복사가 그대로 된다)', /낮|밤/.test(keep.day) && /\p{Extended_Pictographic}/u.test(keep.day), keep.day);
   ok('건물 칸이 건물 모형 그림이다', keep.slot >= 5, keep.slot);
-  ok('도구 칸이 도구 모형 그림이다', keep.tool >= 5, keep.tool);
+  ok('도구 칸이 도구 모형 그림이다', keep.tool >= 4, keep.tool);
   const left = [];
   for(const [key, id] of [['c','popStat'],['i','popKit'],['y','popBadge']]){
     await pg.keyboard.press(key); await frames(pg, 2);
@@ -112,7 +112,7 @@ await frames(pg, 4);
     return o;
   });
   ok('★ 스텟 창(C) 안에 칭호 칸이 없다 (Y 로 뗐다)', !r.badgeInStat);
-  ok('칭호 창(Y)에 칭호 27개가 있다', r.badgeCells === 27, r.badgeCells);
+  ok('칭호 창(Y)에 칭호 24개가 있다 (38차 — 꽃 칭호 셋을 뺐다)', r.badgeCells === 24, r.badgeCells);
   ok('오른쪽 단추줄에 칭호 단추가 있다', r.btn);
   const sfx = await pg.evaluate(()=>{ const k = window.__SFXKEYS(); return ['click','open','close','equip','tab','plus'].filter(x=>!k.includes(x)); });
   ok('★ UI 소리 여섯(click·open·close·equip·tab·plus)이 있다', sfx.length===0, '없음: '+sfx.join(','));

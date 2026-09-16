@@ -1,4 +1,4 @@
-/* 18차 검사 — 하늘 섬 미니게임 (OX 퀴즈 · 모둠 줄넘기 · 모둠 서바이벌) · 건물값 20%
+/* 18차 검사 — 하늘 섬 미니게임 (서바이벌 · 섬 · 자동 열림) · 건물값 20%  (37차: OX 퀴즈·줄넘기는 빠졌다 — 경주는 t37)
    ★ 혼자 하기(호스트)로 세 판을 처음부터 끝까지 실제로 돌린다.
      흐름은 호스트 시계(hostPhase)가 끌고 가므로 __step 으로 시계를 돌려 본다.
    ★ 손으로 시계를 돌리는 동안은 G.paused 로 진짜 루프를 세운다 —
@@ -39,228 +39,29 @@ const auto = await ev(()=>{ const W=window, G=W.__G, o={};
     W.__step(1, 1/30); const r = {ph:G.phase, k:G.mini&&G.mini.k, day:G.day};
     if(G.phase==='mini'){ W.__miniExit(); } return r; };
   o.d4 = tryDay(4); o.d5 = tryDay(5); o.d10 = tryDay(10); o.d15 = tryDay(15);
-  o.DAYS = W.__MINI().DAYS; return o; });
-ok('★ 5일차 밤이 끝나면 OX 퀴즈가 열린다', auto.d5.ph==='mini' && auto.d5.k===0, JSON.stringify(auto.d5));
-ok('★ 10일차는 줄넘기 · 15일차는 서바이벌', auto.d10.k===1 && auto.d15.k===2, auto.d10.k+' · '+auto.d15.k);
+  o.DAYS = W.__MINI().DAYS; o.KIND = W.__MINI().KIND; return o; });
+ok('★ 5일차 밤이 끝나면 장애물 경주(k=0)가 열린다 (37차)', auto.d5.ph==='mini' && auto.d5.k===0, JSON.stringify(auto.d5));
+ok('★ 10일차는 서바이벌(k=1) · 15일차는 다시 경주 — 종류는 MINI_KIND 표', auto.d10.k===1 && auto.d15.k===0 && JSON.stringify(auto.KIND)==='[0,1,0]', auto.d10.k+' · '+auto.d15.k+' · '+JSON.stringify(auto.KIND));
 ok('★ 다른 날은 그냥 아침이 온다', auto.d4.ph==='day' && auto.d4.day===5, JSON.stringify(auto.d4));
 
 /* ═══════ ③ 하늘 섬 — 땅 · 가장자리 · 울타리 ═══════ */
 const isle = await ev(()=>{ const W=window, G=W.__G, M=W.__MINI(), PL=W.__PL, o={};
-  W.__goMini(0); G.paused = true;
+  W.__goMini(1); G.paused = true;                       /* 37차 — 섬 경계는 서바이벌에서 본다(경주는 섬 밖 발판으로 나간다) */
   o.높이 = +PL.y.toFixed(1); o.섬 = M.Y; o.바 = document.body.classList.contains('mini');
-  o.자리 = [+PL.x.toFixed(1), +PL.z.toFixed(1)]; o.발판 = [M.padX(G.me.g), M.PADZ];
+  o.자리 = [+PL.x.toFixed(1), +PL.z.toFixed(1)]; o.발판 = W.__miniSpawnXZ(G.me.g);
   /* 가장자리 밖으로 밀어 본다 */
   PL.x = M.R + 5; PL.z = 0; W.__updPlayer(1/30); o.밖 = +Math.hypot(PL.x, PL.z).toFixed(2); o.R = M.R;
-  /* O 우리 울타리 — 문(출발선 쪽)은 뚫리고 옆은 막힌다. 뛰면 넘는다 */
-  const cx = -M.OX, cz = M.OZ;
-  o.문 = W.__solidHit(cx, cz - M.ZR, M.Y + 0.3);
-  o.옆 = W.__solidHit(cx + M.ZR, cz, M.Y + 0.3);
-  o.뛰어넘기 = W.__solidHit(cx + M.ZR, cz, M.Y + 1.3);
   o.뱅크 = ['miFloor','miEdge','miMark','miGlow'].map(k=> !!W.__banks.get(k));
   return o; });
 ok('★ 들어가면 하늘 섬 높이에 선다', isle.높이 === isle.섬, isle.높이+' = '+isle.섬);
-ok('★ 우리 모둠 발판에서 시작한다', Math.abs(isle.자리[0]-isle.발판[0]) < 2.5 && Math.abs(isle.자리[1]-isle.발판[1]) < 2.5,
+ok('★ 우리 모둠 자리(서바이벌 고리 스폰)에서 시작한다', Math.abs(isle.자리[0]-isle.발판[0]) < 2.5 && Math.abs(isle.자리[1]-isle.발판[1]) < 2.5,
    JSON.stringify(isle.자리)+' ≈ '+JSON.stringify(isle.발판));
 ok('★ 섬 밖으로 못 나간다 (떨어지면 그 판을 통째로 놓친다)', isle.밖 <= isle.R - 0.9, isle.밖+' ≤ '+(isle.R-1));
-ok('★ O 우리는 출발선 쪽 문만 뚫려 있고, 울타리는 뛰어넘을 수 있다', !isle.문 && isle.옆 && !isle.뛰어넘기,
-   '문 '+isle.문+' · 옆 '+isle.옆+' · 뛰어넘기 '+isle.뛰어넘기);
 ok('★ 섬이 실제로 구워져 있다 (바닥·난간·표시·등불)', isle.뱅크.every(Boolean), isle.뱅크.join(' '));
 
-/* ═══════ ④ OX 퀴즈 — 처음부터 끝까지 ═══════ */
-const ox = await ev(()=>{ const W=window, G=W.__G, M=W.__MINI(), PL=W.__PL, o={};
-  G.paused = false;
-  W.__step((M.INTRO+1)*30, 1/30); o.설명뒤 = G.mini.st;
-  W.__step(30*30, 1/30); o.기다림 = G.mini.st;                 // 선생님이 안 내면 안 넘어간다
-  o.빈문제 = W.__oxAsk('   ', 'O');
-  /* 선생님 패널의 단추로 낸다 */
-  document.getElementById('tQ').value = '늑대는 밤에 온다';
-  document.getElementById('tQO').click();
-  o.낸뒤 = {st:G.mini.st, q:G.mini.q, t:Math.round(G.t)};
-  PL.x = -M.OX; PL.z = M.OZ; W.__miniTick(0.05); o.내자리 = W.__MINE.zone;
-  const r0 = {...G.res[G.me.g]};
-  W.__step((M.QSEC+1)*30, 1/30); W.__miniTick(0.05);
-  const r1 = G.res[G.me.g];
-  o.공개 = {st:G.mini.st, ans:G.mini.rv&&G.mini.rv.ans, ok:G.mini.rv&&G.mini.rv.ok.length, sc:[...G.mini.sc]};
-  o.상 = {w:r1.w-r0.w, s:r1.s-r0.s, g:r1.g-r0.g}; o.OK = M.OK;
-  /* 2번: 정답 공개 단추로 바로 끝낸다 */
-  W.__step((M.RSEC+1)*30, 1/30);
-  W.__oxAsk('양은 늑대를 잡아먹는다', 'X'); PL.x = M.OX; PL.z = M.OZ; W.__miniTick(0.05);
-  document.getElementById('tQNow').click(); W.__step(1, 1/30); W.__miniTick(0.05);
-  o.바로공개 = {st:G.mini.st, ok:G.mini.rv.ok.length};
-  /* 3번: 틀린다 — 아무것도 못 받는다.
-     같이 볼 것 ① 어느 우리에도 안 들어간 아이는 무조건 오답이고 몇 명인지 센다
-              ② 남은 5초면 화면이 비상으로 빨갛게 깜빡인다 */
-  W.__step((M.RSEC+1)*30, 1/30);
-  const r2 = {...G.res[G.me.g]};
-  W.__oxAsk('돌은 나무보다 가볍다', 'X'); PL.x = -M.OX; PL.z = M.OZ; W.__miniTick(0.05);
-  G.players.set('n1', {uid:'n1', x:0, y:M.Y, z:M.OZ, g:1, n:'우리밖'});   // 두 우리 사이 — 아무 데도 아니다
-  G.players.set('c1', {uid:'c1', x:M.OX, y:M.Y, z:M.OZ, g:2, n:'맞힌아이'});
-  o.밖자리 = W.__oxZoneOf(0, M.OZ);
-  o.내점수전 = G.mini.sc[G.me.g];
-  /* 남은 시간을 경고선까지 줄여 보고 화면을 다시 칠한다 */
-  G.t = M.WARN - 0.5; W.__updDanger();
-  o.비상 = document.getElementById('danger').classList.contains('urgent');
-  G.t = M.QSEC; W.__updDanger();        /* 원래 남은 시간으로 되돌려 놓고 이어 간다 */
-  o.아직 = document.getElementById('danger').classList.contains('urgent');
-  W.__step((M.QSEC+1)*30, 1/30); W.__miniTick(0.05);
-  o.틀림 = {ok:G.mini.rv.ok.length, got:G.res[G.me.g].w - r2.w,
-           내점수:G.mini.sc[G.me.g] - o.내점수전,
-           none:G.mini.rv.none, o:G.mini.rv.o, x:G.mini.rv.x};
-  G.players.clear();
-  W.__step((M.RSEC+1)*30, 1/30); W.__miniTick(0.05);
-  o.끝 = {st:G.mini.st, qn:G.mini.qn, sc:[...G.mini.sc]};
-  const day0 = G.day;
-  W.__step((M.DONE+1)*30, 1/30);
-  o.아침 = {ph:G.phase, day:G.day-day0, mini:G.mini, y:+PL.y.toFixed(1), GY:W.__GY,
-           body:document.body.classList.contains('mini'), bar:document.getElementById('miniBar').classList.contains('on')};
-  return o; });
-ok('★ 설명이 끝나면 선생님이 문제 낼 차례가 되고, 낼 때까지 넘어가지 않는다', ox.설명뒤==='ask' && ox.기다림==='ask', ox.설명뒤+' → '+ox.기다림);
-ok('★ 빈 문제는 안 낸다', ox.빈문제 === false);
-ok('★ 선생님 패널 단추로 문제가 나가고 푸는 시간이 시작된다', ox.낸뒤.st==='run' && ox.낸뒤.q==='늑대는 밤에 온다' && ox.낸뒤.t>0, JSON.stringify(ox.낸뒤));
-ok('★ O 우리 안에 서면 O 로 잡힌다', ox.내자리==='O');
-ok('★ 시간이 다 되면 정답이 공개되고 맞힌 아이가 세어진다', ox.공개.st==='reveal' && ox.공개.ans==='O' && ox.공개.ok===1 && ox.공개.sc[0]===1, JSON.stringify(ox.공개));
-ok('★ 맞히면 정해진 자원을 받는다', ox.상.w===ox.OK.w && ox.상.s===ox.OK.s && ox.상.g===ox.OK.g, JSON.stringify(ox.상));
-ok('★ 선생님이 "지금 정답 공개" 를 누르면 바로 공개된다', ox.바로공개.st==='reveal' && ox.바로공개.ok===1, JSON.stringify(ox.바로공개));
-ok('★ 틀리면 아무것도 못 받는다 (내 점수도 안 오른다)',
-   ox.틀림.내점수===0 && ox.틀림.got===0, JSON.stringify(ox.틀림));
-ok('★ 두 우리 사이는 어느 쪽도 아니다', ox.밖자리==='', '"'+ox.밖자리+'"');
-ok('★ 우리에 안 들어간 아이는 무조건 오답이고, 몇 명인지 세어 보여 준다 (가만히 서 있는 게 이득이면 안 걷는다)',
-   ox.틀림.none===1 && ox.틀림.ok===1 && ox.틀림.o===1 && ox.틀림.x===1, JSON.stringify(ox.틀림));
-/* ═══ 문제 현수막 (18차h) ═══ */
-const bn = await ev(()=>{
-  const W=window, G=W.__G, M=W.__MINI(), o={};
-  const px = (x)=> parseFloat(getComputedStyle(document.querySelector(x)).fontSize);
-  o.소리 = W.__SFX_KEYS().includes('quiz');
-  /* 문제를 하나 걸어 본다 */
-  W.__quizBanner('2번', '늑대는 밤에만 나타난다', false);
-  const b = document.getElementById('quizBanner');
-  o.문제 = {뜸:b.classList.contains('on'), 초록:b.classList.contains('ans'),
-           글:document.getElementById('qbQ').textContent,
-           번호:document.getElementById('qbNo').textContent,
-           몸에표시:document.body.classList.contains('qbOn')};
-  o.크기 = {현수막:px('#quizBanner .qbQ'), 판:px('#miniBar .mq'), 토스트:px('#toast')};
-  /* 정답이 공개되면 초록으로 */
-  W.__quizBanner('정답', '⭕ O · 3명이 맞혔어요', true);
-  o.정답 = {초록:b.classList.contains('ans'), 글:document.getElementById('qbQ').textContent};
-  /* 내린다 */
-  W.__quizBanner(null, null);
-  o.내림 = {뜸:b.classList.contains('on'), 몸에표시:document.body.classList.contains('qbOn')};
-  return o;
-});
-ok('★ 문제가 나올 때 터지는 소리가 있다', bn.소리);
-ok('★ 문제가 현수막에 크게 뜬다 (번호 딱지 + 문제 글)',
-   bn.문제.뜸 && !bn.문제.초록 && bn.문제.번호 === '2번'
-   && bn.문제.글 === '늑대는 밤에만 나타난다' && bn.문제.몸에표시,
-   JSON.stringify(bn.문제));
-/* ★ 글자 크기를 못 박는 이유 — `font: 900 46px inherit` 처럼 쓰면 CSS 가 그 줄을 통째로
-   버린다(font 줄임표기에서 글꼴 자리에 inherit 은 못 쓴다). 그러면 아무 오류 없이
-   브라우저 기본값 16px 로 나온다. 실제로 파일 전체에 82군데가 그랬다. */
-ok('★ 큰 글씨로 정한 것이 실제로 크다 (글자 크기 규칙이 조용히 버려지지 않는다)',
-   bn.크기.현수막 >= 30 && bn.크기.판 >= 20 && bn.크기.토스트 >= 18,
-   '현수막 '+bn.크기.현수막+'px · 판 '+bn.크기.판+'px · 토스트 '+bn.크기.토스트+'px');
-ok('★ 정답이 공개되면 현수막이 초록으로 바뀐다', bn.정답.초록 && /맞혔어요/.test(bn.정답.글),
-   JSON.stringify(bn.정답));
-ok('★ 퀴즈가 끝나면 현수막이 내려간다', !bn.내림.뜸 && !bn.내림.몸에표시);
-
-ok('★ 남은 5초면 화면이 비상으로 빨갛게 깜빡인다 (그 전엔 안 깜빡인다)',
-   ox.비상 === true && ox.아직 === false, '5초 '+ox.비상+' · 그 전 '+ox.아직);
-ok('★ 세 문제가 끝나면 마무리 판이 뜬다', ox.끝.st==='done' && ox.끝.qn===3 && ox.끝.sc[0]===2, JSON.stringify(ox.끝));
-ok('★ 그 뒤 새 아침이 오고 땅으로 돌아온다 (판·미니게임 표시도 꺼진다)',
-   ox.아침.ph==='day' && ox.아침.day===1 && ox.아침.mini===null && ox.아침.y===ox.아침.GY && !ox.아침.body && !ox.아침.bar,
-   JSON.stringify(ox.아침));
-
-/* ═══════ ⑤ 줄넘기 ═══════ */
-const rope = await ev(()=>{ const W=window, G=W.__G, M=W.__MINI(), PL=W.__PL, o={};
-  /* 줄 속도 — 닫힌 식이라 어긋남이 안 쌓이고, 느릴 때와 빠를 때가 있다 */
-  let dmin=1e9, dmax=0, mono=true, prev=W.__ropePhase(0);
-  for(let t=0.01; t<=M.ROPE; t+=0.01){ const ph=W.__ropePhase(t); const d=(ph-prev)/0.01; prev=ph;
-    if(d<=0) mono=false; dmin=Math.min(dmin,d); dmax=Math.max(dmax,d); }
-  o.속도 = {느림:+dmin.toFixed(2), 빠름:+dmax.toFixed(2), 늘앞으로:mono, 바퀴:Math.floor(W.__ropePhase(M.ROPE)/(Math.PI*2))};
-  W.__goMini(1); W.__step((M.INTRO+1)*30, 1/30); W.__miniTick(0.05); G.paused = true;
-  o.단계 = G.mini.st;
-  PL.x = M.padX(G.me.g); PL.z = M.PADZ;
-  /* ★ 20차 — 판정이 '떠 있나(PL.ground)' 에서 '줄 위에 있나(발 높이)' 로 바뀌었다.
-     그래서 깃발을 손으로 세우는 대신 **실제 높이를 세워** 잰다.
-     (게임이 규칙을 바꿨으니 검사도 같은 것을 재게 고치는 게 맞다 —
-      깃발만 세우면 이제 아무것도 안 재는 검사가 된다.) */
-  const gy = W.__groundUnder(PL.x, PL.z, PL.R);
-  for(let t=0; t<M.ROPE; t+=0.05){ G.t = M.ROPE - t;
-    const ph = W.__ropePhase(t) % (Math.PI*2), near = ph < 0.35 || ph > Math.PI*2-0.35;
-    PL.ground = !near; PL.airT = near ? 0 : 1;
-    PL.y = gy + (near ? M.CLEAR + 0.3 : 0);          // 줄이 올 때만 확실히 떠 있다
-    W.__miniTick(0.05); }
-  o.맞춰뜀 = {j:W.__MINE.j, f:W.__MINE.f};
-  W.__MINE.j = 0; W.__MINE.f = 0; W.__MINE.rs = 0;
-  for(let t=0; t<M.ROPE; t+=0.05){ G.t = M.ROPE - t;
-    PL.ground = true; PL.airT = 1; PL.y = gy; W.__MINE.rs = 0; W.__miniTick(0.05); }
-  o.안뜀 = {j:W.__MINE.j, f:W.__MINE.f};
-  /* 발판 밖에 서 있으면 세지 않는다 */
-  W.__MINE.j = 0; W.__MINE.f = 0; W.__MINE.rs = 0; PL.x = 0; PL.z = 0;
-  for(let t=0; t<M.ROPE; t+=0.05){ G.t = M.ROPE - t; PL.ground = true; PL.airT = 1; W.__miniTick(0.05); }
-  o.밖 = {j:W.__MINE.j, f:W.__MINE.f};
-  return o; });
-/* 줄은 그리기 루프가 그린다 — 한 프레임은 지나야 칸이 찬다 */
-await pg.waitForTimeout(400);
-rope.줄 = await ev(()=>({n:window.__R_rope().count, 칸:window.__R_rope().instanceMatrix.count}));
-/* 줄이 부드러운가 — 점 사이 꺾임, 마디가 눕는 방향, 이웃과 겹치는 정도 */
-rope.곡선 = await ev(()=>{
-  const W=window, M=W.__MINI(), SEG=M.SEG, ph=1.1, pts=[];
-  for(let i=0;i<=SEG;i++) pts.push(W.__ropePt(0, i/SEG, ph));
-  let maxAng=0;
-  for(let i=1;i<SEG;i++){
-    const a=pts[i-1], b=pts[i], c=pts[i+1];
-    const u=[b[0]-a[0],b[1]-a[1],b[2]-a[2]], v=[c[0]-b[0],c[1]-b[1],c[2]-b[2]];
-    const lu=Math.hypot(u[0],u[1],u[2]), lv=Math.hypot(v[0],v[1],v[2]);
-    const cos=(u[0]*v[0]+u[1]*v[1]+u[2]*v[2])/(lu*lv);
-    maxAng=Math.max(maxAng, Math.acos(Math.max(-1,Math.min(1,cos)))*180/Math.PI);
-  }
-  /* 실제로 그려진 마디를 행렬만 보고 잰다 — 로컬 +Z 축(3열)이 이웃 마디로 가는
-     방향과 맞나, 그리고 그 길이가 마디 사이 간격보다 기나(겹침).
-     ★ 점 함수(__ropePt)와 맞대면 안 된다. 화면에 그려진 줄은 '지금 이 순간의 각도' 로
-       그려져 있어서, 검사가 고른 각도와 다르면 멀쩡한 줄도 어긋난 것으로 나온다. */
-  const R=W.__R_rope(), arr=R.instanceMatrix.array;
-  let maxOff=0, minOv=1e9;
-  for(let i=0;i<SEG-1;i++){
-    const o=i*16, zx=arr[o+8], zy=arr[o+9], zz=arr[o+10];
-    const len=Math.hypot(zx,zy,zz);
-    const dx=arr[o+16+12]-arr[o+12], dy=arr[o+16+13]-arr[o+13], dz=arr[o+16+14]-arr[o+14];
-    const ld=Math.hypot(dx,dy,dz);
-    const cos=Math.abs((zx*dx+zy*dy+zz*dz)/(len*ld));
-    maxOff=Math.max(maxOff, Math.acos(Math.max(-1,Math.min(1,cos)))*180/Math.PI);
-    minOv=Math.min(minOv, len/ld);
-  }
-  return {마디:SEG, 최대꺾임:+maxAng.toFixed(1), 최대어긋남:+maxOff.toFixed(1), 겹침:+minOv.toFixed(2)};
-});
-Object.assign(rope, await ev(()=>{ const W=window, G=W.__G, M=W.__MINI(), o={};
-  /* 순위 — 모둠 평균. 남의 점수를 흉내 내 넣는다 */
-  W.__MINE.j = 17; W.__miniPl.set('a1',{g:1,n:'가',j:9}); W.__miniPl.set('a2',{g:1,n:'나',j:11}); W.__miniPl.set('a3',{g:2,n:'다',j:30});
-  const r0 = {...G.res[G.me.g]};
-  G.paused = false; G.t = 0; W.__step(1, 1/30); W.__miniTick(0.05);
-  const r1 = G.res[G.me.g];
-  o.순위 = {st:G.mini.st, sc:[...G.mini.sc], rank:[...G.mini.rank], 상:{w:r1.w-r0.w, s:r1.s-r0.s, g:r1.g-r0.g}, PRIZE:M.PRIZE};
-  W.__step((M.DONE+1)*30, 1/30);
-  return o; }));
-ok('★ 줄이 느려졌다 빨라졌다 하면서 늘 앞으로만 돈다', rope.속도.늘앞으로 && rope.속도.빠름/rope.속도.느림 > 2, JSON.stringify(rope.속도));
-ok('★ 설명이 끝나면 저절로 시작한다', rope.단계==='run');
-ok('★ 줄이 발밑에 올 때 떠 있으면 넘은 것으로 센다 (1분에 스무 번 남짓)', rope.맞춰뜀.j >= 15 && rope.맞춰뜀.f===0, JSON.stringify(rope.맞춰뜀));
-ok('★ 가만히 서 있으면 매번 걸린다', rope.안뜀.j===0 && rope.안뜀.f >= 15, JSON.stringify(rope.안뜀));
-ok('★ 우리 모둠 발판 밖에 있으면 세지 않는다', rope.밖.j===0 && rope.밖.f===0, JSON.stringify(rope.밖));
-ok('★ 줄 다섯 개가 그려지고 칸이 안 넘친다', rope.줄.n > 0 && rope.줄.n <= rope.줄.칸, rope.줄.n+' / '+rope.줄.칸);
-ok('★ 줄이 부드러운 곡선이다 — 마디끼리 꺾이는 각이 작다',
-   rope.곡선.최대꺾임 < 12 && rope.곡선.마디 >= 40,
-   '마디 '+rope.곡선.마디+'개 · 이웃끼리 최대 '+rope.곡선.최대꺾임+'도');
-ok('★ 마디가 줄이 가는 쪽으로 눕는다 (축에 나란한 상자를 늘어놓으면 구슬 목걸이가 된다)',
-   rope.곡선.최대어긋남 < 6, '마디 방향이 곡선과 최대 '+rope.곡선.최대어긋남+'도 어긋난다');
-ok('★ 마디가 이웃과 겹친다 — 겹쳐야 이음매가 안 보인다',
-   rope.곡선.겹침 > 1.1, '길이 ÷ 간격 = '+rope.곡선.겹침);
-ok('★ 모둠 점수는 모둠원 평균이고, 많이 넘은 모둠이 1등이다', rope.순위.sc[1]===10 && rope.순위.sc[2]===30 && rope.순위.rank[0]===2 && rope.순위.rank[1]===0,
-   'sc '+JSON.stringify(rope.순위.sc)+' rank '+JSON.stringify(rope.순위.rank));
-ok('★ 순위대로 상을 받는다 (2등 = 두 번째 상)', rope.순위.상.w===rope.순위.PRIZE[1].w && rope.순위.상.g===rope.순위.PRIZE[1].g, JSON.stringify(rope.순위.상));
-ok('★ 꼴찌도 빈손은 아니다', rope.순위.PRIZE[4].w > 0 && rope.순위.PRIZE[4].g > 0, JSON.stringify(rope.순위.PRIZE[4]));
-
-/* ═══════ ⑥ 서바이벌 ═══════ */
+/* ═══════ ④ 서바이벌 (37차: k=1) ═══════ */
 const sv = await ev(()=>{ const W=window, G=W.__G, M=W.__MINI(), PL=W.__PL, o={};
-  W.__goMini(2); W.__step((M.INTRO+1)*30, 1/30); W.__miniTick(0.05); G.paused = true;
+  G.paused = false; if(W.__miniOn()) W.__miniExit(); W.__goMini(1); W.__step((M.INTRO+1)*30, 1/30); W.__miniTick(0.05); G.paused = true;
   W.__syncMyPC(); o.시작 = {st:G.mini.st, aiming:document.body.classList.contains('aiming'), wp:W.__myPC().wp, gun:M.GUN};
   /* 조준 — 앞에 선 다른 모둠 아이는 맞고, 같은 모둠·이미 쓰러진 아이는 안 맞는다.
      ★ 자리를 숫자로 박지 않는다. 지형이 바뀌면 그 자리가 대(臺) 속이 되어
@@ -433,7 +234,7 @@ ok('★ 잘했을 때의 초록 번쩍이 켜진다', snd.초록번쩍 === 1, St
      눈에 보이는 것과 발·총알이 보는 것이 같은 표에서 나오는지도 같이 본다. */
 const arena = await ev(()=>{
   const W=window, G=W.__G, M=W.__MINI(), o={};
-  W.__goMini(2); G.paused = true;
+  W.__goMini(1); G.paused = true;
   o.모양 = {상자:W.__SURV_BOX().length, 단:W.__SURV_CYL().length};
   /* ★ 아래단을 (0,5) 로 박아 뒀더니 섬을 넓히면서 위 단이 거기까지 와서
      '가운데와 아래단이 같다' 며 빨개졌다. 두 단의 반지름을 표에서 읽어 그 사이를 잰다. */

@@ -1,4 +1,4 @@
-/* 17차b 검사 — 오늘의 으뜸(여러 갈래 순위) · 수리 연출
+/* 17차b 검사 — 수리 연출 (38차: '오늘의 으뜸' 갈래 돌리기 절은 순위판을 레벨만 남기면서 뺐다 — 12 → 6)
    ★ 값을 검사에 박지 않는다. 게임에서 읽어 '관계'만 본다. */
 import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
 import { serve } from './serve2.mjs';
@@ -16,80 +16,6 @@ await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
 await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
 await pg.fill('#iName','김하늘'); await pg.click('#bSolo'); await pg.waitForTimeout(1200);
 await pg.evaluate(()=>document.querySelectorAll('.pop').forEach(e=>e.classList.remove('on')));
-
-/* ═══════ ① 여러 갈래로 돌아가나 ═══════ */
-const rk = await pg.evaluate(()=>{
-  const W=window, o={};
-  o.갈래 = W.__RANK_CATS.map(c=>c.k);
-  /* 가짜 친구 넷을 넣는다 — 저마다 다른 갈래에서 1등이 되도록 */
-  const P=[
-    {u:'a', n:'가영', g:0, lv:30, mined:10, built:2,  fixed:1,  helped:0, hits:5},
-    {u:'b', n:'나온', g:1, lv:12, mined:99, built:1,  fixed:0,  helped:0, hits:1},
-    {u:'c', n:'다현', g:2, lv:14, mined:5,  built:44, fixed:2,  helped:1, hits:0},
-    {u:'d', n:'라온', g:3, lv:11, mined:3,  built:1,  fixed:77, helped:9, hits:0}
-  ];
-  for(const p of P) W.__pcMap.set(p.u, p);
-  /* 갈래마다 1등이 누구인지 — paintRank 를 직접 부르지 않고 같은 규칙으로 뽑는다 */
-  o.으뜸 = {};
-  for(const c of W.__RANK_CATS){
-    let best=null, bv=-1;
-    for(const [,p] of W.__pcMap){ if(!p||!p.n) continue;
-      const v=p[c.k]|0; if(v>bv){ bv=v; best=p.n; } }
-    o.으뜸[c.k] = best;
-  }
-  o.서로다른1등 = new Set(Object.values(o.으뜸)).size;
-  /* 아직 아무도 안 한 갈래는 목록에서 빠지나 */
-  o.지금갈래 = W.__rankCats().map(c=>c.k);
-  for(const [,p] of W.__pcMap){ p.fixed=0; p.helped=0; }
-  W.__MY.fixed=0; W.__MY.helped=0;
-  o.수리0일때 = W.__rankCats().map(c=>c.k);
-  return o;
-});
-/* ★ 처음엔 '갈래가 여섯이다' 로 개수를 박아 뒀는데, 17차d 에 농장 갈래를 더하자
-   게임은 멀쩡한데 검사만 빨개졌다. 세어야 할 것은 개수가 아니라
-   '쏘기 말고도 잘하는 길이 여러 갈래로 남는가' 다. */
-ok('갈래가 여럿이고, 쏘기 말고 캐기·짓기·수리도 들어 있다',
-   rk.갈래.length >= 6 && ['lv','mined','built','fixed'].every(k=>rk.갈래.includes(k))
-   && new Set(rk.갈래).size === rk.갈래.length, rk.갈래.join(' '));
-ok('★ 갈래마다 1등이 갈린다 — 여러 아이가 저마다 으뜸이 된다',
-   rk.서로다른1등 >= 4, JSON.stringify(rk.으뜸));
-ok('★ 아직 아무도 안 한 갈래는 건너뛴다 (첫날 "수리 으뜸 0" 이 안 뜬다)',
-   !rk.수리0일때.includes('fixed') && !rk.수리0일때.includes('helped')
-   && rk.수리0일때.includes('lv'),
-   '수리·도움이 0일 때 → ' + rk.수리0일때.join(' '));
-ok('레벨 갈래는 언제나 남는다', rk.수리0일때[0] === 'lv');
-
-/* 실제로 화면이 돌아가나 — 제목이 바뀌는지 본다 */
-const rot = await pg.evaluate(async ()=>{
-  const W=window, seen=new Set(), rows=[];
-  /* 갈래가 다 살아 있게 값을 채워 둔다 */
-  for(const [,p] of W.__pcMap) if(p&&p.n){ p.fixed=3; p.helped=2; p.hits=4; p.mined=7; p.built=5; }
-  /* ★ 고정 시간으로 기다리면 안 된다 — 이유가 처음 짐작(게임 시계)과 달랐다.
-     갈래는 performance.now()/RANK_SEC 로, 즉 **벽시계**로 돈다. 그런데 검사기가 바쁘면
-     (동시 4개, 1~3fps) setTimeout(5120) 이 10초, 13초 뒤에 깨어난다 — 한 프레임이 1초씩
-     주 스레드를 잡고 있어서다. 그러면 표본이 k, k+2, k+5… 로 건너뛰고, 갈래가 여덟이라
-     여덟 칸 주기와 **엇갈려서(aliasing)** 일곱 번 뽑아도 셋만 남는 판이 생긴다.
-     그래서 '제목이 바뀔 때까지' 기다린다 — 몇 초 걸리든 바뀔 때마다 하나씩 담으므로 못 건너뛴다.
-     보려는 것은 '몇 초에 바뀌나' 가 아니라 '시간이 지나면 돌아가나' 다. 안 돌면 천장에서
-     손을 떼고 그대로 빨간불이 된다(벽시계 5초 주기라 한 번 바뀌는 데 길어야 몇 프레임이다). */
-  const head = ()=>{ W.__hudPrev().rank = ''; W.__paintRank();
-                     return document.getElementById('rankHead').textContent; };
-  const waitChange = last => new Promise(res=>{
-    let n=0; const t=()=>{ const h=head();
-      if(h!==last || ++n>600) return res(h); requestAnimationFrame(t); };
-    requestAnimationFrame(t); });
-  let cur = head();
-  seen.add(cur); rows.push(document.querySelectorAll('#rankList .rkRow').length);
-  for(let i=0; i<6; i++){
-    cur = await waitChange(cur);
-    seen.add(cur);
-    rows.push(document.querySelectorAll('#rankList .rkRow').length);
-  }
-  return {제목수:seen.size, 제목:[...seen], 줄수:rows,
-          보임:document.getElementById('rankWrap').style.display !== 'none'};
-});
-ok('★ 시간이 지나면 갈래가 돌아간다', rot.제목수 >= 4, rot.제목.join(' / '));
-ok('판이 화면에 떠 있다', rot.보임 && Math.min(...rot.줄수) > 0, '줄 '+rot.줄수.join(','));
 
 /* ═══════ ② 수리 연출 ═══════ */
 const fx = await pg.evaluate(()=>{

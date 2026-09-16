@@ -22,7 +22,7 @@ const ev = f => pg.evaluate(f);
 
 const enter = ()=> ev(()=>{
   const W=window, G=W.__G, M=W.__MINI(), PL=W.__PL;
-  G.paused = false; W.__goMini(2);
+  G.paused = false; W.__goMini(1);
   for(let i=0;i<Math.ceil((M.INTRO+1)*30);i++) W.__miniTick(1/30);
   G.mini.st = 'run'; G.paused = true;
   const MI = W.__MINE; MI.hp = M.HP; MI.out = false; MI.dm = 0; MI.k = 0; MI.rs = 0;
@@ -47,7 +47,7 @@ const one = await ev(()=>{
   o.또맞음 = MI.hp - hp0;
   /* ③ 혼자 일어나기 시계가 안 돈다 — 마을에서는 24초면 일어난다 */
   G.paused = false;
-  for(let i=0;i<Math.ceil((M.ROPE)*30);i++) W.__downTick(1/30);   // 60초어치
+  for(let i=0;i<Math.ceil(60*30);i++) W.__downTick(1/30);   // 60초어치
   o.혼자일어남 = !PL.down ? '일어났다' : '그대로 누움';
   o.누운시간 = +(PL.downT||0).toFixed(1);
   G.paused = true;
@@ -158,7 +158,7 @@ ok('다 쓰러졌으면 그 판에서 제일 많이 넣은 사람의 모둠', wi
 const prize = await ev(()=>{
   const W=window, G=W.__G, M=W.__MINI(), o={};
   const run = (myWin)=>{
-    G.paused = false; W.__goMini(2);
+    G.paused = false; W.__goMini(1);
     for(let i=0;i<Math.ceil((M.INTRO+1)*30);i++) W.__miniTick(1/30);
     G.mini.st = 'run'; G.paused = true;
     W.__MINE.out = true; W.__MINE.dm = 0; W.__PL.down = true;
@@ -197,7 +197,7 @@ ok('★ 참가상은 1등 상의 1/5 ~ 1/2 사이다 (이기는 쪽이 훨씬 �
    ['w','s','g'].every(k=> 비(prize.참가상[k], prize.상[k]) >= 0.2
                         && 비(prize.참가상[k], prize.상[k]) <= 0.5),
    ['w','s','g'].map(k=> k+' '+(비(prize.참가상[k], prize.상[k])).toFixed(2)).join(' · '));
-ok('★ 참가상은 순위 상 꼴찌보다 많지 않다 (줄넘기 꼴찌보다 나으면 안 된다)',
+ok('★ 참가상은 순위 상 꼴찌보다 많지 않다 (순위 상 꼴찌보다 나으면 안 된다)',
    ['w','s','g'].every(k=> prize.참가상[k] <= prize.꼴찌상[k]),
    JSON.stringify(prize.참가상) + ' vs 꼴찌 ' + JSON.stringify(prize.꼴찌상));
 
@@ -206,7 +206,7 @@ ok('★ 참가상은 순위 상 꼴찌보다 많지 않다 (줄넘기 꼴찌보�
      여기서는 일부러 나를 다섯째로 만들어(전광판 밖) 그래도 뜨는지 본다. */
 const 내피해 = await ev(()=>{
   const W=window, G=W.__G, M=W.__MINI(), o={};
-  G.paused = false; W.__goMini(2);
+  G.paused = false; W.__goMini(1);
   for(let i=0;i<Math.ceil((M.INTRO+1)*30);i++) W.__miniTick(1/30);
   G.mini.st = 'run'; G.paused = true;
   W.__MINE.out = true; W.__MINE.dm = 7; W.__PL.down = true;
@@ -231,7 +231,7 @@ ok('★ 전광판에 못 든 아이도 끝나는 알림에서 자기가 넣은 �
 const early = await ev(()=>{
   const W=window, G=W.__G, M=W.__MINI(), o={};
   const run = (rows)=>{
-    G.paused = false; W.__goMini(2);
+    G.paused = false; W.__goMini(1);
     for(let i=0;i<Math.ceil((M.INTRO+1)*30);i++) W.__miniTick(1/30);
     G.mini.st = 'run';
     W.__miniPl.clear();

@@ -132,7 +132,7 @@ const bag = await ev(()=>{
   for(let i=0;i<W.__WEAPONS.length;i++) if(!W.__WEAPONS[i].mini) K.ownW[i]=true;
   for(let i=0;i<W.__ARMORS.length;i++) K.ownA[i]=true;
   K.pot[0]=2; K.wpn=2; K.arm=1;
-  G.me.hat=0; G.me.gls=0; G.me.clo=0; G.me.pet=0;
+  G.me.hat=0; G.me.gls=0; G.me.clo=0;
   W.__openKit();
   o.입은자리 = document.querySelectorAll('.kSlot').length;
   o.자리이름 = [...document.querySelectorAll('.kSlot .kTag')].map(e=>e.textContent);
@@ -150,7 +150,7 @@ const bag = await ev(()=>{
   K.ownW[3] = true;
   return o;
 });
-ok('입은 자리가 여섯이다 (모자·안경·옷 / 무기·방어구·짝꿍)', bag.입은자리 === 6, bag.자리이름.join(' · '));
+ok('입은 자리가 다섯이다 (모자·안경·옷 / 무기·방어구 — 38차에 짝꿍 자리를 뺐다)', bag.입은자리 === 5, bag.자리이름.join(' · '));
 ok('★ 가운데에 내 양이 선다 (뭘 입었는지 글씨가 아니라 그림으로 보인다)', bag.미리보기 === true);
 ok('입고 있는 것만 초록 테가 켜진다 (무기 하나 · 방어구 하나)', bag.켜진칸 === 2, bag.켜진칸+'칸');
 ok('★ 미니게임 전용 총은 가방에 안 나온다 (가게와 같은 규칙)',
@@ -160,7 +160,7 @@ ok('★ 안 산 것은 칸에 안 깔린다', bag.안산것뺀뒤 === bag.칸 - 
 /* ═══════ ⑥ 가방에서 갈아입기 — 통신은 안 늘었다 ═══════ */
 const wear = await ev(()=>{
   const W=window, G=W.__G, o={};
-  G.me.hat=0; G.me.gls=0; G.me.clo=0; G.me.pet=0; W.__openKit();
+  G.me.hat=0; G.me.gls=0; G.me.clo=0; W.__openKit();
   const pick = (name)=> [...document.querySelectorAll('#kitGrid .kCell')]
     .find(c => (c.title||'').indexOf(name) === 0);
   /* 모자를 하나 눌러 본다 */
@@ -169,11 +169,6 @@ const wear = await ev(()=>{
   if(c) c.click();
   o.쓴모자 = G.me.hat;
   o.칸이켜졌나 = !!(pick(hatName) && pick(hatName).classList.contains('on'));
-  /* 짝꿍도 — 이건 pc 통로로 나간다 */
-  const petName = W.__PET_NAME[1];
-  const p = pick(petName); if(p) p.click();
-  W.__syncMyPC();
-  o.짝꿍 = {me:G.me.pet, pc:W.__myPC().pet};
   /* 입은 자리를 누르면 벗는다 */
   const slot = [...document.querySelectorAll('.kSlot')]
     .find(e => (e.querySelector('.kTag')||{}).textContent === '모자');
@@ -181,16 +176,13 @@ const wear = await ev(()=>{
   o.벗은뒤 = G.me.hat;
   /* 갈아입기가 쓰는 칸이 전부 이미 나가던 칸인가 */
   o.자리통로 = ['hat','gls','clo'].every(k => G.me[k] !== undefined);
-  o.pc통로 = W.__myPC().pet !== undefined;
   return o;
 });
 ok('★ 가방에서 모자를 누르면 그 자리에서 쓴다 (시작 화면에서 고른 뒤로는 못 바꾸던 것이다)',
    wear.모자칸있나 && wear.쓴모자 === 1 && wear.칸이켜졌나, '모자 '+wear.쓴모자);
-ok('★ 짝꿍을 바꾸면 친구에게 나가는 칸(pc)까지 따라간다',
-   wear.짝꿍.me === 1 && wear.짝꿍.pc === 1, JSON.stringify(wear.짝꿍));
 ok('★ 입은 자리를 누르면 벗는다', wear.벗은뒤 === 0);
 ok('★ 갈아입기가 쓰는 칸은 전부 이미 나가던 칸이다 = 통신이 한 칸도 안 늘었다',
-   wear.자리통로 && wear.pc통로);
+   wear.자리통로);
 
 /* ═══════ ⑦ 가방 — 거르는 칸과 물약 ═══════ */
 const tabs = await ev(()=>{

@@ -333,28 +333,7 @@ ok('★ 남의 모둠 우리에 놓인 것은 못 줍는다 (남의 농장을 �
    rbox.남의것 > 0 && rbox.남의것주움 === 0 && rbox.남의것남음 === rbox.남의것,
    '남의 우리 '+rbox.남의것+'개 · 주워진 것 '+rbox.남의것주움+'개');
 
-/* ═══════ ⑧ 농장 일이 '으뜸' 판에 남는다 ═══════ */
-const rank = await pg.evaluate(()=>{
-  const W=window, o={};
-  o.갈래 = W.__RANK_CATS.map(c=>c.k);
-  o.농장갈래있나 = o.갈래.includes('farmed');
-  /* 거둔 아이가 있으면 그 갈래가 돌아가는 목록에 낀다 */
-  W.__pcMap.set('zz', {u:'zz', n:'나래', g:1, lv:3, farmed:12});
-  o.도는갈래 = W.__rankCats().map(c=>c.k);
-  o.농장이돈다 = o.도는갈래.includes('farmed');
-  W.__pcMap.delete('zz');
-  /* ★ 앞 항목(⑦)에서 내가 직접 거뒀기 때문에 내 기록에도 farmed 가 남아 있다.
-     그걸 안 지우고 '아무도 안 했을 때' 를 재면, 페이지 타이머가 syncMyPC 를
-     부른 뒤냐 전이냐에 따라 통과했다 실패했다 한다 — 열 번에 한 번 빨개졌다.
-     게임이 아니라 검사가 흔들린 것이다. */
-  W.__MY.farmed = 0; W.__syncMyPC();
-  o.아무도안했을때 = W.__rankCats().map(c=>c.k).includes('farmed');
-  return o;
-});
-ok('★ 농장을 잘한 아이 이름이 남는 자리가 있다', rank.농장갈래있나, rank.갈래.join(','));
-ok('★ 거둔 아이가 있으면 농장 갈래가 순위판에 돈다', rank.농장이돈다);
-ok('★ 아무도 농장을 안 했으면 빈 갈래는 안 돈다', !rank.아무도안했을때);
-
+/* (⑧ '농장 일이 으뜸 판에 남는다' 는 38차에 순위판을 레벨만 남기면서 뺐다 — 농장 일의 자리는 칭호 🥚🧺🚜 가 맡는다)
 /* ═══════ ⑨ 그리기 — 마리수만큼 그리고, 더러울 때만 자국·파리 ═══════ */
 const draw = await pg.evaluate(async ()=>{
   const W=window, G=W.__G, o={}, f=G.farm[0];
