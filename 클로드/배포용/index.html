@@ -2455,7 +2455,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '39차 · 경주 — 아이템 뺌 · 달리기 속도감 · 굴러오는 공·진자·도는 막대와 우르릉 소리 · 뛸 때 카메라';
+const GAME_VER = '40차 · 손맛 — 양 걸음·뜀 모션 · 경주 카메라 · 신나는 경주 음악 · 무거운 바위 · 쇠사슬 진자';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -8478,11 +8478,20 @@ function drawSheep(list, t, cap, colOf, scale){
     const ry = (s.ry||0) + Math.PI;                 // ★ 전방 보정
     const fx = Math.sin(ry), fz = Math.cos(ry);     // 앞
     const rx = Math.cos(ry), rz = -Math.sin(ry);    // 오른쪽
-    const gait = t*8 + (s.ph||0);
-    const walk = down ? 0 : (s.mv ? Math.sin(gait)*0.5 : 0);
-    const bob  = (!down && s.mv) ? Math.abs(Math.sin(gait))*0.040*sc : 0;
+    /* 40차 — 선생님: "양이 걷거나 뛸 때 몸이나 발이 안 움직이니까 뛰는 것 같지가 않음. 점프할 때도 마찬가지."
+       37차까지의 걸음(다리 앞뒤 ±0.07 · 몸통 0.04)은 화면에서 안 보였다. 이제 다리는 앞뒤로 크게 기울며(±1.1rad) 앞으로 나가는
+       다리를 들고, 몸통은 통통 튀며 앞으로 기울고(lean), 머리는 한 박자 늦게 끄덕인다. 달리면(run) 더 빠르고 크게.
+       공중(air)에서는 다리 넷을 뒤로 접고 몸이 세로로 늘어나며, 착지(land 0.18초)하면 납작하게 눌렸다 돌아온다. */
+    const run = !!s.run, air = !down && !!s.air, vy = s.vy || 0, land = down ? 0 : Math.max(0, s.land || 0);
+    const gait = t*(run ? 12.5 : 8.5) + (s.ph||0);
+    const walk = (down || air) ? 0 : (s.mv ? Math.sin(gait)*(run ? 0.9 : 0.62) : 0);
+    const sq   = land > 0 ? 1 - (land/0.18)*0.22 : 1;                                   // 착지 — 세로로 눌린다
+    const bob  = ((!down && s.mv && !air) ? Math.abs(Math.sin(gait))*(run ? 0.11 : 0.07)*sc : 0) - (1 - sq)*0.16*sc;
+    const lean = air ? (vy > 1 ? -0.22 : 0.10) : (s.mv ? (run ? -0.17 : -0.08) : 0);       // 몸통 기울기 — 뜰 땐 뒤로, 내려올 땐 앞으로, 달리면 앞으로
     /* 머리 끄덕임 — 몸통 반동보다 한 박자 늦게 따라온다. 이게 있어야 살아 있어 보인다. */
-    const nod  = s.mv ? Math.sin(gait - 0.9)*0.045 : Math.sin(t*1.5 + (s.ph||0))*0.012;
+    const nod  = air ? (vy > 1 ? 0.06 : -0.05) : s.mv ? Math.sin(gait - 0.9)*(run ? 0.09 : 0.06) : Math.sin(t*1.5 + (s.ph||0))*0.012;
+    const stretch = air ? (vy > 1 ? 1.12 : 0.96) : sq;                                   // 세로 — 공중에선 늘어나고 착지하면 눌린다
+    const widen   = air ? (vy > 1 ? 0.94 : 1.03) : 1 + (1 - sq)*0.9;                     // 가로는 반대로
     const col  = colOf(s);
     const wool = lighten(col, 0.34);                // 털뭉치
     const frng = lighten(col, 0.20);                // 앞머리
@@ -8498,13 +8507,13 @@ function drawSheep(list, t, cap, colOf, scale){
     const YH = down ? Y : (u)=> y + (u+nod)*sc + bob;   // 머리에 붙은 것들
 
     // 몸통 — 짧고 통통하게. 덩치는 위에 얹는 털뭉치가 만든다.
-    setI(P_body, n, X(0,0), Y(0.56), Z(0,0), ry, 0.84*sc, 0.62*sc, 0.94*sc, col);
+    setIR(P_body, n, X(0,0), Y(0.56), Z(0,0), ry, lean, 0.84*sc*widen, 0.62*sc*stretch, 0.94*sc, col);
     /* 등털 — 몸통보다 넓게 빼서 처마처럼 걸치게 하면 복슬복슬해 보인다.
        27차: 상자 하나 → 공 여섯. 가운데 큰 알 + 네 귀퉁이 알 + 위에 얹은 알.
        겹친 공의 실루엣이 곧 '양털' 이다 — 상자 하나로는 둥글어도 털이 아니었다. */
     for(const q of PUFF6)
       setI(P_puff, puffN++, X(-0.05+q[0], q[2]), Y(q[1]), Z(-0.05+q[0], q[2]), ry,
-        q[3]*sc, q[4]*sc, q[5]*sc, wool);
+        q[3]*sc*widen, q[4]*sc*stretch, q[5]*sc, wool);
     /* 얼굴 — 몸통보다 크게. 머리가 클수록 아기 같아 보인다(귀여움의 8할).
        ★ 얼굴 앞면은 f=0.99 다. 얼굴에 붙는 것(눈·코·볼)은 그보다 앞으로 나와야 보인다.
          한 번 여기서 틀려서 볼터치가 머리 속에 통째로 파묻혔었다. */
@@ -8513,7 +8522,7 @@ function drawSheep(list, t, cap, colOf, scale){
     setI(P_frng, n, X(0.84,0), YH(1.33), Z(0.84,0), ry, 0.74*sc, 0.26*sc, 0.46*sc, frng);
     // 귀 — 머리 옆으로 확실히 빼서 축 늘어뜨리고, 걸을 때 팔랑팔랑 흔들린다
     const flap = down ? 1.35
-      : 0.62 + (s.mv ? Math.sin(gait*0.9)*0.30 : Math.sin(t*1.3+(s.ph||0))*0.07);
+      : air ? 0.22 : 0.62 + (s.mv ? Math.sin(gait*0.9)*(run ? 0.42 : 0.30) : Math.sin(t*1.3+(s.ph||0))*0.07);   // 공중에선 귀가 위로 선다
     for(const si of [1,-1])
       setIR(P_ear, earN++, X(0.60,0.44*si), YH(1.08), Z(0.60,0.44*si),
         ry, flap, 0.20*sc, 0.36*sc, 0.15*sc, 0xeee4d6);
@@ -8552,9 +8561,12 @@ function drawSheep(list, t, cap, colOf, scale){
     // 다리 — 짧고 통통하게
     let li=0;
     for(const [fo,si] of [[0.30,1],[0.30,-1],[-0.30,1],[-0.30,-1]]){
-      const sw = (li<2 ? walk : -walk);
-      setI(P_legs, ln++, X(fo + sw*0.14, 0.27*si), down ? Y(0.17) : y+0.17*sc,
-        Z(fo + sw*0.14, 0.27*si), ry, 0.20*sc, 0.36*sc, 0.20*sc, 0x5c564f); li++;
+      /* 대각선 짝(앞왼·뒤오)이 같이 나간다. 앞으로 나가는 다리는 들리고(lift) 다리 자체가 앞뒤로 기운다(rx). 공중에선 넷 다 뒤로 접는다 */
+      const sw = ((li===0 || li===3) ? walk : -walk);
+      const lift = air ? 0.12*sc : Math.max(0, sw)*0.10*sc;
+      const rx = down ? 0 : air ? 0.85 : -sw*1.1;
+      setIR(P_legs, ln++, X(fo + sw*0.16, 0.27*si), down ? Y(0.17) : y + 0.17*sc + lift + Math.max(0, bob)*0.4,
+        Z(fo + sw*0.16, 0.27*si), ry, rx, 0.20*sc, 0.36*sc, 0.20*sc, 0x5c564f); li++;
     }
     /* 꾸미기 — 모자·안경은 머리를 따라(YH), 옷은 몸통을 따라(Y) 움직인다.
        쓰러졌을 땐 Y 자체가 뒤집혀 있어서 옷도 같이 뒤집혀 따라간다. */
@@ -8896,7 +8908,7 @@ function sprintMul(dt, moving){
   if(want){ stamina = Math.max(0, stamina - dt/SPRINT.run); sprinting = stamina > 0; }
   else { stamina = Math.min(1, stamina + dt/SPRINT.rest); sprinting = false; }
   if(sprinting && PL.ground){ runDustT -= dt;                      // 발뒤꿈치에서 흙먼지 — 속도가 눈에 보인다
-    if(runDustT <= 0){ runDustT = 0.11; burst(PL.x + Math.sin(PL.yaw)*0.45, PL.y + 0.06, PL.z + Math.cos(PL.yaw)*0.45, 0xe6dccb, 2, 0.55); } }
+    if(runDustT <= 0){ runDustT = 0.09; burst(PL.x + Math.sin(PL.yaw)*0.45, PL.y + 0.04, PL.z + Math.cos(PL.yaw)*0.45, 0xe6dccb, 1, 0.32); } }
   return sprinting ? SPRINT.mul : 1;
 }
 /* ═══ 37차 — 양끼리 부딪힘 (선생님: "양들끼리 안 겹치게. 세게 부딪힐수록 뒤로 많이 밀려나게") ═══
@@ -8969,7 +8981,8 @@ function updPlayer(dt){
   wantJump = false;
   PL.vy -= GRAV*dt; PL.y += PL.vy*dt;
   if(PL.y <= gnd){
-    if(!PL.ground){ PL.landT = 0; }
+    if(!PL.ground){ PL.landT = 0.18;                                                        // 40차 — 착지: 0.18초 납작 · 세게 떨어지면 흙먼지와 흔들림
+      if(PL.vy < -9){ burst(PL.x, PL.y + 0.05, PL.z, 0xe6dccb, 8, 0.8); if(window.__shake) window.__shake(0.12, 0.08); } }
     PL.y = gnd; PL.vy = 0; PL.ground = true; PL.jumps = 0; PL.airT = (PL.airT||0) + dt; }
   else { PL.ground = false; PL.airT = 0; }
   if(PL.y < -20 && !raceOn()) placePlayer();
@@ -9005,7 +9018,9 @@ function updPlayer(dt){
     const dx = -Math.sin(PL.yaw)*cp, dy = Math.sin(PL.pitch), dz = -Math.cos(PL.yaw)*cp;
     /* 벽·산을 뚫고 나가지 않게, 막히기 직전까지만 물러난다 */
     let d = back;
-    for(let k=1;k<=6;k++){
+    /* ★ 40차 — 경주(tk 0)에서는 벽 검사를 안 한다. 하늘 섬 코스는 마을 격자 밖(z > 58)이라 solidTop 이 산 높이 같은 값을 돌려줬고,
+       2번 깃발부터 카메라가 1.1 까지 당겨져 "궁뎅이만 보였다". 하늘에 벽은 없다. */
+    if(tk < 0) for(let k=1;k<=6;k++){
       const s = back*k/6;
       const px = tx - dx*s, pz = tz - dz*s, py = ty - dy*s;
       if(py < solidTop(Math.floor(px), Math.floor(pz)) + 0.3){ d = back*(k-1)/6; break; }
@@ -14238,30 +14253,34 @@ function raceHostTick(dt){
 function raceFinished(){ let n = 0; for(const d of miniPl.values()) if(d && d.fin !== undefined && d.fin >= 0) n++; return n; }
 /* ── 굴러오는 바위 (④ 구간) — 5.5초마다 하나가 골인 쪽에서 출발 쪽으로 가운데 길(x 0)을 굴러 내려온다. 통나무가 좌우로 흔들리니
      길 가운데를 비켜 서면 된다. 맞으면 뒤로 튕기고 0.8초 미끄러진다(조종 불가). 시각은 seed·경과 시간의 식이라 전원 같다 ── */
-const ROCK = {per:6.5, spd:8.5, r:0.95};   // 37차 9초·6.5 (5.5초는 봇 21 중 둘이 못 나왔다) → 39차 선생님: "장애물 속도를 높여서 좀 더 어렵게" — 6.5초마다 8.5 로
+const ROCK = {per:6.5, spd:8.5, r:1.15};   // 37차 9초·6.5 (5.5초는 봇 21 중 둘이 못 나왔다) → 39차 선생님: "장애물 속도를 높여서 좀 더 어렵게" — 6.5초마다 8.5 로
+/* 40차 — 무거운 바위(선생님: "진짜 무거운 바위가 떨어지는 물리적인 맛이 안 남"): 위 6칸에서 떨어져(0.55초) 쿵 하고 구르기 시작하고,
+   1.2초 동안 속도가 붙어(가속) 8.5 가 된다. 구르면서 살짝 통통 튄다(hop). 값은 전부 t0(출발 시각)의 식이라 여전히 전원 같다. */
+function rockU(tt){ const a = ROCK.spd / 1.2; return tt < 1.2 ? 0.5*a*tt*tt : 0.6*ROCK.spd + ROCK.spd*(tt - 1.2); }
 function raceRocks(t){
   const S = RACE_S[3], out = [], z1 = S.z1 + 3, z0 = S.z0 - 4, len = z1 - z0, ph = (RACE.seed % 1000) / 1000 * ROCK.per;
-  for(let k=-1;k<=3;k++){ const t0 = Math.floor((t - ph) / ROCK.per - k) * ROCK.per + ph; const u = (t - t0) * ROCK.spd; if(u < 0 || u > len) continue;
-    out.push({k:'rock', x:Math.sin(t0*1.7)*0.9, z:z1 - u, y:ROCK.r, r:ROCK.r, roll:u/ROCK.r, id:'k'+Math.round(t0*10)}); }
+  for(let k=-1;k<=3;k++){ const t0 = Math.floor((t - ph) / ROCK.per - k) * ROCK.per + ph, tt = t - t0; if(tt < 0) continue; const u = rockU(tt); if(u > len) continue;
+    const drop = tt < 0.55 ? 6.0 * Math.pow(1 - tt/0.55, 2) : 0, hop = tt >= 0.55 ? 0.16 * Math.abs(Math.sin(u*1.6)) : 0;
+    out.push({k:'rock', x:Math.sin(t0*1.7)*0.9, z:z1 - u, y:ROCK.r + drop + hop, r:ROCK.r, roll:u/ROCK.r, tt, u, id:'k'+Math.round(t0*10)}); }
   return out;
 }
 /* ═══ 39차 — 장애물: 바위(④) · 계단을 굴러 내려오는 공(⑤) · 좁은 다리 위 진자(②) · 깃발 판 회전 막대(3·5번) ═══
    선생님: "공 굴러오는 그런 장애물 좋아. 그런데 공 굴러 올 때 효과음하고 이펙트가 없어. 그런 거 좀 더 만들어줘."
    전부 seed·경과 시간의 식이다 — 바위와 같은 방법으로 통신 없이 전원이 같은 것을 본다.
    맞으면 튕기고 0.8초 미끄러진다(조종 불가). 공·바위는 밀어내고, 진자는 뒤로(외다리에서 옆으로 밀면 무조건 떨어져 너무 가혹하다), 막대는 옆으로. */
-const HAZ = {ball:{per:5.0, spd:7.5, r:0.8}, pend:{per:2.4, len:6.4, swing:0.44, top:7.6}, bar:{spd:1.9, len:7.0}};   // 39차 선생님: "속도를 높여서 좀 더 어렵게" — 공 7초·5.6 → 5초·7.5 · 진자 3.2 → 2.4초 · 막대 1.15 → 1.9
+const HAZ = {ball:{per:5.0, spd:7.5, r:0.8}, pend:{per:2.4, len:6.2, swing:0.44, top:7.6}, bar:{spd:1.9, len:7.0}};   // 40차 — 진자는 쇠공(r 1.0)에 쇠사슬   // 39차 선생님: "속도를 높여서 좀 더 어렵게" — 공 7초·5.6 → 5초·7.5 · 진자 3.2 → 2.4초 · 막대 1.15 → 1.9
 function raceHazards(t){
   const out = [], seed = (RACE.seed % 1000) / 1000;
   /* 계단 공 — 골인 판 앞(z 257)에서 계단을 따라 굴러 내려온다. 좌우 두 길 가운데 하나(몇 번째 공인지로 갈린다). 처음 3초는 안 나온다 */
   { const S = RACE_S[4], zTop = RACE_Z_FIN - 1, zEnd = S.z0 - 4, len = zTop - zEnd, ph = seed * HAZ.ball.per;
     for(let k=-1;k<=2;k++){ const t0 = Math.floor((t - ph) / HAZ.ball.per - k) * HAZ.ball.per + ph; const u = (t - t0) * HAZ.ball.spd; if(t0 < 3 || u < 0 || u > len) continue;
       const z = zTop - u, lane = (Math.round(t0 / HAZ.ball.per) % 2) ? 1.1 : -1.1;
-      const top = raceTopAt(lane, z, t, true), y = (top > -900 ? top - MINI_Y : Math.max(0, RACE_Y_FIN * (z - zEnd) / len)) + HAZ.ball.r;
+      const top = raceTopAt(lane, z, t, true), y = (top > -900 ? top - MINI_Y : Math.max(0, RACE_Y_FIN * (z - zEnd) / len)) + HAZ.ball.r + 0.2*Math.abs(Math.sin(u*2.0));   // 40차 — 계단마다 통통
       out.push({k:'ball', x:lane, z, y, r:HAZ.ball.r, roll:u / HAZ.ball.r, id:'b' + Math.round(t0*10)}); } }
   /* 진자 — 좁은 다리의 트러스 틀 2·4번째에서 좌우로 흔들린다. 제일 낮을 때 공 가운데가 마루 위 1.2칸 */
   for(const i of [1, 3]){ const z = 86 + i*9.6, w = Math.PI*2 / HAZ.pend.per, ph = i*1.3 + seed*6.28;
     const th = Math.sin(t*w + ph) * HAZ.pend.swing, vx = Math.cos(t*w + ph);
-    out.push({k:'pend', x:Math.sin(th)*HAZ.pend.len, z, y:HAZ.pend.top - Math.cos(th)*HAZ.pend.len, r:0.7, py:HAZ.pend.top, len:HAZ.pend.len, ang:th, vx, id:'p'+i}); }
+    out.push({k:'pend', x:Math.sin(th)*HAZ.pend.len, z, y:HAZ.pend.top - Math.cos(th)*HAZ.pend.len, r:1.0, py:HAZ.pend.top, len:HAZ.pend.len, ang:th, vx, id:'p'+i}); }
   /* 회전 막대 — 3번·5번 깃발 판 가운데서 돈다. 0.3~0.8칸 높이라 뛰어넘을 수 있다(한 번 뜀 1.36) */
   for(const cpN of [3, 5]){ const p = RACE_P.find(q=> q.cp === cpN); if(!p) continue;
     const w = HAZ.bar.spd * (cpN === 3 ? 1 : -1);
@@ -14296,6 +14315,21 @@ function raceHazardTick(dt){
     if(dust && d < 45) burst(r.x + (Math.random()-0.5)*0.5, MINI_Y + r.y - r.r*0.5, r.z + r.r*0.9, 0xb8a890, 2, 0.7);
     if(d < 3.4 && !RACE.passed[r.id]){ RACE.passed[r.id] = 1; if(window.__shake) window.__shake(0.22, 0.14); if(window.__sfx) window.__sfx('whoosh'); } }
   if(near < 30){ RACE.rumbleT -= dt; if(RACE.rumbleT <= 0){ RACE.rumbleT = 0.24; if(window.__sfx) window.__sfx('rumble', 1 - near/30); } }
+  /* 40차 — 무게: 바위가 떨어져 닿는 순간 쿵(멀수록 작게) + 흙먼지 + 흔들림 · 튈 때마다 작은 쿵 · 9칸 안에서는 계속 잔진동 */
+  for(const r of rolling){ const d = Math.hypot(PL.x - r.x, PL.z - r.z);
+    if(r.k === 'rock'){
+      if(r.tt >= 0.55 && r.tt < 0.55 + Math.max(dt, 0.05)*2 && !RACE.passed['L'+r.id]){ RACE.passed['L'+r.id] = 1;
+        if(d < 40){ if(window.__sfx) window.__sfx('thud2', 1 - d/40); if(window.__shake) window.__shake(0.12 + 0.35*(1 - d/40), 0.22); }
+        burst(r.x, MINI_Y + 0.3, r.z, 0xb8a890, 16, 1.6); }
+      if(r.tt > 0.55 && d < 22){ const s0 = Math.sin(r.u*1.6), s1 = Math.sin((r.u - ROCK.spd*dt)*1.6); if(s0 * s1 <= 0 && dt > 0){ if(window.__sfx) window.__sfx('thud2', 0.45*(1 - d/22)); burst(r.x, MINI_Y + 0.2, r.z, 0xb8a890, 4, 0.9); } } }
+    if(d < 9 && window.__shake) window.__shake(0.05*(1 - d/9), 0.05); }
+  for(const h of hz){ if(h.k !== 'pend') continue; const d = Math.hypot(PL.x - h.x, PL.z - h.z);
+    const ext = Math.abs(h.ang) > HAZ.pend.swing*0.97, ke = 'E'+h.id;            // 끝에서 삐걱
+    if(ext && !RACE.passed[ke]){ RACE.passed[ke] = 1; if(d < 30 && window.__sfx) window.__sfx('creak', 1 - d/30); }
+    else if(!ext && Math.abs(h.ang) < HAZ.pend.swing*0.6) RACE.passed[ke] = 0;
+    const bot = Math.abs(h.ang) < 0.06, kb = 'B'+h.id;                             // 바닥을 지날 때 쉭 + 흔들림(가까우면)
+    if(bot && !RACE.passed[kb]){ RACE.passed[kb] = 1; if(d < 9){ if(window.__sfx) window.__sfx('whoosh'); if(window.__shake) window.__shake(0.10, 0.08); } }
+    else if(!bot && Math.abs(h.ang) > 0.3) RACE.passed[kb] = 0; }
 }
 /* ── 그리기 — 발판은 인스턴스 하나, 움직이는 것·꺼지는 것이 있어 매 프레임 놓는다 ── */
 const R_plat = imesh(WGEO, WMAT, 420, 1), R_rock = imesh(BALL, WMAT, 24, 1), R_hazB = imesh(WGEO, WMAT, 24, 1);   // 39차 — 바위·공·진자 공은 R_rock, 막대·줄은 R_hazB
@@ -14351,8 +14385,10 @@ function raceDraw(t){
   for(const rk of raceRocks(rt)){ if(rn >= 24) break; setIR(R_rock, rn++, rk.x, MINI_Y + rk.y, rk.z, 0, -rk.roll, ROCK.r*2, ROCK.r*2, ROCK.r*2, 0x8f7c66); }
   for(const h of raceHazards(rt)){
     if(h.k === 'ball'){ if(rn < 24) setIR(R_rock, rn++, h.x, MINI_Y + h.y, h.z, 0, -h.roll, h.r*2, h.r*2, h.r*2, 0x6f7f9a); }
-    else if(h.k === 'pend'){ if(rn < 24) setIR(R_rock, rn++, h.x, MINI_Y + h.y, h.z, 0, 0, h.r*2, h.r*2, h.r*2, 0x8a6a4a);
-      if(hb < 24) setIR3(R_hazB, hb++, h.x/2, MINI_Y + (h.y + h.py)/2, h.z, 0, 0, h.ang, 0.10, h.len - h.r, 0.10, 0x4a4a52); }
+    else if(h.k === 'pend'){ if(rn < 24) setIR(R_rock, rn++, h.x, MINI_Y + h.y, h.z, h.ang*0.5, 0, h.r*2, h.r*2, h.r*2, 0x4a4f5a);
+      /* 40차 — 쇠사슬: 고리 일곱을 줄 따라 번갈아 돌려 꿴다. 가는 줄 하나였을 땐 풍선처럼 가벼워 보였다(선생님: "무거운 추 같은 느낌이 안 듦") */
+      for(let c=0;c<7 && hb<24;c++){ const u = (c + 0.5)/7, cx = h.x*u, cy = h.py + (h.y - h.py)*u;
+        setIR3(R_hazB, hb++, cx, MINI_Y + cy, h.z, c%2 ? Math.PI/2 : 0, 0, h.ang, 0.16, (h.len - h.r)/7 + 0.12, 0.16, c%2 ? 0x5a5f6a : 0x3a3f48); } }
     else if(h.k === 'bar'){ if(hb < 24) setIR(R_hazB, hb++, h.x, MINI_Y + h.y, h.z, h.ang, 0, h.len, 0.5, 0.5, 0xff5c5c);
       if(hb < 24) setIR(R_hazB, hb++, h.x, MINI_Y + h.y + 0.25, h.z, h.ang, 0, 0.45, 0.9, 0.45, 0x3a3a44); } }
   R_rock.count = rn; R_rock.instanceMatrix.needsUpdate = true; if(R_rock.instanceColor) R_rock.instanceColor.needsUpdate = true; R_rock.visible = rn > 0;
@@ -15920,6 +15956,9 @@ const SFX = {
   slip: ()=>{ tone(980,260,0.26,'sine',0.07); puff(0.10,0.07,900,1.2); },
   /* 39차 — 바위·공이 굴러온다. 가까울수록 크게(g 0~1). 낮은 잡음 + 낮은 삼각파 */
   rumble: (g)=>{ g = Math.max(0.1, Math.min(1, g === undefined ? 1 : g)); noise(0.26, 0.11*g, 150); tone(66, 46, 0.3, 'triangle', 0.07*g); },
+  /* 40차 — 바위가 떨어져 닿는 쿵(세기 g) · 진자 끝의 삐걱 */
+  thud2: (g)=>{ g = Math.max(0.1, Math.min(1, g === undefined ? 1 : g)); puff(0.12, 0.34*g, 240, 1.0); pluck(96, 0.16, 0.12*g, 0, 0.3, 'triangle'); noise(0.08, 0.05*g, 400); },
+  creak: (g)=>{ g = Math.max(0.1, Math.min(1, g === undefined ? 1 : g)); tone(170, 110, 0.36, 'sawtooth', 0.02*g); tone(520, 330, 0.30, 'triangle', 0.016*g, now0()+0.06); },
   wind: ()=>{ puff(0.30,0.075,1300,0.6); noise(0.22,0.018,900); },                                   // 39차 — 더 크게 + 쉭 잡음
   land: ()=>{ puff(0.055,0.09,600,1.0); pluck(170,0.08,0.045,0,0,'triangle'); },
   rtap: ()=>{ noise(0.030,0.11,5200); tone(1150,620,0.045,'triangle',0.055); },
@@ -15986,6 +16025,11 @@ window.__sfx = sfx; window.__sfxAt = sfxAt; window.__sfxJump = sfxJump;
    9살한테는 "지금 큰일 났다"를 글자보다 소리가 더 빨리 알려 준다.
    ★ 값은 싸다 — 한 박에 오실레이터 두세 개. 멈춤·팝업·소리끔이면 아예 안 돈다. 모든 음은 소리 버스(압축기 + 방 울림)를 거친다. */
 const BGM_STEP_DAY = 0.25, BGM_STEP_NIGHT = 0.30;      // 8분음표 하나 — 낮 120bpm · 밤 100bpm(위험하면 ≈140)
+/* 40차 — 경주(선생님: "신나고 빠른 음악으로"): 158bpm · E 장조 · 사각파 멜로디 · 매 박 베이스 · 킥·스네어·하이햇 */
+const BGM_STEP_RACE = 0.19;
+const BGM_RACE_A = [0,4,7,12, 12,7,4,0,   2,5,9,14, 14,9,5,2,   4,7,11,16, 16,11,7,4,   5,9,12,17, 12,9,5,-1];
+const BGM_RACE_B = [7,12,16,19, 16,12,7,4,  5,9,12,17, 12,9,5,2,   9,12,16,21, 16,12,9,7,   11,14,17,14, 12,7,4,0];
+const BGM_RACE_BASS = [0, 2, 4, 5];                     // 마디마다 E · F# · G# · A
 /* 반음 (낮 C4 · 밤 A3 기준). -1 은 쉼표. 여덟 개가 한 마디, 32개가 한 절 */
 const BGM_DAY_A   = [0,4,7,12, 7,4,0,-1,   2,7,11,14, 11,7,2,-1,   9,12,16,12, 9,7,4,-1,   5,9,12,9, 5,4,2,0];
 const BGM_DAY_B   = [12,11,9,7, 9,7,4,-1,  7,9,11,12, 14,12,11,7,  9,7,4,2, 4,7,9,-1,     5,4,2,0, -1,0,-1,-1];
@@ -16002,7 +16046,15 @@ function bgmHeatNow(){
   return Math.max(0, Math.min(1, inside/7 + lost*0.55));
 }
 /* 한 걸음(8분음표)의 음들을 t0 에 건다. bgmStep 이 64 를 한 바퀴 돈다 */
-function bgmNote(night, h, t0, boss){
+function bgmNote(night, h, t0, boss, race){
+  if(race){                                                 // 40차 — 경주: 빠르고 신나게
+    const i = bgmStep % 64, sN = i < 32 ? BGM_RACE_A[i] : BGM_RACE_B[i-32], bar = ((i % 32) / 8) | 0, beat = i % 8, root = 329.63;   // E4
+    if(sN >= 0) pluck(root * Math.pow(2, sN/12), 0.20, 0.046, t0, 0.42, 'square');
+    if(beat % 2 === 0) pluck(root/4 * Math.pow(2, BGM_RACE_BASS[bar]/12), 0.28, 0.058, t0, 0.2, 'triangle');   // 베이스 — 매 박
+    if(beat === 0 || beat === 4) puff(0.09, 0.055, 140, 1.0, t0);                                                // 킥
+    if(beat === 2 || beat === 6) puff(0.05, 0.030, 1900, 0.8, t0);                                               // 스네어
+    puff(0.018, 0.011, 7500, 1.4, t0);                                                                            // 하이햇 — 매 걸음
+    bgmStep++; return; }
   const seqA = night ? BGM_NIGHT_A : BGM_DAY_A, seqB = night ? BGM_NIGHT_B : BGM_DAY_B;
   const i = bgmStep % 64, sN = i < 32 ? seqA[i] : seqB[i-32], bar = ((i % 32) / 8) | 0, beat = i % 8;
   const root = night ? 220 : 261.63;                       // 밤 A3 · 낮 C4
@@ -16025,14 +16077,15 @@ function bgmTick(){
   if(!AUD || !sndOn || !G.started || G.paused || popOpen()) return;
   const night = G.phase === 'night';
   bgmHeat += (bgmHeatNow() - bgmHeat) * 0.14;      // 확 튀지 않게 천천히 따라간다
-  bgmNote(night, bgmHeat, AUD.currentTime, night && G.wolves.some(w=>isBoss(w.k)));
+  bgmNote(night, bgmHeat, AUD.currentTime, night && G.wolves.some(w=>isBoss(w.k)), bgmRace());
 }
+const bgmRace = ()=> raceOn() && !!G.mini && G.mini.st === 'run';   // 40차 — 경주가 달리는 동안만
 /* 빠르기도 상황을 따라간다 — 낮 250ms, 밤 300ms, 위험하면 210ms 까지 */
 function bgmLoop(dt){
   bgmT -= dt;
   if(bgmT > 0) return;
   const night = G.phase === 'night';
-  bgmT = night ? (BGM_STEP_NIGHT - bgmHeat*0.09) : BGM_STEP_DAY;
+  bgmT = bgmRace() ? BGM_STEP_RACE : night ? (BGM_STEP_NIGHT - bgmHeat*0.09) : BGM_STEP_DAY;
   bgmTick();
 }
 addEventListener('pointerdown', audioInit, {once:true});
@@ -16398,6 +16451,8 @@ function loop(){
         const pc = q.uid !== undefined ? pcMap.get(q.uid) : undefined;
         if(pc){ q.wp = pc.wp|0; q.we = pc.we|0;
                 q.jb = pc.jb===undefined ? -1 : pc.jb|0; q.jt = pc.jt|0; }
+        /* 40차 — 친구가 떠 있나: 자리 통로엔 뜀 표시가 없으니 발밑 땅과 견준다(통신은 그대로) */
+        q.air = !q.down && q.x !== undefined && q.y !== undefined && (q.y - groundUnder(q.x, q.z, 0.28)) > 0.3;
       }
       /* ★ 3인칭일 때는 내 몸도 그려야 한다. 평소(1인칭)엔 안 그린다.
          쓰러졌을 때 · 줄넘기 · OX 퀴즈 셋 다 여기로 온다(20차). */
@@ -16408,6 +16463,7 @@ function loop(){
         /* ★ meSheep 은 '쓰러진 몸' 으로 만들어 둔 것이라 down 이 켜져 있다.
            서서 뛰는 데도 배를 뒤집고 누워 있으면 안 된다 — 매 프레임 지금 상태로 맞춘다. */
         meSheep.down = PL.down; meSheep.mv = PL.mv && !PL.down;
+        meSheep.air = !PL.ground && !PL.down; meSheep.vy = PL.vy; meSheep.land = PL.landT; meSheep.run = sprinting;   // 40차 — 뜀·착지·달리기 모션
         shList.push(meSheep);
       }
       drawSheep(shList, tAcc, MAXP, s=>GHEX[s.g|0], SHEEP_S);
@@ -16947,7 +17003,7 @@ Object.assign(window, {
                DMG:SURV_DMG, HEAD:SURV_HEAD, HEAD_R:SURV_HEAD_R, HP:SURV_HP,
                SPAWN_R:SURV_SPAWN_R}),
   __SPRINT:SPRINT, __stamina:()=>stamina, __sprinting:()=>sprinting, __setStamina:(v)=>{ stamina = v; },
-  __MINI_NAME:MINI_NAME, __survOn:survOn, __RACE:()=>RACE, __raceRocks:raceRocks, __ROCK:ROCK, __raceGiveWeapon:raceGiveWeapon, __raceGiveArmor:raceGiveArmor, __RACE_RES:RACE_RES, __RACE_FIN:RACE_FIN, __raceHazards:raceHazards, __HAZ:HAZ, __camGY:()=>camGY, __fovRun:()=>fovRun, __sheepBump:sheepBump, __SHEEP_R2:SHEEP_R2, __kb:()=>({x:kbx, z:kbz}), __kbReset:()=>{ kbx = kbz = 0; }, __RACE_P:()=>RACE_P, __RACE_S:RACE_S, __raceTopAt:raceTopAt, __raceBuild:raceBuild, __raceOn:raceOn, __raceRespawn:raceRespawn, __R_plat:()=>R_plat, __RACE_Z_FIN:RACE_Z_FIN,
+  __MINI_NAME:MINI_NAME, __survOn:survOn, __RACE:()=>RACE, __raceRocks:raceRocks, __ROCK:ROCK, __raceGiveWeapon:raceGiveWeapon, __raceGiveArmor:raceGiveArmor, __RACE_RES:RACE_RES, __RACE_FIN:RACE_FIN, __raceHazards:raceHazards, __HAZ:HAZ, __camGY:()=>camGY, __bgmRace:bgmRace, __rockU:rockU, __fovRun:()=>fovRun, __sheepBump:sheepBump, __SHEEP_R2:SHEEP_R2, __kb:()=>({x:kbx, z:kbz}), __kbReset:()=>{ kbx = kbz = 0; }, __RACE_P:()=>RACE_P, __RACE_S:RACE_S, __raceTopAt:raceTopAt, __raceBuild:raceBuild, __raceOn:raceOn, __raceRespawn:raceRespawn, __R_plat:()=>R_plat, __RACE_Z_FIN:RACE_Z_FIN,
   __tpvOn:tpvOn, __tpvKind:tpvKind, __MINI_CAM:()=>MINI_CAM, __DOWN_CAM:()=>DOWN_CAM,
   __camPos:()=>({x:camera.position.x, y:camera.position.y, z:camera.position.z}),
   __meSheep:()=>meSheep,
