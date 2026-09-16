@@ -14238,7 +14238,7 @@ function raceHostTick(dt){
 function raceFinished(){ let n = 0; for(const d of miniPl.values()) if(d && d.fin !== undefined && d.fin >= 0) n++; return n; }
 /* ── 굴러오는 바위 (④ 구간) — 5.5초마다 하나가 골인 쪽에서 출발 쪽으로 가운데 길(x 0)을 굴러 내려온다. 통나무가 좌우로 흔들리니
      길 가운데를 비켜 서면 된다. 맞으면 뒤로 튕기고 0.8초 미끄러진다(조종 불가). 시각은 seed·경과 시간의 식이라 전원 같다 ── */
-const ROCK = {per:9.0, spd:6.5, r:0.95};   // 5.5초는 봇 21 중 둘이 통나무 구간에서 아예 못 나왔다 · 7초도 일곱
+const ROCK = {per:6.5, spd:8.5, r:0.95};   // 37차 9초·6.5 (5.5초는 봇 21 중 둘이 못 나왔다) → 39차 선생님: "장애물 속도를 높여서 좀 더 어렵게" — 6.5초마다 8.5 로
 function raceRocks(t){
   const S = RACE_S[3], out = [], z1 = S.z1 + 3, z0 = S.z0 - 4, len = z1 - z0, ph = (RACE.seed % 1000) / 1000 * ROCK.per;
   for(let k=-1;k<=3;k++){ const t0 = Math.floor((t - ph) / ROCK.per - k) * ROCK.per + ph; const u = (t - t0) * ROCK.spd; if(u < 0 || u > len) continue;
@@ -14249,7 +14249,7 @@ function raceRocks(t){
    선생님: "공 굴러오는 그런 장애물 좋아. 그런데 공 굴러 올 때 효과음하고 이펙트가 없어. 그런 거 좀 더 만들어줘."
    전부 seed·경과 시간의 식이다 — 바위와 같은 방법으로 통신 없이 전원이 같은 것을 본다.
    맞으면 튕기고 0.8초 미끄러진다(조종 불가). 공·바위는 밀어내고, 진자는 뒤로(외다리에서 옆으로 밀면 무조건 떨어져 너무 가혹하다), 막대는 옆으로. */
-const HAZ = {ball:{per:7.0, spd:5.6, r:0.8}, pend:{per:3.2, len:6.4, swing:0.44, top:7.6}, bar:{spd:1.15, len:7.0}};
+const HAZ = {ball:{per:5.0, spd:7.5, r:0.8}, pend:{per:2.4, len:6.4, swing:0.44, top:7.6}, bar:{spd:1.9, len:7.0}};   // 39차 선생님: "속도를 높여서 좀 더 어렵게" — 공 7초·5.6 → 5초·7.5 · 진자 3.2 → 2.4초 · 막대 1.15 → 1.9
 function raceHazards(t){
   const out = [], seed = (RACE.seed % 1000) / 1000;
   /* 계단 공 — 골인 판 앞(z 257)에서 계단을 따라 굴러 내려온다. 좌우 두 길 가운데 하나(몇 번째 공인지로 갈린다). 처음 3초는 안 나온다 */

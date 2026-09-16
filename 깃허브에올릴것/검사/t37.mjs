@@ -77,8 +77,8 @@ const course = await ev(()=>{ const W=window, G=W.__G, o={};
   /* 39차 — 장애물: 공(계단)·진자(외다리)·막대(3·5번 깃발 판)도 바위처럼 시간의 식이다 */
   o.hz20 = W.__raceHazards(20).map(h=>h.k).sort().join(','); o.hz5 = W.__raceHazards(5).map(h=>h.k).sort().join(',');
   o.hzSame = JSON.stringify(W.__raceHazards(21.7)) === JSON.stringify(W.__raceHazards(21.7));
-  const bz = [9,10,11].map(tt=> W.__raceHazards(tt).find(h=>h.k==='ball')).map(b=> b ? +b.z.toFixed(1) : null); o.ballZ = bz;
-  const px = [0,0.8,1.6].map(tt=> +W.__raceHazards(tt).find(h=>h.k==='pend').x.toFixed(2)); o.pendX = px;
+  const bz = [6,7,8].map(tt=> W.__raceHazards(tt).find(h=>h.k==='ball')).map(b=> b ? +b.z.toFixed(1) : null); o.ballZ = bz;
+  const px = []; for(let tt=0; tt<=2.4; tt+=0.2) px.push(+W.__raceHazards(tt).find(h=>h.k==='pend').x.toFixed(2)); o.pendX = [Math.max(...px), Math.min(...px)];
   o.barTurn = W.__raceHazards(1).find(h=>h.k==='bar').ang !== W.__raceHazards(0).find(h=>h.k==='bar').ang;
   o.rocks = W.__raceRocks(20).length; o.rockAt = W.__raceRocks(20).map(r=> +r.z.toFixed(1));
   o.rockSame = JSON.stringify(W.__raceRocks(33.3)) === JSON.stringify(W.__raceRocks(33.3));
@@ -92,7 +92,7 @@ ok('★ 징검다리·사라지는 발판은 길이 4.0 · 틈 1.8 — 걷는 �
 ok('★ 높이 — 섬 바닥 0 · 다리 0 · 옆 허공은 -999 · 계단 꼭대기 7.2 · 골인 8.1', course.top.island === 0 && course.top.bridge === 0 && course.top.voidZ === -999 && course.top.stairTop === 7.2 && course.top.fin === 8.1, JSON.stringify(course.top));
 ok('★ groundUnder 가 경주에서 발판 높이를 땅으로 본다 (허공은 -999)', course.ground === -999, course.ground);
 ok('★ 장애물 — 진자 둘·막대 둘은 늘 있고, 계단 공은 3초 뒤부터 나와 계단을 따라 내려온다(시간의 식 — 전원 같다)', course.hz5 === 'bar,bar,pend,pend' && course.hz20 === 'ball,bar,bar,pend,pend' && course.hzSame && course.ballZ.every(z=>z !== null) && course.ballZ[0] > course.ballZ[1] && course.ballZ[1] > course.ballZ[2], course.hz20+' · 공 z '+course.ballZ.join('→'));
-ok('★ 진자는 좌우로 흔들리고 막대는 돈다', Math.abs(course.pendX[0]) > 2 && Math.abs(course.pendX[2]) > 2 && Math.sign(course.pendX[0]) !== Math.sign(course.pendX[2]) && course.barTurn, '진자 x '+course.pendX.join(' → '));
+ok('★ 진자는 좌우로 흔들리고(한 주기 안에 ±2 를 넘는다) 막대는 돈다', course.pendX[0] > 2 && course.pendX[1] < -2 && course.barTurn, '진자 x 최대 '+course.pendX[0]+' 최소 '+course.pendX[1]);
 ok('★ 바위는 시간의 식이다 — 같은 시각이면 같은 자리 (통신 없이 전원 같다)', course.rockSame && course.rocks >= 1, course.rockAt.join(' '));
 
 /* ═══════ ④ 규칙 — 깃발 · 떨어짐 · 카메라 · 골인 · 움직이는 발판 ═══════ */
