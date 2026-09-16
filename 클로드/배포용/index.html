@@ -6979,8 +6979,9 @@ const W_body = imesh(RB,  FM.fur,  MAXW, 1), W_head = imesh(RB,  FM.fur,  MAXW, 
       W_ruff = imesh(RB,  FM.furD, MAXW, 1);        // 목덜미 갈기
 /* ═══ 36차 — 종류별 조각 ═══ 굶주린(갈비뼈·혀) · 갑옷(철판·투구) · 치유(보석·고리) · 공포(흰 눈·눈동자·송곳니·검은 고리) */
 const eyeMatW  = flatMat(0xffffff, {emissive:0xffffff, emissiveIntensity:0.5});      // 공포 늑대의 흰자 — 어둠 속에서 희게 빛난다
+const eyeMatR  = flatMat(0xff2010, {emissive:0xff1a08, emissiveIntensity:0.9});      // 36차b — 공포 늑대의 붉게 타는 세로 눈동자
 const tongueMat= flatMat(0xd9414f);
-const plateMat = metalMat(0x4f5763, {reflectivity:0.22, shininess:38});               // 갑옷 — 35차 쇠 재질이되 반사를 죽인 어두운 무쇠 (0.5 로 두면 하늘을 비춰 흰 띠가 됐다)
+const plateMat = metalMat(0xffffff, {reflectivity:0.12, shininess:72});               // 갑옷 — 바탕을 희게 두고 조각마다 인스턴스 색으로 강철·무쇠·리벳을 나눈다 (36차b: 어두운 무쇠 한 색이라 갑옷으로 안 읽혔다)
 const gemMat   = flatMat(0x7dffb0, {emissive:0x2dff7a, emissiveIntensity:0.9});
 const healRingMat  = new THREE.MeshBasicMaterial({color:0x5dff9a, transparent:true, opacity:0.34, depthWrite:false, side:THREE.DoubleSide, blending:THREE.AdditiveBlending});
 const healBeamMat  = new THREE.MeshBasicMaterial({color:0x8dffb8, transparent:true, opacity:0.55, depthWrite:false, blending:THREE.AdditiveBlending});
@@ -6992,11 +6993,12 @@ const W_belly  = imesh(RB,  FM.fur,  MAXW, 1),        // 배 — 밝은 털 띠
       W_ttip   = imesh(BALL,FM.fur,  MAXW, 1);        // 꼬리 끝
 const W_rib    = imesh(RBs, FM.furD, MAXW*6, 1),
       W_tongue = imesh(RBs, tongueMat, MAXW, 1),
-      W_plate  = imesh(RB,  plateMat, MAXW*7, 1),
+      W_plate  = imesh(RB,  plateMat, MAXW*24, 1),    // 36차b — 갑옷 한 벌이 쉰 조각쯤(철판·테두리·리벳·치마·목·어깨·투구·정강이·꼬리) — 마흔 마리까지
       W_gem    = imesh(new THREE.OctahedronGeometry(0.5, 0), gemMat, MAXW, 1),
       W_eyeW   = imesh(BALL, eyeMatW, MAXW*2, 1),
+      W_eyeR   = imesh(BALL, eyeMatR, MAXW*2, 0),       // 36차b — 붉은 눈 테
       W_pupil  = imesh(BALL, FM.dark, MAXW*2, 1),
-      W_fang   = imesh(RBs, FM.wool, MAXW*2, 1),
+      W_fang   = imesh(RBs, FM.wool, MAXW*5, 1),
       W_heal   = imesh(new THREE.RingGeometry(0.86, 1.0, 28), healRingMat, 24, 0),
       W_beam   = imesh(new THREE.BoxGeometry(1, 1, 1), healBeamMat, 24, 0),        // 36차 — 치유 늑대 → 채우는 늑대로 이어지는 초록 줄
       W_dread  = imesh(new THREE.RingGeometry(0.55, 1.0, 28), dreadRingMat, 24, 0);
@@ -7976,7 +7978,7 @@ function drawWolves(list, t, dt){
   const RK = wolfRank(G.day);          // 오늘 밤 늑대들의 등급 (보스는 늘 3)
   // 밤이 깊을수록 눈이 타오른다 — 등급이 높으면 더
   eyeMat.emissiveIntensity = 0.15 + NIGHTK*(1.55 + RK*0.35);
-  eyeMatW.emissiveIntensity = 0.35 + NIGHTK*0.9;
+  eyeMatW.emissiveIntensity = 0.35 + NIGHTK*0.9; eyeMatR.emissiveIntensity = 0.45 + NIGHTK*0.8;
   for(const w of list){
     if(n>=MAXW) break;
     /* ★ 33차 — 맞은 직후 쏜 방향으로 밀렸다 돌아온다(그리기만 · 0.16초 · 최대 0.22칸). 판정·길찾기엔 손 안 댄다 */
@@ -8014,7 +8016,7 @@ function drawWolves(list, t, dt){
 
     const col = w.hurt>0 ? (w.hurt > 0.12 ? 0xffffff : 0xff8080)                 // 33차 — 처음 0.06초는 흰 번쩍, 그다음 붉게
                          : (w.healed>0 ? 0x9dffb3 : rankTint(w.col!==undefined ? w.col : d.col, boss?0:rk));   // 36차 — 치유 받으면 잠깐 초록
-    const colL = w.hurt>0 || w.healed>0 ? col : furLight(col, look==='fear' ? 0.14 : 0.36);          // 36차 — 밝은 털 (공포 늑대는 거의 안 밝다)
+    const colL = w.hurt>0 || w.healed>0 ? col : furLight(col, look==='fear' ? 0.24 : 0.36);          // 36차 — 밝은 털 (공포 늑대는 덜 밝다 — 주둥이·입이 읽힐 만큼만)
     const bx = fx*bite*0.42*sc, bz = fz*bite*0.42*sc;
     const bob   = stride * Math.abs(Math.sin(gait)) * 0.060 * sc * LK.bob;   // 상하 반동 (새끼는 통통 튄다)
     const roll  = stride * Math.sin(gait) * 0.05;                    // 좌우 흔들림
@@ -8087,8 +8089,8 @@ function drawWolves(list, t, dt){
     /* 36차 — 눈썹(코 쪽이 처진 성난 V — 새끼는 반대로 살짝 올려 순하게) · 볼 털 */
     for(const si of [1,-1]){
       const bF = 0.30*sc, bU = (0.30 + LK.eye*0.02)*sc, bS = 0.16*sc*LK.eye*si;
-      setIR3(W_brow, en-2+(si>0?0:1), HX(bF,bU,bS), HY(bF,bU), HZ(bF,bU,bS), hYaw, hPit, (look==='pup' ? 0.22 : -0.42)*si,
-        0.18*sc, 0.05*sc, 0.08*sc, look==='fear' ? 0x08060c : 0x1e1b24);
+      setIR3(W_brow, en-2+(si>0?0:1), HX(bF,bU,bS), HY(bF,bU), HZ(bF,bU,bS), hYaw, hPit, (look==='pup' ? 0.22 : look==='fear' ? -0.66 : -0.42)*si,
+        (look==='fear' ? 0.26 : 0.18)*sc, (look==='fear' ? 0.08 : 0.05)*sc, 0.08*sc, look==='fear' ? 0x08060c : 0x1e1b24);   // 36차b — 공포 늑대는 굵고 깊이 처진 눈썹
       const cF = -0.04*sc, cU = -0.04*sc, cS = 0.33*sc*LK.hw*si;
       setIR(W_cheek, en-2+(si>0?0:1), HX(cF,cU,cS), HY(cF,cU), HZ(cF,cU,cS), hYaw + si*0.30, hPit,
         0.10*sc, 0.20*sc*LK.hw, 0.24*sc*LK.hw, colL);
@@ -8120,6 +8122,10 @@ function drawWolves(list, t, dt){
       const hh = lh*0.5 - 0.06*sc;
       setIR(W_paw, pn++, px - fx*sth*hh, lcy - cth*hh, pz - fz*sth*hh,
         ry, th, 0.23*sc, 0.15*sc, 0.27*sc, 0x2b2b30);
+      /* 36차b — 갑옷 늑대는 다리 위쪽에 정강이받이(강철 판 + 무쇠 테) */
+      if(look === 'armor'){ const gh = 0.34*sc, gy = lcy + lh*0.5 - gh*0.55;
+        setIR(W_plate, pl++, px, gy, pz, ry, th, 0.27*sc, gh, 0.27*sc, 0x3a3f49);
+        setIR(W_plate, pl++, px + fx*0.02*sc, gy + 0.02*sc, pz + fz*0.02*sc, ry, th, 0.24*sc, gh*0.8, 0.30*sc, 0x8e98a6); }
       ln++; li++;
     }
 
@@ -8144,18 +8150,43 @@ function drawWolves(list, t, dt){
       const tF = snF + snL*0.30, tU = snU - 0.14*sc;
       setIR(W_tongue, tng++, HX(tF,tU,0.02*sc), HY(tF,tU), HZ(tF,tU,0.02*sc), hYaw, hPit + 0.55, 0.09*sc, 0.20*sc, 0.05*sc, 0xd9414f);
     } else if(look === 'armor'){
-      /* 등 철판 셋(비늘처럼 겹쳐서) + 이마 투구 — 쇠 재질이라 밤에도 번들거린다 */
-      const PC = 0x6b727e;                                                              // 어두운 무쇠 — 반사(env map)가 밝기를 준다
-      for(let r=0;r<3;r++){ const fo = 0.42 - r*0.36;
-        setIR(W_plate, pl++, w.x+fx*fo*sc, y+(1.03-r*0.025)*sc*LK.bh+bob, w.z+fz*fo*sc, ry+roll, lean - 0.16 + r*0.10,
-          0.86*sc, 0.10*sc, 0.28*sc, PC); }
-      /* 등마루 능선 — 철판 셋을 잇는 두툼한 쇠막대 */
-      setIR(W_plate, pl++, w.x+fx*0.06*sc, y+1.12*sc*LK.bh+bob, w.z+fz*0.06*sc, ry+roll, lean, 0.16*sc, 0.14*sc, 1.10*sc, 0x4e5661);
-      /* 어깨 갑옷 둘 */
-      for(const si of [1,-1]) setIR(W_plate, pl++, w.x+fx*0.40*sc + rx*0.44*sc*si*LK.bw, y+0.92*sc*LK.bh+bob, w.z+fz*0.40*sc + rz*0.44*sc*si*LK.bw,
-          ry+roll, lean, 0.20*sc, 0.34*sc, 0.36*sc, PC);
-      /* 이마 투구 */
-      setIR(W_plate, pl++, HX(0.02*sc,0.31*sc,0), HY(0.02*sc,0.31*sc), HZ(0.02*sc,0.31*sc,0), hYaw, hPit - 0.10, 0.70*sc, 0.13*sc, 0.62*sc, PC);
+      /* ═══ 36차b — 진짜 갑옷처럼: 겹친 철판(밝은 판 + 어두운 테두리) · 리벳 · 옆구리 치마 · 목 보호대 · 어깨 갑옷 · 투구(챙·코가리개·볼가리개·황동 볏) · 꼬리 덮개.
+         선생님: "갑옷 늑대 뭔가 갑옷 같지가 않아. 진짜 갑옷 입은 것처럼 미술·질감 처리 잘 해줘."
+         조각은 전부 W_plate(쇠 재질) 하나에 인스턴스 색만 다르다 — 강철 ST · 무쇠 테두리 IR · 리벳 RV · 황동 BR. */
+      const ST = 0x5e6774, IR = 0x14161b, RV = 0xd2d8e0, BR = 0xb8923e;     // 강철 · 무쇠 테두리(진하게 — 판 사이 골이 보여야 겹친 갑옷이다) · 리벳 · 황동
+      const P = (f,u,sd, yaw,pit, sx,sy,sz, c)=> setIR(W_plate, pl++, w.x+fx*f*sc + rx*sd*sc, y+u*sc+bob, w.z+fz*f*sc + rz*sd*sc, yaw, pit, sx*sc, sy*sc, sz*sc, c);
+      const bh = LK.bh, bw = LK.bw;
+      /* 등 철판 넷 — 비늘처럼 겹친다. 판마다 어두운 테두리(조금 크고 조금 낮게)를 깔고 그 위에 밝은 판, 앞 모서리에 리벳 둘 */
+      for(let r=0;r<4;r++){ const fo = 0.50 - r*0.30, up = (1.06 - r*0.045)*bh, pit = lean - 0.16 + r*0.10;
+        P(fo, up - 0.03, 0, ry+roll, pit, 1.02*bw, 0.10, 0.44, IR);              // 무쇠 테 — 판보다 넓고 낮게, 앞판 밑으로 골이 진다
+        P(fo, up + 0.02, 0, ry+roll, pit, 0.84*bw, 0.11, 0.30, ST);
+        for(const si of [1,-1]) P(fo + 0.11, up + 0.085, 0.34*bw*si, ry+roll, pit, 0.07, 0.05, 0.07, RV); }
+      /* 옆구리 치마 — 양쪽에 비스듬히 매달린 판 둘씩 */
+      for(const si of [1,-1]) for(let r=0;r<2;r++){ const fo = 0.22 - r*0.40;
+        P(fo, 0.74*bh, 0.50*bw*si, ry+roll, lean, 0.34, 0.30, 0.06, IR);
+        P(fo, 0.75*bh, 0.53*bw*si, ry+roll, lean, 0.28, 0.24, 0.05, ST); }
+      /* 목 보호대 — 목을 두르는 고리 세 토막 */
+      for(const [sd,yaw] of [[0,0],[0.30,0.9],[-0.30,-0.9]]) P(0.72, 0.86*bh, sd*bw, ry+roll+yaw, lean, 0.30, 0.20, 0.08, IR);
+      /* 어깨 갑옷 — 둥근 판 + 밝은 테 + 리벳 */
+      for(const si of [1,-1]){
+        P(0.44, 0.94*bh, 0.45*bw*si, ry+roll, lean, 0.30, 0.46, 0.48, IR);          // 무쇠 테 — 사방으로 판보다 크다
+        P(0.44, 0.95*bh, 0.48*bw*si, ry+roll, lean, 0.18, 0.34, 0.36, ST);
+        P(0.44, 1.10*bh, 0.52*bw*si, ry+roll, lean, 0.06, 0.06, 0.06, RV); }
+      /* 가슴판 — 다가오는 늑대에서 제일 먼저 보이는 조각. 무쇠 테 + 강철 판 + 리벳 둘 */
+      P(0.70, 0.66*bh, 0, ry+roll, lean, 0.62*bw, 0.50, 0.12, IR);
+      P(0.76, 0.66*bh, 0, ry+roll, lean, 0.50*bw, 0.40, 0.10, ST);
+      for(const si of [1,-1]) P(0.82, 0.78*bh, 0.17*bw*si, ry+roll, lean, 0.06, 0.06, 0.06, RV);
+      /* 투구 — 머리 위 챙 달린 덮개, 코가리개 한 줄, 볼가리개 둘, 황동 볏 */
+      const H = (f,u,sd, yaw,pit, sx,sy,sz, c)=> setIR(W_plate, pl++, HX(f,u,sd), HY(f,u), HZ(f,u,sd), yaw, pit, sx*sc, sy*sc, sz*sc, c);
+      H(-0.02, 0.26, 0, hYaw, hPit - 0.06, 0.76, 0.20, 0.70, IR);            // 투구 아랫단(무쇠 띠) — 머리를 두른다
+      H(-0.04, 0.40, 0, hYaw, hPit - 0.06, 0.66, 0.26, 0.60, ST);            // 투구 지붕(강철, 둥근 상자라 돔처럼 보인다)
+      H( 0.30, 0.20, 0, hYaw, hPit - 0.06, 0.74, 0.07, 0.12, IR);            // 앞 챙 — 눈 위에 그늘을 만든다
+      H( 0.52, 0.02, 0, hYaw, hPit + 0.05, 0.09, 0.30, 0.44, ST);            // 코가리개 — 주둥이 위 한 줄
+      for(const si of [1,-1]) H(0.18, 0.02, 0.35*si, hYaw, hPit, 0.06, 0.30, 0.34, IR);   // 볼가리개(무쇠)
+      for(const si of [1,-1]) H(0.32, 0.15, 0.26*si, hYaw, hPit, 0.05, 0.05, 0.05, RV);   // 챙 리벳
+      H(-0.06, 0.56, 0, hYaw, hPit - 0.10, 0.06, 0.20, 0.56, BR);            // 황동 볏 — 지붕 위 앞뒤로 긴 지느러미
+      /* 꼬리 덮개 */
+      P(-0.94, 0.90*bh, 0, ry+roll, -0.30, 0.30, 0.30, 0.30, IR);
     } else if(look === 'heal'){
       /* 등의 초록 보석(돌면서 숨 쉰다) + 발밑 초록 고리(치유 범위 그대로) */
       const spent = w.healPool !== undefined && w.healPool <= 0;          // 주머니를 다 썼다 — 보석이 꺼지고 고리가 사라진다
@@ -8172,17 +8203,31 @@ function drawWolves(list, t, dt){
         _v.set((ax+bx)/2, (ay+by)/2, (az+bz)/2); _q.setFromUnitVectors(AX_Z, _tmpV.set(dx/len, dy/len, dz/len));
         const th = 0.07 + 0.03*Math.sin(t*14); _s.set(th, th, len); W_beam.setMatrixAt(bm++, _m.compose(_v,_q,_s)); }
     } else if(look === 'fear'){
-      /* 희번덕한 눈 — 커다란 흰자에 작은 눈동자가 한쪽으로 쏠린 채 굴러다닌다 */
-      const rollE = Math.sin(t*1.7 + w.ph)*0.03*sc, rollU = Math.cos(t*1.3 + w.ph*1.7)*0.02*sc;
+      /* ═══ 36차b — '희번덕' 은 무섭다는 뜻이었다. 왕방울 흰자에 작은 눈동자는 우스꽝스러웠다(선생님).
+         이제: 어두운 눈구멍 속에서 가늘고 길게 찢어진 눈이 희게 번뜩이고, 그 안에 세로로 찢어진 검은 눈동자.
+         눈은 바깥쪽이 올라가게 기울어 노려보는 눈매, 눈썹은 두껍고 코 쪽으로 깊이 처진다. 입은 벌어져 송곳니 넷. */
+      const glint = 0.9 + Math.sin(t*3.1 + w.ph)*0.1;
       for(const si of [1,-1]){
-        const yF = 0.33*sc, yU = 0.19*sc, yS = 0.17*sc*si;
-        setIR(W_eyeW, ew, HX(yF,yU,yS), HY(yF,yU), HZ(yF,yU,yS), hYaw, hPit, 0.24*sc, 0.21*sc, 0.16*sc, 0xffffff);
-        const pF = yF + 0.09*sc, pU = yU + rollU + 0.03*sc, pS = yS + rollE - si*0.035*sc;
-        setIR(W_pupil, ew++, HX(pF,pU,pS), HY(pF,pU), HZ(pF,pU,pS), hYaw, hPit, 0.075*sc, 0.075*sc, 0.05*sc, 0x08060c);
+        const yF = 0.31*sc, yU = 0.19*sc, yS = 0.17*sc*si;
+        /* 눈구멍 — 검은 우묵한 자리(눈보다 크고 조금 뒤에) */
+        setIR3(W_rib, rib++, HX(yF-0.02*sc,yU,yS), HY(yF-0.02*sc,yU), HZ(yF-0.02*sc,yU,yS), hYaw, hPit, -0.30*si, 0.30*sc, 0.17*sc, 0.10*sc, 0x050308);
+        /* 찢어진 흰 눈 — 납작하고 길게, 바깥쪽이 올라가게 기울인다 */
+        setIR3(W_eyeW, ew, HX(yF+0.04*sc,yU,yS), HY(yF+0.04*sc,yU), HZ(yF+0.04*sc,yU,yS), hYaw, hPit, -0.36*si, 0.25*sc*glint, 0.06*sc, 0.10*sc, 0xffffff);
+        /* 붉게 타는 세로 눈동자 — 눈 안쪽(코 쪽)에 치우쳐 노려본다. 검은 눈동자 칸은 비워 둔다(번호를 맞추려고) */
+        const pS = yS - si*0.05*sc;
+        setIR3(W_eyeR, ew, HX(yF+0.09*sc,yU,pS), HY(yF+0.09*sc,yU), HZ(yF+0.09*sc,yU,pS), hYaw, hPit, -0.36*si, 0.045*sc, 0.10*sc, 0.05*sc);
+        setIR(W_pupil, ew++, HX(yF,yU,pS), HY(yF,yU), HZ(yF,yU,pS), hYaw, hPit, 0, 0, 0, 0x000000);
       }
-      /* 송곳니 — 주둥이 끝 양옆에 흰 이빨 둘 */
-      for(const si of [1,-1]){ const fF = snF + snL*0.36, fU = snU - 0.10*sc;
-        setIR(W_fang, fg++, HX(fF,fU,0.09*sc*si), HY(fF,fU), HZ(fF,fU,0.09*sc*si), hYaw, hPit + 0.15, 0.075*sc, 0.20*sc, 0.06*sc, 0xf4f1ea); }
+      /* 벌어진 입 — 아래턱이 처져 열린 검붉은 입 속 + 송곳니 넷(위턱 바깥 둘 길게 · 아래턱 둘 짧게) + 왼눈 위 흉터 */
+      { const mF = snF + snL*0.05, mU = snU - 0.16*sc;
+        setIR(W_rib, rib++, HX(mF,mU,0), HY(mF,mU), HZ(mF,mU,0), hYaw, hPit + 0.22, 0.24*sc, 0.13*sc, 0.46*sc, 0x7a1a24);   // 입 속(검붉게)
+        const jF = snF + snL*0.02, jU = snU - 0.26*sc;
+        setIR(W_rib, rib++, HX(jF,jU,0), HY(jF,jU), HZ(jF,jU,0), hYaw, hPit + 0.30, 0.26*sc, 0.10*sc, 0.50*sc, 0x4a3e58); } // 아래턱(처진 채, 몸빛)
+      for(const si of [1,-1]){ const fF = snF + snL*0.40, fU = snU - 0.10*sc;
+        setIR(W_fang, fg++, HX(fF,fU,0.10*sc*si), HY(fF,fU), HZ(fF,fU,0.10*sc*si), hYaw, hPit + 0.12, 0.07*sc, 0.28*sc, 0.06*sc, 0xf4f1ea);          // 위턱 송곳니
+        setIR(W_fang, fg++, HX(fF-0.02*sc,fU-0.22*sc,0.09*sc*si), HY(fF-0.02*sc,fU-0.22*sc), HZ(fF-0.02*sc,fU-0.22*sc,0.09*sc*si), hYaw, hPit - 0.10, 0.055*sc, 0.16*sc, 0.05*sc, 0xf4f1ea); }  // 아래턱 송곳니
+      { const cF = 0.33*sc, cU = 0.27*sc, cS = 0.19*sc;   // 흉터 — 왼눈 위를 비스듬히 가로지르는 옅은 줄
+        setIR3(W_fang, fg++, HX(cF,cU,cS), HY(cF,cU), HZ(cF,cU,cS), hYaw, hPit, 0.9, 0.05*sc, 0.30*sc, 0.03*sc, 0xb9aeb8); }
       /* 발밑 검은 안개 고리 */
       if(dr < W_dread.count_max){ _v.set(w.x, y+0.04, w.z); _q.setFromAxisAngle(AX_X, -Math.PI/2);
         const rr = sc*(1.25+Math.sin(t*2.6+w.ph)*0.08); _s.set(rr, rr, 1); W_dread.setMatrixAt(dr++, _m.compose(_v,_q,_s)); }
@@ -8222,11 +8267,11 @@ function drawWolves(list, t, dt){
   W_nose.count=n; W_ruff.count=n;
   W_legs.count=ln; W_paw.count=pn; W_eyes.count=en; W_ears.count=en; W_hack.count=hn;
   W_belly.count=n; W_ttip.count=n; W_brow.count=en; W_cheek.count=en;
-  W_rib.count=rib; W_tongue.count=tng; W_plate.count=pl; W_gem.count=gem; W_eyeW.count=ew; W_pupil.count=ew; W_fang.count=fg;
+  W_rib.count=rib; W_tongue.count=tng; W_plate.count=pl; W_gem.count=gem; W_eyeW.count=ew; W_eyeR.count=ew; W_pupil.count=ew; W_fang.count=fg;
   W_heal.count=hr; W_dread.count=dr; W_beam.count=bm; W_heal.instanceMatrix.needsUpdate = W_dread.instanceMatrix.needsUpdate = W_beam.instanceMatrix.needsUpdate = true;
   W_heal.visible = hr > 0; W_dread.visible = dr > 0; W_beam.visible = bm > 0;
   flush(W_body,W_chest,W_head,W_snout,W_tail,W_legs,W_paw,W_eyes,W_ears,W_hack,W_horn,W_nose,W_ruff,
-        W_belly,W_ttip,W_brow,W_cheek,W_rib,W_tongue,W_plate,W_gem,W_eyeW,W_pupil,W_fang);
+        W_belly,W_ttip,W_brow,W_cheek,W_rib,W_tongue,W_plate,W_gem,W_eyeW,W_eyeR,W_pupil,W_fang);
 }
 /* 병정 양 — 창병 / 갑옷병 / 마법사 세 종류 */
 function drawSoldiers(list, t){

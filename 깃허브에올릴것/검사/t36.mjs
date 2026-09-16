@@ -55,10 +55,10 @@ const art = await pg.evaluate(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   G.wolves.length = 0; W.__drawWolves(G.wolves, 1.0, 0.016); o.cleared = cnt('rib') === 0 && cnt('plate') === 0 && cnt('eyeW') === 0;
   G.paused = false; return o; });
 ok('★ 여섯 마리를 그리면 몸통·배·눈썹이 여섯(둘씩) — 공통 미술 손질', art.body === 6 && art.belly === 6 && art.brow === 12, art.body+'/'+art.belly+'/'+art.brow);
-ok('★ 굶주린 늑대만 갈비뼈 여섯·혀 하나', art.rib === 6 && art.tongue === 1, art.rib+'/'+art.tongue);
-ok('★ 갑옷 늑대만 철판·등마루·어깨·투구 일곱', art.plate === 7, art.plate);
+ok('★ 굶주린 늑대의 갈비뼈 여섯 + 공포 늑대의 눈구멍 둘·입 속·아래턱(같은 조각 뭉치) · 혀 하나', art.rib === 10 && art.tongue === 1, art.rib+'/'+art.tongue);
+ok('★ 갑옷 늑대만 갑옷 조각 쉰다섯 (등 철판 넷×(테·판·리벳 둘) · 옆구리 치마 넷×2 · 목 셋 · 어깨 둘×3 · 가슴판 넷 · 투구 아홉 · 꼬리 · 정강이 넷×2)', art.plate === 55, art.plate);
 ok('★ 치유 늑대만 보석 하나·초록 고리 하나', art.gem === 1 && art.heal === 1, art.gem+'/'+art.heal);
-ok('★ 공포 늑대만 흰 눈 둘·송곳니 둘·검은 고리 하나', art.eyeW === 2 && art.fang === 2 && art.dread === 1, art.eyeW+'/'+art.fang+'/'+art.dread);
+ok('★ 공포 늑대만 찢어진 흰 눈 둘·송곳니 넷+흉터 하나·검은 고리 하나', art.eyeW === 2 && art.fang === 5 && art.dread === 1, art.eyeW+'/'+art.fang+'/'+art.dread);
 ok('★ 새끼는 작고 공포는 크다 (몸집 표)', art.pupSmall && art.fearBig);
 ok('★ 늑대가 없으면 종류별 조각도 0 (지난 프레임 조각이 남지 않는다)', art.cleared);
 
