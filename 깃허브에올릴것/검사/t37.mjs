@@ -109,9 +109,9 @@ const rule = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   tick(30); o.backAt = [+PL.x.toFixed(1), +PL.z.toFixed(1)]; o.backCp = Math.abs(PL.z - cp2.z) < 0.6 && Math.abs(PL.x - cp2.x) < 1.2;
   /* 39차 — 허공 위에서도 3인칭 카메라가 땅 밑으로 안 꺼진다(점프할 때마다 화면이 하늘색이 됐다) */
   RACE.fallT = 0; put(20, 60, 1.5); PL.ground = false; PL.pitch = -0.3; W.__updPlayer(1/30); o.camY = +(W.__cam.position.y - Y).toFixed(2);
-  /* 움직이는 통나무 위에 서 있으면 같이 실려 간다 */
+  /* 움직이는 통나무 위에 서 있으면 같이 실려 간다 (39차: 바위가 6.5초마다 지나가므로 이 항목 동안은 맞지 않게 한다 — 재는 것은 실림이다) */
   const log = P.find(p=>p.kind==='log'); const off = t => Math.sin(t*log.mv.spd + log.mv.ph)*log.mv.amp;
-  RACE.t = 10; G.t = 80; put(log.x + off(10), log.z, log.y); const x0 = PL.x; tick(30); o.carried = +(PL.x - x0).toFixed(2); o.logMoved = +(off(RACE.t) - off(10)).toFixed(2);
+  RACE.t = 10; G.t = 80; RACE.hitCd = 99; put(log.x + off(10), log.z, log.y); const x0 = PL.x; tick(30); o.carried = +(PL.x - x0).toFixed(2); o.logMoved = +(off(RACE.t) - off(10)).toFixed(2); RACE.hitCd = 0;
   /* 사라지는 발판 — 밟으면 0.5초 뒤 꺼져 2.5초 뒤 돌아온다 */
   const fd = P.find(p=>p.kind==='fade' && !p.blink || p.kind==='fade'); put(fd.x, fd.z, fd.y); tick(2); o.fadeArmed = fd.fade.t >= 0;
   tick(32); o.fadeGone = fd.fade.gone > 0 && W.__raceTopAt(fd.x, fd.z) < -900 || (fd.blink ? true : false);   // 1초 뒤 꺼진다
