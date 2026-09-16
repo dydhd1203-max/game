@@ -7215,7 +7215,7 @@ const F_body = imesh(RB, FM.wool, MAXF, 1),
       /* ★ 칸을 넉넉히 잡는다 — 닭이 벌써 넷(볏 셋 + 부리), 소는 일곱을 쓴다.
          MAXF*3 으로 뒀더니 우리를 닭으로 채우면 24 > 18 로 넘쳤다. 30마리 × 8 이라야
          어떤 조합이든 안 넘친다(240개, 인스턴스 하나 값은 거의 없다). */
-      F_deco = imesh(RBs, FM.woolD, MAXF*8, 1),  // 볏 · 귀 · 뿔 · 코 · 얼룩
+      F_deco = imesh(RBs, FM.woolD, MAXF*10, 1), // 볏 · 귀 · 뿔 · 코 · 얼룩 · 42차 — 코뚜레·콧구멍이 늘어 8 → 10칸(소 10 조각)
       F_eyes = imesh(BALL, FM.eye, MAXF*4, 1),    // 흰자 2 + 눈동자 2 — 공이라 인형 눈이 된다
       F_legs = imesh(RB, FM.woolD, MAXF*4, 1);
 /* ═══════════════════════ 상인 · 대장장이 (17차h) ═══════════════════════
@@ -14620,7 +14620,9 @@ function racePaint(){
 function paintMini(){
   const M = G.mini, bar = el('miniBar');
   /* 42차 — 경주 준비 중(3·2·1)엔 판을 통째로 숨긴다 — 큰 숫자만 화면 가운데 */
-  if(!miniOn() || !M || (M.k === 0 && M.st === 'intro')){ if(bar.classList.contains('on')) bar.classList.remove('on'); return; }
+  if(!miniOn() || !M || (M.k === 0 && M.st === 'intro')){ if(bar.classList.contains('on')) bar.classList.remove('on');
+    setTxt('mbQ', ''); setTxt('mbH', '');   // 42차 — 숨길 때 지난 판 글(결과 "나는 n등")도 비운다 — 다음 경주에 잠깐 비치지 않게
+    return; }
   if(!bar.classList.contains('on')) bar.classList.add('on');
   const t = Math.max(0, Math.ceil(G.t));
   let nm = MINI_NAME[M.k], q = '', tm = '', hearts = '', chips = '';
