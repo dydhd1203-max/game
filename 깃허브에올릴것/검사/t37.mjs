@@ -254,6 +254,34 @@ ok('★ 초읽기 큰 글씨는 화면 정중앙(top 50%)이고, 준비 중엔 �
 ok('★ 출발 전엔 걷기·뜀이 잠긴다 (42차 — "출발도 안 했는데 움직여져") · 출발하면 풀린다', spd.hold && spd.heldMove < 0.01 && spd.heldJump && !spd.holdRun, `hold ${spd.hold} moved ${spd.heldMove} jumpBlocked ${spd.heldJump} run ${spd.holdRun}`);
 ok('★ 경주에서는 걷기가 1.8배(1초에 8.5칸 안팎 — 마을 4.8) · 사라지는 발판 1.8/1.6초 · 총 반동에 기울기(돌아온다) · gunshot 네 겹', spd.RSPD === 1.8 && spd.raceWalk > 7.6 && spd.raceWalk < 9.6 && spd.fadeT.arm === 1.8 && spd.fadeT.gone === 1.6 && spd.roll !== 0 && Math.abs(spd.roll40) < Math.abs(spd.roll)*0.05 && spd.gunshot, `1초 ${spd.raceWalk} · roll ${spd.roll.toFixed(4)} → ${spd.roll40.toFixed(5)}`);
 
+
+/* ═══════ ⑪ 43차 — 총열 축 = 조준선(모든 총) · 반동은 총구가 들리는 쪽 · 화염은 총구→표적 · 총마다 제 소리 ═══════ */
+const aim = await ev(()=>{ const W=window, G=W.__G, o={}; const THREE = W.__THREE, cam = W.__cam, held = W.__held, K = W.__KIT;
+  if(W.__miniOn()) W.__miniExit(); G.paused = true; W.__setAim(true, true);
+  const dirOf = (i)=>{ const gm = W.__gunModels()[i]; if(!gm || !gm.userData.muzzle) return null;
+    cam.updateMatrixWorld(true); const m = gm.localToWorld(gm.userData.muzzle.clone()), rr = gm.localToWorld(gm.userData.muzzle.clone().add(new THREE.Vector3(0,0,-1)));
+    const mc = cam.worldToLocal(m.clone()), rc = cam.worldToLocal(rr.clone()), d = mc.clone().sub(rc).normalize();
+    const t = (-W.__AIM_D - mc.z)/d.z, hit = mc.clone().add(d.clone().multiplyScalar(t));
+    return {x:hit.x, y:hit.y, pitch:Math.asin(d.y)*180/Math.PI}; };
+  const guns = W.__WEAPONS.map((w,i)=> i).filter(i=> W.__gunModels()[i] && W.__gunModels()[i].userData.muzzle);
+  o.n = guns.length; o.off = 0; o.list = [];
+  for(const i of guns){ K.ownW[i] = true; W.__equipW(i); W.__updHeld(1/60,false,0); W.__updHeld(1/60,false,0); const r = dirOf(i); const e = Math.hypot(r.x, r.y); o.off = Math.max(o.off, e); o.list.push(i+':'+e.toFixed(2)); }
+  K.ownW[2] = true; W.__equipW(2); W.__updHeld(1/60,false,0); const p0 = dirOf(2).pitch; W.__gunRecoil(1.0); W.__updHeld(1/60,false,0); o.pitchUp = dirOf(2).pitch - p0;
+  for(let i=0;i<60;i++) W.__updHeld(1/60,false,0); o.pitchBack = dirOf(2).pitch - p0;
+  /* 화염·짧은 빛줄기 — 총구→표적 방향 (총구 (0,1,0) 에서 표적 (3,5,0) 으로 → (0.6,0.8,0) 의 0.42칸) */
+  const B = W.__bullets(), before = B.map(b=>b.t).slice(); W.__muzzleFx(0, 1, 0, {x:0,y:0,z:-1}, W.__WEAPONS[2], 3, 5, 0);
+  const nb = B.find((b,i)=> b.t === 1 && before[i] !== 1 && b.x === 0 && b.y === 1); o.fxDir = nb ? [+(nb.tx-nb.x).toFixed(3), +(nb.ty-nb.y).toFixed(3), +(nb.tz-nb.z).toFixed(3)] : null;
+  W.__setAim(false, true); for(let i=0;i<30;i++) W.__updHeld(1/60,false,0); o.toolY = held.rotation.y;
+  const KEYS = W.__SFXKEYS(), real = W.__WEAPONS.filter(w=> w.ammo > 0 || w.tier);
+  o.snd = {flint:W.__WEAPONS[2].snd, rifle:W.__WEAPONS[3].snd, smg:W.__WEAPONS[4].snd, all:W.__WEAPONS.every(w=>!w.snd || KEYS.includes(w.snd)), distinct:new Set(real.map(w=>w.snd)).size, cnt:real.length};
+  o.helpers = typeof W.__crackSweep === 'function' && typeof W.__thump === 'function';
+  G.paused = false; return o; });
+ok('★ 43차 — 모든 총의 총열 축이 조준점(카메라 앞 AIM_D)을 지난다 (어긋남 < 0.15칸 — 42차엔 38° 틀어져 12칸 앞에서 8칸 왼쪽)', aim.n >= 11 && aim.off < 0.15, aim.list.join(' '));
+ok('★ 반동은 총구가 들리는 쪽(+10° 이상)이고 1초 안에 제자리(±1°) — 42차까지는 부호가 거꾸로라 쏠 때 총구가 숙여졌다', aim.pitchUp > 10 && Math.abs(aim.pitchBack) < 1, aim.pitchUp.toFixed(1)+'° → '+aim.pitchBack.toFixed(2)+'°');
+ok('★ 총구 화염·짧은 빛줄기는 총구→표적 방향으로 뻗는다 (카메라 앞이 아니라)', !!aim.fxDir && aim.fxDir[0] > 0.2 && aim.fxDir[1] > 0.2 && Math.abs(aim.fxDir[2]) < 0.05, JSON.stringify(aim.fxDir));
+ok('★ 총을 놓고 도구를 들면 손 방향 y 가 0 으로 돌아온다 (총의 조준 회전이 남지 않는다)', Math.abs(aim.toolY) < 1e-6, aim.toolY);
+ok('★ 총마다 제 소리 — 화승총 flint · 소총 rifle · 연발총 smg, 총알 총·레어·유니크 열한 개가 이름이 다 다르고 표에 다 있다 · crackSweep·thump 합성기', aim.snd.flint === 'flint' && aim.snd.rifle === 'rifle' && aim.snd.smg === 'smg' && aim.snd.all && aim.snd.distinct === aim.snd.cnt && aim.snd.cnt >= 11 && aim.helpers, JSON.stringify(aim.snd));
+
 await ev(()=>{ const W=window; if(W.__miniOn()) W.__miniExit(); });
 /* ═══════ 결과 ═══════ */
 console.log('');
