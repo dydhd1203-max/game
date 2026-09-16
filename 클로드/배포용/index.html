@@ -2536,7 +2536,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '35차 · 소리·글씨 — 오르골 효과음 · 새 배경음 · 주아/해바라기';
+const GAME_VER = '36차 · 늑대 — 굶주린·갑옷·치유·새끼·공포 · 밤 구성표(4일차까지 고정, 그 뒤 뽑기)';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -6983,6 +6983,7 @@ const tongueMat= flatMat(0xd9414f);
 const plateMat = metalMat(0x4f5763, {reflectivity:0.22, shininess:38});               // 갑옷 — 35차 쇠 재질이되 반사를 죽인 어두운 무쇠 (0.5 로 두면 하늘을 비춰 흰 띠가 됐다)
 const gemMat   = flatMat(0x7dffb0, {emissive:0x2dff7a, emissiveIntensity:0.9});
 const healRingMat  = new THREE.MeshBasicMaterial({color:0x5dff9a, transparent:true, opacity:0.34, depthWrite:false, side:THREE.DoubleSide, blending:THREE.AdditiveBlending});
+const healBeamMat  = new THREE.MeshBasicMaterial({color:0x8dffb8, transparent:true, opacity:0.55, depthWrite:false, blending:THREE.AdditiveBlending});
 const dreadRingMat = new THREE.MeshBasicMaterial({color:0x1a0a26, transparent:true, opacity:0.42, depthWrite:false, side:THREE.DoubleSide});
 /* 36차 — 늑대 공통 미술 손질: 두 가지 털색(배·주둥이·볼·꼬리 끝은 밝게) + 성난 눈썹. 부위 넷이 늘지만 전부 인스턴스라 드로우콜 넷이다 */
 const W_belly  = imesh(RB,  FM.fur,  MAXW, 1),        // 배 — 밝은 털 띠
@@ -6997,9 +6998,10 @@ const W_rib    = imesh(RBs, FM.furD, MAXW*6, 1),
       W_pupil  = imesh(BALL, FM.dark, MAXW*2, 1),
       W_fang   = imesh(RBs, FM.wool, MAXW*2, 1),
       W_heal   = imesh(new THREE.RingGeometry(0.86, 1.0, 28), healRingMat, 24, 0),
+      W_beam   = imesh(new THREE.BoxGeometry(1, 1, 1), healBeamMat, 24, 0),        // 36차 — 치유 늑대 → 채우는 늑대로 이어지는 초록 줄
       W_dread  = imesh(new THREE.RingGeometry(0.55, 1.0, 28), dreadRingMat, 24, 0);
-W_heal.castShadow = W_heal.receiveShadow = W_dread.castShadow = W_dread.receiveShadow = false;
-const AX_X = new THREE.Vector3(1,0,0);
+W_heal.castShadow = W_heal.receiveShadow = W_dread.castShadow = W_dread.receiveShadow = W_beam.castShadow = W_beam.receiveShadow = false;
+const AX_X = new THREE.Vector3(1,0,0), AX_Z = new THREE.Vector3(0,0,1), _tmpV = new THREE.Vector3();
 /* ═══════════════════════ 농장 동물 (17차d) ═══════════════════════
    ★ 아주 귀엽게 — 그게 주문이었다. 귀여움은 비율에서 나온다:
        ① 머리를 몸통만큼 크게 (아기 비율)
@@ -7911,13 +7913,18 @@ const WOLF_T = [
      늑대 하나 = 아이가 한 문장으로 말할 수 있는 규칙 하나. look 은 그리기(drawWolves)가, 나머지 깃발은 호스트 AI 가 읽는다.
      등급(거친·사나운·흉포한)과 보스 체계는 그대로 얹힌다.
        굶주린 — 벽·건물은 안 물고(틈을 찾고, 3초 막히면 그제야 문다) 양과 수정만 쫓는다. 더 빠르고 더 멀리서 알아챈다.
-       갑옷   — 느리고 두껍고, 양을 안 쫓고 틈도 안 찾는다. 앞을 막은 벽을 1.8배로 갉아 길을 낸다. 얼음탑에 안 느려진다.
-       치유   — 둘레 5.5칸의 늑대를 초당 최대 체력의 2.5% 씩 채운다. 스스로는 약하고 뒤에서 따라온다.
+       갑옷   — 느리고 두껍고, 양을 안 쫓고 틈도 안 찾는다. 앞을 막은 벽을 1.5배로 갉아 길을 낸다. 얼음탑에 안 느려진다.
+                (처음엔 체력 150·물기 30×1.8 이었는데 벽 위협이 큰늑대의 두 배라 12일차 보스 밤이 무너졌다 — 체력 120·26×1.5 로 큰늑대와 같은 무게)
+       치유   — 둘레 5.5칸에서 제일 다친 늑대 한 마리를 초당 최대 체력의 5% 씩 채운다(초록 줄이 이어진다). 채울 수 있는 양은 정해져 있다 —
+                주머니(pool)가 보통 늑대 한 마리분 체력이고, 다 쓰면 보석이 꺼진다. 스스로는 약하고 무리 사이사이 뒤에서 따라온다. 무게는 wt 3.0 으로 잰다.
+                (처음엔 둘레 전부를 2.5%/초 — 벽 앞에 마흔 마리가 붙으면 초당 늑대 한 마리분 체력이 돌아와 15일차 보스 밤이 12판 중 0판이었다.
+                 1.5% 로 낮춰도 2판, 한 마리씩 5% 로 바꿔도 2판 — 아이들 화력과 치유가 맞먹어 무리 체력이 두 배가 됐다. 주머니로 '살리는 양' 을 못 박아야 무게로 잴 수 있다.
+                 주머니 1.5·무게 2.0 은 3/12, 주머니 1.0·무게 3.0 이 9/12·6/12 — 예전 8/12 와 같은 자리.)
        새끼   — 아주 작고 약한데 아주 많다.
        공포   — 눈이 희번덕하고, 다른 늑대보다 세다. 가까이 오면 화면 가장자리가 어두워지고 심장 소리가 난다. */
   {n:'🍖 굶주린 늑대', hp:34, spd:3.60,dmg:9,  cd:1.6, sc:0.68, col:0xd8c2a4, look:'hungry', wallBite:0, chase:1.3, aggro:1.7},
-  {n:'🛡️ 갑옷 늑대',   hp:150,spd:2.00,dmg:30, cd:1.2, sc:0.86, col:0x6c717c, look:'armor',  noChase:1, noGap:1, struMul:1.8, slowImm:1},
-  {n:'💚 치유 늑대',   hp:36, spd:2.70,dmg:5,  cd:0.8, sc:0.66, col:0xcdf0c2, look:'heal',   noChase:1, heal:{r:5.5, pct:0.025}},
+  {n:'🛡️ 갑옷 늑대',   hp:120,spd:2.00,dmg:26, cd:1.2, sc:0.86, col:0x6c717c, look:'armor',  noChase:1, noGap:1, struMul:1.5, slowImm:1},
+  {n:'💚 치유 늑대',   hp:36, spd:2.70,dmg:5,  cd:0.8, sc:0.66, col:0xcdf0c2, look:'heal',   noChase:1, heal:{r:5.5, pct:0.05, pool:1.0}, wt:3.0},
   {n:'🐾 새끼 늑대',   hp:11, spd:4.30,dmg:4,  cd:0.6, sc:0.42, col:0xf0e8dc, look:'pup'},
   {n:'👁️ 공포 늑대',   hp:110,spd:3.35,dmg:20, cd:2.0, sc:1.12, col:0x5a4c6a, look:'fear',   fear:1}
 ];
@@ -7965,7 +7972,7 @@ function furLight(col, k){
 }
 function drawWolves(list, t, dt){
   dt = Math.min(0.05, dt || 0.016);
-  let n=0, ln=0, en=0, hn=0, pn=0, horn=0, rib=0, tng=0, pl=0, gem=0, ew=0, fg=0, hr=0, dr=0;   // 36차 — 종류별 조각 셈
+  let n=0, ln=0, en=0, hn=0, pn=0, horn=0, rib=0, tng=0, pl=0, gem=0, ew=0, fg=0, hr=0, dr=0, bm=0;   // 36차 — 종류별 조각 셈
   const RK = wolfRank(G.day);          // 오늘 밤 늑대들의 등급 (보스는 늘 3)
   // 밤이 깊을수록 눈이 타오른다 — 등급이 높으면 더
   eyeMat.emissiveIntensity = 0.15 + NIGHTK*(1.55 + RK*0.35);
@@ -8151,10 +8158,19 @@ function drawWolves(list, t, dt){
       setIR(W_plate, pl++, HX(0.02*sc,0.31*sc,0), HY(0.02*sc,0.31*sc), HZ(0.02*sc,0.31*sc,0), hYaw, hPit - 0.10, 0.70*sc, 0.13*sc, 0.62*sc, PC);
     } else if(look === 'heal'){
       /* 등의 초록 보석(돌면서 숨 쉰다) + 발밑 초록 고리(치유 범위 그대로) */
-      const gp = 1 + Math.sin(t*4.0 + w.ph)*0.12;
-      setIR(W_gem, gem++, w.x+fx*0.05*sc, y+1.24*sc+bob, w.z+fz*0.05*sc, ry + t*1.5, 0, 0.40*sc*gp, 0.56*sc*gp, 0.40*sc*gp, 0x7dffb0);
-      if(hr < W_heal.count_max){ _v.set(w.x, y+0.05, w.z); _q.setFromAxisAngle(AX_X, -Math.PI/2);
+      const spent = w.healPool !== undefined && w.healPool <= 0;          // 주머니를 다 썼다 — 보석이 꺼지고 고리가 사라진다
+      const gp = spent ? 0.8 : 1 + Math.sin(t*4.0 + w.ph)*0.12;
+      setIR(W_gem, gem++, w.x+fx*0.05*sc, y+1.24*sc+bob, w.z+fz*0.05*sc, ry + (spent ? 0 : t*1.5), 0, 0.40*sc*gp, 0.56*sc*gp, 0.40*sc*gp, spent ? 0x2e4a36 : 0x7dffb0);
+      if(!spent && hr < W_heal.count_max){ _v.set(w.x, y+0.05, w.z); _q.setFromAxisAngle(AX_X, -Math.PI/2);
         const rr = d.heal.r*(0.94+Math.sin(t*2.2)*0.06); _s.set(rr, rr, 1); W_heal.setMatrixAt(hr++, _m.compose(_v,_q,_s)); }
+      /* 보석에서 채우는 늑대의 등까지 초록 줄 — 아이가 '누굴 살리는지' 를 본다 */
+      const tg = w.healTgt;
+      if(tg && w.healBeam > 0 && tg.hp > 0 && bm < W_beam.count_max){
+        const ax = w.x+fx*0.05*sc, ay = y+1.24*sc+bob, az = w.z+fz*0.05*sc;
+        const tsc = (WOLF_T[tg.k].sc || 0.7), bx = tg.x, by = (tg.y||GY)+0.95*tsc, bz = tg.z;
+        const dx = bx-ax, dy = by-ay, dz = bz-az, len = Math.hypot(dx, dy, dz) || 0.01;
+        _v.set((ax+bx)/2, (ay+by)/2, (az+bz)/2); _q.setFromUnitVectors(AX_Z, _tmpV.set(dx/len, dy/len, dz/len));
+        const th = 0.07 + 0.03*Math.sin(t*14); _s.set(th, th, len); W_beam.setMatrixAt(bm++, _m.compose(_v,_q,_s)); }
     } else if(look === 'fear'){
       /* 희번덕한 눈 — 커다란 흰자에 작은 눈동자가 한쪽으로 쏠린 채 굴러다닌다 */
       const rollE = Math.sin(t*1.7 + w.ph)*0.03*sc, rollU = Math.cos(t*1.3 + w.ph*1.7)*0.02*sc;
@@ -8207,8 +8223,8 @@ function drawWolves(list, t, dt){
   W_legs.count=ln; W_paw.count=pn; W_eyes.count=en; W_ears.count=en; W_hack.count=hn;
   W_belly.count=n; W_ttip.count=n; W_brow.count=en; W_cheek.count=en;
   W_rib.count=rib; W_tongue.count=tng; W_plate.count=pl; W_gem.count=gem; W_eyeW.count=ew; W_pupil.count=ew; W_fang.count=fg;
-  W_heal.count=hr; W_dread.count=dr; W_heal.instanceMatrix.needsUpdate = W_dread.instanceMatrix.needsUpdate = true;
-  W_heal.visible = hr > 0; W_dread.visible = dr > 0;
+  W_heal.count=hr; W_dread.count=dr; W_beam.count=bm; W_heal.instanceMatrix.needsUpdate = W_dread.instanceMatrix.needsUpdate = W_beam.instanceMatrix.needsUpdate = true;
+  W_heal.visible = hr > 0; W_dread.visible = dr > 0; W_beam.visible = bm > 0;
   flush(W_body,W_chest,W_head,W_snout,W_tail,W_legs,W_paw,W_eyes,W_ears,W_hack,W_horn,W_nose,W_ruff,
         W_belly,W_ttip,W_brow,W_cheek,W_rib,W_tongue,W_plate,W_gem,W_eyeW,W_pupil,W_fang);
 }
@@ -12920,8 +12936,8 @@ const NIGHT_DEF = [
 ];
 const NIGHT_FIXED = [0, 1, 2, 3];                      // 1~4일차 — 고정 (계획할 수 있게)
 /* 보스 밤의 부하 — 보스마다 어울리는 종류 */
-const BOSS_MIX = [{0:0.6, 1:0.4}, {0:0.3, 1:0.3, hungry:0.4}, {0:0.3, 2:0.3, armor:0.4},
-                  {0:0.25, armor:0.25, fear:0.30, heal:0.20}, {0:0.2, 1:0.1, 2:0.1, hungry:0.15, armor:0.15, heal:0.1, pup:0.1, fear:0.1}];
+const BOSS_MIX = [{0:0.6, 1:0.4}, {0:0.3, 1:0.3, hungry:0.4}, {0:0.4, 1:0.2, 2:0.2, armor:0.2},
+                  {0:0.30, 1:0.15, armor:0.15, fear:0.25, heal:0.15}, {0:0.2, 1:0.1, 2:0.1, hungry:0.15, armor:0.15, heal:0.1, pup:0.1, fear:0.1}];
 function nightPool(day){
   const d = prog(day), out = [];
   for(let i=0;i<NIGHT_DEF.length;i++){ const N = NIGHT_DEF[i]; if(d >= N.from && d < N.until) out.push(i); }
@@ -12965,7 +12981,21 @@ function waveFor(day){
   const nk = bi>=0 ? -1 : nightFor(day);
   const N = bi>=0 ? null : NIGHT_DEF[nk];
   const mix = bi>=0 ? BOSS_MIX[Math.min(bi, BOSS_MIX.length-1)] : N.mix;
-  if(N && N.more && day === G.day) tot = Math.min(MAXW - 14, Math.round(tot * N.more));
+  /* ★ 무게 예산 — 구성표는 밤의 '결' 을 바꾸지 '무게' 를 바꾸면 안 된다. 갑옷·큰늑대를 40% 씩 섞은 보스 밤은
+     마리수가 같아도 늑대 총 체력이 예전의 2.1배가 되어 하네스에서 12일차가 4/6 → 0/6 으로 무너졌다.
+     체력만 맞춰도(26마리) 여전히 1/6 이었다 — 벽이 받는 피해는 '체력 × 무는 힘' 에 비례하기 때문이다(오래 살수록 더 문다).
+     그래서 늑대 한 마리의 무게 = √(체력비 × 무는힘비) 로 두고, '예전 구성(날쌘·큰 비율 곡선)의 평균 무게' 를 그날의 예산으로,
+     이 구성의 평균 무게로 나눠 마리수를 정한다 — 새끼 떼는 많아지고 갑옷 밤은 적어지되 무게는 같다.
+     more 는 그 위에 곱하고, 렌더 상한(MAXW) 안에서 자른다. (하네스 bal36: 12일차 예전 4/6 ↔ 새 판 아래 표) */
+  const wRel = k => WOLF_T[k].wt || Math.sqrt((WOLF_T[k].hp / WOLF_T[0].hp) * (WOLF_T[k].dmg * (WOLF_T[k].struMul || 1) / WOLF_T[0].dmg));   // wt 가 있으면 그 값(치유 늑대 — 체력·무는 힘이 아니라 살리는 힘)
+  const fr0 = d < BAL.fastFrom ? 0 : BAL.fastMax * Math.min(1,(d-BAL.fastFrom)/0.45);
+  const br0 = d < BAL.bigFrom  ? 0 : BAL.bigMax  * Math.min(1,(d-BAL.bigFrom )/0.5);
+  const oldAvg = (1 - fr0 - br0) + fr0*wRel(1) + br0*wRel(2);
+  let mixAvg = 0; for(const key of Object.keys(mix)){ const k = /^\d+$/.test(key) ? +key : K_LOOK(key); if(k >= 0) mixAvg += mix[key]*wRel(k); }
+  const budget = tot * oldAvg;                       // 그날의 무게 예산(예전 구성 그대로일 때의 무게) — 검사가 '날이 갈수록 는다' 를 이걸로 본다
+  tot = Math.round(tot * oldAvg / Math.max(0.2, mixAvg));
+  if(N && N.more && day === G.day) tot = Math.round(tot * N.more);
+  tot = Math.max(6, Math.min(MAXW - 14, tot));
   const keys = Object.keys(mix), out = [];
   let used = 0;
   keys.forEach((key, i)=>{
@@ -12975,8 +13005,9 @@ function waveFor(day){
     used += n; for(let j=0;j<n;j++) out.push(k);
   });
   while(out.length < 2) out.push(0);
+  let wt = 0; for(const k of out) wt += wRel(k);       // 실제 무게(잡몹만) — 새끼 떼처럼 상한(MAXW)에 걸린 밤은 예산보다 가볍다
   if(bi>=0) out.push(bossWolfK(bi));
-  return {kinds:out, boss:bi, nk, opts: N || {}};
+  return {kinds:out, boss:bi, nk, opts: N || {}, wt:+wt.toFixed(1), budget:+budget.toFixed(1)};
 }
 let spawnQ = [], spawnT = 0, wid = 1;
 function startWave(){
@@ -12997,7 +13028,12 @@ function startWave(){
   if(NO.focus !== 0) for(const e of q) if(e.k===2 && Math.random()<0.4) e.gate = G.focus;
   /* 36차 — 날쌘 무리: 날쌘늑대가 앞줄로. 치유 늑대는 뒷줄(무리 뒤에서 따라오게). 새끼는 셋씩 뭉친다 */
   if(NO.early) q.sort((a,b)=> (b.k===1?1:0) - (a.k===1?1:0));
-  if(K_HEAL >= 0){ const hs = q.filter(e=>e.k===K_HEAL); if(hs.length){ const rest = q.filter(e=>e.k!==K_HEAL); q.length = 0; q.push(...rest, ...hs); } }
+  /* 치유 늑대는 무리 사이사이 '한 무리 뒤에 하나' 로 — 전부 맨 뒤에 몰아 두면 마지막에 치유 늑대 떼가 한 입구에 몰려
+     아이들이(게임의 '늑대 N마리!' 알림도 마리수로 센다) 그쪽으로 몰려가고 비운 입구가 뚫린다. 하네스: 맨 뒤 0/12 · 사이사이 3/12 · 없음 7/12 */
+  if(K_HEAL >= 0){ const hs = q.filter(e=>e.k===K_HEAL); if(hs.length){ const rest = q.filter(e=>e.k!==K_HEAL); q.length = 0;
+    const step = Math.max(1, Math.floor(rest.length/(hs.length+1))); let hi = 0;
+    rest.forEach((e,i)=>{ q.push(e); if(hi < hs.length && (i+1) % step === 0) q.push(hs[hi++]); });
+    while(hi < hs.length) q.push(hs[hi++]); } }
   if(K_PUP >= 0){ const ps = q.filter(e=>e.k===K_PUP), rest = q.filter(e=>e.k!==K_PUP);
     if(ps.length && rest.length){ q.length = 0; let pi = 0;
       for(const e of rest){ q.push(e); if(pi < ps.length && Math.random() < 0.5){ for(let c=0;c<3 && pi<ps.length;c++) q.push(ps[pi++]); } }
@@ -13161,7 +13197,7 @@ function onStruBroken(o){
 function biteStru(o, w, ix, iz){
   const mul = BAL.struDmgMul[o.t];
   w.atkT = mul ? BAL.struBiteCd : 0.85;     // 탑·배럭은 무는 데 더 오래 걸린다
-  o.hp -= w.dmg * (mul || 1) * (w.struMul || 1);    // 36차 — 갑옷 늑대는 건물을 1.8배로 갉는다
+  o.hp -= w.dmg * (mul || 1) * (w.struMul || 1);    // 36차 — 갑옷 늑대는 건물을 1.5배로 갉는다
   markHp(o);
   burst(ix, GY+1.5, iz, 0xd8bc90, 9, 1.2);
   burst(ix, GY+1.5, iz, 0xfff0c0, 4, 1.6);
@@ -13283,15 +13319,25 @@ function hostSim(dt){
     if(w.slow>0) w.slow -= dt;
     if(w.atkT>0) w.atkT -= dt;
     if(w.healed>0) w.healed -= dt;
-    /* 36차 — 치유 늑대: 반 초마다 둘레 r 안의 다른 늑대를 최대 체력의 pct 만큼(초당) 채운다. 자기 자신은 못 채운다 */
+    if(w.healCd>0) w.healCd -= dt;
+    /* 36차 — 치유 늑대: 반 초마다 둘레 r 안의 다른 늑대를 최대 체력의 pct 만큼(초당) 채운다. 자기 자신은 못 채운다.
+       ★ 치유는 겹치지 않는다 — 한 마리는 0.45초에 한 번만 받는다(healCd). 처음엔 치유 늑대마다 따로 채워서 일곱이 모인 15일차 보스 밤이
+         초당 17% 를 채우는 무리가 됐다(하네스 12판 중 1판). 보스는 안 찬다 — 보스 체력은 따로 설계된 통이라 2.5% 가 곧 수백이다. */
     const TH = WOLF_T[w.k].heal;
     if(TH && w.hp > 0){
       w.healT = (w.healT||0) - dt;
-      if(w.healT <= 0){ w.healT = 0.5; const r2 = TH.r*TH.r; let did = 0;
-        for(const o of G.wolves){ if(o === w || o.hp <= 0 || o.hp >= o.mx) continue;
+      if(w.healT <= 0){ w.healT = 0.5; const r2 = TH.r*TH.r; let tgt = null, worst = 1;
+        /* ★ 한 마리씩 — 둘레에서 제일 다친 늑대 하나만. 무리 전체를 채우면 벽 앞에 붙은 수십 마리가 다 같이 살아나서 예산이 안 맞는다 */
+        for(const o of G.wolves){ if(o === w || o.hp <= 0 || o.hp >= o.mx || o.healCd > 0 || isBoss(o.k)) continue;
           const ddx = o.x-w.x, ddz = o.z-w.z; if(ddx*ddx+ddz*ddz > r2) continue;
-          o.hp = Math.min(o.mx, o.hp + o.mx*TH.pct*0.5); o.healed = 0.35; did++; }
-        if(did) burst(w.x, (w.y||GY)+1.3, w.z, 0x7dffb0, 4, 0.9); }
+          const f = o.hp / o.mx; if(f < worst){ worst = f; tgt = o; } }
+        /* 주머니 — 처음 채울 때 보통 늑대 pool 마리분(그날 체력 기준)으로 채워 두고, 채운 만큼 줄어 0 이면 끝(보석이 꺼진다) */
+        if(w.healPool === undefined) w.healPool = TH.pool * w.mx * (WOLF_T[0].hp / WOLF_T[w.k].hp);
+        if(tgt && w.healPool > 0){ const amt = Math.min(tgt.mx - tgt.hp, tgt.mx*TH.pct*0.5, w.healPool);
+          tgt.hp += amt; w.healPool -= amt; tgt.healed = 0.35; tgt.healCd = 0.45; w.healTgt = tgt; w.healBeam = 0.55;
+          burst(tgt.x, (tgt.y||GY)+1.1, tgt.z, 0x7dffb0, 3, 0.8); }
+        else w.healTgt = null; }
+      if(w.healBeam > 0) w.healBeam -= dt;
     }
     const dc = Math.hypot(w.x, w.z);      // 수정까지 (수정을 깎는 판정용)
     const dcO = oct(w.x, w.z);            // 마을 안인가 (경계가 네모라 네모난 거리로 본다)
@@ -16993,7 +17039,7 @@ Object.assign(window, {
   __LV_MAX:LV_MAX, __openStat:openStat, __openBadge:openBadge, __maxHP:maxHP, __mineTime:mineTime,
   __workSec:workSec, __upSec:upSec, __fixSec:fixSec, __mineBonus:mineBonus,
   __atkMul:atkMul, __defNow:defNow, __xpReset:xpReset,
-  __drawWolves:drawWolves, __drawSoldiers:drawSoldiers,
+  __drawWolves:drawWolves, __drawSoldiers:drawSoldiers, __wolfMeshes:()=>({body:W_body, belly:W_belly, brow:W_brow, rib:W_rib, tongue:W_tongue, plate:W_plate, gem:W_gem, heal:W_heal, beam:W_beam, eyeW:W_eyeW, fang:W_fang, dread:W_dread}),
   __work:()=>work, __doAction:doAction, __setActing:v=>{ acting = v; },
   __sheepHurt:sheepHurt, __goDown:goDown, __reviveMe:reviveMe, __aimDown:aimDown,
   __wolfRank:wolfRank, __sheepBite:sheepBiteDmg, __blockedAt:blockedAt,

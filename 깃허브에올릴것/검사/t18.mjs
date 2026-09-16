@@ -89,7 +89,7 @@ const df = await pg.evaluate(()=>{
   const W=window, o={날:[]};
   for(const d of [1,3,5,7,10,12,15,18]){
     const wv = W.__waveFor(d);
-    o.날.push({d, 마리:wv.kinds.length, 보스:wv.boss>=0, 진행도:+W.__prog(d).toFixed(3)});
+    o.날.push({d, 마리:wv.kinds.length, 예산:wv.budget, 보스:wv.boss>=0, 진행도:+W.__prog(d).toFixed(3)});
   }
   o.보통날 = o.날.filter(r=>!r.보스);
   /* ★ 기준일(진행도 1.0)이 안 움직였다는 '증명' — 지수를 어떻게 눕히든 1의 거듭제곱은 1이다.
@@ -100,9 +100,9 @@ const df = await pg.evaluate(()=>{
 const day = (n)=> df.날.find(r=>r.d===n);
 ok('★ 첫 밤부터 늑대가 제법 온다 (예전 5마리)', day(1).마리 >= 12, day(1).마리+'마리');
 ok('★ 15일차 마리수는 그대로 (기준점이 안 흔들린다)', day(15).진행도 === 1, '진행도 '+day(15).진행도);
-ok('밤이 갈수록 늑대가 는다 (보스 날은 잡몹을 줄이므로 뺀다)',
-   df.보통날.every((r,i)=> i===0 || r.마리 >= df.보통날[i-1].마리),
-   df.날.map(r=>r.d+'일:'+r.마리+(r.보스?'(보스)':'')).join(' '));
+ok('밤이 갈수록 늑대 무게 예산이 는다 (36차 — 마리수는 그날 구성표 따라 오르내린다 · 보스 날은 뺀다)',
+   df.보통날.every((r,i)=> i===0 || r.예산 >= df.보통날[i-1].예산),
+   df.날.map(r=>r.d+'일:'+r.마리+'마리/'+r.예산+(r.보스?'(보스)':'')).join(' '));
 
 /* 늑대 한 마리 세기 — 초반이 세지고 15일차는 그대로인가 */
 const st = await pg.evaluate(()=>{
