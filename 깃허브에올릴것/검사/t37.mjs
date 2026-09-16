@@ -219,12 +219,13 @@ const spd = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={}; const Y=W._
   o.slot = W.__raceSlotXZ(); o.rows = W.__RACE_ROWZ; o.slots = [9, 10, 11].map(sd=>{ G.mini.seed = sd; return W.__raceSlotXZ().join(','); }); G.mini.seed = 8;
   o.cp = [RACE.cp.x, RACE.cp.z];
   W.__cntShow(3, false); const c = document.getElementById('cnt'); o.cnt = {txt:c.textContent, pop:c.classList.contains('cntOn'), go:c.classList.contains('go'), popCls:c.classList.contains('pop')};
-  o.cntBox = (()=>{ const r = c.getBoundingClientRect(); return r.width < innerWidth*0.5 && r.height < innerHeight*0.7; })();   // 42차 — 팝업 덮개(.pop)와 이름이 겹쳐 보라 네모(폭 50%)가 떴다 — 숫자 하나는 화면 반보다 좁다
+  o.cntBox = c.offsetWidth < innerWidth*0.5 && c.offsetHeight < innerHeight*0.7 && getComputedStyle(c).backgroundImage.indexOf('gradient') >= 0;   // 42차 — 팝업 덮개(.pop)와 이름이 겹쳐 보라 네모(폭 50%)가 떴다 — 숫자 하나는 화면 반보다 좁다(offset — 튀어나오는 변형은 안 센다) · 그라데이션 글자
   W.__cntShow('출발!! 🏁', true); o.cntGo = c.classList.contains('go') && c.textContent.startsWith('출발');
   W.__miniSet('intro', 7); W.__paintMini(); o.introQ = document.getElementById('mbQ').textContent; o.introHint = /스페이스/.test(document.getElementById('miniBar').textContent);
   o.sfx = ['step','go','wind'].every(k=> W.__SFXKEYS().includes(k));
   o.buoy = !!W.__banks.get('rcBuoy');
-  W.__miniSet('run', 90); G.t = 90; G.mini.rank = null; W.__paintMini(); o.runQ = document.getElementById('mbQ').textContent; o.runBar = document.getElementById('miniBar').classList.contains('on');   // rank 는 앞 순위 검사가 남긴 것 — 결과 화면이 아니라 경기 중 판을 본다
+  { const mp = W.__miniPl.get(W.__uid); if(mp) mp.fin = -1; W.__MINE.fin = -1; }   // 앞 순위 검사가 남긴 '골인 44초' 보고 — 혼자면 전원 골인이라 호스트가 곧장 결과로 넘긴다
+  W.__miniSet('run', 90); G.t = 90; G.mini.rank = null; W.__paintMini(); W.__paintMini(); o.runQ = document.getElementById('mbQ').textContent; o.runSt = G.mini.st + '/' + G.phase; o.runBar = document.getElementById('miniBar').classList.contains('on');   // rank 는 앞 순위 검사가 남긴 것 — 결과 화면이 아니라 경기 중 판을 본다
   /* ═══════ ⑩ 42차 — 점프 손맛 · 초읽기 정중앙(판 숨김·토스트 없음) · 출발 잠금 · 경주 1.5배 · 바위 쿵 · 총 반동 용수철·기울기 ═══════ */
   const put2=(x,z,y)=>{ RACE.fallT = 0; PL.x=x; PL.z=z; PL.y=Y+(y||0); PL.vy=0; PL.ground=true; PL.landT=0; W.__updPlayer(1/30); };
   put2(0, 22, 0); PL.yaw = Math.PI; W.__wantJump(); W.__updPlayer(1/30); o.take = +(PL.takeT||0).toFixed(3); o.air1 = !PL.ground; o.trail = PL.trailT !== undefined;
@@ -246,7 +247,7 @@ ok('★ 걸음 위상은 간 거리로 돈다 — 내 양(1.3칸에 한 바퀴)�
 ok('★ 3인칭 카메라가 달리면 뒤처진다 (30Hz 검사에서 0.4~1.6칸 — 60fps 게임에선 0.85)', spd.cam.run > spd.cam.stand + 0.4 && spd.cam.run < spd.cam.stand + 1.6, JSON.stringify(spd.cam));
 ok('★ 출발선 두 줄 — 내 칸은 두 줄 중 하나·12칸 안, seed 마다 자리가 섞인다, 0번 깃발(복귀 자리)도 그 칸', spd.rows.length === 2 && spd.rows.includes(spd.slot[1]) && Math.abs(spd.slot[0]) <= 11 && new Set([spd.slot.join(','), ...spd.slots]).size >= 2 && spd.cp[0] === spd.slot[0] && spd.cp[1] === spd.slot[1], JSON.stringify(spd.slot)+' / seed 9~11 '+spd.slots.join(' ')+' cp '+JSON.stringify(spd.cp));
 ok('★ 초읽기는 큰 글씨(#cnt) — 3·2·1 은 노랑, 출발!! 🏁 은 초록 · 팝업 덮개(.pop)와 안 겹친다(보라 네모 없음)', spd.cnt.txt === '3' && spd.cnt.pop && !spd.cnt.go && spd.cntGo && !spd.cnt.popCls && spd.cntBox, JSON.stringify(spd.cnt)+' box '+spd.cntBox);
-ok('★ 경주 안내 띠("Shift 달리기 · 스페이스 두 번 점프")가 없다 — 준비 중·경기 중 위 판이 비어 있다 (42차: 경기 중도)', spd.introQ === '' && !spd.introHint && spd.runQ === '', JSON.stringify(spd.introQ)+' / '+JSON.stringify(spd.runQ));
+ok('★ 경주 안내 띠("Shift 달리기 · 스페이스 두 번 점프")가 없다 — 준비 중·경기 중 위 판이 비어 있다 (42차: 경기 중도)', spd.introQ === '' && !spd.introHint && spd.runQ === '', JSON.stringify(spd.introQ)+' / '+JSON.stringify(spd.runQ)+' '+spd.runSt);
 ok('★ 발소리·출발·바람(세기) 효과음 · 코스 옆 구름 부표 뱅크(rcBuoy)', spd.sfx && spd.buoy, spd.sfx+' '+spd.buoy);
 ok('★ 42차 점프 손맛 — 첫 뜀에 도약 늘어남(takeT)·잔상 타이머·보잉, 두 번째 뜀에 공중제비(flipT 0→), 착지 0.22초 눌림·툭', spd.take > 0.05 && spd.air1 && spd.trail && spd.flip >= 0 && spd.flip < 0.6 && spd.landT > 0.15 && spd.flipEnd === 99 && spd.sfxJump, `take ${spd.take} flip ${spd.flip} land ${spd.landT} end ${spd.flipEnd}`);
 ok('★ 초읽기 큰 글씨는 화면 정중앙(top 50%)이고, 준비 중엔 위 판이 통째로 숨는다 (42차 — "배경 네모 없애고 가운데 잘 오게")', spd.cntTop && !spd.introBar && spd.runBar, `top ${spd.cntTop} introBar ${spd.introBar} runBar ${spd.runBar}`);
