@@ -179,7 +179,42 @@ ok('★ 오늘 밤 이름은 뽑아 둔 것(굶주린 밤), 안 뽑았으면 진
 ok('★ waveFor 가 구성표대로 나눈다 (커다란 그림자 — 큰늑대·갑옷)', nt.wave.big > 0 && nt.wave.armor > 0 && Math.abs(nt.waveArmorShare - 0.30) < 0.08, JSON.stringify(nt.wave));
 ok('★ 보스 밤은 보스 이름이고 부하는 보스마다 다르다', /출현/.test(nt.bossName) && nt.bossHasBoss && nt.bossMinion > 0 && nt.bossMixKeys.includes('armor'), nt.bossName);
 ok('★ 마리수 배수가 붙는 밤도 렌더 상한(92) 안이다', nt.maxN <= 92 - 6, nt.maxN);
+/* ═══════ ⑤ 44차 — 모션: 거리 걸음(트롯/갤럽) · 방향 보간 · 두 마디 다리 · 공격 주기(웅크림→덤빔→흔들기) · 쓰러지기 ═══════ */
+const mot = await pg.evaluate(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
+  G.paused = true; G.wolves.length = 0; W.__WOLF_DEAD.length = 0;
+  const w = W.__spawnWolf(0, 0, PL.x + 3, PL.z + 4); w.mv = true; W.__wolfPose(w, 1, 0.016);
+  /* 거리 걸음 — 0.95칸을 천천히(초당 3칸) 가면 0.95/1.05 바퀴, 제자리에선 시간이 흘러도 안 돈다 */
+  let g0; for(let i=0;i<20;i++){ w.x += 0.05; const P = W.__wolfPose(w, 1.1 + i*0.016, 0.016); if(i===0) g0 = P.gait; if(i===19){ o.turns = +((P.gait - g0)/(Math.PI*2)).toFixed(2); o.trot = !P.run; } }
+  o.expect = +(0.95/1.05).toFixed(2);
+  { const g1 = W.__wolfPose(w, 2, 0.016).gait; for(let i=0;i<30;i++) W.__wolfPose(w, 2.1 + i*0.016, 0.016); o.still = +Math.abs(W.__wolfPose(w, 3, 0.016).gait - g1).toFixed(4); }
+  /* 갤럽 — 초당 4칸 넘게 달리면 run, 느려지면 트롯 */
+  for(let i=0;i<40;i++){ w.x += 5*0.016; W.__wolfPose(w, 4 + i*0.016, 0.016); } o.run = W.__wolfPose(w, 4.7, 0.016).run;
+  for(let i=0;i<40;i++){ w.x += 2.5*0.016; W.__wolfPose(w, 6 + i*0.016, 0.016); } o.trotBack = !W.__wolfPose(w, 6.7, 0.016).run;
+  /* 방향 — 160도 꺾으면 첫 프레임엔 0.12rad(7.5rad/s)만, 머리는 남은 각(lead)만큼 먼저, 1.3초 안에 다 돈다 */
+  { const P0 = W.__wolfPose(w, 8, 0.016); w.ry = P0.dry + 2.8; const P1 = W.__wolfPose(w, 8.016, 0.016); o.step1 = +Math.abs(P1.dry - P0.dry).toFixed(3); o.lead = +P1.lead.toFixed(2);
+    for(let i=0;i<70;i++) W.__wolfPose(w, 8.1 + i*0.016, 0.016); let d = w.ry - W.__wolfPose(w, 9.3, 0.016).dry; d = Math.atan2(Math.sin(d), Math.cos(d)); o.left = +Math.abs(d).toFixed(3); }
+  /* 공격 주기 — atkT 0.75(막 물었다) 덤빔 · 0.45 흔들기 · 0.06(다음 덤빔 직전) 웅크림 */
+  { w.mv = false; w.atkT = 0.75; const A = W.__wolfPose(w, 10, 0.016); w.atkT = 0.45; const B = W.__wolfPose(w, 10, 0.016); w.atkT = 0.06; const C = W.__wolfPose(w, 10, 0.016);
+    o.bite = +A.bite.toFixed(2); o.shake = +Math.abs(B.shake).toFixed(2); o.crouch = +C.crouch.toFixed(2); o.crouchEarly = +A.crouch.toFixed(2); w.atkT = undefined; w.mv = true; }
+  /* 두 마디 다리 — 세 마리면 다리 조각 24(넷×둘) · 발 12 */
+  G.wolves.length = 0; for(let i=0;i<3;i++){ const q = W.__spawnWolf(0, 0, PL.x + i, PL.z + 4); q.mv = false; }
+  W.__drawWolves(G.wolves, 1.0, 0.016); const M = W.__wolfMeshes(); o.legs = M.legs.count; o.paw = M.paw.count;
+  /* 쓰러지기 — G.wolves 에서 빼도 0.55초 동안 그려지고(몸통 셈에 든다) 옆으로 눕는다(굴림 ≈ 90도), 그 뒤 사라진다 */
+  { const q = G.wolves[0]; W.__wolfCorpse(q); G.wolves.splice(0,1); W.__drawWolves(G.wolves, 1.0, 0.016); o.bodyDead = M.body.count; o.deadN = W.__WOLF_DEAD.length;
+    q.dead = 0.20; W.__drawWolves(G.wolves, 1.1, 0.016); const T3 = W.__THREE, m = new T3.Matrix4(), p = new T3.Vector3(), r = new T3.Quaternion(), s = new T3.Vector3(), e = new T3.Euler();
+    M.body.getMatrixAt(2, m); m.decompose(p, r, s); e.setFromQuaternion(r, 'YXZ'); o.deadRoll = +Math.abs(e.z).toFixed(2);
+    for(let i=0;i<40;i++) W.__drawWolves(G.wolves, 1.2 + i*0.016, 0.016); o.deadGone = W.__WOLF_DEAD.length; W.__drawWolves(G.wolves, 2, 0.016); o.bodyAfter = M.body.count; }
+  const L = W.__idleLife(3, 1); o.life = typeof L.br === 'number' && typeof L.look === 'number' && typeof L.flick === 'number' && typeof L.sway === 'number';
+  G.wolves.length = 0; W.__WOLF_DEAD.length = 0; G.paused = false; return o; });
+ok('★ 44차 — 늑대 걸음은 간 거리로 돈다 (1.05칸에 한 바퀴 · 제자리에선 시간이 흘러도 안 돈다)', Math.abs(mot.turns - mot.expect) < 0.05 && mot.trot && mot.still < 0.001, mot.turns+' ≈ '+mot.expect+' · 제자리 '+mot.still);
+ok('★ 초당 4칸 넘게 달리면 갤럽(run), 느려지면 트롯', mot.run && mot.trotBack, mot.run+'/'+mot.trotBack);
+ok('★ 방향은 각속도 제한(7.5rad/s)으로 따라간다 — 첫 프레임 0.12rad, 머리는 남은 각만큼 먼저, 1.3초 안에 다 돈다', mot.step1 > 0.10 && mot.step1 < 0.14 && mot.lead > 2.5 && mot.left < 0.01, mot.step1+' · lead '+mot.lead+' · 남음 '+mot.left);
+ok('★ 공격 주기 — 덤빔(bite≈1) → 물고 흔들기(shake) → 다음 덤빔 앞 웅크림(crouch), 막 물었을 땐 웅크림 0', mot.bite > 0.95 && mot.shake > 0.3 && mot.crouch > 0.4 && mot.crouchEarly === 0, mot.bite+' · '+mot.shake+' · '+mot.crouch+' · '+mot.crouchEarly);
+ok('★ 두 마디 다리 — 세 마리에 다리 조각 24 · 발 12', mot.legs === 24 && mot.paw === 12, mot.legs+'/'+mot.paw);
+ok('★ 쓰러지기 — 죽은 늑대는 G.wolves 에서 빠져도 0.55초 동안 옆으로(굴림 ≈ 90°) 누워 그려지고 그 뒤 사라진다', mot.bodyDead === 3 && mot.deadN === 1 && mot.deadRoll > 1.2 && mot.deadGone === 0 && mot.bodyAfter === 2, mot.bodyDead+'/'+mot.deadN+' 굴림 '+mot.deadRoll+' → '+mot.deadGone+'/'+mot.bodyAfter);
+ok('★ 살아 있는 티(idleLife) — 숨·두리번·귀 쫑긋·무게 옮기기 값', mot.life);
 await pg.close();
+
 
 console.log('');
 let bad=0;

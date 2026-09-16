@@ -282,6 +282,30 @@ ok('★ 총구 화염·짧은 빛줄기는 총구→표적 방향으로 뻗는�
 ok('★ 총을 놓고 도구를 들면 손 방향 y 가 0 으로 돌아온다 (총의 조준 회전이 남지 않는다)', Math.abs(aim.toolY) < 1e-6, aim.toolY);
 ok('★ 총마다 제 소리 — 화승총 flint · 소총 rifle · 연발총 smg, 총알 총·레어·유니크 열한 개가 이름이 다 다르고 표에 다 있다 · crackSweep·thump 합성기', aim.snd.flint === 'flint' && aim.snd.rifle === 'rifle' && aim.snd.smg === 'smg' && aim.snd.all && aim.snd.distinct === aim.snd.cnt && aim.snd.cnt >= 11 && aim.helpers, JSON.stringify(aim.snd));
 
+
+/* ═══════ ⑫ 44차 — 양 모션: 방향 보간·회전 기울기·머리 앞서기 · 두 마디 다리 · 숨 · 급정지 ═══════ */
+const mot = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
+  if(W.__miniOn()) W.__miniExit(); G.paused = true;
+  const f = {uid:'zz', x:PL.x + 2, z:PL.z + 3, y:PL.y, ry:0, g:1, ph:1, hat:0, gls:0, clo:0, wp:0};
+  W.__drawSheep([f], 1.0, 40, s=>0xffffff, 1); o.legs = W.__P_legs.count;
+  const wrap = (a)=> Math.atan2(Math.sin(a), Math.cos(a));
+  /* 방향 — 2rad 꺾으면 첫 프레임엔 0.16rad(10rad/s)만, 회전 속도·남은 각이 생기고, 1초 안에 다 돈다 */
+  const h0 = W.__smoothHead(f, Math.PI, 0.0001, 10).ry; f.ry = 2.0; W.__drawSheep([f], 1.016, 40, s=>0xffffff, 1); const h1 = W.__smoothHead(f, 2.0 + Math.PI, 0.0001, 10);
+  o.step1 = +Math.abs(wrap(h1.ry - h0)).toFixed(3); o.turn = +Math.abs(h1.turn).toFixed(2); o.lead = +Math.abs(h1.lead).toFixed(2);
+  for(let i=0;i<60;i++) W.__drawSheep([f], 1.1 + i*0.016, 40, s=>0xffffff, 1); o.left = +Math.abs(wrap(2.0 + Math.PI - W.__smoothHead(f, 2.0 + Math.PI, 0.0001, 10).ry)).toFixed(3);
+  /* 급정지 — 초당 5칸으로 가다 멈추면 가속도가 크게 음수(앞으로 쏠린다) */
+  const g = W.__sheepGait(f, 3); for(let i=0;i<30;i++){ f.x += 5*0.016; W.__sheepGait(f, 3.1 + i*0.016); } o.v = +g.v.toFixed(2); for(let i=0;i<6;i++) W.__sheepGait(f, 3.6 + i*0.016); o.acc = +g.acc.toFixed(1);
+  /* 숨 — 서 있는 양의 몸통 세로가 시간에 따라 1~4% 오르내린다 */
+  const T3 = W.__THREE, m = new T3.Matrix4(), p = new T3.Vector3(), r = new T3.Quaternion(), s = new T3.Vector3();
+  const bodyY = (t)=>{ W.__drawSheep([f], t, 40, s=>0xffffff, 1); W.__Pmesh()[0].getMatrixAt(0, m); m.decompose(p, r, s); return s.y; };
+  for(let i=0;i<40;i++) W.__sheepGait(f, 10 + i*0.016);
+  const ys = [10.7, 11.0, 11.4, 11.8].map(bodyY); o.breath = +((Math.max(...ys) - Math.min(...ys))/Math.max(...ys)).toFixed(4);
+  G.paused = false; return o; });
+ok('★ 44차 — 양 다리는 두 마디(한 마리에 조각 여덟)', mot.legs === 8, mot.legs);
+ok('★ 양의 표시 방향은 각속도 제한(10rad/s)으로 따라간다 — 첫 프레임 0.16rad, 회전 속도·남은 각, 1초 안에 다 돈다', mot.step1 > 0.14 && mot.step1 < 0.18 && mot.turn > 1 && mot.lead > 1.5 && mot.left < 0.01, mot.step1+' · turn '+mot.turn+' · lead '+mot.lead+' · 남음 '+mot.left);
+ok('★ 급정지하면 가속도가 크게 음수(앞으로 쏠리고 먼지)', mot.v > 4 && mot.acc < -9, mot.v+' → '+mot.acc);
+ok('★ 서 있는 양은 숨을 쉰다 (몸통 세로 1~4% 오르내림)', mot.breath > 0.01 && mot.breath < 0.045, mot.breath);
+
 await ev(()=>{ const W=window; if(W.__miniOn()) W.__miniExit(); });
 /* ═══════ 결과 ═══════ */
 console.log('');
