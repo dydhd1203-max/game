@@ -5307,17 +5307,20 @@ function buildMiniIsle(){
     if(i > 0) for(let k=0;k<4;k++) for(const sx of [-1,1]) BX(sx*3.8, y+0.36, z - 1.5 + k*1.0, 0.5, 0.2, 1.0, k%2 ? 0xff5a5a : 0xffffff);
     gate(i, z, y); });
   /* ⑦ 저 아래 들판(38차) — 코스 아래 22칸에 밭·강·언덕·숲·마을·호수. 허공이 '높은 하늘' 로 읽히고, 떨어질 때 깊다.
-     안개(68~152)가 먼 데를 알아서 지워 준다 — 다 그려도 화면엔 가까운 쪽만 남는다. 그림자는 안 드리운다(NO_CAST). */
+     안개(68~152)가 먼 데를 알아서 지워 준다 — 다 그려도 화면엔 가까운 쪽만 남는다. 그림자는 안 드리운다(NO_CAST).
+     ★ 섬 앞(z ≥ 40)에만 깐다. 처음엔 마을 위(z -60)부터 깔았더니 **밤의 마을에서 올려다보면** 밝은 밭 밑면이 화면 위쪽에 걸렸고,
+       t28 의 빛 번짐 항목이 세 번 다 빨개졌다(번짐 닿은 픽셀 15.6% · 밝기 차 4.6). 밭마다 어두운 밑판을 한 장 더 깔아
+       아래에서 보이는 면은 어둡게 한다 — 위에서 보는 코스 화면은 그대로다. */
   { const LY = -22;
     const LAND = (x,y,z, sx,sy,sz, col)=> Rp(bpush('rcLand', WGEO, WMAT, x, MINI_Y+LY+y, z, 0, sx, sy, sz, 0, col));
     const LB = (x,y,z, sx,sy,sz, col)=> Rp(bpush('rcLandB', gBall, WMAT, x, MINI_Y+LY+y, z, 0, sx, sy, sz, 0, col));
     const FIELD = [0x8fd46a, 0x7bc95c, 0xa8dc72, 0xc9e07a, 0x9ad36a, 0xe4d77a];
-    for(let a=-6;a<6;a++) for(let b=-4;b<21;b++){ const x = a*16 + 8, z = b*16 + 8, k = ((a*7 + b*3) % 6 + 6) % 6;
-      LAND(x, -0.5 + (k===5 ? 0.12 : 0), z, 15.7, 1.0, 15.7, FIELD[k]); }
-    for(let b=0;b<40;b++){ const z = -60 + b*10, x = 30 + Math.sin(b*0.45)*14; LAND(x, 0.16, z, 9, 0.5, 10.8, 0x6fd3ff); }        // 강
-    LB(-34, 0.1, -14, 26, 0.5, 20, 0x6fd3ff); LB(-58, 0.1, 150, 22, 0.5, 26, 0x6fd3ff);                                            // 호수 둘
-    for(let k=0;k<16;k++){ const x = (k%2 ? 1 : -1)*(50 + (k*7)%30), z = -40 + k*22, r = 10 + (k*5)%9; LB(x, -1, z, r*2, r*0.9, r*2, k%3 ? 0x6fbf5a : 0x83cf66); }   // 언덕
-    for(let k=0;k<14;k++){ const cx = ((k*37)%110) - 55, cz = -30 + k*24;                                                        // 숲
+    for(let a=-6;a<6;a++) for(let b=2;b<21;b++){ const x = a*16 + 8, z = b*16 + 8, k = ((a*7 + b*3) % 6 + 6) % 6;
+      LAND(x, -0.5 + (k===5 ? 0.12 : 0), z, 15.7, 1.0, 15.7, FIELD[k]); LAND(x, -1.2, z, 15.9, 0.4, 15.9, 0x2f4a2c); }
+    for(let b=10;b<40;b++){ const z = -60 + b*10, x = 30 + Math.sin(b*0.45)*14; LAND(x, 0.16, z, 9, 0.5, 10.8, 0x6fd3ff); }       // 강
+    LB(-58, 0.1, 150, 22, 0.5, 26, 0x6fd3ff);                                                                                       // 호수
+    for(let k=0;k<16;k++){ const x = (k%2 ? 1 : -1)*(50 + (k*7)%30), z = -40 + k*22, r = 10 + (k*5)%9; if(z < 48) continue; LB(x, -1, z, r*2, r*0.9, r*2, k%3 ? 0x6fbf5a : 0x83cf66); }   // 언덕
+    for(let k=0;k<14;k++){ const cx = ((k*37)%110) - 55, cz = -30 + k*24; if(cz < 48) continue;                                    // 숲
       for(let q=0;q<7;q++){ const a = q*0.9 + k, r = (q%3)*2.4 + 1.5; LB(cx + Math.sin(a)*r*1.6, 1.3 + (q%2)*0.5, cz + Math.cos(a)*r*1.4, 3.2, 3.6, 3.2, q%2 ? 0x3fbf5a : 0x51cf66); } }
     for(let k=0;k<10;k++){ const x = -26 + (k%5)*6, z = 64 + Math.floor(k/5)*9 + (k%2)*2;                                          // 마을
       LAND(x, 1.1, z, 3.4, 2.4, 3.0, WALL[k%6]); LAND(x, 2.6, z, 3.9, 0.55, 3.6, ROOF[k%6]); }
