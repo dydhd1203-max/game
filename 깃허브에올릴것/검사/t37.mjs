@@ -45,7 +45,7 @@ const run = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
 ok('★ Shift 를 누르면 걷기의 1.45배로 달린다', run.sprint > run.walk*1.38 && run.sprint < run.walk*1.5, `걷기 ${run.walk} → 달리기 ${run.sprint} (×${(run.sprint/run.walk).toFixed(2)})`);
 ok('★ 3초 달리면 스태미나가 비고, 비면 걷는 속도로 돌아온다', run.st1 > 0.6 && run.st1 < 0.72 && run.st3 <= 0.01 && Math.abs(run.empty - run.walk) < 0.3, `1초 뒤 ${run.st1} · 3.2초 뒤 ${run.st3} · 빈 채 ${run.empty}`);
 ok('★ 4초 쉬면 다시 찬다', run.rest4 >= 0.99, run.rest4);
-ok('★ 스태미나 줄은 안 보인다 (42차 — 선생님: "그 띠 아예 없애줘". 3초/4초 기능은 그대로)', run.rowOn === 'none' && run.rowOff === 'none', run.rowOn+' / '+run.rowOff);
+ok('★ 스태미나 줄은 덜 찼을 때만 보인다 (42차에 잠깐 뺐다가 되살렸다 — "그거 보이는 거 좋았는데")', run.rowOn === 'flex' && run.rowOff === 'none', run.rowOn+' / '+run.rowOff);
 ok('손잡이가 표에 있다 (1.45 · 3초 · 4초)', run.mul === 1.45 && run.runS === 3 && run.restS === 4, `${run.mul} · ${run.runS} · ${run.restS}`);
 
 /* ═══════ ③ 코스 — seed 로 짓고, 발판 길이·틈이 네 가지 뜀을 다 받는다 ═══════ */
@@ -64,12 +64,12 @@ const course = await ev(()=>{ const W=window, G=W.__G, o={};
   const P = W.__RACE_P(), S = W.__RACE_S;
   o.secs = S.length; o.names = S.map(s=>s.n); o.cps = P.filter(p=>p.cp).map(p=>p.cp); o.fin = P.filter(p=>p.fin).length;
   o.bridgeW = P.find(p=>p.cp===1).w;
-  /* 징검다리·사라지는 발판(42차, 경주 속도 1.5배): 길이 6.0 · 틈 2.6 → g<5.2<g+L · 7.6<g+L · 2g+L<11.7 · 17.0<2g+2L */
+  /* 징검다리·사라지는 발판(42차, 경주 속도 1.8배): 길이 7.2 · 틈 3.0 → g<6.3<g+L · 9.1<g+L · 2g+L<14.0 · 20.3<2g+2L */
   const stones = P.filter(p=>p.kind==='stone').sort((a,b)=>a.z-b.z), fades = P.filter(p=>p.kind==='fade' && Math.abs(p.x - P.filter(q=>q.kind==='fade')[0].x) < 0.1).sort((a,b)=>a.z-b.z);
   const gaps = (arr)=> arr.slice(1).map((p,i)=> +(p.z - p.d/2 - (arr[i].z + arr[i].d/2)).toFixed(2));
   o.stoneL = stones.map(p=>p.d); o.stoneG = gaps(stones); o.fadeL = fades.map(p=>p.d); o.fadeG = gaps(fades);
-  const rule = (L,g)=> g < 5.2 && 5.2 < g+L && 7.6 < g+L && 2*g+L < 11.7 && 11.7 < 2*g+2*L && 2*g+L < 17.0 && 17.0 < 2*g+2*L;
-  o.rule = stones.slice(2).every(p=> rule(p.d, 2.6)) && fades.every(p=> rule(p.d, 2.6)) && o.stoneG.every(g=> Math.abs(g-2.6) < 0.05) && o.fadeG.every(g=> Math.abs(g-2.6) < 0.05);
+  const rule = (L,g)=> g < 6.3 && 6.3 < g+L && 9.1 < g+L && 2*g+L < 14.0 && 14.0 < 2*g+2*L && 2*g+L < 20.3 && 20.3 < 2*g+2*L;
+  o.rule = stones.slice(2).every(p=> rule(p.d, 3.0)) && fades.every(p=> rule(p.d, 3.0)) && o.stoneG.every(g=> Math.abs(g-3.0) < 0.05) && o.fadeG.every(g=> Math.abs(g-3.0) < 0.05);
   /* 높이 — 섬 바닥 · 깃발 판 · 허공 · 계단 · 골인 */
   const Y = W.__MINI().Y;
   o.top = {island:W.__raceTopAt(0,-19) - Y, bridge:W.__raceTopAt(0,35) - Y, voidZ:W.__raceTopAt(20, 60), stairTop:+(W.__raceTopAt(0, P.filter(p=>p.kind==='stair').sort((a,b)=>b.y-a.y)[0].z) - Y).toFixed(1), fin:+(W.__raceTopAt(0, W.__RACE_Z_FIN+2) - Y).toFixed(1)};
@@ -88,7 +88,7 @@ ok('★ 같은 seed 면 같은 코스, 다른 seed 면 다른 코스 (전원이 
 ok('★ 구간마다 변형 셋(a·b·c)이 다 뽑힌다', course.allVars.every(v=> v === '012'), course.allVars.join(' / '));
 ok('★ 다섯 구간 · 깃발 다섯 · 골인 판 하나', course.secs === 5 && JSON.stringify(course.cps) === '[1,2,3,4,5]' && course.fin === 1, course.names.join(' → '));
 ok('★ 첫 깃발 판은 섬 가장자리에 걸친 넓은 다리(폭 40 넘게)', course.bridgeW >= 40, course.bridgeW);
-ok('★ 징검다리·사라지는 발판은 길이 6.0 · 틈 2.6 — 경주 1.5배 속도의 걷는 뜀 5.2 · 달리는 뜀 7.6 · 2단 11.7/17.0 이 전부 발판 위에 떨어진다 (42차)', course.rule, '길이 '+course.stoneL.join(',')+' 틈 '+course.stoneG.join(','));
+ok('★ 징검다리·사라지는 발판은 길이 7.2 · 틈 3.0 — 경주 1.8배 속도의 걷는 뜀 6.3 · 달리는 뜀 9.1 · 2단 14.0/20.3 이 전부 발판 위에 떨어진다 (42차)', course.rule, '길이 '+course.stoneL.join(',')+' 틈 '+course.stoneG.join(','));
 ok('★ 높이 — 섬 바닥 0 · 다리 0 · 옆 허공은 -999 · 계단 꼭대기 7.2 · 골인 8.1', course.top.island === 0 && course.top.bridge === 0 && course.top.voidZ === -999 && course.top.stairTop === 7.2 && course.top.fin === 8.1, JSON.stringify(course.top));
 ok('★ groundUnder 가 경주에서 발판 높이를 땅으로 본다 (허공은 -999)', course.ground === -999, course.ground);
 ok('★ 장애물 — 진자 둘·막대 둘은 늘 있고, 계단 공은 3초 뒤부터 나와 계단을 따라 내려온다(시간의 식 — 전원 같다)', course.hz5 === 'bar,bar,pend,pend' && course.hz20 === 'ball,bar,bar,pend,pend' && course.hzSame && course.ballZ.every(z=>z !== null) && course.ballZ[0] > course.ballZ[1] && course.ballZ[1] > course.ballZ[2], course.hz20+' · 공 z '+course.ballZ.join('→'));
@@ -100,7 +100,7 @@ const rule = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   const M = W.__MINI(), RACE = W.__RACE(), MINE = W.__MINE, Y = M.Y;
   G.paused = false; if(W.__miniOn()) W.__miniExit(); W.__goMini(0); G.mini.seed = 8; W.__raceBuild(8); const P = W.__RACE_P(); W.__miniSet('run', 90); G.t = 90; W.__miniTick(1/30);
   o.started = RACE.on && MINE.fin === -1 && MINE.cp === 0;
-  const put = (x,z,y)=>{ PL.x = x; PL.z = z; PL.y = Y + (y||0); PL.vy = 0; PL.ground = true; };
+  const put = (x,z,y)=>{ RACE.fallT = 0; PL.x = x; PL.z = z; PL.y = Y + (y||0); PL.vy = 0; PL.ground = true; };
   const tick = (n)=>{ for(let i=0;i<n;i++){ G.t -= 1/30; W.__updPlayer(1/30); W.__miniTick(1/30); } };
   /* 깃발 — 2번 깃발 판에 서면 cp 2 */
   const cp2 = P.find(p=>p.cp===2); put(cp2.x, cp2.z, cp2.y); tick(3); o.cp = MINE.cp; o.cpAt = [RACE.cp.x, RACE.cp.z];
@@ -132,7 +132,7 @@ ok('★ 골인 판에 서면 시간이 적히고(40초) 통신 칸에도 실린�
 const item = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   const M = W.__MINI(), RACE = W.__RACE(), MINE = W.__MINE, Y = M.Y;
   G.paused = false; if(W.__miniOn()) W.__miniExit(); W.__goMini(0); G.mini.seed = 8; W.__raceBuild(8); W.__miniSet('run', 90); G.t = 90; W.__miniTick(1/30); RACE.t = 5;
-  const put = (x,z,y)=>{ PL.x = x; PL.z = z; PL.y = Y + (y||0); PL.vy = 0; PL.ground = true; };
+  const put = (x,z,y)=>{ RACE.fallT = 0; PL.x = x; PL.z = z; PL.y = Y + (y||0); PL.vy = 0; PL.ground = true; };
   const at = (tt)=>{ RACE.t = tt; G.t = 90 - tt; RACE.slipT = 0; RACE.hitCd = 0; };
   /* 바위 — 자리에 서 있으면 맞아서 튕기고 미끄러진다 */
   let hit = false; for(let s=0; s<40 && !hit; s++){ at(12 + s*0.25); const rk = W.__raceRocks(RACE.t)[0]; if(!rk) continue; put(rk.x, rk.z, 0); W.__miniTick(1/30); if(RACE.slipT > 0) hit = true; }
@@ -218,12 +218,13 @@ const spd = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={}; const Y=W._
   o.cam = {stand:+stand.toFixed(2), run:+run.toFixed(2), z:+PL.z.toFixed(1)};
   o.slot = W.__raceSlotXZ(); o.rows = W.__RACE_ROWZ; o.slots = [9, 10, 11].map(sd=>{ G.mini.seed = sd; return W.__raceSlotXZ().join(','); }); G.mini.seed = 8;
   o.cp = [RACE.cp.x, RACE.cp.z];
-  W.__cntShow(3, false); const c = document.getElementById('cnt'); o.cnt = {txt:c.textContent, pop:c.classList.contains('pop'), go:c.classList.contains('go')};
-  W.__cntShow('출발!', true); o.cntGo = c.classList.contains('go') && c.textContent === '출발!';
+  W.__cntShow(3, false); const c = document.getElementById('cnt'); o.cnt = {txt:c.textContent, pop:c.classList.contains('cntOn'), go:c.classList.contains('go'), popCls:c.classList.contains('pop')};
+  o.cntBox = (()=>{ const r = c.getBoundingClientRect(); return r.width < innerWidth*0.5 && r.height < innerHeight*0.7; })();   // 42차 — 팝업 덮개(.pop)와 이름이 겹쳐 보라 네모(폭 50%)가 떴다 — 숫자 하나는 화면 반보다 좁다
+  W.__cntShow('출발!! 🏁', true); o.cntGo = c.classList.contains('go') && c.textContent.startsWith('출발');
   W.__miniSet('intro', 7); W.__paintMini(); o.introQ = document.getElementById('mbQ').textContent; o.introHint = /스페이스/.test(document.getElementById('miniBar').textContent);
   o.sfx = ['step','go','wind'].every(k=> W.__SFXKEYS().includes(k));
   o.buoy = !!W.__banks.get('rcBuoy');
-  W.__miniSet('run', 90); G.t = 90; W.__paintMini(); o.runQ = document.getElementById('mbQ').textContent; o.runBar = document.getElementById('miniBar').classList.contains('on');
+  W.__miniSet('run', 90); G.t = 90; G.mini.rank = null; W.__paintMini(); o.runQ = document.getElementById('mbQ').textContent; o.runBar = document.getElementById('miniBar').classList.contains('on');   // rank 는 앞 순위 검사가 남긴 것 — 결과 화면이 아니라 경기 중 판을 본다
   /* ═══════ ⑩ 42차 — 점프 손맛 · 초읽기 정중앙(판 숨김·토스트 없음) · 출발 잠금 · 경주 1.5배 · 바위 쿵 · 총 반동 용수철·기울기 ═══════ */
   const put2=(x,z,y)=>{ RACE.fallT = 0; PL.x=x; PL.z=z; PL.y=Y+(y||0); PL.vy=0; PL.ground=true; PL.landT=0; W.__updPlayer(1/30); };
   put2(0, 22, 0); PL.yaw = Math.PI; W.__wantJump(); W.__updPlayer(1/30); o.take = +(PL.takeT||0).toFixed(3); o.air1 = !PL.ground; o.trail = PL.trailT !== undefined;
@@ -242,15 +243,15 @@ const spd = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={}; const Y=W._
 ok('★ 41차 가속·감속 — 앞키 첫 틱은 걷기 속도의 30% 아래, 열두 틱 뒤 90% 위, 놓고 네 틱이면 5% 아래', spd.acc.first < spd.acc.cruise*0.3 && spd.acc.cruise > 4.8 && spd.acc.after4 < spd.acc.cruise*0.05, JSON.stringify(spd.acc));
 ok('★ 순간이동하면 남은 속도를 버린다 (경주 복귀·섬 들어가기가 미끄러지지 않게)', spd.tele < 0.01, spd.tele);
 ok('★ 걸음 위상은 간 거리로 돈다 — 내 양(1.3칸에 한 바퀴)과 친구 양(객체마다)', Math.abs(spd.gait.turns - spd.gait.expect) < 0.02 && Math.abs(spd.friend - spd.friendExpect) < 0.01, JSON.stringify(spd.gait)+' · 친구 '+spd.friend+'/'+spd.friendExpect);
-ok('★ 3인칭 카메라가 달리면 뒤처진다 (0.5~1.6칸)', spd.cam.run > spd.cam.stand + 0.5 && spd.cam.run < spd.cam.stand + 1.6, JSON.stringify(spd.cam));
+ok('★ 3인칭 카메라가 달리면 뒤처진다 (30Hz 검사에서 0.4~1.6칸 — 60fps 게임에선 0.85)', spd.cam.run > spd.cam.stand + 0.4 && spd.cam.run < spd.cam.stand + 1.6, JSON.stringify(spd.cam));
 ok('★ 출발선 두 줄 — 내 칸은 두 줄 중 하나·12칸 안, seed 마다 자리가 섞인다, 0번 깃발(복귀 자리)도 그 칸', spd.rows.length === 2 && spd.rows.includes(spd.slot[1]) && Math.abs(spd.slot[0]) <= 11 && new Set([spd.slot.join(','), ...spd.slots]).size >= 2 && spd.cp[0] === spd.slot[0] && spd.cp[1] === spd.slot[1], JSON.stringify(spd.slot)+' / seed 9~11 '+spd.slots.join(' ')+' cp '+JSON.stringify(spd.cp));
-ok('★ 초읽기는 큰 글씨(#cnt) — 3·2·1 은 노랑, 출발! 은 초록', spd.cnt.txt === '3' && spd.cnt.pop && !spd.cnt.go && spd.cntGo, JSON.stringify(spd.cnt));
+ok('★ 초읽기는 큰 글씨(#cnt) — 3·2·1 은 노랑, 출발!! 🏁 은 초록 · 팝업 덮개(.pop)와 안 겹친다(보라 네모 없음)', spd.cnt.txt === '3' && spd.cnt.pop && !spd.cnt.go && spd.cntGo && !spd.cnt.popCls && spd.cntBox, JSON.stringify(spd.cnt)+' box '+spd.cntBox);
 ok('★ 경주 안내 띠("Shift 달리기 · 스페이스 두 번 점프")가 없다 — 준비 중·경기 중 위 판이 비어 있다 (42차: 경기 중도)', spd.introQ === '' && !spd.introHint && spd.runQ === '', JSON.stringify(spd.introQ)+' / '+JSON.stringify(spd.runQ));
 ok('★ 발소리·출발·바람(세기) 효과음 · 코스 옆 구름 부표 뱅크(rcBuoy)', spd.sfx && spd.buoy, spd.sfx+' '+spd.buoy);
 ok('★ 42차 점프 손맛 — 첫 뜀에 도약 늘어남(takeT)·잔상 타이머·보잉, 두 번째 뜀에 공중제비(flipT 0→), 착지 0.22초 눌림·툭', spd.take > 0.05 && spd.air1 && spd.trail && spd.flip >= 0 && spd.flip < 0.6 && spd.landT > 0.15 && spd.flipEnd === 99 && spd.sfxJump, `take ${spd.take} flip ${spd.flip} land ${spd.landT} end ${spd.flipEnd}`);
 ok('★ 초읽기 큰 글씨는 화면 정중앙(top 50%)이고, 준비 중엔 위 판이 통째로 숨는다 (42차 — "배경 네모 없애고 가운데 잘 오게")', spd.cntTop && !spd.introBar && spd.runBar, `top ${spd.cntTop} introBar ${spd.introBar} runBar ${spd.runBar}`);
 ok('★ 출발 전엔 걷기·뜀이 잠긴다 (42차 — "출발도 안 했는데 움직여져") · 출발하면 풀린다', spd.hold && spd.heldMove < 0.01 && spd.heldJump && !spd.holdRun, `hold ${spd.hold} moved ${spd.heldMove} jumpBlocked ${spd.heldJump} run ${spd.holdRun}`);
-ok('★ 경주에서는 걷기가 1.5배(1초에 7칸 안팎 — 마을 4.8) · 사라지는 발판 1.8/1.6초 · 총 반동에 기울기(돌아온다) · gunshot 네 겹', spd.RSPD === 1.5 && spd.raceWalk > 6.4 && spd.raceWalk < 8.0 && spd.fadeT.arm === 1.8 && spd.fadeT.gone === 1.6 && spd.roll !== 0 && Math.abs(spd.roll40) < Math.abs(spd.roll)*0.05 && spd.gunshot, `1초 ${spd.raceWalk} · roll ${spd.roll.toFixed(4)} → ${spd.roll40.toFixed(5)}`);
+ok('★ 경주에서는 걷기가 1.8배(1초에 8.5칸 안팎 — 마을 4.8) · 사라지는 발판 1.8/1.6초 · 총 반동에 기울기(돌아온다) · gunshot 네 겹', spd.RSPD === 1.8 && spd.raceWalk > 7.6 && spd.raceWalk < 9.6 && spd.fadeT.arm === 1.8 && spd.fadeT.gone === 1.6 && spd.roll !== 0 && Math.abs(spd.roll40) < Math.abs(spd.roll)*0.05 && spd.gunshot, `1초 ${spd.raceWalk} · roll ${spd.roll.toFixed(4)} → ${spd.roll40.toFixed(5)}`);
 
 await ev(()=>{ const W=window; if(W.__miniOn()) W.__miniExit(); });
 /* ═══════ 결과 ═══════ */
