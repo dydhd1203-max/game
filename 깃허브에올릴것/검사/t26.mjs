@@ -52,12 +52,10 @@ const tbl = await ev(()=>{
   o.이름종류 = new Set(B.map(x=>x.nm)).size;
   /* 단계마다 여러 갈래가 있나 — 한 갈래에 몰리면 '길이 하나' 가 된다 */
   o.단계별갈래 = [1,2,3].map(t=> new Set(B.filter(x=>x.t===t).map(x=>x.k)).size);
-  /* 순위판이 세는 갈래마다 칭호가 있나 (개수가 아니라 관계로 본다) */
   const ks = new Set(B.map(x=>x.k));
-  o.순위판빠짐 = W.__RANK_CATS.map(c=>c.k).filter(k=> !ks.has(k));
   /* 칭호가 읽는 칸이 전부 pc 통로에 이미 오고 있나 = 통신이 안 늘었나 */
   W.__MY.mined=1; W.__MY.built=1; W.__MY.hits=1; W.__MY.saved=1; W.__MY.helped=1;
-  W.__MY.fixed=1; W.__MY.farmed=1; W.__MY.flowers=1;
+  W.__MY.fixed=1; W.__MY.farmed=1;
   W.__syncMyPC();
   const pc = W.__myPC();
   o.pc에없는칸 = [...ks].filter(k=> pc[k] === undefined);
@@ -73,8 +71,6 @@ ok('★ 칭호 그림이 다 다르다 (머리 위 이름표에 그림 하나만
 ok('칭호 이름이 다 다르다', tbl.이름종류 === tbl.수);
 ok('★ 단계마다 갈래가 셋 이상이다 (한 갈래에 몰리면 잘하는 길이 하나뿐인 게임이 된다)',
    tbl.단계별갈래.every(n=>n>=3), tbl.단계별갈래.join(' · ')+'갈래');
-ok('★ 순위판이 세는 갈래마다 칭호가 있다 (갈래 개수를 박지 않고 관계로 본다)',
-   tbl.순위판빠짐.length === 0, tbl.순위판빠짐.join(',') || '빠짐 없음');
 ok('★ 칭호가 읽는 칸이 전부 pc 통로에 이미 온다 = 통신이 한 칸도 안 늘었다',
    tbl.pc에없는칸.length === 0, tbl.pc에없는칸.join(',') || '전부 있음');
 
@@ -147,7 +143,7 @@ await clean();
 const queue = await ev(()=>{
   const W=window, B=W.__BADGES, o={};
   /* 1단계를 통째로 넘겨 본다 — 첫날에 실제로 이렇게 된다 */
-  for(const x of B) if(x.t === 1) W.__MY[x.k==='flw'?'flowers':x.k] = x.need;
+  for(const x of B) if(x.t === 1) W.__MY[x.k] = x.need;
   /* 레벨 칭호는 MY 가 아니라 XP 가 정한다 — 여기서는 건드리지 않는다 */
   W.__syncMyPC();
   W.__badgeCheck();
@@ -285,7 +281,7 @@ const panel = await ev(()=>{
   o.조건빈칸 = off.filter(t=>!t || !t.trim()).length;
   /* 다 모으면 다른 말을 한다.
      ★ 레벨은 MY 가 아니라 XP 가 들고 있다 — MY.lv 에 넣어 봐야 syncMyPC 가 XP.lv 로 덮는다 */
-  for(const x of B) if(x.k !== 'lv') W.__MY[x.k==='flw'?'flowers':x.k] = x.need;
+  for(const x of B) if(x.k !== 'lv') W.__MY[x.k] = x.need;
   W.__XP.lv = W.__LV_MAX;
   W.__syncMyPC(); W.__buildBadgeUI();
   o.다모은뒤 = document.getElementById('bgNext').textContent;

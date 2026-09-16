@@ -29,7 +29,7 @@ const out = await pg.evaluate(()=>{
   const perNode  = 8*W.__mineTime() + 2.2;               // 치는 시간 + 옮겨 다니는 시간
   const rows = [];
   for(const EFF of [1, 0.7, 0.45]){
-    const cum = {mined:0, built:0, fixed:0, hits:0, helped:0, saved:0, farmed:0, flw:0};
+    const cum = {mined:0, built:0, fixed:0, hits:0, helped:0, saved:0, farmed:0};
     const byDay = [];
     for(let day=1; day<=GOAL; day++){
       /* ── 캐기 ── 한 모둠 자리에 22덩이가 아침마다 나고 넷이 나눠 쓴다 */
@@ -52,8 +52,6 @@ const out = await pg.evaluate(()=>{
       } else cum.hits += Math.floor(NIGHT*0.30*EFF/W.__THROW_CD)*0.5;   // 돌 던지기
       /* ── 농장 ── 우리가 차는 건 중반이다. 넷이 나눠 줍는다 */
       cum.farmed += day<4 ? 0 : Math.min(6, day-3)*0.5*EFF;
-      /* ── 꽃 ── 모둠 상한이 있어 넷이 나누면 한 사람 몫이 정해져 있다 */
-      cum.flw = Math.min(W.__GRD ? (W.__GRD().CAP/4) : 3.5, cum.flw + (day<=4 ? 1.0*EFF : 0));
       /* ── 친구 일으키기 ── 쓰러지는 친구가 있는 밤에만 */
       cum.saved += day<3 ? 0 : 0.6*EFF;
       byDay.push(Object.fromEntries(Object.entries(cum).map(([k,v])=>[k, Math.round(v*10)/10])));
@@ -63,7 +61,7 @@ const out = await pg.evaluate(()=>{
   return {rows, GOAL, perBreak:Math.round(perBreak*10)/10,
           perNode:Math.round(perNode*10)/10, mis:W.__MISSIONS.map(m=>m.k+':'+m.per)};
 });
-const KEYS = ['mined','built','fixed','hits','helped','saved','farmed','flw'];
+const KEYS = ['mined','built','fixed','hits','helped','saved','farmed'];
 console.log('덩이 하나 = mined ' + out.perBreak + ' · 한 덩이에 ' + out.perNode + '초');
 console.log('오늘의 임무가 쓰는 하루 한 사람 몫: ' + out.mis.join(' · '));
 for(const r of out.rows){
