@@ -2469,7 +2469,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '43차 · 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
+const GAME_VER = '44차 · 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -7192,7 +7192,7 @@ const eyeMat = flatMat(0xffffff, {emissive:0xff3300, emissiveIntensity:0.0});
 /* 27차 — 조각은 둥근 상자·공, 재질은 옛 타일의 평균색. 부위 배치(drawWolves)는 그대로다. */
 const W_body = imesh(RB,  FM.fur,  MAXW, 1), W_head = imesh(RB,  FM.fur,  MAXW, 1),
       W_snout= imesh(RB,  FM.furD, MAXW, 1), W_tail = imesh(RB,  FM.fur,  MAXW, 1),
-      W_legs = imesh(RB,  FM.furD, MAXW*4, 1), W_eyes = imesh(BALL, eyeMat, MAXW*2, 1),
+      W_legs = imesh(RB,  FM.furD, MAXW*8, 1), W_eyes = imesh(BALL, eyeMat, MAXW*2, 1),   // 44차 — 다리 넷 × 두 마디(허벅지·정강이)
       W_ears = imesh(RBs, FM.furD, MAXW*2, 1),
       W_chest= imesh(RB,  FM.fur,  MAXW, 1),        // 어깨 — 실루엣에 무게를 준다
       W_hack = imesh(RBs, FM.furD, MAXW*6, 1),      // 등갈기 — 화나면 솟는다 (36차: 공포 늑대는 여섯이라 정원을 늘렸다)
@@ -7679,7 +7679,7 @@ const P_body = imesh(RB,   FM.wool,  MAXP,   1),   // 몸통
       P_nose = imesh(BALL, FM.snout, MAXP*3, 1),   // 코 + 볼터치 2개
       P_mouth= imesh(SMILE, FM.dark, MAXP,   1),   // 입 — 방긋 웃는 U (28차)
       P_tail = imesh(BALL, FM.woolD, MAXP,   1),   // 꼬리
-      P_legs = imesh(RB,   FM.dark,  MAXP*4, 1),   // 다리 4개
+      P_legs = imesh(RB,   FM.dark,  MAXP*8, 1),   // 다리 4개 × 두 마디(44차)
       /* ★ 꾸미기(모자·안경·옷) — 종류가 몇이든 메시는 하나다.
          천 텍스처에 색·크기만 바꿔 끼우므로, 아이템을 아무리 늘려도 드로우콜은 1개다.
          아무도 아무것도 안 걸치면 통째로 숨긴다. */
@@ -8133,59 +8133,91 @@ function furLight(col, k){
   const r=(col>>16)&255, g=(col>>8)&255, b=col&255;
   return ((r+(255-r)*k)<<16) | ((g+(255-g)*k)<<8) | (b+(255-b)*k);
 }
+/* ═══ 44차 — 늑대 자세 ═══
+   wolfPose 가 그리기 앞에서 한 마리의 자세 값을 다 센다(검사도 이 값을 본다):
+   · 걸음(gait)은 **간 거리**로 돈다(양의 41차와 같은 셈) — 여태 시간에 묶여(초당 몇 바퀴) 발이 얼음 위를 지치듯 미끄러졌다. 빠르기 4.0 넘으면 갤럽(run).
+   · 방향(dry)은 smoothHead — 호스트 AI 가 매 틱 즉시 꺾던 것·손님 화면의 통신값을 7.5rad/s 로 따라간다.
+   · 공격 주기 ap(0→1): 덤빔(bite, 0~0.34) → 물고 흔들기(shake, 0.30~0.62) → 다음 덤빔 앞 웅크림(crouch, 0.76~1). 42차까지는 덤빔뿐이었다.
+   · 킁킁(sniff): 트롯 중 가끔 코를 낮춘다. 숨·두리번·귀 쫑긋·무게 옮기기는 idleLife.
+   · 쓰러지기(dead 0→1, 0.55초): 죽은 늑대는 G.wolves 에서 빠지고(판정·통신 그대로) WOLF_DEAD 로 옮겨져 그리기만 된다 — 옆으로 넘어가며 다리를 접고 마지막에 줄어든다. */
+const WOLF_DEAD = [], WOLF_STRIDE_WALK = 1.05, WOLF_STRIDE_RUN = 1.6;
+function wolfCorpse(w){
+  if(w.dead > 0) return; w.dead = 0.55; w.mv = false; w.hp = 0; w.atkT = undefined;
+  burst(w.x, (w.y||GY) + 0.35, w.z, 0xd9cdb4, 5, 0.6);
+  if(WOLF_DEAD.length < 30) WOLF_DEAD.push(w); }
+function wolfPose(w, t, dt){
+  if(w.gp === undefined || w.lx === undefined){ w.lx = w.x; w.lz = w.z; w.gp = w.ph||0; w.gv = 0; }   // 어느 칸이든 비어 있으면 새로 시작(검사가 자리를 먼저 적어 둘 때 NaN 이 났다)
+  const dd = Math.hypot(w.x - w.lx, w.z - w.lz); w.lx = w.x; w.lz = w.z;
+  if(w.dead > 0) w.dead -= dt;
+  else if(dd < 3 && dt > 0) w.gv += (dd/dt - w.gv)*Math.min(1, dt*12);
+  const run = w.gv > 4.0;
+  if(!(w.dead > 0) && dd < 3) w.gp += dd / (run ? WOLF_STRIDE_RUN : WOLF_STRIDE_WALK) * Math.PI*2;
+  const mvK = w.dead > 0 ? 0 : Math.max(0, Math.min(1, w.gv/1.6));
+  const h = smoothHead(w, w.ry, dt, 7.5);
+  let ap;
+  if(w.dead > 0) ap = 1;
+  else if(w.atkT !== undefined) ap = (!w.mv && w.atkT > 0) ? (0.85 - w.atkT)/0.85 : 1;
+  else ap = w.mv ? 1 : ((t*1.18 + (w.ph||0)*0.37) % 1);
+  ap = Math.max(0, Math.min(1, ap));
+  const bite = ap < 0.34 ? Math.sin(Math.pow(ap/0.34, 0.60)*Math.PI) : 0;
+  const shake = (ap >= 0.30 && ap < 0.62) ? Math.sin((ap - 0.30)/0.32*Math.PI) * Math.sin(ap*95) : 0;
+  const crouch = (!w.mv && !(w.dead > 0) && ap > 0.76 && ap < 1) ? Math.pow((ap - 0.76)/0.24, 1.4) : 0;
+  const life = idleLife(t, w.ph||0);
+  const sniff = (mvK > 0.3 && !run) ? Math.pow(Math.max(0, Math.sin(t*0.7 + (w.ph||0))), 4)*0.28 : 0;
+  const dead = w.dead === undefined ? 0 : (w.dead > 0 ? 1 - w.dead/0.55 : 1);
+  return {run, mvK, gait:w.gp, dry:h.ry, turn:h.turn, lead:h.lead, ap, bite, shake, crouch, sniff, life, dead};
+}
 function drawWolves(list, t, dt){
   dt = Math.min(0.05, dt || 0.016);
+  for(let i=WOLF_DEAD.length-1;i>=0;i--) if(!(WOLF_DEAD[i].dead > 0)) WOLF_DEAD.splice(i,1);   // 44차 — 다 쓰러진 시체는 치운다
   let n=0, ln=0, en=0, hn=0, pn=0, horn=0, rib=0, tng=0, pl=0, gem=0, ew=0, fg=0, hr=0, dr=0, bm=0;   // 36차 — 종류별 조각 셈
   const RK = wolfRank(G.day);          // 오늘 밤 늑대들의 등급 (보스는 늘 3)
   // 밤이 깊을수록 눈이 타오른다 — 등급이 높으면 더
   eyeMat.emissiveIntensity = 0.15 + NIGHTK*(1.55 + RK*0.35);
   eyeMatW.emissiveIntensity = 0.35 + NIGHTK*0.9; eyeMatR.emissiveIntensity = 0.45 + NIGHTK*0.8;
-  for(const w of list){
+  for(const w of (WOLF_DEAD.length ? list.concat(WOLF_DEAD) : list)){   // 44차 — 시체도 같은 셈으로 그린다
     if(n>=MAXW) break;
+    FLIP_ON = false;
     /* ★ 33차 — 맞은 직후 쏜 방향으로 밀렸다 돌아온다(그리기만 · 0.16초 · 최대 0.22칸). 판정·길찾기엔 손 안 댄다 */
     let kox = 0, koz = 0;
     if(w.kT > 0){ w.kT -= dt; const kk = Math.max(0, w.kT/0.16)*0.22; kox = (w.kx||0)*kk; koz = (w.kz||0)*kk; w.x += kox; w.z += koz; }
+    const PZ = wolfPose(w, t, dt);                                        // 44차 — 걸음·방향·공격 주기·숨·쓰러짐
     const d = WOLF_T[w.k], boss = isBoss(w.k), rk = boss ? 3 : RK;
     const look = d.look, LK = LOOKS[look] || LOOKS.base;                    // 36차 — 종류별 몸꼴
     /* ★ 맞으면 잠깐 움찔한다 — 몸이 눌렸다 펴진다.
        색만 붉게 바꿨을 땐 밤이라 잘 안 보여서 "맞고 있는지" 를 몰랐다.
        그리기만 건드리므로 길찾기·판정에는 아무 영향이 없다. */
     const flin = w.hurt > 0 ? Math.min(1, w.hurt/0.18) : 0;
-    const sc = (w.sc || d.sc) * (boss ? 1 : (1 + rk*0.085)) * (1 - flin*0.10);
+    const dead = PZ.dead, dk = dead > 0 ? (dead < 0.45 ? Math.sin(dead/0.45*Math.PI/2) : 1) : 0;   // 44차 — 쓰러지는 진행(앞부분이 빠르다)
+    const sc = (w.sc || d.sc) * (boss ? 1 : (1 + rk*0.085)) * (1 - flin*0.10) * (dead > 0.72 ? Math.max(0.001, 1 - (dead - 0.72)/0.28) : 1);   // 마지막 0.15초에 줄어 사라진다
 
     const gy = (topAt(Math.floor(w.x), Math.floor(w.z))||GY);
-    const y = (gy>900?GY:gy) + 0.02;
-    const ry = w.ry;
+    const y = (gy>900?GY:gy) + 0.02 - dk*0.16*sc;                        // 쓰러지면 조금 가라앉는다
+    const ry = PZ.dry, gait = PZ.gait, run = PZ.run, mvK = PZ.mvK, stride = mvK, ap = PZ.ap, bite = PZ.bite, crouch = PZ.crouch, shake = PZ.shake, life = PZ.life;
     const fx = Math.sin(ry), fz = Math.cos(ry);
     const rx = Math.cos(ry), rz = -Math.sin(ry);
+    /* 굴림 훅(FLIP_M) — 도는 안쪽으로 기울기 + 서 있을 때 무게 옮기기 + 쓰러질 때 옆으로 넘어가기. 이 늑대의 조각을 놓는 동안만 켠다 */
+    { const side = (w.id|0) % 2 ? 1 : -1;
+      const phi = dead > 0 ? side*dk*Math.PI*0.5 : (-Math.max(-0.20, Math.min(0.20, PZ.turn*0.045)) + (1 - mvK)*life.sway*0.02);
+      if(Math.abs(phi) > 0.002) flipSet(w.x, y + (dead > 0 ? 0.24 : 0.62)*sc, w.z, fx, 0, fz, phi); }
 
     /* 공격성 — 멈춰서 물기 시작하면 서서히 1로 차오른다. 등갈기가 이걸 따라 솟는다. */
-    w.ag = (w.ag===undefined ? 0 : w.ag) + ((w.mv?0:1) - (w.ag||0)) * Math.min(1, dt*5.0);
+    w.ag = (w.ag===undefined ? 0 : w.ag) + (((w.mv || dead > 0) ? 0 : 1) - (w.ag||0)) * Math.min(1, dt*5.0);
     const ag = w.ag;
-
-    /* 걸음 — 대각선 걸음(트로트). 앞왼+뒤오른 / 앞오른+뒤왼이 한 쌍으로 움직인다.
-       개체마다 위상(ph)이 달라서 무리가 한 몸처럼 움직이지 않는다. */
-    w.gt = (w.gt||0) + dt * (6.4 + d.spd*2.0) * (w.mv?1:0.12);
-    const gait = w.gt + w.ph, stride = (w.mv ? 1 : 0.12);
-
-    /* 물기 — 확 튀어나갔다 천천히 돌아온다.
-       손님 화면에는 atkT가 안 오므로 시간으로 흉내 낸다. */
-    let ap;
-    if(w.atkT !== undefined) ap = (!w.mv && w.atkT > 0) ? (0.85 - w.atkT)/0.85 : 1;
-    else ap = w.mv ? 1 : ((t*1.18 + w.ph*0.37) % 1);
-    const bite = ap < 0.34 ? Math.sin(Math.pow(ap/0.34, 0.60)*Math.PI) : 0;
 
     const col = w.hurt>0 ? (w.hurt > 0.12 ? 0xffffff : 0xff8080)                 // 33차 — 처음 0.06초는 흰 번쩍, 그다음 붉게
                          : (w.healed>0 ? 0x9dffb3 : rankTint(w.col!==undefined ? w.col : d.col, boss?0:rk));   // 36차 — 치유 받으면 잠깐 초록
     const colL = w.hurt>0 || w.healed>0 ? col : furLight(col, look==='fear' ? 0.24 : 0.36);          // 36차 — 밝은 털 (공포 늑대는 덜 밝다 — 주둥이·입이 읽힐 만큼만)
-    const bx = fx*bite*0.42*sc, bz = fz*bite*0.42*sc;
-    const bob   = stride * Math.abs(Math.sin(gait)) * 0.060 * sc * LK.bob;   // 상하 반동 (새끼는 통통 튄다)
-    const roll  = stride * Math.sin(gait) * 0.05;                    // 좌우 흔들림
-    const lean  = -(stride*0.12 + bite*0.34 + ag*0.06);             // 달릴수록 앞으로 기움
+    const bx = fx*(bite*0.42 - crouch*0.10)*sc, bz = fz*(bite*0.42 - crouch*0.10)*sc;   // 44차 — 웅크릴 땐 살짝 물러섰다가 덤빈다
+    /* 44차 — 갤럽(run): 한 바퀴에 한 번 크게 뜨고(bob) 몸이 늘었다 줄어든다(lng). 웅크리면(crouch) 몸이 낮아지고(bob 에 얹는다) 코가 살짝 내려간다. 숨(breath)은 서 있을 때 */
+    const bob   = (run ? Math.max(0, Math.sin(gait + 0.4))*0.13*sc*LK.bob : stride * Math.abs(Math.sin(gait)) * 0.060 * sc * LK.bob) - crouch*0.14*sc;
+    const roll  = stride * Math.sin(gait) * (run ? 0.03 : 0.05);          // 좌우 흔들림
+    const lean  = -(stride*(run ? 0.10 + Math.sin(gait + 0.4)*0.10 : 0.12) + bite*0.34 + ag*0.06) + crouch*0.18;   // 달릴수록 앞으로 기움 · 갤럽은 뜰 때 들리고 내릴 때 숙인다
+    const breath = 1 + (1 - mvK)*life.br*0.02, lng = run ? 1 + Math.sin(gait + 0.4)*0.09 : 1;
 
     /* 몸통 — 모든 부위가 같은 bob을 써야 걸을 때 서로 어긋나지 않는다 */
     setIR(W_body, n, w.x+bx*0.40, y+0.70*sc + bob, w.z+bz*0.40,
-      ry + roll, lean, 0.72*sc*LK.bw, (0.64-bite*0.05)*sc*LK.bh, (1.34+bite*0.14)*sc, col);
+      ry + roll, lean, 0.72*sc*LK.bw*breath, (0.64-bite*0.05)*sc*LK.bh*breath, (1.34+bite*0.14)*sc*lng, col);
     /* 36차 — 배 띠: 몸통 아래쪽을 밝은 털로 두른다(몸통보다 살짝 넓어 옆구리 아래가 밝게 보인다) */
     setIR(W_belly, n, w.x+bx*0.40, y+0.47*sc*LK.bh + bob, w.z+bz*0.40,
       ry + roll, lean, 0.76*sc*LK.bw, 0.30*sc*LK.bh, 1.22*sc, colL);
@@ -8202,8 +8234,9 @@ function drawWolves(list, t, dt){
        주둥이·눈·귀는 "머리에 붙은 것"이라 머리가 숙이고 돌면 같이 따라가야 한다.
        예전엔 눈이 제자리에 고정돼 있어서 걸을 때마다 머리 면과 겹쳐 화면이 지글거렸다.  */
     const hnod = stride*Math.sin(gait*2 + 0.7)*0.035*sc;
-    const hYaw = ry + roll*0.5;
-    const hPit = lean*0.4 - bite*0.42 + LK.hpit;
+    /* 44차 — 머리는 도는 쪽으로 먼저 돌고(lead) 트롯 중엔 가끔 코를 낮춰 킁킁(sniff), 물면 흔들고(shake), 웅크리면 낮춘다 */
+    const hYaw = ry + roll*0.5 + Math.max(-0.5, Math.min(0.5, PZ.lead*0.7)) + (1 - mvK)*(1 - crouch)*(1 - dead)*life.look*0.30 + shake*0.22;
+    const hPit = lean*0.4 - bite*0.42 + LK.hpit + PZ.sniff + crouch*0.25;
     const cph = Math.cos(hPit), sph = Math.sin(hPit);
     const hfx = Math.sin(hYaw), hfz = Math.cos(hYaw);      // 머리 기준 '앞'
     const hrx = Math.cos(hYaw), hrz = -Math.sin(hYaw);     // 머리 기준 '오른쪽'
@@ -8233,7 +8266,7 @@ function drawWolves(list, t, dt){
     for(const si of [1,-1]){
       const eF = -0.10*sc, eU = 0.34*sc;
       setIR(W_ears, en++, HX(eF,eU,0.22*sc*si), HY(eF,eU), HZ(eF,eU,0.22*sc*si),
-        hYaw + si*0.12, hPit - 0.15 + ag*0.75, 0.16*sc*LK.er, 0.30*sc*LK.er, 0.10*sc*LK.er, col);
+        hYaw + si*0.12, hPit - 0.15 + ag*0.75 - life.flick*0.5, 0.16*sc*LK.er, 0.30*sc*LK.er, 0.10*sc*LK.er, col);   // 44차 — 가끔 쫑긋
     }
     en -= 2;
     /* 눈 — 머리 앞면(0.31)보다 0.09만큼 확실히 튀어나오게. 딱 붙이면 깊이값이 겹쳐 깜빡인다. */
@@ -8262,34 +8295,29 @@ function drawWolves(list, t, dt){
     /* 41차 — 꼬리는 **엉덩이에 붙은 뿌리에서** 뻗는다. 36~40차엔 상자를 가운데 기준으로 기울여서, 처진 꼬리(굶주린 늑대 tail -0.35)일수록
        뿌리가 등 위로 솟고 끝은 내려가는데, 끝 털 뭉치는 반대로 위에 찍혀 꼬리와 떨어져 떠 있었다(선생님: "굶주린 늑대 꼬리 부분이 이상한 거 같아").
        뿌리(-0.58) → 기울기(tp, 음수가 처짐) 따라 뒤로 뻗은 끝에 털 뭉치. 흔들림(tw)은 뿌리를 축으로 좌우로 돈다. */
-    { const tp = -0.30 - ag*0.35 + LK.tail, hl = 0.39*sc, tyaw = ry + tw*0.55, tfx = Math.sin(tyaw), tfz = Math.cos(tyaw);
+    { const tp = -0.30 - ag*0.35 + LK.tail + (1 - mvK)*life.sway*0.12 + (run ? Math.sin(gait + 0.4)*0.25 : 0) - dead*0.4, hl = 0.39*sc, tyaw = ry + tw*0.55, tfx = Math.sin(tyaw), tfz = Math.cos(tyaw);   // 44차 — 서 있으면 위아래로, 갤럽은 몸 따라
       const qx = w.x - fx*0.58*sc, qy = y + (0.86 + bite*0.18 + ag*0.10)*sc + bob, qz = w.z - fz*0.58*sc, ct = Math.cos(tp), st = Math.sin(tp);
       setIR(W_tail, n, qx - tfx*ct*hl, qy + st*hl, qz - tfz*ct*hl, tyaw, tp, 0.27*sc, 0.27*sc, 0.78*sc, col);
       /* 36차 — 꼬리 끝은 밝은 털 뭉치(이제 진짜 꼬리 끝에) */
       const te = hl*2 + 0.06*sc;
       setIR(W_ttip, n, qx - tfx*ct*te, qy + st*te, qz - tfz*ct*te, ry, 0, 0.30*sc, 0.30*sc, 0.30*sc, colL); }
 
-    /* 다리 — 대각선 걸음(앞왼+뒤오른 / 앞오른+뒤왼) + 앞으로 나갈 때 살짝 들린다 */
-    const legPh = [0, Math.PI, Math.PI, 0];
+    /* 다리 — 44차: **두 마디**(허벅지·정강이·발, leg2). 트롯은 대각선 짝(앞왼+뒤오른 / 앞오른+뒤왼), 갤럽은 앞다리 둘·뒷다리 둘이 짝(반 박자 어긋나게).
+       앞으로 나가는 발(up)은 무릎이 접혀 저절로 들린다. 웅크리면 무릎을 더 접고, 쓰러지면 다리를 접는다 */
+    const legPh = run ? [0, 0.45, Math.PI + 0.45, Math.PI] : [0, Math.PI, Math.PI, 0];
     let li = 0;
     for(const [fo,si] of [[0.52,1],[0.52,-1],[-0.50,1],[-0.50,-1]]){
-      const p  = gait + legPh[li];
-      const sw = Math.sin(p) * stride;
-      const lift = Math.max(0, Math.sin(p)) * stride * 0.13 * sc;
-      const px = w.x + fx*fo*sc + rx*0.29*sc*si + fx*sw*0.22*sc;
-      const pz = w.z + fz*fo*sc + rz*0.29*sc*si + fz*sw*0.22*sc;
-      const th = sw*0.34, cth = Math.cos(th), sth = Math.sin(th);
-      const lh = (0.68-lift*0.5)*sc, lcy = y + 0.34*sc + lift + bob*0.35;
-      setIR(W_legs, ln, px, lcy, pz, ry, th, 0.19*sc, lh, 0.19*sc, col);
-      /* 발 — 다리가 흔들리는 각도를 그대로 받아 발끝에 붙는다 */
-      const hh = lh*0.5 - 0.06*sc;
-      setIR(W_paw, pn++, px - fx*sth*hh, lcy - cth*hh, pz - fz*sth*hh,
-        ry, th, 0.23*sc, 0.15*sc, 0.27*sc, 0x2b2b30);
-      /* 36차b — 갑옷 늑대는 다리 위쪽에 정강이받이(강철 판 + 무쇠 테) */
-      if(look === 'armor'){ const gh = 0.34*sc, gy = lcy + lh*0.5 - gh*0.55;
-        setIR(W_plate, pl++, px, gy, pz, ry, th, 0.27*sc, gh, 0.27*sc, 0x3a3f49);
-        setIR(W_plate, pl++, px + fx*0.02*sc, gy + 0.02*sc, pz + fz*0.02*sc, ry, th, 0.24*sc, gh*0.8, 0.30*sc, 0x8e98a6); }
-      ln++; li++;
+      const p  = gait + legPh[li], front = li < 2;
+      const sw = Math.sin(p) * stride, up = Math.max(0, Math.cos(p)) * stride;
+      let th1 = sw*(run ? 0.80 : 0.62), bend = up*(run ? 1.15 : 0.95) + crouch*0.7 + (1 - stride)*0.08;
+      if(dead > 0){ th1 = (front ? 0.5 : -0.4)*dk; bend = 1.2*dk; }
+      const hx = w.x + fx*fo*sc + rx*0.29*sc*si, hz = w.z + fz*fo*sc + rz*0.29*sc*si, hy = y + 0.66*sc + bob*0.35;
+      leg2(W_legs, ln, W_paw, pn, hx, hy, hz, fx, fz, ry, th1, bend, 0.34*sc, 0.32*sc, 0.19*sc, col, 0.17*sc, 0x2b2b30);
+      /* 36차b — 갑옷 늑대는 허벅지에 정강이받이(강철 판 + 무쇠 테) */
+      if(look === 'armor'){ const s1 = Math.sin(th1), c1 = Math.cos(th1), gh = 0.30*sc, gx = hx + fx*s1*0.17*sc, gy2 = hy - c1*0.17*sc, gz = hz + fz*s1*0.17*sc;
+        setIR(W_plate, pl++, gx, gy2, gz, ry, -th1, 0.27*sc, gh, 0.27*sc, 0x3a3f49);
+        setIR(W_plate, pl++, gx + fx*0.02*sc, gy2 + 0.02*sc, gz + fz*0.02*sc, ry, -th1, 0.24*sc, gh*0.8, 0.30*sc, 0x8e98a6); }
+      ln += 2; pn++; li++;
     }
 
     /* 등갈기 — 물기 직전에 솟는다. 곧 덤빈다는 예고.
@@ -8297,7 +8325,7 @@ function drawWolves(list, t, dt){
     const hackN = LK.hack >= 0 ? LK.hack : Math.min(6, 3 + rk);
     for(let h=0; h<hackN; h++){
       const fo = 0.34 - h*0.30;
-      const up = (0.20 + rk*0.07 + ag*0.34) * sc * LK.hackUp;
+      const up = (0.20 + rk*0.07 + ag*0.34 + crouch*0.25) * sc * LK.hackUp;   // 44차 — 웅크릴 때 더 솟는다
       setIR(W_hack, hn++, w.x+fx*fo*sc, y+0.94*sc*LK.bh + bob + up*0.5, w.z+fz*fo*sc,
         ry + roll, lean, (0.11+rk*0.012)*sc, up, (0.30-h*0.03)*sc, look==='fear' ? 0x0a080e : rk>=3?0x241d22:0x3a3236);
     }
@@ -8405,6 +8433,7 @@ function drawWolves(list, t, dt){
     w.x -= kox; w.z -= koz;
     n++;
   }
+  FLIP_ON = false;   // 44차 — 굴림 훅 끄기(아래 보스 뿔·오라는 안 굴린다)
   // 보스 — 뿔과 발밑 붉은 오라
   let bn=0;
   for(const w of list){
@@ -8437,8 +8466,10 @@ function drawWolves(list, t, dt){
         W_belly,W_ttip,W_brow,W_cheek,W_rib,W_tongue,W_plate,W_gem,W_eyeW,W_eyeR,W_pupil,W_fang);
 }
 /* 병정 양 — 창병 / 갑옷병 / 마법사 세 종류 */
+let soldierLT = 0;
 function drawSoldiers(list, t){
   let nB=0, nA=0, ln=0, en=0, nHelm=0, nCrest=0, nShield=0, nHat=0, nOrb=0, nSp=0, nTip=0, nHead=0;
+  const sdt = Math.min(0.05, Math.max(0.001, t - soldierLT)); soldierLT = t;   // 44차 — 방향 보간용 시간
   for(const s of list){
     if(nHead>=MAXS) break;
     const k = s.k||0, D = SOL_DEF[k];
@@ -8449,7 +8480,7 @@ function drawSoldiers(list, t){
     const METAL = [0xc9ccd2, 0xdfe4ea, 0xe6d3a2, 0xf0dda6, 0xffe9a8, 0xfff6cc, 0xfffbe6][lvk-1];
     const PLATE = [0xb9c2cc, 0xc9d2dc, 0xd8c898, 0xe4d49c, 0xf6e2a4, 0xfff0c0, 0xfff8dc][lvk-1];
     const y = s.y!==undefined ? s.y : GY;
-    const ry = s.ry||0;
+    const ry = smoothHead(s, s.ry||0, sdt, 8).ry;   // 44차 — 통신값(초당 6번)이 즉시 꺾이지 않게
     const fx = Math.sin(ry), fz = Math.cos(ry), rx = Math.cos(ry), rz = -Math.sin(ry);
     const walk = s.mv ? Math.sin(t*11 + (s.ph||0))*0.5 : 0;
     const idle = Math.sin(t*2.4 + (s.ph||0))*0.02;
@@ -8555,14 +8586,48 @@ const PUFF6 = [
 ];
 /* 41차 — 양마다 걸음 위상을 **실제 이동 거리**로 돌린다(양 객체에 붙여 둔다 — 친구가 나가면 같이 사라진다).
    순간이동(3칸 넘게 튐)은 안 센다. 빠르기(v)는 부드럽게 재서 멈출 때 다리가 뚝 끊기지 않는다. 걷기 1.3칸 · 달리기 1.75칸에 한 바퀴. */
+/* ═══ 44차 — 모션 공통 재료 (선생님: "양, 늑대 움직임의 전체적인 모션 개선") ═══
+   smoothHead: **표시용 방향**. 목표 방향(ry)을 각속도 제한(rate rad/s) + 지수 감쇠로 따라간다 — 통신값(초당 6번)·AI 가 즉시 꺾는 방향이 덜컥거리지 않는다.
+     turn(회전 속도) 은 도는 안쪽으로 몸을 기울이는 데, lead(아직 못 돈 각) 는 머리가 몸보다 먼저 도는 데 쓴다. 3칸 넘게 튀면(순간이동·재등장) 방향도 바로 맞춘다.
+   idleLife : 서 있을 때 살아 있는 티 — 숨(몸통 부풀기)·두리번(두 사인의 곱이라 가끔만 끝까지 돈다)·귀 쫑긋(4.8초에 한 번 톡)·무게 옮기기.
+   leg2     : **두 마디 다리** — 엉덩이에서 허벅지(L1)·정강이(L2)가 이어지고 끝에 발. th1 은 허벅지 각(발이 앞으로 나가면 +), bend 는 무릎 접힘.
+              상자 하나짜리 다리(~43차)는 들 때 통째로 기울 뿐이라 '접히는' 맛이 없었다. 앞으로 나가는 발은 무릎이 접혀 저절로 들린다. */
+const HEAD_M = new WeakMap();
+function smoothHead(o, ry, dt, rate){
+  let h = HEAD_M.get(o);
+  if(!h || Math.hypot(o.x - h.x, o.z - h.z) > 3){ h = {ry, turn:0, lead:0, x:o.x, z:o.z}; HEAD_M.set(o, h); return h; }
+  h.x = o.x; h.z = o.z;
+  let d = ry - h.ry; d = Math.atan2(Math.sin(d), Math.cos(d));
+  const mx = rate*dt, step = Math.max(-mx, Math.min(mx, d*Math.min(1, dt*14)));
+  h.ry += step; if(h.ry > Math.PI || h.ry < -Math.PI) h.ry = Math.atan2(Math.sin(h.ry), Math.cos(h.ry));
+  const tv = dt > 0 ? step/dt : 0; h.turn += (tv - h.turn)*Math.min(1, dt*12);
+  h.lead = d - step;
+  return h;
+}
+function idleLife(t, ph){
+  const br = Math.sin(t*2.1 + ph);
+  const look = Math.sin(t*0.37 + ph)*Math.sin(t*0.61 + ph*1.7);
+  const fl = ((t*0.21 + ph*0.13) % 1 + 1) % 1, flick = fl < 0.04 ? Math.sin(fl/0.04*Math.PI) : 0;
+  const sway = Math.sin(t*0.53 + ph*0.7);
+  return {br, look, flick, sway};
+}
+function leg2(mesh, i0, paw, pi, hx, hy, hz, fx, fz, ry, th1, bend, L1, L2, w, col, pawS, pawCol){
+  const s1 = Math.sin(th1), c1 = Math.cos(th1);
+  setIR(mesh, i0, hx + fx*s1*L1*0.5, hy - c1*L1*0.5, hz + fz*s1*L1*0.5, ry, -th1, w, L1, w, col);
+  const kx = hx + fx*s1*L1, ky = hy - c1*L1, kz = hz + fz*s1*L1, th2 = th1 - bend, s2 = Math.sin(th2), c2 = Math.cos(th2);
+  setIR(mesh, i0+1, kx + fx*s2*L2*0.5, ky - c2*L2*0.5, kz + fz*s2*L2*0.5, ry, -th2, w*0.92, L2, w*0.92, col);
+  if(paw) setIR(paw, pi, kx + fx*s2*L2 + fx*pawS*0.35, ky - c2*L2 + pawS*0.45, kz + fz*s2*L2 + fz*pawS*0.35, ry, -th2*0.5, pawS*1.3, pawS*0.85, pawS*1.55, pawCol);
+}
 const GAIT_M = new WeakMap();
 const STRIDE_WALK = 1.3, STRIDE_RUN = 1.75;
 function sheepGait(s, t){
-  let g = GAIT_M.get(s); if(!g){ g = {gp:(s.ph||0), lx:s.x, lz:s.z, lt:t, v:0}; GAIT_M.set(s, g); return g; }
-  const dt = t - g.lt; if(dt <= 0) return g; g.lt = t;
+  let g = GAIT_M.get(s); if(!g){ g = {gp:(s.ph||0), lx:s.x, lz:s.z, lt:t, v:0, acc:0, dt:0.016, dust:0}; GAIT_M.set(s, g); return g; }
+  const dt = t - g.lt; if(dt <= 0) return g; g.lt = t; g.dt = dt;
   const d = Math.hypot(s.x - g.lx, s.z - g.lz); g.lx = s.x; g.lz = s.z;
-  if(d > 3) return g;
-  g.v += (d/dt - g.v) * Math.min(1, dt*14);
+  if(g.dust > 0) g.dust -= dt;
+  if(d > 3){ g.acc = 0; return g; }
+  const v0 = g.v; g.v += (d/dt - g.v) * Math.min(1, dt*14);
+  g.acc += ((g.v - v0)/dt - g.acc) * Math.min(1, dt*9);   // 44차 — 가속도(부드럽게): 출발·급정지 자세에 쓴다
   const run = s.run !== undefined ? !!s.run : g.v > SPD*1.2*(raceOn() ? RACE_SPD : 1);
   if(!s.down && !s.air) g.gp += d / ((run ? STRIDE_RUN : STRIDE_WALK) * (raceOn() ? 1.4 : 1)) * Math.PI*2;
   return g;
@@ -8580,7 +8645,11 @@ function drawSheep(list, t, cap, colOf, scale){
     const jt = Math.max(0, Math.min(2, s.jt|0));
     const sc = scale * (1 + 0.09*jt);
     const down = !!s.down;                          // 쓰러진 양
-    const ry = (s.ry||0) + Math.PI;                 // ★ 전방 보정
+    const gs = sheepGait(s, t);                     // 41차 — 간 거리·빠르기 (44차 — 가속도도)
+    /* 44차 — 표시용 방향은 목표(s.ry)를 각속도 제한(10rad/s)으로 따라간다: 친구 양은 통신값(초당 6번)이 즉시 꺾여 덜컥거렸고 내 양도 yaw 그대로였다.
+       회전 속도(turn)만큼 도는 안쪽으로 몸이 기울고(굴림 훅), 아직 못 돈 각(lead)만큼 머리가 먼저 돈다 */
+    const hd = smoothHead(s, (s.ry||0) + Math.PI, gs.dt || 0.016, 10), life = idleLife(t, s.ph||0);
+    const ry = down ? (s.ry||0) + Math.PI : hd.ry;   // ★ 전방 보정
     const fx = Math.sin(ry), fz = Math.cos(ry);     // 앞
     const rx = Math.cos(ry), rz = -Math.sin(ry);    // 오른쪽
     /* 40차 — 선생님: "양이 걷거나 뛸 때 몸이나 발이 안 움직이니까 뛰는 것 같지가 않음. 점프할 때도 마찬가지."
@@ -8594,13 +8663,17 @@ function drawSheep(list, t, cap, colOf, scale){
        발은 0.5칸만 땅을 밀어 얼음 위를 지치듯 미끄러졌다. 이제 양마다 지난 프레임에서 얼마나 갔나로 위상을 돌린다 — 걷기는 트롯(대각선 짝) 1.3칸에 한 바퀴,
        달리기는 바운드(앞다리 짝·뒷다리 짝이 따로, 한 바퀴에 한 번 뜬다) 1.75칸에 한 바퀴. 내 양은 updPlayer 가 같은 위상(gp)을 넘겨준다(발소리·카메라 흔들림도 그 박자).
        친구 양은 자리 통로에 달리기 표시가 없으니 잰 빠르기로 가른다(초당 6.5칸 넘으면 달리기). 다리 흔듦은 잰 빠르기(mvK)로 여닫아 멈출 때 뚝 안 끊긴다. */
-    const gs = sheepGait(s, t), run = s.run !== undefined ? !!s.run : gs.v > SPD*1.2*(raceOn() ? RACE_SPD : 1);
+    const run = s.run !== undefined ? !!s.run : gs.v > SPD*1.2*(raceOn() ? RACE_SPD : 1);
     const gait = s.gp !== undefined ? s.gp : gs.gp, mvK = (down || air) ? 0 : Math.max(0, Math.min(1, gs.v / 2.2));
     const walk = mvK * Math.sin(gait) * (run ? 1.0 : 0.85);
     const sq   = land > 0 ? 1 - (land/0.22)*0.32 : 1;                                   // 착지 — 세로로 눌린다(42차: 0.22초 · 32%)
     const hop  = run ? Math.max(0, Math.sin(gait + 0.4)) : Math.abs(Math.sin(gait));      // 바운드는 한 바퀴에 한 번 크게 뜬다
     const bob  = mvK * hop * (run ? 0.15 : 0.06) * sc - (1 - sq)*0.16*sc;
-    const lean = air ? (vy > 1 ? -0.22 : 0.10) : mvK * (run ? -0.14 + Math.sin(gait + 0.4)*0.12 : -0.08);   // 몸통 기울기 — 뜰 땐 뒤로, 내려올 땐 앞으로, 바운드는 뜰 때 들리고 내릴 때 숙인다
+    /* 44차 — 출발·급정지 자세: 가속(acc>0)이면 뒤로 살짝 눌리고(코 위), 급정지(acc<0)면 앞으로 쏠린다(코 아래). 급정지 땐 발밑 먼지 한 번(0.6초에 한 번만) */
+    const accL = (down || air) ? 0 : Math.max(-0.22, Math.min(0.22, -gs.acc*0.022));
+    if(!down && !air && gs.acc < -9 && gs.v > 1.4 && !(gs.dust > 0)){ gs.dust = 0.6; burst(s.x, y + 0.06, s.z, 0xd9cdb4, 4, 0.45); }
+    const lean = accL + (air ? (vy > 1 ? -0.22 : 0.10) : mvK * (run ? -0.14 + Math.sin(gait + 0.4)*0.12 : -0.08));   // 몸통 기울기 — 뜰 땐 뒤로, 내려올 땐 앞으로, 바운드는 뜰 때 들리고 내릴 때 숙인다
+    const breath = down ? 1 : 1 + (1 - mvK)*life.br*0.018;                                  // 44차 — 서 있으면 숨을 쉰다(몸통 ±1.8%)
     /* 머리 끄덕임 — 몸통 반동보다 한 박자 늦게 따라온다. 이게 있어야 살아 있어 보인다. */
     const nod  = air ? (vy > 1 ? 0.06 : -0.05) : mvK > 0.05 ? Math.sin(gait - 0.9)*(run ? 0.09 : 0.06)*mvK : Math.sin(t*1.5 + (s.ph||0))*0.012;
     const stretch = air ? (vy > 1 ? 1.12 + take*0.22 : 0.96) : sq;                       // 세로 — 공중에선 늘어나고(도약 직후 더) 착지하면 눌린다
@@ -8621,27 +8694,35 @@ function drawSheep(list, t, cap, colOf, scale){
     const YH = down ? Y : (u)=> y + (u+nod)*sc + bob;   // 머리에 붙은 것들
     /* 42차 — 공중제비: 양 가운데(u 0.62)를 축(오른쪽 방향)으로 앞으로 한 바퀴. 이 양의 부위를 놓는 동안 FLIP_ON 이 켜져 setI/setIR 이 행렬 앞에 곱한다 */
     if(flip) flipSet(s.x, y + 0.62*sc + bob, s.z, rx, 0, rz, -Math.PI*2*flip);
+    else if(!down){   // 44차 — 굴림 훅: 도는 안쪽으로 기울기(오른쪽으로 돌면 오른쪽이 낮아진다) + 서 있을 때 무게 옮기기
+      const phi = -Math.max(-0.16, Math.min(0.16, hd.turn*0.045)) + (1 - mvK)*life.sway*0.022;
+      if(Math.abs(phi) > 0.002) flipSet(s.x, y + 0.62*sc + bob, s.z, fx, 0, fz, phi); }
+    /* 44차 — 머리 방향: 도는 쪽으로 먼저 돌고(lead), 서 있으면 가끔 두리번(look). 머리에 붙은 것(앞머리·귀·눈·입·볼·모자)은 머리 기준 좌표(HX·HZ)로 따라간다 */
+    const hyaw = down ? 0 : Math.max(-0.4, Math.min(0.4, hd.lead*0.6)) + (1 - mvK)*life.look*0.30;
+    const hry = ry + hyaw, hfx = Math.sin(hry), hfz = Math.cos(hry), hrx = Math.cos(hry), hrz = -Math.sin(hry);
+    const HX=(f,sd)=> s.x + fx*0.68*ST*sc + hfx*(f-0.68)*ST*sc + hrx*sd*sc;
+    const HZ=(f,sd)=> s.z + fz*0.68*ST*sc + hfz*(f-0.68)*ST*sc + hrz*sd*sc;
 
     // 몸통 — 짧고 통통하게. 덩치는 위에 얹는 털뭉치가 만든다.
-    setIR(P_body, n, X(0,0), Y(0.56), Z(0,0), ry, lean, 0.84*sc*widen, 0.62*sc*stretch, 0.94*sc*lng, col);
+    setIR(P_body, n, X(0,0), Y(0.56), Z(0,0), ry, lean, 0.84*sc*widen*breath, 0.62*sc*stretch*breath, 0.94*sc*lng, col);
     /* 등털 — 몸통보다 넓게 빼서 처마처럼 걸치게 하면 복슬복슬해 보인다.
        27차: 상자 하나 → 공 여섯. 가운데 큰 알 + 네 귀퉁이 알 + 위에 얹은 알.
        겹친 공의 실루엣이 곧 '양털' 이다 — 상자 하나로는 둥글어도 털이 아니었다. */
     for(const q of PUFF6)
       setI(P_puff, puffN++, X(-0.05+q[0], q[2]), Y(q[1]), Z(-0.05+q[0], q[2]), ry,
-        q[3]*sc*widen, q[4]*sc*stretch, q[5]*sc, wool);
+        q[3]*sc*widen*breath, q[4]*sc*stretch*breath, q[5]*sc, wool);
     /* 얼굴 — 몸통보다 크게. 머리가 클수록 아기 같아 보인다(귀여움의 8할).
        ★ 얼굴 앞면은 f=0.99 다. 얼굴에 붙는 것(눈·코·볼)은 그보다 앞으로 나와야 보인다.
          한 번 여기서 틀려서 볼터치가 머리 속에 통째로 파묻혔었다. */
-    setI(P_head, n, X(0.68,0), YH(1.06), Z(0.68,0), ry, 0.68*sc, 0.64*sc, 0.62*sc, 0xf7f2e8);
+    setI(P_head, n, HX(0.68,0), YH(1.06), HZ(0.68,0), hry, 0.68*sc, 0.64*sc, 0.62*sc, 0xf7f2e8);
     // 앞머리 — 이마에서 눈 위까지 살짝 내려온다. 이게 있어야 양처럼 보인다.
-    setI(P_frng, n, X(0.84,0), YH(1.33), Z(0.84,0), ry, 0.74*sc, 0.26*sc, 0.46*sc, frng);
+    setI(P_frng, n, HX(0.84,0), YH(1.33), HZ(0.84,0), hry, 0.74*sc, 0.26*sc, 0.46*sc, frng);
     // 귀 — 머리 옆으로 확실히 빼서 축 늘어뜨리고, 걸을 때 팔랑팔랑 흔들린다
     const flap = down ? 1.35
-      : air ? 0.22 : 0.62 + (mvK > 0.05 ? Math.sin(gait)*(run ? 0.42 : 0.30)*mvK : Math.sin(t*1.3+(s.ph||0))*0.07);   // 공중에선 귀가 위로 선다
+      : air ? 0.22 : 0.62 - life.flick*0.45 + (mvK > 0.05 ? Math.sin(gait)*(run ? 0.42 : 0.30)*mvK : Math.sin(t*1.3+(s.ph||0))*0.07);   // 공중에선 귀가 위로 선다 · 44차 — 가끔 쫑긋
     for(const si of [1,-1])
-      setIR(P_ear, earN++, X(0.60,0.44*si), YH(1.08), Z(0.60,0.44*si),
-        ry, flap, 0.20*sc, 0.36*sc, 0.15*sc, 0xeee4d6);
+      setIR(P_ear, earN++, HX(0.60,0.44*si), YH(1.08), HZ(0.60,0.44*si),
+        hry, flap, 0.20*sc, 0.36*sc, 0.15*sc, 0xeee4d6);
     if(down){
       /* ✕ 눈 — 얇은 막대 두 개를 서로 반대로 기울여 겹친다.
          머리 위쪽 면에 붙여야 위에서도 옆에서도 보인다. */
@@ -8657,36 +8738,37 @@ function drawSheep(list, t, cap, colOf, scale){
        로블록스 얼굴 그대로 — 눈 둘 + 넓은 U 미소, 코 없음. 볼터치는 입 옆 뺨에. 셋(게임·미리보기·아이콘)이 같은 값. */
     // 눈 — 크고 세로로 긴 타원 (딱 붙이면 깊이가 겹쳐 깜빡이므로 확실히 띄운다)
     for(const si of [1,-1])
-      setI(P_eye, eyeN++, X(1.02,0.19*si), YH(1.11), Z(1.02,0.19*si), ry,
+      setI(P_eye, eyeN++, HX(1.02,0.19*si), YH(1.11), HZ(1.02,0.19*si), hry,
         0.18*sc, 0.23*sc, 0.08*sc, 0x241f1c);
     // 눈 반짝이 — 눈 위쪽 바깥에 찍는 작은 흰 점. 이거 하나로 눈이 살아난다.
     for(const si of [1,-1])
-      setI(P_eye, eyeN++, X(1.07,0.235*si), YH(1.175), Z(1.07,0.235*si), ry,
+      setI(P_eye, eyeN++, HX(1.07,0.235*si), YH(1.175), HZ(1.07,0.235*si), hry,
         0.06*sc, 0.07*sc, 0.05*sc, 0xffffff);
     // 입 — 눈 바로 아래 넓은 U. 로블록스 얼굴의 그 미소다 (28차 → 29차에 위로, 더 넓게)
-    setI(P_mouth, mouthN++, X(1.03,0), YH(0.94), Z(1.03,0), ry, 0.36*sc, 0.22*sc, 0.10*sc, 0x3a2f2c);
+    setI(P_mouth, mouthN++, HX(1.03,0), YH(0.94), HZ(1.03,0), hry, 0.36*sc, 0.22*sc, 0.10*sc, 0x3a2f2c);
     // 볼터치 — 입 옆 뺨에 발그레하게
     for(const si of [1,-1])
-      setI(P_nose, noseN++, X(1.02,0.33*si), YH(0.99), Z(1.02,0.33*si), ry,
+      setI(P_nose, noseN++, HX(1.02,0.33*si), YH(0.99), HZ(1.02,0.33*si), hry,
         0.14*sc, 0.09*sc, 0.07*sc, 0xffb0bd);
     }
     // 꼬리 — 뒤에 붙은 동그란 털뭉치. 걸을 때 살랑거린다.
     const tw = !down ? Math.sin(gait - 1.2)*0.22*mvK : 0;
     setI(P_tail, n, X(-0.58, tw*0.16), Y(0.94), Z(-0.58, tw*0.16), ry + tw*0.5,
       0.34*sc, 0.34*sc, 0.26*sc, wool);
-    // 다리 — 짧고 통통하게
+    /* 다리 — 44차: **두 마디**(허벅지·정강이, leg2). 걷기(트롯): 대각선 짝(앞왼·뒤오)이 같이 나간다. 달리기(바운드): 앞다리 둘·뒷다리 둘이 짝(반 박자 어긋나게).
+       앞으로 나가는 발(up)은 무릎이 접혀 저절로 들린다. 공중에선 넷 다 뒤로 접고, 도약 직후(take)엔 아래로 뻗는다. 쓰러지면 배 위로 곧게 선다 */
     let li=0;
     for(const [fo,si] of [[0.30,1],[0.30,-1],[-0.30,1],[-0.30,-1]]){
-      /* 걷기(트롯): 대각선 짝(앞왼·뒤오)이 같이 나간다. 달리기(바운드, 41차): 앞다리 둘이 같이 뻗고 뒷다리 둘이 반 박자 뒤에 같이 찬다.
-         앞으로 나가는 다리는 들리고(lift) 다리 자체가 앞뒤로 기울며(rx) 몸을 따라 앞뒤로도 밀린다(보폭). 공중에선 넷 다 뒤로 접는다 */
       const front = li < 2;
-      const sw = run ? mvK * Math.sin(gait + (front ? 0.9 : -0.6)) * (front ? 1.0 : 0.9)
-                     : ((li===0 || li===3) ? walk : -walk);
-      const lift = air ? 0.12*sc : Math.max(0, sw)*(run ? 0.16 : 0.10)*sc;
-      const rx = down ? 0 : air ? 0.85 - take*1.4 : -sw*(run ? 1.25 : 1.1);   // 42차 — 도약 직후엔 다리를 아래로 뻗는다(밀어낸 발)
-      const sl = sw*(run ? 0.24 : 0.20);
-      setIR(P_legs, ln++, X(fo + sl, 0.27*si), down ? Y(0.17) : y + 0.17*sc + lift + Math.max(0, bob)*0.4,
-        Z(fo + sl, 0.27*si), ry, rx, 0.20*sc, 0.36*sc, 0.20*sc, 0x5c564f); li++;
+      const p = run ? gait + (front ? 0.9 : -0.6) : gait + ((li===0 || li===3) ? 0 : Math.PI);
+      const sw = mvK * Math.sin(p) * (run ? (front ? 1.0 : 0.9) : 0.85), up = mvK * Math.max(0, Math.cos(p));
+      let th1, bend;
+      if(down){ th1 = Math.PI; bend = 0; }
+      else if(air){ th1 = -0.55 + take*1.3; bend = 1.15*(1 - take); }
+      else { th1 = sw*(run ? 0.95 : 0.80); bend = up*(run ? 1.25 : 1.05) + (1 - mvK)*0.06; }
+      const hy = down ? Y(0.59) : y + 0.40*sc + Math.max(0, bob)*0.4;
+      leg2(P_legs, ln, null, 0, X(fo, 0.27*si), hy, Z(fo, 0.27*si), fx, fz, ry, th1, bend, 0.21*sc, 0.20*sc, 0.19*sc, 0x5c564f, 0, 0);
+      ln += 2; li++;
     }
     /* 꾸미기 — 모자·안경은 머리를 따라(YH), 옷은 몸통을 따라(Y) 움직인다.
        쓰러졌을 땐 Y 자체가 뒤집혀 있어서 옷도 같이 뒤집혀 따라간다. */
@@ -8695,7 +8777,7 @@ function drawSheep(list, t, cap, colOf, scale){
         [[HATS, s.hat, 1], [GLASSES, s.gls, 1], [CLOTHES, s.clo, 0]]){
       for(const h of pick(arr, idx)){
         if(decoN >= P_deco.count_max) break;
-        setI(P_deco, decoN++, X(h[0], h[2]), (onHead?YH:Y)(h[1]), Z(h[0], h[2]), ry,
+        setI(P_deco, decoN++, (onHead?HX:X)(h[0], h[2]), (onHead?YH:Y)(h[1]), (onHead?HZ:Z)(h[0], h[2]), onHead ? hry : ry,
           h[3]*sc, h[4]*sc, h[5]*sc, h[6]);
       }
     }
@@ -8709,7 +8791,7 @@ function drawSheep(list, t, cap, colOf, scale){
         if(decoN >= P_deco.count_max) break;
         /* ★ 여덟 번째 칸이 1 이면 머리를 따라 끄덕인다(투구·모자).
            높이로 어림잡았더니 등에 멘 망치(u 1.52)까지 머리를 따라 흔들렸다. */
-        setI(P_deco, decoN++, X(h[0], h[2]), (h[7] ? YH : Y)(h[1]), Z(h[0], h[2]), ry,
+        setI(P_deco, decoN++, (h[7] ? HX : X)(h[0], h[2]), (h[7] ? YH : Y)(h[1]), (h[7] ? HZ : Z)(h[0], h[2]), h[7] ? hry : ry,
           h[3]*sc, h[4]*sc, h[5]*sc, h[6]);
       }
     }
@@ -13564,6 +13646,7 @@ function hostSim(dt){
       if(w.byName) killPraise(w);              // 돌로 막타를 낸 아이 이름을 불러 준다
       if(w.bi >= 0) onBossDown(w);
       dropGold(w);                             // 29차 — 금 조각을 바닥에 흘린다
+      wolfCorpse(w);                           // 44차 — 0.55초 동안 옆으로 쓰러진다(그리기만 · 판정·통신에서는 빠진다)
       G.wolves.splice(i,1);
     }
   }
@@ -14852,7 +14935,7 @@ function applySim(d){
     w.hp = hp;
   }
   for(let i=G.wolves.length-1;i>=0;i--) if(!seen.has(G.wolves[i].id)){
-    const w = G.wolves[i]; burst(w.x, GY+0.9, w.z, 0x8a4a4a, 10, 1.1); G.wolves.splice(i,1); }
+    const w = G.wolves[i]; burst(w.x, GY+0.9, w.z, 0x8a4a4a, 10, 1.1); wolfCorpse(w); G.wolves.splice(i,1); }   // 44차 — 손님 화면도 쓰러진다
   const sa = typeof d.s === 'string' ? (d.s ? d.s.split(',') : []) : (d.s||[]);
   const ss = new Set();
   for(let i=0;i<sa.length;i+=8){
@@ -17148,7 +17231,8 @@ Object.assign(window, {
   __LV_MAX:LV_MAX, __openStat:openStat, __openBadge:openBadge, __maxHP:maxHP, __mineTime:mineTime,
   __workSec:workSec, __upSec:upSec, __fixSec:fixSec, __mineBonus:mineBonus,
   __atkMul:atkMul, __defNow:defNow, __xpReset:xpReset,
-  __drawWolves:drawWolves, __drawSoldiers:drawSoldiers, __wolfMeshes:()=>({body:W_body, belly:W_belly, brow:W_brow, rib:W_rib, tongue:W_tongue, plate:W_plate, gem:W_gem, heal:W_heal, beam:W_beam, eyeW:W_eyeW, fang:W_fang, dread:W_dread}),
+  __drawWolves:drawWolves, __drawSoldiers:drawSoldiers, __wolfMeshes:()=>({body:W_body, belly:W_belly, brow:W_brow, rib:W_rib, tongue:W_tongue, plate:W_plate, gem:W_gem, heal:W_heal, beam:W_beam, eyeW:W_eyeW, fang:W_fang, dread:W_dread, legs:W_legs, paw:W_paw}),
+  __wolfPose:wolfPose, __wolfCorpse:wolfCorpse, __WOLF_DEAD:WOLF_DEAD, __smoothHead:smoothHead, __idleLife:idleLife, __P_legs:P_legs,   // 44차
   __work:()=>work, __doAction:doAction, __setActing:v=>{ acting = v; },
   __sheepHurt:sheepHurt, __goDown:goDown, __reviveMe:reviveMe, __aimDown:aimDown,
   __wolfRank:wolfRank, __sheepBite:sheepBiteDmg, __blockedAt:blockedAt,
