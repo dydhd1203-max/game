@@ -2455,7 +2455,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '38차 · 정리 — 꽃 심기·짝꿍 뺌 · 지도 옆 순위판은 레벨만';
+const GAME_VER = '38차 · 정리 — 꽃 심기·짝꿍 뺌 · 지도 옆 순위판은 레벨만 · 경주 코스 미술(트랙 조각·구간 문·양옆 마을·들판)';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -3556,7 +3556,7 @@ function bpush(key, geo, mat, x,y,z, ry=0, sx=1,sy=1,sz=1, rz=0, col=0){
    양쪽 다 이득이라 여기가 맞다. */
 /* ★ 34차 — 잔 꾸밈(꽃잎·꽃술·줄기·작은 수풀·자갈·사과·금 알갱이·이삭·연잎·섬 표시·깃발·틈)은 그림자를 안 드리운다.
    그림자 패스에서 삼각형 10만 남짓이 빠지고, 눈으론 차이가 없다(그늘이 콩알만 하다). 진단의 '작은 것 그림자 켬' 이 값을 잰다. */
-const NO_CAST = new Set(['petal','pist','stem','bushS','peb','apple','nug','farmGlow','gglow','miMark','miEdge','miGlow','miBase','flag','flagT','reed','lily','mtK']);
+const NO_CAST = new Set(['petal','pist','stem','bushS','peb','apple','nug','farmGlow','gglow','miMark','miEdge','miGlow','miBase','flag','flagT','reed','lily','mtK','rcLand','rcLandB']);
 const BCHUNK = 64;   // 34차 — 32 → 64. 교실 크롬북은 그리기 한 번이 60µs 라 청크 수를 반으로(삼각형은 조금 늘지만 콜이 훨씬 준다)
 const BSPLIT = 300;   // 이보다 인스턴스가 적은 뱅크는 안 쪼갠다 (쪼개 봤자 드로우콜만 는다)
 function bbuild(){
@@ -5134,12 +5134,41 @@ function buildMiniIsle(){
     BX(sx*22.4, 1.0, z, 0.14, 1.3, 0.14, 0xf4f1ea); BX(sx*22.4, 1.55, z + 1.6, 0.10, 0.10, 3.4, 0xff5a5a); }
   for(const sx of [-1,1]) for(let i=0;i<2;i++){ const z = 31 + i*5;
     BX(sx*23.2, 1.9, z, 0.16, 3.8, 0.16, 0x6b6f78); BX(sx*23.2 - sx*0.5, 3.8, z, 1.2, 0.12, 0.16, 0x6b6f78); GL(sx*23.2 - sx*1.0, 3.6, z, 0.5); }
-  /* ② 깃발 판(구간 앞)마다 양옆 연석 + 만국기(두 깃대 사이 처진 줄에 삼각 깃발 아홉) */
-  RACE_S.forEach((Sx,i)=>{ const z = Sx.z0 - 3.2, y = i === 4 ? 0 : 0;
-    if(i > 0) for(let k=0;k<4;k++) for(const sx of [-1,1]) BX(sx*3.8, y+0.36, z - 1.5 + k*1.0, 0.5, 0.2, 1.0, k%2 ? 0xff5a5a : 0xffffff);
-    for(let k=0;k<9;k++){ const u = (k+0.5)/9, x = -3.4 + u*6.8, sag = Math.sin(u*Math.PI)*0.45;
-      Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y + y + 3.55 - sag, z, 0, 0.42, 0.55, 0.42, Math.PI, FLAGC[(k+i)%FLAGC.length])); }
-    BX(0, y+3.62, z, 6.8, 0.04, 0.04, 0xf4f1ea); });
+  /* ② 구간 문(38차) — 구간 앞 깃발 판마다 그 구간의 테마로 지은 문. 어디쯤인지가 색이 아니라 '모양' 으로 읽힌다.
+     (37차엔 깃대 둘 사이 만국기 줄이었다 — 다섯 구간이 다 같은 모양이라 지나도 기억에 안 남았다.)
+     ① 물 — 파란 도리이(둥근 기둥·들린 지붕·연꽃 등) · ② 등불 — 나무 문에 주황 등 셋 · ③ 사탕 — 줄무늬 기둥에 분홍 반원 아치와 막대사탕
+     ④ 숲 — 통나무 기둥에 가로 통나무·잎 뭉치·버섯 · ⑤ 성 — 돌탑 둘에 총안·아치·깃발 */
+  const gate = (i, z, y)=>{ const c = RACE_S[i].col;
+    if(i === 0){
+      for(const sx of [-1,1]){ Rp(bpush('rcTrunk', TRUNKG, WMAT, sx*4.4, MINI_Y+y+2.0, z, 0, 1.3, 4.0, 1.3, 0, 0x4dabf7));
+        Rp(bpush('rcBall', gBall, WMAT, sx*4.4, MINI_Y+y+0.3, z, 0, 1.6, 0.5, 1.6, 0, 0x6fd3ff)); }
+      BX(0, y+4.15, z, 10.4, 0.36, 0.6, 0x4dabf7); BX(0, y+4.55, z, 9.4, 0.22, 0.4, 0xffffff);
+      for(const sx of [-1,1]) BX(sx*5.4, y+4.5, z, 1.0, 0.7, 0.6, 0x4dabf7, 0, sx*0.55);
+      for(let k=0;k<5;k++){ Rp(bpush('rcBall', gBall, WMAT, -3.2 + k*1.6, MINI_Y+y+3.5, z, 0, 0.56, 0.4, 0.56, 0, k%2 ? 0xffb4d0 : 0xfff0c8)); BX(-3.2 + k*1.6, y+3.85, z, 0.04, 0.4, 0.04, 0xf4f1ea); } }
+    else if(i === 1){
+      for(const sx of [-1,1]){ BX(sx*4.4, y+2.1, z, 0.5, 4.2, 0.5, 0x8a5a3a); BX(sx*4.4, y+0.25, z, 0.9, 0.5, 0.9, 0x6a4a3a); }
+      BX(0, y+4.3, z, 10.0, 0.4, 0.5, 0x8a5a3a); BX(0, y+4.75, z, 10.6, 0.3, 1.2, c); BX(0, y+5.0, z, 9.6, 0.2, 0.8, furLight(c, 0.3));
+      for(let k=0;k<3;k++){ const x = -2.6 + k*2.6; BX(x, y+3.7, z, 0.04, 0.8, 0.04, 0x2b2b33); BX(x, y+2.9, z, 0.7, 0.9, 0.7, 0xff9a3c); BX(x, y+2.4, z, 0.5, 0.12, 0.5, 0x2b2b33); GL(x, y+2.9, z, 0.5); } }
+    else if(i === 2){
+      for(const sx of [-1,1]){ for(let k=0;k<8;k++) BX(sx*4.4, y+0.3+k*0.55, z, 0.7, 0.55, 0.7, k%2 ? 0xffffff : 0xff5a8a);
+        Rp(bpush('rcBall', gBall, WMAT, sx*4.4, MINI_Y+y+4.9, z, 0, 1.2, 1.2, 1.2, 0, 0xff5a8a));
+        Rp(bpush('rcBall', gBall, WMAT, sx*6.2, MINI_Y+y+2.6, z, 0, 1.5, 1.5, 0.5, 0, [0xffd43b, 0x51cf66][sx>0?0:1])); BX(sx*6.2, y+1.2, z, 0.14, 1.8, 0.14, 0xf4f1ea); }
+      for(let k=0;k<=16;k++){ const a = k/16*Math.PI, x = Math.cos(a)*4.4, yy = 4.6 + Math.sin(a)*2.2; BX(x, y+yy, z, 0.9, 0.7, 0.6, k%2 ? 0xffffff : 0xff5a8a, 0, 0); }
+      for(let k=0;k<4;k++) Rp(bpush('rcGem', gGem2, WMAT, -3 + k*2, MINI_Y+y+4.9+(k%2)*0.5, z, 0.3*k, 0.7, 1.2, 0.7, 0, [0xd89bff, 0x9ad8ff][k%2])); }
+    else if(i === 3){
+      for(const sx of [-1,1]){ Rp(bpush('rcTrunk', TRUNKG, WMAT, sx*4.4, MINI_Y+y+2.0, z, 0, 1.9, 4.2, 1.9, 0, 0x8a5a3a));
+        Rp(bpush('rcBall', gBall, WMAT, sx*4.4, MINI_Y+y+4.6, z, 0, 2.6, 2.2, 2.6, 0, sx>0 ? 0x51cf66 : 0x3fbf5a)); Rp(bpush('rcBall', gBall, WMAT, sx*4.4+sx*0.8, MINI_Y+y+5.1, z-0.4, 0, 1.5, 1.3, 1.5, 0, 0x8ae08a)); }
+      Rp(bpush('rcTrunk', TRUNKG, WMAT, 0, MINI_Y+y+4.0, z, 0, 1.4, 9.6, 1.4, Math.PI/2, 0x9a6a4a));
+      for(let k=0;k<3;k++){ const x = -2.2 + k*2.2; BX(x, y+4.7, z, 0.36, 0.7, 0.36, 0xfff0c8); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y+5.2, z, 0, 1.2, 0.7, 1.2, 0, k%2 ? 0xff5a5a : 0xffa04a));
+        Rp(bpush('rcBall', gBall, WMAT, x+0.3, MINI_Y+y+5.45, z+0.2, 0, 0.26, 0.14, 0.26, 0, 0xffffff)); } }
+    else {
+      for(const sx of [-1,1]){ BX(sx*4.6, y+2.2, z, 1.8, 4.4, 1.8, 0xf4ece0); BX(sx*4.6, y+4.55, z, 2.2, 0.36, 2.2, 0xe0d8cc);
+        for(const [dx,dz] of [[-0.7,-0.7],[0.7,-0.7],[-0.7,0.7],[0.7,0.7]]) BX(sx*4.6+dx, y+5.05, z+dz, 0.5, 0.6, 0.5, 0xe0d8cc);
+        BX(sx*4.6, y+6.2, z, 0.06, 1.6, 0.06, 0x6b6f78); BX(sx*4.6+0.35, y+6.75, z, 0.7, 0.4, 0.05, sx>0 ? 0xff5a5a : 0x4dabf7); win(sx*4.6, y+2.2, z, 0.5, 0.9, 0.92); }
+      BX(0, y+4.5, z, 7.6, 1.2, 1.4, 0xf4ece0); for(let k=0;k<5;k++) BX(-2.8 + k*1.4, y+5.35, z, 0.8, 0.5, 1.5, 0xe0d8cc);
+      BX(0, y+5.9, z, 0.06, 1.4, 0.06, 0x6b6f78); BX(0.45, y+6.35, z, 0.9, 0.5, 0.05, 0xffd43b); } };
+  const gGem2 = new THREE.OctahedronGeometry(0.5, 0);
+  /* (문은 ④ 아래에서 세운다 — win·gable 이 거기서 정의된다. 앞에서 부르면 TDZ 로 게임이 안 뜬다) */
   /* ③ 풍선 — 출발 아치 옆 여섯, 골인 옆 여섯 (가는 줄 + 공) */
   const balloon = (x,y,z, col)=>{ BX(x, y-1.1, z, 0.03, 2.0, 0.03, 0xf4f1ea); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y, z, 0, 0.5, 0.6, 0.5, 0, col)); };   // 작게 — 0.72 는 구름 덩어리로 보였다
   for(let k=0;k<6;k++) balloon((k<3?-1:1)*(13.5 + (k%3)*1.1), 5.6 + (k%3)*0.7, MINI_PADZ + 3.5 + (k%2)*1.2, FLAGC[k]);
@@ -5184,13 +5213,37 @@ function buildMiniIsle(){
       Rp(bpush('rcBall', gBall, WMAT, x+dx+0.7, MINI_Y+y+h*0.85+0.6, z+dz-0.4, 0, 1.6, 1.4, 1.6, 0, 0x8ae08a)); }
     for(let q=0;q<8;q++){ const a = q*2.4 + k, r = 2.4 + (q%3)*0.5; Rp(bpush('rcBall', gBall, WMAT, x+Math.sin(a)*r, MINI_Y+y+0.3, z+Math.cos(a)*r, 0, 0.36, 0.36, 0.36, 0, FLAGC[q%6])); }
     BX(x + 2.6, y+1.9, z, 0.14, 3.8, 0.14, 0x6b6f78); GL(x + 2.6, y+3.8, z, 0.5); };
-  const KINDS = [house, shop, tower, mill, town, park];
+  const cafe = (x,y,z, k)=>{ const ac = ROOF[(k+2)%6];                                                  // 6 카페 — 줄무늬 파라솔 둘 + 둥근 탁자 + 작은 매점
+    BX(x + 1.4, y+1.2, z - 0.4, 2.6, 2.4, 2.4, WALL[(k+1)%6]); BX(x + 1.4, y+2.55, z - 0.4, 3.0, 0.3, 2.8, ac);
+    for(let q=0;q<4;q++) BX(x + 0.35 + q*0.7, y+1.7, z + 0.9, 0.7, 0.10, 0.8, q%2 ? ac : 0xffffff); BX(x + 1.4, y+0.9, z + 0.83, 1.6, 1.2, 0.06, 0xa8e0ff);
+    for(const [dx,dz,cc] of [[-1.6,0.6,0xff5a5a],[-1.2,-1.6,0x4dabf7]]){ BX(x+dx, y+0.55, z+dz, 0.9, 0.10, 0.9, 0xf4f1ea); BX(x+dx, y+0.28, z+dz, 0.10, 0.5, 0.10, 0x6b6f78);
+      BX(x+dx, y+1.5, z+dz, 0.06, 1.6, 0.06, 0xf4f1ea); Rp(bpush('rcCone', CONEG, WMAT, x+dx, MINI_Y+y+2.35, z+dz, 0, 2.2, 0.7, 2.2, 0, cc)); Rp(bpush('rcCone', CONEG, WMAT, x+dx, MINI_Y+y+2.37, z+dz, 0.45, 2.1, 0.66, 2.1, 0, 0xffffff)); }
+    for(let q=0;q<5;q++) Rp(bpush('rcBall', gBall, WMAT, x - 2.6 + q*0.4, MINI_Y+y+0.3, z + 2.2, 0, 0.36, 0.36, 0.36, 0, FLAGC[(q+k)%6])); };
+  const chapel = (x,y,z, k)=>{ const wc = WALL[(k+4)%6], rc = ROOF[(k+3)%6];                                // 7 작은 예배당 — 뾰족 종탑 + 둥근 창
+    BX(x, y+1.5, z, 3.0, 3.0, 4.0, wc); gable(x, y+3.0, z, 3.4, 4.0, rc);
+    BX(x, y+3.2, z + 1.2, 1.3, 2.4, 1.3, wc); Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y+y+5.2, z+1.2, 0, 1.7, 1.8, 1.7, 0, rc)); BX(x, y+6.3, z+1.2, 0.08, 0.6, 0.08, 0xffd43b); BX(x, y+6.4, z+1.2, 0.36, 0.08, 0.08, 0xffd43b);
+    Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y+2.1, z+2.03, 0, 0.9, 0.9, 0.08, 0, 0xa8e0ff)); BX(x, y+0.85, z+2.03, 0.8, 1.7, 0.08, 0x8a5a3a);
+    for(const sx of [-1,1]) win(x + sx*1.5, y+1.6, z - 0.6, 0.5, 0.9, 0), win(x + sx*1.5, y+1.6, z + 0.6, 0.5, 0.9, 0); };
+  const KINDS = [house, shop, tower, mill, town, park, cafe, chapel];
   const islet = (x, y, z, kind, k)=>{
     Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y+y-2.4, z, 0, 8.6, 4.4, 8.6, Math.PI, 0x7a5a3c));            // 흙 고깔
     Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y-0.35, z, 0, 8.8, 0.9, 8.8, 0, 0x7ed36a));                 // 풀 뚜껑
     KINDS[kind % KINDS.length](x, y, z, k); };
-  for(let i=0;i<16;i++){ const side = i%2 ? 1 : -1, z = 44 + i*13.5 + (i%3)*2, x = side*(12.5 + (i%3)*2.2), y = -1.0 - (i%2)*0.7 + (z > 222 ? (z - 222)/34*8 : 0);
-    islet(x, y, z, (i*5 + 1) % 6, i); }
+  /* 38차 — 양쪽에 12칸마다(예전엔 한쪽씩 27칸마다 — 대부분의 화면이 빈 하늘이었다). 카트라이더 마을처럼 길 양옆이 건물로 이어진다.
+     안쪽 가장자리(x ≈ 8.7~11.9)가 발판(최대 반폭 6.5)과 가로등 섬(x ±7.4)에 안 닿는 자리다. */
+  const rise = z => z > 222 ? (z - 222)/34*8 : 0;
+  for(let i=0;i<18;i++){ const z = 44 + i*12 + (i%3)*1.5;
+    for(const side of [-1,1]){ const v = ((i + (side>0 ? 1 : 0)) % 3), x = side*(13.0 + v*1.6), y = -1.4 - v*0.5 + rise(z);
+      islet(x, y, z, (i*5 + (side>0 ? 3 : 1)) % KINDS.length, i*2 + (side>0?1:0)); } }
+  /* 가로등 섬 — 6칸마다 양옆 번갈아, 24칸마다는 양쪽 다 세우고 그 사이에 만국기 줄. 카트라이더 트랙의 '반복되는 리듬' 이 이것이다 */
+  const lampPad = (x, y, z, k)=>{ Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y+y-1.0, z, 0, 2.4, 1.7, 2.4, Math.PI, 0x7a5a3c)); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y-0.12, z, 0, 2.6, 0.5, 2.6, 0, 0x7ed36a));
+    BX(x, y+1.6, z, 0.14, 3.2, 0.14, 0x6b6f78); BX(x, y+3.3, z, 0.5, 0.56, 0.5, 0xfff0c8); BX(x, y+3.62, z, 0.66, 0.10, 0.66, 0x6b6f78); GL(x, y+3.3, z, 0.42);
+    Rp(bpush('rcBall', gBall, WMAT, x + 0.7, MINI_Y+y+0.4, z + 0.5, 0, 1.0, 0.9, 1.0, 0, k%2 ? 0x51cf66 : 0x3fbf5a)); Rp(bpush('rcBall', gBall, WMAT, x - 0.6, MINI_Y+y+0.3, z - 0.5, 0, 0.36, 0.36, 0.36, 0, FLAGC[k%6])); };
+  for(let i=0;i<34;i++){ const z = 50 + i*6, y = -0.8 + rise(z), both = i%4 === 0;
+    for(const sx of (both ? [-1,1] : [i%2 ? 1 : -1])) lampPad(sx*7.4, y, z, i);
+    if(both){ for(let k=0;k<11;k++){ const u = (k+0.5)/11, x = -7.4 + u*14.8, sag = Math.sin(u*Math.PI)*0.7;
+        Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y + y + 4.35 - sag, z, 0, 0.5, 0.62, 0.5, Math.PI, FLAGC[(k+i)%6])); }
+      BX(0, y+4.42, z, 14.8, 0.04, 0.04, 0xf4f1ea); } }
   /* ⑤ 하늘 위 볼거리 — 무지개 · 열기구 · 구간 테마(물 · 등불 · 수정과 사탕 · 숲과 버섯 · 성) */
   const gGem = new THREE.OctahedronGeometry(0.5, 0);
   /* 무지개 — 출발 다리 위 일곱 띠의 반원 */
@@ -5224,7 +5277,7 @@ function buildMiniIsle(){
     BX(x, y-0.4, z, 2.2, 0.5, 2.2, 0x6a5a3a);
     BX(x, y+0.5, z, 0.5, 1.2, 0.5, 0xfff0c8); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y + y + 1.25, z, 0, 1.7, 1.0, 1.7, 0, i%2 ? 0xff5a5a : 0xffa04a));
     for(let k=0;k<3;k++) Rp(bpush('rcBall', gBall, WMAT, x + Math.sin(k*2.3)*0.5, MINI_Y + y + 1.62, z + Math.cos(k*2.3)*0.5, 0, 0.3, 0.16, 0.3, 0, 0xffffff)); }
-  for(let i=0;i<3;i++){ const z = 182 + i*12, x = (i%2 ? -6.2 : 6.2);
+  for(let i=0;i<3;i++){ const z = 185 + i*12, x = (i%2 ? -5.4 : 5.4);
     for(let k=0;k<3;k++) Rp(bpush('rcTrunk', TRUNKG, WMAT, x + (k-1)*0.8, MINI_Y - 1.2 + (k===1 ? 0.7 : 0), z, Math.PI/2, 0.9, 2.6, 0.9, Math.PI/2, 0x8a5a3a)); }
   /* ⑤ 골인 뒤 하늘 성 — 탑 넷 · 성벽 · 성문 · 깃발 (골인 광장 건물 뒤에, 조금 높게) */
   { const cx = 0, cy = RACE_Y_FIN + 1.0, cz = RACE_Z_FIN + 24;
@@ -5241,6 +5294,47 @@ function buildMiniIsle(){
   /* 골인 판 연석 + 체크무늬 바닥 줄 */
   for(let k=0;k<7;k++) for(const sx of [-1,1]) BX(sx*3.7, RACE_Y_FIN + 0.36, RACE_Z_FIN + 0.5 + k*0.7, 0.4, 0.2, 0.7, k%2 ? 0xff5a5a : 0xffffff);
   for(let k=0;k<12;k++) BX(-3.0 + k*0.55, RACE_Y_FIN + 0.34, RACE_Z_FIN + 2, 0.55, 0.05, 0.9, k%2 ? 0x1e1e26 : 0xf4f1ea);
+  RACE_S.forEach((Sx,i)=>{ const z = Sx.z0 - 3.2, y = 0;                                              // ② 구간 문 세우기 + 양옆 연석
+    if(i > 0) for(let k=0;k<4;k++) for(const sx of [-1,1]) BX(sx*3.8, y+0.36, z - 1.5 + k*1.0, 0.5, 0.2, 1.0, k%2 ? 0xff5a5a : 0xffffff);
+    gate(i, z, y); });
+  /* ⑦ 저 아래 들판(38차) — 코스 아래 22칸에 밭·강·언덕·숲·마을·호수. 허공이 '높은 하늘' 로 읽히고, 떨어질 때 깊다.
+     안개(68~152)가 먼 데를 알아서 지워 준다 — 다 그려도 화면엔 가까운 쪽만 남는다. 그림자는 안 드리운다(NO_CAST). */
+  { const LY = -22;
+    const LAND = (x,y,z, sx,sy,sz, col)=> Rp(bpush('rcLand', WGEO, WMAT, x, MINI_Y+LY+y, z, 0, sx, sy, sz, 0, col));
+    const LB = (x,y,z, sx,sy,sz, col)=> Rp(bpush('rcLandB', gBall, WMAT, x, MINI_Y+LY+y, z, 0, sx, sy, sz, 0, col));
+    const FIELD = [0x8fd46a, 0x7bc95c, 0xa8dc72, 0xc9e07a, 0x9ad36a, 0xe4d77a];
+    for(let a=-6;a<6;a++) for(let b=-4;b<21;b++){ const x = a*16 + 8, z = b*16 + 8, k = ((a*7 + b*3) % 6 + 6) % 6;
+      LAND(x, -0.5 + (k===5 ? 0.12 : 0), z, 15.7, 1.0, 15.7, FIELD[k]); }
+    for(let b=0;b<40;b++){ const z = -60 + b*10, x = 30 + Math.sin(b*0.45)*14; LAND(x, 0.16, z, 9, 0.5, 10.8, 0x6fd3ff); }        // 강
+    LB(-34, 0.1, -14, 26, 0.5, 20, 0x6fd3ff); LB(-58, 0.1, 150, 22, 0.5, 26, 0x6fd3ff);                                            // 호수 둘
+    for(let k=0;k<16;k++){ const x = (k%2 ? 1 : -1)*(50 + (k*7)%30), z = -40 + k*22, r = 10 + (k*5)%9; LB(x, -1, z, r*2, r*0.9, r*2, k%3 ? 0x6fbf5a : 0x83cf66); }   // 언덕
+    for(let k=0;k<14;k++){ const cx = ((k*37)%110) - 55, cz = -30 + k*24;                                                        // 숲
+      for(let q=0;q<7;q++){ const a = q*0.9 + k, r = (q%3)*2.4 + 1.5; LB(cx + Math.sin(a)*r*1.6, 1.3 + (q%2)*0.5, cz + Math.cos(a)*r*1.4, 3.2, 3.6, 3.2, q%2 ? 0x3fbf5a : 0x51cf66); } }
+    for(let k=0;k<10;k++){ const x = -26 + (k%5)*6, z = 64 + Math.floor(k/5)*9 + (k%2)*2;                                          // 마을
+      LAND(x, 1.1, z, 3.4, 2.4, 3.0, WALL[k%6]); LAND(x, 2.6, z, 3.9, 0.55, 3.6, ROOF[k%6]); }
+    LAND(-14, 0.05, 70, 3.0, 0.2, 60, 0xbfc4cc); LAND(-4, 0.05, 40, 60, 0.2, 3.0, 0xbfc4cc); }                                    // 길
+  /* ⑧ 출발 광장(38차) — 섬 위를 회색 돌길(폭 44)과 잔디로 나누고 연석·가로등·분수·가게·나무·화단을 놓는다. 경주 얼굴에서만(Rp).
+     바닥 흰 체크는 그대로 두고 그 위에 얇은 판(0.04)을 깐다 — 서바이벌 얼굴로 바뀌면 판만 숨는다. */
+  { for(let a=-nq; a<=nq; a++) for(let b=-nq; b<=nq; b++){ const x = a*TQ, z = b*TQ; if(Math.hypot(x,z) > MINI_R-0.4) continue;
+      const road = Math.abs(x) < 22.1 && z > -25.5;
+      BX(x, 0.015, z, TQ, 0.04, TQ, road ? (((a+b)%2) ? 0xc9ced6 : 0xd9dde4) : (((a+b)%2) ? 0x86cf5f : 0x93d86c)); }
+    for(let k=0;k<25;k++) BX(0, 0.045, -13 + k*1.7, 0.36, 0.03, 0.9, 0xffffff);                                          // 가운데 점선 — 출발대에서 다리까지
+    for(let k=0;k<42;k++){ const z = -25 + k*1.3; if(Math.hypot(22.4, z) > MINI_R-0.6) continue;
+      for(const sx of [-1,1]) BX(sx*22.4, 0.14, z, 0.6, 0.22, 1.3, k%2 ? 0xff5a5a : 0xffffff); }
+    for(let k=0;k<5;k++){ const z = -22 + k*9; if(Math.hypot(23.6, z) > MINI_R-1.2) continue;
+      for(const sx of [-1,1]){ BX(sx*23.6, 1.9, z, 0.16, 3.8, 0.16, 0x6b6f78); BX(sx*23.6 - sx*0.5, 3.8, z, 1.2, 0.12, 0.16, 0x6b6f78); GL(sx*23.6 - sx*1.0, 3.6, z, 0.5); } }
+    { const x = 0, z = -29.5; Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+0.1, z, 0, 6.4, 0.6, 6.4, 0, 0xe8e0d0)); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+0.35, z, 0, 5.4, 0.4, 5.4, 0, 0x6fd3ff));   // 분수
+      BX(x, 1.1, z, 0.9, 1.8, 0.9, 0xe8e0d0); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+2.1, z, 0, 2.2, 0.4, 2.2, 0, 0xe8e0d0)); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+2.5, z, 0, 0.8, 0.8, 0.8, 0, 0x6fd3ff));
+      for(let k=0;k<8;k++) Rp(bpush('rcBall', gBall, WMAT, x + Math.sin(k*0.785)*1.4, MINI_Y + 1.6 + (k%2)*0.5, z + Math.cos(k*0.785)*1.4, 0, 0.35, 0.5, 0.35, 0, 0xc8f0ff)); }
+    shop(-27.5, 0.04, -4, 2); house(27.5, 0.04, -4, 4); cafe(-26.5, 0.04, 14, 1); chapel(26.5, 0.04, 14, 3);
+    for(const [tx,tz,h] of [[-27,-16,3.0],[27,-16,2.6],[-29,4,2.4],[29,4,2.8],[-24,24,2.4],[24,24,2.6],[-9,-31,2.2],[9,-31,2.2]]){
+      Rp(bpush('rcTrunk', TRUNKG, WMAT, tx, MINI_Y+h*0.35, tz, 0, 0.9, h*0.7, 0.9, 0, 0x8a5a3a));
+      Rp(bpush('rcBall', gBall, WMAT, tx, MINI_Y+h*0.85, tz, 0, 2.6, 2.2, 2.6, 0, 0x51cf66)); Rp(bpush('rcBall', gBall, WMAT, tx+0.7, MINI_Y+h*0.85+0.6, tz-0.4, 0, 1.6, 1.4, 1.6, 0, 0x8ae08a)); }
+    for(let k=0;k<26;k++){ const a = k/26*Math.PI*2, r = 31.5, x = Math.sin(a)*r, z = Math.cos(a)*r; if(Math.abs(x) < 23 && z > -25) continue;   // 가장자리 화단
+      Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+0.32, z, 0, 0.9, 0.7, 0.9, 0, 0x4faa5a)); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+0.72, z, 0, 0.42, 0.42, 0.42, 0, FLAGC[k%6])); } }
+  /* ⑨ 코스 옆 구름 — 세계의 떠다니는 구름은 섬 아래에 있다. 눈높이 옆에 몇 덩이가 있어야 '하늘을 달린다' 가 된다 */
+  for(let k=0;k<14;k++){ const side = k%2 ? 1 : -1, z = 30 + k*18, x = side*(30 + (k*11)%22), y = -2 + (k*5)%9;
+    for(let q=0;q<4;q++) Rp(bpush('rcLandB', gBall, WMAT, x + (q-1.5)*2.6, MINI_Y + y + (q%2)*0.6, z + (q%2)*1.2, 0, 4.2 - Math.abs(q-1.5)*0.9, 2.6, 3.4, 0, 0xffffff)); }
   /* 네 귀퉁이 등불 */
   for(let i=0;i<12;i++){
     const a = i/12*Math.PI*2, px = Math.sin(a)*(MINI_R-1.2), pz = Math.cos(a)*(MINI_R-1.2);
@@ -14161,8 +14255,34 @@ function raceBanAll(){ return Object.assign({}, raceBanNet, RACE.bans); }
 /* ── 그리기 — 발판은 인스턴스 하나, 움직이는 것·꺼지는 것이 있어 매 프레임 놓는다 ── */
 const R_plat = imesh(WGEO, WMAT, 420, 1), R_item = imesh(WGEO, EMITC_F ? EMITC_F : WMAT, 24, 1), R_ban = imesh(WGEO, WMAT, 40, 1), R_rock = imesh(BALL, WMAT, 8, 1);
 R_plat.castShadow = R_plat.receiveShadow = true;
+/* 38차 — 발판 꾸밈(R_trim): 밝은 윗판 · 긴 변의 빨강·흰 연석 · 외다리/통나무의 널판 줄과 밧줄 기둥 · 계단 앞턱 · 골인 체크무늬 · 움직이는 블록의 경고 줄.
+   민무늬 상자 한 장이던 발판이 '트랙 조각' 으로 읽힌다. seed·움직임·꺼짐이 있어 뱅크에 못 굽고 매 프레임 놓는다(600개 안팎 — 행렬 하나가 1µs 다). 그림자는 안 드리운다. */
+const R_trim = imesh(WGEO, WMAT, 1400, 1); R_trim.receiveShadow = true;
+function raceDrawTrim(rt){
+  let n = 0; const cap = 1400;
+  const T = (x,y,z, sx,sy,sz, col)=>{ if(n < cap) setIR(R_trim, n++, x, y, z, 0, 0, sx, sy, sz, col); };
+  for(let i=0;i<RACE_P.length;i++){ const p = RACE_P[i]; if(!raceAlive(p, rt)) continue;
+    const ox = p.mv && p.mv.ax === 'x' ? raceOff(p, rt) : 0, x = p.x + ox, top = MINI_Y + p.y, k = p.kind;
+    let col = p.col; if(p.fade && p.fade.t >= 0) col = p.fade.t > 0.5 ? 0xff8080 : 0xffd0a0;
+    const lite = furLight(col, 0.42);
+    if(k === 'fin'){ for(let a=0;a<7;a++) for(let b=0;b<5;b++) T(x - 3 + a, top + 0.04, p.z - 2 + b, 0.96, 0.08, 0.96, (a+b)%2 ? 0x1e1e26 : 0xf4f1ea); continue; }
+    if(k === 'beam' || k === 'log'){
+      const nS = Math.max(1, Math.round(p.d / 1.5)), sl = p.d / nS;
+      for(let s=0;s<nS;s++) T(x, top + 0.03, p.z - p.d/2 + (s+0.5)*sl, p.w - 0.16, 0.06, sl - 0.12, s%2 ? lite : furLight(col, 0.18));
+      if(k === 'beam') for(let s=0;s<=Math.floor(p.d/3);s++) for(const sx of [-1,1]) T(x + sx*(p.w/2 + 0.12), top + 0.28, p.z - p.d/2 + 0.3 + s*3, 0.10, 0.56, 0.10, 0x8a5a3a);
+      else for(const sz of [-1,1]) T(x, top - p.h/2, p.z + sz*(p.d/2 + 0.02), p.w - 0.2, p.h - 0.2, 0.06, furLight(col, 0.5));
+      continue; }
+    T(x, top + 0.03, p.z, p.w - 0.34, 0.06, p.d - 0.34, lite);
+    if(k === 'fade'){ for(const sz of [-1,1]) T(x, top + 0.06, p.z + sz*(p.d/2 - 0.14), p.w - 0.2, 0.05, 0.12, 0xffffff); for(const sx of [-1,1]) T(x + sx*(p.w/2 - 0.14), top + 0.06, p.z, 0.12, 0.05, p.d - 0.2, 0xffffff); continue; }
+    if(k === 'block'){ for(let s=0;s<3;s++) for(const sz of [-1,1]) T(x, top - p.h + 0.2 + s*0.3, p.z + sz*(p.d/2 + 0.02), p.w*0.9, 0.14, 0.06, s%2 ? 0x1e1e26 : 0xffd43b); continue; }
+    if(p.w >= 4.0 && p.w < 20){ const nC = Math.max(2, Math.round(p.d / 1.0)), cl = p.d / nC;
+      for(let s=0;s<nC;s++) for(const sx of [-1,1]) T(x + sx*(p.w/2 - 0.22), top + 0.10, p.z - p.d/2 + (s+0.5)*cl, 0.34, 0.14, cl - 0.08, s%2 ? 0xff5a5a : 0xffffff); }
+    if(k === 'stair') T(x, top - 0.25, p.z - p.d/2 - 0.02, p.w - 0.3, 0.16, 0.06, 0xffffff);
+  }
+  R_trim.count = n; R_trim.instanceMatrix.needsUpdate = true; if(R_trim.instanceColor) R_trim.instanceColor.needsUpdate = true; R_trim.visible = n > 0;
+}
 function raceDraw(t){
-  if(!raceOn() || !RACE_P.length){ if(R_plat.count){ R_plat.count = 0; R_item.count = 0; R_ban.count = 0; R_rock.count = 0; R_plat.visible = R_item.visible = R_ban.visible = R_rock.visible = false; } return; }
+  if(!raceOn() || !RACE_P.length){ if(R_plat.count){ R_plat.count = 0; R_item.count = 0; R_ban.count = 0; R_rock.count = 0; R_trim.count = 0; R_plat.visible = R_item.visible = R_ban.visible = R_rock.visible = R_trim.visible = false; } return; }
   const rt = RACE.t; let n = 0;
   for(let i=0;i<RACE_P.length && n < 420;i++){ const p = RACE_P[i];
     const alive = raceAlive(p, rt);
@@ -14172,6 +14292,7 @@ function raceDraw(t){
     if(!alive){ if(p.fade && p.fade.gone > 0.4) continue; col = 0x30303a; sy = p.h*0.25; }          // 깜빡임으로 꺼진 발판은 어둡고 얇게 남긴다(돌아올 자리)
     setIR(R_plat, n++, p.x + ox, MINI_Y + p.y - sy/2, p.z, 0, 0, p.w, sy, p.d, col); }
   R_plat.count = n; R_plat.instanceMatrix.needsUpdate = true; if(R_plat.instanceColor) R_plat.instanceColor.needsUpdate = true; R_plat.visible = n > 0;
+  raceDrawTrim(rt);
   /* 바위 — 구르는 각도만큼 돌린다 */
   let rn = 0; for(const rk of raceRocks(rt)){ if(rn >= 8) break; setIR(R_rock, rn++, rk.x, MINI_Y + rk.y, rk.z, 0, -rk.roll, ROCK.r*2, ROCK.r*2, ROCK.r*2, 0x8f7c66); }
   R_rock.count = rn; R_rock.instanceMatrix.needsUpdate = true; if(R_rock.instanceColor) R_rock.instanceColor.needsUpdate = true; R_rock.visible = rn > 0;
