@@ -2026,10 +2026,22 @@ label.f{color:var(--rb-ink2)}
    47차까지 우리는 바닥에서 14px 떠 있고 칸이 88×108 이라 화면 아래를 크게 먹었다.
    우리 칸은 이름과 값(🪵14 🪨11 ✨4)을 이고 있어서 60×60 정사각은 못 쓴다 —
    **가로는 60 그대로**, 세로만 이름·값 두 줄만큼(74) 늘린다. 간격과 바닥 여백은 5px 그대로. */
-#dock{bottom:5px;gap:5px;padding:0}
-#tools,#bar{gap:5px}
-#dockLine{width:1px;margin:6px 2px}
-.slot{width:60px;min-width:60px;height:80px;padding:6px 3px 5px;gap:1px;border-radius:8px;
+/* ★ 48차d — 선생님: "핫바 양옆을 따닥 붙여줘".
+   로블록스 옛 Core-Scripts 는 칸 사이를 ICON_BUFFER 5px 띄웠지만, 지금 로블록스 핫바는
+   칸이 서로 붙어 한 줄 띠로 읽힌다(선생님이 준 스샷도 그렇다). 칸 사이 간격을 0 으로 두고,
+   **묶음의 바깥 모서리만** 둥글린다 — 도구 넷이 한 알약, 건물 다섯이 한 알약이 된다.
+   가운데 칸들은 모서리를 안 깎아야 이가 안 벌어진 채로 붙는다. */
+#dock{bottom:5px;gap:0;padding:0}
+#tools,#bar{gap:0}
+#dockLine{display:none}                 /* 한 줄 띠가 됐으니 가운데 줄이 필요 없다 */
+.slot{border-radius:0}
+#tools .slot:first-child{border-radius:8px 0 0 8px}     /* 띠 전체의 양 끝만 둥글다 */
+#bar   .slot:last-child {border-radius:0 8px 8px 0}
+/* 붙어 있으니 칸과 칸 사이에 머리카락 같은 금을 하나 둔다 — 없으면 어디까지가 한 칸인지 안 읽힌다 */
+#tools .slot + .slot,#bar .slot + .slot{box-shadow:inset 1px 0 0 rgba(0,0,0,.28)}
+/* 도구 넷과 건물 다섯 사이는 조금 더 진한 금 하나로 가른다(틈은 안 벌린다) */
+#bar .slot:first-child{box-shadow:inset 2px 0 0 rgba(0,0,0,.50)}
+.slot{width:60px;min-width:60px;height:80px;padding:6px 3px 5px;gap:1px;
   background:rgba(49,49,49,.50);border:1px solid transparent;box-shadow:none;color:#fff}
 /* ★ 그림 칸이 26px 일 줄 알았는데 **재 보니 40px** 이었다(브라우저에서 직접 쟀다).
    img.ic 가 `height:1.3em` 에 `vertical-align:-.32em` 이라, 글줄 상자가 그림 높이 + 내림폭만큼
@@ -2042,9 +2054,9 @@ label.f{color:var(--rb-ink2)}
 .slot .cost{min-height:24px;padding-top:3px;gap:0 4px;font-size:8.5px;border-top-color:rgba(255,255,255,.12)}   /* 값이 두 줄로 접히므로 두 줄만큼(8.5×1.35×2 ≈ 23) 잡는다 — 20 이면 아랫줄이 잘렸다 */
 .slot .ky{left:4px;top:4px;font-size:8.5px;padding:1px 4px;border-radius:5px;background:rgba(0,0,0,.42);opacity:.8}
 /* 로블록스는 고른 칸이 **위로 튀어오르지 않는다** — 테두리와 밝기만 바뀐다 */
-.slot.on{border-color:#fff;background:rgba(58,58,58,.78);box-shadow:inset 0 0 0 1px rgba(255,255,255,.55);transform:none}
+.slot.on{border-color:#fff;background:rgba(58,58,58,.78);box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)!important;transform:none;z-index:2}
 .slot.on .ky{opacity:1;background:rgba(0,0,0,.55)}
-body:not(.touch) .slot.tool{width:60px;min-width:60px;height:80px;padding:6px 3px 5px;border-radius:8px;justify-content:center;gap:3px}
+body:not(.touch) .slot.tool{width:60px;min-width:60px;height:80px;padding:6px 3px 5px;justify-content:center;gap:3px}
 body:not(.touch) .slot.tool .ic{font-size:21px;height:28px} body:not(.touch) .slot.tool .ic img.ic{height:26px} body:not(.touch) .slot.tool .nm{font-size:10px}
 @media (max-width:820px){ .slot,body:not(.touch) .slot.tool{width:54px;min-width:54px;height:76px} .slot .ic{font-size:18px} .slot .nm{font-size:9.5px} }
 .slot .nm{color:#fff} .slot .ky{color:var(--rb-ink2);opacity:1} .slot .cost{color:var(--rb-ink2)}
