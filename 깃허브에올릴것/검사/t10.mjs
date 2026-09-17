@@ -51,6 +51,13 @@ const out = await pg.evaluate(async ()=>{
      [localStorage.getItem('sheepHat'),localStorage.getItem('sheepGls'),
       localStorage.getItem('sheepClo')].join('/'));
 
+  /* ★ 51차c — 선생님: "시작화면에 패치내용 안 나오게 삭제해 줘."
+     17차에 붙였던 판 번호 문단이 시작 화면에서 사라졌는지 여기서 지킨다 — 되살아나면 바로 빨개진다.
+     (판 번호 자체는 남아 있고 콘솔로만 찍는다. 화면에 글자가 없으면 된다.) */
+  ok('★ 51차c — 시작 화면에 판 번호(패치 내용) 문단이 없다',
+     !document.getElementById('verTag') && !document.querySelector('#intro .ver'),
+     document.getElementById('verTag') ? '아직 있다' : '없다');
+
   /* 게임 시작 */
   document.getElementById('iName').value = '김하늘';
   document.getElementById('bSolo').click();
