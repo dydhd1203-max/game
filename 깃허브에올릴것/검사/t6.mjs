@@ -47,7 +47,7 @@ const r = await pg.evaluate(()=>{
 
   /* ── 10. 얼음탑이 공격한다 ── */
   ok('얼음탑에 공격력이 생겼다', Array.isArray(B.ice.dmg) && B.ice.dmg[0]>0, B.ice.dmg.join('/'));
-  ok('얼음탑 감속은 맞은 늑대만 (범위 감속 코드 없음)', !!B.ice.slowT);
+  ok('얼음탑 감속은 맞은 좀비만 (범위 감속 코드 없음)', !!B.ice.slowT);
 
   /* ── 9. 입구에도 탑·배럭 ── */
   const d=W.__DIRS[0], T=45;
@@ -56,30 +56,30 @@ const r = await pg.evaluate(()=>{
   ok('★ 배럭을 입구에 지을 수 있다', W.__canPlace('barr',cx,cz)===null, W.__canPlace('barr',cx,cz));
   ok('산에는 여전히 못 짓는다', W.__canPlace('arrow', Math.floor(d.dx*45-d.dz*9), Math.floor(d.dz*45+d.dx*9))!==null);
 
-  /* ── 6·7. 늑대 강화 · 등급 ── */
+  /* ── 6·7. 좀비 강화 · 등급 ── */
   const r1=W.__wolfRank(1), r15=W.__wolfRank(15);
-  ok('첫날 늑대는 0등급, 마지막 날은 3등급', r1===0 && r15===3, r1+' → '+r15);
+  ok('첫날 좀비는 0등급, 마지막 날은 3등급', r1===0 && r15===3, r1+' → '+r15);
   G.wolves.length=0; G.day=1; W.__spawnWolf(0,0);
   const w1=G.wolves[0].hp;
   G.wolves.length=0; G.day=15; W.__spawnWolf(0,0);
   const w15=G.wolves[0].hp;
-  ok('★ 마지막 날 늑대가 첫날보다 훨씬 세다', w15 > w1*9, Math.round(w1)+' → '+Math.round(w15)+' 체력');
+  ok('★ 마지막 날 좀비가 첫날보다 훨씬 세다', w15 > w1*9, Math.round(w1)+' → '+Math.round(w15)+' 체력');
 
-  /* ── 8. 양 체력 ── */
+  /* ── 8. 사람 체력 ── */
   G.wolves.length=0;
-  ok('양 체력 100에서 시작', PL.hp===100, PL.hp);
+  ok('사람 체력 100에서 시작', PL.hp===100, PL.hp);
   G.day=1; const bite1=W.__sheepBite({k:0}), bigBite=W.__sheepBite({k:2});
   G.day=15; const bite15=W.__sheepBite({k:0}), bossBite=W.__sheepBite({k:6});
-  ok('★ 강한 늑대일수록 더 아프다', bigBite>bite1 && bossBite>bite15,
-     '첫날 늑대 '+bite1+' / 큰늑대 '+bigBite+' / 마지막날 늑대 '+bite15+' / 늑대왕 '+bossBite);
+  ok('★ 강한 좀비일수록 더 아프다', bigBite>bite1 && bossBite>bite15,
+     '첫날 좀비 '+bite1+' / 큰좀비 '+bigBite+' / 마지막날 좀비 '+bite15+' / 좀비왕 '+bossBite);
   ok('한 방에 죽지는 않는다', bossBite < 100, bossBite);
 
-  // 늑대를 옆에 두고 물리기
+  // 좀비를 옆에 두고 물리기
   G.phase='night'; G.started=true; PL.hp=100; PL.down=false; PL.biteT=0;
   PL.x=0; PL.z=0;
   G.wolves.push({id:999,k:0,x:0.5,z:0.5,y:GY,ry:0,hp:100,mx:100,mv:false,ph:0});
   W.__sheepHurt(0.016);
-  ok('★ 옆에 늑대가 오면 피가 깎인다', PL.hp<100, PL.hp+'/100');
+  ok('★ 옆에 좀비가 오면 피가 깎인다', PL.hp<100, PL.hp+'/100');
   for(let i=0;i<400;i++){ PL.biteT=0; W.__sheepHurt(0.05); }
   ok('★ 계속 맞으면 쓰러진다', PL.down===true && PL.hp===0);
   const before = G.wolves.length;

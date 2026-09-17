@@ -25,10 +25,10 @@ const r = await pg.evaluate(()=>{
   G.wolves.push({id:42,k:0,x:9,z:9,y:GY,ry:0,hp:500,mx:500,mv:false,ph:0});   // 뒤쪽
   look(0,-6);
   const aim = W.__aimWolf();
-  ok('★ 앞쪽 늑대를 알아서 조준한다', aim && aim.id===41, aim?('id '+aim.id):'못 찾음');
+  ok('★ 앞쪽 좀비를 알아서 조준한다', aim && aim.id===41, aim?('id '+aim.id):'못 찾음');
   const hp0 = G.wolves[0].hp;
   W.__throw();
-  ok('★ 던지면 늑대 피가 깎인다', G.wolves[0].hp < hp0,
+  ok('★ 던지면 좀비 피가 깎인다', G.wolves[0].hp < hp0,
      Math.round(hp0-G.wolves[0].hp)+' 피해 (돌 '+W.__stoneDmg()+')');
   ok('명중 기록이 쌓인다', MY.hits===1, MY.hits);
   const hp1 = G.wolves[0].hp;
@@ -40,13 +40,13 @@ const r = await pg.evaluate(()=>{
   G.wolves.length=0;
   G.wolves.push({id:43,k:0,x:0,z:-30,y:GY,ry:0,hp:500,mx:500,mv:false,ph:0});
   look(0,-30);
-  ok('★ 너무 먼 늑대는 안 잡힌다', W.__aimWolf()===null);
+  ok('★ 너무 먼 좀비는 안 잡힌다', W.__aimWolf()===null);
 
-  // 뒤에 있는 늑대
+  // 뒤에 있는 좀비
   G.wolves.length=0;
   G.wolves.push({id:44,k:0,x:0,z:5,y:GY,ry:0,hp:500,mx:500,mv:false,ph:0});
   look(0,-6);
-  ok('★ 뒤에 있는 늑대는 안 잡힌다', W.__aimWolf()===null);
+  ok('★ 뒤에 있는 좀비는 안 잡힌다', W.__aimWolf()===null);
 
   // 쓰러지면 못 던진다
   G.wolves.length=0; G.wolves.push({id:45,k:0,x:0,z:-4,y:GY,ry:0,hp:500,mx:500,mv:false,ph:0});
@@ -65,9 +65,9 @@ const r = await pg.evaluate(()=>{
   for(let i=0;i<7;i++) G.wolves.push({id:100+i,k:0,x:dd.dx*20+i*0.4,z:dd.dz*20,y:GY,
     ry:0,hp:100,mx:100,mv:false,ph:0});
   G.danger=-1; W.__danger(99);
-  ok('★ 늑대가 몰린 모둠을 알아낸다', G.danger===2, '위험: '+(G.danger+1)+'모둠');
+  ok('★ 좀비가 몰린 모둠을 알아낸다', G.danger===2, '위험: '+(G.danger+1)+'모둠');
   G.wolves.length=0; W.__danger(99);
-  ok('늑대가 흩어지면 경보 해제', G.danger===-1);
+  ok('좀비가 흩어지면 경보 해제', G.danger===-1);
 
   /* ── 보물 상자 ── */
   G.phase='day'; G.chests.length=0; G.day=5;
@@ -132,7 +132,7 @@ const r = await pg.evaluate(()=>{
   const list=[{x:0,z:-5,y:GY,ry:0,g:0,mv:false,ph:0,hat:2},
               {x:2,z:-5,y:GY,ry:0,g:1,mv:false,ph:1,hat:0}];
   W.__drawSheep(list, 1, 40, s=>W.__GHEX[s.g], 0.7);
-  ok('★ 모자 쓴 양만 조각이 올라간다', W.__fx().hat.count===W.__HATS[2].length,
+  ok('★ 모자 쓴 사람만 조각이 올라간다', W.__fx().hat.count===W.__HATS[2].length,
      W.__fx().hat.count+'조각');
   W.__drawSheep([{x:0,z:-5,y:GY,ry:0,g:0,mv:false,ph:0,hat:0}], 1, 40, s=>0, 0.7);
   ok('아무도 안 쓰면 모자 메시가 숨는다', W.__fx().hat.visible===false);

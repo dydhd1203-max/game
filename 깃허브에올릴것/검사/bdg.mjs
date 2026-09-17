@@ -19,7 +19,7 @@ await pg.fill('#iName','성실'); await pg.click('#bSolo'); await pg.waitForTime
 const out = await pg.evaluate(()=>{
   const W=window, G=W.__G, ND=W.__NODE_DEF;
   const DAY=G.set.daySec, NIGHT=G.set.nightSec, GOAL=G.set.goalDay;
-  /* 한 덩이에서 떨어지는 칸 수와 한 번에 주는 양 — 게임 표에서 읽는다 */
+  /* 한 덩이에서 떨어지는 칸 수와 한 번에 주는 사람 — 게임 표에서 읽는다 */
   const types = Object.keys(ND);
   const dropsPer = t => Math.floor(ND[t].hits / (ND[t].per||1));
   const amtOf    = t => ND[t].amt + W.__mineBonus();

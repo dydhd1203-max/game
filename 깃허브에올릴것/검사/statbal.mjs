@@ -35,13 +35,13 @@ console.log(await pg.evaluate((OLD)=>{
     for(const [k,nm] of [[S.str,'힘'],[S.vit,'체력'],[S.agi,'민첩'],[S.int,'지능']]){
       one(k, W.__STATS[k].max);
       L.push('  ' + nm.padEnd(3,'　') + ' 캐기 ' + W.__mineTime().toFixed(3) + '초'
-        + ' · 캐는양 +' + W.__mineBonus() + ' · 짓기 ×' + (W.__workMul?W.__workMul():1).toFixed(2)
+        + ' · 캐는사람 +' + W.__mineBonus() + ' · 짓기 ×' + (W.__workMul?W.__workMul():1).toFixed(2)
         + ' · 공격 ×' + W.__atkMul().toFixed(2) + ' · 체력 ' + W.__maxHP()
         + ' · 방어 ' + W.__defNow() + ' · 이동 ×' + W.__spdMul().toFixed(3)
         + ' (초속 ' + (5.4*W.__spdMul()).toFixed(2) + ')');
     }
-    L.push('  날쌘늑대 초속 ' + W.__WOLF_T.find(x=>/날쌘/.test(x.n)).spd
-         + ' — 민첩을 다 찍은 양보다 ' + (W.__WOLF_T.find(x=>/날쌘/.test(x.n)).spd
+    L.push('  날쌘좀비 초속 ' + W.__WOLF_T.find(x=>/날쌘/.test(x.n)).spd
+         + ' — 민첩을 다 찍은 사람보다 ' + (W.__WOLF_T.find(x=>/날쌘/.test(x.n)).spd
             < 5.4*(1+0.015*W.__STATS[S.agi].max) ? '느리다 (못 쫓는다)' : '빠르다 (쫓는다)'));
     /* 가방이 매 프레임 더 쓰는 값 — pvwSpin 하나뿐이다 */
     W.__openKit();

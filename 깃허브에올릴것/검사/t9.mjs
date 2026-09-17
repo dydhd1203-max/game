@@ -50,16 +50,16 @@ for(const r of await pg.evaluate(()=>{
   // 계단 자리엔 못 짓는다
   const k0=[...W.__rampCells][0].split(',').map(Number);
   out.push(['계단 자리엔 건물을 못 놓는다', W.__canPlace('wwall',k0[0],k0[1])==='망루 계단 자리예요', W.__canPlace('wwall',k0[0],k0[1])]);
-  // 늑대 길찾기는 그대로 (walkable 은 terrH 만 본다)
+  // 좀비 길찾기는 그대로 (walkable 은 terrH 만 본다)
   let blocked=0;
   for(const k of W.__rampCells){ const [x,z]=k.split(',').map(Number);
     if(!W.__walkable(x,z)) blocked++; }
-  out.push(['계단이 늑대 길을 안 막는다 (bldH 라 길찾기에 안 보임)',
+  out.push(['계단이 좀비 길을 안 막는다 (bldH 라 길찾기에 안 보임)',
     blocked < W.__rampCells.size, W.__rampCells.size+'칸 중 지형이 높은 곳 '+blocked+'칸']);
   return out;
 })) ok(r[1], r[0], r[2]);
 
-console.log('\n── 🐺 높은 데선 안 물린다 ──');
+console.log('\n── 🧟 높은 데선 안 물린다 ──');
 for(const r of await pg.evaluate(()=>{
   const W=window, PL=W.__PL, G=W.__G, GY=W.__GY, out=[];
   G.phase='night'; G.started=true; PL.down=false;
@@ -90,14 +90,14 @@ for(const r of await pg.evaluate(()=>{
   out.push(['우리 모둠이 표시된다', cells[2].classList.contains('me'), '3모둠에 표시']);
   out.push(['낮엔 지은 채 수가 보인다', /채$/.test(document.getElementById('gV2').textContent),
     document.getElementById('gV2').textContent]);
-  // 밤 — 늑대가 몰린 모둠이 빨개진다
+  // 밤 — 좀비가 몰린 모둠이 빨개진다
   G.phase='night';
   for(let i=0;i<5;i++) W.__spawnWolf(0, 1);
   const d1=W.__DIRS[1];
   G.wolves.forEach((w,i)=>{ w.x=d1.dx*(30+i); w.z=d1.dz*(30+i); });
   W.__paintHUD();
   const c1=document.querySelectorAll('#grpBar .gcell')[1];
-  out.push(['★ 늑대가 들어온 모둠이 빨개진다', c1.classList.contains('bad'),
+  out.push(['★ 좀비가 들어온 모둠이 빨개진다', c1.classList.contains('bad'),
     document.getElementById('gV1').textContent]);
   out.push(['조용한 모둠은 초록', document.getElementById('gS4').textContent==='💚',
     document.getElementById('gS4').textContent]);
@@ -133,7 +133,7 @@ for(const r of await pg.evaluate(async ()=>{
   out.push(['★ 3초 누르면 철거된다', W.__STRU.size===0, W.__STRU.size+'채']);
   // 멈춤
   W.__setActing(false); W.__selTool('mine');
-  /* 낮에 잰다 — 밤은 늑대가 없으면 바로 끝나 버려서 시간 재기에 안 맞다 */
+  /* 낮에 잰다 — 밤은 좀비가 없으면 바로 끝나 버려서 시간 재기에 안 맞다 */
   G.started=true; G.phase='day'; G.t=120; G.paused=false;
   const tRun=G.t; for(let i=0;i<15;i++) W.__hostPhase(1/30);
   const ran = tRun - G.t;

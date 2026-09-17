@@ -58,8 +58,8 @@ await pg.evaluate(()=>{
   G.players.clear();
   /* 마을 빈 땅에 서서 바깥쪽을 본다 */
   PL.x=0; PL.z=-16; PL.y=W.__GY; PL.yaw=Math.PI; PL.pitch=-0.02;
-  /* ★ 양의 전방은 (-sin yaw, -cos yaw) 다 (늑대·병사와 정반대).
-     여기서 늑대 규칙을 쓰면 친구들이 카메라 뒤에 선다 — 실제로 한 번 그랬다. */
+  /* ★ 사람의 전방은 (-sin yaw, -cos yaw) 다 (좀비·병사와 정반대).
+     여기서 좀비 규칙을 쓰면 친구들이 카메라 뒤에 선다 — 실제로 한 번 그랬다. */
   const fwx=-Math.sin(PL.yaw), fwz=-Math.cos(PL.yaw);
   const rx=Math.cos(PL.yaw), rz=-Math.sin(PL.yaw);
   const D=6.0;

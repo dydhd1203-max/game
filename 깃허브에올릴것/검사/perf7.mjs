@@ -1,4 +1,4 @@
-/* 밤에 늑대가 많을 때의 드로우콜 — 체력 막대가 실제로 얼마를 더 쓰나 */
+/* 밤에 좀비가 많을 때의 드로우콜 — 체력 막대가 실제로 얼마를 더 쓰나 */
 import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const srv = serve(+process.argv[3], process.argv[2]);
@@ -37,8 +37,8 @@ console.log(await pg.evaluate(()=>{
     R.info.reset(); W.__render();
     out.push(label.padEnd(26)+' 드로우콜 '+String(R.info.render.calls).padStart(3));
   };
-  shot('늑대 40마리 · 막대 끔', false);
-  shot('늑대 40마리 · 막대 켬', true);
+  shot('좀비 40마리 · 막대 끔', false);
+  shot('좀비 40마리 · 막대 켬', true);
   return out.join('\n');
 }));
 await b.close(); srv.close();

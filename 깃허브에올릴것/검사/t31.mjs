@@ -1,5 +1,5 @@
-/* 29차 검사 — 늑대 금 · 레어/유니크 조합 · 총 특성·소리 · 동물 상인 · 농장 상태 창(H) · 똥·건초 · 동그라미 단추 · 곡괭이 · 2단 점프 · 진열
-   ★ 선생님 주문(29차): 늑대 잡으면 금이 떨어지고 아무나 줍는다 · 레어 4/유니크 2 는 대장장이 조합표(기본 총 + 재료) ·
+/* 29차 검사 — 좀비 금 · 레어/유니크 조합 · 총 특성·소리 · 동물 상인 · 농장 상태 창(H) · 똥·건초 · 동그라미 단추 · 곡괭이 · 2단 점프 · 진열
+   ★ 선생님 주문(29차): 좀비 잡으면 금이 떨어지고 아무나 줍는다 · 레어 4/유니크 2 는 대장장이 조합표(기본 총 + 재료) ·
      일반 총 -20% · 총마다 소리와 효과 · 동물 상인은 상인 옆 아줌마 · H 는 어디서나 농장 상태 · 똥·건초 · 단추는 동그라미.
    ★ 값을 베끼지 않는다 — 비율(60%·70%)과 관계(넣은 총이 없어지고 새 총이 든다)를 본다. 호스트(혼자 놀기)라 피해가 바로 깎인다. */
 import { chromium } from './pw.mjs';
@@ -95,7 +95,7 @@ await pg.waitForTimeout(1500);
     fire(8); o.pierce = ws.map(w=>1000-Math.round(w.hp));
     ws = mk(1); const bx=ws[0].x, bz=ws[0].z; fire(9); o.push = +Math.hypot(ws[0].x-bx, ws[0].z-bz).toFixed(2);
     ws = mk(1); PL.hp = 40; fire(10); o.leech = PL.hp;
-    /* 빗나가는 대포 — 늑대는 조준선 옆(2.8칸)에, 땅을 겨눠 쏜다. 터지는 자리에서 2.8칸이면 3.2 안이다 */
+    /* 빗나가는 대포 — 좀비는 조준선 옆(2.8칸)에, 땅을 겨눠 쏜다. 터지는 자리에서 2.8칸이면 3.2 안이다 */
     G.wolves.length = 0; PL.yaw = 0; PL.pitch = -0.5; W.__updPlayer(0.001);
     const w = W.__spawnWolf(0,0); w.x = PL.x + 2.8; w.z = PL.z - 2.4; w.y = PL.y; w.hp = 1000; w.mx = 1000;
     o.aimed = !!W.__aimWolf();
@@ -103,15 +103,15 @@ await pg.waitForTimeout(1500);
     o.missBlast = 1000-Math.round(w.hp);
     G.wolves.length = 0; W.__setAim(false,true); W.__goDay();
     return o; });
-  ok('★ 천둥 벼락총 — 맞힌 늑대 하나, 옆의 셋에게 60% 번개', r.chain[0]>0 && r.chain.slice(1).every(d=>Math.abs(d/r.chain[0]-0.6)<0.03), r.chain.join('/'));
+  ok('★ 천둥 벼락총 — 맞힌 좀비 하나, 옆의 셋에게 60% 번개', r.chain[0]>0 && r.chain.slice(1).every(d=>Math.abs(d/r.chain[0]-0.6)<0.03), r.chain.join('/'));
   ok('★ 화염 대포 — 맞힌 자리 둘레 셋이 70% 를 받는다', r.blast[0]>0 && r.blast.slice(1).every(d=>Math.abs(d/r.blast[0]-0.7)<0.03), r.blast.join('/'));
-  ok('★ 참나무 강궁 — 조준선 뒤의 늑대도 70% 로 뚫는다', r.pierce[0]>0 && Math.abs(r.pierce[1]/r.pierce[0]-0.7)<0.03, r.pierce.join('/'));
-  ok('★ 흑요석 산탄총 — 맞은 늑대가 1.2칸 밀린다', Math.abs(r.push-1.2)<0.05, r.push+'칸');
+  ok('★ 참나무 강궁 — 조준선 뒤의 좀비도 70% 로 뚫는다', r.pierce[0]>0 && Math.abs(r.pierce[1]/r.pierce[0]-0.7)<0.03, r.pierce.join('/'));
+  ok('★ 흑요석 산탄총 — 맞은 좀비가 1.2칸 밀린다', Math.abs(r.push-1.2)<0.05, r.push+'칸');
   ok('★ 황금 연발총 — 맞힐 때마다 내 체력 +2', r.leech===42, r.leech);
-  ok('★ 화염 대포는 빗나가도 땅에서 터져 둘레 늑대가 탄다 (조준선에 안 걸린 늑대)', !r.aimed && r.missBlast>0, '조준 '+r.aimed+' · '+r.missBlast);
+  ok('★ 화염 대포는 빗나가도 땅에서 터져 둘레 좀비가 탄다 (조준선에 안 걸린 좀비)', !r.aimed && r.missBlast>0, '조준 '+r.aimed+' · '+r.missBlast);
 }
 
-/* ═══════ ④ 늑대 금 ═══════ */
+/* ═══════ ④ 좀비 금 ═══════ */
 {
   const r = await pg.evaluate(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
     G.drops.length = 0; W.__goNight();
@@ -132,7 +132,7 @@ await pg.waitForTimeout(1500);
     W.__hostSim(0.016); o.boss = gold().length;
     G.drops.length = 0; G.wolves.length = 0; W.__goDay();
     return o; });
-  ok('★ 늑대가 죽으면 금 조각 1~3개가 그 자리에 떨어진다 (누구나 줍는 g:-1, 45초 시한)', r.n>=1 && r.n<=3 && r.anyone && r.near && r.exp, r.n+'개');
+  ok('★ 좀비가 죽으면 금 조각 1~3개가 그 자리에 떨어진다 (누구나 줍는 g:-1, 45초 시한)', r.n>=1 && r.n<=3 && r.anyone && r.near && r.exp, r.n+'개');
   ok('★ 다가가면 줍히고 금 +1', r.picked===1 && r.left===r.n-1, '+'+r.picked);
   ok('★ 시간이 지나면 사라진다 (호스트가 치운다)', r.afterExpire===0, r.afterExpire);
   ok('★ 보스는 8~12개', r.boss>=8 && r.boss<=12, r.boss+'개');
@@ -219,7 +219,7 @@ await pg.waitForTimeout(1500);
        최고점을 훌쩍 지나 내려온 뒤에야 다시 재게 된다 — 전체 판(동시 4개)에서만 1.36 이 1.0 으로
        읽혀 세 판에 한 번 빨개졌다. 혼자 돌리면 늘 통과해서 더 헷갈렸다. */
     const wasPaused = W.__G.paused; W.__G.paused = true;
-    /* 그리고 **바닥에 확실히 세우고** 시작한다. 앞 절이 양을 공중에 남겨 뒀거나 게임 고리가
+    /* 그리고 **바닥에 확실히 세우고** 시작한다. 앞 절이 사람을 공중에 남겨 뒀거나 게임 고리가
        한 프레임 더 돌아 버리면 y0 이 '떨어지는 중의 높이' 가 되어 값이 통째로 어긋난다
        (2.02 / 2.02 / 0 처럼 읽혔다 — 첫 뜀이 1.36 보다 높고 2단이 안 먹은 것처럼 보인다). */
     PL.x = 0; PL.z = 20; PL.y = W.__solidTop(0, 20); PL.vy = 0; PL.ground = true; PL.down = false;

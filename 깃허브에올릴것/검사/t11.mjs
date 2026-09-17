@@ -76,12 +76,12 @@ const out = await pg.evaluate(async ()=>{
   const put=(dx,dy,dz)=>{ G.wolves.length=0;
     const w=W.__spawnWolf(0,0);
     w.x=PL.x+dx; w.z=PL.z+dz; w.y=PL.y+dy; return w; };
-  put(0,0,-8);   ok('★ 조준선 위 늑대는 잡힌다', !!W.__aimWolf());
-  put(6,0,-8);   ok('★ 옆으로 6칸 벗어난 늑대는 안 잡힌다 (예전엔 57도 원뿔이라 다 맞았다)',
+  put(0,0,-8);   ok('★ 조준선 위 좀비는 잡힌다', !!W.__aimWolf());
+  put(6,0,-8);   ok('★ 옆으로 6칸 벗어난 좀비는 안 잡힌다 (예전엔 57도 원뿔이라 다 맞았다)',
                     !W.__aimWolf());
-  put(0,7,-8);   ok('★ 위로 7칸 어긋난 늑대도 안 잡힌다 (예전엔 높이를 아예 안 봤다)',
+  put(0,7,-8);   ok('★ 위로 7칸 어긋난 좀비도 안 잡힌다 (예전엔 높이를 아예 안 봤다)',
                     !W.__aimWolf());
-  put(0,0,8);    ok('뒤에 있는 늑대는 안 잡힌다', !W.__aimWolf());
+  put(0,0,8);    ok('뒤에 있는 좀비는 안 잡힌다', !W.__aimWolf());
   put(0,0,-30);  ok('사거리 밖(30칸)은 안 잡힌다 — 쇠 소총은 22칸', !W.__aimWolf());
   W.__equipW(5); ok('★ 저격총(34칸)으로 바꾸면 잡힌다', !!W.__aimWolf());
   /* 무기마다 조준 너그러움이 다르다 */
@@ -105,7 +105,7 @@ const out = await pg.evaluate(async ()=>{
      '0x'+W.__WEAPONS[3].tr.toString(16));
   ok('★ 반동이 생긴다', W.__gunKick() > 0, W.__gunKick().toFixed(2));
   ok('★ 맞으면 조준점이 번쩍인다', ch.classList.contains('hit'));
-  ok('늑대가 실제로 다친다', wt.hp < wt.mx, Math.round(wt.hp)+'/'+Math.round(wt.mx));
+  ok('좀비가 실제로 다친다', wt.hp < wt.mx, Math.round(wt.hp)+'/'+Math.round(wt.mx));
   /* 크리티컬은 다른 표시 */
   ch.classList.remove('hit','critHit','killHit');
   wt.hp = 1000; wt.mx = 1000;               // 33차 — 막타(예상)면 붉은 X(killHit)가 치명타 표시보다 앞선다. 체력을 넉넉히
@@ -117,7 +117,7 @@ const out = await pg.evaluate(async ()=>{
   W.__setThrowCd(0); W.__throw();
   ok('★ 맨손 돌은 빛줄기가 아니라 던지는 돌이다', live() === 0, live());
 
-  /* 늑대가 없으면 빗나가도 빛줄기는 나간다 */
+  /* 좀비가 없으면 빗나가도 빛줄기는 나간다 */
   W.__equipW(3); G.wolves.length = 0; W.__bullets().forEach(a=>a.t=0);
   W.__setThrowCd(0); W.__throw();
   ok('빗나가도 빛줄기는 조준선을 따라 나간다', live() === 2, live());

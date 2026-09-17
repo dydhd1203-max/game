@@ -111,10 +111,11 @@ await pg.waitForTimeout(1500);
   ok('★ 합친 기둥의 면적 합 = 산 칸 수 (한 칸도 빠지거나 겹치지 않는다)', r.area===r.cells, r.area+' vs '+r.cells);
   ok('★ 실제로 합쳐졌다 — 기둥 수가 칸 수의 60% 미만', r.nB < r.cells*0.6, r.nB+' / '+r.cells);
   ok('★ 33차 — 기둥이 뚜껑보다 딱 0.04 좁다(면이 겹쳐 떨리지 않는다), 전부', r.flush===0, r.flush+' 개 어긋남');
-  /* ★ 48차 — 로블록스는 **매끈 플라스틱**이라 결을 거의 지웠다(돌결 0.46 → 0.13).
-     아주 0 으로 두면 큰 면이 띠(banding)지므로 조금은 남긴다 — 그래서 '있다' 는 그대로 보되
-     세기 기준만 0.4 → 0.05~0.25 로 바꾼다. 33차의 '결이 붙어 있나' 는 여전히 지킨다. */
-  ok('★ 33차·48차 — 결(grain): 세계는 돌결, 잎은 얼룩, 바닥은 풀결, 그림은 128×128, 세기는 매끈 플라스틱 값(0.05~0.25)', r.grain.rock==='rock' && r.grain.rockV==='rock' && r.grain.leaf==='leaf' && r.grain.grass==='grass' && r.grain.tex===128 && r.grain.amt>=0.05 && r.grain.amt<=0.25, JSON.stringify(r.grain));
+  /* ★ 50차 — 48차에 'SmoothPlastic 은 매끈하다' 를 너무 곧이곧대로 읽어 결을 0.46 → 0.13 으로
+     거의 지웠는데, 선생님이 "질감이 갑자기 엄청 떨어졌다. 원래처럼 살려줘" 라고 했다.
+     로블록스도 Rock·Grass·Wood 는 무늬가 또렷하다 — 매끈한 건 Plastic 한 종류뿐이었다.
+     33차 값으로 되돌렸다(0.44). 광택(48차f Phong)은 그대로라 '결 + 광택' 이 함께 간다. */
+  ok('★ 33차·50차 — 결(grain): 세계는 돌결, 잎은 얼룩, 바닥은 풀결, 그림은 128×128, 돌결 세기 0.4 이상', r.grain.rock==='rock' && r.grain.rockV==='rock' && r.grain.leaf==='leaf' && r.grain.grass==='grass' && r.grain.tex===128 && r.grain.amt>=0.4, JSON.stringify(r.grain));
   ok('33차 — 건물 벽돌 판이 몸통 면에서 0.02 이상 도드라진다(붙어 있으면 멀리서 떨린다)', r.brickPr.n>20 && r.brickPr.minPr >= 0.015, r.brickPr.n+' · '+r.brickPr.minPr.toFixed(3));
   ok('★ 뚜껑 윗면이 지형 윗면(terrH)에 붙어 있다 — 표본 전부 (망루 칸 제외)', r.capOff===0 && r.chk>150, r.capOff+' / '+r.chk);
   ok('기둥 윗면이 뚜껑 바로 밑에서 끝난다', r.bodyOff===0, r.bodyOff+' / '+r.chk);
@@ -194,7 +195,7 @@ await pg.waitForTimeout(1500);
   ok('하늘 섬 밑동 — 뒤집힌 고깔 하나, 섬 바닥 아래', r.base && r.base.n===1 && r.base.y < r.MINI_Y && r.base.geo, JSON.stringify(r.base));
 }
 
-/* ═══════ ⑥ 그리는 양 — 마을 한가운데 시점 ═══════ */
+/* ═══════ ⑥ 그리는 사람 — 마을 한가운데 시점 ═══════ */
 {
   const r = await pg.evaluate(()=>{ const W=window, PL=W.__PL;
     PL.x=0.5; PL.z=13; PL.y=W.__GY+2.2; PL.yaw=0; PL.pitch=-0.10; W.__updPlayer(0.001);

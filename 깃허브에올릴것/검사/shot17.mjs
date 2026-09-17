@@ -1,6 +1,6 @@
-/* 16차 화면 확인 — 벽을 뛰어넘는 늑대의 도약 모션.
+/* 16차 화면 확인 — 벽을 뛰어넘는 좀비의 도약 모션.
    한 번의 도약을 여섯 토막으로 잘라 옆에서 찍는다. 뛰는 그림은 한 장으로는 못 본다.
-   ★ 페이지의 제 루프가 늑대를 건드리지 않게 낮(day)으로 두고 —
+   ★ 페이지의 제 루프가 좀비를 건드리지 않게 낮(day)으로 두고 —
      메인 루프는 밤에만 hostSim 을 부른다 — 시뮬레이션은 내가 직접 돌린다. */
 import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
@@ -19,12 +19,12 @@ await pg.evaluate(()=>{ const st=document.createElement('style');
   st.textContent='#topLeft,#topRight,#topMid,#dock,#hint,#stageTitle,#crosshair,#shopTip,#forgeTip,#misWrap,#combo,#aimBadge,#feed,#rankWrap,#downVeil,#toast,#misBar{display:none!important}';
   document.head.appendChild(st); });
 
-/* 무대 — 산길을 돌벽으로 막고 그 앞에 뛰는 늑대 한 마리 */
+/* 무대 — 산길을 돌벽으로 막고 그 앞에 뛰는 좀비 한 마리 */
 const stage = await pg.evaluate(()=>{
   const W=window, G=W.__G;
-  G.phase='day'; G.day=8; G.paused=false;     // 낮 = 메인 루프가 늑대를 안 건드린다
+  G.phase='day'; G.day=8; G.paused=false;     // 낮 = 메인 루프가 좀비를 안 건드린다
   G.wolves.length=0; W.__spawnQ().length=0; G.soldiers.length=0; G.chests.length=0;
-  W.__PL.down = true;                          // 내 양을 물러 가지 않게
+  W.__PL.down = true;                          // 내 사람을 물러 가지 않게
   W.__clear();
   for(let i=0;i<5;i++) W.__base[i]={w:999999,s:999999,o:999999}; W.__recompute();
   G.me.g=0;
@@ -64,7 +64,7 @@ const shoot = async (name)=>{
   });
   await pg.waitForTimeout(220);
   await pg.screenshot({path:OUT+'/'+name+'.png'});
-  await pg.evaluate(()=>{ window.__PL.down = true; });   // 다시 눕힌다 (늑대가 안 쫓게)
+  await pg.evaluate(()=>{ window.__PL.down = true; });   // 다시 눕힌다 (좀비가 안 쫓게)
   console.log('찍음', name, JSON.stringify(info));
   return info;
 };

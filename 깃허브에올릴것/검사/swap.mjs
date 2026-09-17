@@ -1,4 +1,4 @@
-/* 늑대가 양 · 건물 · 수정 사이에서 목표를 갈아타나 — 시간에 따라 무엇을 하고 있는지 센다 */
+/* 좀비가 사람 · 건물 · 수정 사이에서 목표를 갈아타나 — 시간에 따라 무엇을 하고 있는지 센다 */
 import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const FILE=process.argv[2], PORT=+process.argv[3];
@@ -59,8 +59,8 @@ console.log(await pg.evaluate(()=>{
   for(const where of ['문앞','마당']){
     for(const day of [4, 12]){
       const r = run(day, where);
-      L.push(`${day}일차 · 아이가 ${where}에서 계속 도는 60초 · 늑대 12마리`);
-      L.push(`   나를 쫓는 늑대 평균 ${r.chase}마리 · 물린 ${r.bites}번`
+      L.push(`${day}일차 · 아이가 ${where}에서 계속 도는 60초 · 좀비 12마리`);
+      L.push(`   나를 쫓는 좀비 평균 ${r.chase}마리 · 물린 ${r.bites}번`
         + ` · 건물에 준 피해 ${r.dmg} (부순 것 ${r.gone}채) · 수정 -${r.cry}`);
     }
   }

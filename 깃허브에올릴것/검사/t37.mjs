@@ -1,4 +1,4 @@
-/* 37차 검사 — 🏁 장애물 경주 · 달리기(Shift) · 양끼리 부딪힘 · OX/줄넘기 없음
+/* 37차 검사 — 🏁 장애물 경주 · 달리기(Shift) · 사람끼리 부딪힘 · OX/줄넘기 없음
    ★ 코스는 seed 로 짓는다 — 같은 seed 면 발판 표가 같은지, 발판 길이·틈이 '네 가지 뜀이 다 떨어지는 셈' 을 지키는지 본다.
    ★ 규칙(깃발·떨어짐·골인·바위·공·진자·막대·순위·상)은 실제로 굴려서 본다 (39차: 아이템은 기능과 함께 뺐다) — 값을 베끼지 않고 게임에 묻는다(__RACE, __MINI). */
 import { chromium } from './pw.mjs';
@@ -153,7 +153,7 @@ const item = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   o.rumbleSfx = W.__SFXKEYS().includes('rumble');
   at(12); const rk2 = W.__raceRocks(12)[0]; RACE.rumbleT = 0; put(rk2.x + 4, rk2.z, 0); W.__miniTick(1/30); o.rumbled = RACE.rumbleT > 0;
   RACE.slipT = 0; RACE.hitCd = 0;
-  /* 부딪힘 — 겹친 양은 벌어지고, 빨리 부딪힐수록 더 튕긴다 */
+  /* 부딪힘 — 겹친 사람은 벌어지고, 빨리 부딪힐수록 더 튕긴다 */
   G.players.set('p1', {uid:'p1', x:0.3, y:Y, z:-10, g:1, n:'p1', ry:0, jt:0});
   put(0, -10, 0); PL.yaw = 0; W.__KEY.w = false; W.__kbReset(); W.__sheepBump(1/30, 0, 0); const dNo = Math.hypot(PL.x - 0.3, PL.z + 10);
   put(0.6, -10, 0); W.__kbReset(); W.__sheepBump(1/30, -8, 0); const kbFast = Math.hypot(W.__kb().x, W.__kb().z);
@@ -168,7 +168,7 @@ ok('★ ⚫ 계단을 굴러 내려오는 공에 맞으면 튕기고 미끄러�
 ok('★ 🌀 도는 막대에 맞으면 옆으로 밀리고, 뛰어넘으면 안 맞는다', item.barHit && item.barJump, `맞음 ${item.barHit} · 뛰어넘음 ${item.barJump}`);
 ok('★ 🔔 진자에 맞으면 뒤로 밀린다 (외다리에서 옆으로 밀면 무조건 떨어져 너무 가혹하다)', item.pendHit && item.pendBack);
 ok('★ 바위·공이 가까우면 우르릉 소리가 울린다 (소리 표에 있고, 30칸 안에서 주기 타이머가 돈다)', item.rumbleSfx && item.rumbled);
-ok('★ 양끼리 겹치면 벌어지고(겹친 채로는 안 둔다), 빨리 부딪힐수록 더 튕긴다', item.bump.sep >= 0.3 && item.bump.fast > item.bump.slow * 1.5 && item.bump.slow >= 0, JSON.stringify(item.bump));
+ok('★ 사람끼리 겹치면 벌어지고(겹친 채로는 안 둔다), 빨리 부딪힐수록 더 튕긴다', item.bump.sep >= 0.3 && item.bump.fast > item.bump.slow * 1.5 && item.bump.slow >= 0, JSON.stringify(item.bump));
 
 /* ═══════ ⑥ 순위 · 상 ═══════ */
 const rank = await ev(()=>{ const W=window, G=W.__G, o={};
@@ -208,7 +208,7 @@ const spd = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={}; const Y=W._
   o.acc = {first:+s1.toFixed(2), cruise:+sN.toFixed(2), after4:+s4.toFixed(3)};
   /* 순간이동(자리를 옮겨 놓음)하면 남은 속도를 버린다 */
   W.__KEY.w = true; for(let i=0;i<20;i++) W.__updPlayer(1/30); W.__KEY.w = false; PL.x = 30; PL.z = 30; const z0 = PL.z; W.__updPlayer(1/30); o.tele = +Math.abs(PL.z - z0).toFixed(3);
-  /* 걸음 위상 — 간 거리 ÷ 1.3칸 = 바퀴 수 (내 양) · 친구 양은 객체마다 따로 */
+  /* 걸음 위상 — 간 거리 ÷ 1.3칸 = 바퀴 수 (내 사람) · 친구 사람은 객체마다 따로 */
   PL.x = 30; PL.z = 30; W.__updPlayer(1/30); const g0 = W.__gaitMe(); W.__KEY.w = true; let moved = 0; for(let i=0;i<15;i++){ const a=PL.z; W.__updPlayer(1/30); moved += Math.abs(PL.z-a); } W.__KEY.w = false;
   o.gait = {turns:+((W.__gaitMe()-g0)/(Math.PI*2)).toFixed(3), expect:+(moved/W.__STRIDE.walk).toFixed(3)};
   const fs = {x:0, z:0, ph:0}; W.__sheepGait(fs, 10); fs.z = 0.3; const gs = W.__sheepGait(fs, 10.1); o.friend = +(gs.gp/(Math.PI*2)).toFixed(3); o.friendExpect = +(0.3/W.__STRIDE.walk).toFixed(3);
@@ -251,7 +251,7 @@ const spd = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={}; const Y=W._
 ok('★ 48차 로블록스 가속 — 앞키 첫 틱에 이미 걷기 속도의 85% 위(0.025초), 놓고 네 틱이면 5% 아래',
    spd.acc.first > spd.acc.cruise*0.85 && spd.acc.cruise > 4.8 && spd.acc.after4 < spd.acc.cruise*0.05, JSON.stringify(spd.acc));
 ok('★ 순간이동하면 남은 속도를 버린다 (경주 복귀·섬 들어가기가 미끄러지지 않게)', spd.tele < 0.01, spd.tele);
-ok('★ 걸음 위상은 간 거리로 돈다 — 내 양(1.3칸에 한 바퀴)과 친구 양(객체마다)', Math.abs(spd.gait.turns - spd.gait.expect) < 0.02 && Math.abs(spd.friend - spd.friendExpect) < 0.01, JSON.stringify(spd.gait)+' · 친구 '+spd.friend+'/'+spd.friendExpect);
+ok('★ 걸음 위상은 간 거리로 돈다 — 내 사람(1.3칸에 한 바퀴)과 친구 사람(객체마다)', Math.abs(spd.gait.turns - spd.gait.expect) < 0.02 && Math.abs(spd.friend - spd.friendExpect) < 0.01, JSON.stringify(spd.gait)+' · 친구 '+spd.friend+'/'+spd.friendExpect);
 ok('★ 3인칭 카메라가 달리면 뒤처진다 (30Hz 검사에서 0.4~1.6칸 — 60fps 게임에선 0.85)', spd.cam.run > spd.cam.stand + 0.4 && spd.cam.run < spd.cam.stand + 1.6, JSON.stringify(spd.cam));
 ok('★ 출발선 두 줄 — 내 칸은 두 줄 중 하나·12칸 안, seed 마다 자리가 섞인다, 0번 깃발(복귀 자리)도 그 칸', spd.rows.length === 2 && spd.rows.includes(spd.slot[1]) && Math.abs(spd.slot[0]) <= 11 && new Set([spd.slot.join(','), ...spd.slots]).size >= 2 && spd.cp[0] === spd.slot[0] && spd.cp[1] === spd.slot[1], JSON.stringify(spd.slot)+' / seed 9~11 '+spd.slots.join(' ')+' cp '+JSON.stringify(spd.cp));
 ok('★ 초읽기는 큰 글씨(#cnt) — 3·2·1 은 노랑, 출발!! 🏁 은 초록 · 팝업 덮개(.pop)와 안 겹친다(보라 네모 없음)', spd.cnt.txt === '3' && spd.cnt.pop && !spd.cnt.go && spd.cntGo && !spd.cnt.popCls && spd.cntBox, JSON.stringify(spd.cnt)+' box '+spd.cntBox);
@@ -297,7 +297,7 @@ ok('★ 총을 놓고 도구를 들면 손 방향 y 가 0 으로 돌아온다 (�
 ok('★ 총마다 제 소리 — 화승총 flint · 소총 rifle · 연발총 smg, 총알 총·레어·유니크 열한 개가 이름이 다 다르고 표에 다 있다 · crackSweep·thump 합성기', aim.snd.flint === 'flint' && aim.snd.rifle === 'rifle' && aim.snd.smg === 'smg' && aim.snd.all && aim.snd.distinct === aim.snd.cnt && aim.snd.cnt >= 11 && aim.helpers, JSON.stringify(aim.snd));
 
 
-/* ═══════ ⑫ 44차 — 양 모션: 방향 보간·회전 기울기·머리 앞서기 · 두 마디 다리 · 숨 · 급정지 ═══════ */
+/* ═══════ ⑫ 44차 — 사람 모션: 방향 보간·회전 기울기·머리 앞서기 · 두 마디 다리 · 숨 · 급정지 ═══════ */
 const mot = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   if(W.__miniOn()) W.__miniExit(); G.paused = true;
   const f = {uid:'zz', x:PL.x + 2, z:PL.z + 3, y:PL.y, ry:0, g:1, ph:1, hat:0, gls:0, clo:0, wp:0};
@@ -309,16 +309,16 @@ const mot = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   for(let i=0;i<60;i++) W.__drawSheep([f], 1.1 + i*0.016, 40, s=>0xffffff, 1); o.left = +Math.abs(wrap(2.0 + Math.PI - W.__smoothHead(f, 2.0 + Math.PI, 0.0001, 10).ry)).toFixed(3);
   /* 급정지 — 초당 5칸으로 가다 멈추면 가속도가 크게 음수(앞으로 쏠린다) */
   const g = W.__sheepGait(f, 3); for(let i=0;i<30;i++){ f.x += 5*0.016; W.__sheepGait(f, 3.1 + i*0.016); } o.v = +g.v.toFixed(2); for(let i=0;i<6;i++) W.__sheepGait(f, 3.6 + i*0.016); o.acc = +g.acc.toFixed(1);
-  /* 숨 — 서 있는 양의 몸통 세로가 시간에 따라 1~4% 오르내린다 */
+  /* 숨 — 서 있는 사람의 몸통 세로가 시간에 따라 1~4% 오르내린다 */
   const T3 = W.__THREE, m = new T3.Matrix4(), p = new T3.Vector3(), r = new T3.Quaternion(), s = new T3.Vector3();
   const bodyY = (t)=>{ W.__drawSheep([f], t, 40, s=>0xffffff, 1); W.__Pmesh()[0].getMatrixAt(0, m); m.decompose(p, r, s); return s.y; };
   for(let i=0;i<40;i++) W.__sheepGait(f, 10 + i*0.016);
   const ys = [10.7, 11.0, 11.4, 11.8].map(bodyY); o.breath = +((Math.max(...ys) - Math.min(...ys))/Math.max(...ys)).toFixed(4);
   G.paused = false; return o; });
-ok('★ 44차 — 양 다리는 두 마디(한 마리에 조각 여덟)', mot.legs === 8, mot.legs);
-ok('★ 양의 표시 방향은 각속도 제한(10rad/s)으로 따라간다 — 첫 프레임 0.16rad, 회전 속도·남은 각, 1초 안에 다 돈다', mot.step1 > 0.14 && mot.step1 < 0.18 && mot.turn > 1 && mot.lead > 1.5 && mot.left < 0.01, mot.step1+' · turn '+mot.turn+' · lead '+mot.lead+' · 남음 '+mot.left);
+ok('★ 51차 — 사람 다리는 마디 없는 통짜 둘이다 (R6 · 44차까지는 네 다리 × 두 마디 여덟 조각이었다)', mot.legs === 2, mot.legs);
+ok('★ 사람의 표시 방향은 각속도 제한(10rad/s)으로 따라간다 — 첫 프레임 0.16rad, 회전 속도·남은 각, 1초 안에 다 돈다', mot.step1 > 0.14 && mot.step1 < 0.18 && mot.turn > 1 && mot.lead > 1.5 && mot.left < 0.01, mot.step1+' · turn '+mot.turn+' · lead '+mot.lead+' · 남음 '+mot.left);
 ok('★ 급정지하면 가속도가 크게 음수(앞으로 쏠리고 먼지)', mot.v > 4 && mot.acc < -9, mot.v+' → '+mot.acc);
-ok('★ 서 있는 양은 숨을 쉰다 (몸통 세로 1~4% 오르내림)', mot.breath > 0.01 && mot.breath < 0.045, mot.breath);
+ok('★ 서 있는 사람은 숨을 쉰다 (몸통 세로 1~4% 오르내림)', mot.breath > 0.01 && mot.breath < 0.045, mot.breath);
 
 /* ═══════ ⑬ 45차 — 전직 날개 · 마을에서만 빨라짐(경주는 공평) · 활공 · 미니게임 미술(무지개 한 장·통나무 문·울타리 제거) ═══════ */
 const job = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, XP=W.__XP, o={};
@@ -358,11 +358,11 @@ const job = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, XP=W.__XP, o={};
   o.rising = SP[0] === 1 && SP[1] > SP[0] && SP[2] > SP[1] && JM[0] === 1 && JM[1] > JM[0] && JM[2] > JM[1] && GT[0] === 0 && GT[2] > GT[1] && GT[1] > 0;
   XP.job = 0; XP.jt = 2; o.village = W.__jobTier();
   G.paused = false; W.__goMini(0); o.race = W.__jobTier(); W.__miniExit(); G.paused = true;
-  /* 활공 — 2차 양이 공중에서 스페이스를 누르고 있으면 떨어지는 속도가 GLIDE_VY 아래로 안 내려간다 */
+  /* 활공 — 2차 사람이 공중에서 스페이스를 누르고 있으면 떨어지는 속도가 GLIDE_VY 아래로 안 내려간다 */
   PL.ground = false; PL.down = false; PL.jumps = 2; PL.vy = -8; PL.glideT = GT[2]; PL.y += 6;
   W.__setJumpHeld(true); for(let i=0;i<4;i++) W.__updPlayer(1/60);
   o.glideVy = +PL.vy.toFixed(2); o.glideOn = !!PL.glide; o.GLIDE_VY = W.__GLIDE_VY;
-  /* 같은 자리에서 1차가 안 된 양(단계 0)은 활공이 없다 */
+  /* 같은 자리에서 1차가 안 된 사람(단계 0)은 활공이 없다 */
   XP.jt = 0; PL.vy = -8; PL.glideT = 0; for(let i=0;i<4;i++) W.__updPlayer(1/60);
   o.noGlideVy = +PL.vy.toFixed(2); o.noGlide = !PL.glide;
   W.__setJumpHeld(false); XP.job = -1; XP.jt = 0; G.paused = false; return o; });
@@ -374,14 +374,14 @@ ok('★ 날개 중심선은 셈으로 그린 매끈한 곡선 — 마디마다 �
 ok('★ 날개 안에 깃 결이 있다 — 꼭짓점 색으로 깃대는 밝고 가장자리·뿌리는 어둡다(1.3배 넘게 차이), 2차가 1차보다 깃이 많다',
    job.hasCol && job.cmax / job.cmin > 1.3 && job.tri1 > job.tri0,
    `색 ${job.cmin}~${job.cmax} · 삼각형 1차 ${job.tri0} / 2차 ${job.tri1}`);
-ok('★ 전직 안 한 양은 날개가 없고, 1차는 둘, 2차는 둘 + 빛 둘 (1차·2차가 서로 다른 메시)',
+ok('★ 전직 안 한 사람은 날개가 없고, 1차는 둘, 2차는 둘 + 빛 둘 (1차·2차가 서로 다른 메시)',
    job.t0.w === 0 && job.t0.g === 0 && job.t1.w === 2 && job.t1.g === 0 && job.t2.w === 2 && job.t2.g === 2 && job.t1.k0 === 2 && job.t2.k1 === 2,
    JSON.stringify([job.t0, job.t1, job.t2]));
 ok('★ 이동속도·점프력·활공 시간이 단계마다 오른다 (1 → 1.10 → 1.20 · 1 → 1.08 → 1.16 · 0 → 0.6 → 1.2초)',
    job.rising, job.spd.join('/')+' · '+job.jmp.join('/')+' · '+job.gt.join('/'));
-ok('★ 마을·밤에서만 이득이다 — 경주에 들어가면 jobTier 가 0 이라 전직 양도 똑같다 (선생님: "경주는 공평")',
+ok('★ 마을·밤에서만 이득이다 — 경주에 들어가면 jobTier 가 0 이라 전직 사람도 똑같다 (선생님: "경주는 공평")',
    job.village === 2 && job.race === 0, '마을 '+job.village+' · 경주 '+job.race);
-ok('★ 두 번째 뜀을 꾹 누르면 활공한다 — 떨어지는 속도가 GLIDE_VY 에서 멈춘다. 전직 안 한 양은 그냥 떨어진다',
+ok('★ 두 번째 뜀을 꾹 누르면 활공한다 — 떨어지는 속도가 GLIDE_VY 에서 멈춘다. 전직 안 한 사람은 그냥 떨어진다',
    job.glideOn && job.glideVy === job.GLIDE_VY && job.noGlide && job.noGlideVy < job.GLIDE_VY - 1,
    `2차 ${job.glideVy} (=${job.GLIDE_VY}) · 0차 ${job.noGlideVy}`);
 
@@ -428,31 +428,30 @@ const v46 = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, T3=W.__THREE, o={
   o.t1 = JW.map(r=> r[0].c); o.t2 = JW.map(r=> r[1].c);
   o.t1White = JW.every(r=> r[0].c === 0xffffff);
   o.t2Split = new Set(JW.map(r=> r[1].c)).size === 3;
-  /* 꼬리 — 한 마리에 세 알. 방울은 몸통 뒷면(f −0.47)보다 뒤에 있고 등털보다 밝다 */
+  /* 51차 — R6 몸: 팔 둘·다리 둘이 통짜로 몸통에 매달리고, 머리가 몸통 바로 위에 앉는다.
+     (46차까지는 여기서 꼬리 세 알을 셌다 — 사람이 되면서 꼬리가 없어졌다) */
   const f = {uid:'t46', x:PL.x, z:PL.z + 4, y:PL.y, ry:0, g:1, ph:0, hat:0, gls:0, clo:0, wp:0, we:0, jb:-1, jt:0, mv:false};
   G.players.set('t46', f); W.__smoothHead(f, 0, 1, 100); W.__smoothHead(f, 0, 1, 100);
   W.__drawSheep([f], 3.0, 40, s=>0x4060a0, 1);
-  const P = W.__Pmesh(), tail = P[7], body = P[0];
-  o.tailN = tail.count;
+  const P = W.__Pmesh(), body = P[0], head = P[1], arm = P[3], legs = P[6];
+  o.armN = arm.count; o.legN = legs.count;
   const m = new T3.Matrix4(), p = new T3.Vector3(), q = new T3.Quaternion(), sc = new T3.Vector3();
-  const zs = [];
-  for(let i=0;i<tail.count;i++){ tail.getMatrixAt(i, m); m.decompose(p, q, sc); zs.push(+(p.z - f.z).toFixed(3)); }
+  const axs = [];
+  for(let i=0;i<arm.count;i++){ arm.getMatrixAt(i, m); m.decompose(p, q, sc); axs.push(+Math.abs(p.x - f.x).toFixed(3)); }
+  o.armSide = axs.sort((a,b)=>a-b);
   body.getMatrixAt(0, m); m.decompose(p, q, sc);
-  o.bodyBack = +((p.z - f.z) - sc.z/2).toFixed(3);          // 몸통 상자의 뒷면
-  o.tailBack = Math.min(...zs);                              // 제일 뒤에 있는 꼬리 알의 가운데
-  o.out = +(o.bodyBack - o.tailBack).toFixed(3);             // 얼마나 튀어나왔나
-  /* 방울이 등털보다 밝은가 — 인스턴스 색을 본다 */
-  const ic = tail.instanceColor.array; let mx = 0;
-  for(let i=0;i<tail.count;i++) mx = Math.max(mx, ic[i*3] + ic[i*3+1] + ic[i*3+2]);
-  const pf = P[1], pc = pf.instanceColor.array;
-  o.pomBright = mx; o.woolBright = pc[0] + pc[1] + pc[2];
+  o.bodyTop = +((p.y - f.y) + sc.y/2).toFixed(3);
+  head.getMatrixAt(0, m); m.decompose(p, q, sc);
+  o.headBot = +((p.y - f.y) - sc.y/2).toFixed(3);
+  o.neck = +(o.headBot - o.bodyTop).toFixed(3);
   G.players.delete('t46'); G.paused = false; return o; });
 ok('★ 46차 — 1차 날개는 셋 다 하양(0xffffff)이고, 2차에서 직업 색 셋으로 갈린다',
    v46.t1White && v46.t2Split, '1차 ' + v46.t1.map(c=>c.toString(16)).join('/') + ' · 2차 ' + v46.t2.map(c=>c.toString(16)).join('/'));
-ok('★ 꼬리는 세 알(궁뎅이 털·뿌리·방울)이고, 방울이 몸통 뒷면보다 0.2칸 넘게 뒤로 나와 있다 — 예전엔 등털 속에 파묻혀 몸통의 네모난 뒷면만 보였다',
-   v46.tailN === 3 && v46.out > 0.2, `알 ${v46.tailN} · 몸통 뒷면 ${v46.bodyBack} · 방울 ${v46.tailBack} (${v46.out} 밖으로)`);
-ok('★ 꼬리 방울은 등털보다 밝다 (어두운 몸통을 배경으로 또렷하게 선다)',
-   v46.pomBright > v46.woolBright + 0.1, v46.pomBright.toFixed(2) + ' > ' + v46.woolBright.toFixed(2));
+ok('★ 51차b — 한 사람에 팔 둘·다리 둘(R6 은 마디가 없는 통짜다)이고, 팔은 몸통 옆 1.5스터드(0.45칸)에 매달린다',
+   v46.armN === 2 && v46.legN === 2 && v46.armSide.every(x=>Math.abs(x - 0.45) < 0.06),
+   `팔 ${v46.armN} · 다리 ${v46.legN} · 옆 ${v46.armSide.join('/')}`);
+ok('★ 51차 — 머리가 몸통 바로 위에 앉는다 (틈이 0.1칸 안 — 벌어지면 목이 끊겨 보인다)',
+   Math.abs(v46.neck) < 0.1, `몸통 위 ${v46.bodyTop} · 머리 아래 ${v46.headBot} (틈 ${v46.neck})`);
 
 const st46 = await ev(()=>{ const W=window, B=W.__banks, o={};
   const mm = B.get('miMark'), gr = [], bd = [];
@@ -478,7 +477,7 @@ ok('★ 46차 — 코스 양옆 땅이 z 42~250 에서 한 군데도 안 끊긴�
 ok('★ 건물이 8칸 칸마다 빠짐없이 선다 (제일 빈 칸에도 조각 여섯 넘게)',
    st46.worst >= 6, `제일 빈 칸 z${st46.worstAt} 에 ${st46.worst}조각 · 모두 ${st46.pieces}`);
 
-/* ═══════ ⑮ 47차 — 골인율: 제일 좁은 발판도 양 둘이 스친다 · 경주에서는 튕김이 절반 ═══════ */
+/* ═══════ ⑮ 47차 — 골인율: 제일 좁은 발판도 사람 둘이 스친다 · 경주에서는 튕김이 절반 ═══════ */
 const fin47 = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   /* 변형 셋을 다 지어 보고, 발판마다 '몇 명이 나란히 설 수 있나'(폭 ÷ 부딪힘 지름)를 센다.
      깃발 판(cp)·계단 옆 좁은 것 말고 **지나가야 하는 발판**(beam·log·stone·fade)만 본다. */
@@ -503,7 +502,7 @@ const fin47 = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   o.race = meas();
   W.__miniExit(); PL.x = px; PL.z = pz; G.players.delete('bp'); W.__kbReset();
   return o; });
-ok('★ 47차 — 지나가야 하는 발판은 다 양 둘이 나란히 설 만큼 넓다 (폭 ≥ 부딪힘 지름 0.95 × 2). 좁은 다리 1.0 · 통나무 1.5 는 한 명만 지나갈 수 있었다',
+ok('★ 47차 — 지나가야 하는 발판은 다 사람 둘이 나란히 설 만큼 넓다 (폭 ≥ 부딪힘 지름 0.95 × 2). 좁은 다리 1.0 · 통나무 1.5 는 한 명만 지나갈 수 있었다',
    fin47.allPass, Object.entries(fin47.abreast).map(([k,v])=>`${k} ${v}명`).join(' · ') + ` (지름 ${fin47.R})`);
 ok('★ 경주에서는 튕김이 절반이다 — 같은 속도로 부딪혀도 마을보다 적게 밀린다 (겹침 벌림은 그대로라 딱 절반은 아니다)',
    fin47.race < fin47.town && fin47.race > fin47.town * 0.5, `마을 ${fin47.town} → 경주 ${fin47.race}`);
@@ -576,16 +575,16 @@ const geo47 = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   G.players.set('t47', f); W.__smoothHead(f, 0, 1, 100);
   W.__drawSheep([f], 3.0, 40, s=>0x4060a0, 1);
   const P = W.__Pmesh();
-  o.eye = triOf(P[5].geometry); o.nose = triOf(P[6].geometry);
-  o.leg = triOf(P[8].geometry); o.puff = triOf(P[1].geometry);
+  o.eye = triOf(P[4].geometry); o.nose = triOf(P[5].geometry);
+  o.leg = triOf(P[6].geometry); o.head = triOf(P[1].geometry);
   let tot = 0; for(const m of P){ if(m && m.count) tot += m.count*triOf(m.geometry); }
   o.tot = tot;
   G.players.delete('t47'); return o; });
-ok('★ 47차 — 눈알·콧방울은 잔 공(8×6)이고 다리는 작은 둥근 상자다. 털뭉치처럼 눈에 띄는 공은 그대로 곱다',
-   geo47.eye <= 96 && geo47.nose <= 96 && geo47.leg <= 120 && geo47.puff >= 240,
-   `눈 ${geo47.eye} · 코 ${geo47.nose} · 다리 ${geo47.leg} · 털뭉치 ${geo47.puff} 삼각형`);
-ok('★ 양 한 마리의 부위 삼각형이 5천 아래로 내려왔다 (46차 7,296 — 다리 2,400 · 눈 1,008 · 코 504 가 컸다)',
-   geo47.tot < 5000, `한 마리 ${geo47.tot} 삼각형`);
+ok('★ 47차 — 눈알·볼은 잔 공(8×6)이고 팔다리는 작은 둥근 상자다. 머리처럼 눈에 띄는 것은 그대로 곱다',
+   geo47.eye <= 96 && geo47.nose <= 96 && geo47.leg <= 120 && geo47.head >= 240,
+   `눈 ${geo47.eye} · 볼 ${geo47.nose} · 팔다리 ${geo47.leg} · 머리 ${geo47.head} 삼각형`);
+ok('★ 51차 — 사람 한 명의 부위 삼각형이 4천 아래다 (46차 7,296 · 47차 5천 아래 — R6 은 부위가 더 적다)',
+   geo47.tot < 4000, `한 명 ${geo47.tot} 삼각형`);
 
 await ev(()=>{ const W=window; if(W.__miniOn()) W.__miniExit(); });
 /* ═══════ 결과 ═══════ */

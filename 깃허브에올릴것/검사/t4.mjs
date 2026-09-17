@@ -137,15 +137,35 @@ const r = await pg.evaluate(()=>{
   ok('★ 수리는 2.5초에 된다', o.hp > o.mx*0.6, Math.round(o.hp/o.mx*100)+'%');
   W.__setActing(false); W.__doAction(1/60);
 
-  /* ── 1. 양 ── */
+  /* ── 1. 사람 ── */
   const list=[{x:0,z:0,y:GY,ry:0,g:0,mv:true,ph:0},{x:2,z:0,y:GY,ry:1,g:1,mv:false,ph:1}];
   W.__drawSheep(list, 1.0, 40, s=>W.__GHEX[s.g], 0.70);
-  const [body,puff,head,frng,ear,eye,nose,tail,legs]=W.__Pmesh();
-  ok('양 2마리 = 몸통 2', body.count===2, body.count);
-  ok('양 2마리 = 눈+반짝이 8', eye.count===8, eye.count);
-  ok('양 2마리 = 볼터치 4 (29차 — 코는 없앴다, 입이 그 자리)', nose.count===4, nose.count);
-  ok('양 2마리 = 다리 16 (44차 — 허벅지·정강이 두 마디)', legs.count===16, legs.count);
-  ok('눈 반짝이가 눈보다 앞·위에 있다', true);
+  const [body,head,hair,arm,eye,nose,legs]=W.__Pmesh();
+  ok('사람 2명 = 몸통 2', body.count===2, body.count);
+  ok('★ 51차b — 사람 2명 = 눈 4. 로블록스 클래식 얼굴이라 **눈 반짝이도 볼터치도 없다**',
+     eye.count===4 && nose.count===0, '눈 '+eye.count+' · 볼터치 '+nose.count);
+  ok('★ 51차b — 머리털은 베이컨 아홉 갈래 (모자를 쓰면 정수리 넷이 빠져 다섯)',
+     hair.count===18, hair.count);
+  ok('★ 51차 — 사람 2명 = 팔 4 · 다리 4 (R6 은 마디 없는 통짜라 한 사람에 둘씩)',
+     arm.count===4 && legs.count===4, '팔 '+arm.count+' 다리 '+legs.count);
+  /* ★ 51차b — **머리털이 얼굴을 가리지 않는다.**
+     첫 판에서 베이컨 갈래를 얼굴 앞(f 0.98~1.00)에 뒀다가 3/4 각도에서 눈이 상자에 막혀 안 보였다.
+     눈 높이에 걸치는 갈래는 눈보다 **앞으로 나오면 안 된다**(위로 솟는 것은 괜찮다).
+     상자마다 회전이 들어 있으니 자리만 보지 말고 **돌아간 상자의 앞·위 뻗음(OBB)** 을 재서 견준다. */
+  const obb = (m, i, F)=>{ const a = m.instanceMatrix.array, o = i*16;
+    const c = [[a[o],a[o+1],a[o+2]], [a[o+4],a[o+5],a[o+6]], [a[o+8],a[o+9],a[o+10]]];
+    const ext = (v)=> 0.5*c.reduce((t,k)=> t + Math.abs(k[0]*v[0] + k[1]*v[1] + k[2]*v[2]), 0);
+    return { y:a[o+13], f:(a[o+12]*F[0] + a[o+14]*F[2]), ey:ext([0,1,0]), ef:ext(F) }; };
+  const hd0 = { x:head.instanceMatrix.array[12], z:head.instanceMatrix.array[14] };
+  const ex = eye.instanceMatrix.array[12] - hd0.x, ez = eye.instanceMatrix.array[14] - hd0.z;
+  const eL = Math.hypot(ex, ez) || 1, F = [ex/eL, 0, ez/eL];        // 첫 사람이 보는 쪽 = 머리 → 눈
+  const e0 = obb(eye, 0, F), eFront = e0.f + e0.ef;
+  let near = 0, blocked = 0;
+  for(let i=0;i<9;i++){ const h = obb(hair, i, F);                   // 앞 아홉 갈래 = 첫 사람 것
+    if(Math.abs(h.y - e0.y) < h.ey + e0.ey){ near++;                 // 눈 높이에 걸치는 갈래만
+      if(h.f + h.ef > eFront + 0.004) blocked++; } }
+  ok('★ 51차b — 눈 높이에 걸치는 머리털은 눈보다 앞으로 안 나온다 (얼굴을 막지 않는다)',
+     blocked === 0 && near >= 2, '눈 높이 갈래 '+near+' · 그중 눈을 막는 것 '+blocked);
 
   }catch(e){ out.push('EXCEPTION: '+e.message+' | '+e.stack.split('\n')[1]); }
   return out;

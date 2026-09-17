@@ -29,7 +29,7 @@ const look = async (nm, g, dist, hy, dirt, animals, face)=>{
     const a=Math.atan2(-cz,-cx) - 0.55;
     const px=cx+Math.cos(a)*dist, pz=cz+Math.sin(a)*dist;
     const yaw=Math.atan2(-(cx-px), -(cz-pz));
-    /* 카메라는 양(PL) 자리를 따라간다 — 안 그러면 내 양이 화면에 들어온다 */
+    /* 카메라는 사람(PL) 자리를 따라간다 — 안 그러면 내 사람이 화면에 들어온다 */
     const PL=W.__PL; PL.x=px; PL.z=pz; PL.y=W.__GY;
     PL.yaw=yaw; PL.pitch=-Math.atan2(hy-1.0, dist);
     const c=W.__cam; c.fov=62; c.updateProjectionMatrix();
