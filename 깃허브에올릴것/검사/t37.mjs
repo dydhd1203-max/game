@@ -79,6 +79,7 @@ const course = await ev(()=>{ const W=window, G=W.__G, o={};
   o.hzSame = JSON.stringify(W.__raceHazards(21.7)) === JSON.stringify(W.__raceHazards(21.7));
   const bz = [6,7,8].map(tt=> W.__raceHazards(tt).find(h=>h.k==='ball')).map(b=> b ? +b.z.toFixed(1) : null); o.ballZ = bz;
   const px = []; for(let tt=0; tt<=2.4; tt+=0.2) px.push(+W.__raceHazards(tt).find(h=>h.k==='pend').x.toFixed(2)); o.pendX = [Math.max(...px), Math.min(...px)];
+  o.pendR = W.__raceHazards(1).find(h=>h.k==='pend').r; o.pendPer = W.__HAZ.pend.per;
   o.barTurn = W.__raceHazards(1).find(h=>h.k==='bar').ang !== W.__raceHazards(0).find(h=>h.k==='bar').ang;
   o.rocks = W.__raceRocks(20).length; o.rockAt = W.__raceRocks(20).map(r=> +r.z.toFixed(1));
   o.rockSame = JSON.stringify(W.__raceRocks(33.3)) === JSON.stringify(W.__raceRocks(33.3));
@@ -93,6 +94,8 @@ ok('★ 높이 — 섬 바닥 0 · 다리 0 · 옆 허공은 -999 · 계단 꼭�
 ok('★ groundUnder 가 경주에서 발판 높이를 땅으로 본다 (허공은 -999)', course.ground === -999, course.ground);
 ok('★ 장애물 — 진자 둘·막대 둘은 늘 있고, 계단 공은 3초 뒤부터 나와 계단을 따라 내려온다(시간의 식 — 전원 같다)', course.hz5 === 'bar,bar,pend,pend' && course.hz20 === 'ball,bar,bar,pend,pend' && course.hzSame && course.ballZ.every(z=>z !== null) && course.ballZ[0] > course.ballZ[1] && course.ballZ[1] > course.ballZ[2], course.hz20+' · 공 z '+course.ballZ.join('→'));
 ok('★ 진자는 좌우로 흔들리고(한 주기 안에 ±2 를 넘는다) 막대는 돈다', course.pendX[0] > 2 && course.pendX[1] < -2 && course.barTurn, '진자 x 최대 '+course.pendX[0]+' 최소 '+course.pendX[1]);
+ok('★ 45차 — 진자 쇠공이 20% 크고(r 1.0 → 1.2) 10% 빠르다(주기 2.0 → 1.82)',
+   Math.abs(course.pendR - 1.2) < 1e-6 && Math.abs(course.pendPer - 1.82) < 1e-6, `r ${course.pendR} · 주기 ${course.pendPer}`);
 ok('★ 바위는 시간의 식이다 — 같은 시각이면 같은 자리 (통신 없이 전원 같다)', course.rockSame && course.rocks >= 1, course.rockAt.join(' '));
 
 /* ═══════ ④ 규칙 — 깃발 · 떨어짐 · 카메라 · 골인 · 움직이는 발판 ═══════ */
@@ -252,7 +255,7 @@ ok('★ 발소리·출발·바람(세기) 효과음 · 코스 옆 구름 부표 
 ok('★ 42차 점프 손맛 — 첫 뜀에 도약 늘어남(takeT)·잔상 타이머·보잉, 두 번째 뜀에 공중제비(flipT 0→), 착지 0.22초 눌림·툭', spd.take > 0.05 && spd.air1 && spd.trail && spd.flip >= 0 && spd.flip < 0.6 && spd.landT > 0.15 && spd.flipEnd === 99 && spd.sfxJump, `take ${spd.take} flip ${spd.flip} land ${spd.landT} end ${spd.flipEnd}`);
 ok('★ 초읽기 큰 글씨는 화면 정중앙(top 50%)이고, 준비 중엔 위 판이 통째로 숨는다 (42차 — "배경 네모 없애고 가운데 잘 오게")', spd.cntTop && !spd.introBar && spd.runBar, `top ${spd.cntTop} introBar ${spd.introBar} runBar ${spd.runBar}`);
 ok('★ 출발 전엔 걷기·뜀이 잠긴다 (42차 — "출발도 안 했는데 움직여져") · 출발하면 풀린다', spd.hold && spd.heldMove < 0.01 && spd.heldJump && !spd.holdRun, `hold ${spd.hold} moved ${spd.heldMove} jumpBlocked ${spd.heldJump} run ${spd.holdRun}`);
-ok('★ 경주에서는 걷기가 1.8배(1초에 8.5칸 안팎 — 마을 4.8) · 사라지는 발판 1.8/1.6초 · 총 반동에 기울기(돌아온다) · gunshot 네 겹', spd.RSPD === 1.8 && spd.raceWalk > 7.6 && spd.raceWalk < 9.6 && spd.fadeT.arm === 1.8 && spd.fadeT.gone === 1.6 && spd.roll !== 0 && Math.abs(spd.roll40) < Math.abs(spd.roll)*0.05 && spd.gunshot, `1초 ${spd.raceWalk} · roll ${spd.roll.toFixed(4)} → ${spd.roll40.toFixed(5)}`);
+ok('★ 경주에서는 걷기가 1.64배(1초에 8.5칸 안팎 — 45차에 밑 속도가 5.4→5.94 로 올라 배수를 1.8→1.64 로 내렸다. 절대 속도는 그대로) · 사라지는 발판 1.8/1.6초 · 총 반동에 기울기(돌아온다) · gunshot 네 겹', spd.RSPD === 1.64 && spd.raceWalk > 7.6 && spd.raceWalk < 9.6 && spd.fadeT.arm === 1.8 && spd.fadeT.gone === 1.6 && spd.roll !== 0 && Math.abs(spd.roll40) < Math.abs(spd.roll)*0.05 && spd.gunshot, `1초 ${spd.raceWalk} · roll ${spd.roll.toFixed(4)} → ${spd.roll40.toFixed(5)}`);
 
 
 /* ═══════ ⑪ 43차 — 총열 축 = 조준선(모든 총) · 반동은 총구가 들리는 쪽 · 화염은 총구→표적 · 총마다 제 소리 ═══════ */
@@ -305,6 +308,106 @@ ok('★ 44차 — 양 다리는 두 마디(한 마리에 조각 여덟)', mot.le
 ok('★ 양의 표시 방향은 각속도 제한(10rad/s)으로 따라간다 — 첫 프레임 0.16rad, 회전 속도·남은 각, 1초 안에 다 돈다', mot.step1 > 0.14 && mot.step1 < 0.18 && mot.turn > 1 && mot.lead > 1.5 && mot.left < 0.01, mot.step1+' · turn '+mot.turn+' · lead '+mot.lead+' · 남음 '+mot.left);
 ok('★ 급정지하면 가속도가 크게 음수(앞으로 쏠리고 먼지)', mot.v > 4 && mot.acc < -9, mot.v+' → '+mot.acc);
 ok('★ 서 있는 양은 숨을 쉰다 (몸통 세로 1~4% 오르내림)', mot.breath > 0.01 && mot.breath < 0.045, mot.breath);
+
+/* ═══════ ⑬ 45차 — 전직 날개 · 마을에서만 빨라짐(경주는 공평) · 활공 · 미니게임 미술(무지개 한 장·통나무 문·울타리 제거) ═══════ */
+const job = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, XP=W.__XP, o={};
+  if(W.__miniOn()) W.__miniExit(); G.paused = true;
+  /* 날개 — 모양은 단계로 갈리고(1차 0 · 2차 1), 색은 직업마다 다르다. 셋 다 같은 깃털 날개다 */
+  const JW = W.__JOB_WING;
+  o.shapeByTier = JW.every(r => r[0].k === 0 && r[1].k === 1);
+  o.bigger      = JW.every(r => r[1].s > r[0].s * 1.5);
+  o.glowT2      = JW.every(r => !r[0].g && !!r[1].g);
+  o.colors      = new Set(JW.map(r => r[1].c)).size;
+  o.red         = JW[0][1].c, o.pink = JW[1][1].c, o.white = JW[2][1].c;
+  /* 중심선은 셈으로 그린 매끈한 곡선 — 마디마다 도는 각이 작다(상자를 쌓으면 0°와 90°가 번갈아 난다) */
+  const SPN = W.__wingSpine(1.3), pts = [];
+  for(let i=0;i<=40;i++) pts.push(SPN(i/40));
+  let mt = 0;
+  for(let i=1;i<pts.length-1;i++){
+    const a = Math.atan2(pts[i][1]-pts[i-1][1], pts[i][0]-pts[i-1][0]);
+    const b = Math.atan2(pts[i+1][1]-pts[i][1], pts[i+1][0]-pts[i][0]);
+    mt = Math.max(mt, Math.abs(b - a)); }
+  o.maxTurn = +mt.toFixed(4);
+  /* 깃 결 — 꼭짓점 색으로 밝은 곳(깃대)과 어두운 곳(가장자리·뿌리)이 갈린다. 2차가 1차보다 깃이 많다 */
+  const G0 = W.__P_wing()[0].geometry, G1 = W.__P_wing()[1].geometry;
+  const tri = g => (g.index ? g.index.count : g.attributes.position.count)/3;
+  o.tri0 = tri(G0); o.tri1 = tri(G1); o.hasCol = !!G1.attributes.color;
+  if(o.hasCol){ const a = G1.attributes.color.array; let mn = 9, mx = -9;
+    for(let i=0;i<a.length;i+=3){ if(a[i] < mn) mn = a[i]; if(a[i] > mx) mx = a[i]; }
+    o.cmin = +mn.toFixed(2); o.cmax = +mx.toFixed(2); }
+  /* 그려 본다 — 1차는 날개 둘, 2차는 날개 둘 + 빛 둘 */
+  const P = W.__P_wing(), PG = W.__P_wingG();
+  const draw = (jb, jt)=>{ const f = {uid:'w'+jb+jt, x:PL.x+2, z:PL.z+3, y:PL.y, ry:0, g:1, ph:1, hat:0, gls:0, clo:0, wp:0, jb, jt};
+    W.__drawSheep([f], 2.0, 40, s=>0xffffff, 1);
+    return {w:P[0].count + P[1].count, g:PG[0].count + PG[1].count, k0:P[0].count, k1:P[1].count}; };
+  o.t0 = draw(0, 0); o.t1 = draw(1, 1); o.t2 = draw(1, 2);
+  /* 빠른 발·높은 뜀 — 표가 단계마다 오르고, 미니게임에서는 jobTier 가 0 이라 아무 이득이 없다 */
+  const SP = W.__JOB_SPD, JM = W.__JOB_JMP, GT = W.__GLIDE_T;
+  o.spd = SP.slice(); o.jmp = JM.slice(); o.gt = GT.slice();
+  o.rising = SP[0] === 1 && SP[1] > SP[0] && SP[2] > SP[1] && JM[0] === 1 && JM[1] > JM[0] && JM[2] > JM[1] && GT[0] === 0 && GT[2] > GT[1] && GT[1] > 0;
+  XP.job = 0; XP.jt = 2; o.village = W.__jobTier();
+  G.paused = false; W.__goMini(0); o.race = W.__jobTier(); W.__miniExit(); G.paused = true;
+  /* 활공 — 2차 양이 공중에서 스페이스를 누르고 있으면 떨어지는 속도가 GLIDE_VY 아래로 안 내려간다 */
+  PL.ground = false; PL.down = false; PL.jumps = 2; PL.vy = -8; PL.glideT = GT[2]; PL.y += 6;
+  W.__setJumpHeld(true); for(let i=0;i<4;i++) W.__updPlayer(1/60);
+  o.glideVy = +PL.vy.toFixed(2); o.glideOn = !!PL.glide; o.GLIDE_VY = W.__GLIDE_VY;
+  /* 같은 자리에서 1차가 안 된 양(단계 0)은 활공이 없다 */
+  XP.jt = 0; PL.vy = -8; PL.glideT = 0; for(let i=0;i<4;i++) W.__updPlayer(1/60);
+  o.noGlideVy = +PL.vy.toFixed(2); o.noGlide = !PL.glide;
+  W.__setJumpHeld(false); XP.job = -1; XP.jt = 0; G.paused = false; return o; });
+ok('★ 45차 날개 — 셋 다 같은 깃털 날개고 모양은 단계로 갈린다(1차 작게 · 2차 1.5배 넘게 크고 빛난다), 색은 직업마다(빨강·분홍·하양)',
+   job.shapeByTier && job.bigger && job.glowT2 && job.colors === 3,
+   `빨강 ${job.red.toString(16)} · 분홍 ${job.pink.toString(16)} · 하양 ${job.white.toString(16)}`);
+ok('★ 날개 중심선은 셈으로 그린 매끈한 곡선 — 마디마다 도는 각이 3° 아래다(상자를 쌓으면 0°와 90°가 번갈아 난다)',
+   job.maxTurn < 0.06, job.maxTurn+' rad');
+ok('★ 날개 안에 깃 결이 있다 — 꼭짓점 색으로 깃대는 밝고 가장자리·뿌리는 어둡다(1.3배 넘게 차이), 2차가 1차보다 깃이 많다',
+   job.hasCol && job.cmax / job.cmin > 1.3 && job.tri1 > job.tri0,
+   `색 ${job.cmin}~${job.cmax} · 삼각형 1차 ${job.tri0} / 2차 ${job.tri1}`);
+ok('★ 전직 안 한 양은 날개가 없고, 1차는 둘, 2차는 둘 + 빛 둘 (1차·2차가 서로 다른 메시)',
+   job.t0.w === 0 && job.t0.g === 0 && job.t1.w === 2 && job.t1.g === 0 && job.t2.w === 2 && job.t2.g === 2 && job.t1.k0 === 2 && job.t2.k1 === 2,
+   JSON.stringify([job.t0, job.t1, job.t2]));
+ok('★ 이동속도·점프력·활공 시간이 단계마다 오른다 (1 → 1.10 → 1.20 · 1 → 1.08 → 1.16 · 0 → 0.6 → 1.2초)',
+   job.rising, job.spd.join('/')+' · '+job.jmp.join('/')+' · '+job.gt.join('/'));
+ok('★ 마을·밤에서만 이득이다 — 경주에 들어가면 jobTier 가 0 이라 전직 양도 똑같다 (선생님: "경주는 공평")',
+   job.village === 2 && job.race === 0, '마을 '+job.village+' · 경주 '+job.race);
+ok('★ 두 번째 뜀을 꾹 누르면 활공한다 — 떨어지는 속도가 GLIDE_VY 에서 멈춘다. 전직 안 한 양은 그냥 떨어진다',
+   job.glideOn && job.glideVy === job.GLIDE_VY && job.noGlide && job.noGlideVy < job.GLIDE_VY - 1,
+   `2차 ${job.glideVy} (=${job.GLIDE_VY}) · 0차 ${job.noGlideVy}`);
+
+const art = await ev(()=>{ const W=window, B=W.__banks, o={};
+  const bank = k => B.get(k) || null, n = k => (bank(k) ? bank(k).ms.length : 0);
+  /* 무지개 — 한 장짜리 반달 일곱. 예전엔 miMark 상자 245장이었다 */
+  const rb = bank('rcRbow');
+  o.rbow = n('rcRbow'); o.rbowGeo = rb ? (rb.geo.index ? rb.geo.index.count : rb.geo.attributes.position.count)/3 : 0;
+  o.rbowCols = rb && rb.cols ? new Set(rb.cols).size : 0;
+  o.noCast = W.__NO_CAST.has('rcRbow');
+  /* 띠는 서로 맞물린다 — 크기가 같은 비율로 줄고, 제일 바깥이 34칸이다 */
+  if(rb){ const rs = rb.ms.map(m => +Math.hypot(m.elements[0], m.elements[1], m.elements[2]).toFixed(2));
+    o.r0 = rs[0]; o.ratio = +(rs[1]/rs[0]).toFixed(3); o.even = rs.every((v,i)=> i===0 || Math.abs(v/rs[i-1] - rs[1]/rs[0]) < 0.002); }
+  /* 첫 구간 문 — 통나무(rcTrunk)로 세운다. 파란 도리이의 파란 기둥(0x4dabf7)은 없다 */
+  const z0 = W.__RACE_S[0].z0 - 3.2, tr = bank('rcTrunk');
+  let near = 0, blue = 0;
+  if(tr) tr.ms.forEach((m, i)=>{ const dz = Math.abs(m.elements[14] - z0);
+    if(dz < 1.6){ near++; if(tr.cols && tr.cols[i] === 0x4dabf7) blue++; } });
+  o.gateLogs = near; o.gateBlue = blue;
+  /* 섬 가장자리 갈색 원 울타리 — 없어졌다. miEdge 에 반지름 MINI_R 언저리를 도는 조각이 없다 */
+  const R = W.__MINI().R, me = bank('miEdge');
+  /* 울타리는 섬 테두리를 도는 **낮은** 고리였다(MINI_Y+0.55 · +0.92). 구간 0 표지 기둥도 중심에서 35칸쯤이라
+     높이로 갈라야 한다(그 기둥은 MINI_Y+1.6) */
+  const YR = W.__MINI().Y + 1.3;
+  o.ring = me ? me.ms.filter(m => Math.abs(Math.hypot(m.elements[12], m.elements[14]) - R) < 1.2
+                                  && m.elements[13] < YR).length : -1;
+  o.miEdge = n('miEdge');
+  return o; });
+ok('★ 45차 무지개 — 한 장짜리 반달 고리 일곱(색 일곱). 상자 245장이 아니다 · 그늘은 안 드리운다',
+   art.rbow === 7 && art.rbowCols === 7 && art.rbowGeo > 100 && art.noCast,
+   `${art.rbow}개 · 삼각형 ${art.rbowGeo} · 색 ${art.rbowCols}`);
+ok('★ 일곱 띠가 같은 비율로 줄어 서로 맞물린다 (바깥 34칸 · 띠마다 0.953배)',
+   Math.abs(art.r0 - 34) < 0.2 && Math.abs(art.ratio - 0.953) < 0.002 && art.even,
+   `바깥 ${art.r0} · 비율 ${art.ratio}`);
+ok('★ 맨 처음 지나는 문은 통나무 아치다 — 그 자리에 통나무가 여덟 넘게 있고 파란 도리이 기둥(0x4dabf7)은 하나도 없다',
+   art.gateLogs >= 8 && art.gateBlue === 0, `통나무 ${art.gateLogs} · 파란 기둥 ${art.gateBlue}`);
+ok('★ OX 퀴즈 때 세운 섬 가장자리 갈색 원 울타리가 없어졌다', art.ring === 0 && art.miEdge > 0, `고리 ${art.ring} · miEdge ${art.miEdge}`);
 
 await ev(()=>{ const W=window; if(W.__miniOn()) W.__miniExit(); });
 /* ═══════ 결과 ═══════ */
