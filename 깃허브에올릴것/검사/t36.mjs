@@ -55,7 +55,8 @@ const art = await pg.evaluate(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   G.wolves.length = 0; W.__drawWolves(G.wolves, 1.0, 0.016); o.cleared = cnt('rib') === 0 && cnt('plate') === 0 && cnt('eyeW') === 0;
   G.paused = false; return o; });
 ok('★ 여섯 마리를 그리면 몸통·배·눈썹이 여섯(둘씩) — 공통 미술 손질', art.body === 6 && art.belly === 6 && art.brow === 12, art.body+'/'+art.belly+'/'+art.brow);
-ok('★ 51차 — 굶주린 좀비의 드러난 갈비 넷 + 공포 좀비의 눈구멍 둘·입 속·처진 아래턱(같은 조각 뭉치) · 혀 하나', art.rib === 8 && art.tongue === 1, art.rib+'/'+art.tongue);
+ok('★ 51차b — 갈비 메시 서른 = 굶주린 좀비의 드러난 갈비 넷 + 공포 좀비의 눈구멍 둘·입 속·처진 아래턱 넷\n    + **움푹 팬 눈구멍**(공포 말고 다섯 마리 × 둘 = 열) + **가슴 상처**와 **턱에 흘러내린 핏자국**(여섯 마리 × 둘 = 열둘) · 혀 하나',
+   art.rib === 30 && art.tongue === 1, art.rib+'/'+art.tongue);
 ok('★ 51차 — 갑옷 좀비만 갑옷 조각 서른 (가슴판 넷 · 등판 둘 · 옆구리 치마 넷 · 목 하나 · 어깨 둘×3 · 투구 열하나 · 정강이 둘×2). 선 몸이라 네발 때(쉰다섯)보다 붙일 면이 적다', art.plate === 30, art.plate);
 ok('★ 치유 좀비만 보석 하나·초록 고리 하나', art.gem === 1 && art.heal === 1, art.gem+'/'+art.heal);
 ok('★ 공포 좀비만 찢어진 흰 눈 둘·송곳니 넷+흉터 하나·검은 고리 하나', art.eyeW === 2 && art.fang === 5 && art.dread === 1, art.eyeW+'/'+art.fang+'/'+art.dread);

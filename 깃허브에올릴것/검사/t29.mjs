@@ -34,7 +34,7 @@ await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
   ok('미리보기가 있다', !!r);
   ok('★ 미리보기 조각에 무늬(텍스처)가 없다', r && r.noMap);
   ok('★ 미리보기 조각이 둥글다 (꼭짓점이 상자 24개보다 많다)', r && r.round);
-  ok('★ 51차 — 미리보기 몸 조각이 R6 열넷이다 (몸통·머리·머리털·눈 둘·반짝이 둘·볼 둘·입·팔 둘·다리 둘)', r && r.n === 14, r && r.n);
+  ok('★ 51차b — 미리보기 몸 조각이 스물넷이다 (몸통·머리·베이컨 머리 아홉·눈 둘·입·팔 둘·소매 둘·다리 둘·신발 둘·재킷 둘)', r && r.n === 24, r && r.n);
 }
 
 await pg.fill('#iName','검'); await pg.click('#bSolo');

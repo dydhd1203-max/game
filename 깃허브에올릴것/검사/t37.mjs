@@ -447,8 +447,8 @@ const v46 = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, T3=W.__THREE, o={
   G.players.delete('t46'); G.paused = false; return o; });
 ok('★ 46차 — 1차 날개는 셋 다 하양(0xffffff)이고, 2차에서 직업 색 셋으로 갈린다',
    v46.t1White && v46.t2Split, '1차 ' + v46.t1.map(c=>c.toString(16)).join('/') + ' · 2차 ' + v46.t2.map(c=>c.toString(16)).join('/'));
-ok('★ 51차 — 한 사람에 팔 둘·다리 둘(R6 은 마디가 없는 통짜다)이고, 팔은 몸통 옆 0.545칸에 매달린다',
-   v46.armN === 2 && v46.legN === 2 && v46.armSide.every(x=>Math.abs(x - 0.545) < 0.08),
+ok('★ 51차b — 한 사람에 팔 둘·다리 둘(R6 은 마디가 없는 통짜다)이고, 팔은 몸통 옆 1.5스터드(0.45칸)에 매달린다',
+   v46.armN === 2 && v46.legN === 2 && v46.armSide.every(x=>Math.abs(x - 0.45) < 0.06),
    `팔 ${v46.armN} · 다리 ${v46.legN} · 옆 ${v46.armSide.join('/')}`);
 ok('★ 51차 — 머리가 몸통 바로 위에 앉는다 (틈이 0.1칸 안 — 벌어지면 목이 끊겨 보인다)',
    Math.abs(v46.neck) < 0.1, `몸통 위 ${v46.bodyTop} · 머리 아래 ${v46.headBot} (틈 ${v46.neck})`);

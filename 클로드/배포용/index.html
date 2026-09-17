@@ -2730,7 +2730,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '51차 · 제목 “좀비의 밤” · 캐릭터를 로블록스 R6 아바타로(통짜 팔다리 · 걷기·뜀·총 자세 · 모자·옷·전직은 그대로) · 늑대를 좀비로(같은 R6 몸 · 초록 살 · 앞으로 뻗은 두 팔 · 절뚝이는 걸음 · 다섯 종류의 행동·세기는 그대로) · 50차 · 카메라 뒤로(사람이 앞을 안 가린다) · 바위·나무·잔디 질감 되살림 · 창 글자 다 읽히게(124군데) · 수정 옆 노란 벽 없앰 + 좀비가 물면 수정이 번쩍 · 망토가 판때기가 아니게 · 49차 검사 되살리기(전체 판 1243항목 다시 돎) · 3인칭 조준 고침 · 태블릿 조작안내·핫바 값 · 저격총 양각대 · 노트북 기준으로(그림자 2048 · 구역 32칸 · 선명은 부드러운 그림자) · 수정 단상 보도블록 · 48차 로블록스 화면(굵은 고딕 폰트 · 검은 반투명 UI · 바닥에 붙는 핫바 · 3인칭 카메라 + 휠 줌 · 플라스틱 광택 · 매끈 질감 · 즉시 가속·정지 · 로블록스 체공 0.54초(경주는 그대로) · 공중 자세 둘) · 47차 경주 골인율 · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 사람 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 사람·좀비 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
+const GAME_VER = '51차b · 기본 캐릭터를 로블록스 기본 아바타(베이컨 헤어)로 — 비율을 실제 스터드 값으로(다리 2 · 몸통 2 · 머리 1.2스터드 = 38.5/38.5/23%) · 금빛 삐죽 머리 아홉 갈래 · 검은 재킷 옆판(가운데로 모둠 색 셔츠) · 하얀 신발 · 클래식 스마일 얼굴 · 좀비 미술(움푹 팬 눈구멍 · 가슴 상처 · 턱 핏자국 · 헤진 소매·자락 · 헝클어진 머리 셋 · 좀비마다 다른 살빛과 비대칭 팔) · 51차 · 제목 “좀비의 밤” · 캐릭터를 로블록스 R6 아바타로(통짜 팔다리 · 걷기·뜀·총 자세 · 모자·옷·전직은 그대로) · 늑대를 좀비로(같은 R6 몸 · 초록 살 · 앞으로 뻗은 두 팔 · 절뚝이는 걸음 · 다섯 종류의 행동·세기는 그대로) · 50차 · 카메라 뒤로(사람이 앞을 안 가린다) · 바위·나무·잔디 질감 되살림 · 창 글자 다 읽히게(124군데) · 수정 옆 노란 벽 없앰 + 좀비가 물면 수정이 번쩍 · 망토가 판때기가 아니게 · 49차 검사 되살리기(전체 판 1243항목 다시 돎) · 3인칭 조준 고침 · 태블릿 조작안내·핫바 값 · 저격총 양각대 · 노트북 기준으로(그림자 2048 · 구역 32칸 · 선명은 부드러운 그림자) · 수정 단상 보도블록 · 48차 로블록스 화면(굵은 고딕 폰트 · 검은 반투명 UI · 바닥에 붙는 핫바 · 3인칭 카메라 + 휠 줌 · 플라스틱 광택 · 매끈 질감 · 즉시 가속·정지 · 로블록스 체공 0.54초(경주는 그대로) · 공중 자세 둘) · 47차 경주 골인율 · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 사람 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 사람·좀비 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -7622,22 +7622,53 @@ function imesh(geo, mat, cap, color){
      '머리 f 0.68 · u 1.06 · 크기 0.68×0.64×0.62' 기준으로 백여 줄 적혀 있어서, 머리를 제멋대로 다시 재면
      그 표를 통째로 다시 재야 한다. 비율 하나면 모자·안경·얼굴이 **한꺼번에** 같이 줄어든다 —
      옮기고 줄이는 일은 HX/HZ/YH 세 줄이 다 한다. 표는 한 줄도 안 고쳤다. */
-const R6_HF = 0.00, R6_HU = 1.27, R6_HK = 0.72;      // 머리 중심 · 머리는 사람 머리의 72%
-const r6hu = (u)=> R6_HU + (u - 1.06)*R6_HK;         // 사람 표의 머리 기준 높이 → R6 높이
-const R6_LEG = [0.32, 0.48, 0.34], R6_HIP = 0.48, R6_HSD = 0.18;
-const R6_TOR = [0.84, 0.56, 0.48], R6_TU = 0.76;
-const R6_ARM = [0.25, 0.54, 0.28], R6_SHU = 1.04, R6_ASD = 0.545;
+/* ★ 51차b — 선생님이 로블록스 기본 캐릭터(베이컨 헤어) 사진을 주며 "이 캐릭터처럼 비율·그래픽을 다시 맞춰 달라" 고 했다.
+   51차 첫 판은 눈대중으로 잡아서 **몸통 너비가 키의 56%**(로블록스는 38.5%)였다 — 넓적한 아기 몸이었다.
+   이제 **로블록스 실제 부위 크기(스터드)를 그대로 옮긴다.** 한 스터드 = 0.30칸:
+       다리 1 × 2 × 1  ·  몸통 2 × 2 × 1  ·  팔 1 × 2 × 1  ·  머리 1.28 × 1.2 × 1.2
+       키 = 2 + 2 + 1.2 = 5.2스터드 = 1.56칸 · 두 팔까지 너비 4스터드 = 1.20칸
+   비율로 적으면 다리 38.5% · 몸통 38.5% · 머리 23% — 사진에서 잰 값과 같다. */
+const STUD = 0.30;
+const R6_HF = 0.00, R6_HU = 1.392, R6_HK = 0.60;         // 머리 중심 1.392(몸통 위 1.20 + 머리 반 0.192) · 머리는 46차 양 머리 표의 0.60배
+                                                         // = 1.36 × 1.28 × 1.24스터드 — 사진에서 잰 '머리 너비가 몸통의 0.7배' 에 맞췄다
+const r6hu = (u)=> R6_HU + (u - 1.06)*R6_HK;             // 양 표의 머리 기준 높이 → R6 높이
+const R6_LEG = [1.00*STUD, 2.00*STUD, 1.00*STUD], R6_HIP = 2.00*STUD, R6_HSD = 0.50*STUD;
+const R6_TOR = [2.00*STUD, 2.00*STUD, 1.00*STUD], R6_TU  = 3.00*STUD;
+const R6_ARM = [1.00*STUD, 2.00*STUD, 1.00*STUD], R6_SHU = 4.00*STUD, R6_ASD = 1.50*STUD;
 const R6_HEAD = [0.68*R6_HK, 0.64*R6_HK, 0.62*R6_HK];
-const R6_SKIN = 0xf6cf4a,          // 로블록스 클래식 노랑(#F5CD30)에서 살짝 밝게 — 머리와 팔
-      R6_HAIR = 0x4a3222,          // 머리털 — 모자를 안 쓴 아이가 노란 알로만 보이지 않게
-      R6_PANT = 0x2f4a86;          // 바지 — 남색
+/* ── 기본 착장 = 로블록스 기본 캐릭터(베이컨 헤어) ──
+   하얀 살 · 금빛 삐죽 머리 · 검은 재킷(가운데로 셔츠가 보인다) · 어두운 바지 · 하얀 신발.
+   ★ 셔츠가 **모둠 색**이다. 재킷을 통째로 씌우면 다섯 모둠이 다 검게 보이므로, 재킷은 **옆 두 판**으로만
+     둘러 가운데 3분의 1을 열어 둔다 — 사진의 파란 티셔츠가 보이는 그 자리다. */
+const R6_SKIN = 0xf2f0ec,          // 로블록스 기본 하양 살빛 (머리·팔·손)
+      R6_HAIR = 0xd8891c,          // 베이컨 머리 — 금빛 갈색
+      R6_HAIR2= 0xf2ad3e,          //              밝은 갈래
+      R6_JACK = 0x1f1f26,          // 검은 재킷 (몸통 옆판 · 소매)
+      R6_PANT = 0x232a2e,          // 어두운 바지
+      R6_SHOE = 0xf2f0ec;          // 하얀 신발
+/* 베이컨 머리 — [앞f, 위u, 옆sd, 가로, 세로, 깊이, 색, 앞뒤기울기, 정수리인가]
+   자리는 46차 양 머리 표 기준(머리 중심 f 0.68 · u 1.06)이라 HX/YH 가 그대로 옮겨 준다.
+   ★ 모자를 쓰면 **정수리 갈래(top=1)는 안 그린다** — 로블록스도 모자가 머리카락을 밀어낸다. */
+const R6_BACON = [
+  /* ★ 첫 판은 앞 갈래를 f 0.98~1.00 에 뒀다가 **얼굴 앞을 막는 상자**가 됐다(3/4 각도에서 눈이 안 보였다).
+     얼굴 앞면이 f 0.99 · 눈이 u 1.12 다 — 앞으로 오는 갈래는 **u 1.40 위**에서만, 얇게. */
+  [0.64, 1.46, 0,     0.84, 0.22, 0.80, R6_HAIR,  0.00, 1],   // 정수리 덮개 — 머리를 덮는 판
+  [0.44, 1.40, 0,     0.80, 0.30, 0.46, R6_HAIR,  0.00, 0],   // 뒤통수 덩어리
+  [0.36, 1.12, 0,     0.72, 0.48, 0.26, R6_HAIR,  0.00, 0],   // 뒷머리 — 목까지 내려온다
+  [0.62, 1.12,  0.34, 0.14, 0.46, 0.46, R6_HAIR,  0.00, 0],   // 옆갈래 둘 — 귀를 덮고 턱선까지 (얼굴 앞면 f 0.99 보다 뒤에 둔다)
+  [0.62, 1.12, -0.34, 0.14, 0.46, 0.46, R6_HAIR,  0.00, 0],
+  [0.90, 1.47, 0,     0.66, 0.16, 0.34, R6_HAIR2,-0.26, 1],   // 이마 앞머리 — 눈 위를 얇게 덮는다
+  [0.84, 1.60, 0,     0.32, 0.44, 0.28, R6_HAIR2,-0.50, 1],   // 앞으로 솟은 가시 셋 — 베이컨의 그 뿔
+  [0.66, 1.66,  0.24, 0.26, 0.46, 0.26, R6_HAIR, -0.24, 1],
+  [0.64, 1.63, -0.26, 0.24, 0.42, 0.26, R6_HAIR2,-0.30, 1]
+];
 /* ── 사람 표 좌표 → 선 몸통 자리 ──
    옷(11가지)·전직 차림새(직업 3 × 단계 2)는 **네발 몸통**(0.84 × 0.62 × 0.94)에 맞춰 적어 둔 표다.
    선 몸통(0.80 × 0.50 × 0.46)에 그대로 얹으면 가슴판이 가슴 앞 0.3칸에 떠 있고 망토가 등에서 떨어진다.
    그래서 앞뒤를 반으로 누르고(BF) 위아래를 다시 잰다.
    ★ 위아래는 **조각의 위끝·아래끝을 따로 옮겨** 가운데와 높이를 다시 낸다 — 가운데만 옮기면
      긴 망토(높이 1.00)가 머리 위까지 솟는다. 네발 등판 위(u > 0.87)는 선 몸에 없는 공간이라 더 눌린다. */
-const BF = 0.51, BW = 1.00, BU0 = 0.76, BK = 0.90, BTOP = 0.87, BTK = 0.50;
+const BF = 0.32, BW = 0.71, BU0 = 0.90, BK = 0.97, BTOP = 0.87, BTK = 0.45;
 const BUT = BU0 + (BTOP - 0.56)*BK;
 const bu6 = (u)=> u <= BTOP ? BU0 + (u - 0.56)*BK : BUT + (u - BTOP)*BTK;
 const R6_T = [0,0,0,0,0,0];
@@ -7665,12 +7696,12 @@ const eyeMat = flatMat(0xffffff, {emissive:0xff3300, emissiveIntensity:0.0});
 const W_body = imesh(RB,  FM.fur,  MAXW, 1),        // 몸통(셔츠)
       W_head = imesh(RB,  FM.fur,  MAXW, 1),        // 머리
       W_snout= imesh(RB,  FM.furD, MAXW, 1),        // 벌어진 입 (46차까지는 주둥이)
-      W_tail = imesh(RB,  FM.fur,  MAXW, 1),        // 머리털 (46차까지는 꼬리)
+      W_tail = imesh(RB,  FM.fur,  MAXW*3, 1),      // 머리털 — 51차b: 헝클어진 세 덩이 (46차까지는 꼬리 하나)
       W_legs = imesh(RB,  FM.fur,  MAXW*8, 1),      // 팔 둘 + 다리 둘 — 마디 없는 통짜(R6)
       W_eyes = imesh(BALL, eyeMat, MAXW*2, 1),
       W_ears = imesh(RBs, FM.fur,  MAXW*2, 1),      // 귀 (살빛이라 밝은 바탕을 쓴다)
       W_chest= imesh(RB,  FM.fur,  MAXW, 1),        // 찢긴 셔츠 자락
-      W_hack = imesh(RBs, FM.furD, MAXW*6, 1),      // 등에 솟은 뼈 — 물기 직전에 곤두선다 (36차: 공포는 여섯이라 정원을 늘렸다)
+      W_hack = imesh(RBs, FM.furD, MAXW*8, 1),      // 등뼈 여섯 + 51차b 어깨 소매 둘 — 물기 직전에 곤두선다
       W_paw  = imesh(BALL,FM.dark, MAXW*4, 1),      // 움켜쥔 두 손
       W_horn = imesh(RBs, FM.wool, MAXW*2, 1),      // 보스 + 흉포한 좀비의 뿔
       W_nose = imesh(BALL,FM.dark, MAXW, 1),        // 코
@@ -7688,7 +7719,7 @@ const dreadRingMat = new THREE.MeshBasicMaterial({color:0x1a0a26, transparent:tr
 const W_belly  = imesh(RB,  FM.fur,  MAXW, 1),        // 배 — 밝은 털 띠
       W_brow   = imesh(RBs, FM.furD, MAXW*2, 1),      // 눈썹 — 코 쪽으로 처져 성난 얼굴
       W_cheek  = imesh(RBs, FM.fur,  MAXW*2, 1);      // 51차 — 움푹 팬 볼 (46차까지는 볼 털)
-const W_rib    = imesh(RBs, FM.furD, MAXW*6, 1),
+const W_rib    = imesh(RBs, FM.furD, MAXW*10, 1),  // 51차b — 갈비 넷 + 움푹 팬 눈 둘 + 가슴 상처 · 턱 핏자국
       W_tongue = imesh(RBs, tongueMat, MAXW, 1),
       W_plate  = imesh(RB,  plateMat, MAXW*24, 1),    // 36차b — 갑옷 한 벌이 쉰 조각쯤(철판·테두리·리벳·치마·목·어깨·투구·정강이·꼬리) — 마흔 마리까지
       W_gem    = imesh(new THREE.OctahedronGeometry(0.5, 0), gemMat, MAXW, 1),
@@ -8146,7 +8177,7 @@ const S_body = imesh(RBr, FM.wool, MAXS, 1), S_head = imesh(RBr, FM.woolD, MAXS,
 /* 27차 — 둥근 상자·공 + 원색. 눈·반짝이·코·볼·꼬리는 공이다(인형 눈·볼·꼬리 방울). */
 const P_body = imesh(RB,   FM.wool,  MAXP,   1),   // 몸통 = 셔츠. 모둠 색이 붙는 제일 큰 면이다
       P_head = imesh(RB,   FM.woolD, MAXP,   1),   // 머리
-      P_frng = imesh(RB,   FM.woolD, MAXP,   1),   // 머리털 — 51차: 46차까지는 사람 앞머리였다
+      P_frng = imesh(RB,   FM.wool,  MAXP*10, 1),  // 머리털 — 51차b: 베이컨 머리 아홉 갈래 (46차까지는 양 앞머리 하나)
       P_arm  = imesh(RBs,  FM.woolD, MAXP*2, 1),   // 팔 2개 — 51차: 46차까지는 사람 귀였다
       P_eye  = imesh(BALLs, FM.eye,   MAXP*4, 1),  // 눈 2개 + 눈 반짝이 2개 (47차 — 잔 공)
       P_nose = imesh(BALLs, FM.snout, MAXP*3, 1),  // 볼터치 2개 + 쓰러졌을 때 혀 (47차 — 잔 공)
@@ -8165,6 +8196,11 @@ const P_body = imesh(RB,   FM.wool,  MAXP,   1),   // 몸통 = 셔츠. 모둠 �
            52 로 올린다. 지금 제일 많이 걸친 아이는 6+7+8+20 = 41 이다.
            검사(t23)가 표에서 이 최대값을 세어 칸과 맞대 본다 — 다음에 또 늘려도 바로 걸린다. */
       P_deco = imesh(RBs, FM.cloth, MAXP*52, 1),
+      /* ★ 51차b — **기본 착장(검은 재킷 옆판 둘 · 소매 둘 · 하얀 신발 둘)은 따로 둔다.**
+         처음에는 P_deco 에 같이 얹어 드로우콜을 아꼈는데, 그러면 *아무도 아무것도 안 걸쳐도*
+         P_deco 가 늘 여섯 조각 × 사람 수를 들고 있어 **'아무도 안 걸치면 숨긴다' 가 영영 거짓**이 된다
+         (t7·t10 이 그 자리에서 빨개졌다). 꾸미기 메시는 '걸친 것' 만 들어야 숨길 수 있다. */
+      P_wear = imesh(RBs, FM.cloth, MAXP*6, 1),
       /* 45차 — 전직 2차의 빛나는 조각(가산 한 겹, 조금 크게)과 발밑 오라 고리.
          총 강화 빛(P_gunF)과 같은 수법이다 — MeshBasicMaterial 이라 조명을 안 받아 색이 그대로 살고 밤에 스스로 빛난다. */
       P_jobF = imesh(RBs, new THREE.MeshBasicMaterial({transparent:true, opacity:0.5,
@@ -8839,7 +8875,7 @@ function wolfPose(w, t, dt){
 function drawWolves(list, t, dt){
   dt = Math.min(0.05, dt || 0.016);
   for(let i=WOLF_DEAD.length-1;i>=0;i--) if(!(WOLF_DEAD[i].dead > 0)) WOLF_DEAD.splice(i,1);   // 44차 — 다 쓰러진 시체는 치운다
-  let n=0, ln=0, en=0, hn=0, pn=0, horn=0, rib=0, tng=0, pl=0, gem=0, ew=0, fg=0, hr=0, dr=0, bm=0;   // 36차 — 종류별 조각 셈
+  let n=0, ln=0, en=0, hn=0, pn=0, horn=0, rib=0, tng=0, pl=0, gem=0, ew=0, fg=0, hr=0, dr=0, bm=0, hrn=0;   // 36차 — 종류별 조각 셈 · 51차b — 머리털 셋(hrn)
   const RK = wolfRank(G.day);          // 오늘 밤 좀비들의 등급 (보스는 늘 3)
   // 밤이 깊을수록 눈이 타오른다 — 등급이 높으면 더
   eyeMat.emissiveIntensity = 0.15 + NIGHTK*(1.55 + RK*0.35);
@@ -8891,7 +8927,9 @@ function drawWolves(list, t, dt){
        셔츠 = 종류 색(등급 물듦·맞은 번쩍임이 그대로 산다) · 살 = 그 색을 초록으로 당긴 것 · 바지 = 어두운 색.
        모든 부위가 같은 bob 을 써야 걸을 때 서로 어긋나지 않는다. */
     const hit    = w.hurt>0 || w.healed>0;
-    const skin   = hit ? col : zomSkin(col);
+    /* 51차b — 좀비마다 살빛이 조금씩 다르다(±8%). 스무 마리가 똑같은 초록이면 한 덩어리로 보인다 */
+    const vj     = 0.92 + (((w.ph||0)*7.3) % 1)*0.16;
+    const skin   = hit ? col : zomDark(zomSkin(col), 1 - vj);
     const skinL  = hit ? col : furLight(skin, 0.18);
     const pant   = hit ? col : rankTint(0x5f6b7e, boss?0:rk);
     /* 셔츠는 종류 색을 한 번 어둡게 한 것 — 때 묻고 헤진 옷으로 읽히고, 우리 편의 밝은 모둠 색과도 갈린다.
@@ -8905,12 +8943,13 @@ function drawWolves(list, t, dt){
     // 몸통(셔츠)
     setIR(W_body, n, ZX(0,0), ZY(TU), ZZ(0,0), ry + roll, lean,
       R6_TOR[0]*sc*LK.bw*breath, R6_TOR[1]*sc*LK.bh*breath, R6_TOR[2]*sc*lng, shirt);
-    // 찢긴 셔츠 자락 — 몸통보다 조금 크고 어둡게, 허리께에 두른다
-    setIR(W_chest, n, ZX(0,0), ZY(TU-0.19), ZZ(0,0), ry + roll, lean,
-      (R6_TOR[0]+0.04)*sc*LK.bw, 0.17*sc*LK.bh, (R6_TOR[2]+0.04)*sc, shirtD);
-    // 옷깃 — 어깨선을 덮는 띠. 옷이 어디서 끝나는지가 보여야 '입은 것'으로 읽힌다
-    setIR(W_ruff, n, ZX(0,0), ZY(TU+0.25), ZZ(0,0), ry + roll, lean,
-      (R6_TOR[0]+0.03)*sc*LK.bw, 0.10*sc*LK.bh, (R6_TOR[2]+0.03)*sc, shirtD);
+    /* 찢긴 셔츠 자락 · 옷깃 — 51차b: **좀비마다 다르게 비뚜름하다.** 반듯한 띠 둘을 두르면
+       옷이 아니라 허리띠 두 개로 보인다. 기울기를 좀비마다 달리하면 '헤진 옷' 으로 읽힌다. */
+    const rag = (((w.ph||0)*5.1) % 1 - 0.5);
+    setIR3(W_chest, n, ZX(0,0), ZY(TU-0.19), ZZ(0,0), ry + roll, lean + rag*0.16, rag*0.22,
+      (R6_TOR[0]+0.05)*sc*LK.bw, 0.19*sc*LK.bh, (R6_TOR[2]+0.05)*sc, shirtD);
+    setIR3(W_ruff, n, ZX(0,0), ZY(TU+0.25), ZZ(0,0), ry + roll, lean - rag*0.12, -rag*0.18,
+      (R6_TOR[0]+0.04)*sc*LK.bw, 0.11*sc*LK.bh, (R6_TOR[2]+0.04)*sc, shirtD);
     // 허리띠
     setIR(W_belly, n, ZX(0,0), ZY(HIP+0.03), ZZ(0,0), ry + roll, lean,
       (R6_TOR[0]+0.02)*sc*LK.bw, 0.09*sc*LK.bh, (R6_TOR[2]+0.02)*sc, 0x2a2a30);
@@ -8924,16 +8963,27 @@ function drawWolves(list, t, dt){
     const cph = Math.cos(hPit), sph = Math.sin(hPit);
     const hfx = Math.sin(hYaw), hfz = Math.cos(hYaw);      // 머리 기준 '앞'
     const hrx = Math.cos(hYaw), hrz = -Math.sin(hYaw);     // 머리 기준 '오른쪽'
-    const hw = sc*LK.hw;
+    /* ★ 51차b — 머리 크기 자(hw0)와 **얼굴 조각 자(hw)를 따로 둔다.** 눈·코·입·투구는 51차 첫 판의
+       큰 머리(R6_HK 0.72)에 맞춰 손으로 잰 값이라, 머리가 0.60 으로 줄면 그 비율만큼 같이 줄여야
+       얼굴이 머리 앞에 둥둥 뜨지 않는다. */
+    const hw0 = sc*LK.hw, hw = hw0*(0.60/0.72);
     const hx0 = ZX(0,0), hy0 = ZY(R6_HU) + hnod, hz0 = ZZ(0,0);
     const HX=(f,u,s)=> hx0 + hfx*cph*f + hfx*sph*u + hrx*s;
     const HY=(f,u)  => hy0 - sph*f + cph*u;
     const HZ=(f,u,s)=> hz0 + hfz*cph*f + hfz*sph*u + hrz*s;
     setIR(W_head, n, hx0, hy0, hz0, hYaw, hPit,
-      R6_HEAD[0]*hw, R6_HEAD[1]*hw, R6_HEAD[2]*hw, skin);
-    // 머리털 — 정수리에 얹은 판. 헝클어져 앞뒤로 조금 길다
-    setIR(W_tail, n, HX(-0.02*hw,0.20*hw,0), HY(-0.02*hw,0.20*hw), HZ(-0.02*hw,0.20*hw,0), hYaw, hPit,
-      0.53*hw, 0.15*hw, 0.50*hw, 0x2b2230);
+      R6_HEAD[0]*hw0, R6_HEAD[1]*hw0, R6_HEAD[2]*hw0, skin);
+    /* 머리털 — 51차b: 판 하나였을 때는 **베레모를 쓴 것처럼** 보였다. 크기와 기울기가 다른 세 덩이로
+       나누고 좀비마다 헝클어진 정도를 달리해, 실루엣 위쪽이 들쭉날쭉하게 만든다. */
+    { const hz = (((w.ph||0)*4.3) % 1 - 0.5);
+      const TUFT = [[-0.02, 0.19, 0,     0.53, 0.15, 0.50,  0.00],
+                    [-0.16, 0.24, 0.10,  0.26, 0.17, 0.26,  0.30],
+                    [ 0.10, 0.25,-0.13,  0.22, 0.19, 0.22, -0.34]];
+      for(const q of TUFT){
+        const f = q[0]*hw, u = q[1]*hw, sd = q[2]*hw;
+        setIR3(W_tail, hrn++, HX(f,u,sd), HY(f,u), HZ(f,u,sd), hYaw, hPit + q[6]*hz,
+          q[3]*hw, q[4]*hw, q[5]*hw, (q[6]*hz)*0.6, 0x2b2230);
+      } }
     // 벌어진 입 — 물 때 더 크게 벌어진다
     { const mF = 0.22*hw, mU = -0.12*hw;
       setIR(W_snout, n, HX(mF,mU,0), HY(mF,mU), HZ(mF,mU,0), hYaw, hPit,
@@ -8959,6 +9009,21 @@ function drawWolves(list, t, dt){
       setIR(W_eyes, en++, HX(yF,yU,yS), HY(yF,yU), HZ(yF,yU,yS), hYaw, hPit,
         0.10*hw*es, 0.10*hw*es, 0.09*hw*es, ec);
     }
+    /* 51차b — **움푹 팬 눈구멍** — 타오르는 눈 뒤에 어두운 구멍을 깔면 눈이 얼굴 앞에 붙은 구슬이 아니라
+       쑥 들어간 눈이 된다. 공포 좀비만 갖던 인상을 모두가 갖는다(공포는 아래에서 더 깊게 덧그린다). */
+    if(look !== 'fear') for(const si of [1,-1]){
+      const oF = 0.215*hw, oU = 0.05*hw, oS = 0.125*hw*si;
+      setIR(W_rib, rib++, HX(oF,oU,oS), HY(oF,oU), HZ(oF,oU,oS), hYaw, hPit,
+        0.19*hw, 0.17*hw, 0.06*hw, 0x0b0910);
+    }
+    /* 턱을 타고 흘러내린 핏자국 — 입 아래 한 줄. 좀비를 좀비로 읽게 하는 제일 싼 한 조각이다 */
+    { const bF = 0.225*hw, bU = -0.175*hw, bS = (0.045 + 0.055*(((w.ph||0)*6.7) % 1))*hw*((w.ph||0) % 2 < 1 ? 1 : -1);
+      setIR(W_rib, rib++, HX(bF,bU,bS), HY(bF,bU), HZ(bF,bU,bS), hYaw, hPit,
+        0.045*hw, 0.11*hw, 0.05*hw, 0x7a1018); }
+    /* 가슴에 말라붙은 상처 — 좀비마다 자리가 다르다 */
+    { const wx = (((w.ph||0)*2.3) % 1 - 0.5)*0.30;
+      setIR3(W_rib, rib++, ZX(0.25, wx), ZY(TU + 0.05 + wx*0.3), ZZ(0.25, wx), ry+roll, lean, 0.7 + wx,
+        0.26*sc*LK.bw, 0.09*sc, 0.05*sc, 0xff6a5a); }
     // 눈썹(코 쪽이 처진 성난 V — 새끼는 반대로 살짝 올려 순하게) · 움푹 팬 볼
     for(const si of [1,-1]){
       const bF = 0.225*hw, bU = (0.14 + LK.eye*0.01)*hw, bS = 0.12*hw*si;
@@ -8974,13 +9039,25 @@ function drawWolves(list, t, dt){
     /* ── 팔 둘 ── 좀비는 **늘 앞으로 뻗은 채** 걷는다. 물 때 아래로 내리친다.
        팔다리는 마디 없는 통짜(limb1)다 — 사람과 같은 R6 몸이다. */
     for(const si of [1,-1]){
+      /* 51차b — **두 팔이 대칭이 아니다.** 한쪽은 더 처지고 한쪽은 더 뻗는다(좀비마다 어느 쪽인지 다르다).
+         좌우가 똑같이 뻗으면 사람이 기지개 켜는 것처럼 보인다. */
+      const asym = si*(((w.ph||0)*3.7) % 1 - 0.5)*0.55;
       const th = 1.40 - bite*1.00 + crouch*0.16 + mvK*Math.sin(gait + (si>0 ? 0 : 0.8))*0.12
-                 + (1 - mvK)*life.br*0.05 - dk*0.95;
-      const rl = si*(0.16 + Math.sin(t*0.9 + (w.ph||0) + si)*0.05) + shake*0.12*si;
+                 + (1 - mvK)*life.br*0.05 - dk*0.95 + asym;
+      const rl = si*(0.10 + Math.sin(t*0.9 + (w.ph||0) + si)*0.05) + shake*0.12*si;
       const L = R6_ARM[1]*sc*LK.bh;
-      const ax = ZX(0, R6_ASD*si), ay = ZY(SHU), az = ZZ(0, R6_ASD*si);
+      /* ★ 51차b — 어깨 자리는 **몸통 너비에서 구한다.** R6_ASD 를 그냥 쓰면 ZX 가 LK.bw 를 곱하는 바람에
+         두꺼운 좀비(갑옷 bw 1.12)는 팔이 몸통에서 떨어져 뜨고, 마른 좀비(굶주린 0.80)는 팔이 몸통에 파묻힌다.
+         몸통 반 + 팔 반 = 팔 한가운데. ZX 가 LK.bw 를 곱하니 여기서 도로 나눠 준다. */
+      const asd = (R6_TOR[0]*LK.bw + R6_ARM[0])*0.5/LK.bw;
+      const ax = ZX(0, asd*si), ay = ZY(SHU), az = ZZ(0, asd*si);
       limb1(W_legs, ln++, ax, ay, az, fx, fz, rx, rz, ry + roll, th, rl,
         L, R6_ARM[0]*sc, R6_ARM[2]*sc, skin);
+      /* 헤진 소매 — 팔 위쪽 절반에 조금 더 굵게. 팔을 앞으로 뻗은 좀비 자세는 정면에서 보면
+         팔 끝만 크게 보여 **팔이 몸에서 떨어진 상자**처럼 읽힌다. 어깨에 옷이 걸쳐 있으면 이어져 보인다. */
+      if(hn < W_hack.count_max)
+        limb2(W_hack, hn++, ax, ay, az, fx, fz, rx, rz, ry + roll, th, rl,
+          0, L*0.46, R6_ARM[0]*sc*1.16, R6_ARM[2]*sc*1.16, shirtD);
       /* 손 — 뻗은 팔 끝에 움켜쥔 주먹. 없으면 팔이 잘려 보인다 */
       const cr = Math.cos(rl), sr = Math.sin(rl), stt = Math.sin(th), ctt = Math.cos(th);
       setIR(W_paw, pn++, ax + (fx*stt*cr + rx*sr)*L, ay - ctt*cr*L, az + (fz*stt*cr + rz*sr)*L,
@@ -9026,7 +9103,11 @@ function drawWolves(list, t, dt){
          어깨 갑옷 · 투구(띠·지붕·챙·코가리개·볼가리개·황동 볏) · 등판.
          조각은 전부 W_plate(쇠 재질) 하나에 인스턴스 색만 다르다 — 강철 ST · 무쇠 테두리 IR · 리벳 RV · 황동 BR. */
       const ST = 0x5e6774, IR = 0x14161b, RV = 0xd2d8e0, BR = 0xb8923e;
-      const P = (f,u,sd, pit, sx,sy,sz, c)=> setIR(W_plate, pl++, ZX(f,sd), ZY(u), ZZ(f,sd), ry+roll, lean+pit, sx*sc, sy*sc, sz*sc, c);
+      /* ★ 51차b — 갑옷 조각은 51차 첫 판의 **넓은 몸통**(0.84 × 0.48)에 맞춰 잰 값이다.
+         몸통이 로블록스 값(0.60 × 0.30)으로 좁아졌으니 앞뒤는 AF, 옆은 AW 만큼 같이 줄인다 —
+         안 줄이면 가슴판이 몸 밖으로 한 뼘씩 튀어나와 통이 큰 드럼통이 된다. */
+      const AF = 0.62, AW = 0.78;
+      const P = (f,u,sd, pit, sx,sy,sz, c)=> setIR(W_plate, pl++, ZX(f*AF,sd*AW), ZY(u), ZZ(f*AF,sd*AW), ry+roll, lean+pit, sx*AW*sc, sy*sc, sz*AF*sc, c);
       /* 가슴판 — 다가오는 좀비에서 제일 먼저 보이는 조각 */
       P(0.24, TU+0.03, 0, 0, 0.88*LK.bw, 0.56, 0.10, IR);
       P(0.28, TU+0.03, 0, 0, 0.74*LK.bw, 0.46, 0.08, ST);
@@ -9126,9 +9207,9 @@ function drawWolves(list, t, dt){
   }
   W_horn.count = horn; W_aura.count = bn;
   W_aura.instanceMatrix.needsUpdate = true;
-  W_body.count=n; W_chest.count=n; W_head.count=n; W_snout.count=n; W_tail.count=n;
+  W_body.count=n; W_chest.count=n; W_head.count=n; W_snout.count=n;
   W_nose.count=n; W_ruff.count=n;
-  W_legs.count=ln; W_paw.count=pn; W_eyes.count=en; W_ears.count=en; W_hack.count=hn;
+  W_legs.count=ln; W_paw.count=pn; W_eyes.count=en; W_ears.count=en; W_hack.count=hn; W_tail.count=hrn;
   W_belly.count=n; W_brow.count=en; W_cheek.count=en;
   W_rib.count=rib; W_tongue.count=tng; W_plate.count=pl; W_gem.count=gem; W_eyeW.count=ew; W_eyeR.count=ew; W_pupil.count=ew; W_fang.count=fg;
   W_heal.count=hr; W_dread.count=dr; W_beam.count=bm; W_heal.instanceMatrix.needsUpdate = W_dread.instanceMatrix.needsUpdate = W_beam.instanceMatrix.needsUpdate = true;
@@ -9286,10 +9367,15 @@ function leg2(mesh, i0, paw, pi, hx, hy, hz, fx, fz, ry, th1, bend, L1, L2, w, c
    th 0 = 아래로 곧게 · th +π/2 = 앞으로 · th π = 위로 번쩍. rl 은 바깥으로 벌리는 각(오른쪽이 +).
    leg2 와 달리 무릎이 없다 — 그게 R6 다. 좀비는 네발짐승이라 그대로 leg2 를 쓴다. */
 function limb1(mesh, i, hx, hy, hz, fx, fz, rxv, rzv, ry, th, rl, L, w, d, col){
+  limb2(mesh, i, hx, hy, hz, fx, fz, rxv, rzv, ry, th, rl, 0, L, w, d, col);
+}
+/* 51차b — 같은 팔다리 축 위에서 **어깨(엉덩이)로부터 off 만큼 내려간 자리**에 길이 L2 짜리 토막을 놓는다.
+   재킷 소매(팔 위쪽 절반)와 하얀 신발(다리 아래끝)이 팔다리와 함께 정확히 돌아간다. */
+function limb2(mesh, i, hx, hy, hz, fx, fz, rxv, rzv, ry, th, rl, off, L2, w, d, col){
   const sr = Math.sin(rl), cr = Math.cos(rl), st = Math.sin(th), ct = Math.cos(th);
-  const ox = cr*st*L*0.5, os = sr*L*0.5;
-  setIR3(mesh, i, hx + fx*ox + rxv*os, hy - cr*ct*L*0.5, hz + fz*ox + rzv*os,
-    ry, -th, rl, w, L, d, col);
+  const m = off + L2*0.5;
+  setIR3(mesh, i, hx + (fx*cr*st + rxv*sr)*m, hy - cr*ct*m, hz + (fz*cr*st + rzv*sr)*m,
+    ry, -th, rl, w, L2, d, col);
 }
 const GAIT_M = new WeakMap();
 const STRIDE_WALK = 1.3, STRIDE_RUN = 1.75;
@@ -9306,7 +9392,7 @@ function sheepGait(s, t){
   return g;
 }
 function drawSheep(list, t, cap, colOf, scale){
-  let n=0, ln=0, armN=0, eyeN=0, noseN=0, decoN=0, gunN=0, glowN=0, mouthN=0, jobFN=0, jobRN=0;   // 45차 — 전직 빛·고리 · 51차 — 팔(armN)
+  let n=0, ln=0, armN=0, hairN=0, eyeN=0, noseN=0, decoN=0, wearN=0, gunN=0, glowN=0, mouthN=0, jobFN=0, jobRN=0;   // 45차 — 전직 빛·고리 · 51차 — 팔(armN)·머리털(hairN)
   const wN = [0,0], wgN = [0,0];                                     // 45차 — 날개(깃털·불꽃) · 날개 빛
 
   for(const s of list){
@@ -9386,13 +9472,25 @@ function drawSheep(list, t, cap, colOf, scale){
     /* ── 몸통(셔츠) ── 모둠 색이 붙는 제일 큰 면이다. 달릴 때 앞뒤로 살짝 기운다(lean) */
     setIR(P_body, n, X(0,0), Y(R6_TU), Z(0,0), ry, lean,
       R6_TOR[0]*sc*widen*breath, R6_TOR[1]*sc*stretch*breath, R6_TOR[2]*sc*lng, col);
+    /* ── 검은 재킷 ── 몸통 옆을 두르는 판 둘. 가운데 3분의 1이 열려 **모둠 색 셔츠**가 보인다.
+       통째로 씌우면 다섯 모둠이 다 검게 보여 누가 우리 편인지 안 보인다(사진의 파란 티셔츠 자리다). */
+    for(const si of [1,-1]){
+      if(wearN >= P_wear.count_max) break;
+      setIR(P_wear, wearN++, X(0, 0.335*R6_TOR[0]*si), Y(R6_TU), Z(0, 0.335*R6_TOR[0]*si), ry, lean,
+        0.35*R6_TOR[0]*sc*widen*breath, R6_TOR[1]*sc*stretch*breath*1.01, R6_TOR[2]*sc*lng*1.06, R6_JACK);
+    }
     /* ── 머리 ── 자리·크기는 46차 사람 머리 그대로다(모자·안경 표 백여 줄이 이 기준으로 적혀 있다).
        얼굴 앞면은 머리 기준 f=0.99 — 얼굴에 붙는 것(눈·입·볼)은 그보다 앞으로 나와야 안 파묻힌다. */
     setIR(P_head, n, HX(0.68,0), YH(1.06), HZ(0.68,0), hry, lean*0.6,
       R6_HEAD[0]*sc, R6_HEAD[1]*sc, R6_HEAD[2]*sc, R6_SKIN);
-    /* ── 머리털 ── 정수리에 얹은 납작한 판. 모자를 안 쓴 아이가 노란 알로만 보이지 않게 한다 */
-    setIR(P_frng, n, HX(0.68,0), YH(1.36), HZ(0.68,0), hry, lean*0.6,
-      0.78*R6_HK*sc, 0.24*R6_HK*sc, 0.72*R6_HK*sc, R6_HAIR);
+    /* ── 베이컨 머리 ── 로블록스 기본 캐릭터의 그 금빛 삐죽머리. 갈래 아홉이 한 메시에 들어간다.
+       모자를 쓰면 정수리 갈래는 건너뛴다 — 안 그러면 모자 속에서 가시가 뚫고 나온다. */
+    { const hatOn = (s.hat|0) > 0, hk2 = R6_HK*sc;
+      for(const h of R6_BACON){
+        if(hatOn && h[8]) continue;
+        setIR(P_frng, hairN++, HX(h[0],h[2]), YH(h[1]), HZ(h[0],h[2]), hry, lean*0.6 + h[7],
+          h[3]*hk2, h[4]*hk2, h[5]*hk2, h[6]);
+      } }
     /* ── 팔 둘 ── 다리와 **반대로** 흔든다(오른팔 ↔ 왼다리) — 사람 걸음의 핵심이다.
        ★ 공중 자세 둘은 48차에 적어 둔 로블록스 그대로다: **오를 땐 두 팔을 번쩍**, **내려올 땐 옆으로 벌린다.**
          47차까지는 네발이라 이걸 다리로 흉내 냈는데, 이제 팔이 있으니 있는 그대로 한다.
@@ -9407,8 +9505,13 @@ function drawSheep(list, t, cap, colOf, scale){
         th = (rise ? 2.94 : 0.16) + lean*0.5; rl = si*(rise ? 0.24 : 1.05); }  // 오를 때 번쩍 · 내려올 때 활짝
       else { th = -mvK*Math.sin(gait + (si > 0 ? 0 : Math.PI))*(run ? 0.95 : 0.66) + lean*0.5;
              rl = si*(0.03 + (1 - mvK)*life.br*0.03); }                        // 서 있으면 숨결만큼 벌어진다
+      const aL = R6_ARM[1]*sc*stretch, aW = R6_ARM[0]*sc*widen, aD = R6_ARM[2]*sc;
       limb1(P_arm, armN++, X(0, R6_ASD*si), shY, Z(0, R6_ASD*si), fx, fz, rx, rz, ry, th, rl,
-        R6_ARM[1]*sc*stretch, R6_ARM[0]*sc*widen, R6_ARM[2]*sc, R6_SKIN);
+        aL, aW, aD, R6_SKIN);
+      /* 검은 재킷 소매 — 팔 위쪽 절반. 팔과 같은 축이라 흔들어도 안 어긋난다 */
+      if(wearN < P_wear.count_max)
+        limb2(P_wear, wearN++, X(0, R6_ASD*si), shY, Z(0, R6_ASD*si), fx, fz, rx, rz, ry, th, rl,
+          0, aL*0.52, aW*1.07, aD*1.07, R6_JACK);
     }
     /* ── 다리 둘 ── 마디가 없는 통짜다. 발(u 0)이 제자리에 있도록 길이에도 stretch 를 곱한다 —
        그래야 착지로 몸이 눌릴 때 발이 땅을 뚫거나 뜨지 않는다. */
@@ -9418,8 +9521,13 @@ function drawSheep(list, t, cap, colOf, scale){
       else if(air){ const rise = vy > 1;
         th = rise ? 0.30 + take*0.30 : -0.08; rl = si*(rise ? 0.06 : 0.20); }
       else { th = mvK*Math.sin(gait + (si > 0 ? 0 : Math.PI))*(run ? 1.05 : 0.74); rl = si*0.04; }
+      const gL = R6_LEG[1]*sc*stretch, gW = R6_LEG[0]*sc*widen, gD = R6_LEG[2]*sc;
       limb1(P_legs, ln++, X(0, R6_HSD*si), hipY, Z(0, R6_HSD*si), fx, fz, rx, rz, ry, th, rl,
-        R6_LEG[1]*sc*stretch, R6_LEG[0]*sc*widen, R6_LEG[2]*sc, R6_PANT);
+        gL, gW, gD, R6_PANT);
+      /* 하얀 신발 — 다리 아래끝. 사진에서 제일 먼저 눈에 띄는 흰 점이 이것이다 */
+      if(wearN < P_wear.count_max)
+        limb2(P_wear, wearN++, X(0, R6_HSD*si), hipY, Z(0, R6_HSD*si), fx, fz, rx, rz, ry, th, rl,
+          gL*0.80, gL*0.20, gW*1.10, gD*1.22, R6_SHOE);
     }
     if(down){
       /* ✕ 눈 — 얇은 막대 두 개를 서로 반대로 기울여 겹친다. 몸이 통째로 뒤로 누우므로 얼굴에 그대로 찍으면 하늘을 본다 */
@@ -9433,21 +9541,14 @@ function drawSheep(list, t, cap, colOf, scale){
     } else {
     /* ★ 29차 얼굴 — 선생님: "얼굴 가운데 타원(코)이 입인 줄 알았다, 턱수염 같다. 그거 없애고 입을 위로."
        로블록스 얼굴 그대로 — 눈 둘 + 넓은 U 미소, 코 없음. 볼터치는 입 옆 뺨에. 셋(게임·미리보기·아이콘)이 같은 값. */
-    const hk = R6_HK*sc;   // 51차 — 얼굴도 머리와 같은 비율로 줄어든다
-    // 눈 — 크고 세로로 긴 타원 (딱 붙이면 깊이가 겹쳐 깜빡이므로 확실히 띄운다)
+    /* ★ 51차b — **로블록스 클래식 스마일 그대로**다: 검은 타원 눈 둘 + 넓은 U 미소, 그것뿐.
+       29차에 넣었던 눈 반짝이와 볼터치는 뺐다 — 선생님이 준 사진의 얼굴에는 둘 다 없다.
+       (다시 넣고 싶으면 이 두 줄만 되살리면 된다.) */
+    const hk = R6_HK*sc;
     for(const si of [1,-1])
-      setI(P_eye, eyeN++, HX(1.02,0.19*si), YH(1.11), HZ(1.02,0.19*si), hry,
-        0.18*hk, 0.23*hk, 0.08*hk, 0x241f1c);
-    // 눈 반짝이 — 눈 위쪽 바깥에 찍는 작은 흰 점. 이거 하나로 눈이 살아난다.
-    for(const si of [1,-1])
-      setI(P_eye, eyeN++, HX(1.07,0.235*si), YH(1.175), HZ(1.07,0.235*si), hry,
-        0.06*hk, 0.07*hk, 0.05*hk, 0xffffff);
-    // 입 — 눈 바로 아래 넓은 U. 로블록스 얼굴의 그 미소다 (28차 → 29차에 위로, 더 넓게)
-    setI(P_mouth, mouthN++, HX(1.03,0), YH(0.94), HZ(1.03,0), hry, 0.36*hk, 0.22*hk, 0.10*hk, 0x3a2f2c);
-    // 볼터치 — 입 옆 뺨에 발그레하게
-    for(const si of [1,-1])
-      setI(P_nose, noseN++, HX(1.02,0.33*si), YH(0.99), HZ(1.02,0.33*si), hry,
-        0.14*hk, 0.09*hk, 0.07*hk, 0xffb0bd);
+      setI(P_eye, eyeN++, HX(1.02,0.19*si), YH(1.12), HZ(1.02,0.19*si), hry,
+        0.19*hk, 0.26*hk, 0.09*hk, 0x1c1a18);
+    setI(P_mouth, mouthN++, HX(1.03,0), YH(0.93), HZ(1.03,0), hry, 0.40*hk, 0.24*hk, 0.10*hk, 0x1c1a18);
     }
     /* 꾸미기 — 모자·안경은 머리를 따라(YH), 옷은 몸통을 따라(Y) 움직인다.
        ★ 51차 — 옷 표(11가지)는 네발 몸통에 맞춰 적어 둔 것이라 선 몸통 자리로 한 번 옮긴다(r6body).
@@ -9580,8 +9681,8 @@ function drawSheep(list, t, cap, colOf, scale){
     n++;
   }
   FLIP_ON = false;
-  P_body.count=n; P_head.count=n; P_frng.count=n; P_nose.count=noseN; P_mouth.count=mouthN;
-  P_arm.count=armN; P_eye.count=eyeN; P_legs.count=ln; P_deco.count=decoN;
+  P_body.count=n; P_head.count=n; P_frng.count=hairN; P_nose.count=noseN; P_mouth.count=mouthN;
+  P_arm.count=armN; P_eye.count=eyeN; P_legs.count=ln; P_deco.count=decoN; P_wear.count=wearN;
   P_deco.visible = decoN > 0;
   P_gun.count=gunN; P_gunF.count=glowN;
   P_gun.visible = gunN > 0; P_gunF.visible = glowN > 0;
@@ -9590,7 +9691,7 @@ function drawSheep(list, t, cap, colOf, scale){
   if(jobRN > 0 && P_jobR.instanceColor) P_jobR.instanceColor.needsUpdate = true;
   for(let i=0;i<2;i++){ P_wing[i].count = wN[i]; P_wing[i].visible = wN[i] > 0;
                         P_wingG[i].count = wgN[i]; P_wingG[i].visible = wgN[i] > 0; }
-  flush(P_body,P_head,P_frng,P_arm,P_eye,P_nose,P_mouth,P_legs,P_deco,P_gun,P_gunF,P_jobF,P_jobR,
+  flush(P_body,P_head,P_frng,P_arm,P_eye,P_nose,P_mouth,P_legs,P_deco,P_wear,P_gun,P_gunF,P_jobF,P_jobR,
         P_wing[0],P_wing[1],P_wingG[0],P_wingG[1]);
 }
 
@@ -16080,20 +16181,24 @@ function buildPicker(){
    ★ 순서를 바꾸면 dollHead()/dollBody() 의 자르는 자리도 같이 고쳐야 한다(바로 아래에 있다). */
 const r6row = (f,u,sd,w,h,d,col,sh)=>{ const q = r6head(f,u,sd,w,h,d); return [q[0],q[1],q[2],q[3],q[4],q[5],col,sh]; };
 const PVW_BODY = [
-  [ 0, R6_TU, 0, R6_TOR[0], R6_TOR[1], R6_TOR[2], 'body'],                    // 0  몸통(셔츠)
+  /* 0~1 몸통·머리 · 2~10 베이컨 머리 아홉 갈래 · 11~13 얼굴 · 14~21 팔다리·소매·신발 · 22~23 재킷.
+     ★ 자르는 자리(dollHead·dollBody)가 바로 아래 있다 — 순서를 바꾸면 거기도 같이 고친다. */
+  [ 0, R6_TU, 0, R6_TOR[0], R6_TOR[1], R6_TOR[2], 'body'],                    // 0  몸통(모둠 색 셔츠)
   [ R6_HF, R6_HU, 0, R6_HEAD[0], R6_HEAD[1], R6_HEAD[2], 'skin'],             // 1  머리
-  r6row(0.68,1.36, 0,      0.78,0.24,0.72, 'hair'),                           // 2  머리털
-  r6row(1.02,1.11, 0.19,   0.18,0.23,0.08, 0x241f1c, 'ball'),                 // 3  눈 (29차 — 코 없음. drawSheep 과 같은 값)
-  r6row(1.02,1.11,-0.19,   0.18,0.23,0.08, 0x241f1c, 'ball'),                 // 4
-  r6row(1.07,1.175, 0.235, 0.06,0.07,0.05, 0xffffff, 'ball'),                 // 5  눈 반짝이
-  r6row(1.07,1.175,-0.235, 0.06,0.07,0.05, 0xffffff, 'ball'),                 // 6
-  r6row(1.02,0.99, 0.33,   0.14,0.09,0.07, 0xffb0bd, 'ball'),                 // 7  볼터치
-  r6row(1.02,0.99,-0.33,   0.14,0.09,0.07, 0xffb0bd, 'ball'),                 // 8
-  r6row(1.03,0.94, 0,      0.36,0.22,0.10, 0x3a2f2c, 'smile'),                // 9  입
-  [ 0, R6_SHU - R6_ARM[1]*0.5,  R6_ASD, R6_ARM[0],R6_ARM[1],R6_ARM[2], 'skin'],   // 10 팔
-  [ 0, R6_SHU - R6_ARM[1]*0.5, -R6_ASD, R6_ARM[0],R6_ARM[1],R6_ARM[2], 'skin'],   // 11
-  [ 0, R6_HIP - R6_LEG[1]*0.5,  R6_HSD, R6_LEG[0],R6_LEG[1],R6_LEG[2], 'pant'],   // 12 다리
-  [ 0, R6_HIP - R6_LEG[1]*0.5, -R6_HSD, R6_LEG[0],R6_LEG[1],R6_LEG[2], 'pant']    // 13
+  ...R6_BACON.map(h=> r6row(h[0],h[1],h[2], h[3],h[4],h[5], h[6])),           // 2~10 베이컨 머리
+  r6row(1.02,1.12, 0.19,   0.19,0.26,0.09, 0x1c1a18, 'ball'),                 // 11 눈 (로블록스 클래식 — 반짝이·볼터치 없음)
+  r6row(1.02,1.12,-0.19,   0.19,0.26,0.09, 0x1c1a18, 'ball'),                 // 12
+  r6row(1.03,0.93, 0,      0.40,0.24,0.10, 0x1c1a18, 'smile'),                // 13 입
+  [ 0, R6_SHU - R6_ARM[1]*0.5,  R6_ASD, R6_ARM[0],R6_ARM[1],R6_ARM[2], 'skin'],       // 14 팔
+  [ 0, R6_SHU - R6_ARM[1]*0.5, -R6_ASD, R6_ARM[0],R6_ARM[1],R6_ARM[2], 'skin'],       // 15
+  [ 0, R6_SHU - R6_ARM[1]*0.26, R6_ASD, R6_ARM[0]*1.07,R6_ARM[1]*0.52,R6_ARM[2]*1.07, 'jack'],   // 16 재킷 소매
+  [ 0, R6_SHU - R6_ARM[1]*0.26,-R6_ASD, R6_ARM[0]*1.07,R6_ARM[1]*0.52,R6_ARM[2]*1.07, 'jack'],   // 17
+  [ 0, R6_HIP - R6_LEG[1]*0.5,  R6_HSD, R6_LEG[0],R6_LEG[1],R6_LEG[2], 'pant'],       // 18 다리
+  [ 0, R6_HIP - R6_LEG[1]*0.5, -R6_HSD, R6_LEG[0],R6_LEG[1],R6_LEG[2], 'pant'],       // 19
+  [ 0, R6_HIP - R6_LEG[1]*0.90, R6_HSD, R6_LEG[0]*1.10,R6_LEG[1]*0.20,R6_LEG[2]*1.22, 'shoe'],   // 20 하얀 신발
+  [ 0, R6_HIP - R6_LEG[1]*0.90,-R6_HSD, R6_LEG[0]*1.10,R6_LEG[1]*0.20,R6_LEG[2]*1.22, 'shoe'],   // 21
+  [ 0, R6_TU,  0.335*R6_TOR[0], 0.35*R6_TOR[0],R6_TOR[1]*1.01,R6_TOR[2]*1.06, 'jack'],           // 22 재킷 옆판 — 가운데로 셔츠가 보인다
+  [ 0, R6_TU, -0.335*R6_TOR[0], 0.35*R6_TOR[0],R6_TOR[1]*1.01,R6_TOR[2]*1.06, 'jack']            // 23
 ];
 /* 사람 표(모자·안경·옷·전직 차림새) 한 벌을 미리보기·아이콘 자리로 옮긴다.
    mode 0 몸 · 1 머리 · 2 몸 둘레를 도는 것(원을 안 찌그러뜨리게 높이만 올린다) */
@@ -16109,7 +16214,8 @@ function r6rows(rows, mode){
 function PVW_COL(c, base, map){
   if(typeof c !== 'string') return c;
   if(map && map[c] !== undefined) return map[c];
-  return c === 'body' ? base : c === 'skin' ? R6_SKIN : c === 'hair' ? R6_HAIR : c === 'pant' ? R6_PANT : 0xffffff;
+  return c === 'body' ? base : c === 'skin' ? R6_SKIN : c === 'hair' ? R6_HAIR
+       : c === 'pant' ? R6_PANT : c === 'jack' ? R6_JACK : c === 'shoe' ? R6_SHOE : 0xffffff;
 }
 let pvw = null;
 /* ═══════ 미리보기 만들기 (23차에 시작 화면 전용에서 **아무 데나 쓸 수 있게** 바꿨다) ═══════
@@ -16152,7 +16258,7 @@ function pvwSet(P, d){
     m.material.color.setHex(col); m.visible = true;
   };
   PVW_BODY.forEach((p,i)=>{
-    put(P.body[i], p[0],p[1],p[2], p[3],p[4],p[5], PVW_COL(p[6], base));
+    put(P.body[i], p[0],p[1],p[2], p[3],p[4],p[5], PVW_COL(p[6], base, d.doll));
   });
   const want = [];
   for(const [arr, idx, mode] of [[HATS,d.hat|0,1],[GLASSES,d.gls|0,1],[CLOTHES,d.clo|0,0]])
@@ -16491,9 +16597,11 @@ const ICO_DEF = {
 /* 모자·안경·옷·건물 — 게임 표에서 그대로 */
 /* ★ 모자·안경·옷은 혼자 찍으면 조각 몇 개로 보인다(리본 두 쪽, 뿔 두 개…). 사람 인형 위에 얹어 찍는다 —
    인형은 크림색이라 물건만 색으로 튄다. 모자·안경은 머리 인형, 옷은 몸 인형. */
-const DOLL_COL = {body:0xf0ece4, skin:0xf3e2b0, hair:0xa89279, pant:0xe4ded4};
-const dollHead = ()=> PVW_BODY.slice(1, 10);     // 51차 — 머리·머리털·눈·반짝이·볼·입 (29차 — 코 없음)
-const dollBody = ()=> PVW_BODY.slice(0);         //        온몸
+const DOLL_COL = {body:0xf0ece4, skin:0xf3e2b0, hair:0xd9ad6a, pant:0xe4ded4, jack:0xbdbcc4, shoe:0xf6f4f0};
+/* ★ 아이콘 인형은 **머리를 밀어 둔다.** 베이컨 머리를 얹으면 96px 아이콘이 통째로 금빛 덩어리가 되고
+   모자가 그 속에 파묻힌다 — 물건만 색으로 튀게 하려고 인형을 크림색으로 두는 것과 같은 이유다. */
+const dollHead = ()=> [PVW_BODY[1], ...PVW_BODY.slice(11, 14)];          // 머리 · 눈 둘 · 입
+const dollBody = ()=> [PVW_BODY[0], PVW_BODY[1], ...PVW_BODY.slice(11)]; // + 몸통 · 팔다리 · 소매 · 신발 · 재킷
 HATS.forEach((rows,i)=>{ if(i) ICO_DEF['hat'+i] = {emo:[HAT_ICON[i]], make:()=>tableGroup(dollHead().concat(r6rows(rows,1)), DOLL_COL), pose:{ry:-0.55}}; });
 GLASSES.forEach((rows,i)=>{ if(i) ICO_DEF['gls'+i] = {make:()=>tableGroup(dollHead().concat(r6rows(rows,1)), DOLL_COL), pose:{ry:-0.35}}; });
 CLOTHES.forEach((rows,i)=>{ if(i) ICO_DEF['clo'+i] = {make:()=>tableGroup(dollBody().concat(r6rows(rows,0)), DOLL_COL), pose:{ry:-0.55}}; });
@@ -18246,7 +18354,7 @@ Object.assign(window, {
   __Pmouth:()=>P_mouth,
   /* 27차 — 캐릭터 조각 전부 (t29: 무늬 없는 재질 · 둥근 모양) */
   __charMeshes:()=>({
-    사람:[P_body,P_head,P_frng,P_arm,P_eye,P_nose,P_mouth,P_legs,P_deco,P_gun],
+    사람:[P_body,P_head,P_frng,P_arm,P_eye,P_nose,P_mouth,P_legs,P_deco,P_wear,P_gun],
     좀비:[W_body,W_chest,W_ruff,W_head,W_snout,W_nose,W_tail,W_ears,W_eyes,W_legs,W_paw,W_hack,W_horn],
     농장:[F_body,F_head,F_deco,F_eyes,F_legs,F_muck,F_fly],
     병사:[S_body,S_bodyA,S_head,S_legs,S_spear,S_helm,S_tip,S_face,S_crest,S_shield,S_hat,S_orb],
