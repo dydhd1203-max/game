@@ -63,7 +63,8 @@ ok('옷 아이콘·이름 길이가 본 배열과 같다', lists.clo[0]===lists.
 ok('★ 새것을 목록 끝에 넣었다 — 예전 번호가 안 밀렸다 (17차g에 통째로 밀렸던 자리)',
    lists.oldHat === '꽃 화관' && lists.oldClo === '별무늬 잠옷',
    '8번 모자 '+lists.oldHat+' · 8번 옷 '+lists.oldClo);
-ok('새 모자·새 옷이 실제로 늘었다', lists.newHat.length===2 && lists.newClo.length===2,
+ok('새 모자·새 옷이 실제로 늘었다 (51차d 에 베이컨 머리 가발이 모자 끝에 붙어 셋)',
+   lists.newHat.length===3 && lists.newHat[2]==='베이컨 머리' && lists.newClo.length===2,
    lists.newHat.join(',')+' / '+lists.newClo.join(','));
 
 /* ═══════ ③ 꾸미기 조각 칸이 '제일 많이 걸친 아이' 보다 넉넉한가 ═══════

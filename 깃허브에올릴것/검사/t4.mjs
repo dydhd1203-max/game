@@ -140,32 +140,35 @@ const r = await pg.evaluate(()=>{
   /* ── 1. 사람 ── */
   const list=[{x:0,z:0,y:GY,ry:0,g:0,mv:true,ph:0},{x:2,z:0,y:GY,ry:1,g:1,mv:false,ph:1}];
   W.__drawSheep(list, 1.0, 40, s=>W.__GHEX[s.g], 0.70);
-  const [body,head,hair,arm,eye,nose,legs]=W.__Pmesh();
+  const [body,head,arm,eye,nose,legs]=W.__Pmesh();
   ok('사람 2명 = 몸통 2', body.count===2, body.count);
   ok('★ 51차b — 사람 2명 = 눈 4. 로블록스 클래식 얼굴이라 **눈 반짝이도 볼터치도 없다**',
      eye.count===4 && nose.count===0, '눈 '+eye.count+' · 볼터치 '+nose.count);
-  ok('★ 51차b — 머리털은 베이컨 아홉 갈래 (모자를 쓰면 정수리 넷이 빠져 다섯)',
-     hair.count===18, hair.count);
-  ok('★ 51차 — 사람 2명 = 팔 4 · 다리 4 (R6 은 마디 없는 통짜라 한 사람에 둘씩)',
-     arm.count===4 && legs.count===4, '팔 '+arm.count+' 다리 '+legs.count);
-  /* ★ 51차b — **머리털이 얼굴을 가리지 않는다.**
-     첫 판에서 베이컨 갈래를 얼굴 앞(f 0.98~1.00)에 뒀다가 3/4 각도에서 눈이 상자에 막혀 안 보였다.
-     눈 높이에 걸치는 갈래는 눈보다 **앞으로 나오면 안 된다**(위로 솟는 것은 괜찮다).
-     상자마다 회전이 들어 있으니 자리만 보지 말고 **돌아간 상자의 앞·위 뻗음(OBB)** 을 재서 견준다. */
-  const obb = (m, i, F)=>{ const a = m.instanceMatrix.array, o = i*16;
-    const c = [[a[o],a[o+1],a[o+2]], [a[o+4],a[o+5],a[o+6]], [a[o+8],a[o+9],a[o+10]]];
-    const ext = (v)=> 0.5*c.reduce((t,k)=> t + Math.abs(k[0]*v[0] + k[1]*v[1] + k[2]*v[2]), 0);
-    return { y:a[o+13], f:(a[o+12]*F[0] + a[o+14]*F[2]), ey:ext([0,1,0]), ef:ext(F) }; };
-  const hd0 = { x:head.instanceMatrix.array[12], z:head.instanceMatrix.array[14] };
-  const ex = eye.instanceMatrix.array[12] - hd0.x, ez = eye.instanceMatrix.array[14] - hd0.z;
-  const eL = Math.hypot(ex, ez) || 1, F = [ex/eL, 0, ez/eL];        // 첫 사람이 보는 쪽 = 머리 → 눈
-  const e0 = obb(eye, 0, F), eFront = e0.f + e0.ef;
-  let near = 0, blocked = 0;
-  for(let i=0;i<9;i++){ const h = obb(hair, i, F);                   // 앞 아홉 갈래 = 첫 사람 것
-    if(Math.abs(h.y - e0.y) < h.ey + e0.ey){ near++;                 // 눈 높이에 걸치는 갈래만
-      if(h.f + h.ef > eFront + 0.004) blocked++; } }
-  ok('★ 51차b — 눈 높이에 걸치는 머리털은 눈보다 앞으로 안 나온다 (얼굴을 막지 않는다)',
-     blocked === 0 && near >= 2, '눈 높이 갈래 '+near+' · 그중 눈을 막는 것 '+blocked);
+  /* ★ 51차e — 선생님: "손이 계속 뭉툭한 거 해결해 줘." 까닭은 굵기가 아니라 **손이 없었던 것**이다.
+     팔을 상자 하나로 그리면 끝이 그냥 잘린 면이다. 손목을 잘록하게 깎고, 그 아래를
+     **갈고리 손**(손바닥 · 앞으로 말린 손가락 · 위로 세운 손끝)으로 만들었다 — 선생님: "손이
+     갈고리 모양이어야 돼." 로블록스 팔 끝이 꼭 그 모양이다. 2명 × 2팔 × 5토막 = 20. */
+  ok('★ 51차e — 사람 2명 = 팔 조각 20(위팔·손목·손바닥·손가락·손끝) · 다리 4',
+     arm.count===20 && legs.count===4, '팔 '+arm.count+' 다리 '+legs.count);
+  /* ★ 51차d — 선생님: "머리 스타일은 기본 민머리인데 가발을 모자 아바타에 넣어."
+     기본은 **민머리**다 — 머리털 메시 자체가 없어졌고(P_frng 삭제), 베이컨 머리는
+     모자 표의 **마지막 칸**으로 옮겼다. 되돌아오면 이 두 항목이 바로 빨개진다. */
+  ok('★ 51차d — 기본은 민머리다 (사람을 그려도 머리털 조각이 하나도 없다)',
+     W.__Pmesh().length === 6 && W.__Pdeco().count === 0,
+     '몸 메시 '+W.__Pmesh().length+' · 꾸미기 '+W.__Pdeco().count);
+  ok('★ 51차d — 베이컨 머리는 모자 표 끝 칸(가발) 아홉 조각이다',
+     W.__HATS.length === 14 && W.__HATS[13].length === 9 && W.__HAT_N[13] === '베이컨 머리',
+     W.__HAT_N[13] + ' · ' + (W.__HATS[13]||[]).length + '조각');
+  /* ★ 51차d — **몸통은 모둠 색 그대로다.** 51차b~c 는 검은 재킷 옆판이 몸통의 3분의 2를 덮어
+     다섯 모둠이 멀리서 다 검게 보였다. 선생님: "옷은 검은색 말고 원래처럼 모둠 색깔 옷." */
+  { /* 인스턴스 색은 **선형 공간**으로 들어가 있다(three 가 넣을 때 sRGB → 선형으로 바꾼다).
+       견주려면 도로 sRGB 로 돌려놔야 한다 — 안 그러면 #ff6b6b 가 #ff2525 로 보인다. */
+    const toS = (v)=> v <= 0.0031308 ? v*12.92 : 1.055*Math.pow(v, 1/2.4) - 0.055;
+    const c = body.instanceColor.array, g0 = W.__GHEX[0];
+    const hex = ((toS(c[0])*255+0.5|0)<<16) | ((toS(c[1])*255+0.5|0)<<8) | (toS(c[2])*255+0.5|0);
+    ok('★ 51차d — 몸통 색이 모둠 색 그대로다 (검은 재킷이 안 덮는다)',
+       Math.abs(((hex>>16)&255)-((g0>>16)&255)) <= 2 && Math.abs(((hex>>8)&255)-((g0>>8)&255)) <= 2
+       && Math.abs((hex&255)-(g0&255)) <= 2, '#'+hex.toString(16)+' / 모둠 #'+g0.toString(16)); }
 
   }catch(e){ out.push('EXCEPTION: '+e.message+' | '+e.stack.split('\n')[1]); }
   return out;
