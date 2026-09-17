@@ -3787,7 +3787,7 @@ function bpush(key, geo, mat, x,y,z, ry=0, sx=1,sy=1,sz=1, rz=0, col=0){
    양쪽 다 이득이라 여기가 맞다. */
 /* ★ 34차 — 잔 꾸밈(꽃잎·꽃술·줄기·작은 수풀·자갈·사과·금 알갱이·이삭·연잎·섬 표시·깃발·틈)은 그림자를 안 드리운다.
    그림자 패스에서 삼각형 10만 남짓이 빠지고, 눈으론 차이가 없다(그늘이 콩알만 하다). 진단의 '작은 것 그림자 켬' 이 값을 잰다. */
-const NO_CAST = new Set(['petal','pist','stem','bushS','peb','apple','nug','farmGlow','gglow','miMark','miEdge','miGlow','miBase','flag','flagT','reed','lily','mtK','rcLand','rcLandB','rcBuoy','rcRbow']);
+const NO_CAST = new Set(['petal','pist','stem','bushS','peb','apple','nug','farmGlow','gglow','miMark','miEdge','miGlow','miBase','flag','flagT','reed','lily','mtK','rcLand','rcLandB','rcBuoy','rcRbow','plazaT']);
 const BCHUNK = 64;   // 34차 — 32 → 64. 교실 크롬북은 그리기 한 번이 60µs 라 청크 수를 반으로(삼각형은 조금 늘지만 콜이 훨씬 준다)
 const BSPLIT = 300;   // 이보다 인스턴스가 적은 뱅크는 안 쪼갠다 (쪼개 봤자 드로우콜만 는다)
 function bbuild(){
@@ -4029,6 +4029,15 @@ function buildWorldMesh(){
   /* ── 수정 단상 — 한 판 + 밝은 윗판 + 금 테 ── */
   bpush('sb', BOXG, WMAT, 0.5, GY+0.5, 0.5, 0, 11, 1.0, 11, 0, PLAT_C);
   bpush('sb', BOXG, WMAT, 0.5, GY+1.03, 0.5, 0, 9.4, 0.10, 9.4, 0, PLAT_TOP);
+  /* ★ 49차 — 수정 단상 위를 **보도블록**으로. (선생님: "특히 그래픽이 로블록스같아야 해")
+     선생님이 준 로블록스 스샷에서 제일 눈에 띄는 바닥 표시가 격자로 깔린 보도블록이다.
+     우리 단상은 회색 한 판이라 아무 무늬가 없었다.
+     한 칸씩 깔되 **0.88칸으로 작게** 놓아 아래 판(PLAT_TOP)이 0.12칸 틈으로 비쳐 줄눈이 된다.
+     색은 두 가지를 바둑판으로 — 한 색이면 줄눈만 보이고 블록이 안 읽힌다.
+     그림자는 안 드리운다(NO_CAST) — 두께 0.06칸짜리 판이라 그늘이 콩알만 하다. */
+  { const A = 0xdfe2e8, B = 0xcdd1d8;
+    for(let i=-4;i<=4;i++) for(let j=-4;j<=4;j++)
+      bpush('plazaT', BOXG, WMAT, i+0.5, GY+1.11, j+0.5, 0, 0.88, 0.06, 0.88, 0, ((i+j)&1) ? A : B); }
   for(let i=-5;i<=5;i++){ for(const p of [[i,-5],[i,5],[-5,i],[5,i]])
     if(Math.abs(p[0])===5||Math.abs(p[1])===5) bpush('gb', WGEO, WMAT, p[0]+0.5, GY+1.5, p[1]+0.5, 0, 1,1,1, 0, GOLD_C); }
 
