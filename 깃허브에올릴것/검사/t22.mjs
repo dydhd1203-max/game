@@ -3,7 +3,7 @@
      흐름은 호스트 시계(hostPhase)가 끌고 가므로 __step 으로 시계를 돌려 본다.
    ★ 손으로 시계를 돌리는 동안은 G.paused 로 진짜 루프를 세운다 —
      안 그러면 뒤에서 도는 호스트 루프가 판을 먼저 끝내 버린다(처음에 그렇게 빨개졌다). */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

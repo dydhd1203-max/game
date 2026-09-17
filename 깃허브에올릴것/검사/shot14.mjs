@@ -1,6 +1,6 @@
 /* 14차 화면 확인 — 코드가 맞아 보여도 화면은 다를 수 있다.
    거꾸로 달린 총·안 보이던 체력바·얼굴에서 터진 축포를 다 스크린샷이 잡았다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||17500); const OUT=process.argv[4]||'/tmp/shot';

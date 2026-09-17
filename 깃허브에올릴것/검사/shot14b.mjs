@@ -1,5 +1,5 @@
 /* 14차 손질 확인 — 상인·대장장이 새 모습 · 내가 든 총의 강화 빛 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19100); const OUT=process.argv[4]||'/tmp/shot';

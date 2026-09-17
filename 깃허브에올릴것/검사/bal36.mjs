@@ -1,6 +1,6 @@
 /* 36차 전용 — 밤 구성표(NIGHT_DEF) 마다 승률을 잰다. bal17 의 방어선·아이·수리 모형을 그대로 쓴다.
    인자: <게임파일> <포트> <쏘는아이수> <무기> <일차목록> <수리아이수> <명중률> <탑세트> <공격배수> <등급(0=섞임)> <밤번호목록(-1=그날 기본)> <판수> */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const FILE=process.argv[2], PORT=+process.argv[3];
 const SHOOT=+(process.argv[4]||8), WPN=+(process.argv[5]||3);

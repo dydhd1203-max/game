@@ -1,6 +1,6 @@
 /* 마지막 밤(15일차) 만 여러 배수로 쓸어 본다.
    인자: <파일> <포트> <총 쏘는 아이 수> <무기번호> <hpMul 목록> */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const FILE=process.argv[2], PORT=+process.argv[3];
 const SHOOT=+(process.argv[4]||0), WPN=+(process.argv[5]||3);

@@ -2,7 +2,7 @@
    ★ 값을 검사에 베끼지 않는다. 체력·피해·전광판 칸 수는 게임의 __MINI() 에 묻는다.
    ★ '한 번 쓰러지면 끝' 은 규칙이 아니라 **여러 길로 새는 것**이라, 새는 길을 하나씩 막아 본다:
      다시 맞기 · 혼자 일어나기 · 되살아나기 · 마을로 나갈 때 누운 채 나가기. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

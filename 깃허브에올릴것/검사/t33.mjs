@@ -1,7 +1,7 @@
 /* 33차 검사 — 교실 60fps(성능 2차): 그래픽 프리셋 표 · 기본값 '보통' · 시작 화면 그래픽 단추(고르면 저장하고 다시 연다) · 주소 손잡이가 이긴다
    ★ 교실 실측(31차 판): 기준 40, 화면 그리기 끔 +21, 해상도 원본 −17 — 병목은 픽셀. 그래서 기본을 '보통'(해상도 0.85 · MSAA 2 · 그림자 1024)으로
      내리고, 아이가 시작 화면에서 선명/보통/부드럽게를 고를 수 있게 했다. 검사기는 GPU 를 못 재니 여기선 '값이 실제로 먹나' 만 본다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;
@@ -22,15 +22,17 @@ await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000}); 
       aa:!!R.getContext().getContextAttributes().antialias, sm:R.shadowMap.enabled,
       btns:[...document.querySelectorAll('#gfxPick .btn')].map(b=>b.dataset.gfx+':'+b.classList.contains('on')),
       nm:(document.querySelector('#gfxNm')||{}).textContent}; });
-  ok('★ 프리셋 셋 — 선명 2048·MSAA4·1.0 / 보통 1024·MSAA2·0.85 / 부드럽게 0·0·0.7, 빛 번짐은 셋 다 없음',
-     r.P.high.shadow===2048 && r.P.high.aa===4 && r.P.high.pr===1.0 && r.P.mid.shadow===1024 && r.P.mid.aa===2 && r.P.mid.pr===0.85 &&
+  /* 49차c — '보통' 의 그림자 지도만 1024 → 2048 로 올렸다. 26차 교실 실측에서 그림자를 통째로 꺼도 +2.5fps 뿐이었고
+     그 값이 2048 에서 잰 값이라, 이 올림은 그 2.5 안에 있다. 해상도 0.85 · MSAA 2 는 그대로다(픽셀이 제일 비싸다). */
+  ok('★ 프리셋 셋 — 선명 2048·MSAA4·1.0 / 보통 2048·MSAA2·0.85 / 부드럽게 0·0·0.7, 빛 번짐은 셋 다 없음',
+     r.P.high.shadow===2048 && r.P.high.aa===4 && r.P.high.pr===1.0 && r.P.mid.shadow===2048 && r.P.mid.aa===2 && r.P.mid.pr===0.85 &&
      r.P.low.shadow===0 && r.P.low.aa===0 && r.P.low.pr===0.7 && !r.P.high.bloom && !r.P.mid.bloom && !r.P.low.bloom, JSON.stringify(r.P));
   ok('★ 선생님 기본값이 보통(mid)이고, 주소·저장이 없으면 그것이 켜진다', r.def==='mid' && r.q==='mid', r.def+' / '+r.q);
   ok('보통 — 해상도 배율이 렌더러에 실제로 먹는다(0.85)', Math.abs(r.pr - Math.min(r.dpr, 0.85)) < 1e-6, r.pr);
   /* 검사기는 소프트웨어 렌더링이라 ?gfx 가 없으면 게임이 스스로 그림자·MSAA 를 끈다(25차) — MSAA·그림자는 ?gfx=mid 로 열어 본다 */
   { const p2 = await ctx.newPage(); await p2.goto('http://127.0.0.1:'+PORT+'/?gfx=mid', {waitUntil:'load', timeout:60000}); await ready(p2);
     const m = await p2.evaluate(()=>{ const R=window.__R; return {aa:!!R.getContext().getContextAttributes().antialias, sm:R.shadowMap.enabled, ms:window.__sun.shadow.mapSize.x}; });
-    ok('보통(?gfx=mid) — 계단 없애기(MSAA)가 켜져 있고 그림자 지도 1024 가 켜져 있다', m.aa===true && m.sm===true && m.ms===1024, m.aa+' / '+m.sm+' / '+m.ms);
+    ok('보통(?gfx=mid) — 계단 없애기(MSAA)가 켜져 있고 그림자 지도 2048 이 켜져 있다 (49차c)', m.aa===true && m.sm===true && m.ms===2048, m.aa+' / '+m.sm+' / '+m.ms);
     await p2.close(); }
   ok('★ 시작 화면에 그래픽 단추 셋(선명·보통·부드럽게)이 있고 지금 것에 불이 들어와 있다', r.btns.length===3 && r.btns.includes('mid:true') && r.btns.filter(s=>s.endsWith('true')).length===1 && r.nm==='보통', r.btns.join(' ')+' · '+r.nm);
 }

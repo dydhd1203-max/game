@@ -2,7 +2,7 @@
    ★ 선생님: "스텟 창·가방·아이템 모양·인터페이스가 부족하다. 파스텔 둥근 결, 이모지 다 3D, 움직임·소리."
    ★ '켜졌나' 로 끝내지 않는다 — 아이콘은 그림이 실제로 그려졌는지(투명 픽셀만이면 빈 그림) 픽셀을 세고,
      이모지는 창을 다 열어 본 뒤 화면 글자에 남은 것을 센다(숨긴 원본 글자 .emoT 는 빼고). */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

@@ -3,7 +3,7 @@
      총구 섬광(가산합성 원판) · 시야 펀치(FOV) · 맞는 순간 내 화면에서 바로 움찔·밀림 · 충격 고리 · 막타 예고(흰 고리·붉은 X·쿵) · 소리 셋.
    검사기는 소리를 못 듣고 GPU 를 못 보므로 **상태**를 잰다: 고리가 살아 있나, 섬광이 떴다 꺼지나, FOV 가 올랐다 돌아오나,
    늑대에 hurt·kT 가 즉시 붙나, 히트마커 등급이 맞나. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT = +(process.argv[3] || 8934);

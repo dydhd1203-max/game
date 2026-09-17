@@ -4,7 +4,7 @@
    ★ 옛 판과 새 판을 **같은 자로 같은 판에서** 번갈아 잰다. 옛 기록의 숫자와 비교하지 않는다.
    ★ 조용한 상태에서 돌린다 — 검사를 뒤에 켜 둔 채 재면 값이 널뛴다(17차g).
    쓰는 법: node bdgperf.mjs <옛 파일> <새 파일> [포트] */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const OLD = process.argv[2], NEW = process.argv[3], BASE = +(process.argv[4] || 16400);
 

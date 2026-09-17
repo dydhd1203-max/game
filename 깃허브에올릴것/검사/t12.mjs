@@ -1,5 +1,5 @@
 /* 9차 손질 검사 — 체력바·화면 배치·할 일 안내·지도 상인·쓰러짐 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT = +(process.argv[3] || 9340);

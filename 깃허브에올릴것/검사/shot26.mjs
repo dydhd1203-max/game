@@ -1,5 +1,5 @@
 /* 마당을 위에서 통째로 — 자원이 어디에 깔렸나 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19960), OUT=process.argv[4]||'/tmp/shot', NM=process.argv[5]||'map';

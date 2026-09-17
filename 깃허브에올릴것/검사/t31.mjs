@@ -2,7 +2,7 @@
    ★ 선생님 주문(29차): 늑대 잡으면 금이 떨어지고 아무나 줍는다 · 레어 4/유니크 2 는 대장장이 조합표(기본 총 + 재료) ·
      일반 총 -20% · 총마다 소리와 효과 · 동물 상인은 상인 옆 아줌마 · H 는 어디서나 농장 상태 · 똥·건초 · 단추는 동그라미.
    ★ 값을 베끼지 않는다 — 비율(60%·70%)과 관계(넣은 총이 없어지고 새 총이 든다)를 본다. 호스트(혼자 놀기)라 피해가 바로 깎인다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;
@@ -201,7 +201,11 @@ await pg.waitForTimeout(1500);
       img:vis.every(b=>b.querySelector('img.ic')), kk:[...document.querySelectorAll('#topRight2 .kk')].map(e=>e.textContent.trim()),
       noText:vis.every(b=>[...b.childNodes].filter(n=>n.nodeType===3 && n.nodeValue.trim()).length===0),
       titles:vis.every(b=>b.title.length>1)}; });
-  ok('★ 오른쪽 단추가 전부 동그라미(폭=높이 ≥40, 반지름 50%)다', r.rb===r.n && r.round && /50%/.test(r.radius), r.n+'개 · '+r.radius);
+  /* ★ 48차 — 로블록스 오른쪽 위 단추는 **동그라미가 아니라 모서리 둥근 네모**다.
+     29차의 '전부 동그라미' 는 파스텔 판의 규칙이었고, 48차 층이 12px 로 덮었다.
+     지키려던 것(정사각형 · 손가락이 닿을 만큼 크다 · 모서리가 둥글다)은 그대로 본다. */
+  ok('★ 오른쪽 단추가 전부 같은 정사각형(폭=높이 ≥40)이고 모서리가 둥글다 (48차: 50% 동그라미 → 12px 둥근 네모)',
+     r.rb===r.n && r.round && (/50%/.test(r.radius) || parseFloat(r.radius) >= 8), r.n+'개 · '+r.radius);
   ok('★ 단추마다 글자 없이 그림 하나, 이름은 title 로', r.img && r.noText && r.titles);
   ok('열쇠 배지 C · I · Y · U', ['C','I','Y','U'].every(k=>r.kk.includes(k)), r.kk.join(','));
 }
@@ -210,10 +214,22 @@ await pg.waitForTimeout(1500);
 {
   const r = await pg.evaluate(()=>{ const W=window, PL=W.__PL, o={};
     o.pickIcon = !!W.__ICON().tool_mine;
+    /* ★ 49차e — **게임의 rAF 고리를 세워 놓고 잰다.** 안 그러면 우리가 손으로 부르는 1/60 사이사이에
+       게임이 저 혼자 한 프레임을 더 돈다. 기계가 바쁘면 그 한 프레임의 dt 가 0.5초씩 되어서
+       최고점을 훌쩍 지나 내려온 뒤에야 다시 재게 된다 — 전체 판(동시 4개)에서만 1.36 이 1.0 으로
+       읽혀 세 판에 한 번 빨개졌다. 혼자 돌리면 늘 통과해서 더 헷갈렸다. */
+    const wasPaused = W.__G.paused; W.__G.paused = true;
+    /* 그리고 **바닥에 확실히 세우고** 시작한다. 앞 절이 양을 공중에 남겨 뒀거나 게임 고리가
+       한 프레임 더 돌아 버리면 y0 이 '떨어지는 중의 높이' 가 되어 값이 통째로 어긋난다
+       (2.02 / 2.02 / 0 처럼 읽혔다 — 첫 뜀이 1.36 보다 높고 2단이 안 먹은 것처럼 보인다). */
+    PL.x = 0; PL.z = 20; PL.y = W.__solidTop(0, 20); PL.vy = 0; PL.ground = true; PL.down = false;
+    for(let i=0;i<6;i++) W.__updPlayer(1/60);
+    PL.y = W.__solidTop(0, 20); PL.vy = 0; PL.ground = true;
     const y0 = PL.y; let p1=0, p2=0, p3=0;
     W.__wantJump(); for(let i=0;i<20;i++){ W.__updPlayer(1/60); p1=Math.max(p1, PL.y-y0); }
     W.__wantJump(); for(let i=0;i<80;i++){ W.__updPlayer(1/60); p2=Math.max(p2, PL.y-y0); }
     W.__wantJump(); for(let i=0;i<80;i++){ W.__updPlayer(1/60); p3=Math.max(p3, PL.y-y0); }
+    W.__G.paused = wasPaused;
     o.jump = [+p1.toFixed(2), +p2.toFixed(2), +p3.toFixed(2)];
     /* 33차 — 제일 높은 7단계 탑 윗면(hi) 에 발이 닿는가: 올라서려면 최고점 + STEP ≥ 윗면 이어야 한다 */
     o.hi7 = Math.max(...Object.keys(W.__BUILD).map(t=>W.__bs(t,'hi',7)||0)); o.step = W.__STEP;

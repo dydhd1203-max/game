@@ -1,5 +1,5 @@
 /* 화면 배치 검사 — 잘리거나 겹치는 자리가 없는지 실제 크기를 재서 본다 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT = +(process.argv[3] || 8901);

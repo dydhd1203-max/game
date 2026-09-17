@@ -7,7 +7,7 @@
      그래서 **켠 판과 끈 판의 픽셀을 직접 빼서** 화면에 닿는지까지 본다.
    ★ 화면을 읽을 때 렌더타겟에 그려서 읽으면 안 된다 — three 는 렌더타겟일 때 톤매핑을
      건너뛰어서 화면과 다른 것을 읽게 된다. 그린 직후 같은 작업 안에서 2D 캔버스로 옮긴다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;
@@ -39,7 +39,8 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
      "GPU 가 병목, 그것도 픽셀 쪽" 이라서: 해상도 1.0(1707×1067), 빛 번짐은 프리셋에서 뺌, MSAA 4.
      빛 번짐은 ?bloom=1 로만 켜진다 — 아래 ③ 이 그 길로 연다. */
   /* 33차 — 교실 실측(기준 40 · 화면 그리기 끔 +21)으로 가운데 칸을 해상도 0.85 + MSAA 2 로 내리고 기본으로 삼았다 */
-  const want = {high:{shadow:2048,bloom:0,aa:4,pr:1.0}, mid:{shadow:1024,bloom:0,aa:2,pr:0.85},
+  /* 49차c — '보통' 의 그림자 지도만 1024 → 2048 로 올렸다(26차 실측: 그림자를 통째로 꺼도 +2.5fps) */
+  const want = {high:{shadow:2048,bloom:0,aa:4,pr:1.0}, mid:{shadow:2048,bloom:0,aa:2,pr:0.85},
                 low:{shadow:0,bloom:0,aa:0,pr:0.7}};
   for(const q of ['high','mid','low']){
     const pg = await open('?gfx='+q);
@@ -129,19 +130,33 @@ ok('?bloom=1 — 빛 번짐이 이번 한 판만 켜진다 (프리셋엔 없다)
   ok('★ 한 칸 단위로 끊어서 옮긴다 (안 그러면 걸을 때 가장자리가 지글거린다)', r.칸단위);
   /* ★ 여기가 핵심이다. 24차까지 여러 번, 코드는 맞는데 화면은 달랐다.
      지도가 구워져도 화면에 안 닿으면 기능이 아니다. */
-  ok('★ 그림자가 화면에 실제로 닿는다 (지도가 구워지는 것과 다른 말이다)',
-     r.픽셀차 > 1.0 && r.제일진함 > 40, r.픽셀차.toFixed(2)+'% · 제일 진한 곳 '+r.제일진함);
+  /* ★ 48차f — 그늘을 **일부러 옅게** 했다(로블록스 그늘/빛 ≈0.5 — 해 1.15 → 0.62, 환경광 0.30 → 0.62).
+     그래서 제일 진한 곳이 47 → 33 으로 내려왔다. '화면에 닿나' 는 그대로 보되 기준을 25 로 낮춘다.
+     ⚠️ 25차에 "너무 옅다" 고 한 적이 있는 값 언저리다 — 교실에서 눈으로 한 번 봐야 한다. */
+  ok('★ 그림자가 화면에 실제로 닿는다 (지도가 구워지는 것과 다른 말이다 · 48차f 에 로블록스처럼 옅어졌다)',
+     r.픽셀차 > 1.0 && r.제일진함 > 25, r.픽셀차.toFixed(2)+'% · 제일 진한 곳 '+r.제일진함);
 }
 
-/* ═══════ ③b 34차 성능 3차 — Lambert · 그림자 15Hz/PCF · 잔 꾸밈 그림자 없음 · 손 조명 끔 · 청크 64 ═══════
+/* ═══════ ③b 34차 성능 3차 — 그림자 15Hz · 잔 꾸밈 그림자 없음 · 손 조명 끔 ═══════
    한 프레임을 뜯어보니(calls34 탐침) 그리기 384번 · 삼각형 103만 — 절반이 그림자 패스였고 온 픽셀이 PBR 이었다.
-   고친 뒤 보통 프레임(그림자 안 그리는 프레임) 124번 · 59만. */
+   고친 뒤 보통 프레임(그림자 안 그리는 프레임) 124번 · 59만.
+   ★ 48차f — 34차가 Standard → **Lambert** 로 내리면서 반사광을 통째로 잃어 세계가 종이처럼 납작했다.
+     로블록스 기본 재질은 Plastic 이고 SmoothPlastic 은 반사적이다. flatMat 을 **Phong**(직사광 하나에 몇 연산)
+     으로 올렸다 — Standard 로 돌아간 게 아니다. 다만 '부드럽게'(low)는 Lambert 그대로 둔다(교실 비상구).
+   ★ 49차 — 그림자 가장자리는 '선명' 만 **PCFSoft**(보통은 PCF 그대로) · 청크 64 → **32**
+     (34차가 기댄 "콜 하나 60µs" 는 크롬북 계산값이었다 — 25차가 이미 바로잡아 둔 숫자다). */
 {
   const pg = await open('?gfx=high');
   const r = await pg.evaluate(()=>{ const W=window, R=W.__R, o={};
-    o.lambert = W.__flatMat(0xffffff).type === 'MeshLambertMaterial' && W.__WMAT.type === 'MeshLambertMaterial';
+    o.phong = W.__flatMat(0xffffff).type === 'MeshPhongMaterial' && W.__WMAT.type === 'MeshPhongMaterial';
+    o.spec = W.__flatMat(0xffffff).specular.getHex(); o.shine = W.__flatMat(0xffffff).shininess;
     o.gemPbr = W.__cMat().gem.type === 'MeshStandardMaterial';
-    o.auto = R.shadowMap.autoUpdate; o.hz = W.__SH_HZ; o.pcf = R.shadowMap.type === W.__THREE.PCFShadowMap;
+    o.auto = R.shadowMap.autoUpdate; o.hz = W.__SH_HZ;
+    /* ⚠️ 49차c — three r186 이 PCFSoftShadowMap 을 없앴다(첫 프레임에 경고를 찍고 PCF 로 되돌린다).
+       교실은 importmap 이 three@0.160.0 에 못 박혀 있어 부드러운 그림자를 받지만, 검사 폴더의
+       node_modules 는 0.186 이라 렌더러 값이 PCF 로 떨어진다. 그래서 '우리가 무엇을 달라고 했나' 를 본다. */
+    o.soft = W.__SHADOW_TYPE === W.__THREE.PCFSoftShadowMap;
+    o.rev = W.__THREE.REVISION; o.softLive = R.shadowMap.type === W.__THREE.PCFSoftShadowMap;
     let smallCast = 0, small = 0, bigCast = 0, big = 0;
     for(const [k,b] of W.__banks){ if(!b.chunks) continue; for(const c of b.chunks){ if(W.__NO_CAST.has(k)){ small++; if(c.castShadow) smallCast++; } else { big++; if(c.castShadow) bigCast++; } } }
     o.small = small; o.smallCast = smallCast; o.big = big; o.bigCast = bigCast;
@@ -155,12 +170,19 @@ ok('?bloom=1 — 빛 번짐이 이번 한 판만 켜진다 (프리셋엔 없다)
   /* 진단 항목 넷은 ?diag=1 로 연 페이지에만 있다 */
   const p3 = await open('?gfx=low&diag=1');
   r.cases = await p3.evaluate(()=>(window.CASE_NAMES||[]).filter(n => /그림자 매 프레임|손 조명 켬|결 끔|작은 것 그림자 켬/.test(n)).length);
+  r.lowLambert = await p3.evaluate(()=>window.__flatMat(0xffffff).type === 'MeshLambertMaterial');
   await p3.close();
-  ok('★ 원색 재질이 Lambert 다 (PBR 은 수정 보석만)', r.lambert && r.gemPbr);
-  ok('★ 그림자 지도는 매 프레임이 아니라 15Hz 로 다시 그린다 (autoUpdate 끔 · PCF)', r.auto === false && r.hz === 15 && r.pcf, r.hz+'Hz');
+  ok('★ 48차f — 원색 재질이 Phong 이다 (플라스틱 광택 specular 0x2b2b2b · shininess 28). PBR 은 수정 보석만',
+     r.phong && r.gemPbr && r.spec === 0x2b2b2b && r.shine === 28, '0x'+r.spec.toString(16)+' · '+r.shine);
+  ok("★ 48차f — '부드럽게'(gfx=low)는 Lambert 그대로다 (느린 한 대의 비상구)", r.lowLambert);
+  ok('★ 그림자 지도는 매 프레임이 아니라 15Hz 로 다시 그린다 (autoUpdate 끔)', r.auto === false && r.hz === 15, r.hz+'Hz');
+  ok("★ 49차 — '선명' 은 부드러운 그림자(PCFSoft)를 달라고 한다. 로블록스도 그림자가 부드럽다 " +
+     "— three r186 부터는 이게 지워져서 PCF 로 떨어진다. 교실은 importmap 이 0.160 에 못 박혀 있어 받는다",
+     r.soft, 'three r' + r.rev + ' · 렌더러가 실제로 쓰는 값 = ' + (r.softLive ? 'PCFSoft' : 'PCF'));
   ok('★ 잔 꾸밈은 그림자를 안 드리우고 큰 것은 드리운다', r.small > 0 && r.smallCast === 0 && r.big > 0 && r.bigCast === r.big, r.smallCast+'/'+r.small+' · '+r.bigCast+'/'+r.big);
   ok('★ 손 조명(카메라 점광)은 기본으로 꺼져 있다', r.heldOff);
-  ok('청크 64 · 조명 배율 0.85', r.chunk === 64 && Math.abs(r.litK - 0.85) < 1e-6, r.chunk+' · '+r.litK);
+  ok('★ 49차 — 청크 32 (삼각형 −6~25% · 콜 +0~56 은 이 기기에서 0.1ms) · 조명 배율 0.85',
+     r.chunk === 32 && Math.abs(r.litK - 0.85) < 1e-6, r.chunk+' · '+r.litK);
   ok('늑대 조각은 하나도 없으면 그리기를 건너뛴다', r.emptyHidden);
   ok('진단 자동 측정에 34차 항목 넷이 있다', r.cases === 4, r.cases);
 }

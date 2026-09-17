@@ -1,5 +1,5 @@
 /* 21차 화면 확인 — 서바이벌: 전광판 · 쓰러진 시체 · 이긴 모둠 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19980), OUT=process.argv[4]||'/tmp/shot';

@@ -1,6 +1,6 @@
 /* 구간별 CPU 비용을 직접 잰다 — 스왑버퍼·소프트웨어 래스터가 섞이지 않게
    페이지 안에서 같은 함수를 N번 돌려 시간을 나눈다. 교실 기기로 옮겨 읽기 좋다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const FILE = process.argv[2], PORT = +process.argv[3];
 const srv = serve(PORT, FILE);

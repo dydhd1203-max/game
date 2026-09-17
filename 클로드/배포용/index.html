@@ -35,14 +35,24 @@ window.DEFAULTS = {
   crystalMax: 200,   // 수정 체력
   wolfPower:  1.0,   // 늑대 세기 배수 (0.7 쉬움 / 1.0 보통 / 1.4 어려움)
 
-  /* 그래픽 품질 (25차 · 26차 · 33차) — 교실 기기가 크롬북에서 노트북으로 바뀌면서 생긴 손잡이다.
-     'high' 선명   — 그림자 2048 · 계단 없애기 4 · 해상도 1.0
-     'mid'  보통   — 그림자 1024 · 계단 없애기 2 · 해상도 0.85   ← 기본 (33차)
-     'low'  부드럽게 — 그림자 없음 · 계단 그대로 · 해상도 0.7 — 유난히 느린 한 대의 비상구
-     (33차: 31차 판을 교실에서 재니 '선명' 이 기준 40fps 에 화면 그리기를 끄면 +21, 해상도 원본이 −17 이었다 —
-      값은 픽셀 쪽이다. 그래서 기본을 '보통' 으로 내렸다. 아이마다 시작 화면의 그래픽 단추로 바꿀 수 있고(기기에 저장된다),
-      선생님이 견줄 땐 주소 끝에 ?gfx=high 처럼 붙이면 그 판만 그것이 이긴다.)
-     어느 것이 얼마나 무거운지는 주소 끝에 ?diag=1 을 붙이고 Shift+9 를 누르면 항목별로 나온다. */
+  /* 그래픽 품질 (25차 · 26차 · 33차 · 49차c) — 교실 기기 손잡이다.
+     'high' 선명   — 그림자 2048 + 부드러운 가장자리 · 계단 없애기 4 · 해상도 1.0
+     'mid'  보통   — 그림자 2048 · 계단 없애기 2 · 해상도 0.85   ← 기본
+     'low'  부드럽게 — 그림자 없음 · 계단 그대로 · 해상도 0.7 · 플라스틱 광택 끔 — 느린 한 대의 비상구
+
+     ★ 49차c — 49차b 에서 기본을 '선명' 으로 올렸다가 되돌린다. **내가 근거를 잘못 읽었다.**
+       교실 기기는 **25차에 이미** 크롬북 → 노트북(LG gram · i7-1260P · Iris Xe 96EU · 8GB ·
+       2560×1600 배율 150%)으로 바뀌었다. 그러니 26차·33차·34차의 실측은 전부 **이 노트북에서** 잰 값이고,
+       33차가 기본을 '보통' 으로 내린 것도 노트북에서 잰 결과였다 — 기기가 바뀌었다고 무를 근거가 아니다.
+         · 33차 교실 실측: '선명' 기준 40fps · 화면 그리기 끔 **+21** · 해상도 원본 **−17**
+           → 이 기기에서 제일 비싼 손잡이는 여전히 **픽셀 수**다.
+         · 게다가 선생님이 47차에 "사람·건물이 많아지면 끊긴다" 고 한 것도 **'보통' 에서** 난 일이다.
+       그래서 기본은 '보통' 으로 두고, 노트북 값으로 실제로 뒷받침되는 것 하나만 올렸다:
+         · '보통' 의 그림자 지도 1024 → **2048** (26차 교실 실측에서 그림자를 통째로 꺼도 **+2.5fps** 뿐이었다.
+           2048 에서 잰 값이므로 이 올림은 그 2.5 안에 있다.)
+       '선명' 은 시작 화면 그래픽 단추로 고른다(기기마다 저장된다). 선생님이 교실에서 견줄 땐 아래 순서로:
+         ?gfx=high  →  ?gfx=high&pr=0.85  →  ?gfx=high&aa=2   (셋의 fps 차이가 픽셀 vs MSAA 를 가른다)
+       어느 것이 얼마나 무거운지는 주소 끝에 ?diag=1 을 붙이고 Shift+9 를 누르면 항목별로 나온다. */
   gfx: 'mid'
 };
 </script>
@@ -1917,6 +1927,214 @@ label.f{font-size:14px} .hint{font-size:13px} #hint{font-size:13px} #feed{font-s
 @keyframes cntPop{0%{opacity:0;transform:translate(-50%,-50%) scale(3) rotate(-14deg)}16%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-5deg)}70%{opacity:1;transform:translate(-50%,-50%) scale(1.06) rotate(-5deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(.8) rotate(-5deg)}}
 #fearVig{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center, rgba(0,0,0,0) 42%, rgba(30,0,8,.55) 75%, rgba(12,0,4,.92) 100%);z-index:3}
 @media (max-width:820px){ #feed{font-size:12px} }
+/* ═══════════════════════════════════════════════════════════════════════════
+   48차 — 로블록스 화면 (선생님: "이런 로블록스 인터페이스, 폰트로 싹 바꿔줘")
+   ★ 규칙은 28차 파스텔 층과 같다 — **id·구조·자리·크기는 그대로**, 색·모양·글씨만 바꾼다.
+     (t13 이 열 화면에서 조각이 겹치는지 재고, 다른 검사가 id 로 창을 연다)
+   ★ 스샷에서 읽은 것 넷 —
+     ① 판은 검은 반투명 **한 겹**. 테두리는 거의 안 보이고 그림자는 없다.
+     ② 글자는 흰색 굵은 고딕. 글자 그림자는 채팅·이름표에만(검은 외곽선).
+     ③ 모서리 8~12px. 파스텔 층의 18px 는 너무 말랑하다.
+     ④ 단추에 '눌리는 두꺼운 아래 그림자' 가 없다 — 밝기만 바뀐다.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{
+  /* ★ 48차b 교차검증 — 로블록스 Core-Scripts 실측값에 맞춘다:
+       칸 배경 rgb(49,49,49) 투명도 0.50 · 바탕판 rgb(31,31,31)/0.50 · 칸 테두리 0px.
+     색이 **푸른 기 없는 중성 회색**이다. 첫 판의 rgba(18,20,24) 는 푸른 기가 돌았다. */
+  --rb-bg:   rgba(26,26,26,.62);      /* 판 — 검은 반투명 한 겹 (rgb 31 계열) */
+  --rb-bg2:  rgba(22,22,22,.80);      /* 창(팝업) — 조금 더 진하게 */
+  --rb-cell: rgba(49,49,49,.50);      /* 판 안의 칸 — 로블록스 SLOT_DRAGGABLE_COLOR 그대로 */
+  --rb-line: rgba(255,255,255,.12);
+  --rb-line2:rgba(255,255,255,.26);
+  --rb-ink:  #ffffff; --rb-ink2: rgba(255,255,255,.62);
+  --rb-green:#00b06a; --rb-green2:#00c979; --rb-blue:#0099ff; --rb-red:#e2413c; --rb-gold:#ffc832;
+  --rb-r:10px;                         /* 모서리 */
+  --f-cute:'Montserrat','Gothic A1','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+  --f-body:'Montserrat','Gothic A1','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+  --num:'Montserrat','Gothic A1',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --soft: none;
+  --pk-ink:#fff; --pk-ink2:rgba(255,255,255,.62);
+  --pk-bg:var(--rb-bg); --pk-bg2:var(--rb-bg2);
+  --pk-line:var(--rb-line); --pk-line2:var(--rb-line2);
+  --cream:#fff;
+}
+html,body{font-family:var(--f-body)}
+body{color:var(--rb-ink)}
+/* 28차가 '주아' 를 씌운 자리는 전부 굵은 고딕으로. 가짜 굵게는 그대로 끈다 */
+.btn,.grp button,.popC h2,.popC h3,#titleCard h1,#titleCard .sub,#grpName,.resline,.slot .nm,.sItem .sn,.stIt .sn,#stageTitle .n,#bossName,
+.tag,#kitTabs button,.sItem button,.jobCard .jName,table.rank th,label.f,#dayPhase,#crystalWrap .lb,#bossWrap .lb,#toast,#tmsg,
+#aimInfo,#shopTip,#forgeTip,#farmTip,.kitIt .kn,.mb,#giveWrap button,#potRow button,.gcell,.kCell .kn{
+  font-family:var(--f-cute);font-weight:700;font-synthesis:none;letter-spacing:-.01em}   /* 48차b — 로블록스 Builder Sans 는 UI 에 Medium/SemiBold 를 쓴다. 800 은 너무 굵었다 */
+
+/* ── 판 ── */
+.pnl{background:var(--rb-bg);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:none;
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.card{background:var(--rb-bg2);border:1px solid var(--rb-line);border-radius:12px;box-shadow:none}
+.popC{background:var(--rb-bg2)!important;border:1px solid var(--rb-line)!important;box-shadow:none!important;color:#fff}
+.popC h2,.popC h3{color:#fff}
+#grpName{color:#fff;background:transparent;box-shadow:none}
+.res{background:var(--rb-cell);border:1px solid var(--rb-line);color:#fff}
+.res.w,.res.s,.res.g,.res.eg,.res.mk,.res.pk{background:var(--rb-cell);border-color:var(--rb-line)}
+.res b{color:#fff}
+#cNum,#hpNum,#hpRow,#stRow,#statRow,#lvRow{color:#fff}
+#hpRow{border-top:1px solid var(--rb-line)}
+#statRow span{background:var(--rb-cell);border:1px solid var(--rb-line);color:#fff}
+#stAtk{color:#ffb37a} #stDef{color:#8ec8ff} #stAmmo{color:var(--rb-gold)}
+#hpBar,#xpBar,#timeBar,#misBar,#cBar,#bBar,#stBar{background:rgba(0,0,0,.42);border:none;box-shadow:none;border-radius:999px;overflow:hidden}
+#hpFill{background:var(--rb-green)} #xpFill{background:var(--rb-blue)}
+#timeFill{background:var(--rb-gold)} #dayBox.night #timeFill{background:#7f9bff}
+#cFill{box-shadow:none} #bFill{background:var(--rb-red);box-shadow:none}
+#cFill:after,#bFill:after,#hpFill:after{background:none}
+#lvChip{background:var(--rb-blue);color:#fff;box-shadow:none;border-radius:6px}
+#lvPts{color:var(--rb-gold)}
+#potRow button{background:var(--rb-cell);border:1px solid var(--rb-line2);color:#fff}
+#dayBox{color:#fff} #tSec{color:var(--rb-ink2)} #dayBox.rush #tSec{color:#ff7b7b}
+/* 순위판 — 이름 왼쪽 · 숫자 오른쪽, 줄마다 판이 아니라 투명 */
+#rankHead{color:var(--rb-ink2)}
+.rkRow{color:#fff;background:transparent}
+.rkRow.me{background:rgba(255,255,255,.12);box-shadow:none;border-radius:6px}
+.rkNo.m1{color:var(--rb-gold)} .rkNo.m2{color:#cfd6e0} .rkNo.m3{color:#d79a63} .rkLv{color:var(--rb-ink2)}
+#crystalWrap .lb,#bossWrap .lb{color:var(--rb-ink2)}
+#bossWrap{border-color:rgba(226,65,60,.5)} #bossName{color:#ff8f8b;text-shadow:none} #bAdds{color:var(--rb-ink2)}
+#misWrap{color:#fff} #misName{color:var(--rb-ink2)} #misNum{color:var(--rb-gold)} #misFill{background:var(--rb-gold)}
+#misWrap.done{border-color:rgba(0,176,106,.55)} #misWrap.done #misNum{color:var(--rb-green2)} #misWrap.done #misFill{background:var(--rb-green)}
+.gcell{background:var(--rb-cell);border:1px solid var(--rb-line);color:#fff}
+.gcell:hover{background:rgba(255,255,255,.18)} .gcell.me{border-color:var(--rb-line2);box-shadow:inset 0 0 0 1px var(--rb-line2)}
+.gcell.warn{background:rgba(255,200,50,.18)} .gcell.bad{background:rgba(226,65,60,.24);border-color:rgba(226,65,60,.5)}
+#grpBar .hint2{color:var(--rb-ink2)}
+#crystalWrap.danger{border-color:rgba(226,65,60,.6)}
+@keyframes cDanger{0%,100%{box-shadow:none}50%{box-shadow:0 0 22px -2px rgba(226,65,60,.7)}}
+#miniWrap{padding:4px} #mini{border-radius:8px}
+
+/* ── 단추 — 눌리는 그림자 없이 밝기만 ── */
+.btn{background:var(--rb-cell);border:1px solid var(--rb-line2);color:#fff;border-radius:var(--rb-r);
+  box-shadow:none;transition:background .1s, transform .06s}
+.btn:hover{background:rgba(255,255,255,.20)}
+.btn:active{transform:translateY(1px);box-shadow:none;background:rgba(255,255,255,.26)}
+.btn.pri{background:var(--rb-green);border-color:rgba(255,255,255,.28);color:#fff;box-shadow:none}
+.btn.pri:hover{background:var(--rb-green2)} .btn.pri:active{box-shadow:none}
+.btn.warn{background:var(--rb-red);border-color:rgba(255,255,255,.28);color:#fff;box-shadow:none}
+.btn:disabled{opacity:.4}
+#topRight2 .btn{background:var(--rb-bg);border-color:var(--rb-line);box-shadow:none}
+#topRight2 .btn:hover{background:rgba(40,44,52,.82)}
+/* 오른쪽 세로줄 단추 — 로블록스는 동그라미가 아니라 **모서리 둥근 사각**이다 */
+#topRight2 .btn.rb{border-radius:12px}
+#topRight2 .btn.rb .kk{background:rgba(0,0,0,.66);color:#fff;box-shadow:none;font-family:var(--num);font-weight:800}
+.grp button{background:var(--rb-cell);border:1px solid var(--rb-line2);color:#fff;border-radius:8px}
+.grp button.on{background:var(--c);border-color:#fff;color:#12141a;box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
+input.f,select.f{background:rgba(0,0,0,.42);border:1px solid var(--rb-line2);color:#fff;border-radius:8px}
+label.f{color:var(--rb-ink2)}
+.tag{border-radius:6px;font-weight:800}
+
+/* ── 핫바 — 칸마다 어두운 반투명, 고른 칸만 흰 테두리 ── */
+/* ═══ 48차c — 핫바를 로블록스 실측 치수로 (선생님: "로블록스는 다 맨밑에 잘 붙어있잖아") ═══
+   Roblox/Core-Scripts 의 BackpackScript.lua 실측값:
+     ICON_SIZE 60 · ICON_BUFFER 5 · 칸 10개(데스크톱) · 테두리 0px
+     HotbarFrame.Size   = (5 + 10×(60+5), 5 + 60 + 5)
+     HotbarFrame.Position = UDim2.new(0.5, −W/2, **1, −H**)
+   → 가로 가운데, **세로는 화면 바닥에 딱 붙는다**. 칸 아래로 남는 것은 안쪽 여백 5px 뿐이다.
+   47차까지 우리는 바닥에서 14px 떠 있고 칸이 88×108 이라 화면 아래를 크게 먹었다.
+   우리 칸은 이름과 값(🪵14 🪨11 ✨4)을 이고 있어서 60×60 정사각은 못 쓴다 —
+   **가로는 60 그대로**, 세로만 이름·값 두 줄만큼(74) 늘린다. 간격과 바닥 여백은 5px 그대로. */
+/* ★ 48차d — 선생님: "핫바 양옆을 따닥 붙여줘".
+   로블록스 옛 Core-Scripts 는 칸 사이를 ICON_BUFFER 5px 띄웠지만, 지금 로블록스 핫바는
+   칸이 서로 붙어 한 줄 띠로 읽힌다(선생님이 준 스샷도 그렇다). 칸 사이 간격을 0 으로 두고,
+   **묶음의 바깥 모서리만** 둥글린다 — 도구 넷이 한 알약, 건물 다섯이 한 알약이 된다.
+   가운데 칸들은 모서리를 안 깎아야 이가 안 벌어진 채로 붙는다. */
+#dock{bottom:5px;gap:0;padding:0}
+#tools,#bar{gap:0}
+#dockLine{display:none}                 /* 한 줄 띠가 됐으니 가운데 줄이 필요 없다 */
+.slot{border-radius:0}
+#tools .slot:first-child{border-radius:8px 0 0 8px}     /* 띠 전체의 양 끝만 둥글다 */
+#bar   .slot:last-child {border-radius:0 8px 8px 0}
+/* 붙어 있으니 칸과 칸 사이에 머리카락 같은 금을 하나 둔다 — 없으면 어디까지가 한 칸인지 안 읽힌다 */
+#tools .slot + .slot,#bar .slot + .slot{box-shadow:inset 1px 0 0 rgba(0,0,0,.28)}
+/* 도구 넷과 건물 다섯 사이는 조금 더 진한 금 하나로 가른다(틈은 안 벌린다) */
+#bar .slot:first-child{box-shadow:inset 2px 0 0 rgba(0,0,0,.50)}
+.slot{width:60px;min-width:60px;height:80px;padding:6px 3px 5px;gap:1px;
+  background:rgba(49,49,49,.50);border:1px solid transparent;box-shadow:none;color:#fff}
+/* ★ 그림 칸이 26px 일 줄 알았는데 **재 보니 40px** 이었다(브라우저에서 직접 쟀다).
+   img.ic 가 `height:1.3em` 에 `vertical-align:-.32em` 이라, 글줄 상자가 그림 높이 + 내림폭만큼
+   부풀어 오른다. 그래서 값 아랫줄이 칸 밖으로 잘렸다.
+   글줄 상자를 쓰지 말고 **flex 로 가운데 놓고 높이를 못 박는다** — 6+26+1+12+1+24+5 = 75 ≤ 80. */
+.slot .ic{font-size:20px;margin-top:0;height:26px;line-height:1;
+  display:flex;align-items:center;justify-content:center}
+.slot .ic img.ic{height:24px;width:auto;vertical-align:middle;margin:0}
+.slot .nm{font-size:10px;letter-spacing:-.4px}
+.slot .cost{min-height:24px;padding-top:3px;gap:0 4px;font-size:8.5px;border-top-color:rgba(255,255,255,.12)}   /* 값이 두 줄로 접히므로 두 줄만큼(8.5×1.35×2 ≈ 23) 잡는다 — 20 이면 아랫줄이 잘렸다 */
+.slot .ky{left:4px;top:4px;font-size:8.5px;padding:1px 4px;border-radius:5px;background:rgba(0,0,0,.42);opacity:.8}
+/* 로블록스는 고른 칸이 **위로 튀어오르지 않는다** — 테두리와 밝기만 바뀐다 */
+.slot.on{border-color:#fff;background:rgba(58,58,58,.78);box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)!important;transform:none;z-index:2}
+.slot.on .ky{opacity:1;background:rgba(0,0,0,.55)}
+body:not(.touch) .slot.tool{width:60px;min-width:60px;height:80px;padding:6px 3px 5px;justify-content:center;gap:3px}
+body:not(.touch) .slot.tool .ic{font-size:21px;height:28px} body:not(.touch) .slot.tool .ic img.ic{height:26px} body:not(.touch) .slot.tool .nm{font-size:10px}
+@media (max-width:820px){ .slot,body:not(.touch) .slot.tool{width:54px;min-width:54px;height:76px} .slot .ic{font-size:18px} .slot .nm{font-size:9.5px}
+  /* ★ 49차e — 작은 태블릿(820×500)에서 값 알약이 칸 밖으로 2px 삐져나왔다(돌벽 🪵1, t8 이 잡았다).
+     칸이 60 → 54px 로 줄었는데 값 글자와 좌우 여백은 그대로였다. 여기만 한 칸씩 줄인다. */
+  .slot{padding-left:2px;padding-right:2px} .slot .cost{font-size:8px;gap:0 2px}
+  .slot .cost span{padding:1.5px 4px} }
+.slot .nm{color:#fff} .slot .ky{color:var(--rb-ink2);opacity:1} .slot .cost{color:var(--rb-ink2)}
+.slot.no .cost{color:#ff8f8b}
+
+/* ── 채팅·알림은 판 없이 흰 글자 + 검은 외곽선 (로블록스 채팅 결) ── */
+#feed{background:none;border:none;box-shadow:none;color:#fff;
+  text-shadow:0 0 3px rgba(0,0,0,.9), 0 1px 2px rgba(0,0,0,.9)}
+/* 줄마다 씌운 크림색 판도 벗긴다 — 로블록스 채팅은 판이 없다(28차에 씌운 것) */
+#feed div{background:none;border:none;border-left:none;box-shadow:none;color:#fff;padding:1px 0;
+  text-shadow:0 0 3px rgba(0,0,0,.9), 0 1px 2px rgba(0,0,0,.9)}
+#toast{background:var(--rb-bg2);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:none;color:#fff;text-shadow:none}
+#hint{color:var(--rb-ink2)}
+#shopTip,#forgeTip,#farmTip{background:var(--rb-bg2);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:none;color:#fff}
+
+/* ── 시작 화면 — 하늘은 그대로 두고 카드만 로블록스 결로 ── */
+#titleCard h1{text-shadow:0 2px 0 rgba(0,0,0,.35);letter-spacing:-1.5px}
+#titleCard .sub{color:#16331b}
+
+/* ── 창 안쪽(카드·칸·탭)도 어둡게 — 흰 카드만 남으면 창 하나가 두 장으로 읽힌다 ──
+   선생님: "창이 열린 화면이랑 설정 창은 지금 스타일에서 조금만 다듬어주면 될 것 같아" */
+.sItem{background:var(--rb-cell);border:1px solid var(--rb-line);border-radius:10px;box-shadow:none;color:#fff}
+.sItem.own{background:rgba(0,176,106,.20);border-color:rgba(0,176,106,.55)}
+.sItem .sd{color:var(--rb-ink2)} .sItem .sc{color:var(--rb-gold)} .sItem .sn{color:#fff}
+.sItem button{background:rgba(255,255,255,.14);border:1px solid var(--rb-line2);color:#fff;box-shadow:none;border-radius:8px}
+.sItem button.buy{background:var(--rb-green);border-color:rgba(255,255,255,.28);color:#fff;box-shadow:none}
+.sItem button:active{transform:translateY(1px);box-shadow:none}
+.enhOdds{background:rgba(0,0,0,.42)} .enhLv{color:var(--rb-gold)}
+.kitIt{background:var(--rb-cell);border:1px solid var(--rb-line);color:#fff}
+.kitIt.on{background:rgba(255,200,50,.22);border-color:rgba(255,200,50,.6);box-shadow:none}
+.kitIt .kd,.kitIt.on .kd{color:var(--rb-ink2)}
+#kitDoll{background:rgba(0,0,0,.30);border:1px solid var(--rb-line)}
+.kSlot{background:var(--rb-cell);border:1px solid var(--rb-line2);box-shadow:none}
+.kSlot:hover{border-color:var(--rb-gold);background:rgba(255,255,255,.18)} .kSlot.empty{opacity:.45;background:rgba(0,0,0,.28)}
+.kSlot .kTag{color:var(--rb-ink2)}
+#kitTabs button{background:var(--rb-cell);border:1px solid var(--rb-line2);color:#fff;box-shadow:none;border-radius:8px}
+#kitTabs button.on{background:var(--rb-blue);border-color:rgba(255,255,255,.3);color:#fff;box-shadow:none}
+.kCell{background:var(--rb-cell);border:1px solid var(--rb-line);box-shadow:none;border-radius:10px}
+.kCell:hover{border-color:var(--rb-line2);background:rgba(255,255,255,.18);transform:none;box-shadow:none}
+.kCell.on{border-color:var(--rb-green2);background:rgba(0,176,106,.22);box-shadow:none}
+.stIt{background:var(--rb-cell);border:1px solid var(--rb-line);box-shadow:none;color:#fff}
+.stIt .sd{color:var(--rb-ink2)}
+.jobCard{background:var(--rb-cell);border:1px solid var(--rb-line);box-shadow:none;color:#fff}
+table.rank th{color:var(--rb-ink2)} table.rank td{color:#fff}
+.hrow,.sl,.gline,.shopHint,.hint{color:var(--rb-ink2)}
+
+/* ── 27차·28차가 남긴 남보라 결을 마저 덮는다 ── */
+:root{ --ui-bg:var(--rb-bg); --ui-bg2:var(--rb-bg2); --ui-edge:var(--rb-line); --ui-edge2:var(--rb-line2);
+       --panel:var(--rb-bg); --panel3:var(--rb-bg); --line:var(--rb-line); --line2:var(--rb-line2); }
+/* 핫바 바깥 테두리 — 로블록스 핫바는 칸만 있고 **칸을 감싼 큰 판이 없다** */
+#dock{background:none;border:none;box-shadow:none;padding:0;border-radius:0;gap:5px}   /* 48차c — 간격도 로블록스 ICON_BUFFER 5 */
+#dockLine{background:rgba(255,255,255,.14)}
+/* 모둠 이름 — 색 띠가 아니라 그 모둠 색 글자 한 줄 */
+#grpName{background:none!important;padding:0;box-shadow:none;color:var(--c,#fff);font-size:13px;letter-spacing:0}
+/* 조작 안내는 왼쪽 아래로 — 28차에 핫바 판 위(가운데)에 얹어 뒀는데,
+   48차에 핫바 판을 없애고 3인칭이 되니 **내 양 얼굴 위에** 글씨가 떴다.
+   ★ 49차e — **터치는 빼고** 마우스에서만 그렇게 한다. 태블릿의 왼쪽 아래는 **조이스틱 자리**라
+     48차 그대로 두면 글씨가 조이스틱 위에 얹힌다(t13 이 여섯 화면에서 stick×hint 로 잡았다).
+     터치는 28차처럼 핫바 위 가운데 — fitHint() 가 조이스틱·버튼을 재서 들어갈 폭만 준다. */
+body:not(.touch) #hint{left:14px;right:auto;bottom:14px;transform:none;max-width:38vw;text-align:left;
+  padding:0;text-shadow:0 0 3px rgba(0,0,0,.9);opacity:.5;background:none;border:none;box-shadow:none}
+.res i{background:rgba(0,0,0,.28)}
+#stageTitle .n,#stageTitle .d{text-shadow:0 2px 6px rgba(0,0,0,.6)}
+#combo,#aimInfo{text-shadow:0 0 3px rgba(0,0,0,.9)}
 </style>
 </head>
 <body>
@@ -2471,7 +2689,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '47차 · 경주 골인율(좁은 발판 넓히기 · 경주에서는 튕김 절반) · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 양 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
+const GAME_VER = '49차 · 검사 되살리기(전체 판 1243항목 다시 돎) · 3인칭 조준 고침 · 태블릿 조작안내·핫바 값 · 저격총 양각대 · 노트북 기준으로(그림자 2048 · 구역 32칸 · 선명은 부드러운 그림자) · 수정 단상 보도블록 · 48차 로블록스 화면(굵은 고딕 폰트 · 검은 반투명 UI · 바닥에 붙는 핫바 · 3인칭 카메라 + 휠 줌 · 플라스틱 광택 · 매끈 질감 · 즉시 가속·정지 · 로블록스 체공 0.54초(경주는 그대로) · 공중 자세 둘) · 47차 경주 골인율 · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 양 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -2842,8 +3060,21 @@ const matC = (hex)=> new THREE.MeshLambertMaterial({map:ATLAS, color:hex});
    픽셀이 MeshStandardMaterial(GGX 반사·에너지 보존·조명마다 BRDF)로 칠해지고 있었다. 로블록스 룩은 확산광이면 충분하고,
    Lambert 는 r155 부터 픽셀 조명이라 결(grain)·안개·꼭짓점 색이 다 그대로 먹는다. 픽셀당 값이 크게 준다.
    roughness/metalness 는 Lambert 에 없으니 버린다. 수정 보석(반투명·발광)만 pbrMat 으로 남긴다(t32 가 그 재질을 본다). */
+/* ★ 49차 — **로블록스 플라스틱 광택**. (선생님: "특히 그래픽이 로블록스같아야해")
+   찾아보니 로블록스 기본 재질은 Plastic 이고, 스타일리시한 게임이 쓰는 SmoothPlastic 은
+   "매우 반사적(very reflective)" 이다 — 즉 **표면에 하이라이트가 있다**.
+   34차에 Standard → Lambert 로 내리면서 반사광이 통째로 사라졌고, 그래서 우리 세계는
+   종이처럼 납작했다. 그게 '로블록스가 아닌' 느낌의 마지막 조각이다.
+   ★ Phong 은 Standard(GGX·에너지 보존·조명마다 BRDF)보다 훨씬 싸다 — 직사광 하나에
+     normalize·dot·pow 몇 개가 더해질 뿐이다. 그래도 26차 교실 실측이 "픽셀 쪽이 병목" 이었으므로
+     **'부드럽게'(low) 에서는 예전 Lambert 그대로** 둔다. 교실에서 끊기면 ?gfx=low 가 비상구다.
+   ★ 값 — specular 0x2b2b2b(17%) · shininess 28. 로블록스 SmoothPlastic 보다 얌전하게 잡았다:
+     꽉 채우면 온 세계가 젖은 것처럼 번들거린다(장난감 플라스틱은 그 정도로 반짝이지 않는다). */
+const RB_SPEC = 0x2b2b2b, RB_SHINE = 28;
 const flatMat = (hex, o)=>{ const q = Object.assign({color:hex}, o||{}); delete q.roughness; delete q.metalness;
-  return new THREE.MeshLambertMaterial(q); };
+  if(GFX.q === 'low') return new THREE.MeshLambertMaterial(q);
+  q.specular = new THREE.Color(RB_SPEC); q.shininess = RB_SHINE;
+  return new THREE.MeshPhongMaterial(q); };
 const pbrMat  = (hex, o)=> new THREE.MeshStandardMaterial(Object.assign({color:hex, roughness:0.70, metalness:0}, o||{}));
 /* ═══ 28차 — 타일 하나하나의 원색 (26차b 에 아틀라스에서 잰 평균색, 장난감답게 조금 밝힘) ═══
    손에 든 도구·아이콘·떨어진 산물·상자가 이 표를 본다. 텍스처 타일 번호를 그대로 색으로 바꾼다. */
@@ -2980,7 +3211,7 @@ const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in wind
    최종 숫자는 교실에서 셋을 견줘 정한다(검사기는 GPU 를 못 잰다). */
 const GFX_PRESET = {
   high: {shadow:2048, bloom:0, aa:4, pr:1.0},     // 선명
-  mid:  {shadow:1024, bloom:0, aa:2, pr:0.85},    // 보통 (기본)
+  mid:  {shadow:2048, bloom:0, aa:2, pr:0.85},    // 보통 (기본) — 49차c 에 그림자만 1024 → 2048
   low:  {shadow:0,    bloom:0, aa:0, pr:0.7}      // 부드럽게
 };
 const GFX_NAME = {high:'선명', mid:'보통', low:'부드럽게'};
@@ -2992,6 +3223,7 @@ const GFX_PICK = (()=>{ try{ const v = localStorage.getItem('gfxPick'); return G
 const GFX_Q = new URLSearchParams(location.search).get('gfx')
            || GFX_PICK || (window.DEFAULTS||{}).gfx || 'mid';
 const GFX = Object.assign({}, GFX_PRESET[GFX_Q] || GFX_PRESET.high);
+GFX.q = GFX_PRESET[GFX_Q] ? GFX_Q : 'high';      // 49차 — 고른 이름도 들고 있는다(flatMat 이 '부드럽게'면 광택을 끈다)
 if(new URLSearchParams(location.search).get('bloom') === '1') GFX.bloom = 1;
 /* ★ 26차b — 교실에서 파일을 안 바꾸고 한 판씩 견주는 손잡이.
      ?aa=0|2|4   ?pr=0.75|1|1.5   ?shadow=0|1024|2048   (?gfx= 와 같이 써도 된다, 이게 이긴다)
@@ -3069,7 +3301,20 @@ renderer.toneMapping = TONE.mode;
 renderer.toneMappingExposure = TONE.exp;
 if(GFX.shadow){
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFShadowMap;      // 34차 — Soft(넓은 표본)보다 싸다. 장난감 룩엔 가장자리가 조금 딱딱해도 된다
+  /* ★ 49차 — '선명' 에서만 **부드러운 가장자리**를 쓴다. 로블록스도 그림자가 부드럽고,
+     장난감 룩에서 딱딱한 계단 가장자리는 오히려 눈에 튄다.
+     49차c — 기본('보통')은 PCF 그대로 둔다. 26차 교실 실측에서 그림자를 통째로 꺼도 +2.5fps 였으니
+     비싼 자리는 아니지만, 한 판에 하나씩만 올리고 교실에서 다시 잰다(34차 규칙).
+     '부드럽게'(low)는 애초에 그림자가 없으므로 이 줄을 안 지난다. */
+  /* ⚠️ 49차c 에 알아낸 것 — **three 가 r186 에서 PCFSoftShadowMap 을 없앴다.**
+     첫 프레임에 "PCFSoftShadowMap has been removed. Using PCFShadowMap instead." 를 찍고 PCF 로 되돌린다.
+     우리 importmap 은 three@0.160.0 에 못 박혀 있어서 교실은 아직 부드러운 그림자를 받는다.
+     다만 **검사 폴더의 node_modules 는 0.186** 이라 검사기에서는 PCF 로 떨어진다 —
+     그래서 검사는 렌더러가 들고 있는 값이 아니라 '우리가 무엇을 달라고 했나'(SHADOW_TYPE)를 본다.
+     three 를 올릴 일이 생기면 여기가 조용히 바뀐다는 걸 기억할 것. */
+  const SHADOW_TYPE = GFX.q === 'mid' ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
+  window.__SHADOW_TYPE = SHADOW_TYPE;
+  renderer.shadowMap.type = SHADOW_TYPE;
   /* ★ 34차 — 그림자 지도를 **매 프레임이 아니라 15Hz** 로 다시 그린다. 한 프레임을 뜯어보니 그림자 패스가 본 패스와 맞먹었다
      (그리기 179번 · 삼각형 51만, 본 패스 205번 · 52만). 세계는 정지해 있고 해는 느리게 움직이니 15Hz 면 아무도 못 알아본다
      (늑대 그림자가 최대 66ms 늦는다). 진단(?diag) 의 '그림자 매 프레임' 이 이 값을 잰다. */
@@ -3153,7 +3398,10 @@ const skyDome = (()=>{
    하루가 통째로 붉으면 이상하고, 없으면 밤이 그냥 '색이 바뀐 낮' 이 된다. */
 const SKY_DUSK = new THREE.Color(0xff9a5c);
 
-const camera = new THREE.PerspectiveCamera(74, innerWidth/innerHeight, 0.08, 420);
+/* ★ 49차e — 처음 만들 때도 70 으로. 48차에 FOV0 을 74 → 70(로블록스 기본값)으로 내렸는데
+   여기 생성자는 74 그대로여서, updCam 이 한 번 돌기 전까지 시야각이 74 였다(t34 가 잡았다).
+   같은 값이 두 곳에 있으면 한 곳만 고치게 된다 — FOV0 은 저 아래 17393줄 근처. */
+const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.08, 420);
 scene.add(camera);                       // 손에 든 도구를 그리려면 카메라가 씬 안에 있어야 한다
 const heldLight = new THREE.PointLight(0xffffff, 1.6, 4.5);
 heldLight.position.set(0.55, 0.15, -0.25);
@@ -3204,7 +3452,7 @@ heldLight.position.set(0.55, 0.15, -0.25);
        1.06   100.8   53.5   53.1
 
      밝기를 25차 전과 맞추는 쪽을 골랐다. 어두우면 아이가 늑대를 못 본다. */
-const hemi = new THREE.HemisphereLight(0xcfe8ff, 0x5a7a4a, 0.75); scene.add(hemi);
+const hemi = new THREE.HemisphereLight(0xdfe6ec, 0x5a7a4a, 0.95); scene.add(hemi);   // 48차b — 로블록스 OutdoorAmbient 는 **중성 회색(127,127,127)** 이다. 파란 하늘빛(0xcfe8ff)을 그만큼 올리면 풀색이 바랜다 → 색을 중성으로 낮추고 세기는 0.95
 const sun  = new THREE.DirectionalLight(0xffffff, 1.15); sun.position.set(50,90,30); scene.add(sun);
 const amb  = new THREE.AmbientLight(0xffffff, 0.30); scene.add(amb);
 
@@ -3518,8 +3766,8 @@ function addGrain(mat, tex, scale, amt){
   mat.extensions = Object.assign(mat.extensions || {}, {derivatives:true});
   mat.needsUpdate = true; return mat;
 }
-addGrain(WMAT, GRAIN.rock, 0.6, 0.46);                    // 세계 조각(산·성문·농장·가게) — 돌결, 1.7칸마다 반복
-addGrain(flatFor(T.cloth), GRAIN.rock, 0.7, 0.22);        // 건물 몸통(30차 조각) — 조금 옅게
+addGrain(WMAT, GRAIN.rock, 0.6, 0.13);                    // 세계 조각(산·성문·농장·가게) — 48차: 0.46 → 0.13 (로블록스 매끈 플라스틱). 0 으로 두면 큰 면이 띠진다
+addGrain(flatFor(T.cloth), GRAIN.rock, 0.7, 0.07);        // 건물 몸통(30차 조각) — 48차: 0.22 → 0.07
 const _wc = new THREE.Color(), _wc2 = new THREE.Color();
 const banks = new Map();
 const _v=new THREE.Vector3(), _q=new THREE.Quaternion(), _s=new THREE.Vector3(), _m=new THREE.Matrix4();
@@ -3572,8 +3820,13 @@ function bpush(key, geo, mat, x,y,z, ry=0, sx=1,sy=1,sz=1, rz=0, col=0){
    양쪽 다 이득이라 여기가 맞다. */
 /* ★ 34차 — 잔 꾸밈(꽃잎·꽃술·줄기·작은 수풀·자갈·사과·금 알갱이·이삭·연잎·섬 표시·깃발·틈)은 그림자를 안 드리운다.
    그림자 패스에서 삼각형 10만 남짓이 빠지고, 눈으론 차이가 없다(그늘이 콩알만 하다). 진단의 '작은 것 그림자 켬' 이 값을 잰다. */
-const NO_CAST = new Set(['petal','pist','stem','bushS','peb','apple','nug','farmGlow','gglow','miMark','miEdge','miGlow','miBase','flag','flagT','reed','lily','mtK','rcLand','rcLandB','rcBuoy','rcRbow']);
-const BCHUNK = 64;   // 34차 — 32 → 64. 교실 크롬북은 그리기 한 번이 60µs 라 청크 수를 반으로(삼각형은 조금 늘지만 콜이 훨씬 준다)
+const NO_CAST = new Set(['petal','pist','stem','bushS','peb','apple','nug','farmGlow','gglow','miMark','miEdge','miGlow','miBase','flag','flagT','reed','lily','mtK','rcLand','rcLandB','rcBuoy','rcRbow','plazaT']);
+/* ★ 49차 — 64 → 32 로 되돌린다. 34차에 64 로 올린 이유는 "그리기 한 번이 60µs" 였는데,
+   그 60µs 는 **크롬북(Mali-G72) 때 쓰던 계산값**이고 25차에 이미 "이건 실측이 아니라 계산이었다" 고
+   바로잡아 둔 숫자다(진행상황 25차 머리말). 그걸 노트북에서 그대로 쓴 것이 34차의 실수다.
+   지금 기기에서 콜은 1~2µs 라 +56 콜이 0.1ms — probe50 으로 잰 삼각형 −6~25% 를 그 값에 산다.
+   (49차c 에도 이건 그대로 둔다. 되돌린 건 기본 품질뿐이다.) */
+const BCHUNK = 32;
 const BSPLIT = 300;   // 이보다 인스턴스가 적은 뱅크는 안 쪼갠다 (쪼개 봤자 드로우콜만 는다)
 function bbuild(){
   for(const [k,b] of banks){
@@ -3733,7 +3986,7 @@ function buildWorldMesh(){
   }
   gg.computeVertexNormals();
   gg.setAttribute('color', new THREE.BufferAttribute(cols,3));
-  const disc = new THREE.Mesh(gg, addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.grass, 0.35, 0.16));   // 33차 — 풀결
+  const disc = new THREE.Mesh(gg, addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.grass, 0.35, 0.10));   // 33차 — 풀결 · 48차: 0.16 → 0.10
   disc.position.y = GY;
   if(GFX.shadow) disc.receiveShadow = true;       // 바닥은 받기만 한다 (드리울 것이 없다)
   scene.add(disc); groundDisc = disc;
@@ -3814,6 +4067,15 @@ function buildWorldMesh(){
   /* ── 수정 단상 — 한 판 + 밝은 윗판 + 금 테 ── */
   bpush('sb', BOXG, WMAT, 0.5, GY+0.5, 0.5, 0, 11, 1.0, 11, 0, PLAT_C);
   bpush('sb', BOXG, WMAT, 0.5, GY+1.03, 0.5, 0, 9.4, 0.10, 9.4, 0, PLAT_TOP);
+  /* ★ 49차 — 수정 단상 위를 **보도블록**으로. (선생님: "특히 그래픽이 로블록스같아야 해")
+     선생님이 준 로블록스 스샷에서 제일 눈에 띄는 바닥 표시가 격자로 깔린 보도블록이다.
+     우리 단상은 회색 한 판이라 아무 무늬가 없었다.
+     한 칸씩 깔되 **0.88칸으로 작게** 놓아 아래 판(PLAT_TOP)이 0.12칸 틈으로 비쳐 줄눈이 된다.
+     색은 두 가지를 바둑판으로 — 한 색이면 줄눈만 보이고 블록이 안 읽힌다.
+     그림자는 안 드리운다(NO_CAST) — 두께 0.06칸짜리 판이라 그늘이 콩알만 하다. */
+  { const A = 0xdfe2e8, B = 0xcdd1d8;
+    for(let i=-4;i<=4;i++) for(let j=-4;j<=4;j++)
+      bpush('plazaT', BOXG, WMAT, i+0.5, GY+1.11, j+0.5, 0, 0.88, 0.06, 0.88, 0, ((i+j)&1) ? A : B); }
   for(let i=-5;i<=5;i++){ for(const p of [[i,-5],[i,5],[-5,i],[5,i]])
     if(Math.abs(p[0])===5||Math.abs(p[1])===5) bpush('gb', WGEO, WMAT, p[0]+0.5, GY+1.5, p[1]+0.5, 0, 1,1,1, 0, GOLD_C); }
 
@@ -3879,8 +4141,8 @@ const GEMG   = new THREE.OctahedronGeometry(0.5, 0);   GEMG.computeVertexNormals
    · jitterGeo — 잎 덩어리의 꼭짓점을 자리 해시로 흔들어 울퉁불퉁하게(같은 자리 꼭짓점은 같이 움직여 면이 안 벌어진다). 셋을 만들어 돌려 쓴다.
    · 줄기는 일곱 면을 번갈아 어둡게 — 껍질 띠. 벽돌 판은 모따기 + 아래 어둡게. 산 기둥도 아래를 어둡게.
    꼭짓점 색이 있는 지오메트리는 bpush 가 알아서 WMATV(vertexColors) 재질로 바꿔 넣는다. */
-const WMATV = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.rock, 0.6, 0.40);   // 33차 — 돌결
-const WMATL = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.leaf, 1.4, 0.50);   // 33차 — 잎 얼룩
+const WMATV = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.rock, 0.6, 0.12);   // 33차 — 돌결 · 48차: 0.40 → 0.12
+const WMATL = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.leaf, 1.4, 0.16);   // 33차 — 잎 얼룩 · 48차: 0.50 → 0.16 (잎은 조금 남긴다 — 완전히 매끈하면 덩어리 하나로 뭉친다)
 function jitterGeo(g, amp, seed){
   const P = g.attributes.position, v = new THREE.Vector3();
   for(let i=0;i<P.count;i++){ v.fromBufferAttribute(P,i);
@@ -6487,8 +6749,13 @@ function mkSniper(){                             // 🏆 금빛 저격총
   g.add(boxM(T.crystal,0.115,0.115,0.06, 0, 0.21,-0.13, matGlow));    // 뒤 렌즈
   g.add(boxM(T.goldBlk,0.055,0.08,0.06, 0, 0.14, 0.00));              // 받침
   g.add(boxM(T.goldBlk,0.055,0.08,0.06, 0, 0.14, 0.26));
-  for(const s of [-1,1])                                              // 양각대
+  /* ★ 49차e — 양각대 다리 둘이 **허공에 떠 있었다**. 총열(x ±0.0375 · y 0.0225~)에서
+     x 로 0.0325, y 로 0.0225 떨어져 있어서 어느 조각과도 안 닿았다(t11 이 잡았는데,
+     세계 좌표로 돌려 재는 검사라 총이 흔들리는 각도에 따라 세 번에 한 번만 빨개졌다).
+     진짜 양각대처럼 **받침 하나로 다리 둘을 총열에 잇는다** — 보기에도 이쪽이 맞다. */
+  for(const s of [-1,1])                                              // 양각대 다리
     g.add(boxM(T.dark, 0.04,0.22,0.04, s*0.09,-0.11, 0.66, matGunDk));
+  g.add(boxM(T.dark, 0.22,0.05,0.05, 0, 0.005, 0.66, matGunDk));      // 양각대 받침 (다리 둘 ↔ 총열)
   g.add(boxM(T.goldBlk,0.09,0.16,0.14, 0,-0.11, 0.02));               // 금 탄창
   g.add(boxM(T.plank, 0.10,0.20,0.13, 0,-0.15,-0.09, matWoodDk));     // 손잡이
   gunGrip(g, 0,-0.17,-0.09, 0.40);
@@ -8916,7 +9183,10 @@ function drawSheep(list, t, cap, colOf, scale){
     const gs = sheepGait(s, t);                     // 41차 — 간 거리·빠르기 (44차 — 가속도도)
     /* 44차 — 표시용 방향은 목표(s.ry)를 각속도 제한(10rad/s)으로 따라간다: 친구 양은 통신값(초당 6번)이 즉시 꺾여 덜컥거렸고 내 양도 yaw 그대로였다.
        회전 속도(turn)만큼 도는 안쪽으로 몸이 기울고(굴림 훅), 아직 못 돈 각(lead)만큼 머리가 먼저 돈다 */
-    const hd = smoothHead(s, (s.ry||0) + Math.PI, gs.dt || 0.016, 10), life = idleLife(t, s.ph||0);
+    /* ★ 48e — 로블록스 **시프트락**에서는 캐릭터가 카메라 쪽을 **즉시** 본다(AutoRotate 를 끄고 카메라 yaw 를 그대로 쓴다).
+       44차의 10rad/s 는 친구 양의 통신값(초당 6번)이 덜컥거리는 걸 펴려고 넣은 것이다 — 내 양은 통신을 안 거치므로
+       느리게 돌 이유가 없다. 내 양만 26rad/s(반 바퀴 0.12초)로 올린다. 아주 즉시로 두면 몸 기울기(turn)가 튄다. */
+    const hd = smoothHead(s, (s.ry||0) + Math.PI, gs.dt || 0.016, s.me ? 26 : 10), life = idleLife(t, s.ph||0);
     const ry = down ? (s.ry||0) + Math.PI : hd.ry;   // ★ 전방 보정
     const fx = Math.sin(ry), fz = Math.cos(ry);     // 앞
     const rx = Math.cos(ry), rz = -Math.sin(ry);    // 오른쪽
@@ -9045,11 +9315,25 @@ function drawSheep(list, t, cap, colOf, scale){
       const p = run ? gait + (front ? 0.9 : -0.6) : gait + ((li===0 || li===3) ? 0 : Math.PI);
       const sw = mvK * Math.sin(p) * (run ? (front ? 1.0 : 0.9) : 0.85), up = mvK * Math.max(0, Math.cos(p));
       let th1, bend;
+      /* ★ 48차 — 로블록스 공중 자세 둘(선생님: "모션 좀 진짜 로블록스처럼").
+         로블록스 R6 은 **오를 때 팔을 위로 번쩍**, **내려올 때 팔을 옆으로 벌린다** — 두 자세가 또렷이 다르다.
+         47차까지 우리는 공중이면 넷 다 뒤로 접기 하나뿐이라 오르는지 내려오는지 몸으로 안 보였다.
+         네 발 짐승으로 옮기면:
+           · 오를 때(vy > 1) — 앞다리를 앞으로 쭉, 뒷다리를 뒤로 쭉(무릎 거의 안 접힘). 슈퍼맨 자세라 뜀이 또렷하다.
+           · 내려올 때 — 네 다리를 아래로 곧게 뻗고 옆으로 조금 벌린다. 착지 준비로 읽힌다.
+         42차 도약 늘어남(take)은 그 위에 그대로 얹힌다. */
+      let spread = 0;
       if(down){ th1 = Math.PI; bend = 0; }
-      else if(air){ th1 = -0.55 + take*1.3; bend = 1.15*(1 - take); }
+      else if(air){
+        const rise = vy > 1;
+        th1  = rise ? (front ? 0.95 : -0.85) + take*0.30 : -0.10;
+        bend = rise ? 0.30*(1 - take) : 0.10;
+        spread = rise ? 0 : 0.10;                       // 내려올 때만 옆으로 벌린다
+      }
       else { th1 = sw*(run ? 0.95 : 0.80); bend = up*(run ? 1.25 : 1.05) + (1 - mvK)*0.06; }
       const hy = down ? Y(0.59) : y + 0.40*sc + Math.max(0, bob)*0.4;
-      leg2(P_legs, ln, null, 0, X(fo, 0.27*si), hy, Z(fo, 0.27*si), fx, fz, ry, th1, bend, 0.21*sc, 0.20*sc, 0.19*sc, 0x5c564f, 0, 0);
+      const lsd = (0.27 + spread)*si;
+      leg2(P_legs, ln, null, 0, X(fo, lsd), hy, Z(fo, lsd), fx, fz, ry, th1, bend, 0.21*sc, 0.20*sc, 0.19*sc, 0x5c564f, 0, 0);
       ln += 2; li++;
     }
     /* 꾸미기 — 모자·안경은 머리를 따라(YH), 옷은 몸통을 따라(Y) 움직인다.
@@ -9202,7 +9486,7 @@ let tagRedraws = 0;                 // 이름표를 다시 그린 횟수 (진단
      이름표는 **그 아이가 화면에 있는 내내** 떠 있다. 그래서 여기가 칭호의 자리다.
    ★ 레벨·칭호가 붙으면 이름이 칸(256px)을 넘칠 수 있어서, 넘치면 글자를 줄여 맞춘다.
      한글 이름 넷에 칭호까지 붙는 제일 나쁜 경우를 t26 이 자로 잰다. */
-const TAG_FONT = w => '900 ' + w + 'px -apple-system, "Noto Sans KR", sans-serif';
+const TAG_FONT = w => '800 ' + w + 'px Montserrat, "Gothic A1", -apple-system, "Noto Sans KR", sans-serif';   // 48차 — 이름표도 로블록스 결
 function setTag(t, text, color, lv, bic){
   const key = text + color + '|' + (lv||0) + '|' + (bic||'');
   if(t.txt === key) return; t.txt = key;
@@ -9280,8 +9564,9 @@ const myRes = ()=> G.res[G.me.g];
 const SHEEP_S = 0.70;
 const PL = { x:0, y:GY, z:0, vy:0, yaw:0, pitch:0, ground:true, R:0.28, EYE:1.12, mv:false,
              hp:100, down:false, biteT:0, hurtFx:0, landT:0 };
-/* 쓰러졌을 때 3인칭으로 보여 줄 '내 몸' — 매 프레임 새로 만들지 않으려고 하나만 둔다 */
-const meSheep = { x:0, y:GY, z:0, ry:0, g:0, hat:0, gls:0, clo:0,
+/* 쓰러졌을 때 3인칭으로 보여 줄 '내 몸' — 매 프레임 새로 만들지 않으려고 하나만 둔다
+   (48차부터는 마을·밤도 3인칭이라 늘 이걸 그린다. me:true 는 '통신을 안 거친 내 양' 표시 — 돌기가 즉시다) */
+const meSheep = { me:true, x:0, y:GY, z:0, ry:0, g:0, hat:0, gls:0, clo:0,
                   down:true, mv:false, ph:1.7 };
 const SHEEP_HP = 100;
 
@@ -9420,17 +9705,36 @@ function placePlayer(){
   const [x,z] = spawnPoint(G.me.g);
   PL.x = x; PL.z = z; PL.y = groundUnder(x,z,PL.R); PL.vy = 0;
   PL.yaw = Math.atan2(x, z);   // 카메라 정면은 (-sin,-cos) — 수정 쪽을 보게
+  /* ★ 48차b — 로블록스 카메라는 캐릭터를 **살짝 내려다본다**(대략 −10°).
+     수평으로 보면 양(키 0.88칸)이 카메라 높이(1.02)보다 아래라 화면 밑으로 처져서 핫바에 가린다.
+     여기서 한 번만 놓아 주고, 그 뒤엔 아이가 마우스로 마음대로 본다. */
+  PL.pitch = -0.17;
 }
 
 const KEY = {};
 let mvx=0, mvz=0, wantJump=false, acting=false, throwing=false, rampSeen=false, touchJumpHeld=false;   // 45차 — 태블릿 점프 단추 꾹 누름(활공)
-const STEP = 0.68, SPD = 5.94, GRAV = 26, JUMP = 8.4;   // 45차 — 걷기·달리기 10% 더(5.4 → 5.94). 선생님: "양의 걷기/달리기 속도 10% 더 높여줘"
+const STEP = 0.68, SPD = 5.94;   // 45차 — 걷기·달리기 10% 더(5.4 → 5.94). 선생님: "양의 걷기/달리기 속도 10% 더 높여줘"
+/* ★ 48e — 뜀의 **높이는 그대로 두고 체공만** 로블록스만큼 짧게. (선생님: "계속 로블록스 느낌으로")
+   로블록스 기본값(Humanoid.JumpHeight 7.2스터드 · 중력 196.2 · R6 키 5스터드):
+     높이 = 키의 1.44배 · 체공 2·√(2H/g) = **0.54초**
+   47차까지 우리: 높이 8.4²/(2·26) = 1.357칸 = 키(0.88)의 1.54배 · 체공 2·8.4/26 = **0.646초**
+     → 높이는 거의 같은데 **19% 더 붕 떠 있었다**. 그게 '로블록스가 아닌' 느낌의 나머지 한 조각이다.
+   높이 H 를 지킨 채 체공 T 를 맞추면  g = 8H/T² · v = 4H/T  →  g 36.9 · v 10.02 (2단 12.53).
+   ★ **경주는 예전 값 그대로 둔다.** 체공이 짧아지면 앞으로 가는 거리가 6.29 → 5.29칸이 되는데,
+     코스에서 제일 먼 틈이 4.6칸이라(probe49 로 씨앗 여덟을 지어 재 봤다) 여유가 1.69 → 0.69칸으로 준다.
+     47차가 바로 "애들이 골인을 거의 못 한다" 를 고친 판이다 — 코스를 다시 어렵게 만들지 않는다.
+     경주는 이미 제 빠르기(RACE_SPD 1.64)를 따로 쓰고 있으므로 물리도 따로 두는 게 앞뒤가 맞는다. */
+const GRAV   = 26,   JUMP   = 8.4,   JUMP2_R = 10.5;      // 경주 — 37차에 맞춰 둔 값
+const GRAV_V = 36.9, JUMP_V = 10.02, JUMP2_V = 12.53;     // 마을·밤 — 로블록스 체공(0.54초)
+const gravNow  = ()=> raceOn() ? GRAV  : GRAV_V;
+const jumpNow  = ()=> raceOn() ? JUMP  : JUMP_V;
 /* ★ 33차 — 두 번째 뜀은 더 세게. 선생님: "탑을 업그레이드하면 커져서 2단 점프로 못 넘더라고. 7레벨 타워도 올라가게."
    한 번 뜀 최고 1.36칸(8.4²/2·26), 둘 다 8.4 면 최고 2.71칸. 화살탑 7단계 윗면은 3.55, 오르려면 발이
    윗면 − STEP(0.68) = 2.87 위에 있어야 하는데 딱 맞춰 눌러도 2.71 이라 못 올랐다(5·6단계 3.30 도 아슬아슬).
    두 번째만 10.5 로: 최고 2.12칸을 더 얹어 3.48(늦게 눌러 내려오는 중이어도 ≈3.1) — 7단계 위로 0.2 남는다.
    첫 뜀은 그대로라 담·울타리 넘는 손맛과 줄넘기는 안 바뀐다. */
-const JUMP2 = 10.5;
+const JUMP2 = JUMP2_R;
+const jump2Now = ()=> raceOn() ? JUMP2_R : JUMP2_V;
 const DOWN_CAM = 4.6;           // 쓰러졌을 때 시체에서 물러나는 거리
 let camGY = null;               // 39차 — 3인칭 카메라가 기준으로 삼는 땅 높이(부드럽게 따라간다 · 허공이면 마지막 값)
 /* ★ 20차 — 줄넘기·OX 퀴즈는 3인칭으로 본다.
@@ -9442,8 +9746,36 @@ let camGY = null;               // 39차 — 3인칭 카메라가 기준으로 �
    ③ 서바이벌은 그대로 1인칭이다 — 총을 겨누는 판이라 물러나면 조준이 안 맞는다.
    카메라를 뒤로 빼는 장치는 '쓰러졌을 때' 것을 그대로 쓴다. 거리만 다르다. */
 const MINI_CAM = [6.4];         // 0: 장애물 경주 — 뒤 위에서 따라간다(로블록스처럼 내 양과 발판이 같이 보여야 한다). 5.2 는 양이 화면 아래 3분의 1 을 먹었다
-const tpvKind = ()=> (miniOn() && G.mini && G.mini.k === 0) ? 0 : -1;
+/* ═══ 48차 — 로블록스 카메라 ═══
+   선생님: "진짜 로블록스 카메라시점으로 만들자 … 애들이 자기 캐릭터를 다 볼 거니까."
+   47차까지 마을·밤은 1인칭이었다. 그래서 45차에 만든 전직 아바타(날개·대검·망치)도, 46차 꼬리도
+   **자기 것만 안 보였다** — 남의 양에게만 보였다. 이제 늘 3인칭이다.
+   · 휠로 당기고 민다. CAM_MIN 아래로 당기면 1인칭(로블록스도 0.5 스터드에서 1인칭이 된다).
+   · 마우스가 잠겨 있으므로 로블록스 **시프트락** 자세다 — 양이 카메라 쪽을 보고, 카메라는
+     오른쪽 어깨로 CAM_SH 만큼 비킨다. 조준점 아래가 제 몸에 안 가린다(총 게임이 다 이 자세).
+   · 기본 7.2 — 로블록스는 키의 2.5배(12.5/5)지만 우리 시야각(74°)에서 그러면 양이 화면을 다 먹는다.
+     경주에서 6.4 로 맞춰 봤고, 마을은 짓고 캐느라 앞이 더 보여야 해서 조금 더 물러난다. */
+/* ★ 48차b 교차검증 — 로블록스 실제 값으로 다시 잡았다.
+     로블록스: 캐릭터 키 5스터드를 12.5스터드에서 본다 = **키의 2.5배**. 시야각 70° 에서
+     캐릭터가 화면 세로의 약 29% 를 먹는다(2·atan(2.5/12.5) = 22.6° ÷ 70°).
+     우리 양 키 = SHEEP_S 0.70 × u1.25 = 0.88칸. 같은 29% 면 2.1칸인데, 양은 네 발이라
+     같은 높이여도 가로를 훨씬 넓게 먹으므로 2.8칸(약 23%)에서 멈춘다.
+     첫 판의 5.6칸은 화면에서 재 보니 11% — 로블록스의 3분의 1이었다.
+     어깨 비킴 — 로블록스 시프트락은 1.75스터드를 12.5에서 보므로 화면 세로의 10% 만큼 비낀다.
+     우리는 조준점을 쓰는 게임이라 그 정도로는 양이 조준점 아래에 반쯤 걸린다. 0.62칸(화면 16%)이면
+     양이 왼쪽으로 확실히 비켜 조준점이 깨끗하다. */
+const CAM_FAR = 2.8, CAM_MAX = 12.5, CAM_MIN = 1.6, CAM_SH = 0.62;
+let camZoom = CAM_FAR;
+const tpvKind = ()=> (miniOn() && G.mini && G.mini.k === 0) ? 0 : (camZoom > CAM_MIN ? 1 : -1);
 const tpvOn   = ()=> PL.down || tpvKind() >= 0;
+/* 휠 — 로블록스처럼 한 칸에 1.2칸씩. CAM_MIN 아래로 당기면 1인칭으로 넘어간다(그때 양이 안 그려진다) */
+addEventListener('wheel', (e)=>{
+  if(!G.started || popOpen() || miniOn() && !raceOn()) return;
+  const before = camZoom;
+  camZoom = Math.max(0, Math.min(CAM_MAX, camZoom + Math.sign(e.deltaY)*1.2));
+  if(camZoom > 0 && camZoom < CAM_MIN) camZoom = before > camZoom ? 0 : CAM_MIN;   // 가운데 어중간한 자리는 없다 — 1인칭 아니면 3인칭
+  e.preventDefault();
+}, {passive:false});
 /* ═══ 37차 — 달리기(Shift) ═══
    3초 달리면 스태미나가 비고, 안 달리면 4초에 다시 찬다. 마을에서도 하늘 섬에서도 같다.
    늑대의 쫓는 속도는 안 바꿨다 — 도망은 되지만 '영영 도망' 은 안 된다(3초 뒤엔 걸어야 한다).
@@ -9463,8 +9795,14 @@ function jobTier(){ return (miniOn() || XP.job < 0) ? 0 : Math.max(0, Math.min(2
      여기까지 10% 빨라지면 코스 난이도가 통째로 흔들린다. */
 const RACE_SPD = 1.64;                      // 42차 — 경주에서만 걷기·달리기 1.8배(선생님: "50%는 더 빠르게… 평상시는 지금 속도로" → "양 속도 20% 더"). 걸음 박자는 1.4배만 빨라진다
 let stamina = 1, sprinting = false, touchRun = false, runDustT = 0;
-/* 41차 — 가속 7/s(0.14초에 63%) · 감속 22/s(0.045초 — 좁은 다리 끝에서 미끄러져 떨어지면 안 된다) · 내 걸음 위상(gaitMe — 발소리·카메라·양 그리기가 같은 박자) */
-const ACC_UP = 7, ACC_DOWN = 22;
+/* 41차 — 가속 7/s(0.14초에 63%) · 감속 22/s. 내 걸음 위상(gaitMe — 발소리·카메라·양 그리기가 같은 박자)
+   ★ 48차 — 로블록스만큼 즉시 붙게. (첫 판에 "로블록스는 가속 곡선이 없다" 고 적었는데 **그건 틀렸다** —
+     찾아보니 약 700 스터드/초² 의 가속 상수가 있다. 다만 WalkSpeed 16 이면 16/700 = **0.023초**라 사실상 즉시다.)
+     우리 ACC 40 은 SPD 5.94 에서 초기 가속 40 × 5.94 = 238칸/초² → 0.025초. 숫자가 거의 그대로 맞는다.
+     41차의 7/s(0.14초)는 로블록스보다 여섯 배 느렸다 — 그게 '로블록스가 아닌' 느낌의 큰 부분이었다.
+     발 미끄러짐은 41차 그대로 안 생긴다 — 걸음 박자가 시간이 아니라 **간 거리**에 묶여 있어서
+     속도가 어떻게 붙든 발이 땅을 미는 양과 몸이 나가는 양이 같다. */
+const ACC_UP = 40, ACC_DOWN = 40;
 let gaitMe = 0, camAnc = null, camDip = 0;   // camDip — 42차 착지 때 3인칭 카메라가 살짝 내려앉는다
 function sprintMul(dt, moving){
   const want = (KEY['shift'] || touchRun) && moving && !PL.down && stamina > 0;
@@ -9544,7 +9882,7 @@ function updPlayer(dt){
      스페이스는 누를 때마다 한 번(keydown, repeat 아님)이라 한 번 뛰고 또 눌러야 두 번째가 나간다.
      발밑에 흰 구름 한 줌 — 두 번째가 나갔다는 걸 손끝 말고 눈으로도 알게. (37차: 줄넘기 뜀은 줄넘기와 함께 뺐다) */
   const jTier = jobTier(), jMul = JOB_JMP[jTier];                    // 45차 — 전직 날개만큼 더 높이 뛴다
-  const canJump = !PL.down && !raceHold() && (PL.ground || ((PL.jumps|0) < 1 && PL.vy < JUMP*0.92*jMul));
+  const canJump = !PL.down && !raceHold() && (PL.ground || ((PL.jumps|0) < 1 && PL.vy < jumpNow()*0.92*jMul));
   if(wantJump && canJump){
     const second = !PL.ground;                                   // 33차 — 공중에서 한 번 더 = 더 센 뜀(JUMP2)
     /* 42차 — 점프 손맛(선생님: "점프 할 때 아직 밋밋해"). 첫 뜀: 발밑 흙먼지 고리 + 보잉(jump) + 시야 펀치 + 0.12초 용수철 늘어남(takeT).
@@ -9552,10 +9890,10 @@ function updPlayer(dt){
     if(second){ PL.jumps = (PL.jumps|0) + 1; PL.flipT = 0;
       burst(PL.x, PL.y + 0.05, PL.z, 0xfffaf0, 9, 0.9); if(window.__sfx) window.__sfx('hop'); fovPunch(3.2); }
     else { PL.takeT = 0.12; burst(PL.x, PL.y + 0.04, PL.z, 0xe6dccb, 6, 0.55); if(window.__sfx) window.__sfx('jump'); fovPunch(2.0); }
-    PL.vy = (second ? JUMP2 : JUMP) * jMul; PL.ground = false; PL.trailT = 0;
+    PL.vy = (second ? jump2Now() : jumpNow()) * jMul; PL.ground = false; PL.trailT = 0;
   }
   wantJump = false;
-  PL.vy -= GRAV*dt;
+  PL.vy -= gravNow()*dt;
   /* 45차 — 활공(선생님: "점프 두 번째 누를 때 꾹 누르면 살짝 날 수도 있고").
      2단 점프를 쓴 뒤 스페이스를 누르고 있고, 내려가는 중이고, 남은 활공 시간이 있으면 떨어지는 빠르기를 GLIDE_VY 로 묶는다.
      손을 떼면 그 순간 다시 떨어지고, 땅을 밟으면 시간이 다시 찬다. 날개는 쫙 펴진 채 천천히 흔들린다(drawSheep 이 s.glide 를 본다). */
@@ -9612,7 +9950,7 @@ function updPlayer(dt){
      흙바닥만 보였다. 무슨 일이 벌어지는지 하나도 안 보이니 "화면이 깨졌다"고 느낀다.
      이제 내 몸 뒤 위쪽에서 내려다본다 — 친구가 나를 일으키러 오는 게 보인다. */
   const tk = tpvKind();
-  const back = PL.down ? DOWN_CAM : tk >= 0 ? MINI_CAM[tk] + fovRun*0.05 : 0;      // 39차 — 달리면 조금 더 물러난다(41차: 0.9 → 0.5, 뒤처짐 0.8 이 더해져서)
+  const back = PL.down ? DOWN_CAM : tk === 1 ? camZoom + fovRun*0.05 : tk >= 0 ? MINI_CAM[tk] + fovRun*0.05 : 0;      // 39차 — 달리면 조금 더 물러난다 · 48차 — 마을은 휠로 정한 거리
   if(back > 0){
     /* ★ 카메라 높이는 **땅** 을 기준으로 잡는다(쓰러졌을 때만 몸을 따라간다).
        줄넘기에서 카메라가 몸을 따라 같이 뜨면, 뛰어도 줄과의 위아래 관계가 화면에서
@@ -9628,19 +9966,29 @@ function updPlayer(dt){
     let gy = PL.down ? PL.y - 0.6 : groundUnder(PL.x, PL.z, PL.R);
     if(gy < -900 || gy < PL.y - 12) gy = camGY === null ? PL.y : camGY;
     camGY = camGY === null ? gy : camGY + (gy - camGY) * Math.min(1, dt*9);
-    const ty = PL.down ? PL.y + 0.95 : camGY + 1.55 - runK*0.30 + Math.sin(gaitMe)*0.025*runK - camDip;   // 41차 — 달리면 0.3 낮게(발밑이 크게 흐른다) + 걸음 박자 흔들림 · 42차 착지 내려앉음
+    /* ★ 48차b — 이 높이가 **화면 한가운데에 오는 세계 높이**다(카메라가 이 점을 축으로 공전한다).
+       로블록스는 캐릭터 몸통을 화면 한가운데에 둔다. 우리 양 몸통 가운데는 0.42칸(u 0.6 × SHEEP_S 0.70).
+       1.55 로 두면 양 머리(0.88)보다 한참 위를 보게 되어 양이 화면 아래로 처지고 핫바에 가린다 —
+       화면을 두 번 찍어 보고 0.55 로 내렸다. 경주(tk 0)는 발판이 같이 보여야 해서 1.55 그대로. */
+    const look = (tk === 1 && !PL.down) ? 0.55 : 1.55;
+    const ty = PL.down ? PL.y + 0.95 : camGY + look - runK*0.30 + Math.sin(gaitMe)*0.025*runK - camDip;   // 41차 — 달리면 0.3 낮게(발밑이 크게 흐른다) + 걸음 박자 흔들림 · 42차 착지 내려앉음
     const cp = Math.cos(PL.pitch);
     const dx = -Math.sin(PL.yaw)*cp, dy = Math.sin(PL.pitch), dz = -Math.cos(PL.yaw)*cp;
     /* 벽·산을 뚫고 나가지 않게, 막히기 직전까지만 물러난다 */
     let d = back;
     /* ★ 40차 — 경주(tk 0)에서는 벽 검사를 안 한다. 하늘 섬 코스는 마을 격자 밖(z > 58)이라 solidTop 이 산 높이 같은 값을 돌려줬고,
        2번 깃발부터 카메라가 1.1 까지 당겨져 "궁뎅이만 보였다". 하늘에 벽은 없다. */
-    if(tk < 0) for(let k=1;k<=6;k++){
+    if(tk !== 0) for(let k=1;k<=6;k++){     // 48차 — 마을(tk 1)도 벽에 막히면 당겨진다. 경주(0)만 건너뛴다(하늘엔 벽이 없다)
       const s = back*k/6;
       const px = tx - dx*s, pz = tz - dz*s, py = ty - dy*s;
       if(py < solidTop(Math.floor(px), Math.floor(pz)) + 0.3){ d = back*(k-1)/6; break; }
     }
-    camera.position.set(tx - dx*Math.max(1.1,d), ty - dy*Math.max(1.1,d), tz - dz*Math.max(1.1,d));
+    /* 48차 — 로블록스 시프트락의 **오른쪽 어깨 비킴**. 카메라를 오른쪽으로 조금 밀면
+       조준점 아래가 제 몸에 안 가린다. 쓰러졌을 때와 경주는 가운데 그대로(볼 것이 몸 자체다). */
+    const sh = (tk === 1 && !PL.down) ? CAM_SH : 0;
+    const sx = Math.cos(PL.yaw)*sh, sz = -Math.sin(PL.yaw)*sh;
+    const dd = Math.max(1.1, d);
+    camera.position.set(tx - dx*dd + sx, ty - dy*dd, tz - dz*dd + sz);
   } else {
     camera.position.set(PL.x, PL.y + PL.EYE + Math.abs(Math.sin(gaitMe))*0.04*runK, PL.z);   // 41차 — 1인칭(마을)도 달리면 머리가 걸음 박자로 흔들린다
   }
@@ -12362,10 +12710,17 @@ function paintKit(){
 const BADGE_W = 176, BADGE_H = 52;
 function fitDock(){
   const d = el('dock'); if(!d) return;
-  d.style.bottom = '';                       // 먼저 CSS 자리로 되돌리고 재야 한다
+  d.style.bottom = ''; d.style.transform = '';   // 먼저 CSS 자리로 되돌리고 재야 한다
   const r = d.getBoundingClientRect();
-  if(r.left < BADGE_W && innerHeight - r.bottom < BADGE_H)
-    d.style.bottom = (BADGE_H + 6) + 'px';
+  if(!(r.left < BADGE_W && innerHeight - r.bottom < BADGE_H)) return;
+  /* ★ 48차c — 예전엔 배지에 닿으면 트레이를 **위로 58px** 들어 올렸다.
+     48차에 칸을 로블록스 치수(60px)로 줄이면서 트레이가 좁아지자(900 → 598),
+     940폭 화면에서 왼끝이 171px 이 되어 배지 띠(176)에 5px 걸쳤고 — 그 5px 때문에
+     "바닥에 딱 붙는다" 는 로블록스 결이 통째로 깨졌다(화면에서 봤다).
+     겹친 만큼만 **오른쪽으로 비킨다**. 오른쪽에 자리가 없을 때만 예전처럼 들어 올린다. */
+  const over = BADGE_W - r.left + 8;
+  if(r.right + over < innerWidth - 12) d.style.transform = 'translateX(calc(-50% + ' + Math.round(over) + 'px))';
+  else d.style.bottom = (BADGE_H + 6) + 'px';
 }
 function fitHint(){
   const d = el('dock'), h = el('hint');
@@ -12718,7 +13073,30 @@ const hlMat = new THREE.LineBasicMaterial({color:0xffffff, transparent:true, opa
 const hl = new THREE.LineSegments(hlGeo, hlMat); hl.visible = false; scene.add(hl);
 
 const _fwd = new THREE.Vector3();
-function forward(){ camera.getWorldDirection(_fwd); return _fwd; }
+/* ★ 48차 — 3인칭에서 **조준점이 가리키는 곳**을 겨눈다.
+   카메라가 뒤로 7칸 물러나 있으면, 화면 한가운데(조준점)가 가리키는 방향과
+   양의 눈에서 본 방향이 다르다(시차). 그대로 두면 조준점에 늑대를 올려 놓고 쏴도 빗나간다.
+   그래서 카메라 앞 AIM_CONV 칸에 있는 점(조준점이 실제로 가리키는 자리)을 잡아,
+   **양의 눈에서 그 점으로** 가는 방향을 돌려준다. 총 게임이 다 쓰는 수렴 방식이다.
+   1인칭·쓰러졌을 때는 예전 그대로(카메라가 곧 눈이다). */
+const AIM_CONV = 34;                 // 조준점이 맺히는 거리(칸) — 제일 먼 총 사거리 언저리
+const _aimP = new THREE.Vector3();
+function forward(){
+  camera.getWorldDirection(_fwd);
+  if(PL.down || !tpvOn()) return _fwd;
+  const ex = PL.x, ey = PL.y + PL.EYE, ez = PL.z;
+  /* ★ 49차e — **카메라가 아직 안 따라온 프레임에는 수렴을 건너뛴다.**
+     수렴은 '카메라가 내 뒤 몇 칸에 있다' 를 전제로 한다. 그런데 미니게임에 들어가거나
+     체크포인트로 되살아나면 그 한 프레임 동안 카메라는 아직 옛 자리에 있다.
+     그 자리에서 34칸 앞을 재면 조준선이 엉뚱한 데를 본다 — 하늘 섬(높이 87)에 올라갔는데
+     카메라는 마을 높이(33)에 남아 있어서 조준이 **60° 아래**를 봤다(t22 가 잡았다).
+     카메라가 제자리(최대 당김 CAM_MAX 안쪽)에 없으면 예전처럼 카메라 방향을 그대로 쓴다. */
+  const cd = Math.hypot(camera.position.x - ex, camera.position.y - ey, camera.position.z - ez);
+  if(cd > CAM_MAX + 3) return _fwd;
+  _aimP.copy(camera.position).addScaledVector(_fwd, AIM_CONV);
+  _fwd.set(_aimP.x - ex, _aimP.y - ey, _aimP.z - ez).normalize();
+  return _fwd;
+}
 function aimNode(){
   const f = forward(); let best=null, bd=1e9;
   for(const n of NODES){
@@ -16838,7 +17216,7 @@ addEventListener('pointerdown', audioInit, {once:true});
 addEventListener('touchstart', audioInit, {once:true});
 /* 35차 — 글씨체(주아·해바라기)는 창이 다 뜬 뒤에 따로 받는다 — 첫 화면과 load 를 안 막고, 못 받으면(인터넷 없음) 시스템 글꼴 그대로다.
    구글 폰트는 한글을 100여 조각(unicode-range)으로 잘라 쓰는 글자 조각만 내려 주므로 파일 하나에 굽는 것(1MB+)보다 가볍다. */
-const FONT_URL = 'https://fonts.googleapis.com/css2?family=Jua&family=Sunflower:wght@500;700&family=Black+Han+Sans&display=swap';   // 42차 — Black Han Sans: 초읽기 큰 글씨
+const FONT_URL = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Gothic+A1:wght@500;700;800;900&family=Black+Han+Sans&display=swap';   // 48차 — 로블록스 결(Builder Sans 대신 Montserrat + 고딕 A1) · 42차 Black Han Sans: 초읽기 큰 글씨
 function loadFonts(force){
   if(document.getElementById('gfonts')) return;
   /* 검사기에서는 안 받는다 — 샌드박스엔 인터넷이 없어 콘솔에 인증서 오류만 남는다. 검사는 force 로 받는다.
@@ -16948,11 +17326,20 @@ function updSky(dt, night){
      2.8% 는 아이 눈에 안 보이는 차이고, 그만큼 밤 기분은 낫다. 더 맞추는 건 과한 손질이다.
 
      낮은 처음부터 옛 판과 같았다(96.0 vs 96.8). 바뀐 것은 그늘의 진하기지 밝기가 아니다. */
-  hemi.intensity = (0.75 - skyK*0.07) * LIT_K;
+  /* ★ 48차b 교차검증 — 로블록스 Lighting 은 Ambient (0,0,0) 이지만 **OutdoorAmbient 가 (127,127,127)** 이다.
+     즉 바깥에서는 그늘도 흰빛의 절반을 받는다 — 그늘/빛 밝기 비가 약 0.5.
+     우리는 47차 0.25 → 48차 첫 판 0.33 이었다. 해를 더 낮추고 하늘빛·환경광을 더 올려 **0.44** 까지 간다.
+       낮 합 : 0.95 + 0.62 + 0.62 = 2.19 (47차 2.20 과 거의 같다 — 전체 밝기는 안 바뀐다)
+       그늘  : 0.62 + 0.95×0.44(땅색 밝기) = 1.04 → 1.04/2.19 = **0.47** (로블록스 0.5)
+     하늘빛을 파란색으로 세게 올리면 그늘은 옅어지지만 풀·나무 색이 바랜다(화면에서 보였다).
+     로블록스의 OutdoorAmbient 는 중성 회색이므로, 파란 하늘빛은 도로 낮추고 **흰 환경광(amb)** 으로 옮겼다.
+     ★ 밤은 47차 어둠을 지킨다 — skyK 기울기를 다시 잡아 밤 합이 1.26 → 1.24 로 같다.
+       (안 그러면 그늘을 옅게 한 만큼 밤도 같이 밝아져서 밤이 밤 같지 않게 된다) */
+  hemi.intensity = (0.95 - skyK*0.34) * LIT_K;
   sun.color.copy(SUN_D).lerp(SUN_N, skyK);
   /* 밤에도 달빛 그림자는 남긴다 — 낮에만 그림자가 있으면 밤이 평평해 보인다. */
-  sun.intensity = (1.15 - skyK*0.85) * LIT_K;
-  amb.intensity = (0.30 - skyK*0.02) * LIT_K;
+  sun.intensity = (0.62 - skyK*0.45) * LIT_K;      // 48차b — 1.15 → 0.62
+  amb.intensity = (0.62 - skyK*0.26) * LIT_K;      // 48차b — 0.30 → 0.62 (흰 환경광 — 색을 안 바래게 하면서 그늘만 옅게)
   cloudMat.color.setScalar(1-skyK*0.66);
 }
 let skyK = 0;
@@ -17015,7 +17402,7 @@ function shake(power, sec){ shakeP = power; shakeT = Math.max(shakeT, sec); }
 const SH_HZ = 15; let shAcc = 1;                 // 34차 — 그림자 지도 갱신 빈도 (첫 프레임엔 바로)
 /* ★ 33차 타격감 — 쏠 때 시야가 살짝 넓어졌다 돌아온다(FOV 펀치). 흔들림은 자리가 떨리는 것이고 이건 '밀리는' 느낌이다.
    지수 감쇠라 dt 에 안 흔들린다. 4° 를 넘지 않는다 — 조준선은 그대로(forward 는 방향만 읽는다). */
-const FOV0 = 74; let fovKick = 0, fovRun = 0, windT = 0;
+const FOV0 = 70; let fovKick = 0, fovRun = 0, windT = 0;   // 48차 — 로블록스 Camera.FieldOfView 기본값이 70 이다(74 였다)
 function fovPunch(k){ fovKick = Math.min(4, fovKick + k); }
 function fovTick(dt){
   /* 37차 — 달리면 시야가 넓어진다(39차: +6 → +10) — 속도감. 화면 가장자리 속도선(#speedFx)과 바람 소리도 같이 */
@@ -17625,7 +18012,7 @@ Object.assign(window, {
   __step:(n, dt=1/30)=>{ for(let i=0;i<n;i++){ hostPhase(dt);
       if(G.phase==='night') hostSim(dt); else if(flowDirty){ buildFlow(); flowDirty=false; } } },
   __BAL:BAL, __waveFor:waveFor, __bossDays:bossDays, __prog:prog, __NIGHT_DEF:NIGHT_DEF, __BOSS_MIX:BOSS_MIX, __nightPool:nightPool, __pickNight:pickNight, __nightFor:nightFor, __setNk:(v)=>{ G.nk = v; },
-  __fps:()=>fpsVal, __tagRedraws:()=>tagRedraws, __updTags:()=>updTags(),
+  __fps:()=>fpsVal, __tagRedraws:()=>tagRedraws, __updTags:()=>updTags(), __loadFonts:loadFonts,   // 48차 — 화면찍기에서 글씨체를 억지로 받는다
   __drawSheep:drawSheep, __Pmesh:()=>[P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_tail,P_legs], __GHEX:GHEX, __render:()=>renderer.render(scene,camera),
   __rebuild:rebuildStru, __markShapeG:markShape, __struDirtyG:()=>({all:struAllG, g:[...struDirtyG]}),   // 47차 — 모둠별 다시 짓기
   __flowDirty:()=>flowDirty, __flowWait:()=>flowWait, __struLastN:()=>struLastN,                         // 47차 — 낮 길 깔기 모으기 · 지난 다시 짓기 크기
@@ -17756,7 +18143,7 @@ Object.assign(window, {
                DMG:SURV_DMG, HEAD:SURV_HEAD, HEAD_R:SURV_HEAD_R, HP:SURV_HP,
                SPAWN_R:SURV_SPAWN_R}),
   __SPRINT:SPRINT, __stamina:()=>stamina, __sprinting:()=>sprinting, __setStamina:(v)=>{ stamina = v; },
-  __raceSlotXZ:raceSlotXZ, __RACE_ROWZ:RACE_ROWZ, __FADE_T:FADE_T, __RACE_SPD:RACE_SPD, __raceHold:raceHold, __flipSet:flipSet, __gaitMe:()=>gaitMe, __camAnc:()=>camAnc, __ACC:{up:ACC_UP, down:ACC_DOWN}, __sheepGait:sheepGait, __STRIDE:{walk:STRIDE_WALK, run:STRIDE_RUN}, __cntShow:cntShow,
+  __raceSlotXZ:raceSlotXZ, __RACE_ROWZ:RACE_ROWZ, __FADE_T:FADE_T, __RACE_SPD:RACE_SPD, __raceHold:raceHold, __flipSet:flipSet, __gaitMe:()=>gaitMe, __camAnc:()=>camAnc, __ACC:{up:ACC_UP, down:ACC_DOWN}, __SPD:SPD, __sheepGait:sheepGait, __STRIDE:{walk:STRIDE_WALK, run:STRIDE_RUN}, __cntShow:cntShow,
   __MINI_NAME:MINI_NAME, __survOn:survOn, __RACE:()=>RACE, __raceRocks:raceRocks, __ROCK:ROCK, __raceGiveWeapon:raceGiveWeapon, __raceGiveArmor:raceGiveArmor, __RACE_RES:RACE_RES, __RACE_FIN:RACE_FIN, __raceHazards:raceHazards, __HAZ:HAZ, __camGY:()=>camGY, __bgmRace:bgmRace, __rockU:rockU, __fovRun:()=>fovRun, __sheepBump:sheepBump, __SHEEP_R2:SHEEP_R2, __kb:()=>({x:kbx, z:kbz}), __kbReset:()=>{ kbx = kbz = 0; }, __RACE_P:()=>RACE_P, __RACE_S:RACE_S, __raceTopAt:raceTopAt, __raceBuild:raceBuild, __raceOn:raceOn, __raceRespawn:raceRespawn, __R_plat:()=>R_plat, __RACE_Z_FIN:RACE_Z_FIN,
   __tpvOn:tpvOn, __tpvKind:tpvKind, __MINI_CAM:()=>MINI_CAM, __DOWN_CAM:()=>DOWN_CAM,
   __camPos:()=>({x:camera.position.x, y:camera.position.y, z:camera.position.z}),
@@ -17810,7 +18197,7 @@ Object.assign(window, {
   __HB:()=>[HB_BG, HB_FG], __drawWolfHP:drawWolfHP,
   __dnums:()=>dnums, __popDmg:popDmg, __dnTick:dnTick,
   __setCrit:(p)=>{ critForce = p; },
-  __wantJump:()=>{ wantJump = true; }, __STEP:STEP, __JUMP:JUMP, __JUMP2:JUMP2 /* 33차 t31 */, __setThrowCd:(v)=>{ throwCd = v; }, __NODE_DEF:NODE_DEF, __THROW_CD:THROW_CD,
+  __wantJump:()=>{ wantJump = true; }, __STEP:STEP, __JUMP:JUMP, __JUMP2:JUMP2 /* 33차 t31 */, __GRAVV:GRAV_V, __JUMPV:JUMP_V, __JUMP2V:JUMP2_V, __gravNow:gravNow, __jumpNow:jumpNow /* 48e */, __setThrowCd:(v)=>{ throwCd = v; }, __NODE_DEF:NODE_DEF, __THROW_CD:THROW_CD,
 
 
   __feed:feed, __paintHUD:paintHUD, __toast:toast, __stage:showStage, __KEY:KEY, __rampCells:rampCells, __solidTop:solidTop,

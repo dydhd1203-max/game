@@ -1,7 +1,7 @@
 /* 16차 전용 — bal5 와 같은 밤을 돌리되, 뛰는 늑대의 체력과 비율을 갈아 가며 잰다.
    인자: ... <뛰는늑대체력 목록> <뛰는늑대비율>
    ★ 판을 10판으로 늘렸다. 5판이면 2/5 와 4/5 가 그냥 운으로 갈린다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const FILE=process.argv[2], PORT=+process.argv[3];
 const SHOOT=+(process.argv[4]||0), WPN=+(process.argv[5]||3);

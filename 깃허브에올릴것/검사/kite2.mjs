@@ -1,5 +1,5 @@
 /* (1) 도망치는 양을 늑대가 따라잡나  (2) 계속 돌면 늑대가 밤을 잊나 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const FILE=process.argv[2], PORT=+process.argv[3];
 const srv = serve(PORT, FILE);

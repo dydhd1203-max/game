@@ -4,7 +4,7 @@
    ★ '켜졌나'(재질에 map 이 없나, 조각이 둥근가)로 끝내지 않는다. 25차에 그림자가 켜져 있었는데
      화면엔 없던 적이 있다. 그래서 양 한 마리를 카메라 앞에 세우고 **화면 픽셀에서 모둠 색이 나오나** 본다.
    ★ 검사기(소프트웨어 렌더링)는 '예쁜가' 를 못 잰다. 그건 교실이 답한다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;
@@ -80,9 +80,19 @@ await frames(pg, 3);
     W.__drawSheep(list, 1.0, 40, s=>W.__GHEX[s.g], 0.70);
     const [body,puff] = W.__Pmesh();
     o.양 = body.count; o.털 = puff.count;
-    /* 카메라를 양 앞에 세우고 바로 그린다 — 다음 프레임엔 updPlayer 가 카메라를 되돌린다 */
+    /* 카메라를 양 앞에 세우고 바로 그린다 — 다음 프레임엔 updPlayer 가 카메라를 되돌린다.
+       ★ 49차e — **게임 고리를 세우고 두 번 그린다.** 44차 모션(smoothHead)은 앞 프레임 방향에서
+         이어 도는 값이라 첫 그림은 양이 아직 덜 돌아 있을 수 있고, 기계가 바쁘면 그 사이 게임이
+         저 혼자 한 프레임을 더 돌아 양을 제자리로 되돌려 놓는다. 그러면 몸통 대신 **풀밭**을 읽는다
+         (전체 판에서 네 번에 한 번 빨개졌다 — 105,152,82 는 잔디색이다). */
+    const wasPaused = W.__G.paused; W.__G.paused = true;
     cam.position.set(0, GY+0.9, 14+2.4); cam.lookAt(0, GY+0.5, 14); cam.updateMatrixWorld(true);
+    W.__drawSheep(list, 1.0, 40, s=>W.__GHEX[s.g], 0.70);
     W.__drawFrame();
+    cam.position.set(0, GY+0.9, 14+2.4); cam.lookAt(0, GY+0.5, 14); cam.updateMatrixWorld(true);
+    W.__drawSheep(list, 1.0, 40, s=>W.__GHEX[s.g], 0.70);
+    W.__drawFrame();
+    W.__G.paused = wasPaused;
     const dm=W.__R.domElement, CW=dm.width, CH=dm.height;
     const cv=document.createElement('canvas'); cv.width=CW; cv.height=CH;
     const cx=cv.getContext('2d',{willReadFrequently:true}); cx.drawImage(dm,0,0);

@@ -1,5 +1,5 @@
 /* 17차c 화면 확인 — Lv6 과 Lv7 을 나란히 놓고 본다 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19920), OUT=process.argv[4]||'/tmp/shot';

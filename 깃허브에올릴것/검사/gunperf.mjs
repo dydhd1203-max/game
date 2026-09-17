@@ -1,5 +1,5 @@
 /* 총을 들었을 때 늘어나는 드로우콜 — 상자 하나가 그리기 한 번이다 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT = +(process.argv[3] || 9410);

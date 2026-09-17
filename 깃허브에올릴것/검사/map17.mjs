@@ -1,6 +1,6 @@
 /* 17차 — 맵을 위에서 내려다보고 확인한다.
    ★ 다섯 입구가 전부 축과 나란한가, 어귀가 직선인가, 벽 한 줄이 산에 맞물리는가. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19800); const OUT=process.argv[4]||'/tmp/shot';

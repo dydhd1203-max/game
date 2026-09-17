@@ -1,6 +1,6 @@
 /* 23차 — 스탯을 넷으로 바꾼 뒤 밸런스가 어디로 갔나 + 가방이 매 프레임 쓰는 값
    ★ 옛 판과 새 판을 같은 자로 같은 판에서 잰다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const FILE = process.argv[2], PORT = +(process.argv[3]||17000), OLD = process.argv[4]==='old';
 const srv = serve(PORT, FILE);

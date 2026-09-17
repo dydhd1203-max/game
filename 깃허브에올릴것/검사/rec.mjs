@@ -1,7 +1,7 @@
 /* 총기 반동을 재는 것 (23차) — 계산하지 말고 **게임 함수를 그대로 굴려서** 잰다.
    ★ 20차 줄넘기에서 종이 위 포물선으로 잡았다가 틀렸다. 반동도 같은 종류다.
    무기마다: 한 발 쏘면 몇 도 들리나 · 되돌아오는 데 몇 초 · 드르륵 갈기면 어디까지 솟나. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const srv = serve(+(process.argv[3]||16900), process.argv[2] || GAME);

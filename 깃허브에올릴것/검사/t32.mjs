@@ -3,7 +3,7 @@
      지형·나무·바위·구름·해·달·수정은 모양 자체를 새로 만들었다.
    ★ 값을 베끼지 않는다 — '무늬가 없나(map)' · '합친 기둥이 산 칸을 빠짐없이 덮나(면적이 같나)' · '뚜껑이 지형 윗면에 붙었나' ·
      '캐면 잎부터 사라지나' · '밤에 발광이 켜지나' 같은 관계를 본다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;
@@ -111,7 +111,10 @@ await pg.waitForTimeout(1500);
   ok('★ 합친 기둥의 면적 합 = 산 칸 수 (한 칸도 빠지거나 겹치지 않는다)', r.area===r.cells, r.area+' vs '+r.cells);
   ok('★ 실제로 합쳐졌다 — 기둥 수가 칸 수의 60% 미만', r.nB < r.cells*0.6, r.nB+' / '+r.cells);
   ok('★ 33차 — 기둥이 뚜껑보다 딱 0.04 좁다(면이 겹쳐 떨리지 않는다), 전부', r.flush===0, r.flush+' 개 어긋남');
-  ok('★ 33차 — 결(grain): 세계 재질은 돌결, 잎 재질은 얼룩, 바닥은 풀결, 그림은 128×128, 돌결 세기 0.4 이상', r.grain.rock==='rock' && r.grain.rockV==='rock' && r.grain.leaf==='leaf' && r.grain.grass==='grass' && r.grain.tex===128 && r.grain.amt>=0.4, JSON.stringify(r.grain));
+  /* ★ 48차 — 로블록스는 **매끈 플라스틱**이라 결을 거의 지웠다(돌결 0.46 → 0.13).
+     아주 0 으로 두면 큰 면이 띠(banding)지므로 조금은 남긴다 — 그래서 '있다' 는 그대로 보되
+     세기 기준만 0.4 → 0.05~0.25 로 바꾼다. 33차의 '결이 붙어 있나' 는 여전히 지킨다. */
+  ok('★ 33차·48차 — 결(grain): 세계는 돌결, 잎은 얼룩, 바닥은 풀결, 그림은 128×128, 세기는 매끈 플라스틱 값(0.05~0.25)', r.grain.rock==='rock' && r.grain.rockV==='rock' && r.grain.leaf==='leaf' && r.grain.grass==='grass' && r.grain.tex===128 && r.grain.amt>=0.05 && r.grain.amt<=0.25, JSON.stringify(r.grain));
   ok('33차 — 건물 벽돌 판이 몸통 면에서 0.02 이상 도드라진다(붙어 있으면 멀리서 떨린다)', r.brickPr.n>20 && r.brickPr.minPr >= 0.015, r.brickPr.n+' · '+r.brickPr.minPr.toFixed(3));
   ok('★ 뚜껑 윗면이 지형 윗면(terrH)에 붙어 있다 — 표본 전부 (망루 칸 제외)', r.capOff===0 && r.chk>150, r.capOff+' / '+r.chk);
   ok('기둥 윗면이 뚜껑 바로 밑에서 끝난다', r.bodyOff===0, r.bodyOff+' / '+r.chk);

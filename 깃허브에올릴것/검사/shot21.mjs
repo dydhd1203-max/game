@@ -1,5 +1,5 @@
 /* 17차d 화면 확인 — 농장 · 동물 · 더러움 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19970), OUT=process.argv[4]||'/tmp/shot';

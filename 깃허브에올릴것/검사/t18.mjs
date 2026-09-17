@@ -1,6 +1,6 @@
 /* 17차 검사 — 격자 오각형 맵 · 초반 난이도 · 자원/스텟 · 늑대 분산 · 레벨 35
    ★ 값을 검사에 박지 않는다. 게임에서 읽어 '관계'만 본다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

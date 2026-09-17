@@ -1,5 +1,5 @@
 /* 상인·대장장이 — 살아 있나 (여러 시각을 겹쳐 찍는다) */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19950), OUT=process.argv[4]||'/tmp/shot';

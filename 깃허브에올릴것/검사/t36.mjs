@@ -1,7 +1,7 @@
 /* 36차 검사 — 늑대들의 밤: 늑대 다섯(규칙·외형) · 밤 구성표 · 뛰는 늑대 없음
    ★ 규칙은 실제로 밤을 돌려서 본다(호스트 스텝 __step). 외형은 그리기 뒤 부위 메시의 개수(count)로 본다 — 종류별 조각이 실제로 그려졌나.
    ★ 소리·화면 비네트는 값(fearK · #fearVig opacity)으로 본다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT = +(process.argv[3] || 8936);

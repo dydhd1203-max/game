@@ -1,7 +1,7 @@
 /* 22차 화면 확인 — 🎖️ 칭호: 머리 위 이름표 · 받는 순간 · 칭호 칸 · 이름표 폭 재기
    ★ 이름표는 캔버스 256px 에 그린다. 칭호 그림이 앞에 붙으면 이름이 줄어드는데,
      "좀 작네" 로 넘기지 않고 **글자 크기를 숫자로 재서** 본다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19995), OUT=process.argv[4]||'/tmp/shot';
