@@ -1,5 +1,5 @@
 /* 실제로 몇 밤을 돌려 본다 — 상점·물약·총·숫자·체력바가 다 켜진 채로 오류가 없는지 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT = +(process.argv[3] || 9160);

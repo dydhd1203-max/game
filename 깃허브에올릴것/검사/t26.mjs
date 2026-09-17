@@ -3,7 +3,7 @@
      세는 것은 개수가 아니라 **관계**다 ("갈래마다 남을 자리가 있나", "단계가 거꾸로 안 가나").
      17차d에 갈래 개수를 박아 뒀다가 농장 갈래 하나 늘리고 검사만 빨개진 적이 있다.
    ★ 통신이 안 늘었는지도 여기서 본다 — 칭호가 읽는 칸이 전부 pc 통로에 이미 있어야 한다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

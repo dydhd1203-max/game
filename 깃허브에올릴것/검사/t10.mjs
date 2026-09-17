@@ -1,5 +1,5 @@
 /* 7차 패치 검사 — 꾸미기 · 3인칭 죽음 · 상인 · 데미지 숫자 · 늑대 AI · 밸런스 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT = +(process.argv[3] || 8931);

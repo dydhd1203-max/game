@@ -1,5 +1,5 @@
 /* 손에 든 도구 — 곡괭이·망치 모양 확인 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19940), OUT=process.argv[4]||'/tmp/shot';

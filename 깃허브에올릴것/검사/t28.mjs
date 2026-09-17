@@ -7,7 +7,7 @@
      그래서 **켠 판과 끈 판의 픽셀을 직접 빼서** 화면에 닿는지까지 본다.
    ★ 화면을 읽을 때 렌더타겟에 그려서 읽으면 안 된다 — three 는 렌더타겟일 때 톤매핑을
      건너뛰어서 화면과 다른 것을 읽게 된다. 그린 직후 같은 작업 안에서 2D 캔버스로 옮긴다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;
@@ -39,7 +39,8 @@ const frames = (pg,n)=> pg.evaluate(n=> new Promise(res=>{
      "GPU 가 병목, 그것도 픽셀 쪽" 이라서: 해상도 1.0(1707×1067), 빛 번짐은 프리셋에서 뺌, MSAA 4.
      빛 번짐은 ?bloom=1 로만 켜진다 — 아래 ③ 이 그 길로 연다. */
   /* 33차 — 교실 실측(기준 40 · 화면 그리기 끔 +21)으로 가운데 칸을 해상도 0.85 + MSAA 2 로 내리고 기본으로 삼았다 */
-  const want = {high:{shadow:2048,bloom:0,aa:4,pr:1.0}, mid:{shadow:1024,bloom:0,aa:2,pr:0.85},
+  /* 49차c — '보통' 의 그림자 지도만 1024 → 2048 로 올렸다(26차 실측: 그림자를 통째로 꺼도 +2.5fps) */
+  const want = {high:{shadow:2048,bloom:0,aa:4,pr:1.0}, mid:{shadow:2048,bloom:0,aa:2,pr:0.85},
                 low:{shadow:0,bloom:0,aa:0,pr:0.7}};
   for(const q of ['high','mid','low']){
     const pg = await open('?gfx='+q);

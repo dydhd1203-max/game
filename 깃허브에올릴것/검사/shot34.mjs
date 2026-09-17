@@ -2,7 +2,7 @@
    ★ 참가상 줄은 글자가 길다("2모둠이 이겼어요 — 참가상 🪵16 🪨12 ✨4 (내가 넣은 피해 45)").
      #toast 는 width:min(560px,86vw) 라 넘치면 줄이 접힌다 — 몇 줄로 접히는지, 아래 도구 칸을
      건드리는지 자로 재고 찍는다. 교실 크롬북(1366×768)에서도 같이 본다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19990), OUT=process.argv[4]||'/tmp/shot';

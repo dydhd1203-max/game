@@ -1,5 +1,5 @@
 /* 늑대가 양 · 건물 · 수정 사이에서 목표를 갈아타나 — 시간에 따라 무엇을 하고 있는지 센다 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const FILE=process.argv[2], PORT=+process.argv[3];
 const srv = serve(PORT, FILE);

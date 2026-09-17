@@ -2,7 +2,7 @@
    한 번의 도약을 여섯 토막으로 잘라 옆에서 찍는다. 뛰는 그림은 한 장으로는 못 본다.
    ★ 페이지의 제 루프가 늑대를 건드리지 않게 낮(day)으로 두고 —
      메인 루프는 밤에만 hostSim 을 부른다 — 시뮬레이션은 내가 직접 돌린다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19700); const OUT=process.argv[4]||'/tmp/shot';

@@ -1,6 +1,6 @@
 /* 20차 화면 확인 — 줄넘기: 줄 그림자 · 판정 · 모둠 연속 표시
    ★ 줄이 어디쯤 왔는지 1인칭에서 눈으로 잡히나가 이번 판의 전부다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19960), OUT=process.argv[4]||'/tmp/shot';

@@ -3,7 +3,7 @@
      한 번 멈춰서(15분) 버렸다 — 게임이 이미 아는 것을 다시 만들지 않는다.
    ★ 물어야 할 것 셋: ① 가방을 안 열면 정말 0인가 ② 열어 둔 동안 얼마나 비싸지나
      ③ 전직 카드 사진 세 장 찍는 데 얼마나 걸리나(멈칫하면 티가 난다). */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const OLD = process.argv[2], NEW = process.argv[3], BASE = +(process.argv[4] || 16950);
 

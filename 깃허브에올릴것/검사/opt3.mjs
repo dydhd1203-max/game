@@ -1,5 +1,5 @@
 /* 드로우콜 257개가 어디서 나오는지 이름별로 센다 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const srv = serve(+process.argv[3], process.argv[2]);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});

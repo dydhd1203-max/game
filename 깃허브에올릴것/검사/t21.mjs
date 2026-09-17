@@ -2,7 +2,7 @@
    ★ 눈으로 "좀 이상하네" 하고 넘긴 것들을 자로 잰다.
      팻말이 90도 돌아 있던 것도, 문이 반대쪽에 뚫려 있던 것도
      코드만 봐서는 셋 다 맞아 보였고 스크린샷으로도 몇 판을 그냥 지나쳤다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

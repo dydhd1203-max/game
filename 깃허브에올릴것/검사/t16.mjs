@@ -2,7 +2,7 @@
    레벨 순위 · 벽 체력 · U 수치표 · 18일차 확장
    ★ 값을 검사에 박지 않는다. 게임에서 읽어서 '관계'를 본다 —
      밸런스를 고칠 때마다 검사가 죽으면 그건 검사가 아니다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

@@ -1,5 +1,5 @@
 /* 8차 패치 검사 — T 공격모드 · FPS 조준 · 총 타격감 · 인벤토리 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT = +(process.argv[3] || 9210);

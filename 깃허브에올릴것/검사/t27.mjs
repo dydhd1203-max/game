@@ -2,7 +2,7 @@
    ★ 값을 검사에 베끼지 않는다. 반동 세기·무기 kick·직업 표는 전부 게임에서 읽고,
      세는 것은 개수가 아니라 관계다("드르륵이 한 발보다 높이 솟나", "아직 맞나").
    ★ 반동은 **게임 함수를 그대로 굴려서** 잰다 — 종이 위 계산으로는 안 맞는다(20차 줄넘기). */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

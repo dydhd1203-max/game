@@ -3,7 +3,7 @@
    ★ 값을 검사에 베끼지 않는다. 개수는 표에서 세어서 관계만 본다(갈래 개수를 박아 두고 17차d에 데었다).
    ★ '큰 글씨로 정한 것이 실제로 큰가'(18차h)와 같은 결 — 화면이 잘리는지는
      눈이 아니라 자로 잰다. 시작 화면 제목 자리를 열 가지 크기에서 잰다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

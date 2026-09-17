@@ -1,7 +1,7 @@
 /* 33차 검사 — 교실 60fps(성능 2차): 그래픽 프리셋 표 · 기본값 '보통' · 시작 화면 그래픽 단추(고르면 저장하고 다시 연다) · 주소 손잡이가 이긴다
    ★ 교실 실측(31차 판): 기준 40, 화면 그리기 끔 +21, 해상도 원본 −17 — 병목은 픽셀. 그래서 기본을 '보통'(해상도 0.85 · MSAA 2 · 그림자 1024)으로
      내리고, 아이가 시작 화면에서 선명/보통/부드럽게를 고를 수 있게 했다. 검사기는 GPU 를 못 재니 여기선 '값이 실제로 먹나' 만 본다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

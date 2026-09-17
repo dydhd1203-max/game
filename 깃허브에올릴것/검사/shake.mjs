@@ -1,6 +1,6 @@
 /* 강화 단계별로 손에 든 총이 실제로 얼마나 흔들리는지 잰다.
    ★ 정지 화면으로는 떨림을 볼 수 없다 — 여러 프레임의 자리를 모아 폭을 재야 한다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19400); const srv=serve(PORT, process.argv[2]||GAME);

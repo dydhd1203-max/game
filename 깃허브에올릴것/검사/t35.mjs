@@ -3,7 +3,7 @@
    소리는 검사기가 못 듣는다 — 그래서 **OfflineAudioContext 로 실제로 렌더**해서 파형을 잰다(있나 · 안 터지나 · 재료마다 다르나 · 배경음이 낮/밤/위험으로 갈리나).
    글씨는 계산된 스타일(글꼴 이름·px)과 '카드가 넘치지 않나' 를 잰다. 구글 폰트는 샌드박스에서 못 받으니 요청을 끊고 대체 글꼴로 잰다 —
    글꼴 파일이 오든 안 오든 이름·크기 규칙은 같다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT = +(process.argv[3] || 8935);

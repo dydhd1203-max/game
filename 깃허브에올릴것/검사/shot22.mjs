@@ -1,5 +1,5 @@
 /* 17차f 화면 확인 — 전직한 양 (길 3 × 단계 3) */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19960), OUT=process.argv[4]||'/tmp/shot';

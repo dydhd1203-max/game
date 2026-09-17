@@ -2,7 +2,7 @@
    ★ 값을 검사에 박지 않는다. 게임에서 읽어 '관계'만 본다.
      (가격표를 여기에 베껴 두면, 값을 고칠 때마다 검사가 빨간불이 되고
       결국 아무도 검사를 안 믿게 된다.) */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

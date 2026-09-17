@@ -3,7 +3,7 @@
      지형·나무·바위·구름·해·달·수정은 모양 자체를 새로 만들었다.
    ★ 값을 베끼지 않는다 — '무늬가 없나(map)' · '합친 기둥이 산 칸을 빠짐없이 덮나(면적이 같나)' · '뚜껑이 지형 윗면에 붙었나' ·
      '캐면 잎부터 사라지나' · '밤에 발광이 켜지나' 같은 관계를 본다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

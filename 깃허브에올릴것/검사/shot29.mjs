@@ -1,5 +1,5 @@
 /* 18차f 화면 확인 — 농장 안에 놓인 달걀·우유·고기 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT=+(process.argv[3]||19990), OUT=process.argv[4]||'/tmp/shot';

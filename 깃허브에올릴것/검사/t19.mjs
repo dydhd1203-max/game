@@ -1,6 +1,6 @@
 /* 17차b 검사 — 수리 연출 (38차: '오늘의 으뜸' 갈래 돌리기 절은 순위판을 레벨만 남기면서 뺐다 — 12 → 6)
    ★ 값을 검사에 박지 않는다. 게임에서 읽어 '관계'만 본다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

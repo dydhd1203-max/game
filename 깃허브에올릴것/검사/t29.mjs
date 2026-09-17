@@ -4,7 +4,7 @@
    ★ '켜졌나'(재질에 map 이 없나, 조각이 둥근가)로 끝내지 않는다. 25차에 그림자가 켜져 있었는데
      화면엔 없던 적이 있다. 그래서 양 한 마리를 카메라 앞에 세우고 **화면 픽셀에서 모둠 색이 나오나** 본다.
    ★ 검사기(소프트웨어 렌더링)는 '예쁜가' 를 못 잰다. 그건 교실이 답한다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

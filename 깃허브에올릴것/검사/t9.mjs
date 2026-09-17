@@ -1,5 +1,5 @@
 /* 6차 패치 검사 — 망루·모둠띠·철거·멈춤·기록·기억 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT = +(process.argv[3] || 8915);

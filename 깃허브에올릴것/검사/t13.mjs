@@ -1,5 +1,5 @@
 /* 11차 검사 — 넷리파이 배지 자리 · HUD 겹침 · 최적화(그리기 횟수·색만 고치기) */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

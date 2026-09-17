@@ -1,5 +1,5 @@
 /* 12차 검사 — 경험치·레벨·스텟(C) · 늑대 강화 · 탑 개수 제한 풀기 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

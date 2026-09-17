@@ -3,7 +3,7 @@
    lvsim.mjs 와 같은 모형이다 (캐기는 덩어리 수가, 쏘기는 총알이 한계다).
    인자: <파일> <포트> [부지런함 0~1]
    쓰는 법: 문턱 후보를 주면 "며칠에 닿나" 를 같이 찍어 준다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

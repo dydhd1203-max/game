@@ -1,4 +1,4 @@
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve.mjs';
 const PORT = +(process.argv[3] || 8733);
 const srv = serve(PORT);

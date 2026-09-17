@@ -1,6 +1,6 @@
 /* 자원이 어디에 깔리나 — 개수 · 반지름 분포 · 농장 안에 들어갔나
    ★ 무작위라 한 판만 보면 안 된다. 여러 판을 돌려 평균을 본다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME, PORT = +(process.argv[3]||12200), RUNS = +(process.argv[4]||5);

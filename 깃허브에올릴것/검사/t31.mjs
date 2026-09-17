@@ -2,7 +2,7 @@
    ★ 선생님 주문(29차): 늑대 잡으면 금이 떨어지고 아무나 줍는다 · 레어 4/유니크 2 는 대장장이 조합표(기본 총 + 재료) ·
      일반 총 -20% · 총마다 소리와 효과 · 동물 상인은 상인 옆 아줌마 · H 는 어디서나 농장 상태 · 똥·건초 · 단추는 동그라미.
    ★ 값을 베끼지 않는다 — 비율(60%·70%)과 관계(넣은 총이 없어지고 새 총이 든다)를 본다. 호스트(혼자 놀기)라 피해가 바로 깎인다. */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const FILE = process.argv[2] || GAME;

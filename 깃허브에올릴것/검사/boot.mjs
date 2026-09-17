@@ -1,5 +1,5 @@
 /* 열릴 때까지 걸리는 시간 — 세 번 재서 가운뎃값 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const FILE=process.argv[2], PORT=+process.argv[3];
 const srv = serve(PORT, FILE);

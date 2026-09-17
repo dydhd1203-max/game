@@ -1,6 +1,6 @@
 /* 성실한 아이 한 명이 15일 동안 몇 레벨까지 가나 — 게임 안의 진짜 상수로 계산한다.
    인자: <파일> <포트> [부지런함 0~1]  (1 = 쉬는 시간 없이, 0.6 = 보통) */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const FILE=process.argv[2], PORT=+process.argv[3];
 const EFF=+(process.argv[4]||1);

@@ -1,5 +1,5 @@
 /* 밤에 늑대가 많을 때의 드로우콜 — 체력 막대가 실제로 얼마를 더 쓰나 */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 const srv = serve(+process.argv[3], process.argv[2]);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});

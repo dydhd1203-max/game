@@ -1,7 +1,7 @@
 /* 37차 검사 — 🏁 장애물 경주 · 달리기(Shift) · 양끼리 부딪힘 · OX/줄넘기 없음
    ★ 코스는 seed 로 짓는다 — 같은 seed 면 발판 표가 같은지, 발판 길이·틈이 '네 가지 뜀이 다 떨어지는 셈' 을 지키는지 본다.
    ★ 규칙(깃발·떨어짐·골인·바위·공·진자·막대·순위·상)은 실제로 굴려서 본다 (39차: 아이템은 기능과 함께 뺐다) — 값을 베끼지 않고 게임에 묻는다(__RACE, __MINI). */
-import { chromium } from '/opt/node22/lib/node_modules/playwright/index.mjs';
+import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 const PORT = +(process.argv[3] || 8937);
