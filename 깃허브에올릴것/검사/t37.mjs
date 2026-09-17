@@ -467,6 +467,115 @@ ok('★ 46차 — 코스 양옆 땅이 z 42~250 에서 한 군데도 안 끊긴�
 ok('★ 건물이 8칸 칸마다 빠짐없이 선다 (제일 빈 칸에도 조각 여섯 넘게)',
    st46.worst >= 6, `제일 빈 칸 z${st46.worstAt} 에 ${st46.worst}조각 · 모두 ${st46.pieces}`);
 
+/* ═══════ ⑮ 47차 — 골인율: 제일 좁은 발판도 양 둘이 스친다 · 경주에서는 튕김이 절반 ═══════ */
+const fin47 = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
+  /* 변형 셋을 다 지어 보고, 발판마다 '몇 명이 나란히 설 수 있나'(폭 ÷ 부딪힘 지름)를 센다.
+     깃발 판(cp)·계단 옆 좁은 것 말고 **지나가야 하는 발판**(beam·log·stone·fade)만 본다. */
+  const R = W.__SHEEP_R2, worst = {};
+  for(const seed of [11, 12, 13, 14, 15, 16]){
+    W.__raceBuild(seed);
+    for(const p of W.__RACE_P()){
+      if(!['beam','log','stone','fade'].includes(p.kind)) continue;
+      if(worst[p.kind] === undefined || p.w < worst[p.kind]) worst[p.kind] = p.w; } }
+  o.worst = worst; o.R = R;
+  o.abreast = Object.fromEntries(Object.entries(worst).map(([k,w])=> [k, +(w/R).toFixed(2)]));
+  o.allPass = Object.values(worst).every(w => w >= R*2);      // 둘이 나란히 = 폭이 지름의 두 배
+  /* 튕김 — 같은 속도로 부딪힐 때 경주가 마을보다 작다(절반). 겹침 벌림은 그대로라 딱 절반은 아니다 */
+  const Y = PL.y;
+  G.players.set('bp', {uid:'bp', x:0.3, y:Y, z:PL.z, g:1, n:'bp', ry:0, jt:0});
+  const meas = ()=>{ PL.x = 0.6; W.__kbReset(); W.__sheepBump(1/30, -8, 0); return +Math.hypot(W.__kb().x, W.__kb().z).toFixed(2); };
+  if(W.__miniOn()) W.__miniExit();
+  const px = PL.x, pz = PL.z; G.players.get('bp').z = pz;
+  o.town = meas();
+  G.paused = false; W.__goMini(0); G.paused = true;
+  PL.z = pz; G.players.get('bp').x = 0.3; G.players.get('bp').y = PL.y; G.players.get('bp').z = PL.z;
+  o.race = meas();
+  W.__miniExit(); PL.x = px; PL.z = pz; G.players.delete('bp'); W.__kbReset();
+  return o; });
+ok('★ 47차 — 지나가야 하는 발판은 다 양 둘이 나란히 설 만큼 넓다 (폭 ≥ 부딪힘 지름 0.95 × 2). 좁은 다리 1.0 · 통나무 1.5 는 한 명만 지나갈 수 있었다',
+   fin47.allPass, Object.entries(fin47.abreast).map(([k,v])=>`${k} ${v}명`).join(' · ') + ` (지름 ${fin47.R})`);
+ok('★ 경주에서는 튕김이 절반이다 — 같은 속도로 부딪혀도 마을보다 적게 밀린다 (겹침 벌림은 그대로라 딱 절반은 아니다)',
+   fin47.race < fin47.town && fin47.race > fin47.town * 0.5, `마을 ${fin47.town} → 경주 ${fin47.race}`);
+
+/* ═══════ ⑯ 47차 ② 최적화 — 건물은 모둠별로 걸러지고, 바뀐 모둠만 다시 짓는다 ═══════ */
+const opt47 = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, T3=W.__THREE, o={};
+  if(W.__miniOn()) W.__miniExit(); G.paused = true;
+  const triOf = (g)=> (g.index ? g.index.count : g.attributes.position.count)/3;
+  /* 다섯 모둠에 벽 줄 + 탑을 꽉 채워 짓는다 (교실에서 한참 지은 뒤의 모습) */
+  for(let i=0;i<5;i++) W.__base[i] = {w:999999, s:999999, o:999999, eg:999, mk:999, pk:999};
+  W.__recompute(); W.__clear();
+  for(let g=0; g<5; g++){ const d = W.__DIRS[g]; G.me.g = g;
+    for(let pp=-8; pp<=8; pp+=0.7){
+      const x = Math.round(d.dx*42 - d.dz*pp), z = Math.round(d.dz*42 + d.dx*pp);
+      if(W.__canPlace('swall', x, z) === null){ W.__place('swall', x, z);
+        const q = [...W.__STRU.values()].pop(); q.lv = 5; } }
+    for(const [t, rr, pp] of [['arrow',36,-4],['arrow',36,4],['arrow',31,-3],['arrow',31,3],['arrow',26,0],
+                              ['ice',33,-5],['ice',33,5],['barr',28,0]]){
+      const x = Math.round(d.dx*rr - d.dz*pp), z = Math.round(d.dz*rr + d.dx*pp);
+      if(W.__canPlace(t, x, z) === null){ W.__place(t, x, z); const q = [...W.__STRU.values()].pop(); q.lv = 6; } } }
+  G.me.g = 0; W.__rebuild();
+  o.stru = W.__STRU.size;
+  /* ① 메시가 모둠별로 쪼개져 있고, 프러스텀 컬링이 켜져 있고, 잰 구가 있다 */
+  const keys = [];
+  let mesh = 0, tri = 0, culled = 0, sphere = 0;
+  for(const [k, m] of W.__struMeshes){ if(!m.count) continue;
+    keys.push(k); mesh++; tri += m.count*triOf(m.geometry);
+    if(m.frustumCulled) culled++; if(m.boundingSphere) sphere++; }
+  o.mesh = mesh; o.tri = tri; o.culled = culled; o.sphere = sphere;
+  o.gset = [...new Set(keys.map(k=> k.slice(k.lastIndexOf('#')+1)))].sort();
+  /* ② 시점에 따라 걸러진다 — 제 모둠 문 앞에서 밖을 보면 남의 모둠 넷이 통째로 빠진다 */
+  const seen = (px,py,pz, tx,ty,tz)=>{
+    W.__cam.position.set(px,py,pz); W.__cam.lookAt(tx,ty,tz); W.__cam.updateMatrixWorld();
+    const fr = new T3.Frustum();
+    fr.setFromProjectionMatrix(new T3.Matrix4().multiplyMatrices(W.__cam.projectionMatrix, W.__cam.matrixWorldInverse));
+    let t = 0;
+    for(const [k, m] of W.__struMeshes){ if(!m.count) continue;
+      if(m.frustumCulled){ if(!m.boundingSphere) m.computeBoundingSphere();
+        const s2 = m.boundingSphere.clone(); s2.applyMatrix4(m.matrixWorld);
+        if(!fr.intersectsSphere(s2)) continue; }
+      t += m.count*triOf(m.geometry); }
+    return t; };
+  const d0 = W.__DIRS[0];
+  o.outward = seen(d0.dx*46, 3, d0.dz*46, d0.dx*90, 2, d0.dz*90);
+  o.crystal = seen(3, 3, 3, d0.dx*60, 2, d0.dz*60);
+  /* ③ 한 모둠만 바뀌면 그 모둠 블록만 다시 만든다 — 다시 만든 인스턴스 수로 잰다
+       (행렬 값을 견주면 못 잡는다: 안 바뀐 건물은 다시 만들어도 값이 똑같다) */
+  W.__markShapeG(2); W.__rebuild(); o.one = W.__struLastN();
+  W.__markShapeG();  W.__rebuild(); o.all = W.__struLastN();
+  /* ④ 낮에는 길 깔기를 모은다 — 지은 직후 바로 깔지 않고 기다렸다 한 번만 */
+  W.__place('swall', Math.round(d0.dx*44), Math.round(d0.dz*44));
+  o.flowPending = W.__flowDirty(); o.flowWait = W.__flowWait();
+  W.__clear(); G.paused = false; return o; });
+ok('★ 47차 — 건물 메시가 모둠별로 쪼개져 있고, 전부 프러스텀 컬링이 켜져 있다 (예전엔 재질마다 하나뿐이라 컬링을 끄고 언제나 다 그렸다)',
+   opt47.mesh >= 6 && opt47.culled === opt47.mesh && opt47.sphere === opt47.mesh && opt47.gset.length >= 4,
+   `건물 ${opt47.stru}채 · 메시 ${opt47.mesh}(모둠 ${opt47.gset.join(',')}) · 컬링 ${opt47.culled} · 잰 구 ${opt47.sphere} · 삼각형 ${opt47.tri}`);
+ok('★ 제 모둠 앞에서 밖을 보면 건물 삼각형이 절반 아래로 걸러진다 (남의 모둠 넷이 통째로 빠진다)',
+   opt47.outward < opt47.tri*0.5 && opt47.crystal < opt47.tri*0.6,
+   `전부 ${opt47.tri} → 밖을 봄 ${opt47.outward} · 수정 옆 ${opt47.crystal}`);
+ok('★ 한 모둠만 바뀌면 그 모둠 블록만 다시 만든다 — 예전엔 한 채를 지어도 건물 전부(9,785칸)의 행렬을 다시 만들었다(4.52ms)',
+   opt47.one > 0 && opt47.one < opt47.all * 0.45,
+   `한 모둠 ${opt47.one}칸 / 전부 ${opt47.all}칸 (${(opt47.one/opt47.all*100).toFixed(0)}%)`);
+ok('★ 낮에는 길 깔기를 예약만 해 두고 0.45초 쉰 뒤에 한 번만 깐다 — 연달아 열 채를 놓아도 35ms 가 3.5ms 로 끝난다 (맵 전체 다익스트라)',
+   opt47.flowPending === true && opt47.flowWait >= 0.3,
+   `지은 직후 — 예약됨 ${opt47.flowPending} · 남은 기다림 ${opt47.flowWait}초`);
+
+const geo47 = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
+  const triOf = (g)=> (g.index ? g.index.count : g.attributes.position.count)/3;
+  const f = {uid:'t47', x:PL.x, y:PL.y, z:PL.z+4, ry:0, g:1, ph:0, hat:1, gls:1, clo:1, wp:3, we:2, jb:0, jt:2, mv:true, n:'ㅇ'};
+  G.players.set('t47', f); W.__smoothHead(f, 0, 1, 100);
+  W.__drawSheep([f], 3.0, 40, s=>0x4060a0, 1);
+  const P = W.__Pmesh();
+  o.eye = triOf(P[5].geometry); o.nose = triOf(P[6].geometry);
+  o.leg = triOf(P[8].geometry); o.puff = triOf(P[1].geometry);
+  let tot = 0; for(const m of P){ if(m && m.count) tot += m.count*triOf(m.geometry); }
+  o.tot = tot;
+  G.players.delete('t47'); return o; });
+ok('★ 47차 — 눈알·콧방울은 잔 공(8×6)이고 다리는 작은 둥근 상자다. 털뭉치처럼 눈에 띄는 공은 그대로 곱다',
+   geo47.eye <= 96 && geo47.nose <= 96 && geo47.leg <= 120 && geo47.puff >= 240,
+   `눈 ${geo47.eye} · 코 ${geo47.nose} · 다리 ${geo47.leg} · 털뭉치 ${geo47.puff} 삼각형`);
+ok('★ 양 한 마리의 부위 삼각형이 5천 아래로 내려왔다 (46차 7,296 — 다리 2,400 · 눈 1,008 · 코 504 가 컸다)',
+   geo47.tot < 5000, `한 마리 ${geo47.tot} 삼각형`);
+
 await ev(()=>{ const W=window; if(W.__miniOn()) W.__miniExit(); });
 /* ═══════ 결과 ═══════ */
 console.log('');

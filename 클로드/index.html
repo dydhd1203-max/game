@@ -2471,7 +2471,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '46차 · 1차 날개 하양·둥글둥글 · 방울 꼬리 · 발소리 키캡 · 경주 양옆 거리(끊김 없는 땅 + 줄지어 선 건물 + 가로수) · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 경주 미술(무지개 한 장 곡선 · 통나무 아치 문) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
+const GAME_VER = '47차 · 경주 골인율(좁은 발판 넓히기 · 경주에서는 튕김 절반) · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 양 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -5848,6 +5848,12 @@ function footprint(t,X,Z){
 const STRU = new Map();     // id -> {id,t,x,z,hp,mx,g,by,cd,sol}
 const cellOwner = new Map();// "x,z" -> id
 let struDirty = true, flowDirty = true;
+/* ★ 47차 — 길 다시 깔기를 **연달아 지을 때는 모아서 한 번만** 한다.
+   buildFlow 는 맵 전체(117×116)를 다익스트라로 훑어서 한 번에 3.52ms 다.
+   낮에는 늑대가 없는데도 짓고 부술 때마다 그 자리에서 깔고 있었다 — 아이가 열 채를 놓으면 35ms.
+   밤에는 hostSim 이 1.8초마다(또는 바뀌면 바로) 깔므로 손대지 않는다. */
+let flowWait = 0;
+function markFlow(){ flowDirty = true; flowWait = 0.45; }
 /* ★ 밤에는 늑대가 벽을 계속 물어서 '체력이 바뀌었다' 표시가 초당 12번 켜졌다.
    그때마다 rebuildStru() 가 건물 119채 · 블록 7700개의 행렬을 통째로 다시 만들었다 —
    측정값 4.1ms(개발 PC). 교실 크롬북은 서너 배 느리니 한 프레임을 통째로 잡아먹는다.
@@ -5855,7 +5861,14 @@ let struDirty = true, flowDirty = true;
    자리·크기는 짓거나 부수거나 강화할 때만 바뀐다.
    그래서 둘로 나눈다 — 모양이 바뀌면 struDirty(통째로), 체력만 바뀌면 struTint(색만). */
 const struTint = new Set();
-function markShape(){ struDirty = true; struTint.clear(); }   // 짓기·부수기·강화
+/* ★ 47차 — 어느 **모둠**이 바뀌었는지까지 적는다.
+   건물 메시를 모둠별로 쪼개 뒀으므로(아래 rebuildStru), 한 아이가 제 모둠에 한 채 지었을 때
+   다른 네 모둠의 메시는 손댈 필요가 없다. 짓기 한 번의 일감이 5분의 1 로 준다.
+   모둠을 모르면(예전처럼 통째로) struAllG 를 켜서 전부 다시 짓는다. */
+let struAllG = true, struLastN = 0;          // struLastN — 지난 다시 짓기에서 실제로 쓴 인스턴스 수(진단·검사용)
+const struDirtyG = new Set();
+function markShape(g){ struDirty = true; struTint.clear();
+  if(g === undefined || g === null) struAllG = true; else struDirtyG.add(g|0); }   // 짓기·부수기·강화
 function markHp(o){ if(!struDirty) struTint.add(o); }         // 물림·수리·아침회복
 let struVer = 0;            // 건물이 생기거나 없어질 때만 오른다 (미니맵 밑그림 다시 그리는 신호)
 
@@ -5910,7 +5923,7 @@ function addStru(o){
     cellOwner.set(cx+','+cz, o.id);
     if(inW(cx,cz)) bldH[gi(cx,cz)] = GY + bs(o.t,'hi',o.lv);
   }
-  markShape(); flowDirty = true; struVer++;
+  markShape(o.g); markFlow(); struVer++;
 }
 function delStru(id){
   const o = STRU.get(id); if(!o) return;
@@ -5918,11 +5931,11 @@ function delStru(id){
     cellOwner.delete(cx+','+cz);
     if(inW(cx,cz)) bldH[gi(cx,cz)] = -999;
   }
-  STRU.delete(id); markShape(); flowDirty = true; struVer++;
+  STRU.delete(id); markShape(o.g); markFlow(); struVer++;
 }
 
 /* 구조물 인스턴스 메시 (변경 시 다시 만듦) */
-const struMeshes = new Map();   // tile -> InstancedMesh
+const struMeshes = new Map();   // '타일#모둠' -> InstancedMesh  (47차 — 모둠별로 쪼갠다)
 const _c1 = new THREE.Color();
 /* 다칠수록 어두워지고 붉게 물든다 — 통째로 다시 만들 때나 색만 고칠 때나 같은 식을 쓴다 */
 function struColor(dmg, tint){
@@ -5957,15 +5970,24 @@ function tintStru(){
 const STRU_GEO = roundBox(2, 0.09, 1, 1, 1);     // 30차 — 건물 조각의 단위 둥근 상자(인스턴스 배율로 늘인다)
 function rebuildStru(){
   struDirty = false;
-  /* 블록 크기는 인스턴스 행렬 스케일로 준다 → 지오메트리는 여전히 타일당 하나,
-     즉 드로우콜은 예전 그대로다. 조각이 1칸을 넘지 않게 blocksOf가 미리 쪼개 준다. */
-  /* ★ 한때 '재질 + 모둠 구역'으로 쪼개 봤다. 안 보이는 문의 건물이 통째로 걸러져서
-     삼각형은 26~32% 줄었지만, 지도를 가로질러 보는 시점에서 드로우콜이 200 → 310 으로 뛰었다.
-     이 기기는 드로우콜 하나가 60us 라 삼각형보다 훨씬 비싸다 — 그래서 되돌렸다.
-     대신 건물이 쓰는 '재질 가짓수' 자체를 줄였다. 여기선 그게 유일하게 옳은 방향이다. */
+  /* 블록 크기는 인스턴스 행렬 스케일로 준다 → 지오메트리는 타일당 하나뿐이다.
+     조각이 1칸을 넘지 않게 blocksOf가 미리 쪼개 준다. */
+  /* ★ 31차에 '재질 + 모둠 구역'으로 쪼개 봤다가 되돌린 적이 있다 — 그때는 재질이 여럿이라
+     쪼개면 드로우콜이 200 → 310 으로 뛰었다(이 기기는 콜 하나가 60us 라 삼각형보다 비싸다).
+     ★ 47차 — 그 뒤 30차에서 건물 재질을 셋(cloth·glow·bricks)으로 줄여 놨다. 그래서 다시 쟀다:
+       모둠별로 쪼개면 메시는 많아야 3 × 5 = 15 (콜 +12) 인데, 프러스텀 컬링이 살아나
+       한 모둠을 보고 있을 때 나머지 네 모둠(삼각형 60~80%)이 통째로 빠진다.
+       69채 5·6단계 기준 83만 6천 삼각형 중 대부분이다 — 콜 열둘과 바꿀 값이 아니다.
+       (선생님: "건물이 많아질수록 조금 끊기긴하더라")
+     ★ 그리고 **바뀐 모둠만** 다시 짓는다. 예전엔 한 채를 지어도 건물 전부의 행렬을 다시 만들었다(4.52ms). */
   struTint.clear();
+  /* 표시가 하나도 없으면(검사·진단이 rebuildStru 를 손으로 부를 때) 예전처럼 통째로 다시 짓는다 */
+  const dg = struDirtyG, all = struAllG || dg.size === 0;
+  struAllG = false;
   const byTile = new Map();
   for(const o of STRU.values()){
+    const og = o.g|0;
+    if(!all && !dg.has(og)) continue;
     const dmg = o.hp / o.mx;
     const blks = blocksOf(o.t, o.lv);
     /* ★ 색만 다시 칠할 때 쓰려고, 블록이 어느 메시의 몇 번째 칸에 들어갔는지 적어 둔다.
@@ -5974,9 +5996,9 @@ function rebuildStru(){
     if(!rk || rk.length !== blks.length){ rk = o._rk = new Array(blks.length);
                                           ri = o._ri = new Int32Array(blks.length); }
     for(let bi=0; bi<blks.length; bi++){
-      const b = blks[bi], key = b[3];
+      const b = blks[bi], key = b[3] + '#' + og;
       let g2 = byTile.get(key);
-      if(!g2){ g2 = {tile:key, a:[]}; byTile.set(key, g2); }
+      if(!g2){ g2 = {tile:b[3], a:[]}; byTile.set(key, g2); }
       rk[bi] = key; ri[bi] = g2.a.length;
       g2.a.push([o.x+b[0]+0.5, GY+0.5+b[1], o.z+b[2]+0.5, dmg,
         b[4]===undefined?1:b[4], b[5]===undefined?1:b[5], b[6]===undefined?1:b[6], b[7],
@@ -5984,10 +6006,15 @@ function rebuildStru(){
     }
   }
   for(const [key, mesh] of struMeshes){
-    if(!byTile.has(key)){ mesh.count = 0; mesh.instanceMatrix.needsUpdate = true; }
+    if(!all && !dg.has(+key.slice(key.lastIndexOf('#') + 1))) continue;   // 이번에 안 건드린 모둠은 그대로 둔다
+    if(!byTile.has(key) && mesh.count){ mesh.count = 0; mesh.instanceMatrix.needsUpdate = true;
+      mesh.boundingSphere = null; }                                     // 빈 메시는 빈 구 → 늘 걸러진다
   }
+  dg.clear();
+  struLastN = 0;
   for(const [key, grp] of byTile){
     const tile = grp.tile, arr = grp.a;
+    struLastN += arr.length;
     let mesh = struMeshes.get(key);
     if(!mesh || mesh.instanceMatrix.count < arr.length){
       if(mesh){ scene.remove(mesh); mesh.dispose(); }
@@ -5996,7 +6023,7 @@ function rebuildStru(){
       mesh = new THREE.InstancedMesh(tile===T.bricks ? BRICKV : STRU_GEO,
         tile===T.glow ? flatFor(T.glow, EMIT) : tile===T.bricks ? WMATV : flatFor(tile), cap);   // 31차b·32차 — 벽돌은 모따기 판 + 꼭짓점 색
       mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap*3).fill(1),3);
-      mesh.frustumCulled = false;
+      mesh.frustumCulled = true;      // 47차 — 모둠별로 쪼갰으니 이제 걸러진다
       if(GFX.shadow){ mesh.castShadow = true; mesh.receiveShadow = true; }  // 25차 — 아이가 지은 벽이 그늘을 만든다
       scene.add(mesh); struMeshes.set(key, mesh);
     }
@@ -6012,6 +6039,9 @@ function rebuildStru(){
     mesh.count = arr.length;
     mesh.instanceMatrix.needsUpdate = true;
     if(mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    /* ★ 지금 재 둬야 컬링이 먹는다 — 인스턴스가 바뀌었으니 낡은 구를 버리고 다시 잰다
+       (뱅크 쪽 bbuild 와 같은 이유다). InstancedMesh 는 제 boundingSphere 로 걸러진다. */
+    mesh.boundingSphere = null; mesh.computeBoundingSphere();
   }
 }
 
@@ -6085,7 +6115,11 @@ function roundBox(seg, r, w=1, h=1, d=1){
 const RB   = roundBox(2, 0.16);                        // 몸통·머리·다리 — 모서리가 두 칸으로 둥글다
 const RBr  = roundBox(2, 0.30);                        // 아주 둥근 상자 — 사람(상인·병사) 몸통. 베개처럼
 const RBs  = roundBox(1, 0.20);                        // 작은 조각(꾸미기·귀·장비) — 한 칸이면 충분하다
-const BALL = new THREE.SphereGeometry(0.5, 14, 10);    // 눈·코·볼·꼬리·털뭉치 — 지름 1 이라 상자와 같은 배율
+const BALL = new THREE.SphereGeometry(0.5, 14, 10);    // 털뭉치·꼬리 같은 '보이는 공' — 지름 1 이라 상자와 같은 배율
+/* ★ 47차 — 눈알·콧방울·볼터치는 화면에서 서너 픽셀이다. 거기에 252 삼각형짜리 공을 쓰고 있었다.
+   8×6 공(80)으로 바꾸면 한 마리에서 1,032 삼각형이 빠진다 — 스물한 명이면 2만 2천.
+   각져 보이지 않는가? 지름이 0.1칸이라 한 면이 1픽셀도 안 된다. 눈으로는 구분이 안 된다. */
+const BALLs = new THREE.SphereGeometry(0.5, 8, 6);     // 눈·코·볼터치 — 잔 공
 /* 28차 — 입. 로블록스 특유의 방긋 웃는 넓은 U. 반고리(위쪽 반원)를 뒤집어 아래로 볼록하게 두고,
    가로로 넓게 세로로 납작하게 배율을 준다. 지름 1 이라 다른 조각과 같은 배율로 쓴다. */
 const SMILE = new THREE.TorusGeometry(0.5, 0.10, 8, 18, Math.PI); SMILE.rotateZ(Math.PI);
@@ -7736,11 +7770,13 @@ const P_body = imesh(RB,   FM.wool,  MAXP,   1),   // 몸통
       P_head = imesh(RB,   FM.woolD, MAXP,   1),   // 얼굴
       P_frng = imesh(RB,   FM.woolD, MAXP,   1),   // 이마 앞머리
       P_ear  = imesh(RBs,  FM.woolD, MAXP*2, 1),   // 귀 2개
-      P_eye  = imesh(BALL, FM.eye,   MAXP*4, 1),   // 눈 2개 + 눈 반짝이 2개
-      P_nose = imesh(BALL, FM.snout, MAXP*3, 1),   // 코 + 볼터치 2개
+      P_eye  = imesh(BALLs, FM.eye,   MAXP*4, 1),  // 눈 2개 + 눈 반짝이 2개 (47차 — 잔 공)
+      P_nose = imesh(BALLs, FM.snout, MAXP*3, 1),  // 코 + 볼터치 2개 (47차 — 잔 공)
       P_mouth= imesh(SMILE, FM.dark, MAXP,   1),   // 입 — 방긋 웃는 U (28차)
       P_tail = imesh(BALL, FM.woolD, MAXP*3, 1),   // 꼬리 — 46차: 궁뎅이 털 + 뿌리 + 방울 세 알
-      P_legs = imesh(RB,   FM.dark,  MAXP*8, 1),   // 다리 4개 × 두 마디(44차)
+      /* 47차 — 다리는 굵기가 0.13칸인 막대다. 모서리를 두 칸으로 둥글린 RB(300)를 쓸 이유가 없다.
+         RBs(108)면 실루엣이 같다 — 한 마리에서 1,536 삼각형(다리 여덟 × 192)이 빠진다. */
+      P_legs = imesh(RBs,  FM.dark,  MAXP*8, 1),   // 다리 4개 × 두 마디(44차) · 47차 — 작은 둥근 상자
       /* ★ 꾸미기(모자·안경·옷) — 종류가 몇이든 메시는 하나다.
          천 텍스처에 색·크기만 바꿔 끼우므로, 아이템을 아무리 늘려도 드로우콜은 1개다.
          아무도 아무것도 안 걸치면 통째로 숨긴다. */
@@ -9454,7 +9490,11 @@ function sheepBump(dt, wx, wz){
     const d = Math.sqrt(d2), nx = dx/d, nz = dz/d, over = SHEEP_R2 - d;
     kbx += nx*over*3.0; kbz += nz*over*3.0;                                        // 겹친 만큼(반씩)
     const closing = Math.max(0, -(wx*nx + wz*nz));                                  // 상대 쪽으로 가던 내 빠르기
-    if(closing > 1.5){ const k = Math.min(7, closing*1.1); kbx += nx*k; kbz += nz*k;
+    /* ★ 47차 — **경주에서는 튕김이 절반**이다. 튕김 한 번이 1.4칸을 미는데(최대 7 / 초당 5로 잦아듦)
+         경주 발판은 제일 좁은 데가 반폭 1.2칸이라, 스물한 명이 몰리면 부딪힐 때마다 누군가 떨어져 골인을 못 했다
+         (선생님: "경주할 때 애들끼리 튕기니까 거의 골인을 못하더라").
+       겹침 벌림(over*3.0)은 그대로다 — 겹쳐 서는 일은 여전히 없다(37차 주문). 마을·밤에서는 세기가 안 바뀐다. */
+    if(closing > 1.5){ const k = Math.min(7, closing*1.1) * (raceOn() ? 0.5 : 1); kbx += nx*k; kbz += nz*k;
       if(closing > 4 && !PL.bumpT){ PL.bumpT = 0.4; if(window.__sfx) window.__sfx('hop'); burst((PL.x+q.x)/2, PL.y+0.7, (PL.z+q.z)/2, 0xffffff, 6, 0.8); if(window.__shake) window.__shake(Math.min(0.5, closing*0.05), 0.12); } }
   }
   if(PL.bumpT > 0) PL.bumpT -= dt;
@@ -13140,7 +13180,7 @@ function upgradeStru(o){
      화살이 나가는 높이·충돌·조준 테두리가 다 맞는다. */
   for(const [cx,cz] of footprint(o.t,o.x,o.z))
     if(inW(cx,cz)) bldH[gi(cx,cz)] = GY + bs(o.t,'hi',o.lv);
-  markShape(); flowDirty = true;
+  markShape(o.g); markFlow();
   MY.built++;
   xpGain(XP_UP * o.lv);
   const cx = o.x+0.5, cz = o.z+0.5;
@@ -14731,11 +14771,13 @@ function raceBuild(seed){
       P({x, z, y, w:i < 2 ? 13.0 - i*5.0 : 2.8, d:7.2, h:0.7, col:i%2 ? S.col : furLight(S.col, 0.18), sec:0, kind:'stone'}); } }   // 앞 두 돌은 넓다(13 · 8) — 양옆 출발대(x ±18)에서 곧장 달려온 아이가 모이는 깔때기
   /* ② 좁은 다리 — a 굽은 외다리 · b 끊긴 다리 셋 · c 미끄러지는 블록 */
   { const S = RACE_S[1], v = V[1], L = S.z1 - S.z0;
+    /* ★ 47차 — 외다리 폭 1.0 → 2.4. 양 부딪힘 지름이 0.95라 1.0 은 **구조적으로 한 명만** 지나갈 수 있었다.
+         2.4면 둘이 스친다. 폭은 앞뒤 뜀 셈과 무관해서 난이도는 그대로다. */
     if(v === 0){ const segs = [[0, 0, 14], [3.0, 14, 27], [-2.5, 27, 40]];
-      for(const [x, a, b] of segs) P({x, z:S.z0 + (a+b)/2, w:1.0, d:b-a+0.6, h:0.5, col:S.col, sec:1, kind:'beam'});
+      for(const [x, a, b] of segs) P({x, z:S.z0 + (a+b)/2, w:2.4, d:b-a+0.6, h:0.5, col:S.col, sec:1, kind:'beam'});
       P({x:1.5, z:S.z0+14, w:4.6, d:2.6, h:0.5, col:furLight(S.col, 0.2), sec:1, kind:'beam'}); P({x:0.25, z:S.z0+27, w:7.1, d:2.6, h:0.5, col:furLight(S.col, 0.2), sec:1, kind:'beam'}); }   // 꺾이는 자리는 네모난 마당(깊이 2.6) — 옆걸음으로 방향을 바꿀 자리
-    else if(v === 1){ for(let i=0;i<3;i++){ const a = i*(L/3); P({x:0, z:S.z0 + a + 5.75, w:1.1, d:11.5, h:0.5, col:S.col, sec:1, kind:'beam'}); } }   // 틈 1.8
-    else { P({x:0, z:S.z0 + L/2, w:1.2, d:L, h:0.5, col:S.col, sec:1, kind:'beam'});
+    else if(v === 1){ for(let i=0;i<3;i++){ const a = i*(L/3); P({x:0, z:S.z0 + a + 5.75, w:2.4, d:11.5, h:0.5, col:S.col, sec:1, kind:'beam'}); } }   // 틈 1.8
+    else { P({x:0, z:S.z0 + L/2, w:2.4, d:L, h:0.5, col:S.col, sec:1, kind:'beam'});
       for(let i=0;i<3;i++) P({x:0, z:S.z0 + 8 + i*12, y:0.25, w:1.4, d:1.4, h:1.1, col:0xff5c5c, sec:1, kind:'block', mv:{ax:'x', amp:2.6, spd:1.3 + i*0.25, ph:rng()*6.28}}); } }
   /* ③ 사라지는 발판 — a 전부 · b 체크무늬 · c 두 줄 + 깜빡임. 밟으면 1초 뒤 꺼져 2초 뒤 돌아온다. 발판 4.0 · 틈 1.8 (①과 같은 셈) */
   { const S = RACE_S[2], v = V[2], lanes = v === 2 ? [-1.5, 1.5] : [-2.8, 0, 2.8], rows = 4, st = 10.2;   // 42차 — 발판 7.2 · 틈 3.0 (①과 같은 셈)
@@ -14747,7 +14789,7 @@ function raceBuild(seed){
   /* ④ 흔들리는 통나무 + 굴러오는 바위 — 통나무 넷이 좌우로 흔들리고, 가운데 길로 바위가 굴러 내려온다 */
   { const S = RACE_S[3], v = V[3];
     for(let i=0;i<4;i++){ const z = S.z0 + 4.5 + i*10.4;
-      P({x:0, z, w:1.5, d:9.0, h:0.9, col:i%2 ? S.col : furLight(S.col, 0.16), sec:3, kind:'log',
+      P({x:0, z, w:2.6, d:9.0, h:0.9, col:i%2 ? S.col : furLight(S.col, 0.16), sec:3, kind:'log',   // 47차 — 1.5 는 한 명만 지나갔다
          mv:{ax:'x', amp:v === 0 ? 1.0 : v === 1 ? 1.5 : 1.25, spd:0.55 + i*0.15 + v*0.1, ph:rng()*6.28}}); } }   // 봇 21 중 일곱이 여기서 못 나와 흔들림을 줄였다
   /* ⑤ 마지막 계단 — 아홉 단, 셋마다 틈 하나. 꼭대기가 골인 */
   { const S = RACE_S[4], v = V[4], n = 9, step = 0.9;
@@ -15386,7 +15428,7 @@ function joinRoom(code, asHost){
     if(o){ if(v.lv && v.lv !== o.lv){ o.lv = v.lv; o.mx = bs(o.t,'hp',o.lv);
         for(const [cx,cz] of footprint(o.t,o.x,o.z))
           if(inW(cx,cz)) bldH[gi(cx,cz)] = GY + bs(o.t,'hi',o.lv);
-        markShape(); }
+        markShape(o.g); }
       o.hp = v.hp; markHp(o); } });
   net.child('b').on('child_removed', s=>{ if(STRU.has(s.key)) delStru(s.key); });
   net.child('p').on('value', s=>{
@@ -17111,7 +17153,8 @@ function loop(){
        호스트가 meta 로 알려 주므로 반 전체가 같이 멈춘다. */
     if(!DBG.noSim && !G.paused){
       if(G.host){ hostPhase(dt); if(G.phase==='night') hostSim(dt);
-                  else if(flowDirty){ buildFlow(); flowDirty = false; } }
+                  /* 47차 — 낮에는 0.45초 쉰 뒤에 한 번만 깐다(연달아 지으면 마지막 것 하나로 끝난다) */
+                  else if(flowDirty){ flowWait -= dt; if(flowWait <= 0){ buildFlow(); flowDirty = false; } } }
       else lerpMobs(dt);
       if(!G.host && G.phase==='night'){ clientTowerFx(dt); clientSoldierFx(dt); }
     }
@@ -17584,7 +17627,9 @@ Object.assign(window, {
   __BAL:BAL, __waveFor:waveFor, __bossDays:bossDays, __prog:prog, __NIGHT_DEF:NIGHT_DEF, __BOSS_MIX:BOSS_MIX, __nightPool:nightPool, __pickNight:pickNight, __nightFor:nightFor, __setNk:(v)=>{ G.nk = v; },
   __fps:()=>fpsVal, __tagRedraws:()=>tagRedraws, __updTags:()=>updTags(),
   __drawSheep:drawSheep, __Pmesh:()=>[P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_tail,P_legs], __GHEX:GHEX, __render:()=>renderer.render(scene,camera),
-  __rebuild:rebuildStru, __goNight:goNight, __goDay:goDay, __hostSim:(dt)=>hostSim(dt),
+  __rebuild:rebuildStru, __markShapeG:markShape, __struDirtyG:()=>({all:struAllG, g:[...struDirtyG]}),   // 47차 — 모둠별 다시 짓기
+  __flowDirty:()=>flowDirty, __flowWait:()=>flowWait, __struLastN:()=>struLastN,                         // 47차 — 낮 길 깔기 모으기 · 지난 다시 짓기 크기
+  __goNight:goNight, __goDay:goDay, __hostSim:(dt)=>hostSim(dt),
   __blocksRaw:blocksOfRaw, __blkCache:_blkCache, __banks:banks, __struMeshes:struMeshes,
   __tint:tintStru, __struTint:struTint, __struDirty:()=>struDirty,
   __XP:XP, __xpGain:xpGain, __takeStat:takeStat, __STATS:STATS, __XP_NEED:XP_NEED,
