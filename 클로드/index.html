@@ -1771,7 +1771,10 @@ body.touch .slot.tool{background:linear-gradient(180deg,#ffffff,#f6f2fc)}
 @keyframes popIn{from{transform:scale(.88) translateY(14px);opacity:0}}
 .popC,#shopList,#vetList,.kitGrid{scrollbar-color:var(--pk-lav2) rgba(120,104,170,.08)}
 .popC::-webkit-scrollbar-track,#shopList,#vetList::-webkit-scrollbar-track{background:rgba(120,104,170,.08)}
-.popC::-webkit-scrollbar-thumb,#shopList,#vetList::-webkit-scrollbar-thumb{background:var(--pk-lav2)}
+/* ★ 50차 — 28차부터 있던 오타. `#shopList` 에 ::-webkit-scrollbar-thumb 를 안 붙여서
+   **상점 목록 판 전체가 라벤더색**이 됐다(스크롤 손잡이만 그럴 참이었다).
+   글자가 남색이던 때는 그럭저럭 읽혔는데 48차에 글자가 희어지자 대비 1.38 까지 떨어졌다. */
+.popC::-webkit-scrollbar-thumb,#shopList::-webkit-scrollbar-thumb,#vetList::-webkit-scrollbar-thumb{background:var(--pk-lav2)}
 .popC h2{color:var(--pk-ink);font-size:22px} .popC h2 img.ic{height:1.15em;vertical-align:-.22em}
 .popC h3{color:#8a7fb8;opacity:1} .popC h3 img.ic{height:1.25em}
 .shopHint{color:var(--pk-ink2);opacity:1}
@@ -2113,6 +2116,44 @@ body:not(.touch) .slot.tool .ic{font-size:21px;height:28px} body:not(.touch) .sl
 .kCell.on{border-color:var(--rb-green2);background:rgba(0,176,106,.22);box-shadow:none}
 .stIt{background:var(--rb-cell);border:1px solid var(--rb-line);box-shadow:none;color:#fff}
 .stIt .sd{color:var(--rb-ink2)}
+/* ★ 50차 — 선생님: "색깔 때문에 가독성이 너무 떨어져". **48차가 스텟 카드(.stBig)를 통째로 빠뜨렸다.**
+   28차 파스텔 층이 카드를 하얗게 칠해 뒀는데(.stBig{background:#fff}) 48차가 글자만 흰색으로 바꾸어
+   **흰 글자가 흰 카드 위에** 얹혔다. 이름(.sNm)은 아예 안 보이고 설명만 흐릿하게 보였다.
+   (48차가 .stIt 을 고쳤는데 실제 카드 클래스는 .stBig 이었다 — 클래스 이름이 비슷해서 못 보고 지나갔다.) */
+.stBig{background:var(--rb-cell);border:1px solid var(--rb-line);border-radius:12px;box-shadow:none;color:#fff}
+.stBig.full{background:rgba(0,176,106,.20);border-color:rgba(0,176,106,.55);box-shadow:none}
+.stBig .sIc{background:rgba(0,0,0,.30)}
+.stBig .sNm{color:#fff}
+.stBig .sVal{color:var(--rb-gold)} .stBig .sMax{color:var(--rb-ink2);opacity:1}
+.stBig .sWhat{color:var(--rb-ink2);opacity:1} .stBig .sSub{color:var(--rb-ink2);opacity:.75}
+.stBig button{background:var(--rb-green);border:1px solid rgba(255,255,255,.35);color:#fff;box-shadow:none}
+.stBig button:disabled{background:rgba(255,255,255,.12);border-color:var(--rb-line);color:rgba(255,255,255,.45);box-shadow:none}
+/* ★ 50차 — **이건 .stBig 하나가 아니라 창 전체의 문제였다.** 창을 다 열어 놓고 글자색과 바탕색의
+   대비를 재 보니 **124군데**가 1.0(똑같은 색)이었다. 28차 파스텔 층이 창 속 카드를 흰색으로
+   칠해 뒀는데 48차가 글자만 흰색으로 바꿔서다. 한 클래스씩 쫓지 말고 **하얗게 칠해 둔 것을
+   한 번에** 어두운 칸으로 돌린다(파스텔 층에서 background:#fff 인 것 전부).
+   글자는 .popC 가 이미 흰색이니 바탕만 어두워지면 읽힌다. 파스텔 층이 남색 잉크로 칠해 둔
+   속 글자들은 그 위에서 어두워지므로 같이 되돌린다. */
+.popC .res,.popC .hrow,.popC .sItem,.popC .stIt,.popC .stDeriv,.popC .kitIt,.popC .kCell,.popC .kSlot,
+.popC .bgIt,.popC .jobCard,.popC .gcell,.popC .chip,.popC .card,.popC .tag,
+#kitStat,#shopRes,#tQ,#kitFoot,#endCard,.ec-i,#miniBar .ms span{
+  background:var(--rb-cell)!important;border-color:var(--rb-line)!important;box-shadow:none!important;color:#fff}
+.popC input.f,.popC select.f,#giveWrap button,#potRow button,#kitTabs button,.popC .grp button,.popC .sItem button{
+  background:rgba(0,0,0,.34)!important;border-color:var(--rb-line)!important;box-shadow:none!important;color:#fff}
+#kitTabs button.on,.popC .grp button.on{background:var(--rb-blue)!important;border-color:rgba(255,255,255,.5)!important}
+/* 창 속에서 파스텔 층이 남색 잉크로 칠해 둔 속 글자 — 이제 바탕이 어두우니 흰색 계열로 */
+.popC .sd,.popC .kd,.popC .kTag,.popC .jDesc,.popC .gline,.popC .gv,.popC .bn,.popC .mb,.popC .kitNone,
+.popC .sl b,.popC .hrow b,#stPts,#shopTip,#forgeTip,#farmTip,#pvwCap,#kitFoot{color:var(--rb-ink2)}
+.popC .sNm,.popC .kn,.popC .jName{color:#fff}
+.popC .jStat,.popC .sc,.popC .gv b{color:var(--rb-gold)}
+/* 고른 갈래 단추 — 파스텔 층이 금빛 판에 진한 금 글자를 줬는데, 판이 사라지자 어두운 판에
+   어두운 금 글자만 남아 대비 1.67 이 됐다. 로블록스처럼 파란 알약에 흰 글자로.
+   (시작 화면 그래픽 단추도 같은 class 라 .popC 안으로만 좁힌다) */
+.popC .btn.sm.on{background:var(--rb-blue)!important;border-color:rgba(255,255,255,.45)!important;color:#fff!important;box-shadow:none!important}
+/* 강조 칩 — 크림색 알약(#fff3c4) 위에 흰 글자가 얹혀 안 읽혔다. 검은 판에 크림 알약도 어울리지 않는다.
+   로블록스처럼 **칩을 없애고 금색 굵은 글씨**로. 같은 이유로 순위표의 '나' 줄도 금색 테로 바꾼다. */
+.shopHint b,.hrow b{background:none!important;padding:0!important;border-radius:0!important;color:var(--rb-gold)}
+.rkRow.me{background:rgba(255,200,50,.16);box-shadow:inset 0 0 0 1px rgba(255,200,50,.55)}
 .jobCard{background:var(--rb-cell);border:1px solid var(--rb-line);box-shadow:none;color:#fff}
 table.rank th{color:var(--rb-ink2)} table.rank td{color:#fff}
 .hrow,.sl,.gline,.shopHint,.hint{color:var(--rb-ink2)}
@@ -2689,7 +2730,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '49차 · 검사 되살리기(전체 판 1243항목 다시 돎) · 3인칭 조준 고침 · 태블릿 조작안내·핫바 값 · 저격총 양각대 · 노트북 기준으로(그림자 2048 · 구역 32칸 · 선명은 부드러운 그림자) · 수정 단상 보도블록 · 48차 로블록스 화면(굵은 고딕 폰트 · 검은 반투명 UI · 바닥에 붙는 핫바 · 3인칭 카메라 + 휠 줌 · 플라스틱 광택 · 매끈 질감 · 즉시 가속·정지 · 로블록스 체공 0.54초(경주는 그대로) · 공중 자세 둘) · 47차 경주 골인율 · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 양 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
+const GAME_VER = '50차 · 카메라 뒤로(양이 앞을 안 가린다) · 바위·나무·잔디 질감 되살림 · 창 글자 다 읽히게(124군데) · 수정 옆 노란 벽 없앰 + 늑대가 물면 수정이 번쩍 · 망토가 판때기가 아니게 · 49차 검사 되살리기(전체 판 1243항목 다시 돎) · 3인칭 조준 고침 · 태블릿 조작안내·핫바 값 · 저격총 양각대 · 노트북 기준으로(그림자 2048 · 구역 32칸 · 선명은 부드러운 그림자) · 수정 단상 보도블록 · 48차 로블록스 화면(굵은 고딕 폰트 · 검은 반투명 UI · 바닥에 붙는 핫바 · 3인칭 카메라 + 휠 줌 · 플라스틱 광택 · 매끈 질감 · 즉시 가속·정지 · 로블록스 체공 0.54초(경주는 그대로) · 공중 자세 둘) · 47차 경주 골인율 · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 양 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -3766,8 +3807,13 @@ function addGrain(mat, tex, scale, amt){
   mat.extensions = Object.assign(mat.extensions || {}, {derivatives:true});
   mat.needsUpdate = true; return mat;
 }
-addGrain(WMAT, GRAIN.rock, 0.6, 0.13);                    // 세계 조각(산·성문·농장·가게) — 48차: 0.46 → 0.13 (로블록스 매끈 플라스틱). 0 으로 두면 큰 면이 띠진다
-addGrain(flatFor(T.cloth), GRAIN.rock, 0.7, 0.07);        // 건물 몸통(30차 조각) — 48차: 0.22 → 0.07
+/* ★ 50차 — 선생님: "맵 전반적으로 질감이 갑자기 엄청 떨어진 것 같다. 원래처럼 바위·나무·잔디 질감을 살려줘".
+   48차에 'SmoothPlastic 은 매끈하다' 를 너무 곧이곧대로 읽어 결을 0.46 → 0.13 으로 거의 지웠는데,
+   **로블록스도 바위·풀·나무는 결이 또렷하다**(Rock·Grass·Wood 재질은 무늬가 있는 재질이다).
+   매끈한 건 Plastic 한 종류뿐이었다. 33차 값으로 되돌린다 — 광택(48차f Phong)은 그대로 두니
+   '결 + 광택' 이 함께 가서 오히려 로블록스 Rock/Grass 에 더 가깝다. */
+addGrain(WMAT, GRAIN.rock, 0.6, 0.44);                    // 세계 조각(산·성문·농장·가게) — 33차 0.46 · 48차 0.13 · 50차 **0.44** 로 되돌림
+addGrain(flatFor(T.cloth), GRAIN.rock, 0.7, 0.21);        // 건물 몸통(30차 조각) — 33차 0.22 · 48차 0.07 · 50차 **0.21**
 const _wc = new THREE.Color(), _wc2 = new THREE.Color();
 const banks = new Map();
 const _v=new THREE.Vector3(), _q=new THREE.Quaternion(), _s=new THREE.Vector3(), _m=new THREE.Matrix4();
@@ -3986,7 +4032,7 @@ function buildWorldMesh(){
   }
   gg.computeVertexNormals();
   gg.setAttribute('color', new THREE.BufferAttribute(cols,3));
-  const disc = new THREE.Mesh(gg, addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.grass, 0.35, 0.10));   // 33차 — 풀결 · 48차: 0.16 → 0.10
+  const disc = new THREE.Mesh(gg, addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.grass, 0.35, 0.16));   // 33차 — 풀결 0.16 · 48차 0.10 · 50차 **0.16** 로 되돌림
   disc.position.y = GY;
   if(GFX.shadow) disc.receiveShadow = true;       // 바닥은 받기만 한다 (드리울 것이 없다)
   scene.add(disc); groundDisc = disc;
@@ -4076,8 +4122,13 @@ function buildWorldMesh(){
   { const A = 0xdfe2e8, B = 0xcdd1d8;
     for(let i=-4;i<=4;i++) for(let j=-4;j<=4;j++)
       bpush('plazaT', BOXG, WMAT, i+0.5, GY+1.11, j+0.5, 0, 0.88, 0.06, 0.88, 0, ((i+j)&1) ? A : B); }
+  /* ★ 50차 — **금 테(노란 벽돌 고리)를 없앴다.** 선생님: "수정 주변 저 노란색 벽 부분이 그냥 숭 뚫리는데".
+     단상 가장자리에 1칸짜리 금색 상자를 빙 둘러 세워 뒀는데, 막지도 않으면서(장식 뱅크라 충돌이 없다)
+     **눈높이에서 수정을 가렸다.** 애들 눈에는 '벽인데 통과된다' 로 보인다 — 게임이 거짓말을 하는 셈이다.
+     대신 **바닥에 붙는 금색 테두리 줄**로 바꾼다. 단상의 경계는 그대로 읽히고, 아무것도 안 가리고,
+     통과되는 것처럼 보일 것도 없다(높이 0.08칸이라 애초에 벽으로 안 읽힌다). */
   for(let i=-5;i<=5;i++){ for(const p of [[i,-5],[i,5],[-5,i],[5,i]])
-    if(Math.abs(p[0])===5||Math.abs(p[1])===5) bpush('gb', WGEO, WMAT, p[0]+0.5, GY+1.5, p[1]+0.5, 0, 1,1,1, 0, GOLD_C); }
+    if(Math.abs(p[0])===5||Math.abs(p[1])===5) bpush('gb', BOXG, WMAT, p[0]+0.5, GY+1.12, p[1]+0.5, 0, 1, 0.08, 1, 0, GOLD_C); }
 
   // 협곡 벽 위 모둠 깃발 + 바닥 색 띠
   const gFlat = boxGeo(T.cloth,T.cloth,T.cloth,T.cloth,T.cloth,T.cloth,1,0.08,1);
@@ -4141,8 +4192,8 @@ const GEMG   = new THREE.OctahedronGeometry(0.5, 0);   GEMG.computeVertexNormals
    · jitterGeo — 잎 덩어리의 꼭짓점을 자리 해시로 흔들어 울퉁불퉁하게(같은 자리 꼭짓점은 같이 움직여 면이 안 벌어진다). 셋을 만들어 돌려 쓴다.
    · 줄기는 일곱 면을 번갈아 어둡게 — 껍질 띠. 벽돌 판은 모따기 + 아래 어둡게. 산 기둥도 아래를 어둡게.
    꼭짓점 색이 있는 지오메트리는 bpush 가 알아서 WMATV(vertexColors) 재질로 바꿔 넣는다. */
-const WMATV = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.rock, 0.6, 0.12);   // 33차 — 돌결 · 48차: 0.40 → 0.12
-const WMATL = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.leaf, 1.4, 0.16);   // 33차 — 잎 얼룩 · 48차: 0.50 → 0.16 (잎은 조금 남긴다 — 완전히 매끈하면 덩어리 하나로 뭉친다)
+const WMATV = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.rock, 0.6, 0.38);   // 33차 — 돌결 0.40 · 48차 0.12 · 50차 **0.38** (산·바위)
+const WMATL = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.leaf, 1.4, 0.46);   // 33차 — 잎 얼룩 0.50 · 48차 0.16 · 50차 **0.46** (나뭇잎 덩어리가 한 덩어리로 안 뭉치게)
 function jitterGeo(g, amp, seed){
   const P = g.attributes.position, v = new THREE.Vector3();
   for(let i=0;i<P.count;i++){ v.fromBufferAttribute(P,i);
@@ -4701,16 +4752,23 @@ function buildCrystal(){
 /* 수정 애니메이션 — 체력이 떨어지면 파랑 → 주황 → 빨강 */
 const _cv = new THREE.Vector3(), _cq = new THREE.Quaternion(), _cs = new THREE.Vector3(),
       _cm2 = new THREE.Matrix4(), _ce = new THREE.Euler();
+/* ★ 50차 — 맞은 순간 수정이 붉게 번쩍하고 움찔한다. 색이 천천히 변하는 것만으로는
+   '지금 맞고 있다' 가 안 읽혔다 — 맞는 순간이 눈에 띄어야 애들이 달려온다. */
+let cryHurtT = 0;
 function updCrystal(dt, t, cp, lastLight, skyK){
-  const hue = cp > 0.5 ? 0.52 : cp > 0.25 ? 0.09 : 0.01;
+  cryHurtT = Math.max(0, cryHurtT - dt);
+  const hurt = cryHurtT > 0 ? cryHurtT/0.28 : 0;       // 1 → 0 으로 잦아든다
+  const hue = hurt > 0 ? 0.01 : cp > 0.5 ? 0.52 : cp > 0.25 ? 0.09 : 0.01;
   const pulse = 0.5 + 0.5*Math.sin(t*1.6);
   const alive = 0.45 + cp*0.55;
 
   crystal.rotation.y += dt*0.30;
-  crystal.position.y = Math.sin(t*1.15)*0.16;
+  /* 맞으면 움찔 — 살짝 내려앉았다가 돌아온다(50차) */
+  crystal.position.y = Math.sin(t*1.15)*0.16 - hurt*0.22;
+  crystal.scale.setScalar(1 + hurt*0.10);
   cCore.scale.set(0.62+pulse*0.10, 1.5+pulse*0.16, 0.62+pulse*0.10);
 
-  cMat.gem.emissive.setHSL(hue, 0.85, 0.20 + pulse*0.10*alive);
+  cMat.gem.emissive.setHSL(hue, 0.85, 0.20 + pulse*0.10*alive + hurt*0.55);   // 50차 — 맞으면 확 밝아진다
   cMat.gem.color.setHSL(hue, 0.30, 0.86);
   cMat.shell.emissive.setHSL(hue, 0.9, 0.34 + pulse*0.12);
   cMat.shell.opacity = 0.16 + pulse*0.12*alive;
@@ -8333,8 +8391,15 @@ const JOB_LOOK = [
     [-0.50,1.28,-0.26, 0.10,0.72,0.10, 0x8a6a3a],
     [-0.56,1.76, 0.36, 0.14,0.56,0.12, 0xbfe8ff, 0, 0, 1],  // 칼날 2 — 빛난다
     [-0.56,1.76,-0.36, 0.14,0.56,0.12, 0xbfe8ff, 0, 0, 1],
-    [-0.74,0.86,0,    1.02,1.20,0.10, 0xb8202e, 0, 1],      // 긴 망토
-    [-0.74,0.28,0,    1.02,0.12,0.12, 0xffd94a, 0, 1],      // 망토 금단
+    /* ★ 50차 — 선생님: "저 꼬리 부분에 네모난 판 같은거 없애줘 이상해".
+       망토를 **한 장짜리 납작한 판**(1.02×1.20×0.10)으로 붙여 뒀는데, 48차에 마을이 3인칭이 되면서
+       **늘 그 판을 정면으로 보게** 됐다 — 천이 아니라 등에 붙인 간판으로 보인다.
+       천처럼 보이게 고친다: 폭이 아래로 갈수록 좁아지는 **세 토막**으로 나누고 조금씩 뒤로 눕힌다.
+       한 장일 때는 어느 각도에서 봐도 직사각형이지만, 토막이 지면 실루엣이 사다리꼴로 읽힌다. */
+    [-0.70,1.16,0,    0.92,0.46,0.10, 0xb8202e, 0, 1],      // 긴 망토 — 어깨 쪽(제일 넓다)
+    [-0.78,0.74,0,    0.74,0.46,0.09, 0xa81b28, 0, 1],      //           가운데
+    [-0.86,0.36,0,    0.54,0.40,0.08, 0x981624, 0, 1],      //           자락(제일 좁다)
+    [-0.88,0.17,0,    0.54,0.10,0.10, 0xffd94a, 0, 1],      // 망토 금단
     [ 0.62,1.02,0,    0.13,0.13,0.13, 0xff8a3a, 0, 2, 1],   // 불티 셋 — 몸 둘레를 돈다
     [-0.31,1.02, 0.54,0.13,0.13,0.13, 0xffb45a, 0, 2, 1],
     [-0.31,1.02,-0.54,0.13,0.13,0.13, 0xffd98a, 0, 2, 1]
@@ -8426,8 +8491,10 @@ const JOB_LOOK = [
     [-0.58,1.72, 0.40, 0.42,0.12,0.12, 0xffd94a, 0, 0, 1],  // 금낫 날 — 빛난다
     [-0.54,1.24,-0.24, 0.09,0.80,0.09, 0x8a6a3a],    // 금곡괭이 — 자루
     [-0.58,1.72,-0.34, 0.14,0.12,0.52, 0xffd94a, 0, 0, 1],  // 금곡괭이 날
-    [-0.72,0.88,0,    0.98,1.04,0.10, 0x4fae52, 0, 1],      // 잎 망토
-    [-0.72,0.34, 0.26,0.34,0.22,0.10, 0x7cd47a, 0, 1],      // 망토 잎 끝 2
+    [-0.68,1.14,0,    0.90,0.42,0.10, 0x4fae52, 0, 1],      // 잎 망토 — 어깨 쪽 (50차: 한 장 판 → 세 토막)
+    [-0.76,0.74,0,    0.72,0.42,0.09, 0x46a049, 0, 1],      //           가운데
+    [-0.84,0.38,0,    0.52,0.36,0.08, 0x3d8f41, 0, 1],      //           자락
+    [-0.86,0.22, 0.22,0.30,0.20,0.09, 0x7cd47a, 0, 1],      // 망토 잎 끝 2
     [-0.72,0.34,-0.26,0.34,0.22,0.10, 0x7cd47a, 0, 1],
     [ 0.58,0.92,0,    0.17,0.06,0.22, 0x7cd47a, 0, 2],      // 둘레를 도는 잎사귀 넷
     [ 0.00,0.92, 0.58,0.17,0.06,0.22, 0x9ee89a, 0, 2],
@@ -9708,7 +9775,7 @@ function placePlayer(){
   /* ★ 48차b — 로블록스 카메라는 캐릭터를 **살짝 내려다본다**(대략 −10°).
      수평으로 보면 양(키 0.88칸)이 카메라 높이(1.02)보다 아래라 화면 밑으로 처져서 핫바에 가린다.
      여기서 한 번만 놓아 주고, 그 뒤엔 아이가 마우스로 마음대로 본다. */
-  PL.pitch = -0.17;
+  PL.pitch = -0.08;   // 50차 — 10° 내려다보기는 앞을 가렸다. 로블록스 기본처럼 거의 수평(4.6°)에서 시작한다
 }
 
 const KEY = {};
@@ -9764,7 +9831,11 @@ const MINI_CAM = [6.4];         // 0: 장애물 경주 — 뒤 위에서 따라�
      어깨 비킴 — 로블록스 시프트락은 1.75스터드를 12.5에서 보므로 화면 세로의 10% 만큼 비낀다.
      우리는 조준점을 쓰는 게임이라 그 정도로는 양이 조준점 아래에 반쯤 걸린다. 0.62칸(화면 16%)이면
      양이 왼쪽으로 확실히 비켜 조준점이 깨끗하다. */
-const CAM_FAR = 2.8, CAM_MAX = 12.5, CAM_MIN = 1.6, CAM_SH = 0.62;
+/* ★ 50차 — 선생님: "카메라 시점이 안 맞아". 재 보니 양이 **화면 세로의 35.9%** 였다(로블록스는 29%).
+   48차에 2.8 로 정할 때 '키의 2.5배' 만 보고 시야각을 같이 안 넣었다 — 70° 에서 29% 가 되려면 3.5 다.
+   보는 높이도 0.55(몸통 한가운데)라 카메라가 아래를 향해, 양이 화면 복판에 앉아 앞이 안 보였다.
+   0.80(어깨 언저리)으로 올리면 양이 아래로 내려가고 그만큼 앞이 열린다. */
+const CAM_FAR = 3.5, CAM_MAX = 12.5, CAM_MIN = 1.6, CAM_SH = 0.62;
 let camZoom = CAM_FAR;
 const tpvKind = ()=> (miniOn() && G.mini && G.mini.k === 0) ? 0 : (camZoom > CAM_MIN ? 1 : -1);
 const tpvOn   = ()=> PL.down || tpvKind() >= 0;
@@ -9970,7 +10041,7 @@ function updPlayer(dt){
        로블록스는 캐릭터 몸통을 화면 한가운데에 둔다. 우리 양 몸통 가운데는 0.42칸(u 0.6 × SHEEP_S 0.70).
        1.55 로 두면 양 머리(0.88)보다 한참 위를 보게 되어 양이 화면 아래로 처지고 핫바에 가린다 —
        화면을 두 번 찍어 보고 0.55 로 내렸다. 경주(tk 0)는 발판이 같이 보여야 해서 1.55 그대로. */
-    const look = (tk === 1 && !PL.down) ? 0.55 : 1.55;
+    const look = (tk === 1 && !PL.down) ? 0.80 : 1.55;   // 50차 — 몸통 한가운데(0.55) → 어깨(0.80). 양이 화면 아래로 내려가 앞이 보인다
     const ty = PL.down ? PL.y + 0.95 : camGY + look - runK*0.30 + Math.sin(gaitMe)*0.025*runK - camDip;   // 41차 — 달리면 0.3 낮게(발밑이 크게 흐른다) + 걸음 박자 흔들림 · 42차 착지 내려앉음
     const cp = Math.cos(PL.pitch);
     const dx = -Math.sin(PL.yaw)*cp, dy = Math.sin(PL.pitch), dz = -Math.cos(PL.yaw)*cp;
@@ -14278,15 +14349,24 @@ function hostSim(dt){
       w.mv = false; w.ry = Math.atan2(shTgt.x-w.x, shTgt.z-w.z);
       w.chLeft = BAL.chaseBudget;              // 물었으면 다시 흥미가 생긴다
       if(w.atkT <= 0) w.atkT = 0.95;
-    } else if(!shTgt && !sTgt && dc < 6.6){
-      // 수정 공격
+    } else if(!shTgt && !sTgt && dc < 4.2){
+      /* 수정 공격.
+         ★ 50차 — 선생님: "늑대가 직관적으로 수정을 부수는 것처럼 그래픽을 수정해줘".
+         예전엔 ⑴ 6.6칸 밖에서도 때려서 늑대가 멀찍이 선 채로 수정만 깎였고,
+         ⑵ 조각도 **늑대 자리**에서 터져서 수정이 맞는 것으로 안 보였다.
+         고친 것 — 사거리를 4.2칸으로 당겨 **단상 위까지 올라와 물게** 하고,
+         조각은 **수정에서** 터뜨려 늑대 쪽으로 튀게 한다(맞은 자리 → 튄 방향이 보인다). */
       w.mv = false;
       w.ry = Math.atan2(-w.x, -w.z);
       if(w.atkT <= 0){ w.atkT = 0.9;
         G.crystal = Math.max(0, G.crystal - w.cd); G.regenT = 0;
-        burst(w.x, GY+2, w.z, 0x66e0ff, 10, 1.3);
-        burst(w.x, GY+2, w.z, 0xff8080, 5, 1.5);
-        if(window.__sfxAt) window.__sfxAt('hurt', w.x, w.z, 60, 300);
+        /* 수정이 깨진 자리 — 늑대가 문 쪽(수정 겉면)에서 조각이 튄다 */
+        const dn = Math.max(0.001, Math.hypot(w.x, w.z)), bx = w.x/dn*1.1, bz = w.z/dn*1.1;
+        burst(bx, GY+2.0, bz, 0x9beeff, 14, 1.7);      // 수정 조각
+        burst(bx, GY+2.0, bz, 0xffffff, 6, 2.1);       // 흰 불티
+        burst(w.x, GY+1.2, w.z, 0xff8080, 4, 1.2);     // 늑대 입가
+        if(window.__sfxAt) window.__sfxAt('hurt', 0, 0, 60, 300);
+        cryHurtT = 0.28;                               // 수정이 붉게 번쩍한다
         onCrystalHit();
       }
     } else {

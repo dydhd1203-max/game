@@ -141,6 +141,51 @@ ok('★ 대장간 카드도 안 넘친다', ft.fover === 0, ft.fover);
 ok('★ 안내·도움말·기록·단추는 35차 크기 그대로(14.5 · 14 · 13 · 16) · 핫바 칸 이름은 48차에 60px 칸에 맞춰 10',
    ft.hint >= 14.5 && ft.hrow >= 14 && ft.feed >= 13 && ft.btnPx >= 16 && ft.slot >= 10,
    [ft.hint, ft.hrow, ft.feed, ft.btnPx, ft.slot].join(' / '));
+/* ═══════ ★ 50차 — 창을 다 열어 보고 **글자가 바탕에 묻히지 않나** 잰다 ═══════
+   선생님: "색깔 때문에 가독성이 너무 떨어져". 스텟 창 이름이 아예 안 보였는데, 원인은
+   28차 파스텔 층이 카드를 하얗게 칠해 둔 위에 48차가 **글자만** 희게 바꾼 것이었다.
+   창을 몇 개 열어 보는 눈대중으로는 못 찾는다 — 그때 이렇게 재 보니 **124군데**였다.
+   겹을 새로 쌓을 때마다 여기서 걸리게 한다. (WCAG 대비식 · 2.2:1 밑이면 못 읽는 것으로 본다) */
+{
+  const lowC = await pg.evaluate(()=>{
+    const W = window;
+    if(W.__XP){ W.__XP.lv = 15; W.__XP.pts = 15; }
+    const opens = [['스텟', ()=>W.__openStat()], ['가방', ()=>W.__openKit && W.__openKit()],
+                   ['칭호', ()=>W.__openBadge && W.__openBadge()], ['상점', ()=>W.__openShop && W.__openShop()],
+                   ['대장간', ()=>W.__openForge && W.__openForge()], ['농장', ()=>W.__openFarm && W.__openFarm()],
+                   ['도움말', ()=>W.__openHelp && W.__openHelp()]];
+    /* 실제로 칠해진 바탕을 찾아 위로 올라간다(투명한 것은 건너뛴다) */
+    const bgOf = e => { let n = e;
+      while(n && n !== document.documentElement){
+        const m = (getComputedStyle(n).backgroundColor.match(/[\d.]+/g) || []).map(Number);
+        if(m.length && (m.length < 4 || m[3] > 0.55)) return m.slice(0,3);
+        n = n.parentElement; }
+      return [20,20,20]; };
+    const lum = ([r,g,b]) => { const f = v => { v/=255; return v <= .03928 ? v/12.92 : Math.pow((v+.055)/1.055, 2.4); };
+      return .2126*f(r) + .7152*f(g) + .0722*f(b); };
+    const bad = [];
+    for(const [nm, fn] of opens){
+      document.querySelectorAll('.pop.on').forEach(p=>p.classList.remove('on'));
+      try{ fn(); }catch(e){ continue; }
+      const pop = document.querySelector('.pop.on'); if(!pop) continue;
+      for(const e of pop.querySelectorAll('*')){
+        const txt = [...e.childNodes].filter(n=>n.nodeType===3 && n.nodeValue.trim()).map(n=>n.nodeValue.trim()).join(' ');
+        if(!txt) continue;
+        const cs = getComputedStyle(e);
+        if(cs.display === 'none' || cs.visibility === 'hidden' || +cs.opacity < 0.12) continue;
+        const fg = (cs.color.match(/[\d.]+/g) || []).map(Number);
+        if(fg.length > 3 && fg[3] < 0.25) continue;      // 거의 투명한 글자는 장식이다
+        const L1 = lum(fg.slice(0,3)), L2 = lum(bgOf(e));
+        const ratio = (Math.max(L1,L2) + .05) / (Math.min(L1,L2) + .05);
+        if(ratio < 2.2) bad.push(nm + '·' + (e.className || e.tagName) + ' "' + txt.slice(0,12) + '" ' + ratio.toFixed(2));
+      }
+    }
+    document.querySelectorAll('.pop.on').forEach(p=>p.classList.remove('on'));
+    return bad;
+  });
+  ok('★ 50차 — 창 속 글자가 바탕에 묻히지 않는다 (스텟·가방·칭호·상점·대장간·농장·도움말, 대비 2.2:1 이상)',
+     lowC.length === 0, lowC.length ? lowC.length + '군데: ' + lowC.slice(0,4).join(' / ') : '전부 읽힌다');
+}
 await pg.close();
 
 console.log('');
