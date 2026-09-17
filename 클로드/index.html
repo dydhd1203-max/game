@@ -1917,6 +1917,161 @@ label.f{font-size:14px} .hint{font-size:13px} #hint{font-size:13px} #feed{font-s
 @keyframes cntPop{0%{opacity:0;transform:translate(-50%,-50%) scale(3) rotate(-14deg)}16%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-5deg)}70%{opacity:1;transform:translate(-50%,-50%) scale(1.06) rotate(-5deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(.8) rotate(-5deg)}}
 #fearVig{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center, rgba(0,0,0,0) 42%, rgba(30,0,8,.55) 75%, rgba(12,0,4,.92) 100%);z-index:3}
 @media (max-width:820px){ #feed{font-size:12px} }
+/* ═══════════════════════════════════════════════════════════════════════════
+   48차 — 로블록스 화면 (선생님: "이런 로블록스 인터페이스, 폰트로 싹 바꿔줘")
+   ★ 규칙은 28차 파스텔 층과 같다 — **id·구조·자리·크기는 그대로**, 색·모양·글씨만 바꾼다.
+     (t13 이 열 화면에서 조각이 겹치는지 재고, 다른 검사가 id 로 창을 연다)
+   ★ 스샷에서 읽은 것 넷 —
+     ① 판은 검은 반투명 **한 겹**. 테두리는 거의 안 보이고 그림자는 없다.
+     ② 글자는 흰색 굵은 고딕. 글자 그림자는 채팅·이름표에만(검은 외곽선).
+     ③ 모서리 8~12px. 파스텔 층의 18px 는 너무 말랑하다.
+     ④ 단추에 '눌리는 두꺼운 아래 그림자' 가 없다 — 밝기만 바뀐다.
+   ═══════════════════════════════════════════════════════════════════════════ */
+:root{
+  --rb-bg:   rgba(18,20,24,.62);      /* 판 — 검은 반투명 한 겹 */
+  --rb-bg2:  rgba(18,20,24,.78);      /* 창(팝업) — 조금 더 진하게 */
+  --rb-cell: rgba(255,255,255,.10);   /* 판 안의 칸 */
+  --rb-line: rgba(255,255,255,.12);
+  --rb-line2:rgba(255,255,255,.26);
+  --rb-ink:  #ffffff; --rb-ink2: rgba(255,255,255,.62);
+  --rb-green:#00b06a; --rb-green2:#00c979; --rb-blue:#0099ff; --rb-red:#e2413c; --rb-gold:#ffc832;
+  --rb-r:10px;                         /* 모서리 */
+  --f-cute:'Montserrat','Gothic A1','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+  --f-body:'Montserrat','Gothic A1','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
+  --num:'Montserrat','Gothic A1',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --soft: none;
+  --pk-ink:#fff; --pk-ink2:rgba(255,255,255,.62);
+  --pk-bg:var(--rb-bg); --pk-bg2:var(--rb-bg2);
+  --pk-line:var(--rb-line); --pk-line2:var(--rb-line2);
+  --cream:#fff;
+}
+html,body{font-family:var(--f-body)}
+body{color:var(--rb-ink)}
+/* 28차가 '주아' 를 씌운 자리는 전부 굵은 고딕으로. 가짜 굵게는 그대로 끈다 */
+.btn,.grp button,.popC h2,.popC h3,#titleCard h1,#titleCard .sub,#grpName,.resline,.slot .nm,.sItem .sn,.stIt .sn,#stageTitle .n,#bossName,
+.tag,#kitTabs button,.sItem button,.jobCard .jName,table.rank th,label.f,#dayPhase,#crystalWrap .lb,#bossWrap .lb,#toast,#tmsg,
+#aimInfo,#shopTip,#forgeTip,#farmTip,.kitIt .kn,.mb,#giveWrap button,#potRow button,.gcell,.kCell .kn{
+  font-family:var(--f-cute);font-weight:800;font-synthesis:none;letter-spacing:-.01em}
+
+/* ── 판 ── */
+.pnl{background:var(--rb-bg);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:none;
+  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+.card{background:var(--rb-bg2);border:1px solid var(--rb-line);border-radius:12px;box-shadow:none}
+.popC{background:var(--rb-bg2)!important;border:1px solid var(--rb-line)!important;box-shadow:none!important;color:#fff}
+.popC h2,.popC h3{color:#fff}
+#grpName{color:#fff;background:transparent;box-shadow:none}
+.res{background:var(--rb-cell);border:1px solid var(--rb-line);color:#fff}
+.res.w,.res.s,.res.g,.res.eg,.res.mk,.res.pk{background:var(--rb-cell);border-color:var(--rb-line)}
+.res b{color:#fff}
+#cNum,#hpNum,#hpRow,#stRow,#statRow,#lvRow{color:#fff}
+#hpRow{border-top:1px solid var(--rb-line)}
+#statRow span{background:var(--rb-cell);border:1px solid var(--rb-line);color:#fff}
+#stAtk{color:#ffb37a} #stDef{color:#8ec8ff} #stAmmo{color:var(--rb-gold)}
+#hpBar,#xpBar,#timeBar,#misBar,#cBar,#bBar,#stBar{background:rgba(0,0,0,.42);border:none;box-shadow:none;border-radius:999px;overflow:hidden}
+#hpFill{background:var(--rb-green)} #xpFill{background:var(--rb-blue)}
+#timeFill{background:var(--rb-gold)} #dayBox.night #timeFill{background:#7f9bff}
+#cFill{box-shadow:none} #bFill{background:var(--rb-red);box-shadow:none}
+#cFill:after,#bFill:after,#hpFill:after{background:none}
+#lvChip{background:var(--rb-blue);color:#fff;box-shadow:none;border-radius:6px}
+#lvPts{color:var(--rb-gold)}
+#potRow button{background:var(--rb-cell);border:1px solid var(--rb-line2);color:#fff}
+#dayBox{color:#fff} #tSec{color:var(--rb-ink2)} #dayBox.rush #tSec{color:#ff7b7b}
+/* 순위판 — 이름 왼쪽 · 숫자 오른쪽, 줄마다 판이 아니라 투명 */
+#rankHead{color:var(--rb-ink2)}
+.rkRow{color:#fff;background:transparent}
+.rkRow.me{background:rgba(255,255,255,.12);box-shadow:none;border-radius:6px}
+.rkNo.m1{color:var(--rb-gold)} .rkNo.m2{color:#cfd6e0} .rkNo.m3{color:#d79a63} .rkLv{color:var(--rb-ink2)}
+#crystalWrap .lb,#bossWrap .lb{color:var(--rb-ink2)}
+#bossWrap{border-color:rgba(226,65,60,.5)} #bossName{color:#ff8f8b;text-shadow:none} #bAdds{color:var(--rb-ink2)}
+#misWrap{color:#fff} #misName{color:var(--rb-ink2)} #misNum{color:var(--rb-gold)} #misFill{background:var(--rb-gold)}
+#misWrap.done{border-color:rgba(0,176,106,.55)} #misWrap.done #misNum{color:var(--rb-green2)} #misWrap.done #misFill{background:var(--rb-green)}
+.gcell{background:var(--rb-cell);border:1px solid var(--rb-line);color:#fff}
+.gcell:hover{background:rgba(255,255,255,.18)} .gcell.me{border-color:var(--rb-line2);box-shadow:inset 0 0 0 1px var(--rb-line2)}
+.gcell.warn{background:rgba(255,200,50,.18)} .gcell.bad{background:rgba(226,65,60,.24);border-color:rgba(226,65,60,.5)}
+#grpBar .hint2{color:var(--rb-ink2)}
+#crystalWrap.danger{border-color:rgba(226,65,60,.6)}
+@keyframes cDanger{0%,100%{box-shadow:none}50%{box-shadow:0 0 22px -2px rgba(226,65,60,.7)}}
+#miniWrap{padding:4px} #mini{border-radius:8px}
+
+/* ── 단추 — 눌리는 그림자 없이 밝기만 ── */
+.btn{background:var(--rb-cell);border:1px solid var(--rb-line2);color:#fff;border-radius:var(--rb-r);
+  box-shadow:none;transition:background .1s, transform .06s}
+.btn:hover{background:rgba(255,255,255,.20)}
+.btn:active{transform:translateY(1px);box-shadow:none;background:rgba(255,255,255,.26)}
+.btn.pri{background:var(--rb-green);border-color:rgba(255,255,255,.28);color:#fff;box-shadow:none}
+.btn.pri:hover{background:var(--rb-green2)} .btn.pri:active{box-shadow:none}
+.btn.warn{background:var(--rb-red);border-color:rgba(255,255,255,.28);color:#fff;box-shadow:none}
+.btn:disabled{opacity:.4}
+#topRight2 .btn{background:var(--rb-bg);border-color:var(--rb-line);box-shadow:none}
+#topRight2 .btn:hover{background:rgba(40,44,52,.82)}
+/* 오른쪽 세로줄 단추 — 로블록스는 동그라미가 아니라 **모서리 둥근 사각**이다 */
+#topRight2 .btn.rb{border-radius:12px}
+#topRight2 .btn.rb .kk{background:rgba(0,0,0,.66);color:#fff;box-shadow:none;font-family:var(--num);font-weight:800}
+.grp button{background:var(--rb-cell);border:1px solid var(--rb-line2);color:#fff;border-radius:8px}
+.grp button.on{background:var(--c);border-color:#fff;color:#12141a;box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
+input.f,select.f{background:rgba(0,0,0,.42);border:1px solid var(--rb-line2);color:#fff;border-radius:8px}
+label.f{color:var(--rb-ink2)}
+.tag{border-radius:6px;font-weight:800}
+
+/* ── 핫바 — 칸마다 어두운 반투명, 고른 칸만 흰 테두리 ── */
+.slot{background:var(--rb-bg);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:none;color:#fff}
+.slot.on{border-color:#fff;background:rgba(36,40,48,.82);box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}
+.slot .nm{color:#fff} .slot .ky{color:var(--rb-ink2);opacity:1} .slot .cost{color:var(--rb-ink2)}
+.slot.no .cost{color:#ff8f8b}
+
+/* ── 채팅·알림은 판 없이 흰 글자 + 검은 외곽선 (로블록스 채팅 결) ── */
+#feed{background:none;border:none;box-shadow:none;color:#fff;
+  text-shadow:0 0 3px rgba(0,0,0,.9), 0 1px 2px rgba(0,0,0,.9)}
+#toast{background:var(--rb-bg2);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:none;color:#fff;text-shadow:none}
+#hint{color:var(--rb-ink2)}
+#shopTip,#forgeTip,#farmTip{background:var(--rb-bg2);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:none;color:#fff}
+
+/* ── 시작 화면 — 하늘은 그대로 두고 카드만 로블록스 결로 ── */
+#titleCard h1{text-shadow:0 2px 0 rgba(0,0,0,.35);letter-spacing:-1.5px}
+#titleCard .sub{color:#16331b}
+
+/* ── 창 안쪽(카드·칸·탭)도 어둡게 — 흰 카드만 남으면 창 하나가 두 장으로 읽힌다 ──
+   선생님: "창이 열린 화면이랑 설정 창은 지금 스타일에서 조금만 다듬어주면 될 것 같아" */
+.sItem{background:var(--rb-cell);border:1px solid var(--rb-line);border-radius:10px;box-shadow:none;color:#fff}
+.sItem.own{background:rgba(0,176,106,.20);border-color:rgba(0,176,106,.55)}
+.sItem .sd{color:var(--rb-ink2)} .sItem .sc{color:var(--rb-gold)} .sItem .sn{color:#fff}
+.sItem button{background:rgba(255,255,255,.14);border:1px solid var(--rb-line2);color:#fff;box-shadow:none;border-radius:8px}
+.sItem button.buy{background:var(--rb-green);border-color:rgba(255,255,255,.28);color:#fff;box-shadow:none}
+.sItem button:active{transform:translateY(1px);box-shadow:none}
+.enhOdds{background:rgba(0,0,0,.42)} .enhLv{color:var(--rb-gold)}
+.kitIt{background:var(--rb-cell);border:1px solid var(--rb-line);color:#fff}
+.kitIt.on{background:rgba(255,200,50,.22);border-color:rgba(255,200,50,.6);box-shadow:none}
+.kitIt .kd,.kitIt.on .kd{color:var(--rb-ink2)}
+#kitDoll{background:rgba(0,0,0,.30);border:1px solid var(--rb-line)}
+.kSlot{background:var(--rb-cell);border:1px solid var(--rb-line2);box-shadow:none}
+.kSlot:hover{border-color:var(--rb-gold);background:rgba(255,255,255,.18)} .kSlot.empty{opacity:.45;background:rgba(0,0,0,.28)}
+.kSlot .kTag{color:var(--rb-ink2)}
+#kitTabs button{background:var(--rb-cell);border:1px solid var(--rb-line2);color:#fff;box-shadow:none;border-radius:8px}
+#kitTabs button.on{background:var(--rb-blue);border-color:rgba(255,255,255,.3);color:#fff;box-shadow:none}
+.kCell{background:var(--rb-cell);border:1px solid var(--rb-line);box-shadow:none;border-radius:10px}
+.kCell:hover{border-color:var(--rb-line2);background:rgba(255,255,255,.18);transform:none;box-shadow:none}
+.kCell.on{border-color:var(--rb-green2);background:rgba(0,176,106,.22);box-shadow:none}
+.stIt{background:var(--rb-cell);border:1px solid var(--rb-line);box-shadow:none;color:#fff}
+.stIt .sd{color:var(--rb-ink2)}
+.jobCard{background:var(--rb-cell);border:1px solid var(--rb-line);box-shadow:none;color:#fff}
+table.rank th{color:var(--rb-ink2)} table.rank td{color:#fff}
+.hrow,.sl,.gline,.shopHint,.hint{color:var(--rb-ink2)}
+
+/* ── 27차·28차가 남긴 남보라 결을 마저 덮는다 ── */
+:root{ --ui-bg:var(--rb-bg); --ui-bg2:var(--rb-bg2); --ui-edge:var(--rb-line); --ui-edge2:var(--rb-line2);
+       --panel:var(--rb-bg); --panel3:var(--rb-bg); --line:var(--rb-line); --line2:var(--rb-line2); }
+/* 핫바 바깥 테두리 — 로블록스 핫바는 칸만 있고 **칸을 감싼 큰 판이 없다** */
+#dock{background:none;border:none;box-shadow:none;padding:0;border-radius:0;gap:7px}
+#dockLine{background:rgba(255,255,255,.14)}
+/* 모둠 이름 — 색 띠가 아니라 그 모둠 색 글자 한 줄 */
+#grpName{background:none!important;padding:0;box-shadow:none;color:var(--c,#fff);font-size:13px;letter-spacing:0}
+/* 조작 안내는 왼쪽 아래로 — 28차에 핫바 판 위(가운데)에 얹어 뒀는데,
+   48차에 핫바 판을 없애고 3인칭이 되니 **내 양 얼굴 위에** 글씨가 떴다 */
+#hint{left:14px;right:auto;bottom:14px;transform:none;max-width:38vw;text-align:left;
+  padding:0;text-shadow:0 0 3px rgba(0,0,0,.9);opacity:.5;background:none;border:none;box-shadow:none}
+.res i{background:rgba(0,0,0,.28)}
+#stageTitle .n,#stageTitle .d{text-shadow:0 2px 6px rgba(0,0,0,.6)}
+#combo,#aimInfo{text-shadow:0 0 3px rgba(0,0,0,.9)}
 </style>
 </head>
 <body>
@@ -9202,7 +9357,7 @@ let tagRedraws = 0;                 // 이름표를 다시 그린 횟수 (진단
      이름표는 **그 아이가 화면에 있는 내내** 떠 있다. 그래서 여기가 칭호의 자리다.
    ★ 레벨·칭호가 붙으면 이름이 칸(256px)을 넘칠 수 있어서, 넘치면 글자를 줄여 맞춘다.
      한글 이름 넷에 칭호까지 붙는 제일 나쁜 경우를 t26 이 자로 잰다. */
-const TAG_FONT = w => '900 ' + w + 'px -apple-system, "Noto Sans KR", sans-serif';
+const TAG_FONT = w => '800 ' + w + 'px Montserrat, "Gothic A1", -apple-system, "Noto Sans KR", sans-serif';   // 48차 — 이름표도 로블록스 결
 function setTag(t, text, color, lv, bic){
   const key = text + color + '|' + (lv||0) + '|' + (bic||'');
   if(t.txt === key) return; t.txt = key;
@@ -9442,8 +9597,27 @@ let camGY = null;               // 39차 — 3인칭 카메라가 기준으로 �
    ③ 서바이벌은 그대로 1인칭이다 — 총을 겨누는 판이라 물러나면 조준이 안 맞는다.
    카메라를 뒤로 빼는 장치는 '쓰러졌을 때' 것을 그대로 쓴다. 거리만 다르다. */
 const MINI_CAM = [6.4];         // 0: 장애물 경주 — 뒤 위에서 따라간다(로블록스처럼 내 양과 발판이 같이 보여야 한다). 5.2 는 양이 화면 아래 3분의 1 을 먹었다
-const tpvKind = ()=> (miniOn() && G.mini && G.mini.k === 0) ? 0 : -1;
+/* ═══ 48차 — 로블록스 카메라 ═══
+   선생님: "진짜 로블록스 카메라시점으로 만들자 … 애들이 자기 캐릭터를 다 볼 거니까."
+   47차까지 마을·밤은 1인칭이었다. 그래서 45차에 만든 전직 아바타(날개·대검·망치)도, 46차 꼬리도
+   **자기 것만 안 보였다** — 남의 양에게만 보였다. 이제 늘 3인칭이다.
+   · 휠로 당기고 민다. CAM_MIN 아래로 당기면 1인칭(로블록스도 0.5 스터드에서 1인칭이 된다).
+   · 마우스가 잠겨 있으므로 로블록스 **시프트락** 자세다 — 양이 카메라 쪽을 보고, 카메라는
+     오른쪽 어깨로 CAM_SH 만큼 비킨다. 조준점 아래가 제 몸에 안 가린다(총 게임이 다 이 자세).
+   · 기본 7.2 — 로블록스는 키의 2.5배(12.5/5)지만 우리 시야각(74°)에서 그러면 양이 화면을 다 먹는다.
+     경주에서 6.4 로 맞춰 봤고, 마을은 짓고 캐느라 앞이 더 보여야 해서 조금 더 물러난다. */
+const CAM_FAR = 5.6, CAM_MAX = 12.5, CAM_MIN = 1.6, CAM_SH = 0.62;   // 7.2 로 잡아 봤더니 양이 화면에서 너무 작았다(화면 확인)
+let camZoom = CAM_FAR;
+const tpvKind = ()=> (miniOn() && G.mini && G.mini.k === 0) ? 0 : (camZoom > CAM_MIN ? 1 : -1);
 const tpvOn   = ()=> PL.down || tpvKind() >= 0;
+/* 휠 — 로블록스처럼 한 칸에 1.2칸씩. CAM_MIN 아래로 당기면 1인칭으로 넘어간다(그때 양이 안 그려진다) */
+addEventListener('wheel', (e)=>{
+  if(!G.started || popOpen() || miniOn() && !raceOn()) return;
+  const before = camZoom;
+  camZoom = Math.max(0, Math.min(CAM_MAX, camZoom + Math.sign(e.deltaY)*1.2));
+  if(camZoom > 0 && camZoom < CAM_MIN) camZoom = before > camZoom ? 0 : CAM_MIN;   // 가운데 어중간한 자리는 없다 — 1인칭 아니면 3인칭
+  e.preventDefault();
+}, {passive:false});
 /* ═══ 37차 — 달리기(Shift) ═══
    3초 달리면 스태미나가 비고, 안 달리면 4초에 다시 찬다. 마을에서도 하늘 섬에서도 같다.
    늑대의 쫓는 속도는 안 바꿨다 — 도망은 되지만 '영영 도망' 은 안 된다(3초 뒤엔 걸어야 한다).
@@ -9612,7 +9786,7 @@ function updPlayer(dt){
      흙바닥만 보였다. 무슨 일이 벌어지는지 하나도 안 보이니 "화면이 깨졌다"고 느낀다.
      이제 내 몸 뒤 위쪽에서 내려다본다 — 친구가 나를 일으키러 오는 게 보인다. */
   const tk = tpvKind();
-  const back = PL.down ? DOWN_CAM : tk >= 0 ? MINI_CAM[tk] + fovRun*0.05 : 0;      // 39차 — 달리면 조금 더 물러난다(41차: 0.9 → 0.5, 뒤처짐 0.8 이 더해져서)
+  const back = PL.down ? DOWN_CAM : tk === 1 ? camZoom + fovRun*0.05 : tk >= 0 ? MINI_CAM[tk] + fovRun*0.05 : 0;      // 39차 — 달리면 조금 더 물러난다 · 48차 — 마을은 휠로 정한 거리
   if(back > 0){
     /* ★ 카메라 높이는 **땅** 을 기준으로 잡는다(쓰러졌을 때만 몸을 따라간다).
        줄넘기에서 카메라가 몸을 따라 같이 뜨면, 뛰어도 줄과의 위아래 관계가 화면에서
@@ -9635,12 +9809,17 @@ function updPlayer(dt){
     let d = back;
     /* ★ 40차 — 경주(tk 0)에서는 벽 검사를 안 한다. 하늘 섬 코스는 마을 격자 밖(z > 58)이라 solidTop 이 산 높이 같은 값을 돌려줬고,
        2번 깃발부터 카메라가 1.1 까지 당겨져 "궁뎅이만 보였다". 하늘에 벽은 없다. */
-    if(tk < 0) for(let k=1;k<=6;k++){
+    if(tk !== 0) for(let k=1;k<=6;k++){     // 48차 — 마을(tk 1)도 벽에 막히면 당겨진다. 경주(0)만 건너뛴다(하늘엔 벽이 없다)
       const s = back*k/6;
       const px = tx - dx*s, pz = tz - dz*s, py = ty - dy*s;
       if(py < solidTop(Math.floor(px), Math.floor(pz)) + 0.3){ d = back*(k-1)/6; break; }
     }
-    camera.position.set(tx - dx*Math.max(1.1,d), ty - dy*Math.max(1.1,d), tz - dz*Math.max(1.1,d));
+    /* 48차 — 로블록스 시프트락의 **오른쪽 어깨 비킴**. 카메라를 오른쪽으로 조금 밀면
+       조준점 아래가 제 몸에 안 가린다. 쓰러졌을 때와 경주는 가운데 그대로(볼 것이 몸 자체다). */
+    const sh = (tk === 1 && !PL.down) ? CAM_SH : 0;
+    const sx = Math.cos(PL.yaw)*sh, sz = -Math.sin(PL.yaw)*sh;
+    const dd = Math.max(1.1, d);
+    camera.position.set(tx - dx*dd + sx, ty - dy*dd, tz - dz*dd + sz);
   } else {
     camera.position.set(PL.x, PL.y + PL.EYE + Math.abs(Math.sin(gaitMe))*0.04*runK, PL.z);   // 41차 — 1인칭(마을)도 달리면 머리가 걸음 박자로 흔들린다
   }
@@ -12718,7 +12897,21 @@ const hlMat = new THREE.LineBasicMaterial({color:0xffffff, transparent:true, opa
 const hl = new THREE.LineSegments(hlGeo, hlMat); hl.visible = false; scene.add(hl);
 
 const _fwd = new THREE.Vector3();
-function forward(){ camera.getWorldDirection(_fwd); return _fwd; }
+/* ★ 48차 — 3인칭에서 **조준점이 가리키는 곳**을 겨눈다.
+   카메라가 뒤로 7칸 물러나 있으면, 화면 한가운데(조준점)가 가리키는 방향과
+   양의 눈에서 본 방향이 다르다(시차). 그대로 두면 조준점에 늑대를 올려 놓고 쏴도 빗나간다.
+   그래서 카메라 앞 AIM_CONV 칸에 있는 점(조준점이 실제로 가리키는 자리)을 잡아,
+   **양의 눈에서 그 점으로** 가는 방향을 돌려준다. 총 게임이 다 쓰는 수렴 방식이다.
+   1인칭·쓰러졌을 때는 예전 그대로(카메라가 곧 눈이다). */
+const AIM_CONV = 34;                 // 조준점이 맺히는 거리(칸) — 제일 먼 총 사거리 언저리
+const _aimP = new THREE.Vector3();
+function forward(){
+  camera.getWorldDirection(_fwd);
+  if(PL.down || !tpvOn()) return _fwd;
+  _aimP.copy(camera.position).addScaledVector(_fwd, AIM_CONV);
+  _fwd.set(_aimP.x - PL.x, _aimP.y - (PL.y + PL.EYE), _aimP.z - PL.z).normalize();
+  return _fwd;
+}
 function aimNode(){
   const f = forward(); let best=null, bd=1e9;
   for(const n of NODES){
@@ -16838,7 +17031,7 @@ addEventListener('pointerdown', audioInit, {once:true});
 addEventListener('touchstart', audioInit, {once:true});
 /* 35차 — 글씨체(주아·해바라기)는 창이 다 뜬 뒤에 따로 받는다 — 첫 화면과 load 를 안 막고, 못 받으면(인터넷 없음) 시스템 글꼴 그대로다.
    구글 폰트는 한글을 100여 조각(unicode-range)으로 잘라 쓰는 글자 조각만 내려 주므로 파일 하나에 굽는 것(1MB+)보다 가볍다. */
-const FONT_URL = 'https://fonts.googleapis.com/css2?family=Jua&family=Sunflower:wght@500;700&family=Black+Han+Sans&display=swap';   // 42차 — Black Han Sans: 초읽기 큰 글씨
+const FONT_URL = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Gothic+A1:wght@500;700;800;900&family=Black+Han+Sans&display=swap';   // 48차 — 로블록스 결(Builder Sans 대신 Montserrat + 고딕 A1) · 42차 Black Han Sans: 초읽기 큰 글씨
 function loadFonts(force){
   if(document.getElementById('gfonts')) return;
   /* 검사기에서는 안 받는다 — 샌드박스엔 인터넷이 없어 콘솔에 인증서 오류만 남는다. 검사는 force 로 받는다.
@@ -17625,7 +17818,7 @@ Object.assign(window, {
   __step:(n, dt=1/30)=>{ for(let i=0;i<n;i++){ hostPhase(dt);
       if(G.phase==='night') hostSim(dt); else if(flowDirty){ buildFlow(); flowDirty=false; } } },
   __BAL:BAL, __waveFor:waveFor, __bossDays:bossDays, __prog:prog, __NIGHT_DEF:NIGHT_DEF, __BOSS_MIX:BOSS_MIX, __nightPool:nightPool, __pickNight:pickNight, __nightFor:nightFor, __setNk:(v)=>{ G.nk = v; },
-  __fps:()=>fpsVal, __tagRedraws:()=>tagRedraws, __updTags:()=>updTags(),
+  __fps:()=>fpsVal, __tagRedraws:()=>tagRedraws, __updTags:()=>updTags(), __loadFonts:loadFonts,   // 48차 — 화면찍기에서 글씨체를 억지로 받는다
   __drawSheep:drawSheep, __Pmesh:()=>[P_body,P_puff,P_head,P_frng,P_ear,P_eye,P_nose,P_tail,P_legs], __GHEX:GHEX, __render:()=>renderer.render(scene,camera),
   __rebuild:rebuildStru, __markShapeG:markShape, __struDirtyG:()=>({all:struAllG, g:[...struDirtyG]}),   // 47차 — 모둠별 다시 짓기
   __flowDirty:()=>flowDirty, __flowWait:()=>flowWait, __struLastN:()=>struLastN,                         // 47차 — 낮 길 깔기 모으기 · 지난 다시 짓기 크기
