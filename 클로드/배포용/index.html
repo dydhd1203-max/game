@@ -2672,7 +2672,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '48차 · 로블록스 화면(굵은 고딕 폰트 · 검은 반투명 UI · 바닥에 붙는 핫바 · 3인칭 카메라 + 휠 줌 · 매끈 플라스틱 질감 · 즉시 가속·정지 · 공중 자세 둘) · 47차 경주 골인율 · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 양 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
+const GAME_VER = '48차 · 로블록스 화면(굵은 고딕 폰트 · 검은 반투명 UI · 바닥에 붙는 핫바 · 3인칭 카메라 + 휠 줌 · 매끈 플라스틱 질감 · 즉시 가속·정지 · 로블록스 체공 0.54초(경주는 그대로) · 공중 자세 둘) · 47차 경주 골인율 · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 양 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -9117,7 +9117,10 @@ function drawSheep(list, t, cap, colOf, scale){
     const gs = sheepGait(s, t);                     // 41차 — 간 거리·빠르기 (44차 — 가속도도)
     /* 44차 — 표시용 방향은 목표(s.ry)를 각속도 제한(10rad/s)으로 따라간다: 친구 양은 통신값(초당 6번)이 즉시 꺾여 덜컥거렸고 내 양도 yaw 그대로였다.
        회전 속도(turn)만큼 도는 안쪽으로 몸이 기울고(굴림 훅), 아직 못 돈 각(lead)만큼 머리가 먼저 돈다 */
-    const hd = smoothHead(s, (s.ry||0) + Math.PI, gs.dt || 0.016, 10), life = idleLife(t, s.ph||0);
+    /* ★ 48e — 로블록스 **시프트락**에서는 캐릭터가 카메라 쪽을 **즉시** 본다(AutoRotate 를 끄고 카메라 yaw 를 그대로 쓴다).
+       44차의 10rad/s 는 친구 양의 통신값(초당 6번)이 덜컥거리는 걸 펴려고 넣은 것이다 — 내 양은 통신을 안 거치므로
+       느리게 돌 이유가 없다. 내 양만 26rad/s(반 바퀴 0.12초)로 올린다. 아주 즉시로 두면 몸 기울기(turn)가 튄다. */
+    const hd = smoothHead(s, (s.ry||0) + Math.PI, gs.dt || 0.016, s.me ? 26 : 10), life = idleLife(t, s.ph||0);
     const ry = down ? (s.ry||0) + Math.PI : hd.ry;   // ★ 전방 보정
     const fx = Math.sin(ry), fz = Math.cos(ry);     // 앞
     const rx = Math.cos(ry), rz = -Math.sin(ry);    // 오른쪽
@@ -9495,8 +9498,9 @@ const myRes = ()=> G.res[G.me.g];
 const SHEEP_S = 0.70;
 const PL = { x:0, y:GY, z:0, vy:0, yaw:0, pitch:0, ground:true, R:0.28, EYE:1.12, mv:false,
              hp:100, down:false, biteT:0, hurtFx:0, landT:0 };
-/* 쓰러졌을 때 3인칭으로 보여 줄 '내 몸' — 매 프레임 새로 만들지 않으려고 하나만 둔다 */
-const meSheep = { x:0, y:GY, z:0, ry:0, g:0, hat:0, gls:0, clo:0,
+/* 쓰러졌을 때 3인칭으로 보여 줄 '내 몸' — 매 프레임 새로 만들지 않으려고 하나만 둔다
+   (48차부터는 마을·밤도 3인칭이라 늘 이걸 그린다. me:true 는 '통신을 안 거친 내 양' 표시 — 돌기가 즉시다) */
+const meSheep = { me:true, x:0, y:GY, z:0, ry:0, g:0, hat:0, gls:0, clo:0,
                   down:true, mv:false, ph:1.7 };
 const SHEEP_HP = 100;
 
@@ -9643,13 +9647,28 @@ function placePlayer(){
 
 const KEY = {};
 let mvx=0, mvz=0, wantJump=false, acting=false, throwing=false, rampSeen=false, touchJumpHeld=false;   // 45차 — 태블릿 점프 단추 꾹 누름(활공)
-const STEP = 0.68, SPD = 5.94, GRAV = 26, JUMP = 8.4;   // 45차 — 걷기·달리기 10% 더(5.4 → 5.94). 선생님: "양의 걷기/달리기 속도 10% 더 높여줘"
+const STEP = 0.68, SPD = 5.94;   // 45차 — 걷기·달리기 10% 더(5.4 → 5.94). 선생님: "양의 걷기/달리기 속도 10% 더 높여줘"
+/* ★ 48e — 뜀의 **높이는 그대로 두고 체공만** 로블록스만큼 짧게. (선생님: "계속 로블록스 느낌으로")
+   로블록스 기본값(Humanoid.JumpHeight 7.2스터드 · 중력 196.2 · R6 키 5스터드):
+     높이 = 키의 1.44배 · 체공 2·√(2H/g) = **0.54초**
+   47차까지 우리: 높이 8.4²/(2·26) = 1.357칸 = 키(0.88)의 1.54배 · 체공 2·8.4/26 = **0.646초**
+     → 높이는 거의 같은데 **19% 더 붕 떠 있었다**. 그게 '로블록스가 아닌' 느낌의 나머지 한 조각이다.
+   높이 H 를 지킨 채 체공 T 를 맞추면  g = 8H/T² · v = 4H/T  →  g 36.9 · v 10.02 (2단 12.53).
+   ★ **경주는 예전 값 그대로 둔다.** 체공이 짧아지면 앞으로 가는 거리가 6.29 → 5.29칸이 되는데,
+     코스에서 제일 먼 틈이 4.6칸이라(probe49 로 씨앗 여덟을 지어 재 봤다) 여유가 1.69 → 0.69칸으로 준다.
+     47차가 바로 "애들이 골인을 거의 못 한다" 를 고친 판이다 — 코스를 다시 어렵게 만들지 않는다.
+     경주는 이미 제 빠르기(RACE_SPD 1.64)를 따로 쓰고 있으므로 물리도 따로 두는 게 앞뒤가 맞는다. */
+const GRAV   = 26,   JUMP   = 8.4,   JUMP2_R = 10.5;      // 경주 — 37차에 맞춰 둔 값
+const GRAV_V = 36.9, JUMP_V = 10.02, JUMP2_V = 12.53;     // 마을·밤 — 로블록스 체공(0.54초)
+const gravNow  = ()=> raceOn() ? GRAV  : GRAV_V;
+const jumpNow  = ()=> raceOn() ? JUMP  : JUMP_V;
 /* ★ 33차 — 두 번째 뜀은 더 세게. 선생님: "탑을 업그레이드하면 커져서 2단 점프로 못 넘더라고. 7레벨 타워도 올라가게."
    한 번 뜀 최고 1.36칸(8.4²/2·26), 둘 다 8.4 면 최고 2.71칸. 화살탑 7단계 윗면은 3.55, 오르려면 발이
    윗면 − STEP(0.68) = 2.87 위에 있어야 하는데 딱 맞춰 눌러도 2.71 이라 못 올랐다(5·6단계 3.30 도 아슬아슬).
    두 번째만 10.5 로: 최고 2.12칸을 더 얹어 3.48(늦게 눌러 내려오는 중이어도 ≈3.1) — 7단계 위로 0.2 남는다.
    첫 뜀은 그대로라 담·울타리 넘는 손맛과 줄넘기는 안 바뀐다. */
-const JUMP2 = 10.5;
+const JUMP2 = JUMP2_R;
+const jump2Now = ()=> raceOn() ? JUMP2_R : JUMP2_V;
 const DOWN_CAM = 4.6;           // 쓰러졌을 때 시체에서 물러나는 거리
 let camGY = null;               // 39차 — 3인칭 카메라가 기준으로 삼는 땅 높이(부드럽게 따라간다 · 허공이면 마지막 값)
 /* ★ 20차 — 줄넘기·OX 퀴즈는 3인칭으로 본다.
@@ -9797,7 +9816,7 @@ function updPlayer(dt){
      스페이스는 누를 때마다 한 번(keydown, repeat 아님)이라 한 번 뛰고 또 눌러야 두 번째가 나간다.
      발밑에 흰 구름 한 줌 — 두 번째가 나갔다는 걸 손끝 말고 눈으로도 알게. (37차: 줄넘기 뜀은 줄넘기와 함께 뺐다) */
   const jTier = jobTier(), jMul = JOB_JMP[jTier];                    // 45차 — 전직 날개만큼 더 높이 뛴다
-  const canJump = !PL.down && !raceHold() && (PL.ground || ((PL.jumps|0) < 1 && PL.vy < JUMP*0.92*jMul));
+  const canJump = !PL.down && !raceHold() && (PL.ground || ((PL.jumps|0) < 1 && PL.vy < jumpNow()*0.92*jMul));
   if(wantJump && canJump){
     const second = !PL.ground;                                   // 33차 — 공중에서 한 번 더 = 더 센 뜀(JUMP2)
     /* 42차 — 점프 손맛(선생님: "점프 할 때 아직 밋밋해"). 첫 뜀: 발밑 흙먼지 고리 + 보잉(jump) + 시야 펀치 + 0.12초 용수철 늘어남(takeT).
@@ -9805,10 +9824,10 @@ function updPlayer(dt){
     if(second){ PL.jumps = (PL.jumps|0) + 1; PL.flipT = 0;
       burst(PL.x, PL.y + 0.05, PL.z, 0xfffaf0, 9, 0.9); if(window.__sfx) window.__sfx('hop'); fovPunch(3.2); }
     else { PL.takeT = 0.12; burst(PL.x, PL.y + 0.04, PL.z, 0xe6dccb, 6, 0.55); if(window.__sfx) window.__sfx('jump'); fovPunch(2.0); }
-    PL.vy = (second ? JUMP2 : JUMP) * jMul; PL.ground = false; PL.trailT = 0;
+    PL.vy = (second ? jump2Now() : jumpNow()) * jMul; PL.ground = false; PL.trailT = 0;
   }
   wantJump = false;
-  PL.vy -= GRAV*dt;
+  PL.vy -= gravNow()*dt;
   /* 45차 — 활공(선생님: "점프 두 번째 누를 때 꾹 누르면 살짝 날 수도 있고").
      2단 점프를 쓴 뒤 스페이스를 누르고 있고, 내려가는 중이고, 남은 활공 시간이 있으면 떨어지는 빠르기를 GLIDE_VY 로 묶는다.
      손을 떼면 그 순간 다시 떨어지고, 땅을 밟으면 시간이 다시 찬다. 날개는 쫙 펴진 채 천천히 흔들린다(drawSheep 이 s.glide 를 본다). */
@@ -18103,7 +18122,7 @@ Object.assign(window, {
   __HB:()=>[HB_BG, HB_FG], __drawWolfHP:drawWolfHP,
   __dnums:()=>dnums, __popDmg:popDmg, __dnTick:dnTick,
   __setCrit:(p)=>{ critForce = p; },
-  __wantJump:()=>{ wantJump = true; }, __STEP:STEP, __JUMP:JUMP, __JUMP2:JUMP2 /* 33차 t31 */, __setThrowCd:(v)=>{ throwCd = v; }, __NODE_DEF:NODE_DEF, __THROW_CD:THROW_CD,
+  __wantJump:()=>{ wantJump = true; }, __STEP:STEP, __JUMP:JUMP, __JUMP2:JUMP2 /* 33차 t31 */, __GRAVV:GRAV_V, __JUMPV:JUMP_V, __JUMP2V:JUMP2_V, __gravNow:gravNow, __jumpNow:jumpNow /* 48e */, __setThrowCd:(v)=>{ throwCd = v; }, __NODE_DEF:NODE_DEF, __THROW_CD:THROW_CD,
 
 
   __feed:feed, __paintHUD:paintHUD, __toast:toast, __stage:showStage, __KEY:KEY, __rampCells:rampCells, __solidTop:solidTop,
