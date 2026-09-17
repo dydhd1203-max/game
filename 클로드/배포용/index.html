@@ -2672,7 +2672,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '48차 · 로블록스 화면(굵은 고딕 폰트 · 검은 반투명 UI · 바닥에 붙는 핫바 · 3인칭 카메라 + 휠 줌 · 매끈 플라스틱 질감 · 즉시 가속·정지 · 로블록스 체공 0.54초(경주는 그대로) · 공중 자세 둘) · 47차 경주 골인율 · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 양 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
+const GAME_VER = '48차 · 로블록스 화면(굵은 고딕 폰트 · 검은 반투명 UI · 바닥에 붙는 핫바 · 3인칭 카메라 + 휠 줌 · 플라스틱 광택 · 매끈 질감 · 즉시 가속·정지 · 로블록스 체공 0.54초(경주는 그대로) · 공중 자세 둘) · 47차 경주 골인율 · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 양 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -3043,8 +3043,21 @@ const matC = (hex)=> new THREE.MeshLambertMaterial({map:ATLAS, color:hex});
    픽셀이 MeshStandardMaterial(GGX 반사·에너지 보존·조명마다 BRDF)로 칠해지고 있었다. 로블록스 룩은 확산광이면 충분하고,
    Lambert 는 r155 부터 픽셀 조명이라 결(grain)·안개·꼭짓점 색이 다 그대로 먹는다. 픽셀당 값이 크게 준다.
    roughness/metalness 는 Lambert 에 없으니 버린다. 수정 보석(반투명·발광)만 pbrMat 으로 남긴다(t32 가 그 재질을 본다). */
+/* ★ 49차 — **로블록스 플라스틱 광택**. (선생님: "특히 그래픽이 로블록스같아야해")
+   찾아보니 로블록스 기본 재질은 Plastic 이고, 스타일리시한 게임이 쓰는 SmoothPlastic 은
+   "매우 반사적(very reflective)" 이다 — 즉 **표면에 하이라이트가 있다**.
+   34차에 Standard → Lambert 로 내리면서 반사광이 통째로 사라졌고, 그래서 우리 세계는
+   종이처럼 납작했다. 그게 '로블록스가 아닌' 느낌의 마지막 조각이다.
+   ★ Phong 은 Standard(GGX·에너지 보존·조명마다 BRDF)보다 훨씬 싸다 — 직사광 하나에
+     normalize·dot·pow 몇 개가 더해질 뿐이다. 그래도 26차 교실 실측이 "픽셀 쪽이 병목" 이었으므로
+     **'부드럽게'(low) 에서는 예전 Lambert 그대로** 둔다. 교실에서 끊기면 ?gfx=low 가 비상구다.
+   ★ 값 — specular 0x2b2b2b(17%) · shininess 28. 로블록스 SmoothPlastic 보다 얌전하게 잡았다:
+     꽉 채우면 온 세계가 젖은 것처럼 번들거린다(장난감 플라스틱은 그 정도로 반짝이지 않는다). */
+const RB_SPEC = 0x2b2b2b, RB_SHINE = 28;
 const flatMat = (hex, o)=>{ const q = Object.assign({color:hex}, o||{}); delete q.roughness; delete q.metalness;
-  return new THREE.MeshLambertMaterial(q); };
+  if(GFX.q === 'low') return new THREE.MeshLambertMaterial(q);
+  q.specular = new THREE.Color(RB_SPEC); q.shininess = RB_SHINE;
+  return new THREE.MeshPhongMaterial(q); };
 const pbrMat  = (hex, o)=> new THREE.MeshStandardMaterial(Object.assign({color:hex, roughness:0.70, metalness:0}, o||{}));
 /* ═══ 28차 — 타일 하나하나의 원색 (26차b 에 아틀라스에서 잰 평균색, 장난감답게 조금 밝힘) ═══
    손에 든 도구·아이콘·떨어진 산물·상자가 이 표를 본다. 텍스처 타일 번호를 그대로 색으로 바꾼다. */
@@ -3193,6 +3206,7 @@ const GFX_PICK = (()=>{ try{ const v = localStorage.getItem('gfxPick'); return G
 const GFX_Q = new URLSearchParams(location.search).get('gfx')
            || GFX_PICK || (window.DEFAULTS||{}).gfx || 'mid';
 const GFX = Object.assign({}, GFX_PRESET[GFX_Q] || GFX_PRESET.high);
+GFX.q = GFX_PRESET[GFX_Q] ? GFX_Q : 'high';      // 49차 — 고른 이름도 들고 있는다(flatMat 이 '부드럽게'면 광택을 끈다)
 if(new URLSearchParams(location.search).get('bloom') === '1') GFX.bloom = 1;
 /* ★ 26차b — 교실에서 파일을 안 바꾸고 한 판씩 견주는 손잡이.
      ?aa=0|2|4   ?pr=0.75|1|1.5   ?shadow=0|1024|2048   (?gfx= 와 같이 써도 된다, 이게 이긴다)
