@@ -1928,9 +1928,12 @@ label.f{font-size:14px} .hint{font-size:13px} #hint{font-size:13px} #feed{font-s
      ④ 단추에 '눌리는 두꺼운 아래 그림자' 가 없다 — 밝기만 바뀐다.
    ═══════════════════════════════════════════════════════════════════════════ */
 :root{
-  --rb-bg:   rgba(18,20,24,.62);      /* 판 — 검은 반투명 한 겹 */
-  --rb-bg2:  rgba(18,20,24,.78);      /* 창(팝업) — 조금 더 진하게 */
-  --rb-cell: rgba(255,255,255,.10);   /* 판 안의 칸 */
+  /* ★ 48차b 교차검증 — 로블록스 Core-Scripts 실측값에 맞춘다:
+       칸 배경 rgb(49,49,49) 투명도 0.50 · 바탕판 rgb(31,31,31)/0.50 · 칸 테두리 0px.
+     색이 **푸른 기 없는 중성 회색**이다. 첫 판의 rgba(18,20,24) 는 푸른 기가 돌았다. */
+  --rb-bg:   rgba(26,26,26,.62);      /* 판 — 검은 반투명 한 겹 (rgb 31 계열) */
+  --rb-bg2:  rgba(22,22,22,.80);      /* 창(팝업) — 조금 더 진하게 */
+  --rb-cell: rgba(49,49,49,.50);      /* 판 안의 칸 — 로블록스 SLOT_DRAGGABLE_COLOR 그대로 */
   --rb-line: rgba(255,255,255,.12);
   --rb-line2:rgba(255,255,255,.26);
   --rb-ink:  #ffffff; --rb-ink2: rgba(255,255,255,.62);
@@ -1951,7 +1954,7 @@ body{color:var(--rb-ink)}
 .btn,.grp button,.popC h2,.popC h3,#titleCard h1,#titleCard .sub,#grpName,.resline,.slot .nm,.sItem .sn,.stIt .sn,#stageTitle .n,#bossName,
 .tag,#kitTabs button,.sItem button,.jobCard .jName,table.rank th,label.f,#dayPhase,#crystalWrap .lb,#bossWrap .lb,#toast,#tmsg,
 #aimInfo,#shopTip,#forgeTip,#farmTip,.kitIt .kn,.mb,#giveWrap button,#potRow button,.gcell,.kCell .kn{
-  font-family:var(--f-cute);font-weight:800;font-synthesis:none;letter-spacing:-.01em}
+  font-family:var(--f-cute);font-weight:700;font-synthesis:none;letter-spacing:-.01em}   /* 48차b — 로블록스 Builder Sans 는 UI 에 Medium/SemiBold 를 쓴다. 800 은 너무 굵었다 */
 
 /* ── 판 ── */
 .pnl{background:var(--rb-bg);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:none;
@@ -2014,13 +2017,17 @@ label.f{color:var(--rb-ink2)}
 .tag{border-radius:6px;font-weight:800}
 
 /* ── 핫바 — 칸마다 어두운 반투명, 고른 칸만 흰 테두리 ── */
-.slot{background:var(--rb-bg);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:none;color:#fff}
-.slot.on{border-color:#fff;background:rgba(36,40,48,.82);box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}
+/* 로블록스 핫바 칸은 **테두리가 없다**(BorderSizePixel = 0). 고른 칸만 흰 테두리가 생긴다 */
+.slot{background:rgba(49,49,49,.50);border:1px solid transparent;border-radius:var(--rb-r);box-shadow:none;color:#fff}
+.slot.on{border-color:#fff;background:rgba(58,58,58,.78);box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)}
 .slot .nm{color:#fff} .slot .ky{color:var(--rb-ink2);opacity:1} .slot .cost{color:var(--rb-ink2)}
 .slot.no .cost{color:#ff8f8b}
 
 /* ── 채팅·알림은 판 없이 흰 글자 + 검은 외곽선 (로블록스 채팅 결) ── */
 #feed{background:none;border:none;box-shadow:none;color:#fff;
+  text-shadow:0 0 3px rgba(0,0,0,.9), 0 1px 2px rgba(0,0,0,.9)}
+/* 줄마다 씌운 크림색 판도 벗긴다 — 로블록스 채팅은 판이 없다(28차에 씌운 것) */
+#feed div{background:none;border:none;border-left:none;box-shadow:none;color:#fff;padding:1px 0;
   text-shadow:0 0 3px rgba(0,0,0,.9), 0 1px 2px rgba(0,0,0,.9)}
 #toast{background:var(--rb-bg2);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:none;color:#fff;text-shadow:none}
 #hint{color:var(--rb-ink2)}
@@ -3359,7 +3366,7 @@ heldLight.position.set(0.55, 0.15, -0.25);
        1.06   100.8   53.5   53.1
 
      밝기를 25차 전과 맞추는 쪽을 골랐다. 어두우면 아이가 늑대를 못 본다. */
-const hemi = new THREE.HemisphereLight(0xcfe8ff, 0x5a7a4a, 0.95); scene.add(hemi);   // 48차 — 0.75 → 0.95 (로블록스 OutdoorAmbient 처럼 그늘을 옅게)
+const hemi = new THREE.HemisphereLight(0xdfe6ec, 0x5a7a4a, 0.95); scene.add(hemi);   // 48차b — 로블록스 OutdoorAmbient 는 **중성 회색(127,127,127)** 이다. 파란 하늘빛(0xcfe8ff)을 그만큼 올리면 풀색이 바랜다 → 색을 중성으로 낮추고 세기는 0.95
 const sun  = new THREE.DirectionalLight(0xffffff, 1.15); sun.position.set(50,90,30); scene.add(sun);
 const amb  = new THREE.AmbientLight(0xffffff, 0.30); scene.add(amb);
 
@@ -9589,6 +9596,10 @@ function placePlayer(){
   const [x,z] = spawnPoint(G.me.g);
   PL.x = x; PL.z = z; PL.y = groundUnder(x,z,PL.R); PL.vy = 0;
   PL.yaw = Math.atan2(x, z);   // 카메라 정면은 (-sin,-cos) — 수정 쪽을 보게
+  /* ★ 48차b — 로블록스 카메라는 캐릭터를 **살짝 내려다본다**(대략 −10°).
+     수평으로 보면 양(키 0.88칸)이 카메라 높이(1.02)보다 아래라 화면 밑으로 처져서 핫바에 가린다.
+     여기서 한 번만 놓아 주고, 그 뒤엔 아이가 마우스로 마음대로 본다. */
+  PL.pitch = -0.17;
 }
 
 const KEY = {};
@@ -9620,7 +9631,16 @@ const MINI_CAM = [6.4];         // 0: 장애물 경주 — 뒤 위에서 따라�
      오른쪽 어깨로 CAM_SH 만큼 비킨다. 조준점 아래가 제 몸에 안 가린다(총 게임이 다 이 자세).
    · 기본 7.2 — 로블록스는 키의 2.5배(12.5/5)지만 우리 시야각(74°)에서 그러면 양이 화면을 다 먹는다.
      경주에서 6.4 로 맞춰 봤고, 마을은 짓고 캐느라 앞이 더 보여야 해서 조금 더 물러난다. */
-const CAM_FAR = 5.6, CAM_MAX = 12.5, CAM_MIN = 1.6, CAM_SH = 0.62;   // 7.2 로 잡아 봤더니 양이 화면에서 너무 작았다(화면 확인)
+/* ★ 48차b 교차검증 — 로블록스 실제 값으로 다시 잡았다.
+     로블록스: 캐릭터 키 5스터드를 12.5스터드에서 본다 = **키의 2.5배**. 시야각 70° 에서
+     캐릭터가 화면 세로의 약 29% 를 먹는다(2·atan(2.5/12.5) = 22.6° ÷ 70°).
+     우리 양 키 = SHEEP_S 0.70 × u1.25 = 0.88칸. 같은 29% 면 2.1칸인데, 양은 네 발이라
+     같은 높이여도 가로를 훨씬 넓게 먹으므로 2.8칸(약 23%)에서 멈춘다.
+     첫 판의 5.6칸은 화면에서 재 보니 11% — 로블록스의 3분의 1이었다.
+     어깨 비킴 — 로블록스 시프트락은 1.75스터드를 12.5에서 보므로 화면 세로의 10% 만큼 비낀다.
+     우리는 조준점을 쓰는 게임이라 그 정도로는 양이 조준점 아래에 반쯤 걸린다. 0.62칸(화면 16%)이면
+     양이 왼쪽으로 확실히 비켜 조준점이 깨끗하다. */
+const CAM_FAR = 2.8, CAM_MAX = 12.5, CAM_MIN = 1.6, CAM_SH = 0.62;
 let camZoom = CAM_FAR;
 const tpvKind = ()=> (miniOn() && G.mini && G.mini.k === 0) ? 0 : (camZoom > CAM_MIN ? 1 : -1);
 const tpvOn   = ()=> PL.down || tpvKind() >= 0;
@@ -9652,9 +9672,10 @@ function jobTier(){ return (miniOn() || XP.job < 0) ? 0 : Math.max(0, Math.min(2
 const RACE_SPD = 1.64;                      // 42차 — 경주에서만 걷기·달리기 1.8배(선생님: "50%는 더 빠르게… 평상시는 지금 속도로" → "양 속도 20% 더"). 걸음 박자는 1.4배만 빨라진다
 let stamina = 1, sprinting = false, touchRun = false, runDustT = 0;
 /* 41차 — 가속 7/s(0.14초에 63%) · 감속 22/s. 내 걸음 위상(gaitMe — 발소리·카메라·양 그리기가 같은 박자)
-   ★ 48차 — **로블록스는 가속 곡선이 없다.** 휴머노이드는 누르면 그 순간 WalkSpeed 고 떼면 그 자리에 선다.
-     41차의 0.14초 붙기가 '로블록스가 아닌' 느낌의 큰 부분이었다(선생님: "모션 좀 진짜 로블록스처럼").
-     40/s 면 0.025초 — 사실상 즉시인데, 한 프레임에 뚝 끊기지는 않아서 걸음 위상·먼지가 튀지 않는다.
+   ★ 48차 — 로블록스만큼 즉시 붙게. (첫 판에 "로블록스는 가속 곡선이 없다" 고 적었는데 **그건 틀렸다** —
+     찾아보니 약 700 스터드/초² 의 가속 상수가 있다. 다만 WalkSpeed 16 이면 16/700 = **0.023초**라 사실상 즉시다.)
+     우리 ACC 40 은 SPD 5.94 에서 초기 가속 40 × 5.94 = 238칸/초² → 0.025초. 숫자가 거의 그대로 맞는다.
+     41차의 7/s(0.14초)는 로블록스보다 여섯 배 느렸다 — 그게 '로블록스가 아닌' 느낌의 큰 부분이었다.
      발 미끄러짐은 41차 그대로 안 생긴다 — 걸음 박자가 시간이 아니라 **간 거리**에 묶여 있어서
      속도가 어떻게 붙든 발이 땅을 미는 양과 몸이 나가는 양이 같다. */
 const ACC_UP = 40, ACC_DOWN = 40;
@@ -9821,7 +9842,12 @@ function updPlayer(dt){
     let gy = PL.down ? PL.y - 0.6 : groundUnder(PL.x, PL.z, PL.R);
     if(gy < -900 || gy < PL.y - 12) gy = camGY === null ? PL.y : camGY;
     camGY = camGY === null ? gy : camGY + (gy - camGY) * Math.min(1, dt*9);
-    const ty = PL.down ? PL.y + 0.95 : camGY + 1.55 - runK*0.30 + Math.sin(gaitMe)*0.025*runK - camDip;   // 41차 — 달리면 0.3 낮게(발밑이 크게 흐른다) + 걸음 박자 흔들림 · 42차 착지 내려앉음
+    /* ★ 48차b — 이 높이가 **화면 한가운데에 오는 세계 높이**다(카메라가 이 점을 축으로 공전한다).
+       로블록스는 캐릭터 몸통을 화면 한가운데에 둔다. 우리 양 몸통 가운데는 0.42칸(u 0.6 × SHEEP_S 0.70).
+       1.55 로 두면 양 머리(0.88)보다 한참 위를 보게 되어 양이 화면 아래로 처지고 핫바에 가린다 —
+       화면을 두 번 찍어 보고 0.55 로 내렸다. 경주(tk 0)는 발판이 같이 보여야 해서 1.55 그대로. */
+    const look = (tk === 1 && !PL.down) ? 0.55 : 1.55;
+    const ty = PL.down ? PL.y + 0.95 : camGY + look - runK*0.30 + Math.sin(gaitMe)*0.025*runK - camDip;   // 41차 — 달리면 0.3 낮게(발밑이 크게 흐른다) + 걸음 박자 흔들림 · 42차 착지 내려앉음
     const cp = Math.cos(PL.pitch);
     const dx = -Math.sin(PL.yaw)*cp, dy = Math.sin(PL.pitch), dz = -Math.cos(PL.yaw)*cp;
     /* 벽·산을 뚫고 나가지 않게, 막히기 직전까지만 물러난다 */
@@ -17160,13 +17186,20 @@ function updSky(dt, night){
      2.8% 는 아이 눈에 안 보이는 차이고, 그만큼 밤 기분은 낫다. 더 맞추는 건 과한 손질이다.
 
      낮은 처음부터 옛 판과 같았다(96.0 vs 96.8). 바뀐 것은 그늘의 진하기지 밝기가 아니다. */
-  /* ★ 48차 — 로블록스 결: 해를 낮추고 하늘빛·환경광을 올려 **전체 밝기는 그대로 두고 그늘만 옅게** 한다.
-     합은 거의 같다(낮 0.75+1.15+0.30 = 2.20 → 0.95+0.85+0.40 = 2.20). 바뀌는 것은 그늘의 진하기다. */
-  hemi.intensity = (0.95 - skyK*0.09) * LIT_K;
+  /* ★ 48차b 교차검증 — 로블록스 Lighting 은 Ambient (0,0,0) 이지만 **OutdoorAmbient 가 (127,127,127)** 이다.
+     즉 바깥에서는 그늘도 흰빛의 절반을 받는다 — 그늘/빛 밝기 비가 약 0.5.
+     우리는 47차 0.25 → 48차 첫 판 0.33 이었다. 해를 더 낮추고 하늘빛·환경광을 더 올려 **0.44** 까지 간다.
+       낮 합 : 0.95 + 0.62 + 0.62 = 2.19 (47차 2.20 과 거의 같다 — 전체 밝기는 안 바뀐다)
+       그늘  : 0.62 + 0.95×0.44(땅색 밝기) = 1.04 → 1.04/2.19 = **0.47** (로블록스 0.5)
+     하늘빛을 파란색으로 세게 올리면 그늘은 옅어지지만 풀·나무 색이 바랜다(화면에서 보였다).
+     로블록스의 OutdoorAmbient 는 중성 회색이므로, 파란 하늘빛은 도로 낮추고 **흰 환경광(amb)** 으로 옮겼다.
+     ★ 밤은 47차 어둠을 지킨다 — skyK 기울기를 다시 잡아 밤 합이 1.26 → 1.24 로 같다.
+       (안 그러면 그늘을 옅게 한 만큼 밤도 같이 밝아져서 밤이 밤 같지 않게 된다) */
+  hemi.intensity = (0.95 - skyK*0.34) * LIT_K;
   sun.color.copy(SUN_D).lerp(SUN_N, skyK);
   /* 밤에도 달빛 그림자는 남긴다 — 낮에만 그림자가 있으면 밤이 평평해 보인다. */
-  sun.intensity = (0.85 - skyK*0.62) * LIT_K;      // 48차 — 1.15 → 0.85
-  amb.intensity = (0.40 - skyK*0.03) * LIT_K;      // 48차 — 0.30 → 0.40
+  sun.intensity = (0.62 - skyK*0.45) * LIT_K;      // 48차b — 1.15 → 0.62
+  amb.intensity = (0.62 - skyK*0.26) * LIT_K;      // 48차b — 0.30 → 0.62 (흰 환경광 — 색을 안 바래게 하면서 그늘만 옅게)
   cloudMat.color.setScalar(1-skyK*0.66);
 }
 let skyK = 0;
@@ -17229,7 +17262,7 @@ function shake(power, sec){ shakeP = power; shakeT = Math.max(shakeT, sec); }
 const SH_HZ = 15; let shAcc = 1;                 // 34차 — 그림자 지도 갱신 빈도 (첫 프레임엔 바로)
 /* ★ 33차 타격감 — 쏠 때 시야가 살짝 넓어졌다 돌아온다(FOV 펀치). 흔들림은 자리가 떨리는 것이고 이건 '밀리는' 느낌이다.
    지수 감쇠라 dt 에 안 흔들린다. 4° 를 넘지 않는다 — 조준선은 그대로(forward 는 방향만 읽는다). */
-const FOV0 = 74; let fovKick = 0, fovRun = 0, windT = 0;
+const FOV0 = 70; let fovKick = 0, fovRun = 0, windT = 0;   // 48차 — 로블록스 Camera.FieldOfView 기본값이 70 이다(74 였다)
 function fovPunch(k){ fovKick = Math.min(4, fovKick + k); }
 function fovTick(dt){
   /* 37차 — 달리면 시야가 넓어진다(39차: +6 → +10) — 속도감. 화면 가장자리 속도선(#speedFx)과 바람 소리도 같이 */
