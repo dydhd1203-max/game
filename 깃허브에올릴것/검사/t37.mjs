@@ -582,12 +582,23 @@ const geo47 = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   const P = W.__Pmesh();
   o.eye = triOf(P[3].geometry); o.nose = triOf(P[4].geometry);
   o.leg = triOf(P[5].geometry); o.head = triOf(P[1].geometry);
+  /* ★ 51차f — **머리는 상자가 아니라 세운 원통이다.** 제일 먼 꼭짓점의 가로 거리(rMax)와
+     가로축 끝(xMax)을 견준다 — 원통은 둘이 같고(1.00), 상자는 귀퉁이가 √2 배 멀어 1.41 이 된다. */
+  { const pos = P[1].geometry.attributes.position; let rMax = 0, xMax = 0;
+    for(let i=0;i<pos.count;i++){
+      rMax = Math.max(rMax, Math.hypot(pos.getX(i), pos.getZ(i)));
+      xMax = Math.max(xMax, Math.abs(pos.getX(i))); }
+    o.headR = [+(rMax/xMax).toFixed(3), pos.count]; }
   let tot = 0; for(const m of P){ if(m && m.count) tot += m.count*triOf(m.geometry); }
   o.tot = tot;
   G.players.delete('t47'); return o; });
 ok('★ 47차 — 눈알·볼은 잔 공(8×6)이고 팔다리는 작은 둥근 상자다. 머리처럼 눈에 띄는 것은 그대로 곱다',
-   geo47.eye <= 96 && geo47.nose <= 96 && geo47.leg <= 120 && geo47.head >= 240,
+   geo47.eye <= 96 && geo47.nose <= 96 && geo47.leg <= 120 && geo47.head >= 150,
    `눈 ${geo47.eye} · 볼 ${geo47.nose} · 팔다리 ${geo47.leg} · 머리 ${geo47.head} 삼각형`);
+/* ★ 51차f — 선생님: "얼굴은 직사각형이 아니라 원통이어야 돼." 허리 높이 단면이 동그라미인지 잰다 —
+   상자였다면 귀퉁이가 √2 배(약 1.41배) 멀어 들쭉날쭉이 41% 가 된다. 원통이면 1% 안이다. */
+ok('★ 51차f — 머리는 상자가 아니라 **세운 원통**이다 (제일 먼 꼭짓점 / 가로축 끝 = 1.0 — 상자면 1.41)',
+   geo47.headR[0] < 1.05, `먼 꼭짓점 ÷ 가로축 끝 = ${geo47.headR[0]} · 꼭짓점 ${geo47.headR[1]}개`);
 ok('★ 51차 — 사람 한 명의 부위 삼각형이 4천 아래다 (46차 7,296 · 47차 5천 아래 — R6 은 부위가 더 적다)',
    geo47.tot < 4000, `한 명 ${geo47.tot} 삼각형`);
 
