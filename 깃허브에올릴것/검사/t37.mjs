@@ -433,7 +433,7 @@ const v46 = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, T3=W.__THREE, o={
   const f = {uid:'t46', x:PL.x, z:PL.z + 4, y:PL.y, ry:0, g:1, ph:0, hat:0, gls:0, clo:0, wp:0, we:0, jb:-1, jt:0, mv:false};
   G.players.set('t46', f); W.__smoothHead(f, 0, 1, 100); W.__smoothHead(f, 0, 1, 100);
   W.__drawSheep([f], 3.0, 40, s=>0x4060a0, 1);
-  const P = W.__Pmesh(), body = P[0], head = P[1], arm = P[3], legs = P[6];
+  const P = W.__Pmesh(), body = P[0], head = P[1], arm = P[2], legs = P[5];   // 51차d — 앞머리 메시가 빠져 여섯이다
   o.armN = arm.count; o.legN = legs.count;
   const m = new T3.Matrix4(), p = new T3.Vector3(), q = new T3.Quaternion(), sc = new T3.Vector3();
   const axs = [];
@@ -575,8 +575,8 @@ const geo47 = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   G.players.set('t47', f); W.__smoothHead(f, 0, 1, 100);
   W.__drawSheep([f], 3.0, 40, s=>0x4060a0, 1);
   const P = W.__Pmesh();
-  o.eye = triOf(P[4].geometry); o.nose = triOf(P[5].geometry);
-  o.leg = triOf(P[6].geometry); o.head = triOf(P[1].geometry);
+  o.eye = triOf(P[3].geometry); o.nose = triOf(P[4].geometry);
+  o.leg = triOf(P[5].geometry); o.head = triOf(P[1].geometry);
   let tot = 0; for(const m of P){ if(m && m.count) tot += m.count*triOf(m.geometry); }
   o.tot = tot;
   G.players.delete('t47'); return o; });

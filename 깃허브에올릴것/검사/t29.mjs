@@ -34,7 +34,8 @@ await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
   ok('미리보기가 있다', !!r);
   ok('★ 미리보기 조각에 무늬(텍스처)가 없다', r && r.noMap);
   ok('★ 미리보기 조각이 둥글다 (꼭짓점이 상자 24개보다 많다)', r && r.round);
-  ok('★ 51차b — 미리보기 몸 조각이 스물넷이다 (몸통·머리·베이컨 머리 아홉·눈 둘·입·팔 둘·소매 둘·다리 둘·신발 둘·재킷 둘)', r && r.n === 24, r && r.n);
+  ok('★ 51차d — 미리보기 몸 조각이 아홉이다 (몸통·머리·눈 둘·입·팔 둘·다리 둘)\n    — 베이컨 머리는 모자 표로 갔고, 검은 재킷·소매·신발은 통째로 빠졌다(옷은 모둠 색 하나다)',
+     r && r.n === 9, r && r.n);
 }
 
 await pg.fill('#iName','검'); await pg.click('#bSolo');
@@ -78,7 +79,7 @@ await frames(pg, 3);
     const W=window, T=W.__THREE, GY=W.__GY, cam=W.__cam, o={};
     const list=[{x:0,z:14,y:GY,ry:Math.PI,g:0,mv:false,ph:0},{x:2,z:14,y:GY,ry:Math.PI,g:1,mv:false,ph:1}];
     W.__drawSheep(list, 1.0, 40, s=>W.__GHEX[s.g], 0.70);
-    const [body, head, hair, arm, eye, nose, legs] = W.__Pmesh();
+    const [body, head, arm, eye, nose, legs] = W.__Pmesh();
     o.사람 = body.count; o.팔 = arm.count; o.다리 = legs.count;
     /* 카메라를 사람 앞에 세우고 바로 그린다 — 다음 프레임엔 updPlayer 가 카메라를 되돌린다.
        ★ 49차e — **게임 고리를 세우고 두 번 그린다.** 44차 모션(smoothHead)은 앞 프레임 방향에서
