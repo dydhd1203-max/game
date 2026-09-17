@@ -77,7 +77,12 @@ const out = await pg.evaluate(async ()=>{
   W.__updPlayer(0.016);
   const eye1 = Math.hypot(W.__cam.position.x-PL.x, W.__cam.position.y-(PL.y+1.12),
                           W.__cam.position.z-PL.z);
-  ok('살아 있으면 1인칭 (카메라가 내 눈)', eye1 < 0.05, eye1.toFixed(3));
+  /* ★ 48차 — 마을·밤도 **3인칭**이 됐다(로블록스 시프트락). 47차까지는 여기가 1인칭이라
+     45차 전직 아바타도 46차 방울 꼬리도 자기 것만 안 보였다. 휠을 끝까지 당기면 1인칭으로 간다.
+     그래서 이제 볼 것은 '눈에 붙어 있나' 가 아니라 **뒤로 CAM_FAR(2.8)칸쯤 물러나 있나** 다. */
+  const far1 = Math.hypot(W.__cam.position.x-PL.x, W.__cam.position.z-PL.z);
+  ok('★ 48차 — 살아 있을 때 마을은 3인칭이다 (카메라가 뒤로 2.8칸쯤, 어깨로 조금 비껴)',
+     eye1 > 1.5 && eye1 < 4.5 && far1 > 1.0, '눈에서 '+eye1.toFixed(2)+' · 가로 '+far1.toFixed(2));
   PL.hp = 0; W.__goDown();
   W.__KEY[' '] = false;
   const y0 = PL.y;

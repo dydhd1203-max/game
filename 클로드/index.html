@@ -2068,7 +2068,11 @@ label.f{color:var(--rb-ink2)}
 .slot.on .ky{opacity:1;background:rgba(0,0,0,.55)}
 body:not(.touch) .slot.tool{width:60px;min-width:60px;height:80px;padding:6px 3px 5px;justify-content:center;gap:3px}
 body:not(.touch) .slot.tool .ic{font-size:21px;height:28px} body:not(.touch) .slot.tool .ic img.ic{height:26px} body:not(.touch) .slot.tool .nm{font-size:10px}
-@media (max-width:820px){ .slot,body:not(.touch) .slot.tool{width:54px;min-width:54px;height:76px} .slot .ic{font-size:18px} .slot .nm{font-size:9.5px} }
+@media (max-width:820px){ .slot,body:not(.touch) .slot.tool{width:54px;min-width:54px;height:76px} .slot .ic{font-size:18px} .slot .nm{font-size:9.5px}
+  /* ★ 49차e — 작은 태블릿(820×500)에서 값 알약이 칸 밖으로 2px 삐져나왔다(돌벽 🪵1, t8 이 잡았다).
+     칸이 60 → 54px 로 줄었는데 값 글자와 좌우 여백은 그대로였다. 여기만 한 칸씩 줄인다. */
+  .slot{padding-left:2px;padding-right:2px} .slot .cost{font-size:8px;gap:0 2px}
+  .slot .cost span{padding:1.5px 4px} }
 .slot .nm{color:#fff} .slot .ky{color:var(--rb-ink2);opacity:1} .slot .cost{color:var(--rb-ink2)}
 .slot.no .cost{color:#ff8f8b}
 
@@ -2122,8 +2126,11 @@ table.rank th{color:var(--rb-ink2)} table.rank td{color:#fff}
 /* 모둠 이름 — 색 띠가 아니라 그 모둠 색 글자 한 줄 */
 #grpName{background:none!important;padding:0;box-shadow:none;color:var(--c,#fff);font-size:13px;letter-spacing:0}
 /* 조작 안내는 왼쪽 아래로 — 28차에 핫바 판 위(가운데)에 얹어 뒀는데,
-   48차에 핫바 판을 없애고 3인칭이 되니 **내 양 얼굴 위에** 글씨가 떴다 */
-#hint{left:14px;right:auto;bottom:14px;transform:none;max-width:38vw;text-align:left;
+   48차에 핫바 판을 없애고 3인칭이 되니 **내 양 얼굴 위에** 글씨가 떴다.
+   ★ 49차e — **터치는 빼고** 마우스에서만 그렇게 한다. 태블릿의 왼쪽 아래는 **조이스틱 자리**라
+     48차 그대로 두면 글씨가 조이스틱 위에 얹힌다(t13 이 여섯 화면에서 stick×hint 로 잡았다).
+     터치는 28차처럼 핫바 위 가운데 — fitHint() 가 조이스틱·버튼을 재서 들어갈 폭만 준다. */
+body:not(.touch) #hint{left:14px;right:auto;bottom:14px;transform:none;max-width:38vw;text-align:left;
   padding:0;text-shadow:0 0 3px rgba(0,0,0,.9);opacity:.5;background:none;border:none;box-shadow:none}
 .res i{background:rgba(0,0,0,.28)}
 #stageTitle .n,#stageTitle .d{text-shadow:0 2px 6px rgba(0,0,0,.6)}
@@ -2682,7 +2689,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '49차 · 노트북 기준으로(그림자 2048 · 구역 32칸 · 선명은 부드러운 그림자) · 수정 단상 보도블록 · 48차 로블록스 화면(굵은 고딕 폰트 · 검은 반투명 UI · 바닥에 붙는 핫바 · 3인칭 카메라 + 휠 줌 · 플라스틱 광택 · 매끈 질감 · 즉시 가속·정지 · 로블록스 체공 0.54초(경주는 그대로) · 공중 자세 둘) · 47차 경주 골인율 · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 양 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
+const GAME_VER = '49차 · 검사 되살리기(전체 판 1243항목 다시 돎) · 3인칭 조준 고침 · 태블릿 조작안내·핫바 값 · 저격총 양각대 · 노트북 기준으로(그림자 2048 · 구역 32칸 · 선명은 부드러운 그림자) · 수정 단상 보도블록 · 48차 로블록스 화면(굵은 고딕 폰트 · 검은 반투명 UI · 바닥에 붙는 핫바 · 3인칭 카메라 + 휠 줌 · 플라스틱 광택 · 매끈 질감 · 즉시 가속·정지 · 로블록스 체공 0.54초(경주는 그대로) · 공중 자세 둘) · 47차 경주 골인율 · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 양 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -3391,7 +3398,10 @@ const skyDome = (()=>{
    하루가 통째로 붉으면 이상하고, 없으면 밤이 그냥 '색이 바뀐 낮' 이 된다. */
 const SKY_DUSK = new THREE.Color(0xff9a5c);
 
-const camera = new THREE.PerspectiveCamera(74, innerWidth/innerHeight, 0.08, 420);
+/* ★ 49차e — 처음 만들 때도 70 으로. 48차에 FOV0 을 74 → 70(로블록스 기본값)으로 내렸는데
+   여기 생성자는 74 그대로여서, updCam 이 한 번 돌기 전까지 시야각이 74 였다(t34 가 잡았다).
+   같은 값이 두 곳에 있으면 한 곳만 고치게 된다 — FOV0 은 저 아래 17393줄 근처. */
+const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, 0.08, 420);
 scene.add(camera);                       // 손에 든 도구를 그리려면 카메라가 씬 안에 있어야 한다
 const heldLight = new THREE.PointLight(0xffffff, 1.6, 4.5);
 heldLight.position.set(0.55, 0.15, -0.25);
@@ -6739,8 +6749,13 @@ function mkSniper(){                             // 🏆 금빛 저격총
   g.add(boxM(T.crystal,0.115,0.115,0.06, 0, 0.21,-0.13, matGlow));    // 뒤 렌즈
   g.add(boxM(T.goldBlk,0.055,0.08,0.06, 0, 0.14, 0.00));              // 받침
   g.add(boxM(T.goldBlk,0.055,0.08,0.06, 0, 0.14, 0.26));
-  for(const s of [-1,1])                                              // 양각대
+  /* ★ 49차e — 양각대 다리 둘이 **허공에 떠 있었다**. 총열(x ±0.0375 · y 0.0225~)에서
+     x 로 0.0325, y 로 0.0225 떨어져 있어서 어느 조각과도 안 닿았다(t11 이 잡았는데,
+     세계 좌표로 돌려 재는 검사라 총이 흔들리는 각도에 따라 세 번에 한 번만 빨개졌다).
+     진짜 양각대처럼 **받침 하나로 다리 둘을 총열에 잇는다** — 보기에도 이쪽이 맞다. */
+  for(const s of [-1,1])                                              // 양각대 다리
     g.add(boxM(T.dark, 0.04,0.22,0.04, s*0.09,-0.11, 0.66, matGunDk));
+  g.add(boxM(T.dark, 0.22,0.05,0.05, 0, 0.005, 0.66, matGunDk));      // 양각대 받침 (다리 둘 ↔ 총열)
   g.add(boxM(T.goldBlk,0.09,0.16,0.14, 0,-0.11, 0.02));               // 금 탄창
   g.add(boxM(T.plank, 0.10,0.20,0.13, 0,-0.15,-0.09, matWoodDk));     // 손잡이
   gunGrip(g, 0,-0.17,-0.09, 0.40);
@@ -13069,8 +13084,17 @@ const _aimP = new THREE.Vector3();
 function forward(){
   camera.getWorldDirection(_fwd);
   if(PL.down || !tpvOn()) return _fwd;
+  const ex = PL.x, ey = PL.y + PL.EYE, ez = PL.z;
+  /* ★ 49차e — **카메라가 아직 안 따라온 프레임에는 수렴을 건너뛴다.**
+     수렴은 '카메라가 내 뒤 몇 칸에 있다' 를 전제로 한다. 그런데 미니게임에 들어가거나
+     체크포인트로 되살아나면 그 한 프레임 동안 카메라는 아직 옛 자리에 있다.
+     그 자리에서 34칸 앞을 재면 조준선이 엉뚱한 데를 본다 — 하늘 섬(높이 87)에 올라갔는데
+     카메라는 마을 높이(33)에 남아 있어서 조준이 **60° 아래**를 봤다(t22 가 잡았다).
+     카메라가 제자리(최대 당김 CAM_MAX 안쪽)에 없으면 예전처럼 카메라 방향을 그대로 쓴다. */
+  const cd = Math.hypot(camera.position.x - ex, camera.position.y - ey, camera.position.z - ez);
+  if(cd > CAM_MAX + 3) return _fwd;
   _aimP.copy(camera.position).addScaledVector(_fwd, AIM_CONV);
-  _fwd.set(_aimP.x - PL.x, _aimP.y - (PL.y + PL.EYE), _aimP.z - PL.z).normalize();
+  _fwd.set(_aimP.x - ex, _aimP.y - ey, _aimP.z - ez).normalize();
   return _fwd;
 }
 function aimNode(){
@@ -18119,7 +18143,7 @@ Object.assign(window, {
                DMG:SURV_DMG, HEAD:SURV_HEAD, HEAD_R:SURV_HEAD_R, HP:SURV_HP,
                SPAWN_R:SURV_SPAWN_R}),
   __SPRINT:SPRINT, __stamina:()=>stamina, __sprinting:()=>sprinting, __setStamina:(v)=>{ stamina = v; },
-  __raceSlotXZ:raceSlotXZ, __RACE_ROWZ:RACE_ROWZ, __FADE_T:FADE_T, __RACE_SPD:RACE_SPD, __raceHold:raceHold, __flipSet:flipSet, __gaitMe:()=>gaitMe, __camAnc:()=>camAnc, __ACC:{up:ACC_UP, down:ACC_DOWN}, __sheepGait:sheepGait, __STRIDE:{walk:STRIDE_WALK, run:STRIDE_RUN}, __cntShow:cntShow,
+  __raceSlotXZ:raceSlotXZ, __RACE_ROWZ:RACE_ROWZ, __FADE_T:FADE_T, __RACE_SPD:RACE_SPD, __raceHold:raceHold, __flipSet:flipSet, __gaitMe:()=>gaitMe, __camAnc:()=>camAnc, __ACC:{up:ACC_UP, down:ACC_DOWN}, __SPD:SPD, __sheepGait:sheepGait, __STRIDE:{walk:STRIDE_WALK, run:STRIDE_RUN}, __cntShow:cntShow,
   __MINI_NAME:MINI_NAME, __survOn:survOn, __RACE:()=>RACE, __raceRocks:raceRocks, __ROCK:ROCK, __raceGiveWeapon:raceGiveWeapon, __raceGiveArmor:raceGiveArmor, __RACE_RES:RACE_RES, __RACE_FIN:RACE_FIN, __raceHazards:raceHazards, __HAZ:HAZ, __camGY:()=>camGY, __bgmRace:bgmRace, __rockU:rockU, __fovRun:()=>fovRun, __sheepBump:sheepBump, __SHEEP_R2:SHEEP_R2, __kb:()=>({x:kbx, z:kbz}), __kbReset:()=>{ kbx = kbz = 0; }, __RACE_P:()=>RACE_P, __RACE_S:RACE_S, __raceTopAt:raceTopAt, __raceBuild:raceBuild, __raceOn:raceOn, __raceRespawn:raceRespawn, __R_plat:()=>R_plat, __RACE_Z_FIN:RACE_Z_FIN,
   __tpvOn:tpvOn, __tpvKind:tpvKind, __MINI_CAM:()=>MINI_CAM, __DOWN_CAM:()=>DOWN_CAM,
   __camPos:()=>({x:camera.position.x, y:camera.position.y, z:camera.position.z}),

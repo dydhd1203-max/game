@@ -240,11 +240,16 @@ const spd = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, o={}; const Y=W._
   W.__wantJump(); W.__updPlayer(1/30); o.heldJump = PL.ground;
   W.__miniSet('run', 90); G.t = 90; o.holdRun = W.__raceHold();
   put2(0, 20, 0); PL.yaw = Math.PI; W.__setStamina(1); const z2 = PL.z; W.__KEY.w = true; for(let i=0;i<30;i++) W.__updPlayer(1/30); W.__KEY.w = false; o.raceWalk = +Math.abs(PL.z - z2).toFixed(2); o.RSPD = W.__RACE_SPD;
-  o.fadeT = W.__FADE_T;
+  o.fadeT = W.__FADE_T; o.SPD = W.__SPD;
   W.__recoilReset(); W.__fireRecoil(1.0); o.roll = W.__aimRoll(); for(let i=0;i<40;i++) W.__recoilTick(1/60); o.roll40 = W.__aimRoll();
   o.gunshot = typeof W.__gunshot === 'function';
   return o; });
-ok('★ 41차 가속·감속 — 앞키 첫 틱은 걷기 속도의 30% 아래, 열두 틱 뒤 90% 위, 놓고 네 틱이면 5% 아래', spd.acc.first < spd.acc.cruise*0.3 && spd.acc.cruise > 4.8 && spd.acc.after4 < spd.acc.cruise*0.05, JSON.stringify(spd.acc));
+/* ★ 48차 — 41차의 가속 곡선(0.14초)을 **로블록스 값**으로 바꿨다: 로블록스는 ≈700 스터드/초²,
+   WalkSpeed 16 이면 0.023초에 최고 속도다(우리 ACC 40 = 0.025초). '가속이 없다' 가 아니라 **아주 짧다**.
+   그래서 30Hz 로 재면 첫 틱에 이미 최고 속도다. 멈춤도 마찬가지로 즉시다(41차가 고친 발 미끄러짐은
+   걸음 위상을 간 거리에 묶어서 막는다 — 아래 '걸음 위상' 항목이 그걸 본다). */
+ok('★ 48차 로블록스 가속 — 앞키 첫 틱에 이미 걷기 속도의 85% 위(0.025초), 놓고 네 틱이면 5% 아래',
+   spd.acc.first > spd.acc.cruise*0.85 && spd.acc.cruise > 4.8 && spd.acc.after4 < spd.acc.cruise*0.05, JSON.stringify(spd.acc));
 ok('★ 순간이동하면 남은 속도를 버린다 (경주 복귀·섬 들어가기가 미끄러지지 않게)', spd.tele < 0.01, spd.tele);
 ok('★ 걸음 위상은 간 거리로 돈다 — 내 양(1.3칸에 한 바퀴)과 친구 양(객체마다)', Math.abs(spd.gait.turns - spd.gait.expect) < 0.02 && Math.abs(spd.friend - spd.friendExpect) < 0.01, JSON.stringify(spd.gait)+' · 친구 '+spd.friend+'/'+spd.friendExpect);
 ok('★ 3인칭 카메라가 달리면 뒤처진다 (30Hz 검사에서 0.4~1.6칸 — 60fps 게임에선 0.85)', spd.cam.run > spd.cam.stand + 0.4 && spd.cam.run < spd.cam.stand + 1.6, JSON.stringify(spd.cam));
@@ -255,7 +260,13 @@ ok('★ 발소리·출발·바람(세기) 효과음 · 코스 옆 구름 부표 
 ok('★ 42차 점프 손맛 — 첫 뜀에 도약 늘어남(takeT)·잔상 타이머·보잉, 두 번째 뜀에 공중제비(flipT 0→), 착지 0.22초 눌림·툭', spd.take > 0.05 && spd.air1 && spd.trail && spd.flip >= 0 && spd.flip < 0.6 && spd.landT > 0.15 && spd.flipEnd === 99 && spd.sfxJump, `take ${spd.take} flip ${spd.flip} land ${spd.landT} end ${spd.flipEnd}`);
 ok('★ 초읽기 큰 글씨는 화면 정중앙(top 50%)이고, 준비 중엔 위 판이 통째로 숨는다 (42차 — "배경 네모 없애고 가운데 잘 오게")', spd.cntTop && !spd.introBar && spd.runBar, `top ${spd.cntTop} introBar ${spd.introBar} runBar ${spd.runBar}`);
 ok('★ 출발 전엔 걷기·뜀이 잠긴다 (42차 — "출발도 안 했는데 움직여져") · 출발하면 풀린다', spd.hold && spd.heldMove < 0.01 && spd.heldJump && !spd.holdRun, `hold ${spd.hold} moved ${spd.heldMove} jumpBlocked ${spd.heldJump} run ${spd.holdRun}`);
-ok('★ 경주에서는 걷기가 1.64배(1초에 8.5칸 안팎 — 45차에 밑 속도가 5.4→5.94 로 올라 배수를 1.8→1.64 로 내렸다. 절대 속도는 그대로) · 사라지는 발판 1.8/1.6초 · 총 반동에 기울기(돌아온다) · gunshot 네 겹', spd.RSPD === 1.64 && spd.raceWalk > 7.6 && spd.raceWalk < 9.6 && spd.fadeT.arm === 1.8 && spd.fadeT.gone === 1.6 && spd.roll !== 0 && Math.abs(spd.roll40) < Math.abs(spd.roll)*0.05 && spd.gunshot, `1초 ${spd.raceWalk} · roll ${spd.roll.toFixed(4)} → ${spd.roll40.toFixed(5)}`);
+/* 1초에 가는 거리 = 밑 속도(5.94) × 경주 배수(1.64) = 9.74칸. 48차 전에는 가속 곡선 때문에
+   첫 0.14초를 손해 봐서 8.5칸쯤이었다 — 이제 첫 틱부터 최고 속도라 이론값에 붙는다.
+   숫자를 박지 말고 **밑 속도 × 배수의 3% 안**으로 본다(속도를 또 손보면 여기가 저절로 따라간다). */
+{ const want = spd.SPD * spd.RSPD;
+  ok('★ 경주에서는 걷기가 1.64배 — 1초에 밑 속도×배수(≈9.74칸) · 사라지는 발판 1.8/1.6초 · 총 반동에 기울기(돌아온다) · gunshot 네 겹',
+     spd.RSPD === 1.64 && Math.abs(spd.raceWalk - want) < want*0.03 && spd.fadeT.arm === 1.8 && spd.fadeT.gone === 1.6 && spd.roll !== 0 && Math.abs(spd.roll40) < Math.abs(spd.roll)*0.05 && spd.gunshot,
+     `1초 ${spd.raceWalk} (이론 ${want.toFixed(2)}) · roll ${spd.roll.toFixed(4)} → ${spd.roll40.toFixed(5)}`); }
 
 
 /* ═══════ ⑪ 43차 — 총열 축 = 조준선(모든 총) · 반동은 총구가 들리는 쪽 · 화염은 총구→표적 · 총마다 제 소리 ═══════ */

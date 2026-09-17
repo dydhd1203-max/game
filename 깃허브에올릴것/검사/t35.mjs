@@ -121,16 +121,25 @@ const ft = await pg.evaluate(()=>{ const W=window, o={};
   document.querySelectorAll('.pop.on').forEach(p=>p.classList.remove('on'));
   o.hint = px('.shopHint'); o.hrow = px('.hrow'); o.btnPx = px('.btn'); o.slot = px('.slot .nm'); o.feed = px('#feed');
   return o; });
-ok('★ 글꼴 주소에 주아(Jua)와 해바라기(Sunflower 500·700)가 있다', /family=Jua/.test(ft.url) && /Sunflower:wght@500;700/.test(ft.url), ft.url);
+/* ★ 48차 — 손글씨(주아·해바라기)를 **로블록스 결**로 바꿨다: Montserrat + 고딕 A1.
+   로블록스 Builder Sans 가 Gotham SSm 을 대체한 지오메트릭 산세리프라 계열이 맞다.
+   35차가 지키려던 것(글꼴을 따로 받고, 못 받으면 시스템 글꼴로 내려가고, 글자가 충분히 크다)은 그대로 본다. */
+ok('★ 48차 — 글꼴 주소에 Montserrat(700 이상)과 고딕 A1 이 있다 (로블록스 Builder Sans 결)',
+   /family=Montserrat:wght@[^&]*700/.test(ft.url) && /family=Gothic\+A1/.test(ft.url), ft.url);
 ok('★ 글꼴은 창이 뜬 뒤 따로 받는다 (link#gfonts) · 미리 연결(preconnect) 둘 · 검사기(webdriver)에서는 저절로 안 받는다', ft.link && ft.pre >= 2 && ft.auto, 'link '+ft.link+' · preconnect '+ft.pre+' · 자동 안 받음 '+ft.auto);
-ok('★ 본문 글꼴은 해바라기, 단추·제목은 주아 (못 받으면 시스템 글꼴로 내려간다)', ft.body === 'Sunflower' && ft.btn === 'Jua' && ft.h2 === 'Jua', ft.body+' / '+ft.btn+' / '+ft.h2);
-ok('★ 상점 카드 이름 17px 주아 · 설명 13.5px 해바라기 (예전 14 / 11.5)', ft.sn[0] === 'Jua' && ft.sn[1] >= 17 && ft.sd[0] === 'Sunflower' && ft.sd[1] >= 13.5, ft.sn.join(' ')+' · '+ft.sd.join(' '));
+ok('★ 48차 — 본문·단추·제목이 모두 Montserrat 이다 (로블록스 UI 처럼 한 글꼴 · 못 받으면 시스템 글꼴로 내려간다)',
+   ft.body === 'Montserrat' && ft.btn === 'Montserrat' && ft.h2 === 'Montserrat', ft.body+' / '+ft.btn+' / '+ft.h2);
+ok('★ 상점 카드 이름 17px · 설명 13.5px — 글꼴은 48차에 Montserrat 로 바뀌었고 **크기는 35차 그대로 지킨다**',
+   ft.sn[0] === 'Montserrat' && ft.sn[1] >= 17 && ft.sd[0] === 'Montserrat' && ft.sd[1] >= 13.5, ft.sn.join(' ')+' · '+ft.sd.join(' '));
 ok('★ 값 14px · 단추 15px (예전 12 / 12.5)', ft.sc >= 14 && ft.sbtn >= 15, ft.sc+' / '+ft.sbtn);
-ok('★ 주아에는 가짜 굵게를 안 씌운다 (font-synthesis: none — 굵기가 하나뿐이라 번진다)', /none/.test(String(ft.snSynth)), ft.snSynth);
+ok('★ 가짜 굵게를 안 씌운다 (font-synthesis: none — 없는 굵기를 브라우저가 지어내면 번진다)', /none/.test(String(ft.snSynth)), ft.snSynth);
 ok('★ 글자를 키워도 상점 카드가 옆으로 안 넘친다', ft.cards >= 4 && ft.over === 0 && ft.popFits, ft.cards+'장 · 넘침 '+ft.over+' · 창 '+Math.round(ft.popW)+'px');
 ok('★ 대장간 카드 이름 17px · 강화 안내 13px · +단계 14px (예전 14 / 11 / 12)', ft.fsn >= 17 && ft.enhSafe >= 13 && ft.enhLv >= 14, ft.fsn+' / '+ft.enhSafe+' / '+ft.enhLv);
 ok('★ 대장간 카드도 안 넘친다', ft.fover === 0, ft.fover);
-ok('★ 안내·도움말·기록·단추·도구 이름도 한 단계씩 커졌다 (14.5 · 14 · 13 · 16 · 12)', ft.hint >= 14.5 && ft.hrow >= 14 && ft.feed >= 13 && ft.btnPx >= 16 && ft.slot >= 12,
+/* 핫바 칸 이름만 12 → 10px 이다. 48차에 칸을 로블록스 실측(ICON_SIZE 60)으로 줄이면서
+   60px 안에 아이콘·이름·값이 다 들어가야 해서다. 나머지 넷은 35차 크기 그대로 지킨다. */
+ok('★ 안내·도움말·기록·단추는 35차 크기 그대로(14.5 · 14 · 13 · 16) · 핫바 칸 이름은 48차에 60px 칸에 맞춰 10',
+   ft.hint >= 14.5 && ft.hrow >= 14 && ft.feed >= 13 && ft.btnPx >= 16 && ft.slot >= 10,
    [ft.hint, ft.hrow, ft.feed, ft.btnPx, ft.slot].join(' / '));
 await pg.close();
 
