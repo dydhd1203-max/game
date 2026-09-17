@@ -1,8 +1,8 @@
-/* 33차 검사 — 총 타격감 (쏠 때 · 늑대가 맞을 때)
-   ★ 선생님: "총 타격감(쏠 때, 늑대가 맞을 때)을 더 멋있게." 29차 손맛(반동·예광탄·불티·숫자·히트마커) 위에
+/* 33차 검사 — 총 타격감 (쏠 때 · 좀비가 맞을 때)
+   ★ 선생님: "총 타격감(쏠 때, 좀비가 맞을 때)을 더 멋있게." 29차 손맛(반동·예광탄·불티·숫자·히트마커) 위에
      총구 섬광(가산합성 원판) · 시야 펀치(FOV) · 맞는 순간 내 화면에서 바로 움찔·밀림 · 충격 고리 · 막타 예고(흰 고리·붉은 X·쿵) · 소리 셋.
    검사기는 소리를 못 듣고 GPU 를 못 보므로 **상태**를 잰다: 고리가 살아 있나, 섬광이 떴다 꺼지나, FOV 가 올랐다 돌아오나,
-   늑대에 hurt·kT 가 즉시 붙나, 히트마커 등급이 맞나. */
+   좀비에 hurt·kT 가 즉시 붙나, 히트마커 등급이 맞나. */
 import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
@@ -40,11 +40,11 @@ const SETUP = `const W=window, G=W.__G, PL=W.__PL, K=W.__KIT, o={};
     return o;`));
   ok('맞는 소리 셋 — hit · crit · kill 이 소리표에 있다', r.sfx);
   ok('처음엔 섬광이 꺼져 있고 고리가 하나도 없고 FOV 는 기본(74)', r.flash0 && r.rings0 && r.fov0 === r.FOV0, r.fov0);
-  ok('늑대를 겨눴다', r.aimed);
-  ok('★ 맞는 순간 늑대가 **바로** 움찔한다 (hurt 0.18 · 호스트 왕복을 안 기다린다)', r.hurtNow >= 0.17, r.hurtNow);
+  ok('좀비를 겨눴다', r.aimed);
+  ok('★ 맞는 순간 좀비가 **바로** 움찔한다 (hurt 0.18 · 호스트 왕복을 안 기다린다)', r.hurtNow >= 0.17, r.hurtNow);
   ok('★ 쏜 방향으로 밀린다 (kT 0.16 · 방향은 조준선)', r.kT >= 0.15 && Math.abs(r.kDir[0]) + Math.abs(r.kDir[1]) > 0.9, r.kT+' '+r.kDir.join(','));
   ok('★ 총구 섬광이 뜬다 (0.06초)', r.flashOn && r.flashT > 0.05, r.flashT);
-  ok('★ 맞은 자리에 충격 고리가 생긴다 — 총의 예광탄 색으로, 늑대 자리에', r.ringLive >= 1 && r.ringCol === r.tr && r.ringNearWolf < 0.5, r.ringLive+' · 0x'+r.ringCol.toString(16)+' · '+r.ringNearWolf+'칸');
+  ok('★ 맞은 자리에 충격 고리가 생긴다 — 총의 예광탄 색으로, 좀비 자리에', r.ringLive >= 1 && r.ringCol === r.tr && r.ringNearWolf < 0.5, r.ringLive+' · 0x'+r.ringCol.toString(16)+' · '+r.ringNearWolf+'칸');
   ok('맞으면 조준점 흰 X', r.mark);
   /* 시야 펀치 — 다음 실제 프레임에서 카메라에 얹힌다. 잠깐 폴링해 최고를 잡고, 가라앉기를 기다린다 */
   let fovMax = 0;
@@ -140,7 +140,7 @@ const SETUP = `const W=window, G=W.__G, PL=W.__PL, K=W.__KIT, o={};
   ok('★ 별똥별 — 밤에 불러내면 보이고 1초 뒤 사라진다', r.meteor && r.meteorGone);
 }
 /* ═══════ ③ 무서움의 온도 — 울음이 가까워진다 · 입구 쪽 붉은 하늘 · 보스 땅울림·발소리 ═══════
-   선생님: "늑대 울음이 멀리서 가까워지는 소리, 우리 입구 쪽 하늘이 붉어지는 것, 보스가 산을 넘어오며 땅이 흔들리는 것." */
+   선생님: "좀비 울음이 멀리서 가까워지는 소리, 우리 입구 쪽 하늘이 붉어지는 것, 보스가 산을 넘어오며 땅이 흔들리는 것." */
 {
   const r = await pg.evaluate(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
     o.sfx = ['howl','stomp','rumble','boss'].every(k=>W.__SFXKEYS().includes(k));
@@ -156,14 +156,14 @@ const SETUP = `const W=window, G=W.__G, PL=W.__PL, K=W.__KIT, o={};
     /* 좌우 팬 — 정면(-z)을 볼 때 오른쪽(+x) 소리는 팬 > 0 */
     PL.yaw = 0; W.__sfxFrom('howl', PL.x + 10, PL.z, 1); o.panR = W.__lastPan();
     W.__sfxFrom('howl', PL.x - 10, PL.z, 1); o.panL = W.__lastPan();
-    /* ② 붉은 하늘 — 밤, 집중 입구 1(오른쪽, +x). 늑대가 없을 때 / 가까울 때 / 낮 */
+    /* ② 붉은 하늘 — 밤, 집중 입구 1(오른쪽, +x). 좀비가 없을 때 / 가까울 때 / 낮 */
     W.__setSky(1); G.phase = 'night'; G.focus = 1; G.wolves.length = 0;
     for(let i=0;i<6;i++) W.__updSky(1, true);
     W.__skyRepaintNow(); W.__updSky(0, true);
     const sp = W.__skyPaint(); o.tOn = sp.threat > 0.05; o.tFar = +W.__threatK().toFixed(3); o.tU = +sp.u.toFixed(3); o.uGate2 = +W.__skyU(45, 0).toFixed(3);
     const w = W.__spawnWolf(0, 1); w.x = 12; w.z = 0; w.y = PL.y;
     for(let i=0;i<6;i++) W.__updSky(1, true); o.tNear = +W.__threatK().toFixed(3);
-    /* 늑대가 가까운 지금(진하다) 돔 그림에서 입구 2(+x, u 0.5) 쪽 50줄은 붉고(r ≫ b), 반대쪽(u 0.0)은 안 붉다 */
+    /* 좀비가 가까운 지금(진하다) 돔 그림에서 입구 2(+x, u 0.5) 쪽 50줄은 붉고(r ≫ b), 반대쪽(u 0.0)은 안 붉다 */
     W.__skyRepaintNow(); W.__updSky(0, true);
     const px = W.__skyTex().image.data, at = (x)=>{ const i = ((127-50)*64 + x)*4; return [px[i], px[i+1], px[i+2]]; };
     o.pxGate = at(32); o.pxAway = at(0);
@@ -188,7 +188,7 @@ const SETUP = `const W=window, G=W.__G, PL=W.__PL, K=W.__KIT, o={};
   ok('그다음 5초 동안은 조용하다 (먼 울음은 18~30초마다)', r.h5 === 4, r.h5);
   ok('★ 소리에 좌우가 있다 — 오른쪽 소리 팬 > 0, 왼쪽 < 0', r.panR > 0.5 && r.panL < -0.5, r.panR+' / '+r.panL);
   ok('★ 밤엔 집중 입구 쪽 하늘이 붉다 — 돔 그림의 입구 2(+x · u 0.5) 쪽 50줄이 붉고 반대쪽은 아니다', r.tOn && r.tFar > 0.1 && r.tU === r.uGate2 && r.pxGate[0] > r.pxGate[2] + 40 && r.pxAway[2] >= r.pxAway[0], r.tFar+' · u '+r.tU+' · 입구 rgb '+r.pxGate.join(',')+' · 반대 '+r.pxAway.join(','));
-  ok('★ 늑대가 수정에 가까우면 더 붉다', r.tNear > r.tFar + 0.15, r.tFar+' → '+r.tNear);
+  ok('★ 좀비가 수정에 가까우면 더 붉다', r.tNear > r.tFar + 0.15, r.tFar+' → '+r.tNear);
   ok('낮엔 꺼진다', r.tDay);
   ok('★ 보스 밤 — 보스가 보이기 전부터 땅이 떤다 (첫 틱에 땅울림)', r.trem > 0, r.trem+' (보스 날 '+r.bossDay+')');
   ok('★ 보스가 보이면 걸음마다 쿵 — 6칸이면 흔들리고 200칸이면 안 흔들린다', r.stompNear > 0 && r.stompFar === 0, r.stompNear+' / '+r.stompFar);

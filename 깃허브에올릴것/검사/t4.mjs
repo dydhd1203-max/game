@@ -137,14 +137,15 @@ const r = await pg.evaluate(()=>{
   ok('★ 수리는 2.5초에 된다', o.hp > o.mx*0.6, Math.round(o.hp/o.mx*100)+'%');
   W.__setActing(false); W.__doAction(1/60);
 
-  /* ── 1. 양 ── */
+  /* ── 1. 사람 ── */
   const list=[{x:0,z:0,y:GY,ry:0,g:0,mv:true,ph:0},{x:2,z:0,y:GY,ry:1,g:1,mv:false,ph:1}];
   W.__drawSheep(list, 1.0, 40, s=>W.__GHEX[s.g], 0.70);
-  const [body,puff,head,frng,ear,eye,nose,tail,legs]=W.__Pmesh();
-  ok('양 2마리 = 몸통 2', body.count===2, body.count);
-  ok('양 2마리 = 눈+반짝이 8', eye.count===8, eye.count);
-  ok('양 2마리 = 볼터치 4 (29차 — 코는 없앴다, 입이 그 자리)', nose.count===4, nose.count);
-  ok('양 2마리 = 다리 16 (44차 — 허벅지·정강이 두 마디)', legs.count===16, legs.count);
+  const [body,head,hair,arm,eye,nose,legs]=W.__Pmesh();
+  ok('사람 2명 = 몸통 2', body.count===2, body.count);
+  ok('사람 2명 = 눈+반짝이 8', eye.count===8, eye.count);
+  ok('사람 2명 = 볼터치 4 (29차 — 코는 없앴다, 입이 그 자리)', nose.count===4, nose.count);
+  ok('★ 51차 — 사람 2명 = 팔 4 · 다리 4 (R6 은 마디 없는 통짜라 한 사람에 둘씩)',
+     arm.count===4 && legs.count===4, '팔 '+arm.count+' 다리 '+legs.count);
   ok('눈 반짝이가 눈보다 앞·위에 있다', true);
 
   }catch(e){ out.push('EXCEPTION: '+e.message+' | '+e.stack.split('\n')[1]); }

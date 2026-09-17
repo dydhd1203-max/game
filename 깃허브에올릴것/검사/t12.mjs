@@ -94,7 +94,7 @@ ok('★ 체력바 바탕·채움의 그리는 순서가 못 박혀 있다', r2.o
 ok('★ 채움이 바탕보다 카메라에 가깝다 (겹쳐서 사라지지 않게)',
    r2.fgD < r2.bgD - 0.01, r2.bgD.toFixed(2)+' → '+r2.fgD.toFixed(2));
 ok('★ 처음 25초는 조작을 알려 준다', /WASD/.test(r2.goalIntro), r2.goalIntro);
-ok('★ 밤에는 밤에 할 일이 뜬다', /늑대를 막으세요/.test(r2.goalNight), r2.goalNight);
+ok('★ 밤에는 밤에 할 일이 뜬다', /좀비를 막으세요/.test(r2.goalNight), r2.goalNight);
 ok('★ 낮에는 낮에 할 일이 뜬다', /캐서/.test(r2.goalDay), r2.goalDay);
 ok('★ 안 찍은 스텟 점수가 있으면 낮에 그걸 먼저 알려 준다',
    /스텟 점수/.test(r2.goalPts), r2.goalPts);

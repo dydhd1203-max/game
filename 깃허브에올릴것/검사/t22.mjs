@@ -74,7 +74,7 @@ const sv = await ev(()=>{ const W=window, G=W.__G, M=W.__MINI(), PL=W.__PL, o={}
     if(W.__survTopAt(c[0],c[1]) === 0 && !W.__survBlocked(A[0], M.Y+1.12, A[1], c[0], M.Y+0.9, c[1])) B = c; }
   o.자리 = {나:A.map(v=>+v.toFixed(1)), 적:B.map(v=>+v.toFixed(1))};
   PL.x = A[0]; PL.z = A[1]; PL.y = M.Y; PL.pitch = 0;
-  /* 플레이어의 앞은 (−sin yaw, −cos yaw) 다 (양 그리기 주석 참고) */
+  /* 플레이어의 앞은 (−sin yaw, −cos yaw) 다 (사람 그리기 주석 참고) */
   PL.yaw = Math.atan2(-(B[0]-A[0]), -(B[1]-A[1]));
   W.__updPlayer(1/30);     /* ★ 카메라 방향은 updPlayer 가 잡는다 — yaw 만 바꾸고 바로 재면 예전 방향을 본다 */
   const put = (id,g)=>{ G.players.set(id,{uid:id,x:B[0],y:M.Y,z:B[1],g,n:id,ry:0,jt:0}); };

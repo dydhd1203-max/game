@@ -90,7 +90,7 @@ const rows = await pg.evaluate(([SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV])=>{
           for(const k of kids){ k.cd -= 0.05; if(k.cd>0) continue;
             let best=null, bd=Wp.rng*Wp.rng;
             /* ★ 16차 — 보스인지는 게임에 물어본다. 번호(k<3)를 베껴 두면
-               표에 늑대가 한 줄 붙을 때마다 조용히 엉뚱한 놈을 겨눈다. */
+               표에 좀비가 한 줄 붙을 때마다 조용히 엉뚱한 놈을 겨눈다. */
             if(k.boss){ for(const w of G.wolves){ if(!W.__isBoss(w.k)) continue;
               const dx=w.x-k.x, dz=w.z-k.z, d2=dx*dx+dz*dz; if(d2<bd){ bd=d2; best=w; } } }
             if(!best){ bd=Wp.rng*Wp.rng;
@@ -102,7 +102,7 @@ const rows = await pg.evaluate(([SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV])=>{
             best.hp -= Math.round(Wp.dmg*dayMul*ATK*(Math.random()<0.14?2:1));
           }
           /* ★ 절반은 위험한 입구로 달려간다.
-             게임이 "🚨 3모둠 쪽에 늑대 6마리! 가까운 친구들 도와주러 가요" 라고
+             게임이 "🚨 3모둠 쪽에 좀비 6마리! 가까운 친구들 도와주러 가요" 라고
              직접 알려 주기 때문에, 실제 교실에서는 다들 그쪽으로 몰린다.
              제자리에 못 박아 두면 집중 입구가 뚫리는 걸 아무도 못 막는 것으로 잰다. */
           if(i % 100 === 0){

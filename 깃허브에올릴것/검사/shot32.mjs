@@ -93,7 +93,7 @@ await pg.evaluate(()=>{
   G.paused = false;
   W.__goMini(0);
   for(let i=0;i<Math.ceil((M.INTRO+1)*30);i++) W.__miniTick(1/30);
-  document.getElementById('tQ').value = '늑대는 밤에만 나타난다';
+  document.getElementById('tQ').value = '좀비는 밤에만 나타난다';
   document.getElementById('tQO').click();
   W.__PL.x = -M.OX; W.__PL.z = M.OZ; W.__PL.y = M.Y;
   W.__PL.yaw = Math.atan2(W.__PL.x, W.__PL.z - 0); W.__PL.pitch = -0.25;

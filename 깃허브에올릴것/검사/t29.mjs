@@ -2,7 +2,7 @@
    ★ 26차 교실 실측이 "GPU 는 픽셀 쪽" 이라 텍스처를 읽지 않는 원색 재질로 바꿨고,
      선생님이 고른 로블록스 룩(매끈한 면·원색·둥근 모서리)의 1단계가 캐릭터다.
    ★ '켜졌나'(재질에 map 이 없나, 조각이 둥근가)로 끝내지 않는다. 25차에 그림자가 켜져 있었는데
-     화면엔 없던 적이 있다. 그래서 양 한 마리를 카메라 앞에 세우고 **화면 픽셀에서 모둠 색이 나오나** 본다.
+     화면엔 없던 적이 있다. 그래서 사람 한 마리를 카메라 앞에 세우고 **화면 픽셀에서 모둠 색이 나오나** 본다.
    ★ 검사기(소프트웨어 렌더링)는 '예쁜가' 를 못 잰다. 그건 교실이 답한다. */
 import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
@@ -34,7 +34,7 @@ await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
   ok('미리보기가 있다', !!r);
   ok('★ 미리보기 조각에 무늬(텍스처)가 없다', r && r.noMap);
   ok('★ 미리보기 조각이 둥글다 (꼭짓점이 상자 24개보다 많다)', r && r.round);
-  ok('미리보기 몸 조각이 털뭉치 공 여섯·입을 포함해 24개다 (29차 — 코 없음)', r && r.n === 24, r && r.n);
+  ok('★ 51차 — 미리보기 몸 조각이 R6 열넷이다 (몸통·머리·머리털·눈 둘·반짝이 둘·볼 둘·입·팔 둘·다리 둘)', r && r.n === 14, r && r.n);
 }
 
 await pg.fill('#iName','검'); await pg.click('#bSolo');
@@ -63,7 +63,7 @@ await frames(pg, 3);
     }
     return out;
   });
-  for(const nm of ['양','늑대','농장','병사','상인']){
+  for(const nm of ['사람','좀비','농장','병사','상인']){
     const o = r[nm];
     ok(`${nm} 조각 ${o.n}벌 — 무늬(텍스처)가 없다`, o.noMap);
     ok(`${nm} 조각 — 둥글다 (꼭짓점 > 24 · 축에 안 붙은 법선)`, o.round);
@@ -72,18 +72,18 @@ await frames(pg, 3);
      Object.values(r).every(o=>o.icol));
 }
 
-/* ═══════ ③ 양털 공 여섯 + 화면에 모둠 색이 닿나 ═══════ */
+/* ═══════ ③ R6 팔·다리 + 화면에 모둠 색(셔츠)이 닿나 ═══════ */
 {
   const r = await pg.evaluate(()=>{
     const W=window, T=W.__THREE, GY=W.__GY, cam=W.__cam, o={};
     const list=[{x:0,z:14,y:GY,ry:Math.PI,g:0,mv:false,ph:0},{x:2,z:14,y:GY,ry:Math.PI,g:1,mv:false,ph:1}];
     W.__drawSheep(list, 1.0, 40, s=>W.__GHEX[s.g], 0.70);
-    const [body,puff] = W.__Pmesh();
-    o.양 = body.count; o.털 = puff.count;
-    /* 카메라를 양 앞에 세우고 바로 그린다 — 다음 프레임엔 updPlayer 가 카메라를 되돌린다.
+    const [body, head, hair, arm, eye, nose, legs] = W.__Pmesh();
+    o.사람 = body.count; o.팔 = arm.count; o.다리 = legs.count;
+    /* 카메라를 사람 앞에 세우고 바로 그린다 — 다음 프레임엔 updPlayer 가 카메라를 되돌린다.
        ★ 49차e — **게임 고리를 세우고 두 번 그린다.** 44차 모션(smoothHead)은 앞 프레임 방향에서
-         이어 도는 값이라 첫 그림은 양이 아직 덜 돌아 있을 수 있고, 기계가 바쁘면 그 사이 게임이
-         저 혼자 한 프레임을 더 돌아 양을 제자리로 되돌려 놓는다. 그러면 몸통 대신 **풀밭**을 읽는다
+         이어 도는 값이라 첫 그림은 사람이 아직 덜 돌아 있을 수 있고, 기계가 바쁘면 그 사이 게임이
+         저 혼자 한 프레임을 더 돌아 사람을 제자리로 되돌려 놓는다. 그러면 몸통 대신 **풀밭**을 읽는다
          (전체 판에서 네 번에 한 번 빨개졌다 — 105,152,82 는 잔디색이다). */
     const wasPaused = W.__G.paused; W.__G.paused = true;
     cam.position.set(0, GY+0.9, 14+2.4); cam.lookAt(0, GY+0.5, 14); cam.updateMatrixWorld(true);
@@ -96,8 +96,9 @@ await frames(pg, 3);
     const dm=W.__R.domElement, CW=dm.width, CH=dm.height;
     const cv=document.createElement('canvas'); cv.width=CW; cv.height=CH;
     const cx=cv.getContext('2d',{willReadFrequently:true}); cx.drawImage(dm,0,0);
-    /* 몸통 앞면 한가운데 — 앞면 f=0.47·0.7 = 0.33, 높이는 털뭉치 아래·다리 위(u 0.40·0.7) */
-    const p = new T.Vector3(0, GY+0.40*0.7, 14+0.33).project(cam);
+    /* 51차 — 셔츠(몸통) 앞면 한가운데. R6 몸통은 앞뒤 0.48 이라 앞면이 f 0.24·0.7 = 0.17,
+       높이는 몸통 가운데(u 0.76·0.7). 46차 사람은 (0.33, 0.28) 이었다 — 네발 몸통이 두 배 두꺼웠다. */
+    const p = new T.Vector3(0, GY+0.76*0.7, 14+0.17).project(cam);
     const px = Math.round((p.x+1)/2*CW), py = Math.round((1-p.y)/2*CH);
     const S=5, d=cx.getImageData(px-S, py-S, S*2+1, S*2+1).data;
     const rs=[],gs=[],bs=[]; let nd=0, cnt=0;
@@ -119,9 +120,10 @@ await frames(pg, 3);
     o.삼각형 = W.__R.info.render.triangles;
     return o;
   });
-  ok('양 2마리 = 몸통 2', r.양 === 2, r.양);
-  ok('★ 양 2마리 = 털뭉치 공 12 (한 마리에 여섯)', r.털 === 12, r.털);
-  ok('★ 화면의 몸통이 모둠 색이다 (색상 30° 안, 채도 0.2 이상)', r.색상차 < 30 && r.채도 > 0.2,
+  ok('사람 2명 = 몸통 2', r.사람 === 2, r.사람);
+  ok('★ 51차 — 사람 2명 = 팔 4 · 다리 4 (R6 은 한 사람에 둘씩, 마디 없는 통짜다)',
+     r.팔 === 4 && r.다리 === 4, '팔 '+r.팔+' 다리 '+r.다리);
+  ok('★ 화면의 셔츠(몸통)가 모둠 색이다 (색상 30° 안, 채도 0.2 이상)', r.색상차 < 30 && r.채도 > 0.2,
      `화면 ${r.색}, 모둠 ${r.원하는색}, 색상차 ${r.색상차.toFixed(0)}°, 채도 ${r.채도.toFixed(2)}`);
   ok('★ 몸통 면이 매끈하다 (이웃 픽셀 차 < 6)', r.이웃차 < 6, r.이웃차.toFixed(2));
   ok('삼각형이 예산 안이다 (< 200만)', r.삼각형 < 2000000, r.삼각형);

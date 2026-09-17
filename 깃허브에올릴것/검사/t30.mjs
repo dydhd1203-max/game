@@ -59,7 +59,7 @@ const VIS_EMO = `(root)=>{ const w=document.createTreeWalker(root, NodeFilter.SH
   const r = await pg.evaluate(new Function('return ('+VIS_EMO+')(document.getElementById("title"))'));
   const pk = await pg.evaluate(()=>({hat:document.querySelectorAll('#hatPick button img.ic').length,
                                     clo:document.querySelectorAll('#cloPick button img.ic').length,
-                                    txt:document.getElementById('titleCard').textContent.includes('양들의 밤')}));
+                                    txt:document.getElementById('titleCard').textContent.includes('좀비의 밤')}));
   ok('★ 시작 화면에 보이는 이모지가 없다', r.length===0, r.slice(0,8).join(' '));
   ok('모자 고르기 단추가 전부 그림이다', pk.hat >= 12, pk.hat);
   ok('옷 고르기 단추가 전부 그림이다 (38차 — 짝꿍 줄은 기능과 함께 뺐다)', pk.clo >= 10, pk.clo);
@@ -133,7 +133,7 @@ await frames(pg, 4);
     let held = 0, heldMap = 0, vc = 0;
     W.__held.traverse(c=>{ if(c.isMesh){ held++; if(c.material.map) heldMap++; if(c.geometry.attributes.color) vc++; } });
     o.held = held; o.heldMap = heldMap; o.vc = vc;
-    /* 입 — 양을 그리면 입이 하나씩 */
+    /* 입 — 사람을 그리면 입이 하나씩 */
     const GY = W.__GY;
     W.__drawSheep([{x:0,z:14,y:GY,ry:Math.PI,g:0,mv:false,ph:0},{x:2,z:14,y:GY,ry:Math.PI,g:1,mv:false,ph:1}], 1.0, 40, s=>W.__GHEX[s.g], 0.70);
     o.mouth = W.__Pmouth().count;
@@ -143,7 +143,7 @@ await frames(pg, 4);
   ok(`세계 물건 ${r.n}벌(입자·화살·돌·총알·구슬·상자·산물)이 무늬 없는 원색이다`, r.noMap);
   ok('세계 물건이 둥글다', r.round);
   ok('★ 손에 든 것에 텍스처가 없고 색은 꼭짓점에 구웠다', r.held > 0 && r.heldMap === 0 && r.vc > 0, `${r.held}벌 · 텍스처 ${r.heldMap} · 꼭짓점색 ${r.vc}`);
-  ok('★ 양 2마리 = 입 2 (로블록스 U 미소)', r.mouth === 2, r.mouth);
+  ok('★ 사람 2마리 = 입 2 (로블록스 U 미소)', r.mouth === 2, r.mouth);
 }
 await pg.close();
 

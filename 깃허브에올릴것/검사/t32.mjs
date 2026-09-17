@@ -195,7 +195,7 @@ await pg.waitForTimeout(1500);
   ok('하늘 섬 밑동 — 뒤집힌 고깔 하나, 섬 바닥 아래', r.base && r.base.n===1 && r.base.y < r.MINI_Y && r.base.geo, JSON.stringify(r.base));
 }
 
-/* ═══════ ⑥ 그리는 양 — 마을 한가운데 시점 ═══════ */
+/* ═══════ ⑥ 그리는 사람 — 마을 한가운데 시점 ═══════ */
 {
   const r = await pg.evaluate(()=>{ const W=window, PL=W.__PL;
     PL.x=0.5; PL.z=13; PL.y=W.__GY+2.2; PL.yaw=0; PL.pitch=-0.10; W.__updPlayer(0.001);

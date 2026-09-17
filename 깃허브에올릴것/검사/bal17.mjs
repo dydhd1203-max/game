@@ -1,5 +1,5 @@
-/* 16차 전용 — bal5 와 같은 밤을 돌리되, 뛰는 늑대의 체력과 비율을 갈아 가며 잰다.
-   인자: ... <뛰는늑대체력 목록> <뛰는늑대비율>
+/* 16차 전용 — bal5 와 같은 밤을 돌리되, 뛰는 좀비의 체력과 비율을 갈아 가며 잰다.
+   인자: ... <뛰는좀비체력 목록> <뛰는좀비비율>
    ★ 판을 10판으로 늘렸다. 5판이면 2/5 와 4/5 가 그냥 운으로 갈린다. */
 import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
@@ -93,7 +93,7 @@ const rows = await pg.evaluate(([SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV,JHP,JSH]
           for(const k of kids){ k.cd -= 0.05; if(k.cd>0) continue;
             let best=null, bd=Wp.rng*Wp.rng;
             /* ★ 16차 — 보스인지는 게임에 물어본다. 번호(k<3)를 베껴 두면
-               표에 늑대가 한 줄 붙을 때마다 조용히 엉뚱한 놈을 겨눈다. */
+               표에 좀비가 한 줄 붙을 때마다 조용히 엉뚱한 놈을 겨눈다. */
             if(k.boss){ for(const w of G.wolves){ if(!W.__isBoss(w.k)) continue;
               const dx=w.x-k.x, dz=w.z-k.z, d2=dx*dx+dz*dz; if(d2<bd){ bd=d2; best=w; } } }
             if(!best){ bd=Wp.rng*Wp.rng;
@@ -105,7 +105,7 @@ const rows = await pg.evaluate(([SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV,JHP,JSH]
             best.hp -= Math.round(Wp.dmg*dayMul*ATK*(Math.random()<0.14?2:1));
           }
           /* ★ 절반은 위험한 입구로 달려간다.
-             게임이 "🚨 3모둠 쪽에 늑대 6마리! 가까운 친구들 도와주러 가요" 라고
+             게임이 "🚨 3모둠 쪽에 좀비 6마리! 가까운 친구들 도와주러 가요" 라고
              직접 알려 주기 때문에, 실제 교실에서는 다들 그쪽으로 몰린다.
              제자리에 못 박아 두면 집중 입구가 뚫리는 걸 아무도 못 막는 것으로 잰다. */
           if(i % 100 === 0){
@@ -132,7 +132,7 @@ const rows = await pg.evaluate(([SHOOT,WPN,MULS,DAYS,FIX,HIT,TOW,ATK,LV,JHP,JSH]
         if(G.crystal > 0) win++;
         note += ' ' + Math.round(G.crystal);
       }
-      out.push(`뛰는늑대 체력 ${jhp} · 비율 ${(W.__BAL.jumpShare*100).toFixed(0)}% · ${day}일차 · ${LV>0?'Lv'+LV:'등급섞임'}`
+      out.push(`뛰는좀비 체력 ${jhp} · 비율 ${(W.__BAL.jumpShare*100).toFixed(0)}% · ${day}일차 · ${LV>0?'Lv'+LV:'등급섞임'}`
         + ` → 10판 중 ${win}판 버팀 (남은 수정${note})`);
     }
   }

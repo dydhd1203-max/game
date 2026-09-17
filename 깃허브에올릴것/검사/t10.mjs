@@ -1,4 +1,4 @@
-/* 7차 패치 검사 — 꾸미기 · 3인칭 죽음 · 상인 · 데미지 숫자 · 늑대 AI · 밸런스 */
+/* 7차 패치 검사 — 꾸미기 · 3인칭 죽음 · 상인 · 데미지 숫자 · 좀비 AI · 밸런스 */
 import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
@@ -97,7 +97,7 @@ const out = await pg.evaluate(async ()=>{
      (W.__paintHUD(), document.getElementById('crosshair').style.display==='none'));
   W.__drawSheep([...G.players.values()], 0, 40, ()=>0xffffff, 0.7);
   const mine = W.__Pmesh()[0].count;
-  ok('세팅: 혼자라 다른 양은 없다', mine===0, mine);
+  ok('세팅: 혼자라 다른 사람은 없다', mine===0, mine);
   ok('쓰러졌다는 안내가 뜬다', document.getElementById('downVeil').classList.contains('on'));
   PL.down=false; PL.hp=100; W.__paintHUD();
   ok('일어나면 조준점이 돌아온다', document.getElementById('crosshair').style.display!=='none');
@@ -149,12 +149,12 @@ const out = await pg.evaluate(async ()=>{
   /* 총알이 없으면 돌로 떨어진다 */
   G.phase='night'; G.t=100; G.wolves.length=0;
   const w1 = W.__spawnWolf(0, 0); w1.x = PL.x + 2; w1.z = PL.z; w1.y = PL.y;
-  PL.yaw = -Math.PI/2;                      // 앞(-sin,-cos) 이 늑대 쪽을 보게
+  PL.yaw = -Math.PI/2;                      // 앞(-sin,-cos) 이 좀비 쪽을 보게
   PL.pitch = 0; PL.down = false;
   W.__updPlayer(0.001);                     // 조준은 카메라 방향을 보므로 카메라를 먼저 맞춘다
   w1.x = PL.x + 2; w1.z = PL.z; w1.y = PL.y;
   K.ammo = 0; W.__setCrit(0); W.__setThrowCd(0); W.__comboMiss();
-  ok('세팅: 늑대를 조준했다', !!W.__aimWolf(), W.__aimWolf() ? '조준됨' : '못 찾음');
+  ok('세팅: 좀비를 조준했다', !!W.__aimWolf(), W.__aimWolf() ? '조준됨' : '못 찾음');
   const hp0 = w1.hp;
   W.__throw();
   const dmgNoAmmo = hp0 - w1.hp;
@@ -204,7 +204,7 @@ const out = await pg.evaluate(async ()=>{
   ok('없는 물약은 못 쓴다', (W.__usePotion(0), K.pot[0] === 0));
   K.bSpd = K.bAtk = K.bDef = 0;
 
-  /* ───────── 데미지 숫자 · 늑대 체력바 ───────── */
+  /* ───────── 데미지 숫자 · 좀비 체력바 ───────── */
   const dn = W.__dnums();
   ok('뜨는 숫자 칸은 18개로 고정', dn.length === 18, dn.length);
   for(const s of dn) s.t = 0;
@@ -223,13 +223,13 @@ const out = await pg.evaluate(async ()=>{
     w.x = PL.x + (i-4)*1.4; w.z = PL.z + 3; w.y = PL.y; w.hp = w.mx*(0.1 + i*0.1); }
   W.__drawWolfHP();
   const [bg, fg] = W.__HB();
-  ok('★ 늑대 체력바는 늑대 수만큼', bg.count === 9 && fg.count === 9, bg.count);
+  ok('★ 좀비 체력바는 좀비 수만큼', bg.count === 9 && fg.count === 9, bg.count);
   ok('★ 몇 마리든 그리기는 두 번 (인스턴스)', true, '바탕 1 + 채움 1');
   G.wolves.forEach(w=>{ w.x = PL.x + 400; });
   W.__drawWolfHP();
   ok('멀면 안 그린다', bg.count === 0, bg.count);
 
-  /* ───────── 늑대 AI ───────── */
+  /* ───────── 좀비 AI ───────── */
   G.wolves.length = 0; G.soldiers.length = 0;
   PL.down = false; PL.hp = 100;
   const gy = W.__solidTop(0, 20);
@@ -243,15 +243,15 @@ const out = await pg.evaluate(async ()=>{
     return [d0, Math.hypot(w.x-PL.x, w.z-PL.z), w];
   };
   const [g0, g1] = chase(gy);
-  ok('★ 땅 위 양은 쫓아온다', g1 < g0 - 1.0, g0.toFixed(1)+' → '+g1.toFixed(1));
+  ok('★ 땅 위 사람은 쫓아온다', g1 < g0 - 1.0, g0.toFixed(1)+' → '+g1.toFixed(1));
   const [h0, h1] = chase(gy + 1.4);
-  ok('★ 내 벽(1.4) 위 양도 쫓아온다', h1 < h0 - 1.0, h0.toFixed(1)+' → '+h1.toFixed(1));
-  /* ★ 거리로 재면 안 된다 — 양을 무시해도 수정이 양 너머에 있어서 어차피 가까워진다.
-     "양을 목표로 잡았나(shT)" 를 직접 본다. */
-  const [ , , wg] = chase(gy);        ok('땅 위 양은 목표로 잡는다', wg.shT === true, wg.shT);
-  const [ , , wh] = chase(gy + 1.4);  ok('내 벽 위 양도 목표로 잡는다', wh.shT === true, wh.shT);
+  ok('★ 내 벽(1.4) 위 사람도 쫓아온다', h1 < h0 - 1.0, h0.toFixed(1)+' → '+h1.toFixed(1));
+  /* ★ 거리로 재면 안 된다 — 사람을 무시해도 수정이 사람 너머에 있어서 어차피 가까워진다.
+     "사람을 목표로 잡았나(shT)" 를 직접 본다. */
+  const [ , , wg] = chase(gy);        ok('땅 위 사람은 목표로 잡는다', wg.shT === true, wg.shT);
+  const [ , , wh] = chase(gy + 1.4);  ok('내 벽 위 사람도 목표로 잡는다', wh.shT === true, wh.shT);
   const [r0, r1, wr] = chase(gy + 6.0);
-  ok('★ 망루(6칸) 위 양은 아예 목표로 안 잡는다 — 얻어맞기만 하는 상황을 막는다',
+  ok('★ 망루(6칸) 위 사람은 아예 목표로 안 잡는다 — 얻어맞기만 하는 상황을 막는다',
      wr.shT === false, '목표로 잡음? ' + wr.shT);
 
   /* 쫓을 때 더 빠르다 */
@@ -262,36 +262,36 @@ const out = await pg.evaluate(async ()=>{
   for(let i=0;i<20;i++) W.__hostSim(0.05);
   const near = p1 - Math.hypot(wc.x, wc.z);
   G.wolves.length = 0;
-  PL.x = 0; PL.z = 200;                    // 양이 아주 멀다 = 그냥 수정으로 간다
+  PL.x = 0; PL.z = 200;                    // 사람이 아주 멀다 = 그냥 수정으로 간다
   const wf = W.__spawnWolf(0, 0); wf.x = 0; wf.z = 25; wf.y = gy; wf.siege = false;
   const q1 = Math.hypot(wf.x, wf.z);
   for(let i=0;i<20;i++) W.__hostSim(0.05);
   const far = q1 - Math.hypot(wf.x, wf.z);
-  ok('★ 양을 쫓을 땐 더 빨리 달린다', near > far*1.15,
+  ok('★ 사람을 쫓을 땐 더 빨리 달린다', near > far*1.15,
      '쫓을 때 '+near.toFixed(2)+' / 그냥 '+far.toFixed(2));
   PL.x = 0; PL.z = 20; PL.y = gy;
 
   /* 공성 시간 제한 */
   G.wolves.length = 0;
   const ws = W.__spawnWolf(0, 0);
-  ok('공성 늑대에게 시간 제한이 있다', ws.sgLeft > 0, ws.sgLeft);
+  ok('공성 좀비에게 시간 제한이 있다', ws.sgLeft > 0, ws.sgLeft);
 
   /* ───────── 밸런스 ───────── */
   ok('★ 낮이 140초 (150 → 140)', G.set.daySec===140, G.set.daySec);
   /* ★ 밸런스 숫자를 검사에 베껴 두면, 값을 고칠 때마다 검사가 빨간불이 되고
      결국 아무도 검사를 안 믿게 된다. 값이 아니라 '관계' 를 본다 —
-     늑대가 예전(1.0)보다 훨씬 튼튼하고, 건물보다 수정을 덜 아프게 깎는가. */
-  ok('★ 늑대 체력이 크게 올라 있다 (12차 이전 기준의 세 배 남짓)',
+     좀비가 예전(1.0)보다 훨씬 튼튼하고, 건물보다 수정을 덜 아프게 깎는가. */
+  ok('★ 좀비 체력이 크게 올라 있다 (12차 이전 기준의 세 배 남짓)',
      W.__BAL.hpMul >= 2.5 && W.__BAL.hpMul <= 4.5, W.__BAL.hpMul+'배');
-  ok('★ 늑대의 건물 피해가 2배', W.__BAL.dmgMul===2, W.__BAL.dmgMul);
+  ok('★ 좀비의 건물 피해가 2배', W.__BAL.dmgMul===2, W.__BAL.dmgMul);
   /* 수정 깎는 힘만 따로 두는 이유: 2배로 하면 한 마리만 새도 20초 만에 끝난다 */
   ok('★ 수정 깎는 힘은 따로 1.4배', W.__BAL.crystalMul===1.4, W.__BAL.crystalMul);
-  ok('★ 보스는 같은 날 늑대보다 확실히 튼튼하다 (배수가 따로 있다)',
+  ok('★ 보스는 같은 날 좀비보다 확실히 튼튼하다 (배수가 따로 있다)',
      W.__BAL.bossMul > 1.1 && W.__BAL.bossMul < 2, W.__BAL.bossMul+'배');
-  /* 실제로 늑대에 값이 먹었는지 확인한다 — 표만 바꾸고 안 쓰면 소용없다 */
+  /* 실제로 좀비에 값이 먹었는지 확인한다 — 표만 바꾸고 안 쓰면 소용없다 */
   G.wolves.length = 0; G.day = 8;
   const wm = W.__spawnWolf(0, 0);
-  ok('★ 배수가 진짜 늑대에게 먹었다 (기본 40 × 성장 × 1.85)',
+  ok('★ 배수가 진짜 좀비에게 먹었다 (기본 40 × 성장 × 1.85)',
      wm.mx > 40*1.85, Math.round(wm.mx));
   /* ★ 칸당 보상(amt) 하나만 보면 안 된다 — 14차에 칸 수(hits/per)도 같이 바뀌면서
      amt 는 2→3 인데 광맥당 총 산출은 8→15 가 됐다. 아이가 실제로 얻는 건 '총 산출'이다.

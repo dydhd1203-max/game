@@ -1,4 +1,4 @@
-/* 17차f 화면 확인 — 전직한 양 (길 3 × 단계 3) */
+/* 17차f 화면 확인 — 전직한 사람 (길 3 × 단계 3) */
 import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
@@ -23,7 +23,7 @@ const row = async (nm, jb)=>{
   await pg.evaluate((jb)=>{
     const W=window, G=W.__G;
     for(const k of ['a','b','c']) { G.players.delete(k); W.__pcMap.delete(k); }
-    /* 카메라가 보는 쪽을 -z 로 못 박는다 — 안 그러면 양들이 등 뒤에 선다 */
+    /* 카메라가 보는 쪽을 -z 로 못 박는다 — 안 그러면 사람들이 등 뒤에 선다 */
     W.__PL.yaw = 0;
     const cx=W.__PL.x, cz=W.__PL.z;
     [0,1,2].forEach((jt,i)=>{
@@ -39,8 +39,8 @@ const row = async (nm, jb)=>{
   await pg.screenshot({path:OUT+'/'+nm+'.png'});
   console.log('찍음', nm);
 };
-await row('job-1전투양', 0);
-await row('job-2건축가양', 1);
-await row('job-3일꾼양', 2);
+await row('job-1전사', 0);
+await row('job-2건축가', 1);
+await row('job-3일꾼', 2);
 console.log(errs.length? '오류: '+errs.slice(0,4).join(' | ') : '오류 없음');
 await b.close(); srv.close();

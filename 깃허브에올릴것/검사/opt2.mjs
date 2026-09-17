@@ -30,7 +30,7 @@ const out = await pg.evaluate(()=>{
         const o=[...W.__STRU.values()].pop(); o.lv=4; o.mx=W.__bs(t,'hp',4); o.hp=o.mx; } } }
   G.me.g=0; W.__rebuild();
   G.day=12; G.crystal=G.set.crystalMax; W.__goNight();
-  /* 늑대를 직접 40마리 세워 둔다 — 탑이 바로 잡아 버리지 않게 체력을 크게 */
+  /* 좀비를 직접 40마리 세워 둔다 — 탑이 바로 잡아 버리지 않게 체력을 크게 */
   G.wolves.length=0; W.__spawnQ().length=0;
   for(let i=0;i<40;i++){ const g=i%5, d=W.__DIRS[g], w=W.__spawnWolf(i%3, g);
     const r=26+(i%9)*1.8, off=(((i/9)|0)-2)*2.4;
@@ -48,12 +48,12 @@ const out = await pg.evaluate(()=>{
     const ms=(performance.now()-t)/n;
     L.push('  '+name.padEnd(20,' ')+ms.toFixed(3)+' ms/회'); return ms; };
 
-  L.push('── 한 프레임 안에서 도는 일 (늑대 40 · 건물 '+W.__STRU.size+'채) ──');
+  L.push('── 한 프레임 안에서 도는 일 (좀비 40 · 건물 '+W.__STRU.size+'채) ──');
   const mSim  = bench('시뮬(hostSim)', 300, ()=>W.__hostSim(1/60));
-  const mWolf = bench('늑대 그리기',   300, ()=>W.__drawWolves(G.wolves, 1, 1/60));
+  const mWolf = bench('좀비 그리기',   300, ()=>W.__drawWolves(G.wolves, 1, 1/60));
   const mSol  = bench('병사 그리기',   300, ()=>W.__drawSoldiers(G.soldiers, 1));
-  const mSh   = bench('양 그리기',     300, ()=>W.__drawSheep([...G.players.values()], 1, 21, s=>0xffffff, 1));
-  const mHP   = bench('늑대 체력막대', 300, ()=>W.__drawWolfHP());
+  const mSh   = bench('사람 그리기',     300, ()=>W.__drawSheep([...G.players.values()], 1, 21, s=>0xffffff, 1));
+  const mHP   = bench('좀비 체력막대', 300, ()=>W.__drawWolfHP());
   const mTag  = bench('이름표',        200, ()=>W.__updTags());
   const mNum  = bench('뜨는 숫자',     300, ()=>W.__dnTick(1/60));
   const mHeld = bench('든 물건',       300, ()=>W.__updHeld(1/60, false, 0));
@@ -76,7 +76,7 @@ const out = await pg.evaluate(()=>{
   L.push('  (예전처럼 매번 통째로 다시 만들면 +'+(mReb/5).toFixed(2)+' ms, 그리고 '
     +mReb.toFixed(1)+'ms 짜리 턱이 초당 12번)');
 
-  /* 쓰레기 만드는 양 — 크롬북에서 끊김의 진짜 원인 */
+  /* 쓰레기 만드는 사람 — 크롬북에서 끊김의 진짜 원인 */
   L.push('');
   L.push('── 쓰레기 수거 압박 ──');
   if(performance.memory){
@@ -85,7 +85,7 @@ const out = await pg.evaluate(()=>{
     for(let i=0;i<600;i++){ W.__hostSim(1/60); W.__drawWolves(G.wolves,i/60,1/60);
       W.__drawWolfHP(); W.__dnTick(1/60); }
     const h1 = performance.memory.usedJSHeapSize;
-    L.push('  600프레임 동안 새로 만든 양 '+((h1-h0)/1048576).toFixed(1)+' MB'
+    L.push('  600프레임 동안 새로 만든 사람 '+((h1-h0)/1048576).toFixed(1)+' MB'
       +'  → 프레임당 '+(((h1-h0)/600)/1024).toFixed(1)+' KB');
   } else L.push('  (이 브라우저에선 못 잼)');
 

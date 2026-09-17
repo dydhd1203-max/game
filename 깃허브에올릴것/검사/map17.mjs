@@ -20,7 +20,7 @@ const num = await pg.evaluate(()=>{
   o.어귀 = W.__GMOUTH.map(m=>[Math.round(m[0]), Math.round(m[1])]);
   o.방향 = W.__DIRS.map(d=>[d.dx, d.dz, d.off]);
   /* 각 입구 어귀에서, 통로를 가로지르는 '한 줄' 이 정말 한 줄인가 —
-     통로 양 끝의 산이 같은 t(축 거리)에서 시작하면 직선이다 */
+     통로 사람 끝의 산이 같은 t(축 거리)에서 시작하면 직선이다 */
   o.어귀직선 = [];
   for(let g=0; g<5; g++){
     const hits=[];
@@ -53,7 +53,7 @@ await pg.evaluate(()=>{
   st.textContent='#topLeft,#topRight,#topMid,#dock,#hint,#stageTitle,#crosshair,#shopTip,#forgeTip,#misWrap,#combo,#aimBadge,#feed,#rankWrap,#downVeil,#toast{display:none!important}';
   document.head.appendChild(st);
   W.__G.phase='day'; W.__G.paused=false;
-  /* ★ 게임 루프가 매 프레임 카메라를 양의 자리로 되돌린다 — 아예 세워 둔다.
+  /* ★ 게임 루프가 매 프레임 카메라를 사람의 자리로 되돌린다 — 아예 세워 둔다.
      그리기는 이 블록 밖이라 계속 돈다. 안개도 꺼야 위에서 내려다보인다. */
   W.__G.started = false;
   W.__scene.fog = null;

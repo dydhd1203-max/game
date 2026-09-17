@@ -1,4 +1,4 @@
-/* 12차 검사 — 경험치·레벨·스텟(C) · 늑대 강화 · 탑 개수 제한 풀기 */
+/* 12차 검사 — 경험치·레벨·스텟(C) · 좀비 강화 · 탑 개수 제한 풀기 */
 import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
@@ -60,7 +60,7 @@ const r = await pg.evaluate(()=>{
   o.bonusUp = now.bonus > base.bonus;
   o.vals = `캐기 ${base.mine.toFixed(3)}→${now.mine.toFixed(3)}s · 짓기 ${base.work.toFixed(2)}→${now.work.toFixed(2)}s`
     + ` · 체력 ${base.hp}→${now.hp} · 공격 ×${base.atk.toFixed(2)}→×${now.atk.toFixed(2)}`
-    + ` · 방어 ${base.def}→${now.def} · 캐는양 +${now.bonus}`;
+    + ` · 방어 ${base.def}→${now.def} · 캐는사람 +${now.bonus}`;
 
   /* ── 점수보다 많이 못 찍는다 · 최대치를 넘길 수 없다 ── */
   for(let i=0;i<40;i++) W.__takeStat(0);
@@ -98,7 +98,7 @@ const r = await pg.evaluate(()=>{
   probe('fix', ()=>{ built.hp = built.mx*0.5; W.__repair ? W.__repair(built) : 0; });
   o.gainMine = gains.mine; o.gainBuild = gains.build; o.gainUp = gains.up;
 
-  /* ── 늑대 ── */
+  /* ── 좀비 ── */
   o.hpMul = W.__BAL.hpMul;
   o.chaseMin = W.__BAL.chaseMin; o.chaseCap = W.__BAL.chaseCap;
   o.sheepSpd = 5.4;
@@ -138,7 +138,7 @@ ok('★ 점수가 없으면 못 찍는다', r.noFreePts);
 ok('★ 스텟은 최대치를 못 넘는다', r.noOverMax);
 ok('⛏️ 캐는 손 — 캐는 시간이 준다', r.mineFaster);
 ok('🔨 빠른 망치 — 짓기·강화·수리 시간이 준다', r.workFaster);
-ok('❤️ 튼튼한 양 — 최대 체력이 는다', r.hpUp);
+ok('❤️ 튼튼한 사람 — 최대 체력이 는다', r.hpUp);
 ok('🎯 사격 솜씨 — 공격이 세진다', r.atkUp);
 ok('🛡️ 가죽 등 — 방어가 는다', r.defUp);
 ok('🎒 큰 주머니 — 캐는 양이 는다', r.bonusUp);
@@ -146,26 +146,26 @@ ok('   (값)', true, r.vals);
 ok('★ 자원을 캐면 경험치를 준다', r.gainMine > 0, r.gainMine);
 ok('★ 건물을 지으면 경험치를 준다', r.gainBuild > 0, r.gainBuild);
 ok('★ 강화하면 경험치를 준다', r.gainUp > 0, r.gainUp);
-ok('★ 늑대 체력이 크게 올라 있다 (예전 1.85배보다 위)', r.hpMul > 1.85 && r.hpMul < 4.5, r.hpMul+'배');
-ok('★ 쫓을 때 늑대는 반드시 양(5.4)보다 빠르다', r.chaseMin > r.sheepSpd,
-   `최소 ${r.chaseMin} > 양 ${r.sheepSpd}`);
+ok('★ 좀비 체력이 크게 올라 있다 (예전 1.85배보다 위)', r.hpMul > 1.85 && r.hpMul < 4.5, r.hpMul+'배');
+ok('★ 쫓을 때 좀비는 반드시 사람(5.4)보다 빠르다', r.chaseMin > r.sheepSpd,
+   `최소 ${r.chaseMin} > 사람 ${r.sheepSpd}`);
 ok('그래도 너무 빠르진 않다 (9살이 손 쓸 수 있게)', r.chaseCap <= 7, r.chaseCap);
-ok('★ 헛쫓으면 포기하는 시간이 있다 (양만 따라다니는 바보가 안 되게)',
+ok('★ 헛쫓으면 포기하는 시간이 있다 (사람만 따라다니는 바보가 안 되게)',
    r.chaseBudget > 0 && r.chaseBudget < 12, r.chaseBudget + '초');
-ok('늑대가 태어날 때 그 시간을 들고 나온다', r.w1chLeft === r.chaseBudget, r.w1chLeft);
-ok('★ 날이 갈수록 늑대가 빨라진다', r.w15spd > r.w1spd * 1.3,
+ok('좀비가 태어날 때 그 시간을 들고 나온다', r.w1chLeft === r.chaseBudget, r.w1chLeft);
+ok('★ 날이 갈수록 좀비가 빨라진다', r.w15spd > r.w1spd * 1.3,
    `1일차 ${r.w1spd.toFixed(2)} → 15일차 ${r.w15spd.toFixed(2)}`);
 ok('★ 12일차와 15일차의 마리수가 갈린다 (예전엔 둘 다 상한에 걸려 같았다)',
    r.wave15 > r.wave12, `${r.wave12}마리 → ${r.wave15}마리`);
-ok('마리수 상한이 늑대 렌더 상한을 안 넘는다 (보스 부하까지)',
+ok('마리수 상한이 좀비 렌더 상한을 안 넘는다 (보스 부하까지)',
    r.waveCap + 14 <= r.maxw, `${r.waveCap}+14 <= ${r.maxw}`);
 ok('★ 화살탑·얼음탑·배럭 개수 제한이 풀렸다', r.caps.every(v=>v==='없음'), r.caps.join('/'));
 
-/* ── 쫓다가도 옆에 건물·수정이 있으면 그것부터, 양이 다시 오면 또 양 ── */
+/* ── 쫓다가도 옆에 건물·수정이 있으면 그것부터, 사람이 다시 오면 또 사람 ── */
 const sw = await pg.evaluate(()=>{
   const W=window, G=W.__G, PL=W.__PL, o={};
   for(let i=0;i<5;i++) W.__base[i]={w:99999,s:99999,o:99999}; W.__recompute();
-  /* 나무·바위를 치워 길을 비운다 (안 그러면 늑대가 그것에 막혀 결과가 흔들린다) */
+  /* 나무·바위를 치워 길을 비운다 (안 그러면 좀비가 그것에 막혀 결과가 흔들린다) */
   for(const n of W.__NODES) if(n.alive){ n.alive=false; for(const h of n.hs) W.__bset(h,false); n.shown=0; }
   const d = W.__DIRS[0]; G.me.g = 0;
   G.day = 8; G.crystal = G.set.crystalMax; W.__goNight();
@@ -184,7 +184,7 @@ const sw = await pg.evaluate(()=>{
     W.__rebuild();
     G.wolves.length=0; W.__spawnQ().length=0;
     const w = W.__spawnWolf(0,0);
-    /* 늑대는 벽 바로 옆에, 양은 5칸 떨어진 곳에 (벽이 더 가깝다) */
+    /* 좀비는 벽 바로 옆에, 사람은 5칸 떨어진 곳에 (벽이 더 가깝다) */
     const wx = wall ? W.__struCX(wall) : d.dx*30, wz = wall ? W.__struCZ(wall) : d.dz*30;
     w.x = wx + d.dx*2.2; w.z = wz + d.dz*2.2;
     w.y = W.__solidTop(Math.floor(w.x), Math.floor(w.z));
@@ -194,7 +194,7 @@ const sw = await pg.evaluate(()=>{
     return {w, wall};
   };
 
-  /* ① 벽이 있으면 — 양을 놓고 벽을 문다 */
+  /* ① 벽이 있으면 — 사람을 놓고 벽을 문다 */
   {
     const {w, wall} = setup(true);
     const hp0 = wall ? wall.hp : 0;
@@ -204,19 +204,19 @@ const sw = await pg.evaluate(()=>{
     o.wallChase = chased/n;
     o.wallHurt = wall ? hp0 - wall.hp : 0;
   }
-  /* ② 벽이 없으면 — 그냥 양을 쫓는다 */
+  /* ② 벽이 없으면 — 그냥 사람을 쫓는다 */
   {
     const {w} = setup(false);
     let chased = 0, n = 0;
     for(let i=0;i<90;i++){ W.__step(1, 1/30); if(w.shT) chased++; n++; }
     o.openChase = chased/n;
   }
-  /* ③ 벽을 물던 늑대 옆으로 양이 오면 다시 양으로 */
+  /* ③ 벽을 물던 좀비 옆으로 사람이 오면 다시 사람으로 */
   {
     const {w, wall} = setup(true);
     for(let i=0;i<60;i++) W.__step(1, 1/30);        // 벽을 물게 둔다
     o.beforeBack = w.shT;
-    PL.x = w.x + 0.9; PL.z = w.z + 0.9;             // 양이 코앞으로 왔다
+    PL.x = w.x + 0.9; PL.z = w.z + 0.9;             // 사람이 코앞으로 왔다
     PL.y = W.__solidTop(Math.floor(PL.x), Math.floor(PL.z));
     for(let i=0;i<10;i++) W.__step(1, 1/30);
     o.afterBack = w.shT;
@@ -227,10 +227,10 @@ const sw = await pg.evaluate(()=>{
     G.wolves.length=0; W.__spawnQ().length=0;
     const w = W.__spawnWolf(0,0);
     /* 수정이 뚜렷하게 더 가까운 자리에 세운다 —
-       양이 조금 더 가까운 정도로는 안 바꾼다(딸꾹질 방지용 여유, sheepBias). */
+       사람이 조금 더 가까운 정도로는 안 바꾼다(딸꾹질 방지용 여유, sheepBias). */
     w.x = d.dx*3.0; w.z = d.dz*3.0;                  // 수정에서 3칸
     w.y = W.__solidTop(Math.floor(w.x), Math.floor(w.z));
-    PL.x = w.x + d.dx*6.0; PL.z = w.z + d.dz*6.0;    // 양은 6칸
+    PL.x = w.x + d.dx*6.0; PL.z = w.z + d.dz*6.0;    // 사람은 6칸
     PL.y = W.__solidTop(Math.floor(PL.x), Math.floor(PL.z));
     PL.hp = 99999; PL.down = false;
     const c0 = G.crystal;
@@ -244,12 +244,12 @@ const sw = await pg.evaluate(()=>{
 ok('★ 쫓다가도 옆에 벽이 더 가까우면 벽부터 문다 (쫓는 비율)',
    sw.wallThere && sw.wallChase < 0.25, (sw.wallChase*100).toFixed(0)+'%');
 ok('★ 그 벽이 실제로 깎인다', sw.wallHurt > 0, Math.round(sw.wallHurt));
-ok('★ 옆에 아무것도 없으면 그냥 양을 쫓는다',
+ok('★ 옆에 아무것도 없으면 그냥 사람을 쫓는다',
    sw.openChase > 0.6, (sw.openChase*100).toFixed(0)+'%');
-ok('★ 벽을 물던 늑대도 양이 코앞에 오면 다시 양으로 돌아온다',
+ok('★ 벽을 물던 좀비도 사람이 코앞에 오면 다시 사람으로 돌아온다',
    sw.beforeBack === false && sw.afterBack === true,
-   '벽 물 때 ' + sw.beforeBack + ' → 양이 오면 ' + sw.afterBack);
-ok('★ 수정이 코앞이면 양을 두고 수정부터 깎는다',
+   '벽 물 때 ' + sw.beforeBack + ' → 사람이 오면 ' + sw.afterBack);
+ok('★ 수정이 코앞이면 사람을 두고 수정부터 깎는다',
    sw.cryChase < 0.3 && sw.cryLoss > 0,
    '쫓는 비율 ' + (sw.cryChase*100).toFixed(0) + '% · 수정 -' + Math.round(sw.cryLoss));
 

@@ -18,7 +18,7 @@ const shot = async (nm, f)=>{ await pg.evaluate(f); await pg.waitForTimeout(900)
 await shot('quiz-banner', ()=>{
   const W=window, G=W.__G, M=W.__MINI();
   W.__goMini(0); W.__step((M.INTRO+1)*30, 1/30);
-  document.getElementById('tQ').value = '늑대는 밤에만 나타난다';
+  document.getElementById('tQ').value = '좀비는 밤에만 나타난다';
   document.getElementById('tQO').click();
   W.__PL.x = -M.OX; W.__PL.z = M.OZ; W.__miniTick(0.05);
   G.paused = true; W.__paintMini();
@@ -26,7 +26,7 @@ await shot('quiz-banner', ()=>{
 /* 긴 문제도 잘 들어가나 */
 await shot('quiz-banner-long', ()=>{
   const W=window, G=W.__G;
-  G.mini.q = '양은 풀을 먹고, 늑대는 양을 잡아먹는다. 그럼 늑대도 풀을 먹을까?';
+  G.mini.q = '사람은 풀을 먹고, 좀비는 사람을 잡아먹는다. 그럼 좀비도 풀을 먹을까?';
   W.__hudPrev().qbQ = null; W.__paintMini();
 });
 /* 정답 공개 */
