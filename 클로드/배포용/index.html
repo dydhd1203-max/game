@@ -2626,7 +2626,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '47차 · 경주 골인율(좁은 발판 넓히기 · 경주에서는 튕김 절반) · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 양 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
+const GAME_VER = '48차 · 로블록스 화면(굵은 고딕 폰트 · 검은 반투명 UI · 3인칭 카메라 + 휠 줌 · 매끈 플라스틱 질감 · 즉시 가속·정지 · 공중 자세 둘) · 47차 경주 골인율 · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 양 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -3359,7 +3359,7 @@ heldLight.position.set(0.55, 0.15, -0.25);
        1.06   100.8   53.5   53.1
 
      밝기를 25차 전과 맞추는 쪽을 골랐다. 어두우면 아이가 늑대를 못 본다. */
-const hemi = new THREE.HemisphereLight(0xcfe8ff, 0x5a7a4a, 0.75); scene.add(hemi);
+const hemi = new THREE.HemisphereLight(0xcfe8ff, 0x5a7a4a, 0.95); scene.add(hemi);   // 48차 — 0.75 → 0.95 (로블록스 OutdoorAmbient 처럼 그늘을 옅게)
 const sun  = new THREE.DirectionalLight(0xffffff, 1.15); sun.position.set(50,90,30); scene.add(sun);
 const amb  = new THREE.AmbientLight(0xffffff, 0.30); scene.add(amb);
 
@@ -3673,8 +3673,8 @@ function addGrain(mat, tex, scale, amt){
   mat.extensions = Object.assign(mat.extensions || {}, {derivatives:true});
   mat.needsUpdate = true; return mat;
 }
-addGrain(WMAT, GRAIN.rock, 0.6, 0.46);                    // 세계 조각(산·성문·농장·가게) — 돌결, 1.7칸마다 반복
-addGrain(flatFor(T.cloth), GRAIN.rock, 0.7, 0.22);        // 건물 몸통(30차 조각) — 조금 옅게
+addGrain(WMAT, GRAIN.rock, 0.6, 0.13);                    // 세계 조각(산·성문·농장·가게) — 48차: 0.46 → 0.13 (로블록스 매끈 플라스틱). 0 으로 두면 큰 면이 띠진다
+addGrain(flatFor(T.cloth), GRAIN.rock, 0.7, 0.07);        // 건물 몸통(30차 조각) — 48차: 0.22 → 0.07
 const _wc = new THREE.Color(), _wc2 = new THREE.Color();
 const banks = new Map();
 const _v=new THREE.Vector3(), _q=new THREE.Quaternion(), _s=new THREE.Vector3(), _m=new THREE.Matrix4();
@@ -3888,7 +3888,7 @@ function buildWorldMesh(){
   }
   gg.computeVertexNormals();
   gg.setAttribute('color', new THREE.BufferAttribute(cols,3));
-  const disc = new THREE.Mesh(gg, addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.grass, 0.35, 0.16));   // 33차 — 풀결
+  const disc = new THREE.Mesh(gg, addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.grass, 0.35, 0.10));   // 33차 — 풀결 · 48차: 0.16 → 0.10
   disc.position.y = GY;
   if(GFX.shadow) disc.receiveShadow = true;       // 바닥은 받기만 한다 (드리울 것이 없다)
   scene.add(disc); groundDisc = disc;
@@ -4034,8 +4034,8 @@ const GEMG   = new THREE.OctahedronGeometry(0.5, 0);   GEMG.computeVertexNormals
    · jitterGeo — 잎 덩어리의 꼭짓점을 자리 해시로 흔들어 울퉁불퉁하게(같은 자리 꼭짓점은 같이 움직여 면이 안 벌어진다). 셋을 만들어 돌려 쓴다.
    · 줄기는 일곱 면을 번갈아 어둡게 — 껍질 띠. 벽돌 판은 모따기 + 아래 어둡게. 산 기둥도 아래를 어둡게.
    꼭짓점 색이 있는 지오메트리는 bpush 가 알아서 WMATV(vertexColors) 재질로 바꿔 넣는다. */
-const WMATV = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.rock, 0.6, 0.40);   // 33차 — 돌결
-const WMATL = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.leaf, 1.4, 0.50);   // 33차 — 잎 얼룩
+const WMATV = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.rock, 0.6, 0.12);   // 33차 — 돌결 · 48차: 0.40 → 0.12
+const WMATL = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.leaf, 1.4, 0.16);   // 33차 — 잎 얼룩 · 48차: 0.50 → 0.16 (잎은 조금 남긴다 — 완전히 매끈하면 덩어리 하나로 뭉친다)
 function jitterGeo(g, amp, seed){
   const P = g.attributes.position, v = new THREE.Vector3();
   for(let i=0;i<P.count;i++){ v.fromBufferAttribute(P,i);
@@ -9200,11 +9200,25 @@ function drawSheep(list, t, cap, colOf, scale){
       const p = run ? gait + (front ? 0.9 : -0.6) : gait + ((li===0 || li===3) ? 0 : Math.PI);
       const sw = mvK * Math.sin(p) * (run ? (front ? 1.0 : 0.9) : 0.85), up = mvK * Math.max(0, Math.cos(p));
       let th1, bend;
+      /* ★ 48차 — 로블록스 공중 자세 둘(선생님: "모션 좀 진짜 로블록스처럼").
+         로블록스 R6 은 **오를 때 팔을 위로 번쩍**, **내려올 때 팔을 옆으로 벌린다** — 두 자세가 또렷이 다르다.
+         47차까지 우리는 공중이면 넷 다 뒤로 접기 하나뿐이라 오르는지 내려오는지 몸으로 안 보였다.
+         네 발 짐승으로 옮기면:
+           · 오를 때(vy > 1) — 앞다리를 앞으로 쭉, 뒷다리를 뒤로 쭉(무릎 거의 안 접힘). 슈퍼맨 자세라 뜀이 또렷하다.
+           · 내려올 때 — 네 다리를 아래로 곧게 뻗고 옆으로 조금 벌린다. 착지 준비로 읽힌다.
+         42차 도약 늘어남(take)은 그 위에 그대로 얹힌다. */
+      let spread = 0;
       if(down){ th1 = Math.PI; bend = 0; }
-      else if(air){ th1 = -0.55 + take*1.3; bend = 1.15*(1 - take); }
+      else if(air){
+        const rise = vy > 1;
+        th1  = rise ? (front ? 0.95 : -0.85) + take*0.30 : -0.10;
+        bend = rise ? 0.30*(1 - take) : 0.10;
+        spread = rise ? 0 : 0.10;                       // 내려올 때만 옆으로 벌린다
+      }
       else { th1 = sw*(run ? 0.95 : 0.80); bend = up*(run ? 1.25 : 1.05) + (1 - mvK)*0.06; }
       const hy = down ? Y(0.59) : y + 0.40*sc + Math.max(0, bob)*0.4;
-      leg2(P_legs, ln, null, 0, X(fo, 0.27*si), hy, Z(fo, 0.27*si), fx, fz, ry, th1, bend, 0.21*sc, 0.20*sc, 0.19*sc, 0x5c564f, 0, 0);
+      const lsd = (0.27 + spread)*si;
+      leg2(P_legs, ln, null, 0, X(fo, lsd), hy, Z(fo, lsd), fx, fz, ry, th1, bend, 0.21*sc, 0.20*sc, 0.19*sc, 0x5c564f, 0, 0);
       ln += 2; li++;
     }
     /* 꾸미기 — 모자·안경은 머리를 따라(YH), 옷은 몸통을 따라(Y) 움직인다.
@@ -9637,8 +9651,13 @@ function jobTier(){ return (miniOn() || XP.job < 0) ? 0 : Math.max(0, Math.min(2
      여기까지 10% 빨라지면 코스 난이도가 통째로 흔들린다. */
 const RACE_SPD = 1.64;                      // 42차 — 경주에서만 걷기·달리기 1.8배(선생님: "50%는 더 빠르게… 평상시는 지금 속도로" → "양 속도 20% 더"). 걸음 박자는 1.4배만 빨라진다
 let stamina = 1, sprinting = false, touchRun = false, runDustT = 0;
-/* 41차 — 가속 7/s(0.14초에 63%) · 감속 22/s(0.045초 — 좁은 다리 끝에서 미끄러져 떨어지면 안 된다) · 내 걸음 위상(gaitMe — 발소리·카메라·양 그리기가 같은 박자) */
-const ACC_UP = 7, ACC_DOWN = 22;
+/* 41차 — 가속 7/s(0.14초에 63%) · 감속 22/s. 내 걸음 위상(gaitMe — 발소리·카메라·양 그리기가 같은 박자)
+   ★ 48차 — **로블록스는 가속 곡선이 없다.** 휴머노이드는 누르면 그 순간 WalkSpeed 고 떼면 그 자리에 선다.
+     41차의 0.14초 붙기가 '로블록스가 아닌' 느낌의 큰 부분이었다(선생님: "모션 좀 진짜 로블록스처럼").
+     40/s 면 0.025초 — 사실상 즉시인데, 한 프레임에 뚝 끊기지는 않아서 걸음 위상·먼지가 튀지 않는다.
+     발 미끄러짐은 41차 그대로 안 생긴다 — 걸음 박자가 시간이 아니라 **간 거리**에 묶여 있어서
+     속도가 어떻게 붙든 발이 땅을 미는 양과 몸이 나가는 양이 같다. */
+const ACC_UP = 40, ACC_DOWN = 40;
 let gaitMe = 0, camAnc = null, camDip = 0;   // camDip — 42차 착지 때 3인칭 카메라가 살짝 내려앉는다
 function sprintMul(dt, moving){
   const want = (KEY['shift'] || touchRun) && moving && !PL.down && stamina > 0;
@@ -17141,11 +17160,13 @@ function updSky(dt, night){
      2.8% 는 아이 눈에 안 보이는 차이고, 그만큼 밤 기분은 낫다. 더 맞추는 건 과한 손질이다.
 
      낮은 처음부터 옛 판과 같았다(96.0 vs 96.8). 바뀐 것은 그늘의 진하기지 밝기가 아니다. */
-  hemi.intensity = (0.75 - skyK*0.07) * LIT_K;
+  /* ★ 48차 — 로블록스 결: 해를 낮추고 하늘빛·환경광을 올려 **전체 밝기는 그대로 두고 그늘만 옅게** 한다.
+     합은 거의 같다(낮 0.75+1.15+0.30 = 2.20 → 0.95+0.85+0.40 = 2.20). 바뀌는 것은 그늘의 진하기다. */
+  hemi.intensity = (0.95 - skyK*0.09) * LIT_K;
   sun.color.copy(SUN_D).lerp(SUN_N, skyK);
   /* 밤에도 달빛 그림자는 남긴다 — 낮에만 그림자가 있으면 밤이 평평해 보인다. */
-  sun.intensity = (1.15 - skyK*0.85) * LIT_K;
-  amb.intensity = (0.30 - skyK*0.02) * LIT_K;
+  sun.intensity = (0.85 - skyK*0.62) * LIT_K;      // 48차 — 1.15 → 0.85
+  amb.intensity = (0.40 - skyK*0.03) * LIT_K;      // 48차 — 0.30 → 0.40
   cloudMat.color.setScalar(1-skyK*0.66);
 }
 let skyK = 0;
