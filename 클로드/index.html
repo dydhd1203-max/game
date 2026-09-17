@@ -2471,7 +2471,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '45차 · 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발 · 망토·공전·빛·오라) · 경주 미술(무지개 한 장 곡선 · 통나무 아치 문 · 섬 울타리 제거) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
+const GAME_VER = '46차 · 1차 날개 하양·둥글둥글 · 방울 꼬리 · 발소리 키캡 · 경주 양옆 거리(끊김 없는 땅 + 줄지어 선 건물 + 가로수) · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 경주 미술(무지개 한 장 곡선 · 통나무 아치 문) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 양·늑대 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -5273,12 +5273,35 @@ function buildMiniIsle(){
     Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y+y-2.4, z, 0, 8.6, 4.4, 8.6, Math.PI, 0x7a5a3c));            // 흙 고깔
     Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y-0.35, z, 0, 8.8, 0.9, 8.8, 0, 0x7ed36a));                 // 풀 뚜껑
     KINDS[kind % KINDS.length](x, y, z, k); };
-  /* 38차 — 양쪽에 12칸마다(예전엔 한쪽씩 27칸마다 — 대부분의 화면이 빈 하늘이었다). 카트라이더 마을처럼 길 양옆이 건물로 이어진다.
-     안쪽 가장자리(x ≈ 8.7~11.9)가 발판(최대 반폭 6.5)과 가로등 섬(x ±7.4)에 안 닿는 자리다. */
+  /* ═══ 46차 — 코스 양옆은 **이어진 거리**다 ═══
+     38차엔 12칸마다 흙 고깔 섬 하나였다. 섬 지름이 8.8이라 섬과 섬 사이가 3칸씩 비어, 건물이 띄엄띄엄 떠 있는 것으로 보였다
+     (선생님: "양 옆 줄에 건물이 띄엄띄엄있잖아. 좀 더 일렬로 꽉차게 건물들이. 예쁘게 꾸며줘").
+     이제 ① 땅을 긴 판으로 **끊김 없이** 깔고 ② 그 위에 건물을 7.4칸마다(예전 12칸) 세우고 ③ 길 쪽에 돌 축대·갓돌을 붙이고
+     ④ 건물 사이사이에 가로수를 심는다.
+     자리: 거리 한가운데 x ±16.2 · 반폭 5.9 → 안쪽 가장자리 10.3. 발판(최대 반폭 6.5)과 가로등 섬(바깥 8.6)에 안 닿는다.
+     땅 판은 6칸씩 끊어 깐다 — 계단 구간(z 222~)에서 코스가 오르는 만큼 단이 지는데, 6칸이면 한 단이 1.4칸이라 층진 언덕으로 읽힌다. */
   const rise = z => z > 222 ? (z - 222)/34*8 : 0;
-  for(let i=0;i<18;i++){ const z = 44 + i*12 + (i%3)*1.5;
-    for(const side of [-1,1]){ const v = ((i + (side>0 ? 1 : 0)) % 3), x = side*(13.0 + v*1.6), y = -1.4 - v*0.5 + rise(z);
-      islet(x, y, z, (i*5 + (side>0 ? 3 : 1)) % KINDS.length, i*2 + (side>0?1:0)); } }
+  const ST_X = 16.2, ST_Z0 = 38, ST_Z1 = 254;
+  { const seg = 6, ns = Math.round((ST_Z1 - ST_Z0)/seg);
+    for(let i=0;i<ns;i++){ const zc = ST_Z0 + (i + 0.5)*seg, y = -1.5 + rise(zc);
+      for(const side of [-1,1]){
+        BX(side*ST_X, y - 2.1, zc, 11.4, 3.2, seg + 0.5, 0x7a5a3c);                     // 흙
+        BX(side*ST_X, y - 0.28, zc, 11.8, 0.56, seg + 0.6, 0x7ed36a);                   // 풀 뚜껑 — 윗면이 딱 y
+        BX(side*(ST_X - 5.7), y - 0.90, zc, 0.6, 1.8, seg + 0.5, 0xa9b4c0);             // 길 쪽 돌 축대
+        BX(side*(ST_X - 5.7), y + 0.12, zc, 0.95, 0.24, seg + 0.5, 0xd8d2c4); } } }     // 축대 갓돌
+  /* 건물 — 7.4칸마다 한 채. 앞뒤로 ±0.9 씩 물려 정면이 한 장의 벽으로 안 보이게 한다 */
+  { let k = 0;
+    for(let z = ST_Z0 + 4.4; z < ST_Z1 - 2.5; z += 7.4, k++){
+      const y = -1.5 + rise(z);
+      for(const side of [-1,1]){ const s1 = side > 0 ? 1 : 0, o3 = (k + s1) % 3;
+        KINDS[(k*4 + s1*5) % KINDS.length](side*(ST_X + (o3 === 1 ? 0.9 : o3 === 2 ? -0.9 : 0)), y, z, k*2 + s1); } } }
+  /* 가로수 — 건물 두 채마다 하나, 길 쪽 가장자리에 */
+  { for(let z = ST_Z0 + 8.1, k = 0; z < ST_Z1 - 2.5; z += 14.8, k++){
+      const y = -1.5 + rise(z);
+      for(const side of [-1,1]){ const x = side*(ST_X - 3.9);
+        Rp(bpush('rcTrunk', TRUNKG, WMAT, x, MINI_Y+y+0.9, z, 0, 0.7, 1.9, 0.7, 0, 0x8a5a3a));
+        Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y+2.6, z, 0, 2.9, 2.5, 2.9, 0, k%2 ? 0x51cf66 : 0x3fbf5a));
+        Rp(bpush('rcBall', gBall, WMAT, x + side*0.7, MINI_Y+y+3.1, z - 0.5, 0, 1.7, 1.5, 1.7, 0, 0x8ae08a)); } } }
   /* 가로등 섬 — 6칸마다 양옆 번갈아, 24칸마다는 양쪽 다 세우고 그 사이에 만국기 줄. 카트라이더 트랙의 '반복되는 리듬' 이 이것이다 */
   const lampPad = (x, y, z, k, tall)=>{ Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y+y-1.0, z, 0, 2.4, 1.7, 2.4, Math.PI, 0x7a5a3c)); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y-0.12, z, 0, 2.6, 0.5, 2.6, 0, 0x7ed36a));
     const H = tall ? 7.4 : 3.2;                                                                         // 39차 — 만국기가 걸리는 기둥은 카메라보다 높게
@@ -7716,7 +7739,7 @@ const P_body = imesh(RB,   FM.wool,  MAXP,   1),   // 몸통
       P_eye  = imesh(BALL, FM.eye,   MAXP*4, 1),   // 눈 2개 + 눈 반짝이 2개
       P_nose = imesh(BALL, FM.snout, MAXP*3, 1),   // 코 + 볼터치 2개
       P_mouth= imesh(SMILE, FM.dark, MAXP,   1),   // 입 — 방긋 웃는 U (28차)
-      P_tail = imesh(BALL, FM.woolD, MAXP,   1),   // 꼬리
+      P_tail = imesh(BALL, FM.woolD, MAXP*3, 1),   // 꼬리 — 46차: 궁뎅이 털 + 뿌리 + 방울 세 알
       P_legs = imesh(RB,   FM.dark,  MAXP*8, 1),   // 다리 4개 × 두 마디(44차)
       /* ★ 꾸미기(모자·안경·옷) — 종류가 몇이든 메시는 하나다.
          천 텍스처에 색·크기만 바꿔 끼우므로, 아이템을 아무리 늘려도 드로우콜은 1개다.
@@ -7818,15 +7841,20 @@ function wingGeo(o){
 }
 /* ★ 모양은 **단계**로 갈린다 — 선생님 두 번째 사진의 분홍·하양·빨강은 다 같은 깃털 날개고 색만 다르다. */
 const WING_GEO = [
-  /* 0 — 1차: 둥글둥글 귀엽게(선생님). 깃이 적고 통통하며 끝이 뭉툭하다(tipP 3.4 · round 0.38), 부채도 덜 눕는다 */
-  wingGeo({curve:1.22, tipCut:0.44, nF:8,  fw:0.152, sweep:0.18, lift:0.046, tipP:3.4, round:0.38, base:0.74, rows:2}),
+  /* 0 — 1차: 더 둥글둥글 귀엽게(46차). 깃이 여섯뿐이라 한 장 한 장이 통통하고(fw 0.205), 끝은 거의 안 뾰족해진다
+     (tipP 4.2 · round 0.30 — 끝까지 넓다가 뭉툭하게 닫힌다). 부채는 거의 안 눕고(sweep 0.10), 뿌리도 잘록하지 않다(base 0.82).
+     휨을 키우고(curve 1.34) 끝 쪽 폭을 덜 줄여(tipCut 0.34) 낫이 아니라 **동글동글한 부채**가 된다 */
+  wingGeo({curve:1.34, tipCut:0.34, nF:6,  fw:0.205, sweep:0.10, lift:0.050, tipP:4.2, round:0.30, base:0.82, rows:2}),
   /* 1 — 2차: 깃 열셋 + 덮깃 + 어깨 잔깃 세 겹. 끝이 가늘게 빠지고(round 0.62) 깃대가 더 솟는다 */
   wingGeo({curve:1.30, tipCut:0.58, nF:13, fw:0.118, sweep:0.42, lift:0.058, tipP:2.2, round:0.62, base:0.58, rows:3})];
 /* 직업·단계별 [모양, 크기, 색, 빛]. 색은 선생님이 정해 준 대로 — 분홍은 건물 짓는 양, 하양은 자원 캐는 양, 빨강은 총 쏘는 양 */
+/* ★ 46차 — **1차는 셋 다 하양**이다(선생님: "1단계 날개는 하얀색으로 해줘").
+     1차에서는 아직 길이 안 갈린 셈이고, 2차에 가서야 직업 색으로 갈라진다 — 승급이 색으로도 보인다.
+     깃 결은 꼭짓점 색(깃대 밝게 · 가장자리 어둡게)이 만들므로 하양이어도 깃 사이 선은 그대로 보인다. */
 const JOB_WING = [
-  [{k:0, s:0.54, c:0xff9a86, g:0}, {k:1, s:0.94, c:0xf4503a, g:1}],   // ⚔️ 총 쏘는 양 — 연한 빨강 → 선명한 빨강
-  [{k:0, s:0.54, c:0xffc8dd, g:0}, {k:1, s:0.94, c:0xff87b4, g:1}],   // 🔨 건물 짓는 양 — 분홍
-  [{k:0, s:0.54, c:0xf2faff, g:0}, {k:1, s:0.94, c:0xdcf0fc, g:1}]    // 🌾 자원 캐는 양 — 하양
+  [{k:0, s:0.54, c:0xffffff, g:0}, {k:1, s:0.94, c:0xf4503a, g:1}],   // ⚔️ 총 쏘는 양 — 하양 → 선명한 빨강
+  [{k:0, s:0.54, c:0xffffff, g:0}, {k:1, s:0.94, c:0xff87b4, g:1}],   // 🔨 건물 짓는 양 — 하양 → 분홍
+  [{k:0, s:0.54, c:0xffffff, g:0}, {k:1, s:0.94, c:0xdcf0fc, g:1}]    // 🌾 자원 캐는 양 — 하양 → 옅은 하늘빛 하양
 ];
 /* 45차 — 날개: 깃 여러 장을 한 덩어리로 구운 곡면. 단계마다 모양이 달라 메시도 둘, 2차의 빛은 같은 모양을 조금 크게 가산 합성으로 한 겹 더.
    왼쪽 날개는 가로 크기를 음수로 줘 거울처럼 뒤집는다 — 뒤집힌 면도 제 색으로 보이게 재질은 양면(DoubleSide)이다. */
@@ -8836,7 +8864,7 @@ function sheepGait(s, t){
   return g;
 }
 function drawSheep(list, t, cap, colOf, scale){
-  let n=0, ln=0, earN=0, eyeN=0, noseN=0, decoN=0, gunN=0, glowN=0, puffN=0, mouthN=0, jobFN=0, jobRN=0;   // 45차 — 전직 빛·고리
+  let n=0, ln=0, earN=0, eyeN=0, noseN=0, decoN=0, gunN=0, glowN=0, puffN=0, mouthN=0, jobFN=0, jobRN=0, tailN=0;   // 45차 — 전직 빛·고리 · 46차 — 꼬리 두 겹
   const wN = [0,0], wgN = [0,0];                                     // 45차 — 날개(깃털·불꽃) · 날개 빛
 
   for(const s of list){
@@ -8955,10 +8983,24 @@ function drawSheep(list, t, cap, colOf, scale){
       setI(P_nose, noseN++, HX(1.02,0.33*si), YH(0.99), HZ(1.02,0.33*si), hry,
         0.14*sc, 0.09*sc, 0.07*sc, 0xffb0bd);
     }
-    // 꼬리 — 뒤에 붙은 동그란 털뭉치. 걸을 때 살랑거린다.
-    const tw = !down ? Math.sin(gait - 1.2)*0.22*mvK : 0;
-    setI(P_tail, n, X(-0.58, tw*0.16), Y(0.94), Z(-0.58, tw*0.16), ry + tw*0.5,
-      0.34*sc, 0.34*sc, 0.26*sc, wool);
+    /* 꼬리 — 46차: **털 밖으로 꺼낸 동그란 방울 꼬리**.
+       예전엔 f −0.58 · u 0.94 여서 등털 뭉치 속에 통째로 파묻혀 있었다(뒤쪽 털뭉치가 f −0.80 까지 온다).
+       뒤에서 보면 꼬리는 안 보이고 털 아래로 **몸통 상자의 네모난 뒷면(f −0.47)** 만 보였다 —
+       선생님이 "이상한 네모난 게 달려 있다" 고 한 것이 그것이다.
+       이제 털 아래(u 0.74)·더 뒤(f −0.74)로 빼서 몸통 뒷면보다 확실히 튀어나오고,
+       **뿌리 알 + 방울 알** 두 겹이라 '달려 있는 것' 으로 읽힌다. 몸보다 밝게 칠해 실루엣에서 먼저 보인다.
+       걸으면 좌우로 살랑이고(tw) 위아래로 통통 튄다(tb). */
+    const tw = !down ? Math.sin(gait - 1.2)*0.26*mvK : 0;
+    const tb = !down ? Math.abs(Math.sin(gait - 0.4))*0.05*mvK : 0;
+    /* ① 궁뎅이 털 — 몸통 상자의 **네모난 뒷면**(f −0.47 · u 0.25~0.87)을 둥글게 덮는다. 선생님이 본 '네모난 것' 이 이 면이다 */
+    setI(P_tail, tailN++, X(-0.46, 0), Y(0.60), Z(-0.46, 0), ry, 0.74*sc, 0.50*sc, 0.42*sc, wool);
+    /* ② 뿌리 — 몸과 방울을 잇는다 */
+    setI(P_tail, tailN++, X(-0.58, tw*0.10), Y(0.62 + tb*0.4), Z(-0.58, tw*0.10), ry,
+      0.24*sc, 0.24*sc, 0.22*sc, wool);
+    /* ③ 방울 — 등털보다 훨씬 밝아(0.58) 실루엣에서 먼저 보인다. 등털 높이(u 0.9)에 두면 또 하나의 털뭉치로만 읽혀서
+         **털 아래·몸통 뒷면 높이(u 0.585)** 로 내렸다 — 어두운 몸통을 배경으로 하얀 방울이 또렷하게 선다 */
+    setI(P_tail, tailN++, X(-0.76, tw*0.26), Y(0.585 + tb), Z(-0.76, tw*0.26), ry + tw*0.6,
+      0.42*sc, 0.40*sc, 0.38*sc, lighten(col, 0.58));
     /* 다리 — 44차: **두 마디**(허벅지·정강이, leg2). 걷기(트롯): 대각선 짝(앞왼·뒤오)이 같이 나간다. 달리기(바운드): 앞다리 둘·뒷다리 둘이 짝(반 박자 어긋나게).
        앞으로 나가는 발(up)은 무릎이 접혀 저절로 들린다. 공중에선 넷 다 뒤로 접고, 도약 직후(take)엔 아래로 뻗는다. 쓰러지면 배 위로 곧게 선다 */
     let li=0;
@@ -9094,7 +9136,7 @@ function drawSheep(list, t, cap, colOf, scale){
   }
   FLIP_ON = false;
   P_body.count=n; P_puff.count=puffN; P_head.count=n; P_frng.count=n; P_nose.count=noseN; P_mouth.count=mouthN;
-  P_tail.count=n; P_ear.count=earN; P_eye.count=eyeN; P_legs.count=ln; P_deco.count=decoN;
+  P_tail.count=tailN; P_ear.count=earN; P_eye.count=eyeN; P_legs.count=ln; P_deco.count=decoN;
   P_deco.visible = decoN > 0;
   P_gun.count=gunN; P_gunF.count=glowN;
   P_gun.visible = gunN > 0; P_gunF.visible = glowN > 0;
@@ -16571,8 +16613,19 @@ const SFX = {
   thud2: (g)=>{ g = Math.max(0.1, Math.min(1, g === undefined ? 1 : g)); puff(0.18, 0.55*g, 180, 1.0); tone(60, 34, 0.55, 'sine', 0.16*g); pluck(96, 0.16, 0.14*g, 0, 0.3, 'triangle'); noise(0.10, 0.08*g, 400); },   // 42차 — 더 크고 낮게(선생님: "바위 떨어지는 소리가 아직도 안 들려")
   creak: (g)=>{ g = Math.max(0.1, Math.min(1, g === undefined ? 1 : g)); tone(170, 110, 0.36, 'sawtooth', 0.02*g); tone(520, 330, 0.30, 'triangle', 0.016*g, now0()+0.06); },
   wind: (g)=>{ g = g === undefined ? 1 : Math.max(0.1, Math.min(1, g)); puff(0.30,0.075*g,1000 + 500*g,0.6); noise(0.22,0.018*g,900); },   // 39차 — 더 크게 + 쉭 잡음 (41차: 세기 g — 속도 따라)
-  /* 41차 — 발소리(걸음 한 바퀴마다, 달리면 크게) · 출발 삐— */
-  step: (g)=>{ g = g === undefined ? 1 : g; puff(0.035, 0.09*g, 520, 1.2); pluck(140, 0.05, 0.03*g, 0, 0, 'triangle'); },
+  /* 41차 — 발소리(걸음 한 바퀴마다, 달리면 크게) · 출발 삐—
+     ★ 46차 — 발소리를 **키캡 소리**로 바꿨다(선생님: "양 발소리를 애들이 좋아하는 키캡소리로 해줘").
+       기계식 키보드 한 타는 셋이 겹친 소리다:
+         ① 스위치가 걸리는 짧고 높은 딸깍 — 5.4kHz 띠 잡음 6ms
+         ② 키캡이 바닥을 치는 통 울림(thock) — 190Hz 사인이 55ms 만에 사라진다
+         ③ 플라스틱 몸통의 마른 탁 — 1.1kHz 삼각파 아주 짧게
+       한 타마다 높이를 ±6% 흔든다 — 안 그러면 같은 소리가 연달아 나서 기계가 딸깍거리는 것으로 들린다.
+       세기 g 는 그대로다(걸으면 0.55 · 달리면 1) */
+  step: (g)=>{ g = g === undefined ? 1 : g; const d = 0.94 + Math.random()*0.12, t = now0();
+    puff(0.006, 0.085*g, 5400*d, 2.2);                              // ① 스위치 딸깍
+    tone(1150*d, 760*d, 0.020, 'triangle', 0.038*g);                // ③ 마른 탁
+    tone(190*d, 138*d, 0.055, 'sine', 0.075*g, t + 0.004);          // ② 통 울림
+    puff(0.030, 0.024*g, 420*d, 0.8, t + 0.004); },                 //   바닥 친 뒤 여운
   /* 42차 — 물 위 발소리: 찰랑(높은 띠 잡음이 두 번 + 물방울 음) */
   splash: (g)=>{ g = g === undefined ? 1 : g; puff(0.07, 0.11*g, 2600, 1.4); puff(0.09, 0.07*g, 1800, 1.0, now0()+0.05); tone(900, 1400, 0.06, 'sine', 0.025*g, now0()+0.02); },
   go:   ()=>{ tone(784, 784, 0.42, 'square', 0.055); tone(1568, 1568, 0.42, 'triangle', 0.035); pluck(2093, 0.3, 0.05, now0()+0.05, 0.3); },

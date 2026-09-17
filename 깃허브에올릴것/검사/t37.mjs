@@ -409,6 +409,64 @@ ok('★ 맨 처음 지나는 문은 통나무 아치다 — 그 자리에 통나
    art.gateLogs >= 8 && art.gateBlue === 0, `통나무 ${art.gateLogs} · 파란 기둥 ${art.gateBlue}`);
 ok('★ OX 퀴즈 때 세운 섬 가장자리 갈색 원 울타리가 없어졌다', art.ring === 0 && art.miEdge > 0, `고리 ${art.ring} · miEdge ${art.miEdge}`);
 
+/* ═══════ ⑭ 46차 — 1차 날개는 하양 · 방울 꼬리 · 코스 양옆 거리(끊김 없는 땅 + 줄지어 선 건물) ═══════ */
+const v46 = await ev(()=>{ const W=window, G=W.__G, PL=W.__PL, T3=W.__THREE, o={};
+  if(W.__miniOn()) W.__miniExit(); G.paused = true;
+  /* 날개 — 1차는 셋 다 하양, 2차는 직업마다 다르다 */
+  const JW = W.__JOB_WING;
+  o.t1 = JW.map(r=> r[0].c); o.t2 = JW.map(r=> r[1].c);
+  o.t1White = JW.every(r=> r[0].c === 0xffffff);
+  o.t2Split = new Set(JW.map(r=> r[1].c)).size === 3;
+  /* 꼬리 — 한 마리에 세 알. 방울은 몸통 뒷면(f −0.47)보다 뒤에 있고 등털보다 밝다 */
+  const f = {uid:'t46', x:PL.x, z:PL.z + 4, y:PL.y, ry:0, g:1, ph:0, hat:0, gls:0, clo:0, wp:0, we:0, jb:-1, jt:0, mv:false};
+  G.players.set('t46', f); W.__smoothHead(f, 0, 1, 100); W.__smoothHead(f, 0, 1, 100);
+  W.__drawSheep([f], 3.0, 40, s=>0x4060a0, 1);
+  const P = W.__Pmesh(), tail = P[7], body = P[0];
+  o.tailN = tail.count;
+  const m = new T3.Matrix4(), p = new T3.Vector3(), q = new T3.Quaternion(), sc = new T3.Vector3();
+  const zs = [];
+  for(let i=0;i<tail.count;i++){ tail.getMatrixAt(i, m); m.decompose(p, q, sc); zs.push(+(p.z - f.z).toFixed(3)); }
+  body.getMatrixAt(0, m); m.decompose(p, q, sc);
+  o.bodyBack = +((p.z - f.z) - sc.z/2).toFixed(3);          // 몸통 상자의 뒷면
+  o.tailBack = Math.min(...zs);                              // 제일 뒤에 있는 꼬리 알의 가운데
+  o.out = +(o.bodyBack - o.tailBack).toFixed(3);             // 얼마나 튀어나왔나
+  /* 방울이 등털보다 밝은가 — 인스턴스 색을 본다 */
+  const ic = tail.instanceColor.array; let mx = 0;
+  for(let i=0;i<tail.count;i++) mx = Math.max(mx, ic[i*3] + ic[i*3+1] + ic[i*3+2]);
+  const pf = P[1], pc = pf.instanceColor.array;
+  o.pomBright = mx; o.woolBright = pc[0] + pc[1] + pc[2];
+  G.players.delete('t46'); G.paused = false; return o; });
+ok('★ 46차 — 1차 날개는 셋 다 하양(0xffffff)이고, 2차에서 직업 색 셋으로 갈린다',
+   v46.t1White && v46.t2Split, '1차 ' + v46.t1.map(c=>c.toString(16)).join('/') + ' · 2차 ' + v46.t2.map(c=>c.toString(16)).join('/'));
+ok('★ 꼬리는 세 알(궁뎅이 털·뿌리·방울)이고, 방울이 몸통 뒷면보다 0.2칸 넘게 뒤로 나와 있다 — 예전엔 등털 속에 파묻혀 몸통의 네모난 뒷면만 보였다',
+   v46.tailN === 3 && v46.out > 0.2, `알 ${v46.tailN} · 몸통 뒷면 ${v46.bodyBack} · 방울 ${v46.tailBack} (${v46.out} 밖으로)`);
+ok('★ 꼬리 방울은 등털보다 밝다 (어두운 몸통을 배경으로 또렷하게 선다)',
+   v46.pomBright > v46.woolBright + 0.1, v46.pomBright.toFixed(2) + ' > ' + v46.woolBright.toFixed(2));
+
+const st46 = await ev(()=>{ const W=window, B=W.__banks, o={};
+  const mm = B.get('miMark'), gr = [], bd = [];
+  for(const mx of mm.ms){ const e = mx.elements;
+    const sx = Math.hypot(e[0],e[1],e[2]), sy = Math.hypot(e[4],e[5],e[6]), sz = Math.hypot(e[8],e[9],e[10]);
+    const x = e[12], z = e[14];
+    if(Math.abs(sx - 11.8) < 0.15 && Math.abs(sy - 0.56) < 0.08 && Math.abs(x) > 12) gr.push({x, z, sz});   // 거리 풀 뚜껑
+    if(Math.abs(x) > 12 && Math.abs(x) < 21.5 && z > 40 && z < 252) bd.push(z); }                            // 거리 위 건물 조각
+  o.grass = gr.length;
+  let gap = 0, gapAt = -1;
+  for(const side of [-1,1]) for(let z=42; z<=250; z+=4)
+    if(!gr.some(g => (g.x < 0) === (side < 0) && Math.abs(g.z - z) <= g.sz/2 + 0.01)){ gap++; if(gapAt < 0) gapAt = z*side; }
+  o.gap = gap; o.gapAt = gapAt;
+  /* 8칸 칸마다 건물 조각이 몇이나 있나 — 제일 빈 칸을 본다 */
+  const bin = new Map();
+  for(const z of bd){ const k = Math.floor((z - 42)/8); bin.set(k, (bin.get(k)||0) + 1); }
+  let worst = 1e9, worstAt = -1;
+  for(let k=0;k<26;k++){ const c = bin.get(k)||0; if(c < worst){ worst = c; worstAt = 42 + k*8; } }
+  o.worst = worst; o.worstAt = worstAt; o.pieces = bd.length;
+  return o; });
+ok('★ 46차 — 코스 양옆 땅이 z 42~250 에서 한 군데도 안 끊긴다 (예전엔 12칸마다 섬 하나라 3칸씩 비었다)',
+   st46.gap === 0 && st46.grass >= 60, `빈 곳 ${st46.gap}(${st46.gapAt}) · 풀 판 ${st46.grass}`);
+ok('★ 건물이 8칸 칸마다 빠짐없이 선다 (제일 빈 칸에도 조각 여섯 넘게)',
+   st46.worst >= 6, `제일 빈 칸 z${st46.worstAt} 에 ${st46.worst}조각 · 모두 ${st46.pieces}`);
+
 await ev(()=>{ const W=window; if(W.__miniOn()) W.__miniExit(); });
 /* ═══════ 결과 ═══════ */
 console.log('');

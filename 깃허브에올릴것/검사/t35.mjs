@@ -33,7 +33,7 @@ const RENDER = `const W=window, o={};
     return {ctx, P}; };
   const withCtx = async (dur, fn)=>{ const {ctx, P} = mkCtx(dur); const keep = W.__AUD(); W.__setAUD(P); W.__G.paused = true;
     try{ fn(ctx); const buf = await ctx.startRendering(); return buf.getChannelData(0); } finally { W.__setAUD(keep); W.__G.paused = false; OFF = 0; } };`;
-const SF_KEYS = ['chopW','chopS','chopG','tok','tak','build','get','up','click','hurt','win'], SEG = 1.6;
+const SF_KEYS = ['chopW','chopS','chopG','tok','tak','build','get','up','click','hurt','win','step'], SEG = 1.6;   // 46차 — 발소리(키캡)
 const sf = await pg.evaluate(new Function('A', RENDER + `const {KEYS, SEG} = A;
   return (async()=>{
     const K = W.__SFXKEYS();
@@ -55,7 +55,7 @@ ok('★ 부드러운 재료(pluck·puff)가 있다', sf.helpers);
 ok('★ 모든 소리가 소리 버스(압축기 + 방 울림)를 거친다', sf.busNode === true);
 ok('★ 압축기 보정 이득이 차오르기 전의 첫 소리가 뒤의 같은 소리보다 작다 (그래서 워밍업 뒤에 잰다)', sf.warm < sf.r.click.peak, sf.warm.toFixed(3)+' < '+sf.r.click.peak.toFixed(3));
 const S = sf.r;
-ok('★ 효과음 열한 개가 전부 실제로 소리를 낸다 (렌더 피크 > 0.01)', Object.values(S).every(v=> v.peak > 0.01), Object.entries(S).map(([k,v])=>k+' '+v.peak.toFixed(2)).join(' '));
+ok('★ 효과음 열두 개가 전부 실제로 소리를 낸다 (렌더 피크 > 0.01)', Object.values(S).every(v=> v.peak > 0.01), Object.entries(S).map(([k,v])=>k+' '+v.peak.toFixed(2)).join(' '));
 ok('★ 어느 것도 안 터진다 (피크 < 0.6 — 스물한 대가 한 교실에서 울린다)', Object.values(S).every(v=> v.peak < 0.6), Math.max(...Object.values(S).map(v=>v.peak)).toFixed(2));
 /* 방 울림(딜레이 0.117초 × 되먹임 0.24) 꼬리까지 세면 0.37초쯤 — 0.5초 안이면 연타(0.4초 간격)를 안 덮는다 */
 ok('★ 캐는 소리는 짧다 (울림 꼬리까지 0.5초 안에 사라진다 — 연타를 안 덮는다)', ['chopW','chopS','chopG','tok','tak'].every(k=> S[k].len < 0.5), ['chopW','chopS','chopG','tok','tak'].map(k=>S[k].len.toFixed(2)).join(' '));
@@ -65,6 +65,9 @@ ok('★ 건물 완성·레벨업은 캐는 소리보다 길고 크다 (일이 �
    'build '+S.build.len.toFixed(2)+'s · up '+S.up.len.toFixed(2)+'s');
 ok('★ 클릭은 아주 작다 (있는 줄 모르게 — 피크 < 0.05)', S.click.peak < 0.05, S.click.peak.toFixed(3));
 ok('★ 다침(hurt)은 톱니파가 아니다 — 영교차율이 낮게 둥글다 (< 900/초)', S.hurt.zc < 900, Math.round(S.hurt.zc));
+/* 46차 — 발소리는 **키캡**이다(선생님). 기계식 한 타는 짧고(울림 꼬리까지 0.5초 안) 또렷하다(높은 딸깍이 섞여 둔한 hurt 보다 밝다) */
+ok('★ 46차 발소리(키캡)는 짧고(0.5초 안) 또렷하다 — 둔한 다침 소리보다 밝다', S.step.peak > 0.01 && S.step.len < 0.5 && S.step.zc > S.hurt.zc,
+   `피크 ${S.step.peak.toFixed(3)} · 길이 ${S.step.len.toFixed(2)}s · 영교차 ${Math.round(S.step.zc)} (다침 ${Math.round(S.hurt.zc)})`);
 
 /* ═══════ ② 배경음 ═══════ — 네 판(낮 · 밤 · 위험 · 보스)을 한 컨텍스트에 11초 간격으로 */
 const bg = await pg.evaluate(new Function(RENDER + `
