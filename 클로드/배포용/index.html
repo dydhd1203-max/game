@@ -2130,6 +2130,69 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 :is(.popC,#feed,#toast,#aimInfo,#miniBar) :is([style*="#9cd8"],[style*="#9de8"],[style*="#4dabf7"]){color:#276995!important}
 :is(.popC,#feed,#toast,#aimInfo,#miniBar) [style*="#cc7bff"]{color:#70439b!important}
 @media (prefers-reduced-motion:reduce){.pop.on .popC,#toast.on,.res.up,.res.up b,.grp button,.slot,.btn{animation:none;transition:none}}
+/* 53차 — 상점: 큰 아이템 그림, 공용 지갑, 고정된 닫기 버튼. 목록만 스크롤한다. */
+#popShop{padding:12px;overflow:hidden}
+#popShop .popC{display:flex;flex-direction:column;gap:16px;width:min(1040px,100%);height:min(820px,calc(100vh - 24px));height:min(820px,calc(100dvh - 24px));max-height:none;min-height:0;overflow:hidden;padding:22px;background:#fff!important;border-radius:22px}
+#popShop .shopTop{display:flex;align-items:center;gap:12px;flex:none;min-width:0}
+#popShop .shopBrand{width:48px;height:48px;display:grid;place-items:center;background:#e6f4ff;border-radius:14px;font-size:26px;flex:none}
+#popShop .shopBrand img.ic{height:32px;margin:0}
+#popShop .shopHeading{flex:1;min-width:0}
+#popShop .shopEyebrow{font-size:11px;font-weight:500;letter-spacing:.4px;margin:0 0 2px;color:#55738a}
+#popShop h2{font-size:25px;line-height:1.25;font-weight:700;margin:0;letter-spacing:-.5px}
+#popShop .shopClose{display:grid;place-items:center;width:42px;height:42px;min-width:42px;padding:0;border:1px solid #d4e2ed;border-radius:12px;background:#f2f7fb;color:#35546a;font-size:26px;line-height:1;box-shadow:none}
+#popShop .shopWallet{display:flex;align-items:center;gap:14px;padding:12px 16px;background:#f2f8fc;border:1px solid #dbe9f2;border-radius:14px;flex:none;min-width:0}
+#popShop .shopWalletLabel{font-size:12px;color:#526e81;line-height:1.5;flex:none}
+#popShop .shopWalletLabel strong{display:block;color:#284e67;font-size:13px;font-weight:600}
+#popShop #shopRes{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex:1;min-width:0;flex-wrap:wrap;margin:0;padding:0;background:none!important;border:0!important;box-shadow:none!important;font-family:var(--f-body);font-size:15px;font-weight:600}
+#popShop .shopBalance{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #dce6ee;border-radius:10px;padding:8px 11px;color:#294d65;font-variant-numeric:tabular-nums}
+#popShop .shopBalance img.ic{width:23px;height:23px;object-fit:contain;margin:0}
+#popShop .shopBalance b{font-weight:600}
+#popShop .shopBalanceName{font-size:11px;font-weight:400;color:#557184}
+#popShop #shopTabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin:0;flex:none}
+#popShop #shopTabs .btn{min-width:0;min-height:42px;padding:9px 5px;font-size:14px;font-weight:500;background:#f2f6fa!important;border:1px solid transparent!important;border-radius:10px;color:#45667b!important;box-shadow:none!important;white-space:normal;line-height:1.35}
+#popShop #shopTabs .btn.on{background:#dcefff!important;border-color:#80b7dd!important;color:#1e567d!important;box-shadow:inset 0 -2px 0 #75acd0!important;font-weight:600}
+#popShop .shopCollection{display:flex;align-items:baseline;gap:8px;flex:none;margin-bottom:-7px;min-width:0}
+#popShop .shopCollection h3{margin:0;font-size:18px;line-height:1.3;font-weight:600;color:#274b63;opacity:1}
+#popShop #shopCount{font-size:12px;color:#527084}
+#popShop #shopNotice{margin:0;color:#557084;font-size:12px;line-height:1.45;flex:none}
+#popShop #shopList{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-content:start;align-items:stretch;gap:12px;flex:1;min-width:0;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:1px 4px 3px 1px;background:transparent;scrollbar-gutter:stable}
+#popShop #shopList .sItem{position:relative;display:flex;flex-direction:column;gap:0;min-width:0;padding:0;overflow:hidden;background:#fff!important;border:1px solid #dce6ee!important;border-radius:15px;opacity:1;box-shadow:0 2px 5px rgba(37,76,103,.04)!important}
+#popShop #shopList .sItem.own{border-color:#a0d2bb!important;background:#fff!important}
+#popShop #shopList .sItem.equipped{border-color:#60aa89!important;box-shadow:inset 0 0 0 1px #60aa89!important}
+#popShop #shopList .si{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:132px;padding:27px 12px 10px;flex:none;font-size:49px;background:linear-gradient(145deg,#eff7fd,#e4f0f9);filter:none;overflow:hidden}
+#popShop #shopList .sItem:nth-child(3n+2) .si{background:linear-gradient(145deg,#f0f8f4,#e1f0e8)}
+#popShop #shopList .sItem:nth-child(3n) .si{background:linear-gradient(145deg,#f8f5ed,#f5ecd9)}
+#popShop #shopList .si img.ic{width:94px;height:94px;object-fit:contain;margin:0;filter:drop-shadow(0 5px 3px rgba(52,89,114,.12))}
+#popShop #shopList .shopExchange .si{font-size:23px;gap:10px}
+#popShop #shopList .shopExchange .si img.ic{width:65px;height:65px}
+#popShop .shopBadge{position:absolute;top:9px;left:9px;max-width:calc(100% - 18px);padding:4px 7px;border-radius:6px;background:rgba(255,255,255,.94);color:#47677d;font-size:11px;line-height:1.25;font-weight:500;white-space:normal}
+#popShop .own .shopBadge{background:#d7f0e3;color:#286647}
+#popShop .equipped .shopBadge{background:#277452;color:#fff}
+#popShop .no .shopBadge{background:#fff0da;color:#855716}
+#popShop #shopList .sb{display:flex;flex-direction:column;width:100%;padding:13px;flex:1;min-width:0}
+#popShop #shopList .sn{font-size:17px;line-height:1.4;font-weight:600;word-break:keep-all;overflow-wrap:anywhere;color:#284c65}
+#popShop #shopList .sd{font-size:13.5px;line-height:1.55;font-weight:400;color:#557184;opacity:1;margin:5px 0 12px;word-break:keep-all;overflow-wrap:anywhere}
+#popShop #shopList .sc{display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin:0 0 10px;margin-top:auto;font-family:var(--f-body);font-size:12px;line-height:1.4;color:#38556a}
+#popShop .shopPrice{display:inline-flex;align-items:center;gap:3px;padding:4px 6px;border-radius:6px;background:#f1f5f8;white-space:nowrap;font-variant-numeric:tabular-nums}
+#popShop .shopPrice img.ic{width:18px;height:18px;object-fit:contain;margin:0}
+#popShop .shopPrice b{font-weight:600}
+#popShop .shopPrice.short{background:#fff0e7;color:#9a4a24}
+#popShop .shopLack{font-size:11px;line-height:1.4;color:#92602e;margin:-3px 0 9px;overflow-wrap:anywhere}
+#popShop #shopList button{min-height:40px;margin:0;padding:9px 6px;background:#e9f0f5!important;border:1px solid #d3e0e9!important;border-radius:9px;color:#506b7e!important;font:500 14px/1.35 var(--f-body);box-shadow:none!important;opacity:1}
+#popShop #shopList button.buy{background:#b8e7d1!important;border-color:#8ec8ad!important;color:#215c42!important;font-weight:600}
+#popShop #shopList button.buy:hover{background:#a4ddc1!important}
+#popShop #shopList .own button{background:#eef8f2!important;color:#3c7258!important;border-color:#d1e7da!important}
+#popShop #shopList .shopHint{font-size:12px;line-height:1.5;background:#eff6fb;padding:10px 12px;margin:0;border-radius:10px;opacity:1}
+#popShop .shopFoot{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid #e1eaf1;padding-top:12px;flex:none}
+#popShop .shopFoot p{margin:0;font-size:12px;color:#597587;line-height:1.4}
+#popShop .shopFoot .btn{min-height:40px;min-width:108px;padding:8px 16px;font-size:13px;font-weight:600;background:#e5f1fa!important;border:1px solid #bad5e8!important;color:#285a7b!important;box-shadow:none!important}
+#popShop :is(button,.sItem):focus-visible{outline:3px solid #548fb7;outline-offset:2px}
+@media(max-width:820px){#popShop #shopList{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){#popShop .popC{padding:15px;gap:12px;border-radius:17px}#popShop h2{font-size:22px}#popShop .shopWallet{gap:9px;padding:10px}#popShop .shopWalletLabel{font-size:10px}#popShop .shopWalletLabel strong{font-size:12px}#popShop .shopBalance{padding:6px 8px;font-size:13px}#popShop #shopTabs{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}#popShop #shopTabs .btn{min-height:36px;font-size:12px;padding:7px 4px}#popShop #shopList{gap:9px}#popShop #shopList .si{height:115px}#popShop #shopList .si img.ic{width:82px;height:82px}#popShop #shopList .sb{padding:10px}#popShop #shopList .sn{font-size:16px}#popShop #shopList .sd{font-size:13px}#popShop .shopFoot p{max-width:170px;font-size:10px}}
+@media(max-width:480px){#popShop #shopList{grid-template-columns:minmax(0,1fr)}#popShop .shopWallet{display:block}#popShop .shopWalletLabel{display:flex;align-items:center;gap:5px;margin-bottom:5px}#popShop .shopWalletLabel strong{display:inline}#popShop #shopRes{justify-content:flex-start}#popShop .shopBalance{flex:1;justify-content:center}}
+@media(max-width:380px){#popShop{padding:7px}#popShop .popC{height:calc(100vh - 14px);height:calc(100dvh - 14px);padding:12px;gap:10px}#popShop .shopBrand{width:40px;height:40px}#popShop .shopWallet{display:block;padding:8px 10px}#popShop .shopWalletLabel{display:flex;align-items:center;gap:5px;margin-bottom:5px}#popShop .shopWalletLabel strong{display:inline;font-size:11px}#popShop #shopRes{justify-content:flex-start;gap:5px}#popShop .shopBalance{flex:1;justify-content:center;padding:5px;font-size:12px}#popShop .shopBalance img.ic{width:19px;height:19px}#popShop #shopList .si{height:102px}#popShop #shopList .si img.ic{width:73px;height:73px}#popShop #shopList .sb{padding:9px}#popShop .shopPrice{padding:3px 4px;font-size:11px}}
+@media(max-width:320px){#popShop #shopList{grid-template-columns:minmax(0,1fr)}}
+@media(max-height:600px){#popShop .popC{gap:9px;padding-top:12px;padding-bottom:12px}#popShop .shopEyebrow,#popShop #shopNotice,#popShop .shopFoot p{display:none}#popShop .shopTop{gap:9px}#popShop h2{font-size:21px}#popShop .shopBrand{height:36px;width:36px}#popShop .shopBrand img.ic{height:26px}#popShop .shopClose{height:36px;width:36px;min-width:36px}#popShop .shopWallet{padding-top:7px;padding-bottom:7px}#popShop .shopBalance{padding-top:5px;padding-bottom:5px}#popShop #shopTabs .btn{min-height:32px;padding-top:6px;padding-bottom:6px}#popShop .shopCollection h3{font-size:16px}#popShop .shopFoot{padding-top:8px;justify-content:flex-end}#popShop .shopFoot .btn{min-height:35px}#popShop #shopList .si{height:105px}#popShop #shopList .si img.ic{width:77px;height:77px}}
 </style>
 </head>
 <body>
@@ -2426,20 +2489,21 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 
 <!-- 상인 -->
 
-<div class="pop" id="popShop"><div class="popC">
-  <h2>🛒 떠돌이 상인</h2>
-  <p class="shopHint">낮에만 문을 엽니다. <b>자원은 우리 모둠 공용</b>이니 무엇을 살지 같이 정하세요.</p>
-  <div id="shopRes"></div>
-  <div class="shopTabs" id="shopTabs">
-    <button class="btn sm on" data-tab="w">🔫 무기</button>
-    <button class="btn sm" data-tab="a">🛡️ 방어구</button>
-    <button class="btn sm" data-tab="b">🔸 총알</button>
-    <button class="btn sm" data-tab="p">🧪 물약</button>
-    <button class="btn sm" data-tab="f">🧺 산물 팔기</button>
-    <button class="btn sm" data-tab="x">🔄 바꾸기</button>
-  </div>
-  <div id="shopList"></div>
-  <div class="row"><button class="btn pri" data-close="popShop">다 샀어요</button></div>
+<div class="pop" id="popShop"><div class="popC" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
+  <header class="shopTop"><div class="shopBrand" aria-hidden="true">🛒</div><div class="shopHeading"><p class="shopEyebrow">낮에 여는 우리 마을 상점</p><h2 id="shopTitle">떠돌이 상인</h2></div><button class="btn shopClose" data-close="popShop" aria-label="상점 닫기">×</button></header>
+  <div class="shopWallet"><div class="shopWalletLabel"><strong id="shopTeam">우리 모둠 지갑</strong><span>친구들과 함께 쓰는 자원</span></div><div id="shopRes" aria-label="모둠이 가진 자원"></div></div>
+  <nav class="shopTabs" id="shopTabs" aria-label="상점 종류">
+    <button class="btn sm on" data-tab="w" aria-pressed="true">🔫 무기</button>
+    <button class="btn sm" data-tab="a" aria-pressed="false">🛡️ 방어구</button>
+    <button class="btn sm" data-tab="b" aria-pressed="false">🔸 총알</button>
+    <button class="btn sm" data-tab="p" aria-pressed="false">🧪 물약</button>
+    <button class="btn sm" data-tab="f" aria-pressed="false">🧺 산물 팔기</button>
+    <button class="btn sm" data-tab="x" aria-pressed="false">🔄 자원 바꾸기</button>
+  </nav>
+  <div class="shopCollection"><h3 id="shopCategory">무기</h3><span id="shopCount"></span></div>
+  <p id="shopNotice">우리 모둠을 지켜 줄 장비를 골라 보세요.</p>
+  <div id="shopList" aria-label="상점 아이템"></div>
+  <footer class="shopFoot"><p>무엇을 살지 친구들과 함께 정해요.</p><button class="btn" data-close="popShop">가게 닫기</button></footer>
 </div></div>
 
 <!-- 29차 동물 상인 (상인 옆, B) -->
@@ -2683,7 +2747,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '52차 · 둥근 캐릭터와 C자 손 · 밝은 교실 UI · 읽기 편한 글꼴 · 점프를 따라가는 3인칭 카메라 · 채집과 무기 동작';
+const GAME_VER = '53차 · 참고 이미지에 맞춘 얼굴과 원통 머리 · 자연스러운 작업 모션 · 밝은 카드형 상점';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -3066,8 +3130,9 @@ const matC = (hex)=> new THREE.MeshLambertMaterial({map:ATLAS, color:hex});
      꽉 채우면 온 세계가 젖은 것처럼 번들거린다(장난감 플라스틱은 그 정도로 반짝이지 않는다). */
 const RB_SPEC = 0x2b2b2b, RB_SHINE = 28;
 const flatMat = (hex, o)=>{ const q = Object.assign({color:hex}, o||{}); delete q.roughness; delete q.metalness;
-  if(GFX.q === 'low') return new THREE.MeshLambertMaterial(q);
-  q.specular = new THREE.Color(RB_SPEC); q.shininess = RB_SHINE;
+  if(GFX.q === 'low'){ delete q.specular; delete q.shininess; return new THREE.MeshLambertMaterial(q); }
+  q.specular = new THREE.Color(q.specular === undefined ? RB_SPEC : q.specular);
+  if(q.shininess === undefined) q.shininess = RB_SHINE;
   return new THREE.MeshPhongMaterial(q); };
 const pbrMat  = (hex, o)=> new THREE.MeshStandardMaterial(Object.assign({color:hex, roughness:0.70, metalness:0}, o||{}));
 /* ═══ 28차 — 타일 하나하나의 원색 (26차b 에 아틀라스에서 잰 평균색, 장난감답게 조금 밝힘) ═══
@@ -3736,13 +3801,14 @@ function mkGrainTex(kind){
     let v = 0, tot = 0; for(const [f,a,sd] of oct){ v += smooth(x,y,f,sd)*a; tot += a; } v /= tot;
     if(kind==='rock'){ const cr = smooth(x,y,6,11); if(Math.abs(cr-0.5) < 0.012) v -= 0.25; }     // 가는 금
     if(kind==='leaf'){ v = v < 0.45 ? v-0.12 : v > 0.55 ? v+0.10 : v; }                         // 얼룩을 또렷하게
+    if(kind==='wood') v = 0.5 + Math.sin(x/N*Math.PI*16 + smooth(x,y,4,17)*1.8)*0.16 + (v-0.5)*0.28;
     const k = Math.max(0, Math.min(255, Math.round(128 + (v-0.5)*255*1.4)));
     const i = (y*N+x)*4; img.data[i] = img.data[i+1] = img.data[i+2] = k; img.data[i+3] = 255; }
   g.putImageData(img, 0, 0);
   const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.NoColorSpace;
   t.minFilter = THREE.LinearMipmapLinearFilter; t.magFilter = THREE.LinearFilter; t.anisotropy = 4; t.userData.kind = kind; return t;
 }
-const GRAIN = {rock:mkGrainTex('rock'), leaf:mkGrainTex('leaf'), grass:mkGrainTex('grass')};
+const GRAIN = {rock:mkGrainTex('rock'), leaf:mkGrainTex('leaf'), grass:mkGrainTex('grass'), wood:mkGrainTex('wood')};
 const GRAIN_MATS = [];                                   // 34차 — 진단 '결 끔' 이 여기 든 재질의 uGrainAmt 를 0 으로
 function addGrain(mat, tex, scale, amt){
   mat.userData.grain = {kind:tex.userData.kind, scale, amt};
@@ -3767,7 +3833,15 @@ function addGrain(mat, tex, scale, amt){
    매끈한 건 Plastic 한 종류뿐이었다. 33차 값으로 되돌린다 — 광택(48차f Phong)은 그대로 두니
    '결 + 광택' 이 함께 가서 오히려 로블록스 Rock/Grass 에 더 가깝다. */
 addGrain(WMAT, GRAIN.rock, 0.6, 0.44);                    // 세계 조각(산·성문·농장·가게) — 33차 0.46 · 48차 0.13 · 50차 **0.44** 로 되돌림
-addGrain(flatFor(T.cloth), GRAIN.rock, 0.7, 0.21);        // 건물 몸통(30차 조각) — 33차 0.22 · 48차 0.07 · 50차 **0.21**
+/* 53차 — 돌·나무·페인트의 표면을 나눈다. 자연물의 결은 남기고, 깃발·차양·색칠한 부품에는 돌 얼룩을 씌우지 않는다.
+   기존 인스턴스 뱅크를 그대로 쓰므로 조각 수·그리기 횟수는 늘지 않는다. */
+const WMAT_PAINT = flatMat(0xffffff, {specular:0x343434, shininess:36});
+const WMAT_WOOD = addGrain(flatMat(0xffffff, {specular:0x151515, shininess:12}), GRAIN.wood, 0.65, 0.40);
+const WMAT_WOODV = addGrain(flatMat(0xffffff, {vertexColors:true, specular:0x151515, shininess:12}), GRAIN.wood, 0.65, 0.40);
+const WOOD_TILES = new Set([T.bark,T.logSide,T.logTop,T.plank]);
+const PAINT_TILES = new Set([T.cloth,T.goldBlk,T.roofRed,T.ice]);
+const WOOD_KEYS = new Set(['trunk','branch','root','bark','rcTrunk']);
+const PAINT_KEYS = new Set(['gb','petal','pist','apple','nug','rcGem','rcRbow','rcBuoy']);
 const _wc = new THREE.Color(), _wc2 = new THREE.Color();
 const banks = new Map();
 const _v=new THREE.Vector3(), _q=new THREE.Quaternion(), _s=new THREE.Vector3(), _m=new THREE.Matrix4();
@@ -3783,11 +3857,14 @@ function bpush(key, geo, mat, x,y,z, ry=0, sx=1,sy=1,sz=1, rz=0, col=0){
       _wc.setHex(TILE_COL[tb.t[0]] !== undefined ? TILE_COL[tb.t[0]] : 0xffffff);
       if(mat.color) _wc.multiply(mat.color);
       if(col) _wc.multiply(_wc2.setHex(col));
-      col = _wc.getHex() || 0x010101; mat = WMAT;
+      col = _wc.getHex() || 0x010101;
+      mat = WOOD_TILES.has(tb.t[0]) ? WMAT_WOOD : PAINT_TILES.has(tb.t[0]) ? WMAT_PAINT : WMAT;
     }
     geo = SHARP_KEYS.has(key) ? BOXG : WGEO; sx *= tb.w; sy *= tb.h; sz *= tb.d;
   }
-  if(mat === WMAT && geo.attributes.color) mat = geo.userData.leaf ? WMATL : WMATV;     // 32차·33차 — 꼭짓점 색 조각은 그 재질로(잎은 얼룩 결)
+  if(mat === WMAT && WOOD_KEYS.has(key)) mat = geo.attributes.color ? WMAT_WOODV : WMAT_WOOD;
+  else if(mat === WMAT && PAINT_KEYS.has(key)) mat = WMAT_PAINT;
+  else if(mat === WMAT && geo.attributes.color) mat = geo.userData.leaf ? WMATL : WMATV;
   let b = banks.get(key);
   if(!b){ b = {geo, mat, ms:[], cols:null, chunks:null, map:null}; banks.set(key, b); }
   /* ★ 인스턴스마다 색 — 같은 텍스처·같은 지오메트리인데 색만 다른 것들을
@@ -6401,7 +6478,7 @@ const RBl  = roundBox(1, 0.10);                        // 팔·다리 — 모서
    민짜 원통(CylinderGeometry)은 위아래 테가 칼같이 각져서 모자가 얹히는 자리가 딱딱해 보인다.
    옆모습 선(프로필)을 돌려 만든다(LatheGeometry) — 아래 가운데 → 아래 테 굴림 → 위 테 굴림 → 위 가운데. */
 function roundCyl(k, seg){
-  const R = 0.5, H = 0.5, n = 2, pts = [new THREE.Vector2(0, -H)];
+  const R = 0.5, H = 0.5, n = 4, pts = [new THREE.Vector2(0, -H)];
   for(let i=0;i<=n;i++){ const a = -Math.PI/2 + i/n*(Math.PI/2);
     pts.push(new THREE.Vector2(R - k*R + Math.cos(a)*k*R, -H + k*R + Math.sin(a)*k*R)); }
   for(let i=0;i<=n;i++){ const a = i/n*(Math.PI/2);
@@ -6409,7 +6486,7 @@ function roundCyl(k, seg){
   pts.push(new THREE.Vector2(0, H));
   return new THREE.LatheGeometry(pts, seg);
 }
-const CYL  = roundCyl(0.24, 14);                       // 머리 — 세운 원통(테 살짝 말림)
+const CYL  = roundCyl(0.24, 24);                       // 53차 — 가까운 얼굴도 각지지 않는 원통(테 살짝 말림)
 const BALL = new THREE.SphereGeometry(0.5, 14, 10);    // 털뭉치·꼬리 같은 '보이는 공' — 지름 1 이라 상자와 같은 배율
 /* ★ 47차 — 눈알·콧방울·볼터치는 화면에서 서너 픽셀이다. 거기에 252 삼각형짜리 공을 쓰고 있었다.
    8×6 공(80)으로 바꾸면 한 마리에서 1,032 삼각형이 빠진다 — 스물한 명이면 2만 2천.
@@ -7612,8 +7689,8 @@ function imesh(geo, mat, cap, color){
        키 = 2 + 2 + 1.2 = 5.2스터드 = 1.56칸 · 두 팔까지 너비 4스터드 = 1.20칸
    비율로 적으면 다리 38.5% · 몸통 38.5% · 머리 23% — 사진에서 잰 값과 같다. */
 const STUD = 0.30;
-const R6_HF = 0.00, R6_HU = 1.4112, R6_HK = 0.66;       // 둥근 머리를 10% 키운 귀여운 블록 비율 — 모자·얼굴도 같은 비율로 따라간다
-                                                         // = 1.36 × 1.28 × 1.24스터드 — 사진에서 잰 '머리 너비가 몸통의 0.7배' 에 맞췄다
+const R6_HF = 0.00, R6_HU = 1.431, R6_HK = 0.66;        // 53차 참고 이미지: 조금 세로로 긴 원통, 아래는 어깨 높이 1.20에 맞춘다
+                                                         // 귀여운 확대 비율은 유지하고 얼굴의 윤곽·배치를 별도로 고친다
 const r6hu = (u)=> R6_HU + (u - 1.06)*R6_HK;             // 양 표의 머리 기준 높이 → R6 높이
 /* ★ 51차e — 51차d 에 "보이는 몸은 상자보다 가늘다" 며 굵기를 줄였다가 **팔이 몸통에서 떨어졌다.**
    선생님: "팔이랑 몸통이 떨어져 있어서 이상해. 다시 로블록스 캐릭터들 보면서 교차검증해."
@@ -7629,7 +7706,7 @@ const R6_ARM = [1.00*STUD, 2.00*STUD, 1.00*STUD], R6_SHU = 4.00*STUD, R6_ASD = 1
 /* ★ 어깨를 1.50 이 아니라 **1.46** 에 둔다. 딱 1.50 이면 팔 안쪽 면과 몸통 옆면이 같은 평면에 놓이는데,
    둘 다 모서리가 둥근 상자라 그 자리에 **머리카락 같은 틈**이 비친다(모서리가 서로 반대로 말려서).
    0.04스터드만 몸통 속으로 밀어 넣으면 실루엣은 그대로면서 틈이 사라진다. 다리도 같은 까닭으로 0.48 이다. */
-const R6_HEAD = [0.68*R6_HK, 0.64*R6_HK, 0.62*R6_HK];
+const R6_HEAD = [0.68*R6_HK, 0.70*R6_HK, 0.68*R6_HK];  // 가로·깊이가 같은 원형 단면
 /* ── 기본 착장 = **로블록스 기본 캐릭터** ──
    ★ 51차d — 선생님: "옷은 검은색 말고 원래처럼 모둠을 나타내는 색깔 옷을 입혀 줘.
      그리고 머리 스타일은 기본 민머리(로블록스 민머리)인데 가발을 모자 아바타에 넣어."
@@ -7654,17 +7731,36 @@ const R6_HAND = [0.29,0.26,0.22], R6_HAND_AT = 0.86;
 /* 원통 앞면을 따라 붙는 미소. 평평한 얼굴을 앞에 띄워 놓으면 옆에서 공중에 떠 보인다. */
 function r6FaceFront(x){
   let z=-1;
-  for(let i=0;i<14;i++){const a=i*Math.PI*2/14,b=(i+1)*Math.PI*2/14;
+  for(let i=0;i<24;i++){const a=i*Math.PI*2/24,b=(i+1)*Math.PI*2/24;
     const x1=Math.sin(a)*0.34,x2=Math.sin(b)*0.34;
     if(Math.abs(x2-x1)>0.00001&&x>=Math.min(x1,x2)-1e-9&&x<=Math.max(x1,x2)+1e-9)
-      z=Math.max(z,Math.cos(a)*0.31+(Math.cos(b)-Math.cos(a))*0.31*(x-x1)/(x2-x1));}
+      z=Math.max(z,Math.cos(a)*0.34+(Math.cos(b)-Math.cos(a))*0.34*(x-x1)/(x2-x1));}
   return z;
 }
-const R6_SMILE=SMILE.clone();
-{ const pos=R6_SMILE.attributes.position;
-  for(let i=0;i<pos.count;i++)pos.setZ(i,pos.getZ(i)+(r6FaceFront(pos.getX(i)*0.25)-0.31)/0.07);
-  R6_SMILE.computeVertexNormals(); }
-const R6_EYE_F=0.68+r6FaceFront(0.13)+0.002, R6_MOUTH_F=0.992;
+/* 53차 — 첨부된 클래식 얼굴 기준. 눈은 더 가깝고 길게, 입은 좁고 가는 평면 선이다.
+   굵은 토러스를 검게 칠하던 입 대신 원통 표면에 붙은 리본을 만든다. 피부색은 그대로다. */
+const R6_FACE = {eyeSide:0.105, eyeU:1.20, eyeW:0.043, eyeH:0.101, eyeD:0.008,
+                 mouthU:1.00, mouthW:0.235, mouthH:0.245, stroke:0.016};
+function r6SmileGeo(){
+  const f=R6_FACE, pts=[], ids=[], a=f.mouthW/2, b=f.mouthH/2, steps=32;
+  const point=(x,y)=>{ pts.push(x/f.mouthW,y/f.mouthH,(r6FaceFront(x)-0.34)/0.07); };
+  for(let i=0;i<=steps;i++){
+    const t=i/steps*Math.PI, cx=a*Math.cos(t), cy=-b*Math.sin(t);
+    const nx=Math.cos(t)/a, ny=-Math.sin(t)/b, k=f.stroke/2/Math.hypot(nx,ny);
+    point(cx+nx*k,cy+ny*k); point(cx-nx*k,cy-ny*k);
+    if(i<steps){const j=i*2; ids.push(j,j+1,j+2,j+1,j+3,j+2);}
+  }
+  // 양 끝을 둥글려 작은 얼굴에서도 웃음선이 뾰족하게 끊기지 않는다.
+  for(const cx of [a,-a]){
+    const start=pts.length/3; point(cx,0);
+    for(let i=0;i<=12;i++){const t=i/12*Math.PI*2; point(cx+Math.cos(t)*f.stroke/2,Math.sin(t)*f.stroke/2);
+      if(i<12)ids.push(start,start+i+1,start+i+2);}
+  }
+  const geo=new THREE.BufferGeometry(); geo.setAttribute('position',new THREE.Float32BufferAttribute(pts,3));
+  geo.setIndex(ids); geo.computeVertexNormals(); return geo;
+}
+const R6_SMILE=r6SmileGeo();
+const R6_EYE_F=0.68+r6FaceFront(R6_FACE.eyeSide)+0.002, R6_MOUTH_F=1.022;
 /* ── 사람 표 좌표 → 선 몸통 자리 ──
    옷(11가지)·전직 차림새(직업 3 × 단계 2)는 **네발 몸통**(0.84 × 0.62 × 0.94)에 맞춰 적어 둔 표다.
    선 몸통(0.80 × 0.50 × 0.46)에 그대로 얹으면 가슴판이 가슴 앞 0.3칸에 떠 있고 망토가 등에서 떨어진다.
@@ -9450,26 +9546,40 @@ function drawSheep(list, t, cap, colOf, scale){
     const gait = s.gp !== undefined ? s.gp : gs.gp, mvK = (down || air) ? 0 : Math.max(0, Math.min(1, gs.v / 2.2));
     const walk = mvK * Math.sin(gait) * (run ? 1.0 : 0.85);
     const sq   = land > 0 ? 1 - (land/0.22)*0.08 : 1;                                   // 블록 비율을 지키며 착지 충격만 살짝
-    const hop  = run ? Math.max(0, Math.sin(gait + 0.4)) : Math.abs(Math.sin(gait));      // 바운드는 한 바퀴에 한 번 크게 뜬다
+    const hop  = Math.abs(Math.sin(gait));                                           // 두 발의 디딤마다 작게 올라온다
     /* 51차 — bob 은 **위로 튀는 것만** 담는다. 착지 눌림(sq)은 아래 stretch 가 u 에 곱해 맡는다 —
        46차처럼 bob 에 빼기로 넣으면 몸만 내려앉고 통짜 다리는 그대로라 발이 땅을 뚫는다. */
-    const bob  = mvK * hop * (run ? 0.15 : 0.06) * sc;
+    const bob  = mvK * hop * (run ? 0.07 : 0.035) * sc;                               // 과한 바운드를 줄여 발이 바닥을 딛는 느낌
     /* 44차 — 출발·급정지 자세: 가속(acc>0)이면 뒤로 살짝 눌리고(코 위), 급정지(acc<0)면 앞으로 쏠린다(코 아래). 급정지 땐 발밑 먼지 한 번(0.6초에 한 번만) */
     const accL = (down || air) ? 0 : Math.max(-0.22, Math.min(0.22, -gs.acc*0.022));
     if(!down && !air && gs.acc < -9 && gs.v > 1.4 && !(gs.dust > 0)){ gs.dust = 0.6; burst(s.x, y + 0.06, s.z, 0xd9cdb4, 4, 0.45); }
     const action = !down && !!s.act, ap = Math.max(0, Math.min(1, s.actP || 0));
-    const ease = v=>v*v*(3-2*v);
-    const wind = action ? (ap < 0.28 ? ease(ap/0.28) : ap < 0.64 ? 1-ease((ap-0.28)/0.36) : 0) : 0;
-    const strike = action ? Math.sin(Math.PI*Math.max(0,Math.min(1,(ap-0.28)/0.72))) : 0;
+    const ease = v=>{ v=Math.max(0,Math.min(1,v)); return v*v*(3-2*v); };
+    /* 53차 — 정점에서 팔이 순간이동하지 않게 상승·낙하 자세를 같은 연속 곡선으로 잇는다. */
+    const rise = ease((vy+2.5)/6);
+    const actKind = action ? s.act : gs.actKind;
+    const isWork = actKind === 'work', isThrow = actKind === 'throw';
+    const readyAt = isWork ? 0.20 : isThrow ? 0.44 : 0.30;
+    const hitAt = isWork ? 0.38 : isThrow ? 0.60 : 0.52;
+    /* 진행률에 묶인 준비 → 짧은 타격 → 긴 회복. 망치는 짧게, 곡괭이는 크게, 투척은 뒤에서 앞으로. */
+    let wind = action ? (ap < readyAt ? ease(ap/readyAt) : 1-ease((ap-readyAt)/(hitAt-readyAt))) : 0;
+    let strike = action ? (ap < hitAt ? ease((ap-readyAt)/(hitAt-readyAt)) : 1-ease((ap-hitAt)/(1-hitAt))) : 0;
+    if(action) gs.actKind = s.act;
+    else if(!down && !(s.wp > 0)){
+      const release = Math.exp(-20*Math.min(0.05, gs.dt || 0.016));
+      wind = (gs.actWind || 0)*release; strike = (gs.actStrike || 0)*release;
+    }
+    gs.actWind = wind < 0.001 ? 0 : wind; gs.actStrike = strike < 0.001 ? 0 : strike;
+    const actPose = gs.actWind + gs.actStrike > 0;
     const kick = !down ? Math.min(1.6, s.kick || 0) : 0;
-    const lean = accL + (air ? (vy > 1 ? -0.16 : 0.08) : mvK * (run ? -0.12 + Math.sin(gait + 0.4)*0.07 : -0.06))
-      + (action ? wind*0.12-strike*0.22 : 0) + kick*0.075;
+    const lean = accL + (air ? 0.08-rise*0.24 : mvK * (run ? -0.12 + Math.sin(gait + 0.4)*0.04 : -0.06))
+      + wind*(isThrow ? 0.16 : 0.10)-strike*(isWork ? 0.10 : 0.20) + kick*0.075;
     const breath = down ? 1 : 1 + (1 - mvK)*life.br*0.018;                                  // 44차 — 서 있으면 숨을 쉰다(몸통 ±1.8%)
     /* 머리 끄덕임 — 몸통 반동보다 한 박자 늦게 따라온다. 이게 있어야 살아 있어 보인다. */
-    const nod  = air ? (vy > 1 ? 0.06 : -0.05) : mvK > 0.05 ? Math.sin(gait - 0.9)*(run ? 0.09 : 0.06)*mvK : Math.sin(t*1.5 + (s.ph||0))*0.012;
-    const stretch = air ? (vy > 1 ? 1.02 + take*0.03 : 1) : sq;
+    const nod  = air ? -0.05+rise*0.11 : mvK > 0.05 ? Math.sin(gait - 0.9)*(run ? 0.06 : 0.04)*mvK : Math.sin(t*1.5 + (s.ph||0))*0.012;
+    const stretch = air ? 1 + rise*0.02 + take*0.03 : sq;
     const widen   = air ? 1 : 1 + (1 - sq)*0.35;
-    const lng     = (!down && !air && run) ? 1 + mvK*Math.sin(gait + 0.4)*0.07 : 1;      // 바운드 — 뜰 때 앞뒤로 늘고 내릴 때 줄어든다
+    const lng     = (!down && !air && run) ? 1 + mvK*Math.sin(gait + 0.4)*0.035 : 1;     // 블록 몸통의 비율을 유지하는 작은 호흡
     const col  = colOf(s);   // 51차 — 셔츠(몸통) 색. 머리·팔은 R6_SKIN, 바지는 R6_PANT 로 고정이다
     /* 몸 기준 좌표(앞 f · 위 u · 옆 sd) → 화면 좌표.
        ★ 51차 — 쓰러짐은 더 이상 '위아래 뒤집기' 가 아니다. 선 몸을 그렇게 뒤집으면 머리·몸통·다리가
@@ -9491,16 +9601,19 @@ function drawSheep(list, t, cap, colOf, scale){
     const hry = ry + hyaw, hfx = Math.sin(hry), hfz = Math.cos(hry), hrx = Math.cos(hry), hrz = -Math.sin(hry);
     /* ★ 51차 — 머리 기준 좌표. 모자·안경·얼굴 표는 '머리 f 0.68 · u 1.06' 기준으로 적혀 있고,
        여기 세 줄이 그 기준점을 R6 머리 자리(f 0, u 1.24)로 옮긴다 — 표는 한 줄도 안 고쳤다. */
-    const HX=(f,sd)=> s.x + fx*R6_HF*sc + (hfx*(f-0.68) + hrx*sd)*R6_HK*sc;
-    const HZ=(f,sd)=> s.z + fz*R6_HF*sc + (hfz*(f-0.68) + hrz*sd)*R6_HK*sc;
-    const YH = (u)=> y + (r6hu(u) + nod)*sc*stretch + bob;
+    /* 53차 — 머리·얼굴·모자에 같은 강체 변환을 쓴다. 머리만 기울이면 눈과 입이 뜨거나 파묻힌다.
+       착지 stretch는 머리 중심 높이에만 적용한다. 머리 표면에 붙은 얼굴 간격은 늘리지 않는다. */
+    const headPitch = down ? 0 : lean*0.6, hcp = Math.cos(headPitch), hsp = Math.sin(headPitch);
+    const HX=(f,sd,u=1.06)=> s.x + fx*R6_HF*sc + (hfx*((f-0.68)*hcp+(u-1.06)*hsp) + hrx*sd)*R6_HK*sc;
+    const HZ=(f,sd,u=1.06)=> s.z + fz*R6_HF*sc + (hfz*((f-0.68)*hcp+(u-1.06)*hsp) + hrz*sd)*R6_HK*sc;
+    const YH=(u,f=0.68)=> y + (R6_HU+nod)*sc*stretch + bob + ((u-1.06)*hcp-(f-0.68)*hsp)*R6_HK*sc;
 
     /* ── 몸통(셔츠) ── 모둠 색이 붙는 제일 큰 면이다. 달릴 때 앞뒤로 살짝 기운다(lean) */
     setIR(P_body, n, X(0,0), Y(R6_TU), Z(0,0), ry, lean,
       R6_TOR[0]*sc*widen*breath, R6_TOR[1]*sc*stretch*breath, R6_TOR[2]*sc*lng, col);
     /* ── 머리 ── 자리·크기는 46차 사람 머리 그대로다(모자·안경 표 백여 줄이 이 기준으로 적혀 있다).
        얼굴 앞면은 머리 기준 f=0.99 — 얼굴에 붙는 것(눈·입·볼)은 그보다 앞으로 나와야 안 파묻힌다. */
-    setIR(P_head, n, HX(0.68,0), YH(1.06), HZ(0.68,0), hry, lean*0.6,
+    setIR(P_head, n, HX(0.68,0), YH(1.06), HZ(0.68,0), hry, headPitch,
       R6_HEAD[0]*sc, R6_HEAD[1]*sc, R6_HEAD[2]*sc, R6_SKIN);
     /* ── 팔 둘 ── 다리와 **반대로** 흔든다(오른팔 ↔ 왼다리) — 사람 걸음의 핵심이다.
        ★ 공중 자세 둘은 48차에 적어 둔 로블록스 그대로다: **오를 땐 두 팔을 번쩍**, **내려올 땐 옆으로 벌린다.**
@@ -9512,18 +9625,23 @@ function drawSheep(list, t, cap, colOf, scale){
     for(const si of [1,-1]){
       let th, rl;
       if(down){ th = 0.30*si; rl = si*0.55; }                                  // 쓰러지면 팔을 옆으로 늘어뜨린다
-      else if(action){ th = si > 0 ? 0.48+wind*2.10-strike*0.20 : 0.38+wind*0.50-strike*0.25;
-                       rl = si*(0.10+strike*0.08); }                         // 준비 → 내리치기 → 회복, 왼팔도 균형을 잡는다
       else if(hasGun){ th = (si > 0 ? 1.35 : 1.08) + kick*(si > 0 ? 0.24 : 0.13) + lean*0.3;
                        rl = si > 0 ? 0.06 : -0.18; }                        // 두 팔로 받치고 발사 순간 어깨가 젖혀진다
-      /* ★ 51차c — 각도를 로블록스 R6 기본 동작에 맞췄다(선생님: "움직임까지 그대로 묘사해").
-           뜀   : 두 팔을 **곧게 위로**(175°) — 2.94(168°)는 어중간해서 만세가 아니라 들썩임이었다
-           낙하 : 두 팔을 **옆으로 수평**(83°) — 1.05(60°)는 어정쩡했다
-           걸음 : 앞뒤 ±32°, 달리기 ±49° — R6 는 무릎이 없어 **어깨에서만** 흔든다(옆으로는 안 벌린다) */
-      else if(air){ const rise = vy > 1;
-        th = (rise ? 3.05 : 0.10) + lean*0.5; rl = si*(rise ? 0.12 : 1.45); }
+      /* 53차 — 상승에서는 만세, 낙하에서는 옆으로 펼친다. 정점을 지나며 연속적으로 섞고
+         낙하 각도는 조금 줄여 둥근 캐릭터의 어깨·C자 손이 잘 읽히게 한다. */
+      else if(air){
+        th = 0.10 + rise*2.95 + lean*0.5; rl = si*(1.20-rise*1.08); }
       else { th = -mvK*Math.sin(gait + (si > 0 ? 0 : Math.PI))*(run ? 0.86 : 0.56) + lean*0.5 + (s.tool && si > 0 ? 0.32 : 0);
              rl = si*(0.02 + (1 - mvK)*life.br*0.02); }                        // 51차e — 팔은 몸통에 붙여 곧게 내린다(벌리면 어깨가 떨어져 보인다)
+      if(actPose && !down && !hasGun){
+        /* 작업 중에도 이동 자세를 바탕으로 삼는다. 진행률 0/1에서 기본 자세로 이어지고 취소하면 부드럽게 내려온다. */
+        const intent = Math.min(1, wind+strike);
+        th += ((si > 0 && s.tool ? 0.32 : 0) + lean*0.5-th)*intent;
+        rl += (si*0.05-rl)*intent;
+        th += si > 0 ? wind*(isThrow ? 2.55 : isWork ? 1.30 : 2.25) + strike*(isThrow ? 1.05 : isWork ? 0.45 : 0.18)
+                     : wind*(isThrow ? -0.30 : isWork ? 0.40 : 0.50) + strike*(isThrow ? 0.72 : isWork ? 0.18 : 0.10);
+        rl += si*(wind*(isThrow ? 0.10 : 0.04) + strike*0.08);
+      }
       const aL = R6_ARM[1]*sc*stretch, aW = R6_ARM[0]*sc*widen, aD = R6_ARM[2]*sc;
       /* 손목 아래의 C자는 한 메시다. 팔과 같은 pitch·roll을 써서 만세/낙하에서도 떨어지지 않는다. */
       const A = (off, L2, kw, kd)=> limb2(P_arm, armN++, X(0, R6_ASD*si), shY, Z(0, R6_ASD*si),
@@ -9542,10 +9660,10 @@ function drawSheep(list, t, cap, colOf, scale){
     for(const si of [1,-1]){
       let th, rl;
       if(down){ th = -0.20*si; rl = si*0.22; }
-      /* 51차c — 다리도 R6 그대로: 뜰 때 **모으고**, 내려올 때 조금 벌린다. 걸음 ±33° · 달리기 ±52° */
-      else if(air){ const rise = vy > 1;
-        th = rise ? 0.14 + take*0.26 : -0.05; rl = si*(rise ? 0.03 : 0.17); }
-      else { th = mvK*Math.sin(gait + (si > 0 ? 0 : Math.PI))*(run ? 0.90 : 0.58); rl = si*0.03; }
+      /* 뜰 때 모으고 내려올 때 조금 벌린다. 통짜 다리의 보폭은 걸음 ±30° · 달리기 ±44°. */
+      else if(air){
+        th = -0.05+rise*0.19+take*0.26; rl = si*(0.17-rise*0.14); }
+      else { th = mvK*Math.sin(gait + (si > 0 ? 0 : Math.PI))*(run ? 0.76 : 0.52); rl = si*0.03; }
       const gL = R6_LEG[1]*sc*stretch, gW = R6_LEG[0]*sc*widen, gD = R6_LEG[2]*sc;
       limb1(P_legs, ln++, X(0, R6_HSD*si), hipY, Z(0, R6_HSD*si), fx, fz, rx, rz, ry, th, rl,
         gL, gW, gD, R6_PANT);
@@ -9554,10 +9672,10 @@ function drawSheep(list, t, cap, colOf, scale){
       /* ✕ 눈 — 얇은 막대 두 개를 서로 반대로 기울여 겹친다. 몸이 통째로 뒤로 누우므로 얼굴에 그대로 찍으면 하늘을 본다 */
       const hk = R6_HK*sc;
       for(const si of [1,-1]) for(const rr of [0.75, -0.75])
-        setIR3(P_eye, eyeN++, HX(1.02,0.13*si), YH(1.14), HZ(1.02,0.13*si), hry, 0, rr,
+        setIR3(P_eye, eyeN++, HX(1.02,0.13*si,1.14), YH(1.14,1.02), HZ(1.02,0.13*si,1.14), hry, headPitch, rr,
           0.13*hk, 0.035*hk, 0.05*hk, 0x241f1c);
       // 혀 — 입에서 살짝 나온 분홍 조각
-      setI(P_nose, noseN++, HX(1.07,0), YH(0.99), HZ(1.07,0), hry,
+      setIR(P_nose, noseN++, HX(1.07,0,0.99), YH(0.99,1.07), HZ(1.07,0,0.99), hry, headPitch,
         0.10*hk, 0.05*hk, 0.12*hk, 0xff8fa6);
     } else {
     /* ★ 29차 얼굴 — 선생님: "얼굴 가운데 타원(코)이 입인 줄 알았다, 턱수염 같다. 그거 없애고 입을 위로."
@@ -9575,9 +9693,9 @@ function drawSheep(list, t, cap, colOf, scale){
        51차c 는 눈이 12.5 로 두 배 크고 입이 35 로 좁아서, 눈만 큰 다른 얼굴이 됐다. */
     const hk = R6_HK*sc;
     for(const si of [1,-1])
-      setI(P_eye, eyeN++, HX(R6_EYE_F,0.13*si), YH(1.14), HZ(R6_EYE_F,0.13*si), hry,
-        0.050*hk, 0.085*hk, 0.014*hk, 0x1c1a18);
-    setI(P_mouth, mouthN++, HX(R6_MOUTH_F,0), YH(0.99), HZ(R6_MOUTH_F,0), hry, 0.25*hk, 0.20*hk, 0.07*hk, 0x1c1a18);
+      setIR(P_eye, eyeN++, HX(R6_EYE_F,R6_FACE.eyeSide*si,R6_FACE.eyeU), YH(R6_FACE.eyeU,R6_EYE_F), HZ(R6_EYE_F,R6_FACE.eyeSide*si,R6_FACE.eyeU), hry, headPitch,
+        R6_FACE.eyeW*hk, R6_FACE.eyeH*hk, R6_FACE.eyeD*hk, 0x1c1a18);
+    setIR(P_mouth, mouthN++, HX(R6_MOUTH_F,0,R6_FACE.mouthU), YH(R6_FACE.mouthU,R6_MOUTH_F), HZ(R6_MOUTH_F,0,R6_FACE.mouthU), hry, headPitch, R6_FACE.mouthW*hk, R6_FACE.mouthH*hk, 0.07*hk, 0x1c1a18);
     }
     /* 꾸미기 — 모자·안경은 머리를 따라(YH), 옷은 몸통을 따라(Y) 움직인다.
        ★ 51차 — 옷 표(11가지)는 네발 몸통에 맞춰 적어 둔 것이라 선 몸통 자리로 한 번 옮긴다(r6body).
@@ -9588,7 +9706,7 @@ function drawSheep(list, t, cap, colOf, scale){
       for(const h of pick(arr, idx)){
         if(decoN >= P_deco.count_max) break;
         const q = onHead ? h : r6body(h[0],h[1],h[2],h[3],h[4],h[5]), ks = (onHead ? R6_HK : 1)*sc;
-        setI(P_deco, decoN++, (onHead?HX:X)(q[0], q[2]), (onHead?YH:Y)(q[1]), (onHead?HZ:Z)(q[0], q[2]), onHead ? hry : ry,
+        setIR(P_deco, decoN++, onHead?HX(q[0],q[2],q[1]):X(q[0],q[2]), onHead?YH(q[1],q[0]):Y(q[1]), onHead?HZ(q[0],q[2],q[1]):Z(q[0],q[2]), onHead ? hry : ry, onHead ? headPitch : 0,
           q[3]*ks, q[4]*ks, q[5]*ks, h[6]);
       }
     }
@@ -9627,7 +9745,7 @@ function drawSheep(list, t, cap, colOf, scale){
         else if(an === 2 || an === 3){ hf = h[0]; hu = r6hu(h[1]); hsd = h[2]; }
         else { const q = r6body(h[0],h[1],h[2],h[3],h[4],h[5]);
                hf = q[0]; hu = q[1]; hsd = q[2]; hw = q[3]; hh = q[4]; hd6 = q[5]; }
-        let yaw = h[7] ? hry : ry, pit = 0, rol = 0;
+        let yaw = h[7] ? hry : ry, pit = h[7] ? headPitch : 0, rol = 0;
         if(an === 1){                        // 망토 — 걸으면 뒤로 들려 펄럭이고, 도는 쪽 바깥으로 날린다
           const sw = Math.sin(gait*0.5 + (s.ph||0))*0.12*flap;
           hf -= 0.26*flap*BF; hu += 0.14*flap; hsd += hd.turn*0.09 + sw;
@@ -9641,7 +9759,7 @@ function drawSheep(list, t, cap, colOf, scale){
         }
         /* ★ 여덟 번째 칸이 1 이면 머리를 따라 끄덕인다(투구·모자).
            높이로 어림잡았더니 등에 멘 망치(u 1.52)까지 머리를 따라 흔들렸다. */
-        const px = (h[7] ? HX : X)(hf, hsd), py = (h[7] ? YH : Y)(hu), pz = (h[7] ? HZ : Z)(hf, hsd);
+        const px = h[7] ? HX(hf,hsd,hu) : X(hf,hsd), py = h[7] ? YH(hu,hf) : Y(hu), pz = h[7] ? HZ(hf,hsd,hu) : Z(hf,hsd);
         if(rol)      setIR3(P_deco, decoN++, px, py, pz, yaw, pit, rol, hw*sc, hh*sc, hd6*sc, h[6]);
         else if(pit) setIR (P_deco, decoN++, px, py, pz, yaw, pit,      hw*sc, hh*sc, hd6*sc, h[6]);
         else         setI  (P_deco, decoN++, px, py, pz, yaw,           hw*sc, hh*sc, hd6*sc, h[6]);
@@ -11555,6 +11673,40 @@ function shopCard(ic, name, desc, cost, state, label, onBuy){
   d.querySelector('.sb').appendChild(b);
   return d;
 }
+/* 상점 전용 진열 카드. 대장간·동물 상인이 공유하는 shopCard 동작은 그대로 둔다. */
+const SHOP_RES_ICON = {w:'wood',s:'stone',g:'gold',eg:'egg',mk:'milk',pk:'meat'};
+const SHOP_SECTIONS = {
+  w:['무기 고르기','우리 모둠을 지켜 줄 무기를 골라 보세요. 새 무기는 사면 바로 들어요.'],
+  a:['방어구 고르기','튼튼한 방어구로 좀비의 공격을 버텨 보세요.'],
+  b:['총알 채우기','싸우러 가기 전에 필요한 만큼 준비해요.'],
+  p:['물약 챙기기','필요할 때 꺼내 쓸 물약을 가방에 챙겨요.'],
+  f:['농장 산물 팔기','모둠이 모은 달걀·우유·고기를 금으로 바꿔요.'],
+  x:['자원 바꾸기','남는 자원을 내고 지금 필요한 자원을 받아요.']
+};
+function shopCatalogCard(ic, name, desc, cost, state, label, onBuy){
+  const d = shopCard(ic,name,desc,cost,state,label,onBuy), b = d.querySelector('button');
+  d.classList.toggle('shopExchange',d.querySelectorAll('.si img.ic').length > 1);
+  const equipped = state === 'own' && (label === '들고 있음' || label === '입고 있음');
+  const badge = document.createElement('span'); badge.className = 'shopBadge';
+  badge.textContent = equipped ? '사용 중' : state === 'own' ? '보유 중' : state === 'no' ? '자원 부족' : cost ? '구매 가능' : '교환 가능';
+  d.querySelector('.si').appendChild(badge);
+  d.classList.toggle('equipped',equipped);
+  d.dataset.state = equipped ? 'equipped' : state === 'own' ? 'owned' : state === 'no' ? 'unaffordable' : 'available';
+  d.tabIndex = -1;
+  b.textContent = state === 'own' ? label : state === 'no' ? '자원이 모자라요' : label === '사기' ? '구매하기' : label;
+  b.setAttribute('aria-label', `${d.querySelector('.sn').textContent} — ${b.textContent}`);
+  if(cost){
+    const r = myRes();
+    d.querySelector('.sc').innerHTML = RES_KEYS.filter(k=>cost[k]).map(k=>
+      `<span class="shopPrice${(r[k]||0)<cost[k]?' short':''}" aria-label="${RES_NM[k]} ${cost[k]} 필요">${iconImg(SHOP_RES_ICON[k],RES_IC[k])}<b>${cost[k]}</b></span>`).join('');
+    if(state === 'no'){
+      const lack = document.createElement('div'); lack.className = 'shopLack';
+      lack.textContent = RES_KEYS.filter(k=>(cost[k]||0)>(r[k]||0)).map(k=>`${RES_NM[k]} ${cost[k]-(r[k]||0)}`).join(' · ') + ' 더 필요해요';
+      d.querySelector('.sb').insertBefore(lack,b);
+    }
+  }
+  return d;
+}
 /* ═══════════ 상인에게 자원 바꾸기 (17차e) ═══════════
    선생님 주문: "남는 나무·돌·금을 필요한 것으로 바꾸되, 좀 비싸게 지불해서 바꾸는 것"
    ★ 값어치를 매기고, 그 중 일부만 돌려준다. 나머지가 상인 몫이다.
@@ -11596,11 +11748,17 @@ function doTrade(from, to){
 }
 function buildShopUI(){
   const r = myRes();
-  el('shopRes').innerHTML =
-    `🪵 ${r.w}　🪨 ${r.s}　✨ ${r.g}　<span style="opacity:.7">${G.me.g+1}모둠 공용</span>`;
-  for(const b of document.querySelectorAll('#shopTabs .btn'))          // 31차b — 상점 탭만 (대장간 탭도 .shopTabs 를 입고 있다)
-    b.classList.toggle('on', b.dataset.tab === shopTab);
-  const w = el('shopList'); w.innerHTML = '';
+  el('shopTeam').textContent = `${G.me.g+1}모둠 공용 지갑`;
+  el('shopRes').innerHTML = ['w','s','g'].map(k=>`<span class="shopBalance" aria-label="${RES_NM[k]} ${r[k]||0}">${iconImg(SHOP_RES_ICON[k],RES_IC[k])}<span class="shopBalanceName">${RES_NM[k]}</span><b>${r[k]||0}</b></span>`).join('');
+  const section = SHOP_SECTIONS[shopTab] || SHOP_SECTIONS.f;
+  el('shopCategory').textContent = section[0]; el('shopNotice').textContent = section[1];
+  for(const b of document.querySelectorAll('#shopTabs .btn')){
+    const on = b.dataset.tab === shopTab; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on));
+  }
+  const w = el('shopList'), oldFocus = document.activeElement && document.activeElement.closest('#shopList .sItem');
+  const focusIndex = oldFocus ? Array.from(w.querySelectorAll('.sItem')).indexOf(oldFocus) : -1;
+  const oldScroll = w.dataset.tab === shopTab ? w.scrollTop : 0;
+  w.dataset.tab = shopTab; w.innerHTML = '';
   if(shopTab === 'w'){
     WEAPONS.forEach((W,i)=>{
       if(i === 0 || W.mini || W.tier) return;   // 맨손 돌·연습용 총·조합 무기(레어·유니크)는 파는 물건이 아니다
@@ -11610,7 +11768,7 @@ function buildShopUI(){
       const dps = Math.round(W.dmg*WDAY()*em/W.cd);
       const desc = `${W.d}<br>한 방 <b>${Math.round(W.dmg*WDAY()*em)}</b> · 사거리 ${W.rng} · 초당 약 ${dps}`
                  + (e ? ` <span style="color:#ffd43b">(강화 +${e})</span>` : '');
-      w.appendChild(shopCard(iconImg('wpn'+i, W.ic), W.n + enhTxt(e), desc, W.cost, st,
+      w.appendChild(shopCatalogCard(iconImg('wpn'+i, W.ic), W.n + enhTxt(e), desc, W.cost, st,
         own ? (KIT.wpn===i ? '들고 있음' : '가방에 있음') : '사기', ()=>buyWeapon(i)));
     });
   } else if(shopTab === 'a'){
@@ -11618,20 +11776,20 @@ function buildShopUI(){
       if(i === 0) return;
       const own = !!KIT.ownA[i];
       const st = own ? 'own' : canPay(A.cost) ? '' : 'no';
-      w.appendChild(shopCard(iconImg('arm'+i, A.ic), A.n, A.d, A.cost, st,
+      w.appendChild(shopCatalogCard(iconImg('arm'+i, A.ic), A.n, A.d, A.cost, st,
         own ? (KIT.arm===i ? '입고 있음' : '가방에 있음') : '사기', ()=>buyArmor(i)));
     });
 
   } else if(shopTab === 'b'){
     for(const [g, label] of [[1,'조금'],[5,'넉넉히'],[15,'가득']]){
       const cost = {w:0,s:0,g};
-      w.appendChild(shopCard('🔸', `총알 ${g*AMMO_PER_GOLD}발 (${label})`,
+      w.appendChild(shopCatalogCard(iconImg('ammo','🔸'), `총알 ${g*AMMO_PER_GOLD}발 (${label})`,
         `금 1개에 ${AMMO_PER_GOLD}발입니다. 지금 <b>${KIT.ammo}발</b> 가지고 있어요.`,
         cost, canPay(cost) ? '' : 'no', '사기', ()=>buyAmmo(g)));
     }
   } else if(shopTab === 'p'){
     POTIONS.forEach((P,i)=>{
-      w.appendChild(shopCard(iconImg('pot'+i, P.ic), P.n, `${P.d}<br>가진 것 <b>${KIT.pot[i]}개</b> · <b>${i+6}</b> 키로 사용`,
+      w.appendChild(shopCatalogCard(iconImg('pot'+i, P.ic), P.n, `${P.d}<br>가진 것 <b>${KIT.pot[i]}개</b> · <b>${i+6}</b> 키로 사용`,
         P.cost, canPay(P.cost) ? '' : 'no', '사기', ()=>buyPotion(i)));
     });
   } else if(shopTab === 'x'){
@@ -11661,7 +11819,7 @@ function buildShopUI(){
       if(from === to) continue;
       const give = tradeGive(from, tradeMul), get = tradeGet(from, to, tradeMul);
       const can  = r[from] >= give && get > 0;
-      w.appendChild(shopCard(RES_IC[from] + '→' + RES_IC[to],
+      w.appendChild(shopCatalogCard(iconImg(SHOP_RES_ICON[from],RES_IC[from]) + '→' + iconImg(SHOP_RES_ICON[to],RES_IC[to]),
         `${RES_NM[from]} ${give} → ${RES_NM[to]} ${get}`,
         `${RES_IC[from]} <b>${give}</b>을 내고 ${RES_IC[to]} <b>${get}</b>을 받아요.` +
         (r[from] < give ? `<br><span style="color:#ffbdbd">지금 ${RES_IC[from]}${r[from]} 밖에 없어요</span>` : ''),
@@ -11696,15 +11854,22 @@ function buildShopUI(){
     } else {
       for(const A of FARM_ANIMALS){
         const v = r[A.res]|0; if(!v) continue;
-        w.appendChild(shopCard(A.pic, `${A.pn} ${v}개`,
+        w.appendChild(shopCatalogCard(iconImg(SHOP_RES_ICON[A.res],A.pic), `${A.pn} ${v}개`,
           `하나에 <b>✨${A.gold}</b> — 다 바꾸면 <b>✨${v*A.gold}</b>`,
           null, '', '바꾸기', ()=>sellFarm(A.res)));
       }
-      w.appendChild(shopCard('🧺', '전부 바꾸기',
+      w.appendChild(shopCatalogCard(iconImg('cart','🧺'), '전부 바꾸기',
         `모둠이 가진 <b>${have}개</b>를 한꺼번에 바꿉니다.`,
         null, '', `✨${worth} 받기`, ()=>sellFarm(null)));
     }
   }
+  const cards = w.querySelectorAll('.sItem');
+  el('shopCount').textContent = `${cards.length}개`;
+  if(focusIndex >= 0 && cards[focusIndex]){
+    const button = cards[focusIndex].querySelector('button');
+    (button && !button.disabled ? button : cards[focusIndex]).focus({preventScroll:true});
+  }
+  w.scrollTop = oldScroll;
 }
 /* 농장 산물을 금으로 — 한 가지만, 또는 전부.
    ★ 산물은 이제 모둠 자원이다(자원 창의 🥚 🥛 🍖). 쓰는 것도 나무·돌과 똑같이
@@ -13436,6 +13601,8 @@ function aimCell(){
 }
 
 let actCd = 0, mineHold = null, mineProg = 0;
+// 능력치로 빨라진 실제 채집 주기에 맞춰 자세와 진행 표시를 끝까지 재생한다.
+const miningFraction = ()=> Math.max(0, Math.min(1, mineProg/mineTime()));
 const MINE_T = 0.40;   // 한 번 캐는 데 걸리는 시간(초)
 /* ★ 한 번 누를 때 자원 하나만 —
    예전엔 꾹 누르고 있으면 그 나무가 없어진 뒤 바로 뒤에 있던 바위까지 줄줄이 캐졌다.
@@ -13638,7 +13805,7 @@ function doAction(dt){
   if(curTool === 'mine'){
     const n = aimNode();
     /* ★ 하얀 테두리 상자는 없앴다 — 뭘 조준했는지는 가운데 안내판이 알려 준다 */
-    aimNodeInfo(n, (n && n === mineLock) ? mineProg/MINE_T : 0);
+    aimNodeInfo(n, (n && n === mineLock) ? miningFraction() : 0);
     if(!acting) return;
     if(G.phase === 'night'){
       if(actCd<=0){ toast('🌙 밤에는 캐지 못해요. 짓고 고치세요!', 1.6, '#ffd9d9'); actCd=1.4; } return; }
@@ -16236,9 +16403,9 @@ const PVW_BODY = [
      ★ 자르는 자리(dollHead·dollBody)가 바로 아래 있다 — 순서를 바꾸면 거기도 같이 고친다. */
   [ 0, R6_TU, 0, R6_TOR[0], R6_TOR[1], R6_TOR[2], 'body'],                    // 0  몸통(모둠 색 셔츠)
   [ R6_HF, R6_HU, 0, R6_HEAD[0], R6_HEAD[1], R6_HEAD[2], 'skin', 'cyl'],       // 1  머리(민머리) — 세운 원통
-  r6row(R6_EYE_F,1.14, 0.13, 0.050,0.085,0.014, 0x1c1a18, 'ball'),
-  r6row(R6_EYE_F,1.14,-0.13, 0.050,0.085,0.014, 0x1c1a18, 'ball'),
-  r6row(R6_MOUTH_F,0.99, 0,  0.25, 0.20, 0.07, 0x1c1a18, 'smile'),
+  r6row(R6_EYE_F,R6_FACE.eyeU, R6_FACE.eyeSide, R6_FACE.eyeW,R6_FACE.eyeH,R6_FACE.eyeD, 0x1c1a18, 'ball'),
+  r6row(R6_EYE_F,R6_FACE.eyeU,-R6_FACE.eyeSide, R6_FACE.eyeW,R6_FACE.eyeH,R6_FACE.eyeD, 0x1c1a18, 'ball'),
+  r6row(R6_MOUTH_F,R6_FACE.mouthU, 0, R6_FACE.mouthW, R6_FACE.mouthH, 0.07, 0x1c1a18, 'smile'),
   [ 0, R6_SHU - R6_ARM[1]*0.33,  R6_ASD, R6_ARM[0],R6_ARM[1]*0.66,R6_ARM[2], 'skin'],
   [ 0, R6_SHU - R6_ARM[1]*0.33, -R6_ASD, R6_ARM[0],R6_ARM[1]*0.66,R6_ARM[2], 'skin'],
   [ 0, R6_SHU - R6_ARM[1]*0.675,  R6_ASD, R6_ARM[0]*0.68,R6_ARM[1]*0.15,R6_ARM[2]*0.72, 'skin'],
@@ -17846,7 +18013,7 @@ function loop(){
     const isMining = acting && curTool==='mine' && mineHold && G.phase==='day';
     const isWork = !!work;                     // 공사 중이면 망치질 박자로 휘두른다
     updHeld(dt, isMining || isWork,
-      isWork ? (work.prog % TOK_GAP)/TOK_GAP : (isMining ? mineProg/MINE_T : 0));
+      isWork ? (work.prog % TOK_GAP)/TOK_GAP : (isMining ? miningFraction() : 0));
     if(PROF_ON) pE('조작조준');
 
     if(PROF_ON) pS();
