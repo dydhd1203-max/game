@@ -32,6 +32,11 @@
 | `AIM_VIEW`, `updPlayer`, `cameraClearance`, `combatRay` | 사격 카메라·점프 추종·벽 검사·조준 |
 | `combatTargetInRange`, `shotEndpoint`, `aimWolf`, `aimPlayer` | 사람 기준 사거리·화면 중앙 판정·PvP 차폐 |
 | `RACE_X`, `RACE_S`, `raceBuild`, `raceDraw`, `raceRespawn` | 경주 폭·6개 구간·장식·체크포인트 |
+| `BUILD`, `BUILD_BRANCHES`, `buildStat`, `towerAttack` | 건물 6종·Lv3 특화 선택·충격파 범위 공격 |
+| `blocksOf(t,lv,branch,style)`, `blocksOfRaw` | 실제 높이/점유칸에 맞춘 건물 외형·모둠 장식 |
+| `tickBuildingGuns`, `buildingGunMuzzle` | Lv3 기관총/저격총의 조준 회전·총 부품만 반동·실제 총구 발사 |
+| `BUILD_PLANS`, `handleBuildCommand`, `hostBuildTick` | 호스트가 관리하는 공동 공사·자원 결제·예약 충돌 |
+| `buildAssistTick`, `chooseBuildBranch`, `openBuildAssistStyles` | 사거리·부족 자원·벽 이어짓기·특화/기지 꾸미기 UI |
 
 함수 이름으로 찾아 필요한 부분만 읽는다. 줄 번호는 변경될 수 있다.
 
@@ -51,6 +56,10 @@
 - 테이블 종류는 `boss` 같은 속성으로 구분한다. 번호 범위로 단정하지 않는다. 삭제한 필드는 소비 지점까지 검색한다.
 - `Object.assign(window, ...)` 검사 API 이름을 중복 선언하지 않는다.
 - 데스크톱 커서 조작은 하지 않는다. 자동 pointer lock을 넣지 않고 초점/탭 이탈 시 입력과 잠금을 해제한다.
+- 건설 설계도는 모둠당 12개, 동시 작업 속도는 3명에서 상한이다. 손을 떼어도 진행을 유지하고 90초 방치 시 해제한다.
+- 건설 완료·강화·수리·철거·자원 보내기는 호스트에서 현재 자원으로 처리한다. 새 위치/분기/소유자 필드를 건물 저장 시 보존한다.
+- 자동문·스프링 함정은 사용자 요청으로 추가하지 않는다. 새 포탑과 특화 공격이 기존 보스 AI·등장·보상을 바꾸지 않게 한다.
+- 화살탑은 Lv1~2에서 활을 쓰고, Lv3의 연사 기관총/대형 저격총 선택부터 실제 무장이 바뀐다. `blocksOf` 행의 11번째 값 `gun`인 부품만 회전/반동을 적용한다.
 - 숨김 브라우저는 `pw.mjs`로만 실행하고 `finally`에서 종료한다. GPU 속도와 21명 실접속 성능은 교실 기기에서 별도로 측정한다.
 
 ## 수정 후 검사
@@ -67,6 +76,9 @@
 - `t54-zombie-static.mjs`: 13종/밤별 의상/공격/92마리 인스턴스/기존 전투 수치.
 - `input52-static.mjs`: 브라우저 없이 입력 해제와 pointer lock 보호.
 - `t54-view.mjs`: 한 개의 숨김 브라우저. 상점 4크기/첫 구매 버튼/실제 구매/점프 30·60·120Hz/사격/군중 충돌/WebGL 그림. OS 마우스·키보드 API는 사용하지 않는다.
+- `t56-buildings-static.mjs`, `t56-building-combat-static.mjs`: 모든 건물/단계/분기/테마 기하 한계·부품 수와 실제 공격/범위/감속.
+- `t56-build-assist-static.mjs`, `t56-build-coop-static.mjs`: 배치/선택 UI와 두 클라이언트 통신 fixture를 통한 공동 건설·결제·이동·철거 보호.
+- `t56-build-view.mjs`: 실제 건설 입력→완성→특화 선택 및 4개 화면 크기의 건설 UI. `t56-buildings-view.mjs`는 외형 갤러리 선택 검사다.
 
 CPU PNG는 기하 확인용이다. 실제 WebGL 그림과 구별하며, 검사기의 소프트웨어 렌더링 FPS로 교실 성능을 단정하지 않는다.
 `git diff --check` 후 원본을 배포용에 복사하고 SHA-256이 같은지 확인한다.

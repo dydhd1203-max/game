@@ -734,7 +734,7 @@ body.aiming #hint{opacity:.28}
    3학년한테 정말 필요한 건 키 이름이 아니라 **지금 뭘 해야 하는지**였다.
    (첫날 화면에 들판만 있고 할 일이 아무 데도 안 적혀 있었다.)
    그래서 낮·밤·쓰러짐에 따라 바뀌는 '지금 할 일' 한 줄로 바꾸고, 안 사라지게 했다.
-   키 목록은 📖도움말과 아래 트레이 칸(Q·R·E·F·1~5)에 이미 적혀 있다. */
+   키 목록은 📖도움말과 아래 트레이 칸(Q·R·E·F·V·1~6)에 이미 적혀 있다. */
 #hint{left:50%;right:auto;bottom:150px;transform:translateX(-50%);z-index:13;
 
   text-align:center;max-width:min(660px, 84vw);
@@ -2192,6 +2192,47 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 #popKit #kitFoot{font-weight:400;font-size:11px;line-height:1.4;padding:8px;gap:10px}
 #popKit #kitStat{font-size:13px;line-height:1.8;margin-top:12px}
 @media(max-width:480px){#kitEquipped{display:block}#kitEquipped>span{display:block;margin-bottom:6px}#kitEquipped .kTag{font-size:11px}#popKit #kitGrid{grid-template-columns:repeat(2,minmax(0,1fr))}#popKit .kCell{padding:10px 7px}#popKit #kitTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}#popKit #kitTabs button{font-size:11px;padding:7px 2px}#dressPick .grp.deco{grid-template-columns:repeat(3,minmax(0,1fr))}}
+/* 건설 도우미 — 작은 안내는 핫바 위에, 선택 화면은 밝고 넓은 카드로. */
+#buildAssistDock{position:absolute;left:50%;bottom:96px;transform:translateX(-50%);width:min(610px,calc(100vw - 24px));display:none;flex-direction:column;align-items:center;gap:7px;pointer-events:none;z-index:14;color:#294b62;font:400 13px/1.5 var(--f-body)}
+#buildAssistSummary{max-width:100%;box-sizing:border-box;padding:8px 14px;border:1px solid #b8d8cc;border-radius:12px;background:rgba(246,255,248,.97);box-shadow:0 3px 12px #294b6212;text-align:center;word-break:keep-all;overflow-wrap:anywhere}
+#buildAssistSummary[data-state="blocked"]{background:#fff4ee;border-color:#e7bdac}
+#buildAssistSummary[data-state="short"]{background:#fff9e6;border-color:#dfce95}
+#buildAssistTitle{font-weight:600;font-size:13px}#buildAssistDetail{font-size:12px;color:#557184}
+#buildAssistActions{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;pointer-events:auto}
+#buildAssistDock [hidden]{display:none!important}
+#buildAssistActions .btn{font:500 12px/1.3 var(--f-body);padding:8px 11px;min-height:34px;white-space:nowrap;background:#f4fbff;border-radius:10px}
+#buildAssistLine[aria-pressed="true"]{background:#d5f1df;border-color:#559f77;color:#246041}
+#buildAssistStylePop .popC,#buildAssistBranchPop .popC{width:min(660px,94vw);max-height:88vh;padding:22px;display:flex;flex-direction:column;gap:12px;background:#fffdf7;border:2px solid #d4e5ed;border-radius:22px;color:#294b62;font:400 14px/1.55 var(--f-body);overflow:hidden;box-sizing:border-box}
+#buildAssistStylePop h2,#buildAssistBranchPop h2{font:600 23px/1.3 var(--f-body);margin:0;color:#294b62}
+#buildAssistStylePop p,#buildAssistBranchPop p{margin:0;color:#5a7384;font-weight:400}
+.buildAssistCards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;min-height:0;overflow-y:auto;padding:3px;overscroll-behavior:contain}
+.buildAssistCard{display:flex;flex-direction:column;align-items:stretch;gap:6px;border:1.5px solid #bfd9df;border-radius:15px;background:#f1faff;padding:13px;text-align:left;color:#294b62;font:400 13px/1.5 var(--f-body);cursor:pointer;min-width:0;box-sizing:border-box}
+.buildAssistCard:hover{background:#e6f6fc;border-color:#6cb4c7}.buildAssistCard[aria-pressed="true"]{background:#e6f6e9;border-color:#66a97e;box-shadow:inset 0 0 0 1px #66a97e}
+.buildAssistCard:disabled{cursor:default;opacity:1;background:#f0f3f5;border-color:#d5dfe5;color:#6b7d88}
+.buildAssistCard strong{font-size:17px;font-weight:600;line-height:1.4}.buildAssistCard small{font-size:12px;line-height:1.45;color:#557184}
+.buildAssistArt{height:90px;display:flex;align-items:center;justify-content:center;background:#fffdf7;border-radius:10px;overflow:hidden}
+.buildAssistArt svg{width:160px;height:90px;max-width:100%}.buildAssistCard:disabled .buildAssistArt{opacity:.6}
+.buildAssistArt img.ic{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain;margin:0;vertical-align:middle;flex:none}
+#buildAssistBranchPop .buildAssistArt{height:148px}
+@media(max-width:600px){#buildAssistBranchPop .buildAssistArt{height:112px}}
+@media(max-height:560px){#buildAssistBranchPop .buildAssistArt{height:92px}}
+.buildAssistBadge{display:block;align-self:flex-start;margin-top:auto;padding:4px 9px;background:#d5eddf;border-radius:7px;font-size:12px;font-weight:500;color:#286443}
+.buildAssistCard:disabled .buildAssistBadge{background:#e1e7eb;color:#667c89}
+.buildAssistFoot{display:flex;justify-content:flex-end;gap:8px;flex:none;border-top:1px solid #dfebef;padding-top:10px}.buildAssistFoot .btn{min-height:38px;font:500 13px var(--f-body)}
+@media(max-width:600px){#buildAssistDock{width:calc(100vw - 20px)}#buildAssistSummary{padding:6px 10px}#buildAssistTitle{font-size:12px}#buildAssistDetail{font-size:11px}#buildAssistActions .btn{font-size:11px;padding:7px 9px}#buildAssistStylePop .popC,#buildAssistBranchPop .popC{padding:16px;gap:10px}#buildAssistStylePop h2,#buildAssistBranchPop h2{font-size:21px}.buildAssistCards{gap:8px}.buildAssistCard{padding:10px;gap:5px}.buildAssistCard strong{font-size:15px}.buildAssistCard small{font-size:11px}.buildAssistArt{height:76px}.buildAssistArt svg{height:76px}.buildAssistBadge{font-size:11px;padding:4px 7px}}
+@media(max-height:560px){#buildAssistDock{gap:4px}#buildAssistSummary{padding:4px 10px}#buildAssistStylePop .popC,#buildAssistBranchPop .popC{max-height:94vh;padding:13px;gap:8px}.buildAssistArt,.buildAssistArt svg{height:60px}.buildAssistCard{padding:9px;gap:4px}.buildAssistFoot{padding-top:7px}}
+/* 좁은 창은 터치 여부와 무관하게 도구 한 줄 + 건물 여섯 칸 한 줄로 쓴다. */
+@media(max-width:600px){
+  #dock,body.touch #dock{flex-direction:column;align-items:stretch;width:calc(100vw - 16px);max-width:420px;min-width:0;padding:0;gap:4px}
+  #dock #tools{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));width:100%;gap:3px}
+  #dock #bar{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));width:100%;min-width:0;gap:0;padding:0;margin:0;overflow:visible}
+  #dock #bar .slot{width:auto;min-width:0;height:74px;padding:5px 1px;border-radius:7px}
+  #dock #tools .slot.tool,body:not(.touch) #dock #tools .slot.tool{width:auto;min-width:0;height:42px;padding:5px 2px;flex-direction:row;gap:4px;border-radius:8px}
+  #dock #tools .slot.tool .ic,body:not(.touch) #dock #tools .slot.tool .ic{font-size:17px;height:22px}
+  #dock #tools .slot.tool .ic img.ic{width:21px;height:21px}#dock #tools .slot.tool .nm{font-size:10px}
+  #dock #tools .ky{display:none}#dock #bar .nm{font-size:9px}#dock #bar .cost{font-size:8px;gap:0 1px}
+  #dock #bar .cost span{padding:1px 2px}
+}
 </style>
 </head>
 <body>
@@ -2262,7 +2303,7 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
     </div>
     <div id="tmsg"></div>
     <div class="hint">
-      🕹️ 컴퓨터: WASD 이동 · 마우스 보기 · 좌클릭 캐기/짓기 · 1~8 도구 · Space 점프<br>
+      🕹️ 컴퓨터: WASD 이동 · 마우스 보기 · 좌클릭 캐기/짓기 · 1~6 건물 · Space 점프<br>
       📱 태블릿: 왼쪽 동그라미로 이동 · 오른쪽 화면 문질러 보기 · 큰 버튼으로 캐기/짓기
     </div>
   </div>
@@ -2401,6 +2442,14 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
     <small>친구가 앞에서 8초 눌러 주면 일어나요 · 아침이면 저절로 일어나요</small></div>
 
 
+  <div id="buildAssistDock">
+    <div id="buildAssistSummary" role="status" aria-live="polite" hidden><div id="buildAssistTitle"></div><div id="buildAssistDetail"></div></div>
+    <div id="buildAssistActions">
+      <button class="btn" id="buildAssistStyle" type="button" aria-keyshortcuts="K" title="낮에 모둠 꾸미기 (K)">🌈 모둠 꾸미기 (K)</button>
+      <button class="btn" id="buildAssistLine" type="button" aria-pressed="false" aria-keyshortcuts="L" title="벽을 고른 뒤 이어짓기 켜기·끄기 (L)" hidden>🧱 벽 이어짓기 (L)</button>
+      <button class="btn" id="buildAssistRepair" type="button" aria-keyshortcuts="J" title="바라보는 건물의 수리 도움 요청 (J)" hidden>🤝 수리 도와줘 (J)</button>
+    </div>
+  </div>
   <div id="dock">
     <div id="tools"></div>
     <div id="dockLine"></div>
@@ -2417,6 +2466,20 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 
 
 </div>
+
+<!-- 건설 도우미의 두 선택 화면. 기존 popOpen과 같은 모달 흐름을 쓴다. -->
+<div class="pop" id="buildAssistStylePop" role="dialog" aria-modal="true" aria-labelledby="buildAssistStyleTitle"><div class="popC">
+  <h2 id="buildAssistStyleTitle">🌈 우리 모둠 꾸미기</h2>
+  <p id="buildAssistStyleHint">함께 밤을 넘기면 새 장식이 열려요.</p>
+  <div class="buildAssistCards" id="buildAssistStyleCards"></div>
+  <div class="buildAssistFoot"><button class="btn" type="button" id="buildAssistStyleClose">다 했어요</button></div>
+</div></div>
+<div class="pop" id="buildAssistBranchPop" role="dialog" aria-modal="true" aria-labelledby="buildAssistBranchTitle"><div class="popC">
+  <h2 id="buildAssistBranchTitle">✨ 탑의 힘 고르기</h2>
+  <p>어떤 힘으로 친구들을 도울까요? 하나를 골라 주세요.<br><small>고르는 동안에도 게임은 계속돼요. 안전한 곳에서 골라 주세요.</small></p>
+  <div class="buildAssistCards" id="buildAssistBranchCards"></div>
+  <div class="buildAssistFoot"><button class="btn" type="button" id="buildAssistBranchClose">나중에 고르기</button></div>
+</div></div>
 
 <!-- 자원 보내기 -->
 <div class="pop" id="popGive"><div class="popC">
@@ -2559,6 +2622,9 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 
   <h3>🔨 짓기</h3>
   <div class="hgrid">
+    <div class="hrow"><i>⌨️</i><div><b>1~6</b> 건물 고르기 · <b>V</b> 내 건물 위치 다시 잡기<br>
+      벽을 고른 뒤 <b>L</b> 이어짓기 · 낮에 <b>K</b> 모둠 꾸미기 · 건물을 보고 <b>J</b> 수리 도움 요청<br>
+      마우스를 화면 밖으로 꺼내지 않고도 쓸 수 있어요. <b>Esc</b>로 선택 창을 닫아요.</div></div>
     <div class="hrow"><i>⏱️</i><div><b>누르고 있어야</b> 망치질이 이어져요.
       <span class="chip">벽 2.8초</span><span class="chip">탑·배럭 6.4초</span><span class="chip">강화 4초</span><span class="chip">수리 2.5초</span><span class="chip">철거 3초</span>
       <br>손을 떼면 처음부터. 자원은 <b>다 지어질 때</b> 냅니다 — 도중에 그만둬도 손해 없어요.
@@ -5582,56 +5648,75 @@ for(const S of farmParts) for(let s=1;s<S.length;s++){
 for(const h of miParts.surv) bset(h, false);
 
 /* ═══════════════════════ 건물 정의 ═══════════════════════ */
-/* 모든 건물은 Lv1 → … → Lv6.  배열 칸은 레벨 순서다.
-   ★ 겉모습은 두 레벨이 한 '대'를 이룬다 — 홀수 레벨에서 골격이 통째로 바뀌고,
-     짝수 레벨에서 금·룬·깃발 같은 장식이 붙는다 (blocksOfRaw 참고).
-     그래서 hi(올라설 수 있는 높이)도 두 칸씩 같은 값이다. */
+/* 건물은 7단계까지 성장한다. 화살·얼음탑은 Lv3에서 역할을 고른다. */
 const BUILD = {
   wwall:{ name:'나무벽', icon:'🪵', cost:{w:4,s:0,g:0},  size:1, hi:1.4, pass:1,
-          /* ★ 14차 — 애들이 "벽은 금방 부서진다"며 벽을 안 믿고 탑만 지었다.
-             벽은 원래 제일 두꺼워야 하는 물건이다. 탑(380~1650)·배럭(700~2650)보다
-             확실히 위가 되게 올렸다. U 키 정보창에서 이 숫자를 직접 볼 수 있다. */
-          /* ★ 15차 — 학교에서 더 올려 달라고 하셨다. 40% 상향.
-             건물에는 '방어력' 수치가 따로 없다 — 체력 하나가 곧 버티는 힘이다. */
-          /* ★ 17차c — Lv7 한 칸 추가. 5→6 의 비율(약 1.36배)을 그대로 이었다. */
+
           hp:[870, 1330, 1960, 2800, 3920, 5320, 7230],
-          /* Lv7 값은 앞 단계의 1.5배 남짓, 금은 두 배다 — 늘어난 자원을 부을 자리다 */
+
           up:[{w:5,s:1,g:0},{w:8,s:4,g:0},{w:12,s:8,g:2},{w:18,s:13,g:4},{w:26,s:19,g:8},{w:40,s:30,g:16}],
-          desc:'싸고 빠름. 첫날 산길은 이걸로 막으세요. 낮아서 화살이 넘어갑니다. 탑보다 훨씬 튼튼해요. 🦘 뛰는 좀비는 벽을 뛰어넘으니 벽 안쪽에 탑도 세우세요.' },
+          desc:'싸고 빠르게 산길을 막아요. 낮아서 화살이 넘어가고 탑보다 훨씬 튼튼해요. 벽 안쪽에 포탑을 세워 함께 지켜요.' },
   swall:{ name:'돌벽',   icon:'🧱', cost:{w:1,s:6,g:0},  size:1, hi:1.4, pass:1,
           hp:[1500, 2210, 3190, 4490, 6180, 8320, 11230],   // ★ 15차 30% 상향 · 17차c Lv7
           up:[{w:2,s:9,g:0},{w:3,s:14,g:1},{w:5,s:21,g:3},{w:8,s:30,g:7},{w:12,s:40,g:12},{w:20,s:62,g:24}],
-          desc:'나무벽보다 훨씬 튼튼. 이 게임에서 제일 단단한 물건입니다. 산길 정면은 돌벽으로. 🦘 뛰는 좀비는 벽을 뛰어넘으니 벽 안쪽에 탑도 세우세요.' },
+          desc:'가장 튼튼한 벽이에요. 산길 정면에 세우고 친구들과 수리하면서 뒤쪽 포탑을 지켜요.' },
   arrow:{ name:'화살탑', icon:'🏹', cost:{w:10,s:7,g:0}, size:2,
           hi:[2.85, 2.85, 3.05, 3.05, 3.30, 3.30, 3.55],
           hp:[380, 520, 700, 950, 1260, 1650, 2160],
           range:[13, 13.5, 14, 15, 16, 17, 18],
-          /* ★ 7차 패치 — 한 방을 1.7배로 키우고 쏘는 간격을 2배로 늘렸다.
-             예전엔 0.4초마다 자잘하게 때려서 뜬 숫자가 서로 겹쳐 아무것도 안 읽혔다.
-             크리티컬(14%, 2배)까지 넣으면 실제 화력은 예전의 0.92배 — 조금 어려워졌다. */
+
           dmg:[22, 29, 39, 53, 70, 92, 121], rate:[1.40, 1.32, 1.22, 1.10, 0.96, 0.80, 0.67],
           up:[{w:11,s:8,g:2},{w:15,s:11,g:5},{w:20,s:15,g:9},{w:27,s:21,g:15},{w:36,s:29,g:23},{w:56,s:46,g:44}],
-          desc:'가까이 온 좀비를 자동으로 쏩니다. 자재만 있으면 얼마든지.' },
+          desc:'좀비를 자동으로 쏴요. Lv3에서 빠른 연사형과 멀리 쏘는 저격형 중 하나를 골라요.' },
   ice:  { name:'얼음탑', icon:'❄️', cost:{w:6,s:9,g:2},  size:2,
           hi:[2.60, 2.60, 2.90, 2.90, 3.20, 3.20, 3.45],
           hp:[300, 420, 570, 770, 1010, 1330, 1755],
           range:[10, 10.5, 11, 12, 13, 14, 15],
-          /* ★ 얼음탑도 이제 직접 때린다. 화살보다 약하지만, 맞은 좀비만 느려진다. */
+
           dmg:[14, 19, 26, 36, 48, 63, 83], rate:[2.20, 2.08, 1.96, 1.80, 1.60, 1.40, 1.22],
-          /* 쏘는 간격이 2배가 됐으니 어는 시간도 같이 늘린다 — 안 그러면 얼자마자 풀린다 */
+
           slow:[0.58, 0.52, 0.46, 0.40, 0.33, 0.26, 0.20], slowT:[2.6,2.8,3.0,3.2,3.5,3.8,4.1],
           up:[{w:8,s:10,g:3},{w:11,s:14,g:6},{w:15,s:19,g:11},{w:21,s:26,g:17},{w:28,s:35,g:26},{w:44,s:55,g:50}],
-          desc:'때린 좀비를 얼려서 느리게 만듭니다. 자재만 있으면 얼마든지.' },
+          desc:'때린 좀비를 느리게 해요. Lv3에서 여러 마리를 늦추는 눈보라형과 한 마리를 강하게 늦추는 빙결형을 골라요. 갑옷 좀비는 느려지지 않아요.' },
   barr: { name:'배럭',   icon:'🐑', cost:{w:14,s:11,g:4},size:3,
           hi:[2.25, 2.25, 2.50, 2.50, 2.95, 2.95, 3.20],
           hp:[700, 950, 1250, 1620, 2080, 2650, 3390],
           spawn:[9, 8.4, 7.8, 7.2, 6.5, 5.8, 5.2], sbuff:[1.0, 1.18, 1.42, 1.72, 2.10, 2.55, 3.05],
           up:[{w:16,s:13,g:5},{w:22,s:17,g:9},{w:29,s:23,g:15},{w:38,s:31,g:23},{w:50,s:41,g:34},{w:78,s:64,g:66}],
-          desc:'우리 편 병사가 나옵니다. Lv3부터 갑옷병, Lv5부터 마법사, Lv7이면 마법사가 셋.' }
+          desc:'우리 편 병사가 나옵니다. Lv3부터 갑옷병, Lv5부터 마법사, Lv7이면 마법사가 셋.' },
+  pulse:{ name:'충격파 포탑',icon:'🌀',cost:{w:14,s:14,g:4},size:2,
+          hi:[2.6,2.6,2.9,2.9,3.2,3.2,3.45],
+          hp:[410,570,780,1050,1370,1810,2350],
+          range:[9,9.5,10,10.5,11,11.5,12],area:[2.2,2.4,2.6,2.8,3.0,3.2,3.4],
+          dmg:[16,22,30,40,53,69,89],rate:[2.80,2.65,2.50,2.35,2.20,2.05,1.90],
+          up:[{w:14,s:16,g:5},{w:19,s:22,g:8},{w:25,s:29,g:13},{w:33,s:38,g:20},{w:44,s:50,g:30},{w:66,s:74,g:56}],
+          desc:'충격파가 퍼져 모여 있는 좀비를 함께 때려요. 한 마리 공격은 약하지만 여럿이 몰릴 때 좋아요. 밀어내지는 않아요.' }
 };
-/* ★ 17차c — Lv7 을 열었다. 늘어난 자원을 부을 데가 있어야 한다.
-   겉모습은 tier 3 골격을 그대로 쓰고 그 위에 '왕관' 한 층을 얹는다 —
-   다섯 건물을 통째로 새로 그리면 코드가 배로 늘고 서로 안 닮게 된다. */
+
+const BUILD_BRANCHES = {
+  arrow:{
+    rapid:{name:'연사 기관총탑',icon:'⚙️',desc:'기관총 모양으로 바뀌어 짧은 간격으로 총탄을 쏴요. 가까운 좀비 떼와 빠른 좀비를 맡아요.',
+      range:[13,13.5,12,13,14,15,16],dmg:[22,29,27,37,49,65,86],rate:[1.40,1.32,.68,.62,.55,.47,.40]},
+    sniper:{name:'대형 저격총탑',icon:'🎯',desc:'커다란 저격총 모양으로 바뀌어 멀리 강한 한 발을 쏴요. 큰 좀비와 먼 적을 맡아요.',
+      range:[13,13.5,18.5,20,21.5,23,25],dmg:[22,29,78,104,137,180,235],rate:[1.40,1.32,2.15,1.98,1.78,1.53,1.28]}
+  },
+  ice:{
+    blizzard:{name:'눈보라 얼음탑',icon:'🌨️',desc:'한 마리를 때리고 주변 좀비도 함께 느리게 해요. 갑옷 좀비는 감속에 면역이에요.',
+      dmg:[14,19,18,25,33,44,57],rate:[2.20,2.08,2.30,2.12,1.90,1.68,1.45],
+      area:[0,0,2.3,2.6,2.9,3.2,3.5],slow:[.58,.52,.70,.64,.58,.51,.45],slowT:[2.6,2.8,3.2,3.5,3.8,4.1,4.4]},
+    frost:{name:'빙결 얼음탑',icon:'❄️',desc:'한 마리를 더 강하게 때리고 오래 느리게 해요. 갑옷 좀비는 감속에 면역이에요.',
+      dmg:[14,19,34,47,62,82,108],rate:[2.20,2.08,2.30,2.10,1.85,1.60,1.40],
+      slow:[.58,.52,.32,.27,.22,.17,.12],slowT:[2.6,2.8,3.4,3.7,4.0,4.4,4.8]}
+  }
+};
+function buildStat(o,key){
+  const b=o&&Object.prototype.hasOwnProperty.call(BUILD,o.t)?BUILD[o.t]:null;if(!b)return undefined;
+  const lv=Math.max(1,Math.min(7,Math.floor(Number(o.lv)||1)));
+  const choices=BUILD_BRANCHES[o.t],branch=lv>=3&&choices&&Object.prototype.hasOwnProperty.call(choices,o.branch)?choices[o.branch]:null;
+  const v=branch&&Object.prototype.hasOwnProperty.call(branch,key)?branch[key]:b[key];
+  return Array.isArray(v)?v[Math.min(v.length-1,lv-1)]:v;
+}
+function buildingName(o){return buildStat(o,'name')||'건물';}
 const MAXLV = 7;
 
 const COST_MUL = 1.2;
@@ -5659,275 +5744,287 @@ const TOOLS = [
   {id:'mine',  name:'캐기', icon:'⛏️', key:'Q'},
   {id:'repair',name:'수리', icon:'🔧', key:'R'},
   {id:'up',    name:'강화', icon:'⬆️', key:'E'},
-  {id:'del',   name:'철거', icon:'💥', key:'F'}
+  {id:'del',   name:'철거', icon:'💥', key:'F'},
+  {id:'move', name:'옮기기', icon:'↔️', key:'V'}
 ];
 
-/* ══ 건물 한 채의 블록 배치 ══
-   [dx, dy, dz, tile, w, h, d, tint, ry, rz]  — dx/dz는 발자국 원점 칸 중심 기준(소수 가능)
-   ★ ry(좌우 돌리기) 와 rz(옆으로 기울이기) 를 새로 열었다.
-     예전엔 모든 블록이 축에 딱 맞아 있어서 지붕이 계단이고 대각 보강대를 못 그렸다 —
-     건물이 어설퍼 보이던 제일 큰 이유다.
-     비용은 0이다: 어차피 인스턴스마다 행렬을 만들고 있었고,
-     단위 사원수 대신 오일러 사원수를 넣을 뿐이다.
-   크기 2(화살탑·얼음탑)의 한가운데는 0.5, 크기 3(배럭)의 한가운데는 0 이다.        */
-const BANNER = 0xc8402f, RUNE = 0xa96bff, FROST = 0xbfe9ff, IRON = 0x8f97a4;
-
-/* ★ 겉모습 축소 배수 [가로, 세로].  점유 칸수(size)는 건드리지 않는다.
-   세로는 원래 아트 높이 기준: 화살탑 5→2.1, 얼음탑 4→1.8, 배럭 4→1.92, 벽 3→2.1.
-   BUILD 의 hi 값과 반드시 같이 움직여야 한다 (hi 는 올라설 수 있는 높이). */
-/* ★ 벽은 가로를 안 줄인다 — 0.7배로 줄이면 칸과 칸 사이가 0.33칸 벌어져서
-   벽 너머가 훤히 비친다. 애들이 "벽이 뚫렸다"고 볼 만한 그림이라 높이만 30% 낮췄다.
-   타워·배럭은 요청대로 가로·세로 모두 40% 축소(= 예전 값의 0.6배). */
-/* ★ 탑·배럭은 가로세로를 '같은 배수'로 줄인다.
-   예전엔 가로 0.48 · 세로 0.42 로 따로 줄여서 탑이 눌린 것처럼 납작해졌다.
-   실제로 렌더해 보니 이게 "어설퍼 보인다"의 큰 원인이었다 —
-   비율이 무너진 모형은 아무리 장식을 붙여도 어설프다.
-   원래 값(가로 0.80 · 세로 0.70) 대비 가로 −40% · 세로 −31% 로,
-   요청한 축소는 지키면서 탑의 생김새는 되살렸다.
-   벽만 예외 — 가로를 줄이면 칸 사이가 벌어져 벽 너머가 비친다. */
-const VSCALE = { wwall:[1.00, 0.70], swall:[1.00, 0.70],
-                 arrow:[0.48, 0.48], ice:[0.48, 0.48], barr:[0.52, 0.52] };
-/* ★ 같은 종류·레벨이면 블록 배치는 늘 똑같다 — 한 번 만들고 재사용.
-   rebuildStru 가 초당 12번까지 도는데 매번 새로 만들 이유가 없다. */
+// 건물 조각: [x, y-0.5, z, tile, width, height, depth, tint, yaw, roll, optional 'gun'].
+// 좌표는 점유 칸 기준 실제 크기다. 외형의 꼭대기는 BUILD.hi와 같게 만든다.
 const _blkCache = new Map();
-function blocksOf(t, lv){
-  lv = Math.max(1, Math.min(MAXLV, lv||1));
-  const key = t + "#" + lv;
-  let r = _blkCache.get(key);
-  if(!r){ r = blocksOfRaw(t, lv); _blkCache.set(key, r); }
-  return r;
+function blocksOf(t, lv, branch='', style=0){
+  if(!BUILD[t]) return [];
+  lv=Math.max(1,Math.min(MAXLV,Math.floor(Number(lv)||1)));
+  branch=t==='arrow' && lv>=3 && ['rapid','sniper'].includes(branch) ? branch
+    : t==='ice' && ['blizzard','frost'].includes(branch) ? branch : '';
+  style=Math.max(0,Math.min(3,Math.floor(Number(style)||0)));
+  const key=[t,lv,branch,style].join('#');
+  let rows=_blkCache.get(key);
+  if(!rows){ rows=blocksOfRaw(t,lv,branch,style); _blkCache.set(key,rows); }
+  return rows;
 }
-function blocksOfRaw(t, lv){
-  lv = Math.max(1, Math.min(MAXLV, lv||1));
-  const out = [];
-  /* ═══ 다섯 건물 × 일곱 단계를 통째로 다시 그렸다 (로블록스 결) ═══ */
-  const C = T.cloth, GL = T.glow;
-  const RAW = (x,y,z,tile,w,h,d,tint,ry,rz)=> out.push([x,y,z,tile,w,h,d,tint,ry||0,rz||0]);
-  const P = (x,y,z,w,h,d,tint,tile)=> RAW(x,y,z,tile||C,w,h,d,tint);                 // 중심(y 는 실제 높이-0.5)
-  const R = (x,y,z,w,h,d,ry,rz,tint,tile)=> RAW(x,y,z,tile||C,w,h,d,tint,ry,rz);     // 돌린 조각
-  const V = (x,z,y0,y1,w,d,tint,tile)=> P(x,(y0+y1)/2-0.5,z,w,y1-y0,d===undefined?w:d,tint,tile);   // y0~y1 기둥
-  const S = (x,z,y,w,d,h,tint,tile)=> P(x,y+h/2-0.5,z,w,h,d,tint,tile);              // 밑면 y 에 깔리는 판
-  const Q4 = (cx,cz,r,fn)=>{ for(const sx of [1,-1]) for(const sz of [1,-1]) fn(cx+r*sx, cz+r*sz, sx, sz); };
-  const RING = (cx,cz,r,n,fn,off)=>{ for(let i=0;i<n;i++){ const a=(off||0)+i/n*Math.PI*2; fn(cx+Math.cos(a)*r, cz+Math.sin(a)*r, a); } };
-  /* 고깔 — 아래로 갈수록 넓은 둥근 판을 쌓는다(로블록스 지붕·첨탑) */
-  const CONE = (x,z,y,h,w,tint,n)=>{ n=n||4; for(let i=0;i<n;i++){ const k=1-i/n; S(x,z,y+h*i/n, w*k, w*k, h/n+0.03, tint); } };
-  /* 네모 지붕 — 기울인 널판 넷을 맞댄다. ry=π/2 면 rz 가 z 방향 기울기가 된다(YXZ) */
-  const PYR = (x,z,y,w,h,th,tint)=>{ const half=w/2, slope=Math.hypot(half,h)+0.10, ang=Math.atan2(h,half), cy=y+h/2-0.5;
-    for(const s2 of [1,-1]){ R(x+s2*half/2, cy, z, slope, th, w+0.10, 0, -s2*ang, tint);
-                             R(x, cy, z+s2*half/2, slope, th, w+0.10, Math.PI/2, s2*ang, tint); } };
-  /* 깃대 + 펄럭이는 천 두 장 */
-  const FLAG = (x,z,y,h,tint,lean)=>{ R(x, y+h/2-0.5, z, 0.11, h, 0.11, 0, lean||0, WOODD);
-    P(x+0.34, y+h-0.30-0.5, z, 0.60, 0.42, 0.07, tint); P(x+0.30, y+h-0.66-0.5, z, 0.48, 0.28, 0.07, tint); };
-  /* 색 — 파스텔 원색. 짙은 것과 밝은 것을 붙여야 형태가 읽힌다 */
-  const WOOD=0xd08c4e, WOODD=0x8a5a30, WOODL=0xf2c58c, PLANK=0xe0a868;
-  const STONE=0xc3c8d0, STONED=0x8d939c, STONEL=0xe4e8ee, PLASTER=0xfbf7ef;
-  const ROOF=0xe8604f, ROOF2=0x4f86d8, GOLD=0xffd34d, IRON2=0x6f7784;
-  const ICE=0xa9dfff, ICED=0x6fb8f0, ICEL=0xe4f6ff, WIN=0x2b2f3a, GLOWC=0xfff0a0, EMBER=0xffb347;
-  /* ═══ 벽돌 벽. 선생님: "성벽 회색 벽돌이 벽돌같지 않고 밍밍해." */
-  const BRK = (x,z,y0,y1,w,d,tone)=>{
-    V(x,z,y0,y1,w,d, tone===STONEL ? 0x9ea4ac : 0x7c828b);                           // 회반죽 몸통 — 32차: 더 어둡게(줄눈이 깊어 보인다)
-    const tones = tone===STONEL ? [0xe4e8ee, 0xd5dae1, 0xeef1f5] : [0xc3c8d0, 0xb4bac2, 0xcfd4db];
-    const nR = Math.max(2, Math.round((y1-y0)/0.34)), rH = (y1-y0)/nR;
-    let k = 0;
-    for(let r=0; r<nR; r++){
-      const yc = y0 + (r+0.5)*rH - 0.5, off = (r%2) ? 0.5 : 0;
-      for(const [len, ax] of [[w,0],[d,1]]){                                          // ax 0: 앞뒤 면(길이 w) · 1: 옆면(길이 d)
-        const n = Math.max(2, Math.round(len/0.42)), bl = len/n;
-        for(const sgn of [1,-1]) for(let i=-1; i<n; i++){
-          let a = (i+off)*bl, b = a + bl; a = Math.max(0,a); b = Math.min(len,b);
-          if(b - a < bl*0.3) continue;
-          const hh = rnd(k*1.7 + r*3.3 + i*5.1), col = hh < 0.07 ? (tone===STONEL ? 0xb9bfc7 : 0x9aa0a8) : tones[(k++)%3], c = (a+b)/2 - len/2;
-          const L = (b - a - 0.05) * (0.90 + rnd(k*2.9+i)*0.16), pr = 0.02 + rnd(k*4.1+r)*0.03;    // 32차 — 길이·도드라짐 제각각 (33차: 0.02 아래면 멀리서 면이 싸운다)
-          if(ax===0) RAW(x + c, yc, z + sgn*(d/2 + pr), T.bricks, L, rH-0.05, 0.08, col);
-          else       RAW(x + sgn*(w/2 + pr), yc, z + c, T.bricks, 0.08, rH-0.05, L, col);
-        }
-      }
+function blocksOfRaw(t, lv, branch='', style=0){
+  if(!BUILD[t]) return [];
+  lv=Math.max(1,Math.min(MAXLV,Math.floor(Number(lv)||1)));
+  if(t==='arrow' && lv<3) branch='';
+  style=Math.max(0,Math.min(3,Math.floor(Number(style)||0)));
+  const out=[], C=T.cloth, GL=T.glow, H=bs(t,'hi',lv), size=BUILD[t].size;
+  const cx=size===2?.5:0, cz=cx, tier=lv>=5?2:lv>=3?1:0;
+  const cream=0xfff2d9, ivory=0xf5f1e5, stone=0xc5d4d6, shade=0x92aeb4;
+  const wood=0xd5a66c, honey=0xe6bd83, darkWood=0x9c7555, gold=0xf2ca72;
+  const mint=0x72bfa4, blue=0x78acd6, lavender=0xa18acb, rose=0xdf8f9a;
+  const ink=0x456779, light=0xffe8a8, ice=0xbfe9f4, iceLight=0xebfbff;
+  const roofBase=t==='arrow'?(branch==='rapid'?0xd89c74:branch==='sniper'?0x739bbd:0xd88779):t==='barr'?0xc68791:t==='ice'?0x81bace:0x9389ca;
+  const roof=style===2?(t==='arrow'?mint:t==='barr'?lavender:t==='ice'?rose:blue):roofBase;
+  const trim=lv===MAXLV?gold:style===2?roof:shade;
+  const P=(x,y,z,w,h,d,col,tile=C,ry=0,rz=0)=>out.push([x,y-.5,z,tile,w,h,d,col,ry,rz]);
+  const slab=(x,z,y,w,d,h,col,tile=C)=>P(x,y+h/2,z,w,h,d,col,tile);
+  const post=(x,z,y0,y1,w,d,col)=>P(x,(y0+y1)/2,z,w,y1-y0,d,col);
+  const corners=(r,fn)=>{for(const a of [-1,1])for(const b of [-1,1])fn(cx+a*r,cz+b*r,a,b);};
+  const band=(x,z,y,r,h,th,col,n=8,tile=C)=>{
+    const len=2*r*Math.tan(Math.PI/n);
+    for(let i=0;i<n;i++){const a=i*Math.PI*2/n;
+      P(x+Math.cos(a)*r,y+h/2,z+Math.sin(a)*r,len,h,th,col,tile,-a-Math.PI/2);}
+  };
+  const roofGable=(x,z,y,w,d,top,col)=>{
+    const th=.08,rise=top-y-.06,angle=Math.atan2(rise,w/2),len=Math.hypot(w/2,rise);
+    for(const s of [-1,1])P(x+s*w/4,y+rise/2,z,len,th,d,col,C,0,-s*angle);
+    P(x,top-.045,z,.14,.09,d+.025,lv===MAXLV?gold:cream);
+    for(const s of [-1,1])P(x+s*w/4,y+rise/2,z+d/2+.012,len,.055,.055,cream,C,0,-s*angle);
+  };
+  const lantern=(x,z,y,k=1)=>{
+    P(x,y,z,.19*k,.25*k,.16*k,style===3?iceLight:light,GL);
+    P(x,y+.15*k,z,.25*k,.055*k,.22*k,trim);
+    P(x,y-.15*k,z,.23*k,.055*k,.20*k,trim);
+    if(style===3){
+      P(x,y,z+.09*k,.065*k,.31*k,.025*k,gold);
+      P(x,y,z+.095*k,.26*k,.065*k,.025*k,gold);
+      P(x,y,z+.10*k,.12*k,.12*k,.025*k,light,GL,0,Math.PI/4);
     }
   };
-
-  /* ─────────────── 나무벽 — 통나무 방책. 단계마다 통나무가 늘고 높아지며 띠·쇠·발판·룬·금관이 붙는다 ─────────────── */
+  const banner=(x,z,y,w=.34,h=.45)=>{
+    P(x,y,z,w,h,.045,style===1?rose:roof);
+    P(x,y+h/2+.025,z,w+.10,.055,.07,lv===MAXLV?gold:cream);
+    if(style===1){
+      P(x,y+.015,z+.030,w*.53,h*.37,.025,cream);
+      for(const s of [-1,1]){
+        P(x+s*w*.14,y+h*.24,z+.030,w*.12,h*.25,.025,cream);
+        P(x+s*w*.12,y+.028,z+.047,.028,.032,.015,ink);
+      }
+    }else P(x,y,z+.027,w*.26,w*.26,.025,lv===MAXLV?gold:cream,C,0,Math.PI/4);
+  };
+  const windowFront=(x,z,y,w=.28,h=.39)=>{
+    P(x,y,z,w+.09,h+.09,.09,cream);
+    P(x,y,z+.052,w,h,.035,blue);
+    P(x,y,z+.076,.035,h,.025,cream);
+    P(x,y-.025,z+.077,w,.03,.025,cream);
+    slab(x,z+.02,y-h/2-.09,w+.14,.17,.07,trim);
+  };
+  const windowSide=(x,z,y,w=.28,h=.43)=>{
+    P(x,y,z,.09,h+.09,w+.09,cream);
+    P(x+.052,y,z,.035,h,w,blue);
+    P(x+.076,y,z,.025,h,.035,cream);
+    P(x+.077,y-.025,z,.025,.03,w,cream);
+    slab(x+.02,z,y-h/2-.09,.17,w+.14,.07,trim);
+  };
+  const crystal=(x,z,y,h,w,col=ice)=>{
+    const cut=h*.56,halfY=cut/Math.sqrt(2),cy=y+h-halfY;
+    post(x,z,y,y+h*.26,w*.48,w*.48,blue);
+    P(x,cy,z,cut,cut,w*.84,col,C,Math.PI/4,Math.PI/4);
+    P(x,cy,z+w*.43,cut*.37,cut*.37,.035,iceLight,GL,0,Math.PI/4);
+  };
   if(t==='wwall'){
-    const n = lv>=3 ? 4 : 3, top = 1.70 + Math.min(4, lv-1)*0.14;
-    S(0,0, 0, 1.06,1.00,0.24, WOODD);                                             // 밑동 침목
-    for(let i=0;i<n;i++){ const x = -0.5 + (i+0.5)/n, h = top + ((i%2)?0.10:0);
-      V(x, 0, 0.24, h, 0.96/n-0.03, 0.84, i%2 ? WOOD : WOODL);                     // 통나무
-      S(x, 0, h, 0.96/n-0.08, 0.60, 0.16, WOODD); }                                // 뾰족한 끝
-    S(0,0, 0.78, 1.04, 0.94, 0.16, WOODD);                                        // 가로 띠
-    if(lv>=2) S(0,0, 1.36, 1.04, 0.94, 0.16, WOODD);
-    if(lv>=3) S(0,0, 0, 1.10,1.06,0.32, STONED);                                  // 돌 기초
-    if(lv>=4){ for(const sx of [1,-1]) V(sx*0.44, 0, 0.32, top+0.06, 0.12, 0.90, IRON2);   // 쇠 모서리
-               for(const sz of [1,-1]) S(0, sz*0.48, 0.92, 0.44, 0.06, 0.50, BANNER); }    // 깃발천
-    if(lv>=5){ S(0,0, top+0.16, 1.08, 0.64, 0.14, PLANK);                         // 위 발판
-               for(const sz of [1,-1]) S(0, sz*0.50, 1.18, 0.36,0.06,0.36, GOLD); }        // 둥근 금 방패
-    if(lv>=6){ for(const sz of [1,-1]) S(0, sz*0.50, 1.64, 0.22,0.10,0.22, RUNE, GL);      // 룬
-               S(0,0, top+0.30, 0.26,0.26,0.26, FROST); }
-    if(lv>=7){ S(0,0, top+0.30, 1.10, 1.00, 0.14, GOLD);                          // 금관 띠
-               for(const sx of [1,-1]) S(sx*0.36, 0, top+0.44, 0.20,0.20,0.18, GOLD);
-               CONE(0,0, top+0.44, 0.70, 0.42, GOLD, 3); S(0,0, top+1.16, 0.22,0.22,0.22, EMBER, GL); }
-  }
-  /* ─────────────── 돌벽 — 큰 둥근 돌 한 덩이 + 성가퀴. 단계마다 성가퀴·기둥·총안·쇠·룬·금관 ─────────────── */
-  else if(t==='swall'){
-    const top = 1.60 + Math.min(4, lv-1)*0.12, m = lv>=2 ? 3 : 2;
-    S(0,0, 0, 1.06,1.06,0.24, STONED);                                            // 기단
-    BRK(0,0, 0.24, top, 0.98, 0.90, lv>=3 ? STONEL : STONE);                      // 몸통 — 벽돌(31차b)
-    S(0,0, 0.84, 1.04, 0.96, 0.14, STONED);                                       // 돌출 띠
-    for(let i=0;i<m;i++){ const x = -0.5+(i+0.5)/m; V(x,0, top, top+0.40, 0.92/m-0.06, 0.84, STONED); }   // 성가퀴
-    if(lv>=3) for(const sx of [1,-1]) V(sx*0.44, 0, 0.24, top, 0.14, 0.94, STONED);                       // 모서리 기둥
-    if(lv>=4){ for(const sz of [1,-1]) S(0, sz*0.47, 1.00, 0.14,0.08,0.44, WIN);                           // 총안
-               for(const sz of [1,-1]) S(0, sz*0.50, 0.58, 0.44,0.06,0.56, BANNER); }
-    if(lv>=5){ S(0,0, top-0.02, 1.08, 1.00, 0.16, IRON2);
-               for(const sx of [1,-1]) S(sx*0.34, 0, top+0.40, 0.26,0.60,0.14, IRON2); }
-    if(lv>=6){ for(const sz of [1,-1]) S(0, sz*0.50, 1.40, 0.24,0.10,0.24, RUNE, GL); S(0,0, top+0.54, 0.28,0.28,0.28, RUNE); }
-    if(lv>=7){ for(let i=0;i<m;i++){ const x=-0.5+(i+0.5)/m; S(x,0, top+0.40, 0.92/m-0.06, 0.84, 0.16, GOLD); }
-               CONE(0,0, top+0.56, 0.74, 0.46, GOLD, 3); S(0,0, top+1.32, 0.22,0.22,0.22, EMBER, GL); }
-  }
-  /* ═══════════ 화살탑 — 1·2 나무 망루 → 3·4 돌 위 회벽 오두막 → 5·6 돌 성탑(파란 고깔) → 7 금관 ═══════════ */
-  else if(t==='arrow'){
-    const cx = 0.5, cz = 0.5;
-    if(lv<=2){
-      S(cx,cz, 0, 2.60,2.60,0.30, STONED);                                        // 돌 기초판
-      Q4(cx,cz,0.92,(x,z)=> V(x,z, 0.30, 3.10, 0.34, 0.34, WOODD));                // 다리 넷
-      S(cx,cz, 1.40, 2.16, 2.16, 0.16, WOOD);                                     // 허리 가로대
-      S(cx,cz, 3.10, 2.90, 2.90, 0.30, PLANK);                                    // 평상
-      Q4(cx,cz,1.25,(x,z)=> V(x,z, 3.40, 4.60, 0.22, 0.22, WOODD));                // 지붕 기둥
-      for(const s2 of [1,-1]){ V(cx, cz+s2*1.36, 3.40, 3.92, 2.90, 0.14, WOOD);   // 난간
-                               V(cx+s2*1.36, cz, 3.40, 3.92, 0.14, 2.90, WOOD); }
-      for(let i=0;i<5;i++) S(cx, cz+1.12, 0.62+i*0.52, 0.76, 0.12, 0.12, WOODL);  // 사다리
-      for(const s2 of [1,-1]) V(cx+s2*0.32, cz+1.12, 0.30, 3.10, 0.11, 0.11, WOODD);
-      if(lv===1) S(cx,cz, 4.60, 3.20, 3.20, 0.26, ROOF);                          // 납작 붉은 지붕
-      else { PYR(cx,cz, 4.60, 3.30, 0.90, 0.28, ROOF); S(cx,cz, 5.48, 0.36,0.36,0.36, GOLD);
-             S(cx+1.02, cz+1.02, 3.40, 0.32,0.32,0.60, WOODD);                     // 화살통
-             S(cx-1.02, cz+1.02, 3.40, 0.26,0.26,0.26, GLOWC, GL); }              // 등불
-    } else if(lv<=4){
-      S(cx,cz, 0, 2.90,2.90,0.30, STONED); BRK(cx,cz, 0.30, 1.80, 2.30, 2.30, STONE); // 돌 기초 덩어리 — 벽돌
-      S(cx,cz, 1.80, 2.50, 2.50, 0.20, STONED);
-      V(cx,cz, 2.00, 3.60, 1.90, 1.90, PLASTER);                                  // 회벽 오두막
-      Q4(cx,cz,0.95,(x,z)=> V(x,z, 2.00, 3.70, 0.30, 0.30, WOODD));
-      for(const s2 of [1,-1]){ S(cx, cz+s2*0.96, 2.60, 0.44, 0.10, 0.56, WIN); S(cx+s2*0.96, cz, 2.60, 0.10, 0.44, 0.56, WIN); }
-      S(cx,cz, 3.60, 3.10, 3.10, 0.28, PLANK);                                    // 발코니
-      Q4(cx,cz,1.36,(x,z)=> V(x,z, 3.88, 5.00, 0.22, 0.22, WOODD));
-      for(const s2 of [1,-1]){ V(cx, cz+s2*1.46, 3.88, 4.40, 3.10, 0.14, WOOD); V(cx+s2*1.46, cz, 3.88, 4.40, 0.14, 3.10, WOOD); }
-      PYR(cx,cz, 5.00, 3.50, 1.20, 0.28, ROOF); S(cx,cz, 6.18, 0.36,0.36,0.36, GOLD);
-      S(cx+1.06, cz+1.06, 3.88, 0.32,0.32,0.60, WOODD); S(cx-1.06, cz+1.06, 3.88, 0.26,0.26,0.26, GLOWC, GL);
-      if(lv===4){ S(cx,cz, 3.60, 3.22,3.22,0.10, GOLD);                            // 금 테
-        for(const sx of [1,-1]) FLAG(cx+sx*1.56, cz+1.56, 3.88, 1.50, BANNER, sx*0.28); }
-    } else {
-      const H = lv===5 ? 4.20 : 4.60, LANT = lv>=7 ? EMBER : GLOWC;
-      S(cx,cz, 0, 3.10,3.10,0.34, STONED); S(cx,cz, 0.34, 2.70,2.70,0.20, STONED);
-      BRK(cx,cz, 0.54, H, 2.10, 2.10, STONEL);                                     // 큰 돌 몸통 — 벽돌
-      S(cx,cz, 1.90, 2.30, 2.30, 0.16, STONED);
-      for(const s2 of [1,-1]){ S(cx, cz+s2*1.06, 2.40, 0.40,0.10,0.70, WIN); S(cx+s2*1.06, cz, 2.40, 0.10,0.40,0.70, WIN); }
-      S(cx,cz, H, 2.80, 2.80, 0.24, STONED);                                        // 회랑 판
-      RING(cx,cz,1.28,8,(x,z)=> S(x,z, H+0.24, 0.34,0.34,0.46, STONE));             // 성가퀴 여덟
-      if(lv===5){ CONE(cx,cz, H+0.30, 1.60, 2.20, ROOF2, 5); S(cx,cz, H+1.92, 0.34,0.34,0.34, GOLD); }
-      else { BRK(cx,cz, H+0.24, H+1.30, 1.30, 1.30, STONEL); S(cx,cz, H+1.30, 1.60,1.60,0.16, STONED);   // 윗층 — 벽돌
-             CONE(cx,cz, H+1.46, 1.40, 1.70, ROOF2, 5); S(cx,cz, H+2.88, 0.30,0.30,0.30, RUNE, GL);
-             RING(cx,cz,1.34,6,(x,z)=> S(x,z, 3.00, 0.22,0.22,0.22, RUNE, GL)); }
-      Q4(cx,cz,1.42,(x,z)=> S(x,z, H+0.24, 0.24,0.24,0.24, LANT, GL));              // 횃불 넷
-      for(const sx of [1,-1]) FLAG(cx+sx*1.50, cz+1.50, H+0.24, 1.50, BANNER, sx*0.26);
-      if(lv>=7){ S(cx,cz, H+0.10, 2.92,2.92,0.14, GOLD); RING(cx,cz,1.30,8,(x,z)=> S(x,z, H+0.72, 0.18,0.18,0.24, GOLD));
-                 CONE(cx,cz, H+2.88, 0.90, 0.62, GOLD, 3); S(cx,cz, H+3.80, 0.26,0.26,0.26, EMBER, GL); }
+    slab(0,0,0,1,.84,.16,darkWood);
+    for(let i=0;i<4;i++){
+      const x=-.375+i*.25;
+      post(x,0,.14,H-.10,.225,.73,i%2?honey:wood);
+      slab(x,0,H-.10,.225,.76,.10,lv===MAXLV?gold:cream);
     }
-  }
-  /* ═══════════ 얼음탑 — 1·2 언 바위의 얼음 기둥 → 3·4 돌 대좌의 수정 첨탑 → 5·6 얼음 성탑 → 7 금관 ═══════════ */
-  else if(t==='ice'){
-    const cx = 0.5, cz = 0.5;
-    const SHARD = (x,z,y,len,w,tilt,yaw,tint)=> R(x, y+len*0.42-0.5, z, w, len, w, yaw, tilt, tint||ICE);
-    if(lv<=2){
-      S(cx,cz, 0, 2.50,2.50,0.36, STONED); S(cx,cz, 0.36, 2.00,2.00,0.20, ICED);    // 언 바위
-      V(cx,cz, 0.56, 2.30, 1.40, 1.40, ICE);                                       // 얼음 몸통
-      V(cx,cz, 2.30, 3.30, 0.84, 0.84, ICEL); V(cx,cz, 3.30, 4.20, 0.42, 0.42, ICEL);   // 뾰족한 끝
-      RING(cx,cz,0.90, lv===1?3:4, (x,z,a)=> SHARD(x,z, 0.60, 1.90, 0.36, 0.55, a));     // 비스듬한 가시
-      if(lv===2){ S(cx,cz, 2.06, 0.80,0.80,0.60, FROST, GL); S(cx,cz, 4.20, 0.30,0.30,0.30, FROST, GL); }
-    } else if(lv<=4){
-      S(cx,cz, 0, 2.90,2.90,0.34, STONED); BRK(cx,cz, 0.34, 1.40, 2.10, 2.10, STONE);   // 돌 대좌 — 벽돌
-      S(cx,cz, 1.40, 2.30, 2.30, 0.18, ICED);
-      Q4(cx,cz,0.82,(x,z)=> V(x,z, 1.58, 2.80, 0.34, 0.34, ICE));                   // 얼음 기둥 넷
-      V(cx,cz, 1.58, 3.80, 1.24, 1.24, ICE); V(cx,cz, 3.80, 4.90, 0.72, 0.72, ICEL); V(cx,cz, 4.90, 5.70, 0.34, 0.34, ICEL);   // 수정 첨탑
-      S(cx,cz, 2.90, 0.96,0.96,0.70, FROST, GL);                                    // 드러난 코어
-      RING(cx,cz,1.16,4,(x,z,a)=> SHARD(x,z, 0.60, 1.20, 0.30, -0.18, a), 0.4);     // 고드름
-      if(lv===4){ RING(cx,cz,1.20,4,(x,z,a)=> SHARD(x,z, 3.10, 0.90, 0.28, 0.55, a, ICEL));   // 떠 있는 조각
-                  S(cx,cz, 1.40, 2.40,2.40,0.12, GOLD); S(cx,cz, 5.70, 0.30,0.30,0.30, FROST, GL); }
-    } else {
-      const H = lv===5 ? 2.40 : 2.80;
-      S(cx,cz, 0, 3.10,3.10,0.34, STONED); BRK(cx,cz, 0.34, H, 2.10, 2.10, STONEL);   // 돌 성탑 몸통 — 벽돌
-      S(cx,cz, 1.40, 2.30,2.30,0.16, STONED); S(cx,cz, H, 2.70, 2.70, 0.22, ICED);
-      RING(cx,cz,1.22,6,(x,z)=> S(x,z, H+0.22, 0.34,0.34,0.44, ICE));               // 얼음 성가퀴
-      V(cx,cz, H+0.22, H+2.60, 1.34, 1.34, ICE); V(cx,cz, H+2.60, H+3.50, 0.72, 0.72, ICEL); V(cx,cz, H+3.50, H+4.20, 0.34, 0.34, ICEL);
-      S(cx,cz, H+1.40, 1.04,1.04,0.90, FROST, GL);                                  // 큰 코어
-      RING(cx,cz,1.34,6,(x,z,a)=> SHARD(x,z, H+1.10, 1.10, 0.30, 0.60, a, ICEL));
-      if(lv>=6){ V(cx,cz, H+0.30, H+1.10, 1.70, 1.70, ICEL);                         // 둘째 얼음 층
-                 RING(cx,cz,1.10,7,(x,z)=> S(x,z, H+2.80, 0.20,0.20,0.20, RUNE, GL)); S(cx,cz, H+4.20, 0.34,0.34,0.34, RUNE, GL); }
-      if(lv>=7){ S(cx,cz, 0.34, 2.40,2.40,0.14, GOLD); S(cx,cz, H+0.10, 2.80,2.80,0.14, GOLD);
-                 CONE(cx,cz, H+4.20, 0.90, 0.60, GOLD, 3); S(cx,cz, H+5.10, 0.26,0.26,0.26, EMBER, GL);
-                 RING(cx,cz,1.46,8,(x,z)=> S(x,z, 0.48, 0.22,0.22,0.74, ICEL)); }
+    for(const z of [-.405,.405]){
+      P(0,.42,z,1,.13,.065,darkWood);
+      P(0,1.04,z,1,.13,.065,style===2?roof:darkWood);
+      if(lv>=3)for(const x of [-.36,.36])P(x,.73,z,.08,.72,.075,trim);
+      if(lv>=5)P(0,.75,z,.24,.29,.06,gold,C,0,Math.PI/4);
     }
-  }
-  /* ═══════════ 배럭 — 1·2 회벽 오두막 → 3·4 돌+나무 이층집 → 5·6 성채(모퉁이 탑) → 7 금관 ═══════════ */
-  else if(t==='barr'){
-    const cx = 0, cz = 0, F = 1.25;                                                  // F = 앞면(+z)
-    if(lv<=2){
-      S(cx,cz, 0, 3.10,3.10,0.30, STONED);
-      V(cx,cz, 0.30, 2.50, 2.50, 2.30, PLASTER);                                     // 회벽 몸통
-      Q4(cx,cz,1.18,(x,z)=> V(x,z, 0.30, 2.60, 0.28, 0.28, WOODD));                   // 골조 기둥
-      S(cx,cz, 1.40, 2.60, 2.40, 0.14, WOODD);                                       // 허리 가로대
-      S(cx, cz+F, 0.30, 0.86, 0.10, 1.70, WIN);                                      // 문
-      P(cx, 2.00-0.5, cz+F, 1.10, 0.20, 0.20, WOODD);                                // 문 상인방
-      PYR(cx,cz, 2.60, 3.30, 1.00, 0.30, ROOF);                                      // 붉은 지붕
-      S(cx-1.30, cz+1.30, 0.30, 0.30,0.30,0.26, GLOWC, GL);                          // 모닥불
-      if(lv===2){ for(const s2 of [1,-1]) S(cx+s2*1.16, cz, 1.30, 0.10, 0.44, 0.50, WIN);   // 옆 창
-                  V(cx+0.80, cz-0.70, 3.00, 4.10, 0.50, 0.50, STONE); S(cx+0.80, cz-0.70, 4.10, 0.62,0.62,0.14, STONED);   // 굴뚝
-                  S(cx+1.24, cz+1.24, 0.30, 0.66,0.66,0.46, 0xe8c25a); }                    // 건초더미
-    } else if(lv<=4){
-      S(cx,cz, 0, 3.30,3.30,0.34, STONED);
-      BRK(cx,cz, 0.34, 1.70, 2.60, 2.40, STONE);                                     // 돌 아래층 — 벽돌
-      S(cx,cz, 1.70, 2.80, 2.60, 0.16, WOODD);
-      V(cx,cz, 1.86, 3.10, 2.50, 2.30, PLASTER);                                     // 회벽 위층
-      Q4(cx,cz,1.20,(x,z)=> V(x,z, 1.86, 3.20, 0.26, 0.26, WOODD));
-      S(cx, cz+F, 0.34, 0.84, 0.10, 1.40, WIN); P(cx, 1.80-0.5, cz+F, 1.14, 0.22, 0.20, GOLD);   // 문 + 금 상인방
-      for(const s2 of [1,-1]) S(cx+s2*0.62, cz+F, 2.20, 0.40, 0.10, 0.50, WIN);     // 위층 창
-      V(cx+0.86, cz-0.70, 3.40, 4.80, 0.50, 0.50, STONE); S(cx+0.86, cz-0.70, 4.80, 0.62,0.62,0.14, STONED);   // 굴뚝
-      PYR(cx,cz, 3.20, 3.40, 1.20, 0.30, ROOF); S(cx,cz, 4.36, 0.34,0.34,0.34, GOLD);
-      if(lv===4){ S(cx, cz+F+0.30, 1.86, 2.20, 0.60, 0.18, PLANK);                    // 발코니
-                  for(const s2 of [1,-1]) S(cx+s2*0.90, cz+F+0.06, 1.10, 0.44,0.10,0.50, IRON2);   // 방패
-                  for(const sx of [1,-1]) FLAG(cx+sx*1.46, cz+1.46, 2.04, 1.40, BANNER, sx*0.30); }
-    } else {
-      const H = lv===5 ? 3.30 : 3.60, LANT = lv>=7 ? EMBER : GLOWC;
-      S(cx,cz, 0, 3.40,3.40,0.36, STONED);
-      BRK(cx,cz, 0.36, H, 2.70, 2.50, STONEL);                                       // 성채 몸통 — 벽돌
-      S(cx,cz, 1.60, 2.86, 2.66, 0.16, STONED);
-      Q4(cx,cz,1.30,(x,z)=> { V(x,z, 0.36, H+0.70, 0.66, 0.66, STONE); CONE(x,z, H+0.70, 0.70, 0.80, ROOF2, 3); });   // 모퉁이 탑 넷
-      S(cx, cz+F, 0.36, 0.86, 0.12, 1.60, WIN); P(cx, 2.10-0.5, cz+F, 1.30, 0.26, 0.24, GOLD);   // 아치 문
-      for(const s2 of [1,-1]){ S(cx+s2*0.62, cz+F, 2.40, 0.38, 0.10, 0.48, WIN); S(cx+s2*1.36, cz, 2.40, 0.10, 0.38, 0.48, WIN); }
-      S(cx,cz, H, 2.90, 2.70, 0.20, STONED); PYR(cx,cz, H+0.20, 2.60, 1.00, 0.30, ROOF2);   // 옥상 + 파란 지붕
-      Q4(cx,cz,1.30,(x,z)=> S(x,z, H+1.40, 0.22,0.22,0.22, LANT, GL));                    // 탑 등불
-      if(lv>=6){ V(cx-0.70, cz-0.60, H+0.20, H+2.10, 0.90, 0.90, STONEL);                  // 마법사 탑
-                 CONE(cx-0.70, cz-0.60, H+2.10, 1.00, 1.10, ROOF2, 4); S(cx-0.70, cz-0.60, H+3.10, 0.34,0.34,0.34, RUNE, GL);
-                 RING(cx,cz,1.30,6,(x,z)=> S(x,z, H+0.40, 0.20,0.20,0.20, RUNE, GL));
-                 S(cx, cz+F+0.06, 1.20, 0.34, 0.10, 0.46, RUNE, GL); }                    // 문 룬
-      for(const sx of [1,-1]) FLAG(cx+sx*1.50, cz+1.50, H-0.20, 1.40, BANNER, sx*0.30);
-      if(lv>=7){ S(cx,cz, H+0.06, 3.00,2.80,0.14, GOLD); CONE(cx,cz, H+1.22, 0.90, 0.60, GOLD, 3);
-                 S(cx,cz, H+2.12, 0.26,0.26,0.26, EMBER, GL);
-                 P(cx, 2.90-0.5, cz+F+0.10, 1.40, 0.56, 0.08, BANNER); }                    // 붉은 현판
+    if(style===1||lv>=2)banner(0,.455,.76,.29,.39);
+    if(style===3)lantern(0,.43,1.18,.58);
+  }else if(t==='swall'){
+    slab(0,0,0,1,.98,.16,shade);
+    post(0,0,.16,H-.27,.96,.84,stone);
+    for(const z of [-.446,.446])for(let row=0;row<3;row++)for(let col=0;col<2;col++){
+      P(-.245+col*.49,.31+row*.27,z,.46,.24,.048,row%2?ivory:cream);
     }
+    slab(0,0,H-.34,1,.96,.12,trim);
+    for(const x of [-.36,0,.36]){
+      slab(x,0,H-.25,.25,.84,.20,ivory);
+      slab(x,0,H-.05,.27,.88,.05,lv===MAXLV?gold:cream);
+    }
+    if(lv>=3)for(const x of [-.43,.43])post(x,.47,.17,H-.35,.10,.055,trim);
+    if(style===1||lv>=4)banner(0,.495,.65,.30,.45);
+    if(style===3)lantern(0,.47,.79,.58);
+  }else if(t==='arrow'){
+    const deck=H-.94,eave=H-.47,bodyW=1.17;
+    slab(cx,cz,0,1.70,1.70,.18,shade);
+    slab(cx,cz,.18,1.50,1.50,.14,ivory);
+    if(tier){
+      post(cx,cz,.32,deck-.12,bodyW,bodyW,ivory);
+      slab(cx,cz,.72,1.24,1.24,.10,stone);
+      windowFront(cx,cz+.60,.97,.25,.40);
+      windowSide(cx+.60,cz,tier===2?1.28:1.02,.27,tier===2?.68:.43);
+      for(const s of [-1,1])post(cx+s*.53,cz+.615,.32,deck-.12,.10,.075,trim);
+    }else{
+      corners(.49,(x,z)=>post(x,z,.32,deck,.17,.17,darkWood));
+      P(cx,.76,cz+.52,1.12,.12,.10,honey);
+      for(const s of [-1,1])P(cx+s*.26,1.05,cz+.53,.76,.09,.10,honey,C,0,s*.65);
+    }
+    slab(cx,cz,deck-.12,1.66,1.66,.18,wood);
+    slab(cx,cz,deck+.06,1.74,1.74,.09,cream);
+    if(!branch)corners(.68,(x,z)=>post(x,z,deck+.15,eave,.105,.105,tier?trim:darkWood));
+    for(const s of [-1,1]){
+      P(cx+s*.76,deck+(branch?.23:.34),cz,.09,branch?.15:.27,1.45,roof);
+      P(cx,deck+(branch?.23:.34),cz+s*.76,1.45,branch?.15:.27,.09,roof);
+    }
+    if(branch){
+      // 고정 회전받침과 움직이는 총을 나눈다. 총의 정면은 +Z, 조준 회전축은 (cx, cz).
+      band(cx,cz,deck+.15,.36,.16,.12,trim);
+      post(cx,cz,deck+.24,H-.44,.33,.36,ink);
+      const gunStart=out.length, gunY=H-.33, steel=0x52738a, barrel=0x334f64, dark=0x253b50;
+      if(branch==='rapid'){
+        P(cx,gunY-.015,cz-.18,.79,.39,.71,steel);
+        P(cx,gunY+.015,cz-.55,.65,.27,.22,roof);
+        P(cx,gunY+.12,cz-.18,.83,.13,.59,roof);
+        P(cx,H-.035,cz-.18,.47,.07,.41,lv>=6?gold:cream);
+        // 3단계는 네 총열, 5단계부터 여섯 총열로 자란다.
+        const barrelXs=lv>=5?[-.19,0,.19]:[-.12,.12];
+        for(const x of barrelXs)for(const y of [-.085,.085]){
+          P(cx+x,gunY+y,cz+.54,.135,.135,.90,barrel);
+          P(cx+x,gunY+y,cz+.99,.16,.16,.08,lv===MAXLV?gold:steel);
+          P(cx+x,gunY+y,cz+1.036,.077,.077,.018,dark);
+        }
+        // 두 냉각 가로대가 총열 묶음을 읽기 쉽게 연결한다.
+        for(const z of [.28,.72])P(cx,gunY,cz+z,lv>=5?.62:.47,.38,.075,lv>=6?gold:steel);
+        P(cx+.59,gunY-.07,cz-.16,.33,.43,.47,roof);
+        P(cx+.59,gunY+.17,cz-.16,.38,.055,.50,cream);
+        P(cx+.39,gunY-.015,cz-.13,.19,.18,.28,gold);
+        for(const z of [-.25,-.10,.05])P(cx+.50,gunY-.04,cz+z,.055,.17,.065,cream);
+        P(cx,gunY-.11,cz-.74,.45,.24,.16,dark);
+      }else{
+        // 긴 단일 총열·조준경·뒤쪽 반동 가드로 기관총과 확실히 구별한다.
+        P(cx,gunY-.015,cz-.19,.34,.27,.85,steel);
+        P(cx,gunY-.02,cz-.70,.46,.33,.35,roof);
+        P(cx,gunY-.02,cz-.89,.49,.38,.075,dark);
+        P(cx,gunY,cz+.50,.145,.145,.91,barrel);
+        P(cx,gunY,cz+.95,.27,.24,.15,lv>=6?gold:steel);
+        P(cx,gunY,cz+1.036,.12,.105,.018,dark);
+        for(const z of [.17,.53])P(cx,gunY,cz+z,.20,.20,.07,lv>=5?gold:cream);
+        P(cx,gunY+.16,cz-.20,.11,.15,.42,dark);
+        P(cx,H-.075,cz-.19,.21,.15,.65,steel);
+        for(const z of [-.515,.145])P(cx,H-.075,cz+z,.25,.15,.07,lv===MAXLV?gold:dark);
+        P(cx,H-.075,cz+.185,.14,.09,.019,iceLight,GL);
+        for(const s of [-1,1]){
+          P(cx+s*.25,gunY-.15,cz-.28,.10,.075,.74,cream);
+          P(cx+s*.25,gunY-.095,cz-.63,.10,.18,.08,roof);
+        }
+        P(cx,gunY-.22,cz-.13,.22,.18,.28,roof);
+      }
+      for(let i=gunStart;i<out.length;i++)out[i][10]='gun';
+    }else{
+      P(cx,deck+.51,cz+.68,.68,.10,.16,darkWood);
+      for(const s of [-1,1])P(cx+s*.32,deck+.51,cz+.63,.39,.065,.08,cream,C,s*.48);
+      P(cx,deck+.51,cz+.70,.06,.06,.52,gold);
+      roofGable(cx,cz-.06,eave,1.82,1.48,H,roof);
+    }
+    if(lv>=2||style===1)banner(cx+.47,cz+.65,Math.max(.75,deck-.38),.28,.38);
+    if(lv>=2||style===3)lantern(cx-.55,cz+.65,deck-.24,.70);
+    if(lv>=6&&!branch){P(cx,H-.22,cz-.77,.25,.20,.06,gold,C,0,Math.PI/4);}
+  }else if(t==='ice'){
+    const ledge=H-(branch==='frost'?1.40:branch==='blizzard'?1.04:1.12);
+    slab(cx,cz,0,1.72,1.72,.18,shade);
+    slab(cx,cz,.18,1.48,1.48,.13,ice);
+    post(cx,cz,.31,ledge,1.12,1.12,ivory);
+    corners(.48,(x,z)=>post(x,z,.32,ledge+.09,.13,.13,blue));
+    slab(cx,cz,ledge,1.52,1.52,.12,roof);
+    slab(cx,cz,ledge+.12,1.34,1.34,.10,iceLight);
+    windowFront(cx,cz+.585,Math.max(.70,ledge*.62),.27,.43);
+    if(tier)windowSide(cx+.585,cz,Math.max(.71,ledge*.60),.26,.43);
+    if(branch==='blizzard'){
+      // 넓은 눈꽃 왕관: 중앙의 짧은 수정과 여섯 주변 결정.
+      crystal(cx,cz,ledge+.22,H-ledge-.22,.37,iceLight);
+      band(cx,cz,H-.62,.54,.10,.09,roof,6);
+      for(let i=0;i<6;i++){const a=i*Math.PI/3;
+        crystal(cx+Math.cos(a)*.57,cz+Math.sin(a)*.57,ledge+.21,.62,.21,ice);}
+    }else if(branch==='frost'){
+      // 집중 빙결: 한 개의 굵고 긴 창 모양 수정.
+      crystal(cx,cz,ledge+.22,H-ledge-.22,.51,ice);
+      for(const s of [-1,1])crystal(cx+s*.48,cz,ledge+.22,.48,.20,roof);
+      P(cx,H-.61,cz+.41,.23,.23,.055,gold,C,0,Math.PI/4);
+    }else{
+      crystal(cx,cz,ledge+.22,H-ledge-.22,.45,ice);
+      for(const s of [-1,1])crystal(cx+s*.47,cz,ledge+.22,.52,.22,blue);
+    }
+    if(lv>=2||style===1)banner(cx,cz+.66,.43,.30,.38);
+    if(lv>=4||style===3)for(const s of [-1,1])lantern(cx+s*.58,cz+.61,ledge-.21,.62);
+    if(lv===MAXLV)band(cx,cz,ledge+.15,.67,.08,.08,gold);
+  }else if(t==='barr'){
+    const wall=H-.65, front=cz+1.00;
+    slab(cx,cz,0,2.72,2.62,.16,shade);
+    slab(cx,cz,.16,2.53,2.40,.12,ivory);
+    post(cx,cz,.28,wall,2.20,1.96,cream);
+    for(const s of [-1,1]){
+      post(cx+s*1.04,cz+.96,.28,wall,.12,.13,tier?trim:darkWood);
+      post(cx+s*1.04,cz-.96,.28,wall,.12,.13,tier?trim:darkWood);
+    }
+    slab(cx,cz,.28,2.24,2.02,.14,tier?stone:honey);
+    P(cx,.78,front+.032,.57,1.0,.09,darkWood);
+    P(cx,.78,front+.087,.42,.84,.028,wood);
+    P(cx+.13,.77,front+.11,.055,.055,.035,gold);
+    P(cx,1.33,front+.05,.75,.12,.14,ivory);
+    for(const s of [-1,1])windowFront(cx+s*.69,front+.025,Math.min(wall-.35,1.07),.32,.40);
+    roofGable(cx,cz,wall,2.60,2.34,H,roof);
+    // 밝은 처마와 앞 계단이 전투 시설보다 아늑한 기지로 읽히게 한다.
+    slab(cx,cz+1.18,.10,.92,.48,.13,ivory);
+    slab(cx,cz+1.35,0,1.11,.27,.11,stone);
+    if(lv>=2||style===3)for(const s of [-1,1])lantern(cx+s*.42,front+.15,1.10,.70);
+    if(lv>=3||style===1)banner(cx,front+.10,Math.min(wall-.18,1.60),.43,.35);
+    if(tier)windowSide(cx+1.12,cz,1.09,.42,.50);
+    if(tier===2){
+      windowFront(cx,front+.03,wall-.31,.27,.30);
+      for(const s of [-1,1]){
+        post(cx+s*1.08,cz-.68,.27,wall+.19,.38,.40,ivory);
+        slab(cx+s*1.08,cz-.68,wall+.19,.47,.49,.11,roof);
+        for(const k of [-1,1])slab(cx+s*1.08+k*.14,cz-.68,wall+.30,.14,.42,.13,lv===MAXLV?gold:cream);
+      }
+    }
+    if(lv>=6){P(cx,H-.26,cz+1.20,.28,.24,.07,gold,C,0,Math.PI/4);}
+  }else if(t==='pulse'){
+    const head=H-.83;
+    slab(cx,cz,0,1.72,1.72,.18,shade);
+    slab(cx,cz,.18,1.49,1.49,.13,ivory);
+    post(cx,cz,.31,head,.90,.90,lavender);
+    corners(.41,(x,z)=>post(x,z,.32,head,.11,.11,cream));
+    for(let i=0;i<3;i++)slab(cx,cz,.48+i*(head-.56)/3,1.09,1.09,.10,i%2?mint:roof);
+    // 옆으로 넓은 코일·발광 고리와 중심 코어. 화살/얼음탑의 첨탑과 구별한다.
+    band(cx,cz,head,.60,.15,.17,roof);
+    band(cx,cz,head+.16,.61,.065,.10,mint);
+    post(cx,cz,head+.17,H-.12,.34,.34,iceLight);
+    P(cx,H-.11,cz,.33,.22,.33,lv===MAXLV?gold:light,GL,Math.PI/4);
+    for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4,x=cx+Math.cos(a)*.58,z=cz+Math.sin(a)*.58;
+      post(x,z,head+.15,H-.24,.14,.14,trim);
+      P(x,H-.21,z,.20,.16,.20,mint,GL);
+    }
+    if(tier){band(cx,cz,H-.56,.48,.065,.06,iceLight,8,GL);band(cx,cz,H-.35,.48,.065,.06,mint,8,GL);}
+    P(cx,Math.max(.77,head*.65),cz+.49,.33,.33,.07,cream,C,0,Math.PI/4);
+    P(cx,Math.max(.77,head*.65),cz+.54,.09,.31,.03,lavender,C,0,-.35);
+    if(lv>=2||style===1)banner(cx,cz+.59,.45,.28,.35);
+    if(lv>=4||style===3)lantern(cx-.53,cz+.55,head-.23,.66);
+    if(lv===MAXLV)band(cx,cz,head+.23,.64,.08,.07,gold);
   }
-
-  /* ★ 겉모습만 축소 — 땅면(y=-0.5)을 기준으로 눌러서 공중에 뜨지 않게 한다.
-     b = [x, y, z, tile, w, h, d, tint] */
-  const vs = VSCALE[t];
-  if(vs){ const kx = vs[0], ky = vs[1];
-    for(const b of out){
-      b[0] *= kx; b[2] *= kx; b[4] *= kx; b[6] *= kx;
-      b[1] = -0.5 + (b[1] + 0.5) * ky; b[5] *= ky;
-      /* ★ 기울인 조각은 세로를 따로 줄이면 각도가 어긋난다.
-         탑·배럭은 kx 와 ky 가 같으므로(같은 배수 축소) 그냥 두면 맞는다.
-         벽만 kx≠ky 인데, 벽에는 기울인 조각을 안 쓴다. */
-    } }
-
-  /* 완전히 같은 자리에 같은 블록이 두 번 들어가면 화면이 지글거린다(z-fighting) */
-  const seen = new Map();
-  for(const b of out) seen.set(b.slice(0,7).join(',') + '|' + (b[8]||0) + ',' + (b[9]||0), b);
-  return [...seen.values()];
+  // 두 단계마다 바뀌는 골격 사이에서도 강화가 보이도록 기단에 작은 금장 표식을 더한다.
+  const badgeZ=cz+(t==='wwall'?.435:t==='swall'?.495:t==='barr'?1.325:.87);
+  for(let i=0;i<lv-1;i++)P(cx+(i-(lv-2)/2)*.105,.095,badgeZ,.065,.065,.018,gold,C,0,Math.PI/4);
+  // 완전히 겹치는 면만 제거한다. 캐시의 행은 여러 건물이 공유하므로 호출부에서 수정하지 않는다.
+  const unique=new Map();
+  for(const row of out)unique.set(row.slice(0,7).join(',')+'|'+row[8]+','+row[9]+'|'+(row[10]||''),row);
+  return [...unique.values()];
 }
 function footprint(t,X,Z){
   const s = BUILD[t].size, out=[];
@@ -5960,7 +6057,7 @@ function markHp(o){ if(!struDirty) struTint.add(o); }         // 물림·수리�
 let struVer = 0;            // 건물이 생기거나 없어질 때만 오른다 (미니맵 밑그림 다시 그리는 신호)
 
 function struCount(g,t){ let n=0; for(const o of STRU.values()) if(o.g===g&&o.t===t) n++; return n; }
-function canPlace(t,X,Z, ignoreRes){
+function canPlace(t,X,Z, ignoreId){
   const B0 = BUILD[t];
   /* ★ 12차 — 탑·배럭의 모둠당 개수 제한(화살탑 6·얼음탑 3·배럭 2)을 없앴다.
      자재를 캐 온 만큼 짓게 두는 편이 애들한테 훨씬 잘 통한다.
@@ -5990,7 +6087,7 @@ function canPlace(t,X,Z, ignoreRes){
       if(Math.hypot(cx+0.5-FARM_X[g2], cz+0.5-FARM_Z[g2]) < FARM_R2[FARM_R2.length-1]+1.0)
         return `${g2+1}모둠 농장 자리예요`;
 
-    if(cellOwner.has(cx+','+cz)) return '이미 뭔가 있어요';
+    if(cellOwner.has(cx+','+cz) && cellOwner.get(cx+','+cz)!==ignoreId) return '이미 뭔가 있어요';
     if(nodeCellBlocked(cx,cz)) return '나무·바위 자리예요';
   }
   return null;
@@ -6040,7 +6137,7 @@ function tintStru(){
   for(const o of struTint){
     const rk = o._rk, ri = o._ri;
     if(!rk || !STRU.has(o.id)) continue;
-    const blks = blocksOf(o.t, o.lv);
+    const blks = blocksOf(o.t, o.lv, o.branch, fortStyleOf(o.g));
     if(blks.length !== rk.length) continue;        // 그 사이 모양이 바뀌었으면 건너뛴다
     const dmg = o.hp / o.mx;
     for(let bi=0; bi<blks.length; bi++){
@@ -6069,7 +6166,10 @@ function rebuildStru(){
     const og = o.g|0;
     if(!all && !dg.has(og)) continue;
     const dmg = o.hp / o.mx;
-    const blks = blocksOf(o.t, o.lv);
+    const blks = blocksOf(o.t, o.lv, o.branch, fortStyleOf(o.g));
+    o._gunParts=[];
+    for(let i=0;i<blks.length;i++)if(blks[i][10]==='gun')o._gunParts.push(i);
+    o._gunPoseDirty=o._gunParts.length>0;
     /* ★ 색만 다시 칠할 때 쓰려고, 블록이 어느 메시의 몇 번째 칸에 들어갔는지 적어 둔다.
        (자리는 안 바꾸고 setColorAt 만 하면 되므로 이 표만 있으면 된다) */
     let rk = o._rk, ri = o._ri;
@@ -6079,6 +6179,7 @@ function rebuildStru(){
       const b = blks[bi], key = b[3] + '#' + og;
       let g2 = byTile.get(key);
       if(!g2){ g2 = {tile:b[3], a:[]}; byTile.set(key, g2); }
+      if(b[10]==='gun')g2.gun=true;
       rk[bi] = key; ri[bi] = g2.a.length;
       g2.a.push([o.x+b[0]+0.5, GY+0.5+b[1], o.z+b[2]+0.5, dmg,
         b[4]===undefined?1:b[4], b[5]===undefined?1:b[5], b[6]===undefined?1:b[6], b[7],
@@ -6122,7 +6223,31 @@ function rebuildStru(){
     /* ★ 지금 재 둬야 컬링이 먹는다 — 인스턴스가 바뀌었으니 낡은 구를 버리고 다시 잰다
        (뱅크 쪽 bbuild 와 같은 이유다). InstancedMesh 는 제 boundingSphere 로 걸러진다. */
     mesh.boundingSphere = null; mesh.computeBoundingSphere();
+    if(grp.gun)mesh.boundingSphere.radius+=1;
   }
+}
+
+// Only the tagged weapon parts turn and recoil; the tower and its roof stay still.
+const buildingGunDirty=new Set();
+function tickBuildingGuns(dt){
+  buildingGunDirty.clear();
+  for(const o of STRU.values()){
+    if(!o._gunParts?.length)continue;
+    const kick=Math.max(0,Math.min(1,o.gunKick||0)-Math.max(0,dt)*5.5),yaw=Number.isFinite(o.gunYaw)?o.gunYaw:0;
+    o.gunKick=kick;
+    if(!o._gunPoseDirty&&o._gunDrawKick===kick&&o._gunDrawYaw===yaw)continue;
+    const rows=blocksOf(o.t,o.lv,o.branch,fortStyleOf(o.g)),recoil=kick*(o.branch==='sniper'?.18:.10),c=Math.cos(yaw),s=Math.sin(yaw);
+    for(const bi of o._gunParts){
+      const b=rows[bi],mesh=struMeshes.get(o._rk?.[bi]),index=o._ri?.[bi];
+      if(!b||!mesh||index===undefined||index>=mesh.count)continue;
+      const dx=b[0]-.5,dz=b[2]-.5-recoil;
+      _v.set(struCX(o)+dx*c+dz*s,GY+.5+b[1],struCZ(o)+dz*c-dx*s);
+      _s.set(b[4],b[5],b[6]);_eu.set(0,yaw+(b[8]||0),b[9]||0,'YXZ');_q.setFromEuler(_eu);
+      mesh.setMatrixAt(index,_m.compose(_v,_q,_s));buildingGunDirty.add(mesh);
+    }
+    o._gunPoseDirty=false;o._gunDrawKick=kick;o._gunDrawYaw=yaw;
+  }
+  for(const mesh of buildingGunDirty)mesh.instanceMatrix.needsUpdate=true;
 }
 
 /* ═══════════════════════ 미리보기(고스트) ═══════════════════════ */
@@ -6132,11 +6257,13 @@ const ghostMatOK = new THREE.MeshBasicMaterial({color:0x7cf07c, transparent:true
 const ghostMatNO = new THREE.MeshBasicMaterial({color:0xff6b6b, transparent:true, opacity:.35, depthWrite:false});
 const ghostEdge  = new THREE.LineBasicMaterial({color:0xffffff, transparent:true, opacity:.65});
 let ghostTop = 1;
-function setGhost(t){
-  if(ghostType === t) return; ghostType = t;
+function setGhost(t,lv=1,branch='',style=fortStyleOf(G.me.g)){
+  const key=t ? [t,lv,branch,style].join(':') : null;
+  if(ghostType === key) return; ghostType = key;
+  for(const child of ghost.children) child.geometry?.dispose();
   ghost.clear(); ghostTop = 1;
   if(!t) return;
-  for(const b of blocksOf(t, 1)){
+  for(const b of blocksOf(t, lv, branch, style)){
     const h = b[5]===undefined?1:b[5];
     const m = new THREE.Mesh(new THREE.BoxGeometry(
       b[4]===undefined?1:b[4], h, b[6]===undefined?1:b[6]), ghostMatOK);
@@ -6147,7 +6274,7 @@ function setGhost(t){
   }
   const s = BUILD[t].size;
   const box = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(s,0.06,s)), ghostEdge);
-  box.position.set(s===1?0.5:(s===2?1:0), 0.04, s===1?0.5:(s===2?1:0));
+  box.position.set(s===2?1:.5, 0.04, s===2?1:.5);
   ghost.add(box);
 }
 function ghostSet(ok){ for(const c of ghost.children) if(c.isMesh) c.material = ok?ghostMatOK:ghostMatNO; }
@@ -6156,6 +6283,206 @@ function ghostFill(k){
   const lim = ghostTop * k + 0.001;
   for(const c of ghost.children) c.visible = !c.isMesh
     || (c.position.y - c.geometry.parameters.height/2) <= lim;
+}
+
+/* ═══════════════════════ 건설 도우미: 안내 · 사거리 · 선택 화면 ═══════════════════════
+   실제 건설/지불/통신은 기존 행동 함수가 맡는다. 이 구간은 선택 전에 읽을 정보와
+   미리보기만 만들며, 벽의 두 점도 공통 helper로 같은 칸 목록을 사용한다. */
+const BUILD_ASSIST_STYLES = [
+  {name:'기본 마을',icon:'🏡',art:'base',desc:'포근한 나무와 돌로 지은 우리 마을'},
+  {name:'동물 깃발',icon:'🐻',art:'animal',desc:'귀여운 동물 깃발이 모둠을 반겨요'},
+  {name:'파스텔 지붕',icon:'🌈',art:'pastel',desc:'민트와 분홍 지붕으로 알록달록하게'},
+  {name:'별 등불',icon:'⭐',art:'star',desc:'반짝이는 별 등불로 밤도 따뜻하게'}
+];
+const buildAssistState = {ready:false,range:null,line:null,lineKey:'',choice:null,focus:null,styleKey:'',fitKey:'',target:null};
+function buildAssistStatus(t,x,z,resources,quantity=1,ignoreId=''){
+  const b=BUILD[t]; if(!b)return null;
+  const r=resources||myRes(),short=[];
+  for(const k of ['w','s','g']){const n=Math.max(0,(b.cost[k]||0)*quantity-(r[k]||0));if(n)short.push({key:k,amount:n});}
+  const reason=typeof canPlaceBuilding==='function'?canPlaceBuilding(t,x,z,ignoreId):canPlace(t,x,z);
+  return {t,x,z,reason,short,ok:!reason&&!short.length};
+}
+/* 처음 찍은 칸을 포함한 곧은 벽. 대각선은 주된 축에 맞춰 틈 없이 잇는다. */
+function buildAssistLineCells(t,start,end,max=12){
+  if((t!=='wwall'&&t!=='swall')||!start||!end||![...start,...end].every(Number.isFinite))return [];
+  const x=Math.round(start[0]),z=Math.round(start[1]),dx=Math.round(end[0])-x,dz=Math.round(end[1])-z;
+  const axisX=Math.abs(dx)>=Math.abs(dz),span=axisX?dx:dz;
+  const count=Math.min(Math.max(1,Math.min(24,Math.floor(max)||1)),Math.abs(span)+1),sign=Math.sign(span);
+  return Array.from({length:count},(_,i)=>[x+(axisX?i*sign:0),z+(axisX?0:i*sign)]);
+}
+function buildAssistRangeMesh(){
+  if(buildAssistState.range)return buildAssistState.range;
+  const group=new THREE.Group();
+  const fill=new THREE.Mesh(new THREE.CircleGeometry(1,96),new THREE.MeshBasicMaterial({color:0x66c8ed,transparent:true,opacity:.055,depthWrite:false,side:THREE.DoubleSide}));
+  const edge=new THREE.Mesh(new THREE.RingGeometry(.994,1,128),new THREE.MeshBasicMaterial({color:0x46b8da,transparent:true,opacity:.8,depthWrite:false,side:THREE.DoubleSide}));
+  fill.rotation.x=edge.rotation.x=-Math.PI/2;edge.position.y=.006;
+  group.add(fill,edge);group.visible=false;group.renderOrder=3;scene.add(group);
+  buildAssistState.range=group;return group;
+}
+function buildAssistShowRange(o,ok=true){
+  if(!o||!BUILD[o.t]?.range){if(buildAssistState.range)buildAssistState.range.visible=false;return;}
+  const range=typeof buildStat==='function'?buildStat(o,'range'):bs(o.t,'range',o.lv||1);
+  if(!(range>0)){if(buildAssistState.range)buildAssistState.range.visible=false;return;}
+  const mesh=buildAssistRangeMesh();mesh.position.set(struCX(o),GY+.035,struCZ(o));mesh.scale.set(range,1,range);
+  mesh.children[1].material.color.setHex(ok?0x46b8da:0xe5ab46);mesh.visible=true;
+}
+function buildAssistSetLine(start,end,t){
+  const cells=buildAssistLineCells(t,start,end),state=buildAssistState;
+  if(!cells.length){buildAssistClearLine();return cells;}
+  const errors=cells.map(([x,z])=>typeof canPlaceBuilding==='function'?canPlaceBuilding(t,x,z):canPlace(t,x,z));
+  const key=t+'|'+cells.map((c,i)=>c.join(',')+':'+(errors[i]||'')).join(';');
+  if(!state.line){
+    state.line=new THREE.InstancedMesh(new THREE.PlaneGeometry(.9,.9),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.4,depthWrite:false,side:THREE.DoubleSide}),24);
+    state.line.instanceMatrix.setUsage(THREE.DynamicDrawUsage);state.line.frustumCulled=false;state.line.renderOrder=3;scene.add(state.line);
+  }
+  if(key!==state.lineKey){
+    const matrix=new THREE.Matrix4(),q=new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0),-Math.PI/2),scale=new THREE.Vector3(1,1,1),p=new THREE.Vector3();
+    cells.forEach(([x,z],i)=>{p.set(x+.5,GY+.055,z+.5);matrix.compose(p,q,scale);state.line.setMatrixAt(i,matrix);state.line.setColorAt(i,new THREE.Color(errors[i]?0xec987e:0x75d9aa));});
+    state.line.count=cells.length;state.line.instanceMatrix.needsUpdate=true;state.line.instanceColor.needsUpdate=true;state.lineKey=key;
+  }
+  state.line.visible=true;return cells;
+}
+function buildAssistClearLine(){if(buildAssistState.line)buildAssistState.line.visible=false;}
+function buildAssistArt(kind){
+  const iconKey={rapid:'bldspec_rapid',sniper:'bldspec_sniper',blizzard:'bldspec_blizzard',frost:'bldspec_frost',base:'fortstyle_0',animal:'fortstyle_1',pastel:'fortstyle_2',star:'fortstyle_3'}[kind];
+  if(iconKey&&typeof iconImg==='function'&&typeof ICO_DEF!=='undefined'&&ICO_DEF[iconKey]&&!window.__ICON_OFF)return iconImg(iconKey,'');
+  const ice=kind==='blizzard'||kind==='frost',pastel=kind==='pastel',star=kind==='star';
+  const face=ice?'#b9e8f0':pastel?'#f8d4dc':'#e2d9ba',side=ice?'#85cbdc':pastel?'#eeb2c3':'#c2bb9e';
+  let detail='';
+  if(kind==='rapid')detail='<path d="M70 42V21M90 42V15M110 42V21" stroke="#74869a" stroke-width="10" stroke-linecap="round"/><circle cx="70" cy="21" r="3" fill="#49607a"/><circle cx="90" cy="15" r="3" fill="#49607a"/><circle cx="110" cy="21" r="3" fill="#49607a"/>';
+  else if(kind==='sniper')detail='<path d="M88 39L132 17" stroke="#778b9b" stroke-width="12" stroke-linecap="round"/><path d="M128 20L139 14" stroke="#485f76" stroke-width="8" stroke-linecap="round"/><path d="M85 28L104 19" stroke="#6cc7cd" stroke-width="6" stroke-linecap="round"/>';
+  else if(ice)detail=(kind==='blizzard'?[-25,0,25]:[0]).map((dx,i)=>`<path d="M${90+dx} ${kind==='frost'?6:12+i%2*7}l${kind==='frost'?15:10} 18-${kind==='frost'?15:10} 17-${kind==='frost'?15:10}-17Z" fill="${i%2?'#7fccea':'#bdedf8'}" stroke="#5bb1d0" stroke-width="2"/>`).join('')+(kind==='blizzard'?'<path d="M44 40Q90 58 136 40M52 32Q90 48 128 32" fill="none" stroke="#b1dcf8" stroke-width="3" stroke-linecap="round"/>':'<path d="M90 11V38" stroke="#f2ffff" stroke-width="3"/>');
+  else if(kind==='animal')detail='<path d="M109 17V66" stroke="#9b8b71" stroke-width="4"/><path d="M112 18h34v28h-34Z" fill="#ffe8bd" stroke="#e6bf81"/><circle cx="122" cy="25" r="5" fill="#bb9270"/><circle cx="136" cy="25" r="5" fill="#bb9270"/><circle cx="129" cy="33" r="11" fill="#cfac84"/><circle cx="125" cy="31" r="1.5" fill="#5e5149"/><circle cx="133" cy="31" r="1.5" fill="#5e5149"/><ellipse cx="129" cy="37" rx="4" ry="3" fill="#fff1d3"/>';
+  else if(star)detail='<path d="M46 46V15h88v31" fill="none" stroke="#8ebaaa" stroke-width="4"/><path d="m46 20 4 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1Z M134 20l4 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1Z" fill="#ffe584" stroke="#d6b66d"/>';
+  return `<svg viewBox="0 0 180 100" aria-hidden="true"><ellipse cx="90" cy="85" rx="65" ry="11" fill="#d9e9df"/><path d="M54 46l36-15 36 15v32L90 94 54 78Z" fill="${face}"/><path d="M90 62l36-16v32L90 94Z" fill="${side}"/><path d="M54 46l36-15 36 15-36 16Z" fill="${ice?'#e8fbff':pastel?'#bde7d4':'#eee9d5'}" stroke="#ffffff" stroke-width="2"/><path d="M65 61v11m11-6v11" stroke="${ice?'#82c1d9':'#b3a894'}" stroke-width="5"/>${detail}</svg>`;
+}
+function buildAssistClose(id){
+  el(id).classList.remove('on');if(id==='buildAssistBranchPop')buildAssistState.choice=null;
+  releaseGameInput();const focus=buildAssistState.focus;buildAssistState.focus=null;
+  if(focus&&focus.isConnected&&typeof focus.focus==='function')focus.focus({preventScroll:true});
+}
+function buildAssistOpen(id){
+  buildAssistInit();buildAssistState.focus=document.activeElement;releaseGameInput();openPop(id);
+  const first=el(id).querySelector('button:not(:disabled)');if(first)first.focus({preventScroll:true});
+}
+function buildAssistStyleUI(){
+  const g=G.me.g|0,wins=Math.max(0,typeof fortSurvived==='function'?fortSurvived(g):0),selected=typeof fortStyleOf==='function'?fortStyleOf(g):0;
+  const key=g+'|'+wins+'|'+selected+'|'+G.phase;if(key===buildAssistState.styleKey)return;buildAssistState.styleKey=key;
+  setTxt('buildAssistStyleHint',`${g+1}모둠 · 함께 넘긴 밤 ${wins}회 · 모둠 건물에 함께 적용돼요`);
+  const wrap=el('buildAssistStyleCards'),focused=wrap.contains(document.activeElement)?document.activeElement.closest('[data-style]')?.dataset.style:null;wrap.innerHTML='';
+  BUILD_ASSIST_STYLES.forEach((style,i)=>{
+    const locked=wins<i,on=selected===i,button=document.createElement('button');button.type='button';button.className='buildAssistCard';
+    button.dataset.style=String(i);button.setAttribute('aria-pressed',String(on));button.disabled=locked||on||G.phase!=='day';
+    button.innerHTML=`<span class="buildAssistArt">${buildAssistArt(style.art)}</span><strong>${style.icon} ${style.name}</strong><small>${style.desc}</small><span class="buildAssistBadge">${locked?`🔒 밤 ${i}회 생존 (${wins}/${i})`:on?'✓ 지금 우리 모둠 모습':'이 모습으로 꾸미기'}</span>`;
+    button.onclick=()=>{if(G.phase!=='day'||fortSurvived(G.me.g)<i)return;setFortStyle(i);buildAssistState.styleKey='';buildAssistStyleUI();};wrap.appendChild(button);
+  });
+  if(focused!==null&&focused!==undefined&&el('buildAssistStylePop').classList.contains('on')){
+    const next=wrap.querySelector(`[data-style="${focused}"]`);(next&&!next.disabled?next:el('buildAssistStyleClose')).focus({preventScroll:true});
+  }
+}
+function openBuildAssistStyles(){
+  if(!G.started||G.phase!=='day'||PL.down||popOpen())return;
+  buildAssistInit();buildAssistState.styleKey='';buildAssistStyleUI();buildAssistOpen('buildAssistStylePop');
+}
+function chooseBuildBranch(o,onPick){
+  const keys=o&&o.t==='arrow'?['rapid','sniper']:o&&o.t==='ice'?['blizzard','frost']:null;
+  if(!keys||typeof onPick!=='function'||!BUILD_BRANCHES[o.t])return false;
+  buildAssistInit();const choice={o,onPick};buildAssistState.choice=choice;
+  setTxt('buildAssistBranchTitle',`${BUILD[o.t].icon} ${BUILD[o.t].name}의 힘 고르기`);
+  const wrap=el('buildAssistBranchCards');wrap.innerHTML='';
+  keys.forEach(key=>{
+    const spec=BUILD_BRANCHES[o.t][key],button=document.createElement('button');button.type='button';button.className='buildAssistCard';button.dataset.branch=key;
+    button.innerHTML=`<span class="buildAssistArt">${buildAssistArt(key)}</span><strong>${esc(spec.icon||'✨')} ${esc(spec.name)}</strong><small>${esc(spec.desc)}</small><span class="buildAssistBadge">이 힘으로 강화하기 →</span>`;
+    button.onclick=()=>{if(buildAssistState.choice!==choice)return;buildAssistClose('buildAssistBranchPop');choice.onPick(key);};wrap.appendChild(button);
+  });
+  buildAssistOpen('buildAssistBranchPop');return true;
+}
+/* 잠긴 마우스를 풀지 않아도 건설 보조 기능에 닿는다. 입력란/팝업/반복 입력은 건드리지 않는다. */
+function buildAssistHotkey(e){
+  if(e.repeat||e.defaultPrevented||e.ctrlKey||e.altKey||e.metaKey||!G.started||G.paused||PL.down||miniOn()||popOpen())return;
+  if(G.phase!=='day'&&G.phase!=='night')return;
+  if(e.target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])'))return;
+  const k=(e.key||'').toLowerCase();
+  if(k==='l'&&curTool==='build'&&(curBuild==='wwall'||curBuild==='swall')){
+    e.preventDefault();e.stopImmediatePropagation();toggleBuildLine();
+  }else if(k==='k'&&G.phase==='day'){
+    e.preventDefault();e.stopImmediatePropagation();openBuildAssistStyles();
+  }else if(k==='j'){
+    const o=aimStru();if(!o||o.hp>=o.mx)return;
+    e.preventDefault();e.stopImmediatePropagation();requestRepairHelp(o);
+  }
+}
+function buildAssistFit(force=false){
+  const dock=el('dock'),key=innerWidth+'|'+innerHeight+'|'+dock.getAttribute('style');
+  if(!force&&key===buildAssistState.fitKey)return;buildAssistState.fitKey=key;
+  const top=dock.getBoundingClientRect().top;
+  if(Number.isFinite(top))el('buildAssistDock').style.bottom=Math.max(8,Math.ceil(innerHeight-top+8))+'px';
+}
+function buildAssistInit(){
+  if(buildAssistState.ready)return;buildAssistState.ready=true;
+  el('buildAssistStyle').onclick=openBuildAssistStyles;
+  el('buildAssistLine').onclick=()=>{if(typeof toggleBuildLine==='function')toggleBuildLine();};
+  el('buildAssistRepair').onclick=()=>{const o=aimStru();if(o&&o.hp<o.mx&&typeof requestRepairHelp==='function')requestRepairHelp(o);};
+  el('buildAssistStyleClose').onclick=()=>buildAssistClose('buildAssistStylePop');
+  el('buildAssistBranchClose').onclick=()=>buildAssistClose('buildAssistBranchPop');
+  const fit=()=>buildAssistFit(true);
+  if(typeof ResizeObserver!=='undefined'){const observer=new ResizeObserver(fit);observer.observe(el('dock'));}
+  addEventListener('resize',fit);fit();
+  addEventListener('keydown',e=>{
+    const pop=['buildAssistBranchPop','buildAssistStylePop'].map(el).find(p=>p.classList.contains('on'));if(!pop)return;
+    e.stopImmediatePropagation();
+    if(e.key==='Escape'){e.preventDefault();buildAssistClose(pop.id);return;}
+    if(e.key==='Tab'){
+      const buttons=[...pop.querySelectorAll('button:not(:disabled)')],first=buttons[0],last=buttons[buttons.length-1];
+      if(!pop.contains(document.activeElement)){e.preventDefault();first?.focus();}
+      else if(e.shiftKey&&document.activeElement===first){e.preventDefault();last?.focus();}
+      else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first?.focus();}
+    }
+  },true);
+  addEventListener('keydown',buildAssistHotkey,true);
+}
+function buildAssistTick(){
+  buildAssistInit();
+  if(el('buildAssistStylePop').classList.contains('on')){
+    if(G.phase!=='day'||PL.down)buildAssistClose('buildAssistStylePop');else buildAssistStyleUI();
+  }
+  const active=G.started&&!G.paused&&!PL.down&&!miniOn()&&!popOpen()&&(G.phase==='day'||G.phase==='night');
+  const dock=el('buildAssistDock');dock.style.display=active?'flex':'none';
+  if(!active){buildAssistShowRange(null);buildAssistClearLine();return;}
+  buildAssistFit();
+  el('buildAssistStyle').hidden=G.phase!=='day';
+  const moving=curTool==='move'&&typeof buildMove!=='undefined'&&buildMove;
+  const type=moving?moving.t:curBuild,placing=(curTool==='build'||!!moving)&&!!BUILD[type],wall=placing&&!moving&&(type==='wwall'||type==='swall');
+  const lineOn=wall&&typeof buildLineMode!=='undefined'&&buildLineMode;
+  el('buildAssistLine').hidden=!wall;el('buildAssistLine').setAttribute('aria-pressed',String(!!lineOn));
+  setTxt('buildAssistLine',lineOn?'✓ 벽 이어짓기 켜짐 (L)':'🧱 벽 이어짓기 (L)');
+  const target=!placing&&!aimMode?aimStru():null;buildAssistState.target=target;
+  el('buildAssistRepair').hidden=!target||target.hp>=target.mx;
+  const summary=el('buildAssistSummary');let title='',detail='',state='ready';
+  if(typeof work!=='undefined'&&work?.kind==='coop'){
+    summary.hidden=true;buildAssistClearLine();buildAssistShowRange(BUILD_PLANS.get(work.id));return;
+  }
+  if(placing){
+    const b=BUILD[type];title=b.icon+' '+(moving?buildingName(moving):b.name)+(moving?' · 위치 다시 잡기':'');
+    if(!ghost.visible){detail='지을 바닥을 바라봐 주세요';buildAssistShowRange(null);buildAssistClearLine();}
+    else {
+      const lineCells=lineOn&&typeof buildLineStart!=='undefined'&&buildLineStart?buildAssistSetLine(buildLineStart,[ghost.position.x,ghost.position.z],type):[];
+      const info=buildAssistStatus(type,ghost.position.x,ghost.position.z,undefined,moving?0:lineCells.length||1,moving?.id||'');
+      if(lineCells.length)info.reason=lineCells.map(([x,z])=>typeof canPlaceBuilding==='function'?canPlaceBuilding(type,x,z):canPlace(type,x,z)).find(Boolean)||null;
+      if(info.reason){state='blocked';detail=info.reason;}
+      else if(info.short.length){state='short';detail=info.short.map(s=>`${RES_IC[s.key]} ${RES_NM[s.key]} ${s.amount}개`).join(' · ')+' 부족 · 친구와 함께 채워요';}
+      else detail=moving?'눌러 위치 확정 · 자원 손해 없음':lineOn?(lineCells.length?'끝점을 한 번 눌러 벽 설계도 놓기':'시작점을 한 번 눌러 주세요'):'한 번 눌러 설계도 놓기 · 설계도를 꾹 눌러 함께 짓기';
+      if(info.reason&&info.short.length)detail+=' · '+info.short.map(s=>`${RES_NM[s.key]} ${s.amount}개`).join(' · ')+' 부족';
+      const preview=Object.assign({},moving||{t:type,lv:1},{x:info.x,z:info.z});buildAssistShowRange(preview,!info.reason);
+      if(b.range){const r=typeof buildStat==='function'?buildStat(preview,'range'):bs(type,'range',preview.lv);title+=` · 공격 사거리 ${Math.round(r*10)/10}칸`;}
+      if(lineCells.length)title+=` · 벽 ${lineCells.length}칸`;else buildAssistClearLine();
+    }
+  }else{
+    buildAssistClearLine();buildAssistShowRange(target);
+    if(curTool==='move'){title='📦 건물 위치 다시 잡기';detail=G.phase==='day'?'낮에 막 지은 내 건물을 골라 주세요':'위치 바꾸기는 낮에 할 수 있어요';}
+    else if(target&&BUILD[target.t]?.range){const range=typeof buildStat==='function'?buildStat(target,'range'):bs(target.t,'range',target.lv||1);title=`${BUILD[target.t].icon} ${buildingName(target)} · 공격 사거리 ${Math.round(range*10)/10}칸`;detail='하늘색 원 안의 좀비를 공격해요';}
+  }
+  summary.hidden=!title;summary.dataset.state=state;setTxt('buildAssistTitle',title);setTxt('buildAssistDetail',detail);
 }
 
 /* ═══════════════════════ 로블록스 룩 1단계: 캐릭터 ═══════════════════════ */
@@ -12064,11 +12391,12 @@ addEventListener('keydown', e=>{
      거의 공중에 떠 있었다. 애들이 찾아낸 그 방법이다 — 한 번 누르면 한 번 뛴다.
      (태블릿 점프 단추는 원래 누를 때 한 번만 났다. 이제 둘이 같아졌다.) */
   if(k===' '){ if(!e.repeat) wantJump = true; e.preventDefault(); }
-  if(k>='1' && k<='5'){ selectBuild(BKEYS[+k-1]); }
+  if(k>='1' && k<=String(BKEYS.length)){ selectBuild(BKEYS[+k-1]); }
   if(k==='q') selectTool('mine');
   if(k==='r') selectTool('repair');
   if(k==='e') selectTool('up');
   if(k==='f') selectTool('del');
+  if(k==='v') selectTool('move');
   if(k==='b'){ if(popOpen()) return; if(vetOpenable()) openVet(); else if(shopOpenable()) openShop();
                else if(G.started) toast(G.phase==='night'
                  ? '🌙 밤에는 상인이 문을 닫아요'
@@ -12184,8 +12512,8 @@ hold(el('mbThrow'), ()=>throwing=true, ()=>throwing=false);
 
 /* ═══════════════════════ 핫바 / 도구 ═══════════════════════ */
 let curTool = 'mine', curBuild = null;
-function selectTool(t){ workStop(); curTool = t; curBuild = null; setGhost(null); paintBar(); }
-function selectBuild(b){ if(!BUILD[b]) return; workStop(); curBuild = b; curTool = 'build'; setGhost(b); paintBar(); }
+function selectTool(t){ resetBuildPlacement(); buildLineMode=false; workStop(); curTool = t; curBuild = null; setGhost(null); paintBar(); }
+function selectBuild(b){ if(!BUILD[b]) return; resetBuildPlacement(); buildLineMode=false; workStop(); curBuild = b; curTool = 'build'; setGhost(b); paintBar(); }
 function afford(t){ const c = BUILD[t].cost, r = myRes();
   return r.w>=c.w && r.s>=c.s && r.g>=c.g; }
 
@@ -13100,7 +13428,7 @@ let mineLock = null, mineDone = false;
 /* ★ 14차 — 짓기·강화를 20% 줄였다. 자원이 늘어난 만큼(그루당 12→20) 낮에 지을 것이
    많아졌는데, 예전 시간 그대로면 낮 140초 안에 손이 모자란다.
    🔨 빠른 망치 스텟은 여기서 '더' 줄어든다(workMul 이 곱해진다). */
-const WORK_SEC = { wwall:2.8, swall:2.8, arrow:6.4, ice:6.4, barr:6.4 };
+const WORK_SEC = { wwall:2.8, swall:2.8, arrow:6.4, ice:6.4, barr:6.4, pulse:6.4 };
 const UP_SEC = 4, FIX_SEC = 2.5;
 /* 🔨 빠른 망치 — 짓기·강화·수리에 걸리는 시간을 줄인다.
    철거(DEL_SEC)는 안 줄인다. 빨리 부수는 건 좋은 일이 아니다. */
@@ -13143,7 +13471,358 @@ function farmClean(g){
   if(window.__sfx) window.__sfx('fix');
 }
 /* 광주리는 없어졌다 — 산물은 우리 안에 놓이고, 주우면 바로 모둠 자원이 된다(18차f). */
-function workStop(){ work = null; }
+/* Shared construction uses a separate, low-rate channel. The host reserves
+   footprints, advances one shared meter and pays once when a plan completes. */
+const BUILD_PLANS = new Map(), BUILD_HANDS = new Map(), BUILD_HELP = new Map();
+const buildParticipated = new Set(), buildSeenCommands = new Map();
+const FORT_STYLES = Array(NG).fill(0);
+let buildSequence = 0, buildNetWait = 0, buildDrawWait = 0, buildHandWait = 0;
+let buildPlansNeedSync=false;
+let buildPlanDirty = true, buildHeldPlan = '', buildPress = false;
+let buildLineMode = false, buildLineStart = null, buildMove = null;
+const BUILD_PLAN_LIMIT = 12, BUILD_PLAN_TTL = 90000, BUILD_MOVE_MS = 60000, BUILD_REACH=10;
+function fortSurvived(g){ return Math.max(0, (G.day|0)-1); }
+function fortStyleOf(g){ return Math.min(3, fortSurvived(g), Math.max(0,FORT_STYLES[g]|0)); }
+function setFortStyle(style){
+  if(G.phase!=='day') return toast('기지 꾸미기는 낮에 할 수 있어요',1.5);
+  if(!Number.isInteger(style) || style<0 || style>Math.min(3,fortSurvived(G.me.g))) return;
+  submitBuildCommand({kind:'style',style});
+}
+function buildOwn(o, actor){ return o.by ? o.by===actor.id : o.n===actor.n; }
+function buildActor(id){
+  if(id===uid) return {id,n:G.me.name,g:G.me.g,x:PL.x,z:PL.z,down:PL.down};
+  const p=G.players.get(id); if(!p || !Number.isFinite(p.x) || !Number.isFinite(p.z)) return null;
+  return {id,n:p.n||'친구',g:p.g|0,x:p.x,z:p.z,down:p.down};
+}
+function buildNear(a,x,z,r=BUILD_REACH){ return a && Math.hypot(a.x-x-.5,a.z-z-.5)<=r; }
+function buildCanPay(g,c){ const r=G.res[g]; return !!r && ['w','s','g'].every(k=>(r[k]||0)>=(c[k]||0)); }
+function buildPay(g,c,refundCost=false){
+  for(const k of ['w','s','g']) base[g][k==='g'?'o':k] += (refundCost?1:-1)*(c[k]||0);
+  recomputeRes();
+}
+function buildReward(credit){
+  const c=typeof credit==='number' ? {xp:credit,stats:credit>0?{built:1}:{}} : credit||{};
+  for(const key of ['built','fixed','helped','rescue'])if(c.stats?.[key]>0){MY[key]=(MY[key]||0)+c.stats[key];netPCDirty=true;}
+  if(c.xp>0){xpGain(c.xp);netPCDirty=true;}
+  if(c.repair){
+    const r=c.repair;popDmg(r.x,GY+2,r.z,r.healed,3);
+    burst(r.x,GY+1.5,r.z,0x9cff9c,14,1.5);burst(r.x,GY+2.2,r.z,0xeaffea,8,1.9);
+    if(r.rescue){
+      feed(`🔧 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} <b style="color:${GCOL[r.g]}">${r.g+1}모둠</b> ${esc(r.name)}을(를) <b>살렸어요!</b>`);
+      burst(r.x,GY+2.8,r.z,0xffe066,16,2.2);
+    }
+    if(window.__sfx)window.__sfx('fix');
+  }
+}
+function buildReply(id,msg,credit=0){
+  if(id===uid){toast(msg,1.8);buildReward(credit);}
+  else if(net){const n=Date.now().toString(36)+'_'+(++buildSequence);net.child('buildReply/'+id+'/'+n).set({msg,credit,n});}
+}
+function packBuilding(o){
+  return {t:o.t,x:o.x,z:o.z,hp:o.hp,g:o.g,n:o.n,lv:o.lv||1,
+    by:o.by||'',born:o.born||0,branch:o.branch||'',delReq:o.delReq||null};
+}
+function submitBuildCommand(command){
+  const c={...command,seq:Date.now().toString(36)+'_'+(++buildSequence)};
+  if(G.host || !net) handleBuildCommand(uid,c);
+  else net.child('buildCmd/'+uid+'/'+c.seq).set(c);
+}
+function planAtCell(x,z,except=''){
+  for(const p of BUILD_PLANS.values()) if(p.id!==except)
+    for(const [cx,cz] of footprint(p.t,p.x,p.z)) if(cx===x && cz===z) return p;
+  return null;
+}
+function canPlaceBuilding(t,x,z,ignoreId='',ignorePlan=''){
+  const bad=canPlace(t,x,z,ignoreId); if(bad) return bad;
+  for(const [cx,cz] of footprint(t,x,z)) if(planAtCell(cx,cz,ignorePlan)) return '친구의 설계도가 있는 자리예요';
+  return null;
+}
+function createBuildPlans(a,c){
+  if(!BUILD[c.t] || !Array.isArray(c.cells)) return;
+  const limit=BUILD[c.t].size===1 ? BUILD_PLAN_LIMIT : 1;
+  let count=[...BUILD_PLANS.values()].filter(p=>p.g===a.g).length, made=0, reason='';
+  for(const cell of c.cells.slice(0,limit)){
+    if(count>=BUILD_PLAN_LIMIT){ reason='모둠 설계도는 한 번에 12개까지예요'; break; }
+    if(!Array.isArray(cell)) continue; const [x,z]=cell;
+    if(!Number.isInteger(x)||!Number.isInteger(z)||!buildNear(a,x,z,16)) continue;
+    const err=canPlaceBuilding(c.t,x,z); if(err){reason=err;continue;}
+    const id='p_'+a.id+'_'+c.seq+'_'+made, now=Date.now();
+    const p={id,t:c.t,x,z,g:a.g,n:a.n,by:a.id,prog:0,people:0,created:now,touched:now};
+    BUILD_PLANS.set(id,p); if(a.id===uid) buildParticipated.add(id);
+    count++; made++;
+  }
+  if(made){buildPlanDirty=true;publishBuildPlans();buildReply(a.id,`📐 설계도 ${made}개 · 가까이서 꾹 눌러 함께 지어요`);}
+  else if(reason) buildReply(a.id,reason);
+}
+function handleBuildCommand(id,c){
+  if(!c || typeof c.seq!=='string' || !c.seq || /[.#$\[\]\/]/.test(c.seq)) return;
+  let seen=buildSeenCommands.get(id);if(!seen){seen=new Set();buildSeenCommands.set(id,seen);}
+  if(seen.has(c.seq))return;seen.add(c.seq);
+  if(seen.size>512)seen.delete(seen.values().next().value);
+  const a=buildActor(id); if(!a || a.down || G.paused || !['day','night'].includes(G.phase)) return;
+  if(c.kind==='transfer'){
+    const to=c.to,cost={w:c.w,s:c.s,g:c.g};
+    if(!Number.isInteger(to)||to<0||to>=NG||to===a.g||!Object.values(cost).every(v=>Number.isSafeInteger(v)&&v>=0)||!Object.values(cost).some(v=>v>0))return;
+    if(!buildCanPay(a.g,cost))return buildReply(id,'가진 것보다 많이 보낼 수 없어요');
+    buildPay(a.g,cost);buildPay(to,cost,true);
+    if(net)net.child('base').set(base);
+    say(`🎁 <b style="color:${GCOL[a.g]}">${a.g+1}모둠</b> → <b style="color:${GCOL[to]}">${to+1}모둠</b> 🪵${cost.w} 🪨${cost.s} ✨${cost.g}`);
+    buildReply(id,'보냈어요!');return;
+  }
+  if(c.kind==='plan'){ createBuildPlans(a,c); return; }
+  if(c.kind==='style'){
+    if(G.phase!=='day'||!Number.isInteger(c.style)||c.style<0||c.style>Math.min(3,fortSurvived(a.g))) return;
+    FORT_STYLES[a.g]=c.style; markShape(a.g); buildPlanDirty=true;
+    if(net) net.child('fortStyle/'+a.g).set(c.style); return;
+  }
+  const o=STRU.get(c.id); if(!o) return;
+  const answering=c.kind==='keep'||(c.kind==='delete'&&c.approve===true&&o.delReq&&Date.now()-o.delReq.ts<30000);
+  if(!(answering&&buildOwn(o,a))&&!buildNear(a,o.x,o.z))return;
+  if(c.kind==='repair'){applyBuildRepair(o,a);return;}
+  if(c.kind==='help'){
+    if(o.hp>=o.mx) return buildReply(id,'아직 튼튼해요');
+    if(BUILD_HELP.has(o.id) && Date.now()-BUILD_HELP.get(o.id).ts<12000) return;
+    BUILD_HELP.set(o.id,{id:o.id,n:a.n,ts:Date.now()}); buildPlanDirty=true;
+    say(`🔧 ${esc(a.n)}: ${o.g+1}모둠 ${buildingName(o)} 수리를 도와주세요!`);
+    if(net) net.child('buildHelp/'+o.id).set(BUILD_HELP.get(o.id)); return;
+  }
+  if(c.kind==='upgrade'){
+    if(c.lv!==(o.lv||1))return buildReply(id,'친구가 먼저 강화했어요. 다음 단계를 확인해 주세요');
+    applyBuildUpgrade(o,a,c.branch); return;
+  }
+  if(c.kind==='move'){
+    if(!buildCanMove(o,a)) return buildReply(id,'낮에 내가 지은 지 1분 이내인 튼튼한 건물만 옮길 수 있어요');
+    if(!Number.isInteger(c.x)||!Number.isInteger(c.z)||!buildNear(a,c.x,c.z)) return;
+    const err=canPlaceBuilding(o.t,c.x,c.z,o.id); if(err) return buildReply(id,err);
+    delStru(o.id); o.x=c.x; o.z=c.z; addStru(o); netBuild(o);
+    buildReply(id,'↔️ 자원 손해 없이 위치를 고쳤어요'); return;
+  }
+  if(c.kind==='keep'){
+    if(!buildOwn(o,a)) return; o.delReq=null; netBuild(o); return;
+  }
+  if(c.kind==='delete'){
+    if(!buildOwn(o,a)){
+      if(o.g!==a.g) return buildReply(id,'다른 모둠 건물은 철거할 수 없어요');
+      if(o.delReq && Date.now()-o.delReq.ts<30000) return buildReply(id,'건물을 지은 친구의 허락을 기다려요');
+      o.delReq={by:id,n:a.n,ts:Date.now()}; netBuild(o);
+      buildReply(id,`${o.n} 친구에게 철거 요청을 보냈어요`); return;
+    }
+    const cost={...BUILD[o.t].cost};
+    for(let lv=1;lv<(o.lv||1);lv++) for(const k of ['w','s','g']) cost[k]=(cost[k]||0)+(BUILD[o.t].up[lv-1][k]||0);
+    for(const k of ['w','s','g']) cost[k]=Math.floor((cost[k]||0)/2);
+    buildPay(o.g,cost,true); delStru(o.id); BUILD_HELP.delete(o.id); buildPlanDirty=true;
+    if(net) net.update({['b/'+o.id]:null,['buildHelp/'+o.id]:null,base});
+    burst(o.x+.5,GY+1,o.z+.5,0xf0d39e,12); buildReply(id,'철거했어요 · 사용한 자원의 절반을 모둠에 돌려줬어요');
+  }
+}
+function buildCanMove(o,a){ return G.phase==='day' && buildOwn(o,a) && o.born>0 && Date.now()-o.born<=BUILD_MOVE_MS && o.hp>=o.mx && !(o.sol&&o.sol.length); }
+function requestRepairHelp(o){ if(o) submitBuildCommand({kind:'help',id:o.id}); else toast('도움이 필요한 건물을 바라보세요',1.5); }
+function publishBuildPlans(){
+  if(net && G.host){ const v={}; for(const [id,p] of BUILD_PLANS) v[id]=p; net.child('buildPlans').set(v); }
+}
+function buildWorkers(p,now){
+  const workers=[];
+  for(const [id,h] of BUILD_HANDS){
+    const a=buildActor(id);
+    if(h.id===p.id && now-h.ts<1600 && a && !a.down && buildNear(a,p.x,p.z,BUILD_REACH))
+      workers.push({id,speed:Math.min(2.5,Math.max(.5,+h.speed||1))});
+  }
+  return workers.sort((a,b)=>b.speed-a.speed).slice(0,3);
+}
+function buildSpeed(workers){ return workers.length ? workers[0].speed*(1+(workers.length>1?.5:0)+(workers.length>2?.3:0)) : 0; }
+function observeBuilt(o){
+  if(!buildParticipated.delete(o.id)) return;
+  if(o.by===uid) MY.built++; else MY.helped++;
+  xpGain(o.by===uid ? XP_BUILD[o.t]||14 : XP_FIX); netPCDirty=true;
+  toast(`🤝 ${buildingName(o)} 완성!`,1.4,'#bdeadd');
+  if(window.__sfx) window.__sfx('build');
+}
+function finishBuildPlan(p){
+  if(!BUILD_PLANS.has(p.id) || !buildCanPay(p.g,BUILD[p.t].cost)) return false;
+  if(canPlaceBuilding(p.t,p.x,p.z,'',p.id)) return false;
+  const mx=bs(p.t,'hp',1),o={id:p.id,t:p.t,x:p.x,z:p.z,g:p.g,n:p.n,by:p.by,born:Date.now(),lv:1,hp:mx,mx,cd:BUILD[p.t].spawn?2:0,sol:[]};
+  buildPay(p.g,BUILD[p.t].cost); BUILD_PLANS.delete(p.id); addStru(o); observeBuilt(o);
+  burst(struCX(o),GY+1,struCZ(o),0xc9f4d5,15,1.2);
+  if(net) net.update({['b/'+o.id]:packBuilding(o),['buildPlans/'+p.id]:null,base});
+  buildPlanDirty=true; return true;
+}
+function hostBuildTick(dt){
+  if((!G.host && net) || G.paused) return;
+  const now=Date.now(); let dirty=false;
+  for(const [id,p] of BUILD_PLANS){
+    if(!['day','night'].includes(G.phase) || now-p.touched>BUILD_PLAN_TTL){ BUILD_PLANS.delete(id);dirty=true;continue; }
+    const workers=buildWorkers(p,now), people=workers.length;
+    if(p.people!==people){p.people=people;dirty=true;}
+    if(people){
+      p.touched=now;
+      if(buildCanPay(p.g,BUILD[p.t].cost)){
+        p.prog=Math.min(1,p.prog+dt*buildSpeed(workers)/(WORK_SEC[p.t]||6.4)); dirty=true;
+        if(p.prog>=1) finishBuildPlan(p);
+      }
+    }
+  }
+  for(const [id,h] of BUILD_HELP){const o=STRU.get(id);if(!o||o.hp>=o.mx||now-h.ts>30000){BUILD_HELP.delete(id);if(net)net.child('buildHelp/'+id).remove();buildPlanDirty=true;}}
+  buildNetWait-=dt;
+  if(dirty){buildPlanDirty=true;buildPlansNeedSync=true;}
+  if(buildNetWait<=0 && buildPlansNeedSync){buildNetWait=.5;buildPlansNeedSync=false;publishBuildPlans();}
+}
+function setBuildHand(id,dt=0){
+  buildHandWait-=dt;
+  if(id===buildHeldPlan && (id===''||buildHandWait>0)) return;
+  buildHeldPlan=id; buildHandWait=.6;
+  if(id){
+    buildParticipated.add(id);
+    const h={id,ts:Date.now(),speed:1/workMul()}; BUILD_HANDS.set(uid,h);
+    if(net) net.child('buildHands/'+uid).set(h);
+  }else{BUILD_HANDS.delete(uid);if(net)net.child('buildHands/'+uid).remove();}
+}
+function aimBuildPlan(){
+  if(work && work.kind==='coop' && BUILD_PLANS.has(work.id)) return BUILD_PLANS.get(work.id);
+  const f=forward(); let best=null,score=1e9;
+  for(const p of BUILD_PLANS.values()){
+    const dx=p.x+.5-PL.x,dz=p.z+.5-PL.z,d=Math.hypot(dx,dz),dot=(dx*f.x+dz*f.z)/(d||1);
+    if(d>BUILD_REACH || (d>1.5&&dot<.82)) continue;
+    const s=d-dot*3;if(s<score){best=p;score=s;}
+  }
+  return best;
+}
+function buildPlanAction(dt){
+  if(work?.kind==='coop'&&!BUILD_PLANS.has(work.id))workStop();
+  if(curTool==='repair'||curTool==='del'||curTool==='up'||curTool==='move'||buildLineMode) return false;
+  const p=aimBuildPlan(); if(!p) return false;
+  if(curTool==='mine'&&work?.kind!=='coop'){
+    const n=aimNode();
+    if(n&&Math.hypot(n.x+.5-PL.x,n.z+.5-PL.z)<=Math.hypot(p.x+.5-PL.x,p.z+.5-PL.z)+.75)return false;
+  }
+  const missing=buildMissingCost(p.g,BUILD[p.t].cost);
+  const title=`🤝 ${BUILD[p.t].name} · ${p.people||0}/3명 함께 건설`;
+  if(acting && !missing){
+    if(!work||work.kind!=='coop'||work.id!==p.id) work={kind:'coop',id:p.id,X:p.x,Z:p.z,prog:0,tok:-1};
+    workTick(dt,99999); setBuildHand(p.id,dt);
+  }else setBuildHand('');
+  workInfo(title,p.prog);
+  if(_aimEl) _aimEl.innerHTML+=`<br><span>${missing||'가까이서 꾹 누르면 함께 지어요 · 손을 떼도 진행 유지'}</span>`;
+  return true;
+}
+function buildMissingCost(g,c){
+  const r=G.res[g]||{},names={w:'나무',s:'돌',g:'금'};
+  return ['w','s','g'].filter(k=>(c[k]||0)>(r[k]||0)).map(k=>`${names[k]} ${(c[k]||0)-(r[k]||0)}개`).join(' · ').replace(/(.+)/,'$1 더 필요해요');
+}
+function toggleBuildLine(){buildLineMode=!buildLineMode;buildLineStart=null;buildAssistClearLine();acting=false;buildPress=false;workStop();}
+function resetBuildPlacement(){ buildLineStart=null;buildMove=null;buildPress=false;buildAssistClearLine(); }
+function buildPlacementAction(dt){
+  let t=curBuild,X,Z;
+  if(curTool==='move'){
+    if(!buildMove){
+      const o=aimStru();aimInfo(o);
+      if(o && acting && !buildPress){
+        if(buildCanMove(o,buildActor(uid))){buildMove=o;setGhost(o.t,o.lv,o.branch,fortStyleOf(o.g));toast('옮길 땅을 가리킨 뒤 다시 눌러요 · 도구를 바꾸면 취소',2);}
+        else toast('낮에 내가 지은 지 1분 이내인 튼튼한 건물만 옮겨요',2);
+      }
+      buildPress=acting;return;
+    }
+    if(!STRU.has(buildMove.id)||!buildCanMove(buildMove,buildActor(uid))){resetBuildPlacement();setGhost(null);return;}
+    t=buildMove.t;
+  }
+  if(!t || !BUILD[t]) return;
+  const c=aimCell();if(!c){buildPress=acting;return;}[X,Z]=c;
+  if(BUILD[t].size===2){X=Math.round(X-.5);Z=Math.round(Z-.5);}
+  ghost.visible=true;ghost.position.set(X,GY,Z);ghostFill(1);
+  const err=canPlaceBuilding(t,X,Z,buildMove?.id||'');ghostSet(!err);
+  if(curTool==='move'){
+    if(acting&&!buildPress){
+      if(err)toast(err,1.4);else{submitBuildCommand({kind:'move',id:buildMove.id,x:X,z:Z});resetBuildPlacement();setGhost(null);}
+    }buildPress=acting;return;
+  }
+  if(buildLineMode && BUILD[t].size===1){
+    if(buildLineStart) buildAssistSetLine(buildLineStart,[X,Z],t);
+    if(acting&&!buildPress){
+      if(!buildLineStart){buildLineStart=[X,Z];toast('벽의 끝 지점을 골라 한 번 더 눌러요',1.8);}
+      else{const cells=buildAssistLineCells(t,buildLineStart,[X,Z],BUILD_PLAN_LIMIT);submitBuildCommand({kind:'plan',t,cells});buildLineStart=null;buildLineMode=false;buildAssistClearLine();}
+    }
+  }else if(acting&&!buildPress){
+    if(err)toast(err,1.3);else submitBuildCommand({kind:'plan',t,cells:[[X,Z]]});
+  }
+  buildPress=acting;
+}
+const buildPlanMaterial=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.42,depthWrite:false});
+let buildPlanMesh=null;
+function drawBuildPlans(){
+  buildPlanDirty=false;
+  const rows=[];
+  if(['day','night'].includes(G.phase)){
+    for(const p of BUILD_PLANS.values()){
+      const color=p.prog>0 ? 0x65ceb6 : 0x85bddf;
+      for(const b of blocksOf(p.t,1,'',fortStyleOf(p.g))) rows.push([p.x+b[0]+.5,GY+.5+b[1],p.z+b[2]+.5,b[4],b[5],b[6],b[8],b[9],color]);
+      const s=BUILD[p.t].size,cx=p.x+(s===2?1:.5),cz=p.z+(s===2?1:.5),top=GY+bs(p.t,'hi',1)+.5;
+      rows.push([cx,top,cz,1.5,.11,.13,0,0,0xffffff]);
+      if(p.prog>0) rows.push([cx-.75+.75*p.prog,top+.01,cz+.08,1.5*p.prog,.14,.13,0,0,0x27b88d]);
+    }
+    for(const h of BUILD_HELP.values()){
+      const o=STRU.get(h.id);if(!o)continue;const y=GY+bs(o.t,'hi',o.lv)+.7,x=struCX(o),z=struCZ(o);
+      rows.push([x,y,z,.6,.18,.18,0,0,0x71e0af],[x,y,z,.18,.6,.18,0,0,0x71e0af]);
+    }
+  }
+  if(!buildPlanMesh || buildPlanMesh.instanceMatrix.count<rows.length){
+    if(buildPlanMesh){scene.remove(buildPlanMesh);buildPlanMesh.dispose();}
+    buildPlanMesh=new THREE.InstancedMesh(STRU_GEO,buildPlanMaterial,Math.max(64,Math.ceil(rows.length*1.3)));
+    scene.add(buildPlanMesh);
+  }
+  rows.forEach((b,i)=>{
+    _v.set(b[0],b[1],b[2]);_s.set(b[3],b[4],b[5]);_eu.set(0,b[6]||0,b[7]||0,'YXZ');_q.setFromEuler(_eu);
+    buildPlanMesh.setMatrixAt(i,_m.compose(_v,_q,_s));_c1.set(b[8]);buildPlanMesh.setColorAt(i,_c1);
+  });
+  buildPlanMesh.count=rows.length;buildPlanMesh.instanceMatrix.needsUpdate=true;
+  if(buildPlanMesh.instanceColor)buildPlanMesh.instanceColor.needsUpdate=true;
+  buildPlanMesh.boundingSphere=null;buildPlanMesh.computeBoundingSphere();
+}
+function buildCoopTick(dt){
+  hostBuildTick(dt);buildDrawWait-=dt;
+  if(buildPlanMesh)buildPlanMesh.visible=['day','night'].includes(G.phase);
+  if(buildPlanDirty&&buildDrawWait<=0){buildDrawWait=.25;drawBuildPlans();}
+  const req=[...STRU.values()].find(o=>o.delReq&&Date.now()-o.delReq.ts<30000&&buildOwn(o,buildActor(uid)));
+  showBuildDeleteRequest(req);
+}
+function clearBuildCoop(){
+  BUILD_PLANS.clear();BUILD_HANDS.clear();BUILD_HELP.clear();buildParticipated.clear();FORT_STYLES.fill(0);
+  buildPlanDirty=true;workStop();resetBuildPlacement();markShape();
+  if(net&&G.host)net.update({buildPlans:null,buildHands:null,buildHelp:null,buildCmd:null,fortStyle:null});
+}
+function bindBuildNetwork(){
+  const on=(key,fn)=>{net.child(key).on('child_added',fn);net.child(key).on('child_changed',fn);};
+  on('buildCmd',s=>{if(G.host)for(const [seq,c]of Object.entries(s.val()||{})){
+    if(c&&c.seq===seq)handleBuildCommand(s.key,c);
+    net.child('buildCmd/'+s.key+'/'+seq).remove();
+  }});
+  on('buildHands',s=>{const v=s.val();if(v)BUILD_HANDS.set(s.key,{...v,ts:Date.now()});});
+  net.child('buildHands').on('child_removed',s=>BUILD_HANDS.delete(s.key));
+  net.child('buildHands/'+uid).onDisconnect().remove();
+  net.child('buildPlans').on('value',s=>{
+    if(G.host)return;BUILD_PLANS.clear();const v=s.val()||{};
+    for(const [id,p] of Object.entries(v))if(BUILD[p.t]){BUILD_PLANS.set(id,{...p,id});if(p.by===uid)buildParticipated.add(id);}
+    buildPlanDirty=true;
+  });
+  net.child('buildHelp').on('value',s=>{if(G.host)return;BUILD_HELP.clear();for(const [id,h]of Object.entries(s.val()||{}))BUILD_HELP.set(id,h);buildPlanDirty=true;});
+  net.child('fortStyle').on('value',s=>{const v=s.val()||{};for(let g=0;g<NG;g++){if(FORT_STYLES[g]!== (v[g]|0)){FORT_STYLES[g]=v[g]|0;markShape(g);}}buildPlanDirty=true;});
+  const replied=new Set();
+  on('buildReply/'+uid,s=>{const v=s.val();if(v&&!replied.has(s.key)){
+    replied.add(s.key);if(replied.size>512)replied.delete(replied.values().next().value);
+    toast(v.msg,1.8);buildReward(v.credit??v.xp??0);
+    net.child('buildReply/'+uid+'/'+s.key).remove();
+  }});
+}
+function showBuildDeleteRequest(o){
+  let box=el('buildDeleteRequest');
+  if(!box){box=document.createElement('div');box.id='buildDeleteRequest';box.style.cssText='position:fixed;right:16px;top:110px;max-width:300px;padding:14px;background:#fff8e9;color:#294d63;border:2px solid #ffd592;border-radius:16px;z-index:45;box-shadow:0 5px 18px #294d6320;pointer-events:auto';document.body.appendChild(box);}
+  box.hidden=!o;if(!o){box.dataset.key='';return;}
+  const key=o.id+':'+o.delReq.ts;if(box.dataset.key===key)return;box.dataset.key=key;
+  box.innerHTML=`<div><b>${esc(o.delReq.n)}</b> 친구가 내 ${buildingName(o)} 철거를 요청했어요.</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn">철거 허락</button><button class="btn">그대로 두기</button></div>`;
+  const buttons=box.querySelectorAll('button');
+  buttons[0].onclick=()=>{submitBuildCommand({kind:'delete',id:o.id,approve:true});box.hidden=true;};
+  buttons[1].onclick=()=>{submitBuildCommand({kind:'keep',id:o.id});box.hidden=true;};
+}
+
+function workStop(){ setBuildHand(''); work = null; }
 /* 진행시키고, 박자마다 뚝-딱 소리를 낸다. 다 됐으면 true */
 function workTick(dt, need){
   work.prog += dt;
@@ -13216,14 +13895,15 @@ function aimInfo(o){
   const b = BUILD[o.t], lv = o.lv||1;
   const pct = Math.max(0, Math.round(o.hp/o.mx*100));
   let line2;
-  if(curTool === 'del') line2 = '<span style="color:#ff9b9b">철거하면 절반 돌려받아요</span>';
+  if(curTool === 'move') line2 = '내가 지은 뒤 1분 이내 · 낮에 무료로 위치 바꾸기';
+  else if(curTool === 'del') line2 = buildOwn(o,buildActor(uid)) ? '철거하면 모둠에 자원 절반을 돌려줘요' : '지은 친구에게 철거 허락을 요청해요';
   else if(curTool === 'repair') line2 = pct>=100 ? '<span style="opacity:.6">멀쩡해요</span>'
-       : `<span style="color:#9cff9c">🔧 고치기 🪵2</span>`;
+       : `<span style="color:#278363">🔧 고치기 🪵2</span>`;
   else { const c = upCost(o.t, lv);
-    line2 = c ? `<span style="color:#ffd43b">⬆️ Lv.${lv+1}로 — ${costTxt(c)}</span>`
-              : '<span style="color:#ffd43b">Lv.'+MAXLV+' · 최고 등급</span>'; }
+    line2 = c ? `<span style="color:#397ba3">⬆️ Lv.${lv+1}로 — ${costTxt(c)}</span>`
+              : '<span style="color:#397ba3">Lv.'+MAXLV+' · 최고 등급</span>'; }
   _aimEl.innerHTML =
-    `<b>${b.icon} ${b.name}</b> <span class="lv lv${lv}">Lv.${lv}</span>
+    `<b>${b.icon} ${buildingName(o)}</b> <span class="lv lv${lv}">Lv.${lv}</span>
      <span class="hp">${pct}%</span>` +
     (o.n ? ` <span class="hp">· ${esc(o.n)} 지음</span>` : '') +
     (o.g !== G.me.g ? ` <span class="hp" style="color:#9cd8ff">· ${(o.g|0)+1}모둠</span>` : '') +
@@ -13240,7 +13920,7 @@ function doAction(dt){
 
   if(curTool !== 'repair' && curTool !== 'del' && curTool !== 'up') aimInfo(null);
   if(G.phase!=='day' && G.phase!=='night'){ workStop(); return; }
-  if(!acting){ workStop(); mineHold = null; mineProg = 0; mineLock = null; mineDone = false; }
+  if(!acting){ buildPress=false; workStop(); mineHold = null; mineProg = 0; mineLock = null; mineDone = false; }
   /* ★ 쓰러진 사람은 그 밤 내내 아무것도 못 짓고 못 고친다. 아침이면 일어난다. */
   if(PL.down){ workStop(); aimInfo(null); return; }
   /* 쓰러진 친구가 앞에 있으면 그게 최우선 — 도구를 안 바꿔도 된다 */
@@ -13280,9 +13960,13 @@ function doAction(dt){
   if(work){
     const wx = work.o ? work.o.x : work.X, wz = work.o ? work.o.z : work.Z;
     const off = work.kind==='revive' ? 0 : 0.5;      // 부활은 칸이 아니라 실제 좌표다
-    const lim = work.kind==='revive' ? 4.2 : 9;
+    const lim = work.kind==='revive' ? 4.2 : work.kind==='coop' ? BUILD_REACH : 9;
     if(Math.hypot(wx+off-PL.x, wz+off-PL.z) > lim) workStop();
   }
+
+  if(buildPlanAction(dt)) return;
+  setBuildHand('');
+  if(curTool==='move'){buildPlacementAction(dt);return;}
 
   if(curTool === 'mine'){
     const n = aimNode();
@@ -13329,42 +14013,18 @@ function doAction(dt){
     } else {
       /* 남이 지은 건물이면 누구 것인지 크게 보여 준다 — 실수로 부수지 말라고 */
       const mine = !o.n || o.n === G.me.name;
-      const title = kind==='up' ? '⬆️ 강화 중 — ' + BUILD[o.t].name
-                  : kind==='del' ? (mine ? '💥 부수는 중 — ' + BUILD[o.t].name
-                      : `💥 <span style="color:#ff9b9b">${esc(o.n)} 님이 지은</span> ${BUILD[o.t].name}`)
-                  : '🔧 고치는 중 — ' + BUILD[o.t].name;
+      const title = kind==='up' ? '⬆️ 강화 중 — ' + buildingName(o)
+                  : kind==='del' ? (mine ? '💥 부수는 중 — ' + buildingName(o)
+                      : `💥 <span style="color:#a04b3d">${esc(o.n)} 님이 지은</span> ${buildingName(o)}`)
+                  : '🔧 고치는 중 — ' + buildingName(o);
       workInfo(title, work.prog/need);
     }
     return;
   }
 
-  if(curTool === 'build' && curBuild){
-    let X, Z;
-    if(work && work.kind==='build' && work.t===curBuild){ X = work.X; Z = work.Z; }
-    else {
-      const c = aimCell(); if(!c){ workStop(); return; }
-      X = c[0]; Z = c[1];
-      if(BUILD[curBuild].size===2){ X = Math.round(X - 0.5); Z = Math.round(Z - 0.5); }
-    }
-    const need = workSec(curBuild);
-    ghost.visible = true; ghost.position.set(X, GY, Z);
-    const err = canPlace(curBuild, X, Z), money = afford(curBuild);
-    ghostSet(!err && money);
-    ghostFill(work && work.kind==='build' ? Math.min(1, work.prog/need) : 1);
-    if(!acting) return;
-    if(err){ workStop(); ghostFill(1);
-      if(actCd<=0){ toast(err, 1.2, '#ffbdbd'); actCd = 1.0; } return; }
-    if(!money){ workStop(); ghostFill(1);
-      if(actCd<=0){ toast('자원이 모자라요', 1.2, '#ffbdbd'); actCd = 1.0; } return; }
-    if(!work || work.kind!=='build' || work.t!==curBuild || work.X!==X || work.Z!==Z)
-      work = {kind:'build', t:curBuild, X, Z, prog:0, tok:-1};
-    if(workTick(dt, need)){
-      workStop(); ghostFill(1);
-      placeStru(curBuild, X, Z);
-    } else workInfo(BUILD[curBuild].icon + ' ' + BUILD[curBuild].name + ' 짓는 중',
-                    work.prog/need);
-  }
+  if(curTool === 'build' && curBuild) buildPlacementAction(dt);
 }
+
 hlMat.color.set(0xffffff);
 
 /* 남은 체력만큼 블록을 지워서, 캐는 게 눈에 보이게 한다.
@@ -13421,85 +14081,48 @@ function refund(c){
   recomputeRes(); netPCDirty = true;
 }
 
-let nextId = 1;
-function placeStru(t, X, Z){
-  const b = BUILD[t];
-  const id = (G.me.uid||'x').slice(0,4) + '_' + (nextId++);
-  const mx = bs(t,'hp',1);
-  const o = {id, t, x:X, z:Z, lv:1, hp:mx, mx, g:G.me.g, n:G.me.name, cd:b.spawn?2:0, sol:[]};
-  addStru(o); spend(b.cost);
-  MY.built++;
-  xpGain(XP_BUILD[t] || 14);
-  burst(X+0.5, GY+1, Z+0.5, 0xffe2a0, 12, 1.2);
-  if(window.__sfx) window.__sfx('build');
-  netBuild(o);
-  toast(b.icon+' '+b.name+' 완성!', 0.9, '#c8ffb0');
-}
+function placeStru(t,X,Z){ submitBuildCommand({kind:'plan',t,cells:[[X,Z]]}); }
 function repairStru(o){
   if(o.hp >= o.mx){ toast('멀쩡해요', 0.8); return; }
   const r = myRes(); if(r.w < 2){ toast('나무가 모자라요', 1); return; }
-  spend({w:2,s:0,g:0});
-  const hp0 = o.hp;
-  o.hp = Math.min(o.mx, o.hp + o.mx*0.35);
-  const healed = Math.round(o.hp - hp0);
-  markHp(o);
-  MY.fixed++;
-  xpGain(XP_FIX);
-  /* ★ 남의 모둠 건물을 고치는 건 원래도 됐다. 아무도 몰랐을 뿐이다.
-     이제 세어 두었다가 아침에 이름을 불러 준다. */
-  const helping = (o.g !== G.me.g);
-  if(helping) MY.helped++;
-  /* ★ 17차b — 고치는 일을 쏘는 일만큼 눈에 보이게.
-     좀비를 때리면 빨간 숫자가 뜨는데, 벽을 살리면 아무것도 안 떴다.
-     같은 자리에 초록 +숫자를 띄우고 불티도 두 겹으로 키운다. */
-  const cx = struCX(o), cz = struCZ(o);
-  popDmg(cx, GY + 2.0, cz, healed, 3);                    // 초록 +숫자
-  burst(cx, GY+1.5, cz, 0x9cff9c, 14, 1.5);
-  burst(cx, GY+2.2, cz, 0xeaffea, 8, 1.9);
-  /* ★ 부서지기 직전이던 걸 살렸을 때만 반 전체에 알린다.
-     고칠 때마다 알리면 밤새 도배가 되어, 정작 중요한 순간이 안 읽힌다. */
-  const wasLow = hp0 < o.mx*RESCUE_MARK, nowOk = o.hp >= o.mx*RESCUE_MARK;
-  if(wasLow && nowOk){
-    MY.rescue++;
-    feed(`🔧 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
-       + `<b style="color:${GCOL[o.g]}">${o.g+1}모둠</b> ${BUILD[o.t].name}을(를) <b>살렸어요!</b>`);
-    toast(`🔧 ${BUILD[o.t].name}을(를) 살렸어요!`, 1.6, '#9cff9c');
-    burst(cx, GY+2.8, cz, 0xffe066, 16, 2.2);
+  submitBuildCommand({kind:'repair',id:o.id});
+}
+function applyBuildRepair(o,a){
+  if(o.hp>=o.mx)return buildReply(a.id,'멀쩡해요');
+  if(!buildCanPay(a.g,{w:2}))return buildReply(a.id,'나무가 모자라요');
+  const hp0=o.hp;buildPay(a.g,{w:2});o.hp=Math.min(o.mx,o.hp+o.mx*.35);markHp(o);
+  const rescue=hp0<o.mx*RESCUE_MARK&&o.hp>=o.mx*RESCUE_MARK,helping=o.g!==a.g;
+  const credit={xp:XP_FIX,stats:{fixed:1,helped:helping?1:0,rescue:rescue?1:0},
+    repair:{x:struCX(o),z:struCZ(o),healed:Math.round(o.hp-hp0),rescue,g:o.g,name:buildingName(o)}};
+  if(net)net.update({['b/'+o.id+'/hp']:Math.round(o.hp),base});
+  buildReply(a.id,rescue?`🔧 ${buildingName(o)}을(를) 살렸어요!`:helping?`🤝 ${o.g+1}모둠을 도왔어요!`:'🔧 고쳤어요',credit);
+}
+function upgradeStru(o,branch){
+  if(!STRU.has(o.id)) return;
+  const bad=upCheck(o);if(bad){toast(...bad);return;}
+  const choices=BUILD_BRANCHES[o.t];
+  if((o.lv||1)>=2 && choices && !Object.prototype.hasOwnProperty.call(choices,o.branch) && !Object.prototype.hasOwnProperty.call(choices,branch)){
+    chooseBuildBranch(o,choice=>upgradeStru(o,choice));return;
   }
-  netPCDirty = true;
-  if(!wasLow || !nowOk)
-    toast(helping ? `🤝 ${o.g+1}모둠을 도왔어요!` : '🔧 고쳤어요', helping?1.2:0.7, '#c8ffb0');
-  if(window.__sfx) window.__sfx('fix');
-  netBuildHp(o);
+  submitBuildCommand({kind:'upgrade',id:o.id,lv:o.lv||1,branch:branch||o.branch||''});
 }
-function upgradeStru(o){
-  const b = BUILD[o.t], lv = o.lv||1;
-  if(lv >= MAXLV){ toast('이미 최고 등급이에요 (Lv.'+MAXLV+')', 1.2, '#ffe9a0'); return; }
-  const c = upCost(o.t, lv);
-  const r = myRes();
-  if(r.w < (c.w||0) || r.s < (c.s||0) || r.g < (c.g||0)){
-    toast(`자원이 모자라요 — ${costTxt(c)}`, 1.6, '#ffbdbd'); return; }
-  spend({w:c.w||0, s:c.s||0, g:c.g||0});
-  o.lv = lv+1;
-  o.mx = bs(o.t,'hp',o.lv);
-  o.hp = o.mx;                                  // 강화하면 체력도 꽉 참
-  /* ★ 등급이 오르면 탑이 실제로 높아진다 — 올라설 수 있는 높이도 같이 고쳐야
-     화살이 나가는 높이·충돌·조준 테두리가 다 맞는다. */
-  for(const [cx,cz] of footprint(o.t,o.x,o.z))
-    if(inW(cx,cz)) bldH[gi(cx,cz)] = GY + bs(o.t,'hi',o.lv);
-  markShape(o.g); markFlow();
-  MY.built++;
-  xpGain(XP_UP * o.lv);
-  const cx = o.x+0.5, cz = o.z+0.5;
-  burst(cx, GY+3, cz, 0xffd43b, 22, 1.8);
-  setTimeout(()=>burst(cx, GY+4, cz, 0xfff2c0, 14, 1.4), 130);
-  toast(`⬆️ ${b.name} Lv.${o.lv}!`, 1.4, '#ffe066');
-  if(window.__sfx) window.__sfx('up');
-  if(o.lv === MAXLV)
-    say(`⬆️ <b style="color:${GCOL[o.g]}">${o.g+1}모둠</b> ${esc(o.n||'')} ${b.name} `
-      + `<b style="color:#ffd43b">Lv.${MAXLV} 완성!</b> 🎉`);
-  netBuild(o);
+function applyBuildUpgrade(o,a,branch){
+  const lv=o.lv||1,c=upCost(o.t,lv);if(!c)return;
+  if(!buildCanPay(a.g,c))return buildReply(a.id,'강화할 자원이 부족해요');
+  const choices=BUILD_BRANCHES[o.t];
+  if(lv>=2 && choices && !Object.prototype.hasOwnProperty.call(choices,o.branch)){
+    if(!Object.prototype.hasOwnProperty.call(choices,branch))return buildReply(a.id,'강화 모습을 먼저 골라주세요');
+    o.branch=branch;
+  }
+  buildPay(a.g,c);o.lv=lv+1;o.mx=bs(o.t,'hp',o.lv);o.hp=o.mx;
+  for(const [cx,cz]of footprint(o.t,o.x,o.z))if(inW(cx,cz))bldH[gi(cx,cz)]=GY+bs(o.t,'hi',o.lv);
+  markShape(o.g);markFlow();
+  burst(struCX(o),GY+bs(o.t,'hi',o.lv),struCZ(o),0xffd778,20,1.5);
+  buildReply(a.id,'⬆️ '+buildingName(o)+' Lv.'+o.lv+'!',XP_UP*o.lv);
+  if(window.__sfx)window.__sfx('up');
+  if(net)net.update({['b/'+o.id]:packBuilding(o),base});
 }
+
 function costTxt(c){
   return RES_KEYS.map(k => c[k] ? `${RES_IC[k]}${c[k]}` : '').filter(Boolean).join(' ');
 }
@@ -13513,16 +14136,7 @@ function lackTxt(c){
     if(d > 0) n.push(`${RES_IC[k]}${RES_NM[k]} ${d}`); }
   return n.length ? `<br><span style="color:#ffbdbd">${n.join(' · ')} 더 모아야 해요</span>` : '';
 }
-function removeStru(o){
-  if(o.n !== G.me.name && o.g !== G.me.g){ toast('다른 모둠 건물이에요', 1.2, '#ffbdbd'); return; }
-  const c = BUILD[o.t].cost;
-  let rw=c.w, rs=c.s, rg=c.g;
-  for(let L=1; L<(o.lv||1); L++){ const u=BUILD[o.t].up[L-1];
-    rw+=u.w||0; rs+=u.s||0; rg+=u.g||0; }
-  refund({w:Math.floor(rw/2), s:Math.floor(rs/2), g:Math.floor(rg/2)});
-  burst(o.x+0.5, GY+1, o.z+0.5, 0xd9c9a6, 12);
-  delStru(o.id); netUnbuild(o.id);
-}
+function removeStru(o){ submitBuildCommand({kind:'delete',id:o.id}); }
 
 /* ═══════════════════════ 밸런스 수치 ═══════════════════════ */
 const BAL = {
@@ -13592,7 +14206,7 @@ const BAL = {
   /* ── 좀비가 탑·배럭을 직접 노린다 ──
      벽은 원래대로 다 맞지만 탑·배럭은 이 비율만큼만 맞는다.
      안 그러면 후반에 한 마리한테 3방 만에 부서져서 지을 이유가 없어진다. */
-  struDmgMul: { arrow:0.26, ice:0.26, barr:0.30 },
+  struDmgMul: { arrow:0.26, ice:0.26, barr:0.30, pulse:0.26 },
   struBiteCd: 1.10,          // 탑·배럭 무는 주기(초) — 벽(0.85)보다 느리게
   siegeShare: 0.24,          // 일반 좀비 중 건물부터 노리는 비율 (수정을 더 노리게 0.35→0.24)
   siegeBudget: 11,           // 한 마리가 건물을 물고 늘어질 수 있는 시간(초). 넘으면 수정으로 간다
@@ -13878,7 +14492,7 @@ function struAhead(x, z, dirx, dirz){
 /* 건물 한가운데 좌표 — 크기 2짜리는 칸 두 개에 걸쳐 있어서 중심이 다르다 */
 function struCX(o){ return o.x + (BUILD[o.t].size===2 ? 1.0 : 0.5); }
 function struCZ(o){ return o.z + (BUILD[o.t].size===2 ? 1.0 : 0.5); }
-const SIEGE_T = {arrow:1, ice:1, barr:1};
+const SIEGE_T = {arrow:1, ice:1, barr:1, pulse:1};
 /* 공성 좀비가 노릴 탑·배럭 고르기 — 이미 붐비는 건물은 건너뛴다 */
 function pickSiege(w, sgCnt){
   let best = null, bd = BAL.siegeRange*BAL.siegeRange;
@@ -14324,30 +14938,7 @@ function hostSim(dt){
   for(const o of STRU.values()){
     const b = BUILD[o.t];
     if(b.dmg){
-      o.cd -= dt;
-      if(o.cd <= 0){
-        const t = towerTarget(o.x+0.5, o.z+0.5, bs(o.t,'range',o.lv));
-        if(t){
-          o.cd = bs(o.t,'rate',o.lv);
-          const cr = rollCrit();
-          const dm = Math.round(bs(o.t,'dmg',o.lv) * (cr ? CRIT_MUL : 1));
-          t.hp -= dm; t.hurt = 0.16;
-          popDmg(t.x, t.y + 1.3, t.z, dm, cr ? 1 : 0);
-          const sy = GY + bs(o.t,'hi',o.lv) + 0.35;      // 벽(1.4)보다 확실히 높게 쏜다
-          if(b.slow){
-            /* ★ 얼음탑 — 예전엔 사거리 안 좀비를 전부 느리게 했다.
-               이제는 자기가 때린 좀비 하나만 언다. 대신 직접 피해도 준다. */
-            if(!(WOLF_T[t.k]||{}).slowImm){ t.slow = bs(o.t,'slowT',o.lv); t.slowK = bs(o.t,'slow',o.lv); }   // 36차 — 갑옷 좀비는 안 느려진다
-            shootIce(o.x+0.5, sy, o.z+0.5, t.x, t.y+0.8, t.z);
-            burst(t.x, t.y+0.9, t.z, 0xbfe9ff, 6, 1.1);
-            if(window.__sfxAt) window.__sfxAt('frost', o.x, o.z, 24, 130);
-          } else {
-            shootArrow(o.x+0.5, sy, o.z+0.5, t.x, t.y+0.8, t.z);
-            if(window.__sfxAt) window.__sfxAt('bow', o.x, o.z, 24, 110);
-          }
-        }
-        else o.cd = 0.25;
-      }
+      towerAttackTick(o,dt);
     }
     /* ★ 예전엔 b.sold 를 봤는데, 6단계로 바꾸면서 그 칸을 없앴다.
        그래서 배럭이 병사를 한 명도 안 내보내고 있었다. 이제 spawn 을 본다. */
@@ -14442,11 +15033,73 @@ function nearestWolf(x,z,range, fx, fz){
 function towerTarget(x,z,range){
   let best=null, bd=Infinity;
   for(const w of G.wolves){
+    if(!(w.hp>0)) continue;
     if(Math.hypot(w.x-x, w.z-z) > range) continue;
     const d = w.x*w.x + w.z*w.z;
     if(d < bd){ bd=d; best=w; }
   }
   return best;
+}
+/* 공격과 손님 연출이 같은 선택 수치를 읽는다. area는 표적 중심 반경이며 포탑 사거리도 지킨다. */
+function towerVictims(o,target){
+  const area=buildStat(o,'area')||0,range=buildStat(o,'range');
+  if(!target||!(target.hp>0))return [];
+  if(!area)return [target];
+  return G.wolves.filter(w=>w.hp>0&&Math.hypot(w.x-target.x,w.z-target.z)<=area
+    &&Math.hypot(w.x-struCX(o),w.z-struCZ(o))<=range);
+}
+function buildingGunMuzzle(o){
+  const yaw=Number.isFinite(o.gunYaw)?o.gunYaw:0;
+  return {x:struCX(o)+Math.sin(yaw)*1.04,y:GY+buildStat(o,'hi')-.33,z:struCZ(o)+Math.cos(yaw)*1.04};
+}
+function towerAttack(o,target,damage=true){
+  const b=BUILD[o.t];if(!b||!b.dmg||!target||!(target.hp>0))return false;
+  const cx=struCX(o),cz=struCZ(o),sy=GY+buildStat(o,'hi')+.35;
+  if(Math.hypot(target.x-cx,target.z-cz)>buildStat(o,'range'))return false;
+  const victims=towerVictims(o,target),cr=rollCrit(),dm=Math.round(buildStat(o,'dmg')*(cr?CRIT_MUL:1));
+  const hits=o.t==='pulse'?victims:[target];
+  for(const w of hits){
+    if(damage){w.hp-=dm;w.hurt=.16;}
+    popDmg(w.x,(w.y||GY)+1.3,w.z,dm,cr?1:0);
+  }
+  if(b.slow){
+    const slow=buildStat(o,'slow'),duration=buildStat(o,'slowT');
+    for(const w of victims){
+      if(damage&&!(WOLF_T[w.k]||{}).slowImm&&(!(w.slow>0)||slow<=(w.slowK===undefined?1:w.slowK))){
+        w.slow=duration;w.slowK=slow; // 약한 눈보라가 이미 걸린 강한 빙결을 풀지 않는다.
+      }
+      burst(w.x,(w.y||GY)+.9,w.z,0xbfe9ff,w===target?6:3,1.0);
+    }
+    shootIce(cx,sy,cz,target.x,(target.y||GY)+.8,target.z);
+    if(buildStat(o,'area'))ring(target.x,(target.y||GY)+.6,target.z,0xc8f2ff,buildStat(o,'area'),.38);
+    if(window.__sfxAt)window.__sfxAt('frost',o.x,o.z,24,130);
+  } else if(o.t==='pulse'){
+    shootOrb(cx,sy,cz,target.x,(target.y||GY)+.7,target.z);
+    ring(target.x,(target.y||GY)+.6,target.z,0xbda4ff,buildStat(o,'area'),.38);
+    ring(target.x,(target.y||GY)+.6,target.z,0xa4efe6,buildStat(o,'area')*.72,.28);
+    burst(target.x,(target.y||GY)+.7,target.z,0xcabaff,10,1.25);
+    if(window.__sfxAt)window.__sfxAt('thud2',o.x,o.z,24,110);
+  } else if(o.t==='arrow'&&(o.lv||1)>=3&&(o.branch==='rapid'||o.branch==='sniper')){
+    const sniper=o.branch==='sniper',col=sniper?0xc2ecff:0xffe49a;
+    o.gunYaw=Math.atan2(target.x-cx,target.z-cz);
+    const muzzle=buildingGunMuzzle(o),end={x:target.x,y:(target.y||GY)+.8,z:target.z};
+    o.gunKick=1;o.shotEnd=end;
+    shootBullet(muzzle.x,muzzle.y,muzzle.z,end.x,end.y,end.z,true,col,sniper?1.3:.75);
+    muzzleFlash(muzzle.x,muzzle.y,muzzle.z,col,sniper?.48:.30);
+    burst(muzzle.x,muzzle.y,muzzle.z,col,sniper?5:3,.45);
+    if(window.__sfxAt)window.__sfxAt(sniper?'towerSniper':'towerRapid',cx,cz,24,sniper?160:90);
+  } else {
+    shootArrow(cx,sy,cz,target.x,(target.y||GY)+.8,target.z);
+    if(window.__sfxAt)window.__sfxAt('bow',o.x,o.z,24,110);
+  }
+  return {damage:dm,hits:hits.length,affected:victims.length,crit:cr};
+}
+function towerAttackTick(o,dt){
+  o.cd=(Number.isFinite(o.cd)?o.cd:0)-dt;
+  if(o.cd>0)return false;
+  const target=towerTarget(struCX(o),struCZ(o),buildStat(o,'range'));
+  if(!target){o.cd=.25;return false;}
+  o.cd=buildStat(o,'rate');return towerAttack(o,target,true);
 }
 let hurtCd = 0;
 function onCrystalHit(){
@@ -14456,25 +15109,16 @@ function onCrystalHit(){
   if(window.__shake) window.__shake(0.5, 0.28);
 }
 
-/* 클라이언트에서도 타워 화살 시늉 (피해 없음) */
+/* 클라이언트에서도 선택한 타워 무기의 발사 효과 표시 (피해 없음) */
 const cliCd = new Map();
 function clientTowerFx(dt){
   for(const o of STRU.values()){
-    const b = BUILD[o.t]; if(!b.dmg) continue;
+    const b = BUILD[o.t]; if(!b||!b.dmg) continue;
     let c = (cliCd.get(o.id)||0) - dt;
     if(c <= 0){
-      const t = nearestWolf(o.x+0.5, o.z+0.5, bs(o.t,'range',o.lv));
-      if(t){ c = bs(o.t,'rate',o.lv);
-        const sy = GY + bs(o.t,'hi',o.lv) + 0.35;
-        if(b.slow){ shootIce(o.x+0.5, sy, o.z+0.5, t.x, t.y+0.8, t.z);
-                    burst(t.x, t.y+0.9, t.z, 0xbfe9ff, 5, 1.0); }
-        else shootArrow(o.x+0.5, sy, o.z+0.5, t.x, t.y+0.8, t.z);
-        /* ★ 손님 화면의 숫자는 '흉내'다 — 피해는 호스트만 준다.
-           좀비 체력은 백분율로만 오기 때문에 실제 깎인 값을 알 방법이 없다.
-           그래서 같은 표로 같은 값을 다시 계산해서 띄운다. 크리티컬은 각자 굴린다. */
-        const cr2 = rollCrit();
-        popDmg(t.x, t.y + 1.3, t.z,
-               Math.round(bs(o.t,'dmg',o.lv) * (cr2 ? CRIT_MUL : 1)), cr2 ? 1 : 0); }
+      const t = towerTarget(struCX(o),struCZ(o),buildStat(o,'range'));
+      // 손님은 같은 효과와 예상 숫자만 표시한다. 체력·감속은 호스트만 바꾼다.
+      if(t){c=buildStat(o,'rate');towerAttack(o,t,false);}
 
       else c = 0.3;
     }
@@ -15492,8 +16136,19 @@ function netBase(){ if(!net) return; net.child('base').set(base); }
 /* 농장은 하루에 몇 번만 바뀐다 — 통째로 보내도 값이 거의 안 든다 */
 function netFarm(){ farmDirty = true; if(!net) return; net.child('farm').set(G.farm); }
 function netNode(i,hp){ if(!net) return; net.child('nd/'+i).set(hp); }
+function applyNetworkBuilding(id,v){
+  if(!v||!BUILD[v.t])return;
+  let o=STRU.get(id);const lv=Math.max(1,Math.min(MAXLV,v.lv|0||1));
+  if(!o){o={...v,id,lv,mx:bs(v.t,'hp',lv),cd:0,sol:[]};addStru(o);observeBuilt(o);return;}
+  const moved=o.x!==v.x||o.z!==v.z||o.t!==v.t,shape=moved||o.lv!==lv||o.branch!==v.branch;
+  if(moved)delStru(id);
+  Object.assign(o,v,{lv,mx:bs(v.t,'hp',lv)});
+  if(moved)addStru(o);
+  else if(shape){for(const [cx,cz]of footprint(o.t,o.x,o.z))if(inW(cx,cz))bldH[gi(cx,cz)]=GY+bs(o.t,'hi',o.lv);markShape(o.g);markFlow();}
+  else markHp(o);
+}
 function netBuild(o){ if(!net) return;
-  net.child('b/'+o.id).set({t:o.t,x:o.x,z:o.z,hp:o.hp,g:o.g,n:o.n,lv:o.lv||1}); }
+  net.child('b/'+o.id).set(packBuilding(o)); }
 function netUnbuild(id){ if(!net) return; net.child('b/'+id).remove(); }
 function netBuildHp(o){ if(!net) return; net.child('b/'+o.id+'/hp').set(Math.round(o.hp)); }
 /* ★ 내가 한 일을 내 칸(myPC)에 옮겨 적는다. 통신이 없어도(혼자 하기·검사) 돌아야 한다 —
@@ -15660,19 +16315,11 @@ function joinRoom(code, asHost){
       else if(hp>0 && !n.alive){ n.alive=true; for(const h of n.hs) bset(h,true); n.shown=n.hs.length; }
       n.hp = hp; }
     refreshNodeCells(); });
-  net.child('b').on('child_added', s=>{
-    const v = s.val(); if(STRU.has(s.key)) return;
-    const lv = v.lv||1;
-    addStru({id:s.key, t:v.t, x:v.x, z:v.z, lv, hp:v.hp, mx:bs(v.t,'hp',lv),
-      g:v.g, n:v.n, cd:0, sol:[]}); });
-  net.child('b').on('child_changed', s=>{
-    const o = STRU.get(s.key); const v = s.val();
-    if(o){ if(v.lv && v.lv !== o.lv){ o.lv = v.lv; o.mx = bs(o.t,'hp',o.lv);
-        for(const [cx,cz] of footprint(o.t,o.x,o.z))
-          if(inW(cx,cz)) bldH[gi(cx,cz)] = GY + bs(o.t,'hi',o.lv);
-        markShape(o.g); }
-      o.hp = v.hp; markHp(o); } });
-  net.child('b').on('child_removed', s=>{ if(STRU.has(s.key)) delStru(s.key); });
+  bindBuildNetwork();
+  net.child('b').on('child_added',s=>applyNetworkBuilding(s.key,s.val()));
+  net.child('b').on('child_changed',s=>applyNetworkBuilding(s.key,s.val()));
+  net.child('b').on('child_removed',s=>{if(STRU.has(s.key))delStru(s.key);});
+
   net.child('p').on('value', s=>{
     const v = s.val()||{}; const keep = new Set();
     for(const k in v){ if(k===uid) continue;
@@ -15985,9 +16632,9 @@ function heldGroup(mk){
   return g;
 }
 /* 건물 — blocksOf 의 조각을 그대로 (타일 원색 × 물감) */
-function buildingGroup(k, lv){
+function buildingGroup(k, lv, branch='', style=0){
   const g = new THREE.Group();
-  for(const [x,y,z,tile,w,h,d,tint,ry,rz] of blocksOf(k, lv||1)){
+  for(const [x,y,z,tile,w,h,d,tint,ry,rz] of blocksOf(k, lv||1, branch, style)){
     const mat = tint ? flatFor(tile, {uuid:'tint'+tint, color:new THREE.Color(tint)}) : flatFor(tile);
     const m = new THREE.Mesh(rboxGeo(w,h,d), mat);
     m.position.set(x,y,z); m.rotation.set(0, ry||0, rz||0); g.add(m);
@@ -16230,6 +16877,10 @@ HATS.forEach((rows,i)=>{ if(i) ICO_DEF['hat'+i] = {emo:[HAT_ICON[i]], make:()=>t
 GLASSES.forEach((rows,i)=>{ if(i) ICO_DEF['gls'+i] = {make:()=>tableGroup(dollHead().concat(r6rows(rows,1)), DOLL_COL), pose:{ry:-0.35}}; });
 CLOTHES.forEach((rows,i)=>{ if(i) ICO_DEF['clo'+i] = {make:()=>tableGroup(dollBody().concat(r6rows(rows,0)), DOLL_COL), pose:{ry:-0.55}}; });
 for(const k of Object.keys(BUILD)) ICO_DEF['bld_'+k] = {make:()=>buildingGroup(k, 1), pose:{ry:-0.4}};
+/* 건설 선택 그림도 실제 건물 조각으로 굽는다. 기존 아이콘 공방의 큰 칸을 함께 쓴다. */
+for(const [type,branches] of [['arrow',['rapid','sniper']],['ice',['blizzard','frost']]])
+  for(const branch of branches)ICO_DEF['bldspec_'+branch]={make:()=>buildingGroup(type,3,branch),pose:{ry:-0.4}};
+for(let style=0;style<4;style++)ICO_DEF['fortstyle_'+style]={make:()=>buildingGroup('barr',5,'',style),pose:{ry:-0.4}};
 /* 이름이 겹치는 이모지는 표에서 먼저 잡은 쪽이 이긴다 — 위 순서가 곧 우선순위다 */
 const ICON_BLANK = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
 /* 이모지 → 키 표는 굽기 전에 미리 채운다 — 아이콘이 아직 없어도 <img data-ic> 자리를 잡아 둘 수 있게 */
@@ -16240,8 +16891,9 @@ function onIcons(fn){ if(iconsDone) fn(); else iconWaiters.push(fn); }
 function buildIcons(){
   const T = {n:0, make:0, render:0, read:0, png:0, studio:0, scan:0, busy:0, total:0}, t0 = performance.now();
   const keys = Object.keys(ICO_DEF);
-  // 상점의 176px 무기는 192px로 굽고, 작은 HUD 그림은 96px를 유지한다.
-  const batches = [{size:96, keys:keys.filter(k=>!/^wpn\d+$/.test(k))}, {size:192, keys:keys.filter(k=>/^wpn\d+$/.test(k))}];
+  // 상점 무기와 건설 선택 카드만 192px로 굽고, 작은 HUD 그림은 96px를 유지한다.
+  const largeIcon = /^(?:wpn\d+|bldspec_(?:rapid|sniper|blizzard|frost)|fortstyle_[0-3])$/;
+  const batches = [{size:96, keys:keys.filter(k=>!largeIcon.test(k))}, {size:192, keys:keys.filter(k=>largeIcon.test(k))}];
   const st = mkIconStudio(batches[0].size, batches[0].keys.length);
   T.studio = performance.now() - t0;
   if(!st) window.__ICON_OFF = true;
@@ -16522,7 +17174,7 @@ el('bAgain').onclick = ()=>{
   el('popEnd').classList.remove('on'); endShown = false;
   kitReset(); xpReset();
   PL.hp = maxHP(); PL.down = false; PL.biteT = 0;
-  if(G.host){ G.day=1; G.crystal=G.set.crystalMax;
+  if(G.host){ clearBuildCoop(); G.day=1; G.crystal=G.set.crystalMax;
     for(const id of [...STRU.keys()]) { delStru(id); netUnbuild(id); }
     for(let i=0;i<NG;i++) base[i]={...START};
     myPC={g:G.me.g,w:0,s:0,o:0,sw:0,ss:0,so:0,n:G.me.name,mined:0,built:0};
@@ -16560,11 +17212,7 @@ el('bGiveGo').onclick = ()=>{
   const r = myRes();
   if(w>r.w || s>r.s || g>r.g){ alert('가진 것보다 많이 보낼 수 없어요'); return; }
   if(w+s+g===0){ alert('보낼 양을 정해 주세요'); return; }
-  base[G.me.g].w -= w; base[G.me.g].s -= s; base[G.me.g].o -= g;
-  base[giveTo].w += w; base[giveTo].s += s; base[giveTo].o += g;
-  recomputeRes(); netBase();
-  feed(`🎁 <b style="color:${GCOL[G.me.g]}">${G.me.g+1}모둠</b> → <b style="color:${GCOL[giveTo]}">${giveTo+1}모둠</b> 🪵${w} 🪨${s} ✨${g}`);
-  toast('보냈어요!', 1.4, '#c8ffb0');
+  submitBuildCommand({kind:'transfer',to:giveTo,w,s,g});
   el('popGive').classList.remove('on');
 };
 
@@ -16581,14 +17229,23 @@ el('bBook').onclick = ()=>{
     const L = MAXLV-1;
     let ext = `체력 Lv1 ${b.hp[0]} → Lv${MAXLV} ${b.hp[L]}`;
     if(b.dmg) ext += ` · 공격 ${b.dmg[0]} → ${b.dmg[L]}`;
+    if(b.range)ext+=` · 사거리 ${b.range[0]} → ${b.range[L]}칸`;
+    if(b.area)ext+=` · 충격파 반경 ${b.area[0]} → ${b.area[L]}칸`;
     if(b.spawn) ext += ` · 병정 ${SOL_COMP[0].length} → ${SOL_COMP[L].length}명`;
     if(b.slow) ext += ` · 맞은 좀비 감속 ${Math.round((1-b.slow[0])*100)}% → ${Math.round((1-b.slow[L])*100)}%`;
+    const choices=Object.entries(BUILD_BRANCHES[k]||{}).map(([id,choice])=>{
+      const a={t:k,lv:3,branch:id},z={t:k,lv:MAXLV,branch:id};
+      let line=`공격 ${buildStat(a,'dmg')} → ${buildStat(z,'dmg')} · ${buildStat(a,'rate')} → ${buildStat(z,'rate')}초마다 · 사거리 ${buildStat(a,'range')} → ${buildStat(z,'range')}칸`;
+      if(b.slow)line+=` · 감속 ${Math.round((1-buildStat(a,'slow'))*100)} → ${Math.round((1-buildStat(z,'slow'))*100)}%`;
+      if(buildStat(a,'area'))line+=` · 주변 ${buildStat(a,'area')} → ${buildStat(z,'area')}칸`;
+      return `<div style="margin-top:8px;padding:8px 10px;background:#edf6ff;border-radius:10px"><b>${choice.icon} ${buildingName(a)}</b> <span class="chip">Lv3 선택</span><br>${choice.desc}<br><small>${line}</small></div>`;
+    }).join('');
     h += `<div class="hrow"><i>${b.icon}</i><div>
       <b>${b.name}</b> <span class="chip">${cs}</span><br>
       <span style="opacity:.75">${ext}</span><br>
       <span style="opacity:.6">강화 ${costTxt(b.up[0])} → … → ${costTxt(b.up[L-1])} · Lv.${MAXLV}까지</span><br>
-      <span style="opacity:.8">${b.desc}</span></div></div>`; }
-  h += `<div class="hrow"><i>🔧</i><div><b>수리</b> <span class="chip">🪵1</span> 부서진 걸 다시 튼튼하게</div></div>
+      <span style="opacity:.8">${b.desc}</span>${choices}</div></div>`; }
+  h += `<div class="hrow"><i>🔧</i><div><b>수리</b> <span class="chip">🪵2</span> 부서진 걸 다시 튼튼하게</div></div>
         <div class="hrow"><i>💥</i><div><b>철거</b> — 낸 자원의 절반을 돌려받아요</div></div>`;
   el('bookList').innerHTML = h; openPop('popBook');
 };
@@ -16666,6 +17323,7 @@ function teachXpTo(lv){
 el('tLv5').onclick    = ()=> teachXpTo(XP.lv + 5);
 el('tLvJob').onclick  = ()=> teachXpTo(JOB_LV[Math.min(JOB_LV.length - 1, XP.jt|0)]);
 el('tReset').onclick = ()=>{ if(!confirm('처음부터 다시 시작할까요?')) return;
+  clearBuildCoop();
   for(const id of [...STRU.keys()]){ delStru(id); netUnbuild(id); }
   for(let i=0;i<NG;i++) base[i]={...START};
   G.day=1; G.crystal=G.set.crystalMax; endShown=false;
@@ -16852,6 +17510,8 @@ const SFX = {
   crit: ()=>{ noise(0.04,0.12,2400); tone(980,1560,0.09,'triangle',0.08); tone(420,220,0.07,'square',0.05); },
   kill: ()=>{ noise(0.14,0.22,700); tone(210,52,0.26,'sawtooth',0.10); tone(660,330,0.12,'square',0.05, now0()+0.05); },
   bow:  ()=>{ tone(950,420,0.06,'triangle',0.035); },
+  towerRapid:()=>{ puff(.018,.035,2600,1.2);tone(720,390,.055,'triangle',.025); },
+  towerSniper:()=>{ puff(.035,.045,1800,1);tone(520,170,.095,'triangle',.035); },
 
   gun:    (k)=>{ k = k === undefined ? 0.8 : k; gunshot(0.85 + 0.35*k, 195 - 75*k, 2500 - 550*k, 0.55 + 0.65*k); },
   flint:  ()=>{ const t = now0(); flintClick(t); gunshot(1.15, 118, 1500, 1.5, t + 0.065, {drive:1.9}); puff(0.4, 0.045, 1100, 0.5, t + 0.2); },
@@ -17343,6 +18003,7 @@ function loop(){
     if(hurtCd>0) hurtCd -= dt;
     kitTick(dt); downTick(dt); comboTick(dt);
     if(!popOpen()) doAction(dt); else { hl.visible=false; ghost.visible=false; workStop(); }
+    buildCoopTick(dt); buildAssistTick();
     sheepHurt(dt);
     if(throwCd > 0) throwCd -= dt;
     /* ★ 공격 모드면 왼쪽 클릭이 곧 사격이다(누르고 있으면 연사).
@@ -17394,6 +18055,7 @@ function loop(){
     if(PROF_ON) pS();
     if(struDirty && (flowDirty || struT <= 0)){ rebuildStru(); struT = 1/12; }
     else if(struTint.size) tintStru();
+    tickBuildingGuns(G.paused?0:dt);
     if(PROF_ON) pE('건물메시');
     if(PROF_ON) pS();
     if(!DBG.noInst) drawWolves(G.wolves, tAcc, dt);
@@ -17805,6 +18467,12 @@ loop();
 
 /* 개발/검사용 훅 */
 Object.assign(window, {
+  __BUILD_PLANS:BUILD_PLANS,__BUILD_HANDS:BUILD_HANDS,__BUILD_HELP:BUILD_HELP,
+  __tickBuildingGuns:tickBuildingGuns,
+  __buildUi:{buildAssistTick,openBuildAssistStyles,chooseBuildBranch,buildAssistLineCells,toggleBuildLine,buildPlacementAction},
+  __buildApi:{handleBuildCommand,hostBuildTick,buildActor,buildCanMove,buildCanPay,canPlaceBuilding,buildWorkers,buildSpeed,finishBuildPlan,packBuilding,applyNetworkBuilding,upgradeStru,buildCoopTick,drawBuildPlans,fortStyleOf,setFortStyle,clearBuildCoop},
+  __selectTool:selectTool,__selectBuild:selectBuild,
+
   __G:G, __PL:PL, __R:renderer, __NODES:NODES, __STRU:STRU, __DIRS:DIRS, __base:base,
   /* 17차 — 맵 모양. 검사가 값을 베끼지 않고 게임에 물어보게 내보낸다. */
   __GMOUTH:GMOUTH, __oct:oct, __gX:gX, __gZ:gZ, __gT:gT, __gPP:gPP, __CHAM:()=>CHAM,
