@@ -16036,7 +16036,13 @@ function raceRocks(t){
   return out;
 }
 /* ═══ 장애물: 바위(④) · 계단을 굴러 내려오는 공(⑤) · 좁은 다리 위 진자(②) · 깃발 판 회전 막대(3·5번) ═══ */
-const HAZ = {ball:{per:5.0,spd:15.0,r:1.6},pend:{per:.91,len:6.2,swing:.44,top:8.8,r:2.4},bar:{spd:1.9,len:7.0}};
+/* 막대는 길이·속도를 코스 폭에 맞춰 낸다. 넓히기 전에는 폭 8 판을 길이 7 이 쓸어
+   87% 를 덮었는데, RACE_X 로 판만 4배가 되면서 길이 7 은 32칸 중 7칸(22%)만 덮어
+   그냥 걸어서 지나갈 수 있게 됐다. 길이를 폭만큼 늘려 덮는 비율을 되돌리고,
+   끝이 오는 빠르기는 옛 값의 2배로 맞춘다(진자·바위를 2배로 올린 것과 같은 기준).
+   길이만 늘리고 속도를 그대로 두면 끝 속도가 4배가 되어 9살이 피할 수 없다. */
+const HAZ = {ball:{per:5.0,spd:15.0,r:1.6},pend:{per:.91,len:6.2,swing:.44,top:8.8,r:2.4},
+  bar:{spd:1.9*2/RACE_X, len:7.0*RACE_X}};
 function raceHazards(t){
   const out = [], seed = (RACE.seed % 1000) / 1000;
   /* 계단 공 — 골인 앞에서 번갈아 두 길로 내려온다. 처음 3초와 양끝 체크포인트는 안전하게 둔다. */
@@ -16047,8 +16053,12 @@ function raceHazards(t){
       out.push({k:'ball', x:lane, z, y, r:HAZ.ball.r, roll:u / HAZ.ball.r, id:'b' + Math.round(t0*10)}); } }
   /* 진자 — 좁은 다리의 트러스 2·4번째. 최저점에서도 구체 아래가 마루보다 .2칸 높다. */
   for(const i of [1, 3]){ const z = 86 + i*9.6, w = Math.PI*2 / HAZ.pend.per, ph = i*1.3 + seed*6.28;
+    /* 축은 그 자리 다리 한가운데다. 예전에는 x 0 에 매달아도 다리가 x 0 둘레였는데,
+       RACE_X 로 넓어진 뒤 변형에 따라 다리가 x -10 쯤으로 치우쳐서 추가 허공만 휘젓는 판이 나왔다. */
+    const deck = RACE_P.find(q => q.sec === 1 && Math.abs(q.z - z) <= q.d/2 + 1);
+    const px = deck ? deck.x : 0;
     const th = Math.sin(t*w + ph) * HAZ.pend.swing, vx = Math.cos(t*w + ph);
-    out.push({k:'pend', x:Math.sin(th)*HAZ.pend.len, z, y:HAZ.pend.top - Math.cos(th)*HAZ.pend.len, r:HAZ.pend.r, py:HAZ.pend.top, len:HAZ.pend.len, ang:th, vx, id:'p'+i}); }
+    out.push({k:'pend', x:px + Math.sin(th)*HAZ.pend.len, z, y:HAZ.pend.top - Math.cos(th)*HAZ.pend.len, r:HAZ.pend.r, px, py:HAZ.pend.top, len:HAZ.pend.len, ang:th, vx, id:'p'+i}); }
   /* 회전 막대 — 3번·5번 깃발 판 가운데서 돈다. 0.3~0.8칸 높이라 뛰어넘을 수 있다(한 번 뜀 1.36) */
   for(const cpN of [3, 5]){ const p = RACE_P.find(q=> q.cp === cpN); if(!p) continue;
     const w = HAZ.bar.spd * (cpN === 3 ? 1 : -1);
@@ -16162,7 +16172,7 @@ function raceDraw(t){
     if(h.k === 'ball'){ if(rn < 24) setIR(R_rock, rn++, h.x, MINI_Y + h.y, h.z, 0, -h.roll, h.r*2, h.r*2, h.r*2, 0x6f7f9a); }
     else if(h.k === 'pend'){ if(rn < 24) setIR(R_rock, rn++, h.x, MINI_Y + h.y, h.z, h.ang*0.5, 0, h.r*2, h.r*2, h.r*2, 0x4a4f5a);
       /* 40차 — 쇠사슬: 고리 일곱을 줄 따라 번갈아 돌려 꿴다. 가는 줄 하나였을 땐 풍선처럼 가벼워 보였다(선생님: "무거운 추 같은 느낌이 안 듦") */
-      for(let c=0;c<7 && hb<24;c++){ const u = (c + 0.5)/7*(h.len-h.r)/h.len, cx = h.x*u, cy = h.py + (h.y - h.py)*u;
+      for(let c=0;c<7 && hb<24;c++){ const u = (c + 0.5)/7*(h.len-h.r)/h.len, cx = h.px + (h.x - h.px)*u, cy = h.py + (h.y - h.py)*u;
         setIR3(R_hazB, hb++, cx, MINI_Y + cy, h.z, c%2 ? Math.PI/2 : 0, 0, h.ang, 0.25, (h.len - h.r)/7 + 0.12, 0.25, c%2 ? 0x5a5f6a : 0x3a3f48); } }
     else if(h.k === 'bar'){ if(hb < 24) setIR(R_hazB, hb++, h.x, MINI_Y + h.y, h.z, h.ang, 0, h.len, 0.5, 0.5, 0xff5c5c);
       if(hb < 24) setIR(R_hazB, hb++, h.x, MINI_Y + h.y + 0.25, h.z, h.ang, 0, 0.45, 0.9, 0.45, 0x3a3a44); } }

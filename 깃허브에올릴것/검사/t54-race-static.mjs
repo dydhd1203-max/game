@@ -149,6 +149,43 @@ check('Street buildings lie outside expanded track',artCtx.rows.filter(r=>r.z>60
   check('Every rainbow platform keeps its flag poles beside it',rainbow.length===6&&missing.length===0,
     {platforms:rainbow,missing});
 }
+// 장애물이 판 위를 실제로 쓸고 지나가는지 — 넓힌 뒤 진자는 허공만 휘젓고(0%),
+// 막대는 32칸 판 중 7칸(22%)만 덮어 그냥 걸어서 지나갈 수 있었다.
+{
+  const cover=(seeds)=>{
+    const worst={pend:101,bar:101},where={};
+    for(const seed of seeds){
+      A.raceBuild(seed);
+      const span={};
+      for(let i=0;i<180;i++) for(const h of A.raceHazards(i*0.041)){
+        if(h.k==='ball') continue;
+        const reach=h.k==='bar'?h.len/2:(h.r||0);
+        const e=span[h.id]||(span[h.id]={k:h.k,z:h.z,min:Infinity,max:-Infinity});
+        e.min=Math.min(e.min,h.x-reach); e.max=Math.max(e.max,h.x+reach);
+      }
+      for(const [id,e] of Object.entries(span)){
+        const segs=A.RACE_P.filter(p=>Math.abs(p.z-e.z)<=p.d/2+1).map(p=>[p.x-p.w/2,p.x+p.w/2]);
+        if(!segs.length) continue;
+        const total=segs.reduce((s,[a,b])=>s+(b-a),0);
+        const cov=segs.reduce((s,[a,b])=>s+Math.max(0,Math.min(e.max,b)-Math.max(e.min,a)),0);
+        const pct=cov/total*100;
+        if(pct<worst[e.k]){worst[e.k]=pct;where[e.k]={seed,id,pct:+pct.toFixed(0)};}
+      }
+    }
+    return {worst,where};
+  };
+  const {worst,where}=cover(seeds.slice(0,40));
+  check('Pendulums always hang over the bridge they guard, in every course variant',
+    worst.pend>=99,where.pend);
+  check('The rotating bar still sweeps most of its widened checkpoint platform',
+    worst.bar>=80,where.bar);
+  // 길이만 늘리고 속도를 그대로 두면 끝이 4배 빨라져 9살이 피할 수 없다.
+  const tip=A.HAZ.bar.len/2*A.HAZ.bar.spd;
+  check('The bar tip stays at twice the pre-widening speed, not four times',
+    Math.abs(tip-6.65*2)<0.01,{tip:+tip.toFixed(2)});
+  check('Bar length follows the course width instead of a fixed number',
+    Math.abs(A.HAZ.bar.len-7*A.RACE_X)<1e-9,{len:A.HAZ.bar.len,RACE_X:A.RACE_X});
+}
 fs.mkdirSync(out,{recursive:true});
 // Diagram from actual computed platform/art coordinates, not a hand-drawn course.
 const sx=x=>360+x*5,sy=z=>1730-(z+30)*5,hex=c=>'#'+(c||0xffffff).toString(16).padStart(6,'0');
