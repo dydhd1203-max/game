@@ -65,6 +65,31 @@ check('Attack visibly extends hands and changes upper-body pose',handTravel>.20&
 const stopped=A.wolfPose(actor(0),2,.016);check('Idle without actual attack never invents a strike',stopped.bite===0&&stopped.crouch===0);
 const guest=actor(0);delete guest.atkT;const guestPhases=[0,.4,.7].map(t=>A.wolfPose(guest,t,.016));
 check('Guest movement-only snapshots retain attack presentation without new network fields',guestPhases.some(p=>p.bite>0)&&guestPhases.some(p=>p.crouch>0));
+const hunter=actor(0,{mv:true,shT:true,gv:6,lx:0,lz:0,gp:0});
+let peakAlert=0,lastHunt;
+for(let i=0;i<60;i++){hunter.z+=.1;lastHunt=A.wolfPose(hunter,i/60,1/60).threat;peakAlert=Math.max(peakAlert,lastHunt.alert);}
+check('Discovering prey gives a short anticipation then sustained hunting posture',peakAlert>.95&&lastHunt.alert===0&&lastHunt.chase>.99&&lastHunt.drive>.98,{peakAlert,chase:lastHunt.chase,drive:lastHunt.drive});
+const oldChase=lastHunt.chase;hunter.shT=false;hunter.z+=.1;const release=A.wolfPose(hunter,1.016,1/60).threat.chase;
+for(let i=0;i<90;i++){hunter.z+=.1;lastHunt=A.wolfPose(hunter,1.03+i/60,1/60).threat;}
+check('Losing prey relaxes the visual chase without a one-frame snap',release>oldChase*.85&&release<oldChase&&lastHunt.chase<.001,{release,settled:lastHunt.chase});
+const guestHunter=actor(0,{mv:true,gv:6,lx:0,lz:0,gp:0});delete guestHunter.shT;
+guestHunter.z=.1;const guestHunt=A.wolfPose(guestHunter,1,1/60).threat;
+check('Remote snapshots infer a rush from existing motion, without extra network state',guestHunt.chase>0&&guestHunt.alert>0,{chase:guestHunt.chase});
+const passive=actor(9,{mv:true,shT:true,noChase:true,gv:6,lx:0,lz:0,gp:0});
+const noHunt=A.wolfPose(passive,1,1/60).threat;
+const remotePassive=actor(10,{mv:true,gv:6,lx:0,lz:-.1,gp:0});delete remotePassive.shT;delete remotePassive.noChase;
+const remoteNoHunt=A.wolfPose(remotePassive,1,1/60).threat;
+check('Non-chasing roles do not invent a prey-discovery reaction, including guests',noHunt.chase===0&&noHunt.alert===0&&remoteNoHunt.chase===0&&remoteNoHunt.alert===0);
+const bodyPose=extra=>snapshot(actor(0,{mv:true,gv:6,lx:0,lz:0,gp:1,ph:1,...extra}));
+const patrolPose=bodyPose({shT:false}),chasePose=bodyPose({shT:true,poseChase:1,posePreyWas:true});
+const angle=m=>new THREE.Vector3(0,1,0).transformDirection(m).z;
+const chaseDelta={lower:pos(patrolPose.W_body[0]).y-pos(chasePose.W_body[0]).y,lean:angle(chasePose.W_body[0])-angle(patrolPose.W_body[0]),hand:Math.max(...chasePose.W_paw.map((m,i)=>pos(m).distanceTo(pos(patrolPose.W_paw[i]))))};
+check('Chasing visibly lowers and leans the body and reaches forward',chaseDelta.lower>.02&&chaseDelta.lean>.15&&chaseDelta.hand>.07,chaseDelta);
+check('Both elbows are rendered while all hands remain present',chasePose.W_legs.length===6&&chasePose.W_paw.length===2);
+const deadHunter=actor(0,{dead:.4,shT:true,poseChase:1,poseAlert:.2});const death=A.wolfPose(deadHunter,1,1/60).threat;
+check('Defeated zombies stop the discovery and chase pose',death.chase===0&&death.alert===0&&death.drive===0);
+const phaseA=A.wolfPose(actor(0,{id:1}),.4,.016).threat,phaseB=A.wolfPose(actor(0,{id:8}),.4,.016).threat;
+check('Zombie identity gives different leading hands and stagger phase',phaseA.side!==phaseB.side);
 const nightShapes=[];for(let nk=0;nk<10;nk++){A.G.nk=nk;const p=snapshot(actor(0));nightShapes.push(p.W_costume.length+':'+p.W_costume.map(m=>m.elements.join(',')).join(';'));}
 check('Night themes change costume geometry, beyond recoloring',new Set(nightShapes).size>=7,{uniqueStyles:new Set(nightShapes).size});A.G.nk=0;
 let capacity=true,completeArmor=true;const maxCounts={};

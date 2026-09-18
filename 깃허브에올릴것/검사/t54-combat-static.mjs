@@ -46,7 +46,7 @@ if(!hiddenLine)throw new Error('Missing camera visibility hysteresis assignment'
 const fixtures=`
 const camera=new THREE.PerspectiveCamera(),G={wolves:[],players:new Map(),me:{g:0}},miniPl=new Map();
 const KIT={wpn:0,ammo:0};
-let cover=false,wall=false,survival=false,camBodyHidden=false;
+let cover=false,wall=false,survival=false,camBodyHidden=false,camAimBlend=0;
 let throwCd=0,gunT=0;
 const popOpen=()=>false,toast=()=>{},swing=()=>{},window={},gunModels=[],held={visible:false},MINE={out:false,rs:0};
 const survTopAt=(x,z)=>cover&&z>=-2.5&&z<=-1.5?3:0;
@@ -122,6 +122,10 @@ check('Camera clearance catches a one-cell wall including its radius',`
   setup();wall=true;cameraClearance(0,GY+.8,0,0,0,3.2);`,d=>d>.7&&d<.86);
 check('Body visibility hysteresis keeps its state between thresholds',`
   camBodyHidden=false;[.50,.60,.53,.89,.91,.60].map(camDistance=>{${hiddenLine}return camBodyHidden;});`,
+  d=>JSON.stringify(d)==='[true,true,true,true,false,false]');
+check('A wall-tight aiming camera clears the local body without flickering',`
+  camAimBlend=1;camBodyHidden=false;
+  [1.40,1.50,1.43,1.72,1.78,1.60].map(camDistance=>{${hiddenLine}return camBodyHidden;});`,
   d=>JSON.stringify(d)==='[true,true,true,true,false,false]');
 const passed=results.filter(r=>r.pass).length;
 fs.mkdirSync(out,{recursive:true});

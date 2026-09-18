@@ -24,9 +24,9 @@ function decl(n){const m=new RegExp('(?:const|let)\\s+'+n+'\\s*=').exec(source);
 function fn(n){const s=source.indexOf('function '+n+'(');if(s<0)throw Error(n);return source.slice(s,end(s,true));}
 const fixtures=`
 const MINI_Y=100, MINI_R=34, MINI_PADZ=-19, PL={R:.3}, G={players:new Map(),mini:{seed:1,st:'run'}}, MINE={cp:0};
-let uid='kid00',KEY={},mvx=0,mvz=0,wantJump=false,camDip=0,gaitMe=0,sprinting=false;
+let uid='kid00',KEY={},mvx=0,mvz=0,wantJump=false,camDip=0,gaitMe=0,sprinting=false,raceTestSprint=1;
 const miniOn=()=>true,raceOn=()=>true,raceHold=()=>false,solidHit=()=>false,sheepBump=()=>{},
-  spdMul=()=>1,sprintMul=()=>1,jobTier=()=>0,burst=()=>{},fovPunch=()=>{},rampSeen=true,window={},
+  spdMul=()=>1,sprintMul=()=>raceTestSprint,jobTier=()=>0,burst=()=>{},fovPunch=()=>{},rampSeen=true,window={},
   JOB_SPD=[1],XP={jt:0},touchJumpHeld=false,GY=0;
 const R_trim={instanceMatrix:{},rows:[]},R_plat={instanceMatrix:{},rows:[],count:0},
   R_rock={instanceMatrix:{},rows:[]},R_hazB={instanceMatrix:{},rows:[]},landShow=()=>{};
@@ -35,14 +35,14 @@ function setIR3(m,i,x,y,z,ry,rx,rz,sx,sy,sz,col){setIR(m,i,x,y,z,ry,rx,sx,sy,sz,
 `;
 let move=fn('updPlayer');move=move.slice(0,move.indexOf('  recoilTick(dt);'))+'\n}';
 const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','FADE_T','ROCK','HAZ',
-  'STEP','GRAV','GRAV_V','gravNow','jumpNow','jump2Now','RACE_SPD','ACC_UP','JOB_JMP','GLIDE_T','GLIDE_VY','STRIDE_WALK'];
+  'STEP','GRAV','GRAV_V','gravNow','jumpNow','jump2Now','RACE_SPD','SPRINT','ACC_UP','JOB_JMP','GLIDE_T','GLIDE_VY','STRIDE_WALK'];
 const functions=['mulberry','furLight','raceBuild','raceOff','raceAlive','raceTopAt','raceUnder','raceSlotXZ',
-  'raceCheckpointXZ','rockU','raceRocks','raceHazards','raceDrawTrim','raceDraw','groundUnder'];
+  'raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','raceDrawTrim','raceDraw','groundUnder'];
 const code=[fixtures,...declarations.map(decl),...functions.map(fn),move,`globalThis.A={RACE,RACE_P,RACE_S,RACE_Z_FIN,RACE_X,PL,G,MINE,R_trim,R_plat,R_rock,R_hazB,
-  raceBuild,raceOff,raceAlive,raceTopAt,raceUnder,raceCheckpointXZ,raceRocks,raceHazards,raceDraw,groundUnder,
+  raceBuild,raceOff,raceAlive,raceTopAt,raceUnder,raceCheckpointXZ,raceRocks,raceHazards,raceSphereHit,raceDraw,groundUnder,ROCK,HAZ,
   spawn(id){uid=id;return raceSlotXZ();}, cp(id,p){uid=id;return raceCheckpointXZ(p);},
-  reset(x,z,y){Object.assign(PL,{x,z,y,vy:0,yaw:Math.PI,ground:true,jumps:0,vx:0,vz:0,_px:undefined,_pz:undefined,down:false});KEY={w:true};},
-  tick(jump=false){wantJump=jump;updPlayer(1/120);RACE.t+=1/120;}
+  reset(x,z,y,run=false,moving=false){raceTestSprint=run?SPRINT.mul:1;RACE.slipT=0;Object.assign(PL,{x,z,y,vy:0,yaw:Math.PI,ground:true,jumps:0,vx:0,vz:moving?SPD*RACE_SPD*raceTestSprint:0,_px:undefined,_pz:undefined,down:false});KEY={w:true};},
+  tick(jump=false,dt=1/120){wantJump=jump;updPlayer(dt);RACE.t+=dt;}
 };`].join('\n');
 const ctx=vm.createContext({THREE,console});new vm.Script(code).runInContext(ctx,{timeout:10000});
 const A=ctx.A,results=[];
@@ -63,7 +63,7 @@ check('All traversable obstacle platforms are at least 9.6 wide',minWidth>=9.6,{
 check('Platform collision follows actual expanded geometry',coll);
 check('Moving platforms scale sideways within their bounds',movement);
 check('Actual render transforms are finite and trim bank has room',finite&&maxTrim<1400,{maxTrim,capacity:1400});
-A.raceBuild(4821);check('Six sections and a 36-unit course extension',A.RACE_S.length===6&&A.RACE_Z_FIN===294&&A.RACE_P.filter(p=>p.kind==='rainbow').length===6);
+A.raceBuild(4821);check('Six rainbow platforms keep room for real jump gaps before the final stairs',A.RACE_S.length===6&&A.RACE_Z_FIN===312&&A.RACE_P.filter(p=>p.kind==='rainbow').length===6&&A.RACE_S[5].z0>A.RACE_P.filter(p=>p.kind==='rainbow').at(-1).z+4);
 const ids=Array.from({length:21},(_,i)=>'kid'+String(i).padStart(2,'0'));A.G.players=new Map(ids.map(id=>[id,{}]));
 const slots=ids.map(id=>A.spawn(id));
 const minDist=ps=>Math.min(...ps.flatMap((p,i)=>ps.slice(i+1).map(q=>Math.hypot(p[0]-q[0],p[1]-q[1]))));
@@ -83,6 +83,54 @@ for(let i=0;i<rainbow.length-1;i++){const p=rainbow[i],next=rainbow[i+1];A.reset
     if(f>8&&A.PL.ground&&A.PL.z>next.z-next.d/2-.3){landed=true;break;}if(A.PL.y<96)break;}
   hops.push({edge:i,landed,z:A.PL.z,peak});}
 check('Every new rainbow gap lands using actual one-jump player physics',hops.every(h=>h.landed),hops);
+const gapRuns=[];
+for(const fps of [30,60,120])for(let i=0;i<rainbow.length-1;i++)for(const run of [false,true]){
+  const p=rainbow[i],next=rainbow[i+1];A.reset(0,p.z+p.d/2-.7,100+p.y,run,true);A.RACE.t=0;
+  let crossed=false;
+  for(let f=0;f<fps*2;f++){A.tick(false,1/fps);if(A.PL.ground&&A.PL.z>next.z-next.d/2+.1){crossed=true;break;}if(A.PL.y<96)break;}
+  gapRuns.push({fps,edge:i,run,crossed});
+}
+check('All rainbow gaps require a jump even when already walking or sprinting',gapRuns.every(r=>!r.crossed),{cases:gapRuns.length,failed:gapRuns.filter(r=>r.crossed)});
+check('Every gap contains unsupported space even with player-radius ground samples',rainbow.slice(0,-1).every((p,i)=>{
+  const next=rainbow[i+1],mid=(p.z+p.d/2+next.z-next.d/2)/2;return A.groundUnder(0,mid,A.PL.R)<-900;
+}));
+const jumpRuns=[];
+for(const fps of [30,60,120])for(let i=0;i<rainbow.length-1;i++)for(const takeoff of [.45,.7,1.0]){
+  const p=rainbow[i],next=rainbow[i+1];A.reset(0,p.z+p.d/2-takeoff,100+p.y);A.RACE.t=0;let landed=false;
+  for(let f=0;f<fps*2;f++){A.tick(f===0,1/fps);if(f>3&&A.PL.ground&&A.PL.z>next.z-next.d/2-.3){landed=true;break;}if(A.PL.y<96)break;}
+  jumpRuns.push({fps,edge:i,takeoff,landed});
+}
+check('Single unsprinted jumps land across a useful takeoff window at 30/60/120 FPS',jumpRuns.every(r=>r.landed),{cases:jumpRuns.length,failed:jumpRuns.filter(r=>!r.landed)});
+check('Rolling rocks and stair balls have doubled radii and travel speed',A.ROCK.r===2.3&&A.ROCK.spd===17&&A.HAZ.ball.r===1.6&&A.HAZ.ball.spd===15);
+check('Pendulums have doubled radius and angular speed with ground clearance',A.HAZ.pend.r===2.4&&A.HAZ.pend.per===.91&&Math.abs(A.HAZ.pend.top-A.HAZ.pend.len-A.HAZ.pend.r-.2)<1e-9);
+const e=.00001,seedPhase=(A.RACE.seed%1000)/1000,period=A.HAZ.pend.per,tPeak=period*(1-(1.3+seedPhase*6.28)/(Math.PI*2));
+const pa=A.raceHazards(tPeak-e).find(h=>h.id==='p1'),pb=A.raceHazards(tPeak+e).find(h=>h.id==='p1');
+const pendSpeed=Math.abs(pb.x-pa.x)/(2*e),oldPeak=6.2*.44*Math.PI*2/1.82;
+check('Actual pendulum motion reaches twice its former linear speed',Math.abs(pendSpeed/oldPeak-2)<.00001,{pendSpeed,ratio:pendSpeed/oldPeak});
+let drawMatch=true,hitEdges=true,rockVelocity=[],ballVelocity=[],spawnSafe=true,dodgeSafe=true;
+for(let t=0;t<=40;t+=.05){
+  const rolling=A.raceRocks(t),haz=A.raceHazards(t),spheres=rolling.concat(haz.filter(h=>h.k==='ball'||h.k==='pend'));
+  A.RACE.t=t;A.raceDraw(t);
+  drawMatch&&=spheres.length===A.R_rock.count&&spheres.every((h,i)=>{const p=A.R_rock.rows[i];return Math.abs(p.x-h.x)<1e-9&&Math.abs(p.z-h.z)<1e-9&&Math.abs(p.y-100-h.y)<1e-9&&[p.sx,p.sy,p.sz].every(v=>Math.abs(v-h.r*2)<1e-9);});
+  for(const h of spheres){
+    Object.assign(A.PL,{x:h.x+h.r+A.PL.R-.001,z:h.z,y:100+h.y-.8});hitEdges&&=A.raceSphereHit(h);
+    A.PL.x+=.002;hitEdges&&=!A.raceSphereHit(h);
+    Object.assign(A.PL,{x:h.x,z:h.z,y:100+h.y+h.r+.001});hitEdges&&=!A.raceSphereHit(h);
+    A.PL.y-=.002;hitEdges&&=A.raceSphereHit(h);
+  }
+  for(const h of rolling.concat(haz.filter(h=>h.k==='ball'))){
+    const after=(h.k==='rock'?A.raceRocks(t+.01):A.raceHazards(t+.01)).find(q=>q.id===h.id);
+    if(after&&(h.k!=='rock'||h.tt>1.25))(h.k==='rock'?rockVelocity:ballVelocity).push((h.z-after.z)/.01);
+    for(const p of A.RACE_P.filter(p=>p.cp))for(const id of ids){const q=A.cp(id,p);Object.assign(A.PL,{x:q.x,z:q.z,y:100+q.y});spawnSafe&&=!A.raceSphereHit(h);}
+    const supports=A.RACE_P.filter(p=>['log','stair'].includes(p.kind)&&Math.abs(p.z-h.z)<=p.d/2);
+    for(const p of supports){const cx=p.x+A.raceOff(p,t),edge=p.w/2-A.PL.R-.15;dodgeSafe&&=Math.max(Math.abs(cx-edge-h.x),Math.abs(cx+edge-h.x))>h.r+A.PL.R+.25;}
+  }
+}
+check('Every sphere render uses the same center and doubled radius as collision',drawMatch);
+check('Actual sphere/capsule collision matches visible side and vertical boundaries',hitEdges);
+check('Actual rolling functions move at the doubled configured speeds',rockVelocity.length>20&&ballVelocity.length>20&&rockVelocity.every(v=>Math.abs(v-17)<1e-8)&&ballVelocity.every(v=>Math.abs(v-15)<1e-8),{rockSamples:rockVelocity.length,ballSamples:ballVelocity.length});
+check('Rolling hazards never engulf any of the 21 checkpoint respawn positions',spawnSafe);
+check('Widened log and stair platforms retain practical side space to dodge',dodgeSafe);
 // Actual static race art construction, with bpush as a matrix recorder. Material
 // and box-geometry fixtures isolate this from unrelated village texture loading.
 const art=source.slice(source.indexOf('  const Rp = h =>'),source.indexOf('  /* 네 귀퉁이 등불 */',source.indexOf('  const Rp = h =>')));

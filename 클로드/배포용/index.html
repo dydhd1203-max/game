@@ -5172,15 +5172,15 @@ const miniPadX = g => (g-2)*MINI_PADX;
 /* 37차 — 경주 코스 상수는 섬을 지을 때(buildMiniIsle) 벌써 쓴다 — 여기 둔다 */
 const RACE_Z_EDGE = 34;                                    // 섬 가장자리 — 여기까지는 섬 바닥, 그 뒤는 발판만
 const RACE_P = [];                                         // 발판 표 {x,z,y,w,d,h,col,sec,kind,mv?,fade?,blink?,cp?,fin?}
-const RACE_X = 4;                                          // 54차 — 횡방향 길·이동 폭만 4배, 앞뒤 점프 간격은 유지
+const RACE_X = 4;                                          // 횡방향 길·이동 폭 배율. 점프 간격은 각 구간에서 정한다.
 const RACE_S = [                                           // 여섯 구간 — 이름 · z 구간 · 색
   {n:'징검다리',        z0:38,  z1:78,  col:0x5fb8ff},
   {n:'좁은 다리',       z0:84,  z1:124, col:0xffa04a},
   {n:'사라지는 발판',   z0:130, z1:170, col:0xd89bff},
   {n:'흔들리는 통나무', z0:176, z1:216, col:0xc08a5a},
-  {n:'무지개 점프',     z0:222, z1:252, col:0x51cfb5},
-  {n:'마지막 계단',     z0:258, z1:292, col:0xffe066}];
-const RACE_Z_FIN = 294, RACE_Y_FIN = 8.1;
+  {n:'무지개 점프',     z0:222, z1:270, col:0x51cfb5},
+  {n:'마지막 계단',     z0:276, z1:310, col:0xffe066}];
+const RACE_Z_FIN = 312, RACE_Y_FIN = 8.1;
 const RACE_ROWZ = [MINI_PADZ + 0.8, MINI_PADZ - 1.8], RACE_COLS = 12, RACE_COLW = 3.0;
 const SURV_SPAWN_R = 26;          // 서바이벌은 다섯 모둠이 고리로 흩어져 시작한다
 const survSpawnA = g => g*Math.PI*2/NG + Math.PI;      // 0모둠이 출발선 쪽
@@ -5520,10 +5520,10 @@ function buildMiniIsle(){
   /* ② 좁은 다리 옆 — 등불 기둥 여섯 (다리 양옆 허공에 떠 있는 작은 받침 위) */
   /* 38차 ⑥ — 카트라이더 다리 트랙처럼 파란 철제 트러스 틀 넷이 외다리를 감싼다. 틀마다 주황 등 둘이 매달린다 */
   for(let i=0;i<4;i++){ const z = 86 + i*9.6, TB = 0x3b7ddb;
-    for(const sx of [-1,1]){ BX(sx*20, -0.9, z, 1.0, 0.5, 1.0, 0x8a5a3a); BX(sx*20, 3.4, z, 0.36, 7.4, 0.36, TB);
-      BX(sx*21.5, 3.6, z, 0.22, 7.8, 0.22, TB, 0, sx*0.6); BX(sx*20, 0.2, z, 0.9, 0.22, 0.9, TB); }
-    BX(0, 7.45, z, 40.6, 0.36, 0.44, TB); BX(0, 7.85, z, 40.0, 0.20, 0.30, furLight(TB, 0.35));
-    if(i === 1 || i === 3){ /* 진자가 매달리는 틀 — 등 대신 받침 고리 */ BX(0, 7.2, z, 0.5, 0.2, 0.5, 0x4a4a52); }
+    for(const sx of [-1,1]){ BX(sx*20, -0.9, z, 1.0, 0.5, 1.0, 0x8a5a3a); BX(sx*20, 4.0, z, 0.36, 8.6, 0.36, TB);
+      BX(sx*21.5, 4.2, z, 0.22, 9.0, 0.22, TB, 0, sx*0.6); BX(sx*20, 0.2, z, 0.9, 0.22, 0.9, TB); }
+    BX(0, 8.65, z, 40.6, 0.36, 0.44, TB); BX(0, 9.05, z, 40.0, 0.20, 0.30, furLight(TB, 0.35));
+    if(i === 1 || i === 3){ /* 커진 진자가 마루를 뚫지 않도록 걸이도 함께 올린다. */ BX(0, 8.4, z, 0.5, 0.2, 0.5, 0x4a4a52); }
     else for(const sx of [-1,1]){ BX(sx*15, 6.85, z, 0.04, 0.9, 0.04, 0x2b2b33); BX(sx*15, 6.1, z, 0.62, 0.8, 0.62, 0xff9a3c); GL(sx*15, 6.1, z, 0.42); } }
   /* ③ 사라지는 발판 옆 — 보랏빛 수정 무리 · 줄무늬 사탕 기둥 */
   for(let i=0;i<8;i++){ const z = 130 + i*5.5, x = (i%2 ? 21.5 : -21.5) + (i%3)*0.6, y = -0.6 - (i%3)*0.5;
@@ -6526,9 +6526,6 @@ const CYL  = roundCyl(0.24, 24);                       // 53차 — 가까운 �
 const BALL = new THREE.SphereGeometry(0.5, 14, 10);    // 털뭉치·꼬리 같은 '보이는 공' — 지름 1 이라 상자와 같은 배율
 
 const BALLs = new THREE.SphereGeometry(0.5, 8, 6);     // 눈·코·볼터치 — 잔 공
-/* 28차 — 입. 로블록스 특유의 방긋 웃는 넓은 U. 반고리(위쪽 반원)를 뒤집어 아래로 볼록하게 두고,
-   가로로 넓게 세로로 납작하게 배율을 준다. 지름 1 이라 다른 조각과 같은 배율로 쓴다. */
-const SMILE = new THREE.TorusGeometry(0.5, 0.10, 8, 18, Math.PI); SMILE.rotateZ(Math.PI);
 /* ★ 반지름은 조각 크기에 비례한다(지오메트리 하나를 배율로 늘려 쓰니까). 그래서 작은 조각은 거의 네모로,
    큰 몸통은 둥글게 나온다 — 로블록스도 그렇다(큰 덩어리만 둥글고 작은 부품은 각지다). 사람 몸통처럼
    작은데 둥글어야 하는 것만 RBr 을 쓴다. */
@@ -6548,6 +6545,14 @@ const FM = {
   plank: flatMat(0xa8825a),   //             #a17c4e
   log:   flatMat(0x6e4f2e),   //             #684a2a
   dirt:  flatMat(0x8f6a45)    //             #926942
+};
+/* 사람은 색을 겹쳐 물들이지 않는 전용 재질을 쓴다. 피부는 부드러운 플라스틱,
+   옷은 넓고 약한 반사, 얼굴은 거의 무광이다. 저사양은 기존 Lambert 경로를 유지한다. */
+const AVATAR_MAT = {
+  skin: flatMat(0xffffff,{specular:0x424242,shininess:38}),
+  cloth:flatMat(0xffffff,{specular:0x171717,shininess:16}),
+  face: flatMat(0xffffff,{specular:0x050505,shininess:8}),
+  gear: flatMat(0xffffff,{specular:0x515866,shininess:48})
 };
 /* 크기가 붙은 둥근 상자 — 손에 든 도구·아이콘처럼 인스턴스가 아닌 조각용.
    반지름은 제일 짧은 변의 30% 라 자루는 살짝, 덩어리는 듬뿍 둥글다. 같은 크기는 한 번만 만든다. */
@@ -7217,7 +7222,8 @@ function updHeld(dt, mining, minePct){
   bobT += dt * (PL.mv ? 7.5 : 1.6);
   let a;
   if(mining){                       // 캘 때는 캐는 속도에 맞춰 계속 휘두른다
-    a = Math.sin(minePct * Math.PI);
+    const motion=sheepActionPose(work?'work':'mine',minePct);
+    a = motion.wind*.78+motion.strike*.32;
     swingT = 0;
   } else {
     if(swingT > 0) swingT -= dt/0.26;
@@ -7653,11 +7659,48 @@ function imesh(geo, mat, cap, color){
   if(GFX.shadow){ m.castShadow = true; m.receiveShadow = true; }
   scene.add(m); return m;
 }
+/* 발밑 접촉 그림자는 저사양에서도 한 번의 그리기로 남긴다. 점프 높이에 따라
+   넓고 옅어지며, 캐릭터의 몸통 흔들림과 독립적으로 실제 바닥에 붙는다. */
+function avatarShadowMaterial(){
+  const size=32,pixels=new Uint8Array(size*size*4);
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+    const r=Math.hypot((x+.5-size/2)/(size/2),(y+.5-size/2)/(size/2));
+    const k=Math.max(0,1-r*r),i=(y*size+x)*4;
+    pixels[i]=pixels[i+1]=pixels[i+2]=255;pixels[i+3]=Math.round(k*k*255);
+  }
+  const map=new THREE.DataTexture(pixels,size,size,THREE.RGBAFormat);
+  map.magFilter=map.minFilter=THREE.LinearFilter;map.needsUpdate=true;
+  const mat=new THREE.MeshBasicMaterial({color:0x203044,map,transparent:true,depthWrite:false,toneMapped:false});
+  mat.onBeforeCompile=shader=>{
+    shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nvarying float avatarShadowAlpha;')
+      .replace('#include <begin_vertex>','#include <begin_vertex>\navatarShadowAlpha = instanceColor.r;');
+    shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying float avatarShadowAlpha;')
+      .replace('#include <color_fragment>','diffuseColor.a *= avatarShadowAlpha;');
+  };
+  mat.customProgramCacheKey=()=> 'avatar-contact-shadow-v1';
+  return mat;
+}
+const P_contact=imesh(new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),avatarShadowMaterial(),MAXP,1);
+P_contact.castShadow=P_contact.receiveShadow=false;
+function drawAvatarShadows(list,cap,scale){
+  let n=0,seen=0;
+  for(const s of list){
+    if(seen++>=cap||n>=P_contact.count_max)break;
+    const y=s.y===undefined?GY:s.y,ground=s.air?groundUnder(s.x,s.z,0):y;
+    const h=Math.max(0,y-ground);
+    if(!Number.isFinite(ground)||ground < -100||ground>y+.12||h>8)continue;
+    const sc=scale;
+    const spread=1+Math.min(2,h)*.22,alpha=(GFX.shadow ? .22 : .32)*Math.exp(-h*.48);
+    setI(P_contact,n,s.x,ground+.018,s.z,(s.ry||0)+Math.PI,
+      1.15*sc*spread,1,(s.down?1.25:.84)*sc*spread);
+    P_contact.instanceColor.setXYZ(n,alpha,alpha,alpha);n++;
+  }
+  P_contact.count=n;flush(P_contact);
+}
 /* ═══════════ 로블록스 R6 아바타 자리표 ═══════════ */
 
 const STUD = 0.30;
-const R6_HF = 0.00, R6_HU = 1.431, R6_HK = 0.66;        // 53차 참고 이미지: 조금 세로로 긴 원통, 아래는 어깨 높이 1.20에 맞춘다
-                                                         // 귀여운 확대 비율은 유지하고 얼굴의 윤곽·배치를 별도로 고친다
+const R6_HF = 0.00, R6_HU = 1.431, R6_HK = 0.66;
 const r6hu = (u)=> R6_HU + (u - 1.06)*R6_HK;             // 양 표의 머리 기준 높이 → R6 높이
 
 const R6_LEG = [1.00*STUD, 2.00*STUD, 1.00*STUD], R6_HIP = 2.00*STUD, R6_HSD = 0.48*STUD;
@@ -7667,18 +7710,33 @@ const R6_ARM = [1.00*STUD, 2.00*STUD, 1.00*STUD], R6_SHU = 4.00*STUD, R6_ASD = 1
    둘 다 모서리가 둥근 상자라 그 자리에 **머리카락 같은 틈**이 비친다(모서리가 서로 반대로 말려서).
    0.04스터드만 몸통 속으로 밀어 넣으면 실루엣은 그대로면서 틈이 사라진다. 다리도 같은 까닭으로 0.48 이다. */
 const R6_HEAD = [0.68*R6_HK, 0.70*R6_HK, 0.68*R6_HK];  // 가로·깊이가 같은 원형 단면
+// 사람만 쓰는 기하. 옷·모자의 자리표와 바깥 치수는 유지한다.
+const R6_HEAD_SEG = 32;
+function r6UnitGeo(geo){
+  geo.computeBoundingBox();
+  const size=new THREE.Vector3(),center=new THREE.Vector3();
+  geo.boundingBox.getSize(size);geo.boundingBox.getCenter(center);
+  geo.translate(-center.x,-center.y,-center.z);
+  geo.scale(1/size.x,1/size.y,1/size.z);geo.computeBoundingBox();
+  return geo;
+}
+const R6_HEAD_GEO = roundCyl(.18,R6_HEAD_SEG),
+      R6_BODY_GEO = r6UnitGeo(roundBox(2,.115)),
+      R6_LIMB_GEO = r6UnitGeo(roundBox(2,.105)),
+      R6_SHOE_GEO = r6UnitGeo(roundBox(2,.18)),
+      R6_EYE_GEO = new THREE.CircleGeometry(.5,24);
 /* ── 기본 착장 = **로블록스 기본 캐릭터** ── */
 const R6_SKIN = 0xffd99b,          // 따뜻한 살빛 — 머리·팔·손
       R6_PANT = 0x4775b8;          // 밝은 청색 바지
 /* 하나로 이어진 C자 손. 안쪽 빈 공간과 열린 입을 실제 기하로 만든다.
    상자를 겹친 손은 구멍이 막히고 점프할 때 팔에서 떨어졌다. 좌우는 기하를 돌려 짝을 맞춘다. */
 function r6HookGeo(left){
-  const shape = new THREE.Shape(), lo = -Math.PI*0.72, hi = Math.PI*0.72, steps = 18;
+  const shape = new THREE.Shape(), lo = -Math.PI*0.72, hi = Math.PI*0.72, steps = 24;
   for(let i=0;i<=steps;i++){ const a=lo+(hi-lo)*i/steps, x=Math.cos(a)*0.5, y=Math.sin(a)*0.5;
     if(i===0) shape.moveTo(x,y); else shape.lineTo(x,y); }
   for(let i=steps;i>=0;i--){ const a=lo+(hi-lo)*i/steps; shape.lineTo(Math.cos(a)*0.28,Math.sin(a)*0.28); }
   shape.closePath();
-  const geo = new THREE.ExtrudeGeometry(shape,{depth:0.92,steps:1,bevelEnabled:true,bevelSize:0.025,bevelThickness:0.04,bevelSegments:1});
+  const geo = new THREE.ExtrudeGeometry(shape,{depth:0.92,steps:1,bevelEnabled:true,bevelSize:0.025,bevelThickness:0.04,bevelSegments:2});
   geo.translate(0,0,-0.46); if(left) geo.rotateY(Math.PI); return geo;
 }
 const R6_HOOK = [r6HookGeo(false), r6HookGeo(true)];
@@ -7686,16 +7744,15 @@ const R6_HAND = [0.29,0.26,0.22], R6_HAND_AT = 0.86;
 /* 원통 앞면을 따라 붙는 미소. 평평한 얼굴을 앞에 띄워 놓으면 옆에서 공중에 떠 보인다. */
 function r6FaceFront(x){
   let z=-1;
-  for(let i=0;i<24;i++){const a=i*Math.PI*2/24,b=(i+1)*Math.PI*2/24;
+  for(let i=0;i<R6_HEAD_SEG;i++){const a=i*Math.PI*2/R6_HEAD_SEG,b=(i+1)*Math.PI*2/R6_HEAD_SEG;
     const x1=Math.sin(a)*0.34,x2=Math.sin(b)*0.34;
     if(Math.abs(x2-x1)>0.00001&&x>=Math.min(x1,x2)-1e-9&&x<=Math.max(x1,x2)+1e-9)
       z=Math.max(z,Math.cos(a)*0.34+(Math.cos(b)-Math.cos(a))*0.34*(x-x1)/(x2-x1));}
   return z;
 }
-/* 53차 — 첨부된 클래식 얼굴 기준. 눈은 더 가깝고 길게, 입은 좁고 가는 평면 선이다.
-   굵은 토러스를 검게 칠하던 입 대신 원통 표면에 붙은 리본을 만든다. 피부색은 그대로다. */
-const R6_FACE = {eyeSide:0.105, eyeU:1.20, eyeW:0.043, eyeH:0.101, eyeD:0.008,
-                 mouthU:1.00, mouthW:0.235, mouthH:0.245, stroke:0.016};
+// 길쭉한 타원 눈과 얇고 둥근 U 웃음선. 얼굴은 원통 표면에 붙는다.
+const R6_FACE = {eyeSide:0.108, eyeU:1.20, eyeW:0.045, eyeH:0.095, eyeD:0.008,
+                 mouthU:1.00, mouthW:0.250, mouthH:0.235, stroke:0.016};
 function r6SmileGeo(){
   const f=R6_FACE, pts=[], ids=[], a=f.mouthW/2, b=f.mouthH/2, steps=32;
   const point=(x,y)=>{ pts.push(x/f.mouthW,y/f.mouthH,(r6FaceFront(x)-0.34)/0.07); };
@@ -7716,6 +7773,21 @@ function r6SmileGeo(){
 }
 const R6_SMILE=r6SmileGeo();
 const R6_EYE_F=0.68+r6FaceFront(R6_FACE.eyeSide)+0.002, R6_MOUTH_F=1.022;
+const _r6EyeEuler=new THREE.Euler(0,0,0,'YXZ'), _r6EyeTurn=new THREE.Quaternion(),
+      _r6EyeY=new THREE.Vector3(0,1,0), _r6EyeZ=new THREE.Vector3(0,0,1);
+// 눈은 납작한 타원이다. 머리 회전 뒤에 실제 원통 면의 접선을 합성해 가장자리가 묻히지 않게 한다.
+function r6EyeRotation(yaw,pitch,side,roll=0,out=new THREE.Quaternion()){
+  const d=.0001,slope=(r6FaceFront(side+d)-r6FaceFront(side-d))/(2*d);
+  out.setFromEuler(_r6EyeEuler.set(pitch,yaw,0,'YXZ'));
+  out.multiply(_r6EyeTurn.setFromAxisAngle(_r6EyeY,-Math.atan(slope)));
+  if(roll)out.multiply(_r6EyeTurn.setFromAxisAngle(_r6EyeZ,roll));
+  return out;
+}
+function setR6Eye(mesh,idx,x,y,z,yaw,pitch,side,roll,sx,sy,sz,col){
+  _v.set(x,y,z);r6EyeRotation(yaw,pitch,side,roll,_q);_s.set(sx,sy,sz);
+  mesh.setMatrixAt(idx,FLIP_ON?_m.compose(_v,_q,_s).premultiply(FLIP_M):_m.compose(_v,_q,_s));
+  if(col!==undefined&&mesh.instanceColor){_c1.set(col);mesh.setColorAt(idx,_c1);}
+}
 /* ── 사람 표 좌표 → 선 몸통 자리 ──
    옷(11가지)·전직 차림새(직업 3 × 단계 2)는 **네발 몸통**(0.84 × 0.62 × 0.94)에 맞춰 적어 둔 표다.
    선 몸통(0.80 × 0.50 × 0.46)에 그대로 얹으면 가슴판이 가슴 앞 0.3칸에 떠 있고 망토가 등에서 떨어진다.
@@ -7742,21 +7814,59 @@ function r6head(f, u, sd, w, h, d){
 }
 /* 눈 — 밤이 되면 스스로 타오른다. 어둠 속에서 눈만 여럿 다가오는 게 제일 무섭다. */
 const eyeMat = flatMat(0xffffff, {emissive:0xff3300, emissiveIntensity:0.0});
-/* 27차 — 조각은 둥근 상자·공, 재질은 옛 타일의 평균색. 부위 배치(drawWolves)는 그대로다. */
-
-const W_body = imesh(RB,  FM.fur,  MAXW, 1),        // 몸통(셔츠)
-      W_head = imesh(RB,  FM.fur,  MAXW, 1),        // 좀비 전용 둥근 각 머리
-      W_snout= imesh(RB,  FM.furD, MAXW, 1),        // 벌어진 입 (46차까지는 주둥이)
-      W_tail = imesh(RB,  FM.fur,  MAXW*3, 1),      // 머리털 — 51차b: 헝클어진 세 덩이 (46차까지는 꼬리 하나)
-      W_legs = imesh(RB,  FM.fur,  MAXW*8, 1),      // 팔 둘 + 다리 둘 — 마디 없는 통짜(R6)
-      W_eyes = imesh(RBs, eyeMat, MAXW*2, 1),      // 찢어진 눈, 둥근 장난감 눈과 구별
-      W_ears = imesh(RBs, FM.fur,  MAXW*2, 1),      // 귀 (살빛이라 밝은 바탕을 쓴다)
-      W_chest= imesh(RB,  FM.fur,  MAXW, 1),        // 찢긴 셔츠 자락
-      W_hack = imesh(RBs, FM.furD, MAXW*8, 1),      // 등뼈 여섯 + 51차b 어깨 소매 둘 — 물기 직전에 곤두선다
-      W_paw  = imesh(RB,  FM.fur, MAXW*4, 1),      // 마디진 손바닥
+// 좀비는 사람의 블록과 다른 좁은 턱·굽은 등·가늘어지는 팔다리를 쓴다. 모든 꼭짓점은 기존 단위 상자 안이다.
+function zombieLoft(profile,segments=16,frontPower=.65,backPower=1,shoulder=0){
+  const pos=[],ids=[];
+  for(const [y,w,front,back] of profile)for(let i=0;i<segments;i++){
+    const a=i*Math.PI*2/segments,s=Math.sin(a),c=Math.cos(a),p=c>=0?frontPower:backPower;
+    const x=Math.sign(s)*Math.pow(Math.abs(s),p)*w;
+    const z=c>=0?Math.pow(c,p)*front:-Math.pow(-c,backPower)*back;
+    pos.push(x,Math.max(-.5,Math.min(.5,y+shoulder*(x/.5)*Math.exp(-Math.pow((y-.28)/.18,2)))),z);
+  }
+  for(let j=0;j<profile.length-1;j++)for(let i=0;i<segments;i++){
+    const a=j*segments+i,b=j*segments+(i+1)%segments,c=b+segments,d=a+segments;
+    ids.push(a,b,d,b,c,d);
+  }
+  for(const [row,up] of [[0,false],[profile.length-1,true]]){
+    const center=pos.length/3;pos.push(0,profile[row][0],0);
+    for(let i=0;i<segments;i++){const a=row*segments+i,b=row*segments+(i+1)%segments;
+      if(up)ids.push(center,a,b);else ids.push(center,b,a);}
+  }
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  g.setIndex(ids);g.computeVertexNormals();g.computeBoundingBox();return g;
+}
+const ZOMBIE_GEO = {
+  skull:zombieLoft([[-.5,.23,.34,.25],[-.43,.32,.43,.33],[-.24,.43,.49,.43],[-.05,.50,.50,.48],
+    [.17,.48,.50,.50],[.34,.43,.45,.44],[.46,.29,.32,.32],[.5,.10,.13,.13]],24,.40,1),
+  torso:zombieLoft([[-.5,.36,.36,.33],[-.32,.34,.34,.32],[-.05,.39,.43,.40],[.19,.48,.50,.48],
+    [.32,.50,.46,.50],[.44,.39,.35,.43],[.5,.26,.27,.30]],16,.62,.86,.035),
+  limb:zombieLoft([[-.5,.29,.29,.29],[-.39,.33,.34,.34],[-.05,.41,.43,.40],[.28,.50,.50,.47],
+    [.44,.47,.46,.43],[.5,.36,.36,.34]],12,.76,.86),
+  palm:zombieLoft([[-.5,.28,.27,.27],[-.35,.44,.43,.40],[-.08,.50,.50,.45],[.24,.44,.44,.50],
+    [.42,.33,.34,.35],[.5,.27,.27,.27]],12,.66,.9),
+  soft:zombieLoft([[-.5,.28,.28,.28],[-.34,.44,.44,.44],[0,.50,.50,.50],[.34,.44,.44,.44],[.5,.28,.28,.28]],12,.57,.68),
+  ear:zombieLoft([[-.5,.18,.26,.24],[-.30,.34,.43,.36],[.05,.50,.50,.44],[.30,.46,.43,.50],[.5,.24,.28,.30]],12,.75,.9),
+  taper:zombieLoft([[-.5,.44,.40,.40],[-.28,.50,.50,.48],[.04,.44,.44,.50],[.32,.31,.33,.36],[.5,.12,.14,.16]],12,.68,.83)
+};
+// 색은 인스턴스 표에서 한 번만 정한다. 어두운 피부·옷이 재질과 다시 곱해져 검게 뭉치지 않는다.
+const ZOMBIE_MAT = {
+  skin:flatMat(0xffffff,{specular:0x172018,shininess:14}),
+  cloth:flatMat(0xffffff,{specular:0x0b0e0c,shininess:8}),
+  detail:flatMat(0xffffff,{specular:0x111611,shininess:10})
+};
+const W_body = imesh(ZOMBIE_GEO.torso, ZOMBIE_MAT.cloth, MAXW, 1),
+      W_head = imesh(ZOMBIE_GEO.skull, ZOMBIE_MAT.skin, MAXW, 1),
+      W_snout= imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.detail, MAXW, 1),
+      W_tail = imesh(ZOMBIE_GEO.taper, ZOMBIE_MAT.detail, MAXW*3, 1),
+      W_legs = imesh(ZOMBIE_GEO.limb, ZOMBIE_MAT.skin, MAXW*8, 1),
+      W_eyes = imesh(ZOMBIE_GEO.soft, eyeMat, MAXW*2, 1),
+      W_ears = imesh(ZOMBIE_GEO.ear, ZOMBIE_MAT.skin, MAXW*2, 1),
+      W_chest= imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.cloth, MAXW, 1),
+      W_hack = imesh(ZOMBIE_GEO.taper, ZOMBIE_MAT.cloth, MAXW*8, 1),
+      W_paw  = imesh(ZOMBIE_GEO.palm, ZOMBIE_MAT.skin, MAXW*4, 1),
       W_horn = imesh(RBs, FM.wool, MAXW*2, 1),      // 보스 + 흉포한 좀비의 뿔
-      W_nose = imesh(BALL,FM.dark, MAXW, 1),        // 코
-      W_ruff = imesh(RB,  FM.furD, MAXW, 1);        // 옷깃
+      W_nose = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.detail, MAXW, 1),
+      W_ruff = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.cloth, MAXW, 1);
 /* ═══ 36차 — 종류별 조각 ═══ 굶주린(갈비뼈·혀) · 갑옷(철판·투구) · 치유(보석·고리) · 공포(흰 눈·눈동자·송곳니·검은 고리) */
 const eyeMatW  = flatMat(0xffffff, {emissive:0xffffff, emissiveIntensity:0.5});      // 공포 좀비의 흰자 — 어둠 속에서 희게 빛난다
 const eyeMatR  = flatMat(0xff2010, {emissive:0xff1a08, emissiveIntensity:0.9});      // 36차b — 공포 좀비의 붉게 타는 세로 눈동자
@@ -7767,10 +7877,10 @@ const healRingMat  = new THREE.MeshBasicMaterial({color:0x5dff9a, transparent:tr
 const healBeamMat  = new THREE.MeshBasicMaterial({color:0x8dffb8, transparent:true, opacity:0.55, depthWrite:false, blending:THREE.AdditiveBlending});
 const dreadRingMat = new THREE.MeshBasicMaterial({color:0x1a0a26, transparent:true, opacity:0.42, depthWrite:false, side:THREE.DoubleSide});
 /* 36차 — 좀비 공통 미술 손질: 두 가지 털색(배·주둥이·볼·꼬리 끝은 밝게) + 성난 눈썹. 부위 넷이 늘지만 전부 인스턴스라 드로우콜 넷이다 */
-const W_belly  = imesh(RB,  FM.fur,  MAXW, 1),        // 배 — 밝은 털 띠
-      W_brow   = imesh(RBs, FM.furD, MAXW*2, 1),      // 눈썹 — 코 쪽으로 처져 성난 얼굴
-      W_cheek  = imesh(RBs, FM.fur,  MAXW*2, 1);      // 51차 — 움푹 팬 볼 (46차까지는 볼 털)
-const W_rib    = imesh(RBs, FM.furD, MAXW*10, 1),  // 눈 그늘 · 셔츠 패치 · 붕대
+const W_belly  = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.cloth, MAXW, 1),
+      W_brow   = imesh(ZOMBIE_GEO.taper, ZOMBIE_MAT.detail, MAXW*2, 1),
+      W_cheek  = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.skin, MAXW*2, 1);
+const W_rib    = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.detail, MAXW*10, 1),
       W_tongue = imesh(RBs, tongueMat, MAXW, 1),
       W_plate  = imesh(RB,  plateMat, MAXW*36, 1),    // 갑옷 32조각/마리와 다음 마리 검사 여유까지 확보
       W_gem    = imesh(new THREE.OctahedronGeometry(0.5, 0), gemMat, MAXW, 1),
@@ -7781,7 +7891,7 @@ const W_rib    = imesh(RBs, FM.furD, MAXW*10, 1),  // 눈 그늘 · 셔츠 패�
       W_heal   = imesh(new THREE.RingGeometry(0.86, 1.0, 28), healRingMat, 24, 0),
       W_beam   = imesh(new THREE.BoxGeometry(1, 1, 1), healBeamMat, 24, 0),        // 36차 — 치유 좀비 → 채우는 좀비로 이어지는 초록 줄
       W_dread  = imesh(new THREE.RingGeometry(0.55, 1.0, 28), dreadRingMat, 24, 0);
-const W_costume = imesh(RB, flatMat(0xffffff), MAXW*64, 1); // 낡은 의상·손가락·밤 테마
+const W_costume = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.cloth, MAXW*64, 1); // 낡은 의상·손가락·밤 테마
 W_heal.castShadow = W_heal.receiveShadow = W_dread.castShadow = W_dread.receiveShadow = W_beam.castShadow = W_beam.receiveShadow = false;
 const AX_X = new THREE.Vector3(1,0,0), AX_Z = new THREE.Vector3(0,0,1), _tmpV = new THREE.Vector3();
 /* ═══════════════════════ 농장 동물 (17차d) ═══════════════════════
@@ -8211,19 +8321,15 @@ const S_body = imesh(RBr, FM.wool, MAXS, 1), S_head = imesh(RBr, FM.woolD, MAXS,
       S_shield=imesh(RBs, FM.plank, MAXS*3, 1),       // 방패 + 어깨 갑옷 2
       S_hat  = imesh(RBs, FM.cloth, MAXS*3, 1),       // 마법사 고깔
       S_orb  = imesh(BALL, flatMat(0xd9b6ff, {emissive:0x8a4aff, emissiveIntensity:1.5}), MAXS, 1);
-/* 플레이어(사람) — 부위를 늘려 귀엽게. 큐브 하나 = 12삼각형이라
-   22명 × 부위 7개 늘려도 2천 삼각형(전체의 0.8%)뿐이다. */
-/* 27차 — 둥근 상자·공 + 원색. 눈·반짝이·코·볼·꼬리는 공이다(인형 눈·볼·꼬리 방울). */
-
-const P_body = imesh(RB,   FM.wool,  MAXP,   1),   // 몸통 = 셔츠. 모둠 색이 붙는 제일 큰 면이다
-      P_head = imesh(CYL,  FM.wool,  MAXP,   1),   // 머리 — 51차f: 세운 원통(상자가 아니다)
-      P_arm  = imesh(RBl,  FM.wool,  MAXP*4, 1),   // 위팔·손목 두 쌍
-      P_eye  = imesh(BALLs, FM.eye,   MAXP*4, 1),  // 눈 2개 + 눈 반짝이 2개 (47차 — 잔 공)
+// 사람 전용 표면과 기하를 공유해 관절·신발을 늘려도 부위별 드로우콜을 유지한다.
+const P_body = imesh(R6_BODY_GEO, AVATAR_MAT.cloth, MAXP, 1),
+      P_head = imesh(R6_HEAD_GEO, AVATAR_MAT.skin, MAXP, 1),
+      P_arm  = imesh(R6_LIMB_GEO, AVATAR_MAT.skin, MAXP*4, 1),
+      P_eye  = imesh(R6_EYE_GEO, AVATAR_MAT.face, MAXP*4, 1),
       P_nose = imesh(BALLs, FM.snout, MAXP*3, 1),  // 볼터치 2개 + 쓰러졌을 때 혀 (47차 — 잔 공)
-      P_mouth= imesh(R6_SMILE, FM.dark, MAXP,   1), // 원통 표면을 따라 붙는 미소
-      /* 47차 — 다리는 굵기가 0.13칸인 막대다. 모서리를 두 칸으로 둥글린 RB(300)를 쓸 이유가 없다.
-         RBs(108)면 실루엣이 같다. 51차 — R6 은 마디가 없는 통짜라 사람 하나에 다리 둘이면 끝이다. */
-      P_legs = imesh(RBl,  FM.wool,  MAXP*2, 1),   // 다리 2개 — 51차c: 바탕을 흰 천으로 · 51차d: 모서리를 덜 깎아 상자로
+      P_mouth= imesh(R6_SMILE, AVATAR_MAT.face, MAXP, 1),
+      P_legs = imesh(R6_LIMB_GEO, AVATAR_MAT.cloth, MAXP*4, 1),
+      P_shoe = imesh(R6_SHOE_GEO, AVATAR_MAT.cloth, MAXP*2, 1),
       /* ★ 꾸미기(모자·안경·옷) — 종류가 몇이든 메시는 하나다.
          천 텍스처에 색·크기만 바꿔 끼우므로, 아이템을 아무리 늘려도 드로우콜은 1개다.
          아무도 아무것도 안 걸치면 통째로 숨긴다. */
@@ -8234,119 +8340,70 @@ const P_body = imesh(RB,   FM.wool,  MAXP,   1),   // 몸통 = 셔츠. 모둠 �
            '딱 맞는 칸은 모자란 칸' 이라 새 모자(6칸)·새 옷을 넣자마자 잘릴 자리였다.
            52 로 올린다. 지금 제일 많이 걸친 아이는 6+7+8+20 = 41 이다.
            검사(t23)가 표에서 이 최대값을 세어 칸과 맞대 본다 — 다음에 또 늘려도 바로 걸린다. */
-      P_deco = imesh(RBs, FM.cloth, MAXP*52, 1),
+      P_deco = imesh(RBs, AVATAR_MAT.cloth, MAXP*52, 1),
       /* 45차 — 전직 2차의 빛나는 조각(가산 한 겹, 조금 크게)과 발밑 오라 고리.
          총 강화 빛(P_gunF)과 같은 수법이다 — MeshBasicMaterial 이라 조명을 안 받아 색이 그대로 살고 밤에 스스로 빛난다. */
       P_jobF = imesh(RBs, new THREE.MeshBasicMaterial({transparent:true, opacity:0.5,
         depthWrite:false, blending:THREE.AdditiveBlending, fog:false}), MAXP*18, 1),   // 2차 한 사람이 빛나는 조각 열다섯(날개 여덟 + 보석·갈기·룬·칼날)
       P_jobR = imesh(new THREE.RingGeometry(0.62, 0.98, 24), new THREE.MeshBasicMaterial({transparent:true, opacity:0.34,
         depthWrite:false, side:THREE.DoubleSide, blending:THREE.AdditiveBlending, fog:false}), MAXP, 1);
-/* ═══ 45차 — 전직 날개 (선생님 예시 그림: 1차는 귀여운 작은 천사 날개, 2차는 크고 화려하게 빛나는 날개.
-     "계단 형식으로 쌓은 곡선 말고 부드러운 곡선" → "안에 그림 선이 없으니까 밋밋해. 진짜 날개같은 디테일, 질감을 최대한 살려줘") ═══
-   ★ 판 하나: 둥근 상자를 쌓아 만들었다 — 아무리 겹쳐도 윤곽이 계단이었다. 접었다.
-   ★ 판 둘: 윤곽을 셈해 THREE.Shape → ExtrudeGeometry 로 뽑은 **한 장짜리 면**. 곡선은 매끈해졌는데
-     속이 텅 빈 색종이였다. 깃대도, 깃과 깃 사이 선도 없으니 실루엣만 날개였다.
-   ★ 지금: 날개를 **깃 여러 장이 겹친 것**으로 짓는다. 깃 하나하나가 매끈한 곡선 판이라 윤곽은 여전히 계단이 아니고,
-     깃 끝이 모여 뒷선의 물결을 만든다(물결을 따로 넣을 필요가 없어졌다).
-     ① 앞선(LE)을 따라 부챗살처럼 깃이 뒤로 뻗는다. 뿌리 쪽 깃이 길고 끝으로 갈수록 짧다.
-     ② 깃마다 **가운데가 솟은 지붕**이다 — 왼쪽 반과 오른쪽 반이 빛을 다르게 받아 깃대 선이 저절로 그려진다.
-     ③ 꼭짓점 색으로 결을 칠한다: 뿌리는 어둡고 끝은 밝게, 깃대는 밝고 가장자리는 어둡게(깃과 깃 사이가 선으로 갈린다).
-        인스턴스 색(직업 색)에 곱해지므로 빨강·분홍·하양 어디서나 같은 결이 나온다.
-     ④ 큰 깃 위에 짧은 **덮깃** 한 줄을 덮어 어깨가 두툼하고, 앞선에는 **날개뼈** 띠 하나.
-     깃을 앞뒤로 조금씩 물려 놓아(z) 겹친 자리에 진짜 두께가 생긴다.
-   삼각형은 한 장에 450장 남짓 — 예전 ExtrudeGeometry(700장)보다 오히려 가볍다. */
-function wingSpine(curve){            // 어깨(0,0)에서 끝(1.62,1.30)까지 휘어 오르는 원호 — 날개의 중심선
+// 날개 원점은 등 부착점, +X는 바깥쪽, +Y는 위쪽이다. 얇은 곡면과 겹친 깃을 단계별로 공유한다.
+function wingSpine(curve){            // 어깨(0,0)에서 끝(1.78,.82)로 이어지는 중심선
   const A = curve;
   return (t)=>{ const a = t*A;
     return [1.78*Math.sin(a)/Math.sin(A), 0.82*(1-Math.cos(a))/(1-Math.cos(A)) + 0.08*Math.sin(Math.PI*t)]; };
 }
 function wingGeo(o){
-  const C = wingSpine(o.curve), pos = [], col = [];
-  /* 중심선의 접선·법선 (법선 + 쪽이 앞선) */
-  const TN = (t)=>{ const e = 0.004, c2 = C(Math.min(1, t+e)), c1 = C(Math.max(0, t-e));
-    let tx = c2[0]-c1[0], ty = c2[1]-c1[1]; const L = Math.hypot(tx, ty) || 1;
-    tx /= L; ty /= L; return [tx, ty, -ty, tx]; };
-  const W = (t)=> 0.42*Math.pow(1-t, o.tipCut) + 0.05;      // 그 자리 반너비 — 뿌리는 넓고 끝은 가늘다
-  const V = (x,y,z,c)=>{ pos.push(x,y,z); col.push(c,c,c); };
-  const quad = (a,b,c,d)=>{ V(a[0],a[1],a[2],a[3]); V(b[0],b[1],b[2],b[3]); V(c[0],c[1],c[2],c[3]);
-                            V(a[0],a[1],a[2],a[3]); V(c[0],c[1],c[2],c[3]); V(d[0],d[1],d[2],d[3]); };
-  const M = 7;                                              // 길쭉한 깃의 둥근 끝까지 연속 곡면
-  const EDGE = 0.80, QUILL = 1.10;                           // 깃 사이 결은 남기되 하얀 깃이 쇠 조각처럼 번쩍이지 않는다
-  const feather = (t, lenK, z0f, lift, shade)=>{
-    const tn = TN(t), c = C(t), w = W(t);
-    const rx = c[0] + tn[2]*w*0.90, ry = c[1] + tn[3]*w*0.90;      // 앞선 바로 안쪽에서 시작
-    const sw = o.sweep*(0.35 + t);                                 // 끝으로 갈수록 바깥으로 눕는다
-    let dx = -tn[2] + tn[0]*sw, dy = -tn[3] + tn[1]*sw;
-    const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl;
-    const px = -dy, py = dx;                                       // 깃 폭 방향
-    const L = (w*1.95 + 0.25*Math.sin(Math.PI*t))*lenK, fw = o.fw*(0.82 + 0.18*(1-t));
-    const P = (u)=>{ const bow = 0.13*u*u;                         // 살짝 휜다
-      return [rx + dx*L*u + tn[0]*L*bow, ry + dy*L*u + tn[1]*L*bow]; };
-    /* 깃 끝 — tipP 가 크고 round 가 작을수록 **끝까지 넓다가 뭉툭하게** 닫힌다(1차: 둥글둥글).
-       작고 round 가 크면 끝이 가늘게 빠진다(2차: 길고 날렵하게). base 는 깃대 뿌리의 잘록함. */
-    const HW = (u)=> fw*Math.pow(Math.max(0, 1 - Math.pow(u, o.tipP)), o.round)*(o.base + (1 - o.base)*Math.min(1, u*3.4));
-    const ZC = (u)=> z0f + lift*Math.pow(1-u, 0.6);
-    for(let i=0;i<M;i++){
-      const u0 = i/M, u1 = (i+1)/M, a0 = P(u0), a1 = P(u1);
-      const h0 = HW(u0), h1 = HW(u1), z0 = ZC(u0), z1 = ZC(u1);
-      /* 뿌리는 어둡고 끝은 밝게. 첫 도막은 한 번 더 눌러 깃과 깃 사이가 띠로 갈린다 */
-      const sh0 = (u)=> (0.80 + 0.30*u) * (u < 0.01 ? 0.88 : 1);
-      const s0 = shade*sh0(u0), s1 = shade*sh0(u1);
-      quad([a0[0]-px*h0, a0[1]-py*h0, z0f, s0*EDGE], [a1[0]-px*h1, a1[1]-py*h1, z0f, s1*EDGE],
-           [a1[0], a1[1], z1, s1*QUILL],             [a0[0], a0[1], z0, s0*QUILL]);
-      quad([a0[0], a0[1], z0, s0*QUILL],             [a1[0], a1[1], z1, s1*QUILL],
-           [a1[0]+px*h1, a1[1]+py*h1, z0f, s1*EDGE], [a0[0]+px*h0, a0[1]+py*h0, z0f, s0*EDGE]);
+  const C=wingSpine(o.curve),pos=[],colors=[],ids=[];
+  const tn=t=>{const a=C(Math.max(0,t-.002)),b=C(Math.min(1,t+.002)),l=Math.hypot(b[0]-a[0],b[1]-a[1]);
+    return [(b[0]-a[0])/l,(b[1]-a[1])/l,-(b[1]-a[1])/l,(b[0]-a[0])/l];};
+  const width=t=>.055*(1-t)+.30*Math.pow(Math.sin(Math.PI*t),.72);
+  const V=(x,y,z,shade)=>{const i=pos.length/3;pos.push(x,y,z);colors.push(shade,shade,shade);return i;};
+  const Q=(a,b,c,d,back=false)=>{if(back)ids.push(a,c,b,a,d,c);else ids.push(a,b,c,a,c,d);};
+  // 어깨부터 끝까지 이어진 얇은 곡면이 윤곽을 맡고, 깃 끝은 짧게 겹친다.
+  for(const side of [-1,1]){
+    const rows=[];
+    for(let i=0;i<=24;i++){
+      const t=i/24,c=C(t),n=tn(t),w=width(t),row=[];
+      for(const v of [-1,-.5,0,.5,1]){
+        const z=side*(.009+.025*(1-v*v)*Math.sin(Math.PI*t));
+        row.push(V(c[0]+n[2]*w*v,c[1]+n[3]*w*v,z,.92+.055*(1-Math.abs(v))));
+      }
+      rows.push(row);
     }
-  };
-  /* 54차 — 깃 아래에도 부드러운 날개 면을 잇는다. 깃 사이 구멍과 가느다란 뼈만 보이던 문제를 막고
-     어깨부터 끝까지 한 덩어리인 새 날개의 실루엣을 만든다. 아래쪽 윤곽은 겹친 큰 깃이 맡는다. */
-  for(let i=0;i<24;i++){
-    const t0=i/24,t1=(i+1)/24,c0=C(t0),c1=C(t1),n0=TN(t0),n1=TN(t1);
-    const w0=W(t0),w1=W(t1),z=-0.13;
-    quad([c0[0]+n0[2]*w0*.85,c0[1]+n0[3]*w0*.85,z,.94],
-         [c1[0]+n1[2]*w1*.85,c1[1]+n1[3]*w1*.85,z,.94],
-         [c1[0]+n1[2]*w1*.48,c1[1]+n1[3]*w1*.48,z,.82],
-         [c0[0]+n0[2]*w0*.48,c0[1]+n0[3]*w0*.48,z,.82]);
+    for(let i=0;i<24;i++)for(let k=0;k<4;k++)Q(rows[i][k],rows[i+1][k],rows[i+1][k+1],rows[i][k+1],side<0);
   }
-  /* ① 큰 깃 — 어깨에서 날개 끝까지. 서로 겹쳐 날개가 따로 떨어진 낱잎처럼 보이지 않는다. */
-  for(let i=0;i<o.nF;i++){ const jit = 1 + ((i*7) % 3 - 1)*0.045;
-    feather(Math.pow(i/(o.nF-1), 0.92)*0.985, jit, -0.006*i, o.lift, i%2 ? 1 : 0.93); }
-  /* ② 덮깃 — 짧고 앞쪽에 한 겹 더. 어깨가 두툼해지고 결이 두 줄이 된다 */
-  const nC = Math.max(3, Math.round(o.nF*0.62));
-  for(let i=0;i<nC;i++) feather(Math.pow(i/(nC-1), 0.9)*0.80, 0.46, 0.024 + 0.004*i, o.lift*0.75, i%2 ? 1.06 : 0.98);
-  /* 뒤에서도 매끈한 판이 아닌 깃의 결이 보인다. 짧은 덮깃을 뒤집어 한 줄 더 얹어
-     날개 뿌리의 작은 틈을 가리고 3인칭 카메라에 깃대·겹침을 보여 준다. */
-  for(let i=0;i<nC;i++) feather(Math.pow(i/(nC-1),.9)*.80,.54,-.16-.003*i,-o.lift*.72,i%2?1.02:.96);
-  /* ②b 어깨 잔깃 — 2차만. 뿌리 쪽에 아주 짧은 깃 한 줄을 더 얹어 결이 세 겹이 된다 */
-  if(o.rows > 2){ const nS = Math.max(3, Math.round(o.nF*0.34));
-    for(let i=0;i<nS;i++) feather(Math.pow(i/(nS-1), 0.85)*0.46, 0.23, 0.044 + 0.003*i, o.lift*0.55, i%2 ? 1.10 : 1.0); }
-  /* ③ 날개뼈 — 앞선을 따라 흐르는 어두운 띠 */
-  { const NB = 12;
-    for(let i=0;i<NB;i++){
-      const t0 = i/NB, t1 = (i+1)/NB, c0 = C(t0), c1 = C(t1), n0 = TN(t0), n1 = TN(t1);
-      const e0 = [c0[0] + n0[2]*W(t0), c0[1] + n0[3]*W(t0)], e1 = [c1[0] + n1[2]*W(t1), c1[1] + n1[3]*W(t1)];
-      const b0 = 0.055*(1 - t0*0.65), b1 = 0.055*(1 - t1*0.65), z = o.lift*1.35 + 0.05;
-      quad([e0[0] + n0[2]*b0, e0[1] + n0[3]*b0, z, 0.84], [e1[0] + n1[2]*b1, e1[1] + n1[3]*b1, z, 0.84],
-           [e1[0] - n1[2]*b1, e1[1] - n1[3]*b1, z, 0.98], [e0[0] - n0[2]*b0, e0[1] - n0[3]*b0, z, 0.98]);
-    } }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  g.setAttribute('color',    new THREE.Float32BufferAttribute(col, 3));
-  g.computeVertexNormals();          // 색인이 없으니 면마다 제 법선 — 깃 지붕의 모서리가 또렷하게 선다
-  return g;
+  const feather=(t,short,side,index)=>{
+    const c=C(t),n=tn(t),w=width(t),len=w*(short?.72:1.62),fw=(short?.070:.100)*(1-.28*t);
+    const root=[c[0]+n[2]*w*.66,c[1]+n[3]*w*.66],rows=[];
+    let dx=-n[2]+n[0]*.22,dy=-n[3]+n[1]*.22,dl=Math.hypot(dx,dy);dx/=dl;dy/=dl;
+    for(let j=0;j<=7;j++){
+      const u=j/7,hw=fw*Math.pow(Math.sin(Math.PI*u),.65),x=root[0]+dx*len*u,y=root[1]+dy*len*u;
+      const z=side*(short?.045:.029),shade=.94+.045*u+(index%2)*.014;
+      rows.push([V(x-dy*hw,y+dx*hw,z,shade),V(x,y,z+side*.014*Math.sin(Math.PI*u),shade+.028),
+        V(x+dy*hw,y-dx*hw,z,shade)]);
+    }
+    for(let j=0;j<7;j++){Q(rows[j][0],rows[j+1][0],rows[j+1][1],rows[j][1],side<0);
+      Q(rows[j][1],rows[j+1][1],rows[j+1][2],rows[j][2],side<0);}
+  };
+  for(const side of [-1,1]){
+    for(let i=0;i<o.nF;i++)feather(.11+i/(o.nF-1)*.77,false,side,i);
+    for(let i=0;i<o.nC;i++)feather(.13+i/(o.nC-1)*.56,true,side,i);
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
+  g.setIndex(ids);g.computeVertexNormals();g.computeBoundingBox();return g;
 }
-/* ★ 모양은 **단계**로 갈린다 — 선생님 두 번째 사진의 분홍·하양·빨강은 다 같은 깃털 날개고 색만 다르다. */
 const WING_GEO = [
-
-  wingGeo({curve:1.20, tipCut:0.38, nF:11, fw:0.19, sweep:0.20, lift:0.046, tipP:3.0, round:0.48, base:0.88, rows:2}),
-  /* 1 — 2차: 깃 열셋 + 덮깃 + 어깨 잔깃 세 겹. 끝이 가늘게 빠지고(round 0.62) 깃대가 더 솟는다 */
-  wingGeo({curve:1.12, tipCut:0.46, nF:16, fw:0.155, sweep:0.36, lift:0.052, tipP:2.5, round:0.58, base:0.82, rows:3})];
-/* 직업·단계별 [모양, 크기, 색, 빛]. 색은 선생님이 정해 준 대로 — 분홍은 건물 짓는 사람, 하양은 자원 캐는 사람, 빨강은 총 쏘는 사람 */
-
+  wingGeo({curve:1.20,nF:6,nC:3}),
+  wingGeo({curve:1.12,nF:8,nC:5})
+];
+// 단계는 깃의 층과 색으로 구분한다. 몸과 얼굴의 크기는 바뀌지 않는다.
 const JOB_WING = [
-  [{k:0, s:0.60, c:0xfffbef, g:0}, {k:1, s:0.92, c:0xef6b59, g:1}],   // ⚔️ 진주빛 → 불사조 산호색
-  [{k:0, s:0.60, c:0xfffbef, g:0}, {k:1, s:0.90, c:0xffa6ca, g:1}],   // 🔨 진주빛 → 장미빛
-  [{k:0, s:0.60, c:0xfffbef, g:0}, {k:1, s:0.98, c:0xe8f9ff, g:1}]    // 🌾 진주빛 → 넓은 서리빛
+  [{k:0,s:.36,c:0xfff6ed,g:0},{k:1,s:.48,c:0xf4a397,g:0}],
+  [{k:0,s:.36,c:0xfff6ed,g:0},{k:1,s:.48,c:0xefb4cc,g:0}],
+  [{k:0,s:.36,c:0xfff6ed,g:0},{k:1,s:.48,c:0xe7f5f4,g:0}]
 ];
 
 const WMAT_W = flatMat(0xffffff, {side:THREE.DoubleSide, vertexColors:true});   // 45차b — 깃 결은 꼭짓점 색이다
@@ -8363,9 +8420,9 @@ P_jobF.castShadow = P_jobF.receiveShadow = P_jobR.castShadow = P_jobR.receiveSha
      몸통(P_gun)은 무기 색으로, 빛나는 부분(P_gunF)은 발광 재질로 그린다.
      아무도 총을 안 들면 둘 다 통째로 숨긴다(개수가 0이어도 안 숨기면 그리기가 돈다 —
      예전에 좀비 체력막대에서 실측으로 잡은 적이 있다).
-   ★ 한 사람이 쓰는 칸은 몸통 3칸 + 빛 2칸이다. */
-const P_hand = [imesh(R6_HOOK[0], FM.wool, MAXP, 1), imesh(R6_HOOK[1], FM.wool, MAXP, 1)];
-const P_gun  = imesh(RBs, FM.stone, MAXP*3, 1),
+   총의 몸체·총열·조준경 등은 한 사람당 최대 8조각, 강화 빛은 2조각이다. */
+const P_hand = [imesh(R6_HOOK[0], AVATAR_MAT.skin, MAXP, 1), imesh(R6_HOOK[1], AVATAR_MAT.skin, MAXP, 1)];
+const P_gun  = imesh(RBs, AVATAR_MAT.gear, MAXP*8, 1),
       /* ★ 빛 조각은 Lambert 의 emissive 로 만들면 안 된다 —
            emissive 에는 인스턴스 색이 안 곱해져서, +5(파랑)든 +6(빨강)이든
            전부 하얗게만 나온다. 화면에 찍어 보고 알았다.
@@ -8472,110 +8529,72 @@ const HATS = [
      빛(9)          : 1 이면 가산 합성 층(P_jobF)에 한 겹 더 — 밤에 스스로 빛난다
    ★ 아이콘·전직 카드(3D 미리보기)는 앞 일곱 칸만 읽는다 — 움직임·빛은 세계에서만 보인다. */
 const JOB_LOOK = (()=>{
-  /* 54차 — 머리는 기존 얼굴 좌표, 장비는 선 캐릭터의 실제 크기로 설계한다.
-     등에 붙이던 망토 판·광주리·거대 망치를 없애고 모자·어깨·허리의 실루엣으로 직업을 구분한다.
-     10/11번 값은 pitch/roll: 뿔·잎·장비를 한 축의 직사각형으로만 쌓지 않는다. */
-  const inv=u=>u<=BUT ? (u-BU0)/BK+0.56 : (u-BUT)/BTK+BTOP;
-  const B=(f,u,sd,w,h,d,c,p=0,r=0,glow=0)=>{
+  // 작은 역할 소품을 어깨·가슴·허리에만 배치해 직접 고른 옷과 얼굴을 드러낸다.
+  const inv=u=>u<=BUT?(u-BU0)/BK+.56:(u-BUT)/BTK+BTOP;
+  const B=(f,u,sd,w,h,d,c,p=0,r=0)=>{
     const lo=inv(u-h/2),hi=inv(u+h/2);
-    return [f/BF,(lo+hi)/2,sd/BW,w/BW,hi-lo,d/BF,c,0,0,glow,p,r];
+    return [f/BF,(lo+hi)/2,sd/BW,w/BW,hi-lo,d/BF,c,0,0,0,p,r];
   };
-  const H=(f,u,sd,w,h,d,c,p=0,r=0,glow=0)=>[f,u,sd,w,h,d,c,1,0,glow,p,r];
+  const H=(f,u,sd,w,h,d,c,p=0,r=0)=>[f,u,sd,w,h,d,c,1,0,0,p,r];
   const knight=t=>{
-    const steel=t?0xe8eff5:0xbeceda,edge=t?0xe6bb58:0x7a9bb2,red=t?0xc94f4d:0xb45954;
+    const pearl=0xe3edf4,coral=t?0xe79a98:0xcfa3aa,trim=t?0xe6c886:0x9ab3c9;
     const a=[
-      H(.64,1.49,0,.83,.22,.77,steel),
-      H(.79,1.40,0,.67,.08,.62,edge),
-      H(.46,1.57,0,.21,.22,.47,red),
-      H(.77,1.27,.37,.13,.28,.16,steel),H(.77,1.27,-.37,.13,.28,.16,steel),
-      B(.168,1.01,0,.56,.33,.07,steel),B(.21,.99,0,.19,.19,.055,red,0,Math.PI/4,t),
-      B(.173,.79,0,.55,.09,.07,edge),B(.20,.79,0,.15,.13,.06,0xffdf82),
-      B(.04,.68,.23,.17,.19,.32,steel,0,.12),B(.04,.68,-.23,.17,.19,.32,steel,0,-.12)
+      H(.64,1.48,0,.77,.18,.71,pearl),H(.67,1.41,0,.82,.055,.75,trim),
+      H(.52,1.61,0,.12,.17,.35,coral),
+      H(.73,1.36,.35,.075,.15,.16,pearl),H(.73,1.36,-.35,.075,.15,.16,pearl),
+      B(.172,.78,0,.54,.052,.035,trim),B(.197,.78,0,.095,.075,.028,pearl),
+      B(.183,1.065,.13,.125,.145,.030,trim,0,Math.PI/4),
+      B(.204,1.065,.13,.063,.075,.023,coral,0,Math.PI/4)
     ];
     for(const si of [-1,1]){
-      a.push(H(.51,1.63,.43*si,.13,.28,.14,edge,0,si*.38));
-      a.push(H(.46,1.80,.51*si,.095,.18,.10,t?0xfff2cf:0xe7f2f7,0,si*.62));
-      a.push(B(0,1.17,.40*si,t?.30:.25,t?.19:.15,.39,steel,0,si*.14));
-      a.push(B(.01,1.27,.43*si,t?.24:.20,.075,.32,red,0,si*.20));
-      if(t){
-        a.push(B(-.015,1.35,.49*si,.13,.17,.19,edge,0,si*.48));
-        a.push(B(.17,1.13,.17*si,.10,.09,.045,edge,0,si*.5));
-      }
+      a.push(B(.015,1.18,.34*si,.15,.095,.29,pearl,0,si*.10));
+      if(t)a.push(B(.025,1.23,.34*si,.15,.035,.23,trim,0,si*.10));
     }
-    if(t){
-      a.push(H(.80,1.61,0,.17,.24,.14,0xf08b63,0,Math.PI/4,1));
-      a.push(B(-.02,.81,-.51,.07,.55,.07,0x65869b,0,-.18));
-      a.push(B(-.02,1.10,-.56,.25,.055,.09,edge,0,-.18));
-      a.push(B(-.02,1.20,-.58,.065,.17,.075,red,0,-.18));
-    }
+    if(t){a.push(H(.84,1.48,0,.11,.10,.045,coral,0,Math.PI/4));
+      a.push(B(.04,.73,.34,.115,.20,.15,pearl),B(.13,.73,.34,.055,.12,.025,trim));}
     return a;
   };
   const builder=t=>{
-    const yellow=t?0xffd469:0xf4bc52,teal=t?0x3f91a0:0x4c8ba0,metal=0xbfd9e4;
+    const cream=t?0xffe6a4:0xf6d894,teal=0x7eb8bf,edge=0x567c8c;
     const a=[
-      H(.65,1.50,0,.86,.25,.78,yellow),H(.94,1.40,0,.98,.085,.40,yellow),
-      H(.66,1.64,0,.15,.14,.67,t?0xfff0b4:0xffdc83),
-      H(.67,1.48,0,.88,.075,.79,0x547284),
-      H(.94,1.53,.21,.24,.17,.09,0x76d9ea,0,0,t),H(.94,1.53,-.21,.24,.17,.09,0x76d9ea,0,0,t),
-      B(.17,.99,0,.54,.38,.055,teal),
-      B(.20,1.05,.20,.075,.32,.055,yellow),B(.20,1.05,-.20,.075,.32,.055,yellow),
-      B(.22,.93,0,.23,.18,.05,0xe1f7fa),B(.251,.95,0,.12,.025,.025,teal),
-      B(.18,.75,0,.61,.11,.075,0x9b774b),B(.225,.75,0,.14,.12,.045,yellow),
-      B(.02,.74,.37,.14,.22,.23,0xa88759),B(.02,.74,-.37,.14,.22,.23,0xa88759),
-      B(.08,.91,-.39,.055,.34,.055,metal,0,-.12),B(.08,1.07,-.41,.15,.09,.07,metal,0,-.12)
+      H(.64,1.49,0,.78,.21,.73,cream),H(.76,1.40,0,.88,.055,.82,cream),
+      H(.62,1.61,0,.09,.035,.63,0xfff5d6),
+      H(1.01,1.49,0,.17,.12,.055,edge),H(1.048,1.49,0,.115,.075,.026,0xd4f1f5),
+      B(.178,.77,0,.55,.060,.040,teal),
+      B(.17,1.06,-.18,.040,.26,.030,teal),B(.17,1.06,.18,.040,.26,.030,teal),
+      B(.055,.75,.33,.13,.19,.15,cream),B(.14,.82,.33,.12,.035,.030,0xfff5d6),
+      B(.185,1.055,.13,.105,.085,.027,cream)
     ];
-    for(const si of [-1,1]){
-      a.push(B(-.02,1.18,.40*si,t?.30:.20,t?.22:.12,.32,yellow,0,si*.12));
-      if(t){
-        a.push(B(.15,1.17,.43*si,.10,.12,.08,teal));
-        a.push(H(.48,1.73,.30*si,.13,.20,.13,teal,0,si*.17));
-        a.push(H(.47,1.84,.32*si,.11,.075,.12,0x9ceaf5,0,0,1));
-      }
-    }
     if(t){
-      a.push(B(.235,.93,0,.10,.11,.035,0x53bdd0,0,Math.PI/4,1));
-      a.push(B(-.015,.65,.49,.065,.40,.07,metal,0,.15));
-      a.push(B(-.015,.87,.52,.22,.055,.09,yellow,0,.15));
-      a.push(B(-.015,.96,.45,.065,.17,.09,yellow,0,.15));
-      a.push(B(-.015,.94,.61,.065,.17,.09,yellow,0,.15));
+      a.push(B(.038,.75,-.34,.055,.23,.055,edge),B(.043,.88,-.34,.14,.055,.080,cream));
+      a.push(B(.020,1.20,.34,.14,.065,.25,teal),B(.020,1.20,-.34,.14,.065,.25,teal));
+      a.push(B(.205,1.055,.13,.050,.050,.025,teal,0,Math.PI/4));
     }
     return a;
   };
   const gatherer=t=>{
-    const green=t?0x64b789:0x76ad74,cream=t?0xfff1cc:0xe8cb88;
+    const cream=0xf2e4ba,mint=t?0x9bcdb1:0xb8cda4,leaf=0x6caa8b;
     const a=[
-      H(.64,1.43,0,t?1.03:1.19,.075,t?.99:1.13,cream),
-      H(.63,1.54,0,.73,.24,.69,t?0x9dd3af:0xddb969),
-      H(.63,1.46,0,.78,.075,.73,green),
-      H(.89,1.53,-.29,.18,.16,.10,t?0xf4adc2:0xf1b3a4,0,-.25),
-      B(.03,1.17,0,.58,.10,.37,green),B(.18,1.10,.18,.14,.23,.065,green,0,-.2),
-      B(.17,.96,0,.55,.31,.055,t?0xf1f5df:0xaacb94),
-      B(.20,1.03,.18,.06,.28,.05,green),B(.20,1.03,-.18,.06,.28,.05,green),
-      B(.178,.75,0,.59,.10,.06,0xa98653),B(.22,.75,0,.12,.11,.04,cream),
-      B(.02,.72,.36,.15,.22,.22,0xd0aa71),B(.04,.70,-.35,.13,.19,.20,0xc19b67),
-      B(.01,.84,.38,.12,.065,.21,cream),B(.025,.80,-.37,.11,.06,.18,cream)
+      H(.62,1.43,0,.98,.055,.89,cream),H(.61,1.52,0,.73,.18,.65,cream),
+      H(.65,1.46,0,.76,.045,.68,mint),
+      H(.82,1.57,-.28,.105,.17,.035,leaf,0,-.48),
+      B(.04,1.19,0,.53,.060,.31,mint),
+      B(.18,1.11,.16,.09,.15,.035,mint,0,-.22),
+      B(.175,.77,0,.53,.050,.030,0xc6b493),
+      B(.04,.75,-.33,.12,.19,.15,cream),B(.13,.82,-.33,.11,.035,.025,mint),
+      B(.182,1.045,-.14,.055,.125,.025,leaf,0,-.55),
+      B(.184,1.063,-.10,.055,.10,.025,mint,0,.48)
     ];
-    for(const si of [-1,1]){
-      a.push(H(.45,1.68,.27*si,.12,.22,.13,green,0,si*.48));
-      a.push(B(-.01,1.19,.36*si,.23,.075,.35,green,.13,si*.27));
-      if(t){
-        a.push(H(.45,1.85,.35*si,.075,.25,.08,cream,0,si*.3));
-        a.push(H(.48,1.96,.42*si,.12,.16,.08,0xc0e6b9,0,si*.65,1));
-        a.push(B(-.01,1.16,.48*si,.23,.065,.29,0x93d3a6,.18,si*.45));
-        a.push(B(-.02,1.10,.55*si,.19,.055,.23,0xc0e6b9,.24,si*.58));
-      }
-    }
     if(t){
-      a.push(B(.215,.97,0,.12,.17,.035,green,0,Math.PI/4));
-      a.push(B(-.03,.72,-.47,.065,.47,.065,0xb18b51,0,-.12));
-      a.push(B(.10,.96,-.50,.06,.07,.33,0xe5c475,.13,0,1));
-      a.push(B(.25,.90,-.50,.06,.14,.065,0xffe6a0,-.24,0,1));
+      a.push(H(.91,1.55,-.27,.10,.10,.025,0xf2bfd1));
+      a.push(H(.933,1.55,-.27,.037,.037,.018,0xfff4cf));
+      a.push(B(.02,1.20,.34,.14,.055,.25,mint),B(.02,1.20,-.34,.14,.055,.25,mint));
+      a.push(B(.025,.75,.33,.075,.17,.09,leaf),B(.025,.85,.33,.105,.04,.10,cream));
     }
     return a;
   };
   return [[knight(0),knight(1)],[builder(0),builder(1)],[gatherer(0),gatherer(1)]];
 })();
-/* 2차 전직 발밑 고리 색 — 직업마다 다르다(멀리서 "쟤 2차다" 가 바닥으로도 보인다) */
 const JOB_AURA = [0xff4a5a, 0xffc233, 0x5fd46a];
 const GLS_ICON = ['🚫','🤓','😎','💖','🥽','🩹','⭐','🌈','✨'];
 const GLS_NAME = ['없음','동그란 안경','선글라스','하트 안경','물안경','안대','별 안경','무지개 안경','볼 주근깨'];
@@ -8876,6 +8895,26 @@ function wolfCorpse(w){
   if(w.dead > 0) return; w.dead = 0.55; w.mv = false; w.hp = 0; w.atkT = undefined;
   burst(w.x, (w.y||GY) + 0.35, w.z, 0xd9cdb4, 5, 0.6);
   if(WOLF_DEAD.length < 30) WOLF_DEAD.push(w); }
+/* 추격의 시각 상태만 다룬다. 호스트의 실제 먹이 추적(shT)을 쓰고, 손님은 기존
+   이동 속도에서 추격을 읽는다. 공격·속도·통신 데이터에는 영향을 주지 않는다. */
+function zombieThreatPose(w,t,dt,mvK){
+  const d=WOLF_T[w.k],heavy=!!d.boss||w.k===2||d.look==='armor';
+  const quick=w.k===1||d.look==='hungry'||d.look==='pup';
+  const chasing=!(w.dead>0)&&!w.noChase&&!d.noChase&&(w.shT!==undefined?!!w.shT:!!w.mv&&w.gv>Math.max(4.6,d.spd*1.08));
+  const step=Math.min(.05,Math.max(0,dt));
+  if(chasing&&!w.posePreyWas&&(w.poseChase||0)<.3)w.poseAlert=.34;
+  w.posePreyWas=chasing;
+  w.poseAlert=Math.max(0,(w.poseAlert||0)-step);
+  w.poseChase=(w.poseChase||0)+((chasing?1:0)-(w.poseChase||0))*(1-Math.exp(-step*(chasing?9:5)));
+  const alert=w.dead>0?0:Math.sin(Math.PI*(w.poseAlert/.34));
+  const chase=w.dead>0?0:w.poseChase,phase=(w.ph||0)+(w.id||0)*.71;
+  const side=(w.id|0)%2?1:-1;
+  const pulse=Math.pow(Math.max(0,Math.sin(t*(quick?3.7:2.1)+phase)),14);
+  const twitch=(w.dead>0?0:1)*(1-chase*.7)*pulse*Math.sin(t*9+phase)*.12;
+  return {chase,alert,heavy,quick,side,twitch,
+    lurch:mvK*(Math.sin(w.gp)*.065+side*Math.pow(Math.max(0,Math.sin(w.gp+side*.5)),4)*.075)*(1-chase*.55),
+    drive:chase*mvK,reach:chase*(.65+.35*mvK)};
+}
 function wolfPose(w, t, dt){
   if(w.gp === undefined || w.lx === undefined){ w.lx = w.x; w.lz = w.z; w.gp = w.ph||0; w.gv = 0; }   // 어느 칸이든 비어 있으면 새로 시작(검사가 자리를 먼저 적어 둘 때 NaN 이 났다)
   const dd = Math.hypot(w.x - w.lx, w.z - w.lz); w.lx = w.x; w.lz = w.z;
@@ -8903,7 +8942,8 @@ function wolfPose(w, t, dt){
   const life = idleLife(t, w.ph||0);
   const sniff = (mvK > 0.3 && !run) ? Math.pow(Math.max(0, Math.sin(t*0.7 + (w.ph||0))), 4)*0.28 : 0;
   const dead = w.dead === undefined ? 0 : (w.dead > 0 ? 1 - w.dead/0.55 : 1);
-  return {run, mvK, gait:w.gp, dry:h.ry, turn:h.turn, lead:h.lead, ap, bite, shake, crouch, sniff, life, dead};
+  const threat=zombieThreatPose(w,t,dt,mvK);
+  return {run, mvK, gait:w.gp, dry:h.ry, turn:h.turn, lead:h.lead, ap, bite, shake, crouch, sniff, life, dead,threat};
 }
 function drawWolves(list, t, dt){
   dt = Math.min(0.05, dt || 0.016);
@@ -8919,7 +8959,7 @@ function drawWolves(list, t, dt){
     /* ★ 33차 — 맞은 직후 쏜 방향으로 밀렸다 돌아온다(그리기만 · 0.16초 · 최대 0.22칸). 판정·길찾기엔 손 안 댄다 */
     let kox = 0, koz = 0;
     if(w.kT > 0){ w.kT -= dt; const kk = Math.max(0, w.kT/0.16)*0.22; kox = (w.kx||0)*kk; koz = (w.kz||0)*kk; w.x += kox; w.z += koz; }
-    const PZ = wolfPose(w, t, dt);                                        // 44차 — 걸음·방향·공격 주기·숨·쓰러짐
+    const PZ = wolfPose(w, t, dt), hunt=PZ.threat;
     const d = WOLF_T[w.k], boss = isBoss(w.k), rk = boss ? 3 : RK;
     const look = d.look, ZS=zombieStyle(w), LK={...(LOOKS[look]||LOOKS.base),bw:ZS.bw,bh:ZS.bh,hw:ZS.hw};
     /* ★ 맞으면 잠깐 움찔한다 — 몸이 눌렸다 펴진다.
@@ -8938,7 +8978,7 @@ function drawWolves(list, t, dt){
        ★ 51차 — 여기에 **좀비 비틀거림**을 얹는다: 좀비마다 한쪽으로 늘 조금 기운 채(side), 걸을 때 좌우로 느리게 흔들린다.
          자세 하나로 스무 마리가 다 달라 보이고, 멀리서도 '사람이 아니라 좀비' 로 읽힌다. */
     { const side = (w.id|0) % 2 ? 1 : -1;
-      const lurch = dead > 0 ? 0 : side*(0.10 + Math.sin(t*0.85 + (w.ph||0))*0.06*(0.4 + mvK));
+      const lurch = dead > 0 ? 0 : side*(0.10 + Math.sin(t*0.85 + (w.ph||0))*0.06*(0.4 + mvK))*(1-hunt.chase*.5)+hunt.lurch;
       const phi = dead > 0 ? side*dk*Math.PI*0.5
                 : (lurch - Math.max(-0.20, Math.min(0.20, PZ.turn*0.045)) + (1 - mvK)*life.sway*0.02);
       if(Math.abs(phi) > 0.002) flipSet(w.x, y + (dead > 0 ? 0.30 : 0.40)*sc, w.z, fx, 0, fz, phi); }
@@ -8949,12 +8989,13 @@ function drawWolves(list, t, dt){
 
     const col = w.hurt>0 ? (w.hurt > 0.12 ? 0xffffff : 0xb8f0df)                 // 피 대신 민트 타격 반짝임
                          : (w.healed>0 ? 0x9dffb3 : rankTint(w.col!==undefined ? w.col : d.col, boss?0:rk));   // 36차 — 치유 받으면 잠깐 초록
-    const bx = fx*(bite*0.42 - crouch*0.10)*sc, bz = fz*(bite*0.42 - crouch*0.10)*sc;   // 44차 — 웅크릴 땐 살짝 물러섰다가 덤빈다
+    const thrust=bite*.54-crouch*.15-hunt.alert*.055;
+    const bx = fx*thrust*sc, bz = fz*thrust*sc;
     /* 44차 — 갤럽(run): 한 바퀴에 한 번 크게 뜨고(bob) 몸이 늘었다 줄어든다(lng). 웅크리면(crouch) 몸이 낮아지고(bob 에 얹는다) 코가 살짝 내려간다. 숨(breath)은 서 있을 때 */
     const heavy=w.k===2||look==='armor'||boss;
-    const bob=(run?Math.max(0,Math.sin(gait+.4))*.085:stride*Math.abs(Math.sin(gait))*(heavy?.025:.045))*sc-crouch*.10*sc;
+    const bob=(run?Math.max(0,Math.sin(gait+.4))*.065:stride*Math.abs(Math.sin(gait))*(heavy?.025:.045))*sc-(crouch*.14+hunt.alert*.11+hunt.drive*(heavy?.035:.085))*sc;
     const roll=stride*Math.sin(gait)*(heavy?.07:run?.025:.05);
-    const lean=ZS.lean*(.5+stride*.5)+bite*.28-crouch*.18+stride*Math.sin(gait)*(heavy?.025:.06);
+    const lean=ZS.lean*(.5+stride*.5)+bite*.35-crouch*.22+stride*Math.sin(gait)*(heavy?.025:.06)+hunt.drive*(heavy?.18:.32)+hunt.alert*.22;
     const breath = 1 + (1 - mvK)*life.br*0.02, lng = run ? 1 + Math.sin(gait + 0.4)*0.09 : 1;
 
     /* ── 좀비 몸(R6) ── 사람과 **똑같은 자리표**(R6_*)를 sc 배로 쓴다. 종류별 몸꼴(LK.bw/bh/hw)이 그 위에 곱해진다.
@@ -8974,26 +9015,31 @@ function drawWolves(list, t, dt){
     const ZY = (u)=> y + u*sc*LK.bh + bob;
     const ZX = (f,sd)=> w.x + bx + fx*f*sc + rx*sd*sc*LK.bw;
     const ZZ = (f,sd)=> w.z + bz + fz*f*sc + rz*sd*sc*LK.bw;
+    // 옷과 등 장식은 몸통의 실제 회전·호흡을 함께 따른다.
+    const tf=Math.sin(ry+roll),tz=Math.cos(ry+roll),tc=Math.cos(lean),ts=Math.sin(lean);
+    const TX=(f,u,sd)=>ZX(0,0)+sc*(tf*(tc*f*lng+ts*(u-TU)*LK.bh*breath)+tz*sd*LK.bw*breath);
+    const TY=(f,u)=>ZY(TU)+sc*(-ts*f*lng+tc*(u-TU)*LK.bh*breath);
+    const TZ=(f,u,sd)=>ZZ(0,0)+sc*(tz*(tc*f*lng+ts*(u-TU)*LK.bh*breath)-tf*sd*LK.bw*breath);
+    const B=(mesh,idx,f,u,sd,ww,hh,dd,cc,pit=0,rz0=0)=>
+      setIR3(mesh,idx,TX(f,u,sd),TY(f,u),TZ(f,u,sd),ry+roll,lean+pit,rz0,ww*sc,hh*sc,dd*sc,cc);
     // 몸통(셔츠)
     setIR(W_body, n, ZX(0,0), ZY(TU), ZZ(0,0), ry + roll, lean,
       R6_TOR[0]*sc*LK.bw*breath, R6_TOR[1]*sc*LK.bh*breath, R6_TOR[2]*sc*lng, shirt);
     /* 찢긴 셔츠 자락 · 옷깃 — 51차b: **좀비마다 다르게 비뚜름하다.** 반듯한 띠 둘을 두르면
        옷이 아니라 허리띠 두 개로 보인다. 기울기를 좀비마다 달리하면 '헤진 옷' 으로 읽힌다. */
     const rag = (((w.ph||0)*5.1) % 1 - 0.5);
-    setIR3(W_chest, n, ZX(0,0), ZY(TU-0.19), ZZ(0,0), ry + roll, lean + rag*0.16, rag*0.22,
-      (R6_TOR[0]+0.05)*sc*LK.bw, 0.19*sc*LK.bh, (R6_TOR[2]+0.05)*sc, shirtD);
-    setIR3(W_ruff, n, ZX(0,0), ZY(TU+0.25), ZZ(0,0), ry + roll, lean - rag*0.12, -rag*0.18,
-      (R6_TOR[0]+0.04)*sc*LK.bw, 0.11*sc*LK.bh, (R6_TOR[2]+0.04)*sc, shirtD);
+    B(W_chest,n,0,TU-.19,0,R6_TOR[0]*.88*LK.bw,.18*LK.bh,.32,shirtD,rag*.16,rag*.22);
+    B(W_ruff,n,0,TU+.25,0,R6_TOR[0]*.84*LK.bw,.10*LK.bh,.30,shirtD,-rag*.12,-rag*.18);
     // 허리띠
-    setIR(W_belly, n, ZX(0,0), ZY(HIP+0.03), ZZ(0,0), ry + roll, lean,
-      (R6_TOR[0]+0.02)*sc*LK.bw, 0.09*sc*LK.bh, (R6_TOR[2]+0.02)*sc, 0x2a2a30);
+    B(W_belly,n,0,HIP+.03,0,R6_TOR[0]*.86*LK.bw,.075*LK.bh,.29,0x343c43);
 
     /* ── 머리 뭉치 ──
        눈·코·입·귀·머리털·투구는 "머리에 붙은 것"이라 머리가 숙이고 돌면 같이 따라가야 한다.
        머리 안쪽 좌표(앞 f · 위 u · 옆 s) → 화면 좌표. 넘기는 값은 이미 칸 단위다(hw 를 곱해서 넘긴다). */
     const hnod = stride*Math.sin(gait*2 + 0.7)*0.030*sc;
-    const hYaw = ry + roll*0.5 + Math.max(-0.5, Math.min(0.5, PZ.lead*0.7)) + (1 - mvK)*(1 - crouch)*(1 - dead)*life.look*0.30 + shake*0.22;
-    const hPit = lean*0.4 + 0.10 - bite*0.30 + LK.hpit + PZ.sniff*0.5 + crouch*0.25;
+    const hYaw = ry + roll*0.5 + Math.max(-.72,Math.min(.72,PZ.lead*(.85+hunt.chase*.4)))
+      +(1-mvK)*(1-crouch)*(1-dead)*life.look*.30*(1-hunt.chase)+shake*.22+hunt.twitch;
+    const hPit = lean*.4+.10-bite*.35+LK.hpit+PZ.sniff*.5+crouch*.25-hunt.chase*.21-hunt.alert*.25+hunt.twitch*.5;
     const cph = Math.cos(hPit), sph = Math.sin(hPit);
     const hfx = Math.sin(hYaw), hfz = Math.cos(hYaw);      // 머리 기준 '앞'
     const hrx = Math.cos(hYaw), hrz = -Math.sin(hYaw);     // 머리 기준 '오른쪽'
@@ -9019,7 +9065,7 @@ function drawWolves(list, t, dt){
     // 벌어진 입 — 물 때 더 크게 벌어진다
     { const mF = 0.266*hw, mU = -0.13*hw;
       setIR(W_snout, n, HX(mF,mU,0), HY(mF,mU), HZ(mF,mU,0), hYaw, hPit,
-        (0.25 + bite*0.05)*hw, (0.10 + bite*0.14)*hw, 0.045*hw, 0x202430); }
+        (0.25 + bite*0.05)*hw, (0.10 + bite*0.14+hunt.reach*.045)*hw, 0.045*hw, 0x202430); }
     // 코
     { const nF = 0.277*hw, nU = -0.01*hw;
       setIR(W_nose, n, HX(nF,nU,0), HY(nF,nU), HZ(nF,nU,0), hYaw, hPit,
@@ -9054,8 +9100,7 @@ function drawWolves(list, t, dt){
         0.045*hw, 0.08*hw, 0.05*hw, zomDark(skin,.22)); }
     /* 꿰맨 셔츠 조각 — 상처가 아니라 옷의 패치 */
     { const wx = (((w.ph||0)*2.3) % 1 - 0.5)*0.30;
-      setIR3(W_rib, rib++, ZX(0.25, wx), ZY(TU + 0.05 + wx*0.3), ZZ(0.25, wx), ry+roll, lean, 0.7 + wx,
-        0.22*sc*LK.bw, 0.12*sc, 0.04*sc, 0xb4ab89); }
+      B(W_rib,rib++,.154,TU+.05+wx*.3,wx,.17*LK.bw,.11,.024,0xb4ab89,0,.7+wx); }
     // 눈썹(코 쪽이 처진 성난 V — 새끼는 반대로 살짝 올려 순하게) · 움푹 팬 볼
     for(const si of [1,-1]){
       const bF = 0.272*hw, bU = (0.15 + LK.eye*0.01)*hw, bS = 0.135*hw*si;
@@ -9070,9 +9115,7 @@ function drawWolves(list, t, dt){
 
     /* 54차 — 얼굴·의상은 실제 머리/몸 축에 붙는다. 종류는 실루엣으로, 밤은 추가 의상으로 읽는다. */
     const C=(f,u,sd,ww,hh,dd,cc,rz0=0)=>{
-      const du=(u-TU)*LK.bh, ff=Math.cos(lean)*f+Math.sin(lean)*du;
-      const yy=TU*LK.bh-Math.sin(lean)*f+Math.cos(lean)*du;
-      setIR3(W_costume,costume++,ZX(ff,sd),y+yy*sc+bob,ZZ(ff,sd),ry+roll,lean,rz0,ww*sc,hh*sc,dd*sc,cc);
+      B(W_costume,costume++,f,u,sd,ww,hh,dd,cc,0,rz0);
     };
     const H=(f,u,sd,ww,hh,dd,cc,rz0=0)=>setIR3(W_costume,costume++,HX(f*hw,u*hw,sd*hw),HY(f*hw,u*hw),HZ(f*hw,u*hw,sd*hw),hYaw,hPit,rz0,ww*hw,hh*hw,dd*hw,cc);
     // 이가 듬성듬성 남은 작은 입. 흉포함을 유혈 없이 표정으로 만든다.
@@ -9126,71 +9169,78 @@ function drawWolves(list, t, dt){
       if(bi===3)for(const side of [-1,1])H(-.12,.28,side*.36,.13,.43,.16,0xc6edf0,side*.25);
       if(bi===5)C(.24,TU+.12,0,.20,.26,.08,0x9e84c9,.20);
     }
-    /* ── 팔 둘 ── 준비할 때 당기고, 공격 판정 직후 앞으로 뻗은 뒤 회복한다.
-       팔다리는 마디 없는 통짜(limb1)다 — 사람과 같은 R6 몸이다. */
+    /* 처진 팔꿈치와 움켜쥔 손. 먹이를 보면 팔을 당겼다가 뻗고, 타격 직후
+       한쪽 손이 더 멀리 나간다. 손·손가락·소매는 같은 관절을 따른다. */
     for(const si of [1,-1]){
       /* 51차b — **두 팔이 대칭이 아니다.** 한쪽은 더 처지고 한쪽은 더 뻗는다(좀비마다 어느 쪽인지 다르다).
          좌우가 똑같이 뻗으면 사람이 기지개 켜는 것처럼 보인다. */
       const asym = si*(((w.ph||0)*3.7) % 1 - 0.5)*0.55;
-      const th = (heavy?.68:run?.85:1.05) + bite*.58 - crouch*.52 + mvK*Math.sin(gait + (si>0 ? 0 : 1.1))*(run?.36:.13)
-                 + (1 - mvK)*life.br*0.05 - dk*0.95 + asym;
-      const rl = si*(0.10 + Math.sin(t*0.9 + (w.ph||0) + si)*0.05) + shake*0.12*si;
+      const leadHand=si===hunt.side;
+      const th = (heavy?.60:run?.75:.86)+bite*(leadHand?.80:.56)-crouch*.70
+        +mvK*Math.sin(gait+(si>0?0:1.25))*(run?.30:.11)+(1-mvK)*life.br*.05-dk*.95+asym
+        +hunt.reach*(leadHand?.48:.30)-hunt.alert*.55;
+      const rl=si*(.12+Math.sin(t*.9+(w.ph||0)+si)*.05+crouch*.15)+shake*.12*si+hunt.lurch*.30;
+      const bend=Math.max(.08,.36+crouch*.45+hunt.alert*.40-bite*.24-hunt.reach*.12+(leadHand?0:.16));
       const L = R6_ARM[1]*sc*LK.bh*ZS.arm;
       /* ★ 51차b — 어깨 자리는 **몸통 너비에서 구한다.** R6_ASD 를 그냥 쓰면 ZX 가 LK.bw 를 곱하는 바람에
          두꺼운 좀비(갑옷 bw 1.12)는 팔이 몸통에서 떨어져 뜨고, 마른 좀비(굶주린 0.80)는 팔이 몸통에 파묻힌다.
          몸통 반 + 팔 반 = 팔 한가운데. ZX 가 LK.bw 를 곱하니 여기서 도로 나눠 준다. */
       const asd = (R6_TOR[0]*LK.bw + R6_ARM[0])*0.5/LK.bw;
-      const ax = ZX(0, asd*si), ay = ZY(SHU), az = ZZ(0, asd*si);
-      limb1(W_legs, ln++, ax, ay, az, fx, fz, rx, rz, ry + roll, th, rl,
-        L, R6_ARM[0]*sc, R6_ARM[2]*sc, skin);
+      const ax=TX(0,SHU,asd*si),ay=TY(0,SHU),az=TZ(0,SHU,asd*si);
+      const upper=th-bend*.45,fore=th+bend*.55,cr=Math.cos(rl),sr=Math.sin(rl);
+      const upperL=L*.52,foreL=L*.48;
+      const ex=ax+(fx*Math.sin(upper)*cr+rx*sr)*upperL,ey=ay-Math.cos(upper)*cr*upperL,ez=az+(fz*Math.sin(upper)*cr+rz*sr)*upperL;
+      limb1(W_legs,ln++,ax,ay,az,fx,fz,rx,rz,ry+roll,upper,rl,upperL,R6_ARM[0]*sc,R6_ARM[2]*sc,skin);
+      limb1(W_legs,ln++,ex,ey,ez,fx,fz,rx,rz,ry+roll,fore,rl,foreL,R6_ARM[0]*sc*.86,R6_ARM[2]*sc*.86,skin);
       /* 헤진 소매 — 팔 위쪽 절반에 조금 더 굵게. 팔을 앞으로 뻗은 좀비 자세는 정면에서 보면
          팔 끝만 크게 보여 **팔이 몸에서 떨어진 상자**처럼 읽힌다. 어깨에 옷이 걸쳐 있으면 이어져 보인다. */
       if(hn < W_hack.count_max)
-        limb2(W_hack, hn++, ax, ay, az, fx, fz, rx, rz, ry + roll, th, rl,
+        limb2(W_hack, hn++, ax, ay, az, fx, fz, rx, rz, ry + roll, upper, rl,
           0, L*0.46, R6_ARM[0]*sc*1.16, R6_ARM[2]*sc*1.16, shirtD);
-      /* 손 — 51차c: 공(0.15)을 팔 끝에 붙였더니 **팔보다 가는 혹**이 달린 꼴이었다.
-         R6 은 팔이 처음부터 끝까지 굵기가 같은 상자 하나다 — 손은 따로 붙는 덩어리가 아니라
-         팔 끝 그 자체다. 팔과 같은 굵기의 납작한 마개로 바꿔 '움켜쥔 끝' 만 만든다. */
-      const cr = Math.cos(rl), sr = Math.sin(rl), stt = Math.sin(th), ctt = Math.cos(th);
-      const hm = L - L*0.05;
-      setIR(W_paw, pn++, ax + (fx*stt*cr + rx*sr)*hm, ay - ctt*cr*hm, az + (fz*stt*cr + rz*sr)*hm,
-        ry + roll, -th, R6_ARM[0]*sc*1.02, R6_ARM[1]*sc*LK.bh*0.20, R6_ARM[2]*sc*1.02, skinL);
-      // 손끝 세 마디는 팔과 같은 축으로 붙어 공격 중에도 떨어지지 않는다.
-      for(let q=0;q<3;q++){const off=(q-1)*.065*sc;
-        limb2(W_costume,costume++,ax+rx*off,ay,az+rz*off,fx,fz,rx,rz,ry+roll,th-.20,rl,hm,.15*sc,.05*sc,.075*sc,skinL);}
+      // 손목보다 넓은 납작한 손바닥과 두 마디로 구부러진 손가락.
+      const stt=Math.sin(fore),ctt=Math.cos(fore),hm=foreL*.95;
+      setIR3(W_paw,pn++,ex+(fx*stt*cr+rx*sr)*hm,ey-ctt*cr*hm,ez+(fz*stt*cr+rz*sr)*hm,
+        ry+roll,-fore,rl,.27*sc,.15*sc*LK.bh,.20*sc,skinL);
+      const handX=ex+(fx*stt*cr+rx*sr)*hm,handY=ey-ctt*cr*hm,handZ=ez+(fz*stt*cr+rz*sr)*hm;
+      for(let q=0;q<3;q++){
+        const off=(q-1)*.077*sc,flen=(q===1?.13:.11)*sc,angle=fore+.16+bite*.12;
+        const sx=handX+rx*off,sy=handY-.03*sc,sz=handZ+rz*off;
+        limb1(W_costume,costume++,sx,sy,sz,fx,fz,rx,rz,ry+roll,angle,rl,flen,.046*sc,.049*sc,skinL);
+        const jx=sx+(fx*Math.sin(angle)*cr+rx*sr)*flen,jy=sy-Math.cos(angle)*cr*flen,jz=sz+(fz*Math.sin(angle)*cr+rz*sr)*flen;
+        limb1(W_costume,costume++,jx,jy,jz,fx,fz,rx,rz,ry+roll,angle+.95,rl,.070*sc,.041*sc,.044*sc,skinL);
+      }
     }
     /* ── 다리 둘 ── 보폭이 짧고 **한쪽을 끈다**(반대쪽은 반만 흔든다). 쓰러지면 접힌다 */
     for(const si of [1,-1]){
       let th, rl;
       if(dead > 0){ th = (si>0 ? 0.55 : -0.40)*dk; rl = si*0.30*dk; }
-      else { th = mvK*Math.sin(gait + (si>0 ? 0 : Math.PI))*(run ? 0.88 : heavy?.32:.48)*(si>0 ? 1 : ZS.drag) + crouch*0.20;
-             rl = si*0.05; }
+      else { const dragging=si!==hunt.side,phase=gait+(si>0?0:Math.PI)+(dragging?.32*(1-hunt.chase):0);
+        const drag=dragging?ZS.drag+(1-ZS.drag)*hunt.chase*.70:1;
+        th=mvK*Math.sin(phase)*(run?.92:heavy?.32:.48)*drag+crouch*.24-hunt.alert*.12;
+        rl=si*(.05+hunt.chase*.035)+hunt.lurch*.20; }
       const lx = ZX(0, R6_HSD*si), ly = ZY(HIP), lz = ZZ(0, R6_HSD*si);
       limb1(W_legs, ln++, lx, ly, lz, fx, fz, rx, rz, ry + roll, th, rl,
         R6_LEG[1]*sc*LK.bh, R6_LEG[0]*sc, R6_LEG[2]*sc, pant);
       /* 갑옷 좀비는 정강이받이(강철 판 + 무쇠 테) */
       if(look === 'armor' && pl + 2 <= W_plate.count_max){
-        const s1 = Math.sin(th), c1 = Math.cos(th), gl = R6_LEG[1]*sc*LK.bh*0.45;
-        const gx = lx + fx*s1*gl, gy2 = ly - c1*gl, gz = lz + fz*s1*gl;
-        setIR(W_plate, pl++, gx, gy2, gz, ry, -th, 0.30*sc, 0.34*sc*LK.bh, 0.32*sc, 0x3a3f49);
-        setIR(W_plate, pl++, gx + fx*0.03*sc, gy2, gz + fz*0.03*sc, ry, -th, 0.26*sc, 0.28*sc*LK.bh, 0.34*sc, 0x8e98a6); }
+        const s1=Math.sin(th),c1=Math.cos(th),gl=R6_LEG[1]*sc*LK.bh*.45,cr=Math.cos(rl),sr=Math.sin(rl);
+        const gx=lx+(fx*s1*cr+rx*sr)*gl,gy2=ly-c1*cr*gl,gz=lz+(fz*s1*cr+rz*sr)*gl;
+        setIR3(W_plate,pl++,gx,gy2,gz,ry+roll,-th,rl,.30*sc,.34*sc*LK.bh,.32*sc,0x3a3f49);
+        setIR3(W_plate,pl++,gx+fx*c1*.03*sc,gy2+s1*.03*sc,gz+fz*c1*.03*sc,ry+roll,-th,rl,.26*sc,.28*sc*LK.bh,.34*sc,0x8e98a6); }
     }
 
-    /* 등에 솟은 것 — 물기 직전에 곤두선다. 곧 덤빈다는 예고.
-       좀비는 등뼈가 살을 뚫고 나온 모양이다. 등급이 오를수록 늘고 길어져 실루엣이 험악해진다. */
+    // 굽은 등에 붙은 낡은 천 주름. 공격 전에 짧게 솟되 몸 밖의 막대판처럼 분리되지 않는다.
     const hackN = LK.hack >= 0 ? LK.hack : Math.min(6, 3 + rk);
     for(let h=0; h<hackN; h++){
-      const up = (0.18 + rk*0.06 + ag*0.30 + crouch*0.22) * sc * LK.hackUp;
+      const up = (0.075 + rk*.015 + ag*.045 + crouch*.035) * LK.hackUp;
       const u0 = TU + 0.24 - h*0.11;
-      setIR(W_hack, hn++, ZX(-0.24 - up*0.5, 0), ZY(u0), ZZ(-0.24 - up*0.5, 0), ry + roll, lean,
-        (0.10+rk*0.012)*sc, (0.10+rk*0.012)*sc, up, look==='fear' ? 0x0a080e : rk>=3?0x241d22:0x3a3236);
+      B(W_hack,hn++,-.115-up*.35,u0,Math.sin(h*1.9)*.035,.11+rk*.008,.085,up,shirtD);
     }
     /* ═══ 36차 — 종류별 조각 (51차에 선 몸으로 옮겼다. 행동·세기는 한 줄도 안 바꿨다) ═══ */
     if(look === 'hungry'){
       /* 갈비뼈 — 찢긴 셔츠 사이로 드러난 갈비 넉 대. 굶주려 뼈가 드러난 좀비 */
       for(let r=0;r<4;r++)
-        setIR(W_rib, rib++, ZX(0.245,0), ZY(TU + 0.20 - r*0.12), ZZ(0.245,0), ry+roll, lean,
-          (0.46 - r*0.04)*sc*LK.bw, 0.05*sc, 0.05*sc, 0xcfc2a4);
+        B(W_rib,rib++,.145,TU+.20-r*.12,0,(.46-r*.04)*LK.bw,.038,.027,0xcfc2a4);
       /* 목에 남은 낡은 붕대 끝 — 유혈·혀 대신 천 */
       const tF = 0.22*hw, tU = -0.20*hw;
       setIR(W_tongue, tng++, HX(tF,tU,-.16*hw), HY(tF,tU), HZ(tF,tU,-.16*hw), hYaw, hPit+.25, .08*hw,.18*hw,.04*hw,0xbcc2a2);
@@ -9203,7 +9253,7 @@ function drawWolves(list, t, dt){
          몸통이 로블록스 값(0.60 × 0.30)으로 좁아졌으니 앞뒤는 AF, 옆은 AW 만큼 같이 줄인다 —
          안 줄이면 가슴판이 몸 밖으로 한 뼘씩 튀어나와 통이 큰 드럼통이 된다. */
       const AF = 0.62, AW = 0.78;
-      const P = (f,u,sd, pit, sx,sy,sz, c)=> setIR(W_plate, pl++, ZX(f*AF,sd*AW), ZY(u), ZZ(f*AF,sd*AW), ry+roll, lean+pit, sx*AW*sc, sy*sc, sz*AF*sc, c);
+      const P = (f,u,sd,pit,sx,sy,sz,c)=>B(W_plate,pl++,f*AF,u,sd*AW,sx*AW,sy,sz*AF,c,pit);
       /* 가슴판 — 다가오는 좀비에서 제일 먼저 보이는 조각 */
       P(0.24, TU+0.03, 0, 0, 0.88*LK.bw, 0.56, 0.10, IR);
       P(0.28, TU+0.03, 0, 0, 0.74*LK.bw, 0.46, 0.08, ST);
@@ -9234,7 +9284,7 @@ function drawWolves(list, t, dt){
       /* 등에 멘 초록 보석(돌면서 숨 쉰다) + 발밑 초록 고리(치유 범위 그대로) */
       const spent = w.healPool !== undefined && w.healPool <= 0;          // 주머니를 다 썼다 — 보석이 꺼지고 고리가 사라진다
       const gp = spent ? 0.8 : 1 + Math.sin(t*4.0 + w.ph)*0.12;
-      const gx = ZX(-0.32,0), gy3 = ZY(TU+0.14), gz = ZZ(-0.32,0);
+      const gx=TX(-.30,TU+.14,0),gy3=TY(-.30,TU+.14),gz=TZ(-.30,TU+.14,0);
       setIR(W_gem, gem++, gx, gy3, gz, ry + (spent ? 0 : t*1.5), 0, 0.38*sc*gp, 0.52*sc*gp, 0.38*sc*gp, spent ? 0x2e4a36 : 0x7dffb0);
       if(!spent && hr < W_heal.count_max){ _v.set(w.x, y+0.05, w.z); _q.setFromAxisAngle(AX_X, -Math.PI/2);
         const rr = d.heal.r*(0.94+Math.sin(t*2.2)*0.06); _s.set(rr, rr, 1); W_heal.setMatrixAt(hr++, _m.compose(_v,_q,_s)); }
@@ -9271,7 +9321,7 @@ function drawWolves(list, t, dt){
         const rr = sc*(1.25+Math.sin(t*2.6+w.ph)*0.08); _s.set(rr, rr, 1); W_dread.setMatrixAt(dr++, _m.compose(_v,_q,_s)); }
     }
     /* 흉포한 좀비는 뿔이 난다 — 멀리서도 "오늘 밤은 다르다"가 보인다 */
-    if(!boss && rk>=3 && horn+2 <= W_horn.count_max-12){
+    if(!boss && rk>=3 && horn+2 <= W_horn.count_max){
       for(const si of [1,-1])
         setIR(W_horn, horn++, HX(-0.02*hw,0.22*hw,0.17*hw*si), HY(-0.02*hw,0.22*hw), HZ(-0.02*hw,0.22*hw,0.17*hw*si),
           hYaw + si*0.18, hPit - 0.55, 0.09*hw, 0.30*hw, 0.09*hw, 0xd8ccb4);
@@ -9280,22 +9330,15 @@ function drawWolves(list, t, dt){
     w.x -= kox; w.z -= koz;
     n++;
   }
-  FLIP_ON = false;   // 44차 — 굴림 훅 끄기(아래 보스 뿔·오라는 안 굴린다)
-  // 보스 — 뿔과 발밑 붉은 오라
+  FLIP_ON = false;
+  // 보스의 왕관·투구는 위 머리 축에서 그렸고, 오라만 바닥에 남는다.
   let bn=0;
   for(const w of list){
     if(!isBoss(w.k) || bn>=6) continue;
     const d = WOLF_T[w.k], sc = w.sc || d.sc;
     const gy2 = topAt(Math.floor(w.x), Math.floor(w.z));
     const y2 = (gy2>900?GY:gy2) + 0.02;
-    const fx = Math.sin(w.ry), fz = Math.cos(w.ry);
-    const rx = Math.cos(w.ry), rz = -Math.sin(w.ry);
-    /* 51차 — 선 몸의 머리(가운데 위 1.27·sc) 옆으로. 네발 때는 앞으로 0.86 이었다 */
-    for(const si of [1,-1]){
-      setIR(W_horn, horn++, w.x+rx*0.20*sc*si, y2+1.42*sc,
-        w.z+rz*0.20*sc*si, w.ry, -0.34, 0.13*sc, 0.42*sc, 0.13*sc, 0xf2e6cf);
-    }
-    _v.set(w.x, y2+0.06, w.z); _q.setFromAxisAngle(new THREE.Vector3(1,0,0), -Math.PI/2);
+    _v.set(w.x, y2+0.06, w.z); _q.setFromAxisAngle(AX_X, -Math.PI/2);
     const pulse = 0.72 + Math.sin(t*3.1)*0.06;
     _s.set(sc*pulse, sc*pulse, 1);
     W_aura.setMatrixAt(bn, _m.compose(_v,_q,_s));
@@ -9475,28 +9518,84 @@ const STRIDE_WALK = 1.3, STRIDE_RUN = 1.75;
 function sheepGait(s, t){
   let g = GAIT_M.get(s); if(!g){ g = {gp:(s.ph||0), lx:s.x, lz:s.z, lt:t, v:0, acc:0, dt:0.016, dust:0}; GAIT_M.set(s, g); return g; }
   const dt = t - g.lt; if(dt <= 0) return g; g.lt = t; g.dt = dt;
-  const d = Math.hypot(s.x - g.lx, s.z - g.lz); g.lx = s.x; g.lz = s.z;
+  const dx=s.x-g.lx,dz=s.z-g.lz,d=Math.hypot(dx,dz);g.lx=s.x;g.lz=s.z;
+  g.travel=d;
   if(g.dust > 0) g.dust -= dt;
-  if(d > 3){ g.acc = 0; return g; }
-  const v0 = g.v; g.v += (d/dt - g.v) * Math.min(1, dt*14);
-  g.acc += ((g.v - v0)/dt - g.acc) * Math.min(1, dt*9);   // 44차 — 가속도(부드럽게): 출발·급정지 자세에 쓴다
+  if(d>3){g.acc=0;g.vx=g.vz=0;g.feet=null;return g;}
+  const k=1-Math.exp(-dt*14);g.vx=(g.vx||0)+(dx/dt-(g.vx||0))*k;g.vz=(g.vz||0)+(dz/dt-(g.vz||0))*k;
+  const v0 = g.v; g.v += (d/dt - g.v) * (1-Math.exp(-dt*14));
+  g.acc += ((g.v - v0)/dt - g.acc) * (1-Math.exp(-dt*9));
   const run = s.run !== undefined ? !!s.run : g.v > SPD*1.2*(raceOn() ? RACE_SPD : 1);
   if(!s.down && !s.air) g.gp += d / ((run ? STRIDE_RUN : STRIDE_WALK) * (raceOn() ? 1.4 : 1)) * Math.PI*2;
   return g;
 }
+function sheepEase(v){v=Math.max(0,Math.min(1,v));return v*v*(3-2*v);}
+function sheepBlend(g,key,target,dt,rate){
+  if(g[key]===undefined)g[key]=target;
+  else g[key]+=(target-g[key])*(1-Math.exp(-rate*Math.min(.05,Math.max(0,dt))));
+  return g[key];
+}
+function sheepActionPose(kind,p){
+  const ready=kind==='work'?.20:kind==='throw'?.44:.30,hit=kind==='work'?.38:kind==='throw'?.60:.52;
+  p=Math.max(0,Math.min(1,p));
+  return {wind:p<ready?sheepEase(p/ready):1-sheepEase((p-ready)/(hit-ready)),
+    strike:p<hit?sheepEase((p-ready)/(hit-ready)):1-sheepEase((p-hit)/(1-hit)),
+    impact:Math.max(0,1-Math.abs(p-hit)/.10)};
+}
+// Two rigid segments meet at one joint; unreachable endpoints are clamped rather than stretching the blocks.
+function sheepJoint(a,b,l1,l2,pole){
+  const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],raw=Math.hypot(dx,dy,dz)||.0001;
+  const ux=dx/raw,uy=dy/raw,uz=dz/raw,d=Math.max(Math.abs(l1-l2)+.0001,Math.min(l1+l2-.0001,raw));
+  const dot=pole[0]*ux+pole[1]*uy+pole[2]*uz;
+  let px=pole[0]-ux*dot,py=pole[1]-uy*dot,pz=pole[2]-uz*dot,pl=Math.hypot(px,py,pz);
+  if(pl<.0001){px=uy;py=-ux;pz=0;pl=Math.hypot(px,py);if(pl<.0001){px=1;py=0;pl=1;}}
+  const along=(l1*l1+d*d-l2*l2)/(2*d),side=Math.sqrt(Math.max(0,l1*l1-along*along))/pl;
+  return {joint:[a[0]+ux*along+px*side,a[1]+uy*along+py*side,a[2]+uz*along+pz*side],
+    end:[a[0]+ux*d,a[1]+uy*d,a[2]+uz*d]};
+}
+function sheepBone(mesh,i,a,b,ry,w,d,col){
+  const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],f=dx*Math.sin(ry)+dz*Math.cos(ry),sd=dx*Math.cos(ry)-dz*Math.sin(ry);
+  const pitch=-Math.atan2(f,-dy),roll=Math.atan2(sd,Math.hypot(f,dy));
+  setIR3(mesh,i,(a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2,ry,pitch,roll,w,Math.hypot(dx,dy,dz),d,col);
+  return {th:-pitch,rl:roll};
+}
+function sheepPoint(p){
+  if(!FLIP_ON)return p;
+  const e=FLIP_M.elements,x=p[0],y=p[1],z=p[2];
+  return [e[0]*x+e[4]*y+e[8]*z+e[12],e[1]*x+e[5]*y+e[9]*z+e[13],e[2]*x+e[6]*y+e[10]*z+e[14]];
+}
+function sheepFootPose(phase,run){
+  const r=typeof run==='boolean'?(run?1:0):Math.max(0,Math.min(1,run));
+  const p=((phase/(Math.PI*2))%1+1)%1,duty=.60-.14*r,amp=.23+.06*r;
+  if(p<duty){const q=p/duty;return {f:amp*(1-2*q),lift:0,toe:(q<.18?-.14*(1-q/.18):q>.75?.24*(q-.75)/.25:0),plant:true};}
+  const q=(p-duty)/(1-duty),lift=Math.sin(q*Math.PI);
+  return {f:amp*(2*sheepEase(q)-1),lift:lift*(.12+.11*r),toe:.24*(1-sheepEase(q/.3))-.34*lift-.14*sheepEase((q-.75)/.25),plant:false};
+}
+function avatarWingPose(si,{t=0,phase=0,mv=0,run=0,air=0,glide=0,aim=false,down=false}={}){
+  const a=typeof aim==='number'?Math.max(0,Math.min(1,aim)):aim?1:0,flight=Math.max(0,Math.min(1,air))*(1-a),g=Math.max(0,Math.min(1,glide));
+  const flap=Math.sin(t*(g>0?2.8:7)+phase)*(g>0?.018:.08)*flight;
+  const fold=down?1.40:(1.12+.36*a)*(1-flight)+(.36-.22*g)*flight;
+  const roll=down?-.84:(-.62-.14*a)*(1-flight)+(.03+.13*g+flap)*flight;
+  return {f:-.21,u:1.06,sd:.19*si,yaw:si*fold,pitch:-.08-.15*g,
+    roll:si*(roll+Math.sin(t*1.8+phase)*.012*(1-flight)*(1-a)),span:(.90-.14*a)*(1-flight)+(1+.10*g)*flight};
+}
+const _sheepAttachQ=new THREE.Quaternion(),_sheepAttachE=new THREE.Euler();
+function setSheepAttachment(mesh,i,x,y,z,bodyYaw,bodyPitch,yaw,pitch,roll,sx,sy,sz,col){
+  _v.set(x,y,z);_s.set(sx,sy,sz);_q.setFromEuler(_sheepAttachE.set(bodyPitch,bodyYaw,0,'YXZ'));
+  _sheepAttachQ.setFromEuler(_sheepAttachE.set(pitch,yaw,roll,'YXZ'));_q.multiply(_sheepAttachQ);
+  mesh.setMatrixAt(i,FLIP_ON?_m.compose(_v,_q,_s).premultiply(FLIP_M):_m.compose(_v,_q,_s));
+  if(col!==undefined&&mesh.instanceColor){_c1.set(col);mesh.setColorAt(i,_c1);}
+}
 function drawSheep(list, t, cap, colOf, scale){
-  let n=0, ln=0, armN=0, eyeN=0, noseN=0, decoN=0, gunN=0, glowN=0, mouthN=0, jobFN=0, jobRN=0;   // 45차 — 전직 빛·고리 · 51차 — 팔(armN)
+  let n=0, ln=0, shoeN=0, armN=0, eyeN=0, noseN=0, decoN=0, gunN=0, glowN=0, mouthN=0, jobFN=0, jobRN=0;
   const wN = [0,0], wgN = [0,0];                                     // 45차 — 날개(깃털·불꽃) · 날개 빛
 
   for(const s of list){
     FLIP_ON = false;
     if(n>=cap) break;
     const y  = s.y!==undefined ? s.y : GY;
-    /* ★ 전직하면 덩치가 커진다 — "전보다 좀 더 덩치도 커지고" 가 주문이었다.
-       한 단계에 9%씩. 이보다 키우면 문틀·사다리 같은 데서 몸이 박혀 보인다
-       (실제 충돌 크기는 그대로다 — 보이는 것만 커진다). */
     const jt = Math.max(0, Math.min(2, s.jt|0));
-    const sc = scale * (1 + 0.09*jt);
+    const sc = scale;
     const down = !!s.down;                          // 쓰러진 사람
     const gs = sheepGait(s, t);                     // 41차 — 간 거리·빠르기 (44차 — 가속도도)
 
@@ -9505,91 +9604,88 @@ function drawSheep(list, t, cap, colOf, scale){
     const fx = Math.sin(ry), fz = Math.cos(ry);     // 앞
     const rx = Math.cos(ry), rz = -Math.sin(ry);    // 오른쪽
 
-    const air = !down && !!s.air, vy = s.vy || 0, land = down ? 0 : Math.max(0, s.land || 0);
+    const poseDt=Math.min(.05,gs.dt||.016);
+    const air=!down&&!!s.air,vy=s.vy||0,land=sheepBlend(gs,'landK',down?0:Math.max(0,s.land||0),poseDt,28);
     const airTarget=air?1:0;
     if(gs.airK===undefined)gs.airK=airTarget;
-    else gs.airK+=(airTarget-gs.airK)*(1-Math.exp(-16*Math.min(.05,gs.dt||.016)));
+    else gs.airK+=(airTarget-gs.airK)*(1-Math.exp(-12*poseDt));
     const airK=down?0:gs.airK;
     const glideTarget = air && !!s.glide ? 1 : 0;
     if(gs.glideK === undefined) gs.glideK = glideTarget;
     else gs.glideK += (glideTarget-gs.glideK)*(1-Math.exp(-12*Math.min(.05,gs.dt || .016)));
     const glideK = down ? 0 : gs.glideK;
+    const wingAimK=sheepBlend(gs,'wingAimK',s.me&&s.aim?1:0,poseDt,24);
     /* 42차 — 도약(take 0→1: 뜀 직후 0.12초 용수철처럼 늘어나며 다리를 아래로 뻗는다) · 공중제비(flip 0→1: 두 번째 뜀 동안 앞으로 한 바퀴) */
     const take = (!down && air && s.take > 0) ? Math.min(1, s.take/0.12) : 0, flip = (!down && air && s.flip > 0 && s.flip < 1) ? s.flip : 0;
-    /* 41차 — 걸음 박자를 **실제로 간 거리**에 묶는다(선생님: "속도감이 부족… 밋밋"). 40차까지는 시간에 묶여(초당 2바퀴) 달리는 동안 몸은 4칸을 가는데
-       발은 0.5칸만 땅을 밀어 얼음 위를 지치듯 미끄러졌다. 이제 사람마다 지난 프레임에서 얼마나 갔나로 위상을 돌린다 — 걷기는 트롯(대각선 짝) 1.3칸에 한 바퀴,
-       달리기는 바운드(앞다리 짝·뒷다리 짝이 따로, 한 바퀴에 한 번 뜬다) 1.75칸에 한 바퀴. 내 사람은 updPlayer 가 같은 위상(gp)을 넘겨준다(발소리·카메라 흔들림도 그 박자).
-       친구 사람은 자리 통로에 달리기 표시가 없으니 잰 빠르기로 가른다(초당 6.5칸 넘으면 달리기). 다리 흔듦은 잰 빠르기(mvK)로 여닫아 멈출 때 뚝 안 끊긴다. */
+    // Gait follows travelled distance. Pose weights blend independently of input/physics,
+    // and feet retain the last movement direction while relaxing into the stopped pose.
     const run = s.run !== undefined ? !!s.run : gs.v > SPD*1.2*(raceOn() ? RACE_SPD : 1);
-    const gait = s.gp !== undefined ? s.gp : gs.gp, mvK = down ? 0 : (1-airK)*Math.max(0, Math.min(1, gs.v / 2.2));
-    const walk = mvK * Math.sin(gait) * (run ? 1.0 : 0.85);
+    const runK=sheepBlend(gs,'runK',run?1:0,poseDt,10);
+    const moveK=sheepBlend(gs,'moveK',Math.max(0,Math.min(1,gs.v/2.2)),poseDt,14);
+    const gait=s.gp!==undefined?s.gp:gs.gp,mvK=down?0:(1-airK)*moveK;
+    const travelV=Math.hypot(gs.vx||0,gs.vz||0);
+    if(travelV>.15){gs.moveFX=gs.vx/travelV;gs.moveFZ=gs.vz/travelV;}
+    const moveFX=gs.moveFX??fx,moveFZ=gs.moveFZ??fz;
+    const dirF=moveFX*fx+moveFZ*fz,dirS=moveFX*rx+moveFZ*rz;
     const sq   = land > 0 ? 1 - (land/0.22)*0.08 : 1;                                   // 블록 비율을 지키며 착지 충격만 살짝
     const hop  = Math.abs(Math.sin(gait));                                           // 두 발의 디딤마다 작게 올라온다
-    /* 51차 — bob 은 **위로 튀는 것만** 담는다. 착지 눌림(sq)은 아래 stretch 가 u 에 곱해 맡는다 —
-       46차처럼 bob 에 빼기로 넣으면 몸만 내려앉고 통짜 다리는 그대로라 발이 땅을 뚫는다. */
-    const bob  = mvK * hop * (run ? 0.07 : 0.035) * sc;                               // 과한 바운드를 줄여 발이 바닥을 딛는 느낌
+    // Lower the hips into each support step; two-bone knees preserve floor contact.
+    const bob=(mvK*(-.035-runK*.040+hop*(.012+runK*.013))-take*.035-land/.22*.055)*sc;
     /* 44차 — 출발·급정지 자세: 가속(acc>0)이면 뒤로 살짝 눌리고(코 위), 급정지(acc<0)면 앞으로 쏠린다(코 아래). 급정지 땐 발밑 먼지 한 번(0.6초에 한 번만) */
     const accL = (down || air) ? 0 : Math.max(-0.22, Math.min(0.22, -gs.acc*0.022));
     if(!down && !air && gs.acc < -9 && gs.v > 1.4 && !(gs.dust > 0)){ gs.dust = 0.6; burst(s.x, y + 0.06, s.z, 0xd9cdb4, 4, 0.45); }
     const action = !down && !!s.act, ap = Math.max(0, Math.min(1, s.actP || 0));
-    const ease = v=>{ v=Math.max(0,Math.min(1,v)); return v*v*(3-2*v); };
+    const ease = sheepEase;
     /* 53차 — 정점에서 팔이 순간이동하지 않게 상승·낙하 자세를 같은 연속 곡선으로 잇는다. */
     const rise = ease((vy+2.5)/6);
     const actKind = action ? s.act : gs.actKind;
     const isWork = actKind === 'work', isThrow = actKind === 'throw';
-    const readyAt = isWork ? 0.20 : isThrow ? 0.44 : 0.30;
-    const hitAt = isWork ? 0.38 : isThrow ? 0.60 : 0.52;
-    /* 진행률에 묶인 준비 → 짧은 타격 → 긴 회복. 망치는 짧게, 곡괭이는 크게, 투척은 뒤에서 앞으로. */
-    let wind = action ? (ap < readyAt ? ease(ap/readyAt) : 1-ease((ap-readyAt)/(hitAt-readyAt))) : 0;
-    let strike = action ? (ap < hitAt ? ease((ap-readyAt)/(hitAt-readyAt)) : 1-ease((ap-hitAt)/(1-hitAt))) : 0;
-    if(action) gs.actKind = s.act;
-    else if(!down && !(s.wp > 0)){
-      const release = Math.exp(-20*Math.min(0.05, gs.dt || 0.016));
-      wind = (gs.actWind || 0)*release; strike = (gs.actStrike || 0)*release;
-    }
-    gs.actWind = wind < 0.001 ? 0 : wind; gs.actStrike = strike < 0.001 ? 0 : strike;
+    const actionPose=sheepActionPose(actKind,ap);
+    let wind=action?actionPose.wind:0,strike=action?actionPose.strike:0;
+    if(action)gs.actKind=s.act;
+    wind=sheepBlend(gs,'actWind',wind,poseDt,action?28:20);
+    strike=sheepBlend(gs,'actStrike',strike,poseDt,action?28:20);
+    if(down){gs.actWind=gs.actStrike=wind=strike=0;}
     const actPose = gs.actWind + gs.actStrike > 0;
     const kick = !down ? Math.min(1.6, s.kick || 0) : 0;
     /* 54차 — 허리 중심으로 온몸에 힘을 싣는다. 준비는 뒤로, 타격은 앞으로, 사격은 반동으로 뒤로.
        다리는 이 회전을 보상하면서 앞뒤로 벌려 버틴다. 경주 달리기도 실제 전방으로 기운다. */
-    const rootPitch = glideK*.95 + mvK*(run ? .23 : .055)
+    const rootPitch = glideK*.95 + mvK*(.055+runK*.175)*dirF
       - wind*(isThrow ? .18 : .13) + strike*(isWork ? .16 : .27) - kick*.14;
     const rootF = down ? 0 : -wind*.025 + strike*.045 - kick*.035;
-    const lean = accL*.45 + (air ? (1-glideK)*(.035-rise*.075) : mvK*Math.sin(gait+.4)*(run?.025:.012))
+    const lean = accL*.45 + airK*(1-glideK)*(.035-rise*.075) + (1-airK)*mvK*Math.sin(gait+.4)*(.012+runK*.013)
       -wind*.045 + strike*.065 -kick*.04;
     const idleK=(1-mvK)*(1-airK)*(1-Math.min(1,wind+strike));
     const breath = down ? 1 : 1 + idleK*life.br*.018;
     /* 머리 끄덕임 — 몸통 반동보다 한 박자 늦게 따라온다. 이게 있어야 살아 있어 보인다. */
-    const groundNod=mvK>.05?Math.sin(gait-.9)*(run?.06:.04)*mvK:Math.sin(t*1.5+(s.ph||0))*.012;
+    const groundNod=Math.sin(gait-.9)*(.04+runK*.02)*mvK+Math.sin(t*1.5+(s.ph||0))*.012*(1-mvK);
     const nod=groundNod*(1-airK)+(-.05+rise*.11)*airK;
     const stretch = (1+rise*.02+take*.03)*airK+sq*(1-wind*.012-strike*.03-kick*.015)*(1-airK);
-    const widen   = air ? 1 : 1 + (1 - sq)*0.35;
-    const lng     = (!down && !air && run) ? 1 + mvK*Math.sin(gait + 0.4)*0.035 : 1;     // 블록 몸통의 비율을 유지하는 작은 호흡
+    const widen = 1 + (1-airK)*(1-sq)*.35;
+    const lng=1+(down?0:(1-airK)*runK*mvK*Math.sin(gait+.4)*.035);
     const col  = colOf(s);   // 51차 — 셔츠(몸통) 색. 머리·팔은 R6_SKIN, 바지는 R6_PANT 로 고정이다
-    /* 몸 기준 좌표(앞 f · 위 u · 옆 sd) → 화면 좌표.
-       ★ 51차 — 쓰러짐은 더 이상 '위아래 뒤집기' 가 아니다. 선 몸을 그렇게 뒤집으면 머리·몸통·다리가
-         한 무더기로 쌓인다 — 아래 flipSet 이 몸을 통째로 뒤로 눕힌다(오른쪽 축 +90°). 그래서 Y 는 늘 같은 식이다.
-       ★ stretch 를 u 에 곱한다 — 발(u 0)은 제자리고 위로 갈수록 눌리거나 늘어난다. */
+    // Local forward/height/side coordinates; whole-body leaning is applied by FLIP_M.
     const X=(f,sd)=> s.x + fx*(f+rootF)*sc + rx*sd*sc;
     const Z=(f,sd)=> s.z + fz*(f+rootF)*sc + rz*sd*sc;
-    const Y  = (u)=> y + u*sc*stretch + bob;
-    /* 42차 — 공중제비: 사람 가운데(u 0.62)를 축(오른쪽 방향)으로 앞으로 한 바퀴. 이 사람의 부위를 놓는 동안 FLIP_ON 이 켜져 setI/setIR 이 행렬 앞에 곱한다 */
-    /* 51차 — 쓰러지면 **몸째 뒤로 넘어간다**(오른쪽 축으로 +90°, 얼굴이 하늘을 본다). 46차까지의
-       '위아래 뒤집기' 는 네발짐승이 배를 위로 하는 흉내였는데, 선 몸에 그 수법을 쓰면 부위가 겹쳐 쌓인다. */
+    const Y  = (u)=> y + u*sc*stretch + bob - (strike*.03+kick*.025)*sc;
+    // Torso attachments share its extra lean and breathing scale before the whole-body transform.
+    const tc=Math.cos(lean),ts=Math.sin(lean);
+    const BX=(f,u,sd)=>X(f*lng*tc+(u-R6_TU)*stretch*breath*ts,sd*widen*breath);
+    const BZ=(f,u,sd)=>Z(f*lng*tc+(u-R6_TU)*stretch*breath*ts,sd*widen*breath);
+    const BY=(f,u)=>Y(R6_TU)+((u-R6_TU)*stretch*breath*tc-f*lng*ts)*sc;
+    // Downed characters rotate onto their backs; a double jump rotates around the waist.
     if(down) flipSet(s.x, y + 0.26*sc, s.z, rx, 0, rz, Math.PI*0.5);
     else if(flip) flipSet(s.x, y + 0.72*sc*stretch + bob, s.z, rx, 0, rz, -Math.PI*2*flip);
     else {   // 44차 — 굴림 훅: 도는 안쪽으로 기울기(오른쪽으로 돌면 오른쪽이 낮아진다) + 서 있을 때 무게 옮기기
       const phi = -Math.max(-0.16, Math.min(0.16, hd.turn*0.045)) + idleK*life.sway*0.022
-        + wind*.035-strike*.045 + (run?Math.sin(gait)*mvK*.035:0);
+        + wind*.035-strike*.045 + runK*Math.sin(gait)*mvK*.035-dirS*mvK*(.025+runK*.07);
       const angle = Math.hypot(rootPitch,phi);
       if(angle > .002) flipSet(X(0,0),Y(R6_HIP),Z(0,0),rx*rootPitch+fx*phi,0,rz*rootPitch+fz*phi,angle); }
     /* 44차 — 머리 방향: 도는 쪽으로 먼저 돌고(lead), 서 있으면 가끔 두리번(look). 머리에 붙은 것(앞머리·귀·눈·입·볼·모자)은 머리 기준 좌표(HX·HZ)로 따라간다 */
     const hyaw = down ? 0 : Math.max(-0.4, Math.min(0.4, hd.lead*0.6)) + idleK*life.look*.30;
     const hry = ry + hyaw, hfx = Math.sin(hry), hfz = Math.cos(hry), hrx = Math.cos(hry), hrz = -Math.sin(hry);
-    /* ★ 51차 — 머리 기준 좌표. 모자·안경·얼굴 표는 '머리 f 0.68 · u 1.06' 기준으로 적혀 있고,
-       여기 세 줄이 그 기준점을 R6 머리 자리(f 0, u 1.24)로 옮긴다 — 표는 한 줄도 안 고쳤다. */
-    /* 53차 — 머리·얼굴·모자에 같은 강체 변환을 쓴다. 머리만 기울이면 눈과 입이 뜨거나 파묻힌다.
-       착지 stretch는 머리 중심 높이에만 적용한다. 머리 표면에 붙은 얼굴 간격은 늘리지 않는다. */
+    // Face/cosmetic rows use the authored head origin (.68,1.06). The rigid frame
+    // moves to R6_HU; landing changes its centre height without stretching the face.
     const headPitch = down ? 0 : lean*.6-glideK*.30+wind*.035-strike*.035, hcp = Math.cos(headPitch), hsp = Math.sin(headPitch);
     const HX=(f,sd,u=1.06)=> s.x + fx*(R6_HF+rootF)*sc + (hfx*((f-0.68)*hcp+(u-1.06)*hsp) + hrx*sd)*R6_HK*sc;
     const HZ=(f,sd,u=1.06)=> s.z + fz*(R6_HF+rootF)*sc + (hfz*((f-0.68)*hcp+(u-1.06)*hsp) + hrz*sd)*R6_HK*sc;
@@ -9598,14 +9694,10 @@ function drawSheep(list, t, cap, colOf, scale){
     /* ── 몸통(셔츠) ── 모둠 색이 붙는 제일 큰 면이다. 달릴 때 앞뒤로 살짝 기운다(lean) */
     setIR(P_body, n, X(0,0), Y(R6_TU), Z(0,0), ry, lean,
       R6_TOR[0]*sc*widen*breath, R6_TOR[1]*sc*stretch*breath, R6_TOR[2]*sc*lng, col);
-    /* ── 머리 ── 자리·크기는 46차 사람 머리 그대로다(모자·안경 표 백여 줄이 이 기준으로 적혀 있다).
-       얼굴 앞면은 머리 기준 f=0.99 — 얼굴에 붙는 것(눈·입·볼)은 그보다 앞으로 나와야 안 파묻힌다. */
+    // Head, curved facial details and accessories use the same pitched frame.
     setIR(P_head, n, HX(0.68,0), YH(1.06), HZ(0.68,0), hry, headPitch,
       R6_HEAD[0]*sc, R6_HEAD[1]*sc, R6_HEAD[2]*sc, R6_SKIN);
-    /* ── 팔 둘 ── 다리와 **반대로** 흔든다(오른팔 ↔ 왼다리) — 사람 걸음의 핵심이다.
-       ★ 공중 자세 둘은 48차에 적어 둔 로블록스 그대로다: **오를 땐 두 팔을 번쩍**, **내려올 땐 옆으로 벌린다.**
-         47차까지는 네발이라 이걸 다리로 흉내 냈는데, 이제 팔이 있으니 있는 그대로 한다.
-       ★ 총을 들면 오른팔이 앞으로 뻗는다 — 로블록스가 도구를 드는 그 자세다. */
+    // Arms counter-swing against the legs; two-handed aim uses a shared gun grip frame.
     const hasGun = (s.wp|0) > 0 && !down;
     const shY = Y(R6_SHU), hipY = Y(R6_HIP);
     let gripX=0, gripY=0, gripZ=0, gripTh=0, gripRl=0;
@@ -9616,8 +9708,9 @@ function drawSheep(list, t, cap, colOf, scale){
                        rl = si < 0 ? -0.06 : -0.16; }                      // 해부학적 오른손은 전방(+Z) 기준 -X 쪽이다
       /* 53차 — 상승에서는 만세, 낙하에서는 옆으로 펼친다. 정점을 지나며 연속적으로 섞고
          낙하 각도는 조금 줄여 둥근 캐릭터의 어깨·C자 손이 잘 읽히게 한다. */
-      else { th = -mvK*Math.sin(gait + (si > 0 ? 0 : Math.PI))*(run ? 1.10 : 0.56) + lean*.5 + (s.tool && si < 0 ? .42 : 0);
-        rl = si*(.02+(run?mvK*.08:0)+idleK*life.br*.02);
+      else { const swing=sheepFootPose(gait+(si>0?0:Math.PI),runK).f/(.23+runK*.06);
+        th=-mvK*swing*(.56+runK*.54)*dirF+lean*.5+(s.tool&&si<0?.42:0);
+        rl=si*(.02+runK*mvK*.08+idleK*life.br*.02)-mvK*swing*dirS*.30;
         const airTh=(.10+rise*2.95)*(1-glideK)+.35*glideK+lean*.5;
         const airRl=si*((1.20-rise*1.08)*(1-glideK)+.78*glideK);
         th+=(airTh-th)*airK;rl+=(airRl-rl)*airK; }
@@ -9630,61 +9723,92 @@ function drawSheep(list, t, cap, colOf, scale){
                      : wind*(isThrow ? -0.30 : isWork ? 0.40 : 0.50) + strike*(isThrow ? 0.72 : isWork ? 0.18 : 0.10);
         rl += si*(wind*(isThrow ? 0.10 : 0.04) + strike*0.08);
       }
-      const aL = R6_ARM[1]*sc*stretch, aW = R6_ARM[0]*sc*widen, aD = R6_ARM[2]*sc;
-      /* 손목 아래의 C자는 한 메시다. 팔과 같은 pitch·roll을 써서 만세/낙하에서도 떨어지지 않는다. */
-      const A = (off, L2, kw, kd)=> limb2(P_arm, armN++, X(0, R6_ASD*si), shY, Z(0, R6_ASD*si),
-        fx, fz, rx, rz, ry, th, rl, aL*off, aL*L2, aW*kw, aD*kd, R6_SKIN);
-      A(0,    0.66, 1.00, 1.00);
-      A(0.60, 0.15, 0.68, 0.72);
-      { const st2=Math.sin(th), ct2=Math.cos(th), sr2=Math.sin(rl), cr2=Math.cos(rl), m=aL*R6_HAND_AT;
-        const hx=X(0,R6_ASD*si)+(fx*cr2*st2+rx*sr2)*m;
-        const hy=shY-cr2*ct2*m, hz=Z(0,R6_ASD*si)+(fz*cr2*st2+rz*sr2)*m;
-        setIR3(P_hand[si>0?0:1],n,hx,hy,hz,ry,-th,rl,R6_HAND[0]*sc,R6_HAND[1]*sc*stretch,R6_HAND[2]*sc,R6_SKIN);
-        if(si<0){ gripX=hx; gripY=hy; gripZ=hz; gripTh=th; gripRl=rl; }
+      const aL=R6_ARM[1]*sc,aW=R6_ARM[0]*sc*widen,aD=R6_ARM[2]*sc;
+      const shoulder=[X(0,R6_ASD*si),shY,Z(0,R6_ASD*si)];
+      let elbow,hand;
+      if(hasGun){
+        // The support hand meets the receiver in front of the same centreline as the trigger hand.
+        const f=si<0?.12-kick*.055:.31-kick*.04,u=si<0?.96+kick*.035:1.10+kick*.025;
+        const target=[X(f,-.04),Y(u),Z(f,-.04)];
+        const solved=sheepJoint(shoulder,target,aL*.50,aL*.43,[rx*si-fx*.35,-.25,rz*si-fz*.35]);
+        elbow=solved.joint;hand=solved.end;
+      }else{
+        const bend=down?.12:.10+mvK*(.20+runK*.45)+airK*(.18+rise*.20)+wind*(si<0?.65:.30)+strike*.12;
+        const upper=th-bend*.40,fore=th+bend*.60,sr=Math.sin(rl),cr=Math.cos(rl);
+        const reach=(origin,angle,len)=>[origin[0]+(fx*cr*Math.sin(angle)+rx*sr)*len,origin[1]-cr*Math.cos(angle)*len,origin[2]+(fz*cr*Math.sin(angle)+rz*sr)*len];
+        elbow=reach(shoulder,upper,aL*.50);hand=reach(elbow,fore,aL*.36);
       }
+      gs.arms ||= [{},{}];const memory=gs.arms[si>0?0:1],follow=1-Math.exp(-26*poseDt);
+      const local=p=>{const dx=p[0]-shoulder[0],dz=p[2]-shoulder[2];return[dx*fx+dz*fz,p[1]-shoulder[1],dx*rx+dz*rz];};
+      const el=local(elbow),ha=local(hand),world=p=>[shoulder[0]+fx*p[0]+rx*p[2],shoulder[1]+p[1],shoulder[2]+fz*p[0]+rz*p[2]];
+      if(!memory.elbow){memory.elbow=el;memory.hand=ha;}
+      else for(let j=0;j<3;j++){memory.elbow[j]+=(el[j]-memory.elbow[j])*follow;memory.hand[j]+=(ha[j]-memory.hand[j])*follow;}
+      elbow=world(memory.elbow);hand=world(memory.hand);
+      const jointPose=sheepJoint(shoulder,hand,aL*.50,aL*(hasGun?.43:.36),elbow.map((v,i)=>v-shoulder[i]));
+      elbow=jointPose.joint;hand=jointPose.end;
+      sheepBone(P_arm,armN++,shoulder,elbow,ry,aW,aD,R6_SKIN);
+      const fl=Math.hypot(hand[0]-elbow[0],hand[1]-elbow[1],hand[2]-elbow[2]),gap=aL*.02;
+      const wrist=hand.map((v,i)=>v+(elbow[i]-v)*gap/fl);
+      const wristPose=sheepBone(P_arm,armN++,elbow,wrist,ry,aW*.80,aD*.82,R6_SKIN);
+      setIR3(P_hand[si>0?0:1],n,...hand,ry,-wristPose.th,wristPose.rl,R6_HAND[0]*sc,R6_HAND[1]*sc,R6_HAND[2]*sc,R6_SKIN);
+      if(si<0){[gripX,gripY,gripZ]=hand;gripTh=wristPose.th;gripRl=wristPose.rl;}
     }
-    /* ── 다리 둘 ── 마디가 없는 통짜다. 발(u 0)이 제자리에 있도록 길이에도 stretch 를 곱한다 —
-       그래야 착지로 몸이 눌릴 때 발이 땅을 뚫거나 뜨지 않는다. */
+    // Feet stay on the ground while knees absorb body weight, landing and tool impact.
+    const bodyFlip=FLIP_ON;gs.feet ||= [{},{}];
     for(const si of [1,-1]){
-      let th, rl;
-      if(down){ th = -0.20*si; rl = si*0.22; }
-      /* 뜰 때 모으고 내려올 때 조금 벌린다. 통짜 다리의 보폭은 걸음 ±30° · 달리기 ±44°. */
-      else { const brace = wind*.10-strike*.16-kick*.09;
-        th = mvK*Math.sin(gait + (si > 0 ? 0 : Math.PI))*(run ? .90 : .52)+rootPitch+si*brace;
-        rl = si*(.03+Math.min(1,wind+strike)*.07+kick*.025);
-        const airTh=(-.05+rise*.19+take*.26)*(1-glideK)+.18*glideK;
-        const airRl=si*((.17-rise*.14)*(1-glideK)+.10*glideK);
-        th+=(airTh-th)*airK;rl+=(airRl-rl)*airK; }
-      const gL = R6_LEG[1]*sc*stretch, gW = R6_LEG[0]*sc*widen, gD = R6_LEG[2]*sc;
-      limb1(P_legs, ln++, X(0, R6_HSD*si), hipY, Z(0, R6_HSD*si), fx, fz, rx, rz, ry, th, rl,
-        gL, gW, gD, R6_PANT);
+      FLIP_ON=bodyFlip;
+      const hip=sheepPoint([X(0,R6_HSD*si),hipY,Z(0,R6_HSD*si)]),step=sheepFootPose(gait+(si>0?0:Math.PI),runK);
+      const intent=Math.min(1,wind+strike),brace=si*(intent*.055+(hasGun?.045:0)),stepF=step.f*mvK,f=si*(wind*.06-strike*.085-kick*.04);
+      const sd=(R6_HSD+intent*.045+(hasGun?.035:0))*si;
+      const toe=step.toe*mvK,lift=step.lift*mvK,shoeY=(.065*Math.cos(toe)+.195*Math.abs(Math.sin(toe)))*sc;
+      let ground=[s.x+(moveFX*stepF+fx*(f+brace)+rx*sd)*sc,y+shoeY+.01*sc+lift*sc,s.z+(moveFZ*stepF+fz*(f+brace)+rz*sd)*sc];
+      const foot=gs.feet[si>0?0:1],locked=step.plant&&!air&&mvK>.2&&(gs.travel||0)>0&&(gs.travel||0)<.5;
+      const lockK=sheepBlend(foot,'lockK',locked?1:0,poseDt,18);
+      if(locked&&(!foot.plant||!foot.anchor))foot.anchor=[ground[0],ground[2]];
+      if(foot.anchor){
+        const drift=Math.hypot(foot.anchor[0]-hip[0],foot.anchor[1]-hip[2]);
+        const reachK=sheepBlend(foot,'reachK',1-sheepEase((drift/sc-.22)/.13),poseDt,16);
+        const k=reachK*lockK;
+        ground[0]+=(foot.anchor[0]-ground[0])*k;ground[2]+=(foot.anchor[1]-ground[2])*k;
+      }
+      foot.plant=locked;if(!locked&&lockK<.001){foot.anchor=null;foot.reachK=undefined;}
+      const th=down?-.20*si:.12+rise*.24+take*.30+glideK*.16,bend=down?.15:.20+rise*.55+take*.35+glideK*.32;
+      const airF=Math.sin(th)*.275+Math.sin(th-bend)*.250;
+      const airU=R6_HIP-Math.cos(th)*.275-Math.cos(th-bend)*.250;
+      const airborne=sheepPoint([X(airF,R6_HSD*si+si*.04*(1-rise)),Y(airU),Z(airF,R6_HSD*si+si*.04*(1-rise))]);
+      const airBlend=down?1:airK,target=ground.map((v,i)=>v+(airborne[i]-v)*airBlend);
+      let pole=[fx,0,fz];
+      if(bodyFlip&&airBlend>0){const e=FLIP_M.elements,rot=[e[0]*fx+e[8]*fz,e[1]*fx+e[9]*fz,e[2]*fx+e[10]*fz];pole=pole.map((v,i)=>v+(rot[i]-v)*airBlend);}
+      const joint=sheepJoint(hip,target,.275*sc,.250*sc,pole);
+      FLIP_ON=false;
+      sheepBone(P_legs,ln++,hip,joint.joint,ry,R6_LEG[0]*sc*.98,R6_LEG[2]*sc*.98,R6_PANT);
+      sheepBone(P_legs,ln++,joint.joint,joint.end,ry,R6_LEG[0]*sc*.91,R6_LEG[2]*sc*.91,R6_PANT);
+      const shoePitch=toe*(1-airBlend)+(th-bend)*.45*airBlend;
+      const footYaw=ry+Math.max(-.55,Math.min(.55,Math.atan2(dirS,Math.abs(dirF))))*mvK*(1-airBlend);
+      setIR3(P_shoe,shoeN,joint.end[0]+fx*.035*sc,joint.end[1]-.01*sc,joint.end[2]+fz*.035*sc,footYaw,-shoePitch,0,.315*sc,.13*sc,.39*sc,0xf2f3f5);
+      if(bodyFlip&&airBlend>0){
+        P_shoe.getMatrixAt(shoeN,_m);_m.decompose(_v,_q,_s);
+        const rot=new THREE.Quaternion().setFromRotationMatrix(FLIP_M).slerp(new THREE.Quaternion(),1-airBlend);
+        _q.premultiply(rot);P_shoe.setMatrixAt(shoeN,_m.compose(_v,_q,_s));
+      }
+      shoeN++;
     }
+    FLIP_ON=bodyFlip;
     if(down){
       /* ✕ 눈 — 얇은 막대 두 개를 서로 반대로 기울여 겹친다. 몸이 통째로 뒤로 누우므로 얼굴에 그대로 찍으면 하늘을 본다 */
       const hk = R6_HK*sc;
-      for(const si of [1,-1]) for(const rr of [0.75, -0.75])
-        setIR3(P_eye, eyeN++, HX(1.02,0.13*si,1.14), YH(1.14,1.02), HZ(1.02,0.13*si,1.14), hry, headPitch, rr,
-          0.13*hk, 0.035*hk, 0.05*hk, 0x241f1c);
+      for(const si of [1,-1])for(const rr of [.75,-.75]){
+        const front=.68+r6FaceFront(.13*si)+.002;
+        setR6Eye(P_eye,eyeN++,HX(front,.13*si,1.14),YH(1.14,front),HZ(front,.13*si,1.14),hry,headPitch,.13*si,rr,.13*hk,.035*hk,.05*hk,0x241f1c);
+      }
       // 혀 — 입에서 살짝 나온 분홍 조각
       setIR(P_nose, noseN++, HX(1.07,0,0.99), YH(0.99,1.07), HZ(1.07,0,0.99), hry, headPitch,
         0.10*hk, 0.05*hk, 0.12*hk, 0xff8fa6);
     } else {
-    /* ★ 29차 얼굴 — 선생님: "얼굴 가운데 타원(코)이 입인 줄 알았다, 턱수염 같다. 그거 없애고 입을 위로."
-       로블록스 얼굴 그대로 — 눈 둘 + 넓은 U 미소, 코 없음. 볼터치는 입 옆 뺨에. 셋(게임·미리보기·아이콘)이 같은 값. */
-    /* ★ 51차c — **얼굴 조각이 너무 컸다.** 선생님: "캐릭터 얼굴 손봐 줘, 이상해."
-       51차b 는 눈이 머리 너비의 28%·높이의 41%, 입이 너비의 59% 였다 — 얼굴이 아니라 가면이었다.
-       로블록스 클래식 스마일을 실제 비율로 다시 잰다(머리 너비·높이를 100으로 놓고):
-           눈    가로 12% · 세로 20% · 가운데에서 옆으로 22%
-           미소  가로 30% · 깊이(늘어짐) 12% — **속이 빈 가는 곡선**이다(SMILE = 반 토러스)
-       머리 표 기준으로 옮기면 아래 값이 된다. 얼굴 앞면이 f 0.99 라 눈·입은 그보다 앞에 둔다. */
-    /* ★ 51차d — 선생님: "결정적으로 얼굴이 다르잖아." 사진을 4배로 늘려 픽셀로 다시 쟀다.
-       머리 너비를 100으로 놓았을 때 로블록스 클래식 스마일은 —
-           눈  가로 5~7 · 세로 10~12 (아주 작은 검은 타원) · 가운데에서 옆으로 19
-           입  가로 **44** · 늘어짐 18 — 눈 사이보다 훨씬 **넓고 얕은 곡선**이다
-       51차c 는 눈이 12.5 로 두 배 크고 입이 35 로 좁아서, 눈만 큰 다른 얼굴이 됐다. */
+    // Eyes and the thin curved smile share the head's rigid local frame in every pose.
     const hk = R6_HK*sc;
     for(const si of [1,-1])
-      setIR(P_eye, eyeN++, HX(R6_EYE_F,R6_FACE.eyeSide*si,R6_FACE.eyeU), YH(R6_FACE.eyeU,R6_EYE_F), HZ(R6_EYE_F,R6_FACE.eyeSide*si,R6_FACE.eyeU), hry, headPitch,
+      setR6Eye(P_eye, eyeN++, HX(R6_EYE_F,R6_FACE.eyeSide*si,R6_FACE.eyeU), YH(R6_FACE.eyeU,R6_EYE_F), HZ(R6_EYE_F,R6_FACE.eyeSide*si,R6_FACE.eyeU), hry, headPitch,R6_FACE.eyeSide*si,0,
         R6_FACE.eyeW*hk, R6_FACE.eyeH*hk, R6_FACE.eyeD*hk, 0x1c1a18);
     setIR(P_mouth, mouthN++, HX(R6_MOUTH_F,0,R6_FACE.mouthU), YH(R6_FACE.mouthU,R6_MOUTH_F), HZ(R6_MOUTH_F,0,R6_FACE.mouthU), hry, headPitch, R6_FACE.mouthW*hk, R6_FACE.mouthH*hk, 0.07*hk, 0x1c1a18);
     }
@@ -9697,8 +9821,8 @@ function drawSheep(list, t, cap, colOf, scale){
       for(const h of pick(arr, idx)){
         if(decoN >= P_deco.count_max) break;
         const q = onHead ? h : r6body(h[0],h[1],h[2],h[3],h[4],h[5]), ks = (onHead ? R6_HK : 1)*sc;
-        setIR(P_deco, decoN++, onHead?HX(q[0],q[2],q[1]):X(q[0],q[2]), onHead?YH(q[1],q[0]):Y(q[1]), onHead?HZ(q[0],q[2],q[1]):Z(q[0],q[2]), onHead ? hry : ry, onHead ? headPitch : 0,
-          q[3]*ks, q[4]*ks, q[5]*ks, h[6]);
+        setIR(P_deco, decoN++, onHead?HX(q[0],q[2],q[1]):BX(q[0],q[1],q[2]), onHead?YH(q[1],q[0]):BY(q[0],q[1]), onHead?HZ(q[0],q[2],q[1]):BZ(q[0],q[1],q[2]), onHead ? hry : ry, onHead ? headPitch : lean,
+          q[3]*ks*(onHead?1:widen*breath),q[4]*ks*(onHead?1:stretch*breath),q[5]*ks*(onHead?1:lng),h[6]);
       }
     }
     /* ── 전직한 사람의 차림새 ──
@@ -9709,13 +9833,8 @@ function drawSheep(list, t, cap, colOf, scale){
     if(jt > 0 && s.jb >= 0 && s.jb < JOB_LOOK.length){
       /* 45차 — 조각마다 움직임(h[8])·빛(h[9]). 망토는 걸음에 펄럭이고, 불티·기어·잎은 몸 둘레를 돌고, 2차 조각은 빛난다 */
       const orbA = t*1.45 + (s.ph||0)*0.7;                               // 공전 각
-      const flap = down ? 0 : mvK*(run ? 1 : 0.62) + Math.abs(hd.turn)*0.08;   // 망토가 날리는 정도
+      const flap = down ? 0 : mvK*(.62+runK*.38) + Math.abs(hd.turn)*0.08;
       const puls = 0.90 + Math.sin(t*2.6 + (s.ph||0))*0.14;              // 빛이 숨쉰다
-      /* 45차 — 날개 퍼덕임. 공중에선 크게(15Hz), 활공 중엔 쫙 편 채 천천히, 달리면 걸음 리듬을 타고, 서 있으면 숨쉬듯. 쓰러지면 접힌다 */
-      const wingF = down ? -.20
-        : air ? (1-glideK)*(.10+Math.sin(t*8+(s.ph||0))*.23)+glideK*(.32+Math.sin(t*2.8+(s.ph||0))*.025)
-        : mvK > .05 ? -.10+Math.sin(gait)*(run?.085:.05)*mvK
-        : -.08+Math.sin(t*1.7+(s.ph||0))*.025;
       /* 달릴 때 발에서 직업 색 불티 — 걸음 한 바퀴에 한 번. 내 사람(1인칭)은 updPlayer 가 내므로 여기서는 건너뛴다 */
       if(run && mvK > 0.5 && !air && !down && s !== meSheep){
         const cyc = Math.floor(gait/(Math.PI*2));
@@ -9736,11 +9855,12 @@ function drawSheep(list, t, cap, colOf, scale){
         else if(an === 2 || an === 3){ hf = h[0]; hu = r6hu(h[1]); hsd = h[2]; }
         else { const q = r6body(h[0],h[1],h[2],h[3],h[4],h[5]);
                hf = q[0]; hu = q[1]; hsd = q[2]; hw = q[3]; hh = q[4]; hd6 = q[5]; }
-        let yaw = h[7] ? hry : ry, pit = (h[7] ? headPitch : 0)+(h[10]||0), rol = h[11]||0;
+        const bodyBound=!h[7]&&an!==2&&an!==3;
+        let yaw = h[7] ? hry : ry, pit = (h[7] ? headPitch : bodyBound?lean:0)+(h[10]||0), rol = h[11]||0;
         if(an === 1){                        // 망토 — 걸으면 뒤로 들려 펄럭이고, 도는 쪽 바깥으로 날린다
           const sw = Math.sin(gait*0.5 + (s.ph||0))*0.12*flap;
           hf -= 0.26*flap*BF; hu += 0.14*flap; hsd += hd.turn*0.09 + sw;
-          pit = -0.50*flap + sw*0.5;
+          pit = lean-0.50*flap+sw*0.5;
         } else if(an === 2){                 // 공전 — 적어 둔 자리(f·sd)가 몸 축을 돈다
           const ca = Math.cos(orbA), sa = Math.sin(orbA);
           hf = h[0]*ca - h[2]*sa; hsd = h[0]*sa + h[2]*ca; yaw = ry + orbA;
@@ -9750,24 +9870,23 @@ function drawSheep(list, t, cap, colOf, scale){
         }
         /* ★ 여덟 번째 칸이 1 이면 머리를 따라 끄덕인다(투구·모자).
            높이로 어림잡았더니 등에 멘 망치(u 1.52)까지 머리를 따라 흔들렸다. */
-        const px = h[7] ? HX(hf,hsd,hu) : X(hf,hsd), py = h[7] ? YH(hu,hf) : Y(hu), pz = h[7] ? HZ(hf,hsd,hu) : Z(hf,hsd);
+        const px=h[7]?HX(hf,hsd,hu):bodyBound?BX(hf,hu,hsd):X(hf,hsd),py=h[7]?YH(hu,hf):bodyBound?BY(hf,hu):Y(hu),pz=h[7]?HZ(hf,hsd,hu):bodyBound?BZ(hf,hu,hsd):Z(hf,hsd);
+        if(bodyBound){hw*=widen*breath;hh*=stretch*breath;hd6*=lng;}
         if(rol)      setIR3(P_deco, decoN++, px, py, pz, yaw, pit, rol, hw*sc, hh*sc, hd6*sc, h[6]);
         else if(pit) setIR (P_deco, decoN++, px, py, pz, yaw, pit,      hw*sc, hh*sc, hd6*sc, h[6]);
         else         setI  (P_deco, decoN++, px, py, pz, yaw,           hw*sc, hh*sc, hd6*sc, h[6]);
         if(h[9] && jobFN < P_jobF.count_max)   // 빛 — 같은 자리에 가산 한 겹, 조금 크게
           setIR3(P_jobF, jobFN++, px, py, pz, yaw, pit, rol, (hw+0.09)*sc*puls, (hh+0.09)*sc*puls, (hd6+0.09)*sc*puls, h[6]);
       }
-      /* 45차 — 날개 한 쌍. 어깨 뒤에 붙여 뒤로 살짝 눕히고(피치), 퍼덕임은 앞뒤 축 굴림(roll)이다.
-         왼쪽은 가로 크기를 음수로 줘 거울처럼 뒤집는다. 굴림 부호가 좌우 반대라야 둘이 같이 위로 올라간다. */
+      // Both roots stay attached to the torso; ground/aim fold back, flight opens outward.
       { const WG = JOB_WING[s.jb][Math.min(1, jt-1)], ws = WG.s*sc, mi = WG.k|0;
-        const spread = -.10+wingF;                                    // 서 있을 때 부드러운 V, 활공하면 수평 가까이 넓게 편다
         for(const si of [1,-1]){
-          /* 51차 — 선 등판에 맞춰 어깨 바로 아래(u 0.90)·등 뒤(f -0.26)로. 네발 때는 (-0.34, 0.88) 이었다 */
-          const px = X(-.19,.19*si), py = Y(1.08), pz = Z(-.19,.19*si);
+          const wing=avatarWingPose(si,{t,phase:s.ph||0,mv:mvK,run:runK,air:airK,glide:glideK,aim:wingAimK,down});
+          const px=BX(wing.f,wing.u,wing.sd),py=BY(wing.f,wing.u),pz=BZ(wing.f,wing.u,wing.sd);
           if(wN[mi] < P_wing[mi].count_max)
-            setIR3(P_wing[mi], wN[mi]++, px, py, pz, ry, -.10-glideK*.26, si*spread, ws*si*(1+glideK*.12), ws, ws, WG.c);
+            setSheepAttachment(P_wing[mi],wN[mi]++,px,py,pz,ry,lean,wing.yaw,wing.pitch,wing.roll,ws*si*wing.span,ws,ws,WG.c);
           if(WG.g && wgN[mi] < P_wingG[mi].count_max)
-            setIR3(P_wingG[mi], wgN[mi]++, px, py, pz, ry, -.10-glideK*.26, si*spread, ws*si*(1+glideK*.12)*1.018, ws*1.018, ws*1.018, WG.c);
+            setSheepAttachment(P_wingG[mi],wgN[mi]++,px,py,pz,ry,lean,wing.yaw,wing.pitch,wing.roll,ws*si*wing.span*1.018,ws*1.018,ws*1.018,WG.c);
         } }
       /* 2차 전직은 발밑에 직업 색 고리가 돈다 — 멀리서도 "쟤 2차다" 가 바닥으로 보인다 */
       if(jt >= 2 && !down && jobRN < P_jobR.count_max){
@@ -9783,7 +9902,7 @@ function drawSheep(list, t, cap, colOf, scale){
          setI 의 세 번째 크기(sz)가 곧 몸 기준 '앞뒤 길이' 라, 여기에 총열 길이를 준다.
          옆에서 보면 총열이 화면을 가로지르고, 뒤에서 보면 어깨 너머로 삐져나온다. */
     const wi = s.wp|0;
-    if(wi > 0 && !down && gunN + 3 <= P_gun.count_max){
+    if(wi > 0 && !down && gunN + 7 <= P_gun.count_max){
       const W = WEAPONS[Math.min(WEAPONS.length-1, wi)];
       const e  = Math.max(0, Math.min(ENH_MAX, s.we|0));
       const FX = ENH_FX[e];
@@ -9801,6 +9920,10 @@ function drawSheep(list, t, cap, colOf, scale){
       /* 손은 C자 메시 그대로 보인다. 구멍 안에는 가는 손잡이만 넣는다. */
       setIR(P_gun, gunN++, GX(0,0), gripY+0.03*sc, GZ(0,0), ry, gunPit,
         0.065*sc, 0.26*sc, 0.07*sc, 0x536278);
+      setIR(P_gun,gunN++,GX(.11,gsd),gy-.025*sc,GZ(.11,gsd),ry,gunPit,.17*sc,.15*sc,.30*sc,W.col);
+      setIR(P_gun,gunN++,GX(gf+L*.5,gsd),gy,GZ(gf+L*.5,gsd),ry,gunPit,.13*sc,.13*sc,.095*sc,0x354354);
+      setIR(P_gun,gunN++,GX(.19,gsd),gy-.10*sc,GZ(.19,gsd),ry,gunPit,.065*sc,.18*sc,.065*sc,0x536278);
+      setIR(P_gun,gunN++,GX(.16,gsd),gy+.12*sc,GZ(.16,gsd),ry,gunPit,.085*sc,.075*sc,(L>.65?.23:.10)*sc,0x405064);
       /* 빛 — 강화 단계가 있을 때만. 숨쉬듯 커졌다 작아진다 */
       if(FX.glow > 0 && glowN + 2 <= P_gunF.count_max){
         const bs2 = 0.80 + Math.sin(t*FX.pulse + (s.ph||0))*0.20;
@@ -9833,7 +9956,7 @@ function drawSheep(list, t, cap, colOf, scale){
   }
   FLIP_ON = false;
   P_body.count=n; P_head.count=n; P_nose.count=noseN; P_mouth.count=mouthN;
-  P_arm.count=armN; P_hand[0].count=n; P_hand[1].count=n; P_eye.count=eyeN; P_legs.count=ln; P_deco.count=decoN;
+  P_arm.count=armN; P_hand[0].count=n; P_hand[1].count=n; P_eye.count=eyeN; P_legs.count=ln;P_shoe.count=shoeN; P_deco.count=decoN;
   P_deco.visible = decoN > 0;
   P_gun.count=gunN; P_gunF.count=glowN;
   P_gun.visible = gunN > 0; P_gunF.visible = glowN > 0;
@@ -9842,8 +9965,9 @@ function drawSheep(list, t, cap, colOf, scale){
   if(jobRN > 0 && P_jobR.instanceColor) P_jobR.instanceColor.needsUpdate = true;
   for(let i=0;i<2;i++){ P_wing[i].count = wN[i]; P_wing[i].visible = wN[i] > 0;
                         P_wingG[i].count = wgN[i]; P_wingG[i].visible = wgN[i] > 0; }
-  flush(P_body,P_head,P_arm,P_hand[0],P_hand[1],P_eye,P_nose,P_mouth,P_legs,P_deco,P_gun,P_gunF,P_jobF,P_jobR,
+  flush(P_body,P_head,P_arm,P_hand[0],P_hand[1],P_eye,P_nose,P_mouth,P_legs,P_shoe,P_deco,P_gun,P_gunF,P_jobF,P_jobR,
         P_wing[0],P_wing[1],P_wingG[0],P_wingG[1]);
+  drawAvatarShadows(list,cap,scale);
 }
 
 /* 이름표 */
@@ -10099,7 +10223,8 @@ const jump2Now = ()=> raceOn() ? JUMP2_R : JUMP2_V;
 const DOWN_CAM = 4.6;           // 쓰러졌을 때 시체에서 물러나는 거리
 let camGY = null;               // 52차 — 캐릭터 발 높이를 따라가는 닻(점프·낙하도 포함)
 let camDistance = null, camShoulder = 0, camBodyHidden = false, camAimBlend = 0;
-const AIM_VIEW = {back:2.65, height:1.04, shoulder:0.68, lift:0.13, fov:64};
+// 조준 중에는 머리 위·오른쪽 어깨 바깥에서 본다. 몸과 접힌 날개는 화면 왼쪽 아래에 남는다.
+const AIM_VIEW = {back:2.90, height:1.32, shoulder:0.94, lift:0.10, fov:68};
 
 const MINI_CAM = [6.4];         // 0: 장애물 경주 — 뒤 위에서 따라간다(로블록스처럼 내 사람과 발판이 같이 보여야 한다). 5.2 는 사람이 화면 아래 3분의 1 을 먹었다
 
@@ -10309,7 +10434,7 @@ function updPlayer(dt){
     const ratio = length > 0 ? camDistance/length : 0;
     camera.position.set(tx + ox*ratio, ty + oy*ratio, tz + oz*ratio);
     // 몸 숨김/복귀에 서로 다른 경계를 써 점프·벽 가장자리에서 깜빡이지 않는다.
-    camBodyHidden = camBodyHidden ? camDistance < 0.90 : camDistance < 0.52;
+    camBodyHidden = camBodyHidden ? camDistance < (camAimBlend>.5 ? 1.75 : .90) : camDistance < (camAimBlend>.5 ? 1.45 : .52);
   } else {
     camera.position.set(PL.x, PL.y + PL.EYE + Math.abs(Math.sin(gaitMe))*0.04*runK, PL.z);   // 41차 — 1인칭(마을)도 달리면 머리가 걸음 박자로 흔들린다
     camAnc = null; camGY = null; camDistance = null; camShoulder = 0; camBodyHidden = false;
@@ -15571,7 +15696,7 @@ function miniTick(dt){
 }
 /* 사람의 머리 점 · 몸통 점 — 그리는 자리(drawSheep)와 같은 식이라야 눈과 판정이 안 어긋난다.
    51차 — R6 머리는 몸 한가운데 위(앞 0 · 높이 R6_HU)에 있다. 46차까지의 사람 머리는 앞으로 0.68 이었다. */
-function survSheepSc(q){ return SHEEP_S * (1 + 0.09*Math.max(0, Math.min(2, q.jt|0))); }
+function survSheepSc(q){ return SHEEP_S; }
 function survHeadPos(q, out){
   const sc = survSheepSc(q), ry = (q.ry||0) + Math.PI;
   out[0] = q.x + Math.sin(ry)*R6_HF*sc;
@@ -15629,7 +15754,7 @@ function aimPlayer(W = wpnNow()){
    선생님: "OX 퀴즈랑 줄넘기 없애고 로블록스에 있는 게임처럼 장애물 지형을 넘어 골인하는 경주대회. 달리기(Shift)·2단 점프로
    장애물을 넘고, 순위가 나오고, 아이템도 먹고, 발판이 갑자기 꺼지는 랜덤 요소. 속도감 · 효과음 · 재밌는 아이템 ·
    1등 유니크 총 · 2~3등 레어 총 · 4~5등 제일 좋은 방어구 · 6~10등 자원 · 90초 안 골인 전원 소량 자원 · 다섯 명쯤은 아깝게."
-   ★ 코스는 하늘 섬에서 +Z 로 뻗는다 — 출발대(z -19) → 섬 가장자리(z 34) → 허공 위 여섯 구간 → 골인(z 294, 높이 +8.1).
+   ★ 코스는 하늘 섬에서 +Z 로 뻗는다 — 출발대(z -19) → 섬 가장자리(z 34) → 허공 위 여섯 구간 → 골인(z 312, 높이 +8.1).
    ★ 변형은 seed 로 뽑는다(호스트가 goMini 에서 하나 뽑아 meta 로 보낸다) — 발판 표 RACE_P 가 전원 같으니 통신할 것이 없다.
      움직이는 통나무·깜빡이는 발판·굴러오는 바위도 seed 와 '출발 뒤 지난 시간'(RACE_SEC − G.t, 호스트가 맞춰 준다)의 식이다.
    ★ 발판은 '높이' 로만 막는다 — groundUnder 가 raceTopAt 을 본다. 발판이 없으면 허공(-999)이라 떨어진다.
@@ -15679,9 +15804,9 @@ function raceBuild(seed){
     for(let i=0;i<4;i++){ const z = S.z0 + 4.5 + i*10.4;
       P({x:0, z, w:2.6, d:9.0, h:0.9, col:i%2 ? S.col : furLight(S.col, 0.16), sec:3, kind:'log',   // 47차 — 1.5 는 한 명만 지나갔다
          mv:{ax:'x', amp:v === 0 ? 1.0 : v === 1 ? 1.5 : 1.25, spd:0.55 + i*0.15 + v*0.1, ph:rng()*6.28}}); } }   // 봇 21 중 일곱이 여기서 못 나와 흔들림을 줄였다
-  /* ⑤ 무지개 점프 — 넓은 여섯 발판의 높낮이를 넘는다. 간격 1.4·높이 0.65라 기본 한 번 점프로도 통과한다. */
+  /* ⑤ 무지개 점프 — 몸 반지름으로 틈을 건너뛰지 못하게 간격을 확보한다. 낮은 높낮이는 기본 한 번 점프로 넘는다. */
   { const S = RACE_S[4], colors = [0xff7799,0xffb657,0xffe878,0x7cdf92,0x66c9ff,0xb59aff];
-    for(let i=0;i<6;i++) P({x:0,z:S.z0+1.8+i*5.0,y:i%2?0.65:0,w:8,d:3.6,h:0.6+(i%2?0.65:0),col:colors[i],sec:4,kind:'rainbow'}); }
+    for(let i=0;i<6;i++) P({x:0,z:S.z0+1.8+i*8.6,y:i%2?.15:0,w:8,d:3.6,h:.6+(i%2?.15:0),col:colors[i],sec:4,kind:'rainbow'}); }
   /* ⑥ 마지막 계단 — 아홉 단, 셋마다 틈 하나. 꼭대기가 골인 */
   { const S = RACE_S[5], v = V[5], n = 9, step = 0.9;
     let z = S.z0;
@@ -15807,27 +15932,27 @@ function raceHostTick(dt){
 function raceFinished(){ let n = 0; for(const d of miniPl.values()) if(d && d.fin !== undefined && d.fin >= 0) n++; return n; }
 /* ── 굴러오는 바위 (④ 구간) — 5.5초마다 하나가 골인 쪽에서 출발 쪽으로 가운데 길(x 0)을 굴러 내려온다. 통나무가 좌우로 흔들리니
      길 가운데를 비켜 서면 된다. 맞으면 뒤로 튕기고 0.8초 미끄러진다(조종 불가). 시각은 seed·경과 시간의 식이라 전원 같다 ── */
-const ROCK = {per:6.5, spd:8.5, r:1.15};   // 37차 9초·6.5 (5.5초는 봇 21 중 둘이 못 나왔다) → 39차 선생님: "장애물 속도를 높여서 좀 더 어렵게" — 6.5초마다 8.5 로
+const ROCK = {per:6.5, spd:17.0, r:2.30};   // 넓어진 트랙에 맞춰 크기와 이동 속도는 두 배, 생성 간격은 유지한다.
 
 function rockU(tt){ const a = ROCK.spd / 1.2; return tt < 1.2 ? 0.5*a*tt*tt : 0.6*ROCK.spd + ROCK.spd*(tt - 1.2); }
 function raceRocks(t){
-  const S = RACE_S[3], out = [], z1 = S.z1 + 3, z0 = S.z0 - 4, len = z1 - z0, ph = (RACE.seed % 1000) / 1000 * ROCK.per;
+  const S = RACE_S[3], out = [], z1 = S.z1-ROCK.r-.8, z0 = S.z0+ROCK.r+.8, len = z1 - z0, ph = (RACE.seed % 1000) / 1000 * ROCK.per;
   for(let k=-1;k<=3;k++){ const t0 = Math.floor((t - ph) / ROCK.per - k) * ROCK.per + ph, tt = t - t0; if(tt < 0) continue; const u = rockU(tt); if(u > len) continue;
     const drop = tt < 0.55 ? 6.0 * Math.pow(1 - tt/0.55, 2) : 0, hop = tt >= 0.55 ? 0.16 * Math.abs(Math.sin(u*1.6)) : 0;
     out.push({k:'rock', x:Math.sin(t0*1.7)*0.9*RACE_X, z:z1 - u, y:ROCK.r + drop + hop, r:ROCK.r, roll:u/ROCK.r, tt, u, id:'k'+Math.round(t0*10)}); }
   return out;
 }
 /* ═══ 장애물: 바위(④) · 계단을 굴러 내려오는 공(⑤) · 좁은 다리 위 진자(②) · 깃발 판 회전 막대(3·5번) ═══ */
-const HAZ = {ball:{per:5.0, spd:7.5, r:0.8}, pend:{per:1.82, len:6.2, swing:0.44, top:7.6, r:1.2}, bar:{spd:1.9, len:7.0}};   // 45차 — 진자 크기 +20%(r 1.0 → 1.2) · 속도 +10%(주기 2.0 → 1.82)   // 42차 — 진자 주기 2.4 → 2.0(선생님: "20% 더 빠르게 움직여도 돼")   // 40차 — 진자는 쇠공(r 1.0)에 쇠사슬   // 39차 선생님: "속도를 높여서 좀 더 어렵게" — 공 7초·5.6 → 5초·7.5 · 진자 3.2 → 2.4초 · 막대 1.15 → 1.9
+const HAZ = {ball:{per:5.0,spd:15.0,r:1.6},pend:{per:.91,len:6.2,swing:.44,top:8.8,r:2.4},bar:{spd:1.9,len:7.0}};
 function raceHazards(t){
   const out = [], seed = (RACE.seed % 1000) / 1000;
-  /* 계단 공 — 골인 판 앞(z 257)에서 계단을 따라 굴러 내려온다. 좌우 두 길 가운데 하나(몇 번째 공인지로 갈린다). 처음 3초는 안 나온다 */
-  { const S = RACE_S[5], zTop = RACE_Z_FIN - 1, zEnd = S.z0 - 4, len = zTop - zEnd, ph = seed * HAZ.ball.per;
+  /* 계단 공 — 골인 앞에서 번갈아 두 길로 내려온다. 처음 3초와 양끝 체크포인트는 안전하게 둔다. */
+  { const S = RACE_S[5], zTop = RACE_Z_FIN - 1, zEnd = S.z0+HAZ.ball.r+.8, len = zTop - zEnd, ph = seed * HAZ.ball.per;
     for(let k=-1;k<=2;k++){ const t0 = Math.floor((t - ph) / HAZ.ball.per - k) * HAZ.ball.per + ph; const u = (t - t0) * HAZ.ball.spd; if(t0 < 3 || u < 0 || u > len) continue;
       const z = zTop - u, lane = ((Math.round(t0 / HAZ.ball.per) % 2) ? 1.1 : -1.1)*RACE_X;
       const top = raceTopAt(lane, z, t, true), y = (top > -900 ? top - MINI_Y : Math.max(0, RACE_Y_FIN * (z - zEnd) / len)) + HAZ.ball.r + 0.2*Math.abs(Math.sin(u*2.0));   // 40차 — 계단마다 통통
       out.push({k:'ball', x:lane, z, y, r:HAZ.ball.r, roll:u / HAZ.ball.r, id:'b' + Math.round(t0*10)}); } }
-  /* 진자 — 좁은 다리의 트러스 틀 2·4번째에서 좌우로 흔들린다. 제일 낮을 때 공 가운데가 마루 위 1.2칸 */
+  /* 진자 — 좁은 다리의 트러스 2·4번째. 최저점에서도 구체 아래가 마루보다 .2칸 높다. */
   for(const i of [1, 3]){ const z = 86 + i*9.6, w = Math.PI*2 / HAZ.pend.per, ph = i*1.3 + seed*6.28;
     const th = Math.sin(t*w + ph) * HAZ.pend.swing, vx = Math.cos(t*w + ph);
     out.push({k:'pend', x:Math.sin(th)*HAZ.pend.len, z, y:HAZ.pend.top - Math.cos(th)*HAZ.pend.len, r:HAZ.pend.r, py:HAZ.pend.top, len:HAZ.pend.len, ang:th, vx, id:'p'+i}); }
@@ -15837,6 +15962,12 @@ function raceHazards(t){
     out.push({k:'bar', x:p.x, z:p.z, y:p.y + 0.55, len:HAZ.bar.len, ang:t*w + seed*3, w, id:'r'+cpN}); }
   return out;
 }
+// 그려진 구체와 사람의 세로 캡슐이 실제로 닿을 때만 맞는다. 공 아래/위의 빈 공간은 피할 수 있다.
+function raceSphereHit(h){
+  const y=PL.y-MINI_Y,cy=Math.max(y+PL.R,Math.min(y+1.3,h.y));
+  const dx=PL.x-h.x,dz=PL.z-h.z,dy=cy-h.y,r=h.r+PL.R;
+  return dx*dx+dy*dy+dz*dz<r*r;
+}
 function raceHazardTick(dt){
   const t = RACE.t;
   const hitBy = (kx, kz, pow, label, col)=>{ RACE.slipT = 0.8; RACE.hitCd = 1.5; PL.vy = 6.5; PL.ground = false; RACE.knock = {x:kx, z:kz}; RACE.knockPow = pow;
@@ -15845,12 +15976,11 @@ function raceHazardTick(dt){
   const hz = raceHazards(t), rolling = raceRocks(t).concat(hz.filter(h=> h.k === 'ball'));
   /* 바위·공 — 몸에 닿으면 */
   if(canHit) for(const r of rolling){
-    const dx = PL.x - r.x, dz = PL.z - r.z, dy = PL.y - MINI_Y - (r.y - r.r);
-    if(dx*dx + dz*dz < (r.r + 0.55)*(r.r + 0.55) && dy < 1.6 && dy > -1.2){ hitBy(dx, dz, 1, r.k === 'rock' ? '🪨 바위에 맞았어요!' : '⚫ 공에 맞았어요!', 0xa08a70); break; } }
+    const dx = PL.x - r.x, dz = PL.z - r.z;
+    if(raceSphereHit(r)){ hitBy(dx, dz, 1, r.k === 'rock' ? '🪨 바위에 맞았어요!' : '⚫ 공에 맞았어요!', 0xa08a70); break; } }
   /* 진자 — 공이 몸 높이를 지날 때. 뒤로 밀린다 */
   if(canHit && RACE.slipT <= 0) for(const h of hz){ if(h.k !== 'pend') continue;
-    const dx = PL.x - h.x, dz = PL.z - h.z, bot = PL.y - MINI_Y, top = bot + 1.05;
-    if(dx*dx + dz*dz < (h.r + 0.5)*(h.r + 0.5) && top > h.y - h.r && bot < h.y + h.r){ hitBy(Math.sign(h.vx || 1)*0.15, -1, 0.7, '🔔 진자에 맞았어요!', 0x8a6a4a); break; } }
+    if(raceSphereHit(h)){ hitBy(Math.sign(h.vx || 1)*0.15, -1, 0.7, '🔔 진자에 맞았어요!', 0x8a6a4a); break; } }
   /* 막대 — 판 위에 서 있고(뛰어넘지 못했고) 막대 선 안에 있으면. 도는 방향으로 옆으로 밀린다 */
   if(canHit && RACE.slipT <= 0) for(const h of hz){ if(h.k !== 'bar') continue;
     const dx = PL.x - h.x, dz = PL.z - h.z, ca = Math.cos(h.ang), sa = Math.sin(h.ang);
@@ -15934,13 +16064,13 @@ function raceDraw(t){
   raceDrawTrim(rt);
   /* 바위·공(구르는 각도만큼 돌린다) · 진자(공 + 줄) · 회전 막대(막대 + 가운데 기둥) — 전부 seed·시간 식이라 전원 같다 */
   let rn = 0, hb = 0;
-  for(const rk of raceRocks(rt)){ if(rn >= 24) break; setIR(R_rock, rn++, rk.x, MINI_Y + rk.y, rk.z, 0, -rk.roll, ROCK.r*2, ROCK.r*2, ROCK.r*2, 0x8f7c66); }
+  for(const rk of raceRocks(rt)){ if(rn >= 24) break; setIR(R_rock, rn++, rk.x, MINI_Y + rk.y, rk.z, 0, -rk.roll, rk.r*2, rk.r*2, rk.r*2, 0x8f7c66); }
   for(const h of raceHazards(rt)){
     if(h.k === 'ball'){ if(rn < 24) setIR(R_rock, rn++, h.x, MINI_Y + h.y, h.z, 0, -h.roll, h.r*2, h.r*2, h.r*2, 0x6f7f9a); }
     else if(h.k === 'pend'){ if(rn < 24) setIR(R_rock, rn++, h.x, MINI_Y + h.y, h.z, h.ang*0.5, 0, h.r*2, h.r*2, h.r*2, 0x4a4f5a);
       /* 40차 — 쇠사슬: 고리 일곱을 줄 따라 번갈아 돌려 꿴다. 가는 줄 하나였을 땐 풍선처럼 가벼워 보였다(선생님: "무거운 추 같은 느낌이 안 듦") */
-      for(let c=0;c<7 && hb<24;c++){ const u = (c + 0.5)/7, cx = h.x*u, cy = h.py + (h.y - h.py)*u;
-        setIR3(R_hazB, hb++, cx, MINI_Y + cy, h.z, c%2 ? Math.PI/2 : 0, 0, h.ang, 0.19, (h.len - h.r)/7 + 0.12, 0.19, c%2 ? 0x5a5f6a : 0x3a3f48); } }
+      for(let c=0;c<7 && hb<24;c++){ const u = (c + 0.5)/7*(h.len-h.r)/h.len, cx = h.x*u, cy = h.py + (h.y - h.py)*u;
+        setIR3(R_hazB, hb++, cx, MINI_Y + cy, h.z, c%2 ? Math.PI/2 : 0, 0, h.ang, 0.25, (h.len - h.r)/7 + 0.12, 0.25, c%2 ? 0x5a5f6a : 0x3a3f48); } }
     else if(h.k === 'bar'){ if(hb < 24) setIR(R_hazB, hb++, h.x, MINI_Y + h.y, h.z, h.ang, 0, h.len, 0.5, 0.5, 0xff5c5c);
       if(hb < 24) setIR(R_hazB, hb++, h.x, MINI_Y + h.y + 0.25, h.z, h.ang, 0, 0.45, 0.9, 0.45, 0x3a3a44); } }
   R_rock.count = rn; R_rock.instanceMatrix.needsUpdate = true; if(R_rock.instanceColor) R_rock.instanceColor.needsUpdate = true; R_rock.visible = rn > 0;
@@ -16445,30 +16575,46 @@ function buildPicker(){
 }
 
 /* ═══════════ 시작 화면 착장 미리보기 ═══════════
-   ★ 본 게임 사람은 인스턴스 메시라 그대로 가져다 쓸 수가 없다 —
-     렌더러 둘이 같은 버퍼의 '올릴 구간' 표시를 서로 지워서 한쪽이 옛 그림을 그린다.
-     그래서 미리보기는 작은 렌더러 하나에 평범한 상자 열여덟 개로 따로 세운다.
-   ★ 몸은 흉내지만 모자·안경·옷은 게임과 같은 표(HATS/GLASSES/CLOTHES)를 그대로 읽는다.
-     아이가 고르는 건 그것뿐이라, 여기서 본 착장과 게임 속 모습이 어긋나지 않는다.
-   ★ 게임이 시작되면 통째로 버린다. 크롬북에서 WebGL 판을 둘씩 켜 둘 이유가 없다. */
+   게임과 같은 사람 기하·재질·착장 표를 쓰고, 별도 인스턴스 버퍼 대신 일반 메시로 세운다.
+   팔꿈치와 무릎이 있는 중립 자세이며 게임이 시작되면 렌더러를 해제한다. */
 
 const r6row = (f,u,sd,w,h,d,col,sh)=>{ const q = r6head(f,u,sd,w,h,d); return [q[0],q[1],q[2],q[3],q[4],q[5],col,sh]; };
-const PVW_BODY = [
-
-  [ 0, R6_TU, 0, R6_TOR[0], R6_TOR[1], R6_TOR[2], 'body'],                    // 0  몸통(모둠 색 셔츠)
-  [ R6_HF, R6_HU, 0, R6_HEAD[0], R6_HEAD[1], R6_HEAD[2], 'skin', 'cyl'],       // 1  머리(민머리) — 세운 원통
-  r6row(R6_EYE_F,R6_FACE.eyeU, R6_FACE.eyeSide, R6_FACE.eyeW,R6_FACE.eyeH,R6_FACE.eyeD, 0x1c1a18, 'ball'),
-  r6row(R6_EYE_F,R6_FACE.eyeU,-R6_FACE.eyeSide, R6_FACE.eyeW,R6_FACE.eyeH,R6_FACE.eyeD, 0x1c1a18, 'ball'),
-  r6row(R6_MOUTH_F,R6_FACE.mouthU, 0, R6_FACE.mouthW, R6_FACE.mouthH, 0.07, 0x1c1a18, 'smile'),
-  [ 0, R6_SHU - R6_ARM[1]*0.33,  R6_ASD, R6_ARM[0],R6_ARM[1]*0.66,R6_ARM[2], 'skin'],
-  [ 0, R6_SHU - R6_ARM[1]*0.33, -R6_ASD, R6_ARM[0],R6_ARM[1]*0.66,R6_ARM[2], 'skin'],
-  [ 0, R6_SHU - R6_ARM[1]*0.675,  R6_ASD, R6_ARM[0]*0.68,R6_ARM[1]*0.15,R6_ARM[2]*0.72, 'skin'],
-  [ 0, R6_SHU - R6_ARM[1]*0.675, -R6_ASD, R6_ARM[0]*0.68,R6_ARM[1]*0.15,R6_ARM[2]*0.72, 'skin'],
-  [ 0, R6_SHU - R6_ARM[1]*R6_HAND_AT, R6_ASD, ...R6_HAND, 'skin', 'hookR'],
-  [ 0, R6_SHU - R6_ARM[1]*R6_HAND_AT,-R6_ASD, ...R6_HAND, 'skin', 'hookL'],
-  [ 0, R6_HIP - R6_LEG[1]*0.5,  R6_HSD, R6_LEG[0],R6_LEG[1],R6_LEG[2], 'pant'],       // 15 다리
-  [ 0, R6_HIP - R6_LEG[1]*0.5, -R6_HSD, R6_LEG[0],R6_LEG[1],R6_LEG[2], 'pant']        // 16
-];
+const PVW_BODY = (()=>{
+  // 앞 다섯 행은 몸통·머리·눈 둘·입이다. 모자/안경 아이콘도 같은 얼굴을 쓴다.
+  const rows=[
+    [0,R6_TU,0,...R6_TOR,'body','r6body'],
+    [R6_HF,R6_HU,0,...R6_HEAD,'skin','r6head'],
+    r6row(R6_EYE_F,R6_FACE.eyeU, R6_FACE.eyeSide,R6_FACE.eyeW,R6_FACE.eyeH,R6_FACE.eyeD,0x1c1a18,'r6eye'),
+    r6row(R6_EYE_F,R6_FACE.eyeU,-R6_FACE.eyeSide,R6_FACE.eyeW,R6_FACE.eyeH,R6_FACE.eyeD,0x1c1a18,'r6eye'),
+    r6row(R6_MOUTH_F,R6_FACE.mouthU,0,R6_FACE.mouthW,R6_FACE.mouthH,.07,0x1c1a18,'smile')
+  ];
+  const bone=(a,b,w,d,color)=>{const df=b[0]-a[0],du=b[1]-a[1],ds=b[2]-a[2];
+    return [(a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2,w,Math.hypot(df,du,ds),d,color,'r6limb',-Math.atan2(df,-du),Math.atan2(ds,Math.hypot(df,du))];};
+  for(const si of [1,-1]){
+    const roll=.025*si,cr=Math.cos(roll),sr=Math.sin(roll);
+    const reach=(a,angle,length)=>[a[0]+cr*Math.sin(angle)*length,a[1]-cr*Math.cos(angle)*length,a[2]+sr*length];
+    const shoulder=[0,R6_SHU,R6_ASD*si],elbow=reach(shoulder,-.04,R6_ARM[1]*.50),hand=reach(elbow,.06,R6_ARM[1]*.36);
+    const wrist=reach(elbow,.06,R6_ARM[1]*.34);
+    rows.push(bone(shoulder,elbow,R6_ARM[0],R6_ARM[2],'skin'),bone(elbow,wrist,R6_ARM[0]*.80,R6_ARM[2]*.82,'skin'));
+    rows.push([...hand,...R6_HAND,'skin',si>0?'hookR':'hookL',-.06,roll]);
+  }
+  const upper=.275,lower=.250,drop=R6_HIP-.075;
+  const kneeDrop=(upper*upper-lower*lower+drop*drop)/(2*drop),kneeF=Math.sqrt(Math.max(0,upper*upper-kneeDrop*kneeDrop));
+  for(const si of [1,-1]){
+    const hip=[0,R6_HIP,R6_HSD*si],knee=[kneeF,R6_HIP-kneeDrop,R6_HSD*si],ankle=[0,.075,R6_HSD*si];
+    rows.push(bone(hip,knee,R6_LEG[0]*.98,R6_LEG[2]*.98,'pant'),bone(knee,ankle,R6_LEG[0]*.91,R6_LEG[2]*.91,'pant'));
+    rows.push([.035,.065,R6_HSD*si,.315,.13,.39,'shoe','r6shoe']);
+  }
+  return rows;
+})();
+function pvwGeometry(shape){
+  return shape==='r6body'?R6_BODY_GEO:shape==='r6head'?R6_HEAD_GEO:shape==='r6limb'?R6_LIMB_GEO:shape==='r6shoe'?R6_SHOE_GEO:
+    shape==='r6eye'?R6_EYE_GEO:shape==='smile'?R6_SMILE:shape==='ball'?BALL:shape==='cyl'?CYL:shape==='hookR'?R6_HOOK[0]:shape==='hookL'?R6_HOOK[1]:RBs;
+}
+function pvwMaterial(row,col=0xffffff){
+  const kind=row[7]==='r6eye'||row[7]==='smile'?'face':row[6]==='skin'?'skin':'cloth';
+  const mat=AVATAR_MAT[kind].clone();mat.color.setHex(col);return mat;
+}
 /* 사람 표(모자·안경·옷·전직 차림새) 한 벌을 미리보기·아이콘 자리로 옮긴다.
    mode 0 몸 · 1 머리 · 2 몸 둘레를 도는 것(원을 안 찌그러뜨리게 높이만 올린다) */
 function r6rows(rows, mode){
@@ -16484,31 +16630,35 @@ function PVW_COL(c, base, map){
   if(typeof c !== 'string') return c;
   if(map && map[c] !== undefined) return map[c];
   return c === 'body' ? base : c === 'skin' ? R6_SKIN
-       : c === 'pant' ? R6_PANT : 0xffffff;
+       : c === 'pant' ? R6_PANT : c === 'shoe' ? 0xf2f3f5 : 0xffffff;
 }
 let pvw = null;
 /* ═══════ 미리보기 만들기 (23차에 시작 화면 전용에서 **아무 데나 쓸 수 있게** 바꿨다) ═══════ */
 function mkPvw(cvs, W, H, keep){
   if(!cvs) return null;
   let r;
-  try{ r = new THREE.WebGLRenderer({canvas:cvs, antialias:false, alpha:true,
+  try{ r = new THREE.WebGLRenderer({canvas:cvs, antialias:true, alpha:true,
                                     preserveDrawingBuffer:!!keep}); }
   catch(e){ return null; }
   r.setPixelRatio(Math.min(2, devicePixelRatio||1));
   r.setSize(W, H, false);
+  r.outputColorSpace=renderer.outputColorSpace;r.toneMapping=renderer.toneMapping;r.toneMappingExposure=renderer.toneMappingExposure;
   const sc = new THREE.Scene();
   const cam = new THREE.PerspectiveCamera(30, W/H, 0.1, 40);
   cam.position.set(0, 1.06, 6.4); cam.lookAt(0, 1.00, 0);
-  sc.add(new THREE.AmbientLight(0xffffff, 0.86));
-  const dl = new THREE.DirectionalLight(0xfff3d8, 1.05);
-  dl.position.set(2.4, 4.0, 3.2); sc.add(dl);
+  sc.add(new THREE.HemisphereLight(0xe6f0ff,0x80947c,.78));
+  const dl = new THREE.DirectionalLight(0xfff3df,1.25);
+  dl.position.set(-3.5,5,4);sc.add(dl);
+  const rim=new THREE.DirectionalLight(0xc7ddff,.42);rim.position.set(3,2,-3);sc.add(rim);
   const grp = new THREE.Group(); sc.add(grp);
-  /* 27차 — 게임과 같은 둥근 조각·원색 재질. 6~13 번(눈·반짝이·코·볼·꼬리)은 공이다 */
+  // 조각은 게임 메시와 같은 정규화 기하다. 각 미리보기는 자신의 색 재질만 복제한다.
   const P = {r, sc, cam, grp, body:[], deco:[], t:0, geo:RBs};
   PVW_BODY.forEach((p)=>{
-    const m = new THREE.Mesh(p[7]==='smile' ? R6_SMILE : p[7]==='ball' ? BALL : p[7]==='cyl' ? CYL : p[7]==='hookR' ? R6_HOOK[0] : p[7]==='hookL' ? R6_HOOK[1] : RB, flatMat(0xffffff));
+    const m = new THREE.Mesh(pvwGeometry(p[7]),pvwMaterial(p));
     grp.add(m); P.body.push(m);
   });
+  const shadowMat=avatarShadowMaterial();shadowMat.onBeforeCompile=()=>{};shadowMat.customProgramCacheKey=()=> 'avatar-preview-shadow-v1';shadowMat.opacity=.20;
+  const shadow=new THREE.Mesh(new THREE.PlaneGeometry(1.05,.72),shadowMat);shadow.rotation.x=-Math.PI/2;shadow.position.y=.002;sc.add(shadow);P.shadow=shadow;
   return P;
 }
 /* 착장을 입힌다 — d = {g, hat, gls, clo, job, jt}. 단추를 누를 때만 부른다(매 프레임 아님).
@@ -16523,6 +16673,8 @@ function pvwSet(P, d){
   };
   PVW_BODY.forEach((p,i)=>{
     put(P.body[i], p[0],p[1],p[2], p[3],p[4],p[5], PVW_COL(p[6], base, d.doll));
+    P.body[i].rotation.set(p[8]||0,0,p[9]||0,'YXZ');
+    if(p[7]==='r6eye')r6EyeRotation(0,0,p[2]/R6_HK,0,P.body[i].quaternion);
   });
   const want = [];
   for(const [arr, idx, mode] of [[HATS,d.hat|0,1],[GLASSES,d.gls|0,1],[CLOTHES,d.clo|0,0]])
@@ -16536,7 +16688,7 @@ function pvwSet(P, d){
       want.push([...q,h[10]||0,h[11]||0]);
     }
   while(P.deco.length < want.length){
-    const m = new THREE.Mesh(P.geo, flatMat(0xffffff));
+    const m = new THREE.Mesh(P.geo,AVATAR_MAT.cloth.clone());
     P.grp.add(m); P.deco.push(m);
   }
   P.deco.forEach((m,i)=>{
@@ -16549,31 +16701,38 @@ function pvwSet(P, d){
   if(!P.wings) P.wings=[];
   if(jt>0 && jb>=0 && jb<JOB_WING.length){
     const WG=JOB_WING[jb][Math.min(1,jt-1)];
+    P.wingStyle=WG;
     for(let i=0;i<2;i++){
       if(!P.wings[i]){P.wings[i]=new THREE.Mesh(WING_GEO[WG.k],flatMat(WG.c,{side:THREE.DoubleSide,vertexColors:true}));P.grp.add(P.wings[i]);}
       const m=P.wings[i],si=i? -1:1;
       m.visible=true;m.geometry=WING_GEO[WG.k];m.material.color.setHex(WG.c);
-      m.position.set(.19*si,1.08,-.19);m.rotation.set(-.10,0,-.18*si);m.scale.set(WG.s*si,WG.s,WG.s);
+      const pose=avatarWingPose(si,{t:P.t});
+      m.position.set(pose.sd,pose.u,pose.f);m.rotation.set(pose.pitch,pose.yaw,pose.roll,'YXZ');m.scale.set(WG.s*si*pose.span,WG.s,WG.s);
     }
-  }else for(const m of P.wings)m.visible=false;
+  }else {P.wingStyle=null;for(const m of P.wings)m.visible=false;}
 }
 /* 천천히 돌린다 — 등에 걸친 망토도 보이게. 앞모습에서 시작해 좌우로 흔들린다 */
 function pvwSpin(P, dt){
   if(!P) return;
   P.t += dt;
-  P.grp.rotation.y = Math.sin(P.t*0.55)*0.85;
-  P.grp.position.y = Math.sin(P.t*1.7)*0.018;
+  P.grp.rotation.y = .18+Math.sin(P.t*.50)*.68;
+  P.grp.position.y = 0;
+  if(P.wingStyle)for(let i=0;i<(P.wings||[]).length;i++){
+    const si=i?-1:1,pose=avatarWingPose(si,{t:P.t}),m=P.wings[i],ws=P.wingStyle.s;
+    m.position.set(pose.sd,pose.u,pose.f);m.rotation.set(pose.pitch,pose.yaw,pose.roll,'YXZ');m.scale.set(ws*si*pose.span,ws,ws);
+  }
   P.r.render(P.sc, P.cam);
 }
 function pvwKill(P){
   if(!P) return;
   for(const m of P.body.concat(P.deco,P.wings||[])) m.material.dispose();
+  if(P.shadow){P.shadow.geometry.dispose();P.shadow.material.map.dispose();P.shadow.material.dispose();}
   P.r.dispose();
 }
 /* ── 시작 화면 미리보기 (지금 고르고 있는 착장) ── */
 function pvwInit(){
   if(!pvw){ pvw = mkPvw(el('pvw'), 230, 270);
-    if(pvw){ pvw.cam.position.set(0,1.02,4.0); pvw.cam.lookAt(0,0.88,0); } }
+    if(pvw){ pvw.cam.position.set(0,1.08,4.35); pvw.cam.lookAt(0,.96,0); } }
   pvwDress();
 }
 function pvwDress(){ pvwSet(pvw, {g:pickG, hat:pickHat, gls:pickGls, clo:pickClo}); }
@@ -16619,10 +16778,14 @@ function partsGroup(rows){
 }
 /* 게임 표([앞f, 위u, 옆sd, 가로,세로,깊이, 색, 모양?]) → 조각. 미리보기(pvwSet)와 같은 좌표 규칙 */
 function tableGroup(rows, colMap){
-  return partsGroup((rows||[]).map(r=>{
-    let c = r[6]; if(colMap && typeof c === 'string') c = colMap[c];
-    if(typeof c === 'string') c = 0xffffff;
-    return [r[7]==='ball' ? 'o' : r[7]==='smile' ? 'm' : r[7]==='cyl' ? 'c' : r[7]==='hookR' || r[7]==='hookL' ? r[7] : 'b', c, r[3], r[4], r[5], r[2], r[1], r[0]]; }));
+  const group=new THREE.Group();
+  for(const row of rows||[]){
+    const color=PVW_COL(row[6],0xffffff,colMap),mesh=new THREE.Mesh(pvwGeometry(row[7]),pvwMaterial(row,color));
+    mesh.position.set(row[2],row[1],row[0]);mesh.scale.set(row[3],row[4],row[5]);mesh.rotation.set(row[8]||0,0,row[9]||0,'YXZ');
+    if(row[7]==='r6eye')r6EyeRotation(0,0,row[2]/R6_HK,0,mesh.quaternion);
+    group.add(mesh);
+  }
+  return group;
 }
 /* 손에 든 것(도구·총·블록)을 새로 만들어 손(흰 천 조각)만 뗀다 */
 function heldGroup(mk){
@@ -18082,7 +18245,7 @@ function loop(){
       if(tpvOn() && !camBodyHidden){
         meSheep.x=PL.x; meSheep.y=PL.y; meSheep.z=PL.z; meSheep.ry=PL.yaw;
         meSheep.g=G.me.g|0; meSheep.hat=G.me.hat|0; meSheep.gls=G.me.gls|0; meSheep.clo=G.me.clo|0;
-        meSheep.jb=XP.job; meSheep.jt=XP.jt;
+        meSheep.jb=XP.job; meSheep.jt=XP.jt; meSheep.aim=aimMode || gunT>0;
         /* ★ meSheep 은 '쓰러진 몸' 으로 만들어 둔 것이라 down 이 켜져 있다.
            서서 뛰는 데도 배를 뒤집고 누워 있으면 안 된다 — 매 프레임 지금 상태로 맞춘다. */
         meSheep.down = PL.down; meSheep.mv = PL.mv && !PL.down;
@@ -18483,6 +18646,7 @@ Object.assign(window, {
   __spawnQ:()=>spawnQ, __scene:scene, __GY:GY, __terrH:terrH, __bldH:bldH,
   /* 25차 그래픽 — 검사가 '켜졌나' 를 게임에 직접 물어보게 한다 */
   __GFX:GFX, __GFX_Q:GFX_Q, __GFX_PRESET:GFX_PRESET, __sun:sun, __sunTarget:sunTarget, __shadowFollow:shadowFollow, __SH_R:SH_R,
+  __avatarRender:()=>({materials:AVATAR_MAT,contact:P_contact,drawShadows:drawAvatarShadows,scale:SHEEP_S}),
   __hemi:hemi, __amb:amb, __skyK:()=>skyK, __BLOOM:BLOOM, __skyDome:skyDome,
   __bloomRT:()=>rtScene ? {w:rtScene.width, h:rtScene.height, half:rtA.width} : null,
   __drawFrame:drawFrame, __DBG:()=>DBG, __TONE:TONE,
@@ -18505,7 +18669,7 @@ Object.assign(window, {
       if(G.phase==='night') hostSim(dt); else if(flowDirty){ buildFlow(); flowDirty=false; } } },
   __BAL:BAL, __waveFor:waveFor, __bossDays:bossDays, __prog:prog, __NIGHT_DEF:NIGHT_DEF, __BOSS_MIX:BOSS_MIX, __nightPool:nightPool, __pickNight:pickNight, __nightFor:nightFor, __setNk:(v)=>{ G.nk = v; },
   __fps:()=>fpsVal, __tagRedraws:()=>tagRedraws, __updTags:()=>updTags(), __loadFonts:loadFonts,   // 48차 — 화면찍기에서 글씨체를 억지로 받는다
-  __drawSheep:drawSheep, __Pmesh:()=>[P_body,P_head,P_arm,P_eye,P_nose,P_legs], __handMeshes:()=>P_hand, __GHEX:GHEX, __render:()=>renderer.render(scene,camera),
+  __drawSheep:drawSheep, __Pmesh:()=>[P_body,P_head,P_arm,P_eye,P_nose,P_legs,P_shoe], __handMeshes:()=>P_hand, __GHEX:GHEX, __render:()=>renderer.render(scene,camera),
   __rebuild:rebuildStru, __markShapeG:markShape, __struDirtyG:()=>({all:struAllG, g:[...struDirtyG]}),   // 47차 — 모둠별 다시 짓기
   __flowDirty:()=>flowDirty, __flowWait:()=>flowWait, __struLastN:()=>struLastN,                         // 47차 — 낮 길 깔기 모으기 · 지난 다시 짓기 크기
   __goNight:goNight, __goDay:goDay, __hostSim:(dt)=>hostSim(dt),
@@ -18577,14 +18741,14 @@ Object.assign(window, {
   __goDayF:goDay, __HATS:HATS, __HAT_N:HAT_NAME, __josa:josa,   /* __repair 도 위에 이미 있다 */
   /* 7차 패치 검사용 */
   __GLASSES:GLASSES, __CLOTHES:CLOTHES, __CLO_N:CLO_NAME, __HAT_NAME:HAT_NAME, __GLS_N:GLS_NAME,
-  __Pdeco:()=>P_deco, __pvw:()=>pvw,
+  __Pdeco:()=>P_deco, __pvw:()=>pvw, __avatarPreview:{make:mkPvw,set:pvwSet,kill:pvwKill,rows:PVW_BODY,table:tableGroup},
   /* 28차 — 아이콘 공방 (t30) */
   __ICON:()=>ICON, __EMO2ICON:()=>EMO2ICON, __iconImg:iconImg, __ICO_DEF:()=>ICO_DEF, __mkPick:mkPick /* 33차 — 자루 끝 (t31) */,
   __SFXKEYS:()=>Object.keys(SFX), __chopKey:chopKey, __FONT_URL:FONT_URL, __loadFonts:loadFonts, __setAUD:(a)=>{ AUD = a; BUS = null; NOISE_BUF = null; }, __AUD:()=>AUD, __bgmNote:bgmNote, __bgmStep:()=>bgmStep, __bgmSeq:()=>({dayA:BGM_DAY_A, dayB:BGM_DAY_B, nightA:BGM_NIGHT_A, nightB:BGM_NIGHT_B, stepDay:BGM_STEP_DAY, stepNight:BGM_STEP_NIGHT}), __sfxBus:()=>BUS, __pluck:pluck, __puff:puff, __itemMeshes:()=>[pMesh,aMesh,iMesh,stMesh,bMesh,oMesh,chBody,chTrim,fdBody,fdGlow],
   __Pmouth:()=>P_mouth,
   /* 27차 — 캐릭터 조각 전부 (t29: 무늬 없는 재질 · 둥근 모양) */
   __charMeshes:()=>({
-    사람:[P_body,P_head,P_arm,...P_hand,P_eye,P_nose,P_mouth,P_legs,P_deco,P_gun],
+    사람:[P_body,P_head,P_arm,...P_hand,P_eye,P_nose,P_mouth,P_legs,P_shoe,P_deco,P_gun],
     좀비:[W_body,W_chest,W_ruff,W_head,W_snout,W_nose,W_tail,W_ears,W_eyes,W_legs,W_paw,W_hack,W_horn,
       W_belly,W_brow,W_cheek,W_rib,W_tongue,W_plate,W_gem,W_eyeW,W_eyeR,W_pupil,W_fang,W_costume,W_heal,W_beam,W_dread,W_aura],
     농장:[F_body,F_head,F_deco,F_eyes,F_legs,F_muck,F_fly],

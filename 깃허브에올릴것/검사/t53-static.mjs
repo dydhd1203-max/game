@@ -47,7 +47,7 @@ function fn(name){const start=source.indexOf('function '+name+'(');if(start<0)th
 function chunk(a,b){const start=source.indexOf(a),end=source.indexOf(b,start);if(start<0||end<0)throw new Error('Missing chunk '+a);return source.slice(start,end);}
 const fixtures=`
 const GFX={shadow:false,lowLambert:false},scene=new THREE.Scene(),MAXP=40,GY=0,SPD=5.2,RACE_SPD=1.4;
-const raceOn=()=>false,burst=()=>{},meSheep={},JOB_LOOK=[],JOB_AURA=[],ENH_MAX=6;
+const raceOn=()=>false,burst=()=>{},drawAvatarShadows=()=>{},meSheep={},JOB_LOOK=[],JOB_AURA=[],ENH_MAX=6;
 const UPV=new THREE.Vector3(0,1,0),AX_X=new THREE.Vector3(1,0,0);
 const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color();
 `;
@@ -61,7 +61,7 @@ const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),
   chunk('const HEAD_M =','function drawSheep('),fn('drawSheep'),
   `globalThis.API={drawSheep,smoothHead,sheepGait,R6_HOOK,R6_HEAD,R6_HK,R6_ARM,R6_ASD,R6_SHU,R6_HAND_AT,
     R6_SMILE,CYL,HATS,GLASSES,meshes:{body:P_body,head:P_head,arm:P_arm,eyes:P_eye,mouth:P_mouth,nose:P_nose,
-    legs:P_legs,deco:P_deco,gun:P_gun,gunGlow:P_gunF,handR:P_hand[1],handL:P_hand[0]}};`
+    legs:P_legs,shoes:P_shoe,deco:P_deco,gun:P_gun,gunGlow:P_gunF,handR:P_hand[1],handL:P_hand[0]}};`
 ];
 const context=vm.createContext({THREE,console});
 new vm.Script(pieces.join('\n'),{filename:'extracted-avatar-from-index.js'}).runInContext(context,{timeout:10000});
