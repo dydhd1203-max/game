@@ -10,3 +10,6 @@ index.backup-*.html
 node_modules/
 깃허브에올릴것/검사/package.json
 깃허브에올릴것/검사/package-lock.json
+
+# 로컬 시각 검증 캡처와 임시 QA 스크립트.
+artifacts/

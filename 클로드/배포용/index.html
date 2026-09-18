@@ -88,7 +88,7 @@ canvas{display:block}
 .btn.warn{background:#8b3d3d;border-color:#ff9d9d}
 .btn.sm{font-size:13px;padding:7px 11px}
 .btn:disabled{opacity:.4;cursor:not-allowed}
-.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:800;font-size:12px;line-height:1.6}
+.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-weight:600;font-size:12px;line-height:1.6}
 
 /* ── 시작 화면 ── */
 #title{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
@@ -102,20 +102,20 @@ canvas{display:block}
    이걸 넣으면 넘쳐도 제목부터 보이고, 아래는 스크롤로 닿는다. */
 #title{align-items:safe center}
 #titleCard{width:min(660px,100%);text-align:center}
-#titleCard .ver{margin:2px 0 0;font-size:11px;font-weight:800;letter-spacing:.2px;
+#titleCard .ver{margin:2px 0 0;font-size:11px;font-weight:600;letter-spacing:.2px;
   color:rgba(255,255,255,.55)}
-#titleCard h1{margin:0 0 2px;font-size:clamp(30px,7vw,46px);font-weight:900;letter-spacing:-1px;
+#titleCard h1{margin:0 0 2px;font-size:clamp(30px,7vw,46px);font-weight:600;letter-spacing:-1px;
   color:#fff;text-shadow:0 3px 0 #2c5e33,0 6px 14px rgba(0,0,0,.35)}
 #titleCard .sub{margin:0 0 18px;font-weight:700;font-size:14px;color:#204a26;opacity:.85}
 .card{background:rgba(14,20,15,.86);border:2px solid var(--line);border-radius:14px;padding:18px;text-align:left}
-label.f{display:block;font-weight:800;font-size:13px;margin:14px 0 6px;opacity:.9}
+label.f{display:block;font-weight:600;font-size:13px;margin:14px 0 6px;opacity:.9}
 label.f:first-child{margin-top:0}
 input.f,select.f{width:100%;padding:12px;border-radius:8px;border:2px solid var(--line2);
   background:rgba(0,0,0,.35);color:#fff;font-weight:700;font-size:16px}
 input.f::placeholder{color:rgba(255,255,255,.4)}
 .grp{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
 .grp button{padding:13px 0;border-radius:8px;border:2px solid rgba(255,255,255,.25);
-  background:rgba(255,255,255,.08);color:#fff;font-weight:800;font-size:15px;cursor:pointer}
+  background:rgba(255,255,255,.08);color:#fff;font-weight:600;font-size:15px;cursor:pointer}
 .grp button.on{background:var(--c);border-color:#fff;color:#101510;box-shadow:0 0 0 3px rgba(255,255,255,.25)}
 .row{display:flex;gap:8px;margin-top:16px}
 .row .btn{flex:1}
@@ -133,8 +133,8 @@ input.f::placeholder{color:rgba(255,255,255,.4)}
 #topRight2 .btn{pointer-events:auto}
 
 #resBox{position:absolute;left:10px;top:10px;padding:8px 10px;display:flex;gap:4px;flex-direction:column}
-#grpName{font-weight:900;font-size:14px;margin-bottom:3px}
-.resline{display:flex;gap:10px;font-weight:800;font-size:15px;align-items:center}
+#grpName{font-weight:600;font-size:14px;margin-bottom:3px}
+.resline{display:flex;gap:10px;font-weight:600;font-size:15px;align-items:center}
 .res{display:flex;align-items:center;gap:4px;min-width:62px}
 .res i{font-style:normal;font-size:16px}
 .res b{font-variant-numeric:tabular-nums}
@@ -142,7 +142,7 @@ input.f::placeholder{color:rgba(255,255,255,.4)}
 @keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.35);color:#9cff9c}100%{transform:scale(1)}}
 
 #dayBox{position:absolute;right:10px;top:10px;padding:7px 11px;display:flex;align-items:center;gap:9px;
-  font-weight:900;font-size:15px}
+  font-weight:600;font-size:15px}
 #dayPhase{font-size:13px;opacity:.9}
 #timeBar{width:74px;height:9px;border-radius:5px;background:rgba(0,0,0,.5);overflow:hidden;border:1px solid rgba(255,255,255,.25)}
 #timeFill{height:100%;width:100%;background:var(--gold);transition:width .3s linear}
@@ -152,10 +152,10 @@ input.f::placeholder{color:rgba(255,255,255,.4)}
 #mini{border-radius:4px;display:block}
 
 #crystalWrap{position:absolute;left:50%;top:10px;transform:translateX(-50%);padding:6px 12px;text-align:center;min-width:220px}
-#crystalWrap .lb{font-weight:800;font-size:12px;opacity:.85;margin-bottom:4px}
+#crystalWrap .lb{font-weight:600;font-size:12px;opacity:.85;margin-bottom:4px}
 #cBar{height:14px;border-radius:7px;background:rgba(0,0,0,.55);overflow:hidden;border:2px solid rgba(255,255,255,.3)}
 #cFill{height:100%;width:100%;background:linear-gradient(90deg,#66e0ff,#37c6ff);transition:width .3s}
-#cNum{position:absolute;left:50%;top:26px;transform:translateX(-50%);font-weight:900;font-size:11px;text-shadow:0 1px 2px #000}
+#cNum{position:absolute;left:50%;top:26px;transform:translateX(-50%);font-weight:600;font-size:11px;text-shadow:0 1px 2px #000}
 #crystalWrap.hurt{animation:shake .4s}
 @keyframes shake{0%,100%{transform:translateX(-50%)}25%{transform:translate(-52%,2px)}75%{transform:translate(-48%,-2px)}}
 
@@ -163,7 +163,7 @@ input.f::placeholder{color:rgba(255,255,255,.4)}
   text-align:center;min-width:300px;display:none;border-color:#ff8b8b}
 #bossWrap.on{display:block;animation:bIn .45s}
 @keyframes bIn{from{opacity:0;transform:translate(-50%,0) scale(.88)}}
-#bossWrap .lb{font-weight:900;font-size:14px;margin-bottom:5px;color:#ffbcbc;text-shadow:0 1px 3px #000}
+#bossWrap .lb{font-weight:600;font-size:14px;margin-bottom:5px;color:#ffbcbc;text-shadow:0 1px 3px #000}
 #bBar{height:16px;border-radius:8px;background:rgba(0,0,0,.6);overflow:hidden;border:2px solid rgba(255,140,140,.55)}
 #bFill{background:linear-gradient(90deg,#ff9b3d,#ff3b3b);transition:width .25s}
 
@@ -182,7 +182,7 @@ body.tpv #crosshair{display:none}
   padding:7px 13px;font-weight:700;font-size:13px;line-height:1.5;text-align:center;white-space:nowrap;
   opacity:0;transition:opacity .12s;pointer-events:none}
 #aimInfo.on{opacity:1}
-#aimInfo .lv{padding:1px 6px;border-radius:5px;font-size:11px;font-weight:900;margin-left:3px}
+#aimInfo .lv{padding:1px 6px;border-radius:5px;font-size:11px;font-weight:600;margin-left:3px}
 #aimInfo .lv1{background:rgba(255,255,255,.18)}
 #aimInfo .lv2{background:#c9a227;color:#1a1405}
 #aimInfo .lv3{background:linear-gradient(90deg,#ffd43b,#fff1a8);color:#1a1405;
@@ -208,8 +208,8 @@ body:not(.touch) #look{display:none}
   background:rgba(16,22,17,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;
   gap:1px;cursor:pointer;position:relative;box-shadow:0 3px 0 rgba(0,0,0,.4)}
 .slot .ic{font-size:22px;line-height:1}
-.slot .nm{font-weight:800;font-size:11px;white-space:nowrap}
-.slot .ky{position:absolute;right:4px;bottom:2px;font-weight:800;font-size:9px;opacity:.5}
+.slot .nm{font-weight:600;font-size:11px;white-space:nowrap}
+.slot .ky{position:absolute;right:4px;bottom:2px;font-weight:600;font-size:9px;opacity:.5}
 .slot .cost{font-weight:700;font-size:9.5px;line-height:1.25;opacity:.9;letter-spacing:-.4px;
   max-width:80px;text-align:center;word-spacing:2px}
 .slot.on{border-color:#fff;background:rgba(70,96,72,.95);box-shadow:0 0 0 2px rgba(255,255,255,.35),0 3px 0 rgba(0,0,0,.4)}
@@ -236,7 +236,7 @@ body:not(.touch) #look{display:none}
   display:none;flex-direction:column;gap:9px;align-items:flex-end}
 
 .mb{width:74px;height:74px;border-radius:50%;border:2px solid rgba(255,255,255,.4);
-  background:rgba(20,28,21,.8);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;
+  background:rgba(20,28,21,.8);color:#fff;font-weight:600;font-size:12px;display:flex;align-items:center;
   justify-content:center;flex-direction:column;gap:1px;cursor:pointer}
 .mb .ic{font-size:22px}
 .mb:active{background:rgba(70,96,72,.95);transform:scale(.94)}
@@ -250,7 +250,7 @@ body.touch #gfxRow{display:none}   /* 33차 — 터치는 그래픽이 고정값
 
 /* 알림 */
 #toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin-top:70px;
-  font-weight:900;font-size:20px;text-shadow:0 3px 8px rgba(0,0,0,.85);pointer-events:none;opacity:0;text-align:center;
+  font-weight:600;font-size:20px;text-shadow:0 3px 8px rgba(0,0,0,.85);pointer-events:none;opacity:0;text-align:center;
   transition:opacity .25s;width:min(560px,86vw);word-break:keep-all}
 #toast.on{opacity:1}
 #feed{position:absolute;left:10px;top:136px;width:296px;font-weight:700;font-size:12px;line-height:1.5;
@@ -271,7 +271,7 @@ body.touch #gfxRow{display:none}   /* 33차 — 터치는 그래픽이 고정값
 #verdict .vWash{position:absolute;inset:0;animation:vWash .75s both}
 #verdict .vIco{font-size:clamp(84px,17vw,190px);line-height:1;
   filter:drop-shadow(0 6px 0 rgba(0,0,0,.35));animation:vPop .55s cubic-bezier(.2,1.7,.4,1) both}
-#verdict .vTx{font-weight:900;font-size:clamp(24px,4.6vw,54px);line-height:1;color:#fff;
+#verdict .vTx{font-weight:600;font-size:clamp(24px,4.6vw,54px);line-height:1;color:#fff;
   text-shadow:0 3px 0 rgba(0,0,0,.6),0 0 24px currentColor;animation:vUp .45s .06s both}
 #verdict.bad .vIco{animation:vShake .55s both}
 /* 줄넘기처럼 자주 뜨는 것은 작고 짧게 — 매번 화면을 가리면 판이 안 보인다 */
@@ -296,17 +296,17 @@ body.touch #gfxRow{display:none}   /* 33차 — 터치는 그래픽이 고정값
   padding:8px 14px;display:none;text-align:center}
 #bossWrap.on{display:block;animation:bossIn .45s}
 @keyframes bossIn{from{opacity:0;transform:translate(-50%,0) scale(.88)}}
-#bossName{font-weight:900;font-size:15px;margin-bottom:5px;color:#ffd0d0;text-shadow:0 2px 4px #000}
+#bossName{font-weight:600;font-size:15px;margin-bottom:5px;color:#ffd0d0;text-shadow:0 2px 4px #000}
 #bBar{height:16px;border-radius:8px;background:rgba(0,0,0,.6);overflow:hidden;
   border:2px solid rgba(255,120,120,.6)}
 #bFill{height:100%;width:100%;background:linear-gradient(90deg,#ff5252,#ff9d3b);transition:width .2s}
-#bAdds{font-weight:800;font-size:11px;opacity:.85;margin-top:3px}
+#bAdds{font-weight:600;font-size:11px;opacity:.85;margin-top:3px}
 
 #stageTitle{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);pointer-events:none;
   text-align:center;opacity:0;transition:opacity .5s}
 #stageTitle.on{opacity:1}
-#stageTitle .d{font-weight:900;font-size:46px;text-shadow:0 4px 0 rgba(0,0,0,.5),0 8px 22px rgba(0,0,0,.6);letter-spacing:-1px}
-#stageTitle .n{font-weight:900;font-size:19px;margin-top:2px;text-shadow:0 2px 6px rgba(0,0,0,.9)}
+#stageTitle .d{font-weight:600;font-size:46px;text-shadow:0 4px 0 rgba(0,0,0,.5),0 8px 22px rgba(0,0,0,.6);letter-spacing:-1px}
+#stageTitle .n{font-weight:600;font-size:19px;margin-top:2px;text-shadow:0 2px 6px rgba(0,0,0,.9)}
 
 /* 아래 버튼 묶음 */
 #topRight2{position:absolute;right:10px;top:218px;display:flex;flex-direction:column;gap:6px;align-items:flex-end}
@@ -318,12 +318,12 @@ body.touch #gfxRow{display:none}   /* 33차 — 터치는 그래픽이 고정값
 .pop.on{display:flex}
 .popC{width:min(520px,100%);max-height:92vh;overflow:auto;background:rgba(14,20,15,.97);
   border:2px solid var(--line2);border-radius:14px;padding:18px}
-.popC h2{margin:0 0 12px;font-size:20px;font-weight:900}
-.popC h3{margin:16px 0 8px;font-size:14px;font-weight:900;opacity:.85}
-.sl{display:flex;align-items:center;gap:10px;margin:9px 0;font-weight:800;font-size:13px}
+.popC h2{margin:0 0 12px;font-size:20px;font-weight:600}
+.popC h3{margin:16px 0 8px;font-size:14px;font-weight:600;opacity:.85}
+.sl{display:flex;align-items:center;gap:10px;margin:9px 0;font-weight:600;font-size:13px}
 .sl input[type=range]{flex:1;accent-color:#7ede82}
 .sl b{min-width:56px;text-align:right;font-variant-numeric:tabular-nums}
-.gline{display:flex;align-items:center;gap:8px;margin:6px 0;font-weight:800;font-size:13px}
+.gline{display:flex;align-items:center;gap:8px;margin:6px 0;font-weight:600;font-size:13px}
 .gline .dot{width:14px;height:14px;border-radius:4px}
 .gline .v{margin-left:auto;font-variant-numeric:tabular-nums;opacity:.9}
 .gv{display:flex;gap:8px;font-variant-numeric:tabular-nums}
@@ -335,10 +335,10 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
 
 #giveWrap{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-top:8px}
 #giveWrap button{padding:9px 0;border-radius:8px;border:2px solid rgba(255,255,255,.25);
-  background:rgba(255,255,255,.08);color:#fff;font-weight:800;font-size:13px;cursor:pointer}
+  background:rgba(255,255,255,.08);color:#fff;font-weight:600;font-size:13px;cursor:pointer}
 
 #resultC{text-align:center}
-#resultC .big{font-size:44px;font-weight:900;margin:6px 0 2px;text-shadow:0 4px 0 rgba(0,0,0,.4)}
+#resultC .big{font-size:44px;font-weight:600;margin:6px 0 2px;text-shadow:0 4px 0 rgba(0,0,0,.4)}
 #resultC .msg{font-weight:700;opacity:.85;margin-bottom:16px}
 
 @media (max-width:620px){
@@ -362,7 +362,7 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
   .slot{height:62px}
 }
 #load{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;
-  gap:12px;background:#79c0ea;z-index:70;font-weight:800;font-size:15px;color:#12331a}
+  gap:12px;background:#79c0ea;z-index:70;font-weight:600;font-size:15px;color:#12331a}
 #load .bar{width:190px;height:10px;border-radius:5px;background:rgba(0,0,0,.2);overflow:hidden}
 #load .bar i{display:block;height:100%;width:0;background:#2f7a37;transition:width .3s}
 
@@ -383,7 +383,7 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
 
 /* ── 자원 ── */
 #resBox{padding:10px 12px 11px;min-width:206px}
-#grpName{display:inline-block;font-weight:900;font-size:12px;letter-spacing:.4px;
+#grpName{display:inline-block;font-weight:600;font-size:12px;letter-spacing:.4px;
   padding:3px 11px;border-radius:999px;color:#141f10;margin-bottom:9px;
   box-shadow:0 2px 0 rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.5)}
 .resline{gap:6px}
@@ -392,7 +392,7 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
 .res i{font-size:14px;line-height:1;width:21px;height:21px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.34);
   filter:drop-shadow(0 1px 1px rgba(0,0,0,.55))}
-.res b{font-size:15px;font-weight:900;min-width:30px;text-align:right;display:inline-block}
+.res b{font-size:15px;font-weight:600;min-width:30px;text-align:right;display:inline-block}
 .res.w{background:rgba(150,108,68,.30);border-color:rgba(200,152,98,.42)}
 .res.s{background:rgba(142,146,152,.28);border-color:rgba(192,198,206,.38)}
 .res.g{background:rgba(246,200,72,.22);border-color:rgba(255,216,110,.44)}
@@ -411,42 +411,42 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
   border:1px solid rgba(255,255,255,.14);overflow:hidden}
 #hpFill{display:block;height:100%;width:100%;border-radius:4px;
   background:linear-gradient(90deg,#8dff8d,#3ddb6a)}
-#hpNum{font-weight:900;font-size:12px;min-width:30px;text-align:right;opacity:.95}
+#hpNum{font-weight:600;font-size:12px;min-width:30px;text-align:right;opacity:.95}
 /* 37차 — 달리기 스태미나 줄: 체력 줄 아래, 달리는 동안과 덜 찼을 때만 */
 #stRow{display:none;align-items:center;gap:6px;padding:2px 0 0}
 #stRow.on{display:flex}
 #stBar{flex:1;height:7px;border-radius:4px;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.12);overflow:hidden}
 #stFill{display:block;height:100%;width:100%;border-radius:3px;background:linear-gradient(90deg,#ffe38a,#ffb03a);transition:width .08s linear}
 #stRow.empty #stFill{background:linear-gradient(90deg,#c9c9c9,#8a8a8a)}
-#stNum{font-weight:900;font-size:11px;min-width:30px;text-align:right;opacity:.9}
+#stNum{font-weight:600;font-size:11px;min-width:30px;text-align:right;opacity:.9}
 #hpRow.down{animation:hpblink 1.1s infinite}
 #hpRow.down #hpNum{color:#ff9b9b}
 @keyframes hpblink{0%,100%{opacity:1}50%{opacity:.5}}
 
 /* ── 일차 / 시간 ── */
-#dayBox{padding:8px 13px;gap:10px;font-weight:800;font-size:12.5px}
-#dayNum{font-size:15px;font-weight:900;letter-spacing:-.2px}
+#dayBox{padding:8px 13px;gap:10px;font-weight:600;font-size:12.5px}
+#dayNum{font-size:15px;font-weight:600;letter-spacing:-.2px}
 #dayPhase{font-size:12.5px;opacity:.88}
 #timeBar{width:84px;height:8px;border-radius:4px}
-#tSec{font-size:13px;font-weight:800;min-width:32px;opacity:.92}
+#tSec{font-size:13px;font-weight:600;min-width:32px;opacity:.92}
 
 /* ── 수정 체력 바 ── */
 #crystalWrap{padding:7px 14px 9px;min-width:248px}
-#crystalWrap .lb{font-weight:800;font-size:11px;letter-spacing:.4px;opacity:.78;margin-bottom:6px}
+#crystalWrap .lb{font-weight:600;font-size:11px;letter-spacing:.4px;opacity:.78;margin-bottom:6px}
 #cBar{height:19px;border-radius:10px;position:relative;border-width:1.5px}
 #cNum{position:absolute;inset:0;left:0;top:0;transform:none;
   display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:11.5px;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.92),0 0 3px rgba(0,0,0,.6);
+  font-weight:600;font-size:11.5px;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.92),0 0 3px rgba(0,0,0,.6);
   letter-spacing:.02em}
 #crystalWrap.hurt{animation:shake .4s}
 
 /* ── 보스 바 ── */
 #bossWrap{padding:8px 16px 10px;min-width:320px;border-color:rgba(255,150,150,.55)}
-#bossWrap .lb{font-weight:900;font-size:13.5px;margin-bottom:6px;letter-spacing:.2px}
+#bossWrap .lb{font-weight:600;font-size:13.5px;margin-bottom:6px;letter-spacing:.2px}
 #bBar{height:17px;border-radius:9px;position:relative;background:rgba(0,0,0,.62);
   overflow:hidden;border:1.5px solid rgba(255,150,150,.5)}
 #bNum{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:11px;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.92)}
+  font-weight:600;font-size:11px;line-height:1;text-shadow:0 1px 2px rgba(0,0,0,.92)}
 
 /* ── 핫바 ── */
 #tools{gap:8px}
@@ -458,14 +458,14 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
   transition:transform .13s ease, box-shadow .13s ease}
 .slot .ic{font-size:26px;line-height:1.05;margin-top:1px;
   filter:drop-shadow(0 2px 3px rgba(0,0,0,.55))}
-.slot .nm{font-weight:900;font-size:11.5px;line-height:1.2;letter-spacing:-.2px;opacity:.97}
+.slot .nm{font-weight:600;font-size:11.5px;line-height:1.2;letter-spacing:-.2px;opacity:.97}
 .slot .cost{margin-top:auto;width:100%;padding-top:4px;
-  font-weight:800;font-size:9.5px;line-height:1.3;display:flex;align-items:center;justify-content:center;
+  font-weight:600;font-size:9.5px;line-height:1.3;display:flex;align-items:center;justify-content:center;
   flex-wrap:wrap;gap:3px; min-height:26px;
   border-top:1px solid rgba(255,255,255,.12);opacity:.95;letter-spacing:-.2px;max-width:none}
 .slot .cost span{padding:1.5px 6px;border-radius:999px;background:rgba(0,0,0,.38);
   border:1px solid rgba(255,255,255,.09)}
-.slot .ky{position:absolute;right:7px;top:6px;bottom:auto;font-weight:800;font-size:9px;
+.slot .ky{position:absolute;right:7px;top:6px;bottom:auto;font-weight:600;font-size:9px;
   opacity:.34;padding:1px 5px;border-radius:6px;background:rgba(255,255,255,.10)}
 .slot.on{border-color:rgba(255,255,255,.92); transform:translateY(-6px);
   background:linear-gradient(180deg,rgba(122,170,126,.96),rgba(52,84,56,.96));
@@ -484,7 +484,7 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
   margin-top:96px;
   background:linear-gradient(180deg,rgba(20,27,21,.92),rgba(10,15,11,.94))}
 #aimInfo .lv{font-size:10.5px;padding:2px 7px;border-radius:6px}
-#aimInfo .hp{font-size:11px;opacity:.72;margin-left:6px;font-weight:800}
+#aimInfo .hp{font-size:11px;opacity:.72;margin-left:6px;font-weight:600}
 #aimInfo .segs{display:flex;gap:3px;justify-content:center;margin:6px 0 5px}
 #aimInfo .segs i{width:14px;height:6px;border-radius:2px;background:rgba(255,255,255,.16)}
 #aimInfo .segs i.f{background:#8fd66a;box-shadow:0 0 4px rgba(143,214,106,.5)}
@@ -493,27 +493,27 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
 #aimInfo .prog i{display:block;height:100%;background:#ffd43b;transition:width .05s linear}
 
 /* ── 버튼 ── */
-.btn{border-radius:9px;border-width:1.5px;font-weight:800;letter-spacing:-.1px}
+.btn{border-radius:9px;border-width:1.5px;font-weight:600;letter-spacing:-.1px}
 #topRight2{gap:7px}
 #topRight2 .btn{padding:8px 12px;font-size:12px;
   background:linear-gradient(180deg,rgba(40,52,42,.92),rgba(22,30,23,.94))}
 
 /* ── 알림 ── */
 #feed{font-weight:700;font-size:12px;line-height:1.6;text-shadow:0 1px 3px rgba(0,0,0,.95),0 0 8px rgba(0,0,0,.7)}
-#toast{font-weight:900;font-size:21px;letter-spacing:-.3px}
+#toast{font-weight:600;font-size:21px;letter-spacing:-.3px}
 #hint{font-weight:700;font-size:11.5px;line-height:1.7;opacity:.42}
 
 /* ── 팝업 ── */
 .popC{border-radius:16px;border-width:1.5px;padding:20px 22px}
 .popC h2{font-size:21px;letter-spacing:-.4px;margin-bottom:14px}
 .popC h3{font-size:12.5px;letter-spacing:.4px;opacity:.66;margin:18px 0 9px;
-  text-transform:none;font-weight:900}
+  text-transform:none;font-weight:600}
 table.rank th{font-size:10.5px;letter-spacing:.4px;opacity:.55;padding-bottom:8px}
 table.rank td{padding:7px 4px;font-size:12.5px}
-table.rank td.n{font-weight:800}
-.sl{font-weight:800;font-size:12.5px;margin:11px 0}
+table.rank td.n{font-weight:600}
+.sl{font-weight:600;font-size:12.5px;margin:11px 0}
 .sl b{font-size:12.5px;min-width:60px}
-.gline{font-weight:800;font-size:12.5px;margin:7px 0}
+.gline{font-weight:600;font-size:12.5px;margin:7px 0}
 .gline .gv span{font-size:12px;min-width:56px;text-align:right}
 
 /* ── 시작 화면 ── */
@@ -524,7 +524,7 @@ input.f,select.f{border-width:1.5px;border-radius:9px;padding:13px}
 #iRoom{font-family:var(--num);letter-spacing:3px;font-size:18px;text-align:center}
 .grp{gap:8px}
 .grp button{padding:14px 0;border-radius:9px;border-width:1.5px;font-family:var(--num);
-  font-size:16px;font-weight:800}
+  font-size:16px;font-weight:600}
 .hint{font-size:11.5px;line-height:1.75;opacity:.55}
 
 @media (max-width:620px){
@@ -622,7 +622,7 @@ body.aiming #hint{opacity:.28}
 
 /* ── 자원 패널 ── */
 #resBox{padding:11px 13px 12px;min-width:216px;left:12px;top:12px}
-#grpName{font-weight:900;font-size:12.5px;letter-spacing:.6px;padding:4px 13px;margin-bottom:10px;
+#grpName{font-weight:600;font-size:12.5px;letter-spacing:.6px;padding:4px 13px;margin-bottom:10px;
   box-shadow:0 2px 0 rgba(0,0,0,.30), inset 0 1px 0 rgba(255,255,255,.55)}
 .resline{gap:7px}
 .res{padding:5px 11px 5px 6px;border-radius:999px;border-width:1.5px}
@@ -643,7 +643,7 @@ body.aiming #hint{opacity:.28}
 #hpNum{font-size:12.5px}
 
 /* ── 일차 / 시간 ── */
-#dayBox{right:12px;top:12px;padding:9px 14px;gap:11px;font-weight:800;font-size:13px}
+#dayBox{right:12px;top:12px;padding:9px 14px;gap:11px;font-weight:600;font-size:13px}
 #dayNum{font-size:15.5px}
 #dayPhase{font-size:13px;opacity:.92}
 #timeBar{width:88px;height:9px;border-radius:5px;border-color:rgba(255,246,228,.22)}
@@ -664,16 +664,16 @@ body.aiming #hint{opacity:.28}
 
 /* ── 수정 체력 바 — 가장 중요한 정보라 크게 ── */
 #crystalWrap{padding:8px 16px 10px;min-width:262px;border-radius:18px}
-#crystalWrap .lb{font-weight:900;font-size:11.5px;letter-spacing:.6px;opacity:.85;margin-bottom:7px}
+#crystalWrap .lb{font-weight:600;font-size:11.5px;letter-spacing:.6px;opacity:.85;margin-bottom:7px}
 #cBar{height:21px;border-radius:11px;border:1.5px solid rgba(255,246,228,.30);
   background:rgba(0,0,0,.55);box-shadow:inset 0 2px 5px rgba(0,0,0,.55)}
 #cFill{border-radius:10px;box-shadow:0 0 12px rgba(102,224,255,.45)}
-#cNum{font-weight:900;font-size:12px;line-height:1}
+#cNum{font-weight:600;font-size:12px;line-height:1}
 
 /* ── 보스 바 — 수정 바 바로 밑에. top:64 였을 때 수정 바를 덮고 있었다 ── */
 #bossWrap{border-radius:18px;padding:9px 18px 11px;width:min(430px,46vw);min-width:0;
   border-color:rgba(255,150,150,.55)}
-#bAdds{font-weight:800;font-size:11px;opacity:.85;margin-top:5px;color:#ffd0d0}
+#bAdds{font-weight:600;font-size:11px;opacity:.85;margin-top:5px;color:#ffd0d0}
 #bossWrap .lb{color:#ffd0d0}
 #bFill{box-shadow:0 0 12px rgba(255,90,90,.45)}
 
@@ -700,7 +700,7 @@ body.aiming #hint{opacity:.28}
   transition:transform .13s ease, box-shadow .13s ease, background .13s ease}
 .slot:hover{background:linear-gradient(180deg,rgba(80,64,124,.95),rgba(36,28,64,.96))}
 .slot .ic{font-size:27px;margin-top:2px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
-.slot .nm{font-weight:900;font-size:12px;line-height:1.2;letter-spacing:-.2px;opacity:.98}
+.slot .nm{font-weight:600;font-size:12px;line-height:1.2;letter-spacing:-.2px;opacity:.98}
 /* ★ 값 표시는 알약을 벗겼다. 알약 테두리 때문에 값 세 개(🪵14 🪨11 ✨4)가
    88px 칸에 안 들어가 ✨ 가 잘려 나갔다. 벗기니 여유 있게 들어가고 더 깔끔하다. */
 /* ★ 값 세 개(🪵14 🪨11 ✨4)는 한 줄에 안 들어간다 — 그림문자가 넓어서 어느 글자
@@ -710,11 +710,11 @@ body.aiming #hint{opacity:.28}
 .slot .cost{margin-top:auto;width:100%;padding-top:5px;
   display:grid;grid-template-columns:repeat(2,auto);justify-content:center;
   align-content:end;gap:1px 7px;min-height:28px;
-  font:800 9.5px/1.35 var(--num);border-top:1px solid rgba(255,246,228,.14)}
+  font:600 9.5px/1.35 var(--num);border-top:1px solid rgba(255,246,228,.14)}
 .slot .cost span:nth-child(3):last-child{grid-column:1/3}   /* 셋째는 가운데로 */
 .slot .cost span{white-space:nowrap;opacity:.95}
 .slot .ky{position:absolute;left:6px;top:6px;right:auto;
-  font:800 9.5px var(--num);opacity:.42;padding:1.5px 5px;border-radius:7px;
+  font:600 9.5px var(--num);opacity:.42;padding:1.5px 5px;border-radius:7px;
   background:rgba(255,246,228,.14)}
 .slot.on{border-color:var(--honey); transform:translateY(-7px);
   background:linear-gradient(180deg,#5f8f5c,#33613a);
@@ -738,7 +738,7 @@ body.aiming #hint{opacity:.28}
 #hint{left:50%;right:auto;bottom:150px;transform:translateX(-50%);z-index:13;
 
   text-align:center;max-width:min(660px, 84vw);
-  font-weight:800;font-size:12.5px;line-height:1.45;opacity:.92;
+  font-weight:600;font-size:12.5px;line-height:1.45;opacity:.92;
   padding:6px 16px;border-radius:999px;background:rgba(17,13,32,.66);
 
   border:1px solid rgba(255,214,120,.22);
@@ -751,7 +751,7 @@ body.touch #hint{display:block;font-size:12px}
 
 
 /* ── 알림 줄 — 하늘 위에서도 읽히게 알약으로 ── */
-#feed{left:12px;top:150px;width:268px;font-weight:800;font-size:11.5px;line-height:1.45;text-shadow:none}
+#feed{left:12px;top:150px;width:268px;font-weight:600;font-size:11.5px;line-height:1.45;text-shadow:none}
 #feed div{margin-bottom:4px;opacity:1;padding:5px 10px;border-radius:11px;
   background:rgba(17,13,32,.72);border:1px solid rgba(255,246,228,.10);
   box-shadow:0 2px 6px -2px rgba(0,0,0,.6);
@@ -759,7 +759,7 @@ body.touch #hint{display:block;font-size:12px}
   animation:fin .32s; word-break:keep-all}
 @keyframes fin{from{opacity:0;transform:translateX(-10px)}}
 
-#toast{font-weight:900;font-size:22px;letter-spacing:-.3px;
+#toast{font-weight:600;font-size:22px;letter-spacing:-.3px;
   text-shadow:0 2px 0 rgba(24,14,44,.9), 0 4px 14px rgba(0,0,0,.8)}
 #stageTitle .d{font-size:48px;text-shadow:0 4px 0 rgba(24,14,44,.65),0 10px 26px rgba(0,0,0,.6)}
 
@@ -771,7 +771,7 @@ body.touch #hint{display:block;font-size:12px}
 #aimInfo .prog i{background:var(--honey)}
 
 /* ── 모바일 버튼 — 색으로 구분해서 헷갈리지 않게 ── */
-.mb{border-radius:22px;border-width:2px;font-weight:800;font-size:11.5px;
+.mb{border-radius:22px;border-width:2px;font-weight:600;font-size:11.5px;
   background:linear-gradient(180deg,rgba(58,46,92,.88),rgba(26,20,48,.92));
   border-color:rgba(255,246,228,.30);box-shadow:0 3px 0 rgba(0,0,0,.38)}
 .mb.big{border-radius:50%}
@@ -864,7 +864,7 @@ input.f:focus,select.f:focus{outline:none;border-color:var(--honey);
   background:radial-gradient(120% 90% at 50% 18%, rgba(126,198,255,.30), rgba(0,0,0,.30));
   border:1px solid rgba(255,246,228,.20);text-align:center}
 #pvw{display:block;width:140px;height:164px;margin:0 auto}
-#pvwCap{font-weight:800;font-size:11.5px;color:var(--honey);opacity:.85;letter-spacing:.3px;
+#pvwCap{font-weight:600;font-size:11.5px;color:var(--honey);opacity:.85;letter-spacing:.3px;
   margin-top:2px}
 #dressPick{flex:1 1 auto;min-width:0}
 #dressPick label.f{margin:8px 0 4px;display:flex;gap:6px;align-items:baseline}
@@ -876,7 +876,7 @@ input.f:focus,select.f:focus{outline:none;border-color:var(--honey);
   #dressPick .dsec label.f{margin-top:0}
   #dressPick .dsec{margin-bottom:5px}
 }
-#dressPick label.f b{font-weight:800;font-size:11.5px;color:#fff;opacity:.72}
+#dressPick label.f b{font-weight:600;font-size:11.5px;color:#fff;opacity:.72}
 /* ★ 다섯 줄이면 아이템이 아홉·열하나가 되면서 석 줄로 늘어난다 — 여섯 줄로 넓힌다 */
 /* ★ 19차 — 모자가 열셋, 옷이 열하나가 되어 여섯 줄로는 모자만 석 줄이 되고 카드가
    80px 길어졌다(재서 확인했다 — 1366×768 에서 제목 top 53 → −27).
@@ -897,7 +897,7 @@ input.f:focus,select.f:focus{outline:none;border-color:var(--honey);
 .card:before{content:'';position:absolute;left:0;right:0;top:0;height:5px;
   background:linear-gradient(90deg,#ff6b6b,#4dabf7,#51cf66,#ffd43b,#cc7bff)}
 #titleCard h1{font-size:clamp(34px,8vw,54px)}
-#titleCard .sub{font-size:14.5px;font-weight:800}
+#titleCard .sub{font-size:14.5px;font-weight:600}
 .hint{color:rgba(255,246,228,.55)}
 #load{background:linear-gradient(180deg,#6fb6e6,#a9dcf5)}
 
@@ -919,31 +919,31 @@ body.touch .slot.on{transform:translateY(-4px)}
 #endCard{margin:4px 0 6px;padding:14px 15px 15px;border-radius:16px;text-align:left;
   background:linear-gradient(180deg,rgba(255,246,228,.09),rgba(255,246,228,.04));
   border:1px solid rgba(255,246,228,.14)}
-.ec-t{font-weight:900;font-size:14px;color:var(--honey);letter-spacing:.3px;margin-bottom:11px}
-.ec-t2{font-weight:900;font-size:11.5px;opacity:.62;letter-spacing:.4px;margin:14px 0 8px}
+.ec-t{font-weight:600;font-size:14px;color:var(--honey);letter-spacing:.3px;margin-bottom:11px}
+.ec-t2{font-weight:600;font-size:11.5px;opacity:.62;letter-spacing:.4px;margin:14px 0 8px}
 .ec-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px}
 .ec-i{padding:9px 8px 8px;border-radius:12px;text-align:center;
   background:rgba(0,0,0,.26);border:1px solid rgba(255,246,228,.09)}
-.ec-i b{display:block;font:900 21px/1.15 var(--num);letter-spacing:-.5px}
-.ec-i span{display:block;font-weight:800;font-size:10.5px;opacity:.72;margin-top:3px}
+.ec-i b{display:block;font:600 21px/1.15 var(--num);letter-spacing:-.5px}
+.ec-i span{display:block;font-weight:600;font-size:10.5px;opacity:.72;margin-top:3px}
 .ec-bars{display:flex;flex-direction:column;gap:6px}
-.ec-b{display:flex;align-items:center;gap:8px;font-weight:800;font-size:11.5px}
+.ec-b{display:flex;align-items:center;gap:8px;font-weight:600;font-size:11.5px}
 .ec-b i{font-style:normal;width:44px;flex:0 0 44px}
 .ec-b .tr{flex:1;height:11px;border-radius:6px;background:rgba(0,0,0,.4);overflow:hidden}
 .ec-b .tr u{display:block;height:100%;border-radius:6px;text-decoration:none}
-.ec-b em{font-style:normal;font:800 11px var(--num);opacity:.8;min-width:36px;text-align:right}
-.ec-note{margin-top:12px;font-weight:800;font-size:12px;line-height:1.65;opacity:.9}
+.ec-b em{font-style:normal;font:600 11px var(--num);opacity:.8;min-width:36px;text-align:right}
+.ec-note{margin-top:12px;font-weight:600;font-size:12px;line-height:1.65;opacity:.9}
 .ec-note b{color:var(--honey)}
 
 /* ── 일시정지 ── */
 #pauseVeil{position:absolute;inset:0;display:none;align-items:center;justify-content:center;
   background:rgba(10,7,24,.66);z-index:30;pointer-events:none;text-align:center;
-  font-weight:900;font-size:38px;line-height:1.4;letter-spacing:-.8px;
+  font-weight:600;font-size:38px;line-height:1.4;letter-spacing:-.8px;
   text-shadow:0 3px 0 rgba(14,8,30,.85), 0 8px 26px rgba(0,0,0,.7)}
 #pauseVeil.on{display:flex;animation:pvIn .22s}
 @keyframes pvIn{from{opacity:0}}
 #pauseVeil .pIc{font-size:52px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.6))}
-#pauseVeil small{font-weight:800;font-size:16px;opacity:.85}
+#pauseVeil small{font-weight:600;font-size:16px;opacity:.85}
 
 /* ══ 왼쪽 위 세로줄 — 자원 패널 · 알림 글 ══
    ★ 위 가운데(#topMid)와 같은 이유다. 둘이 각자 top 을 들고 있어서,
@@ -959,17 +959,17 @@ body.touch .slot.on{transform:translateY(-4px)}
      지도 바로 왼쪽에 붙여 늘 보이게 한다. 값이 안 바뀌면 DOM 을 안 건드린다(paintRank). */
 #miniRow{display:flex;flex-direction:row;align-items:flex-start;gap:6px}
 #rankWrap{padding:6px 7px 7px;width:120px;box-sizing:border-box;pointer-events:none}
-#rankHead{font-size:10.5px;font-weight:900;color:var(--gold);letter-spacing:.3px;
+#rankHead{font-size:10.5px;font-weight:600;color:var(--gold);letter-spacing:.3px;
   margin-bottom:4px;text-align:center;opacity:.95}
 #rankList{display:flex;flex-direction:column;gap:2px}
 .rkRow{display:flex;align-items:center;gap:4px;font-size:10.5px;line-height:1.25;
   padding:1.5px 3px;border-radius:5px}
 .rkRow.me{background:rgba(242,192,68,.22);box-shadow:inset 0 0 0 1px rgba(242,192,68,.55)}
-.rkNo{flex:0 0 12px;text-align:center;font:900 10px/1 var(--num);opacity:.72}
+.rkNo{flex:0 0 12px;text-align:center;font:600 10px/1 var(--num);opacity:.72}
 .rkNo.m1{color:#ffd43b;opacity:1} .rkNo.m2{color:#dfe6ef;opacity:1} .rkNo.m3{color:#e0a06a;opacity:1}
 .rkDot{flex:0 0 6px;height:6px;border-radius:50%}
 .rkNm{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
-.rkLv{flex:0 0 auto;font:900 10.5px/1 var(--num);color:var(--gold)}
+.rkLv{flex:0 0 auto;font:600 10.5px/1 var(--num);color:var(--gold)}
 /* 좁은 화면에서는 순위를 줄이고, 아주 좁으면 접는다 — 지도가 우선이다 */
 @media (max-width:1150px){ #rankWrap{width:104px} .rkRow{font-size:10px} }
 @media (max-width:980px) { #rankWrap{width:92px}  #rankHead{font-size:9.5px} }
@@ -1045,14 +1045,14 @@ body.touch #topRight2 .kk{display:none}
    ★ 3학년에게는 표만 주면 안 읽는다. 막대를 먼저 보여 주고 표는 그 밑에 둔다. */
 #popInfo .popC{width:min(760px,95vw)}
 .ifBar{display:flex;align-items:center;gap:8px;margin:5px 0}
-.ifBar .nm{flex:0 0 84px;font-size:12.5px;font-weight:800}
+.ifBar .nm{flex:0 0 84px;font-size:12.5px;font-weight:600}
 .ifBar .tk{flex:1 1 auto;height:16px;border-radius:8px;background:rgba(0,0,0,.42);overflow:hidden}
 .ifBar .tk i{display:block;height:100%;border-radius:8px}
-.ifBar .vl{flex:0 0 62px;text-align:right;font:900 12px/1 var(--num);color:var(--honey)}
+.ifBar .vl{flex:0 0 62px;text-align:right;font:600 12px/1 var(--num);color:var(--honey)}
 .ifT{width:100%;border-collapse:collapse;margin-top:12px;font-size:12px}
 .ifT th,.ifT td{padding:5px 6px;text-align:center;border-bottom:1px solid rgba(255,255,255,.12)}
-.ifT th{font-size:11px;opacity:.8;font-weight:800}
-.ifT td.l{text-align:left;font-weight:800}
+.ifT th{font-size:11px;opacity:.8;font-weight:600}
+.ifT td.l{text-align:left;font-weight:600}
 .ifT tr.wall td{background:rgba(120,220,130,.10)}
 .ifNote{font-size:11.5px;opacity:.8;margin-top:9px;line-height:1.5}
 
@@ -1062,7 +1062,7 @@ body.touch #topRight2 .kk{display:none}
 .shopHint{font-size:13px;opacity:.82;margin:0 0 10px}
 
 #shopRes{display:flex;gap:12px;justify-content:center;margin-bottom:10px;
-  font:800 15px/1 var(--num);padding:8px;border-radius:12px;background:rgba(0,0,0,.28)}
+  font:600 15px/1 var(--num);padding:8px;border-radius:12px;background:rgba(0,0,0,.28)}
 .shopTabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
 .shopTabs .btn{flex:1 1 0;min-width:84px}
 .shopTabs .btn.on{background:linear-gradient(180deg,#c9962f,#8a6415);border-color:#ffd98a;color:#1a1206}
@@ -1075,19 +1075,19 @@ body.touch #topRight2 .kk{display:none}
 .sItem.no{opacity:.45}
 .sItem .si{font-size:25px;line-height:1;flex:0 0 auto;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
 .sItem .sb{flex:1 1 auto;min-width:0}
-.sItem .sn{font-weight:900;font-size:14px}
+.sItem .sn{font-weight:600;font-size:14px}
 .sItem .sd{font-size:11.5px;opacity:.78;line-height:1.34;margin-top:1px}
-.sItem .sc{margin-top:5px;font:800 12px/1 var(--num);color:var(--honey)}
+.sItem .sc{margin-top:5px;font:600 12px/1 var(--num);color:var(--honey)}
 .sItem button{margin-top:6px;width:100%;padding:7px 0;border-radius:9px;
   border:1px solid rgba(255,246,228,.3);background:rgba(255,255,255,.1);
-  color:#fff;font-weight:800;font-size:12.5px;cursor:pointer}
+  color:#fff;font-weight:600;font-size:12.5px;cursor:pointer}
 .sItem button:disabled{opacity:.5;cursor:default}
 .sItem button.buy{background:linear-gradient(180deg,#57a45b,#357a3c);border-color:#a8e8ac}
 
 /* ══ 내 가방 ══ */
 #popKit .popC{width:min(880px,94vw)}      /* 23차 — 인형옷 + 가진 것이 나란히 서려면 넓어야 한다 */
 #kitStat{display:flex;gap:12px;justify-content:center;margin-bottom:4px;
-  font:800 14px/1 var(--num);padding:9px;border-radius:12px;background:rgba(0,0,0,.28)}
+  font:600 14px/1 var(--num);padding:9px;border-radius:12px;background:rgba(0,0,0,.28)}
 .kitGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:7px}
 .kitIt{display:flex;gap:8px;align-items:center;padding:8px 10px;border-radius:12px;
   background:rgba(255,255,255,.055);border:1px solid rgba(255,246,228,.16);
@@ -1098,8 +1098,8 @@ body.touch #topRight2 .kk{display:none}
 .kitIt .ki{font-size:23px;line-height:1;flex:0 0 auto;
   filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
 .kitIt .kb{flex:1 1 auto;min-width:0}
-.kitIt .kn{font-weight:900;font-size:13px}
-.kitIt .kd{font:800 11px/1.3 var(--num);opacity:.75;margin-top:1px}
+.kitIt .kn{font-weight:600;font-size:13px}
+.kitIt .kd{font:600 11px/1.3 var(--num);opacity:.75;margin-top:1px}
 
 /* ═══════ 🎒 가방 — 입은 자리 · 내 사람 · 가진 것 (23차) ═══════
    ★ 예전 가방은 '무기 목록 / 방어구 목록 / 물약 목록' 세 덩이였다. 뭘 입고 있는지는
@@ -1123,14 +1123,14 @@ body.touch #topRight2 .kk{display:none}
 .kSlot:hover{border-color:rgba(255,214,120,.75);background:rgba(255,255,255,.10)}
 .kSlot.empty{opacity:.38}
 .kSlot .kTag{position:absolute;bottom:-2px;left:0;right:0;text-align:center;
-  font:900 8.5px/1 -apple-system,"Noto Sans KR",sans-serif;opacity:.62;letter-spacing:-.2px}
+  font:600 8.5px/1 -apple-system,"Noto Sans KR",sans-serif;opacity:.62;letter-spacing:-.2px}
 #kitFig{width:200px;height:250px;flex:0 0 auto;position:relative}
 #kitPvw{width:200px;height:250px;display:block}
 #kitFigOff{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
   font-size:64px;opacity:.5}
 #kitBag{flex:1 1 300px;min-width:262px}
 #kitTabs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px}
-#kitTabs button{padding:5px 11px;border-radius:999px;cursor:pointer;font-weight:900;font-size:11.5px;
+#kitTabs button{padding:5px 11px;border-radius:999px;cursor:pointer;font-weight:600;font-size:11.5px;
   border:1.5px solid rgba(255,255,255,.18);background:rgba(0,0,0,.3);color:#fff}
 #kitTabs button.on{background:linear-gradient(180deg,#ffe27a,#f4b53c);color:#1a1208;
   border-color:rgba(255,214,120,.8)}
@@ -1142,12 +1142,12 @@ body.touch #topRight2 .kk{display:none}
 .kCell:hover{border-color:rgba(255,214,120,.8);background:rgba(255,255,255,.11);transform:translateY(-1px)}
 /* 입고 있는 것은 초록 테 — 화면에서 한눈에 갈려야 한다 */
 .kCell.on{border-color:#6ee27a;box-shadow:0 0 0 1.5px rgba(110,226,122,.45) inset}
-.kCell .kNum{position:absolute;right:3px;bottom:1px;font:900 10px/1 var(--num);
+.kCell .kNum{position:absolute;right:3px;bottom:1px;font:600 10px/1 var(--num);
   color:#ffe08a;text-shadow:0 1px 2px #000}
 #kitFoot{display:flex;justify-content:space-between;align-items:center;gap:8px;
-  margin-top:6px;font-weight:800;font-size:12px;min-height:18px}
+  margin-top:6px;font-weight:600;font-size:12px;min-height:18px}
 #kitPick{opacity:.9;text-align:right;flex:1 1 auto;min-width:0}
-#kitCount{font:900 12px/1 var(--num);color:#ffe08a;flex:0 0 auto}
+#kitCount{font:600 12px/1 var(--num);color:#ffe08a;flex:0 0 auto}
 
 /* ═══════ ✨ 전직 고르기 — 어떤 모습이 되는지 보고 고른다 (23차) ═══════
    ★ 예전에는 글씨 두 줄이었다("<b>사격 솜씨</b>를 더 찍을 수 있어요"). 9살에게 이건
@@ -1167,13 +1167,13 @@ body.touch #topRight2 .kk{display:none}
 .jobCard .jFig .jNone{font-size:62px;opacity:.55}
 .jobCard .jBadge{position:absolute;top:7px;left:7px;font-size:22px;line-height:1;
   filter:drop-shadow(0 2px 3px rgba(0,0,0,.7))}
-.jobCard .jName{font-weight:900;font-size:17px;text-align:center;padding:8px 6px 2px;
+.jobCard .jName{font-weight:600;font-size:17px;text-align:center;padding:8px 6px 2px;
   letter-spacing:-.3px}
-.jobCard .jDesc{font-weight:800;font-size:11.5px;line-height:1.45;opacity:.82;
+.jobCard .jDesc{font-weight:600;font-size:11.5px;line-height:1.45;opacity:.82;
   text-align:center;padding:0 10px 8px}
-.jobCard .jStat{font:900 11.5px/1 var(--num);text-align:center;padding:0 8px 10px;color:#ffe08a}
+.jobCard .jStat{font:600 11.5px/1 var(--num);text-align:center;padding:0 8px 10px;color:#ffe08a}
 .jobCard .jGo{margin:0 10px 11px;padding:9px 0;border-radius:12px;text-align:center;
-  font-weight:900;font-size:13.5px;border:1px solid rgba(255,214,120,.6);color:#1a1208;
+  font-weight:600;font-size:13.5px;border:1px solid rgba(255,214,120,.6);color:#1a1208;
   background:linear-gradient(180deg,#ffe27a,#f4b53c)}
 .kitIt.on .kd{color:var(--honey);opacity:1}
 .kitNone{grid-column:1/-1;padding:12px;text-align:center;font-size:12.5px;opacity:.6;
@@ -1183,7 +1183,7 @@ body.touch #topRight2 .kk{display:none}
 
 /* ── 레벨·경험치 줄 ── */
 #lvRow{display:flex;gap:7px;align-items:center;margin-top:7px;
-  font:900 11.5px/1 var(--num);pointer-events:auto;cursor:pointer}
+  font:600 11.5px/1 var(--num);pointer-events:auto;cursor:pointer}
 #lvChip{padding:3px 8px;border-radius:8px;color:#0e2a14;
   background:linear-gradient(180deg,#ffe27a,#f4b53c);
   box-shadow:0 1px 0 rgba(0,0,0,.35)}
@@ -1208,17 +1208,17 @@ body.touch #topRight2 .kk{display:none}
 .stIt .si{font-size:24px;line-height:1;flex:0 0 auto;
   filter:drop-shadow(0 2px 3px rgba(0,0,0,.6))}
 .stIt .sb{flex:1 1 auto;min-width:0}
-.stIt .sn{font-weight:900;font-size:13.5px}
+.stIt .sn{font-weight:600;font-size:13.5px}
 .stIt .sd{font-weight:700;font-size:11.5px;line-height:1.35;opacity:.78;margin-top:2px}
 .stPips{display:flex;gap:3px;margin-top:5px}
 .stPips i{width:13px;height:7px;border-radius:3px;background:rgba(255,255,255,.16)}
 .stPips i.on{background:linear-gradient(90deg,#ffe27a,#ffa726)}
 .stIt button{flex:0 0 auto;padding:8px 13px;border-radius:11px;cursor:pointer;
-  border:1px solid rgba(255,214,120,.6);color:#0e2a14;font-weight:900;font-size:15px;line-height:1;
+  border:1px solid rgba(255,214,120,.6);color:#0e2a14;font-weight:600;font-size:15px;line-height:1;
   background:linear-gradient(180deg,#ffe27a,#f4b53c)}
 .stIt button:disabled{background:rgba(255,255,255,.09);color:#fff;opacity:.4;
   border-color:rgba(255,246,228,.2);cursor:default}
-#stPts{font-weight:900;font-size:14px;color:#ffe08a}
+#stPts{font-weight:600;font-size:14px;color:#ffe08a}
 #stPts b{font-size:18px}
 
 /* ═══════ 스탯 창 — 기본 넷 + 거기서 나오는 능력치 (23차) ═══════
@@ -1231,13 +1231,13 @@ body.touch #topRight2 .kk{display:none}
 .stBig .sIc{font-size:25px;line-height:1;flex:0 0 auto}
 .stBig .sMid{flex:1 1 auto;min-width:0}
 .stBig .sTop{display:flex;align-items:baseline;gap:6px}
-.stBig .sNm{font-weight:900;font-size:15px}
-.stBig .sVal{font:900 20px/1 var(--num);color:#ffe08a;margin-left:auto}
-.stBig .sMax{font:800 11px/1 var(--num);opacity:.55}
-.stBig .sWhat{font-weight:800;font-size:11px;line-height:1.35;opacity:.8;margin-top:2px}
-.stBig .sSub{font-weight:800;font-size:10.5px;line-height:1.3;opacity:.55;margin-top:1px}
+.stBig .sNm{font-weight:600;font-size:15px}
+.stBig .sVal{font:600 20px/1 var(--num);color:#ffe08a;margin-left:auto}
+.stBig .sMax{font:600 11px/1 var(--num);opacity:.55}
+.stBig .sWhat{font-weight:600;font-size:11px;line-height:1.35;opacity:.8;margin-top:2px}
+.stBig .sSub{font-weight:600;font-size:10.5px;line-height:1.3;opacity:.55;margin-top:1px}
 .stBig button{flex:0 0 auto;width:34px;height:34px;border-radius:10px;cursor:pointer;
-  border:1px solid rgba(255,214,120,.6);color:#0e2a14;font-weight:900;font-size:17px;line-height:1;
+  border:1px solid rgba(255,214,120,.6);color:#0e2a14;font-weight:600;font-size:17px;line-height:1;
   background:linear-gradient(180deg,#ffe27a,#f4b53c)}
 .stBig button:disabled{background:rgba(255,255,255,.09);color:#fff;opacity:.35;
   border-color:rgba(255,246,228,.2);cursor:default}
@@ -1253,16 +1253,16 @@ body.touch #topRight2 .kk{display:none}
   border:1px solid rgba(255,255,255,.10)}
 /* flex-wrap — 그래도 언젠가 안 들어가면 옆으로 올라타는 대신 아래로 접히게 한다.
    넘침이 가로(겹침·못 읽음)가 아니라 세로(좀 못생김·읽힘)로 나오게 하는 안전판이다. */
-.stDeriv .dRow{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;font-weight:800;font-size:12px}
+.stDeriv .dRow{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;font-weight:600;font-size:12px}
 .stDeriv .dNm{opacity:.78;white-space:nowrap}
-.stDeriv .dVal{margin-left:auto;font:900 13px/1 var(--num);color:#ffe9b0;white-space:nowrap}
-.stDeriv .dFrom{font-weight:800;font-size:10px;opacity:.45;white-space:nowrap}
+.stDeriv .dVal{margin-left:auto;font:600 13px/1 var(--num);color:#ffe9b0;white-space:nowrap}
+.stDeriv .dFrom{font-weight:600;font-size:10px;opacity:.45;white-space:nowrap}
 
 /* ── 🎖️ 칭호 칸 (22차) — 받은 것과 아직 못 받은 것을 한 판에 같이 둔다.
    ★ 못 받은 것을 숨기면 '다음에 뭘 하지' 가 안 보인다. 흐리게 두되 조건은 읽히게 한다.
    ★ 칸 너비를 숫자로 잡지 않는다 — auto-fill 로 화면 폭에 맡긴다(좁으면 한 줄에 하나). */
-#bgTop{font-weight:900;font-size:13px;color:#ffe08a;margin-bottom:2px}
-#bgNext{font-weight:800;font-size:12px;opacity:.85;margin:3px 0 8px}
+#bgTop{font-weight:600;font-size:13px;color:#ffe08a;margin-bottom:2px}
+#bgNext{font-weight:600;font-size:12px;opacity:.85;margin:3px 0 8px}
 /* ★ 23차 — 스탯 창에 '나오는 능력치' 판이 붙으면서 창이 길어졌다. 재 보니 교실 크롬북
    (1024×600)에서 641px 이 스크롤 뒤로 숨었다. 스크롤 막대가 잘 안 보여서 '아래에 더 있다' 를
    아무도 모르는 건 이 파일이 이미 겪은 함정이다. 칭호 칸에 제 높이를 줘서 창 자체를 묶는다. */
@@ -1275,25 +1275,25 @@ body.touch #topRight2 .kk{display:none}
 .bgIt .bi{font-size:21px;line-height:1;flex:0 0 auto;width:26px;text-align:center;filter:grayscale(1)}
 .bgIt.on .bi{filter:none}
 .bgIt .bb{flex:1 1 auto;min-width:0}
-.bgIt .bn{font-weight:900;font-size:12.5px;line-height:1.2}
+.bgIt .bn{font-weight:600;font-size:12.5px;line-height:1.2}
 .bgIt .bd{font-weight:700;font-size:10.5px;line-height:1.3;opacity:.75;margin-top:1px}
 
 #statRow{display:flex;gap:8px;align-items:center;margin-top:5px;
-  font:800 12px/1 var(--num)}
+  font:600 12px/1 var(--num)}
 #statRow span{display:flex;gap:3px;align-items:center;padding:3px 7px;border-radius:8px;
   background:rgba(0,0,0,.3)}
 #stAtk{color:#ffc9a0} #stDef{color:#a8d8ff} #stAmmo{color:#ffe08a}
 #statRow span.buffed{box-shadow:0 0 0 2px rgba(255,201,74,.55)}
 #potRow{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap}
 #potRow button{padding:4px 8px;border-radius:9px;border:1px solid rgba(255,246,228,.26);
-  background:rgba(255,255,255,.09);color:#fff;font-weight:800;font-size:12px;line-height:1;cursor:pointer;
+  background:rgba(255,255,255,.09);color:#fff;font-weight:600;font-size:12px;line-height:1;cursor:pointer;
   display:flex;gap:4px;align-items:center}
 #potRow button:disabled{display:none}
 #potRow button i{font-style:normal;font-size:14px}
-#potRow button b{font:800 10.5px var(--num);opacity:.75}
+#potRow button b{font:600 10.5px var(--num);opacity:.75}
 /* ── 오늘의 임무 ── */
 #misWrap{display:none;align-items:center;gap:7px;padding:5px 11px;pointer-events:none;
-  font-weight:800;font-size:11.5px;line-height:1;white-space:nowrap}
+  font-weight:600;font-size:11.5px;line-height:1;white-space:nowrap}
 #misWrap.on{display:flex}
 #misIc{font-size:14px}
 #misName{opacity:.86}
@@ -1301,7 +1301,7 @@ body.touch #topRight2 .kk{display:none}
   border:1px solid rgba(255,246,228,.14);overflow:hidden;flex:0 0 auto}
 #misFill{display:block;height:100%;width:0%;border-radius:3px;
   background:linear-gradient(90deg,#ffe27a,#ffa726);transition:width .25s}
-#misNum{font:900 11.5px var(--num);color:#ffe08a;min-width:44px;text-align:right}
+#misNum{font:600 11.5px var(--num);color:#ffe08a;min-width:44px;text-align:right}
 #misWrap.done{border-color:rgba(140,255,140,.6)}
 #misWrap.done #misFill{background:linear-gradient(90deg,#9cff9c,#3ddb6a)}
 #misWrap.done #misNum{color:#9cff9c}
@@ -1314,7 +1314,7 @@ body.touch #topRight2 .kk{display:none}
    아래쪽은 조준점과 '지금 할 일' 안내 사이에 늘 한 줄이 남는다. */
 #combo{position:absolute;left:50%;top:calc(50% + 14px);transform:translateX(-50%);z-index:14;
   pointer-events:none;opacity:0;transition:opacity .16s;
-  font:900 21px/1 var(--num);color:#ffd257;
+  font:600 21px/1 var(--num);color:#ffd257;
   text-shadow:0 2px 0 rgba(0,0,0,.75),0 0 14px rgba(255,170,40,.6)}
 #combo.on{opacity:1}
 /* ★ 이 클래스 이름을 'pop' 으로 지었다가 크게 데었다 —
@@ -1330,7 +1330,7 @@ body.touch #topRight2 .kk{display:none}
   padding:9px 18px;border-radius:14px;display:none;z-index:15;pointer-events:none;
   background:linear-gradient(180deg,rgba(60,44,14,.9),rgba(30,22,8,.92));
   border:1px solid rgba(255,214,120,.5);color:#ffe9a0;
-  font-weight:900;font-size:17px;line-height:1.3;text-shadow:0 2px 0 rgba(0,0,0,.7)}
+  font-weight:600;font-size:17px;line-height:1.3;text-shadow:0 2px 0 rgba(0,0,0,.7)}
 #shopTip.on{display:block}
 body.touch #shopTip{pointer-events:auto;cursor:pointer}
 #shopTip .tp{display:none}
@@ -1340,7 +1340,7 @@ body.touch #shopTip .tp{display:inline}
 #forgeTip{position:absolute;left:50%;bottom:31%;transform:translateX(-50%);
   display:none;pointer-events:none;padding:7px 15px;border-radius:999px;
   background:rgba(60,26,14,.86);border:1.5px solid rgba(255,168,88,.6);
-  font-size:13.5px;font-weight:800;color:#ffe0b8;white-space:nowrap;
+  font-size:13.5px;font-weight:600;color:#ffe0b8;white-space:nowrap;
   box-shadow:0 4px 16px rgba(0,0,0,.5)}
 #forgeTip.on{display:block}
 body.touch #forgeTip{pointer-events:auto;cursor:pointer}
@@ -1353,7 +1353,7 @@ body.touch #forgeTip .tp{display:inline}
 #farmTip{position:absolute;left:50%;bottom:31%;transform:translateX(-50%);
   display:none;pointer-events:none;padding:7px 15px;border-radius:999px;
   background:rgba(26,54,22,.86);border:1.5px solid rgba(150,230,130,.6);
-  font-size:13.5px;font-weight:800;color:#ddffcc;white-space:nowrap;
+  font-size:13.5px;font-weight:600;color:#ddffcc;white-space:nowrap;
   box-shadow:0 4px 16px rgba(0,0,0,.5)}
 #farmTip.on{display:block}
 body.touch #farmTip{pointer-events:auto;cursor:pointer}
@@ -1365,30 +1365,30 @@ body.touch #farmTip .tp{display:inline}
 /* 미니게임 동안은 모둠 현황·오늘의 임무를 숨긴다 — 그 자리에 문제가 앉는다.
    (짓기·캐기가 없는 판이라 그 둘은 볼 일이 없다) */
 body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, body.mini #forgeTip{display:none!important}
-#miniBar .mn{display:inline-block;padding:5px 16px;border-radius:999px;font-weight:900;font-size:15px;
+#miniBar .mn{display:inline-block;padding:5px 16px;border-radius:999px;font-weight:600;font-size:15px;
   color:#ffe9a0;background:rgba(40,28,10,.85);border:1.5px solid rgba(255,214,120,.55)}
-#miniBar .mq{margin-top:8px;padding:12px 22px;border-radius:16px;font-weight:900;font-size:clamp(20px,3.2vw,34px);line-height:1.3;
+#miniBar .mq{margin-top:8px;padding:12px 22px;border-radius:16px;font-weight:600;font-size:clamp(20px,3.2vw,34px);line-height:1.3;
   color:#fff;background:rgba(14,18,30,.86);border:2px solid rgba(255,255,255,.25);
   text-shadow:0 2px 0 rgba(0,0,0,.6);white-space:pre-wrap;word-break:keep-all}
 #miniBar .mq:empty{display:none}
-#miniBar .mt{margin-top:6px;font:900 clamp(22px,3.4vw,40px)/1 var(--num);color:#ffd257;
+#miniBar .mt{margin-top:6px;font:600 clamp(22px,3.4vw,40px)/1 var(--num);color:#ffd257;
   text-shadow:0 2px 0 rgba(0,0,0,.7)}
 #miniBar .mt:empty{display:none}
 #miniBar .ms{margin-top:6px;display:flex;justify-content:center;gap:6px;flex-wrap:wrap}
 #miniBar .ms:empty{display:none}
-#miniBar .ms span{padding:4px 10px;border-radius:999px;font-weight:900;font-size:13px;color:#fff;
+#miniBar .ms span{padding:4px 10px;border-radius:999px;font-weight:600;font-size:13px;color:#fff;
   background:rgba(0,0,0,.55);border:1.5px solid currentColor}
-#miniBar .mh{margin-top:6px;font-weight:900;font-size:22px;line-height:1;letter-spacing:3px;text-shadow:0 2px 0 rgba(0,0,0,.7)}
+#miniBar .mh{margin-top:6px;font-weight:600;font-size:22px;line-height:1;letter-spacing:3px;text-shadow:0 2px 0 rgba(0,0,0,.7)}
 #miniBar .mh:empty{display:none}
 /* 선생님 패널의 문제 입력 */
 #tQ{width:100%;box-sizing:border-box;padding:9px 11px;border-radius:10px;border:1.5px solid rgba(255,255,255,.3);
-  background:rgba(0,0,0,.35);color:#fff;font-weight:800;font-size:15px;margin:6px 0}
+  background:rgba(0,0,0,.35);color:#fff;font-weight:600;font-size:15px;margin:6px 0}
 #tQ:focus{outline:none;border-color:#ffd257}
 /* 강화 목록 — 상점 칸과 같은 모양을 쓰되 확률 막대를 하나 얹는다 */
 .enhOdds{margin-top:5px;height:7px;border-radius:4px;background:rgba(0,0,0,.45);overflow:hidden}
 .enhOdds i{display:block;height:100%;border-radius:4px}
-.enhLv{font:900 12px/1 var(--num);color:#ffd43b;margin-left:5px}
-.enhSafe{font-size:11px;font-weight:800;margin-top:4px}
+.enhLv{font:600 12px/1 var(--num);color:#ffd43b;margin-left:5px}
+.enhSafe{font-size:11px;font-weight:600;margin-top:4px}
 
 
 /* ══ 뜨는 데미지 숫자 ══
@@ -1400,7 +1400,7 @@ body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, b
 #dmgLayer{position:absolute;inset:0;pointer-events:none;z-index:14;overflow:hidden}
 .dnum{position:absolute;left:0;top:0;opacity:0;
   will-change:transform,opacity;transform:translate3d(-999px,-999px,0);
-  font:900 21px/1 var(--num);color:#fff3d0;letter-spacing:-.5px;
+  font:600 21px/1 var(--num);color:#fff3d0;letter-spacing:-.5px;
   text-shadow:0 2px 0 rgba(0,0,0,.9), 0 0 12px rgba(0,0,0,.55)}
 .dnum.crit{font-size:31px;color:#ffd54a;
   text-shadow:0 2px 0 rgba(70,30,0,.95), 0 0 16px rgba(255,190,60,.75)}
@@ -1416,11 +1416,11 @@ body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, b
   padding:12px 26px;border-radius:16px;
   background:linear-gradient(180deg,rgba(60,14,20,.86),rgba(28,8,14,.9));
   border:1px solid rgba(255,150,150,.4);
-  font-weight:900;font-size:26px;line-height:1.32;color:#ffd9d9;
+  font-weight:600;font-size:26px;line-height:1.32;color:#ffd9d9;
   text-shadow:0 2px 0 rgba(24,4,8,.9), 0 6px 20px rgba(0,0,0,.6)}
 #downVeil.on{display:block;animation:pvIn .25s}
 #downVeil .dIc{font-size:34px}
-#downVeil small{display:block;margin-top:4px;font-weight:800;font-size:14px;color:#ffb9b9;opacity:.92}
+#downVeil small{display:block;margin-top:4px;font-weight:600;font-size:14px;color:#ffb9b9;opacity:.92}
 
 
 /* ══ 위 가운데 세로줄 — 수정 바 · 모둠 띠 · 보스 바 ══
@@ -1457,15 +1457,15 @@ body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, b
 .gcell:before{content:'';position:absolute;left:0;right:0;top:0;height:6px;
   border-radius:11px 11px 0 0;background:var(--c);opacity:.92}
 .gcell.me{border-color:var(--honey);box-shadow:0 0 0 2px rgba(255,201,74,.30)}
-.gcell .gn{display:block;font:900 12px var(--num);letter-spacing:-.3px;opacity:.95}
+.gcell .gn{display:block;font:600 12px var(--num);letter-spacing:-.3px;opacity:.95}
 .gcell .gs{display:block;font-size:15px;line-height:1.25;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
-.gcell .gv{display:block;font:800 10px var(--num);opacity:.72;letter-spacing:-.2px}
+.gcell .gv{display:block;font:600 10px var(--num);opacity:.72;letter-spacing:-.2px}
 .gcell.warn{background:rgba(255,190,60,.20);border-color:rgba(255,200,90,.45)}
 .gcell.bad{background:rgba(255,80,90,.24);border-color:rgba(255,140,150,.55);
   animation:gpulse 1.1s infinite}
 @keyframes gpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,90,100,.55)}
   50%{box-shadow:0 0 0 5px rgba(255,90,100,0)}}
-#grpBar .hint2{align-self:center;font-weight:800;font-size:10px;opacity:.6;padding:0 4px;
+#grpBar .hint2{align-self:center;font-weight:600;font-size:10px;opacity:.6;padding:0 4px;
   max-width:74px;line-height:1.3}
 
 /* ── 도움말 — 글 벽이던 걸 아이콘 붙은 줄로 쪼갰다. 3학년이 훑어볼 수 있게 ── */
@@ -1478,7 +1478,7 @@ body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, b
 .hrow b{color:var(--honey)}
 .chip{display:inline-block;padding:1px 8px;margin:2px 3px 2px 0;border-radius:999px;
   background:rgba(0,0,0,.34);border:1px solid rgba(255,246,228,.12);
-  font:800 11px var(--num);white-space:nowrap;color:var(--cream)}
+  font:600 11px var(--num);white-space:nowrap;color:var(--cream)}
 .popC h3:first-of-type{margin-top:14px}
 
 /* ── 작은 화면 ── */
@@ -1664,7 +1664,7 @@ img.ic{display:inline-block;height:1.3em;width:auto;vertical-align:-.32em;margin
 #statRow span{background:#f4f1fb;border:1px solid var(--pk-line)}
 #stAtk{color:#d17a3a} #stDef{color:#3a7fd1} #stAmmo{color:#c99500}
 #potRow button{background:#fff;border:1.5px solid var(--pk-line2);color:var(--pk-ink)}
-#dayBox{font-weight:900} #dayPhase{opacity:1} #dayPhase img.ic{height:20px}
+#dayBox{font-weight:600} #dayPhase{opacity:1} #dayPhase img.ic{height:20px}
 #tSec{color:var(--pk-ink2)} #dayBox.rush #tSec{color:#ff5b7a}
 #rankHead{color:#a07a00} #rankHead img.ic{height:14px}
 .rkRow.me{background:#fff3c4;box-shadow:inset 0 0 0 1px #ffd257}
@@ -1702,7 +1702,7 @@ img.ic{display:inline-block;height:1.3em;width:auto;vertical-align:-.32em;margin
   position:relative;font-size:22px;line-height:1;overflow:visible;box-sizing:border-box}
 #topRight2 .btn.rb img.ic{height:26px;width:26px;vertical-align:middle;margin:0}
 #topRight2 .btn.rb .kk{position:absolute;right:-3px;bottom:-3px;min-width:16px;height:16px;padding:0 4px;border-radius:999px;
-  background:var(--pk-ink);color:#fff;font:900 10px/16px var(--num);text-align:center;box-shadow:0 1px 0 rgba(0,0,0,.25)}
+  background:var(--pk-ink);color:#fff;font:600 10px/16px var(--num);text-align:center;box-shadow:0 1px 0 rgba(0,0,0,.25)}
 @media (max-height:760px){ #topRight2 .btn.rb{width:42px;height:42px;padding:0} #topRight2 .btn.rb img.ic{height:23px;width:23px} }
 /* ★ 세로가 짧으면 **네 개씩 두 줄**로 접는다 — 재서 정했다(t13):
      760×420 에서 두 줄(2열×4행, 186px)은 트레이(top 246)를 85px 덮었고, 세 줄(3열)도 283 까지 내려왔다.
@@ -1811,7 +1811,7 @@ table.rank th,table.rank td{border-bottom:1px solid var(--pk-line);color:var(--p
 .kCell{background:#fff;border:2px solid #fff;box-shadow:0 3px 0 var(--pk-lav);border-radius:14px;animation:cardIn .28s both}
 .kCell:hover{border-color:#fff;background:#fffaf0;transform:translateY(-3px);box-shadow:0 6px 0 var(--pk-lav)}
 .kCell.on{border-color:#5fcf9a;background:#eafbf1;box-shadow:0 3px 0 #6fbf95, inset 0 0 0 2px rgba(95,207,154,.35)}
-.kCell.on:after{content:'✓';position:absolute;left:3px;top:0;font:900 11px/1.4 sans-serif;color:#2f9a64}
+.kCell.on:after{content:'✓';position:absolute;left:3px;top:0;font:600 11px/1.4 sans-serif;color:#2f9a64}
 .kCell img.ic{height:72%;margin:0}
 .kCell .kNum{color:#4a3c00;background:#ffe28a;text-shadow:none;padding:1px 5px;border-radius:999px;right:2px;bottom:2px}
 /* 강화 등급 색 — +1 초록 · +2 파랑 · +3 보라 · +4 주황 · +5 분홍 · +6 금 */
@@ -1930,120 +1930,95 @@ label.f{font-size:14px} .hint{font-size:13px} #hint{font-size:13px} #feed{font-s
 @keyframes cntPop{0%{opacity:0;transform:translate(-50%,-50%) scale(3) rotate(-14deg)}16%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-5deg)}70%{opacity:1;transform:translate(-50%,-50%) scale(1.06) rotate(-5deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(.8) rotate(-5deg)}}
 #fearVig{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center, rgba(0,0,0,0) 42%, rgba(30,0,8,.55) 75%, rgba(12,0,4,.92) 100%);z-index:3}
 @media (max-width:820px){ #feed{font-size:12px} }
-/* ═══════════════════════════════════════════════════════════════════════════
-   48차 — 로블록스 화면 (선생님: "이런 로블록스 인터페이스, 폰트로 싹 바꿔줘")
-   ★ 규칙은 28차 파스텔 층과 같다 — **id·구조·자리·크기는 그대로**, 색·모양·글씨만 바꾼다.
-     (t13 이 열 화면에서 조각이 겹치는지 재고, 다른 검사가 id 로 창을 연다)
-   ★ 스샷에서 읽은 것 넷 —
-     ① 판은 검은 반투명 **한 겹**. 테두리는 거의 안 보이고 그림자는 없다.
-     ② 글자는 흰색 굵은 고딕. 글자 그림자는 채팅·이름표에만(검은 외곽선).
-     ③ 모서리 8~12px. 파스텔 층의 18px 는 너무 말랑하다.
-     ④ 단추에 '눌리는 두꺼운 아래 그림자' 가 없다 — 밝기만 바뀐다.
-   ═══════════════════════════════════════════════════════════════════════════ */
+/* ══════════════════ 밝은 모험 UI · 2026-09 ══════════════════
+   크림 판·하늘색 단추·민트 선택색과 남색 글자. 기존 HUD 위치·핫바 치수는 보존한다.
+   이름표·숫자까지 한국어 고딕 한 계열을 쓰고 본문 400, 단추 600으로 무게를 나눈다.
+   이전 스킨의 !important는 여기서만 정리한다. 흐림 효과와 반복 UI 애니메이션은 쓰지 않는다. */
 :root{
-  /* ★ 48차b 교차검증 — 로블록스 Core-Scripts 실측값에 맞춘다:
-       칸 배경 rgb(49,49,49) 투명도 0.50 · 바탕판 rgb(31,31,31)/0.50 · 칸 테두리 0px.
-     색이 **푸른 기 없는 중성 회색**이다. 첫 판의 rgba(18,20,24) 는 푸른 기가 돌았다. */
-  --rb-bg:   rgba(26,26,26,.62);      /* 판 — 검은 반투명 한 겹 (rgb 31 계열) */
-  --rb-bg2:  rgba(22,22,22,.80);      /* 창(팝업) — 조금 더 진하게 */
-  --rb-cell: rgba(49,49,49,.50);      /* 판 안의 칸 — 로블록스 SLOT_DRAGGABLE_COLOR 그대로 */
-  --rb-line: rgba(255,255,255,.12);
-  --rb-line2:rgba(255,255,255,.26);
-  --rb-ink:  #ffffff; --rb-ink2: rgba(255,255,255,.62);
-  --rb-green:#00b06a; --rb-green2:#00c979; --rb-blue:#0099ff; --rb-red:#e2413c; --rb-gold:#ffc832;
-  --rb-r:10px;                         /* 모서리 */
-  --f-cute:'Montserrat','Gothic A1','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
-  --f-body:'Montserrat','Gothic A1','Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;
-  --num:'Montserrat','Gothic A1',ui-monospace,SFMono-Regular,Menlo,monospace;
-  --soft: none;
-  --pk-ink:#fff; --pk-ink2:rgba(255,255,255,.62);
+  --rb-bg:rgba(255,253,247,.96); --rb-bg2:#fffdf7; --rb-cell:#f0f7fc;
+  --rb-line:#cedfe9; --rb-line2:#9ebbd0;
+  --rb-ink:#243f55; --rb-ink2:#4d687b;
+  --rb-green:#b4e7cd; --rb-green2:#227650; --rb-blue:#b9ddf6;
+  --rb-red:#ffc7c7; --rb-gold:#845a0a; --rb-r:12px;
+  --f-cute:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+  --f-body:var(--f-cute); --num:var(--f-cute);
+  --soft:0 3px 0 rgba(99,139,166,.20),0 7px 18px rgba(61,99,125,.12);
+  --pk-ink:var(--rb-ink); --pk-ink2:var(--rb-ink2);
   --pk-bg:var(--rb-bg); --pk-bg2:var(--rb-bg2);
-  --pk-line:var(--rb-line); --pk-line2:var(--rb-line2);
-  --cream:#fff;
+  --pk-line:var(--rb-line); --pk-line2:var(--rb-line2); --pk-lav:#d4e5ef; --pk-lav2:#9fbdcf;
+  --ui-bg:var(--rb-bg); --ui-bg2:var(--rb-bg2); --ui-edge:var(--rb-line); --ui-edge2:var(--rb-line2);
+  --panel:var(--rb-bg); --panel2:var(--rb-bg); --panel3:var(--rb-bg);
+  --line:var(--rb-line); --line2:var(--rb-line2); --cream:var(--rb-ink); --honey:#845a0a; --gold:#845a0a;
 }
-html,body{font-family:var(--f-body)}
-body{color:var(--rb-ink)}
-/* 28차가 '주아' 를 씌운 자리는 전부 굵은 고딕으로. 가짜 굵게는 그대로 끈다 */
+html,body{font-family:var(--f-body);font-weight:400;font-synthesis:none;color:var(--rb-ink)}
+button,input,select,textarea{font-family:var(--f-body);font-synthesis:none}
+b,strong{font-weight:600}
 .btn,.grp button,.popC h2,.popC h3,#titleCard h1,#titleCard .sub,#grpName,.resline,.slot .nm,.sItem .sn,.stIt .sn,#stageTitle .n,#bossName,
 .tag,#kitTabs button,.sItem button,.jobCard .jName,table.rank th,label.f,#dayPhase,#crystalWrap .lb,#bossWrap .lb,#toast,#tmsg,
 #aimInfo,#shopTip,#forgeTip,#farmTip,.kitIt .kn,.mb,#giveWrap button,#potRow button,.gcell,.kCell .kn{
-  font-family:var(--f-cute);font-weight:700;font-synthesis:none;letter-spacing:-.01em}   /* 48차b — 로블록스 Builder Sans 는 UI 에 Medium/SemiBold 를 쓴다. 800 은 너무 굵었다 */
+  font-family:var(--f-cute);font-weight:600;letter-spacing:0;font-synthesis:none}
+.hint,.shopHint,.hrow,.sItem .sd,.kitIt .kd,.jobCard .jDesc,.stBig .sWhat,.stBig .sSub,.sl,.gline,#hint,#feed{
+  font-weight:400;letter-spacing:0}
+.sItem .sd,.stBig .sWhat,.stBig .sSub,.shopHint,.hrow{line-height:1.6}
+.res b,#hpNum,#stNum,#cNum,#bNum,#dayNum,#tSec,#shopRes,#kitStat,.sItem .sc,.enhLv,.rkLv,.ec-i b,.stBig .sVal{font-weight:600}
 
-/* ── 판 ── */
-.pnl{background:var(--rb-bg);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:none;
-  backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
-.card{background:var(--rb-bg2);border:1px solid var(--rb-line);border-radius:12px;box-shadow:none}
-.popC{background:var(--rb-bg2)!important;border:1px solid var(--rb-line)!important;box-shadow:none!important;color:#fff}
-.popC h2,.popC h3{color:#fff}
-#grpName{color:#fff;background:transparent;box-shadow:none}
-.res{background:var(--rb-cell);border:1px solid var(--rb-line);color:#fff}
-.res.w,.res.s,.res.g,.res.eg,.res.mk,.res.pk{background:var(--rb-cell);border-color:var(--rb-line)}
-.res b{color:#fff}
-#cNum,#hpNum,#hpRow,#stRow,#statRow,#lvRow{color:#fff}
+/* 밝은 판 위의 HUD */
+.pnl{background:var(--rb-bg);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:var(--soft);backdrop-filter:none;-webkit-backdrop-filter:none}
+.card{background:var(--rb-bg2);border:1px solid var(--rb-line);border-radius:18px;box-shadow:var(--soft)}
+.pop{background:rgba(74,111,136,.32)}
+.popC{background:var(--rb-bg2)!important;border:1px solid var(--rb-line)!important;border-radius:18px;box-shadow:0 16px 44px rgba(41,80,109,.22)!important;color:var(--rb-ink)}
+.popC h2,.popC h3{color:var(--rb-ink)}
+.popC h3{font-weight:600}
+#grpName{background:none!important;padding:0;box-shadow:none;color:var(--rb-ink);font-size:13px;letter-spacing:0}
+#grpName:before{content:'';display:inline-block;width:9px;height:9px;margin-right:5px;border-radius:50%;background:var(--c,#6aa6d1);border:1px solid rgba(36,63,85,.22)}
+.res{border:1px solid var(--rb-line);color:var(--rb-ink)}
+.res.w{background:#fff0df;border-color:#ead3b6}.res.s{background:#edf2f6;border-color:#cfdbe5}.res.g{background:#fff4cf;border-color:#ead795}
+.res.eg{background:#fff7e5;border-color:#e5d7b4}.res.mk{background:#e7f3ff;border-color:#bcd7eb}.res.pk{background:#ffedf0;border-color:#eac7cf}
+.res i{background:transparent}.res b{color:var(--rb-ink)}
+#cNum,#bNum,#hpNum,#hpRow,#stRow,#statRow,#lvRow{color:var(--rb-ink);text-shadow:none}
+#cNum,#bNum{color:var(--rb-ink)!important}
 #hpRow{border-top:1px solid var(--rb-line)}
-#statRow span{background:var(--rb-cell);border:1px solid var(--rb-line);color:#fff}
-#stAtk{color:#ffb37a} #stDef{color:#8ec8ff} #stAmmo{color:var(--rb-gold)}
-#hpBar,#xpBar,#timeBar,#misBar,#cBar,#bBar,#stBar{background:rgba(0,0,0,.42);border:none;box-shadow:none;border-radius:999px;overflow:hidden}
-#hpFill{background:var(--rb-green)} #xpFill{background:var(--rb-blue)}
-#timeFill{background:var(--rb-gold)} #dayBox.night #timeFill{background:#7f9bff}
-#cFill{box-shadow:none} #bFill{background:var(--rb-red);box-shadow:none}
+#statRow span{background:#edf4f9;border:1px solid var(--rb-line);color:var(--rb-ink)}
+#stAtk{color:#9b5020}#stDef{color:#256a9c}#stAmmo{color:var(--rb-gold)}
+#hpBar,#xpBar,#timeBar,#misBar,#cBar,#bBar,#stBar{background:#dce8ef;border:none;box-shadow:none;border-radius:999px;overflow:hidden}
+#hpFill{background:#73cfa3}#xpFill{background:#72b9e7}#timeFill{background:#f4c852}#dayBox.night #timeFill{background:#a3b5ef}
+#cFill{box-shadow:none}#bFill{background:#f69293;box-shadow:none}
 #cFill:after,#bFill:after,#hpFill:after{background:none}
-#lvChip{background:var(--rb-blue);color:#fff;box-shadow:none;border-radius:6px}
-#lvPts{color:var(--rb-gold)}
-#potRow button{background:var(--rb-cell);border:1px solid var(--rb-line2);color:#fff}
-#dayBox{color:#fff} #tSec{color:var(--rb-ink2)} #dayBox.rush #tSec{color:#ff7b7b}
-/* 순위판 — 이름 왼쪽 · 숫자 오른쪽, 줄마다 판이 아니라 투명 */
-#rankHead{color:var(--rb-ink2)}
-.rkRow{color:#fff;background:transparent}
-.rkRow.me{background:rgba(255,255,255,.12);box-shadow:none;border-radius:6px}
-.rkNo.m1{color:var(--rb-gold)} .rkNo.m2{color:#cfd6e0} .rkNo.m3{color:#d79a63} .rkLv{color:var(--rb-ink2)}
-#crystalWrap .lb,#bossWrap .lb{color:var(--rb-ink2)}
-#bossWrap{border-color:rgba(226,65,60,.5)} #bossName{color:#ff8f8b;text-shadow:none} #bAdds{color:var(--rb-ink2)}
-#misWrap{color:#fff} #misName{color:var(--rb-ink2)} #misNum{color:var(--rb-gold)} #misFill{background:var(--rb-gold)}
-#misWrap.done{border-color:rgba(0,176,106,.55)} #misWrap.done #misNum{color:var(--rb-green2)} #misWrap.done #misFill{background:var(--rb-green)}
-.gcell{background:var(--rb-cell);border:1px solid var(--rb-line);color:#fff}
-.gcell:hover{background:rgba(255,255,255,.18)} .gcell.me{border-color:var(--rb-line2);box-shadow:inset 0 0 0 1px var(--rb-line2)}
-.gcell.warn{background:rgba(255,200,50,.18)} .gcell.bad{background:rgba(226,65,60,.24);border-color:rgba(226,65,60,.5)}
-#grpBar .hint2{color:var(--rb-ink2)}
-#crystalWrap.danger{border-color:rgba(226,65,60,.6)}
-@keyframes cDanger{0%,100%{box-shadow:none}50%{box-shadow:0 0 22px -2px rgba(226,65,60,.7)}}
-#miniWrap{padding:4px} #mini{border-radius:8px}
+#lvChip{background:#d4eafe;color:#22547e;box-shadow:none;border-radius:6px}#lvPts{color:var(--rb-gold)}
+#dayBox{color:var(--rb-ink)}#tSec{color:var(--rb-ink2)}#dayBox.rush #tSec{color:#ad3544}
+#rankHead{color:var(--rb-ink2)}.rkRow{color:var(--rb-ink);background:transparent}
+.rkRow.me{background:#fff1bf;box-shadow:inset 0 0 0 1px #d3ad4b;border-radius:6px}
+.rkNo.m1{color:#8a5b00}.rkNo.m2{color:#52697c}.rkNo.m3{color:#8c562b}.rkLv{color:var(--rb-ink2)}
+#crystalWrap .lb,#bossWrap .lb{color:var(--rb-ink2);text-shadow:none}
+#bossWrap{border-color:#e79d9e}#bossName{color:#ae3948;text-shadow:none}#bAdds{color:var(--rb-ink2)}
+#misWrap{color:var(--rb-ink)}#misName{color:var(--rb-ink2)}#misNum{color:var(--rb-gold)}#misFill{background:#f4c852}
+#misWrap.done{border-color:#86c8a5}#misWrap.done #misNum{color:#26724f}#misWrap.done #misFill{background:#73cfa3}
+.gcell{background:#f7fbfe;border:1px solid var(--rb-line);color:var(--rb-ink)}
+.gcell:hover{background:#e4f1fc}.gcell.me{border-color:#659bbd;box-shadow:inset 0 0 0 1px #659bbd}
+.gcell.warn{background:#fff2c5}.gcell.bad{background:#ffe2e1;border-color:#de9195}#grpBar .hint2{color:var(--rb-ink2)}
+#crystalWrap.danger{border-color:#dc7884}@keyframes cDanger{0%,100%{box-shadow:var(--soft)}50%{box-shadow:0 0 16px rgba(221,84,108,.45)}}
+#miniWrap{padding:4px}#mini{border-radius:8px}
 
-/* ── 단추 — 눌리는 그림자 없이 밝기만 ── */
-.btn{background:var(--rb-cell);border:1px solid var(--rb-line2);color:#fff;border-radius:var(--rb-r);
-  box-shadow:none;transition:background .1s, transform .06s}
-.btn:hover{background:rgba(255,255,255,.20)}
-.btn:active{transform:translateY(1px);box-shadow:none;background:rgba(255,255,255,.26)}
-.btn.pri{background:var(--rb-green);border-color:rgba(255,255,255,.28);color:#fff;box-shadow:none}
-.btn.pri:hover{background:var(--rb-green2)} .btn.pri:active{box-shadow:none}
-.btn.warn{background:var(--rb-red);border-color:rgba(255,255,255,.28);color:#fff;box-shadow:none}
-.btn:disabled{opacity:.4}
-#topRight2 .btn{background:var(--rb-bg);border-color:var(--rb-line);box-shadow:none}
-#topRight2 .btn:hover{background:rgba(40,44,52,.82)}
-/* 오른쪽 세로줄 단추 — 로블록스는 동그라미가 아니라 **모서리 둥근 사각**이다 */
-#topRight2 .btn.rb{border-radius:12px}
-#topRight2 .btn.rb .kk{background:rgba(0,0,0,.66);color:#fff;box-shadow:none;font-family:var(--num);font-weight:800}
-.grp button{background:var(--rb-cell);border:1px solid var(--rb-line2);color:#fff;border-radius:8px}
-.grp button.on{background:var(--c);border-color:#fff;color:#12141a;box-shadow:inset 0 0 0 2px rgba(255,255,255,.5)}
-input.f,select.f{background:rgba(0,0,0,.42);border:1px solid var(--rb-line2);color:#fff;border-radius:8px}
-label.f{color:var(--rb-ink2)}
-.tag{border-radius:6px;font-weight:800}
+/* 단추는 색뿐 아니라 테두리로 선택을 구분한다. 키보드 초점도 항상 보인다. */
+.btn{background:#e8f3fc;border:1px solid var(--rb-line2);color:var(--rb-ink);border-radius:var(--rb-r);box-shadow:0 2px 0 #c7dce9;transition:background .1s,transform .06s}
+.btn:hover{background:#d5ebfc}.btn:active{transform:translateY(1px);box-shadow:none;background:#c8e1f6}
+.btn.pri{background:var(--rb-green);border-color:#71ad91;color:#214f3c;box-shadow:0 2px 0 #91c8ad}
+.btn.pri:hover{background:#c7efda}.btn.pri:active{box-shadow:none}
+.btn.warn{background:#ffdbd5;border-color:#d99a92;color:#873735;box-shadow:0 2px 0 #e8b5af}
+.btn:disabled{opacity:.55;box-shadow:none}
+button:focus-visible,input.f:focus-visible,select.f:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid #237aad;outline-offset:3px}
+#topRight2 .btn{background:var(--rb-bg);border-color:var(--rb-line2);box-shadow:0 2px 0 #c7dce9}
+#topRight2 .btn:hover{background:#dbedfb}#topRight2 .btn.rb{border-radius:12px}
+#topRight2 .btn.rb .kk{background:#e7f3fd;border:1px solid #b4d0e4;color:#315e7c;box-shadow:none;font-family:var(--num);font-weight:600}
+.grp button{background:#f4f9fd;border:1px solid var(--rb-line2);color:var(--rb-ink);border-radius:8px;box-shadow:0 2px 0 #d4e5ef}
+.grp button:hover{background:#e9f4fc;transform:none}
+.grp button.on{background:var(--c,#dbefdf);border-color:#315d7b;color:#243849;box-shadow:inset 0 0 0 2px rgba(255,255,255,.75);transform:none}
+.grp.deco button.on{background:#d8f0e4;border-color:#278761;box-shadow:inset 0 0 0 1px #278761}
+input.f,select.f{background:#fff;border:1px solid var(--rb-line2);color:var(--rb-ink);border-radius:10px;font-weight:400}
+input.f::placeholder,#iRoom::placeholder{color:#617e93}input.f:focus,select.f:focus{border-color:#237aad;box-shadow:0 0 0 3px rgba(67,151,200,.16)}
+label.f{color:var(--rb-ink2)}.tag{border-radius:6px;font-weight:600}
 
-/* ── 핫바 — 칸마다 어두운 반투명, 고른 칸만 흰 테두리 ── */
-/* ═══ 48차c — 핫바를 로블록스 실측 치수로 (선생님: "로블록스는 다 맨밑에 잘 붙어있잖아") ═══
-   Roblox/Core-Scripts 의 BackpackScript.lua 실측값:
-     ICON_SIZE 60 · ICON_BUFFER 5 · 칸 10개(데스크톱) · 테두리 0px
-     HotbarFrame.Size   = (5 + 10×(60+5), 5 + 60 + 5)
-     HotbarFrame.Position = UDim2.new(0.5, −W/2, **1, −H**)
-   → 가로 가운데, **세로는 화면 바닥에 딱 붙는다**. 칸 아래로 남는 것은 안쪽 여백 5px 뿐이다.
-   47차까지 우리는 바닥에서 14px 떠 있고 칸이 88×108 이라 화면 아래를 크게 먹었다.
-   우리 칸은 이름과 값(🪵14 🪨11 ✨4)을 이고 있어서 60×60 정사각은 못 쓴다 —
-   **가로는 60 그대로**, 세로만 이름·값 두 줄만큼(74) 늘린다. 간격과 바닥 여백은 5px 그대로. */
-/* ★ 48차d — 선생님: "핫바 양옆을 따닥 붙여줘".
-   로블록스 옛 Core-Scripts 는 칸 사이를 ICON_BUFFER 5px 띄웠지만, 지금 로블록스 핫바는
-   칸이 서로 붙어 한 줄 띠로 읽힌다(선생님이 준 스샷도 그렇다). 칸 사이 간격을 0 으로 두고,
-   **묶음의 바깥 모서리만** 둥글린다 — 도구 넷이 한 알약, 건물 다섯이 한 알약이 된다.
-   가운데 칸들은 모서리를 안 깎아야 이가 안 벌어진 채로 붙는다. */
+/* 핫바의 기존 붙어 있는 치수와 모바일 크기를 보존한다. */
 #dock{bottom:5px;gap:0;padding:0}
 #tools,#bar{gap:0}
 #dockLine{display:none}                 /* 한 줄 띠가 됐으니 가운데 줄이 필요 없다 */
@@ -2051,11 +2026,11 @@ label.f{color:var(--rb-ink2)}
 #tools .slot:first-child{border-radius:8px 0 0 8px}     /* 띠 전체의 사람 끝만 둥글다 */
 #bar   .slot:last-child {border-radius:0 8px 8px 0}
 /* 붙어 있으니 칸과 칸 사이에 머리카락 같은 금을 하나 둔다 — 없으면 어디까지가 한 칸인지 안 읽힌다 */
-#tools .slot + .slot,#bar .slot + .slot{box-shadow:inset 1px 0 0 rgba(0,0,0,.28)}
+#tools .slot + .slot,#bar .slot + .slot{box-shadow:inset 1px 0 0 rgba(82,118,145,.18)}
 /* 도구 넷과 건물 다섯 사이는 조금 더 진한 금 하나로 가른다(틈은 안 벌린다) */
-#bar .slot:first-child{box-shadow:inset 2px 0 0 rgba(0,0,0,.50)}
+#bar .slot:first-child{box-shadow:inset 2px 0 0 rgba(82,118,145,.35)}
 .slot{width:60px;min-width:60px;height:80px;padding:6px 3px 5px;gap:1px;
-  background:rgba(49,49,49,.50);border:1px solid transparent;box-shadow:none;color:#fff}
+  background:rgba(255,253,247,.96);border:1px solid transparent;box-shadow:none;color:var(--rb-ink)}
 /* ★ 그림 칸이 26px 일 줄 알았는데 **재 보니 40px** 이었다(브라우저에서 직접 쟀다).
    img.ic 가 `height:1.3em` 에 `vertical-align:-.32em` 이라, 글줄 상자가 그림 높이 + 내림폭만큼
    부풀어 오른다. 그래서 값 아랫줄이 칸 밖으로 잘렸다.
@@ -2063,12 +2038,12 @@ label.f{color:var(--rb-ink2)}
 .slot .ic{font-size:20px;margin-top:0;height:26px;line-height:1;
   display:flex;align-items:center;justify-content:center}
 .slot .ic img.ic{height:24px;width:auto;vertical-align:middle;margin:0}
-.slot .nm{font-size:10px;letter-spacing:-.4px}
-.slot .cost{min-height:24px;padding-top:3px;gap:0 4px;font-size:8.5px;border-top-color:rgba(255,255,255,.12)}   /* 값이 두 줄로 접히므로 두 줄만큼(8.5×1.35×2 ≈ 23) 잡는다 — 20 이면 아랫줄이 잘렸다 */
-.slot .ky{left:4px;top:4px;font-size:8.5px;padding:1px 4px;border-radius:5px;background:rgba(0,0,0,.42);opacity:.8}
+.slot .nm{font-size:10px;letter-spacing:0}
+.slot .cost{min-height:24px;padding-top:3px;gap:0 4px;font-size:8.5px;border-top-color:var(--rb-line)}   /* 값이 두 줄로 접히므로 두 줄만큼(8.5×1.35×2 ≈ 23) 잡는다 — 20 이면 아랫줄이 잘렸다 */
+.slot .ky{left:4px;top:4px;font-size:8.5px;padding:1px 4px;border-radius:5px;background:#e7f1f8;opacity:.8}
 /* 로블록스는 고른 칸이 **위로 튀어오르지 않는다** — 테두리와 밝기만 바뀐다 */
-.slot.on{border-color:#fff;background:rgba(58,58,58,.78);box-shadow:inset 0 0 0 1px rgba(255,255,255,.55)!important;transform:none;z-index:2}
-.slot.on .ky{opacity:1;background:rgba(0,0,0,.55)}
+.slot.on{border-color:#278761;background:#d9f2e7;box-shadow:inset 0 0 0 2px #278761!important;transform:none;z-index:2}
+.slot.on .ky{opacity:1;background:#b4e2cd}
 body:not(.touch) .slot.tool{width:60px;min-width:60px;height:80px;padding:6px 3px 5px;justify-content:center;gap:3px}
 body:not(.touch) .slot.tool .ic{font-size:21px;height:28px} body:not(.touch) .slot.tool .ic img.ic{height:26px} body:not(.touch) .slot.tool .nm{font-size:10px}
 @media (max-width:820px){ .slot,body:not(.touch) .slot.tool{width:54px;min-width:54px;height:76px} .slot .ic{font-size:18px} .slot .nm{font-size:9.5px}
@@ -2076,106 +2051,85 @@ body:not(.touch) .slot.tool .ic{font-size:21px;height:28px} body:not(.touch) .sl
      칸이 60 → 54px 로 줄었는데 값 글자와 좌우 여백은 그대로였다. 여기만 한 칸씩 줄인다. */
   .slot{padding-left:2px;padding-right:2px} .slot .cost{font-size:8px;gap:0 2px}
   .slot .cost span{padding:1.5px 4px} }
-.slot .nm{color:#fff} .slot .ky{color:var(--rb-ink2);opacity:1} .slot .cost{color:var(--rb-ink2)}
-.slot.no .cost{color:#ff8f8b}
+.slot .nm{color:var(--rb-ink)} .slot .ky{color:var(--rb-ink2);opacity:1} .slot .cost{color:var(--rb-ink2)}
+.slot.no .cost{color:#b33948}
 
-/* ── 채팅·알림은 판 없이 흰 글자 + 검은 외곽선 (로블록스 채팅 결) ── */
-#feed{background:none;border:none;box-shadow:none;color:#fff;
-  text-shadow:0 0 3px rgba(0,0,0,.9), 0 1px 2px rgba(0,0,0,.9)}
-/* 줄마다 씌운 크림색 판도 벗긴다 — 로블록스 채팅은 판이 없다(28차에 씌운 것) */
-#feed div{background:none;border:none;border-left:none;box-shadow:none;color:#fff;padding:1px 0;
-  text-shadow:0 0 3px rgba(0,0,0,.9), 0 1px 2px rgba(0,0,0,.9)}
-#toast{background:var(--rb-bg2);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:none;color:#fff;text-shadow:none}
-#hint{color:var(--rb-ink2)}
-#shopTip,#forgeTip,#farmTip{background:var(--rb-bg2);border:1px solid var(--rb-line);border-radius:var(--rb-r);box-shadow:none;color:#fff}
 
-/* ── 시작 화면 — 하늘은 그대로 두고 카드만 로블록스 결로 ── */
-#titleCard h1{text-shadow:0 2px 0 rgba(0,0,0,.35);letter-spacing:-1.5px}
-#titleCard .sub{color:#16331b}
+.slot:hover{background:#e4f2fb;transform:none}
+.slot .nm,body:not(.touch) .slot.tool .nm{font-weight:500}
+.slot .cost,.slot .ky{font-weight:500;text-shadow:none}
+.slot .cost span{background:transparent;border-color:transparent}
+.slot.no{opacity:.65}.slot.no .cost span{color:#a13743;background:transparent;border-color:transparent}
+body.touch .slot.tool{background:#f5f9fc}body.touch .slot.tool.on{background:#d9f2e7}
+#dock{background:none;border:none;box-shadow:none;padding:0;border-radius:0;gap:5px}
+#dockLine{background:var(--rb-line)}
+.mb{background:#e7f2fc;border-color:#9ebbd0;color:var(--rb-ink);box-shadow:0 2px 0 #bfd8e8;font-weight:600}
+#mbAct{background:#b4e7cd;border-color:#71ad91;color:#214f3c;box-shadow:0 2px 0 #91c8ad}
+#mbThrow{background:#e4daf9;border-color:#b5a4d4;color:#594379;box-shadow:0 2px 0 #c7b9e3}
+#mbJump{background:#cce7fc;border-color:#8dbbdb;color:#25577a;box-shadow:0 2px 0 #a9cce4}
+#stick{background:rgba(239,248,255,.60);border-color:#c0d8e8}#knob{background:rgba(255,255,255,.88);border-color:#9fc2d9}
 
-/* ── 창 안쪽(카드·칸·탭)도 어둡게 — 흰 카드만 남으면 창 하나가 두 장으로 읽힌다 ──
-   선생님: "창이 열린 화면이랑 설정 창은 지금 스타일에서 조금만 다듬어주면 될 것 같아" */
-.sItem{background:var(--rb-cell);border:1px solid var(--rb-line);border-radius:10px;box-shadow:none;color:#fff}
-.sItem.own{background:rgba(0,176,106,.20);border-color:rgba(0,176,106,.55)}
-.sItem .sd{color:var(--rb-ink2)} .sItem .sc{color:var(--rb-gold)} .sItem .sn{color:#fff}
-.sItem button{background:rgba(255,255,255,.14);border:1px solid var(--rb-line2);color:#fff;box-shadow:none;border-radius:8px}
-.sItem button.buy{background:var(--rb-green);border-color:rgba(255,255,255,.28);color:#fff;box-shadow:none}
-.sItem button:active{transform:translateY(1px);box-shadow:none}
-.enhOdds{background:rgba(0,0,0,.42)} .enhLv{color:var(--rb-gold)}
-.kitIt{background:var(--rb-cell);border:1px solid var(--rb-line);color:#fff}
-.kitIt.on{background:rgba(255,200,50,.22);border-color:rgba(255,200,50,.6);box-shadow:none}
-.kitIt .kd,.kitIt.on .kd{color:var(--rb-ink2)}
-#kitDoll{background:rgba(0,0,0,.30);border:1px solid var(--rb-line)}
-.kSlot{background:var(--rb-cell);border:1px solid var(--rb-line2);box-shadow:none}
-.kSlot:hover{border-color:var(--rb-gold);background:rgba(255,255,255,.18)} .kSlot.empty{opacity:.45;background:rgba(0,0,0,.28)}
-.kSlot .kTag{color:var(--rb-ink2)}
-#kitTabs button{background:var(--rb-cell);border:1px solid var(--rb-line2);color:#fff;box-shadow:none;border-radius:8px}
-#kitTabs button.on{background:var(--rb-blue);border-color:rgba(255,255,255,.3);color:#fff;box-shadow:none}
-.kCell{background:var(--rb-cell);border:1px solid var(--rb-line);box-shadow:none;border-radius:10px}
-.kCell:hover{border-color:var(--rb-line2);background:rgba(255,255,255,.18);transform:none;box-shadow:none}
-.kCell.on{border-color:var(--rb-green2);background:rgba(0,176,106,.22);box-shadow:none}
-.stIt{background:var(--rb-cell);border:1px solid var(--rb-line);box-shadow:none;color:#fff}
-.stIt .sd{color:var(--rb-ink2)}
-/* ★ 50차 — 선생님: "색깔 때문에 가독성이 너무 떨어져". **48차가 스텟 카드(.stBig)를 통째로 빠뜨렸다.**
-   28차 파스텔 층이 카드를 하얗게 칠해 뒀는데(.stBig{background:#fff}) 48차가 글자만 흰색으로 바꾸어
-   **흰 글자가 흰 카드 위에** 얹혔다. 이름(.sNm)은 아예 안 보이고 설명만 흐릿하게 보였다.
-   (48차가 .stIt 을 고쳤는데 실제 카드 클래스는 .stBig 이었다 — 클래스 이름이 비슷해서 못 보고 지나갔다.) */
-.stBig{background:var(--rb-cell);border:1px solid var(--rb-line);border-radius:12px;box-shadow:none;color:#fff}
-.stBig.full{background:rgba(0,176,106,.20);border-color:rgba(0,176,106,.55);box-shadow:none}
-.stBig .sIc{background:rgba(0,0,0,.30)}
-.stBig .sNm{color:#fff}
-.stBig .sVal{color:var(--rb-gold)} .stBig .sMax{color:var(--rb-ink2);opacity:1}
-.stBig .sWhat{color:var(--rb-ink2);opacity:1} .stBig .sSub{color:var(--rb-ink2);opacity:.75}
-.stBig button{background:var(--rb-green);border:1px solid rgba(255,255,255,.35);color:#fff;box-shadow:none}
-.stBig button:disabled{background:rgba(255,255,255,.12);border-color:var(--rb-line);color:rgba(255,255,255,.45);box-shadow:none}
-/* ★ 50차 — **이건 .stBig 하나가 아니라 창 전체의 문제였다.** 창을 다 열어 놓고 글자색과 바탕색의
-   대비를 재 보니 **124군데**가 1.0(똑같은 색)이었다. 28차 파스텔 층이 창 속 카드를 흰색으로
-   칠해 뒀는데 48차가 글자만 흰색으로 바꿔서다. 한 클래스씩 쫓지 말고 **하얗게 칠해 둔 것을
-   한 번에** 어두운 칸으로 돌린다(파스텔 층에서 background:#fff 인 것 전부).
-   글자는 .popC 가 이미 흰색이니 바탕만 어두워지면 읽힌다. 파스텔 층이 남색 잉크로 칠해 둔
-   속 글자들은 그 위에서 어두워지므로 같이 되돌린다. */
+/* 안내는 밝은 배경을 함께 그려 낮과 밤에 같은 대비를 유지한다. */
+#feed{background:none;border:none;box-shadow:none;color:var(--rb-ink);text-shadow:none}
+#feed div{background:rgba(255,253,247,.94);border:1px solid #dae6ee;border-left:3px solid #e7bf4e;box-shadow:none;color:var(--rb-ink);text-shadow:none}
+#toast,#shopTip,#forgeTip,#farmTip{background:var(--rb-bg2);border:1px solid var(--rb-line2);border-radius:var(--rb-r);box-shadow:var(--soft);color:var(--rb-ink);text-shadow:none}
+#aimInfo{background:var(--rb-bg);border:1px solid var(--rb-line2);color:var(--rb-ink);box-shadow:var(--soft);text-shadow:none}
+#aimInfo .lv1{background:#e8f1f8;color:var(--rb-ink)}#aimInfo .prog{background:#dce8ef}#aimInfo .prog i{background:#e5b942}
+#combo{text-shadow:none;color:#845a0a;background:var(--rb-bg);border-color:#dac787}
+#hint{color:var(--rb-ink);text-shadow:none;opacity:1;background:rgba(255,253,247,.92);border:1px solid var(--rb-line);box-shadow:none}
+body:not(.touch) #hint{left:14px;right:auto;bottom:14px;transform:none;max-width:38vw;text-align:left;padding:0;text-shadow:none;opacity:1;background:rgba(255,253,247,.90);border:none;box-shadow:none}
+#stageTitle .n,#stageTitle .d{text-shadow:0 2px 5px rgba(35,68,92,.6)}
+#pauseVeil{background:rgba(120,165,194,.55);color:#193d58;text-shadow:0 1px 0 rgba(255,255,255,.7);font-weight:600}
+#miniBar .mn,#miniBar .mq,#miniBar .ms span{background:var(--rb-bg);border-color:var(--rb-line);color:var(--rb-ink);box-shadow:var(--soft)}
+
+/* 시작 화면 */
+#title,#load{background:radial-gradient(ellipse at 18% 8%,#fff7d8 0%,transparent 43%),linear-gradient(160deg,#c2e6fd 0%,#d9f2f4 52%,#e5f4d9 100%)}
+#titleCard h1{color:#255776;font-weight:700;text-shadow:0 2px 0 rgba(255,255,255,.85);letter-spacing:-.5px}
+#titleCard .sub{color:#3c677f;font-weight:500}#titleCard .ver{background:rgba(255,255,255,.65);color:#4d687b;font-weight:500}
+#pvwBox{background:linear-gradient(160deg,#e2f2ff,#eaf8ed);border-color:#bdd9e8}
+#pvwCap,#dressPick label.f b{color:var(--rb-ink2);font-weight:500;opacity:1}
+#tmsg{color:#a53546}.hint{color:var(--rb-ink2);opacity:1}#load{color:var(--rb-ink)}#load .bar{background:#e7f2f8}#load .bar i{background:#6cb992}
+
+/* 창 안의 카드·탭·입력칸도 같은 밝기로. */
 .popC .res,.popC .hrow,.popC .sItem,.popC .stIt,.popC .stDeriv,.popC .kitIt,.popC .kCell,.popC .kSlot,
 .popC .bgIt,.popC .jobCard,.popC .gcell,.popC .chip,.popC .card,.popC .tag,
-#kitStat,#shopRes,#tQ,#kitFoot,#endCard,.ec-i,#miniBar .ms span{
-  background:var(--rb-cell)!important;border-color:var(--rb-line)!important;box-shadow:none!important;color:#fff}
+#kitStat,#shopRes,#tQ,#kitFoot,#endCard,.ec-i{
+ background:#f3f8fc!important;border-color:var(--rb-line)!important;box-shadow:none!important;color:var(--rb-ink)}
 .popC input.f,.popC select.f,#giveWrap button,#potRow button,#kitTabs button,.popC .grp button,.popC .sItem button{
-  background:rgba(0,0,0,.34)!important;border-color:var(--rb-line)!important;box-shadow:none!important;color:#fff}
-#kitTabs button.on,.popC .grp button.on{background:var(--rb-blue)!important;border-color:rgba(255,255,255,.5)!important}
-/* 창 속에서 파스텔 층이 남색 잉크로 칠해 둔 속 글자 — 이제 바탕이 어두우니 흰색 계열로 */
+ background:#fff!important;border-color:var(--rb-line2)!important;box-shadow:none!important;color:var(--rb-ink)}
+#kitTabs button.on,.popC .grp button.on,.popC .btn.sm.on,.shopTabs .btn.on{
+ background:#d0eafa!important;border-color:#548bac!important;color:#234f6c!important;box-shadow:inset 0 0 0 1px #548bac!important}
+.sItem{background:#f3f8fc;border:1px solid var(--rb-line);border-radius:12px;box-shadow:none;color:var(--rb-ink);animation:none}
+.popC .sItem.own,.popC .kCell.on,.popC .kitIt.on{background:#e1f5e9!important;border-color:#72af8d!important}
+.sItem .sn,.popC .sNm,.popC .kn,.popC .jName{color:var(--rb-ink)}
 .popC .sd,.popC .kd,.popC .kTag,.popC .jDesc,.popC .gline,.popC .gv,.popC .bn,.popC .mb,.popC .kitNone,
-.popC .sl b,.popC .hrow b,#stPts,#shopTip,#forgeTip,#farmTip,#pvwCap,#kitFoot{color:var(--rb-ink2)}
-.popC .sNm,.popC .kn,.popC .jName{color:#fff}
-.popC .jStat,.popC .sc,.popC .gv b{color:var(--rb-gold)}
-/* 고른 갈래 단추 — 파스텔 층이 금빛 판에 진한 금 글자를 줬는데, 판이 사라지자 어두운 판에
-   어두운 금 글자만 남아 대비 1.67 이 됐다. 로블록스처럼 파란 알약에 흰 글자로.
-   (시작 화면 그래픽 단추도 같은 class 라 .popC 안으로만 좁힌다) */
-.popC .btn.sm.on{background:var(--rb-blue)!important;border-color:rgba(255,255,255,.45)!important;color:#fff!important;box-shadow:none!important}
-/* 강조 칩 — 크림색 알약(#fff3c4) 위에 흰 글자가 얹혀 안 읽혔다. 검은 판에 크림 알약도 어울리지 않는다.
-   로블록스처럼 **칩을 없애고 금색 굵은 글씨**로. 같은 이유로 순위표의 '나' 줄도 금색 테로 바꾼다. */
-.shopHint b,.hrow b{background:none!important;padding:0!important;border-radius:0!important;color:var(--rb-gold)}
-.rkRow.me{background:rgba(255,200,50,.16);box-shadow:inset 0 0 0 1px rgba(255,200,50,.55)}
-.jobCard{background:var(--rb-cell);border:1px solid var(--rb-line);box-shadow:none;color:#fff}
-table.rank th{color:var(--rb-ink2)} table.rank td{color:#fff}
+.popC .sl b,.popC .hrow b,#stPts,#kitFoot{color:var(--rb-ink2)}
+.popC .jStat,.popC .sc,.popC .gv b,.enhLv,#kitCount,#bgTop,#stPts b,.ifBar .vl,.stDeriv .dVal{color:var(--rb-gold)}
+.sItem button{border-radius:8px;font-weight:600}.popC .sItem button.buy{background:#b4e7cd!important;border-color:#71ad91!important;color:#214f3c}
+.enhOdds,.ifBar .tk,.ec-b .tr{background:#dae7ee}.kitIt .kd,.kitIt.on .kd{color:var(--rb-ink2)}
+#kitDoll,.jobCard .jFig{background:linear-gradient(155deg,#e1f1fc,#e5f4eb);border-color:var(--rb-line)}
+.kSlot.empty{opacity:.7;background:#e9f1f7}.kCell,.kCell:hover{animation:none;transform:none;box-shadow:none}
+.kCell.on:after{color:#21784f}.kCell .kNum{background:#ffe9a0;color:#705016}
+.stBig{background:#f3f8fc;border:1px solid var(--rb-line);border-radius:12px;box-shadow:none;color:var(--rb-ink);animation:none}
+.stBig.full{background:#e1f5e9;border-color:#72af8d;box-shadow:none}.stBig .sIc{background:#e0eef7}
+.stBig .sNm{color:var(--rb-ink);font-weight:600}.stBig .sVal{color:#276385}.stBig .sMax,.stBig .sWhat,.stBig .sSub{color:var(--rb-ink2);opacity:1}
+.stBig button{background:#b4e7cd;border:1px solid #71ad91;color:#214f3c;box-shadow:none}.stBig button:not(:disabled){animation:none}
+.stBig button:disabled{background:#e2eaf0;border-color:#bfcfda;color:#577286;opacity:.65;box-shadow:none}
+.jobCard{background:#f3f8fc;border:1px solid var(--rb-line);box-shadow:none;color:var(--rb-ink)}
+.jobCard .jGo{background:#d0eafa;border-color:#548bac;color:#234f6c;box-shadow:none}
+.shopHint b,.hrow b{background:none!important;padding:0!important;border-radius:0!important;color:var(--rb-ink);font-weight:600}
+.bgIt .bn,.bgIt.on .bn{color:var(--rb-ink)!important}.bgIt .bd{color:var(--rb-ink2)}
+.ec-t,.ec-note b{color:var(--rb-gold)}.ec-t2{color:var(--rb-ink2)}
+table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 .hrow,.sl,.gline,.shopHint,.hint{color:var(--rb-ink2)}
-
-/* ── 27차·28차가 남긴 남보라 결을 마저 덮는다 ── */
-:root{ --ui-bg:var(--rb-bg); --ui-bg2:var(--rb-bg2); --ui-edge:var(--rb-line); --ui-edge2:var(--rb-line2);
-       --panel:var(--rb-bg); --panel3:var(--rb-bg); --line:var(--rb-line); --line2:var(--rb-line2); }
-/* 핫바 바깥 테두리 — 로블록스 핫바는 칸만 있고 **칸을 감싼 큰 판이 없다** */
-#dock{background:none;border:none;box-shadow:none;padding:0;border-radius:0;gap:5px}   /* 48차c — 간격도 로블록스 ICON_BUFFER 5 */
-#dockLine{background:rgba(255,255,255,.14)}
-/* 모둠 이름 — 색 띠가 아니라 그 모둠 색 글자 한 줄 */
-#grpName{background:none!important;padding:0;box-shadow:none;color:var(--c,#fff);font-size:13px;letter-spacing:0}
-/* 조작 안내는 왼쪽 아래로 — 28차에 핫바 판 위(가운데)에 얹어 뒀는데,
-   48차에 핫바 판을 없애고 3인칭이 되니 **내 사람 얼굴 위에** 글씨가 떴다.
-   ★ 49차e — **터치는 빼고** 마우스에서만 그렇게 한다. 태블릿의 왼쪽 아래는 **조이스틱 자리**라
-     48차 그대로 두면 글씨가 조이스틱 위에 얹힌다(t13 이 여섯 화면에서 stick×hint 로 잡았다).
-     터치는 28차처럼 핫바 위 가운데 — fitHint() 가 조이스틱·버튼을 재서 들어갈 폭만 준다. */
-body:not(.touch) #hint{left:14px;right:auto;bottom:14px;transform:none;max-width:38vw;text-align:left;
-  padding:0;text-shadow:0 0 3px rgba(0,0,0,.9);opacity:.5;background:none;border:none;box-shadow:none}
-.res i{background:rgba(0,0,0,.28)}
-#stageTitle .n,#stageTitle .d{text-shadow:0 2px 6px rgba(0,0,0,.6)}
-#combo,#aimInfo{text-shadow:0 0 3px rgba(0,0,0,.9)}
+/* 기존 밝은 인라인 강조색은 크림 판에 맞는 짙은 잉크로만 바꾼다. 자원·모둠의 배경색은 보존한다. */
+:is(.popC,#feed,#toast,#aimInfo,#miniBar) [style*="color:"]{color:var(--rb-ink)!important}
+:is(.popC,#feed,#toast,#aimInfo,#miniBar) :is([style*="#ffd"],[style*="#ffe"],[style*="#ffc9"],[style*="#ffc7"],[style*="#e0a878"]){color:#805a0d!important}
+:is(.popC,#feed,#toast,#aimInfo,#miniBar) :is([style*="#ffb"],[style*="#ff9"],[style*="#ff8"],[style*="#ff6b6b"]){color:#a73848!important}
+:is(.popC,#feed,#toast,#aimInfo,#miniBar) :is([style*="#8dff"],[style*="#9cff"],[style*="#c8ff"],[style*="#6ee"],[style*="#51cf66"]){color:#23754f!important}
+:is(.popC,#feed,#toast,#aimInfo,#miniBar) :is([style*="#9cd8"],[style*="#9de8"],[style*="#4dabf7"]){color:#276995!important}
+:is(.popC,#feed,#toast,#aimInfo,#miniBar) [style*="#cc7bff"]{color:#70439b!important}
+@media (prefers-reduced-motion:reduce){.pop.on .popC,#toast.on,.res.up,.res.up b,.grp button,.slot,.btn{animation:none;transition:none}}
 </style>
 </head>
 <body>
@@ -2729,7 +2683,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '51차f · 머리를 상자에서 **세운 원통**으로 — 로블록스 머리는 세로축 원통이다(사진에서 줄마다 재면 폭이 98·110·115·113·108·92·61 로 가운데가 거의 일정하다가 아래가 둥글게 말린다 — 상자도 공도 이 모양이 안 나온다). 옆모습 선을 돌려 만든 `roundCyl(0.24,14)` 로 테를 살짝 말았다. 좀비 머리도 같이 · 재 본 R6 값(뼈대·머리·얼굴 비율·갈고리 손·움직임 각도)을 `깃허브에올릴것/로블록스캐릭터.md` 에 정리 · 51차e · 팔을 몸통에 도로 붙임 — 로블록스 R6 부품은 그냥 상자고 서로 딱 맞닿는다(몸통 2×2×1 · 팔 1×2×1 어깨 ±1.46 · 다리 1×2×1 엉덩이 ±0.48 — 0.04스터드만 겹쳐 모서리 틈을 없앴다) · **갈고리 손** — 위팔·잘록한 손목·손바닥·앞으로 말린 손가락·위로 세운 손끝 다섯 토막 · 51차d · 기본 캐릭터를 로블록스 기본형으로 — **민머리**(베이컨 머리는 모자 표의 가발로 옮김) · **모둠 색 몸통**(검은 재킷·소매·하얀 신발 삭제) · 눈에 보이는 몸 굵기로 다시(팔 0.80 · 다리 0.92 · 몸통 1.92스터드 — 어깨에 틈이 생긴다) · 얼굴을 사진에 대고 다시 잼(눈 12.5→7% · 입 35→44%) · 팔다리 모서리를 덜 깎아 상자로 · 51차c · 얼굴을 로블록스 클래식 그대로(눈·입 실제 비율 — 51차b 는 눈이 머리의 28%, 입이 59% 였다) · 머리털을 투구가 아니라 머리 위에 얹힌 베이컨 덩이로 · 소매를 팔과 같은 굵기로(뭉툭한 손의 원인) · 좀비 손도 팔 끝 마개로 · 머리·팔·다리 바탕 재질을 흰 천으로(살빛이 잿빛, 바지가 새까맣게 나왔다) · 뜀/낙하/걸음 각도를 R6 기본 동작 그대로 · 시작 화면에서 판 번호 문단 삭제 · 51차b · 기본 캐릭터를 로블록스 기본 아바타(베이컨 헤어)로 — 비율을 실제 스터드 값으로(다리 2 · 몸통 2 · 머리 1.2스터드 = 38.5/38.5/23%) · 금빛 삐죽 머리 아홉 갈래 · 검은 재킷 옆판(가운데로 모둠 색 셔츠) · 하얀 신발 · 클래식 스마일 얼굴 · 좀비 미술(움푹 팬 눈구멍 · 가슴 상처 · 턱 핏자국 · 헤진 소매·자락 · 헝클어진 머리 셋 · 좀비마다 다른 살빛과 비대칭 팔) · 51차 · 제목 “좀비의 밤” · 캐릭터를 로블록스 R6 아바타로(통짜 팔다리 · 걷기·뜀·총 자세 · 모자·옷·전직은 그대로) · 늑대를 좀비로(같은 R6 몸 · 초록 살 · 앞으로 뻗은 두 팔 · 절뚝이는 걸음 · 다섯 종류의 행동·세기는 그대로) · 50차 · 카메라 뒤로(사람이 앞을 안 가린다) · 바위·나무·잔디 질감 되살림 · 창 글자 다 읽히게(124군데) · 수정 옆 노란 벽 없앰 + 좀비가 물면 수정이 번쩍 · 망토가 판때기가 아니게 · 49차 검사 되살리기(전체 판 1243항목 다시 돎) · 3인칭 조준 고침 · 태블릿 조작안내·핫바 값 · 저격총 양각대 · 노트북 기준으로(그림자 2048 · 구역 32칸 · 선명은 부드러운 그림자) · 수정 단상 보도블록 · 48차 로블록스 화면(굵은 고딕 폰트 · 검은 반투명 UI · 바닥에 붙는 핫바 · 3인칭 카메라 + 휠 줌 · 플라스틱 광택 · 매끈 질감 · 즉시 가속·정지 · 로블록스 체공 0.54초(경주는 그대로) · 공중 자세 둘) · 47차 경주 골인율 · 최적화(건물 모둠별 컬링 · 바뀐 모둠만 다시 짓기 · 낮 길 깔기 모으기 · 사람 잔 부위 가볍게) · 46차 1차 날개 하양·방울 꼬리·발소리 키캡·경주 양옆 거리 · 45차 전직 아바타(용사·대장인·수확자 · 깃털 날개·활공·빠른 발) · 걷기 +10% · 진자 +20%/+10% · 선생님 레벨 단추 · 44차 사람·좀비 모션(걸음·방향·두 마디 다리·숨·웅크림·쓰러짐) · 43차 총열=조준선 · 총마다 다른 총소리 · 42차 점프 손맛 · 경주 1.8배 · 3·2·1 · 강화 연출 · 찰랑 · 헛간 지붕 · 코뚜레';
+const GAME_VER = '52차 · 둥근 캐릭터와 C자 손 · 밝은 교실 UI · 읽기 편한 글꼴 · 점프를 따라가는 3인칭 카메라 · 채집과 무기 동작';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
 const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
@@ -7197,6 +7151,14 @@ function updHeld(dt, mining, minePct){
     if(swingT > 0) swingT -= dt/0.26;
     a = swingT > 0 ? Math.sin((1-swingT) * Math.PI) : 0;
   }
+  /* 3인칭 몸도 같은 작업 시계를 읽는다. 위치 통신에 새 필드를 보내지 않는다. */
+  meSheep.act = mining ? (work ? 'work' : 'mine') : swingT > 0 ? 'throw' : '';
+  const toolAction = mining || !!work, tossAction = meSheep.act === 'throw';
+  // 사격 직후에도 작업 도구가 우선이다. 돌 투척에는 남아 있는 총/곡괭이를 휘두르지 않는다.
+  meSheep.wp = !toolAction && !tossAction && holdGun ? KIT.wpn : 0; meSheep.we = enhOf(KIT.wpn);
+  meSheep.tool = tossAction ? '' : work ? 'work' : (mining || (!holdGun && curTool === 'mine') ? 'mine' : '');
+  meSheep.actP = mining ? Math.max(0, Math.min(1, minePct)) : Math.max(0, 1-swingT);
+  meSheep.kick = meSheep.wp > 0 ? Math.max(0, gunKick) : 0;
   /* ★ 반동 — 총구가 위로 들리고(rotation.x) 몸 쪽으로 밀린다(position.z).
      이게 없으면 아무리 예광탄을 예쁘게 그려도 "쐈다"는 느낌이 안 난다. */
   const kx = holdGun ? gunKick : 0;
@@ -7650,7 +7612,7 @@ function imesh(geo, mat, cap, color){
        키 = 2 + 2 + 1.2 = 5.2스터드 = 1.56칸 · 두 팔까지 너비 4스터드 = 1.20칸
    비율로 적으면 다리 38.5% · 몸통 38.5% · 머리 23% — 사진에서 잰 값과 같다. */
 const STUD = 0.30;
-const R6_HF = 0.00, R6_HU = 1.392, R6_HK = 0.60;         // 머리 중심 1.392(몸통 위 1.20 + 머리 반 0.192) · 머리는 46차 양 머리 표의 0.60배
+const R6_HF = 0.00, R6_HU = 1.4112, R6_HK = 0.66;       // 둥근 머리를 10% 키운 귀여운 블록 비율 — 모자·얼굴도 같은 비율로 따라간다
                                                          // = 1.36 × 1.28 × 1.24스터드 — 사진에서 잰 '머리 너비가 몸통의 0.7배' 에 맞췄다
 const r6hu = (u)=> R6_HU + (u - 1.06)*R6_HK;             // 양 표의 머리 기준 높이 → R6 높이
 /* ★ 51차e — 51차d 에 "보이는 몸은 상자보다 가늘다" 며 굵기를 줄였다가 **팔이 몸통에서 떨어졌다.**
@@ -7674,8 +7636,35 @@ const R6_HEAD = [0.68*R6_HK, 0.64*R6_HK, 0.62*R6_HK];
    그래서 기본은 로블록스가 처음 주는 그 몸이다 — **민머리 · 맨팔 · 모둠 색 셔츠 · 어두운 바지.**
    51차b·c 의 검은 재킷·소매·하얀 신발은 **전부 뺐다**(모둠 색을 가려서 누가 우리 편인지 안 보였다).
    베이컨 머리는 **모자 표(HATS)의 열세 번째 칸**으로 옮겼다 — 쓰고 싶은 아이만 쓴다. */
-const R6_SKIN = 0xf2f0ec,          // 살빛 — 머리·팔·손
-      R6_PANT = 0x353c46;          // 어두운 바지
+const R6_SKIN = 0xffd99b,          // 따뜻한 살빛 — 머리·팔·손
+      R6_PANT = 0x4775b8;          // 밝은 청색 바지
+/* 하나로 이어진 C자 손. 안쪽 빈 공간과 열린 입을 실제 기하로 만든다.
+   상자를 겹친 손은 구멍이 막히고 점프할 때 팔에서 떨어졌다. 좌우는 기하를 돌려 짝을 맞춘다. */
+function r6HookGeo(left){
+  const shape = new THREE.Shape(), lo = -Math.PI*0.72, hi = Math.PI*0.72, steps = 18;
+  for(let i=0;i<=steps;i++){ const a=lo+(hi-lo)*i/steps, x=Math.cos(a)*0.5, y=Math.sin(a)*0.5;
+    if(i===0) shape.moveTo(x,y); else shape.lineTo(x,y); }
+  for(let i=steps;i>=0;i--){ const a=lo+(hi-lo)*i/steps; shape.lineTo(Math.cos(a)*0.28,Math.sin(a)*0.28); }
+  shape.closePath();
+  const geo = new THREE.ExtrudeGeometry(shape,{depth:0.92,steps:1,bevelEnabled:true,bevelSize:0.025,bevelThickness:0.04,bevelSegments:1});
+  geo.translate(0,0,-0.46); if(left) geo.rotateY(Math.PI); return geo;
+}
+const R6_HOOK = [r6HookGeo(false), r6HookGeo(true)];
+const R6_HAND = [0.29,0.26,0.22], R6_HAND_AT = 0.86;
+/* 원통 앞면을 따라 붙는 미소. 평평한 얼굴을 앞에 띄워 놓으면 옆에서 공중에 떠 보인다. */
+function r6FaceFront(x){
+  let z=-1;
+  for(let i=0;i<14;i++){const a=i*Math.PI*2/14,b=(i+1)*Math.PI*2/14;
+    const x1=Math.sin(a)*0.34,x2=Math.sin(b)*0.34;
+    if(Math.abs(x2-x1)>0.00001&&x>=Math.min(x1,x2)-1e-9&&x<=Math.max(x1,x2)+1e-9)
+      z=Math.max(z,Math.cos(a)*0.31+(Math.cos(b)-Math.cos(a))*0.31*(x-x1)/(x2-x1));}
+  return z;
+}
+const R6_SMILE=SMILE.clone();
+{ const pos=R6_SMILE.attributes.position;
+  for(let i=0;i<pos.count;i++)pos.setZ(i,pos.getZ(i)+(r6FaceFront(pos.getX(i)*0.25)-0.31)/0.07);
+  R6_SMILE.computeVertexNormals(); }
+const R6_EYE_F=0.68+r6FaceFront(0.13)+0.002, R6_MOUTH_F=0.992;
 /* ── 사람 표 좌표 → 선 몸통 자리 ──
    옷(11가지)·전직 차림새(직업 3 × 단계 2)는 **네발 몸통**(0.84 × 0.62 × 0.94)에 맞춰 적어 둔 표다.
    선 몸통(0.80 × 0.50 × 0.46)에 그대로 얹으면 가슴판이 가슴 앞 0.3칸에 떠 있고 망토가 등에서 떨어진다.
@@ -8196,10 +8185,10 @@ const S_body = imesh(RBr, FM.wool, MAXS, 1), S_head = imesh(RBr, FM.woolD, MAXS,
     새 부위에 색을 줄 때는 바탕 재질부터 본다.) */
 const P_body = imesh(RB,   FM.wool,  MAXP,   1),   // 몸통 = 셔츠. 모둠 색이 붙는 제일 큰 면이다
       P_head = imesh(CYL,  FM.wool,  MAXP,   1),   // 머리 — 51차f: 세운 원통(상자가 아니다)
-      P_arm  = imesh(RBl,  FM.wool,  MAXP*10, 1),  // 팔 2개 × (위팔·손목·손바닥·손가락·손끝) — 51차e: 갈고리 손
+      P_arm  = imesh(RBl,  FM.wool,  MAXP*4, 1),   // 위팔·손목 두 쌍
       P_eye  = imesh(BALLs, FM.eye,   MAXP*4, 1),  // 눈 2개 + 눈 반짝이 2개 (47차 — 잔 공)
       P_nose = imesh(BALLs, FM.snout, MAXP*3, 1),  // 볼터치 2개 + 쓰러졌을 때 혀 (47차 — 잔 공)
-      P_mouth= imesh(SMILE, FM.dark, MAXP,   1),   // 입 — 방긋 웃는 U (28차)
+      P_mouth= imesh(R6_SMILE, FM.dark, MAXP,   1), // 원통 표면을 따라 붙는 미소
       /* 47차 — 다리는 굵기가 0.13칸인 막대다. 모서리를 두 칸으로 둥글린 RB(300)를 쓸 이유가 없다.
          RBs(108)면 실루엣이 같다. 51차 — R6 은 마디가 없는 통짜라 사람 하나에 다리 둘이면 끝이다. */
       P_legs = imesh(RBl,  FM.wool,  MAXP*2, 1),   // 다리 2개 — 51차c: 바탕을 흰 천으로 · 51차d: 모서리를 덜 깎아 상자로
@@ -8335,6 +8324,7 @@ P_jobF.castShadow = P_jobF.receiveShadow = P_jobR.castShadow = P_jobR.receiveSha
      아무도 총을 안 들면 둘 다 통째로 숨긴다(개수가 0이어도 안 숨기면 그리기가 돈다 —
      예전에 좀비 체력막대에서 실측으로 잡은 적이 있다).
    ★ 한 사람이 쓰는 칸은 몸통 3칸 + 빛 2칸이다. */
+const P_hand = [imesh(R6_HOOK[0], FM.wool, MAXP, 1), imesh(R6_HOOK[1], FM.wool, MAXP, 1)];
 const P_gun  = imesh(RBs, FM.stone, MAXP*3, 1),
       /* ★ 빛 조각은 Lambert 의 emissive 로 만들면 안 된다 —
            emissive 에는 인스턴스 색이 안 곱해져서, +5(파랑)든 +6(빨강)이든
@@ -9459,7 +9449,7 @@ function drawSheep(list, t, cap, colOf, scale){
     const run = s.run !== undefined ? !!s.run : gs.v > SPD*1.2*(raceOn() ? RACE_SPD : 1);
     const gait = s.gp !== undefined ? s.gp : gs.gp, mvK = (down || air) ? 0 : Math.max(0, Math.min(1, gs.v / 2.2));
     const walk = mvK * Math.sin(gait) * (run ? 1.0 : 0.85);
-    const sq   = land > 0 ? 1 - (land/0.22)*0.32 : 1;                                   // 착지 — 세로로 눌린다(42차: 0.22초 · 32%)
+    const sq   = land > 0 ? 1 - (land/0.22)*0.08 : 1;                                   // 블록 비율을 지키며 착지 충격만 살짝
     const hop  = run ? Math.max(0, Math.sin(gait + 0.4)) : Math.abs(Math.sin(gait));      // 바운드는 한 바퀴에 한 번 크게 뜬다
     /* 51차 — bob 은 **위로 튀는 것만** 담는다. 착지 눌림(sq)은 아래 stretch 가 u 에 곱해 맡는다 —
        46차처럼 bob 에 빼기로 넣으면 몸만 내려앉고 통짜 다리는 그대로라 발이 땅을 뚫는다. */
@@ -9467,12 +9457,18 @@ function drawSheep(list, t, cap, colOf, scale){
     /* 44차 — 출발·급정지 자세: 가속(acc>0)이면 뒤로 살짝 눌리고(코 위), 급정지(acc<0)면 앞으로 쏠린다(코 아래). 급정지 땐 발밑 먼지 한 번(0.6초에 한 번만) */
     const accL = (down || air) ? 0 : Math.max(-0.22, Math.min(0.22, -gs.acc*0.022));
     if(!down && !air && gs.acc < -9 && gs.v > 1.4 && !(gs.dust > 0)){ gs.dust = 0.6; burst(s.x, y + 0.06, s.z, 0xd9cdb4, 4, 0.45); }
-    const lean = accL + (air ? (vy > 1 ? -0.22 : 0.10) : mvK * (run ? -0.14 + Math.sin(gait + 0.4)*0.12 : -0.08));   // 몸통 기울기 — 뜰 땐 뒤로, 내려올 땐 앞으로, 바운드는 뜰 때 들리고 내릴 때 숙인다
+    const action = !down && !!s.act, ap = Math.max(0, Math.min(1, s.actP || 0));
+    const ease = v=>v*v*(3-2*v);
+    const wind = action ? (ap < 0.28 ? ease(ap/0.28) : ap < 0.64 ? 1-ease((ap-0.28)/0.36) : 0) : 0;
+    const strike = action ? Math.sin(Math.PI*Math.max(0,Math.min(1,(ap-0.28)/0.72))) : 0;
+    const kick = !down ? Math.min(1.6, s.kick || 0) : 0;
+    const lean = accL + (air ? (vy > 1 ? -0.16 : 0.08) : mvK * (run ? -0.12 + Math.sin(gait + 0.4)*0.07 : -0.06))
+      + (action ? wind*0.12-strike*0.22 : 0) + kick*0.075;
     const breath = down ? 1 : 1 + (1 - mvK)*life.br*0.018;                                  // 44차 — 서 있으면 숨을 쉰다(몸통 ±1.8%)
     /* 머리 끄덕임 — 몸통 반동보다 한 박자 늦게 따라온다. 이게 있어야 살아 있어 보인다. */
     const nod  = air ? (vy > 1 ? 0.06 : -0.05) : mvK > 0.05 ? Math.sin(gait - 0.9)*(run ? 0.09 : 0.06)*mvK : Math.sin(t*1.5 + (s.ph||0))*0.012;
-    const stretch = air ? (vy > 1 ? 1.12 + take*0.22 : 0.96) : sq;                       // 세로 — 공중에선 늘어나고(도약 직후 더) 착지하면 눌린다
-    const widen   = air ? (vy > 1 ? 0.94 - take*0.10 : 1.03) : 1 + (1 - sq)*0.9;         // 가로는 반대로
+    const stretch = air ? (vy > 1 ? 1.02 + take*0.03 : 1) : sq;
+    const widen   = air ? 1 : 1 + (1 - sq)*0.35;
     const lng     = (!down && !air && run) ? 1 + mvK*Math.sin(gait + 0.4)*0.07 : 1;      // 바운드 — 뜰 때 앞뒤로 늘고 내릴 때 줄어든다
     const col  = colOf(s);   // 51차 — 셔츠(몸통) 색. 머리·팔은 R6_SKIN, 바지는 R6_PANT 로 고정이다
     /* 몸 기준 좌표(앞 f · 위 u · 옆 sd) → 화면 좌표.
@@ -9512,51 +9508,33 @@ function drawSheep(list, t, cap, colOf, scale){
        ★ 총을 들면 오른팔이 앞으로 뻗는다 — 로블록스가 도구를 드는 그 자세다. */
     const hasGun = (s.wp|0) > 0 && !down;
     const shY = Y(R6_SHU), hipY = Y(R6_HIP);
+    let gripX=0, gripY=0, gripZ=0, gripTh=0, gripRl=0;
     for(const si of [1,-1]){
       let th, rl;
       if(down){ th = 0.30*si; rl = si*0.55; }                                  // 쓰러지면 팔을 옆으로 늘어뜨린다
-      else if(hasGun && si > 0){ th = 1.30 + lean*0.5; rl = 0.10; }            // 총 든 오른팔 — 앞으로
+      else if(action){ th = si > 0 ? 0.48+wind*2.10-strike*0.20 : 0.38+wind*0.50-strike*0.25;
+                       rl = si*(0.10+strike*0.08); }                         // 준비 → 내리치기 → 회복, 왼팔도 균형을 잡는다
+      else if(hasGun){ th = (si > 0 ? 1.35 : 1.08) + kick*(si > 0 ? 0.24 : 0.13) + lean*0.3;
+                       rl = si > 0 ? 0.06 : -0.18; }                        // 두 팔로 받치고 발사 순간 어깨가 젖혀진다
       /* ★ 51차c — 각도를 로블록스 R6 기본 동작에 맞췄다(선생님: "움직임까지 그대로 묘사해").
            뜀   : 두 팔을 **곧게 위로**(175°) — 2.94(168°)는 어중간해서 만세가 아니라 들썩임이었다
            낙하 : 두 팔을 **옆으로 수평**(83°) — 1.05(60°)는 어정쩡했다
            걸음 : 앞뒤 ±32°, 달리기 ±49° — R6 는 무릎이 없어 **어깨에서만** 흔든다(옆으로는 안 벌린다) */
       else if(air){ const rise = vy > 1;
         th = (rise ? 3.05 : 0.10) + lean*0.5; rl = si*(rise ? 0.12 : 1.45); }
-      else { th = -mvK*Math.sin(gait + (si > 0 ? 0 : Math.PI))*(run ? 0.86 : 0.56) + lean*0.5;
+      else { th = -mvK*Math.sin(gait + (si > 0 ? 0 : Math.PI))*(run ? 0.86 : 0.56) + lean*0.5 + (s.tool && si > 0 ? 0.32 : 0);
              rl = si*(0.02 + (1 - mvK)*life.br*0.02); }                        // 51차e — 팔은 몸통에 붙여 곧게 내린다(벌리면 어깨가 떨어져 보인다)
       const aL = R6_ARM[1]*sc*stretch, aW = R6_ARM[0]*sc*widen, aD = R6_ARM[2]*sc;
-      /* ★ 51차e — **손이 뭉툭했던 까닭은 손이 없었기 때문이다.** 팔을 상자 하나로 그리면
-         끝이 그냥 잘린 면이라 '뭉툭한 손' 으로 보인다.
-         선생님: "손이 갈고리 모양이어야 돼." → "갈고리 방향이 잘못됐잖아, 갈고리가 너무 두꺼워."
-         ★ 사진을 6배로 늘려 손만 다시 봤다. 로블록스 손은 **몸 쪽으로 열린 얇은 C** 다 —
-           덩어리는 **바깥쪽**으로 말려 나가고, 벌어진 틈이 **몸통 쪽**을 본다.
-           (첫 판은 앞쪽으로 말아 놓아 방향이 90° 틀렸고, 조각도 팔만큼 두꺼웠다.)
-             위팔   0 ~ 76%  (팔 굵기 그대로)
-             손목  72 ~ 88%  (굵기 74% · 앞뒤 86%) ← 잘록해야 그 아래가 '손' 으로 읽힌다
-             손바닥 86% 자리 · 옆으로 0      (굵기 84% — 팔 안쪽)
-             손가락 99% 자리 · 옆으로 +0.55  (굵기 70% — 팔 **밖으로** 나가는 아래 턱, 얇게)
-             손끝   84% 자리 · 옆으로 +0.85  (굵기 26% — 바깥 끝에서 위로 세운 얇은 끝)
-           ★ 팔 반너비가 0.5 다 — 갈고리는 **0.5 를 넘어가야** 팔 실루엣 밖으로 보인다.
-             처음엔 +0.30/+0.52 로 뒀다가 팔에 다 가려 아무것도 안 보였다.
-           손바닥과 손끝 사이가 **갈고리 구멍**이고, 그 입이 몸통을 본다.
-         ★ 팔 축에서 **옆·앞으로 밀어야** 해서 limb2 로는 안 된다(축 위에만 놓는다).
-           팔의 '아래(along)'·'앞(fwd)'·'옆(side)' 단위 벡터를 세워 그 위에 얹는다. */
+      /* 손목 아래의 C자는 한 메시다. 팔과 같은 pitch·roll을 써서 만세/낙하에서도 떨어지지 않는다. */
       const A = (off, L2, kw, kd)=> limb2(P_arm, armN++, X(0, R6_ASD*si), shY, Z(0, R6_ASD*si),
         fx, fz, rx, rz, ry, th, rl, aL*off, aL*L2, aW*kw, aD*kd, R6_SKIN);
-      A(0,    0.76, 1.00, 1.00);   // 위팔
-      A(0.72, 0.16, 0.74, 0.86);   // 손목 — 살짝 잘록
-      { const st2 = Math.sin(th), ct2 = Math.cos(th);
-        const ax0 = X(0, R6_ASD*si), ay0 = shY, az0 = Z(0, R6_ASD*si);
-        /* 팔 아래 방향(along)과 팔 앞 방향(fwd) — 굴림(rl)은 2°라 여기서는 무시한다 */
-        const dx = fx*st2, dy = -ct2, dz = fz*st2;
-        const ux = fx*ct2, uy =  st2, uz = fz*ct2;
-        const H = (m, g, e, w, h, d)=> setIR(P_arm, armN++,
-          ax0 + dx*aL*m + ux*aD*e + rx*aW*g*si, ay0 + dy*aL*m + uy*aD*e,
-          az0 + dz*aL*m + uz*aD*e + rz*aW*g*si,
-          ry, -th, aW*w, aL*h, aD*d, R6_SKIN);
-        H(0.86, 0.00, 0.00, 0.84, 0.26, 0.74);   // 손바닥 — 팔 안쪽
-        H(0.99, 0.55, 0.00, 0.70, 0.12, 0.70);   // 말린 손가락 — 팔 **바깥으로 나가는** 아래 턱(얇게)
-        H(0.84, 0.85, 0.00, 0.26, 0.22, 0.60);   // 바깥 끝에서 위로 세운 손끝 — 손바닥과 사이가 갈고리 구멍
+      A(0,    0.66, 1.00, 1.00);
+      A(0.60, 0.15, 0.68, 0.72);
+      { const st2=Math.sin(th), ct2=Math.cos(th), sr2=Math.sin(rl), cr2=Math.cos(rl), m=aL*R6_HAND_AT;
+        const hx=X(0,R6_ASD*si)+(fx*cr2*st2+rx*sr2)*m;
+        const hy=shY-cr2*ct2*m, hz=Z(0,R6_ASD*si)+(fz*cr2*st2+rz*sr2)*m;
+        setIR3(P_hand[si>0?0:1],n,hx,hy,hz,ry,-th,rl,R6_HAND[0]*sc,R6_HAND[1]*sc*stretch,R6_HAND[2]*sc,R6_SKIN);
+        if(si>0){ gripX=hx; gripY=hy; gripZ=hz; gripTh=th; gripRl=rl; }
       }
     }
     /* ── 다리 둘 ── 마디가 없는 통짜다. 발(u 0)이 제자리에 있도록 길이에도 stretch 를 곱한다 —
@@ -9597,9 +9575,9 @@ function drawSheep(list, t, cap, colOf, scale){
        51차c 는 눈이 12.5 로 두 배 크고 입이 35 로 좁아서, 눈만 큰 다른 얼굴이 됐다. */
     const hk = R6_HK*sc;
     for(const si of [1,-1])
-      setI(P_eye, eyeN++, HX(1.02,0.13*si), YH(1.14), HZ(1.02,0.13*si), hry,
-        0.050*hk, 0.085*hk, 0.05*hk, 0x1c1a18);
-    setI(P_mouth, mouthN++, HX(1.03,0), YH(0.99), HZ(1.03,0), hry, 0.25*hk, 0.20*hk, 0.07*hk, 0x1c1a18);
+      setI(P_eye, eyeN++, HX(R6_EYE_F,0.13*si), YH(1.14), HZ(R6_EYE_F,0.13*si), hry,
+        0.050*hk, 0.085*hk, 0.014*hk, 0x1c1a18);
+    setI(P_mouth, mouthN++, HX(R6_MOUTH_F,0), YH(0.99), HZ(R6_MOUTH_F,0), hry, 0.25*hk, 0.20*hk, 0.07*hk, 0x1c1a18);
     }
     /* 꾸미기 — 모자·안경은 머리를 따라(YH), 옷은 몸통을 따라(Y) 움직인다.
        ★ 51차 — 옷 표(11가지)는 네발 몸통에 맞춰 적어 둔 것이라 선 몸통 자리로 한 번 옮긴다(r6body).
@@ -9702,38 +9680,50 @@ function drawSheep(list, t, cap, colOf, scale){
       const FX = ENH_FX[e];
       /* 떨림 — +4 부터. 사람마다 위상을 달리해서 스물한 명이 같이 흔들리지 않게 한다 */
       const sh = FX.sh ? Math.sin(t*38 + (s.ph||0)*7)*FX.sh : 0;
-      /* 51차 — 앞으로 뻗은 오른팔 끝(어깨 u 0.94 · 옆 0.52 에서 길이 0.46 이 앞으로)에 쥐여 준다 */
-      const gy = 0.86 + sh, gf = 0.58, gsd = R6_ASD + sh;   // 앞 f · 옆 sd · 높이 u
+      const GX=(f,sd)=>gripX+(fx*f+rx*sd)*sc, GZ=(f,sd)=>gripZ+(fz*f+rz*sd)*sc;
+      const gy = gripY + (0.16+sh)*sc, gf = 0.23, gsd = sh, gunPit=-kick*0.15;
       const L  = Math.max(0.55, W.len) * 0.62;            // 총열 길이 (긴 총일수록 길게)
       /* 총열 — 옆으로 뻗는다 */
-      setI(P_gun, gunN++, X(gf, gsd), Y(gy), Z(gf, gsd), ry,
+      setIR(P_gun, gunN++, GX(gf, gsd), gy, GZ(gf, gsd), ry, gunPit,
         0.10*sc, 0.10*sc, L*sc, W.col);
       /* 개머리판 — 몸 쪽으로 짧게 */
-      setI(P_gun, gunN++, X(gf-0.16, gsd-0.05), Y(gy-0.05), Z(gf-0.16, gsd-0.05), ry,
-        0.13*sc, 0.15*sc, 0.20*sc, 0x6b5136);
-      /* 손 — 총을 잡은 주먹. 없으면 총이 몸 옆에 떠 있어 보인다(10차에서 겪었다) */
-      setI(P_gun, gunN++, X(gf-0.10, gsd-0.02), Y(gy-0.04), Z(gf-0.10, gsd-0.02), ry,
-        0.15*sc, 0.15*sc, 0.15*sc, R6_SKIN);
+      setIR(P_gun, gunN++, GX(-0.13, gsd), gy-0.02*sc, GZ(-0.13, gsd), ry, gunPit,
+        0.13*sc, 0.15*sc, 0.30*sc, 0x6b5136);
+      /* 손은 C자 메시 그대로 보인다. 구멍 안에는 가는 손잡이만 넣는다. */
+      setIR(P_gun, gunN++, GX(0,0), gripY+0.03*sc, GZ(0,0), ry, gunPit,
+        0.065*sc, 0.26*sc, 0.07*sc, 0x536278);
       /* 빛 — 강화 단계가 있을 때만. 숨쉬듯 커졌다 작아진다 */
       if(FX.glow > 0 && glowN + 2 <= P_gunF.count_max){
         const bs2 = 0.80 + Math.sin(t*FX.pulse + (s.ph||0))*0.20;
         const gcol = FX.col || W.tr;
         const gsz = FX.glow * bs2;
         /* 총열을 감싸는 빛 */
-        setI(P_gunF, glowN++, X(gf, gsd), Y(gy), Z(gf, gsd), ry,
+        setIR(P_gunF, glowN++, GX(gf, gsd), gy, GZ(gf, gsd), ry, gunPit,
           0.20*gsz*sc, 0.20*gsz*sc, (L+0.10)*sc, gcol);
         /* 총구 끝에서 튀는 불티 — +3 부터. 이게 있어야 '반짝반짝' 으로 읽힌다.
            ★ 총열은 '앞(f)' 으로 뻗으므로 불티도 f 를 더해야 한다. sd 를 더하면
              총구가 아니라 옆구리에서 불티가 튄다. */
-        if(e >= 3) setI(P_gunF, glowN++, X(gf + L*0.52, gsd), Y(gy), Z(gf + L*0.52, gsd), ry,
+        if(e >= 3) setI(P_gunF, glowN++, GX(gf + L*0.52, gsd), gy+Math.sin(-gunPit)*L*0.52*sc, GZ(gf + L*0.52, gsd), ry,
           0.24*gsz*sc, 0.24*gsz*sc, 0.24*gsz*sc, gcol);
       }
+    }
+    else if(s.tool && !down && gunN+3<=P_gun.count_max){
+      /* 곡괭이/망치의 손잡이는 실제 오른손 축에 묶인다. 몸이 휘두르면 도구도 함께 돈다. */
+      const st=Math.sin(gripTh), ct=Math.cos(gripTh), sr=Math.sin(gripRl), cr=Math.cos(gripRl);
+      const tool=(u,sd,w,h,d,col)=>setIR3(P_gun,gunN++,
+        gripX+((rx*cr-fx*st*sr)*sd+(fx*cr*st+rx*sr)*u)*sc,
+        gripY+(ct*sr*sd-cr*ct*u)*sc,
+        gripZ+((rz*cr-fz*st*sr)*sd+(fz*cr*st+rz*sr)*u)*sc,
+        ry,-gripTh,gripRl,w*sc,h*sc,d*sc,col);
+      tool(0.11,0,0.07,0.52,0.07,0xa36b3c);
+      tool(0.34,0,s.tool==='work'?0.28:0.45,0.12,0.14,0x95b8d4);
+      tool(0.34,s.tool==='work'?0:0.19,0.08,s.tool==='work'?0.16:0.22,0.14,0xd8e8ef);
     }
     n++;
   }
   FLIP_ON = false;
   P_body.count=n; P_head.count=n; P_nose.count=noseN; P_mouth.count=mouthN;
-  P_arm.count=armN; P_eye.count=eyeN; P_legs.count=ln; P_deco.count=decoN;
+  P_arm.count=armN; P_hand[0].count=n; P_hand[1].count=n; P_eye.count=eyeN; P_legs.count=ln; P_deco.count=decoN;
   P_deco.visible = decoN > 0;
   P_gun.count=gunN; P_gunF.count=glowN;
   P_gun.visible = gunN > 0; P_gunF.visible = glowN > 0;
@@ -9742,7 +9732,7 @@ function drawSheep(list, t, cap, colOf, scale){
   if(jobRN > 0 && P_jobR.instanceColor) P_jobR.instanceColor.needsUpdate = true;
   for(let i=0;i<2;i++){ P_wing[i].count = wN[i]; P_wing[i].visible = wN[i] > 0;
                         P_wingG[i].count = wgN[i]; P_wingG[i].visible = wgN[i] > 0; }
-  flush(P_body,P_head,P_arm,P_eye,P_nose,P_mouth,P_legs,P_deco,P_gun,P_gunF,P_jobF,P_jobR,
+  flush(P_body,P_head,P_arm,P_hand[0],P_hand[1],P_eye,P_nose,P_mouth,P_legs,P_deco,P_gun,P_gunF,P_jobF,P_jobR,
         P_wing[0],P_wing[1],P_wingG[0],P_wingG[1]);
 }
 
@@ -9763,7 +9753,7 @@ let tagRedraws = 0;                 // 이름표를 다시 그린 횟수 (진단
      이름표는 **그 아이가 화면에 있는 내내** 떠 있다. 그래서 여기가 칭호의 자리다.
    ★ 레벨·칭호가 붙으면 이름이 칸(256px)을 넘칠 수 있어서, 넘치면 글자를 줄여 맞춘다.
      한글 이름 넷에 칭호까지 붙는 제일 나쁜 경우를 t26 이 자로 잰다. */
-const TAG_FONT = w => '800 ' + w + 'px Montserrat, "Gothic A1", -apple-system, "Noto Sans KR", sans-serif';   // 48차 — 이름표도 로블록스 결
+const TAG_FONT = w => '600 ' + w + 'px "Noto Sans KR", "Malgun Gothic", -apple-system, sans-serif';   // UI와 같은 고딕, 이름표도 과한 굵기 없이
 function setTag(t, text, color, lv, bic){
   const key = text + color + '|' + (lv||0) + '|' + (bic||'');
   if(t.txt === key) return; t.txt = key;
@@ -9985,7 +9975,7 @@ function placePlayer(){
   /* ★ 48차b — 로블록스 카메라는 캐릭터를 **살짝 내려다본다**(대략 −10°).
      수평으로 보면 사람(키 0.88칸)이 카메라 높이(1.02)보다 아래라 화면 밑으로 처져서 핫바에 가린다.
      여기서 한 번만 놓아 주고, 그 뒤엔 아이가 마우스로 마음대로 본다. */
-  PL.pitch = -0.08;   // 50차 — 10° 내려다보기는 앞을 가렸다. 로블록스 기본처럼 거의 수평(4.6°)에서 시작한다
+  PL.pitch = -0.22;   // 52차 — 발과 앞길이 함께 보이는 가벼운 내려다보기
 }
 
 const KEY = {};
@@ -10013,7 +10003,8 @@ const jumpNow  = ()=> raceOn() ? JUMP  : JUMP_V;
 const JUMP2 = JUMP2_R;
 const jump2Now = ()=> raceOn() ? JUMP2_R : JUMP2_V;
 const DOWN_CAM = 4.6;           // 쓰러졌을 때 시체에서 물러나는 거리
-let camGY = null;               // 39차 — 3인칭 카메라가 기준으로 삼는 땅 높이(부드럽게 따라간다 · 허공이면 마지막 값)
+let camGY = null;               // 52차 — 캐릭터 발 높이를 따라가는 닻(점프·낙하도 포함)
+let camDistance = null, camShoulder = 0, camBodyHidden = false;
 /* ★ 20차 — 줄넘기·OX 퀴즈는 3인칭으로 본다.
    ① 줄넘기: 판정은 '발이 줄 위에 있나' 인데 1인칭에서는 자기 발이 안 보인다.
       물러나서 보면 줄이 도는 것도, 내가 뜬 것도, 옆 친구가 걸리는 것도 한눈에 보인다.
@@ -10023,31 +10014,13 @@ let camGY = null;               // 39차 — 3인칭 카메라가 기준으로 �
    ③ 서바이벌은 그대로 1인칭이다 — 총을 겨누는 판이라 물러나면 조준이 안 맞는다.
    카메라를 뒤로 빼는 장치는 '쓰러졌을 때' 것을 그대로 쓴다. 거리만 다르다. */
 const MINI_CAM = [6.4];         // 0: 장애물 경주 — 뒤 위에서 따라간다(로블록스처럼 내 사람과 발판이 같이 보여야 한다). 5.2 는 사람이 화면 아래 3분의 1 을 먹었다
-/* ═══ 48차 — 로블록스 카메라 ═══
-   선생님: "진짜 로블록스 카메라시점으로 만들자 … 애들이 자기 캐릭터를 다 볼 거니까."
-   47차까지 마을·밤은 1인칭이었다. 그래서 45차에 만든 전직 아바타(날개·대검·망치)도, 46차 꼬리도
-   **자기 것만 안 보였다** — 남의 사람에게만 보였다. 이제 늘 3인칭이다.
-   · 휠로 당기고 민다. CAM_MIN 아래로 당기면 1인칭(로블록스도 0.5 스터드에서 1인칭이 된다).
-   · 마우스가 잠겨 있으므로 로블록스 **시프트락** 자세다 — 사람이 카메라 쪽을 보고, 카메라는
-     오른쪽 어깨로 CAM_SH 만큼 비킨다. 조준점 아래가 제 몸에 안 가린다(총 게임이 다 이 자세).
-   · 기본 7.2 — 로블록스는 키의 2.5배(12.5/5)지만 우리 시야각(74°)에서 그러면 사람이 화면을 다 먹는다.
-     경주에서 6.4 로 맞춰 봤고, 마을은 짓고 캐느라 앞이 더 보여야 해서 조금 더 물러난다. */
-/* ★ 48차b 교차검증 — 로블록스 실제 값으로 다시 잡았다.
-     로블록스: 캐릭터 키 5스터드를 12.5스터드에서 본다 = **키의 2.5배**. 시야각 70° 에서
-     캐릭터가 화면 세로의 약 29% 를 먹는다(2·atan(2.5/12.5) = 22.6° ÷ 70°).
-     우리 사람 키 = SHEEP_S 0.70 × u1.25 = 0.88칸. 같은 29% 면 2.1칸인데, 사람은 네 발이라
-     같은 높이여도 가로를 훨씬 넓게 먹으므로 2.8칸(약 23%)에서 멈춘다.
-     첫 판의 5.6칸은 화면에서 재 보니 11% — 로블록스의 3분의 1이었다.
-     어깨 비킴 — 로블록스 시프트락은 1.75스터드를 12.5에서 보므로 화면 세로의 10% 만큼 비낀다.
-     우리는 조준점을 쓰는 게임이라 그 정도로는 사람이 조준점 아래에 반쯤 걸린다. 0.62칸(화면 16%)이면
-     사람이 왼쪽으로 확실히 비켜 조준점이 깨끗하다. */
-/* ★ 50차 — 선생님: "카메라 시점이 안 맞아". 재 보니 사람이 **화면 세로의 35.9%** 였다(로블록스는 29%).
-   48차에 2.8 로 정할 때 '키의 2.5배' 만 보고 시야각을 같이 안 넣었다 — 70° 에서 29% 가 되려면 3.5 다.
-   보는 높이도 0.55(몸통 한가운데)라 카메라가 아래를 향해, 사람이 화면 복판에 앉아 앞이 안 보였다.
-   0.80(어깨 언저리)으로 올리면 사람이 아래로 내려가고 그만큼 앞이 열린다. */
-const CAM_FAR = 3.5, CAM_MAX = 12.5, CAM_MIN = 1.6, CAM_SH = 0.62;
+/* 52차 — 캐릭터를 중심으로 보는 3인칭 카메라.
+   시야각은 70°, 평소 중앙·사격 중에만 오른쪽 어깨. 초기 거리는 실제 몸 크기와
+   화면에서 확인해 정했다. 아래 거리·높이는 Roblox의 고정 기본값이라는 뜻이 아니다.
+   휠로 1인칭까지 당길 수 있고, 점프·낙하에서도 몸 높이를 따라간다. */
+const CAM_FAR = 3.2, CAM_MAX = 12.5, CAM_MIN = 1.6, CAM_SH = 0.40;
 let camZoom = CAM_FAR;
-const tpvKind = ()=> (miniOn() && G.mini && G.mini.k === 0) ? 0 : (camZoom > CAM_MIN ? 1 : -1);
+const tpvKind = ()=> (miniOn() && G.mini && G.mini.k === 0) ? 0 : (camZoom >= CAM_MIN ? 1 : -1);
 const tpvOn   = ()=> PL.down || tpvKind() >= 0;
 /* 휠 — 로블록스처럼 한 칸에 1.2칸씩. CAM_MIN 아래로 당기면 1인칭으로 넘어간다(그때 사람이 안 그려진다) */
 addEventListener('wheel', (e)=>{
@@ -10225,7 +10198,7 @@ function updPlayer(dt){
   recoilTick(dt);
   /* 41차 — 달릴 때 걸음 박자로 살짝 흔들린다(3인칭은 굴림, 1인칭은 위아래). 굴림(z)은 보는 방향을 안 바꾼다 — 조준은 그대로다 */
   const runK = (sprinting && PL.mv && PL.ground) ? Math.min(1, fovRun/10) : 0;
-  camera.rotation.set(PL.pitch + aimKick, PL.yaw + aimSway, (tpvOn() ? Math.sin(gaitMe*0.5)*0.014*runK : 0) + aimRoll, 'YXZ');   // 42차 — 쏠 때 기울기
+  camera.rotation.set(PL.pitch + aimKick, PL.yaw + aimSway, aimRoll, 'YXZ');
   /* ★ 3인칭으로 물러난다 — 쓰러졌을 때(9차부터)와 줄넘기·OX 퀴즈(20차).
      쓰러졌을 때: 예전엔 눈높이만 0.42 로 낮춘 1인칭이라, 누운 얼굴이 땅에 박혀서
      흙바닥만 보였다. 무슨 일이 벌어지는지 하나도 안 보이니 "화면이 깨졌다"고 느낀다.
@@ -10233,47 +10206,57 @@ function updPlayer(dt){
   const tk = tpvKind();
   const back = PL.down ? DOWN_CAM : tk === 1 ? camZoom + fovRun*0.05 : tk >= 0 ? MINI_CAM[tk] + fovRun*0.05 : 0;      // 39차 — 달리면 조금 더 물러난다 · 48차 — 마을은 휠로 정한 거리
   if(back > 0){
-    /* ★ 카메라 높이는 **땅** 을 기준으로 잡는다(쓰러졌을 때만 몸을 따라간다).
-       줄넘기에서 카메라가 몸을 따라 같이 뜨면, 뛰어도 줄과의 위아래 관계가 화면에서
-       그대로라 '넘고 있다' 가 안 보인다. 땅에 고정해야 내가 줄 위로 솟는 게 보인다. */
-    /* 41차 — 카메라가 몸에 못 박혀 있으면 사람이 화면 한 자리에 고정돼 속도가 안 보인다. 닻(camAnc)이 내 자리를 초당 10 의 빠르기로 뒤따라와서
-       가속하면 잠깐 뒤처졌다가(달리기 0.8칸) 따라붙고, 멈추면 앞으로 밀려든다. 3칸 넘게 튀면(순간이동·복귀) 바로 붙는다. */
-    if(camAnc === null || Math.hypot(PL.x - camAnc.x, PL.z - camAnc.z) > 3){ camAnc = {x:PL.x, z:PL.z}; }
-    else { const ck = Math.min(1, dt*13); camAnc.x += (PL.x - camAnc.x)*ck; camAnc.z += (PL.z - camAnc.z)*ck; }   // 42차 — 경주가 1.8배 빨라져 13/s(60fps 에서 달리기 뒤처짐 0.85칸 · 30Hz 검사에선 0.6)
+    /* 52차 — 삭제된 줄넘기용 '땅 높이 고정'을 걷어 낸다. 몸을 따라가되
+       위아래 지연을 0.22칸 안에 묶어 2단 점프·활공·낙하에서도 화면을 벗어나지 않는다.
+       마을은 좌우 지연 없이 중앙에서, 경주는 기존 달리기 뒤처짐을 유지한다. */
+    const snap = camAnc === null || Math.hypot(PL.x - camAnc.x, PL.z - camAnc.z) > 3
+      || camGY === null || Math.abs(PL.y - camGY) > 3;
+    if(snap){ camAnc = {x:PL.x, z:PL.z}; camGY = PL.y; camDistance = null; }
+    else {
+      const ck = tk === 0 ? Math.min(1, dt*13) : 1;
+      camAnc.x += (PL.x - camAnc.x)*ck; camAnc.z += (PL.z - camAnc.z)*ck;
+      camGY += (PL.y - camGY)*(1 - Math.exp(-dt*18));
+      camGY = Math.max(PL.y - 0.22, Math.min(PL.y + 0.22, camGY));
+    }
     const tx = camAnc.x, tz = camAnc.z;
-    /* ★ 39차 — 경주에서 발판 사이 허공을 뛰어넘는 동안 groundUnder 가 -999 를 돌려줘서 카메라가 땅 밑으로 꺼졌고,
-       그 몇 프레임 동안 화면이 하늘색 한 장이 됐다(선생님: "점프할 때마다 하늘색이 나와. 천장이 너무 낮아서 그런 거 같기도").
-       발밑에 땅이 없으면 마지막으로 딛었던 높이를 쓰고, 높이 변화는 부드럽게 따라간다(계단에서도 안 튄다). */
-    let gy = PL.down ? PL.y - 0.6 : groundUnder(PL.x, PL.z, PL.R);
-    if(gy < -900 || gy < PL.y - 12) gy = camGY === null ? PL.y : camGY;
-    camGY = camGY === null ? gy : camGY + (gy - camGY) * Math.min(1, dt*9);
-    /* ★ 48차b — 이 높이가 **화면 한가운데에 오는 세계 높이**다(카메라가 이 점을 축으로 공전한다).
-       로블록스는 캐릭터 몸통을 화면 한가운데에 둔다. 우리 사람 몸통 가운데는 0.42칸(u 0.6 × SHEEP_S 0.70).
-       1.55 로 두면 사람 머리(0.88)보다 한참 위를 보게 되어 사람이 화면 아래로 처지고 핫바에 가린다 —
-       화면을 두 번 찍어 보고 0.55 로 내렸다. 경주(tk 0)는 발판이 같이 보여야 해서 1.55 그대로. */
-    const look = (tk === 1 && !PL.down) ? 0.80 : 1.55;   // 50차 — 몸통 한가운데(0.55) → 어깨(0.80). 사람이 화면 아래로 내려가 앞이 보인다
-    const ty = PL.down ? PL.y + 0.95 : camGY + look - runK*0.30 + Math.sin(gaitMe)*0.025*runK - camDip;   // 41차 — 달리면 0.3 낮게(발밑이 크게 흐른다) + 걸음 박자 흔들림 · 42차 착지 내려앉음
+    const look = (tk === 1 && !PL.down) ? 0.80 : 1.55;
+    const ty = PL.down ? PL.y + 0.95 : camGY + look - camDip*0.25;
     const cp = Math.cos(PL.pitch);
     const dx = -Math.sin(PL.yaw)*cp, dy = Math.sin(PL.pitch), dz = -Math.cos(PL.yaw)*cp;
-    /* 벽·산을 뚫고 나가지 않게, 막히기 직전까지만 물러난다 */
-    let d = back;
-    /* ★ 40차 — 경주(tk 0)에서는 벽 검사를 안 한다. 하늘 섬 코스는 마을 격자 밖(z > 58)이라 solidTop 이 산 높이 같은 값을 돌려줬고,
-       2번 깃발부터 카메라가 1.1 까지 당겨져 "궁뎅이만 보였다". 하늘에 벽은 없다. */
-    if(tk !== 0) for(let k=1;k<=6;k++){     // 48차 — 마을(tk 1)도 벽에 막히면 당겨진다. 경주(0)만 건너뛴다(하늘엔 벽이 없다)
-      const s = back*k/6;
-      const px = tx - dx*s, pz = tz - dz*s, py = ty - dy*s;
-      if(py < solidTop(Math.floor(px), Math.floor(pz)) + 0.3){ d = back*(k-1)/6; break; }
-    }
-    /* 48차 — 로블록스 시프트락의 **오른쪽 어깨 비킴**. 카메라를 오른쪽으로 조금 밀면
-       조준점 아래가 제 몸에 안 가린다. 쓰러졌을 때와 경주는 가운데 그대로(볼 것이 몸 자체다). */
-    const sh = (tk === 1 && !PL.down) ? CAM_SH : 0;
-    const sx = Math.cos(PL.yaw)*sh, sz = -Math.sin(PL.yaw)*sh;
-    const dd = Math.max(1.1, d);
-    camera.position.set(tx - dx*dd + sx, ty - dy*dd, tz - dz*dd + sz);
+    /* 평소에는 중앙, 총을 겨눌 때만 어깨 옆으로 옮긴다. 충돌 검사도 실제
+       어깨 경로를 쓴다 — 예전에는 중앙만 검사한 뒤 옆으로 밀어 벽을 뚫었다. */
+    const sh = (tk === 1 && !PL.down && aimMode) ? CAM_SH : 0;
+    camShoulder += (sh - camShoulder)*(1 - Math.exp(-dt*14));
+    const ox = -dx*back + Math.cos(PL.yaw)*camShoulder;
+    const oy = -dy*back, oz = -dz*back - Math.sin(PL.yaw)*camShoulder;
+    const length = Math.hypot(ox, oy, oz);
+    const clear = tk === 0 ? length : cameraClearance(tx,ty,tz,ox,oy,oz);
+    // 벽 앞에서는 즉시 당기고, 벽을 벗어나면 부드럽게 원래 거리로 돌아간다.
+    camDistance = camDistance === null ? clear
+      : clear < camDistance ? clear : camDistance + (clear - camDistance)*(1 - Math.exp(-dt*12));
+    const ratio = length > 0 ? camDistance/length : 0;
+    camera.position.set(tx + ox*ratio, ty + oy*ratio, tz + oz*ratio);
+    camBodyHidden = camDistance < 0.65;
   } else {
     camera.position.set(PL.x, PL.y + PL.EYE + Math.abs(Math.sin(gaitMe))*0.04*runK, PL.z);   // 41차 — 1인칭(마을)도 달리면 머리가 걸음 박자로 흔들린다
+    camAnc = null; camGY = null; camDistance = null; camShoulder = 0; camBodyHidden = false;
   }
-  held.visible = back <= 0;             // 3인칭인데 손이 화면에 떠 있으면 이상하다
+  held.visible = back <= 0 || camBodyHidden;
+}
+
+/* 52차 — 카메라의 작은 부피까지 검사한다. 최대 줌에서도 한 칸짜리 벽을 건너뛰지
+   않도록 0.12칸 간격으로 확인하고, 최소 거리로 밀어내 충돌을 무효화하지 않는다. */
+function cameraClearance(x,y,z,ox,oy,oz){
+  const length = Math.hypot(ox,oy,oz), steps = Math.max(1,Math.ceil(length/0.12)), r = 0.14;
+  for(let k=0;k<=steps;k++){
+    const f=k/steps, px=x+ox*f, py=y+oy*f, pz=z+oz*f;
+    for(let j=0;j<5;j++){
+      const xx=px+(j===1?-r:j===2?r:0), zz=pz+(j===3?-r:j===4?r:0);
+      const top=survOn() ? MINI_Y+survTopAt(xx,zz) : solidTop(Math.floor(xx),Math.floor(zz));
+      if(py-r<top || (!miniOn() && solidHit(xx,zz,py-r))) return Math.max(0,length*(k-1)/steps);
+    }
+  }
+  return length;
 }
 
 /* ═══════════ 보물 상자 ═══════════
@@ -12406,7 +12389,23 @@ addEventListener('keydown', e=>{
 });
 addEventListener('keyup', e=>{ KEY[e.key.toLowerCase()] = false; });
 
-cv.addEventListener('click', ()=>{ if(!isTouch && G.phase!=='title' && !popOpen()) cv.requestPointerLock(); });
+cv.addEventListener('click', ()=>{
+  if(!isTouch && G.phase!=='title' && !popOpen() && document.hasFocus()){
+    const request = cv.requestPointerLock();
+    if(request && request.catch) request.catch(()=>{}); // 거절·취소해도 다시 잠그지 않는다
+  }
+});
+function releaseGameInput(){
+  for(const k in KEY) KEY[k]=false;
+  acting=false; throwing=false; wantJump=false; mvx=0; mvz=0; touchRun=false; touchJumpHeld=false;
+}
+document.addEventListener('pointerlockchange',()=>{
+  if(document.pointerLockElement!==cv) releaseGameInput();
+});
+addEventListener('blur',()=>{ releaseGameInput(); if(document.pointerLockElement===cv) document.exitPointerLock(); });
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){ releaseGameInput(); if(document.pointerLockElement===cv) document.exitPointerLock(); }
+});
 addEventListener('mousemove', e=>{
   if(document.pointerLockElement === cv){
     PL.yaw -= e.movementX*0.0024;
@@ -13035,7 +13034,7 @@ function goalText(){
   /* 처음 25초는 조작을 알려 준다. 그 뒤로는 '지금 할 일' 로 바뀌어 계속 남는다 —
      키 이름은 한 번 읽으면 되지만 할 일은 계속 필요하다. */
   if(!isTouch && tAcc - startedAt < 25)
-    return 'WASD 이동 · 좌클릭 사용/사격 · T 총 · C 스텟 · I 가방 · B 상인 · G 대장간 · U 수치표';
+    return 'WASD 이동 · 좌클릭 사용/사격 · Esc/Tab 마우스 풀기 · T 총 · C 스텟 · I 가방 · B 상인 · G 대장간';
   if(PL.down){
     /* 미니게임에서 쓰러진 것은 그 판이 끝난 것이다 — 일으켜 주는 사람도, 혼자 일어나는 것도 없다 */
     if(miniOn()) return '💀 쓰러졌어요 — 이 판은 여기까지. 구경하며 응원해요!';
@@ -16232,26 +16231,20 @@ function buildPicker(){
    ★ 순서를 바꾸면 dollHead()/dollBody() 의 자르는 자리도 같이 고쳐야 한다(바로 아래에 있다). */
 const r6row = (f,u,sd,w,h,d,col,sh)=>{ const q = r6head(f,u,sd,w,h,d); return [q[0],q[1],q[2],q[3],q[4],q[5],col,sh]; };
 const PVW_BODY = [
-  /* 0 몸통 · 1 머리 · 2~4 얼굴 · 5~14 팔(위팔·손목·갈고리 손 셋) · 15~16 다리 — **열일곱 조각**.
+  /* 0 몸통 · 1 머리 · 2~4 얼굴 · 5~8 팔·손목 · 9~10 C자 손 · 11~12 다리 — 열세 조각.
      (51차b~c 의 베이컨 머리·재킷·소매·신발은 빠졌다 — 머리는 모자 표로 갔고 옷은 모둠 색 하나다.)
      ★ 자르는 자리(dollHead·dollBody)가 바로 아래 있다 — 순서를 바꾸면 거기도 같이 고친다. */
   [ 0, R6_TU, 0, R6_TOR[0], R6_TOR[1], R6_TOR[2], 'body'],                    // 0  몸통(모둠 색 셔츠)
   [ R6_HF, R6_HU, 0, R6_HEAD[0], R6_HEAD[1], R6_HEAD[2], 'skin', 'cyl'],       // 1  머리(민머리) — 세운 원통
-  r6row(1.02,1.14, 0.13,   0.050,0.085,0.05, 0x1c1a18, 'ball'),               // 2  눈 — 머리 너비의 7%
-  r6row(1.02,1.14,-0.13,   0.050,0.085,0.05, 0x1c1a18, 'ball'),               // 3
-  r6row(1.03,0.99, 0,      0.25, 0.20, 0.07, 0x1c1a18, 'smile'),              // 4  입 — 넓고 얕은 곡선
-  [ 0, R6_SHU - R6_ARM[1]*0.38,  R6_ASD, R6_ARM[0],R6_ARM[1]*0.76,R6_ARM[2], 'skin'],  // 5  위팔
-  [ 0, R6_SHU - R6_ARM[1]*0.38, -R6_ASD, R6_ARM[0],R6_ARM[1]*0.76,R6_ARM[2], 'skin'],  // 6
-  [ 0, R6_SHU - R6_ARM[1]*0.80,  R6_ASD, R6_ARM[0]*0.74,R6_ARM[1]*0.16,R6_ARM[2]*0.86, 'skin'],  // 7  손목 — 잘록
-  [ 0, R6_SHU - R6_ARM[1]*0.80, -R6_ASD, R6_ARM[0]*0.74,R6_ARM[1]*0.16,R6_ARM[2]*0.86, 'skin'],  // 8
-  /* 9~14 갈고리 손 — 손바닥 · **팔 바깥으로** 말린 손가락 · 바깥 끝에서 위로 세운 손끝.
-     손바닥과 손끝 사이가 갈고리 구멍이고, 그 입이 몸통을 본다(게임 쪽 drawSheep 과 같은 값). */
-  [ 0, R6_SHU - R6_ARM[1]*0.86,  R6_ASD,                    R6_ARM[0]*0.84,R6_ARM[1]*0.26,R6_ARM[2]*0.74, 'skin'],  // 9  손바닥
-  [ 0, R6_SHU - R6_ARM[1]*0.86, -R6_ASD,                    R6_ARM[0]*0.84,R6_ARM[1]*0.26,R6_ARM[2]*0.74, 'skin'],  // 10
-  [ 0, R6_SHU - R6_ARM[1]*0.99,  R6_ASD + R6_ARM[0]*0.55,   R6_ARM[0]*0.70,R6_ARM[1]*0.12,R6_ARM[2]*0.70, 'skin'],  // 11 말린 손가락
-  [ 0, R6_SHU - R6_ARM[1]*0.99, -R6_ASD - R6_ARM[0]*0.55,   R6_ARM[0]*0.70,R6_ARM[1]*0.12,R6_ARM[2]*0.70, 'skin'],  // 12
-  [ 0, R6_SHU - R6_ARM[1]*0.84,  R6_ASD + R6_ARM[0]*0.85,   R6_ARM[0]*0.26,R6_ARM[1]*0.22,R6_ARM[2]*0.60, 'skin'],  // 13 손끝
-  [ 0, R6_SHU - R6_ARM[1]*0.84, -R6_ASD - R6_ARM[0]*0.85,   R6_ARM[0]*0.26,R6_ARM[1]*0.22,R6_ARM[2]*0.60, 'skin'],  // 14
+  r6row(R6_EYE_F,1.14, 0.13, 0.050,0.085,0.014, 0x1c1a18, 'ball'),
+  r6row(R6_EYE_F,1.14,-0.13, 0.050,0.085,0.014, 0x1c1a18, 'ball'),
+  r6row(R6_MOUTH_F,0.99, 0,  0.25, 0.20, 0.07, 0x1c1a18, 'smile'),
+  [ 0, R6_SHU - R6_ARM[1]*0.33,  R6_ASD, R6_ARM[0],R6_ARM[1]*0.66,R6_ARM[2], 'skin'],
+  [ 0, R6_SHU - R6_ARM[1]*0.33, -R6_ASD, R6_ARM[0],R6_ARM[1]*0.66,R6_ARM[2], 'skin'],
+  [ 0, R6_SHU - R6_ARM[1]*0.675,  R6_ASD, R6_ARM[0]*0.68,R6_ARM[1]*0.15,R6_ARM[2]*0.72, 'skin'],
+  [ 0, R6_SHU - R6_ARM[1]*0.675, -R6_ASD, R6_ARM[0]*0.68,R6_ARM[1]*0.15,R6_ARM[2]*0.72, 'skin'],
+  [ 0, R6_SHU - R6_ARM[1]*R6_HAND_AT, R6_ASD, ...R6_HAND, 'skin', 'hookR'],
+  [ 0, R6_SHU - R6_ARM[1]*R6_HAND_AT,-R6_ASD, ...R6_HAND, 'skin', 'hookL'],
   [ 0, R6_HIP - R6_LEG[1]*0.5,  R6_HSD, R6_LEG[0],R6_LEG[1],R6_LEG[2], 'pant'],       // 15 다리
   [ 0, R6_HIP - R6_LEG[1]*0.5, -R6_HSD, R6_LEG[0],R6_LEG[1],R6_LEG[2], 'pant']        // 16
 ];
@@ -16297,7 +16290,7 @@ function mkPvw(cvs, W, H, keep){
   /* 27차 — 게임과 같은 둥근 조각·원색 재질. 6~13 번(눈·반짝이·코·볼·꼬리)은 공이다 */
   const P = {r, sc, cam, grp, body:[], deco:[], t:0, geo:RBs};
   PVW_BODY.forEach((p)=>{
-    const m = new THREE.Mesh(p[7]==='smile' ? SMILE : p[7]==='ball' ? BALL : p[7]==='cyl' ? CYL : RB, flatMat(0xffffff));
+    const m = new THREE.Mesh(p[7]==='smile' ? R6_SMILE : p[7]==='ball' ? BALL : p[7]==='cyl' ? CYL : p[7]==='hookR' ? R6_HOOK[0] : p[7]==='hookL' ? R6_HOOK[1] : RB, flatMat(0xffffff));
     grp.add(m); P.body.push(m);
   });
   return P;
@@ -16347,7 +16340,11 @@ function pvwKill(P){
   P.r.dispose();
 }
 /* ── 시작 화면 미리보기 (지금 고르고 있는 착장) ── */
-function pvwInit(){ if(!pvw) pvw = mkPvw(el('pvw'), 230, 270); pvwDress(); }
+function pvwInit(){
+  if(!pvw){ pvw = mkPvw(el('pvw'), 230, 270);
+    if(pvw){ pvw.cam.position.set(0,1.02,4.0); pvw.cam.lookAt(0,0.88,0); } }
+  pvwDress();
+}
 function pvwDress(){ pvwSet(pvw, {g:pickG, hat:pickHat, gls:pickGls, clo:pickClo}); }
 function pvwTick(dt){ pvwSpin(pvw, dt); }
 function pvwDispose(){ pvwKill(pvw); pvw = null; }
@@ -16382,7 +16379,9 @@ function icoGeo(sh, w,h,d){
   else if(sh==='T') g = new THREE.TorusGeometry(0.38, 0.13, 12, 32);
   else if(sh==='a') g = new THREE.TorusGeometry(0.40, 0.11, 12, 32, Math.PI);
   else if(sh==='d') g = new THREE.OctahedronGeometry(0.5, 0);
-  else if(sh==='m') g = SMILE;
+  else if(sh==='m') g = R6_SMILE;
+  else if(sh==='hookR') g = R6_HOOK[0];
+  else if(sh==='hookL') g = R6_HOOK[1];
   else g = rboxGeo(1,1,1);
   return _icoGeo[sh] = g;
 }
@@ -16406,7 +16405,7 @@ function tableGroup(rows, colMap){
   return partsGroup((rows||[]).map(r=>{
     let c = r[6]; if(colMap && typeof c === 'string') c = colMap[c];
     if(typeof c === 'string') c = 0xffffff;
-    return [r[7]==='ball' ? 'o' : r[7]==='smile' ? 'm' : r[7]==='cyl' ? 'c' : 'b', c, r[3], r[4], r[5], r[2], r[1], r[0]]; }));
+    return [r[7]==='ball' ? 'o' : r[7]==='smile' ? 'm' : r[7]==='cyl' ? 'c' : r[7]==='hookR' || r[7]==='hookL' ? r[7] : 'b', c, r[3], r[4], r[5], r[2], r[1], r[0]]; }));
 }
 /* 손에 든 것(도구·총·블록)을 새로 만들어 손(흰 천 조각)만 뗀다 */
 function heldGroup(mk){
@@ -16819,7 +16818,7 @@ function startGame(){
 
   if(G.host){ G.day = 1; G.crystal = G.set.crystalMax; goDay(); netBase(); }
   else { toast('들어왔어요! ' + (G.me.g+1) + '모둠 입구를 지켜 주세요', 3, '#c8ffb0'); }
-  if(!isTouch) setTimeout(()=>cv.requestPointerLock(), 300);
+  // 자동 마우스 잠금 금지. 시작 후 사용자가 게임 화면을 직접 클릭할 때만 잠근다.
   selectTool('mine');
 }
 function onPhaseChange(from, to){
@@ -17532,7 +17531,7 @@ addEventListener('pointerdown', audioInit, {once:true});
 addEventListener('touchstart', audioInit, {once:true});
 /* 35차 — 글씨체(주아·해바라기)는 창이 다 뜬 뒤에 따로 받는다 — 첫 화면과 load 를 안 막고, 못 받으면(인터넷 없음) 시스템 글꼴 그대로다.
    구글 폰트는 한글을 100여 조각(unicode-range)으로 잘라 쓰는 글자 조각만 내려 주므로 파일 하나에 굽는 것(1MB+)보다 가볍다. */
-const FONT_URL = 'https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Gothic+A1:wght@500;700;800;900&family=Black+Han+Sans&display=swap';   // 48차 — 로블록스 결(Builder Sans 대신 Montserrat + 고딕 A1) · 42차 Black Han Sans: 초읽기 큰 글씨
+const FONT_URL = 'https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&family=Black+Han+Sans&display=swap';   // 밝은 UI — 본문/단추/제목 굵기 분리. 초읽기 표시체는 보존
 function loadFonts(force){
   if(document.getElementById('gfonts')) return;
   /* 검사기에서는 안 받는다 — 샌드박스엔 인터넷이 없어 콘솔에 인증서 오류만 남는다. 검사는 force 로 받는다.
@@ -17906,7 +17905,7 @@ function loop(){
       }
       /* ★ 3인칭일 때는 내 몸도 그려야 한다. 평소(1인칭)엔 안 그린다.
          쓰러졌을 때 · 줄넘기 · OX 퀴즈 셋 다 여기로 온다(20차). */
-      if(tpvOn()){
+      if(tpvOn() && !camBodyHidden){
         meSheep.x=PL.x; meSheep.y=PL.y; meSheep.z=PL.z; meSheep.ry=PL.yaw;
         meSheep.g=G.me.g|0; meSheep.hat=G.me.hat|0; meSheep.gls=G.me.gls|0; meSheep.clo=G.me.clo|0;
         meSheep.jb=XP.job; meSheep.jt=XP.jt;
@@ -18329,7 +18328,7 @@ Object.assign(window, {
       if(G.phase==='night') hostSim(dt); else if(flowDirty){ buildFlow(); flowDirty=false; } } },
   __BAL:BAL, __waveFor:waveFor, __bossDays:bossDays, __prog:prog, __NIGHT_DEF:NIGHT_DEF, __BOSS_MIX:BOSS_MIX, __nightPool:nightPool, __pickNight:pickNight, __nightFor:nightFor, __setNk:(v)=>{ G.nk = v; },
   __fps:()=>fpsVal, __tagRedraws:()=>tagRedraws, __updTags:()=>updTags(), __loadFonts:loadFonts,   // 48차 — 화면찍기에서 글씨체를 억지로 받는다
-  __drawSheep:drawSheep, __Pmesh:()=>[P_body,P_head,P_arm,P_eye,P_nose,P_legs], __GHEX:GHEX, __render:()=>renderer.render(scene,camera),
+  __drawSheep:drawSheep, __Pmesh:()=>[P_body,P_head,P_arm,P_eye,P_nose,P_legs], __handMeshes:()=>P_hand, __GHEX:GHEX, __render:()=>renderer.render(scene,camera),
   __rebuild:rebuildStru, __markShapeG:markShape, __struDirtyG:()=>({all:struAllG, g:[...struDirtyG]}),   // 47차 — 모둠별 다시 짓기
   __flowDirty:()=>flowDirty, __flowWait:()=>flowWait, __struLastN:()=>struLastN,                         // 47차 — 낮 길 깔기 모으기 · 지난 다시 짓기 크기
   __goNight:goNight, __goDay:goDay, __hostSim:(dt)=>hostSim(dt),
@@ -18409,7 +18408,7 @@ Object.assign(window, {
   __Pmouth:()=>P_mouth,
   /* 27차 — 캐릭터 조각 전부 (t29: 무늬 없는 재질 · 둥근 모양) */
   __charMeshes:()=>({
-    사람:[P_body,P_head,P_arm,P_eye,P_nose,P_mouth,P_legs,P_deco,P_gun],
+    사람:[P_body,P_head,P_arm,...P_hand,P_eye,P_nose,P_mouth,P_legs,P_deco,P_gun],
     좀비:[W_body,W_chest,W_ruff,W_head,W_snout,W_nose,W_tail,W_ears,W_eyes,W_legs,W_paw,W_hack,W_horn],
     농장:[F_body,F_head,F_deco,F_eyes,F_legs,F_muck,F_fly],
     병사:[S_body,S_bodyA,S_head,S_legs,S_spear,S_helm,S_tip,S_face,S_crest,S_shield,S_hat,S_orb],
@@ -18463,6 +18462,8 @@ Object.assign(window, {
   __MINI_NAME:MINI_NAME, __survOn:survOn, __RACE:()=>RACE, __raceRocks:raceRocks, __ROCK:ROCK, __raceGiveWeapon:raceGiveWeapon, __raceGiveArmor:raceGiveArmor, __RACE_RES:RACE_RES, __RACE_FIN:RACE_FIN, __raceHazards:raceHazards, __HAZ:HAZ, __camGY:()=>camGY, __bgmRace:bgmRace, __rockU:rockU, __fovRun:()=>fovRun, __sheepBump:sheepBump, __SHEEP_R2:SHEEP_R2, __kb:()=>({x:kbx, z:kbz}), __kbReset:()=>{ kbx = kbz = 0; }, __RACE_P:()=>RACE_P, __RACE_S:RACE_S, __raceTopAt:raceTopAt, __raceBuild:raceBuild, __raceOn:raceOn, __raceRespawn:raceRespawn, __R_plat:()=>R_plat, __RACE_Z_FIN:RACE_Z_FIN,
   __tpvOn:tpvOn, __tpvKind:tpvKind, __MINI_CAM:()=>MINI_CAM, __DOWN_CAM:()=>DOWN_CAM,
   __camPos:()=>({x:camera.position.x, y:camera.position.y, z:camera.position.z}),
+  __camRig:()=>({zoom:camZoom, distance:camDistance, shoulder:camShoulder, hidden:camBodyHidden}),
+  __cameraClearance:cameraClearance,
   __meSheep:()=>meSheep,
   __updDanger:updDanger, __paintMini:paintMini,
   __applyHitNode:applyHitNode, __survSend:survSend,
