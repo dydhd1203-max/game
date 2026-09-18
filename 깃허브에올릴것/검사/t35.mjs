@@ -121,16 +121,14 @@ const ft = await pg.evaluate(()=>{ const W=window, o={};
   document.querySelectorAll('.pop.on').forEach(p=>p.classList.remove('on'));
   o.hint = px('.shopHint'); o.hrow = px('.hrow'); o.btnPx = px('.btn'); o.slot = px('.slot .nm'); o.feed = px('#feed');
   return o; });
-/* ★ 48차 — 손글씨(주아·해바라기)를 **로블록스 결**로 바꿨다: Montserrat + 고딕 A1.
-   로블록스 Builder Sans 가 Gotham SSm 을 대체한 지오메트릭 산세리프라 계열이 맞다.
-   35차가 지키려던 것(글꼴을 따로 받고, 못 받으면 시스템 글꼴로 내려가고, 글자가 충분히 크다)은 그대로 본다. */
-ok('★ 48차 — 글꼴 주소에 Montserrat(700 이상)과 고딕 A1 이 있다 (로블록스 Builder Sans 결)',
-   /family=Montserrat:wght@[^&]*700/.test(ft.url) && /family=Gothic\+A1/.test(ft.url), ft.url);
+/* 2026-09 — 밝은 UI의 한국어 고딕. 비동기 로딩·대체 글꼴·기존 최소 크기를 지킨다. */
+ok('★ 한국어 고딕 주소에 본문 400·500, 단추 600, 제목 700 굵기가 있다',
+   /family=Noto\+Sans\+KR:wght@400;500;600;700/.test(ft.url), ft.url);
 ok('★ 글꼴은 창이 뜬 뒤 따로 받는다 (link#gfonts) · 미리 연결(preconnect) 둘 · 검사기(webdriver)에서는 저절로 안 받는다', ft.link && ft.pre >= 2 && ft.auto, 'link '+ft.link+' · preconnect '+ft.pre+' · 자동 안 받음 '+ft.auto);
-ok('★ 48차 — 본문·단추·제목이 모두 Montserrat 이다 (로블록스 UI 처럼 한 글꼴 · 못 받으면 시스템 글꼴로 내려간다)',
-   ft.body === 'Montserrat' && ft.btn === 'Montserrat' && ft.h2 === 'Montserrat', ft.body+' / '+ft.btn+' / '+ft.h2);
-ok('★ 상점 카드 이름 17px · 설명 13.5px — 글꼴은 48차에 Montserrat 로 바뀌었고 **크기는 35차 그대로 지킨다**',
-   ft.sn[0] === 'Montserrat' && ft.sn[1] >= 17 && ft.sd[0] === 'Montserrat' && ft.sd[1] >= 13.5, ft.sn.join(' ')+' · '+ft.sd.join(' '));
+ok('★ 본문·단추·제목이 모두 Noto Sans KR 이다 (못 받으면 시스템 글꼴로 내려간다)',
+   ft.body === 'Noto Sans KR' && ft.btn === 'Noto Sans KR' && ft.h2 === 'Noto Sans KR', ft.body+' / '+ft.btn+' / '+ft.h2);
+ok('★ 상점 카드 이름 17px · 설명 13.5px — 한국어 고딕으로 바꿔도 기존 크기를 지킨다',
+   ft.sn[0] === 'Noto Sans KR' && ft.sn[1] >= 17 && ft.sd[0] === 'Noto Sans KR' && ft.sd[1] >= 13.5, ft.sn.join(' ')+' · '+ft.sd.join(' '));
 ok('★ 값 14px · 단추 15px (예전 12 / 12.5)', ft.sc >= 14 && ft.sbtn >= 15, ft.sc+' / '+ft.sbtn);
 ok('★ 가짜 굵게를 안 씌운다 (font-synthesis: none — 없는 굵기를 브라우저가 지어내면 번진다)', /none/.test(String(ft.snSynth)), ft.snSynth);
 ok('★ 글자를 키워도 상점 카드가 옆으로 안 넘친다', ft.cards >= 4 && ft.over === 0 && ft.popFits, ft.cards+'장 · 넘침 '+ft.over+' · 창 '+Math.round(ft.popW)+'px');

@@ -34,8 +34,8 @@ await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
   ok('미리보기가 있다', !!r);
   ok('★ 미리보기 조각에 무늬(텍스처)가 없다', r && r.noMap);
   ok('★ 미리보기 조각이 둥글다 (꼭짓점이 상자 24개보다 많다)', r && r.round);
-  ok('★ 51차e — 미리보기 몸 조각이 열일곱이다 (몸통·머리·눈 둘·입·위팔 둘·손목 둘·갈고리 손 여섯·다리 둘)\n    — 베이컨 머리는 모자 표로 갔고 검은 재킷·소매·신발은 빠졌다. 팔 끝에 갈고리 손이 붙었다',
-     r && r.n === 17, r && r.n);
+  ok('★ 미리보기 몸 조각 열세 개 — 몸통·머리·얼굴·위팔 둘·손목 둘·C자 손 둘·다리 둘',
+     r && r.n === 13, r && r.n);
 }
 
 await pg.fill('#iName','검'); await pg.click('#bSolo');
@@ -122,13 +122,75 @@ await frames(pg, 3);
     return o;
   });
   ok('사람 2명 = 몸통 2', r.사람 === 2, r.사람);
-  ok('★ 51차e — 사람 2명 = 팔 조각 20 · 다리 4 (한 팔이 위팔·손목·갈고리 손 셋 = 다섯 토막)',
-     r.팔 === 20 && r.다리 === 4, '팔 '+r.팔+' 다리 '+r.다리);
+  ok('★ 사람 2명 = 위팔·손목 8 · 다리 4 (C자 손은 별도 곡면 메시)',
+     r.팔 === 8 && r.다리 === 4, '팔 '+r.팔+' 다리 '+r.다리);
   ok('★ 화면의 셔츠(몸통)가 모둠 색이다 (색상 30° 안, 채도 0.2 이상)', r.색상차 < 30 && r.채도 > 0.2,
      `화면 ${r.색}, 모둠 ${r.원하는색}, 색상차 ${r.색상차.toFixed(0)}°, 채도 ${r.채도.toFixed(2)}`);
   ok('★ 몸통 면이 매끈하다 (이웃 픽셀 차 < 6)', r.이웃차 < 6, r.이웃차.toFixed(2));
   ok('삼각형이 예산 안이다 (< 200만)', r.삼각형 < 2000000, r.삼각형);
 }
+/* 손의 빈 공간과 실제 작업/사격 자세를 잰다. 조각 수만 맞아도 손이 막히거나 가만히 있을 수 있다. */
+{
+  const r=await pg.evaluate(()=>{
+    const W=window,T=W.__THREE,G=W.__G, oldStarted=G.started,oldAim=W.__aimMode(),oldWp=W.__KIT.wpn;
+    G.started=false;
+    const hands=W.__handMeshes(), m=new T.Matrix4(), p=new T.Vector3(), q=new T.Quaternion(), sc=new T.Vector3();
+    const probe=(geo,x,y)=>{const mesh=new T.Mesh(geo,new T.MeshBasicMaterial({side:T.DoubleSide}));
+      mesh.updateMatrixWorld(); const ray=new T.Raycaster(new T.Vector3(x,y,2),new T.Vector3(0,0,-1));
+      const hit=ray.intersectObject(mesh).length>0; mesh.material.dispose(); return hit; };
+    const holes=hands.every(h=>!probe(h.geometry,0,0));
+    const mouths=!probe(hands[0].geometry,-0.43,0)&&!probe(hands[1].geometry,0.43,0);
+    const palms=probe(hands[0].geometry,0.40,0)&&probe(hands[1].geometry,-0.40,0);
+    const f={x:0,y:3,z:0,ry:Math.PI,g:0,ph:0,wp:0,mv:false,down:false};
+    const pose=()=>{W.__drawSheep([f],4,40,()=>0x55aaff,1);
+      hands[0].getMatrixAt(0,m);m.decompose(p,q,sc);const hp=p.clone(),hq=q.clone();
+      W.__Pmesh()[2].getMatrixAt(1,m);m.decompose(p,q,sc);const aligned=1-Math.abs(q.dot(hq))<0.00001;
+      const gap=hp.distanceTo(p);W.__Pmesh()[0].getMatrixAt(0,m);const body=Array.from(m.elements);
+      const gun=W.__gunMeshes()[0];gun.getMatrixAt(0,m);const tool=new T.Vector3().setFromMatrixPosition(m);
+      return {hp:hp.toArray(),gap,aligned,body,tool:tool.toArray(),n:gun.count}; };
+    f.air=true;f.vy=-3;const fall=pose();f.vy=4;const rise=pose();f.air=false;
+    W.__setAim(false,true);W.__updHeld(0.016,true,0.28);
+    Object.assign(f,{act:W.__meSheep().act,actP:W.__meSheep().actP,tool:'mine'}); const ready=pose();
+    W.__updHeld(0.016,true,0.64);f.actP=W.__meSheep().actP;const hit=pose();
+    W.__KIT.wpn=1;W.__setAim(true,true);W.__updHeld(0.016,false,0);
+    f.act='';f.tool='';f.wp=W.__meSheep().wp;f.kick=0;const hold=pose();
+    W.__gunRecoil(1);W.__updHeld(0.016,false,0);f.kick=W.__meSheep().kick;const fire=pose();
+    const distance=(a,b)=>Math.hypot(...a.map((x,i)=>x-b[i]));
+    W.__KIT.wpn=oldWp;W.__setAim(oldAim,true);G.started=oldStarted;
+    return {holes,mouths,palms,fall,rise,ready,hit,hold,fire,
+      handMove:distance(ready.hp,hit.hp),toolMove:distance(ready.tool,hit.tool),
+      bodyMove:distance(ready.body,hit.body),kickMove:distance(hold.hp,fire.hp),wp:f.wp};
+  });
+  ok('★ C자 손 한가운데가 실제로 뚫려 있다 (중앙 광선이 통과)',r.holes);
+  ok('★ C자 입은 양손 모두 몸 쪽으로 열리고 반대편 손바닥은 이어져 있다',r.mouths&&r.palms);
+  ok('★ 낙하·만세에서 C자 손과 손목 회전이 일치하고 붙어 있다',
+    r.fall.aligned&&r.rise.aligned&&r.fall.gap<0.13&&r.rise.gap<0.13,JSON.stringify([r.fall.gap,r.rise.gap]));
+  ok('★ 실제 채집 진행률에 따라 손과 도구가 0.5칸 이상 휘둘러진다',
+    r.handMove>0.5&&r.toolMove>0.5&&r.ready.n===3,`${r.handMove} / ${r.toolMove}`);
+  ok('★ 채집 때 팔뿐 아니라 몸통도 힘을 싣는다',r.bodyMove>0.10,r.bodyMove);
+  ok('★ 내 3인칭 무기가 연결되고 발사 반동이 손·어깨로 전달된다',r.wp===1&&r.fire.n===3&&r.kickMove>0.05,r.kickMove);
+}
+/* 실제 발사 → 즉시 작업 / 탄약 없는 돌 투척: 이전 장비 표시가 동작을 덮지 않아야 한다. */
+await pg.evaluate(()=>{
+  const W=window;W.__G.started=true;W.__G.paused=false;W.__G.phase='day';W.__PL.down=false;
+  W.__setActing(false);W.__setThrow(false);
+  document.querySelectorAll('.pop').forEach(e=>e.classList.remove('on'));
+});
+await pg.waitForFunction(()=>window.__throwCd()<=0);
+const workAfterShot=await pg.evaluate(()=>{
+  const W=window;W.__KIT.wpn=3;W.__KIT.ammo=20;W.__setAim(true,true);W.__fireWeapon();
+  W.__setAim(false,true);W.__selTool('mine');W.__updHeld(0.016,true,0.4);
+  const s=W.__meSheep();return {wp:s.wp,tool:s.tool,act:s.act,kick:s.kick};
+});
+ok('★ 발사 직후 채집하면 총 대신 작업 도구를 휘두른다',
+  workAfterShot.wp===0&&workAfterShot.tool==='mine'&&workAfterShot.act==='mine'&&workAfterShot.kick===0,JSON.stringify(workAfterShot));
+await pg.waitForFunction(()=>window.__throwCd()<=0);
+const emptyAmmo=await pg.evaluate(()=>{
+  const W=window;W.__KIT.wpn=3;W.__KIT.ammo=0;W.__setAim(true,true);W.__fireWeapon();W.__updHeld(0.016,false,0);
+  const s=W.__meSheep();return {wp:s.wp,tool:s.tool,act:s.act};
+});
+ok('★ 탄약이 없어 돌을 던질 때 총·곡괭이가 손에 남지 않는다',
+  emptyAmmo.wp===0&&emptyAmmo.tool===''&&emptyAmmo.act==='throw',JSON.stringify(emptyAmmo));
 await pg.close();
 
 console.log('');

@@ -261,6 +261,9 @@ const gun = await pg.evaluate(async ()=>{
     W.__pcMap.set(uid,{n:'친구'+i, g:i, lv:20, wp, we, mined:0, built:0});
   });
   await frames(8);
+  // 내 3인칭 곡괭이도 장비 메시를 쓴다. 이 검사는 통신을 반영한 친구 목록만 그려 확인한다.
+  const drawFriends=()=>W.__drawSheep([...G.players.values()],1,40,s=>W.__GHEX[s.g],0.70);
+  drawFriends();
   const [G1,G2] = W.__gunMeshes();
   o.총칸 = G1.count; o.빛칸 = G2.count;
   o.총보임 = G1.visible; o.빛보임 = G2.visible;
@@ -269,6 +272,7 @@ const gun = await pg.evaluate(async ()=>{
   /* 아무도 총을 안 들면 통째로 숨는다 */
   for(const k of W.__pcMap.keys()) W.__pcMap.get(k).wp = 0;
   await frames(8);
+  drawFriends();
   const [H1,H2] = W.__gunMeshes();
   o.빈칸숨김 = !H1.visible && !H2.visible;
 
@@ -276,6 +280,7 @@ const gun = await pg.evaluate(async ()=>{
   for(const k of W.__pcMap.keys()) W.__pcMap.get(k).wp = 5;
   for(const p of G.players.values()) p.down = true;
   await frames(8);
+  drawFriends();
   o.쓰러지면숨김 = !W.__gunMeshes()[0].visible;
   for(const p of G.players.values()) p.down = false;
 

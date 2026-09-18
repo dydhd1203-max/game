@@ -29,6 +29,13 @@ const SETUP = `const W=window, G=W.__G, PL=W.__PL, K=W.__KIT, o={};
   const r = await pg.evaluate(new Function(SETUP + `
     o.sfx = ['hit','crit','kill'].every(k=>W.__SFXKEYS().includes(k));
     o.flash0 = !W.__flash().visible; o.rings0 = W.__rings().every(r=>r.t<=0); o.fov0 = W.__cam.fov; o.FOV0 = W.__FOV0;
+    // 외부 40ms 폴링은 부하 때 짧은 펀치를 통째로 놓친다. 실제 카메라 갱신을 관찰한다.
+    const updateProjection = W.__cam.updateProjectionMatrix;
+    W.__t34Fov = {max:W.__cam.fov, restore:()=>{ W.__cam.updateProjectionMatrix=updateProjection; }};
+    W.__cam.updateProjectionMatrix = function(...args){
+      W.__t34Fov.max = Math.max(W.__t34Fov.max, this.fov);
+      return updateProjection.apply(this,args);
+    };
     W.__goNight(); K.ammo = 99;
     const w = mk(); o.aimed = !!W.__aimWolf(); fire(3);
     o.hurtNow = w.hurt; o.kT = w.kT; o.kDir = [+(w.kx||0).toFixed(2), +(w.kz||0).toFixed(2)];
@@ -39,23 +46,23 @@ const SETUP = `const W=window, G=W.__G, PL=W.__PL, K=W.__KIT, o={};
     o.mark = ch.classList.contains('hit') && !ch.classList.contains('critHit') && !ch.classList.contains('killHit');
     return o;`));
   ok('맞는 소리 셋 — hit · crit · kill 이 소리표에 있다', r.sfx);
-  ok('처음엔 섬광이 꺼져 있고 고리가 하나도 없고 FOV 는 기본(74)', r.flash0 && r.rings0 && r.fov0 === r.FOV0, r.fov0);
+  ok('처음엔 섬광이 꺼져 있고 고리가 하나도 없고 FOV 는 기본값', r.flash0 && r.rings0 && r.fov0 === r.FOV0, r.fov0);
   ok('좀비를 겨눴다', r.aimed);
   ok('★ 맞는 순간 좀비가 **바로** 움찔한다 (hurt 0.18 · 호스트 왕복을 안 기다린다)', r.hurtNow >= 0.17, r.hurtNow);
   ok('★ 쏜 방향으로 밀린다 (kT 0.16 · 방향은 조준선)', r.kT >= 0.15 && Math.abs(r.kDir[0]) + Math.abs(r.kDir[1]) > 0.9, r.kT+' '+r.kDir.join(','));
   ok('★ 총구 섬광이 뜬다 (0.06초)', r.flashOn && r.flashT > 0.05, r.flashT);
   ok('★ 맞은 자리에 충격 고리가 생긴다 — 총의 예광탄 색으로, 좀비 자리에', r.ringLive >= 1 && r.ringCol === r.tr && r.ringNearWolf < 0.5, r.ringLive+' · 0x'+r.ringCol.toString(16)+' · '+r.ringNearWolf+'칸');
   ok('맞으면 조준점 흰 X', r.mark);
-  /* 시야 펀치 — 다음 실제 프레임에서 카메라에 얹힌다. 잠깐 폴링해 최고를 잡고, 가라앉기를 기다린다 */
-  let fovMax = 0;
-  for(let i=0;i<12;i++){ fovMax = Math.max(fovMax, await pg.evaluate(()=>window.__cam.fov)); await pg.waitForTimeout(40); }
-  ok('★ 시야 펀치 — 쏘면 FOV 가 오른다(≤4°)', r.fovKick > 0.5 && r.fovKick <= 4 && fovMax > r.FOV0, r.fovKick.toFixed(2)+' · 최고 '+fovMax.toFixed(2));
+  /* 다음 실제 프레임의 카메라 투영 갱신에서 최고값을 보관하므로 이미 가라앉았어도 놓치지 않는다. */
+  await pg.waitForFunction(()=>window.__t34Fov.max>window.__FOV0, null, {timeout:8000}).catch(()=>{});
+  const fovMax = await pg.evaluate(()=>{ const sample=window.__t34Fov; sample.restore(); delete window.__t34Fov; return sample.max; });
+  ok('★ 시야 펀치 — 쏘면 FOV 가 오른다(≤4°)', r.fovKick > 0.5 && r.fovKick <= 4 && fovMax > r.FOV0 && fovMax <= r.FOV0+4, r.fovKick.toFixed(2)+' · 최고 '+fovMax.toFixed(2));
   await pg.waitForFunction(()=>window.__fovKick()===0 && window.__cam.fov===window.__FOV0 && !window.__flash().visible, null, {timeout:8000}).catch(()=>{});
   const r2 = await pg.evaluate(()=>{ const W=window, w=W.__G.wolves[0], ch=document.getElementById('crosshair');
     return {fov:W.__cam.fov, kick:W.__fovKick(), flashOff:!W.__flash().visible, kT:w ? w.kT : -1,
             ringsGone:W.__rings().every(r=>r.t<=0), rMeshHidden:!W.__rMesh().visible,
             markGone:!ch.classList.contains('hit') && !ch.classList.contains('critHit') && !ch.classList.contains('killHit')}; });
-  ok('가라앉은 뒤 — FOV 는 74 로 돌아오고 섬광은 꺼진다', r2.fov === r.FOV0 && r2.kick === 0 && r2.flashOff, r2.fov+' · '+r2.kick);
+  ok('가라앉은 뒤 — FOV 는 기본값으로 돌아오고 섬광은 꺼진다', r2.fov === r.FOV0 && r2.kick === 0 && r2.flashOff, r2.fov+' · '+r2.kick);
   ok('밀림은 그리기가 되돌린다 (kT 가 0.16 에서 줄어든다)', r2.kT < 0.16, r2.kT);
   ok('고리·히트마커는 다 사라졌다 (고리 메시는 숨는다)', r2.ringsGone && r2.rMeshHidden && r2.markGone);
   const r3 = await pg.evaluate(new Function(SETUP + `

@@ -1,4 +1,4 @@
-/* 23차 — 스탯을 넷으로 바꾼 뒤 밸런스가 어디로 갔나 + 가방이 매 프레임 쓰는 값
+/* 스탯 밸런스 비교와 장비 가방을 갱신하는 비용
    ★ 옛 판과 새 판을 같은 자로 같은 판에서 잰다. */
 import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
@@ -43,14 +43,13 @@ console.log(await pg.evaluate((OLD)=>{
     L.push('  날쌘좀비 초속 ' + W.__WOLF_T.find(x=>/날쌘/.test(x.n)).spd
          + ' — 민첩을 다 찍은 사람보다 ' + (W.__WOLF_T.find(x=>/날쌘/.test(x.n)).spd
             < 5.4*(1+0.015*W.__STATS[S.agi].max) ? '느리다 (못 쫓는다)' : '빠르다 (쫓는다)'));
-    /* 가방이 매 프레임 더 쓰는 값 — pvwSpin 하나뿐이다 */
+    /* 가방은 구입·장착 때만 DOM을 갱신하며 별도 3D 미리보기가 없다. */
     W.__openKit();
     const bench=(n,f)=>{ for(let i=0;i<5;i++) f(); const t=performance.now();
       for(let i=0;i<n;i++) f(); return (performance.now()-t)/n; };
-    const P = W.__kitPvw && W.__kitPvw();
-    L.push('── 가방을 열어 둔 동안 한 프레임에 더 드는 값 ──');
-    L.push('  미리보기 돌리기 ' + (P ? bench(200, ()=>W.__pvwSpin(P, 1/60)).toFixed(3) : '?') + ' ms/프레임'
-         + '  (예산 16.7ms · 가방을 닫으면 0)');
+    if(document.querySelector('#kitPvw,#kitDoll,#kSlotL')) throw new Error('진행 중 가방에 꾸미기 UI가 다시 생겼습니다.');
+    L.push('── 장비 가방을 한 번 갱신하는 비용 ──');
+    L.push('  목록 갱신 ' + bench(200, ()=>W.__buildKitUI()).toFixed(3) + ' ms/회 (구입·장착 때 갱신)');
     document.getElementById('popKit').classList.remove('on');
   }
   return L.join('\n');

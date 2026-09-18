@@ -188,10 +188,15 @@ const out = await pg.evaluate(async ()=>{
   /* ───── 인벤토리 ───── */
   W.__openKit();
   ok('★ I 로 가방이 열린다', document.getElementById('popKit').classList.contains('on'));
-  /* ★ 23차에 가방이 인형옷 화면으로 바뀌었다. 예전엔 `#kitW .kitIt` 처럼 **화면 모양을 베껴**
-     세고 있어서, 게임은 멀쩡한데 검사만 셋이 빨개졌다(22차 t15 와 같은 종류).
-     이제 게임에 '가방에 뭐가 깔리나'(__kitItems)를 물어보고, 화면은 '켜진 칸이 있나' 만 본다. */
+  /* 실제 보유 목록과 현재 장비 표시를 확인한다. 꾸미기는 대기실에서만 고른다. */
   const items = W.__kitItems();
+  ok('가방은 장비·소모품만 담고 아바타 편집을 제공하지 않는다',
+     items.every(x=>['wpn','arm','pot'].includes(x.t)) && !document.querySelector('#kitPvw,#kitDoll,#kSlotL')
+     && document.querySelectorAll('#kitTabs button').length===4);
+  const dressBefore=JSON.stringify([G.me.hat,G.me.gls,G.me.clo]);
+  const rejected=['hat','gls','clo'].every(t=>W.__wearDeco(t,1)===false);
+  ok('입장 후 모자·장식·옷을 바꾸려 해도 현재 착장이 유지된다',
+     G.started && rejected && JSON.stringify([G.me.hat,G.me.gls,G.me.clo])===dressBefore);
   const wCards = items.filter(x=>x.t === 'wpn').length;
   ok('★ 산 무기만 목록에 나온다 (맨손 돌 + 산 3자루 = 4)', wCards === 4, wCards);
   ok('산 갑옷만 나온다 (털만 믿기 + 산 2벌 = 3)',
