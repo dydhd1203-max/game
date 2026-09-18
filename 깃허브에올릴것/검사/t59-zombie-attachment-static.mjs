@@ -24,11 +24,10 @@ function audit(name,k,mesh,indices){const poses=cases.map(c=>snapshot(k,c)),base
 audit('Torn shirt hem keeps its torso-local mounting point',0,'W_chest',[0]);
 audit('Collar keeps its torso-local mounting point',0,'W_ruff',[0]);
 audit('Belt keeps its torso-local mounting point',0,'W_belly',[0]);
-audit('Sewn shirt patch moves with the leaning torso',0,'W_rib',[3]);
-audit('Hungry zombie ribs move with the leaning torso',8,'W_rib',[4,5,6,7]);
+audit('Hungry zombie ribs move with the leaning torso',8,'W_rib',[2,3,4,5]);
 // Armor order: four shin plates, then 17 torso/shoulder plates, then helmet.
 audit('Armored chest, back, skirt and shoulder pieces share the torso frame',9,'W_plate',Array.from({length:17},(_,i)=>i+4));
-audit('Shared costume rows use the same torso frame as the shirt',0,'W_costume',[3,4,5,6]);
+audit('Overalls and straps use the same torso frame as the shirt',2,'W_costume',[3,4,5,6]);
 audit('Healer back gem stays mounted while its own shape rotates',10,'W_gem',[0]);
 console.log(`${checks.filter(Boolean).length}/${checks.length} zombie attachment checks passed.`);
 process.exitCode=checks.every(Boolean)?0:1;

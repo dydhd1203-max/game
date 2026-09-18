@@ -7880,7 +7880,7 @@ const dreadRingMat = new THREE.MeshBasicMaterial({color:0x1a0a26, transparent:tr
 const W_belly  = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.cloth, MAXW, 1),
       W_brow   = imesh(ZOMBIE_GEO.taper, ZOMBIE_MAT.detail, MAXW*2, 1),
       W_cheek  = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.skin, MAXW*2, 1);
-const W_rib    = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.detail, MAXW*10, 1),
+const W_rib    = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.detail, MAXW*10, 1), // 눈 그늘·굶주린 좀비의 갈비·턱
       W_tongue = imesh(RBs, tongueMat, MAXW, 1),
       W_plate  = imesh(RB,  plateMat, MAXW*36, 1),    // 갑옷 32조각/마리와 다음 마리 검사 여유까지 확보
       W_gem    = imesh(new THREE.OctahedronGeometry(0.5, 0), gemMat, MAXW, 1),
@@ -8822,12 +8822,12 @@ const K_LOOK = nm => WOLF_T.findIndex(t => t.look === nm);
 const K_HUNGRY = K_LOOK('hungry'), K_ARMOR = K_LOOK('armor'), K_HEAL = K_LOOK('heal'), K_PUP = K_LOOK('pup'), K_FEAR = K_LOOK('fear');
 /* ═══ 종류별 몸꼴 (그리기 배율). 같은 부위 메시를 쓰되 비율로 실루엣을 가른다 ═══ */
 const LOOKS = {
-  base:  {bw:1.00, bh:1.00, hw:1.00, er:1.00, eye:1.00, hpit:0.00, bob:1.0, tail:0.00, hack:-1, hackUp:1.0},
-  hungry:{bw:0.80, bh:0.88, hw:0.98, er:1.00, eye:1.05, hpit:0.22, bob:1.0, tail:-0.35, hack:3, hackUp:0.8},   // 마르고 고개를 떨군다
-  armor: {bw:1.12, bh:1.06, hw:1.05, er:0.90, eye:1.00, hpit:-0.05, bob:0.8, tail:0.00, hack:0, hackUp:1.0},   // 두껍고 낮게
-  heal:  {bw:0.92, bh:0.95, hw:1.00, er:1.10, eye:1.10, hpit:0.00, bob:1.0, tail:0.20, hack:2, hackUp:0.7},   // 가늘고 귀가 크다
-  pup:   {bw:1.05, bh:1.05, hw:1.28, er:1.35, eye:1.25, hpit:0.05, bob:1.8, tail:0.50, hack:0, hackUp:1.0},   // 아기 비율 — 머리·귀·눈 크게, 통통 튄다
-  fear:  {bw:1.00, bh:1.02, hw:1.06, er:0.85, eye:1.55, hpit:0.10, bob:0.9, tail:-0.10, hack:5, hackUp:1.25}    // 갈기가 곤두서고 눈이 크다
+  base:  {bw:1.00, bh:1.00, hw:1.00, er:1.00, eye:1.00, hpit:0.00, bob:1.0, tail:0.00},
+  hungry:{bw:0.80, bh:0.88, hw:0.98, er:1.00, eye:1.05, hpit:0.22, bob:1.0, tail:-0.35},   // 마르고 고개를 떨군다
+  armor: {bw:1.12, bh:1.06, hw:1.05, er:0.90, eye:1.00, hpit:-0.05, bob:0.8, tail:0.00},   // 두껍고 낮게
+  heal:  {bw:0.92, bh:0.95, hw:1.00, er:1.10, eye:1.10, hpit:0.00, bob:1.0, tail:0.20},   // 가늘고 귀가 크다
+  pup:   {bw:1.05, bh:1.05, hw:1.28, er:1.35, eye:1.25, hpit:0.05, bob:1.8, tail:0.50},   // 아기 비율 — 머리·귀·눈 크게, 통통 튄다
+  fear:  {bw:1.00, bh:1.02, hw:1.06, er:0.85, eye:1.55, hpit:0.10, bob:0.9, tail:-0.10}    // 깊은 눈 그늘과 긴 송곳니
 };
 /* ★ 보스인지 아닌지는 표를 본다. 번호로 가리면 표에 한 줄 붙일 때마다 조용히 틀어진다. */
 const isBoss   = k => !!(WOLF_T[k] && WOLF_T[k].boss);
@@ -8983,10 +8983,6 @@ function drawWolves(list, t, dt){
                 : (lurch - Math.max(-0.20, Math.min(0.20, PZ.turn*0.045)) + (1 - mvK)*life.sway*0.02);
       if(Math.abs(phi) > 0.002) flipSet(w.x, y + (dead > 0 ? 0.30 : 0.40)*sc, w.z, fx, 0, fz, phi); }
 
-    /* 공격성 — 멈춰서 물기 시작하면 서서히 1로 차오른다. 등갈기가 이걸 따라 솟는다. */
-    w.ag = (w.ag===undefined ? 0 : w.ag) + (((w.mv || dead > 0) ? 0 : 1) - (w.ag||0)) * Math.min(1, dt*5.0);
-    const ag = w.ag;
-
     const col = w.hurt>0 ? (w.hurt > 0.12 ? 0xffffff : 0xb8f0df)                 // 피 대신 민트 타격 반짝임
                          : (w.healed>0 ? 0x9dffb3 : rankTint(w.col!==undefined ? w.col : d.col, boss?0:rk));   // 36차 — 치유 받으면 잠깐 초록
     const thrust=bite*.54-crouch*.15-hunt.alert*.055;
@@ -9010,7 +9006,7 @@ function drawWolves(list, t, dt){
     /* 셔츠는 종류 색을 한 번 어둡게 한 것 — 때 묻고 헤진 옷으로 읽히고, 우리 편의 밝은 모둠 색과도 갈린다.
        ★ 더 어둡게 하면 몸통이 통째로 검은 판이 된다(0.26 에서 그랬다) — 바탕 재질 색이 이미 한 번 곱해진다. */
     const shirt  = hit ? col : furLight(rankTint(ZS.shirt,boss?0:rk),.10);
-    const shirtD = hit ? col : zomDark(shirt, 0.23);
+    const shirtD = hit ? col : zomDark(shirt, 0.15);
     const TU = R6_TU, HIP = R6_HIP, SHU = R6_SHU;
     const ZY = (u)=> y + u*sc*LK.bh + bob;
     const ZX = (f,sd)=> w.x + bx + fx*f*sc + rx*sd*sc*LK.bw;
@@ -9031,7 +9027,7 @@ function drawWolves(list, t, dt){
     B(W_chest,n,0,TU-.19,0,R6_TOR[0]*.88*LK.bw,.18*LK.bh,.32,shirtD,rag*.16,rag*.22);
     B(W_ruff,n,0,TU+.25,0,R6_TOR[0]*.84*LK.bw,.10*LK.bh,.30,shirtD,-rag*.12,-rag*.18);
     // 허리띠
-    B(W_belly,n,0,HIP+.03,0,R6_TOR[0]*.86*LK.bw,.075*LK.bh,.29,0x343c43);
+    B(W_belly,n,0,HIP+.03,0,R6_TOR[0]*.86*LK.bw,.055*LK.bh,.28,shirtD);
 
     /* ── 머리 뭉치 ──
        눈·코·입·귀·머리털·투구는 "머리에 붙은 것"이라 머리가 숙이고 돌면 같이 따라가야 한다.
@@ -9051,9 +9047,10 @@ function drawWolves(list, t, dt){
     const HZ=(f,u,s)=> hz0 + hfz*cph*f + hfz*sph*u + hrz*s;
     setIR(W_head, n, hx0, hy0, hz0, hYaw, hPit,
       .62*hw0,.65*hw0,.51*hw0,skin);
-    /* 머리털 — 51차b: 판 하나였을 때는 **베레모를 쓴 것처럼** 보였다. 크기와 기울기가 다른 세 덩이로
-       나누고 좀비마다 헝클어진 정도를 달리해, 실루엣 위쪽이 들쭉날쭉하게 만든다. */
-    { const hz = (((w.ph||0)*4.3) % 1 - 0.5);
+    const gear=w.k===0?ZOMBIE_NIGHT[Math.max(0,G.nk|0)%ZOMBIE_NIGHT.length]:ZS.gear;
+    // 닫힌 모자 속 머리털은 겹쳐 그리지 않는다. 왕관과 맨머리에는 헝클어진 윤곽을 남긴다.
+    const coveredHair=gear==='cap'||gear==='hood'||gear==='runner'||gear==='overalls'||gear==='coat'||gear==='armor'||(boss&&d.boss!==1&&d.boss!==5);
+    if(!coveredHair){ const hz = (((w.ph||0)*4.3) % 1 - 0.5);
       const TUFT = [[-0.02, 0.19, 0,     0.53, 0.15, 0.50,  0.00],
                     [-0.16, 0.24, 0.10,  0.26, 0.17, 0.26,  0.30],
                     [ 0.10, 0.25,-0.13,  0.22, 0.19, 0.22, -0.34]];
@@ -9094,13 +9091,6 @@ function drawWolves(list, t, dt){
       setIR(W_rib, rib++, HX(oF,oU,oS), HY(oF,oU), HZ(oF,oU,oS), hYaw, hPit,
         0.20*hw, 0.15*hw, 0.038*hw, 0x26312c);
     }
-    /* 피 없이 턱의 흙 얼룩과 낡은 천 조각으로 오래된 좀비를 표현한다. */
-    { const bF = 0.225*hw, bU = -0.175*hw, bS = (0.045 + 0.055*(((w.ph||0)*6.7) % 1))*hw*((w.ph||0) % 2 < 1 ? 1 : -1);
-      setIR(W_rib, rib++, HX(bF,bU,bS), HY(bF,bU), HZ(bF,bU,bS), hYaw, hPit,
-        0.045*hw, 0.08*hw, 0.05*hw, zomDark(skin,.22)); }
-    /* 꿰맨 셔츠 조각 — 상처가 아니라 옷의 패치 */
-    { const wx = (((w.ph||0)*2.3) % 1 - 0.5)*0.30;
-      B(W_rib,rib++,.154,TU+.05+wx*.3,wx,.17*LK.bw,.11,.024,0xb4ab89,0,.7+wx); }
     // 눈썹(코 쪽이 처진 성난 V — 새끼는 반대로 살짝 올려 순하게) · 움푹 팬 볼
     for(const si of [1,-1]){
       const bF = 0.272*hw, bU = (0.15 + LK.eye*0.01)*hw, bS = 0.135*hw*si;
@@ -9108,9 +9098,9 @@ function drawWolves(list, t, dt){
         (look==='pup' ? 0.12 : look==='fear' ? 0.36 : 0.26)*si,
         (look==='fear' ? 0.19 : 0.14)*hw, (look==='fear' ? 0.06 : 0.04)*hw, 0.06*hw,
         look==='fear' ? 0x08060c : 0x1e1b24);
-      const cF = 0.244*hw, cU = -0.07*hw, cS = 0.22*hw*si;
+      const cF = 0.239*hw, cU = -0.07*hw, cS = 0.22*hw*si;
       setIR(W_cheek, en-2+(si>0?0:1), HX(cF,cU,cS), HY(cF,cU), HZ(cF,cU,cS), hYaw, hPit,
-        0.06*hw, 0.14*hw, 0.10*hw, zomDark(skin, 0.26));
+        0.075*hw, 0.09*hw, 0.026*hw, zomDark(skin, 0.10));
     }
 
     /* 54차 — 얼굴·의상은 실제 머리/몸 축에 붙는다. 종류는 실루엣으로, 밤은 추가 의상으로 읽는다. */
@@ -9120,13 +9110,10 @@ function drawWolves(list, t, dt){
     const H=(f,u,sd,ww,hh,dd,cc,rz0=0)=>setIR3(W_costume,costume++,HX(f*hw,u*hw,sd*hw),HY(f*hw,u*hw),HZ(f*hw,u*hw,sd*hw),hYaw,hPit,rz0,ww*hw,hh*hw,dd*hw,cc);
     // 이가 듬성듬성 남은 작은 입. 흉포함을 유혈 없이 표정으로 만든다.
     if(look!=='fear') for(let q=0;q<3;q++) H(.296,-.095-bite*.035,(q-1)*.07,.044,.058,.027,0xd9dcc3);
-    // 자락의 길이가 서로 다르고 누런 패치와 바느질이 남은 옷.
-    for(let q=0;q<4;q++) C(.015,HIP+.03-(q%2)*.055,(q-1.5)*.14*LK.bw,.155*LK.bw,.22+(q%2)*.11,.34,shirtD,(q-1.5)*.045);
-    const gear = w.k===0 ? ZOMBIE_NIGHT[Math.max(0,G.nk|0)%ZOMBIE_NIGHT.length] : ZS.gear;
     if(gear==='cap'){H(-.025,.32,0,.66,.13,.58,0x5b6354);H(.29,.285,.045,.56,.065,.26,0x6d755f);}
     if(gear==='hood'||gear==='runner'){
       H(-.05,.34,0,.69,.16,.58,shirtD);for(const side of [-1,1])H(-.05,.09,side*.32,.12,.48,.57,shirtD);
-      if(gear==='runner'){C(.20,TU+.24,0,.50,.12,.08,0xb39472);C(-.20,TU+.02,.19,.16,.43,.07,0xb39472,.22);}
+      if(gear==='runner')C(.18,TU+.24,0,.45,.10,.04,0xb39472);
     }
     if(gear==='jacket'||gear==='rags'){
       for(const side of [-1,1]){C(.18,TU+.11,side*.14,.14,.38,.06,gear==='rags'?0xb9b29a:0x82919b,side*.20);}
@@ -9145,7 +9132,7 @@ function drawWolves(list, t, dt){
       H(-.02,.33,0,.66,.16,.52,0xc6d4c9);H(.267,.33,0,.11,.09,.035,0x5bbaa0);
     }
     if(gear==='cloak'||boss){
-      for(let q=0;q<5;q++)C(-.20,HIP+.28+(q%2)*.035,(q-2)*.14,.17,.92-(q%2)*.11,.10,boss?0x554161:0x4b425d,(q-2)*.09);
+      C(-.19,HIP+.28,0,.72*LK.bw,.92,.075,boss?0x554161:0x4b425d);
       for(const side of [-1,1])C(-.03,TU+.25,side*.27,.23,.27,.38,shirtD,side*.36);
     }
     if(boss){
@@ -9164,7 +9151,7 @@ function drawWolves(list, t, dt){
         H(-.04,.28,0,.70,.22,.61,0x50535f);
         for(const side of [-1,1]){H(-.08,.49,side*.31,.15,.48,.16,bc,-side*.40);H(.23,.24,side*.23,.13,.28,.13,bc,side*.35);}
       }
-      for(const side of [-1,1]){C(0,SHU,side*.48,.30,.23,.42,bc);C(.20,TU+.05,side*.22,.10,.39,.07,bc);}
+      for(const side of [-1,1])C(0,SHU,side*.48,.30,.23,.42,bc);
       if(bi===2||bi===4)for(let q=0;q<3;q++)C(.21,TU+.14-q*.12,0,.27,.065,.05,bi===2?0xf3bb64:0xd09679);
       if(bi===3)for(const side of [-1,1])H(-.12,.28,side*.36,.13,.43,.16,0xc6edf0,side*.25);
       if(bi===5)C(.24,TU+.12,0,.20,.26,.08,0x9e84c9,.20);
@@ -9196,7 +9183,7 @@ function drawWolves(list, t, dt){
          팔 끝만 크게 보여 **팔이 몸에서 떨어진 상자**처럼 읽힌다. 어깨에 옷이 걸쳐 있으면 이어져 보인다. */
       if(hn < W_hack.count_max)
         limb2(W_hack, hn++, ax, ay, az, fx, fz, rx, rz, ry + roll, upper, rl,
-          0, L*0.46, R6_ARM[0]*sc*1.16, R6_ARM[2]*sc*1.16, shirtD);
+          .018*sc, L*0.46, R6_ARM[0]*sc*1.16, R6_ARM[2]*sc*1.16, shirtD); // 어깨와 소매의 마감면을 겹치지 않는다.
       // 손목보다 넓은 납작한 손바닥과 두 마디로 구부러진 손가락.
       const stt=Math.sin(fore),ctt=Math.cos(fore),hm=foreL*.95;
       setIR3(W_paw,pn++,ex+(fx*stt*cr+rx*sr)*hm,ey-ctt*cr*hm,ez+(fz*stt*cr+rz*sr)*hm,
@@ -9229,13 +9216,6 @@ function drawWolves(list, t, dt){
         setIR3(W_plate,pl++,gx+fx*c1*.03*sc,gy2+s1*.03*sc,gz+fz*c1*.03*sc,ry+roll,-th,rl,.26*sc,.28*sc*LK.bh,.34*sc,0x8e98a6); }
     }
 
-    // 굽은 등에 붙은 낡은 천 주름. 공격 전에 짧게 솟되 몸 밖의 막대판처럼 분리되지 않는다.
-    const hackN = LK.hack >= 0 ? LK.hack : Math.min(6, 3 + rk);
-    for(let h=0; h<hackN; h++){
-      const up = (0.075 + rk*.015 + ag*.045 + crouch*.035) * LK.hackUp;
-      const u0 = TU + 0.24 - h*0.11;
-      B(W_hack,hn++,-.115-up*.35,u0,Math.sin(h*1.9)*.035,.11+rk*.008,.085,up,shirtD);
-    }
     /* ═══ 36차 — 종류별 조각 (51차에 선 몸으로 옮겼다. 행동·세기는 한 줄도 안 바꿨다) ═══ */
     if(look === 'hungry'){
       /* 갈비뼈 — 찢긴 셔츠 사이로 드러난 갈비 넉 대. 굶주려 뼈가 드러난 좀비 */
@@ -9275,7 +9255,6 @@ function drawWolves(list, t, dt){
       const H = (f,u,sd, pit, sx,sy,sz, c)=> setIR(W_plate, pl++, HX(f*hw,u*hw,sd*hw), HY(f*hw,u*hw), HZ(f*hw,u*hw,sd*hw), hYaw, hPit+pit, sx*hw, sy*hw, sz*hw, c);
       H(-0.02, 0.12, 0, -0.04, 0.62, 0.20, 0.60, IR);      // 아랫단(무쇠 띠) — 머리를 두른다
       H(-0.03, 0.26, 0, -0.04, 0.54, 0.22, 0.52, ST);      // 지붕(강철, 둥근 상자라 돔처럼 보인다)
-      H( 0.22, 0.14, 0, -0.04, 0.58, 0.07, 0.16, IR);      // 앞 챙 — 눈 위에 그늘을 만든다
       H( 0.24,-0.02, 0,  0.05, 0.08, 0.26, 0.10, ST);      // 코가리개
       for(const si of [1,-1]) H(0.10,-0.06, 0.27*si, 0, 0.05, 0.26, 0.24, IR);   // 볼가리개
       for(const si of [1,-1]) H(0.22, 0.10, 0.20*si, 0, 0.04, 0.04, 0.04, RV);   // 챙 리벳
@@ -9297,7 +9276,7 @@ function drawWolves(list, t, dt){
         const th2 = 0.07 + 0.03*Math.sin(t*14); _s.set(th2, th2, len); W_beam.setMatrixAt(bm++, _m.compose(_v,_q,_s)); }
     } else if(look === 'fear'){
       /* ═══ '희번덕' 은 무섭다는 뜻이었다(선생님). 어두운 눈구멍 속에서 가늘고 길게 찢어진 눈이 희게 번뜩이고,
-         그 안에 세로로 찢어진 붉은 눈동자. 입은 벌어져 송곳니 넷, 왼눈 위에 흉터. */
+         그 안에 세로로 찢어진 붉은 눈동자. 입은 벌어져 송곳니 넷이 보인다. */
       const glint = 0.9 + Math.sin(t*3.1 + w.ph)*0.1;
       for(const si of [1,-1]){
         const yF = 0.276*hw, yU = 0.05*hw, yS = 0.135*hw*si;
@@ -9314,8 +9293,6 @@ function drawWolves(list, t, dt){
       for(const si of [1,-1]){ const fF = 0.302*hw, fU = -0.14*hw;
         setIR(W_fang, fg++, HX(fF,fU,0.08*hw*si), HY(fF,fU), HZ(fF,fU,0.08*hw*si), hYaw, hPit + 0.12, 0.05*hw, 0.16*hw, 0.05*hw, 0xf4f1ea);
         setIR(W_fang, fg++, HX(fF-0.01*hw,fU-0.13*hw,0.07*hw*si), HY(fF-0.01*hw,fU-0.13*hw), HZ(fF-0.01*hw,fU-0.13*hw,0.07*hw*si), hYaw, hPit - 0.10, 0.04*hw, 0.10*hw, 0.04*hw, 0xf4f1ea); }
-      { const cF = 0.22*hw, cU = 0.14*hw, cS = 0.14*hw;    // 흉터 — 왼눈 위를 비스듬히 가로지르는 옅은 줄
-        setIR3(W_fang, fg++, HX(cF,cU,cS), HY(cF,cU), HZ(cF,cU,cS), hYaw, hPit, 0.9, 0.04*hw, 0.24*hw, 0.03*hw, 0xb9aeb8); }
       /* 발밑 검은 안개 고리 */
       if(dr < W_dread.count_max){ _v.set(w.x, y+0.04, w.z); _q.setFromAxisAngle(AX_X, -Math.PI/2);
         const rr = sc*(1.25+Math.sin(t*2.6+w.ph)*0.08); _s.set(rr, rr, 1); W_dread.setMatrixAt(dr++, _m.compose(_v,_q,_s)); }
