@@ -155,6 +155,49 @@ check('Farm product card exchanges only its matching resource for gold',A.resour
 const remainingValue=A.FARM_ANIMALS.reduce((v,a)=>v+A.resources[a.res]*a.gold,0);before={...A.resources};buy(byName('전부 바꾸기'));
 check('Farm sell-all converts all remaining produce at actual catalog rates',A.resources.g===before.g+remainingValue&&['eg','mk','pk'].every(k=>A.resources[k]===0)&&cards().length===0);
 
+// Regression for cropped cards: DOM checks cannot measure layout, but these
+// source-level constraints prevent the known shrink-and-clip combination.
+const css=source.match(/<style>([\s\S]*?)<\/style>/)?.[1]||'';
+function rulesFor(selector){
+  return [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].filter(m=>m[1].replace(/\/\*[\s\S]*?\*\//g,'').trim()===selector)
+    .map(m=>Object.fromEntries(m[2].split(';').filter(s=>s.includes(':')).map(s=>{const i=s.indexOf(':');return [s.slice(0,i).trim(),s.slice(i+1).trim()];})));
+}
+const gridRules=rulesFor('#popShop #shopList'),cardRules=rulesFor('#popShop #shopList .sItem');
+const bodyRules=rulesFor('#popShop #shopList .sb'),imageRules=rulesFor('#popShop #shopList .si img.ic');
+check('Card grid has intrinsic rows, while only the list scrolls (CSS contract)',gridRules.some(r=>r['grid-auto-rows']==='max-content'&&r['overflow-y']==='auto'));
+check('Product cards do not clip a longer description or purchase button (CSS contract)',cardRules.some(r=>r.overflow==='visible'&&r.height==='auto'&&r['min-height']==='min-content'));
+check('Card body keeps content height instead of shrinking into a short row (CSS contract)',bodyRules.some(r=>r.flex==='1 0 auto'&&r.overflow==='visible'));
+check('Card text, price, shortage and purchase button cannot flex-shrink (CSS contract)',rulesFor('#popShop #shopList .sb > :is(.sn,.sd,.sc,.shopLack,button)').some(r=>r['flex-shrink']==='0'));
+check('Large previews retain one responsive size instead of old short-screen overrides (CSS contract)',imageRules.length===1&&imageRules[0].width==='var(--shop-preview)'&&imageRules[0].height==='var(--shop-preview)'&&imageRules[0]['max-width']==='100%');
+const previewSizes=rulesFor('#popShop .popC').map(r=>r['--shop-preview']).filter(Boolean).map(parseFloat);
+check('Desktop and narrow previews are at least 160 pixels (CSS contract)',previewSizes.length>=2&&previewSizes.every(n=>n>=160)&&previewSizes[0]>=176);
+check('Shared wallet sits in the title row to preserve first-row purchase space',document.querySelector('.shopTop .shopWallet #shopRes')&&document.querySelector('.shopTop .shopClose'));
+check('Large previews use only 12 pixels of vertical framing (CSS contract)',rulesFor('#popShop #shopList .si').some(r=>r['min-height']==='calc(var(--shop-preview) + 12px)'&&r.padding==='6px 12px'));
+A.reset();A.setTab('w');
+const item=A.WEAPONS[1],oldName=item.n,oldDesc=item.d;
+try{
+  item.n='우리 모둠이 함께 준비하는 아주 긴 이름의 나무 새총';
+  item.d='친구들과 함께 자원을 모아 준비해요. '.repeat(12);
+  A.buildShopUI();const longCard=byName(item.n);
+  check('Long product copy is preserved with its full cost and working buy control',longCard.querySelector('.sn').textContent===item.n&&longCard.querySelector('.sd').textContent.includes(item.d)&&longCard.querySelectorAll('.shopPrice').length>0&&typeof longCard.querySelector('button').onclick==='function');
+}finally{item.n=oldName;item.d=oldDesc;}
+
+// Exercise the actual bake scheduler with a stub GPU. The parent render check
+// verifies PNG dimensions; here we ensure only weapons use the larger atlas.
+const iconRuns={studios:[],shots:[],slices:[],disposed:0,lost:0},pending=[];
+const iconCtx=vm.createContext({window:{},console,performance:{now:()=>0},
+  document:{readyState:'complete',body:{},querySelectorAll:()=>[]},
+  requestAnimationFrame:f=>pending.push(f),setTimeout:f=>pending.push(f),
+  ICO_DEF:{wood:{rows:[]},wpn1:{rows:[]},wpn13:{rows:[]}},ICON:{},iconsDone:false,iconWaiters:[],emoScan:()=>{},partsGroup:rows=>rows,
+  mkIconStudio:(size,n)=>{iconRuns.studios.push([size,n]);return {size,cols:Math.ceil(Math.sqrt(n)),W:Math.ceil(Math.sqrt(n))*size,r:{setSize:()=>{},dispose:()=>iconRuns.disposed++,forceContextLoss:()=>iconRuns.lost++}};},
+  shootIcon:(st,g,p,idx)=>iconRuns.shots.push([st.size,idx]),
+  sliceIcons:(st,slots,T)=>iconRuns.slices.push([st.size,slots.map(s=>s[0])])});
+new vm.Script(fn('buildIcons')+';buildIcons();').runInContext(iconCtx);
+while(pending.length)pending.shift()();
+check('Weapon icons bake at 192 pixels while HUD icons remain 96',same(iconRuns.slices,[[96,['wood']],[192,['wpn1','wpn13']]]));
+check('Mixed resolution baking reuses and disposes one renderer once',iconRuns.studios.length===1&&iconRuns.disposed===1&&iconRuns.lost===1);
+check('Fallback timer cannot bake icons twice or miscount them',iconRuns.shots.length===3&&iconCtx.window.__ICON_MS.n===3&&iconCtx.iconsDone);
+
 const failed=results.filter(r=>!r.pass);
 console.log('\n'+(results.length-failed.length)+'/'+results.length+' Node DOM checks passed. Browser layout/rendering was not tested.');
 process.exitCode=failed.length?1:0;

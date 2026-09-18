@@ -1,4 +1,4 @@
-/* 23차 검사 — 총기 반동 · 🎒 가방(인형옷) · ✨ 전직 카드
+/* 총기 반동 · 장비 가방 · 진행 중 꾸미기 차단 · 전직 카드
    ★ 값을 검사에 베끼지 않는다. 반동 세기·무기 kick·직업 표는 전부 게임에서 읽고,
      세는 것은 개수가 아니라 관계다("드르륵이 한 발보다 높이 솟나", "아직 맞나").
    ★ 반동은 **게임 함수를 그대로 굴려서** 잰다 — 종이 위 계산으로는 안 맞는다(20차 줄넘기). */
@@ -126,7 +126,7 @@ ok('★ 미니게임 연습용 총에도 반동이 있다', who.미니총kick > 
 ok('★ 반동이 있어도 12칸 앞 좀비는 여전히 맞는다 (너무 심하면 9살이 손을 놓는다)',
    who.못맞히는총.length === 0, who.못맞히는총.join(' · ') || '전부 맞는다');
 
-/* ═══════ ⑤ 🎒 가방 — 입은 자리와 인형옷 ═══════ */
+/* ═══════ ⑤ 가방 — 사용하는 장비와 가진 물건 ═══════ */
 const bag = await ev(()=>{
   const W=window, K=W.__KIT, G=W.__G, o={};
   for(let i=0;i<W.__WEAPONS.length;i++) if(!W.__WEAPONS[i].mini) K.ownW[i]=true;
@@ -140,6 +140,8 @@ const bag = await ev(()=>{
   o.칸 = cells.length;
   o.켜진칸 = cells.filter(c=>c.classList.contains('on')).length;
   o.미리보기 = !!document.querySelector('#kitPvw');
+  o.꾸미기자리 = !!document.querySelector('#kitDoll,#kSlotL');
+  o.물건종류 = [...new Set(W.__kitItems().map(it=>it.t))];
   /* 미니게임 총은 가방에 안 나온다 — 가게와 같은 규칙 */
   const mini = W.__WEAPONS[W.__MINI_GUN()];          // 29차 — 연습용 총은 더는 '마지막' 이 아니다(8~13 은 레어·유니크)
   o.미니총이름 = mini.n;
@@ -150,39 +152,33 @@ const bag = await ev(()=>{
   K.ownW[3] = true;
   return o;
 });
-ok('입은 자리가 다섯이다 (모자·안경·옷 / 무기·방어구 — 38차에 짝꿍 자리를 뺐다)', bag.입은자리 === 5, bag.자리이름.join(' · '));
-ok('★ 가운데에 내 사람이 선다 (뭘 입었는지 글씨가 아니라 그림으로 보인다)', bag.미리보기 === true);
+ok('현재 장비는 무기와 방어구 두 자리다', bag.입은자리 === 2 && bag.자리이름.some(n=>n.startsWith('무기')) && bag.자리이름.some(n=>n.startsWith('방어구')), bag.자리이름.join(' · '));
+ok('가방에는 아바타 미리보기나 꾸미기 슬롯이 없다', !bag.미리보기 && !bag.꾸미기자리);
+ok('가방에는 장비와 소모품만 나온다', bag.물건종류.length>0 && bag.물건종류.every(t=>['wpn','arm','pot'].includes(t)), bag.물건종류.join(' · '));
 ok('입고 있는 것만 초록 테가 켜진다 (무기 하나 · 방어구 하나)', bag.켜진칸 === 2, bag.켜진칸+'칸');
 ok('★ 미니게임 전용 총은 가방에 안 나온다 (가게와 같은 규칙)',
    bag.미니총보임 === false, bag.미니총이름);
 ok('★ 안 산 것은 칸에 안 깔린다', bag.안산것뺀뒤 === bag.칸 - 1, bag.칸+' → '+bag.안산것뺀뒤);
 
-/* ═══════ ⑥ 가방에서 갈아입기 — 통신은 안 늘었다 ═══════ */
+/* ═══════ ⑥ 입장 후에는 아바타 변경이 차단된다 ═══════ */
 const wear = await ev(()=>{
   const W=window, G=W.__G, o={};
-  G.me.hat=0; G.me.gls=0; G.me.clo=0; W.__openKit();
-  const pick = (name)=> [...document.querySelectorAll('#kitGrid .kCell')]
-    .find(c => (c.title||'').indexOf(name) === 0);
-  /* 모자를 하나 눌러 본다 */
-  const hatName = W.__HAT_NAME[1];
-  const c = pick(hatName); o.모자칸있나 = !!c;
-  if(c) c.click();
-  o.쓴모자 = G.me.hat;
-  o.칸이켜졌나 = !!(pick(hatName) && pick(hatName).classList.contains('on'));
-  /* 입은 자리를 누르면 벗는다 */
-  const slot = [...document.querySelectorAll('.kSlot')]
-    .find(e => (e.querySelector('.kTag')||{}).textContent === '모자');
-  if(slot) slot.click();
-  o.벗은뒤 = G.me.hat;
-  /* 갈아입기가 쓰는 칸이 전부 이미 나가던 칸인가 */
-  o.자리통로 = ['hat','gls','clo'].every(k => G.me[k] !== undefined);
+  const kinds=['hat','gls','clo'], dress=()=>kinds.map(k=>G.me[k]);
+  const before=dress(), saved=JSON.stringify({...localStorage});
+  W.__openKit();
+  o.직접호출차단 = kinds.every(k=>W.__wearDeco(k,1)===false);
+  const hidden=document.querySelectorAll('#hatPick button,#glsPick button,#cloPick button');
+  hidden.forEach(button=>button.click());
+  o.숨은선택기존재 = hidden.length>0;
+  o.착장유지 = JSON.stringify(dress())===JSON.stringify(before);
+  o.저장유지 = JSON.stringify({...localStorage})===saved;
+  o.꾸미기목록없음 = W.__kitItems().every(it=>!kinds.includes(it.t));
+  o.게임진행중 = G.started && G.phase!=='title';
   return o;
 });
-ok('★ 가방에서 모자를 누르면 그 자리에서 쓴다 (시작 화면에서 고른 뒤로는 못 바꾸던 것이다)',
-   wear.모자칸있나 && wear.쓴모자 === 1 && wear.칸이켜졌나, '모자 '+wear.쓴모자);
-ok('★ 입은 자리를 누르면 벗는다', wear.벗은뒤 === 0);
-ok('★ 갈아입기가 쓰는 칸은 전부 이미 나가던 칸이다 = 통신이 한 칸도 안 늘었다',
-   wear.자리통로);
+ok('게임 진행 중 꾸미기 직접 호출 세 종류가 모두 거절된다', wear.게임진행중 && wear.직접호출차단);
+ok('숨은 대기실 선택기를 눌러도 현재 착장과 저장값이 바뀌지 않는다', wear.숨은선택기존재 && wear.착장유지 && wear.저장유지);
+ok('모자·얼굴 장식·옷은 진행 중 가방 목록에 없다', wear.꾸미기목록없음);
 
 /* ═══════ ⑦ 가방 — 거르는 칸과 물약 ═══════ */
 const tabs = await ev(()=>{
@@ -191,6 +187,7 @@ const tabs = await ev(()=>{
   const all = document.querySelectorAll('#kitGrid .kCell').length;
   const tb = [...document.querySelectorAll('#kitTabs button')];
   o.칸수 = tb.length;
+  o.꾸미기없음 = tb.every(x=>!/꾸미기/.test(x.textContent));
   const hit = tb.find(x=>/무기/.test(x.textContent)); if(hit) hit.click();
   o.무기만 = document.querySelectorAll('#kitGrid .kCell').length;
   o.전체 = all;
@@ -200,7 +197,7 @@ const tabs = await ev(()=>{
   o.마신뒤 = {체력:W.__PL.hp, 남은물약:W.__KIT.pot[0]};
   return o;
 });
-ok('거르는 칸이 있다 (전체·무기·방어구·물약·꾸미기)', tabs.칸수 === 5, tabs.칸수+'개');
+ok('분류는 전체·무기·방어구·물약 네 개이며 꾸미기는 없다', tabs.칸수 === 4 && tabs.꾸미기없음, tabs.칸수+'개');
 ok('★ 거르면 그것만 남는다', tabs.무기만 > 0 && tabs.무기만 < tabs.전체,
    '전체 '+tabs.전체+' → 무기 '+tabs.무기만);
 ok('★ 물약 칸을 누르면 마신다', tabs.마신뒤.체력 > 10 && tabs.마신뒤.남은물약 === 1,
@@ -245,9 +242,9 @@ const pick = await ev(()=>{
   W.__buildJobUI();
   o.이차카드 = document.querySelectorAll('.jobCard').length;
   o.이차이름 = (document.querySelector('.jobCard .jName')||{}).textContent;
-  /* 가방 미리보기에도 차림새가 붙는다 */
+  /* 전직 후에도 가방은 장비 기능만 제공한다. */
   W.__openKit();
-  o.가방에도 = !!document.querySelector('#kitPvw');
+  o.가방장비유지 = !document.querySelector('#kitPvw,#kitDoll,#kSlotL') && document.querySelectorAll('#kSlotR .kSlot').length===2;
   return o;
 });
 ok('★ 카드를 누르면 그 길로 전직된다', pick.고른뒤.job === 1 && pick.고른뒤.jt === 1,
@@ -255,7 +252,7 @@ ok('★ 카드를 누르면 그 길로 전직된다', pick.고른뒤.job === 1 &
 ok('고르면 창이 닫힌다', pick.창닫힘 === true);
 ok('★ 2차는 이미 고른 길 하나만 보여 준다 (길을 갈아탈 수 없다)',
    pick.이차카드 === 1, pick.이차카드+'장 · '+pick.이차이름);
-ok('전직한 뒤에도 가방에 내 사람이 선다', pick.가방에도 === true);
+ok('전직해도 꾸미기 미리보기가 되살아나지 않고 장비 슬롯이 유지된다', pick.가방장비유지);
 
 /* ═══════ ⑩ 스탯 — 힘·체력·민첩·지능 (23차) ═══════ */
 const st = await ev(()=>{

@@ -12,7 +12,7 @@ import {createRequire} from 'node:module';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 const here=path.dirname(fileURLToPath(import.meta.url));
 const file=path.resolve(process.argv[2]||path.join(here,'../../클로드/index.html'));
-const out=path.resolve(process.argv[3]||path.join(here,'../../artifacts/53-static'));
+const out=path.resolve(process.argv[3]||path.join(here,'../../artifacts/54-avatar'));
 const source=fs.readFileSync(file,'utf8');
 const build=process.env.THREE_BUILD_PATH||path.join(here,'node_modules/three/build');
 const THREE=await import(pathToFileURL(path.join(build,'three.module.js')).href);
@@ -47,7 +47,7 @@ function fn(name){const start=source.indexOf('function '+name+'(');if(start<0)th
 function chunk(a,b){const start=source.indexOf(a),end=source.indexOf(b,start);if(start<0||end<0)throw new Error('Missing chunk '+a);return source.slice(start,end);}
 const fixtures=`
 const GFX={shadow:false,lowLambert:false},scene=new THREE.Scene(),MAXP=40,GY=0,SPD=5.2,RACE_SPD=1.4;
-const raceOn=()=>false,burst=()=>{},meSheep={},JOB_LOOK=[],JOB_AURA=[],ENH_MAX=6;
+const raceOn=()=>false,burst=()=>{},meSheep={},ENH_MAX=6;
 const UPV=new THREE.Vector3(0,1,0),AX_X=new THREE.Vector3(1,0,0);
 const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color();
 `;
@@ -55,13 +55,16 @@ const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),
   chunk('function roundBox(', 'const _rbCache'),
   chunk('const STUD =','const eyeMat ='),fn('imesh'),declaration('P_body'),declaration('P_hand'),declaration('P_gun'),
   declaration('ENH_FX'),declaration('WEAPONS'),declaration('HATS'),declaration('GLASSES'),declaration('CLOTHES'),
-  `const P_wing=[imesh(RB,FM.wool,80,1),imesh(RB,FM.wool,80,1)];
-   const P_wingG=[imesh(RB,FM.wool,80,1),imesh(RB,FM.wool,80,1)];`,
+  fn('wingSpine'),fn('wingGeo'),declaration('WING_GEO'),declaration('JOB_WING'),
+  declaration('WMAT_W'),declaration('WMAT_G'),declaration('P_wing'),declaration('P_wingG'),
+  declaration('JOB_LOOK'),declaration('JOB_AURA'),
   chunk('let FLIP_ON =','const fxq ='),
   chunk('const HEAD_M =','function drawSheep('),fn('drawSheep'),
   `globalThis.API={drawSheep,smoothHead,sheepGait,R6_HOOK,R6_HEAD,R6_HK,R6_ARM,R6_ASD,R6_SHU,R6_HAND_AT,
+    JOB_LOOK,JOB_WING,WING_GEO,wingSpine,r6body,P_jobF,P_jobR,
     R6_SMILE,CYL,HATS,GLASSES,meshes:{body:P_body,head:P_head,arm:P_arm,eyes:P_eye,mouth:P_mouth,nose:P_nose,
-    legs:P_legs,deco:P_deco,gun:P_gun,gunGlow:P_gunF,handR:P_hand[1],handL:P_hand[0]}};`
+    legs:P_legs,deco:P_deco,gun:P_gun,gunGlow:P_gunF,handL:P_hand[0],handR:P_hand[1],
+    wing0:P_wing[0],wing1:P_wing[1],wingGlow0:P_wingG[0],wingGlow1:P_wingG[1]}};`
 ];
 const context=vm.createContext({THREE,console});
 new vm.Script(pieces.join('\n'),{filename:'extracted-avatar-from-index.js'}).runInContext(context,{timeout:10000});
@@ -72,14 +75,15 @@ const pos=m=>new THREE.Vector3().setFromMatrixPosition(m);
 const quat=m=>{const p=new THREE.Vector3(),q=new THREE.Quaternion(),s=new THREE.Vector3();m.decompose(p,q,s);return q.normalize();};
 const maxDiff=(a,b)=>Math.max(...a.map((x,i)=>Math.abs(x-b[i])));
 const actor=extra=>({x:0,y:0,z:0,ry:Math.PI,g:2,ph:0,mv:false,down:false,wp:0,we:0,hat:0,gls:0,clo:0,jb:-1,jt:0,...extra});
-function snapshot(s,t=4){A.drawSheep([s],t,40,()=>0x55aaff,1);return Object.fromEntries(Object.entries(A.meshes).map(([k,m])=>[k,Array.from({length:m.count},(_,i)=>mat(k,i))]));}
+function snapshot(s,t=4){const gait=A.sheepGait(s,t);if(s.mv)gait.v=s.run?8:4;
+  A.drawSheep([s],t,40,()=>0x55aaff,1);return Object.fromEntries(Object.entries(A.meshes).map(([k,m])=>[k,Array.from({length:m.count},(_,i)=>mat(k,i))]));}
 const finiteSnapshot=s=>Object.values(s).flat().every(m=>m.elements.every(Number.isFinite));
 const scenarios=[
-  ['idle',{}],['run',{run:true,gp:1.4}],['rise',{air:true,vy:4,take:.08}],['apex',{air:true,vy:0}],
+  ['idle',{}],['run',{mv:true,run:true,gp:1.4}],['rise',{air:true,vy:4,take:.08}],['apex',{air:true,vy:0}],
   ['fall',{air:true,vy:-4}],['land',{land:.18}],['mine-ready',{act:'mine',actP:.28,tool:'mine'}],
   ['mine-hit',{act:'mine',actP:.64,tool:'mine'}],['work',{act:'work',actP:.36,tool:'work'}],
   ['throw',{act:'throw',actP:.45}],['aim',{wp:3}],['fire',{wp:3,kick:1}],['down',{down:true}],
-  ['turn',{ry:.7}],['hat',{hat:1,gls:1}]
+  ['turn',{ry:.7}],['hat',{hat:1,gls:1}],['glide',{air:true,vy:-2,glide:true,jb:0,jt:2}]
 ];
 const poses=new Map(scenarios.map(([name,s])=>[name,snapshot(actor(s))]));
 check('Actual drawSheep matrices are finite across all poses',[...poses.values()].every(finiteSnapshot),{poses:poses.size});
@@ -140,6 +144,46 @@ for(const level of [0,5,20]){
 }
 check('Upgraded gathering speed preserves the full visible motion cycle',miningCycle);
 
+const jobScenarios=[];
+for(let jb=0;jb<3;jb++)for(let jt=1;jt<=2;jt++){
+  const s=actor({jb,jt}),p=snapshot(s);jobScenarios.push([['Knight','Builder','Gatherer'][jb]+' '+jt,s]);
+  check('Job '+jb+'/'+jt+' renders actual costume and one full wing pair',finiteSnapshot(p)&&p.deco.length>15&&p['wing'+(jt-1)].length===2&&p['wing'+(2-jt)].length===0,{costume:p.deco.length,wings:p['wing'+(jt-1)].length});
+  const plank=A.JOB_LOOK[jb][jt-1].some(h=>{if(h[7])return false;const q=[...A.r6body(...h.slice(0,6))];return q[0]<-.08&&q[3]>.4&&q[4]>.4;});
+  check('Job '+jb+'/'+jt+' has no broad rectangular back plank',!plank);
+}
+const jobCounts=A.JOB_LOOK.map(j=>j.map(t=>t.length));
+check('Second-tier outfits visibly add job-specific pieces',jobCounts.every(j=>j[1]>j[0]+5),jobCounts);
+for(let i=0;i<2;i++){
+  const spine=A.wingSpine(i?1.12:1.20),g=A.WING_GEO[i];
+  const continuous=[.1,.25,.4,.55,.7,.85].every(t=>{const p=spine(t);return hit(g,...p);});
+  check('Wing '+i+' has a continuous shoulder-to-tip surface',continuous);
+  check('Wing '+i+' stays within a bounded triangle budget',g.attributes.position.count/3<1800,{triangles:g.attributes.position.count/3});
+}
+const right=poses.get('mine-ready').handR[0],left=poses.get('mine-ready').handL[0],shaft=poses.get('mine-ready').gun[0];
+check('Working tool is attached to anatomical right hand',pos(right).x<0&&pos(shaft).distanceTo(pos(right))<pos(shaft).distanceTo(pos(left)));
+const pickHead=poses.get('mine-ready').gun[1],pickScale=new THREE.Vector3().setFromMatrixScale(pickHead);
+const shaftAxis=new THREE.Vector3(0,1,0).transformDirection(shaft),bladeAxis=new THREE.Vector3(0,0,1).transformDirection(pickHead);
+check('Pick head lies across handle in forward strike plane',pickScale.z>pickScale.x*3&&Math.abs(shaftAxis.dot(bladeAxis))<1e-5,{scale:pickScale.toArray(),orthogonality:shaftAxis.dot(bladeAxis)});
+for(const key of ['body','head','legs']){
+  const delta=maxDiff(poses.get('mine-ready')[key][0].elements,poses.get('mine-hit')[key][0].elements);
+  check('Harvest transfers weight through '+key,delta>.03,{matrixDelta:delta});
+  const recoil=maxDiff(poses.get('aim')[key][0].elements,poses.get('fire')[key][0].elements);
+  check('Firing recoil and bracing reach '+key,recoil>.02,{matrixDelta:recoil});
+}
+const glideUp=new THREE.Vector3(0,1,0).transformDirection(poses.get('glide').body[0]);
+check('Gliding leans full body into flight, rather than using falling pose',glideUp.z>.65&&poses.get('glide').wing1.length===2,{bodyUp:glideUp.toArray()});
+const runUp=new THREE.Vector3(0,1,0).transformDirection(poses.get('run').body[0]);
+check('Sprint leans toward movement with visible alternating strides',runUp.z>.16&&Math.abs(quat(poses.get('run').legs[0]).dot(quat(poses.get('run').legs[1])))<.9,{bodyUp:runUp.toArray()});
+const chosenHat=9,jobWithHat=snapshot(actor({jb:0,jt:1,hat:chosenHat}));
+const expectedHatPieces=A.HATS[chosenHat].length+A.JOB_LOOK[0][0].filter(h=>!h[7]).length;
+check('Chosen cosmetic hat replaces job helmet without removing job armor',jobWithHat.deco.length===expectedHatPieces,{actual:jobWithHat.deco.length,expected:expectedHatPieces});
+
+// A brief noisy grounded flag cannot reverse a settled airborne pose in one frame.
+const noisy=actor({air:true,vy:0});snapshot(noisy,10);noisy.air=false;const noisyPose=snapshot(noisy,10+1/60);
+const stablePose=snapshot(actor({air:true,vy:0}),10+1/60);
+const noiseJump=pos(noisyPose.handR[0]).distanceTo(pos(stablePose.handR[0]));
+check('Ground-contact noise blends the airborne pose rather than snapping it',noiseJump<.23,{oneFrameHandDelta:noiseJump});
+
 // CPU projection and depth rasterization of the exact source geometries.
 // Lighting is deliberately a simple inspection light, not a claim to reproduce
 // WebGL tonemapping, shadows or GPU cost. No window/process/UI is created.
@@ -151,17 +195,17 @@ const panels=[['Front','idle',0],['Three-quarter','idle',.62],['Side','idle',Mat
   ['Harvest windup','mine-ready',.62],['Harvest impact','mine-hit',.62],['Build hammer','work',.62],['Throw','throw',.62],
   ['Aim','aim',.62],['Fire recoil','fire',.62],['Hat + glasses','hat',.62],['Landing','land',.62]];
 const S=480,cols=4,rows=3,pixels=Buffer.alloc(S*S*4),light=new THREE.Vector3(-.35,.8,.55).normalize();
-function render(pose,angle,closeup=false,elevation=0){
+function render(pose,angle,closeup=false,elevation=0,wide=false){
   const depth=new Float32Array(S*S);depth.fill(Infinity);
   for(let i=0;i<S*S;i++){pixels[i*4]=233;pixels[i*4+1]=246;pixels[i*4+2]=255;pixels[i*4+3]=255;}
-  const extent=closeup?.39:1.25,center=closeup?1.43:1.08;
+  const extent=closeup?.39:wide?2.65:1.25,center=closeup?1.43:1.08;
   const camera=new THREE.OrthographicCamera(-extent,extent,extent,-extent,.1,20);
   camera.position.set(Math.sin(angle)*5*Math.cos(elevation),center+5*Math.sin(elevation),Math.cos(angle)*5*Math.cos(elevation));
   camera.lookAt(0,center,0);camera.updateMatrixWorld();
   const projection=new THREE.Matrix4().multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);
   const v0=new THREE.Vector3(),v1=new THREE.Vector3(),v2=new THREE.Vector3(),normal=new THREE.Vector3(),color=new THREE.Color();
   for(const [name,ms] of Object.entries(pose)){
-    if(name==='gunGlow')continue;const mesh=A.meshes[name],geometry=mesh.geometry,position=geometry.attributes.position,normals=geometry.attributes.normal,index=geometry.index;
+    if(name.includes('Glow'))continue;const mesh=A.meshes[name],geometry=mesh.geometry,position=geometry.attributes.position,normals=geometry.attributes.normal,index=geometry.index;
     for(let instance=0;instance<ms.length;instance++){
       const matrix=ms[instance],count=index?index.count:position.count,normalMatrix=new THREE.Matrix3().getNormalMatrix(matrix);
       mesh.getColorAt(instance,color);color.multiply(mesh.material.color||new THREE.Color(0xffffff));
@@ -174,7 +218,9 @@ function render(pose,angle,closeup=false,elevation=0){
         normal.crossVectors(v1.clone().sub(v0),v2.clone().sub(v0)).normalize();
         const rgbAt=[0,1,2].map(offset=>{
           const n=normals&&!mesh.material.flatShading?new THREE.Vector3().fromBufferAttribute(normals,index?index.getX(k+offset):k+offset).applyNormalMatrix(normalMatrix):normal;
-          return color.clone().multiplyScalar(.68+.32*Math.max(0,n.dot(light))).convertLinearToSRGB();
+          const rgb=color.clone(),colors=geometry.attributes.color,ci=index?index.getX(k+offset):k+offset;
+          if(colors&&mesh.material.vertexColors)rgb.multiply(new THREE.Color().setRGB(colors.getX(ci),colors.getY(ci),colors.getZ(ci)));
+          return rgb.multiplyScalar(.68+.32*Math.max(0,n.dot(light))).convertLinearToSRGB();
         });
         const pts=[v0.clone().applyMatrix4(projection),v1.clone().applyMatrix4(projection),v2.clone().applyMatrix4(projection)].map(v=>({x:(v.x*.5+.5)*S,y:(.5-v.y*.5)*S,z:v.z}));
         const [a,b,c]=pts,area=(b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);if(Math.abs(area)<1e-6)continue;
@@ -217,6 +263,25 @@ if(sharp){
   const referenceLabel=Buffer.from('<svg width="480" height="36"><text x="14" y="25" font-family="sans-serif" font-size="15" fill="#263b52">CPU geometry inspection · reference viewing angle</text></svg>');
   await sharp(referenceImage).composite([{input:referenceLabel,left:0,top:0}]).png().toFile(path.join(out,'53-face-reference-angle.png'));
   details.png=path.join(out,'53-avatar-contact-sheet.png');
+  const jobPanels=[];
+  for(let i=0;i<jobScenarios.length;i++){
+    const [label,config]=jobScenarios[i];
+    for(let back=0;back<2;back++){
+      const png=await sharp(render(snapshot({...config}),back?Math.PI+.25:.45,false,.04,true),{raw:{width:S,height:S,channels:4}}).png().toBuffer();
+      const name='54-job-'+config.jb+'-'+config.jt+(back?'-back':'-front')+'.png';
+      fs.writeFileSync(path.join(out,name),png);
+      const column=i%3,row=Math.floor(i/3)*2+back;
+      jobPanels.push({input:png,left:column*S,top:row*(S+35)});
+      jobPanels.push({input:Buffer.from('<svg width="480" height="35"><text x="14" y="25" font-family="sans-serif" font-size="18" fill="#263b52">'+label+(back?' / back':' / front')+'</text></svg>'),left:column*S,top:row*(S+35)});
+    }
+  }
+  await sharp({create:{width:S*3,height:(S+35)*4,channels:4,background:'#e9f6ff'}}).composite(jobPanels).png().toFile(path.join(out,'54-jobs-contact-sheet.png'));
+  const flightPanels=[];
+  for(const [i,key] of ['run','glide','mine-ready','mine-hit'].entries()){
+    const config=scenarios.find(s=>s[0]===key)[1],png=await sharp(render(snapshot(actor(config)),Math.PI/2,false,0,key==='glide'),{raw:{width:S,height:S,channels:4}}).png().toBuffer();
+    fs.writeFileSync(path.join(out,'54-motion-'+key+'.png'),png);flightPanels.push({input:png,left:i*S,top:0});
+  }
+  await sharp({create:{width:S*4,height:S,channels:4,background:'#e9f6ff'}}).composite(flightPanels).png().toFile(path.join(out,'54-motion-side-sheet.png'));
 }else details.png='sharp unavailable; matrix/geometry checks still ran';
 details.results=results;fs.writeFileSync(path.join(out,'53-static-results.json'),JSON.stringify(details,null,2));
 const failures=results.filter(r=>!r.pass);console.log(`${results.length-failures.length}/${results.length} checks passed; ${details.png}`);

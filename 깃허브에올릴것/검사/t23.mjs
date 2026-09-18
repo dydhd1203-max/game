@@ -53,19 +53,21 @@ const lists = await pg.evaluate(()=>{
   return {hat:[W.__HATS.length, W.__HAT_N.length],
           gls:[W.__GLASSES.length, W.__GLS_N.length],
           clo:[W.__CLOTHES.length, W.__CLO_N.length],
-          /* 예전 번호가 안 밀렸나 — 새것은 반드시 배열 '끝' 에 붙어야 한다 */
-          oldHat: W.__HAT_N[8], oldClo: W.__CLO_N[8],
-          newHat: W.__HAT_N.slice(11), newClo: W.__CLO_N.slice(9)};
+          /* 저장된 번호는 유지하고 시작 화면에는 정리한 선택지만 보여 준다. */
+          legacySlots:[W.__HATS.length,W.__GLASSES.length,W.__CLOTHES.length],
+          pickers:[['hatPick',W.__HAT_N],['glsPick',W.__GLS_N],['cloPick',W.__CLO_N]].map(([id,names])=>({
+            total:names.length, labels:[...document.querySelectorAll('#'+id+' .dressOptionName')].map(e=>e.textContent), names
+          }))};
 });
 ok('모자 아이콘·이름 길이가 본 배열과 같다', lists.hat[0]===lists.hat[1], lists.hat.join('/'));
 ok('안경 아이콘·이름 길이가 본 배열과 같다', lists.gls[0]===lists.gls[1], lists.gls.join('/'));
 ok('옷 아이콘·이름 길이가 본 배열과 같다', lists.clo[0]===lists.clo[1], lists.clo.join('/'));
-ok('★ 새것을 목록 끝에 넣었다 — 예전 번호가 안 밀렸다 (17차g에 통째로 밀렸던 자리)',
-   lists.oldHat === '꽃 화관' && lists.oldClo === '별무늬 잠옷',
-   '8번 모자 '+lists.oldHat+' · 8번 옷 '+lists.oldClo);
-ok('새 모자·새 옷이 실제로 늘었다 (51차d 에 베이컨 머리 가발이 모자 끝에 붙어 셋)',
-   lists.newHat.length===3 && lists.newHat[2]==='베이컨 머리' && lists.newClo.length===2,
-   lists.newHat.join(',')+' / '+lists.newClo.join(','));
+ok('이전 저장 번호를 읽는 모자·장식·옷 배열 크기를 유지한다',
+   JSON.stringify(lists.legacySlots)===JSON.stringify([14,9,11]), lists.legacySlots.join('/'));
+ok('시작 화면은 전체 legacy 배열보다 적은 선택지를 정확한 이름으로 보여 준다',
+   lists.pickers.every(p=>p.labels.length>1 && p.labels.length<p.total
+     && new Set(p.labels).size===p.labels.length && p.labels.every(n=>n && p.names.includes(n))),
+   lists.pickers.map(p=>p.labels.length+'/'+p.total).join(' · '));
 
 /* ═══════ ③ 꾸미기 조각 칸이 '제일 많이 걸친 아이' 보다 넉넉한가 ═══════
    ★ 17차f에 딱 맞는 칸(18)이 모자라 조각이 조용히 잘렸다. '딱 맞는 칸은 모자란 칸' 이다.
