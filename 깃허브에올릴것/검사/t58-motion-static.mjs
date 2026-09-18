@@ -40,6 +40,36 @@ const idle=wingBounds(draw(actor({jt:2,jb:0}))),aim=wingBounds(draw(actor({jt:2,
 ok('Own aimed wings fold behind the back while flight keeps a wider span',aim.width<flight.width*.55&&aim.width<idle.width&&aim.front<-.45,{idle,aim,flight});
 ok('Other players keep their visible ground wings instead of being hidden by local aim',Math.abs(other.width-idle.width)<1e-6&&other.width>.4,{otherWidth:other.width});
 ok('Folded wings never cut through the torso volume',poses.every(p=>wingBounds(p).inside===0)&&aim.inside===0);
+const flapChecks=[];
+for(const jt of [1,2])for(const glide of [false,true]){
+ const s=actor({jt,jb:0,air:true,glide,vy:-2}),key='wing'+(jt-1),rows=[];
+ let fixedRoot=null,rootError=0,inside=0;
+ const geo=A.meshes[key].geometry.attributes.position,tip=new THREE.Vector3();
+ for(let i=0;i<geo.count;i++)if(geo.getX(i)>tip.x)tip.fromBufferAttribute(geo,i);
+ for(let i=0;i<=160;i++){
+  const p=draw(s,10+i/(1.75*80)),bp=new THREE.Vector3(),bq=new THREE.Quaternion(),bs=new THREE.Vector3();
+  p.body[0].decompose(bp,bq,bs);
+  const rigidInv=new THREE.Matrix4().compose(bp,bq,new THREE.Vector3(1,1,1)).invert();
+  const wing=rigidInv.clone().multiply(p[key][0]),wp=new THREE.Vector3(),wq=new THREE.Quaternion(),ws=new THREE.Vector3();
+  wing.decompose(wp,wq,ws);
+  const root=position(local(p,p[key][0]));fixedRoot??=root.clone();rootError=Math.max(rootError,root.distanceTo(fixedRoot));
+  rows.push({roll:new THREE.Euler().setFromQuaternion(wq,'YXZ').z,tip:tip.clone().applyMatrix4(wing).y});
+  inside+=wingBounds(p).inside;
+ }
+ const range=k=>Math.max(...rows.map(r=>r[k]))-Math.min(...rows.map(r=>r[k]));
+ flapChecks.push({jt,glide,rollRange:range('roll'),tipTravel:range('tip'),rootError,inside});
+}
+ok('Both wing tiers visibly flap through complete air and glide cycles',flapChecks.every(r=>r.rollRange>(r.glide?.58:.74)&&r.tipTravel>.25),flapChecks);
+ok('Flapping keeps shoulder roots fixed and feathers outside the torso for the full cycle',flapChecks.every(r=>r.rootError<1e-6&&r.inside===0));
+const settledDown=[0,.19,.41,.77].map(dt=>draw(actor({jt:2,jb:0,down:true}),500+dt));
+const downLocal=settledDown.map(p=>local(p,p.wing1[0]).elements);
+ok('Downed wings remain still instead of continuing their flight or idle flap',downLocal.every(m=>m.every((v,i)=>Math.abs(v-downLocal[0][i])<1e-6)));
+let glidePhaseJump=0;
+for(const t of [0,10,1000,50000]){
+ const a=A.avatarWingPose(1,{t,air:1,glide:0}),b=A.avatarWingPose(1,{t,air:1,glide:1e-5});
+ glidePhaseJump=Math.max(glidePhaseJump,...['roll','pitch','yaw','span'].map(k=>Math.abs(a[k]-b[k])));
+}
+ok('Entering glide preserves flap phase even after a long play session',glidePhaseJump<1e-5,{glidePhaseJump});
 const directional=(vx,vz)=>{const s=actor({mv:true,gp:0});const g=A.sheepGait(s,10);g.v=4;g.vx=vx;g.vz=vz;return draw(s);};
 const strafe=directional(4,0),back=directional(0,-4);
 ok('Strafing steps sideways while the torso remains facing the aiming direction',Math.abs(position(strafe.shoes[0]).x-position(strafe.shoes[1]).x)>.55&&Math.abs(position(strafe.shoes[0]).z-position(strafe.shoes[1]).z)<.10);

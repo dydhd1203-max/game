@@ -100,7 +100,7 @@ try{
         {label:'곡괭이 준비',act:'mine',actP:.23,tool:'mine'},{label:'곡괭이 타격',act:'mine',actP:.52,tool:'mine'},
         {label:'양손 총 · 반동',wp:3,kick:1},{label:'날개 활공',jb:1,jt:2,air:true,vy:-1,glide:true}]},
       {name:'outfits-jobs',cols:4,title:'귀여운 꾸미기와 직업 · 같은 몸체와 C자 손',cards:[
-        {label:'민트 고양이',hat:9,gls:0,clo:2},{label:'크림 토끼',hat:4,gls:8,clo:3},{label:'곰돌이 잠옷',hat:6,gls:1,clo:4},{label:'분홍 리본',hat:3,gls:3,clo:10},
+        {label:'민트 고양이',hat:9,gls:0,clo:2},{label:'크림 토끼',hat:4,gls:8,clo:3},{label:'곰돌이 잠옷',hat:6,gls:8,clo:4},{label:'분홍 리본',hat:3,gls:0,clo:10},
         {label:'직업 1 · 1차',jb:0,jt:1},{label:'직업 1 · 2차',jb:0,jt:2},{label:'직업 2 · 1차',jb:1,jt:1},{label:'직업 2 · 2차',jb:1,jt:2},
         {label:'직업 3 · 1차',jb:2,jt:1},{label:'직업 3 · 2차',jb:2,jt:2},{label:'직업 + 토끼 모자',jb:1,jt:2,hat:4,clo:2},{label:'C자 손과 신발',angle:-.70,hat:0,clo:0}]}
     ];
