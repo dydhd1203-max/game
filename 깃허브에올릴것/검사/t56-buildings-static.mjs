@@ -24,7 +24,7 @@ function fn(n){const a=source.indexOf('function '+n+'(');if(a<0)throw Error(n);l
 const a=source.indexOf('const _blkCache ='),b=source.indexOf('function footprint(',a);
 if(a<0||b<a)throw Error('Building geometry source anchors missing');
 const ctx=vm.createContext({});
-new vm.Script([declaration('T'),declaration('BUILD'),declaration('MAXLV'),fn('bs'),source.slice(a,b),'globalThis.A={BUILD,MAXLV,blocksOf,blocksOfRaw};'].join('\n')).runInContext(ctx);
+new vm.Script([declaration('T'),declaration('BUILD'),declaration('MAXLV'),declaration('XP_BUILD'),declaration('WORK_SEC'),fn('bs'),source.slice(a,b),'globalThis.A={BUILD,MAXLV,XP_BUILD,WORK_SEC,blocksOf,blocksOfRaw};'].join('\n')).runInContext(ctx);
 const A=ctx.A,checks=[],details=[];
 function check(n,p){checks.push(!!p);console.log((p?'PASS ':'FAIL ')+n);}
 const types=['wwall','swall','arrow','ice','barr','pulse'];
@@ -68,6 +68,12 @@ for(const branch of ['rapid','sniper']){
 }
 check('Rapid upgrade exposes six barrels from level 5',A.blocksOf('arrow',5,'rapid').filter(r=>r[10]==='gun'&&Math.abs(r[2]-(.5+1.036))<1e-8).length===6);
 check('Unknown buildings fail closed',A.blocksOf('missing',1).length===0);
+// A building missing from these side tables falls back silently: observeBuilt pays XP_BUILD[t]||14,
+// so the priciest turret would reward as little as a wooden wall.
+check('Every building has its own build experience and work time',
+  types.every(t=>typeof A.XP_BUILD[t]==='number'&&typeof A.WORK_SEC[t]==='number'));
+check('Build experience never drops below the cheaper walls',
+  types.filter(t=>A.BUILD[t].size>1).every(t=>A.XP_BUILD[t]>A.XP_BUILD.swall));
 console.log(JSON.stringify(details));
 console.log(checks.filter(Boolean).length+'/'+checks.length+' geometry checks passed; browser rendering not tested.');
 process.exitCode=checks.every(Boolean)?0:1;

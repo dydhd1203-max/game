@@ -59,7 +59,8 @@ function setup(y=GY){
 `;
 const context=vm.createContext({THREE,console});
 vm.runInContext([
-  ...['GY','MINI_Y','CAM_FAR','PL','WEAPONS'].map(declaration),fixtures,declaration('wpnNow'),
+  ...['GY','MINI_Y','CAM_FAR','PL','WEAPONS'].map(declaration),fixtures,
+  declaration('wpnNow'),declaration('wpnEff'),
   declaration('_shotOrigin'),declaration('_shotRay'),
   ...['combatRay','combatTargetInRange','shotEndpoint','survBlocked','aimWolf','aimPlayer','cameraClearance','fireWeapon'].map(fn),
 ].join('\n'),context,{timeout:10000});
@@ -86,12 +87,22 @@ check('PvP teammates and eliminated players are excluded',`
   G.players.set('out',{uid:'out',g:1,x:0,y:MINI_Y,z:-4});miniPl.set('out',{o:1});aimPlayer()?.uid??null;`,d=>d===null);
 check('Targets beyond player range are excluded even with a rear camera',`
   setup();G.wolves=[{id:'far',hp:10,x:0,y:GY,z:-WEAPONS[0].rng-.1}];aimWolf()?.id??null;`,d=>d===null);
-check('Explicit fallback stone range overrides the selected rifle; default UI aiming remains',`
+check('Explicit fallback stone range overrides the selected rifle; the bare default still reads the equipped gun',`
   setup();KIT.wpn=5;G.wolves=[{id:'far',hp:10,x:0,y:GY,z:-20}];
   const defaultWolf=aimWolf()?.id??null,stoneWolf=aimWolf(WEAPONS[0])?.id??null;
   setup(MINI_Y);KIT.wpn=5;G.players.set('far',{uid:'far',g:1,x:0,y:MINI_Y,z:-20});
   ({defaultWolf,stoneWolf,defaultPlayer:aimPlayer()?.uid??null,stonePlayer:aimPlayer(WEAPONS[0])?.uid??null});`,
   d=>d.defaultWolf==='far'&&d.defaultPlayer==='far'&&d.stoneWolf===null&&d.stonePlayer===null);
+// The crosshair lock and the shot must agree on the weapon. Locking with the rifle range
+// while the stone actually flies makes a locked target at 20 tiles miss every time.
+check('The effective weapon drives the crosshair lock, not the equipped one, when ammo runs out',`
+  setup();KIT.wpn=5;KIT.ammo=0;G.wolves=[{id:'far',hp:10,x:0,y:GY,z:-20}];
+  const noAmmo={eff:WEAPONS.indexOf(wpnEff()),lock:!!aimWolf(wpnEff())};
+  KIT.ammo=99;
+  const withAmmo={eff:WEAPONS.indexOf(wpnEff()),lock:!!aimWolf(wpnEff())};
+  KIT.ammo=0;
+  ({noAmmo,withAmmo});`,
+  d=>d.noAmmo.eff===0&&d.noAmmo.lock===false&&d.withAmmo.eff===5&&d.withAmmo.lock===true);
 // Stop only after the actual fireWeapon has selected and forwarded its weapon.
 // Rendering, hit effects and network delivery are outside this isolated harness.
 check('Actual fireWeapon forwards its no-ammo fallback to both target selectors',`

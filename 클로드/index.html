@@ -10935,12 +10935,9 @@ function fireWeapon(){
      ★ 총알이 모자라면 막지 않고 조용히 맨손 돌로 떨어뜨린다.
        9살한테 "총알이 없습니다" 하고 아무 일도 안 일어나면 그냥 손을 놓아 버린다.
        대신 그 밤에 한 번은 알려 준다. */
-  let W = wpnNow();
-  if(W.ammo > 0 && KIT.ammo < W.ammo){
-    if(KIT.noAmmoSaid !== G.day){ KIT.noAmmoSaid = G.day;
-      toast('🔸 총알이 없어요 — 낮에 상인에게 사세요 (지금은 돌을 던집니다)', 3, '#ffd0a0'); }
-    W = WEAPONS[0];
-  }
+  const W = wpnEff();
+  if(W !== wpnNow() && KIT.noAmmoSaid !== G.day){ KIT.noAmmoSaid = G.day;
+    toast('🔸 총알이 없어요 — 낮에 상인에게 사세요 (지금은 돌을 던집니다)', 3, '#ffd0a0'); }
   throwCd = W.cd;
   if(W.ammo > 0) KIT.ammo -= W.ammo;
   const isGun = W !== WEAPONS[0];
@@ -11321,7 +11318,7 @@ function xpTable(){
 
 /* 무엇을 하면 얼마나 오르나 */
 const XP_MINE  = 5;                                          // 자원 한 칸
-const XP_BUILD = { wwall:14, swall:18, arrow:34, ice:34, barr:44 };
+const XP_BUILD = { wwall:14, swall:18, arrow:34, ice:34, barr:44, pulse:44 };
 const XP_UP    = 16;                                         // 강화 (× 오른 등급)
 const XP_FIX   = 6;                                          // 수리
 const XP_DMG   = 0.09;                                       // 좀비에게 준 피해 1당
@@ -11492,6 +11489,10 @@ const spdMul  = ()=> (KIT.bSpd > 0 ? 1.35 : 1) * (1 + 0.015*stLv(ST_AGI));
 const defNow  = ()=> Math.min(85, ARMORS[KIT.arm].def + (KIT.bDef > 0 ? 25 : 0)
                                 + 3*stLv(ST_VIT) + 1*stLv(ST_STR));
 const wpnNow  = ()=> WEAPONS[Math.max(0, Math.min(WEAPONS.length-1, KIT.wpn))];
+/* 총알이 모자라면 실제로 나가는 것은 맨손 돌이다(사거리 11.5). 조준점도 이것을 봐야
+   "빨간 조준이 걸렸는데 안 맞는다" 가 생기지 않는다 — 총 사거리로 잠그고 돌로 쏘면
+   스무 칸 앞 좀비는 반드시 빗나간다. 알림 문구는 fireWeapon 에서만 한 번 띄운다. */
+const wpnEff  = ()=>{ const W = wpnNow(); return (W.ammo > 0 && KIT.ammo < W.ammo) ? WEAPONS[0] : W; };
 /* 무기 한 방의 힘 (크리티컬 전) */
 function wpnDmg(){
   const W = wpnNow();
@@ -18260,7 +18261,7 @@ function loop(){
     if((throwing || (aimMode && acting)) && !popOpen()) fireWeapon();
     /* 조준점에 좀비가 걸렸는지 — 공격 모드일 때만 본다 */
     if(aimMode){
-      const lk = !!aimWolf();
+      const lk = !!aimWolf(wpnEff());
       if(hudPrev.lock !== lk){ hudPrev.lock = lk; el('crosshair').classList.toggle('lock', lk); }
     } else if(hudPrev.lock){ hudPrev.lock = false; el('crosshair').classList.remove('lock'); }
     if(hitMarkT > 0){ hitMarkT -= dt;
