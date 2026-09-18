@@ -5184,6 +5184,9 @@ const RACE_S = [                                           // 여섯 구간 — 
   {n:'무지개 점프',     z0:222, z1:270, col:0x51cfb5},
   {n:'마지막 계단',     z0:276, z1:310, col:0xffe066}];
 const RACE_Z_FIN = 312, RACE_Y_FIN = 8.1;
+/* 무지개 점프 여섯 발판의 앞뒤 간격. 발판(raceBuild)과 옆 장식이 같은 값을 봐야
+   깃대·풍선이 발판 옆에 선다. 예전엔 장식만 옛 간격 5 로 남아 뒤쪽이 텅 비었다. */
+const RACE_RAINBOW_DZ = 8.6;
 const RACE_ROWZ = [MINI_PADZ + 0.8, MINI_PADZ - 1.8], RACE_COLS = 12, RACE_COLW = 3.0;
 const SURV_SPAWN_R = 26;          // 서바이벌은 다섯 모둠이 고리로 흩어져 시작한다
 const survSpawnA = g => g*Math.PI*2/NG + Math.PI;      // 0모둠이 출발선 쪽
@@ -5542,7 +5545,7 @@ function buildMiniIsle(){
   for(let i=0;i<3;i++){ const z = 185 + i*12, x = (i%2 ? -21.4 : 21.4);
     for(let k=0;k<3;k++) Rp(bpush('rcTrunk', TRUNKG, WMAT, x + (k-1)*0.8, MINI_Y - 1.2 + (k===1 ? 0.7 : 0), z, Math.PI/2, 0.9, 2.6, 0.9, Math.PI/2, 0x8a5a3a)); }
   /* 54차 — 무지개 점프는 컬러 표지와 응원 풍선이 이어진다. 기둥은 폭 32 발판 밖이다. */
-  for(let i=0;i<6;i++) for(const side of [-1,1]){ const z=RACE_S[4].z0+1.8+i*5, x=side*19;
+  for(let i=0;i<6;i++) for(const side of [-1,1]){ const z=RACE_S[4].z0+1.8+i*RACE_RAINBOW_DZ, x=side*19;
     BX(x,1.1,z,0.16,2.2,0.16,0xffffff); BX(x,2.3,z,1.8,1.1,0.16,FLAGC[i]);
     BX(x-side*0.24,2.3,z-0.1,0.65,0.18,0.06,0xffffff,0,side*0.65);
     BX(x+side*0.24,2.3,z-0.1,0.65,0.18,0.06,0xffffff,0,-side*0.65);
@@ -8904,6 +8907,18 @@ const WOLF_T = [
   {n:'🐾 새끼 좀비',   hp:11, spd:4.30,dmg:4,  cd:0.6, sc:0.42, col:0xf0e8dc, look:'pup'},
   {n:'👁️ 공포 좀비',   hp:110,spd:3.35,dmg:20, cd:2.0, sc:1.12, col:0x5a4c6a, look:'fear',   fear:1}
 ];
+/* 날이 갈수록 걸음이 빨라지는 상한. spawnWolf 가 실제 spd 를 만들 때 쓰고,
+   손님 화면이 "이만큼은 넘지 않는다" 를 알아야 해서 여기 한 곳에 둔다. */
+const WOLF_SPD_GROW = 0.42;
+/* 손님은 통신에 없는 실제 걸음(w.spd)을 모른다. 대신 표에서 낼 수 있는 두 값 사이를 문턱으로 쓴다 —
+   평소 걸음은 밤이 깊어도 spd 의 (1+WOLF_SPD_GROW)배를 넘지 않고, 쫓을 때는 BAL.chaseMin 아래로
+   내려가지 않는다. 그 가운데를 잡으면 평소 걸음을 추격으로 잘못 읽지 않는다.
+   ★ 날쌘 좀비·새끼 좀비는 밤이 깊으면 평소 걸음이 BAL.chaseCap 을 넘어서 쫓을 때가 오히려 느리다.
+     그때는 속도로 가릴 수 없으므로 문턱을 두지 않는다 — 늘 쫓는 자세로 보이는 것보다 낫다. */
+function zombieChaseGate(d){
+  const walk = d.spd * (1 + WOLF_SPD_GROW), chase = BAL.chaseMin * (d.chase || 1);
+  return chase > walk ? (walk + chase)/2 : Infinity;
+}
 /* 종류 번호는 표를 뒤져 얻는다 — 줄을 끼워 넣어도 안 틀어진다 */
 const K_LOOK = nm => WOLF_T.findIndex(t => t.look === nm);
 const K_HUNGRY = K_LOOK('hungry'), K_ARMOR = K_LOOK('armor'), K_HEAL = K_LOOK('heal'), K_PUP = K_LOOK('pup'), K_FEAR = K_LOOK('fear');
@@ -8987,7 +9002,7 @@ function wolfCorpse(w){
 function zombieThreatPose(w,t,dt,mvK){
   const d=WOLF_T[w.k],heavy=!!d.boss||w.k===2||d.look==='armor';
   const quick=w.k===1||d.look==='hungry'||d.look==='pup';
-  const chasing=!(w.dead>0)&&!w.noChase&&!d.noChase&&(w.shT!==undefined?!!w.shT:!!w.mv&&w.gv>Math.max(4.6,d.spd*1.08));
+  const chasing=!(w.dead>0)&&!w.noChase&&!d.noChase&&(w.shT!==undefined?!!w.shT:!!w.mv&&w.gv>zombieChaseGate(d));
   const step=Math.min(.05,Math.max(0,dt));
   if(chasing&&!w.posePreyWas&&(w.poseChase||0)<.3)w.poseAlert=.34;
   w.posePreyWas=chasing;
@@ -14635,7 +14650,7 @@ function spawnWolf(k, gate, atX, atZ){
 
   const w = { id:wid++, k, x, z, y:GY, ry:Math.atan2(-x,-z), hp, mx:hp, dmg, cd,
     /* 날이 갈수록 더 빨라진다 (예전 +30% -> +42%) */
-    spd: T0.spd*(1+Math.min(0.42, dd*0.42)), slow:0, atkT:0, hurt:0, mv:true,
+    spd: T0.spd*(1+Math.min(WOLF_SPD_GROW, dd*WOLF_SPD_GROW)), slow:0, atkT:0, hurt:0, mv:true,
     /* ★ 사람을 쫓을 수 있는 시간. 다 쓰면 잠깐 사람을 잊고 수정·건물로 돌아간다.
        이게 없으면 아이 하나가 빙빙 돌기만 해도 좀비 떼가 밤새 그 뒤만 따라다녔다. */
     chLeft: BAL.chaseBudget, chCool: 0,
@@ -15878,7 +15893,7 @@ function raceBuild(seed){
          mv:{ax:'x', amp:v === 0 ? 1.0 : v === 1 ? 1.5 : 1.25, spd:0.55 + i*0.15 + v*0.1, ph:rng()*6.28}}); } }   // 봇 21 중 일곱이 여기서 못 나와 흔들림을 줄였다
   /* ⑤ 무지개 점프 — 몸 반지름으로 틈을 건너뛰지 못하게 간격을 확보한다. 낮은 높낮이는 기본 한 번 점프로 넘는다. */
   { const S = RACE_S[4], colors = [0xff7799,0xffb657,0xffe878,0x7cdf92,0x66c9ff,0xb59aff];
-    for(let i=0;i<6;i++) P({x:0,z:S.z0+1.8+i*8.6,y:i%2?.15:0,w:8,d:3.6,h:.6+(i%2?.15:0),col:colors[i],sec:4,kind:'rainbow'}); }
+    for(let i=0;i<6;i++) P({x:0,z:S.z0+1.8+i*RACE_RAINBOW_DZ,y:i%2?.15:0,w:8,d:3.6,h:.6+(i%2?.15:0),col:colors[i],sec:4,kind:'rainbow'}); }
   /* ⑥ 마지막 계단 — 아홉 단, 셋마다 틈 하나. 꼭대기가 골인 */
   { const S = RACE_S[5], v = V[5], n = 9, step = 0.9;
     let z = S.z0;

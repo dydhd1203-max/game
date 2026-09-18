@@ -34,11 +34,11 @@ function setIR(m,i,x,y,z,ry,rx,sx,sy,sz,col){m.rows[i]={x,y,z,ry,rx,sx,sy,sz,col
 function setIR3(m,i,x,y,z,ry,rx,rz,sx,sy,sz,col){setIR(m,i,x,y,z,ry,rx,sx,sy,sz,col);m.rows[i].rz=rz;}
 `;
 let move=fn('updPlayer');move=move.slice(0,move.indexOf('  recoilTick(dt);'))+'\n}';
-const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','FADE_T','ROCK','HAZ',
+const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_RAINBOW_DZ','RACE_ROWZ','RACE_P','RACE','FADE_T','ROCK','HAZ',
   'STEP','GRAV','GRAV_V','gravNow','jumpNow','jump2Now','RACE_SPD','SPRINT','ACC_UP','JOB_JMP','GLIDE_T','GLIDE_VY','STRIDE_WALK'];
 const functions=['mulberry','furLight','raceBuild','raceOff','raceAlive','raceTopAt','raceUnder','raceSlotXZ',
   'raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','raceDrawTrim','raceDraw','groundUnder'];
-const code=[fixtures,...declarations.map(decl),...functions.map(fn),move,`globalThis.A={RACE,RACE_P,RACE_S,RACE_Z_FIN,RACE_X,PL,G,MINE,R_trim,R_plat,R_rock,R_hazB,
+const code=[fixtures,...declarations.map(decl),...functions.map(fn),move,`globalThis.A={RACE,RACE_P,RACE_S,RACE_Z_FIN,RACE_RAINBOW_DZ,RACE_X,PL,G,MINE,R_trim,R_plat,R_rock,R_hazB,
   raceBuild,raceOff,raceAlive,raceTopAt,raceUnder,raceCheckpointXZ,raceRocks,raceHazards,raceSphereHit,raceDraw,groundUnder,ROCK,HAZ,
   spawn(id){uid=id;return raceSlotXZ();}, cp(id,p){uid=id;return raceCheckpointXZ(p);},
   reset(x,z,y,run=false,moving=false){raceTestSprint=run?SPRINT.mul:1;RACE.slipT=0;Object.assign(PL,{x,z,y,vy:0,yaw:Math.PI,ground:true,jumps:0,vx:0,vz:moving?SPD*RACE_SPD*raceTestSprint:0,_px:undefined,_pz:undefined,down:false});KEY={w:true};},
@@ -134,13 +134,21 @@ check('Widened log and stair platforms retain practical side space to dodge',dod
 // Actual static race art construction, with bpush as a matrix recorder. Material
 // and box-geometry fixtures isolate this from unrelated village texture loading.
 const art=source.slice(source.indexOf('  const Rp = h =>'),source.indexOf('  /* 네 귀퉁이 등불 */',source.indexOf('  const Rp = h =>')));
-const artCtx=vm.createContext({THREE,console,RACE_S:A.RACE_S,RACE_Z_FIN:A.RACE_Z_FIN,RACE_Y_FIN:8.1,MINI_Y:100,MINI_R:34,MINI_PADZ:-19});
+const artCtx=vm.createContext({THREE,console,RACE_S:A.RACE_S,RACE_Z_FIN:A.RACE_Z_FIN,RACE_RAINBOW_DZ:A.RACE_RAINBOW_DZ,RACE_Y_FIN:8.1,MINI_Y:100,MINI_R:34,MINI_PADZ:-19});
 new vm.Script(`const MAT={},WMAT={},EMITC={},gMark=new THREE.BoxGeometry(),gEdge=gMark,gGlow=gMark,WGEO=gMark,TRUNKG=new THREE.CylinderGeometry(.5,.5,1,8),CONEG=new THREE.ConeGeometry(.5,1,8),miParts={race:[]},rows=[],TQ=2.6,nq=14;
 function bpush(key,geo,mat,x,y,z,ry=0,sx=1,sy=1,sz=1,rz=0,col=0){rows.push({key,x,y,z,ry,sx,sy,sz,rz,col});return rows.length-1;}
 ${fn('furLight')}
 function buildArt(){${art}}buildArt();globalThis.rows=rows;`).runInContext(artCtx,{timeout:10000});
 check('Actual race scenery builds with finite instance transforms',artCtx.rows.every(p=>['x','y','z','sx','sy','sz'].every(k=>Number.isFinite(p[k]))),{instances:artCtx.rows.length});
 check('Street buildings lie outside expanded track',artCtx.rows.filter(r=>r.z>60&&r.z<280&&r.key==='miMark'&&r.sx===11.8).every(r=>Math.abs(r.x)-r.sx/2>26));
+// 무지개 구간의 깃대는 발판마다 양옆에 선다. 간격이 갈라지면 뒤쪽 발판 옆이 텅 빈다.
+{
+  const rainbow=A.RACE_P.filter(p=>p.kind==='rainbow').map(p=>p.z).sort((a,b)=>a-b);
+  const poles=artCtx.rows.filter(r=>Math.abs(Math.abs(r.x)-19)<1e-9);
+  const missing=rainbow.filter(z=>!poles.some(r=>Math.abs(r.z-z)<1e-6));
+  check('Every rainbow platform keeps its flag poles beside it',rainbow.length===6&&missing.length===0,
+    {platforms:rainbow,missing});
+}
 fs.mkdirSync(out,{recursive:true});
 // Diagram from actual computed platform/art coordinates, not a hand-drawn course.
 const sx=x=>360+x*5,sy=z=>1730-(z+30)*5,hex=c=>'#'+(c||0xffffff).toString(16).padStart(6,'0');
