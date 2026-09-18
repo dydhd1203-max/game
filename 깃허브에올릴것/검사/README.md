@@ -1,6 +1,6 @@
 # 검사 (테스트 하네스)
 
-## 현재 검증 — 54차 그래픽·동작·꾸미기 정리
+## 현재 검증 — 60차 좀비 붕대까지
 
 저장소 뿌리에서 `node 깃허브에올릴것/검사/check-current.mjs`를 실행한다.
 처음 한 번은 `cd 깃허브에올릴것/검사 && npm i three linkedom`으로 필요한 것을 받는다.
@@ -8,21 +8,40 @@ push·pull request 마다 `.github/workflows/checks.yml`이 같은 명령을 자
 숨김 브라우저 검사는 GitHub 의 Actions 화면에서 손으로 실행할 때만 돈다(`render` 선택).
 `--render`를 붙이면 단일 숨김 브라우저 검사까지 실행한다. 전체 로그 대신 검사별 결과를 간단히 표시한다.
 
-2026-09-18. 현재 변경에는 아래 **208개 확인 항목**과 입력 보호·문법 검사를 실행했다.
-과거 52차 전체 검사 1306개를 이번에 모두 재실행했다는 뜻은 아니다.
+2026-09-18. 아래 표는 `check-current.mjs`가 돌리는 21개 파일이며, 숫자가 나오는 19개를 더하면
+**457개 확인 항목**이다. 손으로 센 값이 아니라 CI 실행 출력(`n/n checks passed`)을 그대로 옮겼다.
+검사를 고치면 이 숫자도 함께 고친다. 과거 52차 전체 1306개를 매번 재실행한다는 뜻은 아니다.
 
 | 검사 | 통과 | 범위 |
 |---|---:|---|
+| chk.mjs | 문법 | 모듈 스크립트 구문만 본다 |
+| input52-static.mjs | 보호 | 브라우저 없이 입력 해제·pointer lock 차단 |
 | t53-static.mjs | 12 | 얼굴·오른손·기초 모션 |
-| t54-avatar-static.mjs | 41 | 실제 직업 6벌·날개·도구·활공·점프 포즈 |
+| t54-avatar-static.mjs | 43 | 실제 직업 6벌·날개·도구·활공·점프 포즈 |
 | t53-shop-static.mjs | 74 | 거래·카드 구성·이미지 배치 계약 |
 | t55-wardrobe-static.mjs | 28 | 대기실 조합·저장 ID 이관·게임 중 잠금·가방 |
-| t54-combat-static.mjs | 12 | 화면 중앙 조준·사거리·PvP 엄폐·돌 대체 |
-| t54-race-static.mjs | 12 | 4배 폭·6구간·21인 분산·실제 점프·인스턴스 |
-| t54-zombie-static.mjs | 12 | 13종·밤 의상·공격 동작·92마리·수치 보존 |
-| t54-view.mjs | 17 | 실제 브라우저 배치·구매·사격·점프·충돌·WebGL |
+| t54-combat-static.mjs | 14 | 화면 중앙 조준·사거리·PvP 엄폐·돌 대체·조준점과 발사 일치 |
+| t54-race-static.mjs | 23 | 4배 폭·6구간·21인 분산·실제 점프·인스턴스 |
+| t54-zombie-static.mjs | 23 | 13종·밤 의상·공격 동작·92마리·수치 보존 |
+| t56-buildings-static.mjs | 32 | 6종 기하 한계·부품 수·분기·경험치/공사 시간 표 등재 |
+| t56-building-combat-static.mjs | 23 | 실제 공격·범위·감속 |
+| t56-build-assist-static.mjs | 30 | 배치·특화 선택·기지 꾸미기 UI |
+| t56-build-coop-static.mjs | 40 | 두 클라이언트 fixture 로 공동 건설·결제·이동·철거 보호 |
+| t57-avatar-geometry-static.mjs | 14 | 사람 전용 기하·관절 연결·발 접지 |
+| t57-motion-static.mjs | 15 | 관절 모션 |
+| t57-render-static.mjs | 15 | 전용 재질·접촉 그림자 |
+| t58-job-art-static.mjs | 22 | 직업 장비 구성·얼굴/등 여유·날개 윤곽 |
+| t58-motion-static.mjs | 18 | 몸 크기 고정·옷/날개 부착·옆걸음·프레임률 전환 |
+| t59-zombie-shape-static.mjs | 14 | 좀비 전용 윤곽·기하 비용 |
+| t59-zombie-attachment-static.mjs | 7 | 자세별 옷/갑옷/등 장식 부착 |
+| t60-zombie-wrap-static.mjs | 10 | 감긴 붕대 기하·눈/입 여백·92마리 용량 |
 
-Node 검사에는 검사 폴더의 three와 linkedom이 필요하다. sharp는 CPU PNG 생성에만 사용한다.
+숨김 브라우저 검사(`--render`)는 위 합계에 넣지 않는다. `t54-view`·`t56-build-view`·
+`t57-character-view`·`t59-zombie-view` 네 개이며, Actions 화면에서 `render`를 골라 돌린다.
+`t56-buildings-view`는 외형 갤러리 선택 검사로 따로 돌린다.
+
+Node 검사에는 검사 폴더의 three와 linkedom이 필요하다. sharp는 CPU PNG 생성에만 사용하며
+없으면 기하 검사는 그대로 돌고 그림만 건너뛴다. three는 게임이 CDN 에서 쓰는 0.160.0 으로 맞춘다.
 브라우저 검사는 pw.mjs의 headless/포인터 잠금 차단을 사용한다. t54-view는 OS 마우스와
 키보드 API 없이 DOM 이벤트와 실제 게임 함수를 실행하고 finally에서 브라우저/서버를 닫는다.
 CPU 기하 미리보기와 실제 WebGL 그림은 구별한다. 21명 실접속·교실 GPU 성능은 이 결과에 포함하지 않는다.
