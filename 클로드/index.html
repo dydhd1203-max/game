@@ -2073,6 +2073,8 @@ body.touch .slot.tool{background:#f5f9fc}body.touch .slot.tool.on{background:#d9
 #feed{background:none;border:none;box-shadow:none;color:var(--rb-ink);text-shadow:none}
 #feed div{background:rgba(255,253,247,.94);border:1px solid #dae6ee;border-left:3px solid #e7bf4e;box-shadow:none;color:var(--rb-ink);text-shadow:none}
 #toast,#shopTip,#forgeTip,#farmTip{background:var(--rb-bg2);border:1px solid var(--rb-line2);border-radius:var(--rb-r);box-shadow:var(--soft);color:var(--rb-ink);text-shadow:none}
+#toast.resource{width:max-content;max-width:86vw;padding:0;background:none;border:0;border-radius:0;box-shadow:none;
+  text-shadow:0 1px 2px rgba(25,55,36,.9),0 2px 5px rgba(25,55,36,.65)}
 #aimInfo{background:var(--rb-bg);border:1px solid var(--rb-line2);color:var(--rb-ink);box-shadow:var(--soft);text-shadow:none}
 #aimInfo .lv1{background:#e8f1f8;color:var(--rb-ink)}#aimInfo .prog{background:#dce8ef}#aimInfo .prog i{background:#e5b942}
 #combo{text-shadow:none;color:#845a0a;background:var(--rb-bg);border-color:#dac787}
@@ -12742,8 +12744,9 @@ function fearTick(dt){
   if(fearK > 0.15 && heartT <= 0 && nw){ heartT = 1.15 - fearK*0.5; sfxFrom('heart', nw.x, nw.z, 0.5 + fearK*0.7); }
 }
 function dreadTick(dt){ dreadHowls(dt); dreadBoss(dt); fearTick(dt); }
-function toast(msg, sec=2.2, color='#fff'){
-  const t = el('toast'); t.textContent = msg; t.style.color = color; t.classList.add('on'); toastT = sec;
+function toast(msg, sec=2.2, color='#fff', kind=''){
+  const t = el('toast'); t.textContent = msg; t.style.color = color;
+  t.classList.toggle('resource',kind==='resource'); t.classList.add('on'); toastT = sec;
 }
 function feed(msg){
   const f = el('feed'); const d = document.createElement('div'); d.innerHTML = msg;
@@ -13913,7 +13916,7 @@ function hitNode(n){
     gain(d.give, amt);
     MY.mined += amt;
     xpGain(XP_MINE);
-    toast(`+${amt} ${d.icon}`, 0.7, '#c8ffb0');
+    toast(`+${amt} ${d.icon}`, 0.7, '#c8ffb0', 'resource');
   }
   nodeVisual(n);
   if(n.hp <= 0){
