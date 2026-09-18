@@ -57,14 +57,15 @@ const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),
   declaration('ENH_FX'),declaration('WEAPONS'),declaration('HATS'),declaration('GLASSES'),declaration('CLOTHES'),
   fn('wingSpine'),fn('wingGeo'),declaration('WING_GEO'),declaration('JOB_WING'),
   declaration('WMAT_W'),declaration('WMAT_G'),declaration('P_wing'),declaration('P_wingG'),
-  declaration('JOB_LOOK'),declaration('JOB_AURA'),
+  declaration('JOB_LOOK'),declaration('JOB_GEO'),declaration('JOB_UNIFORM'),declaration('P_jobParts'),declaration('JOB_AURA'),
   chunk('let FLIP_ON =','const fxq ='),
   chunk('const HEAD_M =','function drawSheep('),fn('drawSheep'),
   `globalThis.API={drawSheep,smoothHead,sheepGait,sheepJoint,sheepFootPose,sheepActionPose,avatarWingPose,R6_HOOK,R6_HEAD,R6_HK,R6_ARM,R6_ASD,R6_SHU,R6_HAND_AT,
-    JOB_LOOK,JOB_WING,WING_GEO,wingSpine,r6body,P_jobF,P_jobR,
+    JOB_LOOK,JOB_GEO,JOB_UNIFORM,P_jobParts,JOB_WING,WING_GEO,wingSpine,r6body,P_jobF,P_jobR,
     R6_SMILE,CYL,HATS,GLASSES,CLOTHES,meshes:{body:P_body,head:P_head,arm:P_arm,eyes:P_eye,mouth:P_mouth,nose:P_nose,
     legs:P_legs,shoes:P_shoe,deco:P_deco,gun:P_gun,gunGlow:P_gunF,handL:P_hand[0],handR:P_hand[1],
-    wing0:P_wing[0],wing1:P_wing[1],wingGlow0:P_wingG[0],wingGlow1:P_wingG[1]}};`
+    wing0:P_wing[0],wing1:P_wing[1],wingGlow0:P_wingG[0],wingGlow1:P_wingG[1],
+    ...Object.fromEntries(Object.entries(P_jobParts).map(([key,mesh])=>['job_'+key,mesh]))}};`
 ];
 const context=vm.createContext({THREE,console});
 new vm.Script(pieces.join('\n'),{filename:'extracted-avatar-from-index.js'}).runInContext(context,{timeout:10000});
@@ -145,10 +146,11 @@ for(const level of [0,5,20]){
 check('Upgraded gathering speed preserves the full visible motion cycle',miningCycle);
 
 const jobScenarios=[];
+const outfitCount=p=>p.deco.length+Object.entries(p).filter(([key])=>key.startsWith('job_')).reduce((sum,[,parts])=>sum+parts.length,0);
 for(let jb=0;jb<3;jb++)for(let jt=1;jt<=2;jt++){
-  const s=actor({jb,jt}),p=snapshot(s);jobScenarios.push([['Knight','Builder','Gatherer'][jb]+' '+jt,s]);
-  check('Job '+jb+'/'+jt+' renders every authored costume piece and one full wing pair',finiteSnapshot(p)&&p.deco.length===A.JOB_LOOK[jb][jt-1].length&&p['wing'+(jt-1)].length===2&&p['wing'+(2-jt)].length===0,{costume:p.deco.length,authored:A.JOB_LOOK[jb][jt-1].length,wings:p['wing'+(jt-1)].length});
-  const plank=A.JOB_LOOK[jb][jt-1].some(h=>{if(h[7])return false;const q=[...A.r6body(...h.slice(0,6))];return q[0]<-.08&&q[3]>.4&&q[4]>.4;});
+  const s=actor({jb,jt}),p=snapshot(s);jobScenarios.push([['Cowboy','Inventor','Explorer'][jb]+' '+jt,s]);
+  check('Job '+jb+'/'+jt+' renders every authored costume piece and one full wing pair',finiteSnapshot(p)&&outfitCount(p)===A.JOB_LOOK[jb][jt-1].length&&p['wing'+(jt-1)].length===2&&p['wing'+(2-jt)].length===0,{costume:outfitCount(p),authored:A.JOB_LOOK[jb][jt-1].length,wings:p['wing'+(jt-1)].length});
+  const plank=A.JOB_LOOK[jb][jt-1].some(h=>{if(h[7])return false;const q=[...A.r6body(...h.slice(0,6))];return q[0]<-.08&&q[3]>.4&&q[4]>.4&&q[5]>.12;});
   check('Job '+jb+'/'+jt+' has no broad rectangular back plank',!plank);
 }
 const jobCounts=A.JOB_LOOK.map(j=>j.map(t=>t.length));
@@ -176,9 +178,19 @@ check('Gliding leans full body into flight, rather than using falling pose',glid
 const runUp=new THREE.Vector3(0,1,0).transformDirection(poses.get('run').body[0]);
 const runFootGap=Math.abs(pos(poses.get('run').shoes[0]).y-pos(poses.get('run').shoes[1]).y);
 check('Sprint leans forward while one foot clears the grounded foot',runUp.z>.16&&runFootGap>.12,{bodyUp:runUp.toArray(),footHeightGap:runFootGap});
-const chosenHat=9,jobWithHat=snapshot(actor({jb:0,jt:1,hat:chosenHat}));
-const expectedHatPieces=A.HATS[chosenHat].length+A.JOB_LOOK[0][0].filter(h=>!h[7]).length;
-check('Chosen cosmetic hat replaces job helmet without removing job armor',jobWithHat.deco.length===expectedHatPieces,{actual:jobWithHat.deco.length,expected:expectedHatPieces});
+const chosenHat=9,jobWithHat=snapshot(actor({jb:0,jt:1,hat:chosenHat,clo:4,gls:8}));
+const expectedHatPieces=A.GLASSES[8].length+A.JOB_LOOK[0][0].length;
+check('Job outfit replaces lobby hat and clothes while retaining face decoration',outfitCount(jobWithHat)===expectedHatPieces,{actual:outfitCount(jobWithHat),expected:expectedHatPieces});
+let crowdFits=true;
+for(let jb=0;jb<3;jb++)for(let jt=1;jt<=2;jt++){
+  const crowd=Array.from({length:40},(_,i)=>actor({x:i*2,jb,jt,hat:9,clo:4,gls:8}));
+  A.drawSheep(crowd,10,40,()=>0x55aaff,1);
+  crowdFits&&=Object.values(A.P_jobParts).every(mesh=>mesh.count<=mesh.count_max);
+  for(const [key,mesh] of Object.entries(A.P_jobParts))crowdFits&&=mesh.count===A.JOB_LOOK[jb][jt-1].filter(row=>row[12]===key).length*40;
+}
+check('Every shared job geometry fits forty players wearing the same full outfit',crowdFits);
+A.drawSheep([],11,40,()=>0x55aaff,1);
+check('Removing all actors clears every role geometry instance and visibility',Object.values(A.P_jobParts).every(mesh=>mesh.count===0&&!mesh.visible));
 
 // A brief noisy grounded flag cannot reverse a settled airborne pose in one frame.
 const noisy=actor({air:true,vy:0});snapshot(noisy,10);noisy.air=false;const noisyPose=snapshot(noisy,10+1/60);

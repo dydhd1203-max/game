@@ -12,19 +12,24 @@ function draw(s,t=10,seed=false){const g=A.sheepGait(s,t);if(seed)g.v=s.run?8:4;
  return Object.fromEntries(Object.entries(A.meshes).map(([k,mesh])=>[k,Array.from({length:mesh.count},(_,i)=>{const m=new THREE.Matrix4();mesh.getMatrixAt(i,m);return m;})]));}
 const base=draw(actor()),one=draw(actor({jt:1,jb:0})),two=draw(actor({jt:2,jb:0}));
 ok('Job advancement never enlarges body, head, arms, legs or shoes',['body','head','arm','legs','shoes'].every(k=>base[k].every((m,i)=>scale(m).distanceTo(scale(one[k][i]))<1e-7&&scale(m).distanceTo(scale(two[k][i]))<1e-7)));
-const local=(p,m)=>p.body[0].clone().invert().multiply(m),poses=[{}, {mv:true,run:true,gp:1.4},{act:'mine',actP:.30,tool:'mine'},{act:'mine',actP:.56,tool:'mine'},{wp:3,kick:1},{land:.20}].map(e=>draw(actor({jb:0,jt:2,clo:1,...e}),10,!!e.mv));
+const local=(p,m)=>p.body[0].clone().invert().multiply(m),actions=[{}, {mv:true,run:true,gp:1.4},{act:'mine',actP:.30,tool:'mine'},{act:'mine',actP:.56,tool:'mine'},{wp:3,kick:1},{land:.20}];
+const poses=actions.map(e=>draw(actor({jb:0,jt:2,clo:1,...e}),10,!!e.mv));
+const clothPoses=actions.map(e=>draw(actor({clo:1,...e}),10,!!e.mv));
 let mountError=0,clothError=0;
 for(const p of poses.slice(1)){
  for(let i=0;i<2;i++)mountError=Math.max(mountError,position(local(p,p.wing1[i])).distanceTo(position(local(poses[0],poses[0].wing1[i]))));
- const a=local(p,p.deco[0]).elements,b=local(poses[0],poses[0].deco[0]).elements;clothError=Math.max(clothError,...a.map((v,i)=>Math.abs(v-b[i])));
+}
+for(const p of clothPoses.slice(1)){
+ const a=local(p,p.deco[0]).elements,b=local(clothPoses[0],clothPoses[0].deco[0]).elements;clothError=Math.max(clothError,...a.map((v,i)=>Math.abs(v-b[i])));
 }
 ok('Wing roots remain rigidly attached to the torso during running, work, recoil and landing',mountError<1e-6,{mountError});
 ok('Torso clothing shares the body lean, breath and landing transform',clothError<1e-6,{clothError});
 let jobMountError=0;
 for(const p of poses.slice(1))for(let j=0;j<A.JOB_LOOK[0][1].length;j++){
  const row=A.JOB_LOOK[0][1][j];if(row[7]||row[8])continue;
- const idx=A.CLOTHES[1].length+j;
- jobMountError=Math.max(jobMountError,position(local(p,p.deco[idx])).distanceTo(position(local(poses[0],poses[0].deco[idx]))));
+ const key=A.JOB_GEO[row[12]]?'job_'+row[12]:'deco';
+ const idx=A.JOB_LOOK[0][1].slice(0,j).filter(h=>(A.JOB_GEO[h[12]]?'job_'+h[12]:'deco')===key).length;
+ jobMountError=Math.max(jobMountError,position(local(p,p[key][idx])).distanceTo(position(local(poses[0],poses[0][key][idx]))));
 }
 ok('Authored torso job pieces keep their body-local mounting points',jobMountError<1e-6,{jobMountError});
 function wingBounds(p){const box=new THREE.Box3(),inv=p.body[0].clone().invert();let inside=0;

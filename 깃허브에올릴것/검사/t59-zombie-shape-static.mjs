@@ -48,18 +48,18 @@ const eyeSamples=[-.135,.135].flatMap(x=>[-.025,0,.025].map(dx=>({x:x+dx,y:.074,
 const mouthSamples=[-.08,0,.08].map(x=>({x,y:-.13,z:.2885}));
 const margins=[...eyeSamples,...mouthSamples].map(v=>v.z-frontAt(v.x,v.y));
 check('Existing eyes and mouth remain in front of the new skull surface',margins.every(v=>Number.isFinite(v)&&v>.015&&v<.075),{min:Math.min(...margins),max:Math.max(...margins)});
-const mapping={W_body:'torso',W_head:'skull',W_legs:'limb',W_paw:'palm',W_ears:'ear',W_snout:'soft',W_tail:'taper',W_chest:'soft',W_ruff:'soft',W_belly:'soft',W_cheek:'soft',W_hack:'taper',W_costume:'soft'};
+const mapping={W_body:'torso',W_head:'skull',W_legs:'limb',W_paw:'palm',W_ears:'ear',W_snout:'soft',W_tail:'taper',W_chest:'soft',W_ruff:'soft',W_belly:'soft',W_cheek:'soft',W_costume:'soft'};
 check('All body, face, sleeve, and costume meshes use dedicated organic shapes',Object.entries(mapping).every(([m,g])=>A.meshes[m].geometry===A.ZOMBIE_GEO[g]&&A.meshes[m].geometry!==A.RB));
 check('Armor retains its original hard plate geometry',A.meshes.W_plate.geometry===A.RB);
 check('Zombie materials preserve instance colors without multiplying a dark shared base',Object.values(A.ZOMBIE_MAT).every(m=>m.color.getHex()===0xffffff)&&Object.keys(mapping).every(n=>Object.values(A.ZOMBIE_MAT).includes(A.meshes[n].material)));
 check('Shared animal and human fur materials remain unchanged',A.FM.fur.color.getHex()===0x8a8c93&&A.FM.furD.color.getHex()===0x4d4f57);
-const capacities={W_body:1,W_head:1,W_snout:1,W_tail:3,W_legs:8,W_eyes:2,W_ears:2,W_chest:1,W_hack:8,W_paw:4,W_horn:2,W_nose:1,W_ruff:1,W_belly:1,W_brow:2,W_cheek:2,W_rib:10,W_tongue:1,W_plate:36,W_gem:1,W_eyeW:2,W_eyeR:2,W_pupil:2,W_fang:5,W_costume:64};
+const capacities={W_body:1,W_head:1,W_snout:1,W_tail:3,W_legs:8,W_eyes:2,W_ears:2,W_chest:1,W_paw:4,W_horn:2,W_nose:1,W_ruff:1,W_belly:1,W_brow:2,W_cheek:2,W_rib:10,W_plate:36,W_gem:1,W_eyeW:2,W_eyeR:2,W_pupil:2,W_fang:5,W_costume:64};
 check('Geometry changes do not expand per-zombie instance capacities',Object.entries(capacities).every(([n,c])=>A.meshes[n].count_max===92*c));
 const army=Array.from({length:92},(_,i)=>({k:0,x:i*.1,y:0,z:0,ry:0,id:i,ph:.3,hp:40,mx:40,mv:false,atkT:0,hurt:0}));
 let maxOrganic=0,maxPrevious=0;
 for(let nk=0;nk<10;nk++){A.G.nk=nk;A.drawWolves(army,4,.016);let actual=0,previous=0;
   for(const name of Object.keys(mapping)){const m=A.meshes[name];actual+=m.count*triangles(m.geometry);
-    previous+=m.count*triangles(['W_ears','W_hack','W_cheek'].includes(name)?A.RBs:A.RB);}
+    previous+=m.count*triangles(['W_ears','W_cheek'].includes(name)?A.RBs:A.RB);}
   maxOrganic=Math.max(maxOrganic,actual);maxPrevious=Math.max(maxPrevious,previous);
 }
 check('Organic body and costume triangles stay below the previous box crowd budget',maxOrganic<maxPrevious&&maxOrganic<750000,{zombies:92,maxOrganic,maxPrevious,ratio:+(maxOrganic/maxPrevious).toFixed(3)});

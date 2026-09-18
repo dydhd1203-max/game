@@ -47,7 +47,7 @@ function fn(name){const start=source.indexOf('function '+name+'(');if(start<0)th
 function chunk(a,b){const start=source.indexOf(a),end=source.indexOf(b,start);if(start<0||end<0)throw new Error('Missing chunk '+a);return source.slice(start,end);}
 const fixtures=`
 const GFX={shadow:false,lowLambert:false},scene=new THREE.Scene(),MAXP=40,GY=0,SPD=5.2,RACE_SPD=1.4;
-const raceOn=()=>false,burst=()=>{},drawAvatarShadows=()=>{},meSheep={},JOB_LOOK=[],JOB_AURA=[],ENH_MAX=6;
+const raceOn=()=>false,burst=()=>{},drawAvatarShadows=()=>{},meSheep={},JOB_LOOK=[],JOB_UNIFORM=[],JOB_AURA=[],P_jobParts={},P_jobMeshes=[],ENH_MAX=6;
 const UPV=new THREE.Vector3(0,1,0),AX_X=new THREE.Vector3(1,0,0);
 const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color();
 `;

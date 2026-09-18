@@ -35,7 +35,7 @@ function chunk(a,b){const start=source.indexOf(a),end=source.indexOf(b,start);if
 const fixtures=`const GFX={q:'high',shadow:false},scene=new THREE.Scene(),MAXW=92,MAXP=40,GY=0,NIGHTK=.7,ENV_STEEL=null;
 const G={day:1,nk:0,set:{goalDay:15}},topAt=()=>0,burst=()=>{},UPV=new THREE.Vector3(0,1,0);
 const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color();`;
-const names=['W_body','W_head','W_chest','W_ruff','W_snout','W_tail','W_legs','W_paw','W_eyes','W_ears','W_hack','W_horn','W_nose','W_belly','W_brow','W_cheek','W_rib','W_tongue','W_plate','W_gem','W_eyeW','W_eyeR','W_pupil','W_fang','W_costume'];
+const names=['W_body','W_head','W_chest','W_ruff','W_snout','W_tail','W_legs','W_paw','W_eyes','W_ears','W_horn','W_nose','W_belly','W_brow','W_cheek','W_rib','W_plate','W_gem','W_eyeW','W_eyeR','W_pupil','W_fang','W_costume','W_wrap'];
 const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),fn('metalMat'),chunk('function roundBox(','const _rbCache'),
  chunk('const STUD =','const eyeMat ='),fn('imesh'),chunk('const eyeMat =','/* ═══════════════════════ 농장 동물'),
  declaration('auraMat'),declaration('W_aura'),chunk('let FLIP_ON =','const fxq ='),
@@ -86,10 +86,28 @@ const angle=m=>new THREE.Vector3(0,1,0).transformDirection(m).z;
 const chaseDelta={lower:pos(patrolPose.W_body[0]).y-pos(chasePose.W_body[0]).y,lean:angle(chasePose.W_body[0])-angle(patrolPose.W_body[0]),hand:Math.max(...chasePose.W_paw.map((m,i)=>pos(m).distanceTo(pos(patrolPose.W_paw[i]))))};
 check('Chasing visibly lowers and leans the body and reaches forward',chaseDelta.lower>.02&&chaseDelta.lean>.15&&chaseDelta.hand>.07,chaseDelta);
 check('Both elbows are rendered while all hands remain present',chasePose.W_legs.length===6&&chasePose.W_paw.length===2);
+const reaches=[patrolPose,chasePose,prep,hit,recovery];
+check('Reaching palms face downward and fingertips curl below their knuckles',reaches.every(p=>
+  p.W_paw.every(m=>new THREE.Vector3(0,0,1).transformDirection(m).y<-.1)&&
+  p.W_costume.slice(-12).every((m,i)=>i%2===0||new THREE.Vector3(0,-1,0).transformDirection(m).y<-.1)));
 const deadHunter=actor(0,{dead:.4,shT:true,poseChase:1,poseAlert:.2});const death=A.wolfPose(deadHunter,1,1/60).threat;
 check('Defeated zombies stop the discovery and chase pose',death.chase===0&&death.alert===0&&death.drive===0);
 const phaseA=A.wolfPose(actor(0,{id:1}),.4,.016).threat,phaseB=A.wolfPose(actor(0,{id:8}),.4,.016).threat;
 check('Zombie identity gives different leading hands and stagger phase',phaseA.side!==phaseB.side);
+// The fear zombie iris must fit the actual white ellipse through head and attack poses.
+let irisContained=true,fangsInMouth=true;
+for(const extra of [{},{ry:1.1,mv:true,gv:6,lx:0,lz:-.1,gp:1},{atkT:.07,poseAtkT:.1,poseAtkCd:.85},{atkT:.85,poseAtkT:.1,poseAtkCd:.85}]){
+  const p=snapshot(actor(12,extra)),iris=A.meshes.W_eyeR.geometry.attributes.position;
+  for(let eye=0;eye<2;eye++){
+    const intoWhite=p.W_eyeW[eye].clone().invert().multiply(p.W_eyeR[eye]);
+    for(let i=0;i<iris.count;i++){const v=new THREE.Vector3().fromBufferAttribute(iris,i).applyMatrix4(intoWhite);irisContained&&=v.x*v.x+v.y*v.y<.25&&v.z>0;}
+  }
+  for(const fang of p.W_fang){const tip=new THREE.Vector3(0,-.5,0).applyMatrix4(fang).applyMatrix4(p.W_snout[0].clone().invert());fangsInMouth&&=Math.abs(tip.x)<.5&&Math.abs(tip.y)<.5;}
+}
+check('Fear zombie red irises stay inside the whites while turning and attacking',irisContained);
+const teeth=A.meshes.W_fang.geometry.attributes.position;
+let tipRadius=0;for(let i=0;i<teeth.count;i++)if(teeth.getY(i)<-.499)tipRadius=Math.max(tipRadius,Math.hypot(teeth.getX(i),teeth.getZ(i)));
+check('Fear zombie teeth have pointed tips inside the mouth instead of dangling strips',tipRadius<.001&&fangsInMouth);
 const nightShapes=[];for(let nk=0;nk<10;nk++){A.G.nk=nk;const p=snapshot(actor(0));nightShapes.push(p.W_costume.length+':'+p.W_costume.map(m=>m.elements.join(',')).join(';'));}
 check('Night themes change costume geometry, beyond recoloring',new Set(nightShapes).size>=7,{uniqueStyles:new Set(nightShapes).size});A.G.nk=0;
 let capacity=true,completeArmor=true;const maxCounts={};

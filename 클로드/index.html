@@ -1796,6 +1796,9 @@ table.rank th,table.rank td{border-bottom:1px solid var(--pk-line);color:var(--p
 .jobCard:hover{border-color:#ffd257;box-shadow:0 8px 0 var(--pk-lav), 0 16px 30px -14px rgba(70,50,120,.4)}
 .jobCard .jFig{background:radial-gradient(ellipse at 50% 64%,#e8dcff,#f6f2fc 70%)} .jobCard .jBadge{filter:none} .jobCard .jBadge img.ic{height:30px}
 .jobCard .jDesc{color:var(--pk-ink2);opacity:1} .jobCard .jStat{color:#a07a00}
+.jobCard .jRole{font-size:11px;text-align:center;color:#526c81;padding:9px 8px 0}
+.jobCard .jPath{font-size:11px;text-align:center;line-height:1.5;color:#526c81;padding:0 10px 8px}
+.jobCard .jDesc{font-size:12px;font-weight:400;line-height:1.6}
 .jobCard .jGo{background:linear-gradient(180deg,#fff6cf,#ffe28a);border:2px solid #fff;color:#4a3c00;box-shadow:0 3px 0 #e0b040}
 /* 스텟 창 */
 .stBig{background:#fff;border:2px solid #fff;border-radius:16px;box-shadow:0 3px 0 var(--pk-lav);animation:cardIn .28s both}
@@ -7854,6 +7857,7 @@ const ZOMBIE_MAT = {
   cloth:flatMat(0xffffff,{specular:0x0b0e0c,shininess:8}),
   detail:flatMat(0xffffff,{specular:0x111611,shininess:10})
 };
+const ZOMBIE_FANG_GEO=new THREE.ConeGeometry(.5,1,10,1).rotateZ(Math.PI);
 const W_body = imesh(ZOMBIE_GEO.torso, ZOMBIE_MAT.cloth, MAXW, 1),
       W_head = imesh(ZOMBIE_GEO.skull, ZOMBIE_MAT.skin, MAXW, 1),
       W_snout= imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.detail, MAXW, 1),
@@ -7862,15 +7866,13 @@ const W_body = imesh(ZOMBIE_GEO.torso, ZOMBIE_MAT.cloth, MAXW, 1),
       W_eyes = imesh(ZOMBIE_GEO.soft, eyeMat, MAXW*2, 1),
       W_ears = imesh(ZOMBIE_GEO.ear, ZOMBIE_MAT.skin, MAXW*2, 1),
       W_chest= imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.cloth, MAXW, 1),
-      W_hack = imesh(ZOMBIE_GEO.taper, ZOMBIE_MAT.cloth, MAXW*8, 1),
       W_paw  = imesh(ZOMBIE_GEO.palm, ZOMBIE_MAT.skin, MAXW*4, 1),
       W_horn = imesh(RBs, FM.wool, MAXW*2, 1),      // 보스 + 흉포한 좀비의 뿔
       W_nose = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.detail, MAXW, 1),
       W_ruff = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.cloth, MAXW, 1);
-/* ═══ 36차 — 종류별 조각 ═══ 굶주린(갈비뼈·혀) · 갑옷(철판·투구) · 치유(보석·고리) · 공포(흰 눈·눈동자·송곳니·검은 고리) */
+/* 종류별 조각: 굶주린(갈비뼈) · 갑옷(철판·투구) · 치유(보석·고리) · 공포(눈·송곳니·검은 고리) */
 const eyeMatW  = flatMat(0xffffff, {emissive:0xffffff, emissiveIntensity:0.5});      // 공포 좀비의 흰자 — 어둠 속에서 희게 빛난다
 const eyeMatR  = flatMat(0xff2010, {emissive:0xff1a08, emissiveIntensity:0.9});      // 36차b — 공포 좀비의 붉게 타는 세로 눈동자
-const tongueMat= flatMat(0xa5b7a0);
 const plateMat = metalMat(0xffffff, {reflectivity:0.12, shininess:72});               // 갑옷 — 바탕을 희게 두고 조각마다 인스턴스 색으로 강철·무쇠·리벳을 나눈다 (36차b: 어두운 무쇠 한 색이라 갑옷으로 안 읽혔다)
 const gemMat   = flatMat(0x7dffb0, {emissive:0x2dff7a, emissiveIntensity:0.9});
 const healRingMat  = new THREE.MeshBasicMaterial({color:0x5dff9a, transparent:true, opacity:0.34, depthWrite:false, side:THREE.DoubleSide, blending:THREE.AdditiveBlending});
@@ -7881,16 +7883,30 @@ const W_belly  = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.cloth, MAXW, 1),
       W_brow   = imesh(ZOMBIE_GEO.taper, ZOMBIE_MAT.detail, MAXW*2, 1),
       W_cheek  = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.skin, MAXW*2, 1);
 const W_rib    = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.detail, MAXW*10, 1), // 눈 그늘·굶주린 좀비의 갈비·턱
-      W_tongue = imesh(RBs, tongueMat, MAXW, 1),
       W_plate  = imesh(RB,  plateMat, MAXW*36, 1),    // 갑옷 32조각/마리와 다음 마리 검사 여유까지 확보
       W_gem    = imesh(new THREE.OctahedronGeometry(0.5, 0), gemMat, MAXW, 1),
-      W_eyeW   = imesh(BALL, eyeMatW, MAXW*2, 1),
-      W_eyeR   = imesh(BALL, eyeMatR, MAXW*2, 0),       // 36차b — 붉은 눈 테
-      W_pupil  = imesh(BALL, FM.dark, MAXW*2, 1),
-      W_fang   = imesh(RBs, FM.wool, MAXW*5, 1),
+      W_eyeW   = imesh(R6_EYE_GEO, eyeMatW, MAXW*2, 1),
+      W_eyeR   = imesh(R6_EYE_GEO, eyeMatR, MAXW*2, 0),
+      W_pupil  = imesh(R6_EYE_GEO, FM.dark, MAXW*2, 1),
+      W_fang   = imesh(ZOMBIE_FANG_GEO, ZOMBIE_MAT.detail, MAXW*5, 1),
       W_heal   = imesh(new THREE.RingGeometry(0.86, 1.0, 28), healRingMat, 24, 0),
       W_beam   = imesh(new THREE.BoxGeometry(1, 1, 1), healBeamMat, 24, 0),        // 36차 — 치유 좀비 → 채우는 좀비로 이어지는 초록 줄
       W_dread  = imesh(new THREE.RingGeometry(0.55, 1.0, 28), dreadRingMat, 24, 0);
+// 속이 열린 얇은 천 띠. 앞/뒤 곡면을 이어 머리·몸·팔을 한 바퀴 감싼다.
+function zombieWrapGeo(){
+  const p=[],idx=[],N=24,edge=[[.488,-.5],[.5,-.40],[.5,.40],[.488,.5],[.467,.46],[.46,.36],[.46,-.36],[.467,-.46]];
+  for(const [r,y] of edge)for(let i=0;i<N;i++){
+    const a=i*Math.PI*2/N,s=Math.sin(a),c=Math.cos(a),power=c>=0?.55:.85;
+    p.push(Math.sign(s)*Math.pow(Math.abs(s),power)*r,y,Math.sign(c)*Math.pow(Math.abs(c),power)*r);
+  }
+  for(let j=0;j<edge.length;j++)for(let i=0;i<N;i++){
+    const a=j*N+i,b=j*N+(i+1)%N,d=((j+1)%edge.length)*N+i,c=((j+1)%edge.length)*N+(i+1)%N;
+    idx.push(a,b,d,b,c,d);
+  }
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));
+  g.setIndex(idx);g.computeVertexNormals();g.computeBoundingBox();return g;
+}
+const W_wrap=imesh(zombieWrapGeo(),ZOMBIE_MAT.cloth,MAXW*4,1);
 const W_costume = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.cloth, MAXW*64, 1); // 낡은 의상·손가락·밤 테마
 W_heal.castShadow = W_heal.receiveShadow = W_dread.castShadow = W_dread.receiveShadow = W_beam.castShadow = W_beam.receiveShadow = false;
 const AX_X = new THREE.Vector3(1,0,0), AX_Z = new THREE.Vector3(0,0,1), _tmpV = new THREE.Vector3();
@@ -8330,16 +8346,7 @@ const P_body = imesh(R6_BODY_GEO, AVATAR_MAT.cloth, MAXP, 1),
       P_mouth= imesh(R6_SMILE, AVATAR_MAT.face, MAXP, 1),
       P_legs = imesh(R6_LIMB_GEO, AVATAR_MAT.cloth, MAXP*4, 1),
       P_shoe = imesh(R6_SHOE_GEO, AVATAR_MAT.cloth, MAXP*2, 1),
-      /* ★ 꾸미기(모자·안경·옷) — 종류가 몇이든 메시는 하나다.
-         천 텍스처에 색·크기만 바꿔 끼우므로, 아이템을 아무리 늘려도 드로우콜은 1개다.
-         아무도 아무것도 안 걸치면 통째로 숨긴다. */
-      /* ★ 칸은 '제일 많이 걸친 아이' 기준이다. 모자 5 + 안경 7 + 옷 6 = 18 이라
-         예전 칸(18)에는 여유가 한 칸도 없었고, 전직 차림새(최대 14)가 붙으면
-         그냥 잘렸다 — 오류도 안 내고 조각이 사라진다.
-         ★ 19차 — 40 도 이미 딱 맞는 칸이었다. 모자 5 + 안경 7 + 옷 8 + 전직 20 = 40.
-           '딱 맞는 칸은 모자란 칸' 이라 새 모자(6칸)·새 옷을 넣자마자 잘릴 자리였다.
-           52 로 올린다. 지금 제일 많이 걸친 아이는 6+7+8+20 = 41 이다.
-           검사(t23)가 표에서 이 최대값을 세어 칸과 맞대 본다 — 다음에 또 늘려도 바로 걸린다. */
+      // 시작 꾸미기와 직업의 기본 네모 소품을 공유한다. 전용 곡면 소품은 P_jobParts에 둔다.
       P_deco = imesh(RBs, AVATAR_MAT.cloth, MAXP*52, 1),
       /* 45차 — 전직 2차의 빛나는 조각(가산 한 겹, 조금 크게)과 발밑 오라 고리.
          총 강화 빛(P_gunF)과 같은 수법이다 — MeshBasicMaterial 이라 조명을 안 받아 색이 그대로 살고 밤에 스스로 빛난다. */
@@ -8401,9 +8408,9 @@ const WING_GEO = [
 ];
 // 단계는 깃의 층과 색으로 구분한다. 몸과 얼굴의 크기는 바뀌지 않는다.
 const JOB_WING = [
-  [{k:0,s:.36,c:0xfff6ed,g:0},{k:1,s:.48,c:0xf4a397,g:0}],
-  [{k:0,s:.36,c:0xfff6ed,g:0},{k:1,s:.48,c:0xefb4cc,g:0}],
-  [{k:0,s:.36,c:0xfff6ed,g:0},{k:1,s:.48,c:0xe7f5f4,g:0}]
+  [{k:0,s:.36,c:0xf5e4c8,g:0},{k:1,s:.48,c:0xf2d17e,g:0}],
+  [{k:0,s:.36,c:0xd9edef,g:0},{k:1,s:.48,c:0xa8dcd8,g:0}],
+  [{k:0,s:.36,c:0xe7efdc,g:0},{k:1,s:.48,c:0xb8d9b4,g:0}]
 ];
 
 const WMAT_W = flatMat(0xffffff, {side:THREE.DoubleSide, vertexColors:true});   // 45차b — 깃 결은 꼭짓점 색이다
@@ -8511,91 +8518,169 @@ const HATS = [
    [0.20,1.50, 0.18, 0.28,0.24,0.38, 0xd8891c],   // 뒤로 넘긴 갈래
    [0.72,1.16, 0.34, 0.12,0.34,0.26, 0xf2ad3e]]   // 한쪽만 흘러내린 갈래
 ];
-/* ═══════════ 전직한 사람의 차림새 (17차f) ═══════════
-   ★ 꾸미기(모자·안경·옷)와 똑같은 형식이다 — [앞f, 높이u, 옆sd, 가로,세로,깊이, 색].
-     같은 P_deco 메시에 얹으므로 **드로우콜이 하나도 안 는다.**
-   ★ "여자아이들도 좋아할 수 있을만큼" — 파스텔·금테·하트·별·리본으로 갔다.
-     세 직업 다 '무섭게' 가 아니라 '멋지고 예쁘게' 로 잡았다.
-   ★ 2차는 1차 위에 얹는 게 아니라 **통째로 갈아입는다** — 1차보다 확실히 화려해야
-     "전직했다" 가 눈에 보인다. 덩치는 drawSheep 에서 따로 키운다.
-   ★ 얼굴 앞면은 f=0.99 다. 얼굴에 붙는 것은 그보다 앞으로 나와야 안 파묻힌다. */
-/* ═══ 45차 — 전직 차림새 (선생님: "전직할 때 아바타 업그레이드… 특성에 맞게 멋있게, 다른 애들이 보면 부러울 외형") ═══
-   17~44차의 세 벌은 색만 다른 '모자 + 앞치마' 였다 — 멀리서 보면 셋이 비슷하고, 2차가 1차보다 조금 더 클 뿐이라
-   "쟤 2차 했다" 가 안 보였다. 이제 직업마다 **실루엣이 다르고**(뿔·등에 멘 것·머리 위에 도는 것),
-   2차는 **스스로 빛나고 발밑에 고리가 돈다**.
-   조각 한 줄 = [앞 f, 위 u, 옆 sd, 가로, 세로, 깊이, 색, 머리를 따라?, 움직임, 빛]
-     머리를 따라(7) : 1 이면 머리 좌표(HX·HZ·YH)를 쓴다 — 고개를 돌리면 같이 돈다
-     움직임(8)      : 0 고정 · 1 망토(걸으면 뒤로 들려 펄럭이고 돌면 바깥으로) · 2 공전(몸 축을 돈다 — f·sd 가 시작 자리) · 3 둥둥(위아래 + 천천히 돎)
-     빛(9)          : 1 이면 가산 합성 층(P_jobF)에 한 겹 더 — 밤에 스스로 빛난다
-   ★ 아이콘·전직 카드(3D 미리보기)는 앞 일곱 칸만 읽는다 — 움직임·빛은 세계에서만 보인다. */
+/* 전직은 체격을 유지하며 모자·의상을 교체한다. 게임과 미리보기는 같은 표와 기하를 쓴다.
+   row=[앞,위,옆,가로,세로,깊이,색,머리축,움직임,빛,pitch,roll,JOB_GEO 키].
+   키를 생략한 조각은 기존 둥근 블록을 쓴다. 현재 6벌은 고정 부착·비발광이며 얼굴을 열어 둔다. */
 const JOB_LOOK = (()=>{
-  // 작은 역할 소품을 어깨·가슴·허리에만 배치해 직접 고른 옷과 얼굴을 드러낸다.
+  // 몸 좌표는 실제 R6 크기, H는 기존 머리 좌표다. 마지막 칸만 전용 기하 키다.
   const inv=u=>u<=BUT?(u-BU0)/BK+.56:(u-BUT)/BTK+BTOP;
-  const B=(f,u,sd,w,h,d,c,p=0,r=0)=>{
+  const B=(f,u,sd,w,h,d,c,p=0,r=0,g)=>{
     const lo=inv(u-h/2),hi=inv(u+h/2);
-    return [f/BF,(lo+hi)/2,sd/BW,w/BW,hi-lo,d/BF,c,0,0,0,p,r];
+    return [f/BF,(lo+hi)/2,sd/BW,w/BW,hi-lo,d/BF,c,0,0,0,p,r,g];
   };
-  const H=(f,u,sd,w,h,d,c,p=0,r=0)=>[f,u,sd,w,h,d,c,1,0,0,p,r];
-  const knight=t=>{
-    const pearl=0xe3edf4,coral=t?0xe79a98:0xcfa3aa,trim=t?0xe6c886:0x9ab3c9;
+  const H=(f,u,sd,w,h,d,c,p=0,r=0,g)=>[f,u,sd,w,h,d,c,1,0,0,p,r,g];
+  const cowboy=t=>{
+    const leather=t?0x3c627f:0x996745,hat=t?0xf2dca8:0xbb8653,gold=0xe6b84e,cream=0xffedc8;
     const a=[
-      H(.64,1.48,0,.77,.18,.71,pearl),H(.67,1.41,0,.82,.055,.75,trim),
-      H(.52,1.61,0,.12,.17,.35,coral),
-      H(.73,1.36,.35,.075,.15,.16,pearl),H(.73,1.36,-.35,.075,.15,.16,pearl),
-      B(.172,.78,0,.54,.052,.035,trim),B(.197,.78,0,.095,.075,.028,pearl),
-      B(.183,1.065,.13,.125,.145,.030,trim,0,Math.PI/4),
-      B(.204,1.065,.13,.063,.075,.023,coral,0,Math.PI/4)
-    ];
-    for(const si of [-1,1]){
-      a.push(B(.015,1.18,.34*si,.15,.095,.29,pearl,0,si*.10));
-      if(t)a.push(B(.025,1.23,.34*si,.15,.035,.23,trim,0,si*.10));
-    }
-    if(t){a.push(H(.84,1.48,0,.11,.10,.045,coral,0,Math.PI/4));
-      a.push(B(.04,.73,.34,.115,.20,.15,pearl),B(.13,.73,.34,.055,.12,.025,trim));}
-    return a;
-  };
-  const builder=t=>{
-    const cream=t?0xffe6a4:0xf6d894,teal=0x7eb8bf,edge=0x567c8c;
-    const a=[
-      H(.64,1.49,0,.78,.21,.73,cream),H(.76,1.40,0,.88,.055,.82,cream),
-      H(.62,1.61,0,.09,.035,.63,0xfff5d6),
-      H(1.01,1.49,0,.17,.12,.055,edge),H(1.048,1.49,0,.115,.075,.026,0xd4f1f5),
-      B(.178,.77,0,.55,.060,.040,teal),
-      B(.17,1.06,-.18,.040,.26,.030,teal),B(.17,1.06,.18,.040,.26,.030,teal),
-      B(.055,.75,.33,.13,.19,.15,cream),B(.14,.82,.33,.12,.035,.030,0xfff5d6),
-      B(.185,1.055,.13,.105,.085,.027,cream)
+      H(.65,1.445,0,t?1.15:1.10,t?.17:.14,.94,hat,0,0,'cowboyBrim'),
+      H(.65,t?1.625:1.585,0,.69,t?.36:.28,.61,hat,0,0,t?'sheriffCrown':'cowboyCrown'),
+      H(.65,1.495,0,.715,.064,.637,t?gold:0x674938,0,0,'hatBand'),
+      H(.976,1.54,0,t?.125:.09,t?.125:.09,.036,t?gold:cream,0,0,'star'),
+      B(.177,.975,-.152,.252,.39,.040,leather,0,0,'vestL'),
+      B(.177,.975,.152,.252,.39,.040,leather,0,0,'vestR'),
+      B(.202,1.168,0,.36,.13,.038,t?0x4baab2:0xc95f52,0,0,'scarf'),
+      B(.179,.775,0,.57,.066,.038,0x695340),
+      B(.204,.775,0,.105,.086,.031,gold,0,0,'buckle'),
+      B(.207,1.055,-.15,t?.122:.098,t?.122:.098,.026,gold,0,0,'star'),
+      B(.211,.904,-.158,.16,.065,.026,t?0xf1d28c:0xbd9165),
+      B(.211,.904,.158,.16,.065,.026,t?0xf1d28c:0xbd9165),
+      B(.05,.738,.335,.12,.16,.14,leather),
+      B(.13,.79,.335,.108,.039,.027,gold)
     ];
     if(t){
-      a.push(B(.038,.75,-.34,.055,.23,.055,edge),B(.043,.88,-.34,.14,.055,.080,cream));
-      a.push(B(.020,1.20,.34,.14,.065,.25,teal),B(.020,1.20,-.34,.14,.065,.25,teal));
-      a.push(B(.205,1.055,.13,.050,.050,.025,teal,0,Math.PI/4));
+      a.push(B(.013,1.199,-.324,.16,.055,.25,gold),B(.013,1.199,.324,.16,.055,.25,gold));
+      a.push(B(.223,1.055,-.15,.052,.052,.014,cream,0,0,'lens'));
+      a.push(B(.078,.748,-.33,.15,.18,.045,0xdcbb78,0,0,'goggleRing'));
+      a.push(H(.975,1.625,-.26,.062,.17,.027,cream,0,-.26,'feather'));
     }
     return a;
   };
-  const gatherer=t=>{
-    const cream=0xf2e4ba,mint=t?0x9bcdb1:0xb8cda4,leaf=0x6caa8b;
+  const inventor=t=>{
+    const blue=t?0x589bab:0x78b8c5,navy=0x3f637a,brass=t?0xe5b953:0xba8654,lens=t?0x9be7da:0xa9dced;
     const a=[
-      H(.62,1.43,0,.98,.055,.89,cream),H(.61,1.52,0,.73,.18,.65,cream),
-      H(.65,1.46,0,.76,.045,.68,mint),
-      H(.82,1.57,-.28,.105,.17,.035,leaf,0,-.48),
-      B(.04,1.19,0,.53,.060,.31,mint),
-      B(.18,1.11,.16,.09,.15,.035,mint,0,-.22),
-      B(.175,.77,0,.53,.050,.030,0xc6b493),
-      B(.04,.75,-.33,.12,.19,.15,cream),B(.13,.82,-.33,.11,.035,.025,mint),
-      B(.182,1.045,-.14,.055,.125,.025,leaf,0,-.55),
-      B(.184,1.063,-.10,.055,.10,.025,mint,0,.48)
+      H(.65,1.442,0,.745,.066,.693,navy,0,0,'hatBand'),
+      H(1.009,t?1.478:1.455,-.158,t?.283:.257,t?.273:.247,.095,brass,0,0,'goggleRing'),
+      H(1.009,t?1.478:1.455,.158,t?.283:.257,t?.273:.247,.095,brass,0,0,'goggleRing'),
+      H(1.038,t?1.478:1.455,-.158,t?.195:.175,t?.19:.17,.054,lens,0,0,'lens'),
+      H(1.038,t?1.478:1.455,.158,t?.195:.175,t?.19:.17,.054,lens,0,0,'lens'),
+      H(1.012,t?1.478:1.455,0,.105,.053,.065,brass),
+      B(.175,.945,0,.445,.35,.040,blue),
+      B(.178,1.133,-.175,.06,.195,.033,blue),B(.178,1.133,.175,.06,.195,.033,blue),
+      B(.204,1.074,-.175,.047,.047,.022,brass,0,0,'lens'),
+      B(.204,1.074,.175,.047,.047,.022,brass,0,0,'lens'),
+      B(.205,.947,0,.205,.11,.029,t?0xddece5:0xc6e1df),
+      B(.179,.758,0,.565,.066,.037,navy),B(.205,.758,0,.095,.078,.030,brass,0,0,'buckle'),
+      B(.052,.749,.334,.115,.19,.135,0x9e7855),
+      B(.14,.756,.334,.09,.185,.032,0xd8e1df,0,-.10,'tool'),
+      B(.19,1.187,0,.235,.085,.03,t?0xe7bd62:0xefbd7d,0,0,'scarf')
     ];
     if(t){
-      a.push(H(.91,1.55,-.27,.10,.10,.025,0xf2bfd1));
-      a.push(H(.933,1.55,-.27,.037,.037,.018,0xfff4cf));
-      a.push(B(.02,1.20,.34,.14,.055,.25,mint),B(.02,1.20,-.34,.14,.055,.25,mint));
-      a.push(B(.025,.75,.33,.075,.17,.09,leaf),B(.025,.85,.33,.105,.04,.10,cream));
+      a.push(H(.64,1.515,0,.745,.19,.68,0xceded7,0,0,'safariCrown'));
+      a.push(H(.83,1.616,-.268,.113,.113,.042,brass,0,0,'gear'));
+      a.push(B(.048,.751,-.332,.14,.17,.13,navy));
+      a.push(B(.135,.786,-.332,.115,.115,.032,brass,0,0,'gear'));
+      a.push(B(.154,.786,-.332,.048,.048,.015,0xb2e2d7,0,0,'lens'));
+      a.push(B(.217,.961,0,.072,.076,.02,brass,0,0,'compass'));
     }
     return a;
   };
-  return [[knight(0),knight(1)],[builder(0),builder(1)],[gatherer(0),gatherer(1)]];
+  const explorer=t=>{
+    const sand=t?0xf0d6a0:0xd7c395,green=t?0x508b78:0x77988a,edge=t?0xd7b45b:0xab8659;
+    const a=[
+      H(.65,1.435,0,t?1.08:1.04,t?.13:.065,.93,sand,0,0,t?'trailBrim':'safariBrim'),
+      H(.65,t?1.595:1.555,0,t?.73:.70,t?.28:.22,.65,sand,0,0,'safariCrown'),
+      H(.65,1.485,0,.744,.060,.671,green,0,0,'hatBand'),
+      B(.178,.976,-.15,.253,.39,.038,green,0,0,'vestL'),
+      B(.178,.976,.15,.253,.39,.038,green,0,0,'vestR'),
+      B(.212,.914,-.165,.168,.137,.045,sand),B(.212,.914,.165,.168,.137,.045,sand),
+      B(.24,.965,-.165,.17,.045,.022,edge),B(.24,.965,.165,.17,.045,.022,edge),
+      B(.181,.765,0,.56,.060,.035,edge),B(.205,.765,0,.092,.077,.028,0xf1dfaf,0,0,'buckle'),
+      B(.211,1.075,-.155,.105,.105,.036,edge,0,0,'lens'),
+      B(.234,1.075,-.155,.047,.075,.020,0x426e78,0,-.25,'compass'),
+      B(.20,1.175,0,.29,.095,.033,t?0xb16e50:0xe5c695,0,0,'scarf')
+    ];
+    if(t){
+      a.push(H(.99,1.545,-.21,.10,.132,.045,0x7bc5c0,0,-.16,'gem'));
+      a.push(B(.21,1.076,.15,.09,.13,.045,0x7bc5c0,0,.12,'gem'));
+      a.push(B(.05,.748,.333,.13,.19,.14,0x99704b),B(.13,.814,.333,.116,.04,.028,edge));
+      a.push(B(.21,.965,0,.105,.08,.052,0x446d71));
+      for(const si of [-1,1])a.push(B(.221,.985,si*.064,.095,.125,.07,0x446d71,0,0,'lens'));
+    }else a.push(H(.945,1.536,-.23,.07,.13,.026,green,0,-.28,'feather'));
+    return a;
+  };
+  return [[cowboy(0),cowboy(1)],[inventor(0),inventor(1)],[explorer(0),explorer(1)]];
 })();
-const JOB_AURA = [0xff4a5a, 0xffc233, 0x5fd46a];
+// 전용 조각은 X=가로/Y=위/Z=앞, 각 축 ±.5로 정규화한다. 공용 사람 기하는 바꾸지 않는다.
+const JOB_GEO = (()=>{
+  const unit=g=>{g.computeBoundingBox();const b=g.boundingBox,c=b.getCenter(new THREE.Vector3()),s=b.getSize(new THREE.Vector3());
+    g.translate(-c.x,-c.y,-c.z);g.scale(1/(s.x||1),1/(s.y||1),1/(s.z||1));g.computeBoundingBox();return g;};
+  const solid=(pts,bevel=.018)=>{
+    const sh=new THREE.Shape();pts.forEach(([x,y],i)=>i?sh.lineTo(x,y):sh.moveTo(x,y));sh.closePath();
+    return unit(new THREE.ExtrudeGeometry(sh,{depth:.12,steps:1,bevelEnabled:true,bevelSize:bevel,bevelThickness:.018,bevelSegments:2,curveSegments:4}));
+  };
+  const crown=(kind)=>{
+    const p=[],ix=[],N=32,rows=kind==='safari'?[[-.5,.49],[ -.30,.5],[.05,.45],[.34,.32],[.48,.12]]:
+      kind==='sheriff'?[[-.5,.48],[-.36,.5],[.25,.425],[.5,.335]]:[[-.5,.48],[-.30,.5],[.27,.44],[.5,.36]];
+    for(const [y,r] of rows)for(let i=0;i<N;i++){const a=i*Math.PI*2/N,ss=Math.sin(a),cc=Math.cos(a),pow=kind==='safari'?.91:.63;
+      p.push(Math.sign(ss)*Math.pow(Math.abs(ss),pow)*r,y,Math.sign(cc)*Math.pow(Math.abs(cc),pow)*r);}
+    for(let j=0;j<rows.length-1;j++)for(let i=0;i<N;i++){const a=j*N+i,b=j*N+(i+1)%N;ix.push(a,b,a+N,b,b+N,a+N);}
+    const low=p.length/3;p.push(0,-.5,0);const top=p.length/3;p.push(0,kind==='safari'?.5:kind==='sheriff'?.07:.14,0);
+    for(let i=0;i<N;i++){const a=(rows.length-1)*N+i,b=(rows.length-1)*N+(i+1)%N;ix.push(low,(i+1)%N,i,top,a,b);}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setIndex(ix);g.computeVertexNormals();return unit(g);
+  };
+  const brim=kind=>{
+    const p=[],ix=[],N=40,R=4;
+    for(let side=0;side<2;side++)for(let j=0;j<=R;j++)for(let i=0;i<N;i++){
+      const a=i*Math.PI*2/N,r=.28+.22*j/R,x=Math.sin(a)*r,z=Math.cos(a)*r;
+      const lift=kind==='cowboy'?.37*Math.pow(Math.abs(x)*2,3)-.055*Math.pow(z*2,2):
+        kind==='trail'?.25*Math.pow(Math.max(0,-x)*2,2)-.025*Math.pow(z*2,2):.025*Math.pow(x*2,2)-.07*Math.pow(z*2,2);
+      p.push(x,lift+(side?-.018:.018),z);
+    }
+    const stride=(R+1)*N;
+    for(let side=0;side<2;side++)for(let j=0;j<R;j++)for(let i=0;i<N;i++){
+      const a=side*stride+j*N+i,b=side*stride+j*N+(i+1)%N,d=a+N,c=b+N;
+      if(side)ix.push(a,b,d,b,c,d);else ix.push(a,d,b,b,d,c);
+    }
+    for(const j of [0,R])for(let i=0;i<N;i++){
+      const a=j*N+i,b=j*N+(i+1)%N,c=b+stride,d=a+stride;
+      if(j===R)ix.push(a,d,b,b,d,c);else ix.push(a,b,d,b,c,d);
+    }
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setIndex(ix);g.computeVertexNormals();return unit(g);
+  };
+  const star=[];for(let i=0;i<10;i++){const a=Math.PI/2+i*Math.PI/5,r=i%2?.225:.5;star.push([Math.cos(a)*r,Math.sin(a)*r]);}
+  const gear=[];for(let i=0;i<32;i++){const a=i*Math.PI/16,r=i%4<2?.5:.385;gear.push([Math.sin(a)*r,Math.cos(a)*r]);}
+  const left=[[-.5,-.5],[.5,-.41],[.5,.07],[.13,.5],[-.48,.5]];
+  return {
+    cowboyBrim:brim('cowboy'),cowboyCrown:crown('cowboy'),sheriffCrown:crown('sheriff'),
+    safariBrim:brim('safari'),trailBrim:brim('trail'),safariCrown:crown('safari'),
+    hatBand:unit(new THREE.TorusGeometry(.445,.037,6,32).rotateX(Math.PI/2)),
+    goggleRing:unit(new THREE.TorusGeometry(.36,.10,8,24)),
+    lens:unit(new THREE.SphereGeometry(.5,20,12)),star:solid(star,.025),
+    vestL:solid(left,.022),vestR:solid(left.map(([x,y])=>[-x,y]),.022),
+    scarf:solid([[-.5,.5],[.5,.5],[.30,.08],[.03,-.5],[-.31,.07]],.035),
+    buckle:unit(new THREE.TorusGeometry(.35,.115,6,4).rotateZ(Math.PI/4)),
+    compass:solid([[0,.5],[.22,0],[0,-.5],[-.22,0]],.012),
+    gem:unit(new THREE.OctahedronGeometry(.5,0)),
+    feather:solid([[-.35,-.5],[.22,-.19],[.43,.24],[.15,.5],[-.25,.27],[-.43,-.12]],.025),
+    gear:solid(gear,.01),
+    tool:solid([[-.115,-.5],[.115,-.5],[.115,.08],[.32,.22],[.35,.49],[.15,.32],[0,.35],[-.15,.32],[-.35,.49],[-.32,.22],[-.115,.08]],.024)
+  };
+})();
+// 직업 소품은 기하별로 공유한다. 가장 조각이 많은 한 벌을 전원이 입어도 잘리지 않는 용량이다.
+const P_jobParts = (()=>{
+  const meshes={};
+  for(const [key,geo] of Object.entries(JOB_GEO)){
+    const perPlayer=Math.max(0,...JOB_LOOK.flat().map(rows=>rows.filter(row=>row[12]===key).length));
+    if(perPlayer) meshes[key]=imesh(geo,AVATAR_MAT.cloth,MAXP*perPlayer,1);
+  }
+  return meshes;
+})(), P_jobMeshes=Object.values(P_jobParts);
+const JOB_UNIFORM = [
+  [{shirt:0xf1dfbe,pant:0x526879,shoe:0x73533d},{shirt:0xf3ead5,pant:0x354f69,shoe:0x344253}],
+  [{shirt:0xe8d6ab,pant:0x4b6e84,shoe:0x6c705f},{shirt:0xeeeadd,pant:0x447578,shoe:0x466777}],
+  [{shirt:0xeaddbb,pant:0x68785c,shoe:0x7b604b},{shirt:0xf5ecd6,pant:0x466f5c,shoe:0x76593e}]
+];
+const JOB_AURA = [0xe6b84e, 0x79c9cb, 0x91c79b];
 const GLS_ICON = ['🚫','🤓','😎','💖','🥽','🩹','⭐','🌈','✨'];
 const GLS_NAME = ['없음','동그란 안경','선글라스','하트 안경','물안경','안대','별 안경','무지개 안경','볼 주근깨'];
 const GLASSES = [
@@ -8705,12 +8790,14 @@ const CLOTHES = [
 ];
 
 /* 55차 — 동물·잠옷·파스텔 꾸미기. 저장된 숫자 ID는 유지하고 시작 화면에 보이는 선택지만 정리한다. */
-const DRESS_OPTIONS = {hat:[0,9,4,6,3,8,12], gls:[0,1,3,8], clo:[0,2,4,8,6,10,3,5]};
-const DRESS_LEGACY = {hat:{1:6,2:3,5:4,7:9,10:6,11:4,13:9}, gls:{2:1,4:1,5:8,6:3,7:3}, clo:{1:8,7:10,9:10}};
+// 챙 넓은 모자·고글형 안경은 전직 콘셉트용으로 비워 둔다. 이전 저장값도 시작 착장에 복원하지 않는다.
+const DRESS_OPTIONS = {hat:[0,9,4,6,3,8,12], gls:[0,8], clo:[0,2,4,8,6,10,3,5]};
+const DRESS_LEGACY = {hat:{1:6,2:3,5:4,7:9,10:6,11:4,13:9}, gls:{1:0,2:0,3:0,4:0,5:8,6:0,7:0}, clo:{1:8,7:10,9:10}};
 function dressPickId(t,v){
   const n=Number.isFinite(+v)?Math.max(0,Math.floor(+v)):0, options=DRESS_OPTIONS[t];
   if(!options) return 0;
-  return options.includes(n)?n:(DRESS_LEGACY[t][n]||0);
+  const id=options.includes(n)?n:DRESS_LEGACY[t][n];
+  return options.includes(id)?id:0;
 }
 HAT_NAME[4]='토끼 귀'; HAT_ICON[4]='🐰';
 HATS[4]=[[.64,1.62,-.23,.19,.58,.19,0xfff1e6],[.64,1.62,.23,.19,.58,.19,0xfff1e6],
@@ -8948,7 +9035,7 @@ function wolfPose(w, t, dt){
 function drawWolves(list, t, dt){
   dt = Math.min(0.05, dt || 0.016);
   for(let i=WOLF_DEAD.length-1;i>=0;i--) if(!(WOLF_DEAD[i].dead > 0)) WOLF_DEAD.splice(i,1);   // 44차 — 다 쓰러진 시체는 치운다
-  let n=0, ln=0, en=0, hn=0, pn=0, horn=0, rib=0, tng=0, pl=0, gem=0, ew=0, fg=0, hr=0, dr=0, bm=0, hrn=0, costume=0;
+  let n=0, ln=0, en=0, pn=0, horn=0, rib=0, pl=0, gem=0, ew=0, fg=0, hr=0, dr=0, bm=0, hrn=0, costume=0, wrap=0;
   const RK = wolfRank(G.day);          // 오늘 밤 좀비들의 등급 (보스는 늘 3)
   // 밤이 깊을수록 눈이 타오른다 — 등급이 높으면 더
   eyeMat.emissiveIntensity = 0.15 + NIGHTK*(1.55 + RK*0.35);
@@ -9060,9 +9147,9 @@ function drawWolves(list, t, dt){
           (q[6]*hz)*0.6,q[3]*hw,q[4]*hw,q[5]*hw,0x30333c);
       } }
     // 벌어진 입 — 물 때 더 크게 벌어진다
-    { const mF = 0.266*hw, mU = -0.13*hw;
+    { const fear=look==='fear',mF=(fear?.268:.266)*hw,mU=(fear?-.145-bite*.018:-.13)*hw;
       setIR(W_snout, n, HX(mF,mU,0), HY(mF,mU), HZ(mF,mU,0), hYaw, hPit,
-        (0.25 + bite*0.05)*hw, (0.10 + bite*0.14+hunt.reach*.045)*hw, 0.045*hw, 0x202430); }
+        (0.25 + bite*0.05)*hw, (fear?.13+bite*.07:.10+bite*.14+hunt.reach*.045)*hw, 0.045*hw, 0x202430); }
     // 코
     { const nF = 0.277*hw, nU = -0.01*hw;
       setIR(W_nose, n, HX(nF,nU,0), HY(nF,nU), HZ(nF,nU,0), hYaw, hPit,
@@ -9115,10 +9202,14 @@ function drawWolves(list, t, dt){
       H(-.05,.34,0,.69,.16,.58,shirtD);for(const side of [-1,1])H(-.05,.09,side*.32,.12,.48,.57,shirtD);
       if(gear==='runner')C(.18,TU+.24,0,.45,.10,.04,0xb39472);
     }
-    if(gear==='jacket'||gear==='rags'){
-      for(const side of [-1,1]){C(.18,TU+.11,side*.14,.14,.38,.06,gear==='rags'?0xb9b29a:0x82919b,side*.20);}
-      if(gear==='rags'){H(.265,-.22,0,.45,.07,.035,0xb9b29a);H(.266,.12,-.18,.15,.28,.04,0xa7ad98,.22);}
-      else for(let q=0;q<3;q++)C(.205,TU+.12-q*.12,0,.045,.045,.035,0xc5c1ac);
+    if(gear==='jacket'){
+      for(const side of [-1,1])C(.18,TU+.11,side*.14,.14,.38,.06,0x82919b,side*.20);
+      for(let q=0;q<3;q++)C(.205,TU+.12-q*.12,0,.045,.045,.035,0xc5c1ac);
+    }
+    if(gear==='rags'){
+      setIR(W_wrap,wrap++,HX(0,.205*hw,0),HY(0,.205*hw),HZ(0,.205*hw,0),hYaw,hPit,.585*hw,.11*hw,.495*hw,0xd8d0ac);
+      B(W_wrap,wrap++,0,TU+.12,0,.62*LK.bw*breath,.135*LK.bh*breath,.33*lng,0xd8d0ac);
+      B(W_wrap,wrap++,0,TU-.055,0,.51*LK.bw*breath,.135*LK.bh*breath,.29*lng,0xcac3a2);
     }
     if(gear==='overalls'){
       C(.18,TU-.02,0,.54*LK.bw,.42,.06,0x455463);
@@ -9133,7 +9224,6 @@ function drawWolves(list, t, dt){
     }
     if(gear==='cloak'||boss){
       C(-.19,HIP+.28,0,.72*LK.bw,.92,.075,boss?0x554161:0x4b425d);
-      for(const side of [-1,1])C(-.03,TU+.25,side*.27,.23,.27,.38,shirtD,side*.36);
     }
     if(boss){
       const bi=d.boss, bc=bi===2?0xe69c44:bi===3?0xa4dbea:bi===4?0xbd8267:0xc8b46e;
@@ -9157,7 +9247,7 @@ function drawWolves(list, t, dt){
       if(bi===5)C(.24,TU+.12,0,.20,.26,.08,0x9e84c9,.20);
     }
     /* 처진 팔꿈치와 움켜쥔 손. 먹이를 보면 팔을 당겼다가 뻗고, 타격 직후
-       한쪽 손이 더 멀리 나간다. 손·손가락·소매는 같은 관절을 따른다. */
+       한쪽 손이 더 멀리 나간다. 손·손가락은 같은 관절을 따른다. */
     for(const si of [1,-1]){
       /* 51차b — **두 팔이 대칭이 아니다.** 한쪽은 더 처지고 한쪽은 더 뻗는다(좀비마다 어느 쪽인지 다르다).
          좌우가 똑같이 뻗으면 사람이 기지개 켜는 것처럼 보인다. */
@@ -9179,22 +9269,20 @@ function drawWolves(list, t, dt){
       const ex=ax+(fx*Math.sin(upper)*cr+rx*sr)*upperL,ey=ay-Math.cos(upper)*cr*upperL,ez=az+(fz*Math.sin(upper)*cr+rz*sr)*upperL;
       limb1(W_legs,ln++,ax,ay,az,fx,fz,rx,rz,ry+roll,upper,rl,upperL,R6_ARM[0]*sc,R6_ARM[2]*sc,skin);
       limb1(W_legs,ln++,ex,ey,ez,fx,fz,rx,rz,ry+roll,fore,rl,foreL,R6_ARM[0]*sc*.86,R6_ARM[2]*sc*.86,skin);
-      /* 헤진 소매 — 팔 위쪽 절반에 조금 더 굵게. 팔을 앞으로 뻗은 좀비 자세는 정면에서 보면
-         팔 끝만 크게 보여 **팔이 몸에서 떨어진 상자**처럼 읽힌다. 어깨에 옷이 걸쳐 있으면 이어져 보인다. */
-      if(hn < W_hack.count_max)
-        limb2(W_hack, hn++, ax, ay, az, fx, fz, rx, rz, ry + roll, upper, rl,
-          .018*sc, L*0.46, R6_ARM[0]*sc*1.16, R6_ARM[2]*sc*1.16, shirtD); // 어깨와 소매의 마감면을 겹치지 않는다.
-      // 손목보다 넓은 납작한 손바닥과 두 마디로 구부러진 손가락.
+      if(gear==='rags'&&si===1)limb2(W_wrap,wrap++,ex,ey,ez,fx,fz,rx,rz,ry+roll,fore,rl,
+        foreL*.26,foreL*.48,R6_ARM[0]*sc*.87,R6_ARM[2]*sc*.87,0xd8d0ac);
+      // 손목 축을 유지한 채 손을 반 바퀴 엎는다. 손바닥과 구부러진 손끝 모두 아래를 향한다.
       const stt=Math.sin(fore),ctt=Math.cos(fore),hm=foreL*.95;
       setIR3(W_paw,pn++,ex+(fx*stt*cr+rx*sr)*hm,ey-ctt*cr*hm,ez+(fz*stt*cr+rz*sr)*hm,
-        ry+roll,-fore,rl,.27*sc,.15*sc*LK.bh,.20*sc,skinL);
+        ry+roll+Math.PI,fore,-rl,.27*sc,.15*sc*LK.bh,.20*sc,skinL);
       const handX=ex+(fx*stt*cr+rx*sr)*hm,handY=ey-ctt*cr*hm,handZ=ez+(fz*stt*cr+rz*sr)*hm;
       for(let q=0;q<3;q++){
-        const off=(q-1)*.077*sc,flen=(q===1?.13:.11)*sc,angle=fore+.16+bite*.12;
-        const sx=handX+rx*off,sy=handY-.03*sc,sz=handZ+rz*off;
+        const off=(q-1)*.077*sc,flen=(q===1?.13:.11)*sc,angle=fore-.16-bite*.12;
+        const knuckle=.055*sc*LK.bh;
+        const sx=handX+rx*off+(fx*stt*cr+rx*sr)*knuckle,sy=handY-ctt*cr*knuckle,sz=handZ+rz*off+(fz*stt*cr+rz*sr)*knuckle;
         limb1(W_costume,costume++,sx,sy,sz,fx,fz,rx,rz,ry+roll,angle,rl,flen,.046*sc,.049*sc,skinL);
         const jx=sx+(fx*Math.sin(angle)*cr+rx*sr)*flen,jy=sy-Math.cos(angle)*cr*flen,jz=sz+(fz*Math.sin(angle)*cr+rz*sr)*flen;
-        limb1(W_costume,costume++,jx,jy,jz,fx,fz,rx,rz,ry+roll,angle+.95,rl,.070*sc,.041*sc,.044*sc,skinL);
+        limb1(W_costume,costume++,jx,jy,jz,fx,fz,rx,rz,ry+roll,angle-.95,rl,.070*sc,.041*sc,.044*sc,skinL);
       }
     }
     /* ── 다리 둘 ── 보폭이 짧고 **한쪽을 끈다**(반대쪽은 반만 흔든다). 쓰러지면 접힌다 */
@@ -9221,9 +9309,6 @@ function drawWolves(list, t, dt){
       /* 갈비뼈 — 찢긴 셔츠 사이로 드러난 갈비 넉 대. 굶주려 뼈가 드러난 좀비 */
       for(let r=0;r<4;r++)
         B(W_rib,rib++,.145,TU+.20-r*.12,0,(.46-r*.04)*LK.bw,.038,.027,0xcfc2a4);
-      /* 목에 남은 낡은 붕대 끝 — 유혈·혀 대신 천 */
-      const tF = 0.22*hw, tU = -0.20*hw;
-      setIR(W_tongue, tng++, HX(tF,tU,-.16*hw), HY(tF,tU), HZ(tF,tU,-.16*hw), hYaw, hPit+.25, .08*hw,.18*hw,.04*hw,0xbcc2a2);
     } else if(look === 'armor' && pl + 30 <= W_plate.count_max){
       /* ═══ 진짜 갑옷처럼: 겹친 철판(밝은 판 + 어두운 테두리) · 리벳 · 옆구리 치마 · 목 보호대 ·
          어깨 갑옷 · 투구(띠·지붕·챙·코가리개·볼가리개·황동 볏) · 등판.
@@ -9275,24 +9360,25 @@ function drawWolves(list, t, dt){
         _v.set((gx+bx2)/2, (gy3+by)/2, (gz+bz2)/2); _q.setFromUnitVectors(AX_Z, _tmpV.set(dx/len, dy/len, dz/len));
         const th2 = 0.07 + 0.03*Math.sin(t*14); _s.set(th2, th2, len); W_beam.setMatrixAt(bm++, _m.compose(_v,_q,_s)); }
     } else if(look === 'fear'){
-      /* ═══ '희번덕' 은 무섭다는 뜻이었다(선생님). 어두운 눈구멍 속에서 가늘고 길게 찢어진 눈이 희게 번뜩이고,
-         그 안에 세로로 찢어진 붉은 눈동자. 입은 벌어져 송곳니 넷이 보인다. */
+      // 눈동자는 흰자 안에 놓인 작은 원형이다. 세 면이 같은 기울기를 따라 눈 밖으로 벗어나지 않는다.
       const glint = 0.9 + Math.sin(t*3.1 + w.ph)*0.1;
       for(const si of [1,-1]){
-        const yF = 0.276*hw, yU = 0.05*hw, yS = 0.135*hw*si;
-        setIR3(W_rib, rib++, HX(yF-0.02*hw,yU,yS), HY(yF-0.02*hw,yU), HZ(yF-0.02*hw,yU,yS), hYaw, hPit, -0.30*si, 0.24*hw, 0.15*hw, 0.09*hw, 0x050308);
-        setIR3(W_eyeW, ew, HX(yF+0.03*hw,yU,yS), HY(yF+0.03*hw,yU), HZ(yF+0.03*hw,yU,yS), hYaw, hPit, -0.36*si, 0.20*hw*glint, 0.05*hw, 0.08*hw, 0xffffff);
-        const pS = yS - si*0.04*hw;
-        setIR3(W_eyeR, ew, HX(yF+0.07*hw,yU,pS), HY(yF+0.07*hw,yU), HZ(yF+0.07*hw,yU,pS), hYaw, hPit, -0.36*si, 0.04*hw, 0.09*hw, 0.04*hw);
-        setIR(W_pupil, ew++, HX(yF,yU,pS), HY(yF,yU), HZ(yF,yU,pS), hYaw, hPit, 0, 0, 0, 0x000000);
+        const yU=.05*hw,yS=.135*hw*si,tilt=-.24*si,off=-si*.022*hw;
+        setIR3(W_rib,rib++,HX(.267*hw,yU,yS),HY(.267*hw,yU),HZ(.267*hw,yU,yS),hYaw,hPit,tilt,.23*hw,.115*hw,.028*hw,0x10131c);
+        setIR3(W_eyeW,ew,HX(.291*hw,yU,yS),HY(.291*hw,yU),HZ(.291*hw,yU,yS),hYaw,hPit,tilt,.182*hw*glint,.066*hw,1,0xf1f4df);
+        const pS=yS+Math.cos(tilt)*off,pU=yU+Math.sin(tilt)*off;
+        setIR3(W_eyeR,ew,HX(.293*hw,pU,pS),HY(.293*hw,pU),HZ(.293*hw,pU,pS),hYaw,hPit,tilt,.038*hw,.035*hw,1);
+        setIR3(W_pupil,ew++,HX(.295*hw,pU,pS),HY(.295*hw,pU),HZ(.295*hw,pU,pS),hYaw,hPit,tilt,.014*hw,.022*hw,1,0x11121a);
       }
-      { const mF = 0.27*hw, mU = -0.15*hw;
-        setIR(W_rib, rib++, HX(mF,mU,0), HY(mF,mU), HZ(mF,mU,0), hYaw, hPit, 0.26*hw, 0.16*hw, 0.05*hw, 0x202132);
-        const jF = 0.20*hw, jU = -0.27*hw;
-        setIR(W_rib, rib++, HX(jF,jU,0), HY(jF,jU), HZ(jF,jU,0), hYaw, hPit + 0.30, 0.26*hw, 0.10*hw, 0.16*hw, zomDark(skin, 0.15)); }  // 처진 아래턱
-      for(const si of [1,-1]){ const fF = 0.302*hw, fU = -0.14*hw;
-        setIR(W_fang, fg++, HX(fF,fU,0.08*hw*si), HY(fF,fU), HZ(fF,fU,0.08*hw*si), hYaw, hPit + 0.12, 0.05*hw, 0.16*hw, 0.05*hw, 0xf4f1ea);
-        setIR(W_fang, fg++, HX(fF-0.01*hw,fU-0.13*hw,0.07*hw*si), HY(fF-0.01*hw,fU-0.13*hw), HZ(fF-0.01*hw,fU-0.13*hw,0.07*hw*si), hYaw, hPit - 0.10, 0.04*hw, 0.10*hw, 0.04*hw, 0xf4f1ea); }
+      const mouthU=-.145-bite*.018,mouthH=.13+bite*.07;
+      { const jF=.205*hw,jU=(mouthU-mouthH*.5-.016)*hw;
+        setIR(W_rib,rib++,HX(jF,jU,0),HY(jF,jU),HZ(jF,jU,0),hYaw,hPit,.24*hw,.075*hw,.10*hw,zomDark(skin,.10)); }
+      // 짧은 원뿔 송곳니는 입술에서 시작해 입 안쪽으로 향한다. 공격할 때 아래턱과 함께 움직인다.
+      for(const si of [1,-1]){
+        const f=.295*hw,upperU=(mouthU+mouthH*.5-.026)*hw,lowerU=(mouthU-mouthH*.5+.012)*hw;
+        setIR(W_fang,fg++,HX(f,upperU,.075*hw*si),HY(f,upperU),HZ(f,upperU,.075*hw*si),hYaw,hPit,.052*hw,(.065+bite*.015)*hw,.045*hw,0xe9e5cf);
+        setIR(W_fang,fg++,HX(f,lowerU,.055*hw*si),HY(f,lowerU),HZ(f,lowerU,.055*hw*si),hYaw,hPit+Math.PI,.035*hw,.040*hw,.032*hw,0xe9e5cf);
+      }
       /* 발밑 검은 안개 고리 */
       if(dr < W_dread.count_max){ _v.set(w.x, y+0.04, w.z); _q.setFromAxisAngle(AX_X, -Math.PI/2);
         const rr = sc*(1.25+Math.sin(t*2.6+w.ph)*0.08); _s.set(rr, rr, 1); W_dread.setMatrixAt(dr++, _m.compose(_v,_q,_s)); }
@@ -9323,16 +9409,16 @@ function drawWolves(list, t, dt){
   }
   W_horn.count = horn; W_aura.count = bn;
   W_aura.instanceMatrix.needsUpdate = true;
-  W_costume.count=costume;
+  W_costume.count=costume; W_wrap.count=wrap;
   W_body.count=n; W_chest.count=n; W_head.count=n; W_snout.count=n;
   W_nose.count=n; W_ruff.count=n;
-  W_legs.count=ln; W_paw.count=pn; W_eyes.count=en; W_ears.count=en; W_hack.count=hn; W_tail.count=hrn;
+  W_legs.count=ln; W_paw.count=pn; W_eyes.count=en; W_ears.count=en; W_tail.count=hrn;
   W_belly.count=n; W_brow.count=en; W_cheek.count=en;
-  W_rib.count=rib; W_tongue.count=tng; W_plate.count=pl; W_gem.count=gem; W_eyeW.count=ew; W_eyeR.count=ew; W_pupil.count=ew; W_fang.count=fg;
+  W_rib.count=rib; W_plate.count=pl; W_gem.count=gem; W_eyeW.count=ew; W_eyeR.count=ew; W_pupil.count=ew; W_fang.count=fg;
   W_heal.count=hr; W_dread.count=dr; W_beam.count=bm; W_heal.instanceMatrix.needsUpdate = W_dread.instanceMatrix.needsUpdate = W_beam.instanceMatrix.needsUpdate = true;
   W_heal.visible = hr > 0; W_dread.visible = dr > 0; W_beam.visible = bm > 0;
-  flush(W_body,W_chest,W_head,W_snout,W_tail,W_legs,W_paw,W_eyes,W_ears,W_hack,W_horn,W_nose,W_ruff,
-        W_belly,W_brow,W_cheek,W_rib,W_tongue,W_plate,W_gem,W_eyeW,W_eyeR,W_pupil,W_fang,W_costume);
+  flush(W_body,W_chest,W_head,W_snout,W_tail,W_legs,W_paw,W_eyes,W_ears,W_horn,W_nose,W_ruff,
+        W_belly,W_brow,W_cheek,W_rib,W_plate,W_gem,W_eyeW,W_eyeR,W_pupil,W_fang,W_costume,W_wrap);
 }
 /* 병정 사람 — 창병 / 갑옷병 / 마법사 세 종류 */
 let soldierLT = 0;
@@ -9566,12 +9652,15 @@ function setSheepAttachment(mesh,i,x,y,z,bodyYaw,bodyPitch,yaw,pitch,roll,sx,sy,
 function drawSheep(list, t, cap, colOf, scale){
   let n=0, ln=0, shoeN=0, armN=0, eyeN=0, noseN=0, decoN=0, gunN=0, glowN=0, mouthN=0, jobFN=0, jobRN=0;
   const wN = [0,0], wgN = [0,0];                                     // 45차 — 날개(깃털·불꽃) · 날개 빛
+  for(const mesh of P_jobMeshes) mesh.count=0;
 
   for(const s of list){
     FLIP_ON = false;
     if(n>=cap) break;
     const y  = s.y!==undefined ? s.y : GY;
     const jt = Math.max(0, Math.min(2, s.jt|0));
+    const hasJob = jt > 0 && s.jb >= 0 && s.jb < JOB_LOOK.length;
+    const uniform = hasJob ? JOB_UNIFORM[s.jb][jt-1] : null;
     const sc = scale;
     const down = !!s.down;                          // 쓰러진 사람
     const gs = sheepGait(s, t);                     // 41차 — 간 거리·빠르기 (44차 — 가속도도)
@@ -9640,7 +9729,7 @@ function drawSheep(list, t, cap, colOf, scale){
     const stretch = (1+rise*.02+take*.03)*airK+sq*(1-wind*.012-strike*.03-kick*.015)*(1-airK);
     const widen = 1 + (1-airK)*(1-sq)*.35;
     const lng=1+(down?0:(1-airK)*runK*mvK*Math.sin(gait+.4)*.035);
-    const col  = colOf(s);   // 51차 — 셔츠(몸통) 색. 머리·팔은 R6_SKIN, 바지는 R6_PANT 로 고정이다
+    const col = uniform ? uniform.shirt : colOf(s);
     // Local forward/height/side coordinates; whole-body leaning is applied by FLIP_M.
     const X=(f,sd)=> s.x + fx*(f+rootF)*sc + rx*sd*sc;
     const Z=(f,sd)=> s.z + fz*(f+rootF)*sc + rz*sd*sc;
@@ -9723,7 +9812,7 @@ function drawSheep(list, t, cap, colOf, scale){
       elbow=world(memory.elbow);hand=world(memory.hand);
       const jointPose=sheepJoint(shoulder,hand,aL*.50,aL*(hasGun?.43:.36),elbow.map((v,i)=>v-shoulder[i]));
       elbow=jointPose.joint;hand=jointPose.end;
-      sheepBone(P_arm,armN++,shoulder,elbow,ry,aW,aD,R6_SKIN);
+      sheepBone(P_arm,armN++,shoulder,elbow,ry,aW,aD,uniform?uniform.shirt:R6_SKIN);
       const fl=Math.hypot(hand[0]-elbow[0],hand[1]-elbow[1],hand[2]-elbow[2]),gap=aL*.02;
       const wrist=hand.map((v,i)=>v+(elbow[i]-v)*gap/fl);
       const wristPose=sheepBone(P_arm,armN++,elbow,wrist,ry,aW*.80,aD*.82,R6_SKIN);
@@ -9758,11 +9847,11 @@ function drawSheep(list, t, cap, colOf, scale){
       if(bodyFlip&&airBlend>0){const e=FLIP_M.elements,rot=[e[0]*fx+e[8]*fz,e[1]*fx+e[9]*fz,e[2]*fx+e[10]*fz];pole=pole.map((v,i)=>v+(rot[i]-v)*airBlend);}
       const joint=sheepJoint(hip,target,.275*sc,.250*sc,pole);
       FLIP_ON=false;
-      sheepBone(P_legs,ln++,hip,joint.joint,ry,R6_LEG[0]*sc*.98,R6_LEG[2]*sc*.98,R6_PANT);
-      sheepBone(P_legs,ln++,joint.joint,joint.end,ry,R6_LEG[0]*sc*.91,R6_LEG[2]*sc*.91,R6_PANT);
+      sheepBone(P_legs,ln++,hip,joint.joint,ry,R6_LEG[0]*sc*.98,R6_LEG[2]*sc*.98,uniform?uniform.pant:R6_PANT);
+      sheepBone(P_legs,ln++,joint.joint,joint.end,ry,R6_LEG[0]*sc*.91,R6_LEG[2]*sc*.91,uniform?uniform.pant:R6_PANT);
       const shoePitch=toe*(1-airBlend)+(th-bend)*.45*airBlend;
       const footYaw=ry+Math.max(-.55,Math.min(.55,Math.atan2(dirS,Math.abs(dirF))))*mvK*(1-airBlend);
-      setIR3(P_shoe,shoeN,joint.end[0]+fx*.035*sc,joint.end[1]-.01*sc,joint.end[2]+fz*.035*sc,footYaw,-shoePitch,0,.315*sc,.13*sc,.39*sc,0xf2f3f5);
+      setIR3(P_shoe,shoeN,joint.end[0]+fx*.035*sc,joint.end[1]-.01*sc,joint.end[2]+fz*.035*sc,footYaw,-shoePitch,0,.315*sc,.13*sc,.39*sc,uniform?uniform.shoe:0xf2f3f5);
       if(bodyFlip&&airBlend>0){
         P_shoe.getMatrixAt(shoeN,_m);_m.decompose(_v,_q,_s);
         const rot=new THREE.Quaternion().setFromRotationMatrix(FLIP_M).slerp(new THREE.Quaternion(),1-airBlend);
@@ -9794,7 +9883,7 @@ function drawSheep(list, t, cap, colOf, scale){
          모자·안경은 머리 기준으로 적혀 있어서 HX/YH 가 머리를 옮기면 통째로 따라온다 — 표는 안 고쳤다. */
     const pick = (arr, i)=> arr[Math.max(0, Math.min(arr.length-1, i|0))];
     for(const [arr, idx, onHead] of
-        [[HATS, s.hat, 1], [GLASSES, s.gls, 1], [CLOTHES, s.clo, 0]]){
+        [[HATS, hasJob?0:s.hat, 1], [GLASSES, s.gls, 1], [CLOTHES, hasJob?0:s.clo, 0]]){
       for(const h of pick(arr, idx)){
         if(decoN >= P_deco.count_max) break;
         const q = onHead ? h : r6body(h[0],h[1],h[2],h[3],h[4],h[5]), ks = (onHead ? R6_HK : 1)*sc;
@@ -9802,12 +9891,9 @@ function drawSheep(list, t, cap, colOf, scale){
           q[3]*ks*(onHead?1:widen*breath),q[4]*ks*(onHead?1:stretch*breath),q[5]*ks*(onHead?1:lng),h[6]);
       }
     }
-    /* ── 전직한 사람의 차림새 ──
-       ★ 꾸미기와 같은 메시(P_deco)에 얹는다 — 드로우콜이 하나도 안 는다.
-       ★ 쓰러졌을 때도 그대로 입고 있다(Y 가 뒤집혀 있어 옷도 같이 뒤집힌다).
-       ★ 높이가 1.0 을 넘는 조각(투구·모자)은 머리를 따라 끄덕이게 한다 —
-         안 그러면 걸을 때 투구만 뻣뻣하게 떠 있다. */
-    if(jt > 0 && s.jb >= 0 && s.jb < JOB_LOOK.length){
+    // 전직 의상은 시작 꾸미기의 모자·옷을 대신한다. 저장한 선택과 얼굴 장식은 유지한다.
+    // 곡면 소품은 종류별 인스턴스를 공유하고, 기본 네모 조각은 P_deco를 사용한다.
+    if(hasJob){
       /* 45차 — 조각마다 움직임(h[8])·빛(h[9]). 망토는 걸음에 펄럭이고, 불티·기어·잎은 몸 둘레를 돌고, 2차 조각은 빛난다 */
       const orbA = t*1.45 + (s.ph||0)*0.7;                               // 공전 각
       const flap = down ? 0 : mvK*(.62+runK*.38) + Math.abs(hd.turn)*0.08;
@@ -9820,8 +9906,9 @@ function drawSheep(list, t, cap, colOf, scale){
           burst(s.x, y + 0.05*sc, s.z, ac, big ? 5 : 3, big ? 0.8 : 0.5);
           if(big) burst(s.x, y + 0.12*sc, s.z, 0xfff6e0, 2, 0.35); } }
       for(const h of JOB_LOOK[s.jb][jt-1]){
-        if(decoN >= P_deco.count_max) break;
-        if(h[7] && (s.hat|0)>0)continue;                              // 직접 고른 동물 모자가 직업 투구에 가려지지 않는다
+        const mesh=P_jobParts[h[12]]||P_deco;
+        if((mesh===P_deco?decoN:mesh.count)>=mesh.count_max) continue;
+        const partN=mesh===P_deco?decoN++:mesh.count++;
         const an = h[8]|0;
         /* ★ 51차 — 자리 옮기기 세 갈래.
              머리에 붙는 것(h[7]=1) : HX/YH 가 알아서 옮긴다 — 손댈 것이 없다.
@@ -9849,9 +9936,9 @@ function drawSheep(list, t, cap, colOf, scale){
            높이로 어림잡았더니 등에 멘 망치(u 1.52)까지 머리를 따라 흔들렸다. */
         const px=h[7]?HX(hf,hsd,hu):bodyBound?BX(hf,hu,hsd):X(hf,hsd),py=h[7]?YH(hu,hf):bodyBound?BY(hf,hu):Y(hu),pz=h[7]?HZ(hf,hsd,hu):bodyBound?BZ(hf,hu,hsd):Z(hf,hsd);
         if(bodyBound){hw*=widen*breath;hh*=stretch*breath;hd6*=lng;}
-        if(rol)      setIR3(P_deco, decoN++, px, py, pz, yaw, pit, rol, hw*sc, hh*sc, hd6*sc, h[6]);
-        else if(pit) setIR (P_deco, decoN++, px, py, pz, yaw, pit,      hw*sc, hh*sc, hd6*sc, h[6]);
-        else         setI  (P_deco, decoN++, px, py, pz, yaw,           hw*sc, hh*sc, hd6*sc, h[6]);
+        if(rol)      setIR3(mesh, partN, px, py, pz, yaw, pit, rol, hw*sc, hh*sc, hd6*sc, h[6]);
+        else if(pit) setIR (mesh, partN, px, py, pz, yaw, pit,      hw*sc, hh*sc, hd6*sc, h[6]);
+        else         setI  (mesh, partN, px, py, pz, yaw,           hw*sc, hh*sc, hd6*sc, h[6]);
         if(h[9] && jobFN < P_jobF.count_max)   // 빛 — 같은 자리에 가산 한 겹, 조금 크게
           setIR3(P_jobF, jobFN++, px, py, pz, yaw, pit, rol, (hw+0.09)*sc*puls, (hh+0.09)*sc*puls, (hd6+0.09)*sc*puls, h[6]);
       }
@@ -9935,6 +10022,7 @@ function drawSheep(list, t, cap, colOf, scale){
   P_body.count=n; P_head.count=n; P_nose.count=noseN; P_mouth.count=mouthN;
   P_arm.count=armN; P_hand[0].count=n; P_hand[1].count=n; P_eye.count=eyeN; P_legs.count=ln;P_shoe.count=shoeN; P_deco.count=decoN;
   P_deco.visible = decoN > 0;
+  for(const mesh of P_jobMeshes) mesh.visible=mesh.count>0;
   P_gun.count=gunN; P_gunF.count=glowN;
   P_gun.visible = gunN > 0; P_gunF.visible = glowN > 0;
   P_jobF.count=jobFN; P_jobR.count=jobRN;                       // 45차 — 전직 빛·고리
@@ -9943,7 +10031,7 @@ function drawSheep(list, t, cap, colOf, scale){
   for(let i=0;i<2;i++){ P_wing[i].count = wN[i]; P_wing[i].visible = wN[i] > 0;
                         P_wingG[i].count = wgN[i]; P_wingG[i].visible = wgN[i] > 0; }
   flush(P_body,P_head,P_arm,P_hand[0],P_hand[1],P_eye,P_nose,P_mouth,P_legs,P_shoe,P_deco,P_gun,P_gunF,P_jobF,P_jobR,
-        P_wing[0],P_wing[1],P_wingG[0],P_wingG[1]);
+        P_wing[0],P_wing[1],P_wingG[0],P_wingG[1],...P_jobMeshes);
   drawAvatarShadows(list,cap,scale);
 }
 
@@ -11257,8 +11345,8 @@ const STATS = [
 ];
 const ST_STR = 0, ST_VIT = 1, ST_AGI = 2, ST_INT = 3;
 /* ═══════════════════════ 전직 (17차f) ═══════════════════════
-   선생님 주문: "레벨 15,30에 전직. 전사(총 쏘기) / 건축가(건물 짓고, 수리) /
-   일꾼(자원캐고 농부 일) 셋 중 하나. 각 직업에 맞게 max 스텟을 2개씩 더 찍게.
+   레벨 15,30에 카우보이(전투) / 발명가(건설) / 탐험가(자원) 중 한 길로 전직한다.
+   각 직업에 맞게 max 스텟을 2개씩 더 찍을 수 있다.
    전보다 덩치도 커지고 더 멋있어져야지. 여자아이들도 좋아할 수 있을만큼
    사람의 그래픽에 신경을 아주 많이 써줘."
 
@@ -11275,13 +11363,14 @@ const JOB_STEP = 2;                            // 전직마다 상한 +2
    셋이 서로 다른 스탯을 가리켜야 '길이 갈린다' 가 성립한다.
    체력만 직업이 없는데, 체력은 누구나 조금은 찍는 칸이라 그대로 둔다. */
 const JOBS = [
-  {k:'fight', ic:'⚔️', n:'전사',   st:0, col:'#ff9aa8',
-   d:'<b>힘</b>을 더 찍을 수 있어요', d2:'좀비를 제일 잘 잡는 사람이 됩니다'},
-  {k:'build', ic:'🔨', n:'건축가', st:3, col:'#ffd257',
-   d:'<b>지능</b>을 더 찍을 수 있어요', d2:'짓기·수리·강화가 제일 빠른 사람이 됩니다'},
-  {k:'work',  ic:'🌾', n:'일꾼',   st:2, col:'#a8e6a1',
-   d:'<b>민첩</b>을 더 찍을 수 있어요', d2:'자원 캐기와 농장 일이 제일 빠른 사람이 됩니다'}
+  {k:'fight', ic:'🤠', n:'카우보이', n2:'황금 보안관', role:'전투', st:0, col:'#a05c36',
+   d:'<b>힘</b>을 더 찍을 수 있어요', d2:'든든한 사격으로 친구들을 지켜요'},
+  {k:'build', ic:'🥽', n:'발명가', n2:'천재 발명가', role:'건설', st:3, col:'#287f91',
+   d:'<b>지능</b>을 더 찍을 수 있어요', d2:'기지를 짓고 수리하는 든든한 손길!'},
+  {k:'work', ic:'🧭', n:'탐험가', n2:'보물 탐험가', role:'자원', st:2, col:'#4c8055',
+   d:'<b>민첩</b>을 더 찍을 수 있어요', d2:'자원을 모아 모둠을 풍요롭게 해요'}
 ];
+function jobName(i,tier=1){const j=JOBS[i];return j?(tier>=2?j.n2:j.n):'';}
 const XP = { lv:1, xp:0, pts:1, st:[0,0,0,0], lvT:0, job:-1, jt:0 };
 /* 이 스텟을 몇 단계까지 찍을 수 있나 — 내 직업의 스텟이면 전직 단계마다 +2 */
 function statMax(i){
@@ -12030,17 +12119,19 @@ function buildJobUI(){
   /* 2차는 이미 고른 길 하나만 보여 준다 */
   const list = (due >= 2 && XP.job >= 0) ? [XP.job] : JOBS.map((J,i)=>i);
   for(const i of list){
-    const J = JOBS[i], S = STATS[J.st];
+    const J = JOBS[i], S = STATS[J.st], name=jobName(i,due);
     const now = statMax(J.st), after = S.max + JOB_STEP*due;
     const d = document.createElement('div');
     d.className = 'jobCard';
     d.style.borderColor = J.col;
     d.innerHTML =
       `<div class="jFig"><span class="jBadge">${iconImg('job_'+J.k, J.ic)}</span>`
-      + (shot[i] ? `<img alt="${esc(J.n)}" src="${shot[i]}">`
+      + (shot[i] ? `<img alt="${esc(name)}" src="${shot[i]}">`
                  : `<span class="jNone">🐑</span>`)
       + `</div>`
-      + `<div class="jName" style="color:${J.col}">${J.n}${due>=2?' 2차':''}</div>`
+      + `<div class="jRole">${J.role} · ${due>=2?'2차':'1차'} 전직</div>`
+      + `<div class="jName" style="color:${J.col}">${name}</div>`
+      + `<div class="jPath">${due>=2?J.n+'에서 한 단계 성장!':'다음 전직: '+J.n2}</div>`
       + `<div class="jDesc">${J.d2}</div>`
       + `<div class="jStat">${S.ic} ${S.n} ${now}칸 → <b>${after}칸</b></div>`
       + `<div class="jGo">${due >= 2 ? '2차 전직!' : '이 길로!'}</div>`;
@@ -12065,10 +12156,11 @@ function takeJob(i){
     goodFlash(big ? 420 : 280); if(window.__shake) window.__shake(big ? 0.5 : 0.3, 0.22);
     const f = forward();
     burst(PL.x + f.x*3.0, PL.y + 1.9, PL.z + f.z*3.0, ac, 24, 1.3); }
-  toast(`${J.ic} ${J.n}${due>=2?' 2차':''}가 되었어요! ${STATS[J.st].ic} ${STATS[J.st].n}를 더 찍을 수 있어요`,
+  const name=jobName(i,due);
+  toast(`${J.ic} ${name}${josa(name,'이','가')} 되었어요! ${STATS[J.st].ic} ${STATS[J.st].n}를 더 찍을 수 있어요`,
         3.4, J.col);
   feed(`${J.ic} <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
-     + `<b style="color:${J.col}">${J.n}</b>${due>=2?' <b>2차</b>':''}(으)로 전직했어요!`);
+     + `<b style="color:${J.col}">${name}</b> 직업으로 전직했어요!`);
   if(popOpen() && el('popStat').classList.contains('on')) buildStatUI();
 }
 /* 레벨이 차면 저절로 열어 준다 — 아이가 '전직' 이 있는 줄도 모르면 소용이 없다 */
@@ -12091,8 +12183,7 @@ function buildStatUI(){
         : ` · <b>만렙!</b> 🏆`)
     + ` · 남은 점수 <b>${XP.pts}</b>`
     + (XP.jt > 0 && JOBS[XP.job]
-        ? ` · <b style="color:${JOBS[XP.job].col}">${iconImg('job_'+JOBS[XP.job].k, JOBS[XP.job].ic)} ${JOBS[XP.job].n}`
-          + `${XP.jt >= 2 ? ' 2차' : ''}</b>` : '')
+        ? ` · <b style="color:${JOBS[XP.job].col}">${iconImg('job_'+JOBS[XP.job].k, JOBS[XP.job].ic)} ${jobName(XP.job,XP.jt)}</b>` : '')
     + `</div>`;
   w.innerHTML = '';
   /* 전직할 수 있는데 아직 안 했으면, 스텟 창에서 다시 열 수 있게 해 준다.
@@ -16572,7 +16663,7 @@ const PVW_BODY = (()=>{
     const reach=(a,angle,length)=>[a[0]+cr*Math.sin(angle)*length,a[1]-cr*Math.cos(angle)*length,a[2]+sr*length];
     const shoulder=[0,R6_SHU,R6_ASD*si],elbow=reach(shoulder,-.04,R6_ARM[1]*.50),hand=reach(elbow,.06,R6_ARM[1]*.36);
     const wrist=reach(elbow,.06,R6_ARM[1]*.34);
-    rows.push(bone(shoulder,elbow,R6_ARM[0],R6_ARM[2],'skin'),bone(elbow,wrist,R6_ARM[0]*.80,R6_ARM[2]*.82,'skin'));
+    rows.push([...bone(shoulder,elbow,R6_ARM[0],R6_ARM[2],'skin'),'sleeve'],bone(elbow,wrist,R6_ARM[0]*.80,R6_ARM[2]*.82,'skin'));
     rows.push([...hand,...R6_HAND,'skin',si>0?'hookR':'hookL',-.06,roll]);
   }
   const upper=.275,lower=.250,drop=R6_HIP-.075;
@@ -16644,25 +16735,27 @@ function pvwSet(P, d){
   if(!P) return;
   d = d || {};
   const base = GHEX[d.g|0] || 0xffffff;
+  const jt = Math.max(0,Math.min(2,d.jt|0)), jb = d.job === undefined ? -1 : d.job|0;
+  const hasJob = jt > 0 && jb >= 0 && jb < JOB_LOOK.length;
+  const uniform = hasJob ? JOB_UNIFORM[jb][jt-1] : null;
+  const colors = uniform ? {...d.doll,body:uniform.shirt,pant:uniform.pant,shoe:uniform.shoe} : d.doll;
   const put = (m, f,u,sd, w,h,dp, col)=>{
     m.position.set(sd, u, f); m.scale.set(w, h, dp);
     m.material.color.setHex(col); m.visible = true;
   };
   PVW_BODY.forEach((p,i)=>{
-    put(P.body[i], p[0],p[1],p[2], p[3],p[4],p[5], PVW_COL(p[6], base, d.doll));
+    put(P.body[i], p[0],p[1],p[2], p[3],p[4],p[5], uniform&&p[10]==='sleeve'?uniform.shirt:PVW_COL(p[6], base, colors));
     P.body[i].rotation.set(p[8]||0,0,p[9]||0,'YXZ');
     if(p[7]==='r6eye')r6EyeRotation(0,0,p[2]/R6_HK,0,P.body[i].quaternion);
   });
   const want = [];
-  for(const [arr, idx, mode] of [[HATS,d.hat|0,1],[GLASSES,d.gls|0,1],[CLOTHES,d.clo|0,0]])
+  for(const [arr, idx, mode] of [[HATS,hasJob?0:d.hat|0,1],[GLASSES,d.gls|0,1],[CLOTHES,hasJob?0:d.clo|0,0]])
     for(const q of r6rows(arr[Math.max(0, Math.min(arr.length-1, idx))], mode)) want.push(q);
   /* 전직 차림새 — 게임과 같은 표를 그대로 얹는다. 안 그러면 고르기 전에 본 모습과 달라진다 */
-  const jt = d.jt|0, jb = d.job === undefined ? -1 : d.job|0;
-  if(jt > 0 && jb >= 0 && jb < JOB_LOOK.length)
+  if(hasJob)
     for(const h of (JOB_LOOK[jb][Math.min(jt, JOB_LOOK[jb].length) - 1] || [])){
-      if(h[7] && (d.hat|0)>0)continue;
       const q=r6rows([h], h[7] ? 1 : ((h[8]|0) === 2 || (h[8]|0) === 3) ? 2 : 0)[0];
-      want.push([...q,h[10]||0,h[11]||0]);
+      want.push([...q,h[10]||0,h[11]||0,h[12]]);
     }
   while(P.deco.length < want.length){
     const m = new THREE.Mesh(P.geo,AVATAR_MAT.cloth.clone());
@@ -16671,6 +16764,7 @@ function pvwSet(P, d){
   P.deco.forEach((m,i)=>{
     if(i >= want.length){ m.visible = false; return; }
     const h = want[i];
+    m.geometry=JOB_GEO[h[9]]||P.geo;
     put(m, h[0],h[1],h[2], h[3],h[4],h[5], h[6]);
     m.rotation.set(h[7]||0,0,h[8]||0);
   });
@@ -16836,6 +16930,19 @@ function sliceIcons(st, slots, T){
   }
   T.png += performance.now() - b;
 }
+/* 직업 아이콘도 실제 1차 모자·고글의 곡면을 사용한다. */
+function jobIconGroup(job){
+  const g=new THREE.Group();
+  for(const h of JOB_LOOK[job][0]){
+    if(!h[7])continue;
+    const q=r6head(...h.slice(0,6)),mat=AVATAR_MAT.cloth.clone();
+    mat.color.setHex(h[6]);mat._ico=true;
+    const m=new THREE.Mesh(JOB_GEO[h[12]]||RBs,mat);
+    m.position.set(q[2],q[1],q[0]);m.scale.set(q[3],q[4],q[5]);
+    m.rotation.set(h[10]||0,0,h[11]||0);g.add(m);
+  }
+  return g;
+}
 /* ── 물건 설계도 ── 짧은 도우미부터 */
 const Y0 = Math.PI/2;
 const heartRows = (c)=> [['o',c,0.52,0.52,0.42,-0.22,0.16,0],['o',c,0.52,0.52,0.42,0.22,0.16,0],
@@ -17000,10 +17107,9 @@ const ICO_DEF = {
   stat1:{rows:heartRows(0xff6b7a)},
   stat2:{rows:[['b',0x7fc0ff,0.80,0.36,0.44,0.06,-0.16,0],['b',0xfffbf0,0.86,0.12,0.48,0.06,-0.36,0],['b',0x7fc0ff,0.40,0.36,0.42,-0.16,0.10,0],['b',0xfffbf0,0.20,0.06,0.44,-0.10,-0.02,0]]},
   stat3:{rows:bookRows(0x4d8de6)},
-  job_fight:{rows:[['b',0xd8dde6,0.10,0.90,0.06,-0.10,0.10,0,0,0,0.6],['b',0xffd24a,0.34,0.08,0.10,-0.34,-0.30,0,0,0,0.6],['b',0xa06a3a,0.10,0.26,0.10,-0.44,-0.44,0,0,0,0.6],
-            ['b',0xd8dde6,0.10,0.90,0.06,0.10,0.10,0.04,0,0,-0.6],['b',0xffd24a,0.34,0.08,0.10,0.34,-0.30,0.04,0,0,-0.6],['b',0xa06a3a,0.10,0.26,0.10,0.44,-0.44,0.04,0,0,-0.6]]},
-  job_build:{rows:[['c',0xa06a3a,0.14,0.92,0.14,0,-0.14,0],['b',0x9aa0a8,0.62,0.30,0.30,0,0.36,0],['b',0x8a9098,0.14,0.26,0.26,0.36,0.36,0]]},
-  job_work:{rows:[['c',0xc9a05a,0.06,0.90,0.06,0,-0.10,0], ...[0,1,2,3,4,5].map(i=>['o',0xe8c860,0.18,0.24,0.14, (i%2?0.10:-0.10), 0.14+i*0.10, 0, 0,0,(i%2?-0.5:0.5)])]}
+  job_fight:{make:()=>jobIconGroup(0),pose:{ry:-.35}},
+  job_build:{make:()=>jobIconGroup(1),pose:{ry:-.20}},
+  job_work:{make:()=>jobIconGroup(2),pose:{ry:-.35}}
 };
 /* 모자·안경·옷·건물 — 게임 표에서 그대로 */
 /* ★ 모자·안경·옷은 혼자 찍으면 조각 몇 개로 보인다(리본 두 쪽, 뿔 두 개…). 사람 인형 위에 얹어 찍는다 —
@@ -17013,9 +17119,9 @@ const DOLL_COL = {body:0xf0ece4, skin:0xf3e2b0, hair:0xd9ad6a, pant:0xe4ded4};
    모자가 그 속에 파묻힌다 — 물건만 색으로 튀게 하려고 인형을 크림색으로 두는 것과 같은 이유다. */
 const dollHead = ()=> PVW_BODY.slice(1, 5);   // 머리 · 눈 둘 · 입
 const dollBody = ()=> PVW_BODY.slice(0);      // + 몸통 · 팔 · 다리 (51차d — 아홉 조각 전부)
-HATS.forEach((rows,i)=>{ if(i) ICO_DEF['hat'+i] = {emo:[HAT_ICON[i]], make:()=>tableGroup(dollHead().concat(r6rows(rows,1)), DOLL_COL), pose:{ry:-0.55}}; });
-GLASSES.forEach((rows,i)=>{ if(i) ICO_DEF['gls'+i] = {make:()=>tableGroup(dollHead().concat(r6rows(rows,1)), DOLL_COL), pose:{ry:-0.35}}; });
-CLOTHES.forEach((rows,i)=>{ if(i) ICO_DEF['clo'+i] = {make:()=>tableGroup(dollBody().concat(r6rows(rows,0)), DOLL_COL), pose:{ry:-0.55}}; });
+DRESS_OPTIONS.hat.forEach(i=>{ if(i) ICO_DEF['hat'+i] = {emo:[HAT_ICON[i]], make:()=>tableGroup(dollHead().concat(r6rows(HATS[i],1)), DOLL_COL), pose:{ry:-0.55}}; });
+DRESS_OPTIONS.gls.forEach(i=>{ if(i) ICO_DEF['gls'+i] = {make:()=>tableGroup(dollHead().concat(r6rows(GLASSES[i],1)), DOLL_COL), pose:{ry:-0.35}}; });
+DRESS_OPTIONS.clo.forEach(i=>{ if(i) ICO_DEF['clo'+i] = {make:()=>tableGroup(dollBody().concat(r6rows(CLOTHES[i],0)), DOLL_COL), pose:{ry:-0.55}}; });
 for(const k of Object.keys(BUILD)) ICO_DEF['bld_'+k] = {make:()=>buildingGroup(k, 1), pose:{ry:-0.4}};
 /* 건설 선택 그림도 실제 건물 조각으로 굽는다. 기존 아이콘 공방의 큰 칸을 함께 쓴다. */
 for(const [type,branches] of [['arrow',['rapid','sniper']],['ice',['blizzard','frost']]])
@@ -18664,7 +18770,7 @@ Object.assign(window, {
   __LV_MAX:LV_MAX, __openStat:openStat, __openBadge:openBadge, __maxHP:maxHP, __mineTime:mineTime,
   __workSec:workSec, __upSec:upSec, __fixSec:fixSec, __mineBonus:mineBonus,
   __atkMul:atkMul, __defNow:defNow, __xpReset:xpReset,
-  __drawWolves:drawWolves, __drawSoldiers:drawSoldiers, __wolfMeshes:()=>({body:W_body, belly:W_belly, brow:W_brow, rib:W_rib, tongue:W_tongue, plate:W_plate, gem:W_gem, heal:W_heal, beam:W_beam, eyeW:W_eyeW, fang:W_fang, dread:W_dread, legs:W_legs, paw:W_paw}),
+  __drawWolves:drawWolves, __drawSoldiers:drawSoldiers, __wolfMeshes:()=>({body:W_body, belly:W_belly, brow:W_brow, rib:W_rib, plate:W_plate, gem:W_gem, heal:W_heal, beam:W_beam, eyeW:W_eyeW, fang:W_fang, dread:W_dread, legs:W_legs, paw:W_paw, wrap:W_wrap}),
   __wolfPose:wolfPose, __wolfCorpse:wolfCorpse, __WOLF_DEAD:WOLF_DEAD, __smoothHead:smoothHead, __idleLife:idleLife, __P_legs:P_legs,   // 44차
   __work:()=>work, __doAction:doAction, __setActing:v=>{ acting = v; },
   __sheepHurt:sheepHurt, __goDown:goDown, __reviveMe:reviveMe, __aimDown:aimDown,
@@ -18725,9 +18831,9 @@ Object.assign(window, {
   __Pmouth:()=>P_mouth,
   /* 27차 — 캐릭터 조각 전부 (t29: 무늬 없는 재질 · 둥근 모양) */
   __charMeshes:()=>({
-    사람:[P_body,P_head,P_arm,...P_hand,P_eye,P_nose,P_mouth,P_legs,P_shoe,P_deco,P_gun],
-    좀비:[W_body,W_chest,W_ruff,W_head,W_snout,W_nose,W_tail,W_ears,W_eyes,W_legs,W_paw,W_hack,W_horn,
-      W_belly,W_brow,W_cheek,W_rib,W_tongue,W_plate,W_gem,W_eyeW,W_eyeR,W_pupil,W_fang,W_costume,W_heal,W_beam,W_dread,W_aura],
+    사람:[P_body,P_head,P_arm,...P_hand,P_eye,P_nose,P_mouth,P_legs,P_shoe,P_deco,P_gun,...P_jobMeshes],
+    좀비:[W_body,W_chest,W_ruff,W_head,W_snout,W_nose,W_tail,W_ears,W_eyes,W_legs,W_paw,W_horn,
+      W_belly,W_brow,W_cheek,W_rib,W_plate,W_gem,W_eyeW,W_eyeR,W_pupil,W_fang,W_costume,W_wrap,W_heal,W_beam,W_dread,W_aura],
     농장:[F_body,F_head,F_deco,F_eyes,F_legs,F_muck,F_fly],
     병사:[S_body,S_bodyA,S_head,S_legs,S_spear,S_helm,S_tip,S_face,S_crest,S_shield,S_hat,S_orb],
     상인:[N_body]}),
@@ -18807,7 +18913,7 @@ Object.assign(window, {
   __FD:()=>({PER:FD_PER, R:FD_R, MAX:FD_MAX}), __fdMesh:()=>[fdBody, fdGlow],
   __RES_KEYS:()=>RES_KEYS, __RES_IC:RES_IC, __RES_NM:RES_NM, __myRes:myRes,
   __gain:gain, __spend:spend,
-  __JOBS:JOBS, __JOB_LV:JOB_LV, __JOB_STEP:()=>JOB_STEP, __JOB_LOOK:JOB_LOOK, __JOB_AURA:JOB_AURA, __P_jobF:()=>P_jobF, __P_jobR:()=>P_jobR,
+  __JOBS:JOBS, __JOB_LV:JOB_LV, __JOB_STEP:()=>JOB_STEP, __JOB_LOOK:JOB_LOOK, __JOB_GEO:JOB_GEO, __JOB_UNIFORM:JOB_UNIFORM, __P_jobParts:()=>P_jobParts, __JOB_AURA:JOB_AURA, __P_jobF:()=>P_jobF, __P_jobR:()=>P_jobR,
   __JOB_WING:JOB_WING, __P_wing:()=>P_wing, __P_wingG:()=>P_wingG, __wingSpine:wingSpine,
   __jobTier:jobTier, __JOB_SPD:JOB_SPD, __JOB_JMP:JOB_JMP, __GLIDE_T:GLIDE_T, __GLIDE_VY:GLIDE_VY, __setJumpHeld:(v)=>{ KEY[' '] = !!v; },   // 45차
   __statMax:statMax, __jobDue:jobDue, __takeJob:takeJob, __buildJobUI:buildJobUI,

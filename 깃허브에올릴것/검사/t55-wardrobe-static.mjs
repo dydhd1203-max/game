@@ -60,12 +60,12 @@ check('Stable catalog array lengths preserve existing network IDs',A.HATS.length
 for(const [kind,rows,container] of [['hat',A.HATS,'hatPick'],['gls',A.GLASSES,'glsPick'],['clo',A.CLOTHES,'cloPick']]){
   check(kind+' picker only offers the curated choices',document.querySelectorAll('#'+container+' button').length===A.DRESS_OPTIONS[kind].length);
   check(kind+' selected style and label are accessible',document.querySelectorAll('#'+container+' [aria-pressed="true"]').length===1&&[...document.querySelectorAll('#'+container+' button')].every(n=>n.getAttribute('aria-label')));
-  check(kind+' every retired nonzero ID maps to a supported nonzero style',Object.entries(A.DRESS_LEGACY[kind]).every(([old,n])=>A.dressPickId(kind,+old)===n&&n>0&&A.DRESS_OPTIONS[kind].includes(n)));
+  check(kind+' every retired ID maps to a supported style or unequips',Object.entries(A.DRESS_LEGACY[kind]).every(([old,n])=>A.dressPickId(kind,+old)===n&&A.DRESS_OPTIONS[kind].includes(n)));
   check(kind+' all visible items have valid finite geometry',A.DRESS_OPTIONS[kind].every(i=>i===0||rows[i].length>0&&rows[i].every(r=>r.slice(0,7).every(Number.isFinite)&&r.slice(3,6).every(n=>n>0))));
 }
-A.wearDeco('hat',3);A.wearDeco('clo',4);A.wearDeco('gls',1);
-check('Hat, face accessory and clothes remain independently combinable',same(A.myDress(),{hat:3,gls:1,clo:4}));
-check('Lobby choices persist to the existing storage keys',A.stored.sheepHat===3&&A.stored.sheepGls===1&&A.stored.sheepClo===4);
+A.wearDeco('hat',3);A.wearDeco('clo',4);A.wearDeco('gls',8);
+check('Hat, face accessory and clothes remain independently combinable',same(A.myDress(),{hat:3,gls:8,clo:4}));
+check('Lobby choices persist to the existing storage keys',A.stored.sheepHat===3&&A.stored.sheepGls===8&&A.stored.sheepClo===4);
 const before=JSON.stringify([A.myDress(),A.G.me,A.stored]);
 const oldButton=document.querySelector('#hatPick button:last-child');
 A.G.started=true;A.G.phase='day';oldButton.onclick();A.wearDeco('hat',4);A.wearDeco('gls',8);A.wearDeco('clo',2);A.kitClick({t:'hat',i:6});
