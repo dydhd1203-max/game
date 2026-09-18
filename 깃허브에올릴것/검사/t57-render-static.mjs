@@ -50,5 +50,18 @@ check('No shadow persists after the visible player list empties',A.P_contact.cou
 const map=A.P_contact.material.map,px=map.image.data,N=map.image.width;
 check('One shared soft texture has a clear edge and shaded center',px[3]===0&&px[((N/2)*N+N/2)*4+3]>250&&map.magFilter===THREE.LinearFilter);
 check('Contact layer cannot cast duplicate shadows or hide world geometry',!A.P_contact.castShadow&&!A.P_contact.receiveShadow&&!A.P_contact.material.depthWrite&&A.P_contact.material.transparent);
+// 몸에 얇게 덧붙는 부속(날개·발광·고리·직업 옷/모자/소품)은 그림자를 주고받으면 안 된다.
+// 몸과의 틈이 0.003칸쯤인데 그림자 밀어내기(normalBias)가 그 열 배라, 켜 두면 걷거나 날 때
+// 그림자 맵이 프레임마다 다르게 끊겨 옷이 깜빡인다. 사람 모양 그림자는 몸·머리·팔·다리가 만든다.
+{
+  const bias=/sun\.shadow\.normalBias = ([\d.]+);/.exec(source);
+  check('Shadow push-out is still far larger than the gap these add-ons sit at',
+    !!bias&&Number(bias[1])>0.01,bias&&bias[1]);
+  // castShadow 를 false 로 끄는 문장을 모두 모아, 어떤 이름이 함께 적혔는지 본다.
+  // 연쇄 대입(A.castShadow = A.receiveShadow = B.castShadow = … = false)도 한 문장으로 잡는다.
+  const flat=[...source.matchAll(/[^;\n]*castShadow[^;]*= *false;/g)].map(m=>m[0]).join(' | ');
+  for(const group of ['P_wing','P_jobF','P_jobR','P_jobMeshes'])
+    check(group+' add-ons are excluded from the shadow map',flat.includes(group),flat);
+}
 console.log(`${checks.filter(Boolean).length}/${checks.length} character render checks passed; WebGL compilation is checked separately.`);
 process.exitCode=checks.every(Boolean)?0:1;

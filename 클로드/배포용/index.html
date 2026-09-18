@@ -8678,6 +8678,12 @@ const P_jobParts = (()=>{
   }
   return meshes;
 })(), P_jobMeshes=Object.values(P_jobParts);
+/* ★ 직업 옷·모자·소품은 그림자를 주고받지 않는다 — 날개·발광·고리와 같은 이유다.
+   이 조각들은 몸에서 0.003칸쯤 띄워 붙는 얇은 판인데, 그림자 밀어내기(normalBias 0.035)가
+   그 틈의 열 배라 그림자가 몸과 조각 사이에 제대로 앉지 못한다. 그래서 전직한 사람이
+   걷거나 뛰거나 날면 그림자 맵이 프레임마다 다르게 끊겨 옷이 밝았다 어두웠다 깜빡였다.
+   사람 모양 그림자는 몸·머리·팔·다리가 그대로 만든다. */
+for(const m of P_jobMeshes) m.castShadow = m.receiveShadow = false;
 const JOB_UNIFORM = [
   [{shirt:0xf1dfbe,pant:0x526879,shoe:0x73533d},{shirt:0xf3ead5,pant:0x354f69,shoe:0x344253}],
   [{shirt:0xe8d6ab,pant:0x4b6e84,shoe:0x6c705f},{shirt:0xeeeadd,pant:0x447578,shoe:0x466777}],
