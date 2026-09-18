@@ -1,0 +1,98 @@
+# 검사를 사람이 기억해서 돌리지 않아도 되게 한다.
+#
+# 이 저장소는 검사를 잘 갖춰 두었는데(현재 21개 파일) 자동으로 돌지 않아서,
+# XP_BUILD 에 pulse 한 줄이 빠진 것 같은 실수가 그대로 main 에 들어갔다.
+# 이제 push 와 pull request 마다 같은 명령을 돌린다.
+#
+#   node 깃허브에올릴것/검사/check-current.mjs
+#
+# 검사 폴더의 package.json 은 .gitignore 대상이라 저장소에 없다. 그래서 여기서
+# 필요한 것만 직접 받는다. three 는 게임이 CDN 에서 쓰는 것과 같은 판(0.160.0)으로
+# 고정한다 — 판이 다르면 기하 꼭짓점 수가 달라져 용량 검사가 엉뚱하게 틀린다.
+# sharp 는 CPU PNG 를 그릴 때만 쓰고 없으면 검사가 알아서 건너뛰므로 받지 않는다.
+#
+# 이름표(name:)와 메시지에는 한글을 쓰지만, 열쇠말과 셸 변수 이름은 영문이다.
+# GitHub 의 job id 와 bash 변수 이름에는 한글을 쓸 수 없다.
+
+name: 검사
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      render:
+        description: 숨김 브라우저로 실제 화면까지 확인한다 (느리다)
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node-checks:
+    name: Node 검사
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # 개발 안내의 규칙: 원본과 배포용은 바이트 단위로 같아야 한다.
+      # 검사보다 먼저 본다 — 어긋나면 어느 파일을 검사한 것인지가 흐려진다.
+      - name: 원본과 배포용이 같은지
+        run: |
+          src=$(sha256sum 클로드/index.html | cut -d' ' -f1)
+          deploy=$(sha256sum 클로드/배포용/index.html | cut -d' ' -f1)
+          echo "원본   $src"
+          echo "배포용 $deploy"
+          if [ "$src" != "$deploy" ]; then
+            echo "::error file=클로드/배포용/index.html::원본을 배포용에 복사하지 않았다 — cp 클로드/index.html 클로드/배포용/index.html"
+            exit 1
+          fi
+
+      - name: 검사에 필요한 것 받기
+        working-directory: 깃허브에올릴것/검사
+        run: npm install --no-audit --no-fund --no-save three@0.160.0 linkedom
+
+      - name: 검사 돌리기
+        run: node 깃허브에올릴것/검사/check-current.mjs
+
+  browser-checks:
+    name: 숨김 브라우저 검사
+    # 브라우저를 받아 띄우느라 느리다. 손으로 돌릴 때만 한다.
+    if: github.event_name == 'workflow_dispatch' && inputs.render
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: 검사에 필요한 것 받기
+        working-directory: 깃허브에올릴것/검사
+        run: |
+          npm install --no-audit --no-fund --no-save three@0.160.0 linkedom playwright
+          npx playwright install --with-deps chromium
+
+      # pw.mjs 가 새 헤드리스(channel:'chromium')로 띄우고 finally 에서 닫는다.
+      # 커서 잠금은 pw.mjs 가 막는다. OS 마우스·키보드는 건드리지 않는다.
+      - name: 화면까지 검사
+        run: node 깃허브에올릴것/검사/check-current.mjs --render
+
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-check-artifacts
+          path: artifacts/
+          if-no-files-found: ignore

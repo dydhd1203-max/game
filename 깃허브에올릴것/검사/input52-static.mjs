@@ -26,4 +26,12 @@ const pa=source.indexOf('function protectBrowser('),pb=source.indexOf('async fun
 const protect=vm.runInNewContext(`(${source.slice(pa,pb).trim()})`);
 protect(browser);await browser.newContext();await browser.newPage();
 await new FakeElement().requestPointerLock();assert.equal(actualRequests,0);assert.equal(initCount,1);
-console.log('PASS: lock release, focus/tab loss, input reset, no automatic lock, test pointer-lock guard (no browser launched).');
+// 자리(위치) 통로의 실제 주기. 이 숫자를 근거로 "여기에 칸을 더하지 않는다" 고 적어 둔
+// 주석이 여러 곳에 있어서, 값과 설명이 갈라지면 다음 사람이 잘못된 여유를 계산한다.
+const tick=/netT = DBG\.slowNet \? 1\/(\d+) : 1\/(\d+);/.exec(html);
+assert.ok(tick,'Position tick rate not found');
+const perSec=Number(tick[2]);
+assert.equal(perSec,6,'Position channel rate changed');
+const stale=[...html.matchAll(/자리[^\n]{0,24}통로[^\n]{0,24}초당 (\d+)번/g)].map(m=>Number(m[1])).filter(n=>n!==perSec);
+assert.deepEqual(stale,[],'A comment states a position tick rate that the code does not use');
+console.log('PASS: lock release, focus/tab loss, input reset, no automatic lock, test pointer-lock guard, position tick rate matches its comments (no browser launched).');

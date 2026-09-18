@@ -39,8 +39,10 @@ const names=['W_body','W_head','W_chest','W_ruff','W_snout','W_tail','W_legs','W
 const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),fn('metalMat'),chunk('function roundBox(','const _rbCache'),
  chunk('const STUD =','const eyeMat ='),fn('imesh'),chunk('const eyeMat =','/* ═══════════════════════ 농장 동물'),
  declaration('auraMat'),declaration('W_aura'),chunk('let FLIP_ON =','const fxq ='),
+ // zombieChaseGate 가 쫓을 때의 최소 걸음(BAL.chaseMin)과 종류별 배수를 읽는다.
+ declaration('BAL'),
  chunk('const WOLF_T =','function drawWolves('),fn('drawWolves'),declaration('HEAD_M'),fn('smoothHead'),fn('idleLife'),fn('limb1'),fn('limb2'),
- `globalThis.A={G,WOLF_T,LOOKS,ZOMBIE_STYLE,ZOMBIE_NIGHT,WOLF_DEAD,wolfPose,drawWolves,meshes:{${names.map(n=>n+':'+n).join(',')}}};`];
+ `globalThis.A={G,WOLF_T,BAL,WOLF_SPD_GROW,zombieChaseGate,LOOKS,ZOMBIE_STYLE,ZOMBIE_NIGHT,WOLF_DEAD,wolfPose,drawWolves,meshes:{${names.map(n=>n+':'+n).join(',')}}};`];
 const context=vm.createContext({THREE,console});new vm.Script(pieces.join('\n')).runInContext(context,{timeout:10000});const A=context.A;
 const results=[];const check=(n,p,d)=>{results.push({name:n,pass:!!p,detail:d});console.log((p?'OK   ':'FAIL ')+n+(d===undefined?'':' '+JSON.stringify(d)));};
 const actor=(k=0,extra={})=>({k,x:0,y:0,z:0,ry:0,id:2,ph:.3,hp:40,mx:40,mv:false,atkT:0,hurt:0,...extra});
@@ -161,6 +163,24 @@ function render(pose,angle,closeup=false,elevation=0){
     }
   }
   return Buffer.from(pixels);
+}
+
+// 손님 화면의 추격 자세는 통신에 없는 실제 걸음 대신 표에서 낸 문턱으로 가른다.
+// 평소 걸음(밤 상한까지)이 문턱을 넘으면 그냥 걸어가는 좀비가 늘 쫓는 자세로 보인다.
+// 쫓을 때의 최소 걸음이 문턱을 못 넘으면 반대로 영영 쫓는 자세가 안 나온다.
+{
+  const chasers=A.WOLF_T.map((d,k)=>({k,d})).filter(({d})=>!d.noChase);
+  const walkOf=d=>d.spd*(1+A.WOLF_SPD_GROW), chaseOf=d=>A.BAL.chaseMin*(d.chase||1);
+  const bad=chasers.filter(({d})=>{const g=A.zombieChaseGate(d);
+    return g!==Infinity && !(walkOf(d)<g && chaseOf(d)>g);});
+  check('Guest chase threshold separates the day-capped walk from the slowest chase',bad.length===0,
+    bad.map(({k,d})=>({k,walk:+walkOf(d).toFixed(2),chase:+chaseOf(d).toFixed(2),gate:A.zombieChaseGate(d)})));
+  // 걸음이 쫓는 속도를 앞질러 속도로는 가릴 수 없는 종류는 문턱을 두지 않는다.
+  const unresolvable=chasers.filter(({d})=>chaseOf(d)<=walkOf(d));
+  check('Types whose walk outruns their capped chase get no speed threshold at all',
+    unresolvable.every(({d})=>A.zombieChaseGate(d)===Infinity),
+    unresolvable.map(({k})=>k));
+  check('The day speed cap still matches the value spawnWolf grows by',A.WOLF_SPD_GROW===0.42,A.WOLF_SPD_GROW);
 }
 
 if(sharp){

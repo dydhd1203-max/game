@@ -5184,6 +5184,9 @@ const RACE_S = [                                           // 여섯 구간 — 
   {n:'무지개 점프',     z0:222, z1:270, col:0x51cfb5},
   {n:'마지막 계단',     z0:276, z1:310, col:0xffe066}];
 const RACE_Z_FIN = 312, RACE_Y_FIN = 8.1;
+/* 무지개 점프 여섯 발판의 앞뒤 간격. 발판(raceBuild)과 옆 장식이 같은 값을 봐야
+   깃대·풍선이 발판 옆에 선다. 예전엔 장식만 옛 간격 5 로 남아 뒤쪽이 텅 비었다. */
+const RACE_RAINBOW_DZ = 8.6;
 const RACE_ROWZ = [MINI_PADZ + 0.8, MINI_PADZ - 1.8], RACE_COLS = 12, RACE_COLW = 3.0;
 const SURV_SPAWN_R = 26;          // 서바이벌은 다섯 모둠이 고리로 흩어져 시작한다
 const survSpawnA = g => g*Math.PI*2/NG + Math.PI;      // 0모둠이 출발선 쪽
@@ -5542,7 +5545,7 @@ function buildMiniIsle(){
   for(let i=0;i<3;i++){ const z = 185 + i*12, x = (i%2 ? -21.4 : 21.4);
     for(let k=0;k<3;k++) Rp(bpush('rcTrunk', TRUNKG, WMAT, x + (k-1)*0.8, MINI_Y - 1.2 + (k===1 ? 0.7 : 0), z, Math.PI/2, 0.9, 2.6, 0.9, Math.PI/2, 0x8a5a3a)); }
   /* 54차 — 무지개 점프는 컬러 표지와 응원 풍선이 이어진다. 기둥은 폭 32 발판 밖이다. */
-  for(let i=0;i<6;i++) for(const side of [-1,1]){ const z=RACE_S[4].z0+1.8+i*5, x=side*19;
+  for(let i=0;i<6;i++) for(const side of [-1,1]){ const z=RACE_S[4].z0+1.8+i*RACE_RAINBOW_DZ, x=side*19;
     BX(x,1.1,z,0.16,2.2,0.16,0xffffff); BX(x,2.3,z,1.8,1.1,0.16,FLAGC[i]);
     BX(x-side*0.24,2.3,z-0.1,0.65,0.18,0.06,0xffffff,0,side*0.65);
     BX(x+side*0.24,2.3,z-0.1,0.65,0.18,0.06,0xffffff,0,-side*0.65);
@@ -8675,6 +8678,12 @@ const P_jobParts = (()=>{
   }
   return meshes;
 })(), P_jobMeshes=Object.values(P_jobParts);
+/* ★ 직업 옷·모자·소품은 그림자를 주고받지 않는다 — 날개·발광·고리와 같은 이유다.
+   이 조각들은 몸에서 0.003칸쯤 띄워 붙는 얇은 판인데, 그림자 밀어내기(normalBias 0.035)가
+   그 틈의 열 배라 그림자가 몸과 조각 사이에 제대로 앉지 못한다. 그래서 전직한 사람이
+   걷거나 뛰거나 날면 그림자 맵이 프레임마다 다르게 끊겨 옷이 밝았다 어두웠다 깜빡였다.
+   사람 모양 그림자는 몸·머리·팔·다리가 그대로 만든다. */
+for(const m of P_jobMeshes) m.castShadow = m.receiveShadow = false;
 const JOB_UNIFORM = [
   [{shirt:0xf1dfbe,pant:0x526879,shoe:0x73533d},{shirt:0xf3ead5,pant:0x354f69,shoe:0x344253}],
   [{shirt:0xe8d6ab,pant:0x4b6e84,shoe:0x6c705f},{shirt:0xeeeadd,pant:0x447578,shoe:0x466777}],
@@ -8904,6 +8913,18 @@ const WOLF_T = [
   {n:'🐾 새끼 좀비',   hp:11, spd:4.30,dmg:4,  cd:0.6, sc:0.42, col:0xf0e8dc, look:'pup'},
   {n:'👁️ 공포 좀비',   hp:110,spd:3.35,dmg:20, cd:2.0, sc:1.12, col:0x5a4c6a, look:'fear',   fear:1}
 ];
+/* 날이 갈수록 걸음이 빨라지는 상한. spawnWolf 가 실제 spd 를 만들 때 쓰고,
+   손님 화면이 "이만큼은 넘지 않는다" 를 알아야 해서 여기 한 곳에 둔다. */
+const WOLF_SPD_GROW = 0.42;
+/* 손님은 통신에 없는 실제 걸음(w.spd)을 모른다. 대신 표에서 낼 수 있는 두 값 사이를 문턱으로 쓴다 —
+   평소 걸음은 밤이 깊어도 spd 의 (1+WOLF_SPD_GROW)배를 넘지 않고, 쫓을 때는 BAL.chaseMin 아래로
+   내려가지 않는다. 그 가운데를 잡으면 평소 걸음을 추격으로 잘못 읽지 않는다.
+   ★ 날쌘 좀비·새끼 좀비는 밤이 깊으면 평소 걸음이 BAL.chaseCap 을 넘어서 쫓을 때가 오히려 느리다.
+     그때는 속도로 가릴 수 없으므로 문턱을 두지 않는다 — 늘 쫓는 자세로 보이는 것보다 낫다. */
+function zombieChaseGate(d){
+  const walk = d.spd * (1 + WOLF_SPD_GROW), chase = BAL.chaseMin * (d.chase || 1);
+  return chase > walk ? (walk + chase)/2 : Infinity;
+}
 /* 종류 번호는 표를 뒤져 얻는다 — 줄을 끼워 넣어도 안 틀어진다 */
 const K_LOOK = nm => WOLF_T.findIndex(t => t.look === nm);
 const K_HUNGRY = K_LOOK('hungry'), K_ARMOR = K_LOOK('armor'), K_HEAL = K_LOOK('heal'), K_PUP = K_LOOK('pup'), K_FEAR = K_LOOK('fear');
@@ -8987,7 +9008,7 @@ function wolfCorpse(w){
 function zombieThreatPose(w,t,dt,mvK){
   const d=WOLF_T[w.k],heavy=!!d.boss||w.k===2||d.look==='armor';
   const quick=w.k===1||d.look==='hungry'||d.look==='pup';
-  const chasing=!(w.dead>0)&&!w.noChase&&!d.noChase&&(w.shT!==undefined?!!w.shT:!!w.mv&&w.gv>Math.max(4.6,d.spd*1.08));
+  const chasing=!(w.dead>0)&&!w.noChase&&!d.noChase&&(w.shT!==undefined?!!w.shT:!!w.mv&&w.gv>zombieChaseGate(d));
   const step=Math.min(.05,Math.max(0,dt));
   if(chasing&&!w.posePreyWas&&(w.poseChase||0)<.3)w.poseAlert=.34;
   w.posePreyWas=chasing;
@@ -10935,12 +10956,9 @@ function fireWeapon(){
      ★ 총알이 모자라면 막지 않고 조용히 맨손 돌로 떨어뜨린다.
        9살한테 "총알이 없습니다" 하고 아무 일도 안 일어나면 그냥 손을 놓아 버린다.
        대신 그 밤에 한 번은 알려 준다. */
-  let W = wpnNow();
-  if(W.ammo > 0 && KIT.ammo < W.ammo){
-    if(KIT.noAmmoSaid !== G.day){ KIT.noAmmoSaid = G.day;
-      toast('🔸 총알이 없어요 — 낮에 상인에게 사세요 (지금은 돌을 던집니다)', 3, '#ffd0a0'); }
-    W = WEAPONS[0];
-  }
+  const W = wpnEff();
+  if(W !== wpnNow() && KIT.noAmmoSaid !== G.day){ KIT.noAmmoSaid = G.day;
+    toast('🔸 총알이 없어요 — 낮에 상인에게 사세요 (지금은 돌을 던집니다)', 3, '#ffd0a0'); }
   throwCd = W.cd;
   if(W.ammo > 0) KIT.ammo -= W.ammo;
   const isGun = W !== WEAPONS[0];
@@ -11321,7 +11339,7 @@ function xpTable(){
 
 /* 무엇을 하면 얼마나 오르나 */
 const XP_MINE  = 5;                                          // 자원 한 칸
-const XP_BUILD = { wwall:14, swall:18, arrow:34, ice:34, barr:44 };
+const XP_BUILD = { wwall:14, swall:18, arrow:34, ice:34, barr:44, pulse:44 };
 const XP_UP    = 16;                                         // 강화 (× 오른 등급)
 const XP_FIX   = 6;                                          // 수리
 const XP_DMG   = 0.09;                                       // 좀비에게 준 피해 1당
@@ -11492,6 +11510,10 @@ const spdMul  = ()=> (KIT.bSpd > 0 ? 1.35 : 1) * (1 + 0.015*stLv(ST_AGI));
 const defNow  = ()=> Math.min(85, ARMORS[KIT.arm].def + (KIT.bDef > 0 ? 25 : 0)
                                 + 3*stLv(ST_VIT) + 1*stLv(ST_STR));
 const wpnNow  = ()=> WEAPONS[Math.max(0, Math.min(WEAPONS.length-1, KIT.wpn))];
+/* 총알이 모자라면 실제로 나가는 것은 맨손 돌이다(사거리 11.5). 조준점도 이것을 봐야
+   "빨간 조준이 걸렸는데 안 맞는다" 가 생기지 않는다 — 총 사거리로 잠그고 돌로 쏘면
+   스무 칸 앞 좀비는 반드시 빗나간다. 알림 문구는 fireWeapon 에서만 한 번 띄운다. */
+const wpnEff  = ()=>{ const W = wpnNow(); return (W.ammo > 0 && KIT.ammo < W.ammo) ? WEAPONS[0] : W; };
 /* 무기 한 방의 힘 (크리티컬 전) */
 function wpnDmg(){
   const W = wpnNow();
@@ -14634,7 +14656,7 @@ function spawnWolf(k, gate, atX, atZ){
 
   const w = { id:wid++, k, x, z, y:GY, ry:Math.atan2(-x,-z), hp, mx:hp, dmg, cd,
     /* 날이 갈수록 더 빨라진다 (예전 +30% -> +42%) */
-    spd: T0.spd*(1+Math.min(0.42, dd*0.42)), slow:0, atkT:0, hurt:0, mv:true,
+    spd: T0.spd*(1+Math.min(WOLF_SPD_GROW, dd*WOLF_SPD_GROW)), slow:0, atkT:0, hurt:0, mv:true,
     /* ★ 사람을 쫓을 수 있는 시간. 다 쓰면 잠깐 사람을 잊고 수정·건물로 돌아간다.
        이게 없으면 아이 하나가 빙빙 돌기만 해도 좀비 떼가 밤새 그 뒤만 따라다녔다. */
     chLeft: BAL.chaseBudget, chCool: 0,
@@ -15877,7 +15899,7 @@ function raceBuild(seed){
          mv:{ax:'x', amp:v === 0 ? 1.0 : v === 1 ? 1.5 : 1.25, spd:0.55 + i*0.15 + v*0.1, ph:rng()*6.28}}); } }   // 봇 21 중 일곱이 여기서 못 나와 흔들림을 줄였다
   /* ⑤ 무지개 점프 — 몸 반지름으로 틈을 건너뛰지 못하게 간격을 확보한다. 낮은 높낮이는 기본 한 번 점프로 넘는다. */
   { const S = RACE_S[4], colors = [0xff7799,0xffb657,0xffe878,0x7cdf92,0x66c9ff,0xb59aff];
-    for(let i=0;i<6;i++) P({x:0,z:S.z0+1.8+i*8.6,y:i%2?.15:0,w:8,d:3.6,h:.6+(i%2?.15:0),col:colors[i],sec:4,kind:'rainbow'}); }
+    for(let i=0;i<6;i++) P({x:0,z:S.z0+1.8+i*RACE_RAINBOW_DZ,y:i%2?.15:0,w:8,d:3.6,h:.6+(i%2?.15:0),col:colors[i],sec:4,kind:'rainbow'}); }
   /* ⑥ 마지막 계단 — 아홉 단, 셋마다 틈 하나. 꼭대기가 골인 */
   { const S = RACE_S[5], v = V[5], n = 9, step = 0.9;
     let z = S.z0;
@@ -16014,7 +16036,13 @@ function raceRocks(t){
   return out;
 }
 /* ═══ 장애물: 바위(④) · 계단을 굴러 내려오는 공(⑤) · 좁은 다리 위 진자(②) · 깃발 판 회전 막대(3·5번) ═══ */
-const HAZ = {ball:{per:5.0,spd:15.0,r:1.6},pend:{per:.91,len:6.2,swing:.44,top:8.8,r:2.4},bar:{spd:1.9,len:7.0}};
+/* 막대는 길이·속도를 코스 폭에 맞춰 낸다. 넓히기 전에는 폭 8 판을 길이 7 이 쓸어
+   87% 를 덮었는데, RACE_X 로 판만 4배가 되면서 길이 7 은 32칸 중 7칸(22%)만 덮어
+   그냥 걸어서 지나갈 수 있게 됐다. 길이를 폭만큼 늘려 덮는 비율을 되돌리고,
+   끝이 오는 빠르기는 옛 값의 2배로 맞춘다(진자·바위를 2배로 올린 것과 같은 기준).
+   길이만 늘리고 속도를 그대로 두면 끝 속도가 4배가 되어 9살이 피할 수 없다. */
+const HAZ = {ball:{per:5.0,spd:15.0,r:1.6},pend:{per:.91,len:6.2,swing:.44,top:8.8,r:2.4},
+  bar:{spd:1.9*2/RACE_X, len:7.0*RACE_X}};
 function raceHazards(t){
   const out = [], seed = (RACE.seed % 1000) / 1000;
   /* 계단 공 — 골인 앞에서 번갈아 두 길로 내려온다. 처음 3초와 양끝 체크포인트는 안전하게 둔다. */
@@ -16025,8 +16053,12 @@ function raceHazards(t){
       out.push({k:'ball', x:lane, z, y, r:HAZ.ball.r, roll:u / HAZ.ball.r, id:'b' + Math.round(t0*10)}); } }
   /* 진자 — 좁은 다리의 트러스 2·4번째. 최저점에서도 구체 아래가 마루보다 .2칸 높다. */
   for(const i of [1, 3]){ const z = 86 + i*9.6, w = Math.PI*2 / HAZ.pend.per, ph = i*1.3 + seed*6.28;
+    /* 축은 그 자리 다리 한가운데다. 예전에는 x 0 에 매달아도 다리가 x 0 둘레였는데,
+       RACE_X 로 넓어진 뒤 변형에 따라 다리가 x -10 쯤으로 치우쳐서 추가 허공만 휘젓는 판이 나왔다. */
+    const deck = RACE_P.find(q => q.sec === 1 && Math.abs(q.z - z) <= q.d/2 + 1);
+    const px = deck ? deck.x : 0;
     const th = Math.sin(t*w + ph) * HAZ.pend.swing, vx = Math.cos(t*w + ph);
-    out.push({k:'pend', x:Math.sin(th)*HAZ.pend.len, z, y:HAZ.pend.top - Math.cos(th)*HAZ.pend.len, r:HAZ.pend.r, py:HAZ.pend.top, len:HAZ.pend.len, ang:th, vx, id:'p'+i}); }
+    out.push({k:'pend', x:px + Math.sin(th)*HAZ.pend.len, z, y:HAZ.pend.top - Math.cos(th)*HAZ.pend.len, r:HAZ.pend.r, px, py:HAZ.pend.top, len:HAZ.pend.len, ang:th, vx, id:'p'+i}); }
   /* 회전 막대 — 3번·5번 깃발 판 가운데서 돈다. 0.3~0.8칸 높이라 뛰어넘을 수 있다(한 번 뜀 1.36) */
   for(const cpN of [3, 5]){ const p = RACE_P.find(q=> q.cp === cpN); if(!p) continue;
     const w = HAZ.bar.spd * (cpN === 3 ? 1 : -1);
@@ -16140,7 +16172,7 @@ function raceDraw(t){
     if(h.k === 'ball'){ if(rn < 24) setIR(R_rock, rn++, h.x, MINI_Y + h.y, h.z, 0, -h.roll, h.r*2, h.r*2, h.r*2, 0x6f7f9a); }
     else if(h.k === 'pend'){ if(rn < 24) setIR(R_rock, rn++, h.x, MINI_Y + h.y, h.z, h.ang*0.5, 0, h.r*2, h.r*2, h.r*2, 0x4a4f5a);
       /* 40차 — 쇠사슬: 고리 일곱을 줄 따라 번갈아 돌려 꿴다. 가는 줄 하나였을 땐 풍선처럼 가벼워 보였다(선생님: "무거운 추 같은 느낌이 안 듦") */
-      for(let c=0;c<7 && hb<24;c++){ const u = (c + 0.5)/7*(h.len-h.r)/h.len, cx = h.x*u, cy = h.py + (h.y - h.py)*u;
+      for(let c=0;c<7 && hb<24;c++){ const u = (c + 0.5)/7*(h.len-h.r)/h.len, cx = h.px + (h.x - h.px)*u, cy = h.py + (h.y - h.py)*u;
         setIR3(R_hazB, hb++, cx, MINI_Y + cy, h.z, c%2 ? Math.PI/2 : 0, 0, h.ang, 0.25, (h.len - h.r)/7 + 0.12, 0.25, c%2 ? 0x5a5f6a : 0x3a3f48); } }
     else if(h.k === 'bar'){ if(hb < 24) setIR(R_hazB, hb++, h.x, MINI_Y + h.y, h.z, h.ang, 0, h.len, 0.5, 0.5, 0xff5c5c);
       if(hb < 24) setIR(R_hazB, hb++, h.x, MINI_Y + h.y + 0.25, h.z, h.ang, 0, 0.45, 0.9, 0.45, 0x3a3a44); } }
@@ -16363,11 +16395,11 @@ function syncMyPC(){
      이 칸이 없으면 밤새 먹이 주고 청소한 아이는 화면 어디에도 안 나온다. */
   myPC.farmed = MY.farmed;
   /* 전직 — 친구 화면에 그 아이의 차림새를 그려 주려고 보낸다. 칸 2개.
-     자리(위치) 통로는 초당 13번 나가는 곳이라 여기에 얹지 않는다. */
+     자리(위치) 통로는 초당 6번 나가는 곳이라 여기에 얹지 않는다. */
   myPC.jb = XP.job; myPC.jt = XP.jt;
   myPC.lv = XP.lv;                       // 이름표·선생님 화면에 뜨는 레벨
   /* ★ 지금 든 무기와 강화 단계 — 친구들 화면에 내 총을 그려 주려고 보낸다.
-     자리(위치) 통로는 초당 13번 나가는 곳이라 여기에 칸을 더하지 않는다.
+     자리(위치) 통로는 초당 6번 나가는 곳이라 여기에 칸을 더하지 않는다.
      무기는 가끔 바뀌는 값이므로 pc 통로(초당 1회 남짓)가 맞는 자리다. 칸 2개.
      ★ aimMode 가 아니면 총을 안 든 것으로 보낸다 — 곡괭이를 든 친구 손에
        총이 떠 있으면 "누가 총을 들었나"를 한눈에 못 읽는다. */
@@ -18260,7 +18292,7 @@ function loop(){
     if((throwing || (aimMode && acting)) && !popOpen()) fireWeapon();
     /* 조준점에 좀비가 걸렸는지 — 공격 모드일 때만 본다 */
     if(aimMode){
-      const lk = !!aimWolf();
+      const lk = !!aimWolf(wpnEff());
       if(hudPrev.lock !== lk){ hudPrev.lock = lk; el('crosshair').classList.toggle('lock', lk); }
     } else if(hudPrev.lock){ hudPrev.lock = false; el('crosshair').classList.remove('lock'); }
     if(hitMarkT > 0){ hitMarkT -= dt;
@@ -18316,7 +18348,7 @@ function loop(){
     if(PROF_ON) pS();
     if(!DBG.noInst){
       const shList = [...G.players.values()];
-      /* ★ 친구가 든 무기는 pc 통로로 온다(자리 통로는 초당 13번이라 안 건드렸다).
+      /* ★ 친구가 든 무기는 pc 통로로 온다(자리 통로는 초당 6번이라 안 건드렸다).
          두 통로가 따로 오므로 그리기 직전에 이어 붙인다 — 사람이 스물한 명이라
          한 프레임에 스물한 번 찾아보는 값은 잰 값으로 0.001ms 아래다. */
       for(const q of shList){
