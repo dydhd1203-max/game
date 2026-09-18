@@ -9,7 +9,7 @@ push·pull request 마다 `.github/workflows/checks.yml`이 같은 명령을 자
 `--render`를 붙이면 단일 숨김 브라우저 검사까지 실행한다. 전체 로그 대신 검사별 결과를 간단히 표시한다.
 
 2026-09-18. 아래 표는 `check-current.mjs`가 돌리는 21개 파일이며, 숫자가 나오는 19개를 더하면
-**457개 확인 항목**이다. 손으로 센 값이 아니라 CI 실행 출력(`n/n checks passed`)을 그대로 옮겼다.
+**461개 확인 항목**이다. 손으로 센 값이 아니라 CI 실행 출력(`n/n checks passed`)을 그대로 옮겼다.
 검사를 고치면 이 숫자도 함께 고친다. 과거 52차 전체 1306개를 매번 재실행한다는 뜻은 아니다.
 
 | 검사 | 통과 | 범위 |
@@ -21,8 +21,8 @@ push·pull request 마다 `.github/workflows/checks.yml`이 같은 명령을 자
 | t53-shop-static.mjs | 74 | 거래·카드 구성·이미지 배치 계약 |
 | t55-wardrobe-static.mjs | 28 | 대기실 조합·저장 ID 이관·게임 중 잠금·가방 |
 | t54-combat-static.mjs | 14 | 화면 중앙 조준·사거리·PvP 엄폐·돌 대체·조준점과 발사 일치 |
-| t54-race-static.mjs | 23 | 4배 폭·6구간·21인 분산·실제 점프·인스턴스 |
-| t54-zombie-static.mjs | 23 | 13종·밤 의상·공격 동작·92마리·수치 보존 |
+| t54-race-static.mjs | 24 | 4배 폭·6구간·21인 분산·실제 점프·인스턴스·무지개 깃대 |
+| t54-zombie-static.mjs | 26 | 13종·밤 의상·공격 동작·92마리·수치 보존 |
 | t56-buildings-static.mjs | 32 | 6종 기하 한계·부품 수·분기·경험치/공사 시간 표 등재 |
 | t56-building-combat-static.mjs | 23 | 실제 공격·범위·감속 |
 | t56-build-assist-static.mjs | 30 | 배치·특화 선택·기지 꾸미기 UI |
@@ -36,8 +36,18 @@ push·pull request 마다 `.github/workflows/checks.yml`이 같은 명령을 자
 | t59-zombie-attachment-static.mjs | 7 | 자세별 옷/갑옷/등 장식 부착 |
 | t60-zombie-wrap-static.mjs | 10 | 감긴 붕대 기하·눈/입 여백·92마리 용량 |
 
-숨김 브라우저 검사(`--render`)는 위 합계에 넣지 않는다. `t54-view`·`t56-build-view`·
-`t57-character-view`·`t59-zombie-view` 네 개이며, Actions 화면에서 `render`를 골라 돌린다.
+숨김 브라우저 검사(`--render`)는 위 합계에 넣지 않는다. Actions 화면에서 `render`를 골라 돌리며,
+실제로 돌린 결과는 아래와 같다(2026-09-18, 브라우저 넷을 한 개씩 · 약 2분 30초).
+
+| 검사 | 결과 | 범위 |
+|---|---|---|
+| t54-view.mjs | 실행 오류 0 | 상점 4크기·첫 버튼·실제 구매·사격·점프 30/60/120Hz·충돌·WebGL |
+| t56-build-view.mjs | 22 | 실제 건설 입력→완성→특화 선택과 4개 화면 크기의 건설 UI |
+| t57-character-view.mjs | JS·셰이더 오류 0 | 실제 WebGL 캐릭터 외형·동작·대기실 미리보기 |
+| t59-zombie-view.mjs | JS·셰이더 오류 0 | 좀비의 정지·발견·추격·준비·타격·회복 |
+
+넷 중 t56-build-view 만 항목 수를 센다. 나머지 셋은 실제 화면을 띄워 오류가 나는지를 보므로
+「몇 개 통과」가 아니라 「오류 0」이 결과다. 숫자가 없다고 확인이 약한 것은 아니다.
 `t56-buildings-view`는 외형 갤러리 선택 검사로 따로 돌린다.
 
 Node 검사에는 검사 폴더의 three와 linkedom이 필요하다. sharp는 CPU PNG 생성에만 사용하며
