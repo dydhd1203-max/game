@@ -2172,6 +2172,10 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 #dressPick .grp.deco button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 3px;min-width:0;min-height:60px;line-height:1.25}
 #dressPick .grp.deco button img.ic{width:30px;height:30px;object-fit:contain;margin:0}
 #dressPick .dressOptionName{font:500 10px/1.3 var(--f-body);white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+/* 피부색 동그라미 (63차) — 물건 아이콘 자리에 색을 그대로 보여 준다.
+   제일 밝은 색도 흰 바탕에서 보이도록 테두리를 준다. */
+#dressPick .skinSw{width:30px;height:30px;border-radius:50%;display:block;
+  border:2px solid rgba(60,72,66,.28);box-shadow:inset 0 -2px 4px rgba(0,0,0,.12)}
 #dressHint{font-size:12px;line-height:1.5;margin:9px 0 4px}
 #popKit .popC{width:min(820px,94vw)}
 #kitEquipped{display:flex;align-items:center;gap:12px;padding:11px;margin:0 0 15px;border-radius:12px;background:#eff7f2;border:1px solid #cee3d7}
@@ -2277,6 +2281,8 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
       <div id="dressPick">
         <div class="dsec"><label class="f">우리 모둠</label>
           <div class="grp" id="grpPick"></div></div>
+        <div class="dsec"><label class="f">피부색 <b id="skinNm"></b></label>
+          <div class="grp deco" id="skinPick"></div></div>
         <div class="dsec"><label class="f">모자 <b id="hatNm"></b></label>
           <div class="grp deco" id="hatPick"></div></div>
         <div class="dsec"><label class="f">얼굴 장식 <b id="glsNm"></b></label>
@@ -7744,7 +7750,16 @@ const R6_HEAD_GEO = roundCyl(.18,R6_HEAD_SEG),
       R6_SHOE_GEO = r6UnitGeo(roundBox(2,.18)),
       R6_EYE_GEO = new THREE.CircleGeometry(.5,24);
 /* ── 기본 착장 = **로블록스 기본 캐릭터** ── */
-const R6_SKIN = 0xffd99b,          // 따뜻한 살빛 — 머리·팔·손
+/* ── 피부색 다섯 (63차) ──
+   반 아이들의 피부색이 하나일 이유가 없다. 0번은 예전 살빛 그대로라 저장된 꾸미기가 안 바뀐다.
+   밝은 쪽에서 어두운 쪽으로 늘어놓되 0번(기본)을 앞에 둔다 — 모자의 '없음' 과 같은 자리다.
+   머리·팔·손에만 쓴다. 옷·바지·신발은 따로다.
+   ★ 세 줄 다 다른 이름을 읽지 않는 자기 완결형으로 둔다. t55-wardrobe 검사가 이름을 적은
+     선언만 한 줄씩 떼어다 모래상자에 넣기 때문에, 여기서 R6_SKIN 을 읽으면 그 검사가 죽는다. */
+const SKINS = [0xffd99b, 0xf7ece3, 0xdca777, 0xa8714a, 0x6d4630];
+const SKIN_NAME = ['기본', '하양', '연한 갈색', '갈색', '진한 갈색'];
+const skinCol = (i)=> SKINS[i|0] ?? SKINS[0];
+const R6_SKIN = SKINS[0],          // 따뜻한 살빛 — 피부색 0번과 같은 값이다
       R6_PANT = 0x4775b8;          // 밝은 청색 바지
 /* 하나로 이어진 C자 손. 안쪽 빈 공간과 열린 입을 실제 기하로 만든다.
    상자를 겹친 손은 구멍이 막히고 점프할 때 팔에서 떨어졌다. 좌우는 기하를 돌려 짝을 맞춘다. */
@@ -8828,8 +8843,8 @@ const CLOTHES = [
 
 /* 55차 — 동물·잠옷·파스텔 꾸미기. 저장된 숫자 ID는 유지하고 시작 화면에 보이는 선택지만 정리한다. */
 // 챙 넓은 모자·고글형 안경은 전직 콘셉트용으로 비워 둔다. 이전 저장값도 시작 착장에 복원하지 않는다.
-const DRESS_OPTIONS = {hat:[0,9,4,6,3,8,12], gls:[0,8], clo:[0,2,4,8,6,10,3,5]};
-const DRESS_LEGACY = {hat:{1:6,2:3,5:4,7:9,10:6,11:4,13:9}, gls:{1:0,2:0,3:0,4:0,5:8,6:0,7:0}, clo:{1:8,7:10,9:10}};
+const DRESS_OPTIONS = {hat:[0,9,4,6,3,8,12], gls:[0,8], clo:[0,2,4,8,6,10,3,5], skin:[0,1,2,3,4]};
+const DRESS_LEGACY = {hat:{1:6,2:3,5:4,7:9,10:6,11:4,13:9}, gls:{1:0,2:0,3:0,4:0,5:8,6:0,7:0}, clo:{1:8,7:10,9:10}, skin:{}};
 function dressPickId(t,v){
   const n=Number.isFinite(+v)?Math.max(0,Math.floor(+v)):0, options=DRESS_OPTIONS[t];
   if(!options) return 0;
@@ -9700,14 +9715,20 @@ function sheepPoint(p){
 function sheepFootPose(phase,run){
   const r=typeof run==='boolean'?(run?1:0):Math.max(0,Math.min(1,run));
   const p=((phase/(Math.PI*2))%1+1)%1,duty=.60-.14*r,amp=.23+.06*r;
-  const sn=Math.sin(phase),toe=.08*sn-.10*Math.max(0,-sn)**2;
+  /* ★ 63차 — 발목을 사람처럼 쓴다. 예전 범위는 +4.6°~-10.3° 라 발이 판자처럼 미끄러졌다.
+     뒤꿈치로 딛을 땐 발끝을 들고(양), 땅을 찰 땐 발끝을 깊게 눌러 민다(음).
+     제곱 항은 그대로 둔다 — sn 이 0 을 지날 때 기울기가 0 이라 이음매가 매끄럽다. */
+  const sn=Math.sin(phase),toe=.18*sn-.30*Math.max(0,-sn)**2;
   if(p<duty){const q=p/duty;return {f:amp*(1-2*q),lift:0,toe,plant:true};}
   /* 유각은 입각의 속도 vel 을 양끝에서 그대로 물려받는다 — 디딘 순간 속도가 꺾이지 않는다.
      수직 들림을 낮게 두는 것도 중요하다: 유각 중간에 발을 높이 들면 엉덩이-발목 거리가 줄어
      코사인 법칙상 무릎이 강제로 깊게 접힌다(옛 .12/.23 에서 걷기 105°·달리기 141°). */
   const q=(p-duty)/(1-duty),lift=Math.sin(q*Math.PI),sw=sheepSwingS(q,.22),vel=-2*amp*(1-duty)/duty;
   // 낮은 들림은 유지하되, 제곱 곡선으로 접지 경계의 수직 속도도 0으로 잇는다.
-  return {f:-amp+vel*q+(2*amp-vel)*sw,lift:lift*lift*(.055+.035*r),toe,plant:false};
+  /* 63차 — 들림을 키운다(걷기 .055→.085 · 달리기 .090→.165). 예전에는 발을 거의 안 들어
+     미끄러지듯 걸었다. 들면 코사인 법칙상 무릎이 더 접히는데, 그게 사람이 걷는 모습이다.
+     제곱 곡선(lift*lift)은 그대로 둔다 — 접지 경계에서 수직 속도가 0 으로 이어진다. */
+  return {f:-amp+vel*q+(2*amp-vel)*sw,lift:lift*lift*(.060+.090*r),toe,plant:false};
 }
 function avatarWingPose(si,{t=0,phase=0,mv=0,run=0,air=0,glide=0,aim=false,down=false}={}){
   const a=typeof aim==='number'?Math.max(0,Math.min(1,aim)):aim?1:0,flight=Math.max(0,Math.min(1,air))*(1-a),g=Math.max(0,Math.min(1,glide));
@@ -9843,8 +9864,9 @@ function drawSheep(list, t, cap, colOf, scale){
     setIR(P_body, n, X(0,0), Y(R6_TU), Z(0,0), ry, lean,
       R6_TOR[0]*sc*widen*breath, R6_TOR[1]*sc*stretch*breath, R6_TOR[2]*sc*lng, col);
     // Head, curved facial details and accessories use the same pitched frame.
+    const skin = skinCol(s.skin);          // 63차 — 사람마다 고른 피부색. 머리·팔·손에만 쓴다
     setIR(P_head, n, HX(0.68,0), YH(1.06), HZ(0.68,0), hry, headPitch,
-      R6_HEAD[0]*sc, R6_HEAD[1]*sc, R6_HEAD[2]*sc, R6_SKIN);
+      R6_HEAD[0]*sc, R6_HEAD[1]*sc, R6_HEAD[2]*sc, skin);
     // Arms counter-swing against the legs; two-handed aim uses a shared gun grip frame.
     const hasGun = (s.wp|0) > 0 && !down;
     const armSwing=[0,0];   // 어깨 스윙을 팔꿈치 식이 다시 읽는다. 사람마다 새로 만든다.
@@ -9867,7 +9889,11 @@ function drawSheep(list, t, cap, colOf, scale){
          Animate 의 amplitude*sin(t*freq) 와 같은 진자가 된다 — 발과 같은 자리에서 꺾이지 않는다. */
       else { const swing=Math.cos(gait+(si>0?0:Math.PI));armSwing[si>0?0:1]=swing*(dirF<0?-1:1)*Math.hypot(dirF,dirS);
         th=-mvK*swing*(.70+runK*.40)*dirF+lean*.5+(s.tool&&si<0?.42:0);
-        rl=si*(.02+runK*mvK*.08+idleK*life.br*.02)-mvK*swing*dirS*.30;
+        /* ★ 63차 — 대각선. 사람이 달릴 때 팔은 앞뒤로만 흔들리지 않고 몸을 가로질러 사선을 그린다.
+           앞으로 나올 때는 가슴 쪽(안), 뒤로 갈 때는 바깥. armSwing 이 음수면 앞으로 나온 것이다.
+           걷기는 얕게(.06), 달리기는 깊게(.28) — 빨리 갈수록 사선이 커진다. */
+        const diagRl=si*mvK*(.06+runK*.22)*armSwing[si>0?0:1];
+        rl=si*(.02+runK*mvK*.08+idleK*life.br*.02)+diagRl-mvK*swing*dirS*.30;
         const airTh=(.10+rise*2.95)*(1-glideK)+.35*glideK+lean*.5;
         const airRl=si*((1.20-rise*1.08)*(1-glideK)+.78*glideK);
         th+=(airTh-th)*airK;rl+=(airRl-rl)*airK; }
@@ -9881,8 +9907,11 @@ function drawSheep(list, t, cap, colOf, scale){
         rl += si*(wind*(isThrow ? 0.10 : 0.04) + strike*0.08);
       }
       const aL=R6_ARM[1]*sc,aW=R6_ARM[0]*sc*widen,aD=R6_ARM[2]*sc;
-      // 어깨도 셔츠의 기울기를 따른다. 사선 보행 때 팔이 몸 안쪽으로 휘지 않게 한다.
-      if(!hasGun&&!down)rl=si*Math.max(.045,si*rl);
+      /* 어깨도 셔츠의 기울기를 따른다. 팔이 몸통을 파고들지 않게 안쪽 한계를 둔다.
+         63차 — 서 있을 때는 예전대로 .045 만큼 벌리되, 움직일 때는 대각선이 들어갈 만큼 열어 준다.
+         어깨는 중심에서 .462, 팔 반폭 .105, 몸통 반폭 .21 이므로 옆면까지 여유가 .147 칸이다.
+         달릴 때 손은 어깨에서 .35 안쪽에 있으므로 약 .44rad 까지가 안전하다 — 여기 한계는 .335 다. */
+      if(!hasGun&&!down)rl=si*Math.max(.045-mvK*(.12+runK*.26),si*rl);
       const shoulder=[BX(0,R6_SHU-.025,R6_ASD*si),BY(0,R6_SHU-.025),BZ(0,R6_SHU-.025,R6_ASD*si)];
       let elbow,hand;
       if(hasGun){
@@ -9890,9 +9919,20 @@ function drawSheep(list, t, cap, colOf, scale){
         const solved=sheepJoint(shoulder,target,aL*.50,aL*.43,[rx*si+fx*.35,-.6,rz*si+fz*.35]);
         elbow=solved.joint;hand=solved.end;
       }else{
-        /* 팔꿈치는 보행 주기 동안 상수였다(걷기 17°·달리기 43° 고정) — 접힌 ㄱ자가 통째로 도는 느낌의 원인이다.
-           R6 에는 팔꿈치가 아예 없으므로 방향은 굽히기가 아니라 펴기다. 대신 팔이 앞으로 나올 때만 살짝 접는다. */
-        const bend=down?.12:.10-mvK*(.055+runK*.020)+mvK*Math.max(0,-armSwing[si>0?0:1])*(.12+runK*.17)
+        /* ★ 63차 — 사람이 달리듯이 팔을 굽힌다.
+           예전 기준은 "R6 에는 팔꿈치가 아예 없으니 거의 편 진자" 였다(걷기 6°·달리기 18°).
+           그런데 그러면 통짜 막대를 휘젓는 것처럼 보인다. 선생님이 실제 달리는 모습과 견주어
+           "안으로 굽혔다 바깥으로 폈다" 를 원했으므로 기준을 **사람 쪽**으로 옮긴다.
+
+             서 있을 때  0.10 rad ( 6°)  — 팔을 늘어뜨린다
+             걷기        0.40~0.58 (23~33°)
+             달리기      1.02~1.54 (58~88°)  ← 사람이 달릴 때 팔꿈치가 실제로 이 범위다
+
+           앞으로 나올 때 더 접고(swingF) 뒤로 갈 때 편다 — 그게 '굽혔다 폈다' 로 읽힌다.
+           덤으로 팔이 펴진 채 IK 한계에 붙던 문제도 사라진다. 굽히면 손이 어깨 쪽으로
+           당겨져 도달 범위 한참 안쪽에 들어온다(기록/팔-떨림-진단.md 참고). */
+        const swingF = Math.max(0, -armSwing[si>0?0:1]);      // 팔이 앞으로 나온 정도 0~1
+        const bend=down?.12:.10+mvK*(.30+runK*.62)+mvK*swingF*(.18+runK*.34)
           +airK*(.18+rise*.20)+wind*(si<0?.65:.30)+strike*.12;
         const upper=th-bend*.40,fore=th+bend*.60,sr=Math.sin(rl),cr=Math.cos(rl);
         const reach=(origin,angle,len)=>[origin[0]+(fx*cr*Math.sin(angle)+rx*sr)*len,origin[1]-cr*Math.cos(angle)*len,origin[2]+(fz*cr*Math.sin(angle)+rz*sr)*len];
@@ -9906,11 +9946,11 @@ function drawSheep(list, t, cap, colOf, scale){
       elbow=world(memory.elbow);hand=world(memory.hand);
       const jointPose=sheepJoint(shoulder,hand,aL*.50,aL*(hasGun?.43:.36),elbow.map((v,i)=>v-shoulder[i]));
       elbow=jointPose.joint;hand=jointPose.end;
-      sheepBone(P_arm,armN++,shoulder,elbow,ry,aW,aD,uniform?uniform.shirt:R6_SKIN);
+      sheepBone(P_arm,armN++,shoulder,elbow,ry,aW,aD,uniform?uniform.shirt:skin);
       const fl=Math.hypot(hand[0]-elbow[0],hand[1]-elbow[1],hand[2]-elbow[2]),gap=aL*.02;
       const wrist=hand.map((v,i)=>v+(elbow[i]-v)*gap/fl);
-      const wristPose=sheepBone(P_arm,armN++,elbow,wrist,ry,aW*.80,aD*.82,R6_SKIN);
-      setIR3(P_hand[si>0?0:1],n,...hand,ry,-wristPose.th,wristPose.rl,R6_HAND[0]*sc,R6_HAND[1]*sc,R6_HAND[2]*sc,R6_SKIN);
+      const wristPose=sheepBone(P_arm,armN++,elbow,wrist,ry,aW*.80,aD*.82,skin);
+      setIR3(P_hand[si>0?0:1],n,...hand,ry,-wristPose.th,wristPose.rl,R6_HAND[0]*sc,R6_HAND[1]*sc,R6_HAND[2]*sc,skin);
       if(si<0){[gripX,gripY,gripZ]=hand;gripTh=wristPose.th;gripRl=wristPose.rl;}
     }
     // Feet stay on the ground while knees absorb body weight, landing and tool impact.
@@ -10156,7 +10196,7 @@ const G = {
   phase:'title', day:1, t:0, crystal:D.crystalMax, sub:0,
   set:{daySec:D.daySec, nightSec:D.nightSec, goalDay:D.goalDay,
        crystalMax:D.crystalMax, wolfPower:D.wolfPower},
-  res:[], me:{name:'', g:0, uid:'', hat:0, gls:0, clo:0}, host:false, solo:false, room:'', focus:0,
+  res:[], me:{name:'', g:0, uid:'', hat:0, gls:0, clo:0, skin:0}, host:false, solo:false, room:'', focus:0,
   wolves:[], soldiers:[], players:new Map(), stats:new Map(), started:false, paused:false,
   bossTier:-1, bossId:0, chests:[], chT:0, drops:[], danger:-1, nk:-1, nkPrev:-1,
   mis:0, misD:0,                                  // 오늘의 임무 진행도 / 다 했나
@@ -10210,7 +10250,7 @@ const PL = { x:0, y:GY, z:0, vy:0, yaw:0, pitch:0, ground:true, R:0.28, EYE:1.12
              hp:100, down:false, biteT:0, hurtFx:0, landT:0 };
 /* 쓰러졌을 때 3인칭으로 보여 줄 '내 몸' — 매 프레임 새로 만들지 않으려고 하나만 둔다
    (48차부터는 마을·밤도 3인칭이라 늘 이걸 그린다. me:true 는 '통신을 안 거친 내 사람' 표시 — 돌기가 즉시다) */
-const meSheep = { me:true, x:0, y:GY, z:0, ry:0, g:0, hat:0, gls:0, clo:0,
+const meSheep = { me:true, x:0, y:GY, z:0, ry:0, g:0, hat:0, gls:0, clo:0, skin:0,
                   down:true, mv:false, ph:1.7 };
 const SHEEP_HP = 100;
 
@@ -12182,7 +12222,7 @@ function jobShots(tier){
   /* 카드 안에서는 꽉 차게 잡는다 — 기본 자리(z 6.4)로 찍으면 사람이 판 가운데 작게 뜬다 */
   P.cam.position.set(0, 0.92, 4.9); P.cam.lookAt(0, 0.80, 0);
   JOBS.forEach((J,i)=>{
-    pvwSet(P, {g:G.me.g|0, hat:G.me.hat|0, gls:G.me.gls|0, clo:G.me.clo|0,
+    pvwSet(P, {g:G.me.g|0, hat:G.me.hat|0, gls:G.me.gls|0, clo:G.me.clo|0, skin:G.me.skin|0,
                pet:0, job:i, jt:tier});
     P.r.render(P.sc, P.cam);
     try{ out[i] = P.r.domElement.toDataURL('image/png'); }catch(e){}
@@ -12373,6 +12413,7 @@ function wearDeco(t, i){
   i = dressPickId(t,i);
   if(t === 'hat'){ pickHat = i; LS.set('sheepHat', i); }
   else if(t === 'gls'){ pickGls = i; LS.set('sheepGls', i); }
+  else if(t === 'skin'){ pickSkin = i; LS.set('sheepSkin', i); }
   else { pickClo = i; LS.set('sheepClo', i); }
   sfx('equip'); buildPicker(); return true;
 }
@@ -16622,7 +16663,7 @@ function joinRoom(code, asHost){
       p.uid = k;                       // 든 무기를 pc 통로에서 찾아오려면 열쇠가 필요하다
       p.tx=d.x; p.tz=d.z; p.y=d.y; p.ry=d.r||0; p.g=d.g|0; p.n=d.n; p.mv=!!d.m;
       p.hp = d.hp===undefined ? SHEEP_HP : d.hp; p.down = !!d.dn;
-      p.hat = d.ht|0; p.gls = d.gl|0; p.clo = d.cl|0;
+      p.hat = d.ht|0; p.gls = d.gl|0; p.clo = d.cl|0; p.skin = d.sk|0;
       /* ★ 친구가 던진 돌 — 좀비 체력은 호스트만 들고 있으므로 여기서 처리한다.
          '몇 번 던졌나(tc)'의 차이만큼 피해를 준다. 통신은 한 번도 안 늘었다. */
       if(G.host && d.tc !== undefined){
@@ -16657,7 +16698,7 @@ function netTick(dt){
       z:+PL.z.toFixed(2), r:+PL.yaw.toFixed(2), m:PL.mv?1:0,
       hp:PL.hp|0, dn:PL.down?1:0, tc:thrown, tt:thTgt, td:thDmg,
       tf:thF, txs:thXs, tx:thX.length ? thX : null,             // 29차 — 밀치기 방향 · 추가 명중 목록
-      ht:G.me.hat|0, gl:G.me.gls|0, cl:G.me.clo|0});
+      ht:G.me.hat|0, gl:G.me.gls|0, cl:G.me.clo|0, sk:G.me.skin|0});
     if(thX.length){ thX = []; thXs = (thXs + 1) & 255; } }
   pcT -= dt;
   if(pcT <= 0 && netPCDirty){ pcT = 0.9; netPC(); }
@@ -16682,8 +16723,9 @@ let pickG = Math.max(0, Math.min(NG-1, +LS.get('sheepG', 0) || 0));
 let pickHat = dressPickId('hat',LS.get('sheepHat',0));
 let pickGls = dressPickId('gls',LS.get('sheepGls',0));
 let pickClo = dressPickId('clo',LS.get('sheepClo',0));
-LS.set('sheepHat',pickHat); LS.set('sheepGls',pickGls); LS.set('sheepClo',pickClo);
-const myDress = ()=> ({hat:pickHat, gls:pickGls, clo:pickClo});
+let pickSkin = dressPickId('skin',LS.get('sheepSkin',0));
+LS.set('sheepHat',pickHat); LS.set('sheepGls',pickGls); LS.set('sheepClo',pickClo); LS.set('sheepSkin',pickSkin);
+const myDress = ()=> ({hat:pickHat, gls:pickGls, clo:pickClo, skin:pickSkin});
 
 /* 이름도 채워 둔다 — 새로고침한 아이가 이름을 다시 안 쳐도 되게 */
 el('iName').value = LS.get('sheepName', '');
@@ -16708,6 +16750,29 @@ function buildPicker(){
     b.disabled=G.started || G.phase!=='title';
     b.onclick = ()=>{ if(G.started || G.phase!=='title') return; pickG = i; LS.set('sheepG', i); buildPicker(); };
     w.appendChild(b);
+  }
+  /* 피부색 (63차) — 모자·안경·옷과 달리 3D 아이콘이 아니라 색 동그라미를 보여 준다.
+     물건이 아니라 색 자체가 고르는 대상이라 그림으로 그릴 것이 없다. */
+  {
+    const w2 = el('skinPick'); w2.innerHTML = '';
+    el('skinNm').textContent = SKIN_NAME[pickSkin] || '';
+    DRESS_OPTIONS.skin.forEach(i=>{
+      const b = document.createElement('button');
+      const sw = document.createElement('span');
+      sw.className = 'skinSw';
+      sw.style.background = '#' + skinCol(i).toString(16).padStart(6,'0');
+      b.appendChild(sw);
+      b.style.setProperty('--c', '#cbd5c0');
+      const nm = document.createElement('span');
+      nm.className = 'dressOptionName'; nm.textContent = SKIN_NAME[i];
+      b.appendChild(nm);
+      b.title = SKIN_NAME[i]; b.setAttribute('aria-label', SKIN_NAME[i]);
+      b.setAttribute('aria-pressed', String(i === pickSkin));
+      b.disabled = G.started || G.phase !== 'title';
+      if(i === pickSkin) b.classList.add('on');
+      b.onclick = ()=>wearDeco('skin', i);
+      w2.appendChild(b);
+    });
   }
   /* 모자·안경·옷 — 세 줄 다 같은 규칙이라 한 번만 쓴다 */
   const rows = [
@@ -16833,8 +16898,12 @@ function pvwSet(P, d){
   const jt = Math.max(0,Math.min(2,d.jt|0)), jb = d.job === undefined ? -1 : d.job|0;
   const hasJob = jt > 0 && jb >= 0 && jb < JOB_LOOK.length;
   const uniform = hasJob ? JOB_UNIFORM[jb][jt-1] : null;
-  const colors = uniform ? {...d.doll,body:uniform.shirt,pant:uniform.pant,shoe:uniform.shoe}
+  const dressed = uniform ? {...d.doll,body:uniform.shirt,pant:uniform.pant,shoe:uniform.shoe}
     : CLOTH_BODY[d.clo|0]!==undefined ? {...d.doll,body:CLOTH_BODY[d.clo|0]} : d.doll;
+  /* 63차 — 고른 피부색을 미리보기에도 그대로 쓴다.
+     인형(아이콘)은 자기 옅은 색 표에 skin 을 이미 담고 있으므로 그때는 건드리지 않는다. */
+  const colors = (d.doll && d.doll.skin !== undefined) ? dressed
+    : {...dressed, skin: skinCol(d.skin)};
   const put = (m, f,u,sd, w,h,dp, col)=>{
     m.position.set(sd, u, f); m.scale.set(w, h, dp);
     m.material.color.setHex(col); m.visible = true;
@@ -16902,7 +16971,7 @@ function pvwInit(){
     if(pvw){ pvw.cam.position.set(0,1.08,4.35); pvw.cam.lookAt(0,.96,0); } }
   pvwDress();
 }
-function pvwDress(){ pvwSet(pvw, {g:pickG, hat:pickHat, gls:pickGls, clo:pickClo}); }
+function pvwDress(){ pvwSet(pvw, {g:pickG, hat:pickHat, gls:pickGls, clo:pickClo, skin:pickSkin}); }
 function pvwTick(dt){ pvwSpin(pvw, dt); }
 function pvwDispose(){ pvwKill(pvw); pvw = null; }
 
@@ -18423,7 +18492,7 @@ function loop(){
          쓰러졌을 때 · 줄넘기 · OX 퀴즈 셋 다 여기로 온다(20차). */
       if(tpvOn() && !camBodyHidden){
         meSheep.x=PL.x; meSheep.y=PL.y; meSheep.z=PL.z; meSheep.ry=PL.yaw;
-        meSheep.g=G.me.g|0; meSheep.hat=G.me.hat|0; meSheep.gls=G.me.gls|0; meSheep.clo=G.me.clo|0;
+        meSheep.g=G.me.g|0; meSheep.hat=G.me.hat|0; meSheep.gls=G.me.gls|0; meSheep.clo=G.me.clo|0; meSheep.skin=G.me.skin|0;
         meSheep.jb=XP.job; meSheep.jt=XP.jt; meSheep.aim=aimMode || gunT>0;
         /* ★ meSheep 은 '쓰러진 몸' 으로 만들어 둔 것이라 down 이 켜져 있다.
            서서 뛰는 데도 배를 뒤집고 누워 있으면 안 된다 — 매 프레임 지금 상태로 맞춘다. */

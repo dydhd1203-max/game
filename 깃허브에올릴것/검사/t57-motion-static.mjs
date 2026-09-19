@@ -39,9 +39,18 @@ check('Feet never penetrate ground through complete gait cycles',footMin>-.008,{
 // 반드시 92° 접힌다 — 즉 그 한 줄이 이 리그가 버리려는 '접힌 ㄱ자'를 명령하고 있었다.
 // 접지(contact===planted)는 그대로 못 박고, plant 창을 지워 조건을 공허하게 만드는 편법만 막는다.
 check('Support feet stay grounded while swing feet clear the floor',contact===planted&&planted>total.walk*.4&&clear.walk>.045&&clear.run>.08,{contact,planted,total,clear});
-// R6 식 보행은 거의 편 팔다리를 흔든다. 아래 각을 넘어 접힌 채로 도는 다리는 진자 스트라이드가 아니다.
-check('Walking and running legs swing as near-straight pendulums instead of folded V shapes',knee.walk<Math.PI*.50&&knee.run<Math.PI*.55,{walkKnee:knee.walk*180/Math.PI,runKnee:knee.run*180/Math.PI});
-check('Elbows keep breathing through the gait instead of holding one folded angle',elbow.walk[1]-elbow.walk[0]>.05&&elbow.run[1]-elbow.run[0]>.12&&elbow.run[1]<.60,{walk:elbow.walk,run:elbow.run});
+// 걷기는 예전 그대로 거의 편 진자를 지킨다(90° 미만, 실측 87°).
+// 63차 — 달리기만 사람 쪽으로 옮겼다. 발을 제대로 들면 코사인 법칙상 무릎이 따라 접히는데,
+// 사람이 달릴 때 무릎은 실제로 100~130° 접힌다. 한계를 126°(π*.70)로 올린다. 실측 115°.
+// 그래도 상한을 남겨 둔다 — 여기를 넘으면 무릎이 가슴까지 올라온 것이라 달리기가 아니다.
+check('Walking legs stay near-straight while running knees fold like a person',knee.walk<Math.PI*.50&&knee.run<Math.PI*.70,{walkKnee:knee.walk*180/Math.PI,runKnee:knee.run*180/Math.PI});
+// 63차 — 팔은 사람 기준으로 옮겼다. 예전 단언은 '거의 편 진자'(run 최대 .60 = 34°)를 지키려던 것인데,
+// 그러면 통짜 막대를 휘젓는 모습이 된다. 이제는 반대로 **달릴 때 팔이 접혀 있을 것**을 요구한다.
+//   run 최소 > .6  — 주기 내내 굽은 채로 있어야 한다(펴진 채 흔드는 것을 막는다)
+//   run 폭  > .25  — 그러면서도 굽었다 폈다 해야 한다(한 각도로 굳는 것을 막는다)
+//   run 최대 < 1.9 — 사람 팔꿈치는 110° 넘게 접히지 않는다(접힌 ㄱ자로 굳는 것을 막는다)
+// 실측: 걷기 0.48~0.79(27~45°) · 달리기 1.08~1.54(62~88°).
+check('Running arms carry a bent human elbow instead of a straight pendulum',elbow.walk[1]-elbow.walk[0]>.05&&elbow.run[1]-elbow.run[0]>.25&&elbow.run[0]>.6&&elbow.run[1]<1.9,{walk:elbow.walk,run:elbow.run});
 let continuity=0,prior=null;
 for(let i=0;i<=240;i++){const p=pose(actor({mv:true,run:true,gp:i/240*Math.PI*2}));if(prior)for(let j=0;j<2;j++)continuity=Math.max(continuity,pos(p.shoes[j]).distanceTo(pos(prior.shoes[j])));prior=p;}
 check('Toe off and heel contact have continuous foot trajectories',continuity<.035,{worstFrameStep:continuity});

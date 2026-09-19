@@ -43,19 +43,24 @@ const equipWeapon=i=>{KIT.wpn=i;events.push(['weapon',i]);buildKitUI();};
 const equipArmor=i=>{KIT.arm=i;events.push(['armor',i]);buildKitUI();};
 const usePotion=i=>{KIT.pot[i]--;events.push(['potion',i]);};
 const openPop=()=>{};
-`,...['HAT_ICON','HAT_NAME','HATS','GLS_ICON','GLS_NAME','GLASSES','CLO_ICON','CLO_NAME','CLOTHES','WEAPONS','ARMORS','POT_SEC','POTIONS'].map(decl),
-code.slice(a,b),...['KIT_TABS','KSLOT_R','KSLOT_NAME','kitTab','pickG','pickHat','pickGls','pickClo','myDress'].map(decl),
+// 63차 — 피부색 세 줄을 더한다. SKINS·SKIN_NAME·skinCol 은 다른 이름을 읽지 않는
+// 자기 완결형이라 선언 한 줄씩만 떼어 와도 그대로 돈다(R6_SKIN 은 필요 없다).
+`,...['HAT_ICON','HAT_NAME','HATS','GLS_ICON','GLS_NAME','GLASSES','CLO_ICON','CLO_NAME','CLOTHES','SKINS','SKIN_NAME','skinCol','WEAPONS','ARMORS','POT_SEC','POTIONS'].map(decl),
+code.slice(a,b),...['KIT_TABS','KSLOT_R','KSLOT_NAME','kitTab','pickG','pickHat','pickGls','pickClo','pickSkin','myDress'].map(decl),
 ...['kitSlot','kitItems','wearDeco','kitClick','openKit','buildKitUI','buildPicker'].map(fun),
 // esc deliberately remains in its temporal dead zone at first buildPicker.
 `buildPicker();const esc=s=>String(s);buildKitUI();
-globalThis.A={G,KIT,stored,events,HATS,GLASSES,CLOTHES,DRESS_OPTIONS,DRESS_LEGACY,dressPickId,myDress,wearDeco,kitItems,kitClick,buildPicker,buildKitUI,
+globalThis.A={G,KIT,stored,events,HATS,GLASSES,CLOTHES,SKINS,skinCol,DRESS_OPTIONS,DRESS_LEGACY,dressPickId,myDress,wearDeco,kitItems,kitClick,buildPicker,buildKitUI,
 setTab:t=>{kitTab=t;buildKitUI();}};`].join('\n');
 const ctx=vm.createContext({document});new vm.Script(source).runInContext(ctx,{timeout:10000});
 const A=ctx.A,results=[];
 function check(name,ok){results.push(!!ok);console.log((ok?'OK   ':'FAIL ')+name);}
 const same=(x,y)=>JSON.stringify(x)===JSON.stringify(y),cells=()=>[...document.querySelectorAll('#kitGrid .kCell')];
 check('Lobby initializes before late esc helper without a runtime error',document.querySelectorAll('.dressOptionName').length>0);
-check('Legacy saved selection migrates to a non-empty supported outfit',same(A.myDress(),{hat:9,gls:8,clo:10}));
+// 63차 — myDress 에 skin 칸이 생겼다. 저장값에 sheepSkin 이 없으면 0(기본 살빛)이다.
+check('Legacy saved selection migrates to a non-empty supported outfit',same(A.myDress(),{hat:9,gls:8,clo:10,skin:0}));
+check('Skin tone picker offers every tone with one selected and named',document.querySelectorAll('#skinPick button').length===A.DRESS_OPTIONS.skin.length&&document.querySelectorAll('#skinPick [aria-pressed="true"]').length===1&&[...document.querySelectorAll('#skinPick button')].every(n=>n.getAttribute('aria-label')));
+check('Every skin tone maps to a finite colour and unknown IDs fall back to the default',A.DRESS_OPTIONS.skin.every(i=>Number.isFinite(A.skinCol(i)))&&A.skinCol(99)===A.SKINS[0]&&A.dressPickId('skin',99)===0);
 check('Stable catalog array lengths preserve existing network IDs',A.HATS.length===14&&A.GLASSES.length===9&&A.CLOTHES.length===11);
 for(const [kind,rows,container] of [['hat',A.HATS,'hatPick'],['gls',A.GLASSES,'glsPick'],['clo',A.CLOTHES,'cloPick']]){
   check(kind+' picker only offers the curated choices',document.querySelectorAll('#'+container+' button').length===A.DRESS_OPTIONS[kind].length);
@@ -63,9 +68,9 @@ for(const [kind,rows,container] of [['hat',A.HATS,'hatPick'],['gls',A.GLASSES,'g
   check(kind+' every retired ID maps to a supported style or unequips',Object.entries(A.DRESS_LEGACY[kind]).every(([old,n])=>A.dressPickId(kind,+old)===n&&A.DRESS_OPTIONS[kind].includes(n)));
   check(kind+' all visible items have valid finite geometry',A.DRESS_OPTIONS[kind].every(i=>i===0||rows[i].length>0&&rows[i].every(r=>r.slice(0,7).every(Number.isFinite)&&r.slice(3,6).every(n=>n>0))));
 }
-A.wearDeco('hat',3);A.wearDeco('clo',4);A.wearDeco('gls',8);
-check('Hat, face accessory and clothes remain independently combinable',same(A.myDress(),{hat:3,gls:8,clo:4}));
-check('Lobby choices persist to the existing storage keys',A.stored.sheepHat===3&&A.stored.sheepGls===8&&A.stored.sheepClo===4);
+A.wearDeco('hat',3);A.wearDeco('clo',4);A.wearDeco('gls',8);A.wearDeco('skin',3);
+check('Hat, face accessory, clothes and skin tone remain independently combinable',same(A.myDress(),{hat:3,gls:8,clo:4,skin:3}));
+check('Lobby choices persist to the existing storage keys',A.stored.sheepHat===3&&A.stored.sheepGls===8&&A.stored.sheepClo===4&&A.stored.sheepSkin===3);
 const before=JSON.stringify([A.myDress(),A.G.me,A.stored]);
 const oldButton=document.querySelector('#hatPick button:last-child');
 A.G.started=true;A.G.phase='day';oldButton.onclick();A.wearDeco('hat',4);A.wearDeco('gls',8);A.wearDeco('clo',2);A.kitClick({t:'hat',i:6});
