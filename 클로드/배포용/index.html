@@ -9890,7 +9890,7 @@ function drawSheep(list, t, cap, colOf, scale){
       if(!memory.elbow||hasGun){memory.elbow=el;memory.hand=ha;}
       else for(let j=0;j<3;j++){memory.elbow[j]+=(el[j]-memory.elbow[j])*follow;memory.hand[j]+=(ha[j]-memory.hand[j])*follow;}
       elbow=world(memory.elbow);hand=world(memory.hand);
-      const jointPose=sheepJoint(shoulder,hand,aL*.50,aL*(hasGun?.43:.36),elbow.map((v,i)=>v-shoulder[i]),hasGun?0:aL*.05);
+      const jointPose=sheepJoint(shoulder,hand,aL*.50,aL*(hasGun?.43:.36),elbow.map((v,i)=>v-shoulder[i]));
       elbow=jointPose.joint;hand=jointPose.end;
       sheepBone(P_arm,armN++,shoulder,elbow,ry,aW,aD,uniform?uniform.shirt:R6_SKIN);
       const fl=Math.hypot(hand[0]-elbow[0],hand[1]-elbow[1],hand[2]-elbow[2]),gap=aL*.02;
