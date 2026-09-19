@@ -9614,6 +9614,10 @@ function sheepGait(s, t){
   return g;
 }
 function sheepEase(v){v=Math.max(0,Math.min(1,v));return v*v*(3-2*v);}
+/* 0→1 전환 곡선. 양끝 기울기와 곡률이 0이라 입각의 등속 직선에 그대로 이어 붙일 수 있고,
+   가운데가 평평해 첨두 속도가 낮다(1/(1-r)). r 이 가감속 구간 폭이다. */
+function sheepSwingS(q,r){q=Math.max(0,Math.min(1,q));const A=1-r,ramp=u=>r*(u*u*u-u*u*u*u/2);
+  if(q<r)return ramp(q/r)/A; if(q>1-r)return (A-ramp((1-q)/r))/A; return (r*.5+(q-r))/A;}
 function sheepBlend(g,key,target,dt,rate){
   if(g[key]===undefined)g[key]=target;
   else g[key]+=(target-g[key])*(1-Math.exp(-rate*Math.min(.05,Math.max(0,dt))));
@@ -9650,10 +9654,13 @@ function sheepPoint(p){
 }
 function sheepFootPose(phase,run){
   const r=typeof run==='boolean'?(run?1:0):Math.max(0,Math.min(1,run));
-  const p=((phase/(Math.PI*2))%1+1)%1,duty=.60-.14*r,amp=.23+.06*r;
+  const p=((phase/(Math.PI*2))%1+1)%1,duty=.60-.14*r,amp=.23+.147*r;
   if(p<duty){const q=p/duty;return {f:amp*(1-2*q),lift:0,toe:(q<.18?-.14*(1-q/.18):q>.75?.24*(q-.75)/.25:0),plant:true};}
-  const q=(p-duty)/(1-duty),lift=Math.sin(q*Math.PI);
-  return {f:amp*(2*sheepEase(q)-1),lift:lift*(.12+.11*r),toe:.24*(1-sheepEase(q/.3))-.34*lift-.14*sheepEase((q-.75)/.25),plant:false};
+  /* 유각은 입각의 속도 vel 을 양끝에서 그대로 물려받는다 — 디딘 순간 속도가 꺾이지 않는다.
+     수직 들림을 낮게 두는 것도 중요하다: 유각 중간에 발을 높이 들면 엉덩이-발목 거리가 줄어
+     코사인 법칙상 무릎이 강제로 깊게 접힌다(옛 .12/.23 에서 걷기 105°·달리기 141°). */
+  const q=(p-duty)/(1-duty),lift=Math.sin(q*Math.PI),sw=sheepSwingS(q,.22),vel=-2*amp*(1-duty)/duty;
+  return {f:-amp+vel*q+(2*amp-vel)*sw,lift:lift*(.055+.035*r),toe:.24*(1-sheepEase(q/.3))-.34*lift-.14*sheepEase((q-.75)/.25),plant:false};
 }
 function avatarWingPose(si,{t=0,phase=0,mv=0,run=0,air=0,glide=0,aim=false,down=false}={}){
   const a=typeof aim==='number'?Math.max(0,Math.min(1,aim)):aim?1:0,flight=Math.max(0,Math.min(1,air))*(1-a),g=Math.max(0,Math.min(1,glide));
@@ -9718,9 +9725,13 @@ function drawSheep(list, t, cap, colOf, scale){
     const moveFX=gs.moveFX??fx,moveFZ=gs.moveFZ??fz;
     const dirF=moveFX*fx+moveFZ*fz,dirS=moveFX*rx+moveFZ*rz;
     const sq   = land > 0 ? 1 - (land/0.22)*0.08 : 1;                                   // 블록 비율을 지키며 착지 충격만 살짝
-    const hop  = Math.abs(Math.sin(gait));                                           // 두 발의 디딤마다 작게 올라온다
+    /* 61차 — 컴퍼스 보행: 다리를 곧게 편 채 흔들려면 보폭만큼 엉덩이가 내려가야 한다.
+       그 낙차를 상수로 주지 않고 기하에서 직접 구한다. cos(gait) 구동이라 주기 전체에서 연속이고,
+       두 발이 모이는 중간 디딤에서는 0 이라 몸이 제 높이로 돌아온다. */
+    const legSpan=.525,strideAmp=(.23+.147*runK)*mvK,stanceF=strideAmp*Math.cos(gait);
+    const stanceDip=legSpan-Math.sqrt(Math.max(0,legSpan*legSpan-stanceF*stanceF));                                           // 두 발의 디딤마다 작게 올라온다
     // Lower the hips into each support step; two-bone knees preserve floor contact.
-    const bob=(mvK*(-.035-runK*.040+hop*(.012+runK*.013))-take*.035-land/.22*.055)*sc;
+    const bob=(mvK*(-stanceDip*.45-.004)-take*.035-land/.22*.055)*sc;
     /* 44차 — 출발·급정지 자세: 가속(acc>0)이면 뒤로 살짝 눌리고(코 위), 급정지(acc<0)면 앞으로 쏠린다(코 아래). 급정지 땐 발밑 먼지 한 번(0.6초에 한 번만) */
     const accL = (down || air) ? 0 : Math.max(-0.22, Math.min(0.22, -gs.acc*0.022));
     if(!down && !air && gs.acc < -9 && gs.v > 1.4 && !(gs.dust > 0)){ gs.dust = 0.6; burst(s.x, y + 0.06, s.z, 0xd9cdb4, 4, 0.45); }
@@ -9789,6 +9800,7 @@ function drawSheep(list, t, cap, colOf, scale){
       R6_HEAD[0]*sc, R6_HEAD[1]*sc, R6_HEAD[2]*sc, R6_SKIN);
     // Arms counter-swing against the legs; two-handed aim uses a shared gun grip frame.
     const hasGun = (s.wp|0) > 0 && !down;
+    const armSwing=[0,0];   // 어깨 스윙을 팔꿈치 식이 다시 읽는다. 사람마다 새로 만든다.
     const shY = Y(R6_SHU), hipY = Y(R6_HIP);
     let gripX=0, gripY=0, gripZ=0, gripTh=0, gripRl=0;
     for(const si of [1,-1]){
@@ -9798,8 +9810,10 @@ function drawSheep(list, t, cap, colOf, scale){
                        rl = si < 0 ? -0.06 : -0.16; }                      // 해부학적 오른손은 전방(+Z) 기준 -X 쪽이다
       /* 53차 — 상승에서는 만세, 낙하에서는 옆으로 펼친다. 정점을 지나며 연속적으로 섞고
          낙하 각도는 조금 줄여 둥근 캐릭터의 어깨·C자 손이 잘 읽히게 한다. */
-      else { const swing=sheepFootPose(gait+(si>0?0:Math.PI),runK).f/(.23+runK*.06);
-        th=-mvK*swing*(.56+runK*.54)*dirF+lean*.5+(s.tool&&si<0?.42:0);
+      /* 팔은 바닥 구속이 없으니 발 곡선을 물려쓸 이유가 없다. 순수 코사인이면 로블록스
+         Animate 의 amplitude*sin(t*freq) 와 같은 진자가 된다 — 발과 같은 자리에서 꺾이지 않는다. */
+      else { const swing=Math.cos(gait+(si>0?0:Math.PI));armSwing[si>0?0:1]=swing*dirF;
+        th=-mvK*swing*(.70+runK*.40)*dirF+lean*.5+(s.tool&&si<0?.42:0);
         rl=si*(.02+runK*mvK*.08+idleK*life.br*.02)-mvK*swing*dirS*.30;
         const airTh=(.10+rise*2.95)*(1-glideK)+.35*glideK+lean*.5;
         const airRl=si*((1.20-rise*1.08)*(1-glideK)+.78*glideK);
@@ -9823,7 +9837,10 @@ function drawSheep(list, t, cap, colOf, scale){
         const solved=sheepJoint(shoulder,target,aL*.50,aL*.43,[rx*si-fx*.35,-.25,rz*si-fz*.35]);
         elbow=solved.joint;hand=solved.end;
       }else{
-        const bend=down?.12:.10+mvK*(.20+runK*.45)+airK*(.18+rise*.20)+wind*(si<0?.65:.30)+strike*.12;
+        /* 팔꿈치는 보행 주기 동안 상수였다(걷기 17°·달리기 43° 고정) — 접힌 ㄱ자가 통째로 도는 느낌의 원인이다.
+           R6 에는 팔꿈치가 아예 없으므로 방향은 굽히기가 아니라 펴기다. 대신 팔이 앞으로 나올 때만 살짝 접는다. */
+        const bend=down?.12:.10-mvK*(.055+runK*.020)+mvK*Math.max(0,-armSwing[si>0?0:1])*(.12+runK*.17)
+          +airK*(.18+rise*.20)+wind*(si<0?.65:.30)+strike*.12;
         const upper=th-bend*.40,fore=th+bend*.60,sr=Math.sin(rl),cr=Math.cos(rl);
         const reach=(origin,angle,len)=>[origin[0]+(fx*cr*Math.sin(angle)+rx*sr)*len,origin[1]-cr*Math.cos(angle)*len,origin[2]+(fz*cr*Math.sin(angle)+rz*sr)*len];
         elbow=reach(shoulder,upper,aL*.50);hand=reach(elbow,fore,aL*.36);
