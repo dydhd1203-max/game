@@ -139,7 +139,8 @@ check('Widened log and stair platforms retain practical side space to dodge',dod
 // Actual static race art construction, with bpush as a matrix recorder. Material
 // and box-geometry fixtures isolate this from unrelated village texture loading.
 const art=source.slice(source.indexOf('  const Rp = h =>'),source.indexOf('  /* 네 귀퉁이 등불 */',source.indexOf('  const Rp = h =>')));
-const artCtx=vm.createContext({THREE,console,RACE_S:A.RACE_S,RACE_Z_FIN:A.RACE_Z_FIN,RACE_RAINBOW_DZ:A.RACE_RAINBOW_DZ,RACE_Y_FIN:8.1,MINI_Y:100,MINI_R:34,MINI_PADZ:-19});
+// 63차 — 도장 구간의 바닥 표적·안내 기둥이 STAMP_DZ 와 HAZ.stamp 를 읽는다. 모래상자에도 넣어 준다.
+const artCtx=vm.createContext({THREE,console,RACE_S:A.RACE_S,RACE_Z_FIN:A.RACE_Z_FIN,RACE_RAINBOW_DZ:A.RACE_RAINBOW_DZ,RACE_Y_FIN:8.1,MINI_Y:100,MINI_R:34,MINI_PADZ:-19,STAMP_DZ:A.STAMP_DZ,HAZ:A.HAZ});
 new vm.Script(`const MAT={},WMAT={},EMITC={},gMark=new THREE.BoxGeometry(),gEdge=gMark,gGlow=gMark,WGEO=gMark,TRUNKG=new THREE.CylinderGeometry(.5,.5,1,8),CONEG=new THREE.ConeGeometry(.5,1,8),miParts={race:[]},rows=[],TQ=2.6,nq=14;
 function bpush(key,geo,mat,x,y,z,ry=0,sx=1,sy=1,sz=1,rz=0,col=0){rows.push({key,x,y,z,ry,sx,sy,sz,rz,col});return rows.length-1;}
 ${fn('furLight')}
