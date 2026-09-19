@@ -157,7 +157,12 @@ check('Actual race scenery builds with finite instance transforms',artCtx.rows.e
    대문자 상수 이름만 본다(이 저장소의 상수 규칙). 선언을 못 찾은 이름은 건너뛴다(거짓 경보 방지). */
 {
   const callAt=source.indexOf('\nbuildMiniIsle();');
-  const names=[...new Set(art.match(/\b[A-Z][A-Z0-9_]{2,}\b/g)||[])];
+  /* 주석은 먼저 걷어낸다. 안 그러면 주석에 적힌 이름까지 '읽는다' 고 센다 —
+     실제로 5422줄의 "// BALL 은 이 아래에서 정의된다" 한 줄 때문에 BALL 이 걸렸다.
+     (그 주석 자체가, 예전에 누군가 같은 함정을 만나 남긴 메모다.)
+     문자열 안의 // 까지 지워질 수 있지만, 그러면 이름을 **덜** 보게 될 뿐이라 거짓 경보는 안 난다. */
+  const code=art.replace(/\/\*[\s\S]*?\*\//g,' ').replace(/\/\/[^\n]*/g,' ');
+  const names=[...new Set(code.match(/\b[A-Z][A-Z0-9_]{2,}\b/g)||[])];
   const late=names.filter(n=>{const m=new RegExp('(?:^|\\n)\\s*(?:const|let)\\s+'+n+'\\s*=').exec(source);return m&&m.index>callAt;});
   check('Race scenery only reads constants declared before buildMiniIsle() runs',callAt>0&&late.length===0,{callAt,late});
 }
