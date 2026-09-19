@@ -3304,10 +3304,12 @@ const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in wind
    ★ 검사기(소프트웨어 렌더링)는 MSAA 도 GPU 비용도 못 잰다. 마지막 자는 늘 교실 진단 화면이다 —
      이제 60 에서 막히면 fps 대신 '★GPU실제 ms' 줄을 본다. */
 
+/* shHz — 그림자 지도를 초당 몇 번 다시 그리나. 0 이면 매 프레임이다.
+   34차에 15 로 줄였다가 63차에 되돌렸다. 아래 '그림자 갱신' 주석 참고. */
 const GFX_PRESET = {
-  high: {shadow:2048, bloom:0, aa:4, pr:1.0},     // 선명
-  mid:  {shadow:2048, bloom:0, aa:2, pr:0.85},    // 보통 (기본) — 49차c 에 그림자만 1024 → 2048
-  low:  {shadow:0,    bloom:0, aa:0, pr:0.7}      // 부드럽게
+  high: {shadow:2048, bloom:0, aa:4, pr:1.0,  shHz:0},   // 선명
+  mid:  {shadow:2048, bloom:0, aa:2, pr:0.85, shHz:0},   // 보통 (기본) — 49차c 에 그림자만 1024 → 2048
+  low:  {shadow:0,    bloom:0, aa:0, pr:0.7,  shHz:0}    // 부드럽게 (그림자가 없어 shHz 는 뜻이 없다)
 };
 const GFX_NAME = {high:'선명', mid:'보통', low:'부드럽게'};
 /* 주소 끝에 ?gfx=low 처럼 붙이면 그 판만 바꿔 본다 — 파일을 고치지 않고 교실에서 견줘 보려고.
@@ -3398,10 +3400,22 @@ if(GFX.shadow){
   const SHADOW_TYPE = GFX.q === 'mid' ? THREE.PCFShadowMap : THREE.PCFSoftShadowMap;
   window.__SHADOW_TYPE = SHADOW_TYPE;
   renderer.shadowMap.type = SHADOW_TYPE;
-  /* ★ 34차 — 그림자 지도를 **매 프레임이 아니라 15Hz** 로 다시 그린다. 한 프레임을 뜯어보니 그림자 패스가 본 패스와 맞먹었다
-     (그리기 179번 · 삼각형 51만, 본 패스 205번 · 52만). 세계는 정지해 있고 해는 느리게 움직이니 15Hz 면 아무도 못 알아본다
-     (좀비 그림자가 최대 66ms 늦는다). 진단(?diag) 의 '그림자 매 프레임' 이 이 값을 잰다. */
-  renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = true;
+  /* ★ 그림자 갱신 — 34차에 15Hz 로 줄였다가 63차에 매 프레임으로 되돌렸다.
+     34차의 근거는 "세계는 정지해 있고 해는 느리게 움직이니 15Hz 면 아무도 못 알아본다" 였다.
+     세계는 맞지만 **사람이 빠졌다.** 걷기 5.94칸/초면 66ms 에 0.39칸을 간다 — 다리 두께(0.21칸)보다
+     크다. 그래서 그림자만 네 프레임에 한 번 뚝뚝 따라오고, 그게 초당 15번 반복되어 화면에서는
+     캐릭터가 잔상처럼 깜빡이는 것으로 보였다. 특히 옆으로 갈 때 심했다(그림자가 화면에서 가장
+     많이 밀린다). 정지 화면 한 장에는 그림자가 조금 어긋난 정도라 스크린샷으로는 못 찾았다.
+
+     성능을 다시 재보니 줄일 이유도 없었다 (GTX 1660 · 선명 · 걷는 중, 각 70프레임):
+         15Hz    평균 13.55ms · 최악 26.6ms   ← 네 프레임에 한 번 몰아 그려 프레임이 두 배로 튄다
+         매 프레임 평균 13.33ms · 최악 13.5ms   ← 고르게 펴져 턱이 사라진다
+     즉 15Hz 는 성능도 못 얻고 깜빡임만 만들고 있었다.
+
+     교실 기기에서 무거우면 GFX_PRESET 의 shHz 를 15 나 30 으로 되돌리면 된다(0 = 매 프레임).
+     진단(?diag) 의 '그림자 매 프레임' 으로 그 자리에서 비용을 잴 수 있다. */
+  renderer.shadowMap.autoUpdate = !GFX.shHz;   // shHz 0 이면 three.js 가 알아서 매 프레임 갱신한다
+  renderer.shadowMap.needsUpdate = true;
 }
 app.appendChild(renderer.domElement);
 
@@ -18214,7 +18228,7 @@ function updTags(){
 
 let shakeT = 0, shakeP = 1;
 function shake(power, sec){ shakeP = power; shakeT = Math.max(shakeT, sec); }
-const SH_HZ = 15; let shAcc = 1;                 // 34차 — 그림자 지도 갱신 빈도 (첫 프레임엔 바로)
+const SH_HZ = GFX.shHz|0; let shAcc = 1;         // 그림자 지도 갱신 빈도. 0 이면 매 프레임(autoUpdate 가 맡는다)
 /* ★ 33차 타격감 — 쏠 때 시야가 살짝 넓어졌다 돌아온다(FOV 펀치). 흔들림은 자리가 떨리는 것이고 이건 '밀리는' 느낌이다.
    지수 감쇠라 dt 에 안 흔들린다. 4° 를 넘지 않는다 — 조준선은 그대로(forward 는 방향만 읽는다). */
 const FOV0 = 70; let fovKick = 0, fovRun = 0, windT = 0;   // 48차 — 로블록스 Camera.FieldOfView 기본값이 70 이다(74 였다)
@@ -18463,7 +18477,7 @@ function loop(){
   /* ★ 상인·대장장이는 시작 화면에서도 서 있어야 한다 — G.started 밖에서 그린다.
      조각이 마흔여덟 개뿐이라 값은 거의 안 든다(뱅크 하나, 그리기 한 번). */
   if(!DBG.noInst){ drawNPCs(tAcc); raceDraw(tAcc); }   // 37차 — 경주 코스는 raceDraw 가 움직이는 발판을 그린다
-  shAcc += dt; if(shAcc >= 1/SH_HZ){ renderer.shadowMap.needsUpdate = true; shAcc = 0; }   // 34차 — 그림자 15Hz
+  if(SH_HZ){ shAcc += dt; if(shAcc >= 1/SH_HZ){ renderer.shadowMap.needsUpdate = true; shAcc = 0; } }   // SH_HZ 0 이면 autoUpdate 가 매 프레임 그린다
   if(!DBG.noRender) drawFrame();
   else renderer.clear();          // 화면이 얼어붙은 걸로 안 보이게 (거의 공짜다)
   if(PROF_ON){ gpuEnd(); pE('★그리기'); }
