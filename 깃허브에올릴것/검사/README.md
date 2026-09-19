@@ -9,7 +9,7 @@ push·pull request 마다 `.github/workflows/checks.yml`이 같은 명령을 자
 `--render`를 붙이면 단일 숨김 브라우저 검사까지 실행한다. 전체 로그 대신 검사별 결과를 간단히 표시한다.
 
 2026-09-18. 아래 표는 `check-current.mjs`가 돌리는 21개 파일이며, 숫자가 나오는 19개를 더하면
-**461개 확인 항목**이다. 손으로 센 값이 아니라 CI 실행 출력(`n/n checks passed`)을 그대로 옮겼다.
+**464개 확인 항목**이다. 손으로 센 값이 아니라 CI 실행 출력(`n/n checks passed`)을 그대로 옮겼다.
 검사를 고치면 이 숫자도 함께 고친다. 과거 52차 전체 1306개를 매번 재실행한다는 뜻은 아니다.
 
 | 검사 | 통과 | 범위 |
@@ -28,7 +28,7 @@ push·pull request 마다 `.github/workflows/checks.yml`이 같은 명령을 자
 | t56-build-assist-static.mjs | 30 | 배치·특화 선택·기지 꾸미기 UI |
 | t56-build-coop-static.mjs | 40 | 두 클라이언트 fixture 로 공동 건설·결제·이동·철거 보호 |
 | t57-avatar-geometry-static.mjs | 14 | 사람 전용 기하·관절 연결·발 접지 |
-| t57-motion-static.mjs | 15 | 관절 모션 |
+| t57-motion-static.mjs | 18 | 관절 모션 · 진자 보행(무릎/팔꿈치 각·발 속도 연속성) |
 | t57-render-static.mjs | 15 | 전용 재질·접촉 그림자 |
 | t58-job-art-static.mjs | 22 | 직업 장비 구성·얼굴/등 여유·날개 윤곽 |
 | t58-motion-static.mjs | 18 | 몸 크기 고정·옷/날개 부착·옆걸음·프레임률 전환 |

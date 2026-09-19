@@ -17,21 +17,40 @@ function bottom(matrix,geometry=A.meshes.shoes.geometry){const p=geometry.attrib
 const idle=pose(actor());
 check('A person has two articulated arms, two articulated legs and two shoes',idle.arm.length===4&&idle.legs.length===4&&idle.shoes.length===2);
 check('Neutral shoes touch the floor and knees remain nearly straight',idle.shoes.every(m=>Math.abs(bottom(m))<.006)&&new THREE.Vector3(0,1,0).transformDirection(idle.legs[0]).y>.99);
-let joins=0,footMin=Infinity,contact=0,planted=0,heelLift=0;
+let joins=0,footMin=Infinity,contact=0,planted=0;
+const clear={walk:0,run:0},knee={walk:0,run:0},elbow={walk:[9,-9],run:[9,-9]},total={walk:0,run:0};
 for(const run of [false,true])for(let i=0;i<96;i++){
  const gp=i/96*Math.PI*2,p=pose(actor({mv:true,run,gp}));
  for(let side=0;side<2;side++){
   joins=Math.max(joins,point(p.legs[side*2],0,-.5,0).distanceTo(point(p.legs[side*2+1],0,.5,0)));
-  const low=bottom(p.shoes[side]);footMin=Math.min(footMin,low);heelLift=Math.max(heelLift,low);
+  const key=run?'run':'walk',low=bottom(p.shoes[side]);footMin=Math.min(footMin,low);
+  clear[key]=Math.max(clear[key],low);total[key]++;
+  const dir=m=>new THREE.Vector3(0,1,0).transformDirection(m);
+  knee[key]=Math.max(knee[key],dir(p.legs[side*2]).angleTo(dir(p.legs[side*2+1])));
+  const eb=dir(p.arm[side*2]).angleTo(dir(p.arm[side*2+1]));
+  elbow[key][0]=Math.min(elbow[key][0],eb);elbow[key][1]=Math.max(elbow[key][1],eb);
   if(A.sheepFootPose(gp+(side?Math.PI:0),run).plant){planted++;if(Math.abs(low)<.045)contact++;}
  }
 }
 check('Thigh and shin share the same knee throughout walking and running',joins<1e-6,{worstJointGap:joins});
 check('Feet never penetrate ground through complete gait cycles',footMin>-.008,{lowestShoe:footMin});
-check('Support feet stay grounded while swing feet visibly clear the floor',contact===planted&&heelLift>.16,{contact,planted,swingClearance:heelLift});
+// 옛 조건은 swing clearance > .16 이었다. 그런데 엉덩이 .600 · 다리 전장 .525 · 중립 발목 .075 이므로
+// 유각 중간(다리가 수직인 자리)에서 발을 .16 들면 엉덩이-발목이 .365 가 되고 코사인 법칙상 무릎이
+// 반드시 92° 접힌다 — 즉 그 한 줄이 이 리그가 버리려는 '접힌 ㄱ자'를 명령하고 있었다.
+// 접지(contact===planted)는 그대로 못 박고, plant 창을 지워 조건을 공허하게 만드는 편법만 막는다.
+check('Support feet stay grounded while swing feet clear the floor',contact===planted&&planted>total.walk*.4&&clear.walk>.045&&clear.run>.08,{contact,planted,total,clear});
+// R6 식 보행은 거의 편 팔다리를 흔든다. 아래 각을 넘어 접힌 채로 도는 다리는 진자 스트라이드가 아니다.
+check('Walking and running legs swing as near-straight pendulums instead of folded V shapes',knee.walk<Math.PI*.50&&knee.run<Math.PI*.55,{walkKnee:knee.walk*180/Math.PI,runKnee:knee.run*180/Math.PI});
+check('Elbows keep breathing through the gait instead of holding one folded angle',elbow.walk[1]-elbow.walk[0]>.05&&elbow.run[1]-elbow.run[0]>.12&&elbow.run[1]<.60,{walk:elbow.walk,run:elbow.run});
 let continuity=0,prior=null;
 for(let i=0;i<=240;i++){const p=pose(actor({mv:true,run:true,gp:i/240*Math.PI*2}));if(prior)for(let j=0;j<2;j++)continuity=Math.max(continuity,pos(p.shoes[j]).distanceTo(pos(prior.shoes[j])));prior=p;}
 check('Toe off and heel contact have continuous foot trajectories',continuity<.035,{worstFrameStep:continuity});
+// 디딘 발은 한 속도로 뒤로 쓸리고, 유각은 그 속도로 떠났다가 그 속도로 돌아와야 한다.
+// 이음매에서 속도가 계단처럼 뛰는 것이 사용자가 말한 '멈췄다 꺾임'이다.
+let seam=0;for(const run of [false,true]){const h=1e-4,d=x=>(A.sheepFootPose((x+h)*Math.PI*2,run).f-A.sheepFootPose((x-h)*Math.PI*2,run).f)/(2*h);
+ const duty=.60-.14*(run?1:0),stance=Math.abs(d(duty*.5));
+ seam=Math.max(seam,Math.abs(d(duty-.004)-d(duty+.004))/stance,Math.abs(d(1-.004)-d(.004))/stance);}
+check('Foot speed carries through toe off and heel strike without a corner',seam<.08,{seamSpeedJump:seam});
 const walk=pose(actor({mv:true,run:false,gp:0}));
 check('Arms counter-swing against the leg on the same side',pos(walk.handL[0]).z<0&&pos(walk.shoes[0]).z>0&&pos(walk.handR[0]).z>0&&pos(walk.shoes[1]).z<0);
 const moving=actor({mv:true,run:false,gp:.1});pose(moving,30);let anchor,drift=0;
