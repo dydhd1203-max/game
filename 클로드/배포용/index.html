@@ -9878,7 +9878,7 @@ function drawSheep(list, t, cap, colOf, scale){
       }else{
         /* 팔꿈치는 보행 주기 동안 상수였다(걷기 17°·달리기 43° 고정) — 접힌 ㄱ자가 통째로 도는 느낌의 원인이다.
            R6 에는 팔꿈치가 아예 없으므로 방향은 굽히기가 아니라 펴기다. 대신 팔이 앞으로 나올 때만 살짝 접는다. */
-        const bend=down?.12:.10-mvK*(.055+runK*.020)+mvK*Math.max(0,-armSwing[si>0?0:1])*(.12+runK*.17)
+        const bend=down?.12:Math.max(.10,.10-mvK*(.055+runK*.020)+mvK*Math.max(0,-armSwing[si>0?0:1])*(.12+runK*.17))
           +airK*(.18+rise*.20)+wind*(si<0?.65:.30)+strike*.12;
         const upper=th-bend*.40,fore=th+bend*.60,sr=Math.sin(rl),cr=Math.cos(rl);
         const reach=(origin,angle,len)=>[origin[0]+(fx*cr*Math.sin(angle)+rx*sr)*len,origin[1]-cr*Math.cos(angle)*len,origin[2]+(fz*cr*Math.sin(angle)+rz*sr)*len];
@@ -9890,7 +9890,7 @@ function drawSheep(list, t, cap, colOf, scale){
       if(!memory.elbow||hasGun){memory.elbow=el;memory.hand=ha;}
       else for(let j=0;j<3;j++){memory.elbow[j]+=(el[j]-memory.elbow[j])*follow;memory.hand[j]+=(ha[j]-memory.hand[j])*follow;}
       elbow=world(memory.elbow);hand=world(memory.hand);
-      const jointPose=sheepJoint(shoulder,hand,aL*.50,aL*(hasGun?.43:.36),elbow.map((v,i)=>v-shoulder[i]));
+      const jointPose=sheepJoint(shoulder,hand,aL*.50,aL*(hasGun?.43:.36),elbow.map((v,i)=>v-shoulder[i]),aL*.05);
       elbow=jointPose.joint;hand=jointPose.end;
       sheepBone(P_arm,armN++,shoulder,elbow,ry,aW,aD,uniform?uniform.shirt:R6_SKIN);
       const fl=Math.hypot(hand[0]-elbow[0],hand[1]-elbow[1],hand[2]-elbow[2]),gap=aL*.02;
