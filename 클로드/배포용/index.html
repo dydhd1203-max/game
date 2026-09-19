@@ -9851,7 +9851,7 @@ function drawSheep(list, t, cap, colOf, scale){
          낙하 각도는 조금 줄여 둥근 캐릭터의 어깨·C자 손이 잘 읽히게 한다. */
       /* 팔은 바닥 구속이 없으니 발 곡선을 물려쓸 이유가 없다. 순수 코사인이면 로블록스
          Animate 의 amplitude*sin(t*freq) 와 같은 진자가 된다 — 발과 같은 자리에서 꺾이지 않는다. */
-      else { const swing=Math.cos(gait+(si>0?0:Math.PI));armSwing[si>0?0:1]=swing*dirF;
+      else { const swing=Math.cos(gait+(si>0?0:Math.PI));armSwing[si>0?0:1]=swing*(dirF<0?-1:1)*Math.hypot(dirF,dirS);
         th=-mvK*swing*(.70+runK*.40)*dirF+lean*.5+(s.tool&&si<0?.42:0);
         rl=si*(.02+runK*mvK*.08+idleK*life.br*.02)-mvK*swing*dirS*.30;
         const airTh=(.10+rise*2.95)*(1-glideK)+.35*glideK+lean*.5;
