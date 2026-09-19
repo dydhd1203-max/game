@@ -37,7 +37,7 @@ let move=fn('updPlayer');move=move.slice(0,move.indexOf('  recoilTick(dt);'))+'\
 const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_RAINBOW_DZ','RACE_ROWZ','RACE_P','RACE','FADE_T','ROCK','HAZ',
   'STEP','GRAV','GRAV_V','gravNow','jumpNow','jump2Now','RACE_SPD','SPRINT','ACC_UP','JOB_JMP','GLIDE_T','GLIDE_VY','STRIDE_WALK'];
 const functions=['mulberry','furLight','raceBuild','raceOff','raceAlive','raceTopAt','raceUnder','raceSlotXZ',
-  'raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','raceDrawTrim','raceDraw','groundUnder'];
+  'raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','raceDrawTrim','raceDraw','groundUnder','sheepGaitStep'];
 const code=[fixtures,...declarations.map(decl),...functions.map(fn),move,`globalThis.A={RACE,RACE_P,RACE_S,RACE_Z_FIN,RACE_RAINBOW_DZ,RACE_X,PL,G,MINE,R_trim,R_plat,R_rock,R_hazB,
   raceBuild,raceOff,raceAlive,raceTopAt,raceUnder,raceCheckpointXZ,raceRocks,raceHazards,raceSphereHit,raceDraw,groundUnder,ROCK,HAZ,
   spawn(id){uid=id;return raceSlotXZ();}, cp(id,p){uid=id;return raceCheckpointXZ(p);},

@@ -34,10 +34,34 @@ for(let i=0;i<=240;i++){const p=pose(actor({mv:true,run:true,gp:i/240*Math.PI*2}
 check('Toe off and heel contact have continuous foot trajectories',continuity<.035,{worstFrameStep:continuity});
 const walk=pose(actor({mv:true,run:false,gp:0}));
 check('Arms counter-swing against the leg on the same side',pos(walk.handL[0]).z<0&&pos(walk.shoes[0]).z>0&&pos(walk.handR[0]).z>0&&pos(walk.shoes[1]).z<0);
-const moving=actor({mv:true,run:false,gp:.1});pose(moving,30);let anchor,drift=0;
-for(let i=1;i<=12;i++){moving.z=i/120*2;moving.gp=.1+moving.z/1.3*Math.PI*2;const p=pose(moving,30+i/120),foot=pos(p.shoes[0]);
- if(i===2)anchor=foot;if(i>2)drift=Math.max(drift,Math.hypot(foot.x-anchor.x,foot.z-anchor.z));}
-check('A planted foot holds its world position during forward travel',drift<.012,{plantedWorldDrift:drift});
+// A block avatar uses a continuous display stride. Locking a planted foot in world
+// space at game speed used to push it beyond the leg's reach, then pop it forward.
+let cadenceOK=true,maxCadence=0,maxLocalStep=0,maxTurn=0;
+const q=m=>new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().extractRotation(m));
+for(const fps of [30,60,120])for(const [speed,run] of [[5.2,false],[8,true],[16,true]])for(const dir of [0,Math.PI/2,Math.PI/4]){
+ const s=actor({mv:true,run}),start=40;let prev;
+ pose(s,start);
+ for(let i=1;i<=fps*2;i++){
+  s.x=Math.sin(dir)*speed*i/fps;s.z=Math.cos(dir)*speed*i/fps;
+  const p=pose(s,start+i/fps);
+  const local=['arm','legs','shoes'].flatMap(k=>p[k].map(m=>({p:pos(m).sub(new THREE.Vector3(s.x,s.y,s.z)),q:q(m)})));
+  if(prev)for(let j=0;j<local.length;j++){
+   maxLocalStep=Math.max(maxLocalStep,local[j].p.distanceTo(prev[j].p)*fps/60);
+   maxTurn=Math.max(maxTurn,local[j].q.angleTo(prev[j].q)*fps/60);
+  }
+  prev=local;
+ }
+ const hz=A.sheepGait(s,start+2).gp/(Math.PI*4);maxCadence=Math.max(maxCadence,hz);
+ cadenceOK&&=hz>.9&&hz<=(run?2.01:1.61);
+}
+check('Walk, run and speed boosts keep a readable display cadence at 30/60/120 Hz',cadenceOK,{maxCyclesPerSecond:maxCadence});
+check('Continuous forward, side and diagonal travel has no foot or joint snap',maxLocalStep<.09&&maxTurn<.45,{maxLocalStepAt60Hz:maxLocalStep,maxRotationAt60Hz:maxTurn});
+let seamVelocity=0;
+for(const phase of [0,Math.PI,Math.PI*2]){
+ const e=.0001,a=A.sheepFootPose(phase-e,true),b=A.sheepFootPose(phase,true),c=A.sheepFootPose(phase+e,true);
+ for(const key of ['f','lift','toe'])seamVelocity=Math.max(seamVelocity,Math.abs((b[key]-a[key])/e-(c[key]-b[key])/e));
+}
+check('Foot position and velocity join smoothly at lift-off and touchdown',seamVelocity<.001,{velocityMismatch:seamVelocity});
 let actionGround=true,actionReset=true;
 for(const kind of ['mine','work','throw']){
  for(let i=0;i<=20;i++){const p=pose(actor({act:kind,actP:i/20,tool:kind==='throw'?'':kind}));actionGround&&=p.shoes.every(m=>bottom(m)>-.008&&bottom(m)<.045);}

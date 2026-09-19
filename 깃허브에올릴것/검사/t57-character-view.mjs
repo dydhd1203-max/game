@@ -99,6 +99,19 @@ try{
         {label:'달리기',mv:true,run:true,gp:1.1},{label:'상승',air:true,vy:5,take:.2},{label:'최고점',air:true,vy:0},{label:'착지',land:.22},
         {label:'곡괭이 준비',act:'mine',actP:.23,tool:'mine'},{label:'곡괭이 타격',act:'mine',actP:.52,tool:'mine'},
         {label:'양손 총 · 반동',wp:3,kick:1},{label:'날개 활공',jb:1,jt:2,air:true,vy:-1,glide:true}]},
+      {name:'clearance',cols:4,title:'사선 달리기 · 모자 여유 · 긴 총과 반동',cards:[
+        {label:'오른쪽 옆걸음 · 발 모으기',mv:true,run:true,dir:Math.PI/2,gp:Math.PI},
+        {label:'왼쪽 옆걸음 · 발 모으기',mv:true,run:true,dir:-Math.PI/2,gp:0},
+        {label:'오른쪽 사선 달리기',mv:true,run:true,dir:Math.PI/4,gp:2.8},
+        {label:'뒤쪽 사선 달리기',mv:true,run:true,dir:-Math.PI*3/4,gp:1.4},
+        {label:'카우보이 · 점프',jb:0,jt:1,air:true,vy:5},
+        {label:'보안관 · 활공',jb:0,jt:2,air:true,vy:-2,glide:true},
+        {label:'탐험가 · 달리기',jb:2,jt:1,mv:true,run:true,gp:2.5},
+        {label:'보물 탐험가 · 착지',jb:2,jt:2,land:.22},
+        {label:'긴 총 · 옆모습',wp:5,angle:Math.PI/2},
+        {label:'긴 총 · 최대 반동',wp:5,kick:1.6,angle:Math.PI/2},
+        {label:'긴 총 · 점프',wp:6,air:true,vy:3,angle:.9},
+        {label:'긴 총 · 활공',wp:5,jb:1,jt:2,air:true,vy:-2,glide:true,angle:.9}]},
       {name:'outfits-jobs',cols:4,title:'귀여운 꾸미기와 직업 · 같은 몸체와 C자 손',cards:[
         {label:'민트 고양이',hat:9,gls:0,clo:2},{label:'크림 토끼',hat:4,gls:8,clo:3},{label:'곰돌이 잠옷',hat:6,gls:8,clo:4},{label:'분홍 리본',hat:3,gls:0,clo:10},
         {label:'직업 1 · 1차',jb:0,jt:1},{label:'직업 1 · 2차',jb:0,jt:2},{label:'직업 2 · 1차',jb:1,jt:1},{label:'직업 2 · 2차',jb:1,jt:2},
@@ -116,7 +129,7 @@ try{
         const reports=[];
         cards.forEach((card,i)=>{
           const x=i%cols*cw,y=top+Math.floor(i/cols)*ch,s={x:0,y:0,z:0,ry:Math.PI,g:2,ph:0,mv:false,wp:0,we:0,hat:0,gls:0,clo:0,jb:-1,jt:0,...card};
-          const gs=W.__sheepGait(s,10);if(s.mv)gs.v=s.run?8:4;W.__drawSheep([s],10,40,a=>W.__GHEX[a.g],1);
+          const gs=W.__sheepGait(s,10);if(s.mv){gs.v=s.run?8:4;gs.vx=Math.sin(s.dir||0)*gs.v;gs.vz=Math.cos(s.dir||0)*gs.v;}W.__drawSheep([s],10,40,a=>W.__GHEX[a.g],1);
           const scene=new T.Scene(),group=new T.Group();scene.add(group);
           const unique=new Set([...W.__charMeshes().사람,...W.__gunMeshes(),...W.__P_wing(),...W.__P_wingG(),W.__P_jobF(),W.__P_jobR()]);
           const contact=W.__avatarRender?.();if(contact){contact.drawShadows([{...s,air:false}],40,1);unique.add(contact.contact);}
@@ -124,7 +137,7 @@ try{
           for(const mesh of unique)if(mesh?.isInstancedMesh&&mesh.count){const copy=mesh.clone();copy.instanceMatrix=mesh.instanceMatrix.clone();if(mesh.instanceColor)copy.instanceColor=mesh.instanceColor.clone();copy.frustumCulled=false;group.add(copy);parts+=copy.count;}
           for(const light of W.__scene.children.filter(o=>o.isLight)){const copy=light.clone();copy.castShadow=false;scene.add(copy);if(copy.target)scene.add(copy.target);}
           const floor=new T.Mesh(new T.PlaneGeometry(5,5),new T.MeshLambertMaterial({color:0xdce8d4}));floor.rotation.x=-Math.PI/2;floor.position.y=-.008;scene.add(floor);
-          const angle=card.angle??.40,span=s.glide?3.2:2.45,aspect=(cw-12)/(ch-42),camera=new T.OrthographicCamera(-span*aspect/2,span*aspect/2,span/2,-span/2,.1,40);
+          const angle=card.angle??.40,span=s.wp?3.8:s.glide?3.2:2.45,aspect=(cw-12)/(ch-42),camera=new T.OrthographicCamera(-span*aspect/2,span*aspect/2,span/2,-span/2,.1,40);
           camera.position.set(Math.sin(angle)*6,2.1,Math.cos(angle)*6);camera.lookAt(0,.90,0);
           R.setViewport(x+6,height-y-ch+32,cw-12,ch-42);R.setScissor(x+6,height-y-ch+32,cw-12,ch-42);R.render(scene,camera);
           floor.geometry.dispose();floor.material.dispose();
