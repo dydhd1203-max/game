@@ -53,6 +53,28 @@ for(const fps of [30,60,120])for(const dir of [Math.PI/4,-Math.PI/4,Math.PI*3/4,
  }
 }
 check('Continuous diagonal travel stays clear at actual game scale and 30/60/120 Hz',movingClips===0,{movingFrames,movingClips});
+// Load the current picker data, including post-declaration pajama replacements.
+// The former harness silently checked retired clothing instead of these panels.
+const clothes=vm.runInContext('DRESS_OPTIONS.clo',context);
+let clothingClips=0,accessoryClips=0,clothingFrames=0,accessoryFrames=0;
+for(const clo of clothes)for(const run of [false,true])for(let dir=0;dir<8;dir++)for(let step=0;step<24;step++){
+ draw(actor({clo,mv:true,run,dir:dir*Math.PI/4,gp:step*Math.PI/12}),10,.7);clothingFrames++;
+ for(let i=0;i<4;i++)for(let j=0;j<A.meshes.deco.count;j++)
+  clothingClips+=boxOverlap(A.meshes.deco,j,A.meshes.arm,i)||boxOverlap(A.meshes.arm,i,A.meshes.deco,j)?1:0;
+}
+check('All eight current outfits stay outside both arm swing paths',clothes.length===8&&clothingClips===0,{clothingFrames,clothingClips});
+for(let jb=0;jb<3;jb++)for(let jt=1;jt<=2;jt++)for(const run of [false,true])for(let dir=0;dir<8;dir++)for(let step=0;step<24;step++){
+ draw(actor({jb,jt,mv:true,run,dir:dir*Math.PI/4,gp:step*Math.PI/12}),10,.7);accessoryFrames++;
+ for(const mesh of [A.meshes.deco,...Object.values(A.P_jobParts)])for(let i=0;i<4;i++)for(let j=0;j<mesh.count;j++)
+  accessoryClips+=boxOverlap(mesh,j,A.meshes.arm,i)?1:0;
+}
+check('All six job outfits keep belt pouches and shoulder badges clear of arms',accessoryClips===0,{accessoryFrames,accessoryClips});
+let tintMismatch=0;
+for(const clo of [2,4,6,8]){
+ draw(actor({clo}));const color=new THREE.Color();A.meshes.body.getColorAt(0,color);
+ tintMismatch+=color.getHex()!==vm.runInContext(`CLOTH_BODY[${clo}]`,context)?1:0;
+}
+check('Pajama colors are applied to the torso itself',tintMismatch===0,{tintMismatch});
 let brimClips=0,brimGap=Infinity;
 const poses=[{}, {mv:true,run:true,dir:Math.PI/4,gp:3.1}, {air:true,vy:5}, {air:true,vy:-3,glide:true}, {air:true,flip:.35}, {land:.22}];
 for(let jb=0;jb<3;jb++)for(let jt=1;jt<=2;jt++)for(const pose of poses){

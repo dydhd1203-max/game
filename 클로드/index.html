@@ -8545,13 +8545,13 @@ const JOB_LOOK = (()=>{
       B(.207,1.055,-.15,t?.122:.098,t?.122:.098,.026,gold,0,0,'star'),
       B(.211,.904,-.158,.16,.065,.026,t?0xf1d28c:0xbd9165),
       B(.211,.904,.158,.16,.065,.026,t?0xf1d28c:0xbd9165),
-      B(.05,.738,.335,.12,.16,.14,leather),
-      B(.13,.79,.335,.108,.039,.027,gold)
+      B(.23,.738,.22,.12,.16,.14,leather),
+      B(.31,.79,.22,.108,.039,.027,gold)
     ];
     if(t){
-      a.push(B(.013,1.199,-.324,.16,.055,.25,gold),B(.013,1.199,.324,.16,.055,.25,gold));
+      a.push(B(.013,1.212,-.24,.08,.025,.25,gold),B(.013,1.212,.24,.08,.025,.25,gold));
       a.push(B(.223,1.055,-.15,.052,.052,.014,cream,0,0,'lens'));
-      a.push(B(.078,.748,-.33,.15,.18,.045,0xdcbb78,0,0,'goggleRing'));
+      a.push(B(.25,.748,-.20,.15,.18,.045,0xdcbb78,0,0,'goggleRing'));
       a.push(H(1.02,1.625,-.28,.062,.17,.027,cream,0,-.26,'feather'));
     }
     return a;
@@ -8571,16 +8571,16 @@ const JOB_LOOK = (()=>{
       B(.204,1.074,.175,.047,.047,.022,brass,0,0,'lens'),
       B(.205,.947,0,.205,.11,.029,t?0xddece5:0xc6e1df),
       B(.179,.758,0,.565,.066,.037,navy),B(.205,.758,0,.095,.078,.030,brass,0,0,'buckle'),
-      B(.052,.749,.334,.115,.19,.135,0x9e7855),
-      B(.14,.756,.334,.09,.185,.032,0xd8e1df,0,-.10,'tool'),
+      B(.23,.749,.22,.115,.19,.135,0x9e7855),
+      B(.315,.756,.22,.09,.185,.032,0xd8e1df,0,-.10,'tool'),
       B(.19,1.187,0,.235,.085,.03,t?0xe7bd62:0xefbd7d,0,0,'scarf')
     ];
     if(t){
       a.push(H(.68,1.50,0,.80,.27,.76,0xceded7,0,0,'safariCrown'));
       a.push(H(.83,1.616,-.268,.113,.113,.042,brass,0,0,'gear'));
-      a.push(B(.048,.751,-.332,.14,.17,.13,navy));
-      a.push(B(.135,.786,-.332,.115,.115,.032,brass,0,0,'gear'));
-      a.push(B(.154,.786,-.332,.048,.048,.015,0xb2e2d7,0,0,'lens'));
+      a.push(B(.23,.751,-.22,.14,.17,.13,navy));
+      a.push(B(.315,.786,-.22,.115,.115,.032,brass,0,0,'gear'));
+      a.push(B(.335,.786,-.22,.048,.048,.015,0xb2e2d7,0,0,'lens'));
       a.push(B(.217,.961,0,.072,.076,.02,brass,0,0,'compass'));
     }
     return a;
@@ -8603,7 +8603,7 @@ const JOB_LOOK = (()=>{
     if(t){
       a.push(H(.99,1.545,-.21,.10,.132,.045,0x7bc5c0,0,-.16,'gem'));
       a.push(B(.21,1.076,.15,.09,.13,.045,0x7bc5c0,0,.12,'gem'));
-      a.push(B(.05,.748,.333,.13,.19,.14,0x99704b),B(.13,.814,.333,.116,.04,.028,edge));
+      a.push(B(.23,.748,.22,.13,.19,.14,0x99704b),B(.31,.814,.22,.116,.04,.028,edge));
       a.push(B(.21,.965,0,.105,.08,.052,0x446d71));
       for(const si of [-1,1])a.push(B(.221,.985,si*.064,.095,.125,.07,0x446d71,0,0,'lens'));
     }else a.push(H(.945,1.536,-.23,.07,.13,.026,green,0,-.28,'feather'));
@@ -8852,6 +8852,15 @@ CLOTHES[8]=pajamaRows(0xafcfee,0x91b9df,0xdeecf8).concat([[.59,.75,-.16,.12,.12,
 CLO_NAME[3]='크림 목도리'; CLOTHES[3]=CLOTHES[3].map(q=>{const p=q.slice();p[6]=0xffe6b8;return p;});
 CLO_NAME[5]='복숭아 나비넥타이'; CLOTHES[5]=CLOTHES[5].map(q=>{const p=q.slice();p[6]=p[6]===0xe0454f?0xefa5b7:0xffeee1;return p;});
 CLO_NAME[10]='딸기우유 원피스';
+
+// 잠옷의 네 겹 몸판이 팔 안쪽까지 파고들었다. 옷 색은 몸통 자체에 입히고
+// 앞의 무늬·단추만 별도 조각으로 남겨 움직여도 표면끼리 경합하지 않는다.
+const CLOTH_BODY = {};
+for(const id of [2,4,6,8]){
+  CLOTH_BODY[id]=CLOTHES[id][0][6];CLOTHES[id]=CLOTHES[id].slice(4);
+}
+// 치마의 윗단은 내려온 팔꿈치·손목 사이에 들어가도록 허리 폭에 맞춘다.
+CLOTHES[10][0][3]=.94;CLOTHES[10][1][3]=1.06;
 
 /* 42차 — 공중제비: 켜져 있으면 놓는 행렬마다 FLIP_M(사람 가운데를 축으로 도는 변환 T(c)·R·T(-c))을 앞에 곱한다. drawSheep 이 두 번째 뜀 동안만 켠다 */
 let FLIP_ON = false; const FLIP_M = new THREE.Matrix4(), _fq = new THREE.Quaternion(), _fa = new THREE.Vector3(), _fc = new THREE.Vector3();
@@ -9633,6 +9642,10 @@ function sheepGait(s, t){
   return g;
 }
 function sheepEase(v){v=Math.max(0,Math.min(1,v));return v*v*(3-2*v);}
+/* 0→1 전환 곡선. 양끝 기울기와 곡률이 0이라 입각의 등속 직선에 그대로 이어 붙일 수 있고,
+   가운데가 평평해 첨두 속도가 낮다(1/(1-r)). r 이 가감속 구간 폭이다. */
+function sheepSwingS(q,r){q=Math.max(0,Math.min(1,q));const A=1-r,ramp=u=>r*(u*u*u-u*u*u*u/2);
+  if(q<r)return ramp(q/r)/A; if(q>1-r)return (A-ramp((1-q)/r))/A; return (r*.5+(q-r))/A;}
 function sheepBlend(g,key,target,dt,rate){
   if(g[key]===undefined)g[key]=target;
   else g[key]+=(target-g[key])*(1-Math.exp(-rate*Math.min(.05,Math.max(0,dt))));
@@ -9646,9 +9659,12 @@ function sheepActionPose(kind,p){
     impact:Math.max(0,1-Math.abs(p-hit)/.10)};
 }
 // Two rigid segments meet at one joint; unreachable endpoints are clamped rather than stretching the blocks.
-function sheepJoint(a,b,l1,l2,pole){
+function sheepJoint(a,b,l1,l2,pole,soft=0){
   const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],raw=Math.hypot(dx,dy,dz)||.0001;
-  const ux=dx/raw,uy=dy/raw,uz=dz/raw,d=Math.max(Math.abs(l1-l2)+.0001,Math.min(l1+l2-.0001,raw));
+  const ux=dx/raw,uy=dy/raw,uz=dz/raw,reach=l1+l2-.0001;
+  // 거의 편 무릎이 최대 길이에 닿을 때 갑자기 잠기지 않도록 끝 구간만 완만하게 제한한다.
+  const limited=soft>0&&raw>reach-soft?reach-soft*Math.exp(-(raw-reach+soft)/soft):Math.min(reach,raw);
+  const d=Math.max(Math.abs(l1-l2)+.0001,limited);
   const dot=pole[0]*ux+pole[1]*uy+pole[2]*uz;
   let px=pole[0]-ux*dot,py=pole[1]-uy*dot,pz=pole[2]-uz*dot,pl=Math.hypot(px,py,pz);
   if(pl<.0001){px=uy;py=-ux;pz=0;pl=Math.hypot(px,py);if(pl<.0001){px=1;py=0;pl=1;}}
@@ -9669,10 +9685,15 @@ function sheepPoint(p){
 }
 function sheepFootPose(phase,run){
   const r=typeof run==='boolean'?(run?1:0):Math.max(0,Math.min(1,run));
-  const s=Math.sin(phase),swing=Math.max(0,-s),amp=.20+.06*r;
-  // 위치와 속도가 발을 딛는 경계에서 모두 이어진다. 두 팔도 같은 곡선을 읽는다.
-  return {f:amp*Math.cos(phase),lift:swing*swing*(.10+.08*r),
-    toe:.08*s-.10*swing*swing,plant:s>=0};
+  const p=((phase/(Math.PI*2))%1+1)%1,duty=.60-.14*r,amp=.23+.06*r;
+  const sn=Math.sin(phase),toe=.08*sn-.10*Math.max(0,-sn)**2;
+  if(p<duty){const q=p/duty;return {f:amp*(1-2*q),lift:0,toe,plant:true};}
+  /* 유각은 입각의 속도 vel 을 양끝에서 그대로 물려받는다 — 디딘 순간 속도가 꺾이지 않는다.
+     수직 들림을 낮게 두는 것도 중요하다: 유각 중간에 발을 높이 들면 엉덩이-발목 거리가 줄어
+     코사인 법칙상 무릎이 강제로 깊게 접힌다(옛 .12/.23 에서 걷기 105°·달리기 141°). */
+  const q=(p-duty)/(1-duty),lift=Math.sin(q*Math.PI),sw=sheepSwingS(q,.22),vel=-2*amp*(1-duty)/duty;
+  // 낮은 들림은 유지하되, 제곱 곡선으로 접지 경계의 수직 속도도 0으로 잇는다.
+  return {f:-amp+vel*q+(2*amp-vel)*sw,lift:lift*lift*(.055+.035*r),toe,plant:false};
 }
 function avatarWingPose(si,{t=0,phase=0,mv=0,run=0,air=0,glide=0,aim=false,down=false}={}){
   const a=typeof aim==='number'?Math.max(0,Math.min(1,aim)):aim?1:0,flight=Math.max(0,Math.min(1,air))*(1-a),g=Math.max(0,Math.min(1,glide));
@@ -9737,9 +9758,13 @@ function drawSheep(list, t, cap, colOf, scale){
     const moveFX=gs.moveFX??fx,moveFZ=gs.moveFZ??fz;
     const dirF=sheepBlend(gs,'dirF',moveFX*fx+moveFZ*fz,poseDt,10),dirS=sheepBlend(gs,'dirS',moveFX*rx+moveFZ*rz,poseDt,10);
     const sq   = land > 0 ? 1 - (land/0.22)*0.08 : 1;                                   // 블록 비율을 지키며 착지 충격만 살짝
-    const hop  = Math.sin(gait)*Math.sin(gait);
+    /* 61차 — 컴퍼스 보행: 다리를 곧게 편 채 흔들려면 보폭만큼 엉덩이가 내려가야 한다.
+       그 낙차를 상수로 주지 않고 기하에서 직접 구한다. cos(gait) 구동이라 주기 전체에서 연속이고,
+       두 발이 모이는 중간 디딤에서는 0 이라 몸이 제 높이로 돌아온다. */
+    const legSpan=.525,strideAmp=(.23+.06*runK)*mvK,stanceF=strideAmp*Math.cos(gait);
+    const stanceDip=legSpan-Math.sqrt(Math.max(0,legSpan*legSpan-stanceF*stanceF));                                           // 두 발의 디딤마다 작게 올라온다
     // Lower the hips into each support step; two-bone knees preserve floor contact.
-    const bob=(mvK*(-.045-runK*.030+hop*.012)-take*.035-land/.22*.055)*sc;
+    const bob=(mvK*(-stanceDip*.60-.004)-take*.035-land/.22*.055)*sc;
     /* 44차 — 출발·급정지 자세: 가속(acc>0)이면 뒤로 살짝 눌리고(코 위), 급정지(acc<0)면 앞으로 쏠린다(코 아래). 급정지 땐 발밑 먼지 한 번(0.6초에 한 번만) */
     const accL = (down || air) ? 0 : Math.max(-0.22, Math.min(0.22, -gs.acc*0.022));
     if(!down && !air && gs.acc < -9 && gs.v > 1.4 && !(gs.dust > 0)){ gs.dust = 0.6; burst(s.x, y + 0.06, s.z, 0xd9cdb4, 4, 0.45); }
@@ -9772,7 +9797,7 @@ function drawSheep(list, t, cap, colOf, scale){
     const stretch = (1+rise*.02+take*.03)*airK+sq*(1-wind*.012-strike*.03-kick*.015)*(1-airK);
     const widen = 1 + (1-airK)*(1-sq)*.35;
     const lng=1+(down?0:(1-airK)*runK*mvK*Math.sin(gait+.4)*.035);
-    const col = uniform ? uniform.shirt : colOf(s);
+    const col = uniform ? uniform.shirt : CLOTH_BODY[s.clo|0] ?? colOf(s);
     // Local forward/height/side coordinates; whole-body leaning is applied by FLIP_M.
     const X=(f,sd)=> s.x + fx*(f+rootF)*sc + rx*sd*sc;
     const Z=(f,sd)=> s.z + fz*(f+rootF)*sc + rz*sd*sc;
@@ -9808,6 +9833,7 @@ function drawSheep(list, t, cap, colOf, scale){
       R6_HEAD[0]*sc, R6_HEAD[1]*sc, R6_HEAD[2]*sc, R6_SKIN);
     // Arms counter-swing against the legs; two-handed aim uses a shared gun grip frame.
     const hasGun = (s.wp|0) > 0 && !down;
+    const armSwing=[0,0];   // 어깨 스윙을 팔꿈치 식이 다시 읽는다. 사람마다 새로 만든다.
     const hipY = Y(R6_HIP);
     const gunPit=lean-kick*.15, gunC=Math.cos(gunPit),gunS=Math.sin(gunPit);
     const gunF=.35-kick*.012,gunU=1.055+kick*.025;
@@ -9823,8 +9849,10 @@ function drawSheep(list, t, cap, colOf, scale){
                        rl = si < 0 ? -0.06 : -0.16; }                      // 해부학적 오른손은 전방(+Z) 기준 -X 쪽이다
       /* 53차 — 상승에서는 만세, 낙하에서는 옆으로 펼친다. 정점을 지나며 연속적으로 섞고
          낙하 각도는 조금 줄여 둥근 캐릭터의 어깨·C자 손이 잘 읽히게 한다. */
-      else { const swing=sheepFootPose(gait+(si>0?0:Math.PI),runK).f/(.20+runK*.06);
-        th=-mvK*swing*(.48+runK*.34)*dirF+lean*.5+(s.tool&&si<0?.42:0);
+      /* 팔은 바닥 구속이 없으니 발 곡선을 물려쓸 이유가 없다. 순수 코사인이면 로블록스
+         Animate 의 amplitude*sin(t*freq) 와 같은 진자가 된다 — 발과 같은 자리에서 꺾이지 않는다. */
+      else { const swing=Math.cos(gait+(si>0?0:Math.PI));armSwing[si>0?0:1]=swing*dirF;
+        th=-mvK*swing*(.70+runK*.40)*dirF+lean*.5+(s.tool&&si<0?.42:0);
         rl=si*(.02+runK*mvK*.08+idleK*life.br*.02)-mvK*swing*dirS*.30;
         const airTh=(.10+rise*2.95)*(1-glideK)+.35*glideK+lean*.5;
         const airRl=si*((1.20-rise*1.08)*(1-glideK)+.78*glideK);
@@ -9848,7 +9876,10 @@ function drawSheep(list, t, cap, colOf, scale){
         const solved=sheepJoint(shoulder,target,aL*.50,aL*.43,[rx*si+fx*.35,-.6,rz*si+fz*.35]);
         elbow=solved.joint;hand=solved.end;
       }else{
-        const bend=down?.12:.10+mvK*(.20+runK*.45)+airK*(.18+rise*.20)+wind*(si<0?.65:.30)+strike*.12;
+        /* 팔꿈치는 보행 주기 동안 상수였다(걷기 17°·달리기 43° 고정) — 접힌 ㄱ자가 통째로 도는 느낌의 원인이다.
+           R6 에는 팔꿈치가 아예 없으므로 방향은 굽히기가 아니라 펴기다. 대신 팔이 앞으로 나올 때만 살짝 접는다. */
+        const bend=down?.12:.10-mvK*(.055+runK*.020)+mvK*Math.max(0,-armSwing[si>0?0:1])*(.12+runK*.17)
+          +airK*(.18+rise*.20)+wind*(si<0?.65:.30)+strike*.12;
         const upper=th-bend*.40,fore=th+bend*.60,sr=Math.sin(rl),cr=Math.cos(rl);
         const reach=(origin,angle,len)=>[origin[0]+(fx*cr*Math.sin(angle)+rx*sr)*len,origin[1]-cr*Math.cos(angle)*len,origin[2]+(fz*cr*Math.sin(angle)+rz*sr)*len];
         elbow=reach(shoulder,upper,aL*.50);hand=reach(elbow,fore,aL*.36);
@@ -9888,7 +9919,7 @@ function drawSheep(list, t, cap, colOf, scale){
       const airBlend=down?1:airK,target=ground.map((v,i)=>v+(airborne[i]-v)*airBlend);
       let pole=[fx,0,fz];
       if(bodyFlip&&airBlend>0){const e=FLIP_M.elements,rot=[e[0]*fx+e[8]*fz,e[1]*fx+e[9]*fz,e[2]*fx+e[10]*fz];pole=pole.map((v,i)=>v+(rot[i]-v)*airBlend);}
-      const joint=sheepJoint(hip,target,.275*sc,.250*sc,pole);
+      const joint=sheepJoint(hip,target,.275*sc,.250*sc,pole,.025*sc*mvK);
       FLIP_ON=false;
       sheepBone(P_legs,ln++,hip,joint.joint,ry,R6_LEG[0]*sc*.98,R6_LEG[2]*sc*.98,uniform?uniform.pant:R6_PANT);
       sheepBone(P_legs,ln++,joint.joint,joint.end,ry,R6_LEG[0]*sc*.91,R6_LEG[2]*sc*.91,uniform?uniform.pant:R6_PANT);
@@ -16788,7 +16819,8 @@ function pvwSet(P, d){
   const jt = Math.max(0,Math.min(2,d.jt|0)), jb = d.job === undefined ? -1 : d.job|0;
   const hasJob = jt > 0 && jb >= 0 && jb < JOB_LOOK.length;
   const uniform = hasJob ? JOB_UNIFORM[jb][jt-1] : null;
-  const colors = uniform ? {...d.doll,body:uniform.shirt,pant:uniform.pant,shoe:uniform.shoe} : d.doll;
+  const colors = uniform ? {...d.doll,body:uniform.shirt,pant:uniform.pant,shoe:uniform.shoe}
+    : CLOTH_BODY[d.clo|0]!==undefined ? {...d.doll,body:CLOTH_BODY[d.clo|0]} : d.doll;
   const put = (m, f,u,sd, w,h,dp, col)=>{
     m.position.set(sd, u, f); m.scale.set(w, h, dp);
     m.material.color.setHex(col); m.visible = true;
@@ -17171,7 +17203,7 @@ const dollHead = ()=> PVW_BODY.slice(1, 5);   // 머리 · 눈 둘 · 입
 const dollBody = ()=> PVW_BODY.slice(0);      // + 몸통 · 팔 · 다리 (51차d — 아홉 조각 전부)
 DRESS_OPTIONS.hat.forEach(i=>{ if(i) ICO_DEF['hat'+i] = {emo:[HAT_ICON[i]], make:()=>tableGroup(dollHead().concat(r6rows(HATS[i],1)), DOLL_COL), pose:{ry:-0.55}}; });
 DRESS_OPTIONS.gls.forEach(i=>{ if(i) ICO_DEF['gls'+i] = {make:()=>tableGroup(dollHead().concat(r6rows(GLASSES[i],1)), DOLL_COL), pose:{ry:-0.35}}; });
-DRESS_OPTIONS.clo.forEach(i=>{ if(i) ICO_DEF['clo'+i] = {make:()=>tableGroup(dollBody().concat(r6rows(CLOTHES[i],0)), DOLL_COL), pose:{ry:-0.55}}; });
+DRESS_OPTIONS.clo.forEach(i=>{ if(i) ICO_DEF['clo'+i] = {make:()=>tableGroup(dollBody().concat(r6rows(CLOTHES[i],0)), {...DOLL_COL,body:CLOTH_BODY[i]??DOLL_COL.body}), pose:{ry:-0.55}}; });
 for(const k of Object.keys(BUILD)) ICO_DEF['bld_'+k] = {make:()=>buildingGroup(k, 1), pose:{ry:-0.4}};
 /* 건설 선택 그림도 실제 건물 조각으로 굽는다. 기존 아이콘 공방의 큰 칸을 함께 쓴다. */
 for(const [type,branches] of [['arrow',['rapid','sniper']],['ice',['blizzard','frost']]])

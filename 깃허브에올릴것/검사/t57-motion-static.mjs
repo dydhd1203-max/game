@@ -11,43 +11,63 @@ const A=new Function('source','THREE','vm',load+'\nreturn context.API;')(source,
 const results=[],check=(name,pass,detail)=>{results.push(!!pass);console.log((pass?'PASS ':'FAIL ')+name+(detail===undefined?'':' '+JSON.stringify(detail)));};
 const actor=e=>({x:0,y:0,z:0,ry:Math.PI,g:0,ph:0,mv:false,wp:0,we:0,hat:0,gls:0,clo:0,jb:-1,jt:0,...e});
 const pos=m=>new THREE.Vector3().setFromMatrixPosition(m),point=(m,x,y,z)=>new THREE.Vector3(x,y,z).applyMatrix4(m);
-function pose(s,t=10){const gs=A.sheepGait(s,t);if(s.mv)gs.v=s.run?8:4;A.drawSheep([s],t,40,()=>0x67a7cb,1);
+function pose(s,t=10,settled=true){const gs=A.sheepGait(s,t);if(settled&&s.mv)gs.v=s.run?8:4;A.drawSheep([s],t,40,()=>0x67a7cb,1);
  return Object.fromEntries(Object.entries(A.meshes).map(([k,mesh])=>[k,Array.from({length:mesh.count},(_,i)=>{const m=new THREE.Matrix4();mesh.getMatrixAt(i,m);return m;})]));}
 function bottom(matrix,geometry=A.meshes.shoes.geometry){const p=geometry.attributes.position;let lo=Infinity;for(let i=0;i<p.count;i++)lo=Math.min(lo,new THREE.Vector3().fromBufferAttribute(p,i).applyMatrix4(matrix).y);return lo;}
 const idle=pose(actor());
 check('A person has two articulated arms, two articulated legs and two shoes',idle.arm.length===4&&idle.legs.length===4&&idle.shoes.length===2);
 check('Neutral shoes touch the floor and knees remain nearly straight',idle.shoes.every(m=>Math.abs(bottom(m))<.006)&&new THREE.Vector3(0,1,0).transformDirection(idle.legs[0]).y>.99);
-let joins=0,footMin=Infinity,contact=0,planted=0,heelLift=0;
+let joins=0,footMin=Infinity,contact=0,planted=0;
+const clear={walk:0,run:0},knee={walk:0,run:0},elbow={walk:[9,-9],run:[9,-9]},total={walk:0,run:0};
 for(const run of [false,true])for(let i=0;i<96;i++){
  const gp=i/96*Math.PI*2,p=pose(actor({mv:true,run,gp}));
  for(let side=0;side<2;side++){
   joins=Math.max(joins,point(p.legs[side*2],0,-.5,0).distanceTo(point(p.legs[side*2+1],0,.5,0)));
-  const low=bottom(p.shoes[side]);footMin=Math.min(footMin,low);heelLift=Math.max(heelLift,low);
+  const key=run?'run':'walk',low=bottom(p.shoes[side]);footMin=Math.min(footMin,low);
+  clear[key]=Math.max(clear[key],low);total[key]++;
+  const dir=m=>new THREE.Vector3(0,1,0).transformDirection(m);
+  knee[key]=Math.max(knee[key],dir(p.legs[side*2]).angleTo(dir(p.legs[side*2+1])));
+  const eb=dir(p.arm[side*2]).angleTo(dir(p.arm[side*2+1]));
+  elbow[key][0]=Math.min(elbow[key][0],eb);elbow[key][1]=Math.max(elbow[key][1],eb);
   if(A.sheepFootPose(gp+(side?Math.PI:0),run).plant){planted++;if(Math.abs(low)<.045)contact++;}
  }
 }
 check('Thigh and shin share the same knee throughout walking and running',joins<1e-6,{worstJointGap:joins});
 check('Feet never penetrate ground through complete gait cycles',footMin>-.008,{lowestShoe:footMin});
-check('Support feet stay grounded while swing feet visibly clear the floor',contact===planted&&heelLift>.16,{contact,planted,swingClearance:heelLift});
+// 옛 조건은 swing clearance > .16 이었다. 그런데 엉덩이 .600 · 다리 전장 .525 · 중립 발목 .075 이므로
+// 유각 중간(다리가 수직인 자리)에서 발을 .16 들면 엉덩이-발목이 .365 가 되고 코사인 법칙상 무릎이
+// 반드시 92° 접힌다 — 즉 그 한 줄이 이 리그가 버리려는 '접힌 ㄱ자'를 명령하고 있었다.
+// 접지(contact===planted)는 그대로 못 박고, plant 창을 지워 조건을 공허하게 만드는 편법만 막는다.
+check('Support feet stay grounded while swing feet clear the floor',contact===planted&&planted>total.walk*.4&&clear.walk>.045&&clear.run>.08,{contact,planted,total,clear});
+// R6 식 보행은 거의 편 팔다리를 흔든다. 아래 각을 넘어 접힌 채로 도는 다리는 진자 스트라이드가 아니다.
+check('Walking and running legs swing as near-straight pendulums instead of folded V shapes',knee.walk<Math.PI*.50&&knee.run<Math.PI*.55,{walkKnee:knee.walk*180/Math.PI,runKnee:knee.run*180/Math.PI});
+check('Elbows keep breathing through the gait instead of holding one folded angle',elbow.walk[1]-elbow.walk[0]>.05&&elbow.run[1]-elbow.run[0]>.12&&elbow.run[1]<.60,{walk:elbow.walk,run:elbow.run});
 let continuity=0,prior=null;
 for(let i=0;i<=240;i++){const p=pose(actor({mv:true,run:true,gp:i/240*Math.PI*2}));if(prior)for(let j=0;j<2;j++)continuity=Math.max(continuity,pos(p.shoes[j]).distanceTo(pos(prior.shoes[j])));prior=p;}
 check('Toe off and heel contact have continuous foot trajectories',continuity<.035,{worstFrameStep:continuity});
+// 디딘 발은 한 속도로 뒤로 쓸리고, 유각은 그 속도로 떠났다가 그 속도로 돌아와야 한다.
+// 이음매에서 속도가 계단처럼 뛰는 것이 사용자가 말한 '멈췄다 꺾임'이다.
+let seam=0;for(const run of [false,true]){const h=1e-4,d=x=>(A.sheepFootPose((x+h)*Math.PI*2,run).f-A.sheepFootPose((x-h)*Math.PI*2,run).f)/(2*h);
+ const duty=.60-.14*(run?1:0),stance=Math.abs(d(duty*.5));
+ seam=Math.max(seam,Math.abs(d(duty-.004)-d(duty+.004))/stance,Math.abs(d(1-.004)-d(.004))/stance);}
+check('Foot speed carries through toe off and heel strike without a corner',seam<.08,{seamSpeedJump:seam});
 const walk=pose(actor({mv:true,run:false,gp:0}));
 check('Arms counter-swing against the leg on the same side',pos(walk.handL[0]).z<0&&pos(walk.shoes[0]).z>0&&pos(walk.handR[0]).z>0&&pos(walk.shoes[1]).z<0);
 // A block avatar uses a continuous display stride. Locking a planted foot in world
 // space at game speed used to push it beyond the leg's reach, then pop it forward.
-let cadenceOK=true,maxCadence=0,maxLocalStep=0,maxTurn=0;
+let cadenceOK=true,maxCadence=0,maxLocalStep=0,maxTurn=0,worstStep,worstTurn;
 const q=m=>new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().extractRotation(m));
 for(const fps of [30,60,120])for(const [speed,run] of [[5.2,false],[8,true],[16,true]])for(const dir of [0,Math.PI/2,Math.PI/4]){
  const s=actor({mv:true,run}),start=40;let prev;
- pose(s,start);
+ pose(s,start,false);
  for(let i=1;i<=fps*2;i++){
   s.x=Math.sin(dir)*speed*i/fps;s.z=Math.cos(dir)*speed*i/fps;
-  const p=pose(s,start+i/fps);
+  const p=pose(s,start+i/fps,false);
   const local=['arm','legs','shoes'].flatMap(k=>p[k].map(m=>({p:pos(m).sub(new THREE.Vector3(s.x,s.y,s.z)),q:q(m)})));
   if(prev)for(let j=0;j<local.length;j++){
-   maxLocalStep=Math.max(maxLocalStep,local[j].p.distanceTo(prev[j].p)*fps/60);
-   maxTurn=Math.max(maxTurn,local[j].q.angleTo(prev[j].q)*fps/60);
+   const step=local[j].p.distanceTo(prev[j].p)*fps/60,turn=local[j].q.angleTo(prev[j].q)*fps/60;
+   if(step>maxLocalStep){maxLocalStep=step;worstStep={fps,speed,dir,frame:i,part:j};}
+   if(turn>maxTurn){maxTurn=turn;worstTurn={fps,speed,dir,frame:i,part:j};}
   }
   prev=local;
  }
@@ -55,13 +75,17 @@ for(const fps of [30,60,120])for(const [speed,run] of [[5.2,false],[8,true],[16,
  cadenceOK&&=hz>.9&&hz<=(run?2.01:1.61);
 }
 check('Walk, run and speed boosts keep a readable display cadence at 30/60/120 Hz',cadenceOK,{maxCyclesPerSecond:maxCadence});
-check('Continuous forward, side and diagonal travel has no foot or joint snap',maxLocalStep<.09&&maxTurn<.45,{maxLocalStepAt60Hz:maxLocalStep,maxRotationAt60Hz:maxTurn});
-let seamVelocity=0;
-for(const phase of [0,Math.PI,Math.PI*2]){
- const e=.0001,a=A.sheepFootPose(phase-e,true),b=A.sheepFootPose(phase,true),c=A.sheepFootPose(phase+e,true);
+check('Continuous forward, side and diagonal travel has no foot or joint snap',maxLocalStep<.09&&maxTurn<.45,{maxLocalStepAt60Hz:maxLocalStep,maxRotationAt60Hz:maxTurn,worstStep,worstTurn});
+let seamVelocity=0,seamCount=0;
+for(const run of [false,true])for(let i=0;i<512;i++){
+ let lo=(i-1)/512*Math.PI*2,hi=i/512*Math.PI*2;
+ const plant=A.sheepFootPose(lo,run).plant;
+ if(plant===A.sheepFootPose(hi,run).plant)continue;
+ for(let j=0;j<30;j++){const mid=(lo+hi)/2;if(A.sheepFootPose(mid,run).plant===plant)lo=mid;else hi=mid;}
+ const phase=(lo+hi)/2,e=.0001,a=A.sheepFootPose(phase-e,run),b=A.sheepFootPose(phase,run),c=A.sheepFootPose(phase+e,run);seamCount++;
  for(const key of ['f','lift','toe'])seamVelocity=Math.max(seamVelocity,Math.abs((b[key]-a[key])/e-(c[key]-b[key])/e));
 }
-check('Foot position and velocity join smoothly at lift-off and touchdown',seamVelocity<.001,{velocityMismatch:seamVelocity});
+check('Foot position and velocity join smoothly at lift-off and touchdown',seamCount===4&&seamVelocity<.001,{seamCount,velocityMismatch:seamVelocity});
 let actionGround=true,actionReset=true;
 for(const kind of ['mine','work','throw']){
  for(let i=0;i<=20;i++){const p=pose(actor({act:kind,actP:i/20,tool:kind==='throw'?'':kind}));actionGround&&=p.shoes.every(m=>bottom(m)>-.008&&bottom(m)<.045);}

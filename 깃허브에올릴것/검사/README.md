@@ -1,6 +1,6 @@
 # 검사 (테스트 하네스)
 
-## 현재 검증 — 60차 좀비 붕대까지
+## 현재 검증 — 사람 모션·장비 겹침 병합본
 
 저장소 뿌리에서 `node 깃허브에올릴것/검사/check-current.mjs`를 실행한다.
 처음 한 번은 `cd 깃허브에올릴것/검사 && npm i three linkedom`으로 필요한 것을 받는다.
@@ -8,8 +8,8 @@ push·pull request 마다 `.github/workflows/checks.yml`이 같은 명령을 자
 숨김 브라우저 검사는 GitHub 의 Actions 화면에서 손으로 실행할 때만 돈다(`render` 선택).
 `--render`를 붙이면 단일 숨김 브라우저 검사까지 실행한다. 전체 로그 대신 검사별 결과를 간단히 표시한다.
 
-2026-09-18. 아래 표는 `check-current.mjs`가 돌리는 21개 파일이며, 숫자가 나오는 19개를 더하면
-**461개 확인 항목**이다. 손으로 센 값이 아니라 CI 실행 출력(`n/n checks passed`)을 그대로 옮겼다.
+2026-09-19. 아래 표는 `check-current.mjs`가 돌리는 22개 파일이며, 숫자가 나오는 20개를 더하면
+**488개 확인 항목**이다. 검사 실행 출력(`n/n checks passed`)을 그대로 옮겼다.
 검사를 고치면 이 숫자도 함께 고친다. 과거 52차 전체 1306개를 매번 재실행한다는 뜻은 아니다.
 
 | 검사 | 통과 | 범위 |
@@ -21,23 +21,25 @@ push·pull request 마다 `.github/workflows/checks.yml`이 같은 명령을 자
 | t53-shop-static.mjs | 74 | 거래·카드 구성·이미지 배치 계약 |
 | t55-wardrobe-static.mjs | 28 | 대기실 조합·저장 ID 이관·게임 중 잠금·가방 |
 | t54-combat-static.mjs | 14 | 화면 중앙 조준·사거리·PvP 엄폐·돌 대체·조준점과 발사 일치 |
-| t54-race-static.mjs | 24 | 4배 폭·6구간·21인 분산·실제 점프·인스턴스·무지개 깃대 |
+| t54-race-static.mjs | 28 | 4배 폭·6구간·21인 분산·실제 점프·인스턴스·무지개 깃대 |
 | t54-zombie-static.mjs | 26 | 13종·밤 의상·공격 동작·92마리·수치 보존 |
 | t56-buildings-static.mjs | 32 | 6종 기하 한계·부품 수·분기·경험치/공사 시간 표 등재 |
 | t56-building-combat-static.mjs | 23 | 실제 공격·범위·감속 |
 | t56-build-assist-static.mjs | 30 | 배치·특화 선택·기지 꾸미기 UI |
 | t56-build-coop-static.mjs | 40 | 두 클라이언트 fixture 로 공동 건설·결제·이동·철거 보호 |
 | t57-avatar-geometry-static.mjs | 14 | 사람 전용 기하·관절 연결·발 접지 |
-| t57-motion-static.mjs | 15 | 관절 모션 |
-| t57-render-static.mjs | 15 | 전용 재질·접촉 그림자 |
+| t57-motion-static.mjs | 20 | 진자 보행·무릎/팔꿈치 각·발 속도 연속성·박자 상한·30/60/120Hz 관절 변화 |
+| t57-render-static.mjs | 20 | 전용 재질·접촉 그림자 |
 | t58-job-art-static.mjs | 22 | 직업 장비 구성·얼굴/등 여유·날개 윤곽 |
 | t58-motion-static.mjs | 18 | 몸 크기 고정·옷/날개 부착·옆걸음·프레임률 전환 |
 | t59-zombie-shape-static.mjs | 14 | 좀비 전용 윤곽·기하 비용 |
 | t59-zombie-attachment-static.mjs | 7 | 자세별 옷/갑옷/등 장식 부착 |
 | t60-zombie-wrap-static.mjs | 10 | 감긴 붕대 기하·눈/입 여백·92마리 용량 |
+| t61-avatar-clearance-static.mjs | 13 | 8방향 팔다리·현재 옷 8종·전직 의상 6종 겹침·잠옷 색·닫힌 전직 모자·총 관통·그림자 설정 |
 
 숨김 브라우저 검사(`--render`)는 위 합계에 넣지 않는다. Actions 화면에서 `render`를 골라 돌리며,
-실제로 돌린 결과는 아래와 같다(2026-09-18, 브라우저 넷을 한 개씩 · 약 2분 30초).
+기존 네 검사 결과는 2026-09-18 기준이다(브라우저를 한 개씩 · 약 2분 30초).
+2026-09-19 병합본에서는 변경에 영향받는 `t57-character-view`를 다시 실행하고 `t62-motion-view`를 추가 실행했다.
 
 | 검사 | 결과 | 범위 |
 |---|---|---|
@@ -45,8 +47,9 @@ push·pull request 마다 `.github/workflows/checks.yml`이 같은 명령을 자
 | t56-build-view.mjs | 22 | 실제 건설 입력→완성→특화 선택과 4개 화면 크기의 건설 UI |
 | t57-character-view.mjs | JS·셰이더 오류 0 | 실제 WebGL 캐릭터 외형·동작·대기실 미리보기 |
 | t59-zombie-view.mjs | JS·셰이더 오류 0 | 좀비의 정지·발견·추격·준비·타격·회복 |
+| t62-motion-view.mjs | 5 | 실제 .7 배율·저/고품질 2016프레임·현재 옷 8종·전직 의상 6종·방향 전환·로컬/원격 박자 |
 
-넷 중 t56-build-view 만 항목 수를 센다. 나머지 셋은 실제 화면을 띄워 오류가 나는지를 보므로
+기존 넷 중 t56-build-view 만 항목 수를 센다. 나머지 셋은 실제 화면을 띄워 오류가 나는지를 보므로
 「몇 개 통과」가 아니라 「오류 0」이 결과다. 숫자가 없다고 확인이 약한 것은 아니다.
 `t56-buildings-view`는 외형 갤러리 선택 검사로 따로 돌린다.
 

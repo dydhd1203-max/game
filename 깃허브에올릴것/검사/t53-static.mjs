@@ -55,6 +55,8 @@ const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),
   chunk('function roundBox(', 'const _rbCache'),
   chunk('const STUD =','const eyeMat ='),fn('imesh'),declaration('P_body'),declaration('P_hand'),declaration('P_gun'),
   declaration('ENH_FX'),declaration('WEAPONS'),declaration('HATS'),declaration('GLASSES'),declaration('CLOTHES'),
+  ...['HAT_NAME','HAT_ICON','GLS_NAME','GLS_ICON','CLO_NAME','CLO_ICON'].map(declaration),
+  chunk('const DRESS_OPTIONS =','let FLIP_ON ='),
   `const P_wing=[imesh(RB,FM.wool,80,1),imesh(RB,FM.wool,80,1)];
    const P_wingG=[imesh(RB,FM.wool,80,1),imesh(RB,FM.wool,80,1)];`,
   chunk('let FLIP_ON =','const fxq ='),

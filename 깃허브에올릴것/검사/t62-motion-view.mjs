@@ -47,9 +47,11 @@ try{
    const W=window,T=W.__THREE,C=W.__cam,R=W.__R,scale=W.__avatarRender().scale;
    let count=0,finite=true;const outfits=[];
    const canvas=document.createElement('canvas');canvas.width=720;canvas.height=600;const ctx=canvas.getContext('2d',{willReadFrequently:true});
-   for(let jb=0;jb<3;jb++)for(let jt=1;jt<=2;jt++){
+   const variants=[...[0,2,4,8,6,10,3,5].map(clo=>({jb:-1,jt:0,clo})),
+    ...[0,1,2].flatMap(jb=>[1,2].map(jt=>({jb,jt,clo:0})))];
+   for(const {jb,jt,clo} of variants){
     let minPixels=Infinity,maxPixels=0;
-    const s={x:0,y:9,z:0,ry:Math.PI,me:true,ph:0,mv:true,run:true,jb,jt,hat:0,clo:0,gls:0,wp:0};
+    const s={x:0,y:9,z:0,ry:Math.PI,me:true,ph:0,mv:true,run:true,jb,jt,hat:0,clo,gls:0,wp:0};
     for(let frame=0;frame<72;frame++){
      const t=frame/30,angle=frame<24?Math.PI/2:frame<48?Math.PI/4:-Math.PI/2;
      s.x+=Math.sin(angle)*8/30;s.z+=Math.cos(angle)*8/30;
@@ -62,14 +64,14 @@ try{
       for(let i=0;i<p.length;i+=4)if(Math.abs(p[i]-b[0])+Math.abs(p[i+1]-b[1])+Math.abs(p[i+2]-b[2])>24)pixels++;
       minPixels=Math.min(minPixels,pixels);maxPixels=Math.max(maxPixels,pixels);
      }
-     if([18,36,60].includes(frame))W.__motionShots.push({label:`직업 ${jb+1} · ${jt}차 · ${frame===18?'옆걸음':frame===36?'사선 달리기':'반대 방향 전환'}`,src:R.domElement.toDataURL()});
+     if([18,36,60].includes(frame))W.__motionShots.push({label:`${jb<0?'꾸미기 옷 '+clo:'직업 '+(jb+1)+' · '+jt+'차'} · ${frame===18?'옆걸음':frame===36?'사선 달리기':'반대 방향 전환'}`,src:R.domElement.toDataURL()});
     }
-    outfits.push({jb,jt,minPixels,maxPixels});
+    outfits.push({jb,jt,clo,minPixels,maxPixels});
    }
    return {count,finite,outfits,contextLost:R.getContext().isContextLost()};
   });
   // Compare within each outfit: the second-tier aura adds a large white ring.
-  check(quality+' all six job outfits stay visible throughout direction changes',frames.finite&&!frames.contextLost&&frames.outfits.every(o=>o.minPixels>5000&&o.maxPixels/o.minPixels<1.6),frames);
+  check(quality+' all eight cosmetics and six job outfits stay visible throughout direction changes',frames.finite&&!frames.contextLost&&frames.outfits.length===14&&frames.outfits.every(o=>o.minPixels>5000&&o.maxPixels/o.minPixels<1.6),frames);
   await page.evaluate(async()=>{
    const panel=document.createElement('div');panel.style.cssText='position:absolute;inset:0;z-index:100100;display:grid;grid-template-columns:repeat(3,1fr);background:#e4ebe6';
    for(const shot of window.__motionShots){const card=document.createElement('div'),label=document.createElement('div'),im=document.createElement('img');

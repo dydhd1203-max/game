@@ -24,10 +24,19 @@ try{
       const icon=A.table(A.rows,{body:W.__GHEX[2]}),same=icon.children.every((m,i)=>m.geometry===P.body[i].geometry&&m.position.distanceTo(P.body[i].position)<1e-7&&m.quaternion.angleTo(P.body[i].quaternion)<1e-7);
       icon.children.forEach(m=>m.material.dispose());
       let constantBody=true;for(let job=0;job<3;job++)for(let jt=1;jt<=2;jt++){A.set(P,{g:2,job,jt});constantBody&&=P.body.every((m,i)=>m.scale.toArray().every((n,k)=>Math.abs(n-pose[i].scale[k])<1e-7));}
+      let clothesMatch=true;
+      for(const clo of [2,4,6,8]){
+        A.set(P,{g:2,clo});
+        W.__drawSheep([{x:0,y:0,z:0,ry:0,g:2,clo,hat:0,gls:0,jb:-1,jt:0}],1,40,s=>W.__GHEX[s.g],.7);
+        const color=new W.__THREE.Color();W.__Pmesh()[0].getColorAt(0,color);
+        const clothingIcon=W.__ICO_DEF()['clo'+clo].make(),torso=clothingIcon.children.find(m=>m.geometry===P.body[0].geometry);
+        clothesMatch&&=color.getHex()===P.body[0].material.color.getHex()&&torso?.material.color.getHex()===color.getHex();
+        clothingIcon.children.forEach(m=>m.material.dispose());
+      }
       A.set(P,{g:2,hat:4,gls:8,clo:2});W.__pvwSpin(P,0);
-      return {available:true,body:pose.length,shoe:A.rows.filter(r=>r[7]==='r6shoe').length,segments:A.rows.filter(r=>r[7]==='r6limb').length,iconMatches:same,constantBody,texture:!!P.shadow?.material.map,quality:W.__GFX_Q};
+      return {available:true,body:pose.length,shoe:A.rows.filter(r=>r[7]==='r6shoe').length,segments:A.rows.filter(r=>r[7]==='r6limb').length,iconMatches:same,constantBody,clothesMatch,texture:!!P.shadow?.material.map,quality:W.__GFX_Q};
     });
-    check(quality+' lobby and human icons share constant-size articulated geometry',preview.available&&preview.shoe===2&&preview.segments===8&&preview.iconMatches&&preview.constantBody&&preview.texture,preview);
+    check(quality+' lobby and human icons share constant-size geometry and actual pajama colors',preview.available&&preview.shoe===2&&preview.segments===8&&preview.iconMatches&&preview.constantBody&&preview.clothesMatch&&preview.texture,preview);
     await page.screenshot({path:path.join(out,quality+'-lobby.png')});
     await page.evaluate(()=>{document.getElementById('iName').value='캐릭터 검사';document.getElementById('bSolo').click();});
     await page.waitForFunction(()=>window.__G.started);
