@@ -34,12 +34,15 @@ function setIR(m,i,x,y,z,ry,rx,sx,sy,sz,col){m.rows[i]={x,y,z,ry,rx,sx,sy,sz,col
 function setIR3(m,i,x,y,z,ry,rx,rz,sx,sy,sz,col){setIR(m,i,x,y,z,ry,rx,sx,sy,sz,col);m.rows[i].rz=rz;}
 `;
 let move=fn('updPlayer');move=move.slice(0,move.indexOf('  recoilTick(dt);'))+'\n}';
-const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_RAINBOW_DZ','RACE_ROWZ','RACE_P','RACE','FADE_T','ROCK','HAZ',
+// HAZR_MAX 는 적지 않는다 — HAZB_MAX 와 한 문장(`const HAZB_MAX = 32, HAZR_MAX = 24;`)이라 같이 딸려 온다.
+// 이름을 따로 적으면 `const HAZR_MAX` 라는 글자가 없어 decl() 이 Error 를 던진다.
+const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_RAINBOW_DZ','RACE_ROWZ','RACE_P','RACE','FADE_T','ROCK','HAZ','STAMP_DZ',
+  'HAZB_MAX',
   'STEP','GRAV','GRAV_V','gravNow','jumpNow','jump2Now','RACE_SPD','SPRINT','ACC_UP','JOB_JMP','GLIDE_T','GLIDE_VY','STRIDE_WALK'];
 const functions=['mulberry','furLight','raceBuild','raceOff','raceAlive','raceTopAt','raceUnder','raceSlotXZ',
-  'raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','raceDrawTrim','raceDraw','groundUnder','sheepGaitStep'];
+  'raceCheckpointXZ','rockU','raceRocks','stampY','raceHazards','raceSphereHit','raceDrawTrim','raceDraw','groundUnder','sheepGaitStep'];
 const code=[fixtures,...declarations.map(decl),...functions.map(fn),move,`globalThis.A={RACE,RACE_P,RACE_S,RACE_Z_FIN,RACE_RAINBOW_DZ,RACE_X,PL,G,MINE,R_trim,R_plat,R_rock,R_hazB,
-  raceBuild,raceOff,raceAlive,raceTopAt,raceUnder,raceCheckpointXZ,raceRocks,raceHazards,raceSphereHit,raceDraw,groundUnder,ROCK,HAZ,
+  raceBuild,raceOff,raceAlive,raceTopAt,raceUnder,raceCheckpointXZ,raceRocks,raceHazards,raceSphereHit,raceDraw,groundUnder,ROCK,HAZ,STAMP_DZ,stampY,HAZB_MAX,SPD,RACE_SPD,
   spawn(id){uid=id;return raceSlotXZ();}, cp(id,p){uid=id;return raceCheckpointXZ(p);},
   reset(x,z,y,run=false,moving=false){raceTestSprint=run?SPRINT.mul:1;RACE.slipT=0;Object.assign(PL,{x,z,y,vy:0,yaw:Math.PI,ground:true,jumps:0,vx:0,vz:moving?SPD*RACE_SPD*raceTestSprint:0,_px:undefined,_pz:undefined,down:false});KEY={w:true};},
   tick(jump=false,dt=1/120){wantJump=jump;updPlayer(dt);RACE.t+=dt;}
@@ -63,7 +66,9 @@ check('All traversable obstacle platforms are at least 9.6 wide',minWidth>=9.6,{
 check('Platform collision follows actual expanded geometry',coll);
 check('Moving platforms scale sideways within their bounds',movement);
 check('Actual render transforms are finite and trim bank has room',finite&&maxTrim<1400,{maxTrim,capacity:1400});
-A.raceBuild(4821);check('Six rainbow platforms keep room for real jump gaps before the final stairs',A.RACE_S.length===6&&A.RACE_Z_FIN===312&&A.RACE_P.filter(p=>p.kind==='rainbow').length===6&&A.RACE_S[5].z0>A.RACE_P.filter(p=>p.kind==='rainbow').at(-1).z+4);
+// 63차 — 구간이 일곱이 됐다(쿵쿵 도장이 무지개와 계단 사이에 들어갔다). 312 라는 숫자 대신
+// "골인선은 마지막 구간 끝 2칸 뒤" 라는 뜻을 적어 둔다 — 다음에 구간을 더 넣어도 안 고쳐도 된다.
+A.raceBuild(4821);check('Six rainbow platforms keep room for real jump gaps before the next section',A.RACE_S.length===7&&A.RACE_Z_FIN===A.RACE_S.at(-1).z1+2&&A.RACE_P.filter(p=>p.kind==='rainbow').length===6&&A.RACE_S[5].z0>A.RACE_P.filter(p=>p.kind==='rainbow').at(-1).z+4);
 const ids=Array.from({length:21},(_,i)=>'kid'+String(i).padStart(2,'0'));A.G.players=new Map(ids.map(id=>[id,{}]));
 const slots=ids.map(id=>A.spawn(id));
 const minDist=ps=>Math.min(...ps.flatMap((p,i)=>ps.slice(i+1).map(q=>Math.hypot(p[0]-q[0],p[1]-q[1]))));
@@ -186,6 +191,62 @@ check('Street buildings lie outside expanded track',artCtx.rows.filter(r=>r.z>60
   check('Bar length follows the course width instead of a fixed number',
     Math.abs(A.HAZ.bar.len-7*A.RACE_X)<1e-9,{len:A.HAZ.bar.len,RACE_X:A.RACE_X});
 }
+/* ═══ 63차 — 쿵쿵 도장. 약속한 네 가지를 코드로 못 박는다 ═══
+   ⑴ 길 전체를 덮는다(막대가 넓힌 판의 22%만 덮어 그냥 걸어 지나가졌던 사고의 재발 방지)
+   ⑵ 아홉 살이 걸어서 지나갈 만큼 오래 열린다
+   ⑶ **진짜 updPlayer** 로 굴려 걸어 들어오면 셋 다 안 맞고 통과한다
+   ⑷ 구간 안에 떨어질 구멍이 하나도 없다 */
+{
+  const K=A.HAZ.stamp, WALK=A.SPD*A.RACE_SPD;      // 경주 걷기 칸/초
+  const stampsAt=t=>A.raceHazards(t).filter(h=>h.k==='stamp');
+  // ⑴ 덮개율 — 90 seed 전부에서 도장이 그 z 의 발판을 100% 덮는가
+  { let worst=101,where=null;
+    for(const seed of seeds){ A.raceBuild(seed);
+      for(const h of stampsAt(0)){
+        const segs=A.RACE_P.filter(p=>Math.abs(p.z-h.z)<=p.d/2).map(p=>[p.x-p.w/2,p.x+p.w/2]);
+        const total=segs.reduce((s,[a,b])=>s+(b-a),0); if(!total) continue;
+        const cov=segs.reduce((s,[a,b])=>s+Math.max(0,Math.min(h.x+h.w/2,b)-Math.max(h.x-h.w/2,a)),0);
+        const pct=cov/total*100; if(pct<worst){worst=pct;where={seed,id:h.id,pct:+pct.toFixed(1)};} } }
+    check('Each slam stamp covers the whole deck it guards, in every course variant',worst>=99.9,where); }
+  A.raceBuild(4821);
+  check('Three stamps stand on the new section and none can be jumped over while pressed',
+    stampsAt(0).length===3&&K.h>3.48,{count:stampsAt(0).length,height:K.h,doubleJumpPeak:3.48});
+  // ⑵ 열린 창 — 도장 바닥이 키(1.3)보다 높은 연속 시간 vs 위험 띠를 걷어서 지나는 시간
+  { const danger=(K.dz*2+0.6)/WALK; let open=0,step=K.per/2400;
+    for(let u=0;u<K.per;u+=step) if(A.stampY(u)>1.3) open+=step;
+    check('Every stamp stays open far longer than it takes to walk through it',
+      open>=1.0&&open>=danger*3&&open<K.per-0.5,
+      {openSec:+open.toFixed(2),walkThroughSec:+danger.toFixed(2),period:K.per}); }
+  // ⑶ 박자대로 걸어 들어오면 진짜 물리로 셋을 다 통과하는가
+  { const S=A.RACE_S[5],deck=A.RACE_P.find(p=>p.sec===5&&p.kind==='pad');
+    const runs=[];
+    for(const fps of [30,60,120]){
+      let best=null;
+      for(let k=0;k<48;k++){                                   // 들어오는 순간을 48갈래로 훑는다
+        const t0=k*K.per/48; A.reset(0,deck.z-deck.d/2+0.6,100+deck.y); A.RACE.t=t0;
+        let hit=false;
+        for(let f=0;f<fps*12;f++){ A.tick(false,1/fps);
+          for(const h of stampsAt(A.RACE.t)){
+            const feet=A.PL.y-100-h.y;
+            if(Math.abs(A.PL.z-h.z)<h.dz+A.PL.R&&Math.abs(A.PL.x-h.x)<h.w/2+A.PL.R&&feet>-1.3&&feet<h.h){hit=true;break;} }
+          if(hit||A.PL.z>S.z1-0.5) break; }
+        if(!hit&&A.PL.z>S.z1-0.5){best={fps,enterPhase:+(t0/K.per).toFixed(3)};break;} }
+      runs.push(best||{fps,cleared:false}); }
+    check('Walking in on the beat clears all three stamps at 30/60/120 FPS',
+      runs.every(r=>r&&r.cleared!==false),runs); }
+  /* 그리기 정원 — 넘치면 도장이 **안 보이는데 맞는** 것이 된다(hb < HAZB_MAX 에서 조용히 잘린다).
+     실제 raceDraw 를 굴려 상자 뱅크가 정원 안에 들고, 도장 여섯 조각이 다 들어갔는지 본다. */
+  { let worst=0;
+    for(let t=0;t<=40;t+=0.05){ A.RACE.t=t; A.raceDraw(t); worst=Math.max(worst,A.R_hazB.count); }
+    check('Every stamp still fits in the hazard box bank — nothing is silently dropped',
+      worst<=A.HAZB_MAX&&worst>=24,{worst,capacity:A.HAZB_MAX}); }
+  // ⑷ 떨어질 구멍이 없다 — 몸 반지름 표본으로 구간 전체를 훑는다
+  { const S=A.RACE_S[5]; let holes=0,first=null;
+    for(let z=S.z0-1;z<=S.z1;z+=0.5) for(let x=-16;x<=16;x+=1){
+      if(A.groundUnder(x,z,A.PL.R)<-900){holes++;first??={x,z:+z.toFixed(1)};} }
+    check('The stamp deck has no hole to fall into',holes===0,{holes,first}); }
+}
+A.raceBuild(4821);
 fs.mkdirSync(out,{recursive:true});
 // Diagram from actual computed platform/art coordinates, not a hand-drawn course.
 const sx=x=>360+x*5,sy=z=>1730-(z+30)*5,hex=c=>'#'+(c||0xffffff).toString(16).padStart(6,'0');
