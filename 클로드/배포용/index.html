@@ -9890,9 +9890,13 @@ function drawSheep(list, t, cap, colOf, scale){
       else { const swing=Math.cos(gait+(si>0?0:Math.PI));armSwing[si>0?0:1]=swing*(dirF<0?-1:1)*Math.hypot(dirF,dirS);
         th=-mvK*swing*(.70+runK*.40)*dirF+lean*.5+(s.tool&&si<0?.42:0);
         /* ★ 63차 — 대각선. 사람이 달릴 때 팔은 앞뒤로만 흔들리지 않고 몸을 가로질러 사선을 그린다.
-           앞으로 나올 때는 가슴 쪽(안), 뒤로 갈 때는 바깥. armSwing 이 음수면 앞으로 나온 것이다.
-           걷기는 얕게(.06), 달리기는 깊게(.28) — 빨리 갈수록 사선이 커진다. */
-        const diagRl=si*mvK*(.06+runK*.22)*armSwing[si>0?0:1];
+           ★ 다만 **바깥쪽으로만** 준다. 뒤로 갈 때 크게 벌리고(armSwing 양수), 앞으로 나올 때는
+             더하지 않아 몸에 붙는다. 같은 사선으로 보이면서 팔이 몸통을 파고들 수 없다.
+             안쪽으로 넘기는 판을 먼저 만들었다가 t61-avatar-clearance 에서 3072 프레임 중
+             2128 번 몸통과 겹쳤다 — 아래 한계(.045)가 옆걸음 항(-mvK*swing*dirS*.30)이 팔을
+             몸 안으로 미는 것을 막고 있었는데, 그 바닥을 열어 버린 탓이었다.
+           걷기는 얕게(.05), 달리기는 깊게(.29) — 빨리 갈수록 사선이 커진다. */
+        const diagRl=si*mvK*(.05+runK*.24)*Math.max(0,armSwing[si>0?0:1]);
         rl=si*(.02+runK*mvK*.08+idleK*life.br*.02)+diagRl-mvK*swing*dirS*.30;
         const airTh=(.10+rise*2.95)*(1-glideK)+.35*glideK+lean*.5;
         const airRl=si*((1.20-rise*1.08)*(1-glideK)+.78*glideK);
@@ -9907,11 +9911,11 @@ function drawSheep(list, t, cap, colOf, scale){
         rl += si*(wind*(isThrow ? 0.10 : 0.04) + strike*0.08);
       }
       const aL=R6_ARM[1]*sc,aW=R6_ARM[0]*sc*widen,aD=R6_ARM[2]*sc;
-      /* 어깨도 셔츠의 기울기를 따른다. 팔이 몸통을 파고들지 않게 안쪽 한계를 둔다.
-         63차 — 서 있을 때는 예전대로 .045 만큼 벌리되, 움직일 때는 대각선이 들어갈 만큼 열어 준다.
-         어깨는 중심에서 .462, 팔 반폭 .105, 몸통 반폭 .21 이므로 옆면까지 여유가 .147 칸이다.
-         달릴 때 손은 어깨에서 .35 안쪽에 있으므로 약 .44rad 까지가 안전하다 — 여기 한계는 .335 다. */
-      if(!hasGun&&!down)rl=si*Math.max(.045-mvK*(.12+runK*.26),si*rl);
+      /* 어깨도 셔츠의 기울기를 따른다. 사선 보행 때 팔이 몸 안쪽으로 휘지 않게 한다.
+         ★ 이 바닥을 열면 안 된다. 옆걸음 항(-mvK*swing*dirS*.30)이 팔을 몸통으로 밀어 넣는 것을
+           막고 있는 자리다. 63차에 대각선을 넣으려고 한 번 열었다가 t61-avatar-clearance 에서
+           3072 프레임 중 2128 번 몸통과 겹쳤다. 대각선은 바깥쪽으로만 주는 쪽으로 바꿨다. */
+      if(!hasGun&&!down)rl=si*Math.max(.045,si*rl);
       const shoulder=[BX(0,R6_SHU-.025,R6_ASD*si),BY(0,R6_SHU-.025),BZ(0,R6_SHU-.025,R6_ASD*si)];
       let elbow,hand;
       if(hasGun){
