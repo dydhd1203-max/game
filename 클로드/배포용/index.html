@@ -249,7 +249,10 @@ body.touch #gfxRow{display:none}   /* 33차 — 터치는 그래픽이 고정값
 #hint{position:absolute;left:12px;bottom:12px;font-weight:700;font-size:12px;line-height:1.75;opacity:.55;text-shadow:0 1px 2px #000}
 
 /* 알림 */
-#toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin-top:70px;
+/* ★ 63차 — 기본 글자색을 여기서 정한다. 예전에는 toast() 가 인라인으로 흰색을 박았는데,
+   인라인은 뒤에 오는 밝은 테마 규칙(#toast{color:var(--rb-ink)})을 이겨 버려서
+   흰 바탕에 흰 글자가 됐다 — 이모지만 보이고 글자는 안 보였다. */
+#toast{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);margin-top:70px;color:#fff;
   font-weight:600;font-size:20px;text-shadow:0 3px 8px rgba(0,0,0,.85);pointer-events:none;opacity:0;text-align:center;
   transition:opacity .25s;width:min(560px,86vw);word-break:keep-all}
 #toast.on{opacity:1}
@@ -2094,12 +2097,23 @@ body:not(.touch) #hint{left:14px;right:auto;bottom:14px;transform:none;max-width
 table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 .hrow,.sl,.gline,.shopHint,.hint{color:var(--rb-ink2)}
 /* 기존 밝은 인라인 강조색은 크림 판에 맞는 짙은 잉크로만 바꾼다. 자원·모둠의 배경색은 보존한다. */
-:is(.popC,#feed,#toast,#aimInfo,#miniBar) [style*="color:"]{color:var(--rb-ink)!important}
-:is(.popC,#feed,#toast,#aimInfo,#miniBar) :is([style*="#ffd"],[style*="#ffe"],[style*="#ffc9"],[style*="#ffc7"],[style*="#e0a878"]){color:#805a0d!important}
-:is(.popC,#feed,#toast,#aimInfo,#miniBar) :is([style*="#ffb"],[style*="#ff9"],[style*="#ff8"],[style*="#ff6b6b"]){color:#a73848!important}
-:is(.popC,#feed,#toast,#aimInfo,#miniBar) :is([style*="#8dff"],[style*="#9cff"],[style*="#c8ff"],[style*="#6ee"],[style*="#51cf66"]){color:#23754f!important}
-:is(.popC,#feed,#toast,#aimInfo,#miniBar) :is([style*="#9cd8"],[style*="#9de8"],[style*="#4dabf7"]){color:#276995!important}
-:is(.popC,#feed,#toast,#aimInfo,#miniBar) [style*="#cc7bff"]{color:#70439b!important}
+/* ★ 63차 — 아래 여섯 줄은 자손 선택자(`… [style*=…]`)라 **#toast 자신은 한 번도 안 걸렸다**.
+   토스트만은 toast() 가 자기 자신의 style.color 를 직접 박기 때문이다. 그래서 크림색 판에
+   흰 글자가 얹혀 글자는 안 보이고 이모지만 떠 있었다 — 선생님이 본 "삼각자 나오는 하얀 네모박스"가
+   📐 설계도 안내(buildReply → toast)였다. 각 줄에 '#toast 자신'을 나란히 적어 준다.
+   배경 없이 세계 위에 바로 뜨는 자원 토스트(.resource)는 밝은 글자가 맞으므로 뺀다. */
+:is(.popC,#feed,#toast,#aimInfo,#miniBar) [style*="color:"],
+  #toast:not(.resource)[style*="color:"]{color:var(--rb-ink)!important}
+:is(.popC,#feed,#toast,#aimInfo,#miniBar) :is([style*="#ffd"],[style*="#ffe"],[style*="#ffc9"],[style*="#ffc7"],[style*="#e0a878"]),
+  #toast:not(.resource):is([style*="#ffd"],[style*="#ffe"],[style*="#ffc9"],[style*="#ffc7"],[style*="#e0a878"]){color:#805a0d!important}
+:is(.popC,#feed,#toast,#aimInfo,#miniBar) :is([style*="#ffb"],[style*="#ff9"],[style*="#ff8"],[style*="#ff6b6b"]),
+  #toast:not(.resource):is([style*="#ffb"],[style*="#ff9"],[style*="#ff8"],[style*="#ff6b6b"]){color:#a73848!important}
+:is(.popC,#feed,#toast,#aimInfo,#miniBar) :is([style*="#8dff"],[style*="#9cff"],[style*="#c8ff"],[style*="#6ee"],[style*="#51cf66"]),
+  #toast:not(.resource):is([style*="#8dff"],[style*="#9cff"],[style*="#c8ff"],[style*="#6ee"],[style*="#51cf66"]){color:#23754f!important}
+:is(.popC,#feed,#toast,#aimInfo,#miniBar) :is([style*="#9cd8"],[style*="#9de8"],[style*="#4dabf7"]),
+  #toast:not(.resource):is([style*="#9cd8"],[style*="#9de8"],[style*="#4dabf7"]){color:#276995!important}
+:is(.popC,#feed,#toast,#aimInfo,#miniBar) [style*="#cc7bff"],
+  #toast:not(.resource)[style*="#cc7bff"]{color:#70439b!important}
 @media (prefers-reduced-motion:reduce){.pop.on .popC,#toast.on,.res.up,.res.up b,.grp button,.slot,.btn{animation:none;transition:none}}
 /* 53차 — 상점: 큰 아이템 그림, 공용 지갑, 고정된 닫기 버튼. 목록만 스크롤한다. */
 #popShop{padding:12px;overflow:hidden}
@@ -3273,10 +3287,13 @@ function genTerrain(){
     terrH[i] = h;
     blockG[i] = sectorOf(x+0.5,z+0.5);
   }
-  // 수정 단상 9x9
-  for(let z=-4; z<=4; z++) for(let x=-4; x<=4; x++) terrH[gi(x,z)] = GY+1;
-  for(let z=-5; z<=5; z++) for(let x=-5; x<=5; x++)
-    if(Math.max(Math.abs(x),Math.abs(z))===5) terrH[gi(x,z)] = GY+1;
+  /* 수정 자리 — 평지 (63차)
+     ★ 예전에는 여기만 GY+1 로 한 칸 올려 11x11 단상을 세웠다. 선생님 말씀:
+       "벽돌들을 다 없애고 수정만 남겨줘 … 좀비가 수정을 때릴 때 저 벽 안에
+        들어가버리니까 수정을 때린다는 느낌이 잘 안 나고 잘 안 보였다."
+       단상이 사라졌으니 높이도 마을 바닥과 같아야 한다. 마침 canPlace 가
+       'terrH 가 GY 인 칸에만 짓는다' 이므로, 평지로 두면 여기에도 집을 짓는다. */
+  for(let z=-5; z<=5; z++) for(let x=-5; x<=5; x++) terrH[gi(x,z)] = GY;
 }
 genTerrain();
 /* 판 번호는 화면에 안 쓴다(51차c) — 확인이 필요하면 콘솔에서 본다 */
@@ -4005,7 +4022,7 @@ function buildSky(){
 const GRASS_A = 0x67c14a, GRASS_B = 0x57ad3d, GRASS_C = 0x82d05c;
 const MT_ROCK = [0x878d95, 0x959ba3, 0xa3a9b0], MT_ROCKTOP = 0xaeb3ba;
 const MT_DIRT = 0x9a6f46, MT_SNOW = 0xffffff, MT_MOSS = 0x7cbc57, MT_GRASS = 0x6bc24a;
-const PLAT_C = 0xc9ccd3, PLAT_TOP = 0xdadde3, GOLD_C = 0xffcc33;
+/* 63차 — 수정 단상 색 셋(PLAT_C·PLAT_TOP·GOLD_C)은 단상과 함께 지웠다. 쓰는 곳이 없다. */
 function buildWorldMesh(){
   /* ── 바닥 — 꼭짓점 색 잔디 ── */
   const SEG = 124;                                   // 33차 — 1칸 격자. 흙길·개울을 칠하려면 이 촘촘함이 필요하다(62 는 2칸이라 길이 톱니였다)
@@ -4076,8 +4093,7 @@ function buildWorldMesh(){
   const capKind = (h,x,z)=> h <= GY+4 ? 0 : h >= GY+18 ? 3 : h >= GY+11 ? 1 : ((((x*7+z*13)%17)+17)%17 < 3 ? 2 : 1);
   const key = new Int32Array(WS*WS).fill(-1), dep = new Uint8Array(WS*WS);
   for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){
-    const h = terrH[gi(x,z)]; if(h <= GY) continue;
-    if(Math.max(Math.abs(x),Math.abs(z)) <= 5 && Math.hypot(x+0.5,z+0.5) < 9) continue;   // 수정 단상은 따로
+    const h = terrH[gi(x,z)]; if(h <= GY) continue;   // 63차 — 수정 자리도 이제 GY 라 여기서 함께 걸러진다
     let hn = 99;
     for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){
       const t = inW(x+dx,z+dz) ? terrH[gi(x+dx,z+dz)] : GY-3;
@@ -4116,16 +4132,10 @@ function buildWorldMesh(){
     if(kind===1 && hv===4 && w*d >= 2) bpush('rock', ROCKG, WMAT, cx + (rnd(x*5+z)-0.5)*w*0.5, h + 0.28, cz + (rnd(x+z*5)-0.5)*d*0.5, rnd(z)*3, 1.1, 0.7, 0.9, 0, ROCK_C[0]);
     rects++;
   }
-  /* ── 수정 단상 — 한 판 + 밝은 윗판 + 금 테 ── */
-  bpush('sb', BOXG, WMAT, 0.5, GY+0.5, 0.5, 0, 11, 1.0, 11, 0, PLAT_C);
-  bpush('sb', BOXG, WMAT, 0.5, GY+1.03, 0.5, 0, 9.4, 0.10, 9.4, 0, PLAT_TOP);
-
-  { const A = 0xdfe2e8, B = 0xcdd1d8;
-    for(let i=-4;i<=4;i++) for(let j=-4;j<=4;j++)
-      bpush('plazaT', BOXG, WMAT, i+0.5, GY+1.11, j+0.5, 0, 0.88, 0.06, 0.88, 0, ((i+j)&1) ? A : B); }
-
-  for(let i=-5;i<=5;i++){ for(const p of [[i,-5],[i,5],[-5,i],[5,i]])
-    if(Math.abs(p[0])===5||Math.abs(p[1])===5) bpush('gb', BOXG, WMAT, p[0]+0.5, GY+1.12, p[1]+0.5, 0, 1, 0.08, 1, 0, GOLD_C); }
+  /* ── 수정 자리 — 아무것도 깔지 않는다 (63차) ──
+     예전에는 11x11 돌판 + 밝은 윗판 + 9x9 회색 체크 타일 81장 + 금 테 44칸이 깔려 있었다.
+     선생님: "쓸데없이 공간만 낭비하는거같애 그냥 평지로 만들어줘. 건물도 지을 수 있는."
+     자리 표시는 수정이 바닥에 드리우는 둥근 빛(cGlow, 반지름 4.6)이 대신한다. */
 
   // 협곡 벽 위 모둠 깃발 + 바닥 색 띠
   const gFlat = boxGeo(T.cloth,T.cloth,T.cloth,T.cloth,T.cloth,T.cloth,1,0.08,1);
@@ -4637,7 +4647,8 @@ let crystal, crystalLight, crystalGroup, beam, cMat, cCore, cShards, cHalo, cSpa
 let cGem, cShard, cHaloM;                       // 보석층·도는 조각·고리 알갱이 (묶어서 한 번에 그린다)
 const cSparks = [], cShardA = [], cHaloA = [];
 function buildCrystal(){
-  crystalGroup = new THREE.Group(); crystalGroup.position.set(0, GY+1, 0); scene.add(crystalGroup);
+  /* 63차 — 단상을 없앴으니 수정도 한 칸 내려와 맨땅에서 솟는다(예전 GY+1) */
+  crystalGroup = new THREE.Group(); crystalGroup.position.set(0, GY, 0); scene.add(crystalGroup);
   crystal = new THREE.Group(); crystalGroup.add(crystal);
 
   /* 재질 — 세 겹으로 겹쳐 영롱하게 */
@@ -4727,12 +4738,12 @@ function buildCrystal(){
       depthWrite:false, side:THREE.DoubleSide, fog:false}));
   beam.position.y = 42; crystalGroup.add(beam);
 
-  /* 받침 */
-  const bm = matC(0xffffff);
-  for(let dx=-2;dx<=2;dx++) for(let dz=-2;dz<=2;dz++){
-    if(Math.abs(dx)===2&&Math.abs(dz)===2) continue;
-    bpush('cb', cube(T.goldBlk), bm, dx+0.5, GY+1.5, dz+0.5);
-  }
+  /* 받침 없음 (63차)
+     ★ 여기엔 금블록 21개(5x5 에서 네 귀퉁이만 뺀 십자 모양)가 GY+1~GY+2 에 서 있었다.
+       보석 밑동이 GY+1.05 부터라 이 금덩이가 수정 아래쪽을 통째로 삼켰고,
+       bpush 로 쌓은 장식이라 충돌이 아예 없어서 좀비가 그 속으로 걸어 들어갔다 —
+       선생님이 "수정을 때린다는 느낌이 잘 안 나고 잘 안 보였다" 고 한 바로 그 장면이다.
+       수정은 이제 맨땅에서 바로 솟고, 좀비가 앞에 서면 그대로 보인다. */
 }
 
 /* 수정 애니메이션 — 체력이 떨어지면 파랑 → 주황 → 빨강 */
@@ -6094,7 +6105,9 @@ function canPlace(t,X,Z, ignoreId){
   for(const [cx,cz] of cells){
     if(!inW(cx,cz)) return '여긴 안 돼요';
     const rr = Math.hypot(cx+0.5,cz+0.5);
-    if(rr < 7.5) return '수정에 너무 가까워요';
+    /* 63차 — 7.5 는 사라진 11x11 단상을 통째로 감싸던 값이라 마을 한복판이 죽은 땅이었다.
+       이제 수정 보석(반지름 1.1)·도는 조각(2.45)·고리 알(2.7)만 비우면 된다. */
+    if(rr < 3.5) return '수정에 너무 가까워요';
     if(oct(cx+0.5, cz+0.5) > ARENA_R-0.5){
       /* ★ 예전엔 벽(pass)만 협곡에 지을 수 있었다. 이제 탑·배럭도 입구를 지킨다. */
       const cd = corridorDist(cx+0.5, cz+0.5);
@@ -9889,6 +9902,7 @@ function drawSheep(list, t, cap, colOf, scale){
     // Arms counter-swing against the legs; two-handed aim uses a shared gun grip frame.
     const hasGun = (s.wp|0) > 0 && !down;
     const armSwing=[0,0];   // 어깨 스윙을 팔꿈치 식이 다시 읽는다. 사람마다 새로 만든다.
+    const armDiag=[0,0];    // 63차 — 대각선 몫만 따로 들고 있다가 아래팔에만 크게 준다
     const hipY = Y(R6_HIP);
     const gunPit=lean-kick*.15, gunC=Math.cos(gunPit),gunS=Math.sin(gunPit);
     const gunF=.35-kick*.012,gunU=1.055+kick*.025;
@@ -9916,6 +9930,7 @@ function drawSheep(list, t, cap, colOf, scale){
              몸 안으로 미는 것을 막고 있었는데, 그 바닥을 열어 버린 탓이었다.
            걷기는 얕게(.05), 달리기는 깊게(.29) — 빨리 갈수록 사선이 커진다. */
         const diagRl=si*mvK*(.05+runK*.24)*Math.max(0,armSwing[si>0?0:1]);
+        armDiag[si>0?0:1]=diagRl;
         rl=si*(.02+runK*mvK*.08+idleK*life.br*.02)+diagRl-mvK*swing*dirS*.30;
         const airTh=(.10+rise*2.95)*(1-glideK)+.35*glideK+lean*.5;
         /* ★ 63차 — 떨어질 때 팔을 덜 벌린다. 예전에는 rise=0(낙하)에서 1.20rad = 69° 까지
@@ -9940,15 +9955,12 @@ function drawSheep(list, t, cap, colOf, scale){
            막고 있는 자리다. 63차에 대각선을 넣으려고 한 번 열었다가 t61-avatar-clearance 에서
            3072 프레임 중 2128 번 몸통과 겹쳤다. 대각선은 바깥쪽으로만 주는 쪽으로 바꿨다. */
       if(!hasGun&&!down)rl=si*Math.max(.045,si*rl);
-      /* ★ 63차 — 공중에서 팔을 벌릴 때 어깨 축을 팔 안쪽 모서리로 당긴다.
-         축이 팔 **중심선**(중심에서 R6_ASD)에 있어서, 벌리면 그 축을 중심으로 돌며
-         겨드랑이가 쐐기처럼 벌어졌다 — 점프하면 두 팔이 몸에서 떨어져 나간 것처럼 보였다.
-         실제 어깨 소켓은 팔 중심이 아니라 안쪽 면에 있다. 벌린 만큼(sin) 팔 반폭까지 당긴다.
-         ★ 땅에서는(airK=0) 한 톨도 안 바뀐다 — t61-avatar-clearance 는 지상 보행만 재므로
-           그 검사와 무관하고, 서 있는 자세도 예전 그대로다. */
-      const sockIn = airK*Math.abs(Math.sin(rl))*R6_ARM[0]*.5;
-      const armSD = (R6_ASD - sockIn)*si;
-      const shoulder=[BX(0,R6_SHU-.025,armSD),BY(0,R6_SHU-.025),BZ(0,R6_SHU-.025,armSD)];
+      /* ★ 63차 — 어깨 자리는 예전 그대로 둔다(R6_ASD).
+         팔이 몸에서 떨어져 보이던 것은 어깨 자리가 아니라 **위팔까지 같이 굴린 대각선**이
+         원인이었다. 어깨를 안으로 당겨 메우려 해 봤지만 몸통을 파고들었다 —
+         sin 으로 당겼을 때 1536 프레임 중 1216 번, 올바른 1-cos 로 당겨도 56 번 겹쳤다.
+         아래에서 대각선을 아래팔에만 주는 쪽으로 고쳤고, 그러면 어깨는 건드릴 필요가 없다. */
+      const shoulder=[BX(0,R6_SHU-.025,R6_ASD*si),BY(0,R6_SHU-.025),BZ(0,R6_SHU-.025,R6_ASD*si)];
       let elbow,hand;
       if(hasGun){
         const target=si<0?gunOrigin:gunPoint(gunOrigin,.04,.14,.08);
@@ -9970,9 +9982,18 @@ function drawSheep(list, t, cap, colOf, scale){
         const swingF = Math.max(0, -armSwing[si>0?0:1]);      // 팔이 앞으로 나온 정도 0~1
         const bend=down?.12:.10+mvK*(.30+runK*.62)+mvK*swingF*(.18+runK*.34)
           +airK*(.18+rise*.20)+wind*(si<0?.65:.30)+strike*.12;
-        const upper=th-bend*.40,fore=th+bend*.60,sr=Math.sin(rl),cr=Math.cos(rl);
-        const reach=(origin,angle,len)=>[origin[0]+(fx*cr*Math.sin(angle)+rx*sr)*len,origin[1]-cr*Math.cos(angle)*len,origin[2]+(fz*cr*Math.sin(angle)+rz*sr)*len];
-        elbow=reach(shoulder,upper,aL*.50);hand=reach(elbow,fore,aL*.36);
+        const upper=th-bend*.40,fore=th+bend*.60;
+        /* ★ 63차 — 대각선은 **아래팔에만** 크게 준다. 위팔까지 같이 굴리면 어깨가 몸에서
+           떨어져 나간 것처럼 보였다(달릴 때도 점프할 때도). 사람도 달릴 때 위팔은 몸에
+           붙여 두고 아래팔을 가슴 앞으로 가로지른다. 위팔은 대각선의 4분의 1만 받는다. */
+        /* ★ 위팔도 안쪽 한계(.045)를 똑같이 지켜야 한다. rl 은 위에서 클램프를 거쳤는데
+           여기서 대각선 몫을 빼면 그 바닥 아래로 내려가 옆걸음에서 몸통을 파고든다
+           — 실제로 1536 프레임 중 56 번 겹쳤다. 빼고 나서 다시 바닥을 건다. */
+        let rlU=rl-armDiag[si>0?0:1]*.75;
+        if(!hasGun&&!down)rlU=si*Math.max(.045,si*rlU);
+        const sr=Math.sin(rl),cr=Math.cos(rl),srU=Math.sin(rlU),crU=Math.cos(rlU);
+        const reach=(origin,angle,len,s,c)=>[origin[0]+(fx*c*Math.sin(angle)+rx*s)*len,origin[1]-c*Math.cos(angle)*len,origin[2]+(fz*c*Math.sin(angle)+rz*s)*len];
+        elbow=reach(shoulder,upper,aL*.50,srU,crU);hand=reach(elbow,fore,aL*.36,sr,cr);
       }
       gs.arms ||= [{},{}];const memory=gs.arms[si>0?0:1],follow=1-Math.exp(-26*poseDt);
       const local=p=>{const dx=p[0]-shoulder[0],dz=p[2]-shoulder[2];return[dx*fx+dz*fz,p[1]-shoulder[1],dx*rx+dz*rz];};
@@ -12984,7 +13005,10 @@ function fearTick(dt){
   if(fearK > 0.15 && heartT <= 0 && nw){ heartT = 1.15 - fearK*0.5; sfxFrom('heart', nw.x, nw.z, 0.5 + fearK*0.7); }
 }
 function dreadTick(dt){ dreadHowls(dt); dreadBoss(dt); fearTick(dt); }
-function toast(msg, sec=2.2, color='#fff', kind=''){
+/* ★ 63차 — 기본값이 '#fff' 였다. 색을 안 주는 토스트까지 인라인으로 흰색이 박혀서
+   밝은 테마의 크림색 판 위에 흰 글자가 됐다. 빈 문자열이면 style.color 가 지워져
+   #toast 의 CSS(어두운 테마 #fff · 밝은 테마 var(--rb-ink))가 그대로 산다. */
+function toast(msg, sec=2.2, color='', kind=''){
   const t = el('toast'); t.textContent = msg; t.style.color = color;
   t.classList.toggle('resource',kind==='resource'); t.classList.add('on'); toastT = sec;
 }
@@ -16058,12 +16082,17 @@ function raceBuild(seed){
   /* ⑤ 무지개 점프 — 몸 반지름으로 틈을 건너뛰지 못하게 간격을 확보한다. 낮은 높낮이는 기본 한 번 점프로 넘는다. */
   { const S = RACE_S[4], colors = [0xff7799,0xffb657,0xffe878,0x7cdf92,0x66c9ff,0xb59aff];
     for(let i=0;i<6;i++) P({x:0,z:S.z0+1.8+i*RACE_RAINBOW_DZ,y:i%2?.15:0,w:8,d:3.6,h:.6+(i%2?.15:0),col:colors[i],sec:4,kind:'rainbow'}); }
-  /* ⑥ 마지막 계단 — 아홉 단, 셋마다 틈 하나. 꼭대기가 골인 */
-  { const S = RACE_S[5], v = V[5], n = 9, step = 0.9;
+  /* ⑥ 마지막 계단 — 아홉 단, 셋마다 큰 틈. 꼭대기가 골인
+     ★ 63차 — 예전에는 발판 깊이 3.0 에 틈이 0.35 뿐이라 **그냥 걸어 올라가는 계단**이었다.
+       몸 반지름보다 작은 틈은 틈이 아니다. 발판을 얕게(2.2) 하고 틈을 1.4 로 넓혀
+       한 칸마다 뛰어야 하게 만든다. 셋째·여섯째는 2.0 으로 더 벌린다.
+       한 단 오름(0.9)은 그대로라, 뛰면서 올라가는 계단이 된다.
+       길이 계산: 일곱 칸 × (2.2+1.4) + 두 칸 × (2.2+2.0) = 33.6 — 구간(276~310) 안에 든다. */
+  { const S = RACE_S[5], v = V[5], n = 9, step = 0.9, d = 2.2;
     let z = S.z0;
-    for(let i=0;i<n;i++){ const gap = (i === 3 || i === 6) ? (v === 2 ? 2.0 : 1.6) : 0.35;
-      P({x:v === 1 ? (i%2 ? 0.8 : -0.8) : 0, z:z + 1.5, y:i*step, w:v === 1 ? 4.0 : 4.6, d:3.0, h:0.6 + i*step, col:i%2 ? S.col : furLight(S.col, 0.16), sec:5, kind:'stair'});
-      z += 3.0 + gap; }
+    for(let i=0;i<n;i++){ const gap = (i === 3 || i === 6) ? (v === 2 ? 2.2 : 2.0) : 1.4;
+      P({x:v === 1 ? (i%2 ? 0.8 : -0.8) : 0, z:z + d/2, y:i*step, w:v === 1 ? 4.0 : 4.6, d, h:0.6 + i*step, col:i%2 ? S.col : furLight(S.col, 0.16), sec:5, kind:'stair'});
+      z += d + gap; }
     P({x:0, z:RACE_Z_FIN + 2, y:RACE_Y_FIN, w:7.0, d:5.0, h:0.7 + RACE_Y_FIN, col:0xffffff, sec:5, kind:'fin', fin:1}); }
 }
 /* 발판의 지금 위치(움직이는 것) */
