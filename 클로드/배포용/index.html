@@ -1992,7 +1992,7 @@ label.f{color:var(--rb-ink2)}.tag{border-radius:6px;font-weight:600}
 #tools,#bar{gap:0}
 #dockLine{display:none}                 /* 한 줄 띠가 됐으니 가운데 줄이 필요 없다 */
 .slot{border-radius:0}
-#tools .slot:first-child{border-radius:8px 0 0 8px}     /* 띠 전체의 사람 끝만 둥글다 */
+#tools .slot:first-child{border-radius:8px 0 0 8px}     /* 띠 전체의 양 끝만 둥글다 */
 #bar   .slot:last-child {border-radius:0 8px 8px 0}
 /* 붙어 있으니 칸과 칸 사이에 머리카락 같은 금을 하나 둔다 — 없으면 어디까지가 한 칸인지 안 읽힌다 */
 #tools .slot + .slot,#bar .slot + .slot{box-shadow:inset 1px 0 0 rgba(82,118,145,.18)}
@@ -2717,7 +2717,7 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
     <div class="hrow"><i>📈</i><div>날이 갈수록 <b>커지고 사나워집니다</b> — 몸집·갈기·눈빛이 달라져요.</div></div>
     <div class="hrow"><i>🗺️</i><div><b>어느 입구로 몰릴지는 아무도 모릅니다.</b> 매일 밤 달라져요.
       그러니 <b>다섯 모둠이 다 준비해야</b> 합니다. 우상단 지도에 빨간 점으로 보여요.</div></div>
-    <div class="hrow"><i>👑</i><div><b>보스</b> — 4·7·10일차 밤에 우두머리가 옵니다. 작은 좀비를 계속 불러내요.
+    <div class="hrow"><i>👑</i><div><b>보스</b> — 5·9·12·15·18일차 밤에 우두머리가 옵니다. 작은 좀비를 계속 불러내요.
       <b>잡으면 온 모둠에 자원이 쏟아지고 수정도 회복됩니다.</b></div></div>
   </div>
 
@@ -3206,7 +3206,7 @@ function topAt(x,z){ if(!inW(x,z)) return 999; const i=gi(x,z);
   return Math.max(terrH[i], bldH[i]); }
 function terrAt(x,z){ return inW(x,z) ? terrH[gi(x,z)] : -999; }
 
-function corridorDist(x,z){       // 입구 통로 안이면 [모둠번호, 축거리], 아니면 null
+function corridorDist(x,z){       // 입구 통로 안이면 [모둠번호, 축거리, 옆거리], 아니면 null
   for(let i=0;i<NG;i++){
     const t = gT(i,x,z); if(t<=0) continue;
     const perp = Math.abs(gPP(i,x,z));
@@ -3410,7 +3410,7 @@ const SKY_DAY = new THREE.Color(0x8ec9ef), SKY_NIGHT = new THREE.Color(0x2e4b86)
 // 밤은 밝기를 거의 안 내리고 색만 달빛 톤으로 — 애들이 잘 봐야 한다
 const HEMI_DS = new THREE.Color(0xcfe8ff), HEMI_NS = new THREE.Color(0x9dc0ff);
 
-let LIT_K = 0.85;   // 잰 값: HEAD(Standard) 바닥 밝기 134.6·채도 0.447 / Lambert 1.0 → 131.6·0.417 / 0.85 → ≈124·0.44. 채도를 되찾고 밝기는 7% 만 사람보
+let LIT_K = 0.85;   // 잰 값: HEAD(Standard) 바닥 밝기 134.6·채도 0.447 / Lambert 1.0 → 131.6·0.417 / 0.85 → ≈124·0.44. 채도를 되찾고 밝기는 7% 만 양보
 const HEMI_DG = new THREE.Color(0x5a7a4a), HEMI_NG = new THREE.Color(0x46618c);
 const SUN_D   = new THREE.Color(0xffffff), SUN_N   = new THREE.Color(0xc3daff);
 scene.background = SKY_DAY.clone();
@@ -3468,7 +3468,7 @@ const skyDome = (()=>{
     new THREE.MeshBasicMaterial({map:skyTex, side:THREE.BackSide, fog:false, depthWrite:false}));
   m.renderOrder = -1000; m.frustumCulled = false; scene.add(m); return m;
 })();
-/* 노을 — 낮과 밤 사이에만 지나간다. skyK 0.5 에서 제일 붉고 사람 끝에서 사라진다.
+/* 노을 — 낮과 밤 사이에만 지나간다. skyK 0.5 에서 제일 붉고 양 끝에서 사라진다.
    하루가 통째로 붉으면 이상하고, 없으면 밤이 그냥 '색이 바뀐 낮' 이 된다. */
 const SKY_DUSK = new THREE.Color(0xff9a5c);
 
@@ -11772,7 +11772,7 @@ function buildFarmUI(){
     ? '<b style="color:#ffb0b0">🧹 더러움 — 나오는 양이 절반</b>'
     : dirt >= 0.25 ? '<b style="color:#ffd9a0">🧹 조금 더러움</b>'
     : '<b style="color:#9cff9c">🧹 깨끗함</b>');
-  const stock = farmStock(f), out = G.drops.filter(d=>d.g===g).length;
+  const stock = farmStock(f), out = G.drops.filter(d=>d.g===G.me.g).length;
   el('farmState').innerHTML =
     `<div class="fst"><span>🐾 ${n} / ${FARM_CAP}마리</span> ${fedTxt} ${dirtTxt}</div>`
     + `<div class="fst2">`
@@ -11915,7 +11915,7 @@ function doTrade(from, to){
   const give = tradeGive(from, tradeMul), get = tradeGet(from, to, tradeMul);
   if(!get) return;
   const r = myRes();
-  if(r[from] < give){ toast(`${RES_IC[from]} ${RES_NM[from]}이 ${give} 필요해요`, 1.8, '#ffbdbd'); return; }
+  if(r[from] < give){ toast(`${RES_IC[from]} ${RES_NM[from]}${josa(RES_NM[from],'이','가')} ${give} 필요해요`, 1.8, '#ffbdbd'); return; }
   spend({w: from==='w'?give:0, s: from==='s'?give:0, g: from==='g'?give:0});
   gain(to, get);
   toast(`🔄 ${RES_IC[from]}${give} → ${RES_IC[to]}${get} 바꿨어요!`, 2.0, '#ffe066');
@@ -12000,7 +12000,7 @@ function buildShopUI(){
       w.appendChild(shopCatalogCard(iconImg(SHOP_RES_ICON[from],RES_IC[from]) + '→' + iconImg(SHOP_RES_ICON[to],RES_IC[to]),
         `${RES_NM[from]} ${give} → ${RES_NM[to]} ${get}`,
         `${RES_IC[from]} <b>${give}</b>을 내고 ${RES_IC[to]} <b>${get}</b>을 받아요.` +
-        (r[from] < give ? `<br><span style="color:#ffbdbd">지금 ${RES_IC[from]}${r[from]} 밖에 없어요</span>` : ''),
+        (r[from] < give ? `<br><span style="color:#ffbdbd">지금 ${RES_IC[from]}${r[from]}밖에 없어요</span>` : ''),
         null, can ? '' : 'no', '바꾸기', ()=>doTrade(from, to)));
     }
   } else {
@@ -12228,7 +12228,7 @@ function takeJob(i){
     const f = forward();
     burst(PL.x + f.x*3.0, PL.y + 1.9, PL.z + f.z*3.0, ac, 24, 1.3); }
   const name=jobName(i,due);
-  toast(`${J.ic} ${name}${josa(name,'이','가')} 되었어요! ${STATS[J.st].ic} ${STATS[J.st].n}를 더 찍을 수 있어요`,
+  toast(`${J.ic} ${name}${josa(name,'이','가')} 되었어요! ${STATS[J.st].ic} ${STATS[J.st].n}을 더 찍을 수 있어요`,
         3.4, J.col);
   feed(`${J.ic} <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
      + `<b style="color:${J.col}">${name}</b> 직업으로 전직했어요!`);
@@ -12422,7 +12422,7 @@ function buildKitUI(){
 }
 function usePotion(i){
   if(!G.started || i < 0 || i >= POTIONS.length) return;
-  if(KIT.pot[i] <= 0){ toast(`${POTIONS[i].ic} ${POTIONS[i].n} 이 없어요 — 낮에 상인에게 사세요`, 1.8, '#ffbdbd'); return; }
+  if(KIT.pot[i] <= 0){ toast(`${POTIONS[i].ic} ${POTIONS[i].n}이 없어요 — 낮에 상인에게 사세요`, 1.8, '#ffbdbd'); return; }
   KIT.pot[i]--;
   if(i === 0){
     const heal = Math.min(45, maxHP() - PL.hp);
@@ -12619,7 +12619,7 @@ function goDown(){
 
   if(window.__sfx) window.__sfx('lose');
   toast('💫 쓰러졌어요! 친구가 일으켜 줄 수 있어요', 4, '#ffc4c4');
-  feed(`💫 <b style="color:${GCOL[G.me.g]}">${G.me.name}</b> 이(가) 쓰러졌어요 — 친구가 <b>8초</b> 동안 눌러 주면 일어나요`);
+  feed(`💫 <b style="color:${GCOL[G.me.g]}">${G.me.name}</b>이(가) 쓰러졌어요 — 친구가 <b>8초</b> 동안 눌러 주면 일어나요`);
 }
 function reviveMe(by, self){
   if(!PL.down) return;
@@ -13651,8 +13651,8 @@ function doRevive(dn){
   dn.p.down = false;                      // 내 화면에서 먼저 일으켜 보여 준다
   burst(dn.p.x, GY+1, dn.p.z, 0x9cff9c, 22, 1.7);
   if(window.__sfx) window.__sfx('up');
-  toast('💚 ' + dn.n + ' 을(를) 일으켰어요!', 2.4, '#c8ffb0');
-  feed(`💚 <b style="color:${GCOL[G.me.g]}">${G.me.name}</b> 이(가) <b>${dn.n}</b> 을(를) 일으켰어요`);
+  toast('💚 ' + dn.n + '을(를) 일으켰어요!', 2.4, '#c8ffb0');
+  feed(`💚 <b style="color:${GCOL[G.me.g]}">${G.me.name}</b>이(가) <b>${dn.n}</b>을(를) 일으켰어요`);
 }
 function aimStru(){
   const f = forward(); let best=null, bd=1e9;
@@ -15778,7 +15778,7 @@ function survHit(byUid, byName, byG, dmg, head){
   /* 총알이 박히는 소리 + 아파하는 소리 — 둘이 겹쳐야 '총에 맞았다' 로 들린다 */
   if(window.__sfx){ window.__sfx('phit'); window.__sfx('hurt'); }
   if(MINE.hp > 0){
-    toast(`💥 ${esc(byName)}${head ? ' 에게 머리를' : ' 에게'} 맞았어요! (체력 ${MINE.hp})`, 1.3, '#ffbdbd');
+    toast(`💥 ${esc(byName)}${head ? '에게 머리를' : '에게'} 맞았어요! (체력 ${MINE.hp})`, 1.3, '#ffbdbd');
     miniReport(true); return;
   }
 
@@ -15786,7 +15786,7 @@ function survHit(byUid, byName, byG, dmg, head){
   PL.down = true; PL.downT = 0; PL.hp = 0; PL.vy = 0;
   setAimMode(false, true);
   verdict(false, '💀', '쓰러졌다!', {ms:1600});
-  toast(`💀 ${esc(byName)} 에게 당했어요 — 이제 구경하며 응원해요!`, 4.5, '#ffbdbd');
+  toast(`💀 ${esc(byName)}에게 당했어요 — 이제 구경하며 응원해요!`, 4.5, '#ffbdbd');
   if(window.__sfx) window.__sfx('lose');
   miniReport(true);
 }
@@ -16253,9 +16253,9 @@ function raceDone(M){
   const rows = M.rank || [], my = rows.findIndex(r => r.u === uid), me = my >= 0 ? rows[my] : null;
   const fin = me ? me.fin >= 0 : MINE.fin >= 0;
   let line = '';
-  if(my === 0){ const r = raceGiveWeapon('unique'); line = r.got ? `🥇 1등! 유니크 총 ${r.n}` : `🥇 1등! ${r.n} 은 벌써 있어서 자원으로 → ${r.res}`; }
+  if(my === 0){ const r = raceGiveWeapon('unique'); line = r.got ? `🥇 1등! 유니크 총 ${r.n}` : `🥇 1등! ${r.n}은 벌써 있어서 자원으로 → ${r.res}`; }
   else if(my === 1 || my === 2){ const r = raceGiveWeapon('rare'); line = r.got ? `${my===1?'🥈 2등':'🥉 3등'}! 레어 총 ${r.n}` : `${my===1?'🥈 2등':'🥉 3등'}! 레어 총은 다 있어서 자원으로 → ${r.res}`; }
-  else if(my === 3 || my === 4){ const r = raceGiveArmor(); line = r.got ? `🏅 ${my+1}등! ${r.n}` : `🏅 ${my+1}등! ${r.n} 은 벌써 있어서 자원으로 → ${r.res}`; }
+  else if(my === 3 || my === 4){ const r = raceGiveArmor(); line = r.got ? `🏅 ${my+1}등! ${r.n}` : `🏅 ${my+1}등! ${r.n}은 벌써 있어서 자원으로 → ${r.res}`; }
   else if(my >= 5 && my <= 9){ const c = RACE_RES[my-5]; gainAll(c); line = `🏅 ${my+1}등! ${costTxt(c)}`; }
   else if(my >= 0) line = fin ? `${my+1}등 — 골인!` : `${my+1}등 — 다음엔 골인까지!`;
   if(fin){ gainAll(RACE_FIN); line += ` · 골인 상 ${costTxt(RACE_FIN)}`; }
@@ -17642,7 +17642,7 @@ el('tGift').onclick = ()=>{ for(let i=0;i<NG;i++){ base[i].w+=30; base[i].s+=30;
    경험치를 모자란 만큼 주는 것뿐이라 축포·스텟 점수·전직 창이 실제 놀이 때와 똑같이 흐른다 — 따로 흉내 내지 않는다. */
 function teachXpTo(lv){
   lv = Math.min(LV_MAX, lv|0);
-  if(XP.lv >= lv){ toast(`이미 레벨 ${XP.lv} 입니다`, 1.4, '#ffe9a0'); return; }
+  if(XP.lv >= lv){ toast(`이미 레벨 ${XP.lv}입니다`, 1.4, '#ffe9a0'); return; }
   let need = -XP.xp;
   for(let L = XP.lv; L < lv; L++) need += XP_NEED[L];
   xpGain(Math.max(1, Math.ceil(need)), 'teach');
