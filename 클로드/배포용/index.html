@@ -11743,7 +11743,7 @@ function buildFarmUI(){
     ? '<b style="color:#ffb0b0">🧹 더러움 — 나오는 양이 절반</b>'
     : dirt >= 0.25 ? '<b style="color:#ffd9a0">🧹 조금 더러움</b>'
     : '<b style="color:#9cff9c">🧹 깨끗함</b>');
-  const stock = farmStock(f), out = G.drops.filter(d=>d.g===g).length;
+  const stock = farmStock(f), out = G.drops.filter(d=>d.g===G.me.g).length;
   el('farmState').innerHTML =
     `<div class="fst"><span>🐾 ${n} / ${FARM_CAP}마리</span> ${fedTxt} ${dirtTxt}</div>`
     + `<div class="fst2">`
