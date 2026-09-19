@@ -75,8 +75,8 @@ await pg.waitForTimeout(1500);
     o.ground = {vc:!!d.material.vertexColors, map:!!d.material.map, verts:d.geometry.attributes.position.count, rimMap:!!rim.material.map};
     const ca=d.geometry.attributes.color; const seen=new Set(); for(let i=0;i<ca.count;i+=7) seen.add(ca.getX(i).toFixed(3)+','+ca.getY(i).toFixed(3)); o.groundCols=seen.size;
     const B=W.__banks.get('mtB'), C=W.__banks.get('mtC'); o.nB=B.ms.length; o.nC=C.ms.length;
-    let cells=0; for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){ const h=W.__terrH[gi(x,z)]; if(h<=GY) continue;
-      if(Math.max(Math.abs(x),Math.abs(z))<=5 && Math.hypot(x+0.5,z+0.5)<9) continue; cells++; }
+    // 63차 — 수정 단상이 사라져 그 칸도 GY 다. 게임과 똑같이 h<=GY 한 줄로만 거른다.
+    let cells=0; for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){ const h=W.__terrH[gi(x,z)]; if(h<=GY) continue; cells++; }
     o.cells = cells;
     /* 33차 — 기둥은 뚜껑보다 0.04 좁다(면 겹침 떨림을 없애려고). 면적은 뚜껑(칸 크기 그대로)으로 센다 */
     let area=0; for(const m of C.ms){ const e=m.elements; area += e[0]*e[10]; } o.area = Math.round(area);
@@ -102,8 +102,11 @@ await pg.waitForTimeout(1500);
     o.capOff=capOff; o.bodyOff=bodyOff; o.chk=chk;
     const cc=new Map(); for(const c of C.cols) cc.set(c,(cc.get(c)||0)+1); o.capCols=[...cc.entries()].map(([k,v])=>k.toString(16)+':'+v);
     o.snow = cc.get(0xffffff)||0; o.grass = cc.get(0x6bc24a)||0;
-    o.sb = W.__banks.get('sb').ms.length; o.gb = W.__banks.get('gb').ms.length;
-    const sbe = W.__banks.get('sb').ms[0].elements; o.plat = {w:sbe[0], h:sbe[5], y:sbe[13]};
+    // 63차 — 수정 단상을 통째로 걷어냈다. 이제는 '없다' 를 확인한다.
+    const bn = k => W.__banks.has(k) ? W.__banks.get(k).ms.length : 0;
+    o.dais = {sb:bn('sb'), gb:bn('gb'), plazaT:bn('plazaT'), cb:bn('cb')};
+    let flat=0; for(let z=-6; z<=6; z++) for(let x=-6; x<=6; x++) if(W.__terrH[gi(x,z)]===GY) flat++;
+    o.flatCry = flat;
     return o; });
   ok('★ 바닥이 꼭짓점 색 원판이다 (무늬 없음 · 격자 1000점 이상 · 색이 여럿)', r.ground.vc && !r.ground.map && r.ground.verts>1000 && r.groundCols>=3, JSON.stringify(r.ground)+' · 색 '+r.groundCols);
   ok('바닥 옆면(흙)도 무늬 없음', !r.ground.rimMap);
@@ -120,7 +123,13 @@ await pg.waitForTimeout(1500);
   ok('★ 뚜껑 윗면이 지형 윗면(terrH)에 붙어 있다 — 표본 전부 (망루 칸 제외)', r.capOff===0 && r.chk>150, r.capOff+' / '+r.chk);
   ok('기둥 윗면이 뚜껑 바로 밑에서 끝난다', r.bodyOff===0, r.bodyOff+' / '+r.chk);
   ok('★ 뚜껑 색에 풀·눈이 다 있다 (낮은 산은 풀, 봉우리는 눈)', r.grass>0 && r.snow>0 && r.capCols.length>=3, r.capCols.join(' '));
-  ok('수정 단상은 한 판 + 윗판 둘 · 금 테 44', r.sb===2 && r.gb===44 && Math.abs(r.plat.w-11)<0.01 && Math.abs(r.plat.y-(9+0.5))<0.01, r.sb+' / '+r.gb+' / '+JSON.stringify(r.plat));
+  /* ★ 63차 — 선생님: "이 수정 주변에 깔린 벽돌(회색,금색)들을 다 없애고 수정만 남겨줘 …
+     그냥 평지로 만들어줘. 건물도 지을 수 있는 … 좀비가 수정을 때릴 때 저 벽 안에 들어가버리니까."
+     돌판(sb)·회색 타일(plazaT)·금 테(gb)·금 받침(cb)이 하나도 남지 않아야 하고,
+     수정 둘레 13×13 이 전부 마을 바닥 높이(GY)여야 한다 — canPlace 가 그 높이만 허락한다. */
+  ok('★ 63차 — 수정 자리에 단상·타일·금 테·금 받침이 없고 둘레 13×13 이 전부 평지',
+     r.dais.sb===0 && r.dais.gb===0 && r.dais.plazaT===0 && r.dais.cb===0 && r.flatCry===169,
+     JSON.stringify(r.dais)+' · 평지칸 '+r.flatCry+'/169');
 }
 
 /* ═══════ ④ 나무·바위·금·풀꽃 ═══════ */
