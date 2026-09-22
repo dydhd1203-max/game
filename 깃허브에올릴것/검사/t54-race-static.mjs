@@ -36,13 +36,14 @@ function setIR3(m,i,x,y,z,ry,rx,rz,sx,sy,sz,col){setIR(m,i,x,y,z,ry,rx,sx,sy,sz,
 let move=fn('updPlayer');move=move.slice(0,move.indexOf('  recoilTick(dt);'))+'\n}';
 // HAZR_MAX 는 적지 않는다 — HAZB_MAX 와 한 문장(`const HAZB_MAX = 32, HAZR_MAX = 24;`)이라 같이 딸려 온다.
 // 이름을 따로 적으면 `const HAZR_MAX` 라는 글자가 없어 decl() 이 Error 를 던진다.
-const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_RAINBOW_DZ','RACE_ROWZ','RACE_P','RACE','FADE_T','ROCK','HAZ','STAMP_DZ',
+// RACE_STAMP 는 HAZ 보다 먼저 적는다 — HAZ 가 `stamp:RACE_STAMP` 로 그것을 읽는다.
+const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_RAINBOW_DZ','STAMP_DZ','RACE_STAMP','RACE_ROWZ','RACE_P','RACE','FADE_T','ROCK','HAZ',
   'HAZB_MAX',
   'STEP','GRAV','GRAV_V','gravNow','jumpNow','jump2Now','RACE_SPD','SPRINT','ACC_UP','JOB_JMP','GLIDE_T','GLIDE_VY','STRIDE_WALK'];
 const functions=['mulberry','furLight','raceBuild','raceOff','raceAlive','raceTopAt','raceUnder','raceSlotXZ',
   'raceCheckpointXZ','rockU','raceRocks','stampY','raceHazards','raceSphereHit','raceDrawTrim','raceDraw','groundUnder','sheepGaitStep'];
 const code=[fixtures,...declarations.map(decl),...functions.map(fn),move,`globalThis.A={RACE,RACE_P,RACE_S,RACE_Z_FIN,RACE_RAINBOW_DZ,RACE_X,PL,G,MINE,R_trim,R_plat,R_rock,R_hazB,
-  raceBuild,raceOff,raceAlive,raceTopAt,raceUnder,raceCheckpointXZ,raceRocks,raceHazards,raceSphereHit,raceDraw,groundUnder,ROCK,HAZ,STAMP_DZ,stampY,HAZB_MAX,SPD,RACE_SPD,
+  raceBuild,raceOff,raceAlive,raceTopAt,raceUnder,raceCheckpointXZ,raceRocks,raceHazards,raceSphereHit,raceDraw,groundUnder,ROCK,HAZ,STAMP_DZ,RACE_STAMP,stampY,HAZB_MAX,SPD,RACE_SPD,
   spawn(id){uid=id;return raceSlotXZ();}, cp(id,p){uid=id;return raceCheckpointXZ(p);},
   reset(x,z,y,run=false,moving=false){raceTestSprint=run?SPRINT.mul:1;RACE.slipT=0;Object.assign(PL,{x,z,y,vy:0,yaw:Math.PI,ground:true,jumps:0,vx:0,vz:moving?SPD*RACE_SPD*raceTestSprint:0,_px:undefined,_pz:undefined,down:false});KEY={w:true};},
   tick(jump=false,dt=1/120){wantJump=jump;updPlayer(dt);RACE.t+=dt;}
@@ -139,13 +140,32 @@ check('Widened log and stair platforms retain practical side space to dodge',dod
 // Actual static race art construction, with bpush as a matrix recorder. Material
 // and box-geometry fixtures isolate this from unrelated village texture loading.
 const art=source.slice(source.indexOf('  const Rp = h =>'),source.indexOf('  /* 네 귀퉁이 등불 */',source.indexOf('  const Rp = h =>')));
-// 63차 — 도장 구간의 바닥 표적·안내 기둥이 STAMP_DZ 와 HAZ.stamp 를 읽는다. 모래상자에도 넣어 준다.
-const artCtx=vm.createContext({THREE,console,RACE_S:A.RACE_S,RACE_Z_FIN:A.RACE_Z_FIN,RACE_RAINBOW_DZ:A.RACE_RAINBOW_DZ,RACE_Y_FIN:8.1,MINI_Y:100,MINI_R:34,MINI_PADZ:-19,STAMP_DZ:A.STAMP_DZ,HAZ:A.HAZ});
+// 63차 — 도장 구간의 바닥 표적·안내 기둥이 STAMP_DZ 와 RACE_STAMP 를 읽는다. 모래상자에도 넣어 준다.
+// ★ 여기에 넣어 주는 것만으로는 부족하다 — 모래상자는 전부 전역으로 꽂아 주므로 선언 **순서**가
+//   안 보인다. 실제 게임에서의 순서는 바로 아래 'declared before buildMiniIsle()' 검사가 본다.
+const artCtx=vm.createContext({THREE,console,RACE_S:A.RACE_S,RACE_Z_FIN:A.RACE_Z_FIN,RACE_RAINBOW_DZ:A.RACE_RAINBOW_DZ,RACE_Y_FIN:8.1,MINI_Y:100,MINI_R:34,MINI_PADZ:-19,STAMP_DZ:A.STAMP_DZ,RACE_STAMP:A.RACE_STAMP});
 new vm.Script(`const MAT={},WMAT={},EMITC={},gMark=new THREE.BoxGeometry(),gEdge=gMark,gGlow=gMark,WGEO=gMark,TRUNKG=new THREE.CylinderGeometry(.5,.5,1,8),CONEG=new THREE.ConeGeometry(.5,1,8),miParts={race:[]},rows=[],TQ=2.6,nq=14;
 function bpush(key,geo,mat,x,y,z,ry=0,sx=1,sy=1,sz=1,rz=0,col=0){rows.push({key,x,y,z,ry,sx,sy,sz,rz,col});return rows.length-1;}
 ${fn('furLight')}
 function buildArt(){${art}}buildArt();globalThis.rows=rows;`).runInContext(artCtx,{timeout:10000});
 check('Actual race scenery builds with finite instance transforms',artCtx.rows.every(p=>['x','y','z','sx','sy','sz'].every(k=>Number.isFinite(p[k]))),{instances:artCtx.rows.length});
+/* ★ 63차 — 로드 순서. 이 미술은 buildMiniIsle() 안에 있고 그건 모듈 맨 위에서 **로드 즉시** 돈다.
+   여기서 읽는 상수가 파일 뒤쪽에 const 로 선언돼 있으면 TDZ 로 걸려
+   "Cannot access 'X' before initialization" 한 줄에 모듈 전체가 죽고 화면이 하얗게 된다.
+   node --check 는 문법만 보고, 위 모래상자는 필요한 이름을 전부 전역으로 꽂아 주므로 둘 다 이걸 못 잡는다.
+   실제로 '쿵쿵 도장' 의 STAMP_DZ 를 HAZ 옆(파일 아래쪽)에 두었다가 게임이 안 떴다 — 그래서 이 검사를 둔다.
+   대문자 상수 이름만 본다(이 저장소의 상수 규칙). 선언을 못 찾은 이름은 건너뛴다(거짓 경보 방지). */
+{
+  const callAt=source.indexOf('\nbuildMiniIsle();');
+  /* 주석은 먼저 걷어낸다. 안 그러면 주석에 적힌 이름까지 '읽는다' 고 센다 —
+     실제로 5422줄의 "// BALL 은 이 아래에서 정의된다" 한 줄 때문에 BALL 이 걸렸다.
+     (그 주석 자체가, 예전에 누군가 같은 함정을 만나 남긴 메모다.)
+     문자열 안의 // 까지 지워질 수 있지만, 그러면 이름을 **덜** 보게 될 뿐이라 거짓 경보는 안 난다. */
+  const code=art.replace(/\/\*[\s\S]*?\*\//g,' ').replace(/\/\/[^\n]*/g,' ');
+  const names=[...new Set(code.match(/\b[A-Z][A-Z0-9_]{2,}\b/g)||[])];
+  const late=names.filter(n=>{const m=new RegExp('(?:^|\\n)\\s*(?:const|let)\\s+'+n+'\\s*=').exec(source);return m&&m.index>callAt;});
+  check('Race scenery only reads constants declared before buildMiniIsle() runs',callAt>0&&late.length===0,{callAt,late});
+}
 check('Street buildings lie outside expanded track',artCtx.rows.filter(r=>r.z>60&&r.z<280&&r.key==='miMark'&&r.sx===11.8).every(r=>Math.abs(r.x)-r.sx/2>26));
 // 무지개 구간의 깃대는 발판마다 양옆에 선다. 간격이 갈라지면 뒤쪽 발판 옆이 텅 빈다.
 {
