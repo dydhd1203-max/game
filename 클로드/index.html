@@ -15583,6 +15583,9 @@ function miniStatic(){
     mg.strokeText((i+1), lx, lz);
     mg.fillText((i+1), lx, lz);
   }
+  /* 64차 — 마을 집 열셋. 지붕색 네모라 아이가 지도에서 '우리 마을' 을 찾는다(아이 건물의 모래색과 갈린다) */
+  mg.fillStyle = '#c9634a';
+  for(const h of VILLAGE_HOUSES) mg.fillRect(mpx(h.x0)-0.4, mpz(h.z0)-0.4, h.w*MSC+0.8, h.d*MSC+0.8);
   // 구조물
   mg.fillStyle = '#d9c9a6';
   for(const o of STRU.values()) mg.fillRect(mpx(o.x)-1, mpz(o.z)-1, 2.4, 2.4);
