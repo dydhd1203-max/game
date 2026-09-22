@@ -41,7 +41,7 @@ function client(id,host){const ctx=vm.createContext({console,Date:Clock,net:bus.
  const PL={x:12,z:12,down:false},base=Array.from({length:5},()=>({w:1000,s:1000,o:1000}));
  const STRU=new Map(),cellOwner=new Map(),bldH=new Float64Array(10000),terrH=new Float64Array(10000).fill(GY);
  let struVer=0,netPCDirty=false;const MY={built:0,helped:0,fixed:0,rescue:0},credits=[],messages=[],window={},XP_BUILD={arrow:34},XP_FIX=6,XP_UP=16;
- const inW=(x,z)=>x>=0&&z>=0&&x<100&&z<100,gi=(x,z)=>x*100+z,oct=()=>0,ARENA_R=100,RING_D=100,rampCells=new Set(),nodeCellBlocked=()=>false;
+ const inW=(x,z)=>x>=0&&z>=0&&x<100&&z<100,gi=(x,z)=>x*100+z,oct=()=>0,ARENA_R=100,RING_D=100,rampCells=new Set(),nodeCellBlocked=()=>false,houseNear=()=>false;   // 64차 — canPlace 가 마을 집터(houseNear)를 본다. 이 fixture 에는 집이 없다
  const SHOP_X=999,SHOP_Z=999,VET_X=999,VET_Z=999,FORGE_X=999,FORGE_Z=999,FARM_X=Array(5).fill(999),FARM_Z=Array(5).fill(999),FARM_R2=[1];
  const struCount=()=>0,markShape=()=>{},markFlow=()=>{},markHp=()=>{},burst=()=>{},toast=m=>messages.push(m),say=m=>messages.push(m),esc=s=>s;
  const xpGain=x=>credits.push(x),struCX=o=>o.x+1,struCZ=o=>o.z+1,workMul=()=>1;
