@@ -4339,6 +4339,7 @@ function placeNodes(){
     if(d < NODE_R0 || d > NODE_R1) continue;
     if(!inW(x,z) || terrAt(x,z) !== GY) continue;    // 평지에만
     if(inFarmYard(cx,cz)) continue;                  // 우리 안에는 안 놓는다
+    if(houseNear(cx,cz,2.2)) continue;               // 64차 — 집 마당(벽 밖 2.2칸)에도 안 놓는다. 나무 고깔이 지붕을 뚫는다
     if(waterNear(cx,cz,1.4) || pathDist(cx,cz) < 2.3) continue;   // 33차 — 연못·개울·흙길 위에는 안 놓는다
     const cd = corridorDist(cx,cz);
     if(cd && cd[2] < GAP_HALF+2.5) continue;         // 통로 한가운데는 비운다
@@ -4413,6 +4414,7 @@ function scatterDecor(){
           inFarm = true; break; }
       if(inFarm) continue; }
     if(waterNear(x+0.5, z+0.5, 0.2) || pathDist(x+0.5, z+0.5) < 1.9) continue;   // 33차 — 물가·흙길엔 수풀도 꽃도 안 심는다
+    if(houseNear(x+0.5, z+0.5, 1.2)) continue;                                  // 64차 — 집 마당은 villageHouses 가 손수 꾸민다
     const k=Math.random(), ry=Math.random()*Math.PI*2, X=x+0.5, Z=z+0.5;
     if(k<0.55){                                   // 수풀 — 각진 공 하나
       const small = Math.random()<0.42, sc = small ? 0.44 : 0.66;
@@ -5146,6 +5148,65 @@ function applyFarmStage(){
   }
   return moved;
 }
+/* ═══════════════════════════ 집터 (64차) ═══════════════════════════
+   선생님: "장식물이 난잡해 아늑한 느낌이 없다. 마을 크기를 늘려서 제대로 된 마을을 꾸며라."
+   63차 마을은 집이 한 채도 없이 작은 세간만 수백 개였다. 64차는 집 열한 채·여관·풍차를 세운다.
+
+   ★ 집은 '땅' 이다 — terrH 를 벽 높이만큼 올린다 (63차 규칙 ① 의 유일한 예외).
+     · 좀비 길찾기 walkable(GY ≤ t ≤ GY+1)   → 집을 산처럼 돌아간다. 좀비가 벽을 뚫고 지나가면 집이 무대 장치가 된다.
+     · 사람 blockedAt(solidTop > GY+1)       → 몸이 벽에 막힌다. SOLID 동그라미로는 네모 집을 못 막는다.
+     · canPlace 'terrH 가 GY 인 칸만'         → 집 안에 벽·탑을 못 세운다(아래 canPlace 에 '집 자리' 문구를 앞에 뒀다).
+     · buildWorldMesh() **뒤**에 올리므로 회색 돌기둥이 안 그려지고, placeNodes() **앞**에 올리므로
+       나무·바위가 집 안에 안 생긴다. 짓는 줄(buildVillage 호출 근처)의 순서가 그 이유다.
+     · 발자국은 열두 채 합쳐 약 160칸 — 마당 5천 칸의 3% 다. 아이 땅을 크게 뺏지 않는다.
+   ★ 자리는 sitemap 으로 잰 값이다: 길 중심선에서 2.6칸 이상, 농장 5.9 이상, 헛간 2.4 이상, 물가 0.8 이상,
+     서로 2칸 이상, 전부 평지(oct ≤ 40). 벽 발자국은 **정수 칸**에 맞춘다 — terrH 가 칸 단위라 반 칸 어긋나면
+     보이는 벽과 막히는 벽이 다르다.
+   ★ 그림(villageHouses)은 이 표를 읽어 그린다. 자리를 옮기려면 표만 고친다. */
+const VILLAGE_HOUSES = [
+  /* n 이름 · x0,z0 벽 발자국의 최소 칸 · w,d 칸 수 · face 문이 보는 쪽(0:+z 1:+x 2:-z 3:-x) · kind 집 종류 */
+  {n:'N1',  x0:  5, z0:-26, w:4, d:3, face:3, kind:'cottage'},   // 1모둠 길 오른쪽(동) — 길을 본다
+  {n:'N2',  x0: -9, z0:-33, w:4, d:3, face:1, kind:'cottage'},   // 1모둠 길 왼쪽(서)
+  {n:'E1',  x0: 25, z0: -7, w:4, d:3, face:0, kind:'cottage'},   // 2모둠 길 북쪽
+  {n:'E2',  x0: 24, z0:  6, w:3, d:4, face:2, kind:'cottage'},   // 2모둠 길 남쪽
+  {n:'S1',  x0: -9, z0: 22, w:3, d:4, face:3, kind:'cottage'},   // 남쪽 거리 — 4모둠 길(x=-13)을 본다
+  {n:'S2',  x0:  6, z0: 22, w:3, d:4, face:1, kind:'cottage'},   // 남쪽 거리 — 3모둠 길(x=+13)을 본다
+  {n:'Inn', x0: -2, z0: 25, w:5, d:4, face:2, kind:'inn'},       // 남쪽 거리 한가운데 여관 — 수정 쪽을 본다
+  {n:'W1',  x0:-29, z0: -9, w:4, d:3, face:0, kind:'cottage'},   // 5모둠 길 북쪽
+  {n:'W2',  x0:-27, z0:  6, w:3, d:4, face:2, kind:'cottage'},   // 5모둠 길 남쪽
+  {n:'P1',  x0:  9, z0:-19, w:3, d:3, face:0, kind:'cottage'},   // 연못가 — 광장 쪽을 본다
+  {n:'P2',  x0: 28, z0:-14, w:3, d:4, face:3, kind:'cottage'},   // 연못 건너편 — 물을 본다
+  {n:'Q1',  x0:-24, z0: 15, w:3, d:3, face:1, kind:'cottage'},   // 남서 들판 — 과수원 집
+  {n:'Mill',x0: 12, z0:-31, w:3, d:3, face:2, kind:'mill'},      // 북동 산자락 앞 풍차 — 연못 너머로 보인다
+];
+const HOUSE_WALL_H = 3;   // terrH 를 올리는 높이 = 벽 높이(칸). 지붕은 이 위에 그림으로만 얹힌다
+/* 집 발자국(+pad) 안인가 — 자원·수풀·등불·화단이 집 마당을 피할 때 쓴다. 읽기만 한다. */
+function houseNear(x, z, pad){
+  pad = pad || 0;
+  for(let i=0;i<VILLAGE_HOUSES.length;i++){
+    const h = VILLAGE_HOUSES[i];
+    if(x >= h.x0 - pad && x <= h.x0 + h.w + pad && z >= h.z0 - pad && z <= h.z0 + h.d + pad) return true;
+  }
+  return false;
+}
+/* 풍경 덩어리(큰 나무·과수원·꽃밭)가 차지한 동그라미 [x,z,r] — villageLandscape 가 채우고,
+   거리 세간(stFree)·길등(okLamp)이 피한다. 그림자·좀비 길과는 무관하다(bpush 뿐). */
+const VILLAGE_AVOID = [];
+function avoidNear(x, z, pad){
+  for(let i=0;i<VILLAGE_AVOID.length;i++){ const a = VILLAGE_AVOID[i];
+    if(Math.hypot(x-a[0], z-a[1]) < a[2] + (pad||0)) return true; }
+  return false;
+}
+/* 집터를 땅에 새긴다 — buildWorldMesh() 뒤, placeNodes() 앞에 한 번 */
+function villagePlan(){
+  for(const h of VILLAGE_HOUSES){
+    for(let x=h.x0; x<h.x0+h.w; x++) for(let z=h.z0; z<h.z0+h.d; z++){
+      if(!inW(x,z) || terrH[gi(x,z)] !== GY){ console.warn('집터가 평지가 아니다', h.n, x, z); continue; }
+      terrH[gi(x,z)] = GY + HOUSE_WALL_H;
+    }
+  }
+}
+
 /* ═══════════════════════════ 아늑한 마을 (63차) ═══════════════════════════
    선생님: "마을의 모습을 동물의 숲 처럼 뭔가 아이들이 아늑하게 느낄 수 있을 만큼
             정말 마을답게 잘 꾸미고 싶어."
@@ -5497,6 +5558,7 @@ function villageStreets(){
     const cx = Math.floor(x), cz = Math.floor(z);
     if(!inW(cx,cz) || terrAt(cx,cz) !== GY) return false;          // 평평한 땅에만 — terrH 는 읽기만 한다
     if(waterNear(x, z, 0.4)) return false;
+    if(houseNear(x, z, 1.6) || avoidNear(x, z, r)) return false;    // 64차 — 집 마당 · 큰 나무
     if(Math.hypot(x-SHOP_X,  z-SHOP_Z ) < near[0]) return false;
     if(Math.hypot(x-VET_X,   z-VET_Z  ) < near[1]) return false;
     if(Math.hypot(x-FORGE_X, z-FORGE_Z) < near[2]) return false;
@@ -5895,6 +5957,7 @@ function villageWater(){
         if(waterNear(X, Z, 0.2)) continue;                   // 연못·개울가
         if(pathDist(X, Z) < 1.9) continue;                   // 다른 흙길 위(길이 꺾이는 안쪽)
         if(terrAt(Math.floor(X), Math.floor(Z)) !== GY) continue;   // 평지에만
+        if(houseNear(X, Z, 1.2)) continue;                           // 64차 — 집 마당
         k++;
         if(k % 3 === 0){
           S(X, 0.04, Z, 0.50,0.08,0.50, GHEX[g], rnd(X+Z)*6.28);    // 모둠 색 납작 판
@@ -6281,6 +6344,7 @@ function villageNight(){
     if(r < R_IN || r > R_OUT) return false;
     if(terrAt(rx,rz) !== GY) return false;                                   // 산·문턱·망루 계단 자리
     if(waterNear(x,z,0.6)) return false;                                     // 연못·개울
+    if(houseNear(x,z,1.8) || avoidNear(x,z,1.2)) return false;               // 64차 — 집 마당(집은 제 창문으로 빛난다) · 큰 나무
     for(let g=0; g<NG; g++)
       if(Math.hypot(x-FARM_X[g], z-FARM_Z[g]) < 5.4) return false;           // 농장 우리·꽃밭
     if(Math.hypot(x-SHOP_X,  z-SHOP_Z ) < 3.0) return false;                 // 상인
@@ -6541,6 +6605,7 @@ function villageLife(){
   const free = (x,z,padPath)=>{
     if(terrAt(Math.floor(x), Math.floor(z)) !== GY) return false;   // terrH 는 읽기만 한다
     if(pathDist(x,z) < padPath) return false;
+    if(houseNear(x,z,1.0)) return false;                              // 64차 — 집 마당
     if(waterNear(x,z,0.3)) return false;
     if(Math.hypot(x-SHOP_X, z-SHOP_Z) < 3.0) return false;
     if(Math.hypot(x-VET_X,  z-VET_Z)  < 2.6) return false;
@@ -6936,12 +7001,26 @@ function vFreePerch(){
   return 0;
 }
 
-/* 여섯 갈래를 한 번에 — 세계를 짓는 줄에서 이것 하나만 부른다 */
+/* ═══════════════════════════ 풍경 (64차) ═══════════════════════════
+   큰 나무 · 숲 덩이 · 꽃밭 · 산울타리 — '흩뿌리기' 대신 '모으기'. 여기서 VILLAGE_AVOID 에 큰 덩어리를 적어 두면
+   뒤에 오는 villageStreets·villageNight 가 그 자리를 비켜 간다. (집 마당은 houseNear 가 따로 지킨다.) */
+function villageLandscape(){
+}
+
+/* ═══════════════════════════ 집 (64차) ═══════════════════════════
+   VILLAGE_HOUSES 표를 읽어 집 열한 채·여관·풍차를 그린다. 벽 발자국은 villagePlan 이 이미 terrH 로 막아 두었으니
+   여기서는 그림만 쌓는다(bpush). 굴뚝 연기·풍차 날개처럼 움직이는 것은 LIFE 에 적어 두고 updVillage 가 돌린다. */
+function villageHouses(){
+}
+
+/* 여덟 갈래를 한 번에 — 세계를 짓는 줄에서 이것 하나만 부른다 */
 function buildVillage(){
   villageSquare();      // 수정 둘레 광장 — 포석 · 모둠 문턱 · 깃대 · 가로등 · 벤치 · 우물 · 게시판 · 모닥불
-  villageStreets();     // 다섯 흙길을 거리로 — 연석 · 가로등 · 모둠 이정표 · 울타리 · 수레 · 알림판
+  villageLandscape();   // 64차 풍경 — 큰 나무 · 숲 덩이 · 꽃밭 · 산울타리 (거리 세간보다 먼저 자리를 잡는다)
+  villageStreets();     // 다섯 흙길을 거리로 — 연석 · 가로등 · 모둠 이정표 · 수레 · 알림판
   villageWater();       // 물과 풀 — 연못가 · 나무다리 · 징검다리 · 버드나무 · 텃밭 · 꽃밭 · 낙엽
   villageTeamYards();   // 모둠 앞뜰 — 등불 대문 · 팻말 · 우체통 · 빨래줄 · 돗자리 · 평상
+  villageHouses();      // 64차 집 — 열한 채 · 여관 · 풍차 · 마당
   villageNight();       // 밤의 아늑함 — 길등 · 화톳불 · 빛 웅덩이 · 좌판 등불
   villageLife();        // 살아있는 느낌 — 고양이 둘 · 참새 · 오리 · 흔들리는 풀 · 굴뚝 연기
 }
@@ -7513,7 +7592,9 @@ function buildMiniIsle(){
 }
 /* ★ 성문을 자원보다 먼저 세운다 — 망루 계단 자리를 먼저 잡아 놔야
    나무·바위가 계단 위에 박히지 않는다. */
-buildSky(); buildWorldMesh(); buildGates(); buildShop(); buildForge(); buildFarms(); placeNodes(); scatterDecor();
+buildSky(); buildWorldMesh(); buildGates(); buildShop(); buildForge(); buildFarms();
+villagePlan();    // 64차 — 집터를 땅에 새긴다. 돌기둥(buildWorldMesh) 뒤 · 자원(placeNodes) 앞이라야 한다
+placeNodes(); scatterDecor();
 buildVillage();   // 63차 — 아늑한 마을(광장·거리·물과 풀·모둠 자리·밤·살아있는 느낌). 농장·자원이 다 선 뒤에 얹는다
 buildMiniIsle();
 buildCrystal(); buildClouds(); bbuild();
@@ -7957,6 +8038,7 @@ function canPlace(t,X,Z, ignoreId){
       /* 협곡에서는 '축 방향 거리' 로 잰다 — 옆으로 밀린 입구는 반지름과 크게 다르다 */
       if(cd[1] > RING_D+0.5) return '너무 멀어요 (좀비 마당)';
     }
+    if(houseNear(cx+0.5, cz+0.5, 0)) return '마을 집 자리예요';   // 64차 — terrH 가 올라가 있어 아래 줄에도 걸리지만 말이 더 낫다
     if(terrH[gi(cx,cz)] !== GY) return '평평한 땅에만 지어요';
     if(rampCells.has(cx+','+cz)) return '망루 계단 자리예요';
     /* 상인 좌판을 벽으로 덮어 버리면 아무도 못 산다 */
