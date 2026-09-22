@@ -2833,16 +2833,20 @@ import * as THREE from 'three';
 const GAME_VER = '53차 · 참고 이미지에 맞춘 얼굴과 원통 머리 · 자연스러운 작업 모션 · 밝은 카드형 상점';
 const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
 const GY = 9;                         // 땅 윗면 높이
-const ARENA_R = 40;                   // 마을 평지(짓는 곳) 반지름  ※맵 10% 확대
-const RING_A = 40, RING_D = 53;       // 산 시작 / 협곡 끝
+/* ★ 64차 — 마을을 넓혔다(선생님: "미적인 것들을 많이 추가하니까 그에 맞게 마을을 넓혀줘").
+   평지·산 시작·협곡 끝·세상 끝·성문(GATE_T)·좀비 출발(SPAWN_R)을 **전부 6칸씩** 바깥으로 민다.
+   상대 거리(성문↔협곡 끝 8 · 협곡 끝↔세상 끝 9 · 산 오르막 5.6)는 그대로라 성문·망루·계단·협곡은
+   모양이 안 바뀐다. 격자 반경 HW=73 은 세상 끝 68 을 5칸 여유로 품는다. */
+const ARENA_R = 46;                   // 마을 평지(짓는 곳) 반지름  ※63차까지 40
+const RING_A = 46, RING_D = 59;       // 산 시작 / 협곡 끝
 
-const FIELD_R = 62;                   // 세상 끝 (원)
+const FIELD_R = 68;                   // 세상 끝 (원)
 const MTN_H = 15;                     // 산 높이
 const GAP_HALF = 6.6;                 // 입구 통로 반너비 — 통로 폭 약 13칸
 const NG = 5;                         // 모둠 수
 const GCOL = ['#ff6b6b','#4dabf7','#51cf66','#ffd43b','#cc7bff'];
 const GHEX = [0xff6b6b,0x4dabf7,0x51cf66,0xffd43b,0xcc7bff];
-const SPAWN_R = 56;
+const SPAWN_R = 62;                   // 좀비가 나타나는 축거리 — 협곡 끝(59)과 세상 끝(68) 사이. 64차 +6
 const gi = (x,z)=> (x+HW) + (z+HW)*WS;
 const inW = (x,z)=> x>=-HW && x<=HW && z>=-HW && z<=HW;
 
@@ -3565,7 +3569,7 @@ const sun  = new THREE.DirectionalLight(0xffffff, 1.15); sun.position.set(50,90,
 const amb  = new THREE.AmbientLight(0xffffff, 0.30); scene.add(amb);
 
 /* ═══ 해 그림자 (25차) ═══ */
-const SH_R = 46;                          // 그림자가 덮는 반지름(칸)
+const SH_R = 52;                          // 그림자가 덮는 반지름(칸) — 64차 46→52, 마당(46)이 넓어진 만큼
 const sunTarget = new THREE.Object3D(); scene.add(sunTarget); sun.target = sunTarget;
 if(GFX.shadow){
   sun.castShadow = true;
@@ -4031,7 +4035,7 @@ const MT_DIRT = 0x9a6f46, MT_SNOW = 0xffffff, MT_MOSS = 0x7cbc57, MT_GRASS = 0x6
 /* 63차 — 수정 단상 색 셋(PLAT_C·PLAT_TOP·GOLD_C)은 단상과 함께 지웠다. 쓰는 곳이 없다. */
 function buildWorldMesh(){
   /* ── 바닥 — 꼭짓점 색 잔디 ── */
-  const SEG = 124;                                   // 33차 — 1칸 격자. 흙길·개울을 칠하려면 이 촘촘함이 필요하다(62 는 2칸이라 길이 톱니였다)
+  const SEG = FIELD_R*2;                             // 33차 — 1칸 격자. 흙길·개울을 칠하려면 이 촘촘함이 필요하다(반칸이면 길이 톱니였다) · 64차 — 세상 끝에 맞춰 따라간다
   const gg = new THREE.PlaneGeometry(FIELD_R*2, FIELD_R*2, SEG, SEG); gg.rotateX(-Math.PI/2);
   const P = gg.attributes.position, cols = new Float32Array(P.count*3);
   const cA = new THREE.Color(GRASS_A), cB = new THREE.Color(GRASS_B), cC = new THREE.Color(GRASS_C), c = new THREE.Color();
@@ -4187,8 +4191,10 @@ const NODE_DEF = {
   gold: {give:'g', amt:4, hits:10, per:2, icon:'✨', name:'금'}     // 5칸 × 4 = 20 금/광맥
 };
 const NODE_S = 0.32;    // 자원 덩어리 크기 배수 — 작을수록 많이 깔 수 있다 (0.45에서 30% 축소)
-/* 자원이 깔리는 고리 — 안쪽은 농장 바깥, 바깥쪽은 마당 끝 */
-const NODE_R0 = 17.0, NODE_R1 = 37.5;
+/* 자원이 깔리는 고리 — 안쪽은 농장·집 마당 바깥, 바깥쪽은 마당 끝 2.5칸 안쪽.
+   64차 — 마당이 46 으로 넓어져 바깥쪽을 43.5 로, 집 열셋이 r 19~34 에 들어와 안쪽을 19 로 밀었다.
+   집 마당 자체는 houseNear 로 따로 비운다. */
+const NODE_R0 = 19.0, NODE_R1 = 43.5;
 /* ── 자원 덩어리 (로블록스 룩) ── */
 const LEAFG  = new THREE.IcosahedronGeometry(0.5, 1);  LEAFG.computeVertexNormals();   // 각진 공(80면) — 잎·수풀·꽃
 const ROCKG  = new THREE.DodecahedronGeometry(0.5, 0); ROCKG.computeVertexNormals();   // 각진 바위(12면)
@@ -4378,7 +4384,7 @@ function placeNodes(){
   }
   /* 산 위·협곡 마당 장식 숲 — 산등성이를 통째로 덮는 숲이라 눈에 제일 많이 띈다.
      31차 — 침엽수(고깔 셋) 셋에 둥근 나무 둘 비율로 섞는다. 산 위엔 소나무가 어울리고 실루엣이 갈린다. */
-  for(let i=0;i<165;i++){
+  for(let i=0;i<200;i++){   // 64차 — 산 고리가 넓어진 만큼(165→200) 숲도 늘린다
     const x = Math.round((Math.random()*2-1)*FIELD_R), z = Math.round((Math.random()*2-1)*FIELD_R);
     const od0 = oct(x+0.5, z+0.5);
     if(od0 < ARENA_R+3) continue;
@@ -4442,7 +4448,7 @@ function scatterDecor(){
      축 방향 단위벡터 = (d.dx, d.dz),  직각 방향 = (-d.dz, d.dx)
    bpush 의 ry 를 atan2(dx,dz) 로 주면 블록의 로컬 +Z 가 축 방향을 향한다.
      → sx = 통로 가로폭, sz = 축 방향 두께. */
-const GATE_T = 45;          // 성문이 서는 축 거리 (산 한가운데)
+const GATE_T = 51;          // 성문이 서는 축 거리 (산 한가운데) — 64차 45→51, 산자락(RING_A)이 6칸 밀린 만큼
 const GATE_TOP = 12;        // 망루 몸통 꼭대기 (GY 기준)
 /* 3×5 픽셀 숫자 — 위에서 아래로, 1이 켜진 칸 */
 const DIGIT = {
@@ -4865,7 +4871,7 @@ const fireMat = new THREE.MeshBasicMaterial({color:0xffe27a, transparent:true, o
 const fireMesh = new THREE.InstancedMesh(new THREE.SphereGeometry(.08, 8, 6), fireMat, FN);   // 28차 — 둥근 불티
 fireMesh.frustumCulled = false; fireMesh.count = 0; scene.add(fireMesh);
 const flies = [];
-for(let i=0;i<FN;i++){ const a=Math.random()*Math.PI*2, r=8+Math.random()*30;
+for(let i=0;i<FN;i++){ const a=Math.random()*Math.PI*2, r=8+Math.random()*(ARENA_R-10);
   flies.push({x:Math.cos(a)*r, z:Math.sin(a)*r, y:GY+0.7+Math.random()*2.4,
     p:Math.random()*9, s:0.25+Math.random()*0.5}); }
 
@@ -5723,7 +5729,7 @@ function villageStreets(){
        t 8~41.8: 수정 마당을 벗어나는 데서 성문(t=45) 세 칸 앞까지. 간격 2.6 은 뱅크를 300 밑으로 두려고 잡았다
        (여기가 300 을 넘으면 뱅크가 열 조각으로 쪼개져 드로우콜이 한꺼번에 뛴다 — ggb 175→415 때 겪은 일이다). */
     let k = 0;
-    for(let t=8; t<=42.001; t+=2.6, k++){
+    for(let t=8; t<=ARENA_R+2.001; t+=2.6, k++){   // 64차 — 성문 세 칸 앞까지(마당 끝 + 협곡 어귀)
       const p = roadAtT(g, t), ry = Math.atan2(p.ux, p.uz);
       for(const sd of [-1,1]){
         const q = sideOf(p, 1.62*sd);
@@ -5752,7 +5758,7 @@ function villageStreets(){
     /* 어귀 등돌 한 쌍 (t=33) — '여기부터 우리 마을' 문턱. 성문까지 남은 12칸이 다섯 다 똑같다.
        ※ 모둠 색은 낮에만 갈린다(EMITC 는 emissive 가 한 몸이다). 밤엔 다섯 문 앞이 다 같은 주황 두 점이다. */
     for(const sd of [-1,1]){
-      const p = roadAtT(g, 33), q = sideOf(p, 2.9*sd);
+      const p = roadAtT(g, ARENA_R-7), q = sideOf(p, 2.9*sd);   // 64차 — 마당 끝에서 7칸 안(예전 33)
       if(!stFree(q[0], q[1], 1.2)) continue;
       GD(q[0], 0.68, q[1], 0.52, 1.35, 0.52, 0xb6afa1);        // 돌기둥
       LM(q[0], 1.52, q[1], 0.34, 0.34, 0.34);                  // 빛알 — 기둥과 갓 사이라 네 옆이 트여 있다
@@ -5938,7 +5944,7 @@ function villageWater(){
       while(j < sg.length-1 && t > sg[j][4]){ t -= sg[j][4]; j++; }
       const px = sg[j][0] + sg[j][2]*t, pz = sg[j][1] + sg[j][3]*t;
       const r = Math.hypot(px, pz);
-      if(r < 6.0 || r > 24) continue;                       // 수정 둘레와 성문 앞은 비운다
+      if(r < 6.0 || r > 30) continue;                       // 수정 둘레와 성문 앞은 비운다 (64차 — 마을이 넓어져 24→30)
       const nx = -sg[j][3], nz = sg[j][2];
       for(const side of [-1, 1]){
         const X = px + nx*2.5*side, Z = pz + nz*2.5*side;
@@ -6335,7 +6341,7 @@ function villageNight(){
      길 한복판을 비워 둬야 아이가 길을 가로질러 벽을 세울 수 있고, 그래야 '길가' 로 읽힌다.
      좌·우를 번갈아 놓되 막힌 쪽이면 반대쪽에 세운다(자리를 잃지 않으려고). */
   const LAMP = [];                                   // 등 자리 [x,z] — 아래 반딧불이가 다시 읽는다
-  const LAMP_STEP = 5.2, OFF = 2.8, R_IN = 7, R_OUT = 34; // 간격 · 옆으로 민 거리 · 수정 단상 바깥 ~ 마당 가장자리 6칸 안쪽
+  const LAMP_STEP = 5.2, OFF = 2.8, R_IN = 7, R_OUT = ARENA_R-6; // 간격 · 옆으로 민 거리 · 수정 단상 바깥 ~ 마당 가장자리 6칸 안쪽
 
   const okLamp = (x,z)=>{
     const rx = Math.round(x), rz = Math.round(z);
@@ -12372,8 +12378,14 @@ function solidHit(x, z, y){
   return farmRingHit(x, z, y);
 }
 function spawnPoint(g){
-  const r = 26 + Math.random()*7, off = (Math.random()-0.5)*9;
-  return [gX(g, r, off), gZ(g, r, off)];
+  /* 64차 — 마당 끝(ARENA_R)에서 14~7칸 안, 제 성문 쪽. 집 발자국(terrH 가 올라간 칸)에 떨어지면
+     지붕 위에 서게 되므로 집 마당을 피해 다시 뽑는다(열두 채 발자국은 마당의 3% 라 금방 나온다). */
+  for(let i=0;i<24;i++){
+    const r = (ARENA_R-14) + Math.random()*7, off = (Math.random()-0.5)*9;
+    const x = gX(g, r, off), z = gZ(g, r, off);
+    if(!houseNear(x, z, 1.0)) return [x, z];
+  }
+  return [gX(g, ARENA_R-10, 0), gZ(g, ARENA_R-10, 0)];
 }
 function placePlayer(){
   const [x,z] = spawnPoint(G.me.g);
@@ -12855,7 +12867,7 @@ function chestReward(day){
 function chestSpot(g){
   for(let i=0;i<160;i++){
     const a = Math.random()*Math.PI*2;
-    const r = 15 + Math.random()*19;
+    const r = 15 + Math.random()*(ARENA_R-17);   // 64차 — 마당 끝 2칸 안까지(예전 15~34)
     const x = Math.round(Math.cos(a)*r), z = Math.round(Math.sin(a)*r);
     if(!inW(x,z) || terrH[gi(x,z)] !== GY) continue;
     if(sectorOf(x+0.5, z+0.5) !== g) continue;
