@@ -6227,7 +6227,7 @@ function villageNight(){
      ★ col 은 낮 색이다. special 갈래에서 col 은 TILE_COL 에 안 곱해지고 instanceColor 로 가는데,
        three.js 는 instanceColor 를 **확산색에만** 곱하고 emissive 에는 안 곱한다.
        그래서 낮에는 밟힌 흙 얼룩(0x9a8a72 를 곱해 약 #96712c), 밤에는 제 밝기로 켜진 주황 웅덩이가 된다. */
-  const PL = (x,z, s, col, y)=> bpush('gglow', gG, EMITC, x, GY+(y===undefined?0.05:y), z, 0, s, 0.06, s, 0, col);
+  const POOL = (x,z, s, col, y)=> bpush('gglow', gG, EMITC, x, GY+(y===undefined?0.05:y), z, 0, s, 0.06, s, 0, col);
   /* ★ 빛 웅덩이는 겹치면 안 되는 판이다. chamferBox(3755줄) 윗면이 중심 +0.5*sy · 가로 ±0.41*s 라,
      윗면 높이가 같은 판 둘이 반너비 합보다 가까우면 같은 깊이를 두 번 칠해 카메라가 움직일 때마다
      지직거린다(z-fighting). 상인×동물상인은 무조건 겹치고, 4모둠 화톳불×길등도 겹친다. 층을 나눈다. */
@@ -6264,7 +6264,7 @@ function villageNight(){
     GW(x, 0.30*sc, z, 0.44*sc, 0.34*sc, 0.44*sc, FLAME);           // 불씨
     GW(x, 0.62*sc, z, 0.32*sc, 0.30*sc, 0.32*sc, FLAME);           // 불꽃 가운데
     GW(x, 0.86*sc, z, 0.18*sc, 0.24*sc, 0.18*sc, FLAME);           // 불꽃 끝 — 위로 갈수록 가늘어야 불로 읽힌다
-    PL(x, z, ps, POOL_D, PL_MID);
+    POOL(x, z, ps, POOL_D, PL_MID);
   };
 
   /* ══════════ ① 다섯 흙길의 길등 ══════════
@@ -6272,7 +6272,7 @@ function villageNight(){
      길 한복판을 비워 둬야 아이가 길을 가로질러 벽을 세울 수 있고, 그래야 '길가' 로 읽힌다.
      좌·우를 번갈아 놓되 막힌 쪽이면 반대쪽에 세운다(자리를 잃지 않으려고). */
   const LAMP = [];                                   // 등 자리 [x,z] — 아래 반딧불이가 다시 읽는다
-  const STEP = 5.2, OFF = 2.8, R_IN = 7, R_OUT = 34; // 간격 · 옆으로 민 거리 · 수정 단상 바깥 ~ 마당 가장자리 6칸 안쪽
+  const LAMP_STEP = 5.2, OFF = 2.8, R_IN = 7, R_OUT = 34; // 간격 · 옆으로 민 거리 · 수정 단상 바깥 ~ 마당 가장자리 6칸 안쪽
 
   const okLamp = (x,z)=>{
     const rx = Math.round(x), rz = Math.round(z);
@@ -6298,7 +6298,7 @@ function villageNight(){
     WD(x, 2.95, z, 0.60, 0.14, 0.60, 0x6f5236);   // 갓
     GW(x, 2.66, z, 0.32, 0.42, 0.32);             // 등알 — 갓 **바로 밑**이라 사방에서 보인다
                                                   // (갓 속에 넣으면 밤에 불이 안 보인다)
-    PL(x, z, 3.6, POOL_D, PL_LOW);                      // 빛 웅덩이 — 지름 3.6칸
+    POOL(x, z, 3.6, POOL_D, PL_LOW);                      // 빛 웅덩이 — 지름 3.6칸
   };
 
   {
@@ -6316,7 +6316,7 @@ function villageNight(){
             const lx = px + nx*OFF*s, lz = pz + nz*OFF*s;
             if(okLamp(lx,lz)){ lamp(lx,lz); break; }
           }
-          side = -side; acc += STEP;
+          side = -side; acc += LAMP_STEP;
         }
         acc -= len;                                 // 남은 거리를 다음 토막으로 넘긴다
       }
@@ -6333,7 +6333,7 @@ function villageNight(){
     if(nodeFar(c[0],c[1],3.2)){ BFX = c[0]; BFZ = c[1]; break; }
 
   bonfire(BFX, BFZ, 1.0, 8, 4, 6.0);
-  PL(BFX, BFZ, 3.4, POOL_H, PL_TOP);                  // 불 가까운 안쪽은 더 밝다(바깥 판보다 0.06 높이 얹어 겹침을 피한다)
+  POOL(BFX, BFZ, 3.4, POOL_H, PL_TOP);                  // 불 가까운 안쪽은 더 밝다(바깥 판보다 0.06 높이 얹어 겹침을 피한다)
   for(let i=0;i<3;i++){                             // 통나무 의자 셋 — 앉는 자리가 그려져 있으면 아홉 살은 반드시 거기 선다
     const a = i/3*6.283 + 0.4;
     WD(BFX+Math.cos(a)*2.3, 0.18, BFZ+Math.sin(a)*2.3, 0.42, 0.36, 1.70, 0xa07a52, -a);   // ry=-a 라야 긴 축이 접선으로 눕는다
@@ -6387,12 +6387,12 @@ function villageNight(){
     /* 빨간 차양(2.90×1.50, 밑면 1.82) 앞단 밑 */
     WD(sx(0.95,0.62), sy+1.67, sz(0.95,0.62), 0.06, 0.30, 0.06, 0x5a4630);   // 걸이 줄
     GW(sx(0.95,0.62), sy+1.37, sz(0.95,0.62), 0.26, 0.30, 0.26);             // 등알
-    PL(sx(0.40,0.90), sz(0.40,0.90), 3.0, POOL_D, PL_LOW);
+    POOL(sx(0.40,0.90), sz(0.40,0.90), 3.0, POOL_D, PL_LOW);
     /* 동물 상인 민트 천막(밑면 1.65) 밑 */
     const V = VET_OFF;
     WD(sx(V-0.85,0.30), sy+1.50, sz(V-0.85,0.30), 0.06, 0.28, 0.06, 0x5a4630);
     GW(sx(V-0.85,0.30), sy+1.20, sz(V-0.85,0.30), 0.26, 0.28, 0.26);
-    PL(sx(V-0.30,0.70), sz(V-0.30,0.70), 3.0, POOL_D, PL_MID);   // 상인 웅덩이와 반드시 다른 층
+    POOL(sx(V-0.30,0.70), sz(V-0.30,0.70), 3.0, POOL_D, PL_MID);   // 상인 웅덩이와 반드시 다른 층
   }
   {
     const fRY = Math.PI/2 - FORGE_A, fcr = Math.cos(fRY), fsr = Math.sin(fRY);
@@ -6402,7 +6402,7 @@ function villageNight(){
     /* 옆 벽 판 처마(-1.88, 2.12, 밑면 2.07) 앞쪽 끝 밑 */
     WD(fx(-1.79,1.05), fy+1.92, fz(-1.79,1.05), 0.06, 0.30, 0.06, 0x5a4630);
     GW(fx(-1.79,1.05), fy+1.62, fz(-1.79,1.05), 0.26, 0.30, 0.26);
-    PL(fx(-1.30,1.30), fz(-1.30,1.30), 3.0, POOL_D, PL_MID);
+    POOL(fx(-1.30,1.30), fz(-1.30,1.30), 3.0, POOL_D, PL_MID);
   }
 
   /* ══════════ ⑧ 반딧불이 다시 심기 — 인스턴스도 그리기도 하나도 안 는다 ══════════
