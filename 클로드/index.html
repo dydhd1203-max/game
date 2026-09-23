@@ -6948,19 +6948,21 @@ function updVillage(dt, t){
             2.4, 3.5 + Math.random()*1.5);
   }
   /* ── 64차 집 — 굴뚝 연기 셋(N1·W1·여관), 0.45초마다 한 알. 대장간과 같은 바람·같은 45칸 걸름.
-       살아 있는 알갱이 ≈ 대장간 8 + 3×5.3 = 24 / 풀 PN 160. ── */
+       살아 있는 알갱이 ≈ 대장간 8 + 3×6.2 = 27 / 풀 PN 160.
+       심사 지적으로 작게(크기 1.5)·낮게·짧게: 대장간 연기의 절반 크기라 굴뚝 갓 위에 조그맣게 머문다.
+       spark 의 g 0.06 이 고정(초당 1.02 감속)이라 오름 1.3 이면 수명 2.8초 안에 갓 밑으로 되내려오므로 1.5~1.7 — 꼭대기 ≈ 갓 위 1.1~1.4. ── */
   LIFE.hsmokeT -= dt;
   if(canSpark && LIFE.hsmokeT <= 0){
     LIFE.hsmokeT = 0.45;
     for(const s of LIFE.hsmoke)
       if(Math.abs(s.x-PL.x) < 45 && Math.abs(s.z-PL.z) < 45)
-        spark(s.x, s.y, s.z, night ? 0xe8b070 : 0xd8d2c8,
-              vWind(s.x, s.z, t)*0.7, 2.1 + Math.random()*0.35, vWind(s.z, s.x, t)*0.7,
-              2.4, 3.0 + Math.random()*1.2);
+        spark(s.x, s.y, s.z, night ? 0xe8b070 : 0xeceae4,
+              vWind(s.x, s.z, t)*0.7, 1.5 + Math.random()*0.2, vWind(s.z, s.x, t)*0.7,
+              2.0 + Math.random()*0.8, 1.5);
   }
   /* ── 64차 풍차 날개 — 팔 4 + 날개천 4 = 매 프레임 8 인스턴스(V_box 73 + 8 = 81 ≤ V_BOX_CAP 96, 정원 안 올림).
        setIR3 이 YXZ 라 ry 로 얼굴을 돌린 뒤 rz 가 '얼굴 축 둘레 회전' 이 된다(빨랫줄과 같은 수법).
-       한 바퀴 18초 — 느려야 평화롭다. 팔 아래 끝 y 1.85 > 눈높이 1.12 라 머리를 안 스친다. ── */
+       한 바퀴 18초 — 느려야 평화롭다. 허브 y 6.90(탑 한 단 더 올린 뒤) · 팔 반지름 3.55 → 아래 끝 3.35 ≫ 눈높이 1.12, 꼭대기 10.45 > 큰 나무 9.4. ── */
   if(LIFE.mill){ const m = LIFE.mill;
     for(let k=0;k<4;k++){ const a = t*0.35 + k*Math.PI/2, sa = Math.sin(a), ca = Math.cos(a);
       pB(m.x, m.y, m.z, m.ry, -1.75*sa, 1.75*ca, m.lz, 0, a, 0.14, 3.60, 0.14, 0x7a5236);                         // 팔
@@ -7263,10 +7265,18 @@ function villageHouses(){
     Pp(f, dx, y0+dh,   dz+0.09, 0.61*k, 0.61*k, 0.10, col, 0, Math.PI/4);
     Ww(f, dx+0.28*k, y0+0.72*k, dz+0.17, 0.10,0.10,0.08, 0);                 // 손잡이 — 판자 원색
   };
-  const flowerBox = (f, wx, wz, c1, c2)=>{                 // 창 밑 꽃상자 — 잎 + 꽃 두 벌
-    Ww(f, wx, 0.90, wz+0.16, 0.98, 0.24, 0.30, HC.box);
-    Lf(f, wx, 1.06, wz+0.16, 0.50, 0.28, 0.50);
-    FLW(f, wx-0.24, 0.98, wz+0.18, c1); FLW(f, wx+0.22, 0.98, wz+0.20, c2);
+  /* 창 밑 꽃상자 — 잎 + 꽃 두 벌. (ax,az) 벽 표면의 점, (nx,nz) 벽 바깥 법선 — 옆벽 창(S1·S2 남쪽 거리 쪽)에도 같은 상자를 단다 */
+  const flowerBoxN = (f, ax, az, nx, nz, c1, c2)=>{ const dry = Math.atan2(nx, nz), tx = nz, tz = -nx;   // (tx,tz) 벽을 따라가는 방향
+    Ww(f, ax+nx*0.16, 0.90, az+nz*0.16, 0.98, 0.24, 0.30, HC.box, dry);
+    Lf(f, ax+nx*0.16, 1.06, az+nz*0.16, 0.50, 0.28, 0.50);
+    FLW(f, ax - tx*0.24 + nx*0.18, 0.98, az - tz*0.24 + nz*0.18, c1);
+    FLW(f, ax + tx*0.22 + nx*0.20, 0.98, az + tz*0.22 + nz*0.20, c2);
+  };
+  const flowerBox = (f, wx, wz, c1, c2)=> flowerBoxN(f, wx, wz, 0, 1, c1, c2);   // 앞벽 창 밑(법선 +z)
+  /* 박공 다락 마름모 창 — 흰 틀 + hsGlow 유리, rz π/4. y 는 박공 단 안·지붕 밑면 아래에 오도록 부르는 쪽이 잰다 */
+  const attic = (f, hd, y, s)=>{ const k = s || 0.50;
+    Pp(f, 0, y, hd+0.03, k+0.14, k+0.14, 0.06, HC.trim, 0, Math.PI/4);
+    Gl(f, 0, y, hd+0.06, k, k, 0.06, 0, Math.PI/4);
   };
   const barrel = (f, dx, dz)=>{                            // 나무통 — 통 + 돌빛 띠 둘
     Ww(f, dx, 0.36, dz, 0.60, 0.72, 0.60, HC.barrel);
@@ -7317,10 +7327,13 @@ function villageHouses(){
     for(const sx of [1,-1]) Ww(f, sx*(hw-0.08), wt-0.06, 0, 0.22, 0.16, D, HC.timber);
     if(o.posts) for(const sx of [1,-1]) Ww(f, sx*o.posts, 0.30+wallH/2, hd-0.08, 0.20, wallH+0.02, 0.20, HC.timber);   // 여관 — 앞면 기둥 둘 더
     if(o.band) for(const sx of [1,-1]) Ww(f, sx*(hw+0.75)/2, o.band, hd+0.02, hw-0.65, 0.14, 0.20, HC.timber);         // 여관 — 문 양옆 띠장(문 아치를 안 가른다)
-    /* 계단식 박공 — 단마다 윗모서리가 지붕 밑면 아래에 오도록 너비를 지붕에서 거꾸로 잰다 */
+    /* 계단식 박공 — 단마다 윗모서리가 지붕 밑면 아래에 오도록 너비를 지붕에서 거꾸로 잰다.
+       색: 0단은 벽색(벽의 연장), 1단부터는 모래색 — 한 톤만 달라야 '계단' 이 아니라 '부드러운 박공' 으로 읽힌다(심사 지적).
+       벽이 이미 모래색인 집(여관·P2·S1)은 같은 이유로 살구색을 쓴다(같은 색이면 단이 아예 안 보인다). */
     const ns = o.steps || 5, pk = Math.min(0.30, (under - 0.18 - (wt+0.08))/(ns-1));
+    const gcol = o.wall === HC.sand ? HC.blush : HC.sand;
     for(let k=0;k<ns;k++){ const y = wt + 0.08 + pk*k, wk = Math.max(0.36, 2*(under - (y + pk/2 + 0.01))/tn - 0.06);
-      Pp(f, 0, y, 0, wk, pk+0.02, D, o.gable); }
+      Pp(f, 0, y, 0, wk, pk+0.02, D, k ? gcol : o.wall); }
     /* 지붕판 둘(rz = −sign(x)·θ, 헛간과 같은 부호) · 처마널 · 용마루 */
     for(const sx of [1,-1]){
       Pp(f, sx*s/2, eY + (s/2)*tn, 0, Ls, 0.28, rd, o.roof, 0, -sx*th);
@@ -7368,8 +7381,7 @@ function villageHouses(){
     if(h.kind === 'inn'){ inn(f, W, D, roof, wall, fl); continue; }
     const narrow = W < 3.4, mirror = narrow && (hi % 2 === 0);
     const ddx = narrow ? (mirror ? 0.60 : -0.60) : 0;
-    const gable = wall === HC.cream && (hi % 2) ? HC.sand : wall;   // 크림 집 절반은 박공만 모래색 — 한 가족이되 복사판이 아니게
-    const o = {W, D, wall, gable, roof, door:dcol, ddx, flw:fl};
+    const o = {W, D, wall, roof, door:dcol, ddx, flw:fl};                 // 박공 단 색은 cottage 안에서 정한다(0단 벽색 · 위는 모래색)
     if(h.n === 'S2') o.wallH = 2.62;                                  // 2층 다락 — 벽을 반 칸 올리고 박공에 마름모 창
     if(h.n === 'W2') o.chim = false;                                  // 굴뚝 대신 지붕 위 새집
     if(h.n === 'E1') o.lamp = false;                                  // 포치 차양 밑에 따로 단다
@@ -7379,29 +7391,47 @@ function villageHouses(){
     if(!narrow){
       const wx = hw - 0.76;
       for(const sx of [1,-1]){ win(f, sx*wx, wy, hd, 0, 1, 0.98); flowerBox(f, sx*wx, hd, fl[0], fl[1]); }
-      win(f, hw, wy, -0.30, 1, 0, 0.90);
+      /* 옆창 — 보통은 +x 옆벽 하나. 남쪽 거리의 두 채는 거리(세계 −z) 쪽 옆벽에 창을 더 내어 밤에 불 켜진 벽이 거리를 지켜본다:
+         S2(ry π/2) 는 +x 옆벽이 거리 쪽이라 거기에 둘, S1(ry −π/2) 은 −x 옆벽이 거리 쪽이라 하나 더. 새 창 밑엔 꽃상자 */
+      if(h.n === 'S2'){
+        for(const wz of [-0.55, 0.60]){ win(f, hw, wy, wz, 1, 0, 0.90); flowerBoxN(f, hw, wz, 1, 0, fl[0], fl[1]); }
+      } else win(f, hw, wy, -0.30, 1, 0, 0.90);
+      if(h.n === 'S1'){ win(f, -hw, wy, -0.30, -1, 0, 0.90); flowerBoxN(f, -hw, -0.30, -1, 0, fl[0], fl[1]); }
     } else {
       const fwx = ddx > 0 ? -0.58 : 0.58;                              // 문 반대쪽에 창 하나
       win(f, fwx, wy, hd, 0, 1, 0.92);
-      if(h.n !== 'E2') flowerBox(f, fwx, hd, fl[0], fl[1]);
+      flowerBox(f, fwx, hd, fl[0], fl[1]);
       win(f,  hw, wy, -0.30,  1, 0, 0.90);
       win(f, -hw, wy, -0.30, -1, 0, 0.90);
     }
-    /* 변주 하나씩 — '누가 산다' 는 흔적 */
+    /* 다락 마름모 창 — 좁은 앞면(깊은형·정사각) 여섯 채는 벽 위 0.60(박공 0~3단 안, 지붕 밑면 3.77 아래 · 꼭지 3.47),
+       2층 다락 S2 는 벽 위 0.95. 밤에 '다락에 누가 있다'. 넓은형 나머지는 창 셋으로 충분 */
+    if(narrow) attic(f, hd, r.wt+0.60);
+    if(h.n === 'S2') attic(f, hd, r.wt+0.95);
+    /* 변주 하나씩 — '누가 산다' 는 흔적 (명세 2.4 표) */
     if(h.n === 'E1'){                                                  // 현관 포치 — 기둥 둘 + 앞으로 처진 차양판
       for(const sx of [1,-1]) Ww(f, sx*0.95, 0.95, hd+0.80, 0.16, 1.90, 0.16, HC.timber);
       Pp(f, 0, 2.06, hd+0.50, 1.30, 0.14, 2.30, dim(roof, 0.8), Math.PI/2, 0.25);
       Ww(f, 0.62, 1.92, hd+0.55, 0.06, 0.20, 0.06, HC.timber);          // 차양 밑에 매단 문등
       Gl(f, 0.62, 1.70, hd+0.55, 0.22, 0.26, 0.22);
     }
-    if(h.n === 'E2'){                                                  // 꽃상자 대신 창 밑 작은 벤치
-      const bx = ddx > 0 ? -0.58 : 0.58;
-      Ww(f, bx, 0.50, hd+0.32, 1.00, 0.10, 0.36, wc(0xb98a56));
-      for(const sx of [1,-1]) Ww(f, bx + sx*0.40, 0.24, hd+0.32, 0.10, 0.42, 0.30, wc(0x8a5f3c));
+    if(h.n === 'W1'){                                                  // 앞 창 밑 벤치(광장 벤치 비율을 hsW 로) — 등받이를 벽 쪽에, 길을 본다
+      Ww(f, -1.25, 0.52, 2.20, 1.35, 0.11, 0.46, wc(0xb98a56));
+      Ww(f, -1.25, 0.78, 1.98, 1.35, 0.38, 0.09, wc(0xa87c4c));
+      for(const sx of [1,-1]) Ww(f, -1.25 + sx*0.52, 0.24, 2.20, 0.13, 0.42, 0.40, wc(0x8a5f3c));
+      PLZ_SOLIDS.push([fx_(f,-1.25,2.20), fz_(f,-1.25,2.20), 0.62, GY+0.60]);
     }
-    if(h.n === 'S2'){                                                  // 다락 마름모 창
-      Pp(f, 0, r.wt+0.95, hd+0.03, 0.64, 0.64, 0.06, HC.trim, 0, Math.PI/4);
-      Gl(f, 0, r.wt+0.95, hd+0.06, 0.50, 0.50, 0.06, 0, Math.PI/4);
+    if(h.n === 'E2')                                                   // −x 옆벽 밑 장작더미 3+2+1단, 긴 축 z (판자 원색)
+      for(let k=0;k<3;k++) for(let i=0;i<3-k;i++) Ww(f, -1.95 + (i - (2-k)/2)*0.32, 0.15 + 0.30*k, 0.30, 0.30, 0.30, 0.80, 0);
+    if(h.n === 'N2'){                                                  // −x 옆마당 빨래줄 — 기둥 둘 + 줄 + 천 셋(크림·분홍·노랑)
+      for(const lz of [-0.6, 1.8]) Ww(f, -2.4, 0.80, lz, 0.12, 1.60, 0.12, HC.timber);
+      Pp(f, -2.4, 1.45, 0.6, 0.06, 0.06, 2.40, HC.trim);
+      [[-0.1, HC.cream], [0.55, 0xff9ec4], [1.2, 0xffd84d]].forEach(([lz, c])=> Pp(f, -2.4, 1.18, lz, 0.05, 0.48, 0.40, c));
+    }
+    if(h.n === 'S1'){                                                  // 문 옆 고양이 밥자리 — 매트 + 그릇 + 우유
+      Pp(f, -1.20, 0.02, 2.60, 0.70, 0.04, 0.50, 0xc25b4a);
+      Ww(f, -1.20, 0.09, 2.60, 0.24, 0.10, 0.24, 0);
+      Pp(f, -1.20, 0.15, 2.60, 0.18, 0.04, 0.18, 0xffffff);
     }
     if(h.n === 'W2'){                                                  // 지붕 위 새집
       const bx = 0.6*hw, by = r.rY + 0.14/r.cs - bx*r.tn;
@@ -7412,15 +7442,22 @@ function villageHouses(){
     }
     if(h.n === 'P1')                                                   // 옆벽에 기댄 낚싯대 — 연못가 집
       Ww(f, hw+0.06, 0.85, hd-0.55, 0.05, 1.70, 0.05, HC.timber, Math.PI/2, 0.32);
-    if(h.n === 'P2')                                                   // 옆벽 밑 장작더미 두 단
-      for(let i=0;i<5;i++) Ww(f, -hw-0.26, 0.13 + (i>2 ? 0.24 : 0), -0.55 + (i%3)*0.27 + (i>2 ? 0.13 : 0), 0.24, 0.24, 0.90, HC.barrel);
-    if(h.n === 'Q1') barrel(f, hw+0.55, -0.4);                         // 과수원 집 — 나무통
+    if(h.n === 'P2')                                                   // −x 옆벽 밖 벌통 둘 — 몸통 + 꿀색 뚜껑 + 검은 입구(앞쪽)
+      for(const bz of [-0.4, 0.5]){
+        Pp(f, -2.30, 0.25, bz, 0.50, 0.50, 0.50, 0xf1dfae);
+        Pp(f, -2.30, 0.53, bz, 0.60, 0.10, 0.60, HC.honey);
+        Pp(f, -2.30, 0.12, bz+0.26, 0.14, 0.06, 0.05, 0x74502f); }
+    if(h.n === 'Q1'){                                                  // 과수원 집 — 나무통 + 문 옆 사과 궤짝 둘(위에 빨간 사과 셋씩)
+      barrel(f, hw+0.55, -0.4);
+      for(const qx of [1.40, 2.00]){ Ww(f, qx, 0.18, 2.40, 0.50, 0.35, 0.50, 0);
+        for(const [ax, az] of [[-0.13, -0.10], [0.12, -0.08], [0.0, 0.13]]) Pp(f, qx+ax, 0.42, 2.40+az, 0.14, 0.14, 0.14, 0xe5433a); }
+    }
     if(h.n === 'N1' || h.n === 'W1') LIFE.hsmoke.push({x:r.chimTop[0], y:r.chimTop[1]+0.1, z:r.chimTop[2]});   // 굴뚝 연기 ★ (여관과 셋)
   }
 
   /* ── 5. 여관 — 오두막 레시피의 큰 판. 문 −z(수정 쪽) ── */
   function inn(f, W, D, roof, wall, fl){
-    const r = cottage(f, {W, D, wall, gable:HC.blush, roof, door:HC.doorT, wallH:2.60, steps:7, ov:0.75, tan:0.8125,
+    const r = cottage(f, {W, D, wall, roof, door:HC.doorT, wallH:2.60, steps:7, ov:0.75, tan:0.8125,
                           chim:0.90, chimX:0.7, big:1.18, posts:1.08, band:2.50, lamp:false, flw:fl});
     const hw = r.hw, hd = r.hd;
     LIFE.hsmoke.push({x:r.chimTop[0], y:r.chimTop[1]+0.1, z:r.chimTop[2]});
@@ -7438,7 +7475,9 @@ function villageHouses(){
     /* 문 옆 등불 하나 더(오른쪽) · 문 옆 화분 · 나무통 둘(오른 옆벽) */
     Ww(f, 2.35, 2.62, hd+0.35, 0.08, 0.08, 0.70, HC.timber);
     Gl(f, 2.35, 2.30, hd+0.60, 0.26, 0.30, 0.26);
-    Ww(f, -1.05, 0.18, hd+0.40, 0.40, 0.36, 0.40, HC.box); Lf(f, -1.05, 0.50, hd+0.40, 0.50, 0.40, 0.50);
+    for(const [px, pc] of [[-1.05, fl[0]], [1.05, fl[1]]]){                       // 문 양옆 테라스 화분 둘 — 잎 위로 꽃 한 벌씩(분홍·흰)
+      Ww(f, px, 0.18, hd+0.40, 0.40, 0.36, 0.40, HC.box); Lf(f, px, 0.50, hd+0.40, 0.50, 0.40, 0.50);
+      FLW(f, px, 0.50, hd+0.40, pc); }
     barrel(f, hw+0.50, -0.9); barrel(f, hw+0.50, 0.1);
     /* 테라스 — 벤치 하나(길 쪽을 본다) · 탁자 둘 + 걸상 · 방금 마시던 머그 하나 */
     Ww(f, -1.9, 0.52, hd+1.30, 1.35, 0.11, 0.46, wc(0xb98a56));
@@ -7457,29 +7496,47 @@ function villageHouses(){
        표의 face 대신 수정 쪽을 본다(발자국이 정사각이라 돌려도 자리는 같다) — 1모둠 길·광장·연못 어디서나 날개면이 비스듬히 보인다. ── */
   function mill(cx, cz){
     const ry = Math.atan2(-cx, -cz), f = mkF(cx, cz, ry);
-    Ss(f, 0, 0.30, 0, 2.80, 0.60, 2.80, HC.stone); Ss(f, 0, 0.30, 0, 2.55, 0.60, 2.55, HC.stone, Math.PI/4);   // 팔각 밑단
-    const tiers = [[2.50, 1.80, 1.50], [2.25, 1.80, 3.30], [2.00, 1.60, 4.90]];                                  // [폭, 높이, 중심 y]
+    /* 밑단 — 돌 1.40 높이(명세 2.6). 세계 축에 맞춘 정사각(dry −ry)이라 3×3 발자국 안에 딱 든다(2.80 < 3.0).
+       그 위 몸통은 수정 쪽으로 돌아앉는데 모서리가 1.46 까지 나오므로 위 테를 2.96 으로 둘러 모서리를 받친다 */
+    Ss(f, 0, 0.70, 0, 2.80, 1.40, 2.80, HC.stone, -ry);
+    Ss(f, 0, 1.40, 0, 2.96, 0.12, 2.96, HC.stoneD, -ry);
+    /* 탑 3단 — 위로 갈수록 좁아 '통통한 탑'. [폭, 높이, 중심 y] 1.4~4.0 · 4.0~6.2 · 6.2~7.6. 단 사이 돌 띠 둘 */
+    const tiers = [[2.20, 2.60, 2.70], [1.90, 2.20, 5.10], [1.60, 1.40, 6.90]];
     for(const [w, h, y] of tiers){ Pp(f, 0, y, 0, w, h, w, HC.cream); }
-    Ww(f, 0, 2.40, 0, 2.62, 0.14, 2.62, HC.timber); Ss(f, 0, 4.20, 0, 2.36, 0.14, 2.36, HC.stoneD);            // 단 사이 띠
-    for(const sx of [1,-1]) for(const sz of [1,-1]) Ww(f, sx*1.22, 1.50, sz*1.22, 0.18, 1.82, 0.18, HC.timber);
-    door(f, 0, 1.25, HC.doorR, 0.90, 0.62);                                                                      // 문은 밑단(0.6) 위에서 시작
-    Pb(f, 0, 0.66, 1.58, 0.90, 0.14, 0.60); Pb(f, 0.1, 0.07, 2.05, 0.90, 0.14, 0.70);                          // 문턱 돌 두 장(밑단이 0.6 높다)
-    stones(f, 0, 0.55, 5);
-    win(f, 0, 3.45, 1.125, 0, 1, 0.50);
-    /* 모자 — 오두막과 같은 식(벽 위 5.7, 폭 2.0, 처마 0.35, 경사 tan 0.88): 슬레이트 판 둘 + 박공 3단 + 용마루. 용마루가 날개 쪽 Z 를 향한다 */
-    { const wt = 5.70, s = 1.35, tn = 0.88, th = Math.atan(tn), cs = Math.cos(th), eY = wt-0.05, rY = eY + s*tn, under = rY - 0.14/cs, rk = dim(HC.slate, 0.8);
-      for(const sx of [1,-1]){ Pp(f, sx*s/2, eY + (s/2)*tn, 0, s/cs+0.05, 0.28, 2.60, HC.slate, 0, -sx*th);
-        Pp(f, sx*(s-0.04), eY+0.05, 0, 0.16, 0.30, 2.70, rk, 0, -sx*th); }
-      for(let k=0;k<3;k++){ const y = wt + 0.08 + 0.30*k, wk = Math.max(0.36, 2*(under - (y + 0.16))/tn - 0.06); Pp(f, 0, y, 0, wk, 0.32, 2.0, HC.sand); }
-      Pp(f, 0, rY-0.01, 0, 0.50, 0.50, 2.70, rk); }
-    /* 축 + 허브 판 — 날개는 매 프레임 V_box 로(LIFE.mill) */
-    Ww(f, 0, 5.40, 1.20, 0.50, 0.50, 0.60, HC.timber);
-    Pp(f, 0, 5.40, 1.55, 0.70, 0.70, 0.10, HC.stoneD);
-    Pp(f, 0, 5.40, 1.62, 0.26, 0.26, 0.10, HC.trim);
-    LIFE.mill = {x:cx, y:GY+5.40, z:cz, ry, lz:1.66};
-    /* 밑에 밀가루 자루 셋 — '풍차가 일한다' */
-    Pp(f, 1.75, 0.22, 0.55, 0.50, 0.45, 0.50, HC.sack, 0.2); Pp(f, 1.95, 0.22, 1.15, 0.50, 0.45, 0.50, HC.sack, -0.3);
-    Pp(f, 1.85, 0.66, 0.85, 0.48, 0.42, 0.48, HC.sack, 0.5);
+    Ss(f, 0, 4.02, 0, 2.30, 0.14, 2.30, HC.stoneD); Ss(f, 0, 6.22, 0, 2.00, 0.14, 2.00, HC.stoneD);
+    for(const sx of [1,-1]) for(const sz of [1,-1]) Ww(f, sx*1.02, 2.70, sz*1.02, 0.18, 2.62, 0.18, HC.timber);   // T1 모서리 기둥
+    /* 문(밑단 위 1.40 에서 시작) + 돌 계단 셋(윗단 1.38 — 밑단 윗면 1.40 과 같은 면이 되지 않게 0.02 낮춤) + 문턱 돌 + 길까지 디딤돌 */
+    door(f, 0, 1.10, HC.doorR, 0.90, 1.40);
+    Ss(f, 0, 0.23, 2.15, 1.00, 0.46, 1.50, HC.stone); Ss(f, 0, 0.46, 1.90, 1.00, 0.92, 1.00, HC.stone); Ss(f, 0, 0.69, 1.65, 1.00, 1.38, 0.50, HC.stone);
+    Pb(f, 0.1, 0.07, 3.25, 0.90, 0.14, 0.70);
+    stones(f, 0, 1.65, 5);
+    /* 창 둘 — T1 앞면(문 아치 꼭지 3.28 위·띠 3.95 아래) · T2 앞면. 밤에 탑에 불 두 점 */
+    win(f, 0, 3.62, 1.10, 0, 1, 0.44);
+    win(f, 0, 5.30, 0.95, 0, 1, 0.40);
+    /* 모자 — 오두막과 같은 식(벽 위 7.6, T3 폭 1.6, 처마 0.25, 경사 45°): 슬레이트 판 둘 + 박공 2단(모래색) + 용마루(꼭대기 ≈ 8.75).
+       용마루가 날개 쪽 Z 를 향한다 */
+    { const wt = 7.60, s = 1.05, tn = 1.0, th = Math.atan(tn), cs = Math.cos(th), eY = wt-0.05, rY = eY + s*tn, under = rY - 0.14/cs, rk = dim(HC.slate, 0.8);
+      for(const sx of [1,-1]){ Pp(f, sx*s/2, eY + (s/2)*tn, 0, s/cs+0.05, 0.24, 2.10, HC.slate, 0, -sx*th);
+        Pp(f, sx*(s-0.04), eY+0.05, 0, 0.16, 0.28, 2.20, rk, 0, -sx*th); }
+      for(let k=0;k<2;k++){ const y = wt + 0.14 + 0.28*k, wk = Math.max(0.36, 2*(under - (y + 0.15))/tn - 0.06); Pp(f, 0, y, 0, wk, 0.30, 1.55, HC.sand); }
+      Pp(f, 0, rY-0.01, 0, 0.40, 0.30, 2.20, rk); }
+    /* 축 + 허브 판 — T3 앞면 0.80 에서 내민다. 날개는 매 프레임 V_box 로(LIFE.mill, 허브 y 6.90 → 날개 끝 3.35~10.45, 마을 최고) */
+    Ww(f, 0, 6.90, 1.10, 0.44, 0.44, 0.70, HC.timber);
+    Pp(f, 0, 6.90, 1.42, 0.66, 0.66, 0.10, HC.stoneD);
+    Pp(f, 0, 6.90, 1.48, 0.26, 0.26, 0.04, HC.trim);
+    LIFE.mill = {x:cx, y:GY+6.90, z:cz, ry, lz:1.56};
+    /* 밑에 밀가루 자루 셋 + 손수레(villageStreets 수레 레시피를 hsW 로, 몸통 옆에 비스듬히) — '풍차가 일한다' */
+    Pp(f, 2.30, 0.22, 0.40, 0.50, 0.45, 0.50, HC.sack, 0.2); Pp(f, 2.45, 0.22, 1.00, 0.50, 0.45, 0.50, HC.sack, -0.3);   // 밑단(세계 ±1.40) 밖
+    Pp(f, 2.38, 0.66, 0.70, 0.48, 0.42, 0.48, HC.sack, 0.5);
+    { const kx = -2.10, kz = 1.40, kr = 0.9, ux = Math.sin(kr), uz = Math.cos(kr), lx = -uz, lz = ux;   // (ux,uz) 손잡이 쪽, (lx,lz) 옆
+      Ww(f, kx, 0.62, kz, 0.75, 0.42, 1.30, wc(0x9a5f3a), kr);                                          // 몸통
+      for(const s of [-1,1]) Ww(f, kx + lx*s*0.40, 0.84, kz + lz*s*0.40, 0.07, 0.26, 1.30, 0, kr);      // 옆널(판자 원색)
+      Ww(f, kx + ux*0.95, 0.78, kz + uz*0.95, 1.00, 0.09, 0.09, wc(0x8a5f3c), kr - Math.PI/2, 0.40);   // 앞으로 든 손잡이
+      for(const s of [-1,1]){                                                                             // 바퀴 — 십자로 겹친 널 둘
+        Ww(f, kx + lx*s*0.46, 0.30, kz + lz*s*0.46, 0.10, 0.54, 0.24, wc(0x6b4a2e), kr);
+        Ww(f, kx + lx*s*0.46, 0.30, kz + lz*s*0.46, 0.10, 0.24, 0.54, wc(0x6b4a2e), kr); }
+      Pp(f, kx, 0.90, kz, 0.46, 0.20, 0.46, HC.sack, kr + 0.3);                                        // 실린 자루 하나
+      PLZ_SOLIDS.push([fx_(f,kx,kz), fz_(f,kx,kz), 0.60, GY+0.85]); }
   }
 }
 
