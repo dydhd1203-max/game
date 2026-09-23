@@ -5062,14 +5062,76 @@ const farmParts = [];                       // farmParts[모둠][단계] = {p:[�
 const farmVis   = new Array(NG).fill(0);    // 지금 켜 둔 단계
 const farmY     = [];                       // 우리 바닥 높이
 function buildFarms(){
-  const gPost  = boxGeo(T.bark,T.bark,T.logTop,T.logTop,T.bark,T.bark,1,1,1);
-  const gRail  = cube(T.bark),  gPlank  = cube(T.plank), gHay  = cube(T.hay);
-  /* ★ 마당 바닥을 짚 타일(T.hay)로 깔았더니 위에서 볼 때 '마룻바닥' 이 됐다 —
-     짚 타일에는 세 줄마다 가로 어두운 띠가 있어서, 넓게 깔면 판자 이음매로 읽힌다.
-     흙마당(T.sand)에 짚단·허수아비를 얹는 쪽이 훨씬 농장답다. */
-  const gYard  = cube(T.sand);
-  const gClothF = cube(T.cloth), gRoof = cube(T.roofRed);
-  const gGlow  = cube(T.glow);
+  /* ═══ 65차 — 농장을 '진짜 목조 우리·헛간' 으로 다시 지었다 (선생님: "농장 디자인도 많이 손봐줘") ═══
+     ★ 64차까지는 짧은 가로대 수십 토막·체크무늬 바닥 타일·원색 꽃밭·디딤판이 한 우리에 130조각 남짓이었다.
+       선생님은 난잡한 것을 싫어한다 — 조각을 붙이지 않고 '크고 잘 만든 형태 몇 개' 로 바꿨다(한 단계 80조각 남짓).
+     ★ 모양은 이 함수 안에서 한 번만 만든다: 통나무(기둥·여물통) · 둥근 곤포 · 헛간 한 채(벽+박공+지붕) · 흙 원판.
+       헛간·통나무·곤포는 꼭짓점 색(널판 두세 톤·마구리·끈)을 구워 WMAT_WOODV(기존 나뭇결 재질)로 그린다 —
+       새 재질 0, 투명 0, 조각 하나 = 드로우콜 몫 하나. 나머지 판자는 WGEO(모따기 상자) + 기존 세 재질(나무결·돌결·페인트).
+     ★ 색은 재료 색 그대로 적는다(번역층 타일 색을 안 거친다). 모둠색은 번호판 윗줄·허수아비 옷에만. */
+  const lin = (hex)=> new THREE.Color(hex);          // 꼭짓점 색은 선형 값이라 THREE.Color 로 바꿔 쓴다
+  /* 꼭짓점 색 기하를 만드는 작은 도구 — 삼각형 방향은 법선을 보고 저절로 맞춘다(뒤집힌 면 = 검은 면) */
+  const fgB = ()=>{ const P = [], N = [], C = [];
+    const tri = (a,b,c,n,ka,kb,kc)=>{
+      const ux = b[0]-a[0], uy = b[1]-a[1], uz = b[2]-a[2], vx = c[0]-a[0], vy = c[1]-a[1], vz = c[2]-a[2];
+      if((uy*vz-uz*vy)*n[0] + (uz*vx-ux*vz)*n[1] + (ux*vy-uy*vx)*n[2] < 0){ [b,c] = [c,b]; [kb,kc] = [kc,kb]; }
+      P.push(...a,...b,...c); N.push(...n,...n,...n); C.push(...ka,...kb,...kc); };
+    const quad = (a,b,c,d,n,ka,kb,kc,kd)=>{ tri(a,b,c,n,ka,kb,kc); tri(a,c,d,n,ka,kc,kd); };
+    const done = ()=>{ const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(P,3));
+      g.setAttribute('normal',   new THREE.Float32BufferAttribute(N,3));
+      g.setAttribute('color',    new THREE.Float32BufferAttribute(C,3));
+      g.computeBoundingSphere(); return g; };
+    return {tri, quad, done}; };
+  const kc = (c,k)=> [c.r*k, c.g*k, c.b*k];
+  /* ── 헛간 한 채 — 세로 널판 벽(오각 기둥) + 박공 지붕 두 장(처마·박공 내밀기, 널 줄 다섯). 조각 하나 ──
+     크기는 64차 헛간 자리(바닥 2.3×1.8, 몸 충돌 r1.45 · 3.2)에 그대로 맞췄다. 박공(용마루 방향 = 로컬 Z)이 우리를 본다. */
+  const BW = 2.16, BD = 1.66, BH = 1.40, BG = 1.00, RT = 0.11, ROE = 0.28, ROG = 0.22;
+  const gBarn = (()=>{ const q = fgB(), cW = lin(0x8f6a47), cR = lin(0xa4533c);
+    const TONE = [1.0, 0.80, 0.93, 0.72, 0.97, 0.86, 0.76, 0.95];            // 널판 톤(선형 배수) — 이음이 보인다
+    for(const sx of [1,-1]){ const x = sx*BW/2;                             // 옆벽 — 널 여섯
+      for(let i=0;i<6;i++){ const z0 = -BD/2 + BD*i/6, z1 = z0 + BD/6, t = TONE[(i*3 + (sx>0?1:4))%8];
+        const lo = kc(cW, t*0.62), hi = kc(cW, t);                          // 밑동은 흙물이 들어 어둡다
+        q.quad([x,0,z0],[x,0,z1],[x,BH,z1],[x,BH,z0],[sx,0,0], lo,lo,hi,hi); } }
+    const top = x=> BH + BG*(1 - Math.abs(x)/(BW/2));
+    for(const sz of [1,-1]){ const z = sz*BD/2;                             // 박공 벽 — 널 여덟(가운데 이음이 용마루 밑)
+      for(let i=0;i<8;i++){ const x0 = -BW/2 + BW*i/8, x1 = x0 + BW/8, t = TONE[(i + (sz>0?0:3))%8];
+        const lo = kc(cW, t*0.62), hi = kc(cW, t*1.02);
+        q.quad([x0,0,z],[x1,0,z],[x1,top(x1),z],[x0,top(x0),z],[0,0,sz], lo,lo,hi,hi); } }
+    const L = Math.hypot(BW/2, BG), ddx = (BW/2)/L, ddy = -BG/L, Z = BD/2 + ROG;
+    for(const s of [1,-1]){                                                  // 지붕 두 장
+      const nx = s*BG/L, ny = (BW/2)/L;
+      const U0 = [0, BH+BG], U1 = [s*(BW/2 + ddx*ROE), BH + ddy*ROE];
+      const T0 = [0, BH+BG + RT/ny], T1 = [U1[0] + nx*RT, U1[1] + ny*RT];
+      const NC = 5, CT = [0.55, 1.0, 0.84, 0.96, 0.80];                    // 용마루 줄은 어둡게(마룻대 덮개), 나머지 널 줄
+      for(let c=0;c<NC;c++){ const a = c/NC, b = (c+1)/NC;
+        const A = [T0[0]+(T1[0]-T0[0])*a, T0[1]+(T1[1]-T0[1])*a], B = [T0[0]+(T1[0]-T0[0])*b, T0[1]+(T1[1]-T0[1])*b];
+        const k = kc(cR, CT[c]);
+        q.quad([A[0],A[1],-Z],[A[0],A[1],Z],[B[0],B[1],Z],[B[0],B[1],-Z],[nx,ny,0], k,k,k,k); }
+      const kU = kc(cR, 0.42), kE = kc(cR, 0.50);
+      q.quad([U0[0],U0[1],-Z],[U0[0],U0[1],Z],[U1[0],U1[1],Z],[U1[0],U1[1],-Z],[-nx,-ny,0], kU,kU,kU,kU);   // 처마 밑
+      q.quad([U1[0],U1[1],-Z],[U1[0],U1[1],Z],[T1[0],T1[1],Z],[T1[0],T1[1],-Z],[s*ddx,ddy,0], kE,kE,kE,kE); // 처마 끝
+      for(const sz of [1,-1])                                                 // 박공 쪽 지붕 끝
+        q.quad([U0[0],U0[1],sz*Z],[U1[0],U1[1],sz*Z],[T1[0],T1[1],sz*Z],[T0[0],T0[1],sz*Z],[0,0,sz], kE,kE,kE,kE);
+    }
+    return q.done(); })();
+  /* ── 통나무 — 옆은 껍질, 마구리(위·아래)는 밝은 나이테 색. 기둥·대문 기둥·여물통·허수아비 막대가 같이 쓴다 ── */
+  const gLog = (()=>{ const g = new THREE.CylinderGeometry(0.5, 0.5, 1, 8, 1).toNonIndexed(), n = g.attributes.normal, C = [];
+    for(let i=0;i<n.count;i++){ const k = Math.abs(n.getY(i)) > 0.5 ? 1.55 : 1.0; C.push(k,k,k); }
+    g.setAttribute('color', new THREE.Float32BufferAttribute(C,3)); return g; })();
+  /* ── 둥근 곤포 — 마구리는 밝고, 몸통에 끈 두 줄 ── */
+  const gBale = (()=>{ const g = new THREE.CylinderGeometry(0.5, 0.5, 1, 14, 10).toNonIndexed(), p = g.attributes.position, n = g.attributes.normal, C = [];
+    for(let i=0;i<p.count;i+=3){
+      const cy = (p.getY(i)+p.getY(i+1)+p.getY(i+2))/3, row = Math.floor((cy+0.5)*10);
+      const k = Math.abs(n.getY(i)) > 0.5 ? 1.16 : (row===2 || row===7) ? 0.42 : 1.0;
+      for(let j=0;j<3;j++) C.push(k,k,k); }
+    g.setAttribute('color', new THREE.Float32BufferAttribute(C,3)); return g; })();
+  const gDisc = new THREE.CylinderGeometry(0.5, 0.5, 1, 32, 1);   // 흙마당 원판(납작하게 눌러 쓴다)
+  const gGlow = cube(T.glow);
+  NO_CAST.add('farmGround');                                       // 65차 — 땅에 붙은 흙 원판은 그림자를 안 드리운다(한 줄 한 항목)
+  const POSTC = [0x5e4430, 0x67492f, 0x554030];                    // 기둥 — 짙은 통나무 셋
+  const RAILC = [0x8a6440, 0x96724c, 0x7c5c3e];                    // 쪼갠 가로대 — 비바람에 바랜 셋
+  const WHITE = 0xe6dfcf;                                          // 헛간 X 버팀·문틀 — 바랜 흰 칠
   for(let g=0; g<NG; g++){
     const cx = FARM_X[g], cz = FARM_Z[g];
     const y0 = terrAt(Math.round(cx), Math.round(cz));
@@ -5077,114 +5139,120 @@ function buildFarms(){
     const openA = Math.atan2(-cz, -cx);          // 수정을 보는 쪽
     const RY = Math.PI/2 - openA, cr = Math.cos(RY), sr = Math.sin(RY);
     const stages = []; farmParts.push(stages);
+    const shirt = new THREE.Color(GHEX[g]).lerp(new THREE.Color(0x8a7a5e), 0.30).getHex();   // 허수아비 옷 — 모둠색을 한 톤 가라앉힌다
     for(let st=0; st<FARM_R2.length; st++){
       const hs = [], gnd = []; stages.push({p:hs, gnd});
-      const R = FARM_R2[st], Rin = st ? FARM_R2[st-1] : 0;
-      /* dy 는 바닥에서의 높이, rot 는 로컬 안에서 더 돌리는 각(로컬 +Z 기준) */
+      const R = FARM_R2[st];
+      /* dy 는 바닥에서의 높이, rot 는 로컬 안에서 더 돌리는 각(로컬 +Z 기준), tilt 는 로컬 Z 축으로 기울이기 */
       const at = (dx,dz)=> [cx + dx*cr + dz*sr, cz - dx*sr + dz*cr];
       const putIn = (list, key, geo, mat, dx,dy,dz, sx,sy,sz, col, tilt, rot)=>{
         const w = at(dx,dz);
         list.push(bpush(key, geo, mat, w[0], y0+dy, w[1],
                         RY + (rot||0), sx,sy,sz, tilt||0, col||0));
       };
-      const put  = (key,geo, dx,dy,dz, sx,sy,sz, col,tilt,rot)=>
-        putIn(hs, key, geo, MAT, dx,dy,dz, sx,sy,sz, col,tilt,rot);
+      const pk = (key, geo, mat, dx,dy,dz, sx,sy,sz, col, tilt, rot)=>
+        putIn(hs, key, geo, mat, dx,dy,dz, sx,sy,sz, col, tilt, rot);
+      const sd = g*97 + st*13;                                     // 씨앗 — 판마다 같은 흔들림
 
-      /* ── 바닥 — 밟아 다져진 흙마당. 단계마다 '더 넓어진 고리' 만 새로 깐다 ── */
-      const TQ = 1.15, nq = Math.ceil(R/TQ);
-      for(let a=-nq; a<=nq; a++) for(let b=-nq; b<=nq; b++){
-        const px = a*TQ, pz = b*TQ, d = Math.hypot(px,pz);
-        if(d > R-0.18 || d <= Rin-0.18) continue;
-        putIn(gnd, 'farmGround', gYard, MAT, px, 0.03, pz, TQ, 0.06, TQ,
-              ((a+b)%2) ? 0xd8c9a4 : 0xe6dabb);
+      /* ── 바닥 — 밟혀 다져진 흙마당 원판 하나 + 풀에 녹는 가장자리 + 대문 밖 흙길 + 여물통 앞 젖은 흙.
+           체크무늬 타일은 걷었다(1칸 격자가 위에서 마룻바닥으로 읽혔다). 단계마다 그 단계 것만 켠다 —
+           원판은 고리로 쌓을 필요가 없다. 겹치는 판은 높이를 8mm 씩 벌려 떨리지 않게 했다. ── */
+      const disc = (dx,dz, top, sx,sz, col, rot)=> pk('farmGround', gDisc, WMAT, dx, top-0.01, dz, sx, 0.02, sz, col, 0, rot);
+      for(let e=0; e<3; e++){                                        // 가장자리 — 풀이 밟혀 누렇게 된 테. 타원 셋을 돌려 겹쳐 동그라미 선을 흐린다
+        const ea = sd*0.37 + e*1.05;
+        disc(Math.cos(ea)*0.18, Math.sin(ea)*0.18, 0.014, (R+0.52)*2, (R+0.22)*2, 0x88994f, ea);
       }
-      /* ── 울타리 — 기둥 + 가로대 두 줄. 문(수정 쪽)만 터 둔다 ──
-         ★ 가로대는 기둥과 기둥 '사이' 를 잇는다. 결이 접선으로 누워야 하고,
-           길이는 기둥 간격보다 조금 길어야 이가 안 빠진다. */
-      const NP = Math.max(18, Math.round(R*6.2));
-      const step = Math.PI*2/NP, seg = R*step*1.16;
-      for(let i=0;i<NP;i++){
-        let th = i*step; if(th > Math.PI) th -= Math.PI*2;   // -π ~ π (0 = 문 쪽)
-        if(Math.abs(th) < FARM_DOOR) continue;               // 문은 비운다
-        const px = Math.sin(th)*R, pz = Math.cos(th)*R;
-        if(i%2===0) put('farmPost', gPost, px, 0.52, pz, 0.17, 1.04, 0.17, 0, 0, th);
-        for(const hy of [0.42, 0.80])
-          put('farmRail', gRail, px, hy, pz, 0.09, 0.12, seg, 0xcda071, 0, th+Math.PI/2);
+      disc(0, R+0.55,      0.022, 1.60, 1.9, 0x9a7d58);                // 대문 밖 흙길 — 문턱이 닳은 자리(길게 빼면 혀처럼 떠 보였다)
+      disc(0, 0,           0.030, (R-0.02)*2, (R-0.02)*2, 0x9e8059);   // 마당
+      disc(-0.55, -(R-1.30), 0.038, 2.3, 1.15, 0x8b6e4d, 0.10);       // 여물통 앞 — 물이 튀어 젖은 흙
+      disc(R*0.22, R*0.18, 0.038, 1.9, 1.3, 0xa68a62, 0.7);           // 볕 드는 쪽 — 마른 흙에 짚 부스러기
+
+      /* ── 울타리 — 거친 통나무 기둥 + 쪼갠 가로대 두 줄. 문(수정 쪽)만 터 둔다 ──
+         ★ 가로대는 기둥에서 기둥까지 한 장으로 건넌다(예전: 짧은 토막 수십 개). 한 칸 ≈1.45.
+         ★ 기둥 굵기·키·기울기, 가로대 높이·처짐을 씨앗으로 조금씩 흔들었다 — 자로 잰 듯하면 장난감이다.
+         ★ 기둥은 반지름 R 위, 가로대는 현(弦)이라 안쪽으로 많아야 0.1 — 충돌 고리(|d−R|<0.30, 0.95 아래) 안이다. */
+      const TG = FARM_DOOR + 0.06;                                   // 대문 기둥 각 — 충돌 문틈(±FARM_DOOR)을 살짝 감싼다
+      const nSp = Math.max(8, Math.round((Math.PI*2 - TG*2)*R/1.45));
+      const thK = k=> TG + (Math.PI*2 - TG*2)*k/nSp;
+      const pxz = th=> [Math.sin(th)*R, Math.cos(th)*R];
+      for(let k=1; k<nSp; k++){
+        const [px,pz] = pxz(thK(k)), j = rnd(sd + k*1.7);
+        pk('farmPost', gLog, WMAT_WOODV, px, 0.50 + j*0.05, pz, 0.15 + j*0.05, 1.02 + j*0.10, 0.15 + j*0.05,
+           POSTC[k%3], (j-0.5)*0.07, j*6.28);
       }
-      /* ── 대문 — 굵은 기둥 둘에 들보 하나. 그 위에 모둠 번호판을 건다 ──
-         ★ 번호판을 문 위로 올렸다. 예전엔 울타리 옆 기둥에 걸려 있어서
-           우리 안 동물에 가렸다. 문 위는 멀리서도 가려질 일이 없다. */
-      const gpx = Math.sin(FARM_DOOR+0.10)*R, gpz = Math.cos(FARM_DOOR+0.10)*R;
+      for(let k=0; k<nSp; k++){
+        const a = pxz(thK(k)), b = pxz(thK(k+1)), mx = (a[0]+b[0])/2, mz = (a[1]+b[1])/2;
+        const len = Math.hypot(b[0]-a[0], b[1]-a[1]) + 0.12, ang = Math.atan2(-(b[1]-a[1]), b[0]-a[0]);
+        for(let r=0; r<2; r++){
+          const j = rnd(sd + k*3.1 + r*0.37);
+          pk('farmRail', WGEO, WMAT_WOOD, mx, (r ? 0.80 : 0.41) - j*0.03, mz, len, 0.12 + j*0.03, 0.08,
+             RAILC[(k + r*2)%3], (j-0.5)*0.05, ang);
+        }
+      }
+      /* ── 대문 — 굵은 통나무 기둥 둘 + 들보 + 까치발 둘. 번호판은 들보 위에 얹는다 ──
+         ★ 번호판은 멀리서 제 모둠 우리를 찾는 표시라 크기·발광 숫자 개수는 그대로 두고, 테만 나무로 바꿨다.
+           모둠색은 테 윗줄 한 줄에만 쓴다(기둥에 늘어뜨린 깃발은 떠 있는 분홍 네모로 읽혀서 뺐다). */
+      const gpx = Math.sin(TG)*R, gpz = Math.cos(TG)*R, BMY = 2.02;
       for(const s2 of [1,-1]){
-        put('farmPost', gPost, s2*gpx, 0.98, gpz, 0.24, 1.96, 0.24, 0xc8a070);
-        put('farmCloth', gClothF, s2*(gpx-0.30), 1.72, gpz, 0.56, 0.40, 0.09, GHEX[g]);
+        pk('farmPost', gLog, WMAT_WOODV, s2*gpx, 1.13, gpz, 0.28, 2.30, 0.28, 0x5a412d, 0, s2);
+        pk('farmWood', WGEO, WMAT_WOOD, s2*(gpx-0.33), BMY-0.33, gpz, 0.58, 0.10, 0.10, 0x6b4d33, -s2*Math.PI/4);   // 까치발
       }
-      put('farmRail', gRail, 0, 2.06, gpz, 0.20, 0.22, gpx*2+0.30, 0xc8a070, 0, Math.PI/2);
-      /* 번호판 — 검은 판에 밝은 숫자. 성문 번호판과 같은 3×5 점 글씨 */
-      const SGY = 2.72, PX2 = 0.15;
-      put('farmCloth', gClothF, 0, SGY, gpz, 1.12, 0.92, 0.13, GHEX[g]);
-      put('farmCloth', gClothF, 0, SGY, gpz+0.09, 0.88, 0.70, 0.10, 0x171a22);
+      pk('farmWood', WGEO, WMAT_WOOD, 0, BMY, gpz, gpx*2 + 0.62, 0.20, 0.22, 0x6b4d33);           // 들보
+      /* 번호판 — 나무 테 · 검은 판 · 성문 번호판과 같은 3×5 점 글씨 */
+      const SGY = BMY + 0.11 + 0.52, PX2 = 0.15;
+      pk('farmWood',  WGEO, WMAT_WOOD,  0, SGY, gpz,       0.84, 1.04, 0.10, 0x7a5a3c);
+      pk('farmCloth', WGEO, WMAT_PAINT, 0, SGY+0.45, gpz+0.01, 0.88, 0.16, 0.13, GHEX[g]);       // 모둠색 한 줄
+      pk('farmCloth', WGEO, WMAT_PAINT, 0, SGY-0.04, gpz+0.04, 0.64, 0.84, 0.05, 0x23262c);
       const rows = DIGIT[g+1];
       for(let r=0;r<5;r++) for(let c=0;c<3;c++){
         if(rows[r][c] !== '1') continue;
-        putIn(hs, 'farmGlow', gGlow, EMITC, (c-1)*PX2, SGY+(2-r)*PX2, gpz+0.16,
-              PX2*0.92, PX2*0.92, 0.09);
+        putIn(hs, 'farmGlow', gGlow, EMITC, (c-1)*PX2, SGY-0.04+(2-r)*PX2, gpz+0.08,
+              PX2*0.92, PX2*0.92, 0.06);
       }
-      /* ── 여물통(왼쪽) · 물통(오른쪽) — 우리 뒤쪽 울타리에 붙여 둔다 ── */
+      /* ── 여물통(왼쪽) · 물통(오른쪽) — 통나무를 파낸 구유. 반쯤 땅에 묻고 속(짚·물)을 윗면에 채운다 ──
+         자리는 64차 그대로(farmSpotXZ 'feed' · solidRebuild 가 같은 (±1.05, −(R−0.95)) 를 본다). */
       const bkz = -(R-0.95);
-      put('farmWood', gPlank, -1.05, 0.20, bkz, 1.70, 0.36, 0.72, 0x9a6b3f);
-      put('farmHay',  gHay,   -1.05, 0.38, bkz, 1.40, 0.18, 0.48, 0xf0dc9a);
-      put('farmWood', gPlank,  1.05, 0.20, bkz, 1.10, 0.36, 0.72, 0x9a6b3f);
-      put('farmCloth',gClothF, 1.05, 0.36, bkz, 0.86, 0.16, 0.50, 0x7fd0f0);   // 물
-      /* ── 볏짚 더미 — 우리 안 한쪽. 농장다운 실루엣을 하나 더 준다 ── */
-      const hbx = -(R-0.95), hbz = R*0.34;
-      put('farmHay', gHay, hbx, 0.34, hbz, 0.98, 0.68, 0.74, 0xe6cf92);
-      put('farmHay', gHay, hbx, 0.94, hbz, 0.82, 0.56, 0.62, 0xf0dca8, 0, 0.5);
-      for(const hy of [0.34, 0.94])                       // 짚단을 묶은 끈
-        put('farmRail', gRail, hbx, hy, hbz, hy>0.5?0.86:1.02, 0.10, 0.10, 0xa07a4a);
-      /* ── 허수아비 — 아이들이 제일 먼저 알아보는 농장 표시다 ── */
-      /* ★ 처음엔 머리 0.50 · 옷 0.50 · 챙 0.62 로 세웠는데, 소(sc 0.98)보다 굵어서
-         우리 안에서 제일 큰 덩어리가 됐다. 허수아비는 '막대기에 옷 걸친 것' 이라
-         가늘어야 허수아비로 읽힌다 — 키는 두고 굵기만 30% 줄였다.
-       ★ 얼굴은 대문 쪽(로컬 +Z)을 보게 돌렸다. 들어오는 아이와 눈이 마주친다. */
+      pk('farmPost',  gLog, WMAT_WOODV, -1.05, 0.17, bkz, 0.50, 1.40, 0.50, 0x7a5a3c, Math.PI/2, 0.02);
+      pk('farmStone', WGEO, WMAT,       -1.05, 0.40, bkz, 1.18, 0.05, 0.30, 0xcdb574);          // 여물(짚)
+      pk('farmPost',  gLog, WMAT_WOODV,  1.05, 0.17, bkz, 0.48, 0.98, 0.48, 0x7a5a3c, Math.PI/2, -0.03);
+      pk('farmCloth', WGEO, WMAT_PAINT,  1.05, 0.39, bkz, 0.76, 0.04, 0.28, 0x55808e);          // 물 — 하늘빛 도는 짙은 청회색
+      /* ── 둥근 곤포 셋 — 우리 안 한쪽에 피라미드로. 둥근 마구리가 우리 가운데를 본다 ── */
+      const hbx = -(R-0.95), hbz = R*0.34, BL = 0.62;
+      for(const s2 of [1,-1])
+        pk('farmHay', gBale, WMAT_WOODV, hbx, BL/2, hbz + s2*BL*0.5, BL, 0.60, BL, 0xd4b872, Math.PI/2, s2*0.06);
+      pk('farmHay', gBale, WMAT_WOODV, hbx, BL/2 + BL*0.87, hbz, BL, 0.60, BL, 0xdcc17c, Math.PI/2, 0.10);
+      /* ── 허수아비 — 64차 틀 그대로(막대·팔·옷·자루 머리·밀짚모자·단추 눈), 색만 차분하게.
+           ★ 얼굴은 대문 쪽(로컬 +Z)을 본다. 팔은 로컬 X 로 벌리고 소매 끝 짚도 그 끝에 단다. */
       const scx = R-0.95, scz = R*0.34;
-      put('farmPost', gPost,  scx, 0.80, scz, 0.11, 1.60, 0.11, 0xb98b58);
-      put('farmRail', gRail,  scx, 1.26, scz, 0.09, 0.09, 1.06, 0xb98b58, 0, Math.PI/2);
-      for(const s2 of [1,-1])                                              // 소매 끝 짚단
-        put('farmHay', gHay, scx, 1.26, scz + s2*0.53, 0.13, 0.16, 0.18, 0xf0dca8);
-      put('farmCloth',gClothF,scx, 1.14, scz, 0.34, 0.62, 0.24, GHEX[g]);  // 모둠색 옷
-      put('farmHay',  gHay,   scx, 1.62, scz, 0.34, 0.36, 0.34, 0xf3e0a8); // 짚 머리
-      put('farmHay',  gHay,   scx, 1.84, scz, 0.46, 0.08, 0.46, 0xd9b26a); // 밀짚모자 챙
-      put('farmHay',  gHay,   scx, 1.92, scz, 0.24, 0.14, 0.24, 0xd9b26a);
-      for(const s2 of [1,-1])                                              // 단추 눈
-        put('farmCloth', gClothF, scx + s2*0.09, 1.66, scz+0.18, 0.06,0.08,0.06, 0x2a2420);
-      put('farmCloth', gClothF, scx, 1.54, scz+0.18, 0.16, 0.05, 0.06, 0xd06a5a);  // 웃는 입
-      /* ── 헛간 — 우리 뒤. 지붕을 양쪽으로 기울여 얹고 다락 창을 낸다 ── */
-      const bz = -(R+1.8);
-      put('farmWood', gPlank, 0, 0.95, bz, 2.30, 1.90, 1.80, 0xe6b98c);
-      put('farmWood', gPlank, 0, 0.95, bz, 2.36, 0.16, 1.86, 0xc4703f);      // 허리 띠장
+      pk('farmPost',  gLog, WMAT_WOODV, scx, 0.80, scz, 0.10, 1.62, 0.10, 0x6b5038);
+      pk('farmWood',  WGEO, WMAT_WOOD,  scx, 1.26, scz, 1.06, 0.08, 0.08, 0x6b5038);
+      for(const s2 of [1,-1])                                                                    // 소매 끝 짚
+        pk('farmStone', WGEO, WMAT, scx + s2*0.53, 1.24, scz, 0.14, 0.17, 0.15, 0xd9bf7a);
+      pk('farmCloth', WGEO, WMAT_PAINT, scx, 1.12, scz, 0.36, 0.60, 0.22, shirt);                 // 모둠색 옷
+      pk('farmStone', WGEO, WMAT,       scx, 1.60, scz, 0.30, 0.32, 0.28, 0xcdb68a);              // 삼베 자루 머리
+      pk('farmStone', WGEO, WMAT,       scx, 1.79, scz, 0.50, 0.06, 0.50, 0xbf9a52);              // 밀짚모자 챙
+      pk('farmStone', WGEO, WMAT,       scx, 1.88, scz, 0.25, 0.14, 0.25, 0xc9a45c);
+      for(const s2 of [1,-1])                                                                    // 단추 눈
+        pk('farmCloth', WGEO, WMAT_PAINT, scx + s2*0.075, 1.64, scz+0.145, 0.055, 0.065, 0.03, 0x2a2420);
+      pk('farmCloth', WGEO, WMAT_PAINT, scx, 1.53, scz+0.145, 0.14, 0.035, 0.03, 0x5a3a2a);     // 꿰맨 입
+      /* ── 헛간 — 우리 뒤. 돌 주춧돌 + 널판 몸(박공이 우리를 본다) + 흰 X 버팀 문짝 두 짝 + 다락 건초 문 + 도르래 들보 ──
+         자리·크기는 64차 그대로(solidRebuild: (0, −(R+1.8)) r1.45 · 높이 3.2 — 이 헛간은 2.74). */
+      const bz = -(R+1.8), fz = bz + BD/2, PL0 = 0.20;
+      pk('farmStone', WGEO, WMAT, 0, 0.11, bz, BW+0.14, 0.24, BD+0.14, 0x9a9489);               // 주춧돌
+      pk('farmBarn', gBarn, WMAT_WOODV, 0, PL0, bz, 1, 1, 1, 0xffffff);
+      pk('farmCloth', WGEO, WMAT_PAINT, 0, PL0+0.62, fz+0.015, 1.18, 1.26, 0.04, WHITE);          // 문틀
       for(const s2 of [1,-1]){
-        put('farmWood', gPlank, s2*1.10, 0.95, bz, 0.20, 1.94, 0.20, 0xc4703f);
-        put('farmRoof', gRoof, s2*0.62, 2.16, bz, 1.32, 0.22, 2.10, 0xc0563f, -s2*0.62);
+        const dxl = s2*0.28;
+        pk('farmWood', WGEO, WMAT_WOOD, dxl, PL0+0.60, fz+0.04, 0.52, 1.16, 0.05, 0x9a4a38);        // 문짝
+        for(const d of [1,-1])                                                                   // X 버팀
+          pk('farmCloth', WGEO, WMAT_PAINT, dxl, PL0+0.60, fz+0.07, 0.07, 1.18, 0.03, WHITE, d*0.42);
       }
-      put('farmRoof', gRoof, 0, 2.44, bz, 0.34, 0.24, 2.16, 0xa8452f);       // 용마루
-      put('farmCloth',gClothF, 0, 0.62, bz+0.92, 0.94, 1.26, 0.10, 0x4a2f1c); // 문
-      put('farmWood', gPlank, 0, 1.32, bz+0.94, 1.08, 0.14, 0.10, 0xf2e2c4);
-      putIn(hs,'farmGlow', gGlow, EMITC, 0, 1.88, bz+0.92, 0.42, 0.36, 0.10); // 다락 창
-      put('farmRail', gRail, 1.58, 0.44, bz+0.34, 0.10, 0.88, 0.88, 0xb98b58, 0.7); // 수레바퀴
-      /* ── 문 앞 꽃밭과 디딤판 — 알록달록해야 아이들이 좋아한다 ── */
-      const FLC = [0xff8fb0, 0xffe07a, 0xa8e4ff, 0xffb35c, 0xd7a8ff, 0xa0f0b0];
-      for(let i=0;i<6;i++){
-        const th = FARM_DOOR + 0.26 + (i%3)*0.34, s2 = i<3 ? 1 : -1;
-        const rr = R + 0.62, fx = s2*Math.sin(th)*rr, fz = Math.cos(th)*rr;
-        /* ★ 잎사귀를 한 조각 더 붙였더니 짚 뱅크가 정확히 300개가 되어 구역이 넷으로
-           쪼개졌다(BSPLIT). 조각 하나에 드로우콜 셋이다 — 줄기 하나로 줄인다. */
-        put('farmHay',   gHay,    fx, 0.20, fz, 0.13, 0.40, 0.13, 0x7bbf5a);   // 줄기
-        put('farmCloth', gClothF, fx, 0.42, fz, 0.24, 0.18, 0.24, FLC[(i+g)%6]);
-      }
-      for(let i=0;i<3;i++)
-        put('farmWood', gPlank, (i%2?0.34:-0.34), 0.05, R+0.55+i*0.85,
-            0.66, 0.09, 0.66, 0xd8cdbc);
+      pk('farmCloth', WGEO, WMAT_PAINT, 0, PL0+BH+0.36, fz+0.012, 0.54, 0.52, 0.03, WHITE);        // 다락 문틀
+      putIn(hs,'farmGlow', gGlow, EMITC, 0, PL0+BH+0.36, fz+0.03, 0.42, 0.40, 0.04);              // 다락 문 — 낮엔 건초 빛, 밤엔 등불
+      pk('farmWood', WGEO, WMAT_WOOD, 0, PL0+BH+BG-0.20, fz+0.22, 0.11, 0.11, 0.56, 0x5e4430);    // 도르래 들보
+      /* 뒷면 — 길(성문 쪽)에서 오는 아이가 먼저 보는 면이라 민짜로 두지 않는다: 흰 테 두른 건초 문 하나 */
+      pk('farmCloth', WGEO, WMAT_PAINT, 0, PL0+BH+0.30, bz-BD/2-0.012, 0.60, 0.62, 0.03, WHITE);
+      pk('farmWood',  WGEO, WMAT_WOOD,  0, PL0+BH+0.30, bz-BD/2-0.03,  0.48, 0.50, 0.04, 0x6b4a34);
     }
   }
 }
