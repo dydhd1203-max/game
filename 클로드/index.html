@@ -4351,6 +4351,7 @@ function placeNodes(){
     if(!inW(x,z) || terrAt(x,z) !== GY) continue;    // 평지에만
     if(inFarmYard(cx,cz)) continue;                  // 우리 안에는 안 놓는다
     if(houseNear(cx,cz,2.2)) continue;               // 64차 — 집 마당(벽 밖 2.2칸)에도 안 놓는다. 나무 고깔이 지붕을 뚫는다
+    if(cx >= -4 && cx <= 5 && cz >= 19.5 && cz <= 25) continue;   // 64차 — 여관 앞마당(헛간 z 20.4 ~ 여관 벽 z 25)은 탁자·디딤돌 자리라 비운다(심사)
     if(waterNear(cx,cz,1.4) || pathDist(cx,cz) < 2.3) continue;   // 33차 — 연못·개울·흙길 위에는 안 놓는다
     const cd = corridorDist(cx,cz);
     if(cd && cd[2] < GAP_HALF+2.5) continue;         // 통로 한가운데는 비운다
@@ -4476,13 +4477,14 @@ function scatterDecor(){
 
   /* ── ③ 들꽃 밭 6(명세 3.5) — 반지름 1.8 안에 한 색 70% + 흰 30% 꽃 14벌 + 가장자리 수풀 셋 ── */
   for(let mi=0; mi<LS_PLAN.meadows.length; mi++){
-    const m = LS_PLAN.meadows[mi], seed = 70.9 + mi*8.3;
-    for(let i=0;i<14;i++){ const a = rnd(seed+i)*6.283, rr = Math.sqrt(rnd(seed+i*2.1))*1.8;   // sqrt → 원 안에 고르게
+    const m = LS_PLAN.meadows[mi], seed = 70.9 + mi*8.3, mr = m[3] || 1.8, mn = m[4] || 14, mpad = -(mr + 0.7);   // 제 자리표(반지름 mr+0.6)에는 걸리지 않게 pad 를 뺀다
+    for(let i=0;i<mn;i++){ const a = rnd(seed+i)*6.283, rr = Math.sqrt(rnd(seed+i*2.1))*mr;   // sqrt → 원 안에 고르게
       const x = m[0] + Math.cos(a)*rr, z = m[1] + Math.sin(a)*rr;
-      if(!okAt(x, z, 2.8, -2.5)) continue;                    // 제 자리표(반지름 2.4)에는 걸리지 않게 pad 를 뺀다
+      if(!okAt(x, z, 2.8, mpad)) continue;
       FLW(x, z, (i % 10 < 7) ? m[2] : 0xffffff); }
-    for(let i=0;i<3;i++){ const a = seed + i*2.1, x = m[0] + Math.cos(a)*2.2, z = m[1] + Math.sin(a)*2.2;
-      if(okAt(x, z, 2.8, -2.5)) Lf(x, z, 0.50, (i%2) ? LEAF_B : LEAF_A, seed+i*4.4); }
+    const nb = mr > 2 ? 5 : 3;                                                                   // 큰 밭(꽃동산)은 가장자리 수풀 다섯
+    for(let i=0;i<nb;i++){ const a = seed + i*6.283/nb, x = m[0] + Math.cos(a)*(mr+0.4), z = m[1] + Math.sin(a)*(mr+0.4);
+      if(okAt(x, z, 2.8, mpad)) Lf(x, z, 0.50, (i%2) ? LEAF_B : LEAF_A, seed+i*4.4); }
   }
 }
 
@@ -6247,7 +6249,7 @@ function villageNight(){
        불투명 판은 그 함정 자체가 없다.
      ★ col 은 낮 색이다. special 갈래에서 col 은 TILE_COL 에 안 곱해지고 instanceColor 로 가는데,
        three.js 는 instanceColor 를 **확산색에만** 곱하고 emissive 에는 안 곱한다.
-       그래서 낮에는 밟힌 흙 얼룩(0x9a8a72 를 곱해 약 #96712c), 밤에는 제 밝기로 켜진 주황 웅덩이가 된다. */
+       그래서 낮에는 잔디에 묻히고(0x6aeb9c × 밑색 0xf8d17c ≈ 0x67c14c = 잔디 GRASS_A), 밤에는 제 밝기로 켜진 주황 웅덩이가 된다. */
   const POOL = (x,z, s, col, y)=> bpush('gglow', gG, EMITC, x, GY+(y===undefined?0.05:y), z, 0, s, 0.06, s, 0, col);
   /* ★ 빛 웅덩이는 겹치면 안 되는 판이다. chamferBox(3755줄) 윗면이 중심 +0.5*sy · 가로 ±0.41*s 라,
      윗면 높이가 같은 판 둘이 반너비 합보다 가까우면 같은 깊이를 두 번 칠해 카메라가 움직일 때마다
@@ -6256,7 +6258,7 @@ function villageNight(){
   const PL_MID = 0.11;   // 화톳불 · 동물상인 · 대장간 → 윗면 GY+0.14
   const PL_TOP = 0.17;   // 큰 화톳불 한가운데         → 윗면 GY+0.20
 
-  const POOL_D = 0x9a8a72;      // 웅덩이 낮 색 — 흙길(0x9a6f46)과 비슷하게 눌러 둔 값
+  const POOL_D = 0x6aeb9c;      // 웅덩이 낮 색 — 64차: 베이지(0x9a8a72, 낮에 풀밭 위 네모 얼룩)에서 잔디색으로. 밤엔 emissive 라 그대로 켜진다(명세 1절 POOL_DAY)
   const POOL_H = 0xd8c8a4;      // 불 바로 밑 — 조금 더 밝은 모래빛
   const FLAME  = 0xff9a3c;      // 불꽃 — 낮에도 주황으로 보이게 instanceColor 를 준다
 
@@ -6296,6 +6298,18 @@ function villageNight(){
   const LAMP_STEP = 7.8, OFF = 2.8, R_IN = 7, R_OUT = 30; // 간격 · 옆으로 민 거리 · 수정 단상 바깥 ~ 집들이 끝나는 r 30
                                                           // 64차 — 5.2/40 → 7.8/30: 길등 25 → 약 13(명세 3.9). 빛나는 것은 창문이 맡는다('빛 = 사람이 있는 곳')
 
+  /* 집 문 앞인가 — 문 축 좌우 1.4, 문턱에서 0.5~3.5 밖(문등·디딤돌·우편함이 있는 자리).
+     villageHouses 와 같은 좌표계(문 쪽이 로컬 +Z, ry = face·π/2)를 거꾸로 푼다. P1 문간에 길등이 섰던 것(심사)을 막는다 */
+  const FACE_RY_N = [0, Math.PI/2, Math.PI, -Math.PI/2];
+  const doorFront = (x,z)=>{
+    for(const h of VILLAGE_HOUSES){
+      const cx = h.x0 + h.w/2, cz = h.z0 + h.d/2, ry = FACE_RY_N[h.face], cr = Math.cos(ry), sr = Math.sin(ry);
+      const dx = (x-cx)*cr - (z-cz)*sr, dz = (x-cx)*sr + (z-cz)*cr, hd = (h.face & 1 ? h.w : h.d)/2;
+      if(Math.abs(dx) < 1.4 && dz > hd + 0.5 && dz < hd + 3.5) return true;
+    }
+    return false;
+  };
+
   const okLamp = (x,z)=>{
     const rx = Math.round(x), rz = Math.round(z);
     if(!inW(rx,rz)) return false;
@@ -6303,7 +6317,8 @@ function villageNight(){
     if(r < R_IN || r > R_OUT) return false;
     if(terrAt(rx,rz) !== GY) return false;                                   // 산·문턱·망루 계단 자리
     if(waterNear(x,z,0.6)) return false;                                     // 연못·개울
-    if(houseNear(x,z,1.8) || avoidNear(x,z,1.2)) return false;               // 64차 — 집 마당(집은 제 창문으로 빛난다) · 큰 나무
+    if(houseNear(x,z,3.2) || avoidNear(x,z,1.2)) return false;               // 64차 — 집 마당 3.2(집은 제 창문·문등으로 빛난다 — 등이 마당에 서면 이중) · 큰 나무
+    if(doorFront(x,z)) return false;                                         // 문 앞 디딤돌 줄
     for(let g=0; g<NG; g++)
       if(Math.hypot(x-FARM_X[g], z-FARM_Z[g]) < 5.4) return false;           // 농장 우리·꽃밭
     if(Math.hypot(x-SHOP_X,  z-SHOP_Z ) < 3.0) return false;                 // 상인
@@ -6362,7 +6377,9 @@ function villageNight(){
     WD(BFX+Math.cos(a)*2.3, 0.18, BFZ+Math.sin(a)*2.3, 0.42, 0.36, 1.70, 0xa07a52, -a);   // ry=-a 라야 긴 축이 접선으로 눕는다
   }
   {                                                 // 옆에 선 등 하나 — 불이 사그라져 보여도 여긴 켜져 있다
-    const hx = BFX - 2.6, hz = BFZ - 1.2;
+    /* 64차 — (−2.6,−1.2) 는 P1(10.5,−17.5) 문 앞 오른쪽에 딱 붙어 '문간 가로등' 으로 보였다(심사 04). 불의 반대편(+x·+z, 각 1.3rad, 2.8)으로:
+       통나무 의자(2.3, 각 0.4·2.49·4.59)와 2.3 이상 · 웅덩이(반너비 2.46) 밖 · 텃밭(10.9,−7.2) 4.5 · 돌길 4.0 · 연못 8.2 */
+    const hx = BFX + 0.75, hz = BFZ + 2.70;
     WD(hx, 0.10, hz, 0.40, 0.20, 0.40, 0xcfae8c);
     WD(hx, 1.30, hz, 0.14, 2.40, 0.14, 0x8a6a4c);
     WD(hx, 2.55, hz, 0.54, 0.13, 0.54, 0x6f5236);
@@ -6386,6 +6403,7 @@ function villageNight(){
       for(let h=0; h<NG; h++) if(h !== g)
         s = Math.min(s, Math.hypot(x-FARM_X[h], z-FARM_Z[h]) - 6.0);   // 남의 농장 옆이면 크게 깎는다
       if(waterNear(x,z,1.0) || terrAt(Math.round(x),Math.round(z)) !== GY) s -= 10;
+      if(Math.hypot(x-0.5, z-27) < 6) s -= 10;                // 64차 — 여관(0.5,27) 앞마당은 비운다(4모둠 불이 여관 문 앞에 섰다 — 심사)
       if(s > best){ best = s; bx = x; bz = z; ba = a; }
     }
     bonfire(bx, bz, 0.72, 6, 3, 4.4);
@@ -6427,6 +6445,9 @@ function villageNight(){
     GW(fx(-1.79,1.05), fy+1.62, fz(-1.79,1.05), 0.26, 0.30, 0.26);
     POOL(fx(-1.30,1.30), fz(-1.30,1.30), 3.0, POOL_D, PL_MID);
   }
+  /* 여관 문등 웅덩이(명세 2.5·6절) — 등알은 villageHouses 가 걸었다. 문 앞 디딤돌(z 24.15~22.15, 윗면 0.14)이 판(윗면 0.08) 위로 나온다.
+     가장 가까운 길등은 3·4모둠 길가(|x| ≥ 10) 라 4.2 밖 — PL_LOW 로 겹침 없음 */
+  POOL(0.5, 23.6, 3.0, POOL_D, PL_LOW);
 
   /* ══════════ ⑧ 반딧불이 다시 심기 — 인스턴스도 그리기도 하나도 안 는다 ══════════
      같은 70마리인데, 흩어져 있으면 '점 70개' 이고 등불에 붙으면 '등불에 나방이 꼬였다' 가 된다.
@@ -6634,11 +6655,14 @@ function villageLife(){
     return [FARM_X[g] + Math.cos(a)*5.3, FARM_Z[g] + Math.sin(a)*5.3];
   };
   const catB = {
-    /* ★ 잠자리를 좌판 안쪽(로컬 −Z)으로 옮겼다. 바깥(2.30,0.75)이면 마당에서 그은 선이
-       좌판 상판(로컬 z ±0.55)을 지난다. (2.30,−1.05) 는 어디에도 안 걸리고
-       동물상인 중심에서 1.31 이라 solidPush 1.10 밖이다 — 자는 고양이 옆까지 걸어가 볼 수 있다. */
-    col:0x9aa0a8, ac:0xf0f0f0, way:[dB(0, 40), [0.4,-5.2], dB(1,-30), sW(2.30,-2.20)],
-    bed:sW(2.30,-1.05), bry:SRY + Math.PI/2
+    /* ★ 64차 — 잠자리를 여관 문간(0.5, 24.3 — 앞벽 z 25 밖 0.7, 문 디딤돌 위)으로. 밤에 여관 문등 앞에 웅크린 고양이(명세 6절).
+       길: 1모둠 농장 문 앞 → 광장 → 3모둠 길 어깨를 따라 남쪽 거리로 → 디딤돌 줄(z 21.2) → 여관 문.
+       명세의 x≈0.5 직선은 3·4모둠 농장(중심 ±3.8, 13.5 · 우리 반너비 최대 4.6)을 관통한다 — 두 우리가 x=0 에서 맞닿는다.
+       그래서 3모둠 길(폭 4.2) 왼 어깨(길 중심에서 1.3~2.4)를 걷고, 헛간(x 4~7·z 18~21)과 S2 벽(z ≥ 22) 사이 z 21.4 로 돈다.
+       광장 산울타리(r 9.3)는 길 자리만 트여 있어 (3.6,3)→(8.6,6.4) 가 3모둠 길 어귀를 지난다. */
+    col:0x9aa0a8, ac:0xf0f0f0,
+    way:[dB(0, 40), [0.4,-5.2], [3.6,3.0], [8.6,6.4], [10.8,11.0], [10.6,18.4], [8.6,21.4], [5.0,21.4], [0.6,22.5]],
+    bed:[0.5,24.3], bry:Math.PI
   };
   for(const c of [catA, catB])
     LIFE.cats.push({col:c.col, ac:c.ac, way:c.way, bed:c.bed, bry:c.bry,
@@ -6996,7 +7020,9 @@ const LS_PLAN = {
   orchard: [[-27,13.8],[-27,16.8],[-27,19.8],[-30,13.8],[-30,16.8],[-30,19.8]],
   /* 숲 덩이 — 집 쌍의 **뒤**(문 반대쪽)에 2~3그루. 벽에서 2.5 이상, 길·물·다른 집·협곡 어귀를 다 비켜 잰 값(cand.mjs) */
   groves: [
-    [[12.2,-21.8],[13.8,-24.0],[14.9,-21.2]],          // N1 뒤 · P1 뒤 (둘이 등을 맞댄다)
+    [[13.2,-34.4],[16.2,-33.4],[14.6,-36.9]],          // 풍차 뒤(북) — 64차 심사: N1·P1 사이(12~15,−21~−24)에 있던 것을 옮겼다. 연못→풍차·광장→풍차 시야가 트인다.
+                                                       //   1모둠 어귀(|x| < 12.6) 밖 · 풍차 발자국(12~15,−31~−28)+2 밖
+
     [[-12.6,-30.2],[-14.4,-33.0],[-11.6,-34.6]],       // N2 뒤
     [[22.0,-9.0],[20.0,-9.5]],                         // E1 뒤 (연못·징검돌 곁길이 있어 둘만)
     [[25.6,12.9],[23.5,14.5],[27.5,14.8]],             // E2 뒤
@@ -7004,8 +7030,18 @@ const LS_PLAN = {
     [[-27,-12.4],[-30,-14.6],[-25.4,-15.2]],           // W1 뒤
     [[33.6,-12.2],[34.6,-10.5],[33.8,-16.0]],          // P2 뒤 (산 앞)
   ],
-  /* 들꽃 밭 6 — 한 밭 한 색(팔레트 셋 안에서) + 흰색 30% (명세 3.5. (24,−24) 는 개울 위라 (24,−27) 로, (28,18) 은 E2 숲과 닿아 (30,19) 로) */
-  meadows: [[22,22,0xffd84d],[-22,-22,0xff9ec4],[-20,28,0xffffff],[30,19,0xff9ec4],[-31,-23,0xffd84d],[24,-27,0xffffff]],
+  /* 들꽃 밭 6 — 한 밭 한 색(팔레트 셋 안에서) + 흰색 30% (명세 3.5. (24,−24) 는 개울 위라 (24,−27) 로, (28,18) 은 E2 숲과 닿아 (30,19) 로)
+     [x, z, 색, 반지름(없으면 1.8), 꽃 수(없으면 14)] — (−22,−22) 는 북서 쐐기 숲 앞 '꽃동산' 이라 r 3.0 · 28벌(심사) */
+  meadows: [[22,22,0xffd84d],[-22,-22,0xff9ec4,3.0,28],[-20,28,0xffffff],[30,19,0xff9ec4],[-31,-23,0xffd84d],[24,-27,0xffffff]],
+  /* 바깥 띠 숲 4곳(심사 — r 30~46 띠가 잔디만이었다) — 5~6그루(S 0.55~0.65 · H 4.5~5.0 · 서로 2.4~3.2) + 안쪽 돌 셋(rk).
+     자리 규칙: 길 2.8 · 물 1.0 · 집 2.0 · 협곡 어귀 6(|옆거리| ≥ 12.6) · 자원 2.4 — sitemap 으로 잰 값.
+     서쪽 것은 심사가 짚은 (−36,−2) 가 5모둠 어귀·출발 자리(|z| < 12.6) 안이라 W1 숲 서쪽 (−37,−15) 로 물렸다. */
+  belts: [
+    {t:[[30,-27],[32.6,-25.4],[29.2,-29.8],[32.2,-29.0],[26.8,-29.6]], rk:[30.5,-28.6]},        // 북동 — 개울 끝(30,−24) 너머 산자락 앞
+    {t:[[-30,28],[-27.4,29.6],[-32.8,29.4],[-29,31.4],[-31.6,26.2]],   rk:[-28.8,29.7]},        // 남서 — 과수원 남쪽 산자락 앞
+    {t:[[-37,-14.2],[-39.6,-13.0],[-35.2,-16.4],[-38.4,-16.8],[-34.6,-13.2]], rk:[-36.9,-15.8]}, // 서 — W1 숲(−30,−14.6) 서쪽 4.8
+    {t:[[-24,-27],[-21,-30],[-27,-30],[-24,-33]],                       rk:[-24,-30]},           // 북서 쐐기 — 꽃동산(−22,−22) 뒤 네 그루
+  ],
 };
 /* 풍경 자리표 안인가 — scatterDecor 가 수풀 뭉치·들꽃을 심기 전에 본다 */
 function lsReserved(x, z, pad){
@@ -7013,7 +7049,8 @@ function lsReserved(x, z, pad){
   for(const b of LS_PLAN.big) if(Math.hypot(x-b.x, z-b.z) < 4.2 + pad) return true;
   for(const o of LS_PLAN.orchard) if(Math.hypot(x-o[0], z-o[1]) < 2.2 + pad) return true;
   for(const gv of LS_PLAN.groves) for(const t of gv) if(Math.hypot(x-t[0], z-t[1]) < 2.0 + pad) return true;
-  for(const m of LS_PLAN.meadows) if(Math.hypot(x-m[0], z-m[1]) < 2.4 + pad) return true;
+  for(const bl of LS_PLAN.belts) for(const t of bl.t) if(Math.hypot(x-t[0], z-t[1]) < 2.0 + pad) return true;
+  for(const m of LS_PLAN.meadows) if(Math.hypot(x-m[0], z-m[1]) < (m[3] || 1.8) + 0.6 + pad) return true;
   return false;
 }
 
@@ -7105,14 +7142,18 @@ function villageLandscape(){
       bpush('branch', TRUNKV, WMAT, bx + ux*1.55, GY+3.25, bz + uz*1.55, ry, 0.30, 3.10, 0.30, Math.PI/2, TREE_C.trunk2);
       for(const o of [1.55, 2.35]) Sw(bx + ux*o, 1.92, bz + uz*o, 0.05, 2.56, 0.05, STONE_DARK);
       Wd(bx + ux*1.95, 0.60, bz + uz*1.95, 0.98, 0.08, 0.34, 0, ry);                          // 널 — 판자 원색
-      /* 돗자리 — 크림 판 + 분홍 격자 띠 넷(villageTeamYards 돗자리와 같은 0.13 규칙) + 바구니 */
-      const mx = bx + 0.4, mz = bz - 2.6;
+      /* 소풍 한 벌은 나무에 붙여 뭉친다(심사 — 흩어져 있었다):
+         돗자리 — 줄기에서 2.17(≤ 2.2), 해가 (50,90,30) 에 있으니 그늘은 −x·−z 쪽 → 북서, 꽃 무더기(−2.6,−0.4) 바로 옆(모서리끼리 1.5).
+         뿌리 끝(0.95)보다 밖. 크림 판 + 분홍 격자 띠 넷(villageTeamYards 돗자리와 같은 0.13 규칙) + 바구니는 돗자리 위(밑 0.09 > 띠 윗면 0.075) */
+      const mx = bx - 0.7, mz = bz - 2.05;
       Pp(mx, 0.03, mz, 1.60, 0.05, 1.20, 0xf3e6d0, 0.15);
       for(const s of [-0.45, 0.45]){ Pp(mx + s*Math.cos(0.15), 0.06, mz - s*Math.sin(0.15), 0.13, 0.03, 1.20, 0xe08a8a, 0.15);
                                      Pp(mx + s*Math.sin(0.15), 0.06, mz + s*Math.cos(0.15), 1.60, 0.03, 0.13, 0xe08a8a, 0.15); }
-      Wd(mx + 0.55, 0.23, mz - 0.35, 0.40, 0.30, 0.30, lsWc(0xa07a52), 0.15);
+      Wd(mx + 0.40, 0.24, mz + 0.25, 0.40, 0.30, 0.30, lsWc(0xa07a52), 0.15);
       clusterF(bx - 2.6, bz - 0.4, 0xff9ec4, 0xffffff, 12.7);
-      bench(bx - 1.0, bz + 2.6, cx, cz);
+      /* 벤치 — 남쪽 2.77 에서 그네 널(+x 1.95)을 본다: 앉으면 그네 타는 아이가 보이는 자리 */
+      { const sx2 = ux*1.95 - (-0.6), sz2 = uz*1.95 - 2.7, sl = Math.hypot(sx2, sz2);
+        bench(bx - 0.6, bz + 2.7, sx2/sl, sz2/sl); }
     }
   }
 
@@ -7142,6 +7183,18 @@ function villageLandscape(){
     const gv = LS_PLAN.groves[gi2];
     for(let i=0;i<gv.length;i++){ const seed = 120.7 + gi2*9.3 + i*2.9;
       treeAt(gv[i][0], gv[i][1], 0.50 + rnd(seed)*0.12, 4.2 + rnd(seed+1)*0.8, seed, false, true); }
+  }
+
+  /* ── 5b. 바깥 띠 숲 4곳(LS_PLAN.belts, 심사) — 한 무리 안에서 S 가 다 다르게(0.55~0.65 를 n 등분해 섞는다) · H 4.5~5.0 ·
+       나무마다 밑에 수풀 둘(treeAt) · 무리 안쪽에 돌 셋. 협곡 어귀(gapHalf+6)는 treeAt 이 안 보므로 여기서 잰다.
+       8(무작위 띠)보다 먼저 심어 그쪽이 3.0 간격을 지키게 한다 ── */
+  for(let bi2=0; bi2<LS_PLAN.belts.length; bi2++){
+    const bl = LS_PLAN.belts[bi2], n = bl.t.length;
+    for(let i=0;i<n;i++){ const seed = 300.5 + bi2*11.7 + i*3.1, S = 0.55 + 0.10 * (((i*3) % n) / Math.max(1, n-1));
+      if(inMouth(bl.t[i][0], bl.t[i][1], 6)) continue;
+      treeAt(bl.t[i][0], bl.t[i][1], S, 4.5 + rnd(seed+1)*0.5, seed, false, true); }
+    for(let k=0;k<3;k++){ const a = bi2*1.3 + k*2.1, rr = k ? 0.55 : 0.1;                       // 돌 셋 — 큰 것 가운데, 작은 둘 옆에
+      Pb(bl.rk[0] + Math.cos(a)*rr, bl.rk[1] + Math.sin(a)*rr, k ? 0.45 + k*0.08 : 0.72, 400 + bi2*7 + k); }
   }
 
   /* ── 6. 집 마당(명세 3.5·3.7) — 꽃 무더기(문 반대쪽 옆, 벽에서 1.6 밖 · 거울 집은 +x 쪽) · 흰 울타리 ㄱ자(N1·E1·W1·여관)
