@@ -3908,9 +3908,7 @@ function bpush(key, geo, mat, x,y,z, ry=0, sx=1,sy=1,sz=1, rz=0, col=0){
    32칸으로 하면 안 쪼갠 것보다 삼각형도 적고(45%) 드로우콜도 적다(61 vs 81).
    양쪽 다 이득이라 여기가 맞다. */
 
-const NO_CAST = new Set(['petal','pist','stem','bushS','peb','apple','nug','farmGlow','gglow','miMark','miEdge','miGlow','miBase','flag','flagT','reed','lily','mtK','rcLand','rcLandB','rcBuoy','rcRbow',
-  /* 63차 마을 — 바닥에 붙은 판·빛 웅덩이는 그림자를 안 드리운다(제 그림자를 제가 받아 얼룩진다) */
-  'plzG','gd','vgd','wisp','yardGlow']);
+const NO_CAST = new Set(['petal','pist','stem','bushS','peb','apple','nug','farmGlow','gglow','miMark','miEdge','miGlow','miBase','flag','flagT','reed','lily','mtK','rcLand','rcLandB','rcBuoy','rcRbow']);
 
 const BCHUNK = 32;
 const BSPLIT = 300;   // 이보다 인스턴스가 적은 뱅크는 안 쪼갠다 (쪼개 봤자 드로우콜만 는다)
@@ -4201,9 +4199,8 @@ const NODE_DEF = {
   gold: {give:'g', amt:4, hits:10, per:2, icon:'✨', name:'금'}     // 5칸 × 4 = 20 금/광맥
 };
 const NODE_S = 0.32;    // 자원 덩어리 크기 배수 — 작을수록 많이 깔 수 있다 (0.45에서 30% 축소)
-/* 자원이 깔리는 고리 — 안쪽은 농장·집 마당 바깥, 바깥쪽은 마당 끝 2.5칸 안쪽.
-   64차 — 마당이 46 으로 넓어져 바깥쪽을 43.5 로, 집 열셋이 r 19~34 에 들어와 안쪽을 19 로 밀었다.
-   집 마당 자체는 houseNear 로 따로 비운다. */
+/* 자원이 깔리는 고리 — 안쪽은 농장 바깥, 바깥쪽은 마당 끝 2.5칸 안쪽.
+   64차 — 마당이 46 으로 넓어져 바깥쪽을 43.5 로, 안쪽을 19 로 밀었다(65차에 집은 없어졌지만 고리는 그대로 둔다). */
 const NODE_R0 = 19.0, NODE_R1 = 43.5;
 /* ── 자원 덩어리 (로블록스 룩) ── */
 const LEAFG  = new THREE.IcosahedronGeometry(0.5, 1);  LEAFG.computeVertexNormals();   // 각진 공(80면) — 잎·수풀·꽃
@@ -4355,8 +4352,6 @@ function placeNodes(){
     if(d < NODE_R0 || d > NODE_R1) continue;
     if(!inW(x,z) || terrAt(x,z) !== GY) continue;    // 평지에만
     if(inFarmYard(cx,cz)) continue;                  // 우리 안에는 안 놓는다
-    if(houseNear(cx,cz,2.2)) continue;               // 64차 — 집 마당(벽 밖 2.2칸)에도 안 놓는다. 나무 고깔이 지붕을 뚫는다
-    if(cx >= -4 && cx <= 5 && cz >= 19.5 && cz <= 25) continue;   // 64차 — 여관 앞마당(헛간 z 20.4 ~ 여관 벽 z 25)은 탁자·디딤돌 자리라 비운다(심사)
     if(waterNear(cx,cz,1.4) || pathDist(cx,cz) < 2.3) continue;   // 33차 — 연못·개울·흙길 위에는 안 놓는다
     const cd = corridorDist(cx,cz);
     if(cd && cd[2] < GAP_HALF+2.5) continue;         // 통로 한가운데는 비운다
@@ -4416,7 +4411,7 @@ function scatterDecor(){
   /* 31차 — 수풀은 각진 공, 꽃은 줄기 + 꽃송이 공 + 노란 속, 돌멩이는 각진 자갈. 전부 원색 인스턴스 색.
      64차 — **흩뿌리지 않고 뭉친다.** 700개 균일 난수(사진 01 의 '난잡함' 의 큰 원인)를 통째로 지우고
        ① 산자락 관목 띠(회색 절벽 밑동을 초록으로 감싼다 — 제일 값싼 '동산')
-       ② 수풀 뭉치 30(rnd 로 뽑는다) ③ 들꽃 밭 6(한 밭 한 색) 으로 바꿨다. 들꽃 밭 자리는 LS_PLAN(풍경 자리표)에서 읽고,
+       ② 수풀 뭉치 30(rnd 로 뽑는다) ③ 들꽃 밭 6(한 밭 한 색) 으로 바꿨다. 들꽃 밭 자리는 아래 MEADOWS(65차 — 풍경 자리표가 없어져 여기로 옮겼다),
        난수는 Math.random 대신 rnd(seed) — 검사 사진이 판마다 같게 나온다.
      ★ 꽃은 팔레트 셋(흰·노랑·분홍)만. 모둠색·파스텔 여섯은 안 쓴다.
      ★ 큰 수풀은 뭉치의 3/12 만 'bush'(LEAFV[0], 그림자 O) — 산 바위 뚜껑이 쓰고 있어 300 근처다. 나머지는 'bushS'.
@@ -4429,13 +4424,12 @@ function scatterDecor(){
     bpush('pist',  LEAFG, WMAT, x, GY+0.33, z, 0, 0.11,0.08,0.11, 0, 0xffe36a); };
   const LEAF_A = 0x74c853, LEAF_B = 0x5fb646;
   /* 놓아도 되나 — 평지 · 농장 우리(제일 큰 단계 + 0.8 — 한 번 심은 것은 안 사라지므로 커질 크기로 잰다) ·
-     물가 · 흙길 · 집 마당 · 풍경 자리표 · 자원 덩어리. 걸리면 그냥 안 심는다(아이 땅은 한 칸도 안 줄어든다) */
-  const okAt = (x, z, pd, pad)=>{
+     물가 · 흙길 · 자원 덩어리. 걸리면 그냥 안 심는다(아이 땅은 한 칸도 안 줄어든다) */
+  const okAt = (x, z, pd)=>{
     const ix = Math.floor(x), iz = Math.floor(z);
     if(!inW(ix,iz) || terrAt(ix,iz) !== GY) return false;
     for(let g2=0; g2<NG; g2++) if(Math.hypot(x-FARM_X[g2], z-FARM_Z[g2]) < FARM_R2[FARM_R2.length-1]+0.8) return false;
     if(waterNear(x, z, 0.2) || pathDist(x, z) < pd) return false;
-    if(houseNear(x, z, 1.2) || lsReserved(x, z, pad)) return false;
     for(let i=0;i<NODES.length;i++){ const n = NODES[i]; if(Math.hypot(x-(n.x+0.5), z-(n.z+0.5)) < 1.3) return false; }
     return true;
   };
@@ -4451,20 +4445,20 @@ function scatterDecor(){
     if(od < 43.7 || od > 45.5) continue;
     const seed = x*3.7 + z*1.3 + 0.5;
     if(rnd(seed) > 0.22) continue;
-    if(lsInMouth(cx, cz, 6) || !okAt(cx, cz, 2.0, 0)) continue;
+    if(lsInMouth(cx, cz, 6) || !okAt(cx, cz, 2.0)) continue;
     const n = 1 + ((rnd(seed+1)*3)|0);
     for(let i=0;i<n;i++){ const a = rnd(seed+2+i)*6.283, rr = i ? 0.55 : 0;
       Lf(cx + Math.cos(a)*rr, cz + Math.sin(a)*rr, 0.66 + rnd(seed+5+i)*0.28, (i%2) ? LEAF_B : LEAF_A, seed+9+i); }
   }
 
-  /* ── ② 수풀 뭉치 30(명세 3.8) — r 12~40 에서 rnd 로 뽑는다: 흙길 2.8 · 농장 · 물 · 집 3.0 · 풍경 자리표 · 자원 1.6 · 협곡 어귀 6 밖 · 서로 4.5.
+  /* ── ② 수풀 뭉치 30(명세 3.8) — r 12~40 에서 rnd 로 뽑는다: 흙길 2.8 · 농장 · 물 · 자원 1.3 · 협곡 어귀 6 밖 · 서로 4.5.
        뭉치 하나 = bush 3(0.66, 산자락 od>37 이면 0.90 — 바위 옆 큰 수풀) + bushS 3(0.44) + 꽃 2벌(같은 색) + 돌 1 = 12조각, 중심에서 0.3~1.4.
        반지름 12 안(광장·안마당)은 villageLife 풀포기만 남기고 비운다 ── */
   const FLW_C = [0xff9ec4, 0xffd84d, 0xffffff];
   const centers = [];
   for(let i=0; i<4000 && centers.length<30; i++){
     const a = rnd(i*1.7+0.3)*6.283, r = 12 + rnd(i*2.9+0.7)*28, x = Math.cos(a)*r, z = Math.sin(a)*r;
-    if(!okAt(x, z, 2.8, 1.0) || houseNear(x, z, 3.0) || lsInMouth(x, z, 6)) continue;
+    if(!okAt(x, z, 2.8) || lsInMouth(x, z, 6)) continue;
     let near = false;
     for(const c of centers) if(Math.hypot(c[0]-x, c[1]-z) < 4.5){ near = true; break; }
     if(near) continue;
@@ -4473,23 +4467,25 @@ function scatterDecor(){
   for(let ci=0; ci<centers.length; ci++){
     const c = centers[ci], seed = 50.3 + c[2]*0.37, big = oct(c[0], c[1]) > 37 ? 0.90 : 0.66, pc = FLW_C[ci % 3];
     const at = (k)=>{ const a = k/9*6.283 + rnd(seed+k)*0.7, rr = 0.3 + rnd(seed+k*2.2)*1.1; return [c[0] + Math.cos(a)*rr, c[1] + Math.sin(a)*rr]; };
-    for(let k=0;k<3;k++){ const q = at(k); if(okAt(q[0], q[1], 1.9, 0))
+    for(let k=0;k<3;k++){ const q = at(k); if(okAt(q[0], q[1], 1.9))
       bpush('bush', LEAFV[0], WMAT, q[0], GY+big*0.30, q[1], rnd(seed+k)*6.28, big, big*0.68, big, 0, (k%2) ? LEAF_B : LEAF_A); }
-    for(let k=3;k<6;k++){ const q = at(k); if(okAt(q[0], q[1], 1.9, 0)) Lf(q[0], q[1], 0.44, (k%2) ? LEAF_A : LEAF_B, seed+k); }
-    for(let k=6;k<8;k++){ const q = at(k); if(okAt(q[0], q[1], 1.9, 0)) FLW(q[0], q[1], pc); }
-    { const q = at(8); if(okAt(q[0], q[1], 1.9, 0)) Pb(q[0], q[1], 0.5, seed+8); }
+    for(let k=3;k<6;k++){ const q = at(k); if(okAt(q[0], q[1], 1.9)) Lf(q[0], q[1], 0.44, (k%2) ? LEAF_A : LEAF_B, seed+k); }
+    for(let k=6;k<8;k++){ const q = at(k); if(okAt(q[0], q[1], 1.9)) FLW(q[0], q[1], pc); }
+    { const q = at(8); if(okAt(q[0], q[1], 1.9)) Pb(q[0], q[1], 0.5, seed+8); }
   }
 
-  /* ── ③ 들꽃 밭 6(명세 3.5) — 반지름 1.8 안에 한 색 70% + 흰 30% 꽃 14벌 + 가장자리 수풀 셋 ── */
-  for(let mi=0; mi<LS_PLAN.meadows.length; mi++){
-    const m = LS_PLAN.meadows[mi], seed = 70.9 + mi*8.3, mr = m[3] || 1.8, mn = m[4] || 14, mpad = -(mr + 0.7);   // 제 자리표(반지름 mr+0.6)에는 걸리지 않게 pad 를 뺀다
+  /* ── ③ 들꽃 밭 6(명세 3.5) — 반지름 1.8 안에 한 색 70% + 흰 30% 꽃 14벌 + 가장자리 수풀 셋.
+       [x, z, 색, 반지름(없으면 1.8), 꽃 수(없으면 14)] — 64차 풍경 자리표의 좌표·색·반지름 그대로. (−22,−22) 는 '꽃동산' r 3.0 · 28벌 ── */
+  const MEADOWS = [[22,22,0xffd84d],[-22,-22,0xff9ec4,3.0,28],[-20,28,0xffffff],[30,19,0xff9ec4],[-31,-23,0xffd84d],[24,-27,0xffffff]];
+  for(let mi=0; mi<MEADOWS.length; mi++){
+    const m = MEADOWS[mi], seed = 70.9 + mi*8.3, mr = m[3] || 1.8, mn = m[4] || 14;
     for(let i=0;i<mn;i++){ const a = rnd(seed+i)*6.283, rr = Math.sqrt(rnd(seed+i*2.1))*mr;   // sqrt → 원 안에 고르게
       const x = m[0] + Math.cos(a)*rr, z = m[1] + Math.sin(a)*rr;
-      if(!okAt(x, z, 2.8, mpad)) continue;
+      if(!okAt(x, z, 2.8)) continue;
       FLW(x, z, (i % 10 < 7) ? m[2] : 0xffffff); }
     const nb = mr > 2 ? 5 : 3;                                                                   // 큰 밭(꽃동산)은 가장자리 수풀 다섯
     for(let i=0;i<nb;i++){ const a = seed + i*6.283/nb, x = m[0] + Math.cos(a)*(mr+0.4), z = m[1] + Math.sin(a)*(mr+0.4);
-      if(okAt(x, z, 2.8, mpad)) Lf(x, z, 0.50, (i%2) ? LEAF_B : LEAF_A, seed+i*4.4); }
+      if(okAt(x, z, 2.8)) Lf(x, z, 0.50, (i%2) ? LEAF_B : LEAF_A, seed+i*4.4); }
   }
 }
 
@@ -5209,1314 +5205,7 @@ function applyFarmStage(){
   }
   return moved;
 }
-/* ═══════════════════════════ 집터 (64차) ═══════════════════════════
-   선생님: "장식물이 난잡해 아늑한 느낌이 없다. 마을 크기를 늘려서 제대로 된 마을을 꾸며라."
-   63차 마을은 집이 한 채도 없이 작은 세간만 수백 개였다. 64차는 집 열한 채·여관·풍차를 세운다.
-
-   ★ 집은 '땅' 이다 — terrH 를 벽 높이만큼 올린다 (63차 규칙 ① 의 유일한 예외).
-     · 좀비 길찾기 walkable(GY ≤ t ≤ GY+1)   → 집을 산처럼 돌아간다. 좀비가 벽을 뚫고 지나가면 집이 무대 장치가 된다.
-     · 사람 blockedAt(solidTop > GY+1)       → 몸이 벽에 막힌다. SOLID 동그라미로는 네모 집을 못 막는다.
-     · canPlace 'terrH 가 GY 인 칸만'         → 집 안에 벽·탑을 못 세운다(아래 canPlace 에 '집 자리' 문구를 앞에 뒀다).
-     · buildWorldMesh() **뒤**에 올리므로 회색 돌기둥이 안 그려지고, placeNodes() **앞**에 올리므로
-       나무·바위가 집 안에 안 생긴다. 짓는 줄(buildVillage 호출 근처)의 순서가 그 이유다.
-     · 발자국은 열두 채 합쳐 약 160칸 — 마당 5천 칸의 3% 다. 아이 땅을 크게 뺏지 않는다.
-   ★ 자리는 sitemap 으로 잰 값이다: 길 중심선에서 2.6칸 이상, 농장 5.9 이상, 헛간 2.4 이상, 물가 0.8 이상,
-     서로 2칸 이상, 전부 평지(oct ≤ 40). 벽 발자국은 **정수 칸**에 맞춘다 — terrH 가 칸 단위라 반 칸 어긋나면
-     보이는 벽과 막히는 벽이 다르다.
-   ★ 그림(villageHouses)은 이 표를 읽어 그린다. 자리를 옮기려면 표만 고친다. */
-const VILLAGE_HOUSES = [
-  /* n 이름 · x0,z0 벽 발자국의 최소 칸 · w,d 칸 수 · face 문이 보는 쪽(0:+z 1:+x 2:-z 3:-x) · kind 집 종류 */
-  {n:'N1',  x0:  5, z0:-26, w:4, d:3, face:3, kind:'cottage'},   // 1모둠 길 오른쪽(동) — 길을 본다
-  {n:'N2',  x0: -9, z0:-33, w:4, d:3, face:1, kind:'cottage'},   // 1모둠 길 왼쪽(서)
-  {n:'E1',  x0: 25, z0: -7, w:4, d:3, face:0, kind:'cottage'},   // 2모둠 길 북쪽
-  {n:'E2',  x0: 24, z0:  6, w:3, d:4, face:2, kind:'cottage'},   // 2모둠 길 남쪽
-  {n:'S1',  x0: -9, z0: 22, w:3, d:4, face:3, kind:'cottage'},   // 남쪽 거리 — 4모둠 길(x=-13)을 본다
-  {n:'S2',  x0:  6, z0: 22, w:3, d:4, face:1, kind:'cottage'},   // 남쪽 거리 — 3모둠 길(x=+13)을 본다
-  {n:'Inn', x0: -2, z0: 25, w:5, d:4, face:2, kind:'inn'},       // 남쪽 거리 한가운데 여관 — 수정 쪽을 본다
-  {n:'W1',  x0:-29, z0: -9, w:4, d:3, face:0, kind:'cottage'},   // 5모둠 길 북쪽
-  {n:'W2',  x0:-27, z0:  6, w:3, d:4, face:2, kind:'cottage'},   // 5모둠 길 남쪽
-  {n:'P1',  x0:  9, z0:-19, w:3, d:3, face:0, kind:'cottage'},   // 연못가 — 광장 쪽을 본다
-  {n:'P2',  x0: 28, z0:-14, w:3, d:4, face:3, kind:'cottage'},   // 연못 건너편 — 물을 본다
-  {n:'Q1',  x0:-24, z0: 15, w:3, d:3, face:1, kind:'cottage'},   // 남서 들판 — 과수원 집
-  {n:'Mill',x0: 12, z0:-31, w:3, d:3, face:2, kind:'mill'},      // 북동 산자락 앞 풍차 — 연못 너머로 보인다
-];
-const HOUSE_WALL_H = 3;   // terrH 를 올리는 높이 = 벽 높이(칸). 지붕은 이 위에 그림으로만 얹힌다
-/* 집 발자국(+pad) 안인가 — 자원·수풀·등불·화단이 집 마당을 피할 때 쓴다. 읽기만 한다. */
-function houseNear(x, z, pad){
-  pad = pad || 0;
-  for(let i=0;i<VILLAGE_HOUSES.length;i++){
-    const h = VILLAGE_HOUSES[i];
-    if(x >= h.x0 - pad && x <= h.x0 + h.w + pad && z >= h.z0 - pad && z <= h.z0 + h.d + pad) return true;
-  }
-  return false;
-}
-/* 풍경 덩어리(큰 나무·과수원·꽃밭)가 차지한 동그라미 [x,z,r] — villageLandscape 가 채우고,
-   거리 세간(stFree)·길등(okLamp)이 피한다. 그림자·좀비 길과는 무관하다(bpush 뿐). */
-const VILLAGE_AVOID = [];
-function avoidNear(x, z, pad){
-  for(let i=0;i<VILLAGE_AVOID.length;i++){ const a = VILLAGE_AVOID[i];
-    if(Math.hypot(x-a[0], z-a[1]) < a[2] + (pad||0)) return true; }
-  return false;
-}
-/* 집터를 땅에 새긴다 — buildWorldMesh() 뒤, placeNodes() 앞에 한 번 */
-function villagePlan(){
-  for(const h of VILLAGE_HOUSES){
-    for(let x=h.x0; x<h.x0+h.w; x++) for(let z=h.z0; z<h.z0+h.d; z++){
-      if(!inW(x,z) || terrH[gi(x,z)] !== GY){ console.warn('집터가 평지가 아니다', h.n, x, z); continue; }
-      terrH[gi(x,z)] = GY + HOUSE_WALL_H;
-    }
-  }
-}
-
-/* ═══════════════════════════ 아늑한 마을 (63차) ═══════════════════════════
-   선생님: "마을의 모습을 동물의 숲 처럼 뭔가 아이들이 아늑하게 느낄 수 있을 만큼
-            정말 마을답게 잘 꾸미고 싶어."
-
-   여섯 갈래로 나눠 지었다 — 광장 · 길 · 물과 풀 · 모둠 자리 · 밤 · 살아있는 느낌.
-   각 갈래는 제 함수 하나로 끝나고, 맨 아래 buildVillage() 가 여섯을 한 번에 부른다.
-
-   ★ 지키는 규칙 (다음에 고치는 사람도 이대로 두어야 한다)
-     ① terrH 를 한 칸도 안 건드린다. 올리면 canPlace 의 'terrH 가 GY 인 칸만' 검사에 걸려
-        그 칸이 영영 못 짓는 땅이 된다. 좀비 길찾기(walkable)도 terrH 만 보므로 길도 그대로다.
-     ② canPlace() 에 금지 줄을 하나도 안 넣는다. 아이 땅을 안 뺏는다.
-        몸을 막고 싶은 것만 배열에 모아 solidRebuild() 가 등록한다.
-     ③ 새 재질을 안 만든다. bpush 번역층(3855줄)이 cube(T.xxx)+MAT 을 타일에 따라
-        WMAT / WMAT_WOOD / WMAT_PAINT 로 접는다 — t32 의 '재질 여덟 이하' 가 안 흔들린다.
-     ④ 밤에 켜질 것은 cube(T.glow) + EMITC 로 쌓는다. flatFor 가 캐시라 EMITC_F 와 같은 객체가
-        되고, 18363줄이 밤마다 밝기를 올려 준다 — 밤낮 처리가 공짜다.
-        'gglow' 뱅크에 얹으면 성문 횃불과 같이 그려져 드로우콜도 안 는다.
-     ⑤ 투명·반투명 재질, 빛무리, 입자 구름을 안 쓴다. 교실 노트북의 병목은 **픽셀**이고
-        삼각형은 공짜다(깃허브에올릴것/CLAUDE.md 「성능 — 교실 노트북」). 불투명 상자만 쌓는다.
-     ⑥ 한 뱅크는 첫 geo 로 고정된다. 모양이 다르면 열쇠를 나눈다.
-   ═══════════════════════════════════════════════════════════════════════ */
-
-
-/* ═══════════════════════ 마을 광장 — 수정 둘레의 마당 ═══════════════════════
-   수정을 중심으로 돌포장 고리 넷을 깔고, 흙길 다섯이 들어오는 자리마다 모둠 색 문턱과
-   깃대를 세우고, 길 사이에 남는 세 덩이(≈52~105° · 213~237° · 327~357°)에
-   가로등·벤치·우물·게시판·모닥불·화단·깃발줄을 앉힌다.
-
-   ★ 이 함수는 terrH 를 한 칸도 안 건드리고, canPlace 에 줄을 하나도 안 더한다.
-     전부 bpush 인스턴스라 격자 높이가 그대로고 → 좀비 길찾기(walkable)도 그대로,
-     아이가 어디에 벽을 세우든 그대로다. 몸을 막는 것은 solidPush 여덟 개뿐인데
-     좀비는 SOLID 를 아예 안 보므로 성문에서 수정까지 오는 길은 손도 안 댔다.
-   ★ 새 재질을 안 만든다. cube(T.cloth)→WMAT_PAINT · cube(T.plank)→WMAT_WOOD ·
-     cube(T.sbrick)→WMAT · cube(T.glow)+EMITC→flatFor(T.glow,EMITC) 로 번역층이 접는다.
-     마지막 것은 10790줄의 EMITC_F 와 **같은 객체**다(flatFor 가 캐시한다) —
-     18363줄이 밤마다 밝기를 올려 주므로 가로등·모닥불·깃대 구슬이 저절로 켜진다.
-   ★ 투명 재질·빛무리·입자를 하나도 안 쓴다. 병목은 픽셀이라 불투명 상자만 쌓는다. */
-
-const PLZ_SOLIDS = [];   // [x, z, r, top] — solidRebuild() 가 그대로 읽어 간다
-
-function villageSquare(){
-  /* ── 헬퍼 (buildShop/buildForge 와 같은 모양) ──
-     뱅크 넷: plzG 바닥판 · plzP 색칠한 세로 것 · plzW 나무 · plzS 돌.
-     ★ 한 뱅크는 첫 geo 로 고정되므로 열쇠마다 모양 하나씩만 넣는다.
-     ★ plzG 와 plzP 를 나눈 이유: 바닥판은 그림자를 끄고(NO_CAST) 싶고,
-       등갓·게시판·깃발은 그림자가 있어야 물건처럼 보인다. 둘을 한 열쇠에 넣으면
-       둘 중 하나를 포기해야 한다. 드로우콜 하나가 그만한 값을 한다. */
-  const gC = cube(T.cloth), gP = cube(T.plank), gS = cube(T.sbrick), gG = cube(T.glow);
-
-  /* 세계 좌표 그대로 쌓기 */
-  const Bg = (x,y,z, sx,sy,sz, col, ry)=> bpush('plzG', gC, MAT, x, GY+y, z, ry||0, sx,sy,sz, 0, col);
-  const Bp = (x,y,z, sx,sy,sz, col, ry, rz)=> bpush('plzP', gC, MAT, x, GY+y, z, ry||0, sx,sy,sz, rz||0, col);
-  const Bw = (x,y,z, sx,sy,sz, col, ry, rz)=> bpush('plzW', gP, MAT, x, GY+y, z, ry||0, sx,sy,sz, rz||0, col);
-  const Bs = (x,y,z, sx,sy,sz, col, ry)=> bpush('plzS', gS, MAT, x, GY+y, z, ry||0, sx,sy,sz, 0, col);
-  /* 밤에 켜지는 것 — 성문 횃불과 같은 뱅크라 드로우콜이 안 는다 */
-  const Bl = (x,y,z, sc)=> bpush('gglow', gG, EMITC, x, GY+y, z, 0, sc,sc,sc);
-
-  /* 극좌표 자리 하나 = 조각을 놓을 작은 좌표계.
-     buildShop 의 RY = π/2 − a 와 똑같다 — 로컬 +Z 가 바깥(수정 반대)을 보고,
-     로컬 +X 는 접선 방향이다. 그래서 '수정을 보고 앉은' 것은 등받이를 +Z 에 둔다. */
-  const frame = (deg, rad)=>{ const a = deg*Math.PI/180, RY = Math.PI/2 - a;
-    return {x:Math.cos(a)*rad, z:Math.sin(a)*rad, ry:RY, cr:Math.cos(RY), sr:Math.sin(RY)}; };
-  const fx_ = (f,dx,dz)=> f.x + dx*f.cr + dz*f.sr;
-  const fz_ = (f,dx,dz)=> f.z - dx*f.sr + dz*f.cr;
-  /* dry 를 더하면 조각만 제자리에서 더 돌아간다(자리는 그대로).
-     지붕·등받이처럼 rz 기울이기의 축을 바꿔야 할 때 π/2 를 준다 —
-     bpush 의 rz 는 '로컬 Z 축 둘레' 라, 로컬 Z 를 접선으로 돌려놔야 앞뒤로 기운다. */
-  const P = (f,dx,dy,dz, sx,sy,sz, col, dry, rz)=> Bp(fx_(f,dx,dz), dy, fz_(f,dx,dz), sx,sy,sz, col, f.ry+(dry||0), rz||0);
-  const W = (f,dx,dy,dz, sx,sy,sz, col, dry, rz)=> Bw(fx_(f,dx,dz), dy, fz_(f,dx,dz), sx,sy,sz, col, f.ry+(dry||0), rz||0);
-  const S = (f,dx,dy,dz, sx,sy,sz, col, dry)=> Bs(fx_(f,dx,dz), dy, fz_(f,dx,dz), sx,sy,sz, col, f.ry+(dry||0));
-
-  /* 상인·동물상인·대장간에서 제일 가까운 거리 — 포석을 뚫지 않으려고 본다 */
-  const near3 = (x,z)=> Math.min(Math.hypot(x-SHOP_X, z-SHOP_Z),
-                                 Math.hypot(x-VET_X, z-VET_Z),
-                                 Math.hypot(x-FORGE_X, z-FORGE_Z));
-  /* 색을 k 배 — 같은 고리 안에서 한 장 걸러 밝기를 흔들어 체크 결을 준다.
-     THREE.Color 를 만들면 쓰레기가 늘어서 정수로 직접 곱한다. */
-  const tint = (c,k)=>{
-    const r = Math.min(255, Math.round(((c>>16)&255)*k));
-    const g = Math.min(255, Math.round(((c>>8)&255)*k));
-    const b = Math.min(255, Math.round((c&255)*k));
-    return (r<<16)|(g<<8)|b;
-  };
-
-  /* ════ ① 돌포석 — 세계 축에 맞춘 사암 격자 마당 (약 100장) ════
-     64차 — 63차의 '고리 넷 + 흙길 바퀴살' 을 버렸다. 선생님: "광장이 원 고리 + 바퀴살 도형으로 보인다."
-     ★ 흙길 위도 덮는다(pathDist 걸름 삭제). 안뜰 바닥이 끊기지 않아야 '마당' 으로 읽히고,
-       흙길은 안뜰 가장자리(모둠 문턱, 반지름 8.3)에서 시작하면 된다. 바닥 메시의 흙색은 포석 밑에 가려진다.
-     ★ 모양: 마을 경계와 같은 '모서리 깎은 네모'(oct ≤ PLZ_OCT). 원이면 고리로 보이고, 네모면 '깔아 놓은 마당' 이 된다.
-       가운데 반지름 PLZ_LAWN 안은 비워 잔디 원을 남긴다 — 수정 바닥 빛 cGlow(반지름 4.6, GY+0.06)가 비치는 자리다.
-     ★ 색은 사암 한 톤. 두 색 체크(밝기 ±5%)만으로 결을 준다 — 고리마다 다른 색 넷은 '과녁' 으로 보였다.
-     ★ 높이: 가운데 GY+0.02 · 두께 0.06 → 윗면 GY+0.05 · 밑면 GY−0.01(땅에 살짝 묻어 안 떨린다).
-     ★ 한 장 1.22 를 1.3 간격으로 → 0.08 줄눈에 바닥(잔디·흙)이 비쳐 '깐 돌' 로 읽힌다. 비뚤게 돌리지 않는다 —
-       같은 높이의 판이 겹치면 떨린다. */
-  const PLZ_TILE = 1.3, PLZ_LAWN = 3.9, PLZ_OCT = 8.1, PLZ_SAND = 0xd4c2a2;   // 0xdfd2b8 은 햇빛 아래서 흰 종이로 찍혔다(1차 사진) → 한 단 진하게
-  for(let iz=-7; iz<=7; iz++) for(let ix=-7; ix<=7; ix++){
-    const x = ix*PLZ_TILE, z = iz*PLZ_TILE;
-    if(Math.hypot(x,z) < PLZ_LAWN) continue;        // 수정 밑 잔디 원
-    if(oct(x,z) > PLZ_OCT) continue;                // 마당 테두리
-    if(near3(x,z) < 2.6) continue;                  // 좌판·화덕 밑은 안 깐다
-    Bg(x, 0.02, z, 1.22, 0.06, 1.22, tint(PLZ_SAND, ((ix+iz)&1) ? 1.05 : 0.95), 0);
-  }
-
-  /* ════ ② 모둠 다섯 문턱 (10장) + ④ 모둠 깃대 다섯 (15조각) ════
-     ★ 자리: 길 위를 걸어 나가 **반지름 8.3** — 격자 마당의 바깥 테두리(oct 8.1 + 반 장)와 겹치는 선이다.
-       그 자리가 딱 '돌 → 흙' 이 바뀌는 선이라 "문턱을 넘으면 흙길" 이 된다.
-     ★ 64차 — 파스텔 석 장을 버리고 **사암 한 장 + 바깥 가장자리에 가는 모둠색 띠** 로 줄였다.
-       선생님: "색이 너무 많다." 바닥에 크게 깔리는 모둠색은 포석의 따뜻함을 죽인다 —
-       모둠색은 깃발이 말하고, 바닥은 폭 0.16 띠 하나로만 "여기가 우리 길" 을 알린다.
-       포석보다 0.004 높게 둬서 겹치는 자리가 안 떨린다(z-fighting). */
-  const PLZ_SILL = 0xc4b08f;                          // 문턱 — 포석보다 한 단 진한 사암(밟는 자리)
-  /* 깃대를 길 어느 쪽에 세우나 — 반대쪽은 다른 물건(가로등·벤치)이나 흙길 위라서
-     모둠마다 비어 있는 쪽을 미리 골라 뒀다. 좌표를 다 찍어서 확인한 값이다. */
-  const PLZ_POLE_SIDE = [1, -1, 1, 1, -1];
-  const plzPoles = [];                                // 깃대 자리 [x,z] — 뒤의 산울타리가 깃대를 뚫지 않으려고 적어 둔다
-  for(let g=0; g<NG; g++){
-    const L = pathLines()[g], a0 = L[0], a1 = L[1];
-    const Lg = Math.hypot(a1[0]-a0[0], a1[1]-a0[1]);
-    const ux = (a1[0]-a0[0])/Lg, uz = (a1[1]-a0[1])/Lg;
-    /* |a0 + t·u| = 8.3 이 되는 t (이차식의 양의 뿌리) */
-    const bq = a0[0]*ux + a0[1]*uz, cq = a0[0]*a0[0] + a0[1]*a0[1] - 8.3*8.3;
-    const t = -bq + Math.sqrt(bq*bq - cq);
-    const cx = a0[0] + ux*t, cz = a0[1] + uz*t;
-    const pry = Math.atan2(ux, uz);                 // 조각의 로컬 +Z 가 길 방향
-    /* 문턱 한 장 — 길을 가로질러 4.2칸(흙길 폭과 같다) + 바깥 가장자리 모둠색 띠 한 줄(다시 0.004 위) */
-    Bg(cx, 0.024, cz, 4.2, 0.06, 1.3, PLZ_SILL, pry);
-    Bg(cx + ux*0.57, 0.028, cz + uz*0.57, 4.2, 0.06, 0.16, GHEX[g], pry);
-    /* 깃대 — 길 옆 2.5칸(흙길 폭 밖). 몸을 안 막는다(성문 깃대도 안 막았다). */
-    const s = PLZ_POLE_SIDE[g], px = cx - uz*2.5*s, pz = cz + ux*2.5*s;
-    plzPoles.push([px, pz]);
-    Bw(px, 1.75, pz, 0.16, 3.50, 0.16, 0xffd8b0, pry);                       // 기둥 0 ~ 3.5
-    Bp(px - uz*0.62*s, 2.62, pz + ux*0.62*s, 1.10, 1.50, 0.10, GHEX[g], pry);// 깃발천 — 길 반대쪽으로 뻗는다
-    Bl(px, 3.62, pz, 0.24);                                                   // 꼭대기 구슬 — 밤에 성문 횃불과 같이 켜진다
-  }
-
-  /* ════ ⑤ 가로등 여섯 (24조각) ════
-     ★ 설계 원안은 등갓(0.34×0.40×0.34) **한가운데**에 발광 덩이(0.26)를 넣었는데,
-       그러면 불투명 상자 속에 완전히 묻혀서 **밤에 한 점도 안 보인다.**
-       그래서 불을 먼저 놓고(3.18) 갓을 그 위에 **뚜껑처럼**(3.44) 얹었다.
-       불은 사방과 아래로 다 드러나고, 갓은 여전히 '등' 으로 읽힌다.
-     ★ 자리는 빈 덩이 셋의 양 끝. 전부 흙길에서 2.7칸 이상, 좌판에서 3.5칸 이상 떨어져 있다.
-     ★ 64차 — 여섯 → 넷. 331°·353° 를 뺐다: 모닥불(331°) 옆이라 밤에 불빛만으로 충분하고,
-       광장 둘레에 기둥이 여섯이나 서면 '기둥 울타리' 로 보였다(사진 02). */
-  const PLZ_LAMP = [60, 100, 215, 235];
-  for(let i=0;i<PLZ_LAMP.length;i++){
-    const f = frame(PLZ_LAMP[i], 8.6);
-    S(f, 0, 0.09, 0, 0.44, 0.18, 0.44, 0xffe8c8);      // 돌 받침
-    W(f, 0, 1.60, 0, 0.16, 3.00, 0.16, 0xffd8b0);      // 나무 기둥 0.10 ~ 3.10
-    Bl(f.x, 3.18, f.z, 0.30);                          // 불 — 드러나 있다
-    P(f, 0, 3.44, 0, 0.46, 0.14, 0.46, 0x3f4a55);      // 짙은 남색 갓(뚜껑)
-  }
-
-  /* ════ ⑨ 벤치 다섯 (30조각) ════
-     사람이 앉는 크기라, 벤치 하나로 세계의 축척이 정해진다.
-     전부 수정을 보고 앉는다(등받이가 로컬 +Z = 바깥). 넷은 가로등 바로 앞,
-     마지막 하나는 모닥불 옆 1.74칸이다.
-     ★ 등받이만 뒤로 기울인다. rz 는 로컬 Z 축 둘레라, 등받이를 dry=π/2 로 돌려
-       로컬 Z 를 접선으로 만든 뒤에 기울여야 앞뒤로 눕는다. */
-  const PLZ_BENCH = [[65,7.6],[95,7.6],[217,7.6],[233,7.6],[342,7.2]];
-  for(let i=0;i<PLZ_BENCH.length;i++){
-    const f = frame(PLZ_BENCH[i][0], PLZ_BENCH[i][1]);
-    W(f,  0.00, 0.50,  0.00, 1.70, 0.12, 0.52, 0xffd8b0);          // 앉는 판 (윗면 0.56)
-    W(f, -0.68, 0.23,  0.00, 0.14, 0.46, 0.42, 0xe8bd93);          // 다리
-    W(f,  0.68, 0.23,  0.00, 0.14, 0.46, 0.42, 0xe8bd93);
-    W(f, -0.72, 0.78,  0.20, 0.12, 0.62, 0.12, 0xe8bd93);          // 등받이 기둥
-    W(f,  0.72, 0.78,  0.20, 0.12, 0.62, 0.12, 0xe8bd93);
-    W(f,  0.00, 0.88,  0.24, 0.10, 0.34, 1.70, 0xffc890, Math.PI/2, 0.16);  // 등판 — 살짝 뒤로
-    PLZ_SOLIDS.push([f.x, f.z, 0.70, GY+0.55]);                    // 몸만 막는다 · 윗면 0.55 라 올라설 수 있다
-  }
-
-  /* ════ ⑥ 우물 (17조각) ════
-     225°·반지름 6.1 — 4모둠 길(≈180°)과 1모둠 길(≈270°) 사이의 제일 넓은 빈 덩이 한가운데.
-     ★ canPlace 에는 **한 줄도 안 넣는다.** 원안은 '우물 자리예요' 한 줄을 더하려 했는데
-       그러면 여덟 칸이 영영 못 짓는 땅이 되고, 하필 밤에 수정 앞에 급히 벽을 세우는
-       마지막 방어선이다. solidPush 하나면 아이 몸은 이미 못 지나간다.
-     ★ 기울인 지붕 둘이 이 물건을 '상자 더미' 가 아니라 '건물' 로 만든다(buildShop 4차의 교훈). */
-  const fw = frame(225, 6.1);
-  const wx = fw.x, wz = fw.z;
-  for(let i=0;i<8;i++){                                            // 돌 통 여덟 토막 → 둥근 통
-    const a = i/8*Math.PI*2;
-    Bs(wx + Math.cos(a)*0.70, 0.44, wz + Math.sin(a)*0.70, 0.46, 0.88, 0.30, 0xffe8c8,
-       Math.atan2(Math.cos(a), Math.sin(a)));                      // 로컬 +Z 가 통 바깥을 본다
-  }
-  Bp(wx, 0.40, wz, 0.95, 0.06, 0.95, 0x2f6f9a);                    // 안쪽 물판 — 통 속이 어둡고 물이 보인다
-  W(fw, -0.80, 1.30, 0, 0.14, 1.78, 0.14, 0xffd8b0);               // 지붕 기둥 둘 — 돌 통(반지름 0.70) 바깥에 세운다
-  W(fw,  0.80, 1.30, 0, 0.14, 1.78, 0.14, 0xffd8b0);               //   기둥 꼭대기 2.19 가 박공 밑면에 닿는다
-  P(fw, 0, 2.16,  0.33, 0.90, 0.12, 1.80, 0xd9634c, Math.PI/2,  0.52);   // 산호 기와 박공(집 지붕 A 와 같은 ROOF_CORAL) — 용마루는 접선
-  P(fw, 0, 2.16, -0.33, 0.90, 0.12, 1.80, 0xd9634c, Math.PI/2, -0.52);   //   0.52rad(30°) 기운 면 둘 = 상자 더미가 건물이 된다
-  W(fw, 0, 1.85, 0, 0.10, 0.10, 1.00, 0xe8bd93, Math.PI/2);        // 도르래 축
-  W(fw, 0, 1.52, 0, 0.04, 0.55, 0.04, 0x8a6a48);                   // 줄
-  W(fw, 0, 1.10, 0, 0.32, 0.30, 0.32, 0xe8bd93);                   // 두레박
-  bpush('bush', LEAFV[0], WMAT, wx + 0.86, GY+0.14, wz + 0.52, 0.7, 0.44, 0.30, 0.44, 0, 0x5fb646);  // 통 옆 이끼
-  PLZ_SOLIDS.push([wx, wz, 0.80, GY+0.95]);
-  /* 윗면 0.95 로 잡은 이유: PL.EYE 가 1.12 다. 3인칭 카메라(cameraClearance)는
-     눈높이에서 py−0.14 로 훑으므로 0.95 면 절대 안 걸린다 — 밤마다 스물한 명이
-     모이는 자리에서 카메라가 튀면 그게 제일 크게 거슬린다. 몸은 발 높이로 재니 그대로 막힌다. */
-
-  /* ════ ⑦ 게시판 (13조각) ════
-     80°·반지름 7.0 — 제일 넓은 빈 덩이(≈52~105°) 한가운데, 벤치 둘 사이.
-     모둠 색 쪽지 다섯 장이 붙어 있어서 글씨를 못 읽어도 "다섯 모둠이 여기 뭔가를 붙인다" 가 읽힌다. */
-  const fb = frame(80, 7.0);
-  W(fb, -0.78, 0.88, 0, 0.16, 1.76, 0.16, 0xe8bd93);               // 기둥 둘 (0 ~ 1.76)
-  W(fb,  0.78, 0.88, 0, 0.16, 1.76, 0.16, 0xe8bd93);
-  P(fb, 0, 1.18, 0.02, 1.80, 1.05, 0.12, 0xe8d9bd);                // 판 (앞면이 수정 쪽)
-  W(fb, 0, 0.66, 0.02, 1.92, 0.12, 0.18, 0xd8b489);                // 아래 테두리
-  W(fb, 0, 1.70, 0.02, 1.92, 0.12, 0.18, 0xd8b489);                // 위 테두리
-  P(fb, 0, 1.81, -0.08, 0.52, 0.14, 2.10, 0xd4a95f, Math.PI/2, -0.16);  // 지붕 — ROOF_HONEY(spec 4절 8: 마을 지붕 가족, 이끼색은 잎 수풀과 섞여 안 보였다). 기둥 꼭대기 1.76 에 닿게 내렸다
-  for(let g=0; g<NG; g++)                                          // 모둠 색 쪽지 다섯 — 조금씩 삐뚤게
-    P(fb, (g-2)*0.36, 1.20 + ((g*37)%5-2)*0.035, -0.06, 0.30, 0.36, 0.03, GHEX[g], 0, ((g*29)%7-3)*0.045);   // 아홉째는 dry(세로축)다 — 판에 붙은 채 비뚤어지려면 열째 rz 여야 한다
-  bpush('bush', LEAFV[0], WMAT, fx_(fb,-1.06,0.10), GY+0.14, fz_(fb,-1.06,0.10), 1.9, 0.44,0.30,0.44, 0, 0x74c853);
-  bpush('bush', LEAFV[0], WMAT, fx_(fb, 1.06,0.10), GY+0.14, fz_(fb, 1.06,0.10), 0.4, 0.44,0.30,0.44, 0, 0x5fb646);
-  PLZ_SOLIDS.push([fb.x, fb.z, 0.60, GY+1.95]);   // 지붕 위 — 0.95 로 두면 아이가 뛰어올라 게시판 판 속에 선다
-
-  /* ════ ⑧ 모닥불 자리 (17조각) ════
-     331°·반지름 6.0 — 상인(≈306°)과 2모둠 길(≈9°) 사이.
-     낮에는 그냥 탄 장작, 밤에는 불. 걸상 셋이 불을 둘러싸고 있는 **배치** 자체가
-     "여기 누가 앉아 있었다" 를 말한다 — 아홉 살은 물건보다 배치를 먼저 읽는다. */
-  const ff = frame(331, 6.0);
-  const px0 = ff.x, pz0 = ff.z;
-  for(let i=0;i<8;i++){                                            // 두른 돌 여덟
-    const a = i/8*Math.PI*2;
-    Bs(px0 + Math.cos(a)*0.78, 0.15, pz0 + Math.sin(a)*0.78, 0.40, 0.30, 0.34, 0xffe8c8,
-       Math.atan2(Math.cos(a), Math.sin(a)));
-  }
-  for(let i=0;i<4;i++){                                            // 엇갈려 놓은 장작 넷
-    const a = i*Math.PI/4;
-    Bw(px0 + Math.cos(a)*0.10, 0.20, pz0 + Math.sin(a)*0.10, 0.18, 0.16, 1.00, 0x9a7048, a);
-  }
-  Bl(px0, 0.38, pz0, 0.52);                                        // 불씨 — 밤에 저절로 켜진다
-  Bl(px0, 0.60, pz0, 0.34);
-  /* 64차 심사 — 모닥불을 '난로' 로(spec 4절 6). 걸상 셋 → 다섯(72° 걸음), 그 위에 삼발이와 냄비.
-     ★ 걸상 첫 각 48°: 옆 벤치(342°·r 7.2)의 끝과 화분(342°·r 8.5)에 안 닿는 각을 셈해서 골랐다(여유 0.20).
-     ★ 삼발이 막대: ry 를 k·2.094 로 돌린 뒤 rz 0.35 로 기울이면 꼭대기가 로컬 −X 쪽으로 (L/2)·sin(rz) 만큼 간다.
-       그래서 막대 가운데를 로컬 +X 쪽으로 딱 그만큼(0.223) 옮겨 두면 셋의 꼭대기가 불 한가운데 한 점(높이 1.22)에서 만난다.
-       bpush 로컬 +X 는 세계 (cos ry, −sin ry). 밑동은 반지름 0.45 — 돌 고리(0.78) 안. */
-  for(let i=0;i<5;i++){                                            // 통나무 걸상 다섯 — 불을 둘러싼다
-    const a = (48 + i*72)*Math.PI/180;
-    Bw(px0 + Math.cos(a)*1.45, 0.22, pz0 + Math.sin(a)*1.45, 0.50, 0.45, 0.50, 0xffd8b0, a);
-  }
-  { const STK = 1.30, TILT = 0.35, off = STK/2*Math.sin(TILT);      // 막대 길이·기울기·가운데 옮김(0.223)
-    for(let k=0;k<3;k++){
-      const ry = k*2.094;
-      Bw(px0 + off*Math.cos(ry), STK/2*Math.cos(TILT), pz0 - off*Math.sin(ry), 0.06, STK, 0.06, 0x8a6a48, ry, TILT);
-    }
-    Bp(px0, 0.75, pz0, 0.36, 0.30, 0.36, 0x4a4038, 0.4);           // 냄비 — 불 위 0.60~0.90 (plzP: sbrick 곱셈이면 검정이 되어 색 그대로인 cloth 로)
-    Bw(px0, 1.05, pz0, 0.05, 0.30, 0.05, 0x4a4038);                // 냄비 고리줄 — 꼭대기(1.22)에 매달린다
-  }
-  PLZ_SOLIDS.push([px0, pz0, 0.90, GY+0.40]);                      // 돌 고리 위에 올라설 수 있다
-
-  /* ════ ⑩ 화단 넷 (48조각) ════
-     ★ 마당에 이미 같은 뱅크 꽃이 700개 있다. 화분당 셋을 심으면 '광장 꽃' 으로 안 읽히고
-       그냥 꽃이 는 것이다 — 둘이면 충분하다. 중요한 건 개수가 아니라 **틀 안에** 심겨
-       있다는 것이고, 그 하나가 "누가 여기 살면서 손을 본다" 를 말한다.
-     ★ 꽃·잎은 마당이 쓰는 뱅크(stem·petal·pist·bush)를 그대로 쓴다 — 드로우콜 0 증가.
-       64차 — 꽃 여섯 색 → 확정 팔레트 셋(분홍·흰·노랑). 빨강·파랑은 1·2모둠 색과 겹쳐서 뺐다. */
-  const PLZ_POT = [[76,8.4],[84,8.4],[225,8.4],[342,8.5]];
-  const PLZ_PETAL = [0xff9ec4, 0xffffff, 0xffd84d];
-  for(let i=0;i<PLZ_POT.length;i++){
-    const f = frame(PLZ_POT[i][0], PLZ_POT[i][1]);
-    W(f, 0, 0.16,  0.34, 0.92, 0.32, 0.10, 0xd8b489);              // 네모 틀 — 긴 널 둘
-    W(f, 0, 0.16, -0.34, 0.92, 0.32, 0.10, 0xd8b489);
-    W(f, -0.41, 0.16, 0, 0.10, 0.32, 0.78, 0xc09a68);              // 짧은 널 둘
-    W(f,  0.41, 0.16, 0, 0.10, 0.32, 0.78, 0xc09a68);
-    Bg(f.x, 0.20, f.z, 0.86, 0.06, 0.66, 0x6b4a30, f.ry);          // 흙판 (윗면 0.23)
-    const FL = [[-0.22, 0.12], [0.24, -0.14]];                     // 꽃 둘 — 화분 안에서 어긋나게
-    for(let k=0;k<2;k++){
-      const X = fx_(f, FL[k][0], FL[k][1]), Z = fz_(f, FL[k][0], FL[k][1]);
-      const ci = (i*2 + k) % PLZ_PETAL.length;
-      bpush('stem',  WGEO,  WMAT, X, GY+0.34, Z, 0,           0.06, 0.24, 0.06, 0, 0x5aa845);
-      bpush('petal', LEAFG, WMAT, X, GY+0.50, Z, i*1.3 + k,   0.28, 0.16, 0.28, 0, PLZ_PETAL[ci]);
-      bpush('pist',  LEAFG, WMAT, X, GY+0.56, Z, 0,           0.11, 0.08, 0.11, 0, 0xffe36a);
-    }
-    bpush('bush', LEAFV[0], WMAT, fx_(f, 0.06, -0.02), GY+0.36, fz_(f, 0.06, -0.02), i*2.1,
-          0.38, 0.26, 0.38, 0, 0x74c853);                          // 잎 한 덩이
-  }
-
-  /* ════ ⑪ 깃발 줄 — 한 줄만 (8조각) ════
-     ★ 원안은 줄 셋('만국기')이었는데 실제로 재 보면 짧은 둘은 현 길이가 3.5·4.1칸이라
-       깃발이 서넛밖에 안 걸린다 — 축제가 아니라 빨래줄로 보인다. 그래서 **제일 긴 한 줄**
-       (60°↔100° 가로등 사이, 현 5.88칸, 깃발 여섯)만 남겼다.
-     ★ 길 위에는 절대 안 건다. 좀비가 들어오는 길에 축제 깃발이 걸려 있으면 그 길이 안 무섭다.
-     ★ 머리 위에 뭔가 걸리면 그 아래가 '방' 이 된다 — 광장에 천장이 생기는 값싼 방법이다.
-     줄의 처짐: rz 는 로컬 Z 축 둘레라, 막대의 긴 축(로컬 X)이 줄 방향이 되게
-     ry = atan2(−dz, dx) 로 잡으면 rz 가 그대로 '위아래로 기울이기' 가 된다. */
-  {
-    const g0 = frame(60, 8.6), g1 = frame(100, 8.6);
-    const dxg = g1.x - g0.x, dzg = g1.z - g0.z, ch = Math.hypot(dxg, dzg);   // 현 5.88칸
-    const ex = dxg/ch, ez = dzg/ch;
-    const cry = Math.atan2(-ez, ex);                 // 로컬 +X 가 g0 → g1 방향
-    const SAG = 0.09;                                // 반쪽 끝이 2.94×sin(0.09) ≈ 0.26칸 처진다
-    Bw(g0.x + ex*ch*0.25, 3.10 - 0.13, g0.z + ez*ch*0.25, ch*0.5, 0.05, 0.05, 0x8a6a48, cry, -SAG);
-    Bw(g1.x - ex*ch*0.25, 3.10 - 0.13, g1.z - ez*ch*0.25, ch*0.5, 0.05, 0.05, 0x8a6a48, cry,  SAG);
-    const n = Math.round(ch/0.9);                    // 0.9칸마다 한 장 → n = 7, 깃발 여섯
-    /* 64차 — 깃발 색을 모둠 원색에서 파스텔로 내렸다(축제는 남기고 채도만 줄인다). 원색 모둠색은 깃대 깃발만. */
-    const PLZ_BUNTING = [0xffb3b3, 0xa6d5fb, 0xa8e6b3, 0xffe9a3, 0xe1c3ff];
-    for(let k=1;k<n;k++){
-      const u = k/n, y = 2.643 + 0.528*Math.abs(u - 0.5);   // 줄과 같은 V — 사인 곡선이면 깃발이 줄에서 최대 0.06 떨어져 떠 있었다
-      Bp(g0.x + ex*ch*u, y, g0.z + ez*ch*u, 0.26, 0.34, 0.03, PLZ_BUNTING[k % NG], cry + ((k*23)%5-2)*0.06);
-    }
-  }
-
-  /* ════ ⑫ 원탁 셋 (탁자 4 + 걸상 2 = 18조각) — 64차 심사(spec 4절 5) ════
-     "누가 살고 있다" 를 말하는 야외 탁자. 명세의 자리(150°·270°·20°, r 8.7)는 셋 다 흙길 위(pathDist 0.5~2.0)
-     이거나 좌판 밑(near3 2.35)이었다 — 다섯 길이 r 5.6 까지 파고들어 오는 광장이라 길 밖 빈 자리는
-     52~105°·214~236°·324~360° 세 덩이뿐이고, 거기엔 벤치·가로등·화분·우물·모닥불이 이미 있다.
-     sitemap 으로 r 5.6~8.3 × 2° 를 다 훑어 pathDist ≥ 2.4 · near3 ≥ 3.2 · 다른 세간에서 1.9 이상인 자리를 골랐다:
-       58°·5.7 와 106°·5.9 — 게시판(80°) 양옆, 벤치 둘 앞 → 수정 남쪽 '카페 테라스'
-       244°·5.6 — 우물 옆(우물 통까지 1.15, 지붕 기둥까지 0.56)
-     ★ 상판을 둥글게: 같은 plzW 네모 둘을 45° 엇갈려 겹친다(팔각). 둘째는 0.02 얇게 해서 윗면·밑면이 같은 높이에 안 온다(떨림 방지).
-     ★ 걸상은 접선 방향 ±0.85 — 팔각 꼭짓점(0.78)보다 밖. PLZ_SOLIDS 윗면 0.76 < cameraClearance 0.95. */
-  const PLZ_TABLE = [[58, 5.7], [106, 5.9], [244, 5.6]];
-  for(let i=0;i<PLZ_TABLE.length;i++){
-    const f = frame(PLZ_TABLE[i][0], PLZ_TABLE[i][1]);
-    W(f, 0, 0.03, 0, 0.56, 0.06, 0.56, 0xe8bd93);                  // 발판(0~0.06) — 기둥 하나로 서 있어 보이지 않게
-    W(f, 0, 0.34, 0, 0.16, 0.68, 0.16, 0xe8bd93);                  // 기둥 0.16 (0~0.68)
-    W(f, 0, 0.72, 0, 1.10, 0.08, 1.10, 0xffd8b0);                  // 상판 1.10 (0.68~0.76)
-    W(f, 0, 0.72, 0, 1.10, 0.06, 1.10, 0xffd8b0, Math.PI/4);       //   45° 겹친 판 → 팔각 '둥근 상'
-    W(f, -0.85, 0.18, 0, 0.34, 0.36, 0.34, 0xffd8b0);              // 통나무 걸상 둘
-    W(f,  0.85, 0.18, 0, 0.34, 0.36, 0.34, 0xffd8b0);
-    PLZ_SOLIDS.push([f.x, f.z, 0.55, GY+0.76]);
-  }
-
-  /* ════ ⑬ 산울타리 고리 (plzHedge ≈ 30포기) — 64차 심사(spec 4절 4) ════
-     선생님: "광장 포석이 잔디로 번진다"(사진 02). 마당 가장자리(r 9.3)를 낮은 산울타리로 둘러 '방' 을 만든다 —
-     다섯 흙길 자리만 비워 두면 "문이 다섯인 방" 이 된다. 좀비 길·아이 땅과 무관(bpush 뿐, SOLID 없음).
-     ★ 새 열쇠 plzHedge = LEAFV[1]+WMAT(잎 얼룩 → WMATL). 그림자 O(NO_CAST 에 안 넣음 — 바닥판이 아니라 물건이다).
-     ★ 0.657 간격에 0.62 짜리 → 포기들이 거의 닿아 한 줄 울타리로 읽힌다. ry 는 접선(frame) 그대로라 고리가 매끈하다.
-     ★ 거름: 길(pathDist < 2.6 — 흙 폭 2.1 + 여유) · 좌판·화덕(near3 < 3.2) · 평지 아님 · 풍경 덩이(avoidNear 1.0) · 깃대 0.8 안.
-       상인 좌판이 264~322°, 대장간이 109~140° 의 고리 위에 앉아 있어 그 구간도 비는데, 그건 '가게가 울타리 자리를 대신하는' 것이라
-       그대로 두었다. 남는 것은 52~105°(게시판·벤치 뒤) · 214~236°(우물 뒤) · 324~360°(모닥불 뒤) 세 토막 ≈ 30포기. */
-  { const HR = 9.3, HN = Math.round(2*Math.PI*HR/0.66);            // 89포기 자리 · 간격 0.657
-    for(let i=0;i<HN;i++){
-      const a = i/HN*2*Math.PI, hx = Math.cos(a)*HR, hz = Math.sin(a)*HR;
-      if(pathDist(hx, hz) < 2.6 || near3(hx, hz) < 3.2) continue;
-      if(terrAt(Math.round(hx), Math.round(hz)) !== GY || avoidNear(hx, hz, 1.0)) continue;   // terrAt 은 정수 칸만 받는다(소수면 undefined → 전부 걸러졌다)
-      let nearPole = false;
-      for(const p of plzPoles) if(Math.hypot(hx-p[0], hz-p[1]) < 0.8) nearPole = true;
-      if(nearPole) continue;
-      const hy = 0.42 + (rnd(i*1.7) - 0.5)*0.06;                  // 키 0.39~0.45 — 자로 잰 듯 똑같으면 플라스틱으로 보인다
-      bpush('plzHedge', LEAFV[1], WMAT, hx, GY + hy/2, hz, Math.PI/2 - a, 0.62, hy, 0.62, 0, (i&1) ? 0x74c853 : 0x5fb646);
-    }
-  }
-}
-
-/* ═══════════════════ 길과 거리 세간 ═══════════════════
-   흙 띠였던 다섯 갈래를 '거리' 로 만든다 — 연석으로 테두리를 두르고, 가로등·화단·울타리·벤치를
-   같은 박자로 되풀이하고, 수정 앞에 모둠 이정표를 세우고, 상인·대장간·농장·연못으로 곁길을 낸다.
-
-   ★ 짓는 땅도 좀비 길도 그대로다 — terrH · bldH · cellOwner · rampCells 를 한 줄도 안 쓴다.
-     전부 bpush(정적 뱅크)뿐이라 canPlace 도 walkable 도 값이 하나도 안 바뀐다. 아이 땅을 한 칸도 안 뺏는다.
-   ★ 새 뱅크는 둘뿐이다 — 'vst'(서 있는 것) · 'vgd'(바닥에 깔리는 것).
-     나머지는 이미 있는 뱅크를 재사용한다: 'gglow'(등불) · 'peb'(디딤돌) · 'bushS'/'stem'/'petal'/'pist'(화단).
-     새 재질도 새 InstancedMesh 도 안 만든다. 투명·반투명도 하나도 안 쓴다(병목은 픽셀이다).
-   ★ 심사에서 뺀 것 — 바퀴자국(제일 빠듯한 뱅크를 80개 먹는데 흙 얼룩 하나 더일 뿐이다),
-     개울 널빤지 다리(개울은 깊이 14cm 라 아이가 그냥 걸어서 건너고, 다리 자리 건너편에 아무것도 없다).
-   ★ 심사에서 고친 것 —
-     ⑴ 자리를 '길 위 거리(s)' 가 아니라 '축거리 gT' 로 잡는다. 꺾은선 길이가 제각각이라 같은 s 가
-        같은 자리가 아니다(s=34 가 1·2·5모둠에선 r 34.2, 3모둠에선 37.2). gT 로 잡으면
-        '성문(t=45)에서 몇 칸' 이 다섯 문 모두 똑같아 이정표·등돌이 나란히 선다.
-     ⑵ 이정표 숫자를 키우고(PX 0.10 → 0.17, 한 자가 0.51×0.85칸) 뒤에 어두운 판을 댔다.
-        성문 번호판(4511줄)과 똑같은 수법·똑같은 글씨체라 아이가 새로 배울 게 없다.
-     ⑶ 연석까지 전부 stFree() 를 거친다 — 농장 우리는 제일 큰 단계(FARM_R2 끝값 4.6)로 비운다.
-     ⑷ 가로등의 불투명한 등피를 없앴다. 갓 속에 빛알을 묻으면 밤에 등이 안 보인다. 빛알이 그대로 등이다.
-     ⑸ 아이가 제일 여러 번 걷는 선(수정→상인, 수정→대장간, 수정→우리 농장)에 곁길을 냈다.
-   ★ 어귀 등돌은 물건은 남기되 '밤에 모둠 색 불' 이라는 말은 버렸다 — EMITC 는 emissive 가 한 몸이라
-     밤엔 열 점이 모두 같은 주황이다. 색이 갈리는 건 낮뿐이다. */
-function villageStreets(){
-  const gGlow = cube(T.glow);        // 빛알 — 성문 횃불과 같은 뱅크·같은 재질이라 밤에 저절로 같이 켜진다
-
-  /* ── 짧은 헬퍼 (buildShop 의 P/C 와 같은 꼴) — y 는 GY 기준 상대 높이다 ── */
-  const ST = (x,y,z, sx,sy,sz, col, ry, rz)=> bpush('vst', WGEO, WMAT, x, GY+y, z, ry||0, sx,sy,sz, rz||0, col||0);
-  const GD = (x,y,z, sx,sy,sz, col, ry)   => bpush('vgd', WGEO, WMAT, x, GY+y, z, ry||0, sx,sy,sz, 0,     col||0);
-  const LM = (x,y,z, sx,sy,sz, ry)        => bpush("gglow", gGlow, EMITC, x, GY+y, z, ry||0, sx, sy||sx, sz||sx, 0, 0);   // ry 는 선택 인자 — 안 넘기면 0(기존 호출 그대로)
-  const PB = (x,z, ry)                    => bpush('peb', PEBG, WMAT, x, GY+0.07, z, ry, 0.80,0.16,0.72, 0, 0xcdc5b6);   // 64차 — 디딤돌 색을 집 앞 디딤돌(STONE_PATH)과 하나로
-  const SOL = villageStreets.solids = [];   // 몸을 막는 동그라미 [x,z,r,top] — solidRebuild 가 다시 깐다(notes 참고)
-
-  /* ── 길 위 한 점 ──
-     축거리 t(성문 쪽이 +) 에 해당하는 {x,z,ux,uz}. (ux,uz) 는 길 방향 단위벡터다.
-     · 옆으로 d 만큼 민 자리 = (x - uz*d, z + ux*d)
-     · 상자를 길 방향으로 눕히는 각 = atan2(ux, uz)   (상인 좌판의 θ = π/2 − a 와 같은 규칙) */
-  const PATHS = pathLines();                 // 읽기만 한다 — _paths 메모라 t34 의 'paths === 5' 가 그대로다
-  const roadAtT = (g, t)=>{
-    const L = PATHS[g];
-    for(let i=0; i<L.length-1; i++){
-      const a = L[i], b = L[i+1];
-      const ta = gT(g, a[0], a[1]), tb2 = gT(g, b[0], b[1]);
-      if(t > tb2 && i < L.length-2) continue;
-      const u = Math.abs(tb2-ta) < 1e-6 ? 0 : Math.max(0, Math.min(1, (t-ta)/(tb2-ta)));
-      const dx = b[0]-a[0], dz = b[1]-a[1], m = Math.hypot(dx,dz) || 1;
-      return {x:a[0]+dx*u, z:a[1]+dz*u, ux:dx/m, uz:dz/m};
-    }
-  };
-  const sideOf = (p, d)=> [p.x - p.uz*d, p.z + p.ux*d];
-
-  /* ── 여기 놓아도 되나 — 전부 읽기만 한다 ──
-     near = [상인, 동물상인, 대장간, 농장] 을 피하는 반지름.
-     기본값은 '서 있는 것' 기준이고, 곁길은 가게로 다가가야 하니 더 작은 값을 넘긴다.
-     ★ placeNodes() 뒤에 불러야 NODES(나무·바위·금)를 피할 수 있다. */
-  const FR = FARM_R2[FARM_R2.length-1];                  // 우리가 제일 커졌을 때(4.6) — 지금 크기로 재면 나중에 우리 안에 갇힌다
-  const NEAR_STAND = [3.4, 3.0, 3.4, FR + 1.2];
-  const NEAR_SPUR  = [2.3, 1.5, 2.4, FR + 0.5];          // 곁길은 좌판 앞까지 간다
-  const NEAR_FARM  = [3.0, 2.4, 2.4, FR + 0.4];          // 농장 곁길은 우리 문 앞까지 간다
-  const stFree = (x, z, r, near)=>{
-    near = near || NEAR_STAND;
-    const cx = Math.floor(x), cz = Math.floor(z);
-    if(!inW(cx,cz) || terrAt(cx,cz) !== GY) return false;          // 평평한 땅에만 — terrH 는 읽기만 한다
-    if(waterNear(x, z, 0.4)) return false;
-    if(houseNear(x, z, 2.8) || avoidNear(x, z, r)) return false;    // 64차 — 집 마당(꽃 무더기·울타리까지 2.8) · 큰 나무
-    if(Math.hypot(x-SHOP_X,  z-SHOP_Z ) < near[0]) return false;
-    if(Math.hypot(x-VET_X,   z-VET_Z  ) < near[1]) return false;
-    if(Math.hypot(x-FORGE_X, z-FORGE_Z) < near[2]) return false;
-    for(let g=0; g<NG; g++) if(Math.hypot(x-FARM_X[g], z-FARM_Z[g]) < near[3]) return false;
-    if(rampNear(cx, cz)) return false;                              // 망루 계단 자리
-    for(let i=0;i<NODES.length;i++){                                // 나무·바위·금
-      const n = NODES[i], dx = x-(n.x+0.5), dz = z-(n.z+0.5);
-      if(dx*dx + dz*dz < r*r) return false;
-    }
-    return true;
-  };
-  /* 자리가 막히면 길을 따라 앞뒤로 밀어 보고, 그래도 안 되면 건너편 어깨로 넘긴다.
-     (1·2·5모둠 길은 농장을 돌아가느라 한쪽 어깨가 우리에 먹히는 구간이 있다 — 거기서 박자가 안 끊기게.)
-     sn 은 '길 쪽이 어느 방향인지' 다. 팔·등받이 방향을 여기서 받아 쓴다. */
-  const spot = (g, t, d, r)=>{
-    for(const sg of [1,-1]) for(const dt of [0, 0.9, -0.9, 1.8, -1.8]){
-      const p = roadAtT(g, t+dt), D = d*sg, q = sideOf(p, D);
-      if(stFree(q[0], q[1], r)) return {x:q[0], z:q[1], ux:p.ux, uz:p.uz, sn: D<0 ? -1 : 1};
-    }
-    return null;
-  };
-
-  /* ══ 가로등 — 기둥·팔·갓 셋(vst) + 빛알 하나(gglow) + 발밑 화단 ══
-     (hx,hz) 는 팔이 뻗는 쪽(길 쪽) 단위벡터.
-     ★ 불투명한 등피를 일부러 안 만들었다. 갓 속에 빛알을 넣으면 밤에 불이 묻혀 안 보인다.
-       빛알 자체가 등이다 — 기둥과 갓 사이에 네 옆이 다 트여 있어 멀리서 점으로 보인다. */
-  const lamp = (x, z, hx, hz)=>{
-    const ry = Math.atan2(hx, hz);
-    ST(x, 1.50, z, 0.17, 3.00, 0.17, 0x9a6b42);                          // 기둥 3칸 — 아이 키의 두 배
-    ST(x + hx*0.50, 2.92, z + hz*0.50, 0.10, 0.10, 0.95, 0x8a5f3c, ry);  // 길 쪽으로 뻗은 팔
-    const lx = x + hx*0.92, lz = z + hz*0.92;
-    LM(lx, 2.70, lz, 0.32, 0.36, 0.32);                                  // 빛알
-    ST(lx, 2.98, lz, 0.44, 0.10, 0.44, 0x5a4a3a);                        // 갓
-    GD(x, 0.11, z, 0.95, 0.22, 0.95, 0x8a6b4a);                          // 화단 테
-    /* 덤불 둘 — 'bush' 가 아니라 작은 쪽 'bushS'(LEAFV[1]) 를 쓴다.
-       'bush' 는 산 바위 뚜껑(4135줄)에서도 쌓여서 이미 300 가까이 차 있을 수 있는데,
-       300 을 넘는 순간 그 뱅크가 열 조각으로 쪼개져 드로우콜이 한꺼번에 는다. 'bushS' 는 여유가 넉넉하다. */
-    for(let q=0;q<2;q++){
-      const a = 2.1 + q*2.6;
-      bpush('bushS', LEAFV[1], WMAT, x + Math.cos(a)*0.28, GY+0.39, z + Math.sin(a)*0.28, a,
-            0.50, 0.34, 0.50, 0, q ? 0x5fb646 : 0x74c853);
-    }
-    { const fx = x - hx*0.30, fz = z - hz*0.30;    // 들꽃 — 줄기·꽃송이·속 한 벌씩(셋이 늘 같은 수라야 t32 가 통과한다)
-      bpush('stem',  WGEO,  WMAT, fx, GY+0.34, fz, 0,   0.06,0.24,0.06, 0, 0x5aa845);
-      bpush('petal', LEAFG, WMAT, fx, GY+0.50, fz, 1.1, 0.28,0.16,0.28, 0, 0xffd84d);
-      bpush('pist',  LEAFG, WMAT, fx, GY+0.56, fz, 0,   0.11,0.08,0.11, 0, 0xffe36a); }
-    SOL.push([x, z, 0.30, GY+1.15]);     // 기둥에 몸이 부딪힌다 — 무릎 높이라 뛰어넘을 수 있다
-  };
-
-  /* ══ 모둠 이정표 — 수정 마당을 막 벗어나는 자리 ══
-     (fx,fz) 는 판이 바라보는 쪽(수정 쪽). 길을 나서는 아이가 정면으로 읽는다. */
-  const signpost = (g, x, z, fx, fz)=>{
-    const ry = Math.atan2(fx, fz);           // 로컬 +Z 가 (fx,fz) 를 본다 → 로컬 +X 는 (fz,-fx)
-    const gc = GHEX[g];
-    ST(x, 1.20, z, 0.16, 2.40, 0.16, 0x9a6b42);                            // 기둥
-    ST(x, 1.90, z, 1.35, 1.15, 0.09, gc, ry);                              // 모둠 색 판
-    GD(x + fx*0.08, 1.90, z + fz*0.08, 1.05, 0.90, 0.06, 0x23262e, ry);    // 어두운 판 — 노란 4모둠도 숫자가 안 묻힌다
-    /* 숫자 — 성문 번호판과 똑같은 3×5 글씨체. PX 0.17 이면 한 자가 0.51×0.85칸이라
-       어두운 판(1.05×0.90) 안에 꼭 맞고, 다섯 걸음 밖에서도 읽힌다. */
-    const rows = DIGIT[g+1], PX = 0.17;
-    for(let r=0;r<5;r++) for(let c=0;c<3;c++){
-      if(rows[r][c] !== '1') continue;
-      const ox = (c-1)*PX;   // ★ 부호 주의. ry=atan2(fx,fz) 라 판의 로컬 +X 는 (fz,-fx) 이고, 그게 곧 보는 아이의 오른쪽이다.
-                             //   -(c-1) 로 쓰면 글씨가 거울이 되고, DIGIT 의 2 와 5 가 서로 거울상이라 2모둠 팻말에 5 가 뜬다.
-      LM(x + fz*ox + fx*0.14, 1.90 + (2-r)*PX, z - fx*ox + fz*0.14, PX*0.92, PX*0.92, 0.10, ry);   // ry 를 같이 넘긴다 — 이정표는 비스듬히 서 있어 0 으로 두면 글자가 뭉툭해진다
-    }
-    /* 화살 — 성문 쪽으로 뻗고 끝의 빗금 둘이 화살촉이다.
-       ★ ry 를 90° 돌려 놓으면 로컬 X 가 길 방향이 되어, rz 가 '위아래로 벌리기' 가 된다
-         (bpush 는 ry·rz 만 열려 있어서, 세로 평면에서 기울이려면 먼저 90° 돌려야 한다). */
-    const ax = -fx, az = -fz, ary = Math.atan2(ax, az);
-    ST(x + ax*0.55, 1.05, z + az*0.55, 0.12, 0.30, 1.20, gc, ary);
-    for(const s of [1,-1])      // 둘이 앞끝에서 만나 화살촉이 된다(rz 부호를 s 와 반대로 줘야 모인다)
-      ST(x + ax*0.97, 1.05 + s*0.18, z + az*0.97, 0.52, 0.12, 0.12, gc, ary - Math.PI/2, -s*0.78);
-    GD(x, 0.10, z, 0.62, 0.20, 0.62, 0xb6afa1);                            // 밑돌
-    SOL.push([x, z, 0.30, GY+1.15]);
-  };
-
-  /* (길가 울타리 fence 는 64차에 지웠다 — 산울타리·돌담은 villageLandscape 가 마당마다 놓는다.
-      원칙은 그대로다: 울타리 종류는 SOLID 에 안 넣는다. 좀비가 못 보는 벽을 사람만 막으면 이상하다.) */
-
-  /* ══ 길가 벤치 — 아홉 살은 벤치를 보면 앉으려고 다가간다 ══
-     (fx,fz) 는 앉아서 바라보는 쪽(길 쪽). 앉는 기능은 없지만 판 위에 올라설 수는 있다. */
-  const bench = (x, z, fx, fz)=>{
-    const ry = Math.atan2(fx, fz);
-    ST(x, 0.52, z, 1.35, 0.11, 0.46, 0xb98a56, ry);                        // 앉는 판
-    ST(x - fx*0.22, 0.78, z - fz*0.22, 1.35, 0.38, 0.09, 0xa87c4c, ry);    // 등받이
-    for(const s of [-1,1])
-      ST(x + fz*s*0.52, 0.24, z - fx*s*0.52, 0.13, 0.42, 0.40, 0x8a5f3c, ry);
-    SOL.push([x, z, 0.62, GY+0.60]);       // 앉는 판 높이 — 몸이 걸리고, 뛰면 판 위에 올라선다
-  };
-
-  /* ══ 수레 — '아까 누가 쓰다 놔뒀다'. 사람이 없는데 사람 흔적이 있는 게 아늑함의 핵심이다 ══ */
-  const cart = (x, z, ry)=>{
-    const ux = Math.sin(ry), uz = Math.cos(ry), lx = -uz, lz = ux;
-    ST(x, 0.62, z, 0.75, 0.42, 1.30, 0x9a5f3a, ry);                        // 몸통
-    for(const s of [-1,1])
-      ST(x + lx*s*0.40, 0.84, z + lz*s*0.40, 0.07, 0.26, 1.30, 0xb98a56, ry);          // 옆널
-    ST(x + ux*0.95, 0.78, z + uz*0.95, 1.00, 0.09, 0.09, 0x8a5f3c, ry - Math.PI/2, 0.40);  // 앞으로 든 손잡이
-    for(const s of [-1,1]){                        // 바퀴 — 가로널·세로널을 겹치면 모난 데가 가려져 동그라미로 읽힌다
-      ST(x + lx*s*0.46, 0.30, z + lz*s*0.46, 0.10, 0.54, 0.24, 0x6b4a2e, ry);
-      ST(x + lx*s*0.46, 0.30, z + lz*s*0.46, 0.10, 0.24, 0.54, 0x6b4a2e, ry);
-    }
-    SOL.push([x, z, 0.60, GY+0.85]);
-  };
-
-  /* (마을 알림판 notice 는 64차에 지웠다 — 광장 게시판과 중복.) */
-
-  /* ══ 곁길 — 디딤돌('peb' 재사용이라 그리기가 하나도 안 는다) + 양옆 연석 ══ */
-  const spur = (pts, near, curbs)=>{
-    for(let i=0;i<pts.length-1;i++){
-      const a = pts[i], b = pts[i+1];
-      const dx = b[0]-a[0], dz = b[1]-a[1], len = Math.hypot(dx,dz);
-      if(len < 0.8) continue;
-      const ux = dx/len, uz = dz/len, ry = Math.atan2(ux, uz);
-      for(let s=0.6; s<len-0.2; s+=1.15){                       // 디딤돌
-        const x = a[0]+ux*s, z = a[1]+uz*s;
-        if(stFree(x, z, 0.9, near)) PB(x, z, ry + s);           // ry 에 s 를 더해 돌마다 방향이 다르게
-      }
-      if(!curbs) continue;
-      for(let s=1.1; s<len-0.6; s+=2.3){                        // 연석 — 큰길과 같은 돌색
-        const x = a[0]+ux*s, z = a[1]+uz*s;
-        for(const sd of [-1,1]){
-          const cx = x - uz*1.35*sd, cz = z + ux*1.35*sd;
-          if(stFree(cx, cz, 0.9, near)) GD(cx, 0.08, cz, 0.42, 0.16, 1.90, sd>0 ? 0xd6cfbe : 0xc4bcab, ry);
-        }
-      }
-    }
-  };
-  /* 자리가 비면 놓고, 막히면 그냥 안 놓는다 (안쪽 마당은 좁아서 자리를 못 잡는 날도 있다) */
-  const tryLamp  = (x,z,hx,hz)=>{ if(stFree(x,z,1.5)) lamp(x,z,hx,hz); };
-  const tryBench = (x,z,fx,fz)=>{ if(stFree(x,z,1.4)) bench(x,z,fx,fz); };
-  const tryCart  = (x,z,ry)   =>{ if(stFree(x,z,1.3, NEAR_SPUR)) cart(x,z,ry); };
-
-  /* ═════════ ① 다섯 갈래 큰길 ═════════ */
-  for(let g=0; g<NG; g++){
-    const gc = GHEX[g];
-    /* 연석 — 64차에 뺐다(설계 명세 3.9). 다섯 길 양옆 150장(다섯 돌마다 모둠색)이 사진 03·09 의 '분홍·회색 활주로' 였다.
-       흙 띠 + 풀 가장자리면 길은 길이고, 길가는 집·디딤돌·마당 울타리(villageLandscape)가 채운다. 모둠색은 깃발·이정표·문턱 띠에만. */
-    /* 이정표 (t=10.5, 왼쪽 어깨) — 다섯이 성문에서 똑같이 34.5칸 앞이다 */
-    { const s = spot(g, 10.5, -2.5, 1.6);
-      if(s) signpost(g, s.x, s.z, -s.ux, -s.uz); }
-    /* 가로등 — 64차에 뺐다. villageNight 의 길등과 같은 길에 두 등 체계가 겹쳐 등이 마흔 개였다(설계 심사).
-       밤에 빛나는 것은 창문·문등·길등 열둘·화톳불이면 된다. (★ t>30 에는 서 있는 것을 하나도 안 둔다 — 아이들이 벽을 세우는 통로다.) */
-    /* 벤치 (t=14.5, 왼쪽 어깨, 길을 마주 본다) */
-    { const s = spot(g, 14.5, -2.6, 1.5);
-      if(s) bench(s.x, s.z, s.uz*s.sn, -s.ux*s.sn); }
-    /* 울타리 두 토막 — 64차에 뺐다. 길 중간에 이유 없이 선 울타리였다. 마당을 틀 짓는 산울타리·돌담(villageLandscape)이 대신한다. */
-    /* 어귀 등돌 한 쌍 (t=33) — '여기부터 우리 마을' 문턱. 성문까지 남은 12칸이 다섯 다 똑같다.
-       ※ 모둠 색은 낮에만 갈린다(EMITC 는 emissive 가 한 몸이다). 밤엔 다섯 문 앞이 다 같은 주황 두 점이다. */
-    for(const sd of [-1,1]){
-      const p = roadAtT(g, ARENA_R-7), q = sideOf(p, 2.9*sd);   // 64차 — 마당 끝에서 7칸 안(예전 33)
-      if(!stFree(q[0], q[1], 1.2)) continue;
-      GD(q[0], 0.68, q[1], 0.52, 1.35, 0.52, 0xb6afa1);        // 돌기둥
-      LM(q[0], 1.52, q[1], 0.34, 0.34, 0.34);                  // 빛알 — 기둥과 갓 사이라 네 옆이 트여 있다
-      GD(q[0], 1.77, q[1], 0.62, 0.16, 0.62, gc);              // 모둠 색 갓
-      /* 돌기둥은 가슴 높이(GY+0.005~1.355)다 — 무릎 높이 울타리와 달리 넘는 그림이 안 나온다.
-         바로 옆 가로등 기둥은 막으면서 그보다 굵은 이 기둥만 통과하면 더 이상하다. */
-      SOL.push([q[0], q[1], 0.34, GY+1.45]);
-    }
-    /* 마을 알림판은 64차에 뺐다 — 광장 게시판(villageSquare)과 같은 물건이 8칸 안에 둘이었다. */
-  }
-
-  /* ═════════ ② 곁길 — 상인·동물상인 ═════════
-     심사가 짚은 제일 큰 구멍이다 — 아이가 하루에 제일 여러 번 걷는 선인데 길이 하나도 안 닿아 있었다.
-     1모둠 길 t=6.5 에서 갈라져 좌판 뒤 선반 앞(상인에서 2.4칸)에서 끝난다.
-     ★ 좌판을 지나쳐 남쪽으로 돌지 않는다 — 그쪽은 1모둠 농장 우리(제일 큰 4.6칸)가 덮는 자리다. */
-  /* ★ 64차 — 곁길 디딤돌은 전부 뺐다(상인·대장간·농장 다섯·연못). 선생님: "길을 따라 깔린 돌 같은 것도
-     지저분하게 깔았다." 상인·대장간 앞은 이제 광장 포석(r 8.1)이 덮고, 농장 문은 흙길에서 5칸 안이라
-     돌이 없어도 길이 읽힌다. 수레·벤치·등 하나씩만 남긴다. spur() 는 남겨 두되 부르지 않는다. */
-  { tryCart(-2.2, -4.6, 1.1);                                  // 수정 마당 어귀에 세워 둔 수레
-    tryBench(7.9, -4.4, -0.78, -0.63);                         // 좌판을 마주 보는 벤치 — 장 보는 동안 앉는 자리
-  }
-  /* ═════════ ③ 곁길 — 대장간 ═════════
-     4모둠 길 t=6.3 에서 갈라져 대장간 앞마당(대장간에서 2.7칸)에서 끝난다. */
-  { tryLamp(-8.9, 9.0, 0.87, -0.49);                           // 대장간 쪽을 비추는 등 — 큰길 가로등은 뺐지만 이 하나는 남긴다(명세 3.9)
-    tryCart(-9.4, 8.4, 2.4);
-    /* 벤치는 여기 안 둔다 — 대장간(3.4)과 4모둠 우리(5.8) 사이가 좁아 자리가 안 난다.
-       억지로 끼우면 우리가 커졌을 때 울타리 안에 벤치가 갇힌다. */
-  }
-  /* ═════════ ④ 곁길 — 모둠 농장 다섯 ═════════
-     우리 문(수정 쪽)에서 제 모둠 길까지 디딤돌만 깐다. 'peb' 재사용이라 그리기가 안 는다.
-     ★ 3·4모둠은 길이 농장에서 멀어 돌이 예닐곱 알로 길어진다. 4모둠 줄은 대장간을 스쳐 지나가는데,
-       대장간 둘레 2.4칸 안에는 돌을 안 놓으므로 건물이 그 자리를 대신 메운다. */
-  /* (④ 농장 곁길 · ⑤ 연못 곁길 — 64차에 뺐다. 위 ② 주석 참고.) */
-  void spur;
-}
-
-/* ═══════════════════════ 물과 풀 — 가꾼 자리 (67차) ═══════════════════════
-   버릴 것은 버리고(심사 drop), 고칠 것은 고쳐(심사 violations) 남은 한 벌이다.
-     · 마당 잔디 줄무늬 → 뺐다. 바닥 재질의 풀결 잡음(±8%)이 줄무늬 신호의 여섯 배라 교실에서 한 줄도 안 보인다.
-     · 연못 데크 널판 → 뺐다. 아이는 이미 연못 위를 GY 로 걸어다니므로(찰랑 소리) 널판은 발목을 뚫는다.
-       난간(기둥 넷 · 가로대 둘)만 남겨 '여기가 물가다' 만 표시한다.
-     · 연못가 꽃 열두 송이 · 연꽃 → 뺐다. 반지름 27 은 아이가 서 있는 자리가 아니다.
-       그 조각들을 텃밭 둘레와 돌길 옆(반지름 9~17)으로 옮겼다 — 매일 지나가는 자리다.
-     · 연못 갈대는 **한 포기도 안 자른다**. t34 의 '갈대 16조각 이상' 은 원래 연못 갈대로만 서 있어야 한다.
-     · 버드나무 늘어진 가닥은 'reed' 가 아니라 새 키 **'wisp'** 로 뺐다 — 갈대를 세는 검사가
-       버드나무 가지로 통과되면, 나중에 버드나무를 빼는 순간 원인 모를 곳에서 검사가 깨진다.
-   무게중심은 연못이 아니라 **수정 ~ 상인 ~ 농장 사이**다 (심사 verdict).
-     상인 좌판 앞에서 텃밭 옆을 지나 연못까지 돌길 열네 장이 이어지고, 그 길가와 다섯 흙길가가 가꿔져 있다.
-
-   ※ 땅은 한 칸도 안 뺏는다 — 전부 bpush 정적 뱅크다. terrH · bldH · cellOwner · rampCells 어느 것도 안 만진다.
-     canPlace 에 줄 하나 안 넣었고 solidPush 도 없다. 좀비 길(walkable 은 terrH 만 본다)도 그대로다. */
-function villageWater(){
-
-  /* ───────────────────────── 0. 헬퍼 ─────────────────────────
-     ★ 새 재질을 하나도 안 만든다. 나무 조각은 cube(T.plank) + MAT 로 쌓으면
-       bpush 번역층(3866줄)이 WOOD_TILES 를 보고 **이미 있는 WMAT_WOOD(나뭇결)** 로 접어 준다. */
-  const gPlank = cube(T.plank);
-  /* ★ 번역층은 타일 원색 TILE_COL[T.plank] = 0xb8895a 에 내 색을 곱한다.
-     그래서 '내고 싶은 색 ÷ 원색' 을 넘긴다. 나눗셈이라 0xb8895a 보다 밝은 색은 못 낸다 —
-     이 한 벌의 나무는 전부 그보다 어두우니 괜찮다. (sRGB 곱은 거듭제곱이라 나눠 넘겨도 오차 1% 안쪽) */
-  const PB = [0xb8, 0x89, 0x5a];
-  const wc = (hex)=>{ let o = 0;
-    for(let i=0;i<3;i++) o = o*256 + Math.min(255, Math.round((((hex >> (16-i*8)) & 255) / PB[i]) * 255));
-    return o; };
-
-  const W = (x,y,z, sx,sy,sz, col, ry, rz)=>            // 나무 조각 — 새 뱅크 'gd' (그리기 한 번)
-    bpush('gd', gPlank, MAT, x, GY+y, z, ry||0, sx,sy,sz, rz||0, wc(col));
-  const S = (x,y,z, sx,sy,sz, col, ry)=>                // 납작 돌 — 기존 'peb' 뱅크(PEBG) 재사용
-    bpush('peb', PEBG, WMAT, x, GY+y, z, ry||0, sx,sy,sz, 0, col);
-  const L = (x,y,z, sx,sy,sz, col, ry)=>                // 잎 덩어리 — 기존 'bushS'(LEAFV[1], 잎 얼룩 재질)
-    bpush('bushS', LEAFV[1], WMAT, x, GY+y, z, ry||0, sx,sy,sz, 0, col);
-  const R = (x,y,z, sx,sy,sz, col, rz)=>                // 가는 풀대 — 기존 'reed'(WGEO)
-    bpush('reed', WGEO, WMAT, x, GY+y, z, 0, sx,sy,sz, rz||0, col);
-  /* 꽃 한 벌 — 줄기·꽃잎·속을 **반드시 셋이 한 세트로** 넣는다 (t32 가 셋의 개수가 같은지 본다) */
-  const FLW = (x,z, pc)=>{
-    bpush('stem',  WGEO,  WMAT, x, GY+0.11, z, 0, 0.06,0.24,0.06, 0, 0x5aa845);
-    bpush('petal', LEAFG, WMAT, x, GY+0.27, z, rnd(x*3.1+z*1.7)*6.28, 0.28,0.16,0.28, 0, pc);
-    bpush('pist',  LEAFG, WMAT, x, GY+0.33, z, 0, 0.11,0.08,0.11, 0, 0xffe36a);
-  };
-
-  /* ───────────────────────── 1. 자리 잡기 ─────────────────────────
-     돌길은 상인 좌판 앞 → (텃밭 옆) → 연못 난간 앞, 곧은 한 줄이다. */
-  const shr = Math.hypot(SHOP_X, SHOP_Z);                      // 8.4
-  const A0 = [SHOP_X*(1 + 2.0/shr), SHOP_Z*(1 + 2.0/shr)];     // 좌판 앞 2칸 ≈ (6.11, -8.41)
-  const pl = Math.hypot(POND.x, POND.z);                       // 27.02
-  const PV = [-POND.x/pl, -POND.z/pl];                         // 연못 → 마을 쪽 (-0.777, 0.629)
-  const PU = [-PV[1], PV[0]];                                  // 물가 접선
-  const PVA = Math.atan2(PV[1], PV[0]);                        // 141°
-  const A1 = [POND.x + PV[0]*5.9, POND.z + PV[1]*5.9];         // 연못 난간 바로 앞 ≈ (16.41, -13.29)
-  const wlen = Math.hypot(A1[0]-A0[0], A1[1]-A0[1]);           // 11.40
-  const wu = [(A1[0]-A0[0])/wlen, (A1[1]-A0[1])/wlen];         // 길 방향
-  const wn = [-wu[1], wu[0]];                                  // 길의 왼쪽(수정 쪽) 법선
-
-  /* ───────────────────────── 2. 돌길 열네 장 (14조각) ─────────────────────────
-     ★ 간격이 **정확히 일정**한 것이 '누가 깐 길' 의 전부다. 좌우 흔들림도 무작위가 아니라 ±0.18 로 번갈아. */
-  const wstep = wlen / 13;                                     // 0.877칸 — 열네 장이 딱 맞게
-  for(let i=0;i<14;i++){
-    const s = i*wstep;
-    const x = A0[0] + wu[0]*s + wn[0]*((i%2) ? 0.18 : -0.18);
-    const z = A0[1] + wu[1]*s + wn[1]*((i%2) ? 0.18 : -0.18);
-    S(x, 0.10, z, 0.78,0.20,0.62, ROCK_C[1], Math.atan2(wu[0], wu[1]));
-  }
-
-  /* ───────────────────────── 3. 텃밭 한 뙈기 — 이랑 다섯 줄 (90조각) ─────────────────────────
-     자리: 돌길에서 3.1칸 옆, 중심 (10.87, -7.24).
-       · 제일 먼 조각이 반지름 16.47 — 자원 고리(NODE_R0=17) **안쪽**이라 나무·바위가 텃밭에 안 생긴다.
-       · 농장 2(14,0) 울타리(반지름 4.6)에서 제일 가까운 데가 5.78칸 — 우리를 안 건드린다.
-       · 흙길에서 8칸 넘게 떨어져 있다(흙 칠은 2.1에서 끝난다).
-     이랑은 돌길에서 봤을 때 **나를 향해 다섯 줄이 나란히 뻗는다** — 아홉 살이 세기 제일 좋은 모양이다. */
-  const GC = [A0[0] + wu[0]*3.8 + wn[0]*3.1, A0[1] + wu[1]*3.8 + wn[1]*3.1];
-  const gry = Math.atan2(wn[0], wn[1]);                        // 텃밭 로컬 +Z = 길에서 멀어지는 쪽
-  const gcs = Math.cos(gry), gsn = Math.sin(gry);
-  const GW = (dx,dz)=> [GC[0] + dx*gcs + dz*gsn, GC[1] - dx*gsn + dz*gcs];
-  const GP = (dx,dy,dz, sx,sy,sz, col, rz)=>{ const w = GW(dx,dz); return W(w[0],dy,w[1], sx,sy,sz, col, gry, rz); };
-  const GL = (dx,dy,dz, sx,sy,sz, col)=>{ const w = GW(dx,dz); return L(w[0],dy,w[1], sx,sy,sz, col, gry); };
-  const GR = (dx,dy,dz, sx,sy,sz, col, rz)=>{ const w = GW(dx,dz); return R(w[0],dy,w[1], sx,sy,sz, col, rz); };
-
-  /* 이랑 다섯 (5) — 'gd' 는 나뭇결 재질이라 고랑이 '나무 화단 상자' 로 읽힌다. 아홉 살에겐 그쪽이 훨씬 빠르다. */
-  for(let i=0;i<5;i++) GP(-2.1 + i*1.05, 0.13, 0, 0.80,0.26,3.60, 0x7a5a3c);
-  /* 낮은 판자 테두리 — 가로대 4 + 말뚝 8 (12). 길 쪽(로컬 -Z)은 한쪽을 터서 드나드는 문으로 둔다 */
-  GP( 0.00, 0.26,  2.10, 5.40,0.10,0.10, 0xb8895a);            // 먼 쪽
-  GP(-1.30, 0.26, -2.10, 2.80,0.10,0.10, 0xb8895a);            // 길 쪽 — 오른쪽이 문
-  GP(-2.70, 0.26,  0.00, 0.10,0.10,4.20, 0xb8895a);            // 왼 옆
-  GP( 2.70, 0.26,  0.00, 0.10,0.10,4.20, 0xb8895a);            // 오른 옆
-  for(const p of [[-2.70,-2.10],[2.70,-2.10],[-2.70,2.10],[2.70,2.10],[-2.70,0],[2.70,0],[0,2.10],[0.10,-2.10]])
-    GP(p[0], 0.17, p[1], 0.16,0.34,0.16, 0x9c7248);
-  /* 배추 열두 포기 (12) — 1·2번 이랑 */
-  for(let r0=0;r0<2;r0++) for(let i=0;i<6;i++)
-    GL(-2.1 + r0*1.05, 0.41, -1.5 + i*0.6, 0.42,0.30,0.42, (i+r0)%2 ? 0x7ec850 : 0x64b043);
-  /* 당근 잎 (12) — 3번 이랑, 한 포기에 두 가닥 */
-  for(let i=0;i<6;i++) for(const s2 of [-1,1])
-    GR(0 + s2*0.07, 0.43, -1.5 + i*0.6, 0.05,0.34,0.05, 0x6fb24a, s2*0.22);
-  /* 토마토 — 지지대 12('gd') + 잎 12('bushS') : 4·5번 이랑 */
-  for(let r0=0;r0<2;r0++) for(let i=0;i<6;i++){
-    const dx = 1.05 + r0*1.05, dz = -1.5 + i*0.6;
-    GP(dx, 0.81, dz, 0.07,1.10,0.07, 0x8a6a42);
-    GL(dx, 0.68, dz, 0.34,0.26,0.34, (i%2) ? 0x74c853 : 0x5fb646);
-  }
-  /* 연장과 팻말 (7) — '누가 매일 여기서 일한다' 를 말하는 조각들. 문 옆에 모아 둔다 */
-  GP(-1.85, 0.15, -2.45, 0.34,0.30,0.34, 0x6f4f33);            // 물통
-  GP(-1.85, 0.33, -2.45, 0.38,0.06,0.38, 0x8a6442);            // 물통 테
-  GP(-1.40, 0.12, -2.50, 0.26,0.24,0.26, 0x7a5a3c);            // 작은 물통
-  GP( 2.30, 0.48, -2.45, 0.06,0.95,0.06, 0xa07c50, 0.42);      // 삽 자루 — 울타리에 기대 뒀다
-  GP( 2.07, 0.13, -2.45, 0.22,0.26,0.06, 0x8a6a42);            // 삽 날
-  GP( 1.10, 0.28, -2.45, 0.07,0.55,0.07, 0x9c7248);            // 팻말 기둥
-  GP( 1.10, 0.60, -2.45, 0.62,0.30,0.05, 0xb8895a);            // 팻말 판
-  /* 텃밭 둘레 꽃 여섯 송이 (18) — 모둠 색이 아니라 노랑·흰색. 상인 쪽 울타리를 따라 줄 맞춰 */
-  for(let i=0;i<6;i++){ const w = GW(-3.05, -1.75 + i*0.70); FLW(w[0], w[1], i%2 ? 0xffd84d : 0xffffff); }
-
-  /* ───────────────────────── 4. 길가 화단 띠 — 64차에 뺐다 (122조각 → 0) ─────────────────────────
-     다섯 흙길에 1.8칸 박자로 같은 점(풀포기·흰 꽃·모둠색 판 20장)을 찍은 것이 사진 01 의 '색종이 가루' 였고
-     '흩뿌림' 의 둘째 원인이었다(설계 명세 3.9). 길가는 집·디딤돌·마당 울타리·큰 나무가 대신 채운다.
-     PLNS 는 안 읽는다 — pathLines() 메모는 그대로다(t34 paths===5). */
-
-  /* ───────────────────────── 5. 연못 마을 쪽 — 돌 테두리 열한 장 (11조각) ─────────────────────────
-     크기도 색도 간격도 **전부 같다**. 이 '똑같음' 이 가꾼 티의 전부다.
-     반대쪽 반원은 손대지 않는다 — 갈대가 제멋대로 서 있는 쪽과 나란히 보여야 '가꿈' 이 눈으로 비교된다.
-     ★ 설계안에 있던 '마을 쪽 갈대 다섯 포기 건너뛰기' 는 뺐다. 연못 갈대를 자르면
-       t34 의 '갈대 16조각 이상' 이 버드나무·개울 갈대에 기대게 된다(심사). */
-  for(let i=0;i<11;i++){
-    const a = PVA + (-80 + i*16) * Math.PI/180;
-    S(POND.x + Math.cos(a)*4.75, 0.09, POND.z + Math.sin(a)*4.75, 0.75,0.22,0.55, ROCK_C[2], a + Math.PI/2);
-  }
-
-  /* ───────────────────────── 6. 물가 난간 (6조각) ─────────────────────────
-     데크 널판은 뺐다(심사). 아이는 이미 연못 위를 걸어다니므로 널판은 발목을 뚫고, 값만 든다.
-     남은 것은 돌길 끝에 서는 난간 — '여기서 물을 본다' 는 자리 표시다. SOLID 에 안 넣는다(몸이 통과한다). */
-  const RB = [POND.x + PV[0]*5.35, POND.z + PV[1]*5.35];
-  const rry = Math.atan2(PU[0], PU[1]);                        // 가로대가 물가와 나란하게
-  for(const u of [-1.05, -0.35, 0.35, 1.05])
-    W(RB[0] + PU[0]*u, 0.40, RB[1] + PU[1]*u, 0.14,0.80,0.14, 0xa87f50, rry);
-  W(RB[0], 0.46, RB[1], 0.09,0.09,2.40, 0x9a7248, rry);
-  W(RB[0], 0.70, RB[1], 0.09,0.09,2.40, 0xb8895a, rry);
-
-  /* ───────────────────────── 7. 버드나무 두 그루 (50조각) ─────────────────────────
-     각진 상자뿐인 화면에서 **아래로 흐르는 선**을 만드는 유일한 것이다.
-     늘어진 가닥은 새 키 'wisp' — 갈대('reed') 뱅크에 섞으면 갈대를 세는 검사가 가지로 통과된다(심사). */
-  const willow = (wx, wz, seed)=>{
-    const dx = POND.x - wx, dz = POND.z - wz, dl = Math.hypot(dx,dz);
-    const d0 = dx/dl, d1 = dz/dl;                              // 물 쪽 방향
-    /* ★ ry 를 이렇게 주면 로컬 +X 가 물 반대쪽이라, **+rz 가 꼭대기를 물 쪽으로 눕힌다** */
-    const lean = (ex,ez)=> Math.atan2(ez, -ex);
-    const ry0 = lean(d0, d1);
-    bpush('trunk', TRUNKV, WMAT, wx + d0*0.14, GY+1.35, wz + d1*0.14, ry0, 1.05,2.70,1.05, 0.10, 0x7a5533);
-    bpush('trunk', TRUNKV, WMAT, wx + d0*0.62, GY+3.30, wz + d1*0.62, ry0, 0.78,1.60,0.78, 0.24, 0x8a6440);
-    /* 물 위로 뻗는 가지 셋 — rz 가 클수록 눕는다. 끝점을 돌려받아 잎 덩어리를 얹는다 */
-    const arm = (ex, ez, by, len, th, rz2, col)=>{
-      const ry2 = lean(ex, ez), hx = ex*Math.sin(rz2)*len*0.5, hz = ez*Math.sin(rz2)*len*0.5, hy = Math.cos(rz2)*len*0.5;
-      bpush('branch', TRUNKV, WMAT, wx + hx, GY + by + hy, wz + hz, ry2, th,len,th, rz2, col);
-      return [wx + hx*2, by + hy*2, wz + hz*2];
-    };
-    const e1 = arm(d0, d1, 3.10, 2.40, 0.42, 0.92, 0x8a6440);                       // 물 쪽으로 제일 길게
-    const e2 = arm(d0*0.34 - d1*0.94, d1*0.34 + d0*0.94, 3.30, 1.90, 0.38, 0.72, 0x7a5533);
-    const e3 = arm(d0*0.34 + d1*0.94, d1*0.34 - d0*0.94, 3.40, 1.70, 0.36, 0.64, 0x7a5533);
-    /* 넓적한 잎 덩어리 넷 — 키와 모양을 짝지어 쓴다('leaf0'은 LEAFV[0], 'leaf1'은 LEAFV[1] …) */
-    bpush('leaf0', LEAFV[0], WMAT, e1[0], GY+e1[1]+0.30, e1[2], seed,       3.40,1.50,3.40, 0, 0x9fd46a);
-    bpush('leaf1', LEAFV[1], WMAT, e2[0], GY+e2[1]+0.34, e2[2], seed+1.2,   2.90,1.35,2.90, 0, 0x8ac25a);
-    bpush('leaf2', LEAFV[2], WMAT, e3[0], GY+e3[1]+0.34, e3[2], seed+2.4,   2.70,1.30,2.70, 0, 0x8ac25a);
-    bpush('leaf1', LEAFV[1], WMAT, wx + d0*0.9, GY+4.55, wz + d1*0.9, seed+3.6, 3.20,1.45,3.20, 0, 0x9fd46a);
-    /* 늘어진 버들가지 열넷 — 가늘고 길게 아래로. 바람이 없어도 선이 아래로 흐른다 */
-    for(let i=0;i<14;i++){
-      const a = seed + i*0.92, rr = 1.45 + (i%3)*0.60, hgt = 1.50 + (i%4)*0.30;
-      bpush('wisp', WGEO, WMAT,
-            wx + d0*1.05 + Math.cos(a)*rr, GY + 3.85 - hgt*0.5, wz + d1*1.05 + Math.sin(a)*rr,
-            a, 0.07, hgt, 0.07, (i%2 ? 0.10 : -0.18), (i%3) ? 0x8fc25a : 0x7ab24a);
-    }
-    /* 뿌리 둘 — 물 쪽과 직각으로 뻗는다 */
-    for(const s2 of [-1, 1])
-      bpush('root', WGEO, WMAT, wx + (-d1*s2)*0.60, GY+0.15, wz + (d0*s2)*0.60,
-            Math.atan2(-d1*s2, d0*s2), 0.34,0.28,0.85, 0, 0x7a5533);
-  };
-  willow(POND.x + Math.cos(PVA - 70*Math.PI/180)*5.6, POND.z + Math.sin(PVA - 70*Math.PI/180)*5.6, 0.7);
-  willow(POND.x + Math.cos(PVA + 70*Math.PI/180)*5.6, POND.z + Math.sin(PVA + 70*Math.PI/180)*5.6, 2.9);
-
-  /* ───────────────────────── 8. 개울 — 나무다리 · 징검다리 · 냇돌 · 갈대 (48조각) ─────────────────────────
-     개울은 지금 '파란 선' 일 뿐이다. 건널 자리가 둘 생기면 그 순간 **건너야 할 것**이 되고 아이가 고른다.
-     좌표는 이미 있는 개울 식을 그대로 쓴다(streamDist 2893줄): 축 p, 중심선 w(p). */
-  const U0 = POND.x/pl, U1 = POND.z/pl;                        // 연못 → 산기슭
-  const V0 = -U1, V1 = U0;                                     // 개울을 가로지르는 쪽
-  const wq = (p)=> 1.6*Math.sin(p*0.55 + 0.4) + 0.7*Math.sin(p*1.3 + 2.0);
-  const SW = (p,q)=> [POND.x + U0*p + V0*q, POND.z + U1*p + V1*q];
-  const cry = Math.atan2(V0, V1);                              // 로컬 +Z = 건너가는 쪽, 로컬 +X = 물 흐르는 쪽
-  /* 나무다리 (14) — p=7.6 자리.
-     ★ 널판 윗면을 **정확히 GY** 로 둔다. 아이가 서는 높이는 개울 위에서도 GY 다 —
-       개울 고랑 −0.14 는 4056·4059줄에서 **바닥 메시의 꼭짓점만** 내린 것이라 terrH 는 그대로 GY 고,
-       solidTop 은 terrH 만 본다. y 를 0.11 로 두면 널판이 발바닥보다 0.06 위에 떠서 정강이를 뚫는다. */
-  {
-    const p0 = 7.6, c = SW(p0, wq(p0));
-    const at = (dx,dz)=> [c[0] + dx*Math.cos(cry) + dz*Math.sin(cry), c[1] - dx*Math.sin(cry) + dz*Math.cos(cry)];
-    for(let i=0;i<6;i++){ const w = at(0, -1.30 + i*0.52);      // 널판 여섯 — 건너는 쪽으로 3.1칸
-      W(w[0], -0.05, w[1], 1.40,0.10,0.46, i%2 ? 0xb8895a : 0x9a7248, cry); }
-    for(const s2 of [-1,1]){ const w = at(s2*0.58, 0);          // 밑보 둘
-      W(w[0], -0.14, w[1], 0.16,0.14,3.00, 0x7d5c3a, cry); }
-    for(const s2 of [-1,1]) for(const t2 of [-1,1]){ const w = at(s2*0.62, t2*1.15);   // 난간 기둥 넷
-      W(w[0], 0.28, w[1], 0.14,0.70,0.14, 0xa87f50, cry); }
-    for(const s2 of [-1,1]){ const w = at(s2*0.62, 0);          // 가로대 둘
-      W(w[0], 0.46, w[1], 0.09,0.09,2.50, 0xb8895a, cry); }
-  }
-  /* 징검다리 (6) — p=4.6, 연못 어귀 바로 밖. 1.05칸 간격 넷 + 양쪽 진입돌 둘 */
-  {
-    const p0 = 4.6, q0 = wq(p0);
-    for(const q of [-1.575, -0.525, 0.525, 1.575]){ const w = SW(p0, q0 + q);
-      S(w[0], 0.10, w[1], 0.72,0.20,0.62, ROCK_C[1], cry); }
-    for(const q of [-2.55, 2.55]){ const w = SW(p0, q0 + q);
-      S(w[0], 0.08, w[1], 0.62,0.16,0.54, ROCK_C[2], cry); }
-  }
-  /* 냇돌 여덟 (8) — 물속에 반쯤 잠긴다 */
-  for(let i=0;i<4;i++){
-    const p0 = 5.5 + i*1.5, q0 = wq(p0);
-    for(const s2 of [-1,1]){ const w = SW(p0, q0 + s2*0.42);
-      S(w[0], -0.02, w[1], 0.44,0.30,0.40, s2>0 ? ROCK_C[0] : ROCK_C[1], rnd(p0+s2)*6.28); }
-  }
-  /* 개울 갈대 열 포기 (20) — 여기는 일부러 **줄을 안 맞춘다**. 연못 마을 쪽과 대비되어야 '가꿈' 이 보인다 */
-  for(let i=0;i<10;i++){
-    const p0 = 4.4 + i*0.72, side = (i%2) ? 1 : -1;   // p 4.4 부터 — 그 안쪽은 아직 연못 물(반지름 4.2) 위다
-    const q0 = wq(p0) + side*(0.95 + rnd(i*2.7)*0.45);
-    const w = SW(p0, q0), hgt = 0.66 + rnd(i*1.3)*0.46, tl = (rnd(i)-0.5)*0.18;
-    R(w[0], hgt/2, w[1], 0.07,hgt,0.07, 0x6fb24a, tl);
-    R(w[0], hgt + 0.12, w[1], 0.11,0.26,0.11, 0x7a5233, tl);
-  }
-
-  /* ───────────────────────── 9. 낙엽 더미 넷과 갈퀴 (26조각) ─────────────────────────
-     낙엽이 **쌓여 있다**는 것은 시간이 지났다는 뜻이고, **한 자리에 모여 있다**는 것은 누가 긁어모았다는 뜻이다.
-     심사대로 두 더미는 버드나무 밑이 아니라 **아이 눈앞**(텃밭 옆 · 돌길 옆)에 둔다. */
-  const pile = (px, pz, seed)=>{
-    for(let i=0;i<6;i++){
-      const a = seed + i*1.05, rr = 0.26*(i%3);
-      L(px + Math.cos(a)*rr, 0.07 + (i%2)*0.05, pz + Math.sin(a)*rr, 0.80,0.14,0.70,
-        i%3===0 ? 0xc98b4a : (i%3===1 ? 0xb5723a : 0xd9a25c), a);
-    }
-  };
-  const pg = GW(-3.30, -0.40);                                 // 텃밭 왼 울타리 밖 — 상인 쪽에서 오는 아이 눈앞
-  pile(pg[0], pg[1], 0.4);
-  const pw = [A0[0] + wu[0]*4.2 - wn[0]*1.5, A0[1] + wu[1]*4.2 - wn[1]*1.5];   // 돌길 바깥쪽 옆
-  pile(pw[0], pw[1], 1.9);
-  /* ★ 버드나무 밑(반지름 25.5 — 자원 고리 한복판)에 두면 아이가 안 본다. 매일 지나가는 자리로 옮겼다.
-     옮긴 자리는 반지름 16.87 · 16.14 로 둘 다 NODE_R0(17) 안쪽이라 나무·바위가 안 생긴다. */
-  /* 64차 — 돌길 후반·텃밭 오른쪽의 더미 둘(pw2·pg2)은 뺐다(넷 → 둘). 두 더미면 '긁어모았다' 가 읽히고, 넷이면 다시 흩뿌림이다. */
-  /* 갈퀴 — 텃밭 옆 더미에만. 이 한 조각이 '누가 방금까지 여기 있었네' 로 문장을 끝맺는다 */
-  W(pg[0] + 0.55, 0.56, pg[1] + 0.30, 0.06,1.30,0.06, 0x9a7448, gry, 0.52);
-  W(pg[0] + 1.12, 0.10, pg[1] + 0.30, 0.50,0.08,0.10, 0x8a6a42, gry);
-}
-
-/* ═══════════ 모둠 자리 — 다섯 농장 둘레의 '우리 모둠 앞뜰' ═══════════
-   ★ 왜 반지름 4.75~5.45 띠에만 놓나
-     canPlace(6136줄)가 `hypot(칸중심 − FARM_X/Z) < FARM_R2[끝]+1.0` 즉 농장 중심 5.6칸 안의 칸을
-     이미 전부 거절한다("{g}모둠 농장 자리예요"). 그 안쪽에만 놓으면 아이가 지을 수 있는 땅을
-     한 칸도 안 뺏는다. 제일 바깥 조각이 5.43(우체통 지붕 모서리)이다.
-     안쪽 끝 4.75 는 우리가 제일 커졌을 때(FARM_R2 끝 = 4.6) 울타리 기둥 바깥면 4.685 를 피한 값이다.
-   ★ terrH·canPlace·NODES 를 한 글자도 안 건드린다 → 좀비 길(walkable)도 그대로다.
-     몸을 막는 것은 평상 하나뿐이고 그건 solidPush 로만 한다(아래 '붙일 때' 참고).
-   ★ 뱅크 셋만 쓴다. 'farmGlow' 에 얹지 않고 'yardGlow' 를 따로 판 이유가 있다 —
-     검사 t21 ①이 farmGlow 뱅크를 **통째로 읽어** 대문 번호판의 3×5 점 격자를 재고,
-     '수정 쪽으로 1칸 넘게 나온 점' 은 전부 번호로 센다. 앞뜰 등불·팻말 숫자를 같은 키에 넣으면
-     칸수가 3×5 가 아니게 되어 검사가 깨진다. 드로우콜 하나 더 내고 안전을 산다.
-   ★ 재질은 새로 안 만든다. cube(T.plank) → WMAT_WOOD · cube(T.cloth) → WMAT_PAINT ·
-     cube(T.glow)+EMITC → flatFor(T.glow,EMITC) = EMITC_F 로 번역층(3855줄)이 알아서 접는다.
-     그래서 t32 의 '뱅크 재질 여덟 이하' 도, '발광은 EMITC_F 한 재질' 도 그대로 통과한다. */
-function villageTeamYards(){
-  const gW = cube(T.plank), gC = cube(T.cloth), gGl = cube(T.glow);
-  /* 나무 색 — 번역층이 TILE_COL[plank](0xb8895a)에 이 값을 '곱한다'. 곱셈이라 밝아지지는 않는다.
-     0 = 곱하지 않음 = 판자 본래 색(쓸 수 있는 제일 밝은 나무). buildShop 의 0xb98a56 과 같은 요령. */
-  const W_LT = 0, W_MD = 0xd8b98c, W_DK = 0xa88a68;
-  const CREAM = 0xf3ead6, INK = 0x171a22;
-  /* ★ 마을 안쪽 고리(반지름 8.4)에 상인·동물상인·대장간이 서 있다. 농장은 14 고리고
-     앞뜰 띠는 4.75~5.45 라, 농장 중심에서 보면 그 좌판이 띠 안으로 들어오는 모둠이 있다.
-     직접 재 봤다 — 1모둠 ← 동물상인(국소 θ=0.415·r=5.82) · 4모둠 ← 대장간(θ=0.407·r=6.55).
-     ① 오른쪽 등불이 바로 그 각(θ=+0.42)이라, 안 막으면 1모둠 기둥이
-     동물상인 민트 차양과 낮은 좌판을 뚫고 올라온다. 2·3·5모둠은 6.2칸 밖이라 멀쩡하다. */
-  const busy = (wx,wz)=> Math.hypot(wx-VET_X,   wz-VET_Z)   < 2.30
-                      || Math.hypot(wx-SHOP_X,  wz-SHOP_Z)  < 2.60
-                      || Math.hypot(wx-FORGE_X, wz-FORGE_Z) < 2.60;
-  for(let g=0; g<NG; g++){
-    const cx = FARM_X[g], cz = FARM_Z[g];
-    const y0 = terrAt(Math.round(cx), Math.round(cz));   // buildFarms 와 똑같은 기준 높이
-    const openA = Math.atan2(-cz, -cx);                  // 수정을 보는 쪽
-    const RY = Math.PI/2 - openA, cr = Math.cos(RY), sr = Math.sin(RY);
-    const TC = GHEX[g];
-    /* 극좌표 한 틀로 다 놓는다. th=0 이 대문(수정) 쪽, r 은 농장 중심에서의 거리,
-       u 는 접선 오프셋(칸). 조각의 ry 를 RY+th 로 주므로 sx 는 접선 · sz 는 반지름 방향이 되고,
-       조각 앞면(로컬 +Z)은 바깥을 본다 — buildFarms 의 울타리 기둥과 똑같은 틀이다.
-       (버팀: at(dx,dz) = [cx+dx*cr+dz*sr, cz−dx*sr+dz*cr] 는 solidRebuild 의 at() 과 같은 식이다.) */
-    const put = (key, geo, mat, th, r, u, dy, sx,sy,sz, col, tilt)=>{
-      const dx = Math.sin(th)*r + u*Math.cos(th);
-      const dz = Math.cos(th)*r - u*Math.sin(th);
-      const wx = cx + dx*cr + dz*sr, wz = cz - dx*sr + dz*cr;
-      if(busy(wx, wz)) return;                    // ★ 좌판 속에 박히는 조각은 뺀다
-      bpush(key, geo, mat, wx, y0 + dy, wz,
-            RY + th, sx,sy,sz, tilt||0, col||0);
-    };
-    const WD = (th,r,u,dy, sx,sy,sz, col,tilt)=> put('yardW',    gW,  MAT,   th,r,u,dy, sx,sy,sz, col, tilt);
-    const PT = (th,r,u,dy, sx,sy,sz, col,tilt)=> put('yardC',    gC,  MAT,   th,r,u,dy, sx,sy,sz, col, tilt);
-    const GW = (th,r,u,dy, s)=>                  put('yardGlow', gGl, EMITC, th,r,u,dy, s,s,s);
-
-    /* ── ① 등불 대문 기둥 한 쌍 — 대문으로 들어가는 '길' 을 표시하는 가로등 둘 ──
-       th=±0.42 · r=5.15. 기존 디딤판(로컬 dx=±0.34)과 접선으로 2.1칸 떨어져 통로를 안 막고,
-       기존 꽃밭 각(±0.56)과도 0.40칸 뜬다. 발광 알은 갓 '아래' 에 둔다 — 갓 속에 묻으면 밤에 안 보인다. */
-    /* 한쪽이 막히면 둘 다 뺀다 — 1·4모둠은 등불 대문이 없다.
-         한쪽만 빠지면 문 옆에 외기둥이 남아 부서진 것처럼 보인다.
-         그 둘은 바로 옆에 동물상인 천막·대장간 화덕이 이미 불을 켜 준다. */
-    const atW = (th,r)=>{ const dx = Math.sin(th)*r, dz = Math.cos(th)*r;
-                          return [cx + dx*cr + dz*sr, cz - dx*sr + dz*cr]; };
-    const gateOK = [1,-1].every(s=>{ const p = atW(s*0.42, 5.15); return !busy(p[0], p[1]); });
-    if(gateOK) for(const s of [1,-1]){
-      const th = s*0.42;
-      WD(th, 5.15, 0, 1.10, 0.16,2.20,0.16, W_MD);        // 기둥 (바닥 0 ~ 2.20)
-      PT(th, 5.15, 0, 1.95, 0.20,0.26,0.20, TC);          // 모둠 색 띠 — 낮에 '누구네 문' 을 말한다
-      GW(th, 5.15, 0, 2.14, 0.26);                        // 발광 알 2.01~2.27
-      WD(th, 5.15, 0, 2.34, 0.40,0.14,0.40, W_DK);        // 등갓 2.27~2.41 — 알 바로 위에 얹힌다
-    }
-
-    /* ── ② 모둠 색 우체통 — 상자 다섯으로 '누가 산다' 가 된다 ──
-       th=+0.73 · r=5.20. 기존 꽃밭 각 0.56 과 0.90 의 사이(양쪽 0.46칸씩 빈다). */
-    WD(0.73, 5.20, 0,    0.48, 0.13,0.95,0.13, W_MD);     // 기둥
-    PT(0.73, 5.20, 0,    1.10, 0.52,0.42,0.38, TC);       // 몸통 (반지름 5.01~5.39)
-    WD(0.73, 5.20, 0,    1.36, 0.60,0.10,0.44, W_DK);     // 지붕 — 제일 바깥 5.42, 모서리 5.43 < 5.6
-    PT(0.73, 5.39, 0,    1.10, 0.34,0.08,0.05, INK);      // 투입구 홈 — 앞면에서 0.025 튀어나온다(겹쳐 떨리지 않게)
-    PT(0.73, 5.20, 0.34, 1.32, 0.06,0.30,0.05, 0xff5a5a); // 빨간 깃발 — 지붕 반폭 0.30 밖으로 0.04 비켰다
-
-    /* ── ④ 평상 + 모둠 색 방석 + 등불 — 올라설 수 있는 유일한 물건 ──
-       ★ 심사 위반 하나가 여기였다. 막는 동그라미(solidPush)를 r=5.02·반지름 1.05 로 두면
-         바깥 끝이 6.07칸이라 5.6~6.07 띠가 '지을 수는 있는데 안 보이는 벽이 선 땅' 이 된다.
-         심사의 고침대로 **작은 동그라미 둘(r=4.90 자리, 접선 ±0.55, 반지름 0.52)** 로 바꿨다 —
-         바깥 끝 hypot(4.90,0.55)+0.52 = 5.45 로 5.6 안에 완전히 들어간다. (solidRebuild 에 넣을 2줄은 따로 적었다.)
-       ★ 그림은 r=5.00 이다(막는 동그라미보다 0.10 바깥). 4.90 에 그대로 두면 상판 안쪽 끝이 4.75 →
-         우리가 제일 커졌을 때(R=4.6) 울타리 **기둥**(바깥면 4.685)이 평상 한가운데를 뚫고 올라온다.
-         0.10 밀면 안쪽 끝 4.75 로 기둥을 0.065 비껴간다. 가로대(4.555~4.645, 높이 0.42·0.80)는
-         평상 윗면 0.36 위로 지나가므로 안 닿는다.
-       ★ 아이는 걸어서는 못 올라가고 **뛰어올라야** 한다(STEP 은 지형 높이에만 걸리고 SOLID 는
-         solidHit 이 따로 막는다). 올라선 뒤에는 y ≥ top 이라 자유롭다 — 아홉 살에게는 그 편이 재미있다. */
-    const BT = 1.75;                                      // 우리 옆구리. 세계각 openA−1.75 라 대문·성문 쪽 검사 지점과 반대편이다
-    for(const u of [-0.63, 0, 0.63])
-      WD(BT, 5.00, u, 0.30, 0.62,0.12,0.50, W_LT);        // 상판 판자 셋 (합쳐 1.88 × 0.50, 윗면 0.36)
-    for(const u of [-0.78, 0.78]) for(const dr of [-0.16, 0.16])
-      WD(BT, 5.00+dr, u, 0.15, 0.14,0.30,0.14, W_DK);     // 다리 넷
-    for(const u of [-0.52, 0.52])
-      PT(BT, 5.00, u, 0.405, 0.50,0.09,0.42, TC);         // 모둠 색 방석 둘 — '내 자리'
-    WD(BT, 5.00, 0,    0.40, 0.40,0.08,0.40, W_MD);       // 방석 사이 낮은 상
-    WD(BT, 5.00, 1.10, 0.775, 0.13,1.55,0.13, W_MD);      // 평상 끝 등불 기둥
-    GW(BT, 5.00, 1.10, 1.44, 0.24);                       // 발광 알 1.32~1.56
-    WD(BT, 5.00, 1.10, 1.62, 0.34,0.12,0.34, W_DK);       // 등갓 1.56~1.68
-
-    /* ── ⑤ 모둠 색 돗자리 — 네 명이 앉는 바닥. 상자 넷으로 제일 싸게 '우리 자리' 를 만든다 ──
-       ★ 심사: 띠 폭과 간격을 **둘 다 0.13** 으로 맞춘다. 폭 0.20 에 간격 0.13 이면 같은 높이의 판이
-         겹쳐서 밤낮으로 깜빡인다(z-파이팅). 0.13/0.13 이면 딱 맞물린 줄무늬가 된다.
-       ★ 평상 바로 옆(th 2.28)에 붙였다 — 심사의 '물건끼리 기대어 뭉쳐야 마당이 된다'. */
-    for(let i=0;i<4;i++)
-      PT(2.28, 4.87+i*0.13, 0, 0.03, 1.50,0.05,0.13, i%2 ? CREAM : TC);
-
-    /* ── ⑥ 빨래줄 — '사람이 살고 있다' 를 아홉 살이 제일 빨리 읽는 신호 ──
-       기둥 둘은 th=−2.00 · −2.68, 둘 다 r=5.20 (우리 뒤쪽, 헛간에서 1.18칸 이상 떨어진다).
-       ★ 심사: 줄 굵기 0.045 → **0.075**. 교실 화면에서 0.045 는 안 보여 빨래가 허공에 뜬다. */
-    for(const th of [-2.00, -2.68]){
-      WD(th, 5.20, 0, 0.80, 0.12,1.60,0.12, W_MD);        // 기둥 (0 ~ 1.60)
-      WD(th, 5.20, 0, 1.57, 0.10,0.09,0.44, W_MD);        // T자 가로대 — 줄과 십자로 걸친다
-    }
-    /* 줄·빨래는 두 기둥을 잇는 현(弦) 위에 놓는다. 현의 중점은 각 −2.34 · 반지름 5.20·cos(0.34)=4.90,
-       현 길이는 2·5.20·sin(0.34)=3.45 다. 그 자리에 th=−2.34 로 놓으면 sx 가 바로 현 방향이라
-       두 점 보간을 따로 안 해도 된다. 줄은 3.50 으로 기둥 속에 0.02씩 물린다. */
-    PT(-2.34, 4.90, 0, 1.53, 3.50,0.075,0.075, CREAM);    // 줄
-    for(let i=0;i<4;i++)                                  // 빨래 넉 장 — 모둠색·크림 번갈아
-      PT(-2.34, 4.90, (i-1.5)*0.74, 1.27, 0.40,0.48,0.05, i%2 ? CREAM : TC);
-
-    /* ── ⑧ 모둠 팻말 — 밤에 빛나는 번호 (심사가 '최고' 라고 한 항목) ──
-       th=−0.73 · r=5.20, 판 가운데 높이 1.35 = 아홉 살 눈높이. 대문 번호판은 2.72(키 두 배)에 있고
-       우리 단계가 바뀌면 자리가 따라 움직이지만, 이 팻말은 늘 같은 자리에 눈높이로 서 있다.
-       글씨는 성문·대문과 **똑같은 3×5 DIGIT** 이라 아이들이 이미 배운 글자다.
-       ★ 점은 검은 판 앞으로 0.085 튀어나오게 둔다 — 판 속에 묻으면 밤에 안 켜진 것처럼 보인다.
-       ★ 읽는 방향: 조각 앞면이 로컬 +Z, 접선 u 가 로컬 +X 다. 보는 사람이 앞면을 마주 보면
-         +X 가 그 사람의 오른쪽이므로 u=(c−1)*PX 로 두면 거울상이 안 된다(대문 번호판과 같은 규칙). */
-    const ST = -0.73, PXD = 0.14;
-    WD(ST, 5.14, 0, 0.65, 0.15,1.30,0.15, W_MD);          // 기둥 — 판 뒤에 숨는다
-    PT(ST, 5.20, 0, 1.35, 0.86,1.00,0.10, TC);            // 모둠 색 판 테두리
-    PT(ST, 5.29, 0, 1.35, 0.66,0.80,0.08, INK);           // 검은 판 (앞면 5.33)
-    for(const s of [1,-1])
-      WD(ST, 5.22, s*0.24, 1.92, 0.60,0.09,0.28, W_DK, -s*0.50);  // 양쪽으로 기울인 작은 지붕 둘
-    const rows = DIGIT[g+1];
-    for(let r2=0;r2<5;r2++) for(let c=0;c<3;c++){
-      if(rows[r2][c] !== '1') continue;
-      GW(ST, 5.35, (c-1)*PXD, 1.35 + (2-r2)*PXD, PXD*0.92);       // 모둠마다 8·11·11·9·11 점 (합 50)
-    }
-  }
-}
-
-/* ═══════════════════════ 밤의 아늑함 (49차) ═══════════════════════
-   밤을 "좀비가 오는 시간" 에서 "우리 마을에 불이 켜진 시간" 으로 바꾼다.
-   주황 불 스물다섯 개를 다섯 흙길 어깨에 줄 세워서, 성문에서 수정까지 가는 길이
-   어둠 속에 그대로 그어지게 한다. 한가운데 수정만 파랗고 나머지는 전부 주황이라
-   아홉 살에게 "파란 것은 지켜야 할 것, 주황은 우리 것" 이 저절로 나뉜다.
-
-   ★ 이 함수는 terrH·cellOwner·NODES·SOLID 에 한 글자도 안 쓴다. 전부 bpush 뿐이라
-     canPlace 가 거절하는 여덟 조건 중 어느 것도 못 건드린다 — 아이 땅을 한 칸도 안 뺏고,
-     walkable 은 terrH 만 보므로 좀비가 수정까지 오는 길도 그대로다.
-   ★ 새 재질·새 InstancedMesh 를 하나도 안 만든다. 뱅크는 넷을 쓰는데 그중 셋('gglow'
-     ·'peb'·'farmCloth')은 이미 있는 것이라, 그리기 횟수는 낮에도 밤에도 딱 하나 는다('vlamp').
-   ★ 반투명·가산혼합·입자구름을 하나도 안 쓴다. 교실 노트북(Iris Xe·2560×1600)에서
-     비싼 것은 삼각형이 아니라 픽셀을 겹쳐 칠하는 것이다. 빛 웅덩이까지 전부
-     불투명한 빛나는 판으로 만들었다(아래 PL 주석). */
-function villageNight(){
-
-  /* ── 짧은 헬퍼 — buildShop/buildForge 와 같은 방식이다 ── */
-  const gP = cube(T.plank), gG = cube(T.glow), gC = cube(T.cloth);
-
-  /* 나무 조각. cube(T.plank)+MAT 은 번역층(3866줄)이 WOOD_TILES → WMAT_WOOD 로 접는다.
-     새 재질이 아니라 이미 있는 나뭇결 재질이다. col 은 TILE_COL[plank]=0xb8895a 에 곱해진다. */
-  const WD = (x,y,z, sx,sy,sz, col, ry, rz)=> bpush('vlamp', gP, MAT, x, GY+y, z, ry||0, sx,sy,sz, rz||0, col||0);
-
-  /* 스스로 빛나는 조각. cube(T.glow)+EMITC 는 bpush 3860줄의 special 갈래를 타서
-     flatFor(T.glow, EMITC) 로 접히는데, 그 결과가 10790줄 EMITC_F 와 **같은 객체**다
-     (_flatCache 가 tile|mat.uuid 로 돌려준다). 그래서 18363줄이 밤마다 올려 주는
-     emissiveIntensity 를 우리가 아무것도 안 해도 그대로 받는다 — 해가 지면 저절로 켜진다.
-     EMITC_F 이름 자체는 10790줄이라 여기서는 아직 못 쓴다. cube(T.glow) 로 쌓는 이유가 이것이다. */
-  const GW = (x,y,z, sx,sy,sz, col)=> bpush('gglow', gG, EMITC, x, GY+y, z, 0, sx,sy,sz, 0, col||0);
-
-  /* 돌멩이 — scatterDecor 의 자갈과 같은 뱅크('peb', PEBG+WMAT). 그리기가 안 는다. */
-  const PB = (x,y,z, sx,sy,sz, ry)=> bpush('peb', PEBG, WMAT, x, GY+y, z, ry||0, sx,sy,sz, 0, ROCK_C[1]);
-
-  /* 모둠 천 — 반드시 cube(T.cloth) 다. TILE_COL[cloth] 가 0xffffff 라 GHEX 가 그대로 나온다.
-     판자로 하면 0xb8895a 가 곱해져서 파랑이 탁한 청록(0x375c57), 노랑이 갈색(0xb87214) 이
-     되어 다섯 모둠 색이 전부 진흙이 된다. 농장 번호판 천이 쓰는 그 뱅크에 얹는다. */
-  const CT = (x,y,z, sx,sy,sz, col, ry)=> bpush('farmCloth', gC, MAT, x, GY+y, z, ry||0, sx,sy,sz, 0, col);
-
-  /* 빛 웅덩이 — 땅에 까는 납작한 판.
-     ★ 여기가 이 한 벌의 핵심이다. 발광 상자만 있으면 어둠에 뜬 노란 네모지만,
-       발밑에 웅덩이가 있어야 "내가 불빛 안에 들어왔다" 가 몸으로 느껴진다.
-     ★ 가산혼합 원판(투명)을 쓰지 않는다. 픽셀이 비싼 기기이기도 하고, 투명 메시는
-       count=0 으로 만들어 두면 boundingSphere 가 빈 채로 굳어 밤에 한 개도 안 그려지는
-       함정(fireMesh·cloudMesh 가 frustumCulled=false 로 피해 둔 그것)이 있다.
-       불투명 판은 그 함정 자체가 없다.
-     ★ col 은 낮 색이다. special 갈래에서 col 은 TILE_COL 에 안 곱해지고 instanceColor 로 가는데,
-       three.js 는 instanceColor 를 **확산색에만** 곱하고 emissive 에는 안 곱한다.
-       그래서 낮에는 잔디에 묻히고(0x6aeb9c × 밑색 0xf8d17c ≈ 0x67c14c = 잔디 GRASS_A), 밤에는 제 밝기로 켜진 주황 웅덩이가 된다. */
-  const POOL = (x,z, s, col, y)=> bpush('gglow', gG, EMITC, x, GY+(y===undefined?0.05:y), z, 0, s, 0.06, s, 0, col);
-  /* ★ 빛 웅덩이는 겹치면 안 되는 판이다. chamferBox(3755줄) 윗면이 중심 +0.5*sy · 가로 ±0.41*s 라,
-     윗면 높이가 같은 판 둘이 반너비 합보다 가까우면 같은 깊이를 두 번 칠해 카메라가 움직일 때마다
-     지직거린다(z-fighting). 상인×동물상인은 무조건 겹치고, 4모둠 화톳불×길등도 겹친다. 층을 나눈다. */
-  const PL_LOW = 0.05;   // 길등 · 상인               → 윗면 GY+0.08
-  const PL_MID = 0.11;   // 화톳불 · 동물상인 · 대장간 → 윗면 GY+0.14
-  const PL_TOP = 0.17;   // 큰 화톳불 한가운데         → 윗면 GY+0.20
-
-  const POOL_D = 0x6aeb9c;      // 웅덩이 낮 색 — 64차: 베이지(0x9a8a72, 낮에 풀밭 위 네모 얼룩)에서 잔디색으로. 밤엔 emissive 라 그대로 켜진다(명세 1절 POOL_DAY)
-  const POOL_H = 0xd8c8a4;      // 불 바로 밑 — 조금 더 밝은 모래빛
-  const FLAME  = 0xff9a3c;      // 불꽃 — 낮에도 주황으로 보이게 instanceColor 를 준다
-
-  /* ── 나무·바위와 겹치나 — nodeCellBlocked 를 쓰면 안 된다 ──
-     nodeCells 는 6173줄의 const 라, 이 함수가 도는 시점(세계를 짓는 줄)에는 아직
-     초기화 전이다. 건드리면 TDZ ReferenceError 로 세계가 통째로 안 지어진다.
-     NODES 는 4175줄이라 이미 있다 — 그걸 직접 본다. */
-  const nodeFar = (x,z,r)=>{
-    for(const n of NODES){ if(n.alive === false) continue;
-      if(Math.hypot(x-(n.x+0.5), z-(n.z+0.5)) < r) return false; }
-    return true;
-  };
-
-  /* ── 모닥불 한 벌을 놓는 작은 공장 ──
-     큰 화톳불과 모둠 화톳불이 한눈에 같은 물건으로 읽히도록 순서와 비율을 하나로 맞춘다:
-     돌 고리 → 재 → 기대 세운 장작 → 불꽃 → 빛 웅덩이.
-     장작은 긴 축을 Y 로 두고 rz 로 기울인 뒤 ry 로 돌린다. 가운데서 서로 엇갈려
-     아홉 살이 캠프파이어로 읽는 별표 모양이 된다(긴 축을 Z 로 두고 rz 를 주면
-     제 축을 도는 것뿐이라 안 기운다 — 처음에 그렇게 썼다가 장작이 누워 버렸다). */
-  const bonfire = (x, z, sc, ns, nl, ps)=>{
-    for(let i=0;i<ns;i++){ const a = i/ns*6.283 + x*0.17;          // x 로 시작 각을 흔들어 다섯이 복사판처럼 안 보이게
-      PB(x + Math.cos(a)*1.05*sc, 0.11*sc, z + Math.sin(a)*1.05*sc, 0.36*sc, 0.28*sc, 0.34*sc, a); }
-    WD(x, 0.06*sc, z, 0.95*sc, 0.06*sc, 0.95*sc, 0x4a4038);        // 재 — 판자색에 곱해져 검불 색이 된다
-    for(let i=0;i<nl;i++)
-      WD(x, 0.52*sc, z, 0.16*sc, 1.25*sc, 0.16*sc, 0xa8794a, i/nl*3.14159, 0.60);   // 장작 (0.60rad 기울임)
-    GW(x, 0.30*sc, z, 0.44*sc, 0.34*sc, 0.44*sc, FLAME);           // 불씨
-    GW(x, 0.62*sc, z, 0.32*sc, 0.30*sc, 0.32*sc, FLAME);           // 불꽃 가운데
-    GW(x, 0.86*sc, z, 0.18*sc, 0.24*sc, 0.18*sc, FLAME);           // 불꽃 끝 — 위로 갈수록 가늘어야 불로 읽힌다
-    POOL(x, z, ps, POOL_D, PL_MID);
-  };
-
-  /* ══════════ ① 다섯 흙길의 길등 ══════════
-     pathLines() 폴리라인 다섯을 6.5칸 간격으로 걸으며 길 가운데에서 직각 2.8칸에 세운다.
-     길 한복판을 비워 둬야 아이가 길을 가로질러 벽을 세울 수 있고, 그래야 '길가' 로 읽힌다.
-     좌·우를 번갈아 놓되 막힌 쪽이면 반대쪽에 세운다(자리를 잃지 않으려고). */
-  const LAMP = [];                                   // 등 자리 [x,z] — 아래 반딧불이가 다시 읽는다
-  const LAMP_STEP = 7.8, OFF = 2.8, R_IN = 7, R_OUT = 30; // 간격 · 옆으로 민 거리 · 수정 단상 바깥 ~ 집들이 끝나는 r 30
-                                                          // 64차 — 5.2/40 → 7.8/30: 길등 25 → 약 13(명세 3.9). 빛나는 것은 창문이 맡는다('빛 = 사람이 있는 곳')
-
-  /* 집 문 앞인가 — 문 축 좌우 1.4, 문턱에서 0.5~3.5 밖(문등·디딤돌·우편함이 있는 자리).
-     villageHouses 와 같은 좌표계(문 쪽이 로컬 +Z, ry = face·π/2)를 거꾸로 푼다. P1 문간에 길등이 섰던 것(심사)을 막는다 */
-  const FACE_RY_N = [0, Math.PI/2, Math.PI, -Math.PI/2];
-  const doorFront = (x,z)=>{
-    for(const h of VILLAGE_HOUSES){
-      const cx = h.x0 + h.w/2, cz = h.z0 + h.d/2, ry = FACE_RY_N[h.face], cr = Math.cos(ry), sr = Math.sin(ry);
-      const dx = (x-cx)*cr - (z-cz)*sr, dz = (x-cx)*sr + (z-cz)*cr, hd = (h.face & 1 ? h.w : h.d)/2;
-      if(Math.abs(dx) < 1.4 && dz > hd + 0.5 && dz < hd + 3.5) return true;
-    }
-    return false;
-  };
-
-  const okLamp = (x,z)=>{
-    const rx = Math.round(x), rz = Math.round(z);
-    if(!inW(rx,rz)) return false;
-    const r = Math.hypot(x,z);
-    if(r < R_IN || r > R_OUT) return false;
-    if(terrAt(rx,rz) !== GY) return false;                                   // 산·문턱·망루 계단 자리
-    if(waterNear(x,z,0.6)) return false;                                     // 연못·개울
-    if(houseNear(x,z,3.2) || avoidNear(x,z,1.2)) return false;               // 64차 — 집 마당 3.2(집은 제 창문·문등으로 빛난다 — 등이 마당에 서면 이중) · 큰 나무
-    if(doorFront(x,z)) return false;                                         // 문 앞 디딤돌 줄
-    for(let g=0; g<NG; g++)
-      if(Math.hypot(x-FARM_X[g], z-FARM_Z[g]) < 5.4) return false;           // 농장 우리·꽃밭
-    if(Math.hypot(x-SHOP_X,  z-SHOP_Z ) < 3.0) return false;                 // 상인
-    if(Math.hypot(x-VET_X,   z-VET_Z  ) < 3.0) return false;                 // 동물 상인
-    if(Math.hypot(x-FORGE_X, z-FORGE_Z) < 3.0) return false;                 // 대장간
-    if(!nodeFar(x,z,2.4)) return false;                                      // 나무 고깔·바위 속에 안 박히게
-    for(const L of LAMP) if(Math.hypot(x-L[0], z-L[1]) < 4.2) return false;   // 웅덩이 반너비 0.41*3.6=1.476 → 대각 4.175 보다 멀어야 안 겹친다
-    return true;
-  };
-
-  const lamp = (x,z)=>{
-    LAMP.push([x,z]);
-    WD(x, 0.10, z, 0.44, 0.20, 0.44, 0xcfae8c);   // 받침
-    WD(x, 1.50, z, 0.15, 2.80, 0.15, 0x8a6a4c);   // 기둥 — 0.10 ~ 2.90
-    WD(x, 2.95, z, 0.60, 0.14, 0.60, 0x6f5236);   // 갓
-    GW(x, 2.66, z, 0.32, 0.42, 0.32);             // 등알 — 갓 **바로 밑**이라 사방에서 보인다
-                                                  // (갓 속에 넣으면 밤에 불이 안 보인다)
-    POOL(x, z, 3.6, POOL_D, PL_LOW);                      // 빛 웅덩이 — 지름 3.6칸
-  };
-
-  {
-    let side = 1;
-    for(const L of pathLines()){
-      let acc = 3.0;                               // 수정 쪽 끝에서 3칸 뒤부터 잰다(단상 바로 옆은 비운다)
-      for(let i=0;i<L.length-1;i++){
-        const ax=L[i][0], az=L[i][1], bx=L[i+1][0], bz=L[i+1][1];
-        const dx=bx-ax, dz=bz-az, len=Math.hypot(dx,dz);
-        if(len < 0.001) continue;
-        const ux=dx/len, uz=dz/len, nx=-uz, nz=ux;  // 길 방향 · 길에 직각인 방향
-        while(acc <= len){
-          const px = ax+ux*acc, pz = az+uz*acc;
-          for(const s of [side, -side]){            // 정한 쪽이 막히면 반대쪽에 세워 본다
-            const lx = px + nx*OFF*s, lz = pz + nz*OFF*s;
-            if(okLamp(lx,lz)){ lamp(lx,lz); break; }
-          }
-          side = -side; acc += LAMP_STEP;
-        }
-        acc -= len;                                 // 남은 거리를 다음 토막으로 넘긴다
-      }
-    }
-  }
-
-  /* ══════════ ② 연못가 큰 화톳불 — 마을 광장 ══════════
-     자리를 설계안의 (16,-13) 에서 수정 쪽으로 1.5칸 당겼다(심사 지적).
-     연못 중심(21,-17)까지 8.85칸 — 물 원판 4.35 · 갈대 5.25 보다 바깥이라
-     통나무 의자(반지름 2.3)가 8.85-2.3=6.55 에 앉아 물에 안 잠긴다.
-     r=18.2 라 자원이 깔리는 띠(17~37.5) 안이므로 나무·바위를 피해 자리를 고른다. */
-  let BFX = 14.5, BFZ = -11.0;
-  for(const c of [[14.5,-11.0],[13.2,-12.4],[15.8,-9.6],[12.4,-9.8],[16.4,-12.6]])
-    if(nodeFar(c[0],c[1],3.2)){ BFX = c[0]; BFZ = c[1]; break; }
-
-  bonfire(BFX, BFZ, 1.0, 8, 4, 6.0);
-  POOL(BFX, BFZ, 3.4, POOL_H, PL_TOP);                  // 불 가까운 안쪽은 더 밝다(바깥 판보다 0.06 높이 얹어 겹침을 피한다)
-  for(let i=0;i<3;i++){                             // 통나무 의자 셋 — 앉는 자리가 그려져 있으면 아홉 살은 반드시 거기 선다
-    const a = i/3*6.283 + 0.4;
-    WD(BFX+Math.cos(a)*2.3, 0.18, BFZ+Math.sin(a)*2.3, 0.42, 0.36, 1.70, 0xa07a52, -a);   // ry=-a 라야 긴 축이 접선으로 눕는다
-  }
-  {                                                 // 옆에 선 등 하나 — 불이 사그라져 보여도 여긴 켜져 있다
-    /* 64차 — (−2.6,−1.2) 는 P1(10.5,−17.5) 문 앞 오른쪽에 딱 붙어 '문간 가로등' 으로 보였다(심사 04). 불의 반대편(+x·+z, 각 1.3rad, 2.8)으로:
-       통나무 의자(2.3, 각 0.4·2.49·4.59)와 2.3 이상 · 웅덩이(반너비 2.46) 밖 · 텃밭(10.9,−7.2) 4.5 · 돌길 4.0 · 연못 8.2 */
-    const hx = BFX + 0.75, hz = BFZ + 2.70;
-    WD(hx, 0.10, hz, 0.40, 0.20, 0.40, 0xcfae8c);
-    WD(hx, 1.30, hz, 0.14, 2.40, 0.14, 0x8a6a4c);
-    WD(hx, 2.55, hz, 0.54, 0.13, 0.54, 0x6f5236);
-    GW(hx, 2.28, hz, 0.30, 0.40, 0.30);
-  }
-
-  /* ══════════ ③ 모둠 화톳불 다섯 — 우리 모둠 자리 ══════════
-     농장 중심에서 5.0칸. canPlace 가 이미 FARM_R2 끝값+1.0=5.6 까지 거절하는
-     **아이가 어차피 못 짓는 죽은 땅**이라 아이 땅과 다툴 일이 없고,
-     inFarmYard 가 6.0 까지 자원을 안 깔아서 나무·바위와도 안 겹친다.
-     방향은 문 축에서 ±1.2~1.9rad 후보 여섯 중에 골라 ㉠ 흙길을 피하고
-     ㉡ 옆 모둠 농장에 더 가까워지지 않는 자리를 잡는다
-     (문 앞 꽃밭이 0.56·0.90·1.24rad 에 있어서 그보다 옆으로 나가야 한다). */
-  for(let g=0; g<NG; g++){
-    const openA = Math.atan2(-FARM_Z[g], -FARM_X[g]);      // 농장 문이 보는 쪽(수정 쪽)
-    let bx=0, bz=0, ba=0, best=-1e9;
-    for(const off of [1.55,-1.55,1.2,-1.2,1.9,-1.9]){
-      const a = openA + off;
-      const x = FARM_X[g] + Math.cos(a)*5.0, z = FARM_Z[g] + Math.sin(a)*5.0;
-      let s = Math.min(pathDist(x,z), 6);                  // 흙길에서 6칸 넘게 멀면 더 쳐주지 않는다
-      for(let h=0; h<NG; h++) if(h !== g)
-        s = Math.min(s, Math.hypot(x-FARM_X[h], z-FARM_Z[h]) - 6.0);   // 남의 농장 옆이면 크게 깎는다
-      if(waterNear(x,z,1.0) || terrAt(Math.round(x),Math.round(z)) !== GY) s -= 10;
-      if(Math.hypot(x-0.5, z-27) < 6) s -= 10;                // 64차 — 여관(0.5,27) 앞마당은 비운다(4모둠 불이 여관 문 앞에 섰다 — 심사)
-      if(s > best){ best = s; bx = x; bz = z; ba = a; }
-    }
-    bonfire(bx, bz, 0.72, 6, 3, 4.4);
-    /* 모둠 깃대 — 불 바깥쪽에 세운다. 쓰러졌다 일어난 아이가 멀리서 제 색을 찾는다 */
-    const ux = Math.cos(ba), uz = Math.sin(ba);
-    const px = bx + ux*0.95, pz = bz + uz*0.95;
-    WD(px, 0.80, pz, 0.10, 1.60, 0.10, 0x8a6a4c);
-    CT(px - uz*0.30, 1.32, pz + ux*0.30, 0.52, 0.34, 0.07, GHEX[g], Math.atan2(-ux,-uz));   // 깃폭이 깃대에서 옆으로 뻗게
-  }
-
-  /* ══════════ ⑤ 좌판 등불 셋 — 상인 · 동물 상인 · 대장간 ══════════
-     밤에 상점이 문을 닫으면 지금은 그냥 어두운 상자 더미다. 등이 하나 걸려 있으면
-     "문은 닫았지만 사람은 안에 있다" 가 된다.
-     buildShop/buildForge 를 안 고치고, 같은 좌표 변환(θ = π/2 − 각도)을 여기서 다시 쓴다.
-     자리는 전부 상인 2.8 · 동물상인 2.4 · 대장간 2.8 반지름 안 — canPlace 가 이미 막아 둔 죽은 땅이고,
-     높이 1.1~2.1칸이라 몸에도 안 닿는다. */
-  {
-    const sRY = Math.PI/2 - SHOP_A, scr = Math.cos(sRY), ssr = Math.sin(sRY);
-    const sy  = terrAt(Math.round(SHOP_X), Math.round(SHOP_Z)) - GY;     // 좌판이 선 땅 높이(보통 0)
-    const sx  = (dx,dz)=> SHOP_X + dx*scr + dz*ssr;
-    const sz  = (dx,dz)=> SHOP_Z - dx*ssr + dz*scr;
-    /* 빨간 차양(2.90×1.50, 밑면 1.82) 앞단 밑 */
-    WD(sx(0.95,0.62), sy+1.67, sz(0.95,0.62), 0.06, 0.30, 0.06, 0x5a4630);   // 걸이 줄
-    GW(sx(0.95,0.62), sy+1.37, sz(0.95,0.62), 0.26, 0.30, 0.26);             // 등알
-    POOL(sx(0.40,0.90), sz(0.40,0.90), 3.0, POOL_D, PL_LOW);
-    /* 동물 상인 민트 천막(밑면 1.65) 밑 */
-    const V = VET_OFF;
-    WD(sx(V-0.85,0.30), sy+1.50, sz(V-0.85,0.30), 0.06, 0.28, 0.06, 0x5a4630);
-    GW(sx(V-0.85,0.30), sy+1.20, sz(V-0.85,0.30), 0.26, 0.28, 0.26);
-    POOL(sx(V-0.30,0.70), sz(V-0.30,0.70), 3.0, POOL_D, PL_MID);   // 상인 웅덩이와 반드시 다른 층
-  }
-  {
-    const fRY = Math.PI/2 - FORGE_A, fcr = Math.cos(fRY), fsr = Math.sin(fRY);
-    const fy  = terrAt(Math.round(FORGE_X), Math.round(FORGE_Z)) - GY;
-    const fx  = (dx,dz)=> FORGE_X + dx*fcr + dz*fsr;
-    const fz  = (dx,dz)=> FORGE_Z - dx*fsr + dz*fcr;
-    /* 옆 벽 판 처마(-1.88, 2.12, 밑면 2.07) 앞쪽 끝 밑 */
-    WD(fx(-1.79,1.05), fy+1.92, fz(-1.79,1.05), 0.06, 0.30, 0.06, 0x5a4630);
-    GW(fx(-1.79,1.05), fy+1.62, fz(-1.79,1.05), 0.26, 0.30, 0.26);
-    POOL(fx(-1.30,1.30), fz(-1.30,1.30), 3.0, POOL_D, PL_MID);
-  }
-  /* 여관 문등 웅덩이(명세 2.5·6절) — 등알은 villageHouses 가 걸었다. 문 앞 디딤돌(z 24.15~22.15, 윗면 0.14)이 판(윗면 0.08) 위로 나온다.
-     가장 가까운 길등은 3·4모둠 길가(|x| ≥ 10) 라 4.2 밖 — PL_LOW 로 겹침 없음 */
-  POOL(0.5, 23.6, 3.0, POOL_D, PL_LOW);
-
-  /* ══════════ ⑧ 반딧불이 다시 심기 — 인스턴스도 그리기도 하나도 안 는다 ══════════
-     같은 70마리인데, 흩어져 있으면 '점 70개' 이고 등불에 붙으면 '등불에 나방이 꼬였다' 가 된다.
-     그 순간 등불이 진짜 불이 되고 연못이 갈 만한 곳이 된다. 값은 0원이다.
-     ★ LAMP 가 다 차 있어야 하므로 반드시 ① 뒤에 온다. */
-  for(let i=0;i<flies.length;i++){
-    const f = flies[i];
-    if(i < 30 && LAMP.length){                       // 나방 — 등불 둘레
-      const L = LAMP[i % LAMP.length];
-      f.x = L[0]; f.z = L[1]; f.y = GY + 2.5 + Math.random()*0.6;
-    } else if(i < 52){                               // 물가 — 연못 둘레에 낮게
-      const a = Math.random()*6.283, r = 5.4 + Math.random()*3.2;
-      f.x = POND.x + Math.cos(a)*r; f.z = POND.z + Math.sin(a)*r;
-      f.y = GY + 0.4 + Math.random()*0.9;
-    }                                                // 나머지 열여덟은 그대로 들판에 둔다
-    f.p = Math.random()*9;
-  }
-}
-
-/* ═══════════════════ 살아 있는 마을 — 바람·풀·나비·참새·고양이·오리 ═══════════════════
+/* ═══════════════════ 살아 있는 마을 — 바람·풀·나비·참새·오리 (65차 — 고양이·빨래줄은 뺐다) ═══════════════════
    ★ 이 한 벌만 매 프레임 돈다. 그래서 개수를 먼저 못 박았다 —
      움직이는 조각은 많아야 244개(V_flat 171 + V_box 73), 즉 매 프레임 setIR3 이 244번.
      행렬 하나 만드는 데 약 0.3µs 니 0.08ms — 16.6ms 한 프레임의 0.5% 다.
@@ -6524,22 +5213,21 @@ function villageNight(){
    ★ 그리기는 두 번만 는다(+그림자 한 번). 움직이는 것 전부를 메시 둘에 담는다.
      재질은 기존 FM.cloth 하나뿐 — 색은 인스턴스 색으로 준다(새 재질 0 · 새 뱅크 0).
    ★ 픽셀은 한 방울도 더 안 쓴다 — 투명·반투명·빛무리를 하나도 안 쓴다. 전부 불투명 상자다.
-   ★ 새로 만든 것보다 꺼내 쓴 것이 많다: 연기는 기존 spark(), 반딧불이는 기존 flies[],
-     빨래 장대·줄은 상인 좌판의 기존 뱅크 'shopW' 에 얹는다. */
+   ★ 새로 만든 것보다 꺼내 쓴 것이 많다: 연기는 기존 spark(), 반딧불이는 기존 flies[]. */
 
 /* 바람 한 줄기 — 이 한 벌을 묶는 것.
    앞항은 마을을 가로질러 흘러가는 물결(같은 순간에도 자리마다 위상이 다르다),
    뒷항은 바람이 세졌다 잦아드는 숨이다(주기 20초).
-   풀·빨래·나비·연기가 전부 이 하나를 읽어서 '한 마을에 부는 한 바람' 이 된다. */
+   풀·나비·연기가 전부 이 하나를 읽어서 '한 마을에 부는 한 바람' 이 된다. */
 const vWind = (x,z,t)=> Math.sin(t*1.25 + x*0.18 + z*0.13) * (0.55 + 0.45*Math.sin(t*0.31));
 
 const V_FLAT_CAP = 240, V_BOX_CAP = 96;     // 정원 — 실제 최대(171 · 73)보다 넉넉히. 정원은 메모리만 먹는다
 let V_flat = null, V_box = null;            // 늦게 만든다 (아래 updVillage 주석 참고)
 const LIFE = {
-  tufts:[], bfly:[], birds:[], cats:[], ducks:[], perch:[], cloth:[],
+  tufts:[], bfly:[], birds:[], ducks:[], perch:[],
   fish:{tm:7, on:false, x:0, z:0, y:0, vy:0, ry:0},
-  smoke:null, smokeT:0, ver:-1, moveT:8, rr:0, gone:false, retT:0, spookT:0,
-  hsmoke:[], hsmokeT:0, mill:null   // 64차 집 — 굴뚝 연기 세 자리(villageHouses 가 채운다) · 풍차 날개 축 {x,y,z,ry,lz}
+  smoke:null, smokeT:0, ver:-1, moveT:8, rr:0, gone:false, retT:0,
+  ready:false   // villageLife 를 불렀나 — updVillage 가 먼저 보는 깃발
 };
 
 /* ═══ 세계를 지을 때 한 번 (buildVillage 안에서 부른다) ═══ */
@@ -6555,44 +5243,8 @@ function villageLife(){
   const fW  = (dx,dz)=> [FORGE_X + dx*fcr + dz*fsr, FORGE_Z - dx*fsr + dz*fcr];
   const pastel = (hex, k)=> new THREE.Color(hex).lerp(new THREE.Color(0xffffff), k).getHex();
 
-  /* ── ① 빨랫줄 (정적 조각 다섯) ────────────────────────────────────────────
-     심사가 잡은 것: 설계대로 y0+2.30 에 매면 어느 기둥에도 안 닿고 허공에 뜬다.
-     코드를 열어 재 보면 상인 차양 기둥 꼭대기가 y0+1.82(4897줄), 동물 상인 천막
-     기둥이 y0+1.75(4930줄) 다. 그래서 **내 장대 둘을 따로 세운다.**
-     자리는 두 좌판 사이 빈 틈 — 상인 것은 로컬 |x|<1.45, 동물 상인 것은 x>2.10 이라
-     로컬 x=1.78 한 줄만 위아래로 통째로 비어 있다(차양·천막·선반 어디에도 안 닿는다).
-     높이는 줄이 y0+1.44, 빨래 밑단이 y0+0.98 — 아이 눈높이(PL.EYE=1.12) 언저리다.
-     ★ 땅은 한 칸도 안 뺏는다: 장대 두 밑동이 상인 좌판에서 2.36칸이라
-       canPlace(6159줄)의 '상인 자리예요'(2.8) 안이다 — 원래 못 짓던 칸이다.
-     ★ 뱅크를 새로 안 만든다. 상인 좌판의 나무 열쇠 'shopW' 에 얹는다 —
-       같은 cube(T.plank)+MAT 라 번역층(3866줄)이 똑같이 WGEO+WMAT_WOOD 로 접는다.
-     ★ 'stem' 에는 절대 안 얹는다 — t32 가 stem===petal===pist 를 단언한다(설계안의 그 실수). */
-  const gP = cube(T.plank);
-  const RX = 1.78, RZ0 = -1.55, RZ1 = 1.55;
-  /* ★ 줄 높이 1.44 → 2.15. 로컬 x 1.78 은 상인 solidPush 1.25(10429줄)·동물상인 1.10(10431줄) 밖이라
-     아이 몸이 안 막히는 틈이다. 1.44 면 천이 SY+0.93~1.44 를 덮는데 1인칭 눈이 GY+1.12(PL.EYE) —
-     천 한복판이라 지나갈 때마다 화면이 천 속으로 들어간다. 2.15 면 천 밑단이 머리 위 0.4칸이다. */
-  const RPY = [2.24, 2.15, 2.15, 2.24];          // 이음매 네 곳의 높이 — 가운데가 처진다
-  for(const dz of [RZ0, RZ1])                    // 빨래 장대 둘 (땅에서 2.30)
-    { const w = sW(RX, dz); bpush('shopW', gP, MAT, w[0], SY+1.15, w[1], SRY, 0.09,2.30,0.09, 0, 0xb98a56); }
-  for(let i=0;i<3;i++){                          // 줄 세 도막 — 끝높이를 맞춰 기울인다
-    const z0 = RZ0 + (RZ1-RZ0)*i/3, z1 = RZ0 + (RZ1-RZ0)*(i+1)/3;
-    const y0 = RPY[i], y1 = RPY[i+1], w = sW(RX, (z0+z1)/2), len = Math.hypot(z1-z0, y1-y0);
-    /* ry 에 +π/2 를 줘서 조각의 긴 축(로컬 X)이 줄 방향을 향하게 눕힌다.
-       bpush 는 rx 를 못 받으므로(3885줄) 이렇게 눕혀야 rz 로 처짐을 줄 수 있다. */
-    bpush('shopW', gP, MAT, w[0], SY+(y0+y1)/2, w[1], SRY + Math.PI/2,
-          len+0.02, 0.05, 0.05, Math.atan2(y0-y1, z1-z0), 0x8a7a62);
-  }
-  LIFE.rope = {x:RX, z0:RZ0, z1:RZ1, y:RPY, sy:SY, ry:SRY, cr:scr, sr:ssr};
-  /* 천 일곱 장 — 다섯은 모둠 색을 흰색과 6:4 로 섞은 파스텔, 둘은 흰 빨래.
-     줄 가운데에 0.325칸 간격으로 모아 단다(천 너비가 0.34 라 거의 맞닿는다 — 그래야 빨래다).
-     양끝 0.4칸은 비워 둔다 — 거기가 참새 자리다. */
-  for(let k=0;k<7;k++){
-    const col = k<5 ? pastel(GHEX[k], 0.40) : 0xf6f1e6;
-    LIFE.cloth.push({u:0.5 + (k-3)*0.105, col, ph:k*0.9});
-  }
-
-  /* ── ② 참새 횃대 아홉 자리 (여덟 마리 — 늘 한 자리가 비어 있어서 자리를 바꾼다) ──
+  /* ── ② 참새 횃대 — 가게 위 다섯 + 연못 갈대 셋까지 (마리 수는 자리보다 하나 적다 — 늘 한 자리가 비어 있어서 자리를 바꾼다.
+       65차 — 상인 빨랫줄 끝 두 자리는 빨랫줄과 함께 뺐다) ──
      전부 '절대 안 움직이는 것' 위에만 잡았다. 농장 대문 들보는 일부러 뺐다 —
      들보 높이가 우리 크기(FARM_R2 3.0/3.8/4.6)를 따라가서, 동물이 늘면
      참새가 허공에 남는다(5064줄 applyFarmStage). */
@@ -6602,8 +5254,6 @@ function villageLife(){
   P(sW(-1.00, 0.00), SY+2.08, SRY);              // 상인 차양 마루 왼쪽 (4899줄 윗면 +1.98)
   P(sW( 1.00, 0.00), SY+2.08, SRY);              // 상인 차양 마루 오른쪽
   P(sW( 3.20,-0.20), SY+1.89, SRY);              // 동물 상인 천막 마루 (4931줄 윗면 +1.79)
-  P(sW(RX, RZ0+0.20), SY+2.30, SRY+Math.PI/2);   // 빨랫줄 이쪽 끝(천이 없는 자리)
-  P(sW(RX, RZ1-0.20), SY+2.30, SRY+Math.PI/2);   // 저쪽 끝
   /* 연못 갈대 둘 — buildWorldMesh(4076줄)가 심은 자리를 같은 식으로 다시 센다.
      rnd() 는 씨앗 난수라 판마다 똑같은 자리가 나온다(추측이 아니다). */
   for(let i=0;i<14;i++){
@@ -6615,7 +5265,7 @@ function villageLife(){
     LIFE.perch.push({x:X, y:GY+hgt+0.35, z:Z, ry:Math.atan2(POND.x-X, POND.z-Z)});
   }
 
-  /* ── ③ 참새 여덟 마리 ── */
+  /* ── ③ 참새 — 자리보다 하나 적게(많아야 여덟) ── */
   const BC = [[0xa98a68,0xc4a884],[0xc4a884,0xf0e6d6],[0x9c7d5c,0xc4a884]];
   /* 자리보다 한 마리 적게 — 늘 한 자리가 비어 있어야 '옮겨 앉기' 가 생긴다.
      갈대 자리 둘은 개울 어귀와 겹치면 안 생기므로 개수를 세어서 정한다. */
@@ -6635,7 +5285,6 @@ function villageLife(){
   const free = (x,z,padPath)=>{
     if(terrAt(Math.floor(x), Math.floor(z)) !== GY) return false;   // terrH 는 읽기만 한다
     if(pathDist(x,z) < padPath) return false;
-    if(houseNear(x,z,1.0)) return false;                              // 64차 — 집 마당
     if(waterNear(x,z,0.3)) return false;
     if(Math.hypot(x-SHOP_X, z-SHOP_Z) < 3.0) return false;
     if(Math.hypot(x-VET_X,  z-VET_Z)  < 2.6) return false;
@@ -6685,39 +5334,6 @@ function villageLife(){
                     col: i<5 ? pastel(GHEX[i], 0.50) : NEUT[(i-5) % 5]});
   }
 
-  /* ── ⑥ 마을 고양이 둘 — 제 길과 제 잠자리 ───────────────────────────────
-     심사 ④: 설계의 길목 두 점이 농장 우리 한복판이었다. 두 마리 길목을 전부
-     실제 좌표로 다시 재서, 좌판·선반·모루 같은 이미 서 있는 조각을 안 밟게 잡았다.
-     A(크림): 상인 옆 빈자리 → 광장 → 수정 앞(반지름 3.4 — 여긴 영원히 아무도 못 짓는다)
-              → 광장 → 대장간 앞. 잠자리는 화덕 입 앞(따뜻하다).
-     B(회색): 1모둠 농장 문 앞(중심에서 5.3 — 우리 4.6 밖, canPlace 5.6 안) → 광장 남쪽
-              → 2모둠 농장 문 앞. 잠자리는 동물 상인 건초 더미 옆. */
-  const catA = {
-    /* ★ 대장간 앞(로컬 +Z)은 수정 반대편이다(RY=π/2−FORGE_A). 광장에서 곧장 그으면
-       작업대(로컬 x −0.65~0.55 · z −1.21~−0.69)를 뚫으므로 옆(로컬 −X)으로 돌아간다. */
-    col:0xf2e3c8, ac:0xffc9d4,
-    way:[[6.6,-5.2],[3.2,-2.6],[0,-3.4],[-3.4,3.0], fW(-2.70,-0.60), fW(-2.30,1.90), fW(0.30,1.30)],
-    bed:fW(0.95,0.62), bry:FRY + Math.PI
-  };
-  const dB = (g, deg)=>{                                  // 농장 g 의 문 앞, 문 축에서 deg 만큼 비켜
-    const a = Math.atan2(-FARM_Z[g], -FARM_X[g]) + deg*Math.PI/180;
-    return [FARM_X[g] + Math.cos(a)*5.3, FARM_Z[g] + Math.sin(a)*5.3];
-  };
-  const catB = {
-    /* ★ 64차 — 잠자리를 여관 문간(0.5, 24.3 — 앞벽 z 25 밖 0.7, 문 디딤돌 위)으로. 밤에 여관 문등 앞에 웅크린 고양이(명세 6절).
-       길: 1모둠 농장 문 앞 → 광장 → 3모둠 길 어깨를 따라 남쪽 거리로 → 디딤돌 줄(z 21.2) → 여관 문.
-       명세의 x≈0.5 직선은 3·4모둠 농장(중심 ±3.8, 13.5 · 우리 반너비 최대 4.6)을 관통한다 — 두 우리가 x=0 에서 맞닿는다.
-       그래서 3모둠 길(폭 4.2) 왼 어깨(길 중심에서 1.3~2.4)를 걷고, 헛간(x 4~7·z 18~21)과 S2 벽(z ≥ 22) 사이 z 21.4 로 돈다.
-       광장 산울타리(r 9.3)는 길 자리만 트여 있어 (3.6,3)→(8.6,6.4) 가 3모둠 길 어귀를 지난다. */
-    col:0x9aa0a8, ac:0xf0f0f0,
-    way:[dB(0, 40), [0.4,-5.2], [3.6,3.0], [8.6,6.4], [10.8,11.0], [10.6,18.4], [8.6,21.4], [5.0,21.4], [0.6,22.5]],
-    bed:[0.5,24.3], bry:Math.PI
-  };
-  for(const c of [catA, catB])
-    LIFE.cats.push({col:c.col, ac:c.ac, way:c.way, bed:c.bed, bry:c.bry,
-                    x:c.way[0][0], z:c.way[0][1], ry:0, i:0, dir:1,
-                    st:'walk', tm:2, pose:0, gait:0, spook:0});
-
   /* ── ⑦ 오리 셋과 물고기 하나 ──
      물결 고리(ring)는 안 쓴다 — 심사 대로다. ring 은 늘 카메라를 정면으로 보는
      덧셈합성 빛 동그라미(7447줄)라, 아이들이 이미 '맞았다/나았다' 로 배운 그림이다.
@@ -6745,11 +5361,12 @@ function villageLife(){
     else if(q === 2){ const a = Math.random()*6.283, r = Math.random()*5.5;   // 연못 둘레
                       f.x = POND.x + Math.cos(a)*r; f.z = POND.z + Math.sin(a)*r; }
   }
+  LIFE.ready = true;
 }
 
 /* ═══ 매 프레임 (게임 루프에서 부른다) ═══ */
 function updVillage(dt, t){
-  if(!LIFE.cats.length) return;                    // villageLife 를 아직 안 불렀다
+  if(!LIFE.ready) return;                         // villageLife 를 아직 안 불렀다
   if(PL.y > GY + 30){                              // 하늘 섬(미니게임) 에 가 있다 — 마을은 안 그린다
     if(V_box){ V_box.count = 0; V_flat.count = 0; flush(V_box, V_flat); }
     return;
@@ -6758,14 +5375,14 @@ function updVillage(dt, t){
     /* ★ 왜 여기서 만드나 — RBs(6586줄)·FM(6612줄)이 buildVillage 를 부르는 자리(5717줄)
        보다 아래에 있어서 그때는 아직 없다(const 는 끌어올려지지 않는다).
        첫 프레임에 한 번만 만든다. */
-    V_flat = imesh(LEAFG, FM.cloth, V_FLAT_CAP, 1);      // 각진 공 — 풀·꽃·날개·빨래
+    V_flat = imesh(LEAFG, FM.cloth, V_FLAT_CAP, 1);      // 각진 공 — 풀·꽃·날개
     V_box  = imesh(RBs,   FM.cloth, V_BOX_CAP, 1);       // 작은 둥근 상자 — 몸통들
     V_flat.castShadow = false;                            // 풀 그림자는 값만 들고 안 보인다
   }
   const night = skyK > 0.45, dusk = skyK > 0.35;
   /* ★ 입자(spark·burst)는 updParts 가 G.started 안에서만 돈다. 시작 화면에서 쏘면 t 가 한 번도
      안 깎여 parts[160](7397줄)이 살아 있는 채 쌓이고, 게임이 시작되는 순간 굴뚝에서 한꺼번에 터진다.
-     그래서 **쏘는 것만** 막는다 — 그리는 것(풀·고양이·오리·참새)은 시작 화면에서도 그대로 산다. */
+     그래서 **쏘는 것만** 막는다 — 그리는 것(풀·오리·참새)은 시작 화면에서도 그대로 산다. */
   const canSpark = G.started;
   let nb = 0, nf = 0;
   /* 조각 하나 놓기 — (x,y,z)는 몸 중심, (lx,ly,lz)는 몸 기준 자리(앞이 +Z), ry 는 몸이 보는 쪽 */
@@ -6793,21 +5410,6 @@ function updVillage(dt, t){
     const s = vWind(u.x, u.z, t) * 0.26;
     pF(u.x, GY + u.h*0.5, u.z, 0, 0,0,0, 0, s, u.w, u.h, u.w, u.col);
     if(u.fl) pF(u.x + Math.sin(s)*u.h*0.5, GY + u.h + 0.04, u.z, 0, 0,0,0, 0, s, 0.20,0.10,0.20, u.fl);
-  }
-
-  /* ── 빨래 일곱 장 — 낮에만(저녁이면 걷는다) ── */
-  if(!night){
-    const R = LIFE.rope, len = R.z1 - R.z0;
-    for(const cl of LIFE.cloth){
-      const dz = R.z0 + len*cl.u, k = cl.u*3, i = Math.min(2, k|0), f = k - i;
-      const ry0 = R.y[i] + (R.y[i+1] - R.y[i])*f;                  // 줄이 처진 만큼 같이 내려온다
-      const wx = SHOP_X + R.x*R.cr + dz*R.sr, wz = SHOP_Z - R.x*R.sr + dz*R.cr;
-      const s = vWind(wx, wz, t + cl.ph*0.2) * 0.5;
-      /* 천은 줄에 매달려 있다 — 가운데를 축으로 돌리면 윗단이 줄에서 떨어진다.
-         매단 점에서 0.21 만큼 '아래' 를 s 만큼 돌린 자리가 천의 중심이다. */
-      const cx = Math.sin(s)*0.21, cy = -Math.cos(s)*0.21;
-      pF(wx, LIFE.rope.sy + ry0 + cy, wz, R.ry + s*0.25, cx,0,0, 0, s, 0.06,0.42,0.34, cl.col);
-    }
   }
 
   /* ── 나비 열넷 — 밤에는 통째로 없다 ── */
@@ -6898,82 +5500,6 @@ function updVillage(dt, t){
       pF(x, y, z, ry, s2*0.13*Math.cos(flap), 0.05 + 0.13*Math.sin(flap), 0, 0, s2*flap, 0.24,0.03,0.12, b.c2);
   }
 
-  /* ── 마을 고양이 둘 ─────────────────────────────────────────────────────
-     아늑한 까닭은 예뻐서가 아니라 **제 길과 제 잠자리가 있어서**다.
-     늘 같은 데를 돌고 밤이면 늘 같은 데서 잔다. 사흘이면 아이가 그걸 안다. */
-  LIFE.spookT -= dt;
-  const checkSpook = LIFE.spookT <= 0;                             // 좀비 검사는 0.3초에 한 번
-  if(checkSpook) LIFE.spookT = 0.3;
-  for(const c of LIFE.cats){
-    if(checkSpook && G.wolves.length){
-      for(const w of G.wolves){ if(w.hp <= 0) continue;
-        if(Math.abs(w.x-c.x) < 12 && Math.abs(w.z-c.z) < 12 &&
-           Math.hypot(w.x-c.x, w.z-c.z) < 12){ c.spook = 1.4; break; } }
-    }
-    if(c.spook > 0) c.spook -= dt;
-    let tgt = null, spd = 0.9;
-    if(c.spook > 0){                                               // 놀랐다 — 수정 쪽으로 물러선다
-      const d = Math.hypot(c.x, c.z) || 1;
-      tgt = [c.x - c.x/d*2, c.z - c.z/d*2]; spd = 1.6; c.st = 'walk';
-    } else if(night){
-      /* 잠자리로 곧장 직선으로 가면 가게를 뚫는다 — 둘 다 잠자리가 가게 옆이다.
-         밤에도 제 길을 따라 마지막 길목까지 간 뒤에 잠자리로 든다(마지막 길목이 잠자리 곁이다). */
-      spd = 0.75;
-      const lastI = c.way.length - 1, bd = Math.hypot(c.bed[0]-c.x, c.bed[1]-c.z);
-      if(bd > 1.8){
-        c.dir = 1; if(c.i > lastI) c.i = lastI;
-        tgt = c.way[c.i];
-        if(Math.hypot(tgt[0]-c.x, tgt[1]-c.z) < 0.16 && c.i < lastI) c.i++;
-      } else if(bd > 0.12) tgt = c.bed;
-      if(Math.hypot(c.bed[0]-c.x, c.bed[1]-c.z) < 0.12){ tgt = null; c.st = 'curl'; c.ry += ((c.bry - c.ry + Math.PI*3) % (Math.PI*2) - Math.PI) * Math.min(1, dt*3); }
-    } else if(c.st === 'walk'){
-      tgt = c.way[c.i];
-      if(Math.hypot(tgt[0]-c.x, tgt[1]-c.z) < 0.14){                // 다 왔다 — 쉬면서 자세 하나
-        c.st = 'rest'; c.tm = 3 + Math.random()*4; c.pose = (Math.random()*3)|0; tgt = null;
-        c.i += c.dir; if(c.i >= c.way.length){ c.i = c.way.length-2; c.dir = -1; }
-        if(c.i < 0){ c.i = 1; c.dir = 1; }
-      }
-    } else { c.tm -= dt; if(c.tm <= 0) c.st = 'walk'; }
-    if(tgt){
-      const dx = tgt[0]-c.x, dz = tgt[1]-c.z, d = Math.hypot(dx,dz) || 1;
-      c.x += dx/d*spd*dt; c.z += dz/d*spd*dt; c.gait += dt*spd*7;
-      const want = Math.atan2(dx, dz);
-      c.ry += ((want - c.ry + Math.PI*3) % (Math.PI*2) - Math.PI) * Math.min(1, dt*6);
-    }
-    /* 자세 — 걷기 / 앉기 0 / 기지개 1 / 세수 2 / (밤)웅크리기 / 놀람 */
-    const walking = !!tgt, curl = c.st === 'curl', spk = c.spook > 0;
-    const sit = !walking && !curl && c.pose === 0, str = !walking && !curl && c.pose === 1,
-          wash = !walking && !curl && c.pose === 2;
-    const by  = curl ? 0.20 : spk ? 0.34 : sit ? 0.27 : 0.30;
-    const bsy = curl ? 0.62 : spk ? 1.16 : str ? 0.76 : 1;
-    const bsz = curl ? 0.86 : str ? 1.26 : 1;
-    const brx = sit ? -0.20 : str ? 0.16 : 0;
-    const tw  = Math.sin(t*2.1 + c.x)*0.25;                        // 꼬리 끝은 멈춰 있어도 까딱인다
-    const px  = c.x, pz = c.z, ry = c.ry, col = c.col;
-    pB(px, GY+by, pz, ry, 0,0,0, brx,0, 0.40, 0.30*bsy, 0.62*bsz, col);                       // 몸통
-    const hy = by + 0.14 - (curl ? 0.06 : 0) - (wash ? 0.06 : 0), hz = curl ? 0.28 : 0.38;
-    pB(px, GY+hy, pz, ry, 0,0,hz, brx*0.5,0, 0.28,0.26,0.26, col);                            // 머리
-    for(const s2 of [-1,1])
-      pB(px, GY+hy, pz, ry, s2*0.09, 0.16, hz+0.02, 0, s2*(spk ? -0.5 : 0.3), 0.09,0.12,0.06, col);   // 귀
-    pB(px, GY+hy-0.04, pz, ry, 0,0, hz+0.12, 0,0, 0.14,0.10,0.10, c.ac);                      // 주둥이
-    for(let L=0;L<4;L++){
-      const sx2 = L<2 ? -0.13 : 0.13, lz2 = (L%2) ? 0.20 : -0.20;
-      const sw = walking ? Math.sin(c.gait + L*1.57)*0.55 : 0;
-      const ly2 = curl ? 0.04 : (sit && lz2 < 0) ? 0.07 : 0.11;
-      const sy2 = curl ? 0.10 : (sit && lz2 < 0) ? 0.16 : 0.22;
-      pB(px, GY+ly2, pz, ry, sx2, 0, lz2, sw + (wash && L===3 ? -1.1 : 0), 0, 0.09,sy2,0.09, L<2 ? c.ac : col);
-    }
-    const tsc = spk ? 1.7 : 1;                                     // 놀라면 꼬리가 부푼다
-    if(curl){                                                      // 웅크리면 꼬리가 몸에 감긴다
-      pB(px, GY+0.16, pz, ry, 0.18,0,-0.16, 0, 1.4, 0.07,0.07,0.26, col);
-      pB(px, GY+0.16, pz, ry, 0.26,0, 0.12, 0, 1.4, 0.07,0.07,0.24, c.ac);
-    } else {
-      /* rx 가 +면 뒤끝(로컬 −Z)이 올라간다 — 고양이는 걸을 때 꼬리를 세운다 */
-      pB(px, GY+by+0.06, pz, ry, 0,0,-0.36, 0.45, 0, 0.07*tsc,0.07*tsc,0.26, col);
-      pB(px, GY+by+0.20, pz, ry, 0,0,-0.52, 0.15 + tw, 0, 0.07*tsc,0.07*tsc,0.26, c.ac);
-    }
-  }
-
   /* ── 연못 — 오리 셋 (밤에는 갈대 옆에서 머리를 묻고 잔다) ── */
   for(const d of LIFE.ducks){
     let x, z, ry;
@@ -7020,28 +5546,6 @@ function updVillage(dt, t){
             vWind(s.x, s.z, t)*0.7, 2.1 + Math.random()*0.35, vWind(s.z, s.x, t)*0.7,
             2.4, 3.5 + Math.random()*1.5);
   }
-  /* ── 64차 집 — 굴뚝 연기 셋(N1·W1·여관), 0.45초마다 한 알. 대장간과 같은 바람·같은 45칸 걸름.
-       살아 있는 알갱이 ≈ 대장간 8 + 3×6.2 = 27 / 풀 PN 160.
-       심사 지적으로 작게(크기 1.5)·낮게·짧게: 대장간 연기의 절반 크기라 굴뚝 갓 위에 조그맣게 머문다.
-       spark 의 g 0.06 이 고정(초당 1.02 감속)이라 오름 1.3 이면 수명 2.8초 안에 갓 밑으로 되내려오므로 1.5~1.7 — 꼭대기 ≈ 갓 위 1.1~1.4. ── */
-  LIFE.hsmokeT -= dt;
-  if(canSpark && LIFE.hsmokeT <= 0){
-    LIFE.hsmokeT = 0.45;
-    for(const s of LIFE.hsmoke)
-      if(Math.abs(s.x-PL.x) < 45 && Math.abs(s.z-PL.z) < 45)
-        spark(s.x, s.y, s.z, night ? 0xe8b070 : 0xeceae4,
-              vWind(s.x, s.z, t)*0.7, 1.5 + Math.random()*0.2, vWind(s.z, s.x, t)*0.7,
-              2.0 + Math.random()*0.8, 1.5);
-  }
-  /* ── 64차 풍차 날개 — 팔 4 + 날개천 4 = 매 프레임 8 인스턴스(V_box 73 + 8 = 81 ≤ V_BOX_CAP 96, 정원 안 올림).
-       setIR3 이 YXZ 라 ry 로 얼굴을 돌린 뒤 rz 가 '얼굴 축 둘레 회전' 이 된다(빨랫줄과 같은 수법).
-       한 바퀴 18초 — 느려야 평화롭다. 허브 y 6.90(탑 한 단 더 올린 뒤) · 팔 반지름 3.55 → 아래 끝 3.35 ≫ 눈높이 1.12, 꼭대기 10.45 > 큰 나무 9.4. ── */
-  if(LIFE.mill){ const m = LIFE.mill;
-    for(let k=0;k<4;k++){ const a = t*0.35 + k*Math.PI/2, sa = Math.sin(a), ca = Math.cos(a);
-      pB(m.x, m.y, m.z, m.ry, -1.75*sa, 1.75*ca, m.lz, 0, a, 0.14, 3.60, 0.14, 0x7a5236);                         // 팔
-      pB(m.x, m.y, m.z, m.ry, -2.05*sa + 0.36*ca, 2.05*ca + 0.36*sa, m.lz+0.07, 0, a, 0.58, 2.60, 0.08, 0xf3e7cf);  // 날개천 — 팔 한쪽으로 치우친 돛
-    }
-  }
 
   V_flat.count = nf; V_box.count = nb;
   flush(V_flat, V_box);
@@ -7056,601 +5560,12 @@ function vFreePerch(){
   return 0;
 }
 
-/* ═══════════════════════════ 풍경 (64차) ═══════════════════════════
-   큰 나무 · 숲 덩이 · 꽃밭 · 산울타리 — '흩뿌리기' 대신 '모으기'. 여기서 VILLAGE_AVOID 에 큰 덩어리를 적어 두면
-   뒤에 오는 villageStreets·villageNight 가 그 자리를 비켜 간다. (집 마당은 houseNear 가 따로 지킨다.)
-
-   ★ 자리표 LS_PLAN 은 상수다 — scatterDecor() 가 villageLandscape() 보다 **먼저** 돈다(짓는 줄 순서).
-     그래서 수풀 덩이·들꽃 밭이 큰 나무·과수원·숲 자리를 피하려면 VILLAGE_AVOID(아직 비어 있다)가 아니라
-     이 표를 읽어야 한다(lsReserved). 자리는 sitemap 으로 잰 값이다: 길 중심선 3 이상 · 집 벽 2.5 이상 ·
-     농장 6.5 이상 · 물가 1.0 이상 · 협곡 어귀 밖. 자원(NODES)은 판마다 무작위라 심을 때 nodeFar 로 비켜 앉는다. */
-const LS_PLAN = {
-  /* 랜드마크 나무 둘 — 마을에서 제일 큰 것(꼭대기 ≈ 9.4, 오두막의 두 배 · 풍차 10.35 보다는 낮다). A 광장 북서 쐐기, B 남동 들판 */
-  big: [{x:-11, z:-11, S:1.00, H:6.0, seed:4.2}, {x:19, z:17, S:0.95, H:6.0, seed:7.7}],
-  /* 과수원 — Q1(과수원 집) 서쪽·W2 뒤 2×3 격자 (명세 3.4) */
-  orchard: [[-27,13.8],[-27,16.8],[-27,19.8],[-30,13.8],[-30,16.8],[-30,19.8]],
-  /* 숲 덩이 — 집 쌍의 **뒤**(문 반대쪽)에 2~3그루. 벽에서 2.5 이상, 길·물·다른 집·협곡 어귀를 다 비켜 잰 값(cand.mjs) */
-  groves: [
-    [[13.2,-34.4],[16.2,-33.4],[14.6,-36.9]],          // 풍차 뒤(북) — 64차 심사: N1·P1 사이(12~15,−21~−24)에 있던 것을 옮겼다. 연못→풍차·광장→풍차 시야가 트인다.
-                                                       //   1모둠 어귀(|x| < 12.6) 밖 · 풍차 발자국(12~15,−31~−28)+2 밖
-
-    [[-12.6,-30.2],[-14.4,-33.0],[-11.6,-34.6]],       // N2 뒤
-    [[22.0,-9.0],[20.0,-9.5]],                         // E1 뒤 (연못·징검돌 곁길이 있어 둘만)
-    [[25.6,12.9],[23.5,14.5],[27.5,14.8]],             // E2 뒤
-    [[0,32.6],[-3.4,34.2],[3.0,34.6]],                 // 여관 뒤 — 남쪽 거리의 등
-    [[-27,-12.4],[-30,-14.6],[-25.4,-15.2]],           // W1 뒤
-    [[33.6,-12.2],[34.6,-10.5],[33.8,-16.0]],          // P2 뒤 (산 앞)
-  ],
-  /* 들꽃 밭 6 — 한 밭 한 색(팔레트 셋 안에서) + 흰색 30% (명세 3.5. (24,−24) 는 개울 위라 (24,−27) 로, (28,18) 은 E2 숲과 닿아 (30,19) 로)
-     [x, z, 색, 반지름(없으면 1.8), 꽃 수(없으면 14)] — (−22,−22) 는 북서 쐐기 숲 앞 '꽃동산' 이라 r 3.0 · 28벌(심사) */
-  meadows: [[22,22,0xffd84d],[-22,-22,0xff9ec4,3.0,28],[-20,28,0xffffff],[30,19,0xff9ec4],[-31,-23,0xffd84d],[24,-27,0xffffff]],
-  /* 바깥 띠 숲 4곳(심사 — r 30~46 띠가 잔디만이었다) — 5~6그루(S 0.55~0.65 · H 4.5~5.0 · 서로 2.4~3.2) + 안쪽 돌 셋(rk).
-     자리 규칙: 길 2.8 · 물 1.0 · 집 2.0 · 협곡 어귀 6(|옆거리| ≥ 12.6) · 자원 2.4 — sitemap 으로 잰 값.
-     서쪽 것은 심사가 짚은 (−36,−2) 가 5모둠 어귀·출발 자리(|z| < 12.6) 안이라 W1 숲 서쪽 (−37,−15) 로 물렸다. */
-  belts: [
-    {t:[[30,-27],[32.6,-25.4],[29.2,-29.8],[32.2,-29.0],[26.8,-29.6]], rk:[30.5,-28.6]},        // 북동 — 개울 끝(30,−24) 너머 산자락 앞
-    {t:[[-30,28],[-27.4,29.6],[-32.8,29.4],[-29,31.4],[-31.6,26.2]],   rk:[-28.8,29.7]},        // 남서 — 과수원 남쪽 산자락 앞
-    {t:[[-37,-14.2],[-39.6,-13.0],[-35.2,-16.4],[-38.4,-16.8],[-34.6,-13.2]], rk:[-36.9,-15.8]}, // 서 — W1 숲(−30,−14.6) 서쪽 4.8
-    {t:[[-24,-27],[-21,-30],[-27,-30],[-24,-33]],                       rk:[-24,-30]},           // 북서 쐐기 — 꽃동산(−22,−22) 뒤 네 그루
-  ],
-};
-/* 풍경 자리표 안인가 — scatterDecor 가 수풀 뭉치·들꽃을 심기 전에 본다 */
-function lsReserved(x, z, pad){
-  pad = pad || 0;
-  for(const b of LS_PLAN.big) if(Math.hypot(x-b.x, z-b.z) < 4.2 + pad) return true;
-  for(const o of LS_PLAN.orchard) if(Math.hypot(x-o[0], z-o[1]) < 2.2 + pad) return true;
-  for(const gv of LS_PLAN.groves) for(const t of gv) if(Math.hypot(x-t[0], z-t[1]) < 2.0 + pad) return true;
-  for(const bl of LS_PLAN.belts) for(const t of bl.t) if(Math.hypot(x-t[0], z-t[1]) < 2.0 + pad) return true;
-  for(const m of LS_PLAN.meadows) if(Math.hypot(x-m[0], z-m[1]) < (m[3] || 1.8) + 0.6 + pad) return true;
-  return false;
-}
-
-function villageLandscape(){
-  /* ── 0. 뱅크 셋 + 빌려 쓰는 것 ──
-     lsS  WGEO+WMAT(색 그대로 + 돌결)          : 낮은 돌담 · 그네 줄 · 통 테
-     lsP  cube(T.cloth)+MAT → WMAT_PAINT       : 흰 울타리 · 소풍 돗자리 (판자로는 흰색이 안 난다)
-     lsW  cube(T.plank)+MAT → WMAT_WOOD        : 벤치 · 그루터기 · 그네 널 · 사다리 · 궤짝 · 통 — 0xb8895a 가 곱해지므로 lsWc() 로 나눠 넘긴다
-     빌림: trunk/branch/leaf0~2/root/bark/apple(treeRound·treePine) · bushS(잎) · stem/petal/pist(꽃 — 늘 셋 한 벌) · peb(돌·디딤돌).
-     나무는 전부 장식이다(NODES 에 안 넣는다 — 못 캔다). 세 열쇠 다 모양은 WGEO 하나. */
-  const gP = cube(T.plank), gC = cube(T.cloth);
-  const PB = [0xb8, 0x89, 0x5a];                          // 판자 타일 원색 — villageWater 의 wc 와 같은 식(네 줄 복사본)
-  const lsWc = (hex)=>{ let o = 0;
-    for(let i=0;i<3;i++) o = o*256 + Math.min(255, Math.round((((hex >> (16-i*8)) & 255) / PB[i]) * 255));
-    return o; };
-  const STONE_WARM = 0xb8afa0, STONE_DARK = 0x8d857a, STONE_PATH = 0xcdc5b6, FENCE_WHITE = 0xf0e8d4;
-  const LEAF_A = 0x74c853, LEAF_B = 0x5fb646, FLW_C = [0xffffff, 0xffd84d, 0xff9ec4];   // 흰 · 노랑 · 분홍
-  const Sw = (x,y,z, sx,sy,sz, col, ry)=> bpush('lsS', WGEO, WMAT, x, GY+y, z, ry||0, sx,sy,sz, 0, col);
-  const Pp = (x,y,z, sx,sy,sz, col, ry, rz)=> bpush('lsP', gC, MAT, x, GY+y, z, ry||0, sx,sy,sz, rz||0, col);
-  const Wd = (x,y,z, sx,sy,sz, col, ry, rz)=> bpush('lsW', gP, MAT, x, GY+y, z, ry||0, sx,sy,sz, rz||0, col||0);
-  const Lf = (x,z, sc, col, seed)=> bpush('bushS', LEAFV[1], WMAT, x, GY+sc*0.30, z, rnd(seed)*6.28, sc, sc*0.68, sc, 0, col);
-  const Pb = (x,z, sc, seed)=> bpush('peb', PEBG, WMAT, x, GY+sc*0.16, z, rnd(seed)*6.28, sc, sc*0.62, sc*0.9, 0, ROCK_C[1]);
-  const FLW = (x,z, pc)=>{                                // 꽃 한 벌 — 줄기·꽃잎·속 (t32 가 셋의 개수 같음을 본다)
-    bpush('stem',  WGEO,  WMAT, x, GY+0.11, z, 0, 0.06,0.24,0.06, 0, 0x5aa845);
-    bpush('petal', LEAFG, WMAT, x, GY+0.27, z, rnd(x*3.1+z*1.7)*6.28, 0.28,0.16,0.28, 0, pc);
-    bpush('pist',  LEAFG, WMAT, x, GY+0.33, z, 0, 0.11,0.08,0.11, 0, 0xffe36a); };
-  const nodeFar = (x,z,r)=>{                              // villageNight 것과 같다 — 자원(나무·바위·금)은 판마다 무작위라 그때그때 본다
-    for(const n of NODES){ if(Math.hypot(x-(n.x+0.5), z-(n.z+0.5)) < r) return false; }
-    return true; };
-  const flatAt = (x,z)=> inW(Math.floor(x), Math.floor(z)) && terrAt(Math.floor(x), Math.floor(z)) === GY;
-  /* 협곡 어귀(사람 출발 자리·좀비 길)인가 — corridorDist 는 gapHalf+3 까지만 잡으므로 여유 m 을 직접 잰다 */
-  const inMouth = (x,z,m)=>{
-    for(let g=0; g<NG; g++){ const t = gT(g,x,z); if(t > 30 && Math.abs(gPP(g,x,z)) < gapHalfAt(t) + m) return true; }
-    return false; };
-
-  /* ── 1. 꽃 무더기(명세 3.5) — 반지름 1.2 안에 꽃 7벌(두 색 4+3) + 수풀 둘(0.50) + 돌 하나(0.4). 자리는 rnd ── */
-  const clusterF = (x, z, c1, c2, seed)=>{
-    for(let i=0;i<7;i++){ const a = i/7*6.283 + rnd(seed+i)*0.6, rr = (i<2 ? 0.25 : 0.62) + rnd(seed+i*3.3)*0.45;
-      FLW(x + Math.cos(a)*rr, z + Math.sin(a)*rr, i < 4 ? c1 : c2); }
-    for(const q of [0,1]){ const a = seed*0.7 + q*2.9;
-      Lf(x + Math.cos(a)*1.15, z + Math.sin(a)*1.15, 0.50, q ? LEAF_B : LEAF_A, seed+q*5.1); }
-    { const a = seed*1.1 + 1.4; Pb(x + Math.cos(a)*1.0, z + Math.sin(a)*1.0, 0.4, seed+9); }
-  };
-
-  /* ── 2. 나무 한 그루 — 자원이 자리에 있으면 둘레 후보로 비켜 앉고, 그래도 막히면 건너뛴다(자원은 안 옮긴다). 밑에 수풀 둘. ── */
-  const placed = [];                                       // [x,z] — 숲 띠가 서로 간격을 재는 데 쓴다
-  const treeAt = (x, z, S, H, seed, pine, keep, out)=>{
-    let px = x, pz = z, ok = false;
-    for(const [dx,dz] of [[0,0],[1.5,0],[-1.5,0],[0,1.5],[0,-1.5],[1.2,1.2],[-1.2,-1.2],[1.2,-1.2],[-1.2,1.2]]){
-      px = x+dx; pz = z+dz;
-      if(!flatAt(px,pz) || !nodeFar(px,pz,2.4) || houseNear(px,pz,2.0) || waterNear(px,pz,1.0) || pathDist(px,pz) < 2.8) continue;
-      ok = true; break; }
-    if(!ok) return null;
-    if(pine) treePine(px, GY, pz, S, H, seed);
-    else treeRound(px, GY, pz, S, H, seed, out || null);   // out=null → 사과 없음 = 못 캐는 나무라는 표시
-    for(let q=0;q<2;q++){ const a = rnd(seed+q*1.7)*6.283, rr = 0.75 + rnd(seed+q*3.1)*0.35;
-      Lf(px + Math.cos(a)*rr, pz + Math.sin(a)*rr, 0.45 + rnd(seed+q)*0.15, q ? LEAF_B : LEAF_A, seed+q*7.7); }
-    placed.push([px,pz]);
-    if(keep) VILLAGE_AVOID.push([px, pz, 1.8]);
-    return [px,pz];
-  };
-
-  /* ── 3. 랜드마크 나무 둘(명세 3.1) ── */
-  const bench = (x, z, fx, fz)=>{                          // 광장 벤치와 같은 비율 — 사람 크기의 자. (fx,fz) 는 앉아서 보는 쪽
-    const ry = Math.atan2(fx, fz);
-    Wd(x, 0.52, z, 1.35, 0.11, 0.46, lsWc(0xb98a56), ry);
-    Wd(x - fx*0.22, 0.78, z - fz*0.22, 1.35, 0.38, 0.09, lsWc(0xa87c4c), ry);
-    for(const s of [-1,1]) Wd(x + fz*s*0.52, 0.24, z - fx*s*0.52, 0.13, 0.42, 0.40, lsWc(0x8a5f3c), ry);
-    PLZ_SOLIDS.push([x, z, 0.62, GY+0.60]);
-  };
-  for(let bi=0; bi<LS_PLAN.big.length; bi++){
-    const b = LS_PLAN.big[bi], p = treeAt(b.x, b.z, b.S, b.H, b.seed, false, false);
-    if(!p) continue;
-    const bx = p[0], bz = p[1];
-    VILLAGE_AVOID.push([bx, bz, 4.2]);
-    PLZ_SOLIDS.push([bx, bz, 0.75, GY+3]);                                                    // 줄기 — 몸이 부딪힌다
-    const cl = Math.hypot(bx, bz), cx = -bx/cl, cz = -bz/cl;                                  // 수정 쪽 단위벡터
-    for(let i=0;i<4;i++){ const a = b.seed + i*1.6; Pb(bx + Math.cos(a)*1.25, bz + Math.sin(a)*1.25, 0.3 + (i%2)*0.2, b.seed+i); }   // 뿌리 둘레 돌 넷
-    if(bi === 0){
-      /* A 마을 나무 — 벤치가 광장을 본다 · 그루터기 둘 · 흰+노랑 꽃 무더기 */
-      bench(bx + 1.4, bz + 1.4, cx, cz);
-      Wd(bx - 1.6, 0.20, bz + 1.6, 0.50, 0.40, 0.50, lsWc(0x8a5f3c), 0.3);
-      Wd(bx + 1.2, 0.20, bz - 1.6, 0.50, 0.40, 0.50, lsWc(0x8a5f3c), 1.1);
-      clusterF(bx - 2.2, bz - 0.6, 0xffffff, 0xffd84d, 11.3);
-    } else {
-      /* B 들판 나무 — 그네(동쪽으로 뻗은 굵은 가지 + 줄 둘 + 널) · 소풍 돗자리 + 바구니(북쪽) · 분홍+흰 꽃 무더기(서쪽) · 벤치(남서)
-         가지 y 3.25 는 아래 잎 덩어리 바닥(≈3.4) 바로 밑, 널 0.60 은 아홉 살이 앉는 높이 — 줄이 팽팽히 '매달려' 보인다 */
-      const ux = 0.99, uz = 0.15, ry = Math.atan2(-uz, ux);                                  // bpush 로컬 +X 가 (ux,uz) 를 향한다
-      bpush('branch', TRUNKV, WMAT, bx + ux*1.55, GY+3.25, bz + uz*1.55, ry, 0.30, 3.10, 0.30, Math.PI/2, TREE_C.trunk2);
-      for(const o of [1.55, 2.35]) Sw(bx + ux*o, 1.92, bz + uz*o, 0.05, 2.56, 0.05, STONE_DARK);
-      Wd(bx + ux*1.95, 0.60, bz + uz*1.95, 0.98, 0.08, 0.34, 0, ry);                          // 널 — 판자 원색
-      /* 소풍 한 벌은 나무에 붙여 뭉친다(심사 — 흩어져 있었다):
-         돗자리 — 줄기에서 2.17(≤ 2.2), 해가 (50,90,30) 에 있으니 그늘은 −x·−z 쪽 → 북서, 꽃 무더기(−2.6,−0.4) 바로 옆(모서리끼리 1.5).
-         뿌리 끝(0.95)보다 밖. 크림 판 + 분홍 격자 띠 넷(villageTeamYards 돗자리와 같은 0.13 규칙) + 바구니는 돗자리 위(밑 0.09 > 띠 윗면 0.075) */
-      const mx = bx - 0.7, mz = bz - 2.05;
-      Pp(mx, 0.03, mz, 1.60, 0.05, 1.20, 0xf3e6d0, 0.15);
-      for(const s of [-0.45, 0.45]){ Pp(mx + s*Math.cos(0.15), 0.06, mz - s*Math.sin(0.15), 0.13, 0.03, 1.20, 0xe08a8a, 0.15);
-                                     Pp(mx + s*Math.sin(0.15), 0.06, mz + s*Math.cos(0.15), 1.60, 0.03, 0.13, 0xe08a8a, 0.15); }
-      Wd(mx + 0.40, 0.24, mz + 0.25, 0.40, 0.30, 0.30, lsWc(0xa07a52), 0.15);
-      clusterF(bx - 2.6, bz - 0.4, 0xff9ec4, 0xffffff, 12.7);
-      /* 벤치 — 남쪽 2.77 에서 그네 널(+x 1.95)을 본다: 앉으면 그네 타는 아이가 보이는 자리 */
-      { const sx2 = ux*1.95 - (-0.6), sz2 = uz*1.95 - 2.7, sl = Math.hypot(sx2, sz2);
-        bench(bx - 0.6, bz + 2.7, sx2/sl, sz2/sl); }
-    }
-  }
-
-  /* ── 4. 과수원(명세 3.4) — 사과나무 여섯(씨앗을 골라 여섯 다 사과가 달리게) + 북·남 두 변 낮은 돌담 + 사다리 + 나무통 ── */
-  let firstApple = null;
-  for(let i=0;i<LS_PLAN.orchard.length;i++){
-    const o = LS_PLAN.orchard[i];
-    let s = o[0]*3.1 + o[1]*1.7; for(let k=0; k<40 && rnd(s+21.3) >= 0.34; k++) s += 1.0;   // treeRound 의 r4<0.34 조건이 참이 되는 씨앗
-    const p = treeAt(o[0], o[1], 0.62, 4.2, s, false, true, []);
-    if(p && !firstApple) firstApple = p;
-  }
-  VILLAGE_AVOID.push([-28.5, 16.8, 4.6]);
-  for(let i=0;i<6;i++) for(const wz of [12.2, 21.4])                                          // 북변·남변 6토막씩(1.2 간격, 0.3 트임) — 집 쪽·산 쪽은 트인다
-    Sw(-31.4 + i*1.2, 0.20, wz, 0.90, 0.40, 0.35, STONE_WARM, 0);
-  if(firstApple){                                                                             // 사다리 — 첫 사과나무 줄기에 기댄다(rz 0.35, 동쪽에서)
-    const lx = firstApple[0] + 0.95, lz = firstApple[1];                                       // ry 0 · rz +0.35 → 꼭대기가 −x(줄기) 쪽으로 눕는다
-    for(const s of [-0.22, 0.22]) Wd(lx, 1.05, lz + s, 0.06, 2.20, 0.06, 0, 0, 0.35);
-    for(let k=0;k<4;k++){ const yy = 0.30 + k*0.50; Wd(lx + (1.05-yy)*Math.tan(0.35), yy, lz, 0.06, 0.05, 0.50, 0, 0); }
-  }
-  { const tx = -25.6, tz = 20.6;                                                              // 나무통 — 여관 통 레시피(통 + 돌빛 테 둘)
-    Wd(tx, 0.36, tz, 0.60, 0.72, 0.60, lsWc(0x8a6240));
-    Sw(tx, 0.18, tz, 0.66, 0.06, 0.66, STONE_DARK); Sw(tx, 0.56, tz, 0.66, 0.06, 0.66, STONE_DARK);
-    PLZ_SOLIDS.push([tx, tz, 0.42, GY+0.72]); }
-
-  /* ── 5. 집 뒤 숲 덩이(명세 3.2) — 한 덩이 안에서 S 가 다 다르게 ── */
-  for(let gi2=0; gi2<LS_PLAN.groves.length; gi2++){
-    const gv = LS_PLAN.groves[gi2];
-    for(let i=0;i<gv.length;i++){ const seed = 120.7 + gi2*9.3 + i*2.9;
-      treeAt(gv[i][0], gv[i][1], 0.50 + rnd(seed)*0.12, 4.2 + rnd(seed+1)*0.8, seed, false, true); }
-  }
-
-  /* ── 5b. 바깥 띠 숲 4곳(LS_PLAN.belts, 심사) — 한 무리 안에서 S 가 다 다르게(0.55~0.65 를 n 등분해 섞는다) · H 4.5~5.0 ·
-       나무마다 밑에 수풀 둘(treeAt) · 무리 안쪽에 돌 셋. 협곡 어귀(gapHalf+6)는 treeAt 이 안 보므로 여기서 잰다.
-       8(무작위 띠)보다 먼저 심어 그쪽이 3.0 간격을 지키게 한다 ── */
-  for(let bi2=0; bi2<LS_PLAN.belts.length; bi2++){
-    const bl = LS_PLAN.belts[bi2], n = bl.t.length;
-    for(let i=0;i<n;i++){ const seed = 300.5 + bi2*11.7 + i*3.1, S = 0.55 + 0.10 * (((i*3) % n) / Math.max(1, n-1));
-      if(inMouth(bl.t[i][0], bl.t[i][1], 6)) continue;
-      treeAt(bl.t[i][0], bl.t[i][1], S, 4.5 + rnd(seed+1)*0.5, seed, false, true); }
-    for(let k=0;k<3;k++){ const a = bi2*1.3 + k*2.1, rr = k ? 0.55 : 0.1;                       // 돌 셋 — 큰 것 가운데, 작은 둘 옆에
-      Pb(bl.rk[0] + Math.cos(a)*rr, bl.rk[1] + Math.sin(a)*rr, k ? 0.45 + k*0.08 : 0.72, 400 + bi2*7 + k); }
-  }
-
-  /* ── 6. 집 마당(명세 3.5·3.7) — 꽃 무더기(문 반대쪽 옆, 벽에서 1.6 밖 · 거울 집은 +x 쪽) · 흰 울타리 ㄱ자(N1·E1·W1·여관)
-       villageHouses 와 같은 좌표계(문 쪽이 로컬 +Z, face·π/2). ── */
-  const FACE_RY = [0, Math.PI/2, Math.PI, -Math.PI/2];
-  const FLW_OF = {N1:[2,0], N2:[1,0], E1:[2,0], E2:[2,2], S1:[1,1], S2:[0,2], W1:[2,0], W2:[1,1], P1:[0,0], P2:[2,1], Q1:[1,0]};   // 명세 2.4 꽃색
-  const SIDE_PX = {N2:1, E2:1, S1:1, W2:1, P2:1};        // 거울 집 + P2(왼쪽에 벌통) 는 무더기를 +x 옆에
-  const FENCE_OF = {N1:1, E1:1, W1:1, Inn:1};
-  for(let hi=0; hi<VILLAGE_HOUSES.length; hi++){
-    const h = VILLAGE_HOUSES[hi];
-    if(h.kind === 'mill') continue;
-    const cx = h.x0 + h.w/2, cz = h.z0 + h.d/2, ry = FACE_RY[h.face], cr = Math.cos(ry), sr = Math.sin(ry);
-    const FW = (h.face & 1 ? h.d : h.w), FD = (h.face & 1 ? h.w : h.d), hw = FW/2, hd = FD/2;
-    const fx_ = (dx,dz)=> cx + dx*cr + dz*sr, fz_ = (dx,dz)=> cz - dx*sr + dz*cr;
-    if(h.kind === 'cottage'){
-      const sx = SIDE_PX[h.n] ? 1 : -1, px = fx_(sx*(hw+1.6), 0.6), pz = fz_(sx*(hw+1.6), 0.6), fc = (FLW_OF[h.n] || [0,1]);
-      if(flatAt(px,pz) && !waterNear(px,pz,0.6) && pathDist(px,pz) >= 2.4 && !houseNear(px,pz,0.9) && nodeFar(px,pz,1.6)){
-        clusterF(px, pz, FLW_C[fc[0]], FLW_C[fc[1]], 200 + hi*6.1);
-        VILLAGE_AVOID.push([px, pz, 1.5]); }
-    }
-    if(!FENCE_OF[h.n]) continue;
-    /* ㄱ자 울타리 — 꼭짓점을 마당 앞 모서리에 두고 한 토막은 집 가운데 쪽(x)으로, 한 토막은 집 쪽(−z)으로 1.9.
-       말뚝 셋(0/0.95/1.90) + 가로대. 흙길 가장자리(pathDist 2.4)에 걸리면 집 쪽으로 0.3 씩 당긴다. 절대 잇지 않는다. SOLID 없음 */
-    const inn = h.kind === 'inn', kx = inn ? 3.90 : -(hw+1.0), dirx = inn ? -1 : 1;
-    let kz = inn ? hd + 2.6 : hd + 2.4;
-    while(kz > hd + 1.3 && pathDist(fx_(kx, kz), fz_(kx, kz)) < 2.4) kz -= 0.3;
-    const post = (dx,dz)=> Pp(fx_(dx,dz), 0.35, fz_(dx,dz), 0.11, 0.70, 0.11, FENCE_WHITE, ry);
-    for(const o of [0, 0.95, 1.90]){ post(kx + dirx*o, kz); if(o) post(kx, kz - o); }
-    Pp(fx_(kx + dirx*0.95, kz), 0.52, fz_(kx + dirx*0.95, kz), 1.90, 0.07, 0.09, FENCE_WHITE, ry);
-    Pp(fx_(kx, kz - 0.95), 0.52, fz_(kx, kz - 0.95), 0.09, 0.07, 1.90, FENCE_WHITE, ry);
-  }
-
-  /* ── 7. 남쪽 거리 디딤돌 줄(명세 3.6) — z 21.2, 4모둠 길 어깨에서 3모둠 길 어깨까지 1.2 간격 19장.
-       S1·S2 벽(z ≥ 22)과 3·4모둠 헛간(z ≤ 20.4) 사이를 지나고 여관 문 앞 돌 석 장이 이 줄에 닿는다 ── */
-  /* ★ 64차 마무리 — 이 열아홉 장은 뺐다. 선생님: "길을 따라 깔린 돌 같은 것도 지저분하게 깔았다."
-     여관 문 앞 디딤돌(villageHouses)만으로 '남쪽 거리' 는 충분히 읽히고, 잔디가 트여야 아이들이 벽을 세운다. */
-
-  /* ── 8. 바깥 숲 띠 — 64차에 새로 생긴 마당 가장자리(oct 38~45). 산자락(42.5 밖)은 촘촘히·소나무 많이, 안쪽은 드문드문 둥근 나무.
-       협곡 어귀(사람 출발 자리·좀비 길)는 옆거리 gapHalf+4.5 까지 비우고, 흙길 3 안·집 마당·자원 2.4 안은 건너뛴다.
-       셀마다 rnd 로 뽑아 판마다 같은 숲이 선다. 서로 3.0 이상 떨어진다. 몸을 안 막는다(산의 나무와 같다). ── */
-  let woods = 0;
-  for(let x=-ARENA_R; x<=ARENA_R; x++) for(let z=-ARENA_R; z<=ARENA_R; z++){
-    const cx = x+0.5, cz = z+0.5, od = oct(cx,cz);
-    if(od < 38 || od > 45.0) continue;
-    const foot = od > 42.5, seed = x*2.13 + z*5.71 + 7.7;
-    if(rnd(seed) > (foot ? 0.26 : 0.085)) continue;        // 셀당 뽑기 확률 — 자원·간격 걸름 뒤 산자락 ≈ 90그루, 안쪽 ≈ 50그루
-    if(!inW(x,z) || terrAt(x,z) !== GY || rampNear(x,z) || inMouth(cx,cz,4.5)) continue;
-    if(pathDist(cx,cz) < 3.0 || waterNear(cx,cz,1.0) || houseNear(cx,cz,2.5) || !nodeFar(cx,cz,2.4)) continue;
-    let near = false;
-    for(const p of placed) if(Math.hypot(p[0]-cx, p[1]-cz) < 3.0){ near = true; break; }
-    if(near) continue;
-    const jx = cx + (rnd(seed+1)-0.5)*0.8, jz = cz + (rnd(seed+2)-0.5)*0.8;
-    const pine = rnd(seed+3) < (foot ? 0.62 : 0.35);
-    if(pine) treeAt(jx, jz, 0.50 + rnd(seed+4)*0.12, 4.6 + rnd(seed+5)*1.0, seed, true, false);
-    else     treeAt(jx, jz, 0.52 + rnd(seed+4)*0.14, 4.2 + rnd(seed+5)*0.9, seed, false, false);
-    woods++;
-  }
-  villageLandscape.woods = woods;   // 검사·사진 스크립트가 읽는다
-}
-
-/* ═══════════════════════════ 집 (64차) ═══════════════════════════
-   VILLAGE_HOUSES 표를 읽어 집 열한 채·여관·풍차를 그린다. 벽 발자국은 villagePlan 이 이미 terrH 로 막아 두었으니
-   여기서는 그림만 쌓는다(bpush). 굴뚝 연기·풍차 날개처럼 움직이는 것은 LIFE 에 적어 두고 updVillage 가 돌린다. */
-function villageHouses(){
-  /* ── 0. 뱅크 넷 + 빌려 쓰는 넷 ──
-     hsP  cube(T.cloth)+MAT → WMAT_PAINT(색 그대로) : 회벽·박공 단·지붕·문·창틀·간판
-     hsW  cube(T.plank)+MAT → WMAT_WOOD(나뭇결)    : 골조·꽃상자·우편함 기둥·탁자 — 0xb8895a 에 곱해지므로 wc() 로 나눠 넘긴다
-     hsS  WGEO+WMAT(색 그대로 + 돌결)               : 주춧돌·굴뚝·통 띠 — sbrick 은 0x868a90 이 곱해져 차가운 회색뿐이라 안 쓴다
-     hsGlow cube(T.glow)+EMITC → EMITC_F           : 창 유리·문등 — 밤에 저절로 켜진다. farmGlow(검사가 센다)·gglow 에 안 얹는다
-     빌림: bushS(잎)·stem/petal/pist(꽃 — 늘 셋 한 벌)·peb(디딤돌).  네 열쇠 모두 모양은 WGEO 하나다(마름모도 rz 로만 돌린다). */
-  const gC = cube(T.cloth), gP = cube(T.plank), gG = cube(T.glow);
-  const PB = [0xb8, 0x89, 0x5a];                          // 판자 타일 원색 — villageWater 의 wc 와 같은 식
-  const wc = (hex)=>{ let o = 0;
-    for(let i=0;i<3;i++) o = o*256 + Math.min(255, Math.round((((hex >> (16-i*8)) & 255) / PB[i]) * 255));
-    return o; };
-  const dim = (hex, k)=>{ let o = 0;                       // 색 × k — 처마널·용마루는 지붕색 ×0.8 (두툼한 만화 윤곽)
-    for(let i=0;i<3;i++) o = o*256 + Math.min(255, Math.round(((hex >> (16-i*8)) & 255) * k));
-    return o; };
-  /* 확정 팔레트(brief) — 모둠색은 한 조각도 안 쓴다 */
-  const HC = {cream:0xf7eedb, sand:0xf1dcb9, blush:0xf4dcd0, timber:wc(0x74502f), box:wc(0x8f6a45), barrel:wc(0x8a6240),
-              coral:0xd9634c, moss:0x74a35c, slate:0x6e8db2, honey:0xd4a95f, stone:0xb8afa0, stoneD:0x8d857a,
-              trim:0xfffaf0, doorR:0xc4553f, doorT:0x3f8a8c, step:0xc9c1b2, leaf:0x74c853, sack:0xe9d9b6,
-              flw:[0xffffff, 0xffd84d, 0xff9ec4]};
-
-  /* ── 1. 집 하나의 좌표계 — 원점은 발자국 가운데·땅(GY), 로컬 +Z 가 문 쪽 (villageSquare 의 frame/P/W/S 방식) ── */
-  const mkF = (x, z, ry)=> ({x, z, ry, cr:Math.cos(ry), sr:Math.sin(ry)});
-  const fx_ = (f,dx,dz)=> f.x + dx*f.cr + dz*f.sr;
-  const fz_ = (f,dx,dz)=> f.z - dx*f.sr + dz*f.cr;
-  const put = (key, geo, mat, f, dx,dy,dz, sx,sy,sz, col, dry, rz)=>
-    bpush(key, geo, mat, fx_(f,dx,dz), GY+dy, fz_(f,dx,dz), f.ry+(dry||0), sx,sy,sz, rz||0, col||0);
-  const Pp = (f,dx,dy,dz, sx,sy,sz, col, dry, rz)=> put('hsP', gC, MAT,  f,dx,dy,dz, sx,sy,sz, col, dry, rz);   // 페인트
-  const Ww = (f,dx,dy,dz, sx,sy,sz, col, dry, rz)=> put('hsW', gP, MAT,  f,dx,dy,dz, sx,sy,sz, col, dry, rz);   // 나무 (col 은 이미 wc 로 나눈 값, 0 = 판자 원색)
-  const Ss = (f,dx,dy,dz, sx,sy,sz, col, dry, rz)=> put('hsS', WGEO, WMAT, f,dx,dy,dz, sx,sy,sz, col, dry, rz); // 돌
-  const Gl = (f,dx,dy,dz, sx,sy,sz, dry, rz)=>      put('hsGlow', gG, EMITC, f,dx,dy,dz, sx,sy,sz, 0, dry, rz); // 빛 (col 0 → 낮엔 크림, 밤엔 주황)
-  const Lf = (f,dx,dy,dz, sx,sy,sz)=>               put('bushS', LEAFV[1], WMAT, f,dx,dy,dz, sx,sy,sz, HC.leaf);
-  const Pb = (f,dx,dy,dz, sx,sy,sz, dry)=>          put('peb', PEBG, WMAT, f,dx,dy,dz, sx,sy,sz, HC.step, dry);
-  /* 꽃 한 벌 — stem·petal·pist 를 늘 셋 같이 (t32 가 개수 같음을 단언한다) */
-  const FLW = (f,dx,dy,dz, pc)=>{ const x = fx_(f,dx,dz), z = fz_(f,dx,dz);
-    bpush('stem',  WGEO,  WMAT, x, GY+dy+0.11, z, 0, 0.06,0.24,0.06, 0, 0x5aa845);
-    bpush('petal', LEAFG, WMAT, x, GY+dy+0.27, z, rnd(x*3.1+z*1.7)*6.28, 0.28,0.16,0.28, 0, pc);
-    bpush('pist',  LEAFG, WMAT, x, GY+dy+0.33, z, 0, 0.11,0.08,0.11, 0, 0xffe36a); };
-
-  /* 창 하나 = 흰 틀 + 유리(hsGlow) + 십자 창살. (ax,az) 벽 표면의 점, (nx,nz) 벽 바깥 법선(집 좌표), s 유리 한 변 */
-  const win = (f, ax,ay,az, nx,nz, s)=>{
-    const dry = Math.atan2(nx, nz), at = (o, sx,sy,sz, col, isG)=>{
-      if(isG) Gl(f, ax+nx*o, ay, az+nz*o, sx,sy,sz, dry);
-      else    Pp(f, ax+nx*o, ay, az+nz*o, sx,sy,sz, col, dry); };
-    at(0.04, s+0.16, s+0.16, 0.08, HC.trim);            // 틀
-    at(0.07, s, s, 0.08, 0, true);                       // 유리
-    at(0.12, 0.08, s+0.04, 0.06, HC.trim);               // 세로 창살
-    at(0.12, s+0.04, 0.08, 0.06, HC.trim);               // 가로 창살
-  };
-  /* 둥근 아치문 — 네모 + 45° 마름모(rz π/4) 를 겹치면 아이 눈엔 아치로 읽힌다. sc 는 여관용 배율 */
-  const door = (f, dx, dz, col, sc, yb)=>{ const k = sc||1, fw = 1.06*k, fh = 1.56*k, dw = 0.86*k, dh = 1.48*k, y0 = yb || 0.28;
-    Pp(f, dx, y0+fh/2, dz+0.05, fw, fh, 0.10, HC.trim);
-    Pp(f, dx, y0+fh,   dz+0.05, 0.75*k, 0.75*k, 0.10, HC.trim, 0, Math.PI/4);
-    Pp(f, dx, y0+dh/2, dz+0.09, dw, dh, 0.10, col);
-    Pp(f, dx, y0+dh,   dz+0.09, 0.61*k, 0.61*k, 0.10, col, 0, Math.PI/4);
-    Ww(f, dx+0.28*k, y0+0.72*k, dz+0.17, 0.10,0.10,0.08, 0);                 // 손잡이 — 판자 원색
-  };
-  /* 창 밑 꽃상자 — 잎 + 꽃 두 벌. (ax,az) 벽 표면의 점, (nx,nz) 벽 바깥 법선 — 옆벽 창(S1·S2 남쪽 거리 쪽)에도 같은 상자를 단다 */
-  const flowerBoxN = (f, ax, az, nx, nz, c1, c2)=>{ const dry = Math.atan2(nx, nz), tx = nz, tz = -nx;   // (tx,tz) 벽을 따라가는 방향
-    Ww(f, ax+nx*0.16, 0.90, az+nz*0.16, 0.98, 0.24, 0.30, HC.box, dry);
-    Lf(f, ax+nx*0.16, 1.06, az+nz*0.16, 0.50, 0.28, 0.50);
-    FLW(f, ax - tx*0.24 + nx*0.18, 0.98, az - tz*0.24 + nz*0.18, c1);
-    FLW(f, ax + tx*0.22 + nx*0.20, 0.98, az + tz*0.22 + nz*0.20, c2);
-  };
-  const flowerBox = (f, wx, wz, c1, c2)=> flowerBoxN(f, wx, wz, 0, 1, c1, c2);   // 앞벽 창 밑(법선 +z)
-  /* 박공 다락 마름모 창 — 흰 틀 + hsGlow 유리, rz π/4. y 는 박공 단 안·지붕 밑면 아래에 오도록 부르는 쪽이 잰다 */
-  const attic = (f, hd, y, s)=>{ const k = s || 0.50;
-    Pp(f, 0, y, hd+0.03, k+0.14, k+0.14, 0.06, HC.trim, 0, Math.PI/4);
-    Gl(f, 0, y, hd+0.06, k, k, 0.06, 0, Math.PI/4);
-  };
-  const barrel = (f, dx, dz)=>{                            // 나무통 — 통 + 돌빛 띠 둘
-    Ww(f, dx, 0.36, dz, 0.60, 0.72, 0.60, HC.barrel);
-    Ss(f, dx, 0.18, dz, 0.66, 0.06, 0.66, HC.stoneD); Ss(f, dx, 0.56, dz, 0.66, 0.06, 0.66, HC.stoneD);
-    PLZ_SOLIDS.push([fx_(f,dx,dz), fz_(f,dx,dz), 0.42, GY+0.72]);
-  };
-
-  /* ── 2. 문에서 길까지 디딤돌 — 문 앞 두 장 다음부터 1.05 간격 3~5장.
-       방향은 문 법선에서 시작해 제일 가까운 흙길 점 쪽으로 서서히 꺾는다.
-       길 가운데 선 1.6 안이면 멈추고, 물·다른 집 자리에 닿는 돌은 건너뛴다. ── */
-  const roadPt = (x, z)=>{ let best = 99, bx = x, bz = z;
-    for(const L of pathLines()) for(let i=0;i<L.length-1;i++){
-      const ax=L[i][0], az=L[i][1], dx=L[i+1][0]-ax, dz=L[i+1][1]-az;
-      const u = Math.max(0, Math.min(1, ((x-ax)*dx + (z-az)*dz) / (dx*dx + dz*dz)));
-      const px = ax + dx*u, pz = az + dz*u, d = Math.hypot(x-px, z-pz);
-      if(d < best){ best = d; bx = px; bz = pz; } }
-    return [bx, bz]; };
-  const stones = (f, ddx, hd, n)=>{
-    let x = fx_(f, ddx, hd+1.6), z = fz_(f, ddx, hd+1.6);       // 둘째 디딤돌 자리에서 출발
-    const nx0 = f.sr, nz0 = f.cr, rp = roadPt(x, z);            // 문 법선(세계) · 길 위 제일 가까운 점
-    let tx = rp[0]-x, tz = rp[1]-z; const tl = Math.hypot(tx, tz) || 1; tx /= tl; tz /= tl;
-    for(let i=0;i<n;i++){
-      const k = Math.min(1, (i+1)/n*0.9);
-      let dx = nx0*(1-k) + tx*k, dz = nz0*(1-k) + tz*k; const dl = Math.hypot(dx,dz) || 1; dx /= dl; dz /= dl;
-      x += dx*1.05; z += dz*1.05;
-      if(pathDist(x, z) < 1.6) break;
-      if(waterNear(x, z, 0.2) || houseNear(x, z, 0.25) || terrAt(Math.floor(x), Math.floor(z)) !== GY) continue;
-      const side = (i%2 ? 1 : -1)*0.12;
-      bpush('peb', PEBG, WMAT, x - dz*side, GY+0.07, z + dx*side, Math.atan2(dx, dz), 0.85, 0.14, 0.70, 0, HC.step);
-    }
-  };
-
-  /* ── 3. 오두막 레시피 (design-ac cottage 절을 발자국 W×D 에 맞춘 것) ──
-       o: W D(벽 상자) wall gable roof door wallH(2.12) steps(5) ov(처마 0.54) ddx(문 좌우 치우침) flw[2] chim(굴뚝) big(문 배율) */
-  const cottage = (f, o)=>{
-    const W = o.W, D = o.D, hw = W/2, hd = D/2, wallH = o.wallH || 2.12, wt = 0.30 + wallH;
-    const ov = o.ov || 0.54, s = hw + ov;                              // 처마 반폭
-    const tn = o.tan || (0.81 + Math.max(0, 3.9 - W)*0.09);           // 좁은 집일수록 조금 가파르게(용마루가 벽 높이만큼 오르도록)
-    const th = Math.atan(tn), cs = Math.cos(th);
-    const eY = wt - 0.25, rY = eY + s*tn;                              // 처마 y · 용마루(판 가운데 선) y
-    const Ls = s/cs + 0.05, rd = D + 1.10, rk = dim(o.roof, 0.8);
-    const under = rY - 0.14/cs;                                        // 지붕판 밑면(x=0)
-    /* 주춧돌 · 벽 · 골조 */
-    Ss(f, 0, 0.16, 0, W+0.40, 0.32, D+0.40, HC.stone);
-    Pp(f, 0, 0.30+wallH/2, 0, W, wallH, D, o.wall);
-    for(const sx of [1,-1]) for(const sz of [1,-1]) Ww(f, sx*(hw-0.08), 0.30+wallH/2, sz*(hd-0.08), 0.20, wallH+0.02, 0.20, HC.timber);
-    for(const sz of [1,-1]) Ww(f, 0, wt-0.06, sz*(hd-0.08), W+0.20, 0.16, 0.22, HC.timber);
-    for(const sx of [1,-1]) Ww(f, sx*(hw-0.08), wt-0.06, 0, 0.22, 0.16, D, HC.timber);
-    if(o.posts) for(const sx of [1,-1]) Ww(f, sx*o.posts, 0.30+wallH/2, hd-0.08, 0.20, wallH+0.02, 0.20, HC.timber);   // 여관 — 앞면 기둥 둘 더
-    if(o.band) for(const sx of [1,-1]) Ww(f, sx*(hw+0.75)/2, o.band, hd+0.02, hw-0.65, 0.14, 0.20, HC.timber);         // 여관 — 문 양옆 띠장(문 아치를 안 가른다)
-    /* 계단식 박공 — 단마다 윗모서리가 지붕 밑면 아래에 오도록 너비를 지붕에서 거꾸로 잰다.
-       색: 0단은 벽색(벽의 연장), 1단부터는 모래색 — 한 톤만 달라야 '계단' 이 아니라 '부드러운 박공' 으로 읽힌다(심사 지적).
-       벽이 이미 모래색인 집(여관·P2·S1)은 같은 이유로 살구색을 쓴다(같은 색이면 단이 아예 안 보인다). */
-    const ns = o.steps || 5, pk = Math.min(0.30, (under - 0.18 - (wt+0.08))/(ns-1));
-    const gcol = o.wall === HC.sand ? HC.blush : HC.sand;
-    for(let k=0;k<ns;k++){ const y = wt + 0.08 + pk*k, wk = Math.max(0.36, 2*(under - (y + pk/2 + 0.01))/tn - 0.06);
-      Pp(f, 0, y, 0, wk, pk+0.02, D, k ? gcol : o.wall); }
-    /* 지붕판 둘(rz = −sign(x)·θ, 헛간과 같은 부호) · 처마널 · 용마루 */
-    for(const sx of [1,-1]){
-      Pp(f, sx*s/2, eY + (s/2)*tn, 0, Ls, 0.28, rd, o.roof, 0, -sx*th);
-      Pp(f, sx*(s-0.04), eY+0.05, 0, 0.16, 0.30, rd+0.10, rk, 0, -sx*th);
-    }
-    Pp(f, 0, rY-0.01, 0, 0.60, 0.50, rd+0.10, rk);
-    /* 굴뚝 — 오른 지붕판 위, 뒤쪽. 꼭대기 좌표를 돌려주어 연기 자리로 쓴다 */
-    let chimTop = null;
-    if(o.chim !== false){ const cw = o.chim || 0.72, cx = (o.chimX || 0.6)*hw, cz = -0.5, yt = rY + 0.14/cs - cx*tn;
-      Ss(f, cx, yt+0.45, cz, cw, 1.40, cw, HC.stone);
-      Ss(f, cx, yt+1.23, cz, cw+0.18, 0.20, cw+0.18, HC.stoneD);
-      chimTop = [fx_(f,cx,cz), GY + yt + 1.40, fz_(f,cx,cz)]; }
-    /* 문 · 문등 · 문 앞 디딤돌 두 장 · 우편함 */
-    const ddx = o.ddx || 0, ss = ddx <= 0 ? 1 : -1, k = o.big || 1;
-    door(f, ddx, hd, o.door, k);
-    if(o.lamp !== false){                                                  // 문등 — 창 위·아치 옆 빈 자리(y 2.10)에 건다
-      Ww(f, ddx + ss*0.62, 2.30, hd+0.12, 0.08, 0.08, 0.30, HC.timber);
-      Gl(f, ddx + ss*0.62, 2.10, hd+0.26, 0.22, 0.26, 0.22); }
-    Pb(f, ddx, 0.07, hd+0.65, 0.90, 0.14, 0.70); Pb(f, ddx + ss*0.15, 0.07, hd+1.60, 0.90, 0.14, 0.70);
-    if(o.mail !== false){ const mx = ss*(hw+0.38);                          // 벽 모서리 바깥 — 꽃상자를 안 가린다
-      Ww(f, mx, 0.45, hd+0.55, 0.10, 0.90, 0.10, HC.box);
-      Pp(f, mx, 1.02, hd+0.55, 0.34, 0.30, 0.46, o.roof);                 // 통은 지붕과 같은 색 — 세트로 읽힌다
-      Pp(f, mx + ss*0.18, 1.10, hd+0.50, 0.05, 0.18, 0.10, 0xffd84d); }
-    stones(f, ddx, hd, 3);    // 64차 — 다섯 장은 길가가 어수선했다(선생님). 문 앞 두 장 + 세 장이면 '누가 깐 길' 로 충분히 읽힌다
-    return {hw, hd, wt, rY, tn, cs, chimTop, ddx, ss};
-  };
-
-  /* ── 4. 열한 채 + 여관 + 풍차 — VILLAGE_HOUSES 표를 읽는다 ──
-       face → ry: 로컬 +Z 가 (sin ry, cos ry) 이므로 0:+z→0 · 1:+x→π/2 · 2:−z→π · 3:−x→−π/2.
-       문 면이 ±x 인 집은 W = z폭, D = x폭 (문 면의 길이가 W). */
-  const FACE_RY = [0, Math.PI/2, Math.PI, -Math.PI/2];
-  const roofOf = {N1:HC.coral, E1:HC.coral, W2:HC.coral, Q1:HC.coral, Inn:HC.coral,   // 산호 5
-                  N2:HC.moss, S1:HC.moss, P1:HC.moss,                                  // 이끼 3
-                  E2:HC.slate, W1:HC.slate,                                            // 슬레이트 2
-                  S2:HC.honey};                                                        // 꿀 1
-  const wallOf = {Inn:HC.sand, P2:HC.sand, S1:HC.sand, N2:HC.blush, W2:HC.blush};
-  const FL = {N1:[2,0], N2:[1,0], E1:[0,2], E2:[2,2], S1:[1,1], S2:[0,2], W1:[2,0], W2:[1,0], P1:[0,0], P2:[2,1], Q1:[1,0], Inn:[2,0]};
-  let hi = 0;
-  for(const h of VILLAGE_HOUSES){
-    const cx = h.x0 + h.w/2, cz = h.z0 + h.d/2, ry = FACE_RY[h.face], f = mkF(cx, cz, ry);
-    const W = (h.face & 1 ? h.d : h.w) - 0.10, D = (h.face & 1 ? h.w : h.d) - 0.10;
-    const roof = roofOf[h.n] || HC.coral, wall = wallOf[h.n] || HC.cream, dcol = (hi++ % 2) ? HC.doorT : HC.doorR;
-    const fl = (FL[h.n] || [0,1]).map(i=> HC.flw[i]);
-    if(h.kind === 'mill'){ mill(cx, cz); continue; }
-    if(h.kind === 'inn'){ inn(f, W, D, roof, wall, fl); continue; }
-    const narrow = W < 3.4, mirror = narrow && (hi % 2 === 0);
-    const ddx = narrow ? (mirror ? 0.60 : -0.60) : 0;
-    const o = {W, D, wall, roof, door:dcol, ddx, flw:fl};                 // 박공 단 색은 cottage 안에서 정한다(0단 벽색 · 위는 모래색)
-    if(h.n === 'S2') o.wallH = 2.62;                                  // 2층 다락 — 벽을 반 칸 올리고 박공에 마름모 창
-    if(h.n === 'W2') o.chim = false;                                  // 굴뚝 대신 지붕 위 새집
-    if(h.n === 'E1') o.lamp = false;                                  // 포치 차양 밑에 따로 단다
-    const r = cottage(f, o), hw = r.hw, hd = r.hd, ss = r.ss;
-    /* 창 — 넓은 앞면: 문 양옆 둘 + 옆창 하나 · 좁은 앞면: 문 옆 하나 + 옆창 둘. 앞창 밑엔 꽃상자 */
-    const wy = 1.45;
-    if(!narrow){
-      const wx = hw - 0.76;
-      for(const sx of [1,-1]){ win(f, sx*wx, wy, hd, 0, 1, 0.98); flowerBox(f, sx*wx, hd, fl[0], fl[1]); }
-      /* 옆창 — 보통은 +x 옆벽 하나. 남쪽 거리의 두 채는 거리(세계 −z) 쪽 옆벽에 창을 더 내어 밤에 불 켜진 벽이 거리를 지켜본다:
-         S2(ry π/2) 는 +x 옆벽이 거리 쪽이라 거기에 둘, S1(ry −π/2) 은 −x 옆벽이 거리 쪽이라 하나 더. 새 창 밑엔 꽃상자 */
-      if(h.n === 'S2'){
-        for(const wz of [-0.55, 0.60]){ win(f, hw, wy, wz, 1, 0, 0.90); flowerBoxN(f, hw, wz, 1, 0, fl[0], fl[1]); }
-      } else win(f, hw, wy, -0.30, 1, 0, 0.90);
-      if(h.n === 'S1'){ win(f, -hw, wy, -0.30, -1, 0, 0.90); flowerBoxN(f, -hw, -0.30, -1, 0, fl[0], fl[1]); }
-    } else {
-      const fwx = ddx > 0 ? -0.58 : 0.58;                              // 문 반대쪽에 창 하나
-      win(f, fwx, wy, hd, 0, 1, 0.92);
-      flowerBox(f, fwx, hd, fl[0], fl[1]);
-      win(f,  hw, wy, -0.30,  1, 0, 0.90);
-      win(f, -hw, wy, -0.30, -1, 0, 0.90);
-    }
-    /* 다락 마름모 창 — 좁은 앞면(깊은형·정사각) 여섯 채는 벽 위 0.60(박공 0~3단 안, 지붕 밑면 3.77 아래 · 꼭지 3.47),
-       2층 다락 S2 는 벽 위 0.95. 밤에 '다락에 누가 있다'. 넓은형 나머지는 창 셋으로 충분 */
-    if(narrow) attic(f, hd, r.wt+0.60);
-    if(h.n === 'S2') attic(f, hd, r.wt+0.95);
-    /* 변주 하나씩 — '누가 산다' 는 흔적 (명세 2.4 표) */
-    if(h.n === 'E1'){                                                  // 현관 포치 — 기둥 둘 + 앞으로 처진 차양판
-      for(const sx of [1,-1]) Ww(f, sx*0.95, 0.95, hd+0.80, 0.16, 1.90, 0.16, HC.timber);
-      Pp(f, 0, 2.06, hd+0.50, 1.30, 0.14, 2.30, dim(roof, 0.8), Math.PI/2, 0.25);
-      Ww(f, 0.62, 1.92, hd+0.55, 0.06, 0.20, 0.06, HC.timber);          // 차양 밑에 매단 문등
-      Gl(f, 0.62, 1.70, hd+0.55, 0.22, 0.26, 0.22);
-    }
-    if(h.n === 'W1'){                                                  // 앞 창 밑 벤치(광장 벤치 비율을 hsW 로) — 등받이를 벽 쪽에, 길을 본다
-      Ww(f, -1.25, 0.52, 2.20, 1.35, 0.11, 0.46, wc(0xb98a56));
-      Ww(f, -1.25, 0.78, 1.98, 1.35, 0.38, 0.09, wc(0xa87c4c));
-      for(const sx of [1,-1]) Ww(f, -1.25 + sx*0.52, 0.24, 2.20, 0.13, 0.42, 0.40, wc(0x8a5f3c));
-      PLZ_SOLIDS.push([fx_(f,-1.25,2.20), fz_(f,-1.25,2.20), 0.62, GY+0.60]);
-    }
-    if(h.n === 'E2')                                                   // −x 옆벽 밑 장작더미 3+2+1단, 긴 축 z (판자 원색)
-      for(let k=0;k<3;k++) for(let i=0;i<3-k;i++) Ww(f, -1.95 + (i - (2-k)/2)*0.32, 0.15 + 0.30*k, 0.30, 0.30, 0.30, 0.80, 0);
-    if(h.n === 'N2'){                                                  // −x 옆마당 빨래줄 — 기둥 둘 + 줄 + 천 셋(크림·분홍·노랑)
-      for(const lz of [-0.6, 1.8]) Ww(f, -2.4, 0.80, lz, 0.12, 1.60, 0.12, HC.timber);
-      Pp(f, -2.4, 1.45, 0.6, 0.06, 0.06, 2.40, HC.trim);
-      [[-0.1, HC.cream], [0.55, 0xff9ec4], [1.2, 0xffd84d]].forEach(([lz, c])=> Pp(f, -2.4, 1.18, lz, 0.05, 0.48, 0.40, c));
-    }
-    if(h.n === 'S1'){                                                  // 문 옆 고양이 밥자리 — 매트 + 그릇 + 우유
-      Pp(f, -1.20, 0.02, 2.60, 0.70, 0.04, 0.50, 0xc25b4a);
-      Ww(f, -1.20, 0.09, 2.60, 0.24, 0.10, 0.24, 0);
-      Pp(f, -1.20, 0.15, 2.60, 0.18, 0.04, 0.18, 0xffffff);
-    }
-    if(h.n === 'W2'){                                                  // 지붕 위 새집
-      const bx = 0.6*hw, by = r.rY + 0.14/r.cs - bx*r.tn;
-      Ww(f, bx, by+0.35, -0.5, 0.06, 0.90, 0.06, HC.timber);
-      Ww(f, bx, by+0.86, -0.5, 0.30, 0.30, 0.30, HC.box);
-      Pp(f, bx, by+0.90, -0.5, 0.05, 0.05, 0.05, 0x2a2420);
-      for(const sx of [1,-1]) Pp(f, bx + sx*0.11, by+1.06, -0.5, 0.26, 0.05, 0.36, dim(roof,0.8), 0, -sx*0.6);
-    }
-    if(h.n === 'P1')                                                   // 옆벽에 기댄 낚싯대 — 연못가 집
-      Ww(f, hw+0.06, 0.85, hd-0.55, 0.05, 1.70, 0.05, HC.timber, Math.PI/2, 0.32);
-    if(h.n === 'P2')                                                   // −x 옆벽 밖 벌통 둘 — 몸통 + 꿀색 뚜껑 + 검은 입구(앞쪽)
-      for(const bz of [-0.4, 0.5]){
-        Pp(f, -2.30, 0.25, bz, 0.50, 0.50, 0.50, 0xf1dfae);
-        Pp(f, -2.30, 0.53, bz, 0.60, 0.10, 0.60, HC.honey);
-        Pp(f, -2.30, 0.12, bz+0.26, 0.14, 0.06, 0.05, 0x74502f); }
-    if(h.n === 'Q1'){                                                  // 과수원 집 — 나무통 + 문 옆 사과 궤짝 둘(위에 빨간 사과 셋씩)
-      barrel(f, hw+0.55, -0.4);
-      for(const qx of [1.40, 2.00]){ Ww(f, qx, 0.18, 2.40, 0.50, 0.35, 0.50, 0);
-        for(const [ax, az] of [[-0.13, -0.10], [0.12, -0.08], [0.0, 0.13]]) Pp(f, qx+ax, 0.42, 2.40+az, 0.14, 0.14, 0.14, 0xe5433a); }
-    }
-    if(h.n === 'N1' || h.n === 'W1') LIFE.hsmoke.push({x:r.chimTop[0], y:r.chimTop[1]+0.1, z:r.chimTop[2]});   // 굴뚝 연기 ★ (여관과 셋)
-  }
-
-  /* ── 5. 여관 — 오두막 레시피의 큰 판. 문 −z(수정 쪽) ── */
-  function inn(f, W, D, roof, wall, fl){
-    const r = cottage(f, {W, D, wall, roof, door:HC.doorT, wallH:2.60, steps:7, ov:0.75, tan:0.8125,
-                          chim:0.90, chimX:0.7, big:1.18, posts:1.08, band:2.50, lamp:false, flw:fl});
-    const hw = r.hw, hd = r.hd;
-    LIFE.hsmoke.push({x:r.chimTop[0], y:r.chimTop[1]+0.1, z:r.chimTop[2]});
-    /* 창 — 앞 둘(꽃상자) · 옆 둘씩 · 박공 마름모 하나('다락에 누가 있다') */
-    for(const sx of [1,-1]){ win(f, sx*1.72, 1.55, hd, 0, 1, 0.90); flowerBox(f, sx*1.72, hd, fl[0], fl[1]);
-      for(const sz of [1,-1]) win(f, sx*hw, 1.55, sz*0.9, sx, 0, 0.90); }
-    Pp(f, 0, r.wt+0.80, hd+0.03, 0.64, 0.64, 0.06, HC.trim, 0, Math.PI/4);
-    Gl(f, 0, r.wt+0.80, hd+0.06, 0.50, 0.50, 0.06, 0, Math.PI/4);
-    /* 간판 — 걸이에 매달린 흰 판 + 머그잔 그림(글자 대신 컵) */
-    Ww(f, -2.35, 2.78, hd+0.45, 0.08, 0.08, 0.95, HC.timber);
-    Pp(f, -2.35, 2.45, hd+0.86, 1.10, 0.62, 0.08, HC.trim, 0, 0.05);
-    Pp(f, -2.40, 2.43, hd+0.92, 0.32, 0.34, 0.05, roof);
-    Pp(f, -2.18, 2.44, hd+0.92, 0.10, 0.20, 0.05, roof);
-    Pp(f, -2.40, 2.63, hd+0.92, 0.36, 0.08, 0.05, HC.trim);
-    /* 문 옆 등불 하나 더(오른쪽) · 문 옆 화분 · 나무통 둘(오른 옆벽) */
-    Ww(f, 2.35, 2.62, hd+0.35, 0.08, 0.08, 0.70, HC.timber);
-    Gl(f, 2.35, 2.30, hd+0.60, 0.26, 0.30, 0.26);
-    for(const [px, pc] of [[-1.05, fl[0]], [1.05, fl[1]]]){                       // 문 양옆 테라스 화분 둘 — 잎 위로 꽃 한 벌씩(분홍·흰)
-      Ww(f, px, 0.18, hd+0.40, 0.40, 0.36, 0.40, HC.box); Lf(f, px, 0.50, hd+0.40, 0.50, 0.40, 0.50);
-      FLW(f, px, 0.50, hd+0.40, pc); }
-    barrel(f, hw+0.50, -0.9); barrel(f, hw+0.50, 0.1);
-    /* 테라스 — 벤치 하나(길 쪽을 본다) · 탁자 둘 + 걸상 · 방금 마시던 머그 하나 */
-    Ww(f, -1.9, 0.52, hd+1.30, 1.35, 0.11, 0.46, wc(0xb98a56));
-    Ww(f, -1.9, 0.78, hd+1.08, 1.35, 0.38, 0.09, wc(0xa87c4c));
-    for(const sx of [1,-1]) Ww(f, -1.9 + sx*0.52, 0.24, hd+1.30, 0.13, 0.42, 0.40, wc(0x8a5f3c));
-    PLZ_SOLIDS.push([fx_(f,-1.9,hd+1.3), fz_(f,-1.9,hd+1.3), 0.62, GY+0.60]);
-    const table = (tx, tz, mug)=>{
-      Ww(f, tx, 0.72, tz, 0.90, 0.08, 0.90, 0); Ww(f, tx, 0.36, tz, 0.12, 0.68, 0.12, HC.timber); Ww(f, tx, 0.03, tz, 0.50, 0.06, 0.50, HC.timber);
-      for(const sx of [1,-1]) Ww(f, tx + sx*0.72, 0.18, tz, 0.34, 0.36, 0.34, 0);
-      if(mug) Pp(f, tx+0.18, 0.84, tz-0.12, 0.14, 0.16, 0.14, roof);
-      PLZ_SOLIDS.push([fx_(f,tx,tz), fz_(f,tx,tz), 0.60, GY+0.76]); };
-    table(2.6, hd+1.70, true); table(-3.3, hd+0.20, false);
-  }
-
-  /* ── 6. 풍차 — 통통한 3단 탑 + 슬레이트 모자 + 날개(updVillage 가 V_box 로 돌린다).
-       표의 face 대신 수정 쪽을 본다(발자국이 정사각이라 돌려도 자리는 같다) — 1모둠 길·광장·연못 어디서나 날개면이 비스듬히 보인다. ── */
-  function mill(cx, cz){
-    const ry = Math.atan2(-cx, -cz), f = mkF(cx, cz, ry);
-    /* 밑단 — 돌 1.40 높이(명세 2.6). 세계 축에 맞춘 정사각(dry −ry)이라 3×3 발자국 안에 딱 든다(2.80 < 3.0).
-       그 위 몸통은 수정 쪽으로 돌아앉는데 모서리가 1.46 까지 나오므로 위 테를 2.96 으로 둘러 모서리를 받친다 */
-    Ss(f, 0, 0.70, 0, 2.80, 1.40, 2.80, HC.stone, -ry);
-    Ss(f, 0, 1.40, 0, 2.96, 0.12, 2.96, HC.stoneD, -ry);
-    /* 탑 3단 — 위로 갈수록 좁아 '통통한 탑'. [폭, 높이, 중심 y] 1.4~4.0 · 4.0~6.2 · 6.2~7.6. 단 사이 돌 띠 둘 */
-    const tiers = [[2.20, 2.60, 2.70], [1.90, 2.20, 5.10], [1.60, 1.40, 6.90]];
-    for(const [w, h, y] of tiers){ Pp(f, 0, y, 0, w, h, w, HC.cream); }
-    Ss(f, 0, 4.02, 0, 2.30, 0.14, 2.30, HC.stoneD); Ss(f, 0, 6.22, 0, 2.00, 0.14, 2.00, HC.stoneD);
-    for(const sx of [1,-1]) for(const sz of [1,-1]) Ww(f, sx*1.02, 2.70, sz*1.02, 0.18, 2.62, 0.18, HC.timber);   // T1 모서리 기둥
-    /* 문(밑단 위 1.40 에서 시작) + 돌 계단 셋(윗단 1.38 — 밑단 윗면 1.40 과 같은 면이 되지 않게 0.02 낮춤) + 문턱 돌 + 길까지 디딤돌 */
-    door(f, 0, 1.10, HC.doorR, 0.90, 1.40);
-    Ss(f, 0, 0.23, 2.15, 1.00, 0.46, 1.50, HC.stone); Ss(f, 0, 0.46, 1.90, 1.00, 0.92, 1.00, HC.stone); Ss(f, 0, 0.69, 1.65, 1.00, 1.38, 0.50, HC.stone);
-    Pb(f, 0.1, 0.07, 3.25, 0.90, 0.14, 0.70);
-    stones(f, 0, 1.65, 3);
-    /* 창 둘 — T1 앞면(문 아치 꼭지 3.28 위·띠 3.95 아래) · T2 앞면. 밤에 탑에 불 두 점 */
-    win(f, 0, 3.62, 1.10, 0, 1, 0.44);
-    win(f, 0, 5.30, 0.95, 0, 1, 0.40);
-    /* 모자 — 오두막과 같은 식(벽 위 7.6, T3 폭 1.6, 처마 0.25, 경사 45°): 슬레이트 판 둘 + 박공 2단(모래색) + 용마루(꼭대기 ≈ 8.75).
-       용마루가 날개 쪽 Z 를 향한다 */
-    { const wt = 7.60, s = 1.05, tn = 1.0, th = Math.atan(tn), cs = Math.cos(th), eY = wt-0.05, rY = eY + s*tn, under = rY - 0.14/cs, rk = dim(HC.slate, 0.8);
-      for(const sx of [1,-1]){ Pp(f, sx*s/2, eY + (s/2)*tn, 0, s/cs+0.05, 0.24, 2.10, HC.slate, 0, -sx*th);
-        Pp(f, sx*(s-0.04), eY+0.05, 0, 0.16, 0.28, 2.20, rk, 0, -sx*th); }
-      for(let k=0;k<2;k++){ const y = wt + 0.14 + 0.28*k, wk = Math.max(0.36, 2*(under - (y + 0.15))/tn - 0.06); Pp(f, 0, y, 0, wk, 0.30, 1.55, HC.sand); }
-      Pp(f, 0, rY-0.01, 0, 0.40, 0.30, 2.20, rk); }
-    /* 축 + 허브 판 — T3 앞면 0.80 에서 내민다. 날개는 매 프레임 V_box 로(LIFE.mill, 허브 y 6.90 → 날개 끝 3.35~10.45, 마을 최고) */
-    Ww(f, 0, 6.90, 1.10, 0.44, 0.44, 0.70, HC.timber);
-    Pp(f, 0, 6.90, 1.42, 0.66, 0.66, 0.10, HC.stoneD);
-    Pp(f, 0, 6.90, 1.48, 0.26, 0.26, 0.04, HC.trim);
-    LIFE.mill = {x:cx, y:GY+6.90, z:cz, ry, lz:1.56};
-    /* 밑에 밀가루 자루 셋 + 손수레(villageStreets 수레 레시피를 hsW 로, 몸통 옆에 비스듬히) — '풍차가 일한다' */
-    Pp(f, 2.30, 0.22, 0.40, 0.50, 0.45, 0.50, HC.sack, 0.2); Pp(f, 2.45, 0.22, 1.00, 0.50, 0.45, 0.50, HC.sack, -0.3);   // 밑단(세계 ±1.40) 밖
-    Pp(f, 2.38, 0.66, 0.70, 0.48, 0.42, 0.48, HC.sack, 0.5);
-    { const kx = -2.10, kz = 1.40, kr = 0.9, ux = Math.sin(kr), uz = Math.cos(kr), lx = -uz, lz = ux;   // (ux,uz) 손잡이 쪽, (lx,lz) 옆
-      Ww(f, kx, 0.62, kz, 0.75, 0.42, 1.30, wc(0x9a5f3a), kr);                                          // 몸통
-      for(const s of [-1,1]) Ww(f, kx + lx*s*0.40, 0.84, kz + lz*s*0.40, 0.07, 0.26, 1.30, 0, kr);      // 옆널(판자 원색)
-      Ww(f, kx + ux*0.95, 0.78, kz + uz*0.95, 1.00, 0.09, 0.09, wc(0x8a5f3c), kr - Math.PI/2, 0.40);   // 앞으로 든 손잡이
-      for(const s of [-1,1]){                                                                             // 바퀴 — 십자로 겹친 널 둘
-        Ww(f, kx + lx*s*0.46, 0.30, kz + lz*s*0.46, 0.10, 0.54, 0.24, wc(0x6b4a2e), kr);
-        Ww(f, kx + lx*s*0.46, 0.30, kz + lz*s*0.46, 0.10, 0.24, 0.54, wc(0x6b4a2e), kr); }
-      Pp(f, kx, 0.90, kz, 0.46, 0.20, 0.46, HC.sack, kr + 0.3);                                        // 실린 자루 하나
-      PLZ_SOLIDS.push([fx_(f,kx,kz), fz_(f,kx,kz), 0.60, GY+0.85]); }
-  }
-}
-
-/* 여덟 갈래를 한 번에 — 세계를 짓는 줄에서 이것 하나만 부른다 */
+/* 세계를 짓는 줄에서 이것 하나만 부른다.
+   65차 — 선생님: "집·조형물 다 없애자. 정신없고, 건물 짓는 것을 방해한다."
+   64차 집 열셋(집터 terrH 올림 포함)·광장·거리 세간·물가 소품·모둠 앞뜰·밤 세간·풍경 소품·고양이·빨래줄을 전부 걷어냈다.
+   남은 것은 villageLife 의 참새·풀포기·나비·오리·대장간 연기·반딧불이 자리뿐이다 — 마당(oct < ARENA_R)은 다시 빈 들판이다. */
 function buildVillage(){
-  villageSquare();      // 수정 둘레 광장 — 포석 · 모둠 문턱 · 깃대 · 가로등 · 벤치 · 우물 · 게시판 · 모닥불
-  villageLandscape();   // 64차 풍경 — 큰 나무 · 숲 덩이 · 꽃밭 · 산울타리 (거리 세간보다 먼저 자리를 잡는다)
-  villageStreets();     // 다섯 흙길을 거리로 — 연석 · 가로등 · 모둠 이정표 · 수레 · 알림판
-  villageWater();       // 물과 풀 — 연못가 · 나무다리 · 징검다리 · 버드나무 · 텃밭 · 꽃밭 · 낙엽
-  villageTeamYards();   // 모둠 앞뜰 — 등불 대문 · 팻말 · 우체통 · 빨래줄 · 돗자리 · 평상
-  villageHouses();      // 64차 집 — 열한 채 · 여관 · 풍차 · 마당
-  villageNight();       // 밤의 아늑함 — 길등 · 화톳불 · 빛 웅덩이 · 좌판 등불
-  villageLife();        // 살아있는 느낌 — 고양이 둘 · 참새 · 오리 · 흔들리는 풀 · 굴뚝 연기
+  villageLife();        // 살아있는 느낌 — 참새 · 오리 · 흔들리는 풀 · 나비 · 대장간 연기
 }
 
 function buildForge(){
@@ -8221,9 +6136,8 @@ function buildMiniIsle(){
 /* ★ 성문을 자원보다 먼저 세운다 — 망루 계단 자리를 먼저 잡아 놔야
    나무·바위가 계단 위에 박히지 않는다. */
 buildSky(); buildWorldMesh(); buildGates(); buildShop(); buildForge(); buildFarms();
-villagePlan();    // 64차 — 집터를 땅에 새긴다. 돌기둥(buildWorldMesh) 뒤 · 자원(placeNodes) 앞이라야 한다
 placeNodes(); scatterDecor();
-buildVillage();   // 63차 — 아늑한 마을(광장·거리·물과 풀·모둠 자리·밤·살아있는 느낌). 농장·자원이 다 선 뒤에 얹는다
+buildVillage();   // 65차 — 살아있는 느낌(참새·풀·나비·오리·연기)만 얹는다. 농장·자원이 다 선 뒤에
 buildMiniIsle();
 buildCrystal(); buildClouds(); bbuild();
 /* 처음엔 다섯 우리가 다 비어 있다 — 제일 작은 단계만 남기고 나머지는 감춘다.
@@ -8666,7 +6580,6 @@ function canPlace(t,X,Z, ignoreId){
       /* 협곡에서는 '축 방향 거리' 로 잰다 — 옆으로 밀린 입구는 반지름과 크게 다르다 */
       if(cd[1] > RING_D+0.5) return '너무 멀어요 (좀비 마당)';
     }
-    if(houseNear(cx+0.5, cz+0.5, 0)) return '마을 집 자리예요';   // 64차 — terrH 가 올라가 있어 아래 줄에도 걸리지만 말이 더 낫다
     if(terrH[gi(cx,cz)] !== GY) return '평평한 땅에만 지어요';
     if(rampCells.has(cx+','+cz)) return '망루 계단 자리예요';
     /* 상인 좌판을 벽으로 덮어 버리면 아무도 못 산다 */
@@ -12953,20 +10866,7 @@ function solidRebuild(){
     q = at( 1.05, -(R-0.95)); solidPush(q[0], q[1], 0.70, y0+0.60);   // 물통
     q = at(-(R-0.9), R*0.34); solidPush(q[0], q[1], 0.62, y0+1.45);   // 볏짚 더미
     q = at(0, -(R+1.8));      solidPush(q[0], q[1], 1.45, y0+3.20);   // 헛간
-    /* 63차 — 평상(모둠 앞뜰). 접선 ±0.50 이라야 두 동그라미가 0.04 맞물려 한가운데 틈이 안 남는다
-       (±0.55 면 중심 간격 1.10 > 반지름 합 1.04 라 몸이 그대로 통과한다).
-       바깥 끝은 4.925+0.52+0.28*0.5 = 5.585 < 5.6 — canPlace 가 거절하는 반지름 안이라 아이 땅을 안 건드린다. */
-    for(const u of [-0.50, 0.50]){
-      const qy = at(Math.sin(1.75)*4.90 + u*Math.cos(1.75), Math.cos(1.75)*4.90 - u*Math.sin(1.75));
-      solidPush(qy[0], qy[1], 0.52, y0 + 0.36);   // 윗면 0.36 = 평상 윗면. 뛰어올라 올라선다
-    }
   }
-  /* 63차 아늑한 마을 — 광장·거리의 막는 자리.
-     buildVillage() 가 세계를 지을 때 배열에 모아 두면 여기서 SOLID 로 옮긴다
-     (solidPush 는 이 아래에 있어서 짓는 시점에는 아직 못 부른다).
-     terrH 는 한 칸도 안 건드리므로 좀비 길찾기와 아이가 짓는 땅은 그대로다. */
-  for(const s of PLZ_SOLIDS) solidPush(s[0], s[1], s[2], s[3]);
-  if(villageStreets.solids) for(const s of villageStreets.solids) solidPush(s[0], s[1], s[2], s[3]);
 }
 /* 울타리 고리 — 문(수정 쪽) 쪽만 뚫려 있다. 동그라미 서른 개 대신 고리 하나로 본다. */
 function farmRingHit(x, z, y){
@@ -13000,14 +10900,9 @@ function solidHit(x, z, y){
   return farmRingHit(x, z, y);
 }
 function spawnPoint(g){
-  /* 64차 — 마당 끝(ARENA_R)에서 14~7칸 안, 제 성문 쪽. 집 발자국(terrH 가 올라간 칸)에 떨어지면
-     지붕 위에 서게 되므로 집 마당을 피해 다시 뽑는다(열두 채 발자국은 마당의 3% 라 금방 나온다). */
-  for(let i=0;i<24;i++){
-    const r = (ARENA_R-14) + Math.random()*7, off = (Math.random()-0.5)*9;
-    const x = gX(g, r, off), z = gZ(g, r, off);
-    if(!houseNear(x, z, 1.0)) return [x, z];
-  }
-  return [gX(g, ARENA_R-10, 0), gZ(g, ARENA_R-10, 0)];
+  /* 마당 끝(ARENA_R)에서 14~7칸 안, 제 성문 쪽. 65차 — 집이 없어져 한 번만 뽑는다 */
+  const r = (ARENA_R-14) + Math.random()*7, off = (Math.random()-0.5)*9;
+  return [gX(g, r, off), gZ(g, r, off)];
 }
 function placePlayer(){
   const [x,z] = spawnPoint(G.me.g);
@@ -16217,9 +14112,6 @@ function miniStatic(){
     mg.strokeText((i+1), lx, lz);
     mg.fillText((i+1), lx, lz);
   }
-  /* 64차 — 마을 집 열셋. 지붕색 네모라 아이가 지도에서 '우리 마을' 을 찾는다(아이 건물의 모래색과 갈린다) */
-  mg.fillStyle = '#c9634a';
-  for(const h of VILLAGE_HOUSES) mg.fillRect(mpx(h.x0)-0.4, mpz(h.z0)-0.4, h.w*MSC+0.8, h.d*MSC+0.8);
   // 구조물
   mg.fillStyle = '#d9c9a6';
   for(const o of STRU.values()) mg.fillRect(mpx(o.x)-1, mpz(o.z)-1, 2.4, 2.4);
@@ -21225,7 +19117,7 @@ function loop(){
     if(PROF_ON) pS();
     updSky(dt, G.phase==='night');
     updCrystal(dt, tAcc, G.crystal/G.set.crystalMax, !!G.lastLight, skyK);
-    /* 63차 — 마을이 살아 있게(고양이 둘·참새·오리·흔들리는 풀·굴뚝 연기).
+    /* 63차 — 마을이 살아 있게(참새·오리·흔들리는 풀·나비·굴뚝 연기. 65차 — 고양이·빨래·풍차는 뺐다).
        updCrystal 과 같은 묶음에 둔다 — 둘 다 마을 화면에서만 뜻이 있고 한 번에 프로파일된다. */
     updVillage(dt, tAcc);
     if(PROF_ON) pE('하늘수정');
