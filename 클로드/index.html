@@ -2167,8 +2167,8 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 #popShop .shopPrice.short{background:#fff0e7;color:#9a4a24}
 #popShop .shopLack{font-size:11px;line-height:1.4;color:#92602e;margin:-3px 0 9px;overflow-wrap:anywhere}
 #popShop #shopList button{min-height:40px;margin:0;padding:9px 6px;background:#e9f0f5!important;border:1px solid #d3e0e9!important;border-radius:9px;color:#506b7e!important;font:500 14px/1.35 var(--f-body);box-shadow:none!important;opacity:1}
-#popShop #shopList button.buy{background:#b8e7d1!important;border-color:#8ec8ad!important;color:#215c42!important;font-weight:600}
-#popShop #shopList button.buy:hover{background:#a4ddc1!important}
+#popShop #shopList button.buy{background:linear-gradient(180deg,#ffe898,#f6c94c)!important;border-color:#d9a52a!important;color:#553800!important;font-weight:600;box-shadow:inset 0 -3px 0 rgba(160,110,0,.22)!important}
+#popShop #shopList button.buy:hover{background:linear-gradient(180deg,#fff0b0,#f9d263)!important}
 #popShop #shopList .own button{background:#eef8f2!important;color:#3c7258!important;border-color:#d1e7da!important}
 #popShop #shopList .shopHint{font-size:12px;line-height:1.5;background:#eff6fb;padding:10px 12px;margin:0;border-radius:10px;opacity:1}
 #popShop .shopFoot{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid #e1eaf1;padding-top:12px;flex:none}
@@ -2181,6 +2181,52 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 @media(max-width:380px){#popShop{padding:7px}#popShop .popC{height:calc(100vh - 14px);height:calc(100dvh - 14px);padding:12px;gap:10px}#popShop .shopBrand{width:40px;height:40px}#popShop .shopWallet{display:block;padding:8px 10px}#popShop .shopWalletLabel{display:flex;align-items:center;gap:5px;margin-bottom:5px}#popShop .shopWalletLabel strong{display:inline;font-size:11px}#popShop #shopRes{justify-content:flex-start;gap:5px}#popShop .shopBalance{flex:1;justify-content:center;padding:5px;font-size:12px}#popShop .shopBalance img.ic{width:19px;height:19px}#popShop #shopList .sb{padding:9px}#popShop .shopPrice{padding:3px 4px;font-size:11px}}
 @media(max-width:320px){#popShop #shopList{grid-template-columns:minmax(0,1fr)}}
 @media(max-height:600px){#popShop .popC{gap:9px;padding-top:12px;padding-bottom:12px}#popShop .shopEyebrow,#popShop .shopCollection,#popShop #shopNotice,#popShop .shopFoot p{display:none}#popShop .shopTop{gap:9px}#popShop h2{font-size:21px}#popShop .shopBrand{height:36px;width:36px}#popShop .shopBrand img.ic{height:26px}#popShop .shopClose{height:36px;width:36px;min-width:36px}#popShop .shopWallet{padding-top:5px;padding-bottom:5px}#popShop .shopBalance{padding-top:5px;padding-bottom:5px}#popShop #shopTabs .btn{min-height:32px;padding-top:6px;padding-bottom:6px}#popShop #shopList .sb{padding:10px}#popShop #shopList .sd{margin-bottom:7px}#popShop #shopList .sc{margin-bottom:7px}#popShop .shopLack{margin-bottom:6px}#popShop .shopFoot{padding-top:8px;justify-content:flex-end}#popShop .shopFoot .btn{min-height:35px}}
+/* ═══ 65차 — RPG 무기점. 선생님: "상점을 진짜 rpg게임 상점처럼".
+   ★ 바탕은 밝은 양피지(크림)·꿀빛 나무 간판, 본문은 남색 그대로(CLAUDE.md UI 규칙).
+   ★ 카드 테 = 등급(일반 회청 · 레어 파랑 · 유니크 주황), 그림 칸 오른쪽 위 = 등급·Lv 딱지.
+   ★ 레벨이 모자란 카드는 그림을 회색으로 죽이고 자물쇠를 크게 얹는다 — 단추도 '🔒 레벨 N부터' 로 잠긴다.
+   ★ 위 카드 규칙(높이·스크롤·미리보기 크기)은 t53 이 글자 그대로 본다. 여기서는 새 선택자만 더한다. */
+#popShop>.popC{background:linear-gradient(180deg,#fffaf0 0%,#fff3d9 100%)!important;border:3px solid #ecd19a;box-shadow:0 18px 40px rgba(70,45,10,.25),inset 0 0 0 3px #fffdf6}
+#popShop>.popC>.shopTop{background:linear-gradient(180deg,#f6dfae,#ebc57f);border:2px solid #d7a85a;border-radius:16px;padding:8px 10px;box-shadow:inset 0 -3px 0 rgba(140,90,20,.16)}
+@media(max-height:600px){#popShop>.popC>.shopTop{padding:2px 6px;border-width:1px;box-shadow:none}#popShop .wStats{margin-top:2px}#popShop .wTags{top:6px;right:6px}#popShop>.popC>.shopTop .shopWallet{padding-top:2px;padding-bottom:2px}#popShop>.popC>.shopTop .shopBalance{padding-top:3px;padding-bottom:3px}}
+#popShop>.popC>.shopTop .shopBrand{background:#fff6de;border:2px solid #d9aa5c;box-shadow:inset 0 -2px 0 rgba(140,90,20,.14)}
+#popShop>.popC>.shopTop h2{color:#4a2f10}
+#popShop>.popC>.shopTop .shopEyebrow{color:#7a5424;font-weight:600}
+#popShop>.popC>.shopTop .shopWallet{background:#fffaf0;border-color:#e2c283}
+#popShop>.popC>.shopTop .shopClose{background:#fff6de;border-color:#d9aa5c;color:#6a4618}
+#popShop #shopTabs .btn.on{background:#fff0c4!important;border-color:#e0ad48!important;color:#5e3d08!important;box-shadow:inset 0 -3px 0 #e8b64e!important}
+#popShop>.popC>#shopNotice{position:relative;padding:7px 12px 7px 38px;background:#fff;border:2px solid #efd7a4;border-radius:12px;color:#5a4526;font-size:12.5px}
+#popShop>.popC>#shopNotice::before{content:'🧔';position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:19px;line-height:1}
+#popShop #shopList .sItem.tier-common{border-color:#c9d6e0!important}
+#popShop #shopList .sItem.tier-rare{border:2px solid #8aa6ff!important;box-shadow:0 0 0 3px rgba(127,156,255,.16),0 4px 10px rgba(80,110,220,.14)!important}
+#popShop #shopList .sItem.tier-unique{border:2px solid #ffa24a!important;box-shadow:0 0 0 3px rgba(255,154,60,.18),0 4px 12px rgba(230,120,30,.18)!important}
+#popShop #shopList .sItem.tier-common .si{background:radial-gradient(circle at 50% 58%,#ffffff 0%,#eef3f7 62%,#e2eaf0 100%)}
+#popShop #shopList .sItem.tier-rare .si{background:radial-gradient(circle at 50% 58%,#ffffff 0%,#e4ebff 60%,#cfdbff 100%)}
+#popShop #shopList .sItem.tier-unique .si{background:radial-gradient(circle at 50% 58%,#fffdf5 0%,#ffeccc 60%,#ffd9a6 100%)}
+#popShop .wTags,.popC .wTags{position:absolute;top:9px;right:9px;display:flex;flex-direction:column;align-items:flex-end;gap:4px;pointer-events:none}
+.wTier,.wLv,.kTier{display:inline-block;padding:3px 7px;border-radius:6px;font:600 11px/1.25 var(--f-body);white-space:nowrap}
+.wTier.common,.kTier.common{background:#e7eef3;color:#3f5d72}
+.wTier.rare,.kTier.rare{background:#dfe6ff;color:#3150b8}
+.wTier.unique,.kTier.unique{background:#ffe6c9;color:#a0520c}
+.wLv{background:#29496a;color:#fff}
+.wLv.need{background:#ffe3d6;color:#a2401a;border:1px solid #f4b79a}
+.sn .wLv{margin-left:6px;vertical-align:middle}
+#popShop #shopList .sItem.lock .si img.ic,.popC .sItem.lock .si img.ic{filter:grayscale(1) brightness(1.05);opacity:.5}
+#popShop #shopList .sItem.lock .si::after{content:'🔒';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:44px;line-height:1;filter:drop-shadow(0 3px 2px rgba(0,0,0,.18))}
+#popShop #shopList .sItem.lock .sn{color:#6b7f8e}
+#popShop #shopList .sItem.lock button,.popC .sItem.lock button{background:#f5ece4!important;border-color:#e8cdbd!important;color:#a2401a!important}
+#popShop .lock .shopBadge{background:#ffe3d6;color:#a2401a}
+.shopLack.lvLack,.enhSafe.lvLack{color:#a2401a!important;font-weight:600}
+.wStats{display:flex;flex-wrap:wrap;gap:4px 8px;margin-top:6px}
+.wStat{display:inline-flex;align-items:center;gap:3px;min-width:0;flex:1 1 84px}
+.wStat i{font-style:normal;font-size:12px;line-height:1;flex:none}
+.wStat u{position:relative;display:block;flex:1;min-width:26px;height:7px;border-radius:4px;background:#e3eaf0;overflow:hidden;text-decoration:none}
+.wStat s{position:absolute;left:0;top:0;bottom:0;border-radius:4px;text-decoration:none}
+.wStat.dmg s{background:linear-gradient(90deg,#ff9a7a,#ef5f4a)} .wStat.spd s{background:linear-gradient(90deg,#ffd66b,#f0a526)} .wStat.rng s{background:linear-gradient(90deg,#8fd0ff,#4b9fe0)}
+.wStat b{font:600 11.5px/1.2 var(--f-body);color:#2c4a60;font-variant-numeric:tabular-nums;white-space:nowrap}
+.wEnh{color:#a07a00;font-weight:600}
+#popKit .kCell{position:relative}
+#popKit .kTier{position:absolute;top:6px;right:6px;font-size:10px;padding:2px 5px}
 /* 55차 — 시작 전 꾸미기, 진행 중에는 장비만 보이는 가방. */
 #dressPick .grp.deco{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
 #dressPick .grp.deco button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px 3px;min-width:0;min-height:60px;line-height:1.25}
@@ -2571,7 +2617,7 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 <!-- 상인 -->
 
 <div class="pop" id="popShop"><div class="popC" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
-  <header class="shopTop"><div class="shopBrand" aria-hidden="true">🛒</div><div class="shopHeading"><p class="shopEyebrow">낮에 여는 우리 마을 상점</p><h2 id="shopTitle">떠돌이 상인</h2></div><div class="shopWallet"><div class="shopWalletLabel"><strong id="shopTeam">우리 모둠 지갑</strong><span>친구들과 함께 쓰는 자원</span></div><div id="shopRes" aria-label="모둠이 가진 자원"></div></div><button class="btn shopClose" data-close="popShop" aria-label="상점 닫기">×</button></header>
+  <header class="shopTop"><div class="shopBrand" aria-hidden="true">⚔️</div><div class="shopHeading"><p class="shopEyebrow">낮에만 여는 용사들의 무기점</p><h2 id="shopTitle">떠돌이 상인</h2></div><div class="shopWallet"><div class="shopWalletLabel"><strong id="shopTeam">우리 모둠 지갑</strong><span>친구들과 함께 쓰는 자원</span></div><div id="shopRes" aria-label="모둠이 가진 자원"></div></div><button class="btn shopClose" data-close="popShop" aria-label="상점 닫기">×</button></header>
   <nav class="shopTabs" id="shopTabs" aria-label="상점 종류">
     <button class="btn sm on" data-tab="w" aria-pressed="true">🔫 무기</button>
     <button class="btn sm" data-tab="a" aria-pressed="false">🛡️ 방어구</button>
@@ -7506,6 +7552,124 @@ function mkFlame(){                              // 🔥 화염 대포 — 굵�
   gunGrip(g, 0,-0.19,-0.10, 0.40);
   return gunFinish(g, -0.03, 0.14, 0.05, 0.42);
 }
+/* ═══ 65차 — 새 총 여섯 자루. 재질은 기존 것만 쓴다(29차 레어·유니크 재질 + 나무·쇠·금 타일).
+   실루엣이 한눈에 다르게: 펌프 산탄총(굵은 앞 손잡이) · 은빛 카빈(바나나 탄창·빨간 점 조준경) · 기관총(총열 여섯 다발·탄약통)
+   · 네잎클로버 산탄총(초록 몸통·금 펌프·클로버 문장) · 매의 눈 카빈(남색·날개 깃·부리 총구) · 용의 숨결(벌린 용 머리·뿔·불) ═══ */
+function mkHuntShotgun(){                        // 🦌 사냥 산탄총 — 나무 개머리, 긴 총열 밑 탄창관, 굵은 밝은 나무 펌프
+  const g = new THREE.Group();
+  g.add(boxM(T.plank, 0.12,0.20,0.34, 0,-0.08,-0.36, matWoodDk));     // 개머리판
+  g.add(boxM(T.plank, 0.10,0.14,0.20, 0,-0.03,-0.15, matWoodDk));     // 목
+  g.add(boxM(T.dark,  0.13,0.15,0.30, 0, 0.03, 0.04, matGunDk));      // 기관부
+  g.add(boxM(T.stone, 0.08,0.08,0.78, 0, 0.08, 0.56, matSteel));      // 긴 총열
+  g.add(boxM(T.dark,  0.07,0.07,0.60, 0,-0.01, 0.46, matGunDk));      // 밑 탄창관
+  g.add(boxM(T.plank, 0.14,0.13,0.26, 0,-0.01, 0.42));                // ★ 굵은 펌프 손잡이(밝은 나무)
+  g.add(boxM(T.goldBlk,0.03,0.03,0.03, 0, 0.135,0.92));               // 놋쇠 가늠쇠 구슬
+  for(const z of [-0.02, 0.05, 0.12])                                 // 옆에 꽂힌 빨간 탄 셋
+    g.add(boxM(T.dark, 0.03,0.055,0.05, -0.08, 0.03, z, matRed));
+  g.add(boxM(T.dark,  0.04,0.09,0.04, 0,-0.10,-0.02, matGunDk));      // 방아쇠
+  g.add(boxM(T.plank, 0.10,0.20,0.13, 0,-0.16,-0.08, matWoodDk));     // 손잡이
+  gunGrip(g, 0,-0.18,-0.08, 0.42);
+  return gunFinish(g, -0.03, 0.14, 0.05, 0.44);
+}
+function mkCarbine(){                            // 🥈 은빛 카빈 — 은빛 몸통, 앞으로 휜 바나나 탄창, 빨간 점 조준경, 뼈대 개머리
+  const g = new THREE.Group();
+  g.add(boxM(T.wool,  0.13,0.15,0.46, 0, 0.03, 0.04, matSteel));     // 은빛 몸통 (흰 타일 × 강철색 = 밝은 은색)
+  g.add(boxM(T.dark,  0.11,0.11,0.30, 0, 0.04, 0.42, matGunDk));     // 총열덮개
+  g.add(boxM(T.stone, 0.06,0.06,0.24, 0, 0.05, 0.68, matSteel));     // 총열
+  g.add(boxM(T.dark,  0.085,0.085,0.07, 0, 0.05, 0.82, matGunDk));   // 소염기
+  g.add(boxM(T.dark,  0.06,0.03,0.40, 0, 0.125,0.10, matGunDk));     // 윗 레일
+  g.add(boxM(T.dark,  0.08,0.08,0.10, 0, 0.18, 0.02, matGunDk));     // 조준경 몸
+  g.add(boxM(T.crystal,0.05,0.05,0.02, 0, 0.18, 0.075, matEmber));   // ★ 빨간 점
+  g.add(boxM(T.dark,  0.08,0.14,0.11, 0,-0.12, 0.10, matGunDk));     // 탄창 윗부분
+  { const m = boxM(T.dark, 0.08,0.15,0.11, 0,-0.24, 0.15, matGunDk); m.rotation.x = -0.38; g.add(m); }   // ★ 앞으로 휜 바나나 탄창
+  for(const s of [-1,1])                                             // 뼈대 개머리 — 막대 둘
+    g.add(boxM(T.wool,  0.035,0.035,0.28, s*0.045, 0.02,-0.30, matSteel));
+  g.add(boxM(T.dark,  0.11,0.18,0.05, 0,-0.02,-0.45, matGunDk));     // 개머리 끝판
+  g.add(boxM(T.dark,  0.10,0.20,0.13, 0,-0.14,-0.10, matGunDk));     // 손잡이
+  gunGrip(g, 0,-0.16,-0.10, 0.40);
+  return gunFinish(g, -0.03, 0.15, 0.05, 0.48);
+}
+function mkGatling(){                            // ⚙️ 강철 기관총 — 총열 여섯 다발, 앞뒤 고리, 옆 탄약통과 금빛 탄띠, 위 손잡이
+  const g = new THREE.Group();
+  g.add(boxM(T.dark,  0.20,0.20,0.40, 0, 0.03,-0.02, matGunDk));     // 기관부
+  g.add(boxM(T.dark,  0.05,0.05,0.72, 0, 0.05, 0.50, matGunDk));     // 가운데 축(총구 기준)
+  for(let k=0;k<6;k++){ const a = k*Math.PI/3;                       // ★ 총열 여섯 다발
+    g.add(boxM(T.stone, 0.04,0.04,0.66, Math.cos(a)*0.065, 0.05+Math.sin(a)*0.065, 0.50, matSteel)); }
+  for(const z of [0.30, 0.78])                                       // 앞뒤 고리
+    g.add(boxM(T.dark, 0.20,0.20,0.04, 0, 0.05, z, matGunDk));
+  g.add(boxM(T.dark,  0.12,0.15,0.20, -0.17,-0.06, 0.02, matNavy));  // 탄약통
+  for(const [y,z] of [[0.02,0.10],[0.05,0.05],[0.07,-0.01]])         // 금빛 탄띠
+    g.add(boxM(T.goldBlk,0.03,0.05,0.03, -0.105, y, z));
+  for(const z of [-0.10, 0.12])                                      // 위 손잡이 기둥
+    g.add(boxM(T.dark, 0.03,0.08,0.03, 0, 0.17, z, matGunDk));
+  g.add(boxM(T.stone, 0.03,0.03,0.28, 0, 0.21, 0.01, matSteel));     // 위 손잡이
+  g.add(boxM(T.dark,  0.10,0.20,0.13, 0,-0.15,-0.12, matGunDk));     // 손잡이
+  gunGrip(g, 0,-0.17,-0.12, 0.36);
+  return gunFinish(g, -0.03, 0.14, 0.05, 0.44);
+}
+function mkClover(){                             // 🍀 네잎클로버 산탄총 — 초록 몸통, 금 펌프·금 띠, 옆의 네잎 문장이 빛난다
+  const g = new THREE.Group();
+  g.add(boxM(T.leaves,0.12,0.20,0.34, 0,-0.08,-0.36));                // 초록 개머리판
+  g.add(boxM(T.plank, 0.10,0.14,0.20, 0,-0.03,-0.15, matWoodDk));     // 목
+  g.add(boxM(T.leaves,0.14,0.16,0.32, 0, 0.03, 0.04));                // 초록 기관부
+  g.add(boxM(T.stone, 0.085,0.085,0.80, 0, 0.085,0.56, matSteel));    // 총열
+  for(const z of [0.40, 0.72, 0.94])                                  // 금 띠
+    g.add(boxM(T.goldBlk,0.11,0.11,0.04, 0, 0.085, z));
+  g.add(boxM(T.dark,  0.07,0.07,0.60, 0,-0.01, 0.46, matGunDk));      // 밑 탄창관
+  g.add(boxM(T.goldBlk,0.14,0.12,0.24, 0,-0.01, 0.44));               // ★ 금 펌프
+  g.add(boxM(T.crystal,0.03,0.05,0.05, -0.085, 0.03, 0.04, matGlowY)); // 클로버 가운데
+  for(const [dy,dz] of [[0.05,0],[-0.05,0],[0,0.05],[0,-0.05]]){       // ★ 네 잎
+    const m = boxM(T.leaves, 0.025,0.055,0.055, -0.085, 0.03+dy, 0.04+dz); m.rotation.x = Math.PI/4; g.add(m); }
+  g.add(boxM(T.dark,  0.04,0.09,0.04, 0,-0.10,-0.02, matGunDk));      // 방아쇠
+  g.add(boxM(T.plank, 0.10,0.20,0.13, 0,-0.16,-0.08, matWoodDk));     // 손잡이
+  gunGrip(g, 0,-0.18,-0.08, 0.44);
+  return gunFinish(g, -0.03, 0.14, 0.05, 0.44);
+}
+function mkHawk(){                               // 🦅 매의 눈 카빈 — 남색 몸통, 긴 조준경(빛나는 눈), 양옆 날개 깃, 부리 같은 금 총구
+  const g = new THREE.Group();
+  g.add(boxM(T.dark,  0.11,0.19,0.30, 0,-0.05,-0.34, matNavy));       // 개머리판
+  g.add(boxM(T.goldBlk,0.115,0.05,0.20, 0, 0.06,-0.30));              // 금 볼받침
+  g.add(boxM(T.dark,  0.13,0.16,0.48, 0, 0.03, 0.04, matNavy));       // 남색 몸통
+  g.add(boxM(T.dark,  0.11,0.12,0.34, 0, 0.04, 0.44, matNavy));       // 총열덮개
+  g.add(boxM(T.stone, 0.06,0.06,0.30, 0, 0.05, 0.74, matSteel));      // 총열
+  g.add(boxM(T.goldBlk,0.09,0.09,0.08, 0, 0.05, 0.92));               // 금 총구
+  { const m = boxM(T.goldBlk,0.05,0.05,0.07, 0, 0.035,0.98); m.rotation.x = 0.30; g.add(m); }   // ★ 아래로 굽은 부리
+  g.add(boxM(T.dark,  0.085,0.085,0.44, 0, 0.19, 0.08, matGunDk));    // 긴 조준경
+  for(const z of [0.31, -0.15])                                       // 빛나는 렌즈(매의 눈)
+    g.add(boxM(T.crystal,0.10,0.10,0.05, 0, 0.19, z, matGlow));
+  for(const z of [-0.02, 0.18])                                       // 조준경 받침
+    g.add(boxM(T.goldBlk,0.05,0.07,0.05, 0, 0.125, z));
+  for(const s of [-1,1]) for(let k=0;k<3;k++){                        // ★ 날개 깃 셋 — 뒤로 비스듬히
+    const m = boxM(T.wool, 0.025,0.045,0.24-k*0.05, s*(0.085+k*0.02), 0.07-k*0.04, 0.34-k*0.03);
+    m.rotation.y = s*0.28; g.add(m); }
+  g.add(boxM(T.dark,  0.08,0.16,0.11, 0,-0.12, 0.12, matNavy));       // 탄창
+  g.add(boxM(T.dark,  0.10,0.20,0.13, 0,-0.14,-0.10, matGunDk));      // 손잡이
+  gunGrip(g, 0,-0.16,-0.10, 0.44);
+  return gunFinish(g, -0.03, 0.14, 0.05, 0.44);
+}
+function mkDragon(){                             // 🐉 용의 숨결 — 붉은 몸통(흰 타일 × 녹슨 붉은 쇠 = 화염 대포보다 밝은 용 비늘색), 벌린 용 머리 총구 안에 불, 금 뿔·빛나는 눈, 등 가시, 밑의 연료통
+  const g = new THREE.Group();
+  g.add(boxM(T.plank, 0.13,0.21,0.30, 0,-0.08,-0.34, matWoodDk));     // 개머리판
+  g.add(boxM(T.wool,  0.18,0.19,0.46, 0, 0.04, 0.04, matRust));       // 몸통
+  g.add(boxM(T.wool,  0.13,0.13,0.30, 0, 0.05, 0.42, matRust));       // 목(총열)
+  g.add(boxM(T.wool,  0.18,0.16,0.20, 0, 0.07, 0.64, matRust));       // 용 머리
+  { const m = boxM(T.wool, 0.15,0.06,0.20, 0, 0.11, 0.82, matRust); m.rotation.x = -0.18; g.add(m); }   // ★ 윗턱 (벌어짐)
+  { const m = boxM(T.wool, 0.14,0.05,0.18, 0, 0.00, 0.80, matRust); m.rotation.x = 0.22; g.add(m); }    //   아랫턱
+  g.add(boxM(T.crystal,0.09,0.06,0.08, 0, 0.055,0.82, matEmber));     // 입 안의 불
+  for(const s of [-1,1]){
+    g.add(boxM(T.wool, 0.025,0.04,0.025, s*0.05, 0.075,0.87));        // 윗니
+    g.add(boxM(T.wool, 0.025,0.035,0.025, s*0.045,0.03, 0.85));       // 아랫니
+    g.add(boxM(T.crystal,0.03,0.035,0.035, s*0.092,0.11, 0.66, matGlowY));   // 빛나는 눈
+    const h = boxM(T.goldBlk,0.03,0.03,0.18, s*0.06, 0.17, 0.56); h.rotation.x = 0.55; g.add(h);   // 금 뿔
+  }
+  for(const z of [-0.12, 0.04, 0.20, 0.36])                           // 등 가시
+    g.add(boxM(T.goldBlk,0.03,0.07,0.05, 0, 0.155+(z>0.3?-0.02:0), z));
+  g.add(boxM(T.goldBlk,0.10,0.10,0.26, 0,-0.10, 0.18));               // 연료통
+  g.add(boxM(T.dark,  0.05,0.10,0.05, 0,-0.12,-0.02, matGunDk));      // 방아쇠
+  g.add(boxM(T.plank, 0.10,0.20,0.13, 0,-0.17,-0.10, matWoodDk));     // 손잡이
+  gunGrip(g, 0,-0.19,-0.10, 0.40);
+  return gunFinish(g, -0.03, 0.14, 0.05, 0.42);
+}
 /* 맨손 돌 — 공격 모드에서 손이 비어 있으면 고장난 것처럼 보인다. 돌 한 알을 쥔 주먹. */
 function mkFist(){
   const g = new THREE.Group();
@@ -7516,7 +7680,8 @@ function mkFist(){
 /* 무기 번호 -> 손에 드는 모형 */
 const gunModels = [mkFist(), mkSling(), mkMusket(), mkRifle(), mkSMG(), mkSniper(), mkLaser(),
                    mkMusket(),    // 연습용 총(18차) — 화승총 모형을 그대로 쓴다
-                   mkOakBow(), mkObsidian(), mkGoldSMG(), mkRanch(), mkThunder(), mkFlame()];   // 29차 레어·유니크
+                   mkOakBow(), mkObsidian(), mkGoldSMG(), mkRanch(), mkThunder(), mkFlame(),    // 29차 레어·유니크
+                   mkHuntShotgun(), mkCarbine(), mkGatling(), mkClover(), mkHawk(), mkDragon()];  // 65차 일반 셋(14~16)·레어 둘(17·18)·유니크(19)
 
 /* ═══ 강화한 총이 손에서 빛난다 ═══
    ★ 처음엔 남의 총(P_gunF)에만 빛을 붙였다. 그런데 아이가 제일 많이 보는 총은 '자기가 든 총' 이다 —
@@ -11737,6 +11902,33 @@ function wpnTraitHit(W, w, dmg, f){
     return;
   }
   if(W.trait === 'blast') blastAt(w.x, (w.y||GY)+0.6, w.z, dmg, w, W);
+  if(W.trait === 'burn') burnStart(w, dmg);
+}
+/* ═══ 65차 새 특성 — 불붙이기(용의 숨결) ═══
+   맞은 좀비가 0.5초마다 세 번 더 탄다(한 번에 첫 피해의 15%, 합쳐서 +45%).
+   ★ 피해는 기존 추가 명중과 **같은 길**로 간다 — extraHit → 호스트는 hostStoneHit, 손님은 thX 목록.
+     통신 칸·빈도를 새로 만들지 않는다. 불 목록은 쏜 아이 화면에만 있다(번개·폭발과 같다).
+   ★ 같은 좀비에 또 맞으면 새로 붙이지 않고 남은 횟수만 채운다 — 겹쳐 붙으면 연사로 피해가 불어난다. */
+const BURN_N = 3, BURN_DT = 0.5, BURN_K = 0.15, BURN_MAX = 24;
+const burns = [];
+function burnStart(w, dmg){
+  const d = Math.max(1, Math.round(dmg*BURN_K));
+  const b = burns.find(q => q.o === w);
+  if(b){ b.n = BURN_N; b.d = Math.max(b.d, d); return; }
+  if(burns.length >= BURN_MAX) burns.shift();
+  burns.push({o:w, d, n:BURN_N, t:BURN_DT});
+  burst(w.x, (w.y||GY) + 0.9, w.z, 0xff8a3c, 8, 1.1);
+}
+function burnTick(dt){
+  for(let i = burns.length - 1; i >= 0; i--){
+    const b = burns[i];
+    if(b.o.hp <= 0 || !G.wolves.includes(b.o)){ burns.splice(i, 1); continue; }
+    b.t -= dt; if(b.t > 0) continue;
+    b.t += BURN_DT; b.n--;
+    burst(b.o.x, (b.o.y||GY) + 0.9, b.o.z, 0xff7a30, 6, 0.9);
+    extraHit(b.o, b.d);
+    if(b.n <= 0) burns.splice(i, 1);
+  }
 }
 /* 번개 — 곧은 줄 대신 꺾인 세 토막. 가운데 두 점을 옆으로 흔든다 */
 function lightningFx(x1,y1,z1, x2,y2,z2, col){
@@ -11791,58 +11983,93 @@ const WDAY = ()=> 1 + 0.14*(G.day-1);
      예전에는 앞쪽 57도 원뿔 안이면 다 맞아서 조준이랄 게 없었다. 이제 진짜로 겨눠야 하되,
      9살 손이라 거리에 비례해 조금씩 넓어진다(+거리×0.05). */
 const WEAPONS = [
-  {n:'맨손 돌', ic:'🪨', cost:null, dmg:0, cd:1.00, rng:11.5, ammo:0, col:0x9a9186,
+  {n:'맨손 돌', ic:'🪨', cost:null, lv:1, dmg:0, cd:1.00, rng:11.5, ammo:0, col:0x9a9186,
    tr:0xcfcabf, len:0.8, aimR:2.6, kick:0.35, snd:'thud',
    d:'주머니 속 돌. 공짜에 무한이지만 약합니다.'},
-  {n:'나무 새총', ic:'🎯', cost:{w:35,s:0,g:0}, dmg:24, cd:0.75, rng:15, ammo:0, col:0xb07a42,
+  {n:'나무 새총', ic:'🎯', cost:{w:35,s:0,g:0}, lv:1, dmg:24, cd:0.75, rng:15, ammo:0, col:0xb07a42,
    tr:0xe8d8a8, len:0.7, aimR:2.0, kick:0.30, snd:'bow',
    d:'총알이 필요 없습니다. 첫 무기로 딱.'},
-  {n:'돌 화승총', ic:'🔫', cost:{w:40,s:35,g:0}, dmg:50, cd:1.10, rng:18, ammo:1, col:0x8b8f96,
+  {n:'돌 화승총', ic:'🔫', cost:{w:40,s:35,g:0}, lv:3, dmg:50, cd:1.10, rng:18, ammo:1, col:0x8b8f96,
    tr:0xffd08a, len:1.1, aimR:1.7, kick:0.85, snd:'flint',      // 43차 — 부싯돌 딸깍·치익 → 둔중한 쾅
    d:'느리지만 한 방이 셉니다. 총알 1발.'},
-  {n:'쇠 소총', ic:'🔩', cost:{w:20,s:70,g:8}, dmg:84, cd:0.85, rng:22, ammo:1, col:0x5f6874,
+  {n:'쇠 소총', ic:'🔩', cost:{w:20,s:70,g:8}, lv:6, dmg:84, cd:0.85, rng:22, ammo:1, col:0x5f6874,
    tr:0xffe9a0, len:1.3, aimR:1.5, kick:0.75, snd:'rifle',      // 43차 — 날카로운 크랙 · 노리쇠 철컥
    d:'멀리서 정확하게. 총알 1발.'},
-  {n:'연발총', ic:'💨', cost:{w:60,s:90,g:16}, dmg:48, cd:0.42, rng:19, ammo:1, col:0x3f4a5c,
+  {n:'연발총', ic:'💨', cost:{w:60,s:90,g:16}, lv:9, dmg:48, cd:0.42, rng:19, ammo:1, col:0x3f4a5c,
    tr:0xffb45a, len:0.9, aimR:1.7, kick:0.45, snd:'smg',        // 43차 — 짧고 탁탁 · 탄피 팅
    d:'드르륵! 누르고 있으면 계속 나갑니다. 총알이 빨리 닳아요.'},
-  {n:'금빛 저격총', ic:'🏆', cost:{w:0,s:80,g:34}, dmg:240, cd:1.70, rng:34, ammo:2, col:0xd8a832,
+  {n:'금빛 저격총', ic:'🏆', cost:{w:0,s:80,g:34}, lv:13, dmg:240, cd:1.70, rng:34, ammo:2, col:0xd8a832,
    tr:0xfff0a0, len:2.4, aimR:1.1, kick:1.60, snd:'boom',
    d:'망루 위에서 멀리 있는 좀비를 저격! 잘 겨눠야 맞습니다. 총알 2발.'},
-  {n:'수정 광선총', ic:'💎', cost:{w:80,s:80,g:60}, dmg:160, cd:0.85, rng:26, ammo:2, col:0x5fd8e8,
+  {n:'수정 광선총', ic:'💎', cost:{w:80,s:80,g:60}, lv:16, dmg:160, cd:0.85, rng:26, ammo:2, col:0x5fd8e8,
    tr:0x7ff0ff, len:2.2, aimR:1.5, kick:0.65, snd:'laser',
 
-   d:'우리 반 최고의 무기. 파란 광선이 뻗어 나갑니다. 총알 2발.'},
+   d:'빛나는 수정으로 만든 총. 파란 광선이 멀리 곧게 뻗어 나갑니다. 총알 2발.'},   // 65차 — 더 센 총(기관총·유니크)이 생겨 '최고의 무기' 를 뺐다
 
-  {n:'연습용 총', ic:'🎯', cost:null, mini:true, dmg:50, cd:0.70, rng:24, ammo:0, col:0x9aa6b4,
+  {n:'연습용 총', ic:'🎯', cost:null, mini:true, lv:1, dmg:50, cd:0.70, rng:24, ammo:0, col:0x9aa6b4,
    tr:0xfff0a0, len:1.7, aimR:1.7, kick:0.38, snd:'musket',
    d:'미니게임에서 모두 똑같이 드는 총입니다.'},
   /* ═══ 레어 4 · 유니크 2 ═══ */
   /* 32차 — 조합 재료를 30% 내렸다(선생님: "레어·유니크 만드는 난이도를 30% 정도 낮추자"). 29차 값 ×0.7 을 반올림. */
-  {n:'참나무 강궁', ic:'🏹', tier:'rare', from:1, mat:{w:98,eg:4}, dmg:95, cd:0.62, rng:19, ammo:0,
+  {n:'참나무 강궁', ic:'🏹', tier:'rare', from:1, mat:{w:98,eg:4}, lv:6, dmg:95, cd:0.62, rng:19, ammo:0,
    col:0x8a5a34, tr:0xa8ff8a, mz:0xd8ffb0, len:1.0, aimR:1.9, kick:0.40, snd:'oakbow', trait:'pierce',
    d:'참나무 통으로 깎은 큰 활. 화살이 좀비를 뚫고 뒤의 좀비까지 맞힙니다. 총알이 필요 없어요.'},
-  {n:'흑요석 산탄총', ic:'💥', tier:'rare', from:2, mat:{s:112,pk:4}, dmg:150, cd:1.05, rng:15, ammo:1,
+  {n:'흑요석 산탄총', ic:'💥', tier:'rare', from:2, mat:{s:112,pk:4}, lv:7, dmg:150, cd:1.05, rng:15, ammo:1,
    col:0x2a2630, tr:0xc9a0ff, mz:0xe8c8ff, len:1.2, aimR:2.2, kick:1.10, snd:'shotgun', trait:'push',
    d:'검은 유리 같은 흑요석으로 만든 총. 가까이서 쾅! 맞은 좀비가 뒤로 밀려납니다. 총알 1발.'},
-  {n:'황금 연발총', ic:'✨', tier:'rare', from:4, mat:{g:32,mk:6}, dmg:70, cd:0.40, rng:21, ammo:1,
+  {n:'황금 연발총', ic:'✨', tier:'rare', from:4, mat:{g:32,mk:6}, lv:11, dmg:70, cd:0.40, rng:21, ammo:1,
    col:0xe8b83a, tr:0xffe08a, mz:0xfff4c0, len:1.0, aimR:1.7, kick:0.50, snd:'goldsmg', trait:'leech',
    d:'금으로 만든 연발총. 맞힐 때마다 내 체력이 조금 찹니다. 총알 1발.'},
-  {n:'목장 장총', ic:'🐄', tier:'rare', from:3, mat:{w:42,eg:7,mk:7,pk:7}, dmg:210, cd:0.95, rng:28, ammo:1,
+  {n:'목장 장총', ic:'🐄', tier:'rare', from:3, mat:{w:42,eg:7,mk:7,pk:7}, lv:10, dmg:210, cd:0.95, rng:28, ammo:1,
    col:0xf4f1ea, tr:0xfff6d0, mz:0xffffff, len:1.5, aimR:1.4, kick:0.90, snd:'ranch', trait:'crit',
    d:'목장 산물로 만든 얼룩소 무늬 장총. 치명타가 세 배 자주 터집니다. 총알 1발.'},
-  {n:'천둥 벼락총', ic:'⚡', tier:'unique', from:10, mat:{g:105,s:154,mk:14,eg:14}, dmg:150, cd:0.55, rng:25, ammo:2,
+  {n:'천둥 벼락총', ic:'⚡', tier:'unique', from:10, mat:{g:105,s:154,mk:14,eg:14}, lv:17, dmg:150, cd:0.55, rng:25, ammo:2,
    col:0x3a3f66, tr:0x9ad8ff, mz:0xd8f4ff, len:1.4, aimR:1.7, kick:0.70, snd:'thunder', trait:'chain',
    d:'맞힌 좀비에서 번개가 튀어 옆의 좀비 셋까지 지집니다. 총알 2발.'},
-  {n:'화염 대포', ic:'🔥', tier:'unique', from:9, mat:{w:168,s:168,pk:21,g:63}, dmg:260, cd:1.25, rng:21, ammo:2,
+  {n:'화염 대포', ic:'🔥', tier:'unique', from:9, mat:{w:168,s:168,pk:21,g:63}, lv:15, dmg:260, cd:1.25, rng:21, ammo:2,
    col:0x8a2f1e, tr:0xff8a3c, mz:0xffc070, len:1.6, aimR:2.4, kick:1.60, snd:'flame', trait:'blast',
-   d:'불덩이가 날아가 터집니다. 맞은 자리 둘레의 좀비가 모두 탑니다. 빗나가도 땅에서 터져요. 총알 2발.'}
+   d:'불덩이가 날아가 터집니다. 맞은 자리 둘레의 좀비가 모두 탑니다. 빗나가도 땅에서 터져요. 총알 2발.'},
+  /* ═══ 65차 — 일반 셋 · 레어 둘 · 유니크 하나 (선생님: "총들도 레벨제한 넣어서 일반3개, 레어2개 유니크1개 추가해줘. 밸런스잘맞춰서")
+     ★ 번호가 곧 저장·통신 ID 라 표 끝(14~19)에 덧붙인다. 0~13 은 한 칸도 안 옮긴다.
+     ★ 숫자는 plan65/weapons65-balance.md 의 표에서 왔다 — 초당 피해(dmg÷cd)가 기존 줄의 '빈 틈'에 앉게:
+         일반  새총 32 · 화승총 45 · [산탄총 73] · 소총 99 · 연발총 114 · [카빈 129] · 저격총 141 · 광선총 188 · [기관총 207]
+         레어  143 ~ 221 줄 안 (네잎 141+치명타 · 매의 눈 194+관통)   유니크  208 ~ 273 줄 안 (용의 숨결 221+불붙이기)
+     ★ lv = 사고·만드는 데 필요한 레벨. lvsim(부지런함 0.45 '보통 아이')으로 '그 총을 살 자원이 모이는 날' 의 레벨보다 한두 칸 낮게 잡았다. */
+  {n:'사냥 산탄총', ic:'🦌', cost:{w:45,s:40,g:2}, lv:4, dmg:66, cd:0.90, rng:13, ammo:1, col:0x7a4e2c,
+   tr:0xffc27a, mz:0xffe0a8, len:1.0, aimR:2.5, kick:0.95, snd:'shotgun',
+   d:'가까이 온 좀비에게 쾅! 넓게 퍼져서 대충 겨눠도 잘 맞아요. 멀리는 못 가요. 총알 1발.'},
+  {n:'은빛 카빈', ic:'🥈', cost:{w:50,s:100,g:22}, lv:10, dmg:80, cd:0.62, rng:24, ammo:1, col:0xc4ccd6,
+   tr:0xe8f4ff, mz:0xf4fbff, len:1.2, aimR:1.5, kick:0.60, snd:'rifle',
+   d:'가볍고 빠른 반자동 총. 탕탕탕 또박또박 쏩니다. 금이 적게 들어요. 총알 1발.'},
+  {n:'강철 기관총', ic:'⚙️', cost:{w:90,s:160,g:70}, lv:19, dmg:62, cd:0.30, rng:20, ammo:1, col:0x4a525e,
+   tr:0xffc860, mz:0xffe6a0, len:1.1, aimR:1.8, kick:0.40, snd:'smg',
+   d:'총열 여섯 개가 빙글빙글! 제일 빨리 쏘지만 총알이 순식간에 없어져요. 총알 1발.'},
+  {n:'네잎클로버 산탄총', ic:'🍀', tier:'rare', from:14, mat:{w:70,s:50,eg:6}, lv:8, dmg:120, cd:0.85, rng:14, ammo:1,
+   col:0x3f9a4a, tr:0xb8ff9a, mz:0xe8ffd0, len:1.1, aimR:2.4, kick:1.00, snd:'shotgun', trait:'crit',
+   d:'행운의 네잎클로버를 새긴 산탄총. 치명타가 세 배 자주 터집니다. 총알 1발.'},
+  {n:'매의 눈 카빈', ic:'🦅', tier:'rare', from:15, mat:{s:100,mk:6,eg:6,g:18}, lv:14, dmg:120, cd:0.62, rng:27, ammo:1,
+   col:0x3a3f66, tr:0xfff0b0, mz:0xfff8d8, len:1.4, aimR:1.5, kick:0.65, snd:'ranch', trait:'pierce',
+   d:'매처럼 멀리 보는 카빈. 총알이 좀비를 뚫고 뒤의 좀비까지 맞힙니다. 총알 1발.'},
+  {n:'용의 숨결', ic:'🐉', tier:'unique', from:18, mat:{w:140,s:140,pk:12,mk:8,g:60}, lv:21, dmg:150, cd:0.68, rng:24, ammo:2,
+   col:0x8a2f1e, tr:0xffb040, mz:0xffd070, len:1.5, aimR:1.8, kick:0.85, snd:'flame', trait:'burn',
+   d:'용 머리 총구에서 불꽃이 뿜어져 나와요. 맞은 좀비에게 불이 붙어 세 번 더 탑니다. 총알 2발.'}
 ];
 const MINI_GUN = WEAPONS.findIndex(W=>W.mini);     // 29차 — 더는 '마지막' 이 아니다
 /* 특성 이름 — 가방·대장간·상점 카드가 같이 읽는다 */
-const TRAIT_TXT = {pierce:'관통', push:'밀치기', leech:'흡혈', crit:'치명타 ×3', chain:'번개 3갈래', blast:'폭발'};
+const TRAIT_TXT = {pierce:'관통', push:'밀치기', leech:'흡혈', crit:'치명타 ×3', chain:'번개 3갈래', blast:'폭발', burn:'불붙이기'};
 const TIER_TXT  = {rare:'레어', unique:'유니크'};
 const TIER_COL  = {rare:'#7f9cff', unique:'#ff9a3c'};
+/* ═══ 65차 — 총 레벨 제한 ═══
+   ★ 사는 것(buyWeapon)·만드는 것(craftWeapon)만 막는다. 이미 가진 총은 레벨과 상관없이 든다(equipWeapon 은 안 본다) —
+     예전 판에서 가진 아이가 갑자기 못 쓰게 되면 안 된다.
+   ★ 경주 1~3등 상(raceGiveWeapon)은 레벨을 안 본다 — 상이니까. 레어·유니크를 일찍 받는 아이가 생기는 것은
+     지금까지와 같다(29차부터 그랬다).
+   ★ 총 사기는 호스트를 거치지 않는다(자원은 내 칸에 '쓴 양'을 얹어 보낸다). 그래서 레벨 검사는 화면(단추)만이 아니라
+     실제로 값을 치르는 buyWeapon·craftWeapon 안에서 한 번 더 한다 — 단추를 우회해 불러도 안 된다. */
+const wpnLv    = i => { const W = WEAPONS[i]; return W ? Math.max(1, W.lv|0) : 1; };
+const wpnLvOk  = i => XP.lv >= wpnLv(i);
+const TIER_ALL = W => W.tier || 'common';                  // 가방·상점 카드의 등급 테(일반·레어·유니크)
+const TIER_NAME = {common:'일반', rare:'레어', unique:'유니크'};
 
 const ARMORS = [
   {n:'털만 믿기', ic:'🐑', cost:null, def:0,  d:'아무것도 안 입었습니다.'},
@@ -12292,17 +12519,21 @@ function buildForgeUI(){
 /* ── 29차 조합표 — 레어 넷, 유니크 둘. 카드마다 '넣는 총 + 재료 → 나오는 총' ──
    ★ 못 만드는 까닭을 카드에 적는다(넣을 총이 없다 / 재료가 모자라다). 눌리지 않는 단추만 있으면 고장난 것으로 보인다. */
 function buildCraftList(w){
-  WEAPONS.forEach((W,i)=>{
-    if(!W.tier) return;
-    const B = WEAPONS[W.from], own = !!KIT.ownW[i], hasBase = !!KIT.ownW[W.from], pay = canPay(W.mat);
+  /* 65차 — 레벨 순서로 늘어놓고, 레벨이 모자라면 자물쇠(🔒 Lv N)를 단다. 번호(저장 ID)는 그대로다 */
+  WEAPONS.map((W,i)=>i).filter(i=>WEAPONS[i].tier).sort((a,b)=> wpnLv(a) - wpnLv(b) || a - b).forEach(i=>{
+    const W = WEAPONS[i];
+    const B = WEAPONS[W.from], own = !!KIT.ownW[i], hasBase = !!KIT.ownW[W.from], pay = canPay(W.mat), lvOk = wpnLvOk(i);
     const e = enhOf(W.from);
-    const st = own ? 'own' : (hasBase && pay) ? '' : 'no';
-    const why = own ? '' : !hasBase ? `<div class="enhSafe" style="color:#ff9b9b">먼저 <b>${B.ic} ${B.n}</b>${josa(B.n,'이','가')} 있어야 해요</div>`
+    const st = own ? 'own' : !lvOk ? 'lock' : (hasBase && pay) ? '' : 'no';
+    const why = own ? '' : !lvOk ? `<div class="enhSafe lvLack" style="color:#ff9b9b">🔒 <b>레벨 ${wpnLv(i)}</b>부터 만들 수 있어요 (지금 레벨 ${XP.lv})</div>`
+             : !hasBase ? `<div class="enhSafe" style="color:#ff9b9b">먼저 <b>${B.ic} ${B.n}</b>${josa(B.n,'이','가')} 있어야 해요</div>`
              : !pay ? `<div class="enhSafe" style="color:#ff9b9b">모자라요: ${lackTxt(W.mat)}</div>` : '';
     const desc = `<b style="color:${TIER_COL[W.tier]}">${TIER_TXT[W.tier]}</b> · ${TRAIT_TXT[W.trait]||''}<br>${W.d}<br>`
       + `넣는 총: <b>${B.ic} ${B.n}</b>${hasBase && e ? ` +${e}(그대로 물려받아요)` : ''} · 한 방 <b>${Math.round(W.dmg*WDAY())}</b> · 사거리 ${W.rng}` + why;
-    w.appendChild(shopCard(iconImg('wpn'+i, W.ic), `${W.n}<span class="enhLv" style="color:${TIER_COL[W.tier]}">${TIER_TXT[W.tier]}</span>`,
-      desc, W.mat, st, own ? '만들었어요' : '조합!', ()=>craftWeapon(i)));
+    const card = shopCard(iconImg('wpn'+i, W.ic), `${W.n}<span class="enhLv" style="color:${TIER_COL[W.tier]}">${TIER_TXT[W.tier]}</span><span class="wLv${lvOk ? '' : ' need'}">${lvOk ? '' : '🔒 '}Lv ${wpnLv(i)}</span>`,
+      desc, W.mat, st, own ? '만들었어요' : !lvOk ? `🔒 레벨 ${wpnLv(i)}부터` : '조합!', ()=>craftWeapon(i));
+    card.classList.add('tier-' + W.tier);
+    w.appendChild(card);
   });
 }
 /* 강화 한 번 —
@@ -12445,47 +12676,72 @@ function openShop(){
   buildShopUI(); openPop('popShop');
 }
 function shopCard(ic, name, desc, cost, state, label, onBuy){
-  /* state: 'own' 이미 가짐 · 'no' 못 삼 · '' 살 수 있음 */
+  /* state: 'own' 이미 가짐 · 'no' 못 삼 · 'lock' 레벨이 모자람(65차 — 'no' 처럼 못 누르되 자물쇠로 보인다) · '' 살 수 있음 */
   const d = document.createElement('div');
-  d.className = 'sItem' + (state ? ' '+state : '');
+  d.className = 'sItem' + (state === 'lock' ? ' no lock' : state ? ' '+state : '');
   d.innerHTML = `<div class="si">${ic}</div><div class="sb">
     <div class="sn">${name}</div><div class="sd">${desc}</div>
     <div class="sc">${cost ? costTxt(cost) : ''}</div></div>`;
   const b = document.createElement('button');
   b.textContent = label;
   if(state === 'own'){ b.disabled = true; }
-  else if(state === 'no'){ b.disabled = true; }
+  else if(state === 'no' || state === 'lock'){ b.disabled = true; }
   else { b.className = 'buy'; b.onclick = onBuy; }
   d.querySelector('.sb').appendChild(b);
   return d;
 }
+/* ═══ 65차 — RPG 상점 카드의 무기 정보 ═══
+   ★ 등급 테(일반·레어·유니크)와 'Lv N' 딱지를 그림 칸 오른쪽 위에 둔다. 왼쪽 위는 원래 상태 딱지(구매 가능·보유 중) 자리다.
+   ★ 숫자 한 줄 대신 막대 셋(한 방·초당 피해·사거리) — 9살은 '한 방 84 · 초당 99' 보다 막대 길이를 먼저 읽는다.
+     막대 끝은 표 전체의 최댓값이라, 새 총을 표에 넣으면 막대도 저절로 맞는다. */
+const WSTAT_MAX = {
+  dmg: Math.max(...WEAPONS.map(W=>W.dmg||0)),
+  dps: Math.max(...WEAPONS.filter(W=>W.dmg).map(W=>W.dmg/W.cd)),
+  rng: Math.max(...WEAPONS.map(W=>W.rng||0))
+};
+function wpnStatBars(W, em){
+  const bar = (k, ic, name, v, max, txt)=>
+    `<span class="wStat ${k}" aria-label="${name} ${txt}"><i>${ic}</i><u><s style="width:${Math.max(8, Math.min(100, Math.round(v/max*100)))}%"></s></u><b>${txt}</b></span>`;
+  return `<span class="wStats">`
+    + bar('dmg', '⚔️', '한 방', W.dmg, WSTAT_MAX.dmg, Math.round(W.dmg*WDAY()*(em||1)))
+    + bar('spd', '⚡', '초당 피해', W.dmg/W.cd, WSTAT_MAX.dps, Math.round(W.dmg*WDAY()*(em||1)/W.cd))
+    + bar('rng', '🎯', '사거리', W.rng, WSTAT_MAX.rng, W.rng + '칸')
+    + `</span>`;
+}
+/* 그림 칸 오른쪽 위의 등급·레벨 딱지 */
+function wpnTags(i){
+  const W = WEAPONS[i], t = TIER_ALL(W), ok = wpnLvOk(i);
+  return `<span class="wTags"><span class="wTier ${t}">${TIER_NAME[t]}</span>`
+       + `<span class="wLv${ok ? '' : ' need'}">${ok ? '' : '🔒 '}Lv ${wpnLv(i)}</span></span>`;
+}
 /* 상점 전용 진열 카드. 대장간·동물 상인이 공유하는 shopCard 동작은 그대로 둔다. */
 const SHOP_RES_ICON = {w:'wood',s:'stone',g:'gold',eg:'egg',mk:'milk',pk:'meat'};
+/* 65차 — 알림 줄은 상인의 말이다(RPG 상점처럼). 두 번째 칸이 상인 대사, 세 번째 칸은 무기 칸에서만 붙는 레벨 안내다 */
 const SHOP_SECTIONS = {
-  w:['무기 고르기','우리 모둠을 지켜 줄 무기를 골라 보세요. 새 무기는 사면 바로 들어요.'],
-  a:['방어구 고르기','튼튼한 방어구로 좀비의 공격을 버텨 보세요.'],
-  b:['총알 채우기','싸우러 가기 전에 필요한 만큼 준비해요.'],
-  p:['물약 챙기기','필요할 때 꺼내 쓸 물약을 가방에 챙겨요.'],
-  f:['농장 산물 팔기','모둠이 모은 달걀·우유·고기를 금으로 바꿔요.'],
-  x:['자원 바꾸기','남는 자원을 내고 지금 필요한 자원을 받아요.']
+  w:['무기 고르기','"어서 오게, 용사! 레벨이 오를수록 더 센 총을 꺼내 주지. 새 총은 사면 바로 손에 들려."'],
+  a:['방어구 고르기','"좀비 이빨이 무섭다고? 튼튼한 갑옷 하나면 든든하다네."'],
+  b:['총알 채우기','"밤이 오기 전에 총알부터 챙기게. 금 하나에 여섯 발이야."'],
+  p:['물약 챙기기','"위험할 때 한 모금! 가방에 몇 병 넣어 가게."'],
+  f:['농장 산물 팔기','"달걀·우유·고기는 내가 금으로 사 주지. 값은 후하게 쳐 줄게."'],
+  x:['자원 바꾸기','"남는 걸 주면 필요한 걸 주지. 대신 수고비는 조금 뗀다네."']
 };
 function shopCatalogCard(ic, name, desc, cost, state, label, onBuy){
   const d = shopCard(ic,name,desc,cost,state,label,onBuy), b = d.querySelector('button');
   d.classList.toggle('shopExchange',d.querySelectorAll('.si img.ic').length > 1);
   const equipped = state === 'own' && (label === '들고 있음' || label === '입고 있음');
   const badge = document.createElement('span'); badge.className = 'shopBadge';
-  badge.textContent = equipped ? '사용 중' : state === 'own' ? '보유 중' : state === 'no' ? '자원 부족' : cost ? '구매 가능' : '교환 가능';
+  badge.textContent = equipped ? '사용 중' : state === 'own' ? '보유 중' : state === 'lock' ? '레벨 부족' : state === 'no' ? '자원 부족' : cost ? '구매 가능' : '교환 가능';
   d.querySelector('.si').appendChild(badge);
   d.classList.toggle('equipped',equipped);
-  d.dataset.state = equipped ? 'equipped' : state === 'own' ? 'owned' : state === 'no' ? 'unaffordable' : 'available';
+  d.dataset.state = equipped ? 'equipped' : state === 'own' ? 'owned' : state === 'lock' ? 'locked' : state === 'no' ? 'unaffordable' : 'available';
   d.tabIndex = -1;
-  b.textContent = state === 'own' ? label : state === 'no' ? '자원이 모자라요' : label === '사기' ? '구매하기' : label;
+  b.textContent = state === 'own' ? label : state === 'lock' ? label : state === 'no' ? '자원이 모자라요' : label === '사기' ? '구매하기' : label;
   b.setAttribute('aria-label', `${d.querySelector('.sn').textContent} — ${b.textContent}`);
   if(cost){
     const r = myRes();
     d.querySelector('.sc').innerHTML = RES_KEYS.filter(k=>cost[k]).map(k=>
       `<span class="shopPrice${(r[k]||0)<cost[k]?' short':''}" aria-label="${RES_NM[k]} ${cost[k]} 필요">${iconImg(SHOP_RES_ICON[k],RES_IC[k])}<b>${cost[k]}</b></span>`).join('');
-    if(state === 'no'){
+    if(state === 'no'){      // 레벨이 모자란 카드(lock)는 자원보다 레벨을 먼저 알려 준다 — 그 문구는 buildShopUI 가 붙인다
       const lack = document.createElement('div'); lack.className = 'shopLack';
       lack.textContent = RES_KEYS.filter(k=>(cost[k]||0)>(r[k]||0)).map(k=>`${RES_NM[k]} ${cost[k]-(r[k]||0)}`).join(' · ') + ' 더 필요해요';
       d.querySelector('.sb').insertBefore(lack,b);
@@ -12527,7 +12783,8 @@ function buildShopUI(){
   el('shopTeam').textContent = `${G.me.g+1}모둠 공용 지갑`;
   el('shopRes').innerHTML = ['w','s','g'].map(k=>`<span class="shopBalance" aria-label="${RES_NM[k]} ${r[k]||0}">${iconImg(SHOP_RES_ICON[k],RES_IC[k])}<span class="shopBalanceName">${RES_NM[k]}</span><b>${r[k]||0}</b></span>`).join('');
   const section = SHOP_SECTIONS[shopTab] || SHOP_SECTIONS.f;
-  el('shopCategory').textContent = section[0]; el('shopNotice').textContent = section[1];
+  el('shopCategory').textContent = section[0];
+  el('shopNotice').textContent = section[1] + (shopTab === 'w' ? `  — 지금 내 레벨 ${XP.lv}` : '');
   for(const b of document.querySelectorAll('#shopTabs .btn')){
     const on = b.dataset.tab === shopTab; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on));
   }
@@ -12536,16 +12793,23 @@ function buildShopUI(){
   const oldScroll = w.dataset.tab === shopTab ? w.scrollTop : 0;
   w.dataset.tab = shopTab; w.innerHTML = '';
   if(shopTab === 'w'){
-    WEAPONS.forEach((W,i)=>{
-      if(i === 0 || W.mini || W.tier) return;   // 맨손 돌·연습용 총·조합 무기(레어·유니크)는 파는 물건이 아니다
+    /* 65차 — 진열은 레벨 순서(같은 레벨이면 표 순서). RPG 상점처럼 왼쪽 위에서 오른쪽 아래로 갈수록 센 총이다.
+       번호(저장 ID)는 그대로이고 보여 주는 순서만 바꾼다. */
+    WEAPONS.map((W,i)=>i).filter(i=> i !== 0 && !WEAPONS[i].mini && !WEAPONS[i].tier)   // 맨손 돌·연습용 총·조합 무기(레어·유니크)는 파는 물건이 아니다
+      .sort((a,b)=> wpnLv(a) - wpnLv(b) || a - b).forEach(i=>{
+      const W = WEAPONS[i];
       const own = !!KIT.ownW[i];
-      const st = own ? 'own' : canPay(W.cost) ? '' : 'no';
+      const st = own ? 'own' : !wpnLvOk(i) ? 'lock' : canPay(W.cost) ? '' : 'no';
       const em = enhMul(i), e = enhOf(i);
-      const dps = Math.round(W.dmg*WDAY()*em/W.cd);
-      const desc = `${W.d}<br>한 방 <b>${Math.round(W.dmg*WDAY()*em)}</b> · 사거리 ${W.rng} · 초당 약 ${dps}`
-                 + (e ? ` <span style="color:#ffd43b">(강화 +${e})</span>` : '');
-      w.appendChild(shopCatalogCard(iconImg('wpn'+i, W.ic), W.n + enhTxt(e), desc, W.cost, st,
-        own ? (KIT.wpn===i ? '들고 있음' : '가방에 있음') : '사기', ()=>buyWeapon(i)));
+      const desc = `${W.d}<br>${wpnStatBars(W, em)}`
+                 + (e ? ` <span class="wEnh">(강화 +${e})</span>` : '');
+      const card = shopCatalogCard(iconImg('wpn'+i, W.ic), W.n + enhTxt(e), desc, W.cost, st,
+        own ? (KIT.wpn===i ? '들고 있음' : '가방에 있음') : st === 'lock' ? `🔒 레벨 ${wpnLv(i)}부터` : '사기', ()=>buyWeapon(i));
+      card.classList.add('tier-' + TIER_ALL(W));
+      card.querySelector('.si').insertAdjacentHTML('beforeend', wpnTags(i));
+      /* 잠긴 까닭은 단추('🔒 레벨 N부터')·딱지('레벨 부족')·빨간 Lv 가 함께 말한다. 줄을 더 붙이면 짧은 화면에서
+         첫 줄의 구매 단추가 목록 밖으로 밀린다(t54-view 1024×600·800×600) — 그래서 문구 줄은 안 붙인다. 지금 레벨은 상인 말 끝에 있다. */
+      w.appendChild(card);
     });
   } else if(shopTab === 'a'){
     ARMORS.forEach((A,i)=>{
@@ -12685,7 +12949,9 @@ function equipArmor(i){
 }
 function buyWeapon(i){
   const W = WEAPONS[i];
+  if(!W || !W.cost || W.tier || W.mini) return;       // 65차 — 파는 총만 (조합 무기·연습용 총은 여기서 안 판다)
   if(KIT.ownW[i] || !canPay(W.cost)) return;
+  if(!wpnLvOk(i)){ toast(`🔒 ${W.n}${josa(W.n,'은','는')} 레벨 ${wpnLv(i)}부터 살 수 있어요`, 2.2, '#ffd0a0'); return; }   // 65차 — 단추를 우회해도 막는다
   spend(W.cost); KIT.ownW[i] = true; equipWeapon(i);
   toast(`${W.ic} ${W.n}${josa(W.n,'을','를')} 샀어요! — 🎒 I 로 바꿔 낄 수 있어요`, 2.6, '#ffe9a0');
   setTimeout(()=>noteRecipes(i), 1400);           // 29차 — 이 총이 들어가는 조합표가 있으면 알려 준다
@@ -12695,7 +12961,7 @@ function buyWeapon(i){
   buildShopUI();
 }
 /* ═══ 29차 — 조합 (대장장이의 조합표) ═══ */
-function craftable(i){ const W = WEAPONS[i]; return !!(W && W.tier && !KIT.ownW[i] && KIT.ownW[W.from]); }
+function craftable(i){ const W = WEAPONS[i]; return !!(W && W.tier && !KIT.ownW[i] && KIT.ownW[W.from] && wpnLvOk(i)); }   // 65차 — 레벨도 본다
 function craftWeapon(i){
   const W = WEAPONS[i]; if(!craftable(i) || !canPay(W.mat)) return;
   spend(W.mat);
@@ -12718,7 +12984,7 @@ function craftWeapon(i){
 function noteRecipes(i){
   const list = WEAPONS.filter(W => W.tier && W.from === i);
   if(!list.length) return;
-  const names = list.map(W => `${W.ic} ${W.n}`).join(' · ');
+  const names = list.map(W => `${W.ic} ${W.n}` + (W.lv > XP.lv ? ` (Lv ${W.lv})` : '')).join(' · ');   // 65차 — 아직 레벨이 모자라면 몇 레벨부터인지
   toast(`📜 대장장이: 새 조합표! ${names} — 🔨 대장간에서 만들 수 있어요`, 4.0, '#ffe9a0');
   feed(`📜 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b> 님에게 새 조합표 — <b>${names}</b>`);
 }
@@ -12942,7 +13208,7 @@ function kitItems(){
   const out = [];
   WEAPONS.forEach((W,i)=>{ if(!KIT.ownW[i] || W.mini) return;
     out.push({t:'wpn', i, ic:W.ic, key:'wpn'+i, e:enhOf(i), n:W.n + enhTxt(enhOf(i)), on:KIT.wpn === i,
-      tier:W.tier||'', sub:`한 방 ${Math.round((i ? W.dmg*WDAY() : stoneDmg()) * enhMul(i))} · 사거리 ${W.rng}`
+      tier:W.tier||'', lv:Math.max(1, W.lv|0), sub:`한 방 ${Math.round((i ? W.dmg*WDAY() : stoneDmg()) * enhMul(i))} · 사거리 ${W.rng}`
           + (W.ammo ? ` · 총알 ${W.ammo}발` : '') + (W.trait ? ` · ${TRAIT_TXT[W.trait]}` : '')}); });
   ARMORS.forEach((A,i)=>{ if(!KIT.ownA[i]) return;
     out.push({t:'arm', i, ic:A.ic, key:'arm'+i, n:A.n, on:KIT.arm === i, sub:`방어력 ${A.def}`}); });
@@ -13007,7 +13273,10 @@ function buildKitUI(){
     /* 28차 — 3D 아이콘 + 강화 등급 테(e1~e6). 흔함→전설이 색으로 읽힌다 */
     d.className = 'kCell' + (it.on ? ' on' : '') + (it.e ? ' e'+it.e : '');
     d.title = it.n + ' — ' + it.sub;
-    d.innerHTML = `<span class="kArt">${iconImg(it.key,it.ic)}</span><span class="kName">${esc(it.n)}</span><span class="kSub">${esc(it.sub)}</span>` + (it.cnt ? `<span class="kNum">${it.cnt}개</span>` : '') + (it.on ? '<span class="kState">사용 중</span>' : '');
+    /* 65차 — 무기 칸에는 등급(일반·레어·유니크) 색 딱지와 Lv 를 단다. 가진 총은 레벨과 상관없이 든다 */
+    const tierTag = it.t === 'wpn' && it.i > 0
+      ? `<span class="kTier ${it.tier||'common'}">${it.tier === 'unique' ? '유니크' : it.tier === 'rare' ? '레어' : '일반'} · Lv ${it.lv}</span>` : '';
+    d.innerHTML = `<span class="kArt">${iconImg(it.key,it.ic)}</span>${tierTag}<span class="kName">${esc(it.n)}</span><span class="kSub">${esc(it.sub)}</span>` + (it.cnt ? `<span class="kNum">${it.cnt}개</span>` : '') + (it.on ? '<span class="kState">사용 중</span>' : '');
     d.setAttribute('aria-pressed',String(!!it.on));
     const tell = ()=>{ el('kitPick').innerHTML =
       `<b>${esc(it.n)}</b> <span style="opacity:.7">· ${esc(it.sub)}</span>`; };
@@ -17861,6 +18130,9 @@ const ICO_DEF = {
   wpn8:{make:()=>heldGroup(mkOakBow), pose:{ry:-0.9, rx:0.1}},   wpn9:{make:()=>heldGroup(mkObsidian), pose:{ry:-1.15, rx:0.15}},
   wpn10:{make:()=>heldGroup(mkGoldSMG), pose:{ry:-1.15, rx:0.15}}, wpn11:{make:()=>heldGroup(mkRanch), pose:{ry:-1.15, rx:0.15}},
   wpn12:{make:()=>heldGroup(mkThunder), pose:{ry:-1.15, rx:0.15}}, wpn13:{make:()=>heldGroup(mkFlame), pose:{ry:-1.15, rx:0.15}},
+  wpn14:{make:()=>heldGroup(mkHuntShotgun), pose:{ry:-1.15, rx:0.15}}, wpn15:{make:()=>heldGroup(mkCarbine), pose:{ry:-1.15, rx:0.15}},   // 65차
+  wpn16:{make:()=>heldGroup(mkGatling), pose:{ry:-1.15, rx:0.15}},     wpn17:{make:()=>heldGroup(mkClover), pose:{ry:-1.15, rx:0.15}},
+  wpn18:{make:()=>heldGroup(mkHawk), pose:{ry:-1.15, rx:0.15}},        wpn19:{make:()=>heldGroup(mkDragon), pose:{ry:-1.15, rx:0.15}},
   arm0:{rows:vestRows(0xf4f1ea, 0xe8e2d4)}, arm1:{emo:['🧥'], rows:vestRows(0xd9c3a3, 0xb8895a)},
   arm2:{emo:['🦺'], rows:vestRows(0xb8895a, 0x8a5a30)}, arm3:{rows:vestRows(0xb8c0cc, 0x7f8794)},
   arm4:{rows:vestRows(0xffd24a, 0xe0a828)}, arm5:{rows:vestRows(0x7fe6f6, 0x4fbcd0)},
@@ -19009,7 +19281,7 @@ function loop(){
     fovTick(dt);
     if(actCd>0) actCd -= dt;
     if(hurtCd>0) hurtCd -= dt;
-    kitTick(dt); downTick(dt); comboTick(dt);
+    kitTick(dt); burnTick(dt); downTick(dt); comboTick(dt);
     if(!popOpen()) doAction(dt); else { hl.visible=false; ghost.visible=false; workStop(); }
     buildCoopTick(dt); buildAssistTick();
     sheepHurt(dt);

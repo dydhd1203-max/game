@@ -59,8 +59,10 @@ const iconImg=(id,fallback)=>'<img class="ic" data-ic="'+id+'" alt="'+fallback+'
 const esc=s=>String(s),josa=(s,a)=>a,toast=(...a)=>events.push(['toast',...a]);
 const feed=()=>{},sfx=()=>{},noteRecipes=()=>{},popOpen=()=>false,buildKitUI=()=>{};
 const openPop=id=>el(id).classList.add('on');
+// 65차 — 총 레벨 제한. 이 파일은 돈·재고 거래를 본다(레벨이 넉넉한 아이). 레벨 잠금은 t65-weapons-static 이 본다.
+const XP={lv:99};
 `;
-const declarations=['WEAPONS','ARMORS','POT_SEC','POTIONS','AMMO_PER_GOLD','FARM_ANIMALS','FARM_CAP','farmCount','WDAY','ENH_MAX','ENH_MUL','enhOf','enhMul','enhTxt'];
+const declarations=['WEAPONS','wpnLv','wpnLvOk','TIER_ALL','TIER_NAME','ARMORS','POT_SEC','POTIONS','AMMO_PER_GOLD','FARM_ANIMALS','FARM_CAP','farmCount','WDAY','ENH_MAX','ENH_MUL','enhOf','enhMul','enhTxt'];
 const funcs=['canPay','costTxt','lackTxt','equipWeapon','equipArmor','buyWeapon','buyArmor','buyAmmo','buyPotion','sellFarm'];
 const binding=code.match(/document\.querySelectorAll\('#shopTabs \.btn'\)\.forEach\(b=>[\s\S]*?\}\);/)?.[0];
 if(!binding)throw new Error('Actual shop category click binding not found');
