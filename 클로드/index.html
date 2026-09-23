@@ -4033,9 +4033,11 @@ const GRASS_A = 0x67c14a, GRASS_B = 0x57ad3d, GRASS_C = 0x82d05c;
    바위 몸통은 초록기가 도는 회록 셋(밝기 단계는 그대로라 그늘 셋(tone)이 그대로 읽힌다), 뚜껑은 누런 돌.
    MT_GRASS·MT_SNOW 는 t32 가 뚜껑 색 0x6bc24a·0xffffff 를 cc.get 으로 세므로 안 바꾼다.
    MT_DIRT 는 검사가 안 센다(t32 를 grep 해 확인) — 주황빛 흙 0x9a6f46 이 회록 바위 옆에서 튀어 채도를 내렸다(0x8c7a5e). */
-const MT_ROCK = [0x8e9187, 0x9ea394, 0xaab09e], MT_ROCKTOP = 0xb9bca8;
-const MT_DIRT = 0x8c7a5e, MT_SNOW = 0xffffff, MT_MOSS = 0x86c25e, MT_GRASS = 0x6bc24a;
-const MT_CRACK = 0x6f6e64;                        // 절벽 마을 쪽 면의 어두운 틈(mtK) — 바위와 같은 온도(spec 5절)
+const MT_ROCK = [0x7f7c70, 0x949080, 0xa9a591], MT_ROCKTOP = 0xb3ae9a;   // 65차 — 밝은 회록 → 조금 어둡고 따뜻한 회갈(시제품: 옛 밝기로는 안개 속에서 지층이 안 읽힌다)
+const MT_DIRT = 0x7f6c52, MT_SNOW = 0xffffff, MT_MOSS = 0x86c25e, MT_GRASS = 0x6bc24a;   // ★ MT_GRASS·MT_SNOW·MT_MOSS 그대로(t32 가 센다 · 셰이더가 알아보는 색)
+const MT_CRACK = 0x5a564a;
+/* 65차 — 산 뚜껑의 '보이는 색' 은 셰이더(M2-7)가 인스턴스 색의 g/r 로 알아보고 바꾼다: MT_GRASS(g/r 3.7) → 들판 풀색 GRASS_A,
+   MT_MOSS(2.3) → 이끼 풀색, MT_ROCKTOP(1.0)·MT_SNOW 는 그대로. 이 세 hex 를 바꾸면 M2-7 의 문턱(1.4~1.8 · 2.6~3.2 · 흰 0.8)을 같이 본다. */
 /* 63차 — 수정 단상 색 셋(PLAT_C·PLAT_TOP·GOLD_C)은 단상과 함께 지웠다. 쓰는 곳이 없다. */
 function buildWorldMesh(){
   /* ── 바닥 — 꼭짓점 색 잔디 ── */
@@ -4108,7 +4110,12 @@ function buildWorldMesh(){
      그 위 GY+6~11 비탈의 이끼 뚜껑을 17분의 3 → 4 로. 마루(GY+11↑)·눈(GY+18↑) 조건은 그대로.
      심사 2차 — 사진 20 이 아직 '회색 담' 이라 풀 뚜껑을 GY+7 까지 한 단 더, 이끼를 17분의 7 로 올렸다.
      h 별로 키가 갈리므로 합치기(rects)엔 거의 영향이 없다 — mtB 개수로 재서 5,000 남짓(6,000 미만)임을 확인했다. */
-  const capKind = (h,x,z)=> h <= GY+7 ? 0 : h >= GY+18 ? 3 : h >= GY+11 ? 1 : ((((x*7+z*13)%17)+17)%17 < 7 ? 2 : 1);
+  const mtN = (x,z)=> Math.sin(x*0.21 + 1.3)*Math.cos(z*0.17 - 0.4) + 0.5*Math.sin((x + z)*0.11 + 2.1);   // −1.5~1.5, 30~57칸
+  const capKind = (h,x,z)=>{ const n = mtN(x,z);
+    if(h <= GY+7 + (n > 0.6 ? 1 : n < -0.6 ? -1 : 0)) return 0;      // 풀선 GY+6~8
+    if(h >= GY+18 - (n > 0.9 ? 1 : 0)) return 3;                     // 눈선 GY+17~18
+    if(h >= GY+11) return 1;                                         // 마루 맨바위
+    return n > -0.1 ? 2 : 1; };                                      // 이끼 덩이
   const key = new Int32Array(WS*WS).fill(-1), dep = new Uint8Array(WS*WS);
   for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){
     const h = terrH[gi(x,z)]; if(h <= GY) continue;   // 63차 — 수정 자리도 이제 GY 라 여기서 함께 걸러진다
@@ -4134,20 +4141,36 @@ function buildWorldMesh(){
     for(let zz=z; zz<z+d; zz++) for(let xx=x; xx<x+w; xx++) used[gi(xx,zz)] = 1;
     const h = terrH[i0], n = dep[i0], kind = k & 3;
     const tone = Math.max(0, Math.min(2, ((h-GY-5)/4)|0)), hv = (((x*13+z*7)%5)+5)%5;   // 31차b — 칸마다 결
-    const body = kind===0 ? MT_DIRT : MT_ROCK[(tone + (hv&1)) % 3];
+    const body = kind===0 ? MT_DIRT : MT_ROCK[Math.min(2, tone + (hv===3 ? 1 : 0))];
     const cap  = kind===0 ? MT_GRASS : kind===2 ? MT_MOSS : kind===3 ? MT_SNOW : MT_ROCKTOP;
 
     const cx = x + w/2, cz = z + d/2;
     bpush('mtB', BOXV, WMAT, cx, h - n/2 - 0.02, cz, 0, w - 0.04, n, d - 0.04, 0, body);   // 32차 — 아래가 어두운 기둥
-    bpush('mtC', BOXG, WMAT, cx, h - 0.14, cz, 0, w, 0.30, d, 0, cap);
+    bpush('mtC', CAPV, WMAT, cx, h - 0.14, cz, 0, w, 0.30, d, 0, cap);
     /* 31차b — 밍밍한 회색을 깬다: 높은 절벽엔 마을 쪽 면에 어두운 틈(세로 띠), 풀 뚜껑엔 수풀 한 포기, 바위 뚜껑엔 작은 바위 하나 */
     if(kind!==0 && n>=3 && hv===2){
       const toX = Math.abs(cx) > Math.abs(cz), sg = toX ? -Math.sign(cx||1) : -Math.sign(cz||1), u = (rnd(x*1.3+z*2.9)-0.5)*0.6;
       if(toX) bpush('mtK', BOXG, WMAT, cx + sg*(w/2+0.02), h - n*0.45, cz + u*d, 0, 0.06, n*0.62, 0.18, 0, MT_CRACK);
       else    bpush('mtK', BOXG, WMAT, cx + u*w, h - n*0.45, cz + sg*(d/2+0.02), 0, 0.18, n*0.62, 0.06, 0, MT_CRACK);
     }
-    if(kind===0 && hv===1) bpush('bush', LEAFV[0], WMAT, cx + (rnd(x+z*3)-0.5)*w*0.6, h + 0.14, cz + (rnd(x*2+z)-0.5)*d*0.6, rnd(x)*3, 0.55, 0.38, 0.55, 0, 0x74c853);
-    if(kind===1 && hv===4 && w*d >= 2) bpush('rock', ROCKG, WMAT, cx + (rnd(x*5+z)-0.5)*w*0.5, h + 0.28, cz + (rnd(x+z*5)-0.5)*d*0.5, rnd(z)*3, 1.1, 0.7, 0.9, 0, ROCK_C[0]);
+    /* 65차 — 높은 벼랑 발치의 너덜. ★ 발치 칸 높이 fh 가 GY 보다 높을 때만(산 층계참) — 마당·협곡 바닥(아이 땅)에는 한 알도 안 놓는다 */
+    if(kind!==0 && n>=3 && (hv===0 || hv===3)){
+      for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){
+        const fx = dx>0 ? x+w : dx<0 ? x-1 : x + (w>>1), fz = dz>0 ? z+d : dz<0 ? z-1 : z + (d>>1);
+        if(!inW(fx,fz)) continue;
+        const fh = terrH[gi(fx,fz)];
+        if(fh <= GY || h - fh < 3) continue;
+        for(let s=0;s<2;s++){
+          const u = (rnd(x*3.1+z*1.7+s*5.3)-0.5)*(dx ? d : w)*0.7, sz = 0.35 + rnd(x+z*2.3+s)*0.30;
+          const px = dx ? cx + dx*(w/2 + 0.25 + s*0.35) : cx + u, pz = dz ? cz + dz*(d/2 + 0.25 + s*0.35) : cz + u;
+          if(mtNearGate(px, pz)) continue;
+          bpush('peb', PEBG, WMAT, px, fh + sz*0.22, pz, rnd(px*1.3+pz)*6.28, sz*1.3, sz*0.7, sz, 0, MT_ROCK[0]);
+        }
+        break;                                                     // 기둥 하나에 한 쪽만
+      }
+    }
+    if((kind===0 || kind===2) && hv===1) bpush('bush', LEAFV[0], WMAT, cx + (rnd(x+z*3)-0.5)*w*0.6, h + 0.14, cz + (rnd(x*2+z)-0.5)*d*0.6, rnd(x)*3, 0.55, 0.38, 0.55, 0, kind===2 ? 0x5a8f42 : 0x5f9a45);
+    if(kind===1 && hv===4 && w*d >= 2) bpush('rock', ROCKG, WMAT, cx + (rnd(x*5+z)-0.5)*w*0.5, h + 0.28, cz + (rnd(x+z*5)-0.5)*d*0.5, rnd(z)*3, 1.1, 0.7, 0.9, 0, MT_ROCK[1]);
     rects++;
   }
   /* ── 수정 자리 — 아무것도 깔지 않는다 (63차) ──
@@ -4204,7 +4227,12 @@ const NODE_S = 0.32;    // 자원 덩어리 크기 배수 — 작을수록 많�
 const NODE_R0 = 19.0, NODE_R1 = 43.5;
 /* ── 자원 덩어리 (로블록스 룩) ── */
 const LEAFG  = new THREE.IcosahedronGeometry(0.5, 1);  LEAFG.computeVertexNormals();   // 각진 공(80면) — 잎·수풀·꽃
-const ROCKG  = new THREE.DodecahedronGeometry(0.5, 0); ROCKG.computeVertexNormals();   // 각진 바위(12면)
+/* 65차 — 밑이 판판한 바윗덩이(땅에 앉는다): 12면체 detail 1(144삼각형)을 흔들고, 아래 8% 를 눌러 편 뒤 0.08 내려 바닥을 지금과 같은 −0.5 에 둔다.
+   꼭짓점 색(아래 어둡게)이 생기므로 bpush 가 'rock' 을 WMAT → WMATV(같은 돌결)로 옮긴다 — 재질 수 그대로. aMt 0 = 산 셰이더 끔 */
+const ROCKG = (()=>{ const g = jitterGeo(new THREE.DodecahedronGeometry(0.5, 1), 0.14, 17.3), P = g.attributes.position;
+  for(let i=0;i<P.count;i++) if(P.getY(i) < -0.42) P.setY(i, -0.42);
+  g.translate(0, -0.08, 0); g.computeVertexNormals(); shadeGeo(g, 0.72, 1.08, 0.04, 9);
+  g.setAttribute('aMt', new THREE.Float32BufferAttribute(new Float32Array(P.count), 1)); return g; })();
 const PEBG   = new THREE.IcosahedronGeometry(0.5, 0);  PEBG.computeVertexNormals();    // 자갈(20면)
 const TRUNKG = new THREE.CylinderGeometry(0.34, 0.46, 1, 7).toNonIndexed(); TRUNKG.computeVertexNormals();  // 줄기
 const CONEG  = new THREE.ConeGeometry(0.5, 1, 7).toNonIndexed(); CONEG.computeVertexNormals();             // 침엽
@@ -4212,6 +4240,102 @@ const GEMG   = new THREE.OctahedronGeometry(0.5, 0);   GEMG.computeVertexNormals
 /* ═══ 질감(質感). 선생님: "벽돌·나무의 질감 그래픽 디테일이 부족해." */
 const WMATV = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.rock, 0.6, 0.38);   // 33차 — 돌결 0.40 · 48차 0.12 · 50차 **0.38** (산·바위)
 const WMATL = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.leaf, 1.4, 0.46);   // 33차 — 잎 얼룩 0.50 · 48차 0.16 · 50차 **0.46** (나뭇잎 덩어리가 한 덩어리로 안 뭉치게)
+function mtGrainGB(tex){                              // 65차 — R 은 그대로, G·B 에만 무늬 (h65/gb.js 와 같다)
+  const cv = tex.image, N = cv.width, g2d = cv.getContext('2d'), img = g2d.getImageData(0, 0, N, N), d = img.data, kind = tex.userData.kind;
+  const vn = (x,y,f,sd)=>{ const gx = x*f/N, gy = y*f/N, x0 = Math.floor(gx), y0 = Math.floor(gy), tx = gx-x0, ty = gy-y0,
+      sx = tx*tx*(3-2*tx), sy = ty*ty*(3-2*ty), wr = v=>((v%f)+f)%f, v = (i,j)=>rnd(sd + wr(i)*12.9898 + wr(j)*78.233);
+    return (v(x0,y0)*(1-sx) + v(x0+1,y0)*sx)*(1-sy) + (v(x0,y0+1)*(1-sx) + v(x0+1,y0+1)*sx)*sy; };
+  const wor = (x,y,f,sd)=>{ const cs = N/f, cx = Math.floor(x/cs), cy = Math.floor(y/cs); let best = 9;
+    for(let j=-1;j<=1;j++) for(let i=-1;i<=1;i++){ const ci = ((cx+i)%f+f)%f, cj = ((cy+j)%f+f)%f;
+      const px = (cx+i + rnd(sd + ci*7.1 + cj*13.7))*cs, py = (cy+j + rnd(sd + ci*3.3 + cj*5.9 + 0.5))*cs;
+      best = Math.min(best, Math.hypot(x-px, y-py)/cs); }
+    return Math.min(1, best); };
+  const chG = new Float32Array(N*N), chB = new Float32Array(N*N);
+  for(let y=0;y<N;y++) for(let x=0;x<N;x++){ const j = y*N + x;
+    if(kind === 'rock'){ const rr = vn(x,y,8,25)*0.6 + vn(x,y,16,26)*0.4, g = 1 - Math.abs(rr - 0.5)*2; chG[j] = g*g; chB[j] = vn(x,y,4,27); }   // G 능선 잡음(물때) · B 지의류 얼룩
+    else { chG[j] = 1 - wor(x,y,8,29); chB[j] = vn(x,y,4,28); } }                                                                               // leaf: G 잎 무리(가운데 밝다) · B 큰 얼룩
+  const put = (A, ch)=>{ let lo = 1e9, hi = -1e9; for(const v of A){ if(v < lo) lo = v; if(v > hi) hi = v; }
+    for(let j=0;j<N*N;j++) d[j*4+ch] = Math.round((A[j]-lo)/Math.max(1e-6, hi-lo)*255); };
+  put(chG, 1); put(chB, 2); for(let j=0;j<N*N;j++) d[j*4+3] = 255;
+  g2d.putImageData(img, 0, 0); tex.needsUpdate = true;
+}
+mtGrainGB(GRAIN.rock); mtGrainGB(GRAIN.leaf);
+function mtShade(mat){                              // 65차 — 산 기둥(aMt 1)·산 뚜껑(aMt 2)만 바꾼다. 벽돌·바위(aMt 0)는 그대로
+  const base = mat.onBeforeCompile;
+  const U = { uMtMoss:{value:new THREE.Color(0x6a8f45)}, uCapGrass:{value:new THREE.Color(GRASS_A)}, uCapMoss:{value:new THREE.Color(0x7a9c4e)},
+              uCapDry:{value:new THREE.Color(0xa3ab5a)}, uSoil:{value:new THREE.Color(0x6b5a44)} };   // GRASS_A 는 이름으로 읽는다(약속 1-2) · 마른 풀은 hex 글자로
+  mat.onBeforeCompile = (sh, r)=>{ base(sh, r); Object.assign(sh.uniforms, U);
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute float aMt; varying float vMt; varying float vLy; varying float vSy;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvMt = aMt; vLy = position.y + 0.5; vSy = 1.0;\n#ifdef USE_INSTANCING\nvSy = length(instanceMatrix[1].xyz);\n#endif');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying float vMt; varying float vLy; varying float vSy; uniform vec3 uMtMoss; uniform vec3 uCapGrass; uniform vec3 uCapMoss; uniform vec3 uCapDry; uniform vec3 uSoil;')
+      .replace('* uGrainAmt; }', '* uGrainAmt;\n' + MT_GLSL + '\n}');
+    if(!sh.fragmentShader.includes('65차 산')) console.error('65차 — 산 셰이더 치환 실패');
+  };
+  mat.customProgramCacheKey = ()=> 'grain65-mt';
+  return mat;
+}
+mtShade(WMATV);
+const MT_GLSL = `// 65차 산 — vMt 1 기둥: 기둥을 가로질러 이어지는 기운 지층·물때·밑동 그늘·흘러내린 이끼·높이 온도
+//          vMt 2 뚜껑: 풀·이끼 뚜껑 윗면은 들판 풀색, 옆면은 흙 테(레고 초록 줄 없앰), 눈은 푸른 결 그늘
+//          vMt 0(벽돌·바위·그 밖) 은 base0 그대로 — 아이 벽돌·성문 벽돌은 안 바뀐다
+vec4 mg4 = texture2D(tGrain, guv * uGrainScale);                     // r=gg · g 능선 잡음(물때) · b 지의류 얼룩 (M2-6)
+vec2 fuv = vec2(wn.x > wn.z ? vWp.z : vWp.x, vWp.y);
+float stv = texture2D(tGrain, fuv * vec2(0.9, 0.08)).g;              // 세로로 늘인 물때 줄 (탭 +1, 분기 밖)
+vec4 gmc = texture2D(tGrain, vWp.xz * 0.043 + vec2(0.37, 0.11));     // 뚜껑 큰 얼룩 (탭 +1, 분기 밖)
+vec3 base0 = diffuseColor.rgb;
+float isB = step(0.5, vMt) * (1.0 - step(1.5, vMt));
+float isC = step(1.5, vMt);
+float side = 1.0 - step(0.5, wn.y);
+float sy = vWp.y + 0.35 * sin(vWp.x * 0.23 + vWp.z * 0.19) + 0.20 * sin(vWp.x * 0.07 - vWp.z * 0.11);
+float bnd = fract(sy * 0.55), lay = floor(sy * 0.55);                // 1.8칸마다 한 켜 — 세계 높이라 이웃 기둥과 이어진다
+float lineD = smoothstep(0.0, 0.10, bnd) * smoothstep(1.0, 0.90, bnd);
+float tone = 0.86 + 0.24 * fract(sin(lay * 12.9898) * 43758.5453);   // 켜마다 밝기
+float ao = mix(0.78, 1.0, smoothstep(0.0, 0.7, vLy * vSy));          // 기둥 밑동 0.7칸 그늘
+float mossK = smoothstep(0.72, 1.0, vLy) * smoothstep(0.45, 0.70, mg4.b) * (1.0 - step(${(GY+14).toFixed(1)}, vWp.y));
+float hk = clamp((vWp.y - ${GY.toFixed(1)}) / 20.0, 0.0, 1.0);
+float dirtK = smoothstep(1.08, 1.14, vColor.r / max(vColor.g, 0.004));  // MT_DIRT(r/g 1.18) vs MT_ROCK(1.02) — 흙 기둥은 세로 물때를 약하게(세로 줄이 판자 울타리처럼 읽혔다)
+vec3 m = base0 * mix(0.72, 1.0, lineD) * tone * mix(mix(0.82, 0.95, dirtK), 1.0, smoothstep(0.25, 0.45, stv)) * ao;
+m = mix(m, uMtMoss * (0.8 + 0.4 * gg), mossK * 0.55);                // 뚜껑 밑으로 흘러내린 이끼 (마루 위엔 없음)
+m *= mix(vec3(0.88, 0.90, 0.96), vec3(1.04, 1.02, 0.97), hk);        // 밑은 서늘·어둡게, 마루는 따뜻·밝게
+float grn = vColor.g / max(vColor.r, 0.004);                         // ★ vColor(꼭짓점색×인스턴스색) — 조각 셰이더엔 USE_COLOR 만 있다
+float green = smoothstep(1.4, 1.8, grn);                             // MT_GRASS(g/r 3.7)·MT_MOSS(2.3) vs MT_ROCKTOP(1.0)·MT_SNOW(1.0)
+float grassy = smoothstep(2.6, 3.2, grn);                            // 풀(3.7) vs 이끼(2.3)
+float white = step(0.80, min(vColor.r, min(vColor.g, vColor.b)));    // MT_SNOW
+vec3 gcap = mix(uCapMoss, uCapGrass, grassy) * (0.86 + 0.28 * gmc.b) * (1.0 + (gg - 0.5) * 0.3);
+gcap = mix(gcap, uCapDry, smoothstep(0.6, 0.85, gmc.b) * 0.5 * smoothstep(${(GY+8).toFixed(1)}, ${(GY+14).toFixed(1)}, vWp.y));   // 높은 풀밭은 마른다
+vec3 lip = mix(uSoil * (0.85 + 0.3 * gg), gcap, smoothstep(0.55, 0.9, vLy));   // 뚜껑 옆면: 아래 흙·뿌리, 위 끝만 풀
+vec3 capc = mix(base0, mix(lip, gcap, step(0.5, wn.y)), green);
+capc = mix(capc, base0 * mix(vec3(0.90, 0.94, 1.0), vec3(1.0), smoothstep(0.3, 0.7, gg)), white);   // 눈 — 결 그늘을 푸르게
+diffuseColor.rgb = mix(mix(base0, m, isB * side), capc, isC);`;
+const _lfSun = new THREE.Vector3();
+function leafShade(mat){                            // 65차 — 잎 무리 명암(보로노이) · 위 따뜻·아래 서늘(설계 A) · 해를 등진 잎 투과광(설계 C)
+  const base = mat.onBeforeCompile;
+  const U = { uLfSun:{get value(){ return _lfSun.subVectors(sun.position, sunTarget.position).normalize(); }},   // 약속 1-2: 빛 방향
+              uLfK:{get value(){ return 0.9*(1 - skyK) + 0.12*skyK; }} };
+  mat.onBeforeCompile = (sh, r)=>{ base(sh, r); Object.assign(sh.uniforms, U);
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nuniform vec3 uLfSun; uniform float uLfK;')
+      .replace('* uGrainAmt; }', '* uGrainAmt;\n' + LEAF_COLOR_GLSL + '\n}')
+      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n' + LEAF_EMIT_GLSL);
+    if(!sh.fragmentShader.includes('65차 잎')) console.error('65차 — 잎 셰이더 치환 실패');
+  };
+  mat.customProgramCacheKey = ()=> 'grain65-leaf';
+  return mat;
+}
+leafShade(WMATL);
+const LEAF_COLOR_GLSL = `// 65차 잎 — 무리 가운데 밝고 틈 어둡게(보로노이 G) · 위 따뜻·아래 서늘 (텍스처 탭은 기존 결과 같은 자리)
+vec4 lg4 = texture2D(tGrain, guv * uGrainScale);
+diffuseColor.rgb *= mix(0.82, 1.08, smoothstep(0.15, 0.6, lg4.g));
+vec3 upV = normalize((viewMatrix * vec4(0.0, 1.0, 0.0, 0.0)).xyz);
+float upK = dot(normalize(vNormal), upV) * 0.5 + 0.5;
+diffuseColor.rgb *= mix(vec3(0.82, 0.88, 1.00), vec3(1.06, 1.03, 0.90), upK);`;
+const LEAF_EMIT_GLSL = `// 65차 잎 — 해를 등진 잎이 비친다(투과광). normal 은 normal_fragment_begin 에서 이미 나왔다
+{ vec3 vdW = normalize(vWp - cameraPosition);
+  float bk = pow(max(dot(vdW, uLfSun), 0.0), 4.0);
+  float rim = 1.0 - abs(dot(normal, normalize(vViewPosition)));
+  totalEmissiveRadiance += diffuseColor.rgb * vec3(1.05, 1.12, 0.55) * uLfK * bk * (0.35 + 0.65 * rim * rim) * 0.5; }`;
 function jitterGeo(g, amp, seed){
   const P = g.attributes.position, v = new THREE.Vector3();
   for(let i=0;i<P.count;i++){ v.fromBufferAttribute(P,i);
@@ -4227,7 +4351,9 @@ function shadeGeo(g, lo, hi, noise, seed){
     arr[i*3]=k; arr[i*3+1]=k; arr[i*3+2]=k; }
   g.setAttribute('color', new THREE.BufferAttribute(arr,3)); return g;
 }
-const LEAFV  = [0,1,2].map(i=> shadeGeo(jitterGeo(new THREE.IcosahedronGeometry(0.5, 1), 0.11, 3.1+i*7.3), 0.64, 1.14, 0.05, i*11));
+const LEAFV  = [0,1,2].map(i=>{ const g = jitterGeo(new THREE.IcosahedronGeometry(0.5, 1), 0.17, 3.1+i*7.3), P = g.attributes.position, v = new THREE.Vector3();
+  for(let j=0;j<P.count;j++){ v.fromBufferAttribute(P, j); const k = 1 + 0.12*Math.sin(v.x*6.1 + i)*Math.sin(v.z*5.3 + 2*i); P.setXYZ(j, v.x*k, v.y*k, v.z*k); }
+  g.computeVertexNormals(); return shadeGeo(g, 0.58, 1.16, 0.06, i*11); });
 for(const g of LEAFV) g.userData.leaf = true;   // bpush 가 잎 재질(WMATL)을 고른다
 const TRUNKV = (()=>{ const g = new THREE.CylinderGeometry(0.34, 0.46, 1, 7).toNonIndexed(); g.computeVertexNormals();
   shadeGeo(g, 0.84, 1.02, 0, 0);
@@ -4235,49 +4361,71 @@ const TRUNKV = (()=>{ const g = new THREE.CylinderGeometry(0.34, 0.46, 1, 7).toN
   for(let i=0;i<P.count;i+=3){
     const ax=(P.getX(i)+P.getX(i+1)+P.getX(i+2))/3, az=(P.getZ(i)+P.getZ(i+1)+P.getZ(i+2))/3;
     const face = Math.floor((Math.atan2(az, ax) + Math.PI) / (Math.PI*2/7)) % 7;
-    const sc = (face % 2) ? 0.78 : 1.0;
+    const sc = (face % 2) ? 0.72 : 1.0;
     for(let j=i;j<i+3;j++) C.setXYZ(j, C.getX(j)*sc, C.getY(j)*sc, C.getZ(j)*sc); }
   return g; })();
-const CONEV  = (()=>{ const g = new THREE.ConeGeometry(0.5, 1, 7).toNonIndexed(); g.computeVertexNormals(); return shadeGeo(g, 0.72, 1.10, 0.03, 5); })();
+const CONEV  = (()=>{ const g = new THREE.ConeGeometry(0.5, 1, 9).toNonIndexed(), P = g.attributes.position;
+  for(let i=0;i<P.count;i++){ const x = P.getX(i), y = P.getY(i), z = P.getZ(i), rr = Math.hypot(x, z);
+    if(y < -0.49 && rr > 0.01){ const j = ((Math.round(Math.atan2(z, x)/(Math.PI*2/9)) % 9) + 9) % 9, k = (j % 2) ? 0.88 : 1.14;
+      P.setXYZ(i, x*k, k > 1 ? y - 0.06 : y, z*k); } }
+  g.computeVertexNormals(); shadeGeo(g, 0.62, 1.10, 0.05, 5); g.userData.leaf = true; return g; })();
 const BRICKV = shadeGeo(chamferBox(0.16), 0.80, 1.06, 0, 0);                        // 벽돌 판 — 모따기 + 아래 어둡게
-const BOXV   = (()=>{ const g = new THREE.BoxGeometry(1,1,1).toNonIndexed(); return shadeGeo(g, 0.82, 1.04, 0, 0); })();   // 산 기둥
-const TREE_C = {trunk:0x8a5a30, trunk2:0x9c6a3a, bark:0x6a4222, dark:0x4d9a3a, mid:0x63bb47, lit:0x86d45e, top:0xa4e07a, pine:0x3f8f3a, pine2:0x4fa646};
-const ROCK_C = [0x7c828b, 0x949aa3, 0xaab0b8], ROCK_D = 0x5c6169, MOSS_C = 0x7cbf5a, NUG_C = 0xffd24a;
+BRICKV.setAttribute('aMt', new THREE.Float32BufferAttribute(new Float32Array(BRICKV.attributes.position.count), 1));
+const BOXV   = (()=>{ const g = new THREE.BoxGeometry(1,1,1).toNonIndexed(); shadeGeo(g, 0.82, 1.04, 0, 0);
+  g.setAttribute('aMt', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count).fill(1), 1)); return g; })();   // 산 기둥
+const CAPV   = (()=>{ const g = new THREE.BoxGeometry(1,1,1).toNonIndexed(); shadeGeo(g, 0.86, 1.0, 0, 0);
+  g.setAttribute('aMt', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count).fill(2), 1)); return g; })();   // 65차 — 산 뚜껑(12삼각형, BOXG 와 같은 크기)
+const TREE_C = {trunk:0x6f4a2c, trunk2:0x7d5634, bark:0x4e331c, dark:0x3f7f33, mid:0x5aa843, lit:0x84c257, top:0xa2cf68, pine:0x33703a, pine2:0x418447};   // 65차 — 주황 막대 줄기 → 젖은 갈색, 잎 아래 차갑게
+const TREE_P = [TREE_C,                                                              // 0 싱싱한 풀빛 — ★ 자원 나무는 늘 이것(아이가 '캘 나무' 를 한눈에 찾는다)
+  {dark:0x4f7030, mid:0x6a8a3c, lit:0x8aa650, top:0xa8bd66},                         // 1 올리브(마른 비탈) — 산 숲만
+  {dark:0x356c3e, mid:0x4a8550, lit:0x66a064, top:0x86b878}];                         // 2 푸른 초록(골짜기) — 산 숲만
+const ROCK_C = [0x7e7d74, 0x96948a, 0xacaa9f], ROCK_D = 0x4e4f52, MOSS_C = 0x6f9c4a, NUG_C = 0xffd24a;   // 바위는 산과 같은 온도 · 금광 암반은 더 어둡게(금이 튄다)
 
-function treeRound(X,Y,Z,S,H,seed,out){
+function treeRound(X,Y,Z,S,H,seed,out,pal){
+  const TP = TREE_P[pal|0];
   const put = (k,geo,dx,dy,dz,sx,sy,sz,col,ry,rz)=>{
     const h = bpush(k,geo,WMAT, X+dx*S, Y+dy*S, Z+dz*S, ry||0, sx*S, sy*S, sz*S, rz||0, col);
     if(out) out.push(h); return h; };
   const r1 = rnd(seed), r2 = rnd(seed+7.7), r3 = rnd(seed+13.1), r4 = rnd(seed+21.3), ry0 = r1*Math.PI*2;
   let lk = (seed*7.3)|0; const LF = ()=> LEAFV[((lk++)%3+3)%3], LK = ()=> 'leaf'+(((lk)%3)+3)%3;   // 잎 덩어리 셋을 돌려 쓴다(뱅크 leaf0~2)
-  put('trunk', TRUNKV, 0, H*0.33, 0, 1.30, H*0.68, 1.30, TREE_C.trunk, ry0);
-  put('trunk', TRUNKV, 0, H*0.74, 0, 0.94, H*0.52, 0.94, TREE_C.trunk2, ry0+0.3);
+  put('trunk', TRUNKV, 0, H*0.33, 0, 1.10, H*0.68, 1.10, TREE_C.trunk, ry0);
+  put('trunk', TRUNKV, 0, H*0.74, 0, 0.78, H*0.52, 0.78, TREE_C.trunk2, ry0+0.3);
   for(let i=0;i<3;i++){ const a = ry0 + i*2.1 + 0.7;                                   // 껍질 골 — 줄기에 붙은 어두운 세로 띠
     put('bark', WGEO, Math.sin(a)*0.58, H*0.34, Math.cos(a)*0.58, 0.16, H*0.52, 0.18, TREE_C.bark, a); }
   for(let i=0;i<3;i++){ const a = ry0 + i*2.1 + r2;                                   // 뿌리 — 바깥으로 뻗는 납작 토막
     put('root', WGEO, Math.sin(a)*0.55, 0.16, Math.cos(a)*0.55, 0.36, 0.30, 0.90, TREE_C.trunk, a, 0); }
   const D = 2.3 + r3*0.6;                                                              // 잎 덩어리 지름 배율
   for(const si of [1,-1]){ const a = ry0 + (si>0 ? 0.9 : 3.6);                          // 가지 둘 — 비스듬히, 끝에 잎 뭉치
-    put('branch', TRUNKV, Math.sin(a)*0.85, H*0.80, Math.cos(a)*0.85, 0.46, 2.0, 0.46, TREE_C.trunk2, a, si*0.82);
-    put(LK(), LF(), Math.sin(a)*1.85, H*0.80+0.75, Math.cos(a)*1.85, D*0.95, D*0.78, D*0.95, TREE_C.dark, a+0.5); }
-  put(LK(), LF(), 0, H+0.5, 0, D*2.1, D*1.7, D*2.1, TREE_C.mid, ry0);                    // 가운데 큰 덩어리
+    put('branch', TRUNKV, Math.sin(a)*0.85, H*0.80, Math.cos(a)*0.85, 0.46, 2.0, 0.46, TREE_C.trunk2, a, si*(0.70 + r2*0.3));
+    put(LK(), LF(), Math.sin(a)*1.85, H*0.80+0.75, Math.cos(a)*1.85, D*(0.85 + r4*0.3), D*(0.85 + r4*0.3)*0.82, D*(0.85 + r4*0.3), TP.dark, a+0.5); }
+  put(LK(), LF(), (r2-0.5)*0.6, H+0.5, 0, D*(1.9+r1*0.4), D*(1.5+r3*0.3), D*(1.9+r1*0.4), TP.mid, ry0);                    // 가운데 큰 덩어리
   for(let i=0;i<3;i++){ const a = ry0 + i*2.1;                                          // 아래 어두운 셋
-    put(LK(), LF(), Math.sin(a)*1.35, H-0.3+(i%2)*0.3, Math.cos(a)*1.35, D*1.55, D*1.25, D*1.55, TREE_C.dark, a+1.0); }
-  put(LK(), LF(),  Math.sin(ry0+1.0)*0.9, H+1.6,  Math.cos(ry0+1.0)*0.9, D*1.3, D*1.1, D*1.3, TREE_C.lit, ry0+2.2);   // 위 밝은 둘
-  put(LK(), LF(), -Math.sin(ry0+2.5)*0.8, H+1.5, -Math.cos(ry0+2.5)*0.8, D*1.2, D*1.0, D*1.2, TREE_C.lit, ry0+3.1);
-  put(LK(), LF(), 0.2, H+2.35, -0.2, D*1.0, D*0.85, D*1.0, TREE_C.top, ry0+4.0);          // 꼭대기
+    put(LK(), LF(), Math.sin(a)*(1.25 + i*0.2), H-0.5 + rnd(seed+i*3.1)*0.6, Math.cos(a)*(1.25 + i*0.2), D*1.55, D*1.25, D*1.55, TP.dark, a+1.0); }
+  put(LK(), LF(),  Math.sin(ry0+1.0)*0.9, H+1.6,  Math.cos(ry0+1.0)*0.9, D*1.3, D*1.1, D*1.3, TP.lit, ry0+2.2);   // 위 밝은 둘
+  put(LK(), LF(), -Math.sin(ry0+2.5)*0.8, H+1.5, -Math.cos(ry0+2.5)*0.8, D*1.2, D*1.0, D*1.2, TP.lit, ry0+3.1);
+  put(LK(), LF(), 0.2, H+2.35, -0.2, D*1.0, D*0.85, D*1.0, TP.top, ry0+4.0);          // 꼭대기
   if(out && r4 < 0.34) for(let i=0;i<4;i++){ const a = ry0 + i*1.57 + 0.4, rr = D*1.02;   // 사과 넷 — 잎 겉에
     put('apple', LEAFG, Math.sin(a)*rr, H+0.3+(i%2)*0.9, Math.cos(a)*rr, 0.36, 0.34, 0.36, 0xe5433a, a); }
 }
-/* 침엽수 — 줄기 + 고깔 넷(두 색 번갈아) + 연둣빛 꼭지. 봉우리(GY+13 위)에 선 것은 꼭대기에 눈이 앉는다. */
+function treeRoundFar(X,Y,Z,S,H,seed,pal){          // 65차 — 산 숲 둥근 나무(가볍게 6조각). 자원 나무가 아니므로 out 없음
+  const TP = TREE_P[pal|0], ry0 = rnd(seed)*6.283, D = 2.2 + rnd(seed+3.1)*0.6;
+  const put = (k,geo,dx,dy,dz,sx,sy,sz,col,ry)=> bpush(k,geo,WMAT, X+dx*S, Y+dy*S, Z+dz*S, ry||0, sx*S, sy*S, sz*S, 0, col);
+  let lk = (seed*7.3)|0; const LF = ()=> LEAFV[((lk++)%3+3)%3], LK = ()=> 'leaf'+(((lk)%3)+3)%3;
+  put('trunk', TRUNKV, 0, H*0.40, 0, 0.95, H*0.80, 0.95, TREE_C.trunk, ry0);
+  put(LK(), LF(), (rnd(seed+1)-0.5)*0.5, H+0.4, (rnd(seed+2)-0.5)*0.5, D*2.0, D*1.6, D*2.0, TP.mid, ry0);
+  for(let i=0;i<2;i++){ const a = ry0 + i*3.1; put(LK(), LF(), Math.sin(a)*1.2, H-0.3, Math.cos(a)*1.2, D*1.4, D*1.1, D*1.4, TP.dark, a); }
+  put(LK(), LF(), 0.3, H+1.5, -0.2, D*1.25, D*1.0, D*1.25, TP.lit, ry0+2.2);
+  put(LK(), LF(), -0.1, H+2.2, 0.1, D*0.9, D*0.75, D*0.9, TP.top, ry0+4.0);
+}
 function treePine(X,Y,Z,S,H,seed){
   const put = (k,geo,dx,dy,dz,sx,sy,sz,col,ry)=> bpush(k,geo,WMAT, X+dx*S, Y+dy*S, Z+dz*S, ry||0, sx*S, sy*S, sz*S, 0, col);
-  const ry0 = rnd(seed)*Math.PI*2;
-  put('trunk', TRUNKV, 0, H*0.32, 0, 1.0, H*0.66, 1.0, TREE_C.trunk, ry0);
-  for(let i=0;i<4;i++){ const w = 3.9 - i*0.80, y = H*0.36 + i*1.10;
-    put('cone', CONEV, 0, y + 1.0, 0, w, 2.15, w, i%2 ? TREE_C.pine2 : TREE_C.pine, ry0 + i*0.5); }
-  put('cone', CONEV, 0, H*0.36 + 4*1.10 + 0.55, 0, 1.1, 1.3, 1.1, TREE_C.lit, ry0 + 2.0);   // 꼭지
-  if(Y >= GY+13) put('cone', CONEV, 0, H*0.36 + 4*1.10 + 1.15, 0, 0.75, 0.75, 0.75, 0xffffff, ry0);   // 눈
+  const ry0 = rnd(seed)*Math.PI*2, nT = 5 + (rnd(seed+3.3) < 0.5 ? 1 : 0), step0 = 4.8/nT;   // step0 — 전역 STEP 과 다른 지역 이름
+  put('trunk', TRUNKV, 0, H*0.30, 0, 0.62, H*0.60, 0.62, TREE_C.trunk2, ry0);
+  for(let i=0;i<nT;i++){ const f = i/(nT-1), w = 3.5 - f*2.5 + (rnd(seed+i*1.7)-0.5)*0.35, y = H*0.30 + 0.35 + i*step0;
+    put('cone', CONEV, (rnd(seed+i*2.9)-0.5)*0.12, y + 0.95, (rnd(seed+i*3.7)-0.5)*0.12, w, 1.9 - f*0.5, w, i%2 ? TREE_C.pine2 : TREE_C.pine, ry0 + i*0.9); }
+  const yt = H*0.30 + 0.35 + nT*step0;
+  put('cone', CONEV, 0, yt + 0.55, 0, 0.8, 1.5, 0.8, TREE_C.pine2, ry0 + 2.0);                 // 뾰족 꼭지(같은 짙은 초록)
+  if(Y >= GY+13) put('cone', CONEV, 0, yt - 0.35, 0, 1.7, 0.8, 1.7, 0xf2f5fa, ry0);             // 위 층에 얹힌 눈
 }
 function mkTree(x,z){
   const hs=[], H = 5 + (Math.abs(Math.sin(x*3.3+z*7.7))*2.4|0);
@@ -4293,7 +4441,7 @@ function mkRock(x,z){
   put('moss', LEAFG, -0.3, 2.95, 0.45, 1.7, 0.7, 1.5, MOSS_C, rnd(sd+2)*3);           // 이끼
   for(const [dx,dz,sc,h] of [[1.7,0.4,1.4,1.3],[-1.5,0.7,1.2,1.1],[0.3,-1.6,1.3,1.0]]){ // 곁 돌
     if(rnd(sd+dx*17+dz*29) < 0.22) continue;
-    put('rock', ROCKG, dx, h*0.45, dz, sc, h, sc*0.9, ROCK_C[0], rnd(x+dx)*3);
+    put('rock', ROCKG, dx, h*0.45, dz, sc, h, sc*0.9, ROCK_C[0], rnd(x+dx)*3, (rnd(sd+dx)-0.5)*0.3);
   }
   for(const [dx,dz] of [[-2.0,-1.2],[2.2,-0.7],[-0.9,2.0]])                            // 자갈
     if(rnd(x*7.7+z*1.3+dx*5+dz*13) < 0.7) put('peb', PEBG, dx, 0.22, dz, 0.7, 0.45, 0.6, ROCK_C[1], rnd(dx+dz)*3);
@@ -4315,6 +4463,11 @@ function mkGold(x,z){
   for(const [dx,dy,dz] of [[0.9,2.1,0.3],[-0.7,1.9,0.6],[0.2,1.6,-1.0]])                     // 금 알갱이
     put('nug', LEAFG, WMAT, dx, dy, dz, 0.55, 0.42, 0.5, NUG_C, rnd(dx+dz)*3);
   return hs;
+}
+/* 65차 — 성문 망루·깃발 둘레인가. buildGates 가 망루 칸 terrH 를 GY+12 로 올려 놓으므로 칸 훑기가 망루 꼭대기에 나무·돌을 심지 않게 */
+function mtNearGate(x, z){
+  for(let g=0; g<NG; g++){ const t = gT(g, x, z); if(Math.abs(t - GATE_T) < 5.5 && Math.abs(gPP(g, x, z)) < GAP_HALF + 7.5) return true; }
+  return false;
 }
 /* ── 자원이 놓이면 안 되는 곳: 모둠 농장 ──
    ★ 자원은 아침마다 '제자리에서' 되살아난다(goDay). 그래서 한 번 우리 안에 놓이면
@@ -4388,22 +4541,28 @@ function placeNodes(){
       }
     }
   }
-  /* 산 위·협곡 마당 장식 숲 — 산등성이를 통째로 덮는 숲이라 눈에 제일 많이 띈다.
-     31차 — 침엽수(고깔 셋) 셋에 둥근 나무 둘 비율로 섞는다. 산 위엔 소나무가 어울리고 실루엣이 갈린다. */
-  for(let i=0;i<200;i++){   // 64차 — 산 고리가 넓어진 만큼(165→200) 숲도 늘린다
-    const x = Math.round((Math.random()*2-1)*FIELD_R), z = Math.round((Math.random()*2-1)*FIELD_R);
-    const od0 = oct(x+0.5, z+0.5);
-    if(od0 < ARENA_R+3) continue;
-    if(Math.hypot(x+0.5,z+0.5) > FIELD_R-2) continue;
-    if(!inW(x,z)) continue;
-    const cd0 = corridorDist(x+0.5,z+0.5);
-    if(cd0 && cd0[2] < gapHalfAt(cd0[1])+1.5) continue;
-    if(rampNear(x,z)) continue;
-    if(terrAt(x,z) < GY) continue;
-    const y0 = terrAt(x,z), H = 4+(Math.random()*3|0), seed = x*1.9+z*3.7;
-    if(rnd(seed+0.5) < 0.6) treePine(x+0.5, y0, z+0.5, 1, H, seed);
-    else treeRound(x+0.5, y0, z+0.5, 0.9, H, seed, null);
+  /* 65차 — 산 숲: 산 칸을 한 번 훑으며 '숲 밀도' 로 뽑는다(숲 덩이·빈 비탈·수목 한계선 GY+10~17). Math.random 대신 rnd — 사진이 판마다 같다.
+     ★ 마당(oct < ARENA_R+3) 안에는 한 그루도 없다. 협곡(corridorDist)·성문 망루(mtNearGate)·망루 계단(rampNear)·벼랑 끝(drop>3)도 비운다 */
+  const FOREST_K = 2.5, FOREST_MAX = 420;                                   // 목표 360 ± 50 그루. 후보 칸이 1,645 뿐이라 명세 값 0.45 로는 62그루 — 2.5 로 올려 잰 수 353그루(숲 덩이 가운데는 빽빽하다)
+                                                                            // ★ FOREST_MAX 는 안전 뚜껑이다 — 닿으면 훑기가 서쪽(x 작은 쪽)부터라 동쪽 산이 빈다. 닿지 않게 FOREST_K 로 맞춘다
+  const forestN = (x,z)=> 0.5 + 0.35*Math.sin(x*0.19 + 0.4)*Math.cos(z*0.23 - 1.1) + 0.25*Math.sin((x - z)*0.11 + 2.3);   // 0~1.1, 주기 ≈30칸
+  let nF = 0;
+  for(let x=-FIELD_R; x<=FIELD_R && nF<FOREST_MAX; x++) for(let z=-FIELD_R; z<=FIELD_R && nF<FOREST_MAX; z++){
+    if(oct(x+0.5, z+0.5) < ARENA_R+3) continue;
+    if(Math.hypot(x+0.5, z+0.5) > FIELD_R-2 || !inW(x,z)) continue;
+    const y0 = terrAt(x,z); if(y0 <= GY || y0 >= GY+17) continue;             // 협곡 바닥·눈 봉우리엔 없다
+    if(corridorDist(x+0.5, z+0.5) || mtNearGate(x+0.5, z+0.5) || rampNear(x,z)) continue;
+    let drop = 0; for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]) drop = Math.max(drop, y0 - terrAt(x+dx, z+dz));
+    if(drop > 3) continue;                                                    // 벼랑 끝 — 잎이 허공에 걸린다
+    const alt = y0 <= GY+10 ? 1 : 1 - (y0-GY-10)/7;                           // 수목 한계선
+    const seed = x*1.9 + z*3.7;
+    if(rnd(seed+0.13) > FOREST_K * alt * Math.max(0, forestN(x,z) - 0.25)) continue;
+    const H = 4 + ((rnd(seed+0.7)*3)|0), jx = (rnd(seed+1.1)-0.5)*0.4, jz = (rnd(seed+1.9)-0.5)*0.4, sc = 0.8 + rnd(seed+2.2)*0.5;
+    if(rnd(seed+0.5) < (y0 >= GY+12 ? 0.9 : 0.55)) treePine(x+0.5+jx, y0, z+0.5+jz, sc, H, seed);
+    else treeRoundFar(x+0.5+jx, y0, z+0.5+jz, sc*0.9, H, seed, 1 + ((rnd(seed+4.1)*2)|0));
+    nF++;
   }
+  for(const [k,b] of banks) if(b.mat === WMATV && !b.geo.attributes.aMt) console.error('65차 — aMt 없는 WMATV 뱅크: ' + k);   // 1-3 규칙 7
 }
 
 /* ═══════════════════════ 꽃 · 풀 · 돌멩이 ═══════════════════════ */
