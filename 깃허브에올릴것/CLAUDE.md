@@ -29,6 +29,7 @@
 | `깃허브에올릴것/검사/` | 실제 소스 함수를 추출하거나 숨김 브라우저에서 실행하는 검사 |
 | `window.DEFAULTS`, `BAL`, `NIGHT_DEF`, `WOLF_T` | 교사 설정·전투 수치·밤 테마·좀비 종류 |
 | `#popShop`, `shopCatalogCard`, `buildShopUI` | 상점 배치·상품 카드·구매 UI |
+| `WEAPONS`, `wpnLv`, `wpnLvOk`, `gunModels`, `wpnTraitHit` | 무기 표(번호 = 저장·통신 ID, 새 총은 끝에 덧붙인다)·레벨 제한(사기·만들기만 막고 가진 총은 든다)·손에 드는 모형·특성 |
 | `DRESS_OPTIONS`, `DRESS_LEGACY`, `HATS`, `GLASSES`, `CLOTHES`, `buildPicker` | 대기실 꾸미기와 저장 ID 호환 |
 | `kitItems`, `buildKitUI`, `wearDeco` | 가방 구성과 게임 중 꾸미기 차단 |
 | `R6_`, `r6HookGeo`, `drawSheep`, `updHeld` | 사람 기하·얼굴·C자 손·도구·전신 모션 |
@@ -170,6 +171,7 @@ SHA-256 도 함께 본다. 손으로 돌리는 것을 대신하지는 않는다 
 - `t59-zombie-shape-static.mjs`, `t59-zombie-attachment-static.mjs`: 좀비 전용 윤곽·기하 비용과 자세별 옷/갑옷/등 장식의 부착을 검사한다.
 - `t60-zombie-wrap-static.mjs`: 실제 감긴 붕대 기하·자세별 부착·눈/입 여백·92마리 용량을 검사한다.
 - `t61-avatar-clearance-static.mjs`: 8방향 보행/달리기와 연속 사선 이동의 팔다리 겹침, 현재 옷 8종·전직 의상 6종의 팔 여유, 잠옷 몸통 색, 전직 모자 챙의 머리 여유, 모든 무기의 반동·점프·활공 관통 및 사람 그림자 설정을 검사한다. `t57-character-view.mjs`의 `clearance` 그림으로 실제 외형을 함께 본다.
+- `t65-weapons-static.mjs`: 무기 0~13 번호 유지, 새 총 등급 수, 레벨 모자라면 구매·조합 거절(직접 호출 포함), 가진 총은 레벨 무관 장착, 상점·대장간 잠금 카드, 경주 상, 불붙이기 특성, 새 총 DPS 설계 범위.
 - `t62-motion-view.mjs`: 실제 게임 배율(.7)과 원래 재질로 저품질·고품질에서 현재 옷 8종·전직 의상 6종의 옆걸음·사선 달리기·반대 방향 전환을 연속 렌더링한다. 로컬/원격 걸음 박자도 함께 확인한다. `t57-motion-static.mjs`는 30/60/120Hz 관절 변화량과 발 궤적 속도, `t61-avatar-clearance-static.mjs`는 닫힌 모자의 머리 윗면 수용을 검사한다.
 
 CPU PNG는 기하 확인용이다. 실제 WebGL 그림과 구별하며, 검사기의 소프트웨어 렌더링 FPS로 교실 성능을 단정하지 않는다.
