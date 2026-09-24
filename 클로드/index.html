@@ -2716,6 +2716,57 @@ body.hud66-day #hpNum{font-size:11px}
 @media(max-height:620px){#celBan{top:43%}#celBan.nt{top:36%}#celBan .cIc{font-size:clamp(40px,8vh,72px)}#celChip{top:29%;font-size:12.5px}
   #fx2Cap .n{font-size:clamp(28px,8vh,56px)}}
 @media(max-width:520px){#celBan .cSub{font-size:12.5px}#celChip{font-size:12px;padding:4px 10px}}
+/* 66차 SPEC — 쓰러졌을 때 관전 막대(누구를 보나·체력·넘기기)와 "일으켜 줘요" 단추.
+   관전 중(body.specOn)에는 쓰러져서 못 쓰는 핫바·터치 이동/행동 단추를 숨기고 '쓰러졌어요' 띠를 한 줄로 줄여 친구 화면을 덜 가린다.
+   효과는 짧은 opacity/transform 뿐이다. */
+body.specOn #dock,body.specOn #mbtns,body.specOn #stick{visibility:hidden;pointer-events:none}
+#downVeil.spec{padding:5px 16px;font-size:17px;line-height:1.3;bottom:14px;max-width:calc(100vw - 24px)}
+#downVeil.spec br{display:none}
+#downVeil.spec .dIc{font-size:18px;margin-right:4px}
+#downVeil.spec small{font-size:12px;margin-top:1px}
+#specBar{position:absolute;left:50%;bottom:78px;transform:translateX(-50%);z-index:31;display:none;
+  align-items:stretch;gap:6px;max-width:calc(100vw - 20px);pointer-events:none;font-family:inherit}
+#specBar.on{display:flex;animation:specIn .22s ease-out}
+@keyframes specIn{from{opacity:0;transform:translate(-50%,8px)}}
+#specBar button,#specHelp{pointer-events:auto;font:inherit;cursor:pointer;border:2px solid #fff;border-radius:14px;
+  background:rgba(255,251,245,.96);color:var(--pk-ink);box-shadow:var(--soft)}
+#specBar .specNav{width:52px;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0}
+#specBar .specNav svg{width:16px;height:16px;fill:var(--pk-ink)}
+#specBar .specNav small{font-size:11px;font-weight:600;line-height:1.2;color:var(--pk-ink2);background:rgba(120,104,170,.12);border-radius:6px;padding:1px 6px}
+#specBar .specNav:active{transform:translateY(2px)}
+#specInfo{pointer-events:none;min-width:230px;max-width:300px;padding:7px 14px 8px;border-radius:14px;border:2px solid #fff;
+  background:rgba(255,251,245,.95);color:var(--pk-ink);box-shadow:var(--soft);display:flex;flex-direction:column;justify-content:center;gap:3px}
+#specWho{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden}
+#specWho .eye{font-size:12px;font-weight:600;color:var(--pk-ink2)}
+#specDot{flex:none;width:11px;height:11px;border-radius:50%;box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(0,0,0,.12)}
+#specName{overflow:hidden;text-overflow:ellipsis}
+#specLv{font-size:12px;font-weight:600;color:#6b5fb0;background:rgba(120,104,170,.13);border-radius:6px;padding:1px 6px}
+#specLv:empty{display:none}
+#specHp{position:relative;height:14px;border-radius:7px;background:rgba(59,53,80,.14);overflow:hidden}
+#specHpFill{position:absolute;left:0;top:0;bottom:0;width:100%;border-radius:7px;transition:width .25s}
+#specHpNum{position:absolute;right:6px;top:-1px;font-size:11px;font-weight:600;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.45)}
+#specSub{font-size:12px;font-weight:500;color:var(--pk-ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#specHelp{position:absolute;left:calc(50% + 216px);bottom:78px;z-index:31;display:none;min-height:56px;white-space:nowrap;
+  padding:6px 14px;font-size:15px;font-weight:600;color:#b54a1c;background:linear-gradient(180deg,#fff6d8,#ffe7a6);
+  align-items:center;gap:6px}
+#specHelp.on{display:flex;animation:specIn2 .22s ease-out}
+#specHelp.on.solo{display:none}
+@keyframes specIn2{from{opacity:0;transform:translateY(8px)}}
+#specHelp small{font-size:11px;color:#8a5a1c;background:rgba(181,74,28,.12);border-radius:6px;padding:1px 6px}
+#specHelp:disabled{cursor:default;color:#8f8aa3;background:rgba(245,242,250,.94)}
+#specHelp:disabled small{display:none}
+#specHelp:not(:disabled):active{transform:translateY(2px)}
+body.touch #specBar .specNav small,body.touch #specHelp small{display:none}
+/* 좁은 화면: 부르기 단추를 관전 막대 아래 가운데로 */
+@media(max-width:900px){
+  #specBar{bottom:128px}
+  #specHelp{left:50%;transform:translateX(-50%);bottom:78px;min-height:44px}
+  #specHelp.on{animation:none}
+  #specInfo{min-width:0;width:calc(100vw - 150px);max-width:280px}
+}
+/* 관전 중엔 아래 도움말 줄(#hint)이 '쓰러졌어요' 띠와 같은 말을 한다 — 띠 쪽에 남은 시간을 넣고 줄은 숨긴다 */
+body.specOn #hint{visibility:hidden}
+@media(max-width:560px){ #specBar{bottom:170px} #specHelp{bottom:118px} }
 </style>
 </head>
 <body>
@@ -2935,7 +2986,16 @@ body.hud66-day #hpNum{font-size:11px}
   <div id="pauseVeil"><div><span class="pIc">⏸️</span><br>잠깐 멈췄어요<br>
     <small>선생님 말씀을 들어 주세요</small></div></div>
   <div id="downVeil"><span class="dIc">💫</span><br>쓰러졌어요
-    <small>친구가 앞에서 8초 눌러 주면 일어나요 · 아침이면 저절로 일어나요</small></div>
+    <small>친구가 앞에서 8초 눌러 주면 일어나요<span id="specLeft"> · 아침이면 저절로 일어나요</span></small></div>
+  <!-- 66차 SPEC — 쓰러져 있는 동안 친구 관전 막대와 부르기 단추 -->
+  <div id="specBar" aria-live="polite">
+    <button id="specPrev" class="specNav" type="button" aria-label="이전 친구 보기"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2 L4 8 L11 14 Z"/></svg><small>Q</small></button>
+    <div id="specInfo"><div id="specWho"><span class="eye">보는 중</span><i id="specDot"></i><b id="specName">내 자리</b><span id="specLv"></span></div>
+      <div id="specHp"><i id="specHpFill"></i><span id="specHpNum"></span></div>
+      <div id="specSub"></div></div>
+    <button id="specNext" class="specNav" type="button" aria-label="다음 친구 보기"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2 L12 8 L5 14 Z"/></svg><small>E</small></button>
+  </div>
+  <button id="specHelp" type="button">📣 <span id="specHelpTx">일으켜 줘요</span> <small>F</small></button>
 
 
   <div id="buildAssistDock">
@@ -13101,6 +13161,8 @@ function updPlayer(dt){
   if(Math.abs(camAimBlend-aimWant)<0.0001) camAimBlend=aimWant;
   const viewPitch = Math.max(-1.35, Math.min(1.35, PL.pitch + camAimBlend*AIM_VIEW.lift));
   camera.rotation.set(viewPitch + aimKick, PL.yaw + aimSway, aimRoll, 'YXZ');
+  /* 66차 — 쓰러져서 친구·전장을 보는 중이면 카메라는 specCam 이 놓는다(내 몸 카메라 닻은 돌아올 때 새로 붙는다) */
+  if(PL.down && specCam(dt)){ camBodyHidden = false; held.visible = false; return; }
 
   const tk = tpvKind();
   const back = PL.down ? DOWN_CAM : tk === 1 ? camZoom + (AIM_VIEW.back-camZoom)*camAimBlend + fovRun*0.05*(1-camAimBlend) : tk >= 0 ? MINI_CAM[tk] + fovRun*0.05 : 0;      // 39차 — 달리면 조금 더 물러난다 · 48차 — 마을은 휠로 정한 거리
@@ -15349,6 +15411,7 @@ function sheepHurt(dt){
 function goDown(){
   if(PL.down) return;
   PL.down = true; PL.downT = 0; workStop();
+  SPEC.auto = true; SPEC.autoT = SPEC_AUTO; SPEC.helpT = 0;   // 66차 — 조금 뒤 살아 있는 친구 쪽으로 카메라를 옮긴다
   setAimMode(false, true);      // 쓰러졌는데 총을 든 채로 두면 일어났을 때 못 캔다
 
   /* 3인칭으로 넘어가는 순간 살짝 내려다보게 맞춰 준다 — 내 시체가 화면에 들어오게 */
@@ -15379,6 +15442,208 @@ function downTick(dt){
   PL.downT = (PL.downT||0) + dt;
   if(PL.downT >= SELF_REVIVE) reviveMe(null, true);
 }
+
+/* ═══════════ 66차 관전 — 쓰러져 있는 동안 살아 있는 친구 어깨 너머로 본다 ═══════════
+   · 차례: 내 자리 → 친구들(우리 모둠 먼저, 이름순) → 전장 전체(수정 둘레를 천천히 돈다) → 다시 내 자리.
+     Q·E / ←·→ / 화면 단추로 넘긴다. 쓰러지고 2.2초 뒤 저절로 첫 친구(없으면 전장 전체)로 간다 —
+     goDown() 으로 쓰러질 때만(검사가 PL.down 만 켜 둔 화면은 예전처럼 내 몸을 본다).
+   · 친구 자리는 이미 오는 자리 통로(p, 초당 6번) 값을 그대로 쓴다. 새 통신 없음.
+   · "일으켜 줘요" — 자리 통로에 원래 있던 dn 칸의 값만 1 → 2 로 3초 동안 바꾼다(칸·횟수 그대로).
+     옛 손님은 !!dn 으로 읽으니 똑같이 '쓰러짐' 이고, 새 손님은 2 가 켜지는 순간 한 번 알림을 띄운다.
+   · 다시 일어나면(또는 미니게임·창이 열리면) 저절로 내 카메라로 돌아온다. pointer lock 은 건드리지 않는다. */
+const SPEC_AUTO = 2.2, SPEC_BACK = 3.6, SPEC_SH = 0.62, SPEC_LOOK = 1.30;
+const SPEC_HELP_ON = 3.0, SPEC_HELP_CD = 10;       // 부르기: 3초 동안 dn=2 (자리 통로 18번쯤 실림) · 10초에 한 번
+const SPEC_ORB = {r:19, h:11, spd:0.11};           // 전장 전체 — 반지름·높이·도는 빠르기(초당 라디안, 한 바퀴 57초)
+const SPEC = {mode:'me', uid:null, list:[], auto:false, autoT:0, cx:0, cy:0, cz:0, yaw:0, yaw0:0,
+              snap:true, dist:null, orbA:0, lx:0, ly:0, lz:0, hpPk:100, helpT:0, helpCd:0, listT:0, on:false};
+const specOrder = (a, b)=>{
+  const p = G.players.get(a), q = G.players.get(b), mg = G.me.g|0;
+  const ga = (p.g|0) === mg ? 0 : 1, gb = (q.g|0) === mg ? 0 : 1;
+  return ga !== gb ? ga - gb : String(p.n||'').localeCompare(String(q.n||''), 'ko') || (a < b ? -1 : 1);
+};
+const specAlive = q => !!q && !q.down && q.x !== undefined && q.z !== undefined;
+/* 볼 수 있는 친구 목록을 다시 센다(배열은 하나를 계속 쓴다) */
+function specList(){
+  const L = SPEC.list; L.length = 0;
+  for(const [k, q] of G.players) if(k !== G.me.uid && specAlive(q)) L.push(k);
+  if(L.length > 1) L.sort(specOrder);
+  return L;
+}
+/* 관전이 켜질 수 있는 때 — 마을(낮·밤)에서 쓰러져 있고 창이 안 열렸을 때 */
+const specReady = ()=> G.started && PL.down && !miniOn() && (G.phase === 'day' || G.phase === 'night');
+function specSet(mode, uid){
+  if(SPEC.mode === mode && SPEC.uid === (uid || null)) return;
+  const prev = SPEC.mode; SPEC.mode = mode; SPEC.uid = uid || null; SPEC.dist = null; SPEC.hpPk = 100;
+  SPEC.yaw0 = PL.yaw;                               // 여기서부터 마우스로 돌린 만큼만 더한다
+  if(mode === 'friend' && prev !== 'friend'){       // 내 자리·전장에서 친구로 — 내 몸에서 친구 쪽으로 날아간다
+    SPEC.cx = PL.x; SPEC.cz = PL.z; SPEC.cy = PL.y; SPEC.yaw = PL.yaw; }
+  if(mode === 'all'){ SPEC.orbA = Math.atan2(camera.position.x, camera.position.z);   // 지금 보던 쪽에서 돌기 시작
+    if(prev === 'me'){ SPEC.lx = PL.x; SPEC.ly = PL.y + 0.95; SPEC.lz = PL.z; } }
+  if(mode === 'me'){ camAnc = null; camDistance = null; }  // 내 몸으로 돌아오면 바로 붙는다
+}
+/* 다음(+1)/이전(-1) — 내 자리 · 친구들 · 전장 전체를 한 바퀴로 돈다 */
+function specStep(dir){
+  if(!specReady()) return;
+  SPEC.auto = false;
+  const L = specList(), n = L.length + 2;          // 0 = 내 자리, 1..L = 친구, L+1 = 전장 전체
+  let i = SPEC.mode === 'me' ? 0 : SPEC.mode === 'all' ? L.length + 1 : 1 + Math.max(-1, L.indexOf(SPEC.uid));
+  if(SPEC.mode === 'friend' && L.indexOf(SPEC.uid) < 0) i = dir > 0 ? 0 : 1;   // 보던 친구가 쓰러졌으면 제자리에서 넘긴다
+  i = ((i + (dir < 0 ? -1 : 1)) % n + n) % n;
+  SPEC.snap = false;
+  if(i === 0) specSet('me'); else if(i === L.length + 1) specSet('all'); else specSet('friend', L[i-1]);
+  specSfx('specSwap');
+}
+/* 쓰러진 채 "일으켜 줘요" — 자리 통로의 dn 칸을 3초 동안 2 로 */
+function specHelp(){
+  if(!specReady() || SPEC.helpCd > 0) return;
+  if(!net || !G.players.size){ toast('📣 혼자 놀기라 부를 친구가 없어요 — 조금 기다리면 혼자 일어나요', 2.6, '#ffe9a0'); return; }
+  SPEC.helpT = SPEC_HELP_ON; SPEC.helpCd = SPEC_HELP_CD;
+  specSfx('specCall');
+  toast('📣 친구들에게 "일으켜 줘요!" 를 보냈어요', 2.2, '#ffe9a0');
+}
+/* 관전 소리 — SFX 표 밖에서 한 덩어리로 붙인다(표는 파일 뒤쪽에서 만들어지므로 처음 울릴 때). 기존 합성 함수 → sfxOut 압축기.
+   specSwap: 넘길 때 짧은 '휙·똑' (작게) · specCall: '딩-동' 부르는 소리 — 친구 화면에서는 부른 자리 쪽·거리만큼 작게(sfxAt) */
+function specSfx(k, x, z){
+  if(typeof sndOn === 'undefined' || !sndOn) return;
+  if(!specSfx.ok){ specSfx.ok = true;
+    Object.assign(SFX, {
+      specSwap: ()=>{ puff(.07, .032, 2600, 1.1); pluck(988, .07, .022, 0, .3, 'triangle'); },
+      specCall: ()=>{ const t = now0(); pluck(784, .24, .05, t, .4, 'triangle'); pluck(1047, .34, .055, t + .14, .45, 'triangle');
+                      tone(2093, null, .10, 'sine', .012, t + .14); }
+    }); }
+  if(x === undefined) sfx(k); else sfxAt(k, x, z, 90, 400);
+}
+/* 친구가 불렀다 — 자리 통로에서 dn 이 2 로 바뀐 순간 한 번(network 'p' 가 부른다) */
+function specHeard(p){
+  if(!G.started || PL.down || miniOn() || !p || p.x === undefined) return;
+  const d = Math.round(Math.hypot(p.x - PL.x, p.z - PL.z));
+  const g = Math.max(0, Math.min(NG-1, p.g|0)), nm = esc(p.n || '친구');
+  feed(`📣 <b style="color:${GCOL[g]}">${nm}</b>${josa(p.n,'이','가')} "일으켜 줘요!" — <b>${d}칸</b> 떨어져 있어요`);
+  specSfx('specCall', p.x, p.z);
+  p.helpRingT = 0;
+}
+/* 매 프레임 — 자동 넘기기·보던 친구 확인·부르기 시계·부른 친구 자리 고리·관전 막대 */
+function specTick(dt){
+  if(SPEC.helpCd > 0) SPEC.helpCd -= dt;
+  if(SPEC.helpT > 0){ SPEC.helpT -= dt; if(!PL.down) SPEC.helpT = 0; }
+  /* 부른 친구 발밑에 금빛 고리 — 0.9초마다 하나(땅에 눕힌 기존 고리 풀) */
+  if(G.started && !PL.down && !miniOn()) for(const q of G.players.values()){
+    if(!q.help || !q.down || q.x === undefined) continue;
+    q.helpRingT = (q.helpRingT || 0) - dt;
+    if(q.helpRingT <= 0){ q.helpRingT = 0.9;
+      const dx = q.x - PL.x, dz = q.z - PL.z;
+      if(dx*dx + dz*dz < 70*70) ring(q.x, (q.y === undefined ? GY : q.y) + 0.08, q.z, 0xffd257, 2.4, 0.85, true); }
+  }
+  const on = specReady();
+  if(!on){
+    if(SPEC.on || SPEC.mode !== 'me'){ SPEC.on = false; SPEC.auto = false; SPEC.snap = true; specSet('me'); specPaint(); }
+    return;
+  }
+  if(!SPEC.on){ SPEC.on = true; SPEC.snap = true; }
+  if(SPEC.auto && SPEC.mode === 'me'){
+    SPEC.autoT -= dt;
+    if(SPEC.autoT <= 0){ SPEC.auto = false; const L = specList(); SPEC.snap = false;
+      if(L.length) specSet('friend', L[0]); else specSet('all'); }
+  }
+  if(SPEC.mode === 'friend' && !specAlive(G.players.get(SPEC.uid))){   // 보던 친구가 쓰러졌거나 나갔다 → 다음 친구
+    const L = specList(); SPEC.snap = false;
+    if(L.length) specSet('friend', L[0]); else specSet('all');
+  }
+  SPEC.listT -= dt; if(SPEC.listT <= 0){ SPEC.listT = 0.5; specList(); }
+  specPaint();
+}
+const _specP = {k:''};
+function specPaint(){
+  const on = SPEC.on, bar = el('specBar');
+  if(!bar) return;
+  const vis = on ? '1' : '';
+  if(_specP.vis !== vis){ _specP.vis = vis; bar.classList.toggle('on', on); el('specHelp').classList.toggle('on', on);
+    el('downVeil').classList.toggle('spec', on); document.body.classList.toggle('specOn', on); }
+  if(!on) return;
+  /* 혼자 일어나기까지 남은 초 — goalText 와 같은 셈(SELF_REVIVE) */
+  setTxt('specLeft', ` · 혼자서는 ${Math.max(0, Math.ceil(SELF_REVIVE - (PL.downT||0)))}초 뒤 (체력 절반)`);
+  const n = SPEC.list.length;
+  let name, sub, col = '#8a93a6', hp = -1, lv = '';
+  if(SPEC.mode === 'friend'){
+    const q = G.players.get(SPEC.uid) || {}, pc = pcMap.get(SPEC.uid);
+    name = q.n || '친구'; col = GCOL[Math.max(0, Math.min(NG-1, q.g|0))];
+    hp = Math.max(0, q.hp === undefined ? SHEEP_HP : q.hp|0); SPEC.hpPk = Math.max(SPEC.hpPk, hp);
+    lv = pc && pc.lv ? 'Lv.' + (pc.lv|0) : '';
+    const i = SPEC.list.indexOf(SPEC.uid);
+    sub = ((q.g|0) === (G.me.g|0) ? '우리 모둠' : ((q.g|0)+1) + '모둠') + ` · 친구 ${i+1}/${n}`;
+  } else if(SPEC.mode === 'all'){
+    name = '🏰 전장 전체'; sub = n ? `살아 있는 친구 ${n}명 — Q·E 로 보기` : '볼 수 있는 친구가 없어요';
+  } else {
+    name = '💫 내 자리'; sub = n ? `친구 ${n}명을 볼 수 있어요 — Q·E 로 넘기기` : 'Q·E 로 전장 전체 보기';
+  }
+  setTxt('specName', name); setTxt('specLv', lv); setTxt('specSub', sub); setSty('specDot', 'background', col);
+  const hpOn = hp >= 0 ? 'block' : 'none'; setSty('specHp', 'display', hpOn);
+  if(hp >= 0){ setSty('specHpFill', 'width', Math.round(100*hp/Math.max(1, SPEC.hpPk)) + '%');
+               setTxt('specHpNum', '❤ ' + hp); setSty('specHpFill', 'background', hp < SPEC.hpPk*0.3 ? '#ff6b6b' : '#51cf66'); }
+  const solo = !net || !G.players.size, cd = SPEC.helpCd > 0 ? Math.ceil(SPEC.helpCd) : 0;
+  setTxt('specHelpTx', solo ? '혼자 놀기' : SPEC.helpT > 0 ? '부르는 중…' : cd ? `다시 부르기 ${cd}초` : '일으켜 줘요');
+  const dis = solo || cd > 0 ? '1' : '';
+  if(_specP.dis !== dis){ _specP.dis = dis; el('specHelp').disabled = !!dis; }
+  if(_specP.solo !== solo){ _specP.solo = solo; el('specHelp').classList.toggle('solo', solo); }   // 혼자 놀기엔 부를 친구가 없다 — 단추를 숨긴다
+}
+/* updPlayer 가 부른다 — 관전 중이면 카메라를 여기서 놓고 true */
+function specCam(dt){
+  if(!SPEC.on || SPEC.mode === 'me') return false;
+  const pitch = Math.max(-0.95, Math.min(0.40, PL.pitch)), turn = PL.yaw - SPEC.yaw0;
+  if(SPEC.mode === 'all'){
+    SPEC.orbA += dt*SPEC_ORB.spd;
+    const a = SPEC.orbA + turn, r = SPEC_ORB.r, h = GY + SPEC_ORB.h + pitch*4;
+    const x = Math.sin(a)*r, z = Math.cos(a)*r;
+    /* 보던 자리에서 부드럽게 날아올라 수정을 내려다본다(자리·보는 곳 둘 다 지수 감쇠, 1초 안에 거의 붙는다) */
+    if(SPEC.snap){ SPEC.snap = false; camera.position.set(x, h, z); SPEC.lx = 0; SPEC.ly = GY + 1.2; SPEC.lz = 0; }
+    else { const k = 1 - Math.exp(-dt*3.2); camera.position.x += (x - camera.position.x)*k;
+           camera.position.y += (h - camera.position.y)*k; camera.position.z += (z - camera.position.z)*k;
+           const kl = 1 - Math.exp(-dt*4); SPEC.lx += (0 - SPEC.lx)*kl; SPEC.ly += (GY + 1.2 - SPEC.ly)*kl; SPEC.lz += (0 - SPEC.lz)*kl; }
+    camera.lookAt(SPEC.lx, SPEC.ly, SPEC.lz);
+    return true;
+  }
+  const q = G.players.get(SPEC.uid); if(!q) return false;
+  const ty0 = q.y === undefined ? GY : q.y;
+  const far = Math.hypot(q.x - SPEC.cx, q.z - SPEC.cz) > 60;
+  if(SPEC.snap || far){ SPEC.cx = q.x; SPEC.cz = q.z; SPEC.cy = ty0; SPEC.yaw = q.ry||0; SPEC.snap = false; }
+  else {
+    const k = 1 - Math.exp(-dt*6.5);
+    SPEC.cx += (q.x - SPEC.cx)*k; SPEC.cz += (q.z - SPEC.cz)*k;
+    SPEC.cy += (ty0 - SPEC.cy)*(1 - Math.exp(-dt*5));
+    /* 친구가 돌아보는 방향을 천천히 따라간다(마우스로 휙 돌려도 멀미가 안 나게 초당 2.6) */
+    const dy = Math.atan2(Math.sin((q.ry||0) - SPEC.yaw), Math.cos((q.ry||0) - SPEC.yaw));
+    SPEC.yaw += dy*(1 - Math.exp(-dt*2.6));
+  }
+  const yaw = SPEC.yaw + turn;
+  camera.rotation.set(pitch, yaw, 0, 'YXZ');
+  const cp = Math.cos(pitch);
+  const dx = -Math.sin(yaw)*cp, dy = Math.sin(pitch), dz = -Math.cos(yaw)*cp;
+  const tx = SPEC.cx, ty = SPEC.cy + SPEC_LOOK, tz = SPEC.cz;
+  SPEC.lx = tx; SPEC.ly = ty; SPEC.lz = tz;         // 전장 전체로 넘어갈 때 여기서부터 보는 곳을 옮긴다
+  const sh = SPEC_SH*Math.min(1, camera.aspect/1.6);   // 세로로 긴 화면(태블릿·폰)은 어깨를 덜 비껴야 친구가 화면 밖으로 안 나간다
+  const ox = -dx*SPEC_BACK + Math.cos(yaw)*sh, oy = -dy*SPEC_BACK, oz = -dz*SPEC_BACK - Math.sin(yaw)*sh;
+  const length = Math.hypot(ox, oy, oz), clear = cameraClearance(tx, ty, tz, ox, oy, oz);
+  SPEC.dist = SPEC.dist === null ? clear
+    : clear < SPEC.dist ? clear : SPEC.dist + (clear - SPEC.dist)*(1 - Math.exp(-dt*10));
+  const ratio = length > 0 ? SPEC.dist/length : 0;
+  camera.position.set(tx + ox*ratio, ty + oy*ratio, tz + oz*ratio);
+  return true;
+}
+/* 관전 키 — 쓰러져 있을 때만 가로챈다(Q·E·F 가 도구를 바꾸지 않게). 입력란·창에서는 건드리지 않는다 */
+addEventListener('keydown', e=>{
+  if(!SPEC.on || e.ctrlKey || e.altKey || e.metaKey || popOpen()) return;
+  if(e.target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])')) return;
+  const k = (e.key||'').toLowerCase();
+  if(k === 'q' || k === 'arrowleft' || k === 'e' || k === 'arrowright'){
+    e.preventDefault(); e.stopImmediatePropagation();
+    if(!e.repeat) specStep(k === 'q' || k === 'arrowleft' ? -1 : 1);
+  } else if(k === 'f'){
+    e.preventDefault(); e.stopImmediatePropagation();
+    if(!e.repeat) specHelp();
+  }
+}, true);
+{ const b = (id, fn)=>{ const e = document.getElementById(id); if(e) e.addEventListener('click', ev=>{ ev.preventDefault(); ev.currentTarget.blur(); fn(); }); };
+  b('specPrev', ()=>specStep(-1)); b('specNext', ()=>specStep(1)); b('specHelp', ()=>specHelp()); }
 
 /* ═══════════════════════ 입력 ═══════════════════════ */
 const el = id=>document.getElementById(id);
@@ -20297,6 +20562,7 @@ function joinRoom(code, asHost){
         }
       }
       if(p.x===undefined){p.x=d.x;p.z=d.z;}
+      { const hl = d.dn === 2; if(hl && !p.help) specHeard(p); p.help = hl; }   // 66차 — 친구가 "일으켜 줘요" 를 누른 순간 한 번
       G.players.set(k,p); }
     for(const k of [...G.players.keys()]) if(!keep.has(k)) G.players.delete(k); });
 
@@ -20313,7 +20579,7 @@ function netTick(dt){
   if(netT <= 0){ netT = DBG.slowNet ? 1/3 : 1/6;
     myRef.set({n:G.me.name, g:G.me.g, x:+PL.x.toFixed(2), y:+PL.y.toFixed(2),
       z:+PL.z.toFixed(2), r:+PL.yaw.toFixed(2), m:PL.mv?1:0,
-      hp:PL.hp|0, dn:PL.down?1:0, tc:thrown, tt:thTgt, td:thDmg,
+      hp:PL.hp|0, dn:PL.down?(SPEC.helpT>0?2:1):0,   /* 66차 — 2 = 쓰러져서 "일으켜 줘요" 부르는 중(칸·횟수 그대로) */ tc:thrown, tt:thTgt, td:thDmg,
       tf:thF, txs:thXs, tx:thX.length ? thX : null,             // 29차 — 밀치기 방향 · 추가 명중 목록
       ht:G.me.hat|0, gl:G.me.gls|0, cl:G.me.clo|0, sk:G.me.skin|0});
     if(thX.length){ thX = []; thXs = (thXs + 1) & 255; } }
@@ -21950,8 +22216,10 @@ const _tagCand = [];            // 가까운 사람 uid (매 프레임 새 배�
 const _tagD2 = new Map();       // uid -> 거리의 제곱
 function updTags(){
   _tagCand.length = 0; _tagD2.clear();
+  /* 66차 — 친구·전장을 관전하는 중엔 카메라 둘레의 이름표를 보여 준다 */
+  const spc = SPEC.on && SPEC.mode !== 'me', ocx = spc ? camera.position.x : PL.x, ocz = spc ? camera.position.z : PL.z;
   for(const [uid,p] of G.players){
-    const dx = p.x-PL.x, dz = p.z-PL.z, d2 = dx*dx + dz*dz;
+    const dx = p.x-ocx, dz = p.z-ocz, d2 = dx*dx + dz*dz;
     if(d2 < 1600){ _tagCand.push(uid); _tagD2.set(uid, d2); }   // 40m 안
   }
   _tagCand.sort((a,b)=> _tagD2.get(a) - _tagD2.get(b));
@@ -22106,7 +22374,7 @@ function loop(){
     fovTick(dt);
     if(actCd>0) actCd -= dt;
     if(hurtCd>0) hurtCd -= dt;
-    kitTick(dt); burnTick(dt); downTick(dt); comboTick(dt);
+    kitTick(dt); burnTick(dt); downTick(dt); specTick(dt); comboTick(dt);
     if(!popOpen()) doAction(dt); else { hl.visible=false; ghost.visible=false; workStop(); }
     buildCoopTick(dt); buildAssistTick();
     sheepHurt(dt);
@@ -22638,6 +22906,7 @@ Object.assign(window, {
   __wolfPose:wolfPose, __wolfCorpse:wolfCorpse, __WOLF_DEAD:WOLF_DEAD, __smoothHead:smoothHead, __idleLife:idleLife, __P_legs:P_legs,   // 44차
   __work:()=>work, __doAction:doAction, __setActing:v=>{ acting = v; },
   __sheepHurt:sheepHurt, __goDown:goDown, __reviveMe:reviveMe, __aimDown:aimDown,
+  __SPEC:()=>SPEC, __specStep:specStep, __specHelp:specHelp, __specTick:specTick, __specHeard:specHeard, __specList:specList,   // 66차 관전
   __wolfRank:wolfRank, __sheepBite:sheepBiteDmg, __blockedAt:blockedAt,
   __packSim:packSim, __applySim:applySim, __MAXLV:()=>MAXLV, __spawnWolf:spawnWolf,
   /* 16차 — 벽 뛰어넘기. 검사에서 값을 베끼지 않고 게임에서 직접 읽게 내보낸다. */
