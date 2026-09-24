@@ -225,7 +225,7 @@ check('Rewards use only existing paths: dropGold (drop), chest list + netChests 
   check('Friends\' tier-3 badge shows a small chip',has('badgeCheck',/fx2Chip\(/));
   check('Job change, mission, new gun (buy/craft) and race podium call the celebration',has('takeJob',/fx2Cel\(\{k:'job'/)&&has('misWatch',/fx2Cel\(\{k:'mis'/)&&
     has('buyWeapon',/fx2Cel\(\{k:'gun'/)&&has('craftWeapon',/fx2Cel\(\{k:'gun'/)&&has('raceDone',/fx2Cel\(\{k:'race'/));
-  check('Job change keeps its floor effect block for the wing lane (FX2 adds no 3D there)',has('takeJob',/no3d:true/)&&has('takeJob',/JOB_AURA/));
+  check('Job change keeps its floor effect block for the wing lane (FX2 adds no 3D there)',has('takeJob',/no3d:true/)&&has('takeJob',/jobUpFx\(|JOB_AURA/));   // 66차 WING 이 옛 JOB_AURA 공 기둥을 jobUpFx 마법진으로 바꿨다
   check('fx2Tick runs every frame from dreadTick',/function dreadTick\(dt\)\{[^}]*fx2Tick\(dt\)/.test(code));
   check('Old boss toasts and the hard 1.6 shake are gone (the staging does it once for host and guest)',
     !/window\.__shake\(1\.6/.test(fn('spawnWolf'))&&!/toast\(/.test(fn('onBossDown'))&&!/등장!', 4/.test(fn('applySim')));

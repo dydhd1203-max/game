@@ -34,6 +34,7 @@ window.DEFAULTS = {
   goalDay:    18,    // 며칠 버티면 이기는가 (보스는 5·9·12·15·18일차)
   crystalMax: 200,   // 수정 체력
   wolfPower:  1.0,   // 좀비 세기 배수 (0.7 쉬움 / 1.0 보통 / 1.4 어려움)
+  rareEvents: true,  // 66차 드문 사건(황금 좀비·유성우 밤·행운의 아침) — 5일차부터 가끔(하루 한 번까지). 끄려면 false
 
   /* 그래픽 품질 (25차 · 26차 · 33차 · 49차c) — 교실 기기 손잡이다.
      'high' 선명   — 그림자 2048 + 부드러운 가장자리 · 계단 없애기 4 · 해상도 1.0
@@ -2476,6 +2477,296 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
   #dock #tools .ky{display:none}#dock #bar .nm{font-size:9px}#dock #bar .cost{font-size:8px;gap:0 1px}
   #dock #bar .cost span{padding:1px 2px}
 }
+/* 66차 HUD — 화면 모드별 정리 · 오늘 밤 미리 보기 · 미니게임 판 자리 · 좁은 화면
+   원칙: 밤(싸움)엔 수정·내 체력·총알·조준점·보스 바만 크게, 나머지는 작게/숨김 · 낮엔 자원·임무·경험치 ·
+   알림은 왼쪽 한 줄 흐름(오늘 밤 칩 → #feed) · 가장자리 12px · 판 사이 8px · 작은 글씨 11.5px.
+   모드는 paintHudMode 가 body 에 hud66-day / hud66-night / hud66-mini (+ hud66-boss) 로 단다. */
+/* ── 미니게임 판 — 자리 규칙이 빠져 있어 왼쪽 위 자원 판 뒤에 깔려 있었다(빈 알약 하나도 늘 떠 있었다) ── */
+#miniBar{position:absolute;left:50%;top:12px;transform:translateX(-50%);z-index:13;display:none;
+  width:max-content;max-width:min(760px,calc(100vw - 24px));text-align:center;pointer-events:none}
+#miniBar.on{display:block}
+body.hud66-mini #crystalWrap,body.hud66-mini #resBox,body.hud66-mini #rankWrap,body.hud66-mini #nightChip,body.hud66-mini #nightCard{display:none!important}
+/* ── 밤: 자원은 한 줄로 작게, 농장 산물·경험치·순위는 숨김, 체력·총알은 크게 ── */
+body.hud66-night #resBox .resline:not(.farmres){gap:5px}
+body.hud66-night #resBox .res{padding:2px 8px 2px 3px}
+body.hud66-night #resBox .res i{width:18px;height:18px}
+body.hud66-night #resBox .res i img.ic{height:16px}
+body.hud66-night #resBox .res b{font-size:12.5px;min-width:22px}
+body.hud66-night #resFarm,body.hud66-night #lvRow,body.hud66-night #rankWrap{display:none!important}
+body.hud66-night #hpRow{margin-top:7px;padding-top:7px}
+body.hud66-night #hpBar{height:16px;border-radius:8px}
+body.hud66-night #hpNum{font-size:17px;min-width:42px}
+body.hud66-night #hpRow .hpIc img.ic{height:22px}
+body.hud66-night #stAtk,body.hud66-night #stDef{font-size:11px;opacity:.78}
+body.hud66-night #stAmmo{font-size:17px;padding:4px 11px;margin-left:auto;background:#fff4d6;border:1.5px solid #f0c860;color:#6d4700}
+body.hud66-night #stAmmo img.ic{height:20px}
+/* 가운데: 수정 → 보스 → 모둠 → 임무 순서. 수정 막대를 굵게, 모둠 칸·임무·오른쪽 단추는 작게 */
+body.hud66-night #bossWrap{order:1} body.hud66-night #grpBar{order:2} body.hud66-night #misWrap{order:3}
+body.hud66-night #cBar{height:22px}
+@media (min-width:1151px){ body.hud66-night #crystalWrap{min-width:300px} }
+body.hud66-night #grpBar{padding:4px 5px;gap:4px}
+body.hud66-night .gcell{width:50px;padding:9px 1px 3px}
+body.hud66-night .gcell .gn{font-size:10.5px} body.hud66-night .gcell .gs{font-size:13px} body.hud66-night .gcell .gv{font-size:9px}
+body.hud66-night #misWrap{opacity:.78;padding:3px 9px;font-size:10.5px}
+body.hud66-night #misBar{width:70px}
+body.hud66-night #topRight2{opacity:.72}
+body.hud66-night #feed div:nth-last-child(n+4){display:none}
+/* 보스 바가 뜨면 모둠 칸은 한 단 더 작게 — 보스 바가 조준점 쪽으로 밀려 내려가지 않게 */
+body.hud66-boss #misWrap{display:none!important}
+/* ── 낮: 체력 줄은 얇게(싸움이 없으니) — 자원·경험치·임무가 앞에 선다 ── */
+body.hud66-day #hpRow{margin-top:7px;padding-top:7px}
+body.hud66-day #hpBar{height:7px}
+body.hud66-day #hpNum{font-size:11px}
+/* ── 오늘 밤 미리 보기 — 왼쪽 알림 흐름의 맨 앞(자원 판 바로 아래) ── */
+#nightChip{display:flex;align-items:center;gap:6px;align-self:flex-start;max-width:100%;box-sizing:border-box;
+  padding:5px 11px 5px 7px;border-radius:999px;pointer-events:auto;cursor:pointer;
+  background:#eef2ff;border:1.5px solid #b9c6ee;color:#2d3f78;font-size:12px;line-height:1.25;box-shadow:var(--soft)}
+#nightChip[hidden],#nightChip.cardOn{display:none!important}
+#nightChip .nci img.ic{height:18px;margin:0;vertical-align:middle}
+#nightChip .ncn{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#nightChip .ncm{font-size:10.5px;font-weight:500;opacity:.7;white-space:nowrap}
+#nightChip.boss{background:#fff0ee;border-color:#eaa9a3;color:#9a2f3c}
+#nightChip.peek{animation:nc66peek .7s ease-out 1}
+@keyframes nc66peek{0%{transform:scale(1.18);box-shadow:0 0 0 6px rgba(120,140,230,.35)}100%{transform:none}}
+#nightCard{display:none;position:relative;box-sizing:border-box;pointer-events:auto;
+  padding:11px 13px 12px;border-radius:var(--rb-r,12px);background:#fbfcff;border:1.5px solid #b9c6ee;box-shadow:var(--soft);
+  color:var(--rb-ink);font-size:12.5px;line-height:1.45}
+#nightCard.on{display:block;animation:nc66in .4s cubic-bezier(.2,1.35,.4,1) 1}
+@keyframes nc66in{from{opacity:0;transform:translateX(-18px) scale(.96)}}
+#nightCard .ncDay{font-size:11px;font-weight:600;color:#56659a;padding-right:70px}
+#nightCard .ncOk{position:absolute;right:8px;top:7px;padding:3px 10px;border-radius:999px;font:600 11px/1.3 var(--f-body);
+  background:#eef2ff;border:1px solid #b9c6ee;color:#2d3f78;cursor:pointer}
+#nightCard .ncMain{display:flex;gap:10px;align-items:center;margin-top:7px}
+#nightCard .ncIc{flex:0 0 46px;height:46px;border-radius:13px;background:#e8edff;display:flex;align-items:center;justify-content:center;font-size:26px}
+#nightCard .ncIc img.ic{height:32px;margin:0}
+#nightCard .ncTx{min-width:0}
+#nightCard .ncName{font-size:17px;font-weight:600;line-height:1.3;color:#24336a}
+#nightCard .ncHint{font-size:12px;color:var(--rb-ink2);word-break:keep-all;overflow-wrap:anywhere}
+#nightCard .ncHow{margin-top:8px;font-size:11.5px;font-weight:600;color:#227650}
+#nightCard .ncPrep{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
+#nightCard .ncPrep li{padding:4px 9px;border-radius:9px;background:#eef8f2;border:1px solid #cfe9da;font-size:12.5px;word-break:keep-all;overflow-wrap:anywhere}
+#nightCard .ncPrep li img.ic{height:17px;margin:0 2px 0 0;vertical-align:-3px}
+#nightCard .ncNote{margin-top:6px;padding:4px 9px;border-radius:9px;background:#fff4e0;border:1px solid #f0d49a;color:#7a4d00;font-size:12px;font-weight:600;word-break:keep-all}
+#nightCard .ncNote[hidden]{display:none}
+#nightCard.boss{background:#fff8f6;border-color:#eaa9a3}
+#nightCard.boss .ncIc{background:#ffe3e0} #nightCard.boss .ncName{color:#a73848} #nightCard.boss .ncDay{color:#9a4a52}
+/* 카드가 떠 있는 동안 알림은 두 줄만 — 왼쪽 줄이 아래 안내·핫바까지 내려가지 않게 */
+#nightCard.on ~ #feed div:nth-last-child(n+3){display:none}
+@media (max-height:700px){
+  #nightCard{padding:8px 11px 9px}
+  #nightCard .ncMain{margin-top:4px} #nightCard .ncIc{flex-basis:38px;height:38px;font-size:22px} #nightCard .ncIc img.ic{height:26px}
+  #nightCard .ncName{font-size:15px} #nightCard .ncHint{font-size:11.5px;line-height:1.35}
+  #nightCard .ncHow{margin-top:5px} #nightCard .ncPrep li{padding:3px 8px;font-size:11.5px}
+  #nightCard.on ~ #feed{display:none}
+}
+@media (max-height:560px){ #nightCard .ncHint{display:none} }
+/* 폭 900 이하: 자원 칸 세 개가 자원 판 폭(186~210px)을 넘쳐 숫자가 판 밖으로 나갔다 — 밤처럼 작은 칸으로 */
+@media (max-width:900px){
+  #resBox .resline{gap:4px}
+  #resBox .res{padding:2px 7px 2px 3px}
+  #resBox .res i{width:18px;height:18px} #resBox .res i img.ic{height:16px}
+  #resBox .res b{font-size:12.5px;min-width:20px}
+  body.hud66-night #timeBar{width:56px}
+  /* 왼쪽 줄(186~210px)에 카드를 욱여넣으면 글이 여러 번 접혀 아래 안내 줄까지 내려간다 — 카드만 오른쪽으로 넓힌다(아래는 3D 화면뿐) */
+  #nightCard{width:min(320px,calc(100vw - 24px));align-self:flex-start}
+}
+/* ── 좁은 화면(폭 560 이하 — 세로로 든 휴대폰): 가운데 판을 맨 위 한 줄로, 양옆 판은 그 아래로 ──
+   가운데 판 높이는 ResizeObserver 가 --hud66-midH 로 알려 준다(보스 바가 뜨면 달라진다) */
+@media (max-width:560px){
+  #topMid{padding:0 8px;top:8px;gap:5px}
+  #crystalWrap{min-width:0;width:100%;box-sizing:border-box;padding:4px 10px 6px}
+  #crystalWrap .lb{margin-bottom:2px;font-size:10px}
+  #cBar{height:15px}
+  #grpBar{padding:3px 4px;gap:3px;max-width:100%;box-sizing:border-box}
+  .gcell{width:auto;flex:1 1 0;min-width:0;padding:9px 1px 3px}
+  .gcell .gn{font-size:10px} .gcell .gs{font-size:12px} .gcell .gv{font-size:9px}
+  #bossWrap{width:100%!important;box-sizing:border-box}
+  #topLeft,#topRight{top:calc(var(--hud66-midH,150px) + 16px)}
+  #topLeft{width:min(186px,calc(100vw - 24px - 164px))}
+  #topRight{max-width:156px}
+  #timeBar{display:none}
+  #dayPhase{max-width:78px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #feed{max-height:150px;overflow:hidden}
+  #feed div:nth-last-child(n+3){display:none}
+  #nightCard.on ~ #feed{display:none}
+  #resBox{min-width:0;padding:7px 9px 8px}
+  #resBox .resline{gap:4px;flex-wrap:wrap}
+  #resBox .res{padding:2px 7px 2px 3px}
+  #resBox .res b{font-size:12.5px;min-width:20px}
+  #mini{width:104px;height:104px}
+  #dayBox{padding:4px 8px;gap:6px;font-size:11px} #timeBar{width:44px}
+  #topRight2{display:grid;grid-template-columns:repeat(2,auto);gap:5px;max-width:none}
+  #topRight2 .btn{padding:5px 8px}
+  #nightCard .ncPrep li{font-size:11.5px}
+  /* 세로 휴대폰: 왼쪽 줄이 좁아 카드는 핫바 위에 가로로 꽉 차게 띄운다(9초 뒤 칩으로 접힌다) */
+  #nightCard{position:fixed;left:12px;right:12px;bottom:236px;width:auto;z-index:20}
+  #topLeft{z-index:13}   /* 카드가 오른쪽 줄(단추) 위로 오게 — 두 줄은 이 폭에서 서로 안 겹친다 */
+}
+/* 66차 FX2 — 축하 배너·보스 연출·드문 사건 알림 층(#celebr). HUD(#hud) 위에 따로 뜨고 누르는 것은 없다.
+   ★ 성능(CLAUDE.md 성능 절): 전부 DOM transform·opacity 의 짧은 애니메이션이다. 평소엔 안의 판이 모두 display:none 이라
+     한 픽셀도 안 칠한다. 화면을 덮는 판(테두리 어둠·흰 번쩍·속도선)은 보스 밤 시작·등장·처치 때 한 번씩 0.5~3초만 켠다.
+   ★ 상점 창(.pop, z 40) 위로 뜬다(z 45) — 상점에서 새 총을 사도 축하가 창 뒤에 숨지 않게. 시작 화면(z 60)보다는 아래. */
+#celebr{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden;
+  font-family:var(--f-cute,'Noto Sans KR'),'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+#celebr > *{position:absolute;display:none}
+#celBan{left:50%;top:41%;width:min(640px,94vw);transform:translate(-50%,-50%);flex-direction:column;align-items:center;
+  text-align:center;--c:#ffd84a;--c2:#ff9f1c}
+#celBan.on{display:flex}
+#celBan .cRay{position:absolute;left:50%;top:50%;width:min(460px,86vw);aspect-ratio:1;margin:0;border-radius:50%;display:none;
+  transform:translate(-50%,-50%);will-change:transform,opacity;
+  background:repeating-conic-gradient(from 0deg,var(--c) 0deg 7deg,rgba(255,255,255,0) 7deg 20deg);
+  -webkit-mask:radial-gradient(circle,#000 0 14%,rgba(0,0,0,.55) 34%,rgba(0,0,0,0) 68%);
+          mask:radial-gradient(circle,#000 0 14%,rgba(0,0,0,.55) 34%,rgba(0,0,0,0) 68%)}
+#celBan.big .cRay{display:block;animation:fx2Ray 2.6s linear both}
+#celBan .cRib{position:relative;padding:3px 14px;border-radius:999px;background:var(--c2);color:#fff;font-weight:600;font-size:clamp(13px,1.6vw,17px);
+  letter-spacing:.5px;box-shadow:0 3px 0 rgba(0,0,0,.25);text-shadow:0 1px 2px rgba(0,0,0,.45);animation:fx2Rib .35s .05s cubic-bezier(.2,1.6,.4,1) both}
+#celBan .cIc{position:relative;font-size:clamp(58px,9vw,104px);line-height:1.05;margin-top:2px;filter:drop-shadow(0 5px 0 rgba(0,0,0,.28));
+  animation:fx2Pop .6s cubic-bezier(.2,1.7,.4,1) both}
+#celBan .cIc img.ic{height:1em;vertical-align:-.1em}
+#celBan .cTt{position:relative;font-weight:600;font-size:clamp(28px,5vw,54px);line-height:1.08;letter-spacing:-1px;
+  background:linear-gradient(180deg,#fffbe0 0%,var(--c) 48%,var(--c2) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 1px #2b1600) drop-shadow(0 0 1px #2b1600) drop-shadow(0 3px 0 rgba(43,22,0,.8)) drop-shadow(0 0 10px rgba(0,0,0,.3));animation:fx2Up .5s .08s cubic-bezier(.2,1.5,.4,1) both}
+#celBan .cSub{position:relative;margin-top:6px;padding:4px 14px;border-radius:12px;background:rgba(22,28,52,.72);color:#fff;
+  font-weight:500;font-size:clamp(13px,1.7vw,18px);line-height:1.35;max-width:94%;animation:fx2Up .4s .2s both}
+#celBan .cSub:empty{display:none}
+#celBan .cSp{position:absolute;left:50%;top:44%;width:0;height:0}
+#celBan .cSp i{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:3px;background:var(--k,#ffd84a);
+  transform:rotate(45deg) scale(0);animation:fx2Spk 1.1s var(--w,0s) cubic-bezier(.15,.8,.3,1) both}
+#celBan .cSp i:nth-child(3n){border-radius:50%;background:#fff}
+#celBan .cSp i:nth-child(3n+1){background:var(--c2)}
+/* 크기 — 작은 것(레벨업·임무·밤 버팀) · 큰 것(칭호 3단계·유니크 총·전직·보스 처치) · 밤에 싸우는 중(작게·위로·짧게, 조준점을 안 가린다) */
+#celBan.sm .cTt{font-size:clamp(24px,4vw,42px)}
+#celBan.sm .cIc{font-size:clamp(44px,6vw,72px)}
+#celBan.big .cTt{font-size:clamp(32px,5.6vw,58px)}
+#celBan.big .cIc{font-size:clamp(60px,9vw,100px)}
+#celBan.nt{top:34%}
+#celBan.nt .cIc{font-size:clamp(30px,4vw,44px);display:inline-block}
+#celBan.nt .cTt{font-size:clamp(18px,2.6vw,28px)}
+#celBan.nt .cSub{font-size:12px;padding:2px 10px;margin-top:3px}
+#celBan.nt .cRib{font-size:11px;padding:2px 10px}
+#celBan.out{animation:fx2Out .32s ease-in both}
+@keyframes fx2Pop{0%{transform:scale(.15) rotate(-20deg);opacity:0}55%{transform:scale(1.22) rotate(5deg);opacity:1}
+  78%{transform:scale(.94) rotate(-2deg)}100%{transform:none;opacity:1}}
+@keyframes fx2Up{0%{transform:translateY(18px) scale(.8);opacity:0}100%{transform:none;opacity:1}}
+@keyframes fx2Rib{0%{transform:scaleX(.2);opacity:0}100%{transform:none;opacity:1}}
+@keyframes fx2Ray{0%{transform:translate(-50%,-50%) rotate(0) scale(.3);opacity:0}15%{opacity:.95}
+  75%{opacity:.8}100%{transform:translate(-50%,-50%) rotate(70deg) scale(1.08);opacity:0}}
+@keyframes fx2Spk{0%{transform:rotate(var(--a)) translateX(0) rotate(45deg) scale(.2);opacity:1}
+  70%{opacity:1}100%{transform:rotate(var(--a)) translateX(var(--d)) rotate(225deg) scale(.9);opacity:0}}
+@keyframes fx2Out{to{transform:translate(-50%,-62%) scale(.9);opacity:0}}
+/* 친구 소식 — 작은 한 줄(○○가 '전설' 칭호를 받았어요!) */
+#celChip{left:50%;top:27.5%;transform:translateX(-50%);padding:5px 14px;border-radius:999px;background:rgba(255,251,236,.95);
+  color:#243a5e;font-weight:600;font-size:14px;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis;
+  border:2px solid #ffd257;box-shadow:0 3px 10px rgba(30,30,60,.25)}
+#celChip.on{display:block;animation:fx2Chip 2.8s both}
+@keyframes fx2Chip{0%{transform:translate(-50%,-14px);opacity:0}10%,82%{transform:translate(-50%,0);opacity:1}100%{transform:translate(-50%,-8px);opacity:0}}
+/* 보스 연출 — 위아래 검은 띠(불투명)·가장자리 어둠·자막·흰 번쩍·속도선·방향 표시 */
+#fx2Bars{inset:0}
+#fx2Bars i{position:absolute;left:0;right:0;height:9vh;background:#07080d;transform:translateY(-100%)}
+#fx2Bars i:last-child{bottom:0;transform:translateY(100%)}
+#fx2Bars.on{display:block}
+#fx2Bars.on i{animation:fx2BarT 3.2s ease-in-out both}
+#fx2Bars.on i:last-child{animation-name:fx2BarB}
+#fx2Bars.on.k i{animation-duration:1.9s}
+@keyframes fx2BarT{0%{transform:translateY(-100%)}12%,86%{transform:none}100%{transform:translateY(-100%)}}
+@keyframes fx2BarB{0%{transform:translateY(100%)}12%,86%{transform:none}100%{transform:translateY(100%)}}
+#fx2Vig{inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 48%,rgba(26,0,14,.62) 82%,rgba(10,0,6,.86) 100%)}
+#fx2Vig.on{display:block;animation:fx2VigA 2.6s both}
+@keyframes fx2VigA{0%{opacity:0}18%{opacity:1}35%{opacity:.7}50%{opacity:1}100%{opacity:0}}
+#fx2Flash{inset:0;background:#fff6dc}
+#fx2Flash.on{display:block;animation:fx2Fl .5s ease-out both}
+@keyframes fx2Fl{0%{opacity:.9}100%{opacity:0}}
+#fx2Lines{inset:-10%;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,0) 0deg 5deg,rgba(255,244,200,.7) 5deg 5.7deg,rgba(255,255,255,0) 5.7deg 11deg);
+  -webkit-mask:radial-gradient(circle,rgba(0,0,0,0) 0 30%,#000 70%);mask:radial-gradient(circle,rgba(0,0,0,0) 0 30%,#000 70%)}
+#fx2Lines.on{display:block;animation:fx2Ln .7s ease-out both}
+@keyframes fx2Ln{0%{transform:scale(1.3);opacity:0}25%{opacity:1}100%{transform:scale(1);opacity:0}}
+#fx2Cap{left:0;right:0;top:41%;transform:translateY(-50%);text-align:center;color:#fff}
+#fx2Cap.lo{top:66%}
+#fx2Cap.on{display:block}
+#fx2Cap .k,#fx2Cap .n,#fx2Cap .s{display:block;margin:0 auto;width:max-content;max-width:94vw}
+#fx2Cap .k{font-weight:600;font-size:clamp(13px,1.8vw,19px);letter-spacing:3px;color:#ffb3b3;text-shadow:0 2px 4px #000;
+  animation:fx2CapIn 2.9s both}
+#fx2Cap .n{font-weight:600;font-size:clamp(34px,6.6vw,74px);line-height:1.1;letter-spacing:-1px;color:#fff1e6;
+  text-shadow:0 4px 0 #5a0e1c,0 0 22px rgba(255,60,60,.65),0 8px 18px rgba(0,0,0,.7);animation:fx2CapIn 2.9s .06s both}
+#fx2Cap .s{margin-top:4px;padding:3px 14px;border-radius:10px;background:rgba(10,8,20,.66);font-weight:500;font-size:clamp(13px,1.7vw,18px);
+  animation:fx2CapIn 2.9s .14s both}
+#fx2Cap .s:empty{display:none}
+#fx2Cap.sm .n{font-size:clamp(22px,3.8vw,40px)}
+#fx2Cap.sm .k,#fx2Cap.sm .n,#fx2Cap.sm .s{animation-duration:2s}
+#fx2Cap.gd .n{color:#fff6cf;text-shadow:0 4px 0 #6a3e00,0 0 22px rgba(255,200,60,.7),0 8px 18px rgba(0,0,0,.6)}
+#fx2Cap.gd .k{color:#ffe38a}
+@keyframes fx2CapIn{0%{transform:translateX(-46vw);opacity:0}14%{transform:translateX(2vw);opacity:1}20%{transform:none}
+  82%{transform:translateX(1.5vw);opacity:1}100%{transform:translateX(44vw);opacity:0}}
+#fx2Arrow{left:0;top:0;width:0;height:0;will-change:transform}
+#fx2Arrow.on{display:block}
+#fx2Arrow b{position:absolute;left:-22px;top:-22px;width:44px;height:44px;border-radius:50%;background:#ff4d5e;border:3px solid #fff;
+  box-shadow:0 3px 8px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+#fx2Arrow i{position:absolute;left:22px;top:-11px;width:0;height:0;border-left:18px solid #ff4d5e;border-top:11px solid transparent;border-bottom:11px solid transparent;
+  transform-origin:-22px 11px;transform:rotate(var(--r,0deg))}
+#fx2Arrow.in i{display:none}
+/* 보스 체력바 꾸밈 — 단계 글자·절반/10% 눈금·화난 단계 테두리(보스 바의 배치·크기는 HUD 갈래가 정한다. 여긴 덧붙이기만) */
+#bBar{position:relative}
+#bBar .fx2Tk{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:rgba(255,255,255,.75);pointer-events:none}
+#fx2BPh{display:inline-block;margin-left:6px;padding:0 8px;border-radius:999px;background:#6a5aa8;color:#fff;font-size:11.5px;line-height:1.6;
+  vertical-align:1px;text-shadow:none}
+#bossWrap.fx2r1 #fx2BPh{background:#e0662e}
+#bossWrap.fx2r2 #fx2BPh{background:#d11f3a;animation:fx2Beat .7s infinite}
+#bossWrap.fx2r2{border-color:#ff5d6c}
+@keyframes fx2Beat{50%{transform:scale(1.12)}}
+@media(max-height:620px){#celBan{top:43%}#celBan.nt{top:36%}#celBan .cIc{font-size:clamp(40px,8vh,72px)}#celChip{top:29%;font-size:12.5px}
+  #fx2Cap .n{font-size:clamp(28px,8vh,56px)}}
+@media(max-width:520px){#celBan .cSub{font-size:12.5px}#celChip{font-size:12px;padding:4px 10px}}
+/* 66차 SPEC — 쓰러졌을 때 관전 막대(누구를 보나·체력·넘기기)와 "일으켜 줘요" 단추.
+   관전 중(body.specOn)에는 쓰러져서 못 쓰는 핫바·터치 이동/행동 단추를 숨기고 '쓰러졌어요' 띠를 한 줄로 줄여 친구 화면을 덜 가린다.
+   효과는 짧은 opacity/transform 뿐이다. */
+body.specOn #dock,body.specOn #mbtns,body.specOn #stick{visibility:hidden;pointer-events:none}
+#downVeil.spec{padding:5px 16px;font-size:17px;line-height:1.3;bottom:14px;max-width:calc(100vw - 24px)}
+#downVeil.spec br{display:none}
+#downVeil.spec .dIc{font-size:18px;margin-right:4px}
+#downVeil.spec small{font-size:12px;margin-top:1px}
+#specBar{position:absolute;left:50%;bottom:78px;transform:translateX(-50%);z-index:31;display:none;
+  align-items:stretch;gap:6px;max-width:calc(100vw - 20px);pointer-events:none;font-family:inherit}
+#specBar.on{display:flex;animation:specIn .22s ease-out}
+@keyframes specIn{from{opacity:0;transform:translate(-50%,8px)}}
+#specBar button,#specHelp{pointer-events:auto;font:inherit;cursor:pointer;border:2px solid #fff;border-radius:14px;
+  background:rgba(255,251,245,.96);color:var(--pk-ink);box-shadow:var(--soft)}
+#specBar .specNav{width:52px;min-height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:0}
+#specBar .specNav svg{width:16px;height:16px;fill:var(--pk-ink)}
+#specBar .specNav small{font-size:11px;font-weight:600;line-height:1.2;color:var(--pk-ink2);background:rgba(120,104,170,.12);border-radius:6px;padding:1px 6px}
+#specBar .specNav:active{transform:translateY(2px)}
+#specInfo{pointer-events:none;min-width:230px;max-width:300px;padding:7px 14px 8px;border-radius:14px;border:2px solid #fff;
+  background:rgba(255,251,245,.95);color:var(--pk-ink);box-shadow:var(--soft);display:flex;flex-direction:column;justify-content:center;gap:3px}
+#specWho{display:flex;align-items:center;gap:7px;font-size:17px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden}
+#specWho .eye{font-size:12px;font-weight:600;color:var(--pk-ink2)}
+#specDot{flex:none;width:11px;height:11px;border-radius:50%;box-shadow:0 0 0 2px #fff,0 0 0 3px rgba(0,0,0,.12)}
+#specName{overflow:hidden;text-overflow:ellipsis}
+#specLv{font-size:12px;font-weight:600;color:#6b5fb0;background:rgba(120,104,170,.13);border-radius:6px;padding:1px 6px}
+#specLv:empty{display:none}
+#specHp{position:relative;height:14px;border-radius:7px;background:rgba(59,53,80,.14);overflow:hidden}
+#specHpFill{position:absolute;left:0;top:0;bottom:0;width:100%;border-radius:7px;transition:width .25s}
+#specHpNum{position:absolute;right:6px;top:-1px;font-size:11px;font-weight:600;color:#fff;text-shadow:0 1px 1px rgba(0,0,0,.45)}
+#specSub{font-size:12px;font-weight:500;color:var(--pk-ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#specHelp{position:absolute;left:calc(50% + 216px);bottom:78px;z-index:31;display:none;min-height:56px;white-space:nowrap;
+  padding:6px 14px;font-size:15px;font-weight:600;color:#b54a1c;background:linear-gradient(180deg,#fff6d8,#ffe7a6);
+  align-items:center;gap:6px}
+#specHelp.on{display:flex;animation:specIn2 .22s ease-out}
+#specHelp.on.solo{display:none}
+@keyframes specIn2{from{opacity:0;transform:translateY(8px)}}
+#specHelp small{font-size:11px;color:#8a5a1c;background:rgba(181,74,28,.12);border-radius:6px;padding:1px 6px}
+#specHelp:disabled{cursor:default;color:#8f8aa3;background:rgba(245,242,250,.94)}
+#specHelp:disabled small{display:none}
+#specHelp:not(:disabled):active{transform:translateY(2px)}
+body.touch #specBar .specNav small,body.touch #specHelp small{display:none}
+/* 좁은 화면: 부르기 단추를 관전 막대 아래 가운데로 */
+@media(max-width:900px){
+  #specBar{bottom:128px}
+  #specHelp{left:50%;transform:translateX(-50%);bottom:78px;min-height:44px}
+  #specHelp.on{animation:none}
+  #specInfo{min-width:0;width:calc(100vw - 150px);max-width:280px}
+}
+/* 관전 중엔 아래 도움말 줄(#hint)이 '쓰러졌어요' 띠와 같은 말을 한다 — 띠 쪽에 남은 시간을 넣고 줄은 숨긴다 */
+body.specOn #hint{visibility:hidden}
+@media(max-width:560px){ #specBar{bottom:170px} #specHelp{bottom:118px} }
 </style>
 </head>
 <body>
@@ -2598,6 +2889,17 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
     </div>
     <div id="potRow"></div>
   </div>
+  <!-- 66차 HUD — 오늘 밤 미리 보기. 아침에 카드(nightCard)로 한 번 뜨고, 낮 동안은 한 줄 칩(nightChip)으로 남는다.
+       알림 흐름(#feed) 바로 위 — 알림이 모이는 한 줄 흐름의 맨 앞자리다. 누르면 카드를 다시 연다(paintNightPreview) -->
+  <button class="btn" id="nightChip" type="button" title="오늘 밤 미리 보기 (누르면 자세히)" hidden><span class="nci">🌙</span><span class="ncn"></span><span class="ncm">자세히</span></button>
+  <div id="nightCard" role="status" aria-live="polite">
+    <div class="ncDay"></div>
+    <button class="ncOk" type="button" title="닫기">알았어요</button>
+    <div class="ncMain"><span class="ncIc"></span><div class="ncTx"><div class="ncName"></div><div class="ncHint"></div></div></div>
+    <div class="ncHow">이렇게 대비해요</div>
+    <ul class="ncPrep"></ul>
+    <div class="ncNote" hidden></div>
+  </div>
   <div id="feed"></div>
   </div>
 
@@ -2684,7 +2986,16 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
   <div id="pauseVeil"><div><span class="pIc">⏸️</span><br>잠깐 멈췄어요<br>
     <small>선생님 말씀을 들어 주세요</small></div></div>
   <div id="downVeil"><span class="dIc">💫</span><br>쓰러졌어요
-    <small>친구가 앞에서 8초 눌러 주면 일어나요 · 아침이면 저절로 일어나요</small></div>
+    <small>친구가 앞에서 8초 눌러 주면 일어나요<span id="specLeft"> · 아침이면 저절로 일어나요</span></small></div>
+  <!-- 66차 SPEC — 쓰러져 있는 동안 친구 관전 막대와 부르기 단추 -->
+  <div id="specBar" aria-live="polite">
+    <button id="specPrev" class="specNav" type="button" aria-label="이전 친구 보기"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11 2 L4 8 L11 14 Z"/></svg><small>Q</small></button>
+    <div id="specInfo"><div id="specWho"><span class="eye">보는 중</span><i id="specDot"></i><b id="specName">내 자리</b><span id="specLv"></span></div>
+      <div id="specHp"><i id="specHpFill"></i><span id="specHpNum"></span></div>
+      <div id="specSub"></div></div>
+    <button id="specNext" class="specNav" type="button" aria-label="다음 친구 보기"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 2 L12 8 L5 14 Z"/></svg><small>E</small></button>
+  </div>
+  <button id="specHelp" type="button">📣 <span id="specHelpTx">일으켜 줘요</span> <small>F</small></button>
 
 
   <div id="buildAssistDock">
@@ -2710,6 +3021,18 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
   <div id="hint"></div>
 
 
+</div>
+
+<!-- 66차 FX2 — 축하 배너·보스 연출·드문 사건 알림 층. HUD 와 따로 뜬다(누르는 것 없음). 속 내용은 fx2… 코드가 채운다. -->
+<div id="celebr">
+  <div id="fx2Vig"></div>
+  <div id="fx2Lines"></div>
+  <div id="fx2Flash"></div>
+  <div id="fx2Bars"><i></i><i></i></div>
+  <div id="celBan"><div class="cRay"></div><div class="cSp"></div><div class="cRib"></div><div class="cIc"></div><div class="cTt"></div><div class="cSub"></div></div>
+  <div id="fx2Cap"><span class="k"></span><span class="n"></span><span class="s"></span></div>
+  <div id="celChip"></div>
+  <div id="fx2Arrow"><b>👑</b><i></i></div>
 </div>
 
 <!-- 건설 도우미의 두 선택 화면. 기존 popOpen과 같은 모달 흐름을 쓴다. -->
@@ -9087,6 +9410,224 @@ function updRings(dt){
   rMesh.visible = live > 0;
 }
 
+/* ═══════════ 66차 WING — 날개 꼬리(반짝이·깃털)와 전직 마법진 ═══════════
+   ★ 선생님: "날 때 똥가루 이펙트, 전직했을 때 바닥에 나오는 효과를 더 멋있게".
+     예전 활공 꼬리는 공용 입자(pMesh — 조명을 받는 둥근 공)에 직업 색을 칠했다. 겨자색 공이 그늘에서 누렇게 죽어
+     '똥가루' 로 보였다. 이제 날개 전용 조각 둘을 쓴다:
+       · 반짝이 — 조명을 안 받는(MeshBasic) **불투명** 작은 네 갈래 별(늘 카메라를 본다). 밤에도 제 색으로 빛나고 깜빡인다. 직업 빛·흰빛·날개 색을 번갈아.
+       · 깃털 — 날개와 같은 결(꼭짓점 색)의 작은 깃 한 장. 흔들리며 천천히 떨어진다.
+     둘 다 **실제로 굽힌 날개 끝**(drawSheep 이 wingPointWorld 로 적은 s.wtip)에서 나온다. 반투명 면·빛무리·점광원이 없다.
+   ★ 전직 마법진 — 바닥에 눕힌 무늬 세 겹(바깥 고리·육각별·안쪽 점선)이 서로 반대로 돌며 커졌다 사라지고,
+     몸을 뚫고 하늘로 가는 가는 빛줄기 한 번, 몸을 감고 올라가는 빛 고리 넷, 솟는 반짝이, 땅에 눕힌 고리(ring flat) 두 번.
+     무늬·빛 고리·빛줄기는 가는 띠(더하기 섞기)라 칠하는 넓이가 손바닥만 하다. 빛줄기는 몸통보다 훨씬 가늘고 0.75초면 사라진다.
+   ★ 예산 — 초당 조각 수를 묶는다(WFX_RATE). 스물한 명이 한꺼번에 날아도 풀(WFX_SN·WFX_FN)이 넘치지 않게 오래된 것부터 덮어쓴다.
+   ★ 통신 없음 — 친구의 전직은 이미 오는 pc 값(jt)이 오르는 것을 보고 그 자리에서 띄운다(wingFxPeople). */
+const WFX_SN = 128, WFX_FN = 28, WFX_RATE = 150, WFX_JN = 3;
+const wfxSp = [], wfxFe = [], wfxJob = [];
+for(let i=0;i<WFX_SN;i++) wfxSp.push({t:0,t0:1,x:0,y:0,z:0,vx:0,vy:0,vz:0,g:0,sz:.06,a:0,c:new THREE.Color()});
+for(let i=0;i<WFX_FN;i++) wfxFe.push({t:0,t0:1,x:0,y:0,z:0,vx:0,vy:0,vz:0,sz:.16,a:0,ph:0,ry:0,c:new THREE.Color()});
+for(let i=0;i<WFX_JN;i++) wfxJob.push({t:-1,x:0,y:0,z:0,R:1.8,big:false,rung:0,c:new THREE.Color(),cw:new THREE.Color()});
+let wfxSI = 0, wfxFI = 0, wfxJI = 0, wfxSLive = 0, wfxFLive = 0, wfxJLive = 0, wfxTok = 40;
+/* 반짝이 — 네 갈래 별(끝 반지름 1 · 골 .26). 늘 카메라를 보고(빌보드) 제자리에서 돌며 반짝인다 */
+const wfxStarGeo = (()=>{ const P=[0,0,0], I=[];
+  for(let i=0;i<8;i++){ const a=i/8*Math.PI*2+Math.PI/2, r=i%2 ? .26 : 1; P.push(Math.cos(a)*r, Math.sin(a)*r, 0); }
+  for(let i=0;i<8;i++) I.push(0, 1+i, 1+(i+1)%8);
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(P,3)); g.setIndex(I); return g; })();
+const wfxSpMesh = new THREE.InstancedMesh(wfxStarGeo, new THREE.MeshBasicMaterial({color:0xffffff, side:THREE.DoubleSide}), WFX_SN);
+wfxSpMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(WFX_SN*3).fill(1), 3);
+/* 깃털 한 장 — 길이 1(+y), 깃대가 가운데로 지나고 끝이 둥글다. 날개 깃과 같은 음영(가운데 밝게) */
+const wfxFeGeo = (()=>{ const P=[], Cc=[], I=[];
+  for(let j=0;j<=5;j++){ const u=j/5, hw=.15*Math.sqrt(Math.max(0,Math.sin(Math.PI*(.06+.90*u)))), y=u, sh=.97-.12*u;
+    P.push(-hw*.8,y,0, 0,y,.012, hw*1.1,y,0); Cc.push(sh,sh,sh, sh+.03,sh+.03,sh+.03, sh-.03,sh-.03,sh-.03); }
+  for(let j=0;j<5;j++){ const a=j*3; I.push(a,a+3,a+4, a,a+4,a+1, a+1,a+4,a+5, a+1,a+5,a+2); }
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));
+  g.setAttribute('color',new THREE.Float32BufferAttribute(Cc,3)); g.setIndex(I); g.computeVertexNormals(); return g; })();
+const wfxFeMesh = new THREE.InstancedMesh(wfxFeGeo, flatMat(0xffffff, {side:THREE.DoubleSide, vertexColors:true}), WFX_FN);
+wfxFeMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(WFX_FN*3).fill(1), 3);
+/* 마법진 무늬 — 땅(xz)에 눕힌 가는 띠. 반지름 1 기준. 0 바깥 고리(톱니 홈 + 마름모 여덟) · 1 육각별 · 2 안쪽 점선 · 3 빛 고리 */
+const wfxRuneGeo = (kind)=>{ const P=[];
+  const quad=(ax,az,bx,bz,cx,cz,dx,dz)=>P.push(ax,0,az,bx,0,bz,cx,0,cz, ax,0,az,cx,0,cz,dx,0,dz);
+  const arc=(r0,r1,a0,a1,n)=>{ for(let i=0;i<n;i++){ const p=a0+(a1-a0)*i/n, q=a0+(a1-a0)*(i+1)/n;
+    quad(Math.cos(p)*r0,Math.sin(p)*r0, Math.cos(p)*r1,Math.sin(p)*r1, Math.cos(q)*r1,Math.sin(q)*r1, Math.cos(q)*r0,Math.sin(q)*r0); } };
+  const line=(x0,z0,x1,z1,w)=>{ const l=Math.hypot(x1-x0,z1-z0), nx=-(z1-z0)/l*w, nz=(x1-x0)/l*w;
+    quad(x0-nx,z0-nz, x0+nx,z0+nz, x1+nx,z1+nz, x1-nx,z1-nz); };
+  const gem=(r,a,s)=>{ const x=Math.cos(a)*r, z=Math.sin(a)*r, tx=-Math.sin(a)*s*.6, tz=Math.cos(a)*s*.6, rx=Math.cos(a)*s, rz=Math.sin(a)*s;
+    quad(x-rx,z-rz, x+tx,z+tz, x+rx,z+rz, x-tx,z-tz); };
+  if(kind===0){ for(let i=0;i<24;i++){ const a=i/24*Math.PI*2; arc(.93,1.0,a+.02,a+Math.PI*2/24-.02,2); }
+    arc(.84,.865,0,Math.PI*2,48); for(let i=0;i<8;i++) gem(1.11,i/8*Math.PI*2,.06); }
+  else if(kind===1){ const v=(k,o)=>[Math.cos(o+k*Math.PI*2/3)*.78, Math.sin(o+k*Math.PI*2/3)*.78];
+    for(const o of [Math.PI/2, -Math.PI/2]) for(let k=0;k<3;k++){ const a=v(k,o), b=v(k+1,o); line(a[0],a[1],b[0],b[1],.018); }
+    arc(.765,.79,0,Math.PI*2,48); }
+  else if(kind===2){ for(let i=0;i<12;i++){ const a=i/12*Math.PI*2; arc(.36,.42,a,a+Math.PI/15,2); }
+    for(let i=0;i<6;i++) gem(.56,i/6*Math.PI*2+Math.PI/6,.045); }
+  else arc(.90,1.0,0,Math.PI*2,40);
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(P,3)); return g; };
+const wfxRuneMat = new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:1, depthWrite:false,
+  blending:THREE.AdditiveBlending, side:THREE.DoubleSide, fog:false});
+const wfxRune = [0,1,2,3].map(k=>{ const m = new THREE.InstancedMesh(wfxRuneGeo(k), wfxRuneMat, k===3 ? WFX_JN*4 : WFX_JN);
+  m.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(m.count*3).fill(1), 3); m.renderOrder = 11; return m; });
+/* 빛줄기 — 밑이 0 인 열린 원기둥(더하기 섞기, 조명 없음). 몸통보다 훨씬 가늘어(반지름 .10~.13) 칠하는 넓이가 작다. 0.75초 만에 사라진다 */
+const wfxBeam = new THREE.InstancedMesh(new THREE.CylinderGeometry(1, 1, 1, 12, 1, true).translate(0, .5, 0), wfxRuneMat, WFX_JN);
+wfxBeam.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(WFX_JN*3).fill(1), 3);
+for(const m of [wfxSpMesh, wfxFeMesh, wfxBeam, ...wfxRune]){ m.frustumCulled = false; m.visible = false; m.castShadow = m.receiveShadow = false; scene.add(m); }
+
+/* 반짝이 한 알 · 깃털 한 장. take=false 면 예산을 안 본다(전직 연출처럼 드물고 한 번뿐인 것) */
+function wingFxSpark(x,y,z,col,vx,vy,vz,life,size,g,take){
+  if(take !== false){ if(wfxTok < 1) return; wfxTok--; }
+  const p = wfxSp[wfxSI = (wfxSI+1)%WFX_SN];
+  p.t = p.t0 = life; p.x=x; p.y=y; p.z=z; p.vx=vx; p.vy=vy; p.vz=vz; p.g = g||0; p.sz = size; p.a = Math.random()*6.28; p.c.setHex(col);
+  wfxSLive = WFX_SN;
+}
+function wingFxFeather(x,y,z,col,vx,vy,vz,size){
+  if(wfxTok < 1) return; wfxTok--;
+  const p = wfxFe[wfxFI = (wfxFI+1)%WFX_FN];
+  p.t = p.t0 = 1.5 + Math.random()*.5; p.x=x; p.y=y; p.z=z; p.vx=vx; p.vy=vy; p.vz=vz; p.sz=size;
+  p.a = Math.random()*6.28; p.ph = Math.random()*6.28; p.ry = Math.random()*6.28; p.c.setHex(col);
+  wfxFLive = WFX_FN;
+}
+const wfxWhite = 0xfffbea;
+/* 날개 가진 사람마다 한 번 — drawSheep 바로 뒤(주 루프). 굽힌 날개 끝 자리(s.wtip)는 이 프레임에 그렸을 때만 믿는다.
+   · 활공(내 사람만 안다): 두 날개 끝에서 반짝이 흐름 + 가끔 깃털
+   · 날갯짓(친구 포함 — 자리 통로의 높이로 '떠 있음' 을 안다): 내려칠 때마다 날개 끝에서 반짝이 한 줌, 가끔 깃털
+   · 친구의 전직: pc 로 오는 jt 가 오르면 그 자리에 마법진(들어온 지 4초 안은 무시 — pc 가 자리보다 늦게 와서 0→2 로 보인다) */
+function wingFxPeople(list, dt, t){
+  let meDrawn = false;
+  for(const s of list){
+    const me = s === meSheep; if(me) meDrawn = true;
+    const w = s._wf || (s._wf = {jt:-1, seen:t, cyc:0, acc:0, fa:0, gl:false});
+    const jt = s.jt|0;
+    if(!me && w.jt >= 0 && jt > w.jt && t - w.seen > 4 && s.jb >= 0){ const sy = s.y !== undefined ? s.y : GY, gy = groundUnder(s.x, s.z, .3);
+      jobUpFx(s.x, gy > -50 && gy <= sy + .05 ? gy : sy, s.z, s.jb|0, jt, false); }        // 마법진은 발밑 땅에 눕힌다(공중에서 전직해도)
+    w.jt = jt;
+    if(jt <= 0 || s.jb < 0 || s.down || !s.air || s.wtipT !== t || !s.wtip){ w.gl = false; continue; }
+    const W6 = JOB_WING[s.jb] && JOB_WING[s.jb][Math.min(1, jt-1)]; if(!W6) continue;
+    const wc = W6.c, ac = JOB_AURA[s.jb] || 0xffd94a, big = jt >= 2, P = s.wtip;
+    const bx = -Math.sin(s.ry||0), bz = -Math.cos(s.ry||0);                  // 뒤쪽(updPlayer 의 앞 = sin·cos yaw 의 반대)
+    const glide = me && !!s.glide;
+    if(glide){
+      if(!w.gl && me) wingFxSfx('wingGlide');
+      w.acc += dt*(big ? 40 : 28); w.fa += dt*(big ? 3.2 : 2.2);
+      while(w.acc >= 1){ w.acc--; const o = (w.acc*7|0)%2 ? 0 : 6, r = Math.random();
+        wingFxSpark(P[o] + (Math.random()-.5)*.06, P[o+1] + (Math.random()-.5)*.06, P[o+2] + (Math.random()-.5)*.06,
+          r < .40 ? ac : r < .75 ? wfxWhite : wc, bx*.5 + (Math.random()-.5)*.35, .05 + Math.random()*.2, bz*.5 + (Math.random()-.5)*.35,
+          .32 + Math.random()*.16, .055 + Math.random()*.040, .03); }
+      while(w.fa >= 1){ w.fa--; const o = Math.random() < .5 ? 3 : 9;
+        wingFxFeather(P[o], P[o+1], P[o+2], wc, bx*.7 + (Math.random()-.5)*.3, -.15, bz*.7 + (Math.random()-.5)*.3, big ? .19 : .16); }
+    } else {
+      // 날갯짓 한 번(주기가 한 바퀴 돌아 다시 위에서 내려치기 시작할 때)
+      if(s.wcyc < w.cyc - .5){
+        const n = me ? (big ? 3 : 2) : 1;
+        for(const o of [0, 6]) for(let i=0;i<n;i++){ const r = Math.random();
+          wingFxSpark(P[o], P[o+1], P[o+2], r < .45 ? ac : r < .8 ? wfxWhite : wc,
+            bx*.4 + (Math.random()-.5)*.6, -.5 - Math.random()*.4, bz*.4 + (Math.random()-.5)*.6, .32 + Math.random()*.16, .045 + Math.random()*.03, .05); }
+        if(Math.random() < (me ? .45 : .2)){ const o = Math.random() < .5 ? 3 : 9;
+          wingFxFeather(P[o], P[o+1], P[o+2], wc, bx*.5, -.1, bz*.5, big ? .18 : .15); }
+        if(me) wingFxSfx('wingFlap');
+      }
+      if(me){ w.acc += dt*(big ? 9 : 6);
+        while(w.acc >= 1){ w.acc--; const o = Math.random() < .5 ? 0 : 6;
+          wingFxSpark(P[o], P[o+1], P[o+2], Math.random() < .5 ? ac : wfxWhite, bx*.4, .05, bz*.4, .28, .04, .03); } }
+    }
+    w.cyc = s.wcyc; w.gl = glide;
+  }
+  /* 1인칭(내 몸을 안 그림)에서 활공하면 날개 끝 자리를 모른다 — 어깨 너비와 날개 크기로 어림한 두 줄기 */
+  if(!meDrawn && PL.glide && (XP.jt|0) > 0 && XP.job >= 0){
+    const W6 = JOB_WING[XP.job][Math.min(1, XP.jt-1)], sw = W6.s*SHEEP_S*1.9, fx = Math.sin(PL.yaw), fz = Math.cos(PL.yaw), rx = Math.cos(PL.yaw), rz = -Math.sin(PL.yaw);
+    const w = meSheep._wf || (meSheep._wf = {jt:-1, seen:t, cyc:0, acc:0, fa:0, gl:false});
+    w.acc += dt*28;
+    while(w.acc >= 1){ w.acc--; const sd = Math.random() < .5 ? 1 : -1, r = Math.random();
+      wingFxSpark(PL.x - fx*.25 + rx*sw*sd, PL.y + .95, PL.z - fz*.25 + rz*sw*sd, r < .5 ? (JOB_AURA[XP.job] || W6.c) : wfxWhite,
+        -fx*.5 + (Math.random()-.5)*.35, .05 + Math.random()*.2, -fz*.5 + (Math.random()-.5)*.35, .34, .05, .03); }
+  }
+}
+/* 전직 마법진 — 내 전직은 takeJob, 친구 전직은 wingFxPeople 이 부른다 */
+function jobUpFx(x, y, z, jb, jt, mine){
+  const J = wfxJob[wfxJI = (wfxJI+1)%WFX_JN], big = jt >= 2;
+  J.t = 0; J.x = x; J.y = y; J.z = z; J.big = big; J.R = big ? 1.55 : 1.25; J.rung = 0;
+  J.c.setHex(JOB_AURA[jb] || 0xffd94a); J.cw.copy(J.c).lerp(_wfxW, .35);
+  wfxJLive = WFX_JN;
+  ring(x, y + .07, z, J.cw.getHex(), J.R*1.05, .55, true);
+  const n = big ? 34 : 22, col = J.c.getHex(), cw = J.cw.getHex();
+  for(let i=0;i<n;i++){ const a = i/n*Math.PI*2 + Math.random()*.2, r = J.R*(.55 + Math.random()*.4);
+    wingFxSpark(x + Math.cos(a)*r, y + .08, z + Math.sin(a)*r, i%3 === 0 ? wfxWhite : i%3 === 1 ? cw : col,
+      -Math.cos(a)*r*.45 - Math.sin(a)*1.1, 2.2 + Math.random()*2.2, -Math.sin(a)*r*.45 + Math.cos(a)*1.1, .9 + Math.random()*.5, .05 + Math.random()*.035, -.05, false); }
+  if(mine) wingFxSfx('jobUpRise');
+  else if(window.__sfxAt){ wingFxSfxReady(); window.__sfxAt('jobUpRise', x, z, 26, 400); }
+}
+const _wfxW = new THREE.Color(0xffffff), _wfxC = new THREE.Color();
+const _wfxE = new THREE.Euler(0, 0, 0, 'YXZ'), _wfxQ = new THREE.Quaternion();
+function wingFxTick(dt){
+  wfxTok = Math.min(40, wfxTok + dt*WFX_RATE);
+  if(wfxSLive){ let live = 0;
+    for(let i=0;i<WFX_SN;i++){ const p = wfxSp[i];
+      if(p.t <= 0){ wfxSpMesh.setMatrixAt(i, ZEROM); continue; }
+      p.t -= dt; live++; p.vy -= 17*p.g*dt; const drag = Math.exp(-1.6*dt); p.vx *= drag; p.vz *= drag;
+      p.x += p.vx*dt; p.y += p.vy*dt; p.z += p.vz*dt; p.a += dt*9;
+      const k = Math.max(0, p.t/p.t0), sc = p.sz*Math.min(1, k*2.4)*(0.70 + .30*Math.sin(p.a*2.3));  // 반짝 — 크기가 숨쉬듯 깜빡인다
+      _v.set(p.x, p.y, p.z); _q.copy(camera.quaternion).multiply(_wfxQ.setFromAxisAngle(AX_Z, p.a*.35)); _s.set(sc, sc, sc);
+      wfxSpMesh.setMatrixAt(i, _m.compose(_v,_q,_s)); wfxSpMesh.setColorAt(i, p.c); }
+    wfxSpMesh.instanceMatrix.needsUpdate = true; wfxSpMesh.instanceColor.needsUpdate = true;
+    wfxSpMesh.visible = live > 0; wfxSLive = live; }
+  if(wfxFLive){ let live = 0;
+    for(let i=0;i<WFX_FN;i++){ const p = wfxFe[i];
+      if(p.t <= 0){ wfxFeMesh.setMatrixAt(i, ZEROM); continue; }
+      p.t -= dt; live++; const age = p.t0 - p.t;
+      p.vy += (-.55 - p.vy)*Math.min(1, dt*3); const drag = Math.exp(-1.2*dt); p.vx *= drag; p.vz *= drag;   // 깃털은 금방 느려져 하늘하늘 떨어진다
+      const sway = Math.sin(age*5.2 + p.ph);
+      p.x += (p.vx + Math.cos(p.ry)*sway*.35)*dt; p.y += p.vy*dt; p.z += (p.vz - Math.sin(p.ry)*sway*.35)*dt;
+      const k = Math.min(1, p.t/.35), sc = p.sz*k;
+      _v.set(p.x, p.y, p.z); _q.setFromEuler(_wfxE.set(.9 + sway*.25, p.ry + age*.8, sway*.7)); _s.set(sc, sc, sc);
+      wfxFeMesh.setMatrixAt(i, _m.compose(_v,_q,_s)); wfxFeMesh.setColorAt(i, p.c); }
+    wfxFeMesh.instanceMatrix.needsUpdate = true; wfxFeMesh.instanceColor.needsUpdate = true;
+    wfxFeMesh.visible = live > 0; wfxFLive = live; }
+  if(wfxJLive){ let live = 0;
+    for(let i=0;i<WFX_JN;i++){ const J = wfxJob[i];
+      if(J.t < 0){ for(let k=0;k<3;k++) wfxRune[k].setMatrixAt(i, ZEROM); wfxBeam.setMatrixAt(i, ZEROM); continue; }
+      J.t += dt; const T = J.t, END = J.big ? 2.7 : 2.3;
+      if(T > END){ J.t = -1; for(let k=0;k<3;k++) wfxRune[k].setMatrixAt(i, ZEROM); wfxBeam.setMatrixAt(i, ZEROM); continue; }
+      live++;
+      if(J.rung === 0 && T > .28){ J.rung = 1; ring(J.x, J.y + .08, J.z, J.c.getHex(), J.R*1.55, .8, true); }
+      if(J.rung === 1 && J.big && T > .55){ J.rung = 2; ring(J.x, J.y + .09, J.z, J.cw.getHex(), J.R*1.25, .7, true); }
+      // 무늬 세 겹 — 튀어나오듯 커지고(0.4초), 서로 반대로 돌고, 끝 0.7초에 살짝 퍼지며 사라진다
+      const g0 = Math.min(1, T/.40), grow = 1 + 2.2*Math.pow(g0-1, 3) + 1.2*Math.pow(g0-1, 2);   // 되튐 있는 커짐
+      const fade = T > END - .7 ? Math.max(0, (END - T)/.7) : Math.min(1, T/.12), spread = 1 + .12*Math.max(0, T - (END - .7));
+      const spin = [.9, -1.4, 2.1], lum = G.phase === 'night' ? 1 : .55;   // 낮 땅은 밝아서 더하기 섞기가 금방 하얗게 뜬다 — 낮에는 절반 세기
+      for(let k=0;k<3;k++){ const r = J.R*grow*spread*(k === 0 ? 1 : k === 1 ? .98 : 1.02);
+        _v.set(J.x, J.y + .06 + k*.012, J.z); _q.setFromAxisAngle(UPV, T*spin[k] + k); _s.set(r, 1, r);
+        wfxRune[k].setMatrixAt(i, _m.compose(_v,_q,_s));
+        _wfxC.copy(k === 1 ? J.cw : J.c).multiplyScalar(fade*lum*(k === 1 ? .75 : .95)); wfxRune[k].setColorAt(i, _wfxC); }
+      // 빛줄기 — 0.18초 만에 하늘까지, 0.45초부터 가늘어져 0.9초에 사라진다
+      if(T < .75){ const h = 12*Math.min(1, T/.16), rr = (J.big ? .13 : .10)*(T < .30 ? 1 : Math.max(0, 1 - (T - .30)/.45));
+        _v.set(J.x, J.y - .05, J.z); _q.identity(); _s.set(rr, h, rr); wfxBeam.setMatrixAt(i, _m.compose(_v,_q,_s));
+        _wfxC.copy(J.cw).multiplyScalar(T < .30 ? 1 : Math.max(0, 1 - (T - .30)/.45)); wfxBeam.setColorAt(i, _wfxC); }
+      else wfxBeam.setMatrixAt(i, ZEROM);
+      // 몸을 감고 올라가는 빛 고리 넷
+      for(let k=0;k<4;k++){ const u = (T - .06 - k*.13)/.95, hi = i*4 + k;
+        if(u <= 0 || u >= 1){ wfxRune[3].setMatrixAt(hi, ZEROM); continue; }
+        const r = .95 - .55*u; _v.set(J.x, J.y + .15 + 2.6*u, J.z); _q.identity(); _s.set(r, 1, r);
+        wfxRune[3].setMatrixAt(hi, _m.compose(_v,_q,_s)); _wfxC.copy(J.c).multiplyScalar(Math.sin(Math.PI*u)*lum*1.1); wfxRune[3].setColorAt(hi, _wfxC); }
+      // 무늬 가장자리에서 가끔 반짝이가 솟는다
+      if(T < END - .6 && Math.random() < dt*(J.big ? 26 : 16)){ const a = Math.random()*Math.PI*2, r = J.R*grow*(.8 + Math.random()*.25);
+        wingFxSpark(J.x + Math.cos(a)*r, J.y + .1, J.z + Math.sin(a)*r, Math.random() < .5 ? wfxWhite : J.cw.getHex(), 0, 1.4 + Math.random(), 0, .7, .045, -.02, false); }
+    }
+    for(let i=0;i<WFX_JN*4;i++) if(wfxJob[i>>2].t < 0) wfxRune[3].setMatrixAt(i, ZEROM);   // 끝난 마법진의 빛 고리 칸
+    for(const m of [...wfxRune, wfxBeam]){ m.instanceMatrix.needsUpdate = true; m.instanceColor.needsUpdate = true; m.visible = live > 0; }
+    wfxJLive = live; }
+}
+/* 소리 — FX2 갈래(축하 팡파르)와 이름이 안 겹치게 wing…/jobUp… 만 쓴다. 기존 버스(sfxOut → 압축기)를 거친다. */
+function wingFxSfxReady(){
+  if(wingFxSfxReady.ok) return; wingFxSfxReady.ok = true;
+  Object.assign(SFX, {
+    wingFlap:  ()=>{ const t = now0(); puff(.15, .045, 430, .7, t); puff(.08, .02, 1150, .9, t + .02); },          // 훅 — 깃이 공기를 누르는 낮은 바람
+    wingGlide: ()=>{ puff(.55, .028, 1500, .45); tone(900, 1350, .40, 'sine', .009); },                          // 쉬— 활짝 펴고 미끄러진다
+    jobUpRise: ()=>{ const t = now0();                                                                         // 우웅— 솟는 마법진 + 반짝이는 다섯 음
+      thump(70, 40, .55, .09, t + .01, 1.2); tone(196, 784, .95, 'sine', .045, t); tone(294, 1175, .9, 'triangle', .018, t + .05);
+      puff(.9, .03, 2600, .5, t + .05, 'highpass');
+      [1568, 2093, 2637, 3136, 4186].forEach((f,i)=> pluck(f, .32, .028, t + .34 + i*.07, .3)); }
+  });
+}
+function wingFxSfx(k){ wingFxSfxReady(); if(window.__sfx) window.__sfx(k); }
+
 /* 화살 */
 const AN = 60;
 const arrows = [];
@@ -10422,74 +10963,123 @@ const P_body = imesh(R6_BODY_GEO, AVATAR_MAT.cloth, MAXP, 1),
       P_jobR = imesh(new THREE.RingGeometry(0.62, 0.98, 24), new THREE.MeshBasicMaterial({transparent:true, opacity:0.34,
         depthWrite:false, side:THREE.DoubleSide, blending:THREE.AdditiveBlending, fog:false}), MAXP, 1);
 // 날개 원점은 등 부착점, +X는 바깥쪽, +Y는 위쪽이다. 얇은 곡면과 겹친 깃을 단계별로 공유한다.
-function wingSpine(curve){            // 어깨(0,0)에서 끝(1.78,.82)로 이어지는 중심선
-  const A = curve;
-  return (t)=>{ const a = t*A;
-    return [1.78*Math.sin(a)/Math.sin(A), 0.82*(1-Math.cos(a))/(1-Math.cos(A)) + 0.08*Math.sin(Math.PI*t)]; };
+/* ★ 66차 — 실제 새 날개처럼(선생님: "날개를 좀 더 크고 멋있고 실제같은 모션으로").
+     앞전(중심선)은 어깨에서 손목까지 올라갔다가 날개 끝 쪽으로 조금 내려온다 — 큰 새 날개를 뒤에서 본 모양이다.
+     손목에서 칼깃(첫째날개깃)이 부챗살로 펼쳐지고, 팔 아래로는 둘째날개깃이, 위에는 짧은 덮깃이 겹친다.
+     꼭짓점마다 어느 뼈에 붙었는지(wbone: 팔꿈치 무게·손목 무게·부채 무게)와 두 관절 자리(wpiv)를 적어 둔다.
+     꼭짓점 셰이더(WMAT_W)가 인스턴스마다 받은 굽힘값(wflex)으로 날개를 **관절에서 굽히고 접는다** —
+     조각을 늘리지 않고(그리기 횟수 그대로) 어깨→팔꿈치→깃 끝이 차례로 늦게 따라오는 날갯짓이 된다.
+     같은 셈을 JS 로도 둔다(wingBend) — 날개 끝 꼬리 효과 자리와 검사가 그것을 쓴다. */
+function wingSpine(curve){
+  const k = curve - 1;                                  // 1차 .20 · 2차 .12 — 1차가 조금 더 둥글게 솟는다
+  const P1x = .24, P1y = .50 + .30*k, P2x = .98, P2y = 1.10 + .25*k, P3x = 1.64, P3y = .76;
+  return (t)=>{ const u = 1-t, b = 3*u*u*t, c = 3*u*t*t, d = t*t*t;
+    return [b*P1x + c*P2x + d*P3x, b*P1y + c*P2y + d*P3y]; };
 }
 function wingGeo(o){
-  const C=wingSpine(o.curve),pos=[],colors=[],ids=[];
+  const C=wingSpine(o.curve),pos=[],colors=[],bone=[],piv=[],ids=[];
+  const TE=.34,TW=.62,PE=C(TE),PW=C(TW);              // 팔꿈치·손목 — 앞전의 몇 % 자리인가
   const tn=t=>{const a=C(Math.max(0,t-.002)),b=C(Math.min(1,t+.002)),l=Math.hypot(b[0]-a[0],b[1]-a[1]);
     return [(b[0]-a[0])/l,(b[1]-a[1])/l,-(b[1]-a[1])/l,(b[0]-a[0])/l];};
-  const width=t=>.055*(1-t)+.30*Math.pow(Math.sin(Math.PI*t),.72);
-  const V=(x,y,z,shade)=>{const i=pos.length/3;pos.push(x,y,z);colors.push(shade,shade,shade);return i;};
+  const sm=(a,b,x)=>{const u=Math.max(0,Math.min(1,(x-a)/(b-a)));return u*u*(3-2*u);};
+  const wE=t=>sm(TE-.08,TE+.08,t),wW=t=>sm(TW-.07,TW+.07,t);
+  const width=t=>.05*(1-t)+.25*Math.pow(Math.sin(Math.PI*t),.72);
+  const V=(x,y,z,shade,be,bw,fk)=>{const i=pos.length/3;pos.push(x,y,z);colors.push(shade,shade,shade);
+    bone.push(be,bw,fk,0);piv.push(PE[0],PE[1],PW[0],PW[1]);return i;};
   const Q=(a,b,c,d,back=false)=>{if(back)ids.push(a,c,b,a,d,c);else ids.push(a,b,c,a,c,d);};
-  // 어깨부터 끝까지 이어진 얇은 곡면이 윤곽을 맡고, 깃 끝은 짧게 겹친다.
+  // 어깨부터 끝까지 이어진 얇은 곡면(덮깃 바탕)이 윤곽을 맡는다.
   for(const side of [-1,1]){
     const rows=[];
     for(let i=0;i<=24;i++){
       const t=i/24,c=C(t),n=tn(t),w=width(t),row=[];
       for(const v of [-1,-.5,0,.5,1]){
-        const z=side*(.009+.025*(1-v*v)*Math.sin(Math.PI*t));
-        row.push(V(c[0]+n[2]*w*v,c[1]+n[3]*w*v,z,.92+.055*(1-Math.abs(v))));
+        const z=side*(.008+.020*(1-v*v)*Math.sin(Math.PI*t));
+        row.push(V(c[0]+n[2]*w*v,c[1]+n[3]*w*v,z,.93+.05*(1-Math.abs(v)),wE(t),wW(t),0));
       }
       rows.push(row);
     }
     for(let i=0;i<24;i++)for(let k=0;k<4;k++)Q(rows[i][k],rows[i+1][k],rows[i+1][k+1],rows[i][k+1],side<0);
   }
-  const feather=(t,short,side,index)=>{
-    const c=C(t),n=tn(t),w=width(t),len=w*(short?.72:1.62),fw=(short?.070:.100)*(1-.28*t);
-    const root=[c[0]+n[2]*w*.66,c[1]+n[3]*w*.66],rows=[];
-    let dx=-n[2]+n[0]*.22,dy=-n[3]+n[1]*.22,dl=Math.hypot(dx,dy);dx/=dl;dy/=dl;
-    for(let j=0;j<=7;j++){
-      const u=j/7,hw=fw*Math.pow(Math.sin(Math.PI*u),.65),x=root[0]+dx*len*u,y=root[1]+dy*len*u;
-      const z=side*(short?.045:.029),shade=.94+.045*u+(index%2)*.014;
-      rows.push([V(x-dy*hw,y+dx*hw,z,shade),V(x,y,z+side*.014*Math.sin(Math.PI*u),shade+.028),
-        V(x+dy*hw,y-dx*hw,z,shade)]);
+  /* 깃 한 장 — 뿌리(rx,ry)에서 (dx,dy) 쪽으로 len. 깃대(가운데)가 살짝 솟고, 바깥 깃판이 안쪽보다 좁다(실제 깃처럼 비대칭).
+     narrow 는 끝으로 갈수록 가늘어지는 정도(칼깃 끝의 홈). 끝은 둥글게 닫힌다. */
+  let tipI=0,midI=0;
+  const feather=(rx,ry,dx,dy,len,fw,z,s0,s1,be,bw,fk,side,narrow)=>{
+    const rows=[];let tip=0;
+    for(let j=0;j<=5;j++){
+      const u=j/5,hw=fw*Math.sqrt(Math.max(0,Math.sin(Math.PI*(.06+.90*u))))*(1-narrow*u*u),x=rx+dx*len*u,y=ry+dy*len*u,sh=s0+(s1-s0)*u;
+      rows.push([V(x-dy*hw*.80,y+dx*hw*.80,z,sh,be,bw,fk),tip=V(x,y,z+side*.007*Math.sin(Math.PI*u),sh+.03,be,bw,fk),
+        V(x+dy*hw*1.12,y-dx*hw*1.12,z,sh-.06,be,bw,fk)]);
     }
-    for(let j=0;j<7;j++){Q(rows[j][0],rows[j+1][0],rows[j+1][1],rows[j][1],side<0);
+    for(let j=0;j<5;j++){Q(rows[j][0],rows[j+1][0],rows[j+1][1],rows[j][1],side<0);
       Q(rows[j][1],rows[j+1][1],rows[j+1][2],rows[j][2],side<0);}
+    return tip;
   };
+  const dirTo=(ax,ay)=>{const l=Math.hypot(ax,ay);return [ax/l,ay/l];};
+  const dW=tn(TW),down=Math.atan2(-dW[3],-dW[2])-.10,tE=tn(1),outA=Math.atan2(tE[1],tE[0])-.42;
   for(const side of [-1,1]){
-    for(let i=0;i<o.nF;i++)feather(.11+i/(o.nF-1)*.77,false,side,i);
-    for(let i=0;i<o.nC;i++)feather(.13+i/(o.nC-1)*.56,true,side,i);
+    // 둘째날개깃 — 팔(어깨~손목) 아래로 가지런히, 바깥 것이 조금 길다
+    for(let i=0;i<o.nS;i++){
+      const f=i/(o.nS-1),t=.08+f*(TW-.10),c=C(t),n=tn(t),w=width(t),[dx,dy]=dirTo(-n[2]+n[0]*.20,-n[3]+n[1]*.20);
+      const tip=feather(c[0]-n[2]*w*.25,c[1]-n[3]*w*.25,dx,dy,w*1.30+.10+.06*f,.088,side*(.016+.002*i),.94,.78+.04*(i%2),wE(t),wW(t),0,side,.05);
+      if(side>0&&i===o.nS-2)midI=tip;
+    }
+    // 칼깃 — 손목에서 부챗살로. 안쪽은 아래(뒤)로, 바깥쪽은 날개 끝 방향으로 돌고 길어진다. 바깥 깃이 위로 겹친다.
+    for(let i=0;i<o.nP;i++){
+      const f=i/(o.nP-1),t=TW-.02+f*(.975-TW+.02),c=C(t),n=tn(t),w=width(t),a=down+(outA-down)*Math.pow(f,.85);
+      const tip=feather(c[0]-n[2]*w*.20,c[1]-n[3]*w*.20,Math.cos(a),Math.sin(a),o.pl*(.64+.36*Math.pow(f,.8)),.094*(1-.14*f),
+        side*(.021+.0034*i),.93,.64+.06*(i%2),1,1,f*2-1,side,.30*f);
+      if(side>0&&i===o.nP-1)tipI=tip;
+    }
+    // 덮깃 — 앞전 바로 아래를 짧게 덮어 곡면과 깃의 경계를 감춘다
+    for(let i=0;i<o.nC;i++){
+      const f=i/Math.max(1,o.nC-1),t=.13+f*.58,c=C(t),n=tn(t),w=width(t),[dx,dy]=dirTo(-n[2]+n[0]*.22,-n[3]+n[1]*.22);
+      feather(c[0]+n[2]*w*.62,c[1]+n[3]*w*.62,dx,dy,w*.78,.072*(1-.2*f),side*.044,.98,.93,wE(t),wW(t),0,side,0);
+    }
   }
   const g=new THREE.BufferGeometry();
   g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
   g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));
-  g.setIndex(ids);g.computeVertexNormals();g.computeBoundingBox();return g;
+  g.setAttribute('wbone',new THREE.Float32BufferAttribute(bone,4));
+  g.setAttribute('wpiv',new THREE.Float32BufferAttribute(piv,4));
+  g.setIndex(ids);g.computeVertexNormals();g.computeBoundingBox();
+  g.userData.tipI=tipI;g.userData.midI=midI;return g;
 }
 const WING_GEO = [
-  wingGeo({curve:1.20,nF:6,nC:3}),
-  wingGeo({curve:1.12,nF:8,nC:5})
+  wingGeo({curve:1.20,nS:5,nP:6,nC:3,pl:.50}),
+  wingGeo({curve:1.12,nS:6,nP:8,nC:5,pl:.58})
 ];
 /* 단계는 깃의 층과 색으로 구분한다. 몸과 얼굴의 크기는 바뀌지 않는다.
-   ★ 63차 — 1차 날개가 너무 작다는 요청으로 **두 단계를 같은 비율(+20%)로** 키웠다.
-     .306 → .3672 · .408 → .4896. 단계 사이 비율(1.333)은 그대로다.
-     여기가 상한에 가깝다 — t58-job-art 가 1차 ≤ .4 · 2차 ≤ .5 · 비율 ≤ 1.4 를 요구하므로
-     같은 비율로는 +22.5% 가 끝이다(2차의 .5 가 먼저 걸린다). 더 키우려면 그 단언부터
-     손봐야 하고, 접은 날개가 몸통을 파고드는지(t58-motion 의 'Folded wings never cut
-     through the torso volume') 다시 재야 한다. */
+   ★ 63차 — 1차 날개가 너무 작다는 요청으로 **두 단계를 같은 비율(+20%)로** 키웠다(.306 → .3672 · .408 → .4896).
+   ★ 66차 — "좀 더 크게" 로 한 번 더 **같은 비율 +25%**: .3672 → .459 · .4896 → .612. 단계 사이 비율(1.333)은 그대로다.
+     칼깃 부채가 생겨 기하도 끝이 조금 길어졌다. 접은 날개가 몸통을 파고들지 않는지(t58-motion)·조준선을 가리지 않는지(t57-character-view)를 다시 쟀다. */
 const JOB_WING = [
-  [{k:0,s:.3672,c:0xf5e4c8,g:0},{k:1,s:.4896,c:0xf2d17e,g:0}],
-  [{k:0,s:.3672,c:0xd9edef,g:0},{k:1,s:.4896,c:0xa8dcd8,g:0}],
-  [{k:0,s:.3672,c:0xe7efdc,g:0},{k:1,s:.4896,c:0xb8d9b4,g:0}]
+  [{k:0,s:.459,c:0xf5e4c8,g:0},{k:1,s:.612,c:0xf2d17e,g:0}],
+  [{k:0,s:.459,c:0xd9edef,g:0},{k:1,s:.612,c:0xa8dcd8,g:0}],
+  [{k:0,s:.459,c:0xe7efdc,g:0},{k:1,s:.612,c:0xb8d9b4,g:0}]
 ];
 
-const WMAT_W = flatMat(0xffffff, {side:THREE.DoubleSide, vertexColors:true});   // 45차b — 깃 결은 꼭짓점 색이다
+/* 45차b — 깃 결은 꼭짓점 색이다. 66차 — 꼭짓점 셰이더가 관절에서 굽힌다(wingBend 와 같은 셈 — 바꿀 때 둘을 함께).
+   법선도 같은 회전으로 돌린다(pt=0 이면 관절 자리 없이 방향만 돈다). 그림자는 원래 안 드리우므로 깊이 재질은 손대지 않는다. */
+const WMAT_W = (()=>{ const m = flatMat(0xffffff, {side:THREE.DoubleSide, vertexColors:true});
+  const GLSL = 'attribute vec4 wbone; attribute vec4 wpiv; attribute vec4 wflex;\n'
+    + 'vec2 wingRot(vec2 p, vec2 c, float a){ float s = sin(a), k = cos(a); p -= c; return c + vec2(p.x*k - p.y*s, p.x*s + p.y*k); }\n'
+    + 'vec3 wingBend(vec3 p, float pt){ vec2 pe = wpiv.xy*pt, pw = wpiv.zw*pt;\n'
+    + '  p.xy = wingRot(p.xy, pw, wflex.w*wbone.z + wflex.y*wbone.y);\n'
+    + '  float a = wflex.z*wbone.y, s = sin(a), k = cos(a), dx = p.x - pw.x;\n'
+    + '  p.x = pw.x + dx*k + p.z*s; p.z = p.z*k - dx*s;\n'
+    + '  p.xy = wingRot(p.xy, pe, wflex.x*wbone.x); return p; }\n';
+  m.userData.wingGLSL = GLSL;
+  m.onBeforeCompile = (sh)=>{ sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\n' + GLSL)
+      .replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\nobjectNormal = wingBend(objectNormal, 0.0);')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\ntransformed = wingBend(transformed, 1.0);'); };
+  m.customProgramCacheKey = ()=> 'wing-bend-66';
+  return m; })();
 const WMAT_G = new THREE.MeshBasicMaterial({transparent:true, opacity:0.10, side:THREE.DoubleSide,
   depthWrite:false, blending:THREE.AdditiveBlending, fog:false});                // 깃이 여러 겹이라 짙으면 얼룩진다
-const P_wing  = [imesh(WING_GEO[0], WMAT_W, MAXP*2, 1), imesh(WING_GEO[1], WMAT_W, MAXP*2, 1)];
+/* 66차 — 인스턴스마다 굽힘값(wflex: 팔꿈치 굽힘·손목 굽힘·손 접기·칼깃 부채). drawSheep 이 날개를 놓을 때 함께 적는다. 정원은 P_wing 과 같다. */
+const P_wing  = WING_GEO.map(g=>{ g.setAttribute('wflex', new THREE.InstancedBufferAttribute(new Float32Array(MAXP*2*4), 4));
+  return imesh(g, WMAT_W, MAXP*2, 1); });
 const P_wingG = [imesh(WING_GEO[0], WMAT_G, MAXP*2, 1), imesh(WING_GEO[1], WMAT_G, MAXP*2, 1)];
 for(const m of [P_wing[0], P_wing[1], P_wingG[0], P_wingG[1]]) m.castShadow = m.receiveShadow = false;
 P_jobF.castShadow = P_jobF.receiveShadow = P_jobR.castShadow = P_jobR.receiveShadow = false;
@@ -11247,6 +11837,7 @@ function drawWolves(list, t, dt){
        예전엔 0.18초 내내 흰색·민트라 연발로 맞으면 좀비가 계속 하얀 덩어리로 보였다. */
     const hitCol = !(w.hurt > 0) ? 0 : w.hurt > (w.hitC ? 0.12 : 0.15) ? 0xffffff : (w.hitC && w.hurt > 0.07) ? 0xffd98a : 0;
     const col = hitCol ? hitCol                                                    // 피 대신 흰·민트 타격 반짝임
+                         : w.fx2Gold ? 0xffc21f                                    // 66차 드문 사건 '황금 좀비' — 온몸이 금빛(맞으면 여전히 흰 번쩍)
                          : (w.healed>0 ? 0x9dffb3 : rankTint(w.col!==undefined ? w.col : d.col, boss?0:rk));   // 36차 — 치유 받으면 잠깐 초록
 
     /* ═══ 65차 — 사실적인 좀비 걸음 ═══
@@ -11323,7 +11914,7 @@ function drawWolves(list, t, dt){
     /* ── 좀비 몸(R6) ── 사람과 **똑같은 자리표**(R6_*)를 sc 배로 쓴다. 종류별 몸꼴(LK.bw/bh/hw)이 그 위에 곱해진다.
        65차 — 살빛은 창백하고 얼룩진 회녹색 층: 얼굴은 더 창백 · 광대는 밝게 · 목·손끝·눈두덩은 어둡게. 좀비마다 누렇게/푸르게 조금씩 다르다.
        모든 부위가 같은 bob 을 써야 걸을 때 서로 어긋나지 않는다. */
-    const hit    = !!hitCol || w.healed>0;
+    const hit    = !!hitCol || w.healed>0 || !!w.fx2Gold;
     /* 51차b — 좀비마다 살빛이 조금씩 다르다(±8%). 스무 마리가 똑같은 초록이면 한 덩어리로 보인다 */
     const vj     = 0.92 + (((w.ph||0)*7.3) % 1)*0.16;
     const skin0  = zomDark(boss?[0,0x7d8a6c,0x70795c,0x8bb8ac,0x7f8676,0x8c978c][d.boss]:zomSkin(col),1-vj);
@@ -11929,12 +12520,50 @@ function avatarWingPose(si,{t=0,phase=0,mv=0,run=0,air=0,glide=0,aim=false,down=
   const a=typeof aim==='number'?Math.max(0,Math.min(1,aim)):aim?1:0,flight=Math.max(0,Math.min(1,air))*(1-a),g=Math.max(0,Math.min(1,glide));
   // 같은 주기를 유지해 점프↔활공 전환 때 위상이 튀지 않는다. 내려치기는 짧고 회복은 길게 한다.
   const cycle=((t*1.75+phase/(Math.PI*2))%1+1)%1;
-  const stroke=cycle<.40?Math.cos(Math.PI*cycle/.40):-Math.cos(Math.PI*(cycle-.40)/.60);
-  const flap=stroke*(.38-.08*g);
-  const fold=down?1.40:(1.12+.36*a)*(1-flight)+(.36-.22*g)*flight;
-  const roll=down?-.84:(-.62-.14*a)*(1-flight)+(.03+.13*g+flap)*flight;
+  const st=c=>{c=(c%1+1)%1;return c<.40?Math.cos(Math.PI*c/.40):-Math.cos(Math.PI*(c-.40)/.60);};
+  const stroke=st(cycle);
+  /* ★ 66차 — 실제 새 날갯짓.
+       · 어깨가 먼저 움직이고 팔꿈치·손목이 차례로 늦게 따라온다(위상 차 — 내려칠 때 깃 끝이 위로 휘어 끌려오고, 올릴 때 아래로 처져 끌려온다).
+       · 올릴 때는 손을 뒤로 접어(손 접기) 공기를 덜 받고 칼깃을 모은다. 내려칠 때는 쫙 펴고 칼깃을 부채처럼 벌린다.
+       · 활공은 날개를 활짝 편 채 천천히 오르내리며, 깃 끝만 바람에 떨듯 미세하게 고친다. */
+  const up=cycle>=.40?Math.sin(Math.PI*(cycle-.40)/.60):0;
+  const soar=Math.sin(Math.PI*2*(t*.875+phase/(Math.PI*4)));
+  const flap=stroke*.50*(1-g)+soar*.07*g;
+  const flutter=Math.sin(t*11.3+phase*1.7)*.045+Math.sin(t*17.9+phase)*.02;
+  const fe=flight*((1-g)*.55*(st(cycle-.08)-stroke)+g*(.05*soar)),
+        fw=flight*((1-g)*(.50*(st(cycle-.16)-st(cycle-.08))-.08*up)+g*(.06+flutter)),
+        fs=flight*(1-g)*.65*up,
+        ff=flight*((1-g)*(.14-.34*up)+g*(.16+.5*flutter));
+  const fold=down?1.40:(1.12+.36*a)*(1-flight)+(.36-.22*g+(1-g)*(.14*up-.05))*flight;
+  const roll=down?-.84:(-.62-.14*a)*(1-flight)+(.08-.05*g+.13*g+flap)*flight;
   return {f:-.21,u:1.06,sd:.19*si,yaw:si*fold,pitch:-.08-.15*g,
-    roll:si*(roll+(down?0:Math.sin(t*1.8+phase)*.012*(1-flight)*(1-a))),span:(.90-.14*a)*(1-flight)+(1+.10*g)*flight};
+    roll:si*(roll+(down?0:Math.sin(t*1.8+phase)*.012*(1-flight)*(1-a))),span:(.90-.14*a)*(1-flight)+(1+.10*g)*flight,
+    cycle,fe,fw,fs,ff};
+}
+/* ★ 66차 — 꼭짓점 셰이더(WMAT_W 의 wingBend)와 **같은 셈**. 날개 끝 꼬리 효과 자리와 검사가 쓴다.
+   순서: 칼깃 부채·손목 굽힘(손목 중심) → 손 접기(손목에서 뒤로, 날개 면 밖으로) → 팔꿈치 굽힘(팔꿈치 중심).
+   f 는 [팔꿈치, 손목, 손 접기, 부채] 굽힘값, be·bw·fk 는 그 꼭짓점이 두 뼈와 부채에 붙은 무게다. */
+function wingBend(out,x,y,z,be,bw,fk,pex,pey,pwx,pwy,f){
+  let a=f[3]*fk+f[1]*bw,s=Math.sin(a),k=Math.cos(a),dx=x-pwx,dy=y-pwy;
+  x=pwx+dx*k-dy*s;y=pwy+dx*s+dy*k;
+  a=f[2]*bw;s=Math.sin(a);k=Math.cos(a);dx=x-pwx;
+  const nx=pwx+dx*k+z*s;z=z*k-dx*s;x=nx;
+  a=f[0]*be;s=Math.sin(a);k=Math.cos(a);dx=x-pex;dy=y-pey;
+  out[0]=pex+dx*k-dy*s;out[1]=pey+dx*s+dy*k;out[2]=z;return out;
+}
+/* 굽힘 네 값을 인스턴스 칸에 적는다(검사용 가짜 기하에는 칸이 없으니 건너뛴다) */
+function wingFlexSet(mesh,i,w){
+  const at=mesh.geometry.attributes.wflex;if(!at)return;
+  at.array[i*4]=w.fe;at.array[i*4+1]=w.fw;at.array[i*4+2]=w.fs;at.array[i*4+3]=w.ff;
+}
+/* 굽힌 날개의 한 꼭짓점을 세계 자리로 — 방금 setSheepAttachment 가 _m 에 만든 행렬을 그대로 쓴다 */
+const _wbF=[0,0,0,0],_wbO=[0,0,0];
+function wingPointWorld(geo,vi,w,m,out,o){
+  const P=geo.attributes.position,B=geo.attributes.wbone,V=geo.attributes.wpiv;if(!B||!V)return false;
+  _wbF[0]=w.fe;_wbF[1]=w.fw;_wbF[2]=w.fs;_wbF[3]=w.ff;
+  wingBend(_wbO,P.getX(vi),P.getY(vi),P.getZ(vi),B.getX(vi),B.getY(vi),B.getZ(vi),V.getX(vi),V.getY(vi),V.getZ(vi),V.getW(vi),_wbF);
+  const e=m.elements,x=_wbO[0],y=_wbO[1],z=_wbO[2];
+  out[o]=e[0]*x+e[4]*y+e[8]*z+e[12];out[o+1]=e[1]*x+e[5]*y+e[9]*z+e[13];out[o+2]=e[2]*x+e[6]*y+e[10]*z+e[14];return true;
 }
 const _sheepAttachQ=new THREE.Quaternion(),_sheepAttachE=new THREE.Euler();
 function setSheepAttachment(mesh,i,x,y,z,bodyYaw,bodyPitch,yaw,pitch,roll,sx,sy,sz,col){
@@ -12295,8 +12924,13 @@ function drawSheep(list, t, cap, colOf, scale){
         for(const si of [1,-1]){
           const wing=avatarWingPose(si,{t,phase:s.ph||0,mv:mvK,run:runK,air:airK,glide:glideK,aim:wingAimK,down});
           const px=BX(wing.f,wing.u,wing.sd),py=BY(wing.f,wing.u),pz=BZ(wing.f,wing.u,wing.sd);
-          if(wN[mi] < P_wing[mi].count_max)
-            setSheepAttachment(P_wing[mi],wN[mi]++,px,py,pz,ry,lean,wing.yaw,wing.pitch,wing.roll,ws*si*wing.span,ws,ws,WG.c);
+          if(wN[mi] < P_wing[mi].count_max){ const wi = wN[mi]++;
+            setSheepAttachment(P_wing[mi],wi,px,py,pz,ry,lean,wing.yaw,wing.pitch,wing.roll,ws*si*wing.span,ws,ws,WG.c);
+            wingFlexSet(P_wing[mi],wi,wing);                                   // 66차 — 관절 굽힘(셰이더가 읽는다)
+            /* 66차 — 날 때만 날개 끝·깃 뒷전 자리를 세계 좌표로 적어 둔다(꼬리 효과가 실제 굽힌 날개 끝에서 나온다) */
+            if(airK > .3 && !down){ const G6 = WING_GEO[mi], wt = s.wtip || (s.wtip = new Float32Array(12)), o = si > 0 ? 0 : 6;
+              wingPointWorld(G6, G6.userData.tipI, wing, _m, wt, o); wingPointWorld(G6, G6.userData.midI, wing, _m, wt, o+3);
+              if(si < 0){ s.wtipT = t; s.wcyc = wing.cycle; } } }
           if(WG.g && wgN[mi] < P_wingG[mi].count_max)
             setSheepAttachment(P_wingG[mi],wgN[mi]++,px,py,pz,ry,lean,wing.yaw,wing.pitch,wing.roll,ws*si*wing.span*1.018,ws*1.018,ws*1.018,WG.c);
         } }
@@ -12377,7 +13011,8 @@ function drawSheep(list, t, cap, colOf, scale){
   P_jobF.visible = jobFN > 0; P_jobR.visible = jobRN > 0;
   if(jobRN > 0 && P_jobR.instanceColor) P_jobR.instanceColor.needsUpdate = true;
   for(let i=0;i<2;i++){ P_wing[i].count = wN[i]; P_wing[i].visible = wN[i] > 0;
-                        P_wingG[i].count = wgN[i]; P_wingG[i].visible = wgN[i] > 0; }
+                        P_wingG[i].count = wgN[i]; P_wingG[i].visible = wgN[i] > 0;
+                        const wf = P_wing[i].geometry.attributes.wflex; if(wf && wN[i] > 0) wf.needsUpdate = true; }   // 66차 — 관절 굽힘 칸
   flush(P_body,P_head,P_arm,P_hand[0],P_hand[1],P_eye,P_nose,P_mouth,P_legs,P_shoe,P_deco,P_gun,P_gunF,P_jobF,P_jobR,
         P_wing[0],P_wing[1],P_wingG[0],P_wingG[1],...P_jobMeshes);
   drawAvatarShadows(list,cap,scale);
@@ -12769,34 +13404,13 @@ function updPlayer(dt){
      && PL.vy < 0.4 && (PL.glideT||0) > 0){
     PL.glide = true; PL.glideT -= dt;
     if(PL.vy < GLIDE_VY) PL.vy = GLIDE_VY;
-    /* ★ 63차 — 활공 꼬리. 예전에는 0.13초마다 몸 가운데에서 알갱이 두셋이 **위로 뿅 튀었다가**
-       중력으로 떨어지고 바닥에서 튕겼다 — 꼬리가 아니라 알약을 뿌리는 것처럼 보였다.
-       이제는 **날개 끝에서 좌우 번갈아** 뒤로 흘린다. 거의 안 떨어지고(spark 는 중력 6%),
-       바닥에서 안 튕기며, 수명 내내 부드럽게 줄어든다 — 두 줄기 리본이 남는다.
-       뿌리는 주기도 0.13 → 0.028 초로 촘촘하게 해서 알갱이가 아니라 흐름으로 읽히게 한다. */
-    PL.glideFx = (PL.glideFx||0) - dt;
-    if(PL.glideFx <= 0){ PL.glideFx = 0.028;
-      const gc = JOB_AURA[XP.job] || 0xffd94a;
-      const gfx = Math.sin(PL.yaw), gfz = Math.cos(PL.yaw);      // 앞
-      const grx = Math.cos(PL.yaw), grz = -Math.sin(PL.yaw);     // 오른쪽
-      const gs = (PL.glideSide = -(PL.glideSide || 1));          // 좌우 번갈아 — 두 줄기가 된다
-      for(let i = 0, n = jTier >= 2 ? 2 : 1; i < n; i++){
-        const sp = .40 + Math.random()*.26;                      // 어깨에서 날개 끝까지
-        spark(PL.x - gfx*.22 + grx*sp*gs + (Math.random()-.5)*.14,
-              PL.y + .92            + (Math.random()-.5)*.14,
-              PL.z - gfz*.22 + grz*sp*gs + (Math.random()-.5)*.14,
-              gc,
-              -gfx*1.7 + grx*.55*gs + (Math.random()-.5)*.5,     // 뒤로 흐르며 바깥으로 퍼진다
-              .22 + Math.random()*.30,                           // 살짝 떠오른다
-              -gfz*1.7 + grz*.55*gs + (Math.random()-.5)*.5,
-              .42 + Math.random()*.22,                           // 수명
-              .34 + Math.random()*.26);                          // 크기 — 작은 반짝이
-      }
-    }
+    /* ★ 66차 — 활공 꼬리는 wingFxPeople 로 옮겼다(선생님: "날 때 똥가루 이펙트 … 더 멋있게").
+       63차의 공용 입자(조명 받는 둥근 공 · 직업 색)는 그늘에서 누렇게 죽어 가루처럼 보였다.
+       이제 **굽힌 날개 끝**에서 조명 없는 반짝이와 깃털이 흐른다. 1인칭(내 몸을 안 그림)이면 어림 자리에서 낸다. */
   }
   PL.y += PL.vy*dt;
   if(!PL.ground && !PL.down){ if(PL.flipT !== undefined && PL.flipT < 9) PL.flipT += dt;                                    // 공중제비 진행
-    PL.trailT = (PL.trailT||0) - dt; if(PL.trailT <= 0 && Math.abs(PL.vy) > 2.5){ PL.trailT = 0.05; burst(PL.x, PL.y + 0.15, PL.z, 0xffffff, 1, 0.26); } }   // 공중 잔상 — 흰 퍼프가 궤적을 그린다
+    PL.trailT = (PL.trailT||0) - dt; if(PL.trailT <= 0 && Math.abs(PL.vy) > 2.5 && jTier <= 0){ PL.trailT = 0.05; burst(PL.x, PL.y + 0.15, PL.z, 0xffffff, 1, 0.26); } }   // 66차 — 날개가 있으면 날개 꼬리(wingFxPeople)가 대신한다   // 공중 잔상 — 흰 퍼프가 궤적을 그린다
   if(PL.takeT > 0) PL.takeT -= dt;
   if(camDip > 0){ camDip *= Math.exp(-dt*9); if(camDip < 0.004) camDip = 0; }
   if(PL.y <= gnd){
@@ -12837,6 +13451,8 @@ function updPlayer(dt){
   if(Math.abs(camAimBlend-aimWant)<0.0001) camAimBlend=aimWant;
   const viewPitch = Math.max(-1.35, Math.min(1.35, PL.pitch + camAimBlend*AIM_VIEW.lift));
   camera.rotation.set(viewPitch + aimKick, PL.yaw + aimSway, aimRoll, 'YXZ');
+  /* 66차 — 쓰러져서 친구·전장을 보는 중이면 카메라는 specCam 이 놓는다(내 몸 카메라 닻은 돌아올 때 새로 붙는다) */
+  if(PL.down && specCam(dt)){ camBodyHidden = false; held.visible = false; return; }
 
   const tk = tpvKind();
   const back = PL.down ? DOWN_CAM : tk === 1 ? camZoom + (AIM_VIEW.back-camZoom)*camAimBlend + fovRun*0.05*(1-camAimBlend) : tk >= 0 ? MINI_CAM[tk] + fovRun*0.05 : 0;      // 39차 — 달리면 조금 더 물러난다 · 48차 — 마을은 휠로 정한 거리
@@ -13904,14 +14520,10 @@ function xpGain(n, why){
   XP.xp += n;
   while(XP.lv < LV_MAX && XP.xp >= XP_NEED[XP.lv]){
     XP.xp -= XP_NEED[XP.lv]; XP.lv++; XP.pts++; XP.lvT = 2.6;
-    /* ★ 축포를 내 자리에 터뜨리면 안 된다 — 눈에서 0.3칸 앞이라 화면이 금색 덩어리가 된다
-       (총구 화염에서 똑같은 실수를 한 적이 있다). 앞쪽 위로 조금 띄운다. */
-    {  const f = forward();
-       burst(PL.x + f.x*3.0, PL.y + 1.9, PL.z + f.z*3.0, 0xffd43b, 22, 1.1);
-       burst(PL.x + f.x*3.0, PL.y + 2.3, PL.z + f.z*3.0, 0xfff2c0, 10, 0.9); }
-    if(window.__sfx) window.__sfx('up');
-    /* toast 는 글자만 넣는다(textContent) — 태그를 쓰면 그대로 글자로 보인다 */
-    toast(`⭐ 레벨 ${XP.lv}! — ${isTouch?'왼쪽 위 레벨 막대를':'C 키를'} 눌러 스텟을 찍으세요`, 3.2, '#ffe066');
+    /* 66차 — 축하 배너·팡파르·빛가루는 fx2Cel 한 곳에서(한 번에 여러 레벨이 오르면 배너 하나로 합친다).
+       ★ 빛가루는 1인칭이면 앞쪽 3칸 위에서 터진다 — 눈앞에서 터뜨리면 화면이 금색 덩어리가 된다(예전 규칙 그대로). */
+    fx2Cel({k:'lv', ic:XP.lv >= LV_MAX ? '🏆' : '⭐', rib:'레벨 업!', tt:`레벨 ${XP.lv}` + (XP.lv >= LV_MAX ? ' — 만렙!' : '!'),
+            sub:`스텟 1점 받았어요 — ${isTouch?'왼쪽 위 레벨 막대를':'C 키를'} 눌러 찍으세요`, snd:'fx2Lv'});
     feed(`⭐ <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b> <b>레벨 ${XP.lv}</b>`
        + (XP.lv >= LV_MAX ? ' — 만렙! 🏆' : ' — 스텟 1점을 받았어요 (C)'));
     netPCDirty = true;
@@ -14563,11 +15175,10 @@ function buyWeapon(i){
   if(KIT.ownW[i] || !canPay(W.cost)) return;
   if(!wpnLvOk(i)){ toast(`🔒 ${W.n}${josa(W.n,'은','는')} 레벨 ${wpnLv(i)}부터 살 수 있어요`, 2.2, '#ffd0a0'); return; }   // 65차 — 단추를 우회해도 막는다
   spend(W.cost); KIT.ownW[i] = true; equipWeapon(i);
-  toast(`${W.ic} ${W.n}${josa(W.n,'을','를')} 샀어요! — 🎒 I 로 바꿔 낄 수 있어요`, 2.6, '#ffe9a0');
+  fx2Cel({k:'gun', ic:W.ic, rib:'새 무기', tt:`${W.n}!`, sub:`샀어요 — 🎒 ${isTouch ? '가방' : 'I'} 에서 바꿔 낄 수 있어요`, snd:'fx2Gun', col:'#ffd9a0'});   // 66차
   setTimeout(()=>noteRecipes(i), 1400);           // 29차 — 이 총이 들어가는 조합표가 있으면 알려 준다
   feed(`${W.ic} <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')}`
      + ` <b>${W.n}</b>${josa(W.n,'을','를')} 샀습니다`);
-  if(window.__sfx) window.__sfx('up');
   buildShopUI();
 }
 /* ═══ 29차 — 조합 (대장장이의 조합표) ═══ */
@@ -14579,12 +15190,12 @@ function craftWeapon(i){
   KIT.ownW[W.from] = false; KIT.enh[W.from] = 0;
   KIT.ownW[i] = true; KIT.enh[i] = e;
   equipWeapon(i);                                  // 만든 총을 바로 든다 (넣은 총은 없어졌다)
-  toast(`🔨 ${W.ic} ${W.n}${josa(W.n,'이','가')} 완성! ${TIER_TXT[W.tier]} 무기예요` + (e ? ` (+${e} 그대로)` : ''), 3.2, TIER_COL[W.tier]);
   feed(`🔨 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')}`
      + ` <b style="color:${TIER_COL[W.tier]}">${TIER_TXT[W.tier]} ${W.n}</b>${josa(W.n,'을','를')} 만들었어요!`);
-  if(window.__sfx) window.__sfx('craft');
-  { const f = forward();
-    burst(PL.x + f.x*3.0, PL.y + 1.9, PL.z + f.z*3.0, W.tier === 'unique' ? 0xff9a3c : 0x7f9cff, 30, 1.3); }
+  if(window.__sfx) window.__sfx('craft');          // 망치 소리 — 뒤이어 축하 팡파르(0.35초 뒤)
+  /* 66차 — 유니크는 큰 축하, 레어는 작은 축하 */
+  fx2Cel({k:'gun', ic:W.ic, rib:`${TIER_TXT[W.tier]} 무기 완성`, tt:`${W.n}!`, sub:'대장장이가 만들어 줬어요' + (e ? ` · 강화 +${e} 그대로` : ''),
+          big:W.tier === 'unique', col:TIER_COL[W.tier], snd:W.tier === 'unique' ? 'fx2Big' : 'fx2Gun', sndDelay:0.35});
   hudPrev.kit = ''; netPCDirty = true;
   noteRecipes(i);
   buildForgeUI();
@@ -14693,17 +15304,16 @@ function takeJob(i){
   netPCDirty = true; syncMyPC();
   el('popJob').classList.remove('on');
   if(window.__sfx){ window.__sfx('up'); window.__sfx(due >= 2 ? 'win' : 'get'); }
-  /* 45차 — 전직 순간: 내 발밑에서 직업 색 기둥이 솟고(2차는 두 배), 흰 빛이 터지고, 화면이 한 번 번쩍한다.
-     전에는 앞쪽 3칸 허공에서만 터져서 3인칭이 아니면 내가 변한 티가 안 났다. */
-  { const ac = JOB_AURA[i] || 0xffd94a, big = due >= 2;
-    for(let k=0;k<(big?5:3);k++) burst(PL.x, PL.y + 0.3 + k*0.55, PL.z, ac, big ? 14 : 9, 1.0 + k*0.25);
-    burst(PL.x, PL.y + 1.2, PL.z, 0xfff6e0, big ? 26 : 16, 1.6);
-    goodFlash(big ? 420 : 280); if(window.__shake) window.__shake(big ? 0.5 : 0.3, 0.22);
-    const f = forward();
-    burst(PL.x + f.x*3.0, PL.y + 1.9, PL.z + f.z*3.0, ac, 24, 1.3); }
+  /* 45차 — 전직 순간: 화면이 한 번 번쩍하고 살짝 흔들린다.
+     ★ 66차 — 발밑 효과를 마법진으로(jobUpFx): 땅에 눕힌 무늬 세 겹이 돌며 퍼지고, 빛줄기 한 번, 빛 고리·반짝이가 솟는다.
+       예전의 직업 색 공 기둥(burst 셋~다섯 줄)과 앞 3칸 허공의 공 터짐은 뺐다 — 조명 받는 공이 누렇게 보였다. */
+  { const big = due >= 2;
+    { const gy = groundUnder(PL.x, PL.z, PL.R); jobUpFx(PL.x, gy > -50 && gy <= PL.y + .05 ? gy : PL.y, PL.z, i, due, true); }   // 발밑 땅에
+    goodFlash(big ? 420 : 280); if(window.__shake) window.__shake(big ? 0.5 : 0.3, 0.22); }
   const name=jobName(i,due);
-  toast(`${J.ic} ${name}${josa(name,'이','가')} 되었어요! ${STATS[J.st].ic} ${STATS[J.st].n}을 더 찍을 수 있어요`,
-        3.4, J.col);
+  /* 66차 — 전직 축하(큰 배너 + 드럼롤 팡파르). 바닥 효과·전직 소리는 날개 갈래(jobUp…) 몫이라 여기선 3D 빛가루를 안 얹는다 */
+  fx2Cel({k:'job', ic:J.ic, rib:(due >= 2 ? '2차' : '1차') + ' 전직', tt:`${name}${josa(name,'이','가')} 되었어요!`,
+          sub:`${STATS[J.st].ic} ${STATS[J.st].n}을 더 찍을 수 있어요`, big:true, col:J.col, snd:'fx2Big', no3d:true});
   feed(`${J.ic} <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
      + `<b style="color:${J.col}">${name}</b> 직업으로 전직했어요!`);
   if(popOpen() && el('popStat').classList.contains('on')) buildStatUI();
@@ -14981,9 +15591,9 @@ let misSeenD = 0;
 function misWatch(){
   if(G.misD && !misSeenD){
     misSeenD = 1;
+    /* 66차 — 임무 축하를 먼저 줄 세운다(뒤이어 레벨이 오르면 그 축하가 다음 차례로 온다) */
+    fx2Cel({k:'mis', ic:'🎯', rib:'오늘의 임무', tt:'임무 완료!', col2:'#1f9d57', sub:`모든 모둠 🪵${MIS_REWARD.w} 🪨${MIS_REWARD.s} ✨${MIS_REWARD.g} · 나는 경험치 +${MIS_XP}`, snd:'fx2Mis', col:'#8ff0b0'});
     xpGain(MIS_XP);
-    if(window.__sfx) window.__sfx('win');
-    toast('🎉 오늘의 임무 완료! 자재와 경험치를 받았어요', 3.4, '#ffe066');
   } else if(!G.misD) misSeenD = 0;
 }
 
@@ -15089,6 +15699,7 @@ function sheepHurt(dt){
 function goDown(){
   if(PL.down) return;
   PL.down = true; PL.downT = 0; workStop();
+  SPEC.auto = true; SPEC.autoT = SPEC_AUTO; SPEC.helpT = 0;   // 66차 — 조금 뒤 살아 있는 친구 쪽으로 카메라를 옮긴다
   setAimMode(false, true);      // 쓰러졌는데 총을 든 채로 두면 일어났을 때 못 캔다
 
   /* 3인칭으로 넘어가는 순간 살짝 내려다보게 맞춰 준다 — 내 시체가 화면에 들어오게 */
@@ -15119,6 +15730,208 @@ function downTick(dt){
   PL.downT = (PL.downT||0) + dt;
   if(PL.downT >= SELF_REVIVE) reviveMe(null, true);
 }
+
+/* ═══════════ 66차 관전 — 쓰러져 있는 동안 살아 있는 친구 어깨 너머로 본다 ═══════════
+   · 차례: 내 자리 → 친구들(우리 모둠 먼저, 이름순) → 전장 전체(수정 둘레를 천천히 돈다) → 다시 내 자리.
+     Q·E / ←·→ / 화면 단추로 넘긴다. 쓰러지고 2.2초 뒤 저절로 첫 친구(없으면 전장 전체)로 간다 —
+     goDown() 으로 쓰러질 때만(검사가 PL.down 만 켜 둔 화면은 예전처럼 내 몸을 본다).
+   · 친구 자리는 이미 오는 자리 통로(p, 초당 6번) 값을 그대로 쓴다. 새 통신 없음.
+   · "일으켜 줘요" — 자리 통로에 원래 있던 dn 칸의 값만 1 → 2 로 3초 동안 바꾼다(칸·횟수 그대로).
+     옛 손님은 !!dn 으로 읽으니 똑같이 '쓰러짐' 이고, 새 손님은 2 가 켜지는 순간 한 번 알림을 띄운다.
+   · 다시 일어나면(또는 미니게임·창이 열리면) 저절로 내 카메라로 돌아온다. pointer lock 은 건드리지 않는다. */
+const SPEC_AUTO = 2.2, SPEC_BACK = 3.6, SPEC_SH = 0.62, SPEC_LOOK = 1.30;
+const SPEC_HELP_ON = 3.0, SPEC_HELP_CD = 10;       // 부르기: 3초 동안 dn=2 (자리 통로 18번쯤 실림) · 10초에 한 번
+const SPEC_ORB = {r:19, h:11, spd:0.11};           // 전장 전체 — 반지름·높이·도는 빠르기(초당 라디안, 한 바퀴 57초)
+const SPEC = {mode:'me', uid:null, list:[], auto:false, autoT:0, cx:0, cy:0, cz:0, yaw:0, yaw0:0,
+              snap:true, dist:null, orbA:0, lx:0, ly:0, lz:0, hpPk:100, helpT:0, helpCd:0, listT:0, on:false};
+const specOrder = (a, b)=>{
+  const p = G.players.get(a), q = G.players.get(b), mg = G.me.g|0;
+  const ga = (p.g|0) === mg ? 0 : 1, gb = (q.g|0) === mg ? 0 : 1;
+  return ga !== gb ? ga - gb : String(p.n||'').localeCompare(String(q.n||''), 'ko') || (a < b ? -1 : 1);
+};
+const specAlive = q => !!q && !q.down && q.x !== undefined && q.z !== undefined;
+/* 볼 수 있는 친구 목록을 다시 센다(배열은 하나를 계속 쓴다) */
+function specList(){
+  const L = SPEC.list; L.length = 0;
+  for(const [k, q] of G.players) if(k !== G.me.uid && specAlive(q)) L.push(k);
+  if(L.length > 1) L.sort(specOrder);
+  return L;
+}
+/* 관전이 켜질 수 있는 때 — 마을(낮·밤)에서 쓰러져 있고 창이 안 열렸을 때 */
+const specReady = ()=> G.started && PL.down && !miniOn() && (G.phase === 'day' || G.phase === 'night');
+function specSet(mode, uid){
+  if(SPEC.mode === mode && SPEC.uid === (uid || null)) return;
+  const prev = SPEC.mode; SPEC.mode = mode; SPEC.uid = uid || null; SPEC.dist = null; SPEC.hpPk = 100;
+  SPEC.yaw0 = PL.yaw;                               // 여기서부터 마우스로 돌린 만큼만 더한다
+  if(mode === 'friend' && prev !== 'friend'){       // 내 자리·전장에서 친구로 — 내 몸에서 친구 쪽으로 날아간다
+    SPEC.cx = PL.x; SPEC.cz = PL.z; SPEC.cy = PL.y; SPEC.yaw = PL.yaw; }
+  if(mode === 'all'){ SPEC.orbA = Math.atan2(camera.position.x, camera.position.z);   // 지금 보던 쪽에서 돌기 시작
+    if(prev === 'me'){ SPEC.lx = PL.x; SPEC.ly = PL.y + 0.95; SPEC.lz = PL.z; } }
+  if(mode === 'me'){ camAnc = null; camDistance = null; }  // 내 몸으로 돌아오면 바로 붙는다
+}
+/* 다음(+1)/이전(-1) — 내 자리 · 친구들 · 전장 전체를 한 바퀴로 돈다 */
+function specStep(dir){
+  if(!specReady()) return;
+  SPEC.auto = false;
+  const L = specList(), n = L.length + 2;          // 0 = 내 자리, 1..L = 친구, L+1 = 전장 전체
+  let i = SPEC.mode === 'me' ? 0 : SPEC.mode === 'all' ? L.length + 1 : 1 + Math.max(-1, L.indexOf(SPEC.uid));
+  if(SPEC.mode === 'friend' && L.indexOf(SPEC.uid) < 0) i = dir > 0 ? 0 : 1;   // 보던 친구가 쓰러졌으면 제자리에서 넘긴다
+  i = ((i + (dir < 0 ? -1 : 1)) % n + n) % n;
+  SPEC.snap = false;
+  if(i === 0) specSet('me'); else if(i === L.length + 1) specSet('all'); else specSet('friend', L[i-1]);
+  specSfx('specSwap');
+}
+/* 쓰러진 채 "일으켜 줘요" — 자리 통로의 dn 칸을 3초 동안 2 로 */
+function specHelp(){
+  if(!specReady() || SPEC.helpCd > 0) return;
+  if(!net || !G.players.size){ toast('📣 혼자 놀기라 부를 친구가 없어요 — 조금 기다리면 혼자 일어나요', 2.6, '#ffe9a0'); return; }
+  SPEC.helpT = SPEC_HELP_ON; SPEC.helpCd = SPEC_HELP_CD;
+  specSfx('specCall');
+  toast('📣 친구들에게 "일으켜 줘요!" 를 보냈어요', 2.2, '#ffe9a0');
+}
+/* 관전 소리 — SFX 표 밖에서 한 덩어리로 붙인다(표는 파일 뒤쪽에서 만들어지므로 처음 울릴 때). 기존 합성 함수 → sfxOut 압축기.
+   specSwap: 넘길 때 짧은 '휙·똑' (작게) · specCall: '딩-동' 부르는 소리 — 친구 화면에서는 부른 자리 쪽·거리만큼 작게(sfxAt) */
+function specSfx(k, x, z){
+  if(typeof sndOn === 'undefined' || !sndOn) return;
+  if(!specSfx.ok){ specSfx.ok = true;
+    Object.assign(SFX, {
+      specSwap: ()=>{ puff(.07, .032, 2600, 1.1); pluck(988, .07, .022, 0, .3, 'triangle'); },
+      specCall: ()=>{ const t = now0(); pluck(784, .24, .05, t, .4, 'triangle'); pluck(1047, .34, .055, t + .14, .45, 'triangle');
+                      tone(2093, null, .10, 'sine', .012, t + .14); }
+    }); }
+  if(x === undefined) sfx(k); else sfxAt(k, x, z, 90, 400);
+}
+/* 친구가 불렀다 — 자리 통로에서 dn 이 2 로 바뀐 순간 한 번(network 'p' 가 부른다) */
+function specHeard(p){
+  if(!G.started || PL.down || miniOn() || !p || p.x === undefined) return;
+  const d = Math.round(Math.hypot(p.x - PL.x, p.z - PL.z));
+  const g = Math.max(0, Math.min(NG-1, p.g|0)), nm = esc(p.n || '친구');
+  feed(`📣 <b style="color:${GCOL[g]}">${nm}</b>${josa(p.n,'이','가')} "일으켜 줘요!" — <b>${d}칸</b> 떨어져 있어요`);
+  specSfx('specCall', p.x, p.z);
+  p.helpRingT = 0;
+}
+/* 매 프레임 — 자동 넘기기·보던 친구 확인·부르기 시계·부른 친구 자리 고리·관전 막대 */
+function specTick(dt){
+  if(SPEC.helpCd > 0) SPEC.helpCd -= dt;
+  if(SPEC.helpT > 0){ SPEC.helpT -= dt; if(!PL.down) SPEC.helpT = 0; }
+  /* 부른 친구 발밑에 금빛 고리 — 0.9초마다 하나(땅에 눕힌 기존 고리 풀) */
+  if(G.started && !PL.down && !miniOn()) for(const q of G.players.values()){
+    if(!q.help || !q.down || q.x === undefined) continue;
+    q.helpRingT = (q.helpRingT || 0) - dt;
+    if(q.helpRingT <= 0){ q.helpRingT = 0.9;
+      const dx = q.x - PL.x, dz = q.z - PL.z;
+      if(dx*dx + dz*dz < 70*70) ring(q.x, (q.y === undefined ? GY : q.y) + 0.08, q.z, 0xffd257, 2.4, 0.85, true); }
+  }
+  const on = specReady();
+  if(!on){
+    if(SPEC.on || SPEC.mode !== 'me'){ SPEC.on = false; SPEC.auto = false; SPEC.snap = true; specSet('me'); specPaint(); }
+    return;
+  }
+  if(!SPEC.on){ SPEC.on = true; SPEC.snap = true; }
+  if(SPEC.auto && SPEC.mode === 'me'){
+    SPEC.autoT -= dt;
+    if(SPEC.autoT <= 0){ SPEC.auto = false; const L = specList(); SPEC.snap = false;
+      if(L.length) specSet('friend', L[0]); else specSet('all'); }
+  }
+  if(SPEC.mode === 'friend' && !specAlive(G.players.get(SPEC.uid))){   // 보던 친구가 쓰러졌거나 나갔다 → 다음 친구
+    const L = specList(); SPEC.snap = false;
+    if(L.length) specSet('friend', L[0]); else specSet('all');
+  }
+  SPEC.listT -= dt; if(SPEC.listT <= 0){ SPEC.listT = 0.5; specList(); }
+  specPaint();
+}
+const _specP = {k:''};
+function specPaint(){
+  const on = SPEC.on, bar = el('specBar');
+  if(!bar) return;
+  const vis = on ? '1' : '';
+  if(_specP.vis !== vis){ _specP.vis = vis; bar.classList.toggle('on', on); el('specHelp').classList.toggle('on', on);
+    el('downVeil').classList.toggle('spec', on); document.body.classList.toggle('specOn', on); }
+  if(!on) return;
+  /* 혼자 일어나기까지 남은 초 — goalText 와 같은 셈(SELF_REVIVE) */
+  setTxt('specLeft', ` · 혼자서는 ${Math.max(0, Math.ceil(SELF_REVIVE - (PL.downT||0)))}초 뒤 (체력 절반)`);
+  const n = SPEC.list.length;
+  let name, sub, col = '#8a93a6', hp = -1, lv = '';
+  if(SPEC.mode === 'friend'){
+    const q = G.players.get(SPEC.uid) || {}, pc = pcMap.get(SPEC.uid);
+    name = q.n || '친구'; col = GCOL[Math.max(0, Math.min(NG-1, q.g|0))];
+    hp = Math.max(0, q.hp === undefined ? SHEEP_HP : q.hp|0); SPEC.hpPk = Math.max(SPEC.hpPk, hp);
+    lv = pc && pc.lv ? 'Lv.' + (pc.lv|0) : '';
+    const i = SPEC.list.indexOf(SPEC.uid);
+    sub = ((q.g|0) === (G.me.g|0) ? '우리 모둠' : ((q.g|0)+1) + '모둠') + ` · 친구 ${i+1}/${n}`;
+  } else if(SPEC.mode === 'all'){
+    name = '🏰 전장 전체'; sub = n ? `살아 있는 친구 ${n}명 — Q·E 로 보기` : '볼 수 있는 친구가 없어요';
+  } else {
+    name = '💫 내 자리'; sub = n ? `친구 ${n}명을 볼 수 있어요 — Q·E 로 넘기기` : 'Q·E 로 전장 전체 보기';
+  }
+  setTxt('specName', name); setTxt('specLv', lv); setTxt('specSub', sub); setSty('specDot', 'background', col);
+  const hpOn = hp >= 0 ? 'block' : 'none'; setSty('specHp', 'display', hpOn);
+  if(hp >= 0){ setSty('specHpFill', 'width', Math.round(100*hp/Math.max(1, SPEC.hpPk)) + '%');
+               setTxt('specHpNum', '❤ ' + hp); setSty('specHpFill', 'background', hp < SPEC.hpPk*0.3 ? '#ff6b6b' : '#51cf66'); }
+  const solo = !net || !G.players.size, cd = SPEC.helpCd > 0 ? Math.ceil(SPEC.helpCd) : 0;
+  setTxt('specHelpTx', solo ? '혼자 놀기' : SPEC.helpT > 0 ? '부르는 중…' : cd ? `다시 부르기 ${cd}초` : '일으켜 줘요');
+  const dis = solo || cd > 0 ? '1' : '';
+  if(_specP.dis !== dis){ _specP.dis = dis; el('specHelp').disabled = !!dis; }
+  if(_specP.solo !== solo){ _specP.solo = solo; el('specHelp').classList.toggle('solo', solo); }   // 혼자 놀기엔 부를 친구가 없다 — 단추를 숨긴다
+}
+/* updPlayer 가 부른다 — 관전 중이면 카메라를 여기서 놓고 true */
+function specCam(dt){
+  if(!SPEC.on || SPEC.mode === 'me') return false;
+  const pitch = Math.max(-0.95, Math.min(0.40, PL.pitch)), turn = PL.yaw - SPEC.yaw0;
+  if(SPEC.mode === 'all'){
+    SPEC.orbA += dt*SPEC_ORB.spd;
+    const a = SPEC.orbA + turn, r = SPEC_ORB.r, h = GY + SPEC_ORB.h + pitch*4;
+    const x = Math.sin(a)*r, z = Math.cos(a)*r;
+    /* 보던 자리에서 부드럽게 날아올라 수정을 내려다본다(자리·보는 곳 둘 다 지수 감쇠, 1초 안에 거의 붙는다) */
+    if(SPEC.snap){ SPEC.snap = false; camera.position.set(x, h, z); SPEC.lx = 0; SPEC.ly = GY + 1.2; SPEC.lz = 0; }
+    else { const k = 1 - Math.exp(-dt*3.2); camera.position.x += (x - camera.position.x)*k;
+           camera.position.y += (h - camera.position.y)*k; camera.position.z += (z - camera.position.z)*k;
+           const kl = 1 - Math.exp(-dt*4); SPEC.lx += (0 - SPEC.lx)*kl; SPEC.ly += (GY + 1.2 - SPEC.ly)*kl; SPEC.lz += (0 - SPEC.lz)*kl; }
+    camera.lookAt(SPEC.lx, SPEC.ly, SPEC.lz);
+    return true;
+  }
+  const q = G.players.get(SPEC.uid); if(!q) return false;
+  const ty0 = q.y === undefined ? GY : q.y;
+  const far = Math.hypot(q.x - SPEC.cx, q.z - SPEC.cz) > 60;
+  if(SPEC.snap || far){ SPEC.cx = q.x; SPEC.cz = q.z; SPEC.cy = ty0; SPEC.yaw = q.ry||0; SPEC.snap = false; }
+  else {
+    const k = 1 - Math.exp(-dt*6.5);
+    SPEC.cx += (q.x - SPEC.cx)*k; SPEC.cz += (q.z - SPEC.cz)*k;
+    SPEC.cy += (ty0 - SPEC.cy)*(1 - Math.exp(-dt*5));
+    /* 친구가 돌아보는 방향을 천천히 따라간다(마우스로 휙 돌려도 멀미가 안 나게 초당 2.6) */
+    const dy = Math.atan2(Math.sin((q.ry||0) - SPEC.yaw), Math.cos((q.ry||0) - SPEC.yaw));
+    SPEC.yaw += dy*(1 - Math.exp(-dt*2.6));
+  }
+  const yaw = SPEC.yaw + turn;
+  camera.rotation.set(pitch, yaw, 0, 'YXZ');
+  const cp = Math.cos(pitch);
+  const dx = -Math.sin(yaw)*cp, dy = Math.sin(pitch), dz = -Math.cos(yaw)*cp;
+  const tx = SPEC.cx, ty = SPEC.cy + SPEC_LOOK, tz = SPEC.cz;
+  SPEC.lx = tx; SPEC.ly = ty; SPEC.lz = tz;         // 전장 전체로 넘어갈 때 여기서부터 보는 곳을 옮긴다
+  const sh = SPEC_SH*Math.min(1, camera.aspect/1.6);   // 세로로 긴 화면(태블릿·폰)은 어깨를 덜 비껴야 친구가 화면 밖으로 안 나간다
+  const ox = -dx*SPEC_BACK + Math.cos(yaw)*sh, oy = -dy*SPEC_BACK, oz = -dz*SPEC_BACK - Math.sin(yaw)*sh;
+  const length = Math.hypot(ox, oy, oz), clear = cameraClearance(tx, ty, tz, ox, oy, oz);
+  SPEC.dist = SPEC.dist === null ? clear
+    : clear < SPEC.dist ? clear : SPEC.dist + (clear - SPEC.dist)*(1 - Math.exp(-dt*10));
+  const ratio = length > 0 ? SPEC.dist/length : 0;
+  camera.position.set(tx + ox*ratio, ty + oy*ratio, tz + oz*ratio);
+  return true;
+}
+/* 관전 키 — 쓰러져 있을 때만 가로챈다(Q·E·F 가 도구를 바꾸지 않게). 입력란·창에서는 건드리지 않는다 */
+addEventListener('keydown', e=>{
+  if(!SPEC.on || e.ctrlKey || e.altKey || e.metaKey || popOpen()) return;
+  if(e.target?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"])')) return;
+  const k = (e.key||'').toLowerCase();
+  if(k === 'q' || k === 'arrowleft' || k === 'e' || k === 'arrowright'){
+    e.preventDefault(); e.stopImmediatePropagation();
+    if(!e.repeat) specStep(k === 'q' || k === 'arrowleft' ? -1 : 1);
+  } else if(k === 'f'){
+    e.preventDefault(); e.stopImmediatePropagation();
+    if(!e.repeat) specHelp();
+  }
+}, true);
+{ const b = (id, fn)=>{ const e = document.getElementById(id); if(e) e.addEventListener('click', ev=>{ ev.preventDefault(); ev.currentTarget.blur(); fn(); }); };
+  b('specPrev', ()=>specStep(-1)); b('specNext', ()=>specStep(1)); b('specHelp', ()=>specHelp()); }
 
 /* ═══════════════════════ 입력 ═══════════════════════ */
 const el = id=>document.getElementById(id);
@@ -15349,16 +16162,28 @@ function fearTick(dt){
   heartT -= dt;
   if(fearK > 0.15 && heartT <= 0 && nw){ heartT = 1.15 - fearK*0.5; sfxFrom('heart', nw.x, nw.z, 0.5 + fearK*0.7); }
 }
-function dreadTick(dt){ dreadHowls(dt); dreadBoss(dt); fearTick(dt); }
+function dreadTick(dt){ dreadHowls(dt); dreadBoss(dt); fearTick(dt); fx2Tick(dt); }   // 66차 — 축하·드문 사건·보스 연출(fx2Tick)
 /* ★ 63차 — 기본값이 '#fff' 였다. 색을 안 주는 토스트까지 인라인으로 흰색이 박혀서
    밝은 테마의 크림색 판 위에 흰 글자가 됐다. 빈 문자열이면 style.color 가 지워져
    #toast 의 CSS(어두운 테마 #fff · 밝은 테마 var(--rb-ink))가 그대로 산다. */
+/* 66차 HUD — 같은 말이 가운데 toast 와 왼쪽 feed 에 동시에 뜨지 않게.
+   레벨업·강화·구매·전직·쓰러짐·일으키기·밤 시작처럼 "toast 한 줄 + 바로 이어 내 feed 한 줄" 을 쓰는 곳이
+   열 군데가 넘는다(같은 그림으로 시작하는 같은 소식). toast 직후(0.5초 안) 같은 첫 그림으로 시작하는 feed 는
+   **내 화면에서만** 건너뛴다 — say() 로 친구에게 가는 방송은 그대로 간다. 이미 떠 있는 줄과 글이 같아도 건너뛴다. */
+let toastAt = -1e9, toastLead = '';
+const HUD_TAG_RE = /<[^>]*>/g;
+function hudLead(s){ const m = String(s).replace(HUD_TAG_RE, '').trim().match(/^[^\p{L}\p{N}\s]+/u); return m ? m[0] : ''; }
 function toast(msg, sec=2.2, color='', kind=''){
   const t = el('toast'); t.textContent = msg; t.style.color = color;
   t.classList.toggle('resource',kind==='resource'); t.classList.add('on'); toastT = sec;
+  toastAt = performance.now(); toastLead = hudLead(msg);
 }
 function feed(msg){
-  const f = el('feed'); const d = document.createElement('div'); d.innerHTML = msg;
+  const f = el('feed');
+  if(toastLead && performance.now() - toastAt < 500 && hudLead(msg) === toastLead) return;   // 66차 — toast 와 같은 소식
+  { const plain = String(msg).replace(HUD_TAG_RE, '');
+    for(const c of f.children) if(c.dataset.p === plain) return; }                          // 66차 — 같은 줄 두 번
+  const d = document.createElement('div'); d.innerHTML = msg; d.dataset.p = String(msg).replace(HUD_TAG_RE, '');
   f.appendChild(d); while(f.children.length>5) f.removeChild(f.firstChild);
   setTimeout(()=>{ if(d.parentNode) d.remove(); }, 8000);
 }
@@ -15602,12 +16427,9 @@ let bgWait = 0;                  // 남은 대기 횟수
 function bgReset(){ bgGot.clear(); bgNudged.clear(); bgTop.clear(); bgQueue.length = 0; bgWait = 0; }
 function bgEarn(i){
   const B = BADGES[i], col = BG_COL[B.t-1];
-
-  verdict(true, B.ic, B.nm, B.t === 1 ? {quick:true} : {ms:1500});
-  if(window.__sfx) window.__sfx('medal');
-  /* 머리 위에서 터뜨린다 — 이름표가 바뀌는 그 자리와 눈으로 이어 준다 */
-  burst(PL.x, PL.y + 2.2, PL.z, 0xffd257, 26, 1.7);
-  burst(PL.x, PL.y + 2.7, PL.z, 0xfff2c0, 14, 1.2);
+  /* 66차 — 가운데 큰 판정(verdict) 대신 축하 배너. 3단계(금)는 큰 축하, 1·2단계는 작은 축하. 종+화음 팡파르 */
+  fx2Cel({k:'badge', ic:B.ic, rib:['동','은','금'][B.t-1] + ' 칭호', tt:`「${B.nm}」`, sub:B.d + ' — 머리 위 이름표에 떠요',
+          big:B.t === 3, col, col2:['#9a5a24','#6f86a0','#ff9f1c'][B.t-1], snd:B.t === 3 ? 'fx2Big' : 'fx2Badge'});
   const g = Math.max(0, Math.min(NG-1, G.me.g|0));
   say(`🎖️ <b style="color:${GCOL[g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
     + `<b style="color:${col}">${B.ic} ${B.nm}</b> 칭호를 얻었어요! `
@@ -15637,10 +16459,12 @@ function badgeCheck(){
     /* 처음 본 친구는 적어만 두고 넘어간다 — 늦게 들어온 아이가 남의 지난 칭호를
        한꺼번에 받아 보면 그건 소식이 아니라 도배다 */
     if(k === uid || first || top <= was) continue;
-    if(BADGES[top].t === 3)
+    if(BADGES[top].t === 3){
       feed(`🎖️ <b style="color:${GCOL[Math.max(0,Math.min(NG-1,p.g|0))]}">${esc(p.n)}</b>`
          + `${josa(p.n,'이','가')} <b style="color:${BG_COL[2]}">${BADGES[top].ic} `
          + `${BADGES[top].nm}</b> 칭호를 얻었어요!`);
+      fx2Chip(`🎖️ ${p.n}${josa(p.n,'이','가')} '${BADGES[top].nm}' 칭호를 받았어요!`);   // 66차 — 친구 화면에 작은 한 줄
+    }
   }
 }
 
@@ -15691,6 +16515,108 @@ function paintMis(){
   setSty('misFill', 'width', Math.round(have/need*1000)/10 + '%');
   setTxt('misNum', G.misD ? '완료' : have + '/' + need + M.unit);
 }
+
+/* ═══════ 66차 HUD — 화면 모드 · 오늘 밤 미리 보기 ═══════
+   ★ 모드: 낮(짓기·캐기)엔 자원·임무·경험치를, 밤(싸움)엔 수정·내 체력·총알·보스 바를 크게 보여 주고
+     나머지는 작게/숨긴다. 몸(body)에 모드 이름 하나만 달고 나머지는 CSS(66차 HUD 블록)가 한다.
+     paintHUD 가 초당 8번 부르지만 모드가 바뀔 때만 classList 를 건드린다.
+   ★ 오늘 밤 미리 보기: 밤 번호(G.nk)는 호스트가 아침(goDay)에 pickNight 로 뽑고 **바로 그 goDay 끝의
+     netMeta 로 보낸다** — 손님은 meta.nk 로 아침에 이미 안다(36차부터 있던 값, 통신은 한 칸도 안 는다).
+     그래서 여기서는 (낮·날짜·밤 번호)가 바뀌는 걸 보고 그리기만 한다. 호스트든 손님이든 같은 함수다.
+     보스 밤은 날짜(bossIndex)만으로 정해진다. */
+const NIGHT_PREVIEW = [   // NIGHT_DEF 와 같은 순서 — 그림 한 개 + "이렇게 대비해요" 두 줄
+  {ic:'🌙', prep:['🪵 나무벽 한 겹이면 충분해요', '⛏️ 남는 시간엔 자원을 모아 두세요']},
+  {ic:'🧟', prep:['🪵 벽을 옆으로 길게 이어 붙여요', '🏹 화살탑을 하나 더 세워요']},
+  {ic:'💨', prep:['🏹 입구 뒤에 화살탑을 세워요', '❄️ 얼음탑으로 느리게 만들어요']},
+  {ic:'🍖', prep:['🧱 돌벽으로 수정 둘레를 막아요', '🐑 배럭에서 병사를 뽑아요']},
+  {ic:'💪', prep:['🧱 돌벽을 두 겹으로 쌓아요', '🔧 고칠 사람을 미리 정해요']},
+  {ic:'🚩', prep:['🚩 모둠마다 자기 입구를 지켜요', '🏹 입구마다 화살탑 하나씩']},
+  {ic:'⏱️', prep:['🏹 화살탑(연사)이 제격이에요', '💥 대포탑으로 떼를 한 번에']},
+  {ic:'🐺', prep:['🔫 친구와 같이 한 마리를 쏴요', '🧱 돌벽 뒤에서 싸워요']},
+  {ic:'♾️', prep:['🎯 초록빛 치유 좀비부터 잡아요', '💥 대포탑으로 떼를 한 번에']},
+  {ic:'⏳', prep:['🪵 자원을 넉넉히 모아 두세요', '🔧 고칠 사람을 미리 정해요']}
+];
+const NIGHT_PREVIEW_BOSS = ['🧱 다섯 입구를 모두 돌벽으로 막아요', '🏹 탑을 채우고 🔫 총알을 넉넉히'];
+const NC_SHOW_MS = 9000;          // 아침 카드가 떠 있는 시간 — 그 뒤엔 오른쪽 위 작은 칩으로 남는다
+let ncDay = 0, ncUntil = 0, ncKey = '', hudMode = '';
+/* 오늘 밤 정보 — 모르면 null(손님이 meta 를 아직 못 받았을 때). 호스트·손님이 같은 값을 본다 */
+function nightPreviewInfo(){
+  const bi = bossIndex(G.day), last = G.day >= G.set.goalDay;
+  const tmrBoss = bi < 0 && bossDays().includes(G.day + 1);
+  if(bi >= 0){ const full = WOLF_T[bossWolfK(bi)].n, m = full.match(/^(\S+)\s+(.+)$/);   // '👑 우두머리 좀비' → 그림 · 이름
+    return {boss:true, last, tmrBoss:false, ic:m ? m[1] : '👑', name:m ? m[2] : full,
+            hint:'부하 좀비들과 함께 와요. 지금까지 중 가장 센 밤이에요!', prep:NIGHT_PREVIEW_BOSS}; }
+  const k = G.nk;
+  if(!(k >= 0 && k < NIGHT_DEF.length)) return null;
+  const N = NIGHT_DEF[k], P = NIGHT_PREVIEW[k] || {ic:'🌙', prep:[]};
+  return {boss:false, last, tmrBoss, ic:P.ic, name:N.n, hint:N.hint, prep:P.prep};
+}
+function paintNightCard(I){
+  const c = el('nightCard');
+  c.classList.toggle('boss', I.boss);
+  c.querySelector('.ncDay').textContent = `${G.day}일차 · ` + (I.boss ? '⚠️ 오늘 밤은 보스!' : '오늘 밤 미리 보기');
+  c.querySelector('.ncIc').textContent = I.ic;
+  c.querySelector('.ncName').textContent = I.name;
+  c.querySelector('.ncHint').textContent = I.hint;
+  const L = c.querySelector('.ncPrep'); L.innerHTML = '';
+  for(const p of I.prep){ const li = document.createElement('li'); li.textContent = p; L.appendChild(li); }
+  const x = c.querySelector('.ncNote');
+  x.textContent = I.last ? '🔥 마지막 밤이에요! 이 밤만 버티면 우리 반이 이겨요'
+                : I.tmrBoss ? '⚠️ 내일 밤은 보스예요 — 오늘 탑을 미리 늘려 두세요' : '';
+  x.hidden = !x.textContent;
+}
+function nightCardOpen(on){
+  const c = el('nightCard'), chip = el('nightChip'), was = c.classList.contains('on');
+  c.classList.toggle('on', on);
+  ncUntil = on ? performance.now() + NC_SHOW_MS : 0;
+  chip.classList.toggle('cardOn', on);           // 카드가 떠 있는 동안 칩은 접어 둔다(같은 말 두 번 X)
+  /* 카드가 칩으로 접힐 때 한 번만 반짝 — 어디로 갔는지 눈으로 따라가게(되풀이 애니메이션 아님) */
+  chip.classList.remove('peek');
+  if(was && !on){ void chip.offsetWidth; chip.classList.add('peek'); }
+}
+function paintNightPreview(){
+  const day = G.started && G.phase === 'day';
+  const I = day ? nightPreviewInfo() : null;
+  const key = I ? G.day + '|' + I.boss + '|' + I.name + '|' + I.last + '|' + I.tmrBoss : 'off';
+  if(key !== ncKey){ ncKey = key;
+    const chip = el('nightChip');
+    chip.hidden = !I;
+    if(I){ chip.classList.toggle('boss', I.boss);
+      chip.querySelector('.nci').textContent = I.ic;
+      chip.querySelector('.ncn').textContent = (I.boss ? '오늘 밤 보스 · ' : '오늘 밤 · ') + I.name;
+      paintNightCard(I); }
+    else if(el('nightCard').classList.contains('on')) nightCardOpen(false);
+  }
+  if(!I) return;
+  const now = performance.now();
+  /* 아침 한 번 — 날짜 글씨(stageTitle)가 걷힌 뒤, 창이 닫혀 있을 때 */
+  if(ncDay !== G.day && stageT <= 0 && !popOpen()){ ncDay = G.day; nightCardOpen(true); }
+  else if(ncUntil && now > ncUntil) nightCardOpen(false);
+}
+/* 화면 모드 — 'day' | 'night' | 'mini' (+ 보스 바가 떠 있으면 hud66-boss) */
+function paintHudMode(boss){
+  const m = !G.started ? '' : G.phase === 'night' ? 'night' : G.phase === 'mini' ? 'mini' : 'day';
+  const k = m + (boss ? '+b' : '');
+  if(hudMode === k) return;
+  hudMode = k;
+  const b = document.body.classList;
+  b.toggle('hud66-day', m === 'day'); b.toggle('hud66-night', m === 'night');
+  b.toggle('hud66-mini', m === 'mini'); b.toggle('hud66-boss', !!boss);
+}
+el('nightChip').onclick = ()=>{ if(nightPreviewInfo()) nightCardOpen(!el('nightCard').classList.contains('on')); };
+el('nightCard').querySelector('.ncOk').onclick = ()=> nightCardOpen(false);
+/* 좁은 화면(폭 560 이하)에서는 가운데 판(수정·모둠·임무)을 맨 위 한 줄로 두고 양옆 판을 그 아래로 내린다.
+   가운데 판의 높이는 보스 바가 뜨고 지면서 바뀐다 — 크기가 바뀔 때만 불리는 ResizeObserver 로 재서 CSS 변수에 둔다 */
+if(window.ResizeObserver){
+  /* 미니게임 때는 가운데 판이 숨고 미니게임 판(#miniBar)이 그 자리에 선다 — 둘 중 큰 쪽 */
+  const ro = new ResizeObserver(()=>{ document.documentElement.style.setProperty('--hud66-midH',
+    Math.max(el('topMid').offsetHeight, el('miniBar').offsetHeight) + 'px'); });
+  ro.observe(el('topMid')); ro.observe(el('miniBar'));
+}
+Object.assign(window, {
+  __hud66:()=>({mode:hudMode, ncDay, ncOpen:el('nightCard').classList.contains('on'), chip:!el('nightChip').hidden, info:nightPreviewInfo()}),
+  __nightCardOpen:nightCardOpen, __paintNightPreview:paintNightPreview, __NIGHT_PREVIEW:NIGHT_PREVIEW
+});
 
 function paintKit(){
   const key = KIT.wpn + '|' + KIT.arm + '|' + KIT.ammo + '|' + KIT.pot.join(',')
@@ -15846,7 +16772,9 @@ function paintHUD(){
   }
   setTxt('dayNum', G.day + '일차');
   const night = G.phase==='night';
-  setTxt('dayPhase', night ? '🌙 밤' : (G.phase==='day' ? '☀️ 낮' : G.phase==='mini' ? '🎪 미니게임' : '⏳'));
+  /* 66차 — 밤에는 오늘 밤 이름을 날짜 옆에 둔다(밤 시작 알림 줄이 toast 와 겹쳐 빠지므로 여기서 늘 보인다) */
+  setTxt('dayPhase', night ? (bossIndex(G.day) >= 0 ? '👑 보스 밤' : G.nk >= 0 && G.nk < NIGHT_DEF.length ? '🌙 ' + NIGHT_DEF[G.nk].n : '🌙 밤')
+                           : (G.phase==='day' ? '☀️ 낮' : G.phase==='mini' ? '🎪 미니게임' : '⏳'));
   if(hudPrev.night !== night){ hudPrev.night = night; el('dayBox').classList.toggle('night', night); }
   const tot = night ? G.set.nightSec : G.set.daySec;
   /* 막대 너비는 0.1% 단위로 끊는다. 매 프레임 소수점이 흔들려서 다시 칠할 필요는 없다. */
@@ -15906,6 +16834,8 @@ function paintHUD(){
     setSty('bFill', 'width', (Math.round(bp*10)/10) + '%');
     setTxt('bNum', Math.ceil(bp) + '%');
   } else if(hudPrev.boss !== false){ hudPrev.boss = false; el('bossWrap').classList.remove('on'); }
+  paintHudMode(!!bw);      // 66차 — 낮/밤/미니게임 화면 모드
+  paintNightPreview();     // 66차 — 오늘 밤 미리 보기(아침 카드 → 낮 동안 칩)
   paintBar();
 }
 
@@ -17212,26 +18142,475 @@ function spawnWolf(k, gate, atX, atZ){
     tgt:null, retgt:0 };
   G.wolves.push(w);
   if(bi>=0){
-    toast(T0.n + ' 등장!', 4, '#ff9b9b');
-    if(window.__shake) window.__shake(1.6, 1.0);
-    if(window.__sfx) window.__sfx('boss');                    // 33차 — 있던 소리인데 아무도 안 불렀다
+    /* 66차 — 등장 연출(자막·땅울림·약한 흔들림·방향 표시)은 fx2Boss 가 호스트·손님 똑같이 한다 — 여기서 또 하면 두 번 흔들린다 */
     feed(`👑 <b style="color:#ff9b9b">${T0.n}</b>이(가) 나타났습니다! 지도에서 찾아보세요`);
   }
   return w;
 }
 function onBossDown(w){
   const bi = w.bi, R = BAL.bossReward[bi];
-  burst(w.x, GY+2, w.z, 0xffe066, 40, 2.2);
-  for(let i=0;i<3;i++) setTimeout(()=>burst(w.x,GY+2,w.z,0xffd43b,26,2.4), i*160);
+  /* 66차 — 처치 연출(빛가루·번쩍·자막·팡파르·축하)은 fx2Boss 가 모두의 화면에서 한다(손님은 보스가 사라진 것으로 안다). 여긴 보상만 */
   if(R.w||R.s||R.g){
     for(let i=0;i<NG;i++){ base[i].w += R.w; base[i].s += R.s; base[i].o += R.g; }
     recomputeRes(); netBase();
   }
   if(R.heal){ G.crystal = Math.min(G.set.crystalMax, G.crystal + R.heal); }
-  toast(`🎉 ${WOLF_T[w.k].n} 처치!`, 4.5, '#ffe066');
   feed(`🏆 <b style="color:#ffe066">보스 처치!</b> 전 모둠 🪵+${R.w} 🪨+${R.s} ✨+${R.g}` +
        (R.heal?` · 💎+${R.heal}`:''));
 }
+
+/* ═══════════════════════ 66차 FX2 — 짧고 확실한 보상 · 드문 사건 · 보스 연출 ═══════════════════════
+   선생님: "짧고 확실한 보상(축하 효과 확실히 멋있게, 효과음도 같이) · 드문 사건(너무 자주는 말고) · 보스 연출"
+   ★ 통신은 한 칸도 안 늘린다. 모두가 같이 봐야 하는 것은 이미 오는 값에서 **각자 계산**한다:
+       · 드문 사건 — 방 이름 + 날짜로 정해지는 씨앗(fx2Hash). 호스트·손님이 같은 날 같은 사건을 본다.
+       · 황금 좀비 — 그날 밤 처음 본 좀비 번호(sim 통로로 이미 온다) + 씨앗으로 정한 순번.
+       · 유성우 — 떨어지는 때·자리를 씨앗으로 미리 정해 둔다(밤 남은 시간 G.t 는 meta 로 이미 온다).
+       · 보스 등장·절반·10%·처치 — 이미 오는 좀비 목록(sim)의 보스 칸과 체력 %에서.
+       · 친구 전직·3단계 칭호 — pc 통로의 jt·칭호 숫자에서.
+     보상(금 조각·보물 상자)은 호스트만 내고, 이미 있는 drop/chest 통로가 그대로 나른다.
+   ★ 그림(CLAUDE.md 성능 절): 3D 는 기존 불투명 입자 풀(burst·spark)과 땅에 눕힌 고리(ring)만 쓴다.
+     별똥별 머리만 새로 하나 — 불투명 MeshBasic 가는 막대 세 칸(처음 떨어질 때 만든다, 평소엔 숨김).
+     화면 효과는 DOM(transform·opacity) 짧은 애니메이션. 매 프레임 할당 없음. */
+if(G.set.rareEvents === undefined) G.set.rareEvents = D.rareEvents !== false;   // 선생님 설정 — 호스트 값이 meta.set 으로 손님에게 간다
+const FX2 = {q:[], cur:null, t:0, gap:0, stW:0, chipQ:[], chipT:0, ph:'', pd:0, tm:[], nightDay:0, nightT:0, nightEl:0, nightLen:0,
+  rare:'', rareT:0, luckyT:0, minId:Infinity, goldK:0, gold:null, goldSp:0, mets:[], metSp:0, metMesh:null, metSlot:0,
+  nightSeen:false, boss:null, bossPct:100, bossW50:false, bossW10:false, barSt:-1, barT:0, barOk:false, arrowT:0, arrowOn:0, pcT:0, pcJt:new Map(),
+  sparkOk:false, capT:0, barsT:0, vigT:0, flashT:0, linesT:0, stats:{cel:0, chip:0, rare:0, met:0, boss:0}};
+const _fx2V = new THREE.Vector3(), _fx2D = new THREE.Vector3(), _fx2Z = new THREE.Vector3(0,0,1), _fx2Q = new THREE.Quaternion(),
+      _fx2S = new THREE.Vector3(1,1,1), _fx2M = new THREE.Matrix4();
+const fx2Col = c => typeof c === 'number' ? c : (typeof c === 'string' && c[0] === '#' ? parseInt(c.slice(1), 16) : 0xffd84a);
+
+/* ── 효과음 — SFX 표 안은 안 고치고 한 덩어리로 붙인다(65차 탑과 같은 방식). 모두 기존 합성 함수 → sfxOut → 버스 압축기.
+   세기는 기존 'up'(0.09)·'win'(0.08)·'medal'(0.10) 과 같은 줄에 둔다 — 스물한 대가 한 교실에서 울린다.
+     fx2Lv     레벨업 — 짧게 오르는 다섯 음 아르페지오 + 끝의 반짝
+     fx2Mis    임무 완료 — 네 음이 오르고 '짜잔' 화음
+     fx2Badge  칭호(1·2단계) — 종(비배음 셋) + 도미솔 화음
+     fx2Gun    새 총 — 쇠 '스릉' + 오르는 네 음
+     fx2Big    큰 축하(칭호 3단계·유니크·전직·1등) — 작은북 드럼롤 0.55초 → 팀파니 '쿵'·심벌 → 금관 '따따따 따—' + 화음 + 반짝 줄
+     fx2Dawn   밤을 버텼다 — 부드러운 네 음 + 높은 여운
+     fx2Rare   드문 사건 — 마법 반짝 활강 + 맑은 화음
+     fx2BossIn 보스 밤·등장 — 땅울림(낮은 쿵 + 우르릉) + 낮은 단조 화음
+     fx2Warn   보스 절반·10% — 두 번 내려앉는 경고음
+     fx2BossDown 보스 처치 — 큰 쿵 → (0.35초 뒤) 큰 축하 팡파르
+     fx2Whoosh·fx2Boom 별똥별이 떨어지는 쉬익·닿는 쿵(거리·좌우는 sfxFrom 이 준다) */
+function fx2SfxReady(){
+  if(fx2SfxReady.ok) return; fx2SfxReady.ok = true;
+  const arp = (fs, gap, vol, t0, dur, h2)=> fs.forEach((f,i)=> pluck(f, dur || 0.22, vol, t0 + i*gap, h2 === undefined ? 0.35 : h2));
+  const chord = (fs, dur, vol, t0, type)=> fs.forEach(f=> pluck(f, dur, vol, t0, 0.3, type));
+  const brass = (f, dur, vol, t0)=>{ tone(f, f, dur, 'triangle', vol, t0); tone(f*2, f*2, dur*0.8, 'sine', vol*0.32, t0); tone(f*1.003, f*1.003, dur*0.9, 'square', vol*0.13, t0); };
+  const roll = (n, len, v0, v1, t0)=>{ for(let i=0;i<n;i++){ const k = i/(n-1); puff(0.045, v0 + (v1-v0)*k*k, 1700 + (i%3)*260, 1.0, t0 + k*len); } };
+  const big = (t)=>{ roll(15, 0.55, 0.035, 0.13, t);
+    const h = t + 0.62;
+    thump(98, 44, 0.42, 0.15, h, 1.8); puff(0.9, 0.055, 5200, 0.6, h, 'highpass'); puff(0.12, 0.10, 900, 0.8, h);
+    brass(392, 0.13, 0.075, h); brass(392, 0.13, 0.075, h + 0.13); brass(392, 0.13, 0.075, h + 0.26); brass(523, 0.62, 0.09, h + 0.40);
+    chord([523, 659, 784, 1047], 0.95, 0.05, h + 0.40); brass(659, 0.5, 0.05, h + 0.40);
+    arp([1568, 1760, 2093, 2349, 2637, 3136], 0.04, 0.026, h + 0.55, 0.22, 0); };
+  Object.assign(SFX, {
+    fx2Lv:    ()=>{ const t = now0(); puff(0.03, 0.05, 3000, 1.5, t); arp([523, 659, 784, 1047, 1319], 0.048, 0.075, t, 0.24);
+                    pluck(2093, 0.4, 0.04, t + 0.26, 0); tone(1568, 2349, 0.16, 'sine', 0.026, t + 0.22); },
+    fx2Mis:   ()=>{ const t = now0(); arp([392, 523, 659, 784], 0.065, 0.07, t, 0.2);
+                    chord([523, 659, 784, 1047], 0.8, 0.055, t + 0.30); brass(262, 0.5, 0.045, t + 0.30); pluck(2093, 0.5, 0.03, t + 0.42, 0); },
+    fx2Badge: ()=>{ const t = now0(); pluck(1319, 1.0, 0.06, t, 0.5); pluck(1319*2.76, 0.55, 0.016, t); pluck(1319*5.4, 0.3, 0.007, t);
+                    chord([523, 659, 784], 0.85, 0.06, t + 0.14, 'triangle'); pluck(1047, 0.9, 0.045, t + 0.14, 0.4); },
+    fx2Gun:   ()=>{ const t = now0(); crackSweep(0.20, 0.05, 6400, 2400, 3, t); pluck(2637, 0.45, 0.032, t + 0.02, 0.4); pluck(3951, 0.3, 0.012, t + 0.03);
+                    arp([659, 784, 988, 1319], 0.055, 0.07, t + 0.12, 0.22); },
+    fx2Big:   ()=>{ big(now0()); },
+    fx2Dawn:  ()=>{ const t = now0(); arp([523, 659, 784, 1047], 0.09, 0.06, t, 0.3); chord([784, 1047, 1319], 0.9, 0.035, t + 0.36); },
+    fx2Rare:  ()=>{ const t = now0(); tone(600, 1900, 0.34, 'sine', 0.03, t); arp([784, 988, 1175, 1568, 1976, 2349], 0.05, 0.05, t, 0.3, 0.2);
+                    chord([1047, 1319, 1568], 1.0, 0.032, t + 0.34); pluck(3136, 0.6, 0.012, t + 0.4, 0); },
+    fx2BossIn:()=>{ const t = now0(); thump(72, 28, 0.95, 0.16, t, 2.2); noise(1.1, 0.10, 150, t); tone(55, 40, 1.4, 'sine', 0.11, t + 0.04);
+                    tone(147, 147, 1.2, 'triangle', 0.045, t + 0.30); tone(175, 175, 1.2, 'triangle', 0.035, t + 0.30); tone(220, 208, 1.2, 'triangle', 0.03, t + 0.30); },
+    fx2Warn:  ()=>{ const t = now0(); tone(523, 392, 0.22, 'triangle', 0.07, t); tone(523, 392, 0.24, 'triangle', 0.07, t + 0.27); thump(90, 50, 0.25, 0.07, t, 1.4); },
+    fx2BossDown:()=>{ const t = now0(); thump(62, 26, 0.8, 0.17, t, 2.4); noise(0.45, 0.10, 520, t); puff(0.5, 0.06, 300, 0.7, t + 0.05); big(t + 0.35); },
+    fx2Whoosh:()=>{ const t = now0(); crackSweep(0.9, 0.05, 3200, 420, 1.1, t); tone(900, 240, 0.8, 'sine', 0.012, t); },
+    fx2Boom:  ()=>{ const t = now0(); thump(84, 32, 0.42, 0.12, t, 2.0); puff(0.3, 0.09, 520, 0.8, t); pluck(1568, 0.3, 0.025, t + 0.08, 0.3); pluck(2093, 0.25, 0.016, t + 0.13, 0); }
+  });
+}
+function fx2Snd(k, delay){
+  fx2SfxReady();
+  if(delay > 0) setTimeout(()=> sfx(k), delay*1000); else sfx(k);
+}
+function fx2Later(sec, fn){ FX2.tm.push({t:sec, fn}); }
+
+/* ── 축하 배너 — 줄을 세워 하나씩. o = {k, ic, rib, tt, sub, big, col, col2, snd, sndDelay, no3d, calm, now}
+   ★ 한 번에 레벨이 여럿 오르면 줄에 선 레벨 배너 하나를 새 숫자로 고친다(배너가 줄줄이 서지 않게).
+   ★ 밤(싸우는 중)에는 위쪽에 작게·짧게 — 조준점과 좀비를 안 가린다. 보스 처치만 예외(싸움이 끝났다).
+   ★ 아침 '○일차' 큰 글씨가 떠 있는 동안에는 기다린다(겹치면 둘 다 안 읽힌다). */
+function fx2Cel(o){
+  if(!o) return;
+  FX2.stats.cel++;
+  if(o.k === 'lv'){
+    const q = FX2.q.find(e=> e.k === 'lv'); if(q){ Object.assign(q, o); return; }
+    /* 지금 떠 있는 것이 레벨 배너면 그 자리에서 숫자만 바꾸고 조금 더 띄운다(연달아 오르면 배너가 줄줄이 서지 않게) */
+    if(FX2.cur && FX2.cur.k === 'lv' && FX2.t > 0.5){ const b = el('celBan');
+      if(b){ b.querySelector('.cTt').textContent = o.tt; b.querySelector('.cIc').textContent = o.ic; }
+      FX2.cur = o; FX2.t = Math.max(FX2.t, 1.2); fx2Snd(o.snd); return; }
+  }
+  if(o.now){ FX2.q.unshift(o); if(FX2.cur) FX2.t = Math.min(FX2.t, 0.12); FX2.gap = 0; }
+  else {
+    if(FX2.q.length >= 6){ const i = FX2.q.findIndex(e=> !e.big && e.k !== 'boss'); FX2.q.splice(i >= 0 ? i : 0, 1); }
+    FX2.q.push(o);
+  }
+  if(!FX2.cur && FX2.gap <= 0) fx2CelNext();
+}
+function fx2CelNext(){
+  const o = FX2.q[0]; if(!o) return;
+  /* 아침 '○일차' 큰 글씨가 다 사라질 때까지(흐려지는 0.5초 포함) 기다린다 */
+  if(o.k !== 'boss'){ if(stageT > 0){ FX2.stW = 0.5; return; } if(FX2.stW > 0) return; }
+  const b = el('celBan'); if(!b){ FX2.q.shift(); return; }
+  FX2.q.shift(); FX2.cur = o;
+  const fight = G.phase === 'night' && o.k !== 'boss' && !o.calm;
+  const sz = fight ? 'nt' : (o.big || o.k === 'boss') ? 'big' : 'sm';
+  FX2.t = sz === 'nt' ? 1.5 : sz === 'big' ? 2.8 : 2.1;
+  if(!FX2.sparkOk){ FX2.sparkOk = true; const sp = b.querySelector('.cSp'); let h = '';
+    for(let i=0;i<14;i++) h += `<i style="--a:${Math.round(i*360/14 + (i%2)*9)}deg;--d:${120 + (i*37)%110}px;--w:${((i%4)*0.05).toFixed(2)}s"></i>`;
+    sp.innerHTML = h; }
+  const col = o.col || '#ffd84a';
+  b.style.setProperty('--c', col); b.style.setProperty('--c2', o.col2 || (o.col ? col : '#ff8a1c'));
+  b.querySelector('.cRib').textContent = o.rib || '';
+  b.querySelector('.cIc').textContent = o.ic || '';
+  b.querySelector('.cTt').textContent = o.tt || '';
+  b.querySelector('.cSub').textContent = fight ? '' : (o.sub || '');
+  b.className = ''; void b.offsetWidth; b.className = 'on ' + sz;
+  if(o.snd) fx2Snd(o.snd, o.sndDelay || 0);
+  if(!o.no3d) fx2Pop3D(sz, fx2Col(col));
+}
+/* 캐릭터 둘레의 3D 빛가루 — 땅에 눕힌 고리 + 위로 솟으며 도는 빛가루 + 머리 위 불꽃.
+   ★ 1인칭이면 앞쪽 3칸에서 터뜨린다(눈앞에서 터지면 화면이 금색 덩어리가 된다 — xpGain 의 옛 규칙). */
+function fx2Pop3D(sz, col){
+  const tp = tpvOn(), f = forward();
+  /* 3인칭이면 몸에서 카메라 반대쪽(앞)으로 0.9칸 — 알갱이가 카메라 쪽으로 덜 날아온다 */
+  const k = tp ? 0.9 : 3.0, x = PL.x + f.x*k, z = PL.z + f.z*k, y = PL.y, bx = tp ? PL.x : x, bz = tp ? PL.z : z;   // bx·bz 몸 둘레(1인칭이면 앞 3칸)
+  const nt = sz === 'nt', big = sz === 'big';
+  /* ★ 3인칭 카메라는 몸 뒤 3칸쯤이다 — 세게(pow>1) 터뜨리면 알갱이가 카메라 코앞까지 날아와 화면에 큰 공으로 찍힌다(사진으로 봤다).
+       그래서 약하게·작게, 흰색 대신 진한 금색·직업색만(밝은 흰 알갱이는 그늘에서 회색 공으로 보인다). */
+  /* 고리는 발밑 몸 둘레만(반지름 1.1~1.7칸) — 2칸이 넘으면 3인칭 카메라 발치까지 와서 화면 아래를 통째로 긋는다(800×600 사진) */
+  ring(bx, y + 0.08, bz, col, big ? 1.0 : 0.8, big ? 0.55 : 0.42, true);
+  if(big) ring(bx, y + 0.1, bz, col, 1.4, 0.8, true);
+  burst(x, y + (tp ? 2.4 : 1.9), z, col, nt ? 8 : big ? 18 : 12, 0.7, 0.7, 0.65);
+  if(nt) return;
+  burst(x, y + (tp ? 2.7 : 2.2), z, 0xffd43b, big ? 10 : 6, 0.55, 0.5, 0.6);
+  const n = big ? 14 : 8;
+  for(let i=0;i<n;i++){ const a = i/n*6.283 + Math.random()*0.3, r = 0.7 + Math.random()*0.3;
+    spark(bx + Math.cos(a)*r, y + 0.3 + Math.random()*0.4, bz + Math.sin(a)*r, i%2 ? col : 0xffd43b,
+          Math.cos(a)*0.3 - Math.sin(a)*0.8, 2.2 + Math.random()*1.2, Math.sin(a)*0.3 + Math.cos(a)*0.8, 0.9 + Math.random()*0.4, 0.8); }
+}
+/* 친구 소식 한 줄 — 셋까지만 줄 선다(첫날 한꺼번에 몰리면 앞의 것은 알림 줄(feed)에 남아 있다) */
+function fx2Chip(msg){
+  FX2.stats.chip++;
+  if(FX2.chipQ.length >= 3) FX2.chipQ.shift();
+  FX2.chipQ.push(msg);
+}
+function fx2Show(id, cls, on){ const e = el(id); if(!e) return null; if(on){ e.className = ''; void e.offsetWidth; e.className = cls; } else e.className = ''; return e; }
+
+/* ── 드문 사건 ──
+   · 5일차부터, 보스 밤·미니게임 날은 없음, 하루에 하나까지, **이틀 연달아 없음**, 같은 사건 두 번 연달아 없음.
+   · 확률 RARE_P — 18일 판에서 5일차 이후 사흘에 한 번꼴(검사 t66-fx2-static 이 방 이름 400개로 센다).
+   · 선생님 설정 rareEvents:false 면 하나도 안 생긴다. */
+const RARE = [
+  {k:'gold',   ic:'🌟', n:'황금 좀비',  at:'night', d:'황금빛 좀비가 한 마리 섞여 와요 — 잡으면 금 조각이 우르르!'},
+  {k:'meteor', ic:'☄️', n:'유성우 밤',  at:'night', d:'별똥별이 마을에 떨어져요 — 떨어진 자리에 금 조각이 생겨요'},
+  {k:'lucky',  ic:'🍀', n:'행운의 아침', at:'day',  d:'보물 상자가 하나 더 나타났어요 — 지도를 보고 달려가요!'}
+];
+const RARE_P = 0.72, RARE_FROM = 5, MET_N = 7, MET_FALL = 1.4;
+function fx2Hash(s){
+  let h = 2166136261 >>> 0;
+  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  h ^= h >>> 15; h = Math.imul(h, 0x2c1b3c6d) >>> 0; h ^= h >>> 12; h = Math.imul(h, 0x297a2d39) >>> 0; h ^= h >>> 15;
+  return (h >>> 0) / 4294967296;
+}
+function fx2Rng(key){ let a = Math.floor(fx2Hash(key) * 4294967296) >>> 0;
+  return ()=>{ a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const _rareMemo = new Map();
+function rareOf(day){
+  day = day|0;
+  if(G.set.rareEvents === false || day < RARE_FROM || day > G.set.goalDay) return -1;
+  if(bossIndex(day) >= 0 || miniDayIdx(day) >= 0) return -1;
+  const key = (G.room || 'solo') + '|' + day + '|' + G.set.goalDay;
+  if(_rareMemo.has(key)) return _rareMemo.get(key);
+  let r = -1;
+  if(rareOf(day-1) < 0 && fx2Hash(key + '|p') < RARE_P){
+    let prev = -1; for(let d = day-1; d >= RARE_FROM && prev < 0; d--) prev = rareOf(d);
+    r = Math.floor(fx2Hash(key + '|k') * RARE.length) % RARE.length;
+    if(r === prev) r = (r + 1) % RARE.length;
+  }
+  _rareMemo.set(key, r);
+  return r;
+}
+function fx2RareCel(R, extra){
+  FX2.stats.rare++;
+  fx2Cel(Object.assign({k:'rare', ic:R.ic, rib:'드문 사건!', tt:R.n, sub:R.d, col:'#a8ecff', col2:'#6d5cff', snd:'fx2Rare', calm:true, no3d:true}, extra || {}));
+}
+/* 행운의 아침 — 호스트가 상자 하나를 더 놓는다(기존 chest 통로가 손님에게 나른다). 평소 상자는 둘까지, 이것까지 셋(CH_MAX) */
+function fx2LuckyChest(){
+  if(!G.host || G.phase !== 'day' || G.chests.length >= CH_MAX) return;
+  const g = (G.day*2 + 1) % NG, sp = chestSpot(g) || chestSpot((g+1) % NG);
+  if(!sp) return;
+  G.chests.push({id:chSeq++, x:sp[0], z:sp[1], g:sectorOf(sp[0], sp[1]), t:CH_LIFE});
+  netChests();
+  say(`🍀 <b style="color:#8fe08f">행운의 아침!</b> 보물 상자가 하나 더 나타났어요 — 지도를 보고 달려가요`);
+}
+/* 유성우 — 그날 밤 떨어질 때·자리를 씨앗으로 미리 정한다. 모두 같은 자리에 떨어진다 */
+function fx2MeteorPlan(){
+  FX2.mets.length = 0;
+  const rnd = fx2Rng((G.room || 'solo') + '|' + FX2.nightDay + '|met'), span = Math.max(30, FX2.nightLen - 26);
+  for(let i=0;i<MET_N;i++){
+    const a = rnd()*6.283, r = 10 + rnd()*(ARENA_R - 16), x = Math.cos(a)*r, z = Math.sin(a)*r;
+    FX2.mets.push({t:8 + i*span/MET_N + rnd()*4, x, z, a2:rnd()*6.283, st:0, slot:-1, gy:Math.max(GY, terrAt(Math.floor(x), Math.floor(z)))});
+  }
+}
+function fx2MetMesh(){
+  if(FX2.metMesh) return FX2.metMesh;
+  /* 불투명 가는 막대(빛나는 머리) 세 칸 — 새 투명 면이 아니다. 꼬리는 기존 입자(spark)가 맡는다 */
+  const m = new THREE.InstancedMesh(new THREE.BoxGeometry(0.46, 0.46, 3.0), new THREE.MeshBasicMaterial({color:0xffe7a0}), 3);
+  m.frustumCulled = false; m.castShadow = false; m.receiveShadow = false; m.visible = false;
+  for(let i=0;i<3;i++) m.setMatrixAt(i, ZEROM);
+  scene.add(m); FX2.metMesh = m; return m;
+}
+function fx2MeteorTick(dt){
+  const el0 = FX2.nightEl;
+  let live = 0;
+  for(const m of FX2.mets){
+    if(m.st === 2) continue;
+    const t0 = m.t - MET_FALL;
+    if(el0 < t0) continue;
+    if(m.st === 0){
+      if(el0 - t0 > MET_FALL + 0.5){ m.st = 2; continue; }        // 늦게 들어온 손님 — 지난 것은 건너뛴다
+      m.st = 1; m.slot = FX2.metSlot = (FX2.metSlot + 1) % 3; FX2.stats.met++;
+      fx2SfxReady(); if(Math.hypot(m.x - PL.x, m.z - PL.z) < 60) sfxFrom('fx2Whoosh', m.x, m.z, 0.8);
+    }
+    const p = Math.min(1, (el0 - t0) / MET_FALL), mesh = fx2MetMesh();
+    const sx = m.x - Math.cos(m.a2)*24, sy = m.gy + 30, sz = m.z - Math.sin(m.a2)*24;
+    const x = sx + (m.x - sx)*p, y = sy + (m.gy - sy)*p, z = sz + (m.z - sz)*p;
+    if(p < 1){
+      live++;
+      _fx2D.set(m.x - sx, m.gy - sy, m.z - sz).normalize(); _fx2Q.setFromUnitVectors(_fx2Z, _fx2D); _fx2V.set(x, y, z);
+      _fx2S.set(1, 1, 1); mesh.setMatrixAt(m.slot, _fx2M.compose(_fx2V, _fx2Q, _fx2S));
+      FX2.metSp -= dt;
+      if(FX2.metSp <= 0){ FX2.metSp = 1/40;                                  // 꼬리 — 한 알 0.55초 · 한 번에 스무 알 남짓(입자 풀 160 중)
+        spark(x - _fx2D.x*1.6, y - _fx2D.y*1.6, z - _fx2D.z*1.6, (FX2.stats.met + (el0*40|0)) % 2 ? 0xff9a2e : 0xffe07a,
+              (Math.random()-0.5)*0.7, 0.3 + Math.random()*0.5, (Math.random()-0.5)*0.7, 0.55, 3.4); }
+    } else {
+      m.st = 2; mesh.setMatrixAt(m.slot, ZEROM);
+      burst(m.x, m.gy + 0.3, m.z, 0xffb347, 16, 1.3);
+      burst(m.x, m.gy + 0.4, m.z, 0xfff2c0, 8, 0.9, 0.5);
+      ring(m.x, m.gy + 0.06, m.z, 0xffa040, 2.6, 0.55, true); ring(m.x, m.gy + 0.08, m.z, 0xfff0b0, 1.4, 0.35, true);
+      const d = Math.hypot(m.x - PL.x, m.z - PL.z);
+      if(d < 18) shake(0.14*(1 - d/18), 0.25);
+      if(d < 55){ fx2SfxReady(); sfxFrom('fx2Boom', m.x, m.z, Math.max(0.25, 1 - d/55)); }
+      if(G.host) dropGold({x:m.x, z:m.z, bi:-1});                    // 금 조각 1~3 — 좀비가 떨어뜨리는 것과 같은 통로
+    }
+  }
+  if(FX2.metMesh){ FX2.metMesh.instanceMatrix.needsUpdate = true; FX2.metMesh.visible = live > 0; }
+  /* 하늘의 별똥별(updSky 의 한 줄기)도 이 밤엔 자주 긋는다 — 원래는 14~30초에 한 번 */
+  if(skyK > 0.6 && metWait > 3) metWait = 0.8 + Math.random()*2.2;
+}
+/* 황금 좀비 — 그날 밤 처음 본 좀비 번호 + 씨앗 순번(3~7번째). 모두 같은 좀비가 금빛이 된다 */
+function fx2GoldTick(dt){
+  if(!FX2.gold){
+    for(const w of G.wolves) if(w.id < FX2.minId && !isBoss(w.k)) FX2.minId = w.id;
+    if(FX2.minId === Infinity || FX2.goldK < 0) return;
+    const want = FX2.minId + FX2.goldK;
+    for(const w of G.wolves) if(w.id === want){ FX2.gold = w; w.col = 0xffc21f; w.fx2Gold = 1; break; }
+    return;
+  }
+  const w = FX2.gold;
+  if(G.wolves.indexOf(w) < 0){
+    FX2.gold = null; FX2.goldK = -1;                                    // 한 밤에 한 마리
+    const killed = G.host ? w.hp <= 0 : (w.hp <= 15 && FX2.nightT > 1);
+    if(!killed) return;
+    burst(w.x, (w.y||GY) + 1.2, w.z, 0xffd43b, 30, 1.8); burst(w.x, (w.y||GY) + 1.6, w.z, 0xfff6c0, 14, 1.2);
+    ring(w.x, (w.y||GY) + 0.08, w.z, 0xffc21f, 2.8, 0.6, true);
+    if(G.host) dropGold({x:w.x, z:w.z, bi:0});                       // 보스처럼 8~12조각 — '금 조금 더'
+    fx2RareCel(RARE[0], {tt:'황금 좀비를 잡았어요!', sub:'금 조각이 우르르 — 얼른 주워요!', snd:'fx2Gun'});
+    return;
+  }
+  FX2.goldSp -= dt;
+  if(FX2.goldSp <= 0 && Math.hypot(w.x - PL.x, w.z - PL.z) < 45){ FX2.goldSp = 0.11;
+    const a = Math.random()*6.283;
+    spark(w.x + Math.cos(a)*0.55, (w.y||GY) + 0.6 + Math.random()*1.2, w.z + Math.sin(a)*0.55, Math.random() < 0.5 ? 0xffe066 : 0xfff6d0,
+          0, 0.9 + Math.random()*0.6, 0, 0.55, 1.2); }
+}
+
+/* ── 보스 연출 ──
+   밤 시작(보스 밤): 위아래 검은 띠 + 가장자리 어둠 + 이름 자막 + 땅울림 — 아직 좀비가 없을 때라 화면을 잠깐 덮어도 된다.
+   등장: 가장자리 어둠 한 번 + 아래쪽 작은 자막 + 저음 + **약한** 흔들림 + 6초 동안 보스 쪽 방향 표시.
+     (예전엔 흔들림 1.6 — 조준이 통째로 튀었다. 카메라를 보스 쪽으로 돌리는 것은 조작을 뺏으므로 안 한다 — 대신 방향 표시)
+   체력 절반·10%: 경고 자막 + 경고음 + 체력바 단계 글자/테두리.
+   처치: 흰 번쩍 + 속도선 + 위아래 띠(슬로모션 느낌 — 게임 시간은 안 멈춘다) + 빛가루·고리 + 불꽃놀이 + 큰 팡파르 + 큰 축하 배너 */
+function fx2BossName(){ const bi = bossIndex(FX2.nightDay || G.day); return bi >= 0 ? WOLF_T[bossWolfK(bi)].n : '보스'; }
+function fx2Cap(k, n, s, cls, dur){
+  const c = el('fx2Cap'); if(!c) return;
+  c.querySelector('.k').textContent = k; c.querySelector('.n').textContent = n; c.querySelector('.s').textContent = s || '';
+  c.className = ''; void c.offsetWidth; c.className = 'on ' + (cls || '');
+  FX2.capT = dur || 3.0;
+}
+function fx2BossIntro(){
+  FX2.stats.boss++;
+  fx2Show('fx2Bars', 'on', true); fx2Show('fx2Vig', 'on', true); FX2.barsT = 3.3; FX2.vigT = 2.7;
+  fx2Cap('오늘 밤의 보스', fx2BossName(), '밤 중간쯤 나타나요 — 다섯 입구를 막고 탑을 채워요', '', 3.0);
+  fx2Snd('fx2BossIn'); shake(0.16, 0.6);
+}
+function fx2BossAppear(w){
+  FX2.stats.boss++;
+  const B = WOLF_T[w.k] || {};
+  fx2Show('fx2Vig', 'on', true); FX2.vigT = 2.7;
+  fx2Cap('보스 등장', (B.n || '보스') + '!', `${(G.focus|0) + 1}모둠 입구 쪽 — 모두 모여서 쏘세요`, 'lo sm', 2.1);
+  fx2Snd('fx2BossIn'); shake(0.32, 0.7);
+  FX2.arrowT = 6;
+}
+function fx2BossWarn(half){
+  fx2Cap(half ? '조심!' : '조금만 더!', half ? `${fx2BossName()}${josa(fx2BossName(),'이','가')} 화났어요!` : '거의 다 잡았어요!',
+         half ? '체력 절반 — 여럿이 같이 쏘세요' : '체력 10% — 끝까지 쏘세요', 'lo sm', 2.1);
+  fx2Snd('fx2Warn'); shake(half ? 0.2 : 0.12, 0.3);
+  if(half) FX2.arrowT = Math.max(FX2.arrowT, 3);
+}
+function fx2BossDown(b){
+  FX2.stats.boss++;
+  const k = b.k, T0 = WOLF_T[k] || {}, bi = T0.boss ? T0.boss - 1 : 0, R = (BAL.bossReward && BAL.bossReward[bi]) || {};
+  const x = b.x, z = b.z, y = (b.y || GY);
+  fx2Show('fx2Flash', 'on', true); fx2Show('fx2Lines', 'on', true); fx2Show('fx2Bars', 'on k', true); fx2Show('fx2Cap', '', false); FX2.capT = 0;   // 10% 경고 자막이 남아 있으면 치운다
+  FX2.flashT = 0.55; FX2.linesT = 0.75; FX2.barsT = 2.0;
+  burst(x, y + 2.2, z, 0xffe066, 36, 2.2); burst(x, y + 2.8, z, 0xffffff, 14, 1.6);
+  ring(x, y + 0.1, z, 0xffd257, 3.2, 0.7, true); ring(x, y + 0.12, z, 0xff9f1c, 5.0, 1.0, true);
+  fx2Later(0.18, ()=> burst(x, y + 2, z, 0xffd43b, 24, 2.4)); fx2Later(0.36, ()=> burst(x, y + 2.4, z, 0xfff2c0, 20, 2.0));
+  fireN = Math.max(fireN, 8); fireT = 0.6;
+  shake(0.28, 0.35);
+  fx2Cel({k:'boss', now:true, ic:'🏆', rib:'보스 처치', tt:`${T0.n || '보스'} 처치!`,
+          sub:`우리 반이 해냈어요! 전 모둠 🪵+${R.w|0} 🪨+${R.s|0} ✨+${R.g|0}` + (R.heal ? ` · 💎+${R.heal}` : ''),
+          big:true, col:'#ffd84a', col2:'#ff7a1c', snd:'fx2BossDown', no3d:true});
+}
+/* 보스 체력바 꾸밈 — HUD 의 bossWrap 에 단계 글자 칸 하나와 절반·10% 눈금 두 개를 덧붙인다(한 번). 값은 단계가 바뀔 때만 쓴다 */
+function fx2BossBar(pct){
+  const wrap = el('bossWrap'); if(!wrap) return;
+  if(!FX2.barOk){ FX2.barOk = true;
+    const lb = wrap.querySelector('.lb'); if(lb && !el('fx2BPh')){ const s = document.createElement('span'); s.id = 'fx2BPh'; lb.appendChild(s); }
+    /* 눈금은 숫자(#bNum)보다 앞에 끼운다 — 뒤에 붙이면 가운데 50% 눈금이 '100%' 글자를 가로지른다(사진) */
+    const bar = el('bBar'); if(bar) for(const p of [50, 10]){ const t = document.createElement('i'); t.className = 'fx2Tk'; t.style.left = p + '%'; bar.insertBefore(t, bar.firstChild); } }
+  const st = pct < 0 ? -1 : pct <= 10 ? 2 : pct <= 50 ? 1 : 0;
+  if(FX2.barSt === st) return; FX2.barSt = st;
+  wrap.classList.toggle('fx2r1', st === 1); wrap.classList.toggle('fx2r2', st === 2);
+  const s = el('fx2BPh'); if(s) s.textContent = st < 0 ? '' : ['1단계', '2단계 · 화남', '마지막!'][st];
+}
+/* 보스 쪽 방향 — 화면 안이면 머리 위 👑, 밖이면 가장자리 화살표. 등장·절반 뒤 몇 초만 */
+function fx2Arrow(b){
+  const a = el('fx2Arrow'); if(!a) return;
+  if(!b || FX2.arrowT <= 0){ if(FX2.arrowOn){ FX2.arrowOn = 0; a.className = ''; } return; }
+  _fx2V.set(b.x, (b.y || GY) + 3.4, b.z).project(camera);
+  let sx = _fx2V.x, sy = _fx2V.y; const behind = _fx2V.z > 1;
+  if(behind){ sx = -sx; sy = -sy; }
+  const W = innerWidth, H = innerHeight, inside = !behind && Math.abs(sx) < 0.9 && Math.abs(sy) < 0.86;
+  let px, py, ang = 0;
+  if(inside){ px = (sx + 1)/2*W; py = (1 - sy)/2*H; }
+  else { const m = Math.max(Math.abs(sx)/0.86, Math.abs(sy)/0.78) || 1; const ex = sx/m, ey = sy/m;
+    px = (ex + 1)/2*W; py = (1 - ey)/2*H; ang = Math.atan2(-ey, ex); }
+  const want = inside ? 2 : 1;
+  if(FX2.arrowOn !== want){ FX2.arrowOn = want; a.className = inside ? 'on in' : 'on'; }
+  a.style.transform = `translate(${px|0}px,${py|0}px)`;
+  if(!inside) a.style.setProperty('--r', ang.toFixed(2) + 'rad');
+}
+
+/* ── 낮/밤이 바뀌는 순간 — 호스트는 goDay/goNight, 손님은 meta 로 바뀐다. 둘 다 여기서 본다(따로 부르지 않는다) ── */
+function fx2Phase(from, to){
+  const fresh = !from;                                        // 방금 들어온 순간 — 밤 준비는 하되 지난 일은 축하하지 않는다
+  if(from === 'night' && to !== 'night'){
+    FX2.boss = null; FX2.arrowT = 0; fx2Arrow(null); fx2BossBar(-1); FX2.gold = null;
+    if(FX2.metMesh) FX2.metMesh.visible = false;
+    const saw = FX2.nightSeen; FX2.nightSeen = false;
+    if(saw && (to === 'day' || to === 'mini') && G.crystal > 0){
+      /* 아침 '○일차' 큰 글씨가 먼저 뜬다 — 배너는 그 뒤에 온다(줄에서 기다림). 하늘 불꽃 네 발은 바로 */
+      fireN = Math.max(fireN, 4); fireT = 0.3;
+      fx2Cel({k:'dawn', ic:'🌅', rib:'밤을 버텼어요', tt:`${FX2.nightDay || G.day}일차 밤 성공!`,
+              sub:`수정 ${Math.max(1, Math.round(G.crystal / G.set.crystalMax * 100))}% 지켰어요`, snd:'fx2Dawn', col:'#ffe28a', col2:'#ff8f5a', no3d:true}); }
+  }
+  if(to === 'night'){
+    FX2.nightDay = G.day; FX2.nightEl = 0; FX2.minId = Infinity; FX2.gold = null; FX2.bossW50 = FX2.bossW10 = false;
+    const N = bossIndex(G.day) < 0 && G.nk >= 0 ? NIGHT_DEF[G.nk] : null;
+    FX2.nightLen = G.set.nightSec * (N && N.longer ? N.longer : 1);
+    const r = rareOf(G.day); FX2.rare = r >= 0 && RARE[r].at === 'night' ? RARE[r].k : '';
+    FX2.goldK = FX2.rare === 'gold' ? 3 + Math.floor(fx2Hash((G.room || 'solo') + '|' + G.day + '|gold') * 5) : -1;
+    if(FX2.rare === 'meteor') fx2MeteorPlan(); else FX2.mets.length = 0;
+    if(FX2.rare) FX2.rareT = 2.6;
+    FX2.nightSeen = !fresh;
+    if(!fresh && bossIndex(G.day) >= 0) fx2Later(0.5, fx2BossIntro);
+  }
+  if(to === 'day' && !fresh){
+    FX2.rare = '';
+    const r = rareOf(G.day);
+    if(r >= 0 && RARE[r].at === 'day') FX2.luckyT = 2.2;
+  }
+}
+
+/* ── 매 프레임(dreadTick 옆) — 값 몇 개를 견주고, 켜 둔 화면 효과의 남은 시간만 센다 ── */
+function fx2Tick(dt){
+  if(!G.started) return;
+  /* 날짜도 같이 본다 — 선생님 ⏭️ 건너뛰기처럼 한 프레임 안에 밤→아침이 지나가도 새 아침(행운의 아침)을 놓치지 않게 */
+  if(G.phase !== FX2.ph || G.day !== FX2.pd){ const from = FX2.ph; FX2.ph = G.phase; FX2.pd = G.day; fx2Phase(from, G.phase); }
+  for(let i=FX2.tm.length-1;i>=0;i--){ const e = FX2.tm[i]; e.t -= dt; if(e.t <= 0){ FX2.tm.splice(i, 1); e.fn(); } }
+  /* 축하 줄 */
+  if(FX2.cur){
+    FX2.t -= dt;
+    const b = el('celBan');
+    if(FX2.t <= 0.32 && b && !b.classList.contains('out')) b.classList.add('out');
+    if(FX2.t <= 0){ FX2.cur = null; FX2.gap = 0.22; if(b) b.className = ''; }
+  } else if(FX2.gap > 0) FX2.gap -= dt;
+  else if(FX2.stW > 0) FX2.stW -= dt;
+  else if(FX2.q.length) fx2CelNext();
+  /* 친구 소식 줄 */
+  if(FX2.chipT > 0){ FX2.chipT -= dt; if(FX2.chipT <= 0) fx2Show('celChip', '', false); }
+  else if(FX2.chipQ.length){ const c = fx2Show('celChip', 'on', true); if(c) c.textContent = FX2.chipQ.shift(); FX2.chipT = 2.9; }
+  /* 켜 둔 화면 효과 끄기 */
+  if(FX2.capT > 0){ FX2.capT -= dt; if(FX2.capT <= 0) fx2Show('fx2Cap', '', false); }
+  if(FX2.barsT > 0){ FX2.barsT -= dt; if(FX2.barsT <= 0) fx2Show('fx2Bars', '', false); }
+  if(FX2.vigT > 0){ FX2.vigT -= dt; if(FX2.vigT <= 0) fx2Show('fx2Vig', '', false); }
+  if(FX2.flashT > 0){ FX2.flashT -= dt; if(FX2.flashT <= 0) fx2Show('fx2Flash', '', false); }
+  if(FX2.linesT > 0){ FX2.linesT -= dt; if(FX2.linesT <= 0) fx2Show('fx2Lines', '', false); }
+  /* 드문 사건 알림(밤 시작 2.6초 뒤 · 아침 2.2초 뒤) */
+  if(FX2.rareT > 0){ FX2.rareT -= dt; if(FX2.rareT <= 0){ const r = RARE.find(R=> R.k === FX2.rare); if(r) fx2RareCel(r); } }
+  if(FX2.luckyT > 0){ FX2.luckyT -= dt; if(FX2.luckyT <= 0 && G.phase === 'day'){ fx2LuckyChest(); fx2RareCel(RARE[2]); } }
+  /* 밤 */
+  let bw = null;
+  if(G.phase === 'night'){
+    FX2.nightT = G.t;
+    if(!G.paused) FX2.nightEl += dt;
+    const el2 = FX2.nightLen - G.t; if(Math.abs(el2 - FX2.nightEl) > 1.5) FX2.nightEl = el2;   // 손님은 meta(1초에 한 번)의 G.t 로 맞춘다
+    if(FX2.rare === 'gold') fx2GoldTick(dt);
+    else if(FX2.rare === 'meteor') fx2MeteorTick(dt);
+    for(const w of G.wolves) if(isBoss(w.k)){ bw = w; break; }
+  }
+  if(bw){
+    const pct = bw.mx ? bw.hp / bw.mx * 100 : bw.hp;
+    if(FX2.boss !== bw){
+      if(!FX2.boss || FX2.boss.id !== bw.id){ FX2.bossW50 = pct <= 50; FX2.bossW10 = pct <= 10; fx2BossAppear(bw); }
+      FX2.boss = bw;
+    }
+    FX2.bossPct = pct;
+    if(!FX2.bossW50 && pct <= 50){ FX2.bossW50 = true; fx2BossWarn(true); }
+    else if(!FX2.bossW10 && pct <= 10){ FX2.bossW10 = true; fx2BossWarn(false); }
+    FX2.barT -= dt; if(FX2.barT <= 0){ FX2.barT = 0.12; fx2BossBar(pct); }
+    if(FX2.arrowT > 0) FX2.arrowT -= dt;
+    fx2Arrow(bw);
+  } else if(FX2.boss){
+    const b = FX2.boss; FX2.boss = null; FX2.arrowT = 0; fx2Arrow(null); fx2BossBar(-1);
+    const killed = G.host ? b.hp <= 0 : (FX2.bossPct <= 15 && FX2.nightT > 1);
+    if(killed) fx2BossDown(b);
+  }
+  /* 친구 전직 — pc 통로의 jt 가 오른 것만(처음 본 친구는 적어만 둔다). 0.5초에 한 번 */
+  FX2.pcT -= dt;
+  if(FX2.pcT <= 0){ FX2.pcT = 0.5;
+    for(const [k,p] of pcMap){
+      if(k === uid || !p || !p.n) continue;
+      const jt = p.jt|0, was = FX2.pcJt.get(k); FX2.pcJt.set(k, jt);
+      if(was !== undefined && jt > was && p.jb >= 0 && JOBS[p.jb]){
+        const nm = jobName(p.jb|0, jt);
+        fx2Chip(`${JOBS[p.jb].ic} ${p.n}${josa(p.n,'이','가')} '${nm}'${josa(nm,'이','가')} 되었어요!`);
+      }
+    }
+  }
+}
+Object.assign(window, {__fx2:{FX2, RARE, rareOf, cel:fx2Cel, chip:fx2Chip, tick:fx2Tick, phase:fx2Phase, hash:fx2Hash,
+  bossIntro:fx2BossIntro, bossAppear:fx2BossAppear, bossWarn:fx2BossWarn, bossDown:fx2BossDown, meteorPlan:fx2MeteorPlan,
+  sfxReady:fx2SfxReady, P:RARE_P}});
 
 /* ═══════════════════════ 호스트 시뮬레이션 ═══════════════════════ */
 /* 진행 방향 1.1칸 앞에 건물이 있으면 그 id */
@@ -18267,8 +19646,7 @@ function goDay(){
   /* 36차 — 오늘 밤의 구성을 아침에 뽑아 두고 알려 준다(4일차까진 고정, 그 뒤는 뽑기). 손님은 meta 로 받는다 */
   if(G.host){ G.nkPrev = G.nk; G.nk = bossIndex(G.day) >= 0 ? -1 : pickNight(G.day, G.nkPrev); }
   showStage();
-  if(bossIndex(G.day) < 0 && G.nk >= 0){ const N = NIGHT_DEF[G.nk];
-    setTimeout(()=> feed(`🌙 <b style="color:#ffd9a0">오늘 밤은 '${N.n}'</b> — ${N.hint}`), 700); }
+  /* 66차 — '오늘 밤은 …' 알림 줄은 오늘 밤 미리 보기 카드(paintNightPreview)가 대신한다. 손님 화면에도 뜬다(예전 줄은 호스트에만 떴다) */
   netMeta();
 }
 /* ═══════════ 농장의 아침 — 호스트가 다섯 모둠을 한 번에 처리한다 ═══════════
@@ -19106,9 +20484,11 @@ function raceDone(M){
   else if(my >= 5 && my <= 9){ const c = RACE_RES[my-5]; gainAll(c); line = `🏅 ${my+1}등! ${costTxt(c)}`; }
   else if(my >= 0) line = fin ? `${my+1}등 — 골인!` : `${my+1}등 — 다음엔 골인까지!`;
   if(fin){ gainAll(RACE_FIN); line += ` · 골인 상 ${costTxt(RACE_FIN)}`; }
-  if(my >= 0 && my <= 2){ verdict(true, ['🥇','🥈','🥉'][my], `${my+1}등!`); goodFlash(320); burst(PL.x, PL.y+2.1, PL.z, GHEX[G.me.g|0], 20, 1.8); burst(PL.x, PL.y+1.8, PL.z, 0xffe066, 16, 1.5); if(window.__sfx) window.__sfx('win'); }
+  /* 66차 — 1~3등은 축하 배너(1등 큰 축하 · 상 이름이 배너 아랫줄에 나온다). 나머지는 예전처럼 알림 한 줄 */
+  if(my >= 0 && my <= 2){ fx2Cel({k:'race', ic:['🥇','🥈','🥉'][my], rib:'장애물 경주', tt:`${my+1}등!`, sub:line.replace(/^\S+ \S+ /, ''),
+                                  big:my === 0, col:my === 0 ? '#ffd84a' : '#dbe4ec', snd:my === 0 ? 'fx2Big' : 'fx2Gun'}); }
   else if(my >= 0){ if(window.__sfx) window.__sfx(fin ? 'get' : 'dusk'); }
-  if(line) toast(line, 6, my === 0 ? '#ffe066' : '#ffe9a0');
+  if(line && !(my >= 0 && my <= 2)) toast(line, 6, '#ffe9a0');
 }
 function racePaint(){
   const M = G.mini;
@@ -19335,9 +20715,7 @@ function applySim(d){
     let w = G.wolves.find(o=>o.id===id);
     if(!w){ w = {id,k,x,z,y:GY,ry,hp:hp,mx:100,mv:!!mv,ph:Math.random()*6,hurt:0,tx:x,tz:z};
       if(isBoss(k)){ const B = WOLF_T[k]; w.sc = B.sc; w.col = B.col; w.bi = B.boss-1;
-        burst(x, GY+3, z, 0x9a83bf, 24, 2.2);
-        toast(B.n + ' 등장!', 4, '#ff9b9b');
-        if(window.__shake) window.__shake(1.6, 1.0); if(window.__sfx) window.__sfx('boss'); }   // 33차 — 손님 화면도 흔들린다
+        burst(x, GY+3, z, 0x9a83bf, 24, 2.2); }   // 66차 — 자막·땅울림·흔들림은 fx2Boss(호스트와 같은 코드)
       G.wolves.push(w); }
     w.tx = x; w.tz = z; w.ry = ry; w.k = k; w.mv = !!mv;
     if(hp < w.hp) w.hurt = 0.18;
@@ -19472,6 +20850,7 @@ function joinRoom(code, asHost){
         }
       }
       if(p.x===undefined){p.x=d.x;p.z=d.z;}
+      { const hl = d.dn === 2; if(hl && !p.help) specHeard(p); p.help = hl; }   // 66차 — 친구가 "일으켜 줘요" 를 누른 순간 한 번
       G.players.set(k,p); }
     for(const k of [...G.players.keys()]) if(!keep.has(k)) G.players.delete(k); });
 
@@ -19488,7 +20867,7 @@ function netTick(dt){
   if(netT <= 0){ netT = DBG.slowNet ? 1/3 : 1/6;
     myRef.set({n:G.me.name, g:G.me.g, x:+PL.x.toFixed(2), y:+PL.y.toFixed(2),
       z:+PL.z.toFixed(2), r:+PL.yaw.toFixed(2), m:PL.mv?1:0,
-      hp:PL.hp|0, dn:PL.down?1:0, tc:thrown, tt:thTgt, td:thDmg,
+      hp:PL.hp|0, dn:PL.down?(SPEC.helpT>0?2:1):0,   /* 66차 — 2 = 쓰러져서 "일으켜 줘요" 부르는 중(칸·횟수 그대로) */ tc:thrown, tt:thTgt, td:thDmg,
       tf:thF, txs:thXs, tx:thX.length ? thX : null,             // 29차 — 밀치기 방향 · 추가 명중 목록
       ht:G.me.hat|0, gl:G.me.gls|0, cl:G.me.clo|0, sk:G.me.skin|0});
     if(thX.length){ thX = []; thXs = (thXs + 1) & 255; } }
@@ -20548,19 +21927,14 @@ function showStage(){
   const w = el('stageTitle');
   w.querySelector('.d').textContent = G.day + '일차';
   const bi = bossIndex(G.day);
-  const nx = bossIndex(G.day) < 0 && bossDays().includes(G.day+1);
   /* ★ 마지막 밤은 그렇다고 말해 준다. 9살은 '18일차'라는 숫자만 보고
      오늘이 마지막인 줄 모른다 — 마지막인 걸 알아야 다 같이 달려든다. */
   const last = G.day >= G.set.goalDay;
   w.querySelector('.n').textContent = (last ? '🔥 마지막 밤 · ' : '오늘 밤 · ') + stageName(G.day);
   w.querySelector('.n').style.color = last ? '#ff9b6b' : bi>=0 ? '#ffc78a' : '#ffffff';
   w.classList.add('on'); stageT = last ? 4.6 : 3.4;
-  if(last) setTimeout(()=> feed('🔥 <b style="color:#ff9b6b">마지막 밤입니다!</b> 이 밤만 버티면 우리 반이 이겨요 — 모두 힘을 모으세요'), 500);
-  if(nx) setTimeout(()=> feed('⚠️ <b style="color:#ffc78a">내일 밤은 보스입니다.</b> 화살탑을 미리 늘려 두세요'), 900);
-  if(bi>=0) setTimeout(()=>{
-    feed(`⚠️ <b style="color:#ff9b9b">오늘 밤 ${WOLF_T[bossWolfK(bi)].n} 등장!</b> 다섯 입구 모두 돌벽으로 막고 탑을 채우세요`);
-    toast('⚠️ 오늘 밤은 보스입니다!', 3.2, '#ffc78a');
-  }, 3600);
+  /* 66차 — 마지막 밤·내일 보스·오늘 보스 알림(feed 두 줄 + toast)은 날짜 글씨가 걷힌 뒤 뜨는
+     오늘 밤 미리 보기 카드(paintNightPreview → ncNote·보스 카드)에 한 번에 담았다. 같은 말을 세 곳에 띄우지 않는다. */
 }
 function updBoss(){
   const b = G.wolves.find(w=>isBoss(w.k));
@@ -21130,8 +22504,10 @@ const _tagCand = [];            // 가까운 사람 uid (매 프레임 새 배�
 const _tagD2 = new Map();       // uid -> 거리의 제곱
 function updTags(){
   _tagCand.length = 0; _tagD2.clear();
+  /* 66차 — 친구·전장을 관전하는 중엔 카메라 둘레의 이름표를 보여 준다 */
+  const spc = SPEC.on && SPEC.mode !== 'me', ocx = spc ? camera.position.x : PL.x, ocz = spc ? camera.position.z : PL.z;
   for(const [uid,p] of G.players){
-    const dx = p.x-PL.x, dz = p.z-PL.z, d2 = dx*dx + dz*dz;
+    const dx = p.x-ocx, dz = p.z-ocz, d2 = dx*dx + dz*dz;
     if(d2 < 1600){ _tagCand.push(uid); _tagD2.set(uid, d2); }   // 40m 안
   }
   _tagCand.sort((a,b)=> _tagD2.get(a) - _tagD2.get(b));
@@ -21286,7 +22662,7 @@ function loop(){
     fovTick(dt);
     if(actCd>0) actCd -= dt;
     if(hurtCd>0) hurtCd -= dt;
-    kitTick(dt); burnTick(dt); downTick(dt); comboTick(dt);
+    kitTick(dt); burnTick(dt); downTick(dt); specTick(dt); comboTick(dt);
     if(!popOpen()) doAction(dt); else { hl.visible=false; ghost.visible=false; workStop(); }
     buildCoopTick(dt); buildAssistTick();
     sheepHurt(dt);
@@ -21379,6 +22755,7 @@ function loop(){
         shList.push(meSheep);
       }
       drawSheep(shList, tAcc, MAXP, s=>GHEX[s.g|0], SHEEP_S);
+      wingFxPeople(shList, dt, tAcc);                               // 66차 — 날개 꼬리·친구 전직 마법진(굽힌 날개 끝에서)
     }
     if(PROF_ON) pE('사람');
     if(PROF_ON) pS();
@@ -21388,6 +22765,7 @@ function loop(){
 
     if(PROF_ON) pS();
     if(!DBG.noInst){ updParts(dt); updArrows(dt); updBullets(dt); updRings(dt); updFlash(dt); updOrbs(dt, tAcc);
+                     wingFxTick(dt);                              // 66차 — 날개 반짝이·깃털·전직 마법진
                      updChests(dt, tAcc); updDrops(dt, tAcc); }
 
     fireworks(dt);
@@ -21818,6 +23196,7 @@ Object.assign(window, {
   __wolfPose:wolfPose, __wolfCorpse:wolfCorpse, __WOLF_DEAD:WOLF_DEAD, __smoothHead:smoothHead, __idleLife:idleLife, __P_legs:P_legs,   // 44차
   __work:()=>work, __doAction:doAction, __setActing:v=>{ acting = v; },
   __sheepHurt:sheepHurt, __goDown:goDown, __reviveMe:reviveMe, __aimDown:aimDown,
+  __SPEC:()=>SPEC, __specStep:specStep, __specHelp:specHelp, __specTick:specTick, __specHeard:specHeard, __specList:specList,   // 66차 관전
   __wolfRank:wolfRank, __sheepBite:sheepBiteDmg, __blockedAt:blockedAt,
   __packSim:packSim, __applySim:applySim, __MAXLV:()=>MAXLV, __spawnWolf:spawnWolf,
   /* 16차 — 벽 뛰어넘기. 검사에서 값을 베끼지 않고 게임에서 직접 읽게 내보낸다. */
@@ -21959,6 +23338,8 @@ Object.assign(window, {
   __gain:gain, __spend:spend,
   __JOBS:JOBS, __JOB_LV:JOB_LV, __JOB_STEP:()=>JOB_STEP, __JOB_LOOK:JOB_LOOK, __JOB_GEO:JOB_GEO, __JOB_UNIFORM:JOB_UNIFORM, __P_jobParts:()=>P_jobParts, __JOB_AURA:JOB_AURA, __P_jobF:()=>P_jobF, __P_jobR:()=>P_jobR,
   __JOB_WING:JOB_WING, __P_wing:()=>P_wing, __P_wingG:()=>P_wingG, __wingSpine:wingSpine,
+  __wingBend:wingBend, __avatarWingPose:avatarWingPose, __jobUpFx:jobUpFx, __wingFxPeople:wingFxPeople, __wingFxTick:wingFxTick,   // 66차 WING
+  __wingFx:()=>({sp:wfxSp, fe:wfxFe, job:wfxJob, meshes:[wfxSpMesh, wfxFeMesh, wfxBeam, ...wfxRune], rate:WFX_RATE, SN:WFX_SN, FN:WFX_FN}),
   __jobTier:jobTier, __JOB_SPD:JOB_SPD, __JOB_JMP:JOB_JMP, __GLIDE_T:GLIDE_T, __GLIDE_VY:GLIDE_VY, __setJumpHeld:(v)=>{ KEY[' '] = !!v; },   // 45차
   __statMax:statMax, __jobDue:jobDue, __takeJob:takeJob, __buildJobUI:buildJobUI,
   __jobCheck:jobCheck,
