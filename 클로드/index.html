@@ -4091,7 +4091,9 @@ const CW = {
   GAL_E0:49.45, GAL_E1:52.29, GAL_OUT:52.8, GAL_EAVE:10.25, GAL_RIDGE:11.0, GAL_RIDGE_TOP:11.12,   // 회랑 걷는 띠 e 49.45~52.29 · 바깥 얼굴 e 52.8 · 지붕 처마 10.25 → 마루 11.0
   POST:2.0, MOD:3, LANTERN:6, MERL:1.6, TORCH_Y:2.6,                      // 회랑 기둥 2 · 복도 벽 모듈 3 · 밤 불빛 6 · 성가퀴 1.6 박자 · 바깥 횃불 높이
   SP:{a:0.4, b:1.8, h:1/3, m:12, Ht:4, half:0.38, land:2.7, spd:3.0, doorUp:2.3, yawK:1.0, hold:0.5, holdYaw:0.25, pushV:1.5},   // 나선(기둥·우물 반지름·한 단·한 바퀴 12단 = 4·문 반각…)
-  FUN_R:3, FUN_ANG:0.52, FUN_TURN:3, GAL_YAW:4, LOOK_IDLE:0.3,             // 문 깔때기(3칸·30°·초당 3 rad) · 회랑 시선 따라가기(초당 4 rad)
+  FUN_R:5.5, FUN_ANG:0.52, FUN_TURN:3, GAL_YAW:4, LOOK_IDLE:0.3, FUN_LOOK:1.5,   // 문 깔때기(5.5칸·30°·초당 3 rad·문 축 1.5칸 앞을 겨눔) · 회랑 시선 따라가기(초당 4 rad)
+    /* 갈래 1 걷기 검사로 고친 값: 3칸이면 서쪽 8층 문(30,−51)에서 동쪽을 보고 달린 아이가 회랑 문(35.5,−49.5)을 30° 안에 두는 자리가 3칸 안에 없어
+       탑 동쪽 벽에 박혔다(W9b) · 문 가운데를 겨누면 옆으로 비낀 아이가 45° 회랑 문설에 걸렸다(W1b) → 문 축 위 앞 점을 겨누고, 30° 도 그 점으로 잰다 */
   K_BAND:3, K_BAND_Z1:64, K_BASE:10,                                      // K 바위 받침 — K 상자 둘레 체비쇼프 3칸(z < 64)의 바위를 GY+10 으로
   FENCE_UP:6.5, CEIL_MIN:2.2                                              // 바깥 울타리 = 설 수 있는 가장 높은 면 + 6.5 · 모든 천장 ≥ 딛는 면 + 2.2
 };
@@ -4376,13 +4378,7 @@ function layerY(x, z, ly){                           // 성곽 층 높이 한 �
 function wolfY(w){ return layerY(w.x, w.z, w.ly); }  // 호스트(좀비 루프 끝)·손님(lerpMobs)이 같이 부른다
 
 /* ── 빈 껍데기 — 서명 확정, 몸통은 중립값(맵만 키운 판에서는 아무 일도 안 한다). 채우는 갈래를 적어 둔다 ── */
-function castleTerrainAt(x, z, od, hOld, cd){ return hOld; }   // 갈래 1 — K 받침·둘레길·해자·비탈·바위 어깨·세상 끝 테(설계 2-5)
-function castleLayout(){}                                      // 갈래 1 — CPLAN → terrH·GATE_MASK·CASTLE·CROOF·ZONE·stairOf·SPIRALS·GBOX
 function buildCastle(){}                                       // 갈래 2 — 성곽 그림(bpush — bbuild 앞)
-function spiralH(k, px, pz, y){ return GY; }                    // 갈래 1 — 나선 디딤 높이(절대 y · 벽 999 · 바닥 없음 −999)
-function ceilingOver(x, z, R, y){ return 1e9; }                // 갈래 1 — 머리 위 천장 밑면(절대 y, 없으면 1e9)
-function gboxSegClear(ox, oy, oz, dx, dy, dz, len){ return len; }   // 갈래 1 — 카메라 선분이 상자에 처음 닿는 거리(없으면 len)
-function doorFunnel(dt){}                                      // 갈래 1 — 문 깔때기(CPLAN.funnels)
 function climbTick(w, dt, sheep){}                             // 갈래 3 — 성벽 위 좀비(cs ≥ 2) 한 걸음
 function updCastleTreasure(dt){}                               // 갈래 4 — 비밀 문 밀기·상자·반짝 보물·첫 방문 알림·구간 알림
 function castleOccluded(eye, target){ return false; }          // 갈래 4 — 덮인 곳에서 쏠 때 성곽 벽 가림(쏘기 틈으로만)
@@ -4391,6 +4387,458 @@ let camAutoK = 0;                                              // 갈래 1 — �
 const CL_N = new Int8Array(10); let CL_ALL = 0; const CL_KID = new Map();   // 갈래 3 — 계단별·전체 성벽 좀비 수 · 아이 uid → 이 밤 끌어올린 수
 const TRE = {found:0, paid:0, day:-1, n:0, opened:0, spark:0, pushT:0, hintT:0};   // 갈래 4 — 이 아이의 보물 장부(로컬 — 21명이 같은 상자를 각자 연다)
 let CPIECES = null;                                            // 갈래 2 — 소품·장식 상자 기록(정적 검사용)
+
+
+/* ═══════════════════════ 67차 성곽 — 갈래 1: 땅·몸·카메라 ═══════════════════════
+   여기 함수들은 genTerrain 앞에 선언만 있고, castleTerrainAt 말고는 모두 시작 순서(gateLayout 뒤 castleLayout) 이후에 불린다 —
+   그래서 몸통 안에서 GH·GATE_TOP·gboxAdd·stairOf·PL 을 읽어도 TDZ 가 아니다(부를 때는 이미 선언이 끝났다).
+   ★ 새 부름은 모두 '마을·밤'(!miniOn) 에서만 — 경주·서바이벌 몸 규칙(t54-race-static)은 한 글자도 안 바뀐다. */
+const CAM_AUTO_FP = true;                            // 지붕 밑 자동 1인칭(선생님 결정 B) — 검사용 스위치 하나(설정 창은 없다)
+let camAutoHold = 0, camAutoWheelSaid = false;       // 자동 1인칭: 나올 때 0.4초 늦게 · 휠 알림은 판마다 한 번
+let lookIdleT = 9;                                   // 마우스·터치로 둘러본 뒤 흐른 시간 — 문 깔때기·회랑 시선 도우미는 0.3초 쉰 뒤에만 시선을 돌린다
+let gboxSt = 0;                                      // GBOX 상자 도장(한 번 훑을 때 같은 상자를 두 번 안 본다) — gboxSegClear 공용
+const TAU = Math.PI*2;
+function spiralAng(a, b){ let d = Math.abs(a - b) % TAU; return d > Math.PI ? TAU - d : d; }   // 두 각의 사이(0~π)
+function wrapPi(a){ return a - Math.round(a/TAU)*TAU; }
+const yawOf = (dx, dz)=> Math.atan2(-dx, -dz);       // 수평 방향(dx,dz)을 보는 PL.yaw — 앞 = (−sin yaw, −cos yaw)
+
+/* ── 지형(설계 2-5) — genTerrain 이 칸마다 마지막에 부른다. 리터럴과 이미 선언된 것만 읽는다(TDZ) ──
+   K 바위 받침(맨 앞 — 협곡 곁 띠·바위 톱보다 먼저 깎는다) → 둘레길 GY → 협곡 창·마당은 그대로 → 바위 톱 어깨 → 성곽 칸은 그대로(castleLayout 이 덮는다)
+   → 해자 2 + 풀 비탈 1.0/칸(8칸 안 ≤ 7) 과 세상 끝 테 중 높은 것. min(hOld, …) 이라 낮추기만 한다 — GY+1 칸을 새로 만들지 않아 좀비 길이 그대로다 */
+function castleTerrainAt(x, z, od, hOld, cd){
+  if(kBand(x, z)) return (castleFoot(x, z) || tower66(x, z)) ? hOld : Math.min(hOld, GY + CW.K_BASE);
+  if(od >= CW.LANE0 && od < CW.IN && !cd) return GY;
+  if(od < CW.IN || cd) return hOld;
+  if(spur(x, z)) return spurShoulder(x, z, hOld);
+  if(castleFoot(x, z)) return hOld;
+  return Math.min(hOld, Math.round(Math.max(castleSc(dWall(x, z)), castleEd(x, z))));
+}
+
+/* ── 몸 배치(설계 4-2 표) — CPLAN 을 칸 배열·GBOX·나선으로 한 번 굽는다. gateLayout 바로 뒤, buildWorldMesh 앞 ──
+   칸: terrH(바닥) · CASTLE(종류) · CROOF(층 천장·층 문턱·달리기·문 앞) · ZONE(좀비 성벽 구역 — 'GY+8 윗면의 성질') · stairOf(1000+나선) · GATE_MASK(산 기둥 안 그림)
+   상자: 위층 바닥·천장 = FLOOR, 지붕 = ROOF(딛지 않음), 문설·인방·흉벽 = WALL, 바깥 울타리 = FENCE(카메라·천장이 건너뜀) */
+let castleOddN = 0;                                  // 어느 규칙에도 안 걸린 성곽 칸 수(0 이어야 한다 — 검사용)
+function castleLayout(){
+  const IN = (b, px, pz)=> px > b.x0 && px < b.x1 && pz > b.z0 && pz < b.z1;
+  const W8 = GY + CW.WALK, ZG = [0, 1, 2, 2, 3], FL = GK.FLOOR, RF = GK.ROOF, FN = GK.FENCE;
+  const put = (i, ck, h, roof, zone)=>{ CASTLE[i] = ck; if(h !== null) terrH[i] = h; CROOF[i] |= roof; if(zone >= 0) ZONE[i] = zone; if(ck !== CK.LANE) GATE_MASK[i] = 1; };
+  const cellAt = (px, pz)=>{ const cx = Math.floor(px), cz = Math.floor(pz); return inW(cx, cz) ? gi(cx, cz) : -1; };
+  const boxW = (b, y0, y1, k)=> gboxAddW(b.x0, b.x1, b.z0, b.z1, y0, y1, k);
+  const gatePart = (px, pz)=>{ for(let g=0; g<NG; g++){ const t = gT(g, px, pz); if(t >= 49 && t < 53 && Math.abs(gPP(g, px, pz)) < 11) return g; } return -1; };
+  castleOddN = 0;
+
+  /* ① 칸 훑기 — 둘레길 · 곧은 벽(속 찬 몸·벽 속 복도·암문) · 대각 회랑 · 3·4 연결 벽 */
+  for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){
+    const i = gi(x, z); if(terrH[i] < -900) continue;
+    const px = x + 0.5, pz = z + 0.5, od = oct(px, pz);
+    if(od < CW.LANE0 - 0.5) continue;
+    if(od < CW.IN){ if(od >= CW.LANE0 && !corridorDist(px, pz)) put(i, CK.LANE, GY, 0, -1); continue; }
+    if(!castleFoot(x, z) || inTowerBox(px, pz) || IN(CPLAN.K, px, pz) || gatePart(px, pz) >= 0) continue;   // 탑·K·66 성문은 아래에서
+    const ax = Math.abs(px), az = Math.abs(pz);
+    if((ax + az)*CHAM >= Math.max(ax, az)){ put(i, CK.GALW, W8, CR.W | CR.RUN, -1); continue; }   // 대각 회랑 몸(윗면 8 = 회랑 바닥)
+    if(IN(CPLAN.link, px, pz)){ put(i, CK.SOLID, W8, CR.RUN, CPLAN.link.zone); continue; }
+    let S = null, t = 0, P = 0;
+    for(const s2 of CPLAN.straights){ const tt = gT(s2.g, px, pz), pp = gPP(s2.g, px, pz)*s2.s;
+      if(tt >= 49 && tt < 53 && pp >= 11 && pp < 11 + s2.len){ S = s2; t = tt; P = pp; break; } }
+    if(!S){ castleOddN++; put(i, CK.SOLID, W8, CR.RUN, -1); continue; }
+    if(S.corr && P >= 15 && P < 30 && t >= 50 && t < 52)            put(i, CK.CORR, GY, CR.G | CR.RUN, S.zone);            // 복도 — 윗면이 성벽 길이라 RUN·ZONE 도(2회차)
+    else if(S.corrDoor && P >= 15 && P < 17 && t >= 49 && t < 50)   put(i, CK.DOOR, GY, CR.G | CR.DG | CR.RUN, S.zone);    // 암문 — 트인 둘레길 ↔ 덮인 복도(문턱 DG)
+    else                                                            put(i, CK.SOLID, W8, CR.RUN, S.zone);
+  }
+
+  /* ② 곧은 벽 상자 — 안 흉벽 · 바깥 성가퀴 줄(FENCE 8→14.5 + 카메라용 WALL 8→9.53) · 화톳불 받침 · 복도 천장 · 암문 문설·인방 */
+  for(const S of CPLAN.straights){
+    const bx = (p0, p1, t0, t1, y0, y1, k)=> gboxAdd(S.g, p0*S.s, p1*S.s, t0, t1, y0, y1, k), P1 = 11 + S.len;
+    bx(11, P1, 49, 49.45, 8, 8.85);
+    bx(11, P1 - 2, 52.55, 53, 8, 8 + CW.FENCE_UP, FN); bx(P1 - 2, P1, 52.55, 53, 8, 12 + CW.FENCE_UP, FN); bx(11, P1, 52.55, 53, 8, 9.53);   // 탑 곁 2칸은 망루 바닥(12) + 6.5
+    for(const P of S.deco.braziers){ const a = Math.abs(P); bx(a - 0.2, a + 0.2, 49, 49.4, 8.85, 9.55); }   // 흉벽 위 불 속에 서지 않게
+    if(S.corr){ bx(15, 30, 50, 50.5, 2.3, 8, FL); bx(15, 30, 51.5, 52, 2.3, 8, FL); bx(15, 30, 50.5, 51.5, 2.9, 8, FL); }   // 궁륭: 벽 가 2.3 · 가운데 2.9
+    if(S.corrDoor){
+      bx(15, 15.3, 49, 50, 0, 2.3); bx(16.7, 17, 49, 50, 0, 2.3); bx(15, 17, 49, 50, 2.3, 8);     // 문설(폭 1.4) · 인방
+      for(const P of [15.5, 16.5]){ const c = cellAt(gX(S.g, 48.5, P*S.s), gZ(S.g, 48.5, P*S.s)); if(c >= 0 && CASTLE[c] === CK.LANE) CROOF[c] |= CR.NB; }   // 문 앞 1칸 — 친구끼리 안 막히게
+    }
+  }
+  gboxAddW(CPLAN.link.x0, CPLAN.link.x1, 49, 49.45, 8, 8.85);          // 3·4 연결 벽 — 안 흉벽만(바깥은 K 북쪽 얼굴이 막는다)
+
+  /* ③ 모서리 탑 여덟 */
+  for(const T of CPLAN.towers){
+    const D = T.doors, corr = !!D.corr;
+    for(let z=T.z0; z<T.z1; z++) for(let x=T.x0; x<T.x1; x++){
+      const i = gi(x, z), px = x + 0.5, pz = z + 0.5;
+      const ring = x === T.x0 || x === T.x1 - 1 || z === T.z0 || z === T.z1 - 1;
+      if(IN(D.wIn, px, pz))             put(i, CK.DOOR, corr ? GY : W8, (corr ? CR.G : 0) | CR.W | CR.DW | CR.RUN, D.wIn.zone);   // 8층 문(문턱 DW) · 복도 탑이면 땅층은 복도 끝(문턱 없음)
+      else if(IN(D.nook, px, pz))       put(i, CK.DOOR, GY, CR.G | CR.DG, -1);                  // 구석 문(폭 1.0)
+      else if(IN(D.gal.cells, px, pz))  put(i, CK.DOOR, W8, CR.W | CR.RUN, -1);                 // 회랑 문 — 덮인 곳끼리(문턱 없음)
+      else if(ring)                     put(i, CK.TWALL, GY + 14, 0, -1);
+      else if(IN(T.cage, px, pz)){      put(i, CK.CAGE, GY, CR.G | CR.W | CR.T, -1); stairOf[i] = 1000 + T.spiral; }
+      else                              put(i, CK.TROOM, GY, CR.G | CR.W | CR.T | CR.RUN, -1);  // 1층 방·초소·망루(RUN = 초소 층 기력 무한만)
+    }
+    { const c = cellAt((D.nook.x0 + D.nook.x1)/2 + D.nook.nx, (D.nook.z0 + D.nook.z1)/2 + D.nook.nz); if(c >= 0 && CASTLE[c] === CK.LANE) CROOF[c] |= CR.NB; }
+    boxW(T.armA, 3.0, 8, FL);
+    if(T.hidden){ boxW(T.armB, 3.0, 10/3, FL); boxW(T.armB, 7.2, 8, FL); }   // 짝수 탑 숨은 방(3.33~7.2)
+    else boxW(T.armB, 3.0, 8, FL);
+    boxW(T.armA, 11.4, 12, FL); boxW(T.armB, 11.4, 12, FL);                  // 망루 바닥(= 초소 천장)
+    for(const [hw, y0, y1] of [[4.8, CW.ROOF_IN, 16], [3.2, 16, 17.5], [1.6, 17.5, 19]])   // 망루 천장 + 사모 지붕 몸(카메라가 지붕 속으로 안 들어가게)
+      gboxAddW(T.cx - hw, T.cx + hw, T.cz - hw, T.cz + hw, y0, y1, RF);
+    boxW(D.wIn, 10.3, 14); if(corr) boxW(D.wIn, 2.3, 8, FL);
+    boxW(D.nook, 2.3, 14);
+    boxW(D.gal.cells, 10.3, 14); for(const j of D.gal.jambs) boxW(j, j.y0, j.y1);   // 비스듬한 회랑 문 — 문설 계단 상자 넷
+    if(T.hidden){                                                            // 숨은 문(나선 270°) — 닫힌 동안 벽. 연 아이 화면에선 off
+      const sec = CPLAN.secrets[T.hidden.secret], a = T.th0 + 1.5*Math.PI, ca = Math.cos(a), sa = Math.sin(a);
+      const b = Math.abs(ca) > Math.abs(sa)
+        ? gboxAddW(T.scx + Math.sign(ca)*1.8, T.scx + Math.sign(ca)*2.0, T.scz - 0.7, T.scz + 0.7, 10/3, 10/3 + 2.3)
+        : gboxAddW(T.scx - 0.7, T.scx + 0.7, T.scz + Math.sign(sa)*1.8, T.scz + Math.sign(sa)*2.0, 10/3, 10/3 + 2.3);
+      b.sec = sec.id; sec.box = b;
+    }
+    SPIRALS[T.spiral] = {cx:T.scx, cz:T.scz, a:CW.SP.a, b:CW.SP.b, y0:GY, h:CW.SP.h, m:CW.SP.m, n:36, turns:3, Ht:CW.SP.Ht, th0:T.th0, land:CW.SP.land,
+      doors:[{rel:0, half:CW.SP.half, y:GY, sec:-1, end:true, hub:false}, {rel:0, half:CW.SP.half, y:GY + 8, sec:-1, end:false, hub:true},
+             {rel:0, half:CW.SP.half, y:GY + 12, sec:-1, end:true, hub:false}]};
+    if(T.hidden) SPIRALS[T.spiral].doors.push({rel:1.5*Math.PI, half:CW.SP.half, y:GY + 10/3, sec:T.hidden.secret, end:false, hub:false});
+  }
+
+  /* ④ 가운데 망대 K — 몸 14 · 나선 8→14(1.5바퀴) · 북문(연결 길 8) · 계단 머리(14→16.4) · 트인 윗마당(14) */
+  { const K = CPLAN.K;
+    for(let z=K.z0; z<K.z1; z++) for(let x=K.x0; x<K.x1; x++){
+      const i = gi(x, z), px = x + 0.5, pz = z + 0.5;
+      if(IN(K.cage, px, pz)){ put(i, CK.CAGE, W8, CR.G | CR.W | CR.T | (pz > 57 && Math.abs(px) < 1 ? CR.DT : 0), -1); stairOf[i] = 1000 + K.spiral; }   // 남문 칸 — 문턱 DT
+      else if(IN(K.doorN, px, pz)) put(i, CK.DOOR, W8, CR.W | CR.DW, CPLAN.link.zone);
+      else put(i, CK.KBODY, GY + 14, 0, -1);
+    }
+    boxW(K.doorN, 10.3, 14);
+    for(const b of [[-3, -2, 53, 58], [2, 3, 53, 58], [-2, 2, 53, 54], [-2, -0.7, 57.75, 58], [0.7, 2, 57.75, 58]]) gboxAddW(b[0], b[1], b[2], b[3], 14, 16.4);   // 계단 머리 벽(남쪽은 문 자리 비움)
+    gboxAddW(K.head.x0, K.head.x1, K.head.z0, K.head.z1, 16.4, 16.7, RF);
+    for(const b of [[-3, 3, 60.55, 61], [2.55, 3, 58, 61], [-3, -2.55, 58, 61]]){ gboxAddW(b[0], b[1], b[2], b[3], 14, 20.5, FN); gboxAddW(b[0], b[1], b[2], b[3], 14, 15.45); }
+    SPIRALS[K.spiral] = {cx:(K.cage.x0 + K.cage.x1)/2, cz:(K.cage.z0 + K.cage.z1)/2, a:CW.SP.a, b:CW.SP.b, y0:W8, h:CW.SP.h, m:CW.SP.m, n:18, turns:1.5, Ht:CW.SP.Ht, th0:K.th0, land:null,
+      doors:[{rel:0, half:CW.SP.half, y:W8, sec:-1, end:true, hub:false}, {rel:Math.PI, half:CW.SP.half, y:GY + 14, sec:-1, end:true, hub:false}]};
+  }
+
+  /* ⑤ 66 성문 칸 — 망루 윗마당·층계참 = SOLID(윗면 8), 계단 = ZONE 만, 다리 = CASTLE 0 그대로(아이 벽·좀비 땅길) + ZONE + RUN */
+  for(let g=0; g<NG; g++) for(const s of [-1, 1]){
+    const cell = (t, P)=> cellAt(gX(g, t, P*s), gZ(g, t, P*s)), zn = ZG[g];
+    for(let a=GH.tt0 + 0.5; a<GH.tt1; a++) for(let b=GH.tw0 + 0.5; b<GH.tw1; b++){ const i = cell(a, b); if(i >= 0) put(i, CK.SOLID, null, CR.RUN, zn); }
+    for(let a=GH.st1 + 0.5; a<GH.tt0; a++) for(let b=GH.sp0 + 0.5; b<GH.sp1; b++){ const i = cell(a, b); if(i >= 0) put(i, CK.SOLID, W8, CR.RUN, zn); }   // 옛 terrH 1~6 → 8(흐름장이 걸을 땅으로 안 보게)
+    for(let a=GH.st0 + 0.5; a<GH.st1; a++) for(let b=GH.sp0 + 0.5; b<GH.sp1; b++){ const i = cell(a, b); if(i >= 0) ZONE[i] = zn; }
+  }
+  for(let g=0; g<NG; g++) for(let a=GH.tt0 + 0.5; a<GH.tt1; a++) for(let b=-GH.tw0 + 0.5; b<GH.tw0; b++){
+    const i = cellAt(gX(g, a, b), gZ(g, a, b)); if(i >= 0){ ZONE[i] = ZG[g]; CROOF[i] |= CR.RUN; } }
+
+  /* ⑥ 층계참 밑 창고 ②④ — 방 칸 GY(bldH 되돌림) · 천장 2.6 · 밀기 돌 문(sec) · 문 옆 벽·인방. 윗면은 층계참 그대로(ZONE·RUN) */
+  for(const sec of CPLAN.secrets){ if(sec.kind !== 'landing') continue;
+    const R = sec.room;
+    for(let z=Math.floor(R.z0); z<R.z1; z++) for(let x=Math.floor(R.x0); x<R.x1; x++){
+      if(!IN(R, x + 0.5, z + 0.5)) continue; const i = gi(x, z);
+      CASTLE[i] = CK.SECRET; terrH[i] = GY; bldH[i] = -999; CROOF[i] = CR.G | CR.RUN; ZONE[i] = ZG[sec.gate]; GATE_MASK[i] = 1; }
+    gboxAddW(R.x0, R.x1, R.z0, R.z1, 2.6, 8, FL);
+    const b = gboxAddW(sec.door.x0, sec.door.x1, sec.door.z0, sec.door.z1, 0, 2.3); b.sec = sec.id; sec.box = b;
+    gboxAdd(sec.gate, 9.7*sec.side, 10*sec.side, 48, 49, 0, 2.6);             // 얼굴의 나머지 반(문 옆 벽)
+    gboxAdd(sec.gate, 9.7*sec.side, 10*sec.side, 47, 48, 2.3, 2.6);           // 문 위 인방
+  }
+
+  /* ⑦ 대각 회랑 — 칸마다 지붕 밑면(처마 10.25 → 마루 쪽 10.85) · 바깥 벽 뒤 예비 울타리(0.5칸 계단꼴, 조임이 어긋나도 해자로 못 나가게) */
+  for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){
+    const i = gi(x, z); if(CASTLE[i] !== CK.GALW) continue;
+    const y0 = Math.min(10.85, Math.max(CW.GAL_EAVE, galleryRoofAt((Math.abs(x + 0.5) + Math.abs(z + 0.5))*CHAM)));
+    gboxAddW(x, x + 1, z, z + 1, y0, y0 + 0.3, RF);
+  }
+  for(const Gl of CPLAN.galleries){
+    const sx = Math.sign(Gl.N.x), sz = Math.sign(Gl.N.z), eIn = CW.GAL_E1/CHAM;   // 로컬(X = x·sx, Z = z·sz)에서 바깥 = +X +Z, 안쪽 모서리 e ≥ 52.29
+    for(let X0=39; X0<49; X0+=0.5){
+      const Z0 = Math.ceil((eIn - X0)*2)/2;
+      gboxAddW(X0*sx, (X0 + 0.5)*sx, Z0*sz, (Z0 + 2)*sz, 8, (X0 < 41 || Z0 < 41 ? 12 : 8) + CW.FENCE_UP, FN);   // 탑 곁 2칸은 망루 바닥(12) + 6.5
+    }
+  }
+  castleDebugBoxes();
+}
+/* ?castledbg — 몸 상자(GBOX)를 선으로 그린다(갈래 2 가 그림을 몸에 맞출 때 쓰는 디버그 · 평소엔 아무것도 안 만든다).
+   색: 벽 흰색 · 바닥/천장 하늘색 · 지붕 주황 · 울타리 빨강 · 비밀 문 노랑 */
+function castleDebugBoxes(){
+  if(!/[?&]castledbg/.test(location.search)) return;
+  const pos = [], col = [], KC = [[1,1,1], [0.4,0.8,1], [1,0.6,0.2], [1,0.2,0.2]];
+  for(const b of GBOX){ const c = b.sec >= 0 ? [1,0.9,0.2] : KC[b.k] || KC[0];
+    const X = [b.x0, b.x1], Y = [b.y0, b.y1], Z = [b.z0, b.z1];
+    for(let a=0; a<2; a++) for(let d=0; d<2; d++){
+      pos.push(X[0], Y[a], Z[d], X[1], Y[a], Z[d],  X[a], Y[0], Z[d], X[a], Y[1], Z[d],  X[a], Y[d], Z[0], X[a], Y[d], Z[1]);
+      for(let e=0; e<6; e++) col.push(c[0], c[1], c[2]); }
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+  const L = new THREE.LineSegments(g, new THREE.LineBasicMaterial({vertexColors:true, depthTest:false})); L.renderOrder = 999; L.frustumCulled = false; scene.add(L);
+}
+function galleryRoofAt(e){ return CW.GAL_EAVE + (e - CW.GAL_E0)/(CW.GAL_E1 - CW.GAL_E0)*(CW.GAL_RIDGE - 0.15 - CW.GAL_EAVE); }   // 회랑 몸 천장(GY 기준)
+
+/* ── 나선(설계 4-4) — 발 높이 y 로 가장 가까운 바퀴를 고른다. 벽 999 · 그 점엔 바닥 없음 −999 ── */
+function spiralRel(S, px, pz){ let th = Math.atan2(pz - S.cz, px - S.cx) - S.th0; return th - Math.floor(th/TAU)*TAU; }
+function spiralQ(S, th, y){ return Math.min(Math.ceil(S.turns) - 1, Math.max(0, Math.floor((y - S.y0 + 0.2)/S.Ht - th/TAU + 1/12))); }
+function spiralH(k, px, pz, y){
+  const S = SPIRALS[k]; if(!S) return 999;
+  const r = Math.hypot(px - S.cx, pz - S.cz);
+  if(r < S.a) return 999;                                                    // 가운데 기둥
+  const th = spiralRel(S, px, pz);
+  if(r > S.b){                                                               // 우물 벽·구석 메움 — 문 쐐기만 열림
+    let out = 999;
+    for(let n=0; n<S.doors.length; n++){ const D = S.doors[n];
+      if(spiralAng(th, D.rel) >= D.half || (D.sec >= 0 && !SECRET_OPEN[D.sec])) continue;
+      if(y >= D.y - STEP && y <= D.y + CW.SP.doorUp) return D.y;             // 문 높이만큼(2.3) · 아래로는 STEP 까지(8층 문 위 11.1~11.3 에서 12층 문으로 튀지 않게)
+      if(y > D.y + CW.SP.doorUp) out = -999;                                 // 문 위 허공(아래 문만 걸림) — 999(벽→순간이동) 대신 '없음'
+    }
+    return out;
+  }
+  const q = spiralQ(S, th, y);
+  if(q === 0 && th > TAU - 1.0){                                             // 맨 아래 층계참 — 첫 바퀴 끝 디딤(j 10·11) 밑 바닥
+    const jj = Math.min(S.m - 1, Math.floor(th/(TAU/S.m))); if(y < S.y0 + (jj + 1)*S.h - 1.7) return S.y0; }
+  if(S.land && q === S.turns - 1 && th <= S.land && y >= S.y0 + S.Ht*S.turns - 0.6) return S.y0 + S.Ht*S.turns;   // 윗끝 층계참
+  const j = Math.min(S.n - 1, Math.floor((th + TAU*q)/(TAU/S.m)));
+  return S.y0 + (j + 1)*S.h;
+}
+function spiralCeil(k, px, pz, y){                                           // 나선 안 머리 위 — 한 바퀴 위 디딤 밑면(없으면 1e9 — 우리 천장 ROOF 가 맡음)
+  const S = SPIRALS[k]; if(!S) return 1e9;
+  const r = Math.hypot(px - S.cx, pz - S.cz); if(r < S.a) return 1e9;
+  const th = spiralRel(S, px, pz);
+  if(r > S.b){
+    for(let n=0; n<S.doors.length; n++){ const D = S.doors[n];
+      if(spiralAng(th, D.rel) < D.half && !(D.sec >= 0 && !SECRET_OPEN[D.sec]) && y >= D.y - STEP && y <= D.y + CW.SP.doorUp) return D.y + CW.SP.doorUp; }
+    return 1e9;
+  }
+  const q = spiralQ(S, th, y), top = S.y0 + S.Ht*S.turns, tf = Math.floor(S.turns);
+  if(q === 0 && th > TAU - 1.0){ const jj = Math.min(S.m - 1, Math.floor(th/(TAU/S.m)));
+    if(y < S.y0 + (jj + 1)*S.h - 1.7) return S.y0 + (jj + 1)*S.h - 0.35; }
+  const j = Math.min(S.n - 1, Math.floor((th + TAU*q)/(TAU/S.m))), stepTop = S.y0 + (j + 1)*S.h;
+  if(q < tf - 1) return stepTop + S.Ht - 0.35;
+  if(q === tf - 1 && S.turns !== tf) return Math.min(stepTop + S.Ht - 0.35, top - 0.25);   // K — 윗끝 층계참 밑면(뚫고 못 올라섬). 몸 밑면은 13.75:
+                                                                               // 13.65 면 바퀴 이음(12→12.33)을 걸쳐 선 몸 머리(13.73)가 층계참 앞 끝에 0.08 걸렸다(도달성 BFS)
+  if(S.land && th <= S.land && y < top - 0.6) return top - 0.35;              // 윗끝 층계참 밑 디딤(그 위에 선 아이는 천장 아님)
+  return 1e9;
+}
+
+/* ── 머리 위 천장(절대 y, 없으면 1e9) — 뛰기·2단·활공이 천장에서 멈춘다(천장 뚫고 지붕 위로 순간이동 막기) ── */
+function ceilingOver(x, z, R, y){
+  let c = 1e9;
+  for(let bx=Math.floor((x-R)/4); bx<=Math.floor((x+R)/4); bx++) for(let bz=Math.floor((z-R)/4); bz<=Math.floor((z+R)/4); bz++){
+    const a = gboxGrid.get(gboxKey(bx, bz)); if(!a) continue;
+    for(let i=0; i<a.length; i++){ const b = a[i];
+      if(b.off || b.k === GK.FENCE || b.y0 < y + STEP || b.y0 >= c) continue;
+      if(x+R <= b.x0 || x-R >= b.x1 || z+R <= b.z0 || z-R >= b.z1) continue;
+      c = b.y0; }
+  }
+  for(let n=0; n<5; n++){
+    const px = x + (n === 0 || n === 2 ? -R : n === 4 ? 0 : R), pz = z + (n < 2 ? -R : n === 4 ? 0 : R), cx = Math.floor(px), cz = Math.floor(pz);
+    if(!inW(cx, cz)) continue; const k = stairOf[gi(cx, cz)];
+    if(k >= 1000){ const h = spiralCeil(k - 1000, px, pz, y); if(h < c) c = h; }
+  }
+  return c;
+}
+
+/* ── 카메라 선분(o + d·t, 0 ≤ t ≤ len)이 GBOX 상자(0.14 부풀림)에 처음 닿는 거리 — slab. FENCE·off 건너뜀, 시작점이 든 상자도 건너뜀(몸 곁 상자에 카메라가 머리로 빨려 들지 않게) ── */
+function gboxSegClear(ox, oy, oz, dx, dy, dz, len){
+  let best = len; const st = ++gboxSt, E = 0.14;
+  const x1 = ox + dx*len, z1 = oz + dz*len;
+  const bx0 = Math.floor((Math.min(ox, x1) - E)/4), bx1 = Math.floor((Math.max(ox, x1) + E)/4);
+  const bz0 = Math.floor((Math.min(oz, z1) - E)/4), bz1 = Math.floor((Math.max(oz, z1) + E)/4);
+  for(let bx=bx0; bx<=bx1; bx++) for(let bz=bz0; bz<=bz1; bz++){
+    const a = gboxGrid.get(gboxKey(bx, bz)); if(!a) continue;
+    for(let i=0; i<a.length; i++){ const b = a[i];
+      if(b.st === st) continue; b.st = st;
+      if(b.off || b.k === GK.FENCE) continue;
+      const lx = b.x0 - E, hx = b.x1 + E, ly = b.y0 - E, hy = b.y1 + E, lz = b.z0 - E, hz = b.z1 + E;
+      if(ox > lx && ox < hx && oy > ly && oy < hy && oz > lz && oz < hz) continue;
+      let t0 = 0, t1 = best, ta, tb;
+      if(Math.abs(dx) < 1e-9){ if(ox < lx || ox > hx) continue; } else { ta = (lx - ox)/dx; tb = (hx - ox)/dx; if(ta > tb){ const q = ta; ta = tb; tb = q; } if(ta > t0) t0 = ta; if(tb < t1) t1 = tb; if(t0 > t1) continue; }
+      if(Math.abs(dy) < 1e-9){ if(oy < ly || oy > hy) continue; } else { ta = (ly - oy)/dy; tb = (hy - oy)/dy; if(ta > tb){ const q = ta; ta = tb; tb = q; } if(ta > t0) t0 = ta; if(tb < t1) t1 = tb; if(t0 > t1) continue; }
+      if(Math.abs(dz) < 1e-9){ if(oz < lz || oz > hz) continue; } else { ta = (lz - oz)/dz; tb = (hz - oz)/dz; if(ta > tb){ const q = ta; ta = tb; tb = q; } if(ta > t0) t0 = ta; if(tb < t1) t1 = tb; if(t0 > t1) continue; }
+      if(t0 < best) best = t0;
+    }
+  }
+  return best;
+}
+
+/* ── 박힌 몸의 착지 — 발 높이 y 에서 올라설 수 있는(≤ y + STEP) 바닥만 본다(벽 칸·지붕·솟은 상자는 건너뜀). 착지 안전망의 둘째 줄 ── */
+function castleFloorUnder(x, z, R, y){
+  let m = -999; const lim = y + STEP + 0.001;
+  for(let n=0; n<5; n++){
+    const px = x + (n === 0 || n === 2 ? -R : n === 4 ? 0 : R), pz = z + (n < 2 ? -R : n === 4 ? 0 : R), cx = Math.floor(px), cz = Math.floor(pz);
+    let h = solidTop(cx, cz);
+    if(inW(cx, cz)){ const k = stairOf[gi(cx, cz)]; if(k >= 1000) h = spiralH(k - 1000, px, pz, y); else if(k >= 0) h = stairH(k, px, pz); }
+    if(h <= lim && h > m) m = h;
+  }
+  for(let bx=Math.floor((x-R)/4); bx<=Math.floor((x+R)/4); bx++) for(let bz=Math.floor((z-R)/4); bz<=Math.floor((z+R)/4); bz++){
+    const a = gboxGrid.get(gboxKey(bx, bz)); if(!a) continue;
+    for(let i=0; i<a.length; i++){ const b = a[i];
+      if(b.off || b.k === GK.ROOF || b.y1 > lim || b.y1 <= m || x+R <= b.x0 || x-R >= b.x1 || z+R <= b.z0 || z-R >= b.z1) continue;
+      m = b.y1; }
+  }
+  return m;
+}
+
+/* ── 칸 판정 도우미 ── */
+function nbAt(x, z){ const cx = Math.floor(x), cz = Math.floor(z); return inW(cx, cz) && (CROOF[gi(cx, cz)] & CR.NB) !== 0; }   // 바깥으로 열린 땅층 문 앞 1칸
+function castleInSpiral(x, z){ const cx = Math.floor(x), cz = Math.floor(z); return inW(cx, cz) && stairOf[gi(cx, cz)] >= 1000; }
+function covAt(x, z, y){ const cx = Math.floor(x), cz = Math.floor(z); return inW(cx, cz) && (CROOF[gi(cx, cz)] & roofLv(y)) !== 0; }   // 이 층에 천장이 있나(문턱 포함)
+function onWallWalk(){                               // 성벽 길(GY+8 윗면 — 트인 길·회랑·초소·복도/창고/암문 위) 위인가 → 달리기 기력 무한
+  const cx = Math.floor(PL.x), cz = Math.floor(PL.z); if(!inW(cx, cz)) return false;
+  return (CROOF[gi(cx, cz)] & CR.RUN) !== 0 && Math.abs(PL.y - (GY + CW.WALK)) < 0.25;
+}
+function galleryAt(x, z){                            // 회랑 띠 안이면 회랑 번호(NE·SE·SW·NW = CPLAN.galleries 순서), 아니면 −1
+  const ax = Math.abs(x), az = Math.abs(z), e = (ax + az)*CHAM;
+  if(e < 48.8 || e > 53.2 || e < Math.max(ax, az) || inTowerBox(x, z)) return -1;
+  return x >= 0 ? (z < 0 ? 0 : 1) : (z >= 0 ? 2 : 3);
+}
+
+/* ── 나선 레일(설계 3-8 문 규칙 표) — 나선 안에선 앞(W)이 보고 있는 쪽(오름/내림)으로 디딤을 따라간다.
+   0 = 도움 없음 · 1 = 레일(속도 SPA.vx/vz 를 그대로 쓴다) · 2 = 문으로 나가는 중(방향 SPA.vx/vz — 크기는 걷기 그대로) ── */
+const SPA = {on:false, k:-1, dir:1, vx:0, vz:0, wedge:-1, hub:-1, holdT:0, turnT:0, turnYaw:0, exitT:0, ex:0, ez:0, push:false, th:0, lock:0};
+function spiralTurnTo(yaw, T){ SPA.turnYaw = yaw; SPA.turnT = T; }
+function spiralAssist(dt, fx, fz){
+  const wasOn = SPA.on, prevWedge = SPA.wedge;
+  SPA.on = false; SPA.push = false;
+  if(SPA.turnT > 0){ const d = wrapPi(SPA.turnYaw - PL.yaw); PL.yaw += d*Math.min(1, dt/SPA.turnT); SPA.turnT -= dt; }   // 문 쪽으로 돌려 세우기(할당 0 보간)
+  const cx = Math.floor(PL.x), cz = Math.floor(PL.z);
+  const k = inW(cx, cz) ? stairOf[gi(cx, cz)] : -1;
+  if(k < 1000 || PL.down){ SPA.k = -1; SPA.wedge = -1; SPA.exitT = 0; SPA.hub = -1; return 0; }
+  const S = SPIRALS[k - 1000], dx = PL.x - S.cx, dz = PL.z - S.cz, r = Math.hypot(dx, dz);
+  if(SPA.k !== k){ SPA.k = k; SPA.hub = -1; }
+  if(SPA.exitT > 0){                                                         // 문으로 나가는 중 — 문 가운데 바깥 점으로 이끈다
+    SPA.exitT -= dt;
+    if(fz > 0.2 && r < S.b + 0.3){ const ax = SPA.ex - PL.x, az = SPA.ez - PL.z, l = Math.hypot(ax, az) || 1; SPA.vx = ax/l; SPA.vz = az/l; SPA.wedge = -1; return 2; }
+    SPA.wedge = -1; return 0;
+  }
+  if(r < S.a || r > S.b || r < 1e-6){ SPA.wedge = -1; return 0; }
+  const th = spiralRel(S, PL.x, PL.z), Tx = -dz/r, Tz = dx/r, Rx = dx/r, Rz = dz/r;
+  const Fx = -Math.sin(PL.yaw), Fz = -Math.cos(PL.yaw), FT = Fx*Tx + Fz*Tz, FR = Fx*Rx + Fz*Rz;
+  let Di = -1;
+  for(let n=0; n<S.doors.length; n++){ const d = S.doors[n]; if(spiralAng(th, d.rel) < 0.45 && Math.abs(PL.y - d.y) < 0.5){ Di = n; break; } }
+  SPA.wedge = Di;
+  if(Di < 0) SPA.hub = -1;                                                   // 쐐기를 벗어나야 다시 멈춘다
+  const D = Di >= 0 ? S.doors[Di] : null, arrived = D && wasOn && prevWedge !== Di;   // 레일을 타고 이 문에 막 닿았나(문으로 들어온 게 아니라)
+  if(D && D.end){
+    if(arrived){ spiralExitTo(S, D); return 0; }                             // 끝 문 — 문 쪽으로 돌려 세우고 걸어 나가게
+    if(FR > 0.3) return 0;                                                   // 문 쪽을 보고 있으면 그대로 걸어 나감
+    if(!wasOn) spiralEnter(S, D, FT, Tx, Tz);
+  } else if(D && D.hub){                                                     // 8층 초소 문 — 레일을 타고 닿으면 0.5초 '층 멈춤'
+    if(arrived && SPA.hub !== Di){ SPA.hub = Di; SPA.holdT = CW.SP.hold; const a = S.th0 + D.rel; spiralTurnTo(yawOf(Math.cos(a), Math.sin(a)), CW.SP.holdYaw); }
+    if(SPA.hub === Di){
+      if(SPA.holdT > 0){ SPA.holdT -= dt; SPA.on = true; SPA.vx = SPA.vz = 0; SPA.th = Math.atan2(dz, dx); return 1; }
+      const a = S.th0 + D.rel, Dx = Math.cos(a), Dz = Math.sin(a);
+      if(fz > 0.2 && Fx*Dx + Fz*Dz > 0.707){ spiralExitTo(S, D); SPA.turnT = 0; return 0; }   // 문 쪽을 보고 W → 초소로
+      if(!(fz < -0.2 || Math.abs(FT) > 0.707)){ SPA.on = true; SPA.vx = SPA.vz = 0; SPA.th = Math.atan2(dz, dx); return 1; }   // 사이를 보면 그대로 선다
+    } else {
+      if(FR > 0.3) return 0;
+      if(!wasOn) spiralEnter(S, D, FT, Tx, Tz);
+    }
+  } else if(D && D.sec >= 0){                                                // 숨은 문 — 닫힌 문 = 벽(레일 그대로), 벽 쪽을 보고 W 면 밀기
+    if(FR > 0.7 && fz > 0.2){
+      if(SECRET_OPEN[D.sec]) return 0;                                       // 연 문 — 레일 끔, 걸어 나감
+      SPA.on = true; SPA.push = true; SPA.vx = Rx*CW.SP.pushV; SPA.vz = Rz*CW.SP.pushV; SPA.th = Math.atan2(dz, dx); return 1;
+    }
+  } else if(!wasOn) SPA.dir = FT >= 0 ? 1 : -1;
+  if(SPA.lock > 0) SPA.lock -= dt;                                          // 들어와서 시선을 돌려 세우는 동안은 방향 고정
+  else if(Math.abs(FT) >= 0.25) SPA.dir = FT > 0 ? 1 : -1;                  // 옆을 보면(|F·T| < 0.25) 앞 프레임 방향 유지 — 나선에만 있는 규칙
+  const u = fz > 0.2 ? 1 : fz < -0.2 ? -1 : 0, sp = CW.SP.spd*u*SPA.dir;
+  SPA.on = true; SPA.vx = Tx*sp; SPA.vz = Tz*sp; SPA.th = Math.atan2(dz, dx);
+  return 1;
+}
+function spiralExitTo(S, D){                         // 이 문으로 나간다 — 문 가운데 바깥 점을 과녁으로, 시선은 문 쪽으로 0.25초에
+  const a = S.th0 + D.rel, ca = Math.cos(a), sa = Math.sin(a);
+  SPA.ex = S.cx + ca*(S.b + 0.7); SPA.ez = S.cz + sa*(S.b + 0.7); SPA.exitT = 0.9; spiralTurnTo(yawOf(ca, sa), CW.SP.holdYaw);
+}
+/* 문에서 들어온 첫 프레임: 접선을 또렷이 보고 있지 않으면(|F·T| < 0.7) 1층·8층 문 = 오름 · 12층(K 14) 문 = 내림.
+   그리고 시선을 그 접선으로 0.25초에 돌려 세운다 — 우물 가운데 기둥을 보며 오르지 않게(마우스로 둘러보는 중이면 안 돌림) */
+function spiralEnter(S, D, FT, Tx, Tz){
+  let topY = -1e9; for(let n=0; n<S.doors.length; n++) if(S.doors[n].sec < 0 && S.doors[n].y > topY) topY = S.doors[n].y;
+  SPA.dir = Math.abs(FT) >= 0.7 ? (FT > 0 ? 1 : -1) : (D.y >= topY - 0.01 ? -1 : 1);
+  if(lookIdleT >= CW.LOOK_IDLE) spiralTurnTo(yawOf(Tx*SPA.dir, Tz*SPA.dir), CW.SP.holdYaw);
+  SPA.lock = CW.SP.holdYaw + 0.05;
+}
+function spiralPost(dt){                             // 레일 이동 뒤 — 반지름 조임·1.15 쪽 당김·시선 강체 회전
+  if(!SPA.on || SPA.k < 1000) return;
+  const S = SPIRALS[SPA.k - 1000]; let dx = PL.x - S.cx, dz = PL.z - S.cz; const r = Math.hypot(dx, dz); if(r < 1e-6) return;
+  const lo = S.a + PL.R + 0.05, hi = S.b - PL.R - 0.05;
+  let rn = SPA.push ? Math.min(r, hi) : r + Math.max(-3*dt, Math.min(3*dt, 1.15 - r));
+  if(SPA.push && r >= hi - 0.02){ PL.blkX = PL.blkZ = true; }                 // 숨은 문 돌을 미는 중 — 보물(갈래 4)의 '막힌 축' 판정이 읽는다(SPA.push 도 같은 뜻)
+  if(!SPA.push && SPA.wedge < 0) rn = Math.max(lo, Math.min(hi, rn));
+  if(rn !== r){ PL.x = S.cx + dx/r*rn; PL.z = S.cz + dz/r*rn; }
+  const d = wrapPi(Math.atan2(dz, dx) - SPA.th);
+  if(!SPA.push){ PL.yaw -= d*CW.SP.yawK; if(SPA.turnT > 0) SPA.turnYaw -= d*CW.SP.yawK; }   // atan2 가 커지면(시계 방향) 시선도 같이 돈다 · 돌려 세우는 중이면 과녁도 같이
+}
+
+/* ── 문 깔때기(설계 4-4) — 문 앞 3칸 안에서 그 문을 30° 안으로 향할 때만 문 가운데 선으로 이끈다. 돌릴 각(rad)을 돌려준다 ── */
+const FUN = {ang:0, f:null};
+function doorFunnel(dt, vx, vz, fz){
+  const sp = Math.hypot(vx || 0, vz || 0);
+  if(sp < 1e-4){ FUN.ang = 0; FUN.f = null; return 0; }
+  const ux = vx/sp, uz = vz/sp, yl = PL.y - GY, L = CPLAN.funnels, ia = Math.atan2(uz, ux);
+  let best = null, bestA = CW.FUN_ANG, btx = 0, btz = 0, bs = 0;
+  for(let i=0; i<L.length; i++){ const f = L[i];
+    if(Math.abs(yl - f.y) > 0.6) continue;
+    const d = Math.hypot(f.x - PL.x, f.z - PL.z); if(d > CW.FUN_R) continue;
+    const s = (PL.x - f.x)*f.nx + (PL.z - f.z)*f.nz; if(s > 0) continue;        // 문 가운데(벽 두께 한가운데)를 지났다 — 다음 문 깔때기가 바로 잡히게
+    /* 겨누는 점: 멀면 문 가운데, 문 앞 FUN_LOOK 칸 안이면 문 축(과녁을 지나 n 방향 선) 위 내 발 투영보다 FUN_LOOK 앞 점 —
+       옆으로 비낀 아이도 문 가운데 선에 올라탄 채 문을 지난다(축을 멀리까지 늘이면 회랑 문 축이 나선 우리를 가리켜 거기로 끌려갔다) */
+    const ah = Math.max(0, s + CW.FUN_LOOK), tx = f.x + f.nx*ah - PL.x, tz = f.z + f.nz*ah - PL.z;
+    /* 30° 는 문 가운데 쪽으로 잰다('이미 그 문을 향한 아이'만) · 이미 이끄는 문은 돌린 방향으로 잰다(문턱에서 풀렸다 잡혔다 안 하게) */
+    const ang = Math.abs(wrapPi(Math.atan2(f.z - PL.z, f.x - PL.x) - ia - (f === FUN.f ? FUN.ang : 0)));
+    if(ang < bestA){ bestA = ang; best = f; btx = tx; btz = tz; bs = s; }
+  }
+  if(!best){ FUN.ang = 0; FUN.f = null; return 0; }
+  if(best !== FUN.f){ FUN.f = best; FUN.ang = 0; }
+  const want = wrapPi(Math.atan2(btz, btx) - ia), mx = CW.FUN_TURN*dt;
+  FUN.ang += Math.max(-mx, Math.min(mx, want - FUN.ang));
+  if(fz > 0.2 && bs < -0.5 && (tpvKind() === -1 || camAutoK > 0) && lookIdleT >= CW.LOOK_IDLE){   // 1인칭(들어가는 중 포함) · 둘러보기 쉼 · 문 앞(문 속에 선 채 방향을 고른 아이는 그대로)이면 시선도 같이
+    const d = wrapPi(yawOf(btx, btz) - PL.yaw), m2 = CW.GAL_YAW*dt; PL.yaw += Math.max(-m2, Math.min(m2, d)); }
+  return FUN.ang;
+}
+function galleryYaw(dt, fz){                         // 회랑 시선 따라가기 — 곧은 띠라 갈림길이 없어 가둘 일이 없다
+  if(fz <= 0.2 || tpvKind() !== -1 || lookIdleT < CW.LOOK_IDLE || Math.abs(PL.y - (GY + CW.WALK)) > 1.2) return;
+  const gl = galleryAt(PL.x, PL.z); if(gl < 0) return;
+  const U = CPLAN.galleries[gl].U, Fx = -Math.sin(PL.yaw), Fz = -Math.cos(PL.yaw), c = Fx*U.x + Fz*U.z;
+  if(Math.abs(c) < 0.643) return;                                           // 50° 밖이면 그대로
+  const s = c > 0 ? 1 : -1, d = wrapPi(yawOf(U.x*s, U.z*s) - PL.yaw), m = CW.GAL_YAW*dt;
+  PL.yaw += Math.max(-m, Math.min(m, d));
+}
+function galleryClamp(){                             // 회랑 걷는 띠 e ∈ [49.72, 52.02] 로 조임 — 칸 톱니·대각 벽에 몸이 걸리지 않게(몸 판정 대신 조임이 벽)
+  if(Math.abs(PL.y - (GY + CW.WALK)) >= 1.2) return;
+  const gl = galleryAt(PL.x, PL.z); if(gl < 0) return;
+  const N = CPLAN.galleries[gl].N, e = (Math.abs(PL.x) + Math.abs(PL.z))*CHAM;
+  const lo = CW.GAL_E0 + PL.R*0.849 + 0.03, hi = CW.GAL_E1 - PL.R*0.849 - 0.03;
+  let de = 0; if(e < lo) de = lo - e; else if(e > hi) de = hi - e; else return;
+  const m = de/(Math.SQRT2*CHAM); PL.x += N.x*m; PL.z += N.z*m;             // 법선 1칸 = e 0.849
+  const vn = (PL.vx||0)*N.x + (PL.vz||0)*N.z;
+  if((de < 0 && vn > 0) || (de > 0 && vn < 0)){ PL.vx -= N.x*vn; PL.vz -= N.z*vn; }   // 벽 쪽 속도만 0 — 비비며 걸어도 속도 그대로
+}
+
+/* ── 끼임·지붕 위·성 밖 구조(설계 4-7) — 땅에 선 프레임에서만 센다(공중 = 0) ── */
+const CRS = {sx:0, sz:0, stuckT:0, roofT:0, outT:0};
+function castleSafeGo(list){
+  let best = null, bd = 1e9;
+  for(const s of list){ const d = Math.hypot(s[0] - PL.x, GY + s[1] - PL.y, s[2] - PL.z); if(d < bd){ bd = d; best = s; } }
+  if(!best) return;
+  PL.x = best[0]; PL.y = GY + best[1]; PL.z = best[2]; PL.vx = PL.vz = 0; PL.vy = 0; CRS.stuckT = CRS.roofT = CRS.outT = 0; CRS.sx = PL.x; CRS.sz = PL.z;
+}
+function castleRescue(dt){
+  const cx = Math.floor(PL.x), cz = Math.floor(PL.z); if(!inW(cx, cz) || PL.down) return;
+  const i = gi(cx, cz), ck = CASTLE[i], inC = ck >= CK.SOLID || CROOF[i] !== 0;
+  /* 끼임 — 3초 넘게 0.1칸도 못 움직였는데 몸이 벽·천장 상자와 겹쳐 있을 때만(벽을 미는 아이는 그대로 둔다) */
+  if(inC && PL.mv){
+    if(Math.hypot(PL.x - CRS.sx, PL.z - CRS.sz) > 0.1){ CRS.sx = PL.x; CRS.sz = PL.z; CRS.stuckT = 0; }
+    else if((CRS.stuckT += dt) > 3){ CRS.stuckT = 0;
+      if(groundUnder(PL.x, PL.z, PL.R, PL.y) > PL.y + STEP + 0.05 || ceilingOver(PL.x, PL.z, PL.R, PL.y) < PL.y + 1.35) castleSafeGo(CPLAN.safe); }
+  } else { CRS.stuckT = 0; CRS.sx = PL.x; CRS.sz = PL.z; }
+  /* 지붕 위 — 서 있는 윗면이 그 칸의 걷는 바닥이 아니다(탑 벽 윗면·K 몸·회랑 바닥 위·성벽 흉벽 불 위) */
+  const yl = PL.y - GY, K = CPLAN.K;
+  const odd = PL.ground && inC && (ck === CK.TWALL || (ck === CK.KBODY && !(PL.z > K.yard.z0 && Math.abs(yl - 14) < 0.3)) || (ck === CK.GALW && yl > 8.3) || (ck === CK.SOLID && yl > 9.6));
+  CRS.roofT = odd ? CRS.roofT + dt : 0;
+  if(CRS.roofT > 1.5) castleSafeGo(CPLAN.safe);
+  /* 성 밖(해자·비탈·산) — 버그가 아니면 안 불린다 */
+  const out = PL.ground && ck === 0 && oct(PL.x, PL.z) >= CW.OUT && !corridorDist(PL.x, PL.z) && terrH[i] >= GY + 2;
+  CRS.outT = out ? CRS.outT + dt : 0;
+  if(CRS.outT > 4){ toast('성 밖은 위험해요!', 2.2, '#ffd0a0'); castleSafeGo(CPLAN.safe.filter(s=> s[1] === 8 && ZONE[gi(Math.floor(s[0]), Math.floor(s[2]))] >= 0)); }
+}
+
+/* ── 자동 1인칭(선생님 결정 B, 설계 4-5) — 천장 밑이면 0.25초에 빨려 들어가고, 네 귀퉁이까지 다 나온 뒤 0.4초 기다렸다 0.25초에 물러난다 ── */
+function camAutoTick(dt){
+  const auto = CAM_AUTO_FP && camZoom >= CAM_MIN && !PL.down && !miniOn();
+  if(auto && covAt(PL.x, PL.z, PL.y)) camAutoHold = 0.4;
+  else if(!auto || !(covAt(PL.x - 0.45, PL.z - 0.45, PL.y) || covAt(PL.x + 0.45, PL.z - 0.45, PL.y) || covAt(PL.x - 0.45, PL.z + 0.45, PL.y) || covAt(PL.x + 0.45, PL.z + 0.45, PL.y))) camAutoHold -= dt;
+  camAutoK = Math.max(0, Math.min(1, camAutoK + (camAutoHold > 0 ? dt : -dt)/0.25));
+}
 
 function genTerrain(){
   for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){
@@ -5328,6 +5776,12 @@ function buildWorldMesh(){
   const cD1 = new THREE.Color(0xb08a5c), cD2 = new THREE.Color(0x9c7a50),             // 흙길 두 흙색 (r > g — t34 '길 위 흙')
         cWs = new THREE.Color(0x4a8fd0), cWs2 = new THREE.Color(0x74bfe8),             // 개울 깊은 물 · 거품 줄 (둘 다 b 가 제일 크다 — t34)
         cBed = new THREE.Color(0x4a4636), cBed2 = new THREE.Color(0x7a6a4c);           // 연못 바닥: 가운데 어두운 뻘(깊어 보인다) → 가장자리
+  /* 67차 — 성 안 둘레길: 가운데 1.2 만 다진 흙, 양옆은 밟힌 풀(8f9a5c — 마당 풀을 흙 쪽으로 한 단), 문·계단 발치 앞만 흙 부채꼴(반지름 2.5).
+     pathLines 에는 넣지 않는다(난수 순서가 흔들려 자원·꾸밈 자리가 통째로 바뀐다) — 여기 땅 꼭짓점 색·흙 마스크만 */
+  const cTrod = new THREE.Color(0x8f9a5c), laneFan = [];
+  for(const S of CPLAN.straights) if(S.corrDoor) laneFan.push(gX(S.g, 48.2, 16*S.s), gZ(S.g, 48.2, 16*S.s));
+  for(const T of CPLAN.towers){ const n = T.doors.nook; laneFan.push((n.x0 + n.x1)/2 + n.nx*0.8, (n.z0 + n.z1)/2 + n.nz*0.8); }
+  for(const st of CPLAN.stairs) laneFan.push(gX(st.g, 33.6, 8.5*st.s), gZ(st.g, 33.6, 8.5*st.s));
   for(let i=0;i<P.count;i++){
     let x = P.getX(i), z = P.getZ(i); const r = Math.hypot(x,z);
     if(r > FIELD_R){ x *= FIELD_R/r; z *= FIELD_R/r; P.setX(i,x); P.setZ(i,z); }   // 네모 격자를 원으로 오린다 (그대로)
@@ -5353,6 +5807,12 @@ function buildWorldMesh(){
     /* ③ 흙길 — 꼭짓점 색은 지금처럼 번지게 둔다(t34 가 이 색을 센다). 또렷한 가장자리는 셰이더(M1-4)가 픽셀에서 낸다 */
     const pd = pathDist(x, z);
     if(pd < 2.1) c.lerp(rnd(x*1.7+z*3.1) < 0.5 ? cD1 : cD2, pd < 1.3 ? 1 : 1 - (pd-1.3)/0.8);
+    let laneRoad = 0;                                                                       // 67차 — 둘레길(흙 마스크 무게)
+    { const ld = laneDist(x, z);
+      if(ld < 1.9){ const wT = ld < 1.6 ? 1 : 1 - (ld - 1.6)/0.3; c.lerp(cTrod, wT*0.9); gb.lerp(cTrod, wT*0.9);
+        laneRoad = Math.max(0, Math.min(1, 1 - (ld - 0.6)/0.3)); }
+      for(let f=0; f<laneFan.length; f+=2){ const d = Math.hypot(x - laneFan[f], z - laneFan[f+1]); if(d < 2.5) laneRoad = Math.max(laneRoad, Math.min(1, (2.5 - d)/0.6)); }
+      if(laneRoad > 0) c.lerp(rnd(x*1.7+z*3.1) < 0.5 ? cD1 : cD2, laneRoad); }
     /* ④ 연못 사발 · 물가 진흙 · 개울 — 높이 식은 그대로 */
     const pr = Math.hypot(x-POND.x, z-POND.z);
     let dy = 0;
@@ -5373,7 +5833,7 @@ function buildWorldMesh(){
     let wet = 0;
     if(pr < POND.r + 1.6) wet = pr < POND.r ? 1 : 1 - (pr - POND.r)/1.6;                   // 연못가 1.6칸
     if(sd < 1.9) wet = Math.max(wet, sd < 0.75 ? 1 : 1 - (sd - 0.75)/1.15);                // 개울가 1.15칸
-    gMask[i*4]   = Math.max(0, Math.min(1, 1 - (pd - 1.0)/1.6));                          // pd≤1 에서 1, 2.6 에서 0 → 문턱 0.5 ≈ pd 1.8
+    gMask[i*4]   = Math.max(laneRoad, Math.min(1, 1 - (pd - 1.0)/1.6), 0);                // pd≤1 에서 1, 2.6 에서 0 → 문턱 0.5 ≈ pd 1.8 · 67차 둘레길 흙
     gMask[i*4+1] = wet;
     gMask[i*4+2] = (pr < POND.r || (sd < 0.75 && pr >= POND.r)) ? 1 : 0;                  // 물 밑 — 꼭짓점 색을 쓴다
     gMask[i*4+3] = Math.max(0, Math.min(1, 1 - (near - 0.5)/3.5));                         // 절벽 발치 — 흙이 비친다
@@ -5454,7 +5914,9 @@ function buildWorldMesh(){
       hn = Math.min(hn, t<-900 ? GY-3 : t);
     }
     const n = Math.max(1, Math.min(7, h - hn));
-    dep[gi(x,z)] = n; key[gi(x,z)] = (h*8 + n)*4 + capKind(h,x,z);
+    /* 67차 — 해자·풀 비탈(castleScarp)은 풀 뚜껑 + 잔디 몸(MT_TURF) — 옆 산 기둥과 안 합쳐지게 비트 하나(1<<20) */
+    const scp = castleScarp(x, z);
+    dep[gi(x,z)] = n; key[gi(x,z)] = scp ? (1 << 20) + (h*8 + n)*4 : (h*8 + n)*4 + capKind(h,x,z);
   }
   const used = new Uint8Array(WS*WS);
   let rects = 0;
@@ -5470,7 +5932,8 @@ function buildWorldMesh(){
     for(let zz=z; zz<z+d; zz++) for(let xx=x; xx<x+w; xx++) used[gi(xx,zz)] = 1;
     const h = terrH[i0], n = dep[i0], kind = k & 3;
     const tone = Math.max(0, Math.min(2, ((h-GY-5)/4)|0)), hv = (((x*13+z*7)%5)+5)%5;   // 31차b — 칸마다 결
-    const body = kind===0 ? MT_DIRT : MT_ROCK[Math.min(2, tone + (hv===3 ? 1 : 0))];
+    const body = k >= (1 << 20) ? MT_TURF : kind===0 ? MT_DIRT : MT_ROCK[Math.min(2, tone + (hv===3 ? 1 : 0))];
+    const noDeco = k >= (1 << 20) || kBand(x, z);                  // 67차 — 해자·비탈·K 받침엔 너덜·수풀·바위 없음(협곡 곁·바위 톱은 옛 모습 그대로)
     const cap  = kind===0 ? MT_GRASS : kind===2 ? MT_MOSS : kind===3 ? MT_SNOW : MT_ROCKTOP;
 
     const cx = x + w/2, cz = z + d/2;
@@ -5490,7 +5953,7 @@ function buildWorldMesh(){
       else    bpush('mtK', BOXG, WMAT, cx + u*w, h - n*0.45, cz + sg*(d/2+0.02), 0, 0.18, n*0.62, 0.06, 0, MT_CRACK);
     }
     /* 65차 — 높은 벼랑 발치의 너덜. ★ 발치 칸 높이 fh 가 GY 보다 높을 때만(산 층계참) — 마당·협곡 바닥(아이 땅)에는 한 알도 안 놓는다 */
-    if(kind!==0 && n>=3 && (hv===0 || hv===3)){
+    if(kind!==0 && n>=3 && (hv===0 || hv===3) && !noDeco){
       for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){
         const fx = dx>0 ? x+w : dx<0 ? x-1 : x + (w>>1), fz = dz>0 ? z+d : dz<0 ? z-1 : z + (d>>1);
         if(!inW(fx,fz)) continue;
@@ -5499,14 +5962,14 @@ function buildWorldMesh(){
         for(let s=0;s<2;s++){
           const u = (rnd(x*3.1+z*1.7+s*5.3)-0.5)*(dx ? d : w)*0.7, sz = 0.35 + rnd(x+z*2.3+s)*0.30;
           const px = dx ? cx + dx*(w/2 + 0.25 + s*0.35) : cx + u, pz = dz ? cz + dz*(d/2 + 0.25 + s*0.35) : cz + u;
-          if(mtNearGate(px, pz)) continue;
+          if(mtNearGate(px, pz) || CASTLE[gi(Math.floor(px), Math.floor(pz))] > 0 || castleScarp(Math.floor(px), Math.floor(pz))) continue;   // 67차 — 성곽·둘레길·해자엔 너덜 없음
           bpush('peb', PEBG, WMAT, px, fh + sz*0.22, pz, rnd(px*1.3+pz)*6.28, sz*1.3, sz*0.7, sz, 0, MT_ROCK[0]);
         }
         break;                                                     // 기둥 하나에 한 쪽만
       }
     }
-    if((kind===0 || kind===2) && hv===1) bpush('bush', LEAFV[0], WMAT, cx + (rnd(x+z*3)-0.5)*w*0.6, h + 0.14, cz + (rnd(x*2+z)-0.5)*d*0.6, rnd(x)*3, 0.55, 0.38, 0.55, 0, kind===2 ? 0x5a8f42 : 0x5f9a45);
-    if(kind===1 && hv===4 && w*d >= 2) bpush('rock', ROCKG, WMAT, cx + (rnd(x*5+z)-0.5)*w*0.5, h + 0.28, cz + (rnd(x+z*5)-0.5)*d*0.5, rnd(z)*3, 1.1, 0.7, 0.9, 0, MT_ROCK[1]);
+    if((kind===0 || kind===2) && hv===1 && !noDeco) bpush('bush', LEAFV[0], WMAT, cx + (rnd(x+z*3)-0.5)*w*0.6, h + 0.14, cz + (rnd(x*2+z)-0.5)*d*0.6, rnd(x)*3, 0.55, 0.38, 0.55, 0, kind===2 ? 0x5a8f42 : 0x5f9a45);
+    if(kind===1 && hv===4 && w*d >= 2 && !noDeco) bpush('rock', ROCKG, WMAT, cx + (rnd(x*5+z)-0.5)*w*0.5, h + 0.28, cz + (rnd(x+z*5)-0.5)*d*0.5, rnd(z)*3, 1.1, 0.7, 0.9, 0, MT_ROCK[1]);
     rects++;
   }
   /* ── 수정 자리 — 아무것도 깔지 않는다 (63차) ──
@@ -5830,6 +6293,7 @@ function inFarmYard(x, z){
      칸을 훑는 것은 세상을 지을 때 딱 한 번이라 값도 싸다(4천 칸 남짓).
    ★ 자리가 정말 모자라면 간격을 조금씩 좁혀 가며 다시 본다 —
      아이에게는 '간격 3.4칸' 보다 '우리 모둠도 스물두 개' 가 훨씬 중요하다. */
+const forestMix = [0, 0, 0];
 function placeNodes(){
   const pool = [];                                   // pool[모둠] = 놓을 수 있는 칸
   for(let g=0; g<NG; g++) pool.push([]);
@@ -5877,7 +6341,7 @@ function placeNodes(){
   }
   /* 65차 — 산 숲: 산 칸을 한 번 훑으며 '숲 밀도' 로 뽑는다(숲 덩이·빈 비탈·수목 한계선 GY+10~17). Math.random 대신 rnd — 사진이 판마다 같다.
      ★ 마당(oct < ARENA_R+3) 안에는 한 그루도 없다. 협곡(corridorDist)·성문 망루(mtNearGate)·망루 계단(rampNear)·벼랑 끝(drop>3)도 비운다 */
-  const FOREST_K = 2.1, FOREST_MAX = 500;                                   // 65차: 목표 360 ± 50 그루 — 후보 칸이 1,645 뿐이라 명세 값 0.45 로는 62그루, 2.5 로 올려 잰 수 353그루(숲 덩이 가운데는 빽빽하다)
+  const FOREST_K = 1.1, FOREST_MAX = 500;                                   // 65차: 목표 360 ± 50 그루 — 후보 칸이 1,645 뿐이라 명세 값 0.45 로는 62그루, 2.5 로 올려 잰 수 353그루(숲 덩이 가운데는 빽빽하다)
                                                                             // 67차 — 세상 끝이 78 로 넓어져 산 띠가 두꺼워졌다: 뚜껑 420 → 500, 목표 430 ± 50. 2.5 그대로면 569그루로 뚜껑에 닿아
                                                                             //   동쪽 끝(x 58~66)이 통째로 비었다 → 2.1 로 467그루. ★ 성곽 지형·나무 금지(갈래 1)가 들어가면 다시 잰다(FOREST_K 만)
                                                                             // ★ FOREST_MAX 는 안전 뚜껑이다 — 닿으면 훑기가 서쪽(x 작은 쪽)부터라 동쪽 산이 빈다. 닿지 않게 FOREST_K 로 맞춘다
@@ -5888,16 +6352,21 @@ function placeNodes(){
     if(Math.hypot(x+0.5, z+0.5) > FIELD_R-2 || !inW(x,z)) continue;
     const y0 = terrAt(x,z); if(y0 <= GY || y0 >= GY+17) continue;             // 협곡 바닥·눈 봉우리엔 없다
     if(corridorDist(x+0.5, z+0.5) || mtNearGate(x+0.5, z+0.5) || rampNear(x,z)) continue;
+    /* 67차 — 성곽 둘레 나무 금지(설계 3-11): 성벽 윗줄 뒤 비탈 8칸 · 성곽 2칸 · 탑 4칸(그 밖은 숲 배경으로 허용) · K 받침 · 깎은 바위 어깨 */
+    if(CASTLE[gi(x,z)] > 0 || (castleScarp(x,z) && dCurtain(x,z) < CW.NOTREE) || dWall(x,z) < 2 || dTower(x,z) < 4 || kBand(x,z)
+       || (spur(x,z) && spurShoulder(x,z,999) < 999 && dWall(x,z) < CW.NOTREE)) continue;
     let drop = 0; for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]) drop = Math.max(drop, y0 - terrAt(x+dx, z+dz));
     if(drop > 3) continue;                                                    // 벼랑 끝 — 잎이 허공에 걸린다
     const alt = y0 <= GY+10 ? 1 : 1 - (y0-GY-10)/7;                           // 수목 한계선
     const seed = x*1.9 + z*3.7;
     if(rnd(seed+0.13) > FOREST_K * alt * Math.max(0, forestN(x,z) - 0.25)) continue;
     const H = 4 + ((rnd(seed+0.7)*3)|0), jx = (rnd(seed+1.1)-0.5)*0.4, jz = (rnd(seed+1.9)-0.5)*0.4, sc = 0.8 + rnd(seed+2.2)*0.5;
-    if(rnd(seed+0.5) < (y0 >= GY+12 ? 0.9 : 0.55)) treePine(x+0.5+jx, y0, z+0.5+jz, sc, H, seed);
+    const pineP = (y0 >= GY+12 || dWall(x,z) < 16) ? 0.9 : 0.55;           // 67차 — 성곽이 낮춘 비탈(해자 뒤 ~16칸)도 바늘잎 숲 — 옛 산(15)처럼. 둥근 나무 잎 뱅크가 300 을 넘어 조각나지 않게(드로우콜 +80 막음)
+    if(rnd(seed+0.5) < pineP) treePine(x+0.5+jx, y0, z+0.5+jz, sc, H, seed);
     else treeRoundFar(x+0.5+jx, y0, z+0.5+jz, sc*0.9, H, seed, 1 + ((rnd(seed+4.1)*2)|0));
-    nF++;
+    nF++; if(rnd(seed+0.5) < pineP) forestMix[0]++; else forestMix[1]++;
   }
+  forestMix[2] = nF;                                                        // 67차 — 산 숲 그루 수(검사용: 소나무·둥근 나무·합)
   for(const [k,b] of banks) if(b.mat === WMATV && !b.geo.attributes.aMt) console.error('65차 — aMt 없는 WMATV 뱅크: ' + k);   // 1-3 규칙 7
   nodeSolidIndex();                                                         // 66차 — 자원 몸 충돌 버킷
 }
@@ -5924,7 +6393,7 @@ function scatterDecor(){
      물가 · 흙길 · 자원 덩어리. 걸리면 그냥 안 심는다(아이 땅은 한 칸도 안 줄어든다) */
   const okAt = (x, z, pd)=>{
     const ix = Math.floor(x), iz = Math.floor(z);
-    if(!inW(ix,iz) || terrAt(ix,iz) !== GY) return false;
+    if(!inW(ix,iz) || terrAt(ix,iz) !== GY || CASTLE[gi(ix,iz)] > 0) return false;   // 67차 — 둘레길(CK.LANE)엔 아무것도 없다
     for(let g2=0; g2<NG; g2++) if(Math.hypot(x-FARM_X[g2], z-FARM_Z[g2]) < FARM_R2[FARM_R2.length-1]+0.8) return false;
     if(waterNear(x, z, 0.2) || pathDist(x, z) < pd) return false;
     for(let i=0;i<NODES.length;i++){ const n = NODES[i]; if(Math.hypot(x-(n.x+0.5), z-(n.z+0.5)) < 1.3) return false; }
@@ -6079,7 +6548,8 @@ function gateLayout(){
   for(let g=0; g<NG; g++){
     const cell = (t,pp)=>{ const cx = Math.floor(gX(g,t,pp)), cz = Math.floor(gZ(g,t,pp)); return inW(cx,cz) ? [cx,cz,gi(cx,cz)] : null; };
     for(const s of [-1,1]){
-      const box = (p0,p1,t0,t1,y0,y1)=> gboxAdd(g, s>0 ? p0 : -p1, s>0 ? p1 : -p0, t0, t1, y0, y1);
+      const box = (p0,p1,t0,t1,y0,y1,k)=> gboxAdd(g, s>0 ? p0 : -p1, s>0 ? p1 : -p0, t0, t1, y0, y1, k);
+      const inner34 = (g === 2 && s > 0) || (g === 3 && s < 0);           // 67차 — 3·4 쌍둥이 성문 안쪽 망루(K 북벽·연결 벽 쪽)
       /* ① 망루 — 4×4칸 */
       for(let a=GH.tt0+0.5; a<GH.tt1; a++) for(let b=GH.tw0+0.5; b<GH.tw1; b++){
         const c = cell(a, b*s); if(!c) continue; terrH[c[2]] = GY + W; GATE_MASK[c[2]] = 1; }
@@ -6105,14 +6575,17 @@ function gateLayout(){
       box(GH.sp0-0.05, GH.sp0+0.55, GH.st0-0.6, GH.st0+0.25, 0, 1.45);     // 계단 발치 기둥 둘
       box(GH.sp1-0.55, GH.sp1+0.05, GH.st0-0.6, GH.st0+0.25, 0, 1.45);
       box(GH.sp0, GH.sp0+pw, GH.st1, GH.tt0, 0, W + MERLON);               // 층계참 — 통로 쪽 성가퀴
-      box(GH.sp1-pw, GH.sp1, GH.st1, GH.tt0, 0, W + PARA_HI);              // 층계참 — 바깥 흉벽
-      box(GH.tw0, GH.tw1, GH.tt1-pw, GH.tt1, W-1, W + MERLON);             // 망루 — 좀비 쪽 얼굴
-      box(GH.tw1-pw, GH.tw1, GH.tt0, GH.tt1, W-1, W + MERLON);             // 망루 — 산 쪽 얼굴
+      box(GH.sp1-pw, GH.sp1, GH.st1, GH.tt0, W, W + PARA_HI);              // 층계참 — 바깥 흉벽(67차: 밑 0~8 은 이제 칸이 막는다 — ②④ 창고 얼굴이 뚫릴 수 있게)
+      box(GH.tw0, inner34 ? GH.tw1 - 1 : GH.tw1, GH.tt1-pw, GH.tt1, W-1, W + MERLON);   // 망루 — 좀비 쪽 얼굴(67차: 3·4 안쪽은 K 북벽에 닿는 P 10~11 토막 뺌)
+      /* 67차 — 산 쪽 얼굴(P 10.55~11) 상자는 없앴다: 망루 윗마당이 커튼월 성벽 길(3·4 안쪽은 연결 벽)로 턱 없이 이어진다 */
+      box(9, GH.tw1, GH.tt1-pw, GH.tt1, W, W + CW.FENCE_UP, GK.FENCE);     // 67차 — 협곡 쪽 얼굴 P ≥ 9 는 울타리(그 앞은 산·바위 톱) · P < 9 와 다리 바깥은 지금처럼 뛰어내린다
       box(GH.tw0, GH.tw0+pw, GH.tt0, GH.ct0, W-1, W + MERLON);             // 망루 — 통로 쪽(성벽 길 양옆)
       box(GH.tw0, GH.tw0+pw, GH.ct1, GH.tt1, W-1, W + MERLON);
       box(GH.sp1-pw, GH.tw1, GH.tt0, GH.tt0+pw, W-1, W + MERLON);          // 망루 — 마을 쪽(층계참 옆)
       box(9.95, 10.35, GH.tt0+0.5, GH.tt0+0.9, W, W + 4.3);               // 깃대
+      box(9.95, 10.35, GH.tt0+0.5, GH.tt0+0.9, W, W + CW.FENCE_UP, GK.FENCE);   // 67차 — 위에 올라서서 2단 점프로 울타리를 넘지 못하게
       box(GH.tw0 - 0.8, GH.tw0 + 1.1, GH.tt1 - 1.2, GH.tt1 + 0.6, W - 1.4, W + 3.4);   // 모서리 망대
+      box(GH.tw0 - 0.8, GH.tw0 + 1.1, GH.tt1 - 1.2, GH.tt1 + 0.6, W, W + CW.FENCE_UP, GK.FENCE);
     }
     /* ⑤ 통로 위 성벽 길 — 다리 윗면 W. 밑(y0 = W−1.5)은 통로에서 뛰어도 안 닿는다 → 통로는 그대로 열려 있다 */
     gboxAdd(g, -GH.tw0, GH.tw0, GH.ct0, GH.ct1, W-1.5, W);
@@ -8529,6 +9002,10 @@ function canPlace(t,X,Z, ignoreId){
        이제 수정 보석(반지름 1.1)·도는 조각(2.45)·고리 알(2.7)만 비우면 된다. */
     if(rr < 3.5) return '수정에 너무 가까워요';
     if(oct(cx+0.5, cz+0.5) > ARENA_R-0.5){
+      /* 67차 — 성곽: 둘레길·성벽(66 망루·층계참 포함)엔 못 짓는다. corridorDist 앞 — 둘레길이 '산에는 못 지어요' 로 먼저 끝나지 않게 */
+      const ck = CASTLE[gi(cx,cz)];
+      if(ck === CK.LANE) return '성 안 둘레길에는 못 지어요';
+      if(ck >= CK.SOLID) return '성벽에는 못 지어요';
       /* ★ 예전엔 벽(pass)만 협곡에 지을 수 있었다. 이제 탑·배럭도 입구를 지킨다. */
       const cd = corridorDist(cx+0.5, cz+0.5);
       if(!cd) return '산에는 못 지어요';
@@ -10275,7 +10752,7 @@ function wingFxPeople(list, dt, t){
     const me = s === meSheep; if(me) meDrawn = true;
     const w = s._wf || (s._wf = {jt:-1, seen:t, cyc:0, acc:0, fa:0, gl:false});
     const jt = s.jt|0;
-    if(!me && w.jt >= 0 && jt > w.jt && t - w.seen > 4 && s.jb >= 0){ const sy = s.y !== undefined ? s.y : GY, gy = groundUnder(s.x, s.z, .3);
+    if(!me && w.jt >= 0 && jt > w.jt && t - w.seen > 4 && s.jb >= 0){ const sy = s.y !== undefined ? s.y : GY, gy = groundUnder(s.x, s.z, .3, sy);
       jobUpFx(s.x, gy > -50 && gy <= sy + .05 ? gy : sy, s.z, s.jb|0, jt, false); }        // 마법진은 발밑 땅에 눕힌다(공중에서 전직해도)
     w.jt = jt;
     if(jt <= 0 || s.jb < 0 || s.down || !s.air || s.wtipT !== t || !s.wtip){ w.gl = false; continue; }
@@ -10744,8 +11221,8 @@ const NBZ = [0,0,1,-1,1,-1,1,-1];
 const NBW = [1,1,1,1,1.41,1.41,1.41,1.41];
 function walkable(x,z){
   if(!inW(x,z)) return false;
-  const t = terrH[gi(x,z)];
-  return t >= GY && t <= GY+1;
+  const i = gi(x,z), t = terrH[i];
+  return t >= GY && t <= GY+1 && CASTLE[i] <= CK.LANE;               // 67차 — 복도·탑 방·문(바닥 GY)은 좀비 흐름장 길이 아니다(둘레길은 길)
 }
 function buildFlow(){
   fCost.fill(Infinity); fNext.fill(-1); fExtra.fill(0); fDone.fill(0); heapN = 0;
@@ -14164,11 +14641,13 @@ function solidTop(x,z){
    가운데 한 점만 보면 몸의 절반이 벽에 박힌 채로 지나가서 "벽을 뚫었다"고 보인다.
    대각선으로 두 칸 사이를 비집고 나가는 것도 이걸로 막힌다. */
 function blockedAt(x, z, r){
-  for(const [ox,oz] of [[-r,-r],[r,-r],[-r,r],[r,r],[0,0]])
-    if(solidTop(Math.floor(x+ox), Math.floor(z+oz)) > GY+1) return true;
+  for(const [ox,oz] of [[-r,-r],[r,-r],[-r,r],[r,r],[0,0]]){
+    const cx = Math.floor(x+ox), cz = Math.floor(z+oz);
+    if(solidTop(cx, cz) > GY+1 || (inW(cx, cz) && CASTLE[gi(cx, cz)] >= CK.SOLID)) return true;   // 67차 — 성곽 칸(바닥 GY 인 복도·방·문 포함)은 좀비·병사에게 벽
+  }
   return false;
 }
-function groundUnder(x,z,R,y){
+function groundUnder(x,z,R,y,mv){
   /* ★ 하늘 섬은 격자에 없다 — 미니게임 동안은 섬 바닥이 곧 땅이다.
      서바이벌은 그 위에 대·벽·상자가 있다(SURV 표). 몸통 네 귀퉁이를 다 본다 —
      가운데 한 점만 보면 벽 모서리에 반쯤 걸친 채로 지나간다. */
@@ -14186,7 +14665,9 @@ function groundUnder(x,z,R,y){
   for(const [ox,oz] of [[-R,-R],[R,-R],[-R,R],[R,R],[0,0]]){
     const px = x+ox, pz = z+oz, cx = Math.floor(px), cz = Math.floor(pz);
     let h = solidTop(cx, cz);
-    if(inW(cx,cz)){ const k = stairOf[gi(cx,cz)]; if(k >= 0) h = stairH(k, px, pz); }   // 66차 — 성문 계단은 반 칸 디딤의 정확한 높이
+    if(inW(cx,cz)){ const k = stairOf[gi(cx,cz)];
+      if(k >= 1000) h = spiralH(k - 1000, px, pz, y === undefined ? SPIRALS[k - 1000].y0 : y);   // 67차 — 나선: 발 높이로 바퀴를 고른다
+      else if(k >= 0) h = stairH(k, px, pz); }   // 66차 — 성문 계단은 반 칸 디딤의 정확한 높이
     if(h > m) m = h;
   }
   /* 66차 — 성문 상자(성벽 길 다리·흉벽). 발 높이 y 를 아는 부름(사람 몸)에서만 본다:
@@ -14195,7 +14676,10 @@ function groundUnder(x,z,R,y){
     for(let bx=Math.floor((x-R)/4); bx<=Math.floor((x+R)/4); bx++) for(let bz=Math.floor((z-R)/4); bz<=Math.floor((z+R)/4); bz++){
       const a = gboxGrid.get(gboxKey(bx,bz)); if(!a) continue;
       for(let i=0;i<a.length;i++){ const b = a[i];
-        if(x+R <= b.x0 || x-R >= b.x1 || z+R <= b.z0 || z-R >= b.z1 || b.y1 <= m) continue;
+        if(b.off || x+R <= b.x0 || x-R >= b.x1 || z+R <= b.z0 || z-R >= b.z1 || b.y1 <= m) continue;   // 67차 — off = 내가 연 비밀 문
+        /* 67차 — 지붕(ROOF)은 딛지 않는다: 착지 부름에선 없는 셈(위에서 떨어져도 지붕을 지나 밑 바닥으로 — 들썩임 없음),
+           수평 이동 부름(mv)에선 몸 세로 범위와 겹칠 때만 벽 */
+        if(b.k === GK.ROOF){ if(mv && b.y0 < y + 1.4 && b.y1 > y) m = b.y1; continue; }
         if(b.y1 <= y + STEP + 0.001 || b.y0 < y + 1.4) m = b.y1; }
     }
   }
@@ -14314,7 +14798,7 @@ const MINI_CAM = [6.4];         // 0: 장애물 경주 — 뒤 위에서 따라�
 
 const CAM_FAR = 3.2, CAM_MAX = 12.5, CAM_MIN = 1.6;
 let camZoom = CAM_FAR;
-const tpvKind = ()=> (miniOn() && G.mini && G.mini.k === 0) ? 0 : (camZoom >= CAM_MIN ? 1 : -1);
+const tpvKind = ()=> (miniOn() && G.mini && G.mini.k === 0) ? 0 : (camZoom >= CAM_MIN && camAutoK < 0.98 ? 1 : -1);   // 67차 — 지붕 밑 자동 1인칭(camAutoK)
 const tpvOn   = ()=> PL.down || tpvKind() >= 0;
 /* 휠 — 로블록스처럼 한 칸에 1.2칸씩. CAM_MIN 아래로 당기면 1인칭으로 넘어간다(그때 사람이 안 그려진다) */
 addEventListener('wheel', (e)=>{
@@ -14322,6 +14806,8 @@ addEventListener('wheel', (e)=>{
   const before = camZoom;
   camZoom = Math.max(0, Math.min(CAM_MAX, camZoom + Math.sign(e.deltaY)*1.2));
   if(camZoom > 0 && camZoom < CAM_MIN) camZoom = before > camZoom ? 0 : CAM_MIN;   // 가운데 어중간한 자리는 없다 — 1인칭 아니면 3인칭
+  /* 67차 — 성 안 자동 1인칭 중 휠은 camZoom 에만 적어 두고(나오면 그 거리로), 반응이 없어 '고장'으로 느끼지 않게 판마다 한 번 알린다 */
+  if(camAutoK > 0.5 && camZoom >= CAM_MIN && !camAutoWheelSaid){ camAutoWheelSaid = true; toast('성 안에서는 1인칭이에요 — 나가면 돌아와요', 1.2); }
   e.preventDefault();
 }, {passive:false});
 /* ═══ 달리기(Shift) ═══ */
@@ -14339,8 +14825,9 @@ let stamina = 1, sprinting = false, touchRun = false, runDustT = 0;
 const ACC_UP = 40, ACC_DOWN = 40;
 let gaitMe = 0, camAnc = null, camDip = 0;   // camDip — 42차 착지 때 3인칭 카메라가 살짝 내려앉는다
 function sprintMul(dt, moving){
-  const want = (KEY['shift'] || touchRun) && moving && !PL.down && stamina > 0;
-  if(want){ stamina = Math.max(0, stamina - dt/SPRINT.run); sprinting = stamina > 0; }
+  const wall = !miniOn() && onWallWalk();                            // 67차 — 성벽 길 위에선 기력이 안 닳고, 기력 0 이어도 바로 달린다
+  const want = (KEY['shift'] || touchRun) && moving && !PL.down && (stamina > 0 || wall);
+  if(want){ if(!wall) stamina = Math.max(0, stamina - dt/SPRINT.run); sprinting = wall || stamina > 0; }
   else { stamina = Math.min(1, stamina + dt/SPRINT.rest); sprinting = false; }
   if(sprinting && PL.ground){ runDustT -= dt;                      // 발뒤꿈치에서 흙먼지 — 속도가 눈에 보인다
     if(runDustT <= 0){ runDustT = 0.09; burst(PL.x + Math.sin(PL.yaw)*0.45, PL.y + 0.04, PL.z + Math.cos(PL.yaw)*0.45, 0xe6dccb, 1, 0.32); } }
@@ -14352,9 +14839,12 @@ let kbx = 0, kbz = 0;
 function sheepBump(dt, wx, wz){
   if(PL.down) return;
   const racing = raceOn();
+  const cas = !miniOn(), meCov = cas && (covAt(PL.x, PL.z, PL.y) || nbAt(PL.x, PL.z));   // 67차 — 성 안(덮인 칸)·바깥 문 앞 1칸에선 안 부딪힌다
+  const kYard = cas && PL.z > CPLAN.K.yard.z0 && PL.z < CPLAN.K.yard.z1 && Math.abs(PL.x) < 3 && Math.abs(PL.y - GY - 14) < 0.5;   // K 윗마당 — 튕김 절반
   for(const q of G.players.values()){
     if(!q || q.uid === uid || q.down) continue;
     const qy = q.y === undefined ? GY : q.y; if(Math.abs(qy - PL.y) > 1.3) continue;
+    if(meCov || (cas && q.x !== undefined && (covAt(q.x, q.z, qy) || nbAt(q.x, q.z)))) continue;
     const dx = PL.x - q.x, dz = PL.z - q.z, d2 = dx*dx + dz*dz;
     if(d2 >= SHEEP_R2*SHEEP_R2 || d2 < 1e-6) continue;
     const d = Math.sqrt(d2), nx = dx/d, nz = dz/d, over = SHEEP_R2 - d;
@@ -14365,7 +14855,7 @@ function sheepBump(dt, wx, wz){
          경주 발판은 제일 좁은 데가 반폭 1.2칸이라, 스물한 명이 몰리면 부딪힐 때마다 누군가 떨어져 골인을 못 했다
          (선생님: "경주할 때 애들끼리 튕기니까 거의 골인을 못하더라").
        겹침 벌림(over*3.0)은 그대로다 — 겹쳐 서는 일은 여전히 없다(37차 주문). 마을·밤에서는 세기가 안 바뀐다. */
-    if(closing > 1.5){ const k = Math.min(7, closing*1.1) * (raceOn() ? 0.5 : 1); kbx += nx*k; kbz += nz*k;
+    if(closing > 1.5){ const k = Math.min(7, closing*1.1) * (raceOn() || kYard ? 0.5 : 1); kbx += nx*k; kbz += nz*k;
       if(closing > 4 && !PL.bumpT){ PL.bumpT = 0.4; if(window.__sfx) window.__sfx('hop'); burst((PL.x+q.x)/2, PL.y+0.7, (PL.z+q.z)/2, 0xffffff, 6, 0.8); if(window.__shake) window.__shake(Math.min(0.5, closing*0.05), 0.12); } }
   }
   // 21명이 몰려도 여러 충격이 무한히 쌓이지 않는다. 가벼운 밀림은 남긴다.
@@ -14373,8 +14863,8 @@ function sheepBump(dt, wx, wz){
   if(PL.bumpT > 0) PL.bumpT -= dt;
   if(kbx || kbz){
     const nx = PL.x + kbx*dt, nz = PL.z + kbz*dt;
-    if(groundUnder(nx, PL.z, PL.R, PL.y) <= PL.y + STEP && !solidHit(nx, PL.z, PL.y)) PL.x = nx;
-    if(groundUnder(PL.x, nz, PL.R, PL.y) <= PL.y + STEP && !solidHit(PL.x, nz, PL.y)) PL.z = nz;
+    if(groundUnder(nx, PL.z, PL.R, PL.y, true) <= PL.y + STEP && !solidHit(nx, PL.z, PL.y)) PL.x = nx;
+    if(groundUnder(PL.x, nz, PL.R, PL.y, true) <= PL.y + STEP && !solidHit(PL.x, nz, PL.y)) PL.z = nz;
     const f = Math.exp(-dt*5); kbx *= f; kbz *= f; if(Math.abs(kbx) + Math.abs(kbz) < 0.05) kbx = kbz = 0; }
 }
 function updPlayer(dt){
@@ -14388,27 +14878,43 @@ function updPlayer(dt){
   const len = Math.hypot(fx,fz);
   if(len>1){ fx/=len; fz/=len; }
   PL.mv = len > 0.06;
+  const prevX = PL.x, prevZ = PL.z, prevY = PL.y;                     // 67차 — 착지 안전망이 되돌릴 이 프레임 시작 자리(숫자 셋 — 할당 0)
   const SP2 = SPD * spdMul() * sprintMul(dt, len > 0.06) * (raceOn() ? RACE_SPD : JOB_SPD[jobTier()]);   // 날쌘 물약 · 37차 달리기(Shift) · 42차 경주 1.8배 · 45차 전직 날개(마을·밤만)
 
-  const tvx = (fx*c - fz*s) * SP2, tvz = (fx*(-s) - fz*c) * SP2;
+  let tvx = (fx*c - fz*s) * SP2, tvz = (fx*(-s) - fz*c) * SP2;
+  let rail = 0;
+  if(!miniOn()){                                                      // 67차 성곽 — 나선 레일 · 문 깔때기 · 회랑 시선(마을·밤만)
+    lookIdleT += dt;
+    rail = spiralAssist(dt, fx, fz);
+    if(rail === 1){ tvx = SPA.vx; tvz = SPA.vz; }                                                   // 레일 — 접선 3.0칸/초(달리기 끔)
+    else if(rail === 2){ const v = Math.hypot(tvx, tvz); tvx = SPA.vx*v; tvz = SPA.vz*v; }          // 나선 문으로 나가는 중 — 문 가운데로
+    else { const a = doorFunnel(dt, tvx, tvz, fz); if(a){ const ca = Math.cos(a), sa = Math.sin(a), v0 = tvx; tvx = v0*ca - tvz*sa; tvz = v0*sa + tvz*ca; }
+           galleryYaw(dt, fz); }
+  }
   if(PL._px !== undefined && Math.hypot(PL.x - PL._px, PL.z - PL._pz) > 1.5){ PL.vx = 0; PL.vz = 0; }
-  { const ak = Math.min(1, dt * (len > 0.06 ? ACC_UP : ACC_DOWN)); PL.vx = (PL.vx||0) + (tvx - (PL.vx||0))*ak; PL.vz = (PL.vz||0) + (tvz - (PL.vz||0))*ak; }
+  if(rail === 1){ PL.vx = tvx; PL.vz = tvz; }
+  else { const ak = Math.min(1, dt * (len > 0.06 ? ACC_UP : ACC_DOWN)); PL.vx = (PL.vx||0) + (tvx - (PL.vx||0))*ak; PL.vz = (PL.vz||0) + (tvz - (PL.vz||0))*ak; }
   const wx = PL.vx, wz = PL.vz;
   /* ★ 이미 무언가에 박혀 있으면(자리를 옮겨 놨거나 우리가 커져서 울타리가 몸을 지나갔거나)
      막지 않는다. 안 그러면 그 자리에서 영영 못 빠져나온다. */
   const stuck = solidHit(PL.x, PL.z, PL.y);
-  // X
-  let nx = PL.x + wx*dt;
-  if(groundUnder(nx, PL.z, PL.R, PL.y) <= PL.y + STEP && (stuck || !solidHit(nx, PL.z, PL.y))) PL.x = nx;
-  // Z
-  let nz = PL.z + wz*dt;
-  if(groundUnder(PL.x, nz, PL.R, PL.y) <= PL.y + STEP && (stuck || !solidHit(PL.x, nz, PL.y))) PL.z = nz;
+  let nx = PL.x + wx*dt, nz = PL.z + wz*dt, both = false;
+  PL.blkX = PL.blkZ = false;                                          // 67차 — 막힌 축(비밀 문 밀기 판정이 읽는다)
+  /* 67차 — 성 안(덮인 칸)에선 두 축을 한 번에 먼저 — 둥근 우물 벽·비스듬한 문에서 축 나눠 걷기가 톱니에 걸리지 않게 */
+  if(!miniOn() && covAt(PL.x, PL.z, PL.y) && groundUnder(nx, nz, PL.R, PL.y, true) <= PL.y + STEP && (stuck || !solidHit(nx, nz, PL.y))){ PL.x = nx; PL.z = nz; both = true; }
+  if(!both){
+    // X
+    if(groundUnder(nx, PL.z, PL.R, PL.y, true) <= PL.y + STEP && (stuck || !solidHit(nx, PL.z, PL.y))) PL.x = nx; else PL.blkX = Math.abs(wx) > 0.05;
+    // Z
+    if(groundUnder(PL.x, nz, PL.R, PL.y, true) <= PL.y + STEP && (stuck || !solidHit(PL.x, nz, PL.y))) PL.z = nz; else PL.blkZ = Math.abs(wz) > 0.05;
+  }
+  if(!miniOn()){ spiralPost(dt); galleryClamp(); }                    // 67차 — 나선 반지름 조임·시선 강체 회전 · 회랑 띠 조임
   sheepBump(dt, wx, wz);                                              // 37차 — 사람끼리 부딪힘
   /* ★ 하늘 섬에서는 가장자리 밖으로 못 나간다 — 떨어지면 그 판을 통째로 놓친다 */
   if(miniOn() && !raceOn()){ const d = Math.hypot(PL.x, PL.z), lim = MINI_R - 1.0;
     if(d > lim){ PL.x *= lim/d; PL.z *= lim/d; } }
   // 중력
-  const gnd = groundUnder(PL.x, PL.z, PL.R, PL.y);
+  let gnd = groundUnder(PL.x, PL.z, PL.R, PL.y);
   /* ★ 쓰러진 사람은 점프도 못 한다. 예전엔 이동만 막아 놔서, 쓰러진 채로 스페이스를 누르면
      누운 몸이 통통 튀었다 — 애들이 "죽었는데 점프가 돼요" 하던 그 화면이다. */
   if(PL.landT > 0) PL.landT -= dt;
@@ -14440,11 +14946,23 @@ function updPlayer(dt){
        63차의 공용 입자(조명 받는 둥근 공 · 직업 색)는 그늘에서 누렇게 죽어 가루처럼 보였다.
        이제 **굽힌 날개 끝**에서 조명 없는 반짝이와 깃털이 흐른다. 1인칭(내 몸을 안 그림)이면 어림 자리에서 낸다. */
   }
+  /* 67차 — 천장(맨 먼저): 한 번 뜀·2단·활공 모두 머리가 천장에 닿으면 멈춘다(천장 뚫고 지붕 위로 순간이동 막기).
+     −0.02 는 다음 프레임 groundUnder 의 'b.y0 < y + 1.4' 와 같은 값에서 견주는 칼날을 피하는 여유 */
+  if(!miniOn()){ const ceil = ceilingOver(PL.x, PL.z, PL.R, PL.y);
+    if(PL.vy > 0 && PL.y + 1.4 + PL.vy*dt > ceil){ PL.y = Math.min(PL.y, ceil - 1.4 - 0.02); PL.vy = 0; } }
   PL.y += PL.vy*dt;
   if(!PL.ground && !PL.down){ if(PL.flipT !== undefined && PL.flipT < 9) PL.flipT += dt;                                    // 공중제비 진행
     PL.trailT = (PL.trailT||0) - dt; if(PL.trailT <= 0 && Math.abs(PL.vy) > 2.5 && jTier <= 0){ PL.trailT = 0.05; burst(PL.x, PL.y + 0.15, PL.z, 0xffffff, 1, 0.26); } }   // 66차 — 날개가 있으면 날개 꼬리(wingFxPeople)가 대신한다   // 공중 잔상 — 흰 퍼프가 궤적을 그린다
   if(PL.takeT > 0) PL.takeT -= dt;
   if(camDip > 0){ camDip *= Math.exp(-dt*9); if(camDip < 0.004) camDip = 0; }
+  /* 67차 — 착지 안전망: 발보다 STEP 넘게 높은 '바닥'(벽·천장·높이 함수의 틈)엔 올라서지 않는다 — 이번 프레임 수평 이동을 되돌리고 그대로 떨어진다 */
+  if(!miniOn() && PL.y <= gnd && gnd > Math.max(PL.y, prevY) + STEP + 0.05){
+    PL.x = prevX; PL.z = prevZ; PL.vy = Math.min(PL.vy, 0);
+    const yr = Math.max(PL.y, prevY);
+    gnd = groundUnder(PL.x, PL.z, PL.R, PL.y);
+    if(gnd > yr + STEP + 0.05) gnd = castleFloorUnder(PL.x, PL.z, PL.R, yr);   // 되돌린 자리도 벽·상자 속(박힌 채 놓였다) — 발 밑 '올라설 수 있는' 바닥에만(끝없이 떨어지지 않게)
+    if(gnd < -900) castleSafeGo(CPLAN.safe);                                  // 발 밑에 아무것도 없다(나선 구석 돌 속 등) — 가장 가까운 성곽 안전 자리로
+  }
   if(PL.y <= gnd){
     if(!PL.ground){ PL.landT = 0.22; PL.flipT = 99;                                          // 40차 — 착지 납작 · 42차: 0.22초·더 깊게, 늘 흙먼지와 툭 소리, 세게 떨어지면 크게 + 흔들림 + 카메라 내려앉음
       const hard = PL.vy < -9; burst(PL.x, PL.y + 0.05, PL.z, 0xe6dccb, hard ? 10 : 4, hard ? 0.9 : 0.5); if(window.__sfx) window.__sfx('land');
@@ -14467,10 +14985,12 @@ function updPlayer(dt){
           if(big) burst(PL.x, PL.y + 0.12, PL.z, 0xfff6e0, 2, 0.35); } } } }
   PL._px = PL.x; PL._pz = PL.z;
   if(PL.y < -20 && !raceOn()) placePlayer();
-  /* ★ 망루에 처음 올라가면 알려 준다. 안 알려 주면 9살은 계단이 있어도 안 올라간다. */
+  if(!miniOn()) castleRescue(dt);                                     // 67차 — 끼임·지붕 위·성 밖 구조(땅에 선 프레임만 센다)
+  /* ★ 망루에 처음 올라가면 알려 준다. 안 알려 주면 9살은 계단이 있어도 안 올라간다.
+     67차 — 좀비가 계단으로 올라오게 되어 '못 물어요' 는 거짓말이 됐다 */
   if(!rampSeen && PL.y > GY + 3 && rampCells.has(Math.floor(PL.x)+','+Math.floor(PL.z))){
     rampSeen = true;
-    toast('🏰 망루에 올랐어요! 여기선 좀비가 못 물어요 — 돌을 던져 보세요', 3.4, '#ffe9a0');
+    toast('🏰 성벽에 올랐어요! 계단에서 쫓기던 좀비는 따라올 수 있어요 — 탑·복도 안은 안전해요', 3.4, '#ffe9a0');
     if(window.__sfx) window.__sfx('up');
   }
   /* ★ 반동을 카메라에 얹는다. forward() 가 카메라를 읽으므로 조준·명중 판정이 다 따라온다 —
@@ -14486,8 +15006,9 @@ function updPlayer(dt){
   /* 66차 — 쓰러져서 친구·전장을 보는 중이면 카메라는 specCam 이 놓는다(내 몸 카메라 닻은 돌아올 때 새로 붙는다) */
   if(PL.down && specCam(dt)){ camBodyHidden = false; held.visible = false; return; }
 
-  const tk = tpvKind();
-  const back = PL.down ? DOWN_CAM : tk === 1 ? camZoom + (AIM_VIEW.back-camZoom)*camAimBlend + fovRun*0.05*(1-camAimBlend) : tk >= 0 ? MINI_CAM[tk] + fovRun*0.05 : 0;      // 39차 — 달리면 조금 더 물러난다 · 48차 — 마을은 휠로 정한 거리
+  camAutoTick(dt);                                                    // 67차 — 지붕 밑 자동 1인칭(0.25초 들어감 · 0.4초 늦게 나옴)
+  const tk = tpvKind(), aK = (tk === 1 && !PL.down) ? camAutoK*camAutoK*(3 - 2*camAutoK) : 0;   // 빨려 들어가는 정도(smoothstep)
+  const back = (PL.down ? DOWN_CAM : tk === 1 ? camZoom + (AIM_VIEW.back-camZoom)*camAimBlend + fovRun*0.05*(1-camAimBlend) : tk >= 0 ? MINI_CAM[tk] + fovRun*0.05 : 0) * (1 - aK);      // 39차 — 달리면 조금 더 물러난다 · 48차 — 마을은 휠로 정한 거리
   if(back > 0){
     /* 52차 — 삭제된 줄넘기용 '땅 높이 고정'을 걷어 낸다. 몸을 따라가되
        위아래 지연을 0.22칸 안에 묶어 2단 점프·활공·낙하에서도 화면을 벗어나지 않는다.
@@ -14502,13 +15023,14 @@ function updPlayer(dt){
       camGY = Math.max(PL.y - 0.22, Math.min(PL.y + 0.22, camGY));
     }
     const tx = camAnc.x, tz = camAnc.z;
-    const look = (tk === 1 && !PL.down) ? 0.80 + (AIM_VIEW.height-0.80)*camAimBlend : 1.55;
+    const look0 = (tk === 1 && !PL.down) ? 0.80 + (AIM_VIEW.height-0.80)*camAimBlend : 1.55;
+    const look = look0 + (PL.EYE - look0)*aK;                          // 67차 — 목표 높이도 눈으로(한 번에 0.32 튀지 않게)
     const ty = PL.down ? PL.y + 0.95 : camGY + look - camDip*0.25;
     const cp = Math.cos(viewPitch);
     const dx = -Math.sin(PL.yaw)*cp, dy = Math.sin(viewPitch), dz = -Math.cos(PL.yaw)*cp;
     /* 평소에는 중앙, 총을 겨눌 때만 어깨 옆으로 옮긴다. 충돌 검사도 실제
        어깨 경로를 쓴다 — 예전에는 중앙만 검사한 뒤 옆으로 밀어 벽을 뚫었다. */
-    const sh = (tk === 1 && !PL.down) ? AIM_VIEW.shoulder*camAimBlend : 0;
+    const sh = (tk === 1 && !PL.down) ? AIM_VIEW.shoulder*camAimBlend*(1 - aK) : 0;
     camShoulder += (sh - camShoulder)*(1 - Math.exp(-dt*14));
     const ox = -dx*back + Math.cos(PL.yaw)*camShoulder;
     const oy = -dy*back, oz = -dz*back - Math.sin(PL.yaw)*camShoulder;
@@ -14532,15 +15054,19 @@ function updPlayer(dt){
    않도록 0.12칸 간격으로 확인하고, 최소 거리로 밀어내 충돌을 무효화하지 않는다. */
 function cameraClearance(x,y,z,ox,oy,oz){
   const length = Math.hypot(ox,oy,oz), steps = Math.max(1,Math.ceil(length/0.12)), r = 0.14;
-  for(let k=0;k<=steps;k++){
+  let res = length;
+  scan: for(let k=0;k<=steps;k++){
     const f=k/steps, px=x+ox*f, py=y+oy*f, pz=z+oz*f;
     for(let j=0;j<5;j++){
       const xx=px+(j===1?-r:j===2?r:0), zz=pz+(j===3?-r:j===4?r:0);
       const top=survOn() ? MINI_Y+survTopAt(xx,zz) : solidTop(Math.floor(xx),Math.floor(zz));
-      if(py-r<top || (!miniOn() && solidHit(xx,zz,py-r,true))) return Math.max(0,length*(k-1)/steps);
+      if(py-r<top || (!miniOn() && solidHit(xx,zz,py-r,true))){ res = Math.max(0,length*(k-1)/steps); break scan; }
     }
   }
-  return length;
+  /* 67차 — 칸 기둥 말고 높이 있는 상자(성가퀴·흉벽·다리·탑 지붕 몸·K 계단 머리)도 본다. 선분–상자 slab 한 번(할당 0) */
+  if(!miniOn() && length > 1e-6){ const g = gboxSegClear(x, y, z, ox/length, oy/length, oz/length, length);
+    if(g < length) res = Math.min(res, Math.max(0, g - 0.15)); }
+  return res;
 }
 
 /* ═══════════ 보물 상자 ═══════════
@@ -16342,7 +16868,7 @@ function takeJob(i){
      ★ 66차 — 발밑 효과를 마법진으로(jobUpFx): 땅에 눕힌 무늬 세 겹이 돌며 퍼지고, 빛줄기 한 번, 빛 고리·반짝이가 솟는다.
        예전의 직업 색 공 기둥(burst 셋~다섯 줄)과 앞 3칸 허공의 공 터짐은 뺐다 — 조명 받는 공이 누렇게 보였다. */
   { const big = due >= 2;
-    { const gy = groundUnder(PL.x, PL.z, PL.R); jobUpFx(PL.x, gy > -50 && gy <= PL.y + .05 ? gy : PL.y, PL.z, i, due, true); }   // 발밑 땅에
+    { const gy = groundUnder(PL.x, PL.z, PL.R, PL.y); jobUpFx(PL.x, gy > -50 && gy <= PL.y + .05 ? gy : PL.y, PL.z, i, due, true); }   // 발밑 땅에
     goodFlash(big ? 420 : 280); if(window.__shake) window.__shake(big ? 0.5 : 0.3, 0.22); }
   const name=jobName(i,due);
   /* 66차 — 전직 축하(큰 배너 + 드럼롤 팡파르). 바닥 효과·전직 소리는 날개 갈래(jobUp…) 몫이라 여기선 3D 빛가루를 안 얹는다 */
@@ -17039,6 +17565,7 @@ document.addEventListener('visibilitychange',()=>{
 });
 addEventListener('mousemove', e=>{
   if(document.pointerLockElement === cv){
+    if(e.movementX || e.movementY) lookIdleT = 0;                     // 67차 — 둘러보는 중엔 문 깔때기·회랑이 시선을 안 돌린다
     PL.yaw -= e.movementX*0.0024;
     PL.pitch = Math.max(-1.5, Math.min(1.5, PL.pitch - e.movementY*0.0024));
   }
@@ -17067,6 +17594,7 @@ look.addEventListener('touchstart', e=>{ const t=e.changedTouches[0];
   if(lookId!==null) return; lookId=t.identifier; lx=t.clientX; ly=t.clientY; }, {passive:true});
 look.addEventListener('touchmove', e=>{
   for(const t of e.changedTouches) if(t.identifier===lookId){
+    lookIdleT = 0;                                                    // 67차 — 터치 보기도 같은 쉼 시계
     PL.yaw -= (t.clientX-lx)*0.0055;
     PL.pitch = Math.max(-1.5, Math.min(1.5, PL.pitch - (t.clientY-ly)*0.0055));
     lx=t.clientX; ly=t.clientY;
@@ -20932,7 +21460,7 @@ function miniSet(st, sec){
 }
 /* ── 들어가기 · 나오기 ── 내 사람만 옮긴다. 다른 아이들 자리는 통신으로 온다 */
 function miniEnter(){
-  miniBack = {x:PL.x, z:PL.z, yaw:PL.yaw, pitch:PL.pitch, aim:aimMode, wpn:KIT.wpn, ammo:KIT.ammo};
+  miniBack = {x:PL.x, y:PL.y, z:PL.z, yaw:PL.yaw, pitch:PL.pitch, aim:aimMode, wpn:KIT.wpn, ammo:KIT.ammo};
   if(G.mini && G.mini.k === 0 && (!RACE_P.length || RACE.seed !== (G.mini.seed|0))) raceBuild(G.mini.seed|0);   // 손님은 호스트의 seed 로 같은 코스를 짓는다
   const race0 = G.mini && G.mini.k === 0, sp = race0 ? raceSlotXZ() : miniSpawnXZ(G.me.g);        // 41차 — 경주는 출발선 두 줄의 내 칸(흩뿌리지 않는다)
   const px = sp[0] + (race0 ? 0 : (Math.random()-0.5)*3.2), pz = sp[1] + (race0 ? 0 : (Math.random()-0.5)*3.2);
@@ -20959,11 +21487,12 @@ function miniEnter(){
 }
 function miniLeave(){
   setAimMode(false, true);
+  const backY = miniBack ? miniBack.y : undefined;                    // 67차 — 성벽 길·탑 위에서 갔다 오면 그 층으로(y 없는 부름은 밑층을 준다)
   if(miniBack){
     PL.x = miniBack.x; PL.z = miniBack.z; PL.yaw = miniBack.yaw; PL.pitch = miniBack.pitch;
     KIT.wpn = miniBack.wpn; KIT.ammo = miniBack.ammo; miniBack = null;
   } else placePlayer();
-  PL.y = groundUnder(PL.x, PL.z, PL.R); PL.vy = 0; PL.down = false; PL.hp = maxHP();
+  PL.y = groundUnder(PL.x, PL.z, PL.R, backY); PL.vy = 0; PL.down = false; PL.hp = maxHP();
   hudPrev.kit = ''; netPCDirty = true;
   document.body.classList.remove('mini');
   document.body.classList.remove('tpv');      // 마을로 돌아오면 1인칭 — 조준점을 다시 켠다
@@ -22022,7 +22551,7 @@ function joinRoom(code, asHost){
       keep.add(k);
       const p = G.players.get(k) || {x:d.x,z:d.z,y:d.y,ph:Math.random()*6};
       p.uid = k;                       // 든 무기를 pc 통로에서 찾아오려면 열쇠가 필요하다
-      p.tx=d.x; p.tz=d.z; p.y=d.y; p.ry=d.r||0; p.g=d.g|0; p.n=d.n; p.mv=!!d.m;
+      p.tx=d.x; p.tz=d.z; p.ty=d.y; if(p.y === undefined) p.y = d.y; p.ry=d.r||0;   // 67차 — y 도 보간(나선에서 덜컥거리지 않게, 통신 칸 0) p.g=d.g|0; p.n=d.n; p.mv=!!d.m;
       p.hp = d.hp===undefined ? SHEEP_HP : d.hp; p.down = !!d.dn;
       p.hat = d.ht|0; p.gls = d.gl|0; p.clo = d.cl|0; p.skin = d.sk|0;
       /* ★ 친구가 던진 돌 — 좀비 체력은 호스트만 들고 있으므로 여기서 처리한다.
@@ -24317,7 +24846,7 @@ function updTags(){
     setTag(t, p.n||'?', GCOL[p.g|0], pc && pc.lv ? pc.lv : 0,
            bi >= 0 ? BADGES[bi].ic : '');                        // 그대로면 아무 일도 안 한다
     t.sp.position.set(p.x, (p.y||GY)+2.15, p.z);
-    const sc = Math.max(1, Math.sqrt(_tagD2.get(uid))*0.075);
+    const sc = Math.max(1, Math.sqrt(_tagD2.get(uid))*0.075) * (castleInSpiral(p.x, p.z) ? 0.7 : 1);   // 67차 — 나선 우리 안 이름표는 0.7배
     t.sp.scale.set(3.2*sc*0.55, 0.8*sc*0.55, 1);
     t.sp.visible = true;
   }
@@ -24489,7 +25018,8 @@ function loop(){
 
     // 친구들 보간
     const kk = Math.min(1, dt*10);
-    for(const p of G.players.values()){ if(p.tx!==undefined){ p.x+=(p.tx-p.x)*kk; p.z+=(p.tz-p.z)*kk; } }
+    for(const p of G.players.values()){ if(p.tx!==undefined){ p.x+=(p.tx-p.x)*kk; p.z+=(p.tz-p.z)*kk; }
+      if(p.ty!==undefined){ const dy = p.ty - p.y; p.y = (Math.abs(dy) > 3 || !(p.y === p.y)) ? p.ty : p.y + dy*kk; } }   // 67차 — 3칸 넘게 튀면 바로
 
     struT -= dt;
     if(PROF_ON) pS();
@@ -24517,6 +25047,15 @@ function loop(){
                 q.jb = pc.jb===undefined ? -1 : pc.jb|0; q.jt = pc.jt|0; }
         /* 40차 — 친구가 떠 있나: 자리 통로엔 뜀 표시가 없으니 발밑 땅과 견준다(통신은 그대로) */
         q.air = !q.down && q.x !== undefined && q.y !== undefined && (q.y - groundUnder(q.x, q.z, 0.28, q.y)) > 0.3;
+      }
+      /* 67차 — 1인칭(자동 포함)이면 카메라 코앞(0.9칸 · 덮인 칸 1.6칸) 친구 몸은 이 프레임 안 그린다(투명 아님 — 건너뛰기).
+         성 안에선 서로 안 부딪혀 몸이 겹치므로, 없으면 좁은 나선·초소에서 화면이 친구 몸·모자·총으로 찬다 */
+      if(!miniOn() && tpvKind() === -1 && !PL.down){
+        const lim = covAt(PL.x, PL.z, PL.y) ? 1.6 : 0.9, cpx = camera.position.x, cpz = camera.position.z; let n = 0;
+        for(let j=0; j<shList.length; j++){ const q = shList[j];
+          if(q.x !== undefined && Math.abs((q.y === undefined ? GY : q.y) - PL.y) < 2.2 && (q.x - cpx)*(q.x - cpx) + (q.z - cpz)*(q.z - cpz) < lim*lim) continue;
+          shList[n++] = q; }
+        shList.length = n;
       }
       /* ★ 3인칭일 때는 내 몸도 그려야 한다. 평소(1인칭)엔 안 그린다.
          쓰러졌을 때 · 줄넘기 · OX 퀴즈 셋 다 여기로 온다(20차). */
@@ -25174,6 +25713,12 @@ Object.assign(window, {
 Object.assign(window, {
   __layerY:layerY, __kBand:kBand, __tower66:tower66, __spurShoulder:spurShoulder, __doorFunnel:doorFunnel,
   __CLIMB_RET:()=>CLIMB_RET, __TRE_KEYS:()=>treKeys()
+});
+/* 67차 성곽 갈래 1 — 몸·카메라 검사 창구(걷기 검사가 읽는다) */
+Object.assign(window, {
+  __castleOddN:()=>castleOddN, __SPA:SPA, __covAt:covAt, __onWallWalk:onWallWalk, __spiralCeil:spiralCeil, __galleryAt:galleryAt,
+  __camZoom:(v)=>{ if(v !== undefined) camZoom = v; return camZoom; }, __lookIdle:(v)=>{ if(v !== undefined) lookIdleT = v; return lookIdleT; },
+  __CRS:CRS, __FUN:FUN, __castleFloorUnder:castleFloorUnder, __forestMix:forestMix
 });
 onIcons(()=>{ window.__READY = true; });   // 28차 — 아이콘까지 다 구워진 뒤에(t30 이 165장을 센다)
 </script>
