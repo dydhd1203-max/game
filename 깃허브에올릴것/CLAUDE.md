@@ -40,6 +40,7 @@
 | `ZOMBIE_STYLE`, `ZOMBIE_NIGHT`, `zombieThreatPose`, `wolfPose`, `drawWolves` | 좀비 종류/밤별 외형·먹이 발견/추격·공격 모션 |
 | `AIM_VIEW`, `updPlayer`, `cameraClearance`, `combatRay` | 사격 카메라·점프 추종·벽 검사·조준 |
 | `combatTargetInRange`, `shotEndpoint`, `aimWolf`, `aimPlayer` | 사람 기준 사거리·화면 중앙 판정·PvP 차폐 |
+| `SPEC`, `specTick`, `specCam`, `specStep`, `specHelp`, `#specBar` | 66차 쓰러졌을 때 관전(내 자리→친구→전장 전체)·"일으켜 줘요"(자리 통로 `dn` 값 2, 새 통로 없음) |
 | `RACE_X`, `RACE_S`, `raceBuild`, `raceDraw`, `raceRespawn` | 경주 폭·6개 구간·장식·체크포인트 |
 | `BUILD`, `BUILD_BRANCHES`, `buildStat`, `towerAttack` | 건물 6종·Lv3 특화 선택·대포탑 범위 공격 |
 | `towerFx…`(`towerFxShot`·`towerFxTick`·`towerFxShellLand`), `cannonSpec` | 탑 전용 쏘기·투사체·맞음 효과와 탑 소리, 대포탑 포신 치수 |
@@ -187,6 +188,7 @@ SHA-256 도 함께 본다. 손으로 돌리는 것을 대신하지는 않는다 
 - `t54-zombie-static.mjs`·`t59-zombie-shape-static.mjs`·`t60-zombie-wrap-static.mjs`(65차 갱신): 무릎·손가락·발 개수, 손끝 아래, 발 미끄러짐, 찢긴 천·굽은 마디 기하, 조각 수가 늘지 않음.
 - `t61-avatar-clearance-static.mjs`·`t57-avatar-geometry-static.mjs`·`t57-motion-static.mjs`(65차 갱신): `TPGUN` 조각 수·머리 관통·마흔 명 최악 조합 정원.
 - `t65-weapons-static.mjs`: 무기 0~13 번호 유지, 새 총 등급 수, 레벨 모자라면 구매·조합 거절(직접 호출 포함), 가진 총은 레벨 무관 장착, 상점·대장간 잠금 카드, 경주 상, 불붙이기 특성, 새 총 DPS 설계 범위.
+- `t66-spec-static.mjs`: 관전 차례(우리 모둠 먼저)·자동 넘기기·보던 친구가 쓰러지면 다음·일어나면 내 카메라·어깨 너머 거리/방향·혼자 놀기 전장 카메라·미니게임 제외·부르기 10초 한 번·`dn` 칸 값만 바뀜·친구 화면 알림 한 번.
 - `t62-motion-view.mjs`: 실제 게임 배율(.7)과 원래 재질로 저품질·고품질에서 현재 옷 8종·전직 의상 6종의 옆걸음·사선 달리기·반대 방향 전환을 연속 렌더링한다. 로컬/원격 걸음 박자도 함께 확인한다. `t57-motion-static.mjs`는 30/60/120Hz 관절 변화량과 발 궤적 속도, `t61-avatar-clearance-static.mjs`는 닫힌 모자의 머리 윗면 수용을 검사한다.
 
 CPU PNG는 기하 확인용이다. 실제 WebGL 그림과 구별하며, 검사기의 소프트웨어 렌더링 FPS로 교실 성능을 단정하지 않는다.
