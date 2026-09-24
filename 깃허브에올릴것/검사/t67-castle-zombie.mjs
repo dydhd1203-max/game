@@ -57,7 +57,9 @@ try{
       const W = window, G = W.__G, P = W.__PL, GY = W.__GY, CP = W.__CPLAN, o = {}, dt = 1/30;
       const kinds = W.__WOLF_T.map((d, k)=>({k, d}));
       const K0 = kinds.find(q=>q.d.climb).k;
-      const night = ()=>{ W.__goNight(); W.__spawnQ().length = 0; G.wolves.length = 0; G.players.clear(); G.t = G.set.nightSec; P.down = false; P.hp = W.__maxHP(); };
+      /* 통합 — 머리에서 G.paused = true 로 멈춰 둔 채였으면 hostSim 이 아무것도 안 해 모든 장면이 헛돌았다(대기 판에서 짠 가정).
+         장면은 noLogic(rAF 루프가 안 끼어듦) + paused false 로, 검사가 hostSim 을 직접 흘린다 */
+      const night = ()=>{ W.__goNight(); G.paused = false; W.__spawnQ().length = 0; G.wolves.length = 0; G.players.clear(); G.t = G.set.nightSec; P.down = false; P.hp = W.__maxHP(); W.__CLIMB().kid.clear(); };
       const spawn = (k, x, z)=>{ W.__spawnWolf(k, 0, x, z); const w = G.wolves[G.wolves.length - 1]; w.x = x; w.z = z; w.rise = 0; return w; };
       const kid = (x, z)=>{ P.x = x; P.z = z; P.y = W.__groundUnder(x, z, P.R, P.y + 0.7); };
       const step = (n, each)=>{ for(let i=0; i<n; i++){ W.__hostSim(dt); W.__sheepHurt(dt); if(each && each(i) === false) break; } };
@@ -75,7 +77,7 @@ try{
       kid(9, -51); const hp0 = P.hp; for(let i=0; i<150 && w1.cs === 2 && P.hp >= hp0; i++) step(1, ()=>{ t += dt; if(w1.cs === 2 && tUp < 0) tUp = t; });
       o.Z1 = {tUp:+tUp.toFixed(2), cs:w1.cs, ly:w1.ly, stairErr, bitten:P.hp < hp0}; o.Z6 = {packBad, guestFly};
       /* Z3 — 이어서 탑 서쪽 문 안으로 */
-      kid(31.5, -51); P.y = GY + 8; let tDown = -1; t = 0; step(90, ()=>{ t += dt; if(w1.cs === 3 && tDown < 0) tDown = t; if(w1.cs === 0) return false; });
+      kid(31.5, -51); P.y = GY + 8; let tDown = -1; t = 0; step(600, ()=>{ t += dt; if(w1.cs === 3 && tDown < 0) tDown = t; if(w1.cs === 0) return false; });   // 통합 — 90프레임(3초)은 내려가는 중(cs 3)이라 '다시 오름'에 내림 프레임이 섞였다 → 발치(cs 0)까지 기다림
       kid(9, -51); P.y = GY + 8; let again = 0; step(120, ()=>{ if(w1.cs >= 1) again++; });
       o.Z3 = {tDown:+tDown.toFixed(2), cDone:w1.cDone, ly:w1.ly, again};
       /* Z2 — 한 계단 앞 20마리(검사 시계 같게) */
@@ -85,12 +87,16 @@ try{
       step(200, ()=>{ const C = W.__CLIMB(); maxAll = Math.max(maxAll, C.all); for(let k=0; k<10; k++) if(C.n[k] > 3) over++; if(C.all > 8) over++; });
       o.Z2 = {over, maxAll, kid:W.__CLIMB().kid.get(W.__uid)};
       /* Z4 — 달아나며 거리 유지 → 12초 · 서서 물림 → 15초 */
+      /* 통합 — ① cs 2 는 아이가 계단을 오르는 동안 이미 시작한다(발치 t 34.5) → 시계를 계단 걷기부터 잰다(옛 판은 꼭대기에서부터 재어 2.3초 짧게 나왔다)
+                ② '거리 ≥ 2 유지' 아이가 성벽 끝(P 28)에 몰려 물렸다 → 끝에 닿으면 좀비를 넘어 반대쪽 4칸으로(검사 조작 — 물림 0 을 지킨다) */
       const wallTime = (bite)=>{ night(); P.x = 8.5; P.z = -30; P.y = GY; const w = spawn(K0, 8.5, -24); step(30);
-        for(let zz = -33.5; zz >= -51; zz -= 0.17){ kid(8.5, zz); step(1); }
-        let tw = 0, s = -1; kid(9, -51); P.y = GY + 8;
-        for(let i=0; i<900; i++){ if(!bite && w.ly){ const ang = Math.sign(P.x - w.x) || 1; const nx = Math.max(-28, Math.min(28, w.x + ang*2.6)); kid(nx, -51); P.y = GY + 8; } P.hp = W.__maxHP();
-          step(1); if(w.cs === 2 && s < 0) s = tw; tw += dt; if(s >= 0 && w.cs === 3) return +(tw - s).toFixed(2); }
-        return -1; };
+        let tw = 0, s = -1, bitN = 0, dir = 1;
+        for(let zz = -33.5; zz >= -51; zz -= 0.17){ kid(8.5, zz); P.hp = W.__maxHP(); step(1); if(w.cs === 2 && s < 0) s = tw; tw += dt; }
+        kid(9, -51); P.y = GY + 8;
+        for(let i=0; i<900; i++){ if(!bite && w.ly){ let nx = w.x + dir*4; if(Math.abs(nx) > 26){ dir = -dir; nx = w.x + dir*4; } kid(nx, -51); P.y = GY + 8; }
+          const hp0 = W.__maxHP(); P.hp = hp0; step(1); if(P.hp < hp0) bitN++;
+          if(w.cs === 2 && s < 0) s = tw; tw += dt; if(s >= 0 && w.cs === 3) return {t:+(tw - s).toFixed(2), bitN}; }
+        return {t:-1, bitN}; };
       o.Z4 = {run:wallTime(false), bite:wallTime(true)};
       /* Z5 — 오르지 않는 종류 */
       night(); P.x = 8.5; P.z = -30; P.y = GY; for(const q of kinds) if(!q.d.climb) for(let i=0; i<2; i++) spawn(q.k, 8.5 + i, -25);
@@ -98,7 +104,7 @@ try{
       step(30); let ly5 = 0; for(let zz = -33.5; zz >= -51; zz -= 0.17){ kid(8.5, zz); step(1, ()=>{ for(const w of G.wolves) if(w.ly) ly5++; }); } step(150, ()=>{ for(const w of G.wolves) if(w.ly) ly5++; });
       o.Z5 = ly5;
       /* Z7 — 복도 속 아이 · 복도 끝 아이 */
-      const z7 = []; for(const [kx, kz, lz] of [[13, -51, -48.6], [30.5, -51, -48.5]]){ night(); P.x = kx; P.z = kz; P.y = GY; const hp0 = P.hp;
+      const z7 = []; for(const [kx, kz, lz] of [[20, -51, -48.6], [30.5, -51, -48.5]])   /* 통합 — 설계 9-3 의 (13,−51) 은 복도(P 15~30) 서쪽 끝 막힌 벽 속이라 복도 가운데 P 20 으로 */{ night(); P.x = kx; P.z = kz; P.y = GY; const hp0 = P.hp;
         for(let i=0; i<20; i++) spawn(K0, kx - 5 + i*0.5, lz); let tg = 0; step(60*30/10, ()=>{ for(const w of G.wolves) if(w.shQ !== undefined && w.shQ !== null && w.shQt === 0 && Math.hypot(w.x - kx, w.z - kz) < 3) tg++; });
         z7.push({bite:hp0 - P.hp, tg}); } o.Z7 = z7;
       /* Z8 — 다리 밑 통로의 벽(높이 2) 위 아이 */
@@ -109,12 +115,19 @@ try{
       o.Z10 = cnt.size;
       /* Z11 — 새벽 귀환 */
       const ret = W.__CLIMB_RET()[K0], BC = W.__BAL.climb || {}, thr = (BC.approachSec || 6) + 16.5/((W.__BAL.chaseCap || 5)*(BC.upMul || 0.75)) + ret + (BC.minWall || 4);
-      const late = (tLeft)=>{ night(); G.t = tLeft; P.x = 8.5; P.z = -30; P.y = GY; const w = spawn(K0, 8.5, -24); step(30); for(let zz = -33.5; zz >= -51; zz -= 0.17){ kid(8.5, zz); step(1); G.t -= dt; }
-        let up = 0, downAt = -1; kid(9, -51); P.y = GY + 8; for(let i=0; i<900 && G.t > 0; i++){ step(1); G.t -= dt; if(w.ly) up = 1; if(up && w.cs === 3 && downAt < 0) downAt = G.t; } return {up, downAt:+downAt.toFixed(2), cEnd:w.cEnd}; };
-      o.Z11 = {thr:+thr.toFixed(2), a:late(thr - 1 + 1.2), b:late(thr + 6 + 1.2)};
+      const late = (tLeft, stand)=>{ night(); G.t = tLeft; P.x = 8.5; P.z = -30; P.y = GY; const w = spawn(K0, 8.5, -24); step(30); for(let zz = -33.5; zz >= -51; zz -= 0.17){ kid(8.5, zz); step(1); G.t -= dt; }
+        let up = 0, downAt = -1, groundAt = -1, dir = 1; kid(9, -51); P.y = GY + 8;
+        for(let i=0; i<1800 && G.t > 0; i++){ if(!stand && w.ly && w.cs === 2){ let nx = w.x + dir*4; if(Math.abs(nx) > 26){ dir = -dir; nx = w.x + dir*4; } kid(nx, -51); P.y = GY + 8; }   // 아이는 계속 도망(물림 0)
+          P.hp = W.__maxHP(); P.down = false; step(1); G.t -= dt; if(w.ly) up = 1; if(up && w.cs === 3 && downAt < 0) downAt = G.t; if(up && downAt >= 0 && !w.ly && groundAt < 0) groundAt = G.t; }
+        return {up, downAt:+downAt.toFixed(2), groundAt:+groundAt.toFixed(2), cEnd:+(w.cEnd || 0).toFixed(2)}; };
+      /* 통합 — 옛 검사는 downAt ≤ cEnd(= cEnd 보다 늦게 내려가라)로 부등호가 거꾸로였다. 설계: 새벽 귀환 예산 cEnd 가 되면 **늦어도 그때** 내려간다.
+         c = 문턱 바로 위 · 아이가 서서 물림(12초 규칙은 물 때마다 0, 15초 상한보다 cEnd 가 먼저 옴 — cEnd 가 실제로 내려보내는지) */
+      o.Z11 = {thr:+thr.toFixed(2), a:late(thr - 1 + 1.2), b:late(thr + 6 + 1.2), c:late(thr + 0.3 + 1.2, true)};
       /* Z12 — 발치로 가다 떠남 */
-      night(); P.x = 8.5; P.z = -30; P.y = GY; const w12 = spawn(K0, 8.5, -22); step(30); for(let zz = -33.5; zz >= -40; zz -= 0.17){ kid(8.5, zz); step(1); }
-      kid(8.5, -45); P.y = GY + 8; let saw1 = 0; step(10, ()=>{ if(w12.cs === 1) saw1 = 1; }); P.x = 0; P.z = 0; P.y = GY; step(60);
+      night(); P.x = 8.5; P.z = -30; P.y = GY; const w12 = spawn(K0, 8.5, -25); step(30);   // 통합 — −22 는 아이(−30)와 8칸이라 쫓기 시작을 안 했다(SHEEP_AGGRO)
+      let saw1 = 0;
+      kid(8.5, -37.5); step(15, ()=>{ if(w12.cs === 1){ saw1 = 1; return false; } });   // 통합 — 좀비가 발치 몇 칸 뒤에 있을 때 아이가 계단 y 2.2 위로(검사 시계 cck 0.25초 · 옛 판은 좀비가 바로 뒤라 cs 1 을 한 프레임에 지나 cs 2 였다)
+      const cl0 = w12.chLeft; P.x = 0; P.z = 0; P.y = GY; step(60);
       o.Z12 = {saw1, cs:w12.cs, cDone:w12.cDone};
       /* Z13 — 성벽 위에서 죽음 */
       night(); P.x = 8.5; P.z = -30; P.y = GY; const w13 = spawn(K0, 8.5, -24); step(30); for(let zz = -33.5; zz >= -51; zz -= 0.17){ kid(8.5, zz); step(1); } kid(9, -51); P.y = GY + 8; step(30);
@@ -124,13 +137,13 @@ try{
     put({id:'Z1', name:Z_LIST[0][1], pass:z.Z1.tUp >= 0 && z.Z1.tUp <= 3 + 3 && z.Z1.stairErr === 0 && z.Z1.bitten, detail:z.Z1});
     put({id:'Z2', name:Z_LIST[1][1], pass:z.Z2.over === 0 && z.Z2.maxAll >= 1, detail:z.Z2});
     put({id:'Z3', name:Z_LIST[2][1], pass:z.Z3.tDown >= 0 && z.Z3.tDown <= 0.75 && z.Z3.cDone && !z.Z3.ly && z.Z3.again === 0, detail:z.Z3});
-    put({id:'Z4', name:Z_LIST[3][1], pass:Math.abs(z.Z4.run - 12) <= 0.3 && Math.abs(z.Z4.bite - 15) <= 0.3, detail:z.Z4});
+    put({id:'Z4', name:Z_LIST[3][1], pass:Math.abs(z.Z4.run.t - 12) <= 0.3 && z.Z4.run.bitN === 0 && Math.abs(z.Z4.bite.t - 15) <= 0.3 && z.Z4.bite.bitN > 0, detail:z.Z4});
     put({id:'Z5', name:Z_LIST[4][1], pass:z.Z5 === 0, detail:z.Z5});
     put({id:'Z6', name:Z_LIST[5][1], pass:z.Z6.packBad === 0 && z.Z6.guestFly === 0, detail:z.Z6});
     put({id:'Z7', name:Z_LIST[6][1], pass:z.Z7.every(r=> r.bite === 0 && r.tg === 0), detail:z.Z7});
     put({id:'Z8', name:Z_LIST[7][1], pass:z.Z8 === 0, detail:z.Z8});
     put({id:'Z10', name:Z_LIST[8][1], pass:z.Z10 <= 4, detail:z.Z10});
-    put({id:'Z11', name:Z_LIST[9][1], pass:z.Z11.a.up === 0 && z.Z11.b.up === 1 && z.Z11.b.downAt >= 0 && z.Z11.b.downAt <= (z.Z11.b.cEnd || 0) + 0.1, detail:z.Z11});
+    put({id:'Z11', name:Z_LIST[9][1], pass:z.Z11.a.up === 0 && [z.Z11.b, z.Z11.c].every(r=> r.up === 1 && r.downAt >= r.cEnd - 0.1 && r.groundAt > 0) && Math.abs(z.Z11.c.downAt - z.Z11.c.cEnd) <= 0.2, detail:z.Z11});
     put({id:'Z12', name:Z_LIST[10][1], pass:z.Z12.cs === 0 && z.Z12.cDone, detail:z.Z12});
     put({id:'Z13', name:Z_LIST[11][1], pass:z.Z13.gone && z.Z13.n > 0 && z.Z13.bad === 0, detail:z.Z13});
     put({id:'Z15', name:Z_LIST[12][1], wait:true, pass:!STRICT, detail:'bal36.mjs 미끼 봇 판은 통합 때 따로(설계 9-3 하네스)'});

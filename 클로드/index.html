@@ -4087,10 +4087,10 @@ function gapHalfAt(t){ return GAP_HALF + Math.min(9, Math.max(0, t-RING_D))*0.85
 const CW = {
   LANE0:46, IN:49, MID:51, OUT:53, WALK:8, PARA:0.45,                     // 둘레길 od 46~49 · 성벽 od 49~53(가운데 51 = 성문 다리) · 성벽 길 높이 8
   DITCH_W:2.5, DITCH_H:2, SCARP_K:1.0, SCARP_CAP:7, SPUR_P:15, NOTREE:8,   // 마른 해자(폭 2.5·높이 2) → 풀 비탈 +1.0/칸(성곽 8칸 안은 ≤ 7) · 바위 톱 P < 15
-  TW:9, CEIL_G:3.0, LOOK:12, ROOF_IN:14.3, EAVE:14.05, ROOF_H:5.5,         // 탑 9×9 · 1층 천장 3 · 망루 바닥 12 · 망루 천장 14.3 · 처마 14.05 · 사모 지붕 높이
+  TW:9, CEIL_G:3.0, LOOK:12, ROOF_IN:14.3, EAVE:14.3, ROOF_H:5.5,          // 탑 9×9 · 1층 천장 3 · 망루 바닥 12 · 망루 천장 = 처마 14.3(통합: 그림 널 천장 14.05 가 몸 14.3·'천장 ≥ 12 + 2.2' 보다 낮아 맞춤) · 사모 지붕 높이
   GAL_E0:49.45, GAL_E1:52.29, GAL_OUT:52.8, GAL_EAVE:10.25, GAL_RIDGE:11.0, GAL_RIDGE_TOP:11.12,   // 회랑 걷는 띠 e 49.45~52.29 · 바깥 얼굴 e 52.8 · 지붕 처마 10.25 → 마루 11.0
   POST:2.0, MOD:3, LANTERN:6, MERL:1.6, TORCH_Y:2.6,                      // 회랑 기둥 2 · 복도 벽 모듈 3 · 밤 불빛 6 · 성가퀴 1.6 박자 · 바깥 횃불 높이
-  SP:{a:0.4, b:1.8, h:1/3, m:12, Ht:4, half:0.38, land:2.7, spd:3.0, doorUp:2.3, yawK:1.0, hold:0.5, holdYaw:0.25, pushV:1.5},   // 나선(기둥·우물 반지름·한 단·한 바퀴 12단 = 4·문 반각…)
+  SP:{a:0.4, b:1.8, h:1/3, m:12, Ht:4, half:0.38, land:5*Math.PI/6, spd:3.0, doorUp:2.3, yawK:1.0, hold:0.5, holdYaw:0.25, pushV:1.5},   // 나선(기둥·우물 반지름·한 단·한 바퀴 12단 = 4·문 반각…)
   FUN_R:5.5, FUN_ANG:0.52, FUN_TURN:3, GAL_YAW:4, LOOK_IDLE:0.3, FUN_LOOK:1.5,   // 문 깔때기(5.5칸·30°·초당 3 rad·문 축 1.5칸 앞을 겨눔) · 회랑 시선 따라가기(초당 4 rad)
     /* 갈래 1 걷기 검사로 고친 값: 3칸이면 서쪽 8층 문(30,−51)에서 동쪽을 보고 달린 아이가 회랑 문(35.5,−49.5)을 30° 안에 두는 자리가 3칸 안에 없어
        탑 동쪽 벽에 박혔다(W9b) · 문 가운데를 겨누면 옆으로 비낀 아이가 45° 회랑 문설에 걸렸다(W1b) → 문 축 위 앞 점을 겨누고, 30° 도 그 점으로 잰다 */
@@ -7356,7 +7356,7 @@ function buildCastle(){
     face(T_S, 0, 9, 7.98, TT, {qs:true, qe:true, par:1, holes:hS});
     face(T_E, 0, 9, 3.3, TT, {qs:true, qe:true, par:0, holes:hE, grade:'B'});
     face(T_N, 0, 9, 3.3, TT, {qs:true, qe:true, par:1, holes:hN, grade:'B'});
-    /* 망루 층 겉(12.18~14.05) — 창 6 */
+    /* 망루 층 겉(12.18~처마 14.3) — 창 6 */
     face(T_W, 0, 9, 12.18, EAVE, {qs:true, qe:true, par:0, holes:win(WINS.W)});
     face(T_S, 0, 9, 12.18, EAVE, {qs:true, qe:true, par:1, holes:win(WINS.S)});
     face(T_E, 0, 9, 12.18, EAVE, {qs:true, qe:true, par:0, holes:win(WINS.E), grade:'B'});
@@ -7492,18 +7492,18 @@ function buildCastle(){
     for(let x = 0; x < 3 - 0.01; x += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, x + 0.01, x + 0.44, -4, 0, 11.4, 11.46, BOARDS[(R()*3)|0]);
     postProps(T, F);
     torch(I_S, 7.6, 9.9);
-    /* ══ 망루(12 → 14.05) — 창 6 · 널 바닥 · 널 천장 ══ */
+    /* ══ 망루(12 → 14.3) — 창 6 · 널 바닥 · 널 천장 ══ */
     const wS = (arr)=> arr.map(c=> [c - 0.4, c + 0.4, 12.55, 13.65]);
-    wall(I_W, 1, 8, 12, 14.05, wS([2.5, 6.5]), false);                        // I_W 의 s = z+58 (W 창 z −55.5·−51.5 → s 2.5·6.5)
-    wall(I_S, 1, 8, 12, 14.05, wS([2.5, 6.5]), false);
-    wall(I_E, 1, 4, 12, 14.05, wS([2.5]), false);
-    wall(I_N, 5, 8, 12, 14.05, wS([6.5]), false);
-    wall(CA, 0, 4, 12, 14.05, [[1.33, 2.67, 12, 14.05]], false); wall(CB, 0, 4, 12, 14.05, [], false);
+    wall(I_W, 1, 8, 12, CW.EAVE, wS([2.5, 6.5]), false);                        // I_W 의 s = z+58 (W 창 z −55.5·−51.5 → s 2.5·6.5)
+    wall(I_S, 1, 8, 12, CW.EAVE, wS([2.5, 6.5]), false);
+    wall(I_E, 1, 4, 12, CW.EAVE, wS([2.5]), false);
+    wall(I_N, 5, 8, 12, CW.EAVE, wS([6.5]), false);
+    wall(CA, 0, 4, 12, CW.EAVE, [[1.33, 2.67, 12, 14.05]], false); wall(CB, 0, 4, 12, CW.EAVE, [], false);
     for(let o = 0; o < 3 - 0.01; o += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, 0, 7, o + 0.01, o + 0.44, 11.94, 12.0, BOARDS[(R()*3)|0]);
     for(let x = 0; x < 3 - 0.01; x += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, x + 0.01, x + 0.44, -4, 0, 11.94, 12.0, BOARDS[(R()*3)|0]);
-    flat(FT, 0, 7, 0, 3, 14.05, 14.1, dk(0x5b4431, INK*0.5), 'ceil'); flat(FT, 0, 3, -4, 0, 14.05, 14.1, dk(0x5b4431, INK*0.5), 'ceil');
-    for(const x of [1.5, 3.5, 5.5]) box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, x - 0.1, x + 0.1, 0, 3, 13.85, 14.05, TIMBER_D);
-    box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0, 3, -2.1, -1.9, 13.85, 14.05, TIMBER_D);
+    flat(FT, 0, 7, 0, 3, CW.EAVE, CW.EAVE + 0.05, dk(0x5b4431, INK*0.5), 'ceil'); flat(FT, 0, 3, -4, 0, CW.EAVE, CW.EAVE + 0.05, dk(0x5b4431, INK*0.5), 'ceil');
+    for(const x of [1.5, 3.5, 5.5]) box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, x - 0.1, x + 0.1, 0, 3, CW.EAVE - 0.1, CW.EAVE, TIMBER_D);   // 들보 밑 14.2 = 망루 바닥 12 + 2.2
+    box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0, 3, -2.1, -1.9, CW.EAVE - 0.1, CW.EAVE, TIMBER_D);
     watchProps(T, F);
     /* ══ 숨은 방(짝수 탑 armB 3.33 → 7.2) ══ */
     if(T.hidden){
@@ -7692,7 +7692,7 @@ function buildCastle(){
     const i = T.i, c = cxf(i, 36, -55), ex = [{dir:cxf(i, 1, 0), y0:4.0, y1:5.1}, {dir:cxf(i, 0, -1), y0:8.9, y1:10.0}];
     const doors = [{th:T.th0, y:0, sec:-1}, {th:T.th0, y:8, sec:-1}, {th:T.th0, y:12, sec:-1, flat:2.05}];
     if(T.hidden) doors.push({th:T.th0 + 1.5*PI, y:10/3, sec:T.hidden.secret});
-    spiralArt({cx:c[0], cz:c[1], th0:T.th0, y0:0, n:36, top:12, ceil:CW.EAVE, doors, land:true, extra:ex});   // 그림 천장은 망루 널 천장(14.05)과 같이 — 지붕 밑판(14.1)이 우물 위로 안 보이게
+    spiralArt({cx:c[0], cz:c[1], th0:T.th0, y0:0, n:36, top:12, ceil:CW.EAVE, doors, land:true, extra:ex});   // 그림 천장은 망루 널 천장(처마 14.3)과 같이 — 지붕 밑판(14.35)이 우물 위로 안 보이게
     paving(frame(c[0] - 2, c[1] - 2, 1, 0, 0, 1), 0, 4, 0, 4, 0.02, FLOOR_T, 'floor', true);
   }
 
