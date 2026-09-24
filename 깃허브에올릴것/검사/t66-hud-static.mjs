@@ -1,5 +1,5 @@
 /* 66차 HUD — 브라우저 없이 실제 게임 소스의 HUD 함수를 떼어 와 실행한다(계산식을 복사하지 않는다).
-   ① 오늘 밤 미리 보기: 밤 구성표마다 그림·대비 두 줄 · 보스 밤/내일 보스/마지막 밤 · 손님이 밤 번호를 모르면 기다린다
+   ① 오늘 밤 미리 보기: 밤 구성표마다 그림·분위기 한 줄(66차 CTRL — 대비법 팁은 없앴다) · 보스 밤/내일 보스/마지막 밤 · 손님이 밤 번호를 모르면 기다린다
    ② 아침 카드: 날짜 글씨가 걷힌 뒤 하루 한 번 열리고, 정해진 시간 뒤 칩으로 접히고, 밤이 되면 둘 다 사라진다
    ③ 화면 모드: body 에 낮/밤/미니게임 중 하나 + 보스 표시만 붙는다
    ④ 알림 중복: toast 직후 같은 그림으로 시작하는 내 feed 줄·이미 떠 있는 같은 줄은 건너뛴다
@@ -57,11 +57,12 @@ const parts=[fixture,
   declaration('PROG_REF'),declaration('PROG_OVER'),declaration('progRef'),fn('prog'),fn('bossDays'),fn('bossIndex'),
   declaration('BOSS_K4'),fn('bossWolfK'),declaration('WOLF_T'),declaration('NIGHT_DEF'),declaration('NIGHT_FIXED'),
   fn('nightPool'),fn('pickNight'),fn('josa'),
-  declaration('NIGHT_PREVIEW'),declaration('NIGHT_PREVIEW_BOSS'),declaration('NC_SHOW_MS'),
+  declaration('NIGHT_LOOK'),declaration('NIGHT_LOOK_BOSS'),fn('nightLookBoss'),fn('nightArt'),fn('nightFx'),
+  declaration('NIGHT_NOTE_LAST'),declaration('NIGHT_NOTE_TMR_BOSS'),declaration('NC_SHOW_MS'),
   'let ncDay = 0, ncUntil = 0, ncKey = \'\', hudMode = \'\';',
   fn('nightPreviewInfo'),fn('paintNightCard'),fn('nightCardOpen'),fn('paintNightPreview'),fn('paintHudMode'),
   'let toastT = 0;',declaration('toastAt').replace(/;$/,'')+';',declaration('HUD_TAG_RE'),fn('hudLead'),fn('toast'),fn('feed'),
-  `globalThis.__T={G,NIGHT_DEF,NIGHT_PREVIEW,NC_SHOW_MS,bossDays,pickNight,nightPreviewInfo,paintNightPreview,paintHudMode,
+  `globalThis.__T={G,NIGHT_DEF,NIGHT_LOOK,NC_SHOW_MS,bossDays,pickNight,nightPreviewInfo,paintNightPreview,paintHudMode,
     nightCardOpen,toast,feed,hudLead,set:(k,v)=>{ if(k==='stageT')stageT=v; else if(k==='pop')popIsOpen=v; else if(k==='now')NOW=v; },
     st:()=>({ncDay,ncUntil,hudMode})};`];
 /* linkedom 에 없는 것만 채운다 — offsetWidth(되감기용)·setTimeout(feed 가 8초 뒤 지운다) */
@@ -79,9 +80,9 @@ const $=id=>document.getElementById(id);
 const len=s=>[...s].length;
 
 /* ① 구성표 */
-check('Every night theme has a preview picture and two short prep lines',
-  T.NIGHT_PREVIEW.length===T.NIGHT_DEF.length && T.NIGHT_PREVIEW.every(p=>p.ic&&p.prep.length===2&&p.prep.every(x=>len(x)>=6&&len(x)<=24)),
-  JSON.stringify(T.NIGHT_PREVIEW.map(p=>p.prep.map(len))));
+check('Every night theme has a preview picture and one short mood line (no prep tips — 66 CTRL)',
+  T.NIGHT_LOOK.length===T.NIGHT_DEF.length && T.NIGHT_LOOK.every(p=>p.ic&&p.k&&!p.prep&&len(p.mood)>=6&&len(p.mood)<=24),
+  JSON.stringify(T.NIGHT_LOOK.map(p=>len(p.mood))));
 const G=T.G, bd=T.bossDays();
 const seen=[];
 for(let d=1;d<=G.set.goalDay;d++){
@@ -105,9 +106,9 @@ T.paintNightPreview();
 check('While the day title is showing the card waits but the chip is ready',
   !$('nightCard').classList.contains('on') && !$('nightChip').hidden && /굶주린 밤/.test($('nightChip').textContent));
 T.set('stageT',0); T.paintNightPreview();
-check('After the day title the card opens once with the night name, hint and prep lines',
+check('After the day title the card opens once with the night name and its mood line (no prep list)',
   $('nightCard').classList.contains('on') && /굶주린 밤/.test($('nightCard').textContent)
-  && $('nightCard').querySelectorAll('.ncPrep li').length===2 && $('nightCard').textContent.includes(T.NIGHT_DEF[3].hint)
+  && !$('nightCard').querySelector('.ncPrep') && $('nightCard').textContent.includes(T.NIGHT_LOOK[3].mood)
   && $('nightChip').classList.contains('cardOn'));
 T.set('now',1000+T.NC_SHOW_MS+10); T.paintNightPreview();
 check('The card folds into the chip after its time', !$('nightCard').classList.contains('on') && !$('nightChip').classList.contains('cardOn'));
