@@ -14,7 +14,7 @@ const names=['chk','input52-static','t53-static','t54-avatar-static','t53-shop-s
   't57-avatar-geometry-static','t57-motion-static','t57-render-static','t58-job-art-static','t58-motion-static',
   't59-zombie-shape-static','t59-zombie-attachment-static','t60-zombie-wrap-static','t61-avatar-clearance-static',
   't65-weapons-static',
-  't66-hud-static'];
+  't66-hud-static','t66-fx2-static'];
 let failed=0;
 async function check(name){
   try{

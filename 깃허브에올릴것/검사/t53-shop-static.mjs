@@ -59,6 +59,8 @@ const iconImg=(id,fallback)=>'<img class="ic" data-ic="'+id+'" alt="'+fallback+'
 const esc=s=>String(s),josa=(s,a)=>a,toast=(...a)=>events.push(['toast',...a]);
 const feed=()=>{},sfx=()=>{},noteRecipes=()=>{},popOpen=()=>false,buildKitUI=()=>{};
 const openPop=id=>el(id).classList.add('on');
+// 66차 — 새 총을 얻으면 축하 배너(fx2Cel)가 뜬다. 여기선 부른 기록만 남긴다
+const fx2Cel=o=>events.push(['cel',o]),isTouch=false;
 // 65차 — 총 레벨 제한. 이 파일은 돈·재고 거래를 본다(레벨이 넉넉한 아이). 레벨 잠금은 t65-weapons-static 이 본다.
 const XP={lv:99};
 `;

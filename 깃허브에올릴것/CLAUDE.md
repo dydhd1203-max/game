@@ -45,6 +45,8 @@
 | `towerFx…`(`towerFxShot`·`towerFxTick`·`towerFxShellLand`), `cannonSpec` | 탑 전용 쏘기·투사체·맞음 효과와 탑 소리, 대포탑 포신 치수 |
 | `TPGUN`, `P_gun`, `P_gunF` | 3인칭(어깨 너머·친구) 총 부품 표와 그 인스턴스 |
 | `hitSpark`, `SHOT_FX`, `muzzleFlash`, `popDmg`, `fireRecoil`, `SFX` | 타격감 — 불티·예광탄·총구 화염·피해 숫자·화면 반동·합성 효과음 |
+| `fx2Cel`, `fx2Chip`, `FX2`, `#celebr` | 66차 축하 층 — 레벨업·칭호·새 총·전직·임무·밤 버팀·보스 처치 배너(줄 세워 하나씩, 밤엔 작게)·친구 소식 한 줄·팡파르(`fx2…` 소리는 `Object.assign(SFX)`) |
+| `RARE`, `rareOf`, `fx2Boss…`, `fx2Tick` | 66차 드문 사건(황금 좀비·유성우·행운의 아침 — 방 이름+날짜 씨앗, `DEFAULTS.rareEvents`)·보스 연출(시작 띠·등장 자막·절반/10% 경고·처치). 통신 없이 각자 계산 |
 | `makeDisplays`, `dispClone`, `gunMuzzleLocal` | 상점·대장간 3D 진열 총과 1인칭 총구 끝 |
 | `buildFarms`, `buildShop`, `buildForge` | 농장 우리·상인 좌판·동물 상인·대장간 3D |
 | `moistAt`, `grGroundShader`, `mtShade`, `leafShade`, `SUN_PATH`, `skyToneLin` | 65차 땅(물기·흙길)·산 지층·잎 명암·해/달 자리·안개색 |
@@ -187,6 +189,7 @@ SHA-256 도 함께 본다. 손으로 돌리는 것을 대신하지는 않는다 
 - `t54-zombie-static.mjs`·`t59-zombie-shape-static.mjs`·`t60-zombie-wrap-static.mjs`(65차 갱신): 무릎·손가락·발 개수, 손끝 아래, 발 미끄러짐, 찢긴 천·굽은 마디 기하, 조각 수가 늘지 않음.
 - `t61-avatar-clearance-static.mjs`·`t57-avatar-geometry-static.mjs`·`t57-motion-static.mjs`(65차 갱신): `TPGUN` 조각 수·머리 관통·마흔 명 최악 조합 정원.
 - `t65-weapons-static.mjs`: 무기 0~13 번호 유지, 새 총 등급 수, 레벨 모자라면 구매·조합 거절(직접 호출 포함), 가진 총은 레벨 무관 장착, 상점·대장간 잠금 카드, 경주 상, 불붙이기 특성, 새 총 DPS 설계 범위.
+- `t66-fx2-static.mjs`: 드문 사건 규칙(5일차 전·보스·미니게임 날 없음, 연달아 없음, 방 400개 평균 사흘에 한 번꼴, 끄기)·호스트/손님 같은 사건·같은 황금 좀비·같은 유성 자리, 보상은 호스트만 기존 통로로, 축하 줄(레벨 합치기·보스 끼어들기·밤엔 작게), 보스 등장/절반/10%/처치 판정, 새 소리 세기, 호출 지점·DOM·CSS 층.
 - `t62-motion-view.mjs`: 실제 게임 배율(.7)과 원래 재질로 저품질·고품질에서 현재 옷 8종·전직 의상 6종의 옆걸음·사선 달리기·반대 방향 전환을 연속 렌더링한다. 로컬/원격 걸음 박자도 함께 확인한다. `t57-motion-static.mjs`는 30/60/120Hz 관절 변화량과 발 궤적 속도, `t61-avatar-clearance-static.mjs`는 닫힌 모자의 머리 윗면 수용을 검사한다.
 
 CPU PNG는 기하 확인용이다. 실제 WebGL 그림과 구별하며, 검사기의 소프트웨어 렌더링 FPS로 교실 성능을 단정하지 않는다.

@@ -34,6 +34,7 @@ window.DEFAULTS = {
   goalDay:    18,    // 며칠 버티면 이기는가 (보스는 5·9·12·15·18일차)
   crystalMax: 200,   // 수정 체력
   wolfPower:  1.0,   // 좀비 세기 배수 (0.7 쉬움 / 1.0 보통 / 1.4 어려움)
+  rareEvents: true,  // 66차 드문 사건(황금 좀비·유성우 밤·행운의 아침) — 5일차부터 가끔(하루 한 번까지). 끄려면 false
 
   /* 그래픽 품질 (25차 · 26차 · 33차 · 49차c) — 교실 기기 손잡이다.
      'high' 선명   — 그림자 2048 + 부드러운 가장자리 · 계단 없애기 4 · 해상도 1.0
@@ -2601,6 +2602,120 @@ body.hud66-day #hpNum{font-size:11px}
   #nightCard{position:fixed;left:12px;right:12px;bottom:236px;width:auto;z-index:20}
   #topLeft{z-index:13}   /* 카드가 오른쪽 줄(단추) 위로 오게 — 두 줄은 이 폭에서 서로 안 겹친다 */
 }
+/* 66차 FX2 — 축하 배너·보스 연출·드문 사건 알림 층(#celebr). HUD(#hud) 위에 따로 뜨고 누르는 것은 없다.
+   ★ 성능(CLAUDE.md 성능 절): 전부 DOM transform·opacity 의 짧은 애니메이션이다. 평소엔 안의 판이 모두 display:none 이라
+     한 픽셀도 안 칠한다. 화면을 덮는 판(테두리 어둠·흰 번쩍·속도선)은 보스 밤 시작·등장·처치 때 한 번씩 0.5~3초만 켠다.
+   ★ 상점 창(.pop, z 40) 위로 뜬다(z 45) — 상점에서 새 총을 사도 축하가 창 뒤에 숨지 않게. 시작 화면(z 60)보다는 아래. */
+#celebr{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden;
+  font-family:var(--f-cute,'Noto Sans KR'),'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif}
+#celebr > *{position:absolute;display:none}
+#celBan{left:50%;top:41%;width:min(640px,94vw);transform:translate(-50%,-50%);flex-direction:column;align-items:center;
+  text-align:center;--c:#ffd84a;--c2:#ff9f1c}
+#celBan.on{display:flex}
+#celBan .cRay{position:absolute;left:50%;top:50%;width:min(460px,86vw);aspect-ratio:1;margin:0;border-radius:50%;display:none;
+  transform:translate(-50%,-50%);will-change:transform,opacity;
+  background:repeating-conic-gradient(from 0deg,var(--c) 0deg 7deg,rgba(255,255,255,0) 7deg 20deg);
+  -webkit-mask:radial-gradient(circle,#000 0 14%,rgba(0,0,0,.55) 34%,rgba(0,0,0,0) 68%);
+          mask:radial-gradient(circle,#000 0 14%,rgba(0,0,0,.55) 34%,rgba(0,0,0,0) 68%)}
+#celBan.big .cRay{display:block;animation:fx2Ray 2.6s linear both}
+#celBan .cRib{position:relative;padding:3px 14px;border-radius:999px;background:var(--c2);color:#fff;font-weight:600;font-size:clamp(13px,1.6vw,17px);
+  letter-spacing:.5px;box-shadow:0 3px 0 rgba(0,0,0,.25);text-shadow:0 1px 2px rgba(0,0,0,.45);animation:fx2Rib .35s .05s cubic-bezier(.2,1.6,.4,1) both}
+#celBan .cIc{position:relative;font-size:clamp(58px,9vw,104px);line-height:1.05;margin-top:2px;filter:drop-shadow(0 5px 0 rgba(0,0,0,.28));
+  animation:fx2Pop .6s cubic-bezier(.2,1.7,.4,1) both}
+#celBan .cIc img.ic{height:1em;vertical-align:-.1em}
+#celBan .cTt{position:relative;font-weight:600;font-size:clamp(28px,5vw,54px);line-height:1.08;letter-spacing:-1px;
+  background:linear-gradient(180deg,#fffbe0 0%,var(--c) 48%,var(--c2) 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 1px #2b1600) drop-shadow(0 0 1px #2b1600) drop-shadow(0 3px 0 rgba(43,22,0,.8)) drop-shadow(0 0 10px rgba(0,0,0,.3));animation:fx2Up .5s .08s cubic-bezier(.2,1.5,.4,1) both}
+#celBan .cSub{position:relative;margin-top:6px;padding:4px 14px;border-radius:12px;background:rgba(22,28,52,.72);color:#fff;
+  font-weight:500;font-size:clamp(13px,1.7vw,18px);line-height:1.35;max-width:94%;animation:fx2Up .4s .2s both}
+#celBan .cSub:empty{display:none}
+#celBan .cSp{position:absolute;left:50%;top:44%;width:0;height:0}
+#celBan .cSp i{position:absolute;left:-7px;top:-7px;width:14px;height:14px;border-radius:3px;background:var(--k,#ffd84a);
+  transform:rotate(45deg) scale(0);animation:fx2Spk 1.1s var(--w,0s) cubic-bezier(.15,.8,.3,1) both}
+#celBan .cSp i:nth-child(3n){border-radius:50%;background:#fff}
+#celBan .cSp i:nth-child(3n+1){background:var(--c2)}
+/* 크기 — 작은 것(레벨업·임무·밤 버팀) · 큰 것(칭호 3단계·유니크 총·전직·보스 처치) · 밤에 싸우는 중(작게·위로·짧게, 조준점을 안 가린다) */
+#celBan.sm .cTt{font-size:clamp(24px,4vw,42px)}
+#celBan.sm .cIc{font-size:clamp(44px,6vw,72px)}
+#celBan.big .cTt{font-size:clamp(32px,5.6vw,58px)}
+#celBan.big .cIc{font-size:clamp(60px,9vw,100px)}
+#celBan.nt{top:34%}
+#celBan.nt .cIc{font-size:clamp(30px,4vw,44px);display:inline-block}
+#celBan.nt .cTt{font-size:clamp(18px,2.6vw,28px)}
+#celBan.nt .cSub{font-size:12px;padding:2px 10px;margin-top:3px}
+#celBan.nt .cRib{font-size:11px;padding:2px 10px}
+#celBan.out{animation:fx2Out .32s ease-in both}
+@keyframes fx2Pop{0%{transform:scale(.15) rotate(-20deg);opacity:0}55%{transform:scale(1.22) rotate(5deg);opacity:1}
+  78%{transform:scale(.94) rotate(-2deg)}100%{transform:none;opacity:1}}
+@keyframes fx2Up{0%{transform:translateY(18px) scale(.8);opacity:0}100%{transform:none;opacity:1}}
+@keyframes fx2Rib{0%{transform:scaleX(.2);opacity:0}100%{transform:none;opacity:1}}
+@keyframes fx2Ray{0%{transform:translate(-50%,-50%) rotate(0) scale(.3);opacity:0}15%{opacity:.95}
+  75%{opacity:.8}100%{transform:translate(-50%,-50%) rotate(70deg) scale(1.08);opacity:0}}
+@keyframes fx2Spk{0%{transform:rotate(var(--a)) translateX(0) rotate(45deg) scale(.2);opacity:1}
+  70%{opacity:1}100%{transform:rotate(var(--a)) translateX(var(--d)) rotate(225deg) scale(.9);opacity:0}}
+@keyframes fx2Out{to{transform:translate(-50%,-62%) scale(.9);opacity:0}}
+/* 친구 소식 — 작은 한 줄(○○가 '전설' 칭호를 받았어요!) */
+#celChip{left:50%;top:27.5%;transform:translateX(-50%);padding:5px 14px;border-radius:999px;background:rgba(255,251,236,.95);
+  color:#243a5e;font-weight:600;font-size:14px;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis;
+  border:2px solid #ffd257;box-shadow:0 3px 10px rgba(30,30,60,.25)}
+#celChip.on{display:block;animation:fx2Chip 2.8s both}
+@keyframes fx2Chip{0%{transform:translate(-50%,-14px);opacity:0}10%,82%{transform:translate(-50%,0);opacity:1}100%{transform:translate(-50%,-8px);opacity:0}}
+/* 보스 연출 — 위아래 검은 띠(불투명)·가장자리 어둠·자막·흰 번쩍·속도선·방향 표시 */
+#fx2Bars{inset:0}
+#fx2Bars i{position:absolute;left:0;right:0;height:9vh;background:#07080d;transform:translateY(-100%)}
+#fx2Bars i:last-child{bottom:0;transform:translateY(100%)}
+#fx2Bars.on{display:block}
+#fx2Bars.on i{animation:fx2BarT 3.2s ease-in-out both}
+#fx2Bars.on i:last-child{animation-name:fx2BarB}
+#fx2Bars.on.k i{animation-duration:1.9s}
+@keyframes fx2BarT{0%{transform:translateY(-100%)}12%,86%{transform:none}100%{transform:translateY(-100%)}}
+@keyframes fx2BarB{0%{transform:translateY(100%)}12%,86%{transform:none}100%{transform:translateY(100%)}}
+#fx2Vig{inset:0;background:radial-gradient(ellipse at center,rgba(0,0,0,0) 48%,rgba(26,0,14,.62) 82%,rgba(10,0,6,.86) 100%)}
+#fx2Vig.on{display:block;animation:fx2VigA 2.6s both}
+@keyframes fx2VigA{0%{opacity:0}18%{opacity:1}35%{opacity:.7}50%{opacity:1}100%{opacity:0}}
+#fx2Flash{inset:0;background:#fff6dc}
+#fx2Flash.on{display:block;animation:fx2Fl .5s ease-out both}
+@keyframes fx2Fl{0%{opacity:.9}100%{opacity:0}}
+#fx2Lines{inset:-10%;background:repeating-conic-gradient(from 0deg at 50% 50%,rgba(255,255,255,0) 0deg 5deg,rgba(255,244,200,.7) 5deg 5.7deg,rgba(255,255,255,0) 5.7deg 11deg);
+  -webkit-mask:radial-gradient(circle,rgba(0,0,0,0) 0 30%,#000 70%);mask:radial-gradient(circle,rgba(0,0,0,0) 0 30%,#000 70%)}
+#fx2Lines.on{display:block;animation:fx2Ln .7s ease-out both}
+@keyframes fx2Ln{0%{transform:scale(1.3);opacity:0}25%{opacity:1}100%{transform:scale(1);opacity:0}}
+#fx2Cap{left:0;right:0;top:41%;transform:translateY(-50%);text-align:center;color:#fff}
+#fx2Cap.lo{top:66%}
+#fx2Cap.on{display:block}
+#fx2Cap .k,#fx2Cap .n,#fx2Cap .s{display:block;margin:0 auto;width:max-content;max-width:94vw}
+#fx2Cap .k{font-weight:600;font-size:clamp(13px,1.8vw,19px);letter-spacing:3px;color:#ffb3b3;text-shadow:0 2px 4px #000;
+  animation:fx2CapIn 2.9s both}
+#fx2Cap .n{font-weight:600;font-size:clamp(34px,6.6vw,74px);line-height:1.1;letter-spacing:-1px;color:#fff1e6;
+  text-shadow:0 4px 0 #5a0e1c,0 0 22px rgba(255,60,60,.65),0 8px 18px rgba(0,0,0,.7);animation:fx2CapIn 2.9s .06s both}
+#fx2Cap .s{margin-top:4px;padding:3px 14px;border-radius:10px;background:rgba(10,8,20,.66);font-weight:500;font-size:clamp(13px,1.7vw,18px);
+  animation:fx2CapIn 2.9s .14s both}
+#fx2Cap .s:empty{display:none}
+#fx2Cap.sm .n{font-size:clamp(22px,3.8vw,40px)}
+#fx2Cap.sm .k,#fx2Cap.sm .n,#fx2Cap.sm .s{animation-duration:2s}
+#fx2Cap.gd .n{color:#fff6cf;text-shadow:0 4px 0 #6a3e00,0 0 22px rgba(255,200,60,.7),0 8px 18px rgba(0,0,0,.6)}
+#fx2Cap.gd .k{color:#ffe38a}
+@keyframes fx2CapIn{0%{transform:translateX(-46vw);opacity:0}14%{transform:translateX(2vw);opacity:1}20%{transform:none}
+  82%{transform:translateX(1.5vw);opacity:1}100%{transform:translateX(44vw);opacity:0}}
+#fx2Arrow{left:0;top:0;width:0;height:0;will-change:transform}
+#fx2Arrow.on{display:block}
+#fx2Arrow b{position:absolute;left:-22px;top:-22px;width:44px;height:44px;border-radius:50%;background:#ff4d5e;border:3px solid #fff;
+  box-shadow:0 3px 8px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+#fx2Arrow i{position:absolute;left:22px;top:-11px;width:0;height:0;border-left:18px solid #ff4d5e;border-top:11px solid transparent;border-bottom:11px solid transparent;
+  transform-origin:-22px 11px;transform:rotate(var(--r,0deg))}
+#fx2Arrow.in i{display:none}
+/* 보스 체력바 꾸밈 — 단계 글자·절반/10% 눈금·화난 단계 테두리(보스 바의 배치·크기는 HUD 갈래가 정한다. 여긴 덧붙이기만) */
+#bBar{position:relative}
+#bBar .fx2Tk{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:rgba(255,255,255,.75);pointer-events:none}
+#fx2BPh{display:inline-block;margin-left:6px;padding:0 8px;border-radius:999px;background:#6a5aa8;color:#fff;font-size:11.5px;line-height:1.6;
+  vertical-align:1px;text-shadow:none}
+#bossWrap.fx2r1 #fx2BPh{background:#e0662e}
+#bossWrap.fx2r2 #fx2BPh{background:#d11f3a;animation:fx2Beat .7s infinite}
+#bossWrap.fx2r2{border-color:#ff5d6c}
+@keyframes fx2Beat{50%{transform:scale(1.12)}}
+@media(max-height:620px){#celBan{top:43%}#celBan.nt{top:36%}#celBan .cIc{font-size:clamp(40px,8vh,72px)}#celChip{top:29%;font-size:12.5px}
+  #fx2Cap .n{font-size:clamp(28px,8vh,56px)}}
+@media(max-width:520px){#celBan .cSub{font-size:12.5px}#celChip{font-size:12px;padding:4px 10px}}
 </style>
 </head>
 <body>
@@ -2846,6 +2961,18 @@ body.hud66-day #hpNum{font-size:11px}
   <div id="hint"></div>
 
 
+</div>
+
+<!-- 66차 FX2 — 축하 배너·보스 연출·드문 사건 알림 층. HUD 와 따로 뜬다(누르는 것 없음). 속 내용은 fx2… 코드가 채운다. -->
+<div id="celebr">
+  <div id="fx2Vig"></div>
+  <div id="fx2Lines"></div>
+  <div id="fx2Flash"></div>
+  <div id="fx2Bars"><i></i><i></i></div>
+  <div id="celBan"><div class="cRay"></div><div class="cSp"></div><div class="cRib"></div><div class="cIc"></div><div class="cTt"></div><div class="cSub"></div></div>
+  <div id="fx2Cap"><span class="k"></span><span class="n"></span><span class="s"></span></div>
+  <div id="celChip"></div>
+  <div id="fx2Arrow"><b>👑</b><i></i></div>
 </div>
 
 <!-- 건설 도우미의 두 선택 화면. 기존 popOpen과 같은 모달 흐름을 쓴다. -->
@@ -11383,6 +11510,7 @@ function drawWolves(list, t, dt){
        예전엔 0.18초 내내 흰색·민트라 연발로 맞으면 좀비가 계속 하얀 덩어리로 보였다. */
     const hitCol = !(w.hurt > 0) ? 0 : w.hurt > (w.hitC ? 0.12 : 0.15) ? 0xffffff : (w.hitC && w.hurt > 0.07) ? 0xffd98a : 0;
     const col = hitCol ? hitCol                                                    // 피 대신 흰·민트 타격 반짝임
+                         : w.fx2Gold ? 0xffc21f                                    // 66차 드문 사건 '황금 좀비' — 온몸이 금빛(맞으면 여전히 흰 번쩍)
                          : (w.healed>0 ? 0x9dffb3 : rankTint(w.col!==undefined ? w.col : d.col, boss?0:rk));   // 36차 — 치유 받으면 잠깐 초록
 
     /* ═══ 65차 — 사실적인 좀비 걸음 ═══
@@ -11459,7 +11587,7 @@ function drawWolves(list, t, dt){
     /* ── 좀비 몸(R6) ── 사람과 **똑같은 자리표**(R6_*)를 sc 배로 쓴다. 종류별 몸꼴(LK.bw/bh/hw)이 그 위에 곱해진다.
        65차 — 살빛은 창백하고 얼룩진 회녹색 층: 얼굴은 더 창백 · 광대는 밝게 · 목·손끝·눈두덩은 어둡게. 좀비마다 누렇게/푸르게 조금씩 다르다.
        모든 부위가 같은 bob 을 써야 걸을 때 서로 어긋나지 않는다. */
-    const hit    = !!hitCol || w.healed>0;
+    const hit    = !!hitCol || w.healed>0 || !!w.fx2Gold;
     /* 51차b — 좀비마다 살빛이 조금씩 다르다(±8%). 스무 마리가 똑같은 초록이면 한 덩어리로 보인다 */
     const vj     = 0.92 + (((w.ph||0)*7.3) % 1)*0.16;
     const skin0  = zomDark(boss?[0,0x7d8a6c,0x70795c,0x8bb8ac,0x7f8676,0x8c978c][d.boss]:zomSkin(col),1-vj);
@@ -14040,14 +14168,10 @@ function xpGain(n, why){
   XP.xp += n;
   while(XP.lv < LV_MAX && XP.xp >= XP_NEED[XP.lv]){
     XP.xp -= XP_NEED[XP.lv]; XP.lv++; XP.pts++; XP.lvT = 2.6;
-    /* ★ 축포를 내 자리에 터뜨리면 안 된다 — 눈에서 0.3칸 앞이라 화면이 금색 덩어리가 된다
-       (총구 화염에서 똑같은 실수를 한 적이 있다). 앞쪽 위로 조금 띄운다. */
-    {  const f = forward();
-       burst(PL.x + f.x*3.0, PL.y + 1.9, PL.z + f.z*3.0, 0xffd43b, 22, 1.1);
-       burst(PL.x + f.x*3.0, PL.y + 2.3, PL.z + f.z*3.0, 0xfff2c0, 10, 0.9); }
-    if(window.__sfx) window.__sfx('up');
-    /* toast 는 글자만 넣는다(textContent) — 태그를 쓰면 그대로 글자로 보인다 */
-    toast(`⭐ 레벨 ${XP.lv}! — ${isTouch?'왼쪽 위 레벨 막대를':'C 키를'} 눌러 스텟을 찍으세요`, 3.2, '#ffe066');
+    /* 66차 — 축하 배너·팡파르·빛가루는 fx2Cel 한 곳에서(한 번에 여러 레벨이 오르면 배너 하나로 합친다).
+       ★ 빛가루는 1인칭이면 앞쪽 3칸 위에서 터진다 — 눈앞에서 터뜨리면 화면이 금색 덩어리가 된다(예전 규칙 그대로). */
+    fx2Cel({k:'lv', ic:XP.lv >= LV_MAX ? '🏆' : '⭐', rib:'레벨 업!', tt:`레벨 ${XP.lv}` + (XP.lv >= LV_MAX ? ' — 만렙!' : '!'),
+            sub:`스텟 1점 받았어요 — ${isTouch?'왼쪽 위 레벨 막대를':'C 키를'} 눌러 찍으세요`, snd:'fx2Lv'});
     feed(`⭐ <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b> <b>레벨 ${XP.lv}</b>`
        + (XP.lv >= LV_MAX ? ' — 만렙! 🏆' : ' — 스텟 1점을 받았어요 (C)'));
     netPCDirty = true;
@@ -14699,11 +14823,10 @@ function buyWeapon(i){
   if(KIT.ownW[i] || !canPay(W.cost)) return;
   if(!wpnLvOk(i)){ toast(`🔒 ${W.n}${josa(W.n,'은','는')} 레벨 ${wpnLv(i)}부터 살 수 있어요`, 2.2, '#ffd0a0'); return; }   // 65차 — 단추를 우회해도 막는다
   spend(W.cost); KIT.ownW[i] = true; equipWeapon(i);
-  toast(`${W.ic} ${W.n}${josa(W.n,'을','를')} 샀어요! — 🎒 I 로 바꿔 낄 수 있어요`, 2.6, '#ffe9a0');
+  fx2Cel({k:'gun', ic:W.ic, rib:'새 무기', tt:`${W.n}!`, sub:`샀어요 — 🎒 ${isTouch ? '가방' : 'I'} 에서 바꿔 낄 수 있어요`, snd:'fx2Gun', col:'#ffd9a0'});   // 66차
   setTimeout(()=>noteRecipes(i), 1400);           // 29차 — 이 총이 들어가는 조합표가 있으면 알려 준다
   feed(`${W.ic} <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')}`
      + ` <b>${W.n}</b>${josa(W.n,'을','를')} 샀습니다`);
-  if(window.__sfx) window.__sfx('up');
   buildShopUI();
 }
 /* ═══ 29차 — 조합 (대장장이의 조합표) ═══ */
@@ -14715,12 +14838,12 @@ function craftWeapon(i){
   KIT.ownW[W.from] = false; KIT.enh[W.from] = 0;
   KIT.ownW[i] = true; KIT.enh[i] = e;
   equipWeapon(i);                                  // 만든 총을 바로 든다 (넣은 총은 없어졌다)
-  toast(`🔨 ${W.ic} ${W.n}${josa(W.n,'이','가')} 완성! ${TIER_TXT[W.tier]} 무기예요` + (e ? ` (+${e} 그대로)` : ''), 3.2, TIER_COL[W.tier]);
   feed(`🔨 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')}`
      + ` <b style="color:${TIER_COL[W.tier]}">${TIER_TXT[W.tier]} ${W.n}</b>${josa(W.n,'을','를')} 만들었어요!`);
-  if(window.__sfx) window.__sfx('craft');
-  { const f = forward();
-    burst(PL.x + f.x*3.0, PL.y + 1.9, PL.z + f.z*3.0, W.tier === 'unique' ? 0xff9a3c : 0x7f9cff, 30, 1.3); }
+  if(window.__sfx) window.__sfx('craft');          // 망치 소리 — 뒤이어 축하 팡파르(0.35초 뒤)
+  /* 66차 — 유니크는 큰 축하, 레어는 작은 축하 */
+  fx2Cel({k:'gun', ic:W.ic, rib:`${TIER_TXT[W.tier]} 무기 완성`, tt:`${W.n}!`, sub:'대장장이가 만들어 줬어요' + (e ? ` · 강화 +${e} 그대로` : ''),
+          big:W.tier === 'unique', col:TIER_COL[W.tier], snd:W.tier === 'unique' ? 'fx2Big' : 'fx2Gun', sndDelay:0.35});
   hudPrev.kit = ''; netPCDirty = true;
   noteRecipes(i);
   buildForgeUI();
@@ -14838,8 +14961,9 @@ function takeJob(i){
     const f = forward();
     burst(PL.x + f.x*3.0, PL.y + 1.9, PL.z + f.z*3.0, ac, 24, 1.3); }
   const name=jobName(i,due);
-  toast(`${J.ic} ${name}${josa(name,'이','가')} 되었어요! ${STATS[J.st].ic} ${STATS[J.st].n}을 더 찍을 수 있어요`,
-        3.4, J.col);
+  /* 66차 — 전직 축하(큰 배너 + 드럼롤 팡파르). 바닥 효과·전직 소리는 날개 갈래(jobUp…) 몫이라 여기선 3D 빛가루를 안 얹는다 */
+  fx2Cel({k:'job', ic:J.ic, rib:(due >= 2 ? '2차' : '1차') + ' 전직', tt:`${name}${josa(name,'이','가')} 되었어요!`,
+          sub:`${STATS[J.st].ic} ${STATS[J.st].n}을 더 찍을 수 있어요`, big:true, col:J.col, snd:'fx2Big', no3d:true});
   feed(`${J.ic} <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
      + `<b style="color:${J.col}">${name}</b> 직업으로 전직했어요!`);
   if(popOpen() && el('popStat').classList.contains('on')) buildStatUI();
@@ -15117,9 +15241,9 @@ let misSeenD = 0;
 function misWatch(){
   if(G.misD && !misSeenD){
     misSeenD = 1;
+    /* 66차 — 임무 축하를 먼저 줄 세운다(뒤이어 레벨이 오르면 그 축하가 다음 차례로 온다) */
+    fx2Cel({k:'mis', ic:'🎯', rib:'오늘의 임무', tt:'임무 완료!', col2:'#1f9d57', sub:`모든 모둠 🪵${MIS_REWARD.w} 🪨${MIS_REWARD.s} ✨${MIS_REWARD.g} · 나는 경험치 +${MIS_XP}`, snd:'fx2Mis', col:'#8ff0b0'});
     xpGain(MIS_XP);
-    if(window.__sfx) window.__sfx('win');
-    toast('🎉 오늘의 임무 완료! 자재와 경험치를 받았어요', 3.4, '#ffe066');
   } else if(!G.misD) misSeenD = 0;
 }
 
@@ -15485,7 +15609,7 @@ function fearTick(dt){
   heartT -= dt;
   if(fearK > 0.15 && heartT <= 0 && nw){ heartT = 1.15 - fearK*0.5; sfxFrom('heart', nw.x, nw.z, 0.5 + fearK*0.7); }
 }
-function dreadTick(dt){ dreadHowls(dt); dreadBoss(dt); fearTick(dt); }
+function dreadTick(dt){ dreadHowls(dt); dreadBoss(dt); fearTick(dt); fx2Tick(dt); }   // 66차 — 축하·드문 사건·보스 연출(fx2Tick)
 /* ★ 63차 — 기본값이 '#fff' 였다. 색을 안 주는 토스트까지 인라인으로 흰색이 박혀서
    밝은 테마의 크림색 판 위에 흰 글자가 됐다. 빈 문자열이면 style.color 가 지워져
    #toast 의 CSS(어두운 테마 #fff · 밝은 테마 var(--rb-ink))가 그대로 산다. */
@@ -15750,12 +15874,9 @@ let bgWait = 0;                  // 남은 대기 횟수
 function bgReset(){ bgGot.clear(); bgNudged.clear(); bgTop.clear(); bgQueue.length = 0; bgWait = 0; }
 function bgEarn(i){
   const B = BADGES[i], col = BG_COL[B.t-1];
-
-  verdict(true, B.ic, B.nm, B.t === 1 ? {quick:true} : {ms:1500});
-  if(window.__sfx) window.__sfx('medal');
-  /* 머리 위에서 터뜨린다 — 이름표가 바뀌는 그 자리와 눈으로 이어 준다 */
-  burst(PL.x, PL.y + 2.2, PL.z, 0xffd257, 26, 1.7);
-  burst(PL.x, PL.y + 2.7, PL.z, 0xfff2c0, 14, 1.2);
+  /* 66차 — 가운데 큰 판정(verdict) 대신 축하 배너. 3단계(금)는 큰 축하, 1·2단계는 작은 축하. 종+화음 팡파르 */
+  fx2Cel({k:'badge', ic:B.ic, rib:['동','은','금'][B.t-1] + ' 칭호', tt:`「${B.nm}」`, sub:B.d + ' — 머리 위 이름표에 떠요',
+          big:B.t === 3, col, col2:['#9a5a24','#6f86a0','#ff9f1c'][B.t-1], snd:B.t === 3 ? 'fx2Big' : 'fx2Badge'});
   const g = Math.max(0, Math.min(NG-1, G.me.g|0));
   say(`🎖️ <b style="color:${GCOL[g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
     + `<b style="color:${col}">${B.ic} ${B.nm}</b> 칭호를 얻었어요! `
@@ -15785,10 +15906,12 @@ function badgeCheck(){
     /* 처음 본 친구는 적어만 두고 넘어간다 — 늦게 들어온 아이가 남의 지난 칭호를
        한꺼번에 받아 보면 그건 소식이 아니라 도배다 */
     if(k === uid || first || top <= was) continue;
-    if(BADGES[top].t === 3)
+    if(BADGES[top].t === 3){
       feed(`🎖️ <b style="color:${GCOL[Math.max(0,Math.min(NG-1,p.g|0))]}">${esc(p.n)}</b>`
          + `${josa(p.n,'이','가')} <b style="color:${BG_COL[2]}">${BADGES[top].ic} `
          + `${BADGES[top].nm}</b> 칭호를 얻었어요!`);
+      fx2Chip(`🎖️ ${p.n}${josa(p.n,'이','가')} '${BADGES[top].nm}' 칭호를 받았어요!`);   // 66차 — 친구 화면에 작은 한 줄
+    }
   }
 }
 
@@ -17466,26 +17589,475 @@ function spawnWolf(k, gate, atX, atZ){
     tgt:null, retgt:0 };
   G.wolves.push(w);
   if(bi>=0){
-    toast(T0.n + ' 등장!', 4, '#ff9b9b');
-    if(window.__shake) window.__shake(1.6, 1.0);
-    if(window.__sfx) window.__sfx('boss');                    // 33차 — 있던 소리인데 아무도 안 불렀다
+    /* 66차 — 등장 연출(자막·땅울림·약한 흔들림·방향 표시)은 fx2Boss 가 호스트·손님 똑같이 한다 — 여기서 또 하면 두 번 흔들린다 */
     feed(`👑 <b style="color:#ff9b9b">${T0.n}</b>이(가) 나타났습니다! 지도에서 찾아보세요`);
   }
   return w;
 }
 function onBossDown(w){
   const bi = w.bi, R = BAL.bossReward[bi];
-  burst(w.x, GY+2, w.z, 0xffe066, 40, 2.2);
-  for(let i=0;i<3;i++) setTimeout(()=>burst(w.x,GY+2,w.z,0xffd43b,26,2.4), i*160);
+  /* 66차 — 처치 연출(빛가루·번쩍·자막·팡파르·축하)은 fx2Boss 가 모두의 화면에서 한다(손님은 보스가 사라진 것으로 안다). 여긴 보상만 */
   if(R.w||R.s||R.g){
     for(let i=0;i<NG;i++){ base[i].w += R.w; base[i].s += R.s; base[i].o += R.g; }
     recomputeRes(); netBase();
   }
   if(R.heal){ G.crystal = Math.min(G.set.crystalMax, G.crystal + R.heal); }
-  toast(`🎉 ${WOLF_T[w.k].n} 처치!`, 4.5, '#ffe066');
   feed(`🏆 <b style="color:#ffe066">보스 처치!</b> 전 모둠 🪵+${R.w} 🪨+${R.s} ✨+${R.g}` +
        (R.heal?` · 💎+${R.heal}`:''));
 }
+
+/* ═══════════════════════ 66차 FX2 — 짧고 확실한 보상 · 드문 사건 · 보스 연출 ═══════════════════════
+   선생님: "짧고 확실한 보상(축하 효과 확실히 멋있게, 효과음도 같이) · 드문 사건(너무 자주는 말고) · 보스 연출"
+   ★ 통신은 한 칸도 안 늘린다. 모두가 같이 봐야 하는 것은 이미 오는 값에서 **각자 계산**한다:
+       · 드문 사건 — 방 이름 + 날짜로 정해지는 씨앗(fx2Hash). 호스트·손님이 같은 날 같은 사건을 본다.
+       · 황금 좀비 — 그날 밤 처음 본 좀비 번호(sim 통로로 이미 온다) + 씨앗으로 정한 순번.
+       · 유성우 — 떨어지는 때·자리를 씨앗으로 미리 정해 둔다(밤 남은 시간 G.t 는 meta 로 이미 온다).
+       · 보스 등장·절반·10%·처치 — 이미 오는 좀비 목록(sim)의 보스 칸과 체력 %에서.
+       · 친구 전직·3단계 칭호 — pc 통로의 jt·칭호 숫자에서.
+     보상(금 조각·보물 상자)은 호스트만 내고, 이미 있는 drop/chest 통로가 그대로 나른다.
+   ★ 그림(CLAUDE.md 성능 절): 3D 는 기존 불투명 입자 풀(burst·spark)과 땅에 눕힌 고리(ring)만 쓴다.
+     별똥별 머리만 새로 하나 — 불투명 MeshBasic 가는 막대 세 칸(처음 떨어질 때 만든다, 평소엔 숨김).
+     화면 효과는 DOM(transform·opacity) 짧은 애니메이션. 매 프레임 할당 없음. */
+if(G.set.rareEvents === undefined) G.set.rareEvents = D.rareEvents !== false;   // 선생님 설정 — 호스트 값이 meta.set 으로 손님에게 간다
+const FX2 = {q:[], cur:null, t:0, gap:0, stW:0, chipQ:[], chipT:0, ph:'', pd:0, tm:[], nightDay:0, nightT:0, nightEl:0, nightLen:0,
+  rare:'', rareT:0, luckyT:0, minId:Infinity, goldK:0, gold:null, goldSp:0, mets:[], metSp:0, metMesh:null, metSlot:0,
+  nightSeen:false, boss:null, bossPct:100, bossW50:false, bossW10:false, barSt:-1, barT:0, barOk:false, arrowT:0, arrowOn:0, pcT:0, pcJt:new Map(),
+  sparkOk:false, capT:0, barsT:0, vigT:0, flashT:0, linesT:0, stats:{cel:0, chip:0, rare:0, met:0, boss:0}};
+const _fx2V = new THREE.Vector3(), _fx2D = new THREE.Vector3(), _fx2Z = new THREE.Vector3(0,0,1), _fx2Q = new THREE.Quaternion(),
+      _fx2S = new THREE.Vector3(1,1,1), _fx2M = new THREE.Matrix4();
+const fx2Col = c => typeof c === 'number' ? c : (typeof c === 'string' && c[0] === '#' ? parseInt(c.slice(1), 16) : 0xffd84a);
+
+/* ── 효과음 — SFX 표 안은 안 고치고 한 덩어리로 붙인다(65차 탑과 같은 방식). 모두 기존 합성 함수 → sfxOut → 버스 압축기.
+   세기는 기존 'up'(0.09)·'win'(0.08)·'medal'(0.10) 과 같은 줄에 둔다 — 스물한 대가 한 교실에서 울린다.
+     fx2Lv     레벨업 — 짧게 오르는 다섯 음 아르페지오 + 끝의 반짝
+     fx2Mis    임무 완료 — 네 음이 오르고 '짜잔' 화음
+     fx2Badge  칭호(1·2단계) — 종(비배음 셋) + 도미솔 화음
+     fx2Gun    새 총 — 쇠 '스릉' + 오르는 네 음
+     fx2Big    큰 축하(칭호 3단계·유니크·전직·1등) — 작은북 드럼롤 0.55초 → 팀파니 '쿵'·심벌 → 금관 '따따따 따—' + 화음 + 반짝 줄
+     fx2Dawn   밤을 버텼다 — 부드러운 네 음 + 높은 여운
+     fx2Rare   드문 사건 — 마법 반짝 활강 + 맑은 화음
+     fx2BossIn 보스 밤·등장 — 땅울림(낮은 쿵 + 우르릉) + 낮은 단조 화음
+     fx2Warn   보스 절반·10% — 두 번 내려앉는 경고음
+     fx2BossDown 보스 처치 — 큰 쿵 → (0.35초 뒤) 큰 축하 팡파르
+     fx2Whoosh·fx2Boom 별똥별이 떨어지는 쉬익·닿는 쿵(거리·좌우는 sfxFrom 이 준다) */
+function fx2SfxReady(){
+  if(fx2SfxReady.ok) return; fx2SfxReady.ok = true;
+  const arp = (fs, gap, vol, t0, dur, h2)=> fs.forEach((f,i)=> pluck(f, dur || 0.22, vol, t0 + i*gap, h2 === undefined ? 0.35 : h2));
+  const chord = (fs, dur, vol, t0, type)=> fs.forEach(f=> pluck(f, dur, vol, t0, 0.3, type));
+  const brass = (f, dur, vol, t0)=>{ tone(f, f, dur, 'triangle', vol, t0); tone(f*2, f*2, dur*0.8, 'sine', vol*0.32, t0); tone(f*1.003, f*1.003, dur*0.9, 'square', vol*0.13, t0); };
+  const roll = (n, len, v0, v1, t0)=>{ for(let i=0;i<n;i++){ const k = i/(n-1); puff(0.045, v0 + (v1-v0)*k*k, 1700 + (i%3)*260, 1.0, t0 + k*len); } };
+  const big = (t)=>{ roll(15, 0.55, 0.035, 0.13, t);
+    const h = t + 0.62;
+    thump(98, 44, 0.42, 0.15, h, 1.8); puff(0.9, 0.055, 5200, 0.6, h, 'highpass'); puff(0.12, 0.10, 900, 0.8, h);
+    brass(392, 0.13, 0.075, h); brass(392, 0.13, 0.075, h + 0.13); brass(392, 0.13, 0.075, h + 0.26); brass(523, 0.62, 0.09, h + 0.40);
+    chord([523, 659, 784, 1047], 0.95, 0.05, h + 0.40); brass(659, 0.5, 0.05, h + 0.40);
+    arp([1568, 1760, 2093, 2349, 2637, 3136], 0.04, 0.026, h + 0.55, 0.22, 0); };
+  Object.assign(SFX, {
+    fx2Lv:    ()=>{ const t = now0(); puff(0.03, 0.05, 3000, 1.5, t); arp([523, 659, 784, 1047, 1319], 0.048, 0.075, t, 0.24);
+                    pluck(2093, 0.4, 0.04, t + 0.26, 0); tone(1568, 2349, 0.16, 'sine', 0.026, t + 0.22); },
+    fx2Mis:   ()=>{ const t = now0(); arp([392, 523, 659, 784], 0.065, 0.07, t, 0.2);
+                    chord([523, 659, 784, 1047], 0.8, 0.055, t + 0.30); brass(262, 0.5, 0.045, t + 0.30); pluck(2093, 0.5, 0.03, t + 0.42, 0); },
+    fx2Badge: ()=>{ const t = now0(); pluck(1319, 1.0, 0.06, t, 0.5); pluck(1319*2.76, 0.55, 0.016, t); pluck(1319*5.4, 0.3, 0.007, t);
+                    chord([523, 659, 784], 0.85, 0.06, t + 0.14, 'triangle'); pluck(1047, 0.9, 0.045, t + 0.14, 0.4); },
+    fx2Gun:   ()=>{ const t = now0(); crackSweep(0.20, 0.05, 6400, 2400, 3, t); pluck(2637, 0.45, 0.032, t + 0.02, 0.4); pluck(3951, 0.3, 0.012, t + 0.03);
+                    arp([659, 784, 988, 1319], 0.055, 0.07, t + 0.12, 0.22); },
+    fx2Big:   ()=>{ big(now0()); },
+    fx2Dawn:  ()=>{ const t = now0(); arp([523, 659, 784, 1047], 0.09, 0.06, t, 0.3); chord([784, 1047, 1319], 0.9, 0.035, t + 0.36); },
+    fx2Rare:  ()=>{ const t = now0(); tone(600, 1900, 0.34, 'sine', 0.03, t); arp([784, 988, 1175, 1568, 1976, 2349], 0.05, 0.05, t, 0.3, 0.2);
+                    chord([1047, 1319, 1568], 1.0, 0.032, t + 0.34); pluck(3136, 0.6, 0.012, t + 0.4, 0); },
+    fx2BossIn:()=>{ const t = now0(); thump(72, 28, 0.95, 0.16, t, 2.2); noise(1.1, 0.10, 150, t); tone(55, 40, 1.4, 'sine', 0.11, t + 0.04);
+                    tone(147, 147, 1.2, 'triangle', 0.045, t + 0.30); tone(175, 175, 1.2, 'triangle', 0.035, t + 0.30); tone(220, 208, 1.2, 'triangle', 0.03, t + 0.30); },
+    fx2Warn:  ()=>{ const t = now0(); tone(523, 392, 0.22, 'triangle', 0.07, t); tone(523, 392, 0.24, 'triangle', 0.07, t + 0.27); thump(90, 50, 0.25, 0.07, t, 1.4); },
+    fx2BossDown:()=>{ const t = now0(); thump(62, 26, 0.8, 0.17, t, 2.4); noise(0.45, 0.10, 520, t); puff(0.5, 0.06, 300, 0.7, t + 0.05); big(t + 0.35); },
+    fx2Whoosh:()=>{ const t = now0(); crackSweep(0.9, 0.05, 3200, 420, 1.1, t); tone(900, 240, 0.8, 'sine', 0.012, t); },
+    fx2Boom:  ()=>{ const t = now0(); thump(84, 32, 0.42, 0.12, t, 2.0); puff(0.3, 0.09, 520, 0.8, t); pluck(1568, 0.3, 0.025, t + 0.08, 0.3); pluck(2093, 0.25, 0.016, t + 0.13, 0); }
+  });
+}
+function fx2Snd(k, delay){
+  fx2SfxReady();
+  if(delay > 0) setTimeout(()=> sfx(k), delay*1000); else sfx(k);
+}
+function fx2Later(sec, fn){ FX2.tm.push({t:sec, fn}); }
+
+/* ── 축하 배너 — 줄을 세워 하나씩. o = {k, ic, rib, tt, sub, big, col, col2, snd, sndDelay, no3d, calm, now}
+   ★ 한 번에 레벨이 여럿 오르면 줄에 선 레벨 배너 하나를 새 숫자로 고친다(배너가 줄줄이 서지 않게).
+   ★ 밤(싸우는 중)에는 위쪽에 작게·짧게 — 조준점과 좀비를 안 가린다. 보스 처치만 예외(싸움이 끝났다).
+   ★ 아침 '○일차' 큰 글씨가 떠 있는 동안에는 기다린다(겹치면 둘 다 안 읽힌다). */
+function fx2Cel(o){
+  if(!o) return;
+  FX2.stats.cel++;
+  if(o.k === 'lv'){
+    const q = FX2.q.find(e=> e.k === 'lv'); if(q){ Object.assign(q, o); return; }
+    /* 지금 떠 있는 것이 레벨 배너면 그 자리에서 숫자만 바꾸고 조금 더 띄운다(연달아 오르면 배너가 줄줄이 서지 않게) */
+    if(FX2.cur && FX2.cur.k === 'lv' && FX2.t > 0.5){ const b = el('celBan');
+      if(b){ b.querySelector('.cTt').textContent = o.tt; b.querySelector('.cIc').textContent = o.ic; }
+      FX2.cur = o; FX2.t = Math.max(FX2.t, 1.2); fx2Snd(o.snd); return; }
+  }
+  if(o.now){ FX2.q.unshift(o); if(FX2.cur) FX2.t = Math.min(FX2.t, 0.12); FX2.gap = 0; }
+  else {
+    if(FX2.q.length >= 6){ const i = FX2.q.findIndex(e=> !e.big && e.k !== 'boss'); FX2.q.splice(i >= 0 ? i : 0, 1); }
+    FX2.q.push(o);
+  }
+  if(!FX2.cur && FX2.gap <= 0) fx2CelNext();
+}
+function fx2CelNext(){
+  const o = FX2.q[0]; if(!o) return;
+  /* 아침 '○일차' 큰 글씨가 다 사라질 때까지(흐려지는 0.5초 포함) 기다린다 */
+  if(o.k !== 'boss'){ if(stageT > 0){ FX2.stW = 0.5; return; } if(FX2.stW > 0) return; }
+  const b = el('celBan'); if(!b){ FX2.q.shift(); return; }
+  FX2.q.shift(); FX2.cur = o;
+  const fight = G.phase === 'night' && o.k !== 'boss' && !o.calm;
+  const sz = fight ? 'nt' : (o.big || o.k === 'boss') ? 'big' : 'sm';
+  FX2.t = sz === 'nt' ? 1.5 : sz === 'big' ? 2.8 : 2.1;
+  if(!FX2.sparkOk){ FX2.sparkOk = true; const sp = b.querySelector('.cSp'); let h = '';
+    for(let i=0;i<14;i++) h += `<i style="--a:${Math.round(i*360/14 + (i%2)*9)}deg;--d:${120 + (i*37)%110}px;--w:${((i%4)*0.05).toFixed(2)}s"></i>`;
+    sp.innerHTML = h; }
+  const col = o.col || '#ffd84a';
+  b.style.setProperty('--c', col); b.style.setProperty('--c2', o.col2 || (o.col ? col : '#ff8a1c'));
+  b.querySelector('.cRib').textContent = o.rib || '';
+  b.querySelector('.cIc').textContent = o.ic || '';
+  b.querySelector('.cTt').textContent = o.tt || '';
+  b.querySelector('.cSub').textContent = fight ? '' : (o.sub || '');
+  b.className = ''; void b.offsetWidth; b.className = 'on ' + sz;
+  if(o.snd) fx2Snd(o.snd, o.sndDelay || 0);
+  if(!o.no3d) fx2Pop3D(sz, fx2Col(col));
+}
+/* 캐릭터 둘레의 3D 빛가루 — 땅에 눕힌 고리 + 위로 솟으며 도는 빛가루 + 머리 위 불꽃.
+   ★ 1인칭이면 앞쪽 3칸에서 터뜨린다(눈앞에서 터지면 화면이 금색 덩어리가 된다 — xpGain 의 옛 규칙). */
+function fx2Pop3D(sz, col){
+  const tp = tpvOn(), f = forward();
+  /* 3인칭이면 몸에서 카메라 반대쪽(앞)으로 0.9칸 — 알갱이가 카메라 쪽으로 덜 날아온다 */
+  const k = tp ? 0.9 : 3.0, x = PL.x + f.x*k, z = PL.z + f.z*k, y = PL.y, bx = tp ? PL.x : x, bz = tp ? PL.z : z;   // bx·bz 몸 둘레(1인칭이면 앞 3칸)
+  const nt = sz === 'nt', big = sz === 'big';
+  /* ★ 3인칭 카메라는 몸 뒤 3칸쯤이다 — 세게(pow>1) 터뜨리면 알갱이가 카메라 코앞까지 날아와 화면에 큰 공으로 찍힌다(사진으로 봤다).
+       그래서 약하게·작게, 흰색 대신 진한 금색·직업색만(밝은 흰 알갱이는 그늘에서 회색 공으로 보인다). */
+  /* 고리는 발밑 몸 둘레만(반지름 1.1~1.7칸) — 2칸이 넘으면 3인칭 카메라 발치까지 와서 화면 아래를 통째로 긋는다(800×600 사진) */
+  ring(bx, y + 0.08, bz, col, big ? 1.0 : 0.8, big ? 0.55 : 0.42, true);
+  if(big) ring(bx, y + 0.1, bz, col, 1.4, 0.8, true);
+  burst(x, y + (tp ? 2.4 : 1.9), z, col, nt ? 8 : big ? 18 : 12, 0.7, 0.7, 0.65);
+  if(nt) return;
+  burst(x, y + (tp ? 2.7 : 2.2), z, 0xffd43b, big ? 10 : 6, 0.55, 0.5, 0.6);
+  const n = big ? 14 : 8;
+  for(let i=0;i<n;i++){ const a = i/n*6.283 + Math.random()*0.3, r = 0.7 + Math.random()*0.3;
+    spark(bx + Math.cos(a)*r, y + 0.3 + Math.random()*0.4, bz + Math.sin(a)*r, i%2 ? col : 0xffd43b,
+          Math.cos(a)*0.3 - Math.sin(a)*0.8, 2.2 + Math.random()*1.2, Math.sin(a)*0.3 + Math.cos(a)*0.8, 0.9 + Math.random()*0.4, 0.8); }
+}
+/* 친구 소식 한 줄 — 셋까지만 줄 선다(첫날 한꺼번에 몰리면 앞의 것은 알림 줄(feed)에 남아 있다) */
+function fx2Chip(msg){
+  FX2.stats.chip++;
+  if(FX2.chipQ.length >= 3) FX2.chipQ.shift();
+  FX2.chipQ.push(msg);
+}
+function fx2Show(id, cls, on){ const e = el(id); if(!e) return null; if(on){ e.className = ''; void e.offsetWidth; e.className = cls; } else e.className = ''; return e; }
+
+/* ── 드문 사건 ──
+   · 5일차부터, 보스 밤·미니게임 날은 없음, 하루에 하나까지, **이틀 연달아 없음**, 같은 사건 두 번 연달아 없음.
+   · 확률 RARE_P — 18일 판에서 5일차 이후 사흘에 한 번꼴(검사 t66-fx2-static 이 방 이름 400개로 센다).
+   · 선생님 설정 rareEvents:false 면 하나도 안 생긴다. */
+const RARE = [
+  {k:'gold',   ic:'🌟', n:'황금 좀비',  at:'night', d:'황금빛 좀비가 한 마리 섞여 와요 — 잡으면 금 조각이 우르르!'},
+  {k:'meteor', ic:'☄️', n:'유성우 밤',  at:'night', d:'별똥별이 마을에 떨어져요 — 떨어진 자리에 금 조각이 생겨요'},
+  {k:'lucky',  ic:'🍀', n:'행운의 아침', at:'day',  d:'보물 상자가 하나 더 나타났어요 — 지도를 보고 달려가요!'}
+];
+const RARE_P = 0.72, RARE_FROM = 5, MET_N = 7, MET_FALL = 1.4;
+function fx2Hash(s){
+  let h = 2166136261 >>> 0;
+  for(let i=0;i<s.length;i++){ h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  h ^= h >>> 15; h = Math.imul(h, 0x2c1b3c6d) >>> 0; h ^= h >>> 12; h = Math.imul(h, 0x297a2d39) >>> 0; h ^= h >>> 15;
+  return (h >>> 0) / 4294967296;
+}
+function fx2Rng(key){ let a = Math.floor(fx2Hash(key) * 4294967296) >>> 0;
+  return ()=>{ a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const _rareMemo = new Map();
+function rareOf(day){
+  day = day|0;
+  if(G.set.rareEvents === false || day < RARE_FROM || day > G.set.goalDay) return -1;
+  if(bossIndex(day) >= 0 || miniDayIdx(day) >= 0) return -1;
+  const key = (G.room || 'solo') + '|' + day + '|' + G.set.goalDay;
+  if(_rareMemo.has(key)) return _rareMemo.get(key);
+  let r = -1;
+  if(rareOf(day-1) < 0 && fx2Hash(key + '|p') < RARE_P){
+    let prev = -1; for(let d = day-1; d >= RARE_FROM && prev < 0; d--) prev = rareOf(d);
+    r = Math.floor(fx2Hash(key + '|k') * RARE.length) % RARE.length;
+    if(r === prev) r = (r + 1) % RARE.length;
+  }
+  _rareMemo.set(key, r);
+  return r;
+}
+function fx2RareCel(R, extra){
+  FX2.stats.rare++;
+  fx2Cel(Object.assign({k:'rare', ic:R.ic, rib:'드문 사건!', tt:R.n, sub:R.d, col:'#a8ecff', col2:'#6d5cff', snd:'fx2Rare', calm:true, no3d:true}, extra || {}));
+}
+/* 행운의 아침 — 호스트가 상자 하나를 더 놓는다(기존 chest 통로가 손님에게 나른다). 평소 상자는 둘까지, 이것까지 셋(CH_MAX) */
+function fx2LuckyChest(){
+  if(!G.host || G.phase !== 'day' || G.chests.length >= CH_MAX) return;
+  const g = (G.day*2 + 1) % NG, sp = chestSpot(g) || chestSpot((g+1) % NG);
+  if(!sp) return;
+  G.chests.push({id:chSeq++, x:sp[0], z:sp[1], g:sectorOf(sp[0], sp[1]), t:CH_LIFE});
+  netChests();
+  say(`🍀 <b style="color:#8fe08f">행운의 아침!</b> 보물 상자가 하나 더 나타났어요 — 지도를 보고 달려가요`);
+}
+/* 유성우 — 그날 밤 떨어질 때·자리를 씨앗으로 미리 정한다. 모두 같은 자리에 떨어진다 */
+function fx2MeteorPlan(){
+  FX2.mets.length = 0;
+  const rnd = fx2Rng((G.room || 'solo') + '|' + FX2.nightDay + '|met'), span = Math.max(30, FX2.nightLen - 26);
+  for(let i=0;i<MET_N;i++){
+    const a = rnd()*6.283, r = 10 + rnd()*(ARENA_R - 16), x = Math.cos(a)*r, z = Math.sin(a)*r;
+    FX2.mets.push({t:8 + i*span/MET_N + rnd()*4, x, z, a2:rnd()*6.283, st:0, slot:-1, gy:Math.max(GY, terrAt(Math.floor(x), Math.floor(z)))});
+  }
+}
+function fx2MetMesh(){
+  if(FX2.metMesh) return FX2.metMesh;
+  /* 불투명 가는 막대(빛나는 머리) 세 칸 — 새 투명 면이 아니다. 꼬리는 기존 입자(spark)가 맡는다 */
+  const m = new THREE.InstancedMesh(new THREE.BoxGeometry(0.46, 0.46, 3.0), new THREE.MeshBasicMaterial({color:0xffe7a0}), 3);
+  m.frustumCulled = false; m.castShadow = false; m.receiveShadow = false; m.visible = false;
+  for(let i=0;i<3;i++) m.setMatrixAt(i, ZEROM);
+  scene.add(m); FX2.metMesh = m; return m;
+}
+function fx2MeteorTick(dt){
+  const el0 = FX2.nightEl;
+  let live = 0;
+  for(const m of FX2.mets){
+    if(m.st === 2) continue;
+    const t0 = m.t - MET_FALL;
+    if(el0 < t0) continue;
+    if(m.st === 0){
+      if(el0 - t0 > MET_FALL + 0.5){ m.st = 2; continue; }        // 늦게 들어온 손님 — 지난 것은 건너뛴다
+      m.st = 1; m.slot = FX2.metSlot = (FX2.metSlot + 1) % 3; FX2.stats.met++;
+      fx2SfxReady(); if(Math.hypot(m.x - PL.x, m.z - PL.z) < 60) sfxFrom('fx2Whoosh', m.x, m.z, 0.8);
+    }
+    const p = Math.min(1, (el0 - t0) / MET_FALL), mesh = fx2MetMesh();
+    const sx = m.x - Math.cos(m.a2)*24, sy = m.gy + 30, sz = m.z - Math.sin(m.a2)*24;
+    const x = sx + (m.x - sx)*p, y = sy + (m.gy - sy)*p, z = sz + (m.z - sz)*p;
+    if(p < 1){
+      live++;
+      _fx2D.set(m.x - sx, m.gy - sy, m.z - sz).normalize(); _fx2Q.setFromUnitVectors(_fx2Z, _fx2D); _fx2V.set(x, y, z);
+      _fx2S.set(1, 1, 1); mesh.setMatrixAt(m.slot, _fx2M.compose(_fx2V, _fx2Q, _fx2S));
+      FX2.metSp -= dt;
+      if(FX2.metSp <= 0){ FX2.metSp = 1/40;                                  // 꼬리 — 한 알 0.55초 · 한 번에 스무 알 남짓(입자 풀 160 중)
+        spark(x - _fx2D.x*1.6, y - _fx2D.y*1.6, z - _fx2D.z*1.6, (FX2.stats.met + (el0*40|0)) % 2 ? 0xff9a2e : 0xffe07a,
+              (Math.random()-0.5)*0.7, 0.3 + Math.random()*0.5, (Math.random()-0.5)*0.7, 0.55, 3.4); }
+    } else {
+      m.st = 2; mesh.setMatrixAt(m.slot, ZEROM);
+      burst(m.x, m.gy + 0.3, m.z, 0xffb347, 16, 1.3);
+      burst(m.x, m.gy + 0.4, m.z, 0xfff2c0, 8, 0.9, 0.5);
+      ring(m.x, m.gy + 0.06, m.z, 0xffa040, 2.6, 0.55, true); ring(m.x, m.gy + 0.08, m.z, 0xfff0b0, 1.4, 0.35, true);
+      const d = Math.hypot(m.x - PL.x, m.z - PL.z);
+      if(d < 18) shake(0.14*(1 - d/18), 0.25);
+      if(d < 55){ fx2SfxReady(); sfxFrom('fx2Boom', m.x, m.z, Math.max(0.25, 1 - d/55)); }
+      if(G.host) dropGold({x:m.x, z:m.z, bi:-1});                    // 금 조각 1~3 — 좀비가 떨어뜨리는 것과 같은 통로
+    }
+  }
+  if(FX2.metMesh){ FX2.metMesh.instanceMatrix.needsUpdate = true; FX2.metMesh.visible = live > 0; }
+  /* 하늘의 별똥별(updSky 의 한 줄기)도 이 밤엔 자주 긋는다 — 원래는 14~30초에 한 번 */
+  if(skyK > 0.6 && metWait > 3) metWait = 0.8 + Math.random()*2.2;
+}
+/* 황금 좀비 — 그날 밤 처음 본 좀비 번호 + 씨앗 순번(3~7번째). 모두 같은 좀비가 금빛이 된다 */
+function fx2GoldTick(dt){
+  if(!FX2.gold){
+    for(const w of G.wolves) if(w.id < FX2.minId && !isBoss(w.k)) FX2.minId = w.id;
+    if(FX2.minId === Infinity || FX2.goldK < 0) return;
+    const want = FX2.minId + FX2.goldK;
+    for(const w of G.wolves) if(w.id === want){ FX2.gold = w; w.col = 0xffc21f; w.fx2Gold = 1; break; }
+    return;
+  }
+  const w = FX2.gold;
+  if(G.wolves.indexOf(w) < 0){
+    FX2.gold = null; FX2.goldK = -1;                                    // 한 밤에 한 마리
+    const killed = G.host ? w.hp <= 0 : (w.hp <= 15 && FX2.nightT > 1);
+    if(!killed) return;
+    burst(w.x, (w.y||GY) + 1.2, w.z, 0xffd43b, 30, 1.8); burst(w.x, (w.y||GY) + 1.6, w.z, 0xfff6c0, 14, 1.2);
+    ring(w.x, (w.y||GY) + 0.08, w.z, 0xffc21f, 2.8, 0.6, true);
+    if(G.host) dropGold({x:w.x, z:w.z, bi:0});                       // 보스처럼 8~12조각 — '금 조금 더'
+    fx2RareCel(RARE[0], {tt:'황금 좀비를 잡았어요!', sub:'금 조각이 우르르 — 얼른 주워요!', snd:'fx2Gun'});
+    return;
+  }
+  FX2.goldSp -= dt;
+  if(FX2.goldSp <= 0 && Math.hypot(w.x - PL.x, w.z - PL.z) < 45){ FX2.goldSp = 0.11;
+    const a = Math.random()*6.283;
+    spark(w.x + Math.cos(a)*0.55, (w.y||GY) + 0.6 + Math.random()*1.2, w.z + Math.sin(a)*0.55, Math.random() < 0.5 ? 0xffe066 : 0xfff6d0,
+          0, 0.9 + Math.random()*0.6, 0, 0.55, 1.2); }
+}
+
+/* ── 보스 연출 ──
+   밤 시작(보스 밤): 위아래 검은 띠 + 가장자리 어둠 + 이름 자막 + 땅울림 — 아직 좀비가 없을 때라 화면을 잠깐 덮어도 된다.
+   등장: 가장자리 어둠 한 번 + 아래쪽 작은 자막 + 저음 + **약한** 흔들림 + 6초 동안 보스 쪽 방향 표시.
+     (예전엔 흔들림 1.6 — 조준이 통째로 튀었다. 카메라를 보스 쪽으로 돌리는 것은 조작을 뺏으므로 안 한다 — 대신 방향 표시)
+   체력 절반·10%: 경고 자막 + 경고음 + 체력바 단계 글자/테두리.
+   처치: 흰 번쩍 + 속도선 + 위아래 띠(슬로모션 느낌 — 게임 시간은 안 멈춘다) + 빛가루·고리 + 불꽃놀이 + 큰 팡파르 + 큰 축하 배너 */
+function fx2BossName(){ const bi = bossIndex(FX2.nightDay || G.day); return bi >= 0 ? WOLF_T[bossWolfK(bi)].n : '보스'; }
+function fx2Cap(k, n, s, cls, dur){
+  const c = el('fx2Cap'); if(!c) return;
+  c.querySelector('.k').textContent = k; c.querySelector('.n').textContent = n; c.querySelector('.s').textContent = s || '';
+  c.className = ''; void c.offsetWidth; c.className = 'on ' + (cls || '');
+  FX2.capT = dur || 3.0;
+}
+function fx2BossIntro(){
+  FX2.stats.boss++;
+  fx2Show('fx2Bars', 'on', true); fx2Show('fx2Vig', 'on', true); FX2.barsT = 3.3; FX2.vigT = 2.7;
+  fx2Cap('오늘 밤의 보스', fx2BossName(), '밤 중간쯤 나타나요 — 다섯 입구를 막고 탑을 채워요', '', 3.0);
+  fx2Snd('fx2BossIn'); shake(0.16, 0.6);
+}
+function fx2BossAppear(w){
+  FX2.stats.boss++;
+  const B = WOLF_T[w.k] || {};
+  fx2Show('fx2Vig', 'on', true); FX2.vigT = 2.7;
+  fx2Cap('보스 등장', (B.n || '보스') + '!', `${(G.focus|0) + 1}모둠 입구 쪽 — 모두 모여서 쏘세요`, 'lo sm', 2.1);
+  fx2Snd('fx2BossIn'); shake(0.32, 0.7);
+  FX2.arrowT = 6;
+}
+function fx2BossWarn(half){
+  fx2Cap(half ? '조심!' : '조금만 더!', half ? `${fx2BossName()}${josa(fx2BossName(),'이','가')} 화났어요!` : '거의 다 잡았어요!',
+         half ? '체력 절반 — 여럿이 같이 쏘세요' : '체력 10% — 끝까지 쏘세요', 'lo sm', 2.1);
+  fx2Snd('fx2Warn'); shake(half ? 0.2 : 0.12, 0.3);
+  if(half) FX2.arrowT = Math.max(FX2.arrowT, 3);
+}
+function fx2BossDown(b){
+  FX2.stats.boss++;
+  const k = b.k, T0 = WOLF_T[k] || {}, bi = T0.boss ? T0.boss - 1 : 0, R = (BAL.bossReward && BAL.bossReward[bi]) || {};
+  const x = b.x, z = b.z, y = (b.y || GY);
+  fx2Show('fx2Flash', 'on', true); fx2Show('fx2Lines', 'on', true); fx2Show('fx2Bars', 'on k', true); fx2Show('fx2Cap', '', false); FX2.capT = 0;   // 10% 경고 자막이 남아 있으면 치운다
+  FX2.flashT = 0.55; FX2.linesT = 0.75; FX2.barsT = 2.0;
+  burst(x, y + 2.2, z, 0xffe066, 36, 2.2); burst(x, y + 2.8, z, 0xffffff, 14, 1.6);
+  ring(x, y + 0.1, z, 0xffd257, 3.2, 0.7, true); ring(x, y + 0.12, z, 0xff9f1c, 5.0, 1.0, true);
+  fx2Later(0.18, ()=> burst(x, y + 2, z, 0xffd43b, 24, 2.4)); fx2Later(0.36, ()=> burst(x, y + 2.4, z, 0xfff2c0, 20, 2.0));
+  fireN = Math.max(fireN, 8); fireT = 0.6;
+  shake(0.28, 0.35);
+  fx2Cel({k:'boss', now:true, ic:'🏆', rib:'보스 처치', tt:`${T0.n || '보스'} 처치!`,
+          sub:`우리 반이 해냈어요! 전 모둠 🪵+${R.w|0} 🪨+${R.s|0} ✨+${R.g|0}` + (R.heal ? ` · 💎+${R.heal}` : ''),
+          big:true, col:'#ffd84a', col2:'#ff7a1c', snd:'fx2BossDown', no3d:true});
+}
+/* 보스 체력바 꾸밈 — HUD 의 bossWrap 에 단계 글자 칸 하나와 절반·10% 눈금 두 개를 덧붙인다(한 번). 값은 단계가 바뀔 때만 쓴다 */
+function fx2BossBar(pct){
+  const wrap = el('bossWrap'); if(!wrap) return;
+  if(!FX2.barOk){ FX2.barOk = true;
+    const lb = wrap.querySelector('.lb'); if(lb && !el('fx2BPh')){ const s = document.createElement('span'); s.id = 'fx2BPh'; lb.appendChild(s); }
+    /* 눈금은 숫자(#bNum)보다 앞에 끼운다 — 뒤에 붙이면 가운데 50% 눈금이 '100%' 글자를 가로지른다(사진) */
+    const bar = el('bBar'); if(bar) for(const p of [50, 10]){ const t = document.createElement('i'); t.className = 'fx2Tk'; t.style.left = p + '%'; bar.insertBefore(t, bar.firstChild); } }
+  const st = pct < 0 ? -1 : pct <= 10 ? 2 : pct <= 50 ? 1 : 0;
+  if(FX2.barSt === st) return; FX2.barSt = st;
+  wrap.classList.toggle('fx2r1', st === 1); wrap.classList.toggle('fx2r2', st === 2);
+  const s = el('fx2BPh'); if(s) s.textContent = st < 0 ? '' : ['1단계', '2단계 · 화남', '마지막!'][st];
+}
+/* 보스 쪽 방향 — 화면 안이면 머리 위 👑, 밖이면 가장자리 화살표. 등장·절반 뒤 몇 초만 */
+function fx2Arrow(b){
+  const a = el('fx2Arrow'); if(!a) return;
+  if(!b || FX2.arrowT <= 0){ if(FX2.arrowOn){ FX2.arrowOn = 0; a.className = ''; } return; }
+  _fx2V.set(b.x, (b.y || GY) + 3.4, b.z).project(camera);
+  let sx = _fx2V.x, sy = _fx2V.y; const behind = _fx2V.z > 1;
+  if(behind){ sx = -sx; sy = -sy; }
+  const W = innerWidth, H = innerHeight, inside = !behind && Math.abs(sx) < 0.9 && Math.abs(sy) < 0.86;
+  let px, py, ang = 0;
+  if(inside){ px = (sx + 1)/2*W; py = (1 - sy)/2*H; }
+  else { const m = Math.max(Math.abs(sx)/0.86, Math.abs(sy)/0.78) || 1; const ex = sx/m, ey = sy/m;
+    px = (ex + 1)/2*W; py = (1 - ey)/2*H; ang = Math.atan2(-ey, ex); }
+  const want = inside ? 2 : 1;
+  if(FX2.arrowOn !== want){ FX2.arrowOn = want; a.className = inside ? 'on in' : 'on'; }
+  a.style.transform = `translate(${px|0}px,${py|0}px)`;
+  if(!inside) a.style.setProperty('--r', ang.toFixed(2) + 'rad');
+}
+
+/* ── 낮/밤이 바뀌는 순간 — 호스트는 goDay/goNight, 손님은 meta 로 바뀐다. 둘 다 여기서 본다(따로 부르지 않는다) ── */
+function fx2Phase(from, to){
+  const fresh = !from;                                        // 방금 들어온 순간 — 밤 준비는 하되 지난 일은 축하하지 않는다
+  if(from === 'night' && to !== 'night'){
+    FX2.boss = null; FX2.arrowT = 0; fx2Arrow(null); fx2BossBar(-1); FX2.gold = null;
+    if(FX2.metMesh) FX2.metMesh.visible = false;
+    const saw = FX2.nightSeen; FX2.nightSeen = false;
+    if(saw && (to === 'day' || to === 'mini') && G.crystal > 0){
+      /* 아침 '○일차' 큰 글씨가 먼저 뜬다 — 배너는 그 뒤에 온다(줄에서 기다림). 하늘 불꽃 네 발은 바로 */
+      fireN = Math.max(fireN, 4); fireT = 0.3;
+      fx2Cel({k:'dawn', ic:'🌅', rib:'밤을 버텼어요', tt:`${FX2.nightDay || G.day}일차 밤 성공!`,
+              sub:`수정 ${Math.max(1, Math.round(G.crystal / G.set.crystalMax * 100))}% 지켰어요`, snd:'fx2Dawn', col:'#ffe28a', col2:'#ff8f5a', no3d:true}); }
+  }
+  if(to === 'night'){
+    FX2.nightDay = G.day; FX2.nightEl = 0; FX2.minId = Infinity; FX2.gold = null; FX2.bossW50 = FX2.bossW10 = false;
+    const N = bossIndex(G.day) < 0 && G.nk >= 0 ? NIGHT_DEF[G.nk] : null;
+    FX2.nightLen = G.set.nightSec * (N && N.longer ? N.longer : 1);
+    const r = rareOf(G.day); FX2.rare = r >= 0 && RARE[r].at === 'night' ? RARE[r].k : '';
+    FX2.goldK = FX2.rare === 'gold' ? 3 + Math.floor(fx2Hash((G.room || 'solo') + '|' + G.day + '|gold') * 5) : -1;
+    if(FX2.rare === 'meteor') fx2MeteorPlan(); else FX2.mets.length = 0;
+    if(FX2.rare) FX2.rareT = 2.6;
+    FX2.nightSeen = !fresh;
+    if(!fresh && bossIndex(G.day) >= 0) fx2Later(0.5, fx2BossIntro);
+  }
+  if(to === 'day' && !fresh){
+    FX2.rare = '';
+    const r = rareOf(G.day);
+    if(r >= 0 && RARE[r].at === 'day') FX2.luckyT = 2.2;
+  }
+}
+
+/* ── 매 프레임(dreadTick 옆) — 값 몇 개를 견주고, 켜 둔 화면 효과의 남은 시간만 센다 ── */
+function fx2Tick(dt){
+  if(!G.started) return;
+  /* 날짜도 같이 본다 — 선생님 ⏭️ 건너뛰기처럼 한 프레임 안에 밤→아침이 지나가도 새 아침(행운의 아침)을 놓치지 않게 */
+  if(G.phase !== FX2.ph || G.day !== FX2.pd){ const from = FX2.ph; FX2.ph = G.phase; FX2.pd = G.day; fx2Phase(from, G.phase); }
+  for(let i=FX2.tm.length-1;i>=0;i--){ const e = FX2.tm[i]; e.t -= dt; if(e.t <= 0){ FX2.tm.splice(i, 1); e.fn(); } }
+  /* 축하 줄 */
+  if(FX2.cur){
+    FX2.t -= dt;
+    const b = el('celBan');
+    if(FX2.t <= 0.32 && b && !b.classList.contains('out')) b.classList.add('out');
+    if(FX2.t <= 0){ FX2.cur = null; FX2.gap = 0.22; if(b) b.className = ''; }
+  } else if(FX2.gap > 0) FX2.gap -= dt;
+  else if(FX2.stW > 0) FX2.stW -= dt;
+  else if(FX2.q.length) fx2CelNext();
+  /* 친구 소식 줄 */
+  if(FX2.chipT > 0){ FX2.chipT -= dt; if(FX2.chipT <= 0) fx2Show('celChip', '', false); }
+  else if(FX2.chipQ.length){ const c = fx2Show('celChip', 'on', true); if(c) c.textContent = FX2.chipQ.shift(); FX2.chipT = 2.9; }
+  /* 켜 둔 화면 효과 끄기 */
+  if(FX2.capT > 0){ FX2.capT -= dt; if(FX2.capT <= 0) fx2Show('fx2Cap', '', false); }
+  if(FX2.barsT > 0){ FX2.barsT -= dt; if(FX2.barsT <= 0) fx2Show('fx2Bars', '', false); }
+  if(FX2.vigT > 0){ FX2.vigT -= dt; if(FX2.vigT <= 0) fx2Show('fx2Vig', '', false); }
+  if(FX2.flashT > 0){ FX2.flashT -= dt; if(FX2.flashT <= 0) fx2Show('fx2Flash', '', false); }
+  if(FX2.linesT > 0){ FX2.linesT -= dt; if(FX2.linesT <= 0) fx2Show('fx2Lines', '', false); }
+  /* 드문 사건 알림(밤 시작 2.6초 뒤 · 아침 2.2초 뒤) */
+  if(FX2.rareT > 0){ FX2.rareT -= dt; if(FX2.rareT <= 0){ const r = RARE.find(R=> R.k === FX2.rare); if(r) fx2RareCel(r); } }
+  if(FX2.luckyT > 0){ FX2.luckyT -= dt; if(FX2.luckyT <= 0 && G.phase === 'day'){ fx2LuckyChest(); fx2RareCel(RARE[2]); } }
+  /* 밤 */
+  let bw = null;
+  if(G.phase === 'night'){
+    FX2.nightT = G.t;
+    if(!G.paused) FX2.nightEl += dt;
+    const el2 = FX2.nightLen - G.t; if(Math.abs(el2 - FX2.nightEl) > 1.5) FX2.nightEl = el2;   // 손님은 meta(1초에 한 번)의 G.t 로 맞춘다
+    if(FX2.rare === 'gold') fx2GoldTick(dt);
+    else if(FX2.rare === 'meteor') fx2MeteorTick(dt);
+    for(const w of G.wolves) if(isBoss(w.k)){ bw = w; break; }
+  }
+  if(bw){
+    const pct = bw.mx ? bw.hp / bw.mx * 100 : bw.hp;
+    if(FX2.boss !== bw){
+      if(!FX2.boss || FX2.boss.id !== bw.id){ FX2.bossW50 = pct <= 50; FX2.bossW10 = pct <= 10; fx2BossAppear(bw); }
+      FX2.boss = bw;
+    }
+    FX2.bossPct = pct;
+    if(!FX2.bossW50 && pct <= 50){ FX2.bossW50 = true; fx2BossWarn(true); }
+    else if(!FX2.bossW10 && pct <= 10){ FX2.bossW10 = true; fx2BossWarn(false); }
+    FX2.barT -= dt; if(FX2.barT <= 0){ FX2.barT = 0.12; fx2BossBar(pct); }
+    if(FX2.arrowT > 0) FX2.arrowT -= dt;
+    fx2Arrow(bw);
+  } else if(FX2.boss){
+    const b = FX2.boss; FX2.boss = null; FX2.arrowT = 0; fx2Arrow(null); fx2BossBar(-1);
+    const killed = G.host ? b.hp <= 0 : (FX2.bossPct <= 15 && FX2.nightT > 1);
+    if(killed) fx2BossDown(b);
+  }
+  /* 친구 전직 — pc 통로의 jt 가 오른 것만(처음 본 친구는 적어만 둔다). 0.5초에 한 번 */
+  FX2.pcT -= dt;
+  if(FX2.pcT <= 0){ FX2.pcT = 0.5;
+    for(const [k,p] of pcMap){
+      if(k === uid || !p || !p.n) continue;
+      const jt = p.jt|0, was = FX2.pcJt.get(k); FX2.pcJt.set(k, jt);
+      if(was !== undefined && jt > was && p.jb >= 0 && JOBS[p.jb]){
+        const nm = jobName(p.jb|0, jt);
+        fx2Chip(`${JOBS[p.jb].ic} ${p.n}${josa(p.n,'이','가')} '${nm}'${josa(nm,'이','가')} 되었어요!`);
+      }
+    }
+  }
+}
+Object.assign(window, {__fx2:{FX2, RARE, rareOf, cel:fx2Cel, chip:fx2Chip, tick:fx2Tick, phase:fx2Phase, hash:fx2Hash,
+  bossIntro:fx2BossIntro, bossAppear:fx2BossAppear, bossWarn:fx2BossWarn, bossDown:fx2BossDown, meteorPlan:fx2MeteorPlan,
+  sfxReady:fx2SfxReady, P:RARE_P}});
 
 /* ═══════════════════════ 호스트 시뮬레이션 ═══════════════════════ */
 /* 진행 방향 1.1칸 앞에 건물이 있으면 그 id */
@@ -19359,9 +19931,11 @@ function raceDone(M){
   else if(my >= 5 && my <= 9){ const c = RACE_RES[my-5]; gainAll(c); line = `🏅 ${my+1}등! ${costTxt(c)}`; }
   else if(my >= 0) line = fin ? `${my+1}등 — 골인!` : `${my+1}등 — 다음엔 골인까지!`;
   if(fin){ gainAll(RACE_FIN); line += ` · 골인 상 ${costTxt(RACE_FIN)}`; }
-  if(my >= 0 && my <= 2){ verdict(true, ['🥇','🥈','🥉'][my], `${my+1}등!`); goodFlash(320); burst(PL.x, PL.y+2.1, PL.z, GHEX[G.me.g|0], 20, 1.8); burst(PL.x, PL.y+1.8, PL.z, 0xffe066, 16, 1.5); if(window.__sfx) window.__sfx('win'); }
+  /* 66차 — 1~3등은 축하 배너(1등 큰 축하 · 상 이름이 배너 아랫줄에 나온다). 나머지는 예전처럼 알림 한 줄 */
+  if(my >= 0 && my <= 2){ fx2Cel({k:'race', ic:['🥇','🥈','🥉'][my], rib:'장애물 경주', tt:`${my+1}등!`, sub:line.replace(/^\S+ \S+ /, ''),
+                                  big:my === 0, col:my === 0 ? '#ffd84a' : '#dbe4ec', snd:my === 0 ? 'fx2Big' : 'fx2Gun'}); }
   else if(my >= 0){ if(window.__sfx) window.__sfx(fin ? 'get' : 'dusk'); }
-  if(line) toast(line, 6, my === 0 ? '#ffe066' : '#ffe9a0');
+  if(line && !(my >= 0 && my <= 2)) toast(line, 6, '#ffe9a0');
 }
 function racePaint(){
   const M = G.mini;
@@ -19588,9 +20162,7 @@ function applySim(d){
     let w = G.wolves.find(o=>o.id===id);
     if(!w){ w = {id,k,x,z,y:GY,ry,hp:hp,mx:100,mv:!!mv,ph:Math.random()*6,hurt:0,tx:x,tz:z};
       if(isBoss(k)){ const B = WOLF_T[k]; w.sc = B.sc; w.col = B.col; w.bi = B.boss-1;
-        burst(x, GY+3, z, 0x9a83bf, 24, 2.2);
-        toast(B.n + ' 등장!', 4, '#ff9b9b');
-        if(window.__shake) window.__shake(1.6, 1.0); if(window.__sfx) window.__sfx('boss'); }   // 33차 — 손님 화면도 흔들린다
+        burst(x, GY+3, z, 0x9a83bf, 24, 2.2); }   // 66차 — 자막·땅울림·흔들림은 fx2Boss(호스트와 같은 코드)
       G.wolves.push(w); }
     w.tx = x; w.tz = z; w.ry = ry; w.k = k; w.mv = !!mv;
     if(hp < w.hp) w.hurt = 0.18;

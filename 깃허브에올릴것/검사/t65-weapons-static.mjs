@@ -62,6 +62,8 @@ const PL={x:0,y:0,z:0,hp:50};const GY=0;
 const burstLog=[];const burst=(...a)=>burstLog.push(a);
 const hits=[];const extraHit=(o,d)=>{hits.push([o.id,d]);o.hp-=d;};
 const window={};let enhBusy=false;
+// 66차 — 새 총을 얻으면 축하 배너(fx2Cel)가 뜬다. 여기선 부른 기록만 남긴다
+const fx2Cel=o=>events.push(['cel',o]),isTouch=false;
 `;
 const decls=['WEAPONS','MINI_GUN','TRAIT_TXT','TIER_TXT','TIER_COL','wpnLv','wpnLvOk','TIER_ALL','TIER_NAME',
   'ARMORS','POT_SEC','POTIONS','AMMO_PER_GOLD','FARM_ANIMALS','FARM_CAP','farmCount','WDAY',
