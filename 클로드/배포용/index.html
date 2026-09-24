@@ -17020,7 +17020,7 @@ document.addEventListener('click', e=>{
 /* 66차 — 못 사는 카드(자원·레벨 부족)를 누르면 낮고 부드러운 '뚝'. 막힌 단추에는 click 이 안 와서 pointerdown 으로 잡는다 */
 document.addEventListener('pointerdown', e=>{
   const t = e.target && e.target.closest && e.target.closest('.sItem.no');
-  if(t) sfx('nope');
+  if(t && !t.closest('#farmList')) sfx('nope');                  // 농장 현황(#farmList)의 빈 동물 칸은 살 수 없는 안내 카드 — 소리 없음
 }, true);
 document.querySelectorAll('#shopTabs .btn').forEach(b=>
   b.onclick = ()=>{ shopTab = b.dataset.tab; sfx('tab'); buildShopUI(); });
@@ -18968,7 +18968,7 @@ function hostSim(dt){
         burst(bx, GY+2.0, bz, 0x9beeff, 14, 1.7);      // 수정 조각
         burst(bx, GY+2.0, bz, 0xffffff, 6, 2.1);       // 흰 불티
         burst(w.x, GY+1.2, w.z, 0xb6d6be, 4, 1.2);     // 입가의 마른 먼지, 유혈 없음
-        if(window.__sfxAt) window.__sfxAt('crystalHit', 0, 0, 60, 300);   // 66차 — 유리 '팅' + 둔한 쿵(아프다)
+        if(window.__sfxAt) window.__sfxAt('crystalHit', 0, 0, 60, 700);   // 66차 — 유리 '팅' + 둔한 쿵(아프다). 여럿이 물어도 0.7초에 한 번
         cryHurtT = 0.28;                               // 수정이 붉게 번쩍한다
         onCrystalHit();
       }
@@ -20730,9 +20730,20 @@ function packSim(){
      .set() 을 부르는 횟수 자체에 붙는 모양이다. 근거 없는 복잡함은 남기지 않는다. */
   return {w, s, c:Math.round(G.crystal*10)};
 }
+/* 66차 — 손님 화면: 수정 체력은 숫자로만 온다. 받은 값이 앞 값보다 내려가면 좀비가 문 것(회복은 올리기만 한다) —
+   선생님 화면과 같은 유리 '팅'(같은 0.7초 간격)과 붉은 번쩍임. 처음 받은 값(밤 중간에 들어옴)은 비교하지 않는다 */
+let cryGuestLast = -1;
+function cryGuestWatch(){
+  if(G.host) return;
+  if(cryGuestLast >= 0 && G.phase === 'night' && G.crystal < cryGuestLast - 0.05){
+    if(window.__sfxAt) window.__sfxAt('crystalHit', 0, 0, 60, 700);
+    cryHurtT = 0.28;
+  }
+  cryGuestLast = G.crystal;
+}
 function applySim(d){
   if(!d) return;
-  G.crystal = (d.c||0)/10;
+  G.crystal = (d.c||0)/10; cryGuestWatch();
   const seen = new Set();
   /* w·s 는 이제 쉼표로 이은 문자열이다. 옛 버전이 보낸 숫자 배열도 그대로 읽는다 —
      선생님 화면만 먼저 새로 고쳐지고 애들 화면은 아직 옛 것인 순간이 있을 수 있다.
@@ -20789,7 +20800,7 @@ function joinRoom(code, asHost){
       if(G.phase === 'mini' && !wasMini) miniEnter();
       else if(G.phase !== 'mini' && wasMini){ G.mini = null; miniLeave(); }
     }
-    if(m.crystal!==undefined) G.crystal = m.crystal;
+    if(m.crystal!==undefined){ G.crystal = m.crystal; cryGuestWatch(); }
     G.mis = m.mis|0; G.misD = m.misD|0;
     setPaused(!!m.pz);
     if(wasPh !== G.phase) onPhaseChange(wasPh, G.phase);
@@ -22343,7 +22354,7 @@ const _sfxLast = {};
 /* 66차 — 같은 소리 사이 최소 간격(초). 표에 없으면 0.025. 발소리·동물·자연 소리가 몰려 겹치지 않게 */
 const SFX_GAP = {step:0.09, coin:0.06, leaf:0.08, grit:0.08, chunk:0.05, pop:0.06, buy:0.08, nope:0.25, tab:0.05,
   hen:1.2, pig:1.4, cow:2.0, bird1:0.6, bird2:0.6, cricket:0.5, owl:3, crow:1.5, rooster:5, brook:0.5, breeze:3, nightWind:3,
-  hpBeat:0.5, crystalHit:0.12, squeak:0.2, pry:0.1, feedScoop:0.1, broom:0.1};
+  hpBeat:0.5, crystalHit:0.6, squeak:0.2, pry:0.1, feedScoop:0.1, broom:0.1};
 /* 목소리가 모자랄 때도 꼭 내는 소리(다침·수정·승패·보스 등장) — 나머지는 빈 칸이 8 밑이면 건너뛴다 */
 const SFX_PRIO = {hurt:1, crystalHit:1, win:1, lose:1, fx2BossIn:1, fx2Big:1, go:1, specCall:1, hpBeat:1};
 /* 크게 터지는 소리 — 울릴 때 배경음을 0.2초쯤 숙였다가(BGMD) 천천히 되돌린다(총소리를 배경음이 안 가리게) */
@@ -22425,7 +22436,7 @@ function bgmHeatNow(){
      대기실 lobby(F장조 83bpm 오르골·패드) · 여명 dawn(G장조 71bpm, 첫날·미니게임 뒤 아침 13초)
      낮 day1(원래 C장조 오르골) · day2(G장조 마림바·나무토막) · day3(F장조 종소리) — 날마다 번갈아
      해질녘 dusk(A단조, 밤 22초 전부터 시계 소리가 차츰 커진다) · 밤 night(원래 A단조 + 현 저음, 가까울수록 빠르고 층이 쌓인다)
-     보스 밤 boss(D단조, 북·저음 반복) · 승리 새벽 victory(밤을 버틴 아침 — 짧은 팡파르 뒤 잔잔한 오르골)
+     보스 밤 boss(D단조, 북·저음 반복) · 승리 새벽 victory(밤을 버틴 아침 — FX2 팡파르 자리를 비워 두고 잔잔한 오르골)
      경주 race(원래 곡을 부드럽게) · 서바이벌 surv(같은 곡을 D로 낮춰 조금 느리게)
    곡이 바뀌면 판(BGMP) 둘이 1.5초 겹쳐 넘어간다. 떠났던 곡으로 돌아오면 그 마디부터 이어 간다(bgmMem).
    같은 곡은 64걸음(한 바퀴)마다 변주가 바뀐다 — 0 그대로 · 1 종소리 한 겹 · 2 멜로디를 덜고 패드를 키움(숨 돌리기) · 3 다 함께.
@@ -22448,7 +22459,8 @@ function iPad(ch, r, t, dur, v, type){ const pv = ch[0]; for(let k=0;k<pv.length
 function iBow(f, t, dur, v){ bgmVoice('sawtooth', f, t, dur, v, 0.10, 0.30, BGM_P && BGM_P.low); }   // 현 저음(걸러서 부드럽게)
 function iBass(f, t, v, d){ pluck(f, d || 0.5, v, t, 0.15, 'triangle'); }
 function dKick(t, v){ puff(0.09, v, 130, 1.0, t); pluck(56, 0.20, v*0.9, t, 0, 'sine'); }
-function dTaiko(t, v){ puff(0.18, v, 150, 0.8, t); tone(108, 52, 0.34, 'sine', v*0.95, t); }
+function dTaiko(t, v){ puff(0.18, v, 150, 0.8, t); tone(108, 52, 0.34, 'sine', v*0.95, t);
+  tone(216, 150, 0.12, 'triangle', v*0.5, t); puff(0.05, v*0.6, 450, 1.2, t); }        // 노트북 스피커가 내는 가운데 몸통(216Hz·450Hz)
 function dWood(t, v, f){ pluck(f || 1180, 0.05, v, t, 0, 'triangle'); puff(0.015, v*0.7, 2200, 3, t); }
 function dShake(t, v){ puff(0.04, v, 4600, 1.4, t); }
 function dSnare(t, v){ puff(0.07, v, 1700, 0.8, t); }
@@ -22501,24 +22513,26 @@ const BGM_SC = {
       if(h > 0.55 && beat % 2 === 1) iMari(mt(110, BGM_NIGHT_BASS[bar][0] + 12), t, 0.018 + 0.02*h);                          // 낮은 마림바 되풀이
       if(h > 0.75 && (beat === 3 || beat === 7)) dSnare(t, 0.018); } },
   /* 보스 밤 — D단조, 큰북(둥·둥둥)과 거른 현 저음 되풀이, 마디 첫 박에 낮은 금관 */
-  boss:{ root:293.66, step:(i,h)=>0.28 - h*0.05, leadV:0.040, pad:0.006, padType:'sine',
-    lead:(f,t,v)=>{ tone(f, f, 0.26, 'triangle', v, t); tone(f*2, f*2, 0.2, 'sine', v*0.25, t); },
+  boss:{ root:293.66, step:(i,h)=>0.28 - h*0.05, leadV:0.052, pad:0.012, padType:'sine',
+    lead:(f,t,v,h)=>{ const w = v*(1 + h*0.3); tone(f, f, 0.26, 'triangle', w, t); tone(f*2, f*2, 0.2, 'sine', w*0.25, t); },   // 가까울수록 금관이 세진다
     mel:[[12,-1,-1,-1, 15,-1,14,12,  15,-1,-1,-1, 12,-1,10,8,  10,-1,-1,-1, 14,-1,12,10,  11,-1,-1,-1, 7,-1,-1,-1],
          [7,-1,12,-1, 15,-1,17,15,  12,-1,8,-1, 12,-1,15,-1,  14,-1,10,-1, 14,-1,17,-1,  11,-1,14,-1, 19,-1,-1,-1]],
     ch:[['i','VI','VII','V'],['i','VI','VII','V']], vary:true,
-    bass:(t,beat,b,r,h)=>{ iBow(mt(r/4, b + [0,0,3,2,0,-2,0,-5][beat]), t, 0.22, 0.020 + h*0.01);
-      if(beat === 0){ const f = mt(r/2, b); tone(f, f, 0.5, 'triangle', 0.035, t); tone(f*1.5, f*1.5, 0.45, 'triangle', 0.020, t); } },
-    perc:(t,beat,bar,h)=>{ if(beat === 0 || beat === 3 || beat === 4) dTaiko(t, beat === 0 ? 0.075 : 0.05);
+    bass:(t,beat,b,r,h)=>{ iBow(mt(r/4, b + [0,0,3,2,0,-2,0,-5][beat]), t, 0.22, 0.020 + h*0.02);
+      if(beat === 0){ const f = mt(r/2, b); tone(f, f, 0.5, 'triangle', 0.035, t); tone(f*1.5, f*1.5, 0.45, 'triangle', 0.020, t); tone(f*2, f*2, 0.45, 'triangle', 0.016, t); } },
+    perc:(t,beat,bar,h)=>{ if(beat === 0 || beat === 3 || beat === 4) dTaiko(t, (beat === 0 ? 0.075 : 0.05) + h*0.02);   // 가까울수록 북이 커진다
       if(h > 0.4 && (beat === 6 || beat === 7)) dTaiko(t, 0.035);
-      if(h > 0.7 && beat % 2 === 1) dSnare(t, 0.014); } },
-  /* 승리 새벽 — 앞 네 걸음 쉼(FX2 의 '밤 버팀' 팡파르가 먼저 울린다) → 따따따 따-안 팡파르(0.2초 걸음) → 잔잔한 오르골(0.3초 걸음)을 되풀이 */
+      if(h > 0.5 && beat % 2 === 1) dSnare(t, 0.014 + h*0.006); } },
+  /* 승리 새벽 — 팡파르는 FX2 의 '밤 버팀'(fx2Dawn) 하나만. 그것은 날 제목이 걷힌 뒤(약 3.9초)에 울리므로
+     배경음은 앞 16걸음(0.2초 × 16 = 3.2초) 동안 패드·현만 깔고 멜로디를 쉰다 → 잔잔한 오르골(0.3초 걸음)을 되풀이.
+     (예전엔 여기서도 '따따따 따-안' 을 불러 팡파르가 두 번, 그것도 배경음 쪽이 먼저 울렸다) */
   victory:{ root:261.63, step:(i)=> (i % 48) < 16 ? 0.20 : 0.30, leadV:0.050, pad:0.010, once:48, loop:16,
-    lead:(f,t,v,h,i)=>{ if((i % 48) < 16){ tone(f, f, 0.22, 'triangle', v*1.1, t); tone(f*2, f*2, 0.16, 'sine', v*0.3, t); } else iBox(f, t, v*0.85); },
-    mel:[[-1,-1,-1,-1, 7,7,7,12, -1,-1,11,12, 16,-1,-1,-1,  12,-1,7,-1, 4,-1,7,-1,  9,-1,5,-1, 9,-1,12,-1],
+    lead:(f,t,v)=>{ iBox(f, t, v*0.85); },
+    mel:[[-1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,  12,-1,7,-1, 4,-1,7,-1,  9,-1,5,-1, 9,-1,12,-1],
          [11,-1,7,-1, 14,-1,11,-1,  12,-1,-1,-1, 7,-1,-1,-1,  -1,-1,-1,-1, -1,-1,-1,-1,  -1,-1,-1,-1, -1,-1,-1,-1]],
     ch:[['I','I','I','IV'],['V','I','I','I']],
     bass:(t,beat,b,r,h,va,bar,jj,i)=>{ if(beat === 0 && (i % 48) >= 4) iBow(mt(r/4, b), t, 2.0, 0.018); },
-    perc:(t,beat,bar,h,va,jj,i)=>{ const k = i % 48; if(k === 4 || k === 12) dKick(t, 0.045); if(k === 12) iBell(2093, t, 0.016); } },
+    perc:()=>{} },
   race:{ root:329.63, step:()=>BGM_STEP_RACE, leadV:0.050, pad:0, lead:iSoft, vary:true,
     mel:[BGM_RACE_A, BGM_RACE_B], ch:[['I','I','I','I'],['I','I','I','I']],
     bass:(t,beat,b,r,h,va,bar)=>{ if(beat % 2 === 0) iBass(r/4 * Math.pow(2, BGM_RACE_BASS[bar]/12), t, 0.058, 0.28); },
@@ -22730,10 +22744,11 @@ function ambTick(dt){
     if(!miniOn() && typeof POND !== 'undefined'){ const dx = PL.x - POND.x, dz = PL.z - POND.z, d = Math.hypot(dx, dz) || 1;
       if(d < POND.r + 14){ const e = Math.min(d, POND.r); ambAt('brook', POND.x + dx/d*e, POND.z + dz/d*e, 15); } } }
 }
-/* 체력이 30% 밑이면 작은 심장 소리(좀비의 'heart' 와 다른 이름 — 더 낮고 작다) */
+/* 밤에 체력이 30% 밑이면 작은 심장 소리(좀비의 'heart' 와 다른 이름 — 더 낮고 작다) */
 let hpBeatT = 0;
 function hpBeatTick(dt){
-  if(!G.started || PL.down || miniOn() || !sndOn) return;
+  /* 밤에만 — 낮(아침 회복 20 뒤에도 30% 밑일 수 있다)·선생님 멈춤·창 열림·승패 화면에선 조용히 */
+  if(!G.started || G.paused || G.phase !== 'night' || PL.down || miniOn() || popOpen() || !sndOn){ hpBeatT = 0; return; }
   hpBeatT -= dt;
   const k = PL.hp / maxHP();
   if(k < 0.3 && k > 0 && hpBeatT <= 0){ hpBeatT = 0.8 + k*1.2; sfx('hpBeat'); }
@@ -22753,8 +22768,8 @@ const SND66 = {
   /* 캐기 — 나무엔 나뭇잎 사각, 돌엔 돌가루. 한 칸 떨어질 때 '툭'(a: 0 나무·1 돌·2 금), 자원이 들어올 때 짤랑 */
   leaf:   ()=>{ const t = now0(); puff(0.16, 0.050, 3000, 0.7, t + 0.02); puff(0.11, 0.035, 4200, 0.9, t + 0.08); puff(0.08, 0.02, 2200, 0.8, t + 0.15); },
   grit:   ()=>{ const t = now0(); for(let i=0;i<4;i++) puff(0.025, 0.05 - i*0.008, 2400 + Math.random()*1400, 2.5, t + 0.03 + i*0.04); },
-  chunk:  (a)=>{ const t = now0(), f = a === 2 ? 900 : a === 1 ? 700 : 420, b = a === 2 ? 262 : a === 1 ? 196 : 147;
-                 puff(0.07, 0.17, f, 1.0, t + 0.05); pluck(b, 0.12, 0.075, t + 0.05, 0.2, 'triangle'); },
+  chunk:  (a)=>{ const t = now0(), f = a === 2 ? 900 : a === 1 ? 700 : 620, b = a === 2 ? 262 : a === 1 ? 196 : 147;   // 나무 '툭' 은 620Hz — 420Hz 는 노트북에서 낮 배경음에 묻혔다
+                 puff(0.07, a ? 0.17 : 0.21, f, 1.0, t + 0.05); pluck(b, 0.12, 0.075, t + 0.05, 0.2, 'triangle'); pluck(b*2, 0.10, a ? 0.05 : 0.08, t + 0.05, 0.3, 'triangle'); },
   coin:   (a)=>{ const t = now0(), f = a === 2 ? 1976 : a === 1 ? 1568 : 1319;
                  pluck(f, 0.14, 0.040, t, 0.3); pluck(f*1.335, 0.18, 0.034, t + 0.055, 0.25); if(a === 2) pluck(f*1.5, 0.22, 0.026, t + 0.11, 0.2);
                  puff(0.02, 0.02, 4200, 3, t); },
@@ -22787,7 +22802,7 @@ const SND66 = {
   buy:    ()=>{ const t = now0(); pluck(1976, 0.12, 0.042, t, 0.3); pluck(2637, 0.14, 0.034, t + 0.05, 0.2); puff(0.02, 0.03, 4000, 3, t);
                 [784, 988, 1175].forEach(f=> pluck(f, 0.30, 0.030, t + 0.12, 0.3)); },
   sell:   ()=>{ const t = now0(); for(let i=0;i<5;i++) pluck(1760 + (i%3)*260, 0.12, 0.034, t + i*0.06, 0.25); pluck(1047, 0.3, 0.035, t + 0.32, 0.3); },
-  nope:   ()=>{ const t = now0(); tone(220, 150, 0.14, 'sine', 0.060, t); puff(0.05, 0.05, 420, 1.0, t); },               // 못 삼 — 낮고 부드러운 '뚝'
+  nope:   ()=>{ const t = now0(); tone(220, 150, 0.14, 'sine', 0.060, t); tone(440, 300, 0.12, 'sine', 0.05, t); puff(0.05, 0.05, 420, 1.0, t); },               // 못 삼 — 낮고 부드러운 '뚝'
   enhFail:()=>{ const t = now0(); tone(330, 150, 0.36, 'triangle', 0.060, t); puff(0.30, 0.07, 700, 0.7, t + 0.05); puff(0.22, 0.06, 300, 0.8, t + 0.12); },   // 42차의 톱니파를 삼각파로
   /* 농장 — 닭·돼지·소(귀엽게) · 먹이 사각 · 빗자루 쓱 · 먹이 다 줌 · 청소 끝 반짝 · 산물 줍기 뽁 */
   hen:    (t)=>{ t = t || now0(); for(let i=0;i<3;i++){ const f = 760 - i*40 + Math.random()*40;
@@ -22816,9 +22831,13 @@ const SND66 = {
                 puff(0.16, 0.12, 1600, 0.9, t); puff(0.22, 0.08, 900, 0.8, t + 0.03); tone(260, 120, 0.12, 'sine', 0.05, t);
                 for(let i=0;i<3;i++){ const f = 700 + Math.random()*700; tone(f, f*1.5, 0.05, 'sine', 0.02, t + 0.12 + i*0.07 + Math.random()*0.03); } },
   /* 수정·체력 */
-  crystalHit:()=>{ const t = now0(); pluck(2637, 0.30, 0.036, t, 0.2); pluck(3520, 0.18, 0.014, t + 0.008); pluck(1976, 0.35, 0.024, t + 0.02, 0.2);
-                   thump(110, 58, 0.16, 0.07, t, 1.3); puff(0.04, 0.06, 3800, 2.5, t); tone(880, 660, 0.25, 'triangle', 0.02, t + 0.05); },
-  hpBeat: ()=>{ const t = now0(); pluck(55, 0.16, 0.075, t, 0, 'sine'); puff(0.06, 0.10, 90, 1.0, t); pluck(50, 0.14, 0.05, t + 0.17, 0, 'sine'); },
+  crystalHit:()=>{ const t = now0(), d = 0.96 + Math.random()*0.08;        // 맞을 때마다 ±4% — 계속 물려도 같은 '팅' 이 기계처럼 되풀이되지 않게
+                   pluck(2637*d, 0.30, 0.036, t, 0.2); pluck(3520*d, 0.18, 0.014, t + 0.008); pluck(1976*d, 0.35, 0.024, t + 0.02, 0.2);
+                   thump(110, 58, 0.16, 0.07, t, 1.3); puff(0.04, 0.06, 3800, 2.5, t); tone(880*d, 660*d, 0.25, 'triangle', 0.02, t + 0.05); },
+  /* 66차 고침 — 55·50Hz 는 노트북 스피커에서 안 들렸다(에너지 99% 가 200Hz 밑). 한 옥타브 올리고(110·100Hz + 220·200Hz 배음)
+     삼각파 220·200Hz 와 340Hz 몸통을 더해 노트북에서도 밤 배경음보다 조금 위로 들리게 했다 */
+  hpBeat: ()=>{ const t = now0(); pluck(110, 0.16, 0.07, t, 0.6, 'sine'); pluck(220, 0.13, 0.11, t, 0.5, 'triangle'); puff(0.06, 0.16, 340, 1.2, t);
+                pluck(100, 0.14, 0.05, t + 0.17, 0.6, 'sine'); pluck(200, 0.11, 0.08, t + 0.17, 0.5, 'triangle'); },
   /* 환경(AMBB) — 새 둘·산들바람·개울·풀벌레·부엉이·먼 바람·까마귀·수탉 */
   bird1:  ()=>{ const t = now0(), f = 2500 + Math.random()*500; tone(f, f*1.3, 0.07, 'sine', 0.022, t); tone(f*1.2, f*0.9, 0.08, 'sine', 0.018, t + 0.10); },
   bird2:  ()=>{ const t = now0(), f = 2800 + Math.random()*400; for(let i=0;i<5;i++) pluck(f + (i%2)*260, 0.05, 0.014, t + i*0.045, 0); },

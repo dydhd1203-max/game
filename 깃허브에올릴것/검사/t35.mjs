@@ -96,8 +96,8 @@ ok('★ 한 걸음마다 bgmStep 이 하나씩 간다 (32걸음 × 네 판 → +
 ok('★ 낮 배경음이 실제로 울린다 (피크 0.012~0.5)', bg.day.peak > 0.012 && bg.day.peak < 0.5, bg.day.peak.toFixed(3));
 ok('★ 밤 배경음이 실제로 울린다', bg.night.peak > 0.012 && bg.night.peak < 0.6, bg.night.peak.toFixed(3));
 ok('★ 위험(heat 0.9)하면 밤이 더 세진다 (낮은 북·세기)', bg.hot.rms > bg.night.rms * 1.15, bg.night.rms.toFixed(4)+' → '+bg.hot.rms.toFixed(4));
-/* 66차 — 보스 밤은 드론 한 겹이 아니라 전용 곡(D단조·큰북·현 저음)이다. 조용한 밤보다 세면 된다 */
-ok('★ 보스 밤 전용 곡(북·저음)은 조용한 밤보다 세다', bg.boss.rms > bg.night.rms, bg.night.rms.toFixed(4)+' → '+bg.boss.rms.toFixed(4));
+/* 66차 — 보스 밤은 드론 한 겹이 아니라 전용 곡(D단조·큰북·현 저음)이다. 같은 위험도(0.9)의 바쁜 밤보다 세야 한다(절정) */
+ok('★ 보스 밤 전용 곡(북·저음)은 같은 위험도의 밤보다 세다', bg.boss.rms > bg.hot.rms, bg.hot.rms.toFixed(4)+' → '+bg.boss.rms.toFixed(4));
 ok('★ 배경음은 배경이다 — 낮 RMS 가 승리 팡파르보다 작다', bg.day.rms < S.win.rms, bg.day.rms.toFixed(4)+' < '+S.win.rms.toFixed(4));
 
 /* ═══════ ③ 글씨체·글자 크기 ═══════ */

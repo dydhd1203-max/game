@@ -184,6 +184,7 @@ function envMax(src,buses){ // 버스 바로 앞 게인(봉투)의 봉우리 —
   const bad=T.filter(x=>!x[1]).map(x=>x[0]);
   check('Scene table follows the game state',bad.length===0,bad.length?bad:T.length+' rules');
   const B=A.BGM_MORN, D=A.BGM_DUSK, dawnLen=32*S.dawn.step(0,0), vicLen=16*S.victory.step(0,0)+32*S.victory.step(20,0);
+  check('Victory dawn has no fanfare of its own (first 16 steps rest; FX2 fx2Dawn is the one fanfare)',S.victory.mel[0].slice(0,16).every(v=>v===-1),S.victory.mel[0].slice(0,16));
   check('Dawn (13.4s) and victory (12.8s) songs fit the 13s morning window; dusk starts 22s before night',Math.abs(dawnLen-B)<0.6&&Math.abs(vicLen-B)<0.6&&D===22,{dawnLen,vicLen,B,D});
 }
 
@@ -293,23 +294,34 @@ function envMax(src,buses){ // 버스 바로 앞 게인(봉투)의 봉우리 —
   G.phase='day';G.t=100; PL.x=21+6;PL.z=-17; const s2=C.srcs.length; const pan0=C.nodes.length;
   for(let f=0;f<60*6;f++){ C.currentTime+=1/60; A.setPerf(C.currentTime*1000); A.ambTick(1/60); }
   check('Near the pond the brook is heard',C.srcs.length>s2);
-  PL.hp=20; const s3=C.srcs.length; for(let f=0;f<60*3;f++){ C.currentTime+=1/60; A.ambTick(1/60); }
-  const hb=C.srcs.slice(s3).filter(s=>route(s).has(A.SFXB));
-  check('Low HP (<30%) plays a soft heartbeat on the SFX bus',hb.length>0);
-  PL.hp=100;
+  PL.hp=20; const beat=()=>{ const s3=C.srcs.length; for(let f=0;f<60*3;f++){ C.currentTime+=1/60; A.ambTick(1/60); } return C.srcs.slice(s3).filter(s=>route(s).has(A.SFXB)); };
+  G.phase='night'; const hb=beat();
+  check('Low HP (<30%) at night plays a soft heartbeat on the SFX bus',hb.length>0);
+  const lo=hb.filter(s=>s.kind==='osc'&&s.frequency.value<100).length, hbF=hb.filter(s=>s.kind==='osc').map(s=>s.frequency.value);
+  check('Heartbeat sits where laptop speakers can play it (no oscillator under 100Hz, a 200Hz+ harmonic)',hbF.length>0&&lo===0&&hbF.some(f=>f>=200),hbF);
+  const quiet=[];
+  G.phase='day'; if(beat().length) quiet.push('day');
+  G.phase='night'; G.paused=true; if(beat().length) quiet.push('paused'); G.paused=false;
+  G.phase='lose'; if(beat().length) quiet.push('lose');
+  G.phase='win'; if(beat().length) quiet.push('win');
+  G.phase='night'; A.setPop(true); if(beat().length) quiet.push('window open'); A.setPop(false);
+  check('Heartbeat is silent in the day, while paused, on the win/lose screen and with a window open',quiet.length===0,quiet);
+  PL.hp=100; G.phase='day';
 }
 
 /* ⑧ 배선 */
-{ const has=(fn,re)=>re.test(fnSrc(fn));
+{ const has=(fn,re)=>re.test(fnSrc(fn)),A0=makeGame();
   const W=[
     ['hitNode: leaf/grit + chunk + coin per block, treeFall/rockBreak when done',has('hitNode',/'leaf'/)&&has('hitNode',/'grit'/)&&has('hitNode',/'chunk'/)&&has('hitNode',/'coin'/)&&has('hitNode',/'treeFall'/)&&has('hitNode',/'rockBreak'/)],
     ['workTick: feed scoop · broom · pry · squeak · tok/tak',has('workTick',/feedScoop/)&&has('workTick',/broom/)&&has('workTick',/pry/)&&has('workTick',/squeak/)&&has('workTick',/'tok'/)],
     ['openPop: shop door+bell · forge anvil · farm gate',has('openPop',/shopOpen/)&&has('openPop',/forgeOpen/)&&has('openPop',/farmOpen/)],
     ['buy sounds: weapon·armor·ammo·potion·trade · sell farm goods',has('buyWeapon',/'buy'/)&&has('buyArmor',/'buy'/)&&has('buyAmmo',/'buy'/)&&has('buyPotion',/'buy'/)&&has('sellFarm',/'sell'/)&&has('doTrade',/'buy'/)],
     ['buyAnimal: nope when short · coin + that animal’s voice',has('buyAnimal',/'nope'/)&&has('buyAnimal',/__sfx\(kind\)/)],
-    ['unaffordable shop card press → nope',/closest\('\.sItem\.no'\);\s*if\(t\) sfx\('nope'\)/.test(code)],
+    ['unaffordable shop card press → nope (not the farm status roster)',/closest\('\.sItem\.no'\);\s*if\(t && !t\.closest\('#farmList'\)\) sfx\('nope'\)/.test(code)],
     ['farm: feedDone · cleanDone · pickDrop pop',has('farmFeed',/feedDone/)&&has('farmClean',/cleanDone/)&&has('pickDrop',/'pop'/)],
-    ['crystal bite → crystalHit (glass)',/__sfxAt\('crystalHit', 0, 0, 60, 300\)/.test(code)],
+    ['crystal bite → crystalHit (glass), at most once per 0.7s',/__sfxAt\('crystalHit', 0, 0, 60, 700\)/.test(code)&&A0.SFX_GAP.crystalHit>=0.6],
+    ['guests hear the crystal bite too (applySim·meta watch the synced crystal fall)',/window\.__sfxAt\('crystalHit', 0, 0, 60, 700\);\s*cryHurtT = 0\.28;/.test(fnSrc('cryGuestWatch'))
+      &&/G\.crystal = \(d\.c\|\|0\)\/10; cryGuestWatch\(\);/.test(fnSrc('applySim'))&&/G\.crystal = m\.crystal; cryGuestWatch\(\);/.test(code)&&/if\(G\.host\) return;/.test(fnSrc('cryGuestWatch'))],
     ['upgrade/demolish sound travels with the build reply (heard by the one who asked)',has('applyBuildUpgrade',/snd:'upgrade'/)&&/snd:'demolish'/.test(fnSrc('handleBuildCommand'))&&has('buildReward',/c\.snd/)&&!has('applyBuildUpgrade',/__sfx\('up'\)/)],
     ['repair acknowledgement → repair',has('buildReward',/'repair'/)],
     ['lobby music runs before the game starts',/if\(!G\.started\) bgmLoop\(dt\);/.test(code)&&/\n\s+bgmLoop\(dt\);/.test(code)],
