@@ -4383,7 +4383,7 @@ function spiralH(k, px, pz, y){ return GY; }                    // 갈래 1 — 
 function ceilingOver(x, z, R, y){ return 1e9; }                // 갈래 1 — 머리 위 천장 밑면(절대 y, 없으면 1e9)
 function gboxSegClear(ox, oy, oz, dx, dy, dz, len){ return len; }   // 갈래 1 — 카메라 선분이 상자에 처음 닿는 거리(없으면 len)
 function doorFunnel(dt){}                                      // 갈래 1 — 문 깔때기(CPLAN.funnels)
-function climbTick(w, dt, sheep){}                             // 갈래 3 — 성벽 위 좀비(cs ≥ 2) 한 걸음
+/* climbTick(w, dt, sheep) — 갈래 3: 성벽 위 좀비(cs ≥ 2) 한 걸음. 몸통은 '호스트 시뮬레이션' 바로 앞 '67차 성곽 — 좀비 성벽 층' 블록 */
 function updCastleTreasure(dt){}                               // 갈래 4 — 비밀 문 밀기·상자·반짝 보물·첫 방문 알림·구간 알림
 function castleOccluded(eye, target){ return false; }          // 갈래 4 — 덮인 곳에서 쏠 때 성곽 벽 가림(쏘기 틈으로만)
 function treKeys(){ return {run:null, day:null}; }             // 갈래 4 — 보물 장부 localStorage 열쇠(판 · 판+날)
@@ -12481,8 +12481,8 @@ const WOLF_T = [
   //                                dmg = 건물 부수는 힘 / cd = 수정 깎는 힘
   //  ★ sc(겉모습 크기)는 전부 예전의 70% — 맵은 그대로 두고 몸집만 줄였다
   /* ★ 12차 — 걸음을 통째로 올렸다(약 +20%). 애들이 잘해서 좀비가 느긋해 보였다. */
-  {n:'좀비',      hp:40, spd:3.15,dmg:11, cd:1.4, sc:0.70, col:0x9aa0a8},
-  {n:'날쌘좀비',  hp:26, spd:5.35,dmg:8,  cd:1.1, sc:0.56, col:0xc8b090},
+  {n:'좀비',      hp:40, spd:3.15,dmg:11, cd:1.4, sc:0.70, col:0x9aa0a8, climb:1},
+  {n:'날쌘좀비',  hp:26, spd:5.35,dmg:8,  cd:1.1, sc:0.56, col:0xc8b090, climb:1},
   {n:'큰좀비',    hp:155,spd:2.30,dmg:29, cd:3.0, sc:1.06, col:0x6d7078},
   {n:'👑 우두머리 좀비', hp:1,spd:2.10,dmg:34, cd:2.2, sc:1.61, col:0x59475e, boss:1},
   {n:'🔥 불꽃 좀비',    hp:1,spd:2.34,dmg:46, cd:2.8, sc:1.79, col:0xa84a32, boss:2},
@@ -12504,11 +12504,13 @@ const WOLF_T = [
                  1.5% 로 낮춰도 2판, 한 마리씩 5% 로 바꿔도 2판 — 아이들 화력과 치유가 맞먹어 무리 체력이 두 배가 됐다. 주머니로 '살리는 양' 을 못 박아야 무게로 잴 수 있다.
                  주머니 1.5·무게 2.0 은 3/12, 주머니 1.0·무게 3.0 이 9/12·6/12 — 예전 8/12 와 같은 자리.)
        새끼   — 아주 작고 약한데 아주 많다.
-       공포   — 눈이 희번덕하고, 다른 좀비보다 세다. 가까이 오면 화면 가장자리가 어두워지고 심장 소리가 난다. */
-  {n:'🍖 굶주린 좀비', hp:34, spd:3.60,dmg:9,  cd:1.6, sc:0.68, col:0xd8c2a4, look:'hungry', wallBite:0, chase:1.3, aggro:1.7},
+       공포   — 눈이 희번덕하고, 다른 좀비보다 세다. 가까이 오면 화면 가장자리가 어두워지고 심장 소리가 난다.
+     67차 — climb:1 = 쫓던 아이를 따라 성문 계단으로 성벽 길에 오를 수 있는 종류(좀비·날쌘·굶주린·새끼). 번호 범위로 단정하지 않고 깃발로 본다.
+       큰좀비(몸 지름 1.7)·보스 전부·갑옷·치유·공포는 안 오른다(걷는 폭 2.1 — 설계 5-1). 공성(w.siege)도 안 오른다(루프가 본다). */
+  {n:'🍖 굶주린 좀비', hp:34, spd:3.60,dmg:9,  cd:1.6, sc:0.68, col:0xd8c2a4, look:'hungry', wallBite:0, chase:1.3, aggro:1.7, climb:1},
   {n:'🛡️ 갑옷 좀비',   hp:120,spd:2.00,dmg:26, cd:1.2, sc:0.86, col:0x6c717c, look:'armor',  noChase:1, noGap:1, struMul:1.5, slowImm:1},
   {n:'💚 치유 좀비',   hp:36, spd:2.70,dmg:5,  cd:0.8, sc:0.66, col:0xcdf0c2, look:'heal',   noChase:1, heal:{r:5.5, pct:0.05, pool:1.0}, wt:3.0},
-  {n:'🐾 새끼 좀비',   hp:11, spd:4.30,dmg:4,  cd:0.6, sc:0.42, col:0xf0e8dc, look:'pup'},
+  {n:'🐾 새끼 좀비',   hp:11, spd:4.30,dmg:4,  cd:0.6, sc:0.42, col:0xf0e8dc, look:'pup', climb:1},
   {n:'👁️ 공포 좀비',   hp:110,spd:3.35,dmg:20, cd:2.0, sc:1.12, col:0x5a4c6a, look:'fear',   fear:1}
 ];
 /* 날이 갈수록 걸음이 빨라지는 상한. spawnWolf 가 실제 spd 를 만들 때 쓰고,
@@ -12765,7 +12767,8 @@ function drawWolves(list, t, dt){
     const sc = (w.sc || d.sc) * (boss ? 1 : (1 + rk*0.085)) * (1 - flin*0.10) * (lq > 0.74 ? Math.max(0.001, 1 - (lq - 0.74)/0.26) : 1);
 
     /* 66차 — 등장: 땅에서 기어올라온다(0.8초 · 표시만). riseK 1→0 — 처음엔 땅속에서 팔부터 허우적거리며 올라와 몸을 일으킨다 */
-    const gy = (topAt(Math.floor(w.x), Math.floor(w.z))||GY), gy0 = gy>900?GY:gy;
+    /* 67차 — 발 높이는 w.y(호스트 좀비 루프 끝·손님 lerpMobs 가 같은 wolfY 로 낸다). 옛 topAt 은 성벽 길 다리(GBOX 만 있는 칸)에서 밑 통로 바닥에 그렸다 */
+    const gy0 = (w.y !== undefined ? w.y : GY);
     let riseK = 0;
     if(w.rise > 0 && !(dead > 0)){
       if(!w.riseFx){ w.riseFx = 1; burst(w.x, gy0 + 0.1, w.z, 0x5b4a39, 6, 0.7, 1, 0.7, 0.8); }
@@ -13273,8 +13276,7 @@ function drawWolves(list, t, dt){
   for(const w of list){
     if(!isBoss(w.k) || bn>=6) continue;
     const d = WOLF_T[w.k], sc = w.sc || d.sc;
-    const gy2 = topAt(Math.floor(w.x), Math.floor(w.z));
-    const y2 = (gy2>900?GY:gy2) + 0.02;
+    const y2 = (w.y !== undefined ? w.y : GY) + 0.02;   // 67차 — 발밑 고리도 w.y(보스는 안 오르지만 그리기 기준을 하나로)
     _v.set(w.x, y2+0.06, w.z); _q.setFromAxisAngle(AX_X, -Math.PI/2);
     const pulse = 0.72 + Math.sin(t*3.1)*0.06;
     _s.set(sc*pulse, sc*pulse, 1);
@@ -14586,7 +14588,8 @@ function dropGold(w){
   const boss = w.bi >= 0 || isBoss(w.k);
   const n = boss ? 8 + Math.floor(Math.random()*5) : 1 + Math.floor(Math.random()*3);
   const exp = performance.now()/1000 + GD_SEC;
-  for(let i=0;i<n;i++){
+  if(w.ly && w.cs >= 2) climbGold(w, n, exp);   // 67차 — 성벽 위에서 죽으면 조각마다 1차원 좌표에서(걷는 띠 안 · y = layerY)
+  else for(let i=0;i<n;i++){
     const a = Math.random()*Math.PI*2, r = 0.35 + Math.random()*1.1;
     G.drops.push({id:fdSeq++, g:-1, k:'gold', x:w.x + Math.sin(a)*r, z:w.z + Math.cos(a)*r, exp});
   }
@@ -14637,8 +14640,9 @@ function pickDrop(d){
   gain(A.res, 1);
   if(d.k !== 'gold') MY.farmed = (MY.farmed|0) + 1;     // 금은 농장 산물이 아니다(칭호·순위판은 농장만 센다)
   xpGain(XP_TAKE);
-  burst(d.x, GY+0.75, d.z, A.col, 14, 1.3);
-  burst(d.x, GY+1.15, d.z, 0xfff2c0, 8, 1.0);
+  const py = d.y ?? GY;                     // 67차 — 성벽 위 금은 그 높이에서 터진다
+  burst(d.x, py+0.75, d.z, A.col, 14, 1.3);
+  burst(d.x, py+1.15, d.z, 0xfff2c0, 8, 1.0);
   toast(`${A.pic} ${A.pn} +1`, 1.2, '#ffe9a0');
   if(window.__sfx) window.__sfx('pop');            // 66차 — 산물 줍기 '뽁'
   if(G.host) hostTakeDrop(d.id);
@@ -14665,6 +14669,7 @@ function updDrops(dt, tt){
   if(G.started && !PL.down && G.phase !== 'mini')
     for(const d of G.drops){
       if(d.g >= 0 && d.g !== G.me.g) continue;
+      if(Math.abs(PL.y - (d.y ?? GY)) >= 2) continue;     // 67차 — 높이도 본다(다리 밑 통로에서 다리 위 금을 줍지 않게). 옛 조각(y 없음)은 땅
       if(Math.hypot(d.x-PL.x, d.z-PL.z) < FD_R){ pickDrop(d); break; }
     }
   let nb = 0, ng = 0;
@@ -14675,11 +14680,12 @@ function updDrops(dt, tt){
     const ph  = tt*1.9 + d.id*1.7;
     const bob = Math.sin(ph)*0.032;
     const ry  = tt*0.7 + d.id;
-    const y   = GY + 0.20 + bob;          // 산물 한가운데 높이
+    const dy0 = d.y ?? GY;                // 67차 — 성벽 위 금은 제 높이(d.y — 호스트 dropGold 가 싣는다) · 옛 조각·산물은 땅
+    const y   = dy0 + 0.20 + bob;         // 산물 한가운데 높이
     /* ★ 산물 자체는 작게 두되(우리가 안 가려지게), 발밑 빛판은 넉넉하게 둔다.
        작게 만들었더니 마당 건너에서 우리 안에 뭐가 있는지 안 보였다 —
        '뭔가 있다' 는 빛판이 말하고, '뭔지' 는 가까이 가서 본다. */
-    setI(fdGlow, ng++, d.x, GY+0.045, d.z, ry*0.5, 0.46, 0.035, 0.46, A.col);
+    setI(fdGlow, ng++, d.x, dy0+0.045, d.z, ry*0.5, 0.46, 0.035, 0.46, A.col);
     /* 위로 뜬 반짝이 — 울타리 너머에서도 보이라고 조금 높이 띄운다.
        ★ 가만히 있는 물건은 배경이 된다. 도는 점 하나면 눈이 따라온다. */
     setI(fdGlow, ng++, d.x + Math.sin(ph*0.9)*0.17, y + 0.30 + Math.cos(ph*1.3)*0.05,
@@ -16666,7 +16672,7 @@ function dangerCheck(dt){
   if(dangerT > 0) return;
   const cnt = new Array(NG).fill(0);
   for(const w of G.wolves){
-    if(oct(w.x, w.z) < ARENA_R) cnt[sectorOf(w.x, w.z)]++;
+    if(climbInside(w.x, w.z)) cnt[sectorOf(w.x, w.z)]++;     // 67차 — 둘레길(od 46~49)도 성벽 안
   }
   let worst = -1, wn = 0;
   for(let g=0; g<NG; g++) if(cnt[g] > wn){ wn = cnt[g]; worst = g; }
@@ -16694,8 +16700,9 @@ function hostStoneHit(wid, n, byName, byG, dmg, fx){
   const w = G.wolves.find(o=>o.id===wid);
   if(!w || w.hp <= 0) return;
   w.hp -= (dmg > 0 ? dmg : stoneDmg()) * n; w.hurt = 0.18;
-  /* 29차 밀치기(흑요석 산탄총) — 쏜 방향으로 1.2칸. 보스는 안 밀린다 */
-  if(fx && fx.push && w.hp > 0 && !(w.bi >= 0 || isBoss(w.k))){ w.x += (+fx.push[0]||0)*1.2; w.z += (+fx.push[1]||0)*1.2; }
+  /* 29차 밀치기(흑요석 산탄총) — 쏜 방향으로 1.2칸. 보스는 안 밀린다
+     67차 — 성벽 위 좀비(cs ≥ 2)도 xz 는 안 민다(자리는 늘 1차원 좌표에서 다시 만든다 — 벽 속·허공으로 밀려 나가지 않게). 피해·움찔은 그대로 */
+  if(fx && fx.push && w.hp > 0 && !(w.bi >= 0 || isBoss(w.k)) && !(w.cs >= 2)){ w.x += (+fx.push[0]||0)*1.2; w.z += (+fx.push[1]||0)*1.2; }
   if(w.hp <= 0){ w.byName = byName; w.byG = byG; }
 }
 
@@ -16707,6 +16714,9 @@ function sheepHurt(dt){
   if(PL.hurtFx > 0) PL.hurtFx -= dt;
   PL.biteT -= dt;
   if(PL.biteT > 0) return;
+  /* 67차 성곽 — 지붕 밑(복도·탑 방·나선·숨은 방·창고·초소·회랑·망루)의 아이는 **어떤 좀비에게도** 안 물린다.
+     그 층의 문턱(트인 곳↔덮인 곳 문)은 안전하지 않다. 호스트·손님이 같은 함수라 안 어긋난다(설계 5-5) */
+  if(sheltered(PL.x, PL.z, PL.y)) return;
   let best=null, bd=SHEEP_BITE_R*SHEEP_BITE_R;
   for(const w of G.wolves){
     /* ★ 높이 차이를 본다. 예전엔 가로 거리만 봐서, 망루 발판 위에 서 있어도
@@ -18025,7 +18035,7 @@ function paintGrp(){
   if(night) for(const w of G.wolves){
     const r = oct(w.x, w.z); if(r > RING_D + 6) continue;
     const g = sectorOf(w.x, w.z);
-    near[g]++; if(r < ARENA_R) inside[g]++;
+    near[g]++; if(climbInside(w.x, w.z)) inside[g]++;         // 67차 — 둘레길(od 46~49)도 성벽 안
   }
   const built = new Array(NG).fill(0);
   for(const o of STRU.values()) built[o.g]++;
@@ -19099,10 +19109,21 @@ const BAL = {
   siegeRange: 15,            // 이 안에 있는 탑·배럭만 노린다
   siegePerStru: 3,           // 한 건물에 최대 몇 마리까지 달라붙나 (몰매 방지)
   struHealPct: 0.35,         // 아침마다 최대 체력의 이만큼 저절로 수리된다
-  struRefund: 0.40           // 밤에 부서지면 자재를 이만큼 돌려준다
+  struRefund: 0.40,          // 밤에 부서지면 자재를 이만큼 돌려준다
+
+  /* ── 67차 성곽 — 좀비 성벽 층(선생님 결정 A) ──
+     좀비는 쫓던 아이를 따라 **성문 계단으로만** 성벽 길에 올라온다. 세 겹(계단당 3·전체 8·한 마리 한 밤 한 번)에
+     '아이 한 명이 한 밤에 4마리'와 '새벽 귀환 예산'을 더해, 계단 미끼로 밤을 무력화하지 못하게 한다 — 좀비가 수정을 잊지 않게.
+     조절 손잡이: 쉬워지면 total 8→10·wallSec 12→15, 어려워지면 perStair 3→2·perKid 4→3·wallSec 12→9 (설계 5-10) */
+  climb: { perStair:3, total:8, perKid:4, footR:8, wallSec:12, hardSec:15, lostSec:0.5, approachSec:6,
+           minWall:4, walkToCry:35, retSlack:2,                  // 새벽 귀환 예산 — 아래 CLIMB_RET
+           upMul:0.75, downMul:0.85, wallMul:0.95, recheck:0.25, gap:0.9, trigY:2.2 }
 };
-/* 67차 성곽 — 좀비 새벽 귀환 예산(초, 종류마다). 갈래 3 이 BAL.climb 을 더하고 이 줄을 설계 5-1 식으로 바꾼다(WOLF_T·BAL 뒤라야 TDZ 없음) — 지금은 0 */
-const CLIMB_RET = WOLF_T.map(()=> 0);
+/* 67차 성곽 — 좀비 새벽 귀환 예산(초, 종류마다 한 번 계산). 성벽에서 내려와 수정까지 걸리는 시간:
+   내리기 16.5칸 ÷ (chaseCap·downMul) + 주선에서 가장 가까운 계단까지 ≤ 3 + 발치→수정 35칸 ÷ 걸음 + 여유 2
+   → 좀비 ≈ 19.1초 · 날쌘 ≈ 14.6 · 굶주린 ≈ 17.7 · 새끼 ≈ 16.2 (오르지 않는 종류는 0). WOLF_T·BAL 뒤라야 TDZ 없음 */
+const CLIMB_RET = WOLF_T.map(t=> t.climb
+  ? 16.5/(BAL.chaseCap*BAL.climb.downMul) + 3 + BAL.climb.walkToCry/t.spd + BAL.climb.retSlack : 0);
 
 function curve(d){ return Math.pow(Math.max(0,d), 0.72); }
 /* ★ 뒤로 갈수록 가팔라지는 곡선 — 좀비 능력치 전용.
@@ -19317,7 +19338,13 @@ function spawnWolf(k, gate, atX, atZ){
        이게 없으면 벽이 두꺼운 밤에 좀비 떼가 마당 밖에서 벽만 갉다가 밤이 끝났다 —
        수정은 멀쩡한데 아무 일도 안 일어나서 애들이 지루해했다. */
     sgLeft: BAL.siegeBudget,
-    tgt:null, retgt:0 };
+    tgt:null, retgt:0,
+    /* 67차 성곽 — 성벽 층(호스트만 쓴다. 손님은 applySim 이 ly 만 받는다 · 설계 5-3)
+       ly 0 땅/1 성곽 층 · cs 0 없음/1 발치로/2 성벽/3 내려감 · ck 계단 · cz 구역 · cb −1 주선/k 가지 · cp 주선 σ 또는 가지 p · cn 옆 자리
+       cT 못 문 시간 · cTot 성벽 시간 · cA 발치로 간 시간 · cLost 목표 없는 시간 · cDone 이 밤 한 번 했음 · cck 검사 시계(좀비마다 엇갈림)
+       shQ 쫓던 아이 uid · shQt 놓친 지 초 · cEnd 새벽 귀환 문턱(밤 남은 초) · cj 가지 위 고정 흔들림 ±0.2 · cdir 1차원 진행 방향 */
+    ly:0, cs:0, ck:-1, cz:-1, cb:-1, cp:0, cn:0, cT:0, cTot:0, cA:0, cLost:0, cDone:0,
+    cck: Math.random()*BAL.climb.recheck, shQ:null, shQt:99, cEnd:0, cj:(Math.random()-0.5)*0.4, cdir:0 };
   G.wolves.push(w); zombieRiseAt(w);          // 66차 — 땅에서 기어오르는 표시(판정·이동 그대로)
   if(bi>=0){
     /* 66차 — 등장 연출(자막·땅울림·약한 흔들림·방향 표시)은 fx2Boss 가 호스트·손님 똑같이 한다 — 여기서 또 하면 두 번 흔들린다 */
@@ -19796,6 +19823,221 @@ Object.assign(window, {__fx2:{FX2, RARE, rareOf, cel:fx2Cel, chip:fx2Chip, tick:
   bossIntro:fx2BossIntro, bossAppear:fx2BossAppear, bossWarn:fx2BossWarn, bossDown:fx2BossDown, meteorPlan:fx2MeteorPlan,
   sfxReady:fx2SfxReady, P:RARE_P}});
 
+/* ═══════════════════════ 67차 성곽 — 좀비 성벽 층 (갈래 3 · 설계 5장 · 선생님 결정 A) ═══════════════════════
+   좀비는 쫓던 아이를 따라 **마을 안 성문 계단으로만** 성벽 길에 올라온다(협곡·해자·산 쪽 입구 0 — 아이들 벽을 건너뛸 수 없다).
+   ★ 성벽 위 좀비는 흐름장·칸 걸음을 안 쓴다. 자리는 늘 **1차원 좌표**(구역 cz 의 주선 σ·n 또는 계단 가지 k 의 p)에서 다시 만든다 —
+     충돌 계산이 없으니 끼일 수 없고, 밀치기·끼임 밀기로 벽 속·허공에 나가지 않는다(hostStoneHit·separateWolves 가 건너뛴다).
+   ★ 상태 기계(호스트만): cs 0 ─(A)→ 1 발치로 ─(발치 0.6 안)→ 2 성벽(ly 1) ─(B)→ 3 내려감 ─(가지 p ≤ 0.9)→ 0(ly 0, cDone — 그 밤 다시 안 오름)
+   ★ 정원은 (A) 를 통과하는 순간 올리고(같은 프레임에 여럿이 몰려도 안 넘게), 매 프레임 루프 앞에서 다시 센다(죽음·아침 정리로 장부가 안 샌다).
+   ★ 매 프레임 할당 0 — 결과는 모듈 변수 몇 칸으로 돌려준다. 성벽 좀비 ≤ 8 이라 줄서기 O(8²). */
+const CL_W = [];                                   // 이번 프레임 cs > 0 좀비(재사용 배열 — 매 프레임 length 0 으로 비우고 다시 채운다)
+let CL_LO = 0, CL_HI = 0;                          // climbNLim 결과(주선 n 한계)
+let CL_TB = -1, CL_TP = 0, CL_TN = 0;              // climbProj 결과(아이의 1차원 자리)
+let CL_AX = 0, CL_AZ = 0;                          // climbApproach 결과(발치로 가는 목표점)
+let CL_GS = 0, CL_GN = 0;                          // climbGoal 결과(주선 위 다음 과녁)
+const climbCl = (v, a, b)=> v < a ? a : v > b ? b : v;
+/* 마을 안 좀비인가 — 둘레길(od 46~49)도 성벽 안이다(dangerCheck·배경음 열기·모둠 막대가 같이 쓴다 · 설계 5-7) */
+function climbInside(x, z){
+  if(oct(x, z) >= CW.IN) return false;
+  const cx = Math.floor(x), cz = Math.floor(z);
+  return !inW(cx, cz) || CASTLE[gi(cx, cz)] <= CK.LANE;
+}
+/* 구역 Z 의 주선 σ 에서 n 한계 → CL_LO·CL_HI. 걸리는 줄이 없으면 [−0.85, 0.85], 여럿이면 교집합(다리 ±0.1 · 모서리 망대 [−0.85, 0.1] · K 북문 앞 [−0.85, 1.9]) */
+function climbNLim(Z, sg){
+  let lo = -0.85, hi = 0.85, any = false;
+  for(const L of Z.nLim) if(sg >= L[0] && sg <= L[1]){
+    if(!any){ lo = L[2]; hi = L[3]; any = true; } else { if(L[2] > lo) lo = L[2]; if(L[3] < hi) hi = L[3]; } }
+  CL_LO = lo; CL_HI = hi;
+}
+/* 아이 (x,z) → 구역 cz 안의 1차원 자리(CL_TB −1 주선 / k 가지 · CL_TP σ 또는 p · CL_TN) */
+function climbProj(cz, x, z){
+  const k = zoneStair(x, z);
+  if(k >= 0 && CPLAN.stairs[k].zone === cz){
+    const S = CPLAN.stairs[k];
+    CL_TB = k; CL_TP = climbCl(gT(S.g, x, z) - 33.6, 0.9, 17.4); CL_TN = climbCl(gPP(S.g, x, z) - S.s*8.5, -0.6, 0.6); return;
+  }
+  const Z = CPLAN.zones[cz], dx = x - Z.O.x, dz = z - Z.O.z;
+  const sg = climbCl(dx*Z.U.x + dz*Z.U.z, Z.s0, Z.s1); climbNLim(Z, sg);
+  CL_TB = -1; CL_TP = sg; CL_TN = climbCl(dx*Z.N.x + dz*Z.N.z, CL_LO, CL_HI);
+}
+/* (cb, cp, cn) → w.x·w.z (주선 = O + U·σ + N·n · 가지 k = 성문 축 (t 33.6 + p, P 8.5·s + cn)) */
+function climbPos(w){
+  if(w.cb < 0){ const Z = CPLAN.zones[w.cz]; w.x = Z.O.x + Z.U.x*w.cp + Z.N.x*w.cn; w.z = Z.O.z + Z.U.z*w.cp + Z.N.z*w.cn; }
+  else { const S = CPLAN.stairs[w.cb], t = 33.6 + w.cp, pp = S.s*8.5 + w.cn; w.x = gX(S.g, t, pp); w.z = gZ(S.g, t, pp); }
+}
+function climbFind(sheep, id){ if(id == null) return null; for(const q of sheep) if(q.uid === id) return q; return null; }
+/* 성벽 좀비의 목표가 될 수 있나: 같은 구역 · 성곽 층 · 지붕 밑 아님 · xz 12칸(SHEEP_LEASH) 안 */
+function climbOk(w, q){
+  if(q.sh || !onCastleLayer(q.x, q.z, q.y)) return false;
+  if(ZONE[gi(Math.floor(q.x), Math.floor(q.z))] !== w.cz) return false;
+  const dx = q.x - w.x, dz = q.z - w.z; return dx*dx + dz*dz <= SHEEP_LEASH*SHEEP_LEASH;
+}
+function climbPick(w, sheep){
+  let best = null, bd = Infinity;
+  for(const q of sheep){ if(!climbOk(w, q)) continue; const dx = q.x - w.x, dz = q.z - w.z, d2 = dx*dx + dz*dz; if(d2 < bd){ bd = d2; best = q; } }
+  return best;
+}
+/* 쫓는 걸음 — 땅 쫓기와 같은 식(chaseMin~chaseCap × 굶주린 1.3) */
+function climbSpd(w){ const sp = w.spd * (w.slow > 0 ? (w.slowK||0.42) : 1); return Math.min(Math.max(sp*BAL.chaseBoost, BAL.chaseMin), BAL.chaseCap) * (w.chaseK||1); }
+
+/* (A) 오르기 시작 — cs 0 좀비만, cck 가 0.25초마다(좀비마다 엇갈림). 설계 5-3 의 일곱 조건이 모두 참일 때 */
+function climbStart(w, sheep, dc){
+  const C = BAL.climb;
+  if(!WOLF_T[w.k].climb || w.siege || w.cDone || w.cs !== 0 || G.phase !== 'night' || !(dc > BAL.cryFirstR)) return false;   // 1 · 수정 가까이면 늘 수정 먼저
+  if(w.shQ == null || w.shQt > 2) return false;                                                   // 2 · 지금 쫓거나 놓친 지 2초 안
+  const K = climbFind(sheep, w.shQ); if(!K || K.sh) return false;
+  if(!(K.y >= GY + C.trigY) || !onCastleLayer(K.x, K.z, K.y)) return false;                       // 3 · 땅 좀비가 더는 못 닿는 높이로 성곽 층에 달아났다
+  const z = ZONE[gi(Math.floor(K.x), Math.floor(K.z))]; if(z < 0) return false;
+  let k = -1, bd = C.footR*C.footR;                                                               // 4 · 그 구역 계단 중 발치까지 8칸 안의 가장 가까운 것
+  for(const kk of CPLAN.zones[z].stairs){ const f = CPLAN.stairs[kk].foot, dx = f.x - w.x, dz = f.z - w.z, d2 = dx*dx + dz*dz; if(d2 < bd){ bd = d2; k = kk; } }
+  if(k < 0) return false;
+  if(CL_N[k] >= C.perStair || CL_ALL >= C.total) return false;                                    // 5 · 정원(계단당 3 · 전체 8)
+  const n = CL_KID.get(w.shQ) || 0; if(n >= C.perKid) return false;                              // 6 · 아이 한 명이 한 밤에 4마리
+  if(G.t < C.approachSec + 16.5/(BAL.chaseCap*C.upMul) + CLIMB_RET[w.k] + C.minWall) return false;   // 7 · 새벽 귀환 예산
+  w.cs = 1; w.ck = k; w.cz = z; w.cA = 0; w.cEnd = CLIMB_RET[w.k]; w.cT = 0; w.cTot = 0; w.cLost = 0; w.cStep = 0; w.cpo = 0;
+  CL_N[k]++; CL_ALL++; CL_KID.set(w.shQ, n + 1); CL_W.push(w);                                   // 통과 즉시 정원을 올린다
+  return true;
+}
+/* cs 1 — 발치로 가는 중(땅 걸음 그대로). 목표점 두 개: 계단 앞 맨땅 (t 33.5) → 발치 (t 34.5 = 층 전환점 — 두 높이 식이 같아 튐 0).
+   참이면 땅 루프가 CL_AX·CL_AZ 로 쫓는 걸음으로 간다. 발치에 닿으면 cs 2(ly 1)로 올리고 거짓 */
+function climbApproach(w, dt, sheep){
+  const C = BAL.climb, S = CPLAN.stairs[w.ck];
+  w.cA += dt;
+  const K = climbFind(sheep, w.shQ);
+  if(w.cA > C.approachSec || G.phase !== 'night' || !K || K.sh || !onCastleLayer(K.x, K.z, K.y)
+     || ZONE[gi(Math.floor(K.x), Math.floor(K.z))] !== w.cz){
+    w.cs = 0; w.cDone = 1; return false;                          // 늦었거나 아이가 구역을 떠남 — 그 밤 다시 안 오른다(계단 오르내리기로 예산 없는 쫓기 되풀이 금지)
+  }
+  if(!w.cStep){
+    CL_AX = gX(S.g, 33.5, S.s*8.5); CL_AZ = gZ(S.g, 33.5, S.s*8.5);
+    const dx = CL_AX - w.x, dz = CL_AZ - w.z; if(dx*dx + dz*dz >= 0.36) return true;
+    w.cStep = 1;
+  }
+  CL_AX = S.foot.x; CL_AZ = S.foot.z;
+  const dx = CL_AX - w.x, dz = CL_AZ - w.z; if(dx*dx + dz*dz >= 0.36) return true;
+  /* 발치 — 성곽 층으로. 1차원 자리는 지금 자리에서 잰다(p ≥ 0.9 · 옆 자리는 ±0.6 안에서 그대로 — 가지 위 고정 흔들림 cj 로 천천히 모인다) */
+  w.cs = 2; w.ly = 1; w.cb = w.ck; w.cck = 0; w.cLost = 0;
+  w.cp = Math.max(0.9, gT(S.g, w.x, w.z) - 33.6); w.cn = climbCl(gPP(S.g, w.x, w.z) - S.s*8.5, -0.6, 0.6);
+  climbPos(w);
+  return false;
+}
+/* (B) 내려가기 — 가장 가까운 계단으로(가지 위면 그 가지 그대로) */
+function climbDown(w){
+  w.cs = 3; w.shQ = null; w.shT = false;
+  if(w.cb >= 0){ w.ck = w.cb; return; }
+  let bd = Infinity; for(const k of CPLAN.zones[w.cz].stairs){ const d = Math.abs(CPLAN.stairs[k].sig - w.cp); if(d < bd){ bd = d; w.ck = k; } }
+}
+/* 주선 위 다음 과녁 → CL_GS·CL_GN. 목표가 가지면 그 가지 이음점(t 51, P 8.5·s + cj — 가지에 오를 때 옆 자리가 안 튄다) */
+function climbGoal(w, tb, tp, tn){
+  const Z = CPLAN.zones[w.cz];
+  if(tb < 0){ CL_GS = tp; CL_GN = tn; }
+  else { const S = CPLAN.stairs[tb], pp = S.s*8.5 + w.cj, jx = gX(S.g, 51, pp) - Z.O.x, jz = gZ(S.g, 51, pp) - Z.O.z;
+    CL_GS = jx*Z.U.x + jz*Z.U.z; CL_GN = jx*Z.N.x + jz*Z.N.z; }
+  CL_GN += w.cpo || 0;
+  /* 좁은 곳(다리 ±0.1)에 들어가기 전에 미리 옆 자리를 맞춘다 — 지금 자리와 1.5칸 앞의 한계를 겹쳐 본다(칸 경계에서 옆으로 튀지 않게) */
+  const ds = CL_GS - w.cp, ah = w.cp + (ds > 0 ? 1 : -1)*Math.min(1.5, Math.abs(ds));
+  climbNLim(Z, w.cp); let lo = CL_LO, hi = CL_HI; climbNLim(Z, ah);
+  lo = Math.max(lo, CL_LO); hi = Math.min(hi, CL_HI); if(lo > hi){ lo = hi = (lo + hi)/2; }
+  CL_GN = climbCl(CL_GN, lo, hi);
+}
+/* 목표 (tb, tp, tn) 쪽으로 한 프레임 걷기 — 가지 ↔ 이음점 ↔ 주선. 줄서기(같은 방향 앞 0.9 안이면 멈춤 · cs 3 은 무시하고 마주 오면 ±0.4 비껴감) */
+function climbWalk(w, tb, tp, tn, dt){
+  const C = BAL.climb, sp = climbSpd(w), ox = w.x, oz = w.z;
+  let dir;
+  if(w.cb >= 0){ const goal = (tb === w.cb) ? tp : 17.4; dir = goal - w.cp > 1e-4 ? 1 : goal - w.cp < -1e-4 ? -1 : 0; }
+  else { climbGoal(w, tb, tp, tn); dir = CL_GS - w.cp > 1e-4 ? 1 : CL_GS - w.cp < -1e-4 ? -1 : 0; }
+  if(dir !== 0){
+    let pass = 0;
+    for(const o of CL_W){
+      if(o === w || o.cs < 2 || o.cz !== w.cz || o.cb !== w.cb) continue;
+      const ah = (o.cp - w.cp)*dir, dn = o.cn - w.cn;
+      if(w.cs === 2 && (o.cdir === dir || o.cdir === 0) && ah > 0 && ah <= C.gap && dn > -0.8 && dn < 0.8){ w.mv = false; w.cdir = dir; return; }   // 줄서기 — 추월 없음
+      if(w.cs === 3 && o.cdir === -dir && ah > 0 && ah <= 1.5 && dn > -0.8 && dn < 0.8) pass = w.cn >= o.cn ? 1 : -1;
+    }
+    if(pass) w.cpo = 0.4*pass; else if(w.cpo) w.cpo = Math.abs(w.cpo) < dt*0.8 ? 0 : w.cpo - Math.sign(w.cpo)*dt*0.8;
+  }
+  let tl = dt;
+  for(let it = 0; it < 3 && tl > 1e-6; it++){
+    if(w.cb >= 0){
+      const goal = (tb === w.cb) ? tp : 17.4, dp = goal - w.cp;
+      const v = sp*(dp > 0 ? C.upMul : C.downMul), can = v*tl;
+      if(Math.abs(dp) <= can){ w.cp = goal; tl -= Math.abs(dp)/v; } else { w.cp += (dp > 0 ? can : -can); tl = 0; }
+      if(tb === w.cb || w.cp < 17.4 - 1e-6) break;
+      climbPos(w);                                               // 이음점(t 51) — 실제 자리에서 σ·n 을 다시 잰다(튐 0)
+      const Z = CPLAN.zones[w.cz], dx = w.x - Z.O.x, dz = w.z - Z.O.z;
+      w.cb = -1; w.cp = dx*Z.U.x + dz*Z.U.z; w.cn = dx*Z.N.x + dz*Z.N.z;
+    } else {
+      climbGoal(w, tb, tp, tn);
+      const ds = CL_GS - w.cp, dn = CL_GN - w.cn, L = Math.hypot(ds, dn), v = sp*C.wallMul, can = v*tl;
+      if(L <= can){ w.cp = CL_GS; w.cn = CL_GN; tl -= L/v; }
+      else { w.cp += ds/L*can; w.cn += dn/L*can; tl = 0; }
+      if(tb < 0 || L > can) break;
+      w.cb = tb; w.cp = 17.4; w.cn = w.cj + (w.cpo||0);          // 가지 이음점 — 그 가지로
+    }
+  }
+  if(w.cb < 0){ const Z = CPLAN.zones[w.cz]; w.cp = climbCl(w.cp, Z.s0, Z.s1); climbNLim(Z, w.cp); w.cn = climbCl(w.cn, CL_LO, CL_HI); }
+  else { const g = climbCl(w.cj + (w.cpo||0), -0.6, 0.6), dd = g - w.cn, m = dt*1.5; w.cn += dd > m ? m : dd < -m ? -m : dd; }
+  climbPos(w);
+  const mx = w.x - ox, mz = w.z - oz;
+  if(mx*mx + mz*mz > 1e-8){ w.ry = Math.atan2(mx, mz); w.mv = true; } else w.mv = false;
+  w.cdir = dir;
+}
+/* 성벽 위 좀비 한 걸음(cs ≥ 2) — 루프의 '이동 판단'(공성·쫓기·곁눈질·목표·걸음·끼임·보스 소환)을 대신한다. 사망 처리는 루프가 그대로 한다 */
+function climbTick(w, dt, sheep){
+  if(!(w.cs >= 2)) return;
+  const C = BAL.climb;
+  let K = null;
+  if(w.cs === 2){
+    /* 목표 — 0.25초마다 가장 가까운 아이를 새로 고르고, 사이 프레임엔 그 아이가 아직 목표가 될 수 있나만 본다 */
+    w.cck -= dt;
+    if(w.cck <= 0){ w.cck += C.recheck; if(w.cck <= 0) w.cck = C.recheck; K = climbPick(w, sheep); w.shQ = K ? K.uid : null; }
+    else if(w.shQ != null){ K = climbFind(sheep, w.shQ); if(K && !climbOk(w, K)) K = null; }
+    w.cT += dt; w.cTot += dt;                                    // 쫓기 예산(chLeft)은 성벽 위에선 안 깎는다 — 시간은 cT·cTot 가 정한다
+    w.cLost = K ? 0 : w.cLost + dt;
+    let bite = false;
+    if(K){ const dx = K.x - w.x, dz = K.z - w.z;
+      if(dx*dx + dz*dz < 1.35*1.35 && Math.abs(K.y - (w.y||GY)) <= SHEEP_REACH_Y){ bite = true; w.cT = 0; } }   // 물 때마다 cT = 0 — "12초 안에 사람을 못 물면"
+    /* (B) 내려가기 — 12초 못 묾 · 15초 상한(계속 물어도) · 목표 없음 0.5초 · 새벽 귀환 문턱 · 밤이 아님 */
+    if(w.cT >= C.wallSec || w.cTot >= C.hardSec || w.cLost >= C.lostSec || G.t <= w.cEnd || G.phase !== 'night'){ climbDown(w); K = null; bite = false; }
+    if(bite){                                                    // 문다 — 피는 그 아이가 자기 화면에서 깎는다(sheepHurt)
+      w.mv = false; w.ry = Math.atan2(K.x - w.x, K.z - w.z); if(w.atkT <= 0) w.atkT = 0.95; w.shT = true; return; }
+  }
+  w.shT = !!K;                                                   // 손님 화면의 '먹이 발견' 자세도 호스트 실제 값을 따른다
+  if(w.cs === 3) climbWalk(w, w.ck, 0.9, 0, dt);
+  else if(K){ climbProj(w.cz, K.x, K.z); climbWalk(w, CL_TB, CL_TP, CL_TN, dt); }
+  else { w.mv = false; w.cdir = 0; return; }
+  if(w.cs === 3 && w.cb === w.ck && w.cp <= 0.9 + 1e-4){
+    /* 발치(t 34.5) — 땅으로. 땅 식과 계단 식 높이가 같은 곳이라 튐 0. 7초 사람 안 보고 흐름장으로 수정에 간다. 그 밤 다시 안 오른다 */
+    w.ly = 0; w.cs = 0; w.cDone = 1; w.cb = -1; w.cpo = 0; w.cdir = 0;
+    w.chCool = BAL.chaseCool; w.chLeft = BAL.chaseBudget; w.shQ = null; w.shQt = 99; w.shT = false;
+  }
+}
+/* 성벽 위에서 죽은 좀비의 금 — 조각마다 1차원 좌표에서 걷는 띠 안(성가퀴 너머 해자·흉벽 너머 허공 0), y = layerY(계단 칸 = 디딤 윗면 · ZONE 칸 = GY+8) */
+function climbGold(w, n, exp){
+  const Z = CPLAN.zones[w.cz];
+  for(let i=0;i<n;i++){
+    let x, z;
+    if(w.cb < 0){
+      const sg = climbCl(w.cp + (Math.random()*2 - 1), Z.s0, Z.s1);
+      let lo = -1.2, hi = 1.2;                                         // 트인 성벽 길
+      for(const g of Z.gates){ const gx = gX(g, 51, 0) - Z.O.x, gz = gZ(g, 51, 0) - Z.O.z, a = Math.abs(sg - (gx*Z.U.x + gz*Z.U.z));
+        if(a < 7){ lo = -0.6; hi = 0.6; } else if(a < 11){ lo = -1.0; hi = 0.3; } }   // 다리(걷는 폭 ±0.75 − 여유) · 망루 윗마당
+      if(Z.id === 2 && Math.abs(sg) < 1){ lo = -0.85; hi = 1.6; }      // K 북문 앞
+      const nn = climbCl(w.cn + (Math.random()*2 - 1)*0.4, lo, hi);
+      x = Z.O.x + Z.U.x*sg + Z.N.x*nn; z = Z.O.z + Z.U.z*sg + Z.N.z*nn;
+    } else {
+      const S = CPLAN.stairs[w.cb], p = climbCl(w.cp + (Math.random()*2 - 1), 0.9, 17.4);
+      const P = climbCl(8.5 + S.s*w.cn + (Math.random()*2 - 1)*0.4, 7.75, 9.25);
+      x = gX(S.g, 33.6 + p, S.s*P); z = gZ(S.g, 33.6 + p, S.s*P);
+    }
+    G.drops.push({id:fdSeq++, g:-1, k:'gold', x, z, y:layerY(x, z, 1), exp});
+  }
+}
+/* 검사용 — 제 구역 끝에 새 덩이 하나(설계 8-0: 기존 덩이를 안 건드림) */
+Object.assign(window, {__climbProj:(cz, x, z)=>{ climbProj(cz, x, z); return {b:CL_TB, p:CL_TP, n:CL_TN}; },
+  __climbInside:climbInside, __climbGold:climbGold, __climbPos:climbPos, __CL_W:()=>CL_W, __nearestWolf:nearestWolf,
+  __hostStoneHit:hostStoneHit});
+
 /* ═══════════════════════ 호스트 시뮬레이션 ═══════════════════════ */
 /* 진행 방향 1.1칸 앞에 건물이 있으면 그 id */
 function struAhead(x, z, dirx, dirz){
@@ -19850,8 +20092,8 @@ function findGap(x, z, dirx, dirz){
       const ax = gx + dirx*1.1, az = gz + dirz*1.1;
       if(cellOwner.has(Math.floor(ax)+','+Math.floor(az))) continue;
       if(cellOwner.has(Math.floor(gx)+','+Math.floor(gz))) continue;
-      if(solidTop(Math.floor(gx), Math.floor(gz)) > GY+1) continue;
-      if(solidTop(Math.floor(ax), Math.floor(az)) > GY+1) continue;
+      if(zTop(Math.floor(gx), Math.floor(gz)) > GY+1) continue;     // 67차 — 좀비 땅 걸음은 zTop(성곽 칸 = 벽)
+      if(zTop(Math.floor(ax), Math.floor(az)) > GY+1) continue;
       return [ax, az];
     }
   }
@@ -19906,17 +20148,19 @@ const WOLF_R = w => 0.52 * (w.sc || (WOLF_T[w.k]||WOLF_T[0]).sc) + 0.30;
 const SEP_K = 16;                       // 겹친 만큼을 한 프레임에 얼마나 풀지
 function wolfNudge(w, dx, dz){
   const bx = w.x+dx, bz = w.z+dz;       // 벽·산으로는 안 밀린다 (축마다 따로 본다)
-  if(solidTop(Math.floor(bx), Math.floor(w.z)) <= GY+1) w.x = bx;
-  if(solidTop(Math.floor(w.x), Math.floor(bz)) <= GY+1) w.z = bz;
+  if(zTop(Math.floor(bx), Math.floor(w.z)) <= GY+1) w.x = bx;      // 67차 — zTop: 복도·탑·문 칸(terrH GY)으로도 안 밀린다
+  if(zTop(Math.floor(w.x), Math.floor(bz)) <= GY+1) w.z = bz;
 }
 function separateWolves(dt){
   const _sp0 = PROF_ON ? performance.now() : 0;
   const L = G.wolves, n = L.length, k = Math.min(1, dt*SEP_K) * 0.5;
   for(let i=0;i<n;i++){
     const a = L[i];
+    if(a.ly) continue;
     const ra = WOLF_R(a);
     for(let j=i+1;j<n;j++){
       const b = L[j];
+      if(b.ly) continue;                  // 67차 — 성벽 위 좀비는 안 민다(성벽 좀비끼리는 climbTick 줄서기가 맡고, 다리 위·밑 좀비는 서로 모른다)
       const dx = a.x-b.x, dz = a.z-b.z, rr = ra + WOLF_R(b);
       if(dx > rr || dx < -rr || dz > rr || dz < -rr) continue;   // 값싼 네모 검사 먼저
       const d2 = dx*dx + dz*dz;
@@ -19980,10 +20224,14 @@ function hostSim(dt){
   // 좀비
   qS(); sepAcc = 0;
   /* 이번 프레임의 사람 위치 — 나 자신 + 친구들. 쓰러진 사람은 더 안 문다. */
+  /* 67차 — uid(좀비가 '쫓던 아이'를 기억한다)·sh(지붕 밑 = 어떤 좀비도 쫓지도 물지도 않는다) */
   const sheep = [];
-  if(!PL.down) sheep.push({x:PL.x, z:PL.z, y:PL.y});
+  if(!PL.down) sheep.push({x:PL.x, z:PL.z, y:PL.y, uid, sh:sheltered(PL.x, PL.z, PL.y)});
   for(const q of G.players.values())
-    if(!q.down && q.x!==undefined) sheep.push({x:q.x, z:q.z, y:q.y===undefined?GY:q.y});
+    if(!q.down && q.x!==undefined){ const qy = q.y===undefined?GY:q.y; sheep.push({x:q.x, z:q.z, y:qy, uid:q.uid, sh:sheltered(q.x, q.z, qy)}); }
+  /* 67차 — 성벽 정원 다시 세기: (A) 통과 순간 올린 장부를 매 프레임 실제 좀비로 맞춘다(죽음·아침 정리·걸러내기로 새지 않게). CL_KID 는 한 밤 누적이라 안 센다 */
+  CL_N.fill(0); CL_ALL = 0; CL_W.length = 0;
+  for(const o of G.wolves) if(o.cs){ CL_N[o.ck]++; CL_ALL++; CL_W.push(o); }
   const cx0 = 0, cz0 = 0;
   /* 한 건물에 몇 마리가 달라붙어 있나 — 몰매를 막기 위한 정원 확인용 */
   const sgCnt = new Map();
@@ -20023,6 +20271,13 @@ function hostSim(dt){
     const dc = Math.hypot(w.x, w.z);      // 수정까지 (수정을 깎는 판정용)
     const dcO = oct(w.x, w.z);            // 마을 안인가 (경계가 네모라 네모난 거리로 본다)
     let moved = false;
+    /* 67차 성곽 — 발치로 가는 중(cs 1)이면 목표점을 받고(닿으면 cs 2 로), 성벽 위(cs ≥ 2)면 climbTick 이 '이동 판단'을 대신한다.
+       ★ continue 금지 — 아래 사망 처리(dropGold·wolfCorpse·splice)까지 건너뛰면 성벽 위에서 안 죽는 좀비가 생겨 밤이 안 끝난다.
+         그래서 땅 이동(공성·쫓기·곁눈질·목표·걸음·끼임)만 if(w.cs < 2) 블록으로 감싼다 */
+    let clGo = false;
+    if(w.cs === 1) clGo = climbApproach(w, dt, sheep);
+    if(w.cs >= 2) climbTick(w, dt, sheep);
+    if(w.cs < 2){
 
     /* ── 공성 좀비는 마을에 들어오면 가까운 탑·배럭부터 물어뜯는다 ──
        전부가 그러면 수정이 안 깎여 밤이 늘어지므로 일부만 공성이다.       */
@@ -20059,15 +20314,22 @@ function hostSim(dt){
            고개만 들고 얻어맞았다 — 한 명만 올라가면 그 입구는 밤이 통째로 시시해졌다.
            높이 기준은 무는 판정(sheepHurt)과 같은 2.2 다. 내 벽(1.4) 위는 여전히 쫓는다. */
         if(Math.abs(q.y - wy) > SHEEP_REACH_Y) continue;
+        if(q.sh) continue;                  // 67차 — 지붕 밑(복도·탑·회랑) 아이는 벽 너머로 쫓지 않는다
         const ax=q.x-w.x, az=q.z-w.z, a2=ax*ax+az*az;
         if(a2 < bd){ bd=a2; shTgt=q; } }
       w.shT = !!shTgt;
     } else w.shT = false;
-    if(shTgt){
-      w.chLeft -= dt;
+    /* 67차 — 쫓던 아이를 기억한다(놓친 지 2초 안이면 (A) 가 그 아이를 따라 계단으로 오를지 본다) */
+    if(w.cs !== 1){ if(shTgt){ w.shQ = shTgt.uid; w.shQt = 0; } else w.shQt += dt; }   // 발치로 가는 동안은 그 아이를 그대로 기억한다
+    if(w.cs === 0){ w.cck -= dt; if(w.cck <= 0){ w.cck += BAL.climb.recheck; if(w.cck <= 0) w.cck = BAL.climb.recheck;
+      if(climbStart(w, sheep, dc)) clGo = climbApproach(w, 0, sheep); } }
+    if(clGo){ shTgt = null; w.shT = true; }  // 발치로 가는 동안은 쫓는 걸음·쫓는 자세(목표점은 아래에서 CL_AX·CL_AZ)
+    if(shTgt || clGo){
+      w.chLeft -= dt;                        // 발치로 가는 중(cs 1)도 땅 쫓기와 똑같이 깎는다
       if(w.chLeft <= 0){                       // 헛쫓은 시간이 다 됐다 — 잠깐 잊는다
         w.chCool = BAL.chaseCool; w.chLeft = BAL.chaseBudget;
         shTgt = null; w.shT = false;
+        if(clGo){ clGo = false; w.cs = 0; w.cDone = 1; }
       }
     } else if(w.chLeft < BAL.chaseBudget) w.chLeft = Math.min(BAL.chaseBudget, w.chLeft + dt*0.5);
 
@@ -20132,9 +20394,12 @@ function hostSim(dt){
          → 자기 입구가 막혔다고 다른 모둠 입구로 우회하지 않는다.
          마을 안(r<36)에서는 흐름장을 따라 수정으로 간다.               */
       let tx, tz;
-      if(shTgt){ tx = shTgt.x; tz = shTgt.z; }
+      if(clGo){ tx = CL_AX; tz = CL_AZ; }      // 67차 — 발치로(계단 앞 맨땅 → 발치 두 점)
+      else if(shTgt){ tx = shTgt.x; tz = shTgt.z; }
       else if(sTgt){ tx = struCX(sTgt); tz = struCZ(sTgt); }
-      else if(dcO > ARENA_R-3){
+      /* 67차 — 축 따라가기는 **제 성문 축 t** 가 마을 가장자리 밖일 때만. 둘레길(od 46~49)은 걸을 수 있는 땅이라 흐름장으로 간다 —
+         반대편 둘레길까지 아이를 쫓아온 좀비(제 성문 t 가 작거나 음수)가 성벽 쪽을 목표로 받아 끼임 밀기로 좌우로만 흔들리며 갇히던 것 */
+      else if(gT(w.gate, w.x, w.z) > ARENA_R-3){
         const t  = gT(w.gate, w.x, w.z), pp = gPP(w.gate, w.x, w.z);
         /* ★ 17차 — 예전엔 pp*0.86 이라 다 같이 통로 한가운데로 빨려 들었고,
            그대로 벽 한가운데에 뭉쳤다. 좀비마다 제 길(lane)로 모이게 한다. */
@@ -20152,7 +20417,7 @@ function hostSim(dt){
          다만 사람의 달리기(5.4)보다는 느리게 막아 둔다. 9살이 아예 못 도망치면 게임이 아니라 벌이다. */
       /* ★ 쫓을 땐 무조건 사람(5.4)보다 빠르다 — 바닥값(chaseMin)을 깔아 둔다.
          곱만 쓰면 1일차 좀비(3.15×1.55=4.9)가 여전히 못 따라잡는다. */
-      if(shTgt) sp = Math.min(Math.max(sp * BAL.chaseBoost, BAL.chaseMin), BAL.chaseCap) * (w.chaseK||1);   // 36차 — 굶주린 좀비는 쫓을 때 1.3배
+      if(shTgt || clGo) sp = Math.min(Math.max(sp * BAL.chaseBoost, BAL.chaseMin), BAL.chaseCap) * (w.chaseK||1);   // 36차 — 굶주린 좀비는 쫓을 때 1.3배 · 67차 발치로 가는 걸음도
 
       /* ── 앞을 막은 건물 찾기 ── */
       let hitId = struAhead(w.x, w.z, dx/L, dz/L);
@@ -20174,8 +20439,8 @@ function hostSim(dt){
           const sg = (w.id % 2) ? 1 : -1;
           const px = -dz/L*sg, pz = dx/L*sg;
           const nx2 = w.x + px*sp*dt, nz2 = w.z + pz*sp*dt;
-          if(solidTop(Math.floor(nx2), Math.floor(w.z)) <= GY+1) w.x = nx2;
-          if(solidTop(Math.floor(w.x), Math.floor(nz2)) <= GY+1) w.z = nz2;
+          if(zTop(Math.floor(nx2), Math.floor(w.z)) <= GY+1) w.x = nx2;     // 67차 — 좀비 땅 걸음은 zTop(성곽 칸 = 벽)
+          if(zTop(Math.floor(w.x), Math.floor(nz2)) <= GY+1) w.z = nz2;
           w.ry = Math.atan2(px, pz); w.mv = true; w.bt = null;
           if(w.stall > 3.0 && w.atkT <= 0){ biteStru(o, w, w.x + dx/L*0.9, w.z + dz/L*0.9); w.stall = 0; }
         } else if(!SIEGE_T[o.t] && w.bt !== o.id
@@ -20186,8 +20451,8 @@ function hostSim(dt){
           const sg = (w.id % 2) ? 1 : -1;
           const px = -dz/L*sg, pz = dx/L*sg;
           const nx2 = w.x + px*sp*dt, nz2 = w.z + pz*sp*dt;
-          if(solidTop(Math.floor(nx2), Math.floor(w.z)) <= GY+1) w.x = nx2;
-          if(solidTop(Math.floor(w.x), Math.floor(nz2)) <= GY+1) w.z = nz2;
+          if(zTop(Math.floor(nx2), Math.floor(w.z)) <= GY+1) w.x = nx2;     // 67차 — 좀비 땅 걸음은 zTop(성곽 칸 = 벽)
+          if(zTop(Math.floor(w.x), Math.floor(nz2)) <= GY+1) w.z = nz2;
           w.ry = Math.atan2(dx, dz); w.mv = true; w.bt = null; w.stuck = 0;
         } else {
           w.mv = false; w.stuck = 0;
@@ -20205,8 +20470,8 @@ function hostSim(dt){
            걷든 물든 모든 좀비를 늘 밀어낸다 (왜인지는 그 함수 설명 참고). */
         const ox = w.x, oz = w.z;
         const bx = w.x+mx, bz = w.z+mz;
-        if(solidTop(Math.floor(bx), Math.floor(w.z)) <= GY+1) w.x = bx;
-        if(solidTop(Math.floor(w.x), Math.floor(bz)) <= GY+1) w.z = bz;
+        if(zTop(Math.floor(bx), Math.floor(w.z)) <= GY+1) w.x = bx;       // 67차 — zTop: 복도·탑·문 칸(terrH GY)에 걸어 들어가지 않게
+        if(zTop(Math.floor(w.x), Math.floor(bz)) <= GY+1) w.z = bz;
         w.ry = Math.atan2(dx, dz); w.mv = true; w.bt = null;
         /* ── 끼임 방지: 못 움직이면 옆 건물이라도 부순다 ── */
         if(Math.hypot(w.x-ox, w.z-oz) < sp*dt*0.25){
@@ -20218,15 +20483,16 @@ function hostSim(dt){
               if(w.atkT <= 0) biteStru(o, w, w.x, w.z);
             } else { // 건물이 아니라 지형에 끼었으면 통로 한가운데로 살짝 밀어 준다
               const d = DIRS[w.gate], sgn = gPP(w.gate, w.x, w.z) > 0 ? 1 : -1;
-              w.x -= (-d.dz) * sgn * sp*dt*0.8;
-              w.z -= ( d.dx) * sgn * sp*dt*0.8;
+              const px = w.x - (-d.dz) * sgn * sp*dt*0.8, pz = w.z - ( d.dx) * sgn * sp*dt*0.8;
+              if(zTop(Math.floor(px), Math.floor(pz)) <= GY+1){ w.x = px; w.z = pz; }   // 67차 — 민 자리가 걸을 수 있는 땅일 때만(구석 문·암문 칸으로 밀려 들어가지 않게)
             }
             w.stuck = 0;
           }
         } else w.stuck = 0;
       }
     }
-    w.y = Math.min(GY+1, Math.max(GY, solidTop(Math.floor(w.x), Math.floor(w.z))));
+    }                                      // 67차 — if(w.cs < 2) 땅 이동 끝
+    w.y = wolfY(w);                        // 67차 — 높이 한 함수(손님 lerpMobs 와 같다): 계단 칸 = 디딤 · 성곽 층 칸 = GY+8 · 맨땅 = 땅 식
     // 보스 소환 — 총량 제한 + 마을 밖(협곡)에서만. 안에서 무한 소환하면 손 쓸 방법이 없다.
     if(w.bi >= 0 && w.hp > 0 && w.addLeft > 0 && dcO > ARENA_R-4){
       w.sumT -= dt;
@@ -20235,10 +20501,10 @@ function hostSim(dt){
           if(G.wolves.length >= 54) break;
           spawnWolf(0, w.gate, w.x, w.z); w.addLeft--;
         }
-        burst(w.x, GY+1.6, w.z, 0x8a5aff, 14, 1.4); }
+        burst(w.x, (w.y||GY)+1.6, w.z, 0x8a5aff, 14, 1.4); }   // 67차 — 효과 y 는 w.y 기준
     }
     if(w.hp <= 0){
-      burst(w.x, GY+0.9, w.z, 0xb3aac4, 6, 1.1);           // 65차 — 14 → 6 (쓰러질 때 흙먼지 5·빛가루 5 가 drawWolves 에서 나머지를 맡는다 · 합 19 → 21)
+      burst(w.x, (w.y||GY)+0.9, w.z, 0xb3aac4, 6, 1.1);    // 67차 — 성벽 위면 그 높이에서 · 65차 — 14 → 6 (쓰러질 때 흙먼지 5·빛가루 5 가 drawWolves 에서 나머지를 맡는다 · 합 19 → 21)
       if(w.byName) killPraise(w);              // 돌로 막타를 낸 아이 이름을 불러 준다
       if(w.bi >= 0) onBossDown(w);
       dropGold(w);                             // 29차 — 금 조각을 바닥에 흘린다
@@ -20292,7 +20558,7 @@ function hostSim(dt){
     const hx = home? home.x+0.5 : s.x, hz = home? home.z+0.5 : s.z;
     if(!home){ G.soldiers.splice(i,1); continue; }
     const D = SOL_DEF[s.k||0];
-    const t = nearestWolf(hx, hz, 22, s.x, s.z);
+    const t = nearestWolf(hx, hz, 22, s.x, s.z, s.k !== 2 ? s.y : undefined);   // 67차 — 근접 병사는 성벽 위(ly 1)·닿지 않는 높이의 좀비를 안 고른다
     let tx = hx + Math.sin(s.id)*2.4, tz = hz + Math.cos(s.id)*2.4;
     if(t){ tx = t.x; tz = t.z; }
     const dx = tx-s.x, dz = tz-s.z, L = Math.hypot(dx,dz);
@@ -20335,10 +20601,13 @@ function hostSim(dt){
   }
   qE('병정');
 }
-function nearestWolf(x,z,range, fx, fz){
+/* 67차 — melY(근접 병사 발 높이)를 주면 성벽 위(ly 1) 좀비와 |w.y − melY| > SHEEP_REACH_Y 인 좀비는 건너뛴다
+   (8칸 밑에서 칼로 때리고 좀비가 밑의 병사를 무는 일 없게). 원거리 병사·탑은 안 준다 — 높은 좀비도 쏜다 */
+function nearestWolf(x,z,range, fx, fz, melY){
   let best=null, bd=Infinity;
   const ux = fx!==undefined?fx:x, uz = fz!==undefined?fz:z;
   for(const w of G.wolves){
+    if(melY !== undefined && (w.ly || Math.abs((w.y||GY) - melY) > SHEEP_REACH_Y)) continue;
     if(Math.hypot(w.x-x, w.z-z) > range) continue;
     const d = (w.x-ux)**2 + (w.z-uz)**2;
     if(d < bd){ bd=d; best=w; }
@@ -20758,7 +21027,7 @@ function clientSoldierFx(dt){
     const D = SOL_DEF[s.k||0];
     let c = (cliSCd.get(s.id)||0) - dt;
     if(c <= 0){
-      const t = nearestWolf(s.x, s.z, D.rng);
+      const t = nearestWolf(s.x, s.z, D.rng, undefined, undefined, s.k !== 2 ? s.y : undefined);   // 67차 — 호스트와 같은 근접 병사 층 거름
       if(t){ c = D.rate;
         const cr = rollCrit();
         popDmg(t.x, t.y + 1.3, t.z, Math.round(solDmg(s.k||0, s.lv||1) * (cr?CRIT_MUL:1)), cr?1:0);
@@ -21732,6 +22001,7 @@ function goNight(){
   G.phase = 'night'; G.t = G.set.nightSec;
   { const N = bossIndex(G.day) < 0 && G.nk >= 0 ? NIGHT_DEF[G.nk] : null; if(N && N.longer) G.t = Math.round(G.set.nightSec * N.longer); }   // 36차 — 가장 긴 밤
   G.jumpSeen = false;                       // '벽을 뛰어넘었다' 안내는 밤마다 한 번
+  CL_KID.clear();                           // 67차 — 아이 한 명이 한 밤에 성벽으로 끌어올린 좀비 수(perKid)는 밤마다 새로 센다
   if(G.chests.length){ G.chests.length = 0; if(G.host) netChests(); }
   startWave();
   /* 66차 CTRL — 밤 시작 알림(toast)은 그 밤의 모습으로 뜨는 경고(night66Tick → #n66Ban, 보스 밤은 fx2BossIntro)가 대신한다.
@@ -21864,9 +22134,11 @@ function netPC(){ syncMyPC(); if(!net) return;
 
 function packSim(){
   const w = [];
-  /* 일곱째 칸은 mv 비트다(16차엔 위 비트에 뛰는 좀비의 뜬 높이를 실었는데 36차에 그 좀비를 뺐다 — 칸 수는 그대로라 옛 판과 서로 읽힌다) */
+  /* 일곱째 칸은 mv 비트다(16차엔 위 비트에 뛰는 좀비의 뜬 높이를 실었는데 36차에 그 좀비를 뺐다 — 칸 수는 그대로라 옛 판과 서로 읽힌다)
+     67차 — 둘째 비트 = 성곽 층(ly). 옛 손님은 `& 1` 로 읽어 층을 버린다(그림만 땅) · 새 손님이 옛 호스트를 받으면 ly 0. **칸 수 7 그대로**.
+     병사 칸(8개)에는 싣지 않는다 — 옛 손님이 `!!mv` 로 읽는다 */
   for(const o of G.wolves) w.push(o.id, o.k, Math.round(o.x*8), Math.round(o.z*8),
-    Math.round(o.ry*100), Math.round(o.hp/o.mx*100), (o.mv?1:0));
+    Math.round(o.ry*100), Math.round(o.hp/o.mx*100), (o.mv?1:0) | (o.ly?2:0));
   const s = [];
   /* ★ 예전엔 종류(k)를 안 보내서 손님 화면에는 전부 창병으로 보였다.
      등급(lv)도 같이 보내야 갑옷·깃털이 배럭 등급을 따라간다. */
@@ -21901,19 +22173,19 @@ function applySim(d){
   const arr = typeof d.w === 'string' ? (d.w ? d.w.split(',') : []) : (d.w||[]);
   for(let i=0;i<arr.length;i+=7){
     const id=+arr[i], k=+arr[i+1], x=arr[i+2]/8, z=arr[i+3]/8, ry=arr[i+4]/100,
-          hp=+arr[i+5], mv = (+arr[i+6]) & 1;
+          hp=+arr[i+5], mv = (+arr[i+6]) & 1, ly = ((+arr[i+6]) >> 1) & 1;   // 67차 — 윗비트 = 성곽 층
     seen.add(id);
     let w = G.wolves.find(o=>o.id===id);
-    if(!w){ w = {id,k,x,z,y:GY,ry,hp:hp,mx:100,mv:!!mv,ph:Math.random()*6,hurt:0,tx:x,tz:z};
+    if(!w){ w = {id,k,x,z,y:GY,ry,hp:hp,mx:100,mv:!!mv,ph:Math.random()*6,hurt:0,tx:x,tz:z,ly};
       if(isBoss(k)){ const B = WOLF_T[k]; w.sc = B.sc; w.col = B.col; w.bi = B.boss-1;
         burst(x, GY+3, z, 0x9a83bf, 24, 2.2); }   // 66차 — 자막·땅울림·흔들림은 fx2Boss(호스트와 같은 코드)
       G.wolves.push(w); zombieRiseAt(w); }
-    w.tx = x; w.tz = z; w.ry = ry; w.k = k; w.mv = !!mv;
+    w.tx = x; w.tz = z; w.ry = ry; w.k = k; w.mv = !!mv; w.ly = ly;
     if(hp < w.hp) w.hurt = 0.18;
     w.hp = hp;
   }
   for(let i=G.wolves.length-1;i>=0;i--) if(!seen.has(G.wolves[i].id)){
-    const w = G.wolves[i]; burst(w.x, GY+0.9, w.z, 0xb3aac4, 6, 1.1); wolfCorpse(w); G.wolves.splice(i,1); }   // 손님 화면도 보랏빛 먼지로 사라진다
+    const w = G.wolves[i]; burst(w.x, (w.y||GY)+0.9, w.z, 0xb3aac4, 6, 1.1); wolfCorpse(w); G.wolves.splice(i,1); }   // 손님 화면도 보랏빛 먼지로 사라진다(67차 — 성벽 위면 그 높이에서)
   const sa = typeof d.s === 'string' ? (d.s ? d.s.split(',') : []) : (d.s||[]);
   const ss = new Set();
   for(let i=0;i<sa.length;i+=8){
@@ -21928,8 +22200,9 @@ function applySim(d){
 }
 function lerpMobs(dt){
   const k = Math.min(1, dt*11);
+  /* 67차 — y 는 호스트와 **같은 함수**(wolfY = layerY — 칸 기준: 맨땅 칸이면 ly 를 무시)라, 보간이 1/7초 뒤처져도 같은 x 에서 늘 같은 y 다 */
   for(const w of G.wolves){ if(w.tx!==undefined){ w.x += (w.tx-w.x)*k; w.z += (w.tz-w.z)*k;
-    w.y = Math.min(GY+1, Math.max(GY, solidTop(Math.floor(w.x), Math.floor(w.z)))); } }
+    w.y = wolfY(w); } }
   for(const s of G.soldiers){ if(s.tx!==undefined){ s.x += (s.tx-s.x)*k; s.z += (s.tz-s.z)*k;
     s.y = Math.min(GY+1, Math.max(GY, solidTop(Math.floor(s.x), Math.floor(s.z)))); } }
 }
@@ -23680,7 +23953,7 @@ let bgmT = 0, bgmHeat = 0;
 function bgmHeatNow(){
   if(G.phase !== 'night') return 0;
   let inside = 0;
-  for(const w of G.wolves) if(oct(w.x,w.z) < ARENA_R) inside++;
+  for(const w of G.wolves) if(climbInside(w.x, w.z)) inside++;   // 67차 — 둘레길(od 46~49)도 성벽 안
   const lost = 1 - G.crystal/G.set.crystalMax;
   return Math.max(0, Math.min(1, inside/7 + lost*0.55));
 }
