@@ -9,7 +9,10 @@ const checks=[],ok=(name,pass,detail)=>{checks.push(!!pass);console.log((pass?'P
 const actor=e=>({x:0,y:0,z:0,ry:Math.PI,g:0,ph:0,wp:0,we:0,hat:0,gls:0,clo:0,jb:-1,jt:0,...e});
 const position=m=>new THREE.Vector3().setFromMatrixPosition(m),scale=m=>new THREE.Vector3().setFromMatrixScale(m);
 function draw(s,t=10,seed=false){const g=A.sheepGait(s,t);if(seed)g.v=s.run?8:4;A.drawSheep([s],t,40,()=>0x67a7cb,1);
- return Object.fromEntries(Object.entries(A.meshes).map(([k,mesh])=>[k,Array.from({length:mesh.count},(_,i)=>{const m=new THREE.Matrix4();mesh.getMatrixAt(i,m);return m;})]));}
+ const snap=Object.fromEntries(Object.entries(A.meshes).map(([k,mesh])=>[k,Array.from({length:mesh.count},(_,i)=>{const m=new THREE.Matrix4();mesh.getMatrixAt(i,m);return m;})]));
+ // 66차 — 그 순간의 관절 굽힘 칸(wflex)도 같이 떠 둔다(뒤에 다른 자세를 그리면 덮인다)
+ snap._flex=Object.fromEntries(['wing0','wing1'].map(k=>[k,Array.from(A.meshes[k].geometry.attributes.wflex?.array.slice(0,8)||[])]));
+ return snap;}
 const base=draw(actor()),one=draw(actor({jt:1,jb:0})),two=draw(actor({jt:2,jb:0}));
 ok('Job advancement never enlarges body, head, arms, legs or shoes',['body','head','arm','legs','shoes'].every(k=>base[k].every((m,i)=>scale(m).distanceTo(scale(one[k][i]))<1e-7&&scale(m).distanceTo(scale(two[k][i]))<1e-7)));
 const local=(p,m)=>p.body[0].clone().invert().multiply(m),actions=[{}, {mv:true,run:true,gp:1.4},{act:'mine',actP:.30,tool:'mine'},{act:'mine',actP:.56,tool:'mine'},{wp:3,kick:1},{land:.20}];
@@ -32,9 +35,11 @@ for(const p of poses.slice(1))for(let j=0;j<A.JOB_LOOK[0][1].length;j++){
  jobMountError=Math.max(jobMountError,position(local(p,p[key][idx])).distanceTo(position(local(poses[0],poses[0][key][idx]))));
 }
 ok('Authored torso job pieces keep their body-local mounting points',jobMountError<1e-6,{jobMountError});
+// 66차 — 날개는 꼭짓점 셰이더가 관절에서 굽힌다. 인스턴스 칸(wflex)에 적힌 굽힘값을 소스의 wingBend(셰이더와 같은 셈)로 꼭짓점에 입혀 잰다.
 function wingBounds(p){const box=new THREE.Box3(),inv=p.body[0].clone().invert();let inside=0;
- for(const key of ['wing0','wing1'])for(const m of p[key]){const full=inv.clone().multiply(m),geo=A.meshes[key].geometry.attributes.position;
-  for(let i=0;i<geo.count;i++){const v=new THREE.Vector3().fromBufferAttribute(geo,i).applyMatrix4(full);box.expandByPoint(v);if(Math.abs(v.x)<.48&&Math.abs(v.y)<.48&&Math.abs(v.z)<.48)inside++;}}
+ for(const key of ['wing0','wing1'])p[key].forEach((m,n)=>{const full=inv.clone().multiply(m),G=A.meshes[key].geometry,geo=G.attributes.position,B=G.attributes.wbone,V=G.attributes.wpiv,F=p._flex&&p._flex[key],f=F&&F.length?[0,1,2,3].map(k=>F[n*4+k]):[0,0,0,0],o=[0,0,0];
+  for(let i=0;i<geo.count;i++){if(B)A.wingBend(o,geo.getX(i),geo.getY(i),geo.getZ(i),B.getX(i),B.getY(i),B.getZ(i),V.getX(i),V.getY(i),V.getZ(i),V.getW(i),f);else o.splice(0,3,geo.getX(i),geo.getY(i),geo.getZ(i));
+   const v=new THREE.Vector3(...o).applyMatrix4(full);box.expandByPoint(v);if(Math.abs(v.x)<.48&&Math.abs(v.y)<.48&&Math.abs(v.z)<.48)inside++;}});
  return {width:box.max.x-box.min.x,front:box.max.z,inside};}
 const idle=wingBounds(draw(actor({jt:2,jb:0}))),aim=wingBounds(draw(actor({jt:2,jb:0,me:true,aim:true,wp:3}))),other=wingBounds(draw(actor({jt:2,jb:0,me:false,aim:true,wp:3}))),flight=wingBounds(draw(actor({jt:2,jb:0,air:true,glide:true,vy:-2})));
 ok('Own aimed wings fold behind the back while flight keeps a wider span',aim.width<flight.width*.55&&aim.width<idle.width&&aim.front<-.45,{idle,aim,flight});
@@ -59,7 +64,9 @@ for(const jt of [1,2])for(const glide of [false,true]){
  const range=k=>Math.max(...rows.map(r=>r[k]))-Math.min(...rows.map(r=>r[k]));
  flapChecks.push({jt,glide,rollRange:range('roll'),tipTravel:range('tip'),rootError,inside});
 }
-ok('Both wing tiers visibly flap through complete air and glide cycles',flapChecks.every(r=>r.rollRange>(r.glide?.58:.74)&&r.tipTravel>.25),flapChecks);
+// 66차 — 날갯짓(점프 공중)은 여전히 크게 친다. 활공은 선생님 요청("실제 같은 모션")대로 날개를 활짝 편 채 천천히 오르내리는 미세 조정이다 —
+// 멈춰 있지도(>.08), 날갯짓만큼 크지도(<.35) 않다. 깃 끝의 떨림은 관절 굽힘(t66-wing-static)이 따로 본다.
+ok('Both wing tiers visibly flap through complete air cycles and soar with small adjustments while gliding',flapChecks.every(r=>r.glide?(r.rollRange>.08&&r.rollRange<.35&&r.tipTravel>.06):(r.rollRange>.74&&r.tipTravel>.25)),flapChecks);
 ok('Flapping keeps shoulder roots fixed and feathers outside the torso for the full cycle',flapChecks.every(r=>r.rootError<1e-6&&r.inside===0));
 const settledDown=[0,.19,.41,.77].map(dt=>draw(actor({jt:2,jb:0,down:true}),500+dt));
 const downLocal=settledDown.map(p=>local(p,p.wing1[0]).elements);

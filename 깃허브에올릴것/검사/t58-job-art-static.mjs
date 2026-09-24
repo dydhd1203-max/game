@@ -73,13 +73,15 @@ check('Six uniforms color the existing shirt, pants, and shoes without scaling t
 for(let kind=0;kind<2;kind++){
   const g=A.WING_GEO[kind],triangles=(g.index?.count||g.attributes.position.count)/3;g.computeBoundingBox();
   check('Wing '+kind+' has finite indexed feather surfaces within the triangle budget',!!g.index&&triangles<=1200&&['position','normal','color'].every(k=>[...g.attributes[k].array].every(Number.isFinite)),{triangles});
-  check('Wing '+kind+' stays thin behind the shoulder and avoids a jagged long lower fringe',g.boundingBox.min.z>=-.060&&g.boundingBox.max.z<=.060&&g.boundingBox.min.y>-.22&&g.boundingBox.max.x<1.85,{min:g.boundingBox.min.toArray(),max:g.boundingBox.max.toArray()});
+  // 66차 — 손목에서 칼깃이 부챗살로 펼쳐져 날개 끝이 조금 길어졌다(1.85 → 2.0). 아래 가장자리 한계(-.22)와 두께는 그대로다.
+  check('Wing '+kind+' stays thin behind the shoulder and avoids a jagged long lower fringe',g.boundingBox.min.z>=-.060&&g.boundingBox.max.z<=.060&&g.boundingBox.min.y>-.22&&g.boundingBox.max.x<2.0,{min:g.boundingBox.min.toArray(),max:g.boundingBox.max.toArray()});
   const mesh=new THREE.Mesh(g,new THREE.MeshBasicMaterial({side:THREE.DoubleSide}));mesh.updateMatrixWorld();
   const ray=new THREE.Raycaster(),C=A.wingSpine(kind?1.12:1.20);let hits=0;
   for(let i=1;i<40;i++){const [x,y]=C(i/40);ray.set(new THREE.Vector3(x,y,1),new THREE.Vector3(0,0,-1));if(ray.intersectObject(mesh,false).length)hits++;}
   check('Wing '+kind+' keeps one continuous shoulder-to-tip silhouette',hits===39,{hits});
 }
-check('Wing evolution adds detail with a modest size change and no duplicate glow shell',A.JOB_WING.every(j=>j[0].k===0&&j[1].k===1&&j[0].s<=.4&&j[1].s<=.5&&j[1].s/j[0].s<=1.4&&j.every(w=>w.g===0)));
+// 66차 — 선생님 요청("날개를 좀 더 크게")으로 두 단계를 같은 비율 +25%(.459 · .612). 한계도 그만큼 올린다. 단계 사이 비율 한계(1.4)는 그대로다.
+check('Wing evolution adds detail with a modest size change and no duplicate glow shell',A.JOB_WING.every(j=>j[0].k===0&&j[1].k===1&&j[0].s<=.47&&j[1].s<=.62&&j[1].s/j[0].s<=1.4&&j.every(w=>w.g===0)),A.JOB_WING.map(j=>j.map(w=>w.s)));
 check('Each advanced role has its own pastel wing color',new Set(A.JOB_WING.map(j=>j[1].c)).size===3);
 console.log(checks.filter(Boolean).length+'/'+checks.length+' job art checks passed. WebGL rendering is checked separately.');
 process.exitCode=checks.every(Boolean)?0:1;
