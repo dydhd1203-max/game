@@ -92,10 +92,12 @@ ok('★ A 와 B 가 다르고, 낮과 밤이 다르다 (같은 네 마디 반복
 ok('★ 절마다 쉼표가 있다 (숨 쉴 틈)', bg.rests.every(n=> n >= 2), bg.rests.join(','));
 ok('★ 낮 120bpm(0.25) · 밤 100bpm(0.30) 8분음표', bg.seq.stepDay === 0.25 && bg.seq.stepNight === 0.30, bg.seq.stepDay+' / '+bg.seq.stepNight);
 ok('★ 한 걸음마다 bgmStep 이 하나씩 간다 (32걸음 × 네 판 → +128)', bg.stepAfter === 128, bg.stepAfter);
-ok('★ 낮 배경음이 실제로 울린다 (피크 0.03~0.5)', bg.day.peak > 0.03 && bg.day.peak < 0.5, bg.day.peak.toFixed(3));
-ok('★ 밤 배경음이 실제로 울린다', bg.night.peak > 0.03 && bg.night.peak < 0.6, bg.night.peak.toFixed(3));
+/* 66차 — 배경음은 자기 버스(BGMB, 기본 70% × BGM_BASE .60)를 지나 효과음보다 확실히 작다. 그래서 '울린다' 문턱을 0.03 → 0.012 로 */
+ok('★ 낮 배경음이 실제로 울린다 (피크 0.012~0.5)', bg.day.peak > 0.012 && bg.day.peak < 0.5, bg.day.peak.toFixed(3));
+ok('★ 밤 배경음이 실제로 울린다', bg.night.peak > 0.012 && bg.night.peak < 0.6, bg.night.peak.toFixed(3));
 ok('★ 위험(heat 0.9)하면 밤이 더 세진다 (낮은 북·세기)', bg.hot.rms > bg.night.rms * 1.15, bg.night.rms.toFixed(4)+' → '+bg.hot.rms.toFixed(4));
-ok('★ 보스가 있으면 드론이 한 겹 더 깔린다', bg.boss.rms > bg.hot.rms, bg.hot.rms.toFixed(4)+' → '+bg.boss.rms.toFixed(4));
+/* 66차 — 보스 밤은 드론 한 겹이 아니라 전용 곡(D단조·큰북·현 저음)이다. 같은 위험도(0.9)의 바쁜 밤보다 세야 한다(절정) */
+ok('★ 보스 밤 전용 곡(북·저음)은 같은 위험도의 밤보다 세다', bg.boss.rms > bg.hot.rms, bg.hot.rms.toFixed(4)+' → '+bg.boss.rms.toFixed(4));
 ok('★ 배경음은 배경이다 — 낮 RMS 가 승리 팡파르보다 작다', bg.day.rms < S.win.rms, bg.day.rms.toFixed(4)+' < '+S.win.rms.toFixed(4));
 
 /* ═══════ ③ 글씨체·글자 크기 ═══════ */

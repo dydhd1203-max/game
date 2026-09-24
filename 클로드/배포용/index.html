@@ -36,6 +36,12 @@ window.DEFAULTS = {
   wolfPower:  1.0,   // 좀비 세기 배수 (0.7 쉬움 / 1.0 보통 / 1.4 어려움)
   rareEvents: true,  // 66차 드문 사건(황금 좀비·유성우 밤·행운의 아침) — 5일차부터 가끔(하루 한 번까지). 끄려면 false
 
+  /* 소리 크기 (66차) — 0~100. 아이가 시작 화면·📖 도움말에서 바꾸면 그 기기에 저장되어 이 값보다 앞선다.
+     스물한 대가 한 교실에서 울리므로 배경음은 조금 작게 둔다. 환경음(새·풀벌레·개울)은 효과음 크기를 따라가며 여기서 한 번 더 줄인다. */
+  bgmVol:     70,    // 배경음
+  sfxVol:     100,   // 효과음
+  ambVol:     80,    // 환경음(효과음 크기 × 이 값)
+
   /* 그래픽 품질 (25차 · 26차 · 33차 · 49차c) — 교실 기기 손잡이다.
      'high' 선명   — 그림자 2048 + 부드러운 가장자리 · 계단 없애기 4 · 해상도 1.0
      'mid'  보통   — 그림자 2048 · 계단 없애기 2 · 해상도 0.85   ← 기본
@@ -327,6 +333,10 @@ body.touch #gfxRow{display:none}   /* 33차 — 터치는 그래픽이 고정값
 .sl{display:flex;align-items:center;gap:10px;margin:9px 0;font-weight:600;font-size:13px}
 .sl input[type=range]{flex:1;accent-color:#7ede82}
 .sl b{min-width:56px;text-align:right;font-variant-numeric:tabular-nums}
+/* 66차 — 소리 크기 두 줄(시작 화면·도움말). 넓으면 나란히, 좁으면 위아래 */
+.sndRow{display:flex;flex-wrap:wrap;gap:4px 18px;margin-top:8px}
+.sndRow .sl{flex:1 1 220px;margin:4px 0;white-space:nowrap}
+.sndRow .sl b{min-width:44px}
 .gline{display:flex;align-items:center;gap:8px;margin:6px 0;font-weight:600;font-size:13px}
 .gline .dot{width:14px;height:14px;border-radius:4px}
 .gline .v{margin-left:auto;font-variant-numeric:tabular-nums;opacity:.9}
@@ -2837,6 +2847,11 @@ body.specOn #hint{visibility:hidden}
         <button class="btn sm" data-gfx="low">부드럽게</button>
       </div>
     </div>
+    <!-- 66차 — 소리 크기. 이 기기에 저장한다(선생님 기본값은 설정 구역의 bgmVol·sfxVol). 게임 안에서는 📖 도움말 맨 위에서 바꾼다 -->
+    <div class="sndRow" id="sndRowT">
+      <div class="sl">🎵 배경음 <input type="range" min="0" max="100" step="5" data-snd="bgm" aria-label="배경음 크기"><b data-snd-v="bgm"></b></div>
+      <div class="sl">🔔 효과음 <input type="range" min="0" max="100" step="5" data-snd="sfx" aria-label="효과음 크기"><b data-snd-v="sfx"></b></div>
+    </div>
     <div id="tmsg"></div>
     <div class="hint">
       🕹️ 컴퓨터: WASD 이동 · 마우스 보기 · 좌클릭 캐기/짓기 · 1~6 건물 · Space 점프<br>
@@ -3181,6 +3196,10 @@ body.specOn #hint{visibility:hidden}
 
 <div class="pop" id="popBook"><div class="popC">
   <h2>📖 어떻게 하는 게임?</h2>
+  <div class="sndRow" id="sndRowB">
+    <div class="sl">🎵 배경음 <input type="range" min="0" max="100" step="5" data-snd="bgm" aria-label="배경음 크기"><b data-snd-v="bgm"></b></div>
+    <div class="sl">🔔 효과음 <input type="range" min="0" max="100" step="5" data-snd="sfx" aria-label="효과음 크기"><b data-snd-v="sfx"></b></div>
+  </div>
 
   <div class="hgrid">
     <div class="hrow"><i>☀️</i><div><b>낮</b> — 나무·돌·금을 캐고, <b>우리 모둠 입구</b>를 막을 것을 지어요.</div></div>
@@ -13991,7 +14010,7 @@ function pickDrop(d){
   burst(d.x, GY+0.75, d.z, A.col, 14, 1.3);
   burst(d.x, GY+1.15, d.z, 0xfff2c0, 8, 1.0);
   toast(`${A.pic} ${A.pn} +1`, 1.2, '#ffe9a0');
-  if(window.__sfx) window.__sfx('get');
+  if(window.__sfx) window.__sfx('pop');            // 66차 — 산물 줍기 '뽁'
   if(G.host) hostTakeDrop(d.id);
   else if(net) net.child('pick').set({n:++fdPickN + '_' + uid, id:d.id, g:G.me.g});
   const k = G.drops.indexOf(d); if(k>=0) G.drops.splice(k,1);
@@ -15245,12 +15264,12 @@ function buyAnimal(kind){
   const f = myFarm(), A = FARM_ANIMALS.find(a=>a.k===kind);
   if(!A) return;
   if(farmCount(f) >= FARM_CAP){ toast('🐾 우리가 꽉 찼어요', 1.6, '#ffd0a0'); return; }
-  if(!canPay(A.cost)){ toast('자원이 모자라요 — ' + costTxt(A.cost), 1.8, '#ffbdbd'); return; }
+  if(!canPay(A.cost)){ toast('자원이 모자라요 — ' + costTxt(A.cost), 1.8, '#ffbdbd'); if(window.__sfx) window.__sfx('nope'); return; }
   spend({w:A.cost.w||0, s:A.cost.s||0, g:A.cost.g||0});
   f[kind] = (f[kind]|0) + 1;
   netFarm();
   toast(`${A.ic} ${A.n}${josa(A.n,'을','를')} 데려왔어요! 날마다 먹이를 주세요`, 2.8, '#ffe9a0');
-  if(window.__sfx) window.__sfx('up');
+  if(window.__sfx){ window.__sfx('buy'); window.__sfx(kind); }     // 66차 — 동전 + 데려온 동물 울음
   const [x,z] = farmSpotXZ(G.me.g,'buy');
   burst(x, GY+1.4, z, 0xfff0a0, 20, 1.8);
   feed(`${A.ic} <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
@@ -15377,7 +15396,7 @@ function doTrade(from, to){
   spend({w: from==='w'?give:0, s: from==='s'?give:0, g: from==='g'?give:0});
   gain(to, get);
   toast(`🔄 ${RES_IC[from]}${give} → ${RES_IC[to]}${get} 바꿨어요!`, 2.0, '#ffe066');
-  if(window.__sfx) window.__sfx('get');
+  if(window.__sfx) window.__sfx('buy');
   feed(`🔄 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
      + `${RES_IC[from]}${give}을 ${RES_IC[to]}${get}으로 바꿨어요`);
   buildShopUI();
@@ -15531,7 +15550,7 @@ function sellFarm(res){
   if(!gold) return;
   spend(cost); gain('g', gold);
   toast(`✨ ${cnt}개를 바꿔 금 ${gold}을 받았어요!`, 2.4, '#ffe066');
-  if(window.__sfx) window.__sfx('get');
+  if(window.__sfx) window.__sfx('sell');
   feed(`🧺 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
      + `농장 산물을 바꿔 <b>✨${gold}</b>을 벌었어요`);
   buildShopUI();
@@ -15558,6 +15577,7 @@ function buyWeapon(i){
   if(KIT.ownW[i] || !canPay(W.cost)) return;
   if(!wpnLvOk(i)){ toast(`🔒 ${W.n}${josa(W.n,'은','는')} 레벨 ${wpnLv(i)}부터 살 수 있어요`, 2.2, '#ffd0a0'); return; }   // 65차 — 단추를 우회해도 막는다
   spend(W.cost); KIT.ownW[i] = true; equipWeapon(i);
+  if(window.__sfx) window.__sfx('buy');            // 66차 — 동전 짤랑(뒤이어 축하 팡파르)
   fx2Cel({k:'gun', ic:W.ic, rib:'새 무기', tt:`${W.n}!`, sub:`샀어요 — 🎒 ${isTouch ? '가방' : 'I'} 에서 바꿔 낄 수 있어요`, snd:'fx2Gun', col:'#ffd9a0'});   // 66차
   setTimeout(()=>noteRecipes(i), 1400);           // 29차 — 이 총이 들어가는 조합표가 있으면 알려 준다
   feed(`${W.ic} <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')}`
@@ -15597,7 +15617,7 @@ function buyArmor(i){
   if(KIT.ownA[i] || !canPay(A.cost)) return;
   spend(A.cost); KIT.ownA[i] = true; equipArmor(i);
   toast(`${A.ic} ${A.n}${josa(A.n,'을','를')} 입었어요!`, 2.4, '#c8ffb0');
-  if(window.__sfx) window.__sfx('up');
+  if(window.__sfx){ window.__sfx('buy'); window.__sfx('equip'); }
   buildShopUI();
 }
 
@@ -15605,14 +15625,14 @@ function buyAmmo(g){
   const cost = {w:0,s:0,g};
   if(!canPay(cost)) return;
   spend(cost); KIT.ammo += g*AMMO_PER_GOLD;
-  toast(`🔸 총알 ${g*AMMO_PER_GOLD}발!`, 1.8, '#ffe08a');
+  toast(`🔸 총알 ${g*AMMO_PER_GOLD}발!`, 1.8, '#ffe08a'); if(window.__sfx) window.__sfx('buy');
   hudPrev.kit = ''; buildShopUI();
 }
 function buyPotion(i){
   const P = POTIONS[i];
   if(!canPay(P.cost)) return;
   spend(P.cost); KIT.pot[i]++;
-  toast(`${P.ic} ${P.n}${josa(P.n,'을','를')} 샀어요 — ${i+6} 키를 누르면 마셔요`, 2.4, '#c8ffb0');
+  toast(`${P.ic} ${P.n}${josa(P.n,'을','를')} 샀어요 — ${i+6} 키를 누르면 마셔요`, 2.4, '#c8ffb0'); if(window.__sfx) window.__sfx('buy');
   hudPrev.kit = ''; buildShopUI();
 }
 /* ═══════ 내 가방 (I) ═══════
@@ -17380,6 +17400,11 @@ document.addEventListener('click', e=>{
   if(t && !t.disabled) sfx('click');
 }, true);
 
+/* 66차 — 못 사는 카드(자원·레벨 부족)를 누르면 낮고 부드러운 '뚝'. 막힌 단추에는 click 이 안 와서 pointerdown 으로 잡는다 */
+document.addEventListener('pointerdown', e=>{
+  const t = e.target && e.target.closest && e.target.closest('.sItem.no');
+  if(t && !t.closest('#farmList')) sfx('nope');                  // 농장 현황(#farmList)의 빈 동물 칸은 살 수 없는 안내 카드 — 소리 없음
+}, true);
 document.querySelectorAll('#shopTabs .btn').forEach(b=>
   b.onclick = ()=>{ shopTab = b.dataset.tab; sfx('tab'); buildShopUI(); });
 /* 태블릿에는 키보드가 없다 — 안내 자체를 눌러서 열게 한다 */
@@ -17400,7 +17425,8 @@ el('farmTip').addEventListener('click', ()=>{ if(farmOpenable()) openFarm(); });
 el('farmTip').addEventListener('touchstart', e=>{
   if(farmOpenable()){ openFarm(); e.preventDefault(); } }, {passive:false});
 
-function openPop(id){ document.exitPointerLock(); el(id).classList.add('on'); sfx('open'); }
+function openPop(id){ document.exitPointerLock(); el(id).classList.add('on');    // 66차 — 상점 나무 문·종 · 대장간 모루 · 농장 울타리
+  sfx(id==='popShop' ? 'shopOpen' : id==='popForge' ? 'forgeOpen' : id==='popFarm' ? 'farmOpen' : 'open'); }
 
 /* ═══════════════════════ 조준 / 행동 ═══════════════════════ */
 const hlGeo = new THREE.EdgesGeometry(new THREE.BoxGeometry(1,1,1));
@@ -17522,7 +17548,7 @@ function farmFeed(g){
   const [x,z] = farmSpotXZ(g,'feed');
   burst(x, GY+1.0, z, 0xf0dc9a, 14, 1.4);
   toast(`🌾 배불리 먹었어요! (🪵${need})`, 1.6, '#c8ffb0');
-  if(window.__sfx) window.__sfx('get');
+  if(window.__sfx) window.__sfx('feedDone');
   feed(`🌾 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
      + `<b style="color:${GCOL[g]}">${g+1}모둠</b> 농장에 먹이를 줬어요`);
 }
@@ -17535,7 +17561,7 @@ function farmClean(g){
   burst(x, GY+0.8, z, 0xbfe8ff, 18, 1.6);
   burst(x, GY+1.4, z, 0xffffff, 10, 1.9);
   toast('🧹 우리가 반짝반짝해졌어요!', 1.8, '#bfe8ff');
-  if(window.__sfx) window.__sfx('fix');
+  if(window.__sfx) window.__sfx('cleanDone');
 }
 /* 광주리는 없어졌다 — 산물은 우리 안에 놓이고, 주우면 바로 모둠 자원이 된다(18차f). */
 /* Shared construction uses a separate, low-rate channel. The host reserves
@@ -17578,8 +17604,9 @@ function buildReward(credit){
       feed(`🔧 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} <b style="color:${GCOL[r.g]}">${r.g+1}모둠</b> ${esc(r.name)}을(를) <b>살렸어요!</b>`);
       burst(r.x,GY+2.8,r.z,0xffe066,16,2.2);
     }
-    if(window.__sfx)window.__sfx('fix');
+    if(window.__sfx)window.__sfx('repair');        // 66차 — 끼익·탁 + 작은 종
   }
+  if(c.snd && window.__sfx) window.__sfx(c.snd);   // 66차 — 강화·철거 소리는 부탁한 아이 화면에서(호스트만 울리지 않게)
 }
 function buildReply(id,msg,credit=0){
   if(id===uid){toast(msg,1.8);buildReward(credit);}
@@ -17679,7 +17706,7 @@ function handleBuildCommand(id,c){
     for(const k of ['w','s','g']) cost[k]=Math.floor((cost[k]||0)/2);
     buildPay(o.g,cost,true); delStru(o.id); BUILD_HELP.delete(o.id); buildPlanDirty=true;
     if(net) net.update({['b/'+o.id]:null,['buildHelp/'+o.id]:null,base});
-    burst(o.x+.5,GY+1,o.z+.5,0xf0d39e,12); buildReply(id,'철거했어요 · 사용한 자원의 절반을 모둠에 돌려줬어요');
+    burst(o.x+.5,GY+1,o.z+.5,0xf0d39e,12); buildReply(id,'철거했어요 · 사용한 자원의 절반을 모둠에 돌려줬어요',{snd:'demolish'});
   }
 }
 function buildCanMove(o,a){ return G.phase==='day' && buildOwn(o,a) && o.born>0 && Date.now()-o.born<=BUILD_MOVE_MS && o.hp>=o.mx && !(o.sol&&o.sol.length); }
@@ -17894,7 +17921,9 @@ function workStop(){ setBuildHand(''); work = null; }
 function workTick(dt, need){
   work.prog += dt;
   const tk = Math.floor(work.prog / TOK_GAP);
-  if(tk !== work.tok){ work.tok = tk; if(window.__sfx) window.__sfx(tk % 2 ? 'tak' : 'tok'); }
+  if(tk !== work.tok){ work.tok = tk; if(window.__sfx){ const kd = work.kind;             // 66차 — 일마다 소리: 먹이 사각 · 빗자루 쓱 · 철거 지렛대 · 수리 가끔 끼익
+    window.__sfx(kd==='farm' ? (work.fw==='feed' ? 'feedScoop' : 'broom') : kd==='del' ? (tk % 2 ? 'tak' : 'pry')
+               : kd==='repair' && tk % 3 === 2 ? 'squeak' : (tk % 2 ? 'tak' : 'tok')); } }
   return work.prog >= need;
 }
 function workInfo(title, pct){
@@ -18117,7 +18146,9 @@ function hitNode(n){
   const cy = GY + (n.type==='tree'?2.5*NODE_S:1.2*NODE_S);
   const col = n.type==='tree'?0x4a8f3a:n.type==='gold'?0xf2c044:0x9aa0a8;
   burst(n.x+0.5, cy, n.z+0.5, col, broke?11:5, broke?1.25:0.7);
-  if(window.__sfx) window.__sfx(chopKey(n.type));   // 35차 — 재료마다 다른 소리
+  if(window.__sfx){ window.__sfx(chopKey(n.type));   // 35차 — 재료마다 다른 소리
+    window.__sfx(n.type==='tree' ? 'leaf' : n.type==='gold' ? '' : 'grit');                  // 66차 — 나뭇잎 사각 · 돌가루
+    if(broke){ const m = n.type==='tree' ? 0 : n.type==='gold' ? 2 : 1; window.__sfx('chunk', m); window.__sfx('coin', m); } }   // 한 칸 툭 + 짤랑
   if(broke){
     gain(d.give, amt);
     MY.mined += amt;
@@ -18130,7 +18161,7 @@ function hitNode(n){
     for(const h of n.hs) bset(h, false); n.shown = 0;
     burst(n.x+0.5, cy, n.z+0.5, n.type==='tree'?0x4a8f3a:0x9aa0a8, 16, 1.4);
     refreshNodeCells();
-    if(window.__sfx) window.__sfx('get');
+    if(window.__sfx) window.__sfx(n.type==='tree' ? 'treeFall' : 'rockBreak');   // 66차 — 다 캤다: 나무가 쓰러지고 · 바위가 무너진다
     netNode(NODES.indexOf(n), 0);
   } else netNode(NODES.indexOf(n), n.hp);
 }
@@ -18185,8 +18216,7 @@ function applyBuildUpgrade(o,a,branch){
   for(const [cx,cz]of footprint(o.t,o.x,o.z))if(inW(cx,cz))bldH[gi(cx,cz)]=GY+bs(o.t,'hi',o.lv);
   markShape(o.g);markFlow();
   burst(struCX(o),GY+bs(o.t,'hi',o.lv),struCZ(o),0xffd778,20,1.5);
-  buildReply(a.id,'⬆️ '+buildingName(o)+' Lv.'+o.lv+'!',XP_UP*o.lv);
-  if(window.__sfx)window.__sfx('up');
+  buildReply(a.id,'⬆️ '+buildingName(o)+' Lv.'+o.lv+'!',{xp:XP_UP*o.lv,stats:{built:1},snd:'upgrade'});
   if(net)net.update({['b/'+o.id]:packBuilding(o),base});
 }
 
@@ -19321,7 +19351,7 @@ function hostSim(dt){
         burst(bx, GY+2.0, bz, 0x9beeff, 14, 1.7);      // 수정 조각
         burst(bx, GY+2.0, bz, 0xffffff, 6, 2.1);       // 흰 불티
         burst(w.x, GY+1.2, w.z, 0xb6d6be, 4, 1.2);     // 입가의 마른 먼지, 유혈 없음
-        if(window.__sfxAt) window.__sfxAt('hurt', 0, 0, 60, 300);
+        if(window.__sfxAt) window.__sfxAt('crystalHit', 0, 0, 60, 700);   // 66차 — 유리 '팅' + 둔한 쿵(아프다). 여럿이 물어도 0.7초에 한 번
         cryHurtT = 0.28;                               // 수정이 붉게 번쩍한다
         onCrystalHit();
       }
@@ -21083,9 +21113,20 @@ function packSim(){
      .set() 을 부르는 횟수 자체에 붙는 모양이다. 근거 없는 복잡함은 남기지 않는다. */
   return {w, s, c:Math.round(G.crystal*10)};
 }
+/* 66차 — 손님 화면: 수정 체력은 숫자로만 온다. 받은 값이 앞 값보다 내려가면 좀비가 문 것(회복은 올리기만 한다) —
+   선생님 화면과 같은 유리 '팅'(같은 0.7초 간격)과 붉은 번쩍임. 처음 받은 값(밤 중간에 들어옴)은 비교하지 않는다 */
+let cryGuestLast = -1;
+function cryGuestWatch(){
+  if(G.host) return;
+  if(cryGuestLast >= 0 && G.phase === 'night' && G.crystal < cryGuestLast - 0.05){
+    if(window.__sfxAt) window.__sfxAt('crystalHit', 0, 0, 60, 700);
+    cryHurtT = 0.28;
+  }
+  cryGuestLast = G.crystal;
+}
 function applySim(d){
   if(!d) return;
-  G.crystal = (d.c||0)/10;
+  G.crystal = (d.c||0)/10; cryGuestWatch();
   const seen = new Set();
   /* w·s 는 이제 쉼표로 이은 문자열이다. 옛 버전이 보낸 숫자 배열도 그대로 읽는다 —
      선생님 화면만 먼저 새로 고쳐지고 애들 화면은 아직 옛 것인 순간이 있을 수 있다.
@@ -21142,7 +21183,7 @@ function joinRoom(code, asHost){
       if(G.phase === 'mini' && !wasMini) miniEnter();
       else if(G.phase !== 'mini' && wasMini){ G.mini = null; miniLeave(); }
     }
-    if(m.crystal!==undefined) G.crystal = m.crystal;
+    if(m.crystal!==undefined){ G.crystal = m.crystal; cryGuestWatch(); }
     G.mis = m.mis|0; G.misD = m.misD|0;
     setPaused(!!m.pz);
     if(wasPh !== G.phase) onPhaseChange(wasPh, G.phase);
@@ -22189,6 +22230,7 @@ el('bGiveGo').onclick = ()=>{
 el('bSnd').onclick = ()=>{
   sndOn = !sndOn; audioInit();
   el('bSnd').textContent = sndOn ? '🔊' : '🔇'; el('bSnd').title = sndOn ? '소리 켬' : '소리 끔';   // 29차 — 동그라미 단추
+  sndSave('sndOn', sndOn ? 1 : 0); if(AUD){ busIn(); sndVolApply(); }        // 66차 — 이 기기에 기억 · 켜고 끄면 마스터도 바로
   if(sndOn) sfx('get');
 };
 el('bBook').onclick = ()=>{
@@ -22354,7 +22396,14 @@ function audioInit(){
    세기(SFX_MUL)와 좌우 팬(SFX_PAN)이 걸린다. tone/noise 는 이 둘을 읽어 게인과 출력 노드를 정한다. */
 let SFX_MUL = 1, SFX_PAN = 0, lastPan = 0;
 
-let BUS = null;
+/* ★ 66차 소리 — 버스 셋(효과음 SFXB · 배경음 BGMB · 환경음 AMBB) → 마스터(BUS: 압축기 + 방 울림).
+   선생님: "상황과 어울리는 여러 가지 듣기 좋은 효과음들을 많이 추가해 줘. 배경음이랑."
+   스물한 대가 한 교실에서 동시에 울린다 — 세 갈래를 따로 줄여 배경음이 늘 효과음 **밑에** 깔리게 한다.
+     · 효과음 SFXB   — 기존 소리 전부(총·캐기·축하·탑 …). 크기 = 효과음 설정
+     · 배경음 BGMB   → 총소리 때 잠깐 숙이는 BGMD → 저역(75Hz 밑)·고역(4.2kHz 위) 걸러 → 마스터. 크기 = 배경음 설정 × BGM_BASE
+     · 환경음 AMBB   → 5kHz 위 걸러 → 마스터. 새·풀벌레·개울 — 효과음 설정 × 선생님 ambVol
+   소리 조각(발진기·잡음)은 끝나면 스스로 끊는다(nodeEnd). 동시에 울리는 조각 수는 갈래마다 상한(VOX)을 둔다. */
+let BUS = null, SFXB = null, BGMB = null, BGMD = null, AMBB = null;
 function busIn(){
   if(BUS) return BUS;
   BUS = AUD.createGain(); BUS.gain.value = 1;
@@ -22370,41 +22419,93 @@ function busIn(){
   const fb = AUD.createGain(); fb.gain.value = 0.24;
   const wet = AUD.createGain(); wet.gain.value = 0.16;
   BUS.connect(d); d.connect(lp); lp.connect(fb); fb.connect(d); lp.connect(wet); wet.connect(comp);
+  /* 66차 — 세 갈래 */
+  SFXB = AUD.createGain(); SFXB.connect(BUS);
+  AMBB = AUD.createGain();
+  const alp = AUD.createBiquadFilter(); alp.type = 'lowpass'; alp.frequency.value = 5000; alp.Q.value = 0.5;
+  AMBB.connect(alp); alp.connect(BUS);
+  BGMB = AUD.createGain(); BGMD = AUD.createGain();
+  const bhp = AUD.createBiquadFilter(); bhp.type = 'highpass'; bhp.frequency.value = 75; bhp.Q.value = 0.5;
+  const blp = AUD.createBiquadFilter(); blp.type = 'lowpass'; blp.frequency.value = 4200; blp.Q.value = 0.5;
+  BGMB.connect(BGMD); BGMD.connect(bhp); bhp.connect(blp); blp.connect(BUS);
+  sndVolApply(true);
   return BUS;
 }
+const sfxBus = ()=>{ busIn(); return SFXB; };
 let SFX_NODE = null;                   // 65차 — sfxAt 이 부르는 동안만: 먼 소리 거름 사슬(저역·고역 깎기 + 좌우)의 입구
+let SFX_BASE = null;                   // 66차 — 환경음을 부르는 동안만 AMBB (없으면 효과음 버스)
 function sfxOut(){
   if(SFX_NODE) return SFX_NODE;
-  const bus = busIn();
+  const bus = SFX_BASE || sfxBus();
   if(!SFX_PAN || !AUD.createStereoPanner) return bus;
   const p = AUD.createStereoPanner(); p.pan.value = SFX_PAN; p.connect(bus); return p;
 }
+/* ── 66차 동시 목소리 상한 — 갈래마다 끝나는 시각 칸. 빈 칸(끝난 시각 ≤ 시작 시각)이 없으면 그 조각은 안 낸다.
+   오디오 시계로 재므로 검사의 오프라인 컨텍스트에서 앞으로 몰아 예약해도 그대로 맞는다. 칸 수 = 한 번에 울 수 있는 조각 수. */
+const VOX_MAX = {sfx:56, bgm:28, amb:10};
+const VOX = {sfx:new Float64Array(VOX_MAX.sfx), bgm:new Float64Array(VOX_MAX.bgm), amb:new Float64Array(VOX_MAX.amb)};
+let VOX_LANE = 'sfx';
+const AUDSTAT = {made:0, ended:0, drop:0, skip:0, peakLive:0};
+function voxOk(t0, t1){
+  const r = VOX[VOX_LANE];
+  for(let i=0;i<r.length;i++) if(r[i] <= t0){ r[i] = t1; AUDSTAT.made++; return true; }
+  AUDSTAT.drop++; return false;
+}
+function voxFree(t, lane){ const r = VOX[lane || 'sfx']; let n = 0; for(let i=0;i<r.length;i++) if(r[i] <= t) n++; return n; }
+/* 끝난 조각은 스스로 끊는다 — 소스·필터·게인(_a·_b·_c). 콜백 하나를 모두가 같이 쓴다(소리마다 새 함수를 안 만든다) */
+function nodeEnd(){ AUDSTAT.ended++; this.disconnect(); if(this._a){ this._a.disconnect(); this._a = null; } if(this._b){ this._b.disconnect(); this._b = null; } if(this._c){ this._c.disconnect(); this._c = null; } this.onended = null; }
+function audWake(){ if(AUD.state === 'suspended' && AUD.resume && !(typeof document !== 'undefined' && document.hidden)) AUD.resume(); }
 
 function pluck(f, dur, vol, when, h2, type){
   if(!AUD || !sndOn) return;
-  if(AUD.state==='suspended') AUD.resume();
+  audWake();
   const t0 = when || AUD.currentTime, out = sfxOut(), v = (vol || 0.08) * SFX_MUL;
   const mk = (ff, vv, tp, dd)=>{
+    if(!voxOk(t0, t0 + dd + 0.02)) return;
     const o = AUD.createOscillator(), g = AUD.createGain(); o.type = tp; o.frequency.value = ff;
     g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(vv, t0 + 0.005);
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + dd);
-    o.connect(g); g.connect(out); o.start(t0); o.stop(t0 + dd + 0.02); };
+    o.connect(g); g.connect(out); o._a = g; o.onended = nodeEnd; o.start(t0); o.stop(t0 + dd + 0.02); };
   mk(f, v, type || 'sine', dur);
   if(h2) mk(f*2, v*h2, 'sine', dur*0.6);
 }
 let NOISE_BUF = null;
+function noiseBuf(){ if(!NOISE_BUF){ NOISE_BUF = AUD.createBuffer(1, AUD.sampleRate, AUD.sampleRate); const d = NOISE_BUF.getChannelData(0);
+  for(let i=0;i<d.length;i++) d[i] = Math.random()*2-1; } return NOISE_BUF; }
 function puff(dur, vol, f, q, when, type){
   if(!AUD || !sndOn) return;
-  if(!NOISE_BUF){ NOISE_BUF = AUD.createBuffer(1, AUD.sampleRate, AUD.sampleRate); const d = NOISE_BUF.getChannelData(0);
-    for(let i=0;i<d.length;i++) d[i] = Math.random()*2-1; }
   const t0 = when || AUD.currentTime;
-  const src = AUD.createBufferSource(); src.buffer = NOISE_BUF;
+  if(!voxOk(t0, t0 + dur + 0.02)) return;
+  const src = AUD.createBufferSource(); src.buffer = noiseBuf();
   const fl = AUD.createBiquadFilter(); fl.type = type || 'bandpass'; fl.frequency.value = f || 900; fl.Q.value = q || 1;
   const g = AUD.createGain(); g.gain.setValueAtTime(0.0001, t0);
   g.gain.exponentialRampToValueAtTime((vol || 0.1) * SFX_MUL, t0 + 0.004);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
   src.connect(fl); fl.connect(g); g.connect(sfxOut());
+  src._a = fl; src._b = g; src.onended = nodeEnd;
   src.start(t0, Math.random()*0.5, dur + 0.02);
+}
+/* 66차 — 천천히 차오르고 천천히 사라지는 잡음(바람·개울·먼 바람). puff 는 4ms 만에 튀어 올라 '쉭' 이 된다 */
+function hush(dur, vol, f, q, when, type){
+  if(!AUD || !sndOn) return;
+  const t0 = when || AUD.currentTime;
+  if(!voxOk(t0, t0 + dur + 0.02)) return;
+  const src = AUD.createBufferSource(); src.buffer = noiseBuf(); src.loop = true;
+  const fl = AUD.createBiquadFilter(); fl.type = type || 'bandpass'; fl.frequency.value = f || 600; fl.Q.value = q || 0.7;
+  const g = AUD.createGain(); g.gain.setValueAtTime(0, t0);
+  g.gain.linearRampToValueAtTime((vol || 0.03) * SFX_MUL, t0 + dur*0.42);
+  g.gain.linearRampToValueAtTime(0, t0 + dur);
+  src.connect(fl); fl.connect(g); g.connect(sfxOut());
+  src._a = fl; src._b = g; src.onended = nodeEnd;
+  src.start(t0, Math.random()*0.5); src.stop(t0 + dur + 0.02);
+}
+/* 66차 — 배경음 목소리: 느린 차오름·유지·놓음(패드·현 저음). dest 는 배경음 판(BGM_P)의 거름 입구 */
+function bgmVoice(type, f, t0, dur, vol, att, rel, dest){
+  if(!AUD || !sndOn || !voxOk(t0, t0 + dur + rel + 0.05)) return;
+  const o = AUD.createOscillator(), g = AUD.createGain(); o.type = type; o.frequency.value = f;
+  g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(vol, t0 + att);
+  g.gain.setValueAtTime(vol, t0 + Math.max(att, dur)); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur + rel);
+  o.connect(g); g.connect(dest || sfxOut()); o._a = g; o.onended = nodeEnd; o.start(t0); o.stop(t0 + dur + rel + 0.05);
 }
 function sfxFrom(k, x, z, mul){
   const dx = x - PL.x, dz = z - PL.z, L = Math.hypot(dx, dz) || 1;
@@ -22415,8 +22516,9 @@ function sfxFrom(k, x, z, mul){
 }
 function tone(f1, f2, dur, type, vol, when){
   if(!AUD || !sndOn) return;
-  if(AUD.state==='suspended') AUD.resume();
+  audWake();
   const t0 = when || AUD.currentTime;
+  if(!voxOk(t0, t0 + dur + 0.03)) return;
   const o = AUD.createOscillator(), g = AUD.createGain();
   o.type = type || 'square';
   o.frequency.setValueAtTime(f1, t0);
@@ -22424,18 +22526,20 @@ function tone(f1, f2, dur, type, vol, when){
   g.gain.setValueAtTime(0.0001, t0);
   g.gain.exponentialRampToValueAtTime((vol || 0.10) * SFX_MUL, t0 + 0.008);
   g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  o.connect(g); g.connect(sfxOut());
+  o.connect(g); g.connect(sfxOut()); o._a = g; o.onended = nodeEnd;
   o.start(t0); o.stop(t0 + dur + 0.03);
 }
 function noise(dur, vol, cut, when){              // 29차 — when: 조금 뒤에 (총소리의 두 번째 파열음)
   if(!AUD || !sndOn) return;
+  const t0 = when || AUD.currentTime;
+  if(!voxOk(t0, t0 + dur)) return;
   const n = (AUD.sampleRate*dur)|0;
   const buf = AUD.createBuffer(1, n, AUD.sampleRate), d = buf.getChannelData(0);
   for(let i=0;i<n;i++) d[i] = (Math.random()*2-1) * (1 - i/n);
   const src = AUD.createBufferSource(); src.buffer = buf;
   const f = AUD.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = cut || 900;
   const g = AUD.createGain(); g.gain.value = (vol || 0.10) * SFX_MUL;
-  src.connect(f); f.connect(g); g.connect(sfxOut()); src.start(when || 0);
+  src.connect(f); f.connect(g); g.connect(sfxOut()); src._a = f; src._b = g; src.onended = nodeEnd; src.start(when || 0);
 }
 const now0 = ()=> AUD ? AUD.currentTime : 0;
 const SFX = {
@@ -22592,22 +22696,25 @@ const _sfxT = {};
 
 function crackSweep(dur, vol, f1, f2, q, when){
   if(!AUD || !sndOn) return;
-  if(!NOISE_BUF){ NOISE_BUF = AUD.createBuffer(1, AUD.sampleRate, AUD.sampleRate); const d = NOISE_BUF.getChannelData(0); for(let i=0;i<d.length;i++) d[i] = Math.random()*2-1; }
-  const t0 = when || AUD.currentTime, src = AUD.createBufferSource(); src.buffer = NOISE_BUF;
+  const t0 = when || AUD.currentTime;
+  if(!voxOk(t0, t0 + dur + 0.02)) return;
+  const src = AUD.createBufferSource(); src.buffer = noiseBuf();
   const fl = AUD.createBiquadFilter(); fl.type = 'bandpass'; fl.Q.value = q || 1.2;
   fl.frequency.setValueAtTime(f1, t0); fl.frequency.exponentialRampToValueAtTime(Math.max(40, f2), t0 + dur);
   const g = AUD.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime((vol || 0.1) * SFX_MUL, t0 + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  src.connect(fl); fl.connect(g); g.connect(sfxOut()); src.start(t0, Math.random()*0.5, dur + 0.02);
+  src.connect(fl); fl.connect(g); g.connect(sfxOut()); src._a = fl; src._b = g; src.onended = nodeEnd; src.start(t0, Math.random()*0.5, dur + 0.02);
 }
 let SHAPE_C = null;
 function thump(f1, f2, dur, vol, when, drive){
   if(!AUD || !sndOn) return;
   if(!SHAPE_C){ SHAPE_C = new Float32Array(257); for(let i=0;i<257;i++){ const x = i/128 - 1; SHAPE_C[i] = Math.tanh(x*3.2); } }
-  const t0 = when || AUD.currentTime, o = AUD.createOscillator(), g = AUD.createGain(), ws = AUD.createWaveShaper(), pre = AUD.createGain();
+  const t0 = when || AUD.currentTime;
+  if(!voxOk(t0, t0 + dur + 0.03)) return;
+  const o = AUD.createOscillator(), g = AUD.createGain(), ws = AUD.createWaveShaper(), pre = AUD.createGain();
   o.type = 'sine'; o.frequency.setValueAtTime(f1, t0); o.frequency.exponentialRampToValueAtTime(Math.max(20, f2), t0 + dur);
   ws.curve = SHAPE_C; pre.gain.value = drive || 1.4;
   g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime((vol || 0.1) * SFX_MUL, t0 + 0.006); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
-  o.connect(pre); pre.connect(ws); ws.connect(g); g.connect(sfxOut()); o.start(t0); o.stop(t0 + dur + 0.03);
+  o.connect(pre); pre.connect(ws); ws.connect(g); g.connect(sfxOut()); o._a = pre; o._b = ws; o._c = g; o.onended = nodeEnd; o.start(t0); o.stop(t0 + dur + 0.03);
 }
 function echoes(v, tail, t0){ puff(0.09, 0.055*v*tail, 720, 0.7, t0 + 0.11); puff(0.14, 0.03*v*tail, 420, 0.7, t0 + 0.26); }
 function boltClack(t, heavy){ const h = heavy ? 1.35 : 1; puff(0.018, 0.07, 3000, 3, t); tone(230*h, 150*h, 0.045, 'triangle', 0.035, t); puff(0.02, 0.06, 2400, 3, t + 0.11); tone(190*h, 120*h, 0.05, 'triangle', 0.035, t + 0.11); }
@@ -22627,8 +22734,20 @@ function gunshot(v, lowF, crackF, tail, when, o){ const t0 = when || now0(); o =
 /* 65차 — 같은 소리가 0.025초 안에 또 오면 한 번만 낸다(한 프레임에 번개 셋·관통 둘이 '맞는 소리' 를 겹쳐 부르면 소리가 세 배로 커졌다).
    시계는 오디오 시계(now0) — 검사가 오프라인 컨텍스트의 시간을 밀어 줄지어 재도 그대로 맞는다. */
 const _sfxLast = {};
+/* 66차 — 같은 소리 사이 최소 간격(초). 표에 없으면 0.025. 발소리·동물·자연 소리가 몰려 겹치지 않게 */
+const SFX_GAP = {step:0.09, coin:0.06, leaf:0.08, grit:0.08, chunk:0.05, pop:0.06, buy:0.08, nope:0.25, tab:0.05,
+  hen:1.2, pig:1.4, cow:2.0, bird1:0.6, bird2:0.6, cricket:0.5, owl:3, crow:1.5, rooster:5, brook:0.5, breeze:3, nightWind:3,
+  hpBeat:0.5, crystalHit:0.6, squeak:0.2, pry:0.1, feedScoop:0.1, broom:0.1};
+/* 목소리가 모자랄 때도 꼭 내는 소리(다침·수정·승패·보스 등장) — 나머지는 빈 칸이 8 밑이면 건너뛴다 */
+const SFX_PRIO = {hurt:1, crystalHit:1, win:1, lose:1, fx2BossIn:1, fx2Big:1, go:1, specCall:1, hpBeat:1};
+/* 크게 터지는 소리 — 울릴 때 배경음을 0.2초쯤 숙였다가(BGMD) 천천히 되돌린다(총소리를 배경음이 안 가리게) */
+const SFX_LOUD = {gun:1, flint:1, rifle:1, smg:1, boom:1, laser:1, shotgun:1, goldsmg:1, ranch:1, thunder:1, flame:1, musket:1,
+  blast:1, stomp:1, towerCannon:1, towerBoom:1, fx2BossIn:1, fx2BossDown:1, kill:1};
 function sfx(k, a){ audioInit(); if(!SFX[k]) return;
-  if(AUD){ const t = now0(), l = _sfxLast[k]; if(l !== undefined && t >= l && t - l < 0.025) return; _sfxLast[k] = t; }
+  if(AUD && AUD.state === 'suspended' && typeof document !== 'undefined' && document.hidden) return;   // 66차 — 탭을 떠나 있는 동안은 안 쌓는다
+  if(AUD){ const t = now0(), l = _sfxLast[k]; if(l !== undefined && t >= l && t - l < (SFX_GAP[k] || 0.025)) return;
+    if(!SFX_PRIO[k] && voxFree(t, VOX_LANE) < (VOX_LANE === 'sfx' ? 8 : 2)){ AUDSTAT.skip++; return; }
+    _sfxLast[k] = t; if(SFX_LOUD[k]) bgmDuck(t); }
   SFX[k](a); }      // 39차 — 세기 인자 하나(우르릉) · 42차 — 총은 kick
 /* 줄을 넘을 때마다 반음씩 높아지는 딩 — 연속으로 넘을수록 신이 난다.
    (한 옥타브까지만 올린다. 그 위는 귀가 따갑다) */
@@ -22646,7 +22765,7 @@ function sfxJump(n){
      · 어디서 — 좌우(sfxFrom 과 같은 셈)
    거름 사슬은 한 번 부를 때 하나만 만들고, 그 소리의 모든 목소리가 거기로 들어간다(SFX_NODE). 가까우면(15% 안) 예전 그대로다. */
 function sfxAt(k, x, z, maxD, gap){
-  if(!sndOn) return;
+  if(!sndOn || typeof PL === 'undefined') return;
   const d = Math.hypot(x-PL.x, z-PL.z), M = maxD||26;
   if(d > M) return;
   const t = performance.now();
@@ -22661,8 +22780,11 @@ function sfxAt(k, x, z, maxD, gap){
   lp.connect(hp);
   const dx = x - PL.x, dz = z - PL.z, c = Math.cos(PL.yaw), sn = Math.sin(PL.yaw);
   const pan = Math.max(-1, Math.min(1, (dx*c - dz*sn)/(d||1))) * 0.7;
-  if(AUD.createStereoPanner){ const p = AUD.createStereoPanner(); p.pan.value = pan; hp.connect(p); p.connect(busIn()); }
-  else hp.connect(busIn());
+  const dest = SFX_BASE || sfxBus();
+  let pn = null;
+  if(AUD.createStereoPanner){ pn = AUD.createStereoPanner(); pn.pan.value = pan; hp.connect(pn); pn.connect(dest); }
+  else hp.connect(dest);
+  sndDrop(lp, hp, pn, now0() + 3);       // 66차 — 거름 사슬도 3초 뒤 끊는다(소리 조각은 스스로 끊긴다)
   SFX_NODE = lp; SFX_MUL = 1 - 0.6*q;
   try { sfx(k); } finally { SFX_NODE = null; SFX_MUL = 1; }
 }
@@ -22777,7 +22899,8 @@ function zombieVoices(dt){
 
 /* ═══════════════════════ 배경음 (오르골·마림바) ═══════════════════════ */
 const BGM_STEP_DAY = 0.25, BGM_STEP_NIGHT = 0.30;      // 8분음표 하나 — 낮 120bpm · 밤 100bpm(위험하면 ≈140)
-/* 40차 — 경주(선생님: "신나고 빠른 음악으로"): 158bpm · E 장조 · 사각파 멜로디 · 매 박 베이스 · 킥·스네어·하이햇 */
+/* 40차 — 경주(선생님: "신나고 빠른 음악으로"): 158bpm · E 장조 · 매 박 베이스 · 킥·스네어·하이햇
+   66차 — 멜로디를 사각파에서 삼각파+배음으로(귀가 덜 따갑다), 하이햇을 7.5k → 5.2k 로 내렸다 */
 const BGM_STEP_RACE = 0.19;
 const BGM_RACE_A = [0,4,7,12, 12,7,4,0,   2,5,9,14, 14,9,5,2,   4,7,11,16, 16,11,7,4,   5,9,12,17, 12,9,5,-1];
 const BGM_RACE_B = [7,12,16,19, 16,12,7,4,  5,9,12,17, 12,9,5,2,   9,12,16,21, 16,12,9,7,   11,14,17,14, 12,7,4,0];
@@ -22797,49 +22920,450 @@ function bgmHeatNow(){
   const lost = 1 - G.crystal/G.set.crystalMax;
   return Math.max(0, Math.min(1, inside/7 + lost*0.55));
 }
-/* 한 걸음(8분음표)의 음들을 t0 에 건다. bgmStep 이 64 를 한 바퀴 돈다 */
+
+/* ═══ 66차 — 장면별 배경음 ═══
+   선생님: "상황과 어울리는 … 배경음이랑." 곡 하나(낮/밤)만 돌던 것을 장면마다 나눴다.
+     대기실 lobby(F장조 83bpm 오르골·패드) · 여명 dawn(G장조 71bpm, 첫날·미니게임 뒤 아침 13초)
+     낮 day1(원래 C장조 오르골) · day2(G장조 마림바·나무토막) · day3(F장조 종소리) — 날마다 번갈아
+     해질녘 dusk(A단조, 밤 22초 전부터 시계 소리가 차츰 커진다) · 밤 night(원래 A단조 + 현 저음, 가까울수록 빠르고 층이 쌓인다)
+     보스 밤 boss(D단조, 북·저음 반복) · 승리 새벽 victory(밤을 버틴 아침 — FX2 팡파르 자리를 비워 두고 잔잔한 오르골)
+     경주 race(원래 곡을 부드럽게) · 서바이벌 surv(같은 곡을 D로 낮춰 조금 느리게)
+   곡이 바뀌면 판(BGMP) 둘이 1.5초 겹쳐 넘어간다. 떠났던 곡으로 돌아오면 그 마디부터 이어 간다(bgmMem).
+   같은 곡은 64걸음(한 바퀴)마다 변주가 바뀐다 — 0 그대로 · 1 종소리 한 겹 · 2 멜로디를 덜고 패드를 키움(숨 돌리기) · 3 다 함께.
+   악기는 전부 부드러운 사인·삼각파 + 거른 톱니(현 저음 — 480Hz 위를 걸러 날카로움이 없다). 사각파는 쓰지 않는다. */
+const BGM_XF = 1.5, BGM_AHEAD = 0.14, BGM_MORN = 13, BGM_DUSK = 22;
+const BGM_BASE = 0.60;                        // 배경음 버스 기본 세기(설정 100% 일 때). 효과음보다 확실히 작게 — 렌더로 재어 낮 곡의 100ms 최대 세기가 캐기 소리보다 3~5dB 밑
+const mt = (r, s)=> r*Math.pow(2, s/12);
+/* 화음 — [패드 음(근음 한 옥타브 아래 기준 반음), 베이스 반음]. 단조 곡도 같은 이름을 쓴다(VI·VII·iv) */
+const BGM_CH = {
+  I:[[0,4,7],0], ii:[[2,5,9],2], iii:[[4,7,11],4], IV:[[0,5,9],5], V:[[-1,2,7],7], vi:[[-3,0,4],-3],
+  i:[[0,3,7],0], iv:[[0,5,8],5], VI:[[0,3,8],-4], VII:[[-2,2,5],-2], III:[[3,7,10],3]
+};
+let BGM_P = null;                              // 지금 음을 거는 판 — 패드·현은 이 판의 거름 입구로 들어간다
+/* 악기 — 전부 기존 합성(pluck·puff·tone)과 bgmVoice. 부르는 동안 SFX_NODE = 판의 게인, VOX_LANE = 'bgm' */
+function iBox(f, t, v){ pluck(f, 0.40, v, t, 0.30); }                                   // 오르골
+function iMari(f, t, v){ pluck(f, 0.24, v, t, 0.12, 'triangle'); pluck(f*4, 0.035, v*0.10, t); }   // 마림바 — 채 끝 '톡'
+function iBell(f, t, v){ pluck(f, 0.80, v, t, 0.15); pluck(f*2.76, 0.30, v*0.10, t); }    // 종·첼레스타
+function iSoft(f, t, v){ pluck(f, 0.20, v, t, 0.42, 'triangle'); }                      // 경주 — 사각파 대신 삼각파 + 배음
+function iPad(ch, r, t, dur, v, type){ const pv = ch[0]; for(let k=0;k<pv.length;k++) bgmVoice(type || 'triangle', mt(r/2, pv[k]), t, dur, v, 0.35, 0.8, BGM_P && BGM_P.pad); }
+function iBow(f, t, dur, v){ bgmVoice('sawtooth', f, t, dur, v, 0.10, 0.30, BGM_P && BGM_P.low); }   // 현 저음(걸러서 부드럽게)
+function iBass(f, t, v, d){ pluck(f, d || 0.5, v, t, 0.15, 'triangle'); }
+function dKick(t, v){ puff(0.09, v, 130, 1.0, t); pluck(56, 0.20, v*0.9, t, 0, 'sine'); }
+function dTaiko(t, v){ puff(0.18, v, 150, 0.8, t); tone(108, 52, 0.34, 'sine', v*0.95, t);
+  tone(216, 150, 0.12, 'triangle', v*0.5, t); puff(0.05, v*0.6, 450, 1.2, t); }        // 노트북 스피커가 내는 가운데 몸통(216Hz·450Hz)
+function dWood(t, v, f){ pluck(f || 1180, 0.05, v, t, 0, 'triangle'); puff(0.015, v*0.7, 2200, 3, t); }
+function dShake(t, v){ puff(0.04, v, 4600, 1.4, t); }
+function dSnare(t, v){ puff(0.07, v, 1700, 0.8, t); }
+function dTick(t, v){ pluck(2093, 0.03, v, t, 0); puff(0.012, v*0.8, 3000, 3, t); }        // 시계 똑딱
+/* 곡 표 — mel[A,B] 32음씩, ch[A,B] 마디 넷씩, lead(f,t,v) · pad 세기 · bass(t,beat,b,r,h,va) · perc(t,beat,bar,h,va,jj) */
+const BGM_SC = {
+  lobby:{ root:349.23, step:()=>0.36, leadV:0.040, pad:0.012, lead:iBox,
+    mel:[[0,-1,4,7, 12,-1,7,-1,  -3,-1,0,4, 0,-1,-1,-1,  14,-1,12,9, 5,-1,9,-1,  11,-1,7,4, 7,-1,-1,-1],
+         [12,-1,16,14, 12,-1,9,-1,  7,-1,11,12, 11,-1,7,-1,  9,-1,5,9, 14,-1,12,-1,  11,-1,7,-1, 0,-1,-1,-1]],
+    ch:[['I','vi','IV','V'],['I','iii','IV','V']],
+    bass:(t,beat,b,r)=>{ if(beat === 0) iBow(mt(r/4, b), t, 2.4, 0.020); },
+    perc:(t,beat,bar,h,va)=>{ if(va === 3 && beat === 4) dWood(t, 0.010, 1400); } },
+  dawn:{ root:392, step:()=>0.42, leadV:0.042, pad:0.016, lead:iBox, once:32, loop:0,
+    mel:[[0,-1,7,-1, 12,-1,14,-1,  16,-1,-1,-1, 11,-1,7,-1,  9,-1,12,-1, 16,-1,19,-1,  14,-1,12,-1, 12,-1,-1,-1], null],
+    ch:[['I','vi','IV','I'], null],
+    bass:(t,beat,b,r)=>{ if(beat === 0) iBow(mt(r/4, b), t, 3.0, 0.018); },
+    perc:(t,beat,bar,h,va,jj)=>{ if(jj >= 26 && jj % 2 === 0) iBell(mt(1568, (jj-26)*2), t + 0.1, 0.012); } },      // 끝에 새처럼 높은 종 셋
+  day1:{ root:261.63, step:()=>BGM_STEP_DAY, leadV:0.045, pad:0.008, lead:iBox, vary:true,
+    mel:[BGM_DAY_A, BGM_DAY_B], ch:[['I','V','vi','IV'],['I','V','vi','IV']],
+    bass:(t,beat,b,r,h,va,bar)=>{ if(beat === 0 || beat === 4) iBass(mt(r/4, BGM_DAY_BASS[bar][beat/4]), t, 0.048, 0.55); },
+    perc:(t,beat,bar,h,va)=>{ if(beat % 2 === 1) dShake(t, 0.015); if(va === 3 && beat === 0) dKick(t, 0.035); } },
+  day2:{ root:392, step:()=>0.26, leadV:0.050, pad:0.007, lead:iMari, vary:true,
+    mel:[[0,4,7,4, 12,7,4,7,  5,9,12,9, 14,12,9,5,  7,11,14,11, 12,11,9,7,  4,2,0,-1, 7,-1,0,-1],
+         [11,-1,9,7, 4,-1,7,-1,  9,-1,7,5, 4,-1,5,-1,  2,5,9,12, 11,9,5,2,  7,-1,11,-1, 14,12,11,-1]],
+    ch:[['I','IV','V','I'],['vi','IV','ii','V']],
+    bass:(t,beat,b,r)=>{ if(beat % 2 === 0) iBass(mt(r/4, b + [0,7,12,7][beat/2]), t, 0.042, 0.30); },
+    perc:(t,beat,bar,h,va)=>{ if(beat === 2 || beat === 6) dWood(t, 0.020); if(beat === 0 || (va === 3 && beat === 4)) dKick(t, 0.030); } },
+  day3:{ root:349.23, step:()=>0.24, leadV:0.034, pad:0.009, lead:iBell, vary:true,
+    mel:[[12,-1,7,-1, 9,11,12,-1,  14,-1,9,-1, 12,-1,9,-1,  9,-1,5,-1, 2,4,5,-1,  7,-1,11,-1, 14,-1,-1,-1],
+         [12,-1,9,5, 9,-1,12,-1,  16,-1,12,-1, 14,12,11,12,  14,-1,9,-1, 5,7,9,-1,  11,-1,7,-1, 4,-1,7,-1]],
+    ch:[['I','vi','ii','V'],['IV','I','ii','V']],
+    bass:(t,beat,b,r)=>{ if(beat === 0 || beat === 3 || beat === 4) iBass(mt(r/4, b + (beat === 4 ? 7 : 0)), t, 0.040, 0.32); },
+    perc:(t,beat,bar,h,va)=>{ if(beat % 2 === 1) dShake(t, 0.012); if(beat === 0) dKick(t, 0.026); if(va >= 1 && beat % 2 === 0) iBox(mt(349.23*2, [0,4,7,12][(beat/2)|0]), t, 0.010); } },
+  /* 해질녘 — h = 밤까지 남은 시간이 줄수록 0 → 1. 시계 똑딱이 커지고 1 박마다 → 반 박마다, 낮은 북이 들어온다 */
+  dusk:{ root:220, step:()=>0.31, leadV:0.042, pad:0.012, padType:'sine', lead:(f,t,v)=>iBox(f*2, t, v),
+    mel:[[12,-1,-1,10, 7,-1,-1,-1,  8,-1,-1,7, 5,-1,3,-1,  5,-1,8,-1, 12,-1,10,-1,  11,-1,-1,-1, 7,-1,-1,-1],
+         [15,-1,-1,14, 12,-1,-1,-1,  12,-1,-1,10, 8,-1,7,-1,  5,-1,8,-1, 10,-1,8,-1,  11,-1,-1,-1, 14,-1,-1,-1]],
+    ch:[['i','VI','iv','V'],['III','VI','iv','V']],
+    bass:(t,beat,b,r)=>{ if(beat === 0) iBow(mt(r/2, b), t, 2.3, 0.022); },
+    perc:(t,beat,bar,h)=>{ if(beat % (h > 0.55 ? 1 : 2) === 0) dTick(t, 0.006 + 0.012*h);
+      if(h > 0.5 && (beat === 0 || beat === 4)) dKick(t, 0.020 + 0.03*(h - 0.5)); } },
+  /* 밤 — 원래 곡 그대로 + 현 저음. heat(좀비가 마을 안에 몇 마리·수정이 얼마나 깎였나)에 따라 빨라지고 층이 쌓인다 */
+  night:{ root:220, step:(i,h)=>BGM_STEP_NIGHT - h*0.09, leadV:0.045, pad:0.007, padType:'sine',
+    lead:(f,t,v,h)=>pluck(f, 0.42 - h*0.12, v + h*0.02, t, 0.22, 'triangle'),
+    mel:[BGM_NIGHT_A, BGM_NIGHT_B], ch:[['i','VI','iv','V'],['i','VI','iv','V']], vary:true,
+    bass:(t,beat,b,r,h,va,bar)=>{ if(beat === 0 || beat === 4) iBass(mt(r/2, BGM_NIGHT_BASS[bar][beat/4]), t, 0.048 + h*0.015, 0.55);
+      if(beat === 0) iBow(mt(r/4, BGM_NIGHT_BASS[bar][0]), t, 2.1, 0.016 + h*0.012); },
+    perc:(t,beat,bar,h)=>{
+      if(h > 0.30 && beat % 4 === 0){ puff(0.10, 0.04 + h*0.06, 180, 1.0, t); pluck(58, 0.22, 0.07 + h*0.05, t, 0, 'sine'); }   // 위험할수록 낮은 북
+      if(h > 0.55 && beat % 2 === 1) iMari(mt(110, BGM_NIGHT_BASS[bar][0] + 12), t, 0.018 + 0.02*h);                          // 낮은 마림바 되풀이
+      if(h > 0.75 && (beat === 3 || beat === 7)) dSnare(t, 0.018); } },
+  /* 보스 밤 — D단조, 큰북(둥·둥둥)과 거른 현 저음 되풀이, 마디 첫 박에 낮은 금관 */
+  boss:{ root:293.66, step:(i,h)=>0.28 - h*0.05, leadV:0.052, pad:0.012, padType:'sine',
+    lead:(f,t,v,h)=>{ const w = v*(1 + h*0.3); tone(f, f, 0.26, 'triangle', w, t); tone(f*2, f*2, 0.2, 'sine', w*0.25, t); },   // 가까울수록 금관이 세진다
+    mel:[[12,-1,-1,-1, 15,-1,14,12,  15,-1,-1,-1, 12,-1,10,8,  10,-1,-1,-1, 14,-1,12,10,  11,-1,-1,-1, 7,-1,-1,-1],
+         [7,-1,12,-1, 15,-1,17,15,  12,-1,8,-1, 12,-1,15,-1,  14,-1,10,-1, 14,-1,17,-1,  11,-1,14,-1, 19,-1,-1,-1]],
+    ch:[['i','VI','VII','V'],['i','VI','VII','V']], vary:true,
+    bass:(t,beat,b,r,h)=>{ iBow(mt(r/4, b + [0,0,3,2,0,-2,0,-5][beat]), t, 0.22, 0.020 + h*0.02);
+      if(beat === 0){ const f = mt(r/2, b); tone(f, f, 0.5, 'triangle', 0.035, t); tone(f*1.5, f*1.5, 0.45, 'triangle', 0.020, t); tone(f*2, f*2, 0.45, 'triangle', 0.016, t); } },
+    perc:(t,beat,bar,h)=>{ if(beat === 0 || beat === 3 || beat === 4) dTaiko(t, (beat === 0 ? 0.075 : 0.05) + h*0.02);   // 가까울수록 북이 커진다
+      if(h > 0.4 && (beat === 6 || beat === 7)) dTaiko(t, 0.035);
+      if(h > 0.5 && beat % 2 === 1) dSnare(t, 0.014 + h*0.006); } },
+  /* 승리 새벽 — 팡파르는 FX2 의 '밤 버팀'(fx2Dawn) 하나만. 그것은 날 제목이 걷힌 뒤(약 3.9초)에 울리므로
+     배경음은 앞 16걸음(0.2초 × 16 = 3.2초) 동안 패드·현만 깔고 멜로디를 쉰다 → 잔잔한 오르골(0.3초 걸음)을 되풀이.
+     (예전엔 여기서도 '따따따 따-안' 을 불러 팡파르가 두 번, 그것도 배경음 쪽이 먼저 울렸다) */
+  victory:{ root:261.63, step:(i)=> (i % 48) < 16 ? 0.20 : 0.30, leadV:0.050, pad:0.010, once:48, loop:16,
+    lead:(f,t,v)=>{ iBox(f, t, v*0.85); },
+    mel:[[-1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1, -1,-1,-1,-1,  12,-1,7,-1, 4,-1,7,-1,  9,-1,5,-1, 9,-1,12,-1],
+         [11,-1,7,-1, 14,-1,11,-1,  12,-1,-1,-1, 7,-1,-1,-1,  -1,-1,-1,-1, -1,-1,-1,-1,  -1,-1,-1,-1, -1,-1,-1,-1]],
+    ch:[['I','I','I','IV'],['V','I','I','I']],
+    bass:(t,beat,b,r,h,va,bar,jj,i)=>{ if(beat === 0 && (i % 48) >= 4) iBow(mt(r/4, b), t, 2.0, 0.018); },
+    perc:()=>{} },
+  race:{ root:329.63, step:()=>BGM_STEP_RACE, leadV:0.050, pad:0, lead:iSoft, vary:true,
+    mel:[BGM_RACE_A, BGM_RACE_B], ch:[['I','I','I','I'],['I','I','I','I']],
+    bass:(t,beat,b,r,h,va,bar)=>{ if(beat % 2 === 0) iBass(r/4 * Math.pow(2, BGM_RACE_BASS[bar]/12), t, 0.058, 0.28); },
+    perc:(t,beat,bar,h,va)=>{ if(beat === 0 || beat === 4) puff(0.09, 0.055, 140, 1.0, t);
+      if(beat === 2 || beat === 6) puff(0.05, 0.030, 1900, 0.8, t);
+      puff(0.018, 0.010, 5200, 1.4, t);
+      if(va === 1 && beat === 0) iBell(mt(329.63*2, 7), t, 0.012); } },
+  surv:{ root:293.66, step:()=>0.20, leadV:0.046, pad:0, lead:iSoft, vary:true,
+    mel:[BGM_RACE_A, BGM_RACE_B], ch:[['I','I','I','I'],['I','I','I','I']],
+    bass:(t,beat,b,r,h,va,bar)=>{ if(beat % 2 === 0) iBass(r/4 * Math.pow(2, BGM_RACE_BASS[bar]/12), t, 0.055, 0.28); },
+    perc:(t,beat,bar)=>{ if(beat === 0 || beat === 3 || beat === 4) dTaiko(t, 0.035); if(beat === 2 || beat === 6) dSnare(t, 0.024); } }
+};
+const BGM_DAYS = ['day1', 'day2', 'day3'];
+/* 한 걸음(8분음표)을 판 p 의 i 번째로 t 에 건다 */
+function bgmPlay(p, i, t, h){
+  const S = BGM_SC[p.k], n = S.once || 64, j = i % n, half = j < 32 ? 0 : 1, jj = j % 32, bar = (jj/8)|0, beat = jj % 8;
+  const va = S.vary ? ((i/64)|0) % 4 : 0, mel = S.mel[half] || S.mel[0], chn = (S.ch[half] || S.ch[0])[bar], ch = BGM_CH[chn];
+  const sN = mel[jj], st = S.step(i, h);
+  if(sN >= 0 && !(va === 2 && beat % 2 === 1)){
+    const f = mt(S.root, sN);
+    S.lead(f, t, S.leadV, h, i);
+    if((va === 1 || va === 3) && beat % 4 === 0) iBell(f*2, t + st*0.5, S.leadV*0.28);          // 변주 — 반 박 뒤에 한 옥타브 위 종
+  }
+  if(beat === 0 && S.pad) iPad(ch, S.root, t, st*8*0.95, S.pad*(va === 2 ? 1.5 : 1), S.padType);
+  S.bass(t, beat, ch[1], S.root, h, va, bar, jj, i);
+  if(S.perc) S.perc(t, beat, bar, h, va, jj, i);
+}
+/* 판 — 곡마다 게인 하나 + 패드 거름(1.5k) + 현 거름(480Hz). 곡이 바뀌면 옛 판은 1.5초 동안 줄어들며 음을 계속 건 뒤 끊긴다 */
+const BGMP = [];
+let bgmCur = null, bgmAfterNight = false, bgmPrevPhase = '', BGM_FORCE_H = -1, bgmPopK = 1;
+const bgmMem = {};
+function bgmNewPlayer(k, t, i){
+  busIn();
+  const g = AUD.createGain(), pad = AUD.createBiquadFilter(), low = AUD.createBiquadFilter();
+  pad.type = 'lowpass'; pad.frequency.value = 1500; pad.Q.value = 0.4;
+  low.type = 'lowpass'; low.frequency.value = 480; low.Q.value = 0.5;
+  pad.connect(g); low.connect(g); g.connect(BGMB);
+  return {k, i: i || 0, next: t, g, pad, low, end: 0, aud: AUD};
+}
+function bgmSwitch(k, now){
+  if(bgmCur){ if(!BGM_SC[bgmCur.k].once) bgmMem[bgmCur.k] = bgmCur.i;
+    const gg = bgmCur.g.gain; gg.cancelScheduledValues(now); gg.setValueAtTime(Math.max(0.0001, gg.value), now); gg.linearRampToValueAtTime(0.0001, now + BGM_XF);
+    bgmCur.end = now + BGM_XF; bgmCur = null; }
+  if(!k) return;
+  const S = BGM_SC[k], p = bgmNewPlayer(k, now + 0.05, S.once ? 0 : ((bgmMem[k] || 0) & ~7));
+  p.g.gain.setValueAtTime(0.0001, now); p.g.gain.linearRampToValueAtTime(1, now + BGM_XF);
+  BGMP.push(p); bgmCur = p;
+}
+/* 지금 어느 곡인가 — 소리 꺼짐·멈춤·짐은 조용히. 대기실은 게임 전에만 */
+function bgmSceneNow(){
+  if(!sndOn) return null;
+  if(!G.started) return G.phase === 'title' ? 'lobby' : null;
+  if(G.paused || G.phase === 'lose') return null;
+  if(G.phase === 'win') return 'victory';
+  if(G.phase === 'mini'){ const M = G.mini; return M && M.st === 'run' ? (M.k === 0 ? 'race' : 'surv') : 'lobby'; }
+  if(G.phase === 'night') return bossIndex(G.day) >= 0 ? 'boss' : 'night';
+  if(G.phase === 'day'){
+    if(G.t <= BGM_DUSK) return 'dusk';
+    if(G.set.daySec - G.t < BGM_MORN) return bgmAfterNight ? 'victory' : 'dawn';
+    return BGM_DAYS[(Math.max(1, G.day|0) - 1) % BGM_DAYS.length];
+  }
+  return null;
+}
+function bgmHeatFor(k){
+  if(BGM_FORCE_H >= 0) return BGM_FORCE_H;
+  if(k === 'dusk') return Math.max(0, Math.min(1, 1 - G.t/BGM_DUSK));
+  if(k === 'night' || k === 'boss') return bgmHeat;
+  return 0;
+}
+/* 판 p 의 음을 until 까지 앞으로 조금씩 건다(게임에선 0.14초 앞까지 · 검사는 30초를 한 번에) */
+function bgmRun(p, until){
+  const S = BGM_SC[p.k], keepN = SFX_NODE, keepL = VOX_LANE, keepP = BGM_P;
+  SFX_NODE = p.g; VOX_LANE = 'bgm'; BGM_P = p;
+  try{
+    while(p.next < until){
+      if(p.k === 'night' || p.k === 'boss') bgmHeat += (bgmHeatNow() - bgmHeat) * 0.14;   // 확 튀지 않게 천천히 따라간다
+      const h = bgmHeatFor(p.k);
+      bgmPlay(p, p.i, p.next, h);
+      p.next += S.step(p.i, h); p.i++; bgmStep++;
+      if(S.once && p.i >= S.once) p.i = S.loop;
+    }
+  } finally { SFX_NODE = keepN; VOX_LANE = keepL; BGM_P = keepP; }
+}
+/* 옛 검사(t35)가 부르는 한 걸음 — 낮·밤·보스·경주 곡을 bgmStep 번째로 t0 에 건다 */
+const bgmCompat = {};
 function bgmNote(night, h, t0, boss, race){
-  if(race){                                                 // 40차 — 경주: 빠르고 신나게
-    const i = bgmStep % 64, sN = i < 32 ? BGM_RACE_A[i] : BGM_RACE_B[i-32], bar = ((i % 32) / 8) | 0, beat = i % 8, root = 329.63;   // E4
-    if(sN >= 0) pluck(root * Math.pow(2, sN/12), 0.20, 0.046, t0, 0.42, 'square');
-    if(beat % 2 === 0) pluck(root/4 * Math.pow(2, BGM_RACE_BASS[bar]/12), 0.28, 0.058, t0, 0.2, 'triangle');   // 베이스 — 매 박
-    if(beat === 0 || beat === 4) puff(0.09, 0.055, 140, 1.0, t0);                                                // 킥
-    if(beat === 2 || beat === 6) puff(0.05, 0.030, 1900, 0.8, t0);                                               // 스네어
-    puff(0.018, 0.011, 7500, 1.4, t0);                                                                            // 하이햇 — 매 걸음
-    bgmStep++; return; }
-  const seqA = night ? BGM_NIGHT_A : BGM_DAY_A, seqB = night ? BGM_NIGHT_B : BGM_DAY_B;
-  const i = bgmStep % 64, sN = i < 32 ? seqA[i] : seqB[i-32], bar = ((i % 32) / 8) | 0, beat = i % 8;
-  const root = night ? 220 : 261.63;                       // 밤 A3 · 낮 C4
-  if(sN >= 0){
-    const f = root * Math.pow(2, sN/12);
-    if(night) pluck(f, 0.42 - h*0.12, 0.045 + h*0.02, t0, 0.22, 'triangle');
-    else      pluck(f, 0.36, 0.045, t0, 0.35);
-  }
-  if(beat === 0 || beat === 4){                             // 베이스 — 1박·3박
-    const bs = (night ? BGM_NIGHT_BASS : BGM_DAY_BASS)[bar][beat/4];
-    pluck((night ? root/2 : root/4) * Math.pow(2, bs/12), 0.55, 0.048 + h*0.015, t0, 0.15, 'triangle');
-  }
-  if(!night && beat % 2 === 1) puff(0.035, 0.017, 6500, 1.2, t0);                         // 낮 — 뒷박 셰이커
-  if(night && h > 0.30 && beat % 4 === 0){ puff(0.10, 0.04 + h*0.06, 180, 1.0, t0);        // 밤 — 위험할수록 낮은 북
-                                            pluck(58, 0.22, 0.07 + h*0.05, t0, 0, 'sine'); }
-  if(night && boss && beat === 0) tone(root/2*0.75, null, 1.8, 'sawtooth', 0.022, t0);      // 보스 — 드론 한 겹
+  const k = race ? 'race' : night ? (boss ? 'boss' : 'night') : 'day1';
+  let p = bgmCompat[k]; if(!p || p.aud !== AUD) p = bgmCompat[k] = bgmNewPlayer(k, t0, 0);
+  const keepN = SFX_NODE, keepL = VOX_LANE, keepP = BGM_P; SFX_NODE = p.g; VOX_LANE = 'bgm'; BGM_P = p;
+  try{ bgmPlay(p, bgmStep, t0, h); } finally { SFX_NODE = keepN; VOX_LANE = keepL; BGM_P = keepP; }
   bgmStep++;
 }
-function bgmTick(){
-  if(!AUD || !sndOn || !G.started || G.paused || popOpen()) return;
-  const night = G.phase === 'night';
-  bgmHeat += (bgmHeatNow() - bgmHeat) * 0.14;      // 확 튀지 않게 천천히 따라간다
-  bgmNote(night, bgmHeat, AUD.currentTime, night && G.wolves.some(w=>isBoss(w.k)), bgmRace());
-}
+function bgmTick(){ bgmLoop(0); }
 const bgmRace = ()=> raceOn() && !!G.mini && G.mini.st === 'run';   // 40차 — 경주가 달리는 동안만
-/* 빠르기도 상황을 따라간다 — 낮 250ms, 밤 300ms, 위험하면 210ms 까지 */
-function bgmLoop(dt){
-  bgmT -= dt;
-  if(bgmT > 0) return;
-  const night = G.phase === 'night';
-  bgmT = bgmRace() ? BGM_STEP_RACE : night ? (BGM_STEP_NIGHT - bgmHeat*0.09) : BGM_STEP_DAY;
-  bgmTick();
+/* 총소리 때 배경음을 잠깐 숙인다 — BGMD 한 노드의 예약만 바꾼다(새 노드 없음) */
+function bgmDuck(t){
+  if(!BGMD) return;
+  const g = BGMD.gain; g.cancelScheduledValues(t); g.setTargetAtTime(0.5, t, 0.015); g.setTargetAtTime(1, t + 0.18, 0.35);
 }
+/* 끊을 노드 목록 — 오디오 시계가 지나면 bgmLoop 가 끊는다(오프라인 검사에서는 bgmLoop 가 안 돌아 그대로 둔다) */
+const SND_DROP = [];
+function sndDrop(a, b, c, at){ if(SND_DROP.length < 256) SND_DROP.push({a, b, c, at}); }
+function sndGc(now){
+  let n = 0;
+  for(let i=0;i<SND_DROP.length;i++){ const d = SND_DROP[i];
+    if(d.at <= now){ if(d.a) d.a.disconnect(); if(d.b) d.b.disconnect(); if(d.c) d.c.disconnect(); }
+    else SND_DROP[n++] = d; }
+  SND_DROP.length = n;
+}
+/* 매 프레임 — 장면 고르기·음 걸기·옛 판 치우기·환경음·체력 심장. 게임 전(대기실)에도 돈다 */
+function bgmLoop(dt){
+  if(!AUD) return;
+  const now = AUD.currentTime;
+  busIn(); sndGc(now);
+  if(G.phase === 'day' && bgmPrevPhase !== 'day') bgmAfterNight = bgmPrevPhase === 'night';
+  bgmPrevPhase = G.phase;
+  const k = (typeof document !== 'undefined' && document.hidden) ? (bgmCur ? bgmCur.k : null) : bgmSceneNow();
+  if(k !== (bgmCur ? bgmCur.k : null)) bgmSwitch(k, now);
+  const pk = G.started && popOpen() ? 0.55 : 1;                         // 창을 열면 배경음을 조금 숙인다(멈추지 않는다)
+  if(pk !== bgmPopK){ bgmPopK = pk; sndVolApply(); }
+  let n = 0;
+  for(let i=0;i<BGMP.length;i++){ const p = BGMP[i];
+    if(p.end && now > p.end){ sndDrop(p.g, p.pad, p.low, now + 1.5); continue; }
+    if(p.next < now - 0.25) p.next = now + 0.03;                         // 탭이 멈췄다 돌아왔다 — 밀린 음은 버리고 이어 간다
+    if(AUD.state === 'running') bgmRun(p, now + BGM_AHEAD);
+    BGMP[n++] = p; }
+  BGMP.length = n;
+  if(dt > 0) ambTick(dt);
+}
+document.addEventListener('visibilitychange', ()=>{ // 66차 — 탭을 떠나면 소리 전체를 멈추고, 돌아오면 그 자리에서 잇는다
+  if(!AUD) return;
+  if(document.hidden){ if(AUD.state === 'running' && AUD.suspend) AUD.suspend(); }
+  else if(sndOn && AUD.state === 'suspended') AUD.resume();
+});
+
+/* ═══ 66차 — 소리 크기 설정: 선생님 기본값(window.DEFAULTS.bgmVol·sfxVol·ambVol) → 이 기기에 저장한 아이 설정(localStorage) ═══ */
+const sndPct = (v, d)=>{ v = Number(v); return isFinite(v) ? Math.max(0, Math.min(100, Math.round(v))) : d; };
+const SND_DEF = (()=>{ const D = (typeof window !== 'undefined' && window.DEFAULTS) || {};
+  return {bgm: sndPct(D.bgmVol, 70), sfx: sndPct(D.sfxVol, 100), amb: sndPct(D.ambVol, 80)}; })();
+function sndLoad(k, d){ try{ const v = localStorage.getItem(k); return v === null ? d : sndPct(v, d); }catch(e){ return d; } }
+function sndSave(k, v){ try{ localStorage.setItem(k, String(v)); }catch(e){} }
+const SNDV = {bgm: sndLoad('sndBgm', SND_DEF.bgm), sfx: sndLoad('sndSfx', SND_DEF.sfx), amb: SND_DEF.amb};
+try{ if(localStorage.getItem('sndOn') === '0') sndOn = false; }catch(e){}
+const sndCurve = v => Math.pow(Math.max(0, v)/100, 1.6);             // 귀에 고르게 — 50% 가 대략 '반쯤 작게' 들린다
+function sndVolApply(now){
+  if(!BUS) return;
+  const t = AUD.currentTime, set = (n, v)=>{ if(now === true) n.gain.value = v; else n.gain.setTargetAtTime(v, t, 0.06); };
+  set(SFXB, sndCurve(SNDV.sfx));
+  set(BGMB, sndCurve(SNDV.bgm) * BGM_BASE * bgmPopK);
+  set(AMBB, sndCurve(SNDV.sfx) * sndCurve(SNDV.amb));
+  set(BUS, sndOn ? 1 : 0);
+}
+function sndSetVol(k, v){
+  if(k !== 'bgm' && k !== 'sfx') return;
+  SNDV[k] = sndPct(v, SNDV[k]); sndSave(k === 'bgm' ? 'sndBgm' : 'sndSfx', SNDV[k]);
+  sndVolApply(); sndUI();
+}
+function sndUI(){
+  if(typeof document === 'undefined') return;
+  document.querySelectorAll('input[data-snd]').forEach(r=>{ const k = r.dataset.snd; if(String(r.value) !== String(SNDV[k])) r.value = SNDV[k]; });
+  document.querySelectorAll('[data-snd-v]').forEach(b=>{ b.textContent = SNDV[b.dataset.sndV] + '%'; });
+}
+function sndBindUI(){
+  if(typeof document === 'undefined') return;
+  let prevT = 0;
+  document.querySelectorAll('input[data-snd]').forEach(r=>{
+    r.addEventListener('input', ()=>{ audioInit(); sndSetVol(r.dataset.snd, r.value);
+      const t = performance.now(); if(r.dataset.snd === 'sfx' && t - prevT > 180){ prevT = t; sfx('coin'); } });
+    r.addEventListener('pointerdown', e=> e.stopPropagation());
+  });
+  sndUI();
+}
+
+/* ═══ 66차 — 환경음(새·바람·개울·풀벌레·부엉이·까마귀·닭 울음·농장 동물)과 체력 심장. 아주 작게·드물게, 대부분 위치 소리 ═══ */
+const AMBT = {bird:5, breeze:9, brook:1, cricket:3, owl:14, wind:10, crow:4, rooster:-9, farm:4};
+let ambMorning = -1;
+function ambAt(k, x, z, maxD){
+  const keepB = SFX_BASE, keepL = VOX_LANE; SFX_BASE = AMBB; VOX_LANE = 'amb';
+  try{ if(x === undefined) sfx(k); else sfxAt(k, x, z, maxD || 40, 60); } finally { SFX_BASE = keepB; VOX_LANE = keepL; }
+}
+function ambRing(k, r0, r1, maxD){ const a = Math.random()*Math.PI*2, r = r0 + Math.random()*(r1 - r0); ambAt(k, PL.x + Math.cos(a)*r, PL.z + Math.sin(a)*r, maxD); }
+function ambTick(dt){
+  hpBeatTick(dt);
+  if(!G.started || G.paused || !sndOn || AUD.state !== 'running' || PL.down) return;
+  const ph = G.phase;
+  if(ph !== 'day' && ph !== 'night') return;
+  for(const k in AMBT) AMBT[k] -= dt;
+  if(ph === 'day'){
+    const morning = G.set.daySec - G.t < 8;
+    if(morning && ambMorning !== G.day){ ambMorning = G.day; AMBT.rooster = 1.2 + Math.random(); }
+    if(AMBT.rooster <= 0 && AMBT.rooster > -1){ AMBT.rooster = -9;                               // 새벽 닭 울음 — 닭이 있는 가장 가까운 농장, 없으면 먼 곳에서
+      let best = -1, bd = 1e9; for(let g=0; g<NG; g++){ const f = G.farm && G.farm[g]; if(!f || !(f.hen > 0)) continue;
+        const d = Math.hypot(FARM_X[g] - PL.x, FARM_Z[g] - PL.z); if(d < bd){ bd = d; best = g; } }
+      if(best >= 0) ambAt('rooster', FARM_X[best], FARM_Z[best], 70); else ambRing('rooster', 24, 34, 70); }
+    if(G.t <= 30){ if(AMBT.crow <= 0){ AMBT.crow = 6 + Math.random()*6; ambRing('crow', 20, 30, 45); } }      // 해질녘 까마귀
+    else if(AMBT.bird <= 0){ AMBT.bird = 5 + Math.random()*9; ambRing(Math.random() < 0.55 ? 'bird1' : 'bird2', 7, 18, 30); }
+    if(AMBT.breeze <= 0){ AMBT.breeze = 14 + Math.random()*12; ambAt('breeze'); }
+    if(AMBT.farm <= 0){ AMBT.farm = 7 + Math.random()*8;                                          // 농장 가까이 가면 가끔 동물 소리
+      for(let g=0; g<NG; g++){ const f = G.farm && G.farm[g]; if(!f) continue;
+        if(Math.hypot(FARM_X[g] - PL.x, FARM_Z[g] - PL.z) > 11) continue;
+        const ks = ['hen', 'pig', 'cow'].filter(a=> (f[a]|0) > 0);
+        if(ks.length){ ambAt(ks[(Math.random()*ks.length)|0], FARM_X[g], FARM_Z[g], 16); break; } } }
+  } else {
+    if(AMBT.cricket <= 0){ AMBT.cricket = 2.5 + Math.random()*3.5; ambRing('cricket', 4, 12, 18); }
+    if(AMBT.owl <= 0){ AMBT.owl = 16 + Math.random()*16; ambRing('owl', 18, 28, 45); }
+    if(AMBT.wind <= 0){ AMBT.wind = 15 + Math.random()*12; ambAt('nightWind'); }
+  }
+  if(AMBT.brook <= 0){ AMBT.brook = 1.1 + Math.random()*0.6;                                        // 개울 졸졸 — 연못 가까이서만, 연못 가장자리 쪽에서
+    if(!miniOn() && typeof POND !== 'undefined'){ const dx = PL.x - POND.x, dz = PL.z - POND.z, d = Math.hypot(dx, dz) || 1;
+      if(d < POND.r + 14){ const e = Math.min(d, POND.r); ambAt('brook', POND.x + dx/d*e, POND.z + dz/d*e, 15); } } }
+}
+/* 밤에 체력이 30% 밑이면 작은 심장 소리(좀비의 'heart' 와 다른 이름 — 더 낮고 작다) */
+let hpBeatT = 0;
+function hpBeatTick(dt){
+  /* 밤에만 — 낮(아침 회복 20 뒤에도 30% 밑일 수 있다)·선생님 멈춤·창 열림·승패 화면에선 조용히 */
+  if(!G.started || G.paused || G.phase !== 'night' || PL.down || miniOn() || popOpen() || !sndOn){ hpBeatT = 0; return; }
+  hpBeatT -= dt;
+  const k = PL.hp / maxHP();
+  if(k < 0.3 && k > 0 && hpBeatT <= 0){ hpBeatT = 0.8 + k*1.2; sfx('hpBeat'); }
+}
+
+/* ═══ 66차 — 상황별 새 효과음. 전부 기존 합성(pluck·tone·puff·noise·thump·crackSweep·hush) → 효과음/환경음 버스 ═══
+   세기는 기존 UI 소리(0.03~0.06)와 캐기(0.07~0.3) 사이. 6kHz 위는 거의 쓰지 않는다(노트북 스피커에서 따갑다). */
+const STEP_G = ()=>{                        // 내 발밑 — 0 풀 · 1 흙길 · 2 돌(광장·산) · 3 나무(건물·망루 위)
+  if(typeof PL === 'undefined') return 0;
+  if(typeof GY !== 'undefined' && PL.y > GY + 0.35) return 3;
+  const r = Math.hypot(PL.x, PL.z);
+  if(r < 5.6 || (typeof ARENA_R !== 'undefined' && oct(PL.x, PL.z) > ARENA_R - 1)) return 2;
+  if(typeof pathDist === 'function' && pathDist(PL.x, PL.z) < 1.2) return 1;
+  return 0;
+};
+const SND66 = {
+  /* 캐기 — 나무엔 나뭇잎 사각, 돌엔 돌가루. 한 칸 떨어질 때 '툭'(a: 0 나무·1 돌·2 금), 자원이 들어올 때 짤랑 */
+  leaf:   ()=>{ const t = now0(); puff(0.16, 0.050, 3000, 0.7, t + 0.02); puff(0.11, 0.035, 4200, 0.9, t + 0.08); puff(0.08, 0.02, 2200, 0.8, t + 0.15); },
+  grit:   ()=>{ const t = now0(); for(let i=0;i<4;i++) puff(0.025, 0.05 - i*0.008, 2400 + Math.random()*1400, 2.5, t + 0.03 + i*0.04); },
+  chunk:  (a)=>{ const t = now0(), f = a === 2 ? 900 : a === 1 ? 700 : 620, b = a === 2 ? 262 : a === 1 ? 196 : 147;   // 나무 '툭' 은 620Hz — 420Hz 는 노트북에서 낮 배경음에 묻혔다
+                 puff(0.07, a ? 0.17 : 0.21, f, 1.0, t + 0.05); pluck(b, 0.12, 0.075, t + 0.05, 0.2, 'triangle'); pluck(b*2, 0.10, a ? 0.05 : 0.08, t + 0.05, 0.3, 'triangle'); },
+  coin:   (a)=>{ const t = now0(), f = a === 2 ? 1976 : a === 1 ? 1568 : 1319;
+                 pluck(f, 0.14, 0.040, t, 0.3); pluck(f*1.335, 0.18, 0.034, t + 0.055, 0.25); if(a === 2) pluck(f*1.5, 0.22, 0.026, t + 0.11, 0.2);
+                 puff(0.02, 0.02, 4200, 3, t); },
+  treeFall: ()=>{ const t = now0(); tone(300, 190, 0.40, 'triangle', 0.026, t); tone(240, 170, 0.30, 'triangle', 0.018, t + 0.18);
+                  thump(92, 40, 0.34, 0.11, t + 0.40, 1.4); puff(0.35, 0.08, 2600, 0.6, t + 0.42); puff(0.2, 0.10, 420, 0.8, t + 0.40);
+                  pluck(1047, 0.2, 0.03, t + 0.62, 0.3); pluck(1568, 0.3, 0.028, t + 0.70, 0.3); },
+  rockBreak:()=>{ const t = now0(); thump(76, 36, 0.3, 0.10, t, 1.6); puff(0.28, 0.14, 260, 0.8, t); puff(0.22, 0.10, 180, 0.8, t + 0.12);
+                  for(let i=0;i<5;i++) puff(0.03, 0.05, 1800 + Math.random()*1800, 2.2, t + 0.08 + i*0.05);
+                  pluck(1047, 0.2, 0.03, t + 0.40, 0.3); pluck(1568, 0.3, 0.028, t + 0.48, 0.3); },
+  /* 짓기 — 강화 '한 단계 오름' · 수리 끼익·탁 · 철거 우르르 · 망치질 사이 끼익(수리)·지렛대(철거) */
+  upgrade:()=>{ const t = now0(); puff(0.05, 0.14, 1500, 2.0, t); pluck(392, 0.12, 0.06, t, 0.3, 'triangle');
+                tone(392, 784, 0.30, 'sine', 0.040, t + 0.04);
+                [523, 659, 784, 1047, 1319].forEach((f,i)=> pluck(f, 0.20, 0.060, t + 0.10 + i*0.055, 0.3));
+                pluck(1568, 0.5, 0.030, t + 0.40, 0.3); pluck(2093, 0.4, 0.016, t + 0.44, 0); },
+  repair: ()=>{ const t = now0(); tone(520, 720, 0.13, 'triangle', 0.020, t); tone(700, 560, 0.10, 'triangle', 0.016, t + 0.12);
+                puff(0.045, 0.22, 1300, 2.0, t + 0.24); pluck(523, 0.11, 0.085, t + 0.24, 0.3); pluck(1568, 0.30, 0.040, t + 0.30, 0.4); },
+  demolish:()=>{ const t = now0(); thump(80, 38, 0.32, 0.10, t, 1.6); puff(0.40, 0.15, 220, 0.8, t); puff(0.28, 0.11, 480, 0.9, t + 0.08);
+                 for(let i=0;i<5;i++) pluck(280 + Math.random()*260, 0.07, 0.040, t + 0.06 + i*0.07 + Math.random()*0.03, 0.2, 'triangle');
+                 for(let i=0;i<4;i++) puff(0.03, 0.045, 1700 + Math.random()*1500, 2.2, t + 0.25 + i*0.06); },
+  squeak: ()=>{ tone(560, 760, 0.09, 'triangle', 0.018); },
+  pry:    ()=>{ const t = now0(); puff(0.05, 0.16, 700, 1.4, t); pluck(240, 0.08, 0.05, t, 0.2, 'triangle'); tone(300, 220, 0.10, 'triangle', 0.014, t + 0.04); },
+  /* 상점·대장간·농장 창 — 나무 문 끼익 + 종 · 모루 땡 + 풀무 · 나무 울타리 + 꼬꼬 */
+  shopOpen: ()=>{ const t = now0(); tone(240, 330, 0.26, 'triangle', 0.016, t); tone(330, 280, 0.2, 'triangle', 0.012, t + 0.2);
+                  pluck(1568, 0.8, 0.045, t + 0.12, 0.2); pluck(1568*2.76, 0.4, 0.007, t + 0.12); pluck(2093, 0.7, 0.032, t + 0.26, 0.2); },
+  forgeOpen:()=>{ const t = now0(); puff(0.03, 0.10, 3000, 2, t); pluck(1760, 0.55, 0.040, t, 0.2); pluck(1760*2.4, 0.25, 0.010, t);
+                  pluck(1760, 0.45, 0.028, t + 0.22, 0.2); hush(0.6, 0.035, 600, 0.6, t + 0.05); },
+  farmOpen: ()=>{ const t = now0(); tone(220, 290, 0.22, 'triangle', 0.016, t); puff(0.04, 0.12, 900, 1.5, t + 0.2); pluck(196, 0.1, 0.05, t + 0.2, 0.2, 'triangle');
+                  SND66.hen(t + 0.35); },
+  tab:    ()=>{ const t = now0(); puff(0.05, 0.06, 1700, 1.8, t); puff(0.035, 0.045, 1100, 1.5, t + 0.03); },         // 종이 넘기는 소리
+  buy:    ()=>{ const t = now0(); pluck(1976, 0.12, 0.042, t, 0.3); pluck(2637, 0.14, 0.034, t + 0.05, 0.2); puff(0.02, 0.03, 4000, 3, t);
+                [784, 988, 1175].forEach(f=> pluck(f, 0.30, 0.030, t + 0.12, 0.3)); },
+  sell:   ()=>{ const t = now0(); for(let i=0;i<5;i++) pluck(1760 + (i%3)*260, 0.12, 0.034, t + i*0.06, 0.25); pluck(1047, 0.3, 0.035, t + 0.32, 0.3); },
+  nope:   ()=>{ const t = now0(); tone(220, 150, 0.14, 'sine', 0.060, t); tone(440, 300, 0.12, 'sine', 0.05, t); puff(0.05, 0.05, 420, 1.0, t); },               // 못 삼 — 낮고 부드러운 '뚝'
+  enhFail:()=>{ const t = now0(); tone(330, 150, 0.36, 'triangle', 0.060, t); puff(0.30, 0.07, 700, 0.7, t + 0.05); puff(0.22, 0.06, 300, 0.8, t + 0.12); },   // 42차의 톱니파를 삼각파로
+  /* 농장 — 닭·돼지·소(귀엽게) · 먹이 사각 · 빗자루 쓱 · 먹이 다 줌 · 청소 끝 반짝 · 산물 줍기 뽁 */
+  hen:    (t)=>{ t = t || now0(); for(let i=0;i<3;i++){ const f = 760 - i*40 + Math.random()*40;
+                 tone(f, f*0.78, 0.055, 'triangle', 0.028, t + i*0.09 + (i === 2 ? 0.05 : 0)); puff(0.05, 0.02, 1500, 2, t + i*0.09); } },
+  pig:    ()=>{ const t = now0(); tone(250, 205, 0.16, 'triangle', 0.045, t); puff(0.14, 0.045, 700, 3, t); tone(270, 220, 0.11, 'triangle', 0.035, t + 0.22); puff(0.10, 0.035, 760, 3, t + 0.22); },
+  cow:    ()=>{ const t = now0(); tone(150, 185, 0.34, 'triangle', 0.040, t); tone(185, 140, 0.55, 'triangle', 0.040, t + 0.32);
+                tone(300, 370, 0.34, 'sine', 0.010, t); tone(370, 280, 0.5, 'sine', 0.010, t + 0.32); puff(0.8, 0.018, 520, 2, t + 0.05); },
+  feedScoop:()=>{ const t = now0(); puff(0.08, 0.08, 1300, 1.4, t); puff(0.05, 0.06, 900, 1.2, t + 0.05); },
+  broom:  ()=>{ crackSweep(0.18, 0.06, 800, 1600, 1.4); },
+  feedDone:()=>{ const t = now0(); for(let i=0;i<3;i++) puff(0.04, 0.07, 1200 + i*150, 1.5, t + i*0.09); pluck(1047, 0.2, 0.05, t + 0.28, 0.3); pluck(1319, 0.3, 0.045, t + 0.34, 0.3); },
+  cleanDone:()=>{ const t = now0(); [1568, 2093, 2637].forEach((f,i)=> pluck(f, 0.26, 0.034, t + i*0.07, 0.25)); puff(0.3, 0.02, 4500, 0.8, t + 0.05); },
+  pop:    ()=>{ const t = now0(); tone(900, 380, 0.07, 'sine', 0.065, t); pluck(1319, 0.14, 0.032, t + 0.03, 0.3); },
+  /* 사람 — 발소리: 46차 키캡 소리를 그대로 두고(선생님이 고른 소리) 밑에 땅 종류 층을 아주 작게 깐다 */
+  step:   (g)=>{ g = (g === undefined ? 1 : g) * 0.8; const d = 0.94 + Math.random()*0.12, t = now0(), s = STEP_G();
+    puff(0.006, 0.085*g, 5400*d, 2.2);                              // ① 스위치 딸깍
+    tone(1150*d, 760*d, 0.020, 'triangle', 0.038*g);                // ③ 마른 탁
+    tone(190*d, 138*d, 0.055, 'sine', 0.075*g, t + 0.004);          // ② 통 울림
+    puff(0.030, 0.024*g, 420*d, 0.8, t + 0.004);                    //   바닥 친 뒤 여운
+    if(s === 0) puff(0.06, 0.030*g, 3000*d, 0.8, t + 0.006);        // 풀 — 사각
+    else if(s === 1) puff(0.05, 0.045*g, 520*d, 0.9, t + 0.004);    // 흙 — 툭
+    else if(s === 2){ pluck(1700*d, 0.03, 0.020*g, t + 0.003, 0); puff(0.012, 0.035*g, 3600*d, 3, t + 0.003); }   // 돌 — 딱
+    else pluck(330*d, 0.07, 0.040*g, t + 0.004, 0.2, 'triangle'); },                                             // 나무 — 통
+  /* 착지 — 연못·개울에 떨어지면 첨벙(물보라 둘 + 물방울 셋), 아니면 42차 '툭' 그대로 */
+  land:   ()=>{ const t = now0(), wet = typeof POND !== 'undefined' && !miniOn() && (Math.hypot(PL.x - POND.x, PL.z - POND.z) < POND.r || streamDist(PL.x, PL.z) < 0.9);
+                if(!wet){ puff(0.055, 0.09, 600, 1.0, t); pluck(170, 0.08, 0.045, t, 0, 'triangle'); return; }
+                puff(0.16, 0.12, 1600, 0.9, t); puff(0.22, 0.08, 900, 0.8, t + 0.03); tone(260, 120, 0.12, 'sine', 0.05, t);
+                for(let i=0;i<3;i++){ const f = 700 + Math.random()*700; tone(f, f*1.5, 0.05, 'sine', 0.02, t + 0.12 + i*0.07 + Math.random()*0.03); } },
+  /* 수정·체력 */
+  crystalHit:()=>{ const t = now0(), d = 0.96 + Math.random()*0.08;        // 맞을 때마다 ±4% — 계속 물려도 같은 '팅' 이 기계처럼 되풀이되지 않게
+                   pluck(2637*d, 0.30, 0.036, t, 0.2); pluck(3520*d, 0.18, 0.014, t + 0.008); pluck(1976*d, 0.35, 0.024, t + 0.02, 0.2);
+                   thump(110, 58, 0.16, 0.07, t, 1.3); puff(0.04, 0.06, 3800, 2.5, t); tone(880*d, 660*d, 0.25, 'triangle', 0.02, t + 0.05); },
+  /* 66차 고침 — 55·50Hz 는 노트북 스피커에서 안 들렸다(에너지 99% 가 200Hz 밑). 한 옥타브 올리고(110·100Hz + 220·200Hz 배음)
+     삼각파 220·200Hz 와 340Hz 몸통을 더해 노트북에서도 밤 배경음보다 조금 위로 들리게 했다 */
+  hpBeat: ()=>{ const t = now0(); pluck(110, 0.16, 0.07, t, 0.6, 'sine'); pluck(220, 0.13, 0.11, t, 0.5, 'triangle'); puff(0.06, 0.16, 340, 1.2, t);
+                pluck(100, 0.14, 0.05, t + 0.17, 0.6, 'sine'); pluck(200, 0.11, 0.08, t + 0.17, 0.5, 'triangle'); },
+  /* 환경(AMBB) — 새 둘·산들바람·개울·풀벌레·부엉이·먼 바람·까마귀·수탉 */
+  bird1:  ()=>{ const t = now0(), f = 2500 + Math.random()*500; tone(f, f*1.3, 0.07, 'sine', 0.022, t); tone(f*1.2, f*0.9, 0.08, 'sine', 0.018, t + 0.10); },
+  bird2:  ()=>{ const t = now0(), f = 2800 + Math.random()*400; for(let i=0;i<5;i++) pluck(f + (i%2)*260, 0.05, 0.014, t + i*0.045, 0); },
+  breeze: ()=>{ hush(2.4, 0.030, 700, 0.5); hush(2.0, 0.012, 1500, 0.7, now0() + 0.3); },
+  brook:  ()=>{ const t = now0(); for(let i=0;i<5;i++){ const f = 600 + Math.random()*900; tone(f, f*1.45, 0.05, 'sine', 0.012, t + Math.random()*1.0); }
+                hush(1.2, 0.010, 1800, 0.8, t); },
+  cricket:()=>{ const t = now0(), f = 4200 + Math.random()*300; for(let r=0;r<2;r++) for(let i=0;i<3;i++) pluck(f, 0.03, 0.016, t + r*0.28 + i*0.045, 0); },
+  owl:    ()=>{ const t = now0(); tone(390, 360, 0.28, 'sine', 0.030, t); tone(400, 365, 0.44, 'sine', 0.030, t + 0.45); puff(0.3, 0.008, 800, 1, t); },
+  nightWind:()=>{ hush(3.0, 0.030, 380, 0.6); },
+  crow:   ()=>{ const t = now0(); for(let i=0;i<2;i++){ tone(640, 480, 0.18, 'triangle', 0.020, t + i*0.30); puff(0.16, 0.025, 1150, 2, t + i*0.30); } },
+  rooster:()=>{ const t = now0(); tone(520, 720, 0.12, 'triangle', 0.024, t); tone(720, 900, 0.12, 'triangle', 0.024, t + 0.13); tone(900, 800, 0.40, 'triangle', 0.024, t + 0.26);
+                puff(0.66, 0.012, 1400, 2, t); }
+};
+Object.assign(SFX, SND66);
+/* 검사 — 새 오디오(오프라인 컨텍스트)로 바꿀 때 버스·목소리 칸·판을 모두 비운다 · 장면 하나를 sec 초 앞까지 한 번에 건다 */
+function audReset(){
+  BUS = SFXB = BGMB = BGMD = AMBB = null; NOISE_BUF = null; SHAPE_C = null;
+  for(const k in VOX) VOX[k].fill(0);
+  for(const k in _sfxLast) delete _sfxLast[k];
+  for(const k in bgmCompat) delete bgmCompat[k];
+  BGMP.length = 0; bgmCur = null; SND_DROP.length = 0;
+}
+function bgmRender(k, sec, h, t0){
+  busIn(); BGM_FORCE_H = h === undefined ? -1 : h;
+  const p = bgmNewPlayer(k, t0 || 0.05, 0); p.g.gain.value = 1;
+  try{ bgmRun(p, sec); } finally { BGM_FORCE_H = -1; }
+  return p.i;
+}
+window.__snd66 = ()=>({SNDV, SND_DEF, AUDSTAT, VOX_MAX, BGMP:BGMP.map(p=>p.k), cur: bgmCur ? bgmCur.k : null, scene: bgmSceneNow(),
+  live: AUDSTAT.made - AUDSTAT.ended, state: AUD ? AUD.state : 'none', drop: SND_DROP.length,
+  scenes: Object.keys(BGM_SC), newKeys: Object.keys(SND66)});
+window.__bgmRender = bgmRender; window.__audReset = audReset;
+window.__sndPlay = (k, a, amb)=>{ if(!amb) return sfx(k, a); audioInit(); if(AUD) busIn(); const kb = SFX_BASE, kl = VOX_LANE; SFX_BASE = AMBB; VOX_LANE = 'amb';
+  try{ sfx(k, a); } finally { SFX_BASE = kb; VOX_LANE = kl; } };
+sndBindUI();
+if(!sndOn){ const b = document.getElementById('bSnd'); if(b){ b.textContent = '🔇'; b.title = '소리 끔'; } }
 addEventListener('pointerdown', audioInit, {once:true});
 addEventListener('touchstart', audioInit, {once:true});
 
@@ -23140,6 +23664,7 @@ function loop(){
   }
 
   if(pvw) pvwTick(dt);          // 시작 화면 착장 미리보기 (게임이 시작되면 사라진다)
+  if(!G.started) bgmLoop(dt);   // 66차 — 대기실 배경음(게임 전)
   /* 가방 속 내 사람 — **가방을 열어 놓은 동안만** 돈다. 닫혀 있으면 한 프레임도 안 쓴다 */
 
   if(G.started && !DBG.noLogic){
@@ -23740,7 +24265,7 @@ Object.assign(window, {
   __Pdeco:()=>P_deco, __pvw:()=>pvw, __avatarPreview:{make:mkPvw,set:pvwSet,kill:pvwKill,rows:PVW_BODY,table:tableGroup},
   /* 28차 — 아이콘 공방 (t30) */
   __ICON:()=>ICON, __EMO2ICON:()=>EMO2ICON, __iconImg:iconImg, __ICO_DEF:()=>ICO_DEF, __mkPick:mkPick /* 33차 — 자루 끝 (t31) */,
-  __SFXKEYS:()=>Object.keys(SFX), __chopKey:chopKey, __FONT_URL:FONT_URL, __loadFonts:loadFonts, __setAUD:(a)=>{ AUD = a; BUS = null; NOISE_BUF = null; }, __AUD:()=>AUD, __bgmNote:bgmNote, __bgmStep:()=>bgmStep, __bgmSeq:()=>({dayA:BGM_DAY_A, dayB:BGM_DAY_B, nightA:BGM_NIGHT_A, nightB:BGM_NIGHT_B, stepDay:BGM_STEP_DAY, stepNight:BGM_STEP_NIGHT}), __sfxBus:()=>BUS, __pluck:pluck, __puff:puff, __itemMeshes:()=>[pMesh,aMesh,iMesh,stMesh,bMesh,oMesh,chBody,chTrim,fdBody,fdGlow],
+  __SFXKEYS:()=>Object.keys(SFX), __chopKey:chopKey, __FONT_URL:FONT_URL, __loadFonts:loadFonts, __setAUD:(a)=>{ AUD = a; audReset(); }, __AUD:()=>AUD, __bgmNote:bgmNote, __bgmStep:()=>bgmStep, __bgmSeq:()=>({dayA:BGM_DAY_A, dayB:BGM_DAY_B, nightA:BGM_NIGHT_A, nightB:BGM_NIGHT_B, stepDay:BGM_STEP_DAY, stepNight:BGM_STEP_NIGHT}), __sfxBus:()=>BUS, __pluck:pluck, __puff:puff, __itemMeshes:()=>[pMesh,aMesh,iMesh,stMesh,bMesh,oMesh,chBody,chTrim,fdBody,fdGlow],
   __Pmouth:()=>P_mouth,
   /* 27차 — 캐릭터 조각 전부 (t29: 무늬 없는 재질 · 둥근 모양) */
   __charMeshes:()=>({
