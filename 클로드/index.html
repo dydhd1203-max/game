@@ -4378,7 +4378,7 @@ function wolfY(w){ return layerY(w.x, w.z, w.ly); }  // 호스트(좀비 루프 
 /* ── 빈 껍데기 — 서명 확정, 몸통은 중립값(맵만 키운 판에서는 아무 일도 안 한다). 채우는 갈래를 적어 둔다 ── */
 function castleTerrainAt(x, z, od, hOld, cd){ return hOld; }   // 갈래 1 — K 받침·둘레길·해자·비탈·바위 어깨·세상 끝 테(설계 2-5)
 function castleLayout(){}                                      // 갈래 1 — CPLAN → terrH·GATE_MASK·CASTLE·CROOF·ZONE·stairOf·SPIRALS·GBOX
-function buildCastle(){}                                       // 갈래 2 — 성곽 그림(bpush — bbuild 앞)
+/* buildCastle — 갈래 2, buildGates 바로 뒤(성곽 그림 — bpush, bbuild 앞) */
 function spiralH(k, px, pz, y){ return GY; }                    // 갈래 1 — 나선 디딤 높이(절대 y · 벽 999 · 바닥 없음 −999)
 function ceilingOver(x, z, R, y){ return 1e9; }                // 갈래 1 — 머리 위 천장 밑면(절대 y, 없으면 1e9)
 function gboxSegClear(ox, oy, oz, dx, dy, dz, len){ return len; }   // 갈래 1 — 카메라 선분이 상자에 처음 닿는 거리(없으면 len)
@@ -4760,6 +4760,7 @@ if(GFX.shadow){
   sc.updateProjectionMatrix();
 }
 const _sunDir = new THREE.Vector3();
+const _shFwd = new THREE.Vector3();                // 67차 — 그림자 판 가운데를 시선 앞으로 미는 데 쓰는 벡터(매 프레임 할당 0)
 function shadowFollow(cx, cz){
   if(!GFX.shadow) return;
   const texel = (SH_R*2) / GFX.shadow;    // 그림자 한 칸의 크기
@@ -5705,6 +5706,61 @@ const CONEV  = (()=>{ const g = new THREE.ConeGeometry(0.5, 1, 9).toNonIndexed()
   g.computeVertexNormals(); shadeGeo(g, 0.62, 1.10, 0.05, 5); g.userData.leaf = true; return g; })();
 const BRICKV = shadeGeo(chamferBox(0.16), 0.80, 1.06, 0, 0);                        // 벽돌 판 — 모따기 + 아래 어둡게
 BRICKV.setAttribute('aMt', new THREE.Float32BufferAttribute(new Float32Array(BRICKV.attributes.position.count), 1));
+/* ── 67차 성곽 기하 여덟(재질이 아니다 — 뱅크 재질 8 그대로). 꼭짓점 색이 있는 셋(BRICKF·BRICK_LO·MERLV)은 aMt 0 을 단다
+   (placeNodes 끝 'aMt 없는 WMATV 뱅크' 검사). 면 법선이 또렷하게 삼각형마다 따로 둔다 ── */
+function geoOf(P, want){                              // 삼각형 목록 → 기하. want(가운데, 법선) 이 거짓이면 그 삼각형을 뒤집는다
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.computeVertexNormals();
+  const pos = g.attributes.position, nrm = g.attributes.normal;
+  for(let i=0; i<pos.count; i+=3){
+    const c = [(pos.getX(i)+pos.getX(i+1)+pos.getX(i+2))/3, (pos.getY(i)+pos.getY(i+1)+pos.getY(i+2))/3, (pos.getZ(i)+pos.getZ(i+1)+pos.getZ(i+2))/3];
+    if(!want(c, [nrm.getX(i), nrm.getY(i), nrm.getZ(i)])){ const bx = pos.getX(i+1), by = pos.getY(i+1), bz = pos.getZ(i+1);
+      pos.setXYZ(i+1, pos.getX(i+2), pos.getY(i+2), pos.getZ(i+2)); pos.setXYZ(i+2, bx, by, bz); }
+  }
+  g.computeVertexNormals(); return g;
+}
+const withAMt = (g)=>{ g.setAttribute('aMt', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count), 1)); return g; };
+const BRICKF = withAMt(shadeGeo((()=>{                // 겉돌 — 앞면(+Z)만 모따기(작은 돌이 구슬처럼 안 보인다) · 20삼각형
+  const h = 0.5, q = 0.5 - 0.16, zc = 0.5 - 0.16, P = [], quad = (a,b,c,d)=>{ P.push(...a,...b,...c, ...a,...c,...d); };
+  quad([-q,-q,h],[q,-q,h],[q,q,h],[-q,q,h]);
+  quad([-q,-q,h],[q,-q,h],[h,-h,zc],[-h,-h,zc]); quad([-q,q,h],[q,q,h],[h,h,zc],[-h,h,zc]);
+  quad([-q,-q,h],[-q,q,h],[-h,h,zc],[-h,-h,zc]); quad([q,-q,h],[q,q,h],[h,h,zc],[h,-h,zc]);
+  quad([-h,-h,zc],[h,-h,zc],[h,-h,-h],[-h,-h,-h]); quad([-h,h,zc],[h,h,zc],[h,h,-h],[-h,h,-h]);
+  quad([-h,-h,zc],[-h,h,zc],[-h,h,-h],[-h,-h,-h]); quad([h,-h,zc],[h,h,zc],[h,h,-h],[h,-h,-h]);
+  quad([-h,-h,-h],[h,-h,-h],[h,h,-h],[-h,h,-h]);                     // 뒷면(두께가 드러나는 흉벽·문 틀 돌에서 구멍이 안 보이게)
+  return geoOf(P, (c,n)=> n[0]*c[0] + n[1]*c[1] + n[2]*c[2] > 0); })(), 0.80, 1.06, 0, 0));
+const BRICK_LO = withAMt(shadeGeo(new THREE.BoxGeometry(1,1,1).toNonIndexed(), 0.80, 1.06, 0, 0));   // B급 면·저사양 겉돌(12삼각형)
+const MERLV = withAMt(shadeGeo(chamferBox(0.07), 0.82, 1.05, 0, 0));                                 // 성가퀴
+const COPEG = chamferBox(0.04);                                                                      // 갓돌(모따기 0.04 — 가는 선)
+const PYRG = (()=>{ const g = new THREE.ConeGeometry(Math.SQRT1_2, 1, 4, 1, false); g.rotateY(Math.PI/4);   // 사모 지붕 — 밑판 닫음(처마 밑에서 하늘이 안 새게)
+  const n = g.toNonIndexed(); n.computeVertexNormals(); return n; })();
+const TREADG = (()=>{                                 // 나선 디딤 — 부채꼴(반지름 0.4~1.8, 30°, 두께 0.35 · 윗면 y 0). atan2(z,x) 0 → 30°
+  const a0 = 0.4, a1 = 1.8, P = [], A = [0, Math.PI/12, Math.PI/6], pt = (r, a, y)=> [r*Math.cos(a), y, r*Math.sin(a)];
+  const quad = (a,b,c,d)=>{ P.push(...a,...b,...c, ...a,...c,...d); };
+  for(let k=0; k<2; k++){ const s = A[k], e = A[k+1];
+    quad(pt(a0,s,0), pt(a1,s,0), pt(a1,e,0), pt(a0,e,0)); quad(pt(a0,s,-0.35), pt(a1,s,-0.35), pt(a1,e,-0.35), pt(a0,e,-0.35));
+    quad(pt(a1,s,0), pt(a1,e,0), pt(a1,e,-0.35), pt(a1,s,-0.35)); quad(pt(a0,s,0), pt(a0,e,0), pt(a0,e,-0.35), pt(a0,s,-0.35)); }
+  quad(pt(a0,0,0), pt(a1,0,0), pt(a1,0,-0.35), pt(a0,0,-0.35)); quad(pt(a0,A[2],0), pt(a1,A[2],0), pt(a1,A[2],-0.35), pt(a0,A[2],-0.35));
+  const cx = 1.1*Math.cos(Math.PI/12), cz = 1.1*Math.sin(Math.PI/12);
+  return geoOf(P, (c,n)=> n[0]*(c[0]-cx) + n[1]*(c[1]+0.175) + n[2]*(c[2]-cz) > 0); })();
+const NEWELG = new THREE.CylinderGeometry(1, 1, 1, 10);                                             // 나선 가운데 기둥·우물 난간·망원경
+const FILLG = (()=>{                                  // 우리 구석 메움 — 한 변 2 네모의 구석(22°~68°) − 반지름 1.8 원. 가운데 쪽(원) 면·위·아래만
+  const R0 = 1.8, P = [], N = 4, a0 = 0.385, a1 = Math.PI/2 - 0.385, arc = [];
+  for(let k=0; k<=N; k++){ const a = a0 + (a1 - a0)*k/N; arc.push([R0*Math.cos(a), R0*Math.sin(a)]); }
+  const e0 = [2, 2*Math.tan(a0)], e1 = [2*Math.tan(a0), 2];            // 네모 변과 만나는 점(22°·68° 선)
+  for(const y of [-0.5, 0.5]){ const C = [2, y, 2];
+    P.push(...C, e0[0], y, e0[1], arc[0][0], y, arc[0][1]);
+    for(let k=0; k<N; k++) P.push(...C, arc[k][0], y, arc[k][1], arc[k+1][0], y, arc[k+1][1]);
+    P.push(...C, arc[N][0], y, arc[N][1], e1[0], y, e1[1]); }
+  for(let k=0; k<N; k++){ const [x0,z0] = arc[k], [x1,z1] = arc[k+1];
+    P.push(x0,-0.5,z0, x1,-0.5,z1, x1,0.5,z1,  x0,-0.5,z0, x1,0.5,z1, x0,0.5,z0); }
+  P.push(e0[0],-0.5,e0[1], arc[0][0],-0.5,arc[0][1], arc[0][0],0.5,arc[0][1],  e0[0],-0.5,e0[1], arc[0][0],0.5,arc[0][1], e0[0],0.5,e0[1]);
+  P.push(e1[0],-0.5,e1[1], arc[N][0],-0.5,arc[N][1], arc[N][0],0.5,arc[N][1],  e1[0],-0.5,e1[1], arc[N][0],0.5,arc[N][1], e1[0],0.5,e1[1]);
+  return geoOf(P, (c,n)=>{ if(Math.abs(n[1]) > 0.9) return Math.sign(n[1]) === Math.sign(c[1]);
+    const r = Math.hypot(c[0], c[2]); if(r < R0 + 0.02) return n[0]*c[0] + n[2]*c[2] < 0;          // 원 면 — 우물 가운데를 본다
+    return Math.atan2(c[2], c[0]) < Math.PI/4 ? n[0]*Math.sin(a0) - n[2]*Math.cos(a0) > 0         // 끝 자른 면 — 변 가운데(문 틈) 쪽을 본다
+                                               : -n[0]*Math.sin(a1) + n[2]*Math.cos(a1) > 0; }); })();
+/* 67차 덩굴 잎 뭉치 — 울퉁불퉁한 20면체(벽에 납작하게 눕혀 쓴다). 꼭짓점 색 + leaf 표시 → 기존 잎 재질(WMATL) */
+const IVYG = (()=>{ const g = jitterGeo(new THREE.IcosahedronGeometry(0.5, 0), 0.24, 41.7); shadeGeo(g, 0.6, 1.16, 0.14, 9); g.userData.leaf = true; return g; })();
 const BOXV   = (()=>{ const g = new THREE.BoxGeometry(1,1,1).toNonIndexed(); shadeGeo(g, 0.82, 1.04, 0, 0);
   g.setAttribute('aMt', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count).fill(1), 1)); return g; })();   // 산 기둥
 const CAPV   = (()=>{ const g = new THREE.BoxGeometry(1,1,1).toNonIndexed(); shadeGeo(g, 0.86, 1.0, 0, 0);
@@ -6128,15 +6184,11 @@ function gateLayout(){
      gwood(WGEO·나뭇결) 깃대·횃대 · gban(WGEO·칠) 모둠색 천 · gdk(WGEO·칠) 번호판 · gglow(발광) 숫자·횃불 · moss/bushS 이끼·풀 */
 function buildGates(){
   const gGlow = cube(T.glow), W = GATE_TOP, N = GH.st1 - GH.st0, r = RAMP_RISE, pw = GH.pw;
-  const SC = [0x9d9586, 0x8f887a, 0xa69f8f, 0x857e70, 0x968e7f], SC_L = 0xb2aa98, SC_D = 0x72695c;   // 마름돌 — 탑 stoneL/M/D 결(햇빛·돌결 셰이더를 받으면 한 단 밝게 보여 한 단 낮췄다)
-  const CORE = 0x4d483f, QUOIN = 0xb8b09e, COPE = 0xaaa290, TREAD = [0x8f887a, 0x877f72, 0x978f81, 0x81796c];
-  const NOSE = 0xc3b692;            // 디딤 앞머리 — 가늘고 차분한 모래색 한 줄(형광 노란 줄 대신. 아이가 '계단' 인 걸 알아볼 만큼만)
-  const IRON = 0x3a3e44, TIMBER = 0x7a5a3d, BOARD = 0x22252b, CREAM = 0xf3e6c8, SLATE = 0x56606b;
-  const MOSS = 0x5f8a45, MOSS2 = 0x6f9650;
+  const {SC, SC_L, SC_D, CORE, QUOIN, COPE, TREAD, NOSE, IRON, TIMBER, BOARD, CREAM, SLATE, MOSS, MOSS2} = STONE_PAL;   // 67차 — 성곽과 같은 팔레트(값 그대로)
   let sd = 0; const R = ()=> rnd(((sd++) * 0.6180339) % 997 + 0.37);
   const stoneC = ()=>{ const h = R(); return h < 0.07 ? SC_D : h > 0.93 ? SC_L : SC[(h*SC.length*0.999)|0]; };
   /* 벽돌 줄(층) — 모든 면이 같은 줄 높이를 써야 귓돌이 모서리에서 맞물린다. 아래 두 줄은 크다 */
-  const COURSES = []; for(let y=-0.05, i=0; y < W + 6; i++){ const h = i < 2 ? 0.66 : 0.44 + rnd(i*3.1 + 0.7)*0.12; COURSES.push([y, y+h]); y += h; }
+  const COURSES = stoneCourses(W + 6);                                   // 67차 — 성곽과 같은 줄눈 높이(성벽·탑과 같은 높이에서 이어진다)
 
   for(let g=0; g<NG; g++){
     const d = DIRS[g], ry = Math.atan2(d.dx, d.dz), gc = GHEX[g];
@@ -6231,6 +6283,9 @@ function buildGates(){
     for(const s of [-1, 1]){
       const P = (v)=> v*s;                                             // 부호 붙은 pp
       const sort = (a,b)=> a < b ? [a,b] : [b,a];
+      /* 67차 — 성곽과 맞물림(설계 3-10): kSide = 3·4 성문 사이(가운데 망대 K 쪽) 망루 · store = 층계참 밑 비밀 창고 ②④ */
+      const kSide = (g === 2 || g === 3) && Math.abs(gX(g, GATE_T, 11*s)) < 5;
+      const store = CPLAN.secrets.find(q=> q.kind === 'landing' && q.gate === g && q.side === s) || null;
       const stepTop = (t)=> t < GH.st0 ? 0 : t < GH.st1 ? (Math.min(2*N-1, Math.floor((t - GH.st0)*2)) + 1) * r : W;   // 계단·층계참 윗면
 
       /* ── 망루 몸통 — 속 돌 한 덩이 + 겉돌 ── */
@@ -6260,8 +6315,8 @@ function buildGates(){
       slit('t', P(GH.tw0), -s, GH.tt1 - 0.42, 6.1);
       /* 윗마당 — 판석 + 성가퀴(통로·좀비·산 쪽), 마을 쪽은 층계참이 붙는 곳만 비운다 */
       { const [p0, p1] = sort(P(GH.tw0), P(GH.tw1)); paving(p0, p1, GH.tt0, GH.tt1, W); }
-      { const [a0, a1] = sort(P(GH.tw0), P(GH.tw1)); parapet('p', GH.tt1 - pw/2, a0, a1, 0, true); }
-      parapet('t', P(GH.tw1 - pw/2), GH.tt0 + pw, GH.tt1 - pw, 0, true);
+      { const [a0, a1] = sort(P(GH.tw0), P(kSide ? 10 : GH.tw1)); parapet('p', GH.tt1 - pw/2, a0, a1, 0, true); }   // 67차 — K 북벽에 닿는 P 10~11 토막 뺌
+      /* 67차 — 산 쪽(P 11) 성가퀴는 안 쌓는다: 망루 윗마당이 커튼월 성벽 길로 턱 없이 이어진다(열 곳 모두) */
       parapet('t', P(GH.tw0 + pw/2), GH.tt0, GH.ct0, 0, true);
       parapet('t', P(GH.tw0 + pw/2), GH.ct1, GH.tt1 - pw, 0, true);
       { const [a0, a1] = sort(P(GH.sp1 - pw), P(GH.tw1)); parapet('p', GH.tt0 + pw/2, a0, a1, MERLON, false); }
@@ -6278,7 +6333,7 @@ function buildGates(){
         BR('gbrick', BRICKV, WMAT, W - 1.25, 0.7, 0.34, SC_D); BR('gbrick', BRICKV, WMAT, W - 0.95, 1.05, 0.3, stoneC()); BR('gbrick', BRICKV, WMAT, W - 0.65, 1.35, 0.3, stoneC());
         for(let k=0; k<5; k++) BR('gbrick', BRICKV, WMAT, W - 0.25 + k*0.5, 1.55 - (k%2)*0.04, 0.47, stoneC());
         BR('gcore', WGEO, WMAT, W + 2.3, 1.78, 0.14, COPE);
-        bpush('groof', GEMG, WMAT_PAINT, WX(tc,pc), GY + W + 2.35, WZ(tc,pc), ry, 2.4, 2.9, 2.4, 0, SLATE);   // 팔면체의 윗반만 보인다 — 꼭짓점이 몸의 모서리와 맞게 45° 안 돌린다
+        bpush('groof', GEMG, WMAT, WX(tc,pc), GY + W + 2.35, WZ(tc,pc), ry, 2.4, 2.9, 2.4, 0, SLATE);   // 팔면체의 윗반만 보인다 — 꼭짓점이 몸의 모서리와 맞게 45° 안 돌린다
         BR('giron', WGEO, WMAT_PAINT, W + 3.85, 0.09, 0.4, IRON); }
 
       /* ── 계단 몸 — 디딤마다 돌덩이(앞 얼굴이 챌판) + 판석 디딤(코를 0.05 내밀고 모따기) ── */
@@ -6294,10 +6349,19 @@ function buildGates(){
         if(R() < 0.14) moss(s > 0 ? w1 - 0.15 : w0 + 0.15, h - 0.02, t0 + 0.42, 0.26);  // 디딤 안쪽 틈 이끼
       }
       /* ── 층계참 — 속 돌 + 판석 ── */
-      core(q0, q1, GH.st1, GH.tt0, -0.05, W - 0.1);
+      if(!store) core(q0, q1, GH.st1, GH.tt0, -0.05, W - 0.1);
+      else {                                                           // 67차 — 층계참 밑 창고(P 8~10 · t 47~49 · 0~2.6)는 비운다
+        const [r0, r1] = sort(P(8), P(GH.sp1)), [k0, k1] = sort(P(GH.sp0), P(8));
+        core(k0, k1, GH.st1, GH.tt0, -0.05, W - 0.1);
+        core(r0, r1, GH.st1, 47, -0.05, W - 0.1);
+        core(r0, r1, 47, GH.tt0, 2.6, W - 0.1); }
       paving(w0, w1, GH.st1, GH.tt0 + 0.02, W);
       /* 바깥 얼굴(P 10) — 계단 옆면 + 층계참 옆면 */
-      face('t', P(GH.sp1), s, GH.st0, GH.tt0, -0.05, W + 0.02, stepTop, null, false, false);
+      if(!store) face('t', P(GH.sp1), s, GH.st0, GH.tt0, -0.05, W + 0.02, stepTop, null, false, false);
+      else {                                                           // 67차 — 창고 밀기 돌 문(t 47~48, 0~2.3)은 buildCastle 이 비밀 돌로 채운다
+        face('t', P(GH.sp1), s, GH.st0, 47, -0.05, W + 0.02, stepTop, null, false, false);
+        face('t', P(GH.sp1), s, 48, GH.tt0, -0.05, W + 0.02, stepTop, null, false, false);
+        face('t', P(GH.sp1), s, 47, 48, 2.3, W + 0.02, stepTop, null, false, false); }
       /* 흉벽 — 계단은 비스듬한 돌 토막 + 비스듬한 갓돌, 층계참은 통로 쪽 성가퀴 · 바깥 낮은 흉벽 */
       const slope = Math.atan2(2*r, 1), sl = Math.hypot(0.5, r);
       for(const [pc0, ph, sh] of [[GH.sp0 + pw/2, PARA_LO, -0.06], [GH.sp1 - pw/2, PARA_HI, 0.06]]){
@@ -6399,6 +6463,994 @@ function buildGates(){
     }
   }
 }
+
+/* ═══ 67차 성곽 그림 시작 (갈래 2 — STONE_PAL · stoneCourses · stoneKit · buildCastle · castleArtInit) ═══
+   겉모습은 선생님이 고른 시험 장면(proto_r5)과 같은 말이고, 이번 판의 중심은 **안쪽**이다:
+     벽 속 복도(돌 궁륭·늑골·활 틈 빛·횃불) · 탑 1층 방 넷(지도방·무기고·경비실·우물방) · 나선 계단(돌 디딤·가운데 기둥·창) ·
+     초소(들보 천장·석궁 받침)·망루(창살·덧창·망원경) · 지붕 덮인 회랑 안(서까래·밑 널·내다보는 창) · 비밀 방·창고(상자·금화 더미).
+   ★ 몸 배열(terrH·GBOX·CASTLE…)은 한 칸도 안 쓴다 — CPLAN 과 CW 만 읽는다(몸은 갈래 1).
+   ★ 새 재질 0: 열쇠마다 기존 재질(WMAT·WMATV·WMAT_WOOD·WMAT_PAINT·EMITC_F)만. 빛은 불투명 발광(gglow)뿐 — PointLight·투명 0.
+   ★ 열쇠 하나 = 기하 하나 + 재질 하나. 같은 기하·재질·그림자끼리는 한 뱅크로 합쳤다(드로우콜 — 설계 3-14):
+       cboxC = 속 몸·띠(드리움) · cboxN = 안쪽 판·판석·연석(안 드리움) · cwoodN = 널·가구(안 드리움) · cwood = 들보·서까래·기둥(드리움) */
+const STONE_PAL = {
+  SC:[0x9d9586, 0x8f887a, 0xa69f8f, 0x857e70, 0x968e7f], SC_L:0xb2aa98, SC_D:0x72695c,   // 마름돌 다섯 톤 + 드문 밝은·짙은 돌
+  CORE:0x4d483f, QUOIN:0xb8b09e, COPE:0xaaa290, TREAD:[0x8f887a, 0x877f72, 0x978f81, 0x81796c],
+  NOSE:0xc3b692, IRON:0x3a3e44, TIMBER:0x7a5a3d, BOARD:0x22252b, CREAM:0xf3e6c8, SLATE:0x56606b,
+  MOSS:0x5f8a45, MOSS2:0x6f9650
+};
+/* 벽돌 줄 높이 — 모든 면(66 성문·성벽·탑·K)이 같은 줄을 써야 귓돌이 모서리에서 맞물리고 가로줄이 이어진다. 아래 두 줄은 크다 */
+function stoneCourses(top){
+  const C = []; for(let y=-0.05, i=0; y < top; i++){ const h = i < 2 ? 0.66 : 0.44 + rnd(i*3.1 + 0.7)*0.12; C.push([y, y+h]); y += h; }
+  return C;
+}
+
+/* CPIECES — 부품 상자 기록(정적 검사·깔끔함 검사용). data 한 줄 = 8칸:
+   [열쇠 번호, x0, x1, z0, z1, y0, y1 (GY 기준), 종류 번호] · keys[열쇠 번호] = 뱅크 열쇠 · kinds[종류 번호] = 부품 종류(설계 3-0 표의 이름 + 소품 이름) */
+function cpiecesNew(){ return {stride:8, n:0, keys:[], kinds:[], data:null, _a:[], _k:new Map(), _d:new Map()}; }
+
+/* ── stoneKit — 성곽 돌 쌓기 도우미(66 buildGates 의 face/parapet/paving/slit/torch 와 같은 규칙, 틀만 일반화) ──
+   틀 F = {x0,z0, ux,uz (면을 따라), nx,nz (면 바깥 법선)}. 점 = 원점 + u·s + n·o, 높이 y 는 GY 기준.
+   조각의 로컬 +Z 가 늘 n 을 본다(BRICKF 는 앞면만 모따기라 방향이 중요) — 그래서 ry = atan2(nx, nz). 로컬 X 는 ±u(xs 부호). */
+function stoneKit(ctx){
+  const {put, R, low} = ctx, PAL = STONE_PAL;
+  const at = (F, s, o)=> [F.x0 + F.ux*s + F.nx*o, F.z0 + F.uz*s + F.nz*o];
+  const ryN = (F)=> Math.atan2(F.nx, F.nz);
+  const xs = (F)=> (F.ux*F.nz - F.uz*F.nx) >= 0 ? 1 : -1;            // 로컬 X 가 +u 면 1
+  const frame = (x0, z0, ux, uz, nx, nz)=> ({x0, z0, ux, uz, nx, nz});
+  const COURSES = stoneCourses(21);
+  const IN = [0x5f594f, 0x575148, 0x655f54, 0x524c43];                 // 안쪽 돌(복도·우리·숨은 방) — 겉보다 두 단 어둡게: 실내는 하늘빛(반구광)이 그림자에 안 가려져 색 자체로 어둡게 둔다
+  const stoneC = (y, damp)=>{ const h = R(); let c = h < 0.07 ? PAL.SC_D : h > 0.93 ? PAL.SC_L : PAL.SC[(h*PAL.SC.length*0.999)|0];
+    if(damp && y < 1.4 && R() < 0.55) c = 0x7b7a6c; return c; };        // 물때 — 1.4 아래 돌의 절반
+  const inC = ()=> IN[(R()*IN.length*0.999)|0];
+  /* 틀 위 상자 하나 — s0~s1 · o0~o1 · y0~y1 */
+  const box = (F, key, kind, geo, mat, s0, s1, o0, o1, y0, y1, col, rz)=>{
+    const [x, z] = at(F, (s0+s1)/2, (o0+o1)/2);
+    return put(key, kind, geo, mat, x, (y0+y1)/2, z, ryN(F), Math.abs(s1-s0), y1-y0, Math.abs(o1-o0), rz ? rz*xs(F) : 0, col);
+  };
+  const core = (F, s0, s1, o0, o1, y0, y1, col, kind)=> box(F, 'cboxC', kind || 'body', BOXG, WMAT, s0, s1, o0, o1, y0, y1, col || PAL.CORE);
+  const flat = (F, s0, s1, o0, o1, y0, y1, col, kind)=> box(F, 'cboxN', kind || 'in', BOXG, WMAT, s0, s1, o0, o1, y0, y1, col);
+  const small = (F, s0, s1, o0, o1, y0, y1, col, kind, rz)=> box(F, 'csmall', kind || 'small', WGEO, WMAT, s0, s1, o0, o1, y0, y1, col, rz);   // csmall 은 put 에서 겉돌 뱅크(cbrk)로 합친다
+
+  /* 직사각형 빼기 — [s0,s1]×[y0,y1] 에서 구멍들(각 [a0,a1,b0,b1])을 뺀 네모들 */
+  const minus = (s0, s1, y0, y1, holes)=>{
+    const xsB = [s0, s1]; for(const h of holes){ if(h[0] > s0 && h[0] < s1) xsB.push(h[0]); if(h[1] > s0 && h[1] < s1) xsB.push(h[1]); }
+    xsB.sort((a,b)=>a-b); const out = [];
+    for(let i=0; i<xsB.length-1; i++){ const a = xsB[i], b = xsB[i+1]; if(b - a < 1e-4) continue; const m = (a+b)/2;
+      let segs = [[y0, y1]];
+      for(const h of holes){ if(!(m > h[0] && m < h[1])) continue; const nx = [];
+        for(const [p,q] of segs){ if(h[3] <= p || h[2] >= q){ nx.push([p,q]); continue; } if(h[2] > p) nx.push([p, h[2]]); if(h[3] < q) nx.push([h[3], q]); }
+        segs = nx; }
+      for(const [p,q] of segs) if(q - p > 1e-4) out.push([a, b, p, q]); }
+    return out;
+  };
+  /* 반원 홍예 구멍을 계단 네모로(몸·판 자르기용) — 테 돌이 계단 모서리를 덮는다 */
+  const archHoles = (c, w, yb, h, ring)=>{ const r = w/2, sp = yb + h - r, rr = r + (ring || 0), hs = [[c - r, c + r, yb, sp]];
+    for(let k=0; k<4; k++){ const hw = rr*Math.sqrt(Math.max(0, 1 - (k/4)*(k/4))); hs.push([c - hw, c + hw, sp + rr*k/4 - 0.001, sp + rr*(k+1)/4]); }
+    return hs; };
+  /* 판 — 구멍을 빼고 네모 몇 장으로(속 몸·회칠 판·우리 벽) */
+  const slab = (F, key, kind, geo, mat, s0, s1, o0, o1, y0, y1, holes, col)=>{
+    for(const [a, b, p, q] of minus(s0, s1, y0, y1, holes || [])) box(F, key, kind, geo, mat, a, b, o0, o1, p, q, typeof col === 'function' ? col() : col); };
+
+  /* ── 겉돌 한 면 ── grade 'A'(가까이 보는 면, 돌 0.7~1.5) · 'B'(해자·먼 면, 1.1~2.0) · 'I'(안쪽, 어둡게)
+     holes: {s0,s1,y0,y1} 네모 또는 {arch:true, c, w, yb, h, ring} 홍예(홍예 위 돌은 테 바깥 곡선에 맞춰 반 칸씩 자른다) */
+  const face = (F, a0, a1, y0, y1, opt)=>{
+    opt = opt || {}; const grade = opt.grade || 'A', par = opt.par || 0, holes = opt.holes || [];
+    const keyA = grade === 'B' ? 'cbrkL' : (low ? 'cbrkL' : 'cbrk'), geoA = keyA === 'cbrk' ? BRICKF : BRICK_LO;
+    const rect = [], arch = [];
+    for(const h of holes){ if(h.arch){ const r = h.w/2, rr = r + (h.ring === undefined ? 0.26 : h.ring); arch.push({c:h.c, rr, sp:h.yb + h.h - r, yb:h.yb}); rect.push([h.c - rr, h.c + rr, h.yb, h.yb + h.h - r]); }
+                           else rect.push([h.s0, h.s1, h.y0, h.y1]); }
+    const archTop = (u)=>{ let t = -1e9; for(const A of arch){ const d = Math.abs(u - A.c); if(d < A.rr) t = Math.max(t, A.sp + Math.sqrt(A.rr*A.rr - d*d)); } return t; };
+    const emit = (u0, u1, c0, c1, col, pr, q)=>{
+      const L = u1 - u0 - 0.055, H = c1 - c0 - 0.055; if(L < 0.28 || H < 0.1) return;  // 0.28 안 되는 부스러기는 줄눈(속 몸)으로 둔다
+      const sm = L < 0.5 && !q, key = q ? (low ? 'cbrkL' : 'cbrk') : sm ? 'csmall' : keyA, geo = sm ? WGEO : key === 'cbrk' ? BRICKF : BRICK_LO;
+      const pr2 = opt.plinth && c0 < 1.2 ? pr + 0.06 : pr;             // 기단 두 줄은 살짝 내민다
+      box(F, key, q ? 'quoin' : (opt.kind || (grade === 'I' ? 'inStone' : 'stone')), geo, sm ? WMAT : WMAT, (u0+u1)/2 - L/2, (u0+u1)/2 + L/2, pr2 - 0.16, pr2, c0 + 0.0275, c0 + 0.0275 + H, col);
+    };
+    for(let ci=0; ci<COURSES.length; ci++){
+      let [c0, c1] = COURSES[ci]; if(c1 <= y0 + 0.1 || c0 >= y1 - 0.1) continue;
+      c0 = Math.max(c0, y0); c1 = Math.min(c1, y1);
+      const segs = []; let u = a0;
+      if(opt.qs){ const q = ((ci + par) % 2) ? 0.55 : 1.0; segs.push([a0 - (q > 0.6 ? 0.1 : 0), a0 + q, 1]); u = a0 + q; }
+      const endQ = opt.qe ? (((ci + par) % 2) ? 1.0 : 0.55) : 0, uEnd = a1 - endQ;
+      if(!opt.qs){ const f = 0.5 + R()*0.6; if(u + f < uEnd - 0.5) { segs.push([u, u + f, 0]); u += f; } }   // 줄마다 이음매가 엇갈리게(첫 돌 0.5 이상 — 작은 돌 구슬 방지·조각 수)
+      while(u < uEnd - 0.05){ let Ls = grade === 'B' ? 1.9 + R()*1.2 : grade === 'I' ? 1.2 + R()*0.8 : 1.0 + R()*0.9; if(ci < 2) Ls *= 1.2;   // A 1.0~1.9 · B 1.9~3.1(해자·먼 쪽 — 큰 마름돌) · 안 1.2~2.0
+        if(uEnd - (u + Ls) < 0.35) Ls = uEnd - u; segs.push([u, Math.min(uEnd, u + Ls), 0]); u += Ls; }
+      if(opt.qe) segs.push([a1 - endQ, a1 + (endQ > 0.6 ? 0.1 : 0), 1]);
+      for(const [s0, s1, q] of segs){
+        let col = q ? PAL.QUOIN : grade === 'I' ? inC() : stoneC(c0, opt.damp);
+        if(opt.soot) for(const [ss, sy] of opt.soot) if(Math.abs((s0+s1)/2 - ss) < 0.75 && c0 > sy - 0.3 && c0 < sy + 1.4) col = grade === 'I' ? 0x4a453d : 0x6a6358;
+        const pr = q ? 0.1 : 0.04 + R()*0.035;
+        /* 네모 구멍 빼기 */
+        let pcs = [[s0, s1, c0, c1]];
+        for(const h of rect){ const nx = [];
+          for(const p of pcs){ if(p[1] <= h[0] || p[0] >= h[1] || p[3] <= h[2] || p[2] >= h[3]){ nx.push(p); continue; }
+            if(p[0] < h[0]) nx.push([p[0], h[0], p[2], p[3]]); if(p[1] > h[1]) nx.push([h[1], p[1], p[2], p[3]]);
+            const m0 = Math.max(p[0], h[0]), m1 = Math.min(p[1], h[1]);
+            if(p[2] < h[2]) nx.push([m0, m1, p[2], h[2]]); if(p[3] > h[3]) nx.push([m0, m1, h[3], p[3]]); }
+          pcs = nx; }
+        for(const p of pcs){
+          if(!arch.length){ emit(p[0], p[1], p[2], p[3], col, pr, q); continue; }
+          const tmax = Math.max(archTop(p[0] + 0.01), archTop(p[1] - 0.01), archTop((p[0]+p[1])/2));
+          if(tmax <= p[2]){ emit(p[0], p[1], p[2], p[3], col, pr, q); continue; }
+          for(let v = p[0]; v < p[1] - 0.02; ){                           // 홍예 테에 걸린 돌 — 반 칸씩 잘라 곡선 위로
+            const v1 = Math.min(p[1], Math.floor(v*2 + 1e-6)/2 + 0.5), tt = Math.max(archTop(v + 0.001), archTop(v1 - 0.001), archTop((v + v1)/2));
+            const bb = Math.max(p[2], tt); if(p[3] - bb > 0.14) emit(v, v1, bb, p[3], col, pr, q); v = v1; }
+        }
+      }
+    }
+  };
+  /* 띠(물끊기·띠돌·돌림띠) — out 만큼 내민다 */
+  const band = (F, a0, a1, y, h, out, col, kind)=> core(F, a0, a1, -0.02, out, y, y + h, col || PAL.COPE, kind || 'band');
+  /* 끊는 띠 — 틈에서 끊고 양끝을 되돌림돌(벽 쪽으로 꺾어 내린 짧은 돌)로 마감 */
+  const bandCut = (F, a0, a1, y, h, out, gaps, col)=>{
+    let u = a0; const gs = gaps.slice().sort((p,q)=>p[0]-q[0]), ends = [];
+    const seg = (p, q)=>{ if(q - p < 0.12) return; band(F, p, q, y, h, out, col); ends.push(p, q); };
+    for(const [g0, g1] of gs){ if(g0 > u) seg(u, g0); u = Math.max(u, g1); }
+    if(a1 > u) seg(u, a1);
+    for(const e of ends){ if(Math.abs(e - a0) < 0.01 || Math.abs(e - a1) < 0.01) continue;
+      const d = gs.some(g=> Math.abs(g[0] - e) < 0.01) ? -1 : 1;            // 틈 쪽 끝
+      core(F, e + (d < 0 ? -0.14 : 0), e + (d < 0 ? 0 : 0.14), -0.02, out, y - 0.26, y, col || PAL.COPE, 'return'); }
+  };
+  /* 흉벽 — 닫힌 모따기 돌(양쪽에서 보인다) + 갓돌 + 뒤 받침 몸(그림자) */
+  const lowPara = (F, a0, a1, o0, pw, h, yb, noCope)=>{
+    for(let u = a0; u < a1 - 0.05; ){ let Ls = 1.1 + R()*0.6; if(a1 - (u + Ls) < 0.4) Ls = a1 - u;
+      box(F, low ? 'cbrkL' : 'cbrk', 'para', low ? BRICK_LO : BRICKF, WMAT, u + 0.02, u + Ls - 0.02, o0 - pw, o0, yb, yb + h - 0.02, stoneC()); u += Ls; }   // 흉벽 돌 — 겉돌 뱅크(그림자는 뒤 받침 몸이)
+    if(!noCope) box(F, 'ccope', 'cope', COPEG, WMAT, a0, a1, o0 - pw - 0.04, o0 + 0.04, yb + h - 0.02, yb + h + 0.08, PAL.COPE);
+    core(F, a0 + 0.05, a1 - 0.05, o0 - pw + 0.08, o0 - 0.08, yb, yb + 0.57, PAL.CORE, 'paraBody');
+  };
+  /* 성가퀴 줄 — 밑돌 0.57 · 턱돌 · n = round(L/1.6) 성가퀴(양끝 반 틈) · 갓돌 · 둘째마다 활 틈(어둠 칠) */
+  const merlons = (F, a0, a1, o0, pw, yb, slitEvery, mcol)=>{
+    for(let u = a0; u < a1 - 0.05; ){ let Ls = 1.1 + R()*0.6; if(a1 - (u + Ls) < 0.4) Ls = a1 - u;
+      box(F, low ? 'cbrkL' : 'cbrk', 'para', low ? BRICK_LO : BRICKF, WMAT, u + 0.02, u + Ls - 0.02, o0 - pw, o0, yb, yb + 0.57, stoneC()); u += Ls; }
+    core(F, a0, a1, o0 - pw - 0.03, o0 + 0.03, yb + 0.57, yb + 0.64, PAL.COPE, 'ledge');
+    core(F, a0 + 0.05, a1 - 0.05, o0 - pw + 0.08, o0 - 0.08, yb, yb + 0.57, PAL.CORE, 'paraBody');
+    const len = a1 - a0, nM = Math.max(1, Math.round(len/1.6)), step = len/nM, MC = [PAL.SC[0], PAL.SC[2], PAL.SC[4], PAL.SC[0], PAL.SC[1]];
+    for(let i=0; i<nM; i++){ const m = a0 + step*(i + 0.5), mw = Math.min(0.95, step - 0.62);
+      box(F, 'cmerl', 'merl', MERLV, WMAT, m - mw/2, m + mw/2, o0 - pw, o0, yb + 0.61, yb + 1.45, mcol || MC[(R()*MC.length*0.999)|0]);
+      box(F, 'ccope', 'cope', COPEG, WMAT, m - mw/2 - 0.015, m + mw/2 + 0.015, o0 - pw - 0.015, o0 + 0.015, yb + 1.45, yb + 1.53, PAL.COPE);
+      if(slitEvery && i % slitEvery === 1) box(F, 'gdk', 'crenelSlit', WGEO, WMAT_PAINT, m - 0.06, m + 0.06, o0 - 0.01, o0 + 0.02, yb + 0.72, yb + 1.34, PAL.BOARD); }
+  };
+  /* 판석 — 윗면이 딱 y */
+  const paving = (F, a0, a1, o0, o1, y, cols, kind, bed)=>{
+    const lo = Math.min(o0, o1), hi = Math.max(o0, o1), C = cols || PAL.TREAD;
+    for(let s = a0; s < a1 - 0.05; ){ let ds = 1.25 + R()*0.7; if(a1 - (s + ds) < 0.5) ds = a1 - s;
+      for(let o = lo; o < hi - 0.05; ){ let d2 = 1.2 + R()*0.7; if(hi - (o + d2) < 0.6) d2 = hi - o;
+        flat(F, s + 0.02, s + ds - 0.02, o + 0.02, o + d2 - 0.02, y - 0.1, y + 0.004, C[(R()*C.length*0.999)|0], kind || 'pave'); o += d2; }
+      s += ds; }
+    if(bed) flat(F, a0, a1, lo, hi, y - 0.019, y - 0.009, PAL.CORE, 'bed');   // 판석 틈 밑 짙은 바닥(땅 원판의 풀빛이 틈으로 안 보이게)
+  };
+  /* 벽 횃불 — 66 성문과 같은 크기(불 0.2×0.28). lit false 면 불 꺼진 횃대(비밀 문 힌트) */
+  const torch = (F, s, y, lit)=>{
+    const P0 = (o)=> at(F, s, o), ry = ryN(F);
+    let q = P0(0.16); put('giron', 'torch', WGEO, WMAT_PAINT, q[0], y - 0.05, q[1], ry, 0.08, 0.08, 0.34, 0, PAL.IRON);   // 쇠 까치발(벽에서 0.34)
+    q = P0(0.3); put('cwoodN', 'torch', WGEO, WMAT_WOOD, q[0], y + 0.12, q[1], ry, 0.09, 0.42, 0.09, 0, 0x563f2c);
+    put('giron', 'torch', WGEO, WMAT_PAINT, q[0], y + 0.34, q[1], ry, 0.17, 0.08, 0.17, 0, PAL.IRON);
+    if(lit !== false){ put('gglow', 'flame', ctx.gGlow, EMITC, q[0], y + 0.5, q[1], ry, 0.2, 0.28, 0.2, 0, 0); if(ctx.light) ctx.light(q[0], y + 0.5, q[1], 1); }
+  };
+  /* 화톳불 바구니 — 흉벽 갓돌 위 쇠 받침(성벽 길 폭 침범 0) */
+  const brazier = (F, s, o, yTop)=>{
+    const [x, z] = at(F, s, o), ry = ryN(F);
+    put('giron', 'brazier', WGEO, WMAT_PAINT, x, yTop + 0.1, z, ry, 0.08, 0.2, 0.08, 0, PAL.IRON);
+    put('giron', 'brazier', WGEO, WMAT_PAINT, x, yTop + 0.24, z, ry, 0.34, 0.08, 0.34, 0, PAL.IRON);
+    for(const k of [-1, 1]){ const [x2, z2] = at(F, s + k*0.15, o); put('giron', 'brazier', WGEO, WMAT_PAINT, x2, yTop + 0.36, z2, ry, 0.04, 0.2, 0.3, 0, PAL.IRON); }
+    put('gglow', 'flame', ctx.gGlow, EMITC, x, yTop + 0.42, z, ry, 0.24, 0.26, 0.24, 0, 0);
+  };
+  /* 겉 활 틈 틀(밝은 문설 돌 + 인방) — 틈은 실제로 뚫려 있다(dark 면 칠한 어둠 판) */
+  const slitFrame = (F, s, yb, h, dark)=>{
+    for(const k of [-1, 1]) small(F, s + k*0.185 - 0.125, s + k*0.185 + 0.125, -0.06, 0.12, yb, yb + h, PAL.SC_L, 'slitFrame');   // 틈 0.12(문설 안 가장자리 ±0.06)
+    small(F, s - 0.31, s + 0.31, -0.06, 0.13, yb + h, yb + h + 0.18, PAL.SC_L, 'slitFrame');
+    small(F, s - 0.3, s + 0.3, -0.06, 0.14, yb - 0.1, yb, PAL.COPE, 'slitFrame');
+    if(dark) box(F, 'gdk', 'slitDark', WGEO, WMAT_PAINT, s - 0.07, s + 0.07, 0.0, 0.06, yb + 0.05, yb + h - 0.05, PAL.BOARD);
+  };
+  /* 반원 홍예 문 테 — 문설주 엇갈림 + 홍예돌 7(두께 0.26). 면 F 의 s 가운데, 폭 w, 높이 h(홍예 꼭대기), yb 바닥 */
+  const doorFrame = (F, s, w, h, yb, opt)=>{
+    opt = opt || {}; const r = w/2, sp = yb + h - r, T = 0.26, ry = ryN(F);
+    if(!opt.noJamb) for(const k of [-1, 1]) for(let y = yb, j = 0; y < sp - 0.05; y += 0.72, j++){   // 엇갈린 문설주(0.7 켜)
+      const wj = (j % 2) ? 0.3 : 0.44, top = Math.min(sp, y + 0.7);
+      small(F, s + k*(r + wj/2) - wj/2, s + k*(r + wj/2) + wj/2, -0.08, 0.1, y + 0.01, top, (j % 2) ? PAL.SC[2] : PAL.QUOIN, 'doorFrame'); }
+    const NQ = opt.nq || 7;
+    for(let i=0; i<NQ; i++){ const a = -Math.PI/2 + (i + 0.5)*Math.PI/NQ, rr = r + T/2, [x, z] = at(F, s + rr*Math.sin(a), 0.01);
+      put('csmall', 'doorFrame', WGEO, WMAT, x, sp + rr*Math.cos(a), z, ry, 2*rr*Math.sin(Math.PI/NQ/2)*1.04 - 0.02, T + 0.02, 0.2, -a*xs(F), i === (NQ >> 1) ? PAL.QUOIN : PAL.SC[2]); }
+    if(opt.shield){ const [x, z] = at(F, s, 0.08); put('gban', 'shield', WGEO, WMAT_PAINT, x, h + yb + 0.62, z, ry, 0.55, 0.62, 0.05, 0, opt.shield);
+      const [x2, z2] = at(F, s, 0.11); put('gban', 'shield', WGEO, WMAT_PAINT, x2, h + yb + 0.65, z2, ry, 0.2, 0.2, 0.02, Math.PI/4, PAL.CREAM); }
+  };
+  /* 문·창 구멍의 두께 안감 — 두 옆 + 홍예 밑면(돌결 판). T = 벽 두께(면 F 에서 안쪽 −o 로) */
+  const reveal = (F, s, w, h, yb, T, col, arch)=>{
+    const r = w/2, sp = arch === false ? yb + h : yb + h - r, ry = ryN(F), C = col || 0x6e675b;
+    for(const k of [-1, 1]) flat(F, s + k*r - (k > 0 ? 0 : 0.06), s + k*r + (k > 0 ? 0.06 : 0), -T, 0.0, yb, sp, C, 'lining');
+    if(arch === false) return;                                           // 네모 구멍(창) — 옆 둘만(위·아래는 창턱·인방 돌이 가린다)
+    const NV = 4; for(let i=0; i<NV; i++){ const a = -Math.PI/2 + (i + 0.5)*Math.PI/NV, cw = 2*r*Math.sin(Math.PI/NV/2) + 0.02, [x, z] = at(F, s + (r + 0.03)*Math.sin(a), -T/2);
+      put('cboxN', 'lining', BOXG, WMAT, x, sp + (r + 0.03)*Math.cos(a), z, ry, cw, 0.06, T, -a*xs(F), C); }
+  };
+  /* 안내판 '→N' — 짙은 판 + 도착 성문 색 테 + 크림 칠 화살표·숫자(발광 아님, 가로로 이어진 픽셀은 한 조각) */
+  const sign = (F, s, y0, gcol, num)=>{
+    const yc = y0 + 0.35;
+    box(F, 'gban', 'sign', WGEO, WMAT_PAINT, s - 0.51, s + 0.51, 0.0, 0.05, yc - 0.41, yc + 0.41, gcol);
+    box(F, 'gdk', 'sign', WGEO, WMAT_PAINT, s - 0.45, s + 0.45, 0.03, 0.08, yc - 0.35, yc + 0.35, PAL.BOARD);
+    /* 보는 사람의 오른쪽 = 면 법선 기준 (n.z, −n.x) — 틀 u 와 같으면 +, 아니면 − */
+    const rs = (F.ux*F.nz - F.uz*F.nx) >= 0 ? 1 : -1, px = 0.085;
+    const AR = ['00010', '00011', '11111', '00011', '00010'], D = DIGIT[num] || DIGIT[1];   // 굵은 화살(→) — 대 + 머리
+    /* 픽셀 → 조각: 가로 띠를 찾고, 바로 아래 줄에 같은 띠가 있으면 세로로 합친다(조각 수를 줄임) */
+    const glyph = (G, off)=>{ const used = G.map(r=> r.split('').map(()=> 0));
+      for(let r=0; r<5; r++) for(let c=0; c<G[r].length; ){
+        if(G[r][c] !== '1' || used[r][c]){ c++; continue; } let e = c; while(e + 1 < G[r].length && G[r][e+1] === '1' && !used[r][e+1]) e++;
+        let r1 = r; if(c === e) while(r1 + 1 < 5 && G[r1+1][c] === '1' && !used[r1+1][c] && (c + 1 >= G[r1+1].length || G[r1+1][c+1] !== '1' || c === e)) r1++;
+        for(let rr=r; rr<=r1; rr++) for(let cc=c; cc<=e; cc++) used[rr][cc] = 1;
+        const u0 = s + rs*(-0.37 + (off + c)*px), u1 = s + rs*(-0.37 + (off + e + 1)*px);
+        box(F, 'cpropP', 'signText', WGEO, WMAT_PAINT, Math.min(u0, u1) + 0.004, Math.max(u0, u1) - 0.004, 0.08, 0.1, yc + 0.2 - r1*px - px*0.46, yc + 0.2 - r*px + px*0.46, PAL.CREAM);
+        c = e + 1; } };
+    glyph(AR, 0); glyph(D, 6);
+  };
+  return {at, ryN, xs, frame, COURSES, stoneC, inC, box, core, flat, small, minus, archHoles, slab, face, band, bandCut, lowPara, merlons, paving, torch, brazier, slitFrame, doorFrame, reveal, sign};
+}
+
+
+/* ═══ 성곽 그림 — CPLAN 한 곳에서 읽어 짓는다(bbuild 앞) ═══ */
+function buildCastle(){
+  const PAL = STONE_PAL, low = GFX.q === 'low', gGlow = cube(T.glow);
+  const W = CW.WALK, S2 = Math.SQRT1_2, PI = Math.PI;
+  const TIMBER = PAL.TIMBER, TIMBER_D = 0x563f2c, PLANK = 0x8a6a48, IRON = PAL.IRON, CREAM = PAL.CREAM, COPE = PAL.COPE, CORE = PAL.CORE;
+  const SLATE3 = [0x4a535e, 0x56606b, 0x626c77], RIDGE = 0x454c55, LAMP = 0x3a2a1c, BRASS = 0xb08d4a, GOLD = 0xe0b54a, GOLD_D = 0xb8892e;
+  const VAULT = 0x46423b, INSTONE = 0x5a544a;
+  /* 실내 색 — 그림자 없는 저사양(Lambert)에서는 안쪽 면 자체를 CORE 쪽으로 어둡게(그림자 없이도 실내로 읽히게) */
+  const dk = (c, k)=>{ const a = new THREE.Color(c), b = new THREE.Color(CORE); return a.lerp(b, k).getHex(); };
+  /* 실내는 반구광(하늘빛)이 그림자에 안 가려지므로 색 자체를 어둡게 둔다 — 문 너머 바깥·횃불·덧창 불빛과 대비가 '와' 를 만든다.
+     그림자 없는 저사양은 한 단 더 어둡게 */
+  const INK = low ? 0.15 : 0;
+  const PLASTER = dk(0xa89f8b, INK), PLASTER2 = dk(0xa0977f, INK), DADO = dk(0x5f584c, INK);
+  const FLOOR_T = [0x625c52, 0x5b554c, 0x686257, 0x57514a].map(c=> dk(c, INK));
+  const BOARDS = [0x6e5238, 0x654a32, 0x76583c].map(c=> dk(c, INK*0.6));
+  const BEAM = 0x5a4330, CEIL = 0x3b3731;
+  /* 불빛 웅덩이 — 실내 횃불·촛불 둘레 조각의 색을 따뜻하게(인스턴스 색만 — 빛·재질 추가 0). bbuild 전에 b.cols 를 고친다 */
+  const LIGHTS = [], INS = []; let litIn = false;
+  const IN_KINDS = new Set(['inStone', 'plaster', 'dado', 'lining', 'vault', 'rib', 'floor', 'fill', 'cagePanel', 'tread', 'newel', 'ceil', 'beam', 'joist', 'plank', 'rail', 'bed']);
+  let sd = 6700; const R = ()=> rnd(((sd++) * 0.6180339) % 997 + 0.37);
+  const CPx = cpiecesNew();
+  const _c3 = new THREE.Color();
+  /* bpush + 상자 기록. y 는 GY 기준 */
+  const put = (key, kind, geo, mat, x, y, z, ry, sx, sy, sz, rz, col, bb)=>{
+    if(key === 'csmall'){ key = low ? 'cbrkL' : 'cbrk'; geo = low ? BRICK_LO : BRICKF; }   // 작은 돌(문 테·까치발·창틀·늑골) — 겉돌과 같은 기하·재질·그림자라 한 뱅크(드로우콜 · 삼각형 WGEO 44 → 20)
+    const h = bpush(key, geo, mat, x, GY + y, z, ry || 0, sx, sy, sz, rz || 0, col || 0);
+    if(IN_KINDS.has(kind)) INS.push(h, x, y, z);
+    let ki = CPx._k.get(key); if(ki === undefined){ ki = CPx.keys.length; CPx.keys.push(key); CPx._k.set(key, ki); }
+    let di = CPx._d.get(kind); if(di === undefined){ di = CPx.kinds.length; CPx.kinds.push(kind); CPx._d.set(kind, di); }
+    if(bb){ CPx._a.push(ki, bb[0], bb[1], bb[2], bb[3], bb[4], bb[5], di); return h; }     // 상자를 직접 준 조각(부채꼴 디딤·구석 메움)
+    let ex, ey, ez;
+    { const cz = Math.abs(Math.cos(rz || 0)), szn = Math.abs(Math.sin(rz || 0));
+      const ax = cz*sx/2 + szn*sy/2; ey = szn*sx/2 + cz*sy/2; const az = sz/2;
+      const cy = Math.abs(Math.cos(ry || 0)), sy2 = Math.abs(Math.sin(ry || 0));
+      ex = cy*ax + sy2*az; ez = sy2*ax + cy*az; }
+    CPx._a.push(ki, x - ex, x + ex, z - ez, z + ez, y - ey, y + ey, di);
+    return h;
+  };
+  const K = stoneKit({put, R, low, gGlow, light:(x, y, z, k)=>{ if(litIn) LIGHTS.push(x, y, z, k); }});
+  const {frame, face, band, bandCut, lowPara, merlons, paving, torch, brazier, slitFrame, doorFrame, reveal, sign, slab, archHoles, core, flat, small, box} = K;
+  /* 한 점에 조각 하나(틀 없이) — 로컬 X 를 (dx,dz) 로 */
+  const putD = (key, kind, geo, mat, x, y, z, dx, dz, sx, sy, sz, rz, col)=> put(key, kind, geo, mat, x, y, z, Math.atan2(-dz, dx), sx, sy, sz, rz, col);
+
+  /* 탑 로컬(T1 = 세계) → 탑 i. castlePlan 의 xf 와 같은 식: 홀수 번째(짝수 탑)는 대각선 거울 M 뒤 R 을 (i>>1) 번 */
+  const cxf = (i, x, z)=>{ let p = (i & 1) ? [-z, -x] : [x, z]; for(let n = i >> 1; n > 0; n--) p = [-p[1], p[0]]; return p; };
+  const tf = (i, F)=>{ const p = cxf(i, F.x0, F.z0), u = cxf(i, F.ux, F.uz), n = cxf(i, F.nx, F.nz); return frame(p[0], p[1], u[0], u[1], n[0], n[1]); };
+  const LF = (x0, z0, ux, uz, nx, nz)=> frame(x0, z0, ux, uz, nx, nz);
+
+  /* ════════ 1. 곧은 커튼월 여덟 + 벽 속 복도 ════════ */
+  for(const S of CPLAN.straights){
+    const g = S.g, s = S.s, d = DIRS[g], P1 = S.len + 11, U = {x:-d.dz*s, z:d.dx*s}, N = {x:d.dx, z:d.dz};
+    const A = (t, P)=> ({x:gX(g, t, P*s), z:gZ(g, t, P*s)});
+    const o49 = A(49, 0), o53 = A(53, 0), o50 = A(50, 0), o52 = A(52, 0);
+    const FI = frame(o49.x, o49.z, U.x, U.z, -N.x, -N.z);                // 마을 쪽 얼굴(t 49)
+    const FO = frame(o53.x, o53.z, U.x, U.z, N.x, N.z);                  // 해자 쪽 얼굴(t 53)
+    const corr = !!S.corr, dec = S.deco, gc = GHEX[g], nookC = P1 + 1.5; // 탑 구석 문 가운데(P1 + 1.5 — T1 x 31.5)
+    const holes = [], gaps = [];
+    if(corr){ holes.push({arch:true, c:16, w:1.4, yb:0, h:2.3}); gaps.push([15.0, 17.0]);
+      for(const P of dec.slits.map(v=> v*s)){ holes.push({s0:P - 0.3, s1:P + 0.3, y0:0.45, y1:1.95}); gaps.push([P - 0.34, P + 0.34]); } }
+    holes.push({arch:true, c:nookC, w:1.0, yb:0, h:2.3}); gaps.push([nookC - 0.86, P1 + 2.67]);
+    /* 속 몸(드리움) — 구멍 둘레로 쪼갠 껍데기 */
+    if(corr){
+      slab(FI, 'cboxC', 'body', BOXG, WMAT, 11, P1, -0.9, -0.12, 0, 7.98, [[15.3, 16.7, 0, 2.3], [15.1, 16.9, 2.3, 2.62],
+        ...dec.slits.map(v=>{ const P = v*s; return [P - 0.3, P + 0.3, 0.55, 1.85]; })], CORE);
+      core(FI, 11, P1, -3.88, -3.1, 2.0, 7.98);                            // 바깥 벽 속(t 52.1~52.9)
+      core(FI, 11, 15, -3.1, -0.9, 0, 7.98);                              // 복도 서쪽 끝 막힌 벽(P 11~15)
+      core(FI, 15, P1, -1.5, -0.9, 2.75, 7.98); core(FI, 15, P1, -2.5, -1.5, 2.95, 7.98); core(FI, 15, P1, -3.1, -2.5, 2.75, 7.98);   // 궁륭 위
+    } else core(FI, 11, P1, -3.88, -0.12, 0, 7.98);
+    core(FO, 11, P1, -0.9, -0.12, 1.9, 7.98);
+    /* 마을 쪽 얼굴 — 탑 구석까지(P1 + 2.67 = 대각 벽과 만나는 오목 구석) 한 면. 탑 쪽 부분은 탑 마을 얼굴이다 */
+    const soot = corr ? dec.torches.map(v=> [v*s, 2.6]) : []; soot.push([P1 - 0.4, 2.6]);
+    face(FI, 11, P1 + 2.67, -0.05, 7.98, {holes, soot, plinth:true, damp:true});
+    /* 탑 구석 문 동쪽 문설주 ~ 오목 모서리(P1+2.26 ~ +2.67): 넓은 귓돌 기둥 */
+    for(let y = 0, j = 0; y < 2.62; y += 0.5, j++) small(FI, P1 + 2.27, P1 + 2.66, -0.04, 0.12, y + 0.01, Math.min(2.64, y + 0.49), j % 2 ? PAL.SC[2] : PAL.QUOIN, 'quoin');
+    /* 가로줄 둘 — P 10(66 망루 마을 얼굴)부터 오목 구석까지, 틀에서 끊고 되돌림 */
+    bandCut(FI, 10, P1 + 2.67, 1.30, 0.12, 0.16, gaps, COPE);
+    band(FI, 10, P1 + 2.67, 6.92, 0.16, 0.12, COPE);
+    /* 흉벽(안) · 판석 · 이음 돌기둥(P 11) */
+    lowPara(FI, 11.5, P1, 0, 0.45, 0.85, W);
+    paving(FI, 11, P1, -0.45, -3.55, W);
+    for(const o of [-0.225, -3.775]){ box(FI, 'cmerl', 'pillar', MERLV, WMAT, 11.0, 11.5, o - 0.25, o + 0.25, W, W + 1.45, PAL.QUOIN);
+      box(FI, 'ccope', 'cope', COPEG, WMAT, 10.97, 11.53, o - 0.28, o + 0.28, W + 1.45, W + 1.53, COPE); }
+    /* 바깥 얼굴(B급 큰 돌) · 탈루스 두 단 · 돌림띠 + 까치발 · 성가퀴 줄 */
+    /* P 11~15 바깥 얼굴은 바위 톱(어깨 GY+10~12)에 묻힌다 — P 15 부터. 탈루스(2~3.45) 뒤 돌은 안 보이니 3.3 부터 */
+    face(FO, 15, P1, 3.3, 7.68, {grade:'B', par:1});
+    core(FO, 15, P1, -0.02, 0.5, 1.95, 3.0, PAL.SC_D, 'talus'); core(FO, 15, P1, -0.02, 0.26, 3.0, 3.45, PAL.SC[3], 'talus');
+    band(FO, 11, P1, 7.68, 0.32, 0.14, COPE);
+    for(let u = 11.5; u < P1 - 0.2; u += 1.0) small(FO, u - 0.14, u + 0.14, -0.02, 0.32, 7.2, 7.56, PAL.SC_D, 'corbel');
+    merlons(FI, 11.5, P1, -3.55, 0.45, W, 2);
+    /* 불빛 — 화톳불(흉벽 갓돌 위) · 바깥 횃불 · 석루조 */
+    for(const v of dec.braziers) brazier(FI, v*s, -0.2, W + 0.95);
+    for(const v of dec.torches) torch(FI, v*s, 2.6);
+    torch(FI, P1 - 0.4, 2.6);                                             // 탑 구석 문 횃불(곧은 벽 안 얼굴 x 29.6)
+    if(corr){ doorFrame(FI, 16, 1.4, 2.3, 0, {shield:gc});                  // 암문 — 반원 홍예 + 모둠 방패
+      for(const v of dec.slits) slitFrame(FI, v*s, 0.6, 1.2, false); }     // 안벽 활 틈 틀(틈 0.12 — 실제로 뚫림)
+    if(dec.spout){ const P = dec.spout; small(FI, P - 0.16, P + 0.16, -0.1, 0.55, W - 0.36, W - 0.14, PAL.SC_D, 'spout'); }
+    for(let i = 0, n = Math.ceil((P1 - 11)/6); i < n; i++){ const u = 11.5 + R()*(P1 - 12), [x, z] = K.at(FI, u, 0.18);
+      if(holes.some(h=> h.arch ? Math.abs(u - h.c) < 1.2 : (u > h.s0 - 0.5 && u < h.s1 + 0.5))) continue;
+      const sz = 0.45 + R()*0.3; put('moss', 'moss', LEAFG, WMAT, x, 0.02 + sz*0.12, z, R()*3, sz, sz*0.34, sz*0.8, 0, R() < 0.5 ? PAL.MOSS : PAL.MOSS2); }
+
+    /* ── 벽 속 복도(P 15~30 × t 50~52) ── */
+    if(corr){ litIn = true;
+      const C1 = frame(o50.x, o50.z, U.x, U.z, N.x, N.z);               // 안벽의 복도 쪽 얼굴(t 50, 복도를 본다)
+      const C2 = frame(o52.x, o52.z, U.x, U.z, -N.x, -N.z);             // 바깥벽의 복도 쪽 얼굴(t 52)
+      const e15 = A(50, 15), CE = frame(e15.x, e15.z, N.x, N.z, U.x, U.z);   // 서쪽 끝 막힌 벽(P 15, 복도를 본다) — s = t − 50
+      const slP = dec.slits.map(v=> v*s), inT = dec.inTorches.map(v=> v*s);
+      face(C1, 15, P1, -0.05, 2.32, {grade:'I', holes:[{arch:true, c:16, w:1.4, yb:0, h:2.3, ring:0.12}, ...slP.map(P=> ({s0:P - 0.3, s1:P + 0.3, y0:0.55, y1:1.85}))]});
+      face(C2, 15, P1, -0.05, 2.32, {grade:'I', soot:inT.map(P=> [P, 1.9])});
+      face(CE, 0, 2, -0.05, 2.62, {grade:'I'});
+      /* 판석 바닥(어둡게) */
+      paving(C1, 15, P1 + 1, 0, 2, 0.02, FLOOR_T, 'floor', true);
+      doorFrame(C1, 16, 1.4, 2.3, 0, {nq:5, noJamb:true});
+      /* 돌 궁륭 — 늑골 사이 칸마다 여섯 쪽(벽 가 2.3 → 가운데 2.9), 늑골 P 17·20·23·26·29 */
+      const vy = (t)=> 2.3 + 0.6*Math.sin(PI*t/2);                        // t 0~2(복도 폭)
+      const ribs = dec.ribs.map(v=> v*s), bays = [15, ...ribs, P1];
+      for(let b = 0; b < bays.length - 1; b++){ const p0 = bays[b], p1 = bays[b+1];
+        for(let k=0; k<4; k++){ const t0 = k/2, t1 = (k+1)/2, y0 = vy(t0), y1 = vy(t1), [x, z] = K.at(C1, (p0+p1)/2, (t0+t1)/2);
+          putD('cboxN', 'vault', BOXG, WMAT, x, (y0+y1)/2 + 0.05, z, N.x, N.z, Math.hypot(t1-t0, y1-y0) + 0.03, 0.1, p1 - p0, Math.atan2(y1-y0, t1-t0), dk(k % 2 ? VAULT : 0x4d4840, INK*0.5)); } }
+      for(const P of ribs){                                               // 늑골 — 궁륭 밑으로 0.1 내민 밝은 돌 띠 + 벽 가 받침돌
+        for(let k=0; k<6; k++){ const t0 = k/3, t1 = (k+1)/3, y0 = vy(t0) - 0.08, y1 = vy(t1) - 0.08, [x, z] = K.at(C1, P, (t0+t1)/2);
+          putD('csmall', 'rib', WGEO, WMAT, x, (y0+y1)/2, z, N.x, N.z, Math.hypot(t1-t0, y1-y0) + 0.02, 0.16, 0.26, Math.atan2(y1-y0, t1-t0), dk(k % 2 ? 0x6d675c : 0x756e62, INK*0.5)); }
+        for(const t of [0.1, 1.9]){ const [x, z] = K.at(C1, P, t); putD('csmall', 'rib', WGEO, WMAT, x, 2.12, z, N.x, N.z, 0.2, 0.22, 0.3, 0, 0x6d675c); } }
+      /* 활 틈 속 — 안쪽이 넓은 벽감(0.6) → 바깥 틈(0.12). 비스듬한 볼 두 장 + 창턱(바깥으로 내려감) + 인방 */
+      for(const P of slP){ const T0 = 0.0, T1 = -0.88;
+        for(const k of [-1, 1]){ const a = [P + k*0.3, T0], b = [P + k*0.07, T1], [x, z] = K.at(C1, (a[0]+b[0])/2, (a[1]+b[1])/2 - 0.0);
+          const dx = (b[0]-a[0]), dz = (b[1]-a[1]), wx = U.x*dx + (-N.x)*(-dz), wz = U.z*dx + (-N.z)*(-dz);
+          putD('cboxN', 'lining', BOXG, WMAT, x, 1.2, z, wx, wz, Math.hypot(dx, dz), 1.3, 0.05, 0, INSTONE); }
+        { const [x, z] = K.at(C1, P, -0.45); putD('cboxN', 'lining', BOXG, WMAT, x, 0.5, z, N.x, N.z, 0.95, 0.1, 0.62, -0.18, 0x77705f);   // 창턱(바깥으로 내려감 — 빛이 닿는 밝은 돌)
+          putD('cboxN', 'lining', BOXG, WMAT, x, 1.9, z, N.x, N.z, 0.95, 0.1, 0.62, 0, 0x4d4840); } }
+      /* 문 안감 — 암문(t 49~50) · 동쪽 끝 탑 문(탑 벽 P 30~31, 폭 2 = 복도 폭) */
+      reveal(FI, 16, 1.4, 2.3, 0, 1.0, INSTONE);
+      { const eP = A(51, P1), FE2 = frame(eP.x, eP.z, N.x, N.z, U.x, U.z);   // 탑 벽 속 1칸(P1~P1+1)의 복도 문 — 가운데 t 51
+        for(const k of [-1, 1]) flat(FE2, k*1.0 - (k > 0 ? 0 : 0.06), k*1.0 + (k > 0 ? 0.06 : 0), 0, 1.0, 0, 1.3, INSTONE, 'lining');
+        for(let i=0; i<6; i++){ const a = -PI/2 + (i + 0.5)*PI/6, [x, z] = K.at(FE2, 1.03*Math.sin(a), 0.5);
+          put('cboxN', 'lining', BOXG, WMAT, x, 1.3 + 1.03*Math.cos(a), z, K.ryN(FE2), 2*Math.sin(PI/12) + 0.03, 0.06, 1.0, -a*K.xs(FE2), INSTONE); }
+        /* 복도 쪽 얼굴의 홍예 테(가늘게) — 문 너머 방의 빛을 담는 액자 */
+        const FE3 = frame(eP.x, eP.z, N.x, N.z, -U.x, -U.z);
+        doorFrame(FE3, 0, 2.0, 2.3, 0, {nq:7}); }
+      /* 복도 안 횃불(바깥벽 1.9) — P 16(암문 맞은편)·21.5·27.5 */
+      for(const P of inT) torch(C2, P, 1.9);
+      litIn = false;
+    }
+  }
+
+  /* ════════ 2. 66 층계참 바깥 얼굴 가로줄(되돌림 끝) · 3·4 연결 벽 ════════ */
+  for(let g=0; g<NG; g++) for(const s of [-1, 1]){
+    const d = DIRS[g], A = (t, P)=> ({x:gX(g, t, P*s), z:gZ(g, t, P*s)}), a = A(46, 10), U = {x:-d.dz*s, z:d.dx*s};
+    const FL = frame(a.x, a.z, d.dx, d.dz, U.x, U.z);                    // 층계참 바깥 얼굴(P 10) — s = t − 46
+    const st = CPLAN.secrets.find(q=> q.kind === 'landing' && q.gate === g && q.side === s);
+    if(!st) band(FL, -0.14, 3, 1.30, 0.12, 0.16, COPE);
+    else {                                                                // 창고 밀기 돌 문 앞은 띠를 끊지 않는다 — 문 앞 토막은 문 돌과 함께 숨는다(비밀이 더 감춰진다)
+      band(FL, -0.14, 0.97, 1.30, 0.12, 0.16, COPE); band(FL, 2.03, 3, 1.30, 0.12, 0.16, COPE);
+      st.hs.push(core(FL, 1.0, 2.0, -0.02, 0.16, 1.30, 1.42, COPE, 'sec')); }
+    core(FL, -0.14, 0.0, -0.02, 0.16, 1.04, 1.42, COPE, 'return');       // t 46 끝 되돌림
+    band(FL, -0.14, 3, 6.92, 0.16, 0.12, COPE);
+    core(FL, -0.14, 0.0, -0.02, 0.12, 6.66, 7.08, COPE, 'return');
+  }
+  { /* 3·4 연결 벽(x −2~2, z 49~53) — 마을 얼굴 · 안 흉벽 · 판석. 바깥은 곧 K 북벽이라 성가퀴 없음. 66 망루 마을 얼굴(x ±2~3)까지 가로줄 */
+    const FI = frame(-3, 49, 1, 0, 0, -1);
+    core(FI, 1, 5, -3.9, -0.12, 0, 7.98);
+    face(FI, 1, 5, -0.05, 7.98, {plinth:true, damp:true});
+    band(FI, 0, 6, 1.30, 0.12, 0.16, COPE); band(FI, 0, 6, 6.92, 0.16, 0.12, COPE);
+    lowPara(FI, 1.5, 4.5, 0, 0.45, 0.85, W);
+    paving(FI, 1, 5, -0.45, -4.0, W);
+    for(const x of [1, 4.5]){ box(FI, 'cmerl', 'pillar', MERLV, WMAT, x, x + 0.5, -0.475, 0.025, W, W + 1.45, PAL.QUOIN);
+      box(FI, 'ccope', 'cope', COPEG, WMAT, x - 0.03, x + 0.53, -0.505, 0.055, W + 1.45, W + 1.53, COPE); }
+    brazier(FI, 3, -0.2, W + 0.95);
+  }
+
+  /* ════════ 3. 모서리 탑 여덟 (T1 로컬 = 세계에서 지어 R·M 으로) ════════ */
+  for(const T of CPLAN.towers){
+    const i = T.i, gc = GHEX[T.g], gcD = new THREE.Color(gc).multiplyScalar(0.62).getHex();
+    const F = (x0, z0, ux, uz, nx, nz)=> tf(i, LF(x0, z0, ux, uz, nx, nz));
+    const P2 = (x, z)=> cxf(i, x, z);
+    const HC = !!T.doors.corr, TOPY = 12, TT = 11.84, EAVE = CW.EAVE;
+    const T_W = F(30, -58, 0, 1, -1, 0), T_S = F(30, -49, 1, 0, 0, 1), T_E = F(39, -49, 0, -1, 1, 0), T_N = F(39, -58, -1, 0, 0, -1);
+    const I_W = F(31, -58, 0, 1, 1, 0), I_S = F(30, -50, 1, 0, 0, -1), I_E = F(38, -49, 0, -1, -1, 0), I_N = F(39, -57, -1, 0, 0, 1);   // 안쪽 얼굴(방을 본다)
+    /* 구멍(탑 로컬 s): W 면 s = z+58 · S 면 s = x−30 · E 면 s = −49−z · N 면 s = 39−x */
+    const WINS = {W:[2.5, 6.5], S:[2.5, 6.5], N:[6.5], E:[2.5]};
+    const win = (arr)=> arr.map(c=> ({s0:c - 0.4, s1:c + 0.4, y0:12.55, y1:13.65}));
+    const slitsN = [{c:3, y:8.9, h:1.1}, {c:6.5, y:8.9, h:1.1}], slitsE = [{c:6, y:4.0, h:1.1}, {c:2.5, y:8.9, h:1.1}];
+    const sl = (a)=> a.map(q=> ({s0:q.c - 0.1, s1:q.c + 0.1, y0:q.y, y1:q.y + q.h}));
+    const hW = [{arch:true, c:7, w:2.0, yb:W, h:2.3}, ...win(WINS.W)], hS = [{arch:true, c:6, w:2.6, yb:W, h:2.3, ring:0.3}, ...win(WINS.S)];
+    const hN = [...win(WINS.N), ...sl(slitsN)], hE = [...win(WINS.E), ...sl(slitsE)];
+    /* ── 속 몸 — 벽 네 장(구멍에서 끊음) + 층 사이 채움 ── */
+    const bh = (arr, extra)=> arr.map(h=> h.arch ? [h.c - h.w/2 - 0.02, h.c + h.w/2 + 0.02, h.yb, h.yb + h.h + 0.3] : [h.s0 - 0.02, h.s1 + 0.02, h.y0, h.y1]).concat(extra || []);
+    slab(T_W, 'cboxC', 'body', BOXG, WMAT, 0, 9, -0.88, -0.12, 0, 14.3, bh(hW, HC ? [[6, 8, 0, 2.62]] : []), CORE);
+    slab(T_S, 'cboxC', 'body', BOXG, WMAT, 0, 9, -0.88, -0.12, 0, 14.3, bh(hS, [[1, 2, 0, 2.62], [3.4, 7.6, W, W + 2.7]]), CORE);
+    slab(T_E, 'cboxC', 'body', BOXG, WMAT, 0, 9, -0.88, -0.12, 1.9, 14.3, bh(hE), CORE);
+    slab(T_N, 'cboxC', 'body', BOXG, WMAT, 0, 9, -0.88, -0.12, 1.9, 14.3, bh(hN), CORE);
+    const FT = F(31, -53, 1, 0, 0, 1);                                     // 탑 안(armA 남쪽 선) — s = x − 31, o = z + 53
+    if(T.hidden){ core(FT, 0, 7, 0.02, 2.98, 3.02, 7.98); core(FT, 0, 3, -3.98, -0.02, 3.02, 3.3); core(FT, 0, 3, -3.98, -0.02, 7.23, 7.98); }
+    else { core(FT, 0, 7, 0.02, 2.98, 3.02, 7.98); core(FT, 0, 3, -3.98, -0.02, 3.02, 7.98); }
+    core(FT, 0, 7, 0.02, 2.98, 11.45, 11.9); core(FT, 0, 3, -3.98, -0.02, 11.45, 11.9);
+    /* ── 겉 — 네 면(마을·성문 쪽 A급, 바깥 두 면 B급 큰 돌 · 귓돌은 늘 모따기) ── */
+    face(T_W, 0, 5, 3.3, 7.98, {qs:true, par:0});                         // 해자 쪽 — 탈루스 위부터
+    face(T_W, 0, 9, 7.98, TT, {qs:true, qe:true, par:0, holes:hW, soot:[[3.6, 9.9]]});
+    face(T_S, 0, 9, 7.98, TT, {qs:true, qe:true, par:1, holes:hS});
+    face(T_E, 0, 9, 3.3, TT, {qs:true, qe:true, par:0, holes:hE, grade:'B'});
+    face(T_N, 0, 9, 3.3, TT, {qs:true, qe:true, par:1, holes:hN, grade:'B'});
+    /* 망루 층 겉(12.18~14.05) — 창 6 */
+    face(T_W, 0, 9, 12.18, EAVE, {qs:true, qe:true, par:0, holes:win(WINS.W)});
+    face(T_S, 0, 9, 12.18, EAVE, {qs:true, qe:true, par:1, holes:win(WINS.S)});
+    face(T_E, 0, 9, 12.18, EAVE, {qs:true, qe:true, par:0, holes:win(WINS.E), grade:'B'});
+    face(T_N, 0, 9, 12.18, EAVE, {qs:true, qe:true, par:1, holes:win(WINS.N), grade:'B'});
+    /* 밑동 — 해자 쪽 탈루스 두 단(모서리 감쌈) · 띠돌(6.92) */
+    for(const [Lf, a0, a1] of [[T_W, -0.5, 5], [T_N, -0.5, 9.5], [T_E, -0.5, 9.5]]){
+      core(Lf, a0, a1, -0.02, 0.5, 1.95, 3.0, PAL.SC_D, 'talus'); core(Lf, a0 + 0.24, a1 - 0.24, -0.02, 0.26, 3.0, 3.45, PAL.SC[3], 'talus'); }
+    band(T_W, -0.12, 5, 6.92, 0.16, 0.12, COPE); band(T_N, -0.12, 9.12, 6.92, 0.16, 0.12, COPE);
+    bandCut(T_E, -0.12, 9.12, 6.92, 0.16, 0.12, [], COPE);
+    /* 돌림띠 11.84~12.18 + 까치발(11.2~11.56) — 66 망루 좀비 쪽 얼굴과 같은 말 */
+    for(const Lf of [T_W, T_S, T_E, T_N]){ band(Lf, -0.16, 9.16, 11.84, 0.34, 0.16, COPE, 'cornice');
+      for(let u = 0.5; u < 9; u += 1.0) small(Lf, u - 0.14, u + 0.14, -0.02, 0.34, 11.2, 11.56, PAL.SC_D, 'corbel'); }
+    /* 창 6 — 창살 0.1 로 두 칸: 한 칸 닫힌 덧창(낮 짙은 나무 · 밤 새는 불빛, 창 깊이 0.25 안), 한 칸 열림 + 안감 */
+    for(const [Lf, arr] of [[T_W, WINS.W], [T_S, WINS.S], [T_E, WINS.E], [T_N, WINS.N]]) for(const c of arr){
+      small(Lf, c - 0.05, c + 0.05, -0.2, 0.1, 12.55, 13.65, PAL.SC_L, 'mullion');
+      small(Lf, c - 0.52, c + 0.52, -0.1, 0.14, 12.43, 12.55, COPE, 'window'); small(Lf, c - 0.52, c + 0.52, -0.08, 0.12, 13.65, 13.83, PAL.SC_L, 'window');
+      box(Lf, 'gglow', 'shutter', gGlow, EMITC, c - 0.38, c - 0.05, -0.27, -0.23, 12.6, 13.6, LAMP);
+      reveal(Lf, c, 0.8, 1.1, 12.55, 1.0, dk(0x857d6f, INK), false); }
+    /* 초소 활 틈(N·E 바깥 면) · 나선 창(오르며 보는 창) — 실제로 뚫린 틈 */
+    for(const [Lf, arr] of [[T_N, slitsN], [T_E, slitsE]]) for(const q of arr){ slitFrame(Lf, q.c, q.y, q.h, false);
+      }
+    /* 처마 널 · 사모 지붕 · 줄 턱 · 꼭지 · 깃발 */
+    const [tcx, tcz] = P2(34.5, -53.5);
+    for(const Lf of [T_W, T_S, T_E, T_N]) band(Lf, -0.3, 9.3, EAVE - 0.07, 0.14, 0.3, TIMBER_D, 'eave');
+    put('cpyr', 'roof', PYRG, WMAT, tcx, EAVE + 0.05 + CW.ROOF_H/2, tcz, 0, 9.7, CW.ROOF_H, 9.7, 0, PAL.SLATE);
+    { const B = 9.7/2, H = CW.ROOF_H, base = EAVE + 0.05;
+      for(const [nx, nz] of [[1,0],[-1,0],[0,1],[0,-1]]) for(let k=0; k<7; k++){
+        const h = 0.45 + k*0.68, dd = B*(1 - h/H), len = 2*dd - 0.5;
+        const x = tcx + nx*(dd + 0.02), z = tcz + nz*(dd + 0.02);
+        putD('cslate', 'slate', WGEO, WMAT, x, base + h + 0.02, z, -nz, nx, len, 0.16, 0.07, 0, SLATE3[(k + (nx+2)*3 + nz + 3) % 3]); }   // 줄 턱 — 반쯤 지붕에 묻힌 가는 턱(마루돌에 안 박히게 길이 −0.5)
+      /* 네 마루돌 — 모서리를 따라 */
+      for(const [cx2, cz2] of [[1,1],[1,-1],[-1,1],[-1,-1]]){ const L2 = Math.hypot(B*Math.SQRT2, H);
+        put('cslate', 'slate', WGEO, WMAT, tcx + cx2*B/2, base + H/2, tcz + cz2*B/2, -Math.atan2(cz2, cx2), L2, 0.12, 0.14, -Math.atan2(H, B*Math.SQRT2), RIDGE); } }   // 마루돌 — 모서리를 따라 꼭지로
+    put('giron', 'finial', WGEO, WMAT_PAINT, tcx, EAVE + CW.ROOF_H + 0.5, tcz, 0, 0.14, 1.0, 0.14, 0, IRON);
+    put('gban', 'flag', WGEO, WMAT_PAINT, tcx + 0.5, EAVE + CW.ROOF_H + 0.72, tcz, 0, 0.9, 0.5, 0.04, 0, gc);
+    /* 마을 얼굴 — 긴 천(구석 문과 같은 세로선 x 31.5) · 구석 문 테·방패 */
+    box(T_S, 'gban', 'banner', WGEO, WMAT_PAINT, 0.9, 2.1, 0.08, 0.13, 7.6, 11.2, gc);
+    box(T_S, 'gban', 'banner', WGEO, WMAT_PAINT, 0.9, 2.1, 0.1, 0.15, 7.53, 7.67, gcD);
+    { const [x, z] = K.at(T_S, 1.5, 0.16); put('gban', 'banner', WGEO, WMAT_PAINT, x, 10.2, z, K.ryN(T_S), 0.42, 0.42, 0.02, PI/4, CREAM); }
+    doorFrame(T_S, 1.5, 1.0, 2.3, 0, {shield:gc});
+    reveal(T_S, 1.5, 1.0, 2.3, 0, 1.0, INSTONE);
+    /* 8층 서쪽 문 · 회랑 문(비스듬) — 테 · 안감 · 안내판 · 곁 횃불 */
+    doorFrame(T_W, 7, 2.0, 2.3, W, {nq:7}); reveal(T_W, 7, 2.0, 2.3, W, 1.0, INSTONE);
+    doorFrame(I_W, 7, 2.0, 2.3, W, {nq:7, noJamb:true});                   // 초소 쪽 얼굴 테(I_W: s = z+58 → 문 가운데 z −51 = s 7)
+    torch(T_W, 3.6, W + 1.9);
+    for(const sg of T.signs){                                              // CPLAN 안내판(세계) — 벽에 붙은 판
+      const n = {x:sg.nx, z:sg.nz}, u = {x:n.z, z:-n.x}, Fs = frame(sg.x - n.x*0.0, sg.z - n.z*0.0, u.x, u.z, n.x, n.z);
+      sign(Fs, 0, sg.y0, GHEX[sg.gate], sg.gate + 1); }
+    galleryDoor(i);
+    /* ── 안: 1층 방 · 초소 · 망루 (armA x 31~38·z −53~−50 + armB x 31~34·z −57~−53) ── */
+    towerRooms(T, F, P2, tcx, tcz);
+    /* 이끼 — 해자 쪽 밑동 */
+    for(let k=0; k<4; k++){ const Lf = [T_W, T_N, T_E][k % 3], u = Lf === T_W ? R()*4.5 : 0.5 + R()*8, [x, z] = K.at(Lf, u, 0.42);
+      const sz = 0.5 + R()*0.35; put('moss', 'moss', LEAFG, WMAT, x, 3.47 + sz*0.1, z, R()*3, sz, sz*0.34, sz*0.8, 0, R() < 0.5 ? PAL.MOSS : PAL.MOSS2); }
+  }
+
+
+
+  /* ── 회랑 문(비스듬) — 탑 로컬 남쪽 벽 z −50~−49 를 45° 로 뚫었다. 바깥 얼굴 x 34.7~37.3 · 안 얼굴 x 33.7~36.3 · 수직 트인 폭 1.84 · 홍예 10.3 ── */
+  function galleryDoor(i){
+    const F = (x0, z0, ux, uz, nx, nz)=> tf(i, LF(x0, z0, ux, uz, nx, nz));
+    const r = 0.92, sp = W + 2.3 - r, rr = r + 0.15;
+    for(const Fg of [F(36, -49, 1, 0, 0, 1), F(35, -50, 1, 0, 0, -1)]){   // 두 얼굴 위의 타원 테(가로 반지름 = 수직 폭 × √2)
+      for(let k=0; k<7; k++){ const a = -PI/2 + (k + 0.5)*PI/7, sC = rr*Math.SQRT2*Math.sin(a), y = sp + rr*Math.cos(a), ang = Math.atan2(-Math.sin(a), Math.SQRT2*Math.cos(a));
+        box(Fg, 'csmall', 'doorFrame', WGEO, WMAT, sC - 0.3, sC + 0.3, -0.06, 0.12, y - 0.15, y + 0.15, k === 3 ? PAL.QUOIN : PAL.SC[2], ang); }
+      for(const k of [-1, 1]){ const c = k*(1.3 + 0.2); small(Fg, c - 0.2, c + 0.2, -0.06, 0.12, W + 0.01, sp, PAL.QUOIN, 'doorFrame'); }   // 문설주 한 돌(비스듬한 문 — 켜를 나누면 톱니로 보인다)
+    }
+    /* 안감 — 통로 옆 두 장(가운데 선에서 수직 ±0.92) + 홍예 밑면 여섯 쪽. 로컬 X = 옆 방향 p, 로컬 Z = 지나는 방향 */
+    const p = cxf(i, S2, -S2), q = (x, z)=> cxf(i, x, z);
+    for(const k of [-1, 1]){ const c = q(35.5 + k*1.3, -49.5); putD('cboxN', 'lining', BOXG, WMAT, c[0], (W + sp)/2, c[1], p[0], p[1], 0.06, sp - W, Math.SQRT2 + 0.02, 0, INSTONE); }
+    for(let k=0; k<6; k++){ const a = -PI/2 + (k + 0.5)*PI/6, w = (r + 0.03)*Math.sin(a), pc = q(35.5 + w*S2, -49.5 - w*S2);
+      putD('cboxN', 'lining', BOXG, WMAT, pc[0], sp + (r + 0.03)*Math.cos(a), pc[1], p[0], p[1], 2*r*Math.sin(PI/12) + 0.03, 0.06, Math.SQRT2 + 0.02, -a, INSTONE); }
+    /* 문턱 돌(8) — 회랑 판석과 초소 판석을 잇는다 */
+    { const c = q(35.5, -49.5); putD('cboxN', 'pave', BOXG, WMAT, c[0], W - 0.05, c[1], p[0], p[1], 1.86, 0.1, Math.SQRT2 + 0.1, 0, 0x978f81); }
+  }
+
+  /* ── 탑 안 — 1층 방(종류마다 다른 소품) · 초소 · 망루 · 숨은 방. 모두 탑 로컬(T1) 좌표 → R·M ── */
+  function towerRooms(T, F, P2){
+    litIn = true; try { towerRooms0(T, F, P2); } finally { litIn = false; }
+  }
+  function towerRooms0(T, F, P2){
+    const i = T.i, room = T.room, HC = !!T.doors.corr;
+    const I_W = F(31, -58, 0, 1, 1, 0), I_S = F(30, -50, 1, 0, 0, -1), I_E = F(38, -49, 0, -1, -1, 0), I_N = F(39, -57, -1, 0, 0, 1);
+    const CA = F(34, -53, 1, 0, 0, 1), CB = F(34, -57, 0, 1, -1, 0), AB = F(31, -53, 1, 0, 0, -1);   // 우리의 방 쪽 얼굴 둘 · armA 채움 밑 얼굴(armB 를 본다)
+    const FT = F(31, -53, 1, 0, 0, 1);                                     // 바닥 판(s = x−31, o = z+53)
+    /* 회칠 판 — 아래 0.9 는 짙은 돌 허리판 + 나무 띠, 위는 회칠 */
+    const wall = (Fw, a0, a1, y0, y1, holes, dado)=>{
+      const hs = holes || [];
+      if(dado){ slab(Fw, 'cboxN', 'dado', BOXG, WMAT, a0, a1, 0, 0.05, y0, y0 + 0.9, hs, DADO);
+        slab(Fw, 'cboxN', 'plaster', BOXG, WMAT, a0, a1, 0, 0.04, y0 + 0.97, y1, hs, ()=> R() < 0.5 ? PLASTER : PLASTER2); }
+      else slab(Fw, 'cboxN', 'plaster', BOXG, WMAT, a0, a1, 0, 0.04, y0, y1, hs, ()=> R() < 0.5 ? PLASTER : PLASTER2);
+    };
+    const rough = (Fw, a0, a1, y0, y1, holes)=> face(Fw, a0, a1, y0, y1, {grade:'I', holes});   // 거친 돌 벽(숨은 방·우물방)
+    const aH = (c, w, yb, h)=> archHoles(c, w, yb, h, 0.06);
+    const stoneRoom = room === 'well';                                   // 우물방은 회칠 없이 축축한 돌
+    const W0 = stoneRoom ? rough : (Fw, a0, a1, y0, y1, holes)=> wall(Fw, a0, a1, y0, y1, holes && holes.length && holes[0].arch !== undefined ? holes.flatMap(h=> h.arch ? aH(h.c, h.w, h.yb, h.h) : [[h.s0, h.s1, h.y0, h.y1]]) : holes, true);
+    /* ══ 1층 방(0 → 3.0) ══ */
+    const gHolesW = HC ? [{arch:true, c:7, w:2.0, yb:0, h:2.3}] : [];
+    W0(I_W, 1, 8, 0, 3.0, gHolesW);
+    W0(I_S, 1, 8, 0, 3.0, [{arch:true, c:1.5, w:1.0, yb:0, h:2.3}]);
+    W0(I_E, 1, 4, 0, 3.0, []);
+    W0(I_N, 5, 8, 0, 3.0, []);
+    W0(CA, 0, 4, 0, 3.0, [{arch:true, c:2, w:1.34, yb:0, h:2.3}]);
+    W0(CB, 0, 4, 0, 3.0, []);
+    if(!stoneRoom) doorFrame(CA, 2, 1.34, 2.3, 0, {nq:5, noJamb:true});
+    if(HC){ const Fw = F(31, -51, 0, -1, 1, 0); doorFrame(Fw, 0, 2.0, 2.3, 0, {nq:7, noJamb:true}); }   // 복도 문 방 쪽 테
+    { const Fn = F(31.5, -50, -1, 0, 0, -1); doorFrame(Fn, 0, 1.0, 2.3, 0, {nq:5, noJamb:true}); }      // 구석 문 방 쪽 테
+    paving(FT, 0, 7, 0, 3, 0.02, FLOOR_T, 'floor', true); paving(FT, 0, 7, -4, 0, 0.02, FLOOR_T, 'floor', true);
+    /* 천장 — 짙은 판 + 참나무 들보(armA 는 짧은 쪽(z)으로 네 개, armB 는 x 로 둘) */
+    flat(FT, 0, 7, 0, 3, 3.0, 3.08, CEIL, 'ceil'); flat(FT, 0, 3, -4, 0, 3.0, 3.08, CEIL, 'ceil');
+    for(const x of [1.2, 2.7, 4.2, 5.7]) box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, x - 0.11, x + 0.11, 0.0, 3.0, 2.74, 3.0, BEAM);
+    for(const o of [-1.4, -2.8]) box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0.0, 3.0, o - 0.11, o + 0.11, 2.74, 3.0, BEAM);
+    for(const x of [1.2, 2.7, 4.2, 5.7]) for(const o of [0.08, 2.92]) box(FT, 'csmall', 'corbel', WGEO, WMAT, x - 0.12, x + 0.12, o - 0.08, o + 0.08, 2.5, 2.74, 0x6d675c);
+    /* 방 종류 소품(≤ 6, armB 쪽 벽을 따라 — 문에서 문으로 가는 길 비움) */
+    roomProps(T, F, room);
+    torch(I_W, 3.2, 1.9);
+    /* ══ 초소(8 → 11.4) ══ */
+    const pS = [{arch:true, c:7, w:2.0, yb:W, h:2.3}];
+    wall(I_W, 1, 8, W, 11.4, pS.flatMap(h=> aH(h.c, h.w, h.yb, h.h)), false);
+    wall(I_S, 1, 8, W, 11.4, [[3.6, 6.4, W, W + 2.45]], false);            // 회랑 문 안 얼굴(x 33.7~36.3)
+    wall(I_E, 1, 4, W, 11.4, [[2.2, 2.8, 8.8, 10.1]], false);
+    wall(I_N, 5, 8, W, 11.4, [[6.2, 6.8, 8.8, 10.1]], false);
+    wall(CA, 0, 4, W, 11.4, aH(2, 1.34, W, 2.3), false); wall(CB, 0, 4, W, 11.4, [], false);
+    doorFrame(CA, 2, 1.34, 2.3, W, {nq:5, noJamb:true});
+    paving(FT, 0, 7, 0, 3, W, FLOOR_T, 'floor'); paving(FT, 0, 3, -4, 0, W, FLOOR_T, 'floor');
+    /* 초소 활 틈 벽감(안쪽이 넓은 0.6 틈) */
+    for(const [Fw, c] of [[I_E, 2.5], [I_N, 6.5]]){ flat(Fw, c - 0.32, c + 0.32, -0.95, 0, 8.72, 8.8, 0x7a7366, 'lining'); flat(Fw, c - 0.32, c + 0.32, -0.95, 0, 10.1, 10.18, 0x6a6357, 'lining');
+      for(const k of [-1, 1]) flat(Fw, c + k*0.3 - 0.03, c + k*0.3 + 0.03, -0.95, 0, 8.8, 10.1, INSTONE, 'lining'); }
+    /* 천장 = 망루 바닥 밑 — 장선(짧은 쪽으로) + 널 밑면 */
+    for(let x = 0.45; x < 7; x += 0.9) box(FT, 'cwoodN', 'joist', WGEO, WMAT_WOOD, x - 0.08, x + 0.08, 0.0, 3.0, 11.18, 11.4, BEAM);
+    for(let o = -0.45; o > -4; o -= 0.9) box(FT, 'cwoodN', 'joist', WGEO, WMAT_WOOD, 0.0, 3.0, o - 0.08, o + 0.08, 11.18, 11.4, BEAM);
+    for(let o = 0; o < 3 - 0.01; o += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, 0, 7, o + 0.01, o + 0.44, 11.4, 11.46, BOARDS[(R()*3)|0]);
+    for(let x = 0; x < 3 - 0.01; x += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, x + 0.01, x + 0.44, -4, 0, 11.4, 11.46, BOARDS[(R()*3)|0]);
+    postProps(T, F);
+    torch(I_S, 7.6, 9.9);
+    /* ══ 망루(12 → 14.05) — 창 6 · 널 바닥 · 널 천장 ══ */
+    const wS = (arr)=> arr.map(c=> [c - 0.4, c + 0.4, 12.55, 13.65]);
+    wall(I_W, 1, 8, 12, 14.05, wS([2.5, 6.5]), false);                        // I_W 의 s = z+58 (W 창 z −55.5·−51.5 → s 2.5·6.5)
+    wall(I_S, 1, 8, 12, 14.05, wS([2.5, 6.5]), false);
+    wall(I_E, 1, 4, 12, 14.05, wS([2.5]), false);
+    wall(I_N, 5, 8, 12, 14.05, wS([6.5]), false);
+    wall(CA, 0, 4, 12, 14.05, [[1.33, 2.67, 12, 14.05]], false); wall(CB, 0, 4, 12, 14.05, [], false);
+    for(let o = 0; o < 3 - 0.01; o += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, 0, 7, o + 0.01, o + 0.44, 11.94, 12.0, BOARDS[(R()*3)|0]);
+    for(let x = 0; x < 3 - 0.01; x += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, x + 0.01, x + 0.44, -4, 0, 11.94, 12.0, BOARDS[(R()*3)|0]);
+    flat(FT, 0, 7, 0, 3, 14.05, 14.1, dk(0x5b4431, INK*0.5), 'ceil'); flat(FT, 0, 3, -4, 0, 14.05, 14.1, dk(0x5b4431, INK*0.5), 'ceil');
+    for(const x of [1.5, 3.5, 5.5]) box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, x - 0.1, x + 0.1, 0, 3, 13.85, 14.05, TIMBER_D);
+    box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0, 3, -2.1, -1.9, 13.85, 14.05, TIMBER_D);
+    watchProps(T, F);
+    /* ══ 숨은 방(짝수 탑 armB 3.33 → 7.2) ══ */
+    if(T.hidden){
+      const sec = CPLAN.secrets[T.hidden.secret];
+      rough(I_W, 1, 5, 3.33, 7.2, []); rough(I_N, 5, 8, 3.33, 7.2, []); rough(AB, 0, 3, 3.33, 7.2, []);
+      rough(CB, 0, 4, 3.33, 7.2, [{arch:true, c:2, w:1.34, yb:10/3, h:2.3, ring:0.1}]);
+      for(let x = 0; x < 3 - 0.01; x += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, x + 0.01, x + 0.44, -4, 0, 3.27, 3.33, BOARDS[(R()*3)|0]);
+      flat(FT, 0, 3, -4, 0, 7.2, 7.26, CEIL, 'ceil');
+      for(const o of [-1.3, -2.7]) box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0, 3, o - 0.1, o + 0.1, 6.96, 7.2, TIMBER_D);
+      torch(I_N, 7.4, 5.2);
+      secretRoomArt(sec);
+    }
+  }
+
+  /* 방 종류 소품 — 탑 로컬 armB(x 31~34 · z −57~−53) 위주. 소품 ≤ 6, 소품 하나 조각 ≤ 8(지도 모형만 ≤ 30) */
+  function roomProps(T, F, room){
+    const i = T.i, L = (x, z)=> cxf(i, x, z), Fz = F(0, 0, 1, 0, 0, 1);  // 로컬 축 틀(s = x, o = z)
+    const wd = (kind, x0, x1, z0, z1, y0, y1, col)=> box(Fz, 'cwoodN', kind, WGEO, WMAT_WOOD, x0, x1, z0, z1, y0, y1, col || TIMBER);
+    const ir = (kind, x0, x1, z0, z1, y0, y1)=> box(Fz, 'giron', kind, WGEO, WMAT_PAINT, x0, x1, z0, z1, y0, y1, IRON);
+    const pp = (kind, x0, x1, z0, z1, y0, y1, col)=> box(Fz, 'cpropP', kind, WGEO, WMAT_PAINT, x0, x1, z0, z1, y0, y1, col);
+    const table = (cx, cz, lx, lz, h)=>{ wd('table', cx - lx/2, cx + lx/2, cz - lz/2, cz + lz/2, h - 0.08, h, 0x6f5236);
+      for(const [a, b] of [[-1,-1],[1,-1],[-1,1],[1,1]]) wd('table', cx + a*(lx/2 - 0.12) - 0.05, cx + a*(lx/2 - 0.12) + 0.05, cz + b*(lz/2 - 0.12) - 0.05, cz + b*(lz/2 - 0.12) + 0.05, 0, h - 0.08, 0x5e452d); };
+    const stool = (cx, cz)=>{ wd('stool', cx - 0.18, cx + 0.18, cz - 0.18, cz + 0.18, 0.4, 0.46, 0x7a5a3d); wd('stool', cx - 0.14, cx - 0.08, cz - 0.14, cz + 0.14, 0, 0.4, 0x5e452d); wd('stool', cx + 0.08, cx + 0.14, cz - 0.14, cz + 0.14, 0, 0.4, 0x5e452d); };
+    const candle = (x, z, y)=>{ ir('candle', x - 0.06, x + 0.06, z - 0.06, z + 0.06, y, y + 0.05); const p = L(x, z);
+      put('gglow', 'flame', gGlow, EMITC, p[0], y + 0.14, p[1], 0, 0.07, 0.16, 0.07, 0, 0); LIGHTS.push(p[0], y + 0.14, p[1], 0.6); };
+    if(room === 'map'){
+      table(32.5, -55.2, 1.2, 2.0, 0.8);
+      /* 성곽 모형 — 세계 방향 그대로(북 = −z). 판 1 · 벽 8 · 탑 8 + K · 성문 5 · 수정 1 · 빨간 핀 5 = 29 */
+      const [mx, mz] = L(32.5, -55.2), sc = 0.0092, mY = 0.86;
+      put('cpropP', 'model', WGEO, WMAT_PAINT, mx, mY - 0.01, mz, 0, 1.1, 0.02, 1.1, 0, 0x6f7f4a);
+      const OV = [[51, 34], [34, 51], [-34, 51], [-51, 34], [-51, -34], [-34, -51], [34, -51], [51, -34]];   // od 51 팔각(모서리 깎은 네모)
+      for(let k=0; k<8; k++){ const p0 = OV[k], p1 = OV[(k + 1) % 8], len = Math.hypot(p1[0] - p0[0], p1[1] - p0[1])*sc;
+        putD('cpropP', 'model', WGEO, WMAT_PAINT, mx + (p0[0] + p1[0])/2*sc, mY + 0.03, mz + (p0[1] + p1[1])/2*sc, p1[0] - p0[0], p1[1] - p0[1], len, 0.05, 0.035, 0, 0xb9ad96); }
+      for(const t of CPLAN.towers) put('cpropP', 'model', WGEO, WMAT_PAINT, mx + t.cx*sc, mY + 0.06, mz + t.cz*sc, 0, 0.08, 0.1, 0.08, 0, 0x8f887a);
+      put('cpropP', 'model', WGEO, WMAT_PAINT, mx, mY + 0.06, mz + 57*sc, 0, 0.055, 0.12, 0.07, 0, 0x8f887a);
+      for(let g=0; g<NG; g++) put('cpropP', 'model', WGEO, WMAT_PAINT, mx + gX(g, 51, 0)*sc, mY + 0.045, mz + gZ(g, 51, 0)*sc, 0, 0.07, 0.07, 0.07, 0, GHEX[g]);
+      put('cpropP', 'model', WGEO, WMAT_PAINT, mx, mY + 0.05, mz, PI/4, 0.05, 0.09, 0.05, 0, 0x66d8f0);
+      for(const q of CPLAN.secrets){ const rx = (q.room.x0 + q.room.x1)/2, rz = (q.room.z0 + q.room.z1)/2;
+        put('cpropP', 'model', WGEO, WMAT_PAINT, mx + rx*sc, mY + 0.1, mz + rz*sc, 0, 0.045, 0.16, 0.045, 0, 0xd6352a); }   // 빨간 핀(비밀 문 자리) — 조각 29
+      stool(31.45, -55.6); stool(33.55, -54.8);
+      /* 벽 지도 천(armB 북쪽 벽 z −57) */
+      pp('mapCloth', 31.6, 33.4, -56.98, -56.94, 1.25, 2.3, 0xd8c79e);
+      pp('mapCloth', 31.95, 33.05, -56.95, -56.92, 1.45, 2.1, 0xb7a57b);
+      wd('mapCloth', 31.5, 33.5, -56.99, -56.9, 2.28, 2.36, TIMBER_D); wd('mapCloth', 31.5, 33.5, -56.99, -56.9, 1.2, 1.28, TIMBER_D);
+      for(let g=0; g<NG; g++){ const a = [PI*1.5, 0, PI*0.62, PI*0.88, PI][g], x = 32.5 + Math.cos(a)*0.42, y = 1.78 - Math.sin(a)*0.25;   // 지도 위 성문 다섯 점(모둠색)
+        pp('mapCloth', x - 0.05, x + 0.05, -56.92, -56.9, y - 0.05, y + 0.05, GHEX[g]); }
+      candle(32.05, -54.4, 0.84); candle(32.95, -56.0, 0.84);
+      /* 쇠 고리 촛대(탁자 위에 매단) — 들보에 쇠사슬 하나 + 네모 고리 + 초 넷 */
+      ir('chandelier', 32.47, 32.53, -55.23, -55.17, 2.2, 2.74);
+      for(const [a, b] of [[-0.35, 0], [0.35, 0]]) ir('chandelier', 32.5 + a - 0.02, 32.5 + a + 0.02, -55.55, -54.85, 2.15, 2.2);
+      for(const [a, b] of [[0, -0.35], [0, 0.35]]) ir('chandelier', 32.15, 32.85, -55.2 + b - 0.02, -55.2 + b + 0.02, 2.15, 2.2);
+      for(const [a, b] of [[-0.35, -0.35], [0.35, 0.35], [-0.35, 0.35], [0.35, -0.35]]){ const p = L(32.5 + a, -55.2 + b);
+        put('gglow', 'flame', gGlow, EMITC, p[0], 2.3, p[1], 0, 0.06, 0.14, 0.06, 0, 0); }
+      { const p = L(32.5, -55.2); LIGHTS.push(p[0], 2.2, p[1], 1.2); }
+    } else if(room === 'armory'){
+      /* 창 걸이 둘 — 북쪽 벽·서쪽 벽. 걸이(가로대·받침) + 창 셋(자루·날) */
+      const rack = (x0, x1, z, alongX)=>{ const n = 3;
+        if(alongX){ wd('rack', x0, x1, z - 0.06, z + 0.06, 1.45, 1.55, TIMBER_D); wd('rack', x0, x1, z - 0.12, z + 0.12, 0.05, 0.17, TIMBER_D);
+          for(let k=0; k<n; k++){ const x = x0 + (x1 - x0)*(k + 0.5)/n; wd('spear', x - 0.03, x + 0.03, z - 0.03, z + 0.03, 0.17, 2.3, 0x8a6a48); ir('spear', x - 0.05, x + 0.05, z - 0.02, z + 0.02, 2.3, 2.62); } }
+        else { wd('rack', z - 0.06, z + 0.06, x0, x1, 1.45, 1.55, TIMBER_D); wd('rack', z - 0.12, z + 0.12, x0, x1, 0.05, 0.17, TIMBER_D);
+          for(let k=0; k<n; k++){ const zz = x0 + (x1 - x0)*(k + 0.5)/n; wd('spear', z - 0.03, z + 0.03, zz - 0.03, zz + 0.03, 0.17, 2.3, 0x8a6a48); ir('spear', z - 0.02, z + 0.02, zz - 0.05, zz + 0.05, 2.3, 2.62); } } };
+      rack(31.5, 33.6, -56.75, true); rack(-56.3, -54.2, 31.25, false);
+      /* 벽 방패 셋(모둠색) — 동쪽 벽(x 38) armA */
+      for(let k=0; k<3; k++){ const z = -50.6 - k*0.9, col = GHEX[(T.g + k) % 5];
+        box(Fz, 'gban', 'shield', WGEO, WMAT_PAINT, 37.9, 37.96, z - 0.26, z + 0.26, 1.35, 1.95, col);
+        ir('shield', 37.86, 37.92, z - 0.07, z + 0.07, 1.58, 1.72); }
+      /* 통 둘 */
+      for(const [x, z] of [[33.45, -54.1], [33.45, -53.45]]){ const p = L(x, z);
+        put('cbarrel', 'barrel', NEWELG, WMAT_WOOD, p[0], 0.36, p[1], 0, 0.26, 0.72, 0.26, 0, 0x7a5a3d);
+        put('ctele', 'barrel', NEWELG, WMAT_PAINT, p[0], 0.2, p[1], 0, 0.27, 0.05, 0.27, 0, IRON); put('ctele', 'barrel', NEWELG, WMAT_PAINT, p[0], 0.54, p[1], 0, 0.27, 0.05, 0.27, 0, IRON); }
+    } else if(room === 'guard'){
+      table(32.5, -55.3, 0.8, 1.4, 0.78);
+      for(const x of [31.65, 33.35]){ wd('bench', x - 0.15, x + 0.15, -56.0, -54.6, 0.42, 0.48, 0x7a5a3d); wd('bench', x - 0.1, x + 0.1, -55.9, -55.8, 0, 0.42, 0x5e452d); wd('bench', x - 0.1, x + 0.1, -54.8, -54.7, 0, 0.42, 0x5e452d); }
+      /* 탁자 위 등(발광) — 쇠 받침 + 불 + 쇠 갓 */
+      ir('lamp', 32.38, 32.62, -55.62, -55.38, 0.78, 0.84); { const p = L(32.5, -55.5); put('gglow', 'lamp', gGlow, EMITC, p[0], 0.96, p[1], 0, 0.16, 0.2, 0.16, 0, 0); LIGHTS.push(p[0], 0.96, p[1], 1); }
+      ir('lamp', 32.4, 32.6, -55.6, -55.4, 1.06, 1.1);
+      /* 투구 */
+      { const p = L(32.45, -54.85); put('ctele', 'helmet', NEWELG, WMAT_PAINT, p[0], 0.9, p[1], 0, 0.14, 0.22, 0.14, 0, 0x6d7278); put('ctele', 'helmet', NEWELG, WMAT_PAINT, p[0], 0.8, p[1], 0, 0.19, 0.03, 0.19, 0, 0x5a5f65); }
+      /* 벽 열쇠 걸이 — 북쪽 벽 */
+      wd('keys', 31.9, 33.1, -56.97, -56.92, 1.45, 1.65, TIMBER_D);
+      for(let k=0; k<3; k++){ const x = 32.1 + k*0.4; ir('keys', x - 0.03, x + 0.03, -56.92, -56.88, 1.18, 1.45); ir('keys', x - 0.07, x + 0.07, -56.92, -56.88, 1.1, 1.18); }
+    } else {                                                              // 우물방
+      const p = L(32.5, -55.1);
+      put('cwell', 'well', NEWELG, WMAT, p[0], 0.4, p[1], 0, 0.66, 0.8, 0.66, 0, 0x8a8375);
+      put('cwell', 'well', NEWELG, WMAT, p[0], 0.82, p[1], 0, 0.72, 0.08, 0.72, 0, 0xa69f8f);
+      put('cwell', 'water', NEWELG, WMAT, p[0], 0.62, p[1], 0, 0.54, 0.04, 0.54, 0, 0x1d3a55);
+      /* 도르래 틀 — 기둥 둘 + 가로대 + 도르래 + 줄 + 두레박 */
+      wd('pulley', 31.78, 31.9, -55.16, -55.04, 0.8, 2.1, TIMBER); wd('pulley', 33.1, 33.22, -55.16, -55.04, 0.8, 2.1, TIMBER);
+      wd('pulley', 31.78, 33.22, -55.17, -55.03, 2.1, 2.2, TIMBER_D);
+      { const q = L(32.5, -55.1); put('ctele', 'pulley', NEWELG, WMAT_PAINT, q[0], 1.95, q[1], 0, 0.14, 0.06, 0.14, PI/2, IRON); }
+      wd('pulley', 32.48, 32.52, -55.12, -55.08, 1.1, 1.9, 0x3b2e22);
+      { const q = L(32.5, -55.1); put('cbarrel', 'bucket', NEWELG, WMAT_WOOD, q[0], 0.98, q[1], 0, 0.14, 0.22, 0.14, 0, 0x6b4e35); }
+      for(let k=0; k<5; k++){ const u = R()*4, [x, z] = K.at(I_Wm(), 1 + u, 0.05); const sz = 0.35 + R()*0.25;
+        put('moss', 'moss', LEAFG, WMAT, x, 0.02 + sz*0.1, z, R()*3, sz, sz*0.3, sz*0.8, 0, PAL.MOSS); }
+    }
+    function I_Wm(){ return F(31, -58, 0, 1, 1, 0); }
+  }
+  /* 초소 소품 — 긴 의자(서쪽 벽 armB) · 석궁 받침(북쪽 활 틈 밑). 달리기 꺾은선·반짝 자리(32.5, −55) 0.8 비움 */
+  function postProps(T, F){
+    const Fz = F(0, 0, 1, 0, 0, 1);
+    const wd = (kind, x0, x1, z0, z1, y0, y1, col)=> box(Fz, 'cwoodN', kind, WGEO, WMAT_WOOD, x0, x1, z0, z1, y0, y1, col || TIMBER);
+    wd('bench', 31.1, 31.5, -56.8, -54.9, W + 0.42, W + 0.48, 0x7a5a3d); wd('bench', 31.15, 31.45, -56.6, -56.5, W, W + 0.42, 0x5e452d); wd('bench', 31.15, 31.45, -55.2, -55.1, W, W + 0.42, 0x5e452d);
+    wd('crossbow', 32.44, 32.56, -56.66, -56.54, W, W + 1.0, TIMBER_D);
+    wd('crossbow', 32.2, 32.8, -56.68, -56.52, W + 1.0, W + 1.08, 0x6f5236);
+    box(Fz, 'giron', 'crossbow', WGEO, WMAT_PAINT, 32.47, 32.53, -56.9, -56.3, W + 1.08, W + 1.14, IRON);
+    box(Fz, 'cwood', 'crossbow', WGEO, WMAT_WOOD, 32.1, 32.9, -56.62, -56.56, W + 1.14, W + 1.2, 0x5e452d);
+  }
+  /* 망루 소품 — 망원경 삼각대(서쪽 창 armB 앞, 성문을 겨눔) · 걸상 */
+  function watchProps(T, F){
+    const i = T.i, L = (x, z)=> cxf(i, x, z), Y = 12;
+    const base = L(31.9, -55.5), dir = cxf(i, -1, 0);
+    put('ctele', 'telescope', NEWELG, WMAT_PAINT, base[0] + dir[0]*0.05, Y + 1.22, base[1] + dir[1]*0.05, Math.atan2(-dir[1], dir[0]), 0.06, 0.95, 0.06, PI/2 - 0.08, BRASS);
+    put('ctele', 'telescope', NEWELG, WMAT_PAINT, base[0] + dir[0]*0.5, Y + 1.26, base[1] + dir[1]*0.5, Math.atan2(-dir[1], dir[0]), 0.085, 0.12, 0.085, PI/2 - 0.08, 0x8a6a2e);
+    for(let k=0; k<3; k++){ const a = k*2*PI/3, lx = Math.cos(a)*0.28, lz = Math.sin(a)*0.28;
+      put('giron', 'telescope', WGEO, WMAT_PAINT, base[0] + lx/2, Y + 0.58, base[1] + lz/2, Math.atan2(-lz, lx), 0.04, 1.2, 0.04, 0.23, IRON); }
+    const s = L(33.3, -56.4);
+    put('cwoodN', 'stool', WGEO, WMAT_WOOD, s[0], Y + 0.43, s[1], 0, 0.36, 0.06, 0.36, 0, 0x7a5a3d);
+    put('cwoodN', 'stool', WGEO, WMAT_WOOD, s[0], Y + 0.2, s[1], 0, 0.08, 0.4, 0.08, 0, 0x5e452d);
+  }
+  /* 비밀 방 소품 — 상자(몸 + 닫힌 뚜껑 / 열린 뚜껑·속 금빛) · 금화 더미(첫 발견) — 손잡이는 CPLAN.secrets[i] 에 */
+  function secretRoomArt(sec){
+    const c = sec.chest, y = c.y, ry = c.ry;                                // ry — 상자 앞(+Z)이 문을 본다
+    const fx = Math.sin(ry), fz = Math.cos(ry), sx2 = Math.cos(ry), sz2 = -Math.sin(ry);   // 앞 · 옆
+    const P = (f, s2, yy, key, kind, geo, mat, w, h, d, col, rz)=> put(key, kind, geo, mat, c.x + fx*f + sx2*s2, yy, c.z + fz*f + sz2*s2, ry, w, h, d, rz || 0, col);
+    P(0, 0, y + 0.24, 'cwoodN', 'chest', WGEO, WMAT_WOOD, 0.78, 0.46, 0.5, 0x6b4a2c);
+    for(const s2 of [-0.3, 0.3]) P(0, s2, y + 0.24, 'giron', 'chest', WGEO, WMAT_PAINT, 0.06, 0.48, 0.52, IRON);
+    P(0.255, 0, y + 0.36, 'giron', 'chest', WGEO, WMAT_PAINT, 0.1, 0.12, 0.02, GOLD_D);
+    sec.chestHs.closed.push(P(0, 0, y + 0.53, 'cwoodN', 'chest', WGEO, WMAT_WOOD, 0.82, 0.14, 0.54, 0x7a5636));
+    sec.chestHs.closed.push(P(0, 0, y + 0.61, 'giron', 'chest', WGEO, WMAT_PAINT, 0.84, 0.03, 0.08, IRON));
+    sec.chestHs.open.push(P(-0.3, 0, y + 0.78, 'cwoodN', 'chest', WGEO, WMAT_WOOD, 0.82, 0.54, 0.12, 0x7a5636, 0));
+    sec.chestHs.open.push(P(0, 0, y + 0.44, 'cpropP', 'chestGold', WGEO, WMAT_PAINT, 0.66, 0.06, 0.38, GOLD));
+    /* 금화 더미 — 넷(납작한 금 조각이 층층이) */
+    const q = sec.coin; sec.coinHs = sec.coinHs || [];                     // 동전 무더기(층층이 좁아짐) + 흩어진 동전 셋
+    for(const [dx, dz, yy, r, h, col] of [[0, 0, 0.035, 0.3, 0.07, GOLD_D], [0.03, -0.02, 0.1, 0.21, 0.06, GOLD], [-0.02, 0.02, 0.155, 0.12, 0.05, GOLD],
+                                          [0.36, 0.1, 0.012, 0.06, 0.024, GOLD], [-0.2, 0.32, 0.012, 0.06, 0.024, GOLD_D], [0.12, -0.36, 0.012, 0.06, 0.024, GOLD]])
+      sec.coinHs.push(put('ctele', 'coin', NEWELG, WMAT_PAINT, q.x + dx, q.y + yy, q.z + dz, 0, r, h, r, 0, col));
+  }
+
+
+  /* ════════ 4. 나선 계단 아홉(세계 좌표 — 거울 탑에서도 늘 시계 방향으로 오른다) ════════
+     디딤 j 는 th0 + j·30° ~ +30°, 윗면 y0 + (j+1)/3(몸 spiralH 와 같은 식). 가운데 기둥 · 구석 메움(22°~68°) · 변 가운데 판(문·창 구멍) */
+  function spiralArt(o){ litIn = true; try { spiralArt0(o); } finally { litIn = false; } }
+  function spiralArt0(o){
+    const {cx, cz, th0, y0, n, top, ceil, doors, land, extra} = o;
+    const ptA = (a, r)=> [cx + r*Math.cos(a), cz + r*Math.sin(a)];
+    const secBB = (a, yT)=>{ let x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9;       // 부채꼴 상자
+      for(const aa of [a, a + PI/12, a + PI/6]) for(const r of [0.4, 1.8]){ const [x, z] = ptA(aa, r); x0 = Math.min(x0, x); x1 = Math.max(x1, x); z0 = Math.min(z0, z); z1 = Math.max(z1, z); }
+      return [x0, x1, z0, z1, yT - 0.35, yT]; };
+    for(let j=0; j<n; j++){ const a = th0 + j*PI/6, yT = y0 + (j + 1)/3;
+      put('ctread', 'tread', TREADG, WMAT, cx, yT, cz, -a, 1, 1, 1, 0, dk(j % 2 ? 0x7a7366 : 0x716a5e, INK*0.5), secBB(a, yT)); }
+    if(land) for(let k=0; k<5; k++){ const a = th0 + k*PI/6;                 // 윗끝 층계참(th 0 ~ 150°) — 망루 문 앞
+      put('ctread', 'tread', TREADG, WMAT, cx, top, cz, -a, 1, 1, 1, 0, dk(0x7a7366, INK*0.5), secBB(a, top)); }
+    for(let y = y0, k = 0; y < ceil - 0.01; y += 1.0, k++){ const h = Math.min(1.0, ceil - y);
+      put('cnewel', 'newel', NEWELG, WMAT, cx, y + h/2, cz, 0, 0.4, h, 0.4, 0, dk(k % 2 ? 0x6a645a : 0x716b60, INK*0.5)); }
+    const bands = []; for(let y = y0; y < ceil - 0.01; y += 4.8) bands.push([y, Math.min(ceil, y + 4.8)]);
+    for(const [sx, sz] of [[1,1],[1,-1],[-1,1],[-1,-1]]){ const ry = PI/4 - Math.atan2(sz, sx);
+      bands.forEach(([b0, b1], k)=> put('cfill', 'fill', FILLG, WMAT, cx, (b0 + b1)/2, cz, ry, 1, b1 - b0, 1, 0, dk(k % 2 ? 0x58524a : 0x5f594f, INK*0.6),
+        [cx + Math.min(0, sx*2), cx + Math.max(0, sx*2), cz + Math.min(0, sz*2), cz + Math.max(0, sz*2), b0, b1])); }
+    /* 변 가운데 판 넷 — 문(홍예)·창 구멍 */
+    for(let k=0; k<4; k++){ const a = th0 + k*PI/2, c = Math.cos(a), s = Math.sin(a), Fp = frame(cx + 1.8*c, cz + 1.8*s, -s, c, -c, -s);
+      const hs = [];
+      for(const D of doors) if(Math.abs(Math.atan2(Math.sin(D.th - a), Math.cos(D.th - a))) < 0.3){
+        const hh = D.flat ? [[-0.67, 0.67, D.y, D.y + D.flat]] : archHoles(0, 1.34, D.y, 2.3, 0);
+        hs.push(...hh);
+        if(!D.flat) for(let q=0; q<3; q++){ const aa = -PI/2 + (q + 0.5)*PI/3, rr = 0.77, [x, z] = K.at(Fp, rr*Math.sin(aa), 0.02);
+          put('csmall', 'doorFrame', WGEO, WMAT, x, D.y + 2.3 - 0.67 + rr*Math.cos(aa), z, K.ryN(Fp), 0.72, 0.2, 0.12, -aa*K.xs(Fp), q === 1 ? 0x857e70 : 0x746d60); }
+        if(D.sec >= 0) secretSlab(Fp, D, CPLAN.secrets[D.sec]);
+      }
+      for(const X of extra || []) if(Math.abs(X.dir[0]*c + X.dir[1]*s - 1) < 0.01) hs.push([-0.2, 0.2, X.y0, X.y1]);
+      slab(Fp, 'cboxN', 'cagePanel', BOXG, WMAT, -0.7, 0.7, -0.2, 0.0, y0, ceil, hs, ()=> dk(R() < 0.5 ? 0x58524a : 0x5f594f, INK*0.6)); }
+    /* 문마다 곁 횃불(우물 벽 1.9) · 숨은 문 곁은 불 꺼진 횃대(힌트) */
+    for(const D of doors){ const a = D.sec >= 0 ? D.th - 0.62 : D.th + 0.62, c = Math.cos(a), s = Math.sin(a), Ft = frame(cx + 1.8*c, cz + 1.8*s, -s, c, -c, -s);
+      if(D.noTorch) continue;
+      torch(Ft, 0, D.y + (D.sec >= 0 ? 1.55 : Math.min(1.9, ceil - D.y - 0.75)), D.sec >= 0 ? false : true); }
+    flat(frame(cx - 2, cz - 2, 1, 0, 0, 1), 0, 4, 0, 4, ceil, ceil + 0.1, CEIL, 'ceil');
+  }
+  /* 숨은 문 돌 판 — 우물 쪽·방 쪽 두 겹(csec, 앞면이 각자 밖을 본다). 연 아이 화면에서만 bset(false) */
+  function secretSlab(Fp, D, sec){
+    const Fr = frame(Fp.x0 - Fp.nx*0.2, Fp.z0 - Fp.nz*0.2, Fp.ux, Fp.uz, -Fp.nx, -Fp.nz);   // 방 쪽 얼굴(0.2 뒤)
+    const rows = [[0, 0.62], [0.62, 1.2], [1.2, 1.72], [1.72, 2.3]];
+    for(const Ff of [Fp, Fr]) rows.forEach(([a, b], r)=>{
+      const top = r === 3, parts = top ? [[-0.42, 0.42]] : (r % 2 ? [[-0.67, -0.1], [-0.1, 0.67]] : [[-0.67, 0.12], [0.12, 0.67]]);
+      for(const [u0, u1] of parts) sec.hs.push(box(Ff, 'csec', 'sec', BRICKF, WMAT, u0 + 0.02, u1 - 0.02, -0.1, 0.0, D.y + a + 0.02, D.y + b - 0.02, dk(0x5f594f + (r % 2 ? 0x060606 : 0), INK*0.4))); });
+  }
+  for(const T of CPLAN.towers){
+    const i = T.i, c = cxf(i, 36, -55), ex = [{dir:cxf(i, 1, 0), y0:4.0, y1:5.1}, {dir:cxf(i, 0, -1), y0:8.9, y1:10.0}];
+    const doors = [{th:T.th0, y:0, sec:-1}, {th:T.th0, y:8, sec:-1}, {th:T.th0, y:12, sec:-1, flat:2.05}];
+    if(T.hidden) doors.push({th:T.th0 + 1.5*PI, y:10/3, sec:T.hidden.secret});
+    spiralArt({cx:c[0], cz:c[1], th0:T.th0, y0:0, n:36, top:12, ceil:CW.EAVE, doors, land:true, extra:ex});   // 그림 천장은 망루 널 천장(14.05)과 같이 — 지붕 밑판(14.1)이 우물 위로 안 보이게
+    paving(frame(c[0] - 2, c[1] - 2, 1, 0, 0, 1), 0, 4, 0, 4, 0.02, FLOOR_T, 'floor', true);
+  }
+
+  /* ════════ 5. 지붕 덮인 회랑 넷(NE 를 세계에서 짓고 R 로 돌림 — 회랑은 거울 대칭이라 돌림만) ════════
+     안 얼굴 선 x − z = 81.667 (e 49) · 바깥 얼굴 x − z = 88 (e 52.8). o = 안 선에서 바깥으로 잰 수직 거리, s = 안 선을 따라(T1 면에서 0).
+     T1 면(z −49)은 s = o, T2 면(x 49)은 s = L − o 이다 */
+  const GL = 16.3333*Math.SQRT2, GM = GL/2, SL = 0.6/3.347, E0 = 0.53;
+  const yU = (o)=> CW.GAL_EAVE + (o - E0)*SL;                           // 서까래 밑면 = 몸 천장(roofUnder) — 10.25 → 10.85
+  for(let k=0; k<4; k++){
+    const i = 2*k, mp = (x, z)=> cxf(i, x, z);
+    const Fg = (x0, z0, ux, uz, nx, nz)=> tf(i, LF(x0, z0, ux, uz, nx, nz));
+    const pt = (s, o)=> mp(32.6667 + (s + o)*S2, -49 + (s - o)*S2);
+    const DO = mp(S2, -S2);                                                // 바깥 방향(지붕 오르막)
+    const FI = Fg(32.6667, -49, S2, S2, -S2, S2);                          // 안 얼굴(o 0, 마을을 본다)
+    const o0 = [32.6667 + 4.478*S2, -49 - 4.478*S2], FO = Fg(o0[0], o0[1], S2, S2, S2, -S2);   // 바깥 얼굴(o 4.478)
+    const w0 = [32.6667 + 3.877*S2, -49 - 3.877*S2], FW = Fg(w0[0], w0[1], S2, S2, -S2, S2);   // 바깥 돌벽 안 얼굴(o 3.877)
+    const tors = [GM - 6, GM, GM + 6];
+    /* 속 몸(0~8) — o 띠마다 두 탑 면 사이 */
+    for(const [a, b] of [[0.12, 1.2], [1.2, 2.3], [2.3, 3.4], [3.4, 4.36]]) core(FI, b, GL - b, -b, -a, 0, 7.98);
+    slab(FI, 'cboxC', 'body', BOXG, WMAT, 3.95, GL - 3.95, -4.36, -3.95, W, 10.93, [...[GM - 6.4, GM, GM + 6.4].map(s=> [s - 0.27, s + 0.27, 9.08, 9.82]), ...[GM - 3.2, GM + 3.2].map(s=> [s - 0.2, s + 0.2, 8.95, 9.85])], CORE);   // 바깥 돌벽 속 — 창·활 틈에서 끊음
+    /* 안 얼굴(A급) · 가로줄 · 횃불 셋(기둥 등과 같은 세로선) · 이끼 */
+    face(FI, 0, GL, -0.05, 7.98, {plinth:true, damp:true, soot:tors.map(v=> [v, 2.6])});
+    band(FI, 0, GL, 1.30, 0.12, 0.16, COPE); band(FI, 0, GL, 6.92, 0.16, 0.12, COPE);
+    for(const s of tors) torch(FI, s, 2.6);
+    for(let q=0; q<2; q++){ const u = 1 + R()*(GL - 2), [x, z] = K.at(FI, u, 0.18), sz = 0.45 + R()*0.3;
+      put('moss', 'moss', LEAFG, WMAT, x, 0.02 + sz*0.12, z, R()*3, sz, sz*0.34, sz*0.8, 0, R() < 0.5 ? PAL.MOSS : PAL.MOSS2); }
+    /* 바깥 얼굴(B급) — 탈루스 0.75(해자 기둥 모서리 톱니를 덮는다) · 띠 · 위 돌벽(창 3·활 틈 2) */
+    const winS = [GM - 6.4, GM, GM + 6.4], slitS = [GM - 3.2, GM + 3.2];
+    const oH = [...winS.map(s=> ({s0:s - 0.25, s1:s + 0.25, y0:9.1, y1:9.8})), ...slitS.map(s=> ({s0:s - 0.06, s1:s + 0.06, y0:9.0, y1:9.8}))];
+    face(FO, 4.478, GL - 4.478, 3.3, 7.68, {grade:'B', par:1});
+    core(FO, 4.3, GL - 4.3, -0.02, 0.75, -0.05, 3.0, PAL.SC_D, 'talus'); core(FO, 4.4, GL - 4.4, -0.02, 0.3, 3.0, 3.45, PAL.SC[3], 'talus');
+    band(FO, 4.478, GL - 4.478, 7.68, 0.32, 0.14, COPE);
+    face(FO, 4.478, GL - 4.478, 8.0, 10.98, {grade:'B', holes:oH});
+    face(FW, 3.877, GL - 3.877, 7.98, 10.86, {grade:'A', holes:[...winS.map(s=> ({s0:s - 0.25, s1:s + 0.25, y0:9.1, y1:9.8})), ...slitS.map(s=> ({s0:s - 0.2, s1:s + 0.2, y0:8.95, y1:9.85}))]});
+    for(const s of winS){ for(const Ff of [FO, FW]){ small(Ff, s - 0.36, s + 0.36, -0.08, 0.12, 9.0, 9.1, COPE, 'window'); small(Ff, s - 0.36, s + 0.36, -0.06, 0.1, 9.8, 9.96, PAL.SC_L, 'window');
+        for(const q of [-1, 1]) small(Ff, s + q*0.32 - 0.07, s + q*0.32 + 0.07, -0.06, 0.1, 9.0, 9.96, PAL.SC_L, 'window'); }
+      reveal(FW, s, 0.5, 0.7, 9.1, 0.6, INSTONE, false); }
+    for(const s of slitS){ slitFrame(FO, s, 9.0, 0.8, false);
+      for(const q of [-1, 1]){ const a = [s + q*0.2, 0], b = [s + q*0.06, -0.58], [x, z] = K.at(FW, (a[0]+b[0])/2, (a[1]+b[1])/2);
+        const du = b[0] - a[0], dn = b[1] - a[1], wx = FW.ux*du + FW.nx*dn, wz = FW.uz*du + FW.nz*dn;
+        putD('cboxN', 'lining', BOXG, WMAT, x, 9.4, z, wx, wz, Math.hypot(du, dn), 0.9, 0.04, 0, INSTONE); }
+      flat(FW, s - 0.2, s + 0.2, -0.6, 0, 8.87, 8.95, 0x7a7366, 'lining'); flat(FW, s - 0.2, s + 0.2, -0.6, 0, 9.85, 9.93, 0x6a6357, 'lining'); }
+    /* 안 흉벽 · 판석(8) · 탑 면 문턱돌 */
+    lowPara(FI, 0.1, GL - 0.1, 0, 0.5, 0.85, W);
+    for(let o = E0; o < 3.877 - 0.05; ){ const d2 = Math.min(3.877 - o, 0.56);
+      for(let s = o; s < GL - o - 0.05; ){ const ds = Math.min(GL - o - s, 0.8 + R()*0.5);
+        flat(FI, s + 0.02, s + ds - 0.02, -o - d2 + 0.02, -o - 0.02, W - 0.1, W + 0.004, PAL.TREAD[(R()*4)|0], 'pave'); s += ds; }
+      o += d2; }
+    for(const [x0, x1, z0, z1] of [[33.3, 38.3, -49.0, -48.62], [48.62, 49.0, -38.3, -33.3]]){ const a = mp(x0, z0), b = mp(x1, z1);
+      put('cboxN', 'pave', BOXG, WMAT, (a[0]+b[0])/2, W - 0.03, (a[1]+b[1])/2, 0, Math.abs(b[0]-a[0]), 0.12, Math.abs(b[1]-a[1]), 0, 0x978f81); }
+    /* 기둥(대각 가운데 기준 2.0 박자) · 도리 · 기둥 등(가운데·±6, 마을 쪽 면) */
+    for(let q = -5; q <= 5; q++){ const s = GM + 2*q; box(FI, 'cwood', 'post', WGEO, WMAT_WOOD, s - 0.15, s + 0.15, -0.4, -0.1, W + 0.95, 10.0, TIMBER); }
+    box(FI, 'cwood', 'plate', WGEO, WMAT_WOOD, 0.45, GL - 0.45, -0.4, -0.1, 10.0, yU(0.25), TIMBER_D);
+    for(const s of tors){ const [bx, bz] = K.at(FI, s, -0.1 + 0.17), ry = K.ryN(FI);
+      put('giron', 'lamp', WGEO, WMAT_PAINT, bx, 10.0 - 0.1, bz, ry, 0.06, 0.06, 0.34, 0, IRON);
+      const [lx, lz] = K.at(FI, s, 0.24);
+      put('giron', 'lamp', WGEO, WMAT_PAINT, lx, 9.86, lz, ry, 0.04, 0.16, 0.04, 0, IRON);
+      put('giron', 'lamp', WGEO, WMAT_PAINT, lx, 9.76, lz, ry, 0.26, 0.05, 0.26, 0, IRON);
+      put('gglow', 'lamp', gGlow, EMITC, lx, 9.57, lz, ry, 0.2, 0.28, 0.2, 0, 0);
+      put('giron', 'lamp', WGEO, WMAT_PAINT, lx, 9.4, lz, ry, 0.24, 0.05, 0.24, 0, IRON); }
+    /* 지붕 — 서까래(1.0 박자, 탑 면에서 0.3 띄움) · 밑 널(틈 없이) · 겉 널(경사 방향 0.40 폭·0.42 박자) + 누름목 · 마루 널 · 처마 널 */
+    const ang = Math.atan(SL), cA = Math.cos(ang);
+    const rise = (sC, oC, y, sx, sy, sz, key, kind, mat, col)=>{ const p = pt(sC, oC); put(key, kind, WGEO, mat, p[0], y, p[1], Math.atan2(-DO[1], DO[0]), sx, sy, sz, ang, col); };   // 경사 조각 — 로컬 X = 바깥 방향(오르막)
+    for(let s = GM - Math.floor(GM - 0.9); s < GL - 0.9; s += 1.0){
+      const oE = Math.min(4.2, s - 0.3, GL - s - 0.3); if(oE < 0.7) continue; const oC = (oE - 0.45)/2;
+      rise(s, oC, yU(oC) + 0.05, (oE + 0.45)/cA, 0.1, 0.12, 'cwood', 'rafter', WMAT_WOOD, TIMBER); }
+    for(let o = -0.45 + 0.24; o < 4.2; o += 0.44){ const s0 = o + 0.4, s1 = GL - o - 0.4; if(s1 - s0 < 0.3) continue;
+      rise((s0 + s1)/2, o, yU(o) + 0.112, 0.48/cA, 0.024, s1 - s0, 'cwoodN', 'underBoard', WMAT_WOOD, BOARDS[(R()*3)|0]); }
+    const RW = [0x563f2c, 0x6b4e35, 0x7d5d40];
+    for(let s = 0.2; s < GL - 0.2; s += 0.42){ const oE = Math.min(4.25, s - 0.21, GL - s - 0.21); if(oE < -0.2) continue; const oC = (oE - 0.5)/2;
+      rise(s, oC, yU(oC) + 0.1375, (oE + 0.5)/cA, 0.035, 0.40, 'cwoodN', 'roofBoard', WMAT_WOOD, RW[(R()*3*0.999)|0]);
+      const sb = s + 0.21, oB = Math.min(4.25, sb - 0.05, GL - sb - 0.05); if(oB > 0 && sb < GL - 0.3 && (Math.round(s/0.42) % 2 === 0)){ const oCb = (oB - 0.5)/2;   // 누름목은 널 둘에 하나
+        rise(sb, oCb, yU(oCb) + 0.18, (oB + 0.5)/cA, 0.05, 0.07, 'cwood', 'batten', WMAT_WOOD, TIMBER_D); } }
+    box(FI, 'cwood', 'ridge', WGEO, WMAT_WOOD, 4.6, GL - 4.6, -4.55, -3.9, CW.GAL_RIDGE, CW.GAL_RIDGE + 0.1, TIMBER_D);
+    box(FI, 'cwood', 'fascia', WGEO, WMAT_WOOD, -0.35, GL + 0.35, 0.47, 0.53, yU(-0.5) - 0.06, yU(-0.5) + 0.2, TIMBER_D);
+    /* 탑 면 — 물막이 돌(지붕 선을 따라) · 받침 도리(지붕 밑) — 45° 로 잘린 널 끝을 가린다 */
+    for(const [fx, fz, dx, dz, ox, oz] of [[32.6667, -49, 1, 0, 0, 1], [49, -32.6667, 0, -1, -1, 0]]){
+      const oA = -0.5, oB = 4.3, L2 = (oB - oA)*Math.SQRT2, oM = (oA + oB)/2, a2 = Math.atan(SL/Math.SQRT2);
+      const cx0 = fx + dx*oM*Math.SQRT2 + ox*0.06, cz0 = fz + dz*oM*Math.SQRT2 + oz*0.06, p = mp(cx0, cz0), d = mp(dx, dz);
+      putD('cboxC', 'flash', BOXG, WMAT, p[0], yU(oM) + 0.2 + 0.08, p[1], d[0], d[1], L2, 0.18, 0.12, a2, COPE);
+      const oA2 = 0.3, oB2 = 4.0, oM2 = (oA2 + oB2)/2, p2 = mp(fx + dx*oM2*Math.SQRT2 + ox*0.08, fz + dz*oM2*Math.SQRT2 + oz*0.08);
+      putD('cwood', 'ledger', WGEO, WMAT_WOOD, p2[0], yU(oM2) - 0.09, p2[1], d[0], d[1], (oB2 - oA2)*Math.SQRT2, 0.18, 0.14, a2, TIMBER_D); }
+  }
+
+  /* ════════ 6. 가운데 망대 K (x −3~3 · z 53~61) ════════ */
+  { const KT = CPLAN.K.top, g3 = GHEX[2], g4 = GHEX[3];
+    const KN = frame(-3, 53, 1, 0, 0, -1), KS = frame(3, 61, -1, 0, 0, 1), KE = frame(3, 53, 0, 1, 1, 0), KW = frame(-3, 61, 0, -1, -1, 0);
+    /* 속 몸 — 우리(x −2~2, z 54~58, 8 위)는 비움 */
+    core(KN, 0.1, 5.9, -7.9, -0.1, 5, W);
+    core(KN, 0.1, 0.9, -7.9, -0.1, W, KT - 0.05); core(KN, 5.1, 5.9, -7.9, -0.1, W, KT - 0.05);
+    core(KN, 0.9, 5.1, -0.9, -0.1, W + 2.7, KT - 0.05); core(KN, 0.9, 5.1, -7.9, -5.1, W, KT - 0.05);
+    core(KN, 0.9, 1.95, -0.9, -0.1, W, W + 2.7); core(KN, 4.05, 5.1, -0.9, -0.1, W, W + 2.7);
+    core(KN, 0.1, 0.9, -4.9, -0.1, KT, 16.35); core(KN, 5.1, 5.9, -4.9, -0.1, KT, 16.35); core(KN, 0.9, 5.1, -0.9, -0.1, KT, 16.35);
+    /* 겉 — 북쪽 얼굴(A급)은 연결 길(8)에서 계단 머리 16.4 까지 한 면 · 나머지 B급 */
+    face(KN, 0, 6, 7.98, 16.4, {qs:true, qe:true, holes:[{arch:true, c:3, w:2.0, yb:W, h:2.3}]});
+    /* 동·서·남 얼굴은 받침 바위(GY+10)에 묻힌 아래는 짓지 않는다 */
+    face(KE, 0, 8, 9.3, KT - 0.16, {qs:true, qe:true, par:1, grade:'B'}); face(KW, 0, 8, 9.3, KT - 0.16, {qs:true, qe:true, par:1, grade:'B'});
+    face(KS, 0, 6, 9.3, KT - 0.16, {qs:true, qe:true, grade:'B'});
+    for(const [Lf, len] of [[KE, 8], [KW, 8], [KS, 6]]){ band(Lf, -0.14, len + 0.14, KT - 0.16, 0.34, 0.16, COPE, 'cornice');
+      for(let u = 0.4; u < len; u += 0.8) small(Lf, u - 0.14, u + 0.14, -0.02, 0.34, KT - 0.62, KT - 0.26, PAL.SC_D, 'corbel'); }
+    doorFrame(KN, 3, 2.0, 2.3, W, {nq:7}); reveal(KN, 3, 2.0, 2.3, W, 1.0, INSTONE);
+    torch(KN, 4.9, W + 1.9);
+    /* 윗마당(z 58~61) 판석 + 성가퀴(남·동·서) */
+    paving(frame(-3, 58, 1, 0, 0, 1), 0.45, 5.55, 0.02, 2.55, KT);
+    merlons(KS, 0, 6, 0, 0.45, KT, 2);
+    merlons(KE, 5.0, 8, 0, 0.45, KT, 0); merlons(KW, 0, 3.0, 0, 0.45, KT, 0);
+    /* 계단 머리(x −3~3, z 53~58) — 14 → 16.4 벽 · 평지붕 · 작은 성가퀴 */
+    const HS = frame(3, 58, -1, 0, 0, 1), HE = frame(3, 53, 0, 1, 1, 0), HW2 = frame(-3, 58, 0, -1, -1, 0);
+    face(HS, 0, 6, KT - 0.02, 16.4, {qs:true, qe:true, holes:[{arch:true, c:3, w:1.34, yb:KT, h:2.3}]});
+    face(HE, 0, 5, KT - 0.02, 16.4, {qe:true, par:1, grade:'B'}); face(HW2, 0, 5, KT - 0.02, 16.4, {qs:true, par:1, grade:'B'});
+    doorFrame(HS, 3, 1.34, 2.3, KT, {nq:5});
+    core(KN, -0.1, 6.1, -5.1, 0.1, 16.4, 16.6, COPE, 'roof');
+    for(const [Lf, len] of [[KN, 6], [HS, 6], [HE, 5], [HW2, 5]]){ const nM = Math.round(len/1.1), st = len/nM;
+      for(let q=0; q<nM; q++){ const m = st*(q + 0.5); box(Lf, 'cmerl', 'merl', MERLV, WMAT, m - 0.3, m + 0.3, -0.36, 0.0, 16.6, 17.2, PAL.SC[q % 5]);
+        box(Lf, 'ccope', 'cope', COPEG, WMAT, m - 0.32, m + 0.32, -0.38, 0.02, 17.2, 17.26, COPE); } }
+    for(const q of [1.6, 4.4]) torch(HS, q, KT + 1.75);
+    /* 깃대 둘 — 남쪽 두 모서리(동 = 3모둠, 서 = 4모둠) */
+    for(const [fx, gcol] of [[2.45, g3], [-2.45, g4]]){ const fz = 60.45, dr = fx > 0 ? -1 : 1, gD = new THREE.Color(gcol).multiplyScalar(0.62).getHex();
+      put('cwood', 'flagpole', WGEO, WMAT_WOOD, fx, KT + 2.3, fz, 0, 0.13, 4.6, 0.13, 0, TIMBER); put('giron', 'flagpole', WGEO, WMAT_PAINT, fx, KT + 4.62, fz, 0, 0.2, 0.12, 0.2, 0, IRON);
+      put('gban', 'flag', WGEO, WMAT_PAINT, fx + dr*0.95, KT + 3.9, fz, 0, 1.8, 1.1, 0.05, 0, gcol);
+      put('gban', 'flag', WGEO, WMAT_PAINT, fx + dr*0.95, KT + 3.37, fz, 0, 1.8, 0.08, 0.06, 0, gD); }
+    for(let q=0; q<6; q++){ const Lf = [KE, KW, KS][q % 3], [x, z] = K.at(Lf, 0.5 + R()*5, 0.3), sz = 0.5 + R()*0.3;
+      put('moss', 'moss', LEAFG, WMAT, x, 10.05 + sz*0.1, z, R()*3, sz, sz*0.34, sz*0.8, 0, R() < 0.5 ? PAL.MOSS : PAL.MOSS2); }
+    /* K 나선(8 → 14, 1.5바퀴) — 디딤 17 + 윗끝 층계참(150°~360°) */
+    const th0 = CPLAN.K.th0;
+    spiralArt({cx:0, cz:56, th0, y0:W, n:17, top:KT, ceil:16.4, land:false,
+      doors:[{th:th0, y:W, sec:-1}, {th:th0 + PI, y:KT, sec:-1}], extra:[]});
+    for(let q=0; q<7; q++){ const a = th0 + 2*PI + (5 + q)*PI/6;
+      put('ctread', 'tread', TREADG, WMAT, 0, KT, 56, -a, 1, 1, 1, 0, 0x8f887a, [-1.8, 1.8, 54.2, 57.8, KT - 0.35, KT]); }   // 부채꼴 상자는 우리 전체로(겹침 검사엔 디딤끼리 쓰지 않는다)
+    paving(frame(-2, 54, 1, 0, 0, 1), 0, 4, 0, 4, W, FLOOR_T, 'floor');
+  }
+
+  /* ════════ 7. 비밀 창고 ②④ (성문 층계참 밑 — P 8~9.7 · t 47~49 · 0~2.6) ════════ */
+  for(const sec of CPLAN.secrets){ if(sec.kind !== 'landing') continue;
+    const g = sec.gate, s = sec.side, d = DIRS[g], U = {x:-d.dz*s, z:d.dx*s}, N = {x:d.dx, z:d.dz}, A = (t, P)=> ({x:gX(g, t, P*s), z:gZ(g, t, P*s)});
+    const a47 = A(47, 8), a49 = A(49, 8), a97 = A(47, 9.7), a10 = A(47, 10);
+    const F8 = frame(a47.x, a47.z, N.x, N.z, U.x, U.z), F47 = frame(a47.x, a47.z, U.x, U.z, N.x, N.z), F49 = frame(a49.x, a49.z, U.x, U.z, -N.x, -N.z);
+    const F97 = frame(a97.x, a97.z, N.x, N.z, -U.x, -U.z), F10 = frame(a10.x, a10.z, N.x, N.z, U.x, U.z);
+    face(F8, 0, 2, -0.05, 2.6, {grade:'I'}); face(F47, 0, 1.7, -0.05, 2.6, {grade:'I'}); face(F49, 0, 1.7, -0.05, 2.6, {grade:'I', soot:[[0.85, 1.6]]});
+    face(F97, 1, 2, -0.05, 2.6, {grade:'I'}); face(F97, 0, 1, 2.3, 2.6, {grade:'I'});
+    paving(F47, 0, 1.7, 0, 2, 0.02, FLOOR_T, 'floor', true);
+    flat(F47, 0, 1.7, 0, 2, 2.6, 2.66, CEIL, 'ceil');
+    box(F47, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0, 1.7, 0.9, 1.1, 2.4, 2.6, BEAM);
+    litIn = true; torch(F49, 0.85, 1.6); litIn = false;
+    /* 밀기 돌 문(바깥 얼굴 P 10 의 t 47~48, 0~2.3) — 둘레 줄눈과 같은 줄, 어깨보다 낮은 돌 하나만 따뜻한 색 + 새긴 마름모 */
+    const rows = [[0, 0.61], [0.61, 1.27], [1.27, 1.8], [1.8, 2.3]];
+    rows.forEach(([y0, y1], r)=>{
+      sec.hs.push(box(F10, 'csec', 'sec', BRICKF, WMAT, 0.03, 0.97, -0.16, 0.05, y0 + 0.03, y1 - 0.03, r === 1 ? 0xb49a78 : STONE_PAL.SC[(r*2 + g) % 5]));
+      sec.hs.push(box(F97, 'csec', 'sec', BRICKF, WMAT, 0.03, 0.97, -0.14, 0.0, y0 + 0.03, y1 - 0.03, 0x746d60)); });
+    { const [x, z] = K.at(F10, 0.5, 0.055); sec.hs.push(put('csmall', 'sec', WGEO, WMAT, x, 0.94, z, K.ryN(F10), 0.2, 0.2, 0.02, PI/4, 0x8c7458)); }
+    for(const q of [0, 1]) flat(F10, q - 0.03, q + 0.03, -0.3, -0.12, 0, 2.3, INSTONE, 'lining');   // 열린 뒤 보이는 문 두께(겉면보다 들어가 있어 닫혔을 땐 안 보인다)
+    flat(F10, 0, 1, -0.3, -0.12, 2.3, 2.34, INSTONE, 'lining');
+    secretRoomArt(sec);
+  }
+
+  /* ════════ 8. 둘레길 막돌 줄(마당 끝 od 45.9) — 협곡 통로·계단 앞에서 끊음 ════════ */
+  { const V = [[45.9, 30.6], [30.6, 45.9], [-30.6, 45.9], [-45.9, 30.6], [-45.9, -30.6], [-30.6, -45.9], [30.6, -45.9], [45.9, -30.6]];
+    const gapAt = (x, z)=>{ for(let g=0; g<NG; g++){ if(Math.abs(gPP(g, x, z)) < 10.35 && gT(g, x, z) > 38) return true; } return false; };
+    for(let e=0; e<8; e++){ const a = V[e], b = V[(e + 1) % 8], L = Math.hypot(b[0]-a[0], b[1]-a[1]), ux = (b[0]-a[0])/L, uz = (b[1]-a[1])/L;
+      for(let s = 0; s < L - 0.3; ){ const Ls = Math.min(L - s, 1.0 + R()*0.5), h = 0.12 + R()*0.06, m = s + Ls/2, x = a[0] + ux*m, z = a[1] + uz*m;
+        if(!gapAt(x, z)) putD('cboxN', 'curb', BOXG, WMAT, x, h/2 - 0.02, z, ux, uz, Ls - 0.06, h, 0.3 + R()*0.06, 0, K.stoneC(1));
+        s += Ls; } } }
+
+  /* ════════ 9. 반짝 보물 주머니 27(오늘 것만 보이게 — 처음엔 숨김, castleArtInit) ════════ */
+  CPLAN.sparkHs.length = 0;
+  for(const q of CPLAN.spark){ const [x, y, z] = q.p;
+    CPLAN.sparkHs.push([put('cpropP', 'spark', WGEO, WMAT_PAINT, x, y + 0.12, z, 0.4, 0.26, 0.22, 0.24, 0, 0xc9a24a),     // 금 주머니 + 매듭
+                        put('cpropP', 'spark', WGEO, WMAT_PAINT, x, y + 0.26, z, 1.2, 0.12, 0.08, 0.12, 0, GOLD)]); }
+
+  /* ════════ 10. 덩굴(선생님 추가 요청) — 그늘진 바깥 면·모서리 탑 밑동·해자 쪽·북쪽 그늘 구석에 무리 지어 ════════
+     땅(탈루스 위)에서 올라가 위로 갈수록 가늘고 밝은 새잎. 줄기(짙은 갈색) 하나 + 잎 뭉치(초록 세 톤 — 아래 짙고 위 밝음).
+     벽 겉돌 앞에 딱 붙인다(잎 뭉치 뒷면 = 돌 앞면 ±0.03). 문·창·활 틈·안내판·깃발·횃불 둘레는 비운다(ex). 씨앗 고정 */
+  const IVY = [0x33522a, 0x416a31, 0x55813a, 0x6d9a45];
+  const ivy = (F, sC, yb, H, W0, n, ex, capY, a0, a1)=>{
+    a0 = a0 === undefined ? -1e9 : a0; a1 = a1 === undefined ? 1e9 : a1;          // 면 끝(모서리) — 잎이 모서리 밖 허공으로 안 나가게
+    for(const fan of [-1, 1]){ let s0 = sC + fan*0.15 + (R() - 0.5)*0.2, y = yb - 0.05; const top = yb + H*(0.7 + R()*0.2);   // 줄기 둘 — 부채꼴로 벌어지며 세 토막씩 오름
+      for(let k=0; k<3 && y < top - 0.3; k++){ const L = Math.min((top - yb)/3 + 0.1, top - y), ang = fan*(0.12 + R()*0.22) - fan*k*0.1, th = 0.11 - k*0.025;
+        const s1 = s0 + Math.sin(ang)*L, y1 = y + Math.cos(ang)*L, sm = (s0 + s1)/2;
+        if(!ex.some(r=> sm > r[0] - 0.1 && sm < r[1] + 0.1 && y1 > r[2] && y < r[3]))
+          box(F, 'civy', 'ivyStem', BOXG, WMAT_WOOD, sm - th/2, sm + th/2, 0.03, 0.11, y, y1, 0x4b3c29, -ang);
+        s0 = s1; y = y1; } }
+    for(let k=0; k<n; k++) for(let tr=0; tr<3; tr++){
+      const t = Math.pow(R(), 0.8), y = yb + 0.35 + t*H, hw = W0*(0.45 + 1.2*t - 1.25*t*t), s = sC + (R()*2 - 1)*hw;   // 부채꼴 — 가운데 높이에서 가장 넓고 위로 가늘어짐
+      const w = (1.5 + R()*0.8)*(1 - 0.45*t), h = (1.05 + R()*0.55)*(1 - 0.35*t);
+      if(capY !== undefined && y + h/2 > capY) continue;                                         // 벽 윗선 위로 떠오르지 않게
+      if(s - w/2 < a0 + 0.05 || s + w/2 > a1 - 0.05) continue;
+      if(ex.some(r=> s + w/2 > r[0] - 0.15 && s - w/2 < r[1] + 0.15 && y + h/2 > r[2] - 0.15 && y - h/2 < r[3] + 0.15)) continue;
+      const q = Math.min(3, Math.floor(t*3.2 + R()*0.8));
+      box(F, 'cleaf', 'ivy', IVYG, WMAT, s - w/2, s + w/2, 0.04, 0.26, y - h/2, y + h/2, IVY[q], (R() - 0.5)*0.5); break; }
+  };
+  /* 모서리 탑 — 바깥 모서리(북·동 면이 만나는 곳, 해자 쪽) 양쪽 밑동 */
+  for(const T of CPLAN.towers){ const i = T.i, F = (x0, z0, ux, uz, nx, nz)=> tf(i, LF(x0, z0, ux, uz, nx, nz));
+    const T_E = F(39, -49, 0, -1, 1, 0), T_N = F(39, -58, -1, 0, 0, -1);
+    const exN = [[2.4, 3.6, 8.7, 10.2], [5.9, 7.1, 8.7, 10.2], [5.8, 7.2, 12.3, 14.1]], exE = [[5.4, 6.6, 3.8, 5.3], [1.9, 3.1, 8.7, 10.2], [1.8, 3.2, 12.3, 14.1]];
+    ivy(T_N, 1.9 + R()*0.4, 3.45, 5.4 + R()*1.8, 2.0, 15, exN, 11.2, 0, 9);
+    ivy(T_E, 7.2 + R()*0.4, 3.45, 4.4 + R()*1.4, 1.9, 13, exE, 11.2, 0, 9); }
+  /* 곧은 성벽 바깥(해자 쪽) — 성가퀴 밑돌까지 타고 올라 갓돌 턱에 살짝 걸친다 */
+  for(const S of CPLAN.straights){ if(!S.corr) continue; const g = S.g, s = S.s, d = DIRS[g], o53 = {x:gX(g, 53, 0), z:gZ(g, 53, 0)};
+    const FO = frame(o53.x, o53.z, -d.dz*s, d.dx*s, d.dx, d.dz), P = 19 + R()*7;
+    ivy(FO, P, 3.45, 4.9, 3.0, 17, [], 8.55, 15, 30); }
+  /* 회랑 바깥(해자 쪽) — 창 밑 */
+  for(let k=0; k<4; k++){ const i = 2*k, o0 = [32.6667 + 4.478*S2, -49 - 4.478*S2], FOg = tf(i, LF(o0[0], o0[1], S2, S2, S2, -S2));
+    ivy(FOg, GM + (R() < 0.5 ? -3.2 : 3.2) + (R() - 0.5), 3.45, 4.0, 2.6, 13, [], 7.6, 4.6, GL - 4.6); }
+  /* 가운데 망대 K 서쪽 얼굴(받침 바위 위) · 3·4 성문 짧은 벽 마을 쪽(북향 그늘) */
+  ivy(frame(-3, 61, 0, -1, -1, 0), 4.6, 10.0, 3.0, 1.4, 6, [], 13.6, 0, 8);
+  for(const S of CPLAN.straights){ if(S.corr) continue; const g = S.g, s = S.s, d = DIRS[g], o49 = {x:gX(g, 49, 0), z:gZ(g, 49, 0)};
+    const FIs = frame(o49.x, o49.z, -d.dz*s, d.dx*s, -d.dx, -d.dz);
+    ivy(FIs, 12.9, 0.0, 4.2, 1.6, 10, [[13.6, 14.4, 7.8, 9.6]], 7.9, 11.1, 17); }
+
+  /* ── 불빛 웅덩이 — 실내 불빛 둘레 조각 색을 따뜻하고 밝게(거리 제곱으로 잦아듦). 불빛 자체는 여전히 불투명 발광뿐 ── */
+  { const WARM = new THREE.Color(0xb49a72), cA = new THREE.Color();
+    for(let q=0; q<INS.length; q+=4){ const h = INS[q], x = INS[q+1], y = INS[q+2], z = INS[q+3]; let k = 0;
+      for(let L=0; L<LIGHTS.length; L+=4){ const dx = x - LIGHTS[L], dy = (y - LIGHTS[L+1])*0.8, dz = z - LIGHTS[L+2], r = 2.9*LIGHTS[L+3];
+        const d2 = dx*dx + dy*dy + dz*dz; if(d2 < r*r){ const t = 1 - Math.sqrt(d2)/r; k += t*t*0.8; } }
+      if(k < 0.02) continue; k = Math.min(0.62, k);
+      const b = banks.get(h[0]); if(!b || !b.cols) continue;
+      cA.setHex(b.cols[h[1]]).lerp(WARM, k); b.cols[h[1]] = cA.getHex(); } }
+
+  /* ── 그림자: 겉돌·안쪽 판·널·소품은 안 드리운다(속 몸·흉벽·성가퀴·띠·기둥·지붕이 드리움) — bbuild 앞에서만 먹는다 ── */
+  for(const k of ['cbrk', 'cbrkL', 'ccope', 'cboxN', 'csmall', 'cwoodN', 'ctread', 'cnewel', 'cfill', 'csec', 'cpropP', 'cwell', 'ctele', 'cbarrel', 'cleaf', 'civy']) NO_CAST.add(k);   // 덩굴도 안 드리운다(벽에 붙은 얇은 뭉치 — 그림자 삼각형 아낌)
+  CPx.n = CPx._a.length/8; CPx.data = new Float32Array(CPx._a); CPx._a = null; CPx._k = null; CPx._d = null;
+  CPIECES = CPx;
+}
+/* bbuild 뒤 한 번 — 열린 상자 뚜껑·반짝 주머니는 처음엔 숨긴다(보이게 하는 것은 갈래 4 updCastleTreasure) */
+function castleArtInit(){
+  for(const sec of CPLAN.secrets) for(const h of sec.chestHs.open) bset(h, false);
+  for(const hs of CPLAN.sparkHs) for(const h of hs) bset(h, false);
+}
+/* ═══ 67차 성곽 그림 끝 ═══ */
 
 /* ═══════════════════════ 수정 ═══════════════════════ */
 let crystal, crystalLight, crystalGroup, beam, cMat, cCore, cShards, cHalo, cSpark, cGlow;
@@ -8010,6 +9062,7 @@ for(const S of farmParts) for(let s=1;s<S.length;s++){
   for(const h of S[s].p) bset(h, false);
   for(const h of S[s].gnd) bset(h, false);
 }
+castleArtInit();   // 67차 — 성곽: 열린 상자 뚜껑·반짝 주머니는 처음엔 숨김(보이게 하는 것은 보물 갈래)
 /* 하늘 섬도 마찬가지 — 처음엔 퀴즈·줄넘기 얼굴로 둔다(서바이벌 지형은 감춘다) */
 for(const h of miParts.surv) bset(h, false);
 
@@ -18074,27 +19127,43 @@ function miniStatic(){
   if(!miniBG){ miniBG = document.createElement('canvas'); miniBG.width = miniBG.height = 150; }
   const mg = miniBG.getContext('2d');
   mg.clearRect(0,0,150,150);
-  mg.fillStyle = G.phase==='night' ? '#1b2a3f' : '#2f5c33';
-  mg.beginPath(); mg.arc(75,75,MM_R*MSC,0,7); mg.fill();          // 67차 — 세상 끝(78) 대신 미니맵 반지름 MM_R 까지(성곽 그림은 갈래 2)
-  // 산 — 바깥은 둥글고, 마을 경계(안쪽)는 모서리 깎은 네모다
-  mg.strokeStyle = '#6b6f78'; mg.lineWidth = (MM_R-RING_A)*MSC;
-  mg.beginPath(); mg.arc(75,75,(RING_A+MM_R)/2*MSC,0,7); mg.stroke();
-  mg.fillStyle = mg.canvas.__grd || '#2f5c33';
-  mg.fillStyle = G.phase==='night' ? '#1b2a3f' : '#2f5c33';
-  octPath(mg, RING_A); mg.fill();          // 마당은 네모 — 여기가 지을 수 있는 곳
-  // 입구 — 통로가 축과 나란하므로 선도 그대로 축과 나란하다
+  const night = G.phase === 'night';
+  /* 67차 성곽 정적 층(설계 7장) — 둥근 판(산) → 성벽(od 53) → 회랑 띠 → 둘레길(od 49) → 마당(od 46) → 탑·K → 협곡 선 → 문 점 */
+  mg.fillStyle = night ? '#2a3346' : '#6b6f78';
+  mg.beginPath(); mg.arc(75,75,MM_R*MSC,0,7); mg.fill();
+  mg.fillStyle = night ? '#6e6a60' : '#b9ad96'; octPath(mg, 53); mg.fill();          // 성벽 돌색
+  mg.fillStyle = night ? '#3e3024' : '#6b4e35';                                       // 대각 회랑 — 짙은 나무색 띠(두 탑 사이 e 49~52.8)
+  for(const G2 of CPLAN.galleries){ const sx = Math.sign(G2.a.x + G2.b.x), sz = Math.sign(G2.a.z + G2.b.z), c = (e)=> e/0.6;   // |x|+|z| = e/0.6
+    const P4 = [[sx*(c(49) - 49 - 0), sz*49], [sx*49, sz*(c(49) - 49)], [sx*49, sz*(c(52.8) - 49)], [sx*(c(52.8) - 49), sz*49]];
+    mg.beginPath(); P4.forEach(([x, z], k)=> k ? mg.lineTo(mpx(x), mpz(z)) : mg.moveTo(mpx(x), mpz(z))); mg.closePath(); mg.fill(); }
+  mg.fillStyle = night ? '#5a4d3c' : '#a88a62'; octPath(mg, 49); mg.fill();           // 둘레길 흙색
+  mg.fillStyle = night ? '#1b2a3f' : '#2f5c33'; octPath(mg, RING_A); mg.fill();       // 마당 — 여기가 지을 수 있는 곳
+  for(const T of CPLAN.towers){                                                       // 탑 9×9(돌색) + 1px 모둠색 테
+    mg.fillStyle = night ? '#6e6a60' : '#b9ad96'; mg.fillRect(mpx(T.x0), mpz(T.z0), (T.x1 - T.x0)*MSC, (T.z1 - T.z0)*MSC);
+    mg.strokeStyle = GCOL[T.g]; mg.lineWidth = 1; mg.strokeRect(mpx(T.x0) + 0.5, mpz(T.z0) + 0.5, (T.x1 - T.x0)*MSC - 1, (T.z1 - T.z0)*MSC - 1); }
+  { const K = CPLAN.K; mg.fillStyle = night ? '#6e6a60' : '#b9ad96'; mg.fillRect(mpx(K.x0), mpz(K.z0), (K.x1 - K.x0)*MSC, (K.z1 - K.z0)*MSC);
+    mg.strokeStyle = night ? '#9a9486' : '#7d7466'; mg.lineWidth = 1; mg.strokeRect(mpx(K.x0) + 0.5, mpz(K.z0) + 0.5, (K.x1 - K.x0)*MSC - 1, (K.z1 - K.z0)*MSC - 1); }
+  // 입구 — 통로가 축과 나란하므로 선도 그대로 축과 나란하다(성벽 위로 그어 성문이 뚫린 게 보이게)
   mg.font='900 10px sans-serif'; mg.textAlign='center';
   for(let i=0;i<NG;i++){
     mg.strokeStyle = GCOL[i]; mg.lineWidth = GAP_HALF*2*MSC;
     mg.beginPath();
     mg.moveTo(mpx(gX(i,RING_A-3,0)), mpz(gZ(i,RING_A-3,0)));
     mg.lineTo(mpx(gX(i,MM_R,0)),  mpz(gZ(i,MM_R,0))); mg.stroke();
+    mg.strokeStyle = night ? '#8a8577' : '#cfc4ad'; mg.lineWidth = 1;                 // 성문 다리(t 51) — 돌색 가는 가로줄
+    mg.beginPath(); mg.moveTo(mpx(gX(i,GATE_T,-GAP_HALF)), mpz(gZ(i,GATE_T,-GAP_HALF))); mg.lineTo(mpx(gX(i,GATE_T,GAP_HALF)), mpz(gZ(i,GATE_T,GAP_HALF))); mg.stroke();
     mg.fillStyle = GCOL[i];
     mg.strokeStyle='rgba(0,0,0,.8)'; mg.lineWidth=2;
     const lx = mpx(gX(i,RING_A-7,0)), lz = mpz(gZ(i,RING_A-7,0))+3;
     mg.strokeText((i+1), lx, lz);
     mg.fillText((i+1), lx, lz);
   }
+  /* 문 점(노랑 1px) — 암문 6 · 탑 구석 문 8 · K 북문 */
+  mg.fillStyle = '#ffd43b';
+  const dot = (x, z)=>{ mg.beginPath(); mg.arc(mpx(x), mpz(z), 1, 0, 7); mg.fill(); };
+  for(const S of CPLAN.straights) if(S.corrDoor) dot(gX(S.g, 49.5, 16*S.s), gZ(S.g, 49.5, 16*S.s));
+  for(const T of CPLAN.towers){ const n = T.doors.nook; dot((n.x0 + n.x1)/2, (n.z0 + n.z1)/2); }
+  dot(0, (CPLAN.K.doorN.z0 + CPLAN.K.doorN.z1)/2);
   // 구조물
   mg.fillStyle = '#d9c9a6';
   for(const o of STRU.values()) mg.fillRect(mpx(o.x)-1, mpz(o.z)-1, 2.4, 2.4);
@@ -24187,7 +25256,10 @@ function updSky(dt, night){
   sunDisc.lookAt(camera.position); moonDisc.lookAt(camera.position);
   sunDisc.children[0].material.color.setRGB(2.6 - 1.1*kD, 2.45 - 1.67*kD, 2.1 - 1.74*kD);   // 노을 해는 복숭아빛 (1.5,0.78,0.36)
   sun.position.copy(_litW).multiplyScalar(100);
-  shadowFollow(camera.position.x, camera.position.z);          // 방향만 읽는다 — 함수는 그대로
+  /* 67차 — 그림자 판 가운데를 시선 앞으로(최대 16칸, 4칸 걸음 — 카메라를 돌릴 때 그림자가 헤엄치지 않게).
+     수정 곁에서 본 탑·회랑(빛 가로축 ±61~63)에도 해 그림자가 닿고, 판 끝선이 대각 성벽을 가로지르지 않는다 */
+  camera.getWorldDirection(_shFwd); { const h = Math.hypot(_shFwd.x, _shFwd.z) || 1;
+    shadowFollow(camera.position.x + Math.round(_shFwd.x/h*4)*4, camera.position.z + Math.round(_shFwd.z/h*4)*4); }
   stars.position.copy(camera.position);
   stars.material.opacity = Math.max(0, skyK*1.35 - 0.32);
   stars.rotation.y += dt*0.006;
