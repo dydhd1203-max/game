@@ -25,8 +25,8 @@ audit('Torn shirt hem keeps its torso-local mounting point',0,'W_chest',[0]);
 audit('Collar keeps its torso-local mounting point',0,'W_ruff',[0]);
 audit('Belt keeps its torso-local mounting point',0,'W_belly',[0]);
 audit('Hungry zombie ribs move with the leaning torso',8,'W_rib',[2,3,4,5]);
-// Armor order: four shin plates, then 17 torso/shoulder plates, then helmet.
-audit('Armored chest, back, skirt and shoulder pieces share the torso frame',9,'W_plate',Array.from({length:17},(_,i)=>i+4));
+// Armor order: four shin plates, then 11 torso plates, then 6 shoulder plates (66차 ZARM 2차 — 위팔 틀로 옮겼다, 아래에서 따로 잰다), then helmet.
+audit('Armored chest, back, skirt and neck pieces share the torso frame',9,'W_plate',Array.from({length:11},(_,i)=>i+4));
 audit('Overalls and straps use the same torso frame as the shirt',2,'W_costume',[3,4,5,6]);
 audit('Healer back gem stays mounted while its own shape rotates',10,'W_gem',[0]);
 // 66차 ZARM — 선생님: "좀비 몸하고 팔이 분리돼 있어, 자연스럽게 이어 줘".
@@ -74,15 +74,48 @@ audit('Healer back gem stays mounted while its own shape rotates',10,'W_gem',[0]
      for(const [mesh,idx,g] of [['W_legs',0,lg],['W_legs',1,lg],['W_paw',0,pg],['W_paw',1,pg]]){const m=M(mesh,idx);
       for(let j=0;j<g.count;j++){const d=inThigh(v.set(g.getX(j),g.getY(j),g.getZ(j)).applyMatrix4(m).applyMatrix4(inv));if(d>deep){deep=d;at=k+':'+pn+':'+mesh+idx;}}}}}}
   check('Hanging and swinging forearms and palms pass beside the thighs, not through them (13 kinds × stand/walk/chase)',deep<0.1,{maxDepth:+deep.toFixed(3),at});}
- // 66차 ZARM 심사 — 보스 어깨 장식이 얼굴 옆 눈 높이에 붙어 귀마개처럼 보였다: 장식 안쪽 끝과 머리 옆면 사이에 틈이 있어야 한다.
- {let gap=Infinity,at=null;const q=new THREE.Quaternion(),s=new THREE.Vector3(),c=new THREE.Vector3(),h=new THREE.Vector3(),hs=new THREE.Vector3(),rx=new THREE.Vector3();
-  for(let k=0;k<13;k++){if(!(A.WOLF_T[k].boss>0))continue;run(actor(k),20);
-   M('W_head',0).decompose(h,q,hs);rx.setFromMatrixColumn(M('W_body',0),0).normalize();const sc=A.WOLF_T[k].sc;let n=0;
-   for(let i=0;i<A.meshes.W_costume.count;i++){M('W_costume',i).decompose(c,q,s);
-    if(Math.abs(s.x/sc-.26)>.005||Math.abs(s.y/sc-.23)>.005||Math.abs(s.z/sc-.42)>.005)continue;n++;
-    const g=(Math.abs(c.clone().sub(h).dot(rx))-s.x*.5-hs.x*.5)/sc;if(g<gap){gap=g;at=k;}}
-   if(n!==2){gap=-1;at=k+':pads='+n;}}
-  check('Boss shoulder pads sit on the upper arms, clear of the cheeks (not ear-muffs)',gap>0.02&&gap<.30,{minGap:+gap.toFixed(3),at});}
+ // 66차 ZARM 2차 심사 — 보스 견장이 몸통 틀에 박혀 팔이 안으로 들어온 뒤 몸통 밖 허공에 뜬 공이 됐다(불꽃·지옥·눈보라).
+ // 이제 위팔(소매) 틀의 자식: ① 모든 자세에서 소매 틀 안 자리·방향이 그대로(팔과 같이 움직인다) ② 소매 윗끝이 견장 속에 들고
+ // 견장 안쪽 아래 끝이 몸통 속에 묻힌다(떠 있지 않다) ③ 서기·걷기·쫓기에서 머리(두개골 꼭짓점)를 뚫지 않고 윗면이 눈보다 낮다(귀마개 아님).
+ {const ZEP=Function('return '+source.match(/const ZEP = (\{[^}]*\})/)[1])();
+  const sk=A.ZGEO.skull.attributes.position,v=new THREE.Vector3(),q=new THREE.Quaternion(),s=new THREE.Vector3(),c=new THREE.Vector3();
+  const pads=k=>{const sc=A.WOLF_T[k].sc,out=[];for(let i=0;i<A.meshes.W_costume.count;i++){M('W_costume',i).decompose(c,q,s);
+   if(Math.abs(s.x/sc-ZEP.w)<.003&&Math.abs(s.y/sc-ZEP.h)<.003&&Math.abs(s.z/sc-ZEP.d)<.003)out.push(M('W_costume',i));}return out;};
+  let drift=0,count=true,sleeveIn=true,buried=Infinity,skullHit=0,aboveEye=-Infinity,at=null;
+  for(let k=0;k<13;k++){if(!(A.WOLF_T[k].boss>0))continue;const sc=A.WOLF_T[k].sc;let base=null;
+   for(const [pn,f] of Object.entries(poses)){f(k);const pd=pads(k);if(pd.length!==2){count=false;at=k+':'+pn+':pads='+pd.length;continue;}
+    const rel=pd.map((m,a)=>{const sl=M('W_sleeve',a),o=P(sl,.5),sq=new THREE.Quaternion(),ss=new THREE.Vector3();sl.decompose(new THREE.Vector3(),sq,ss);return new THREE.Matrix4().compose(o,sq,new THREE.Vector3(1,1,1)).invert().multiply(m);});if(!base)base=rel;
+    for(let a=0;a<2;a++)drift=Math.max(drift,...rel[a].elements.map((e,j)=>Math.abs(e-base[a].elements[j])));
+    const inv=M('W_body',0).clone().invert();
+    for(let a=0;a<2;a++){const pinv=pd[a].clone().invert(),si=a?-1:1;
+     const t=P(M('W_sleeve',a),.5).applyMatrix4(pinv);sleeveIn&&=Math.abs(t.x)<.5&&Math.abs(t.y)<.5&&Math.abs(t.z)<.5;
+     // 견장 안쪽(몸통 쪽) 아래 모서리 — 견장 국소 x 는 +si 가 바깥
+     const d=depth(new THREE.Vector3(-si*.42,-.30,0).applyMatrix4(pd[a]).applyMatrix4(inv));if(d<buried){buried=d;at=k+':'+pn;}}
+    if(pn==='서기'||pn==='걷기'||pn==='쫓기뻗기'){const hm=M('W_head',0),ey=new THREE.Vector3().setFromMatrixPosition(M('W_eyes',0)).y;
+     for(let a=0;a<2;a++){const pinv=pd[a].clone().invert();
+      for(let j=0;j<sk.count;j++){v.fromBufferAttribute(sk,j).applyMatrix4(hm).applyMatrix4(pinv);if(Math.abs(v.x)<.45&&Math.abs(v.y)<.45&&Math.abs(v.z)<.45)skullHit++;}
+      if(pn!=='쫓기뻗기'){const cy=new THREE.Vector3().setFromMatrixPosition(pd[a]).y;aboveEye=Math.max(aboveEye,(cy-ey)/sc);}}}}}
+  check('Boss shoulder pads are children of the upper arm: same sleeve-local transform in every pose (5 bosses × 10 poses)',count&&drift<1e-5,{maxLocalDrift:+drift.toExponential(2),at:count?null:at});
+  check('Boss shoulder pads cover the sleeve top and their inner lower edge sinks into the torso (not floating)',sleeveIn&&buried>0.02,{sleeveTopInsidePad:sleeveIn,minTorsoDepth:+buried.toFixed(3),at});
+  check('Boss shoulder pads clear the skull (stand/walk/chase) and sit below eye level with arms down (not ear-muffs)',skullHit===0&&aboveEye<-.03,{skullVerticesInsidePad:skullHit,padCenterMinusEyeY:+aboveEye.toFixed(3)});}
+ // 66차 ZARM 2차 심사 — 갑옷 어깨판이 몸통 틀에 박혀 팔을 번쩍 들면 위팔이 가슴판 뒤로 숨고 소매 끝 고리만 남았다.
+ // 이제 위팔 틀(ZAF)에 얹혀 모든 자세에서 어깨 관절과 소매 윗끝이 무쇠 테(어깨판 첫 조각) 속에 든다 — 팔이 늘 판 밑에서 나온다.
+ {let inside=true,worst=-Infinity,at=null;
+  for(const [pn,f] of Object.entries(poses)){f(9);const sc=A.WOLF_T[9].sc;
+   for(let a=0;a<2;a++){const plate=M('W_plate',15+a*3),pinv=plate.clone().invert(),sl=M('W_sleeve',a);
+    for(const y of [.5,.35]){const t=P(sl,y).applyMatrix4(pinv),m=Math.max(Math.abs(t.x),Math.abs(t.y),Math.abs(t.z));if(m>worst){worst=m;at=pn+':'+a+':'+y;}inside&&=m<.5;}}}
+  check('Armored pauldrons ride the upper arm: shoulder joint and sleeve top stay inside the pauldron rim in all 10 poses',inside,{maxNormalized:+worst.toFixed(3),at});}
+ // 66차 ZARM 2차 심사 — 붕대 팔찌가 팔뚝보다 30% 굵은 헐거운 흰 통이라 가는 팔이 그 속에 떠 보였다.
+ // 붕대 띠 안쪽 면이 아래팔 겉면에서 반지름 +15% 안에 붙어 있고(떠 있지 않고), 팔뚝을 뚫지 않는다(−5% 까지) — 서기·걷기·쫓기·공격 준비.
+ {const rags=A.ZOMBIE_NIGHT.indexOf('rags'),lg=A.ZGEO.limb.attributes.position,wg=A.meshes.W_wrap.geometry.attributes.position,sg=12,lr=[];
+  for(let r=0;(r+1)*sg<=lg.count-2;r++){let w=0,y=0;for(let i=0;i<sg;i++){const j=r*sg+i;w=Math.max(w,Math.hypot(lg.getX(j),lg.getZ(j)));y+=lg.getY(j)/sg;}lr.push([y,w]);}
+  const rad=y=>{let k=0;while(k<lr.length-2&&lr[k+1][0]<y)k++;const a=lr[k],b=lr[k+1];return a[1]+(b[1]-a[1])*(y-a[0])/((b[0]-a[0])||1);};
+  let lo=Infinity,hi=0,n=0;A.G.nk=rags;const vv=new THREE.Vector3();
+  for(const pn of ['서기','걷기','쫓기뻗기','공격준비']){poses[pn](0);const wi=A.meshes.W_wrap.count-1,wm=M('W_wrap',wi),inv=M('W_legs',0).clone().invert();
+   for(let j=0;j<wg.count;j++){vv.fromBufferAttribute(wg,j);if(Math.hypot(vv.x,vv.z)>.47)continue;   // 안쪽 면 꼭짓점만
+    vv.applyMatrix4(wm).applyMatrix4(inv);const r=Math.hypot(vv.x,vv.z)/rad(vv.y);lo=Math.min(lo,r);hi=Math.max(hi,r);n++;}}
+  A.G.nk=0;
+  check('Bandage bracelet hugs the forearm: inner face within +15% of the forearm surface and not cutting into it',n>0&&lo>.95&&hi<1.15,{innerVertices:n,minRatio:+lo.toFixed(3),maxRatio:+hi.toFixed(3)});}
 }
 console.log(`${checks.filter(Boolean).length}/${checks.length} zombie attachment checks passed.`);
 process.exitCode=checks.every(Boolean)?0:1;
