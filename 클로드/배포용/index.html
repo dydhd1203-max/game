@@ -2147,9 +2147,7 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 #popShop #shopList .sItem.own{border-color:#a0d2bb!important;background:#fff!important}
 #popShop #shopList .sItem.equipped{border-color:#60aa89!important;box-shadow:inset 0 0 0 1px #60aa89!important}
 #popShop #shopList .si{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:auto;min-height:calc(var(--shop-preview) + 12px);padding:6px 12px;flex:0 0 auto;font-size:49px;background:linear-gradient(145deg,#eff7fd,#e4f0f9);border-radius:14px 14px 0 0;filter:none;overflow:hidden}
-#popShop #shopList .sItem:nth-child(3n+2) .si{background:linear-gradient(145deg,#f0f8f4,#e1f0e8)}
-#popShop #shopList .sItem:nth-child(3n) .si{background:linear-gradient(145deg,#f8f5ed,#f5ecd9)}
-#popShop #shopList .si img.ic{width:var(--shop-preview);height:var(--shop-preview);max-width:100%;object-fit:contain;margin:0;filter:drop-shadow(0 5px 3px rgba(52,89,114,.12))}
+#popShop #shopList .si img.ic{width:var(--shop-preview);height:var(--shop-preview);max-width:100%;object-fit:contain;margin:0;filter:drop-shadow(0 6px 4px rgba(0,0,0,.5))}
 #popShop #shopList .shopExchange .si{font-size:23px;gap:10px}
 #popShop #shopList .shopExchange .si img.ic{width:65px;height:65px}
 #popShop .shopBadge{position:absolute;top:9px;left:9px;max-width:calc(100% - 18px);padding:4px 7px;border-radius:6px;background:rgba(255,255,255,.94);color:#47677d;font-size:11px;line-height:1.25;font-weight:500;white-space:normal}
@@ -2182,27 +2180,10 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 @media(max-width:320px){#popShop #shopList{grid-template-columns:minmax(0,1fr)}}
 @media(max-height:600px){#popShop .popC{gap:9px;padding-top:12px;padding-bottom:12px}#popShop .shopEyebrow,#popShop .shopCollection,#popShop #shopNotice,#popShop .shopFoot p{display:none}#popShop .shopTop{gap:9px}#popShop h2{font-size:21px}#popShop .shopBrand{height:36px;width:36px}#popShop .shopBrand img.ic{height:26px}#popShop .shopClose{height:36px;width:36px;min-width:36px}#popShop .shopWallet{padding-top:5px;padding-bottom:5px}#popShop .shopBalance{padding-top:5px;padding-bottom:5px}#popShop #shopTabs .btn{min-height:32px;padding-top:6px;padding-bottom:6px}#popShop #shopList .sb{padding:10px}#popShop #shopList .sd{margin-bottom:7px}#popShop #shopList .sc{margin-bottom:7px}#popShop .shopLack{margin-bottom:6px}#popShop .shopFoot{padding-top:8px;justify-content:flex-end}#popShop .shopFoot .btn{min-height:35px}}
 /* ═══ 65차 — RPG 무기점. 선생님: "상점을 진짜 rpg게임 상점처럼".
-   ★ 바탕은 밝은 양피지(크림)·꿀빛 나무 간판, 본문은 남색 그대로(CLAUDE.md UI 규칙).
+   ★ (65차 나무 진열대에서 겉모습은 아래 '나무 진열대' 블록으로 바뀌었다 — 여기는 등급·Lv 딱지·능력치 막대의 공용 규칙만 남는다.)
    ★ 카드 테 = 등급(일반 회청 · 레어 파랑 · 유니크 주황), 그림 칸 오른쪽 위 = 등급·Lv 딱지.
    ★ 레벨이 모자란 카드는 그림을 회색으로 죽이고 자물쇠를 크게 얹는다 — 단추도 '🔒 레벨 N부터' 로 잠긴다.
    ★ 위 카드 규칙(높이·스크롤·미리보기 크기)은 t53 이 글자 그대로 본다. 여기서는 새 선택자만 더한다. */
-#popShop>.popC{background:linear-gradient(180deg,#fffaf0 0%,#fff3d9 100%)!important;border:3px solid #ecd19a;box-shadow:0 18px 40px rgba(70,45,10,.25),inset 0 0 0 3px #fffdf6}
-#popShop>.popC>.shopTop{background:linear-gradient(180deg,#f6dfae,#ebc57f);border:2px solid #d7a85a;border-radius:16px;padding:8px 10px;box-shadow:inset 0 -3px 0 rgba(140,90,20,.16)}
-@media(max-height:600px){#popShop>.popC>.shopTop{padding:2px 6px;border-width:1px;box-shadow:none}#popShop .wStats{margin-top:2px}#popShop .wTags{top:6px;right:6px}#popShop>.popC>.shopTop .shopWallet{padding-top:2px;padding-bottom:2px}#popShop>.popC>.shopTop .shopBalance{padding-top:3px;padding-bottom:3px}}
-#popShop>.popC>.shopTop .shopBrand{background:#fff6de;border:2px solid #d9aa5c;box-shadow:inset 0 -2px 0 rgba(140,90,20,.14)}
-#popShop>.popC>.shopTop h2{color:#4a2f10}
-#popShop>.popC>.shopTop .shopEyebrow{color:#7a5424;font-weight:600}
-#popShop>.popC>.shopTop .shopWallet{background:#fffaf0;border-color:#e2c283}
-#popShop>.popC>.shopTop .shopClose{background:#fff6de;border-color:#d9aa5c;color:#6a4618}
-#popShop #shopTabs .btn.on{background:#fff0c4!important;border-color:#e0ad48!important;color:#5e3d08!important;box-shadow:inset 0 -3px 0 #e8b64e!important}
-#popShop>.popC>#shopNotice{position:relative;padding:7px 12px 7px 38px;background:#fff;border:2px solid #efd7a4;border-radius:12px;color:#5a4526;font-size:12.5px}
-#popShop>.popC>#shopNotice::before{content:'🧔';position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:19px;line-height:1}
-#popShop #shopList .sItem.tier-common{border-color:#c9d6e0!important}
-#popShop #shopList .sItem.tier-rare{border:2px solid #8aa6ff!important;box-shadow:0 0 0 3px rgba(127,156,255,.16),0 4px 10px rgba(80,110,220,.14)!important}
-#popShop #shopList .sItem.tier-unique{border:2px solid #ffa24a!important;box-shadow:0 0 0 3px rgba(255,154,60,.18),0 4px 12px rgba(230,120,30,.18)!important}
-#popShop #shopList .sItem.tier-common .si{background:radial-gradient(circle at 50% 58%,#ffffff 0%,#eef3f7 62%,#e2eaf0 100%)}
-#popShop #shopList .sItem.tier-rare .si{background:radial-gradient(circle at 50% 58%,#ffffff 0%,#e4ebff 60%,#cfdbff 100%)}
-#popShop #shopList .sItem.tier-unique .si{background:radial-gradient(circle at 50% 58%,#fffdf5 0%,#ffeccc 60%,#ffd9a6 100%)}
 #popShop .wTags,.popC .wTags{position:absolute;top:9px;right:9px;display:flex;flex-direction:column;align-items:flex-end;gap:4px;pointer-events:none}
 .wTier,.wLv,.kTier{display:inline-block;padding:3px 7px;border-radius:6px;font:600 11px/1.25 var(--f-body);white-space:nowrap}
 .wTier.common,.kTier.common{background:#e7eef3;color:#3f5d72}
@@ -2225,6 +2206,183 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 .wStat.dmg s{background:linear-gradient(90deg,#ff9a7a,#ef5f4a)} .wStat.spd s{background:linear-gradient(90deg,#ffd66b,#f0a526)} .wStat.rng s{background:linear-gradient(90deg,#8fd0ff,#4b9fe0)}
 .wStat b{font:600 11.5px/1.2 var(--f-body);color:#2c4a60;font-variant-numeric:tabular-nums;white-space:nowrap}
 .wEnh{color:#a07a00;font-weight:600}
+/* ═══ 65차 — 나무 진열대 상점. 선생님이 보낸 참고 그림(모바일 RPG '루비 상점'): "나무 진열대 같은 디자인에 신경 쓴 느낌".
+   ★ 캐릭터 그림은 넣지 않는다. 틀 = 짙은 호두나무 두꺼운 테 + 판자 결 + 모서리 못, 안쪽 판은 한 단 더 어둡게 파인다.
+   ★ 머리 = 검은 띠 위 흰 제목 · 짙은 알약 지갑 · 황동 테 X. 탭 = 아이콘 네모(고른 것 금빛, 나머지 회색 돌) + 작은 이름.
+   ★ 카드 = 선반 한 칸: 주황 명판(이름) → 은은한 빛을 받는 물건 → 설명·능력치 → 주황 가격 단추(자원 그림 + 숫자 + 구매하기).
+   ★ 등급은 명판 테와 칸 둘레 빛으로(레어 파랑 · 유니크 금). 잠긴 칸은 어둡게 + 자물쇠 + '🔒 레벨 N부터'.
+   ★ 이 창만 짙은 바탕이라 글씨는 밝은 크림(#fff3dc 계열)으로 뒤집는다. 위 53차 규칙의 높이·스크롤·미리보기 크기는 그대로 둔다(t53 CSS 계약).
+   ★ 모든 규칙은 #popShop 안에서만 — 대장간·동물 상인·가방은 밝은 창 그대로다. */
+#popShop>.popC{
+  --wd-ink:#fff3dc;--wd-ink2:#e9d3ae;--wd-dim:#c9ad85;--wd-edge:#1f1008;
+  color:var(--wd-ink);font-family:'Noto Sans KR',var(--f-body);
+  background:
+    radial-gradient(circle,#ffe9a6 0 2px,#b98a34 2.5px 3.6px,#3a2410 4.2px,transparent 5px) left 9px top 9px/12px 12px no-repeat,
+    radial-gradient(circle,#ffe9a6 0 2px,#b98a34 2.5px 3.6px,#3a2410 4.2px,transparent 5px) right 9px top 9px/12px 12px no-repeat,
+    radial-gradient(circle,#ffe9a6 0 2px,#b98a34 2.5px 3.6px,#3a2410 4.2px,transparent 5px) left 9px bottom 9px/12px 12px no-repeat,
+    radial-gradient(circle,#ffe9a6 0 2px,#b98a34 2.5px 3.6px,#3a2410 4.2px,transparent 5px) right 9px bottom 9px/12px 12px no-repeat,
+    repeating-linear-gradient(90deg,rgba(0,0,0,.30) 0 2px,rgba(255,210,150,.07) 2px 3px,transparent 3px 132px),
+    repeating-linear-gradient(90deg,transparent 0 5px,rgba(0,0,0,.06) 5px 6px,transparent 6px 13px,rgba(255,220,170,.035) 13px 14px,transparent 14px 23px),
+    repeating-linear-gradient(0deg,transparent 0 37px,rgba(0,0,0,.05) 37px 38px),
+    linear-gradient(180deg,#6f4527 0%,#573419 38%,#452814 100%)!important;
+  border:4px solid var(--wd-edge)!important;border-radius:18px;
+  box-shadow:0 0 0 2px #9b6a3c,0 0 0 5px #2a160a,0 22px 50px rgba(0,0,0,.6),
+    inset 0 0 0 3px #8e5d33,inset 0 0 0 5px #2c170b,inset 0 2px 0 5px rgba(255,210,150,.10),inset 0 0 38px rgba(0,0,0,.5)!important}
+/* ── 머리: 검은 띠 제목 · 짙은 알약 지갑 · 황동 X ── */
+#popShop>.popC>.shopTop{background:none;border:0;border-radius:0;padding:0;box-shadow:none}
+#popShop>.popC>.shopTop .shopBrand{background:radial-gradient(circle at 40% 35%,#8a5a30,#4a2b14)!important;border:2px solid #d9a441;border-radius:12px;
+  box-shadow:inset 0 2px 0 rgba(255,230,170,.35),inset 0 -3px 0 rgba(0,0,0,.35),0 2px 0 #1f1008}
+#popShop>.popC>.shopTop .shopHeading{align-self:stretch;display:flex;flex-direction:column;justify-content:center;padding:4px 40px 4px 14px;
+  background:linear-gradient(90deg,rgba(10,5,2,.92) 0%,rgba(14,7,3,.82) 62%,rgba(14,7,3,0) 100%);border-radius:6px 0 0 6px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+#popShop>.popC>.shopTop h2{color:#fff;font-weight:700;letter-spacing:-.3px;text-shadow:0 2px 0 #000,0 0 8px rgba(0,0,0,.6)}
+#popShop>.popC>.shopTop .shopEyebrow{color:#f0c987;font-weight:700;letter-spacing:.2px}
+#popShop>.popC>.shopTop .shopWallet{background:linear-gradient(180deg,rgba(12,6,2,.78),rgba(28,14,6,.72))!important;border:1px solid #140a04;border-radius:999px;padding:5px 7px 5px 14px;
+  box-shadow:inset 0 3px 6px rgba(0,0,0,.6),0 1px 0 rgba(255,215,160,.14)}
+#popShop .shopWalletLabel{color:var(--wd-dim)}
+#popShop .shopWalletLabel strong{color:#f3dcb4;font-weight:700}
+#popShop .shopBalance{background:rgba(255,236,200,.07)!important;border:1px solid rgba(255,220,170,.16)!important;border-radius:999px;color:#fff3dc}
+#popShop .shopBalance b{font-weight:700;color:#ffe7a8}
+#popShop .shopBalanceName{color:#d9bf98}
+#popShop>.popC>.shopTop .shopClose{background:linear-gradient(180deg,#8d5c31,#5b3718)!important;border:3px solid #d9a441!important;border-radius:10px;color:#fff5de!important;
+  font-weight:700;text-shadow:0 2px 0 #2a150a;box-shadow:inset 0 2px 0 rgba(255,230,170,.35),inset 0 -3px 0 rgba(0,0,0,.35),0 0 0 2px #2a150a,0 3px 0 #1f1008!important}
+#popShop>.popC>.shopTop .shopClose:hover{background:linear-gradient(180deg,#a06a39,#6a421e)!important}
+/* ── 탭: 아이콘 네모 + 작은 이름. 고른 탭 금빛, 나머지 회색 돌 ── */
+#popShop #shopTabs{grid-template-columns:repeat(6,minmax(0,92px));justify-content:start;gap:7px}
+#popShop #shopTabs .btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:58px;padding:5px 3px 4px;
+  background:linear-gradient(180deg,#a3a19c 0%,#7f7d79 55%,#6a6865 100%)!important;border:2px solid #34322f!important;border-radius:9px;
+  color:#fbf8f2!important;font-weight:700;font-size:12px;line-height:1.2;text-shadow:0 1px 0 rgba(0,0,0,.55);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.35),inset 0 -3px 0 rgba(0,0,0,.25),0 2px 0 #1f1008!important}
+#popShop #shopTabs .btn:hover{background:linear-gradient(180deg,#b3b1ac,#8b8985 55%,#74726f)!important}
+#popShop #shopTabs .btn.on{background:linear-gradient(180deg,#fff2b0 0%,#ffd45a 45%,#f0ad2a 100%)!important;border-color:#8a5a10!important;color:#4a2a00!important;text-shadow:0 1px 0 rgba(255,255,255,.5);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.7),inset 0 -3px 0 rgba(160,90,0,.35),0 0 0 2px #ffe9a0,0 2px 0 #1f1008,0 0 12px rgba(255,200,80,.45)!important}
+#popShop #shopTabs .tabIc{display:grid;place-items:center;height:28px;font-size:22px;line-height:1}
+#popShop #shopTabs .tabIc img.ic{width:28px;height:28px;object-fit:contain;margin:0;filter:drop-shadow(0 2px 1px rgba(0,0,0,.35))}
+#popShop #shopTabs .btn:not(.on) .tabIc img.ic{filter:saturate(.75) drop-shadow(0 2px 1px rgba(0,0,0,.35))}
+#popShop #shopTabs .tabNm{display:block;max-width:100%;white-space:normal;word-break:keep-all;overflow-wrap:anywhere;text-align:center}
+/* ── 모음 이름 · 상인 말풍선(나무 판 위 양피지) ── */
+#popShop .shopCollection h3{color:#fff3dc;font-weight:700;text-shadow:0 1px 0 #1f1008}
+#popShop #shopCount{color:#e0c49a}
+#popShop>.popC>#shopNotice{position:relative;align-self:flex-start;max-width:100%;padding:6px 14px;margin-left:10px;background:linear-gradient(180deg,#fff4dc,#f3dfb8);
+  border:2px solid #4a2b14;border-radius:12px;color:#40250f;font-size:12.5px;font-weight:500;box-shadow:0 2px 0 #1f1008}
+#popShop>.popC>#shopNotice::before{content:'';position:absolute;left:-9px;top:50%;width:12px;height:12px;transform:translateY(-50%) rotate(45deg);
+  background:#f8e8c6;border-left:2px solid #4a2b14;border-bottom:2px solid #4a2b14;font-size:0}
+/* ── 안쪽 판: 한 단 파인 짙은 판자. 목록만 스크롤한다 ── */
+#popShop>.popC>#shopList{padding:10px 8px 10px 10px;border-radius:12px;border:2px solid #1f1008;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 2px,transparent 2px 118px),
+    repeating-linear-gradient(90deg,transparent 0 9px,rgba(255,215,160,.025) 9px 10px,transparent 10px 21px),
+    linear-gradient(180deg,#3a2213,#2e1a0d)!important;
+  box-shadow:inset 0 4px 12px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,210,150,.06),0 1px 0 rgba(255,215,160,.16)}
+#popShop #shopList::-webkit-scrollbar-track{background:rgba(0,0,0,.35);border-radius:8px}
+#popShop #shopList::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#b07a42,#7a4d24);border:2px solid #2e1a0d;border-radius:8px}
+/* ── 진열 칸 한 개 = 선반 한 칸 ── */
+#popShop #shopList .sItem{padding:7px 7px 8px;gap:0;
+  background:linear-gradient(180deg,#5a3720 0%,#4a2c17 50%,#3d2412 100%)!important;border:2px solid #1d0e06!important;border-radius:10px;
+  box-shadow:inset 0 2px 0 rgba(255,215,160,.16),inset 0 -2px 0 rgba(0,0,0,.35),0 3px 0 #140a04,0 5px 10px rgba(0,0,0,.35)!important;color:var(--wd-ink)}
+#popShop #shopList .sItem.own{background:linear-gradient(180deg,#4c4324 0%,#3f3419 50%,#342912 100%)!important;border-color:#1d0e06!important}
+#popShop #shopList .sItem.equipped{box-shadow:inset 0 0 0 2px #7fd08a,inset 0 2px 0 rgba(255,215,160,.16),0 3px 0 #140a04,0 5px 10px rgba(0,0,0,.35)!important}
+#popShop #shopList .sItem.tier-rare{box-shadow:0 0 0 2px #5b86ff,0 0 14px rgba(95,140,255,.45),inset 0 2px 0 rgba(255,215,160,.16),0 3px 0 #140a04!important}
+#popShop #shopList .sItem.tier-unique{box-shadow:0 0 0 2px #ffc23d,0 0 16px rgba(255,170,50,.55),inset 0 2px 0 rgba(255,215,160,.16),0 3px 0 #140a04!important}
+/* 이름 명판: 각진 주황 판, 굵은 크림 글씨 */
+#popShop #shopList .sItem>.sn{position:relative;z-index:1;flex:none;align-self:stretch;margin:0 2px -8px;padding:5px 10px 6px;text-align:center;
+  font-size:15.5px;line-height:1.3;font-weight:700;color:#fffaf0!important;letter-spacing:-.2px;
+  text-shadow:0 1px 0 #5a2808,0 -1px 0 rgba(90,40,8,.5),1px 0 0 rgba(90,40,8,.5),-1px 0 0 rgba(90,40,8,.5);
+  background:linear-gradient(180deg,#e0914a 0%,#c56e2b 48%,#a8551b 100%);border:2px solid #4f2308;border-radius:5px;
+  clip-path:polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px);
+  box-shadow:inset 0 2px 0 rgba(255,225,180,.55),inset 0 -2px 0 rgba(80,30,5,.4)}
+#popShop #shopList .sItem.tier-rare>.sn{background:linear-gradient(180deg,#e0914a 0%,#c56e2b 48%,#a8551b 100%);border-color:#3553c9;box-shadow:inset 0 0 0 2px #7fa2ff,inset 0 3px 0 rgba(255,225,180,.5)}
+#popShop #shopList .sItem.tier-unique>.sn{background:linear-gradient(180deg,#f2a33f 0%,#d9731c 48%,#b9560f 100%);border-color:#6b3a00;box-shadow:inset 0 0 0 2px #ffd65a,inset 0 3px 0 rgba(255,240,190,.6)}
+#popShop #shopList .sItem.lock>.sn{background:linear-gradient(180deg,#8a6a52,#6b4f3a 50%,#58402e);color:#f1e2cc!important}
+#popShop #shopList .sn .wEnh{color:#fff2a0}
+/* 물건 칸: 선반 안쪽 벽 + 뒤에서 받는 은은한 빛 */
+#popShop #shopList .sItem>.si{border-radius:6px;border:2px solid #1d0e06;
+  background:radial-gradient(ellipse 58% 52% at 50% 54%,rgba(255,226,160,.42) 0%,rgba(255,190,110,.16) 48%,rgba(0,0,0,0) 76%),
+    repeating-linear-gradient(90deg,transparent 0 8px,rgba(0,0,0,.08) 8px 9px,transparent 9px 17px),
+    linear-gradient(180deg,#2c190c 0%,#3e2413 55%,#4d2e18 100%);
+  box-shadow:inset 0 6px 12px rgba(0,0,0,.55),inset 0 -8px 0 -4px rgba(0,0,0,.25)}
+#popShop #shopList .sItem.tier-rare>.si{background:radial-gradient(ellipse 58% 52% at 50% 54%,rgba(150,185,255,.46) 0%,rgba(90,130,255,.16) 48%,rgba(0,0,0,0) 76%),
+    repeating-linear-gradient(90deg,transparent 0 8px,rgba(0,0,0,.08) 8px 9px,transparent 9px 17px),linear-gradient(180deg,#221a22 0%,#2f2230 55%,#3b2a2c 100%)}
+#popShop #shopList .sItem.tier-unique>.si{background:radial-gradient(ellipse 60% 54% at 50% 54%,rgba(255,215,110,.58) 0%,rgba(255,150,40,.22) 50%,rgba(0,0,0,0) 78%),
+    repeating-linear-gradient(90deg,transparent 0 8px,rgba(0,0,0,.08) 8px 9px,transparent 9px 17px),linear-gradient(180deg,#2e1a0a 0%,#43260f 55%,#553015 100%)}
+#popShop #shopList .sItem.lock>.si{background:radial-gradient(ellipse 58% 52% at 50% 54%,rgba(200,190,180,.16) 0%,rgba(0,0,0,0) 72%),linear-gradient(180deg,#221710,#2d1f15)}
+#popShop #shopList .sItem.lock .si img.ic{filter:grayscale(1) brightness(.8);opacity:.45}
+#popShop #shopList .sItem.lock .si::after{font-size:46px;filter:drop-shadow(0 3px 3px rgba(0,0,0,.6))}
+/* 상태 딱지(왼쪽 위) · 등급/Lv 딱지(오른쪽 위) */
+#popShop .shopBadge{top:14px;left:8px;background:rgba(18,9,3,.78);color:#f6e2bf;border:1px solid rgba(255,215,160,.22);font-weight:700}
+#popShop .own .shopBadge{background:#2f5a2c;color:#e6ffd9;border-color:#6fae63}
+#popShop .equipped .shopBadge{background:#3d8a3a;color:#fff;border-color:#9be38d}
+#popShop .no .shopBadge{background:#5a3a0e;color:#ffd79a;border-color:#b07a2a}
+#popShop .lock .shopBadge{background:#6b1f10;color:#ffd6c4;border-color:#c0583a}
+#popShop #shopList .wTags{top:14px;right:8px}
+#popShop .wTier,#popShop .wLv{font-weight:700;border:1px solid rgba(0,0,0,.45)}
+#popShop .wTier.common{background:#d9c6a4;color:#3a2410}
+#popShop .wTier.rare{background:#3e63e0;color:#fff}
+#popShop .wTier.unique{background:linear-gradient(180deg,#ffe07a,#ffa42a);color:#4a2200}
+#popShop .wLv{background:#16222e;color:#fff}
+#popShop .wLv.need{background:#7a2410;color:#ffe0d2;border-color:#e0785a}
+/* 선반 앞판: 설명 · 능력치 · 가격 단추 */
+#popShop #shopList .sItem>.sb{padding:8px 3px 0}
+#popShop #shopList .sd{margin:0 0 6px;font-size:13px;line-height:1.5;color:var(--wd-ink2)!important;font-weight:400}
+#popShop #shopList .sd b{color:#ffe7a8;font-weight:700}
+#popShop #shopList .sd [style*="color:"]{color:#ffb4a0!important}
+#popShop #shopList .sb>.wStats{flex-shrink:0;flex-wrap:nowrap;margin:0 0 8px;padding:5px 7px;gap:6px;background:rgba(0,0,0,.28);border:1px solid rgba(0,0,0,.35);border-radius:6px}
+#popShop .wStat{flex:1 1 0}
+#popShop .wStat u{min-width:16px;background:rgba(0,0,0,.5);box-shadow:inset 0 0 0 1px rgba(255,215,160,.12)}
+#popShop .wStat b{color:#fff0d6;font-weight:700}
+#popShop .wStat.dmg s{background:linear-gradient(90deg,#ff8a64,#ff5a3d)}
+#popShop .wStat.spd s{background:linear-gradient(90deg,#ffe07a,#ffb328)}
+#popShop .wStat.rng s{background:linear-gradient(90deg,#9ad8ff,#4fb0ff)}
+#popShop #shopList .sc:empty{display:none}
+#popShop .shopLack{color:#ffcf8a!important;font-weight:700}
+#popShop .shopLack.lvLack{color:#ffb4a0!important}
+/* 주황 가격 단추 — 자원 그림 + 숫자 + 구매하기 */
+#popShop #shopList .sItem button{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px 8px;min-height:44px;margin-top:auto;padding:6px 8px;
+  background:linear-gradient(180deg,#ffc27a 0%,#f7913a 42%,#e3721d 100%)!important;border:2px solid #7a3608!important;border-radius:9px;
+  color:#3a1600!important;font:700 15px/1.25 'Noto Sans KR',var(--f-body);text-shadow:0 1px 0 rgba(255,225,180,.55);
+  box-shadow:inset 0 2px 0 rgba(255,244,210,.75),inset 0 -3px 0 rgba(140,55,0,.35),0 3px 0 #4a1f04,0 5px 6px rgba(0,0,0,.35)!important}
+#popShop #shopList .sItem button.buy:hover{background:linear-gradient(180deg,#ffd08f 0%,#ff9f4a 42%,#ee7e26 100%)!important}
+#popShop #shopList .sItem button.buy:active{transform:translateY(2px);box-shadow:inset 0 2px 0 rgba(255,244,210,.6),0 1px 0 #4a1f04!important}
+#popShop #shopList .sItem button:disabled{cursor:default}
+#popShop #shopList .sItem.no button{background:linear-gradient(180deg,#c9a07a,#a97b52 50%,#946642)!important;border-color:#4f2a10!important;color:#2e1606!important;
+  box-shadow:inset 0 2px 0 rgba(255,235,210,.4),0 3px 0 #3a1a06!important}
+#popShop #shopList .sItem.own button{background:linear-gradient(180deg,#6c7a45,#556233 55%,#475328)!important;border-color:#1f2a0e!important;color:#f1ffd8!important;text-shadow:0 1px 0 #1f2a0e;
+  box-shadow:inset 0 2px 0 rgba(230,255,190,.3),0 3px 0 #1a220a!important}
+#popShop #shopList .sItem.lock button{background:linear-gradient(180deg,#5d5752,#47423e 55%,#3a3632)!important;border-color:#1a1714!important;color:#ffdccb!important;text-shadow:0 1px 0 #000;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.18),0 3px 0 #141210!important}
+#popShop #shopList .sItem.own button .sPrices{display:none}
+#popShop .sPrices{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center}
+#popShop .sLbl{white-space:nowrap}
+#popShop #shopList button .shopPrice{display:inline-flex;align-items:center;gap:2px;padding:2px 6px 2px 3px;background:rgba(80,30,0,.22);border-radius:999px;font-size:14px;color:inherit}
+#popShop #shopList button .shopPrice img.ic{width:20px;height:20px;filter:drop-shadow(0 1px 0 rgba(0,0,0,.3))}
+#popShop #shopList button .shopPrice b{font-weight:700}
+#popShop #shopList button .shopPrice.short{background:#7a1a0a;color:#ffd9cc;text-shadow:none}
+#popShop #shopList .sItem.lock button .shopPrice{background:rgba(0,0,0,.35);color:#e8dccf}
+/* 자원 바꾸기·산물 팔기 칸 */
+#popShop #shopList .shopExchange .si{color:#fff3dc;font-weight:700}
+#popShop #shopList .shopHint{background:rgba(255,236,200,.08)!important;border:1px solid rgba(255,215,160,.18);color:var(--wd-ink2)!important}
+#popShop #shopList .shopHint b{color:#ffe7a8!important}
+#popShop #shopList .shopTabs .btn{background:linear-gradient(180deg,#a3a19c,#7f7d79 55%,#6a6865)!important;border:2px solid #34322f!important;color:#fbf8f2!important;font-weight:700;text-shadow:0 1px 0 rgba(0,0,0,.5);box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 2px 0 #140a04!important}
+#popShop #shopList .shopTabs .btn{min-height:36px;padding:6px 8px}
+#popShop #shopList>.shopHint{padding:7px 12px}
+#popShop #shopList .shopTabs .btn.on{background:linear-gradient(180deg,#fff2b0,#ffd45a 45%,#f0ad2a)!important;border-color:#8a5a10!important;color:#4a2a00!important;text-shadow:none}
+/* ── 아래 띠 ── */
+#popShop .shopFoot{border-top:2px solid rgba(0,0,0,.35);box-shadow:0 -1px 0 rgba(255,215,160,.12)}
+#popShop .shopFoot p{color:var(--wd-dim)}
+#popShop .shopFoot .btn{background:linear-gradient(180deg,#8d5c31,#5b3718)!important;border:2px solid #d9a441!important;color:#fff5de!important;font-weight:700;text-shadow:0 1px 0 #2a150a;
+  box-shadow:inset 0 2px 0 rgba(255,230,170,.3),0 3px 0 #1f1008!important}
+#popShop :is(button,.sItem):focus-visible{outline:3px solid #ffd45a;outline-offset:2px}
+/* 좁은·짧은 화면: 탭 여섯을 한 줄로 두고(아이콘 + 작은 이름) 명판·단추를 조금 줄인다 */
+@media(max-width:480px){#popShop>.popC>.shopTop .shopWallet{border-radius:16px;padding:7px 9px}}
+/* 800×600 처럼 좁고 짧은 화면: 지갑을 제목 줄에 그대로 두어(자원 이름 글자만 숨김 — 그림과 숫자는 남는다) 첫 줄 구매 단추 자리를 번다 */
+@media(min-width:621px) and (max-width:820px) and (max-height:600px){#popShop>.popC>.shopTop{flex-wrap:nowrap}#popShop>.popC>.shopTop .shopWallet{order:0;flex:0 1 auto;flex-basis:auto}
+  #popShop .shopBalanceName{display:none}#popShop>.popC>.shopTop .shopHeading{padding-right:24px}}
+@media(max-width:600px){#popShop #shopTabs{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}#popShop #shopTabs .btn{min-height:52px;font-size:11px;padding:4px 2px}
+  #popShop #shopTabs .tabIc,#popShop #shopTabs .tabIc img.ic{height:24px}#popShop #shopTabs .tabIc img.ic{width:24px}
+  #popShop>.popC>.shopTop .shopHeading{padding-right:18px}#popShop #shopList .sItem>.sn{font-size:15px}}
+@media(max-height:600px){#popShop #shopTabs .btn{min-height:44px;flex-direction:row;gap:5px;padding:4px 6px}#popShop #shopTabs .tabIc,#popShop #shopTabs .tabIc img.ic{height:24px}#popShop #shopTabs .tabIc img.ic{width:24px}
+  #popShop #shopTabs{grid-template-columns:repeat(6,minmax(0,1fr))}
+  #popShop #shopList .sItem button{min-height:40px;padding-top:4px;padding-bottom:4px}#popShop #shopList .sb>.wStats{margin-bottom:6px;padding-top:3px;padding-bottom:3px}
+  #popShop>.popC>.shopTop .shopHeading{padding-top:2px;padding-bottom:2px}}
 #popKit .kCell{position:relative}
 #popKit .kTier{position:absolute;top:6px;right:6px;font-size:10px;padding:2px 5px}
 /* 55차 — 시작 전 꾸미기, 진행 중에는 장비만 보이는 가방. */
@@ -2619,12 +2777,12 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 <div class="pop" id="popShop"><div class="popC" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
   <header class="shopTop"><div class="shopBrand" aria-hidden="true">⚔️</div><div class="shopHeading"><p class="shopEyebrow">낮에만 여는 용사들의 무기점</p><h2 id="shopTitle">떠돌이 상인</h2></div><div class="shopWallet"><div class="shopWalletLabel"><strong id="shopTeam">우리 모둠 지갑</strong><span>친구들과 함께 쓰는 자원</span></div><div id="shopRes" aria-label="모둠이 가진 자원"></div></div><button class="btn shopClose" data-close="popShop" aria-label="상점 닫기">×</button></header>
   <nav class="shopTabs" id="shopTabs" aria-label="상점 종류">
-    <button class="btn sm on" data-tab="w" aria-pressed="true">🔫 무기</button>
-    <button class="btn sm" data-tab="a" aria-pressed="false">🛡️ 방어구</button>
-    <button class="btn sm" data-tab="b" aria-pressed="false">🔸 총알</button>
-    <button class="btn sm" data-tab="p" aria-pressed="false">🧪 물약</button>
-    <button class="btn sm" data-tab="f" aria-pressed="false">🧺 산물 팔기</button>
-    <button class="btn sm" data-tab="x" aria-pressed="false">🔄 자원 바꾸기</button>
+    <button class="btn sm on" data-tab="w" aria-pressed="true"><span class="tabIc" aria-hidden="true">🔫</span><span class="tabNm">무기</span></button>
+    <button class="btn sm" data-tab="a" aria-pressed="false"><span class="tabIc" aria-hidden="true">🛡️</span><span class="tabNm">방어구</span></button>
+    <button class="btn sm" data-tab="b" aria-pressed="false"><span class="tabIc" aria-hidden="true">🔸</span><span class="tabNm">총알</span></button>
+    <button class="btn sm" data-tab="p" aria-pressed="false"><span class="tabIc" aria-hidden="true">🧪</span><span class="tabNm">물약</span></button>
+    <button class="btn sm" data-tab="f" aria-pressed="false"><span class="tabIc" aria-hidden="true">🧺</span><span class="tabNm">산물 팔기</span></button>
+    <button class="btn sm" data-tab="x" aria-pressed="false"><span class="tabIc" aria-hidden="true">🔄</span><span class="tabNm">자원 바꾸기</span></button>
   </nav>
   <div class="shopCollection"><h3 id="shopCategory">무기</h3><span id="shopCount"></span></div>
   <p id="shopNotice">우리 모둠을 지켜 줄 장비를 골라 보세요.</p>
@@ -3494,15 +3652,35 @@ if(GFX.shadow){
 app.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-const SKY_DAY = new THREE.Color(0x8ec9ef), SKY_NIGHT = new THREE.Color(0x2e4b86);
+const SKY_NIGHT = new THREE.Color(0x2e4b86);
+const DOME_DAY = new THREE.Color(1.04, 1.04, 1.04), DOME_NIGHT = SKY_NIGHT.clone().multiplyScalar(1.40);   // 65차 — 낮엔 그림 색 그대로(×1.04), 밤은 남빛 곱
+/* 65차 — 명세값(낮 ×1.10 · 밤 ×1.06)으로는 t28 '밤이 낮의 62~88%' 가 59% 로 떨어졌다(그 검사는 해 쪽을 높은 데서 봐 8° 아래 희뿌연 띠·해 빛무리가 화면 절반).
+   새 그림은 천정·10~30° 가 옛 그림보다 짙어 밤 ×1.06 이면 밤 하늘 위쪽이 옛 밤보다 9 어둡다 → ×1.40 으로 옛 밤 하늘 밝기에 맞추고, 낮 곱·띠·빛무리를 조금 눌러 63%(옛 판 63%)로. */
 // 밤은 밝기를 거의 안 내리고 색만 달빛 톤으로 — 애들이 잘 봐야 한다
-const HEMI_DS = new THREE.Color(0xcfe8ff), HEMI_NS = new THREE.Color(0x9dc0ff);
+const HEMI_DS = new THREE.Color(0xb9d4f2), HEMI_NS = new THREE.Color(0x9dc0ff);   // 65차 — 낮 하늘빛을 조금 더 푸르게(그늘이 서늘) · 밤 그대로
 
 let LIT_K = 0.85;   // 잰 값: HEAD(Standard) 바닥 밝기 134.6·채도 0.447 / Lambert 1.0 → 131.6·0.417 / 0.85 → ≈124·0.44. 채도를 되찾고 밝기는 7% 만 양보
-const HEMI_DG = new THREE.Color(0x5a7a4a), HEMI_NG = new THREE.Color(0x46618c);
-const SUN_D   = new THREE.Color(0xffffff), SUN_N   = new THREE.Color(0xc3daff);
-scene.background = SKY_DAY.clone();
-const FOG_REF = new THREE.Fog(SKY_DAY.getHex(), 68, 152);
+const HEMI_DG = new THREE.Color(0x6b6a4e), HEMI_NG = new THREE.Color(0x46618c);   // 낮 땅 되비침: 풀초록 → 올리브 흙빛(구름·잎 밑이 초록으로 안 물든다) · 밤 그대로
+const SUN_D   = new THREE.Color(0xfff1d6), SUN_N   = new THREE.Color(0xc3daff);   // 해 ≈5200K 따뜻한 흰빛 · 달 그대로
+const HEMI_DUSK = new THREE.Color(0xe0bfb4), SUN_DUSK = new THREE.Color(0xffa566);
+const LIGHT_D = {hemi:1.15, sun:0.84, amb:0.58}, LIGHT_N = {hemi:0.61, sun:0.25, amb:0.39};
+/* 밤 hemi 는 지금 값. 밤 sun 0.17 → 0.25: 달(28.6°)이 지금 밤 빛(41.5°)보다 낮아 땅에 닿는 몫이 sin 비 0.72 배 → 0.17/0.72 ≈ 0.24,
+   M1 의 차분해진 풀색 몫 +0.01. 밤 amb 0.36 → 0.39 · 낮 amb 0.55 → 0.58 은 M1·M2 가 풀·잎·바위를 차분하게 만든 몫(시제품 합친 사진 아래 절반: 이게 없으면 11 −5 · 12 −4.4) */
+const SUN_PATH = {azDay:0.74, elDay:0.70, azDusk:1.30, elDusk:0.35, moonAz:-0.30, moonEl:0.50};
+/* 65차 — 낮 해: 남동(+x,+z) 방위 0.74(지금 그림자 방위 0.73 과 같다) 고도 40°(지금 44°) → 그림자 1.2배.
+   노을(skyK 0.5): 방위 1.30(거의 +z) 고도 20° → 산마루(10~20°) **위에 해가 보인다**(사진 20 — 세 설계 모두 0~11.5° 로 숨겼던 것을 심사가 되살림).
+   밤: 달이 동북동(방위 −0.30) 28.6° — 사진 12(동쪽을 본다) 위쪽에 뜬다. 해는 밤이 깊어지며 −17° 로 진다. */
+scene.background = new THREE.Color(0xc4dcf0);
+const FOG_REF = new THREE.Fog(0x8eb1d5, 36, 190);
+const FOG_D = {near:36, far:190}, FOG_N = {near:44, far:130};
+let fogNear0 = FOG_D.near, fogFar0 = FOG_D.far;
+/* 65차 — 안개 시작·끝을 '그리는 카메라 높이' 만큼 민다. 하늘 섬(GY+78)·지도처럼 높이 떠서 내려다보면 땅까지 80칸이 넘어도 뿌옇지 않다
+   (시제품: 이게 없으면 사진 01·07 이 통째로 흐리다). updSky 가 아니라 여기서 하는 까닭 — 그리기 직전의 실제 카메라를 본다
+   (사진 도구는 updSky 를 부른 뒤에 카메라를 옮긴다). 하늘 돔도 같은 까닭으로 여기서 카메라에 붙인다(updSky 의 옛 줄은 그대로 둬도 된다 —
+   시제품: 높은 사진 바로 다음 눈높이 사진은 돔 중심이 70칸 위에 남아 하늘이 통째로 희었다). 3702줄 패스는 scene.fog 를 잠깐 null 로 둔다 → 건너뛴다. */
+scene.onBeforeRender = (r, sc, cam)=>{ if(!sc.fog) return; skyDome.position.copy(cam.position);
+  const hC = Math.max(0, cam.position.y - GY - 8); sc.fog.near = fogNear0 + hC; sc.fog.far = fogFar0 + hC*1.3; };
+
 scene.fog = FOG_REF;
 
 /* ═══ 하늘 돔 (25차) ═══ */
@@ -3518,8 +3696,10 @@ const SKY_W = 64, SKY_H = 128;
 const skyPx = new Uint8Array(SKY_W*SKY_H*4);
 let skyPaintD = -1, skyPaintT = -1, skyPaintU = -1, skyRepaintT = 0;
 function skyU(gx, gz){ const u = Math.atan2(gz, -gx)/(Math.PI*2); return u - Math.floor(u); }   // 세계 방향 → 돔 그림의 가로 자리
-const SKY_STOPS = [[0.00,0x2f,0x63,0xa8],[0.45,0x82,0xb6,0xe6],[0.72,0xcf,0xe3,0xf4],[1.00,0xe8,0xee,0xf2]];   // 천정 → 지평선 → 아래
+const SKY_STOPS = [[0.00,0x20,0x43,0x9d],[0.22,0x2c,0x5d,0xc0],[0.34,0x3c,0x74,0xd4],[0.41,0x52,0x8c,0xe7],[0.46,0x74,0xaa,0xf2],[0.50,0xbe,0xda,0xf4],[1.00,0xa0,0xb8,0xcc]];   // 65차 — 천정 깊은 파랑 → 10° 까지 파랑 → 8° 아래 희뿌연 띠(설계 A '크림 띠') → 지평선 따뜻한 회백
+const skyHazeRow = new THREE.Color(0.125, 0.325, 0.84);   // 65차
 function paintSky(dusk, threat, threatU){
+  let hzR = 0, hzG = 0, hzB = 0, hzN = 0; const s2l = v=>{ v /= 255; return v <= 0.04045 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); };
   for(let r=0;r<SKY_H;r++){
     const cy = SKY_H-1-r, t = cy/(SKY_H-1);                       // DataTexture 는 0줄이 아래(uv.y 0) — cy 는 '위에서부터'
     let k = 1; while(k < SKY_STOPS.length-1 && SKY_STOPS[k][0] < t) k++;
@@ -3537,6 +3717,7 @@ function paintSky(dusk, threat, threatU){
     for(let x=0;x<SKY_W;x++){
       let cr = br, cg = bg, cb = bb;
       if(da > 0){ cr += (dr-cr)*da; cg += (dg-cg)*da; cb += (db-cb)*da; }
+      if(cy >= 50 && cy <= 58){ hzR += s2l(cr); hzG += s2l(cg); hzB += s2l(cb); hzN++; }
       if(tv > 0){
         let du = (x+0.5)/SKY_W - threatU; du -= Math.round(du);
         const ha = Math.exp(-(du/0.11)*(du/0.11)) * tv * threat;
@@ -3545,6 +3726,7 @@ function paintSky(dusk, threat, threatU){
       const i = (r*SKY_W + x)*4; skyPx[i] = cr; skyPx[i+1] = cg; skyPx[i+2] = cb; skyPx[i+3] = 255;
     }
   }
+  skyHazeRow.setRGB(hzR/hzN, hzG/hzN, hzB/hzN);
   skyPaintD = dusk; skyPaintT = threat; skyPaintU = threatU;
   skyTex.needsUpdate = true;
 }
@@ -3556,6 +3738,25 @@ const skyDome = (()=>{
     new THREE.MeshBasicMaterial({map:skyTex, side:THREE.BackSide, fog:false, depthWrite:false}));
   m.renderOrder = -1000; m.frustumCulled = false; scene.add(m); return m;
 })();
+const SKY_U = { uSunSky:{value:new THREE.Vector3(0.57, 0.64, 0.51)}, uMoonDir:{value:new THREE.Vector3(0.84, -0.2, -0.25)},
+  uSunGlow:{value:new THREE.Color(0xfff0d0)}, uMoonGlow:{value:new THREE.Color(0x000000)}, uBelt:{value:new THREE.Color(0xd696b2)}, uBeltK:{value:0} };
+skyDome.material.dithering = true;                    // 64×128 그라데이션 띠 끊기(값 0)
+skyDome.material.onBeforeCompile = (sh)=>{ Object.assign(sh.uniforms, SKY_U);
+  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vSkyD;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\nvSkyD = position;');          // 돔은 카메라를 따라다니되 돌지 않는다 → 방향 그대로
+  sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vSkyD; uniform vec3 uSunSky; uniform vec3 uMoonDir; uniform vec3 uSunGlow; uniform vec3 uMoonGlow; uniform vec3 uBelt; uniform float uBeltK;')
+    .replace('#include <color_fragment>', '#include <color_fragment>\n' + SKY_GLSL);
+  if(!sh.fragmentShader.includes('65차 하늘')) console.error('65차 — 하늘 셰이더 치환 실패'); };
+skyDome.material.customProgramCacheKey = ()=> 'sky65';
+skyDome.material.needsUpdate = true;
+const SKY_GLSL = `// 65차 하늘 — 해 빛무리·해 둘레 눈부심 · 노을 때 해 반대편 분홍보라 띠(비너스 띠) · 달무리
+{ vec3 sd = normalize(vSkyD);
+  float mu = max(dot(sd, uSunSky), 0.0);
+  diffuseColor.rgb += uSunGlow * (pow(mu, 16.0) * 0.06 + pow(mu, 48.0) * 0.30 + pow(mu, 600.0) * 1.2);
+  vec2 ah = normalize(vec2(-uSunSky.x, -uSunSky.z) + 1e-5), shz = normalize(sd.xz + 1e-5);
+  float belt = pow(max(dot(ah, shz), 0.0), 3.0) * smoothstep(0.02, 0.10, sd.y) * (1.0 - smoothstep(0.20, 0.38, sd.y));
+  diffuseColor.rgb = mix(diffuseColor.rgb, uBelt, belt * uBeltK);
+  diffuseColor.rgb += uMoonGlow * pow(max(dot(sd, uMoonDir), 0.0), 48.0); }`;
 /* 노을 — 낮과 밤 사이에만 지나간다. skyK 0.5 에서 제일 붉고 양 끝에서 사라진다.
    하루가 통째로 붉으면 이상하고, 없으면 밤이 그냥 '색이 바뀐 낮' 이 된다. */
 const SKY_DUSK = new THREE.Color(0xff9a5c);
@@ -3610,9 +3811,9 @@ heldLight.position.set(0.55, 0.15, -0.25);
        1.06   100.8   53.5   53.1
 
      밝기를 25차 전과 맞추는 쪽을 골랐다. 어두우면 아이가 좀비를 못 본다. */
-const hemi = new THREE.HemisphereLight(0xdfe6ec, 0x5a7a4a, 0.95); scene.add(hemi);   // 48차b — 로블록스 OutdoorAmbient 는 **중성 회색(127,127,127)** 이다. 파란 하늘빛(0xcfe8ff)을 그만큼 올리면 풀색이 바랜다 → 색을 중성으로 낮추고 세기는 0.95
-const sun  = new THREE.DirectionalLight(0xffffff, 1.15); sun.position.set(50,90,30); scene.add(sun);
-const amb  = new THREE.AmbientLight(0xffffff, 0.30); scene.add(amb);
+const hemi = new THREE.HemisphereLight(0xb9d4f2, 0x6b6a4e, 1.15*LIT_K); scene.add(hemi);   // 65차 — 첫 프레임부터 updSky 와 같은 빛
+const sun  = new THREE.DirectionalLight(0xfff1d6, 0.84*LIT_K); sun.position.set(57, 64, 51); scene.add(sun);
+const amb  = new THREE.AmbientLight(0xffffff, 0.58*LIT_K); scene.add(amb);
 
 /* ═══ 해 그림자 (25차) ═══ */
 const SH_R = 52;                          // 그림자가 덮는 반지름(칸) — 64차 46→52, 마당(46)이 넓어진 만큼
@@ -3625,6 +3826,7 @@ if(GFX.shadow){
   sc.near = 1; sc.far = 260;
   sun.shadow.bias = -0.0012;              // 제 몸에 제 그림자가 얼룩지는 것(그림자 여드름) 막기
   sun.shadow.normalBias = 0.035;
+  sun.shadow.radius = 1.5;
   sc.updateProjectionMatrix();
 }
 const _sunDir = new THREE.Vector3();
@@ -4026,18 +4228,17 @@ function buildSky(){
     g.add(m);
     const halo = new THREE.Mesh(new THREE.CircleGeometry(size*0.5*1.55, 28),
       new THREE.MeshBasicMaterial({color:em, fog:false, transparent:true, opacity:.22, depthWrite:false}));
-    halo.position.z = -0.6; g.add(halo);
+    halo.position.z = -0.6; g.add(halo); halo.visible = false;
     return g;
   };
-  sunDisc  = mk(26, 0xfff3b0, 0xffd257); sunDisc.position.set(0, 0, -195);
-  moonDisc = mk(20, 0xe8f0ff, 0x9fc0ff); moonDisc.position.set(0, 0,  195);
-  moonDisc.rotation.y = Math.PI;
+  sunDisc  = mk(20, 0xffffff, 0xffd257); sunDisc.position.set(0, 0, -195); sunDisc.children[0].material.color.setRGB(2.6, 2.45, 2.1);
+  moonDisc = mk(17, 0xffffff, 0x9fc0ff); moonDisc.position.set(0, 0,  195); moonDisc.children[0].material.color.setRGB(1.25, 1.30, 1.45);
   skyPivot.add(sunDisc); skyPivot.add(moonDisc);
   // 달 표면 얼룩
   for(const [dx,dy,sz] of [[-4,3,4],[3,-2,5],[5,4,3]]){
     const c = new THREE.Mesh(new THREE.CircleGeometry(sz*0.5, 16),
       new THREE.MeshBasicMaterial({color:0xc9d6ee, fog:false}));
-    c.position.set(dx,dy,0.5); moonDisc.add(c);     // 달은 π 돌아 있어 로컬 +z 가 카메라 쪽이다
+    c.position.set(dx,dy,0.5); moonDisc.add(c);     // 65차 — updSky 가 달을 lookAt 으로 카메라 쪽에 돌린다 → 로컬 +z 가 카메라 쪽
   }
 
   const mkStars = (N, band, size)=>{
@@ -4073,71 +4274,222 @@ function buildSky(){
 
 /* ═══════════════════════ 지형 메시 ═══════════════════════ */
 /* ═══ 지형 (로블록스 룩 4단계) ═══ */
-const GRASS_A = 0x67c14a, GRASS_B = 0x57ad3d, GRASS_C = 0x82d05c;
+/* 65차 — 풀 다섯 색(전부 g > r: t34 '길 밖은 풀색'). 바탕 · 물기(짙은 청록) · 볕(누런 연두) + 마른 풀 · 산자락.
+   바탕 0x6ebf4d 는 지금 0x67c14a 보다 초록 채도만 조금 낮다(형광기 빼기). 물기 색은 한 단계만 짙게 — 시제품: 0x559b41·0.75 로는 마당 절반이 짙어져 밤 사진 12 가 −5.5 였다. */
+const GRASS_A = 0x6ebf4d, GRASS_B = 0x62ad4a, GRASS_C = 0x8cc257;
+const GRASS_DRY = 0xa3ab5a, GRASS_FOOT = 0x76a64b;
+/* 65차 — 물기 지도 하나를 땅색(M1-3)과 수풀 뭉치 자리(M1-8)가 같이 본다(식생이 물을 따른다 — 설계 B).
+   75칸 파장이라 마당 한쪽은 촉촉하고 반대쪽은 마른다. 연못 둘레 16칸은 늘 촉촉하다. */
+const moistAt = (x,z)=> Math.max(0.5 + 0.5*Math.sin(x*0.085 + 1.3)*Math.cos(z*0.075 - 0.6),
+                                 0.95 - Math.max(0, Math.hypot(x - POND.x, z - POND.z) - POND.r)/16);
+function grGrainGB(tex){                              // 65차 — R 은 그대로, G·B 에만 무늬 (h65/gb.js 와 같다)
+  const cv = tex.image, N = cv.width, g2d = cv.getContext('2d'), img = g2d.getImageData(0, 0, N, N), d = img.data;
+  const vn = (x,y,f,sd)=>{ const gx = x*f/N, gy = y*f/N, x0 = Math.floor(gx), y0 = Math.floor(gy), tx = gx-x0, ty = gy-y0,
+      sx = tx*tx*(3-2*tx), sy = ty*ty*(3-2*ty), wr = v=>((v%f)+f)%f, v = (i,j)=>rnd(sd + wr(i)*12.9898 + wr(j)*78.233);
+    return (v(x0,y0)*(1-sx) + v(x0+1,y0)*sx)*(1-sy) + (v(x0,y0+1)*(1-sx) + v(x0+1,y0+1)*sx)*sy; };
+  const chG = new Float32Array(N*N), chB = new Float32Array(N*N);
+  for(let y=0;y<N;y++) for(let x=0;x<N;x++){ const j = y*N + x;
+    chG[j] = vn(x,y,64,21)*0.6 + vn(x,y,32,22)*0.4;                  // 풀끝 반점(잘다)
+    chB[j] = vn(x,y,4,23)*0.65 + vn(x,y,8,24)*0.35; }               // 큰 얼룩(타일 하나에 네댓 덩이)
+  const put = (A, ch)=>{ let lo = 1e9, hi = -1e9; for(const v of A){ if(v < lo) lo = v; if(v > hi) hi = v; }
+    for(let j=0;j<N*N;j++) d[j*4+ch] = Math.round((A[j]-lo)/Math.max(1e-6, hi-lo)*255); };
+  put(chG, 1); put(chB, 2); for(let j=0;j<N*N;j++) d[j*4+3] = 255;
+  g2d.putImageData(img, 0, 0); tex.needsUpdate = true;
+}
+function grGroundShader(mat){                       // 65차 — addGrain 결 블록 안에 이어 붙인다(addGrain 은 안 고친다)
+  const base = mat.onBeforeCompile;
+  const U = { uDirtA:{value:new THREE.Color(0xb08a5c)}, uDirtB:{value:new THREE.Color(0x8f7049)}, uPebble:{value:new THREE.Color(0xb3ab9b)},
+    uBankWet:{value:new THREE.Color(0.68, 0.70, 0.74)},                                   // 젖으면 어둡고 조금 푸르게 (선형 배율) · 0.58 은 진흙 위에서 연못 둘레가 그을린 검은 테로 읽혔다(사진 04·13)
+    uTime:{get value(){ return (performance.now()*0.001) % 1200; }},
+    uCloudK:{get value(){ return 0.10*(1 - skyK); }} };                                   // 구름 그림자 세기 — 밤엔 0 (설계 A)
+  mat.onBeforeCompile = (sh, r)=>{ base(sh, r); Object.assign(sh.uniforms, U);
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute vec3 aGBase; attribute vec4 aGMask; varying vec3 vGBase; varying vec4 vGMask;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvGBase = aGBase; vGMask = aGMask;');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying vec3 vGBase; varying vec4 vGMask; uniform vec3 uDirtA; uniform vec3 uDirtB; uniform vec3 uPebble; uniform vec3 uBankWet; uniform float uTime; uniform float uCloudK;')
+      .replace('* uGrainAmt; }', '* uGrainAmt;\n' + GR_GROUND_GLSL + '\n}');
+    if(!sh.fragmentShader.includes('65차 땅')) console.error('65차 — 바닥 셰이더 치환 실패');
+  };
+  mat.customProgramCacheKey = ()=> 'grain65-ground';
+  return mat;
+}
+const GR_GROUND_GLSL = `// 65차 땅 — 풀밭·흙길·물가를 픽셀에서 짓는다 (이 블록 안에서 wn·guv·gg·vWp 가 보인다)
+vec4 gt = texture2D(tGrain, guv * uGrainScale);                      // r 풀결(=gg) · g 풀끝 반점 · b 큰 얼룩 (M1-2)
+vec4 gm = texture2D(tGrain, vWp.xz * 0.043 + vec2(0.37, 0.11));      // 23칸 큰 얼룩
+float gdist = length(vViewPosition);
+vec3 gr = vGBase;
+float dry = smoothstep(0.55, 0.80, gm.b + (gt.b - 0.5) * 0.35) * (1.0 - vGMask.y);
+gr = mix(gr, gr * vec3(1.18, 1.06, 0.74), dry * 0.55);               // 마른 풀 무리 (물가엔 없다)
+gr *= 0.90 + 0.20 * gm.r;                                            // 몇 칸짜리 밝기 물결
+gr *= 1.0 + (gt.r - 0.5) * uGrainAmt * 2.1;                          // 풀결 0.16 → 0.34 ('결 끔' 진단이 0 으로 만든다)
+float tip = smoothstep(0.66, 0.86, gt.g) * (1.0 - smoothstep(12.0, 30.0, gdist));
+gr = mix(gr, gr * vec3(1.14, 1.16, 0.88), tip * 0.5);                // 볕 받은 풀끝 — 가까이만 (멀면 잡음)
+float bare = smoothstep(0.80, 0.95, (1.0 - gm.b) * 0.55 + gt.g * 0.45 + vGMask.w * 0.25) * 0.5;
+gr = mix(gr, uDirtB * (0.9 + 0.2 * gt.r), bare);                     // 흙이 비치는 데 — 절벽 발치에 더
+float rwv = vGMask.x + (gt.r - 0.5) * 0.42 + (gt.b - 0.5) * 0.22;
+float road = smoothstep(0.44, 0.56, rwv);                            // 1칸 보간의 뿌연 띠를 결로 문턱 잘라 또렷·들쭉날쭉한 가장자리
+vec3 dirt = mix(uDirtA, uDirtB, smoothstep(0.3, 0.7, gt.b) * 0.6) * (0.88 + 0.24 * gt.r);
+dirt = mix(dirt, uPebble * (0.8 + 0.4 * gt.r), step(0.83, gt.g) * 0.7);   // 자갈 알갱이
+dirt *= 1.0 + smoothstep(0.85, 1.0, vGMask.x) * 0.06;                // 한가운데는 밟혀 밝다
+float edge = road * (1.0 - road) * 4.0;
+vec3 gc3 = mix(gr, dirt, road) * (1.0 - edge * 0.16);                // 가장자리 다져진 어두운 테
+float wetk = vGMask.y * smoothstep(0.2, 0.6, vGMask.y + (gt.r - 0.5) * 0.3);
+gc3 = mix(gc3, gc3 * uBankWet, wetk);                                // 물가 젖은 흙·풀
+float wat = smoothstep(0.35, 0.65, vGMask.z + (gt.r - 0.5) * 0.3);
+gc3 = mix(gc3, diffuseColor.rgb, wat);                               // 연못 바닥·개울 — 꼭짓점 색 그대로
+float cs = texture2D(tGrain, vWp.xz * 0.012 - vec2(uTime * 0.0066, uTime * 0.0012)).b;
+gc3 *= 1.0 - uCloudK * smoothstep(0.55, 0.75, cs);                   // 흘러가는 구름 그림자 (밤엔 uCloudK 0)
+diffuseColor.rgb = gc3;`;
+const GR_POND_COLOR = `// 65차 연못 — 가운데 깊고 가장자리 얕은 몸빛
+float pr0 = length(vPw.xz - uPond.xy);
+diffuseColor.rgb = mix(uDeep, uShal, clamp(pr0 / uPond.z, 0.0, 1.0) * clamp(pr0 / uPond.z, 0.0, 1.0));`;
+const GR_POND_OUT = `// 65차 연못 — 프레넬 하늘·둘레 산 띠 비침 · 해(밤엔 달) 반짝 · 동그라미 물결 셋 · 물가에서 녹아든다
+{ vec2 p = vPw.xz; float t = uTime; const float e = 0.0156;                // 두 텍셀 — 결 그림이 부드러운 풀결(R)이라 잔물결이 지글거리지 않는다
+  vec2 u1 = p * 0.30 + vec2(t * 0.020, t * 0.012), u2 = p * 0.75 + vec2(-t * 0.030, t * 0.026);
+  float h1 = texture2D(tWave, u1).r, h2 = texture2D(tWave, u2).r;
+  vec2 g = vec2(texture2D(tWave, u1 + vec2(e, 0.0)).r - h1, texture2D(tWave, u1 + vec2(0.0, e)).r - h1) * 0.30
+         + vec2(texture2D(tWave, u2 + vec2(e, 0.0)).r - h2, texture2D(tWave, u2 + vec2(0.0, e)).r - h2) * 0.75;
+  for(int i = 0; i < 3; i++){
+    float fi = float(i);
+    vec2 cc = uPond.xy + vec2(cos(fi * 2.1 + 0.6), sin(fi * 2.1 + 0.6)) * 1.5;
+    float ph = fract(t * 0.30 + fi * 0.33);
+    vec2 dv = p - cc; float dd = length(dv) + 1e-4;
+    g += dv / dd * exp(-pow((dd - ph * 3.2) * 5.0, 2.0)) * (1.0 - ph) * 0.06; }
+  vec3 n = normalize(vec3(-g.x * 3.0, 1.0, -g.y * 3.0));
+  vec3 V = normalize(cameraPosition - vPw);
+  float fres = 0.04 + 0.96 * pow(1.0 - max(dot(n, V), 0.0), 5.0);
+  vec3 R = reflect(-V, n);
+  float ry = max(R.y, 0.0);
+  vec3 sky = mix(uSky, uSky * vec3(0.55, 0.72, 1.05), sqrt(ry));
+  sky = mix(uRidge, sky, smoothstep(0.10, 0.34, ry));                   // 둘레 산·숲이 비치는 어두운 띠 — 평면 반사 없이
+  vec3 gl = vec3(0.0);
+#if NUM_DIR_LIGHTS > 0
+  vec3 Lw = normalize((vec4(directionalLights[0].direction, 0.0) * viewMatrix).xyz);   // 뷰 → 세계
+  gl = directionalLights[0].color * pow(max(dot(R, Lw), 0.0), 220.0) * 2.4;
+#endif
+  float pr = length(p - uPond.xy);
+  float shore = smoothstep(uPond.z - 0.55, uPond.z - 0.12, pr);
+  vec3 col = mix(outgoingLight, sky, fres) + gl;
+  col += vec3(0.06, 0.08, 0.06) * shore * (0.6 + 0.4 * h2);            // 얕은 물가 밝음
+  outgoingLight = col;
+  diffuseColor.a = mix(0.58, 0.92, fres) * (1.0 - smoothstep(uPond.z - 0.30, uPond.z - 0.02, pr) * 0.75)
+                 * (1.0 - smoothstep(uPond.z - 0.02, uPond.z + 0.22, pr));   // 물가 밖(원판이 1칸 격자 바닥 사이로 비치는 곳)은 0 — 하늘빛 얇은 막이 테로 뜨던 것
+}`;
 /* 64차 — 산 색을 푸른 회색에서 따뜻한 회록(spec 5절 값 그대로)으로. 선생님: "산이 회색 레고 절벽이다."
    심사 2차: 1차 값(회갈색 0x8d8b82…)도 사진 20 에서 여전히 '회색 레고 담' 으로 읽혀 명세 hex 를 글자 그대로 넣었다 —
    바위 몸통은 초록기가 도는 회록 셋(밝기 단계는 그대로라 그늘 셋(tone)이 그대로 읽힌다), 뚜껑은 누런 돌.
    MT_GRASS·MT_SNOW 는 t32 가 뚜껑 색 0x6bc24a·0xffffff 를 cc.get 으로 세므로 안 바꾼다.
    MT_DIRT 는 검사가 안 센다(t32 를 grep 해 확인) — 주황빛 흙 0x9a6f46 이 회록 바위 옆에서 튀어 채도를 내렸다(0x8c7a5e). */
-const MT_ROCK = [0x8e9187, 0x9ea394, 0xaab09e], MT_ROCKTOP = 0xb9bca8;
-const MT_DIRT = 0x8c7a5e, MT_SNOW = 0xffffff, MT_MOSS = 0x86c25e, MT_GRASS = 0x6bc24a;
-const MT_CRACK = 0x6f6e64;                        // 절벽 마을 쪽 면의 어두운 틈(mtK) — 바위와 같은 온도(spec 5절)
+const MT_ROCK = [0x7f7c70, 0x949080, 0xa9a591], MT_ROCKTOP = 0xb3ae9a;   // 65차 — 밝은 회록 → 조금 어둡고 따뜻한 회갈(시제품: 옛 밝기로는 안개 속에서 지층이 안 읽힌다)
+const MT_DIRT = 0x7f6c52, MT_SNOW = 0xffffff, MT_MOSS = 0x86c25e, MT_GRASS = 0x6bc24a;   // ★ MT_GRASS·MT_SNOW·MT_MOSS 그대로(t32 가 센다 · 셰이더가 알아보는 색)
+const MT_CRACK = 0x5a564a;
+/* 65차 — 산 뚜껑의 '보이는 색' 은 셰이더(M2-7)가 인스턴스 색의 g/r 로 알아보고 바꾼다: MT_GRASS(g/r 3.7) → 들판 풀색 GRASS_A,
+   MT_MOSS(2.3) → 이끼 풀색, MT_ROCKTOP(1.0)·MT_SNOW 는 그대로. 이 세 hex 를 바꾸면 M2-7 의 문턱(1.4~1.8 · 2.6~3.2 · 흰 0.8)을 같이 본다. */
 /* 63차 — 수정 단상 색 셋(PLAT_C·PLAT_TOP·GOLD_C)은 단상과 함께 지웠다. 쓰는 곳이 없다. */
 function buildWorldMesh(){
   /* ── 바닥 — 꼭짓점 색 잔디 ── */
   const SEG = FIELD_R*2;                             // 33차 — 1칸 격자. 흙길·개울을 칠하려면 이 촘촘함이 필요하다(반칸이면 길이 톱니였다) · 64차 — 세상 끝에 맞춰 따라간다
   const gg = new THREE.PlaneGeometry(FIELD_R*2, FIELD_R*2, SEG, SEG); gg.rotateX(-Math.PI/2);
   const P = gg.attributes.position, cols = new Float32Array(P.count*3);
+  const gBase = new Float32Array(P.count*3), gMask = new Float32Array(P.count*4);   // 65차 — 셰이더(M1-4)가 읽는 '풀만의 색' 과 마스크 넷
   const cA = new THREE.Color(GRASS_A), cB = new THREE.Color(GRASS_B), cC = new THREE.Color(GRASS_C), c = new THREE.Color();
-  const cD1 = new THREE.Color(0xb5905f), cD2 = new THREE.Color(0x9f7c4e),           // 흙길 두 흙색
-        cWs = new THREE.Color(0x4f9fe0), cBank = new THREE.Color(0x8d7454), cBed = new THREE.Color(0x6e5f45);   // 개울물 · 물가 · 연못 바닥
+  const cDry = new THREE.Color(GRASS_DRY), cFoot = new THREE.Color(GRASS_FOOT), cMud = new THREE.Color(0x6f5a3e), gb = new THREE.Color();
+  const cD1 = new THREE.Color(0xb08a5c), cD2 = new THREE.Color(0x9c7a50),             // 흙길 두 흙색 (r > g — t34 '길 위 흙')
+        cWs = new THREE.Color(0x4a8fd0), cWs2 = new THREE.Color(0x74bfe8),             // 개울 깊은 물 · 거품 줄 (둘 다 b 가 제일 크다 — t34)
+        cBed = new THREE.Color(0x4a4636), cBed2 = new THREE.Color(0x7a6a4c);           // 연못 바닥: 가운데 어두운 뻘(깊어 보인다) → 가장자리
   for(let i=0;i<P.count;i++){
     let x = P.getX(i), z = P.getZ(i); const r = Math.hypot(x,z);
-    if(r > FIELD_R){ x *= FIELD_R/r; z *= FIELD_R/r; P.setX(i,x); P.setZ(i,z); }   // 네모 격자를 원으로 오린다
-    const k = 0.5 + 0.5*Math.sin(x*0.13+0.7)*Math.cos(z*0.11-0.3) + 0.3*Math.sin((x-z)*0.21+1.1);
+    if(r > FIELD_R){ x *= FIELD_R/r; z *= FIELD_R/r; P.setX(i,x); P.setZ(i,z); }   // 네모 격자를 원으로 오린다 (그대로)
+    /* ① 풀 — 세 층: 물기(75칸) · 얼룩(6~10칸) · 잔 밝기(설계 A) */
+    const mo = moistAt(x, z);
+    const k2 = 0.5*Math.sin((x - z)*0.21 + 1.1) + 0.35*Math.sin((x + z*0.6)*0.37 + 2.4);
+    const k3 = (rnd(x*1.7 + z*3.1) - 0.5)*0.08;
     c.copy(cA);
-    if(k < 0.35) c.lerp(cB, Math.min(1,(0.35-k)/0.35)*0.9);
-    else if(k > 0.95) c.lerp(cC, Math.min(1,(k-0.95)/0.4));
-    /* ── 33차 세계 마무리 — 흙길(성문 → 수정) · 연못(오목) · 개울 ── */
+    if(mo > 0.62) c.lerp(cB, Math.min(1, (mo - 0.62)/0.30)*0.60);                          // 촉촉한 쪽 — 짙은 청록
+    if(k2 > 0.45) c.lerp(cC, Math.min(1, (k2 - 0.45)/0.40)*0.55);                          // 볕 받은 얼룩
+    if(mo < 0.32 && k2 > 0) c.lerp(cDry, Math.min(1, (0.32 - mo)*3.5)*Math.min(1, k2*2)*0.6);   // 마른 풀은 마른 쪽 얼룩 마루에만 → 띠로 읽힌다
+    const od = oct(x, z);
+    if(od > 38) c.lerp(cFoot, Math.min(1, (od - 38)/7)*0.45);                              // 산자락 풀
+    /* ② 절벽 밑동 그늘 — 둘레 2칸 안에 GY+1 보다 높은 칸이 있으면 가까울수록 16% 까지.
+         oct 문턱이 아니라 실제 지형을 보니 협곡 바닥 한가운데(아이가 짓는 곳)는 안 어두워지고 협곡 벽 밑은 어두워진다 */
+    let near = 9;
+    for(let dz=-2; dz<=1; dz++) for(let dx=-2; dx<=1; dx++){
+      const tx = Math.floor(x) + dx, tz = Math.floor(z) + dz;
+      if(terrAt(tx, tz) > GY + 1) near = Math.min(near, Math.hypot(tx + 0.5 - x, tz + 0.5 - z)); }
+    const ao = near < 2.2 ? 1 - Math.max(0, near - 0.5)/1.7 : 0;
+    c.multiplyScalar((1 - ao*0.16)*(1 + k3));
+    gb.copy(c);                                                                             // ← '풀만' 의 색
+    /* ③ 흙길 — 꼭짓점 색은 지금처럼 번지게 둔다(t34 가 이 색을 센다). 또렷한 가장자리는 셰이더(M1-4)가 픽셀에서 낸다 */
     const pd = pathDist(x, z);
     if(pd < 2.1) c.lerp(rnd(x*1.7+z*3.1) < 0.5 ? cD1 : cD2, pd < 1.3 ? 1 : 1 - (pd-1.3)/0.8);
+    /* ④ 연못 사발 · 물가 진흙 · 개울 — 높이 식은 그대로 */
     const pr = Math.hypot(x-POND.x, z-POND.z);
     let dy = 0;
-    if(pr < POND.r + 1.2){
-      if(pr < POND.r){ c.copy(cBed).lerp(cBank, pr/POND.r); dy = -0.42*(1 - (pr/POND.r)*(pr/POND.r)); }   // 사발 모양 바닥
-      else c.lerp(cBank, 1 - (pr-POND.r)/1.2);
-    }
+    if(pr < POND.r){ c.copy(cBed).lerp(cBed2, (pr/POND.r)*(pr/POND.r)); dy = -0.42*(1 - (pr/POND.r)*(pr/POND.r)); }
+    else if(pr < POND.r + 0.7) c.lerp(cMud, 1 - (pr - POND.r)/0.7);
     const sd = streamDist(x, z);
-    if(sd < 1.5 && pr >= POND.r){
-      if(sd < 0.75){ c.copy(cWs); dy = Math.min(dy, -0.14); }   // 개울물 — 살짝 파인 고랑에 칠한다
-      else c.lerp(cBank, 1 - (sd-0.75)/0.75);
+    if(sd < 1.25 && pr >= POND.r){
+      if(sd < 0.75){ const sp = (x-POND.x)*STREAM_U[0] + (z-POND.z)*STREAM_U[1];
+        c.copy(cWs).lerp(cWs2, Math.max(0, Math.sin(sp*2.7 + x*0.4))*0.6); dy = Math.min(dy, -0.14); }   // 흐르는 쪽으로 거품 줄
+      else c.lerp(cMud, 1 - (sd - 0.75)/0.5);
     }
     if(dy) P.setY(i, dy);
     cols[i*3]=c.r; cols[i*3+1]=c.g; cols[i*3+2]=c.b;
+    /* ⑤ 셰이더용 — 풀색(물가 진흙 포함) · 마스크 x 흙길 무게 · y 젖음 · z 물 밑 · w 절벽 발치 */
+    if(pr < POND.r + 0.7) gb.lerp(cMud, pr < POND.r ? 1 : 1 - (pr - POND.r)/0.7);
+    if(sd < 1.25 && pr >= POND.r) gb.lerp(cMud, sd < 0.75 ? 1 : 1 - (sd - 0.75)/0.5);
+    gBase[i*3]=gb.r; gBase[i*3+1]=gb.g; gBase[i*3+2]=gb.b;
+    let wet = 0;
+    if(pr < POND.r + 1.6) wet = pr < POND.r ? 1 : 1 - (pr - POND.r)/1.6;                   // 연못가 1.6칸
+    if(sd < 1.9) wet = Math.max(wet, sd < 0.75 ? 1 : 1 - (sd - 0.75)/1.15);                // 개울가 1.15칸
+    gMask[i*4]   = Math.max(0, Math.min(1, 1 - (pd - 1.0)/1.6));                          // pd≤1 에서 1, 2.6 에서 0 → 문턱 0.5 ≈ pd 1.8
+    gMask[i*4+1] = wet;
+    gMask[i*4+2] = (pr < POND.r || (sd < 0.75 && pr >= POND.r)) ? 1 : 0;                  // 물 밑 — 꼭짓점 색을 쓴다
+    gMask[i*4+3] = Math.max(0, Math.min(1, 1 - (near - 0.5)/3.5));                         // 절벽 발치 — 흙이 비친다
   }
   gg.computeVertexNormals();
   gg.setAttribute('color', new THREE.BufferAttribute(cols,3));
-  const disc = new THREE.Mesh(gg, addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.grass, 0.35, 0.16));   // 33차 — 풀결 0.16 · 48차 0.10 · 50차 **0.16** 로 되돌림
+  gg.setAttribute('aGBase', new THREE.BufferAttribute(gBase,3));
+  gg.setAttribute('aGMask', new THREE.BufferAttribute(gMask,4));
+  grGrainGB(GRAIN.grass);
+  const disc = new THREE.Mesh(gg, grGroundShader(addGrain(flatMat(0xffffff, {vertexColors:true, specular:0x161616, shininess:10}), GRAIN.grass, 0.35, 0.16)));   // 65차 — 풀은 무광(지금 28/0x2b2b2b 는 플라스틱처럼 번들거린다)
   disc.position.y = GY;
   if(GFX.shadow) disc.receiveShadow = true;       // 바닥은 받기만 한다 (드리울 것이 없다)
   scene.add(disc); groundDisc = disc;
   /* ── 33차 연못 — 반투명 물 원판(바닥 사발이 비친다) + 물결 고리 하나 + 갈대(부들) · 연잎, 개울 머리엔 돌무더기 ── */
   const water = new THREE.Mesh(new THREE.CircleGeometry(POND.r + 0.15, 40),
-    new THREE.MeshLambertMaterial({color:0x4fa9e6, transparent:true, opacity:0.70, depthWrite:false}));
+    new THREE.MeshLambertMaterial({color:0xffffff, transparent:true, opacity:0.70, depthWrite:false}));
+  { const wm = water.material, sky0 = new THREE.Color(0xc4dcf0), rid = new THREE.Color();
+    const U = { uTime:{get value(){ return (performance.now()*0.001) % 1200; }},
+      uSky:{get value(){ const b = scene.background; return (b && b.isColor) ? b : sky0; }},   // ★ 약속 1-2: M3 가 산마루 위 하늘색(선형)을 둔다
+      uRidge:{get value(){ return rid.setHex(0x56644e).multiplyScalar(1 - skyK*0.72); }},     // 물에 비치는 둘레 산·숲 띠 (밤엔 어둡게)
+      uDeep:{value:new THREE.Color(0x285a66)}, uShal:{value:new THREE.Color(0x5a9884)},
+      uPond:{value:new THREE.Vector3(POND.x, POND.z, POND.r*0.964)}, tWave:{value:GRAIN.grass} };  // 0.964R = 물 원판(GY−0.03)과 사발이 만나는 반지름 · 물결은 부드러운 풀결 R(돌결 R 의 가는 금은 반짝이 잡음이 된다 — 시제품)
+    wm.onBeforeCompile = (sh)=>{ Object.assign(sh.uniforms, U);
+      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vPw;')
+        .replace('#include <project_vertex>', '#include <project_vertex>\nvPw = (modelMatrix * vec4(transformed, 1.0)).xyz;');
+      sh.fragmentShader = sh.fragmentShader
+        .replace('#include <common>', '#include <common>\nvarying vec3 vPw; uniform sampler2D tWave; uniform float uTime; uniform vec3 uSky; uniform vec3 uRidge; uniform vec3 uDeep; uniform vec3 uShal; uniform vec3 uPond;')
+        .replace('#include <color_fragment>', '#include <color_fragment>\n' + GR_POND_COLOR)
+        .replace('#include <opaque_fragment>', GR_POND_OUT + '\n#include <opaque_fragment>');
+      if(!sh.fragmentShader.includes('65차 연못')) console.error('65차 — 연못 셰이더 치환 실패'); };
+    wm.customProgramCacheKey = ()=> 'pond65'; }
   water.rotation.x = -Math.PI/2; water.position.set(POND.x, GY - 0.03, POND.z); water.renderOrder = 2; scene.add(water); pondMesh = water;
   const rip = new THREE.Mesh(new THREE.TorusGeometry(1, 0.05, 4, 40),
     new THREE.MeshBasicMaterial({color:0xdff3ff, transparent:true, opacity:0.5, depthWrite:false}));
   rip.rotation.x = -Math.PI/2; rip.position.set(POND.x + 0.6, GY - 0.005, POND.z - 0.4); scene.add(rip); pondRipple = rip;
+  rip.visible = false;   // 65차 — 셰이더 물결 셋이 대신한다(투명 그리기 −1)
   for(let i=0;i<14;i++){
     const a = i/14*Math.PI*2 + rnd(i*3.3)*0.4, rr = POND.r + 0.35 + rnd(i*1.7)*0.7;
     const X = POND.x + Math.cos(a)*rr, Z = POND.z + Math.sin(a)*rr, hgt = 0.7 + rnd(i*2.1)*0.5, tilt = (rnd(i)-0.5)*0.16;
     if(streamDist(X, Z) < 1.6) continue;                                             // 개울 어귀는 비운다
-    bpush('reed', WGEO, WMAT, X, GY + hgt/2, Z, 0, 0.07, hgt, 0.07, tilt, 0x6fb24a);
-    bpush('reed', WGEO, WMAT, X, GY + hgt + 0.12, Z, 0, 0.11, 0.26, 0.11, tilt, 0x7a5233);   // 부들 이삭
+    bpush('reed', WGEO, WMAT, X, GY + hgt/2, Z, 0, 0.07, hgt, 0.07, tilt, 0x6a9a48);
+    bpush('reed', WGEO, WMAT, X, GY + hgt + 0.12, Z, 0, 0.11, 0.26, 0.11, tilt, 0x6a4a30);   // 부들 이삭
   }
   for(let i=0;i<6;i++){
     const a = rnd(i*5.1)*Math.PI*2, rr = 1.0 + rnd(i*2.3)*(POND.r-1.6);
-    bpush('lily', LEAFG, WMAT, POND.x + Math.cos(a)*rr, GY - 0.01, POND.z + Math.sin(a)*rr, rnd(i)*6.28, 0.6, 0.05, 0.6, 0, i%3 ? 0x4fae4a : 0x62c258);
+    bpush('lily', LEAFG, WMAT, POND.x + Math.cos(a)*rr, GY - 0.01, POND.z + Math.sin(a)*rr, rnd(i)*6.28, 0.6, 0.05, 0.6, 0, i%3 ? 0x4a8a44 : 0x5b9a4c);
   }
   { const p = 11.2, X = POND.x + STREAM_U[0]*p, Z = POND.z + STREAM_U[1]*p;           // 개울 머리 — 산기슭 돌무더기(물이 여기서 난다)
     for(const [ox,oz,sz] of [[0,0,0.9],[0.8,0.3,0.6],[-0.6,0.5,0.55],[0.2,-0.7,0.5]])
@@ -4154,7 +4506,12 @@ function buildWorldMesh(){
      그 위 GY+6~11 비탈의 이끼 뚜껑을 17분의 3 → 4 로. 마루(GY+11↑)·눈(GY+18↑) 조건은 그대로.
      심사 2차 — 사진 20 이 아직 '회색 담' 이라 풀 뚜껑을 GY+7 까지 한 단 더, 이끼를 17분의 7 로 올렸다.
      h 별로 키가 갈리므로 합치기(rects)엔 거의 영향이 없다 — mtB 개수로 재서 5,000 남짓(6,000 미만)임을 확인했다. */
-  const capKind = (h,x,z)=> h <= GY+7 ? 0 : h >= GY+18 ? 3 : h >= GY+11 ? 1 : ((((x*7+z*13)%17)+17)%17 < 7 ? 2 : 1);
+  const mtN = (x,z)=> Math.sin(x*0.21 + 1.3)*Math.cos(z*0.17 - 0.4) + 0.5*Math.sin((x + z)*0.11 + 2.1);   // −1.5~1.5, 30~57칸
+  const capKind = (h,x,z)=>{ const n = mtN(x,z);
+    if(h <= GY+7 + (n > 0.6 ? 1 : n < -0.6 ? -1 : 0)) return 0;      // 풀선 GY+6~8
+    if(h >= GY+18 - (n > 0.9 ? 1 : 0)) return 3;                     // 눈선 GY+17~18
+    if(h >= GY+11) return 1;                                         // 마루 맨바위
+    return n > -0.1 ? 2 : 1; };                                      // 이끼 덩이
   const key = new Int32Array(WS*WS).fill(-1), dep = new Uint8Array(WS*WS);
   for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){
     const h = terrH[gi(x,z)]; if(h <= GY) continue;   // 63차 — 수정 자리도 이제 GY 라 여기서 함께 걸러진다
@@ -4180,20 +4537,43 @@ function buildWorldMesh(){
     for(let zz=z; zz<z+d; zz++) for(let xx=x; xx<x+w; xx++) used[gi(xx,zz)] = 1;
     const h = terrH[i0], n = dep[i0], kind = k & 3;
     const tone = Math.max(0, Math.min(2, ((h-GY-5)/4)|0)), hv = (((x*13+z*7)%5)+5)%5;   // 31차b — 칸마다 결
-    const body = kind===0 ? MT_DIRT : MT_ROCK[(tone + (hv&1)) % 3];
+    const body = kind===0 ? MT_DIRT : MT_ROCK[Math.min(2, tone + (hv===3 ? 1 : 0))];
     const cap  = kind===0 ? MT_GRASS : kind===2 ? MT_MOSS : kind===3 ? MT_SNOW : MT_ROCKTOP;
 
     const cx = x + w/2, cz = z + d/2;
-    bpush('mtB', BOXV, WMAT, cx, h - n/2 - 0.02, cz, 0, w - 0.04, n, d - 0.04, 0, body);   // 32차 — 아래가 어두운 기둥
-    bpush('mtC', BOXG, WMAT, cx, h - 0.14, cz, 0, w, 0.30, d, 0, cap);
+    /* 32차 — 아래가 어두운 기둥.
+       65차 — 선생님: "절벽 디자인이 빈틈이 좀 있다." 기둥은 면 떨림을 막으려고 뚜껑보다 0.04 좁은데(t32),
+       기둥 밑이 제일 낮은 이웃 높이(n)에서 끝나 있어서, 옆 기둥과의 0.04 틈 뒤에 **아무것도 없었다** —
+       뒷줄 기둥도 앞줄 윗면에서 끊기므로 틈으로 하늘·안개빛이 세로 줄로 비쳤다.
+       윗면(h-0.02)은 그대로 두고 밑을 땅 속(GY-0.3)까지 내린다. 틈 뒤에 늘 뒷줄 바위 면이 있어 빛이 안 샌다.
+       불투명이라 가려진 부분은 깊이 검사에서 버려진다(픽셀 비용 거의 없음 · 조각 수 그대로). */
+    const nb = Math.max(n, h - 0.02 - (GY - 0.3));
+    bpush('mtB', BOXV, WMAT, cx, h - 0.02 - nb/2, cz, 0, w - 0.04, nb, d - 0.04, 0, body);
+    bpush('mtC', CAPV, WMAT, cx, h - 0.14, cz, 0, w, 0.30, d, 0, cap);
     /* 31차b — 밍밍한 회색을 깬다: 높은 절벽엔 마을 쪽 면에 어두운 틈(세로 띠), 풀 뚜껑엔 수풀 한 포기, 바위 뚜껑엔 작은 바위 하나 */
     if(kind!==0 && n>=3 && hv===2){
       const toX = Math.abs(cx) > Math.abs(cz), sg = toX ? -Math.sign(cx||1) : -Math.sign(cz||1), u = (rnd(x*1.3+z*2.9)-0.5)*0.6;
       if(toX) bpush('mtK', BOXG, WMAT, cx + sg*(w/2+0.02), h - n*0.45, cz + u*d, 0, 0.06, n*0.62, 0.18, 0, MT_CRACK);
       else    bpush('mtK', BOXG, WMAT, cx + u*w, h - n*0.45, cz + sg*(d/2+0.02), 0, 0.18, n*0.62, 0.06, 0, MT_CRACK);
     }
-    if(kind===0 && hv===1) bpush('bush', LEAFV[0], WMAT, cx + (rnd(x+z*3)-0.5)*w*0.6, h + 0.14, cz + (rnd(x*2+z)-0.5)*d*0.6, rnd(x)*3, 0.55, 0.38, 0.55, 0, 0x74c853);
-    if(kind===1 && hv===4 && w*d >= 2) bpush('rock', ROCKG, WMAT, cx + (rnd(x*5+z)-0.5)*w*0.5, h + 0.28, cz + (rnd(x+z*5)-0.5)*d*0.5, rnd(z)*3, 1.1, 0.7, 0.9, 0, ROCK_C[0]);
+    /* 65차 — 높은 벼랑 발치의 너덜. ★ 발치 칸 높이 fh 가 GY 보다 높을 때만(산 층계참) — 마당·협곡 바닥(아이 땅)에는 한 알도 안 놓는다 */
+    if(kind!==0 && n>=3 && (hv===0 || hv===3)){
+      for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){
+        const fx = dx>0 ? x+w : dx<0 ? x-1 : x + (w>>1), fz = dz>0 ? z+d : dz<0 ? z-1 : z + (d>>1);
+        if(!inW(fx,fz)) continue;
+        const fh = terrH[gi(fx,fz)];
+        if(fh <= GY || h - fh < 3) continue;
+        for(let s=0;s<2;s++){
+          const u = (rnd(x*3.1+z*1.7+s*5.3)-0.5)*(dx ? d : w)*0.7, sz = 0.35 + rnd(x+z*2.3+s)*0.30;
+          const px = dx ? cx + dx*(w/2 + 0.25 + s*0.35) : cx + u, pz = dz ? cz + dz*(d/2 + 0.25 + s*0.35) : cz + u;
+          if(mtNearGate(px, pz)) continue;
+          bpush('peb', PEBG, WMAT, px, fh + sz*0.22, pz, rnd(px*1.3+pz)*6.28, sz*1.3, sz*0.7, sz, 0, MT_ROCK[0]);
+        }
+        break;                                                     // 기둥 하나에 한 쪽만
+      }
+    }
+    if((kind===0 || kind===2) && hv===1) bpush('bush', LEAFV[0], WMAT, cx + (rnd(x+z*3)-0.5)*w*0.6, h + 0.14, cz + (rnd(x*2+z)-0.5)*d*0.6, rnd(x)*3, 0.55, 0.38, 0.55, 0, kind===2 ? 0x5a8f42 : 0x5f9a45);
+    if(kind===1 && hv===4 && w*d >= 2) bpush('rock', ROCKG, WMAT, cx + (rnd(x*5+z)-0.5)*w*0.5, h + 0.28, cz + (rnd(x+z*5)-0.5)*d*0.5, rnd(z)*3, 1.1, 0.7, 0.9, 0, MT_ROCK[1]);
     rects++;
   }
   /* ── 수정 자리 — 아무것도 깔지 않는다 (63차) ──
@@ -4250,7 +4630,12 @@ const NODE_S = 0.32;    // 자원 덩어리 크기 배수 — 작을수록 많�
 const NODE_R0 = 19.0, NODE_R1 = 43.5;
 /* ── 자원 덩어리 (로블록스 룩) ── */
 const LEAFG  = new THREE.IcosahedronGeometry(0.5, 1);  LEAFG.computeVertexNormals();   // 각진 공(80면) — 잎·수풀·꽃
-const ROCKG  = new THREE.DodecahedronGeometry(0.5, 0); ROCKG.computeVertexNormals();   // 각진 바위(12면)
+/* 65차 — 밑이 판판한 바윗덩이(땅에 앉는다): 12면체 detail 1(144삼각형)을 흔들고, 아래 8% 를 눌러 편 뒤 0.08 내려 바닥을 지금과 같은 −0.5 에 둔다.
+   꼭짓점 색(아래 어둡게)이 생기므로 bpush 가 'rock' 을 WMAT → WMATV(같은 돌결)로 옮긴다 — 재질 수 그대로. aMt 0 = 산 셰이더 끔 */
+const ROCKG = (()=>{ const g = jitterGeo(new THREE.DodecahedronGeometry(0.5, 1), 0.14, 17.3), P = g.attributes.position;
+  for(let i=0;i<P.count;i++) if(P.getY(i) < -0.42) P.setY(i, -0.42);
+  g.translate(0, -0.08, 0); g.computeVertexNormals(); shadeGeo(g, 0.72, 1.08, 0.04, 9);
+  g.setAttribute('aMt', new THREE.Float32BufferAttribute(new Float32Array(P.count), 1)); return g; })();
 const PEBG   = new THREE.IcosahedronGeometry(0.5, 0);  PEBG.computeVertexNormals();    // 자갈(20면)
 const TRUNKG = new THREE.CylinderGeometry(0.34, 0.46, 1, 7).toNonIndexed(); TRUNKG.computeVertexNormals();  // 줄기
 const CONEG  = new THREE.ConeGeometry(0.5, 1, 7).toNonIndexed(); CONEG.computeVertexNormals();             // 침엽
@@ -4258,6 +4643,102 @@ const GEMG   = new THREE.OctahedronGeometry(0.5, 0);   GEMG.computeVertexNormals
 /* ═══ 질감(質感). 선생님: "벽돌·나무의 질감 그래픽 디테일이 부족해." */
 const WMATV = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.rock, 0.6, 0.38);   // 33차 — 돌결 0.40 · 48차 0.12 · 50차 **0.38** (산·바위)
 const WMATL = addGrain(flatMat(0xffffff, {vertexColors:true}), GRAIN.leaf, 1.4, 0.46);   // 33차 — 잎 얼룩 0.50 · 48차 0.16 · 50차 **0.46** (나뭇잎 덩어리가 한 덩어리로 안 뭉치게)
+function mtGrainGB(tex){                              // 65차 — R 은 그대로, G·B 에만 무늬 (h65/gb.js 와 같다)
+  const cv = tex.image, N = cv.width, g2d = cv.getContext('2d'), img = g2d.getImageData(0, 0, N, N), d = img.data, kind = tex.userData.kind;
+  const vn = (x,y,f,sd)=>{ const gx = x*f/N, gy = y*f/N, x0 = Math.floor(gx), y0 = Math.floor(gy), tx = gx-x0, ty = gy-y0,
+      sx = tx*tx*(3-2*tx), sy = ty*ty*(3-2*ty), wr = v=>((v%f)+f)%f, v = (i,j)=>rnd(sd + wr(i)*12.9898 + wr(j)*78.233);
+    return (v(x0,y0)*(1-sx) + v(x0+1,y0)*sx)*(1-sy) + (v(x0,y0+1)*(1-sx) + v(x0+1,y0+1)*sx)*sy; };
+  const wor = (x,y,f,sd)=>{ const cs = N/f, cx = Math.floor(x/cs), cy = Math.floor(y/cs); let best = 9;
+    for(let j=-1;j<=1;j++) for(let i=-1;i<=1;i++){ const ci = ((cx+i)%f+f)%f, cj = ((cy+j)%f+f)%f;
+      const px = (cx+i + rnd(sd + ci*7.1 + cj*13.7))*cs, py = (cy+j + rnd(sd + ci*3.3 + cj*5.9 + 0.5))*cs;
+      best = Math.min(best, Math.hypot(x-px, y-py)/cs); }
+    return Math.min(1, best); };
+  const chG = new Float32Array(N*N), chB = new Float32Array(N*N);
+  for(let y=0;y<N;y++) for(let x=0;x<N;x++){ const j = y*N + x;
+    if(kind === 'rock'){ const rr = vn(x,y,8,25)*0.6 + vn(x,y,16,26)*0.4, g = 1 - Math.abs(rr - 0.5)*2; chG[j] = g*g; chB[j] = vn(x,y,4,27); }   // G 능선 잡음(물때) · B 지의류 얼룩
+    else { chG[j] = 1 - wor(x,y,8,29); chB[j] = vn(x,y,4,28); } }                                                                               // leaf: G 잎 무리(가운데 밝다) · B 큰 얼룩
+  const put = (A, ch)=>{ let lo = 1e9, hi = -1e9; for(const v of A){ if(v < lo) lo = v; if(v > hi) hi = v; }
+    for(let j=0;j<N*N;j++) d[j*4+ch] = Math.round((A[j]-lo)/Math.max(1e-6, hi-lo)*255); };
+  put(chG, 1); put(chB, 2); for(let j=0;j<N*N;j++) d[j*4+3] = 255;
+  g2d.putImageData(img, 0, 0); tex.needsUpdate = true;
+}
+mtGrainGB(GRAIN.rock); mtGrainGB(GRAIN.leaf);
+function mtShade(mat){                              // 65차 — 산 기둥(aMt 1)·산 뚜껑(aMt 2)만 바꾼다. 벽돌·바위(aMt 0)는 그대로
+  const base = mat.onBeforeCompile;
+  const U = { uMtMoss:{value:new THREE.Color(0x6a8f45)}, uCapGrass:{value:new THREE.Color(GRASS_A)}, uCapMoss:{value:new THREE.Color(0x7a9c4e)},
+              uCapDry:{value:new THREE.Color(0xa3ab5a)}, uSoil:{value:new THREE.Color(0x6b5a44)} };   // GRASS_A 는 이름으로 읽는다(약속 1-2) · 마른 풀은 hex 글자로
+  mat.onBeforeCompile = (sh, r)=>{ base(sh, r); Object.assign(sh.uniforms, U);
+    sh.vertexShader = sh.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute float aMt; varying float vMt; varying float vLy; varying float vSy;')
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvMt = aMt; vLy = position.y + 0.5; vSy = 1.0;\n#ifdef USE_INSTANCING\nvSy = length(instanceMatrix[1].xyz);\n#endif');
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nvarying float vMt; varying float vLy; varying float vSy; uniform vec3 uMtMoss; uniform vec3 uCapGrass; uniform vec3 uCapMoss; uniform vec3 uCapDry; uniform vec3 uSoil;')
+      .replace('* uGrainAmt; }', '* uGrainAmt;\n' + MT_GLSL + '\n}');
+    if(!sh.fragmentShader.includes('65차 산')) console.error('65차 — 산 셰이더 치환 실패');
+  };
+  mat.customProgramCacheKey = ()=> 'grain65-mt';
+  return mat;
+}
+mtShade(WMATV);
+const MT_GLSL = `// 65차 산 — vMt 1 기둥: 기둥을 가로질러 이어지는 기운 지층·물때·밑동 그늘·흘러내린 이끼·높이 온도
+//          vMt 2 뚜껑: 풀·이끼 뚜껑 윗면은 들판 풀색, 옆면은 흙 테(레고 초록 줄 없앰), 눈은 푸른 결 그늘
+//          vMt 0(벽돌·바위·그 밖) 은 base0 그대로 — 아이 벽돌·성문 벽돌은 안 바뀐다
+vec4 mg4 = texture2D(tGrain, guv * uGrainScale);                     // r=gg · g 능선 잡음(물때) · b 지의류 얼룩 (M2-6)
+vec2 fuv = vec2(wn.x > wn.z ? vWp.z : vWp.x, vWp.y);
+float stv = texture2D(tGrain, fuv * vec2(0.9, 0.08)).g;              // 세로로 늘인 물때 줄 (탭 +1, 분기 밖)
+vec4 gmc = texture2D(tGrain, vWp.xz * 0.043 + vec2(0.37, 0.11));     // 뚜껑 큰 얼룩 (탭 +1, 분기 밖)
+vec3 base0 = diffuseColor.rgb;
+float isB = step(0.5, vMt) * (1.0 - step(1.5, vMt));
+float isC = step(1.5, vMt);
+float side = 1.0 - step(0.5, wn.y);
+float sy = vWp.y + 0.35 * sin(vWp.x * 0.23 + vWp.z * 0.19) + 0.20 * sin(vWp.x * 0.07 - vWp.z * 0.11);
+float bnd = fract(sy * 0.55), lay = floor(sy * 0.55);                // 1.8칸마다 한 켜 — 세계 높이라 이웃 기둥과 이어진다
+float lineD = smoothstep(0.0, 0.10, bnd) * smoothstep(1.0, 0.90, bnd);
+float tone = 0.86 + 0.24 * fract(sin(lay * 12.9898) * 43758.5453);   // 켜마다 밝기
+float ao = mix(0.78, 1.0, smoothstep(0.0, 0.7, vLy * vSy));          // 기둥 밑동 0.7칸 그늘
+float mossK = smoothstep(0.72, 1.0, vLy) * smoothstep(0.45, 0.70, mg4.b) * (1.0 - step(${(GY+14).toFixed(1)}, vWp.y));
+float hk = clamp((vWp.y - ${GY.toFixed(1)}) / 20.0, 0.0, 1.0);
+float dirtK = smoothstep(1.08, 1.14, vColor.r / max(vColor.g, 0.004));  // MT_DIRT(r/g 1.18) vs MT_ROCK(1.02) — 흙 기둥은 세로 물때를 약하게(세로 줄이 판자 울타리처럼 읽혔다)
+vec3 m = base0 * mix(0.72, 1.0, lineD) * tone * mix(mix(0.82, 0.95, dirtK), 1.0, smoothstep(0.25, 0.45, stv)) * ao;
+m = mix(m, uMtMoss * (0.8 + 0.4 * gg), mossK * 0.55);                // 뚜껑 밑으로 흘러내린 이끼 (마루 위엔 없음)
+m *= mix(vec3(0.88, 0.90, 0.96), vec3(1.04, 1.02, 0.97), hk);        // 밑은 서늘·어둡게, 마루는 따뜻·밝게
+float grn = vColor.g / max(vColor.r, 0.004);                         // ★ vColor(꼭짓점색×인스턴스색) — 조각 셰이더엔 USE_COLOR 만 있다
+float green = smoothstep(1.4, 1.8, grn);                             // MT_GRASS(g/r 3.7)·MT_MOSS(2.3) vs MT_ROCKTOP(1.0)·MT_SNOW(1.0)
+float grassy = smoothstep(2.6, 3.2, grn);                            // 풀(3.7) vs 이끼(2.3)
+float white = step(0.80, min(vColor.r, min(vColor.g, vColor.b)));    // MT_SNOW
+vec3 gcap = mix(uCapMoss, uCapGrass, grassy) * (0.86 + 0.28 * gmc.b) * (1.0 + (gg - 0.5) * 0.3);
+gcap = mix(gcap, uCapDry, smoothstep(0.6, 0.85, gmc.b) * 0.5 * smoothstep(${(GY+8).toFixed(1)}, ${(GY+14).toFixed(1)}, vWp.y));   // 높은 풀밭은 마른다
+vec3 lip = mix(uSoil * (0.85 + 0.3 * gg), gcap, smoothstep(0.55, 0.9, vLy));   // 뚜껑 옆면: 아래 흙·뿌리, 위 끝만 풀
+vec3 capc = mix(base0, mix(lip, gcap, step(0.5, wn.y)), green);
+capc = mix(capc, base0 * mix(vec3(0.90, 0.94, 1.0), vec3(1.0), smoothstep(0.3, 0.7, gg)), white);   // 눈 — 결 그늘을 푸르게
+diffuseColor.rgb = mix(mix(base0, m, isB * side), capc, isC);`;
+const _lfSun = new THREE.Vector3();
+function leafShade(mat){                            // 65차 — 잎 무리 명암(보로노이) · 위 따뜻·아래 서늘(설계 A) · 해를 등진 잎 투과광(설계 C)
+  const base = mat.onBeforeCompile;
+  const U = { uLfSun:{get value(){ return _lfSun.subVectors(sun.position, sunTarget.position).normalize(); }},   // 약속 1-2: 빛 방향
+              uLfK:{get value(){ return 0.9*(1 - skyK) + 0.12*skyK; }} };
+  mat.onBeforeCompile = (sh, r)=>{ base(sh, r); Object.assign(sh.uniforms, U);
+    sh.fragmentShader = sh.fragmentShader
+      .replace('#include <common>', '#include <common>\nuniform vec3 uLfSun; uniform float uLfK;')
+      .replace('* uGrainAmt; }', '* uGrainAmt;\n' + LEAF_COLOR_GLSL + '\n}')
+      .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n' + LEAF_EMIT_GLSL);
+    if(!sh.fragmentShader.includes('65차 잎')) console.error('65차 — 잎 셰이더 치환 실패');
+  };
+  mat.customProgramCacheKey = ()=> 'grain65-leaf';
+  return mat;
+}
+leafShade(WMATL);
+const LEAF_COLOR_GLSL = `// 65차 잎 — 무리 가운데 밝고 틈 어둡게(보로노이 G) · 위 따뜻·아래 서늘 (텍스처 탭은 기존 결과 같은 자리)
+vec4 lg4 = texture2D(tGrain, guv * uGrainScale);
+diffuseColor.rgb *= mix(0.82, 1.08, smoothstep(0.15, 0.6, lg4.g));
+vec3 upV = normalize((viewMatrix * vec4(0.0, 1.0, 0.0, 0.0)).xyz);
+float upK = dot(normalize(vNormal), upV) * 0.5 + 0.5;
+diffuseColor.rgb *= mix(vec3(0.82, 0.88, 1.00), vec3(1.06, 1.03, 0.90), upK);`;
+const LEAF_EMIT_GLSL = `// 65차 잎 — 해를 등진 잎이 비친다(투과광). normal 은 normal_fragment_begin 에서 이미 나왔다
+{ vec3 vdW = normalize(vWp - cameraPosition);
+  float bk = pow(max(dot(vdW, uLfSun), 0.0), 4.0);
+  float rim = 1.0 - abs(dot(normal, normalize(vViewPosition)));
+  totalEmissiveRadiance += diffuseColor.rgb * vec3(1.05, 1.12, 0.55) * uLfK * bk * (0.35 + 0.65 * rim * rim) * 0.5; }`;
 function jitterGeo(g, amp, seed){
   const P = g.attributes.position, v = new THREE.Vector3();
   for(let i=0;i<P.count;i++){ v.fromBufferAttribute(P,i);
@@ -4273,7 +4754,9 @@ function shadeGeo(g, lo, hi, noise, seed){
     arr[i*3]=k; arr[i*3+1]=k; arr[i*3+2]=k; }
   g.setAttribute('color', new THREE.BufferAttribute(arr,3)); return g;
 }
-const LEAFV  = [0,1,2].map(i=> shadeGeo(jitterGeo(new THREE.IcosahedronGeometry(0.5, 1), 0.11, 3.1+i*7.3), 0.64, 1.14, 0.05, i*11));
+const LEAFV  = [0,1,2].map(i=>{ const g = jitterGeo(new THREE.IcosahedronGeometry(0.5, 1), 0.17, 3.1+i*7.3), P = g.attributes.position, v = new THREE.Vector3();
+  for(let j=0;j<P.count;j++){ v.fromBufferAttribute(P, j); const k = 1 + 0.12*Math.sin(v.x*6.1 + i)*Math.sin(v.z*5.3 + 2*i); P.setXYZ(j, v.x*k, v.y*k, v.z*k); }
+  g.computeVertexNormals(); return shadeGeo(g, 0.58, 1.16, 0.06, i*11); });
 for(const g of LEAFV) g.userData.leaf = true;   // bpush 가 잎 재질(WMATL)을 고른다
 const TRUNKV = (()=>{ const g = new THREE.CylinderGeometry(0.34, 0.46, 1, 7).toNonIndexed(); g.computeVertexNormals();
   shadeGeo(g, 0.84, 1.02, 0, 0);
@@ -4281,49 +4764,71 @@ const TRUNKV = (()=>{ const g = new THREE.CylinderGeometry(0.34, 0.46, 1, 7).toN
   for(let i=0;i<P.count;i+=3){
     const ax=(P.getX(i)+P.getX(i+1)+P.getX(i+2))/3, az=(P.getZ(i)+P.getZ(i+1)+P.getZ(i+2))/3;
     const face = Math.floor((Math.atan2(az, ax) + Math.PI) / (Math.PI*2/7)) % 7;
-    const sc = (face % 2) ? 0.78 : 1.0;
+    const sc = (face % 2) ? 0.72 : 1.0;
     for(let j=i;j<i+3;j++) C.setXYZ(j, C.getX(j)*sc, C.getY(j)*sc, C.getZ(j)*sc); }
   return g; })();
-const CONEV  = (()=>{ const g = new THREE.ConeGeometry(0.5, 1, 7).toNonIndexed(); g.computeVertexNormals(); return shadeGeo(g, 0.72, 1.10, 0.03, 5); })();
+const CONEV  = (()=>{ const g = new THREE.ConeGeometry(0.5, 1, 9).toNonIndexed(), P = g.attributes.position;
+  for(let i=0;i<P.count;i++){ const x = P.getX(i), y = P.getY(i), z = P.getZ(i), rr = Math.hypot(x, z);
+    if(y < -0.49 && rr > 0.01){ const j = ((Math.round(Math.atan2(z, x)/(Math.PI*2/9)) % 9) + 9) % 9, k = (j % 2) ? 0.88 : 1.14;
+      P.setXYZ(i, x*k, k > 1 ? y - 0.06 : y, z*k); } }
+  g.computeVertexNormals(); shadeGeo(g, 0.62, 1.10, 0.05, 5); g.userData.leaf = true; return g; })();
 const BRICKV = shadeGeo(chamferBox(0.16), 0.80, 1.06, 0, 0);                        // 벽돌 판 — 모따기 + 아래 어둡게
-const BOXV   = (()=>{ const g = new THREE.BoxGeometry(1,1,1).toNonIndexed(); return shadeGeo(g, 0.82, 1.04, 0, 0); })();   // 산 기둥
-const TREE_C = {trunk:0x8a5a30, trunk2:0x9c6a3a, bark:0x6a4222, dark:0x4d9a3a, mid:0x63bb47, lit:0x86d45e, top:0xa4e07a, pine:0x3f8f3a, pine2:0x4fa646};
-const ROCK_C = [0x7c828b, 0x949aa3, 0xaab0b8], ROCK_D = 0x5c6169, MOSS_C = 0x7cbf5a, NUG_C = 0xffd24a;
+BRICKV.setAttribute('aMt', new THREE.Float32BufferAttribute(new Float32Array(BRICKV.attributes.position.count), 1));
+const BOXV   = (()=>{ const g = new THREE.BoxGeometry(1,1,1).toNonIndexed(); shadeGeo(g, 0.82, 1.04, 0, 0);
+  g.setAttribute('aMt', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count).fill(1), 1)); return g; })();   // 산 기둥
+const CAPV   = (()=>{ const g = new THREE.BoxGeometry(1,1,1).toNonIndexed(); shadeGeo(g, 0.86, 1.0, 0, 0);
+  g.setAttribute('aMt', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count).fill(2), 1)); return g; })();   // 65차 — 산 뚜껑(12삼각형, BOXG 와 같은 크기)
+const TREE_C = {trunk:0x6f4a2c, trunk2:0x7d5634, bark:0x4e331c, dark:0x3f7f33, mid:0x5aa843, lit:0x84c257, top:0xa2cf68, pine:0x33703a, pine2:0x418447};   // 65차 — 주황 막대 줄기 → 젖은 갈색, 잎 아래 차갑게
+const TREE_P = [TREE_C,                                                              // 0 싱싱한 풀빛 — ★ 자원 나무는 늘 이것(아이가 '캘 나무' 를 한눈에 찾는다)
+  {dark:0x4f7030, mid:0x6a8a3c, lit:0x8aa650, top:0xa8bd66},                         // 1 올리브(마른 비탈) — 산 숲만
+  {dark:0x356c3e, mid:0x4a8550, lit:0x66a064, top:0x86b878}];                         // 2 푸른 초록(골짜기) — 산 숲만
+const ROCK_C = [0x7e7d74, 0x96948a, 0xacaa9f], ROCK_D = 0x4e4f52, MOSS_C = 0x6f9c4a, NUG_C = 0xffd24a;   // 바위는 산과 같은 온도 · 금광 암반은 더 어둡게(금이 튄다)
 
-function treeRound(X,Y,Z,S,H,seed,out){
+function treeRound(X,Y,Z,S,H,seed,out,pal){
+  const TP = TREE_P[pal|0];
   const put = (k,geo,dx,dy,dz,sx,sy,sz,col,ry,rz)=>{
     const h = bpush(k,geo,WMAT, X+dx*S, Y+dy*S, Z+dz*S, ry||0, sx*S, sy*S, sz*S, rz||0, col);
     if(out) out.push(h); return h; };
   const r1 = rnd(seed), r2 = rnd(seed+7.7), r3 = rnd(seed+13.1), r4 = rnd(seed+21.3), ry0 = r1*Math.PI*2;
   let lk = (seed*7.3)|0; const LF = ()=> LEAFV[((lk++)%3+3)%3], LK = ()=> 'leaf'+(((lk)%3)+3)%3;   // 잎 덩어리 셋을 돌려 쓴다(뱅크 leaf0~2)
-  put('trunk', TRUNKV, 0, H*0.33, 0, 1.30, H*0.68, 1.30, TREE_C.trunk, ry0);
-  put('trunk', TRUNKV, 0, H*0.74, 0, 0.94, H*0.52, 0.94, TREE_C.trunk2, ry0+0.3);
+  put('trunk', TRUNKV, 0, H*0.33, 0, 1.10, H*0.68, 1.10, TREE_C.trunk, ry0);
+  put('trunk', TRUNKV, 0, H*0.74, 0, 0.78, H*0.52, 0.78, TREE_C.trunk2, ry0+0.3);
   for(let i=0;i<3;i++){ const a = ry0 + i*2.1 + 0.7;                                   // 껍질 골 — 줄기에 붙은 어두운 세로 띠
     put('bark', WGEO, Math.sin(a)*0.58, H*0.34, Math.cos(a)*0.58, 0.16, H*0.52, 0.18, TREE_C.bark, a); }
   for(let i=0;i<3;i++){ const a = ry0 + i*2.1 + r2;                                   // 뿌리 — 바깥으로 뻗는 납작 토막
     put('root', WGEO, Math.sin(a)*0.55, 0.16, Math.cos(a)*0.55, 0.36, 0.30, 0.90, TREE_C.trunk, a, 0); }
   const D = 2.3 + r3*0.6;                                                              // 잎 덩어리 지름 배율
   for(const si of [1,-1]){ const a = ry0 + (si>0 ? 0.9 : 3.6);                          // 가지 둘 — 비스듬히, 끝에 잎 뭉치
-    put('branch', TRUNKV, Math.sin(a)*0.85, H*0.80, Math.cos(a)*0.85, 0.46, 2.0, 0.46, TREE_C.trunk2, a, si*0.82);
-    put(LK(), LF(), Math.sin(a)*1.85, H*0.80+0.75, Math.cos(a)*1.85, D*0.95, D*0.78, D*0.95, TREE_C.dark, a+0.5); }
-  put(LK(), LF(), 0, H+0.5, 0, D*2.1, D*1.7, D*2.1, TREE_C.mid, ry0);                    // 가운데 큰 덩어리
+    put('branch', TRUNKV, Math.sin(a)*0.85, H*0.80, Math.cos(a)*0.85, 0.46, 2.0, 0.46, TREE_C.trunk2, a, si*(0.70 + r2*0.3));
+    put(LK(), LF(), Math.sin(a)*1.85, H*0.80+0.75, Math.cos(a)*1.85, D*(0.85 + r4*0.3), D*(0.85 + r4*0.3)*0.82, D*(0.85 + r4*0.3), TP.dark, a+0.5); }
+  put(LK(), LF(), (r2-0.5)*0.6, H+0.5, 0, D*(1.9+r1*0.4), D*(1.5+r3*0.3), D*(1.9+r1*0.4), TP.mid, ry0);                    // 가운데 큰 덩어리
   for(let i=0;i<3;i++){ const a = ry0 + i*2.1;                                          // 아래 어두운 셋
-    put(LK(), LF(), Math.sin(a)*1.35, H-0.3+(i%2)*0.3, Math.cos(a)*1.35, D*1.55, D*1.25, D*1.55, TREE_C.dark, a+1.0); }
-  put(LK(), LF(),  Math.sin(ry0+1.0)*0.9, H+1.6,  Math.cos(ry0+1.0)*0.9, D*1.3, D*1.1, D*1.3, TREE_C.lit, ry0+2.2);   // 위 밝은 둘
-  put(LK(), LF(), -Math.sin(ry0+2.5)*0.8, H+1.5, -Math.cos(ry0+2.5)*0.8, D*1.2, D*1.0, D*1.2, TREE_C.lit, ry0+3.1);
-  put(LK(), LF(), 0.2, H+2.35, -0.2, D*1.0, D*0.85, D*1.0, TREE_C.top, ry0+4.0);          // 꼭대기
+    put(LK(), LF(), Math.sin(a)*(1.25 + i*0.2), H-0.5 + rnd(seed+i*3.1)*0.6, Math.cos(a)*(1.25 + i*0.2), D*1.55, D*1.25, D*1.55, TP.dark, a+1.0); }
+  put(LK(), LF(),  Math.sin(ry0+1.0)*0.9, H+1.6,  Math.cos(ry0+1.0)*0.9, D*1.3, D*1.1, D*1.3, TP.lit, ry0+2.2);   // 위 밝은 둘
+  put(LK(), LF(), -Math.sin(ry0+2.5)*0.8, H+1.5, -Math.cos(ry0+2.5)*0.8, D*1.2, D*1.0, D*1.2, TP.lit, ry0+3.1);
+  put(LK(), LF(), 0.2, H+2.35, -0.2, D*1.0, D*0.85, D*1.0, TP.top, ry0+4.0);          // 꼭대기
   if(out && r4 < 0.34) for(let i=0;i<4;i++){ const a = ry0 + i*1.57 + 0.4, rr = D*1.02;   // 사과 넷 — 잎 겉에
     put('apple', LEAFG, Math.sin(a)*rr, H+0.3+(i%2)*0.9, Math.cos(a)*rr, 0.36, 0.34, 0.36, 0xe5433a, a); }
 }
-/* 침엽수 — 줄기 + 고깔 넷(두 색 번갈아) + 연둣빛 꼭지. 봉우리(GY+13 위)에 선 것은 꼭대기에 눈이 앉는다. */
+function treeRoundFar(X,Y,Z,S,H,seed,pal){          // 65차 — 산 숲 둥근 나무(가볍게 6조각). 자원 나무가 아니므로 out 없음
+  const TP = TREE_P[pal|0], ry0 = rnd(seed)*6.283, D = 2.2 + rnd(seed+3.1)*0.6;
+  const put = (k,geo,dx,dy,dz,sx,sy,sz,col,ry)=> bpush(k,geo,WMAT, X+dx*S, Y+dy*S, Z+dz*S, ry||0, sx*S, sy*S, sz*S, 0, col);
+  let lk = (seed*7.3)|0; const LF = ()=> LEAFV[((lk++)%3+3)%3], LK = ()=> 'leaf'+(((lk)%3)+3)%3;
+  put('trunk', TRUNKV, 0, H*0.40, 0, 0.95, H*0.80, 0.95, TREE_C.trunk, ry0);
+  put(LK(), LF(), (rnd(seed+1)-0.5)*0.5, H+0.4, (rnd(seed+2)-0.5)*0.5, D*2.0, D*1.6, D*2.0, TP.mid, ry0);
+  for(let i=0;i<2;i++){ const a = ry0 + i*3.1; put(LK(), LF(), Math.sin(a)*1.2, H-0.3, Math.cos(a)*1.2, D*1.4, D*1.1, D*1.4, TP.dark, a); }
+  put(LK(), LF(), 0.3, H+1.5, -0.2, D*1.25, D*1.0, D*1.25, TP.lit, ry0+2.2);
+  put(LK(), LF(), -0.1, H+2.2, 0.1, D*0.9, D*0.75, D*0.9, TP.top, ry0+4.0);
+}
 function treePine(X,Y,Z,S,H,seed){
   const put = (k,geo,dx,dy,dz,sx,sy,sz,col,ry)=> bpush(k,geo,WMAT, X+dx*S, Y+dy*S, Z+dz*S, ry||0, sx*S, sy*S, sz*S, 0, col);
-  const ry0 = rnd(seed)*Math.PI*2;
-  put('trunk', TRUNKV, 0, H*0.32, 0, 1.0, H*0.66, 1.0, TREE_C.trunk, ry0);
-  for(let i=0;i<4;i++){ const w = 3.9 - i*0.80, y = H*0.36 + i*1.10;
-    put('cone', CONEV, 0, y + 1.0, 0, w, 2.15, w, i%2 ? TREE_C.pine2 : TREE_C.pine, ry0 + i*0.5); }
-  put('cone', CONEV, 0, H*0.36 + 4*1.10 + 0.55, 0, 1.1, 1.3, 1.1, TREE_C.lit, ry0 + 2.0);   // 꼭지
-  if(Y >= GY+13) put('cone', CONEV, 0, H*0.36 + 4*1.10 + 1.15, 0, 0.75, 0.75, 0.75, 0xffffff, ry0);   // 눈
+  const ry0 = rnd(seed)*Math.PI*2, nT = 5 + (rnd(seed+3.3) < 0.5 ? 1 : 0), step0 = 4.8/nT;   // step0 — 전역 STEP 과 다른 지역 이름
+  put('trunk', TRUNKV, 0, H*0.30, 0, 0.62, H*0.60, 0.62, TREE_C.trunk2, ry0);
+  for(let i=0;i<nT;i++){ const f = i/(nT-1), w = 3.5 - f*2.5 + (rnd(seed+i*1.7)-0.5)*0.35, y = H*0.30 + 0.35 + i*step0;
+    put('cone', CONEV, (rnd(seed+i*2.9)-0.5)*0.12, y + 0.95, (rnd(seed+i*3.7)-0.5)*0.12, w, 1.9 - f*0.5, w, i%2 ? TREE_C.pine2 : TREE_C.pine, ry0 + i*0.9); }
+  const yt = H*0.30 + 0.35 + nT*step0;
+  put('cone', CONEV, 0, yt + 0.55, 0, 0.8, 1.5, 0.8, TREE_C.pine2, ry0 + 2.0);                 // 뾰족 꼭지(같은 짙은 초록)
+  if(Y >= GY+13) put('cone', CONEV, 0, yt - 0.35, 0, 1.7, 0.8, 1.7, 0xf2f5fa, ry0);             // 위 층에 얹힌 눈
 }
 function mkTree(x,z){
   const hs=[], H = 5 + (Math.abs(Math.sin(x*3.3+z*7.7))*2.4|0);
@@ -4339,7 +4844,7 @@ function mkRock(x,z){
   put('moss', LEAFG, -0.3, 2.95, 0.45, 1.7, 0.7, 1.5, MOSS_C, rnd(sd+2)*3);           // 이끼
   for(const [dx,dz,sc,h] of [[1.7,0.4,1.4,1.3],[-1.5,0.7,1.2,1.1],[0.3,-1.6,1.3,1.0]]){ // 곁 돌
     if(rnd(sd+dx*17+dz*29) < 0.22) continue;
-    put('rock', ROCKG, dx, h*0.45, dz, sc, h, sc*0.9, ROCK_C[0], rnd(x+dx)*3);
+    put('rock', ROCKG, dx, h*0.45, dz, sc, h, sc*0.9, ROCK_C[0], rnd(x+dx)*3, (rnd(sd+dx)-0.5)*0.3);
   }
   for(const [dx,dz] of [[-2.0,-1.2],[2.2,-0.7],[-0.9,2.0]])                            // 자갈
     if(rnd(x*7.7+z*1.3+dx*5+dz*13) < 0.7) put('peb', PEBG, dx, 0.22, dz, 0.7, 0.45, 0.6, ROCK_C[1], rnd(dx+dz)*3);
@@ -4361,6 +4866,11 @@ function mkGold(x,z){
   for(const [dx,dy,dz] of [[0.9,2.1,0.3],[-0.7,1.9,0.6],[0.2,1.6,-1.0]])                     // 금 알갱이
     put('nug', LEAFG, WMAT, dx, dy, dz, 0.55, 0.42, 0.5, NUG_C, rnd(dx+dz)*3);
   return hs;
+}
+/* 65차 — 성문 망루·깃발 둘레인가. buildGates 가 망루 칸 terrH 를 GY+12 로 올려 놓으므로 칸 훑기가 망루 꼭대기에 나무·돌을 심지 않게 */
+function mtNearGate(x, z){
+  for(let g=0; g<NG; g++){ const t = gT(g, x, z); if(Math.abs(t - GATE_T) < 5.5 && Math.abs(gPP(g, x, z)) < GAP_HALF + 7.5) return true; }
+  return false;
 }
 /* ── 자원이 놓이면 안 되는 곳: 모둠 농장 ──
    ★ 자원은 아침마다 '제자리에서' 되살아난다(goDay). 그래서 한 번 우리 안에 놓이면
@@ -4434,22 +4944,28 @@ function placeNodes(){
       }
     }
   }
-  /* 산 위·협곡 마당 장식 숲 — 산등성이를 통째로 덮는 숲이라 눈에 제일 많이 띈다.
-     31차 — 침엽수(고깔 셋) 셋에 둥근 나무 둘 비율로 섞는다. 산 위엔 소나무가 어울리고 실루엣이 갈린다. */
-  for(let i=0;i<200;i++){   // 64차 — 산 고리가 넓어진 만큼(165→200) 숲도 늘린다
-    const x = Math.round((Math.random()*2-1)*FIELD_R), z = Math.round((Math.random()*2-1)*FIELD_R);
-    const od0 = oct(x+0.5, z+0.5);
-    if(od0 < ARENA_R+3) continue;
-    if(Math.hypot(x+0.5,z+0.5) > FIELD_R-2) continue;
-    if(!inW(x,z)) continue;
-    const cd0 = corridorDist(x+0.5,z+0.5);
-    if(cd0 && cd0[2] < gapHalfAt(cd0[1])+1.5) continue;
-    if(rampNear(x,z)) continue;
-    if(terrAt(x,z) < GY) continue;
-    const y0 = terrAt(x,z), H = 4+(Math.random()*3|0), seed = x*1.9+z*3.7;
-    if(rnd(seed+0.5) < 0.6) treePine(x+0.5, y0, z+0.5, 1, H, seed);
-    else treeRound(x+0.5, y0, z+0.5, 0.9, H, seed, null);
+  /* 65차 — 산 숲: 산 칸을 한 번 훑으며 '숲 밀도' 로 뽑는다(숲 덩이·빈 비탈·수목 한계선 GY+10~17). Math.random 대신 rnd — 사진이 판마다 같다.
+     ★ 마당(oct < ARENA_R+3) 안에는 한 그루도 없다. 협곡(corridorDist)·성문 망루(mtNearGate)·망루 계단(rampNear)·벼랑 끝(drop>3)도 비운다 */
+  const FOREST_K = 2.5, FOREST_MAX = 420;                                   // 목표 360 ± 50 그루. 후보 칸이 1,645 뿐이라 명세 값 0.45 로는 62그루 — 2.5 로 올려 잰 수 353그루(숲 덩이 가운데는 빽빽하다)
+                                                                            // ★ FOREST_MAX 는 안전 뚜껑이다 — 닿으면 훑기가 서쪽(x 작은 쪽)부터라 동쪽 산이 빈다. 닿지 않게 FOREST_K 로 맞춘다
+  const forestN = (x,z)=> 0.5 + 0.35*Math.sin(x*0.19 + 0.4)*Math.cos(z*0.23 - 1.1) + 0.25*Math.sin((x - z)*0.11 + 2.3);   // 0~1.1, 주기 ≈30칸
+  let nF = 0;
+  for(let x=-FIELD_R; x<=FIELD_R && nF<FOREST_MAX; x++) for(let z=-FIELD_R; z<=FIELD_R && nF<FOREST_MAX; z++){
+    if(oct(x+0.5, z+0.5) < ARENA_R+3) continue;
+    if(Math.hypot(x+0.5, z+0.5) > FIELD_R-2 || !inW(x,z)) continue;
+    const y0 = terrAt(x,z); if(y0 <= GY || y0 >= GY+17) continue;             // 협곡 바닥·눈 봉우리엔 없다
+    if(corridorDist(x+0.5, z+0.5) || mtNearGate(x+0.5, z+0.5) || rampNear(x,z)) continue;
+    let drop = 0; for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]) drop = Math.max(drop, y0 - terrAt(x+dx, z+dz));
+    if(drop > 3) continue;                                                    // 벼랑 끝 — 잎이 허공에 걸린다
+    const alt = y0 <= GY+10 ? 1 : 1 - (y0-GY-10)/7;                           // 수목 한계선
+    const seed = x*1.9 + z*3.7;
+    if(rnd(seed+0.13) > FOREST_K * alt * Math.max(0, forestN(x,z) - 0.25)) continue;
+    const H = 4 + ((rnd(seed+0.7)*3)|0), jx = (rnd(seed+1.1)-0.5)*0.4, jz = (rnd(seed+1.9)-0.5)*0.4, sc = 0.8 + rnd(seed+2.2)*0.5;
+    if(rnd(seed+0.5) < (y0 >= GY+12 ? 0.9 : 0.55)) treePine(x+0.5+jx, y0, z+0.5+jz, sc, H, seed);
+    else treeRoundFar(x+0.5+jx, y0, z+0.5+jz, sc*0.9, H, seed, 1 + ((rnd(seed+4.1)*2)|0));
+    nF++;
   }
+  for(const [k,b] of banks) if(b.mat === WMATV && !b.geo.attributes.aMt) console.error('65차 — aMt 없는 WMATV 뱅크: ' + k);   // 1-3 규칙 7
 }
 
 /* ═══════════════════════ 꽃 · 풀 · 돌멩이 ═══════════════════════ */
@@ -4465,10 +4981,11 @@ function scatterDecor(){
   const Lf = (x,z, sc, col, seed)=> bpush('bushS', LEAFV[1], WMAT, x, GY+sc*0.30, z, rnd(seed)*6.28, sc, sc*0.68, sc, 0, col);
   const Pb = (x,z, sc, seed)=> bpush('peb', PEBG, WMAT, x, GY+sc*0.16, z, rnd(seed)*6.28, sc, sc*0.62, sc*0.9, 0, ROCK_C[1]);
   const FLW = (x,z, pc)=>{                                // 꽃 한 벌 — 줄기·꽃잎·속을 반드시 셋 같이
-    bpush('stem',  WGEO,  WMAT, x, GY+0.11, z, 0, 0.06,0.24,0.06, 0, 0x5aa845);
+    bpush('stem',  WGEO,  WMAT, x, GY+0.11, z, 0, 0.06,0.24,0.06, 0, 0x4f8f3e);
     bpush('petal', LEAFG, WMAT, x, GY+0.27, z, rnd(x*3.1+z*1.7)*6.28, 0.28,0.16,0.28, 0, pc);
-    bpush('pist',  LEAFG, WMAT, x, GY+0.33, z, 0, 0.11,0.08,0.11, 0, 0xffe36a); };
-  const LEAF_A = 0x74c853, LEAF_B = 0x5fb646;
+    bpush('pist',  LEAFG, WMAT, x, GY+0.33, z, 0, 0.11,0.08,0.11, 0, 0xf5d54e); };
+  /* 65차 — 잎 셋은 팔레트 초록(형광기 뺌) · C 는 마른 관목(산자락 띠의 셋 중 하나) · 줄기·꽃 속도 차분하게 */
+  const LEAF_A = 0x68ad4c, LEAF_B = 0x56993f, LEAF_C = 0x8f9c4c;
   /* 놓아도 되나 — 평지 · 농장 우리(제일 큰 단계 + 0.8 — 한 번 심은 것은 안 사라지므로 커질 크기로 잰다) ·
      물가 · 흙길 · 자원 덩어리. 걸리면 그냥 안 심는다(아이 땅은 한 칸도 안 줄어든다) */
   const okAt = (x, z, pd)=>{
@@ -4494,16 +5011,17 @@ function scatterDecor(){
     if(lsInMouth(cx, cz, 6) || !okAt(cx, cz, 2.0)) continue;
     const n = 1 + ((rnd(seed+1)*3)|0);
     for(let i=0;i<n;i++){ const a = rnd(seed+2+i)*6.283, rr = i ? 0.55 : 0;
-      Lf(cx + Math.cos(a)*rr, cz + Math.sin(a)*rr, 0.66 + rnd(seed+5+i)*0.28, (i%2) ? LEAF_B : LEAF_A, seed+9+i); }
+      Lf(cx + Math.cos(a)*rr, cz + Math.sin(a)*rr, 0.66 + rnd(seed+5+i)*0.28, (i%3===2) ? LEAF_C : ((i%2) ? LEAF_B : LEAF_A), seed+9+i); }
   }
 
   /* ── ② 수풀 뭉치 30(명세 3.8) — r 12~40 에서 rnd 로 뽑는다: 흙길 2.8 · 농장 · 물 · 자원 1.3 · 협곡 어귀 6 밖 · 서로 4.5.
        뭉치 하나 = bush 3(0.66, 산자락 od>37 이면 0.90 — 바위 옆 큰 수풀) + bushS 3(0.44) + 꽃 2벌(같은 색) + 돌 1 = 12조각, 중심에서 0.3~1.4.
        반지름 12 안(광장·안마당)은 villageLife 풀포기만 남기고 비운다 ── */
-  const FLW_C = [0xff9ec4, 0xffd84d, 0xffffff];
+  const FLW_C = [0xf4a3c4, 0xf2d35a, 0xf7f5ea];
   const centers = [];
-  for(let i=0; i<4000 && centers.length<30; i++){
+  for(let pass=0; pass<2 && centers.length<30; pass++) for(let i=pass*4000; i<(pass+1)*4000 && centers.length<30; i++){
     const a = rnd(i*1.7+0.3)*6.283, r = 12 + rnd(i*2.9+0.7)*28, x = Math.cos(a)*r, z = Math.sin(a)*r;
+    if(moistAt(x, z) < (pass ? 0.45 : 0.58)) continue;                   // 65차 — 수풀은 촉촉한 쪽에 먼저 뭉친다(설계 B) · 모자라면 문턱을 낮춰 개수 30 고정(t32 여유)
     if(!okAt(x, z, 2.8) || lsInMouth(x, z, 6)) continue;
     let near = false;
     for(const c of centers) if(Math.hypot(c[0]-x, c[1]-z) < 4.5){ near = true; break; }
@@ -4522,17 +5040,26 @@ function scatterDecor(){
 
   /* ── ③ 들꽃 밭 6(명세 3.5) — 반지름 1.8 안에 한 색 70% + 흰 30% 꽃 14벌 + 가장자리 수풀 셋.
        [x, z, 색, 반지름(없으면 1.8), 꽃 수(없으면 14)] — 64차 풍경 자리표의 좌표·색·반지름 그대로. (−22,−22) 는 '꽃동산' r 3.0 · 28벌 ── */
-  const MEADOWS = [[22,22,0xffd84d],[-22,-22,0xff9ec4,3.0,28],[-20,28,0xffffff],[30,19,0xff9ec4],[-31,-23,0xffd84d],[24,-27,0xffffff]];
+  const MEADOWS = [[22,22,0xf2d35a],[-22,-22,0xf4a3c4,3.0,28],[-20,28,0xf7f5ea],[30,19,0xf4a3c4],[-31,-23,0xf2d35a],[24,-27,0xf7f5ea]];
   for(let mi=0; mi<MEADOWS.length; mi++){
     const m = MEADOWS[mi], seed = 70.9 + mi*8.3, mr = m[3] || 1.8, mn = m[4] || 14;
+    const ea = rnd(seed+0.9)*3.14, ce = Math.cos(ea), se = Math.sin(ea);
     for(let i=0;i<mn;i++){ const a = rnd(seed+i)*6.283, rr = Math.sqrt(rnd(seed+i*2.1))*mr;   // sqrt → 원 안에 고르게
-      const x = m[0] + Math.cos(a)*rr, z = m[1] + Math.sin(a)*rr;
+      const ex = Math.cos(a)*rr*1.5, ez = Math.sin(a)*rr*0.7; const x = m[0] + ex*ce - ez*se, z = m[1] + ex*se + ez*ce;
       if(!okAt(x, z, 2.8)) continue;
-      FLW(x, z, (i % 10 < 7) ? m[2] : 0xffffff); }
+      FLW(x, z, (i % 10 < 7) ? m[2] : 0xf7f5ea); }
     const nb = mr > 2 ? 5 : 3;                                                                   // 큰 밭(꽃동산)은 가장자리 수풀 다섯
-    for(let i=0;i<nb;i++){ const a = seed + i*6.283/nb, x = m[0] + Math.cos(a)*(mr+0.4), z = m[1] + Math.sin(a)*(mr+0.4);
+    for(let i=0;i<nb;i++){ const a = seed + i*6.283/nb, ex = Math.cos(a)*(mr+0.4)*1.5, ez = Math.sin(a)*(mr+0.4)*0.7, x = m[0] + ex*ce - ez*se, z = m[1] + ex*se + ez*ce;
       if(okAt(x, z, 2.8)) Lf(x, z, 0.50, (i%2) ? LEAF_B : LEAF_A, seed+i*4.4); }
   }
+  /* ── ④ 65차 — 촉촉한 쪽 덤불 드리프트 6줄(길이 8~12칸). 물기 지도(moistAt)가 진한 풀색을 칠한 자리에만 — 색과 모양이 같은 까닭을 가리킨다 ── */
+  for(let di=0, made=0; di<60 && made<6; di++){ const sd0 = 90.7 + di*4.3, a = rnd(sd0)*6.283, rr = 16 + rnd(sd0+1)*22;
+    const cx0 = Math.cos(a)*rr, cz0 = Math.sin(a)*rr;
+    if(moistAt(cx0, cz0) < 0.62 || !okAt(cx0, cz0, 2.8) || lsInMouth(cx0, cz0, 6)) continue;
+    const dir = rnd(sd0+2)*3.14, L = 8 + rnd(sd0+3)*4; made++;
+    for(let k=0;k<10;k++){ const u = (k/9 - 0.5)*L, x = cx0 + Math.cos(dir)*u + (rnd(sd0+k)-0.5)*1.2, z = cz0 + Math.sin(dir)*u + (rnd(sd0+k*2)-0.5)*1.2;
+      if(!okAt(x, z, 2.8) || lsInMouth(x, z, 6)) continue;
+      Lf(x, z, 0.30 + rnd(sd0+k*3)*0.16, (k%3) ? LEAF_B : LEAF_A, sd0+k); } }
 }
 
 /* ═══════════════════════ 모둠 성문 ═══════════════════════ */
@@ -4929,22 +5456,49 @@ function updCrystal(dt, t, cp, lastLight, skyK){
 
 /* ═══════════════════════ 구름 ═══════════════════════ */
 /* 31차 — 네모 상자 뭉치 → 납작한 공 뭉치(인스턴스 메시 하나). 열여섯 덩이가 흘러가므로 행렬은 매 프레임 다시 쓴다(백 개 남짓, 값이 안 든다). */
-const CLOUD_N = 16, CLOUDG = new THREE.SphereGeometry(0.5, 12, 8);
-const clouds = [];                                   // {x,y,z, puffs:[{dx,dy,dz,sx,sy,sz}]}
+const CLOUD_N = 18, CIRRUS_N = 5, CLOUDG = new THREE.SphereGeometry(0.5, 12, 8);   // ← 옛 'const CLOUD_N = 16, CLOUDG = …' 줄을 바꿔 쓴다
+const clouds = [];
 let cloudMesh, cloudMat;
+const CLOUD_U = { uCSun:{value:new THREE.Vector3(0.57, 0.64, 0.51)}, uCLit:{value:new THREE.Color(1.04, 1.02, 0.98)}, uCShade:{value:new THREE.Color(0.64, 0.70, 0.82)},
+                  uCRim:{value:new THREE.Color(0.8, 0.75, 0.6)}, uCHaze:{value:new THREE.Color(0.6, 0.8, 1.05)} };
+const CLOUD_V_GLSL = `#include <begin_vertex>
+transformed.y = max(transformed.y, -0.18);                          // 공 밑을 잘라 판판한 구름 밑 (65차)
+vec3 cn = position.y < -0.18 ? vec3(0.0, -1.0, 0.0) : normal;
+vec4 cw = vec4(transformed, 1.0);
+#ifdef USE_INSTANCING
+  mat3 cm = mat3(instanceMatrix);
+  cn = cm * (cn / vec3(dot(cm[0], cm[0]), dot(cm[1], cm[1]), dot(cm[2], cm[2])));   // 늘인 공의 법선 (회전 없는 인스턴스)
+  cw = instanceMatrix * cw;
+#endif
+vCN = normalize(cn); vCW = (modelMatrix * cw).xyz;`;
+const CLOUD_F_GLSL = `// 65차 구름 — 손으로 빛: 해 쪽·윗면 희고 밑·그늘 푸른 회색, 해를 등진 가장자리 은빛, 먼 구름은 지평선 빛으로
+{ vec3 n = normalize(vCN); vec3 V = normalize(cameraPosition - vCW);
+  float lit = clamp(dot(n, uCSun) * 0.45 + n.y * 0.35 + 0.45, 0.0, 1.0);
+  vec3 csh = mix(uCShade, uCLit, lit);                                  // 해 쪽·윗면 희고, 밑·그늘은 푸른 회색
+  float rim = pow(1.0 - max(dot(n, V), 0.0), 3.0) * pow(max(dot(-V, uCSun), 0.0), 3.0);   // 해를 등진 가장자리 은빛
+  outgoingLight = diffuseColor.rgb * (csh + uCRim * rim);
+  outgoingLight = mix(outgoingLight, uCHaze, smoothstep(120.0, 320.0, length(vCW - cameraPosition)) * 0.55); }   // 먼 구름은 지평선 빛으로
+#include <opaque_fragment>`;
 function buildClouds(){
-  cloudMat = new THREE.MeshLambertMaterial({color:0xffffff, fog:false});
-  let total = 0;
-  for(let i=0;i<CLOUD_N;i++){
-    const n = 4+(Math.random()*4|0), puffs=[], L = 12+Math.random()*10;
-    for(let k=0;k<n;k++){
-      const u = (k+0.5)/n - 0.5, sc = (5.5+Math.random()*4) * (1 - Math.abs(u)*0.8);
-      puffs.push({dx:u*L, dy:(Math.random()-.5)*1.2 + sc*0.10, dz:(Math.random()-.5)*4,
-                  sx:sc*1.25, sy:sc*0.72, sz:sc});
-    }
-    clouds.push({x:(Math.random()-.5)*230, y:52+Math.random()*22, z:(Math.random()-.5)*230, puffs});
-    total += n;
+  cloudMat = new THREE.MeshBasicMaterial({color:0xffffff, fog:false});    // 65차 — Lambert → Basic(빛 계산이 빠져 오히려 싸다. 같은 자리 한 개 — 새 재질 아님)
+  cloudMat.onBeforeCompile = (sh)=>{ Object.assign(sh.uniforms, CLOUD_U);
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vCN; varying vec3 vCW;').replace('#include <begin_vertex>', CLOUD_V_GLSL);
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vCN; varying vec3 vCW; uniform vec3 uCSun; uniform vec3 uCLit; uniform vec3 uCShade; uniform vec3 uCRim; uniform vec3 uCHaze;')
+      .replace('#include <opaque_fragment>', CLOUD_F_GLSL);
+    if(!sh.fragmentShader.includes('65차 구름')) console.error('65차 — 구름 셰이더 치환 실패'); };
+  cloudMat.customProgramCacheKey = ()=> 'cloud65';
+  for(let i=0;i<CLOUD_N;i++){                                             // 뭉게구름 먼저 — t32 가 clouds[0] 의 속도(0.55)를 잰다
+    const sd = 300 + i*7.31, L = 14 + rnd(sd)*10, nb = 4 + ((rnd(sd+1)*3)|0), nt = 2 + ((rnd(sd+2)*3)|0), puffs = [];
+    for(let k=0;k<nb;k++){ const u = (k+0.5)/nb - 0.5, sc = (5 + rnd(sd+3+k)*3.5)*(1 - Math.abs(u)*0.5), sy = sc*0.55;
+      puffs.push({dx:u*L, dy:0.18*sy + rnd(sd+10+k)*0.25, dz:(rnd(sd+20+k)-0.5)*4, sx:sc*1.3, sy, sz:sc}); }   // 잘린 밑이 한 판(c.y)에 모인다
+    for(let k=0;k<nt;k++){ const sc = 4.5 + rnd(sd+40+k)*2.5;
+      puffs.push({dx:(rnd(sd+30+k)-0.5)*0.6*L, dy:2.2 + rnd(sd+50+k)*2.0, dz:(rnd(sd+60+k)-0.5)*2.5, sx:sc*1.1, sy:sc*0.62, sz:sc*0.95}); }   // 위 봉오리
+    clouds.push({x:(rnd(sd+70)-0.5)*230, y:54 + rnd(sd+71)*16, z:(rnd(sd+72)-0.5)*230, sp:0.55, puffs});
   }
+  for(let i=0;i<CIRRUS_N;i++){ const sd = 900 + i*5.7;                    // 높은 새털구름 — 납작하게 길게, 천천히
+    clouds.push({x:(rnd(sd)-0.5)*260, y:92 + rnd(sd+1)*14, z:(rnd(sd+2)-0.5)*260, sp:0.35,
+      puffs:[0,1,2].map(k=>({dx:(k-1)*14, dy:0, dz:(k-1)*3, sx:26, sy:1.1, sz:7}))}); }
+  let total = 0; for(const c of clouds) total += c.puffs.length;         // ★ 다 넣은 뒤 센다 (설계 B)
   cloudMesh = new THREE.InstancedMesh(CLOUDG, cloudMat, total);
   cloudMesh.frustumCulled = false; scene.add(cloudMesh);
   updClouds(0);
@@ -4953,7 +5507,7 @@ const _cv2=new THREE.Vector3(), _cq2=new THREE.Quaternion(), _cs2=new THREE.Vect
 function updClouds(dt){
   let i = 0;
   for(const c of clouds){
-    c.x += dt*0.55; if(c.x > 160) c.x = -160;
+    c.x += dt*(c.sp || 0.55); if(c.x > 160) c.x = -160;
     for(const p of c.puffs){
       _cv2.set(c.x+p.dx, c.y+p.dy, c.z+p.dz); _cs2.set(p.sx, p.sy, p.sz);
       cloudMesh.setMatrixAt(i++, _cm3.compose(_cv2, _cq2, _cs2));
@@ -5449,8 +6003,9 @@ function villageLife(){
       if(Math.hypot(x-FARM_X[g], z-FARM_Z[g]) < FARM_R2[FARM_R2.length-1] + 0.8) return false;
     return true;
   };
-  const GRASSC = [0x64bf52, 0x7ac95e, 0x8ed46a];
-  const FLOWC  = [0xff6f6f, 0xffd84d, 0xffffff, 0xc98cff, 0x6fb8ff, 0xff9ec4];   // scatterDecor 와 같은 여섯 색
+  /* 65차 — 포기 색은 바닥 풀보다 반 단계 어둡게(덩이로 읽힌다), 꽃은 팔레트 셋(분홍·노랑·흰)만 */
+  const GRASSC = [0x5a9e45, 0x6aad4f, 0x7db85a];
+  const FLOWC  = [0xf4a3c4, 0xf2d35a, 0xf7f5ea];
   const CL = [];
   /* 두 번 돌린다: 처음에는 3.0칸씩 떨어뜨려 마을을 고루 덮고, 열여섯이 안 차면
      1.8칸으로 다시 채운다. 쓸 수 있는 땅이 얼마 안 남았을 때도 개수가 흔들리지 않는다. */
@@ -5458,7 +6013,7 @@ function villageLife(){
     const sep = pass ? 1.8 : 3.0;
     for(let i=0;i<400 && CL.length<16;i++){
       const s = (i + pass*400) * 1.31;
-      const a = rnd(s)*6.283, r = 8.9 + rnd(s+0.7)*4.4;     // 광장 연석(8.5) 밖 ~ 농장 고리(14) 안
+      const a = rnd(s)*6.283, r = 8.9 + rnd(s+0.7)*7.1;     // 65차 — 광장이 빠져 수정 8.9칸 밖 ~ 16칸 안마당에 고루(농장 둘레는 free 가 뺀다)
       const x = Math.cos(a)*r, z = Math.sin(a)*r;
       if(!free(x, z, 2.6)) continue;
       let near = false;
@@ -5472,8 +6027,8 @@ function villageLife(){
     const x = CL[i][0] + Math.cos(a)*rr, z = CL[i][1] + Math.sin(a)*rr;
     if(!free(x, z, 2.2)) continue;
     /* 꽃은 정확히 네 포기에 하나 — 난수로 뽑으면 개수가 흔들려 정원을 못 잰다 */
-    const fl = (LIFE.tufts.length % 4 === 1) ? FLOWC[(rnd(s+4.7)*6)|0] : 0;
-    LIFE.tufts.push({x, z, h:0.30 + rnd(s+2.3)*0.22, w:0.26 + rnd(s+3.1)*0.08,
+    const fl = (LIFE.tufts.length % 4 === 1) ? FLOWC[(rnd(s+4.7)*FLOWC.length)|0] : 0;
+    LIFE.tufts.push({x, z, h:0.34 + rnd(s+2.3)*0.24, w:0.17 + rnd(s+3.1)*0.07,   // 65차 — 달걀 → 가늘고 긴 포기
                      col:GRASSC[(rnd(s+5.3)*3)|0], fl,
                      cell:Math.floor(x)+','+Math.floor(z), on:true});
   }
@@ -12983,10 +13538,20 @@ function shopCatalogCard(ic, name, desc, cost, state, label, onBuy){
   d.tabIndex = -1;
   b.textContent = state === 'own' ? label : state === 'lock' ? label : state === 'no' ? '자원이 모자라요' : label === '사기' ? '구매하기' : label;
   b.setAttribute('aria-label', `${d.querySelector('.sn').textContent} — ${b.textContent}`);
+  /* 65차 나무 진열대 — 이름은 그림 위 주황 명판으로 올린다(참고 그림처럼). 설명·가격·단추는 그림 아래에 그대로 남는다 */
+  d.insertBefore(d.querySelector('.sn'), d.querySelector('.si'));
   if(cost){
     const r = myRes();
-    d.querySelector('.sc').innerHTML = RES_KEYS.filter(k=>cost[k]).map(k=>
-      `<span class="shopPrice${(r[k]||0)<cost[k]?' short':''}" aria-label="${RES_NM[k]} ${cost[k]} 필요">${iconImg(SHOP_RES_ICON[k],RES_IC[k])}<b>${cost[k]}</b></span>`).join('');
+    /* 가격은 주황 구매 단추 안에 자원 그림 + 숫자로 싣는다 — 따로 한 줄을 쓰지 않아 짧은 화면에서 첫 줄 단추가 올라온다.
+       글자(구매하기·자원이 모자라요·🔒 레벨 N부터)는 그 옆에 그대로 남는다 */
+    const want = RES_KEYS.filter(k=>cost[k]);
+    d.querySelector('.sc').innerHTML = '';
+    const lbl = document.createElement('span'); lbl.className = 'sLbl'; lbl.textContent = b.textContent;
+    b.textContent = '';
+    b.insertAdjacentHTML('beforeend', `<span class="sPrices">` + want.map(k=>
+      `<span class="shopPrice${(r[k]||0)<cost[k]?' short':''}" aria-label="${RES_NM[k]} ${cost[k]} 필요">${iconImg(SHOP_RES_ICON[k],RES_IC[k])}<b>${cost[k]}</b></span>`).join('') + `</span>`);
+    b.appendChild(lbl);
+    if(state !== 'own') b.setAttribute('aria-label', b.getAttribute('aria-label') + ` (${want.map(k=>RES_NM[k]+' '+cost[k]).join(' · ')})`);
     if(state === 'no'){      // 레벨이 모자란 카드(lock)는 자원보다 레벨을 먼저 알려 준다 — 그 문구는 buildShopUI 가 붙인다
       const lack = document.createElement('div'); lack.className = 'shopLack';
       lack.textContent = RES_KEYS.filter(k=>(cost[k]||0)>(r[k]||0)).map(k=>`${RES_NM[k]} ${cost[k]-(r[k]||0)}`).join(' · ') + ' 더 필요해요';
@@ -13047,12 +13612,13 @@ function buildShopUI(){
       const own = !!KIT.ownW[i];
       const st = own ? 'own' : !wpnLvOk(i) ? 'lock' : canPay(W.cost) ? '' : 'no';
       const em = enhMul(i), e = enhOf(i);
-      const desc = `${W.d}<br>${wpnStatBars(W, em)}`
-                 + (e ? ` <span class="wEnh">(강화 +${e})</span>` : '');
+      const desc = W.d + (e ? ` <span class="wEnh">(강화 +${e})</span>` : '');
       const card = shopCatalogCard(iconImg('wpn'+i, W.ic), W.n + enhTxt(e), desc, W.cost, st,
         own ? (KIT.wpn===i ? '들고 있음' : '가방에 있음') : st === 'lock' ? `🔒 레벨 ${wpnLv(i)}부터` : '사기', ()=>buyWeapon(i));
       card.classList.add('tier-' + TIER_ALL(W));
       card.querySelector('.si').insertAdjacentHTML('beforeend', wpnTags(i));
+      /* 능력치 막대는 그림 아래 선반 앞판(설명 다음 줄)에 — 설명(.sd)은 글만 남는다 */
+      card.querySelector('.sd').insertAdjacentHTML('afterend', wpnStatBars(W, em));
       /* 잠긴 까닭은 단추('🔒 레벨 N부터')·딱지('레벨 부족')·빨간 Lv 가 함께 말한다. 줄을 더 붙이면 짧은 화면에서
          첫 줄의 구매 단추가 목록 밖으로 밀린다(t54-view 1024×600·800×600) — 그래서 문구 줄은 안 붙인다. 지금 레벨은 상인 말 끝에 있다. */
       w.appendChild(card);
@@ -19574,18 +20140,49 @@ function loadFonts(force){
 if(document.readyState === 'complete') loadFonts(); else addEventListener('load', ()=>loadFonts(), {once:true});
 
 /* ═══════════════════════ 하늘 / 조명 ═══════════════════════ */
-const _cA = new THREE.Color(), _cB = new THREE.Color();
+const _cA = new THREE.Color(), _cB = new THREE.Color(), _cC = new THREE.Color(), _dome = new THREE.Color(), _skyHz = new THREE.Color();
+const _sunW = new THREE.Vector3(), _moonW = new THREE.Vector3(), _litT = new THREE.Vector3();
+const _litW = new THREE.Vector3(Math.cos(0.70)*Math.cos(0.74), Math.sin(0.70), Math.cos(0.70)*Math.sin(0.74));   // 첫 프레임부터 낮 해 방향
+/* 65차 — 선형 색 c 를 AgX(three 0.160 식 그대로)·노출에 통과시켜 out 에 (선형) 넣는다. three 가 안개색을 올릴 때 sRGB 로 바꾸므로
+   이 값을 scene.fog.color 에 두면 화면 안개 = 돔이 보이는 하늘색. 시험대: 가득 낀 안개 (192,198,203) = 돔 (192,198,203) */
+function skyToneLin(c, out){
+  const e = renderer.toneMappingExposure;
+  if(renderer.toneMapping !== THREE.AgXToneMapping){ const k = renderer.toneMapping === THREE.LinearToneMapping ? e : 1;
+    return out.setRGB(Math.min(1, c.r*k), Math.min(1, c.g*k), Math.min(1, c.b*k)); }
+  let r = (0.6274*c.r + 0.3293*c.g + 0.0433*c.b)*e, g = (0.0691*c.r + 0.9195*c.g + 0.0113*c.b)*e, b = (0.0164*c.r + 0.0880*c.g + 0.8956*c.b)*e;
+  const r1 = 0.856627153315983*r + 0.0951212405381588*g + 0.0482516061458583*b,
+        g1 = 0.137318972929847*r + 0.761241990602591*g + 0.101439036467562*b,
+        b1 = 0.11189821299995*r + 0.0767994186031903*g + 0.811302368396859*b;
+  const lg = v=> Math.min(1, Math.max(0, (Math.log2(Math.max(v, 1e-10)) + 12.47393) / 16.499999));
+  const sg = x=>{ const x2 = x*x, x4 = x2*x2; return 15.5*x4*x2 - 40.14*x4*x + 31.96*x4 - 6.868*x2*x + 0.4298*x2 + 0.1191*x - 0.00232; };
+  const r2 = sg(lg(r1)), g2 = sg(lg(g1)), b2 = sg(lg(b1));
+  const r3 = Math.pow(Math.max(0, 1.1271005818144368*r2 - 0.11060664309660323*g2 - 0.016493938717834573*b2), 2.2),
+        g3 = Math.pow(Math.max(0, -0.1413297634984383*r2 + 1.157823702216272*g2 - 0.016493938717834257*b2), 2.2),
+        b3 = Math.pow(Math.max(0, -0.14132976349843826*r2 - 0.11060664309660294*g2 + 1.2519364065950405*b2), 2.2);
+  const cl = v=> Math.min(1, Math.max(0, v));
+  return out.setRGB(cl(1.6605*r3 - 0.5876*g3 - 0.0728*b3), cl(-0.1246*r3 + 1.1329*g3 - 0.0083*b3), cl(-0.0182*r3 - 0.1006*g3 + 1.1187*b3));
+}
 function updSky(dt, night){
   const k = night ? 1 : 0;
   skyK += (k - skyK) * Math.min(1, dt*1.3);
   NIGHTK = skyK;
   // 해·달이 하늘을 가로지른다
-  const th = Math.PI/2 + skyK*Math.PI - 0.34;
-  skyPivot.rotation.x = th;
-
-  sun.position.set(Math.cos(th*0.6)*60, Math.max(14, Math.abs(Math.sin(th))*62), 40);
-  shadowFollow(camera.position.x, camera.position.z);   // 25차 — 그림자 상자를 사람 주변으로
+  const kD = THREE.MathUtils.smoothstep(skyK, 0.0, 0.5), kN = THREE.MathUtils.smoothstep(skyK, 0.5, 0.9);
+  const sEl = SUN_PATH.elDay + (SUN_PATH.elDusk - SUN_PATH.elDay)*kD + (-0.30 - SUN_PATH.elDusk)*kN;
+  const sAz = SUN_PATH.azDay + (SUN_PATH.azDusk - SUN_PATH.azDay)*kD + 0.30*kN;
+  const mEl = -0.20 + (SUN_PATH.moonEl + 0.20)*THREE.MathUtils.smoothstep(skyK, 0.5, 0.95), mAz = SUN_PATH.moonAz;
+  _sunW.set(Math.cos(sEl)*Math.cos(sAz), Math.sin(sEl), Math.cos(sEl)*Math.sin(sAz));
+  _moonW.set(Math.cos(mEl)*Math.cos(mAz), Math.sin(mEl), Math.cos(mEl)*Math.sin(mAz));
+  _litT.copy(sEl > 0.03 ? _sunW : _moonW);                      // ★ 지평선 위에 있는 쪽이 빛을 낸다 (skyK 문턱으로 고르면 노을에 지평선 아래 달을 고른다)
+  if(_litT.y < 0.22) _litT.y = 0.22; _litT.normalize();          // 그림자 빛은 12.7° 아래로 안 내려간다(그림자 상자·여드름)
+  _litW.lerp(_litT, dt > 0 ? Math.min(1, dt*1.5) : 1).normalize();   // 둘 다 y ≥ 0.22 라 섞어도 길이가 0 이 안 된다
   skyPivot.position.copy(camera.position);
+  sunDisc.position.copy(_sunW).multiplyScalar(195);  sunDisc.visible = sEl > -0.10;
+  moonDisc.position.copy(_moonW).multiplyScalar(195); moonDisc.visible = mEl > -0.10;
+  sunDisc.lookAt(camera.position); moonDisc.lookAt(camera.position);
+  sunDisc.children[0].material.color.setRGB(2.6 - 1.1*kD, 2.45 - 1.67*kD, 2.1 - 1.74*kD);   // 노을 해는 복숭아빛 (1.5,0.78,0.36)
+  sun.position.copy(_litW).multiplyScalar(100);
+  shadowFollow(camera.position.x, camera.position.z);          // 방향만 읽는다 — 함수는 그대로
   stars.position.copy(camera.position);
   stars.material.opacity = Math.max(0, skyK*1.35 - 0.32);
   stars.rotation.y += dt*0.006;
@@ -19603,7 +20200,7 @@ function updSky(dt, night){
       meteor.lookAt(metL.addScaledVector(metD, 5)); meteor.scale.set(1, 1, 0.4 + Math.sin(k*Math.PI)*1.6);
       meteor.material.opacity = Math.sin(k*Math.PI)*0.9; if(metT <= 0) meteor.visible = false; }
   } else if(meteor.visible){ meteor.visible = false; metT = 0; }
-  if(pondRipple){ const ph = (tAcc*0.42) % 1, rs = 0.4 + ph*3.4; pondRipple.scale.set(rs, rs, 1); pondRipple.material.opacity = 0.55*(1-ph); }
+  if(pondRipple && pondRipple.visible){ const ph = (tAcc*0.42) % 1, rs = 0.4 + ph*3.4; pondRipple.scale.set(rs, rs, 1); pondRipple.material.opacity = 0.55*(1-ph); }
   // 횃불은 밤에 켜지고 살짝 흔들린다
   const fl = skyK * (0.85 + Math.sin(tAcc*7.3)*0.07 + Math.sin(tAcc*3.1)*0.05);
   EMIT.emissiveIntensity = fl; EMIT_F.emissiveIntensity = fl;
@@ -19621,10 +20218,8 @@ function updSky(dt, night){
     fireMesh.instanceMatrix.needsUpdate = true;
     fireMat.opacity = 0.45 + 0.5*Math.sin(tAcc*2.2)*0.3 + 0.3;
   }
-  _cA.copy(SKY_DAY).lerp(SKY_NIGHT, skyK);
   /* 노을은 낮↔밤 **사이에서만** 뜬다. 0.5 에서 제일 세고 0과 1에서 0이 된다. */
   const dusk = Math.sin(Math.min(1, Math.max(0, skyK)) * Math.PI);
-  _cA.lerp(SKY_DUSK, dusk * 0.42);
   /* 33차 무서움의 온도 — 밤엔 집중 입구 쪽 지평선이 붉다. 좀비가 수정(0,0)에 가까울수록 진하고 천천히 숨 쉰다 */
   let thr = 0;
   if(G.phase === 'night' && skyK > 0.5){
@@ -19641,21 +20236,30 @@ function updSky(dt, night){
     const dq = Math.round(dusk*20)/20, tq = Math.round(threatK*10)/10;        // 0.05 · 0.1 칸으로 끊어 자잘한 흔들림엔 안 칠한다
     if(dq !== skyPaintD || tq !== skyPaintT || (tq > 0 && tu !== skyPaintU)){ paintSky(dq, tq, tu); skyRepaintT = 0.5; }
   }
-  scene.background.copy(_cA);
-  scene.fog.color.copy(_cA);
-  /* 하늘 돔은 안개보다 조금 더 진하게 — 안개와 똑같으면 지평선이 안 보인다 */
-  skyDome.material.color.copy(_cA).multiplyScalar(1.06);
+  _dome.copy(DOME_DAY).lerp(DOME_NIGHT, skyK).lerp(SKY_DUSK, dusk*0.30);
+  skyDome.material.color.copy(_dome);
+  _skyHz.copy(skyHazeRow).multiply(_dome);                       // 산마루 위 하늘색(선형) — 낮 (0.14,0.36,0.92) · 노을 (0.48,0.10,0.08) · 밤 (0.004,0.024,0.21)
+  scene.background.copy(_skyHz);                                 // ★ 약속 1-2 — M1 연못이 비춘다
+  if(GFX.bloom) scene.fog.color.copy(_skyHz);                    // 빛번짐 길(렌더 타깃)은 톤매핑을 뒤에서 한다
+  else skyToneLin(_skyHz, scene.fog.color);                      // 화면 안개 = 돔이 보이는 색 → 낮 (142,177,213) · 노을 (190,120,109) · 밤 (1,74,157)
+  fogNear0 = FOG_D.near + (FOG_N.near - FOG_D.near)*skyK; fogFar0 = FOG_D.far + (FOG_N.far - FOG_D.far)*skyK;   // 실제 near/far 는 scene.onBeforeRender 가 카메라 높이를 더해 넣는다
   skyDome.position.copy(camera.position);
-  scene.fog.near = 68 - skyK*14; scene.fog.far = 152 - skyK*38;
-  hemi.color.copy(HEMI_DS).lerp(HEMI_NS, skyK);
+  hemi.color.copy(HEMI_DS).lerp(HEMI_NS, skyK).lerp(HEMI_DUSK, dusk*0.35);
   hemi.groundColor.copy(HEMI_DG).lerp(HEMI_NG, skyK);
-
-  hemi.intensity = (0.95 - skyK*0.34) * LIT_K;
-  sun.color.copy(SUN_D).lerp(SUN_N, skyK);
-  /* 밤에도 달빛 그림자는 남긴다 — 낮에만 그림자가 있으면 밤이 평평해 보인다. */
-  sun.intensity = (0.62 - skyK*0.45) * LIT_K;      // 48차b — 1.15 → 0.62
-  amb.intensity = (0.62 - skyK*0.26) * LIT_K;      // 48차b — 0.30 → 0.62 (흰 환경광 — 색을 안 바래게 하면서 그늘만 옅게)
-  cloudMat.color.setScalar(1-skyK*0.66);
+  hemi.intensity = (LIGHT_D.hemi + (LIGHT_N.hemi - LIGHT_D.hemi)*skyK) * LIT_K;
+  sun.color.copy(SUN_D).lerp(SUN_N, skyK).lerp(SUN_DUSK, dusk*0.75);
+  sun.intensity  = (LIGHT_D.sun  + (LIGHT_N.sun  - LIGHT_D.sun )*skyK) * LIT_K;
+  amb.intensity  = (LIGHT_D.amb  + (LIGHT_N.amb  - LIGHT_D.amb )*skyK) * LIT_K;
+  SKY_U.uSunSky.value.copy(_sunW); SKY_U.uMoonDir.value.copy(_moonW);
+  SKY_U.uSunGlow.value.setHex(0xfff0d0).lerp(_cB.setHex(0xff9a50), dusk).multiplyScalar((0.8 + 0.6*dusk)*THREE.MathUtils.smoothstep(sEl, -0.15, 0.02));
+  SKY_U.uMoonGlow.value.setHex(0x2a3a60).multiplyScalar(THREE.MathUtils.smoothstep(mEl, -0.10, 0.10));
+  SKY_U.uBeltK.value = 0.35*dusk;                                        // 비너스 띠(설계 A) — 해 반대편 분홍보라
+  CLOUD_U.uCSun.value.copy(_litW); CLOUD_U.uCHaze.value.copy(_skyHz);
+  /* 밤 구름은 달빛 푸른 회색 — Basic 은 빛을 안 받아 0.90 을 두면 남빛 하늘에 흰 솜(화면 ≈156)으로 뜬다. 0.44 → 화면 ≈100 (옛 Lambert 밤 구름 75~100 과 같다) */
+  CLOUD_U.uCLit.value.setRGB(1.04, 1.02, 0.98).lerp(_cB.setRGB(0.40, 0.44, 0.58), skyK).lerp(_cC.setRGB(1.10, 0.78, 0.58), dusk);
+  CLOUD_U.uCShade.value.setRGB(0.64, 0.70, 0.82).lerp(_cB.setRGB(0.26, 0.30, 0.42), skyK).lerp(_cC.setRGB(0.52, 0.46, 0.60), dusk);
+  CLOUD_U.uCRim.value.setRGB(0.8, 0.75, 0.6).multiplyScalar(1 - skyK*0.7);
+  cloudMat.color.setScalar(1 - skyK*0.66);                               // 그대로 (t32 밤 0.34 < 0.5 · 낮 1.0 > 0.9)
 }
 let skyK = 0;
 let NIGHTK = 0;      // 0=한낮 1=한밤 — 좀비 눈이 이걸 보고 타오른다
