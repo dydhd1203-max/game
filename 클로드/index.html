@@ -6325,13 +6325,13 @@ const BUILD = {
           spawn:[9, 8.4, 7.8, 7.2, 6.5, 5.8, 5.2], sbuff:[1.0, 1.18, 1.42, 1.72, 2.10, 2.55, 3.05],
           up:[{w:16,s:13,g:5},{w:22,s:17,g:9},{w:29,s:23,g:15},{w:38,s:31,g:23},{w:50,s:41,g:34},{w:78,s:64,g:66}],
           desc:'우리 편 병사가 나옵니다. Lv3부터 갑옷병, Lv5부터 마법사, Lv7이면 마법사가 셋.' },
-  pulse:{ name:'충격파 포탑',icon:'🌀',cost:{w:14,s:14,g:4},size:2,
+  pulse:{ name:'대포탑',icon:'💣',cost:{w:14,s:14,g:4},size:2,   // 65차 — 충격파 포탑을 대포로(저장 열쇠 'pulse' 는 그대로)
           hi:[2.6,2.6,2.9,2.9,3.2,3.2,3.45],
           hp:[410,570,780,1050,1370,1810,2350],
           range:[9,9.5,10,10.5,11,11.5,12],area:[2.2,2.4,2.6,2.8,3.0,3.2,3.4],
           dmg:[16,22,30,40,53,69,89],rate:[2.80,2.65,2.50,2.35,2.20,2.05,1.90],
           up:[{w:14,s:16,g:5},{w:19,s:22,g:8},{w:25,s:29,g:13},{w:33,s:38,g:20},{w:44,s:50,g:30},{w:66,s:74,g:56}],
-          desc:'충격파가 퍼져 모여 있는 좀비를 함께 때려요. 한 마리 공격은 약하지만 여럿이 몰릴 때 좋아요. 밀어내지는 않아요.' }
+          desc:'돌 보루 위의 대포가 포탄을 쏘아 떨어진 자리에서 펑! 터뜨려요. 모여 있는 좀비를 함께 때려요. 한 마리 공격은 약하지만 여럿이 몰릴 때 좋아요. 밀어내지는 않아요.' }
 };
 
 const BUILD_BRANCHES = {
@@ -6403,39 +6403,87 @@ function blocksOf(t, lv, branch='', style=0){
   if(!rows){ rows=blocksOfRaw(t,lv,branch,style); _blkCache.set(key,rows); }
   return rows;
 }
+/* 65차 대포탑 — 포신 치수는 외형(blocksOfRaw)과 포구 위치(buildingGunMuzzle)가 함께 읽는다.
+   포신은 받침 축(s=0)에서 앞(+Z)으로 뻗고 pitch 만큼 들려 있다. 조각은 [축 거리 s, 길이, 굵기, 이름].
+   포신 맨 위가 BUILD.hi 에 정확히 닿도록 축 높이 py 를 거꾸로 구한다(충돌 높이와 외형 꼭대기가 같아야 한다). */
+function cannonSpec(lv){
+  lv=Math.max(1,Math.min(MAXLV,Math.floor(Number(lv)||1)));
+  const tier=lv>=5?2:lv>=3?1:0, H=bs('pulse','hi',lv), pitch=.20;
+  const r=[.24,.27,.30][tier], front=[.86,.95,1.03][tier], back=.34;
+  const pieces=[
+    [(front-back)/2, front+back, r, 'tube'],
+    [-back+.10, .15, r+.08, 'breech'],
+    [front*.42, .08, r+.05, 'band'],
+    [front-.07, .14, r+.08, 'swell'],
+    [front+.009, .018, r*.52, 'bore'],
+    [-back-.06, .12, r*.52, 'knob']
+  ];
+  const sn=Math.sin(pitch), cs=Math.cos(pitch);
+  let topRel=-Infinity;
+  for(const [d,L,h] of pieces) topRel=Math.max(topRel, d*sn + L/2*sn + h/2*cs);
+  const py=H-topRel;
+  return {lv,tier,pitch,r,front,back,pieces,py,head:py-.54,muzzle:front+.018};
+}
 function blocksOfRaw(t, lv, branch='', style=0){
   if(!BUILD[t]) return [];
   lv=Math.max(1,Math.min(MAXLV,Math.floor(Number(lv)||1)));
   if(t==='arrow' && lv<3) branch='';
   style=Math.max(0,Math.min(3,Math.floor(Number(style)||0)));
-  const out=[], C=T.cloth, GL=T.glow, H=bs(t,'hi',lv), size=BUILD[t].size;
-  const cx=size===2?.5:0, cz=cx, tier=lv>=5?2:lv>=3?1:0;
-  const cream=0xfff2d9, ivory=0xf5f1e5, stone=0xc5d4d6, shade=0x92aeb4;
-  const wood=0xd5a66c, honey=0xe6bd83, darkWood=0x9c7555, gold=0xf2ca72;
-  const mint=0x72bfa4, blue=0x78acd6, lavender=0xa18acb, rose=0xdf8f9a;
-  const ink=0x456779, light=0xffe8a8, ice=0xbfe9f4, iceLight=0xebfbff;
-  const roofBase=t==='arrow'?(branch==='rapid'?0xd89c74:branch==='sniper'?0x739bbd:0xd88779):t==='barr'?0xc68791:t==='ice'?0x81bace:0x9389ca;
-  const roof=style===2?(t==='arrow'?mint:t==='barr'?lavender:t==='ice'?rose:blue):roofBase;
-  const trim=lv===MAXLV?gold:style===2?roof:shade;
+  /* 65차 — 사실적인 성곽 재료. 몸통은 돌(T.cutStone → 돌결 재질)·나무(T.plank → 나뭇결 재질)·쇠(칠한 원색)로 짓고,
+     모둠 꾸미기 색(깃발·파스텔)은 깃발·띠·지붕 같은 작은 표시에만 쓴다.
+     레벨이 오르면 나무(Lv1~2) → 쌓은 돌(Lv3~4) → 쇠 장식(Lv5~) → 금(Lv7) 로 재료가 좋아진다. */
+  const out=[], C=T.cloth, GL=T.glow, S=T.cutStone, WD=T.plank, H=bs(t,'hi',lv), size=BUILD[t].size;
+  const cx=size===2?.5:0, cz=cx, tier=lv>=5?2:lv>=3?1:0, top=lv===MAXLV;
+  const stoneL=0xc6c0b2, stoneM=0xaca598, stoneD=0x878176, stoneK=0x6a655c, quoinC=0xd3cdbf;
+  const coolL=0xc0cacd, coolM=0xa2aeb3, coolD=0x7d8990;
+  const timber=0x8c6545, timberD=0x654832, plank=0xa77e55, shingle=0x7b5b41, clay=0xa7583f;
+  const slate=0x5f6b77, iron=0x555c64, ironD=0x393e44, brass=0xb68f45, gold=0xe3b957;
+  const plaster=0xe7dcc6, glass=0x34444f, soot=0x25282c;
+  const cream=0xfff2d9, light=0xffe8a8, ice=0xbfe9f4, iceLight=0xebfbff, rose=0xdf8f9a;
+  const mint=0x7dbba2, blue=0x7fa6cc, lavender=0xa38ec8;
+  const accent={wwall:0xb34d3e,swall:0x566f8f,arrow:0xb34d3e,ice:0x3f78ad,barr:0x974c62,pulse:0xbc672d}[t];
+  const pastel=style===2?({wwall:mint,swall:blue,arrow:mint,ice:rose,barr:lavender,pulse:blue}[t]):0;
+  const flag=pastel||accent, trim=top?gold:tier===2?iron:timberD;
   const P=(x,y,z,w,h,d,col,tile=C,ry=0,rz=0)=>out.push([x,y-.5,z,tile,w,h,d,col,ry,rz]);
   const slab=(x,z,y,w,d,h,col,tile=C)=>P(x,y+h/2,z,w,h,d,col,tile);
-  const post=(x,z,y0,y1,w,d,col)=>P(x,(y0+y1)/2,z,w,y1-y0,d,col);
+  const post=(x,z,y0,y1,w,d,col,tile=C)=>P(x,(y0+y1)/2,z,w,y1-y0,d,col,tile);
   const corners=(r,fn)=>{for(const a of [-1,1])for(const b of [-1,1])fn(cx+a*r,cz+b*r,a,b);};
   const band=(x,z,y,r,h,th,col,n=8,tile=C)=>{
     const len=2*r*Math.tan(Math.PI/n);
     for(let i=0;i<n;i++){const a=i*Math.PI*2/n;
       P(x+Math.cos(a)*r,y+h/2,z+Math.sin(a)*r,len,h,th,col,tile,-a-Math.PI/2);}
   };
-  const roofGable=(x,z,y,w,d,top,col)=>{
-    const th=.08,rise=top-y-.06,angle=Math.atan2(rise,w/2),len=Math.hypot(w/2,rise);
-    for(const s of [-1,1])P(x+s*w/4,y+rise/2,z,len,th,d,col,C,0,-s*angle);
-    P(x,top-.045,z,.14,.09,d+.025,lv===MAXLV?gold:cream);
-    for(const s of [-1,1])P(x+s*w/4,y+rise/2,z+d/2+.012,len,.055,.055,cream,C,0,-s*angle);
+  // 쌓은 돌 몸통 — 층마다 너비·색을 조금 바꿔 줄눈이 읽히고, 모서리에는 큰 돌(귓돌)을 엇갈려 붙인다.
+  const masonry=(x,z,y0,y1,w,d,cols,quoins=true,n=0)=>{
+    n=n||Math.max(2,Math.round((y1-y0)/.5));const h=(y1-y0)/n;
+    for(let i=0;i<n;i++)P(x,y0+h*(i+.5),z,w-(i%2)*.035,h,d-(i%2)*.035,cols[i%cols.length],S);
+    if(!quoins)return;
+    [n-1,Math.max(0,n-3)].forEach((i,k)=>{const y=y0+h*(i+.5),along=k===0;
+      for(const a of [-1,1])for(const b of [-1,1]){const lx=along?.34:.20,lz=along?.20:.34;
+        P(x+a*(w/2-lx/2+.025),y,z+b*(d/2-lz/2+.025),lx,h*.86,lz,quoinC,S);}
+    });
+  };
+  // 활 쏘는 틈(좁은 창) — 돌 테두리 + 어두운 틈. side 0 은 +Z 면, 1 은 +X 면.
+  const slit=(x,z,y,side=0,h=.36)=>{
+    if(side){P(x,y,z,.05,h+.12,.21,stoneK,S);P(x+.013,y,z,.05,h,.075,soot);}
+    else{P(x,y,z,.21,h+.12,.05,stoneK,S);P(x,y,z+.013,.075,h,.05,soot);}
+  };
+  // 널문 — 나무 문짝 + (돌 단계부터) 쇠 띠 두 줄 + 돌 상인방
+  const door=(x,z,y0,w,h,iron2=false)=>{
+    P(x,y0+h/2,z,w,h,.05,plank,WD);
+    if(iron2)for(const k of [.28,.72])P(x,y0+h*k,z+.028,w+.02,.045,.02,ironD);
+    P(x,y0+h+.05,z-.005,w+.16,.10,.08,stoneL,S);
+  };
+  const roofGable=(x,z,y,w,d,topY,col,tile=C)=>{
+    const th=.08,rise=topY-y-.06,angle=Math.atan2(rise,w/2),len=Math.hypot(w/2,rise);
+    for(const s of [-1,1])P(x+s*w/4,y+rise/2,z,len,th,d,col,tile,0,-s*angle);
+    P(x,topY-.045,z,.14,.09,d+.025,top?gold:timberD);
+    for(const s of [-1,1])P(x+s*w/4,y+rise/2,z+d/2+.012,len,.055,.055,timberD,C,0,-s*angle);
   };
   const lantern=(x,z,y,k=1)=>{
     P(x,y,z,.19*k,.25*k,.16*k,style===3?iceLight:light,GL);
-    P(x,y+.15*k,z,.25*k,.055*k,.22*k,trim);
-    P(x,y-.15*k,z,.23*k,.055*k,.20*k,trim);
+    P(x,y+.15*k,z,.25*k,.055*k,.22*k,ironD);
+    P(x,y-.15*k,z,.23*k,.055*k,.20*k,ironD);
     if(style===3){
       P(x,y,z+.09*k,.065*k,.31*k,.025*k,gold);
       P(x,y,z+.095*k,.26*k,.065*k,.025*k,gold);
@@ -6443,97 +6491,117 @@ function blocksOfRaw(t, lv, branch='', style=0){
     }
   };
   const banner=(x,z,y,w=.34,h=.45)=>{
-    P(x,y,z,w,h,.045,style===1?rose:roof);
-    P(x,y+h/2+.025,z,w+.10,.055,.07,lv===MAXLV?gold:cream);
+    P(x,y,z,w,h,.045,style===1?rose:flag);
+    P(x,y+h/2+.025,z,w+.10,.05,.06,top?gold:ironD);
     if(style===1){
       P(x,y+.015,z+.030,w*.53,h*.37,.025,cream);
       for(const s of [-1,1]){
         P(x+s*w*.14,y+h*.24,z+.030,w*.12,h*.25,.025,cream);
-        P(x+s*w*.12,y+.028,z+.047,.028,.032,.015,ink);
+        P(x+s*w*.12,y+.028,z+.047,.028,.032,.015,soot);
       }
-    }else P(x,y,z+.027,w*.26,w*.26,.025,lv===MAXLV?gold:cream,C,0,Math.PI/4);
+    }else P(x,y,z+.027,w*.26,w*.26,.025,top?gold:cream,C,0,Math.PI/4);
   };
   const windowFront=(x,z,y,w=.28,h=.39)=>{
-    P(x,y,z,w+.09,h+.09,.09,cream);
-    P(x,y,z+.052,w,h,.035,blue);
-    P(x,y,z+.076,.035,h,.025,cream);
-    P(x,y-.025,z+.077,w,.03,.025,cream);
-    slab(x,z+.02,y-h/2-.09,w+.14,.17,.07,trim);
+    P(x,y,z,w+.10,h+.10,.09,stoneL,S);
+    P(x,y,z+.052,w,h,.035,glass);
+    P(x,y,z+.076,.035,h,.025,timberD);
+    P(x,y-.025,z+.077,w,.03,.025,timberD);
+    slab(x,z+.02,y-h/2-.09,w+.14,.17,.07,stoneD,S);
   };
   const windowSide=(x,z,y,w=.28,h=.43)=>{
-    P(x,y,z,.09,h+.09,w+.09,cream);
-    P(x+.052,y,z,.035,h,w,blue);
-    P(x+.076,y,z,.025,h,.035,cream);
-    P(x+.077,y-.025,z,.025,.03,w,cream);
-    slab(x+.02,z,y-h/2-.09,.17,w+.14,.07,trim);
+    P(x,y,z,.09,h+.10,w+.10,stoneL,S);
+    P(x+.052,y,z,.035,h,w,glass);
+    P(x+.076,y,z,.025,h,.035,timberD);
+    P(x+.077,y-.025,z,.025,.03,w,timberD);
+    slab(x+.02,z,y-h/2-.09,.17,w+.14,.07,stoneD,S);
   };
   const crystal=(x,z,y,h,w,col=ice)=>{
     const cut=h*.56,halfY=cut/Math.sqrt(2),cy=y+h-halfY;
-    post(x,z,y,y+h*.26,w*.48,w*.48,blue);
+    post(x,z,y,y+h*.26,w*.48,w*.48,tier===2?iron:coolD,tier===2?C:S);
     P(x,cy,z,cut,cut,w*.84,col,C,Math.PI/4,Math.PI/4);
     P(x,cy,z+w*.43,cut*.37,cut*.37,.035,iceLight,GL,0,Math.PI/4);
   };
   if(t==='wwall'){
-    slab(0,0,0,1,.84,.16,darkWood);
+    // 뾰족하게 깎은 통나무 말뚝 울타리 — 돌 받침 위에 세우고 가로 띠장으로 묶는다.
+    slab(0,0,0,1,.84,.14,stoneD,S);
+    const tipH=.16*Math.SQRT1_2;
     for(let i=0;i<4;i++){
       const x=-.375+i*.25;
-      post(x,0,.14,H-.10,.225,.73,i%2?honey:wood);
-      slab(x,0,H-.10,.225,.76,.10,lv===MAXLV?gold:cream);
+      post(x,0,.12,H-tipH,.225,.73,i%2?plank:timber,WD);
+      P(x,H-tipH,0,.16,.16,.73,top?gold:tier===2?iron:i%2?plank:timber,tier===2||top?C:WD,0,Math.PI/4);
     }
     for(const z of [-.405,.405]){
-      P(0,.42,z,1,.13,.065,darkWood);
-      P(0,1.04,z,1,.13,.065,style===2?roof:darkWood);
-      if(lv>=3)for(const x of [-.36,.36])P(x,.73,z,.08,.72,.075,trim);
-      if(lv>=5)P(0,.75,z,.24,.29,.06,gold,C,0,Math.PI/4);
+      P(0,.42,z,1,.13,.065,timberD,WD);
+      P(0,1.00,z,1,.13,.065,pastel||timberD,pastel?C:WD);
+      if(lv>=3)for(const x of [-.36,.36])P(x,.71,z,.08,.70,.075,iron);
+      if(lv>=5)P(0,.71,z,.20,.20,.07,ironD,C,0,Math.PI/4);
     }
-    if(style===1||lv>=2)banner(0,.455,.76,.29,.39);
-    if(style===3)lantern(0,.43,1.18,.58);
+    if(style===1||lv>=2)banner(0,.455,.72,.29,.39);
+    if(style===3)lantern(0,.43,1.12,.58);
   }else if(t==='swall'){
-    slab(0,0,0,1,.98,.16,shade);
-    post(0,0,.16,H-.27,.96,.84,stone);
-    for(const z of [-.446,.446])for(let row=0;row<3;row++)for(let col=0;col<2;col++){
-      P(-.245+col*.49,.31+row*.27,z,.46,.24,.048,row%2?ivory:cream);
+    // 성벽 — 엇갈려 쌓은 마름돌 + 돌림띠 + 총안(凸) 세 개
+    slab(0,0,0,1,.98,.16,stoneD,S);
+    post(0,0,.16,H-.27,.96,.84,stoneM,S);
+    for(const z of [-.446,.446])for(let row=0;row<3;row++){
+      const odd=row%2,ws=odd?[.70,.26]:[.26,.70],xs=odd?[-.14,.36]:[-.36,.14];
+      for(let c=0;c<2;c++)P(xs[c],.31+row*.27,z,ws[c]-.02,.24,.048,(row+c)%2?stoneL:0xbab3a5,S);
     }
-    slab(0,0,H-.34,1,.96,.12,trim);
+    slab(0,0,H-.34,1,.96,.12,stoneD,S);
     for(const x of [-.36,0,.36]){
-      slab(x,0,H-.25,.25,.84,.20,ivory);
-      slab(x,0,H-.05,.27,.88,.05,lv===MAXLV?gold:cream);
+      slab(x,0,H-.25,.25,.84,.20,stoneL,S);
+      slab(x,0,H-.05,.27,.88,.05,top?gold:pastel||stoneD,top||pastel?C:S);
     }
-    if(lv>=3)for(const x of [-.43,.43])post(x,.47,.17,H-.35,.10,.055,trim);
+    if(lv>=3)for(const x of [-.43,.43])post(x,.47,.17,H-.35,.10,.055,iron);
     if(style===1||lv>=4)banner(0,.495,.65,.30,.45);
     if(style===3)lantern(0,.47,.79,.58);
   }else if(t==='arrow'){
     const deck=H-.94,eave=H-.47,bodyW=1.17;
-    slab(cx,cz,0,1.70,1.70,.18,shade);
-    slab(cx,cz,.18,1.50,1.50,.14,ivory);
+    const roofCol=pastel||(tier?slate:shingle),roofTile=pastel?C:tier?S:WD;
+    slab(cx,cz,0,1.76,1.76,.16,stoneD,S);
+    slab(cx,cz,.16,1.54,1.54,.14,stoneM,S);
     if(tier){
-      post(cx,cz,.32,deck-.12,bodyW,bodyW,ivory);
-      slab(cx,cz,.72,1.24,1.24,.10,stone);
-      windowFront(cx,cz+.60,.97,.25,.40);
-      windowSide(cx+.60,cz,tier===2?1.28:1.02,.27,tier===2?.68:.43);
-      for(const s of [-1,1])post(cx+s*.53,cz+.615,.32,deck-.12,.10,.075,trim);
+      // 돌 망루 — 줄눈 층·귓돌·활 쏘는 틈·널문. 흉벽은 돌 까치발 위로 내민다.
+      masonry(cx,cz,.30,deck-.24,bodyW,bodyW,[stoneM,stoneL],true,4);
+      door(cx,cz+bodyW/2+.02,.30,.36,.56,tier===2);
+      slit(cx,cz+bodyW/2+.01,deck-.72,0);
+      slit(cx+bodyW/2+.01,cz,tier===2?deck-.80:deck-.90,1,tier===2?.52:.36);
+      for(const s of [-1,1]){
+        P(cx+s*.34,deck-.20,cz+bodyW/2+.04,.15,.14,.12,stoneD,S);
+        P(cx+bodyW/2+.04,deck-.20,cz+s*.34,.12,.14,.15,stoneD,S);
+      }
     }else{
-      corners(.49,(x,z)=>post(x,z,.32,deck,.17,.17,darkWood));
-      P(cx,.76,cz+.52,1.12,.12,.10,honey);
-      for(const s of [-1,1])P(cx+s*.26,1.05,cz+.53,.76,.09,.10,honey,C,0,s*.65);
+      // 목조 망루 — 네 기둥, 앞·옆면 X 가새, 기둥 윗머리의 까치발
+      corners(.50,(x,z)=>post(x,z,.30,deck-.12,.17,.17,timberD,WD));
+      const y0=.44,y1=deck-.30,hv=y1-y0,ang=Math.atan2(hv,.98),len=Math.hypot(.98,hv);
+      for(const s of [-1,1]){
+        P(cx,(y0+y1)/2,cz+.51,len,.075,.07,timber,WD,0,s*ang);
+        P(cx+.51,(y0+y1)/2,cz,len,.075,.07,timber,WD,Math.PI/2,s*ang);
+        P(cx+s*.37,deck-.27,cz+.51,.37,.07,.07,timber,WD,0,-s*.86);
+        P(cx+.51,deck-.27,cz+s*.37,.37,.07,.07,timber,WD,Math.PI/2,s*.86);
+      }
+      P(cx,.40,cz+.51,1.0,.09,.08,timberD,WD);
+      P(cx+.51,.40,cz,1.0,.09,.08,timberD,WD,Math.PI/2);
     }
-    slab(cx,cz,deck-.12,1.66,1.66,.18,wood);
-    slab(cx,cz,deck+.06,1.74,1.74,.09,cream);
-    if(!branch)corners(.68,(x,z)=>post(x,z,deck+.15,eave,.105,.105,tier?trim:darkWood));
+    if(tier){slab(cx,cz,deck-.12,1.62,1.62,.18,stoneM,S);slab(cx,cz,deck+.06,1.76,1.76,.09,stoneL,S);}
+    else{slab(cx,cz,deck-.12,1.66,1.66,.18,timberD,WD);slab(cx,cz,deck+.06,1.74,1.74,.09,plank,WD);}
+    if(!branch)corners(.68,(x,z)=>post(x,z,deck+.15,eave,.105,.105,timberD,WD));
     for(const s of [-1,1]){
-      P(cx+s*.76,deck+(branch?.23:.34),cz,.09,branch?.15:.27,1.45,roof);
-      P(cx,deck+(branch?.23:.34),cz+s*.76,1.45,branch?.15:.27,.09,roof);
+      const py=deck+(branch?.23:.34),ph=branch?.15:.27,pc=tier?stoneL:plank,pt=tier?S:WD,th=tier?.12:.09;
+      P(cx+s*.76,py,cz,th,ph,1.45,pc,pt);
+      P(cx,py,cz+s*.76,1.45,ph,th,pc,pt);
     }
+    // 기관총·저격총 받침의 흉벽 — 네 모서리의 낮은 성가퀴(총이 돌아가는 반경 밖)
+    if(branch)corners(.72,(x,z)=>post(x,z,deck+.15,deck+.40,.22,.22,stoneL,S));
     if(branch){
       // 고정 회전받침과 움직이는 총을 나눈다. 총의 정면은 +Z, 조준 회전축은 (cx, cz).
-      band(cx,cz,deck+.15,.36,.16,.12,trim);
-      post(cx,cz,deck+.24,H-.44,.33,.36,ink);
-      const gunStart=out.length, gunY=H-.33, steel=0x52738a, barrel=0x334f64, dark=0x253b50;
+      P(cx,deck+.23,cz,.74,.16,.74,ironD);P(cx,deck+.23,cz,.74,.16,.74,ironD,C,Math.PI/4);
+      post(cx,cz,deck+.24,H-.44,.33,.36,iron);
+      const gunStart=out.length, gunY=H-.33, steel=0x5b646d, barrel=0x3b4249, dark=0x24292e;
       if(branch==='rapid'){
         P(cx,gunY-.015,cz-.18,.79,.39,.71,steel);
-        P(cx,gunY+.015,cz-.55,.65,.27,.22,roof);
-        P(cx,gunY+.12,cz-.18,.83,.13,.59,roof);
-        P(cx,H-.035,cz-.18,.47,.07,.41,lv>=6?gold:cream);
+        P(cx,gunY+.015,cz-.55,.65,.27,.22,ironD);
+        P(cx,gunY+.12,cz-.18,.83,.13,.59,flag);
+        P(cx,H-.035,cz-.18,.47,.07,.41,lv>=6?gold:brass);
         // 3단계는 네 총열, 5단계부터 여섯 총열로 자란다.
         const barrelXs=lv>=5?[-.19,0,.19]:[-.12,.12];
         for(const x of barrelXs)for(const y of [-.085,.085]){
@@ -6543,125 +6611,148 @@ function blocksOfRaw(t, lv, branch='', style=0){
         }
         // 두 냉각 가로대가 총열 묶음을 읽기 쉽게 연결한다.
         for(const z of [.28,.72])P(cx,gunY,cz+z,lv>=5?.62:.47,.38,.075,lv>=6?gold:steel);
-        P(cx+.59,gunY-.07,cz-.16,.33,.43,.47,roof);
-        P(cx+.59,gunY+.17,cz-.16,.38,.055,.50,cream);
-        P(cx+.39,gunY-.015,cz-.13,.19,.18,.28,gold);
-        for(const z of [-.25,-.10,.05])P(cx+.50,gunY-.04,cz+z,.055,.17,.065,cream);
+        P(cx+.59,gunY-.07,cz-.16,.33,.43,.47,0x5d6b47);
+        P(cx+.59,gunY+.17,cz-.16,.38,.055,.50,ironD);
+        P(cx+.39,gunY-.015,cz-.13,.19,.18,.28,brass);
+        for(const z of [-.25,-.10,.05])P(cx+.50,gunY-.04,cz+z,.055,.17,.065,brass);
         P(cx,gunY-.11,cz-.74,.45,.24,.16,dark);
       }else{
-        // 긴 단일 총열·조준경·뒤쪽 반동 가드로 기관총과 확실히 구별한다.
+        // 긴 단일 총열·조준경·나무 개머리로 기관총과 확실히 구별한다.
         P(cx,gunY-.015,cz-.19,.34,.27,.85,steel);
-        P(cx,gunY-.02,cz-.70,.46,.33,.35,roof);
+        P(cx,gunY-.02,cz-.70,.46,.33,.35,timber);
         P(cx,gunY-.02,cz-.89,.49,.38,.075,dark);
         P(cx,gunY,cz+.50,.145,.145,.91,barrel);
         P(cx,gunY,cz+.95,.27,.24,.15,lv>=6?gold:steel);
         P(cx,gunY,cz+1.036,.12,.105,.018,dark);
-        for(const z of [.17,.53])P(cx,gunY,cz+z,.20,.20,.07,lv>=5?gold:cream);
+        for(const z of [.17,.53])P(cx,gunY,cz+z,.20,.20,.07,lv>=5?gold:ironD);
         P(cx,gunY+.16,cz-.20,.11,.15,.42,dark);
         P(cx,H-.075,cz-.19,.21,.15,.65,steel);
         for(const z of [-.515,.145])P(cx,H-.075,cz+z,.25,.15,.07,lv===MAXLV?gold:dark);
         P(cx,H-.075,cz+.185,.14,.09,.019,iceLight,GL);
         for(const s of [-1,1]){
-          P(cx+s*.25,gunY-.15,cz-.28,.10,.075,.74,cream);
-          P(cx+s*.25,gunY-.095,cz-.63,.10,.18,.08,roof);
+          P(cx+s*.25,gunY-.15,cz-.28,.10,.075,.74,timberD);
+          P(cx+s*.25,gunY-.095,cz-.63,.10,.18,.08,timber);
         }
-        P(cx,gunY-.22,cz-.13,.22,.18,.28,roof);
+        P(cx,gunY-.22,cz-.13,.22,.18,.28,timber);
       }
       for(let i=gunStart;i<out.length;i++)out[i][10]='gun';
     }else{
-      P(cx,deck+.51,cz+.68,.68,.10,.16,darkWood);
-      for(const s of [-1,1])P(cx+s*.32,deck+.51,cz+.63,.39,.065,.08,cream,C,s*.48);
-      P(cx,deck+.51,cz+.70,.06,.06,.52,gold);
-      roofGable(cx,cz-.06,eave,1.82,1.48,H,roof);
+      // 앞을 겨눈 큰 활(쇠뇌) — 활대·시위·살
+      P(cx,deck+.51,cz+.68,.68,.10,.16,timberD);
+      for(const s of [-1,1])P(cx+s*.32,deck+.51,cz+.63,.39,.065,.08,timber,C,s*.48);
+      P(cx,deck+.51,cz+.70,.06,.06,.52,tier===2?iron:plank);
+      roofGable(cx,cz-.06,eave,1.82,1.48,H,roofCol,roofTile);
     }
     if(lv>=2||style===1)banner(cx+.47,cz+.65,Math.max(.75,deck-.38),.28,.38);
     if(lv>=2||style===3)lantern(cx-.55,cz+.65,deck-.24,.70);
     if(lv>=6&&!branch){P(cx,H-.22,cz-.77,.25,.20,.06,gold,C,0,Math.PI/4);}
   }else if(t==='ice'){
+    // 찬 돌로 쌓은 탑 위에 얼음 수정. 나무 모서리 기둥 → 마름돌 → 쇠 테·쇠 받침으로 자란다.
     const ledge=H-(branch==='frost'?1.40:branch==='blizzard'?1.04:1.12);
-    slab(cx,cz,0,1.72,1.72,.18,shade);
-    slab(cx,cz,.18,1.48,1.48,.13,ice);
-    post(cx,cz,.31,ledge,1.12,1.12,ivory);
-    corners(.48,(x,z)=>post(x,z,.32,ledge+.09,.13,.13,blue));
-    slab(cx,cz,ledge,1.52,1.52,.12,roof);
-    slab(cx,cz,ledge+.12,1.34,1.34,.10,iceLight);
+    slab(cx,cz,0,1.74,1.74,.18,coolD,S);
+    slab(cx,cz,.18,1.50,1.50,.13,coolM,S);
+    masonry(cx,cz,.31,ledge,1.12,1.12,tier?[coolM,coolL]:[coolD,coolM],tier>0,tier?0:2);
+    if(!tier)corners(.52,(x,z)=>post(x,z,.32,ledge+.02,.14,.14,timberD,WD));
+    if(tier===2)for(const y of [.62,ledge-.30])slab(cx,cz,y,1.17,1.17,.07,iron);
+    slab(cx,cz,ledge,1.54,1.54,.12,pastel||slate,pastel?C:S);
+    slab(cx,cz,ledge+.12,1.36,1.36,.10,iceLight);
     windowFront(cx,cz+.585,Math.max(.70,ledge*.62),.27,.43);
     if(tier)windowSide(cx+.585,cz,Math.max(.71,ledge*.60),.26,.43);
     if(branch==='blizzard'){
       // 넓은 눈꽃 왕관: 중앙의 짧은 수정과 여섯 주변 결정.
       crystal(cx,cz,ledge+.22,H-ledge-.22,.37,iceLight);
-      band(cx,cz,H-.62,.54,.10,.09,roof,6);
+      band(cx,cz,H-.62,.54,.10,.09,iron,6);
       for(let i=0;i<6;i++){const a=i*Math.PI/3;
         crystal(cx+Math.cos(a)*.57,cz+Math.sin(a)*.57,ledge+.21,.62,.21,ice);}
     }else if(branch==='frost'){
       // 집중 빙결: 한 개의 굵고 긴 창 모양 수정.
       crystal(cx,cz,ledge+.22,H-ledge-.22,.51,ice);
-      for(const s of [-1,1])crystal(cx+s*.48,cz,ledge+.22,.48,.20,roof);
-      P(cx,H-.61,cz+.41,.23,.23,.055,gold,C,0,Math.PI/4);
+      for(const s of [-1,1])crystal(cx+s*.48,cz,ledge+.22,.48,.20,0x9fd3e6);
+      P(cx,H-.61,cz+.41,.23,.23,.055,brass,C,0,Math.PI/4);
     }else{
       crystal(cx,cz,ledge+.22,H-ledge-.22,.45,ice);
-      for(const s of [-1,1])crystal(cx+s*.47,cz,ledge+.22,.52,.22,blue);
+      for(const s of [-1,1])crystal(cx+s*.47,cz,ledge+.22,.52,.22,0x9fd3e6);
     }
     if(lv>=2||style===1)banner(cx,cz+.66,.43,.30,.38);
     if(lv>=4||style===3)for(const s of [-1,1])lantern(cx+s*.58,cz+.61,ledge-.21,.62);
-    if(lv===MAXLV)band(cx,cz,ledge+.15,.67,.08,.08,gold);
+    if(top)band(cx,cz,ledge+.15,.67,.08,.08,gold);
   }else if(t==='barr'){
-    const wall=H-.65, front=cz+1.00;
-    slab(cx,cz,0,2.72,2.62,.16,shade);
-    slab(cx,cz,.16,2.53,2.40,.12,ivory);
-    post(cx,cz,.28,wall,2.20,1.96,cream);
-    for(const s of [-1,1]){
-      post(cx+s*1.04,cz+.96,.28,wall,.12,.13,tier?trim:darkWood);
-      post(cx+s*1.04,cz-.96,.28,wall,.12,.13,tier?trim:darkWood);
+    // 병영 — 돌 기초 위 회벽·목조 뼈대(Lv1~2) → 아래층 돌(Lv3~4) → 전부 돌·양쪽 망루(Lv5~).
+    const wall=H-.65, front=cz+1.00, stoneTo=tier===0?.30:tier===1?1.02:wall;
+    slab(cx,cz,0,2.72,2.62,.16,stoneD,S);
+    slab(cx,cz,.16,2.50,2.36,.14,stoneM,S);
+    if(tier)masonry(cx,cz,.30,stoneTo,2.20,1.96,[stoneM,stoneL],tier===2,tier===2?4:2);
+    if(stoneTo<wall){
+      post(cx,cz,stoneTo,wall,2.16,1.92,plaster);
+      for(const s of [-1,1])for(const k of [-1,1])post(cx+s*1.04,cz+k*.95,stoneTo,wall,.13,.13,timberD,WD);
+      P(cx,wall-.06,front-.03,2.20,.12,.10,timberD,WD);
+      P(cx,stoneTo+.05,front-.03,2.20,.10,.10,timberD,WD);
+      P(cx+1.09,(stoneTo+wall)/2,cz,.10,.10,1.96,timberD,WD);
     }
-    slab(cx,cz,.28,2.24,2.02,.14,tier?stone:honey);
-    P(cx,.78,front+.032,.57,1.0,.09,darkWood);
-    P(cx,.78,front+.087,.42,.84,.028,wood);
-    P(cx+.13,.77,front+.11,.055,.055,.035,gold);
-    P(cx,1.33,front+.05,.75,.12,.14,ivory);
+    door(cx,front+.04,.30,.50,.92,tier>0);
+    P(cx+.13,.76,front+.08,.055,.055,.035,brass);
     for(const s of [-1,1])windowFront(cx+s*.69,front+.025,Math.min(wall-.35,1.07),.32,.40);
-    roofGable(cx,cz,wall,2.60,2.34,H,roof);
-    // 밝은 처마와 앞 계단이 전투 시설보다 아늑한 기지로 읽히게 한다.
-    slab(cx,cz+1.18,.10,.92,.48,.13,ivory);
-    slab(cx,cz+1.35,0,1.11,.27,.11,stone);
+    roofGable(cx,cz,wall,2.60,2.34,H,pastel||(tier?clay:shingle),pastel||tier?C:WD);
+    if(tier){post(cx+.62,cz-.55,wall-.10,H-.25,.30,.30,stoneM,S);slab(cx+.62,cz-.55,H-.25,.36,.36,.06,stoneD,S);}
+    // 앞 돌계단
+    slab(cx,cz+1.18,.10,.92,.48,.13,stoneL,S);
+    slab(cx,cz+1.35,0,1.11,.27,.11,stoneM,S);
     if(lv>=2||style===3)for(const s of [-1,1])lantern(cx+s*.42,front+.15,1.10,.70);
     if(lv>=3||style===1)banner(cx,front+.10,Math.min(wall-.18,1.60),.43,.35);
     if(tier)windowSide(cx+1.12,cz,1.09,.42,.50);
     if(tier===2){
       windowFront(cx,front+.03,wall-.31,.27,.30);
       for(const s of [-1,1]){
-        post(cx+s*1.08,cz-.68,.27,wall+.19,.38,.40,ivory);
-        slab(cx+s*1.08,cz-.68,wall+.19,.47,.49,.11,roof);
-        for(const k of [-1,1])slab(cx+s*1.08+k*.14,cz-.68,wall+.30,.14,.42,.13,lv===MAXLV?gold:cream);
+        post(cx+s*1.08,cz-.68,.27,wall+.19,.38,.40,stoneL,S);
+        slab(cx+s*1.08,cz-.68,wall+.19,.47,.49,.11,pastel||slate,pastel?C:S);
+        for(const k of [-1,1])slab(cx+s*1.08+k*.14,cz-.68,wall+.30,.14,.42,.13,top?gold:stoneM,top?C:S);
       }
     }
     if(lv>=6){P(cx,H-.26,cz+1.20,.28,.24,.07,gold,C,0,Math.PI/4);}
   }else if(t==='pulse'){
-    const head=H-.83;
-    slab(cx,cz,0,1.72,1.72,.18,shade);
-    slab(cx,cz,.18,1.49,1.49,.13,ivory);
-    post(cx,cz,.31,head,.90,.90,lavender);
-    corners(.41,(x,z)=>post(x,z,.32,head,.11,.11,cream));
-    for(let i=0;i<3;i++)slab(cx,cz,.48+i*(head-.56)/3,1.09,1.09,.10,i%2?mint:roof);
-    // 옆으로 넓은 코일·발광 고리와 중심 코어. 화살/얼음탑의 첨탑과 구별한다.
-    band(cx,cz,head,.60,.15,.17,roof);
-    band(cx,cz,head+.16,.61,.065,.10,mint);
-    post(cx,cz,head+.17,H-.12,.34,.34,iceLight);
-    P(cx,H-.11,cz,.33,.22,.33,lv===MAXLV?gold:light,GL,Math.PI/4);
-    for(let i=0;i<4;i++){const a=i*Math.PI/2+Math.PI/4,x=cx+Math.cos(a)*.58,z=cz+Math.sin(a)*.58;
-      post(x,z,head+.15,H-.24,.14,.14,trim);
-      P(x,H-.21,z,.20,.16,.20,mint,GL);
+    /* 대포탑 — 아래가 넓은 돌 보루 위에 도는 포좌와 굵은 포신. 포신·포가(gun)만 표적을 향해 돌고 쏠 때 뒤로 밀린다.
+       Lv1~2 청동 포 + 나무 흉벽·나무 포가, Lv3~4 쇠 포 + 돌 흉벽·귓돌, Lv5~ 굵은 쇠 포 + 쇠 포가·쇠 테, Lv7 금 테. */
+    const K=cannonSpec(lv), head=K.head, sn=Math.sin(K.pitch), cs=Math.cos(K.pitch);
+    slab(cx,cz,0,1.76,1.76,.18,stoneD,S);
+    slab(cx,cz,.18,1.62,1.62,.36,stoneM,S);
+    masonry(cx,cz,.54,head-.12,1.42,1.42,[stoneL,stoneM],tier>0);
+    if(tier===2)slab(cx,cz,.62,1.46,1.46,.07,iron);
+    door(cx,cz+.73,.54,.36,.58,tier>0);
+    slab(cx,cz+.88,.18,.52,.16,.18,stoneL,S);
+    slit(cx+.72,cz,Math.max(1.0,(head-.12)*.62),1);
+    // 포대 바닥(내민 돌)과 흉벽
+    slab(cx,cz,head-.12,1.70,1.70,.12,stoneM,S);
+    const wallH=.26,pc=tier?stoneL:plank,pt=tier?S:WD;
+    for(const s of [-1,1]){
+      P(cx+s*.79,head+wallH/2,cz,.12,wallH,1.46,pc,pt);
+      P(cx,head+wallH/2,cz+s*.79,1.46,wallH,.12,pc,pt);
     }
-    if(tier){band(cx,cz,H-.56,.48,.065,.06,iceLight,8,GL);band(cx,cz,H-.35,.48,.065,.06,mint,8,GL);}
-    P(cx,Math.max(.77,head*.65),cz+.49,.33,.33,.07,cream,C,0,Math.PI/4);
-    P(cx,Math.max(.77,head*.65),cz+.54,.09,.31,.03,lavender,C,0,-.35);
-    if(lv>=2||style===1)banner(cx,cz+.59,.45,.28,.35);
-    if(lv>=4||style===3)lantern(cx-.53,cz+.55,head-.23,.66);
-    if(lv===MAXLV)band(cx,cz,head+.23,.64,.08,.07,gold);
+    if(tier)corners(.77,(x,z)=>P(x,head+wallH/2+.05,z,.22,wallH+.10,.22,pastel||stoneL,pastel?C:S));
+    else{corners(.77,(x,z)=>post(x,z,head-.02,head+wallH+.08,.10,.10,timberD,WD));
+      if(pastel)for(const s of [-1,1])P(cx,head+wallH+.02,cz+s*.79,1.46,.05,.14,pastel);}
+    // 회전판(팔각) — 고정
+    P(cx,head+.05,cz,.74,.10,.74,iron);P(cx,head+.05,cz,.74,.10,.74,iron,C,Math.PI/4);
+    // ── 움직이는 부분: 포가 두 볼·굴대·(방패)·포신 ──
+    const gunStart=out.length, py=K.py;
+    const metal=tier===0?0x9a7442:tier===1?0x40464c:0x30353a, ring=top?gold:tier===0?0xb58d4e:tier===1?0x5a6168:0x6b7178;
+    const cheekTop=py+.09,cheekBot=head+.13,cheekC=tier===2?iron:timberD,cw=K.r/2+.09;
+    for(const s of [-1,1]){
+      P(cx+s*cw,(cheekTop+cheekBot)/2,cz-.06,.10,cheekTop-cheekBot,.74,cheekC);
+      for(const k of [-1,1])P(cx+s*(cw+.08),head+.19,cz-.06+k*.25,.06,.14,.14,tier===2?ironD:timber);   // 포가 바퀴
+    }
+    P(cx,py,cz,cw*2+.16,.08,.08,ironD);
+    for(const [d,L,h,name] of K.pieces){
+      const col=name==='tube'?metal:name==='bore'?soot:name==='knob'?metal:ring;
+      P(cx,py+d*sn,cz+d*cs,L,h,h,col,C,-Math.PI/2,K.pitch);
+    }
+    for(let i=gunStart;i<out.length;i++)out[i][10]='gun';
+    if(lv>=2||style===1)banner(cx+.44,cz+.79,Math.max(.95,(head-.12)*.55),.28,.36);
+    if(lv>=4||style===3)lantern(cx-.46,cz+.72,Math.max(1.05,(head-.12)*.60),.64);
+    if(top)slab(cx,cz,head-.02,1.70,1.70,.05,gold);
   }
-  // 두 단계마다 바뀌는 골격 사이에서도 강화가 보이도록 기단에 작은 금장 표식을 더한다.
-  const badgeZ=cz+(t==='wwall'?.435:t==='swall'?.495:t==='barr'?1.325:.87);
-  for(let i=0;i<lv-1;i++)P(cx+(i-(lv-2)/2)*.105,.095,badgeZ,.065,.065,.018,gold,C,0,Math.PI/4);
+  // 두 단계마다 바뀌는 골격 사이에서도 강화가 보이도록 기단에 작은 놋쇠 징을 더한다.
+  const badgeZ=cz+(t==='wwall'?.435:t==='swall'?.495:t==='barr'?1.325:.89);
+  for(let i=0;i<lv-1;i++)P(cx+(i-(lv-2)/2)*.105,.095,badgeZ,.065,.065,.018,top?gold:brass,C,0,Math.PI/4);
   // 완전히 겹치는 면만 제거한다. 캐시의 행은 여러 건물이 공유하므로 호출부에서 수정하지 않는다.
   const unique=new Map();
   for(const row of out)unique.set(row.slice(0,7).join(',')+'|'+row[8]+','+row[9]+'|'+(row[10]||''),row);
@@ -6795,6 +6886,12 @@ function tintStru(){
   struTint.clear();
 }
 const STRU_GEO = roundBox(2, 0.09, 1, 1, 1);     // 30차 — 건물 조각의 단위 둥근 상자(인스턴스 배율로 늘인다)
+/* 65차 — 탑의 돌(T.cutStone)·나무(T.plank) 조각은 세계와 같은 결 재질(WMAT 돌결 · WMAT_WOOD 나뭇결)을 쓴다.
+   새 재질을 만들지 않고 이미 그려지는 재질을 빌리므로 셰이더가 늘지 않는다. 색은 여전히 인스턴스 색(흰 바탕 × 틴트)이다. */
+function struMat(tile){
+  return tile===T.glow ? flatFor(T.glow, EMIT) : tile===T.bricks ? WMATV
+    : tile===T.cutStone ? WMAT : tile===T.plank ? WMAT_WOOD : flatFor(tile);
+}
 function rebuildStru(){
   struDirty = false;
   /* 블록 크기는 인스턴스 행렬 스케일로 준다 → 지오메트리는 타일당 하나뿐이다.
@@ -6844,8 +6941,7 @@ function rebuildStru(){
       if(mesh){ scene.remove(mesh); mesh.dispose(); }
       const cap = Math.max(64, Math.ceil(arr.length*1.6));
       /* 30차 — 건물은 둥근 원색 조각(로블록스). 무늬 타일 대신 flatFor(tile)·둥근 상자. 빛(glow)은 발광 원색 */
-      mesh = new THREE.InstancedMesh(tile===T.bricks ? BRICKV : STRU_GEO,
-        tile===T.glow ? flatFor(T.glow, EMIT) : tile===T.bricks ? WMATV : flatFor(tile), cap);   // 31차b·32차 — 벽돌은 모따기 판 + 꼭짓점 색
+      mesh = new THREE.InstancedMesh(tile===T.bricks ? BRICKV : STRU_GEO, struMat(tile), cap);   // 31차b·32차 — 벽돌은 모따기 판 + 꼭짓점 색
       mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap*3).fill(1),3);
       mesh.frustumCulled = true;      // 47차 — 모둠별로 쪼갰으니 이제 걸러진다
       if(GFX.shadow){ mesh.castShadow = true; mesh.receiveShadow = true; }  // 25차 — 아이가 지은 벽이 그늘을 만든다
@@ -6876,10 +6972,12 @@ function tickBuildingGuns(dt){
   buildingGunDirty.clear();
   for(const o of STRU.values()){
     if(!o._gunParts?.length)continue;
-    const kick=Math.max(0,Math.min(1,o.gunKick||0)-Math.max(0,dt)*5.5),yaw=Number.isFinite(o.gunYaw)?o.gunYaw:0;
+    // 65차 — 무거운 무장일수록 천천히 제자리로 돌아온다(대포 · 저격총).
+    const back=o.t==='pulse'?2.6:o.branch==='sniper'?3.4:5.5;
+    const kick=Math.max(0,Math.min(1,o.gunKick||0)-Math.max(0,dt)*back),yaw=Number.isFinite(o.gunYaw)?o.gunYaw:0;
     o.gunKick=kick;
     if(!o._gunPoseDirty&&o._gunDrawKick===kick&&o._gunDrawYaw===yaw)continue;
-    const rows=blocksOf(o.t,o.lv,o.branch,fortStyleOf(o.g)),recoil=kick*(o.branch==='sniper'?.18:.10),c=Math.cos(yaw),s=Math.sin(yaw);
+    const rows=blocksOf(o.t,o.lv,o.branch,fortStyleOf(o.g)),recoil=kick*(o.t==='pulse'?.22:o.branch==='sniper'?.18:.10),c=Math.cos(yaw),s=Math.sin(yaw);
     for(const bi of o._gunParts){
       const b=rows[bi],mesh=struMeshes.get(o._rk?.[bi]),index=o._ri?.[bi];
       if(!b||!mesh||index===undefined||index>=mesh.count)continue;
@@ -8188,8 +8286,11 @@ function updOrbs(dt, tt){
     liveI++;
     const k = 1-a.t;
     const x = a.x+(a.tx-a.x)*k, y = a.y+(a.ty-a.y)*k + Math.sin(k*Math.PI)*0.35, z = a.z+(a.tz-a.z)*k;
-    const sc = 0.20 + Math.sin(tt*22+i)*0.05;
-    _v.set(x,y,z); _q.setFromAxisAngle(UPV, tt*9+i); _s.set(sc,sc*1.5,sc);
+    /* 65차 — 얼음탑 결정은 날아가는 쪽으로 길게 늘인 빛나는 창(파란 빛줄기)이다. 서리 가루 꼬리는 towerFxTick 이 흘린다. */
+    const sc = 0.17 + Math.sin(tt*22+i)*0.03;
+    _dir.set(a.tx-a.x, a.ty-a.y + Math.cos(k*Math.PI)*Math.PI*0.35, a.tz-a.z).normalize();
+    _mm.lookAt(_zeroV, _dir, _up2); _q.setFromRotationMatrix(_mm);
+    _v.set(x,y,z); _s.set(sc, sc, sc*3.4);
     iMesh.setMatrixAt(i, _m.compose(_v,_q,_s));
   }
   iMesh.instanceMatrix.needsUpdate = true;
@@ -8227,8 +8328,9 @@ function updArrows(dt){
     liveA++;
     const k = 1-a.t;
     const x = a.x+(a.tx-a.x)*k, y = a.y+(a.ty-a.y)*k + Math.sin(k*Math.PI)*0.9, z = a.z+(a.tz-a.z)*k;
-    _dir.set(a.tx-a.x, a.ty-a.y, a.tz-a.z).normalize();
-    _mm.lookAt(new THREE.Vector3(0,0,0), _dir, _up2);
+    // 65차 — 화살이 그리는 곡선의 접선을 따라 고개를 든다(올라갈 땐 위로, 떨어질 땐 아래로 꽂힌다)
+    _dir.set(a.tx-a.x, a.ty-a.y + Math.cos(k*Math.PI)*Math.PI*0.9, a.tz-a.z).normalize();
+    _mm.lookAt(_zeroV, _dir, _up2);
     _q.setFromRotationMatrix(_mm);
     _v.set(x,y,z); _s.set(1,1,1);
     aMesh.setMatrixAt(i, _m.compose(_v,_q,_s));
@@ -16058,8 +16160,312 @@ function towerVictims(o,target){
   return G.wolves.filter(w=>w.hp>0&&Math.hypot(w.x-target.x,w.z-target.z)<=area
     &&Math.hypot(w.x-struCX(o),w.z-struCZ(o))<=range);
 }
+/* ═══════════════════════ 65차 — 탑 전용 공격·타격 효과 (towerFx…) ═══════════════════════
+   선생님: "지금 타워가 때릴 때 때리는 티가 잘 안 나." — 쏘는 순간(시위·총구·포구) · 날아가는 것 · 맞는 순간을 탑마다 또렷하게.
+   ★ 판정은 그대로다. towerAttack 이 쏘는 순간 호스트에서 체력·감속을 바꾸고(지금과 같은 대상·같은 피해·같은 통신),
+     여기서는 보이는 것·들리는 것만 한다. 날아가는 투사체(화살·얼음·포탄)의 피해 숫자와 맞은 번쩍임은
+     투사체가 닿는 순간으로 미룬다 — 손님 화면도 같은 towerAttack(…, false) 로 같은 길을 탄다.
+   ★ 성능(CLAUDE.md — 병목은 픽셀): 새 투명 면·빛무리·점광원 없음. 작은 불투명 조각 두 풀(공 · 둥근 상자,
+     건물·입자와 같은 원색 재질 flatFor(T.cloth))과 기존 burst/ring 풀만 쓴다. 조각은 초당 예산(TFX_RATE)으로 묶어
+     탑 수십 채가 한꺼번에 쏴도 한 프레임에 쏟아지지 않고, 멀리(TFX_FAR 칸 밖) 쏜 것은 파편을 아예 안 만든다.
+     풀은 미리 만든 객체를 돌려 쓴다 — 매 프레임 할당이 없다.
+   ★ 정원(imesh 최악 조합): 한 발에 드는 조각은 최대 13개(대포 착탄 흙 9 + 연기 4). 예산이 초당 TFX_RATE(100)개 ×
+     평균 수명 ≈0.6초라 꾸준히 살아 있는 조각은 공·상자 합쳐 60개 안팎으로 각 정원(72) 안이다. 순간 몰림(예산 상한 90)이
+     정원을 넘으면 가장 오래된 칸을 덮어쓴다 — 인덱스를 정원으로 돌리므로 정원 밖으로는 절대 쓰지 않는다.
+     포탄은 동시에 TFX_SHELL_CAP(16)발(대포탑 16채가 한꺼번에 쏜 경우 · 비행 ≤0.6초 · 쏘는 간격 ≥1.9초), 미룬 타격은 48칸. */
+const TFX_BALL_CAP = 72, TFX_CHIP_CAP = 72, TFX_SHELL_CAP = 16, TFX_HIT_CAP = 48;
+const TFX_RATE = 100, TFX_BURST_MAX = 90, TFX_FAR = 42;
+const tfxBallMesh = imesh(BALL, flatFor(T.cloth), TFX_BALL_CAP, 1);    // 포탄 · 연기 · 흙덩이 · 서리 껍질
+const tfxChipMesh = imesh(STRU_GEO, flatFor(T.cloth), TFX_CHIP_CAP, 1); // 나무 조각 · 탄피 · 얼음 조각 · 꽂힌 화살
+const tfxShellMesh = imesh(BALL, flatFor(T.cloth), TFX_SHELL_CAP, 1);            // 날아가는 포탄(검은 쇠공)
+for(const m of [tfxBallMesh, tfxChipMesh, tfxShellMesh]){ m.castShadow = m.receiveShadow = false; m.visible = false; m.count = m.count_max;
+  for(let i=0;i<m.count_max;i++) m.setMatrixAt(i, ZEROM); }
+const tfxNew = ()=>({t:0,t0:1,x:0,y:0,z:0,vx:0,vy:0,vz:0,g:1,drag:0,s:1,sx:1,sy:1,sz:1,grow:0,rx:0,ry:0,wx:0,wy:0,
+  w:null,ox:0,oy:0,oz:0,bounce:1});
+const tfxBalls = Array.from({length:TFX_BALL_CAP}, tfxNew), tfxChips = Array.from({length:TFX_CHIP_CAP}, tfxNew);
+const tfxShells = Array.from({length:TFX_SHELL_CAP}, ()=>({t:0,d:1,x0:0,y0:0,z0:0,x1:0,y1:0,z1:0,arc:1,trail:0,
+  hits:null,dm:0,cr:false,area:0,r:.2,big:0,o:null}));
+const tfxHits = Array.from({length:TFX_HIT_CAP}, ()=>({t:0,kind:'',w:null,x:0,y:0,z:0,dx:0,dy:0,dz:0,dm:0,cr:false,
+  o:null,list:null,n:0}));
+let tfxIceT = 0, tfxBI = 0, tfxCI = 0, tfxSI = 0, tfxBudget = TFX_BURST_MAX, tfxLiveB = 0, tfxLiveC = 0, tfxColB = false, tfxColC = false;
+const _tfxC = new THREE.Color();
+for(let i=0;i<TFX_SHELL_CAP;i++) tfxShellMesh.setColorAt(i, _tfxC.set(0x2c2f33));
+/* 조각 예산 — n 개를 원하면 쓸 수 있는 만큼(0..n)을 돌려준다 */
+function towerFxTake(n){ const k = Math.max(0, Math.min(n, Math.floor(tfxBudget))); tfxBudget -= k; return k; }
+function towerFxNear(x,z){ return Math.hypot(x - camera.position.x, z - camera.position.z) < TFX_FAR; }
+function towerFxBall(x,y,z,vx,vy,vz,life,size,col,g=1,grow=0,drag=0,w=null){
+  const i = tfxBI = (tfxBI+1) % TFX_BALL_CAP, p = tfxBalls[i];
+  p.t = p.t0 = life; p.x=x; p.y=y; p.z=z; p.vx=vx; p.vy=vy; p.vz=vz; p.g=g; p.s=size; p.grow=grow; p.drag=drag; p.w=w;
+  if(w){ p.ox = x - w.x; p.oy = y - (w.y||GY); p.oz = z - w.z; }
+  tfxBallMesh.setColorAt(i, _tfxC.set(col)); tfxColB = true;
+}
+function towerFxChip(x,y,z,vx,vy,vz,life,sx,sy,sz,col,g=1,spin=8,w=null,yaw=0,pitch=0){
+  const i = tfxCI = (tfxCI+1) % TFX_CHIP_CAP, p = tfxChips[i];
+  p.t = p.t0 = life; p.x=x; p.y=y; p.z=z; p.vx=vx; p.vy=vy; p.vz=vz; p.g=g; p.sx=sx; p.sy=sy; p.sz=sz; p.w=w; p.bounce=1;
+  p.ry = yaw; p.rx = pitch; p.wx = (Math.random()-.5)*spin*2; p.wy = (Math.random()-.5)*spin*2;
+  if(w){ p.ox = x - w.x; p.oy = y - (w.y||GY); p.oz = z - w.z; p.wx = p.wy = 0; }
+  tfxChipMesh.setColorAt(i, _tfxC.set(col)); tfxColC = true;
+}
+/* 맞는 순간을 투사체가 닿는 시각으로 미룬다. 칸이 없으면 바로 터뜨린다(숫자를 잃지 않게). */
+function towerFxLater(delay, kind, o, w, x,y,z, dm, cr, list){
+  let h = null;
+  for(const q of tfxHits) if(q.t <= 0){ h = q; break; }
+  if(!h){ towerFxImpact(kind, o, w, x,y,z, dm, cr, list, 0,0,0); return; }
+  h.t = Math.max(.001, delay); h.kind = kind; h.o = o; h.w = w; h.x = x; h.y = y; h.z = z; h.dm = dm; h.cr = cr; h.list = list;
+  h.dx = x - (o ? struCX(o) : x); h.dz = z - (o ? struCZ(o) : z);
+}
+/* 탑 전용 소리 — 거리에 따라 작아지고 좌우로 갈린다(sfxFrom). 같은 소리는 gap ms 안에 겹치지 않고,
+   탑 소리 전체도 초당 14번까지만 울린다(21명 교실 · 탑 수십 채). */
+const _tfxSndT = {}; let tfxSndBudget = 6;
+function towerFxSfx(k, x, z, maxD, gap){
+  if(typeof sndOn === 'undefined' || !sndOn || typeof sfxFrom !== 'function') return;
+  const d = Math.hypot(x - PL.x, z - PL.z); if(d > maxD || tfxSndBudget < 1) return;
+  const now = performance.now(); if(_tfxSndT[k] && now - _tfxSndT[k] < gap) return;
+  _tfxSndT[k] = now; tfxSndBudget -= 1; towerFxSfxReady();
+  sfxFrom(k, x, z, Math.max(.18, 1 - d/maxD));
+}
+/* SFX 표 밖에서 한 덩어리로 붙인다(표 안은 타격감 담당이 고친다). 표는 파일 뒤쪽에서 만들어지므로 처음 울릴 때 붙인다.
+   기존 소리와 같은 합성 함수(tone·puff·pluck·noise → sfxOut 압축기)를 쓰고, 세기는 기존 탑 소리(towerSniper 0.035~0.045)
+   와 무거운 thud2(0.16) 사이에 둔다. */
+function towerFxSfxReady(){
+  if(towerFxSfxReady.ok) return; towerFxSfxReady.ok = true;
+  Object.assign(SFX, {
+    towerBow:    ()=>{ pluck(165, .15, .055, 0, .5, 'triangle'); puff(.045, .06, 1500, 1.3); tone(520, 260, .06, 'triangle', .022); },
+    towerThunk:  ()=>{ puff(.035, .07, 820, 1.4); pluck(118, .07, .045, 0, .25, 'triangle'); },
+    towerIce:    ()=>{ pluck(1568, .16, .026, 0, .45); pluck(2349, .11, .016, now0() + .035, .3); puff(.10, .045, 5200, 1.4, 0, 'highpass'); },
+    towerFrost:  ()=>{ puff(.12, .055, 3600, 1.1); pluck(1175, .20, .02, 0, .4); tone(2600, 1900, .06, 'sine', .012); },
+    towerCannon: ()=>{ tone(96, 38, .32, 'sine', .13); noise(.16, .09, 700); puff(.09, .09, 380, .8); puff(.05, .05, 1600, 1.2); },
+    towerBoom:   ()=>{ tone(64, 30, .42, 'sine', .14); noise(.30, .10, 480); puff(.18, .08, 240, .7); noise(.05, .05, 2600, now0() + .012); }
+  });
+}
+/* ── 쏘는 순간 (towerAttack 이 부른다) ── */
+function towerFxShot(o, target, hits, victims, dm, cr){
+  const cx = struCX(o), cz = struCZ(o), tx = target.x, ty = (target.y||GY), tz = target.z, near = towerFxNear(cx, cz);
+  const lv = o.lv||1;
+  if(o.t === 'pulse'){
+    // 대포 — 포구 섬광 + 짙은 연기, 포신이 뒤로 밀리고(tickBuildingGuns), 포탄이 포물선으로 날아가 떨어진 자리에서 터진다.
+    const m = buildingGunMuzzle(o), K = cannonSpec(lv), fx = Math.sin(o.gunYaw||0), fz = Math.cos(o.gunYaw||0);
+    muzzleFlash(m.x, m.y, m.z, 0xffb45a, .62 + K.tier*.10);
+    if(near){ const n = towerFxTake(5);
+      for(let i=0;i<n;i++) towerFxBall(m.x + fx*.12, m.y, m.z + fz*.12, fx*(1.4+i*.35) + (Math.random()-.5)*.5, .35 + Math.random()*.4,
+        fz*(1.4+i*.35) + (Math.random()-.5)*.5, .45 + i*.07, .15 + K.tier*.02, i%2 ? 0xb9b4ac : 0x9c978f, -.12, 1.2, 2.4);
+      burst(m.x, m.y, m.z, 0xffc070, towerFxTake(3), .7); }
+    let s = null; for(const q of tfxShells) if(q.t <= 0){ s = q; break; }
+    if(!s){ s = tfxShells[tfxSI = (tfxSI+1) % TFX_SHELL_CAP]; towerFxShellLand(s); }   // 칸이 모자라면 가장 오래된 포탄을 먼저 터뜨린다(숫자를 잃지 않게)
+    const dist = Math.hypot(tx - m.x, tz - m.z);
+    s.t = 1; s.d = .30 + dist*.021; s.x0 = m.x; s.y0 = m.y; s.z0 = m.z; s.x1 = tx; s.y1 = ty + .25; s.z1 = tz;
+    s.arc = .7 + dist*.10; s.trail = 0; s.hits = hits; s.dm = dm; s.cr = cr; s.area = buildStat(o,'area')||2; s.r = K.r*.78; s.big = K.tier;
+    s.o = o;
+    towerFxSfx('towerCannon', cx, cz, 34, 110);
+    return;
+  }
+  if(o.t === 'ice'){
+    // 얼음 결정 — 결정이 날아가는 길에 서리 가루를 흘리고, 닿으면 서리가 터지며 좀비 몸에 얼음 껍질이 잠깐 붙는다.
+    const sy = GY + buildStat(o,'hi') + .35, d3 = Math.max(.1, Math.hypot(tx - cx, ty + .8 - sy, tz - cz));
+    if(near){ const n = towerFxTake(4);
+      for(let i=0;i<n;i++) towerFxChip(cx + (Math.random()-.5)*.5, sy - .15, cz + (Math.random()-.5)*.5, (tx-cx)/d3*1.2, 1.2 + Math.random(), (tz-cz)/d3*1.2,
+        .45, .06, .10, .06, i%2 ? 0xe8fbff : 0xa6dcf2, .5, 10); }
+    towerFxLater(d3/30, 'ice', o, target, tx, ty + .8, tz, dm, cr, victims);
+    towerFxSfx('towerIce', cx, cz, 26, 120);
+    return;
+  }
+  if(o.t === 'arrow' && lv >= 3 && (o.branch === 'rapid' || o.branch === 'sniper')){
+    const m = buildingGunMuzzle(o), fx = Math.sin(o.gunYaw||0), fz = Math.cos(o.gunYaw||0);
+    if(o.branch === 'rapid'){
+      // 기관총 — 한 번 판정에 세 발을 짧게 끊어 쏘는 모습(피해·숫자는 한 번). 발마다 섬광·탄피·총 반동.
+      if(near) towerFxCasing(o, m, fx, fz);
+      towerFxLater(.075, 'rapid', o, target, tx, ty + .8, tz, 0, false, null);
+      towerFxLater(.150, 'rapid', o, target, tx, ty + .8, tz, 0, false, null);
+    }else if(near){
+      // 저격총 — 큰 섬광 옆으로 포구 제동기 연기가 갈라져 나온다.
+      const n = towerFxTake(4);
+      for(let i=0;i<n;i++){ const sd = i%2 ? 1 : -1;
+        towerFxBall(m.x + fz*.15*sd, m.y, m.z - fx*.15*sd, fz*sd*1.6 + fx*.4, .25 + Math.random()*.3, -fx*sd*1.6 + fz*.4,
+          .45, .13, 0xb9b4ac, -.1, 1.3, 2.5); }
+    }
+    if(near) towerFxDirt(tx, tz, o.branch === 'sniper' ? 5 : 2, o.branch === 'sniper' ? 1.25 : .8, fx, fz);
+    if(o.branch === 'sniper'){ ring(tx, ty + .8, tz, 0xfff0c8, .55, .16); if(near) burst(tx, ty + .9, tz, 0xffe7b0, towerFxTake(4), 1.9); }
+    return;
+  }
+  // 화살 — 시위가 튕기며 나무 가루가 살짝 튀고, 화살이 닿으면 불꽃과 나무 조각이 튀고 잠깐 꽂혀 있다.
+  const sy = GY + buildStat(o,'hi') + .35, d3 = Math.max(.1, Math.hypot(tx - cx, ty + .8 - sy, tz - cz));
+  if(near){ const n = towerFxTake(2), ux = (tx-cx)/d3, uz = (tz-cz)/d3;
+    for(let i=0;i<n;i++) towerFxChip(cx + ux*.7, sy - .6, cz + uz*.7, ux*1.5 + (Math.random()-.5), 1.2 + Math.random(), uz*1.5 + (Math.random()-.5),
+      .40, .03, .03, .12, 0xefe2c4, 1, 14); }
+  towerFxLater(d3/44, 'arrow', o, target, tx, ty + .8, tz, dm, cr, hits);
+  towerFxSfx('towerBow', cx, cz, 26, 95);
+}
+function towerFxCasing(o, m, fx, fz){
+  if(!towerFxTake(1)) return;
+  // 탄피는 총의 오른쪽(+X 쪽)으로 튀어 떨어져 바닥에서 튕긴다
+  towerFxChip(m.x - fx*.55 + fz*.40, m.y - .02, m.z - fz*.55 - fx*.40, fz*1.8 + (Math.random()-.5)*.6, 2.2 + Math.random()*1.2,
+    -fx*1.8 + (Math.random()-.5)*.6, .9, .035, .035, .10, 0xd9ad4f, 1, 22);
+}
+function towerFxDirt(x, z, n, pow, fx=0, fz=0){
+  n = towerFxTake(n);
+  for(let i=0;i<n;i++){ const a = Math.random()*Math.PI*2, v = (.6 + Math.random()*1.2)*pow;
+    towerFxBall(x + Math.cos(a)*.25, GY + .08, z + Math.sin(a)*.25, Math.cos(a)*v + fx*.6*pow, (2.2 + Math.random()*2.2)*pow, Math.sin(a)*v + fz*.6*pow,
+      .55 + Math.random()*.35, (.08 + Math.random()*.07)*(pow > 1 ? 1.4 : 1), i%3 ? 0x7a5a3c : 0x9a7a55, 1, 0, 0); }
+}
+/* 맞는 순간 — 피해 숫자·맞은 번쩍임·파편 (호스트·손님 같은 길) */
+function towerFxImpact(kind, o, w, x, y, z, dm, cr, list){
+  const near = towerFxNear(x, z), alive = w && w.hp > 0;
+  const wx = w ? w.x : x, wy = w ? (w.y||GY) : GY, wz = w ? w.z : z;
+  if(kind === 'rapid'){
+    // 끊어 쏘기의 둘째·셋째 발 — 판정은 이미 끝났다. 섬광·예광탄·탄피·총 반동만.
+    if(!o || !STRU.has(o.id)) return;
+    const m = buildingGunMuzzle(o), fx = Math.sin(o.gunYaw||0), fz = Math.cos(o.gunYaw||0);
+    const ex = wx + (Math.random()-.5)*.35, ey = wy + .75 + (Math.random()-.5)*.35, ez = wz + (Math.random()-.5)*.35;
+    o.gunKick = 1;
+    shootBullet(m.x, m.y, m.z, ex, ey, ez, false, 0xffe49a, .75);   // 불꽃 두 겹(hitSpark)은 첫 발만 — 여기는 작게
+    burst(ex, ey, ez, 0xffe49a, towerFxTake(3), 1.6);
+    muzzleFlash(m.x, m.y, m.z, 0xffe49a, .34);
+    if(near){ towerFxCasing(o, m, fx, fz); towerFxDirt(ex, ez, 1, .7, fx, fz); }
+    towerFxSfx('towerRapid', struCX(o), struCZ(o), 24, 55);
+    return;
+  }
+  if(kind === 'arrow'){
+    if(w){ popDmg(wx, wy + 1.3, wz, dm, cr ? 1 : 0); if(alive) w.hurt = .16; }
+    burst(x, y, z, 0xffe2a0, towerFxTake(4), 1.5);
+    burst(x, y, z, 0xfff6d8, towerFxTake(2), 2.2);
+    if(near){
+      const dx = x - (o ? struCX(o) : x), dz = z - (o ? struCZ(o) : z), L = Math.hypot(dx, dz) || 1, ux = dx/L, uz = dz/L;
+      const n = towerFxTake(6);
+      for(let i=0;i<n;i++) towerFxChip(x, y, z, -ux*1.6 + (Math.random()-.5)*2.4, 1.8 + Math.random()*1.8, -uz*1.6 + (Math.random()-.5)*2.4,
+        .60, .05, .05, .20, i%2 ? 0xb08555 : 0xd8b27a, 1, 16);
+      // 잠깐 꽂혀 있는 화살(좀비를 따라간다) — 날아온 쪽으로 살대가 삐져나온다
+      if(w && alive && towerFxTake(1)) towerFxChip(wx - ux*.30, wy + .95, wz - uz*.30, 0,0,0, .55, .05, .05, .55, 0xc9a86e, 0, 0, w,
+        Math.atan2(ux, uz), -.18);
+    }
+    towerFxSfx('towerThunk', x, z, 22, 70);
+    return;
+  }
+  if(kind === 'ice'){
+    const L = list && list.length ? list : (w ? [w] : []);
+    let k = 0;
+    for(const v of L){
+      const main = v === w;
+      if(main) popDmg(v.x, (v.y||GY) + 1.3, v.z, dm, cr ? 1 : 0);
+      if(main && v.hp > 0) v.hurt = .16;
+      // 서리 껍질 — 푸른 얼음 조각이 몸에 잠깐 붙었다가 녹는다(표시용, 감속 판정은 towerAttack 그대로)
+      if(near && k < 4){ const n = towerFxTake(main ? 6 : 3);
+        for(let i=0;i<n;i++){ const a = i/n*Math.PI*2 + Math.random()*.6, rr = .26 + Math.random()*.12;
+          towerFxChip(v.x + Math.cos(a)*rr, (v.y||GY) + .45 + Math.random()*.85, v.z + Math.sin(a)*rr, 0,0,0, .75 + Math.random()*.25,
+            .14, .20 + Math.random()*.10, .14, i%2 ? 0xd4f3ff : 0x7fc3ea, 0, 0, v, a, .6); } }
+      k++;
+    }
+    burst(x, y, z, 0xe8f8ff, towerFxTake(5), 1.5);
+    burst(x, y, z, 0x8fd0f2, towerFxTake(3), 1.0);
+    ring(x, y - .2, z, 0xc8f2ff, .75, .22);
+    if(o && buildStat(o,'area')) ring(wx, wy + .6, wz, 0xc8f2ff, buildStat(o,'area'), .38);
+    towerFxSfx('towerFrost', x, z, 24, 110);
+  }
+}
+function towerFxShellLand(s){
+  // 포탄 착탄 — 불꽃 · 흙덩이 · 연기 · 충격 고리. 흔들림은 가까울 때만 약하게.
+  const x = s.x1, z = s.z1, y = GY + .15, near = towerFxNear(x, z);
+  for(const w of s.hits || []){ popDmg(w.x, (w.y||GY) + 1.3, w.z, s.dm, s.cr ? 1 : 0); if(w.hp > 0) w.hurt = .16; }
+  muzzleFlash(x, y + .45, z, 0xffb050, 1.1 + s.big*.15);        // '펑' — 기존 섬광 판 하나를 0.06초 빌린다(새 반투명 면 없음)
+  burst(x, y + .3, z, 0xffa040, towerFxTake(8), 1.7);
+  burst(x, y + .3, z, 0xfff0b0, towerFxTake(4), 2.3);
+  ring(x, y + .12, z, 0xffc070, s.area, .34);
+  ring(x, y + .35, z, 0xfff2c8, s.area*.55, .22);
+  if(near){
+    towerFxDirt(x, z, 7 + s.big, 1.35);
+    const n = towerFxTake(4);
+    for(let i=0;i<n;i++){ const a = i/n*Math.PI*2 + Math.random();
+      towerFxBall(x + Math.cos(a)*.35, y + .25, z + Math.sin(a)*.35, Math.cos(a)*1.1, .7 + Math.random()*.4, Math.sin(a)*1.1,
+        .50 + Math.random()*.15, .22, i%2 ? 0xb3aea6 : 0x958f86, -.08, 1.2, 2.0); }
+  }
+  const d = Math.hypot(x - PL.x, z - PL.z);
+  if(d < 8 && window.__shake) window.__shake(.08 + .20*(1 - d/8), .16);
+  towerFxSfx('towerBoom', x, z, 36, 90);
+}
+/* 매 프레임 — 포탄·미룬 타격·조각 풀. 살아 있는 조각이 없으면 메시를 통째로 숨긴다(그리기 0번). */
+function towerFxTick(dt){
+  tfxBudget = Math.min(TFX_BURST_MAX, tfxBudget + TFX_RATE*dt);
+  tfxSndBudget = Math.min(6, tfxSndBudget + 14*dt);
+  for(const h of tfxHits){
+    if(h.t <= 0) continue;
+    h.t -= dt; if(h.t > 0) continue;
+    h.t = 0; towerFxImpact(h.kind, h.o, h.w, h.x, h.y, h.z, h.dm, h.cr, h.list);
+    h.w = null; h.o = null; h.list = null;
+  }
+  let liveB = 0, liveC = 0;
+  // 얼음 결정의 서리 가루 꼬리(가까이 날아가는 것만, 예산 안에서)
+  tfxIceT -= dt;
+  if(tfxIceT <= 0){ tfxIceT = .04;
+    for(const a of ices){ if(a.t <= 0 || a.t > .95) continue;
+      const k = 1 - a.t, x = a.x + (a.tx - a.x)*k, y = a.y + (a.ty - a.y)*k + Math.sin(k*Math.PI)*.35, z = a.z + (a.tz - a.z)*k;
+      if(towerFxNear(x, z) && towerFxTake(1)) towerFxChip(x, y, z, (Math.random()-.5)*.6, .3 + Math.random()*.5, (Math.random()-.5)*.6,
+        .38, .05, .05, .05, Math.random() < .5 ? 0xeafcff : 0x8fd0f2, .25, 12); } }
+  for(const s of tfxShells){
+    if(s.t <= 0) continue;
+    s.t -= dt/s.d;
+    const k = Math.min(1, 1 - s.t), x = s.x0 + (s.x1 - s.x0)*k, z = s.z0 + (s.z1 - s.z0)*k;
+    const y = s.y0 + (s.y1 - s.y0)*k + Math.sin(k*Math.PI)*s.arc;
+    if(s.t <= 0){ s.t = 0; towerFxShellLand(s); s.hits = null; s.o = null; continue; }
+    s.trail -= dt;
+    if(s.trail <= 0 && towerFxNear(x, z)){ s.trail = .035;
+      if(towerFxTake(1)) towerFxBall(x, y, z, 0, .2, 0, .32, s.r*.9, 0xa19d97, -.05, 1.2, 1.5); }
+  }
+  // 공 조각
+  for(let i=0;i<TFX_BALL_CAP;i++){
+    const p = tfxBalls[i];
+    if(p.t <= 0) continue;
+    p.t -= dt;
+    if(p.t <= 0){ p.t = 0; p.w = null; tfxBallMesh.setMatrixAt(i, ZEROM); continue; }
+    liveB++;
+    if(p.w){ p.x = p.w.x + p.ox; p.y = (p.w.y||GY) + p.oy; p.z = p.w.z + p.oz; }
+    else{
+      const dr = Math.max(0, 1 - p.drag*dt);
+      p.vx *= dr; p.vz *= dr; p.vy = p.vy*dr - 17*p.g*dt;
+      p.x += p.vx*dt; p.y += p.vy*dt; p.z += p.vz*dt;
+      if(p.g > .5 && p.y < GY + .05){ p.y = GY + .05; p.vy *= -.28; p.vx *= .55; p.vz *= .55; }
+    }
+    const k = p.t/p.t0, sc = p.s*(1 + p.grow*(1 - k))*Math.min(1, k*3);
+    _v.set(p.x, p.y, p.z); _q.identity(); _s.set(sc, sc, sc);
+    tfxBallMesh.setMatrixAt(i, _m.compose(_v, _q, _s));
+  }
+  // 상자 조각
+  for(let i=0;i<TFX_CHIP_CAP;i++){
+    const p = tfxChips[i];
+    if(p.t <= 0) continue;
+    p.t -= dt;
+    if(p.t <= 0){ p.t = 0; p.w = null; tfxChipMesh.setMatrixAt(i, ZEROM); continue; }
+    liveC++;
+    if(p.w){ p.x = p.w.x + p.ox; p.y = (p.w.y||GY) + p.oy; p.z = p.w.z + p.oz; }
+    else{
+      p.vy -= 17*p.g*dt; p.x += p.vx*dt; p.y += p.vy*dt; p.z += p.vz*dt; p.rx += p.wx*dt; p.ry += p.wy*dt;
+      if(p.g > .5 && p.y < GY + .03){ p.y = GY + .03; p.vy *= -.35*p.bounce; p.vx *= .5; p.vz *= .5; p.wx *= .5; p.wy *= .5; p.bounce *= .6; }
+    }
+    const k = p.t/p.t0, sc = Math.min(1, k*3);
+    _eu.set(p.rx, p.ry, 0, 'YXZ'); _q.setFromEuler(_eu); _v.set(p.x, p.y, p.z); _s.set(p.sx*sc, p.sy*sc, p.sz*sc);
+    tfxChipMesh.setMatrixAt(i, _m.compose(_v, _q, _s));
+  }
+  // 날아가는 포탄 — 전용 메시(tfxShellMesh)
+  let liveS = 0;
+  for(let i=0;i<TFX_SHELL_CAP;i++){
+    const s = tfxShells[i];
+    if(s.t <= 0){ tfxShellMesh.setMatrixAt(i, ZEROM); continue; }
+    liveS++;
+    const k = Math.min(1, 1 - s.t), y = s.y0 + (s.y1 - s.y0)*k + Math.sin(k*Math.PI)*s.arc;
+    _v.set(s.x0 + (s.x1 - s.x0)*k, y, s.z0 + (s.z1 - s.z0)*k); _q.identity(); _s.set(s.r, s.r, s.r);
+    tfxShellMesh.setMatrixAt(i, _m.compose(_v, _q, _s));
+  }
+  if(liveB || tfxLiveB){ tfxBallMesh.instanceMatrix.needsUpdate = true; }
+  if(liveC || tfxLiveC){ tfxChipMesh.instanceMatrix.needsUpdate = true; }
+  if(tfxColB){ tfxBallMesh.instanceColor.needsUpdate = true; tfxColB = false; }
+  if(tfxColC){ tfxChipMesh.instanceColor.needsUpdate = true; tfxColC = false; }
+  tfxBallMesh.visible = liveB > 0; tfxChipMesh.visible = liveC > 0;
+  if(liveS || tfxShellMesh.visible) tfxShellMesh.instanceMatrix.needsUpdate = true;
+  tfxShellMesh.visible = liveS > 0;
+  tfxLiveB = liveB; tfxLiveC = liveC;
+}
 function buildingGunMuzzle(o){
   const yaw=Number.isFinite(o.gunYaw)?o.gunYaw:0;
+  if(o.t==='pulse'){const K=cannonSpec(o.lv),h=Math.cos(K.pitch)*K.muzzle;   // 들린 포신의 끝(외형과 같은 치수)
+    return {x:struCX(o)+Math.sin(yaw)*h,y:GY+K.py+Math.sin(K.pitch)*K.muzzle,z:struCZ(o)+Math.cos(yaw)*h};}
   return {x:struCX(o)+Math.sin(yaw)*1.04,y:GY+buildStat(o,'hi')-.33,z:struCZ(o)+Math.cos(yaw)*1.04};
 }
 function towerAttack(o,target,damage=true){
@@ -16068,9 +16474,12 @@ function towerAttack(o,target,damage=true){
   if(Math.hypot(target.x-cx,target.z-cz)>buildStat(o,'range'))return false;
   const victims=towerVictims(o,target),cr=rollCrit(),dm=Math.round(buildStat(o,'dmg')*(cr?CRIT_MUL:1));
   const hits=o.t==='pulse'?victims:[target];
+  const gun=o.t==='arrow'&&(o.lv||1)>=3&&(o.branch==='rapid'||o.branch==='sniper');
+  /* 65차 — 체력·감속은 지금처럼 쏘는 순간 호스트에서 바꾼다. 곧게 즉시 닿는 총알만 숫자·번쩍임을 바로 띄우고,
+     화살·얼음·포탄은 날아가 닿는 순간 towerFx 가 띄운다(보이는 것만 늦춘다). */
   for(const w of hits){
-    if(damage){w.hp-=dm;w.hurt=.16;}
-    popDmg(w.x,(w.y||GY)+1.3,w.z,dm,cr?1:0);
+    if(damage){w.hp-=dm;if(gun)w.hurt=.16;}
+    if(gun)popDmg(w.x,(w.y||GY)+1.3,w.z,dm,cr?1:0);
   }
   if(b.slow){
     const slow=buildStat(o,'slow'),duration=buildStat(o,'slowT');
@@ -16078,30 +16487,24 @@ function towerAttack(o,target,damage=true){
       if(damage&&!(WOLF_T[w.k]||{}).slowImm&&(!(w.slow>0)||slow<=(w.slowK===undefined?1:w.slowK))){
         w.slow=duration;w.slowK=slow; // 약한 눈보라가 이미 걸린 강한 빙결을 풀지 않는다.
       }
-      burst(w.x,(w.y||GY)+.9,w.z,0xbfe9ff,w===target?6:3,1.0);
     }
     shootIce(cx,sy,cz,target.x,(target.y||GY)+.8,target.z);
-    if(buildStat(o,'area'))ring(target.x,(target.y||GY)+.6,target.z,0xc8f2ff,buildStat(o,'area'),.38);
-    if(window.__sfxAt)window.__sfxAt('frost',o.x,o.z,24,130);
   } else if(o.t==='pulse'){
-    shootOrb(cx,sy,cz,target.x,(target.y||GY)+.7,target.z);
-    ring(target.x,(target.y||GY)+.6,target.z,0xbda4ff,buildStat(o,'area'),.38);
-    ring(target.x,(target.y||GY)+.6,target.z,0xa4efe6,buildStat(o,'area')*.72,.28);
-    burst(target.x,(target.y||GY)+.7,target.z,0xcabaff,10,1.25);
-    if(window.__sfxAt)window.__sfxAt('thud2',o.x,o.z,24,110);
-  } else if(o.t==='arrow'&&(o.lv||1)>=3&&(o.branch==='rapid'||o.branch==='sniper')){
+    // 대포 — 포가·포신이 표적을 향해 돌고(gunYaw) 쏘면 뒤로 밀린다(gunKick). 포탄·폭발은 towerFxShot.
+    o.gunYaw=Math.atan2(target.x-cx,target.z-cz);o.gunKick=1;
+  } else if(gun){
     const sniper=o.branch==='sniper',col=sniper?0xc2ecff:0xffe49a;
     o.gunYaw=Math.atan2(target.x-cx,target.z-cz);
     const muzzle=buildingGunMuzzle(o),end={x:target.x,y:(target.y||GY)+.8,z:target.z};
     o.gunKick=1;o.shotEnd=end;
-    shootBullet(muzzle.x,muzzle.y,muzzle.z,end.x,end.y,end.z,true,col,sniper?1.3:.75);
-    muzzleFlash(muzzle.x,muzzle.y,muzzle.z,col,sniper?.48:.30);
+    shootBullet(muzzle.x,muzzle.y,muzzle.z,end.x,end.y,end.z,true,col,sniper?1.9:.75);
+    muzzleFlash(muzzle.x,muzzle.y,muzzle.z,col,sniper?.72:.34);
     burst(muzzle.x,muzzle.y,muzzle.z,col,sniper?5:3,.45);
     if(window.__sfxAt)window.__sfxAt(sniper?'towerSniper':'towerRapid',cx,cz,24,sniper?160:90);
   } else {
     shootArrow(cx,sy,cz,target.x,(target.y||GY)+.8,target.z);
-    if(window.__sfxAt)window.__sfxAt('bow',o.x,o.z,24,110);
   }
+  towerFxShot(o,target,hits,victims,dm,cr);
   return {damage:dm,hits:hits.length,affected:victims.length,crit:cr};
 }
 function towerAttackTick(o,dt){
@@ -17774,7 +18177,8 @@ function heldGroup(mk){
 /* 건물 — blocksOf 의 조각을 그대로 (타일 원색 × 물감) */
 function buildingGroup(k, lv, branch='', style=0){
   const g = new THREE.Group();
-  for(const [x,y,z,tile,w,h,d,tint,ry,rz] of blocksOf(k, lv||1, branch, style)){
+  for(const [x,y,z,tile0,w,h,d,tint,ry,rz] of blocksOf(k, lv||1, branch, style)){
+    const tile = (tile0===T.cutStone||tile0===T.plank) ? T.cloth : tile0;   // 65차 — 돌·나무 조각도 아이콘에선 틴트 색 그대로
     const mat = tint ? flatFor(tile, {uuid:'tint'+tint, color:new THREE.Color(tint)}) : flatFor(tile);
     const m = new THREE.Mesh(rboxGeo(w,h,d), mat);
     m.position.set(x,y,z); m.rotation.set(0, ry||0, rz||0); g.add(m);
@@ -18382,7 +18786,7 @@ el('bBook').onclick = ()=>{
     let ext = `체력 Lv1 ${b.hp[0]} → Lv${MAXLV} ${b.hp[L]}`;
     if(b.dmg) ext += ` · 공격 ${b.dmg[0]} → ${b.dmg[L]}`;
     if(b.range)ext+=` · 사거리 ${b.range[0]} → ${b.range[L]}칸`;
-    if(b.area)ext+=` · 충격파 반경 ${b.area[0]} → ${b.area[L]}칸`;
+    if(b.area)ext+=` · 폭발 반경 ${b.area[0]} → ${b.area[L]}칸`;
     if(b.spawn) ext += ` · 병정 ${SOL_COMP[0].length} → ${SOL_COMP[L].length}명`;
     if(b.slow) ext += ` · 맞은 좀비 감속 ${Math.round((1-b.slow[0])*100)}% → ${Math.round((1-b.slow[L])*100)}%`;
     const choices=Object.entries(BUILD_BRANCHES[k]||{}).map(([id,choice])=>{
@@ -19208,6 +19612,7 @@ function loop(){
     if(struDirty && (flowDirty || struT <= 0)){ rebuildStru(); struT = 1/12; }
     else if(struTint.size) tintStru();
     tickBuildingGuns(G.paused?0:dt);
+    if(!DBG.noInst) towerFxTick(dt);                       // 65차 — 탑 포탄·타격 조각
     if(PROF_ON) pE('건물메시');
     if(PROF_ON) pS();
     if(!DBG.noInst) drawWolves(G.wolves, tAcc, dt);
@@ -19624,6 +20029,7 @@ loop();
 Object.assign(window, {
   __BUILD_PLANS:BUILD_PLANS,__BUILD_HANDS:BUILD_HANDS,__BUILD_HELP:BUILD_HELP,
   __tickBuildingGuns:tickBuildingGuns,
+  __towerFx:{attack:towerAttack,tick:towerFxTick,cannonSpec,muzzle:buildingGunMuzzle,balls:()=>tfxBallMesh,chips:()=>tfxChipMesh,shells:()=>tfxShellMesh},
   __buildUi:{buildAssistTick,openBuildAssistStyles,chooseBuildBranch,buildAssistLineCells,toggleBuildLine,buildPlacementAction},
   __buildApi:{handleBuildCommand,hostBuildTick,buildActor,buildCanMove,buildCanPay,canPlaceBuilding,buildWorkers,buildSpeed,finishBuildPlan,packBuilding,applyNetworkBuilding,upgradeStru,buildCoopTick,drawBuildPlans,fortStyleOf,setFortStyle,clearBuildCoop},
   __selectTool:selectTool,__selectBuild:selectBuild,

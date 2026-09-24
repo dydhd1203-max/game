@@ -24,11 +24,12 @@ const rollCrit=()=>crit,popDmg=(...v)=>events.push({kind:'number',v,clock}),
  shootArrow=(...v)=>events.push({kind:'arrow',v,clock}),shootIce=(...v)=>events.push({kind:'ice',v,clock}),
  shootBullet=(...v)=>events.push({kind:'bullet',v,clock}),muzzleFlash=(...v)=>events.push({kind:'flash',v,clock}),
  shootOrb=(...v)=>events.push({kind:'orb',v,clock}),ring=(...v)=>events.push({kind:'ring',v,clock}),
- burst=(...v)=>events.push({kind:'burst',v,clock}),window={__sfxAt:(...v)=>events.push({kind:'sound',v,clock})};
+ burst=(...v)=>events.push({kind:'burst',v,clock}),window={__sfxAt:(...v)=>events.push({kind:'sound',v,clock})},
+ towerFxShot=(...v)=>events.push({kind:'towerFx',v,clock});
  const puff=(...v)=>events.push({kind:'puff',v}),tone=(...v)=>events.push({kind:'tone',v});`;
 new vm.Script([fixtures,...['BUILD','BUILD_BRANCHES','MAXLV','BKEYS','SOL_COMP','WOLF_T','cliCd','SFX'].map(dec),source.slice(costStart,costEnd),
- ...['buildStat','buildingName','struCX','struCZ','buildingGunMuzzle','towerTarget','towerVictims','towerAttack','towerAttackTick','clientTowerFx'].map(fn),book,
- `globalThis.A={BUILD,BUILD_BRANCHES,SFX,buildStat,buildingName,buildingGunMuzzle,towerTarget,towerAttack,towerAttackTick,clientTowerFx,G,STRU,cliCd,events,nodes,
+ ...['bs','cannonSpec','buildStat','buildingName','struCX','struCZ','buildingGunMuzzle','towerTarget','towerVictims','towerAttack','towerAttackTick','clientTowerFx'].map(fn),book,
+ `globalThis.A={BUILD,BUILD_BRANCHES,SFX,cannonSpec,buildStat,buildingName,buildingGunMuzzle,towerTarget,towerAttack,towerAttackTick,clientTowerFx,G,STRU,cliCd,events,nodes,
  setCrit(v){crit=v;},time(v){clock=v;},book(){nodes.bBook.onclick();}};`].join('\n')).runInContext(ctx,{timeout:10000});
 const A=ctx.A,results=[];
 const check=(n,p,d)=>{results.push({name:n,pass:!!p,detail:d});console.log((p?'OK   ':'FAIL ')+n+(d===undefined?'':' '+JSON.stringify(d)));};
@@ -59,11 +60,11 @@ A.towerAttack(tower('ice',3,'blizzard'),frostTarget);check('Weaker area slow can
 const boss=wolf(3,1,7,{bi:4,addLeft:8,sumT:7}),other=wolf(4,1);reset([boss,other]);A.setCrit(true);A.towerAttack(tower('pulse',3),boss);
 check('Critical splash applies once per target and leaves boss AI state intact',boss.hp===940&&other.hp===940&&boss.bi===4&&boss.addLeft===8&&boss.sumT===7);
 const gone=wolf(.5,.5,0,{hp:0}),live=wolf(4,1);reset([gone,live]);check('Tower targeting skips already defeated zombies',A.towerTarget(.5,.5,10)===live);
-let guests=true;for(const [t,branch,fx] of [['pulse',undefined,'orb'],['arrow','rapid','bullet'],['arrow','sniper','bullet'],['ice','blizzard','ice'],['ice','frost','ice']]){const a=wolf(3,1),b=wolf(3.5,1);reset([a,b]);A.STRU.set('tower',tower(t,3,branch));const before=JSON.stringify(A.G.wolves);A.clientTowerFx(.01);guests&&=before===JSON.stringify(A.G.wolves)&&A.events.some(e=>e.kind===fx)&&A.cliCd.get('tower')===A.buildStat(tower(t,3,branch),'rate');}
+let guests=true;for(const [t,branch,fx] of [['pulse',undefined,'towerFx'],['arrow','rapid','bullet'],['arrow','sniper','bullet'],['ice','blizzard','ice'],['ice','frost','ice']]){const a=wolf(3,1),b=wolf(3.5,1);reset([a,b]);A.STRU.set('tower',tower(t,3,branch));const before=JSON.stringify(A.G.wolves);A.clientTowerFx(.01);guests&&=before===JSON.stringify(A.G.wolves)&&A.events.some(e=>e.kind===fx)&&A.cliCd.get('tower')===A.buildStat(tower(t,3,branch),'rate');}
 check('Guest effects use selected branch while never changing health or slow',guests);
 const noTarget=tower('pulse');reset([]);const idle=A.towerAttackTick(noTarget,.1);check('No target uses a short retry and emits no attack',idle===false&&noTarget.cd===.25&&A.events.length===0);
 A.book();const html=A.nodes.bookList.innerHTML;
-check('Actual guide includes pulse and every branch with correct repair price',['충격파 포탑','연사 기관총탑','대형 저격총탑','눈보라 얼음탑','빙결 얼음탑','🪵2'].every(s=>html.includes(s))&&!html.includes('🪵1</span>')&&A.nodes.open==='popBook');
+check('Actual guide includes pulse and every branch with correct repair price',['대포탑','연사 기관총탑','대형 저격총탑','눈보라 얼음탑','빙결 얼음탑','🪵2'].every(s=>html.includes(s))&&!html.includes('🪵1</span>')&&A.nodes.open==='popBook');
 let gunFx=true;for(const branch of ['rapid','sniper'])for(let lv=3;lv<=7;lv++)for(const [x,z]of [[5,1],[1,5],[-3,1],[1,-3]]){
  const o=tower('arrow',lv,branch),w=wolf(x,z);reset([w]);A.towerAttack(o,w);
  const shot=A.events.find(e=>e.kind==='bullet'),flash=A.events.find(e=>e.kind==='flash'),m=A.buildingGunMuzzle(o);
@@ -78,6 +79,21 @@ let oldFx=true;for(const [lv,branch]of [[2,'rapid'],[2,'sniper'],[3,undefined],[
 check('Unbranched, invalid and pre-level-three towers retain arrow visuals',oldFx);
 reset([]);A.SFX.towerRapid();A.SFX.towerSniper();
 check('Tower guns use short quiet synthetic game sounds',A.events.length===4&&A.events.every(e=>e.kind==='puff'?e.v[0]<=.04&&e.v[1]<=.05:e.kind==='tone'&&e.v[2]<=.1&&e.v[4]<=.04));
+// 65차 대포탑 — 같은 대상·같은 피해를 쏘는 순간 판정하고, 포가가 표적을 향해 돌며 반동한다. 포탄·폭발·숫자는 towerFx 가 착탄 때 띄운다.
+let cannon=true;for(let lv=1;lv<=7;lv++)for(const [x,z]of [[5,1],[1,5],[-3,1],[1,-3]]){
+ const o=tower('pulse',lv),a=wolf(x,z),b=wolf(x+.4,z),far=wolf(x+6,z+6);reset([a,b,far]);const r=A.towerAttack(o,a);
+ const fx=A.events.filter(e=>e.kind==='towerFx'),m=A.buildingGunMuzzle(o),K=A.cannonSpec(lv),dm=A.buildStat(o,'dmg');
+ cannon&&=r.hits===2&&a.hp===1000-dm&&b.hp===1000-dm&&far.hp===1000&&o.gunKick===1&&Math.abs(o.gunYaw-Math.atan2(x-1,z-1))<1e-12
+  &&fx.length===1&&fx[0].v[0]===o&&fx[0].v[1]===a&&fx[0].v[2].length===2&&fx[0].v[4]===dm
+  &&!A.events.some(e=>e.kind==='number'||e.kind==='orb')
+  &&Math.abs(Math.hypot(m.x-1,m.z-1)-Math.cos(K.pitch)*K.muzzle)<1e-9&&Math.abs(m.y-(K.py+Math.sin(K.pitch)*K.muzzle))<1e-9
+  &&Math.abs(Math.atan2(m.x-1,m.z-1)-o.gunYaw)<1e-9;
+}
+check('Cannon aims its barrel, recoils and hands the same splash victims and damage to the shell effect',cannon);
+let numbers=true;for(const [t,branch,now] of [['arrow',undefined,false],['ice','frost',false],['arrow','rapid',true],['arrow','sniper',true]]){
+ const w=wolf(4,1);reset([w]);A.towerAttack(tower(t,3,branch),w);const n=A.events.filter(e=>e.kind==='number').length;
+ numbers&&=n===(now?1:0)&&A.events.filter(e=>e.kind==='towerFx').length===1;}
+check('Instant bullets show numbers at once; flying arrows and ice defer them to the impact effect',numbers);
 reset([wolf(1,9.99),wolf(1,-8.01)]);const centerTower=tower('pulse',1);A.towerAttackTick(centerTower,.01);
 check('Tower range follows the real two-cell building center on both sides',A.G.wolves[0].hp<1000&&A.G.wolves[1].hp===1000);
 check('Host combat loop calls the tested attack tick',source.slice(source.indexOf('// 타워 공격 (피해는 호스트만)'),source.indexOf("qE('병정')")).includes('towerAttackTick(o,dt)'));
