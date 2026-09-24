@@ -85,7 +85,7 @@ const SETUP = `const W=window, G=W.__G, PL=W.__PL, K=W.__KIT, o={};
 /* ═══════ ② 세계 마무리 — 흙길 · 연못·개울 · 산 실루엣 · 노을 띠 · 별 결 · 별똥별 ═══════
    선생님: "마당 흙길(문에서 수정까지), 연못이나 개울, 산 실루엣 다듬기, 밤하늘 노을·별 결." */
 {
-  const r = await pg.evaluate(()=>{ const W=window, G=W.__G, o={}, GY=W.__GY, HW=73, WS=147, gi=(x,z)=>(x+HW)+(z+HW)*WS;
+  const r = await pg.evaluate(()=>{ const W=window, G=W.__G, o={}, GY=W.__GY, HW=W.__HW, WS=HW*2+1, gi=(x,z)=>(x+HW)+(z+HW)*WS;   // 67차 — 격자 크기는 게임에 묻는다
     const d = W.__groundDisc(), P = d.geometry.attributes.position, C = d.geometry.attributes.color;
     o.verts = P.count;
     /* 흙길 — 성문마다 꺾은선이 있고, 단상 가장자리(5.6칸)에서 시작해 성문 너머(GATE_T+2.5)에서 끝난다 */
@@ -111,7 +111,7 @@ const SETUP = `const W=window, G=W.__G, PL=W.__PL, K=W.__KIT, o={};
     /* 산 실루엣 — 마루가 평평하지 않다: 둘레를 따라 높이가 오르내리고(최고 ≥ GY+18 → 눈 봉우리), 성문 앞은 그대로 평지 */
     let hmax = 0; const ring = [];
     for(let a=0; a<360; a+=3){ const rad = a*Math.PI/180; let best = 0;
-      for(let rr=41; rr<61; rr++){ const x = Math.round(Math.cos(rad)*rr), z = Math.round(Math.sin(rad)*rr); if(x<-HW||x>HW||z<-HW||z>HW) continue;
+      for(let rr=41; rr<71; rr++){ const x = Math.round(Math.cos(rad)*rr), z = Math.round(Math.sin(rad)*rr); if(x<-HW||x>HW||z<-HW||z>HW) continue;   // 67차 — 세상 끝 78: 산 띠를 71 까지 훑는다
         const h = W.__terrH[gi(x,z)]; if(h > best) best = h; }
       ring.push(best); if(best > hmax) hmax = best; }
     const mean = ring.reduce((a,b)=>a+b,0)/ring.length; o.ridgeSd = +Math.sqrt(ring.reduce((a,b)=>a+(b-mean)*(b-mean),0)/ring.length).toFixed(2);

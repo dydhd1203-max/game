@@ -70,7 +70,7 @@ await pg.waitForTimeout(1500);
 
 /* ═══════ ③ 지형 — 바닥·산 기둥 합치기·단상 ═══════ */
 {
-  const r = await pg.evaluate(()=>{ const W=window, o={}, GY=W.__GY, HW=73, WS=147, gi=(x,z)=>(x+HW)+(z+HW)*WS;
+  const r = await pg.evaluate(()=>{ const W=window, o={}, GY=W.__GY, HW=W.__HW, WS=HW*2+1, gi=(x,z)=>(x+HW)+(z+HW)*WS;   // 67차 — 격자 크기는 게임에 묻는다
     const d=W.__groundDisc(), rim=W.__groundRim();
     o.ground = {vc:!!d.material.vertexColors, map:!!d.material.map, verts:d.geometry.attributes.position.count, rimMap:!!rim.material.map};
     const ca=d.geometry.attributes.color; const seen=new Set(); for(let i=0;i<ca.count;i+=7) seen.add(ca.getX(i).toFixed(3)+','+ca.getY(i).toFixed(3)); o.groundCols=seen.size;
