@@ -32,7 +32,7 @@ function fn(name){const start=source.indexOf('function '+name+'(');if(start<0)th
   return source.slice(start,scanEnd(start,true));}
 function chunk(a,b){const start=source.indexOf(a),end=source.indexOf(b,start);if(start<0||end<0)throw new Error('Missing chunk '+a);return source.slice(start,end);}
 
-const fixtures=`const GFX={q:'high',shadow:false},scene=new THREE.Scene(),MAXW=92,MAXP=40,GY=0,NIGHTK=.7,ENV_STEEL=null;
+const fixtures=`const GFX={q:'high',shadow:false},scene=new THREE.Scene(),MAXW=92,MAXP=40,GY=0,ENV_STEEL=null;let NIGHTK=.7;
 const G={day:1,nk:0,set:{goalDay:15}},topAt=()=>0,burst=()=>{},UPV=new THREE.Vector3(0,1,0);
 const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color();`;
 const names=['W_body','W_head','W_chest','W_ruff','W_snout','W_tail','W_legs','W_paw','W_eyes','W_ears','W_horn','W_nose','W_belly','W_brow','W_cheek','W_rib','W_plate','W_gem','W_eyeW','W_eyeR','W_pupil','W_fang','W_costume','W_wrap','W_sleeve','W_digit'];
@@ -42,7 +42,7 @@ const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),fn('metalMa
  // zombieChaseGate 가 쫓을 때의 최소 걸음(BAL.chaseMin)과 종류별 배수를 읽는다.
  declaration('BAL'),
  chunk('const WOLF_T =','function drawWolves('),fn('drawWolves'),declaration('HEAD_M'),fn('smoothHead'),fn('idleLife'),fn('limb1'),fn('limb2'),
- `globalThis.A={G,WOLF_T,BAL,WOLF_SPD_GROW,zombieChaseGate,LOOKS,ZOMBIE_STYLE,ZOMBIE_NIGHT,WOLF_DEAD,wolfPose,drawWolves,meshes:{${names.map(n=>n+':'+n).join(',')}},ZOMBIE_RISE_T,ZOMBIE_LIE_T,ZSKIN:ZOMBIE_MAT.skin,ZGEO:ZOMBIE_GEO};`];
+ `globalThis.A={G,WOLF_T,BAL,WOLF_SPD_GROW,zombieChaseGate,LOOKS,ZOMBIE_STYLE,ZOMBIE_NIGHT,WOLF_DEAD,wolfPose,drawWolves,meshes:{${names.map(n=>n+':'+n).join(',')}},ZOMBIE_RISE_T,ZOMBIE_LIE_T,ZSKIN:ZOMBIE_MAT.skin,ZGEO:ZOMBIE_GEO,wolfCorpse,setNight:v=>{NIGHTK=v;}};`];
 const context=vm.createContext({THREE,console});new vm.Script(pieces.join('\n')).runInContext(context,{timeout:10000});const A=context.A;
 const results=[];const check=(n,p,d)=>{results.push({name:n,pass:!!p,detail:d});console.log((p?'OK   ':'FAIL ')+n+(d===undefined?'':' '+JSON.stringify(d)));};
 const actor=(k=0,extra={})=>({k,x:0,y:0,z:0,ry:0,id:2,ph:.3,hp:40,mx:40,mv:false,atkT:0,hurt:0,...extra});
@@ -145,6 +145,30 @@ check('Two-part legs stay joined at the knee, keep equal segment lengths and ben
  check('Dried wounds live in the skin shader (no new pieces) and never animate or flow',A.ZSKIN.customProgramCacheKey()==='zombie-wound-66'&&skinGeos.every(a=>a&&a.count>0)&&[1,2,3].every((v,i)=>skinGeos[i].getX(0)===v)&&!/uTime|time|drip|flow/i.test(src));
  const p=snapshot(actor(0,{id:3})),col=A.meshes.W_legs.instanceColor.array;
  check('Trouser thighs are marked to skip skin wounds while forearms keep them',col[0]>0&&col[3]>0&&col[6]<0&&col[9]<0&&p.W_legs.length===4);}
+// 66차 심사 — 상처 씨앗(살 조각의 인스턴스 색)은 해질녘·새벽(NIGHTK)에도, 쫓기 시작해도 바뀌지 않는다. 밤 어둡게 하기는 살 셰이더(uZNight)가 한다.
+{const skinCols=()=>['W_head','W_paw','W_ears','W_cheek','W_legs'].map(n=>{const m=A.meshes[n],a=m.instanceColor.array,o=[];for(let i=0;i<m.count;i++)if(a[i*3]>=0)o.push(a[i*3].toFixed(6),a[i*3+1].toFixed(6),a[i*3+2].toFixed(6));return n+':'+o.join(',');}).join('|');
+ const seen=new Set();for(const nk of [0,.37,.5,1])for(const hunt of [false,true]){A.setNight(nk);A.drawWolves([actor(0,{id:3,shT:hunt,mv:hunt,gv:hunt?4.6:0})],4,1/60);seen.add(skinCols());}
+ A.setNight(.7);const src=String(A.ZSKIN.onBeforeCompile);
+ check('Wound seeds (skin instance colors) stay identical from day to night and when a chase starts; night dimming is in the skin shader',seen.size===1&&/uZNight/.test(src)&&/diffuseColor\.rgb \*= 1\.0 - 0\.22\*uZNight\*vZT/.test(src),{variants:seen.size});}
+// 66차 심사 — 쓰러지고 누워 떠는 내내 살아 있는 자세가 돌지 않는다: 머리가 한 프레임에 튀지 않고, 발견 노려봄이 다시 켜지지 않고, 팔은 땅속으로 박히지 않는다
+{const at=(n,i)=>{const m=new THREE.Matrix4();A.meshes[n].getMatrixAt(i,m);return pos(m);};const res=[];
+ for(const hunt of [false,true])for(const phase of [0,.3,.6]){A.WOLF_DEAD.length=0;const w=actor(0,{id:5,mv:hunt,shT:hunt}),dt=1/60;let t=4+phase;
+  for(let i=0;i<40;i++){t+=dt;if(hunt)w.z+=4.6*dt;A.drawWolves([w],t,dt);}
+  A.wolfCorpse(w);let lastHead=null,lieJump=0,alert=0,fallPalm=null,palmMin=Infinity,frames=0;
+  for(let i=0;i<110&&A.WOLF_DEAD.includes(w);i++){t+=dt;A.drawWolves([],t,dt);if(!A.WOLF_DEAD.includes(w))break;
+   const h=at('W_head',0),pl=Math.min(at('W_paw',0).y,at('W_paw',1).y);
+   if(w.dead>0)fallPalm=pl;
+   else if(w.lieT>A.ZOMBIE_LIE_T*.26){frames++;alert=Math.max(alert,w.poseAlert||0);palmMin=Math.min(palmMin,pl);if(lastHead)lieJump=Math.max(lieJump,h.distanceTo(lastHead));}
+   lastHead=h;}
+  res.push({hunt,phase,frames,lieJump:+lieJump.toFixed(3),alert,palmDrop:+(fallPalm-palmMin).toFixed(3)});}
+ A.WOLF_DEAD.length=0;
+ check('Lying corpses keep the dead pose: no head pop, no prey-discovery stare, arms twitch without sinking into the ground',res.every(r=>r.frames>20&&r.lieJump<.08&&r.alert===0&&r.palmDrop<.03),res);}
+// 66차 심사 — 땅에서 기어오르다 죽으면 그 높이에서 쓰러진다(한 프레임에 땅 위로 0.9칸 튀지 않는다)
+{A.WOLF_DEAD.length=0;const w=actor(0,{id:6,rise:A.ZOMBIE_RISE_T}),dt=1/60;let t=4;const hy=()=>{const m=new THREE.Matrix4();A.meshes.W_head.getMatrixAt(0,m);return pos(m).y;};
+ for(let i=0;i<28;i++){t+=dt;A.drawWolves([w],t,dt);}const before=hy();A.wolfCorpse(w);let jump=0,prev=before;
+ for(let i=0;i<60&&A.WOLF_DEAD.includes(w);i++){t+=dt;A.drawWolves([],t,dt);if(!A.WOLF_DEAD.includes(w))break;const y=hy();jump=Math.max(jump,y-prev);prev=y;}
+ A.WOLF_DEAD.length=0;
+ check('A zombie killed while crawling out of the ground falls from where it was instead of popping up',jump<.12,{headBefore:+before.toFixed(3),maxRisePerFrame:+jump.toFixed(3)});}
 const deadHunter=actor(0,{dead:.4,shT:true,poseChase:1,poseAlert:.2});const death=A.wolfPose(deadHunter,1,1/60).threat;
 check('Defeated zombies stop the discovery and chase pose',death.chase===0&&death.alert===0&&death.drive===0);
 const phaseA=A.wolfPose(actor(0,{id:1}),.4,.016).threat,phaseB=A.wolfPose(actor(0,{id:8}),.4,.016).threat;
