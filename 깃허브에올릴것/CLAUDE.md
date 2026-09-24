@@ -47,6 +47,8 @@
 | `hitSpark`, `SHOT_FX`, `muzzleFlash`, `popDmg`, `fireRecoil`, `SFX` | 타격감 — 불티·예광탄·총구 화염·피해 숫자·화면 반동·합성 효과음 |
 | `makeDisplays`, `dispClone`, `gunMuzzleLocal` | 상점·대장간 3D 진열 총과 1인칭 총구 끝 |
 | `buildFarms`, `buildShop`, `buildForge` | 농장 우리·상인 좌판·동물 상인·대장간 3D |
+| `GH`, `gateLayout`, `buildGates`, `stairH`, `GBOX`, `rampCells` | 66차 성문 — 망루(terrH)·방어형 계단(bldH + 반 칸 디딤 `stairH`)·통로 위 아치 성벽 길과 흉벽(높이 상자 `GBOX`)의 몸과 쌓은 돌 그림 |
+| `NODE_BODY`, `nodeHit`, `nodeSolidIndex` | 66차 자원(나무·바위·금) 몸 충돌 — 4칸 버킷, `solidHit` 에서만 본다 |
 | `moistAt`, `grGroundShader`, `mtShade`, `leafShade`, `SUN_PATH`, `skyToneLin` | 65차 땅(물기·흙길)·산 지층·잎 명암·해/달 자리·안개색 |
 | `XP_BUILD`, `WORK_SEC`, `SIEGE_T` | 건물 종류별 경험치·공사 시간·포위 값. 건물을 더하면 세 표를 함께 채운다 |
 | `blocksOf(t,lv,branch,style)`, `blocksOfRaw` | 실제 높이/점유칸에 맞춘 건물 외형·모둠 장식 |
@@ -154,6 +156,7 @@
 - 탑 효과는 불투명 조각 풀(`tfxBallMesh`·`tfxChipMesh`·`tfxShellMesh`)과 기존 `burst`/`ring`만 쓰고, 초당 조각 예산(`TFX_RATE`)과 먼 곳 생략(`TFX_FAR`)을 지킨다. 새 투명 면·빛무리·점광원은 넣지 않는다.
 - 3인칭 총은 `TPGUN` 표(무기 번호마다 12~14조각)대로 그린다. 원점은 오른손 손잡이 한가운데, f 총구 쪽·u 위·sd 몸 왼쪽(+). **[2]는 오른손 손잡이 (0,.03,0)·기울기 없음, [3]은 왼손이 받치는 몸통, [1] 개머리는 몸통 앞면까지** — `t61`·`t53`·`t54`가 이 약속을 본다. 총구는 표의 `mz`, 강화 빛은 `bar`를 감싼다. 정원은 `P_gun` = `MAXP×TPGUN_MAX`, `P_gunF` = `MAXP×(TPGUN_GLOW+2)`. 새 총을 더하면 표에 줄을 더하고 이 정원을 다시 본다.
 - 어깨 너머 조준 카메라(`AIM_VIEW`)는 어깨 1.10·높이 1.58이다(65차 마감 — 가슴 앞 총이 머리·오른팔에 가려서 조금 오른쪽·위로). 조준선은 여전히 화면 중앙 ray이고 몸·날개가 조준선을 가리지 않아야 한다(`t57-character-view`).
+- 성문(66차): 통로(|pp|<7)에는 몸·그림 조각을 두지 않는다(애들 벽 자리·좀비 길). 통로 위 성벽 길처럼 **아래가 비어 있는 발판**은 지형 격자에 못 담으므로 `GBOX` 상자로 두고, `groundUnder(x,z,R,y)` 는 사람 발 높이 `y` 를 넘겨받을 때만 상자를 본다(발+STEP 안이면 딛고, 몸에 걸리면 막고, 머리 위면 무시). 사람 몸을 옮기는 새 부름은 `y` 를 꼭 넘긴다. 계단 칸은 `bldH` 라 좀비 길찾기엔 평지로 보이므로 흐름장이 `RAMP_FLOW` 로 비싸게 매겨 돌아간다. 모둠 표시는 벽·기둥에 붙은 천 깃발·번호판만 쓴다 — 공중에 뜬 판·바닥 색 띠를 다시 두지 않는다.
 - 숨김 브라우저는 `pw.mjs`로만 실행하고 `finally`에서 종료한다. GPU 속도와 21명 실접속 성능은 교실 기기에서 별도로 측정한다.
 
 ## 수정 후 검사
