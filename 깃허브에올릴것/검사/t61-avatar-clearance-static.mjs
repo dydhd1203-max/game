@@ -122,6 +122,24 @@ for(let wp=1;wp<weaponCount;wp++)for(const kick of [0,.8,1.6])for(const scale of
 }
 check('Every weapon stays outside the body at all recoil strengths and motion poses',gunClips===0,{gunCases,gunClips});
 check('Weapon grip remains centered in the anatomical right hand',gripError<1e-4,{gripError});
+// 65차 — 무기마다 부품 표(TPGUN)로 그린다. 들고 있는 동안(반동 0) 어떤 조각도 머리(둥근 기둥)에 들어가지 않는다.
+// 쏠 때 잠깐 들리는 반동은 위의 몸통 검사가 모든 세기로 본다. +6 떨림(sh)까지 켠 채로 잰다.
+function insideHead(mesh,i){const m=matrix(A.meshes.head).invert().multiply(matrix(mesh,i));
+ return points(mesh).some(p=>{const v=p.clone().applyMatrix4(m);return Math.hypot(v.x,v.z)<.5&&Math.abs(v.y)<.5;});}
+let headClips=0,headCases=0;
+for(let wp=1;wp<weaponCount;wp++)for(const scale of [.7,1.5])for(const pose of poses){
+ draw(actor({wp,we:6,jb:0,jt:2,...pose}),10,scale);headCases++;
+ for(let i=0;i<A.meshes.gun.count;i++)headClips+=insideHead(A.meshes.gun,i)?1:0;
+}
+check('Every held weapon stays out of the head through running, jumps, flips, glide and landing',headClips===0,{headCases,headClips});
+// imesh 정원은 최악 조합(그리는 사람 상한 40명 × 제일 많은 조각 · 빛 조각 + 강화 빛 2)으로 잡는다. 모자라면 오류 없이 잘린다.
+const TPGUN=vm.runInContext('TPGUN',context),MAXP=vm.runInContext('MAXP',context);let capShort=[];
+for(let wp=1;wp<weaponCount;wp++){
+ A.drawSheep(Array.from({length:MAXP},(_,i)=>actor({x:i*2,wp,we:6})),10,MAXP,()=>0x67a7cb,1);
+ if(A.meshes.gun.count!==MAXP*TPGUN[wp].r.length||A.meshes.gunGlow.count!==MAXP*(TPGUN[wp].g+2))capShort.push(wp);
+}
+check('Forty players holding any weapon at +6 fit the weapon part and glow capacities',capShort.length===0&&TPGUN.every(g=>!g||g.r.length<=14&&g.r.length>=8),
+ {capShort,partCap:A.meshes.gun.count_max,glowCap:A.meshes.gunGlow.count_max,parts:TPGUN.map(g=>g?g.r.length:0)});
 // Run the actual initialization block rather than checking for a name in a comment.
 const start=source.indexOf('/* ★ 직업 옷·모자·소품'),end=source.indexOf('const JOB_UNIFORM',start);
 if(start<0||end<start)throw Error('Missing avatar shadow setup');

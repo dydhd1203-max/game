@@ -25,7 +25,7 @@ const pieces=[fn('roundBox'),fn('roundCyl'),...['RB','RBl','RBs','BALL','BALLs',
   function imesh(g,m,cap){const mesh=new THREE.InstancedMesh(g,m,cap);mesh.count_max=cap;return mesh;}`,
   decl('P_body'),decl('P_hand'),decl('P_gun'),
   `globalThis.A={R6_HEAD_GEO,R6_BODY_GEO,R6_LIMB_GEO,R6_SHOE_GEO,R6_EYE_GEO,R6_HOOK,R6_SMILE,R6_HEAD_SEG,R6_FACE,R6_HEAD,R6_HK,R6_TOR,R6_ARM,R6_LEG,R6_HU,R6_HIP,R6_SHU,R6_EYE_F,R6_MOUTH_F,r6FaceFront,r6EyeRotation,RB,RBl,CYL,
-  P_body,P_head,P_arm,P_eye,P_mouth,P_legs,P_shoe,P_deco,P_hand,P_gun,AVATAR_MAT,MAXP};`];
+  P_body,P_head,P_arm,P_eye,P_mouth,P_legs,P_shoe,P_deco,P_hand,P_gun,AVATAR_MAT,MAXP,TPGUN_MAX};`];
 const context=vm.createContext({THREE});new vm.Script(pieces.join('\n')).runInContext(context);
 const A=context.A,checks=[],check=(name,pass,detail)=>{checks.push(!!pass);console.log((pass?'PASS ':'FAIL ')+name+(detail?' '+JSON.stringify(detail):''));};
 const geos=[A.R6_HEAD_GEO,A.R6_BODY_GEO,A.R6_LIMB_GEO,A.R6_SHOE_GEO,A.R6_EYE_GEO,...A.R6_HOOK,A.R6_SMILE];
@@ -67,7 +67,7 @@ const hands=A.R6_HOOK.map(g=>new THREE.Mesh(g,new THREE.MeshBasicMaterial({side:
 check('Both C hands have real open centers and mouths with solid curved palms',hands.every((m,i)=>!hitAt(m,0,0)&&!hitAt(m,i?.40:-.40,0)&&!!hitAt(m,i?-.40:.40,0)));
 check('C hand bevels have multiple smooth profile steps',A.R6_HOOK.every(g=>g.parameters.options.bevelSegments===2&&g.parameters.options.bevelEnabled));
 check('Skin, clothing, face and held tools use their own material roles',A.P_head.material===A.AVATAR_MAT.skin&&A.P_arm.material===A.AVATAR_MAT.skin&&A.P_hand.every(m=>m.material===A.AVATAR_MAT.skin)&&[A.P_body,A.P_legs,A.P_shoe,A.P_deco].every(m=>m.material===A.AVATAR_MAT.cloth)&&[A.P_eye,A.P_mouth].every(m=>m.material===A.AVATAR_MAT.face)&&A.P_gun.material===A.AVATAR_MAT.gear);
-check('Instanced capacity includes four arm/leg segments, two shoes, and eight tool pieces per player',A.P_arm.count_max>=A.MAXP*4&&A.P_legs.count_max>=A.MAXP*4&&A.P_shoe.count_max>=A.MAXP*2&&A.P_gun.count_max>=A.MAXP*8);
+check('Instanced capacity includes four arm/leg segments, two shoes, and the largest weapon part table per player',A.P_arm.count_max>=A.MAXP*4&&A.P_legs.count_max>=A.MAXP*4&&A.P_shoe.count_max>=A.MAXP*2&&A.TPGUN_MAX>=8&&A.P_gun.count_max>=A.MAXP*A.TPGUN_MAX);
 const triangles=g=>(g.index?.count||g.attributes.position.count)/3;
 const perHuman=triangles(A.R6_BODY_GEO)+triangles(A.R6_HEAD_GEO)+triangles(A.R6_LIMB_GEO)*8+triangles(A.R6_SHOE_GEO)*2+triangles(A.R6_EYE_GEO)*2+triangles(A.R6_SMILE)+A.R6_HOOK.reduce((n,g)=>n+triangles(g),0);
 check('Base human geometry remains bounded for a 21-player group',perHuman<7500,{perHuman,twentyOnePlayers:perHuman*21});
