@@ -15,7 +15,9 @@
 - 날개는 이전 크기에서 15% 줄인 1차 .306·2차 .408 배율이다. 비행 중에는 어깨 부착점을 고정한 채 분명하게 펄럭이며, 조준·착지 때는 부드럽게 접는다.
 - 게임 중 가방에는 무기·방어구·물약만 둔다. 기존 저장 아이템 ID를 무단 재정렬하지 않는다.
 - UI는 밝은 크림/하늘/민트, 남색 본문, 읽기 쉬운 Noto Sans KR 400~600이다.
+  **예외: 상점 창(`#popShop`)** 은 선생님이 준 참고 그림대로 짙은 나무 진열대 바탕·밝은 글씨·주황 구매 단추다(65차). 다른 창은 밝은 UI 그대로다.
 - 좀비는 좁은 턱·둥근 두개골·굽은 등·가늘어지는 팔다리로 사람의 네모 몸과 구별한다. 밤 테마별 의상과 먹이 발견 후 달려드는 동작을 사용하며, 피·유혈 표현은 없다.
+- 65차 좀비: 한쪽 다리를 저는 비틀걸음(좋은 다리 오래 딛고 저는 발은 끌며 휘돌림, 딛은 발은 땅에 고정), 무릎은 두 토막으로 실제로 굽는다. 손가락은 굽은 마디 한 조각(`ZOMBIE_GEO.digit`), 소매·바짓단·셔츠 자락은 톱니처럼 찢어진 가장자리(`ZOMBIE_GEO.tatter`), 처진 눈꺼풀·얼룩진 회녹색 살빛. 피·상처·내장은 여전히 없다 — 맞으면 흰 번쩍·움찔·불티·흙먼지, 죽으면 흙먼지·빛가루.
 - 레이싱은 넓은 코스와 속도감을 주되, 서로 부딪히면 조금 밀리는 물리 느낌을 유지한다.
 - 넓어진 경주의 진자·바위는 기존 크기/속도의 2배다. 마지막 여섯 발판은 틈 5칸·높낮이 0.15칸이며, 점프 없이 통과할 수 없고 Shift 없이 한 번 점프로 건너도록 검사한다.
 - Unity 이식이 아니라 기존 브라우저 게임 개선이다. Roblox풍은 디자인 방향이며 공식 모델 복제라고 설명하지 않는다.
@@ -39,7 +41,13 @@
 | `AIM_VIEW`, `updPlayer`, `cameraClearance`, `combatRay` | 사격 카메라·점프 추종·벽 검사·조준 |
 | `combatTargetInRange`, `shotEndpoint`, `aimWolf`, `aimPlayer` | 사람 기준 사거리·화면 중앙 판정·PvP 차폐 |
 | `RACE_X`, `RACE_S`, `raceBuild`, `raceDraw`, `raceRespawn` | 경주 폭·6개 구간·장식·체크포인트 |
-| `BUILD`, `BUILD_BRANCHES`, `buildStat`, `towerAttack` | 건물 6종·Lv3 특화 선택·충격파 범위 공격 |
+| `BUILD`, `BUILD_BRANCHES`, `buildStat`, `towerAttack` | 건물 6종·Lv3 특화 선택·대포탑 범위 공격 |
+| `towerFx…`(`towerFxShot`·`towerFxTick`·`towerFxShellLand`), `cannonSpec` | 탑 전용 쏘기·투사체·맞음 효과와 탑 소리, 대포탑 포신 치수 |
+| `TPGUN`, `P_gun`, `P_gunF` | 3인칭(어깨 너머·친구) 총 부품 표와 그 인스턴스 |
+| `hitSpark`, `SHOT_FX`, `muzzleFlash`, `popDmg`, `fireRecoil`, `SFX` | 타격감 — 불티·예광탄·총구 화염·피해 숫자·화면 반동·합성 효과음 |
+| `makeDisplays`, `dispClone`, `gunMuzzleLocal` | 상점·대장간 3D 진열 총과 1인칭 총구 끝 |
+| `buildFarms`, `buildShop`, `buildForge` | 농장 우리·상인 좌판·동물 상인·대장간 3D |
+| `moistAt`, `grGroundShader`, `mtShade`, `leafShade`, `SUN_PATH`, `skyToneLin` | 65차 땅(물기·흙길)·산 지층·잎 명암·해/달 자리·안개색 |
 | `XP_BUILD`, `WORK_SEC`, `SIEGE_T` | 건물 종류별 경험치·공사 시간·포위 값. 건물을 더하면 세 표를 함께 채운다 |
 | `blocksOf(t,lv,branch,style)`, `blocksOfRaw` | 실제 높이/점유칸에 맞춘 건물 외형·모둠 장식 |
 | `tickBuildingGuns`, `buildingGunMuzzle` | Lv3 기관총/저격총의 조준 회전·총 부품만 반동·실제 총구 발사 |
@@ -142,6 +150,10 @@
 - 건설 완료·강화·수리·철거·자원 보내기는 호스트에서 현재 자원으로 처리한다. 새 위치/분기/소유자 필드를 건물 저장 시 보존한다.
 - 자동문·스프링 함정은 사용자 요청으로 추가하지 않는다. 새 포탑과 특화 공격이 기존 보스 AI·등장·보상을 바꾸지 않게 한다.
 - 화살탑은 Lv1~2에서 활을 쓰고, Lv3의 연사 기관총/대형 저격총 선택부터 실제 무장이 바뀐다. `blocksOf` 행의 11번째 값 `gun`인 부품만 회전/반동을 적용한다.
+- 충격파 포탑은 65차에 **대포탑**이 됐다. 저장·통신 열쇠는 `t:'pulse'` 그대로다(바꾸면 저장된 건물이 안 읽힌다). 피해·범위 판정(`range`·`area`·`dmg`·`rate`, 밀지 않음)은 쏘는 순간 호스트에서 하고, 포탄·폭발·숫자·흰 번쩍은 `towerFx…`가 착탄 때 보여 주기만 한다. 착탄 고리는 땅에 눕힌 어두운 주황 한 겹(끝 반지름 ≈ `area`)이다 — 카메라를 보는 세운 흰 고리는 화면을 가로질렀다.
+- 탑 효과는 불투명 조각 풀(`tfxBallMesh`·`tfxChipMesh`·`tfxShellMesh`)과 기존 `burst`/`ring`만 쓰고, 초당 조각 예산(`TFX_RATE`)과 먼 곳 생략(`TFX_FAR`)을 지킨다. 새 투명 면·빛무리·점광원은 넣지 않는다.
+- 3인칭 총은 `TPGUN` 표(무기 번호마다 12~14조각)대로 그린다. 원점은 오른손 손잡이 한가운데, f 총구 쪽·u 위·sd 몸 왼쪽(+). **[2]는 오른손 손잡이 (0,.03,0)·기울기 없음, [3]은 왼손이 받치는 몸통, [1] 개머리는 몸통 앞면까지** — `t61`·`t53`·`t54`가 이 약속을 본다. 총구는 표의 `mz`, 강화 빛은 `bar`를 감싼다. 정원은 `P_gun` = `MAXP×TPGUN_MAX`, `P_gunF` = `MAXP×(TPGUN_GLOW+2)`. 새 총을 더하면 표에 줄을 더하고 이 정원을 다시 본다.
+- 어깨 너머 조준 카메라(`AIM_VIEW`)는 어깨 1.10·높이 1.58이다(65차 마감 — 가슴 앞 총이 머리·오른팔에 가려서 조금 오른쪽·위로). 조준선은 여전히 화면 중앙 ray이고 몸·날개가 조준선을 가리지 않아야 한다(`t57-character-view`).
 - 숨김 브라우저는 `pw.mjs`로만 실행하고 `finally`에서 종료한다. GPU 속도와 21명 실접속 성능은 교실 기기에서 별도로 측정한다.
 
 ## 수정 후 검사
@@ -164,13 +176,16 @@ SHA-256 도 함께 본다. 손으로 돌리는 것을 대신하지는 않는다 
 - `t56-build-assist-static.mjs`, `t56-build-coop-static.mjs`: 배치/선택 UI와 두 클라이언트 통신 fixture를 통한 공동 건설·결제·이동·철거 보호.
 - `t56-build-view.mjs`: 실제 건설 입력→완성→특화 선택 및 4개 화면 크기의 건설 UI. `t56-buildings-view.mjs`는 외형 갤러리 선택 검사다.
 - `t57-avatar-geometry-static.mjs`, `t57-motion-static.mjs`, `t57-render-static.mjs`: 사람 전용 기하·관절 연결·발 접지·무릎/팔꿈치 각·발 속도 연속성·재질·접촉 그림자를 현재 소스로 검사한다.
-- `t57-character-view.mjs`: 실제 WebGL 캐릭터 외형과 동작·대기실 미리보기를 확인한다.
+- `t57-character-view.mjs`: 실제 WebGL 캐릭터 외형과 동작·대기실 미리보기를 확인한다. 접촉 그림자 사진은 무작위 자원(`placeNodes`)이 사람·카메라 선분 2.4칸 안에 없는 평지에서, 셰이더 시계를 멈춘 채 켠/끈 두 장을 비교한다(65차 — 카메라가 자원 나무 잎 속에 들어가 0픽셀로 가끔 실패했다).
 - `t58-job-art-static.mjs`: 직업별 간결한 장비 구성, 얼굴·등 여유, 날개 연속 윤곽과 부품 수를 검사한다.
 - `t58-motion-static.mjs`: 직업 몸 크기 고정, 옷·날개 부착, 옆걸음·뒷걸음, 프레임률별 동작 전환을 검사한다.
 - `t59-zombie-view.mjs`: 실제 WebGL로 좀비의 정지·발견·추격·준비·타격·회복을 비교한다.
 - `t59-zombie-shape-static.mjs`, `t59-zombie-attachment-static.mjs`: 좀비 전용 윤곽·기하 비용과 자세별 옷/갑옷/등 장식의 부착을 검사한다.
 - `t60-zombie-wrap-static.mjs`: 실제 감긴 붕대 기하·자세별 부착·눈/입 여백·92마리 용량을 검사한다.
 - `t61-avatar-clearance-static.mjs`: 8방향 보행/달리기와 연속 사선 이동의 팔다리 겹침, 현재 옷 8종·전직 의상 6종의 팔 여유, 잠옷 몸통 색, 전직 모자 챙의 머리 여유, 모든 무기의 반동·점프·활공 관통 및 사람 그림자 설정을 검사한다. `t57-character-view.mjs`의 `clearance` 그림으로 실제 외형을 함께 본다.
+- `t56-buildings-static.mjs`·`t56-building-combat-static.mjs`(65차 갱신): 대포탑 `gun` 태그·포구 치수, 대포 조준·반동·같은 피해 전달·숫자 시점.
+- `t54-zombie-static.mjs`·`t59-zombie-shape-static.mjs`·`t60-zombie-wrap-static.mjs`(65차 갱신): 무릎·손가락·발 개수, 손끝 아래, 발 미끄러짐, 찢긴 천·굽은 마디 기하, 조각 수가 늘지 않음.
+- `t61-avatar-clearance-static.mjs`·`t57-avatar-geometry-static.mjs`·`t57-motion-static.mjs`(65차 갱신): `TPGUN` 조각 수·머리 관통·마흔 명 최악 조합 정원.
 - `t65-weapons-static.mjs`: 무기 0~13 번호 유지, 새 총 등급 수, 레벨 모자라면 구매·조합 거절(직접 호출 포함), 가진 총은 레벨 무관 장착, 상점·대장간 잠금 카드, 경주 상, 불붙이기 특성, 새 총 DPS 설계 범위.
 - `t62-motion-view.mjs`: 실제 게임 배율(.7)과 원래 재질로 저품질·고품질에서 현재 옷 8종·전직 의상 6종의 옆걸음·사선 달리기·반대 방향 전환을 연속 렌더링한다. 로컬/원격 걸음 박자도 함께 확인한다. `t57-motion-static.mjs`는 30/60/120Hz 관절 변화량과 발 궤적 속도, `t61-avatar-clearance-static.mjs`는 닫힌 모자의 머리 윗면 수용을 검사한다.
 

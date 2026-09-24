@@ -45,8 +45,12 @@ try{
       const W=window,T=W.__THREE,P=W.__PL,G=W.__G,C=W.__cam,scale=W.__avatarRender().scale;
       if(!(scale>0))throw Error('Actual avatar scale API is required');
       G.phase='day';G.mini=null;G.players.clear();W.__KEY.w=false;W.__KEY.shift=false;W.__kbReset();W.__recoilReset();W.__shakeReset();
+      // 65차 — 자원 나무·바위는 판마다 무작위 자리(placeNodes)라, 첫 평지를 그냥 고르면 가끔 아래 접촉 그림자 사진의 카메라(+2.1,+3.6)가
+      // 자원 나무 잎 속에 들어가 그림자 0픽셀로 실패했다. 사람 자리와 그 카메라까지의 선분에서 2.4칸 안에 살아 있는 자원이 없는 평지만 쓴다.
+      const nodeClear=(x,z)=>(W.__NODES||[]).every(n=>{if(n.alive===false)return true;const ax=2.1,az=3.6,t=Math.max(0,Math.min(1,((n.x-x)*ax+(n.z-z)*az)/(ax*ax+az*az)));
+        return Math.hypot(n.x-x-ax*t,n.z-z-az*t)>2.4;});
       let spot;outer:for(let x=-30;x<=30;x+=3)for(let z=-30;z<=30;z+=3){const y=W.__groundUnder(x,z,P.R);if(y<0||y>80)continue;
-        if([[0,0],[2,0],[-2,0],[0,4],[0,-4]].every(([dx,dz])=>Math.abs(W.__groundUnder(x+dx,z+dz,P.R)-y)<.01)){spot={x,z,y};break outer;}}
+        if([[0,0],[2,0],[-2,0],[0,4],[0,-4]].every(([dx,dz])=>Math.abs(W.__groundUnder(x+dx,z+dz,P.R)-y)<.01)&&nodeClear(x,z)){spot={x,z,y};break outer;}}
       if(!spot)throw Error('No open ground for aiming');
       Object.assign(P,spot,{vy:0,ground:true,down:false,yaw:0,pitch:-.16,landT:0,jumps:0});W.__setAim(true);W.__KIT.wpn=3;
       const ray=new T.Raycaster(),report=[],bodyScale=[];W.__aimShots=[];
@@ -90,9 +94,15 @@ try{
         const actor={x,y,z,ry:Math.PI,g:2,ph:0,mv:false,hat:4,gls:0,clo:2,jb:-1,jt:0,wp:0};
         W.__drawSheep([actor],5,40,s=>W.__GHEX[s.g],W.__avatarRender().scale);
         W.__cam.position.set(x+2.1,y+1.7,z+3.6);W.__cam.lookAt(x,y+.95,z);W.__cam.updateMatrixWorld(true);
+        // 65차 — 켠/끈 두 장 사이에 셰이더 시계(performance.now: 낮 구름 그림자·연못)가 흐르면 그림자와 상관없는 화소가 수십만 개 바뀌어
+        // 값이 판마다 727~500,000 으로 흔들렸다. 두 장을 같은 시각으로 그려 접촉 그림자만 차이에 남긴다.
+        const realNow=performance.now,frozen=realNow.call(performance);performance.now=()=>frozen;let shadowOn,shadowOff,contact;const copy=document.createElement('canvas');copy.width=1440;copy.height=1000;const context=copy.getContext('2d');
+        try{
         W.__shadowFollow?.(x,z,0);R.setRenderTarget(null);R.setPixelRatio(1);R.setSize(1440,1000,false);R.setViewport(0,0,1440,1000);R.setScissorTest(false);W.__render();
-        const copy=document.createElement('canvas');copy.width=1440;copy.height=1000;const context=copy.getContext('2d');context.drawImage(R.domElement,0,0);const shadowOn=context.getImageData(0,0,1440,1000).data;
-        const contact=W.__avatarRender().contact;contact.visible=false;W.__render();context.drawImage(R.domElement,0,0);const shadowOff=context.getImageData(0,0,1440,1000).data;let shadowPixels=0,shadowDelta=0;
+        context.drawImage(R.domElement,0,0);shadowOn=context.getImageData(0,0,1440,1000).data;
+        contact=W.__avatarRender().contact;contact.visible=false;W.__render();context.drawImage(R.domElement,0,0);shadowOff=context.getImageData(0,0,1440,1000).data;
+        }finally{performance.now=realNow;}
+        let shadowPixels=0,shadowDelta=0;
         for(let i=0;i<shadowOn.length;i+=4){const d=Math.abs(shadowOn[i]-shadowOff[i])+Math.abs(shadowOn[i+1]-shadowOff[i+1])+Math.abs(shadowOn[i+2]-shadowOff[i+2]);if(d>3){shadowPixels++;shadowDelta+=d;}}
         contact.visible=true;W.__render();
         const old=document.getElementById('avatarSnapshot');old?.remove();const img=document.createElement('img');img.id='avatarSnapshot';img.src=R.domElement.toDataURL();img.style.cssText='position:fixed;inset:0;width:100%;height:100%;z-index:100000;';document.body.appendChild(img);

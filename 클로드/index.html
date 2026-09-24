@@ -9059,16 +9059,18 @@ function updParts(dt){
 }
 
 const RN = 12;
-const rings = []; for(let i=0;i<RN;i++) rings.push({t:0,d:0.2,x:0,y:0,z:0,r:1,c:new THREE.Color()});
+const rings = []; for(let i=0;i<RN;i++) rings.push({t:0,d:0.2,x:0,y:0,z:0,r:1,flat:false,c:new THREE.Color()});
+const _qFlat = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1,0,0), -Math.PI/2);   // 65차 — 땅에 눕힌 고리
 const rMesh = new THREE.InstancedMesh(new THREE.TorusGeometry(1, 0.075, 5, 22),
   new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0.9, depthWrite:false,
                                blending:THREE.AdditiveBlending, fog:false}), RN);
 rMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(RN*3).fill(1), 3);
 rMesh.frustumCulled = false; rMesh.count = RN; rMesh.visible = false; rMesh.renderOrder = 11; scene.add(rMesh);
 let rI = 0;
-function ring(x,y,z,col,size,dur){
+/* flat — 카메라를 보는 세운 고리 대신 땅에 눕힌 고리(대포 착탄: 세운 고리는 화면을 가로지르는 흰 반원이 됐다) */
+function ring(x,y,z,col,size,dur,flat=false){
   const r = rings[rI = (rI+1)%RN];
-  r.t = 1; r.d = dur || 0.22; r.x = x; r.y = y; r.z = z; r.r = size || 1; r.c.set(col);
+  r.t = 1; r.d = dur || 0.22; r.x = x; r.y = y; r.z = z; r.r = size || 1; r.flat = !!flat; r.c.set(col);
 }
 function updRings(dt){
   let live = 0;
@@ -9078,7 +9080,7 @@ function updRings(dt){
     if(r.t<=0){ rMesh.setMatrixAt(i, ZEROM); continue; }
     live++;
     const k = 1-r.t, sc = r.r*(0.15 + 0.95*Math.sqrt(k));
-    _v.set(r.x, r.y, r.z); _q.copy(camera.quaternion); _s.set(sc, sc, sc);
+    _v.set(r.x, r.y, r.z); _q.copy(r.flat ? _qFlat : camera.quaternion); _s.set(sc, sc, sc);
     rMesh.setMatrixAt(i, _m.compose(_v,_q,_s)); rMesh.setColorAt(i, r.c);
   }
   rMesh.instanceMatrix.needsUpdate = true; if(rMesh.instanceColor) rMesh.instanceColor.needsUpdate = true;
@@ -12638,7 +12640,8 @@ const DOWN_CAM = 4.6;           // 쓰러졌을 때 시체에서 물러나는 �
 let camGY = null;               // 52차 — 캐릭터 발 높이를 따라가는 닻(점프·낙하도 포함)
 let camDistance = null, camShoulder = 0, camBodyHidden = false, camAimBlend = 0;
 // 조준 중에는 머리 위·오른쪽 어깨 바깥에서 본다. 몸과 접힌 날개는 화면 왼쪽 아래에 남는다.
-const AIM_VIEW = {back:2.90, height:1.32, shoulder:0.94, lift:0.10, fov:68};
+// 65차 마감 — 어깨 1.10·높이 1.58(예전 0.94·1.32): 가슴 앞에 든 총이 머리·오른팔에 거의 가려서, 카메라를 조금 오른쪽·위로 옮겨 팔 너머로 총이 보이게 했다.
+const AIM_VIEW = {back:2.90, height:1.58, shoulder:1.10, lift:0.10, fov:68};
 
 const MINI_CAM = [6.4];         // 0: 장애물 경주 — 뒤 위에서 따라간다(로블록스처럼 내 사람과 발판이 같이 보여야 한다). 5.2 는 사람이 화면 아래 3분의 1 을 먹었다
 
@@ -17808,7 +17811,7 @@ function towerVictims(o,target){
      건물·입자와 같은 원색 재질 flatFor(T.cloth))과 기존 burst/ring 풀만 쓴다. 조각은 초당 예산(TFX_RATE)으로 묶어
      탑 수십 채가 한꺼번에 쏴도 한 프레임에 쏟아지지 않고, 멀리(TFX_FAR 칸 밖) 쏜 것은 파편을 아예 안 만든다.
      풀은 미리 만든 객체를 돌려 쓴다 — 매 프레임 할당이 없다.
-   ★ 정원(imesh 최악 조합): 한 발에 드는 조각은 최대 13개(대포 착탄 흙 9 + 연기 4). 예산이 초당 TFX_RATE(100)개 ×
+   ★ 정원(imesh 최악 조합): 한 발에 드는 조각은 최대 19개(대포 착탄 흙 9 + 연기 4 + 땅을 밀려 나가는 흙먼지 고리 6). 예산이 초당 TFX_RATE(100)개 ×
      평균 수명 ≈0.6초라 꾸준히 살아 있는 조각은 공·상자 합쳐 60개 안팎으로 각 정원(72) 안이다. 순간 몰림(예산 상한 90)이
      정원을 넘으면 가장 오래된 칸을 덮어쓴다 — 인덱스를 정원으로 돌리므로 정원 밖으로는 절대 쓰지 않는다.
      포탄은 동시에 TFX_SHELL_CAP(16)발(대포탑 16채가 한꺼번에 쏜 경우 · 비행 ≤0.6초 · 쏘는 간격 ≥1.9초), 미룬 타격은 48칸. */
@@ -18007,9 +18010,15 @@ function towerFxShellLand(s){
   muzzleFlash(x, y + .45, z, 0xffb050, 1.1 + s.big*.15);        // '펑' — 기존 섬광 판 하나를 0.06초 빌린다(새 반투명 면 없음)
   burst(x, y + .3, z, 0xffa040, towerFxTake(8), 1.7);
   burst(x, y + .3, z, 0xfff0b0, towerFxTake(4), 2.3);
-  ring(x, y + .12, z, 0xffc070, s.area, .34);
-  ring(x, y + .35, z, 0xfff2c8, s.area*.55, .22);
+  /* 65차 마감 — 충격 고리는 땅에 눕힌 어두운 주황 한 겹(더하기 섞기라 어두운 색 = 은은한 빛)으로, 끝 반지름 ≈ 폭발 반경(area)·0.2초.
+     예전엔 카메라를 보는 세운 흰 고리 두 겹(0.34초)이라 화면을 가로지르는 흰 반원이 됐다.
+     반경을 보여 주는 것은 땅을 따라 밀려 나가는 흙먼지 여섯 덩이(불투명 공 풀)다 — 반경 끝(≈0.8·area)에서 멎는다. */
+  ring(x, GY + .06, z, 0x7a4418, s.area*.86, .20, true);
   if(near){
+    const nd = towerFxTake(6), v = s.area*2.8;
+    for(let i=0;i<nd;i++){ const a = i/nd*Math.PI*2 + Math.random()*.5;
+      towerFxBall(x + Math.cos(a)*.3, GY + .14, z + Math.sin(a)*.3, Math.cos(a)*v, .35, Math.sin(a)*v,
+        .42 + Math.random()*.08, .17 + s.big*.02, i%2 ? 0x9a7a55 : 0x86694a, .12, 1.3, 2.2); }
     towerFxDirt(x, z, 7 + s.big, 1.35);
     const n = towerFxTake(4);
     for(let i=0;i<n;i++){ const a = i/n*Math.PI*2 + Math.random();
