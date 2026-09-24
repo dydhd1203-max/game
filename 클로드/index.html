@@ -3640,7 +3640,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '53차 · 참고 이미지에 맞춘 얼굴과 원통 머리 · 자연스러운 작업 모션 · 밝은 카드형 상점';
+const GAME_VER = '67차 · 다섯 성문을 잇는 성곽';
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -4384,9 +4384,7 @@ function ceilingOver(x, z, R, y){ return 1e9; }                // 갈래 1 — �
 function gboxSegClear(ox, oy, oz, dx, dy, dz, len){ return len; }   // 갈래 1 — 카메라 선분이 상자에 처음 닿는 거리(없으면 len)
 function doorFunnel(dt){}                                      // 갈래 1 — 문 깔때기(CPLAN.funnels)
 function climbTick(w, dt, sheep){}                             // 갈래 3 — 성벽 위 좀비(cs ≥ 2) 한 걸음
-function updCastleTreasure(dt){}                               // 갈래 4 — 비밀 문 밀기·상자·반짝 보물·첫 방문 알림·구간 알림
-function castleOccluded(eye, target){ return false; }          // 갈래 4 — 덮인 곳에서 쏠 때 성곽 벽 가림(쏘기 틈으로만)
-function treKeys(){ return {run:null, day:null}; }             // 갈래 4 — 보물 장부 localStorage 열쇠(판 · 판+날)
+/* 갈래 4 — updCastleTreasure·castleOccluded·treKeys 는 '67차 성곽 — 보물·안내·조준' 구역(updChests 뒤)에 있다 */
 let camAutoK = 0;                                              // 갈래 1 — 자동 1인칭 0(3인칭) ~ 1(1인칭)
 const CL_N = new Int8Array(10); let CL_ALL = 0; const CL_KID = new Map();   // 갈래 3 — 계단별·전체 성벽 좀비 수 · 아이 uid → 이 밤 끌어올린 수
 const TRE = {found:0, paid:0, day:-1, n:0, opened:0, spark:0, pushT:0, hintT:0};   // 갈래 4 — 이 아이의 보물 장부(로컬 — 21명이 같은 상자를 각자 연다)
@@ -14854,6 +14852,374 @@ function updChests(dt, tt){
   if(nb) flush(chBody, chTrim);
 }
 
+/* ═══════════ 67차 성곽 — 보물·안내·조준 (갈래 4) ═══════════
+   ★ 보물은 전부 '내 화면' 일이다(TRE — 21명이 같은 상자를 각자 연다, 다툼 0). 금은 이미 동기화되는 gain → myPC 통로로,
+     물약은 개인 가방(KIT.pot)으로 들어간다. 통신에 더한 것은 🗝️ 표시 숫자 하나(사람 칸 ex)와 meta 의 판 번호 sid·위험 구간 dg·판 v 뿐.
+   ★ 들판 보물 상자(CH_MAX · chestReward)와 같은 규모로 잡았다 — 아이 하루 기대 물약 1.1 + ✨1.15(설계 6장 균형 표).
+     비밀 문 첫 발견 금(판 전체 최대 ✨5)은 방 바닥 금화 더미를 **주워야** 들어온다(보이는 것 = 받는 것).
+   ★ 몸 상자(secrets[i].box — 갈래 1)·그림 손잡이(hs·chestHs·coinHs·sparkHs — 갈래 2)가 아직 비어 있어도 판정은 그대로 돈다(없으면 건너뜀). */
+const CASTLE_TR = {perDay:1, potW:[0.6, 0.25, 0.1, 0.05], potN:[[0.80, 1, 0], [0.15, 2, 0], [0.05, 1, 3]],   // 하루 한 상자 · 물약 종류 · (확률·물약·금)
+  firstFindGold:1, coinR:1.0, chestR:1.2, sparkR:1.2, sparkGold:1, sparkAt:[20, 60],                           // 첫 발견 금화 · 반짝 보물(낮 시작 20 + 씨앗%60 초 뒤)
+  pushSec:0.8, pushReach:0.45, hintR:3, hintSec:5, hintStay:0.5, glintR:12, glintSec:0.6, getR:5, dayOnly:true};
+const TRE_RUN = [8.6, 7.1, 0.9, 7.1, 8.6];          // 성벽 길 달리기(초): 성문 g ↔ g+1 윗마당(설계 4-8 — 1↔2 · 2↔3 · 3↔4 · 4↔5 · 5↔1)
+const TRE_ROOM = {map:['🗺️ 지도방 — 모형의 빨간 핀 다섯 곳에 비밀 문이 있대요', 1], armory:['⚔️ 무기고', 2],
+  guard:['🛡️ 경비실', 4], well:['💧 우물방 — 나선 계단 중간의 불 꺼진 횃대를 찾아봐요', 8]};
+const treSpot = new Int16Array(5).fill(-1), treSpotAt = new Float32Array(5);   // 오늘의 반짝 보물 다섯 자리(구간마다 하나)와 나타나는 시각
+const treVisDoor = new Int8Array(5).fill(-1), treVisChest = new Int8Array(5).fill(-1), treVisCoin = new Int8Array(5).fill(-1), treVisSpark = new Int8Array(27).fill(-1);
+let treKeyRoom = null, treKeySid = -1, treKeyDay = -1, treRunKey = null, treDayKey = null;   // localStorage 열쇠(바뀔 때만 다시 만든다 — 매 프레임 문자열 0)
+let treSpotRoom = null, treSpotDay = -1, treSparkSaid = 0, treNear = 0, treSparkNear = 0;
+let trePushI = -1, treSayT = 0, treSayM = '', treStay = 0, treGlintT = 0, treLX = 0, treLZ = 0;
+let treSeen = 0, treSector = -1, treHoldSaid = false, treVerSaid = false, treForce = -1;
+const treSectorT = new Float64Array(5).fill(-1e9);  // 구간 알림 — 같은 알림은 5초 쉼
+const treBit = (i)=> 1 << i;
+const treCount = (m)=>{ let n = 0; for(let i=0; i<5; i++) if(m & (1 << i)) n++; return n; };
+const treExplorer = ()=> (TRE.found & 31) === 31;   // 🗝️ 성곽 탐험가
+const treK = {run:null, day:null};                 // 열쇠 묶음 하나를 계속 쓴다(매 프레임 새 객체 0)
+function treKeys(){                                  // (방, 판 번호) · (방, 판 번호, 날) — 판 번호 sid 를 모르면(옛 호스트) 저장하지 않는다
+  if(!G.sid){ treK.run = null; treK.day = null; return treK; }
+  if(treKeyRoom !== G.room || treKeySid !== G.sid || treKeyDay !== G.day){
+    treKeyRoom = G.room; treKeySid = G.sid; treKeyDay = G.day;
+    treRunKey = 'tre67|' + (G.room || 'solo') + '|' + G.sid; treDayKey = treRunKey + '|' + G.day;
+  }
+  treK.run = treRunKey; treK.day = treDayKey; return treK;
+}
+function treRead(k){ if(!k) return null; try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : null; }catch(e){ return null; } }
+function treSave(){
+  const K = treKeys(); if(!K.run) return;
+  try{ localStorage.setItem(K.run, JSON.stringify({f:TRE.found & 31, p:TRE.paid & 31}));
+       localStorage.setItem(K.day, JSON.stringify({n:TRE.n|0, o:TRE.opened & 31, s:TRE.spark|0})); }catch(e){}   // 막힌 브라우저에서도 게임은 그대로
+}
+/* 손잡이 켜고 끄기 — 손잡이 하나는 [열쇠, 번호], 목록이면 안을 돈다(갈래 2 가 어떤 모양으로 채워도 받는다) */
+function treBset(h, on){
+  if(!h) return;
+  if(typeof h[0] === 'string'){ bset(h, on); return; }
+  if(Array.isArray(h)) for(const x of h) treBset(x, on);
+}
+/* 보이는 것 맞추기 — 바뀐 것만 bset(업로드 한 칸씩) */
+function treSync(){
+  const S = CPLAN.secrets, day = G.phase === 'day';
+  for(let i=0; i<5; i++){
+    const sec = S[i], b = treBit(i);
+    const door = SECRET_OPEN[i] ? 0 : 1;
+    if(treVisDoor[i] !== door){ treVisDoor[i] = door; treBset(sec.hs, !!door); if(sec.box) sec.box.off = !door; }
+    const open = (TRE.opened & b) ? 1 : 0;
+    if(treVisChest[i] !== open){ treVisChest[i] = open; if(sec.chestHs){ treBset(sec.chestHs.closed, !open); treBset(sec.chestHs.open, !!open); } }
+    const coin = (TRE.paid & b) ? 0 : 1;             // 첫 발견 금을 아직 안 받은 아이 화면에만
+    if(treVisCoin[i] !== coin){ treVisCoin[i] = coin; treBset(sec.coinHs, !!coin); }
+  }
+  const ela = treSparkElapsed();
+  for(let j=0; j<CPLAN.spark.length && j<27; j++){
+    let v = 0;                                       // 0 숨김 · 1 반짝(오늘 아직) · 2 흐린 금색(오늘 받음)
+    if(day) for(let g=0; g<5; g++) if(treSpot[g] === j && ela >= treSpotAt[g]){ v = TRE.spark ? 2 : 1; break; }
+    if(treVisSpark[j] === v) continue;
+    treVisSpark[j] = v;
+    const h = CPLAN.sparkHs[j];
+    if(h && !Array.isArray(h) && (h.lit || h.dim)){ treBset(h.lit, v === 1); treBset(h.dim, v === 2); }
+    else treBset(h, v > 0);
+  }
+}
+function treSparkElapsed(){ return G.phase === 'day' ? Math.max(0, (G.set.daySec || 0) - (G.t || 0)) : -1; }
+/* 오늘의 반짝 다섯 자리 — 모든 화면이 같은 씨앗(66 드문 사건과 같은 방식, 통신 0). K 는 3·4 두 구간 후보라 겹치면 다음 후보 */
+function treSpots(){
+  if(treSpotRoom === G.room && treSpotDay === G.day) return;
+  treSpotRoom = G.room; treSpotDay = G.day; treSparkSaid = 0;
+  const base = (G.room || 'solo') + ':spark:' + G.day + ':';
+  for(let g=0; g<5; g++){
+    const L = CPLAN.sparkByG[g]; if(!L || !L.length){ treSpot[g] = -1; continue; }
+    let k = Math.floor(fx2Hash(base + g) * L.length) % L.length;
+    for(let n=0; n<L.length; n++){ let dup = false; for(let q=0; q<g; q++) if(treSpot[q] === L[k]) dup = true; if(!dup) break; k = (k + 1) % L.length; }
+    treSpot[g] = L[k];
+    treSpotAt[g] = CASTLE_TR.sparkAt[0] + Math.floor(fx2Hash(base + 'at:' + g) * CASTLE_TR.sparkAt[1]);   // 20~79초 — 21명이 한꺼번에 몰리지 않게
+  }
+  treVisSpark.fill(-1);
+}
+/* 판·날이 바뀌면 장부를 맞춘다 — 판(sid) 열쇠가 처음 생기면(손님이 meta 를 늦게 받음) 그동안 찾은 것과 합친다 */
+let treLoadedRun = null;
+function treLedger(){
+  const K = treKeys();
+  if(K.run !== treLoadedRun){
+    const r = treRead(K.run), first = treLoadedRun === null;
+    if(r){ TRE.found = (first ? TRE.found : 0) | (r.f & 31); TRE.paid = (first ? TRE.paid : 0) | (r.p & 31); }
+    else if(!first){ TRE.found = 0; TRE.paid = 0; }
+    treLoadedRun = K.run; TRE.day = -1;
+    for(let i=0; i<5; i++) SECRET_OPEN[i] = (TRE.found >> i) & 1;   // 한 번 찾은 문은 그 판 동안 열림
+  }
+  if(TRE.day !== G.day){
+    TRE.day = G.day; TRE.n = 0; TRE.opened = 0; TRE.spark = 0; TRE.pushT = 0;
+    const d = treRead(K.day); if(d){ TRE.n = d.n|0; TRE.opened = d.o & 31; TRE.spark = d.s|0; }
+    treSave(); treVisChest.fill(-1); treVisSpark.fill(-1);
+  }
+}
+function treRollChest(){                             // 80% 물약 1 · 15% 물약 2 · 5% 반짝 상자(물약 1 + ✨3)
+  const r = treForce >= 0 ? treForce : Math.random(), P = CASTLE_TR.potN;
+  let acc = 0, row = P[P.length - 1];
+  for(const p of P){ acc += p[0]; if(r < acc){ row = p; break; } }
+  return row;
+}
+function trePotion(){                                // 회복 60 · 날쌘 25 · 힘 10 · 철벽 5
+  const r = Math.random(), W = CASTLE_TR.potW; let acc = 0;
+  for(let i=0; i<W.length; i++){ acc += W[i]; if(r < acc) return i; }
+  return 0;
+}
+function treSay(msg, sec, col){ if(treSayT > 0 && msg === treSayM) return; treSayT = 5; treSayM = msg; toast(msg, sec || 2.2, col || '#ffe8a8'); }   // 같은 말은 5초에 한 번
+function treOnWall(){                                // 성벽 길(GY+8 윗면 — RUN) 위인가 — 갈래 1 의 onWallWalk 와 같은 식(이름을 겹치지 않게 따로)
+  const cx = Math.floor(PL.x), cz = Math.floor(PL.z); if(!inW(cx, cz)) return false;
+  return !!(CROOF[gi(cx, cz)] & CR.RUN) && Math.abs(PL.y - (GY + CW.WALK)) < 0.25;
+}
+function treOpenDoor(i){
+  const sec = CPLAN.secrets[i], b = treBit(i), was = TRE.found & b;
+  SECRET_OPEN[i] = 1; if(sec.box) sec.box.off = true;
+  TRE.found |= b;
+  if(!was){
+    const n = treCount(TRE.found);
+    toast(`🔓 비밀 문을 찾았어요! (${n}/5) — 바닥의 금화를 주워요`, 3.2, '#ffe08a');
+    if(window.__sfx) window.__sfx('magic');
+    burst(PL.x, PL.y + 1.0, PL.z, 0xffd43b, 14, 1.2);
+    if(n === 5){ verdict(true, '🗝️', '성곽 탐험가!', {ms:2200});
+      toast('🗝️ 비밀 문 다섯 개를 다 찾았어요! 성곽 탐험가!', 4.5, '#ffe066'); if(window.__sfx) window.__sfx('up'); }
+  }
+  treSave(); treSync();
+}
+function treOpenChest(i){
+  const sec = CPLAN.secrets[i], row = treRollChest(), P = POTIONS;
+  TRE.n++; TRE.opened |= treBit(i);
+  let got = '';
+  for(let k=0; k<row[1]; k++){ const p = trePotion(); KIT.pot[p]++; got += P[p].ic; }
+  hudPrev.kit = '';
+  if(row[2] > 0) gain('g', row[2]);
+  const c = sec.chest, cy = GY + c.y;
+  if(row[2] > 0){ toast(`🌟 반짝 상자! 물약 ${got} + 금 ${row[2]}개`, 3.2, '#ffe066');
+    burst(c.x, cy + 0.8, c.z, 0xffd43b, 26, 1.8); burst(c.x, cy + 1.2, c.z, 0xfff2c0, 18, 1.4); if(window.__sfx) window.__sfx('up'); }
+  else { toast(row[1] > 1 ? `📦📦 물약 두 병! ${got}` : `📦 물약 한 병 ${got}`, 2.4, '#c8ffb0');
+    burst(c.x, cy + 0.7, c.z, 0xffe9a0, 12, 1.0); if(window.__sfx) window.__sfx('get'); }
+  treSave(); treSync();
+}
+/* 밀기 — 창고 ②④ 는 '막힌 축 + 문 쪽 입력 + 문까지 ≤ 0.45', 나선 숨은 문 ①③⑤ 는 '벽 쪽을 보고 W'(레일 밀기 모드 — 갈래 1) */
+function trePushWhich(){
+  const S = CPLAN.secrets, R = PL.R, vl = Math.hypot(PL.vx || 0, PL.vz || 0);
+  const fwd = !!(KEY['w'] || mvz > 0.3);
+  for(let i=0; i<5; i++){
+    if(SECRET_OPEN[i]) continue;
+    const sec = S[i];
+    if(sec.kind === 'landing'){
+      const d = sec.door; if(!d || !PL.mv || vl < 0.3) continue;
+      if(Math.abs(PL.y - (GY + d.y0)) >= 0.5) continue;
+      const gx = Math.max(d.x0 - (PL.x + R), (PL.x - R) - d.x1, 0), gz = Math.max(d.z0 - (PL.z + R), (PL.z - R) - d.z1, 0);
+      if(gx*gx + gz*gz > CASTLE_TR.pushReach*CASTLE_TR.pushReach) continue;
+      if(-((PL.vx||0)*d.nx + (PL.vz||0)*d.nz)/vl <= 0.5) continue;
+      const bl = d.nx !== 0 ? PL.blkX : PL.blkZ;     // 갈래 1 이 적는 '이번 프레임 그 축 이동이 막혔나' — 아직 없으면 거리·방향만으로
+      if(bl !== undefined && !bl) continue;
+      return i;
+    } else {
+      const T = CPLAN.towers[sec.spiral]; if(!T || !fwd) continue;
+      if(Math.abs(PL.y - (GY + sec.y)) >= 0.5) continue;
+      const dx = PL.x - T.scx, dz = PL.z - T.scz, r = Math.hypot(dx, dz);
+      if(r < 1.2 || r > CW.SP.b + 0.4) continue;
+      let da = Math.atan2(dz, dx) - sec.th; da -= Math.round(da/(2*Math.PI))*2*Math.PI;
+      if(Math.abs(da) >= CW.SP.half) continue;
+      if((-Math.sin(PL.yaw)*dx - Math.cos(PL.yaw)*dz)/r <= 0.7) continue;   // 시선이 바깥 반지름(벽) 쪽
+      return i;
+    }
+  }
+  return -1;
+}
+function treHintPoint(i){                            // 힌트 소리 기준점 — 창고 문 가운데 · 나선 숨은 문 벽
+  const sec = CPLAN.secrets[i];
+  if(sec.door) return [(sec.door.x0 + sec.door.x1)/2, GY + sec.door.y0, (sec.door.z0 + sec.door.z1)/2];
+  const T = CPLAN.towers[sec.spiral];
+  return [T.scx + Math.cos(sec.th)*CW.SP.b, GY + sec.y, T.scz + Math.sin(sec.th)*CW.SP.b];
+}
+const treHP = [];                                    // 힌트 점(한 번만 만든다)
+function updCastleTreasure(dt){
+  if(!G.started || miniOn()) return;
+  if(!treHP.length) for(let i=0; i<5; i++) treHP.push(treHintPoint(i));
+  treLedger(); treSpots();
+  if(treSayT > 0) treSayT -= dt;
+  if(TRE.hintT > 0) TRE.hintT -= dt;
+  const day = G.phase === 'day', ela = treSparkElapsed(), S = CPLAN.secrets;
+  /* 반짝 보물이 나타나는 순간 — 모든 화면에 한 번(늦게 들어온 아이에게 지난 알림을 몰아 띄우지 않게 3초 안만) */
+  let vis = false;
+  if(day) for(let g=0; g<5; g++){
+    if(treSpot[g] < 0 || ela < treSpotAt[g] || (treSparkSaid & treBit(g))) continue;
+    treSparkSaid |= treBit(g); vis = true;
+    if(ela - treSpotAt[g] < 3) toast(`✨ ${g+1}모둠 쪽에 반짝 보물이 떴대요!`, 2.6, '#ffe066');
+  }
+  if(vis || treVisSpark[0] === -1) treSync();
+  else if(!day && treSparkSaid){ treSparkSaid = 0; treSync(); }
+  if(PL.down){ TRE.pushT = 0; return; }
+  const px = PL.x, pz = PL.z, py = PL.y;
+  /* ① 비밀 문 밀기(0.8초) */
+  const w = trePushWhich();
+  if(w >= 0 && (w === trePushI || trePushI < 0)){ trePushI = w; TRE.pushT += dt; if(TRE.pushT >= CASTLE_TR.pushSec){ TRE.pushT = 0; trePushI = -1; treOpenDoor(w); } }
+  else { TRE.pushT = Math.max(0, TRE.pushT - dt); if(TRE.pushT === 0) trePushI = -1; }
+  /* ② 금화 더미(첫 발견 ✨1) · 상자(아이마다 하루 한 상자, 낮만) */
+  let near = 0;
+  for(let i=0; i<5; i++){
+    if(!SECRET_OPEN[i]) continue;
+    const sec = S[i], b = treBit(i), c = sec.coin;
+    if(c && !(TRE.paid & b) && Math.abs(py - (GY + c.y)) < 1.5 && Math.hypot(c.x - px, c.z - pz) < CASTLE_TR.coinR){
+      TRE.paid |= b; gain('g', CASTLE_TR.firstFindGold);
+      toast(`✨ +${CASTLE_TR.firstFindGold} — 비밀 방 금화!`, 2.2, '#ffe066'); if(window.__sfx) window.__sfx('get');
+      burst(c.x, GY + c.y + 0.4, c.z, 0xffd43b, 16, 1.2); treSave(); treSync();
+    }
+    const h = sec.chest;
+    if(Math.abs(py - (GY + h.y)) < 1.5 && Math.hypot(h.x - px, h.z - pz) < CASTLE_TR.chestR){
+      near |= b;
+      if(TRE.opened & b) continue;
+      if(CASTLE_TR.dayOnly && !day){ if(!(treNear & b)) treSay('🌙 보물 상자는 낮에만 열려요'); }
+      else if(TRE.n >= CASTLE_TR.perDay){ treSay('🎒 오늘은 가방이 꽉 찼어요 — 내일 또!'); }
+      else treOpenChest(i);
+    }
+  }
+  treNear = near;
+  /* ③ 오늘의 반짝 보물(아이마다 하루 한 번 ✨1) — 12칸 안 반짝 · 5칸 안 '띠링' */
+  if(day){
+    treGlintT -= dt; let sn = 0;
+    for(let g=0; g<5; g++){
+      const j = treSpot[g]; if(j < 0 || ela < treSpotAt[g]) continue;
+      const p = CPLAN.spark[j].p, sy = GY + p[1], d = Math.hypot(p[0] - px, p[2] - pz);
+      if(TRE.spark) continue;                        // 오늘 이미 받음 — 흐린 주머니만(반짝·소리 없음)
+      if(d < CASTLE_TR.glintR && treGlintT <= 0){ treGlintT = CASTLE_TR.glintSec; burst(p[0], sy + 0.5, p[2], 0xffd43b, 5, 0.5); }
+      if(d < CASTLE_TR.getR && Math.abs(py - sy) < 3){ sn |= treBit(g); if(!(treSparkNear & treBit(g)) && window.__sfx) window.__sfx('get'); }
+      if(d < CASTLE_TR.sparkR && Math.abs(py - sy) < 1.5){
+        TRE.spark = j + 1; gain('g', CASTLE_TR.sparkGold);
+        toast(`✨ 오늘의 반짝 보물! 금 ${CASTLE_TR.sparkGold}개`, 2.6, '#ffe066'); if(window.__sfx) window.__sfx('up');
+        burst(p[0], sy + 0.6, p[2], 0xffd43b, 22, 1.5); treSave(); treSync();
+      }
+    }
+    treSparkNear = sn;
+  }
+  /* ④ 힌트 'tok' — 낮에만 · 아직 못 찾은 문만 · 3칸 안에 0.5초 넘게 머물 때(속도 < 2)만 · 5초마다 */
+  const spd = dt > 0 ? Math.hypot(px - treLX, pz - treLZ)/dt : 0; treLX = px; treLZ = pz;
+  let hn = false;
+  if(day) for(let i=0; i<5; i++){
+    if(TRE.found & treBit(i)) continue;
+    const q = treHP[i];
+    if(Math.abs(py - q[1]) < 2 && Math.hypot(q[0] - px, q[2] - pz) < CASTLE_TR.hintR){ hn = true; break; }
+  }
+  treStay = hn && spd < 2 ? treStay + dt : 0;
+  if(treStay > CASTLE_TR.hintStay && TRE.hintT <= 0){ TRE.hintT = CASTLE_TR.hintSec; if(window.__sfx) window.__sfx('tok'); }
+  treGuide(dt);
+}
+function treOnce(bit, msg, sec){ if(treSeen & bit) return; treSeen |= bit; toast(msg, sec || 3.2, '#e8f4ff'); }
+/* 첫 방문 알림 · 구간 알림 — 이 화면에서 한 번(판 동안). 알림은 짧게, 이유가 있는 곳만 */
+function treGuide(dt){
+  const px = PL.x, pz = PL.z, py = PL.y, cx = Math.floor(px), cz = Math.floor(pz);
+  if(!inW(cx, cz)) return;
+  const i = gi(cx, cz), ck = CASTLE[i];
+  if(!(treSeen & 1) && G.phase === 'day'){           // 성곽 첫 안내 — 성문 계단 발치 4칸 안
+    for(const st of CPLAN.stairs) if(Math.hypot(st.foot.x - px, st.foot.z - pz) < 4){
+      treOnce(1, '🏰 성곽 안으로 들어가 보세요 — 탑마다 방이 달라요. 비밀 문이 다섯 개!', 3.6);
+      feed('🏰 문 옆 <b>→숫자</b>는 그 문으로 가면 닿는 성문이에요'); break; }
+  }
+  if(ck === CK.CORR && py < GY + 5) treOnce(2, '🏹 벽 속 복도 — 활 틈이 마을 쪽이에요. 마을로 들어온 좀비를 여기서 쏴요');
+  if(ck === CK.TROOM || ck === CK.CAGE){
+    if(py < GY + 5 && ck === CK.TROOM){ for(const T of CPLAN.towers) if(px > T.x0 && px < T.x1 && pz > T.z0 && pz < T.z1){ const r = TRE_ROOM[T.room]; if(r) treOnce(r[1] << 4, r[0]); break; } }
+    else if(py >= GY + 11.5) treOnce(256, '🔭 망루 — 창으로 마을·성벽·해자가 다 보여요. 망원경으로 멀리 봐요');
+    if(ck === CK.CAGE && !treHoldSaid && Math.abs(py - (GY + CW.WALK)) < 0.3){   // 나선 8층(초소) 문 앞 — 첫 '층 멈춤'
+      for(const T of CPLAN.towers){ const dx = px - T.scx, dz = pz - T.scz; if(dx*dx + dz*dz > 4) continue;
+        let da = Math.atan2(dz, dx) - T.th0; da -= Math.round(da/(2*Math.PI))*2*Math.PI;
+        if(Math.abs(da) < 0.6){ treHoldSaid = true; toast('↗ 초소 — 계단 쪽을 보고 걸으면 계속 올라가요(내려가요)', 3, '#e8f4ff'); } break; }
+    }
+  }
+  const K = CPLAN.K;
+  if(px > K.x0 && px < K.x1 && pz > K.z0 && pz < K.z1 && py > GY + 7) treOnce(512, '🗼 가운데 망대 — 자리가 좁아요. 친구와 번갈아 서요');
+  /* 성벽 길 — 첫 달리기 안내 + 구간 알림(두 겹 경계: 새 구간 쪽으로 1칸 더 들어가야 바뀜 · 같은 알림 5초 쉼) */
+  if(!treOnWall()) return;
+  treOnce(1024, '🏃 성벽 길에서는 달려도 지치지 않아요 — 옆 모둠 성문까지 약 9초!');
+  const g = sectorOf(px, pz);
+  if(g === treSector) return;
+  if(sectorOf(px + 1, pz) !== g || sectorOf(px - 1, pz) !== g || sectorOf(px, pz + 1) !== g || sectorOf(px, pz - 1) !== g) return;
+  const was = treSector; treSector = g;
+  const now = performance.now();
+  if(was < 0 || now - treSectorT[g] < 5000) return;
+  treSectorT[g] = now;
+  toast(`${g+1}모둠 성곽`, 1.5, GCOL[g]);
+}
+/* 밤 위험 알림에 붙는 한 줄 — 받는 아이가 성벽 길에 있을 때만(각자 화면) */
+function treDangerRun(dg){
+  if(dg < 0 || !G.started || !treOnWall()) return;
+  const a = sectorOf(PL.x, PL.z); if(a === dg) return;
+  let cw = 0, ccw = 0;
+  for(let g=a; g !== dg; g = (g + 1) % NG) cw += TRE_RUN[g];
+  for(let g=a; g !== dg; g = (g + NG - 1) % NG) ccw += TRE_RUN[(g + NG - 1) % NG];
+  feed(`🏃 성벽 길로 <b style="color:${GCOL[dg]}">${dg+1}모둠</b>까지 약 ${Math.max(1, Math.round(Math.min(cw, ccw)))}초`);
+}
+/* 판이 다르면 한 번 크게 알린다(옛 파일을 연 아이가 섞이면 성벽 위 좀비가 땅에 그려지고, 다리 밑에서 물린다 — 설계 10-2 7) */
+function treVersion(v){
+  if(treVerSaid || G.host || (v || '') === GAME_VER) return;
+  treVerSaid = true;
+  verdict(false, '🔄', '새로고침해 주세요', {ms:3000});
+  toast('🔄 선생님 화면과 게임 판이 달라요 — 새로고침(F5)해서 다시 들어와 주세요', 9, '#ffb0b0');
+}
+/* 덮인 곳(지붕 밑)에서 쏠 때만 성곽 벽이 총알을 막는다 — 쏘기 틈(CPLAN.apertures)으로만 나간다.
+   밖(트인 성벽 길·마당)에서는 아무 일도 안 한다(비용 0). 2D DDA ≤ 30칸, 할당 0(틈 표는 처음 한 번 만든다) */
+let treAp = null;
+function treApInit(){
+  treAp = new Map();
+  for(const a of CPLAN.apertures){ let L = treAp.get(a.i); if(!L) treAp.set(a.i, L = []); L.push(GY + a.y0, GY + a.y1); }
+}
+function castleOccluded(ex, ey, ez, tx, ty, tz){
+  const sx = Math.floor(PL.x), sz = Math.floor(PL.z); if(!inW(sx, sz)) return false;
+  if(!(CROOF[gi(sx, sz)] & roofLv(PL.y))) return false;          // 쏘는 아이가 그 층 지붕 밑일 때만
+  if(!treAp) treApInit();
+  const shel = sheltered(PL.x, PL.z, PL.y);
+  const dx = tx - ex, dz = tz - ez;
+  let cx = Math.floor(ex), cz = Math.floor(ez);
+  const stx = dx > 0 ? 1 : -1, stz = dz > 0 ? 1 : -1;
+  const idx = dx !== 0 ? Math.abs(1/dx) : 1e9, idz = dz !== 0 ? Math.abs(1/dz) : 1e9;
+  let tmx = dx !== 0 ? ((dx > 0 ? cx + 1 - ex : ex - cx))*idx : 1e9, tmz = dz !== 0 ? ((dz > 0 ? cz + 1 - ez : ez - cz))*idz : 1e9;
+  let t0 = 0;
+  for(let n=0; n<30 && t0 < 1; n++){
+    const t1 = Math.min(1, tmx, tmz);
+    if(inW(cx, cz)){
+      const i = gi(cx, cz), k = CASTLE[i];
+      if(k === CK.SOLID || k === CK.TWALL || k === CK.KBODY || k === CK.GALW || (shel && k === CK.DOOR)){
+        let top = terrH[i];
+        if(k === CK.DOOR) top = Math.max(top, GY + CW.WALK);
+        else if(k === CK.GALW && oct(cx + 0.5, cz + 0.5) > 52.0) top = GY + CW.GAL_RIDGE_TOP;   // 회랑 바깥 돌벽·마루(칸 terrH 8 에 없는 높이)
+        const ya = ey + (ty - ey)*t0, yb = ey + (ty - ey)*t1;
+        if(Math.min(ya, yb) < top){
+          const L = treAp.get(i), ym = (ya + yb)/2;
+          let hole = false;
+          if(L) for(let q=0; q<L.length; q+=2) if(ym >= L[q] && ym <= L[q+1]){ hole = true; break; }
+          if(!hole) return true;
+        }
+      }
+    }
+    t0 = t1;
+    if(tmx < tmz){ tmx += idx; cx += stx; } else { tmz += idz; cz += stz; }
+  }
+  return false;
+}
+/* 미니맵 움직이는 층 — 내가 찾은 비밀 문 ✦(오늘 그 상자를 열었으면 회색) · 오늘 반짝 다섯 자리(받았으면 흐리게) */
+function treMini(mg){
+  const now = performance.now();
+  for(let i=0; i<5; i++){
+    if(!(TRE.found & treBit(i))) continue;            // 찾기 전엔 안 그린다
+    const c = CPLAN.secrets[i].chest, x = mpx(c.x), z = mpz(c.z);
+    mg.fillStyle = (TRE.opened & treBit(i)) ? '#9a9a9a' : '#ffd43b';
+    mg.beginPath(); mg.moveTo(x, z - 3.6); mg.lineTo(x + 1.1, z - 1.1); mg.lineTo(x + 3.6, z); mg.lineTo(x + 1.1, z + 1.1);
+    mg.lineTo(x, z + 3.6); mg.lineTo(x - 1.1, z + 1.1); mg.lineTo(x - 3.6, z); mg.lineTo(x - 1.1, z - 1.1); mg.closePath(); mg.fill();
+  }
+  if(G.phase !== 'day') return;
+  const ela = treSparkElapsed(), a = TRE.spark ? 0.22 : 0.25 + 0.30*Math.abs(Math.sin(now/380));
+  mg.fillStyle = `rgba(255,212,59,${a.toFixed(2)})`;
+  for(let g=0; g<5; g++){
+    const j = treSpot[g]; if(j < 0 || ela < treSpotAt[g]) continue;
+    const p = CPLAN.spark[j].p; mg.beginPath(); mg.arc(mpx(p[0]), mpz(p[2]), 2.6, 0, 7); mg.fill();
+  }
+}
+/* 검사 API — 갈래 4 덩이(기존 덩이는 안 건드린다) */
+Object.assign(window, {
+  __CASTLE_TR:CASTLE_TR, __treSpots:()=>{ treSpots(); return {spot:Array.from(treSpot), at:Array.from(treSpotAt)}; },
+  __treForce:(v)=>{ treForce = v; }, __treSync:treSync, __treLedger:treLedger, __treDangerRun:treDangerRun, __treOnWall:treOnWall,
+  __treReset:()=>{ TRE.found = 0; TRE.paid = 0; TRE.day = -1; TRE.n = 0; TRE.opened = 0; TRE.spark = 0; TRE.pushT = 0; TRE.hintT = 0;
+    SECRET_OPEN.fill(0); treLoadedRun = null; treAp = null; treSectorT.fill(-1e9); treSeen = 0; treSector = -1; treVisDoor.fill(-1); treVisChest.fill(-1); treVisCoin.fill(-1); treVisSpark.fill(-1);
+    for(const s of CPLAN.secrets) if(s.box) s.box.off = false; },
+  __treState:()=>({pushI:trePushI, seen:treSeen, sector:treSector, near:treNear, ver:treVerSaid}), __treVersion:treVersion, __treMini:treMini
+});
+
 /* ═══════════ 돌 던지기 ═══════════
    ★ 밤에 아이가 관객이 되지 않게 하는 장치.
      세면 탑이 필요 없어지고, 약하면 던질 이유가 없다 —
@@ -14916,6 +15282,7 @@ function aimWolf(W = wpnNow()){
     const px = dx - f.x*along, py = dy - f.y*along, pz = dz - f.z*along;
     const perp = Math.hypot(px, py, pz);            // 조준선에서 얼마나 벗어났나
     if(perp > AR + along*0.05) continue;
+    if(castleOccluded(ex, ey, ez, w.x, (w.y||GY)+0.85, w.z)) continue;  // 67차 — 탑·복도·회랑 안에서는 성곽 벽이 막는다(쏘기 틈으로만). 밖이면 비용 0
     const score = perp/Math.max(1,along)*100 + along*0.012;              // 조준선에 가까운 쪽 먼저, 그다음 가까운 쪽
     if(score < bs){ bs = score; best = w; }
   }
@@ -16675,6 +17042,7 @@ function dangerCheck(dt){
     dangerT = 16;
     say(`⚠️ <b style="color:${GCOL[worst]}">${worst+1}모둠</b> 쪽에 좀비 ${wn}마리! `
       + `가까운 친구들 도와주러 가요 — <b>남의 모둠 건물도 🔧수리돼요</b>`);
+    treDangerRun(worst);                       // 67차 — 호스트가 성벽 길 위면 '🏃 성벽 길로 N모둠까지 약 T초'(손님은 meta dg 로)
   } else dangerT = 3;
 }
 let killSayT = 0;
@@ -18108,7 +18476,8 @@ function drawMini(){
   mg.fillStyle = '#66e0ff'; mg.beginPath(); mg.arc(75,75,4,0,7); mg.fill();
   // 좀비
   mg.fillStyle = '#ff3b3b';
-  for(const w of G.wolves){ const [wx,wz] = mpClamp(w.x, w.z); mg.beginPath(); mg.arc(wx, wz, w.k>=2?2.6:1.8, 0,7); mg.fill(); }
+  for(const w of G.wolves){ const [wx,wz] = mpClamp(w.x, w.z); mg.beginPath(); mg.arc(wx, wz, w.k>=2?2.6:1.8, 0,7); mg.fill();
+    if(w.ly){ mg.strokeStyle = '#fff'; mg.lineWidth = 1; mg.stroke(); } }                         // 67차 — 성벽 위 좀비(ly 1)는 흰 테두리
   // 병정
   mg.fillStyle = '#ffffff';
   for(const s of G.soldiers){ const [sx,sz] = mpClamp(s.x, s.z); mg.fillRect(sx-1, sz-1, 2,2); }
@@ -18137,6 +18506,7 @@ function drawMini(){
     for(const c of G.chests){ mg.save(); mg.translate(mpx(c.x), mpz(c.z)); mg.rotate(Math.PI/4);
       mg.fillRect(-3,-3,6,6); mg.restore(); }
   }
+  treMini(mg);                                   // 67차 — 내가 찾은 비밀 문 ✦ · 오늘의 반짝 보물 다섯 자리
   // 위험한 문 — 그쪽 통로를 붉게 깜빡인다
   if(G.danger >= 0){
     const g2 = G.danger;
@@ -21816,7 +22186,8 @@ function netMeta(){
   if(!net || !G.host) return;
   net.child('meta').set({ph:G.phase, day:G.day, t:Math.round(G.t*10)/10, focus:G.focus, nk:G.nk,
     crystal:Math.round(G.crystal*10)/10, host:uid, set:G.set, ts:Date.now(),
-    pz:G.paused?1:0, mis:G.mis|0, misD:G.misD|0});
+    pz:G.paused?1:0, mis:G.mis|0, misD:G.misD|0,
+    v:GAME_VER, sid:G.sid||0, dg:G.danger|0});   // 67차 — 판(v: 손님 판이 다르면 새로고침 알림) · 판 번호(sid: 보물 장부 열쇠) · 위험 구간(dg: 성벽 길 시간)
 }
 function netBase(){ if(!net) return; net.child('base').set(base); }
 /* 농장은 하루에 몇 번만 바뀐다 — 통째로 보내도 값이 거의 안 든다 */
@@ -21952,6 +22323,9 @@ function joinRoom(code, asHost){
     }
     if(m.crystal!==undefined){ G.crystal = m.crystal; cryGuestWatch(); }
     G.mis = m.mis|0; G.misD = m.misD|0;
+    if(m.sid) G.sid = m.sid;                                           // 67차 — 판 번호(보물 장부 열쇠)
+    treVersion(m.v);                                                   // 67차 — 판이 다르면 한 번 크게
+    if(m.dg !== undefined){ const was = G.danger; G.danger = m.dg|0; if(G.danger >= 0 && G.danger !== was) treDangerRun(G.danger); }
     setPaused(!!m.pz);
     if(wasPh !== G.phase) onPhaseChange(wasPh, G.phase);
   });
@@ -22025,6 +22399,7 @@ function joinRoom(code, asHost){
       p.tx=d.x; p.tz=d.z; p.y=d.y; p.ry=d.r||0; p.g=d.g|0; p.n=d.n; p.mv=!!d.m;
       p.hp = d.hp===undefined ? SHEEP_HP : d.hp; p.down = !!d.dn;
       p.hat = d.ht|0; p.gls = d.gl|0; p.clo = d.cl|0; p.skin = d.sk|0;
+      p.ex = d.ex|0;                   // 67차 — 🗝️ 성곽 탐험가
       /* ★ 친구가 던진 돌 — 좀비 체력은 호스트만 들고 있으므로 여기서 처리한다.
          '몇 번 던졌나(tc)'의 차이만큼 피해를 준다. 통신은 한 번도 안 늘었다. */
       if(G.host && d.tc !== undefined){
@@ -22060,7 +22435,8 @@ function netTick(dt){
       z:+PL.z.toFixed(2), r:+PL.yaw.toFixed(2), m:PL.mv?1:0,
       hp:PL.hp|0, dn:PL.down?(SPEC.helpT>0?2:1):0,   /* 66차 — 2 = 쓰러져서 "일으켜 줘요" 부르는 중(칸·횟수 그대로) */ tc:thrown, tt:thTgt, td:thDmg,
       tf:thF, txs:thXs, tx:thX.length ? thX : null,             // 29차 — 밀치기 방향 · 추가 명중 목록
-      ht:G.me.hat|0, gl:G.me.gls|0, cl:G.me.clo|0, sk:G.me.skin|0});
+      ht:G.me.hat|0, gl:G.me.gls|0, cl:G.me.clo|0, sk:G.me.skin|0,
+      ex:treExplorer()?1:0});                                    // 67차 — 🗝️ 성곽 탐험가(비밀 문 다섯 — 옛 판은 모르는 칸을 무시)
     if(thX.length){ thX = []; thXs = (thXs + 1) & 255; } }
   pcT -= dt;
   if(pcT <= 0 && netPCDirty){ pcT = 0.9; netPC(); }
@@ -22815,6 +23191,7 @@ function startGame(){
   G.started = true; startedAt = tAcc;
   fitHint();
 
+  if(G.host) G.sid = Date.now();              // 67차 — 판 번호(방을 만든/혼자 놀기를 시작한 시각) — 보물 장부 열쇠 · meta sid
   if(G.host){ G.day = 1; G.crystal = G.set.crystalMax; goDay(); netBase(); }
   else { toast('들어왔어요! ' + (G.me.g+1) + '모둠 입구를 지켜 주세요', 3, '#c8ffb0'); }
   // 자동 마우스 잠금 금지. 시작 후 사용자가 게임 화면을 직접 클릭할 때만 잠근다.
@@ -24012,6 +24389,11 @@ function hpBeatTick(dt){
    세기는 기존 UI 소리(0.03~0.06)와 캐기(0.07~0.3) 사이. 6kHz 위는 거의 쓰지 않는다(노트북 스피커에서 따갑다). */
 const STEP_G = ()=>{                        // 내 발밑 — 0 풀 · 1 흙길 · 2 돌(광장·산) · 3 나무(건물·망루 위)
   if(typeof PL === 'undefined') return 0;
+  if(typeof CASTLE !== 'undefined' && typeof inW === 'function'){ const cx = Math.floor(PL.x), cz = Math.floor(PL.z);          // 67차 — 성곽은 칸 종류로 가른다(성벽 길·복도·나선·회랑 판석 = 돌 · 둘레길 = 흙 · 비밀 방 나무 바닥 = 나무)
+    if(inW(cx, cz)){ const i = gi(cx, cz), ck = CASTLE[i], so = stairOf[i];
+      if(ck === CK.SECRET || (ck === CK.TROOM && PL.y > GY + 3)) return 3;
+      if(ck >= CK.SOLID || ZONE[i] >= 0 || (CROOF[i] & CR.RUN) || so >= 1000) return 2;
+      if(ck === CK.LANE && PL.y < GY + 0.35) return 1; } }
   if(typeof GY !== 'undefined' && PL.y > GY + 0.35) return 3;
   const r = Math.hypot(PL.x, PL.z);
   if(r < 5.6 || (typeof ARENA_R !== 'undefined' && oct(PL.x, PL.z) > ARENA_R - 1)) return 2;
@@ -24315,7 +24697,7 @@ function updTags(){
     const pc = pcMap.get(uid);
     const bi = bgTop.has(uid) ? bgTop.get(uid) : badgeTop(pc);
     setTag(t, p.n||'?', GCOL[p.g|0], pc && pc.lv ? pc.lv : 0,
-           bi >= 0 ? BADGES[bi].ic : '');                        // 그대로면 아무 일도 안 한다
+           p.ex ? (bi >= 0 ? '🗝️' + BADGES[bi].ic : '🗝️') : (bi >= 0 ? BADGES[bi].ic : ''));   // 그대로면 아무 일도 안 한다 · 67차 🗝️ 성곽 탐험가
     t.sp.position.set(p.x, (p.y||GY)+2.15, p.z);
     const sc = Math.max(1, Math.sqrt(_tagD2.get(uid))*0.075);
     t.sp.scale.set(3.2*sc*0.55, 0.8*sc*0.55, 1);
