@@ -18009,6 +18009,12 @@ function octPath(g2, R){
   g2.closePath();
 }
 const mpx = (x)=> 75 + x*MSC, mpz = (z)=> 75 + z*MSC;
+/* 67차 — 미니맵은 MM_R(62) 까지만 그리는데 협곡 바닥은 세상 끝(78)까지 걸을 수 있다.
+   그 너머에 선 사람·좀비는 둥근 판 테두리(반지름 MM_R)에 붙여 그린다 — 캔버스 밖으로 사라지지 않게 */
+function mpClamp(x, z){
+  const r = Math.hypot(x, z), k = r > MM_R ? MM_R/r : 1;
+  return [mpx(x*k), mpz(z*k)];
+}
 /* ★ 안 변하는 부분(바닥·산·입구 5개·번호 글자·건물)은 따로 그려 두고 붙이기만 한다.
    예전엔 초당 8번 전부 새로 그렸고, 그 중 번호 글자 10번이 특히 비쌌다.
    교실 크롬북에서 미니맵 한 번에 2.79ms 였다. 낮밤이 바뀌거나 건물이 생기면 다시 그린다. */
@@ -18053,13 +18059,13 @@ function drawMini(){
   mg.fillStyle = '#66e0ff'; mg.beginPath(); mg.arc(75,75,4,0,7); mg.fill();
   // 좀비
   mg.fillStyle = '#ff3b3b';
-  for(const w of G.wolves){ mg.beginPath(); mg.arc(mpx(w.x), mpz(w.z), w.k>=2?2.6:1.8, 0,7); mg.fill(); }
+  for(const w of G.wolves){ const [wx,wz] = mpClamp(w.x, w.z); mg.beginPath(); mg.arc(wx, wz, w.k>=2?2.6:1.8, 0,7); mg.fill(); }
   // 병정
   mg.fillStyle = '#ffffff';
-  for(const s of G.soldiers){ mg.fillRect(mpx(s.x)-1, mpz(s.z)-1, 2,2); }
+  for(const s of G.soldiers){ const [sx,sz] = mpClamp(s.x, s.z); mg.fillRect(sx-1, sz-1, 2,2); }
   // 친구들
   for(const p of G.players.values()){ mg.fillStyle = GCOL[p.g]; mg.beginPath();
-    mg.arc(mpx(p.x), mpz(p.z), 2.2, 0,7); mg.fill(); }
+    const [fx,fz] = mpClamp(p.x, p.z); mg.arc(fx, fz, 2.2, 0,7); mg.fill(); }
   /* 상인 — 낮에만 문을 연다.
      ★ 지도에 없으면 좌판을 우연히 지나가야만 발견한다. 실제로 그랬다. */
   if(G.phase === 'day'){
@@ -18091,7 +18097,7 @@ function drawMini(){
     mg.lineTo(mpx(gX(g2,RING_A+2,0)), mpz(gZ(g2,RING_A+2,0))); mg.stroke();
   }
   // 나
-  mg.save(); mg.translate(mpx(PL.x), mpz(PL.z)); mg.rotate(-PL.yaw);
+  mg.save(); mg.translate(...mpClamp(PL.x, PL.z)); mg.rotate(-PL.yaw);
   mg.fillStyle='#fff'; mg.beginPath(); mg.moveTo(0,-5); mg.lineTo(3.6,4); mg.lineTo(-3.6,4);
   mg.closePath(); mg.fill(); mg.strokeStyle='#000'; mg.lineWidth=1; mg.stroke(); mg.restore();
 }
