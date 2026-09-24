@@ -154,7 +154,7 @@ const i0=code.indexOf('/* ═══════ 66차 HUD — 화면 모드 · �
 const hudBlock=code.slice(i0,i1).replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/[^\n]*/g,'');   // 주석은 빼고 본다
 check('The 66 HUD block sends nothing over the network', i0>0 && i1>i0 && !/\bnet\b|netMeta|netPC|say\(/.test(hudBlock));
 check('meta still carries the same fields (nk was already there since 36)',
-  /net\.child\('meta'\)\.set\(\{ph:G\.phase, day:G\.day, t:Math\.round\(G\.t\*10\)\/10, focus:G\.focus, nk:G\.nk,\s*crystal:Math\.round\(G\.crystal\*10\)\/10, host:uid, set:G\.set, ts:Date\.now\(\),\s*pz:G\.paused\?1:0, mis:G\.mis\|0, misD:G\.misD\|0\}\)/.test(code));
+  /net\.child\('meta'\)\.set\(\{ph:G\.phase, day:G\.day, t:Math\.round\(G\.t\*10\)\/10, focus:G\.focus, nk:G\.nk,\s*crystal:Math\.round\(G\.crystal\*10\)\/10, host:uid, set:G\.set, ts:Date\.now\(\),\s*pz:G\.paused\?1:0, mis:G\.mis\|0, misD:G\.misD\|0(?:,\s*v:GAME_VER, sid:G\.sid\|\|0, dg:G\.danger\|0)?\}\)/.test(code));   // 67차 — 판(v)·판 번호(sid)·위험 구간(dg) 셋만 더해도 된다
 check('The host still picks the night in the morning before sending meta',
   /G\.nk = bossIndex\(G\.day\) >= 0 \? -1 : pickNight\(G\.day, G\.nkPrev\);[\s\S]{0,400}netMeta\(\);/.test(code));
 
