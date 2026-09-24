@@ -2541,8 +2541,9 @@ body.hud66-day #hpNum{font-size:11px}
 #nightCard{display:none;position:relative;box-sizing:border-box;pointer-events:auto;
   padding:11px 13px 12px;border-radius:var(--rb-r,12px);background:#fbfcff;border:1.5px solid #b9c6ee;box-shadow:var(--soft);
   color:var(--rb-ink);font-size:12.5px;line-height:1.45}
-#nightCard.on{display:block;animation:nc66in .4s cubic-bezier(.2,1.35,.4,1) 1}
+#nightCard.on{display:block;animation:nc66in .4s cubic-bezier(.2,1.35,.4,1) 1,nc66out .4s ease-in 4.6s 1 forwards}   /* 66차 CTRL — 5초 뒤 0.4초 흐려지며 칩으로(NC_SHOW_MS) */
 @keyframes nc66in{from{opacity:0;transform:translateX(-18px) scale(.96)}}
+@keyframes nc66out{to{opacity:0;transform:translateX(-10px) scale(.97)}}
 #nightCard .ncDay{font-size:11px;font-weight:600;color:#56659a;padding-right:70px}
 #nightCard .ncOk{position:absolute;right:8px;top:7px;padding:3px 10px;border-radius:999px;font:600 11px/1.3 var(--f-body);
   background:#eef2ff;border:1px solid #b9c6ee;color:#2d3f78;cursor:pointer}
@@ -2551,25 +2552,18 @@ body.hud66-day #hpNum{font-size:11px}
 #nightCard .ncIc img.ic{height:32px;margin:0}
 #nightCard .ncTx{min-width:0}
 #nightCard .ncName{font-size:17px;font-weight:600;line-height:1.3;color:#24336a}
-#nightCard .ncHint{font-size:12px;color:var(--rb-ink2);word-break:keep-all;overflow-wrap:anywhere}
-#nightCard .ncHow{margin-top:8px;font-size:11.5px;font-weight:600;color:#227650}
-#nightCard .ncPrep{margin:4px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:4px}
-#nightCard .ncPrep li{padding:4px 9px;border-radius:9px;background:#eef8f2;border:1px solid #cfe9da;font-size:12.5px;word-break:keep-all;overflow-wrap:anywhere}
-#nightCard .ncPrep li img.ic{height:17px;margin:0 2px 0 0;vertical-align:-3px}
+#nightCard .ncMood{font-size:12.5px;color:var(--rb-ink2);word-break:keep-all;overflow-wrap:anywhere}
 #nightCard .ncNote{margin-top:6px;padding:4px 9px;border-radius:9px;background:#fff4e0;border:1px solid #f0d49a;color:#7a4d00;font-size:12px;font-weight:600;word-break:keep-all}
 #nightCard .ncNote[hidden]{display:none}
-#nightCard.boss{background:#fff8f6;border-color:#eaa9a3}
-#nightCard.boss .ncIc{background:#ffe3e0} #nightCard.boss .ncName{color:#a73848} #nightCard.boss .ncDay{color:#9a4a52}
 /* 카드가 떠 있는 동안 알림은 두 줄만 — 왼쪽 줄이 아래 안내·핫바까지 내려가지 않게 */
 #nightCard.on ~ #feed div:nth-last-child(n+3){display:none}
 @media (max-height:700px){
   #nightCard{padding:8px 11px 9px}
   #nightCard .ncMain{margin-top:4px} #nightCard .ncIc{flex-basis:38px;height:38px;font-size:22px} #nightCard .ncIc img.ic{height:26px}
-  #nightCard .ncName{font-size:15px} #nightCard .ncHint{font-size:11.5px;line-height:1.35}
-  #nightCard .ncHow{margin-top:5px} #nightCard .ncPrep li{padding:3px 8px;font-size:11.5px}
+  #nightCard .ncName{font-size:15px} #nightCard .ncMood{font-size:11.5px;line-height:1.35}
   #nightCard.on ~ #feed{display:none}
 }
-@media (max-height:560px){ #nightCard .ncHint{display:none} }
+@media (max-height:560px){ #nightCard .ncMood{font-size:11px} }
 /* 폭 900 이하: 자원 칸 세 개가 자원 판 폭(186~210px)을 넘쳐 숫자가 판 밖으로 나갔다 — 밤처럼 작은 칸으로 */
 @media (max-width:900px){
   #resBox .resline{gap:4px}
@@ -2599,6 +2593,7 @@ body.hud66-day #hpNum{font-size:11px}
   #feed{max-height:150px;overflow:hidden}
   #feed div:nth-last-child(n+3){display:none}
   #nightCard.on ~ #feed{display:none}
+  body.ncOn #hint{visibility:hidden}   /* 카드(fixed, bottom:236px)가 #hint 와 같은 높이 — 카드가 떠 있는 5초 동안만 안내를 숨긴다(#topLeft z-13 안이라 z-index 로는 못 이긴다) */
   #resBox{min-width:0;padding:7px 9px 8px}
   #resBox .resline{gap:4px;flex-wrap:wrap}
   #resBox .res{padding:2px 7px 2px 3px}
@@ -2607,11 +2602,260 @@ body.hud66-day #hpNum{font-size:11px}
   #dayBox{padding:4px 8px;gap:6px;font-size:11px} #timeBar{width:44px}
   #topRight2{display:grid;grid-template-columns:repeat(2,auto);gap:5px;max-width:none}
   #topRight2 .btn{padding:5px 8px}
-  #nightCard .ncPrep li{font-size:11.5px}
-  /* 세로 휴대폰: 왼쪽 줄이 좁아 카드는 핫바 위에 가로로 꽉 차게 띄운다(9초 뒤 칩으로 접힌다) */
+  /* 세로 휴대폰: 왼쪽 줄이 좁아 카드는 핫바 위에 가로로 꽉 차게 띄운다(5초 뒤 칩으로 접힌다) */
   #nightCard{position:fixed;left:12px;right:12px;bottom:236px;width:auto;z-index:20}
   #topLeft{z-index:13}   /* 카드가 오른쪽 줄(단추) 위로 오게 — 두 줄은 이 폭에서 서로 안 겹친다 */
 }
+/* 66차 CTRL — ① 도구 줄 맨 앞 총 칸(우클릭) ② 밤마다 그 밤다운 모습(아침 카드·칩·밤 시작 경고 #n66Ban·보스 자막 #fx2Cap.b66·밤의 날짜 옆 이름)
+   선생님: "굶주린 밤이면 굶주린 밤에 맞는 디자인으로 안내가 떠야지. 다른 밤이면 그 밤과 어울리는 디자인으로 경고가 뜨고." — 팁은 없다.
+   ★ data-nt 열쇠 하나가 색(바탕·테두리·글씨)·큰 그림 둘레(.n6a b)·뒤판 꾸밈(.n6f i·::before·::after)·글씨 움직임을 바꾼다.
+   ★ 성능(CLAUDE.md 성능 절): 움직임은 transform·opacity 뿐. 카드·경고판은 불투명 바탕이고 크기도 카드만 하다(화면을 덮는 반투명 면 없음).
+     카드·경고가 닫히면 display:none — 안의 되풀이 애니메이션도 같이 멈춘다. 낮 동안 남는 칩은 움직이지 않는다.
+   ★ 글씨는 어두운 바탕 위 밝은 글씨(대비 7:1 이상)로 무섭지만 읽히게. */
+.slot.tool.gun{background:#fff3e0;position:relative}
+.slot.tool.gun::after{content:'🎯';position:absolute;right:2px;top:1px;font-size:10px;line-height:1;pointer-events:none}   /* 무기 칸 표시 — 390px 처럼 '우클릭' 글씨가 숨는 폭에서도 총 칸인 줄 알게 */
+.slot.tool.gun:hover{background:#ffe8c7}
+.slot.tool.gun .nm{color:#8a4b12}
+.slot.tool.gun .ky{background:#ffe2bd;color:#8a4b12}
+.slot.tool.gun.on{border-color:#d9772b;background:#ffd49c;box-shadow:inset 0 0 0 2px #d9772b!important}
+.slot.tool.gun.on .ky{background:#f7b872;color:#5e2f00}
+#tools .slot.gun + .slot{box-shadow:inset 2px 0 0 rgba(82,118,145,.35)}
+body.touch .slot.tool.gun{background:#fff3e0} body.touch .slot.tool.gun.on{background:#ffd49c}
+@media(max-width:600px){ #dock #tools{grid-template-columns:repeat(6,minmax(0,1fr))} }
+
+/* ── 밤의 색 ── (--n6bg 바탕 · --n6bg2 바탕 아래 · --n6bd 테두리 · --n6ink 글씨 · --n6sub 둘째 글씨 · --n6ac 강조) */
+[data-nt],body[data-n66]{--n6bg:#1b2140;--n6bg2:#0e1226;--n6bd:#7c8bd6;--n6ink:#f3f5ff;--n6sub:#cdd4f4;--n6ac:#ffe9a8}
+[data-nt=calm],body[data-n66=calm]{--n6bg:#1a2552;--n6bg2:#0a1030;--n6bd:#8fa6ff;--n6ink:#f2f5ff;--n6sub:#c8d3ff;--n6ac:#fff2b8}
+[data-nt=more],body[data-n66=more]{--n6bg:#34141b;--n6bg2:#14070a;--n6bd:#e04a5e;--n6ink:#fff0f1;--n6sub:#f4c4ca;--n6ac:#ff7a88}
+[data-nt=fast],body[data-n66=fast]{--n6bg:#0d3a40;--n6bg2:#05191c;--n6bd:#3fd6d0;--n6ink:#ecfffd;--n6sub:#aaeee8;--n6ac:#7ff5ea}
+[data-nt=hungry],body[data-n66=hungry]{--n6bg:#4a1a07;--n6bg2:#1d0803;--n6bd:#ff8a2a;--n6ink:#fff4e8;--n6sub:#ffcca6;--n6ac:#ffb347}
+[data-nt=giant],body[data-n66=giant]{--n6bg:#2c1942;--n6bg2:#0e0718;--n6bd:#a274e6;--n6ink:#f6efff;--n6sub:#d6c6f0;--n6ac:#cfa8ff}
+[data-nt=surround],body[data-n66=surround]{--n6bg:#352b0c;--n6bg2:#141003;--n6bd:#f0c23a;--n6ink:#fffae8;--n6sub:#efe0a4;--n6ac:#ffd84a}
+[data-nt=swarm],body[data-n66=swarm]{--n6bg:#2f2a25;--n6bg2:#110e0b;--n6bd:#c7b8a6;--n6ink:#f4f7fa;--n6sub:#ccd5df;--n6ac:#e3ebf3}
+[data-nt=howl],body[data-n66=howl]{--n6bg:#0f3a44;--n6bg2:#04161b;--n6bd:#bfeaff;--n6ink:#eef7ff;--n6sub:#bcd3e3;--n6ac:#e8f4ff}
+[data-nt=endless],body[data-n66=endless]{--n6bg:#113520;--n6bg2:#04130a;--n6bd:#4fe07a;--n6ink:#eefff2;--n6sub:#b1ebc2;--n6ac:#7dff9f}
+[data-nt=long],body[data-n66=long]{--n6bg:#120f06;--n6bg2:#030201;--n6bd:#ffd45a;--n6ink:#ffe7a0;--n6sub:#dcd2b2;--n6ac:#ffe7a0}
+/* 66차 CTRL 고침 — 조용한 밤·산이 우는 밤·가장 긴 밤이 한눈에 비슷했다(어두운 남색 판 + 옅은 테두리).
+   산이 우는 밤 = 얼음빛 청록 바탕 + 두 겹 테두리, 가장 긴 밤 = 거의 검정 + 굵은 금빛 테두리·금빛 이름, 쉴 틈 없이 = 따뜻한 잿빛 */
+[data-nt=howl]:is(#nightCard,#n66Ban){border-style:double;border-width:5px}
+#nightChip[data-nt=howl]{border-style:double;border-width:3px}
+[data-nt=long]:is(#nightCard,#n66Ban){border-width:3px;box-shadow:0 0 0 1px #6b4f0e,0 6px 18px rgba(8,10,30,.35)}
+[data-nt=b-chief],body[data-n66=b-chief]{--n6bg:#2d1a45;--n6bg2:#110822;--n6bd:#ffcf4a;--n6ink:#fff8e6;--n6sub:#e9d9b0;--n6ac:#ffd84a}
+[data-nt=b-fire],body[data-n66=b-fire]{--n6bg:#4d1506;--n6bg2:#1d0501;--n6bd:#ff6a1c;--n6ink:#fff3e0;--n6sub:#ffc9a2;--n6ac:#ffd24a}
+[data-nt=b-ice],body[data-n66=b-ice]{--n6bg:#123056;--n6bg2:#06132a;--n6bd:#9fdcff;--n6ink:#f0faff;--n6sub:#c4e6fb;--n6ac:#e6f7ff}
+[data-nt=b-hell],body[data-n66=b-hell]{--n6bg:#3a070b;--n6bg2:#120103;--n6bd:#e8323a;--n6ink:#fff0ea;--n6sub:#f4bcb0;--n6ac:#ff8a4a}
+[data-nt=b-king],body[data-n66=b-king]{--n6bg:#1a0f2b;--n6bg2:#050209;--n6bd:#9a6cff;--n6ink:#f5efff;--n6sub:#d3c4f2;--n6ac:#d9c2ff}
+
+/* ── 아침 카드 · 칩 · 밤의 날짜 옆 이름 ── */
+#nightCard[data-nt]{background:linear-gradient(160deg,var(--n6bg),var(--n6bg2));border:2px solid var(--n6bd);color:var(--n6ink);
+  overflow:hidden;isolation:isolate;box-shadow:0 6px 18px rgba(8,10,30,.35)}
+#nightCard[data-nt] > :not(.n6f):not(.ncOk){position:relative;z-index:1}   /* 글씨·그림은 뒤판 꾸밈(.n6f, z-0) 위 */
+/* 66차 CTRL 고침 — 카드는 작아(약 296×100) 뒤판 꾸밈이 글씨 뒤를 지나가도 글자 사이로 비쳐 글씨를 가로지르는 것처럼 보였다.
+   카드에서만 꾸밈을 글씨 줄 밖(위아래 여백 띠·그림 칸)으로 옮긴다. 경고판(#n66Ban)은 넓어서 그대로 */
+#nightCard[data-nt=fast] .n6f i{top:auto;bottom:calc(2px + var(--i)*1.6px);width:34%}
+#nightCard[data-nt=fast] .n6f i:nth-child(-n+3){bottom:auto;top:calc(2px + var(--i)*2.4px)}
+#nightCard[data-nt=hungry] .n6f i{animation-name:n6dripS}
+#nightCard[data-nt=hungry] .ncName::after{display:none}
+#nightCard[data-nt=endless] .n6f i{bottom:1px;width:7px;height:7px;animation-name:n6healS}
+#nightCard[data-nt=surround] .n6a{--d0:25px;--d1:10px}
+#nightCard[data-nt=calm] .n6f i:nth-child(even),#nightCard[data-nt=long] .n6f i:nth-child(odd){top:auto;bottom:4px}
+@keyframes n6dripS{0%{transform:translateY(0) scaleY(.4);opacity:0}20%{transform:translateY(0) scaleY(1);opacity:.95}
+  70%{transform:translateY(2px) scaleY(1.5);opacity:.95}100%{transform:translateY(4px) scaleY(1);opacity:0}}
+@keyframes n6healS{0%{transform:translateY(0) scale(.6);opacity:0}30%{opacity:1}100%{transform:translateY(-4px) scale(1);opacity:0}}
+#nightCard[data-nt] .ncDay{color:var(--n6ac);letter-spacing:.5px}
+#nightCard[data-nt] .ncName{color:var(--n6ink);text-shadow:0 2px 0 rgba(0,0,0,.45)}
+#nightCard[data-nt] .ncMood{color:var(--n6sub)}
+#nightCard[data-nt] .ncIc{flex:0 0 auto;min-width:50px;height:50px;padding:0 5px;box-sizing:border-box;background:var(--n6bg2);
+  border:1.5px solid var(--n6bd);font-size:calc(28px - (var(--n,1) - 1)*5px)}
+#nightCard[data-nt] .ncOk{z-index:2;background:var(--n6bg2);border-color:var(--n6bd);color:var(--n6ink)}
+#nightCard[data-nt] .ncNote{background:var(--n6bg2);border-color:var(--n6ac);color:var(--n6ac)}
+#nightChip[data-nt]{background:linear-gradient(160deg,var(--n6bg),var(--n6bg2));border-color:var(--n6bd);color:var(--n6ink)}
+#nightChip[data-nt] .ncm{color:var(--n6sub);opacity:1}
+body.hud66-night[data-n66] #dayPhase{padding:1px 8px;border-radius:999px;background:var(--n6bg);color:var(--n6ink);border:1px solid var(--n6bd)}
+
+/* ── 밤 시작 경고(#celebr 층 안 — 누르는 것 없음). 5초 뒤 JS 가 닫는다(애니메이션이 먼저 흐려 둔다) ── */
+#n66Ban{position:absolute;left:0;right:0;top:max(22%,160px);margin:0 auto;width:min(560px,calc(100vw - 24px));box-sizing:border-box;
+  align-items:center;gap:14px;padding:14px 22px 15px 16px;border-radius:18px;overflow:hidden;isolation:isolate;
+  background:linear-gradient(160deg,var(--n6bg),var(--n6bg2));border:3px solid var(--n6bd);color:var(--n6ink);
+  box-shadow:0 10px 30px rgba(0,0,0,.5)}
+#n66Ban.on{display:flex;animation:n6banIn .55s cubic-bezier(.2,1.35,.4,1) both,n6banOut .4s ease-in 4.6s forwards}
+#n66Ban .n6Art{position:relative;z-index:1;flex:0 0 auto;min-width:96px;height:96px;display:flex;align-items:center;justify-content:center;
+  font-size:calc(66px - (var(--n,1) - 1)*13px);filter:drop-shadow(0 4px 0 rgba(0,0,0,.35))}
+#n66Ban .n6Tx{position:relative;z-index:1;min-width:0;flex:1}
+#n66Ban .n6K{font-size:13px;font-weight:600;letter-spacing:2px;color:var(--n6ac)}
+#n66Ban .n6N{position:relative;display:inline-block;font-size:clamp(28px,4.4vw,42px);font-weight:600;line-height:1.12;letter-spacing:-.5px;
+  color:var(--n6ink);text-shadow:0 3px 0 rgba(0,0,0,.5),0 0 16px rgba(0,0,0,.35)}
+#n66Ban .n6W{margin-top:3px;font-size:clamp(14px,1.8vw,18px);font-weight:500;line-height:1.35;color:var(--n6sub);word-break:keep-all}
+@media (max-width:600px){ #n66Ban{gap:10px;padding:12px 14px 13px 10px} #n66Ban .n6Art{min-width:64px;height:64px;font-size:calc(46px - (var(--n,1) - 1)*9px)} #n66Ban .n6a{--d0:36px;--d1:14px} }
+@keyframes n6banIn{0%{transform:translateY(-26px) scale(.86);opacity:0}100%{transform:none;opacity:1}}
+@keyframes n6banOut{to{transform:translateY(-14px) scale(.96);opacity:0}}
+
+/* ── 보스 밤 시작 — FX2 자막(fx2Cap)이 보스 모습을 입는다(띠·어둠·땅울림은 FX2 그대로) ── */
+#fx2Cap .art{display:none}
+#fx2Cap.b66 .art{display:flex;align-items:center;justify-content:center;position:relative;width:max-content;margin:0 auto 2px;
+  font-size:clamp(48px,7vw,86px);line-height:1;filter:drop-shadow(0 5px 0 rgba(0,0,0,.4));animation:n6pop .7s cubic-bezier(.2,1.6,.4,1) both,n6capOut .4s ease-in 4.6s forwards}
+#fx2Cap.b66 .k{color:var(--n6ac);animation-name:n6capIn;animation-duration:5s}
+#fx2Cap.b66 .n{color:var(--n6ink);animation-name:n6capIn;animation-duration:4.94s;text-shadow:0 4px 0 var(--n6bg2),0 0 26px var(--n6bd),0 8px 18px rgba(0,0,0,.75)}
+#fx2Cap.b66 .s{background:var(--n6bg2);border:2px solid var(--n6bd);color:var(--n6ink);animation-name:n6capIn;animation-duration:4.86s}
+/* 보스 밤 경고도 5초 — 들어오기(0.45초) 뒤 그대로 있다가 4.6초부터 0.4초 흐려진다(.n·.s 는 늦게 시작한 만큼 짧게 → 같은 때 끝남). 그림도 같이 */
+@keyframes n6capIn{0%{transform:translateX(-46vw);opacity:0}9%{transform:translateX(2vw);opacity:1}13%{transform:none}
+  92%{transform:translateX(.6vw);opacity:1}100%{transform:translateX(8vw);opacity:0}}
+@keyframes n6capOut{to{opacity:0;transform:scale(.9)}}
+@keyframes n6pop{0%{transform:scale(.2) rotate(-14deg);opacity:0}60%{transform:scale(1.15) rotate(4deg);opacity:1}100%{transform:none;opacity:1}}
+
+/* ── 그림(.n6a: 이모지 .a + 둘레 꾸밈 b) · 뒤판(.n6f: i 여섯 + ::before·::after) 공통 ── */
+.n6a{position:relative}
+.n6a .a{display:inline-block;line-height:1;animation:n6bob 2.6s ease-in-out infinite;animation-delay:calc(var(--i,0)*-.7s)}
+.n6a .a img.ic{height:1em;width:auto;margin:0;vertical-align:middle}
+.n6a .a + .a{margin-left:-.12em}
+.n6a b{display:none;position:absolute;pointer-events:none}
+.n6f{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;border-radius:inherit}
+.n6f i{display:none;position:absolute}
+#nightCard .n6a{--d0:30px;--d1:12px} #n66Ban .n6a{--d0:52px;--d1:20px} #fx2Cap .n6a{--d0:74px;--d1:28px}
+@keyframes n6bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+
+/* 조용한 밤 — 잔잔한 남색·달빛, 느린 반짝임 */
+[data-nt=calm] .n6f::before{content:'';position:absolute;right:-22px;top:-26px;width:96px;height:96px;border-radius:50%;
+  background:radial-gradient(circle,#fff6d0 0 26%,rgba(255,246,208,0) 70%);animation:n6glow 4s ease-in-out infinite}
+[data-nt=calm] .n6f i{display:block;width:3px;height:3px;border-radius:50%;background:#fff6c8;left:calc(30% + var(--i)*11%);top:16%;
+  animation:n6tw 2.8s ease-in-out infinite;animation-delay:calc(var(--i)*-.47s)}
+[data-nt=calm] .n6f i:nth-child(even){top:70%}
+[data-nt=calm] .n6a .a{animation-duration:5s}
+@keyframes n6glow{0%,100%{opacity:.45}50%{opacity:.85}}
+@keyframes n6tw{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1.3)}}
+
+/* 좀비가 늘었다 — 붉은 기운이 가장자리에서 번진다 · 셋이 비틀비틀 */
+[data-nt=more] .n6f::before{content:'';position:absolute;inset:0;border-radius:inherit;
+  box-shadow:inset 0 0 0 2px #ff4d5e,inset 0 0 26px 8px rgba(255,40,60,.6);animation:n6aura 1.9s ease-in-out infinite}
+[data-nt=more] .n6f::after{content:'';position:absolute;left:0;right:0;bottom:0;height:60%;transform-origin:bottom;
+  background:linear-gradient(to top,rgba(210,24,44,.5),rgba(210,24,44,0));animation:n6rise 2.6s ease-in-out infinite}
+[data-nt=more] .n6a .a{animation:n6shamble 1.5s ease-in-out infinite;animation-delay:calc(var(--i)*-.5s)}
+@keyframes n6aura{0%,100%{opacity:.3}50%{opacity:1}}
+@keyframes n6rise{0%,100%{transform:scaleY(.55);opacity:.6}50%{transform:scaleY(1);opacity:1}}
+@keyframes n6shamble{0%,100%{transform:rotate(-7deg) translateY(0)}50%{transform:rotate(6deg) translateY(-3px)}}
+
+/* 날쌘 무리 — 청록 속도선이 옆으로 스친다 · 기울어진 글씨 */
+[data-nt=fast] .n6f i{display:block;left:0;height:2px;width:40%;border-radius:2px;top:calc(10% + var(--i)*15%);
+  background:linear-gradient(90deg,rgba(127,245,234,0),var(--n6ac));animation:n6streak .8s linear infinite;animation-delay:calc(var(--i)*-.31s)}
+[data-nt=fast] :is(.ncName,.n6N){font-style:italic;transform:skewX(-11deg);transform-origin:left bottom}
+#nightCard[data-nt=fast] .ncName{display:inline-block}
+[data-nt=fast] .n6a .a:first-child{animation:n6dash .45s ease-in-out infinite alternate}
+@keyframes n6streak{from{transform:translateX(-110%)}to{transform:translateX(300%)}}
+@keyframes n6dash{from{transform:translateX(-3px) rotate(-10deg)}to{transform:translateX(3px) rotate(-4deg)}}
+
+/* 굶주린 밤 — 주황·검붉은색, 위아래 이빨 자국 테두리, 침이 뚝뚝, 글자가 침처럼 늘어진다 */
+[data-nt=hungry] .n6f::before,[data-nt=hungry] .n6f::after{content:'';position:absolute;left:0;right:0;height:11px;background-size:16px 11px;background-repeat:repeat-x}
+[data-nt=hungry] .n6f::before{top:0;background-image:conic-gradient(from -45deg at 50% 100%,#fff0dc 90deg,rgba(0,0,0,0) 0)}
+[data-nt=hungry] .n6f::after{bottom:0;background-position:8px 0;background-image:conic-gradient(from 135deg at 50% 0,#fff0dc 90deg,rgba(0,0,0,0) 0)}
+[data-nt=hungry] .n6f i{display:block;top:9px;left:calc(12% + var(--i)*15.5%);width:6px;height:9px;opacity:0;
+  border-radius:50% 50% 50% 50%/40% 40% 60% 60%;background:#cfe9ff;animation:n6drip 2.3s ease-in infinite;animation-delay:calc(var(--i)*.38s)}
+#nightCard[data-nt=hungry]{padding-top:15px;padding-bottom:15px}
+#n66Ban[data-nt=hungry]{padding-top:20px;padding-bottom:20px}
+[data-nt=hungry] :is(.ncName,.n6N){display:inline-block;position:relative;transform-origin:top;animation:n6sag 2.3s ease-in-out infinite}
+[data-nt=hungry] :is(.ncName,.n6N)::after{content:'';position:absolute;left:62%;bottom:2px;width:6px;height:9px;opacity:0;
+  border-radius:50% 50% 50% 50%/40% 40% 60% 60%;background:#cfe9ff;animation:n6drip 2.3s ease-in .9s infinite}
+[data-nt=hungry] .n6a .a:first-child{animation:n6chomp .5s ease-in-out infinite alternate}
+[data-nt=hungry] .n6a .a:nth-child(2){animation:n6wobble 1.2s ease-in-out infinite}
+@keyframes n6drip{0%{transform:translateY(0) scaleY(.4);opacity:0}15%{transform:translateY(0) scaleY(1);opacity:.95}
+  55%{transform:translateY(5px) scaleY(1.7);opacity:.95}100%{transform:translateY(46px) scaleY(1);opacity:0}}
+@keyframes n6sag{0%,100%{transform:none}50%{transform:scaleY(1.07) translateY(1px)}}
+@keyframes n6chomp{from{transform:scale(1) rotate(-4deg)}to{transform:scale(1.1) rotate(5deg)}}
+@keyframes n6wobble{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg) translateY(-2px)}}
+
+/* 커다란 그림자 — 어두운 보라, 아래에서 큰 그림자가 올라오고(붉은 눈 둘) 쿵, 쿵 흔들린다 */
+[data-nt=giant] .n6f::after{content:'';position:absolute;right:3%;bottom:-6%;width:44%;height:58%;background:#06020c;
+  border-radius:50% 50% 6% 6%/70% 70% 8% 8%;animation:n6loom 3s cubic-bezier(.2,.8,.3,1) both}
+[data-nt=giant] .n6f::before{content:'';position:absolute;right:17%;bottom:41%;width:16%;aspect-ratio:1;border-radius:46% 46% 40% 40%;background:#06020c;
+  animation:n6loom 3s cubic-bezier(.2,.8,.3,1) both}
+[data-nt=giant] .n6f i:nth-child(-n+2){display:block;z-index:1;bottom:52%;right:calc(20.5% + var(--i)*4.6%);width:6px;height:3px;border-radius:3px;
+  background:#ff3b4f;animation:n6loom 3s cubic-bezier(.2,.8,.3,1) both,n6blink 2.4s ease-in-out 1s infinite}
+[data-nt=giant] .n6a .a{transform-origin:bottom;animation:n6stomp 1.2s ease-out infinite}
+#nightCard[data-nt=giant] .ncIc{animation:n6thud 1.2s ease-out infinite}
+#n66Ban[data-nt=giant].on{animation:n6banIn .55s cubic-bezier(.2,1.35,.4,1) both,n6thud 1.2s ease-out .5s 3,n6banOut .4s ease-in 4.6s forwards}
+@keyframes n6loom{from{transform:translateY(85%)}to{transform:none}}
+@keyframes n6blink{0%,42%,50%,100%{opacity:1}46%{opacity:0}}
+@keyframes n6stomp{0%{transform:scale(1.12,.9)}14%{transform:scale(.96,1.05)}30%,100%{transform:none}}
+@keyframes n6thud{0%{transform:none}6%{transform:translateY(4px)}12%{transform:translateY(-2px)}18%{transform:translateY(1px)}24%,100%{transform:none}}
+
+/* 사방에서 — 다섯 방향 화살표가 가운데(그림)로 모인다 */
+[data-nt=surround] .n6a b{display:block;left:50%;top:50%;width:0;height:0;margin:-6px 0 0 -5px;opacity:0;
+  border-left:11px solid var(--n6ac);border-top:6px solid transparent;border-bottom:6px solid transparent;
+  --r:calc(var(--i)*72deg - 90deg);animation:n6in5 1.5s ease-in infinite;animation-delay:calc(var(--i)*.12s)}
+[data-nt=surround] .n6f::before{content:'';position:absolute;inset:6px;border-radius:inherit;border:2px dashed rgba(240,194,58,.45)}
+@keyframes n6in5{0%{transform:rotate(var(--r)) translateX(calc(var(--d0)*-1));opacity:0}25%{opacity:1}
+  100%{transform:rotate(var(--r)) translateX(calc(var(--d1)*-1));opacity:0}}
+
+/* 쉴 틈 없이 — 작은 점 떼가 끝없이 흘러간다 */
+[data-nt=swarm] .n6f::before{content:'';position:absolute;top:0;bottom:0;left:0;width:calc(100% + 154px);opacity:.34;
+  background-image:radial-gradient(circle,var(--n6sub) 0 1.6px,rgba(0,0,0,0) 2.2px),radial-gradient(circle,var(--n6sub) 0 1.1px,rgba(0,0,0,0) 1.7px);
+  background-size:22px 17px,14px 23px;background-position:0 0,7px 9px;animation:n6flow 1.9s linear infinite}
+[data-nt=swarm] .n6a .a{animation:n6hop .42s ease-in-out infinite alternate;animation-delay:calc(var(--i)*-.21s)}
+@keyframes n6flow{from{transform:translateX(0)}to{transform:translateX(-154px)}}
+@keyframes n6hop{from{transform:translateY(0)}to{transform:translateY(-4px)}}
+
+/* 산이 우는 밤 — 산 실루엣, 떨리는 글씨, 울음 파동 */
+[data-nt=howl] .n6f::after{content:'';position:absolute;left:0;right:0;bottom:0;height:44%;background:#070d13;
+  clip-path:polygon(0 100%,0 64%,12% 34%,22% 54%,36% 6%,50% 48%,62% 24%,76% 58%,88% 30%,100% 52%,100% 100%)}
+[data-nt=howl] :is(.ncName,.n6N){display:inline-block;animation:n6shiver .18s steps(2) infinite}
+[data-nt=howl] .n6a b:nth-of-type(-n+3){display:block;left:calc(50% - .55em);top:calc(48% - .55em);width:1.1em;height:1.1em;box-sizing:border-box;border-radius:50%;
+  border:2px solid var(--n6ac);opacity:0;animation:n6wave 2.1s ease-out infinite;animation-delay:calc(var(--i)*.7s)}
+[data-nt=howl] .n6a .a:nth-child(2){animation:n6blink 1.8s ease-in-out infinite}
+@keyframes n6shiver{0%{transform:translate(0,0)}50%{transform:translate(1px,-1px)}100%{transform:translate(-1px,1px)}}
+@keyframes n6wave{0%{transform:scale(.3);opacity:.9}100%{transform:scale(1.8);opacity:0}}
+
+/* 끝없는 무리 — 초록 치유 빛이 맥동하고 + 빛이 떠오른다 */
+[data-nt=endless] .n6f::before{content:'';position:absolute;left:-10%;right:-10%;bottom:-45%;height:100%;border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(80,255,130,.5),rgba(80,255,130,0) 66%);animation:n6pulse 1.7s ease-in-out infinite}
+[data-nt=endless] .n6f i{display:block;left:calc(8% + var(--i)*17%);bottom:8%;width:9px;height:9px;opacity:0;
+  background:linear-gradient(#7dff9f,#7dff9f) center/2px 100% no-repeat,linear-gradient(#7dff9f,#7dff9f) center/100% 2px no-repeat;
+  animation:n6heal 2.2s ease-out infinite;animation-delay:calc(var(--i)*-.4s)}
+[data-nt=endless] .n6a .a:nth-child(2){animation:n6beat 1.7s ease-in-out infinite}
+@keyframes n6pulse{0%,100%{opacity:.35;transform:scale(.92)}50%{opacity:1;transform:scale(1.05)}}
+@keyframes n6heal{0%{transform:translateY(0) scale(.6);opacity:0}30%{opacity:1}100%{transform:translateY(-44px) scale(1.1);opacity:0}}
+@keyframes n6beat{0%,100%{transform:scale(1)}15%{transform:scale(1.22)}30%{transform:scale(1)}45%{transform:scale(1.12)}}
+
+/* 가장 긴 밤 — 달과 시계(째깍), 느리게 번지는 어둠 */
+[data-nt=long] .n6f::before{content:'';position:absolute;left:-30%;top:-60%;width:120%;height:220%;border-radius:50%;
+  background:radial-gradient(circle,#000 0 34%,rgba(0,0,0,0) 70%);opacity:.6;transform:scale(.15);animation:n6dark 7s ease-in forwards}
+[data-nt=long] .n6f i{display:block;width:2px;height:2px;border-radius:50%;background:var(--n6ac);left:calc(40% + var(--i)*10%);top:14%;
+  animation:n6tw 3.6s ease-in-out infinite;animation-delay:calc(var(--i)*-.6s)}
+[data-nt=long] .n6f i:nth-child(odd){top:78%}
+[data-nt=long] .n6a .a:nth-child(2){transform-origin:50% 20%;animation:n6tick 1s steps(1) infinite}
+[data-nt=long] .n6a .a:first-child{animation:n6bob 6s ease-in-out infinite}
+@keyframes n6dark{to{transform:scale(1)}}
+@keyframes n6tick{0%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+
+/* 보스 — 우두머리(금 왕관 톱니) · 불꽃(불길이 솟음) · 눈보라(눈이 날림) · 지옥(붉은 불티·끓는 빛) · 좀비왕(가려진 달의 보랏빛 고리) */
+[data-nt=b-chief] .n6f::before{content:'';position:absolute;left:0;right:0;top:0;height:10px;background-size:18px 10px;background-repeat:repeat-x;
+  background-image:conic-gradient(from 135deg at 50% 0,#ffd257 90deg,rgba(0,0,0,0) 0)}
+[data-nt=b-chief] .n6f i{display:block;width:4px;height:4px;background:#ffd84a;transform:rotate(45deg);left:calc(20% + var(--i)*13%);top:70%;
+  animation:n6tw 2.2s ease-in-out infinite;animation-delay:calc(var(--i)*-.37s)}
+[data-nt=b-chief] .n6a .a:first-child{animation:n6crown 1.6s ease-in-out infinite}
+@keyframes n6crown{0%,100%{transform:translateY(0) rotate(-6deg)}50%{transform:translateY(-5px) rotate(6deg)}}
+[data-nt=b-fire] .n6f i,[data-nt=b-hell] .n6f i{display:block;bottom:-12px;left:calc(6% + var(--i)*17%);width:16px;height:22px;opacity:0;
+  border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:radial-gradient(circle at 50% 70%,#ffe066,#ff7a1c 58%,#c62a0a);
+  animation:n6flame 1.4s ease-out infinite;animation-delay:calc(var(--i)*-.23s)}
+[data-nt=b-fire] .n6a .a:first-child{animation:n6flick .35s steps(2) infinite}
+@keyframes n6flame{0%{transform:translateY(0) scale(1);opacity:0}20%{opacity:.95}100%{transform:translateY(-54px) scale(.25);opacity:0}}
+@keyframes n6flick{0%{transform:scale(1);opacity:1}50%{transform:scale(1.1) translateY(-2px);opacity:.85}}
+[data-nt=b-ice] .n6f i{display:block;top:-8px;left:calc(4% + var(--i)*17%);width:5px;height:5px;border-radius:50%;background:#fff;opacity:0;
+  animation:n6snow 2.4s linear infinite;animation-delay:calc(var(--i)*-.4s)}
+[data-nt=b-ice] .n6f::before{content:'';position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 18px 4px rgba(200,236,255,.55)}
+[data-nt=b-ice] .n6a .a:first-child{animation:n6spin 6s linear infinite}
+@keyframes n6snow{0%{transform:translate(0,0);opacity:0}15%{opacity:1}100%{transform:translate(26px,90px);opacity:0}}
+@keyframes n6spin{to{transform:rotate(360deg)}}
+[data-nt=b-hell] .n6f i{width:6px;height:6px;border-radius:50%;background:#ff6a2a}
+[data-nt=b-hell] .n6f::before{content:'';position:absolute;left:-10%;right:-10%;bottom:-50%;height:100%;border-radius:50%;
+  background:radial-gradient(ellipse at center,rgba(255,60,30,.55),rgba(255,60,30,0) 66%);animation:n6pulse 1.3s ease-in-out infinite}
+[data-nt=b-hell] .n6a .a:first-child{animation:n6thud 1s ease-out infinite}
+[data-nt=b-king] .n6a b:nth-of-type(1){display:block;left:calc(26% - .6em);top:calc(50% - .6em);width:1.2em;height:1.2em;box-sizing:border-box;border-radius:50%;
+  border:.06em solid #b48cff;box-shadow:0 0 .25em #9a6cff;animation:n6ring 2.4s ease-in-out infinite}
+[data-nt=b-king] .n6f i{display:block;width:3px;height:3px;border-radius:50%;background:#d9c2ff;left:calc(12% + var(--i)*15%);top:22%;
+  animation:n6tw 2s ease-in-out infinite;animation-delay:calc(var(--i)*-.33s)}
+[data-nt=b-king] .n6f i:nth-child(even){top:74%}
+@keyframes n6ring{0%,100%{transform:scale(.9);opacity:.6}50%{transform:scale(1.08);opacity:1}}
+@media (prefers-reduced-motion:reduce){ .n6a *,.n6f,.n6f *,.n6f::before,.n6f::after,[data-nt] :is(.ncName,.n6N){animation:none!important} }
+
 /* 66차 FX2 — 축하 배너·보스 연출·드문 사건 알림 층(#celebr). HUD(#hud) 위에 따로 뜨고 누르는 것은 없다.
    ★ 성능(CLAUDE.md 성능 절): 전부 DOM transform·opacity 의 짧은 애니메이션이다. 평소엔 안의 판이 모두 display:none 이라
      한 픽셀도 안 칠한다. 화면을 덮는 판(테두리 어둠·흰 번쩍·속도선)은 보스 밤 시작·등장·처치 때 한 번씩 0.5~3초만 켠다.
@@ -2854,7 +3098,7 @@ body.specOn #hint{visibility:hidden}
     </div>
     <div id="tmsg"></div>
     <div class="hint">
-      🕹️ 컴퓨터: WASD 이동 · 마우스 보기 · 좌클릭 캐기/짓기 · 1~6 건물 · Space 점프<br>
+      🕹️ 컴퓨터: WASD 이동 · 마우스 보기 · 좌클릭 캐기/짓기/쏘기 · 우클릭 총 들기/넣기 · 1~6 건물 · Space 점프<br>
       📱 태블릿: 왼쪽 동그라미로 이동 · 오른쪽 화면 문질러 보기 · 큰 버튼으로 캐기/짓기
     </div>
   </div>
@@ -2907,12 +3151,12 @@ body.specOn #hint{visibility:hidden}
   <!-- 66차 HUD — 오늘 밤 미리 보기. 아침에 카드(nightCard)로 한 번 뜨고, 낮 동안은 한 줄 칩(nightChip)으로 남는다.
        알림 흐름(#feed) 바로 위 — 알림이 모이는 한 줄 흐름의 맨 앞자리다. 누르면 카드를 다시 연다(paintNightPreview) -->
   <button class="btn" id="nightChip" type="button" title="오늘 밤 미리 보기 (누르면 자세히)" hidden><span class="nci">🌙</span><span class="ncn"></span><span class="ncm">자세히</span></button>
+  <!-- 66차 CTRL — 대비법(팁) 없이 밤 이름 + 분위기 한 줄. data-nt 로 밤마다 색·그림·움직임이 바뀐다(ncFx = 뒤판 꾸밈) -->
   <div id="nightCard" role="status" aria-live="polite">
+    <div class="ncFx n6f" aria-hidden="true"></div>
     <div class="ncDay"></div>
     <button class="ncOk" type="button" title="닫기">알았어요</button>
-    <div class="ncMain"><span class="ncIc"></span><div class="ncTx"><div class="ncName"></div><div class="ncHint"></div></div></div>
-    <div class="ncHow">이렇게 대비해요</div>
-    <ul class="ncPrep"></ul>
+    <div class="ncMain"><span class="ncIc n6a" aria-hidden="true"></span><div class="ncTx"><div class="ncName"></div><div class="ncMood"></div></div></div>
     <div class="ncNote" hidden></div>
   </div>
   <div id="feed"></div>
@@ -3045,7 +3289,9 @@ body.specOn #hint{visibility:hidden}
   <div id="fx2Flash"></div>
   <div id="fx2Bars"><i></i><i></i></div>
   <div id="celBan"><div class="cRay"></div><div class="cSp"></div><div class="cRib"></div><div class="cIc"></div><div class="cTt"></div><div class="cSub"></div></div>
-  <div id="fx2Cap"><span class="k"></span><span class="n"></span><span class="s"></span></div>
+  <div id="fx2Cap"><span class="art n6a"></span><span class="k"></span><span class="n"></span><span class="s"></span></div>
+  <!-- 66차 CTRL — 밤 시작 경고(보스 아닌 밤). 그 밤의 모습(data-nt)으로 5초. 보스 밤은 위 fx2Cap 이 보스 모습(.b66)을 입는다 -->
+  <div id="n66Ban"><div class="n6Fx n6f"></div><div class="n6Art n6a"></div><div class="n6Tx"><div class="n6K"></div><div class="n6N"></div><div class="n6W"></div></div></div>
   <div id="celChip"></div>
   <div id="fx2Arrow"><b>👑</b><i></i></div>
 </div>
@@ -3265,8 +3511,8 @@ body.specOn #hint{visibility:hidden}
       가까이 가서 <b>B</b>(태블릿은 뜨는 글자를 누르기)를 누르면 가게가 열려요.
       <span style="color:#ffc94a">자원은 우리 모둠 공용이니 무엇을 살지 같이 정하세요.</span></div></div>
     <div class="hrow"><i>🔫</i><div><b>무기 6가지</b> — 나무 새총부터 수정 광선총까지.
-      <b>T</b> 를 누르면 총을 장착하고, <b>왼쪽 클릭</b>으로 쏩니다(태블릿은 오른쪽 아래 버튼).
-      총을 든 동안에는 캐거나 지을 수 없어요 — 다시 <b>T</b> 로 풉니다.
+      <b>오른쪽 클릭</b>(또는 아래 도구 줄 맨 앞 <b>총 칸</b>)으로 총을 들고, <b>왼쪽 클릭</b>으로 쏩니다(태블릿은 오른쪽 아래 버튼).
+      총을 든 동안에는 캐거나 지을 수 없어요 — 다시 <b>오른쪽 클릭</b>하거나 <b>Q·R·E·F·V·1~6</b> 도구 키를 누르면 총이 들어가고 그 도구를 바로 잡아요.
       <b>총알은 금으로</b> 사요(금 1개에 6발). 떨어지면 저절로 맨손 돌로 바뀝니다.</div></div>
     <div class="hrow"><i>🎯</i><div><b>진짜로 겨눠야 맞습니다.</b> 조준점 한가운데에 좀비가 들어오면
       <b style="color:#ff8f8f">빨갛게</b> 바뀌어요. 맞으면 한가운데가 ✕ 로 번쩍입니다.
@@ -14291,8 +14537,8 @@ function aimWolf(W = wpnNow()){
   }
   return best;
 }
-/* ═══════ 공격 모드 (T) ═══════
-   ★ 우클릭 사격은 "총을 든다"는 느낌이 없었다. T 로 총을 장착하면
+/* ═══════ 공격 모드 (66차부터 우클릭 — toggleGun) ═══════
+   ★ 우클릭 사격은 "총을 든다"는 느낌이 없었다. 총을 장착하면(33차 T, 66차 우클릭 한 번)
      왼쪽 클릭이 곧 사격이 된다 — 애들이 아는 그 조작이다.
    ★ 모드가 켜져 있는 동안은 캐기·짓기가 잠긴다. 안 잠그면 좀비를 쏘려다
      발밑에 벽을 짓는 일이 계속 생긴다. */
@@ -14307,6 +14553,7 @@ function setAimMode(on, quiet){
   if(ch){ ch.classList.toggle('gun', on); ch.classList.remove('lock'); }
   document.body.classList.toggle('aiming', on);
   hudPrev.kit = '';
+  paintBar();                        // 66차 CTRL — 도구 줄의 총 칸이 바로 켜지고 꺼지게
   netPCDirty = true;                 // 총을 들었다/놨다를 친구들 화면에 알린다
   if(!quiet){
     const W = wpnNow();
@@ -16349,12 +16596,14 @@ addEventListener('keydown', e=>{
      거의 공중에 떠 있었다. 애들이 찾아낸 그 방법이다 — 한 번 누르면 한 번 뛴다.
      (태블릿 점프 단추는 원래 누를 때 한 번만 났다. 이제 둘이 같아졌다.) */
   if(k===' '){ if(!e.repeat) wantJump = true; e.preventDefault(); }
-  if(k>='1' && k<=String(BKEYS.length)){ selectBuild(BKEYS[+k-1]); }
-  if(k==='q') selectTool('mine');
-  if(k==='r') selectTool('repair');
-  if(k==='e') selectTool('up');
-  if(k==='f') selectTool('del');
-  if(k==='v') selectTool('move');
+  /* 66차 CTRL — 도구·건물 키는 든 총을 조용히 넣고 그 도구를 바로 잡는다(pickTool·pickBuild).
+     6 은 대포탑 자리이자 회복 물약 자리(6~9)다 — 총을 든 채 6 은 물약만 마신다(싸우다 마시는데 총이 들어가면 안 된다) */
+  if(k>='1' && k<=String(BKEYS.length) && !(aimMode && k>='6')) pickBuild(BKEYS[+k-1]);
+  if(k==='q') pickTool('mine');
+  if(k==='r') pickTool('repair');
+  if(k==='e') pickTool('up');
+  if(k==='f') pickTool('del');
+  if(k==='v') pickTool('move');
   if(k==='b'){ if(popOpen()) return; if(vetOpenable()) openVet(); else if(shopOpenable()) openShop();
                else if(G.started) toast(G.phase==='night'
                  ? '🌙 밤에는 상인이 문을 닫아요'
@@ -16369,7 +16618,7 @@ addEventListener('keydown', e=>{
                  ? '🌙 밤에는 대장간 불이 꺼져요'
                  : '🔨 대장간은 수정 건너편에 있어요 — 가까이 가세요', 1.8, '#ffd0a0'); }
   if(k>='6' && k<='9'){ usePotion(+k-6); }
-  if(k==='t'){ if(!popOpen() && G.started) setAimMode(!aimMode); }
+  if(k==='t') toggleGun();   // 66차 CTRL — 안내에서는 뺐다(총은 우클릭). 익숙한 아이를 위해 같은 동작만 말없이 남긴다
   if(k==='i'){ if(popOpen()) { if(el('popKit').classList.contains('on')){
                                  el('popKit').classList.remove('on'); sfx('close'); } }
                else if(G.started) openKit(); }
@@ -16413,9 +16662,12 @@ addEventListener('mousemove', e=>{
 /* ★ 왼쪽 클릭 하나로 끝난다 — 공격 모드면 사격, 아니면 캐기·짓기.
    예전엔 우클릭이 공격이었는데, "총을 들었다"는 느낌이 없어서
    총을 사고도 계속 곡괭이를 든 것 같았다. */
+/* 66차 CTRL — 오른쪽 클릭 = 총 들기/넣기 한 번씩(선생님과 정한 조작). 마우스가 풀린 채(첫 클릭 전·Esc 뒤)
+   게임 화면을 우클릭해도 같다 — 잠금은 걸지 않는다(자동 pointer lock 금지, 잠금은 왼쪽 클릭의 click 에서만). */
 addEventListener('mousedown', e=>{ if(document.pointerLockElement===cv){
   if(e.button===0) acting=true;
-  if(e.button===2){ e.preventDefault(); setAimMode(!aimMode); } } });   // 우클릭도 모드 전환
+  if(e.button===2){ e.preventDefault(); toggleGun(); } }
+  else if(e.button===2 && e.target===cv) toggleGun(); });
 addEventListener('mouseup', e=>{ if(e.button===0) acting=false; });
 
 addEventListener('contextmenu', e=>e.preventDefault());
@@ -16472,6 +16724,21 @@ hold(el('mbThrow'), ()=>throwing=true, ()=>throwing=false);
 let curTool = 'mine', curBuild = null;
 function selectTool(t){ resetBuildPlacement(); buildLineMode=false; workStop(); curTool = t; curBuild = null; setGhost(null); paintBar(); }
 function selectBuild(b){ if(!BUILD[b]) return; resetBuildPlacement(); buildLineMode=false; workStop(); curBuild = b; curTool = 'build'; setGhost(b); paintBar(); }
+/* ═══ 66차 CTRL — 총 조작 ═══
+   선생님: "지금 QWERT로 왔다 갔다 하잖아. 총 들고 있다가 자원 캐려고 하면 T 누르고 Q 누르고 이래야 돼."
+   ★ 총 들기/넣기는 오른쪽 클릭 한 번(또는 아래 도구 줄 맨 앞 총 칸). 안내 글에서 T 는 뺐다(누르면 말없이 같은 동작).
+   ★ 손으로 도구·건물을 고르면(Q·R·E·F·V·1~6 키, 도구 줄 칸) 든 총을 조용히 넣고 그 도구를 바로 잡는다.
+     알림은 도구 쪽 한 줄만("⛏️ 캐기") — 총을 넣었다는 말을 따로 하지 않는다(같은 소식 두 줄 X). 총을 안 들었으면 예전처럼 말없이 바꾼다.
+   ★ selectTool/selectBuild 는 그대로 둔다 — 시작·아침처럼 코드가 부르는 곳이 총 상태를 건드리지 않게.
+   ★ 쓰러짐·창(상점 등)·관전·시작 전에는 총을 들거나 넣지 않는다(쓰러지면 Q·E·F 는 관전 키 — SPEC 이 먼저 가로챈다). */
+function gunToggleOk(){ return G.started && G.phase !== 'title' && !popOpen() && !PL.down && !SPEC.on && !miniOn(); }   // 미니게임 중엔 miniOnState 가 총을 맡는다(Q·1·우클릭·총 칸이 총을 넣지 않게)
+function toggleGun(){ if(gunToggleOk()) setAimMode(!aimMode); }
+function gunAway(ic, name){ if(!aimMode || !gunToggleOk()) return; setAimMode(false, true); toast(`${ic} ${name}`, 1.4, '#c8ffb0'); }
+function pickTool(t){ const T = TOOLS.find(x => x.id === t); if(T) gunAway(T.icon, T.name); selectTool(t); }
+function pickBuild(b){ if(!BUILD[b]) return; gunAway(BUILD[b].icon, BUILD[b].name); selectBuild(b); }
+/* 총 칸 이름 — 칸이 좁아(54~60px) 끝말만: '돌 화승총' → '화승총'. 끝말이 한 글자면(연습용 총) 전체 */
+function gunShortName(W){ if(W === WEAPONS[0]) return '던지기';   // 맨손 돌 → '던지기'(자원 '돌'·'돌벽'과 헷갈리지 않게 — '옮기기'처럼 하는 일로)
+  const w = String(W.n).split(' '), t = w[w.length-1]; return t.length >= 2 ? t : W.n; }
 function afford(t){ const c = BUILD[t].cost, r = myRes();
   return r.w>=c.w && r.s>=c.s && r.g>=c.g; }
 
@@ -16484,27 +16751,34 @@ function afford(t){ const c = BUILD[t].cost, r = myRes();
    실제로 바뀌는 건 고른 도구·고른 건물·자원이 모자란지 여부뿐이라, 그것만 열쇠로 삼는다. */
 let barKey = '';
 function paintBar(){
-  const k = curTool + '|' + curBuild + '|' + BKEYS.map(afford).join('');
+  const k = curTool + '|' + curBuild + '|' + BKEYS.map(afford).join('') + '|' + aimMode + '|' + KIT.wpn;
   if(k === barKey) return;
   barKey = k;
   const tw = el('tools'); tw.innerHTML = '';
+  /* 66차 CTRL — 맨 앞 총 칸: 지금 무기 그림·짧은 이름·키 자리엔 '우클릭'. 총을 들면 이 칸만 켜지고 도구·건물 칸은 꺼진다. 누르면 들기/넣기 */
+  { const W = wpnNow(), g = document.createElement('div');
+    g.className = 'slot tool gun' + (aimMode ? ' on' : '');
+    g.title = (aimMode ? '총 넣기' : '총 들기') + ' (우클릭)';
+    g.innerHTML = `<div class="ic">${iconImg('wpn'+KIT.wpn, W.ic)}</div><div class="nm">${gunShortName(W)}</div><div class="ky">우클릭</div>`;
+    g.onclick = toggleGun;
+    tw.appendChild(g); }
   for(const t of TOOLS){
     const d = document.createElement('div');
-    d.className = 'slot tool' + (curTool===t.id?' on':'');
+    d.className = 'slot tool' + (!aimMode && curTool===t.id?' on':'');
     d.innerHTML = `<div class="ic">${iconImg('tool_'+t.id, t.icon)}</div><div class="nm">${t.name}</div><div class="ky">${t.key}</div>`;
-    d.onclick = ()=> selectTool(t.id);
+    d.onclick = ()=> pickTool(t.id);
     tw.appendChild(d);
   }
   const bw = el('bar'); bw.innerHTML = '';
   BKEYS.forEach((k,i)=>{
     const b = BUILD[k], ok = afford(k);
     const d = document.createElement('div');
-    d.className = 'slot' + (curBuild===k?' on':'') + (ok?'':' no');
+    d.className = 'slot' + (!aimMode && curBuild===k?' on':'') + (ok?'':' no');
     const cs = [b.cost.w?`<span>🪵${b.cost.w}</span>`:'', b.cost.s?`<span>🪨${b.cost.s}</span>`:'',
       b.cost.g?`<span>✨${b.cost.g}</span>`:''].filter(Boolean).join('');
     d.innerHTML = `<div class="ic">${iconImg('bld_'+k, b.icon)}</div><div class="nm">${b.name}</div>
       <div class="cost">${cs}</div><div class="ky">${i+1}</div>`;
-    d.onclick = ()=> selectBuild(k);
+    d.onclick = ()=> pickBuild(k);
     bw.appendChild(d);
   });
 }
@@ -16927,50 +17201,80 @@ function paintMis(){
      netMeta 로 보낸다** — 손님은 meta.nk 로 아침에 이미 안다(36차부터 있던 값, 통신은 한 칸도 안 는다).
      그래서 여기서는 (낮·날짜·밤 번호)가 바뀌는 걸 보고 그리기만 한다. 호스트든 손님이든 같은 함수다.
      보스 밤은 날짜(bossIndex)만으로 정해진다. */
-const NIGHT_PREVIEW = [   // NIGHT_DEF 와 같은 순서 — 그림 한 개 + "이렇게 대비해요" 두 줄
-  {ic:'🌙', prep:['🪵 나무벽 한 겹이면 충분해요', '⛏️ 남는 시간엔 자원을 모아 두세요']},
-  {ic:'🧟', prep:['🪵 벽을 옆으로 길게 이어 붙여요', '🏹 화살탑을 하나 더 세워요']},
-  {ic:'💨', prep:['🏹 입구 뒤에 화살탑을 세워요', '❄️ 얼음탑으로 느리게 만들어요']},
-  {ic:'🍖', prep:['🧱 돌벽으로 수정 둘레를 막아요', '🐑 배럭에서 병사를 뽑아요']},
-  {ic:'💪', prep:['🧱 돌벽을 두 겹으로 쌓아요', '🔧 고칠 사람을 미리 정해요']},
-  {ic:'🚩', prep:['🚩 모둠마다 자기 입구를 지켜요', '🏹 입구마다 화살탑 하나씩']},
-  {ic:'⏱️', prep:['🏹 화살탑(연사)이 제격이에요', '💥 대포탑으로 떼를 한 번에']},
-  {ic:'🐺', prep:['🔫 친구와 같이 한 마리를 쏴요', '🧱 돌벽 뒤에서 싸워요']},
-  {ic:'♾️', prep:['🎯 초록빛 치유 좀비부터 잡아요', '💥 대포탑으로 떼를 한 번에']},
-  {ic:'⏳', prep:['🪵 자원을 넉넉히 모아 두세요', '🔧 고칠 사람을 미리 정해요']}
+/* ═══════ 66차 CTRL — 밤마다 그 밤다운 모습 (팁 없음) ═══════
+   선생님: "옆에 무슨 밤 뜰 때 밑에 팁은 없애자. 애들이 자유롭게 관찰하고 대처방법 찾을 수 있도록.
+            굶주린 밤이면 굶주린 밤에 맞는 디자인으로 안내가 떠야지. 다른 밤이면 그 밤과 어울리는 디자인으로 경고가 뜨고."
+   ★ 그래서 아침 카드·칩·밤 시작 경고·보스 자막은 '무엇이 오는지 느낌' 만 말한다. 방법(벽·탑·병사·수리…)은 한 마디도 안 한다.
+     예전의 "이렇게 대비해요" 두 줄(NIGHT_PREVIEW)·NIGHT_DEF.hint(대처법)·보스 카드의 대비법·"내일 탑을 늘려 두세요" 는 모두 없앴다.
+   ★ NIGHT_DEF 와 같은 순서. k = CSS 모습 열쇠(data-nt) · ic = 칩의 작은 그림 · art = 카드·경고의 큰 그림(이모지 조합)
+     mood = 아침 카드의 분위기 한 줄 · warn = 밤이 시작될 때 경고 한 줄 · snd = 밤 시작 짧은 소리(SFX.night66…)
+   ★ 보스는 WOLF_T[k].boss(1~5) 로 고른다(번호 범위로 단정하지 않는다). 보스 밤 시작은 FX2 의 띠·어둠·자막이 이 모습을 입는다(fx2BossIntro). */
+const NIGHT_LOOK = [
+  {k:'calm',     ic:'🌙', art:['🌙'],             mood:'달빛이 조용해요… 정말 조용할까요?',   warn:'어둠 속에서 발소리가 들려요',    snd:'night66Calm'},
+  {k:'more',     ic:'🧟', art:['🧟','🧟','🧟'],   mood:'어젯밤보다 발소리가 많아졌어요',       warn:'어제보다 더 많이 몰려와요',      snd:'night66More'},
+  {k:'fast',     ic:'💨', art:['🧟','💨'],        mood:'무언가 빠르게 달려와요',               warn:'빠르다! 눈 깜짝할 새에 와요',     snd:'night66Fast'},
+  {k:'hungry',   ic:'🍖', art:['🧟','🍖'],        mood:'배고픈 울음이 가까워져요…',            warn:'배고픈 좀비들이 깨어났어요',      snd:'night66Hungry'},
+  {k:'giant',    ic:'👣', art:['🧟'],             mood:'땅이 쿵, 쿵 울려요',                   warn:'커다란 그림자가 다가와요',        snd:'night66Giant'},
+  {k:'surround', ic:'🧭', art:['🧟'],             mood:'사방이 술렁거려요',                    warn:'사방에서 몰려와요!',             snd:'night66Surround'},
+  {k:'swarm',    ic:'⏱️', art:['🧟','🧟'],        mood:'작은 발소리가 끊이지 않아요',          warn:'끝도 없이 쏟아져요',             snd:'night66Swarm'},
+  {k:'howl',     ic:'🏔️', art:['🏔️','👀'],       mood:'산 너머에서 울음소리가 들려요…',       warn:'산이 울어요… 무서운 눈빛이 번뜩여요', snd:'night66Howl'},
+  {k:'endless',  ic:'💚', art:['🧟','💚'],        mood:'어둠 속에 초록빛이 어른거려요',        warn:'무리가 끝없이 밀려와요',          snd:'night66Endless'},
+  {k:'long',     ic:'⏳', art:['🌕','🕰️'],       mood:'오늘 밤은 아주 길 거예요',             warn:'가장 긴 밤이 시작돼요',           snd:'night66Long'}
 ];
-const NIGHT_PREVIEW_BOSS = ['🧱 다섯 입구를 모두 돌벽으로 막아요', '🏹 탑을 채우고 🔫 총알을 넉넉히'];
-const NC_SHOW_MS = 9000;          // 아침 카드가 떠 있는 시간 — 그 뒤엔 오른쪽 위 작은 칩으로 남는다
+const NIGHT_LOOK_BOSS = [   // WOLF_T[k].boss - 1 순서(우두머리·불꽃·눈보라·지옥·좀비왕)
+  {k:'b-chief', art:['👑','🧟'], mood:'무리를 이끄는 커다란 발소리가 들려요',  warn:'무리의 우두머리가 깨어났어요'},
+  {k:'b-fire',  art:['🔥','🧟'], mood:'멀리서 뜨거운 바람이 불어와요',         warn:'밤하늘이 붉게 타올라요'},
+  {k:'b-ice',   art:['❄️','🧟'], mood:'공기가 차갑게 얼어붙어요',              warn:'눈보라가 몰아쳐요'},
+  {k:'b-hell',  art:['🌋','🧟'], mood:'땅 밑에서 붉은 빛이 끓어올라요',        warn:'땅이 갈라지고 불길이 솟아요'},
+  {k:'b-king',  art:['🌑','👑'], mood:'달이 가려졌어요… 무언가 깨어나요',      warn:'모든 좀비의 왕이 온다'}
+];
+function nightLookBoss(k){ const B = WOLF_T[k], i = B && B.boss ? B.boss - 1 : 0;
+  return NIGHT_LOOK_BOSS[Math.max(0, Math.min(NIGHT_LOOK_BOSS.length - 1, i))]; }
+/* 그림 칸 채우기 — 이모지 조합(.a) + 그림 둘레 꾸밈 다섯(b: 화살표·파동·시계 바늘…) + 뒤판 꾸밈 여섯(i: 별·속도선·침방울…).
+   무엇을 보여 줄지는 CSS 가 data-nt 로 정한다(쓰지 않는 조각은 display:none — 칠하지 않는다) */
+function nightArt(box, L){
+  box.textContent = '';
+  box.style.setProperty('--n', (L.art || []).length || 1);
+  (L.art || []).forEach((e, i)=>{ const s = document.createElement('span'); s.className = 'a'; s.style.setProperty('--i', i); s.textContent = e; box.appendChild(s); });
+  for(let i=0;i<5;i++){ const b = document.createElement('b'); b.style.setProperty('--i', i); box.appendChild(b); }
+}
+function nightFx(box){
+  if(box.childElementCount === 6) return;
+  box.textContent = '';
+  for(let i=0;i<6;i++){ const d = document.createElement('i'); d.style.setProperty('--i', i); box.appendChild(d); }
+}
+const NIGHT_NOTE_LAST = '🔥 마지막 밤이에요! 이 밤만 버티면 우리 반이 이겨요';
+const NIGHT_NOTE_TMR_BOSS = '⚠️ 내일 밤, 무언가 커다란 것이 와요';
+const NC_SHOW_MS = 5000;          // 아침 카드가 떠 있는 시간 — 66차 CTRL: 선생님 "한 5초 뒤에 자동으로 사라지게"(4.6초부터 0.4초 흐려짐, CSS nc66out). 그 뒤엔 작은 칩(그 밤의 색)
 let ncDay = 0, ncUntil = 0, ncKey = '', hudMode = '';
 /* 오늘 밤 정보 — 모르면 null(손님이 meta 를 아직 못 받았을 때). 호스트·손님이 같은 값을 본다 */
 function nightPreviewInfo(){
   const bi = bossIndex(G.day), last = G.day >= G.set.goalDay;
   const tmrBoss = bi < 0 && bossDays().includes(G.day + 1);
-  if(bi >= 0){ const full = WOLF_T[bossWolfK(bi)].n, m = full.match(/^(\S+)\s+(.+)$/);   // '👑 우두머리 좀비' → 그림 · 이름
-    return {boss:true, last, tmrBoss:false, ic:m ? m[1] : '👑', name:m ? m[2] : full,
-            hint:'부하 좀비들과 함께 와요. 지금까지 중 가장 센 밤이에요!', prep:NIGHT_PREVIEW_BOSS}; }
+  if(bi >= 0){ const wk = bossWolfK(bi), full = WOLF_T[wk].n, m = full.match(/^(\S+)\s+(.+)$/);   // '👑 우두머리 좀비' → 그림 · 이름
+    return {boss:true, last, tmrBoss:false, ic:m ? m[1] : '👑', name:m ? m[2] : full, look:nightLookBoss(wk)}; }
   const k = G.nk;
   if(!(k >= 0 && k < NIGHT_DEF.length)) return null;
-  const N = NIGHT_DEF[k], P = NIGHT_PREVIEW[k] || {ic:'🌙', prep:[]};
-  return {boss:false, last, tmrBoss, ic:P.ic, name:N.n, hint:N.hint, prep:P.prep};
+  const L = NIGHT_LOOK[k] || NIGHT_LOOK[0];
+  return {boss:false, last, tmrBoss, ic:L.ic, name:NIGHT_DEF[k].n, look:L};
 }
 function paintNightCard(I){
   const c = el('nightCard');
   c.classList.toggle('boss', I.boss);
-  c.querySelector('.ncDay').textContent = `${G.day}일차 · ` + (I.boss ? '⚠️ 오늘 밤은 보스!' : '오늘 밤 미리 보기');
-  c.querySelector('.ncIc').textContent = I.ic;
+  c.dataset.nt = I.look.k;
+  nightFx(c.querySelector('.ncFx'));
+  c.querySelector('.ncDay').textContent = `${G.day}일차 · ` + (I.boss ? '⚠️ 오늘 밤은 보스!' : '오늘 밤');
+  nightArt(c.querySelector('.ncIc'), I.look);
   c.querySelector('.ncName').textContent = I.name;
-  c.querySelector('.ncHint').textContent = I.hint;
-  const L = c.querySelector('.ncPrep'); L.innerHTML = '';
-  for(const p of I.prep){ const li = document.createElement('li'); li.textContent = p; L.appendChild(li); }
+  c.querySelector('.ncMood').textContent = I.look.mood;
   const x = c.querySelector('.ncNote');
-  x.textContent = I.last ? '🔥 마지막 밤이에요! 이 밤만 버티면 우리 반이 이겨요'
-                : I.tmrBoss ? '⚠️ 내일 밤은 보스예요 — 오늘 탑을 미리 늘려 두세요' : '';
+  x.textContent = I.last ? NIGHT_NOTE_LAST : I.tmrBoss ? NIGHT_NOTE_TMR_BOSS : '';
   x.hidden = !x.textContent;
 }
 function nightCardOpen(on){
   const c = el('nightCard'), chip = el('nightChip'), was = c.classList.contains('on');
   c.classList.toggle('on', on);
+  document.body.classList.toggle('ncOn', on);   // 66차 CTRL 고침 — 좁은 화면에서 카드가 떠 있는 동안 아래 조작 안내(#hint)를 가린다
   ncUntil = on ? performance.now() + NC_SHOW_MS : 0;
   chip.classList.toggle('cardOn', on);           // 카드가 떠 있는 동안 칩은 접어 둔다(같은 말 두 번 X)
   /* 카드가 칩으로 접힐 때 한 번만 반짝 — 어디로 갔는지 눈으로 따라가게(되풀이 애니메이션 아님) */
@@ -16984,7 +17288,7 @@ function paintNightPreview(){
   if(key !== ncKey){ ncKey = key;
     const chip = el('nightChip');
     chip.hidden = !I;
-    if(I){ chip.classList.toggle('boss', I.boss);
+    if(I){ chip.classList.toggle('boss', I.boss); chip.dataset.nt = I.look.k;   // 66차 CTRL — 칩도 그 밤의 색
       chip.querySelector('.nci').textContent = I.ic;
       chip.querySelector('.ncn').textContent = (I.boss ? '오늘 밤 보스 · ' : '오늘 밤 · ') + I.name;
       paintNightCard(I); }
@@ -16995,6 +17299,66 @@ function paintNightPreview(){
   /* 아침 한 번 — 날짜 글씨(stageTitle)가 걷힌 뒤, 창이 닫혀 있을 때 */
   if(ncDay !== G.day && stageT <= 0 && !popOpen()){ ncDay = G.day; nightCardOpen(true); }
   else if(ncUntil && now > ncUntil) nightCardOpen(false);
+}
+/* ── 66차 CTRL 밤 시작 경고 — 밤이 시작되는 순간, 그 밤의 모습(색·그림·움직임·소리)으로 5초.
+   호스트는 goNight, 손님은 meta 로 밤이 된다 — 둘 다 여기(paintHUD, 초당 8번)서 (낮→밤) 바뀜을 보고 띄운다(통신 없음).
+   ★ 보스 밤은 FX2 의 띠·어둠·자막(fx2BossIntro)이 보스 모습(night66BossLook)을 입고 나온다 — 여기서 또 띄우면 두 번이다.
+   ★ 방금 들어온 순간(이전 상태 없음)은 띄우지 않는다 — 한창인 밤에 '시작' 경고는 틀린 말이다.
+   ★ 경고에도 대처법은 없다. 무엇이 오는지 느낌 한 줄뿐. */
+const N66_MS = 5000;
+let n66Ph = '', n66Day = 0, n66Until = 0, n66Nt = '';
+function night66Show(I){
+  const b = el('n66Ban'); if(!b) return;
+  const L = I ? I.look : NIGHT_LOOK[0];
+  b.dataset.nt = L.k;
+  nightFx(b.querySelector('.n6Fx'));
+  nightArt(b.querySelector('.n6Art'), L);
+  b.querySelector('.n6K').textContent = I && I.last ? '🔥 마지막 밤' : `${G.day}일차 밤`;
+  b.querySelector('.n6N').textContent = I ? I.name : '밤이 왔어요';
+  b.querySelector('.n6W').textContent = L.warn;
+  b.className = ''; void b.offsetWidth; b.className = 'on';
+  n66Until = performance.now() + N66_MS;
+  if(L.snd) night66Snd(L.snd);
+}
+function night66Hide(){ const b = el('n66Ban'); if(b && b.className) b.className = ''; n66Until = 0; }
+function night66Tick(){
+  const ph = G.started ? G.phase : '';
+  if(ph !== n66Ph || G.day !== n66Day){
+    const from = n66Ph; n66Ph = ph; n66Day = G.day;
+    if(ph === 'night' && from === 'day'){ const I = nightPreviewInfo(); if(!(I && I.boss)) night66Show(I); }
+    else if(ph !== 'night') night66Hide();
+  }
+  if(n66Until){
+    if(performance.now() > n66Until) night66Hide();
+    /* 드문 사건 알림(FX2 — 밤 시작 2.6초 뒤 위쪽 작은 배너)이 이 경고 위에 겹치지 않게, 경고가 걷힌 뒤로 민다 */
+    else if(FX2.rareT > 0){ const left = (n66Until - performance.now())/1000 + 0.3; if(FX2.rareT < left) FX2.rareT = left; }
+  }
+  /* 밤 동안 날짜 옆 밤 이름(#dayPhase)도 그 밤의 색 — body 에 열쇠 하나(바뀔 때만 쓴다) */
+  const I = ph === 'night' ? nightPreviewInfo() : null, nt = I ? I.look.k : '';
+  if(nt !== n66Nt){ n66Nt = nt; if(nt) document.body.dataset.n66 = nt; else delete document.body.dataset.n66; }
+}
+/* 보스 밤 시작 자막의 모습 — fx2BossIntro 가 부른다(FX2 덩어리 검사는 이 함수 없이도 돈다) */
+function night66BossLook(){ const bi = bossIndex(FX2.nightDay || G.day);   /* fx2BossName 과 같은 날로 본다 */ return bi >= 0 ? nightLookBoss(bossWolfK(bi)) : null; }
+function night66CapArt(L){ const c = el('fx2Cap'); if(!c) return; c.dataset.nt = L.k; const a = c.querySelector('.art'); if(a) nightArt(a, L); }
+/* 밤 시작 짧은 소리 — SFX 표 안은 안 고치고 한 덩어리로 붙인다(FX2·탑과 같은 방식). 기존 합성 함수 → sfxOut → 버스 압축기, 세기 0.17 이하.
+     Calm 잔잔한 종 두세 번 · More 낮은 신음 셋 · Fast 옆으로 스치는 바람 둘 · Hungry 으르렁 + 배고픈 울음(오르다 꺾임)
+     Giant 쿵, 쿵 · Surround 사방 다섯 번 두드림 · Swarm 잔발소리 떼 · Howl 산울림 울음 · Endless 초록 반짝 오름 · Long 시계 똑딱 + 낮은 종 */
+function night66Snd(k){
+  if(!night66Snd.ok){ night66Snd.ok = true;
+    Object.assign(SFX, {
+      night66Calm:    ()=>{ const t = now0(); pluck(1047, 1.3, 0.035, t, 0.3); pluck(1568, 1.1, 0.022, t + 0.28, 0); pluck(1319, 1.2, 0.018, t + 0.6, 0); tone(131, 131, 1.6, 'sine', 0.03, t); },
+      night66More:    ()=>{ const t = now0(); [0, 0.32, 0.6].forEach((d, i)=>{ tone(118 - i*8, 86 - i*6, 0.7, 'sawtooth', 0.028, t + d); puff(0.5, 0.03, 380, 0.8, t + d); }); },
+      night66Fast:    ()=>{ const t = now0(); crackSweep(0.4, 0.06, 4200, 600, 1.1, t); crackSweep(0.35, 0.05, 4800, 700, 1.1, t + 0.22); tone(900, 300, 0.3, 'sine', 0.02, t + 0.1); },
+      night66Hungry:  ()=>{ const t = now0(); tone(96, 70, 0.9, 'sawtooth', 0.04, t); puff(0.8, 0.045, 260, 0.9, t); tone(210, 320, 0.35, 'triangle', 0.035, t + 0.5); tone(320, 150, 0.7, 'triangle', 0.035, t + 0.85); },
+      night66Giant:   ()=>{ const t = now0(); thump(62, 30, 0.6, 0.13, t, 2.0); thump(56, 28, 0.7, 0.14, t + 0.6, 2.0); noise(0.6, 0.05, 160, t + 0.6); },
+      night66Surround:()=>{ const t = now0(); for(let i=0;i<5;i++){ thump(110 - i*6, 60, 0.18, 0.07, t + i*0.14, 1.6); puff(0.12, 0.03, 700, 1, t + i*0.14); } tone(220, 196, 0.8, 'triangle', 0.03, t + 0.7); },
+      night66Swarm:   ()=>{ const t = now0(); for(let i=0;i<14;i++) puff(0.05, 0.03 + (i%3)*0.008, 900 + (i%4)*220, 1.4, t + i*0.07); },
+      night66Howl:    ()=>{ const t = now0(); tone(280, 540, 0.7, 'sine', 0.045, t); tone(540, 380, 1.1, 'sine', 0.045, t + 0.7); tone(283, 546, 0.7, 'triangle', 0.015, t); noise(1.6, 0.025, 300, t); },
+      night66Endless: ()=>{ const t = now0(); [392, 494, 587, 784].forEach((f, i)=> pluck(f, 0.7, 0.03, t + i*0.12, 0.3)); tone(98, 98, 1.6, 'sine', 0.035, t); },
+      night66Long:    ()=>{ const t = now0(); for(let i=0;i<4;i++) pluck(2100 - (i%2)*300, 0.05, 0.03, t + i*0.45, 0, 'triangle'); tone(196, 196, 2.0, 'sine', 0.045, t + 0.1); pluck(392, 1.8, 0.03, t + 0.1, 0.4); }
+    });
+  }
+  sfx(k);
 }
 /* 화면 모드 — 'day' | 'night' | 'mini' (+ 보스 바가 떠 있으면 hud66-boss) */
 function paintHudMode(boss){
@@ -17018,7 +17382,9 @@ if(window.ResizeObserver){
 }
 Object.assign(window, {
   __hud66:()=>({mode:hudMode, ncDay, ncOpen:el('nightCard').classList.contains('on'), chip:!el('nightChip').hidden, info:nightPreviewInfo()}),
-  __nightCardOpen:nightCardOpen, __paintNightPreview:paintNightPreview, __NIGHT_PREVIEW:NIGHT_PREVIEW
+  __nightCardOpen:nightCardOpen, __paintNightPreview:paintNightPreview, __NIGHT_LOOK:NIGHT_LOOK, __NIGHT_LOOK_BOSS:NIGHT_LOOK_BOSS,
+  __night66:()=>({ban:el('n66Ban').className, nt:el('n66Ban').dataset.nt, until:n66Until, body:n66Nt, ph:n66Ph}), __night66Show:night66Show,
+  __ctrl66:()=>({aim:aimMode, tool:curTool, build:curBuild, gunSlot:!!document.querySelector('#tools .slot.gun'), gunOn:!!document.querySelector('#tools .slot.gun.on')})
 });
 
 function paintKit(){
@@ -17039,7 +17405,7 @@ function paintKit(){
   el('stAmmo').querySelector('b').textContent = KIT.ammo;
   el('stAtk').title = '공격력 — ' + W.n + enhTxt(enhOf(KIT.wpn));
   el('stDef').title = '방어력 — ' + A.n;
-  /* 태블릿 큰 버튼도 지금 든 무기를 보여 준다 (태블릿엔 T 키가 없으니 이게 곧 방아쇠다) */
+  /* 태블릿 큰 버튼도 지금 든 무기를 보여 준다 (태블릿엔 우클릭이 없으니 이게 곧 방아쇠다) */
   const mb = el('mbThrow');
   mb.querySelector('.ic').textContent = W.ic;
   mb.lastChild.nodeValue = KIT.wpn ? ' 쏘기' : ' 던지기';
@@ -17114,7 +17480,7 @@ function goalText(){
   /* 처음 25초는 조작을 알려 준다. 그 뒤로는 '지금 할 일' 로 바뀌어 계속 남는다 —
      키 이름은 한 번 읽으면 되지만 할 일은 계속 필요하다. */
   if(!isTouch && tAcc - startedAt < 25)
-    return 'WASD 이동 · 좌클릭 사용/사격 · Esc/Tab 마우스 풀기 · T 총 · C 스텟 · I 가방 · B 상인 · G 대장간';
+    return 'WASD 이동 · 좌클릭 사용/사격 · 우클릭 총 · Esc/Tab 마우스 풀기 · C 스텟 · I 가방 · B 상인 · G 대장간';
   if(PL.down){
     /* 미니게임에서 쓰러진 것은 그 판이 끝난 것이다 — 일으켜 주는 사람도, 혼자 일어나는 것도 없다 */
     if(miniOn()) return '💀 쓰러졌어요 — 이 판은 여기까지. 구경하며 응원해요!';
@@ -17128,8 +17494,10 @@ function goalText(){
   const ptTag = XP.pts > 0 ? `⭐${XP.pts} ` : '';
 
   if(G.phase === 'night'){
-    if(aimMode) return ptTag + '🌙 왼쪽 클릭으로 쏘세요 · 벽을 고치려면 T 로 총을 푸세요';
-    return ptTag + '🌙 좀비를 막으세요! 부서진 곳은 🔧수리 · T 로 총 들기';
+    /* 66차 CTRL — 총은 우클릭(태블릿은 도구 줄의 총 칸). 도구 키(Q·R·E·F·V)를 누르면 총이 저절로 들어간다 */
+    if(aimMode) return ptTag + (isTouch ? '🌙 🔫 단추로 쏘세요 · 도구를 누르면 총이 들어가요'
+                                        : '🌙 왼쪽 클릭으로 쏘세요 · 우클릭하거나 도구 키를 누르면 총이 들어가요');
+    return ptTag + '🌙 좀비를 막으세요! 부서진 곳은 🔧수리 · ' + (isTouch ? '총 칸을 누르면 총 들기' : '우클릭으로 총 들기');
 
   }
   if(G.phase === 'day'){
@@ -17239,6 +17607,7 @@ function paintHUD(){
   } else if(hudPrev.boss !== false){ hudPrev.boss = false; el('bossWrap').classList.remove('on'); }
   paintHudMode(!!bw);      // 66차 — 낮/밤/미니게임 화면 모드
   paintNightPreview();     // 66차 — 오늘 밤 미리 보기(아침 카드 → 낮 동안 칩)
+  night66Tick();           // 66차 CTRL — 밤이 시작되는 순간 그 밤의 모습으로 경고(5초)
   paintBar();
 }
 
@@ -18390,18 +18759,19 @@ function bossWolfK(bi){
 function bossIndex(day){ const bd = bossDays(); return bd.indexOf(day); }
 const STAGE_NAME = ['조용한 밤','좀비가 늘었다','날쌘 무리','굶주린 밤','커다란 그림자',
   '사방에서','쉴 틈 없이','산이 우는 밤','끝없는 무리','가장 긴 밤','마지막 밤'];
-/* ═══ 밤 구성표: 이름마다 좀비 조합과 밤의 성격이 붙는다 ═══ */
+/* ═══ 밤 구성표: 이름마다 좀비 조합과 밤의 성격이 붙는다 ═══
+   66차 CTRL — 대처법 한 줄(hint)은 뺐다(선생님: 애들이 관찰하고 방법을 찾게). 밤의 분위기·모습은 NIGHT_LOOK(같은 순서) */
 const NIGHT_DEF = [
-  {n:'조용한 밤',     mix:{0:1},                                             from:0.00, until:0.25, hint:'좀비 몇 마리만 옵니다. 벽 한 겹이면 충분해요'},
-  {n:'좀비가 늘었다', mix:{0:1},                more:1.15,                    from:0.00, until:0.35, hint:'어제보다 많이 옵니다. 벽을 이어 붙이세요'},
-  {n:'날쌘 무리',     mix:{0:0.35, 1:0.65},     early:1,                      from:0.10, until:1.50, hint:'날쌘좀비가 먼저 달려옵니다. 화살탑이 잘 잡아요'},
-  {n:'굶주린 밤',     mix:{0:0.35, hungry:0.65},                              from:0.15, until:1.50, hint:'굶주린 좀비는 벽을 안 물고 사람과 수정만 쫓아요. 밤엔 안에 있고 병사를 뽑으세요'},
-  {n:'커다란 그림자', mix:{0:0.30, 2:0.40, armor:0.30},                       from:0.30, until:1.50, hint:'큰좀비와 갑옷 좀비가 벽을 부숩니다. 수리 담당을 정하고 한 곳에 총을 모으세요'},
-  {n:'사방에서',      mix:{0:0.55, 1:0.20, 2:0.10, hungry:0.15}, focus:0,     from:0.35, until:1.50, hint:'다섯 입구에 고르게 옵니다. 모둠마다 자기 입구를 지키세요'},
-  {n:'쉴 틈 없이',    mix:{0:0.35, 1:0.15, pup:0.50}, trickle:1, more:1.25,   from:0.45, until:1.50, hint:'새끼 떼가 쉴 새 없이 옵니다. 연발총과 화살탑이 제격이에요'},
-  {n:'산이 우는 밤',  mix:{0:0.40, 1:0.15, 2:0.20, fear:0.25},   howl:1,      from:0.55, until:1.50, hint:'공포 좀비가 옵니다. 눈이 희번덕한 놈은 세니 여럿이 같이 쏘세요'},
-  {n:'끝없는 무리',   mix:{pup:0.55, 0:0.20, heal:0.15, hungry:0.10}, more:1.35, from:0.65, until:1.50, hint:'치유 좀비가 뒤에서 무리를 살립니다. 초록빛 나는 놈부터 잡으세요'},
-  {n:'가장 긴 밤',    mix:{0:0.25, 1:0.15, 2:0.12, hungry:0.12, armor:0.12, heal:0.08, pup:0.08, fear:0.08}, longer:1.2, from:0.80, until:1.50, hint:'전부 섞여서 오고 밤이 깁니다. 자재를 아끼지 마세요'}
+  {n:'조용한 밤',     mix:{0:1},                                             from:0.00, until:0.25},
+  {n:'좀비가 늘었다', mix:{0:1},                more:1.15,                    from:0.00, until:0.35},
+  {n:'날쌘 무리',     mix:{0:0.35, 1:0.65},     early:1,                      from:0.10, until:1.50},
+  {n:'굶주린 밤',     mix:{0:0.35, hungry:0.65},                              from:0.15, until:1.50},
+  {n:'커다란 그림자', mix:{0:0.30, 2:0.40, armor:0.30},                       from:0.30, until:1.50},
+  {n:'사방에서',      mix:{0:0.55, 1:0.20, 2:0.10, hungry:0.15}, focus:0,     from:0.35, until:1.50},
+  {n:'쉴 틈 없이',    mix:{0:0.35, 1:0.15, pup:0.50}, trickle:1, more:1.25,   from:0.45, until:1.50},
+  {n:'산이 우는 밤',  mix:{0:0.40, 1:0.15, 2:0.20, fear:0.25},   howl:1,      from:0.55, until:1.50},
+  {n:'끝없는 무리',   mix:{pup:0.55, 0:0.20, heal:0.15, hungry:0.10}, more:1.35, from:0.65, until:1.50},
+  {n:'가장 긴 밤',    mix:{0:0.25, 1:0.15, 2:0.12, hungry:0.12, armor:0.12, heal:0.08, pup:0.08, fear:0.08}, longer:1.2, from:0.80, until:1.50}
 ];
 const NIGHT_FIXED = [0, 1, 2, 3];                      // 1~4일차 — 고정 (계획할 수 있게)
 /* 보스 밤의 부하 — 보스마다 어울리는 종류 */
@@ -18861,20 +19231,26 @@ function fx2Cap(k, n, s, cls, dur){
 function fx2BossIntro(){
   FX2.stats.boss++;
   fx2Show('fx2Bars', 'on', true); fx2Show('fx2Vig', 'on', true); FX2.barsT = 3.3; FX2.vigT = 2.7;
-  fx2Cap('오늘 밤의 보스', fx2BossName(), '밤 중간쯤 나타나요 — 다섯 입구를 막고 탑을 채워요', '', 3.0);
+  /* 66차 CTRL — 대비법 자막("다섯 입구를 막고 탑을 채워요")을 없애고 보스마다 다른 모습(색·그림·경고 한 줄)으로.
+     모습 표는 아침 카드와 같은 NIGHT_LOOK_BOSS(night66BossLook). 함수가 없으면(검사처럼 FX2 만 떼어 돌릴 때) 예전 모양 그대로 */
+  const L = typeof night66BossLook === 'function' ? night66BossLook() : null;
+  fx2Cap(G.day >= G.set.goalDay ? '마지막 밤 · 오늘 밤의 보스' : '오늘 밤의 보스',
+         L ? fx2BossName().replace(/^\S+\s+/, '') : fx2BossName(),   // 보스 그림은 위 큰 그림(.art)이 보여 준다 — 이름 앞 그림은 뺀다
+         L ? L.warn : '', L ? 'b66' : '', L ? 5.0 : 3.6);   // 66차 CTRL 고침 — 보스 밤 경고도 다른 밤처럼 5초(4.6초부터 0.4초 흐려짐)
+  if(L) night66CapArt(L);
   fx2Snd('fx2BossIn'); shake(0.16, 0.6);
 }
 function fx2BossAppear(w){
   FX2.stats.boss++;
   const B = WOLF_T[w.k] || {};
   fx2Show('fx2Vig', 'on', true); FX2.vigT = 2.7;
-  fx2Cap('보스 등장', (B.n || '보스') + '!', `${(G.focus|0) + 1}모둠 입구 쪽 — 모두 모여서 쏘세요`, 'lo sm', 2.1);
+  fx2Cap('보스 등장', (B.n || '보스') + '!', `${(G.focus|0) + 1}모둠 입구 쪽이에요`, 'lo sm', 2.1);   // 66차 CTRL — 어디인지만(어떻게 할지는 애들이)
   fx2Snd('fx2BossIn'); shake(0.32, 0.7);
   FX2.arrowT = 6;
 }
 function fx2BossWarn(half){
   fx2Cap(half ? '조심!' : '조금만 더!', half ? `${fx2BossName()}${josa(fx2BossName(),'이','가')} 화났어요!` : '거의 다 잡았어요!',
-         half ? '체력 절반 — 여럿이 같이 쏘세요' : '체력 10% — 끝까지 쏘세요', 'lo sm', 2.1);
+         half ? '체력 절반' : '체력 10%', 'lo sm', 2.1);   // 66차 CTRL — 대처법은 빼고 상태만
   fx2Snd('fx2Warn'); shake(half ? 0.2 : 0.12, 0.3);
   if(half) FX2.arrowT = Math.max(FX2.arrowT, 3);
 }
@@ -20963,13 +21339,9 @@ function goNight(){
   G.jumpSeen = false;                       // '벽을 뛰어넘었다' 안내는 밤마다 한 번
   if(G.chests.length){ G.chests.length = 0; if(G.host) netChests(); }
   startWave();
-  const bi = bossIndex(G.day);
-  const last = G.day >= G.set.goalDay;
-  toast(last ? '🔥 마지막 밤입니다! 이 밤만 버티면 이겨요!'
-      : bi>=0 ? '🌙 보스가 옵니다! 다섯 입구 전부 조심!'
-              : '🌙 좀비가 옵니다! 어느 입구로 올지 몰라요',
-        last ? 4.6 : 3.6, last ? '#ff9b6b' : bi>=0?'#ffd0a0':'#ffc4c4');
-  feed(`🌙 <b>${G.day}일차 밤</b> — ${stageName(G.day)}. 오늘은 어느 입구가 위험할지 모릅니다`);
+  /* 66차 CTRL — 밤 시작 알림(toast)은 그 밤의 모습으로 뜨는 경고(night66Tick → #n66Ban, 보스 밤은 fx2BossIntro)가 대신한다.
+     호스트·손님이 같은 코드로 띄우므로 여기서 또 띄우지 않는다. */
+  feed(`🌙 <b>${G.day}일차 밤</b> — ${stageName(G.day)}`);
   netMeta();
 }
 function hostPhase(dt){
@@ -22066,10 +22438,7 @@ function onPhaseChange(from, to){
       PL.hp = Math.min(maxHP(), PL.hp + MORNING_HEAL);
       toast('☀️ 아침 — 체력 +' + MORNING_HEAL, 2, '#c8ffb0'); }
   }
-  if(to==='night'){
-    const rn = RANK_N[wolfRank(G.day)];
-    toast('🌙 ' + (rn ? rn+' 좀비가 옵니다!' : '좀비가 옵니다!') + ' 어느 입구로 올지 몰라요',
-      3.4, '#ffc4c4'); }
+  /* 66차 CTRL — 손님의 밤 시작 toast 도 그 밤의 모습으로 뜨는 경고(night66Tick)가 대신한다 */
   if(to==='day'){ showStage();
     G.wolves.length=0; G.soldiers.length=0;
     for(const n of NODES){ if(!n.alive){ n.alive=true; n.hp=n.max;
