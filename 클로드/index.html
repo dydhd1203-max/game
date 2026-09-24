@@ -3448,15 +3448,35 @@ if(GFX.shadow){
 app.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-const SKY_DAY = new THREE.Color(0x8ec9ef), SKY_NIGHT = new THREE.Color(0x2e4b86);
+const SKY_NIGHT = new THREE.Color(0x2e4b86);
+const DOME_DAY = new THREE.Color(1.04, 1.04, 1.04), DOME_NIGHT = SKY_NIGHT.clone().multiplyScalar(1.40);   // 65차 — 낮엔 그림 색 그대로(×1.04), 밤은 남빛 곱
+/* 65차 — 명세값(낮 ×1.10 · 밤 ×1.06)으로는 t28 '밤이 낮의 62~88%' 가 59% 로 떨어졌다(그 검사는 해 쪽을 높은 데서 봐 8° 아래 희뿌연 띠·해 빛무리가 화면 절반).
+   새 그림은 천정·10~30° 가 옛 그림보다 짙어 밤 ×1.06 이면 밤 하늘 위쪽이 옛 밤보다 9 어둡다 → ×1.40 으로 옛 밤 하늘 밝기에 맞추고, 낮 곱·띠·빛무리를 조금 눌러 63%(옛 판 63%)로. */
 // 밤은 밝기를 거의 안 내리고 색만 달빛 톤으로 — 애들이 잘 봐야 한다
-const HEMI_DS = new THREE.Color(0xcfe8ff), HEMI_NS = new THREE.Color(0x9dc0ff);
+const HEMI_DS = new THREE.Color(0xb9d4f2), HEMI_NS = new THREE.Color(0x9dc0ff);   // 65차 — 낮 하늘빛을 조금 더 푸르게(그늘이 서늘) · 밤 그대로
 
 let LIT_K = 0.85;   // 잰 값: HEAD(Standard) 바닥 밝기 134.6·채도 0.447 / Lambert 1.0 → 131.6·0.417 / 0.85 → ≈124·0.44. 채도를 되찾고 밝기는 7% 만 양보
-const HEMI_DG = new THREE.Color(0x5a7a4a), HEMI_NG = new THREE.Color(0x46618c);
-const SUN_D   = new THREE.Color(0xffffff), SUN_N   = new THREE.Color(0xc3daff);
-scene.background = SKY_DAY.clone();
-const FOG_REF = new THREE.Fog(SKY_DAY.getHex(), 68, 152);
+const HEMI_DG = new THREE.Color(0x6b6a4e), HEMI_NG = new THREE.Color(0x46618c);   // 낮 땅 되비침: 풀초록 → 올리브 흙빛(구름·잎 밑이 초록으로 안 물든다) · 밤 그대로
+const SUN_D   = new THREE.Color(0xfff1d6), SUN_N   = new THREE.Color(0xc3daff);   // 해 ≈5200K 따뜻한 흰빛 · 달 그대로
+const HEMI_DUSK = new THREE.Color(0xe0bfb4), SUN_DUSK = new THREE.Color(0xffa566);
+const LIGHT_D = {hemi:1.15, sun:0.84, amb:0.58}, LIGHT_N = {hemi:0.61, sun:0.25, amb:0.39};
+/* 밤 hemi 는 지금 값. 밤 sun 0.17 → 0.25: 달(28.6°)이 지금 밤 빛(41.5°)보다 낮아 땅에 닿는 몫이 sin 비 0.72 배 → 0.17/0.72 ≈ 0.24,
+   M1 의 차분해진 풀색 몫 +0.01. 밤 amb 0.36 → 0.39 · 낮 amb 0.55 → 0.58 은 M1·M2 가 풀·잎·바위를 차분하게 만든 몫(시제품 합친 사진 아래 절반: 이게 없으면 11 −5 · 12 −4.4) */
+const SUN_PATH = {azDay:0.74, elDay:0.70, azDusk:1.30, elDusk:0.35, moonAz:-0.30, moonEl:0.50};
+/* 65차 — 낮 해: 남동(+x,+z) 방위 0.74(지금 그림자 방위 0.73 과 같다) 고도 40°(지금 44°) → 그림자 1.2배.
+   노을(skyK 0.5): 방위 1.30(거의 +z) 고도 20° → 산마루(10~20°) **위에 해가 보인다**(사진 20 — 세 설계 모두 0~11.5° 로 숨겼던 것을 심사가 되살림).
+   밤: 달이 동북동(방위 −0.30) 28.6° — 사진 12(동쪽을 본다) 위쪽에 뜬다. 해는 밤이 깊어지며 −17° 로 진다. */
+scene.background = new THREE.Color(0xc4dcf0);
+const FOG_REF = new THREE.Fog(0x8eb1d5, 36, 190);
+const FOG_D = {near:36, far:190}, FOG_N = {near:44, far:130};
+let fogNear0 = FOG_D.near, fogFar0 = FOG_D.far;
+/* 65차 — 안개 시작·끝을 '그리는 카메라 높이' 만큼 민다. 하늘 섬(GY+78)·지도처럼 높이 떠서 내려다보면 땅까지 80칸이 넘어도 뿌옇지 않다
+   (시제품: 이게 없으면 사진 01·07 이 통째로 흐리다). updSky 가 아니라 여기서 하는 까닭 — 그리기 직전의 실제 카메라를 본다
+   (사진 도구는 updSky 를 부른 뒤에 카메라를 옮긴다). 하늘 돔도 같은 까닭으로 여기서 카메라에 붙인다(updSky 의 옛 줄은 그대로 둬도 된다 —
+   시제품: 높은 사진 바로 다음 눈높이 사진은 돔 중심이 70칸 위에 남아 하늘이 통째로 희었다). 3702줄 패스는 scene.fog 를 잠깐 null 로 둔다 → 건너뛴다. */
+scene.onBeforeRender = (r, sc, cam)=>{ if(!sc.fog) return; skyDome.position.copy(cam.position);
+  const hC = Math.max(0, cam.position.y - GY - 8); sc.fog.near = fogNear0 + hC; sc.fog.far = fogFar0 + hC*1.3; };
+
 scene.fog = FOG_REF;
 
 /* ═══ 하늘 돔 (25차) ═══ */
@@ -3472,8 +3492,10 @@ const SKY_W = 64, SKY_H = 128;
 const skyPx = new Uint8Array(SKY_W*SKY_H*4);
 let skyPaintD = -1, skyPaintT = -1, skyPaintU = -1, skyRepaintT = 0;
 function skyU(gx, gz){ const u = Math.atan2(gz, -gx)/(Math.PI*2); return u - Math.floor(u); }   // 세계 방향 → 돔 그림의 가로 자리
-const SKY_STOPS = [[0.00,0x2f,0x63,0xa8],[0.45,0x82,0xb6,0xe6],[0.72,0xcf,0xe3,0xf4],[1.00,0xe8,0xee,0xf2]];   // 천정 → 지평선 → 아래
+const SKY_STOPS = [[0.00,0x20,0x43,0x9d],[0.22,0x2c,0x5d,0xc0],[0.34,0x3c,0x74,0xd4],[0.41,0x52,0x8c,0xe7],[0.46,0x74,0xaa,0xf2],[0.50,0xbe,0xda,0xf4],[1.00,0xa0,0xb8,0xcc]];   // 65차 — 천정 깊은 파랑 → 10° 까지 파랑 → 8° 아래 희뿌연 띠(설계 A '크림 띠') → 지평선 따뜻한 회백
+const skyHazeRow = new THREE.Color(0.125, 0.325, 0.84);   // 65차
 function paintSky(dusk, threat, threatU){
+  let hzR = 0, hzG = 0, hzB = 0, hzN = 0; const s2l = v=>{ v /= 255; return v <= 0.04045 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4); };
   for(let r=0;r<SKY_H;r++){
     const cy = SKY_H-1-r, t = cy/(SKY_H-1);                       // DataTexture 는 0줄이 아래(uv.y 0) — cy 는 '위에서부터'
     let k = 1; while(k < SKY_STOPS.length-1 && SKY_STOPS[k][0] < t) k++;
@@ -3491,6 +3513,7 @@ function paintSky(dusk, threat, threatU){
     for(let x=0;x<SKY_W;x++){
       let cr = br, cg = bg, cb = bb;
       if(da > 0){ cr += (dr-cr)*da; cg += (dg-cg)*da; cb += (db-cb)*da; }
+      if(cy >= 50 && cy <= 58){ hzR += s2l(cr); hzG += s2l(cg); hzB += s2l(cb); hzN++; }
       if(tv > 0){
         let du = (x+0.5)/SKY_W - threatU; du -= Math.round(du);
         const ha = Math.exp(-(du/0.11)*(du/0.11)) * tv * threat;
@@ -3499,6 +3522,7 @@ function paintSky(dusk, threat, threatU){
       const i = (r*SKY_W + x)*4; skyPx[i] = cr; skyPx[i+1] = cg; skyPx[i+2] = cb; skyPx[i+3] = 255;
     }
   }
+  skyHazeRow.setRGB(hzR/hzN, hzG/hzN, hzB/hzN);
   skyPaintD = dusk; skyPaintT = threat; skyPaintU = threatU;
   skyTex.needsUpdate = true;
 }
@@ -3510,6 +3534,25 @@ const skyDome = (()=>{
     new THREE.MeshBasicMaterial({map:skyTex, side:THREE.BackSide, fog:false, depthWrite:false}));
   m.renderOrder = -1000; m.frustumCulled = false; scene.add(m); return m;
 })();
+const SKY_U = { uSunSky:{value:new THREE.Vector3(0.57, 0.64, 0.51)}, uMoonDir:{value:new THREE.Vector3(0.84, -0.2, -0.25)},
+  uSunGlow:{value:new THREE.Color(0xfff0d0)}, uMoonGlow:{value:new THREE.Color(0x000000)}, uBelt:{value:new THREE.Color(0xd696b2)}, uBeltK:{value:0} };
+skyDome.material.dithering = true;                    // 64×128 그라데이션 띠 끊기(값 0)
+skyDome.material.onBeforeCompile = (sh)=>{ Object.assign(sh.uniforms, SKY_U);
+  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vSkyD;')
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\nvSkyD = position;');          // 돔은 카메라를 따라다니되 돌지 않는다 → 방향 그대로
+  sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vSkyD; uniform vec3 uSunSky; uniform vec3 uMoonDir; uniform vec3 uSunGlow; uniform vec3 uMoonGlow; uniform vec3 uBelt; uniform float uBeltK;')
+    .replace('#include <color_fragment>', '#include <color_fragment>\n' + SKY_GLSL);
+  if(!sh.fragmentShader.includes('65차 하늘')) console.error('65차 — 하늘 셰이더 치환 실패'); };
+skyDome.material.customProgramCacheKey = ()=> 'sky65';
+skyDome.material.needsUpdate = true;
+const SKY_GLSL = `// 65차 하늘 — 해 빛무리·해 둘레 눈부심 · 노을 때 해 반대편 분홍보라 띠(비너스 띠) · 달무리
+{ vec3 sd = normalize(vSkyD);
+  float mu = max(dot(sd, uSunSky), 0.0);
+  diffuseColor.rgb += uSunGlow * (pow(mu, 16.0) * 0.06 + pow(mu, 48.0) * 0.30 + pow(mu, 600.0) * 1.2);
+  vec2 ah = normalize(vec2(-uSunSky.x, -uSunSky.z) + 1e-5), shz = normalize(sd.xz + 1e-5);
+  float belt = pow(max(dot(ah, shz), 0.0), 3.0) * smoothstep(0.02, 0.10, sd.y) * (1.0 - smoothstep(0.20, 0.38, sd.y));
+  diffuseColor.rgb = mix(diffuseColor.rgb, uBelt, belt * uBeltK);
+  diffuseColor.rgb += uMoonGlow * pow(max(dot(sd, uMoonDir), 0.0), 48.0); }`;
 /* 노을 — 낮과 밤 사이에만 지나간다. skyK 0.5 에서 제일 붉고 양 끝에서 사라진다.
    하루가 통째로 붉으면 이상하고, 없으면 밤이 그냥 '색이 바뀐 낮' 이 된다. */
 const SKY_DUSK = new THREE.Color(0xff9a5c);
@@ -3564,9 +3607,9 @@ heldLight.position.set(0.55, 0.15, -0.25);
        1.06   100.8   53.5   53.1
 
      밝기를 25차 전과 맞추는 쪽을 골랐다. 어두우면 아이가 좀비를 못 본다. */
-const hemi = new THREE.HemisphereLight(0xdfe6ec, 0x5a7a4a, 0.95); scene.add(hemi);   // 48차b — 로블록스 OutdoorAmbient 는 **중성 회색(127,127,127)** 이다. 파란 하늘빛(0xcfe8ff)을 그만큼 올리면 풀색이 바랜다 → 색을 중성으로 낮추고 세기는 0.95
-const sun  = new THREE.DirectionalLight(0xffffff, 1.15); sun.position.set(50,90,30); scene.add(sun);
-const amb  = new THREE.AmbientLight(0xffffff, 0.30); scene.add(amb);
+const hemi = new THREE.HemisphereLight(0xb9d4f2, 0x6b6a4e, 1.15*LIT_K); scene.add(hemi);   // 65차 — 첫 프레임부터 updSky 와 같은 빛
+const sun  = new THREE.DirectionalLight(0xfff1d6, 0.84*LIT_K); sun.position.set(57, 64, 51); scene.add(sun);
+const amb  = new THREE.AmbientLight(0xffffff, 0.58*LIT_K); scene.add(amb);
 
 /* ═══ 해 그림자 (25차) ═══ */
 const SH_R = 52;                          // 그림자가 덮는 반지름(칸) — 64차 46→52, 마당(46)이 넓어진 만큼
@@ -3579,6 +3622,7 @@ if(GFX.shadow){
   sc.near = 1; sc.far = 260;
   sun.shadow.bias = -0.0012;              // 제 몸에 제 그림자가 얼룩지는 것(그림자 여드름) 막기
   sun.shadow.normalBias = 0.035;
+  sun.shadow.radius = 1.5;
   sc.updateProjectionMatrix();
 }
 const _sunDir = new THREE.Vector3();
@@ -3980,18 +4024,17 @@ function buildSky(){
     g.add(m);
     const halo = new THREE.Mesh(new THREE.CircleGeometry(size*0.5*1.55, 28),
       new THREE.MeshBasicMaterial({color:em, fog:false, transparent:true, opacity:.22, depthWrite:false}));
-    halo.position.z = -0.6; g.add(halo);
+    halo.position.z = -0.6; g.add(halo); halo.visible = false;
     return g;
   };
-  sunDisc  = mk(26, 0xfff3b0, 0xffd257); sunDisc.position.set(0, 0, -195);
-  moonDisc = mk(20, 0xe8f0ff, 0x9fc0ff); moonDisc.position.set(0, 0,  195);
-  moonDisc.rotation.y = Math.PI;
+  sunDisc  = mk(20, 0xffffff, 0xffd257); sunDisc.position.set(0, 0, -195); sunDisc.children[0].material.color.setRGB(2.6, 2.45, 2.1);
+  moonDisc = mk(17, 0xffffff, 0x9fc0ff); moonDisc.position.set(0, 0,  195); moonDisc.children[0].material.color.setRGB(1.25, 1.30, 1.45);
   skyPivot.add(sunDisc); skyPivot.add(moonDisc);
   // 달 표면 얼룩
   for(const [dx,dy,sz] of [[-4,3,4],[3,-2,5],[5,4,3]]){
     const c = new THREE.Mesh(new THREE.CircleGeometry(sz*0.5, 16),
       new THREE.MeshBasicMaterial({color:0xc9d6ee, fog:false}));
-    c.position.set(dx,dy,0.5); moonDisc.add(c);     // 달은 π 돌아 있어 로컬 +z 가 카메라 쪽이다
+    c.position.set(dx,dy,0.5); moonDisc.add(c);     // 65차 — updSky 가 달을 lookAt 으로 카메라 쪽에 돌린다 → 로컬 +z 가 카메라 쪽
   }
 
   const mkStars = (N, band, size)=>{
@@ -4883,22 +4926,49 @@ function updCrystal(dt, t, cp, lastLight, skyK){
 
 /* ═══════════════════════ 구름 ═══════════════════════ */
 /* 31차 — 네모 상자 뭉치 → 납작한 공 뭉치(인스턴스 메시 하나). 열여섯 덩이가 흘러가므로 행렬은 매 프레임 다시 쓴다(백 개 남짓, 값이 안 든다). */
-const CLOUD_N = 16, CLOUDG = new THREE.SphereGeometry(0.5, 12, 8);
-const clouds = [];                                   // {x,y,z, puffs:[{dx,dy,dz,sx,sy,sz}]}
+const CLOUD_N = 18, CIRRUS_N = 5, CLOUDG = new THREE.SphereGeometry(0.5, 12, 8);   // ← 옛 'const CLOUD_N = 16, CLOUDG = …' 줄을 바꿔 쓴다
+const clouds = [];
 let cloudMesh, cloudMat;
+const CLOUD_U = { uCSun:{value:new THREE.Vector3(0.57, 0.64, 0.51)}, uCLit:{value:new THREE.Color(1.04, 1.02, 0.98)}, uCShade:{value:new THREE.Color(0.64, 0.70, 0.82)},
+                  uCRim:{value:new THREE.Color(0.8, 0.75, 0.6)}, uCHaze:{value:new THREE.Color(0.6, 0.8, 1.05)} };
+const CLOUD_V_GLSL = `#include <begin_vertex>
+transformed.y = max(transformed.y, -0.18);                          // 공 밑을 잘라 판판한 구름 밑 (65차)
+vec3 cn = position.y < -0.18 ? vec3(0.0, -1.0, 0.0) : normal;
+vec4 cw = vec4(transformed, 1.0);
+#ifdef USE_INSTANCING
+  mat3 cm = mat3(instanceMatrix);
+  cn = cm * (cn / vec3(dot(cm[0], cm[0]), dot(cm[1], cm[1]), dot(cm[2], cm[2])));   // 늘인 공의 법선 (회전 없는 인스턴스)
+  cw = instanceMatrix * cw;
+#endif
+vCN = normalize(cn); vCW = (modelMatrix * cw).xyz;`;
+const CLOUD_F_GLSL = `// 65차 구름 — 손으로 빛: 해 쪽·윗면 희고 밑·그늘 푸른 회색, 해를 등진 가장자리 은빛, 먼 구름은 지평선 빛으로
+{ vec3 n = normalize(vCN); vec3 V = normalize(cameraPosition - vCW);
+  float lit = clamp(dot(n, uCSun) * 0.45 + n.y * 0.35 + 0.45, 0.0, 1.0);
+  vec3 csh = mix(uCShade, uCLit, lit);                                  // 해 쪽·윗면 희고, 밑·그늘은 푸른 회색
+  float rim = pow(1.0 - max(dot(n, V), 0.0), 3.0) * pow(max(dot(-V, uCSun), 0.0), 3.0);   // 해를 등진 가장자리 은빛
+  outgoingLight = diffuseColor.rgb * (csh + uCRim * rim);
+  outgoingLight = mix(outgoingLight, uCHaze, smoothstep(120.0, 320.0, length(vCW - cameraPosition)) * 0.55); }   // 먼 구름은 지평선 빛으로
+#include <opaque_fragment>`;
 function buildClouds(){
-  cloudMat = new THREE.MeshLambertMaterial({color:0xffffff, fog:false});
-  let total = 0;
-  for(let i=0;i<CLOUD_N;i++){
-    const n = 4+(Math.random()*4|0), puffs=[], L = 12+Math.random()*10;
-    for(let k=0;k<n;k++){
-      const u = (k+0.5)/n - 0.5, sc = (5.5+Math.random()*4) * (1 - Math.abs(u)*0.8);
-      puffs.push({dx:u*L, dy:(Math.random()-.5)*1.2 + sc*0.10, dz:(Math.random()-.5)*4,
-                  sx:sc*1.25, sy:sc*0.72, sz:sc});
-    }
-    clouds.push({x:(Math.random()-.5)*230, y:52+Math.random()*22, z:(Math.random()-.5)*230, puffs});
-    total += n;
+  cloudMat = new THREE.MeshBasicMaterial({color:0xffffff, fog:false});    // 65차 — Lambert → Basic(빛 계산이 빠져 오히려 싸다. 같은 자리 한 개 — 새 재질 아님)
+  cloudMat.onBeforeCompile = (sh)=>{ Object.assign(sh.uniforms, CLOUD_U);
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vCN; varying vec3 vCW;').replace('#include <begin_vertex>', CLOUD_V_GLSL);
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vCN; varying vec3 vCW; uniform vec3 uCSun; uniform vec3 uCLit; uniform vec3 uCShade; uniform vec3 uCRim; uniform vec3 uCHaze;')
+      .replace('#include <opaque_fragment>', CLOUD_F_GLSL);
+    if(!sh.fragmentShader.includes('65차 구름')) console.error('65차 — 구름 셰이더 치환 실패'); };
+  cloudMat.customProgramCacheKey = ()=> 'cloud65';
+  for(let i=0;i<CLOUD_N;i++){                                             // 뭉게구름 먼저 — t32 가 clouds[0] 의 속도(0.55)를 잰다
+    const sd = 300 + i*7.31, L = 14 + rnd(sd)*10, nb = 4 + ((rnd(sd+1)*3)|0), nt = 2 + ((rnd(sd+2)*3)|0), puffs = [];
+    for(let k=0;k<nb;k++){ const u = (k+0.5)/nb - 0.5, sc = (5 + rnd(sd+3+k)*3.5)*(1 - Math.abs(u)*0.5), sy = sc*0.55;
+      puffs.push({dx:u*L, dy:0.18*sy + rnd(sd+10+k)*0.25, dz:(rnd(sd+20+k)-0.5)*4, sx:sc*1.3, sy, sz:sc}); }   // 잘린 밑이 한 판(c.y)에 모인다
+    for(let k=0;k<nt;k++){ const sc = 4.5 + rnd(sd+40+k)*2.5;
+      puffs.push({dx:(rnd(sd+30+k)-0.5)*0.6*L, dy:2.2 + rnd(sd+50+k)*2.0, dz:(rnd(sd+60+k)-0.5)*2.5, sx:sc*1.1, sy:sc*0.62, sz:sc*0.95}); }   // 위 봉오리
+    clouds.push({x:(rnd(sd+70)-0.5)*230, y:54 + rnd(sd+71)*16, z:(rnd(sd+72)-0.5)*230, sp:0.55, puffs});
   }
+  for(let i=0;i<CIRRUS_N;i++){ const sd = 900 + i*5.7;                    // 높은 새털구름 — 납작하게 길게, 천천히
+    clouds.push({x:(rnd(sd)-0.5)*260, y:92 + rnd(sd+1)*14, z:(rnd(sd+2)-0.5)*260, sp:0.35,
+      puffs:[0,1,2].map(k=>({dx:(k-1)*14, dy:0, dz:(k-1)*3, sx:26, sy:1.1, sz:7}))}); }
+  let total = 0; for(const c of clouds) total += c.puffs.length;         // ★ 다 넣은 뒤 센다 (설계 B)
   cloudMesh = new THREE.InstancedMesh(CLOUDG, cloudMat, total);
   cloudMesh.frustumCulled = false; scene.add(cloudMesh);
   updClouds(0);
@@ -4907,7 +4977,7 @@ const _cv2=new THREE.Vector3(), _cq2=new THREE.Quaternion(), _cs2=new THREE.Vect
 function updClouds(dt){
   let i = 0;
   for(const c of clouds){
-    c.x += dt*0.55; if(c.x > 160) c.x = -160;
+    c.x += dt*(c.sp || 0.55); if(c.x > 160) c.x = -160;
     for(const p of c.puffs){
       _cv2.set(c.x+p.dx, c.y+p.dy, c.z+p.dz); _cs2.set(p.sx, p.sy, p.sz);
       cloudMesh.setMatrixAt(i++, _cm3.compose(_cv2, _cq2, _cs2));
@@ -18754,18 +18824,49 @@ function loadFonts(force){
 if(document.readyState === 'complete') loadFonts(); else addEventListener('load', ()=>loadFonts(), {once:true});
 
 /* ═══════════════════════ 하늘 / 조명 ═══════════════════════ */
-const _cA = new THREE.Color(), _cB = new THREE.Color();
+const _cA = new THREE.Color(), _cB = new THREE.Color(), _cC = new THREE.Color(), _dome = new THREE.Color(), _skyHz = new THREE.Color();
+const _sunW = new THREE.Vector3(), _moonW = new THREE.Vector3(), _litT = new THREE.Vector3();
+const _litW = new THREE.Vector3(Math.cos(0.70)*Math.cos(0.74), Math.sin(0.70), Math.cos(0.70)*Math.sin(0.74));   // 첫 프레임부터 낮 해 방향
+/* 65차 — 선형 색 c 를 AgX(three 0.160 식 그대로)·노출에 통과시켜 out 에 (선형) 넣는다. three 가 안개색을 올릴 때 sRGB 로 바꾸므로
+   이 값을 scene.fog.color 에 두면 화면 안개 = 돔이 보이는 하늘색. 시험대: 가득 낀 안개 (192,198,203) = 돔 (192,198,203) */
+function skyToneLin(c, out){
+  const e = renderer.toneMappingExposure;
+  if(renderer.toneMapping !== THREE.AgXToneMapping){ const k = renderer.toneMapping === THREE.LinearToneMapping ? e : 1;
+    return out.setRGB(Math.min(1, c.r*k), Math.min(1, c.g*k), Math.min(1, c.b*k)); }
+  let r = (0.6274*c.r + 0.3293*c.g + 0.0433*c.b)*e, g = (0.0691*c.r + 0.9195*c.g + 0.0113*c.b)*e, b = (0.0164*c.r + 0.0880*c.g + 0.8956*c.b)*e;
+  const r1 = 0.856627153315983*r + 0.0951212405381588*g + 0.0482516061458583*b,
+        g1 = 0.137318972929847*r + 0.761241990602591*g + 0.101439036467562*b,
+        b1 = 0.11189821299995*r + 0.0767994186031903*g + 0.811302368396859*b;
+  const lg = v=> Math.min(1, Math.max(0, (Math.log2(Math.max(v, 1e-10)) + 12.47393) / 16.499999));
+  const sg = x=>{ const x2 = x*x, x4 = x2*x2; return 15.5*x4*x2 - 40.14*x4*x + 31.96*x4 - 6.868*x2*x + 0.4298*x2 + 0.1191*x - 0.00232; };
+  const r2 = sg(lg(r1)), g2 = sg(lg(g1)), b2 = sg(lg(b1));
+  const r3 = Math.pow(Math.max(0, 1.1271005818144368*r2 - 0.11060664309660323*g2 - 0.016493938717834573*b2), 2.2),
+        g3 = Math.pow(Math.max(0, -0.1413297634984383*r2 + 1.157823702216272*g2 - 0.016493938717834257*b2), 2.2),
+        b3 = Math.pow(Math.max(0, -0.14132976349843826*r2 - 0.11060664309660294*g2 + 1.2519364065950405*b2), 2.2);
+  const cl = v=> Math.min(1, Math.max(0, v));
+  return out.setRGB(cl(1.6605*r3 - 0.5876*g3 - 0.0728*b3), cl(-0.1246*r3 + 1.1329*g3 - 0.0083*b3), cl(-0.0182*r3 - 0.1006*g3 + 1.1187*b3));
+}
 function updSky(dt, night){
   const k = night ? 1 : 0;
   skyK += (k - skyK) * Math.min(1, dt*1.3);
   NIGHTK = skyK;
   // 해·달이 하늘을 가로지른다
-  const th = Math.PI/2 + skyK*Math.PI - 0.34;
-  skyPivot.rotation.x = th;
-
-  sun.position.set(Math.cos(th*0.6)*60, Math.max(14, Math.abs(Math.sin(th))*62), 40);
-  shadowFollow(camera.position.x, camera.position.z);   // 25차 — 그림자 상자를 사람 주변으로
+  const kD = THREE.MathUtils.smoothstep(skyK, 0.0, 0.5), kN = THREE.MathUtils.smoothstep(skyK, 0.5, 0.9);
+  const sEl = SUN_PATH.elDay + (SUN_PATH.elDusk - SUN_PATH.elDay)*kD + (-0.30 - SUN_PATH.elDusk)*kN;
+  const sAz = SUN_PATH.azDay + (SUN_PATH.azDusk - SUN_PATH.azDay)*kD + 0.30*kN;
+  const mEl = -0.20 + (SUN_PATH.moonEl + 0.20)*THREE.MathUtils.smoothstep(skyK, 0.5, 0.95), mAz = SUN_PATH.moonAz;
+  _sunW.set(Math.cos(sEl)*Math.cos(sAz), Math.sin(sEl), Math.cos(sEl)*Math.sin(sAz));
+  _moonW.set(Math.cos(mEl)*Math.cos(mAz), Math.sin(mEl), Math.cos(mEl)*Math.sin(mAz));
+  _litT.copy(sEl > 0.03 ? _sunW : _moonW);                      // ★ 지평선 위에 있는 쪽이 빛을 낸다 (skyK 문턱으로 고르면 노을에 지평선 아래 달을 고른다)
+  if(_litT.y < 0.22) _litT.y = 0.22; _litT.normalize();          // 그림자 빛은 12.7° 아래로 안 내려간다(그림자 상자·여드름)
+  _litW.lerp(_litT, dt > 0 ? Math.min(1, dt*1.5) : 1).normalize();   // 둘 다 y ≥ 0.22 라 섞어도 길이가 0 이 안 된다
   skyPivot.position.copy(camera.position);
+  sunDisc.position.copy(_sunW).multiplyScalar(195);  sunDisc.visible = sEl > -0.10;
+  moonDisc.position.copy(_moonW).multiplyScalar(195); moonDisc.visible = mEl > -0.10;
+  sunDisc.lookAt(camera.position); moonDisc.lookAt(camera.position);
+  sunDisc.children[0].material.color.setRGB(2.6 - 1.1*kD, 2.45 - 1.67*kD, 2.1 - 1.74*kD);   // 노을 해는 복숭아빛 (1.5,0.78,0.36)
+  sun.position.copy(_litW).multiplyScalar(100);
+  shadowFollow(camera.position.x, camera.position.z);          // 방향만 읽는다 — 함수는 그대로
   stars.position.copy(camera.position);
   stars.material.opacity = Math.max(0, skyK*1.35 - 0.32);
   stars.rotation.y += dt*0.006;
@@ -18783,7 +18884,7 @@ function updSky(dt, night){
       meteor.lookAt(metL.addScaledVector(metD, 5)); meteor.scale.set(1, 1, 0.4 + Math.sin(k*Math.PI)*1.6);
       meteor.material.opacity = Math.sin(k*Math.PI)*0.9; if(metT <= 0) meteor.visible = false; }
   } else if(meteor.visible){ meteor.visible = false; metT = 0; }
-  if(pondRipple){ const ph = (tAcc*0.42) % 1, rs = 0.4 + ph*3.4; pondRipple.scale.set(rs, rs, 1); pondRipple.material.opacity = 0.55*(1-ph); }
+  if(pondRipple && pondRipple.visible){ const ph = (tAcc*0.42) % 1, rs = 0.4 + ph*3.4; pondRipple.scale.set(rs, rs, 1); pondRipple.material.opacity = 0.55*(1-ph); }
   // 횃불은 밤에 켜지고 살짝 흔들린다
   const fl = skyK * (0.85 + Math.sin(tAcc*7.3)*0.07 + Math.sin(tAcc*3.1)*0.05);
   EMIT.emissiveIntensity = fl; EMIT_F.emissiveIntensity = fl;
@@ -18801,10 +18902,8 @@ function updSky(dt, night){
     fireMesh.instanceMatrix.needsUpdate = true;
     fireMat.opacity = 0.45 + 0.5*Math.sin(tAcc*2.2)*0.3 + 0.3;
   }
-  _cA.copy(SKY_DAY).lerp(SKY_NIGHT, skyK);
   /* 노을은 낮↔밤 **사이에서만** 뜬다. 0.5 에서 제일 세고 0과 1에서 0이 된다. */
   const dusk = Math.sin(Math.min(1, Math.max(0, skyK)) * Math.PI);
-  _cA.lerp(SKY_DUSK, dusk * 0.42);
   /* 33차 무서움의 온도 — 밤엔 집중 입구 쪽 지평선이 붉다. 좀비가 수정(0,0)에 가까울수록 진하고 천천히 숨 쉰다 */
   let thr = 0;
   if(G.phase === 'night' && skyK > 0.5){
@@ -18821,21 +18920,30 @@ function updSky(dt, night){
     const dq = Math.round(dusk*20)/20, tq = Math.round(threatK*10)/10;        // 0.05 · 0.1 칸으로 끊어 자잘한 흔들림엔 안 칠한다
     if(dq !== skyPaintD || tq !== skyPaintT || (tq > 0 && tu !== skyPaintU)){ paintSky(dq, tq, tu); skyRepaintT = 0.5; }
   }
-  scene.background.copy(_cA);
-  scene.fog.color.copy(_cA);
-  /* 하늘 돔은 안개보다 조금 더 진하게 — 안개와 똑같으면 지평선이 안 보인다 */
-  skyDome.material.color.copy(_cA).multiplyScalar(1.06);
+  _dome.copy(DOME_DAY).lerp(DOME_NIGHT, skyK).lerp(SKY_DUSK, dusk*0.30);
+  skyDome.material.color.copy(_dome);
+  _skyHz.copy(skyHazeRow).multiply(_dome);                       // 산마루 위 하늘색(선형) — 낮 (0.14,0.36,0.92) · 노을 (0.48,0.10,0.08) · 밤 (0.004,0.024,0.21)
+  scene.background.copy(_skyHz);                                 // ★ 약속 1-2 — M1 연못이 비춘다
+  if(GFX.bloom) scene.fog.color.copy(_skyHz);                    // 빛번짐 길(렌더 타깃)은 톤매핑을 뒤에서 한다
+  else skyToneLin(_skyHz, scene.fog.color);                      // 화면 안개 = 돔이 보이는 색 → 낮 (142,177,213) · 노을 (190,120,109) · 밤 (1,74,157)
+  fogNear0 = FOG_D.near + (FOG_N.near - FOG_D.near)*skyK; fogFar0 = FOG_D.far + (FOG_N.far - FOG_D.far)*skyK;   // 실제 near/far 는 scene.onBeforeRender 가 카메라 높이를 더해 넣는다
   skyDome.position.copy(camera.position);
-  scene.fog.near = 68 - skyK*14; scene.fog.far = 152 - skyK*38;
-  hemi.color.copy(HEMI_DS).lerp(HEMI_NS, skyK);
+  hemi.color.copy(HEMI_DS).lerp(HEMI_NS, skyK).lerp(HEMI_DUSK, dusk*0.35);
   hemi.groundColor.copy(HEMI_DG).lerp(HEMI_NG, skyK);
-
-  hemi.intensity = (0.95 - skyK*0.34) * LIT_K;
-  sun.color.copy(SUN_D).lerp(SUN_N, skyK);
-  /* 밤에도 달빛 그림자는 남긴다 — 낮에만 그림자가 있으면 밤이 평평해 보인다. */
-  sun.intensity = (0.62 - skyK*0.45) * LIT_K;      // 48차b — 1.15 → 0.62
-  amb.intensity = (0.62 - skyK*0.26) * LIT_K;      // 48차b — 0.30 → 0.62 (흰 환경광 — 색을 안 바래게 하면서 그늘만 옅게)
-  cloudMat.color.setScalar(1-skyK*0.66);
+  hemi.intensity = (LIGHT_D.hemi + (LIGHT_N.hemi - LIGHT_D.hemi)*skyK) * LIT_K;
+  sun.color.copy(SUN_D).lerp(SUN_N, skyK).lerp(SUN_DUSK, dusk*0.75);
+  sun.intensity  = (LIGHT_D.sun  + (LIGHT_N.sun  - LIGHT_D.sun )*skyK) * LIT_K;
+  amb.intensity  = (LIGHT_D.amb  + (LIGHT_N.amb  - LIGHT_D.amb )*skyK) * LIT_K;
+  SKY_U.uSunSky.value.copy(_sunW); SKY_U.uMoonDir.value.copy(_moonW);
+  SKY_U.uSunGlow.value.setHex(0xfff0d0).lerp(_cB.setHex(0xff9a50), dusk).multiplyScalar((0.8 + 0.6*dusk)*THREE.MathUtils.smoothstep(sEl, -0.15, 0.02));
+  SKY_U.uMoonGlow.value.setHex(0x2a3a60).multiplyScalar(THREE.MathUtils.smoothstep(mEl, -0.10, 0.10));
+  SKY_U.uBeltK.value = 0.35*dusk;                                        // 비너스 띠(설계 A) — 해 반대편 분홍보라
+  CLOUD_U.uCSun.value.copy(_litW); CLOUD_U.uCHaze.value.copy(_skyHz);
+  /* 밤 구름은 달빛 푸른 회색 — Basic 은 빛을 안 받아 0.90 을 두면 남빛 하늘에 흰 솜(화면 ≈156)으로 뜬다. 0.44 → 화면 ≈100 (옛 Lambert 밤 구름 75~100 과 같다) */
+  CLOUD_U.uCLit.value.setRGB(1.04, 1.02, 0.98).lerp(_cB.setRGB(0.40, 0.44, 0.58), skyK).lerp(_cC.setRGB(1.10, 0.78, 0.58), dusk);
+  CLOUD_U.uCShade.value.setRGB(0.64, 0.70, 0.82).lerp(_cB.setRGB(0.26, 0.30, 0.42), skyK).lerp(_cC.setRGB(0.52, 0.46, 0.60), dusk);
+  CLOUD_U.uCRim.value.setRGB(0.8, 0.75, 0.6).multiplyScalar(1 - skyK*0.7);
+  cloudMat.color.setScalar(1 - skyK*0.66);                               // 그대로 (t32 밤 0.34 < 0.5 · 낮 1.0 > 0.9)
 }
 let skyK = 0;
 let NIGHTK = 0;      // 0=한낮 1=한밤 — 좀비 눈이 이걸 보고 타오른다
