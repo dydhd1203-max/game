@@ -32,7 +32,8 @@ for(const [name,g] of Object.entries(A.ZOMBIE_GEO)){
 }
 check('Every organic mesh remains finite inside the original unit box',finite&&bounds);
 check('Surfaces have normalized normals, outward caps, and no zero-area triangles',normals&&outward&&nondegenerate);
-check('Seven shared organic shapes have bounded indexed geometry',Object.keys(budgets).length===7&&Object.values(budgets).every(n=>n<=400),budgets);
+// 65차 — 찢긴 천 통(tatter: 소매·바짓단·셔츠 자락)과 굽은 마디(digit: 손가락·발)가 더해져 아홉이다.
+check('Nine shared organic shapes have bounded indexed geometry',Object.keys(budgets).length===9&&Object.values(budgets).every(n=>n<=400),budgets);
 const slice=(g,y,t=.025)=>Array.from({length:g.attributes.position.count},(_,i)=>point(g,i)).filter(v=>Math.abs(v.y-y)<t);
 const width=(g,y,t)=>Math.max(...slice(g,y,t).map(v=>Math.abs(v.x)));
 const skull=A.ZOMBIE_GEO.skull,torso=A.ZOMBIE_GEO.torso;
@@ -41,6 +42,12 @@ check('Torso has a narrow waist, broad shoulders, and a deeper upper back',width
 const tp=Array.from({length:torso.attributes.position.count},(_,i)=>point(torso,i));
 const left=tp.find(v=>v.x<-.49),right=tp.find(v=>v.x>.49);
 check('Shoulders have a small readable asymmetric slope',left&&right&&Math.abs(left.y-right.y)>.04&&Math.abs(left.y-right.y)<.09);
+{const T=A.ZOMBIE_GEO.tatter,P=Array.from({length:T.attributes.position.count},(_,i)=>point(T,i)),hem=P.filter(v=>v.y<0&&Math.hypot(v.x,v.z)>.49);
+ const hemY=hem.map(v=>v.y),top=P.filter(v=>v.y>.499);
+ check('Torn cloth tube has a closed top and a jagged, uneven open hem',top.some(v=>Math.hypot(v.x,v.z)<1e-6)&&Math.max(...hemY)-Math.min(...hemY)>.15&&new Set(hemY.map(y=>y.toFixed(2))).size>=8,{hemSpread:+(Math.max(...hemY)-Math.min(...hemY)).toFixed(3)});
+ const Dg=A.ZOMBIE_GEO.digit,DP=Array.from({length:Dg.attributes.position.count},(_,i)=>point(Dg,i)),tip=DP.reduce((a,v)=>v.y<a.y?v:a);
+ const knuck=(y,t)=>Math.max(...DP.filter(v=>Math.abs(v.y-y)<t).map(v=>Math.abs(v.x)));
+ check('Bony digit curls toward its tip and thins from the knuckle',tip.z<-.2&&width(Dg,-.45,.08)<knuck(.5,.02)*.7,{tipZ:+tip.z.toFixed(3)});}
 check('Limbs and palms taper toward their ends instead of forming straight blocks',width(A.ZOMBIE_GEO.limb,-.5)<width(A.ZOMBIE_GEO.limb,.28)*.65&&width(A.ZOMBIE_GEO.palm,.5)<width(A.ZOMBIE_GEO.palm,-.08)*.65);
 const head=new THREE.Mesh(skull,new THREE.MeshBasicMaterial());head.scale.set(.62,.65,.51);head.updateMatrixWorld();
 const ray=new THREE.Raycaster(),frontAt=(x,y)=>{ray.set(new THREE.Vector3(x,y,1),new THREE.Vector3(0,0,-1));return ray.intersectObject(head,false)[0]?.point.z;};
@@ -48,13 +55,18 @@ const eyeSamples=[-.135,.135].flatMap(x=>[-.025,0,.025].map(dx=>({x:x+dx,y:.074,
 const mouthSamples=[-.08,0,.08].map(x=>({x,y:-.13,z:.2885}));
 const margins=[...eyeSamples,...mouthSamples].map(v=>v.z-frontAt(v.x,v.y));
 check('Existing eyes and mouth remain in front of the new skull surface',margins.every(v=>Number.isFinite(v)&&v>.015&&v<.075),{min:Math.min(...margins),max:Math.max(...margins)});
-const mapping={W_body:'torso',W_head:'skull',W_legs:'limb',W_paw:'palm',W_ears:'ear',W_snout:'soft',W_tail:'taper',W_chest:'soft',W_ruff:'soft',W_belly:'soft',W_cheek:'soft',W_costume:'soft'};
+const mapping={W_body:'torso',W_head:'skull',W_legs:'limb',W_paw:'palm',W_ears:'ear',W_snout:'soft',W_tail:'taper',W_chest:'tatter',W_ruff:'soft',W_belly:'soft',W_cheek:'soft',W_costume:'soft',W_sleeve:'tatter',W_digit:'digit'};
 check('All body, face, sleeve, and costume meshes use dedicated organic shapes',Object.entries(mapping).every(([m,g])=>A.meshes[m].geometry===A.ZOMBIE_GEO[g]&&A.meshes[m].geometry!==A.RB));
 check('Armor retains its original hard plate geometry',A.meshes.W_plate.geometry===A.RB);
 check('Zombie materials preserve instance colors without multiplying a dark shared base',Object.values(A.ZOMBIE_MAT).every(m=>m.color.getHex()===0xffffff)&&Object.keys(mapping).every(n=>Object.values(A.ZOMBIE_MAT).includes(A.meshes[n].material)));
 check('Shared animal and human fur materials remain unchanged',A.FM.fur.color.getHex()===0x8a8c93&&A.FM.furD.color.getHex()===0x4d4f57);
 const capacities={W_body:1,W_head:1,W_snout:1,W_tail:3,W_legs:8,W_eyes:2,W_ears:2,W_chest:1,W_paw:4,W_horn:2,W_nose:1,W_ruff:1,W_belly:1,W_brow:2,W_cheek:2,W_rib:10,W_plate:36,W_gem:1,W_eyeW:2,W_eyeR:2,W_pupil:2,W_fang:5,W_costume:64};
 check('Geometry changes do not expand per-zombie instance capacities',Object.entries(capacities).every(([n,c])=>A.meshes[n].count_max===92*c));
+// 65차 — 무릎 2·발 2 를 더했지만 손가락을 두 토막 12 → 굽은 한 조각 6 으로 줄여, 한 마리가 쓰는 조각(행렬) 수는 64차보다 늘지 않는다.
+check('New sleeve and digit buffers hold a full crowd',A.meshes.W_sleeve.count_max===92*4&&A.meshes.W_digit.count_max===92*8);
+{const before=[42,44,46,50,50,51,51,55,51,69,47,43,52],now=[];
+ for(let k=0;k<13;k++){A.G.nk=0;A.drawWolves([{k,x:0,y:0,z:0,ry:0,id:2,ph:.3,hp:40,mx:40,mv:false,atkT:0,hurt:0}],4,.016);now.push(Object.values(A.meshes).reduce((a,m)=>a+m.count,0));}
+ check('Every zombie type uses no more instance matrices than before the realistic-motion update',now.every((c,k)=>c<=before[k]),{before,now});}
 const army=Array.from({length:92},(_,i)=>({k:0,x:i*.1,y:0,z:0,ry:0,id:i,ph:.3,hp:40,mx:40,mv:false,atkT:0,hurt:0}));
 let maxOrganic=0,maxPrevious=0;
 for(let nk=0;nk<10;nk++){A.G.nk=nk;A.drawWolves(army,4,.016);let actual=0,previous=0;
