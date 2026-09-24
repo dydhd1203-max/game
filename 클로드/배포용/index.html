@@ -3641,22 +3641,24 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
 const GAME_VER = '53차 · 참고 이미지에 맞춘 얼굴과 원통 머리 · 자연스러운 작업 모션 · 밝은 카드형 상점';
-const HW = 73, WS = HW*2+1;          // 격자 반경 / 한 변
+/* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
+   (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
+   짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
+const FIELD_R = 78;                   // 세상 끝 (원)  ※66차까지 68
+const HW = FIELD_R + 5, WS = HW*2+1;  // 격자 반경 83 / 한 변 167
 const GY = 9;                         // 땅 윗면 높이
 /* ★ 64차 — 마을을 넓혔다(선생님: "미적인 것들을 많이 추가하니까 그에 맞게 마을을 넓혀줘").
    평지·산 시작·협곡 끝·세상 끝·성문(GATE_T)·좀비 출발(SPAWN_R)을 **전부 6칸씩** 바깥으로 민다.
-   상대 거리(성문↔협곡 끝 8 · 협곡 끝↔세상 끝 9 · 산 오르막 5.6)는 그대로라 성문·망루·계단·협곡은
-   모양이 안 바뀐다. 격자 반경 HW=73 은 세상 끝 68 을 5칸 여유로 품는다. */
+   상대 거리(성문↔협곡 끝 8 · 산 오르막 5.6)는 그대로라 성문·망루·계단·협곡은 모양이 안 바뀐다. */
 const ARENA_R = 46;                   // 마을 평지(짓는 곳) 반지름  ※63차까지 40
 const RING_A = 46, RING_D = 59;       // 산 시작 / 협곡 끝
 
-const FIELD_R = 68;                   // 세상 끝 (원)
 const MTN_H = 15;                     // 산 높이
 const GAP_HALF = 6.6;                 // 입구 통로 반너비 — 통로 폭 약 13칸
 const NG = 5;                         // 모둠 수
 const GCOL = ['#ff6b6b','#4dabf7','#51cf66','#ffd43b','#cc7bff'];
 const GHEX = [0xff6b6b,0x4dabf7,0x51cf66,0xffd43b,0xcc7bff];
-const SPAWN_R = 62;                   // 좀비가 나타나는 축거리 — 협곡 끝(59)과 세상 끝(68) 사이. 64차 +6
+const SPAWN_R = 62;                   // 좀비가 나타나는 축거리 — 협곡 끝(59) 바깥. 64차 +6 · 67차에 세상 끝이 78 로 멀어져도 그대로
 const gi = (x,z)=> (x+HW) + (z+HW)*WS;
 const inW = (x,z)=> x>=-HW && x<=HW && z>=-HW && z<=HW;
 
@@ -4069,7 +4071,327 @@ function mtnHeight(od){
 // 협곡 반너비 — 바깥으로 갈수록 살짝 넓어져 좀비가 모이는 마당이 된다
 /* 협곡 반너비 — 인자는 '축 방향 거리(t)' 다. 예전엔 여기에 반지름을 넣기도 했는데,
    입구가 옆으로 밀린 뒤로는 둘이 크게 달라져서 어귀가 어긋난다. */
-function gapHalfAt(t){ return GAP_HALF + Math.max(0, (t-RING_D))*0.85; }
+/* 67차 — 벌어짐을 9칸(t 68, 반너비 14.25)에서 멈춘다. 세상 끝이 78 로 멀어져도 협곡이 부채꼴로 끝없이 벌어지지 않게(좀비 출발 62~64 폭은 그대로) */
+function gapHalfAt(t){ return GAP_HALF + Math.min(9, Math.max(0, t-RING_D))*0.85; }
+
+/* ═══════════════════════ 67차 성곽 — 자료 ═══════════════════════
+   다섯 성문을 한 바퀴 잇는 성곽: 곧은 벽 8 + 3·4 연결 벽 · 모서리 탑 T1~T8 · 가운데 망대 K · 대각 회랑 4 · 벽 속 복도 6 · 비밀 방 5.
+   치수는 여기 한 곳이다 — 몸(castleLayout)·그림(buildCastle)·좀비(climbTick)·보물(updCastleTreasure)·미니맵이 모두 CW 와 CPLAN 을 읽는다
+   (64차 '끊어진 계단': 같은 치수가 두 곳에 있으면 한쪽만 고쳐져 어긋난다).
+   ★ TDZ — genTerrain() 이 이 블록 바로 뒤에서 곧장 돈다. 여기서는 리터럴과 이미 선언된 gX/gZ/gT/gPP/oct/FIELD_R/DIRS/NG/sectorOf/gi/inW 만 읽는다.
+     GATE_T·GATE_TOP·GH·STAIRS 는 아직 없다(읽으면 흰 화면) — 계단 발치 t 34.5·층계참 끝 51 도 리터럴로 쓴다.
+   ★ '형식 확정'이지 Object.freeze 가 아니다 — 갈래 1·2 가 secrets[i].box/hs/chestHs·sparkHs 를 채운다(모듈은 strict 라 얼리면 로드가 죽는다).
+   ★ 좌표: 세계 (x,z), z 음수 = 1모둠(위). 높이는 모두 GY 기준("8" = GY+8). 모둠 번호 g 는 0~4.
+   ★ 칸 판정 함수(dWall·dCurtain·dTower·castleFoot·spur·kBand·tower66·spurShoulder·castleScarp·castleTerrainAt)는 **칸 번호(정수) x,z** 를 받아
+     칸 가운데 (x+.5, z+.5) 로 잰다 — genTerrain 과 같은 약속. laneDist·sheltered·onCastleLayer·zoneStair·layerY 는 연속 좌표를 받는다. */
+const CW = {
+  LANE0:46, IN:49, MID:51, OUT:53, WALK:8, PARA:0.45,                     // 둘레길 od 46~49 · 성벽 od 49~53(가운데 51 = 성문 다리) · 성벽 길 높이 8
+  DITCH_W:2.5, DITCH_H:2, SCARP_K:1.0, SCARP_CAP:7, SPUR_P:15, NOTREE:8,   // 마른 해자(폭 2.5·높이 2) → 풀 비탈 +1.0/칸(성곽 8칸 안은 ≤ 7) · 바위 톱 P < 15
+  TW:9, CEIL_G:3.0, LOOK:12, ROOF_IN:14.3, EAVE:14.05, ROOF_H:5.5,         // 탑 9×9 · 1층 천장 3 · 망루 바닥 12 · 망루 천장 14.3 · 처마 14.05 · 사모 지붕 높이
+  GAL_E0:49.45, GAL_E1:52.29, GAL_OUT:52.8, GAL_EAVE:10.25, GAL_RIDGE:11.0, GAL_RIDGE_TOP:11.12,   // 회랑 걷는 띠 e 49.45~52.29 · 바깥 얼굴 e 52.8 · 지붕 처마 10.25 → 마루 11.0
+  POST:2.0, MOD:3, LANTERN:6, MERL:1.6, TORCH_Y:2.6,                      // 회랑 기둥 2 · 복도 벽 모듈 3 · 밤 불빛 6 · 성가퀴 1.6 박자 · 바깥 횃불 높이
+  SP:{a:0.4, b:1.8, h:1/3, m:12, Ht:4, half:0.38, land:2.7, spd:3.0, doorUp:2.3, yawK:1.0, hold:0.5, holdYaw:0.25, pushV:1.5},   // 나선(기둥·우물 반지름·한 단·한 바퀴 12단 = 4·문 반각…)
+  FUN_R:3, FUN_ANG:0.52, FUN_TURN:3, GAL_YAW:4, LOOK_IDLE:0.3,             // 문 깔때기(3칸·30°·초당 3 rad) · 회랑 시선 따라가기(초당 4 rad)
+  K_BAND:3, K_BAND_Z1:64, K_BASE:10,                                      // K 바위 받침 — K 상자 둘레 체비쇼프 3칸(z < 64)의 바위를 GY+10 으로
+  FENCE_UP:6.5, CEIL_MIN:2.2                                              // 바깥 울타리 = 설 수 있는 가장 높은 면 + 6.5 · 모든 천장 ≥ 딛는 면 + 2.2
+};
+const MT_TURF = 0x6e7a47;                            // 해자·비탈 칸 산 기둥 몸(잔디 톤) — 재질이 아니라 인스턴스 색
+const CK = {NONE:0, LANE:1, SOLID:2, CORR:3, TWALL:4, TROOM:5, CAGE:6, KBODY:7, SECRET:8, DOOR:9, GALW:10};   // 칸 종류(설계 4-2 표)
+const GK = {WALL:0, FLOOR:1, ROOF:2, FENCE:3};       // GBOX 종류(4-3 표) — ROOF 는 착지엔 없는 셈 · FENCE 는 카메라·천장이 건너뜀
+const CR = {G:1, W:2, T:4, DG:8, DW:16, DT:32, RUN:64, NB:128};
+/* CROOF 비트: 땅층(G)·성벽 길 층(W)·망루 층(T) 천장 / 층별 문턱(= 천장 비트 << 3 — 트인 곳↔덮인 곳 문만) / 달리기 길(GY+8 윗면) / 문 앞 부딪힘 없음.
+   문턱을 층마다 가르는 까닭: 칸 하나에 문턱 한 비트면 복도 탑의 '서쪽 8층 문 = 복도 끝' 칸에서 땅층 아이까지 '안전 아님'이 된다 */
+const CASTLE = new Uint8Array(WS*WS);                // 칸 종류 CK
+const CROOF  = new Uint8Array(WS*WS);                // 천장·문턱·달리기 비트 CR
+const ZONE   = new Int8Array(WS*WS).fill(-1);        // 좀비가 다닐 수 있는 트인 구역 번호 0~3(계단·층계참·망루 윗마당·다리·곧은 성벽 길·연결 벽) — 'GY+8 윗면의 성질'
+const SPIRALS = [];                                  // {cx,cz,a,b,y0,h,m,n,turns,Ht,th0,land|null,doors:[{th,half,y,sec}]} — castleLayout 이 채움
+const SECRET_OPEN = new Uint8Array(5);               // 이 화면(이 아이)이 연 비밀 문
+// stairOf 값 ≥ 1000 = 나선 번호 + 1000 (66 직선 계단 0~9 그대로)
+
+/* CPLAN — 순수 자료(몸·그림·좀비·보물 공용). 숫자는 설계 계산 `castle/_spec67.cjs cplan·r1` 과 같다(정적 검사 1 이 견준다).
+   탑 틀 = T1(홀수형) 로컬이 곧 세계 좌표. 홀수 탑 T3·T5·T7 = T1 을 R(x,z)=(−z,x) 로 1·2·3번, 짝수 탑 T2 = M(x,z)=(−z,−x)(대각선 거울),
+   T4·T6·T8 = T2 를 R 로 돌림. R·M 은 원점을 지나는 선형 변환이라 점과 방향에 똑같이 쓴다.
+   나선은 거울에서도 시계 방향(atan2(dz,dx) 가 커지는 쪽)으로 오른다 — 그래서 짝수 탑에서만 th0+270° 가 armB(숨은 방) 쪽이다. */
+function castlePlan(){
+  const S2 = Math.SQRT1_2, PI = Math.PI, BODY = 0.28;                   // BODY = 사람 몸 반지름(PL.R — 여기선 아직 PL 이 없다)
+  const f3 = (v)=> Math.round(v*1000)/1000 + 0;                          // 소수 셋째 자리 · −0 없앰
+  const R = (p)=> [-p[1], p[0]], M = (p)=> [-p[1], -p[0]];
+  const xf = (i, x, z)=>{ let q = (i & 1) ? M([x, z]) : [x, z]; for(let n = i >> 1; n > 0; n--) q = R(q); return {x:f3(q[0]), z:f3(q[1])}; };
+  const bx = (i, x0, x1, z0, z1)=>{ const a = xf(i, x0, z0), b = xf(i, x1, z1);
+    return {x0:Math.min(a.x, b.x), x1:Math.max(a.x, b.x), z0:Math.min(a.z, b.z), z1:Math.max(a.z, b.z)}; };
+  const ax = (g, t, P)=> ({x:f3(gX(g, t, P)), z:f3(gZ(g, t, P))});      // 성문 축 좌표(t, pp) → 세계
+  const ZG = [0, 1, 2, 2, 3];                                           // 성문 g → 좀비 구역(Z1·Z2·Z34·Z5)
+  const lvOf = (y)=> y < 5 ? CR.G : y < 11.9 ? CR.W : CR.T;             // roofLv 와 같은 셈(y 는 GY 기준)
+  const norm = (a)=> ((a % (2*PI)) + 2*PI) % (2*PI);
+
+  /* ── 모서리 탑 여덟(설계 2-2 표) ── */
+  const ROOMS = ['map', 'armory', 'guard', 'well', 'map', 'armory', 'guard', 'well'];   // 180° 짝: T1↔T5 지도 · T2↔T6 무기 · T3↔T7 경비 · T4↔T8 우물
+  const HASCORR = [1, 1, 1, 0, 0, 1, 1, 1];                             // T4·T5 는 짧은 곧은 벽(성문 3 동·4 서) 곁 — 벽 속 복도 없음
+  const HIDDEN = [-1, -1, -1, 2, -1, 4, -1, 0];                         // 숨은 방 → 비밀 번호: T4 ③ · T6 ⑤ · T8 ①(T2 는 안 씀)
+  const gW = [], towers = [];
+  for(let i=0; i<8; i++){ const w = xf(i, 30.5, -51); gW.push(sectorOf(w.x, w.z)); }   // 서쪽 8층 문이 이어지는 곧은 벽의 성문
+  for(let i=0; i<8; i++){
+    const c = xf(i, 34.5, -53.5), sc = xf(i, 36, -55), d0 = xf(i, 0, 1), th0 = Math.atan2(d0.z, d0.x);
+    const gA = gW[i], gB = gW[i ^ 1];                                   // gA = 서쪽 문 쪽 성문 · gB = 회랑 건너 짝 탑의 성문
+    const pt = (x, z)=> xf(i, x, z);
+    const fn = (x, z, nx, nz, w, y, door)=>{ const p = pt(x, z), n = pt(nx, nz);          // 문 깔때기 과녁 — (x,z) 문 구멍 가운데, n = 문을 지나는 방향
+      return {x:p.x, z:p.z, nx:n.x, nz:n.z, half:f3(w/2 - BODY), y, lv:lvOf(y), door, tower:i}; };
+    const sg = (door, side, gate, x, z, y0, y1, nx, nz)=>{ const p = pt(x, z), n = pt(nx, nz);   // 안내판 '→N'(N = 그 문을 지나 닿는 성문)
+      return {door, side, gate, x:p.x, z:p.z, y0, y1, nx:n.x, nz:n.z}; };
+    const wn = (x, z, nx, nz, arm)=>{ const p = pt(x, z), n = pt(nx, nz); return {x:p.x, z:p.z, nx:n.x, nz:n.z, y0:12.55, y1:13.65, arm}; };   // 망루 창(겉면 가운데·바깥 법선)
+    const gi0 = pt(33.7, -50), gi1 = pt(36.3, -50), go0 = pt(34.7, -49), go1 = pt(37.3, -49);   // 회랑 문 안·바깥 얼굴 끝
+    const along = gi0.x === gi1.x ? 'z' : 'x';
+    const sp = (a, b)=> along === 'x' ? [Math.min(a.x, b.x), Math.max(a.x, b.x)] : [Math.min(a.z, b.z), Math.max(a.z, b.z)];
+    const nk0 = pt(31, -49), nk1 = pt(32, -49);
+    const jamb = (x0, x1, z0, z1)=> Object.assign(bx(i, x0, x1, z0, z1), {y0:8, y1:14});
+    const hid = HIDDEN[i];
+    const n0 = pt(-1, 0), nG = pt(S2, S2), nN = pt(0, 1), tW = pt(29.95, -54.4), tN = pt(29.6, -48.9);
+    towers.push({
+      id:'T'+(i+1), i, even:!!(i & 1), g:sectorOf(c.x, c.z), room:ROOMS[i], gateW:gA, gateG:gB,
+      ...bx(i, 30, 39, -58, -49), cx:c.x, cz:c.z,
+      cage:bx(i, 34, 38, -57, -53), spiral:i, th0, scx:sc.x, scz:sc.z,     // 나선 가운데 = 우리 가운데
+      armA:bx(i, 31, 38, -53, -50), armB:bx(i, 31, 34, -57, -53),        // ㄱ자 1층 방(초소·망루도 같은 자리)
+      doors:{
+        /* n = 탑 밖(열린 쪽)으로 향하는 법선 */
+        wIn:Object.assign(bx(i, 30, 31, -52, -50), {y:8, w:2.0, h:2.3, nx:n0.x, nz:n0.z, zone:ZG[gA], torch:[tW.x, tW.z]}),   // 곧은 벽 쪽 8층 문 · 판 너머 벽 횃불(9.9)
+        gal:{cells:bx(i, 33, 38, -50, -49), y:8, h:2.3, ax:along, inner:sp(gi0, gi1), outer:sp(go0, go1),
+             faceIn:along === 'x' ? gi0.z : gi0.x, faceOut:along === 'x' ? go0.z : go0.x, nx:nG.x, nz:nG.z,
+             jambs:[jamb(33, 33.7, -50, -49.5), jamb(33, 34.2, -49.5, -49), jamb(36.8, 38, -50, -49.5), jamb(37.3, 38, -49.5, -49)]},   // 45° 비스듬한 회랑 문 — 문설 계단 상자 넷
+        corr:HASCORR[i] ? Object.assign(bx(i, 30, 31, -52, -50), {y:0, w:2.0}) : null,                 // 땅층 = 벽 속 복도 끝(덮인 곳끼리 — 문턱 없음)
+        nook:Object.assign(bx(i, 31, 32, -50, -49), {y:0, w:1.0, h:2.3, ax:nk0.x === nk1.x ? 'z' : 'x',
+             open:nk0.x === nk1.x ? [Math.min(nk0.z, nk1.z), Math.max(nk0.z, nk1.z)] : [Math.min(nk0.x, nk1.x), Math.max(nk0.x, nk1.x)],
+             nx:nN.x, nz:nN.z, torch:[tN.x, tN.z]})                                                       // 탑 구석 문(폭 1.0) · 곧은 벽 안 얼굴 횃불(2.6)
+      },
+      run:[[30, -51], [34, -51], [36, -49], [37.5, -47.5]].map(([x, z])=>{ const p = pt(x, z); return [p.x, p.z]; }),   // 초소 달리기 꺾은선(소품 금지 띠 ±0.8)
+      funnels:[
+        fn(30.5, -51, 1, 0, 2.0, 8, 'wIn'), fn(30.5, -51, -1, 0, 2.0, 8, 'wIn'),                 // 서쪽 8층 문 양쪽
+        fn(35.5, -49.5, S2, S2, 1.84, 8, 'gal'), fn(35.5, -49.5, -S2, -S2, 1.84, 8, 'gal'),      // 회랑 문 양쪽(45° 축, 수직 트인 폭 1.84)
+        fn(36, -53.1, 0, -1, 1.34, 0, 'spiral'), fn(36, -53.1, 0, -1, 1.34, 8, 'spiral'), fn(36, -53.1, 0, -1, 1.34, 12, 'spiral'),   // 나선 문(방·초소·망루 쪽 → 우리 안)
+        fn(31.5, -49.5, 0, -1, 1.0, 0, 'nook'), fn(31.5, -49.5, 0, 1, 1.0, 0, 'nook')            // 구석 문 양쪽
+      ],
+      hidden:hid >= 0 ? Object.assign(bx(i, 31, 34, -57, -53), {y0:10/3, y1:7.2, secret:hid}) : null,
+      signs:[
+        sg('wIn', 'out', gB, 29.95, -53.06, 9.65, 10.35, -1, 0), sg('wIn', 'in', gA, 31.05, -53.06, 9.65, 10.35, 1, 0),
+        sg('gal', 'out', gA, 33.9, -48.95, 9.35, 10.05, 0, 1),   sg('gal', 'in', gB, 33.0, -50.05, 9.35, 10.05, 0, -1)
+      ],
+      windows:[wn(30, -55.5, -1, 0, 'B'), wn(30, -51.5, -1, 0, 'A'), wn(32.5, -49, 0, 1, 'B'), wn(36.5, -49, 0, 1, 'A'),
+               wn(32.5, -58, 0, -1, 'B'), wn(39, -51.5, 1, 0, 'A')]      // 창 6 — armA·armB 쪽에만(우리 쪽 면엔 하나씩)
+    });
+  }
+
+  /* ── 가운데 망대 K(3·4 쌍둥이 성문 사이 바위 톱) ── */
+  const K = {x0:-3, x1:3, z0:53, z1:61, cx:0, cz:57, cage:{x0:-2, x1:2, z0:54, z1:58}, spiral:8, th0:-PI/2, top:14,
+    doorN:{x0:-1, x1:1, z0:53, z1:54, y:8}, doorS:{x:0, z:57.9, th:PI/2, y:14},      // 북문(연결 길 8) · 남문 = 나선 윗문(14 → 윗마당)
+    head:{x0:-3, x1:3, z0:53, z1:58, y0:14, y1:16.4}, yard:{x0:-3, x1:3, z0:58, z1:61, y:14},   // 계단 머리 = 북쪽 5칸 전폭 · 트인 윗마당
+    band:{r:CW.K_BAND, z1:CW.K_BAND_Z1, h:CW.K_BASE},
+    sight:[[-2.4, 15.12, 59.5, -13, 0, 62], [2.4, 15.12, 59.5, 13, 0, 62]]};         // 정적 검사 18 광선(성가퀴 안쪽 눈 → 두 협곡 바닥)
+
+  /* ── 곧은 커튼월 8(가운데 선 od 51, 망루 산 쪽 얼굴 P 11 → 탑 문 얼굴 P 30/17) ── */
+  const STR = [[0, -1, 30, 1], [0, 1, 30, 1], [1, -1, 30, 1], [1, 1, 30, 1], [2, -1, 17, 0], [3, 1, 17, 0], [4, -1, 30, 1], [4, 1, 30, 1]];
+  const straights = STR.map(([g, s, P1, corr])=>{
+    const a = ax(g, 51, 11*s), b = ax(g, 51, P1*s), L = Math.hypot(b.x - a.x, b.z - a.z), ps = (arr)=> arr.map(P=> P*s);
+    return {id:'S'+(g+1)+(s < 0 ? 'a' : 'b'), g, s, zone:ZG[g], a, b, U:{x:f3((b.x - a.x)/L), z:f3((b.z - a.z)/L)}, N:{x:DIRS[g].dx, z:DIRS[g].dz}, len:P1 - 11,
+      corr:corr ? {p0:15*s, p1:30*s, t0:50, t1:52} : null,                                   // 벽 속 복도 P 15~30 × t 50~52
+      corrDoor:corr ? {p0:15*s, p1:17*s, t0:49, t1:50, open:[15.3*s, 16.7*s]} : null,       // 암문(복도 서쪽 끝, 폭 1.4)
+      /* 장식 자리(축 P·s) — 3칸 모듈: 활 틈 18.5~27.5 · 바깥 횃불·화톳불 20·26 · 석루조 23 · 복도 안 횃불 16·21.5·27.5 · 늑골 17~29.
+         복도 없는 짧은 벽(P 11~17)은 가운데 화톳불 하나만(횃불은 탑 구석 문 횃불이 맡는다) */
+      deco:corr ? {slits:ps([18.5, 21.5, 24.5, 27.5]), torches:ps([20, 26]), braziers:ps([20, 26]), spout:23*s, inTorches:ps([16, 21.5, 27.5]), ribs:ps([17, 20, 23, 26, 29])}
+                : {slits:[], torches:[], braziers:ps([14]), spout:null, inTorches:[], ribs:[]}};
+  });
+  const link = {x0:-2, x1:2, z0:49, z1:53, zone:2};                                           // 3·4 연결 벽(윗면 8, 안 흉벽만)
+
+  /* ── 대각 회랑 4(탑 회랑 문 바깥 가운데 → 짝 탑, 가운데 선 e 51) ── */
+  const galleries = [[0, 1, 'NE'], [2, 3, 'SE'], [4, 5, 'SW'], [6, 7, 'NW']].map(([f, t, id])=>{
+    const a = xf(f, 36, -49), b = xf(t, 36, -49), L = Math.hypot(b.x - a.x, b.z - a.z);
+    return {id, from:'T'+(f+1), to:'T'+(t+1), a, b, U:{x:f3((b.x - a.x)/L), z:f3((b.z - a.z)/L)},
+      N:{x:f3(Math.sign(a.x + b.x)*S2), z:f3(Math.sign(a.z + b.z)*S2)}, len:f3(L)};
+  });
+
+  /* ── 좀비 구역 넷(1차원 주선) + 계단 가지 열(설계 5-2) ── */
+  const zones = [
+    {id:0, name:'Z1',  O:{x:0, z:-51}, U:{x:1, z:0},  N:{x:0, z:-1}, gates:[0]},
+    {id:1, name:'Z2',  O:{x:51, z:0},  U:{x:0, z:1},  N:{x:1, z:0},  gates:[1]},
+    {id:2, name:'Z34', O:{x:0, z:51},  U:{x:-1, z:0}, N:{x:0, z:1},  gates:[2, 3]},
+    {id:3, name:'Z5',  O:{x:-51, z:0}, U:{x:0, z:-1}, N:{x:-1, z:0}, gates:[4]}];
+  const sigOf = (Z, p)=> f3((p.x - Z.O.x)*Z.U.x + (p.z - Z.O.z)*Z.U.z);
+  for(const Z of zones){
+    Z.s0 = -29.2; Z.s1 = 29.2; Z.stairs = []; Z.sig = []; Z.nLim = [];
+    /* n 한계(겹치면 교집합, 아무것도 안 걸리면 [−0.85, 0.85]): 다리 |σ−gc| < 7.2 → [−0.1, 0.1] · 모서리 망대 5.5~8.8 → [−0.85, 0.1] */
+    for(const g of Z.gates){ const gc = sigOf(Z, ax(g, 51, 0));
+      Z.nLim.push([gc - 7.2, gc + 7.2, -0.1, 0.1], [gc - 8.8, gc - 5.5, -0.85, 0.1], [gc + 5.5, gc + 8.8, -0.85, 0.1]); }
+  }
+  zones[2].nLim.push([-1, 1, -0.85, 1.9]);                                                   // K 북문 앞 — 문턱 아이도 물 수 있게
+  const stairs = [];
+  for(let g=0; g<NG; g++) for(let s=-1; s<=1; s+=2){                                         // k = 2g + (s>0) — 66 STAIRS 순서 그대로
+    const Z = zones[ZG[g]], top = ax(g, 51, 8.5*s), sig = sigOf(Z, top), k = 2*g + (s > 0 ? 1 : 0);
+    stairs.push({k, g, s, zone:ZG[g], sig, foot:ax(g, 34.5, 8.5*s), top});                  // 발치 t 34.5 = 층 전환점 · top t 51 = 주선과 만나는 점
+    Z.stairs.push(k); Z.sig.push(sig);
+  }
+
+  /* ── 비밀 방 다섯(모둠마다 제 성문 가까이 하나) ── */
+  const spiralSecret = (id, i)=>{                                    // 짝수 탑 나선 270° — 탑 로컬에선 늘 −x 쪽(34.2, −55) 우물 벽 돌 판 → armB
+    const T = towers[i], ch = xf(i, 31.55, -55), cf = xf(i, 1, 0), co = xf(i, 32.7, -56.2);
+    return {id, g:id, kind:'spiral', tower:T.id, spiral:i, th:norm(T.th0 + 1.5*PI), y:10/3, door:null,
+      room:{x0:T.armB.x0, x1:T.armB.x1, z0:T.armB.z0, z1:T.armB.z1, y0:10/3, y1:7.2},
+      chest:{x:ch.x, y:10/3, z:ch.z, ry:f3(Math.atan2(cf.x, cf.z))}, coin:{x:co.x, y:10/3, z:co.z},   // 상자는 문 맞은편 벽 앞(문을 봄) · 금화 더미는 옆
+      hint:'sconce', box:null, hs:[], chestHs:{closed:[], open:[]}};
+  };
+  const landSecret = (id, g, s)=>{                                   // 성문 층계참 밑 창고 — 방 t 47~49 · P 8~10, 밀기 돌 문 = P 10 얼굴의 t 47~48
+    const A = (t, P)=> ax(g, t, P*s), r0 = A(47, 8), r1 = A(49, 10), d0 = A(47, 9.7), d1 = A(48, 10);
+    const n = {x:f3(-DIRS[g].dz*s), z:f3(DIRS[g].dx*s)}, ch = A(48.4, 8.45), co = A(47.5, 8.75);   // n = 둘레길 쪽 얼굴 바깥 법선(+P)
+    return {id, g:id, kind:'landing', tower:null, spiral:-1, th:null, y:0, gate:g, side:s,
+      door:{x0:Math.min(d0.x, d1.x), x1:Math.max(d0.x, d1.x), z0:Math.min(d0.z, d1.z), z1:Math.max(d0.z, d1.z), y0:0, y1:2.3, nx:n.x, nz:n.z},
+      room:{x0:Math.min(r0.x, r1.x), x1:Math.max(r0.x, r1.x), z0:Math.min(r0.z, r1.z), z1:Math.max(r0.z, r1.z), y0:0, y1:2.6},
+      chest:{x:ch.x, y:0, z:ch.z, ry:f3(Math.atan2(n.x, n.z))}, coin:{x:co.x, y:0, z:co.z},
+      hint:'warmStone', box:null, hs:[], chestHs:{closed:[], open:[]}};
+  };
+  const secrets = [spiralSecret(0, 7), landSecret(1, 1, -1), spiralSecret(2, 3), landSecret(3, 3, 1), spiralSecret(4, 5)];   // ① T8 · ② 성문 2 위 · ③ T4 · ④ 성문 4 바깥 · ⑤ T6
+
+  /* ── 반짝 보물 후보 27(초소 armB 가운데 8 · 망루 armA 가운데 8 · 성문 윗마당 P 9 10 · K 1) ── */
+  const spark = [];
+  for(let i=0; i<8; i++){ const p = xf(i, 32.5, -55); spark.push({p:[p.x, 8, p.z], g:[sectorOf(p.x, p.z)], at:towers[i].id + ':post'}); }
+  for(let i=0; i<8; i++){ const p = xf(i, 34.5, -51.5); spark.push({p:[p.x, 12, p.z], g:[sectorOf(p.x, p.z)], at:towers[i].id + ':watch'}); }   // 옛 '탑 가운데'는 나선 우리 돌 속
+  for(let g=0; g<NG; g++) for(let s=-1; s<=1; s+=2){ const p = ax(g, 51, 9*s); spark.push({p:[p.x, 8, p.z], g:[g], at:'gate' + (g+1) + (s < 0 ? 'a' : 'b')}); }
+  spark.push({p:[0, 14, 59.5], g:[2, 3], at:'K'});
+  const sparkByG = [[], [], [], [], []];
+  spark.forEach((q, j)=>{ for(const g of q.g) sparkByG[g].push(j); });
+
+  /* ── 끼임·성 밖 구조 자리: 탑 방·초소·망루(armA 가운데) · 복도 가운데 · 성문 윗마당 · K 윗마당 ── */
+  const safe = [];
+  for(const T of towers){ const x = (T.armA.x0 + T.armA.x1)/2, z = (T.armA.z0 + T.armA.z1)/2; safe.push([x, 0, z], [x, 8, z], [x, 12, z]); }
+  for(const S of straights) if(S.corr){ const p = ax(S.g, 51, 22.5*S.s); safe.push([p.x, 0, p.z]); }
+  for(let g=0; g<NG; g++) for(let s=-1; s<=1; s+=2){ const p = ax(g, 51, 9*s); safe.push([p.x, 8, p.z]); }
+  safe.push([0, 14, 59.5]);
+
+  /* ── 쏘기 틈(가림 표의 구멍) — 틈이 지나는 칸을 벽 두께 안에서 훑어 모은다(y 는 GY 기준) ── */
+  const apertures = [];
+  const ap = (px, pz, ux, uz, hw, nx, nz, v0, v1, y0, y1, kind)=>{
+    const seen = new Set();
+    for(let a=-2; a<=2; a++) for(let b=0; b<=4; b++){
+      const u = hw*a/2*0.96, v = v0 + 0.04 + (v1 - v0 - 0.08)*b/4, cx = Math.floor(px + ux*u + nx*v), cz = Math.floor(pz + uz*u + nz*v);
+      if(!inW(cx, cz)) continue; const i = gi(cx, cz); if(seen.has(i)) continue; seen.add(i); apertures.push({i, y0, y1, kind});
+    }
+  };
+  for(const S of straights) if(S.corr) for(const P of S.deco.slits){                       // 복도 안벽 활 틈(0.12 폭, 안벽 t 49~50)
+    const c = ax(S.g, 49.5, P), d = DIRS[S.g]; ap(c.x, c.z, -d.dz, d.dx, 0.06, d.dx, d.dz, -0.5, 0.5, 0.6, 1.8, 'slit'); }
+  for(const T of towers) for(const w of T.windows) ap(w.x - w.nx*0.5, w.z - w.nz*0.5, -w.nz, w.nx, 0.4, w.nx, w.nz, -0.5, 0.5, 12.4, 13.7, 'window');   // 망루 창 6
+  for(const G of galleries){                                                                 // 회랑 바깥 돌벽(e 52.29~52.8 = 가운데 선에서 1.52~2.12): 창 0·±6.4 · 활 틈 ±3.2
+    const cx = (G.a.x + G.b.x)/2, cz = (G.a.z + G.b.z)/2, v0 = (CW.GAL_E1 - CW.MID)/(0.6*Math.SQRT2), v1 = (CW.GAL_OUT - CW.MID)/(0.6*Math.SQRT2);
+    for(const u of [-6.4, 0, 6.4]) ap(cx + G.U.x*u, cz + G.U.z*u, G.U.x, G.U.z, 0.25, G.N.x, G.N.z, v0, v1, 9.1, 9.8, 'galWin');
+    for(const u of [-3.2, 3.2])    ap(cx + G.U.x*u, cz + G.U.z*u, G.U.x, G.U.z, 0.06, G.N.x, G.N.z, v0, v1, 9.0, 9.8, 'galSlit');
+  }
+
+  /* ── 문 깔때기 과녁 전부(탑 8 × 9 · 암문 6 × 양쪽 · K 북문·남문) ── */
+  const funnels = [];
+  for(const T of towers) funnels.push(...T.funnels);
+  for(const S of straights) if(S.corrDoor){ const c = ax(S.g, 49.5, 16*S.s), d = DIRS[S.g];
+    funnels.push({x:c.x, z:c.z, nx:d.dx, nz:d.dz, half:f3(1.4/2 - BODY), y:0, lv:CR.G, door:'corrDoor', tower:-1},
+                 {x:c.x, z:c.z, nx:-d.dx, nz:-d.dz, half:f3(1.4/2 - BODY), y:0, lv:CR.G, door:'corrDoor', tower:-1}); }
+  funnels.push({x:0, z:53.5, nx:0, nz:1, half:f3(2.0/2 - BODY), y:8, lv:CR.W, door:'kN', tower:-1},
+               {x:K.doorS.x, z:K.doorS.z, nx:0, nz:-1, half:f3(1.34/2 - BODY), y:14, lv:CR.T, door:'kS', tower:-1});
+
+  return {towers, K, straights, link, galleries, zones, stairs, secrets, spark, sparkByG, sparkHs:[], safe, apertures, funnels};
+}
+const CPLAN = castlePlan();                          // 순수 자료 — genTerrain() 부르기 **전에** 만든다
+
+/* ── 순수 함수(해석식 — castleLayout 전, genTerrain 때 불러도 된다) ── */
+function boxCheb(b, px, pz){ return Math.max(b.x0 - px, px - b.x1, b.z0 - pz, pz - b.z1, 0); }   // 점 → 상자 체비쇼프 거리(안이면 0)
+function inTowerBox(px, pz){ for(const t of CPLAN.towers) if(px > t.x0 && px < t.x1 && pz > t.z0 && pz < t.z1) return true; return false; }
+function castleOutAt(px, pz){                        // 성곽 바깥 얼굴 od — 대각(회랑) 구간은 탑 귓돌 모서리를 지나는 52.8, 그 밖 53
+  const ax = Math.abs(px), az = Math.abs(pz);
+  return ((ax + az)*CHAM >= Math.max(ax, az) - 1e-9 && !inTowerBox(px, pz)) ? CW.GAL_OUT : CW.OUT;
+}
+function dCurtain(x, z){ const px = x + 0.5, pz = z + 0.5; return Math.max(0, oct(px, pz) - castleOutAt(px, pz)); }   // 곧은 벽·회랑 바깥 얼굴까지
+function dTower(x, z){ const px = x + 0.5, pz = z + 0.5; let d = 1e9; for(const t of CPLAN.towers) d = Math.min(d, boxCheb(t, px, pz)); return d; }   // 탑 여덟 상자까지
+function dWall(x, z){ return Math.min(dCurtain(x, z), dTower(x, z), boxCheb(CPLAN.K, x + 0.5, z + 0.5)); }   // 성곽 바깥 테두리까지 체비쇼프(0 = 성곽 칸)
+function castleFoot(x, z){                           // 성곽 칸: od 49~바깥 얼굴 띠 또는 탑·K 상자 안(몸은 castleLayout 이 덮어쓴다)
+  const px = x + 0.5, pz = z + 0.5, od = oct(px, pz), K = CPLAN.K;
+  if(od >= CW.IN && od < castleOutAt(px, pz)) return true;
+  return inTowerBox(px, pz) || (px > K.x0 && px < K.x1 && pz > K.z0 && pz < K.z1);
+}
+function spur(x, z){                                 // 바위 톱: 어느 성문이든 t ≥ 53 && P < 15 — 해자는 협곡에 닿기 전에 바위에 막혀 끝난다
+  const px = x + 0.5, pz = z + 0.5;
+  for(let g=0; g<NG; g++) if(gT(g, px, pz) >= 53 && Math.abs(gPP(g, px, pz)) < CW.SPUR_P) return true;
+  return false;
+}
+function spurShoulder(x, z, hOld){                   // 바위 톱 P 13~15 두 칸만 벽 쪽으로 기우는 어깨(P 13.5 → 12 · 14.5 → 10) — 옛 12칸 수직 절벽을 7~8칸 턱으로
+  const px = x + 0.5, pz = z + 0.5; let P = 1e9;
+  for(let g=0; g<NG; g++) if(gT(g, px, pz) >= 53){ const p = Math.abs(gPP(g, px, pz)); if(p < P) P = p; }
+  return (P >= 13 && P < CW.SPUR_P) ? Math.min(hOld, GY + 9 + Math.round((CW.SPUR_P - P)*2)) : hOld;
+}
+function kBand(x, z){                                // K 바위 받침: 칸 가운데가 K 상자에서 체비쇼프 ≤ 3 이고 z < 64
+  const pz = z + 0.5; return pz < CW.K_BAND_Z1 && boxCheb(CPLAN.K, x + 0.5, pz) <= CW.K_BAND;
+}
+function tower66(x, z){                              // 3·4 성문 안쪽 66 망루(t 49~53 · P 7~11) — GATE_MASK 는 genTerrain 때 아직 없어 리터럴 식
+  const px = x + 0.5, pz = z + 0.5;
+  for(let g=2; g<=3; g++){ const t = gT(g, px, pz), P = Math.abs(gPP(g, px, pz)); if(t >= 49 && t < 53 && P >= 7 && P < 11) return true; }
+  return false;
+}
+function castleSc(d){                                // 해자 2 → 풀 비탈 +1.0/칸, 성곽 8칸 안은 GY+7 상한(성벽 길 8 보다 늘 낮게)
+  const sc = GY + CW.DITCH_H + Math.max(0, d - CW.DITCH_W)*CW.SCARP_K;
+  return d <= CW.NOTREE ? Math.min(sc, GY + CW.SCARP_CAP) : sc;
+}
+function castleEd(x, z){ return GY + 15 - Math.max(0, (FIELD_R - 1.5) - Math.hypot(x + 0.5, z + 0.5))*3; }   // 세상 끝 1.5~6.5칸 안에서 15 로 솟는 바위 테
+function castleScarp(x, z){                          // castleTerrainAt 이 해자·비탈 식(sc)으로 바꾸는 칸 — 색 덮어쓰기·너덜/수풀/나무 거름은 이것만 본다
+  /* 설계 2-5 는 'od ≥ 53' 이지만, 회랑 바깥 얼굴(52.8)과 53 사이 가는 띠도 castleTerrainAt 이 해자로 깎으므로 od ≥ 49 + !castleFoot 로 잰다(같은 칸 + 그 띠) */
+  const px = x + 0.5, pz = z + 0.5;
+  if(oct(px, pz) < CW.IN || corridorDist(px, pz) || spur(x, z) || castleFoot(x, z) || kBand(x, z)) return false;
+  const d = dWall(x, z);
+  return d < CW.NOTREE && castleSc(d) >= castleEd(x, z);      // 세상 끝 테(ed)가 이긴 칸은 옛 바위색
+}
+function laneDist(x, z){                             // 점 (x,z) 에서 둘레길 가운데 선(od 47.5)까지 — 협곡 창(성문·층계참 앞)은 둘레길이 아니라 99
+  if(corridorDist(x, z)) return 99;
+  return Math.abs(oct(x, z) - (CW.LANE0 + CW.IN)/2);
+}
+function roofLv(y){ return y < GY+5 ? CR.G : y < GY+11.9 ? CR.W : CR.T; }   // 발 높이 → 층 비트(땅 · 성벽 길 · 망루)
+function sheltered(x, z, y){                         // 지붕 밑(그 층 문턱 빼고) — 어떤 좀비도 이 아이를 쫓지도 물지도 않는다
+  const cx = Math.floor(x), cz = Math.floor(z); if(!inW(cx, cz)) return false;
+  const r = CROOF[gi(cx, cz)], lv = roofLv(y);
+  return !!(r & lv) && !(r & (lv << 3));             // 문턱은 층마다(DG = G<<3 · DW = W<<3 · DT = T<<3)
+}
+function onCastleLayer(x, z, y){                     // 이 아이가 좀비 성곽 층(계단·층계참·망루 윗마당·다리 위·곧은 성벽 길·연결 벽)에 있나
+  const cx = Math.floor(x), cz = Math.floor(z); if(!inW(cx, cz)) return false;
+  const i = gi(cx, cz); if(ZONE[i] < 0) return false;
+  const k = stairOf[i];
+  if(k >= 0 && k < 1000) return y >= stairH(k, x, z) - 0.5;   // 66 계단 칸
+  return y >= GY + CW.WALK - 0.6                     // 그 밖 ZONE 칸: 다리 **밑** 통로(y ≤ 5.1)의 아이는 거짓
+      && y <= GY + CW.WALK + SHEEP_REACH_Y;           // 66 모서리 망대·깃대 상자 위(W+3.4·W+4.3)는 물 수 없는 자리 → 목표 아님
+}
+function zTop(cx, cz){ return (inW(cx, cz) && CASTLE[gi(cx, cz)] >= CK.SOLID) ? 999 : solidTop(cx, cz); }   // 좀비 땅 걸음용 — 성곽 칸(복도·탑·문 terrH GY 포함)은 벽
+function zoneStair(x, z){                            // (x,z) 가 66 계단·층계참 칸(t 34~49 · P 7~10)이면 그 계단 번호 k(= 2g + (s>0)), 아니면 −1
+  for(let g=0; g<NG; g++){
+    const t = gT(g, x, z); if(t < 34 || t >= 49) continue;
+    const pp = gPP(g, x, z), P = Math.abs(pp); if(P >= 7 && P < 10) return 2*g + (pp > 0 ? 1 : 0);
+  }
+  return -1;
+}
+function layerY(x, z, ly){                           // 성곽 층 높이 한 함수 — wolfY·dropGold·검사 공용
+  const cx = Math.floor(x), cz = Math.floor(z), ok = inW(cx, cz), i = ok ? gi(cx, cz) : 0;
+  if(ly && ok){ const k = stairOf[i];
+    if(k >= 0 && k < 1000) return stairH(k, x, z);  // 계단 칸
+    if(ZONE[i] >= 0)       return GY + CW.WALK;      // 성곽 층 칸(층계참·창고 ②④ 위·망루 윗마당·다리·성벽 길·복도·암문 위·연결 벽)
+  }                                                  // ZONE 없는 맨땅 칸이면 ly 와 상관없이 땅 식 — 호스트·손님이 같은 x 에서 늘 같은 y
+  return Math.min(GY+1, Math.max(GY, zTop(cx, cz)));
+}
+function wolfY(w){ return layerY(w.x, w.z, w.ly); }  // 호스트(좀비 루프 끝)·손님(lerpMobs)이 같이 부른다
+
+/* ── 빈 껍데기 — 서명 확정, 몸통은 중립값(맵만 키운 판에서는 아무 일도 안 한다). 채우는 갈래를 적어 둔다 ── */
+function castleTerrainAt(x, z, od, hOld, cd){ return hOld; }   // 갈래 1 — K 받침·둘레길·해자·비탈·바위 어깨·세상 끝 테(설계 2-5)
+function castleLayout(){}                                      // 갈래 1 — CPLAN → terrH·GATE_MASK·CASTLE·CROOF·ZONE·stairOf·SPIRALS·GBOX
+function buildCastle(){}                                       // 갈래 2 — 성곽 그림(bpush — bbuild 앞)
+function spiralH(k, px, pz, y){ return GY; }                    // 갈래 1 — 나선 디딤 높이(절대 y · 벽 999 · 바닥 없음 −999)
+function ceilingOver(x, z, R, y){ return 1e9; }                // 갈래 1 — 머리 위 천장 밑면(절대 y, 없으면 1e9)
+function gboxSegClear(ox, oy, oz, dx, dy, dz, len){ return len; }   // 갈래 1 — 카메라 선분이 상자에 처음 닿는 거리(없으면 len)
+function doorFunnel(dt){}                                      // 갈래 1 — 문 깔때기(CPLAN.funnels)
+function climbTick(w, dt, sheep){}                             // 갈래 3 — 성벽 위 좀비(cs ≥ 2) 한 걸음
+function updCastleTreasure(dt){}                               // 갈래 4 — 비밀 문 밀기·상자·반짝 보물·첫 방문 알림·구간 알림
+function castleOccluded(eye, target){ return false; }          // 갈래 4 — 덮인 곳에서 쏠 때 성곽 벽 가림(쏘기 틈으로만)
+function treKeys(){ return {run:null, day:null}; }             // 갈래 4 — 보물 장부 localStorage 열쇠(판 · 판+날)
+let camAutoK = 0;                                              // 갈래 1 — 자동 1인칭 0(3인칭) ~ 1(1인칭)
+const CL_N = new Int8Array(10); let CL_ALL = 0; const CL_KID = new Map();   // 갈래 3 — 계단별·전체 성벽 좀비 수 · 아이 uid → 이 밤 끌어올린 수
+const TRE = {found:0, paid:0, day:-1, n:0, opened:0, spark:0, pushT:0, hintT:0};   // 갈래 4 — 이 아이의 보물 장부(로컬 — 21명이 같은 상자를 각자 연다)
+let CPIECES = null;                                            // 갈래 2 — 소품·장식 상자 기록(정적 검사용)
+
 function genTerrain(){
   for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){
     const od = oct(x+0.5, z+0.5); const i = gi(x,z);
@@ -4077,8 +4399,9 @@ function genTerrain(){
     if(Math.hypot(x+0.5, z+0.5) > FIELD_R){ terrH[i] = -999; continue; }
     let h = GY;
     let m = mtnHeight(od);
+    let cd = null;                              // 67차 — 칸 끝의 castleTerrainAt 에 넘기려고 블록 밖으로 올렸다(od ≤ 46 은 m = 0 이라 계산조차 안 하므로 null)
     if(m > 0){
-      const cd = corridorDist(x+0.5, z+0.5);
+      cd = corridorDist(x+0.5, z+0.5);
       if(cd){
         const gh = gapHalfAt(cd[1]);
         const fade = (cd[2] - gh) / 2.6;        // 협곡 안은 완전 평지, 밖으로 2.6칸 만에 산
@@ -4099,6 +4422,7 @@ function genTerrain(){
         h = GY + Math.max(1, Math.round(m + n*(ridge ? 0.6 : 1) + ridge));   // 마루 위에선 잔노이즈를 줄여 기둥이 덜 쪼개지게
       }
     }
+    h = castleTerrainAt(x, z, od, h, cd);        // 67차 — 성곽 둘레길·해자·풀 비탈·K 받침·바위 어깨·세상 끝 테(몸통은 갈래 1 — 지금은 그대로 돌려준다)
     terrH[i] = h;
     blockG[i] = sectorOf(x+0.5,z+0.5);
   }
@@ -5553,7 +5877,9 @@ function placeNodes(){
   }
   /* 65차 — 산 숲: 산 칸을 한 번 훑으며 '숲 밀도' 로 뽑는다(숲 덩이·빈 비탈·수목 한계선 GY+10~17). Math.random 대신 rnd — 사진이 판마다 같다.
      ★ 마당(oct < ARENA_R+3) 안에는 한 그루도 없다. 협곡(corridorDist)·성문 망루(mtNearGate)·망루 계단(rampNear)·벼랑 끝(drop>3)도 비운다 */
-  const FOREST_K = 2.5, FOREST_MAX = 420;                                   // 목표 360 ± 50 그루. 후보 칸이 1,645 뿐이라 명세 값 0.45 로는 62그루 — 2.5 로 올려 잰 수 353그루(숲 덩이 가운데는 빽빽하다)
+  const FOREST_K = 2.1, FOREST_MAX = 500;                                   // 65차: 목표 360 ± 50 그루 — 후보 칸이 1,645 뿐이라 명세 값 0.45 로는 62그루, 2.5 로 올려 잰 수 353그루(숲 덩이 가운데는 빽빽하다)
+                                                                            // 67차 — 세상 끝이 78 로 넓어져 산 띠가 두꺼워졌다: 뚜껑 420 → 500, 목표 430 ± 50. 2.5 그대로면 569그루로 뚜껑에 닿아
+                                                                            //   동쪽 끝(x 58~66)이 통째로 비었다 → 2.1 로 467그루. ★ 성곽 지형·나무 금지(갈래 1)가 들어가면 다시 잰다(FOREST_K 만)
                                                                             // ★ FOREST_MAX 는 안전 뚜껑이다 — 닿으면 훑기가 서쪽(x 작은 쪽)부터라 동쪽 산이 빈다. 닿지 않게 FOREST_K 로 맞춘다
   const forestN = (x,z)=> 0.5 + 0.35*Math.sin(x*0.19 + 0.4)*Math.cos(z*0.23 - 1.1) + 0.25*Math.sin((x - z)*0.11 + 2.3);   // 0~1.1, 주기 ≈30칸
   let nF = 0;
@@ -5730,13 +6056,22 @@ function stairH(k, x, z){                                // 계단 칸 안 (x,z)
   const S = STAIRS[k], j = Math.floor((gT(S.g, x, z) - S.t0) * 2);
   return GY + (Math.max(0, Math.min(S.n-1, j)) + 1) * S.r;
 }
-/* 축 좌표 직사각형(pp a~b · t c~d · GY 기준 y) → 세계 상자. 축이 전부 x·z 와 나란해서 맞모서리 둘이면 된다 */
-function gboxAdd(g, p0, p1, t0, t1, y0, y1){
-  const xa = gX(g,t0,p0), xb = gX(g,t1,p1), za = gZ(g,t0,p0), zb = gZ(g,t1,p1);
-  const b = {x0:Math.min(xa,xb), x1:Math.max(xa,xb), z0:Math.min(za,zb), z1:Math.max(za,zb), y0:GY+y0, y1:GY+y1};
+/* 67차 — 상자 = {x0,x1,z0,z1,y0,y1, k(종류 GK), off(내가 연 비밀 문 — 모든 판정이 건너뜀), sec(비밀 번호 −1), st(검사 도장 — 한 프레임 중복 없앰)}.
+   돌려주는 값 = 상자(비밀 문 상자를 CPLAN.secrets[i].box 에 걸어 둔다) */
+function gboxPut(b){
   GBOX.push(b);
   for(let bx=Math.floor(b.x0/4); bx<=Math.floor(b.x1/4); bx++) for(let bz=Math.floor(b.z0/4); bz<=Math.floor(b.z1/4); bz++){
     const k = gboxKey(bx,bz); let a = gboxGrid.get(k); if(!a) gboxGrid.set(k, a = []); a.push(b); }
+  return b;
+}
+/* 축 좌표 직사각형(pp a~b · t c~d · GY 기준 y) → 세계 상자. 축이 전부 x·z 와 나란해서 맞모서리 둘이면 된다 */
+function gboxAdd(g, p0, p1, t0, t1, y0, y1, k = GK.WALL){
+  const xa = gX(g,t0,p0), xb = gX(g,t1,p1), za = gZ(g,t0,p0), zb = gZ(g,t1,p1);
+  return gboxPut({x0:Math.min(xa,xb), x1:Math.max(xa,xb), z0:Math.min(za,zb), z1:Math.max(za,zb), y0:GY+y0, y1:GY+y1, k, off:false, sec:-1, st:0});
+}
+/* 67차 — 세계 좌표 상자(성곽 — 축이 없는 대각 회랑·탑). y 는 GY 기준(gboxAdd 와 같은 약속) */
+function gboxAddW(x0, x1, z0, z1, y0, y1, k = GK.WALL){
+  return gboxPut({x0:Math.min(x0,x1), x1:Math.max(x0,x1), z0:Math.min(z0,z1), z1:Math.max(z0,z1), y0:GY+y0, y1:GY+y1, k, off:false, sec:-1, st:0});
 }
 const PARA_LO = 0.85, PARA_HI = 1.05, MERLON = 1.45;     // 흉벽 높이 — 통로 쪽(낮게, 내려다본다) · 바깥 · 성가퀴
 function gateLayout(){
@@ -7664,7 +7999,7 @@ function buildMiniIsle(){
 }
 /* ★ 성문을 자원보다 먼저 세운다 — 망루 계단 자리를 먼저 잡아 놔야
    나무·바위가 계단 위에 박히지 않는다. */
-buildSky(); gateLayout(); buildWorldMesh(); buildGates(); buildShop(); buildForge(); buildFarms();
+buildSky(); gateLayout(); castleLayout(); buildWorldMesh(); buildGates(); buildCastle(); buildShop(); buildForge(); buildFarms();   // 67차 — 성곽 몸은 산 기둥 앞, 그림은 bbuild 앞
 placeNodes(); scatterDecor();
 buildVillage();   // 65차 — 살아있는 느낌(참새·풀·나비·오리·연기)만 얹는다. 농장·자원이 다 선 뒤에
 buildMiniIsle();
@@ -17661,7 +17996,10 @@ function paintGrp(){
 
 /* ═══════════════════════ 미니맵 ═══════════════════════ */
 const mini = el('mini'), mg = mini.getContext('2d');
-const MSC = 150/(FIELD_R*2+6);
+/* 67차 — 미니맵은 세상 끝(78)이 아니라 반지름 MM_R 까지만 그린다: 성곽(≤ 58)·좀비 출발까지. 세상 끝을 다 넣으면 마을이 작아진다.
+   ★ 이름 MINI_R 은 이미 하늘 섬 반지름이다 — 쓰면 안 된다 */
+const MM_R = 62;
+const MSC = 150/(MM_R*2+6);
 /* 미니맵에 '모서리 깎은 네모'를 그린다 — 마을 경계와 같은 모양이라야 애들이 방향을 잡는다 */
 function octPath(g2, R){
   const c = R*(1/CHAM - 1);            // 모서리를 깎기 시작하는 자리
@@ -17671,6 +18009,12 @@ function octPath(g2, R){
   g2.closePath();
 }
 const mpx = (x)=> 75 + x*MSC, mpz = (z)=> 75 + z*MSC;
+/* 67차 — 미니맵은 MM_R(62) 까지만 그리는데 협곡 바닥은 세상 끝(78)까지 걸을 수 있다.
+   그 너머에 선 사람·좀비는 둥근 판 테두리(반지름 MM_R)에 붙여 그린다 — 캔버스 밖으로 사라지지 않게 */
+function mpClamp(x, z){
+  const r = Math.hypot(x, z), k = r > MM_R ? MM_R/r : 1;
+  return [mpx(x*k), mpz(z*k)];
+}
 /* ★ 안 변하는 부분(바닥·산·입구 5개·번호 글자·건물)은 따로 그려 두고 붙이기만 한다.
    예전엔 초당 8번 전부 새로 그렸고, 그 중 번호 글자 10번이 특히 비쌌다.
    교실 크롬북에서 미니맵 한 번에 2.79ms 였다. 낮밤이 바뀌거나 건물이 생기면 다시 그린다. */
@@ -17682,10 +18026,10 @@ function miniStatic(){
   const mg = miniBG.getContext('2d');
   mg.clearRect(0,0,150,150);
   mg.fillStyle = G.phase==='night' ? '#1b2a3f' : '#2f5c33';
-  mg.beginPath(); mg.arc(75,75,FIELD_R*MSC,0,7); mg.fill();
+  mg.beginPath(); mg.arc(75,75,MM_R*MSC,0,7); mg.fill();          // 67차 — 세상 끝(78) 대신 미니맵 반지름 MM_R 까지(성곽 그림은 갈래 2)
   // 산 — 바깥은 둥글고, 마을 경계(안쪽)는 모서리 깎은 네모다
-  mg.strokeStyle = '#6b6f78'; mg.lineWidth = (FIELD_R-RING_A)*MSC;
-  mg.beginPath(); mg.arc(75,75,(RING_A+FIELD_R)/2*MSC,0,7); mg.stroke();
+  mg.strokeStyle = '#6b6f78'; mg.lineWidth = (MM_R-RING_A)*MSC;
+  mg.beginPath(); mg.arc(75,75,(RING_A+MM_R)/2*MSC,0,7); mg.stroke();
   mg.fillStyle = mg.canvas.__grd || '#2f5c33';
   mg.fillStyle = G.phase==='night' ? '#1b2a3f' : '#2f5c33';
   octPath(mg, RING_A); mg.fill();          // 마당은 네모 — 여기가 지을 수 있는 곳
@@ -17695,7 +18039,7 @@ function miniStatic(){
     mg.strokeStyle = GCOL[i]; mg.lineWidth = GAP_HALF*2*MSC;
     mg.beginPath();
     mg.moveTo(mpx(gX(i,RING_A-3,0)), mpz(gZ(i,RING_A-3,0)));
-    mg.lineTo(mpx(gX(i,FIELD_R,0)),  mpz(gZ(i,FIELD_R,0))); mg.stroke();
+    mg.lineTo(mpx(gX(i,MM_R,0)),  mpz(gZ(i,MM_R,0))); mg.stroke();
     mg.fillStyle = GCOL[i];
     mg.strokeStyle='rgba(0,0,0,.8)'; mg.lineWidth=2;
     const lx = mpx(gX(i,RING_A-7,0)), lz = mpz(gZ(i,RING_A-7,0))+3;
@@ -17715,13 +18059,13 @@ function drawMini(){
   mg.fillStyle = '#66e0ff'; mg.beginPath(); mg.arc(75,75,4,0,7); mg.fill();
   // 좀비
   mg.fillStyle = '#ff3b3b';
-  for(const w of G.wolves){ mg.beginPath(); mg.arc(mpx(w.x), mpz(w.z), w.k>=2?2.6:1.8, 0,7); mg.fill(); }
+  for(const w of G.wolves){ const [wx,wz] = mpClamp(w.x, w.z); mg.beginPath(); mg.arc(wx, wz, w.k>=2?2.6:1.8, 0,7); mg.fill(); }
   // 병정
   mg.fillStyle = '#ffffff';
-  for(const s of G.soldiers){ mg.fillRect(mpx(s.x)-1, mpz(s.z)-1, 2,2); }
+  for(const s of G.soldiers){ const [sx,sz] = mpClamp(s.x, s.z); mg.fillRect(sx-1, sz-1, 2,2); }
   // 친구들
   for(const p of G.players.values()){ mg.fillStyle = GCOL[p.g]; mg.beginPath();
-    mg.arc(mpx(p.x), mpz(p.z), 2.2, 0,7); mg.fill(); }
+    const [fx,fz] = mpClamp(p.x, p.z); mg.arc(fx, fz, 2.2, 0,7); mg.fill(); }
   /* 상인 — 낮에만 문을 연다.
      ★ 지도에 없으면 좌판을 우연히 지나가야만 발견한다. 실제로 그랬다. */
   if(G.phase === 'day'){
@@ -17753,7 +18097,7 @@ function drawMini(){
     mg.lineTo(mpx(gX(g2,RING_A+2,0)), mpz(gZ(g2,RING_A+2,0))); mg.stroke();
   }
   // 나
-  mg.save(); mg.translate(mpx(PL.x), mpz(PL.z)); mg.rotate(-PL.yaw);
+  mg.save(); mg.translate(...mpClamp(PL.x, PL.z)); mg.rotate(-PL.yaw);
   mg.fillStyle='#fff'; mg.beginPath(); mg.moveTo(0,-5); mg.lineTo(3.6,4); mg.lineTo(-3.6,4);
   mg.closePath(); mg.fill(); mg.strokeStyle='#000'; mg.lineWidth=1; mg.stroke(); mg.restore();
 }
@@ -18708,6 +19052,8 @@ const BAL = {
   struHealPct: 0.35,         // 아침마다 최대 체력의 이만큼 저절로 수리된다
   struRefund: 0.40           // 밤에 부서지면 자재를 이만큼 돌려준다
 };
+/* 67차 성곽 — 좀비 새벽 귀환 예산(초, 종류마다). 갈래 3 이 BAL.climb 을 더하고 이 줄을 설계 5-1 식으로 바꾼다(WOLF_T·BAL 뒤라야 TDZ 없음) — 지금은 0 */
+const CLIMB_RET = WOLF_T.map(()=> 0);
 
 function curve(d){ return Math.pow(Math.max(0,d), 0.72); }
 /* ★ 뒤로 갈수록 가팔라지는 곡선 — 좀비 능력치 전용.
@@ -24150,7 +24496,8 @@ function loop(){
     if(PROF_ON) pS();
     if(!DBG.noInst){ updParts(dt); updArrows(dt); updBullets(dt); updRings(dt); updFlash(dt); updOrbs(dt, tAcc);
                      wingFxTick(dt);                              // 66차 — 날개 반짝이·깃털·전직 마법진
-                     updChests(dt, tAcc); updDrops(dt, tAcc); }
+                     updChests(dt, tAcc); updDrops(dt, tAcc);
+                     updCastleTreasure(dt); }                    // 67차 — 성곽 비밀 문·상자·반짝 보물(갈래 4)
 
     fireworks(dt);
     if(PROF_ON) pE('효과');
@@ -24764,7 +25111,20 @@ Object.assign(window, {
   __badgeList:badgeList, __badgeTop:badgeTop, __badgeNext:badgeNext,
   __badgeCheck:badgeCheck, __bgReset:bgReset, __bgGot:()=>bgGot, __bgTop:()=>bgTop,
   __bgQueue:()=>bgQueue, __BG_GAP:BG_GAP, __BG_TICK:BG_TICK,
-  __buildBadgeUI:buildBadgeUI
+  __buildBadgeUI:buildBadgeUI,
+  /* 67차 성곽 — 검사 API 는 갈래 0 이 한 번에 연다(이름 중복 금지). 몸통을 뒤 갈래가 채워도 같은 함수를 가리킨다.
+     바뀌는 값(CL_ALL·camAutoK·CPIECES)은 함수로 내준다 — 값을 복사해 두면 옛 값이 나간다 */
+  __HW:HW, __CW:CW, __CK:CK, __GK:GK, __CR:CR, __CPLAN:CPLAN, __CASTLE:CASTLE, __CROOF:CROOF, __ZONE:ZONE,
+  __SPIRALS:SPIRALS, __SECRET_OPEN:SECRET_OPEN, __GBOX:GBOX, __gboxGrid:gboxGrid, __stairOf:stairOf, __STAIRS:STAIRS, __GATE_MASK:GATE_MASK,
+  __dWall:dWall, __castleTerrainAt:castleTerrainAt, __spiralH:spiralH, __ceilingOver:ceilingOver, __gboxSegClear:gboxSegClear,
+  __sheltered:sheltered, __zTop:zTop, __zoneStair:zoneStair, __wolfY:wolfY, __onCastleLayer:onCastleLayer, __castleScarp:castleScarp,
+  __climbTick:climbTick, __CLIMB:()=>({n:CL_N, all:CL_ALL, kid:CL_KID}), __camAuto:()=>camAutoK, __TRE:()=>TRE,
+  __updCastleTreasure:updCastleTreasure, __castleOccluded:castleOccluded, __lerpMobs:lerpMobs, __miniStatic:miniStatic, __CPIECES:()=>CPIECES
+});
+/* 67차 성곽 — 검사 API 둘째 덩이(설계 2회차에 더한 이름) */
+Object.assign(window, {
+  __layerY:layerY, __kBand:kBand, __tower66:tower66, __spurShoulder:spurShoulder, __doorFunnel:doorFunnel,
+  __CLIMB_RET:()=>CLIMB_RET, __TRE_KEYS:()=>treKeys()
 });
 onIcons(()=>{ window.__READY = true; });   // 28차 — 아이콘까지 다 구워진 뒤에(t30 이 165장을 센다)
 </script>

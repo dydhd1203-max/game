@@ -12,7 +12,7 @@ await pg.waitForFunction('window.__READY===true', null, {timeout:60000});
 
 const r = await pg.evaluate(()=>{
   const W=window, out=[], ok=(n,c,x)=>out.push((c?'  OK  ':'FAIL  ')+n+(x!==undefined?'   → '+x:''));
-  const GY=W.__GY, DIRS=W.__DIRS, T=W.__GATE_T, HW=73, WS=147;
+  const GY=W.__GY, DIRS=W.__DIRS, T=W.__GATE_T, HW=W.__HW, WS=HW*2+1;   // 67차 — 격자 크기는 게임에 묻는다(맵을 키웠다)
   const gi=(x,z)=>(x+HW)+(z+HW)*WS;
 
   /* ── 4. 크기 ── */
