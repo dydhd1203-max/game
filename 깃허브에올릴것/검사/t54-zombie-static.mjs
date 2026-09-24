@@ -42,7 +42,7 @@ const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),fn('metalMa
  // zombieChaseGate 가 쫓을 때의 최소 걸음(BAL.chaseMin)과 종류별 배수를 읽는다.
  declaration('BAL'),
  chunk('const WOLF_T =','function drawWolves('),fn('drawWolves'),declaration('HEAD_M'),fn('smoothHead'),fn('idleLife'),fn('limb1'),fn('limb2'),
- `globalThis.A={G,WOLF_T,BAL,WOLF_SPD_GROW,zombieChaseGate,LOOKS,ZOMBIE_STYLE,ZOMBIE_NIGHT,WOLF_DEAD,wolfPose,drawWolves,meshes:{${names.map(n=>n+':'+n).join(',')}}};`];
+ `globalThis.A={G,WOLF_T,BAL,WOLF_SPD_GROW,zombieChaseGate,LOOKS,ZOMBIE_STYLE,ZOMBIE_NIGHT,WOLF_DEAD,wolfPose,drawWolves,meshes:{${names.map(n=>n+':'+n).join(',')}},ZOMBIE_RISE_T,ZOMBIE_LIE_T,ZSKIN:ZOMBIE_MAT.skin,ZGEO:ZOMBIE_GEO};`];
 const context=vm.createContext({THREE,console});new vm.Script(pieces.join('\n')).runInContext(context,{timeout:10000});const A=context.A;
 const results=[];const check=(n,p,d)=>{results.push({name:n,pass:!!p,detail:d});console.log((p?'OK   ':'FAIL ')+n+(d===undefined?'':' '+JSON.stringify(d)));};
 const actor=(k=0,extra={})=>({k,x:0,y:0,z:0,ry:0,id:2,ph:.3,hp:40,mx:40,mv:false,atkT:0,hurt:0,...extra});
@@ -125,6 +125,26 @@ check('Two-part legs stay joined at the knee, keep equal segment lengths and ben
  const early=snapshot(w,t+=dt,.05),early2=snapshot(w,t+=dt,.02),hipE=endOf(early2.W_legs[2],.5).y,upE=new THREE.Vector3(0,1,0).transformDirection(early2.W_body[0]).y;
  let lateUp=1;for(let i=0;i<8;i++){const p=snapshot(w,t+=dt,.02);lateUp=Math.min(lateUp,new THREE.Vector3(0,1,0).transformDirection(p.W_body[0]).y);}
  check('Dying zombies buckle at the knees first, then topple over',hip0-hipE>.05&&upE>.75&&lateUp<.35,{hipDrop:+(hip0-hipE).toFixed(3),uprightEarly:+upE.toFixed(2),uprightLate:+lateUp.toFixed(2)});}
+// ═══ 66차 — 등장(땅에서 기어오름) · 쓰러진 뒤 떨다 사라짐 · 몇 마리만 끊기는 경련 · 살 셰이더의 상처. 모두 표시만 한다 ═══
+{const headY=w=>new THREE.Vector3().setFromMatrixPosition((()=>{const m=new THREE.Matrix4();A.meshes.W_head.getMatrixAt(0,m);return m;})()).y;
+ const still=actor(0,{id:6});A.drawWolves([still],4,1/60);const stand=headY(still);
+ const w=actor(0,{id:6,rise:A.ZOMBIE_RISE_T}),x0=w.x,z0=w.z,dt=1/60;let t=4;A.drawWolves([w],t,dt);const early=headY(w);
+ for(let i=0;i<30;i++){t+=dt;A.drawWolves([w],t,dt);}const mid=headY(w);for(let i=0;i<40;i++){t+=dt;A.drawWolves([w],t,dt);}const done=headY(w);
+ check('New zombies crawl up out of the ground over 0.8s without moving or changing their state',early<stand-.8&&mid>early&&Math.abs(done-stand)<.03&&w.x===x0&&w.z===z0&&!(w.rise>0)&&w.hp===40,{standing:+stand.toFixed(3),first:+early.toFixed(3),half:+mid.toFixed(3),end:+done.toFixed(3)});}
+{A.WOLF_DEAD.length=0;const w=actor(0,{id:7}),dt=1/60;let t=4;for(let i=0;i<10;i++){t+=dt;A.drawWolves([w],t,dt);}
+ w.dead=.55;w.mv=false;A.WOLF_DEAD.push(w);const paws=[];let lying=0,gone=-1;
+ for(let i=0;i<110;i++){t+=dt;A.drawWolves([],t,dt);if(!A.WOLF_DEAD.includes(w)){gone=i*dt;break;}if(w.lieT>0&&w.lieT<A.ZOMBIE_LIE_T*.8){lying++;const m=new THREE.Matrix4();A.meshes.W_paw.getMatrixAt(0,m);paws.push(pos(m));}}
+ let twitch=0;for(let i=1;i<paws.length;i++)twitch=Math.max(twitch,paws[i].distanceTo(paws[i-1]));
+ check('Fallen zombies lie twitching, then fade out and are cleared',lying>10&&twitch>.004&&gone>.55+A.ZOMBIE_LIE_T*.9&&gone<.55+A.ZOMBIE_LIE_T+.1,{lyingFrames:lying,armTwitch:+twitch.toFixed(4),clearedAfter:+gone.toFixed(2)});A.WOLF_DEAD.length=0;}
+{const crowd=Array.from({length:24},(_,i)=>actor(0,{id:i,ph:.21*i,x:i})),dt=1/60;let t=4;const last=crowd.map(()=>null),jumps=crowd.map(()=>0);
+ for(let f=0;f<420;f++){t+=dt;A.drawWolves(crowd,t,dt);for(let i=0;i<crowd.length;i++){const m=new THREE.Matrix4();A.meshes.W_head.getMatrixAt(i,m);const v=new THREE.Vector3(0,0,1).transformDirection(m);
+   if(last[i])jumps[i]=Math.max(jumps[i],v.angleTo(last[i]));last[i]=v;}}
+ const jerky=jumps.filter(j=>j>.09).length;
+ check('Only part of a crowd jerks its head in sudden twitches, without moving anyone',jerky>=4&&jerky<=18&&crowd.every((w,i)=>w.x===i&&w.z===0),{jerky,of:crowd.length});}
+{const src=String(A.ZSKIN.onBeforeCompile),skinGeos=[A.meshes.W_head,A.meshes.W_legs,A.meshes.W_paw].map(m=>m.geometry.getAttribute('zwk'));
+ check('Dried wounds live in the skin shader (no new pieces) and never animate or flow',A.ZSKIN.customProgramCacheKey()==='zombie-wound-66'&&skinGeos.every(a=>a&&a.count>0)&&[1,2,3].every((v,i)=>skinGeos[i].getX(0)===v)&&!/uTime|time|drip|flow/i.test(src));
+ const p=snapshot(actor(0,{id:3})),col=A.meshes.W_legs.instanceColor.array;
+ check('Trouser thighs are marked to skip skin wounds while forearms keep them',col[0]>0&&col[3]>0&&col[6]<0&&col[9]<0&&p.W_legs.length===4);}
 const deadHunter=actor(0,{dead:.4,shT:true,poseChase:1,poseAlert:.2});const death=A.wolfPose(deadHunter,1,1/60).threat;
 check('Defeated zombies stop the discovery and chase pose',death.chase===0&&death.alert===0&&death.drive===0);
 const phaseA=A.wolfPose(actor(0,{id:1}),.4,.016).threat,phaseB=A.wolfPose(actor(0,{id:8}),.4,.016).threat;
@@ -151,7 +171,7 @@ for(let k=0;k<13;k++){const single=snapshot(actor(k)).W_plate.length;const army=
  for(const [n,m] of Object.entries(A.meshes)){capacity&&=m.count<=m.count_max;maxCounts[n]=Math.max(maxCounts[n]||0,m.count);}}
 check('All-type maximum crowds fit their instance buffers',capacity,{costume:maxCounts.W_costume,capacity:A.meshes.W_costume.count_max});
 check('Every armored zombie keeps its entire armor in a maximum crowd',completeArmor,{plates:maxCounts.W_plate});
-check('No blood stains remain in zombie renderer',!fn('drawWolves').includes('0x7a1018')&&!fn('drawWolves').includes('0xff6a5a')&&!fn('drawWolves').includes('0x7a1a24'));
+check('No fresh or spurting blood colors in the zombie renderer (only dried wounds in the skin shader)',!fn('drawWolves').includes('0x7a1018')&&!fn('drawWolves').includes('0xff6a5a')&&!fn('drawWolves').includes('0x7a1a24'));
 let sharp;const require=createRequire(import.meta.url);for(const x of ['sharp',path.join(os.homedir(),'.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/sharp')])try{sharp=require(x);break;}catch{}
 fs.mkdirSync(out,{recursive:true});
 const S=420,pixels=Buffer.alloc(S*S*4),light=new THREE.Vector3(-.35,.8,.55).normalize();
