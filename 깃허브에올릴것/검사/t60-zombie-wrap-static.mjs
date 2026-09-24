@@ -24,9 +24,10 @@ ray.set(new THREE.Vector3(0,1,0),new THREE.Vector3(0,-1,0));const hole=ray.inter
 let around=0;for(let i=0;i<24;i++){const a=i*Math.PI/12,dir=new THREE.Vector3(Math.sin(a),0,Math.cos(a));ray.set(dir.clone().multiplyScalar(2),dir.clone().negate());if(ray.intersectObject(mesh).length>=4)around++;}
 check('Bandages wrap all the way around while leaving the center open for the body',hole===0&&around===24,{holeHits:hole,wrappedDirections:around});
 const rags=A.ZOMBIE_NIGHT.indexOf('rags');if(rags<0)throw Error('No bandage night');A.G.nk=rags;
-function snapshot(extra={}){A.drawWolves([actor(extra)],4,.016);return {head:mat(A.meshes.W_head,0),body:mat(A.meshes.W_body,0),arm:mat(A.meshes.W_legs,1),wrap:Array.from({length:wrap.count},(_,i)=>mat(wrap,i)),costume:A.meshes.W_costume.count};}
+function snapshot(extra={}){A.drawWolves([actor(extra)],4,.016);return {head:mat(A.meshes.W_head,0),body:mat(A.meshes.W_body,0),arm:mat(A.meshes.W_legs,0),wrap:Array.from({length:wrap.count},(_,i)=>mat(wrap,i)),costume:A.meshes.W_costume.count,digits:A.meshes.W_digit.count};}
+// 65차 — 위팔은 찢긴 소매(W_sleeve)로 옮겨 W_legs 의 첫 칸이 붕대를 감은 팔(si=1)의 아래팔이다. 손가락은 W_costume 에서 W_digit 으로 옮겼다(두 토막 12 → 굽은 한 조각 6 + 발 2).
 const baseline=snapshot(),poses=[baseline,snapshot({atkT:.07,poseAtkT:.1,poseAtkCd:.85}),snapshot({atkT:.85,poseAtkT:.1,poseAtkCd:.85}),snapshot({mv:true,gv:6,lx:0,lz:-.1,gp:1.2,shT:true,poseChase:1,posePreyWas:true}),snapshot({ry:1.2,dead:.3})];
-check('Bandage theme uses exactly four broad layers and removes the old hanging patches',poses.every(p=>p.wrap.length===4&&p.costume===15),{layers:baseline.wrap.length,costumePieces:baseline.costume});
+check('Bandage theme uses exactly four broad layers and removes the old hanging patches',poses.every(p=>p.wrap.length===4&&p.costume===3&&p.digits===8),{layers:baseline.wrap.length,costumePieces:baseline.costume});
 let drift=0;for(const p of poses)for(let i=0;i<4;i++){
   const owner=i===0?'head':i===3?'arm':'body';
   const a=baseline[owner].clone().invert().multiply(baseline.wrap[i]),b=p[owner].clone().invert().multiply(p.wrap[i]);

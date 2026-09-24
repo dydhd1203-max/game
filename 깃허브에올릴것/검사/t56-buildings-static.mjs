@@ -24,7 +24,7 @@ function fn(n){const a=source.indexOf('function '+n+'(');if(a<0)throw Error(n);l
 const a=source.indexOf('const _blkCache ='),b=source.indexOf('function footprint(',a);
 if(a<0||b<a)throw Error('Building geometry source anchors missing');
 const ctx=vm.createContext({});
-new vm.Script([declaration('T'),declaration('BUILD'),declaration('MAXLV'),declaration('XP_BUILD'),declaration('WORK_SEC'),fn('bs'),source.slice(a,b),'globalThis.A={BUILD,MAXLV,XP_BUILD,WORK_SEC,blocksOf,blocksOfRaw};'].join('\n')).runInContext(ctx);
+new vm.Script([declaration('T'),declaration('BUILD'),declaration('MAXLV'),declaration('XP_BUILD'),declaration('WORK_SEC'),fn('bs'),source.slice(a,b),'globalThis.A={BUILD,MAXLV,XP_BUILD,WORK_SEC,blocksOf,blocksOfRaw,cannonSpec};'].join('\n')).runInContext(ctx);
 const A=ctx.A,checks=[],details=[];
 function check(n,p){checks.push(!!p);console.log((p?'PASS ':'FAIL ')+n);}
 const types=['wwall','swall','arrow','ice','barr','pulse'];
@@ -37,7 +37,8 @@ for(const t of types){if(!A.BUILD[t])continue;let maxParts=0;const forms=new Set
     const center=size===2?.5:0,bounds=new THREE.Box3();maxParts=Math.max(maxParts,rows.length);
     for(const r of rows){
       if(![10,11].includes(r.length)||!r.slice(0,10).every(Number.isFinite)||r.slice(4,7).some(n=>n<=0)||(r.length===11&&r[10]!=='gun'))failures.push([t,lv,branch,style,'invalid part']);
-      if(r[10]==='gun'&&(t!=='arrow'||lv<3||!['rapid','sniper'].includes(branch)))failures.push([t,lv,branch,style,'invalid animated gun tag']);
+      // 움직이는 무장은 Lv3 기관총/저격총과 대포탑(65차 — 모든 단계의 포가·포신)만 갖는다.
+      if(r[10]==='gun'&&!(t==='pulse'||(t==='arrow'&&lv>=3&&['rapid','sniper'].includes(branch))))failures.push([t,lv,branch,style,'invalid animated gun tag']);
       q.setFromEuler(new THREE.Euler(0,r[8],r[9],'YXZ'));
       matrix.compose(new THREE.Vector3(r[0],r[1]+.5,r[2]),q,new THREE.Vector3(r[4],r[5],r[6]));
       for(const x of [-.5,.5])for(const y of [-.5,.5])for(const z of [-.5,.5])bounds.expandByPoint(v.set(x,y,z).applyMatrix4(matrix));
@@ -66,6 +67,16 @@ for(const branch of ['rapid','sniper']){
   const muzzles=guns.filter(r=>Math.abs(r[2]-(.5+1.036))<1e-8);
   check(branch+' muzzle matches the shared +Z attack origin and height',muzzles.length===(branch==='rapid'?4:1)&&muzzles.every(r=>Math.abs(r[2]+r[6]/2-(.5+1.045))<1e-8)&&Math.abs(muzzles.reduce((sum,r)=>sum+r[1]+.5,0)/muzzles.length-(hi-.33))<1e-8);
 }
+// 65차 대포탑 — 포가·포신만 돌고, 포신 끝(포구 조각)이 BUILD.hi 에 닿으며, 보루와 흉벽은 고정이다.
+let cannonOk=true;for(let lv=1;lv<=A.MAXLV;lv++){
+  const rows=A.blocksOf('pulse',lv),guns=rows.filter(r=>r[10]==='gun'),hi=A.BUILD.pulse.hi[lv-1],K=A.cannonSpec(lv);
+  const bore=guns.filter(r=>Math.abs(r[9]-K.pitch)<1e-9&&Math.abs(r[8]+Math.PI/2)<1e-9&&Math.abs(r[4]-.018)<1e-9);
+  const tip={y:K.py+Math.sin(K.pitch)*K.muzzle,z:.5+Math.cos(K.pitch)*K.muzzle};
+  cannonOk&&=guns.length>=8&&guns.length<=16&&rows.some(r=>!r[10]&&r[1]+.5<hi-1)&&bore.length===1
+    &&Math.abs(bore[0][2]+Math.cos(K.pitch)*.009-tip.z)<1e-9&&Math.abs(bore[0][1]+.5+Math.sin(K.pitch)*.009-tip.y)<1e-9
+    &&K.py<hi&&K.muzzle>.6;
+}
+check('Cannon tower turns only its carriage and barrel, whose bore matches the shared muzzle spec',cannonOk);
 check('Rapid upgrade exposes six barrels from level 5',A.blocksOf('arrow',5,'rapid').filter(r=>r[10]==='gun'&&Math.abs(r[2]-(.5+1.036))<1e-8).length===6);
 check('Unknown buildings fail closed',A.blocksOf('missing',1).length===0);
 // A building missing from these side tables falls back silently: observeBuilt pays XP_BUILD[t]||14,

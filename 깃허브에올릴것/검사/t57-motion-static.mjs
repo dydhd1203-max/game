@@ -7,7 +7,8 @@ const source=fs.readFileSync(process.argv[2]||path.resolve(here,'../../클로드
 const THREE=await import(pathToFileURL(path.resolve(here,'node_modules/three/build/three.module.js')).href);
 const harness=fs.readFileSync(path.join(here,'t54-avatar-static.mjs'),'utf8');
 const load=harness.slice(harness.indexOf('function scanEnd('),harness.indexOf('const A=context.API'));
-const A=new Function('source','THREE','vm',load+'\nreturn context.API;')(source,THREE,vm);
+const context=new Function('source','THREE','vm',load+'\nreturn context;')(source,THREE,vm),A=context.API;
+const TPGUN=vm.runInContext('TPGUN',context);   // 65차 — 무기마다 부품 표
 const results=[],check=(name,pass,detail)=>{results.push(!!pass);console.log((pass?'PASS ':'FAIL ')+name+(detail===undefined?'':' '+JSON.stringify(detail)));};
 const actor=e=>({x:0,y:0,z:0,ry:Math.PI,g:0,ph:0,mv:false,wp:0,we:0,hat:0,gls:0,clo:0,jb:-1,jt:0,...e});
 const pos=m=>new THREE.Vector3().setFromMatrixPosition(m),point=(m,x,y,z)=>new THREE.Vector3(x,y,z).applyMatrix4(m);
@@ -102,9 +103,13 @@ for(const kind of ['mine','work','throw']){
 }
 check('Work, harvest and throw transfer weight through planted feet',actionGround);
 check('All action cycles return exactly to their starting pose phase',actionReset);
+// 65차 — 총마다 부품 표(TPGUN)의 조각 수만큼 그리고, 표의 [3] 조각(왼손 받침)이 모든 총에서 왼손에 닿아 있다.
+let support=0,supportFire=0,partsMatch=true;
+for(let wp=1;wp<TPGUN.length;wp++){const a=pose(actor({wp})),f=pose(actor({wp,kick:1}));
+ partsMatch&&=a.gun.length===TPGUN[wp].r.length&&f.gun.length===TPGUN[wp].r.length;
+ support=Math.max(support,pos(a.handL[0]).distanceTo(pos(a.gun[3])));supportFire=Math.max(supportFire,pos(f.handL[0]).distanceTo(pos(f.gun[3])));}
 const aim=pose(actor({wp:3})),fire=pose(actor({wp:3,kick:1}));
-const support=pos(aim.handL[0]).distanceTo(pos(aim.gun[3])),supportFire=pos(fire.handL[0]).distanceTo(pos(fire.gun[3]));
-check('Seven-part gun remains supported by both hands through recoil',aim.gun.length===7&&fire.gun.length===7&&support<.10&&supportFire<.12,{support,supportFire});
+check('Every weapon part table remains supported by both hands through recoil',partsMatch&&support<.10&&supportFire<.12,{support,supportFire});
 check('Recoil moves both wrists while braced shoes remain grounded',pos(aim.handL[0]).distanceTo(pos(fire.handL[0]))>.04&&pos(aim.handR[0]).distanceTo(pos(fire.handR[0]))>.04&&fire.shoes.every(m=>Math.abs(bottom(m))<.015));
 let limbsFinite=true,apexStep=0,jumpPrior;
 for(let v=5;v>=-5;v-=.05){const p=pose(actor({air:true,vy:v}));for(const name of ['arm','legs','shoes'])for(const m of p[name])limbsFinite&&=m.elements.every(Number.isFinite);if(jumpPrior)for(let j=0;j<2;j++)apexStep=Math.max(apexStep,pos(p.shoes[j]).distanceTo(pos(jumpPrior.shoes[j])));jumpPrior=p;}
@@ -112,5 +117,5 @@ check('Jump rise, apex and fall bend knees continuously without invalid matrices
 const land=pose(actor({land:.22}));check('Landing lowers the body through bent knees without sinking shoes',pos(land.body[0]).y<pos(idle.body[0]).y-.07&&land.shoes.every(m=>Math.abs(bottom(m))<.015));
 const crowd=Array.from({length:40},(_,i)=>actor({x:i*2,wp:3,jb:i%3,jt:2,air:i%2===0,vy:2,glide:true}));
 A.drawSheep(crowd,20,40,()=>0x67a7cb,1);
-check('Forty fully equipped avatars fit leg, shoe and weapon instance capacities',A.meshes.legs.count===160&&A.meshes.shoes.count===80&&A.meshes.gun.count===280&&Object.values(A.meshes).every(m=>m.count<=m.instanceMatrix.count));
+check('Forty fully equipped avatars fit leg, shoe and weapon instance capacities',A.meshes.legs.count===160&&A.meshes.shoes.count===80&&A.meshes.gun.count===40*TPGUN[3].r.length&&Object.values(A.meshes).every(m=>m.count<=m.instanceMatrix.count));
 console.log(`${results.filter(Boolean).length}/${results.length} motion checks passed.`);process.exitCode=results.every(Boolean)?0:1;
