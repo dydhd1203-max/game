@@ -57,6 +57,7 @@ let popIsOpen=false,NOW=1000,stageT=0;
 const performance={now:()=>NOW};
 const el=id=>document.getElementById(id);
 const popOpen=()=>popIsOpen;
+const miniOn=()=>G.phase==='mini';
 const LOG={aim:[],toast:[],tool:[],build:[],sfx:[],gain:[]};
 let aimMode=false;
 function setAimMode(on,quiet){ on=!!on; LOG.aim.push([on,!!quiet]); if(aimMode===on) return; aimMode=on; paintBar(); }
@@ -129,6 +130,12 @@ for(const [what,set,unset] of [['down',()=>T.PL.down=true,()=>T.PL.down=false],[
   unset();
 }
 T.G.started=false; T.setAim(false); T.toggleGun(); check('Before the game starts right click does nothing', T.aim()===false); T.G.started=true;
+/* 미니게임: miniOnState 가 총을 맡는다 — Q·1·우클릭·총 칸이 총을 넣거나 꺼내지 않는다 */
+{ const ph=T.G.phase; T.G.phase='mini'; T.setAim(true); reset();
+  T.pickTool('mine'); const a1=T.aim(); T.pickBuild('swall'); const a2=T.aim(); T.toggleGun(); const a3=T.aim();
+  T.setAim(false); T.toggleGun(); const a4=T.aim();
+  check('In a minigame tool keys, building keys and right click leave the gun alone', a1&&a2&&a3&&!a4&&T.LOG.aim.length===0&&T.LOG.toast.length===0, [a1,a2,a3,a4].join());
+  T.G.phase=ph; T.setAim(false); T.pickTool('mine'); }
 const mdn=noComments(code.slice(code.indexOf("addEventListener('mousedown'"),code.indexOf("addEventListener('mouseup'")));
 check('mousedown: button 2 toggles the gun with or without pointer lock, never asks for a lock',
   /document\.pointerLockElement===cv\)\{[\s\S]*e\.button===2\)\{ e\.preventDefault\(\); toggleGun\(\); \}/.test(mdn)
@@ -152,7 +159,8 @@ const tools=$('tools'), first=tools.firstElementChild;
 check('The hotbar starts with a gun slot (icon, short name, “우클릭” key label)',
   first && first.className.includes('gun') && first.querySelector('.ky').textContent==='우클릭' && first.querySelector('.nm').textContent==='화승총'
   && first.querySelector('.ic').textContent==='🔫' && tools.children.length===1+5, first?.outerHTML?.slice(0,200));
-check('Short names: last word, whole name for bare-hand stone', T.gunShortName(T.WEAPONS[2])==='화승총' && T.gunShortName(T.WEAPONS[0])==='돌');
+check('Short names: last word; the starting stone reads as an action (던지기), not the stone resource (돌)', T.gunShortName(T.WEAPONS[2])==='화승총' && T.gunShortName(T.WEAPONS[0])==='던지기');
+check('The gun slot carries a fixed weapon badge (readable where the key label is hidden)', /\.slot\.tool\.gun::after\{content:'🎯'/.test(css));
 check('Gun away: the gun slot is off and the picked tool is on', !first.className.includes(' on') && tools.querySelectorAll('.on').length===1);
 T.setAim(true); T.paintBar();
 const onAll=[...document.querySelectorAll('#tools .on,#bar .on')].map(e=>e.className);
@@ -211,6 +219,26 @@ check('Every night has its own start sound, each at most 0.17', T.NIGHT_LOOK.eve
   && T.LOG.gain.length>20 && Math.max(...T.LOG.gain)<=0.17, Math.max(...T.LOG.gain));
 check('Night sounds are added in one Object.assign(SFX) block (the SFX table is untouched)', /Object\.assign\(SFX, \{\s*night66Calm/.test(code));
 
+check('Night-start feed line is the name only (no “which entrance is dangerous” nudge)',
+  !/입구가 위험|어느 입구로 올지/.test(noComments(fn('goNight'))) && /feed\(`🌙 <b>\$\{G\.day\}일차 밤<\/b> — \$\{stageName\(G\.day\)\}`\)/.test(fn('goNight')));
+check('Calm / howl / long look apart (own hue, howl double ring, long gold border)',
+  (()=>{ const bg=k=>parseInt((colorOf(k).match(/--n6bg:#([0-9a-f]{6})/)||[])[1]||'0',16), hue=n=>{ const r=(n>>16)/255,g=(n>>8&255)/255,b=(n&255)/255,M=Math.max(r,g,b),m=Math.min(r,g,b),d=M-m;
+      if(!d) return -1; return (M===r?((g-b)/d+6)%6:M===g?(b-r)/d+2:(r-g)/d+4)*60; };
+    const h=['calm','howl','long'].map(k=>hue(bg(k)));
+    return Math.abs(h[0]-h[1])>=30 && Math.abs(h[0]-h[2])>=90 && Math.abs(h[1]-h[2])>=90
+      && /\[data-nt=howl\]:is\(#nightCard,#n66Ban\)\{border-style:double/.test(css) && /--n6bd:#ffd45a/.test(colorOf('long')); })());
+/* 카드 위 꾸밈이 글씨를 가로지르지 않는다 — 글씨는 z-1 위, 카드에선 꾸밈이 글씨 줄 밖(여백 띠) */
+check('Card text sits above the effect layer, and card effects stay out of the text rows',
+  /#nightCard\[data-nt\] > :not\(\.n6f\):not\(\.ncOk\)\{position:relative;z-index:1\}/.test(css)
+  && /#nightCard\[data-nt=fast\] \.n6f i\{top:auto;bottom:/.test(css) && /#nightCard\[data-nt=hungry\] \.n6f i\{animation-name:n6dripS\}/.test(css)
+  && /#nightCard\[data-nt=hungry\] \.ncName::after\{display:none\}/.test(css) && /#nightCard\[data-nt=endless\] \.n6f i\{[^}]*animation-name:n6healS/.test(css)
+  && /#nightCard\[data-nt=surround\] \.n6a\{--d0:25px/.test(css));
+/* 좁은 화면: 카드가 떠 있는 동안 조작 안내(#hint)를 숨긴다 */
+{ T.G.phase='day'; T.G.day=6; T.G.nk=3; T.nightCardOpen(true); const on=document.body.classList.contains('ncOn'); T.nightCardOpen(false);
+  const narrow=(css.match(/@media \(max-width:560px\)\{[\s\S]*?\n\}/g)||[]).join('\n');
+  check('Narrow screens: the controls hint hides while the night card is up (it sat on the card)',
+    on && !document.body.classList.contains('ncOn') && /body\.ncOn #hint\{visibility:hidden\}/.test(narrow)); }
+
 /* ⑤ 5초 뒤 사라짐 */
 check('Morning card shows 5 s (was 9 s) and fades for 0.4 s from 4.6 s',
   T.NC_SHOW_MS===5000 && /#nightCard\.on\{display:block;animation:nc66in [^}]*nc66out \.4s ease-in 4\.6s 1 forwards\}/.test(css) && /@keyframes nc66out\{to\{opacity:0/.test(css));
@@ -230,6 +258,10 @@ T.set('now',20000+4900); T.night66Tick(); const banAt49=ban.className==='on';
 T.set('now',20000+5010); T.night66Tick();
 check('Warning: up at 4.9 s, fully gone after 5 s (the night name stays by the date)', banAt49 && ban.className==='' && T.st().n66Nt==='hungry');
 T.set('now',40000); T.G.phase='day'; T.night66Tick(); T.G.day=bd[0]; T.G.nk=-1; T.G.phase='night'; T.night66Tick();
+check('Boss night caption also lasts 5 s and fades from 4.6 s (was 3.6 s)',
+  /L \? 'b66' : '', L \? 5\.0 : 3\.6\)/.test(fn('fx2BossIntro')) && /#fx2Cap\.b66 \.k\{[^}]*animation-name:n6capIn;animation-duration:5s\}/.test(css)
+  && /#fx2Cap\.b66 \.n\{[^}]*animation-duration:4\.94s/.test(css) && /#fx2Cap\.b66 \.s\{[^}]*animation-duration:4\.86s\}/.test(css)
+  && /@keyframes n6capIn\{[^}]*\}[^@]*92%\{[^}]*opacity:1\}100%\{[^}]*opacity:0\}\}/.test(css) && /n6capOut \.4s ease-in 4\.6s forwards/.test(css));
 check('Boss night: no second banner (the FX2 boss caption wears the boss look)', ban.className==='' && /b66/.test(code.slice(code.indexOf('function fx2BossIntro('),code.indexOf('function fx2BossAppear('))));
 T.G.phase='day'; T.night66Tick(); T.G.day=7; T.G.nk=1; T.G.phase='night';
 /* 방금 들어온 손님: 첫 상태가 밤이면 '시작' 경고는 없다 */

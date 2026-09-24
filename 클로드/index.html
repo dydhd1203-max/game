@@ -2583,6 +2583,7 @@ body.hud66-day #hpNum{font-size:11px}
   #feed{max-height:150px;overflow:hidden}
   #feed div:nth-last-child(n+3){display:none}
   #nightCard.on ~ #feed{display:none}
+  body.ncOn #hint{visibility:hidden}   /* 카드(fixed, bottom:236px)가 #hint 와 같은 높이 — 카드가 떠 있는 5초 동안만 안내를 숨긴다(#topLeft z-13 안이라 z-index 로는 못 이긴다) */
   #resBox{min-width:0;padding:7px 9px 8px}
   #resBox .resline{gap:4px;flex-wrap:wrap}
   #resBox .res{padding:2px 7px 2px 3px}
@@ -2601,7 +2602,8 @@ body.hud66-day #hpNum{font-size:11px}
    ★ 성능(CLAUDE.md 성능 절): 움직임은 transform·opacity 뿐. 카드·경고판은 불투명 바탕이고 크기도 카드만 하다(화면을 덮는 반투명 면 없음).
      카드·경고가 닫히면 display:none — 안의 되풀이 애니메이션도 같이 멈춘다. 낮 동안 남는 칩은 움직이지 않는다.
    ★ 글씨는 어두운 바탕 위 밝은 글씨(대비 7:1 이상)로 무섭지만 읽히게. */
-.slot.tool.gun{background:#fff3e0}
+.slot.tool.gun{background:#fff3e0;position:relative}
+.slot.tool.gun::after{content:'🎯';position:absolute;right:2px;top:1px;font-size:10px;line-height:1;pointer-events:none}   /* 무기 칸 표시 — 390px 처럼 '우클릭' 글씨가 숨는 폭에서도 총 칸인 줄 알게 */
 .slot.tool.gun:hover{background:#ffe8c7}
 .slot.tool.gun .nm{color:#8a4b12}
 .slot.tool.gun .ky{background:#ffe2bd;color:#8a4b12}
@@ -2619,10 +2621,15 @@ body.touch .slot.tool.gun{background:#fff3e0} body.touch .slot.tool.gun.on{backg
 [data-nt=hungry],body[data-n66=hungry]{--n6bg:#4a1a07;--n6bg2:#1d0803;--n6bd:#ff8a2a;--n6ink:#fff4e8;--n6sub:#ffcca6;--n6ac:#ffb347}
 [data-nt=giant],body[data-n66=giant]{--n6bg:#2c1942;--n6bg2:#0e0718;--n6bd:#a274e6;--n6ink:#f6efff;--n6sub:#d6c6f0;--n6ac:#cfa8ff}
 [data-nt=surround],body[data-n66=surround]{--n6bg:#352b0c;--n6bg2:#141003;--n6bd:#f0c23a;--n6ink:#fffae8;--n6sub:#efe0a4;--n6ac:#ffd84a}
-[data-nt=swarm],body[data-n66=swarm]{--n6bg:#262b33;--n6bg2:#0e1115;--n6bd:#aab6c4;--n6ink:#f4f7fa;--n6sub:#ccd5df;--n6ac:#e3ebf3}
-[data-nt=howl],body[data-n66=howl]{--n6bg:#1a2b39;--n6bg2:#081018;--n6bd:#80b0cf;--n6ink:#eef7ff;--n6sub:#bcd3e3;--n6ac:#e8f4ff}
+[data-nt=swarm],body[data-n66=swarm]{--n6bg:#2f2a25;--n6bg2:#110e0b;--n6bd:#c7b8a6;--n6ink:#f4f7fa;--n6sub:#ccd5df;--n6ac:#e3ebf3}
+[data-nt=howl],body[data-n66=howl]{--n6bg:#0f3a44;--n6bg2:#04161b;--n6bd:#bfeaff;--n6ink:#eef7ff;--n6sub:#bcd3e3;--n6ac:#e8f4ff}
 [data-nt=endless],body[data-n66=endless]{--n6bg:#113520;--n6bg2:#04130a;--n6bd:#4fe07a;--n6ink:#eefff2;--n6sub:#b1ebc2;--n6ac:#7dff9f}
-[data-nt=long],body[data-n66=long]{--n6bg:#1b1f36;--n6bg2:#05060c;--n6bd:#cbb57c;--n6ink:#fbf6e6;--n6sub:#dcd2b2;--n6ac:#ffe7a0}
+[data-nt=long],body[data-n66=long]{--n6bg:#120f06;--n6bg2:#030201;--n6bd:#ffd45a;--n6ink:#ffe7a0;--n6sub:#dcd2b2;--n6ac:#ffe7a0}
+/* 66차 CTRL 고침 — 조용한 밤·산이 우는 밤·가장 긴 밤이 한눈에 비슷했다(어두운 남색 판 + 옅은 테두리).
+   산이 우는 밤 = 얼음빛 청록 바탕 + 두 겹 테두리, 가장 긴 밤 = 거의 검정 + 굵은 금빛 테두리·금빛 이름, 쉴 틈 없이 = 따뜻한 잿빛 */
+[data-nt=howl]:is(#nightCard,#n66Ban){border-style:double;border-width:5px}
+#nightChip[data-nt=howl]{border-style:double;border-width:3px}
+[data-nt=long]:is(#nightCard,#n66Ban){border-width:3px;box-shadow:0 0 0 1px #6b4f0e,0 6px 18px rgba(8,10,30,.35)}
 [data-nt=b-chief],body[data-n66=b-chief]{--n6bg:#2d1a45;--n6bg2:#110822;--n6bd:#ffcf4a;--n6ink:#fff8e6;--n6sub:#e9d9b0;--n6ac:#ffd84a}
 [data-nt=b-fire],body[data-n66=b-fire]{--n6bg:#4d1506;--n6bg2:#1d0501;--n6bd:#ff6a1c;--n6ink:#fff3e0;--n6sub:#ffc9a2;--n6ac:#ffd24a}
 [data-nt=b-ice],body[data-n66=b-ice]{--n6bg:#123056;--n6bg2:#06132a;--n6bd:#9fdcff;--n6ink:#f0faff;--n6sub:#c4e6fb;--n6ac:#e6f7ff}
@@ -2632,7 +2639,19 @@ body.touch .slot.tool.gun{background:#fff3e0} body.touch .slot.tool.gun.on{backg
 /* ── 아침 카드 · 칩 · 밤의 날짜 옆 이름 ── */
 #nightCard[data-nt]{background:linear-gradient(160deg,var(--n6bg),var(--n6bg2));border:2px solid var(--n6bd);color:var(--n6ink);
   overflow:hidden;isolation:isolate;box-shadow:0 6px 18px rgba(8,10,30,.35)}
-#nightCard[data-nt] > :not(.n6f):not(.ncOk){position:relative;z-index:1}
+#nightCard[data-nt] > :not(.n6f):not(.ncOk){position:relative;z-index:1}   /* 글씨·그림은 뒤판 꾸밈(.n6f, z-0) 위 */
+/* 66차 CTRL 고침 — 카드는 작아(약 296×100) 뒤판 꾸밈이 글씨 뒤를 지나가도 글자 사이로 비쳐 글씨를 가로지르는 것처럼 보였다.
+   카드에서만 꾸밈을 글씨 줄 밖(위아래 여백 띠·그림 칸)으로 옮긴다. 경고판(#n66Ban)은 넓어서 그대로 */
+#nightCard[data-nt=fast] .n6f i{top:auto;bottom:calc(2px + var(--i)*1.6px);width:34%}
+#nightCard[data-nt=fast] .n6f i:nth-child(-n+3){bottom:auto;top:calc(2px + var(--i)*2.4px)}
+#nightCard[data-nt=hungry] .n6f i{animation-name:n6dripS}
+#nightCard[data-nt=hungry] .ncName::after{display:none}
+#nightCard[data-nt=endless] .n6f i{bottom:1px;width:7px;height:7px;animation-name:n6healS}
+#nightCard[data-nt=surround] .n6a{--d0:25px;--d1:10px}
+#nightCard[data-nt=calm] .n6f i:nth-child(even),#nightCard[data-nt=long] .n6f i:nth-child(odd){top:auto;bottom:4px}
+@keyframes n6dripS{0%{transform:translateY(0) scaleY(.4);opacity:0}20%{transform:translateY(0) scaleY(1);opacity:.95}
+  70%{transform:translateY(2px) scaleY(1.5);opacity:.95}100%{transform:translateY(4px) scaleY(1);opacity:0}}
+@keyframes n6healS{0%{transform:translateY(0) scale(.6);opacity:0}30%{opacity:1}100%{transform:translateY(-4px) scale(1);opacity:0}}
 #nightCard[data-nt] .ncDay{color:var(--n6ac);letter-spacing:.5px}
 #nightCard[data-nt] .ncName{color:var(--n6ink);text-shadow:0 2px 0 rgba(0,0,0,.45)}
 #nightCard[data-nt] .ncMood{color:var(--n6sub)}
@@ -2664,10 +2683,14 @@ body.hud66-night[data-n66] #dayPhase{padding:1px 8px;border-radius:999px;backgro
 /* ── 보스 밤 시작 — FX2 자막(fx2Cap)이 보스 모습을 입는다(띠·어둠·땅울림은 FX2 그대로) ── */
 #fx2Cap .art{display:none}
 #fx2Cap.b66 .art{display:flex;align-items:center;justify-content:center;position:relative;width:max-content;margin:0 auto 2px;
-  font-size:clamp(48px,7vw,86px);line-height:1;filter:drop-shadow(0 5px 0 rgba(0,0,0,.4));animation:n6pop .7s cubic-bezier(.2,1.6,.4,1) both}
-#fx2Cap.b66 .k{color:var(--n6ac);animation-duration:3.4s}
-#fx2Cap.b66 .n{color:var(--n6ink);animation-duration:3.4s;text-shadow:0 4px 0 var(--n6bg2),0 0 26px var(--n6bd),0 8px 18px rgba(0,0,0,.75)}
-#fx2Cap.b66 .s{background:var(--n6bg2);border:2px solid var(--n6bd);color:var(--n6ink);animation-duration:3.4s}
+  font-size:clamp(48px,7vw,86px);line-height:1;filter:drop-shadow(0 5px 0 rgba(0,0,0,.4));animation:n6pop .7s cubic-bezier(.2,1.6,.4,1) both,n6capOut .4s ease-in 4.6s forwards}
+#fx2Cap.b66 .k{color:var(--n6ac);animation-name:n6capIn;animation-duration:5s}
+#fx2Cap.b66 .n{color:var(--n6ink);animation-name:n6capIn;animation-duration:4.94s;text-shadow:0 4px 0 var(--n6bg2),0 0 26px var(--n6bd),0 8px 18px rgba(0,0,0,.75)}
+#fx2Cap.b66 .s{background:var(--n6bg2);border:2px solid var(--n6bd);color:var(--n6ink);animation-name:n6capIn;animation-duration:4.86s}
+/* 보스 밤 경고도 5초 — 들어오기(0.45초) 뒤 그대로 있다가 4.6초부터 0.4초 흐려진다(.n·.s 는 늦게 시작한 만큼 짧게 → 같은 때 끝남). 그림도 같이 */
+@keyframes n6capIn{0%{transform:translateX(-46vw);opacity:0}9%{transform:translateX(2vw);opacity:1}13%{transform:none}
+  92%{transform:translateX(.6vw);opacity:1}100%{transform:translateX(8vw);opacity:0}}
+@keyframes n6capOut{to{opacity:0;transform:scale(.9)}}
 @keyframes n6pop{0%{transform:scale(.2) rotate(-14deg);opacity:0}60%{transform:scale(1.15) rotate(4deg);opacity:1}100%{transform:none;opacity:1}}
 
 /* ── 그림(.n6a: 이모지 .a + 둘레 꾸밈 b) · 뒤판(.n6f: i 여섯 + ::before·::after) 공통 ── */
@@ -16305,13 +16328,14 @@ function selectBuild(b){ if(!BUILD[b]) return; resetBuildPlacement(); buildLineM
      알림은 도구 쪽 한 줄만("⛏️ 캐기") — 총을 넣었다는 말을 따로 하지 않는다(같은 소식 두 줄 X). 총을 안 들었으면 예전처럼 말없이 바꾼다.
    ★ selectTool/selectBuild 는 그대로 둔다 — 시작·아침처럼 코드가 부르는 곳이 총 상태를 건드리지 않게.
    ★ 쓰러짐·창(상점 등)·관전·시작 전에는 총을 들거나 넣지 않는다(쓰러지면 Q·E·F 는 관전 키 — SPEC 이 먼저 가로챈다). */
-function gunToggleOk(){ return G.started && G.phase !== 'title' && !popOpen() && !PL.down && !SPEC.on; }
+function gunToggleOk(){ return G.started && G.phase !== 'title' && !popOpen() && !PL.down && !SPEC.on && !miniOn(); }   // 미니게임 중엔 miniOnState 가 총을 맡는다(Q·1·우클릭·총 칸이 총을 넣지 않게)
 function toggleGun(){ if(gunToggleOk()) setAimMode(!aimMode); }
 function gunAway(ic, name){ if(!aimMode || !gunToggleOk()) return; setAimMode(false, true); toast(`${ic} ${name}`, 1.4, '#c8ffb0'); }
 function pickTool(t){ const T = TOOLS.find(x => x.id === t); if(T) gunAway(T.icon, T.name); selectTool(t); }
 function pickBuild(b){ if(!BUILD[b]) return; gunAway(BUILD[b].icon, BUILD[b].name); selectBuild(b); }
 /* 총 칸 이름 — 칸이 좁아(54~60px) 끝말만: '돌 화승총' → '화승총'. 끝말이 한 글자면(연습용 총) 전체 */
-function gunShortName(W){ const w = String(W.n).split(' '), t = w[w.length-1]; return t.length >= 2 || W === WEAPONS[0] ? t : W.n; }   // 맨손 돌 → '돌'
+function gunShortName(W){ if(W === WEAPONS[0]) return '던지기';   // 맨손 돌 → '던지기'(자원 '돌'·'돌벽'과 헷갈리지 않게 — '옮기기'처럼 하는 일로)
+  const w = String(W.n).split(' '), t = w[w.length-1]; return t.length >= 2 ? t : W.n; }
 function afford(t){ const c = BUILD[t].cost, r = myRes();
   return r.w>=c.w && r.s>=c.s && r.g>=c.g; }
 
@@ -16847,6 +16871,7 @@ function paintNightCard(I){
 function nightCardOpen(on){
   const c = el('nightCard'), chip = el('nightChip'), was = c.classList.contains('on');
   c.classList.toggle('on', on);
+  document.body.classList.toggle('ncOn', on);   // 66차 CTRL 고침 — 좁은 화면에서 카드가 떠 있는 동안 아래 조작 안내(#hint)를 가린다
   ncUntil = on ? performance.now() + NC_SHOW_MS : 0;
   chip.classList.toggle('cardOn', on);           // 카드가 떠 있는 동안 칩은 접어 둔다(같은 말 두 번 X)
   /* 카드가 칩으로 접힐 때 한 번만 반짝 — 어디로 갔는지 눈으로 따라가게(되풀이 애니메이션 아님) */
@@ -18798,7 +18823,7 @@ function fx2BossIntro(){
   const L = typeof night66BossLook === 'function' ? night66BossLook() : null;
   fx2Cap(G.day >= G.set.goalDay ? '마지막 밤 · 오늘 밤의 보스' : '오늘 밤의 보스',
          L ? fx2BossName().replace(/^\S+\s+/, '') : fx2BossName(),   // 보스 그림은 위 큰 그림(.art)이 보여 준다 — 이름 앞 그림은 뺀다
-         L ? L.warn : '', L ? 'b66' : '', 3.6);
+         L ? L.warn : '', L ? 'b66' : '', L ? 5.0 : 3.6);   // 66차 CTRL 고침 — 보스 밤 경고도 다른 밤처럼 5초(4.6초부터 0.4초 흐려짐)
   if(L) night66CapArt(L);
   fx2Snd('fx2BossIn'); shake(0.16, 0.6);
 }
@@ -20903,7 +20928,7 @@ function goNight(){
   startWave();
   /* 66차 CTRL — 밤 시작 알림(toast)은 그 밤의 모습으로 뜨는 경고(night66Tick → #n66Ban, 보스 밤은 fx2BossIntro)가 대신한다.
      호스트·손님이 같은 코드로 띄우므로 여기서 또 띄우지 않는다. */
-  feed(`🌙 <b>${G.day}일차 밤</b> — ${stageName(G.day)}. 오늘은 어느 입구가 위험할지 모릅니다`);
+  feed(`🌙 <b>${G.day}일차 밤</b> — ${stageName(G.day)}`);
   netMeta();
 }
 function hostPhase(dt){
