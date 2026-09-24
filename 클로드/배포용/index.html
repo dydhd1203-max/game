@@ -5612,9 +5612,10 @@ function buildShop(){
     C(x, FH-0.09, FZ+0.03, 0.50,0.20,0.04, col);                          // 앞단 자락 — 줄마다 한 장, 아래가 둥근 물결로 읽히게 조금 좁게
   }
 
-  /* ③ 뒤 선반 — 뒤판(짙은 널) 한 장 + 널판 두 단. 진열품(물약·갑옷·금·총알, 총 두 자루 makeDisplays)은 z −1.46 에 앉는다.
+  /* ③ 뒤 선반 — 뒤판(짙은 널) 한 장 + 널판 두 단. 진열품(물약·갑옷·총알, 총 다섯 자루 makeDisplays — 위 선반 둘 · 65차 걸이 셋)은 z −1.46 에 앉는다.
        상인 모자 챙 뒤끝(z −1.32)보다 뒤라서 겹치지 않는다. */
-  W( 0, 1.12, -1.64, 2.46,2.00,0.06, 0x6f5238);                          // 뒤판
+  W( 0, 1.24, -1.64, 2.46,2.24,0.06, 0x6f5238);                          // 뒤판 — 65차: 2.12 → 2.36 (새 총 걸이 자리. 차양 밑면 2.44 아래)
+  W( 0, 2.005, -1.58, 2.40,0.05,0.06, POST);                             // 65차 — 총 걸이(윗면 2.03). 새 총 셋이 상인 모자 위로 걸린다
   W( 0, 1.00, -1.46, 2.50,0.07,0.30, OAK3);                              // 아래 선반(윗면 1.035)
   W( 0, 1.58, -1.46, 2.50,0.07,0.30, OAK3);                              // 위 선반(윗면 1.615)
   /* 29차 — 물약 네 병 · 갑옷 둘 · 금괴 · 총알 상자. 선생님: "진짜 상점처럼 여러 가지 물건을" — 65차: 병은 몸·마개 둘로, 색은 차분하게 */
@@ -5623,8 +5624,8 @@ function buildShop(){
   C( 0.50, 1.25, -1.46, 0.42,0.44,0.16, 0x9a6a40);                      // 가죽 갑옷
   C( 0.94, 1.25, -1.46, 0.36,0.42,0.16, 0xa9b0b8);                      // 쇠 갑옷
   C( 0.94, 1.42, -1.46, 0.40,0.09,0.18, 0x767d86);
-  C(-0.70, 1.73, -1.46, 0.40,0.22,0.20, 0xd8b04a);                      // 위 선반 — 금괴 · 총알 상자
-  W( 0.10, 1.72, -1.46, 0.30,0.20,0.22, 0x6e4a2c); C( 0.10, 1.84, -1.46, 0.26,0.05,0.18, 0xd8b04a);
+  /* 65차 — 위 선반은 총 두 자루(화승총·쇠 소총)가 옆모습으로 선다. 총알 상자는 아래 선반 물약과 가죽 갑옷 사이로 내렸다(금은 상판의 금화 무더기) */
+  W( 0.10, 1.135, -1.46, 0.30,0.20,0.22, 0x6e4a2c); C( 0.10, 1.255, -1.46, 0.26,0.05,0.18, 0xd8b04a);
 
   /* ④ 옆 — 나무통 하나 · 상자 하나(동물 상인 반대쪽 −X). */
   B(-1.80, 0.42, 0.05, 0.30,0.84, OAK2);                                 // 통 몸
@@ -6365,12 +6366,15 @@ function buildForge(){
 
   /* ④ 왼쪽 널벽 + 걸이 — 레어 총 넷(makeDisplays, x −1.46)이 벽과 나란히 걸린다 */
   P(-1.58, 1.35, -0.13, 0.08,1.50,2.05, OAK);                              // 널벽(뒤 기둥~앞 기둥)
-  P(-1.50, 1.30, -0.13, 0.08,0.08,2.05, POST);                             // 걸이 막대 — 총이 여기 얹힌다
-  /* 앞 진열대 둘 — 돌 받침 + 빛나는 윗판. 유니크 총 둘이 그 위에서 돈다(도는 반지름 ≈0.45 — 모루·기둥에 안 닿는 자리) */
+  for(const h of [0.86, 1.30, 1.74])                                        // 걸이 막대 세 단 — 총이 여기 얹힌다(65차: 레어 여섯 → 한 단에서 세 단)
+    P(-1.50, h-0.04, -0.13, 0.08,0.08,2.05, POST);
+  /* 앞 진열대 셋 — 돌 받침 + 빛나는 윗판. 유니크 총 셋이 그 위에서 돈다(65차: 총 한가운데가 축 · 도는 반지름 ≤0.42 — 모루·기둥·옆 받침에 안 닿는다) */
   S(-1.05, 0.22, 1.30, 0.50,0.44,0.50, 0xa39b8e);
   S( 0.95, 0.22, 1.38, 0.50,0.44,0.50, 0xa39b8e);
+  S(-0.05, 0.22, 1.42, 0.50,0.44,0.50, 0xa39b8e);                          // 65차 — 가운데 받침대(유니크 용의 숨결)
   F(-1.05, 0.46, 1.30, 0.44,0.04,0.44);
   F( 0.95, 0.46, 1.38, 0.44,0.04,0.44);
+  F(-0.05, 0.46, 1.42, 0.44,0.04,0.44);
   /* ★ 대장장이도 NPC 로 옮겼다 — 망치질을 해야 대장간처럼 보인다.
      아래 '상인 · 대장장이 — 살아 있게' 를 보라. */
 }
@@ -7932,10 +7936,10 @@ held.frustumCulled = false;
 camera.add(held);
 
 const HELD_VC = flatMat(0xffffff, {vertexColors:true, emissive:0xffffff, emissiveIntensity:0.03});   // 34차 — 손 조명 대신 살짝 자체 발광 (8% 는 곡괭이 파랑이 연보라로 바랬다)
-function boxM(tile, w,h,d, x,y,z, mat){
+function partMesh(geo0, tile, x,y,z, mat){
   const special = mat && (mat.isMeshBasicMaterial ||
     (mat.emissive && (mat.emissive.r || mat.emissive.g || mat.emissive.b)));
-  let geo = rboxGeo(w,h,d), mm;
+  let geo = geo0, mm;
   if(mat && mat.userData && mat.userData.metal) mm = mat;   // 35차 — 쇠 재질은 그대로 쓴다(꼭짓점 색 없이, 그 재질만의 조각으로 구워진다). userData 없는 재질도 온다 — 없으면 건너뛴다
   else if(special) mm = flatFor(tile, mat);
   else {
@@ -7950,6 +7954,16 @@ function boxM(tile, w,h,d, x,y,z, mat){
   const m = new THREE.Mesh(geo, mm);
   m.position.set(x,y,z); m.frustumCulled = false; m.renderOrder = 10; return m;
 }
+function boxM(tile, w,h,d, x,y,z, mat){ return partMesh(rboxGeo(w,h,d), tile, x,y,z, mat); }
+/* 65차 — 손에 든 모형의 원통(총열·조준경·드럼·코일). 누운 원통: 앞(+z) 반지름 rf · 뒤 반지름 rb. 같은 치수는 한 번만 만든다. */
+const _cyCache = new Map();
+function cylGeo(rb, rf, len, seg){
+  const k = rb.toFixed(3)+','+rf.toFixed(3)+','+len.toFixed(3)+','+seg;
+  let g = _cyCache.get(k);
+  if(!g){ g = new THREE.CylinderGeometry(rf, rb, len, seg); g.rotateX(Math.PI/2); _cyCache.set(k, g); }
+  return g;
+}
+function cylM(tile, rb, rf, len, x,y,z, mat, seg){ return partMesh(cylGeo(rb, rf, len, seg||12), tile, x,y,z, mat); }
 /* 손·팔 조각 표시 — 아이콘을 찍을 때 이것만 뗀다 */
 const armPart = m=>{ m.userData.arm = true; return m; };
 /* ── 손에 든 모형 굽기 ──
@@ -8119,18 +8133,11 @@ function mkHammer(){
      아래로 팔뚝을 이어 붙여야 '쥐고 있다'로 읽힌다. 긴 총에는 앞손도 받쳐 준다.
    ★ 손에 든 모형은 상자 하나가 곧 그리기 한 번이다. 한 번에 한 자루만 보이므로
      화면에 늘어나는 값은 그 자루의 상자 수(12~17개)뿐이다. */
-const matSteel  = new THREE.MeshLambertMaterial({map:ATLAS, color:0x9aa4b2});
-const matGunDk  = new THREE.MeshLambertMaterial({map:ATLAS, color:0x424852});
-const matWoodDk = new THREE.MeshLambertMaterial({map:ATLAS, color:0x8a5a34});
-const matGold3  = new THREE.MeshLambertMaterial({map:ATLAS, color:0xffd257});
 const matGlow   = new THREE.MeshLambertMaterial({map:ATLAS, color:0xa8ecff,
   emissive:0x2ea8d8, emissiveIntensity:1.15});
 const matEmber  = new THREE.MeshLambertMaterial({map:ATLAS, color:0xff9a3c,
   emissive:0xff5a10, emissiveIntensity:1.3});
-/* 29차 — 레어·유니크 총의 재질. 흑요석(검은 유리)·남색 강철·녹슨 붉은 쇠, 그리고 보라·금빛 발광 */
-const matObsid  = new THREE.MeshLambertMaterial({map:ATLAS, color:0x2c2434});
-const matNavy   = new THREE.MeshLambertMaterial({map:ATLAS, color:0x3a3f66});
-const matRust   = new THREE.MeshLambertMaterial({map:ATLAS, color:0x8a2f1e});
+/* 29차 — 레어·유니크 총의 재질. 보라·금빛 발광 (65차 — 흑요석·남색·녹슨 쇠·강철·나무 램버트 재질은 꼭짓점 색(gcol)과 광택 쇠 세 벌(M_BLUE·M_BRIGHT·M_GOLDM)로 바뀌었다) */
 const matGlowV  = new THREE.MeshLambertMaterial({map:ATLAS, color:0xd8b0ff,
   emissive:0x8a40e0, emissiveIntensity:1.1});
 const matGlowY  = new THREE.MeshLambertMaterial({map:ATLAS, color:0xfff0b0,
@@ -8159,324 +8166,447 @@ function gunFinish(g, rx, yaw, rz, sc){
   return g;
 }
 
-function mkSling(){                              // 🎯 나무 새총
-  const g = new THREE.Group();
-  g.add(boxM(T.bark,  0.095,0.36,0.095, 0,-0.06, 0, matWoodDk));      // 자루
-  g.add(boxM(T.bark,  0.085,0.14,0.095, 0, 0.16, 0.02, matWoodDk));   // 갈라지는 목
-  for(const s of [-1,1]){
-    g.add(boxM(T.bark, 0.075,0.16,0.085, s*0.075, 0.28, 0.02, matWoodDk));
-    g.add(boxM(T.bark, 0.075,0.14,0.085, s*0.135, 0.42, 0.02, matWoodDk));
-    g.add(boxM(T.dark, 0.045,0.045,0.30, s*0.135, 0.46,-0.14));       // 고무줄
-  }
-  g.add(boxM(T.plank, 0.12,0.13,0.06, 0, 0.46,-0.30, matWoodDk));     // 가죽 주머니
+/* ═══ 65차 — 총 스무 자루를 '진짜 총·활처럼' 다시 깎았다 (선생님: "무기 디자인도 좀 더 사실적이고 더 멋있게 바꿔줘") ═══
+   ★ 장난감 블록 → 판타지 RPG 무기. 무섭게 실사로 가지는 않고(초등 3학년) '한눈에 종류가 갈리는 진짜 총 모양' 까지만.
+   ① 둥근 것은 둥글게 — 총열·탄창관·조준경·드럼 탄창·코일·포구는 원통(gC), 활대·시위·고무줄은 두 점을 잇는 막대(gR·gRC).
+      네모 상자로 총열을 만들면 '각목' 으로 읽혔다.
+   ② 재료감 — 쇠는 광택(환경 반사) 재질 세 벌만 새로 둔다: 짙은 회청 강철 M_BLUE · 밝은 강철 M_BRIGHT · 금 M_GOLDM.
+      나무(짙은/보통/밝은 세 톤)·가죽·놋쇠·검은 부품은 꼭짓점 색이라 HELD_VC 한 벌에 합쳐 구워진다 — 재질이 안 는다.
+      모서리 강조는 기관부 윗모서리에 밝은 강철 띠 한 조각.
+   ③ 총구는 모양에서 어림하지 않고 mz 로 적는다(gunMuzzleLocal 이 먼저 본다) — 화염·예광탄이 총열 끝 한가운데서 나온다.
+      예전엔 '제일 앞 조각' 을 골라서 쌍총열은 한쪽 총열, 새총은 한쪽 가지 끝에서 불이 났다.
+   ★ 손(gunGrip)과 마무리(gunFinish)의 자리·배율은 그대로다 — 1인칭 화면에서 총이 차지하는 자리와 조준선 여백이 안 바뀐다. */
+/* ★ 반사(reflectivity)는 선형 색 공간에서 섞인다 — 짙은 쇠에 하늘 반사를 14% 만 섞어도 화면에선 밝은 회색이 됐다(사진).
+     짙은 쇠·금은 반사를 거의 빼고(0.04) 하이라이트(specular)로 광택을 낸다. 밝은 강철만 반사를 조금 둔다. */
+const M_BLUE   = metalMat(0x333b47, {specular:0x9aa8bc, shininess:55, reflectivity:0.04});   // 짙은 회청 강철(총열·기관부)
+const M_BRIGHT = metalMat(0x9ca6b3, {specular:0xffffff, shininess:85, reflectivity:0.22});   // 밝은 강철(노리쇠·모서리·은빛 총)
+const M_GOLDM  = metalMat(0xd2962a, {specular:0xffe39a, shininess:65, reflectivity:0.03});   // 금(금빛 저격총·황금 연발총·장식)
+const gcol = hex => ({color:new THREE.Color(hex)});      // 꼭짓점 색 전용 — 재질을 만들지 않는다
+const C_WD = gcol(0x5a3620), C_WM = gcol(0x87532d), C_WL = gcol(0xb27c45),   // 나무 세 톤(호두·참나무·밝은 결)
+      C_LE = gcol(0x6a4128), C_BR = gcol(0xd9a640), C_BK = gcol(0x2d3238),   // 가죽 · 놋쇠 · 검게 그을린 부품
+      C_RED = gcol(0xb3372b), C_WHT = gcol(0xf2efe8), C_SPOT = gcol(0x2a2a2c), // 탄피 · 얼룩소 흰색 · 얼룩
+      C_GRN = gcol(0x3f8d45), C_GRN2 = gcol(0x2c6634), C_LEAF = gcol(0x62c25a), // 클로버 초록 칠
+      C_NAVY = gcol(0x363d68), C_OBS = gcol(0x2a2332), C_RUST = gcol(0xa33a24), C_RUST2 = gcol(0x74281a);
+const glowy = m => !!(m && m.emissive && (m.emissive.r || m.emissive.g || m.emissive.b));
+/* 조각 붙이기 — 총 만드는 함수 안에서만 쓴다. 빛나는 재질은 예전처럼 수정 타일 위에 얹는다(같은 색이 난다). */
+function gB(g, w,h,d, x,y,z, m, rx, ry, rz){
+  const o = boxM(glowy(m) ? T.crystal : T.cloth, w,h,d, x,y,z, m);
+  if(rx || ry || rz) o.rotation.set(rx||0, ry||0, rz||0);
+  g.add(o); return o;
+}
+function gC(g, rb,rf,len, x,y,z, m, seg){                 // 앞(+z)으로 누운 원통. rb 뒤 반지름 · rf 앞 반지름
+  const o = cylM(glowy(m) ? T.crystal : T.cloth, rb,rf,len, x,y,z, m, seg); g.add(o); return o;
+}
+function gCv(g, rb,rf,len, x,y,z, m, seg){ const o = gC(g, rb,rf,len, x,y,z, m, seg); o.rotation.x = -Math.PI/2; return o; }   // 세운 원통(rf 가 위)
+function gCx(g, r,len, x,y,z, m, seg){ const o = gC(g, r,r,len, x,y,z, m, seg); o.rotation.y = Math.PI/2; return o; }        // 옆(x)으로 누운 원통
+const _rodD = new THREE.Vector3(), _rodZ = new THREE.Vector3(0,0,1);
+function rodAt(o, a, b){ o.position.set((a[0]+b[0])/2, (a[1]+b[1])/2, (a[2]+b[2])/2); o.quaternion.setFromUnitVectors(_rodZ, _rodD.normalize()); return o; }
+function gR(g, a, b, w, h, m){                            // 두 점을 잇는 각진 막대(활대·고무줄)
+  _rodD.set(b[0]-a[0], b[1]-a[1], b[2]-a[2]); const L = _rodD.length();
+  const o = boxM(glowy(m) ? T.crystal : T.cloth, w,h,L, 0,0,0, m); g.add(rodAt(o, a, b)); return o;
+}
+function gRC(g, a, b, r0, r1, m, seg){                    // 두 점을 잇는 원통(가지·프롱·양각대 다리) — r0 가 a 쪽
+  _rodD.set(b[0]-a[0], b[1]-a[1], b[2]-a[2]); const L = _rodD.length();
+  const o = cylM(glowy(m) ? T.crystal : T.cloth, r0,r1,L, 0,0,0, m, seg||8); g.add(rodAt(o, a, b)); return o;
+}
+const MZ = (g, x,y,z)=>{ g.userData.mz = new THREE.Vector3(x,y,z); };   // 총구 — 화염·예광탄이 나오는 자리(총열 끝 한가운데)
+/* 개머리판 — 윗선(볼 대는 곳)은 곧고 밑선은 뒤로 갈수록 내려가 발끝(토)이 된다. 상자 하나로는 '각목' 이라
+   밑에 뒤로 기운 조각을 하나 받친다(결이 한 톤 짙어 나뭇결 이음처럼 보인다). 받침판(놋쇠·고무)은 늘어난 높이를 덮는다. */
+const STOCK_TONE = new Map([[C_WM, gcol(0x74462a)], [C_WD, gcol(0x4a2c19)]]);
+function gStock(g, w,h,d, y,z, wood, plateCol, plateD){
+  const pd = plateD || 0.03;
+  gB(g, w,h,d, 0,y,z, wood, -0.10);
+  gB(g, w*0.96,h*0.55,d*0.75, 0, y-h*0.30, z-d*0.15, STOCK_TONE.get(wood) || wood, -0.30);   // 발끝 — 밑선이 뒤로 내려간다
+  gB(g, w+0.006,h*1.2,pd, 0, y-h*0.17, z-d/2-pd/2+0.004, plateCol, -0.10);
+}
 
-  for(const s of [-1,1]) g.add(boxM(T.dark, 0.09,0.045,0.045, s*0.09, 0.46,-0.30));
+function mkSling(){                              // 🎯 나무 새총 — 둥근 Y자 가지, 가죽 감은 자루, 빨간 고무줄이 가죽 주머니로 모인다
+  const g = new THREE.Group();
+  gCv(g, .048,.043,.30, 0,-0.08, 0, C_WM, 10);                        // 자루 — 둥근 나뭇가지(위가 조금 가늘다)
+  for(const y of [-0.15, -0.03]) gCv(g, .054,.054,.06, 0, y, 0, C_LE, 10);   // 가죽 감개 둘
+  gCv(g, .040,.052,.035, 0,-0.245, 0, C_WL, 10);                      // 자루 끝 옹이
+  gB(g, .11,.10,.09, 0, 0.11, 0.00, C_WM);                            // 갈라지는 목
+  for(const s of [-1,1]){
+    gRC(g, [s*0.03,0.13,0], [s*0.13,0.40,0], .040,.033, C_WM, 8);     // 가지 — 바깥으로 벌어진다
+    gCv(g, .036,.030,.045, s*0.132, 0.415, 0, C_WL, 8);               // 가지 끝(잘린 면이 밝다)
+    gR(g, [s*0.132,0.405,-0.01], [s*0.035,0.41,-0.285], .030,.016, gcol(0x9a2e22));   // 고무줄 — 주머니로 모인다
+  }
+  gB(g, .11,.09,.06, 0, 0.41,-0.30, C_LE);                            // 가죽 주머니
+  gB(g, .062,.062,.062, 0, 0.41,-0.272, gcol(0x9a9ea5));              // 주머니 속 돌멩이
+  MZ(g, 0, 0.405, 0.04);
   gunGrip(g, 0,-0.10, 0);
   return gunFinish(g, -0.04, 0.13, 0.06, 0.60);
 }
-function mkMusket(){                             // 🔫 돌 화승총
+function mkMusket(){                             // 🔫 돌 화승총 — 총구 가까이까지 오는 긴 나무 총대, 놋쇠 띠, 옆의 공이치기와 타는 심지, 밑의 꽂을대
   const g = new THREE.Group();
-  g.add(boxM(T.plank, 0.115,0.21,0.34, 0,-0.09,-0.36, matWoodDk));    // 개머리판
-  g.add(boxM(T.plank, 0.10,0.15,0.26, 0,-0.03,-0.14, matWoodDk));     // 목
-  g.add(boxM(T.plank, 0.105,0.11,0.66, 0, 0.01, 0.22, matWoodDk));    // 총열받침
-  g.add(boxM(T.dark,  0.075,0.075,0.94, 0, 0.09, 0.34, matGunDk));    // 긴 총열
-  g.add(boxM(T.goldBlk,0.10,0.10,0.06, 0, 0.09, 0.78));               // 놋쇠 테
-  g.add(boxM(T.goldBlk,0.10,0.10,0.05, 0, 0.09, 0.16));
-  g.add(boxM(T.dark,  0.055,0.10,0.09, -0.075, 0.06,-0.02, matGunDk));// 화승 장치
-  g.add(boxM(T.goldBlk,0.045,0.045,0.06, -0.10, 0.11,-0.02, matEmber));// 타는 불씨
-  g.add(boxM(T.dark,  0.04,0.09,0.04, 0,-0.11,-0.02, matGunDk));      // 방아쇠
-  g.add(boxM(T.plank, 0.10,0.20,0.13, 0,-0.17,-0.08, matWoodDk));     // 손잡이
+  gStock(g, .11,.20,.34, -0.095,-0.36, C_WM, C_BR);                   // 개머리판 + 놋쇠 받침판
+  gB(g, .085,.12,.24, 0,-0.03,-0.13, C_WD);                           // 손목(짙은 결)
+  gB(g, .10,.085,.78, 0, 0.03, 0.30, C_WM);                           // 긴 총대
+  gC(g, .036,.032,1.00, 0, 0.09, 0.40, M_BLUE, 8);                    // 팔각 총열(여덟 면)
+  gC(g, .043,.043,.035, 0, 0.09, 0.885, C_BR, 10);                    // 총구 테
+  for(const z of [0.30, 0.60]) gB(g, .115,.14,.035, 0, 0.055, z, C_BR);   // 총열을 총대에 묶는 놋쇠 띠
+  gB(g, .02,.07,.17, -0.057, 0.055,-0.03, gcol(0x59616b));            // 옆 기관판
+  gB(g, .025,.085,.03, -0.07, 0.12,-0.09, C_BK, -0.45);               // 공이치기
+  gB(g, .035,.035,.045, -0.07, 0.17,-0.075, matEmber);                // 타는 심지
+  gC(g, .012,.012,.70, 0,-0.025, 0.36, C_WL, 6);                      // 꽂을대
+  gB(g, .02,.02,.15, 0,-0.105,-0.03, C_BR);                           // 방아쇠울
+  gB(g, .02,.06,.02, 0,-0.07,-0.02, C_BK);                            // 방아쇠
+  gB(g, .09,.20,.125, 0,-0.17,-0.08, C_WD);                           // 손잡이
+  MZ(g, 0, 0.09, 0.905);
   gunGrip(g, 0,-0.19,-0.08, 0.34);
   return gunFinish(g, -0.03, 0.14, 0.05, 0.44);
 }
-function mkRifle(){                              // 🔩 쇠 소총
+function mkRifle(){                              // 🔩 쇠 소총 — 둥근 기관부, 오른쪽의 손잡이 달린 노리쇠, 가늘어지는 총열, 두 톤 나무 총대
   const g = new THREE.Group();
-  g.add(boxM(T.plank, 0.115,0.21,0.32, 0,-0.08,-0.34, matWoodDk));    // 개머리판
-  g.add(boxM(T.plank, 0.10,0.14,0.22, 0,-0.02,-0.14, matWoodDk));     // 목
-  g.add(boxM(T.stone, 0.125,0.15,0.42, 0, 0.04, 0.06, matSteel));     // 몸통
-  g.add(boxM(T.stone, 0.075,0.075,0.70, 0, 0.06, 0.48, matSteel));    // 총열
-  g.add(boxM(T.dark,  0.095,0.095,0.07, 0, 0.06, 0.82, matGunDk));    // 총구
-  g.add(boxM(T.stone, 0.14,0.05,0.05, -0.12, 0.08,-0.02, matSteel));  // ★ 튀어나온 노리쇠
-  g.add(boxM(T.dark,  0.065,0.065,0.065, -0.20, 0.06,-0.02, matGunDk));
-  g.add(boxM(T.dark,  0.04,0.075,0.04, 0, 0.13, 0.14, matGunDk));     // 가늠자
-  g.add(boxM(T.dark,  0.03,0.065,0.03, 0, 0.12, 0.76, matGunDk));     // 가늠쇠
-  g.add(boxM(T.stone, 0.09,0.15,0.14, 0,-0.10, 0.04, matSteel));      // 탄창
-  g.add(boxM(T.plank, 0.10,0.20,0.13, 0,-0.15,-0.07, matWoodDk));     // 손잡이
+  gStock(g, .11,.19,.30, -0.085,-0.36, C_WM, C_BK);                   // 개머리판 + 검은 받침
+  gB(g, .09,.12,.22, 0,-0.02,-0.15, C_WD);                            // 손목
+  gB(g, .10,.09,.52, 0, 0.00, 0.28, C_WM);                            // 앞 총대
+  gB(g, .08,.035,.40, 0, 0.055, 0.30, C_WL);                          // 윗 덮개(밝은 결)
+  gC(g, .047,.047,.34, 0, 0.065,-0.01, M_BLUE, 12);                   // 둥근 기관부
+  gC(g, .032,.026,.68, 0, 0.068, 0.50, M_BLUE, 10);                   // 가늘어지는 총열
+  gC(g, .030,.030,.04, 0, 0.068, 0.855, C_BK, 10);                    // 총구 끝
+  gB(g, .11,.022,.022, -0.075, 0.07,-0.07, M_BRIGHT);                 // ★ 노리쇠 손잡이(오른쪽)
+  gC(g, .024,.024,.04, -0.135, 0.055,-0.07, M_BRIGHT, 8);             //   끝 구슬
+  gB(g, .05,.04,.03, 0, 0.12, 0.15, C_BK);                            // 가늠자
+  gB(g, .02,.05,.02, 0, 0.11, 0.81, C_BK);                            // 가늠쇠
+  gB(g, .07,.07,.12, 0,-0.07, 0.04, M_BLUE);                          // 탄창
+  gB(g, .02,.02,.13, 0,-0.10,-0.07, C_BK);                            // 방아쇠울
+  gB(g, .02,.055,.02, 0,-0.07,-0.06, C_BK);                           // 방아쇠
+  gB(g, .09,.20,.125, 0,-0.15,-0.07, C_WD);                           // 손잡이
+  MZ(g, 0, 0.068, 0.875);
   gunGrip(g, 0,-0.17,-0.07, 0.36);
   return gunFinish(g, -0.03, 0.14, 0.05, 0.44);
 }
-function mkSMG(){                                // 💨 연발총
+function mkSMG(){                                // 💨 연발총 — 짧고 굵은 기관부(밝은 윗모서리), 구멍 뚫린 총열 덮개, 앞으로 기운 긴 탄창, 철사 개머리
   const g = new THREE.Group();
-  g.add(boxM(T.dark,  0.135,0.175,0.46, 0, 0.03, 0.06, matGunDk));    // 짧고 두꺼운 몸통
-  g.add(boxM(T.stone, 0.095,0.095,0.36, 0, 0.05, 0.40, matSteel));    // 총열덮개
-  g.add(boxM(T.goldBlk,0.075,0.075,0.06, 0, 0.05, 0.60));             // 총구
-  g.add(boxM(T.dark,  0.095,0.32,0.125, 0,-0.21, 0.06, matGunDk));    // ★ 아래로 긴 탄창
-  g.add(boxM(T.goldBlk,0.105,0.05,0.135, 0,-0.35, 0.06));             // 탄창 밑동
-  for(const s of [-1,1])                                              // 접이식 개머리
-    g.add(boxM(T.stone, 0.045,0.045,0.30, s*0.055, 0.05,-0.28, matSteel));
-  g.add(boxM(T.stone, 0.14,0.045,0.05, 0, 0.05,-0.42, matSteel));     // 개머리 끝판
-  g.add(boxM(T.dark,  0.05,0.06,0.18, 0, 0.14, 0.08, matGunDk));      // 조준구
-  g.add(boxM(T.dark,  0.10,0.20,0.13, 0,-0.14,-0.11, matGunDk));      // 손잡이
+  gB(g, .12,.15,.44, 0, 0.03, 0.06, M_BLUE);                          // 기관부
+  gB(g, .124,.012,.44, 0, 0.106, 0.06, M_BRIGHT);                     // 윗모서리 밝은 선
+  gB(g, .01,.045,.11, -0.062, 0.05, 0.12, C_BK);                      // 탄피 구멍(오른쪽)
+  gC(g, .05,.05,.30, 0, 0.05, 0.43, C_BK, 12);                        // 총열 덮개
+  for(const z of [0.36, 0.50]) gC(g, .055,.055,.025, 0, 0.05, z, M_BLUE, 12);   // 덮개 띠(구멍 줄 사이)
+  gC(g, .024,.024,.10, 0, 0.05, 0.62, M_BRIGHT, 8);                   // 총열 끝
+  gC(g, .034,.034,.06, 0, 0.05, 0.69, C_BK, 10);                      // 소염기
+  gB(g, .08,.30,.11, 0,-0.20, 0.10, M_BLUE, -0.12);                   // ★ 아래로 긴 탄창 — 앞으로 조금 기운다
+  gB(g, .09,.03,.12, 0,-0.35, 0.118, C_BK, -0.12);                    // 탄창 밑동
+  for(const s of [-1,1]) gC(g, .016,.016,.30, s*0.045, 0.04,-0.28, M_BRIGHT, 8);   // 철사 개머리
+  gB(g, .12,.14,.035, 0, 0.00,-0.43, C_BK);                           // 개머리 끝판
+  gB(g, .045,.05,.05, 0, 0.13,-0.08, C_BK);                           // 가늠자
+  gB(g, .02,.055,.02, 0, 0.12, 0.56, C_BK);                           // 가늠쇠
+  gB(g, .09,.20,.12, 0,-0.14,-0.11, C_BK, 0.15);                      // 손잡이 — 뒤로 기운다
+  MZ(g, 0, 0.05, 0.72);
   gunGrip(g, 0,-0.16,-0.11, 0.28);
   return gunFinish(g, -0.03, 0.15, 0.05, 0.50);
 }
-function mkSniper(){                             // 🏆 금빛 저격총
+function mkSniper(){                             // 🏆 금빛 저격총 — 금 기관부·볼받침, 긴 총열 끝 제퇴기, 종 모양 양끝의 큰 조준경(빛나는 렌즈), 앞으로 벌린 양각대
   const g = new THREE.Group();
-  g.add(boxM(T.plank, 0.115,0.23,0.36, 0,-0.07,-0.42, matWoodDk));    // 개머리판
-  g.add(boxM(T.goldBlk,0.10,0.08,0.26, 0, 0.07,-0.28));               // 금 볼받침
-  g.add(boxM(T.plank, 0.10,0.14,0.22, 0,-0.02,-0.16, matWoodDk));     // 목
-  g.add(boxM(T.goldBlk,0.13,0.16,0.46, 0, 0.04, 0.06));               // 금 몸통
-  g.add(boxM(T.dark,  0.075,0.075,0.94, 0, 0.06, 0.58, matGunDk));    // 긴 총열
-  g.add(boxM(T.goldBlk,0.10,0.10,0.06, 0, 0.06, 0.44));               // 총열 테
-  g.add(boxM(T.dark,  0.12,0.12,0.24, 0, 0.06, 1.08, matGunDk));      // 소음기
-  /* ★ 큼직한 조준경 — 이 총을 다른 총과 확실히 갈라 놓는 부분 */
-  g.add(boxM(T.dark,  0.095,0.095,0.46, 0, 0.21, 0.12, matGunDk));
-  g.add(boxM(T.crystal,0.115,0.115,0.06, 0, 0.21, 0.38, matGlow));    // 앞 렌즈
-  g.add(boxM(T.crystal,0.115,0.115,0.06, 0, 0.21,-0.13, matGlow));    // 뒤 렌즈
-  g.add(boxM(T.goldBlk,0.055,0.08,0.06, 0, 0.14, 0.00));              // 받침
-  g.add(boxM(T.goldBlk,0.055,0.08,0.06, 0, 0.14, 0.26));
-
-  for(const s of [-1,1])                                              // 양각대 다리
-    g.add(boxM(T.dark, 0.04,0.22,0.04, s*0.09,-0.11, 0.66, matGunDk));
-  g.add(boxM(T.dark, 0.22,0.05,0.05, 0, 0.005, 0.66, matGunDk));      // 양각대 받침 (다리 둘 ↔ 총열)
-  g.add(boxM(T.goldBlk,0.09,0.16,0.14, 0,-0.11, 0.02));               // 금 탄창
-  g.add(boxM(T.plank, 0.10,0.20,0.13, 0,-0.15,-0.09, matWoodDk));     // 손잡이
+  gStock(g, .11,.22,.32, -0.075,-0.43, C_WM, C_BK);                   // 개머리판
+  gB(g, .10,.055,.22, 0, 0.075,-0.36, M_GOLDM);                       // 금 볼받침
+  gB(g, .09,.13,.22, 0,-0.02,-0.18, C_WD);                            // 손목
+  gB(g, .12,.14,.40, 0, 0.04, 0.04, M_GOLDM);                         // 금 기관부
+  gB(g, .10,.10,.40, 0,-0.01, 0.42, C_WM);                            // 앞 총대
+  gB(g, .104,.02,.36, 0, 0.02, 0.42, C_WL);                           //   밝은 결
+  gC(g, .036,.030,.84, 0, 0.06, 0.66, M_BLUE, 12);                    // 긴 총열
+  gC(g, .044,.044,.04, 0, 0.06, 0.28, M_GOLDM, 12);                   // 총열 금테
+  gB(g, .08,.07,.12, 0, 0.06, 1.12, M_BLUE);                          // 제퇴기(네모난 총구 끝)
+  gC(g, .042,.042,.42, 0, 0.21, 0.10, C_BK, 14);                      // ★ 조준경 몸통
+  gC(g, .042,.064,.11, 0, 0.21, 0.365, C_BK, 14);                     //   앞 종(대물렌즈 쪽이 넓다)
+  gC(g, .058,.042,.09, 0, 0.21,-0.155, C_BK, 14);                     //   뒤 종(눈 대는 쪽)
+  gC(g, .057,.057,.012, 0, 0.21, 0.42, matGlow, 14);                  //   앞 렌즈
+  gC(g, .050,.050,.012, 0, 0.21,-0.20, matGlow, 14);                  //   뒤 렌즈
+  for(const z of [-0.02, 0.22]) gB(g, .06,.10,.04, 0, 0.155, z, M_GOLDM);   // 조준경 고리
+  gCv(g, .022,.022,.05, 0, 0.275, 0.10, M_GOLDM, 10);                 // 위 다이얼
+  gB(g, .08,.02,.02, -0.08, 0.06,-0.10, M_BRIGHT);                    // 노리쇠
+  gC(g, .025,.025,.04, -0.12, 0.05,-0.10, C_BK, 8);
+  gB(g, .07,.04,.06, 0, 0.02, 0.86, C_BK);                            // 양각대 경첩
+  for(const s of [-1,1]) gRC(g, [s*0.03,0.01,0.86], [s*0.075,-0.22,0.98], .014,.012, M_BRIGHT);   // 양각대 다리 — 앞으로 벌린다
+  gB(g, .08,.12,.13, 0,-0.08, 0.04, M_GOLDM);                         // 금 탄창
+  gB(g, .02,.02,.13, 0,-0.10,-0.10, C_BK);                            // 방아쇠울
+  gB(g, .09,.20,.125, 0,-0.15,-0.09, C_WD);                           // 손잡이
+  MZ(g, 0, 0.06, 1.18);
   gunGrip(g, 0,-0.17,-0.09, 0.40);
   return gunFinish(g, -0.02, 0.13, 0.04, 0.40);
 }
-function mkLaser(){                              // 💎 수정 광선총
+function mkLaser(){                              // 💎 수정 광선총 — 밝은 강철 몸통 위 금 고리에 갇힌 수정 코어, 초점 고리 셋, 뾰족한 수정 방출구
   const g = new THREE.Group();
-  g.add(boxM(T.stone, 0.145,0.17,0.44, 0, 0.02, 0.02, matSteel));     // 몸통
-  g.add(boxM(T.crystal,0.105,0.105,0.26, 0, 0.11, 0.06, matGlow));    // ★ 빛나는 수정 코어
-  g.add(boxM(T.goldBlk,0.14,0.14,0.05, 0, 0.11,-0.09));               // 코어 링
-  g.add(boxM(T.goldBlk,0.14,0.14,0.05, 0, 0.11, 0.21));
-  g.add(boxM(T.stone, 0.095,0.095,0.38, 0, 0.04, 0.44, matSteel));    // 방출관
-  g.add(boxM(T.crystal,0.15,0.15,0.07, 0, 0.04, 0.66, matGlow));      // 방출구
-  for(const s of [-1,1])                                              // 떠 있는 조각
-    g.add(boxM(T.crystal, 0.065,0.065,0.065, s*0.14, 0.13, 0.36, matGlow));
-  g.add(boxM(T.crystal,0.05,0.05,0.32, 0, 0.20, 0.02, matGlow));      // 윗 능선
-  g.add(boxM(T.crystal,0.09,0.17,0.13, 0,-0.14, 0.04, matGlow));      // 에너지 탄창
-  g.add(boxM(T.stone, 0.10,0.20,0.13, 0,-0.15,-0.11, matSteel));      // 손잡이
+  gB(g, .13,.16,.42, 0, 0.02, 0.02, M_BRIGHT);                        // 몸통
+  gC(g, .05,.05,.24, 0, 0.135, 0.04, matGlow, 10);                    // ★ 빛나는 수정 코어
+  for(const z of [-0.07, 0.15]) gC(g, .068,.068,.03, 0, 0.135, z, M_GOLDM, 12);   // 코어 금 고리
+  for(const s of [-1,1]) gB(g, .015,.015,.26, s*0.05, 0.18, 0.04, M_GOLDM);        // 코어 우리 살
+  gC(g, .05,.04,.34, 0, 0.04, 0.40, M_BRIGHT, 12);                    // 방출관
+  for(const z of [0.30, 0.40, 0.50]) gC(g, .062,.062,.025, 0, 0.04, z, C_BK, 12);  // 초점 고리
+  gC(g, .045,.03,.08, 0, 0.04, 0.61, matGlow, 6);                     // 수정 방출구(여섯 면)
+  for(const s of [-1,1]) gB(g, .06,.06,.06, s*0.12, 0.13, 0.36, matGlow, 0.785, 0, 0.785);   // 떠 있는 조각
+  gB(g, .085,.15,.12, 0,-0.13, 0.05, matGlow);                        // 에너지 탄창
+  gB(g, .09,.03,.13, 0,-0.215, 0.05, C_BK);                           //   밑뚜껑
+  gB(g, .09,.20,.12, 0,-0.15,-0.11, gcol(0x2e3a4e), 0.12);            // 손잡이
+  gB(g, .02,.09,.14, 0, 0.13,-0.16, C_BK);                            // 뒤 지느러미
+  MZ(g, 0, 0.04, 0.65);
   gunGrip(g, 0,-0.17,-0.11, 0.30);
   return gunFinish(g, -0.03, 0.15, 0.05, 0.46);
 }
 /* ═══ 29차 — 레어·유니크 여섯 자루. 실루엣이 한눈에 다르게: 큰 활 · 쌍총열 · 금 드럼 · 얼룩소 장총 · 코일 프롱 · 나팔 포구 ═══ */
-function mkOakBow(){                             // 🏹 참나무 강궁 — 세로로 선 큰 활 + 메긴 화살. 밝은 참나무색이라 멀리서도 활로 읽힌다
+function mkOakBow(){                             // 🏹 참나무 강궁 — 끝이 앞으로 말린 리커브 활대, 가죽 손잡이, V자로 당겨진 시위, 깃 달린 화살
   const g = new THREE.Group();
-  g.add(boxM(T.plank, 0.11,0.28,0.12, 0, 0.00, 0.00));                // 손잡이(활 가운데) — 밝은 참나무
-  for(const s of [-1,1]){                                             // 위·아래 활대 — 뒤로 휘어 간다
-    g.add(boxM(T.plank, 0.10,0.26,0.11, 0, s*0.25, -0.02));
-    g.add(boxM(T.plank, 0.09,0.24,0.10, 0, s*0.46, -0.09));
-    g.add(boxM(T.plank, 0.08,0.20,0.09, 0, s*0.64, -0.19));
-    g.add(boxM(T.leaves,0.12,0.09,0.12, 0, s*0.74, -0.24));           // 잎이 남은 활 끝
-    g.add(boxM(T.bark,  0.12,0.05,0.13, 0, s*0.15, 0.00, matWoodDk)); // 손잡이 테
+  gB(g, .10,.32,.12, 0, 0.00, 0.01, C_WD);                            // 활 가운데(짙은 참나무)
+  gB(g, .112,.13,.13, 0,-0.02, 0.01, C_LE);                           // 가죽 손잡이
+  const P = [[0.14,0.00],[0.34,-0.035],[0.52,-0.10],[0.66,-0.19],[0.755,-0.175]],   // 활대 곡선(높이, 앞뒤) — 뒤로 휘다 끝이 앞으로 말린다
+        W = [.095,.085,.075,.065], D = [.07,.06,.05,.045];
+  for(const s of [-1,1]){
+    for(let k=0;k<4;k++) gR(g, [0, s*P[k][0], P[k][1]], [0, s*P[k+1][0], P[k+1][1]], W[k], D[k], k%2 ? C_WL : C_WM);   // 활대 네 마디(결이 번갈아)
+    gB(g, .11,.03,.125, 0, s*0.16, 0.01, C_BR);                       // 활대 이음 놋쇠
+    gB(g, .09,.06,.09, 0, s*0.78,-0.17, C_LEAF);                      // 잎이 남은 활 끝
+    gR(g, [0, s*0.745,-0.19], [0, s*0.02,-0.30], .016,.016, C_WHT);   // 시위 — 화살 꼬리로 당겨져 V 자
   }
-  g.add(boxM(T.wool,  0.025,1.40,0.025, 0, 0, -0.27));                // 시위
-  g.add(boxM(T.bark,  0.035,0.035,1.00, 0, 0.02, 0.26, matWoodDk));   // 화살대
-  g.add(boxM(T.stone, 0.06,0.06,0.13, 0, 0.02, 0.80, matSteel));      // 화살촉
-  g.add(boxM(T.leaves,0.02,0.10,0.12, 0, 0.07,-0.18));                // 깃
+  gC(g, .013,.013,1.04, 0, 0.02, 0.22, C_WL, 6);                      // 화살대
+  gC(g, .034,0,.12, 0, 0.02, 0.80, M_BRIGHT, 6);                      // 화살촉
+  gB(g, .012,.07,.14, 0, 0.055,-0.21, C_RED);                         // 깃(세로)
+  gB(g, .07,.012,.14, 0, 0.02,-0.21, gcol(0xf0e6d0));                 // 깃(가로)
+  MZ(g, 0, 0.02, 0.86);
   gunGrip(g, 0.03,-0.02, 0.00);
   return gunFinish(g, -0.05, 0.05, 0.02, 0.40);
 }
-function mkObsidian(){                           // 💥 흑요석 산탄총 — 나란한 쌍총열, 검은 유리 몸통, 보랏빛 무늬
+function mkObsidian(){                           // 💥 흑요석 산탄총 — 나란한 두 원통 총열 사이 보랏빛 줄, 흑요석 기관부의 빛나는 금, 짙은 호두나무
   const g = new THREE.Group();
-  g.add(boxM(T.plank, 0.12,0.21,0.34, 0,-0.08,-0.36, matWoodDk));     // 개머리판
-  g.add(boxM(T.dark,  0.15,0.17,0.40, 0, 0.02, 0.02, matObsid));      // 몸통
-  for(const s of [-1,1]){                                             // 쌍총열
-    g.add(boxM(T.dark, 0.085,0.085,0.78, s*0.055, 0.07, 0.48, matObsid));
-    g.add(boxM(T.dark, 0.105,0.105,0.08, s*0.055, 0.07, 0.86, matObsid)); // 총구
-  }
-  g.add(boxM(T.crystal,0.16,0.04,0.04, 0, 0.13, 0.02, matGlowV));     // 보라 무늬
-  g.add(boxM(T.crystal,0.04,0.04,0.36, 0, 0.13, 0.32, matGlowV));
-  g.add(boxM(T.plank, 0.13,0.10,0.24, 0,-0.05, 0.40, matWoodDk));     // 펌프 손잡이
-  g.add(boxM(T.dark,  0.04,0.09,0.04, 0,-0.11,-0.02, matObsid));      // 방아쇠
-  g.add(boxM(T.plank, 0.10,0.20,0.13, 0,-0.16,-0.08, matWoodDk));     // 손잡이
+  gStock(g, .11,.20,.32, -0.085,-0.37, C_WD, C_BK);                   // 개머리판
+  gB(g, .09,.12,.20, 0,-0.02,-0.15, C_WM);                            // 손목
+  gB(g, .14,.15,.26, 0, 0.03, 0.02, C_OBS);                           // 흑요석 기관부
+  gB(g, .146,.022,.18, 0, 0.05, 0.03, matGlowV, 0.35);                //   갈라진 보라 금
+  for(const s of [-1,1]) gC(g, .042,.040,.78, s*0.043, 0.075, 0.54, C_OBS, 12);   // ★ 쌍총열
+  gB(g, .022,.022,.72, 0, 0.12, 0.54, matGlowV);                      // 두 총열 사이 보라 줄
+  gB(g, .17,.095,.04, 0, 0.075, 0.895, C_OBS);                        // 총구 띠
+  gB(g, .12,.065,.28, 0, 0.005, 0.34, C_WD);                          // 앞 총대
+  gB(g, .124,.02,.16, 0, 0.01, 0.34, matGlowV);                       //   보라 무늬
+  gB(g, .03,.02,.08, 0, 0.115,-0.10, M_BRIGHT, 0, 0.4);               // 꺾는 손잡이
+  gB(g, .02,.02,.13, 0,-0.10,-0.04, C_BK);                            // 방아쇠울
+  for(const z of [-0.05, 0.00]) gB(g, .02,.055,.02, 0,-0.07, z, C_BK);   // 방아쇠 둘(총열마다 하나)
+  gB(g, .09,.20,.125, 0,-0.16,-0.08, C_WD);                           // 손잡이
+  MZ(g, 0, 0.075, 0.93);
   gunGrip(g, 0,-0.18,-0.08, 0.40);
   return gunFinish(g, -0.03, 0.14, 0.05, 0.44);
 }
-function mkGoldSMG(){                            // ✨ 황금 연발총 — 금 몸통에 큰 드럼 탄창, 총구가 빛난다
+function mkGoldSMG(){                            // ✨ 황금 연발총 — 금 기관부와 둥근 드럼 탄창, 구멍 띠 두른 금 덮개, 빛나는 총구
   const g = new THREE.Group();
-  g.add(boxM(T.goldBlk,0.135,0.175,0.46, 0, 0.03, 0.06));             // 금 몸통
-  g.add(boxM(T.goldBlk,0.095,0.095,0.36, 0, 0.05, 0.40));             // 총열덮개
-  g.add(boxM(T.crystal,0.09,0.09,0.06, 0, 0.05, 0.61, matGlowY));     // 빛나는 총구
-  g.add(boxM(T.goldBlk,0.22,0.22,0.12, 0,-0.14, 0.14));               // ★ 드럼 탄창
-  g.add(boxM(T.dark,  0.10,0.10,0.13, 0,-0.14, 0.14, matGunDk));      // 드럼 가운데
-  for(const s of [-1,1])                                              // 접이식 개머리
-    g.add(boxM(T.goldBlk, 0.045,0.045,0.30, s*0.055, 0.05,-0.28));
-  g.add(boxM(T.goldBlk,0.14,0.045,0.05, 0, 0.05,-0.42));
-  g.add(boxM(T.dark,  0.05,0.06,0.18, 0, 0.14, 0.08, matGunDk));      // 조준구
-  g.add(boxM(T.dark,  0.10,0.20,0.13, 0,-0.14,-0.11, matGunDk));      // 손잡이
+  gB(g, .12,.15,.44, 0, 0.03, 0.06, M_GOLDM);                         // 금 기관부
+  gB(g, .06,.028,.34, 0, 0.118, 0.08, C_BK);                          // 윗 레일
+  gC(g, .05,.05,.30, 0, 0.05, 0.43, M_GOLDM, 12);                     // 금 덮개
+  for(const z of [0.34, 0.48]) gC(g, .054,.054,.02, 0, 0.05, z, C_BK, 12);   // 덮개 띠
+  gC(g, .024,.024,.08, 0, 0.05, 0.61, C_BK, 8);                       // 총열 끝
+  gC(g, .034,.034,.05, 0, 0.05, 0.675, matGlowY, 10);                 // 빛나는 총구
+  gCx(g, .11,.10, 0,-0.15, 0.12, M_GOLDM, 16);                        // ★ 둥근 드럼 탄창
+  gCx(g, .045,.112, 0,-0.15, 0.12, C_BK, 12);                         //   드럼 가운데
+  gB(g, .07,.06,.08, 0,-0.035, 0.12, C_BK);                           //   드럼 목
+  for(const s of [-1,1]) gC(g, .016,.016,.30, s*0.045, 0.04,-0.28, M_GOLDM, 8);   // 접이식 개머리
+  gB(g, .12,.14,.035, 0, 0.00,-0.43, C_BK);                           // 개머리 끝판
+  gB(g, .045,.05,.05, 0, 0.155,-0.06, C_BK);                          // 가늠자
+  gB(g, .09,.20,.12, 0,-0.14,-0.11, C_BK, 0.15);                      // 손잡이
+  MZ(g, 0, 0.05, 0.70);
   gunGrip(g, 0,-0.16,-0.11, 0.28);
   return gunFinish(g, -0.03, 0.15, 0.05, 0.50);
 }
-function mkRanch(){                              // 🐄 목장 장총 — 얼룩소 무늬 개머리판, 우유병 조준경
+function mkRanch(){                              // 🐄 목장 장총 — 얼룩소 무늬 개머리, 방아쇠 밑 놋쇠 지렛대 고리, 팔각 긴 총열 + 탄창관, 우유병 조준경
   const g = new THREE.Group();
-  g.add(boxM(T.wool,  0.12,0.23,0.40, 0,-0.07,-0.44));                // 흰 개머리판
+  gStock(g, .115,.22,.36, -0.08,-0.44, C_WHT, C_BR);                  // 흰 개머리판 + 놋쇠 받침
   for(const [x,y,z] of [[0.05,-0.02,-0.52],[-0.05,-0.12,-0.36],[0.04,-0.14,-0.58]])   // 검은 얼룩
-    g.add(boxM(T.dark, 0.05,0.07,0.09, x, y, z, matGunDk));
-  g.add(boxM(T.wool,  0.10,0.14,0.22, 0,-0.02,-0.16));                // 목
-  g.add(boxM(T.stone, 0.125,0.15,0.44, 0, 0.04, 0.06, matSteel));     // 몸통
-  g.add(boxM(T.stone, 0.075,0.075,0.92, 0, 0.06, 0.56, matSteel));    // 긴 총열
-  g.add(boxM(T.dark,  0.095,0.095,0.07, 0, 0.06, 1.00, matGunDk));    // 총구
-  g.add(boxM(T.cloth, 0.095,0.095,0.40, 0, 0.20, 0.10, matGlow));     // ★ 우유병 조준경(하늘빛)
-  g.add(boxM(T.wool,  0.11,0.11,0.06, 0, 0.20, 0.32));                // 병뚜껑
-  g.add(boxM(T.stone, 0.055,0.08,0.06, 0, 0.13, 0.00, matSteel));     // 받침
-  g.add(boxM(T.stone, 0.055,0.08,0.06, 0, 0.13, 0.22, matSteel));
-  g.add(boxM(T.goldBlk,0.06,0.07,0.06, -0.10, 0.09,-0.02));           // 작은 방울
-  g.add(boxM(T.stone, 0.09,0.15,0.14, 0,-0.10, 0.04, matSteel));      // 탄창
-  g.add(boxM(T.wool,  0.10,0.20,0.13, 0,-0.15,-0.07));                // 손잡이
+    gB(g, .05,.07,.09, x, y, z, C_SPOT);
+  gB(g, .09,.13,.22, 0,-0.02,-0.16, C_WHT);                           // 손목
+  gB(g, .11,.15,.30, 0, 0.035, 0.00, M_BRIGHT);                       // 밝은 기관부
+  gC(g, .034,.030,.90, 0, 0.075, 0.60, M_BLUE, 8);                    // 팔각 긴 총열
+  gC(g, .024,.024,.70, 0, 0.01, 0.52, M_BLUE, 8);                     // 탄창관
+  gB(g, .095,.075,.32, 0, 0.02, 0.33, C_WHT);                         // 앞 총대
+  gB(g, .05,.05,.08, 0.03, 0.03, 0.36, C_SPOT);                       //   얼룩 하나
+  gB(g, .10,.12,.03, 0, 0.045, 0.60, C_BR);                           // 총열 띠
+  gC(g, .038,.038,.04, 0, 0.075, 1.045, C_BK, 8);                     // 총구 끝
+  gB(g, .015,.035,.02, 0, 0.12, 1.00, C_BR);                          // 가늠쇠
+  gC(g, .048,.048,.26, 0, 0.205, 0.05, matGlow, 12);                  // ★ 우유병 조준경 — 병 몸
+  gC(g, .048,.032,.06, 0, 0.205, 0.21, matGlow, 12);                  //   병 어깨
+  gC(g, .036,.036,.04, 0, 0.205, 0.26, C_WHT, 12);                    //   병뚜껑
+  for(const z of [-0.02, 0.14]) gB(g, .045,.07,.05, 0, 0.14, z, M_BRIGHT);   // 받침
+  gB(g, .02,.02,.17, 0,-0.26,-0.05, C_BR);                            // ★ 지렛대 고리 — 밑변
+  gB(g, .02,.13,.02, 0,-0.19, 0.035, C_BR);                           //   앞변
+  gB(g, .055,.06,.055, -0.08, 0.02,-0.03, C_BR);                      // 작은 방울
+  gB(g, .09,.20,.125, 0,-0.15,-0.07, C_WHT);                          // 손잡이
+  MZ(g, 0, 0.075, 1.065);
   gunGrip(g, 0,-0.17,-0.07, 0.40);
   return gunFinish(g, -0.03, 0.14, 0.05, 0.42);
 }
-function mkThunder(){                            // ⚡ 천둥 벼락총 — 남색 몸통, 빛나는 코일 셋, 앞의 두 갈래 프롱
+function mkThunder(){                            // ⚡ 천둥 벼락총 — 남색 몸통(밝은 윗모서리), 둥근 빛 코일 셋, 벌어진 두 갈래 프롱 사이 번개 구슬, 위의 에너지 병과 전선
   const g = new THREE.Group();
-  g.add(boxM(T.dark,  0.15,0.18,0.48, 0, 0.02, 0.00, matNavy));       // 몸통
-  g.add(boxM(T.dark,  0.11,0.11,0.42, 0, 0.05, 0.42, matNavy));       // 총열
-  for(const z of [0.24, 0.40, 0.56])                                  // ★ 코일 링
-    g.add(boxM(T.crystal,0.19,0.19,0.06, 0, 0.05, z, matGlow));
-  for(const s of [-1,1]){                                             // 프롱
-    g.add(boxM(T.stone, 0.045,0.045,0.30, s*0.075, 0.05, 0.78, matSteel));
-    g.add(boxM(T.crystal,0.05,0.05,0.05, s*0.075, 0.05, 0.94, matGlow));
+  gB(g, .10,.15,.20, 0,-0.02,-0.33, C_NAVY);                          // 짧은 개머리
+  gB(g, .14,.17,.46, 0, 0.02, 0.00, C_NAVY);                          // 몸통
+  gB(g, .144,.012,.46, 0, 0.106, 0.00, M_BRIGHT);                     // 윗모서리 밝은 선
+  gC(g, .04,.04,.44, 0, 0.05, 0.44, M_BRIGHT, 10);                    // 가운데 축
+  for(const z of [0.28, 0.40, 0.52]) gC(g, .085,.085,.045, 0, 0.05, z, matGlow, 14);   // ★ 둥근 빛 코일
+  gB(g, .20,.06,.06, 0, 0.05, 0.67, C_BK);                            // 프롱 뿌리
+  for(const s of [-1,1]){
+    gRC(g, [s*0.075,0.05,0.67], [s*0.06,0.05,0.93], .018,.012, M_BRIGHT);   // 프롱
+    gB(g, .045,.045,.045, s*0.06, 0.05, 0.935, matGlow);              // 프롱 끝 불꽃
   }
-  g.add(boxM(T.crystal,0.07,0.07,0.07, 0, 0.05, 0.90, matGlow));      // 프롱 사이의 번개 구슬
-  g.add(boxM(T.crystal,0.08,0.14,0.16, 0, 0.16, -0.06, matGlow));     // 위의 에너지 통
-  g.add(boxM(T.dark,  0.09,0.16,0.14, 0,-0.12, 0.04, matNavy));       // 탄창
-  g.add(boxM(T.dark,  0.10,0.20,0.13, 0,-0.15,-0.12, matGunDk));      // 손잡이
+  gB(g, .065,.065,.065, 0, 0.05, 0.90, matGlow, 0.6, 0.6, 0);         // 번개 구슬
+  gCv(g, .05,.05,.14, 0, 0.19,-0.07, matGlow, 12);                    // 위의 에너지 병
+  for(const y of [0.115, 0.265]) gCv(g, .058,.058,.025, 0, y,-0.07, C_BR, 12);   //   병 위아래 놋쇠 뚜껑
+  gRC(g, [0,0.23,-0.02], [0,0.10,0.24], .014,.014, C_BK, 6);          // 병 → 코일 전선
+  gB(g, .085,.15,.13, 0,-0.12, 0.05, C_NAVY);                         // 탄창
+  gB(g, .09,.20,.12, 0,-0.15,-0.12, C_BK, 0.12);                      // 손잡이
+  MZ(g, 0, 0.05, 0.935);
   gunGrip(g, 0,-0.17,-0.12, 0.36);
   return gunFinish(g, -0.03, 0.15, 0.05, 0.46);
 }
-function mkFlame(){                              // 🔥 화염 대포 — 굵은 붉은 포신, 나팔 포구, 옆의 기름통, 불씨
+function mkFlame(){                              // 🔥 화염 대포 — 굵은 둥근 포신이 나팔처럼 벌어지는 포구(안에 불), 놋쇠 띠 셋, 양옆 기름통, 위의 불씨
   const g = new THREE.Group();
-  g.add(boxM(T.plank, 0.13,0.22,0.30, 0,-0.08,-0.34, matWoodDk));     // 개머리판
-  g.add(boxM(T.dark,  0.20,0.20,0.50, 0, 0.04, 0.06, matRust));       // 굵은 몸통
-  g.add(boxM(T.dark,  0.16,0.16,0.44, 0, 0.05, 0.50, matRust));       // 포신
-  g.add(boxM(T.dark,  0.24,0.24,0.14, 0, 0.05, 0.78, matRust));       // ★ 나팔 포구
-  g.add(boxM(T.crystal,0.14,0.14,0.05, 0, 0.05, 0.86, matEmber));     // 포구 안의 불
-  for(const s of [-1,1])                                              // 기름통
-    g.add(boxM(T.goldBlk,0.09,0.09,0.24, s*0.15,-0.02, 0.10));
-  for(const z of [0.20, 0.36, 0.52])                                  // 포신 테
-    g.add(boxM(T.goldBlk,0.19,0.19,0.03, 0, 0.05, z));
-  g.add(boxM(T.crystal,0.05,0.05,0.05, 0, 0.17, 0.30, matEmber));     // 위의 불씨
-  g.add(boxM(T.dark,  0.05,0.10,0.05, 0,-0.12,-0.02, matGunDk));      // 방아쇠
-  g.add(boxM(T.plank, 0.10,0.20,0.13, 0,-0.17,-0.10, matWoodDk));     // 손잡이
+  gStock(g, .12,.21,.30, -0.085,-0.36, C_WM, C_BR);                   // 개머리판
+  gC(g, .10,.10,.44, 0, 0.04, 0.05, C_RUST, 14);                      // 굵은 몸통
+  gC(g, .082,.086,.40, 0, 0.045, 0.47, C_RUST, 14);                   // 포신
+  gC(g, .086,.14,.16, 0, 0.045, 0.75, C_RUST, 14);                    // ★ 나팔 포구
+  gC(g, .145,.145,.03, 0, 0.045, 0.835, C_BR, 14);                    //   포구 놋쇠 테
+  gC(g, .10,.10,.02, 0, 0.045, 0.82, matEmber, 12);                   //   포구 안의 불
+  for(const z of [-0.10, 0.20]) gC(g, .106,.106,.035, 0, 0.04, z, C_BR, 14);   // 몸통 띠
+  gC(g, .092,.092,.035, 0, 0.045, 0.47, C_BR, 14);                    // 포신 띠
+  for(const s of [-1,1]) gC(g, .045,.045,.26, s*0.14,-0.02, 0.08, C_BR, 10);   // 기름통
+  gB(g, .03,.05,.03, 0, 0.155, 0.40, C_BK);                           // 불씨 꼭지
+  gB(g, .045,.045,.045, 0, 0.19, 0.40, matEmber);                     // 불씨
+  gB(g, .03,.07,.03, 0,-0.10,-0.03, C_BK);                            // 방아쇠
+  gB(g, .09,.20,.125, 0,-0.17,-0.10, C_WM);                           // 손잡이
+  MZ(g, 0, 0.045, 0.85);
   gunGrip(g, 0,-0.19,-0.10, 0.40);
   return gunFinish(g, -0.03, 0.14, 0.05, 0.42);
 }
-/* ═══ 65차 — 새 총 여섯 자루. 재질은 기존 것만 쓴다(29차 레어·유니크 재질 + 나무·쇠·금 타일).
-   실루엣이 한눈에 다르게: 펌프 산탄총(굵은 앞 손잡이) · 은빛 카빈(바나나 탄창·빨간 점 조준경) · 기관총(총열 여섯 다발·탄약통)
+/* ═══ 65차 — 새 총 여섯 자루. 실루엣이 한눈에 다르게: 펌프 산탄총(굵은 앞 손잡이) · 은빛 카빈(바나나 탄창·빨간 점 조준경) · 기관총(총열 여섯 다발·탄약통)
    · 네잎클로버 산탄총(초록 몸통·금 펌프·클로버 문장) · 매의 눈 카빈(남색·날개 깃·부리 총구) · 용의 숨결(벌린 용 머리·뿔·불) ═══ */
-function mkHuntShotgun(){                        // 🦌 사냥 산탄총 — 나무 개머리, 긴 총열 밑 탄창관, 굵은 밝은 나무 펌프
+function mkHuntShotgun(){                        // 🦌 사냥 산탄총 — 호두나무 개머리, 굵은 둥근 총열 + 밑 탄창관, 홈 파인 밝은 나무 펌프, 옆에 꽂힌 빨간 탄
   const g = new THREE.Group();
-  g.add(boxM(T.plank, 0.12,0.20,0.34, 0,-0.08,-0.36, matWoodDk));     // 개머리판
-  g.add(boxM(T.plank, 0.10,0.14,0.20, 0,-0.03,-0.15, matWoodDk));     // 목
-  g.add(boxM(T.dark,  0.13,0.15,0.30, 0, 0.03, 0.04, matGunDk));      // 기관부
-  g.add(boxM(T.stone, 0.08,0.08,0.78, 0, 0.08, 0.56, matSteel));      // 긴 총열
-  g.add(boxM(T.dark,  0.07,0.07,0.60, 0,-0.01, 0.46, matGunDk));      // 밑 탄창관
-  g.add(boxM(T.plank, 0.14,0.13,0.26, 0,-0.01, 0.42));                // ★ 굵은 펌프 손잡이(밝은 나무)
-  g.add(boxM(T.goldBlk,0.03,0.03,0.03, 0, 0.135,0.92));               // 놋쇠 가늠쇠 구슬
-  for(const z of [-0.02, 0.05, 0.12])                                 // 옆에 꽂힌 빨간 탄 셋
-    g.add(boxM(T.dark, 0.03,0.055,0.05, -0.08, 0.03, z, matRed));
-  g.add(boxM(T.dark,  0.04,0.09,0.04, 0,-0.10,-0.02, matGunDk));      // 방아쇠
-  g.add(boxM(T.plank, 0.10,0.20,0.13, 0,-0.16,-0.08, matWoodDk));     // 손잡이
+  gStock(g, .11,.20,.32, -0.085,-0.37, C_WM, gcol(0x4a2a22), 0.04);   // 개머리판 + 두꺼운 고무 받침
+  gB(g, .09,.13,.20, 0,-0.03,-0.15, C_WD);                            // 손목
+  gB(g, .12,.15,.30, 0, 0.03, 0.03, M_BLUE);                          // 기관부
+  gB(g, .124,.012,.30, 0, 0.106, 0.03, M_BRIGHT);                     // 윗모서리 밝은 선
+  gC(g, .038,.036,.80, 0, 0.075, 0.58, M_BLUE, 12);                   // 굵은 총열
+  gB(g, .022,.012,.76, 0, 0.117, 0.58, C_BK);                         // 총열 위 줄
+  gC(g, .03,.03,.60, 0, 0.00, 0.48, M_BLUE, 10);                      // 밑 탄창관
+  gC(g, .033,.033,.03, 0, 0.00, 0.79, M_BRIGHT, 10);                  //   관 마개
+  gB(g, .13,.11,.26, 0, 0.00, 0.44, C_WL);                            // ★ 굵은 펌프 손잡이(밝은 나무)
+  gB(g, .134,.114,.018, 0, 0.00, 0.44, C_WD);                        //   손잡이 가운데 홈
+  gB(g, .022,.022,.022, 0, 0.135, 0.95, C_BR);                        // 놋쇠 가늠쇠 구슬
+  for(const z of [-0.03, 0.03, 0.09]) gB(g, .03,.055,.045, -0.07, 0.035, z, C_RED);   // 옆에 꽂힌 빨간 탄 셋
+  gB(g, .02,.02,.13, 0,-0.10,-0.04, C_BK);                            // 방아쇠울
+  gB(g, .02,.055,.02, 0,-0.07,-0.03, C_BK);                           // 방아쇠
+  gB(g, .09,.20,.125, 0,-0.16,-0.08, C_WD);                           // 손잡이
+  MZ(g, 0, 0.075, 0.98);
   gunGrip(g, 0,-0.18,-0.08, 0.42);
   return gunFinish(g, -0.03, 0.14, 0.05, 0.44);
 }
-function mkCarbine(){                            // 🥈 은빛 카빈 — 은빛 몸통, 앞으로 휜 바나나 탄창, 빨간 점 조준경, 뼈대 개머리
+function mkCarbine(){                            // 🥈 은빛 카빈 — 은빛 기관부, 긴 윗 레일 위 빨간 점 조준경, 검은 덮개(은빛 홈), 앞으로 휜 바나나 탄창, 뼈대 개머리, 앞 손잡이
   const g = new THREE.Group();
-  g.add(boxM(T.wool,  0.13,0.15,0.46, 0, 0.03, 0.04, matSteel));     // 은빛 몸통 (흰 타일 × 강철색 = 밝은 은색)
-  g.add(boxM(T.dark,  0.11,0.11,0.30, 0, 0.04, 0.42, matGunDk));     // 총열덮개
-  g.add(boxM(T.stone, 0.06,0.06,0.24, 0, 0.05, 0.68, matSteel));     // 총열
-  g.add(boxM(T.dark,  0.085,0.085,0.07, 0, 0.05, 0.82, matGunDk));   // 소염기
-  g.add(boxM(T.dark,  0.06,0.03,0.40, 0, 0.125,0.10, matGunDk));     // 윗 레일
-  g.add(boxM(T.dark,  0.08,0.08,0.10, 0, 0.18, 0.02, matGunDk));     // 조준경 몸
-  g.add(boxM(T.crystal,0.05,0.05,0.02, 0, 0.18, 0.075, matEmber));   // ★ 빨간 점
-  g.add(boxM(T.dark,  0.08,0.14,0.11, 0,-0.12, 0.10, matGunDk));     // 탄창 윗부분
-  { const m = boxM(T.dark, 0.08,0.15,0.11, 0,-0.24, 0.15, matGunDk); m.rotation.x = -0.38; g.add(m); }   // ★ 앞으로 휜 바나나 탄창
-  for(const s of [-1,1])                                             // 뼈대 개머리 — 막대 둘
-    g.add(boxM(T.wool,  0.035,0.035,0.28, s*0.045, 0.02,-0.30, matSteel));
-  g.add(boxM(T.dark,  0.11,0.18,0.05, 0,-0.02,-0.45, matGunDk));     // 개머리 끝판
-  g.add(boxM(T.dark,  0.10,0.20,0.13, 0,-0.14,-0.10, matGunDk));     // 손잡이
+  gB(g, .12,.14,.40, 0, 0.03, 0.04, M_BRIGHT);                        // 은빛 기관부
+  gB(g, .06,.028,.50, 0, 0.115, 0.10, C_BK);                          // 윗 레일
+  gB(g, .11,.11,.32, 0, 0.035, 0.40, C_BK);                           // 총열 덮개
+  gB(g, .114,.018,.24, 0, 0.045, 0.40, M_BRIGHT);                     //   덮개 은빛 홈
+  gC(g, .025,.025,.24, 0, 0.045, 0.66, M_BRIGHT, 10);                 // 총열
+  gC(g, .035,.035,.07, 0, 0.045, 0.805, C_BK, 10);                    // 소염기
+  gB(g, .02,.06,.02, 0, 0.13, 0.52, C_BK);                            // 가늠쇠
+  gC(g, .04,.04,.11, 0, 0.17, 0.02, C_BK, 12);                        // 빨간 점 조준경
+  gC(g, .03,.03,.01, 0, 0.17, 0.08, matEmber, 12);                    // ★ 빨간 점
+  gB(g, .08,.12,.11, 0,-0.10, 0.10, C_BK);                            // 탄창 윗부분
+  gB(g, .08,.15,.11, 0,-0.22, 0.15, C_BK, -0.38);                     // ★ 앞으로 휜 바나나 탄창
+  for(const s of [-1,1]) gC(g, .016,.016,.28, s*0.045, 0.02,-0.30, M_BRIGHT, 8);   // 뼈대 개머리
+  gB(g, .11,.18,.05, 0,-0.02,-0.45, C_BK);                            // 개머리 끝판
+  gB(g, .05,.13,.055, 0,-0.07, 0.44, C_BK);                           // 앞 손잡이
+  gB(g, .02,.02,.12, 0,-0.08,-0.03, C_BK);                            // 방아쇠울
+  gB(g, .09,.20,.12, 0,-0.14,-0.10, C_BK, 0.15);                      // 손잡이
+  MZ(g, 0, 0.045, 0.84);
   gunGrip(g, 0,-0.16,-0.10, 0.40);
   return gunFinish(g, -0.03, 0.15, 0.05, 0.48);
 }
-function mkGatling(){                            // ⚙️ 강철 기관총 — 총열 여섯 다발, 앞뒤 고리, 옆 탄약통과 금빛 탄띠, 위 손잡이
+function mkGatling(){                            // ⚙️ 강철 기관총 — 둥근 총열 여섯 다발과 원판 고리 셋, 뒤의 모터, 옆 탄약통과 금빛 탄띠, 위 손잡이
   const g = new THREE.Group();
-  g.add(boxM(T.dark,  0.20,0.20,0.40, 0, 0.03,-0.02, matGunDk));     // 기관부
-  g.add(boxM(T.dark,  0.05,0.05,0.72, 0, 0.05, 0.50, matGunDk));     // 가운데 축(총구 기준)
-  for(let k=0;k<6;k++){ const a = k*Math.PI/3;                       // ★ 총열 여섯 다발
-    g.add(boxM(T.stone, 0.04,0.04,0.66, Math.cos(a)*0.065, 0.05+Math.sin(a)*0.065, 0.50, matSteel)); }
-  for(const z of [0.30, 0.78])                                       // 앞뒤 고리
-    g.add(boxM(T.dark, 0.20,0.20,0.04, 0, 0.05, z, matGunDk));
-  g.add(boxM(T.dark,  0.12,0.15,0.20, -0.17,-0.06, 0.02, matNavy));  // 탄약통
-  for(const [y,z] of [[0.02,0.10],[0.05,0.05],[0.07,-0.01]])         // 금빛 탄띠
-    g.add(boxM(T.goldBlk,0.03,0.05,0.03, -0.105, y, z));
-  for(const z of [-0.10, 0.12])                                      // 위 손잡이 기둥
-    g.add(boxM(T.dark, 0.03,0.08,0.03, 0, 0.17, z, matGunDk));
-  g.add(boxM(T.stone, 0.03,0.03,0.28, 0, 0.21, 0.01, matSteel));     // 위 손잡이
-  g.add(boxM(T.dark,  0.10,0.20,0.13, 0,-0.15,-0.12, matGunDk));     // 손잡이
+  gB(g, .20,.20,.36, 0, 0.03,-0.04, M_BLUE);                          // 기관부
+  gB(g, .204,.012,.36, 0, 0.134,-0.04, M_BRIGHT);                     // 윗모서리 밝은 선
+  gC(g, .07,.07,.10, 0, 0.05,-0.27, C_BK, 12);                        // 뒤 모터
+  gC(g, .028,.028,.66, 0, 0.05, 0.47, C_BK, 8);                       // 가운데 축
+  for(let k=0;k<6;k++){ const a = k*Math.PI/3;                        // ★ 총열 여섯 다발
+    gC(g, .02,.02,.68, Math.cos(a)*0.062, 0.05+Math.sin(a)*0.062, 0.49, M_BRIGHT, 8); }
+  for(const z of [0.24, 0.52, 0.79]) gC(g, .092,.092,.035, 0, 0.05, z, C_BK, 14);   // 원판 고리 셋
+  gB(g, .12,.15,.20, -0.17,-0.06, 0.00, C_NAVY);                      // 탄약통
+  gB(g, .125,.02,.205, -0.17, 0.02, 0.00, C_BK);                      //   뚜껑
+  for(const [y,z] of [[0.02,0.10],[0.05,0.05],[0.07,-0.01]])          // 금빛 탄띠
+    gB(g, .03,.05,.03, -0.105, y, z, C_BR);
+  for(const z of [-0.10, 0.10]) gB(g, .03,.08,.03, 0, 0.17, z, C_BK);   // 위 손잡이 기둥
+  gC(g, .018,.018,.28, 0, 0.215, 0.00, M_BRIGHT, 8);                  // 위 손잡이
+  gB(g, .02,.02,.12, 0,-0.09,-0.06, C_BK);                            // 방아쇠울
+  gB(g, .09,.20,.12, 0,-0.15,-0.12, C_BK, 0.12);                      // 손잡이
+  MZ(g, 0, 0.05, 0.83);
   gunGrip(g, 0,-0.17,-0.12, 0.36);
   return gunFinish(g, -0.03, 0.14, 0.05, 0.44);
 }
-function mkClover(){                             // 🍀 네잎클로버 산탄총 — 초록 몸통, 금 펌프·금 띠, 옆의 네잎 문장이 빛난다
+function mkClover(){                             // 🍀 네잎클로버 산탄총 — 초록 칠 개머리, 금 기관부·금 펌프, 금테 두른 밝은 총열, 옆의 네잎 문장이 빛난다
   const g = new THREE.Group();
-  g.add(boxM(T.leaves,0.12,0.20,0.34, 0,-0.08,-0.36));                // 초록 개머리판
-  g.add(boxM(T.plank, 0.10,0.14,0.20, 0,-0.03,-0.15, matWoodDk));     // 목
-  g.add(boxM(T.leaves,0.14,0.16,0.32, 0, 0.03, 0.04));                // 초록 기관부
-  g.add(boxM(T.stone, 0.085,0.085,0.80, 0, 0.085,0.56, matSteel));    // 총열
-  for(const z of [0.40, 0.72, 0.94])                                  // 금 띠
-    g.add(boxM(T.goldBlk,0.11,0.11,0.04, 0, 0.085, z));
-  g.add(boxM(T.dark,  0.07,0.07,0.60, 0,-0.01, 0.46, matGunDk));      // 밑 탄창관
-  g.add(boxM(T.goldBlk,0.14,0.12,0.24, 0,-0.01, 0.44));               // ★ 금 펌프
-  g.add(boxM(T.crystal,0.03,0.05,0.05, -0.085, 0.03, 0.04, matGlowY)); // 클로버 가운데
-  for(const [dy,dz] of [[0.05,0],[-0.05,0],[0,0.05],[0,-0.05]]){       // ★ 네 잎
-    const m = boxM(T.leaves, 0.025,0.055,0.055, -0.085, 0.03+dy, 0.04+dz); m.rotation.x = Math.PI/4; g.add(m); }
-  g.add(boxM(T.dark,  0.04,0.09,0.04, 0,-0.10,-0.02, matGunDk));      // 방아쇠
-  g.add(boxM(T.plank, 0.10,0.20,0.13, 0,-0.16,-0.08, matWoodDk));     // 손잡이
+  gStock(g, .11,.20,.32, -0.085,-0.37, C_GRN, C_BR);                  // 초록 개머리판 + 금 받침
+  gB(g, .09,.13,.20, 0,-0.03,-0.15, C_GRN2);                          // 손목
+  gB(g, .13,.15,.30, 0, 0.03, 0.03, M_GOLDM);                         // 금 기관부
+  gC(g, .04,.038,.80, 0, 0.08, 0.58, M_BRIGHT, 12);                   // 총열
+  for(const z of [0.40, 0.72, 0.96]) gC(g, .048,.048,.03, 0, 0.08, z, M_GOLDM, 12);   // 금테
+  gC(g, .03,.03,.58, 0, 0.00, 0.47, C_BK, 10);                        // 밑 탄창관
+  gB(g, .14,.12,.24, 0, 0.00, 0.44, M_GOLDM);                         // ★ 금 펌프
+  for(const z of [0.39, 0.49]) gB(g, .144,.124,.02, 0, 0.00, z, C_GRN2);   //   펌프 홈
+  gB(g, .03,.05,.05, -0.07, 0.03, 0.04, matGlowY);                    // 클로버 가운데
+  for(const [dy,dz] of [[0.05,0],[-0.05,0],[0,0.05],[0,-0.05]])       // ★ 네 잎
+    gB(g, .025,.055,.055, -0.075, 0.03+dy, 0.04+dz, C_LEAF, Math.PI/4);
+  gB(g, .022,.022,.022, 0, 0.135, 0.94, C_BR);                        // 가늠쇠 구슬
+  gB(g, .02,.02,.13, 0,-0.10,-0.04, C_BR);                            // 금 방아쇠울
+  gB(g, .02,.055,.02, 0,-0.07,-0.03, C_BK);                           // 방아쇠
+  gB(g, .09,.20,.125, 0,-0.16,-0.08, C_GRN2);                         // 손잡이
+  MZ(g, 0, 0.08, 0.98);
   gunGrip(g, 0,-0.18,-0.08, 0.44);
   return gunFinish(g, -0.03, 0.14, 0.05, 0.44);
 }
-function mkHawk(){                               // 🦅 매의 눈 카빈 — 남색 몸통, 긴 조준경(빛나는 눈), 양옆 날개 깃, 부리 같은 금 총구
+function mkHawk(){                               // 🦅 매의 눈 카빈 — 남색 몸통(밝은 윗모서리), 종 모양 긴 조준경(빛나는 눈), 양옆 날개 깃, 부리처럼 굽은 금 총구
   const g = new THREE.Group();
-  g.add(boxM(T.dark,  0.11,0.19,0.30, 0,-0.05,-0.34, matNavy));       // 개머리판
-  g.add(boxM(T.goldBlk,0.115,0.05,0.20, 0, 0.06,-0.30));              // 금 볼받침
-  g.add(boxM(T.dark,  0.13,0.16,0.48, 0, 0.03, 0.04, matNavy));       // 남색 몸통
-  g.add(boxM(T.dark,  0.11,0.12,0.34, 0, 0.04, 0.44, matNavy));       // 총열덮개
-  g.add(boxM(T.stone, 0.06,0.06,0.30, 0, 0.05, 0.74, matSteel));      // 총열
-  g.add(boxM(T.goldBlk,0.09,0.09,0.08, 0, 0.05, 0.92));               // 금 총구
-  { const m = boxM(T.goldBlk,0.05,0.05,0.07, 0, 0.035,0.98); m.rotation.x = 0.30; g.add(m); }   // ★ 아래로 굽은 부리
-  g.add(boxM(T.dark,  0.085,0.085,0.44, 0, 0.19, 0.08, matGunDk));    // 긴 조준경
-  for(const z of [0.31, -0.15])                                       // 빛나는 렌즈(매의 눈)
-    g.add(boxM(T.crystal,0.10,0.10,0.05, 0, 0.19, z, matGlow));
-  for(const z of [-0.02, 0.18])                                       // 조준경 받침
-    g.add(boxM(T.goldBlk,0.05,0.07,0.05, 0, 0.125, z));
+  gStock(g, .11,.19,.30, -0.055,-0.35, C_NAVY, C_BK);                 // 개머리판
+  gB(g, .115,.05,.20, 0, 0.06,-0.31, M_GOLDM);                        // 금 볼받침
+  gB(g, .13,.16,.46, 0, 0.03, 0.04, C_NAVY);                          // 남색 몸통
+  gB(g, .134,.012,.46, 0, 0.112, 0.04, M_BRIGHT);                     // 윗모서리 밝은 선
+  gB(g, .11,.12,.30, 0, 0.04, 0.42, C_NAVY);                          // 총열 덮개
+  gC(g, .028,.026,.34, 0, 0.05, 0.72, M_BRIGHT, 10);                  // 총열
+  gC(g, .042,.038,.08, 0, 0.05, 0.915, M_GOLDM, 10);                  // 금 총구
+  gB(g, .045,.045,.07, 0, 0.032, 0.975, M_GOLDM, 0.35);               // ★ 아래로 굽은 부리
+  gC(g, .04,.04,.40, 0, 0.20, 0.08, C_BK, 12);                        // 긴 조준경
+  gC(g, .04,.058,.09, 0, 0.20, 0.325, C_BK, 12);                      //   앞 종
+  gC(g, .052,.04,.07, 0, 0.20,-0.155, C_BK, 12);                      //   뒤 종
+  gC(g, .05,.05,.012, 0, 0.20, 0.37, matGlow, 12);                    // 빛나는 렌즈(매의 눈)
+  gC(g, .046,.046,.012, 0, 0.20,-0.19, matGlow, 12);
+  for(const z of [-0.02, 0.18]) gB(g, .055,.08,.04, 0, 0.145, z, M_GOLDM);   // 조준경 고리
   for(const s of [-1,1]) for(let k=0;k<3;k++){                        // ★ 날개 깃 셋 — 뒤로 비스듬히
-    const m = boxM(T.wool, 0.025,0.045,0.24-k*0.05, s*(0.085+k*0.02), 0.07-k*0.04, 0.34-k*0.03);
-    m.rotation.y = s*0.28; g.add(m); }
-  g.add(boxM(T.dark,  0.08,0.16,0.11, 0,-0.12, 0.12, matNavy));       // 탄창
-  g.add(boxM(T.dark,  0.10,0.20,0.13, 0,-0.14,-0.10, matGunDk));      // 손잡이
+    const m = gB(g, .025,.045,.24-k*0.05, s*(0.085+k*0.02), 0.07-k*0.04, 0.34-k*0.03, C_WHT);
+    m.rotation.y = s*0.28; }
+  gB(g, .08,.16,.11, 0,-0.12, 0.12, C_NAVY);                          // 탄창
+  gB(g, .02,.02,.12, 0,-0.08,-0.03, C_BK);                            // 방아쇠울
+  gB(g, .09,.20,.12, 0,-0.14,-0.10, C_BK, 0.12);                      // 손잡이
+  MZ(g, 0, 0.05, 0.955);
   gunGrip(g, 0,-0.16,-0.10, 0.44);
   return gunFinish(g, -0.03, 0.14, 0.05, 0.44);
 }
-function mkDragon(){                             // 🐉 용의 숨결 — 붉은 몸통(흰 타일 × 녹슨 붉은 쇠 = 화염 대포보다 밝은 용 비늘색), 벌린 용 머리 총구 안에 불, 금 뿔·빛나는 눈, 등 가시, 밑의 연료통
+function mkDragon(){                             // 🐉 용의 숨결 — 비늘 띠 두른 둥근 붉은 몸통·금빛 배, 가늘어지는 목, 벌린 용 머리 안에 불, 금 뿔·빛나는 눈, 등 가시, 옆 날개, 밑의 금 연료통
   const g = new THREE.Group();
-  g.add(boxM(T.plank, 0.13,0.21,0.30, 0,-0.08,-0.34, matWoodDk));     // 개머리판
-  g.add(boxM(T.wool,  0.18,0.19,0.46, 0, 0.04, 0.04, matRust));       // 몸통
-  g.add(boxM(T.wool,  0.13,0.13,0.30, 0, 0.05, 0.42, matRust));       // 목(총열)
-  g.add(boxM(T.wool,  0.18,0.16,0.20, 0, 0.07, 0.64, matRust));       // 용 머리
-  { const m = boxM(T.wool, 0.15,0.06,0.20, 0, 0.11, 0.82, matRust); m.rotation.x = -0.18; g.add(m); }   // ★ 윗턱 (벌어짐)
-  { const m = boxM(T.wool, 0.14,0.05,0.18, 0, 0.00, 0.80, matRust); m.rotation.x = 0.22; g.add(m); }    //   아랫턱
-  g.add(boxM(T.crystal,0.09,0.06,0.08, 0, 0.055,0.82, matEmber));     // 입 안의 불
+  gStock(g, .12,.21,.30, -0.085,-0.35, C_WD, M_GOLDM);                // 개머리판 + 금 받침
+  gC(g, .10,.085,.46, 0, 0.045, 0.04, C_RUST, 12);                    // 둥근 몸통(앞으로 가늘어진다)
+  for(const z of [-0.06, 0.10]) gC(g, .104,.104,.03, 0, 0.045, z, C_RUST2, 12);   // 비늘 띠
+  gB(g, .09,.04,.34, 0,-0.03, 0.05, gcol(0xe0b050));                  // 금빛 배 비늘
+  gC(g, .07,.06,.30, 0, 0.06, 0.42, C_RUST, 10);                      // 목(총열)
+  gB(g, .17,.15,.20, 0, 0.075, 0.66, C_RUST);                         // 용 머리
+  gB(g, .14,.055,.20, 0, 0.115, 0.84, C_RUST, -0.18);                 // ★ 윗턱 (벌어짐)
+  gB(g, .13,.05,.18, 0, 0.005, 0.82, C_RUST, 0.22);                   //   아랫턱
+  gB(g, .09,.06,.08, 0, 0.058, 0.82, matEmber);                       // 입 안의 불
   for(const s of [-1,1]){
-    g.add(boxM(T.wool, 0.025,0.04,0.025, s*0.05, 0.075,0.87));        // 윗니
-    g.add(boxM(T.wool, 0.025,0.035,0.025, s*0.045,0.03, 0.85));       // 아랫니
-    g.add(boxM(T.crystal,0.03,0.035,0.035, s*0.092,0.11, 0.66, matGlowY));   // 빛나는 눈
-    const h = boxM(T.goldBlk,0.03,0.03,0.18, s*0.06, 0.17, 0.56); h.rotation.x = 0.55; g.add(h);   // 금 뿔
+    gB(g, .025,.04,.025, s*0.05, 0.075, 0.87, C_WHT);                 // 윗니
+    gB(g, .025,.035,.025, s*0.045, 0.03, 0.85, C_WHT);                // 아랫니
+    gB(g, .03,.035,.035, s*0.092, 0.11, 0.66, matGlowY);              // 빛나는 눈
+    gB(g, .03,.03,.18, s*0.06, 0.17, 0.56, M_GOLDM, 0.55);            // 금 뿔
+    gB(g, .012,.10,.18, s*0.105, 0.11, 0.02, C_RUST2, 0, s*0.25, s*0.5);   // 옆 날개(접힘)
   }
-  for(const z of [-0.12, 0.04, 0.20, 0.36])                           // 등 가시
-    g.add(boxM(T.goldBlk,0.03,0.07,0.05, 0, 0.155+(z>0.3?-0.02:0), z));
-  g.add(boxM(T.goldBlk,0.10,0.10,0.26, 0,-0.10, 0.18));               // 연료통
-  g.add(boxM(T.dark,  0.05,0.10,0.05, 0,-0.12,-0.02, matGunDk));      // 방아쇠
-  g.add(boxM(T.plank, 0.10,0.20,0.13, 0,-0.17,-0.10, matWoodDk));     // 손잡이
+  for(const [z,y] of [[-0.12,0.168],[0.04,0.163],[0.20,0.157],[0.36,0.152]])   // 등 가시
+    gB(g, .03,.07,.05, 0, y, z, M_GOLDM);
+  gC(g, .05,.05,.26, 0,-0.10, 0.18, M_GOLDM, 12);                     // 금 연료통
+  gB(g, .03,.07,.03, 0,-0.10,-0.04, C_BK);                            // 방아쇠
+  gB(g, .09,.20,.125, 0,-0.17,-0.10, C_WD);                           // 손잡이
+  MZ(g, 0, 0.06, 0.92);
   gunGrip(g, 0,-0.19,-0.10, 0.40);
   return gunFinish(g, -0.03, 0.14, 0.05, 0.42);
 }
@@ -8555,6 +8685,7 @@ function mkSparks(g){
 }
 
 function gunMuzzleLocal(g){
+  if(g.userData.mz) return g.userData.mz.clone();     // 65차 — 총 모양이 적어 둔 총열 끝 한가운데(mkXxx 의 MZ)
   let best = null;
   for(const c of g.children){ if(!c.isMesh || c.userData.arm) continue;
     c.updateMatrix(); const gb = c.geometry.boundingBox || (c.geometry.computeBoundingBox(), c.geometry.boundingBox);
@@ -9688,14 +9819,24 @@ const NPCS = [
   npcMake(FORGE_X, FORGE_Z, FORGE_A, NPC_FORGE, [0,1.34, 0.25], [ 0.50,1.18, 0.33], [-0.50,1.14, 0.25], 'smith', 1.7),
   npcMake(VET_X,   VET_Z,   SHOP_A,  NPC_VET,   [0,1.28,-0.85], [ 0.42,1.10,-0.85], [-0.42,1.10,-0.85], 'vet',   2.6)   // 29차
 ];
-/* ═══ 세계에 놓인 총 진열. 손에 드는 모형(gunModels)을 복제해 받침대·걸이·선반에 얹는다. */
-const DISP = [];
-function dispClone(i, x, y, z, ry, sc, spin){
+/* ═══ 세계에 놓인 총 진열. 손에 드는 모형(gunModels)을 복제해 받침대·걸이·선반에 얹는다.
+   65차 — ① 손·팔·불티는 떼고 총만 올린다. 복제에 손에 쥔 흰 주먹·팔뚝이 같이 와서 걸이마다 흰 손이 둥둥 떠 있었다(사진).
+          ② 총의 한가운데를 축으로 둔다. 예전엔 손잡이가 축이라 받침대에서 돌 때 긴 총은 총구가 1칸 가까이 휘둘렸다.
+          ③ fit — 자리마다 '이 길이 안' 을 준다. 긴 총은 그만큼 줄고 짧은 총은 제 크기(최대 1.05배)다. 활은 높이로 잰다.
+          ④ yb — 총 밑면 높이. 선반·걸이·받침 윗면에 총이 얹힌다(가운데 높이를 손으로 맞추지 않는다). */
+const DISP = [], _dbb = new THREE.Box3(), _dsz = new THREE.Vector3(), _dct = new THREE.Vector3();
+function dispClone(i, x, yb, z, ry, fit, spin){
   const g = gunModels[i]; if(!g) return null;
-  const d = g.clone();
-  d.visible = true;                                   // ★ 손에 드는 원본은 안 든 자루가 visible=false 라 복제도 숨은 채 온다
-  d.traverse(o=>{ if(o.isMesh){ o.renderOrder = 0; o.frustumCulled = true; } });
-  d.rotation.set(0, ry, 0); d.scale.setScalar(sc); d.position.set(x, y, z);
+  const gun = g.clone();
+  gun.visible = true;                                 // ★ 손에 드는 원본은 안 든 자루가 visible=false 라 복제도 숨은 채 온다
+  for(const c of [...gun.children]) if(!c.isMesh || c.material === HELD_ARM) gun.remove(c);   // 손·팔(HELD_ARM)·불티(점) 떼기
+  gun.traverse(o=>{ if(o.isMesh){ o.renderOrder = 0; o.frustumCulled = true; } });
+  gun.rotation.set(0, 0, 0); gun.position.set(0, 0, 0); gun.scale.setScalar(1);
+  localBox(gun, _dbb); _dbb.getSize(_dsz); _dbb.getCenter(_dct);
+  const sc = Math.min(1.05, fit / Math.max(_dsz.z, _dsz.y, 0.01));
+  gun.scale.setScalar(sc); gun.position.set(-_dct.x*sc, -_dct.y*sc, -_dct.z*sc);
+  const d = new THREE.Group(), y = yb + _dsz.y*sc/2;
+  d.add(gun); d.rotation.set(0, ry, 0); d.position.set(x, y, z);
   scene.add(d); DISP.push({m:d, y, ph:i*1.3, spin}); return d;
 }
 let dispMade = false;
@@ -9703,18 +9844,22 @@ function makeDisplays(){
   dispMade = true;
   { const RY = Math.PI/2 - FORGE_A, cr = Math.cos(RY), sr = Math.sin(RY), y0 = terrAt(Math.round(FORGE_X), Math.round(FORGE_Z));
     const at = (dx,dz)=> [FORGE_X + dx*cr + dz*sr, FORGE_Z - dx*sr + dz*cr];
-    /* 65차 — 받침대·걸이를 새 대장간(buildForge ④)에 맞췄다. 받침대 윗판 0.48 · 걸이 막대 1.40 · 널벽 x −1.58 */
-    let q = at(-1.05, 1.30); dispClone(12, q[0], y0+0.86, q[1], RY, 1.05, true);        // 천둥 벼락총 — 왼 앞 받침대
-    q = at( 0.95, 1.38);     dispClone(13, q[0], y0+0.86, q[1], RY, 1.05, true);        // 화염 대포 — 오른 앞 받침대(모루 앞)
-    /* 32차 — 레어 넷은 뒤쪽 벽 판에 벽과 나란히(옆모습). 총구가 손님을 향하면 검은 점으로만 보인다 — 옆으로 걸어야 총이다 */
-    [[8,-0.80],[9,-0.33],[10,0.14],[11,0.61]].forEach(([i,dz],k)=>{
-      const p = at(-1.42, dz); dispClone(i, p[0], y0+1.52, p[1], RY + (k%2 ? 0.10 : -0.10), 1.05, false); });
+    /* 유니크 셋 — 앞 받침대 셋(윗판 0.48) 위에서 돈다. 65차: 용의 숨결(19)이 가운데 새 받침대. 받침 사이 1.0 · 도는 반지름 0.42 */
+    [[12,-1.05,1.30],[19,-0.05,1.42],[13,0.95,1.38]].forEach(([i,dx,dz])=>{
+      const q = at(dx, dz); dispClone(i, q[0], y0+0.56, q[1], RY, 0.84, true); });
+    /* 레어 — 왼쪽 널벽의 걸이 세 단(윗면 0.86·1.30·1.74)에 벽과 나란히 옆모습으로. 오른쪽 옆면(노리쇠 쪽)이 방 안을 본다.
+       총구가 손님을 향하면 검은 점으로만 보인다 — 옆으로 걸어야 총이다. 65차: 레어가 여섯이 되어 한 단 → 세 단 */
+    [[18,1.74,0.37],[11,1.74,-0.63],[17,1.30,0.37],[9,1.30,-0.63],[10,0.86,-0.13]].forEach(([i,h,dz])=>{
+      const p = at(-1.42, dz); dispClone(i, p[0], y0+h, p[1], RY + Math.PI, 0.92, false); });
+    /* 참나무 강궁 — 활은 걸이에 누이면 활대가 겹친다. 뒷벽(왼쪽 반)에 세워 건다 */
+    { const p = at(-1.00, -1.18); dispClone(8, p[0], y0+0.55, p[1], RY + Math.PI/2, 1.25, false); }
   }
   { const RY = Math.PI/2 - SHOP_A, cr = Math.cos(RY), sr = Math.sin(RY), y0 = terrAt(Math.round(SHOP_X), Math.round(SHOP_Z));
     const at = (dx,dz)=> [SHOP_X + dx*cr + dz*sr, SHOP_Z - dx*sr + dz*cr];
-    /* 65차 — 새 선반(buildShop ③)은 z −1.46 · 위 선반 윗면 1.615 */
-    let q = at(-0.35, -1.46); dispClone(2, q[0], y0+1.83, q[1], RY + Math.PI/2 + 0.2, 1.0, false);   // 화승총 — 위 선반
-    q = at( 0.75, -1.46);     dispClone(3, q[0], y0+1.83, q[1], RY + Math.PI/2 - 0.2, 1.0, false);   // 쇠 소총
+    /* 선반(buildShop ③) — 위 선반 윗면 1.615 에 화승총·쇠 소총, 그 위 새 걸이(윗면 2.03)에 65차 새 총 셋.
+       옆모습으로 세워 오른쪽 옆면이 손님을 본다(총구는 손님 오른쪽). 가운데 자루는 상인 모자(1.78) 위라 안 가린다 */
+    [[2,-0.62],[3,0.64]].forEach(([i,dx])=>{ const q = at(dx, -1.46); dispClone(i, q[0], y0+1.62, q[1], RY + Math.PI/2, 0.70, false); });
+    [[14,-0.80],[15,0.00],[16,0.80]].forEach(([i,dx])=>{ const q = at(dx, -1.52); dispClone(i, q[0], y0+2.035, q[1], RY + Math.PI/2, 0.74, false); });
   }
 }
 let smithBeat = -1;
