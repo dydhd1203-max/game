@@ -35,7 +35,7 @@ function chunk(a,b){const start=source.indexOf(a),end=source.indexOf(b,start);if
 const fixtures=`const GFX={q:'high',shadow:false},scene=new THREE.Scene(),MAXW=92,MAXP=40,GY=0,NIGHTK=.7,ENV_STEEL=null;
 const G={day:1,nk:0,set:{goalDay:15}},topAt=()=>0,burst=()=>{},UPV=new THREE.Vector3(0,1,0);
 const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color();`;
-const names=['W_body','W_head','W_chest','W_ruff','W_snout','W_tail','W_legs','W_paw','W_eyes','W_ears','W_horn','W_nose','W_belly','W_brow','W_cheek','W_rib','W_plate','W_gem','W_eyeW','W_eyeR','W_pupil','W_fang','W_costume','W_wrap'];
+const names=['W_body','W_head','W_chest','W_ruff','W_snout','W_tail','W_legs','W_paw','W_eyes','W_ears','W_horn','W_nose','W_belly','W_brow','W_cheek','W_rib','W_plate','W_gem','W_eyeW','W_eyeR','W_pupil','W_fang','W_costume','W_wrap','W_sleeve','W_digit'];
 const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),fn('metalMat'),chunk('function roundBox(','const _rbCache'),
  chunk('const STUD =','const eyeMat ='),fn('imesh'),chunk('const eyeMat =','/* ═══════════════════════ 농장 동물'),
  declaration('auraMat'),declaration('W_aura'),chunk('let FLIP_ON =','const fxq ='),
@@ -87,11 +87,44 @@ const patrolPose=bodyPose({shT:false}),chasePose=bodyPose({shT:true,poseChase:1,
 const angle=m=>new THREE.Vector3(0,1,0).transformDirection(m).z;
 const chaseDelta={lower:pos(patrolPose.W_body[0]).y-pos(chasePose.W_body[0]).y,lean:angle(chasePose.W_body[0])-angle(patrolPose.W_body[0]),hand:Math.max(...chasePose.W_paw.map((m,i)=>pos(m).distanceTo(pos(patrolPose.W_paw[i]))))};
 check('Chasing visibly lowers and leans the body and reaches forward',chaseDelta.lower>.02&&chaseDelta.lean>.15&&chaseDelta.hand>.07,chaseDelta);
-check('Both elbows are rendered while all hands remain present',chasePose.W_legs.length===6&&chasePose.W_paw.length===2);
+// 65차 — 위팔은 찢긴 소매(W_sleeve), 아래팔·허벅지는 W_legs, 정강이는 바짓단(W_sleeve), 손가락 6·발 2 는 W_digit.
+check('Both elbows and knees are rendered while all hands, fingers and feet remain present',chasePose.W_legs.length===4&&chasePose.W_sleeve.length===4&&chasePose.W_paw.length===2&&chasePose.W_digit.length===8);
 const reaches=[patrolPose,chasePose,prep,hit,recovery];
+// 손가락 끝 = 굽은 마디 기하에서 관절(+y 끝)과 가장 먼 꼭짓점
+const digitTip=(()=>{const g=A.meshes.W_digit.geometry.attributes.position;let best=null,far=-1;for(let i=0;i<g.count;i++){const v=new THREE.Vector3().fromBufferAttribute(g,i),d=v.distanceTo(new THREE.Vector3(0,.5,0));if(d>far){far=d;best=v;}}return best;})();
+const tipOf=m=>digitTip.clone().applyMatrix4(m);
 check('Reaching palms face downward and fingertips curl below their knuckles',reaches.every(p=>
   p.W_paw.every(m=>new THREE.Vector3(0,0,1).transformDirection(m).y<-.1)&&
-  p.W_costume.slice(-12).every((m,i)=>i%2===0||new THREE.Vector3(0,-1,0).transformDirection(m).y<-.1)));
+  p.W_digit.slice(0,6).every(m=>tipOf(m).y<new THREE.Vector3(0,.5,0).applyMatrix4(m).y-.01)));
+// ═══ 65차 — 사실적인 걸음: 발 딛기·무릎·개체마다 다른 박자·맞음 반 걸음·무릎부터 꺾이는 쓰러짐 ═══
+const endOf=(m,y=-.5)=>new THREE.Vector3(0,y,0).applyMatrix4(m);
+function walkTrack(k,extra,speed,frames=150,id=5){const w=actor(k,{mv:true,id,ph:.1*id,...extra}),dt=1/60;let t=4;const hist=[];
+  for(let i=0;i<60+frames;i++){t+=dt;w.z+=speed*dt;A.drawWolves([w],t,dt);if(i>=60){const p=[2,3].map(j=>{const m=new THREE.Matrix4();A.meshes.W_sleeve.getMatrixAt(j,m);return endOf(m);});hist.push(p);}}
+  const ground=Math.min(...hist.flat().map(p=>p.y)),sc=A.WOLF_T[k].sc;let slide=0,n=0;
+  for(let i=1;i<hist.length;i++)for(let j=0;j<2;j++){const a=hist[i-1][j],b=hist[i][j];if(a.y<ground+.012*sc/.7&&b.y<ground+.012*sc/.7){slide+=Math.hypot(b.x-a.x,b.z-a.z)*60;n++;}}
+  return {w,planted:n?slide/n:Infinity,contact:n/(2*(hist.length-1)),ground};}
+const walks=[[0,{},3.15],[2,{},2.3],[8,{},3.6],[0,{shT:true},4.6]].map(([k,e,v])=>({k,v,...walkTrack(k,e,v)}));
+check('Walking and chasing feet stay planted on the ground instead of skating',walks.every(r=>r.planted<r.v*.12&&r.contact>.25&&Math.abs(r.ground)<.03),walks.map(r=>({k:r.k,body:r.v,planted:+r.planted.toFixed(3),contact:+r.contact.toFixed(2)})));
+const legPoses=[patrolPose,chasePose,prep,hit,recovery,snapshot(actor(0,{dead:.40}),4,.016)];
+let jointGap=0,kneeForward=true,lenErr=0;
+for(const p of legPoses)for(let j=0;j<2;j++){const th=p.W_legs[2+j],sh=p.W_sleeve[2+j],hip=endOf(th,.5),knee=endOf(th),kneeTop=endOf(sh,.5),foot=endOf(sh);
+  jointGap=Math.max(jointGap,knee.distanceTo(kneeTop));lenErr=Math.max(lenErr,Math.abs(hip.distanceTo(knee)-knee.distanceTo(foot)));
+  const mid=hip.clone().add(foot).multiplyScalar(.5),fwd=new THREE.Vector3(0,0,1);kneeForward&&=knee.clone().sub(mid).dot(fwd)>-1e-4;}
+check('Two-part legs stay joined at the knee, keep equal segment lengths and bend forward',jointGap<1e-4&&lenErr<1e-4&&kneeForward,{jointGap,lenErr});
+{const rates=[1,2,3,4,5,6].map(id=>{const w=actor(0,{mv:true,id,ph:.37*id}),dt=1/60;let t=4;for(let i=0;i<120;i++){t+=dt;w.z+=3.15*dt;A.wolfPose(w,t,dt);}return +(w.gp/(120*dt)).toFixed(2);});
+ check('A crowd at the same speed walks with individual stride and cadence',new Set(rates).size>=5&&Math.max(...rates)/Math.min(...rates)>1.12,{gaitRates:rates});}
+{const w=actor(0,{id:4}),dt=1/60;let t=4;for(let i=0;i<30;i++){t+=dt;A.drawWolves([w],t,dt);}
+ const feet=()=>[2,3].map(j=>{const m=new THREE.Matrix4();A.meshes.W_sleeve.getMatrixAt(j,m);return endOf(m);});
+ const before=feet(),x0=w.x,z0=w.z;w.kT=.22;w.kx=1;w.kz=0;w.hurt=.18;let moved=0;
+ for(let i=0;i<14;i++){t+=dt;w.hurt=Math.max(0,w.hurt-dt);A.drawWolves([w],t,dt);const f=feet();moved=Math.max(moved,...f.map((p,j)=>p.distanceTo(before[j])));}
+ for(let i=0;i<40;i++){t+=dt;w.hurt=Math.max(0,w.hurt-dt);A.drawWolves([w],t,dt);}
+ const settled=Math.max(...feet().map((p,j)=>p.distanceTo(before[j])));
+ check('A hit adds a display-only stagger half-step that settles back without moving the zombie',moved>.03&&settled<.01&&w.x===x0&&w.z===z0,{step:+moved.toFixed(3),settled:+settled.toFixed(4)});}
+{const w=actor(0,{id:4}),dt=1/60;let t=4;for(let i=0;i<20;i++){t+=dt;A.drawWolves([w],t,dt);}
+ const hip0=endOf(snapshot(w,t+=dt,dt).W_legs[2],.5).y;w.dead=.55;w.mv=false;
+ const early=snapshot(w,t+=dt,.05),early2=snapshot(w,t+=dt,.02),hipE=endOf(early2.W_legs[2],.5).y,upE=new THREE.Vector3(0,1,0).transformDirection(early2.W_body[0]).y;
+ let lateUp=1;for(let i=0;i<8;i++){const p=snapshot(w,t+=dt,.02);lateUp=Math.min(lateUp,new THREE.Vector3(0,1,0).transformDirection(p.W_body[0]).y);}
+ check('Dying zombies buckle at the knees first, then topple over',hip0-hipE>.05&&upE>.75&&lateUp<.35,{hipDrop:+(hip0-hipE).toFixed(3),uprightEarly:+upE.toFixed(2),uprightLate:+lateUp.toFixed(2)});}
 const deadHunter=actor(0,{dead:.4,shT:true,poseChase:1,poseAlert:.2});const death=A.wolfPose(deadHunter,1,1/60).threat;
 check('Defeated zombies stop the discovery and chase pose',death.chase===0&&death.alert===0&&death.drive===0);
 const phaseA=A.wolfPose(actor(0,{id:1}),.4,.016).threat,phaseB=A.wolfPose(actor(0,{id:8}),.4,.016).threat;
