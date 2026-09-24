@@ -2147,9 +2147,7 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 #popShop #shopList .sItem.own{border-color:#a0d2bb!important;background:#fff!important}
 #popShop #shopList .sItem.equipped{border-color:#60aa89!important;box-shadow:inset 0 0 0 1px #60aa89!important}
 #popShop #shopList .si{position:relative;display:flex;align-items:center;justify-content:center;width:100%;height:auto;min-height:calc(var(--shop-preview) + 12px);padding:6px 12px;flex:0 0 auto;font-size:49px;background:linear-gradient(145deg,#eff7fd,#e4f0f9);border-radius:14px 14px 0 0;filter:none;overflow:hidden}
-#popShop #shopList .sItem:nth-child(3n+2) .si{background:linear-gradient(145deg,#f0f8f4,#e1f0e8)}
-#popShop #shopList .sItem:nth-child(3n) .si{background:linear-gradient(145deg,#f8f5ed,#f5ecd9)}
-#popShop #shopList .si img.ic{width:var(--shop-preview);height:var(--shop-preview);max-width:100%;object-fit:contain;margin:0;filter:drop-shadow(0 5px 3px rgba(52,89,114,.12))}
+#popShop #shopList .si img.ic{width:var(--shop-preview);height:var(--shop-preview);max-width:100%;object-fit:contain;margin:0;filter:drop-shadow(0 6px 4px rgba(0,0,0,.5))}
 #popShop #shopList .shopExchange .si{font-size:23px;gap:10px}
 #popShop #shopList .shopExchange .si img.ic{width:65px;height:65px}
 #popShop .shopBadge{position:absolute;top:9px;left:9px;max-width:calc(100% - 18px);padding:4px 7px;border-radius:6px;background:rgba(255,255,255,.94);color:#47677d;font-size:11px;line-height:1.25;font-weight:500;white-space:normal}
@@ -2182,27 +2180,10 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 @media(max-width:320px){#popShop #shopList{grid-template-columns:minmax(0,1fr)}}
 @media(max-height:600px){#popShop .popC{gap:9px;padding-top:12px;padding-bottom:12px}#popShop .shopEyebrow,#popShop .shopCollection,#popShop #shopNotice,#popShop .shopFoot p{display:none}#popShop .shopTop{gap:9px}#popShop h2{font-size:21px}#popShop .shopBrand{height:36px;width:36px}#popShop .shopBrand img.ic{height:26px}#popShop .shopClose{height:36px;width:36px;min-width:36px}#popShop .shopWallet{padding-top:5px;padding-bottom:5px}#popShop .shopBalance{padding-top:5px;padding-bottom:5px}#popShop #shopTabs .btn{min-height:32px;padding-top:6px;padding-bottom:6px}#popShop #shopList .sb{padding:10px}#popShop #shopList .sd{margin-bottom:7px}#popShop #shopList .sc{margin-bottom:7px}#popShop .shopLack{margin-bottom:6px}#popShop .shopFoot{padding-top:8px;justify-content:flex-end}#popShop .shopFoot .btn{min-height:35px}}
 /* ═══ 65차 — RPG 무기점. 선생님: "상점을 진짜 rpg게임 상점처럼".
-   ★ 바탕은 밝은 양피지(크림)·꿀빛 나무 간판, 본문은 남색 그대로(CLAUDE.md UI 규칙).
+   ★ (65차 나무 진열대에서 겉모습은 아래 '나무 진열대' 블록으로 바뀌었다 — 여기는 등급·Lv 딱지·능력치 막대의 공용 규칙만 남는다.)
    ★ 카드 테 = 등급(일반 회청 · 레어 파랑 · 유니크 주황), 그림 칸 오른쪽 위 = 등급·Lv 딱지.
    ★ 레벨이 모자란 카드는 그림을 회색으로 죽이고 자물쇠를 크게 얹는다 — 단추도 '🔒 레벨 N부터' 로 잠긴다.
    ★ 위 카드 규칙(높이·스크롤·미리보기 크기)은 t53 이 글자 그대로 본다. 여기서는 새 선택자만 더한다. */
-#popShop>.popC{background:linear-gradient(180deg,#fffaf0 0%,#fff3d9 100%)!important;border:3px solid #ecd19a;box-shadow:0 18px 40px rgba(70,45,10,.25),inset 0 0 0 3px #fffdf6}
-#popShop>.popC>.shopTop{background:linear-gradient(180deg,#f6dfae,#ebc57f);border:2px solid #d7a85a;border-radius:16px;padding:8px 10px;box-shadow:inset 0 -3px 0 rgba(140,90,20,.16)}
-@media(max-height:600px){#popShop>.popC>.shopTop{padding:2px 6px;border-width:1px;box-shadow:none}#popShop .wStats{margin-top:2px}#popShop .wTags{top:6px;right:6px}#popShop>.popC>.shopTop .shopWallet{padding-top:2px;padding-bottom:2px}#popShop>.popC>.shopTop .shopBalance{padding-top:3px;padding-bottom:3px}}
-#popShop>.popC>.shopTop .shopBrand{background:#fff6de;border:2px solid #d9aa5c;box-shadow:inset 0 -2px 0 rgba(140,90,20,.14)}
-#popShop>.popC>.shopTop h2{color:#4a2f10}
-#popShop>.popC>.shopTop .shopEyebrow{color:#7a5424;font-weight:600}
-#popShop>.popC>.shopTop .shopWallet{background:#fffaf0;border-color:#e2c283}
-#popShop>.popC>.shopTop .shopClose{background:#fff6de;border-color:#d9aa5c;color:#6a4618}
-#popShop #shopTabs .btn.on{background:#fff0c4!important;border-color:#e0ad48!important;color:#5e3d08!important;box-shadow:inset 0 -3px 0 #e8b64e!important}
-#popShop>.popC>#shopNotice{position:relative;padding:7px 12px 7px 38px;background:#fff;border:2px solid #efd7a4;border-radius:12px;color:#5a4526;font-size:12.5px}
-#popShop>.popC>#shopNotice::before{content:'🧔';position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:19px;line-height:1}
-#popShop #shopList .sItem.tier-common{border-color:#c9d6e0!important}
-#popShop #shopList .sItem.tier-rare{border:2px solid #8aa6ff!important;box-shadow:0 0 0 3px rgba(127,156,255,.16),0 4px 10px rgba(80,110,220,.14)!important}
-#popShop #shopList .sItem.tier-unique{border:2px solid #ffa24a!important;box-shadow:0 0 0 3px rgba(255,154,60,.18),0 4px 12px rgba(230,120,30,.18)!important}
-#popShop #shopList .sItem.tier-common .si{background:radial-gradient(circle at 50% 58%,#ffffff 0%,#eef3f7 62%,#e2eaf0 100%)}
-#popShop #shopList .sItem.tier-rare .si{background:radial-gradient(circle at 50% 58%,#ffffff 0%,#e4ebff 60%,#cfdbff 100%)}
-#popShop #shopList .sItem.tier-unique .si{background:radial-gradient(circle at 50% 58%,#fffdf5 0%,#ffeccc 60%,#ffd9a6 100%)}
 #popShop .wTags,.popC .wTags{position:absolute;top:9px;right:9px;display:flex;flex-direction:column;align-items:flex-end;gap:4px;pointer-events:none}
 .wTier,.wLv,.kTier{display:inline-block;padding:3px 7px;border-radius:6px;font:600 11px/1.25 var(--f-body);white-space:nowrap}
 .wTier.common,.kTier.common{background:#e7eef3;color:#3f5d72}
@@ -2225,6 +2206,183 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 .wStat.dmg s{background:linear-gradient(90deg,#ff9a7a,#ef5f4a)} .wStat.spd s{background:linear-gradient(90deg,#ffd66b,#f0a526)} .wStat.rng s{background:linear-gradient(90deg,#8fd0ff,#4b9fe0)}
 .wStat b{font:600 11.5px/1.2 var(--f-body);color:#2c4a60;font-variant-numeric:tabular-nums;white-space:nowrap}
 .wEnh{color:#a07a00;font-weight:600}
+/* ═══ 65차 — 나무 진열대 상점. 선생님이 보낸 참고 그림(모바일 RPG '루비 상점'): "나무 진열대 같은 디자인에 신경 쓴 느낌".
+   ★ 캐릭터 그림은 넣지 않는다. 틀 = 짙은 호두나무 두꺼운 테 + 판자 결 + 모서리 못, 안쪽 판은 한 단 더 어둡게 파인다.
+   ★ 머리 = 검은 띠 위 흰 제목 · 짙은 알약 지갑 · 황동 테 X. 탭 = 아이콘 네모(고른 것 금빛, 나머지 회색 돌) + 작은 이름.
+   ★ 카드 = 선반 한 칸: 주황 명판(이름) → 은은한 빛을 받는 물건 → 설명·능력치 → 주황 가격 단추(자원 그림 + 숫자 + 구매하기).
+   ★ 등급은 명판 테와 칸 둘레 빛으로(레어 파랑 · 유니크 금). 잠긴 칸은 어둡게 + 자물쇠 + '🔒 레벨 N부터'.
+   ★ 이 창만 짙은 바탕이라 글씨는 밝은 크림(#fff3dc 계열)으로 뒤집는다. 위 53차 규칙의 높이·스크롤·미리보기 크기는 그대로 둔다(t53 CSS 계약).
+   ★ 모든 규칙은 #popShop 안에서만 — 대장간·동물 상인·가방은 밝은 창 그대로다. */
+#popShop>.popC{
+  --wd-ink:#fff3dc;--wd-ink2:#e9d3ae;--wd-dim:#c9ad85;--wd-edge:#1f1008;
+  color:var(--wd-ink);font-family:'Noto Sans KR',var(--f-body);
+  background:
+    radial-gradient(circle,#ffe9a6 0 2px,#b98a34 2.5px 3.6px,#3a2410 4.2px,transparent 5px) left 9px top 9px/12px 12px no-repeat,
+    radial-gradient(circle,#ffe9a6 0 2px,#b98a34 2.5px 3.6px,#3a2410 4.2px,transparent 5px) right 9px top 9px/12px 12px no-repeat,
+    radial-gradient(circle,#ffe9a6 0 2px,#b98a34 2.5px 3.6px,#3a2410 4.2px,transparent 5px) left 9px bottom 9px/12px 12px no-repeat,
+    radial-gradient(circle,#ffe9a6 0 2px,#b98a34 2.5px 3.6px,#3a2410 4.2px,transparent 5px) right 9px bottom 9px/12px 12px no-repeat,
+    repeating-linear-gradient(90deg,rgba(0,0,0,.30) 0 2px,rgba(255,210,150,.07) 2px 3px,transparent 3px 132px),
+    repeating-linear-gradient(90deg,transparent 0 5px,rgba(0,0,0,.06) 5px 6px,transparent 6px 13px,rgba(255,220,170,.035) 13px 14px,transparent 14px 23px),
+    repeating-linear-gradient(0deg,transparent 0 37px,rgba(0,0,0,.05) 37px 38px),
+    linear-gradient(180deg,#6f4527 0%,#573419 38%,#452814 100%)!important;
+  border:4px solid var(--wd-edge)!important;border-radius:18px;
+  box-shadow:0 0 0 2px #9b6a3c,0 0 0 5px #2a160a,0 22px 50px rgba(0,0,0,.6),
+    inset 0 0 0 3px #8e5d33,inset 0 0 0 5px #2c170b,inset 0 2px 0 5px rgba(255,210,150,.10),inset 0 0 38px rgba(0,0,0,.5)!important}
+/* ── 머리: 검은 띠 제목 · 짙은 알약 지갑 · 황동 X ── */
+#popShop>.popC>.shopTop{background:none;border:0;border-radius:0;padding:0;box-shadow:none}
+#popShop>.popC>.shopTop .shopBrand{background:radial-gradient(circle at 40% 35%,#8a5a30,#4a2b14)!important;border:2px solid #d9a441;border-radius:12px;
+  box-shadow:inset 0 2px 0 rgba(255,230,170,.35),inset 0 -3px 0 rgba(0,0,0,.35),0 2px 0 #1f1008}
+#popShop>.popC>.shopTop .shopHeading{align-self:stretch;display:flex;flex-direction:column;justify-content:center;padding:4px 40px 4px 14px;
+  background:linear-gradient(90deg,rgba(10,5,2,.92) 0%,rgba(14,7,3,.82) 62%,rgba(14,7,3,0) 100%);border-radius:6px 0 0 6px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+#popShop>.popC>.shopTop h2{color:#fff;font-weight:700;letter-spacing:-.3px;text-shadow:0 2px 0 #000,0 0 8px rgba(0,0,0,.6)}
+#popShop>.popC>.shopTop .shopEyebrow{color:#f0c987;font-weight:700;letter-spacing:.2px}
+#popShop>.popC>.shopTop .shopWallet{background:linear-gradient(180deg,rgba(12,6,2,.78),rgba(28,14,6,.72))!important;border:1px solid #140a04;border-radius:999px;padding:5px 7px 5px 14px;
+  box-shadow:inset 0 3px 6px rgba(0,0,0,.6),0 1px 0 rgba(255,215,160,.14)}
+#popShop .shopWalletLabel{color:var(--wd-dim)}
+#popShop .shopWalletLabel strong{color:#f3dcb4;font-weight:700}
+#popShop .shopBalance{background:rgba(255,236,200,.07)!important;border:1px solid rgba(255,220,170,.16)!important;border-radius:999px;color:#fff3dc}
+#popShop .shopBalance b{font-weight:700;color:#ffe7a8}
+#popShop .shopBalanceName{color:#d9bf98}
+#popShop>.popC>.shopTop .shopClose{background:linear-gradient(180deg,#8d5c31,#5b3718)!important;border:3px solid #d9a441!important;border-radius:10px;color:#fff5de!important;
+  font-weight:700;text-shadow:0 2px 0 #2a150a;box-shadow:inset 0 2px 0 rgba(255,230,170,.35),inset 0 -3px 0 rgba(0,0,0,.35),0 0 0 2px #2a150a,0 3px 0 #1f1008!important}
+#popShop>.popC>.shopTop .shopClose:hover{background:linear-gradient(180deg,#a06a39,#6a421e)!important}
+/* ── 탭: 아이콘 네모 + 작은 이름. 고른 탭 금빛, 나머지 회색 돌 ── */
+#popShop #shopTabs{grid-template-columns:repeat(6,minmax(0,92px));justify-content:start;gap:7px}
+#popShop #shopTabs .btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:58px;padding:5px 3px 4px;
+  background:linear-gradient(180deg,#a3a19c 0%,#7f7d79 55%,#6a6865 100%)!important;border:2px solid #34322f!important;border-radius:9px;
+  color:#fbf8f2!important;font-weight:700;font-size:12px;line-height:1.2;text-shadow:0 1px 0 rgba(0,0,0,.55);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.35),inset 0 -3px 0 rgba(0,0,0,.25),0 2px 0 #1f1008!important}
+#popShop #shopTabs .btn:hover{background:linear-gradient(180deg,#b3b1ac,#8b8985 55%,#74726f)!important}
+#popShop #shopTabs .btn.on{background:linear-gradient(180deg,#fff2b0 0%,#ffd45a 45%,#f0ad2a 100%)!important;border-color:#8a5a10!important;color:#4a2a00!important;text-shadow:0 1px 0 rgba(255,255,255,.5);
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.7),inset 0 -3px 0 rgba(160,90,0,.35),0 0 0 2px #ffe9a0,0 2px 0 #1f1008,0 0 12px rgba(255,200,80,.45)!important}
+#popShop #shopTabs .tabIc{display:grid;place-items:center;height:28px;font-size:22px;line-height:1}
+#popShop #shopTabs .tabIc img.ic{width:28px;height:28px;object-fit:contain;margin:0;filter:drop-shadow(0 2px 1px rgba(0,0,0,.35))}
+#popShop #shopTabs .btn:not(.on) .tabIc img.ic{filter:saturate(.75) drop-shadow(0 2px 1px rgba(0,0,0,.35))}
+#popShop #shopTabs .tabNm{display:block;max-width:100%;white-space:normal;word-break:keep-all;overflow-wrap:anywhere;text-align:center}
+/* ── 모음 이름 · 상인 말풍선(나무 판 위 양피지) ── */
+#popShop .shopCollection h3{color:#fff3dc;font-weight:700;text-shadow:0 1px 0 #1f1008}
+#popShop #shopCount{color:#e0c49a}
+#popShop>.popC>#shopNotice{position:relative;align-self:flex-start;max-width:100%;padding:6px 14px;margin-left:10px;background:linear-gradient(180deg,#fff4dc,#f3dfb8);
+  border:2px solid #4a2b14;border-radius:12px;color:#40250f;font-size:12.5px;font-weight:500;box-shadow:0 2px 0 #1f1008}
+#popShop>.popC>#shopNotice::before{content:'';position:absolute;left:-9px;top:50%;width:12px;height:12px;transform:translateY(-50%) rotate(45deg);
+  background:#f8e8c6;border-left:2px solid #4a2b14;border-bottom:2px solid #4a2b14;font-size:0}
+/* ── 안쪽 판: 한 단 파인 짙은 판자. 목록만 스크롤한다 ── */
+#popShop>.popC>#shopList{padding:10px 8px 10px 10px;border-radius:12px;border:2px solid #1f1008;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.22) 0 2px,transparent 2px 118px),
+    repeating-linear-gradient(90deg,transparent 0 9px,rgba(255,215,160,.025) 9px 10px,transparent 10px 21px),
+    linear-gradient(180deg,#3a2213,#2e1a0d)!important;
+  box-shadow:inset 0 4px 12px rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,210,150,.06),0 1px 0 rgba(255,215,160,.16)}
+#popShop #shopList::-webkit-scrollbar-track{background:rgba(0,0,0,.35);border-radius:8px}
+#popShop #shopList::-webkit-scrollbar-thumb{background:linear-gradient(90deg,#b07a42,#7a4d24);border:2px solid #2e1a0d;border-radius:8px}
+/* ── 진열 칸 한 개 = 선반 한 칸 ── */
+#popShop #shopList .sItem{padding:7px 7px 8px;gap:0;
+  background:linear-gradient(180deg,#5a3720 0%,#4a2c17 50%,#3d2412 100%)!important;border:2px solid #1d0e06!important;border-radius:10px;
+  box-shadow:inset 0 2px 0 rgba(255,215,160,.16),inset 0 -2px 0 rgba(0,0,0,.35),0 3px 0 #140a04,0 5px 10px rgba(0,0,0,.35)!important;color:var(--wd-ink)}
+#popShop #shopList .sItem.own{background:linear-gradient(180deg,#4c4324 0%,#3f3419 50%,#342912 100%)!important;border-color:#1d0e06!important}
+#popShop #shopList .sItem.equipped{box-shadow:inset 0 0 0 2px #7fd08a,inset 0 2px 0 rgba(255,215,160,.16),0 3px 0 #140a04,0 5px 10px rgba(0,0,0,.35)!important}
+#popShop #shopList .sItem.tier-rare{box-shadow:0 0 0 2px #5b86ff,0 0 14px rgba(95,140,255,.45),inset 0 2px 0 rgba(255,215,160,.16),0 3px 0 #140a04!important}
+#popShop #shopList .sItem.tier-unique{box-shadow:0 0 0 2px #ffc23d,0 0 16px rgba(255,170,50,.55),inset 0 2px 0 rgba(255,215,160,.16),0 3px 0 #140a04!important}
+/* 이름 명판: 각진 주황 판, 굵은 크림 글씨 */
+#popShop #shopList .sItem>.sn{position:relative;z-index:1;flex:none;align-self:stretch;margin:0 2px -8px;padding:5px 10px 6px;text-align:center;
+  font-size:15.5px;line-height:1.3;font-weight:700;color:#fffaf0!important;letter-spacing:-.2px;
+  text-shadow:0 1px 0 #5a2808,0 -1px 0 rgba(90,40,8,.5),1px 0 0 rgba(90,40,8,.5),-1px 0 0 rgba(90,40,8,.5);
+  background:linear-gradient(180deg,#e0914a 0%,#c56e2b 48%,#a8551b 100%);border:2px solid #4f2308;border-radius:5px;
+  clip-path:polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px);
+  box-shadow:inset 0 2px 0 rgba(255,225,180,.55),inset 0 -2px 0 rgba(80,30,5,.4)}
+#popShop #shopList .sItem.tier-rare>.sn{background:linear-gradient(180deg,#e0914a 0%,#c56e2b 48%,#a8551b 100%);border-color:#3553c9;box-shadow:inset 0 0 0 2px #7fa2ff,inset 0 3px 0 rgba(255,225,180,.5)}
+#popShop #shopList .sItem.tier-unique>.sn{background:linear-gradient(180deg,#f2a33f 0%,#d9731c 48%,#b9560f 100%);border-color:#6b3a00;box-shadow:inset 0 0 0 2px #ffd65a,inset 0 3px 0 rgba(255,240,190,.6)}
+#popShop #shopList .sItem.lock>.sn{background:linear-gradient(180deg,#8a6a52,#6b4f3a 50%,#58402e);color:#f1e2cc!important}
+#popShop #shopList .sn .wEnh{color:#fff2a0}
+/* 물건 칸: 선반 안쪽 벽 + 뒤에서 받는 은은한 빛 */
+#popShop #shopList .sItem>.si{border-radius:6px;border:2px solid #1d0e06;
+  background:radial-gradient(ellipse 58% 52% at 50% 54%,rgba(255,226,160,.42) 0%,rgba(255,190,110,.16) 48%,rgba(0,0,0,0) 76%),
+    repeating-linear-gradient(90deg,transparent 0 8px,rgba(0,0,0,.08) 8px 9px,transparent 9px 17px),
+    linear-gradient(180deg,#2c190c 0%,#3e2413 55%,#4d2e18 100%);
+  box-shadow:inset 0 6px 12px rgba(0,0,0,.55),inset 0 -8px 0 -4px rgba(0,0,0,.25)}
+#popShop #shopList .sItem.tier-rare>.si{background:radial-gradient(ellipse 58% 52% at 50% 54%,rgba(150,185,255,.46) 0%,rgba(90,130,255,.16) 48%,rgba(0,0,0,0) 76%),
+    repeating-linear-gradient(90deg,transparent 0 8px,rgba(0,0,0,.08) 8px 9px,transparent 9px 17px),linear-gradient(180deg,#221a22 0%,#2f2230 55%,#3b2a2c 100%)}
+#popShop #shopList .sItem.tier-unique>.si{background:radial-gradient(ellipse 60% 54% at 50% 54%,rgba(255,215,110,.58) 0%,rgba(255,150,40,.22) 50%,rgba(0,0,0,0) 78%),
+    repeating-linear-gradient(90deg,transparent 0 8px,rgba(0,0,0,.08) 8px 9px,transparent 9px 17px),linear-gradient(180deg,#2e1a0a 0%,#43260f 55%,#553015 100%)}
+#popShop #shopList .sItem.lock>.si{background:radial-gradient(ellipse 58% 52% at 50% 54%,rgba(200,190,180,.16) 0%,rgba(0,0,0,0) 72%),linear-gradient(180deg,#221710,#2d1f15)}
+#popShop #shopList .sItem.lock .si img.ic{filter:grayscale(1) brightness(.8);opacity:.45}
+#popShop #shopList .sItem.lock .si::after{font-size:46px;filter:drop-shadow(0 3px 3px rgba(0,0,0,.6))}
+/* 상태 딱지(왼쪽 위) · 등급/Lv 딱지(오른쪽 위) */
+#popShop .shopBadge{top:14px;left:8px;background:rgba(18,9,3,.78);color:#f6e2bf;border:1px solid rgba(255,215,160,.22);font-weight:700}
+#popShop .own .shopBadge{background:#2f5a2c;color:#e6ffd9;border-color:#6fae63}
+#popShop .equipped .shopBadge{background:#3d8a3a;color:#fff;border-color:#9be38d}
+#popShop .no .shopBadge{background:#5a3a0e;color:#ffd79a;border-color:#b07a2a}
+#popShop .lock .shopBadge{background:#6b1f10;color:#ffd6c4;border-color:#c0583a}
+#popShop #shopList .wTags{top:14px;right:8px}
+#popShop .wTier,#popShop .wLv{font-weight:700;border:1px solid rgba(0,0,0,.45)}
+#popShop .wTier.common{background:#d9c6a4;color:#3a2410}
+#popShop .wTier.rare{background:#3e63e0;color:#fff}
+#popShop .wTier.unique{background:linear-gradient(180deg,#ffe07a,#ffa42a);color:#4a2200}
+#popShop .wLv{background:#16222e;color:#fff}
+#popShop .wLv.need{background:#7a2410;color:#ffe0d2;border-color:#e0785a}
+/* 선반 앞판: 설명 · 능력치 · 가격 단추 */
+#popShop #shopList .sItem>.sb{padding:8px 3px 0}
+#popShop #shopList .sd{margin:0 0 6px;font-size:13px;line-height:1.5;color:var(--wd-ink2)!important;font-weight:400}
+#popShop #shopList .sd b{color:#ffe7a8;font-weight:700}
+#popShop #shopList .sd [style*="color:"]{color:#ffb4a0!important}
+#popShop #shopList .sb>.wStats{flex-shrink:0;flex-wrap:nowrap;margin:0 0 8px;padding:5px 7px;gap:6px;background:rgba(0,0,0,.28);border:1px solid rgba(0,0,0,.35);border-radius:6px}
+#popShop .wStat{flex:1 1 0}
+#popShop .wStat u{min-width:16px;background:rgba(0,0,0,.5);box-shadow:inset 0 0 0 1px rgba(255,215,160,.12)}
+#popShop .wStat b{color:#fff0d6;font-weight:700}
+#popShop .wStat.dmg s{background:linear-gradient(90deg,#ff8a64,#ff5a3d)}
+#popShop .wStat.spd s{background:linear-gradient(90deg,#ffe07a,#ffb328)}
+#popShop .wStat.rng s{background:linear-gradient(90deg,#9ad8ff,#4fb0ff)}
+#popShop #shopList .sc:empty{display:none}
+#popShop .shopLack{color:#ffcf8a!important;font-weight:700}
+#popShop .shopLack.lvLack{color:#ffb4a0!important}
+/* 주황 가격 단추 — 자원 그림 + 숫자 + 구매하기 */
+#popShop #shopList .sItem button{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px 8px;min-height:44px;margin-top:auto;padding:6px 8px;
+  background:linear-gradient(180deg,#ffc27a 0%,#f7913a 42%,#e3721d 100%)!important;border:2px solid #7a3608!important;border-radius:9px;
+  color:#3a1600!important;font:700 15px/1.25 'Noto Sans KR',var(--f-body);text-shadow:0 1px 0 rgba(255,225,180,.55);
+  box-shadow:inset 0 2px 0 rgba(255,244,210,.75),inset 0 -3px 0 rgba(140,55,0,.35),0 3px 0 #4a1f04,0 5px 6px rgba(0,0,0,.35)!important}
+#popShop #shopList .sItem button.buy:hover{background:linear-gradient(180deg,#ffd08f 0%,#ff9f4a 42%,#ee7e26 100%)!important}
+#popShop #shopList .sItem button.buy:active{transform:translateY(2px);box-shadow:inset 0 2px 0 rgba(255,244,210,.6),0 1px 0 #4a1f04!important}
+#popShop #shopList .sItem button:disabled{cursor:default}
+#popShop #shopList .sItem.no button{background:linear-gradient(180deg,#c9a07a,#a97b52 50%,#946642)!important;border-color:#4f2a10!important;color:#2e1606!important;
+  box-shadow:inset 0 2px 0 rgba(255,235,210,.4),0 3px 0 #3a1a06!important}
+#popShop #shopList .sItem.own button{background:linear-gradient(180deg,#6c7a45,#556233 55%,#475328)!important;border-color:#1f2a0e!important;color:#f1ffd8!important;text-shadow:0 1px 0 #1f2a0e;
+  box-shadow:inset 0 2px 0 rgba(230,255,190,.3),0 3px 0 #1a220a!important}
+#popShop #shopList .sItem.lock button{background:linear-gradient(180deg,#5d5752,#47423e 55%,#3a3632)!important;border-color:#1a1714!important;color:#ffdccb!important;text-shadow:0 1px 0 #000;
+  box-shadow:inset 0 2px 0 rgba(255,255,255,.18),0 3px 0 #141210!important}
+#popShop #shopList .sItem.own button .sPrices{display:none}
+#popShop .sPrices{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center}
+#popShop .sLbl{white-space:nowrap}
+#popShop #shopList button .shopPrice{display:inline-flex;align-items:center;gap:2px;padding:2px 6px 2px 3px;background:rgba(80,30,0,.22);border-radius:999px;font-size:14px;color:inherit}
+#popShop #shopList button .shopPrice img.ic{width:20px;height:20px;filter:drop-shadow(0 1px 0 rgba(0,0,0,.3))}
+#popShop #shopList button .shopPrice b{font-weight:700}
+#popShop #shopList button .shopPrice.short{background:#7a1a0a;color:#ffd9cc;text-shadow:none}
+#popShop #shopList .sItem.lock button .shopPrice{background:rgba(0,0,0,.35);color:#e8dccf}
+/* 자원 바꾸기·산물 팔기 칸 */
+#popShop #shopList .shopExchange .si{color:#fff3dc;font-weight:700}
+#popShop #shopList .shopHint{background:rgba(255,236,200,.08)!important;border:1px solid rgba(255,215,160,.18);color:var(--wd-ink2)!important}
+#popShop #shopList .shopHint b{color:#ffe7a8!important}
+#popShop #shopList .shopTabs .btn{background:linear-gradient(180deg,#a3a19c,#7f7d79 55%,#6a6865)!important;border:2px solid #34322f!important;color:#fbf8f2!important;font-weight:700;text-shadow:0 1px 0 rgba(0,0,0,.5);box-shadow:inset 0 2px 0 rgba(255,255,255,.3),0 2px 0 #140a04!important}
+#popShop #shopList .shopTabs .btn{min-height:36px;padding:6px 8px}
+#popShop #shopList>.shopHint{padding:7px 12px}
+#popShop #shopList .shopTabs .btn.on{background:linear-gradient(180deg,#fff2b0,#ffd45a 45%,#f0ad2a)!important;border-color:#8a5a10!important;color:#4a2a00!important;text-shadow:none}
+/* ── 아래 띠 ── */
+#popShop .shopFoot{border-top:2px solid rgba(0,0,0,.35);box-shadow:0 -1px 0 rgba(255,215,160,.12)}
+#popShop .shopFoot p{color:var(--wd-dim)}
+#popShop .shopFoot .btn{background:linear-gradient(180deg,#8d5c31,#5b3718)!important;border:2px solid #d9a441!important;color:#fff5de!important;font-weight:700;text-shadow:0 1px 0 #2a150a;
+  box-shadow:inset 0 2px 0 rgba(255,230,170,.3),0 3px 0 #1f1008!important}
+#popShop :is(button,.sItem):focus-visible{outline:3px solid #ffd45a;outline-offset:2px}
+/* 좁은·짧은 화면: 탭 여섯을 한 줄로 두고(아이콘 + 작은 이름) 명판·단추를 조금 줄인다 */
+@media(max-width:480px){#popShop>.popC>.shopTop .shopWallet{border-radius:16px;padding:7px 9px}}
+/* 800×600 처럼 좁고 짧은 화면: 지갑을 제목 줄에 그대로 두어(자원 이름 글자만 숨김 — 그림과 숫자는 남는다) 첫 줄 구매 단추 자리를 번다 */
+@media(min-width:621px) and (max-width:820px) and (max-height:600px){#popShop>.popC>.shopTop{flex-wrap:nowrap}#popShop>.popC>.shopTop .shopWallet{order:0;flex:0 1 auto;flex-basis:auto}
+  #popShop .shopBalanceName{display:none}#popShop>.popC>.shopTop .shopHeading{padding-right:24px}}
+@media(max-width:600px){#popShop #shopTabs{grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}#popShop #shopTabs .btn{min-height:52px;font-size:11px;padding:4px 2px}
+  #popShop #shopTabs .tabIc,#popShop #shopTabs .tabIc img.ic{height:24px}#popShop #shopTabs .tabIc img.ic{width:24px}
+  #popShop>.popC>.shopTop .shopHeading{padding-right:18px}#popShop #shopList .sItem>.sn{font-size:15px}}
+@media(max-height:600px){#popShop #shopTabs .btn{min-height:44px;flex-direction:row;gap:5px;padding:4px 6px}#popShop #shopTabs .tabIc,#popShop #shopTabs .tabIc img.ic{height:24px}#popShop #shopTabs .tabIc img.ic{width:24px}
+  #popShop #shopTabs{grid-template-columns:repeat(6,minmax(0,1fr))}
+  #popShop #shopList .sItem button{min-height:40px;padding-top:4px;padding-bottom:4px}#popShop #shopList .sb>.wStats{margin-bottom:6px;padding-top:3px;padding-bottom:3px}
+  #popShop>.popC>.shopTop .shopHeading{padding-top:2px;padding-bottom:2px}}
 #popKit .kCell{position:relative}
 #popKit .kTier{position:absolute;top:6px;right:6px;font-size:10px;padding:2px 5px}
 /* 55차 — 시작 전 꾸미기, 진행 중에는 장비만 보이는 가방. */
@@ -2619,12 +2777,12 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 <div class="pop" id="popShop"><div class="popC" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
   <header class="shopTop"><div class="shopBrand" aria-hidden="true">⚔️</div><div class="shopHeading"><p class="shopEyebrow">낮에만 여는 용사들의 무기점</p><h2 id="shopTitle">떠돌이 상인</h2></div><div class="shopWallet"><div class="shopWalletLabel"><strong id="shopTeam">우리 모둠 지갑</strong><span>친구들과 함께 쓰는 자원</span></div><div id="shopRes" aria-label="모둠이 가진 자원"></div></div><button class="btn shopClose" data-close="popShop" aria-label="상점 닫기">×</button></header>
   <nav class="shopTabs" id="shopTabs" aria-label="상점 종류">
-    <button class="btn sm on" data-tab="w" aria-pressed="true">🔫 무기</button>
-    <button class="btn sm" data-tab="a" aria-pressed="false">🛡️ 방어구</button>
-    <button class="btn sm" data-tab="b" aria-pressed="false">🔸 총알</button>
-    <button class="btn sm" data-tab="p" aria-pressed="false">🧪 물약</button>
-    <button class="btn sm" data-tab="f" aria-pressed="false">🧺 산물 팔기</button>
-    <button class="btn sm" data-tab="x" aria-pressed="false">🔄 자원 바꾸기</button>
+    <button class="btn sm on" data-tab="w" aria-pressed="true"><span class="tabIc" aria-hidden="true">🔫</span><span class="tabNm">무기</span></button>
+    <button class="btn sm" data-tab="a" aria-pressed="false"><span class="tabIc" aria-hidden="true">🛡️</span><span class="tabNm">방어구</span></button>
+    <button class="btn sm" data-tab="b" aria-pressed="false"><span class="tabIc" aria-hidden="true">🔸</span><span class="tabNm">총알</span></button>
+    <button class="btn sm" data-tab="p" aria-pressed="false"><span class="tabIc" aria-hidden="true">🧪</span><span class="tabNm">물약</span></button>
+    <button class="btn sm" data-tab="f" aria-pressed="false"><span class="tabIc" aria-hidden="true">🧺</span><span class="tabNm">산물 팔기</span></button>
+    <button class="btn sm" data-tab="x" aria-pressed="false"><span class="tabIc" aria-hidden="true">🔄</span><span class="tabNm">자원 바꾸기</span></button>
   </nav>
   <div class="shopCollection"><h3 id="shopCategory">무기</h3><span id="shopCount"></span></div>
   <p id="shopNotice">우리 모둠을 지켜 줄 장비를 골라 보세요.</p>
@@ -13373,10 +13531,20 @@ function shopCatalogCard(ic, name, desc, cost, state, label, onBuy){
   d.tabIndex = -1;
   b.textContent = state === 'own' ? label : state === 'lock' ? label : state === 'no' ? '자원이 모자라요' : label === '사기' ? '구매하기' : label;
   b.setAttribute('aria-label', `${d.querySelector('.sn').textContent} — ${b.textContent}`);
+  /* 65차 나무 진열대 — 이름은 그림 위 주황 명판으로 올린다(참고 그림처럼). 설명·가격·단추는 그림 아래에 그대로 남는다 */
+  d.insertBefore(d.querySelector('.sn'), d.querySelector('.si'));
   if(cost){
     const r = myRes();
-    d.querySelector('.sc').innerHTML = RES_KEYS.filter(k=>cost[k]).map(k=>
-      `<span class="shopPrice${(r[k]||0)<cost[k]?' short':''}" aria-label="${RES_NM[k]} ${cost[k]} 필요">${iconImg(SHOP_RES_ICON[k],RES_IC[k])}<b>${cost[k]}</b></span>`).join('');
+    /* 가격은 주황 구매 단추 안에 자원 그림 + 숫자로 싣는다 — 따로 한 줄을 쓰지 않아 짧은 화면에서 첫 줄 단추가 올라온다.
+       글자(구매하기·자원이 모자라요·🔒 레벨 N부터)는 그 옆에 그대로 남는다 */
+    const want = RES_KEYS.filter(k=>cost[k]);
+    d.querySelector('.sc').innerHTML = '';
+    const lbl = document.createElement('span'); lbl.className = 'sLbl'; lbl.textContent = b.textContent;
+    b.textContent = '';
+    b.insertAdjacentHTML('beforeend', `<span class="sPrices">` + want.map(k=>
+      `<span class="shopPrice${(r[k]||0)<cost[k]?' short':''}" aria-label="${RES_NM[k]} ${cost[k]} 필요">${iconImg(SHOP_RES_ICON[k],RES_IC[k])}<b>${cost[k]}</b></span>`).join('') + `</span>`);
+    b.appendChild(lbl);
+    if(state !== 'own') b.setAttribute('aria-label', b.getAttribute('aria-label') + ` (${want.map(k=>RES_NM[k]+' '+cost[k]).join(' · ')})`);
     if(state === 'no'){      // 레벨이 모자란 카드(lock)는 자원보다 레벨을 먼저 알려 준다 — 그 문구는 buildShopUI 가 붙인다
       const lack = document.createElement('div'); lack.className = 'shopLack';
       lack.textContent = RES_KEYS.filter(k=>(cost[k]||0)>(r[k]||0)).map(k=>`${RES_NM[k]} ${cost[k]-(r[k]||0)}`).join(' · ') + ' 더 필요해요';
@@ -13437,12 +13605,13 @@ function buildShopUI(){
       const own = !!KIT.ownW[i];
       const st = own ? 'own' : !wpnLvOk(i) ? 'lock' : canPay(W.cost) ? '' : 'no';
       const em = enhMul(i), e = enhOf(i);
-      const desc = `${W.d}<br>${wpnStatBars(W, em)}`
-                 + (e ? ` <span class="wEnh">(강화 +${e})</span>` : '');
+      const desc = W.d + (e ? ` <span class="wEnh">(강화 +${e})</span>` : '');
       const card = shopCatalogCard(iconImg('wpn'+i, W.ic), W.n + enhTxt(e), desc, W.cost, st,
         own ? (KIT.wpn===i ? '들고 있음' : '가방에 있음') : st === 'lock' ? `🔒 레벨 ${wpnLv(i)}부터` : '사기', ()=>buyWeapon(i));
       card.classList.add('tier-' + TIER_ALL(W));
       card.querySelector('.si').insertAdjacentHTML('beforeend', wpnTags(i));
+      /* 능력치 막대는 그림 아래 선반 앞판(설명 다음 줄)에 — 설명(.sd)은 글만 남는다 */
+      card.querySelector('.sd').insertAdjacentHTML('afterend', wpnStatBars(W, em));
       /* 잠긴 까닭은 단추('🔒 레벨 N부터')·딱지('레벨 부족')·빨간 Lv 가 함께 말한다. 줄을 더 붙이면 짧은 화면에서
          첫 줄의 구매 단추가 목록 밖으로 밀린다(t54-view 1024×600·800×600) — 그래서 문구 줄은 안 붙인다. 지금 레벨은 상인 말 끝에 있다. */
       w.appendChild(card);
