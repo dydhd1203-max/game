@@ -2407,7 +2407,7 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 /* ═══ 69차 — 필요 레벨·필요 자원을 한눈에 (선생님: "상점에서 필요 레벨, 필요 자원을 가독성 있게 읽을 수 있게")
    ★ 나무 진열대 겉모습은 그대로 두고 '읽는 것'만 고친다. 상점·대장간·동물 상인이 같은 문법:
      · 레벨 딱지 .rqLv — 크게 'Lv N ✔'(초록 테) / '🔒 Lv N 부터'(붉은 테). 내 레벨은 지갑 첫 칸(.shopMyLv·.wltLv)에.
-     · 필요 자원 줄 .sReq — 자원마다 그림 + 굵은 고정폭 숫자 + ✔(넉넉) / −N(모자람, 붉은 테).
+     · 필요 자원 줄 .sReq — 자원마다 그림 + 굵은 고정폭 숫자 + ✔(넉넉) / 숫자 아래 'N 모자라'(모자람, 붉은 테 — 70차).
      · 막힌 단추 — 까닭 한 줄('돌 12개가 모자라요' · '🔒 레벨 6부터 살 수 있어요'). 살 수 있으면 밝은 주황.
    ★ 글자: 1366×768 에서 14px 이상, 작은 화면 12px 이상. 대비는 WCAG AA(작은 글 4.5:1) — 그라데이션 바탕에는
      중간 색을 background-color 로 같이 적어, 대비를 재는 검사(t35)가 실제 바탕을 보게 한다. */
@@ -2474,9 +2474,9 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 /* 단추 — 살 수 있으면 밝은 주황(그대로), 못 사면 까닭 한 줄 */
 #popShop #shopList .sItem button{font-size:16px}
 #popShop #shopList .sItem button.buy{background-color:#f7913a!important}
-#popShop #shopList .sItem.no button{background:linear-gradient(180deg,#4a2e1a,#3a2212)!important;background-color:#3f2616!important;border-color:#a4432a!important;color:#ffd0c2!important;text-shadow:0 1px 0 #000;
+#popShop #shopList .sItem.no:not(.lock) button{background:linear-gradient(180deg,#4a2e1a,#3a2212)!important;background-color:#3f2616!important;border-color:#a4432a!important;color:#ffd0c2!important;text-shadow:0 1px 0 #000;
   box-shadow:inset 0 2px 0 rgba(255,210,170,.12),0 3px 0 #1f0f05!important}
-#popShop #shopList .sItem.lock button{background-color:#47423e!important;color:#ffe3d6!important}
+#popShop #shopList .sItem.lock button{background:linear-gradient(180deg,#5d5752,#47423e 55%,#3a3632)!important;background-color:#47423e!important;border-color:#1a1714!important;color:#ffe3d6!important}   /* 70차 — 잠김은 회색(자원 부족 갈색과 모양으로도 다르게) */
 #popShop #shopList .sItem.own button{background-color:#556233!important}
 #popShop #shopList .sItem button .shopLack{display:block;color:inherit!important;font:700 15px/1.3 'Noto Sans KR',var(--f-body);text-align:center;overflow-wrap:anywhere;word-break:keep-all}
 #popShop #shopList .shopHint{font-size:14px}
@@ -2540,6 +2540,37 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 .popC .tGood{color:#1f7a3d!important}.popC .tMid{color:#8a5a00!important}.popC .tBad{color:#b3261a!important}.popC .tGold{color:#8a5a00!important}
 .popC .tTier.rare{color:#3150b8!important}.popC .tTier.unique{color:#a0520c!important}
 .popC .needGun.ok b{color:#1f7a3d}.popC .needGun.bad{color:#b3261a;font-weight:700}
+/* ═══ 70차 — 읽기 고치기 (선생님 69차 요청의 뒷손질)
+   ★ 필요 자원 칸: '45 −35' 를 빼기로 읽었다 → 숫자 아래 작은 줄에 '35 모자라'. 칸이 옆으로 넓어지지 않아 자원 셋이 다 모자라도 한 줄에 든다.
+   ★ 한 덩어리 말(.nw — '한 방 150'·'팔면 ✨14')은 줄을 나누지 않는다.
+   ★ 밝은 창: 살 수 있음 = 진한 초록 입체 단추(흰 글씨) · 못 삼 = 점선 테의 납작한 까닭 상자 · 창 닫기 = 흰 보조 단추 '닫기'. 색을 못 가려도 모양으로 가려진다. */
+.nw{white-space:nowrap}
+.popC .sItem .sc.sReq{align-items:flex-start}
+.popC .sReq .rq{flex-direction:column;align-items:center;gap:2px;border-radius:12px;padding:2px 7px 3px 3px}
+.popC .sReq .rqN{display:inline-flex;align-items:center;gap:4px}
+.popC .sReq .rq em{font-size:14px;padding:2px 7px;white-space:nowrap}
+#popShop #shopList .sc.sReq{align-items:flex-start;gap:5px}
+#popShop #shopList .sReq .rq{flex-direction:column;align-items:center;gap:1px;border-radius:12px;padding:1px 6px 2px 3px}
+#popShop #shopList .sReq .rqN{display:inline-flex;align-items:center;gap:3px}
+#popShop #shopList .sReq .rq img.ic{width:22px;height:22px}
+#popShop #shopList .sReq .rq b{font-size:18px}
+#popShop #shopList .sReq .rq em{font-size:14px;line-height:1;padding:1px 6px 2px;white-space:nowrap}
+#popShop #shopList .sd{margin-bottom:6px}
+#popShop #shopList .sc.sReq{margin-bottom:6px}
+#popShop #shopList .sb>.wStats{margin-bottom:6px;padding-top:4px;padding-bottom:4px}
+@media(max-height:600px),(max-width:600px){
+  #popShop #shopList .sReq .rq b{font-size:16px}
+  #popShop #shopList .sReq .rq img.ic{width:20px;height:20px}
+  #popShop #shopList .sReq .rq em{font-size:12px;padding:1px 6px}
+  #popShop #shopList .sItem button .shopLack{font-size:14px}
+}
+.popC :is(#forgeList,#vetList) .sItem button.buy{background:linear-gradient(180deg,#34995a,#267a41 55%,#1f6a37)!important;background-color:#267a41!important;
+  border:2px solid #14502a!important;color:#fff!important;font-weight:700;text-shadow:0 1px 0 rgba(0,0,0,.35);box-shadow:inset 0 2px 0 rgba(255,255,255,.28),0 3px 0 #0f3f20!important}
+.popC :is(#forgeList,#vetList) .sItem button.buy:hover{background:linear-gradient(180deg,#3aa864,#2b8649 55%,#23763d)!important}
+.popC :is(#forgeList,#vetList) .sItem button.buy:active{transform:translateY(2px);box-shadow:inset 0 2px 0 rgba(255,255,255,.2),0 1px 0 #0f3f20!important}
+.popC :is(#forgeList,#vetList) .sItem.no button{border-style:dashed!important;border-width:2px!important;box-shadow:none!important;border-radius:6px;cursor:default}
+.popC .row .btn.shut{flex:0 0 auto;width:auto;padding-left:30px;padding-right:30px;background:#fff!important;border:2px solid #b8c6d2!important;color:#34506a!important;box-shadow:0 2px 0 #cfd9e2!important;font-weight:600;min-width:120px;margin-left:auto}
+.popC .row .btn.shut:hover{background:#f2f6f9!important}
 #popKit .kCell{position:relative}
 #popKit .kTier{position:absolute;top:6px;right:6px;font-size:10px;padding:2px 5px}
 /* 55차 — 시작 전 꾸미기, 진행 중에는 장비만 보이는 가방. */
@@ -3526,7 +3557,7 @@ body.specOn #hint{visibility:hidden}
     우리 <b>여물통 앞에서 꾹</b> 누르면 줍니다. 농장 상태는 어디서나 <b>H</b>.</p>
   <div id="vetRes"></div>
   <div id="vetList"></div>
-  <div class="row"><button class="btn pri" data-close="popVet">다 샀어요</button></div>
+  <div class="row"><button class="btn shut" data-close="popVet">닫기</button></div>
 </div></div>
 <!-- 농장 (H) -->
 <div class="pop" id="popFarm"><div class="popC">
@@ -3562,7 +3593,7 @@ body.specOn #hint{visibility:hidden}
     <button class="btn sm" data-tab="craft">📜 조합표</button>
   </div>
   <div id="forgeList"></div>
-  <div class="row"><button class="btn pri" data-close="popForge">다 했어요</button></div>
+  <div class="row"><button class="btn shut" data-close="popForge">닫기</button></div>
 </div></div>
 
 <!-- 도움말 -->
@@ -18592,7 +18623,7 @@ function buildVetUI(){
   for(const A of FARM_ANIMALS) w.appendChild(animalCard(A));
   const d = document.createElement('div'); d.className = 'sItem own';
   d.innerHTML = `<div class="si">${iconImg('wheat','🌾')}</div><div class="sb"><div class="sn">사료 · 건초</div>
-    <div class="sd">먹이는 🪵 나무예요 — 한 마리에 하루 🪵${FARM_FEED}. 우리 <b>여물통 앞에서 꾹</b> 누르면 건초가 놓여요.
+    <div class="sd">먹이는 🪵 나무예요 — <span class="nw">한 마리에 하루 🪵${FARM_FEED}</span>. 우리 <b>여물통 앞에서 꾹</b> 누르면 건초가 놓여요.
     ${FARM_LEAVE}일 내리 안 먹이면 한 마리가 떠나요.</div></div>`;
   w.appendChild(d);
 }
@@ -18676,9 +18707,9 @@ function buildForgeUI(){
     const drop = (e+1) > ENH_SAFE;
     /* 69차 — 밝은 창에서 읽히는 진한 색(tGood·tMid·tBad·tGold)으로. 옛 형광 초록·분홍은 흰 바탕에 묻혔다 */
     const oc = odds>=0.5 ? 'tGood' : odds>=0.3 ? 'tMid' : 'tBad';
-    const desc = `한 방 <b>${now}</b>${maxed ? '' : ` → <b class="tGold">${next}</b>`}`
+    const desc = `<span class="nw">한 방 <b>${now}</b>${maxed ? '' : ` → <b class="tGold">${next}</b>`}</span>`   // 70차 — '한 방 N' 은 한 덩어리(줄바꿈 금지)
       + (maxed ? '<br><b class="tGold">더 올릴 수 없어요 — 최고 단계!</b>'
-               : `<br>성공 확률 <b class="${oc}">${Math.round(odds*100)}%</b>`
+               : `<br><span class="nw">성공 확률 <b class="${oc}">${Math.round(odds*100)}%</b></span>`
                  + `<div class="enhOdds"><i style="width:${Math.round(odds*100)}%;background:${odds>=0.5?'#2e9d55':odds>=0.3?'#e08a12':'#d64533'}"></i></div>`
                  + `<div class="enhSafe ${drop ? 'tBad' : 'tGood'}">`
                  + (drop ? `⚠️ 실패하면 <b>${Math.round(ENH_DROP*100)}% 확률로 한 단계 내려가요</b>`
@@ -18701,11 +18732,13 @@ function buildCraftList(w){
     const B = WEAPONS[W.from], own = !!KIT.ownW[i], hasBase = !!KIT.ownW[W.from], pay = canPay(W.mat), lvOk = wpnLvOk(i);
     const e = enhOf(W.from);
     const st = own ? 'own' : !lvOk ? 'lock' : (hasBase && pay) ? '' : 'no';
-    /* 69차 — 막힌 까닭은 단추 한 줄로(레벨 → 넣을 총 → 재료 순서). 모자란 재료는 필요 자원 줄이 −N 으로 보여 준다.
+    /* 69차 — 막힌 까닭은 단추 한 줄로(레벨 → 넣을 총 → 재료 순서). 모자란 재료는 필요 자원 줄이 'N 모자라' 로 보여 준다.
        넣을 총은 '넣는 총' 칸에 ✔/✖ 로 — 레벨은 이름 옆 큰 딱지(내 레벨은 지갑 첫 칸) */
     const desc = `<b class="tTier ${W.tier}">${TIER_TXT[W.tier]}</b> · ${TRAIT_TXT[W.trait]||''}<br>${W.d}<br>`
-      + `<span class="needGun ${own || hasBase ? 'ok' : 'bad'}">넣는 총: <b>${B.ic} ${B.n}</b>${own ? '' : hasBase ? ' <i class="ck" aria-hidden="true"></i> 있어요' : ' — 없어요'}</span>`
-      + `${hasBase && e ? ` +${e}(그대로 물려받아요)` : ''} · 한 방 <b>${Math.round(W.dmg*WDAY())}</b> · 사거리 ${W.rng}`;
+      + `<span class="needGun ${own || hasBase ? 'ok' : 'bad'}">넣는 총: <b class="nw">${B.ic} ${B.n}</b>${own ? '' : hasBase ? ' <span class="nw"><i class="ck" aria-hidden="true"></i> 있어요</span>' : ' <span class="nw">— 없어요</span>'}</span>`
+      + `${hasBase && e ? ` <span class="nw">+${e}(그대로 물려받아요)</span>` : ''}`
+      /* 70차 — '한 방 · 사거리' 는 넣는 총 줄에서 떼어 제 줄에. 이름과 숫자는 한 덩어리(390 에서 '한' / '방 95' 로 갈렸다) */
+      + `<br><span class="nw">한 방 <b>${Math.round(W.dmg*WDAY())}</b></span> · <span class="nw">사거리 ${W.rng}</span>`;
     const card = shopCard(iconImg('wpn'+i, W.ic), `${W.n}<span class="enhLv tTier ${W.tier}">${TIER_TXT[W.tier]}</span>` + lvBadge(wpnLv(i)),
       desc, own ? null : W.mat, st, own ? '만들었어요' : !lvOk ? `🔒 레벨 ${wpnLv(i)}부터 만들 수 있어요`
         : !hasBase ? `먼저 ${B.n}${josa(B.n,'이','가')} 있어야 해요` : !pay ? lackLine(W.mat) : '조합!', ()=>craftWeapon(i));
@@ -18805,8 +18838,8 @@ function animalCard(A){
   const can = canPay(A.cost);
   const st = (full || !can) ? 'no' : '';
   return shopCard(iconImg('farm_'+A.k, A.ic), `${A.n} ${have?`(${have}마리)`:''}`,
-    `${A.desc}<br>날마다 ${A.pic} ${A.pn} 하나 — 팔면 <b>✨${A.gold}</b>`
-    + `<br>먹이 🪵${FARM_FEED}/일`
+    `${A.desc}<br><span class="nw">날마다 ${A.pic} ${A.pn} 하나</span> — <span class="nw">팔면 <b>✨${A.gold}</b></span>`   // 70차 — '팔면 ✨ / 14' 로 갈리지 않게
+    + `<br><span class="nw">먹이 🪵${FARM_FEED}/일</span>`
     + (full ? '<br><b class="tBad">우리가 꽉 찼어요</b>' : ''),
     A.cost, st, full ? '우리가 꽉 찼어요' : can ? '데려오기' : lackLine(A.cost),   // 69차 — 모자라면 무엇이 몇 개인지 단추에
     ()=>buyAnimal(A.k));
@@ -18848,7 +18881,7 @@ function buyAnimal(kind){
 /* ── 가게 화면 ── */
 let shopTab = 'w';
 /* ═══ 69차 — 필요 레벨·필요 자원을 한눈에. 선생님: "상점에서 필요 레벨, 필요 자원을 가독성 있게 읽을 수 있게."
-   ★ 상점·대장간·동물 상인이 같은 문법을 쓴다 — 자원 칸 = 그림 + 굵은 숫자 + (넉넉하면 ✔ / 모자라면 붉은 테와 −모자란 만큼),
+   ★ 상점·대장간·동물 상인이 같은 문법을 쓴다 — 자원 칸 = 그림 + 굵은 숫자 + (넉넉하면 ✔ / 모자라면 붉은 테와 숫자 아래 'N 모자라'),
      레벨 딱지 = 'Lv N ✔'(초록 테) / '🔒 Lv N 부터'(붉은 테), 막힌 단추 = 까닭 한 줄('돌 12개가 모자라요' · '🔒 레벨 6부터 …').
    ★ 보여 주기만 한다. 값·레벨·살 수 있나 판정(canPay·wpnLvOk)은 그대로 쓴다.
    ★ 조사는 '개가' 로 고정한다 — 자원 이름마다 받침이 달라도 '12개가' 는 늘 맞다. */
@@ -18857,15 +18890,22 @@ function reqChips(cost){
   const r = myRes();
   return RES_KEYS.filter(k=>cost && cost[k]).map(k=>{
     const need = cost[k], gap = need - (r[k]||0);
+    /* 70차 — '45 −35' 를 3학년이 '45 빼기 35' 로 읽었다. 모자란 만큼은 숫자 아래 작은 줄에 말로('35 모자라').
+       옆으로 붙이지 않고 아래로 내려서, 자원 셋이 다 모자라도 칸 셋이 한 줄에 든다(첫 줄 단추가 진열대 밖으로 안 밀린다) */
     return `<span class="rq shopPrice ${gap > 0 ? 'short' : 'ok'}" aria-label="${RES_NM[k]} ${need} 필요 — ${gap > 0 ? gap+'개 모자라요' : '넉넉해요'}">`
-      + iconImg(REQ_ICON[k], RES_IC[k]) + `<b>${need}</b>`
-      + (gap > 0 ? `<em>−${gap}</em>` : `<i class="ck" aria-hidden="true"></i>`) + `</span>`;   // ✔ 는 글자로 쓰지 않는다 — 이모지 치환이 3D 그림으로 바꾼다
+      + `<span class="rqN">` + iconImg(REQ_ICON[k], RES_IC[k]) + `<b>${need}</b>`
+      + (gap > 0 ? `</span><em>${gap} 모자라</em>` : `<i class="ck" aria-hidden="true"></i></span>`) + `</span>`;   // ✔ 는 글자로 쓰지 않는다 — 이모지 치환이 3D 그림으로 바꾼다
   }).join('');
 }
 /* 모자란 까닭 한 줄 — 없으면 빈 글 */
 function lackLine(cost){
-  const r = myRes(), n = RES_KEYS.filter(k=>cost && (cost[k]||0) > (r[k]||0)).map(k=>`${RES_NM[k]} ${cost[k]-(r[k]||0)}개`);
-  return n.length ? n.join(' · ') + '가 모자라요' : '';
+  const r = myRes(), ks = RES_KEYS.filter(k=>cost && (cost[k]||0) > (r[k]||0));
+  if(!ks.length) return '';
+  /* 70차 — 하나면 '돌 12개가 모자라요'. 둘 이상이면 이름만('나무·돌·금이 모자라요') — 몇 개인지는 바로 위 칸이 말한다.
+     셋을 다 적으면 단추가 두세 줄이 되어 첫 줄 카드의 단추가 진열대 아래로 밀렸다 */
+  if(ks.length === 1){ const k = ks[0]; return `${RES_NM[k]} ${cost[k]-(r[k]||0)}개가 모자라요`; }
+  const last = RES_NM[ks[ks.length-1]];
+  return ks.map(k=>RES_NM[k]).join('·') + josa(last,'이','가') + ' 모자라요';
 }
 /* 레벨 딱지 — 내 레벨과 견준다. 숫자는 필요 레벨 하나만 쓴다(목록 순서 검사가 숫자를 읽는다) */
 function lvBadge(lv){
@@ -18887,7 +18927,7 @@ function shopCard(ic, name, desc, cost, state, label, onBuy){
   /* state: 'own' 이미 가짐 · 'no' 못 삼 · 'lock' 레벨이 모자람(65차 — 'no' 처럼 못 누르되 자물쇠로 보인다) · '' 살 수 있음 */
   const d = document.createElement('div');
   d.className = 'sItem' + (state === 'lock' ? ' no lock' : state ? ' '+state : '');
-  /* 69차 — 값 줄(.sc)은 '필요 자원 줄'이다: 자원마다 그림 + 큰 숫자, 가진 양과 비교해 ✔ 또는 모자란 만큼(−12) */
+  /* 69차 — 값 줄(.sc)은 '필요 자원 줄'이다: 자원마다 그림 + 큰 숫자, 가진 양과 비교해 ✔ 또는 숫자 아래 '12 모자라'(70차) */
   d.innerHTML = `<div class="si">${ic}</div><div class="sb">
     <div class="sn">${name}</div><div class="sd">${desc}</div>
     <div class="sc sReq">${cost ? reqChips(cost) : ''}</div></div>`;
@@ -18984,7 +19024,7 @@ function doTrade(from, to){
   toast(`🔄 ${RES_IC[from]}${give} → ${RES_IC[to]}${get} 바꿨어요!`, 2.0, '#ffe066');
   if(window.__sfx) window.__sfx('buy');
   feed(`🔄 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
-     + `${RES_IC[from]}${give}을 ${RES_IC[to]}${get}으로 바꿨어요`);
+     + `${RES_IC[from]}${give}${josaNum(give,'을','를')} ${RES_IC[to]}${get}${josaNum(get,'으로','로',true)} 바꿨어요`);
   buildShopUI();
 }
 function buildShopUI(){
@@ -19072,7 +19112,7 @@ function buildShopUI(){
       const can  = r[from] >= give && get > 0;
       w.appendChild(shopCatalogCard(iconImg(SHOP_RES_ICON[from],RES_IC[from]) + '→' + iconImg(SHOP_RES_ICON[to],RES_IC[to]),
         `${RES_NM[from]} ${give} → ${RES_NM[to]} ${get}`,
-        `${RES_IC[from]} <b>${give}</b>을 내고 ${RES_IC[to]} <b>${get}</b>을 받아요.`,
+        `${RES_IC[from]} <b>${give}</b>${josaNum(give,'을','를')} 내고 ${RES_IC[to]} <b>${get}</b>${josaNum(get,'을','를')} 받아요.`,   // 70차 — '24를 받아요'(숫자 읽는 소리로 조사)
         {[from]:give}, can ? '' : 'no', '바꾸기', ()=>doTrade(from, to)));   // 69차 — 내는 양을 필요 자원 줄에(가진 양과 견준다)
     }
   } else {
@@ -20219,6 +20259,13 @@ function josa(name, withBat, without){
   const c = t.charCodeAt(t.length-1);
   if(c < 0xAC00 || c > 0xD7A3) return without;
   return ((c - 0xAC00) % 28) ? withBat : without;
+}
+/* 70차 — 숫자 뒤 조사. 숫자를 읽는 소리의 끝으로 고른다: 일(ㄹ)·이·삼(ㅁ)·사·오·육(ㄱ)·칠(ㄹ)·팔(ㄹ)·구, 0 으로 끝나면 십·백·천·만(받침).
+   '24를'·'35를'·'40을'·'5를'. rieul 이 참이면 ㄹ 받침을 받침 없음처럼 친다('으로/로' — '7로'·'8로') */
+function josaNum(n, withBat, without, rieul){
+  n = Math.abs(Math.trunc(+n || 0));
+  const e = 'brnbnnbrrn'[n % 10];           // b 받침 · n 없음 · r ㄹ받침 (0 → 영·십·백·천·만 = 받침)
+  return e === 'n' || (e === 'r' && rieul) ? without : withBat;
 }
 let sayN = 0;
 /* 친구가 벽을 살렸다는 소식 — 6초에 한 번만. 나쁜 밤에는 이게 계속 일어난다. */
@@ -25021,6 +25068,22 @@ function recomputeRes(){
   }
   for(let i=0;i<NG;i++){ const r = G.res[i];
     for(const k of RES_KEYS) r[k] = Math.max(0, r[k]); }
+  shopUiResync();
+}
+/* 70차 — 친구가 모둠 자원을 쓰거나 선생님이 자원을 주면 열린 상점·대장간·동물 상인·농장 창을 다시 그린다.
+   ★ 안 그러면 지갑·✓/모자라 칸이 옛 값으로 남아, ✓ 인데 눌러도 아무 일이 없다(buyWeapon 의 !canPay 에서 끝난다).
+   ★ 내 모둠 자원·내 레벨의 지문이 바뀔 때만 그린다 — 매 프레임 DOM 을 쓰지 않는다. 강화 연출 중(enhBusy)에는 대장간을 건드리지 않는다. */
+let shopUiSig = '';
+function shopUiResync(){
+  const r = G.me && G.res[G.me.g]; if(!r) return;
+  const sig = RES_KEYS.map(k=>r[k]|0).join(',') + '|' + XP.lv;
+  if(sig === shopUiSig) return;
+  shopUiSig = sig;
+  const on = id => { const p = el(id); return !!(p && p.classList.contains('on')); };
+  if(on('popShop')) buildShopUI();
+  if(on('popForge') && !enhBusy) buildForgeUI();
+  if(on('popVet')) buildVetUI();
+  if(on('popFarm')) buildFarmUI();
 }
 
 /* ═══════════════════════ Firebase ═══════════════════════ */
