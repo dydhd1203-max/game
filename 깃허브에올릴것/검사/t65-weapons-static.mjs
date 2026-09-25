@@ -130,7 +130,10 @@ const card=i=>[...document.querySelectorAll('#shopList .sItem')].find(c=>c.query
 { const c=card(14);
   check('Low level: shop card is locked, grey and shows the level',c&&c.classList.contains('lock')&&c.dataset.state==='locked'&&
     c.querySelector('button').disabled&&/레벨 4부터/.test(c.querySelector('button').textContent)&&/Lv 4/.test(c.querySelector('.wLv').textContent)&&c.querySelector('.wLv').classList.contains('need')&&/레벨 부족/.test(c.querySelector('.shopBadge').textContent));
-  check('Level-1 weapons stay purchasable at level 1',!card(1).classList.contains('lock')&&!card(1).querySelector('button').disabled); }
+  check('Level-1 weapons stay purchasable at level 1',!card(1).classList.contains('lock')&&!card(1).querySelector('button').disabled);
+  // 69차 — 레벨 딱지는 내 레벨과 견준다: 됨 = ok(✔) · 아직 = need(🔒 … 부터)
+  check('Level badge compares with my level (ok ✓ / need 🔒 … 부터)',card(1).querySelector('.wLv').classList.contains('ok')&&card(1).querySelector('.wLv .ck')&&
+    !c.querySelector('.wLv').classList.contains('ok')&&/🔒 Lv 4 부터/.test(c.querySelector('.wLv').textContent)); }
 let before=JSON.stringify(A.resources);A.buyWeapon(14);
 check('Direct buy call below the level is refused and spends nothing',!A.KIT.ownW[14]&&before===JSON.stringify(A.resources)&&A.events.some(e=>e[0]==='toast'&&/레벨/.test(e[1])));
 A.XP.lv=4;A.buyWeapon(14);

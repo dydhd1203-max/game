@@ -128,10 +128,16 @@ for(let i=0;i<A.POTIONS.length;i++){
 for(const tab of ['w','a','b','p','x']){
   A.reset();Object.keys(A.resources).forEach(k=>A.resources[k]=0);A.setTab(tab);
   check('Insufficient funds disable every '+tab+' purchase',cards().length>0&&cards().every(c=>c.classList.contains('no')&&c.querySelector('button').disabled));
-  if(tab!=='x')check('Insufficient '+tab+' prices show resource-specific shortages',cards().every(c=>c.dataset.state==='unaffordable'&&c.querySelector('.shopPrice.short')&&c.querySelector('.shopLack')?.textContent.includes('더 필요해요')));
+  // 69차 — 모자란 까닭은 단추 안 한 줄('… 개가 모자라요'), 필요 자원 줄에는 붉은 칸과 −모자란 만큼
+  if(tab!=='x')check('Insufficient '+tab+' prices show resource-specific shortages',cards().every(c=>c.dataset.state==='unaffordable'&&c.querySelector('.shopPrice.short em')&&c.querySelector('button .shopLack')?.textContent.includes('모자라요')));
 }
 A.reset();Object.assign(A.resources,{w:30,s:0,g:0});A.setTab('w');
-check('Shortage amount is computed from balance rather than full price',/나무 5 더 필요해요/.test(byName(A.WEAPONS[1].n).querySelector('.shopLack').textContent));
+check('Shortage amount is computed from balance rather than full price',/나무 5개가 모자라요/.test(byName(A.WEAPONS[1].n).querySelector('.shopLack').textContent)&&byName(A.WEAPONS[1].n).querySelector('.shopPrice.short em')?.textContent==='−5');
+// 69차 — 넉넉한 자원은 ✔, 모자란 자원만 붉은 칸. 필요한 수는 값 그대로(가진 양을 빼지 않는다)
+Object.assign(A.resources,{w:30,s:999,g:999});A.buildShopUI();
+{ const c=byName(A.WEAPONS[2].n),need=A.WEAPONS[2].cost,chips=[...c.querySelectorAll('.sReq .shopPrice')];
+  check('Need row compares every price with the wallet (✔ enough / −N short)',chips.length===Object.values(need).filter(Boolean).length&&
+    chips.every(p=>{const n=+p.querySelector('b').textContent;const k=Object.keys(need).find(k=>need[k]===n);return k&&(A.resources[k]>=n?p.classList.contains('ok')&&p.querySelector('i'):p.classList.contains('short')&&p.querySelector('em').textContent==='−'+(n-A.resources[k]));}),chips.map(p=>p.className+' '+p.textContent)); }
 A.reset();Object.keys(A.resources).forEach(k=>A.resources[k]=0);before={...A.resources};
 A.buyWeapon(1);A.buyArmor(1);A.buyAmmo(1);A.buyPotion(0);A.doTrade('w','g');
 check('Transaction guards still reject direct calls with insufficient funds',same(before,{...A.resources})&&!A.KIT.ownW[1]&&!A.KIT.ownA[1]&&A.KIT.ammo===0&&A.KIT.pot.every(n=>n===0));

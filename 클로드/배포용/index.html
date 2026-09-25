@@ -2292,9 +2292,9 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 /* ── 모음 이름 · 상인 말풍선(나무 판 위 양피지) ── */
 #popShop .shopCollection h3{color:#fff3dc;font-weight:700;text-shadow:0 1px 0 #1f1008}
 #popShop #shopCount{color:#e0c49a}
-#popShop>.popC>#shopNotice{position:relative;align-self:flex-start;max-width:100%;padding:6px 14px;margin-left:10px;background:linear-gradient(180deg,#fff4dc,#f3dfb8);
+#popShop .shopCollection>#shopNotice{position:relative;align-self:center;max-width:100%;padding:6px 14px;margin-left:10px;background:linear-gradient(180deg,#fff4dc,#f3dfb8);
   border:2px solid #4a2b14;border-radius:12px;color:#40250f;font-size:12.5px;font-weight:500;box-shadow:0 2px 0 #1f1008}
-#popShop>.popC>#shopNotice::before{content:'';position:absolute;left:-9px;top:50%;width:12px;height:12px;transform:translateY(-50%) rotate(45deg);
+#popShop .shopCollection>#shopNotice::before{content:'';position:absolute;left:-9px;top:50%;width:12px;height:12px;transform:translateY(-50%) rotate(45deg);
   background:#f8e8c6;border-left:2px solid #4a2b14;border-bottom:2px solid #4a2b14;font-size:0}
 /* ── 안쪽 판: 한 단 파인 짙은 판자. 목록만 스크롤한다 ── */
 #popShop>.popC>#shopList{padding:10px 8px 10px 10px;border-radius:12px;border:2px solid #1f1008;
@@ -2364,7 +2364,7 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 #popShop #shopList .sc:empty{display:none}
 #popShop .shopLack{color:#ffcf8a!important;font-weight:700}
 #popShop .shopLack.lvLack{color:#ffb4a0!important}
-/* 주황 가격 단추 — 자원 그림 + 숫자 + 구매하기 */
+/* 주황 구매 단추 (69차 — 값은 단추 위 '필요 자원 줄'로 옮겼다) */
 #popShop #shopList .sItem button{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:3px 8px;min-height:44px;margin-top:auto;padding:6px 8px;
   background:linear-gradient(180deg,#ffc27a 0%,#f7913a 42%,#e3721d 100%)!important;border:2px solid #7a3608!important;border-radius:9px;
   color:#3a1600!important;font:700 15px/1.25 'Noto Sans KR',var(--f-body);text-shadow:0 1px 0 rgba(255,225,180,.55);
@@ -2378,14 +2378,6 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
   box-shadow:inset 0 2px 0 rgba(230,255,190,.3),0 3px 0 #1a220a!important}
 #popShop #shopList .sItem.lock button{background:linear-gradient(180deg,#5d5752,#47423e 55%,#3a3632)!important;border-color:#1a1714!important;color:#ffdccb!important;text-shadow:0 1px 0 #000;
   box-shadow:inset 0 2px 0 rgba(255,255,255,.18),0 3px 0 #141210!important}
-#popShop #shopList .sItem.own button .sPrices{display:none}
-#popShop .sPrices{display:inline-flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center}
-#popShop .sLbl{white-space:nowrap}
-#popShop #shopList button .shopPrice{display:inline-flex;align-items:center;gap:2px;padding:2px 6px 2px 3px;background:rgba(80,30,0,.22);border-radius:999px;font-size:14px;color:inherit}
-#popShop #shopList button .shopPrice img.ic{width:20px;height:20px;filter:drop-shadow(0 1px 0 rgba(0,0,0,.3))}
-#popShop #shopList button .shopPrice b{font-weight:700}
-#popShop #shopList button .shopPrice.short{background:#7a1a0a;color:#ffd9cc;text-shadow:none}
-#popShop #shopList .sItem.lock button .shopPrice{background:rgba(0,0,0,.35);color:#e8dccf}
 /* 자원 바꾸기·산물 팔기 칸 */
 #popShop #shopList .shopExchange .si{color:#fff3dc;font-weight:700}
 #popShop #shopList .shopHint{background:rgba(255,236,200,.08)!important;border:1px solid rgba(255,215,160,.18);color:var(--wd-ink2)!important}
@@ -2412,6 +2404,142 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
   #popShop #shopTabs{grid-template-columns:repeat(6,minmax(0,1fr))}
   #popShop #shopList .sItem button{min-height:40px;padding-top:4px;padding-bottom:4px}#popShop #shopList .sb>.wStats{margin-bottom:6px;padding-top:3px;padding-bottom:3px}
   #popShop>.popC>.shopTop .shopHeading{padding-top:2px;padding-bottom:2px}}
+/* ═══ 69차 — 필요 레벨·필요 자원을 한눈에 (선생님: "상점에서 필요 레벨, 필요 자원을 가독성 있게 읽을 수 있게")
+   ★ 나무 진열대 겉모습은 그대로 두고 '읽는 것'만 고친다. 상점·대장간·동물 상인이 같은 문법:
+     · 레벨 딱지 .rqLv — 크게 'Lv N ✔'(초록 테) / '🔒 Lv N 부터'(붉은 테). 내 레벨은 지갑 첫 칸(.shopMyLv·.wltLv)에.
+     · 필요 자원 줄 .sReq — 자원마다 그림 + 굵은 고정폭 숫자 + ✔(넉넉) / −N(모자람, 붉은 테).
+     · 막힌 단추 — 까닭 한 줄('돌 12개가 모자라요' · '🔒 레벨 6부터 살 수 있어요'). 살 수 있으면 밝은 주황.
+   ★ 글자: 1366×768 에서 14px 이상, 작은 화면 12px 이상. 대비는 WCAG AA(작은 글 4.5:1) — 그라데이션 바탕에는
+     중간 색을 background-color 로 같이 적어, 대비를 재는 검사(t35)가 실제 바탕을 보게 한다. */
+#popShop>.popC{background-color:#4f2f18!important}
+#popShop>.popC>.shopTop .shopHeading{background-color:#0c0602}
+#popShop>.popC>.shopTop .shopWallet{background-color:#160b04!important}
+#popShop #shopList .sItem{background-color:#4a2c17!important}
+#popShop #shopList .sItem.own{background-color:#3f3419!important}
+#popShop #shopList .sItem>.si{background-color:#35200f}
+#popShop #shopList .sItem.lock>.si{background-color:#271b12}
+#popShop #shopTabs .btn{background:linear-gradient(180deg,#8f8d89 0%,#6c6a67 55%,#5a5855 100%)!important;background-color:#666461!important}
+#popShop #shopTabs .btn:hover{background:linear-gradient(180deg,#9c9a96,#777572 55%,#63615e)!important}
+#popShop #shopTabs .btn.on{background:linear-gradient(180deg,#fff2b0 0%,#ffd45a 45%,#f0ad2a 100%)!important;background-color:#ffcf4f!important}
+#popShop #shopTabs .btn{color:#fff!important;text-shadow:0 1px 0 rgba(0,0,0,.75),0 0 3px rgba(0,0,0,.55)}
+#popShop #shopTabs .btn.on{color:#3a2000!important;text-shadow:0 1px 0 rgba(255,255,255,.5)}
+/* 명판: 가운데 색을 한 단 짙게 — 크림 글씨가 17px 에서 4.5:1 을 넘게 */
+#popShop #shopList .sItem>.sn,#popShop #shopList .sItem.tier-rare>.sn{font-size:17px;background:linear-gradient(180deg,#c97a3a 0%,#a8541b 45%,#8e4413 100%);background-color:#a8541b}
+#popShop #shopList .sItem.tier-unique>.sn{background:linear-gradient(180deg,#c9731f 0%,#a95510 48%,#8f440a 100%);background-color:#a95510}
+#popShop #shopList .sItem.lock>.sn{background-color:#6b4f3a}
+/* 머리 글씨 */
+#popShop .shopEyebrow{font-size:14px}
+#popShop .shopWalletLabel{font-size:14px}
+#popShop .shopWalletLabel strong{font-size:14px}
+#popShop .shopBalance{font-size:16px;background-color:#2a1a0e!important}
+#popShop .shopBalance b{font-size:17px;font-variant-numeric:tabular-nums}
+#popShop .shopBalanceName{font-size:14px;color:#e8cfa6}
+#popShop .shopMyLv{display:inline-flex;align-items:baseline;gap:5px;flex:none;padding:5px 11px;border-radius:999px;background:#1d3322;border:2px solid #5fbf6e;color:#e6ffe8;font-variant-numeric:tabular-nums}
+#popShop .shopMyLv small{font-size:14px;font-weight:700;color:#bfeec6}
+#popShop .shopMyLv b{font-size:18px;font-weight:800;color:#fff}
+#popShop #shopTabs .btn{font-size:14px}
+/* 모음 이름 + 상인 말: 한 줄로 합쳐 카드 자리를 번다 */
+#popShop .shopCollection{flex-wrap:wrap;align-items:center;gap:6px 10px;margin-bottom:0}
+#popShop .shopCollection h3{font-size:18px}
+#popShop #shopCount{font-size:14px;color:#ecd3ac}
+#popShop .shopCollection>#shopNotice{font-size:14px;line-height:1.4;padding:5px 14px;background-color:#f6e5c4;flex:0 1 auto}
+#popShop .shopFoot p{font-size:14px;color:#e2c89f}
+#popShop .shopFoot .btn{font-size:14px;background-color:#74492a!important}
+/* 딱지·등급 */
+#popShop .shopBadge{font-size:14px;line-height:1.2;padding:4px 8px;background-color:#1a0d05}
+#popShop .equipped .shopBadge{background:#2f7a2d}
+#popShop #shopList .sd .wEnh{color:#ffd76a}
+#popShop .wTier{font-size:14px;padding:3px 8px}
+#popShop .wTier.unique{background-color:#ffc04f}
+#popShop #shopList .wTags{gap:5px}
+/* ✔ 는 테두리로 그린다(글자 ✔ 는 이모지 치환이 3D 그림으로 바꿔 크기가 흔들린다) */
+.ck{display:inline-block;flex:none;width:6px;height:12px;margin:0 3px 4px 5px;border:solid currentColor;border-width:0 3px 3px 0;border-radius:1px;transform:rotate(42deg);vertical-align:middle}
+/* 레벨 딱지 — 크게. 됨 = 초록 테, 아직 = 붉은 테 + 자물쇠 */
+#popShop .wLv.rqLv{margin-left:0;display:inline-flex;align-items:baseline;gap:1px;padding:4px 10px;border-radius:8px;border:2px solid;font:800 18px/1.15 'Noto Sans KR',var(--f-body);font-variant-numeric:tabular-nums;box-shadow:0 2px 0 rgba(0,0,0,.45)}
+#popShop .wLv.rqLv.ok{background:#173a1f;border-color:#5fd07a;color:#f0fff1}
+#popShop .wLv.rqLv.ok .ck{color:#8ff09a}
+#popShop .wLv.rqLv.need{background:#5a140a;border-color:#ff6b4d;color:#ffe6de}
+#popShop .wLv.rqLv small{font-size:14px;font-weight:700}
+/* 필요 자원 줄 — 그림 + 굵은 숫자 + ✔ / −N */
+#popShop #shopList .sc.sReq{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 8px;font:700 14px/1.2 'Noto Sans KR',var(--f-body);color:var(--wd-ink)}
+#popShop #shopList .sReq .rq{display:inline-flex;align-items:center;gap:3px;padding:2px 7px 2px 3px;border-radius:999px;border:2px solid;white-space:nowrap;font-variant-numeric:tabular-nums}
+#popShop #shopList .sReq .rq img.ic{width:24px;height:24px;object-fit:contain;margin:0;filter:drop-shadow(0 1px 0 rgba(0,0,0,.5))}
+#popShop #shopList .sReq .rq b{font-size:19px;font-weight:800;line-height:1;color:#fff3dc}
+#popShop #shopList .sReq .rq.short b{color:#ffd6cb}
+#popShop #shopList .sReq .rq.ok{background:#241509;border-color:#4fae62;color:#fff3dc}
+#popShop #shopList .sReq .rq.ok .ck{color:#8ff09a}
+#popShop #shopList .sReq .rq.short{background:#4d1409;border-color:#ff6b4d;color:#ffd6cb}
+#popShop #shopList .sReq .rq em{font-style:normal;font-size:15px;font-weight:800;line-height:1;padding:3px 6px;border-radius:999px;background:#c0321a;color:#fff}
+#popShop #shopList .sItem.lock .sReq{opacity:.92}
+/* 단추 — 살 수 있으면 밝은 주황(그대로), 못 사면 까닭 한 줄 */
+#popShop #shopList .sItem button{font-size:16px}
+#popShop #shopList .sItem button.buy{background-color:#f7913a!important}
+#popShop #shopList .sItem.no button{background:linear-gradient(180deg,#4a2e1a,#3a2212)!important;background-color:#3f2616!important;border-color:#a4432a!important;color:#ffd0c2!important;text-shadow:0 1px 0 #000;
+  box-shadow:inset 0 2px 0 rgba(255,210,170,.12),0 3px 0 #1f0f05!important}
+#popShop #shopList .sItem.lock button{background-color:#47423e!important;color:#ffe3d6!important}
+#popShop #shopList .sItem.own button{background-color:#556233!important}
+#popShop #shopList .sItem button .shopLack{display:block;color:inherit!important;font:700 15px/1.3 'Noto Sans KR',var(--f-body);text-align:center;overflow-wrap:anywhere;word-break:keep-all}
+#popShop #shopList .shopHint{font-size:14px}
+#popShop #shopList .tradePick{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+#popShop #shopList .tradePick .btn{flex:0 0 auto;min-width:88px}
+#popShop #shopList .tradePick .shopHint{flex:1 1 260px;margin:0;padding:6px 12px}
+#popShop #shopList .shopTabs .btn{font-size:14px;background:linear-gradient(180deg,#8f8d89,#6c6a67 55%,#5a5855)!important;background-color:#666461!important}
+#popShop #shopList .shopTabs .btn.on{background:linear-gradient(180deg,#fff2b0,#ffd45a 45%,#f0ad2a)!important;background-color:#ffcf4f!important}
+/* 설명·능력치 */
+#popShop #shopList .sd{font-size:14px}
+#popShop .wStat i{font-size:14px}
+#popShop .wStat b{font-size:14px}
+#popShop #shopList .shopExchange .si{font-size:24px}
+/* 짧은 화면: 머리 아래 띠(가게 닫기)는 위 × 와 같은 일이라 접고, 그 자리를 첫 줄 구매 단추에 준다 */
+@media(max-height:600px){
+  #popShop .shopFoot{display:none}
+  #popShop .shopBadge,#popShop .wTier{font-size:13px}
+  #popShop #shopList .sReq .rq b{font-size:17px}
+  #popShop #shopList .sReq .rq img.ic{width:22px;height:22px}
+  #popShop .wLv.rqLv{font-size:16px;padding:3px 8px}
+  #popShop .shopMyLv{padding:3px 9px}#popShop .shopMyLv b{font-size:16px}
+  #popShop #shopTabs .btn{font-size:13px}
+}
+@media(max-width:820px){#popShop .shopMyLv{order:0}}
+@media(max-width:600px){#popShop #shopTabs .btn{font-size:12px}#popShop .shopBadge,#popShop .wTier{font-size:12px}
+  #popShop .shopCollection>#shopNotice{font-size:13px}#popShop .shopFoot p{font-size:12px}#popShop .shopBalanceName{font-size:12px}}
+@media(max-width:480px){#popShop .shopWallet{display:flex!important;flex-wrap:wrap;align-items:center;gap:6px}#popShop .shopWalletLabel{flex:1 1 auto;margin:0}#popShop #shopRes{flex:1 1 100%}
+  /* 폰 세로: 첫 카드의 구매 단추가 스크롤 없이 보이게 — 아래 띠(가게 닫기)는 위 × 와 같은 일이라 접는다(진열 그림 칸 160px 약속은 그대로) */
+  #popShop .shopFoot{display:none}#popShop .shopEyebrow{font-size:12px}#popShop>.popC{gap:9px}
+  #popShop #shopList .shopHint{font-size:13px;line-height:1.4}#popShop #shopList .tradePick .shopHint{padding:4px 10px}#popShop .shopCollection>#shopNotice{padding:4px 12px}}
+/* ── 밝은 창(대장간·동물 상인·농장)도 같은 문법 ── */
+#forgeRes,#vetRes,#farmRes{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 10px}
+.popC .wlt{display:inline-flex;align-items:center;gap:4px;padding:3px 10px 3px 5px;border-radius:999px;background:#fff;border:1px solid var(--rb-line2);color:var(--rb-ink);font-variant-numeric:tabular-nums}
+.popC .wlt img.ic{width:24px;height:24px;object-fit:contain;margin:0}
+.popC .wlt small{font-size:14px;color:var(--rb-ink2)}
+.popC .wlt b{font-size:17px;font-weight:700;color:var(--rb-ink)}
+.popC .wltLv{padding-left:11px;background:#e6f6ea;border:2px solid #3f9a5c}
+.popC .wltLv small{color:#17572c;font-weight:600}.popC .wltLv b{color:#0f4020}
+.popC .wltNote{font-size:14px;color:var(--rb-ink2)}
+.popC .sItem .sc.sReq{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;font:700 14px/1.2 var(--f-body);color:var(--rb-ink)}
+.popC .sReq .rq{display:inline-flex;align-items:center;gap:4px;padding:2px 8px 2px 3px;border-radius:999px;border:2px solid;background:#fff;white-space:nowrap;font-variant-numeric:tabular-nums}
+.popC .sReq .rq img.ic{width:24px;height:24px;object-fit:contain;margin:0}
+.popC .sReq .rq b{font-size:18px;font-weight:700;line-height:1;color:var(--rb-ink)}
+.popC .sReq .rq.ok{border-color:#3f9a5c}
+.popC .sReq .rq.ok .ck{color:#1f7a3d}
+.popC .sReq .rq.short{background:#fff1ed;border-color:#d64533}
+.popC .sReq .rq.short b{color:#a3261a}
+.popC .sReq .rq em{font-style:normal;font-size:15px;font-weight:700;line-height:1;padding:3px 6px;border-radius:999px;background:#c0321a;color:#fff}
+.popC .wLv.rqLv{display:inline-flex;align-items:baseline;gap:1px;margin-left:8px;padding:3px 9px;border-radius:8px;border:2px solid;font:700 16px/1.15 var(--f-body);font-variant-numeric:tabular-nums;vertical-align:middle}
+.popC .wLv.rqLv.ok{background:#e6f6ea;border-color:#3f9a5c;color:#17572c}
+.popC .wLv.rqLv.ok .ck{color:#1f7a3d}
+.popC .wLv.rqLv.need{background:#fff0eb;border-color:#d64533;color:#a3261a}
+.popC .wLv.rqLv small{font-size:14px}
+/* 못 사는 카드를 통째로 흐리게(opacity) 하지 않는다 — 까닭 글자까지 흐려져 못 읽었다. 그림만 흐리게, 단추에 까닭 */
+#forgeList .sItem.no,#vetList .sItem.no{opacity:1}
+#forgeList .sItem.no .si,#vetList .sItem.no .si{opacity:.55}
+.popC #forgeList .sItem.no button,.popC #vetList .sItem.no button{background:#fff5f2!important;border-color:#e7a595!important;color:#a3261a!important;opacity:1;font-weight:700}
+.popC #forgeList .sItem.lock button{background:#f3eeea!important;border-color:#d8c3b5!important;color:#8a3416!important}
+.popC #forgeList .sItem .sd,.popC #vetList .sItem .sd{font-size:14px}
+.popC .enhSafe{font-size:14px}
+.popC .tGood{color:#1f7a3d!important}.popC .tMid{color:#8a5a00!important}.popC .tBad{color:#b3261a!important}.popC .tGold{color:#8a5a00!important}
+.popC .tTier.rare{color:#3150b8!important}.popC .tTier.unique{color:#a0520c!important}
+.popC .needGun.ok b{color:#1f7a3d}.popC .needGun.bad{color:#b3261a;font-weight:700}
 #popKit .kCell{position:relative}
 #popKit .kTier{position:absolute;top:6px;right:6px;font-size:10px;padding:2px 5px}
 /* 55차 — 시작 전 꾸미기, 진행 중에는 장비만 보이는 가방. */
@@ -3377,7 +3505,7 @@ body.specOn #hint{visibility:hidden}
 <!-- 상인 -->
 
 <div class="pop" id="popShop"><div class="popC" role="dialog" aria-modal="true" aria-labelledby="shopTitle">
-  <header class="shopTop"><div class="shopBrand" aria-hidden="true">⚔️</div><div class="shopHeading"><p class="shopEyebrow">낮에만 여는 용사들의 무기점</p><h2 id="shopTitle">떠돌이 상인</h2></div><div class="shopWallet"><div class="shopWalletLabel"><strong id="shopTeam">우리 모둠 지갑</strong><span>친구들과 함께 쓰는 자원</span></div><div id="shopRes" aria-label="모둠이 가진 자원"></div></div><button class="btn shopClose" data-close="popShop" aria-label="상점 닫기">×</button></header>
+  <header class="shopTop"><div class="shopBrand" aria-hidden="true">⚔️</div><div class="shopHeading"><p class="shopEyebrow">낮에만 여는 용사들의 무기점</p><h2 id="shopTitle">떠돌이 상인</h2></div><div class="shopWallet"><div class="shopWalletLabel"><strong id="shopTeam">우리 모둠 지갑</strong><span>친구들과 함께 쓰는 자원</span></div><span class="shopMyLv" id="shopMyLv" aria-label="내 레벨"></span><div id="shopRes" aria-label="모둠이 가진 자원"></div></div><button class="btn shopClose" data-close="popShop" aria-label="상점 닫기">×</button></header>
   <nav class="shopTabs" id="shopTabs" aria-label="상점 종류">
     <button class="btn sm on" data-tab="w" aria-pressed="true"><span class="tabIc" aria-hidden="true">🔫</span><span class="tabNm">무기</span></button>
     <button class="btn sm" data-tab="a" aria-pressed="false"><span class="tabIc" aria-hidden="true">🛡️</span><span class="tabNm">방어구</span></button>
@@ -3386,8 +3514,7 @@ body.specOn #hint{visibility:hidden}
     <button class="btn sm" data-tab="f" aria-pressed="false"><span class="tabIc" aria-hidden="true">🧺</span><span class="tabNm">산물 팔기</span></button>
     <button class="btn sm" data-tab="x" aria-pressed="false"><span class="tabIc" aria-hidden="true">🔄</span><span class="tabNm">자원 바꾸기</span></button>
   </nav>
-  <div class="shopCollection"><h3 id="shopCategory">무기</h3><span id="shopCount"></span></div>
-  <p id="shopNotice">우리 모둠을 지켜 줄 장비를 골라 보세요.</p>
+  <div class="shopCollection"><h3 id="shopCategory">무기</h3><span id="shopCount"></span><p id="shopNotice">우리 모둠을 지켜 줄 장비를 골라 보세요.</p></div>
   <div id="shopList" aria-label="상점 아이템"></div>
   <footer class="shopFoot"><p>무엇을 살지 친구들과 함께 정해요.</p><button class="btn" data-close="popShop">가게 닫기</button></footer>
 </div></div>
@@ -18459,8 +18586,7 @@ function openVet(){
 }
 function buildVetUI(){
   const r = myRes(), f = myFarm();
-  el('vetRes').innerHTML =
-    `🪵 ${r.w}　🪨 ${r.s}　✨ ${r.g}　<span style="opacity:.7">${G.me.g+1}모둠 공용 · 우리 ${farmCount(f)}/${FARM_CAP}마리</span>`;
+  el('vetRes').innerHTML = walletHTML(['w','s','g']) + `<span class="wltNote">${G.me.g+1}모둠 공용 · 우리 ${farmCount(f)}/${FARM_CAP}마리</span>`;   // 69차 — 상점과 같은 지갑
   const w = el('vetList'); w.innerHTML = '';
   w.appendChild(farmBuyHint());
   for(const A of FARM_ANIMALS) w.appendChild(animalCard(A));
@@ -18533,8 +18659,7 @@ for(const b of document.querySelectorAll('#forgeTabs .btn'))
 let forgeTab = 'enh';
 function buildForgeUI(){
   const r = myRes();
-  el('forgeRes').innerHTML =
-    `🪵 ${r.w}　🪨 ${r.s}　✨ ${r.g}　🥚 ${r.eg||0}　🥛 ${r.mk||0}　🍖 ${r.pk||0}　<span style="opacity:.7">${G.me.g+1}모둠 공용</span>`;
+  el('forgeRes').innerHTML = walletHTML(['w','s','g','eg','mk','pk'], true) + `<span class="wltNote">${G.me.g+1}모둠 공용</span>`;   // 69차 — 상점과 같은 지갑
   for(const b of document.querySelectorAll('#forgeTabs .btn'))
     b.classList.toggle('on', b.dataset.tab === forgeTab);
   const w = el('forgeList'); w.innerHTML = '';
@@ -18549,17 +18674,19 @@ function buildForgeUI(){
     const next = maxed ? now : Math.round(W.dmg*WDAY()*ENH_MUL[e+1]);
     /* 실패하면 어떻게 되는지를 값 옆에 또렷하게 — 누르기 전에 알아야 한다 */
     const drop = (e+1) > ENH_SAFE;
-    const desc = `한 방 <b>${now}</b>${maxed ? '' : ` → <b style="color:#ffd43b">${next}</b>`}`
-      + (maxed ? '<br><b style="color:#ffd43b">더 올릴 수 없어요 — 최고 단계!</b>'
-               : `<br>성공 확률 <b style="color:${odds>=0.5?'#8dff8d':odds>=0.3?'#ffd66b':'#ff9b9b'}">${Math.round(odds*100)}%</b>`
-                 + `<div class="enhOdds"><i style="width:${Math.round(odds*100)}%;background:${odds>=0.5?'#3ddb6a':odds>=0.3?'#ffa726':'#ff5252'}"></i></div>`
-                 + `<div class="enhSafe" style="color:${drop?'#ff9b9b':'#8dff8d'}">`
+    /* 69차 — 밝은 창에서 읽히는 진한 색(tGood·tMid·tBad·tGold)으로. 옛 형광 초록·분홍은 흰 바탕에 묻혔다 */
+    const oc = odds>=0.5 ? 'tGood' : odds>=0.3 ? 'tMid' : 'tBad';
+    const desc = `한 방 <b>${now}</b>${maxed ? '' : ` → <b class="tGold">${next}</b>`}`
+      + (maxed ? '<br><b class="tGold">더 올릴 수 없어요 — 최고 단계!</b>'
+               : `<br>성공 확률 <b class="${oc}">${Math.round(odds*100)}%</b>`
+                 + `<div class="enhOdds"><i style="width:${Math.round(odds*100)}%;background:${odds>=0.5?'#2e9d55':odds>=0.3?'#e08a12':'#d64533'}"></i></div>`
+                 + `<div class="enhSafe ${drop ? 'tBad' : 'tGood'}">`
                  + (drop ? `⚠️ 실패하면 <b>${Math.round(ENH_DROP*100)}% 확률로 한 단계 내려가요</b>`
                          : '✅ 실패해도 <b>안 내려가요</b> (재료만 없어져요)')
                  + '</div>');
     const st = maxed ? 'own' : enhBusy ? 'no' : (c && canPay(c)) ? '' : 'no';
     w.appendChild(shopCard(iconImg('wpn'+i, W.ic), `${W.n}<span class="enhLv">${e ? '+'+e : ''}</span>`,
-      desc, c, st, maxed ? '최고 단계' : enhBusy ? '🔨 강화하는 중…' : `+${e+1} 로 강화`, ()=>doEnhance(i)));
+      desc, maxed ? null : c, st, maxed ? '최고 단계' : enhBusy ? '🔨 강화하는 중…' : st === 'no' ? lackLine(c) || '재료가 모자라요' : `+${e+1} 로 강화`, ()=>doEnhance(i)));
   });
   if(!any) w.innerHTML =
     '<p class="shopHint" style="text-align:center;padding:18px 6px">'
@@ -18574,13 +18701,14 @@ function buildCraftList(w){
     const B = WEAPONS[W.from], own = !!KIT.ownW[i], hasBase = !!KIT.ownW[W.from], pay = canPay(W.mat), lvOk = wpnLvOk(i);
     const e = enhOf(W.from);
     const st = own ? 'own' : !lvOk ? 'lock' : (hasBase && pay) ? '' : 'no';
-    const why = own ? '' : !lvOk ? `<div class="enhSafe lvLack" style="color:#ff9b9b">🔒 <b>레벨 ${wpnLv(i)}</b>부터 만들 수 있어요 (지금 레벨 ${XP.lv})</div>`
-             : !hasBase ? `<div class="enhSafe" style="color:#ff9b9b">먼저 <b>${B.ic} ${B.n}</b>${josa(B.n,'이','가')} 있어야 해요</div>`
-             : !pay ? `<div class="enhSafe" style="color:#ff9b9b">모자라요: ${lackTxt(W.mat)}</div>` : '';
-    const desc = `<b style="color:${TIER_COL[W.tier]}">${TIER_TXT[W.tier]}</b> · ${TRAIT_TXT[W.trait]||''}<br>${W.d}<br>`
-      + `넣는 총: <b>${B.ic} ${B.n}</b>${hasBase && e ? ` +${e}(그대로 물려받아요)` : ''} · 한 방 <b>${Math.round(W.dmg*WDAY())}</b> · 사거리 ${W.rng}` + why;
-    const card = shopCard(iconImg('wpn'+i, W.ic), `${W.n}<span class="enhLv" style="color:${TIER_COL[W.tier]}">${TIER_TXT[W.tier]}</span><span class="wLv${lvOk ? '' : ' need'}">${lvOk ? '' : '🔒 '}Lv ${wpnLv(i)}</span>`,
-      desc, W.mat, st, own ? '만들었어요' : !lvOk ? `🔒 레벨 ${wpnLv(i)}부터` : '조합!', ()=>craftWeapon(i));
+    /* 69차 — 막힌 까닭은 단추 한 줄로(레벨 → 넣을 총 → 재료 순서). 모자란 재료는 필요 자원 줄이 −N 으로 보여 준다.
+       넣을 총은 '넣는 총' 칸에 ✔/✖ 로 — 레벨은 이름 옆 큰 딱지(내 레벨은 지갑 첫 칸) */
+    const desc = `<b class="tTier ${W.tier}">${TIER_TXT[W.tier]}</b> · ${TRAIT_TXT[W.trait]||''}<br>${W.d}<br>`
+      + `<span class="needGun ${own || hasBase ? 'ok' : 'bad'}">넣는 총: <b>${B.ic} ${B.n}</b>${own ? '' : hasBase ? ' <i class="ck" aria-hidden="true"></i> 있어요' : ' — 없어요'}</span>`
+      + `${hasBase && e ? ` +${e}(그대로 물려받아요)` : ''} · 한 방 <b>${Math.round(W.dmg*WDAY())}</b> · 사거리 ${W.rng}`;
+    const card = shopCard(iconImg('wpn'+i, W.ic), `${W.n}<span class="enhLv tTier ${W.tier}">${TIER_TXT[W.tier]}</span>` + lvBadge(wpnLv(i)),
+      desc, own ? null : W.mat, st, own ? '만들었어요' : !lvOk ? `🔒 레벨 ${wpnLv(i)}부터 만들 수 있어요`
+        : !hasBase ? `먼저 ${B.n}${josa(B.n,'이','가')} 있어야 해요` : !pay ? lackLine(W.mat) : '조합!', ()=>craftWeapon(i));
     card.classList.add('tier-' + W.tier);
     w.appendChild(card);
   });
@@ -18639,8 +18767,7 @@ function farmOpenable(){ return G.started && !!farmAt(); }
 function openFarm(){ buildFarmUI(); openPop('popFarm'); }    // 29차 — 밤에도 열린다(상태만 본다)
 function buildFarmUI(){
   const r = myRes(), f = myFarm(), n = farmCount(f);
-  el('farmRes').innerHTML =
-    `🪵 ${r.w}　🪨 ${r.s}　✨ ${r.g}　<span style="opacity:.7">${G.me.g+1}모둠 공용</span>`;
+  el('farmRes').innerHTML = walletHTML(['w','s','g']) + `<span class="wltNote">${G.me.g+1}모둠 공용</span>`;
   /* 지금 우리 상태 — 아이가 "뭘 해야 하지" 를 한 줄로 알 수 있어야 한다 */
   const fedTxt = n===0 ? '' : (f.fed===G.day
     ? '<b style="color:#9cff9c">🌾 오늘 먹이 줌</b>'
@@ -18680,8 +18807,8 @@ function animalCard(A){
   return shopCard(iconImg('farm_'+A.k, A.ic), `${A.n} ${have?`(${have}마리)`:''}`,
     `${A.desc}<br>날마다 ${A.pic} ${A.pn} 하나 — 팔면 <b>✨${A.gold}</b>`
     + `<br>먹이 🪵${FARM_FEED}/일`
-    + (full ? '<br><span style="color:#ffbdbd">우리가 꽉 찼어요</span>' : lackTxt(A.cost)),
-    A.cost, st, full ? '우리가 꽉 참' : can ? '사기' : '모자라요',
+    + (full ? '<br><b class="tBad">우리가 꽉 찼어요</b>' : ''),
+    A.cost, st, full ? '우리가 꽉 찼어요' : can ? '데려오기' : lackLine(A.cost),   // 69차 — 모자라면 무엇이 몇 개인지 단추에
     ()=>buyAnimal(A.k));
 }
 /* 동물이 하나도 없으면 무엇부터 해야 하는지 한 줄로 알려 준다 */
@@ -18720,6 +18847,38 @@ function buyAnimal(kind){
 }
 /* ── 가게 화면 ── */
 let shopTab = 'w';
+/* ═══ 69차 — 필요 레벨·필요 자원을 한눈에. 선생님: "상점에서 필요 레벨, 필요 자원을 가독성 있게 읽을 수 있게."
+   ★ 상점·대장간·동물 상인이 같은 문법을 쓴다 — 자원 칸 = 그림 + 굵은 숫자 + (넉넉하면 ✔ / 모자라면 붉은 테와 −모자란 만큼),
+     레벨 딱지 = 'Lv N ✔'(초록 테) / '🔒 Lv N 부터'(붉은 테), 막힌 단추 = 까닭 한 줄('돌 12개가 모자라요' · '🔒 레벨 6부터 …').
+   ★ 보여 주기만 한다. 값·레벨·살 수 있나 판정(canPay·wpnLvOk)은 그대로 쓴다.
+   ★ 조사는 '개가' 로 고정한다 — 자원 이름마다 받침이 달라도 '12개가' 는 늘 맞다. */
+const REQ_ICON = {w:'wood',s:'stone',g:'gold',eg:'egg',mk:'milk',pk:'meat'};
+function reqChips(cost){
+  const r = myRes();
+  return RES_KEYS.filter(k=>cost && cost[k]).map(k=>{
+    const need = cost[k], gap = need - (r[k]||0);
+    return `<span class="rq shopPrice ${gap > 0 ? 'short' : 'ok'}" aria-label="${RES_NM[k]} ${need} 필요 — ${gap > 0 ? gap+'개 모자라요' : '넉넉해요'}">`
+      + iconImg(REQ_ICON[k], RES_IC[k]) + `<b>${need}</b>`
+      + (gap > 0 ? `<em>−${gap}</em>` : `<i class="ck" aria-hidden="true"></i>`) + `</span>`;   // ✔ 는 글자로 쓰지 않는다 — 이모지 치환이 3D 그림으로 바꾼다
+  }).join('');
+}
+/* 모자란 까닭 한 줄 — 없으면 빈 글 */
+function lackLine(cost){
+  const r = myRes(), n = RES_KEYS.filter(k=>cost && (cost[k]||0) > (r[k]||0)).map(k=>`${RES_NM[k]} ${cost[k]-(r[k]||0)}개`);
+  return n.length ? n.join(' · ') + '가 모자라요' : '';
+}
+/* 레벨 딱지 — 내 레벨과 견준다. 숫자는 필요 레벨 하나만 쓴다(목록 순서 검사가 숫자를 읽는다) */
+function lvBadge(lv){
+  const ok = XP.lv >= lv;
+  return `<span class="wLv rqLv ${ok ? 'ok' : 'need'}" aria-label="필요 레벨 ${lv} — ${ok ? '됐어요' : '아직 못 써요'}">`
+    + (ok ? `Lv ${lv}<i class="ck" aria-hidden="true"></i>` : `🔒 Lv ${lv}<small> 부터</small>`) + `</span>`;
+}
+/* 창 머리의 지갑 — 내 레벨 + 자원(그림·이름·숫자). 대장간·동물 상인·농장 창이 같이 쓴다 */
+function walletHTML(keys, lv){
+  const r = myRes();
+  return (lv ? `<span class="wlt wltLv" aria-label="내 레벨 ${XP.lv}"><small>내 레벨</small><b>${XP.lv}</b></span>` : '')
+    + keys.map(k=>`<span class="wlt" aria-label="${RES_NM[k]} ${r[k]||0}">${iconImg(REQ_ICON[k], RES_IC[k])}<small>${RES_NM[k]}</small><b>${r[k]||0}</b></span>`).join('');
+}
 function openShop(){
   if(G.phase !== 'day'){ toast('🌙 밤에는 상인이 문을 닫아요', 1.8, '#ffd0a0'); return; }
   buildShopUI(); openPop('popShop');
@@ -18728,9 +18887,10 @@ function shopCard(ic, name, desc, cost, state, label, onBuy){
   /* state: 'own' 이미 가짐 · 'no' 못 삼 · 'lock' 레벨이 모자람(65차 — 'no' 처럼 못 누르되 자물쇠로 보인다) · '' 살 수 있음 */
   const d = document.createElement('div');
   d.className = 'sItem' + (state === 'lock' ? ' no lock' : state ? ' '+state : '');
+  /* 69차 — 값 줄(.sc)은 '필요 자원 줄'이다: 자원마다 그림 + 큰 숫자, 가진 양과 비교해 ✔ 또는 모자란 만큼(−12) */
   d.innerHTML = `<div class="si">${ic}</div><div class="sb">
     <div class="sn">${name}</div><div class="sd">${desc}</div>
-    <div class="sc">${cost ? costTxt(cost) : ''}</div></div>`;
+    <div class="sc sReq">${cost ? reqChips(cost) : ''}</div></div>`;
   const b = document.createElement('button');
   b.textContent = label;
   if(state === 'own'){ b.disabled = true; }
@@ -18760,8 +18920,7 @@ function wpnStatBars(W, em){
 /* 그림 칸 오른쪽 위의 등급·레벨 딱지 */
 function wpnTags(i){
   const W = WEAPONS[i], t = TIER_ALL(W), ok = wpnLvOk(i);
-  return `<span class="wTags"><span class="wTier ${t}">${TIER_NAME[t]}</span>`
-       + `<span class="wLv${ok ? '' : ' need'}">${ok ? '' : '🔒 '}Lv ${wpnLv(i)}</span></span>`;
+  return `<span class="wTags${ok ? '' : ' need'}"><span class="wTier ${t}">${TIER_NAME[t]}</span>` + lvBadge(wpnLv(i)) + `</span>`;   // 69차 — 큰 레벨 딱지(됨 초록 테 · 안 됨 붉은 테)
 }
 /* 상점 전용 진열 카드. 대장간·동물 상인이 공유하는 shopCard 동작은 그대로 둔다. */
 const SHOP_RES_ICON = {w:'wood',s:'stone',g:'gold',eg:'egg',mk:'milk',pk:'meat'};
@@ -18779,33 +18938,24 @@ function shopCatalogCard(ic, name, desc, cost, state, label, onBuy){
   d.classList.toggle('shopExchange',d.querySelectorAll('.si img.ic').length > 1);
   const equipped = state === 'own' && (label === '들고 있음' || label === '입고 있음');
   const badge = document.createElement('span'); badge.className = 'shopBadge';
-  badge.textContent = equipped ? '사용 중' : state === 'own' ? '보유 중' : state === 'lock' ? '레벨 부족' : state === 'no' ? '자원 부족' : cost ? '구매 가능' : '교환 가능';
+  badge.textContent = equipped ? '사용 중' : state === 'own' ? '보유 중' : state === 'lock' ? '레벨 부족' : state === 'no' ? '자원 부족' : cost && label !== '바꾸기' ? '구매 가능' : '교환 가능';
   d.querySelector('.si').appendChild(badge);
   d.classList.toggle('equipped',equipped);
   d.dataset.state = equipped ? 'equipped' : state === 'own' ? 'owned' : state === 'lock' ? 'locked' : state === 'no' ? 'unaffordable' : 'available';
   d.tabIndex = -1;
-  b.textContent = state === 'own' ? label : state === 'lock' ? label : state === 'no' ? '자원이 모자라요' : label === '사기' ? '구매하기' : label;
-  b.setAttribute('aria-label', `${d.querySelector('.sn').textContent} — ${b.textContent}`);
-  /* 65차 나무 진열대 — 이름은 그림 위 주황 명판으로 올린다(참고 그림처럼). 설명·가격·단추는 그림 아래에 그대로 남는다 */
-  d.insertBefore(d.querySelector('.sn'), d.querySelector('.si'));
-  if(cost){
-    const r = myRes();
-    /* 가격은 주황 구매 단추 안에 자원 그림 + 숫자로 싣는다 — 따로 한 줄을 쓰지 않아 짧은 화면에서 첫 줄 단추가 올라온다.
-       글자(구매하기·자원이 모자라요·🔒 레벨 N부터)는 그 옆에 그대로 남는다 */
-    const want = RES_KEYS.filter(k=>cost[k]);
-    d.querySelector('.sc').innerHTML = '';
-    const lbl = document.createElement('span'); lbl.className = 'sLbl'; lbl.textContent = b.textContent;
-    b.textContent = '';
-    b.insertAdjacentHTML('beforeend', `<span class="sPrices">` + want.map(k=>
-      `<span class="shopPrice${(r[k]||0)<cost[k]?' short':''}" aria-label="${RES_NM[k]} ${cost[k]} 필요">${iconImg(SHOP_RES_ICON[k],RES_IC[k])}<b>${cost[k]}</b></span>`).join('') + `</span>`);
-    b.appendChild(lbl);
-    if(state !== 'own') b.setAttribute('aria-label', b.getAttribute('aria-label') + ` (${want.map(k=>RES_NM[k]+' '+cost[k]).join(' · ')})`);
-    if(state === 'no'){      // 레벨이 모자란 카드(lock)는 자원보다 레벨을 먼저 알려 준다 — 그 문구는 buildShopUI 가 붙인다
-      const lack = document.createElement('div'); lack.className = 'shopLack';
-      lack.textContent = RES_KEYS.filter(k=>(cost[k]||0)>(r[k]||0)).map(k=>`${RES_NM[k]} ${cost[k]-(r[k]||0)}`).join(' · ') + ' 더 필요해요';
-      d.querySelector('.sb').insertBefore(lack,b);
-    }
+  /* 69차 — 단추 = 할 일 또는 막힌 까닭 한 줄. 자원이 모자라면 무엇이 몇 개 모자란지(.shopLack)를 단추에 쓴다.
+     값은 단추 위 '필요 자원 줄'(.sc — shopCard 가 그린다)에 가진 양과 견주어 나온다. 가진 물건은 값 줄을 접는다 */
+  const lack = state === 'no' && cost ? lackLine(cost) : '';
+  b.textContent = state === 'own' || state === 'lock' ? label : state === 'no' ? '' : label === '사기' ? '구매하기' : label;
+  if(state === 'no'){
+    const s = document.createElement('span'); s.className = 'shopLack';
+    s.textContent = lack || '자원이 모자라요'; b.appendChild(s);
   }
+  if(state === 'own') d.querySelector('.sc').innerHTML = '';
+  b.setAttribute('aria-label', `${d.querySelector('.sn').textContent} — ${b.textContent}`
+    + (cost && state !== 'own' ? ` (${RES_KEYS.filter(k=>cost[k]).map(k=>RES_NM[k]+' '+cost[k]).join(' · ')} 필요)` : ''));
+  /* 65차 나무 진열대 — 이름은 그림 위 주황 명판으로 올린다(참고 그림처럼). 설명·필요 자원·단추는 그림 아래에 그대로 남는다 */
+  d.insertBefore(d.querySelector('.sn'), d.querySelector('.si'));
   return d;
 }
 /* ═══════════ 상인에게 자원 바꾸기 (17차e) ═══════════ */
@@ -18840,10 +18990,11 @@ function doTrade(from, to){
 function buildShopUI(){
   const r = myRes();
   el('shopTeam').textContent = `${G.me.g+1}모둠 공용 지갑`;
+  el('shopMyLv').innerHTML = `<small>내 레벨</small><b>${XP.lv}</b>`;   // 69차 — 카드의 'Lv N' 과 바로 견줄 수 있게 지갑 옆에
   el('shopRes').innerHTML = ['w','s','g'].map(k=>`<span class="shopBalance" aria-label="${RES_NM[k]} ${r[k]||0}">${iconImg(SHOP_RES_ICON[k],RES_IC[k])}<span class="shopBalanceName">${RES_NM[k]}</span><b>${r[k]||0}</b></span>`).join('');
   const section = SHOP_SECTIONS[shopTab] || SHOP_SECTIONS.f;
   el('shopCategory').textContent = section[0];
-  el('shopNotice').textContent = section[1] + (shopTab === 'w' ? `  — 지금 내 레벨 ${XP.lv}` : '');
+  el('shopNotice').textContent = section[1];
   for(const b of document.querySelectorAll('#shopTabs .btn')){
     const on = b.dataset.tab === shopTab; b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on));
   }
@@ -18862,7 +19013,7 @@ function buildShopUI(){
       const em = enhMul(i), e = enhOf(i);
       const desc = W.d + (e ? ` <span class="wEnh">(강화 +${e})</span>` : '');
       const card = shopCatalogCard(iconImg('wpn'+i, W.ic), W.n + enhTxt(e), desc, W.cost, st,
-        own ? (KIT.wpn===i ? '들고 있음' : '가방에 있음') : st === 'lock' ? `🔒 레벨 ${wpnLv(i)}부터` : '사기', ()=>buyWeapon(i));
+        own ? (KIT.wpn===i ? '들고 있음' : '가방에 있음') : st === 'lock' ? `🔒 레벨 ${wpnLv(i)}부터 살 수 있어요` : '사기', ()=>buyWeapon(i));
       card.classList.add('tier-' + TIER_ALL(W));
       card.querySelector('.si').insertAdjacentHTML('beforeend', wpnTags(i));
       /* 능력치 막대는 그림 아래 선반 앞판(설명 다음 줄)에 — 설명(.sd)은 글만 남는다 */
@@ -18897,7 +19048,7 @@ function buildShopUI(){
        ★ 여섯 짝(나무↔돌↔금)을 한 장씩 놓고, 한 번에 얼마나 바꿀지는 위에서 고른다.
          짝마다 크기별로 카드를 만들면 열여덟 장이 되어 아무도 안 읽는다. */
     const pick = document.createElement('div');
-    pick.className = 'shopTabs';
+    pick.className = 'shopTabs tradePick';
     /* 목록이 두 칸짜리 격자라, 그냥 넣으면 고르는 줄과 안내가 나란히 앉는다 */
     pick.style.gridColumn = '1/-1';
     pick.style.marginBottom = '6px';
@@ -18914,16 +19065,15 @@ function buildShopUI(){
     hint.style.gridColumn = '1/-1';
     hint.innerHTML = '상인이 <b>수고비를 떼어 갑니다</b> — 바꿀수록 줄어드니, '
                    + '<b>정말 모자랄 때만</b> 쓰세요.';
-    w.appendChild(hint);
+    pick.appendChild(hint);          // 69차 — 고르는 단추와 한 줄에(첫 줄 카드의 단추 자리를 번다)
     for(const from of ['w','s','g']) for(const to of ['w','s','g']){
       if(from === to) continue;
       const give = tradeGive(from, tradeMul), get = tradeGet(from, to, tradeMul);
       const can  = r[from] >= give && get > 0;
       w.appendChild(shopCatalogCard(iconImg(SHOP_RES_ICON[from],RES_IC[from]) + '→' + iconImg(SHOP_RES_ICON[to],RES_IC[to]),
         `${RES_NM[from]} ${give} → ${RES_NM[to]} ${get}`,
-        `${RES_IC[from]} <b>${give}</b>을 내고 ${RES_IC[to]} <b>${get}</b>을 받아요.` +
-        (r[from] < give ? `<br><span style="color:#ffbdbd">지금 ${RES_IC[from]}${r[from]}밖에 없어요</span>` : ''),
-        null, can ? '' : 'no', '바꾸기', ()=>doTrade(from, to)));
+        `${RES_IC[from]} <b>${give}</b>을 내고 ${RES_IC[to]} <b>${get}</b>을 받아요.`,
+        {[from]:give}, can ? '' : 'no', '바꾸기', ()=>doTrade(from, to)));   // 69차 — 내는 양을 필요 자원 줄에(가진 양과 견준다)
     }
   } else {
     /* ── 농장에서 거둔 것 팔기 ──
