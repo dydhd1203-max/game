@@ -12639,7 +12639,7 @@ function updArrows(dt){
 /* ═══════════════════════ 길찾기 (흐름장) ═══════════════════════ */
 const N2 = WS*WS;
 const fCost = new Float32Array(N2), fNext = new Int32Array(N2);
-const fExtra = new Float32Array(N2), fDone = new Uint8Array(N2);
+const fExtra = new Float32Array(N2), fDone = new Uint8Array(N2), fRamp = new Uint8Array(N2);   // fRamp — 67차 균형: 흐름장 막다른 칸(좀비 몸이 못 오르는 계단)
 const HCAP = N2*6;
 const heapV = new Float32Array(HCAP), heapI = new Int32Array(HCAP);
 let heapN = 0;
@@ -12675,8 +12675,14 @@ function buildFlow(){
   for(const o of STRU.values())
     for(const [cx,cz] of footprint(o.t,o.x,o.z))
       if(inW(cx,cz)) fExtra[gi(cx,cz)] = 8 + o.hp*0.05;
-  /* 66차 — 성문 계단(bldH 라 길찾기엔 평지로 보인다)은 좀비 몸이 못 오른다. 길을 막지는 않고 비싸게만 매겨 돌아가게 한다 */
-  for(let i=0;i<RAMP_FLOW.length;i++) fExtra[RAMP_FLOW[i]] += 30;
+  /* 66차 — 성문 계단(bldH 라 길찾기엔 평지로 보인다)은 좀비 몸이 못 오른다. 길을 막지는 않고 비싸게만 매겨 돌아가게 한다
+     67차 균형 — 계단은 **막다른 길**이다(fRamp: 값은 받고 계단끼리는 이어지지만, 계단에서 계단 밖 칸으로는 안 뻗는다 → 흐름장이 계단을 '지나가는 길'로 안 쓴다).
+       성곽이 층계참(t 46~49)을 성벽(CASTLE SOLID)으로 막자, 협곡에서 아이 벽 앞에 선 좀비에게 남은 '벽 아닌 길'이 계단뿐이 됐다
+       (계단 +30 ≪ 벽 8+hp·0.05). 흐름장이 좀비를 벽 끝 계단 쪽으로 몰고, 좀비는 몸이 못 올라 끼여서 곁의 **벽 끝 칸**을 물어
+       뚫고 계단 가장자리를 따라 마을로 샜다(bal36 12일차 240판: 수정까지 온 좀비 한 판 0.68 → 1.70 마리 · 그중 벽 끝 ±6~7 로 들어온 몫 28% → 59% ·
+       부서진 벽 끝 칸 47 → 106 · 버틴 판 203 → 171). 막다른 길로 바꾸니 0.49 마리 · 36% · 53 · 203 — 성곽 전(맵만 키운 판 0.68 · 28% · 47 · 203)과 같다.
+       막다른 길이면 벽 앞 흐름장은 벽을 곧장 가리킨다 — 좀비 몸이 갈 수 있는 길만 흐름장이 안내한다. 계단 칸도 모두 값을 받아 unreachable 이 아니다(verify·Z9) */
+  for(let i=0;i<RAMP_FLOW.length;i++){ fExtra[RAMP_FLOW[i]] += 30; fRamp[RAMP_FLOW[i]] = 1; }
   for(let z=-3;z<=3;z++) for(let x=-3;x<=3;x++){
     const i = gi(x,z); if(fCost[i]===0) continue; fCost[i]=0; hPush(0,i);
   }
@@ -12692,6 +12698,7 @@ function buildFlow(){
       if(dx&&dz && (!walkable(x+dx,z)||!walkable(x,z+dz))) continue;
       const j = gi(nx,nz);
       if(fDone[j]) continue;
+      if(fRamp[i] && !fRamp[j]) continue;   // 67차 균형 — 계단 칸에서 계단 밖으로는 안 뻗는다(위 설명 · 계단끼리는 이어져 모든 계단 칸이 값을 받는다)
       const nc = c + NBW[k] + fExtra[j];
       if(nc < fCost[j]){ fCost[j] = nc; fNext[j] = i; hPush(nc, j); }
     }
