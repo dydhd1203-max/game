@@ -43,7 +43,7 @@ await pg.waitForTimeout(1500);
     const gcl=W.__banks.get('gcl0'); o.flagHue = hue(gcl.cols[0]); o.teamHue = hue(W.__GHEX[0]);
     const fg=W.__banks.get('farmGlow'), gg=W.__banks.get('gglow');
     o.glowSame = fg.mat===W.__EMITC_F && gg.mat===W.__EMITC_F && fg.mat.emissive.getHex()!==0;
-    o.rail = (()=>{ const b=W.__banks.get('farmRail'); return {geo:b.geo===W.__WGEO, mat:b.mat===W.__WMAT, cols:!!b.cols, n:b.ms.length}; })();
+    o.rail = (()=>{ const b=W.__banks.get('farmRail'); return {geo:b.geo!==W.__WGEO && !!b.geo.attributes.color, mat:!!b.mat.vertexColors, cols:!!b.cols, n:b.ms.length}; })();   /* 68차 2단계 — 쪼갠 가로대 기하(꼭짓점 색 · 나뭇결 재질) */
     return o; });
   ok('★ 뱅크(세계 조각)에 무늬(map)를 쓰는 재질이 하나도 없다', r.banks>40 && r.bankMap.length===0, r.banks+'뱅크 · 무늬:'+r.bankMap.join(','));
   ok('★ 씬 전체에서도 무늬를 쓰는 메시가 없다 (하늘 돔·노을 띠·섬광 같은 결 그림·이름표 제외)', r.mapped.length===0, r.mapped.slice(0,6).join(' | '));
@@ -54,7 +54,7 @@ await pg.waitForTimeout(1500);
   ok('번역층 — 검은 판(matC 0x171a22 × dark 타일)이 인스턴스 색으로 접혀 어둡다', r.dark < 0x303030, r.dark.toString(16));
   ok('번역층 — 모둠 깃발 색상이 모둠 색을 따른다', Math.min(Math.abs(r.flagHue-r.teamHue), 360-Math.abs(r.flagHue-r.teamHue)) < 25, r.flagHue.toFixed(0)+'° vs '+r.teamHue.toFixed(0)+'°');
   ok('★ 발광 조각(농장 번호·성문 횃불)이 EMITC_F 한 재질을 같이 쓴다 (밤에 같이 켜지려면 같은 객체여야 한다)', r.glowSame);
-  ok('농장 울타리 가로대도 번역됐다 (모따기 상자 · 흰 재질 · 색)', r.rail.geo && r.rail.mat && r.rail.cols && r.rail.n>500, JSON.stringify(r.rail));
+  ok('농장 울타리 가로대 — 쪼갠 가로대 기하 · 꼭짓점 색 재질 · 인스턴스 색 (68차 2단계)', r.rail.geo && r.rail.mat && r.rail.cols && r.rail.n>500, JSON.stringify(r.rail));
 }
 
 /* ═══════ ② 밤에 발광이 켜진다 (30차 건물 등불이 안 켜지던 것) ═══════ */
