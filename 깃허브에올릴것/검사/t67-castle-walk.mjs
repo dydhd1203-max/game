@@ -17,6 +17,8 @@ const BASE = {keys:['reed','lily','peb','mtB','mtC','bush','mtK','rock','gcore',
   'forgeFloor','forgeP','forgeS','forgeF','forgeLog','forgeC','farmGround','farmPost','farmRail','farmWood','farmCloth','farmGlow','farmStone','farmHay','farmBarn','trunk','bark','root',
   'branch','leaf1','leaf2','leaf0','apple','oreG','nug','cone','stem','petal','pist','miBase','miFloor','miMark','miEdge','miGlow','rcBall','rcTrunk','rcCone','rcRbow','rcGem','rcBuoy','rcLand','rcLandB'],
   inst:31038, gglow:120, mats:57};
+/* 68차 — 아이템 새 기하(상점 진열·대장간 모루/그루터기·금 광맥)의 뱅크 열쇠. 성곽 예산(G0)과 따로 G0b 로 센다 */
+const ITEM68 = ['shopCoin','shopPotL','shopPotG','shopPotK','shopPotT','shopArm','shopArmR','shopCart','shopCask','forgeStump','forgeAnvil','oreV'];
 let browser;
 try{
   browser = await chromium.launch({args:['--enable-unsafe-swiftshader']});
@@ -67,11 +69,14 @@ try{
 
   /* ═══ G0 그림 예산(갈래 2) ═══ */
   if(have.art){
-    const g0 = await page.evaluate((BASE)=>{ const W = window; let inst = 0, gg = 0; const nk = [];
-      for(const [k, b] of W.__banks){ const n = b.ms ? b.ms.length : 0; inst += n; if(k === 'gglow' || k === 'cflameI') gg += n; if(!BASE.keys.includes(k)) nk.push(k); }   /* 통합 — 불꽃은 두 겹(주황 혀 cflame + 밝은 밑동 cflameI) · 불빛 수는 밝은 밑동으로 센다(66 횃불도 같은 불꽃으로 바뀌었다) */
-      const mats = new Set(); W.__scene.traverse(o=>{ if(o.isInstancedMesh) mats.add(o.material.uuid); });
-      return {newKeys:nk.length, keys:nk, dInst:inst - BASE.inst, dGlow:gg - BASE.gglow, mats:mats.size}; }, BASE);
-    put({id:'G0', name:'새 뱅크 열쇠 ≤ 27 · 새 인스턴스 ≤ 20,000 · 불빛(gglow + 불꽃 밑동) 새 ≤ 200 · 인스턴스 재질 수 그대로(57)', pass:g0.newKeys <= 27 && g0.dInst <= 20000 && g0.dGlow <= 200 && g0.mats <= BASE.mats, detail:g0});
+    const g0 = await page.evaluate(([BASE, ITEM68])=>{ const W = window; let inst = 0, gg = 0, inst68 = 0; const nk = [], k68 = [];
+      for(const [k, b] of W.__banks){ const n = b.ms ? b.ms.length : 0; if(ITEM68.includes(k)){ k68.push(k); inst68 += n; continue; }   /* 68차 아이템 열쇠는 G0b 에서 따로 */
+        inst += n; if(k === 'gglow' || k === 'cflameI') gg += n; if(!BASE.keys.includes(k)) nk.push(k); }   /* 통합 — 불꽃은 두 겹(주황 혀 cflame + 밝은 밑동 cflameI) · 불빛 수는 밝은 밑동으로 센다(66 횃불도 같은 불꽃으로 바뀌었다) */
+      const mats = new Set(), all = new Set(), vc = W.__HELD_VC.uuid; W.__scene.traverse(o=>{ if(o.isInstancedMesh){ all.add(o.material.uuid); if(o.material.uuid !== vc) mats.add(o.material.uuid); } });
+      return {newKeys:nk.length, keys:nk, dInst:inst - BASE.inst, dGlow:gg - BASE.gglow, mats:mats.size, k68, inst68, matsAll:all.size, heldVc:all.has(vc)}; }, [BASE, ITEM68]);
+    put({id:'G0', name:'새 뱅크 열쇠 ≤ 27 · 새 인스턴스 ≤ 20,000 · 불빛(gglow + 불꽃 밑동) 새 ≤ 200 · 인스턴스 재질 수 그대로(57)', pass:g0.newKeys <= 27 && g0.dInst <= 20000 && g0.dGlow <= 200 && g0.mats <= BASE.mats, detail:{newKeys:g0.newKeys, keys:g0.keys, dInst:g0.dInst, dGlow:g0.dGlow, mats:g0.mats}});
+    /* 68차 — 아이템 새 기하 예산: 열쇠는 정해 둔 열둘 안 · 인스턴스 ≤ 300 · 세계 인스턴스 재질은 손 모형 꼭짓점 색 재질(HELD_VC — 새로 만든 재질 아님) 하나만 더 */
+    put({id:'G0b', name:'68차 아이템 열쇠 ≤ 12(정해 둔 것만) · 인스턴스 ≤ 300 · 인스턴스 재질은 HELD_VC 하나만 더', pass:g0.k68.length <= ITEM68.length && g0.inst68 <= 300 && g0.matsAll <= BASE.mats + (g0.heldVc ? 1 : 0), detail:{k68:g0.k68, inst68:g0.inst68, matsAll:g0.matsAll, heldVc:g0.heldVc}});
   } else put({id:'G0', name:'그림 예산(열쇠·인스턴스·불빛·재질)', wait:true, pass:!STRICT, detail:'갈래 2 합친 뒤'});
 
   /* ═══ S — 세계 정적 항목(9-1 의 2~10·16~18) ═══ */
