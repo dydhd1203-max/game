@@ -74,7 +74,8 @@ const r = await pg.evaluate(()=>{
   W.__spawnChest();
   ok('★ 보물 상자가 생긴다', G.chests.length===1, G.chests.length+'개');
   const c = G.chests[0];
-  const flat = W.__terrH[(Math.floor(c.x)+73)+(Math.floor(c.z)+73)*147]===GY;
+  const HW=W.__HW, WS=HW*2+1;   // 67차 — 격자 크기는 게임에 묻는다(맵을 키웠다 — 박힌 73/147 은 엉뚱한 칸을 읽는다)
+  const flat = W.__terrH[(Math.floor(c.x)+HW)+(Math.floor(c.z)+HW)*WS]===GY;
   ok('평평한 빈 땅에 놓인다', flat && !W.__cellOwner().has(Math.floor(c.x)+','+Math.floor(c.z)));
   const before = {...G.res[G.me.g]};
   PL.x = c.x; PL.z = c.z;

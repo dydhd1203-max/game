@@ -13,7 +13,9 @@ const names=['chk','input52-static','t53-static','t54-avatar-static','t53-shop-s
   't56-buildings-static','t56-building-combat-static','t56-build-assist-static','t56-build-coop-static',
   't57-avatar-geometry-static','t57-motion-static','t57-render-static','t58-job-art-static','t58-motion-static',
   't59-zombie-shape-static','t59-zombie-attachment-static','t60-zombie-wrap-static','t61-avatar-clearance-static',
-  't65-weapons-static'];
+  't65-weapons-static',
+  't66-hud-static','t66-fx2-static','t66-spec-static','t66-wing-static','t66-sound-static','t66-ctrl-static',
+  't67-castle-static'];
 let failed=0;
 async function check(name){
   try{
@@ -24,6 +26,7 @@ async function check(name){
 }
 // Source/CPU checks run in small batches; rendered checks never overlap.
 for(let i=0;i<names.length;i+=3)await Promise.all(names.slice(i,i+3).map(check));
-if(args.includes('--render')){await check('t54-view');await check('t56-build-view');await check('t57-character-view');await check('t62-motion-view');await check('t59-zombie-view');}
+if(args.includes('--render')){await check('t54-view');await check('t56-build-view');await check('t57-character-view');await check('t62-motion-view');await check('t59-zombie-view');
+  await check('t67-castle-walk');await check('t67-castle-zombie');}   // 67차 성곽 — 걷기·보물·좀비(다른 갈래가 합쳐지기 전 항목은 '대기')
 console.log(failed?`${failed} check files failed.`:'All selected check files passed.');
 process.exitCode=failed?1:0;

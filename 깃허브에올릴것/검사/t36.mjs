@@ -152,7 +152,7 @@ ok('★ 보통 좀비는 벽 앞에서 바로 문다 (대조)', wall.normalBit);
 /* ═══════ ④ 밤 구성표 ═══════ */
 const nt = await pg.evaluate(()=>{ const W=window, G=W.__G, o={};
   const D = W.__NIGHT_DEF; o.n = D.length; o.names = D.map(d=>d.n);
-  o.hints = D.every(d=> d.hint && d.hint.length > 8);
+  o.hints = D.every(d=> !('hint' in d));   // 66차 CTRL — 대처법(hint)은 지웠다(애들이 스스로 관찰). 없어야 맞다
   o.mixOk = D.every(d=>{ const v = Object.values(d.mix); return v.length && Math.abs(v.reduce((a,b)=>a+b,0)-1) < 0.02 && Object.keys(d.mix).every(k=> /^\d+$/.test(k) ? W.__WOLF_T[+k] && !W.__isBoss(+k) : W.__K_LOOK(k) >= 0); });
   o.fixed = [1,2,3,4].map(d=> W.__nightFor(d)); o.fixedNames = o.fixed.map(i=> D[i].n);
   o.pool5 = W.__nightPool(5); o.pool10 = W.__nightPool(10); o.pool15 = W.__nightPool(14);
@@ -171,7 +171,7 @@ const nt = await pg.evaluate(()=>{ const W=window, G=W.__G, o={};
   /* 마리수가 렌더 상한 안 */
   W.__setNk(8); G.day = 17; o.maxN = W.__waveFor(17).kinds.length; o.MAXW = 92;
   W.__setNk(-1); G.day = 1; return o; });
-ok('★ 밤 구성표가 열 개고 아침 한 줄(hint)이 다 있다', nt.n === 10 && nt.hints, nt.names.join(' · '));
+ok('★ 밤 구성표가 열 개고 대처법(hint)이 없다 (66차: 팁 삭제)', nt.n === 10 && nt.hints, nt.names.join(' · '));
 ok('★ 구성 비율이 합쳐서 1 이고 종류가 전부 표에 있다(보스 아님)', nt.mixOk);
 ok('★ 1~4일차는 고정 — 조용한 밤 → 좀비가 늘었다 → 날쌘 무리 → 굶주린 밤', nt.fixedNames.join('→') === '조용한 밤→좀비가 늘었다→날쌘 무리→굶주린 밤', nt.fixedNames.join('→'));
 ok('★ 5일차 풀은 좁고 뒤로 갈수록 넓어진다', nt.pool5.length >= 2 && nt.pool10.length > nt.pool5.length && nt.pool15.length >= nt.pool10.length, nt.pool5.length+' → '+nt.pool10.length+' → '+nt.pool15.length);

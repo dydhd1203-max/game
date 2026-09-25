@@ -28,6 +28,10 @@ let uid='kid00',KEY={},mvx=0,mvz=0,wantJump=false,camDip=0,gaitMe=0,sprinting=fa
 const miniOn=()=>true,raceOn=()=>true,raceHold=()=>false,solidHit=()=>false,sheepBump=()=>{},
   spdMul=()=>1,sprintMul=()=>raceTestSprint,jobTier=()=>0,burst=()=>{},fovPunch=()=>{},rampSeen=true,window={},
   JOB_SPD=[1],XP={jt:0},touchJumpHeld=false,GY=0;
+// 67차 성곽 — updPlayer 앞부분의 새 부름은 모두 if(!miniOn()) 안이라 경주에선 안 불린다. 이름만 있게 둔다(ReferenceError 방지)
+const ceilingOver=()=>1e9,spiralAssist=()=>0,spiralPost=()=>{},doorFunnel=()=>0,galleryYaw=()=>{},galleryClamp=()=>{},
+  castleRescue=()=>{},covAt=()=>false,CROOF=new Uint8Array(1),SPA={vx:0,vz:0};
+let lookIdleT=0;
 const R_trim={instanceMatrix:{},rows:[]},R_plat={instanceMatrix:{},rows:[],count:0},
   R_rock={instanceMatrix:{},rows:[]},R_hazB={instanceMatrix:{},rows:[]},landShow=()=>{};
 function setIR(m,i,x,y,z,ry,rx,sx,sy,sz,col){m.rows[i]={x,y,z,ry,rx,sx,sy,sz,col};}
