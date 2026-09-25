@@ -613,6 +613,9 @@ body{color:var(--cream)}
 #crosshair.gun:after{top:17px;left:0;height:2.5px;width:36px}
 #crosshair.gun i{left:16px;top:16px;width:4px;height:4px;
   background:rgba(255,246,228,.98);box-shadow:0 0 6px rgba(0,0,0,.9)}
+/* 68차 — 조준경 달린 총(금빛 저격총·매의 눈 카빈)은 조준점 둘레에 가는 원 하나(조준경 속 십자선 느낌). 판정·크기는 그대로 */
+#crosshair.gun.sc68{border-radius:50%;box-shadow:0 0 0 1.5px rgba(255,246,228,.5),0 0 0 2.5px rgba(0,0,0,.28),inset 0 0 0 1px rgba(0,0,0,.22)}
+#crosshair.gun.sc68.lock{box-shadow:0 0 0 1.5px rgba(255,91,91,.7),0 0 0 2.5px rgba(0,0,0,.28)}
 /* 좀비가 조준선에 걸리면 빨갛게 — 방아쇠를 당길 때다 */
 #crosshair.gun.lock:before,#crosshair.gun.lock:after{--ch:#ff5b5b}
 #crosshair.gun.lock i{background:#ff5b5b;width:7px;height:7px;left:14.5px;top:14.5px;
@@ -12163,13 +12166,20 @@ let gunVel = 0;                                                       // 42차 �
    무기 번호를 안 쓴다. 새 총도 kick 만 있으면 맞는 무게로 찬다. 3인칭 몸(meSheep.kick)은 ①을 그대로 읽는다(최대 1.6).
    ★ 23~41차엔 일직선, 42차엔 용수철 하나(ω 20 · 모든 총이 같은 빠르기)였다. */
 let gunPit = 0, gunPitV = 0, gunTw = 0, gunTwV = 0, gunOm = 27;
-function gunRecoil(kick){
-  const k = Math.min(1.6, kick || 0.7), heavy = Math.min(1, k/1.6);
-  gunOm = 30 - 12*heavy;
-  gunKick = Math.max(gunKick, 0) + 0.9*k; gunVel = Math.max(gunVel, 0) + k*gunOm;
-  gunPitV += k*gunOm*0.75*(1.05 + Math.random()*0.2); gunPit += 0.25*k;
-  gunTwV += (Math.random() - 0.5)*k*9;
+/* 68차 — Wp(무기): 그 총의 반동의 결(GUN68 의 rc · RC68). 저격총·대포는 크게 들렸다 **느리게** 내려오고(om 작게), 기관총·연발은 작게 밀리되 비틀림이 잦다(tw 크게).
+   무기를 안 주면(검사·옛 호출) 예전과 똑같다. 손에 든 모형만 움직인다 — 조준은 fireRecoil 이 kick 그대로 맡는다. */
+function gunRecoil(kick, Wp){
+  const k = Math.min(1.6, kick || 0.7), heavy = Math.min(1, k/1.6), P = (Wp && shotFx(Wp).rc) || RC0;
+  gunOm = (30 - 12*heavy)*P.om;
+  gunKick = Math.max(gunKick, 0) + 0.9*k*P.p; gunVel = Math.max(gunVel, 0) + k*gunOm*P.p;
+  gunPitV += k*gunOm*0.75*(1.05 + Math.random()*0.2)*P.pit; gunPit += 0.25*k*P.pit;
+  gunTwV += (Math.random() - 0.5)*k*9*P.tw;
+  if(P.jit) g68Jit = Math.max(g68Jit, P.jit);
+  if(P.fov !== 1) fovPunch((0.6 + (kick||0.5)*1.6)*(P.fov - 1));                                        // 시야 펀치 — fireWeapon 의 몫에 더하거나 덜어 낸다
+  if(P.roll !== 1) aimRoll += (Math.random() < 0.5 ? -1 : 1)*(kick||0.5)*0.0144*(P.roll - 1);           // 화면 기울기만 더(보는 방향은 그대로 — 조준 불변)
 }
+let g68Sc = false;
+let g68Jit = 0;                     // 68차 — 잔떨림이 남은 시간(기관총·연발·천둥). updHeld 가 손에 든 총만 잘게 떤다
 
 /* ═══════════════════════ 총기 반동 — 조준선이 들린다 (23차) ═══════════════════════
    ★ 여태 '반동' 이라고 부르던 것은 **총 모형만** 들리는 것이었다(gunKick).
@@ -12367,6 +12377,17 @@ function updHeld(dt, mining, minePct){
     GG.k = (0.30 + FX.fp*0.75) * pulse; GG.col.setHex(col);
     shake = FX.sh;                       // +4 부터 손이 떨린다
   }
+  /* 68차 — 총구 화염이 **손에 든 총을 비춘다**: 화염이 남은 0.06~0.1초 동안 총 재질의 발광을 화염 가장자리 색으로 잠깐 올린다.
+     점광원 없이(새 빛 0) 재질 값만 — 나무 개머리·쇠 총열이 번쩍 주황·보라·하늘빛으로 물들었다 꺼진다. 강화 빛이 있으면 그 위에 세기만 더한다.
+     다음 프레임 위 반복문이 lit 을 보고 0 으로 되돌린다(강화 안 한 총). */
+  if(gg && flashOwn && flashT > 0){ const fk = flashT/flashD, fI = fk*fk*0.10;
+    for(const m of gg.mats){ if(!(eLv > 0)){ m.emissive.copy(flashMat.color); m.emissiveIntensity = fI; } else m.emissiveIntensity += fI; }
+    gg.lit = true; }
+  /* 68차 — 조준경 총을 들면 조준점에 가는 원(바뀔 때만 DOM 을 건드린다) */
+  { const sc = holdGun && aimMode && (KIT.wpn === 5 || KIT.wpn === 18); if(sc !== g68Sc){ g68Sc = sc; const ch = el('crosshair'); if(ch) ch.classList.toggle('sc68', sc); } }
+  /* 68차 — 잔떨림(기관총·연발·천둥·용): 쏘는 동안 손에 든 총만 잘게 떤다(화면 기울기도 아주 조금 — 보는 방향은 그대로) */
+  let jx = 0, jy = 0;
+  if(g68Jit > 0){ g68Jit = Math.max(0, g68Jit - dt); const j = Math.min(1, g68Jit/0.12)*0.007; jx = (Math.random()-.5)*j; jy = (Math.random()-.5)*j; if(holdGun) aimRoll += (Math.random()-.5)*j*0.5; }
 
   /* ★ 떨림은 화면 흔들림이 아니라 '손에 든 것'만 떤다. 화면을 흔들면 조준이 어려워져
      강화가 벌이 된다 — 9살이 +6 을 만들고 나서 더 못 맞히면 안 된다. */
@@ -12381,8 +12402,8 @@ function updHeld(dt, mining, minePct){
   const shx = shake ? Math.sin(gunShakeT*24)*shake*0.17 : 0;
   const shy = shake ? Math.sin(gunShakeT*31 + 1.7)*shake*0.17 : 0;
   held.position.set(
-    BX + Math.sin(bobT)*0.012 - a*0.07 + shx,
-    BY + Math.abs(Math.sin(bobT*2))*0.012 - a*0.07 + kp*0.05 + shy,
+    BX + Math.sin(bobT)*0.012 - a*0.07 + shx + jx,
+    BY + Math.abs(Math.sin(bobT*2))*0.012 - a*0.07 + kp*0.05 + shy + jy,
     BZ + a*0.07 + kx*0.20);   // 42차 — 몸 쪽으로 더 밀린다(0.16 → 0.20) · 65차 — 위로는 들림(kp)이 올린다
   const gmA = holdGun ? gunModels[KIT.wpn] : null;
   if(gmA && gmA.userData.axisH){
@@ -12445,17 +12466,19 @@ function pt(x,y,z,color,vx,vy,vz,life,size,g){
    ★ 탄약을 쓰는 총(ammo>0)만 튄다. 오른쪽 위로 튀어 발밑에 떨어져 두세 번 튕기고 '팅' 한다.
    ★ 불투명한 작은 원통 인스턴스 하나(최대 CSN 개) — 재질은 입자(pMesh)와 **같은 것**을 쓴다(새 재질 없음 · 색은 인스턴스 색).
      픽셀로는 손톱만 해서 비용이 없고, 안 날고 있으면 통째로 숨긴다. 내가 쏜 것만 나온다(친구 총은 통신으로 오지 않는다). */
-const CSN = 16;
-const csMesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(1, 1, 1, 7), pMesh.material, CSN);
+const CSN = 24;                                   // 68차 — 바닥에 3초쯤 누워 있다(16 → 24: 기관총 3.3발/초 × 3초 + 여유)
+/* 68차 — 탄피 모양: 곧은 원통 → 돌린 단면(테 · 홈 · 몸통 · 어깨 · 목 · 뚫린 입). 산탄 껍데기도 같은 모양을 굵고 길게 늘인다(어깨가 오므린 끝처럼 보인다) */
+const CASEG68 = new THREE.LatheGeometry([[0,-.5],[1.08,-.5],[1.08,-.44],[.84,-.41],[.9,-.37],[1,-.33],[1,.18],[.86,.3],[.74,.36],[.74,.5],[.6,.5],[.6,.42],[0,.42]].map(([r,y])=> new THREE.Vector2(r, y)), 10);
+const csMesh = new THREE.InstancedMesh(CASEG68, pMesh.material, CSN);
 csMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(CSN*3).fill(1), 3);
 csMesh.frustumCulled = false; csMesh.visible = false; csMesh.castShadow = false; scene.add(csMesh);
-const cases = []; for(let i=0;i<CSN;i++) cases.push({t:0,x:0,y:0,z:0,vx:0,vy:0,vz:0,fl:0,ax:0,ay:0,az:0,sp:0,a:0,r:.02,h:.07,b:0,c:new THREE.Color()});
+const cases = []; for(let i=0;i<CSN;i++) cases.push({t:0,x:0,y:0,z:0,vx:0,vy:0,vz:0,fl:0,ax:0,ay:0,az:0,sp:0,a:0,r:.02,h:.07,b:0,k:0,c:new THREE.Color()});
 let csI = 0, csLive = 0, csTing = 0;
-const _csA = new THREE.Vector3();
-function ejectCase(x,y,z, rx,rz, fx,fy,fz, col, r, h, floorY){
+const _csA = new THREE.Vector3(), _csQ = new THREE.Quaternion();
+function ejectCase(x,y,z, rx,rz, fx,fy,fz, col, r, h, floorY, snd){
   const c = cases[csI = (csI+1)%CSN];
   const s = 1.7 + Math.random()*0.8;
-  c.t = 1.6; c.x = x; c.y = y; c.z = z; c.b = 0; c.fl = floorY;
+  c.t = 3.0; c.k = snd|0; c.x = x; c.y = y; c.z = z; c.b = 0; c.fl = floorY;   // 68차 — 1.6 → 3초(바닥에 잠깐 누워 있다) · k 떨어지는 소리 종류
   c.vx = rx*s - fx*0.5 + (Math.random()-.5)*0.4; c.vy = 2.0 + Math.random()*1.0; c.vz = rz*s - fz*0.5 + (Math.random()-.5)*0.4;
   _csA.set(Math.random()-.5, Math.random()-.5, Math.random()-.5).normalize(); c.ax = _csA.x; c.ay = _csA.y; c.az = _csA.z;
   c.sp = 16 + Math.random()*12; c.a = Math.random()*6.28; c.r = r; c.h = h; c.c.setHex(col);
@@ -12472,12 +12495,12 @@ function updCases(dt){
     if(c.y < c.fl + c.r && c.vy < 0){
       c.y = c.fl + c.r; c.vy *= -0.38; c.vx *= 0.55; c.vz *= 0.55; c.sp *= 0.5;
       if(c.b === 0 && Math.abs(c.vy) > 0.5){                   // 첫 튕김만 소리 — 연발이 쏟아져도 0.07초에 한 번
-        const now = performance.now(); if(now - csTing > 70){ csTing = now; if(window.__sfx) window.__sfx('shell'); } }
+        const now = performance.now(); if(now - csTing > 70){ csTing = now; if(window.__sfx) window.__sfx('shell', c.k); } }
       c.b++; if(Math.abs(c.vy) < 0.4){ c.vy = 0; c.sp = 0; }
     }
-    const sc = Math.min(1, c.t/0.25);                            // 끝에 줄어 사라진다
+    const sc = Math.min(1, c.t/0.35);                            // 끝에 줄어 사라진다
     _v.set(c.x, c.y, c.z); _csA.set(c.ax, c.ay, c.az); _q.setFromAxisAngle(_csA, c.a);
-    if(c.sp === 0 && c.b > 0) _q.setFromAxisAngle(AX_Z, Math.PI/2);       // 멈추면 눕는다
+    if(c.sp === 0 && c.b > 0){ _q.setFromAxisAngle(AX_Z, Math.PI/2); _csQ.setFromAxisAngle(UPV, c.ax*3.14); _q.premultiply(_csQ); }   // 멈추면 눕는다(68차 — 제각각 다른 쪽으로)
     _s.set(c.r*sc, c.h*sc, c.r*sc);
     csMesh.setMatrixAt(i, _m.compose(_v,_q,_s)); csMesh.setColorAt(i, c.c);
   }
@@ -12485,7 +12508,7 @@ function updCases(dt){
   csMesh.visible = live > 0; csLive = live;
 }
 function updParts(dt){
-  updCases(dt);
+  updCases(dt); g68Tick(dt);                                     // 68차 — 총 효과 조각(불티·파편·번개·클로버 잎)
   for(let i=0;i<PN;i++){
     const p = parts[i];
     if(p.t>0){ p.t-=dt; p.vy-=17*p.g*dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.z+=p.vz*dt;
@@ -12529,6 +12552,126 @@ function updRings(dt){
   rMesh.visible = live > 0;
 }
 
+/* ═══════════ 68차 — 총 효과 전용 빛나는 조각(G68)과 클로버 잎 ═══════════
+   선생님: "미적으로 멋있게 — 총하고 총 효과음, 총 이펙트들은."
+   불티·수정 파편·흑요석 조각·금가루·번개 가지를 **불투명·조명 없음**(MeshBasic) 팔면체 하나를 늘이고 돌려서 낸다.
+     · 밤에도 제 색으로 빛나고(65차 불티는 조명을 받는 공이라 그늘·밤에 회색으로 죽었다), 반투명 면·빛무리·점광원이 없다.
+     · 칠하는 넓이는 손톱만 하다(늘인 가는 줄·작은 조각). 메시 하나·그리기 한 번, 날고 있는 것이 없으면 통째로 숨긴다.
+     · 팔면체 여덟 면에 밝기를 달리 구워(꼭짓점 색) 수정·흑요석 파편이 깎인 보석처럼 번쩍인다.
+   모양(m): 0 불티 줄(날아가는 쪽으로 늘어난다 — 빠를수록 길게) · 1 파편(제멋대로 돌며 떨어져 바닥에서 튄다)
+            2 가루(작게 떠서 반짝이며 천천히 가라앉는다) · 3 번개 가지(두 점 사이에 가만히, 깜빡이다 사라진다)
+   색은 태어날 때 c0 → 사라질 때 c1 (불티는 흰빛 → 무기 색, 불씨는 노랑 → 검붉게 식는다).
+   dl: 이만큼 기다렸다 나타난다 — 날아가는 예광탄 꼬리를 따라 뒤에 흩날리는 불티.
+   풀이 차면 가장 오래된 것부터 덮어쓴다(G68N). 만들기·움직이기 모두 미리 만든 칸만 쓴다(매 프레임 할당 0). */
+const G68N = 128;
+const g68Geo = (()=>{ const g = new THREE.OctahedronGeometry(1, 0), n = g.attributes.position.count, C = new Float32Array(n*3);
+  const sh = [1, .74, .9, .62, .84, .7, .96, .58];
+  for(let f=0; f<n/3; f++) for(let k=0;k<9;k++) C[f*9 + k] = sh[f%8];
+  g.setAttribute('color', new THREE.BufferAttribute(C, 3)); return g; })();
+/* 재질은 새로 만들지 않는다 — 66차 날개 꼬리의 별(wfxSpMesh)·깃털(wfxFeMesh)과 **같은 재질 둘**을 여기서 한 번 만들어 함께 쓴다(인스턴스 재질 수 그대로).
+   별 기하에는 꼭짓점 색 1 을 채워 두어(wfxStarGeo) 모습이 예전과 같다. */
+const FX_BASIC_VC = new THREE.MeshBasicMaterial({color:0xffffff, side:THREE.DoubleSide, vertexColors:true});
+const FX_FLAT_VC = flatMat(0xffffff, {side:THREE.DoubleSide, vertexColors:true});
+const g68Mesh = new THREE.InstancedMesh(g68Geo, FX_BASIC_VC, G68N);
+g68Mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(G68N*3).fill(1), 3);
+g68Mesh.frustumCulled = false; g68Mesh.visible = false; g68Mesh.castShadow = g68Mesh.receiveShadow = false; scene.add(g68Mesh);
+const G68P = []; for(let i=0;i<G68N;i++) G68P.push({t:0,t0:1,dl:0,m:0,x:0,y:0,z:0,vx:0,vy:0,vz:0,x2:0,y2:0,z2:0,g:1,dr:0,s:.03,L:1,fl:-99,ax:0,ay:1,az:0,a:0,sp:0,c0:new THREE.Color(),c1:new THREE.Color()});
+let g68I = 0, g68Live = 0, g68K = 1;   // g68K — 명중 효과는 멀수록 크게(hitSpark 가 잠깐 바꾼다)
+const _g68c = new THREE.Color(), _g68d = new THREE.Vector3();
+function g68(m, x,y,z, vx,vy,vz, life, size, c0, c1, g, dl){
+  const p = G68P[g68I = (g68I+1)%G68N];
+  p.m = m; p.t = p.t0 = life; p.dl = dl || 0; p.x = x; p.y = y; p.z = z; p.vx = vx; p.vy = vy; p.vz = vz;
+  p.g = g === undefined ? 1 : g; p.dr = m === 2 ? 2.2 : m === 0 ? 0.6 : 0.4; p.s = size*g68K; p.L = m === 0 ? 5 : 1; p.fl = -99;
+  _g68d.set(Math.random()-.5, Math.random()-.5, Math.random()-.5).normalize(); p.ax = _g68d.x; p.ay = _g68d.y; p.az = _g68d.z;
+  p.a = Math.random()*6.28; p.sp = m === 1 ? 10 + Math.random()*14 : m === 2 ? 5 : 0;
+  p.c0.setHex(c0); p.c1.setHex(c1 === undefined ? c0 : c1);
+  g68Live = G68N; return p;
+}
+/* 번개 가지 한 토막 — (x,y,z) → (x2,y2,z2) */
+function g68Seg(x,y,z, x2,y2,z2, life, size, c0, c1, dl){ const p = g68(3, x,y,z, 0,0,0, life, size, c0, c1, 0, dl); p.x2 = x2; p.y2 = y2; p.z2 = z2; return p; }
+/* 꺾인 번개 한 줄기 — n 토막, 옆으로 흔든 폭 j. 끝에서 가는 곁가지 하나 */
+function g68Bolt(x,y,z, x2,y2,z2, n, j, life, size, c0, c1, dl){
+  let px = x, py = y, pz = z;
+  for(let i=1;i<=n;i++){ const t = i/n, e = i === n ? 0 : j;
+    const qx = x + (x2-x)*t + (Math.random()-.5)*e, qy = y + (y2-y)*t + (Math.random()-.5)*e*0.8, qz = z + (z2-z)*t + (Math.random()-.5)*e;
+    g68Seg(px,py,pz, qx,qy,qz, life, size*(1 - 0.35*t), c0, c1, dl);
+    if(i === (n>>1) && n > 2) g68Seg(qx,qy,qz, qx + (Math.random()-.5)*j*1.4, qy - Math.random()*j*0.8, qz + (Math.random()-.5)*j*1.4, life*0.8, size*0.5, c0, c1, dl);
+    px = qx; py = qy; pz = qz; }
+}
+function g68Tick(dt){
+  if(g68Live){ let live = 0;
+    for(let i=0;i<G68N;i++){ const p = G68P[i];
+      if(p.t <= 0){ g68Mesh.setMatrixAt(i, ZEROM); continue; }
+      live++;
+      if(p.dl > 0){ p.dl -= dt; g68Mesh.setMatrixAt(i, ZEROM); continue; }
+      p.t -= dt; const age = Math.min(1, Math.max(0, 1 - p.t/p.t0)), k = 1 - age;
+      if(p.m === 3){                                                        // 번개 — 가만히, 깜빡
+        const dx = p.x2 - p.x, dy = p.y2 - p.y, dz = p.z2 - p.z, L = Math.hypot(dx,dy,dz) || 0.01;
+        _v.set((p.x+p.x2)*0.5, (p.y+p.y2)*0.5, (p.z+p.z2)*0.5); _g68d.set(dx/L, dy/L, dz/L); _q.setFromUnitVectors(AX_Z, _g68d);
+        const w = p.s*(Math.random() < 0.22 ? 0.25 : 1)*(0.4 + 0.6*k); _s.set(w, w, L*0.5);
+      } else {
+        const drag = Math.exp(-p.dr*dt); p.vx *= drag; p.vz *= drag; if(p.m === 2) p.vy *= drag;
+        p.vy -= 17*p.g*dt; p.x += p.vx*dt; p.y += p.vy*dt; p.z += p.vz*dt;
+        if(p.m === 1 && p.y < p.fl && p.vy < 0){ p.y = p.fl; p.vy *= -0.32; p.vx *= 0.55; p.vz *= 0.55; p.sp *= 0.5; }
+        _v.set(p.x, p.y, p.z);
+        if(p.m === 0){                                                      // 불티 줄 — 날아가는 쪽으로, 빠를수록 길게
+          const sp = Math.hypot(p.vx, p.vy, p.vz) || 0.01; _g68d.set(p.vx/sp, p.vy/sp, p.vz/sp); _q.setFromUnitVectors(AX_Z, _g68d);
+          const w = p.s*Math.sqrt(k); _s.set(w, w, w*(1 + Math.min(p.L, sp*0.9)));
+        } else {                                                            // 파편·가루 — 돈다
+          p.a += p.sp*dt; _g68d.set(p.ax, p.ay, p.az); _q.setFromAxisAngle(_g68d, p.a);
+          const w = p.m === 2 ? p.s*(0.55 + 0.45*Math.abs(Math.sin(p.a*1.7)))*Math.min(1, k*3) : p.s*Math.min(1, k*4);
+          _s.set(w, w*(p.m === 1 ? 1.6 : 1), w*(p.m === 1 ? 0.7 : 1));
+        }
+      }
+      g68Mesh.setMatrixAt(i, _m.compose(_v,_q,_s));
+      _g68c.copy(p.c0).lerp(p.c1, age); g68Mesh.setColorAt(i, _g68c);
+    }
+    g68Mesh.instanceMatrix.needsUpdate = true; g68Mesh.instanceColor.needsUpdate = true;
+    g68Mesh.visible = live > 0; g68Live = live; }
+  if(lf68Live) lf68Tick(dt);
+  /* 불붙은 좀비(용의 숨결 burns)에서 불씨가 솟는다 — 초당 여섯 알쯤. burnStart/burnTick(판정)은 건드리지 않고 목록만 읽는다 */
+  if(typeof burns !== 'undefined') for(let i=0;i<burns.length;i++){ const o = burns[i].o; if(!o || !(o.hp > 0) || Math.random() > dt*6) continue;
+    g68(0, o.x + (Math.random()-.5)*0.5, (o.y||GY) + 0.5 + Math.random()*0.8, o.z + (Math.random()-.5)*0.5, (Math.random()-.5)*0.6, 1 + Math.random()*1.4, (Math.random()-.5)*0.6, 0.45, 0.015, 0xffe080, 0x801406, -0.05); }
+}
+/* 네잎클로버 잎 — 하트 잎 넷을 십자로 붙인 납작한 한 장(꼭짓점 색: 가운데 짙고 잎끝 밝게, 잎맥 한 줄). 깃털처럼 하늘하늘 돌며 떨어진다.
+   잎은 조명을 받는다(날개 깃털 wfxFeMesh 와 같은 불투명 flatMat) — 들판의 풀과 같은 빛을 먹는다. */
+const LF68N = 24;
+const lf68Geo = (()=>{ const P = [], C = [];
+  const leaf = (a)=>{ const ca = Math.cos(a), sa = Math.sin(a), R = (u, v)=> [u*ca - v*sa, u*sa + v*ca];
+    const rim = []; for(let i=0;i<=20;i++){ const t = i/20*Math.PI*2, s = Math.sin(t);                     // 하트 곡선 — 뾰족한 끝이 가운데, 오목한 홈이 바깥
+      const hx = 16*s*s*s, hy = 13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t);
+      rim.push(R((hy + 17)/29*0.5 + 0.02, hx/16*0.22)); }
+    const c = R(0.27, 0);
+    for(let i=0;i<20;i++){ P.push(c[0], 0, c[1], rim[i][0], 0, rim[i][1], rim[i+1][0], 0, rim[i+1][1]); C.push(.55,.72,.5, .95,1,.88, .95,1,.88); }
+    const b = R(0.03, 0), e = R(0.44, 0), n = R(0.24, 0.012), m = R(0.24, -0.012);             // 잎맥 한 줄
+    P.push(b[0], .002, b[1], n[0], .002, n[1], e[0], .002, e[1], b[0], .002, b[1], e[0], .002, e[1], m[0], .002, m[1]); for(let k=0;k<6;k++) C.push(1,1,.9); };
+  for(let k=0;k<4;k++) leaf(k*Math.PI/2 + 0.2);
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(C, 3)); g.computeVertexNormals(); return g; })();
+const lf68Mesh = new THREE.InstancedMesh(lf68Geo, FX_FLAT_VC, LF68N);
+lf68Mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(LF68N*3).fill(1), 3);
+lf68Mesh.frustumCulled = false; lf68Mesh.visible = false; lf68Mesh.castShadow = lf68Mesh.receiveShadow = false; scene.add(lf68Mesh);
+const LF68 = []; for(let i=0;i<LF68N;i++) LF68.push({t:0,t0:1,x:0,y:0,z:0,vx:0,vy:0,vz:0,s:.1,ph:0,ry:0,c:new THREE.Color()});
+let lf68I = 0, lf68Live = 0;
+const _lf68E = new THREE.Euler(0, 0, 0, 'YXZ');
+function lf68(x,y,z, vx,vy,vz, size, col){
+  const p = LF68[lf68I = (lf68I+1)%LF68N];
+  p.t = p.t0 = 1.3 + Math.random()*0.6; p.x = x; p.y = y; p.z = z; p.vx = vx; p.vy = vy; p.vz = vz; p.s = size*Math.min(1.5, g68K);
+  p.ph = Math.random()*6.28; p.ry = Math.random()*6.28; p.c.setHex(col); lf68Live = LF68N;
+}
+function lf68Tick(dt){ let live = 0;
+  for(let i=0;i<LF68N;i++){ const p = LF68[i];
+    if(p.t <= 0){ lf68Mesh.setMatrixAt(i, ZEROM); continue; }
+    p.t -= dt; live++; const age = p.t0 - p.t;
+    p.vy += (-0.7 - p.vy)*Math.min(1, dt*2.6); const drag = Math.exp(-1.4*dt); p.vx *= drag; p.vz *= drag;
+    const sway = Math.sin(age*4.6 + p.ph);
+    p.x += (p.vx + Math.cos(p.ry)*sway*0.4)*dt; p.y += p.vy*dt; p.z += (p.vz - Math.sin(p.ry)*sway*0.4)*dt;
+    const sc = p.s*Math.min(1, p.t/0.3, age*8);
+    _v.set(p.x, p.y, p.z); _q.setFromEuler(_lf68E.set(0.5 + sway*0.5, p.ry + age*2.2, sway*0.6)); _s.set(sc, sc, sc);
+    lf68Mesh.setMatrixAt(i, _m.compose(_v,_q,_s)); lf68Mesh.setColorAt(i, p.c); }
+  lf68Mesh.instanceMatrix.needsUpdate = true; lf68Mesh.instanceColor.needsUpdate = true;
+  lf68Mesh.visible = live > 0; lf68Live = live;
+}
+
 /* ═══════════ 66차 WING — 날개 꼬리(반짝이·깃털)와 전직 마법진 ═══════════
    ★ 선생님: "날 때 똥가루 이펙트, 전직했을 때 바닥에 나오는 효과를 더 멋있게".
      예전 활공 꼬리는 공용 입자(pMesh — 조명을 받는 둥근 공)에 직업 색을 칠했다. 겨자색 공이 그늘에서 누렇게 죽어
@@ -12551,8 +12694,9 @@ let wfxSI = 0, wfxFI = 0, wfxJI = 0, wfxSLive = 0, wfxFLive = 0, wfxJLive = 0, w
 const wfxStarGeo = (()=>{ const P=[0,0,0], I=[];
   for(let i=0;i<8;i++){ const a=i/8*Math.PI*2+Math.PI/2, r=i%2 ? .26 : 1; P.push(Math.cos(a)*r, Math.sin(a)*r, 0); }
   for(let i=0;i<8;i++) I.push(0, 1+i, 1+(i+1)%8);
-  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(P,3)); g.setIndex(I); return g; })();
-const wfxSpMesh = new THREE.InstancedMesh(wfxStarGeo, new THREE.MeshBasicMaterial({color:0xffffff, side:THREE.DoubleSide}), WFX_SN);
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(P,3)); g.setIndex(I);
+  g.setAttribute('color', new THREE.Float32BufferAttribute(new Float32Array(P.length).fill(1), 3)); return g; })();   // 68차 — 꼭짓점 색 1(총 효과 조각과 재질을 함께 쓴다 · 모습 그대로)
+const wfxSpMesh = new THREE.InstancedMesh(wfxStarGeo, typeof FX_BASIC_VC !== 'undefined' ? FX_BASIC_VC : new THREE.MeshBasicMaterial({color:0xffffff, side:THREE.DoubleSide, vertexColors:true}), WFX_SN);   // 68차 — 재질은 총 효과(g68)와 공유(이 구역만 떼어 돌리는 검사에선 같은 설정으로 새로)
 wfxSpMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(WFX_SN*3).fill(1), 3);
 /* 깃털 한 장 — 길이 1(+y), 깃대가 가운데로 지나고 끝이 둥글다. 날개 깃과 같은 음영(가운데 밝게) */
 const wfxFeGeo = (()=>{ const P=[], Cc=[], I=[];
@@ -12561,7 +12705,7 @@ const wfxFeGeo = (()=>{ const P=[], Cc=[], I=[];
   for(let j=0;j<5;j++){ const a=j*3; I.push(a,a+3,a+4, a,a+4,a+1, a+1,a+4,a+5, a+1,a+5,a+2); }
   const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));
   g.setAttribute('color',new THREE.Float32BufferAttribute(Cc,3)); g.setIndex(I); g.computeVertexNormals(); return g; })();
-const wfxFeMesh = new THREE.InstancedMesh(wfxFeGeo, flatMat(0xffffff, {side:THREE.DoubleSide, vertexColors:true}), WFX_FN);
+const wfxFeMesh = new THREE.InstancedMesh(wfxFeGeo, typeof FX_FLAT_VC !== 'undefined' ? FX_FLAT_VC : flatMat(0xffffff, {side:THREE.DoubleSide, vertexColors:true}), WFX_FN);   // 68차 — 재질은 클로버 잎(lf68)과 공유
 wfxFeMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(WFX_FN*3).fill(1), 3);
 /* 마법진 무늬 — 땅(xz)에 눕힌 가는 띠. 반지름 1 기준. 0 바깥 고리(톱니 홈 + 마름모 여덟) · 1 육각별 · 2 안쪽 점선 · 3 빛 고리 */
 const wfxRuneGeo = (kind)=>{ const P=[];
@@ -12800,63 +12944,124 @@ function shootStone(x,y,z, tx,ty,tz, hit){
    ★ 메시는 하나뿐이고 무기마다 색만 바꿔 끼운다(인스턴스 색) → 그리기는 1번.
      날아가는 총알이 없으면 통째로 숨긴다.
    ★ 재질은 Basic(빛 계산 없음) + fog 끔이다. 밤에 안개에 먹히면 예광탄이 안 보인다. */
-const BuN = 32;                                   // 65차 — 산탄 꼬리(한 발에 넷 더)까지 20 → 32
+const BuN = 40;                                   // 65차 — 산탄 꼬리(한 발에 넷 더)까지 20 → 32 · 68차 — 산탄 다섯·여섯 알까지 40
 const bullets = [];
-const bulletMat = new THREE.MeshBasicMaterial({color:0xf8cf50, fog:false,
-  transparent:true, opacity:0.96, depthWrite:false});    // 28차 — 무늬 없는 금빛 총알
-const bMesh = new THREE.InstancedMesh(rboxGeo(0.12,0.12,1.0), bulletMat, BuN);
+/* 68차 — 예광탄을 네모 막대에서 **머리가 굵고 꼬리가 가는 여섯 모 방추**로. 꼭짓점 aT(꼬리 0 → 머리 1)를 셰이더가 읽어
+   머리는 흰빛으로 달아오르고 꼬리로 갈수록 무기 색·옅게 사라진다(같은 메시·같은 재질·그리기 1번 — 새 반투명 면 없음).
+   재질 색은 흰색 — 65차까지는 금빛(0xf8cf50)이 인스턴스 색에 곱해져 수정 광선총의 하늘색 줄기가 연두로 보였다. */
+const TRACER68 = (()=>{ const R = 0.06, Z = [[0.5, 0.3, 0], [0.0, 0.62, 0.5], [-0.42, 1, 0.94], [-0.5, 0.5, 1]], N = 6, P = [], T = [], I = [];
+  for(const [z, r, t] of Z) for(let k=0;k<N;k++){ const a = k/N*Math.PI*2; P.push(Math.cos(a)*R*r, Math.sin(a)*R*r, z); T.push(t); }
+  for(let j=0;j<Z.length-1;j++) for(let k=0;k<N;k++){ const a = j*N + k, b = j*N + (k+1)%N, c = a + N, d = b + N; I.push(a, c, b, b, c, d); }
+  const tc = P.length/3; P.push(0, 0, 0.5); T.push(0); const hc = tc + 1; P.push(0, 0, -0.53); T.push(1);
+  for(let k=0;k<N;k++){ I.push(tc, k, (k+1)%N); const o = (Z.length-1)*N; I.push(hc, o + (k+1)%N, o + k); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('aT', new THREE.Float32BufferAttribute(T, 1)); g.setIndex(I); return g; })();
+const bulletMat = new THREE.MeshBasicMaterial({color:0xffffff, fog:false,
+  transparent:true, opacity:0.96, depthWrite:false});    // 28차 — 무늬 없는 금빛 총알 · 68차 — 흰 머리 + 무기 색 꼬리
+bulletMat.onBeforeCompile = (sh)=>{
+  sh.vertexShader = 'attribute float aT;\nvarying float vT68;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n  vT68 = aT;');
+  sh.fragmentShader = 'varying float vT68;\n' + sh.fragmentShader.replace('#include <color_fragment>',
+    '#include <color_fragment>\n  diffuseColor.rgb = mix(diffuseColor.rgb, vec3(1.0), smoothstep(0.72, 1.0, vT68)*0.8);\n  diffuseColor.a *= 0.22 + 0.78*vT68;');
+};
+bulletMat.customProgramCacheKey = ()=> 'tracer68';
+const bMesh = new THREE.InstancedMesh(TRACER68, bulletMat, BuN);
 bMesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(BuN*3).fill(1), 3);
 bMesh.frustumCulled = false; bMesh.count = BuN; bMesh.visible = false; scene.add(bMesh);
 
-/* ★ 65차 — 총구 화염 모양 넷을 한 장(2×2 칸)에 그려 두고 칸만 골라 쓴다(offset/repeat).
-   메시·재질·그리기는 예전처럼 **하나**다. 모양마다 텍스처를 바꿔 끼우면 셰이더는 그대로지만, 칸을 고르는 편이 더 단순하다.
-     0 별(권총·연발) — 가운데 둥근 불꽃 + 짧은 가시 다섯
-     1 창(소총·저격) — 총구에서 앞으로 길쭉하게 뻗는 불꽃 + 옆으로 짧은 날개 둘
-     2 부채(산탄·대포·화승) — 앞으로 넓게 퍼지는 불꽃
-     3 광선(광선총·벼락총) — 매끈한 렌즈 모양 빛
-   방향이 있는 셋(1·2·3)은 칸의 **왼쪽 가운데가 총구**다 — muzzleFlash 가 판을 총열 방향으로 눕혀 놓는다. */
-const MZ_CELL = {star:0, spear:1, fan:2, beam:3};
-const flashTex = (()=>{ const N = 128, c = document.createElement('canvas'); c.width = c.height = N*2; const g = c.getContext('2d');
-  const W = 'rgba(255,255,255,', stops = (gr, a)=>{ for(const [o,v] of a) gr.addColorStop(o, W + v + ')'); return gr; };
-  const blob = (cx, cy, rx, ry, a)=>{ g.save(); g.translate(cx, cy); g.scale(rx/ry, 1);
-    g.fillStyle = stops(g.createRadialGradient(0,0,0, 0,0,ry), a); g.beginPath(); g.arc(0,0,ry,0,6.2832); g.fill(); g.restore(); };
-  const spike = (cx, cy, ang, len, wid)=>{ g.save(); g.translate(cx, cy); g.rotate(ang);
-    const gr = g.createLinearGradient(0,0,len,0); stops(gr, [[0,1],[0.45,0.7],[1,0]]); g.fillStyle = gr;
-    g.beginPath(); g.moveTo(0,-wid); g.quadraticCurveTo(len*0.45, -wid*0.35, len, 0); g.quadraticCurveTo(len*0.45, wid*0.35, 0, wid); g.closePath(); g.fill(); g.restore(); };
-  /* 0 별 */
-  g.save(); g.beginPath(); g.rect(0,0,N,N); g.clip();
-  for(let i=0;i<5;i++) spike(64, 64, i*1.2566 + 0.3, 60 - (i%2)*16, 9);
-  blob(64, 64, 30, 30, [[0,1],[0.35,0.9],[1,0]]); g.restore();
-  /* 1 창 — 총구(왼쪽 가운데)에서 오른쪽 끝까지 */
-  g.save(); g.translate(N, 0); g.beginPath(); g.rect(0,0,N,N); g.clip();
-  spike(4, 64, 0, 122, 20); spike(10, 64, -0.9, 34, 6); spike(10, 64, 0.9, 34, 6);
-  blob(22, 64, 22, 17, [[0,1],[0.4,0.85],[1,0]]); g.restore();
-  /* 2 부채 */
-  g.save(); g.translate(0, N); g.beginPath(); g.rect(0,0,N,N); g.clip();
-  for(let i=-2;i<=2;i++) spike(4, 64, i*0.26, 108 - Math.abs(i)*14, 14);
-  blob(20, 64, 24, 30, [[0,1],[0.4,0.85],[1,0]]); g.restore();
-  /* 3 광선 — 가장자리 없이 매끈한 렌즈 */
-  g.save(); g.translate(N, N); g.beginPath(); g.rect(0,0,N,N); g.clip();
-  blob(58, 64, 58, 14, [[0,1],[0.3,0.8],[0.7,0.25],[1,0]]); blob(18, 64, 18, 18, [[0,1],[0.5,0.7],[1,0]]); g.restore();
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.repeat.set(0.5, 0.5); return t; })();
+/* ★ 65차 — 총구 화염 모양을 한 장에 그려 두고 칸만 골라 쓴다(offset/repeat). 메시·재질·그리기는 **하나**다.
+   ★ 68차 — 네 칸(2×2) → 아홉 칸(3×3), 그리고 **두 겹**: 빨강 채널 = 불꽃 모양(무기 색으로 칠함) · 초록 채널 = 한가운데 달아오른 심(흰빛).
+     셰이더가 색 = 무기색×R + (흰색 − 무기색)×G 로 섞는다 — 가운데는 하얗게 타고 가장자리로 갈수록 그 총의 색(주황·보라·하늘·초록)이 된다.
+     불꽃 혀는 곧은 가시가 아니라 **휘어지고 굵기가 흔들리는 혀** 여러 가닥(씨앗 고정 — 그릴 때마다 같다).
+       0 별(연발·권총·탑) · 1 창(소총·카빈) · 2 부채(산탄) · 3 광선(광선총) · 4 제퇴기(저격 — 양옆으로 뿜는 두 갈래 + 앞 혀)
+       5 불길(화염 대포·용 — 부풀며 말리는 불 뭉치) · 6 번개(천둥 — 꺾인 빛 가지) · 7 흑색화약(화승총 — 둥글고 큰 불덩이 + 불똥) · 8 클로버(잎 넷 + 부채)
+   방향이 있는 칸(0 빼고 전부)은 칸의 **왼쪽 가운데가 총구**다 — muzzleFlash 가 판을 총열 방향으로 눕혀 놓는다. */
+const MZ_CELL = {star:0, spear:1, fan:2, beam:3, brake:4, flame:5, bolt:6, puff:7, clover:8};
+const MZ_LW = [[1, 1], [1.15, .55], [1.0, 1.05], [1.4, .40], [1.1, 1.0], [1.45, 1.0], [1.25, 1.15], [1.05, 1.0], [1.0, 1.05]];   // 칸마다 길이·폭 배율
+const MZ_DUR = [.06, .06, .065, .08, .07, .10, .07, .09, .065];                                                                   // 칸마다 남는 시간(초)
+const flashTex = (()=>{ const N = 128, S = N*3;
+  const mk = ()=>{ const c = document.createElement('canvas'); c.width = c.height = S; return c; };
+  const cA = mk(), cB = mk(), gA = cA.getContext('2d'), gB = cB.getContext('2d');
+  let seed = 68; const rnd = ()=>{ seed = (seed*16807) % 2147483647; return seed/2147483647; };
+  const W = 'rgba(255,255,255,';
+  const blob = (g, cx, cy, rx, ry, a)=>{ g.save(); g.translate(cx, cy); g.scale(rx/ry, 1);
+    const gr = g.createRadialGradient(0,0,0, 0,0,ry); for(const [o,v] of a) gr.addColorStop(o, W + v + ')'); g.fillStyle = gr; g.beginPath(); g.arc(0,0,ry,0,6.2832); g.fill(); g.restore(); };
+  /* 불꽃 혀 — 밑동 폭 wid, 길이 len. 가운데 줄이 한쪽으로 휘고(bend) 옆선이 물결친다. 밑동이 가장 밝고 끝으로 사라진다 */
+  const tongue = (g, x, y, ang, len, wid, bend, a0)=>{ g.save(); g.translate(x, y); g.rotate(ang);
+    const gr = g.createLinearGradient(0,0,len,0); gr.addColorStop(0, W + (a0 || 1) + ')'); gr.addColorStop(0.35, W + (a0 || 1)*0.75 + ')'); gr.addColorStop(1, W + '0)'); g.fillStyle = gr;
+    const b = (bend || 0)*len, w1 = wid*(0.8 + rnd()*0.4), w2 = wid*(0.8 + rnd()*0.4);
+    g.beginPath(); g.moveTo(0, -w1*0.6);
+    g.bezierCurveTo(len*0.3, -w1*1.05 + b*0.3, len*0.62, -w1*0.45 + b*0.8, len, b);
+    g.bezierCurveTo(len*0.62, w2*0.45 + b*0.8, len*0.3, w2*1.05 + b*0.3, 0, w2*0.6);
+    g.closePath(); g.fill(); g.restore(); };
+  const both = (fA, fB)=>{ fA(gA); if(fB) fB(gB); };
+  const cell = (i, draw)=>{ const x = (i%3)*N, y = Math.floor(i/3)*N;
+    for(const g of [gA, gB]){ g.save(); g.translate(x, y); g.beginPath(); g.rect(0,0,N,N); g.clip(); }
+    draw(); for(const g of [gA, gB]) g.restore(); };
+  /* 0 별 — 한가운데서 사방으로 휜 혀 여덟(길고 짧게 번갈아) */
+  cell(0, ()=>{ for(let i=0;i<8;i++){ const a = i*0.785 + rnd()*0.3, L = (i%2 ? 34 : 56) + rnd()*8;
+      tongue(gA, 64, 64, a, L, 9 + rnd()*3, (rnd()-.5)*0.25); tongue(gB, 64, 64, a, L*0.45, 5, 0, 0.9); }
+    blob(gA, 64, 64, 27, 27, [[0,1],[0.4,0.85],[1,0]]); blob(gB, 64, 64, 15, 15, [[0,1],[0.6,0.6],[1,0]]); });
+  /* 1 창 — 총구에서 앞으로 긴 혀 + 곁 혀 둘 + 짧은 옆 날개 */
+  cell(1, ()=>{ tongue(gA, 4, 64, 0, 122, 17, 0.02); tongue(gA, 6, 64, -0.24, 72, 9, -0.06); tongue(gA, 6, 64, 0.24, 72, 9, 0.06);
+    tongue(gA, 10, 64, -1.05, 30, 6, -0.1); tongue(gA, 10, 64, 1.05, 30, 6, 0.1); blob(gA, 22, 64, 22, 16, [[0,1],[0.45,0.8],[1,0]]);
+    tongue(gB, 4, 64, 0, 76, 7, 0, 0.95); blob(gB, 16, 64, 12, 9, [[0,1],[1,0]]); });
+  /* 2 부채 — 앞으로 넓게 퍼지는 혀 일곱 */
+  cell(2, ()=>{ for(let i=-3;i<=3;i++) tongue(gA, 4, 64, i*0.19 + (rnd()-.5)*0.08, 104 - Math.abs(i)*11 + rnd()*10, 12, (rnd()-.5)*0.18);
+    blob(gA, 20, 64, 24, 30, [[0,1],[0.4,0.8],[1,0]]);
+    for(let i=-1;i<=1;i++) tongue(gB, 4, 64, i*0.2, 58, 7, 0, 0.9); blob(gB, 14, 64, 13, 15, [[0,1],[1,0]]); });
+  /* 3 광선 — 매끈한 렌즈 + 가운데 가는 심 */
+  cell(3, ()=>{ blob(gA, 58, 64, 58, 13, [[0,1],[0.3,0.8],[0.7,0.25],[1,0]]); blob(gA, 16, 64, 17, 17, [[0,1],[0.5,0.7],[1,0]]);
+    blob(gB, 58, 64, 56, 3.5, [[0,1],[0.7,0.6],[1,0]]); blob(gB, 14, 64, 9, 9, [[0,1],[1,0]]); });
+  /* 4 제퇴기 — 앞 혀 + 양옆으로 거의 수직으로 뿜는 굵은 두 갈래(조금 뒤로 젖힌 작은 것 둘) */
+  cell(4, ()=>{ tongue(gA, 8, 64, 0, 96, 14, 0.02); for(const s of [-1, 1]){ tongue(gA, 20, 64, s*1.42, 52, 12, s*0.1); tongue(gA, 20, 64, s*1.95, 26, 7, 0); tongue(gA, 34, 64, s*1.3, 34, 8, s*0.08); }
+    blob(gA, 22, 64, 20, 20, [[0,1],[0.4,0.8],[1,0]]);
+    tongue(gB, 8, 64, 0, 50, 6, 0, 0.9); for(const s of [-1, 1]) tongue(gB, 20, 64, s*1.42, 26, 6, 0, 0.9); blob(gB, 20, 64, 11, 11, [[0,1],[1,0]]); });
+  /* 5 불길 — 앞으로 갈수록 부풀며 말리는 불 뭉치(겹친 둥근 덩어리) + 가장자리 말린 혀 */
+  cell(5, ()=>{ for(let i=0;i<9;i++){ const u = i/8, cx = 12 + u*92, r = 12 + u*26, oy = (rnd()-.5)*16*u;
+      blob(gA, cx, 64 + oy, r*(0.9 + rnd()*0.3), r, [[0,0.95 - u*0.3],[0.55,0.55 - u*0.2],[1,0]]); }
+    for(let i=0;i<6;i++){ const s = i%2 ? 1 : -1; tongue(gA, 30 + i*12, 64 + s*(10 + i*3), s*(0.5 + rnd()*0.4), 30 + rnd()*14, 8, s*0.3); }
+    for(let i=0;i<5;i++){ const u = i/4; blob(gB, 10 + u*54, 64, 9 + u*10, 7 + u*9, [[0,0.95],[1,0]]); } });
+  /* 6 번개 — 꺾인 가지 여섯(넓고 흐린 빛 + 가늘고 밝은 심) */
+  cell(6, ()=>{ const arm = (g, a, L, w, al)=>{ g.save(); g.translate(20, 64); g.strokeStyle = W + al + ')'; g.lineWidth = w; g.lineCap = 'round'; g.lineJoin = 'round';
+      g.beginPath(); g.moveTo(0,0); let x = 0, y = 0; const n = 5; for(let k=1;k<=n;k++){ x = Math.cos(a)*L*k/n + (rnd()-.5)*10; y = Math.sin(a)*L*k/n + (rnd()-.5)*10; g.lineTo(x, y); } g.stroke(); g.restore(); };
+    const A = [0, -0.5, 0.5, -1.1, 1.1, 0.25]; for(let i=0;i<A.length;i++){ const L = i === 0 ? 100 : 44 + rnd()*26; const s0 = seed; arm(gA, A[i], L, 7, 0.45); seed = s0; arm(gA, A[i], L, 3, 1); seed = s0; arm(gB, A[i], L*0.8, 2, 1); }
+    blob(gA, 20, 64, 20, 20, [[0,1],[0.5,0.6],[1,0]]); blob(gB, 20, 64, 10, 10, [[0,1],[1,0]]); });
+  /* 7 흑색화약 — 둥글고 큰 불덩이(조금 앞) + 사방 불똥 혀 */
+  cell(7, ()=>{ for(let i=0;i<11;i++){ const a = -1.3 + i*0.26 + (rnd()-.5)*0.2; tongue(gA, 30, 64, a, 40 + rnd()*40, 9, (rnd()-.5)*0.4); }
+    blob(gA, 40, 64, 36, 32, [[0,1],[0.5,0.7],[1,0]]); blob(gA, 14, 64, 14, 14, [[0,1],[1,0]]);
+    blob(gB, 34, 64, 18, 16, [[0,1],[0.6,0.5],[1,0]]); });
+  /* 8 클로버 — 부채 + 한가운데 하트 잎 넷(행운의 불꽃) */
+  cell(8, ()=>{ for(let i=-2;i<=2;i++) tongue(gA, 4, 64, i*0.24, 92 - Math.abs(i)*14, 11, (rnd()-.5)*0.15);
+    for(let k=0;k<4;k++){ const a = k*1.5708 + 0.785; for(const s of [-1, 1]) blob(gA, 50 + Math.cos(a)*14 + Math.cos(a + s*1.5708)*6, 64 + Math.sin(a)*14 + Math.sin(a + s*1.5708)*6, 9, 9, [[0,1],[0.6,0.8],[1,0]]); }
+    blob(gA, 18, 64, 18, 18, [[0,1],[1,0]]); blob(gB, 50, 64, 13, 13, [[0,1],[1,0]]); blob(gB, 14, 64, 10, 10, [[0,1],[1,0]]); });
+  /* 두 겹 → 한 장(R = 모양 · G = 흰 심) */
+  const out = mk(), go = out.getContext('2d'), dA = gA.getImageData(0,0,S,S).data, dB = gB.getImageData(0,0,S,S).data, im = go.createImageData(S, S), d = im.data;
+  for(let i=0;i<d.length;i+=4){ d[i] = dA[i+3]; d[i+1] = Math.min(dA[i+3], dB[i+3]); d[i+2] = 0; d[i+3] = 255; }
+  go.putImageData(im, 0, 0);
+  const t = new THREE.CanvasTexture(out); t.colorSpace = THREE.NoColorSpace; t.repeat.set(1/3, 1/3); return t; })();
 const flashMat = new THREE.MeshBasicMaterial({map:flashTex, color:0xfff3c0, transparent:true, opacity:1,
-  depthWrite:false, blending:THREE.AdditiveBlending, fog:false});
+  depthWrite:false, blending:THREE.AdditiveBlending, fog:false, side:THREE.DoubleSide});
+flashMat.onBeforeCompile = (sh)=>{ sh.fragmentShader = sh.fragmentShader.replace('#include <map_fragment>',
+  'vec4 fT68 = texture2D( map, vMapUv );\n  diffuseColor.rgb = diffuseColor.rgb*fT68.r + (vec3(1.0) - diffuseColor.rgb)*fT68.g;'); };
+flashMat.customProgramCacheKey = ()=> 'flash68';
 const flashMesh = new THREE.Mesh(new THREE.PlaneGeometry(1,1), flashMat);
 flashMesh.frustumCulled = false; flashMesh.visible = false; flashMesh.renderOrder = 11; scene.add(flashMesh);
 flashMesh.userData.gradient = true;      // 무늬가 아니라 하늘 돔 같은 '결 그림'(t32 는 이걸 무늬 검사에서 뺀다)
-let flashT = 0, flashS = 1, flashW = 1, flashD = 0.06;
-const MZ_OFF = [[0,.5],[.5,.5],[0,0],[.5,0]];
+let flashT = 0, flashS = 1, flashW = 1, flashD = 0.06, flashOwn = false, flashGun = null;
+const _flA = new THREE.Vector3(), _flC = new THREE.Vector3();   // 68차 — 화염이 붙은 총구(쏜 순간 · 지금)
 const _fl0 = new THREE.Vector3(), _flX = new THREE.Vector3(), _flY = new THREE.Vector3(), _flN = new THREE.Vector3(), _flM = new THREE.Matrix4();
 /* 총구 화염 한 장. shape 가 없으면(건물 총·옛 호출) 예전처럼 카메라를 보는 둥근 별이 아무 방향으로나 돈다.
-   shape 가 창·부채·광선이면 판을 **총열 방향(dx,dy,dz)을 품은 채 카메라 쪽으로 돌려** 세운다(축 광고판):
+   shape 가 창·부채·광선…이면 판을 **총열 방향(dx,dy,dz)을 품은 채 카메라 쪽으로 돌려** 세운다(축 광고판):
      · 판의 가로(x)는 총열 방향 — 왼쪽 끝이 총구, 오른쪽으로 불꽃이 뻗는다. 원근이 그대로 먹어서 화면에서도 총열을 따라 뻗는다.
      · 판의 앞면은 총열에 수직인 채로 카메라를 최대한 본다.
      · 총열이 시선과 거의 나란하면(뒤에서 똑바로 보면) 판이 납작해지므로 그때는 별로 바꾼다.
+   ★ 68차 — 쏠 때마다 위아래를 뒤집고(반씩) 길이를 ±12% 흔든다 — 같은 모양이 연달아 찍혀 도장처럼 보이지 않게.
    카메라에 가까우면(1인칭) 그만큼 작게 — 화면 크기가 거의 일정하고 조준점을 안 가린다. */
 function muzzleFlash(x,y,z,col,size,shape,dx,dy,dz){
   let cell = MZ_CELL[shape] || 0;
+  flashOwn = false; flashGun = null;
   const camD = camera.position.distanceTo(_fl0.set(x,y,z)) || 1;
   const near = Math.min(1, camD/2.4);                                 // 2.4칸보다 가까우면 줄인다
+  const jig = 0.88 + Math.random()*0.24, flip = Math.random() < 0.5 ? -1 : 1;
   let L = size*near, Wd = L;
   if(cell > 0 && dx !== undefined){
     _flX.set(dx, dy, dz).normalize();
@@ -12868,26 +13073,33 @@ function muzzleFlash(x,y,z,col,size,shape,dx,dy,dz){
     else {
       _flN.multiplyScalar(1/side); _flY.crossVectors(_flN, _flX);
       _flM.makeBasis(_flX, _flY, _flN); flashMesh.quaternion.setFromRotationMatrix(_flM);
-      L = size*near*(cell === 1 ? 1.15 : cell === 2 ? 1.0 : 1.4);
-      Wd = size*near*(cell === 1 ? 0.55 : cell === 2 ? 1.05 : 0.40);
+      /* 68차 — 1인칭에서는 총열이 시선과 거의 나란해 판이 짧게 눕는다(창 모양이 점처럼 보였다). 누운 만큼 길이를 되돌린다(최대 1.45배) */
+      const fore = Math.min(1.45, Math.max(1, 0.7/side));
+      L = size*near*MZ_LW[cell][0]*jig*fore; Wd = size*near*MZ_LW[cell][1]*flip;
       x += _flX.x*L*0.5; y += _flX.y*L*0.5; z += _flX.z*L*0.5;       // 판 한가운데를 반 길이 앞으로 — 왼쪽 끝이 총구에 붙는다
     }
-  }
-  if(cell === 0){ flashMesh.quaternion.copy(camera.quaternion); flashMesh.rotateZ(Math.random()*6.28); L = Wd = size*near; }
-  const o = MZ_OFF[cell]; flashTex.offset.set(o[0], o[1]);
+  } else if(cell > 0) cell = 0;
+  if(cell === 0){ flashMesh.quaternion.copy(camera.quaternion); flashMesh.rotateZ(Math.random()*6.28); L = Wd = size*near*jig; }
+  flashTex.offset.set((cell%3)/3, 1 - (Math.floor(cell/3) + 1)/3);
   flashMesh.position.set(x,y,z);
-  flashMat.color.setHex(col); flashS = L; flashW = Wd; flashD = cell === 3 ? 0.08 : 0.06; flashT = flashD; flashMesh.visible = true;
+  flashMat.color.setHex(col); flashS = L; flashW = Wd; flashD = MZ_DUR[cell]; flashT = flashD; flashMesh.visible = true;
   flashMesh.scale.set(L*0.8, Wd*0.8, 1); flashMat.opacity = 1;
 }
 function updFlash(dt){
   if(flashT <= 0) return;
-  flashT -= dt; if(flashT <= 0){ flashMesh.visible = false; return; }
+  flashT -= dt; if(flashT <= 0){ flashMesh.visible = false; flashOwn = false; flashGun = null; return; }
+  /* 68차 — 1인칭 화염은 **총구를 따라간다**: 쏜 다음 프레임에 총이 반동으로 0.1칸 넘게 밀려
+     화염이 총열 끝에서 떨어져 허공에 떠 보였다. 화염이 남은 몇 프레임만 총구 끝을 다시 재서 옮긴다(새 객체 없음) */
+  if(flashGun){ if(flashGun.visible && flashGun.userData.muzzle){ camera.updateMatrixWorld(true);
+      _flC.copy(flashGun.userData.muzzle); flashGun.localToWorld(_flC);
+      flashMesh.position.x += _flC.x - _flA.x; flashMesh.position.y += _flC.y - _flA.y; flashMesh.position.z += _flC.z - _flA.z; _flA.copy(_flC); }
+    else flashGun = null; }
   /* 첫 순간 가장 밝고, 사라지며 조금 더 커진다(불꽃이 퍼진다) */
   const k = flashT/flashD, g = 0.8 + 0.4*(1-k);
   flashMesh.scale.set(flashS*g, flashW*(0.8 + 0.25*(1-k)), 1); flashMat.opacity = k*k*(3-2*k);
 }
 for(let i=0;i<BuN;i++)
-  bullets.push({t:0,x:0,y:0,z:0,tx:0,ty:0,tz:0,d:1,hit:0,col:0xffffff,len:1,sp:0,st:0,age:0,L:1,th:1,hk:0,arr:0});
+  bullets.push({t:0,x:0,y:0,z:0,tx:0,ty:0,tz:0,d:1,hit:0,col:0xffffff,len:1,sp:0,st:0,age:0,L:1,th:1,hk:0,hx:0,arr:0});
 let buI = 0;
 const _zeroV = new THREE.Vector3(0,0,0);
 /* ★ 처음엔 총알 한 알이 날아가게 만들었는데, 1인칭에서는 그게 **보이지가 않는다** —
@@ -12902,7 +13114,7 @@ const _zeroV = new THREE.Vector3(0,0,0);
 function shootBullet(x,y,z, tx,ty,tz, hit, col, len, fx, hk){
   const a = bullets[buI = (buI+1)%BuN];
   a.t = 1; a.x=x; a.y=y; a.z=z; a.tx=tx; a.ty=ty; a.tz=tz; a.hit = hit?1:0;
-  a.col = col||0xffffff; a.len = len||1; a.age = 0; a.hk = hk|0; a.arr = 0;
+  a.col = col||0xffffff; a.len = len||1; a.age = 0; a.hk = hk|0; a.hx = fx ? (fx.hit|0) : 0; a.arr = 0;   // 68차 hx — 그 총의 명중 효과(HIT68)
   a.L = Math.max(0.4, Math.hypot(tx-x, ty-y, tz-z));
   if(fx && fx.sp > 0){
     a.sp = fx.sp; a.st = fx.st; a.th = fx.tk;
@@ -12910,7 +13122,7 @@ function shootBullet(x,y,z, tx,ty,tz, hit, col, len, fx, hk){
   } else {
     a.sp = 0; a.st = 0; a.th = fx ? fx.tk : 1;
     a.d = (fx && fx.ln) || (0.10 + (len||1)*0.022);          // 굵은 총일수록 조금 더 오래 남는다 · 65차 광선은 ln
-    if(hit){ a.arr = 1; hitSpark(tx, ty, tz, a.col, a.hk); }   // 빛줄기는 즉발이므로 맞는 순간도 지금이다
+    if(hit){ a.arr = 1; hitSpark(tx, ty, tz, a.col, a.hk, a.hx); }   // 빛줄기는 즉발이므로 맞는 순간도 지금이다
   }
 }
 
@@ -12918,22 +13130,64 @@ function shootBullet(x,y,z, tx,ty,tz, hit, col, len, fx, hk){
      · 불티: 쏜 쪽으로 튀어 오르는 빠르고 가벼운 알갱이(중력 거의 없음·0.2초)
      · 먼지: 무겁게 떨어지는 칙칙한 흙빛·천빛 조각(바닥에서 튕긴다)
      · kind 1 치명타 — 금빛 불티를 더 크게 · kind 2 막타 — 흰 빛 알갱이를 더
-   알갱이 수는 예전(8+5=13)과 거의 같다(보통 12 · 치명타 16 · 막타 15). 전부 불투명 입자 풀(PN 160)이라 새 투명 면이 없다. */
+   ★ 68차 — 불티를 조명 받는 공(pMesh — 밤·그늘에서 회색으로 죽었다)에서 **빛나는 불티 줄**(g68 — 불투명·조명 없음, 날아가는 쪽으로 늘어남)로.
+     흰빛에서 무기 색으로 식는다. 먼지는 그대로 조명을 받는 흙(pMesh). 그리고 hx(그 총의 명중 종류, HIT68)마다 한 줌 더:
+       번개 가지(천둥) · 불씨 폭풍(화염·용) · 하늘빛 수정 파편(광선) · 클로버 잎(클로버) · 보랏빛 흑요석 조각(흑요석) · 금가루와 금 조각(황금)
+       돌 부스러기(새총) · 나무 조각과 초록 반짝(강궁) · 깃털(매의 눈) · 큰 흙기둥(저격·화승) · 산탄 여러 점(사냥 산탄) · 지푸라기(목장) · 은빛 불티(카빈)
+   알갱이 수: 보통 7 불티 + 6 먼지 · 가장 많은 유니크도 한 발 30 안(풀 G68N 128 · PN 160). 새 투명 면 없음. */
 const HIT_DUST = [0x8a7b66, 0x6f7560, 0x9c8f78, 0x5d5a52];
-function hitSpark(x,y,z,col,kind){
-  const k = kind|0, big = k === 1 ? 1.35 : 1;
+/* 68차 — 명중 알갱이는 손톱만 해서 7칸 앞 좀비에 맞으면 1~2 픽셀이었다. 멀수록 크게(4칸 1배 → 10칸 2.2배) — 화면 크기가 거의 일정하다 */
+function hitSpark(x,y,z,col,kind,hx){
+  const d = camera.position.distanceTo(_fl0.set(x, y, z));
+  g68K = Math.min(2.2, Math.max(1, d/4.5))*1.35;
+  try { hitSpark0(x,y,z,col,kind,hx); } finally { g68K = 1; }
+}
+function hitSpark0(x,y,z,col,kind,hx){
+  const k = kind|0, big = k === 1 ? 1.35 : 1, H = hx|0;
   /* 쏜 사람 쪽(카메라 쪽)으로 조금 — 맞은 면에서 튀어나오는 것처럼 */
   let cx = camera.position.x - x, cy = camera.position.y - y, cz = camera.position.z - z; const cl = Math.hypot(cx,cy,cz) || 1; cx /= cl; cy /= cl; cz /= cl;
-  for(let i=0;i<6;i++){
-    const s = (2.2 + Math.random()*2.6)*big;
-    pt(x, y, z, i < 2 ? 0xfff6d8 : col, cx*s*0.6 + (Math.random()-.5)*s, cy*s*0.4 + Math.random()*s*0.8, cz*s*0.6 + (Math.random()-.5)*s,
-       0.18 + Math.random()*0.10, (0.75 + Math.random()*0.3)*big, 0.35);
+  const sc = H === HIT68.silver ? 0xe8f0ff : col;
+  for(let i=0;i<7;i++){
+    const s = (3.2 + Math.random()*3.6)*big;
+    g68(0, x, y, z, cx*s*0.55 + (Math.random()-.5)*s, cy*s*0.4 + (Math.random()-.2)*s*0.9, cz*s*0.55 + (Math.random()-.5)*s,
+        0.18 + Math.random()*0.14, (0.016 + Math.random()*0.008)*big, 0xfff0b0, i < 3 ? 0xff8a24 : sc, 0.55);   // 흰 불티는 낮 하늘에 묻혔다 → 노랑에서 주황·무기 색으로 식는다
   }
+  const fl = y - 0.8;
   burst(x, y - 0.1, z, HIT_DUST[(Math.random()*4)|0], 3, 1.1, 1, 0.85, 0.8);
   burst(x, y - 0.1, z, HIT_DUST[(Math.random()*4)|0], 3, 1.1, 1, 0.7, 0.8);
-  if(k === 1) for(let i=0;i<4;i++){ const a = i*1.5708 + Math.random()*0.6;
-    pt(x, y, z, 0xffd54a, Math.cos(a)*4.2, 1.2 + Math.random()*2.5, Math.sin(a)*4.2, 0.28, 1.1, 0.3); }
-  if(k === 2) burst(x, y, z, 0xfff8e6, 3, 1.6, 0.25, 0.9, 0.7);
+  if(k === 1) for(let i=0;i<5;i++){ const a = i*1.2566 + Math.random()*0.6;
+    g68(0, x, y, z, Math.cos(a)*5, 1.4 + Math.random()*2.8, Math.sin(a)*5, 0.26, 0.022, 0xffffff, 0xffc830, 0.4); }
+  if(k === 2) for(let i=0;i<5;i++) g68(2, x + (Math.random()-.5)*0.3, y + (Math.random()-.3)*0.4, z + (Math.random()-.5)*0.3, (Math.random()-.5)*1.2, 0.8 + Math.random(), (Math.random()-.5)*1.2, 0.55, 0.022, 0xffffff, 0xfff0c8, 0.08);
+  if(!H) return;
+  if(H === HIT68.bolt){                                                           // 번개 가지 — 맞은 자리에서 사방으로 튀는 꺾인 빛 셋 + 파란 불티
+    for(let i=0;i<3;i++){ const a = Math.random()*6.28, r = 0.6 + Math.random()*0.5;
+      g68Bolt(x, y, z, x + Math.cos(a)*r, y + (Math.random()-.4)*0.8, z + Math.sin(a)*r, 4, 0.22, 0.14 + Math.random()*0.06, 0.018, 0xffffff, 0x5ab4ff); }
+    for(let i=0;i<5;i++){ const s = 4 + Math.random()*3; g68(0, x, y, z, (Math.random()-.5)*s, Math.random()*s*0.8, (Math.random()-.5)*s, 0.16, 0.013, 0xe8f6ff, 0x3a8cff, 0.3); } }
+  else if(H === HIT68.ember){                                                     // 불씨 폭풍 — 노랑에서 검붉게 식으며 위로 흩날린다
+    for(let i=0;i<12;i++){ const s = 2.5 + Math.random()*3.5, a = Math.random()*6.28;
+      g68(0, x, y, z, Math.cos(a)*s*0.7, 1.5 + Math.random()*s, Math.sin(a)*s*0.7, 0.35 + Math.random()*0.3, 0.016 + Math.random()*0.01, 0xfff0a0, 0x7a1206, -0.08); }
+    pt(x, y + 0.2, z, 0x4a4440, 0, 0.9, 0, 0.7, 0.55, -0.06); }
+  else if(H === HIT68.crystal){                                                   // 하늘빛 수정 파편 — 깎인 면이 번쩍이며 떨어져 튄다
+    for(let i=0;i<6;i++){ const s = 2 + Math.random()*2.5; const p = g68(1, x, y, z, cx*s*0.5 + (Math.random()-.5)*s, 1.2 + Math.random()*2.2, cz*s*0.5 + (Math.random()-.5)*s, 0.7 + Math.random()*0.3, 0.045 + Math.random()*0.025, 0x9af0ff, 0x1e98d8, 1); p.fl = fl; }   // 68차 — 흰빛은 낮 하늘·흰 번쩍에 묻혀 안 보였다 → 짙은 하늘빛
+    for(let i=0;i<4;i++) g68(2, x + (Math.random()-.5)*0.4, y + (Math.random()-.5)*0.4, z + (Math.random()-.5)*0.4, 0, 0.4, 0, 0.5, 0.024, 0xd8fcff, 0x40d8ff, 0.02); }
+  else if(H === HIT68.clover){                                                    // 클로버 잎 넷이 흩날리고 초록·노랑 반짝
+    for(let i=0;i<4;i++){ const a = Math.random()*6.28; lf68(x, y + 0.1, z, Math.cos(a)*1.4, 1.5 + Math.random()*1.2, Math.sin(a)*1.4, 0.075 + Math.random()*0.03, i%2 ? 0x5fc860 : 0x78d860); }
+    for(let i=0;i<4;i++) g68(2, x + (Math.random()-.5)*0.5, y + (Math.random()-.2)*0.5, z + (Math.random()-.5)*0.5, 0, 0.5, 0, 0.6, 0.02, i%2 ? 0xfff6a0 : 0xe8ffd0, 0x40c050, 0.02); }
+  else if(H === HIT68.obsid){                                                     // 검은 유리 조각 — 짙은 보라 파편이 반짝 튄다
+    for(let i=0;i<7;i++){ const s = 2.5 + Math.random()*3; const p = g68(1, x, y, z, cx*s*0.5 + (Math.random()-.5)*s, 1 + Math.random()*2.4, cz*s*0.5 + (Math.random()-.5)*s, 0.7 + Math.random()*0.3, 0.03 + Math.random()*0.02, 0x9a70d8, 0x2a1a40, 1); p.fl = fl; } }
+  else if(H === HIT68.gold){                                                      // 금가루 + 금 조각(납작하게 돌며 떨어진다)
+    for(let i=0;i<4;i++){ const s = 2 + Math.random()*2; const p = g68(1, x, y, z, (Math.random()-.5)*s, 1.5 + Math.random()*2, (Math.random()-.5)*s, 0.8, 0.028, 0xfff0a0, 0xd89a18, 1); p.fl = fl; }
+    for(let i=0;i<5;i++) g68(2, x + (Math.random()-.5)*0.5, y + (Math.random()-.3)*0.5, z + (Math.random()-.5)*0.5, 0, 0.3, 0, 0.6, 0.018, 0xffffff, 0xffc030, 0.05); }
+  else if(H === HIT68.stone){ for(let i=0;i<4;i++){ const s = 1.5 + Math.random()*2; const p = g68(1, x, y, z, (Math.random()-.5)*s, 1 + Math.random()*1.5, (Math.random()-.5)*s, 0.8, 0.03, 0x9a948a, 0x6a655e, 1); p.fl = fl; } }
+  else if(H === HIT68.leaf){ for(let i=0;i<4;i++){ const s = 2 + Math.random()*2; const p = g68(1, x, y, z, (Math.random()-.5)*s, 1 + Math.random()*1.8, (Math.random()-.5)*s, 0.8, 0.028, 0xc89a60, 0x7a5430, 1); p.fl = fl; }
+    for(let i=0;i<4;i++) g68(2, x + (Math.random()-.5)*0.4, y + (Math.random()-.3)*0.4, z + (Math.random()-.5)*0.4, 0, 0.4, 0, 0.5, 0.018, 0xeaffd8, 0x3ec850, 0.03); }
+  else if(H === HIT68.feather){ if(typeof wingFxFeather === 'function') for(let i=0;i<2;i++) wingFxFeather(x, y + 0.1, z, 0xf2ead8, (Math.random()-.5)*1.2, 0.6, (Math.random()-.5)*1.2, 0.13);
+    for(let i=0;i<3;i++) g68(0, x, y, z, (Math.random()-.5)*5, Math.random()*4, (Math.random()-.5)*5, 0.18, 0.014, 0xffffff, 0xffd870, 0.3); }
+  else if(H === HIT68.heavy){ burst(x, y - 0.3, z, HIT_DUST[(Math.random()*4)|0], 5, 1.5, 1, 1.1, 0.9); pt(x, y, z, 0xb8b0a2, cx*0.6, 1.2, cz*0.6, 0.6, 0.6, -0.05); }
+  else if(H === HIT68.pellet){ for(let j=0;j<3;j++){ const ox = (Math.random()-.5)*0.7, oy = (Math.random()-.5)*0.5, oz = (Math.random()-.5)*0.7;
+      for(let i=0;i<2;i++) g68(0, x + ox, y + oy, z + oz, cx*3 + (Math.random()-.5)*3, Math.random()*3, cz*3 + (Math.random()-.5)*3, 0.12, 0.012, 0xffffff, col, 0.5);
+      burst(x + ox, y + oy - 0.1, z + oz, HIT_DUST[(Math.random()*4)|0], 1, 0.9, 1, 0.6, 0.7); } }
+  else if(H === HIT68.straw){ for(let i=0;i<5;i++){ const s = 1.5 + Math.random()*2; const p = g68(1, x, y, z, (Math.random()-.5)*s, 1 + Math.random()*2, (Math.random()-.5)*s, 0.9, 0.022, 0xe8c870, 0xb89040, 1); p.fl = fl; p.s *= 0.8; } }
 }
 function updBullets(dt){
   let live = 0;
@@ -12941,13 +13195,13 @@ function updBullets(dt){
     const a = bullets[i];
     if(a.t>0){ a.t -= dt/a.d; if(a.t<0) a.t = 0; a.age += dt;
       /* 꼬리 머리가 표적에 닿는 순간 불티 — 느린 기기(dt .05)에서 짧은 꼬리가 한 프레임에 통째로 지나가도 빠뜨리지 않게 여기서 본다 */
-      if(a.sp > 0 && !a.arr && a.age*a.sp >= a.L){ a.arr = 1; if(a.hit) hitSpark(a.tx, a.ty, a.tz, a.col, a.hk); } }
+      if(a.sp > 0 && !a.arr && a.age*a.sp >= a.L){ a.arr = 1; if(a.hit) hitSpark(a.tx, a.ty, a.tz, a.col, a.hk, a.hx); } }
     if(a.t<=0){ bMesh.setMatrixAt(i, ZEROM); continue; }
     live++;
     const dx = a.tx-a.x, dy = a.ty-a.y, dz = a.tz-a.z;
     const L = a.L;
     _dir.set(dx,dy,dz).multiplyScalar(1/L);
-    _mm.lookAt(_zeroV, _dir, _up2);
+    if(a.sp > 0) _mm.lookAt(_zeroV, _dir, _up2); else { _dir.negate(); _mm.lookAt(_zeroV, _dir, _up2); _dir.negate(); }   // 68차 — 즉발 광선은 굵은 머리가 총구 쪽(표적으로 갈수록 가늘고 옅게)
     _q.setFromRotationMatrix(_mm);
     if(a.sp > 0){
       /* 날아가는 꼬리 — 머리(h)는 표적에서 멈추고 꼬리(tl)가 따라 들어와 사라진다 */
@@ -17748,7 +18002,7 @@ function setAimMode(on, quiet){
     const W = wpnNow();
     toast(on ? `${W.ic} ${W.n} 장착`
              : '⛏️ 일하기 모드 — 캐고 지을 수 있어요', 2.2, on ? '#ffd9a0' : '#c8ffb0');
-    if(window.__sfx) window.__sfx(on ? 'fix' : 'tak');
+    if(window.__sfx){ if(on) window.__sfx('g68draw', KIT.wpn); else window.__sfx('g68holster'); }   // 68차 — 총마다 꺼내는 손맛(노리쇠·펌프·지렛대·수정·전기·불…) · 넣기
   }
 }
 
@@ -17765,8 +18019,8 @@ function fireWeapon(){
   throwCd = W.cd;
   if(W.ammo > 0) KIT.ammo -= W.ammo;
   const isGun = W !== WEAPONS[0];
-  if(isGun){ gunT = 0.55; gunRecoil(W.kick); fireRecoil(W.kick); fovPunch(0.6 + (W.kick||0.5)*1.6); }   // 33차 — 시야 펀치 · 65차 가벼운 총은 덜, 무거운 총은 더
-  else swing();
+  if(isGun){ gunT = 0.55; gunRecoil(W.kick, W); fireRecoil(W.kick); fovPunch(0.6 + (W.kick||0.5)*1.6); }   // 33차 — 시야 펀치 · 65차 가벼운 총은 덜, 무거운 총은 더 · 68차 총마다 결(gunRecoil 이 W 를 본다)
+  else { swing(); if(window.__sfx && W !== wpnNow() && aimMode) window.__sfx('g68dry'); }   // 68차 — 총알이 없어 돌이 나갈 때 빈 총 '딸깍'
 
   if(window.__shake) window.__shake(0.10 + (W.kick||0.3)*0.14, 0.09);
   const f = combatRay().direction;
@@ -17805,11 +18059,11 @@ function fireWeapon(){
       survSend(q.uid, dmg, A.head);
       /* ★ 총소리(musket)는 이제 진짜로 난다 — 표에 없는 이름이라 여태 조용했다.
          맞힌 소리도 좀비용 'hit'(작은 삑) 대신 두꺼운 것으로 바꾼다. */
-      if(window.__sfx){ window.__sfx(W.snd || 'gun', W.kick); window.__sfx(A.head ? 'phead' : 'phit'); }
+      if(window.__sfx){ window.__sfx(gunVoice(W), W.kick); window.__sfx(A.head ? 'phead' : 'phit'); }
     } else {
       const end = shotEndpoint(W.rng, MINI_Y+0.2), tx=end.x, ty=end.y, tz=end.z;
       gunShot(hx, hy, hz, tx, Math.max(MINI_Y+0.2, ty), tz, false, W, f);
-      if(window.__sfx) window.__sfx(W.snd || 'gun', W.kick);
+      if(window.__sfx) window.__sfx(gunVoice(W), W.kick);
     }
     hudPrev.kit = ''; return;
   }
@@ -17845,7 +18099,8 @@ function fireWeapon(){
     thrown = (thrown + 1) & 255; thTgt = w.id; thDmg = dmg;
     thF = W.trait === 'push' ? [+f.x.toFixed(2), +f.z.toFixed(2)] : null;    // 29차 — 밀치기는 방향이 같이 간다
     if(G.host) hostStoneHit(w.id, 1, G.me.name, G.me.g, dmg, thF ? {push:thF} : null);
-    if(window.__sfx){ window.__sfx(W.snd || 'thud', isGun ? W.kick : undefined); window.__sfx(kill ? 'kill' : crit ? 'crit' : (isGun ? 'hit' : '')); }   // 33차 — 막타·치명타 소리
+    if(window.__sfx){ window.__sfx(isGun ? gunVoice(W) : (W.snd || 'thud'), isGun ? W.kick : undefined); window.__sfx(kill ? 'kill' : crit ? 'crit' : (isGun ? 'hit' : ''));   // 33차 — 막타·치명타 소리
+      const HS = isGun ? (shotFx(W).hs|0) : 0; if(HS) window.__sfx('g68hit', HS); }                                                  // 68차 — 레어·유니크 명중 한 줌
     if(W.trait) wpnTraitHit(W, w, dmg, f);                                   // 29차 — 관통·번개·폭발·흡혈
   } else {
     comboMiss();
@@ -17858,7 +18113,7 @@ function fireWeapon(){
     if(W.trait === 'blast')
       blastAt(tx, Math.max(GY+0.2, ty), tz, Math.round(W.dmg*WDAY()*atkMul()*enhMul(KIT.wpn)), null, W);
 
-    if(window.__sfx) window.__sfx(isGun ? (W.snd || 'gun') : 'whoosh', isGun ? W.kick : undefined);
+    if(window.__sfx) window.__sfx(isGun ? gunVoice(W) : 'whoosh', isGun ? W.kick : undefined);
   }
   hudPrev.kit = '';
 }
@@ -17933,11 +18188,16 @@ function lightningFx(x1,y1,z1, x2,y2,z2, col){
     P.push([x1+(x2-x1)*t+(Math.random()-.5)*0.9, y1+(y2-y1)*t+(Math.random()-.5)*0.6+0.3, z1+(z2-z1)*t+(Math.random()-.5)*0.9]); }
   P.push([x2,y2,z2]);
   for(let i=0;i<3;i++) shootBullet(P[i][0],P[i][1],P[i][2], P[i+1][0],P[i+1][1],P[i+1][2], i===2, col, 0.9);
-  burst(x2, y2, z2, 0xd8f4ff, 6, 1.6);
+  /* 68차 — 옅은 빛줄기 위에 **흰 심의 꺾인 번개**(g68 — 불투명·조명 없음)를 한 겹: 토막 여섯 + 곁가지, 0.16초 깜빡이다 사라진다 */
+  for(let i=0;i<3;i++) g68Bolt(P[i][0],P[i][1],P[i][2], P[i+1][0],P[i+1][1],P[i+1][2], 2, 0.3, 0.16, 0.02, 0xffffff, 0x6ab8ff);
+  burst(x2, y2, z2, 0xd8f4ff, 4, 1.6);
+  for(let i=0;i<4;i++){ const s = 3 + Math.random()*3; g68(0, x2, y2, z2, (Math.random()-.5)*s, Math.random()*s, (Math.random()-.5)*s, 0.16, 0.013, 0xffffff, 0x4aa0ff, 0.3); }
 }
 /* 폭발 — 불꽃 두 겹 + 흙, 둘레 3.2칸의 좀비가 70% 를 받는다 */
 function blastAt(x, y, z, dmg, skip, W){
-  burst(x, y, z, 0xff8a3c, 22, 2.6); burst(x, y+0.3, z, 0xffd43b, 14, 3.2); burst(x, y, z, 0x5a3a2a, 10, 1.8);
+  burst(x, y, z, 0xff8a3c, 16, 2.6); burst(x, y+0.3, z, 0xffd43b, 10, 3.2); burst(x, y, z, 0x5a3a2a, 10, 1.8);
+  for(let i=0;i<14;i++){ const a = Math.random()*6.28, s = 3 + Math.random()*5;                  // 68차 — 빛나는 불씨(노랑 → 검붉게 식는다). 조명 받는 불꽃 알갱이는 줄였다
+    g68(0, x, y + 0.2, z, Math.cos(a)*s*0.8, 2 + Math.random()*s, Math.sin(a)*s*0.8, 0.4 + Math.random()*0.35, 0.02 + Math.random()*0.012, 0xfff0a0, 0x801406, 0.35); }
   for(const o of wolvesNear(x, z, 3.2, skip)) extraHit(o, Math.round(dmg*0.7));
   if(window.__sfx) window.__sfx('blast');
   if(window.__shake) window.__shake(0.35, 0.22);
@@ -17964,43 +18224,139 @@ const SHOT_FX = {
   bow:    {mz:'',      sp:85,  st:1.3, tk:1.2, cs:0, sm:0},
   oakbow: {mz:'',      sp:95,  st:1.6, tk:1.2, cs:0, sm:0}
 };
-const shotFx = (W)=> SHOT_FX[W.snd] || (W.ammo > 0 ? SHOT_FX.gun : SHOT_FX.bow);
+/* ═══ 68차 — 총마다의 결(소리·화염·탄도·탄피·연기·명중·반동) ═══
+   선생님: "미적으로 멋있게 만들어 줘, 총하고 총 효과음, 총 이펙트들은." · "디테일 잘 신경 써 줘"
+   65차 SHOT_FX 는 소리 이름(W.snd)이 열쇠라 산탄총 셋·소총과 카빈·연발총과 기관총이 같은 모양이었다.
+   이제 **무기 번호마다 한 줄**(GUN68) — 번호 = 저장·통신 ID 라 바뀌지 않는다. 표에 없는 새 총은 예전처럼 SHOT_FX 로 간다.
+     v 소리(SFX.g68…) · mz 화염 칸(MZ_CELL) · fs 화염 크기 배율 · fc 화염 가장자리 색(심은 늘 흰빛)
+     sp·st·tk·ln 예광탄(빠르기·꼬리·굵기·광선이 남는 시간) · pel 산탄 꼬리 수(꾸밈 · 판정 없음)
+     cs 탄피 종류(CASE68) · sm 총구 연기 알 수 · brk 총구에서 한 번 더(불씨·옆 분출·김·전기·불길…)
+     trl 탄도를 따라 흩날리는 것 · hit 명중 효과(HIT68) · hs 명중 소리 한 줌(g68hit) · rc 반동의 결(RC68)
+   ★ 등급이 오를수록 화려하게 — 일반: 화염·탄피·연기·불티 · 레어: + 색 있는 탄도·그 총만의 파편 · 유니크: + 탄도를 따라 흩날림·전용 명중(번개 가지·불씨 폭풍)·명중 소리.
+   ★ 판정·조준은 하나도 안 바꾼다 — 여기 있는 것은 전부 그리기·소리·손에 든 모형의 움직임이다(fireRecoil 의 조준 들림은 그대로). */
+const HIT68 = {plain:0, bolt:1, ember:2, crystal:3, clover:4, obsid:5, gold:6, stone:7, leaf:8, feather:9, heavy:10, pellet:11, straw:12, silver:13};
+/* 탄피 — [반지름, 길이, 색, 떨어지는 소리(0 놋쇠 · 1 산탄 껍데기 · 2 금 · 3 흑요석)] */
+const CASE68 = [null,
+  [.013, .045, 0xd6a23c, 0], [.014, .068, 0xcf9a34, 0], [.019, .105, 0xdcae48, 0], [.026, .085, 0xb8342c, 1], [.026, .085, 0x2e2638, 3], [.014, .05, 0xf6cf52, 2],
+  [.026, .085, 0x3f9a4a, 1], [.014, .058, 0xc99a3a, 0], [.013, .055, 0xd2a640, 0], [.017, .075, 0xd9a441, 0], [.015, .07, 0xe0b860, 2], [.013, .055, 0xc8963a, 0]];
+/* 반동의 결(손에 든 모형·화면 기울기·시야 펀치만 — 조준 들림 fireRecoil 은 무기 kick 그대로)
+   p 뒤로 밀림 · pit 총구 들림 · tw 비틀림 · om 되돌아오는 빠르기(작을수록 느리고 묵직) · roll 화면 기울기 · fov 시야 펀치 · jit 잔떨림(초) */
+const RC68 = {
+  sling:{p:.6, pit:.7, tw:2.6, om:1.15, roll:.6, fov:.5, jit:0}, flint:{p:1.1, pit:1.3, tw:.8, om:.75, roll:1.5, fov:1.2, jit:0},
+  rifle:{p:1, pit:1.05, tw:.8, om:1, roll:1, fov:1, jit:0}, smg:{p:.8, pit:.7, tw:1.6, om:1.2, roll:.7, fov:.7, jit:.12},
+  sniper:{p:1, pit:1.45, tw:.5, om:.62, roll:1.7, fov:1.35, jit:0}, laser:{p:.7, pit:.6, tw:.4, om:.9, roll:.5, fov:1.2, jit:0},
+  light:{p:.9, pit:.9, tw:1, om:1.05, roll:.8, fov:.8, jit:0}, bow:{p:.5, pit:.5, tw:2.2, om:1.2, roll:.4, fov:.5, jit:0},
+  shot:{p:1.1, pit:1.28, tw:.9, om:.8, roll:1.35, fov:1.15, jit:0}, ranch:{p:1, pit:1.2, tw:.7, om:.85, roll:1.2, fov:1, jit:0},
+  elec:{p:.8, pit:.8, tw:2.4, om:1.1, roll:1.2, fov:1.1, jit:.18}, cannon:{p:1.1, pit:1.35, tw:.6, om:.6, roll:1.6, fov:1.4, jit:0},
+  carbine:{p:.9, pit:.85, tw:.9, om:1.1, roll:.8, fov:.85, jit:0}, mg:{p:.6, pit:.5, tw:2.4, om:1.35, roll:.5, fov:.5, jit:.35},
+  hawk:{p:1, pit:1.1, tw:.6, om:.9, roll:1.1, fov:1.05, jit:0}, dragon:{p:.9, pit:1, tw:1.6, om:.8, roll:1.3, fov:1.25, jit:.15}
+};
+const RC0 = {p:1, pit:1, tw:1, om:1, roll:1, fov:1, jit:0};
+const GUN68 = [
+  null,                                                                                                                              // 0 맨손 돌 — 던지기(SHOT_FX 없음)
+  {v:'g68sling',   mz:'',       fs:1,   fc:0,        sp:72,  st:1.0, tk:1.1, cs:0,  sm:0, brk:'',      trl:0, hit:HIT68.stone,  hs:0, rc:RC68.sling},   // 1 새총 — 돌 한 알이 날아간다(꼬리 짧게)
+  {v:'g68flint',   mz:'puff',   fs:1.2, fc:0xffa24a, sp:130, st:2.4, tk:1.0, cs:0,  sm:3, brk:'pan',   trl:0, hit:HIT68.heavy,  hs:0, rc:RC68.flint},   // 2 화승총 — 불씨 확 + 흑색화약 불덩이 + 짙은 연기
+  {v:'g68rifle',   mz:'spear',  fs:1,   fc:0xffcf80, sp:170, st:3.6, tk:.85, cs:2,  sm:1, brk:'spark', trl:0, hit:HIT68.plain,  hs:0, rc:RC68.rifle},
+  {v:'g68smg',     mz:'star',   fs:1,   fc:0xffd890, sp:140, st:2.6, tk:.75, cs:1,  sm:1, brk:'',      trl:0, hit:HIT68.plain,  hs:0, rc:RC68.smg},
+  {v:'g68sniper',  mz:'brake',  fs:1.1, fc:0xffc060, sp:210, st:5.0, tk:1.05,cs:3,  sm:2, brk:'jet',   trl:0, hit:HIT68.heavy,  hs:0, rc:RC68.sniper},
+  {v:'g68laser',   mz:'beam',   fs:1,   fc:0x58e6ff, sp:0,   st:0,   tk:1.0, cs:0,  sm:0, brk:'vent',  trl:3, hit:HIT68.crystal,hs:3, rc:RC68.laser, ln:0.20},
+  {v:'g68practice',mz:'star',   fs:.9,  fc:0xffe6b0, sp:150, st:3.0, tk:.85, cs:12, sm:1, brk:'',      trl:0, hit:HIT68.plain,  hs:0, rc:RC68.light},
+  {v:'g68oak',     mz:'',       fs:1,   fc:0,        sp:95,  st:1.6, tk:1.2, cs:0,  sm:0, brk:'',      trl:5, hit:HIT68.leaf,   hs:0, rc:RC68.bow},     // 8 강궁(레어) — 초록 반짝이가 화살을 따른다
+  {v:'g68obsid',   mz:'fan',    fs:1.05,fc:0xa860ff, sp:120, st:1.8, tk:.85, cs:5,  sm:2, brk:'spark', trl:6, hit:HIT68.obsid,  hs:5, rc:RC68.shot, pel:5},
+  {v:'g68gold',    mz:'star',   fs:1,   fc:0xffbf3a, sp:140, st:2.6, tk:.8,  cs:6,  sm:1, brk:'gold',  trl:4, hit:HIT68.gold,   hs:6, rc:RC68.smg},
+  {v:'g68ranch',   mz:'spear',  fs:1.05,fc:0xfff0d0, sp:170, st:3.6, tk:.9,  cs:10, sm:1, brk:'spark', trl:0, hit:HIT68.straw,  hs:0, rc:RC68.ranch},
+  {v:'g68thunder', mz:'bolt',   fs:1.1, fc:0x78c4ff, sp:0,   st:0,   tk:1.1, cs:0,  sm:0, brk:'arc',   trl:2, hit:HIT68.bolt,   hs:1, rc:RC68.elec, ln:0.16},
+  {v:'g68flame',   mz:'flame',  fs:1.15,fc:0xffa030, sp:150, st:1.6, tk:1.9, cs:0,  sm:2, brk:'fire',  trl:1, hit:HIT68.ember,  hs:2, rc:RC68.cannon},
+  {v:'g68hunt',    mz:'fan',    fs:1,   fc:0xffb050, sp:120, st:1.8, tk:.85, cs:4,  sm:2, brk:'spark', trl:0, hit:HIT68.pellet, hs:0, rc:RC68.shot, pel:5},
+  {v:'g68carbine', mz:'spear',  fs:.9,  fc:0xfff2d8, sp:175, st:3.4, tk:.8,  cs:9,  sm:1, brk:'',      trl:0, hit:HIT68.silver, hs:0, rc:RC68.carbine},
+  {v:'g68mg',      mz:'star',   fs:1.05,fc:0xffbe50, sp:150, st:2.8, tk:.8,  cs:8,  sm:1, brk:'spark', trl:0, hit:HIT68.plain,  hs:0, rc:RC68.mg},
+  {v:'g68clover',  mz:'clover', fs:1.05,fc:0x58ff70, sp:120, st:1.8, tk:.85, cs:7,  sm:1, brk:'leaf',  trl:5, hit:HIT68.clover, hs:4, rc:RC68.shot, pel:5},
+  {v:'g68hawk',    mz:'spear',  fs:1,   fc:0xffe08a, sp:220, st:5.0, tk:.75, cs:11, sm:1, brk:'',      trl:7, hit:HIT68.feather,hs:0, rc:RC68.hawk},
+  {v:'g68dragon',  mz:'flame',  fs:1.25,fc:0xff3a1e, sp:150, st:2.0, tk:1.5, cs:0,  sm:1, brk:'breath',trl:1, hit:HIT68.ember,  hs:2, rc:RC68.dragon}
+];
+const shotFx = (W)=>{ const i = WEAPONS.indexOf(W); return (i > 0 && GUN68[i]) || SHOT_FX[W.snd] || (W.ammo > 0 ? SHOT_FX.gun : SHOT_FX.bow); };
+/* 쏠 때 울릴 소리 이름 — 이 총의 g68 소리(없으면 예전 W.snd) */
+const gunVoice = (W)=>{ const i = WEAPONS.indexOf(W); return (i > 0 && GUN68[i] && GUN68[i].v) || W.snd || 'gun'; };
 /* 총구 화염 — 65차: 총마다 모양이 다른 화염 한 장(muzzleFlash · 예전과 같은 메시 하나) + 연기 한두 알 + 탄피.
+   68차: + 화염이 **손에 든 총을 비춘다**(0.06초 — 총 재질의 발광을 화염 색으로 잠깐, updHeld) · 총구 불티·옆 분출·불씨 등 그 총만의 한 번(brk)
    ★ 43차의 '짧고 굵은 빛줄기 토막'(예광탄 메시)은 뺐다 — 창·부채 모양 화염이 그 일을 한다.
-   ★ 여기에 불티(burst)도 뿌려 봤는데, 눈에서 1.7칸이면 한 알이 화면의 7% 라
-     세 알이 총구 앞에 파란 상자 덩어리로 뭉쳤다. 연기는 그래서 작게(0.4~0.6배)·앞으로 흘려 보낸다. */
+   ★ 연기는 조명을 받는 불투명 알이라 눈앞 1.6칸 안에선 회색 공으로 보였다(65차에 뺐다). 68차 — 1인칭은 **총열 앞 1.3칸 너머**에서 작게 피워 올린다. */
+const _mzT = new THREE.Vector3();
 function muzzleFx(hx, hy, hz, f, W, tx, ty, tz){
   /* 43차 — 방향은 카메라 앞(f)이 아니라 **총구→표적**. 총열이 조준점을 지나므로 이 방향이 곧 총열 방향이다 — 화염이 총열에서 곧게 뻗는다 */
   let dx = f.x, dy = f.y, dz = f.z;
   if(tx !== undefined){ dx = tx - hx; dy = ty - hy; dz = tz - hz; const L = Math.hypot(dx, dy, dz) || 1; dx /= L; dy /= L; dz /= L; }
   const S = shotFx(W), k = W.kick || 0.5;
   /* 크기 — 소총 창 0.85칸 · 저격총 창 1.25칸 · 연발 별 0.75칸(예전 둥근 별은 0.8~1.4칸이었다. 창·부채를 그 크기로 두니 레이저처럼 길었다) */
-  const base = 0.42 + Math.min(1.6, k)*0.42;
-  if(S.mz) muzzleFlash(hx + dx*0.04, hy + dy*0.04, hz + dz*0.04, W.mz || 0xfff3c0, S.mz === 'star' ? base*1.25 : base, S.mz, dx, dy, dz);   // 29차 — 총마다 화염 색(mz)
-  /* 1인칭(총구가 눈에서 1.6칸 안)이면 연기를 안 낸다 — 불투명한 알이라 눈앞에서 회색 공으로 보였다(화면에 찍어 보고 뺐다) */
-  const smN = camera.position.distanceTo(_fl0.set(hx, hy, hz)) > 1.6 ? (S.sm|0) : 0;
-  for(let i=0;i<smN;i++){                          // 연기 — 앞으로 흘러 나가며 천천히 떠오른다(중력 음수)
-    const d = 0.18 + i*0.16, v = 1.1 + Math.random()*0.6;
-    pt(hx + dx*d, hy + dy*d, hz + dz*d, i ? 0xc4bfb5 : 0xdcd7cd, dx*v + (Math.random()-.5)*0.3, 0.5 + Math.random()*0.4, dz*v + (Math.random()-.5)*0.3,
-       0.38 + Math.random()*0.18, 0.42 + k*0.14, -0.04);
+  const base = (0.42 + Math.min(1.6, k)*0.42)*(S.fs || 1), fc = S.fc || W.mz || 0xfff3c0;
+  if(S.mz){ muzzleFlash(hx + dx*0.04, hy + dy*0.04, hz + dz*0.04, fc, S.mz === 'star' ? base*1.25 : base, S.mz, dx, dy, dz); flashOwn = true; }   // 29차 — 총마다 화염 색 · 68차 — 가장자리 색(심은 흰빛)
+  const camD = camera.position.distanceTo(_fl0.set(hx, hy, hz)), fp = camD < 1.6;
+  if(S.mz && fp){ const gm = gunModels[KIT.wpn]; if(gm && gm.visible && gm.userData.muzzle){ flashGun = gm; _flA.set(hx, hy, hz); } }   // 68차 — 화염이 총구를 따라가게(updFlash)
+  /* 연기 — 앞으로 흘러 나가며 천천히 떠오른다(중력 음수). 1인칭이면 1.3칸 앞에서 작게 */
+  const smN = S.sm|0, off = fp ? 1.3 : 0.18, big = fp ? 0.62 : 1;
+  for(let i=0;i<smN;i++){
+    const d = off + i*0.16, v = (fp ? 0.7 : 1.1) + Math.random()*0.6, sc = (i ? 0xc4bfb5 : 0xdcd7cd);
+    pt(hx + dx*d, hy + dy*d, hz + dz*d, S.brk === 'fire' ? 0x6a625c : sc, dx*v + (Math.random()-.5)*0.3, 0.5 + Math.random()*0.4, dz*v + (Math.random()-.5)*0.3,
+       0.38 + Math.random()*0.18, (0.42 + k*0.14)*big, -0.04);
   }
-  if(S.cs && W.ammo > 0){                           // 탄피 — 총열 뒤쪽(약실)에서 오른쪽 위로
-    const back = 0.28 + (W.len||1)*0.14, shell = S.cs === 2;
-    ejectCase(hx - dx*back, hy - dy*back + 0.03, hz - dz*back, -dz, dx, dx, dy, dz,
-              shell ? 0xb8342c : 0xd8a23a, shell ? 0.026 : 0.017, shell ? 0.085 : 0.062,
-              PL.ground ? PL.y : Math.min(PL.y, groundUnder(PL.x, PL.z, 0.2, PL.y)));      // 뛰어오른 채 쏘면 발밑 땅에 떨어진다(공중에 멈추지 않게)
+  /* 그 총만의 한 번 */
+  const B = S.brk, rx = -dz, rz = dx;                                             // rx·rz = 총열의 오른쪽(수평)
+  if(fp) g68K = 0.55;                                                             // 1인칭은 눈앞 0.3~0.8칸 — 알갱이를 줄인다(광선총 김이 흰 보석 덩어리로 보였다)
+  if(B === 'spark' || B === 'pan' || B === 'jet'){                               // 타다 남은 화약 불똥 — 총구에서 앞으로 흩어지는 짧은 불티 줄
+    const n = B === 'jet' ? 4 : 3;
+    for(let i=0;i<n;i++){ const v = 5 + Math.random()*5;
+      g68(0, hx, hy, hz, dx*v + (Math.random()-.5)*2, dy*v + Math.random()*1.2, dz*v + (Math.random()-.5)*2, 0.10 + Math.random()*0.08, 0.012, 0xfff2c0, fc, 0.3); } }
+  if(B === 'pan'){                                                               // 화승총 — 약실(총구 뒤 0.55칸)의 불씨 접시가 위로 '확'
+    const bx = hx - dx*0.55, by = hy - dy*0.55 + 0.03, bz = hz - dz*0.55;
+    for(let i=0;i<5;i++) g68(0, bx, by, bz, (Math.random()-.5)*1.2 + rx*0.6, 1.6 + Math.random()*1.6, (Math.random()-.5)*1.2 + rz*0.6, 0.18 + Math.random()*0.12, 0.011, 0xffe6a0, 0xff6a20, 0.4);
+    if(!fp) pt(bx, by + 0.05, bz, 0xd8d2c6, rx*0.3, 0.6, rz*0.3, 0.5, 0.3, -0.05); }
+  if(B === 'jet') for(const sd of [-1, 1]) for(let i=0;i<2;i++){                 // 저격 제퇴기 — 양옆으로 뿜는 불똥
+    const v = 3 + Math.random()*2.5; g68(0, hx, hy, hz, rx*sd*v + dx*1.5, 0.3 + Math.random()*0.6, rz*sd*v + dz*1.5, 0.12, 0.013, 0xfff0c8, 0xff9a40, 0.2); }
+  if(B === 'vent') for(let i=0;i<3;i++){ const b = 0.3 + i*0.12;                 // 광선총 — 몸통 틈에서 빠져나가는 하늘빛 반짝이
+    g68(2, hx - dx*b, hy - dy*b + 0.02, hz - dz*b, rx*(0.6 + Math.random()*0.5), 0.5 + Math.random()*0.4, rz*(0.6 + Math.random()*0.5), 0.35, 0.014, 0xe8ffff, 0x3ad0ff, 0.05); }
+  if(B === 'arc') for(let i=0;i<2;i++){ const a = Math.random()*6.28, r = 0.12 + Math.random()*0.1;   // 천둥 — 총구 둘레를 튀는 짧은 번개
+    g68Bolt(hx - dx*0.1, hy - dy*0.1, hz - dz*0.1, hx + dx*0.25 + Math.cos(a)*r*rx, hy + dy*0.25 + Math.sin(a)*r, hz + dz*0.25 + Math.cos(a)*r*rz, 3, 0.06, 0.09, 0.008, 0xffffff, 0x60b8ff); }
+  if(B === 'fire' || B === 'breath'){                                            // 화염 대포·용 — 총구 앞 불씨 뭉치(노랑 → 검붉게 식는다)
+    const n = B === 'breath' ? 9 : 6;
+    for(let i=0;i<n;i++){ const v = 3 + Math.random()*4, sp = B === 'breath' ? 1.4 : 2.2;
+      g68(0, hx + dx*0.1, hy + dy*0.1, hz + dz*0.1, dx*v + (Math.random()-.5)*sp, dy*v + (Math.random()-.2)*sp, dz*v + (Math.random()-.5)*sp, 0.22 + Math.random()*0.2, 0.016, 0xffe27a, 0x8a1a08, -0.15); } }
+  if(B === 'gold') g68(2, hx - dx*0.35, hy - dy*0.35 + 0.03, hz - dz*0.35, rx*1.2, 1.1, rz*1.2, 0.4, 0.016, 0xfff6c0, 0xffb020, 0.1);   // 황금 — 약실에서 튀는 금빛 반짝
+  if(B === 'leaf' && Math.random() < 0.6) lf68(hx + dx*0.3, hy + dy*0.3, hz + dz*0.3, dx*1.2 + rx*0.4, 0.8, dz*1.2 + rz*0.4, 0.07, 0x5fc860);   // 클로버 — 잎 한 장이 톡
+  g68K = 1;
+  const C = CASE68[S.cs|0];
+  if(C && W.ammo > 0){                                                            // 탄피 — 총열 뒤쪽(약실)에서 오른쪽 위로
+    const back = 0.28 + (W.len||1)*0.14;
+    const cz = fp ? 0.5 : 1;                                                    // 68차 — 1인칭은 약실이 눈앞 0.3칸이라 실제 크기면 화면을 가린다 → 0.5배
+    ejectCase(hx - dx*back, hy - dy*back + 0.03, hz - dz*back, -dz, dx, dx, dy, dz, C[2], C[0]*cz, C[1]*cz,
+              PL.ground ? PL.y : Math.min(PL.y, groundUnder(PL.x, PL.z, 0.2, PL.y)), C[3]);      // 뛰어오른 채 쏘면 발밑 땅에 떨어진다(공중에 멈추지 않게)
   }
   fireMark(k);
 }
-/* 쏜 사람 화면의 한 발 — 꼬리(예광탄) + 총구 화염 + 산탄 꼬리. hk: 맞은 자리 불티 종류(0 보통 · 1 치명타 · 2 막타) */
+/* 쏜 사람 화면의 한 발 — 꼬리(예광탄) + 총구 화염 + 산탄 꼬리. hk: 맞은 자리 불티 종류(0 보통 · 1 치명타 · 2 막타)
+   68차 — trl: 레어·유니크는 탄도를 따라 무언가가 흩날린다(예광탄 머리가 지나가는 때에 맞춰 dl 로 늦게 나타난다) */
 function gunShot(hx, hy, hz, tx, ty, tz, hit, W, f, hk){
   const S = shotFx(W);
   shootBullet(hx, hy, hz, tx, ty, tz, hit, W.tr, W.len, S, hk);
   muzzleFx(hx, hy, hz, f, W, tx, ty, tz);
+  const L = Math.hypot(tx-hx, ty-hy, tz-hz);
   if(S.pel){
-    const L = Math.hypot(tx-hx, ty-hy, tz-hz), sp = L*0.07;
+    const sp = L*0.07;
     for(let i=0;i<S.pel;i++)
       shootBullet(hx, hy, hz, tx + (Math.random()-.5)*sp, ty + (Math.random()-.5)*sp*0.7, tz + (Math.random()-.5)*sp, false, W.tr, W.len*0.55, S);
+  }
+  const T = S.trl|0;
+  if(T && L > 1.2){
+    const n = T === 2 ? 7 : T === 1 ? 9 : 6, ux = (tx-hx)/L, uy = (ty-hy)/L, uz = (tz-hz)/L, spd = S.sp || 0;
+    for(let i=0;i<n;i++){ const u = (i + 0.5 + (Math.random()-.5)*0.6)/n*Math.min(L, 22), x = hx + ux*u, y = hy + uy*u, z = hz + uz*u, dl = spd ? u/spd : 0;
+      const r1 = Math.random()-.5, r2 = Math.random()-.5, r3 = Math.random()-.5;
+      if(T === 1) g68(0, x, y, z, r1*1.6, 0.8 + Math.random()*1.4, r3*1.6, 0.3 + Math.random()*0.25, 0.014, 0xffd060, 0x901a08, -0.1, dl);            // 불씨
+      else if(T === 2) g68Bolt(x, y, z, x + r1*0.5, y + r2*0.4, z + r3*0.5, 2, 0.12, 0.1, 0.007, 0xffffff, 0x4aa8ff, dl);                                   // 곁 번개
+      else if(T === 3) g68(2, x, y, z, r1*0.4, 0.2 + r2*0.3, r3*0.4, 0.45, 0.02, 0xf0ffff, 0x40d8ff, 0.02, dl);                                           // 수정 반짝이
+      else if(T === 4) g68(2, x, y, z, r1*0.5, 0.3, r3*0.5, 0.5, 0.016, 0xfff4b0, 0xe89a18, 0.12, dl);                                                     // 금가루
+      else if(T === 5) g68(2, x, y, z, r1*0.4, 0.25, r3*0.4, 0.5, 0.016, 0xeaffd8, 0x3ec850, 0.05, dl);                                                    // 초록 반짝이
+      else if(T === 6) g68(0, x, y, z, r1*2, r2*2, r3*2, 0.2, 0.01, 0xf0dcff, 0x7a30d0, 0.2, dl);                                                         // 보랏빛 불티
+      else if(T === 7 && i%2 === 0) g68(0, x, y, z, ux*6, uy*6, uz*6, 0.12, 0.006, 0xffffff, 0xd8e4ff, 0, dl);                                          // 공기를 가른 흰 줄
+    }
   }
 }
 /* 쏠 때 조준점 네 팔이 잠깐 벌어졌다 모인다 — 세게 차는 총일수록 넓게(CSS 변수 --spr) */
@@ -18995,6 +19351,7 @@ function sellFarm(res){
 function equipWeapon(i){
   i = Math.max(0, Math.min(WEAPONS.length-1, i|0));
   if(!KIT.ownW[i]) return;
+  if(typeof aimMode !== 'undefined' && aimMode && i !== KIT.wpn && i > 0 && window.__sfx) window.__sfx('g68draw', i);   // 68차 — 총을 든 채 바꾸면 새 총을 꺼내는 소리
   KIT.wpn = i;
   hudPrev.kit = '';
   netPCDirty = true;                 // 친구들 화면의 내 총도 같이 바뀌어야 한다
@@ -19061,7 +19418,7 @@ function buyAmmo(g){
   const cost = {w:0,s:0,g};
   if(!canPay(cost)) return;
   spend(cost); KIT.ammo += g*AMMO_PER_GOLD;
-  toast(`🔸 총알 ${g*AMMO_PER_GOLD}발!`, 1.8, '#ffe08a'); if(window.__sfx) window.__sfx('buy');
+  toast(`🔸 총알 ${g*AMMO_PER_GOLD}발!`, 1.8, '#ffe08a'); if(window.__sfx){ window.__sfx('buy'); window.__sfx('g68reload'); }   // 68차 — 탄알을 채우는 철컥
   hudPrev.kit = ''; buildShopUI();
 }
 function buyPotion(i){
@@ -26392,17 +26749,19 @@ function tone(f1, f2, dur, type, vol, when){
   o.connect(g); g.connect(sfxOut()); o._a = g; o.onended = nodeEnd;
   o.start(t0); o.stop(t0 + dur + 0.03);
 }
-function noise(dur, vol, cut, when){              // 29차 — when: 조금 뒤에 (총소리의 두 번째 파열음)
+/* 29차 — when: 조금 뒤에 (총소리의 두 번째 파열음)
+   ★ 68차 — 부를 때마다 잡음 버퍼를 새로 만들던 것(0.9초짜리면 4만 칸)을 **공유 잡음 한 장**(noiseBuf)으로 바꿨다.
+     예전의 '곧게 줄어드는 잡음'(1 − i/n)은 게인을 곧게 내리는 것으로 똑같이 낸다. 연사 한 발에 서너 번 불려서 쓰레기가 쌓였다. */
+function noise(dur, vol, cut, when){ nzl(dur, vol, cut, when); }
+function nzl(dur, vol, cut, when, q, type){
   if(!AUD || !sndOn) return;
   const t0 = when || AUD.currentTime;
-  if(!voxOk(t0, t0 + dur)) return;
-  const n = (AUD.sampleRate*dur)|0;
-  const buf = AUD.createBuffer(1, n, AUD.sampleRate), d = buf.getChannelData(0);
-  for(let i=0;i<n;i++) d[i] = (Math.random()*2-1) * (1 - i/n);
-  const src = AUD.createBufferSource(); src.buffer = buf;
-  const f = AUD.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = cut || 900;
-  const g = AUD.createGain(); g.gain.value = (vol || 0.10) * SFX_MUL;
-  src.connect(f); f.connect(g); g.connect(sfxOut()); src._a = f; src._b = g; src.onended = nodeEnd; src.start(when || 0);
+  if(!voxOk(t0, t0 + dur + 0.02)) return;
+  const src = AUD.createBufferSource(); src.buffer = noiseBuf(); src.loop = true;
+  const f = AUD.createBiquadFilter(); f.type = type || 'lowpass'; f.frequency.value = cut || 900; f.Q.value = q || 0.7071;
+  const g = AUD.createGain(); g.gain.setValueAtTime((vol || 0.10) * SFX_MUL, t0); g.gain.linearRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(f); f.connect(g); g.connect(sfxOut()); src._a = f; src._b = g; src.onended = nodeEnd;
+  src.start(t0, Math.random()*0.5); src.stop(t0 + dur + 0.02);
 }
 const now0 = ()=> AUD ? AUD.currentTime : 0;
 const SFX = {
@@ -26451,8 +26810,12 @@ const SFX = {
               thump(120, 42, 0.26, 0.16, t, 2.0); puff(0.05, 0.22, 800, 1.0, t); puff(0.24, 0.12, 420, 0.8, t + 0.03);
               [1047, 1319, 1568].forEach((f,i)=> pluck(f, 0.18, 0.034, t + 0.09 + i*0.055, 0.3)); },
   /* 65차 — 탄피가 바닥에 떨어져 '팅'(실제로 튕기는 순간에 난다 · updCases). 아주 작게 */
-  shell:()=>{ const t = now0(), f = 3500 + Math.random()*1100;
-              pluck(f, 0.10, 0.016, t, 0.4); pluck(f*1.37, 0.06, 0.009, t + 0.003); pluck(f*0.97, 0.06, 0.009, t + 0.07, 0.3); },
+  /* 68차 — 탄피 종류(k): 0 놋쇠 '팅'(3.5~4.6kHz → 2.7~3.5kHz 로 낮춰 6kHz 위 배음을 뺐다) · 1 산탄 껍데기(플라스틱 '톡') · 2 금 '찡' · 3 흑요석 유리 '틱' */
+  shell:(k)=>{ const t = now0(), f = 2700 + Math.random()*800;
+              if(k === 1){ puff(0.02, 0.06, 900 + Math.random()*300, 1.5, t); pluck(430 + Math.random()*60, 0.05, 0.022, t, 0, 'triangle'); puff(0.015, 0.035, 1100, 1.5, t + 0.09); return; }
+              if(k === 3){ pluck(f*1.2, 0.05, 0.012, t); pluck(f*1.55, 0.035, 0.006, t + 0.002); pluck(f*1.1, 0.04, 0.006, t + 0.06); return; }
+              const v = k === 2 ? 1.25 : 1;
+              pluck(f, 0.10*v, 0.016*v, t, 0.4); pluck(f*1.37, 0.06, 0.008*v, t + 0.003); pluck(f*0.97, 0.06, 0.009, t + 0.07, 0.3); },
   bow:  ()=>{ tone(950,420,0.06,'triangle',0.035); },
   towerRapid:()=>{ puff(.018,.035,2600,1.2);tone(720,390,.055,'triangle',.025); },
   towerSniper:()=>{ puff(.035,.045,1800,1);tone(520,170,.095,'triangle',.035); },
@@ -26594,6 +26957,186 @@ function gunshot(v, lowF, crackF, tail, when, o){ const t0 = when || now0(); o =
   thump(lowF, lowF*0.34, 0.13 + 0.06*tail, 0.28*v, t0, o.drive || 1.4); noise(0.08, 0.16*v, 1500, t0 + 0.008);
   noise(0.30*tail, 0.075*v, 800, t0 + 0.04); noise(0.55*tail, 0.035*v, 350, t0 + 0.10);
   if(o.echo !== false){ echoes(v, Math.min(1.3, tail), t0); if(tail > 1.2) puff(0.22, 0.022*v*tail, 300, 0.7, t0 + 0.46); } }
+/* ═══════════════════════ 68차 — 총 스무 자루의 소리 ═══════════════════════
+   선생님: "미적으로 멋있게 만들어 줘 — 총하고 총 효과음, 총 이펙트들은."
+   예전엔 소리 이름(W.snd)을 여러 총이 나눠 써서 소총=카빈, 연발총=기관총, 산탄총 셋이 같은 소리였다.
+   이제 **총마다 제 소리**(g68…)가 있다. 무기 번호 → 소리 이름은 전투 쪽 GUN68 표가 고른다(옛 이름은 그대로 남겨 둔다 — 검사·옛 호출).
+   한 발 = 층 넷 + 그 총만의 것:
+     ① 타격(딱 — 짧은 띠 잡음, 6.5kHz 아래) ② 몸통(쿵 — 포화 사인) ③ 꼬리(낮은 잡음 둘 + 멀리서 되돌아오는 메아리)
+     ④ 기계음(노리쇠·펌프·지렛대·회전 총열) · 그 총의 결(고무줄·불씨·수정 공명·흑요석 결·금 종·번개·불길·클로버 종·용의 포효)
+   ★ 스물한 대가 한 교실 — 가장 큰 총도 65차 총소리(최대 ≈0.25) 수준을 넘지 않고, 6kHz 위 에너지는 몇 % 안(렌더로 잰다: r68c/audio).
+     반짝이는 소리(종·수정·금)는 1~4kHz 에 둔다 — 노트북 스피커에서 가장 잘 들리고 귀가 안 아프다.
+   ★ 조각은 전부 공유 잡음(noiseBuf)·발진기 — 새 버퍼를 안 만들고, 끝나면 스스로 끊는다(nodeEnd). 연사 한 발은 10~18 조각. */
+/* 소리 조각 둘 더 — 천천히 차오르는 띠 잡음 쓸기(휘익·쉭·메아리) · 거른 톱니 목소리(포효·전기 지익) */
+function swoosh(dur, vol, f1, f2, q, when, att){
+  if(!AUD || !sndOn) return;
+  const t0 = when || AUD.currentTime, a = Math.max(0.004, att || dur*0.3);
+  if(!voxOk(t0, t0 + dur + 0.02)) return;
+  const src = AUD.createBufferSource(); src.buffer = noiseBuf(); src.loop = true;
+  const fl = AUD.createBiquadFilter(); fl.type = 'bandpass'; fl.Q.value = q || 0.9;
+  fl.frequency.setValueAtTime(f1, t0); fl.frequency.exponentialRampToValueAtTime(Math.max(40, f2), t0 + dur);
+  const g = AUD.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime((vol || 0.05) * SFX_MUL, t0 + a); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  src.connect(fl); fl.connect(g); g.connect(sfxOut()); src._a = fl; src._b = g; src.onended = nodeEnd;
+  src.start(t0, Math.random()*0.5); src.stop(t0 + dur + 0.02);
+}
+function growlV(f0, f1, dur, vol, when, fa, lp, att){
+  if(!AUD || !sndOn) return;
+  const t0 = when || AUD.currentTime;
+  if(!voxOk(t0, t0 + dur + 0.03)) return;
+  const o = AUD.createOscillator(); o.type = 'sawtooth';
+  o.frequency.setValueAtTime(f0, t0); o.frequency.linearRampToValueAtTime(f0*1.12, t0 + dur*0.25); o.frequency.exponentialRampToValueAtTime(Math.max(30, f1), t0 + dur);
+  const bp = AUD.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = fa || 520; bp.Q.value = 1.6;
+  const l = AUD.createBiquadFilter(); l.type = 'lowpass'; l.frequency.value = lp || 1600; l.Q.value = 0.5;
+  const g = AUD.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime((vol || 0.05) * SFX_MUL, t0 + (att || 0.03)); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(bp); bp.connect(l); l.connect(g); g.connect(sfxOut()); o._a = bp; o._b = l; o._c = g; o.onended = nodeEnd;
+  o.start(t0); o.stop(t0 + dur + 0.03);
+}
+/* 자잘한 톡톡(불씨 치직·불 타닥·전기 지직) — n 알을 span 초 안에 흩뿌린다 */
+function crackle(n, span, vol, f1, f2, when, q){ for(let i=0;i<n;i++) puff(0.005 + Math.random()*0.010, vol*(0.45 + Math.random()*0.55), f1 + Math.random()*(f2 - f1), q || 3, when + Math.random()*span); }
+/* 종 — 기본음 + 2.76배(쇠 종의 비틀린 배음) + 5.4배(6kHz 넘으면 뺀다) */
+function bell68(f, dur, vol, when){ pluck(f, dur, vol, when, 0); if(f*2.76 < 5600) pluck(f*2.76, dur*0.42, vol*0.26, when); if(f*5.4 < 5600) pluck(f*5.4, dur*0.2, vol*0.08, when); }
+/* 한 발의 뼈대 — ①~③. o 는 총마다 한 번 만든 고정 표(부를 때 새 객체 없음). 매 발 높이 ±4.5%·세기 ±8% */
+function shot68(t0, v, o){
+  const r = 0.955 + Math.random()*0.09; v *= 0.92 + Math.random()*0.16;
+  const cf = o.cr*(0.955 + Math.random()*0.09), cv = o.cv === undefined ? 1 : o.cv;
+  if(o.ck !== 0) nzl(0.008, (o.ck || 0.24)*v, 6500, t0);                              // ① 맨 앞 딸깍
+  crackSweep(o.cl || 0.035, 0.40*v*cv, cf*1.5, cf*0.45, 1.2, t0 + 0.002);              //    딱 — 내려가는 띠 잡음
+  puff(0.05, 0.15*v*cv, cf*0.8, 0.9, t0 + 0.005);
+  thump(o.lo[0]*r, o.lo[1]*r, o.lo[2], 0.28*v*(o.bv || 1), t0, o.dr || 1.5);          // ② 몸통 쿵
+  nzl(0.09, 0.15*v, o.md || 1500, t0 + 0.006);                                          //    두께
+  const tl = o.tl || 1;                                                                  // ③ 꼬리 + 메아리
+  nzl(0.26*tl, 0.068*v, 800, t0 + 0.035); nzl(0.5*tl, 0.033*v, 330, t0 + 0.09);
+  const E = o.ec; if(E) for(let i=0;i<E.length;i++){ const e = E[i]; swoosh(e[3], e[1]*v, e[2]*1.3, e[2]*0.75, 0.7, t0 + e[0], e[3]*0.35); }
+}
+/* 기계음 — 노리쇠(올리고·당기고·밀고·내리고) · 펌프(착·착) · 지렛대(철—컥) */
+function bolt68(t, h){ puff(0.016, 0.06, 2600*h, 2.6, t); pluck(210/h, 0.04, 0.03, t, 0, 'triangle');
+  puff(0.022, 0.07, 2100*h, 2.2, t + 0.09); pluck(160/h, 0.05, 0.034, t + 0.09, 0.3, 'triangle');
+  puff(0.02, 0.075, 2300*h, 2.4, t + 0.21); pluck(180/h, 0.05, 0.036, t + 0.21, 0.3, 'triangle');
+  puff(0.014, 0.05, 2900*h, 2.8, t + 0.29); }
+function pump68(t, v){ v = v || 1; swoosh(0.07, 0.05*v, 900, 1500, 1.2, t, 0.03); puff(0.03, 0.09*v, 1700, 2, t + 0.06); pluck(150, 0.06, 0.045*v, t + 0.06, 0.3, 'triangle');
+  swoosh(0.06, 0.045*v, 1500, 900, 1.2, t + 0.12, 0.02); puff(0.03, 0.10*v, 1500, 2, t + 0.17); pluck(128, 0.07, 0.05*v, t + 0.17, 0.3, 'triangle'); }
+function lever68(t){ pluck(880, 0.05, 0.028, t, 0.3, 'triangle'); puff(0.022, 0.065, 2500, 2.5, t); swoosh(0.08, 0.03, 1200, 1800, 1.5, t + 0.02, 0.03);
+  pluck(620, 0.07, 0.03, t + 0.14, 0.3, 'triangle'); puff(0.028, 0.075, 1950, 2.4, t + 0.14); thump(140, 90, 0.05, 0.03, t + 0.14, 1.2); }
+/* 총마다의 뼈대 표 — cr 딱 높이 · lo 몸통[처음,끝,길이] · dr 포화 · md 두께 · tl 꼬리 길이 · ec 메아리[[늦음,세기,높이,길이]] · bv 몸통 세기 · cv 딱 세기 · ck 맨 앞 딸깍 · cl 딱 길이 */
+const S68 = {
+  rifle:  {cr:3000, lo:[180, 60, 0.17], dr:1.5, md:1600, tl:1.0, ec:[[0.13, 0.055, 760, 0.16], [0.31, 0.03, 480, 0.24]]},
+  smg:    {cr:3300, lo:[250, 90, 0.10], dr:1.4, md:1800, tl:0.34, cl:0.028},
+  sniper: {cr:2500, lo:[64, 24, 0.40], dr:2.3, md:1100, tl:1.7, bv:1.15, ec:[[0.36, 0.05, 520, 0.42], [0.86, 0.028, 360, 0.6], [1.45, 0.014, 280, 0.7]]},
+  flint:  {cr:1500, lo:[112, 36, 0.34], dr:2.2, md:1100, tl:1.6, cv:0.7, ec:[[0.2, 0.045, 520, 0.36], [0.62, 0.02, 340, 0.5]]},
+  practice:{cr:2400, lo:[150, 60, 0.15], dr:1.4, md:1500, tl:0.7},
+  hunt:   {cr:1700, lo:[96, 32, 0.28], dr:2.1, md:1200, tl:1.3, bv:1.1, ec:[[0.18, 0.045, 600, 0.3]]},
+  obsid:  {cr:1900, lo:[88, 30, 0.30], dr:2.2, md:1100, tl:1.3, bv:1.1, ec:[[0.2, 0.04, 560, 0.3]]},
+  clover: {cr:2000, lo:[104, 36, 0.24], dr:1.9, md:1300, tl:1.1, ec:[[0.18, 0.035, 640, 0.3]]},
+  gold:   {cr:3500, lo:[230, 85, 0.10], dr:1.4, md:1900, tl:0.36, cl:0.028},
+  ranch:  {cr:2300, lo:[138, 46, 0.2], dr:1.8, md:1400, tl:1.1, ec:[[0.44, 0.05, 560, 0.36]]},
+  carbine:{cr:3200, lo:[195, 70, 0.13], dr:1.5, md:1700, tl:0.75, ec:[[0.12, 0.04, 820, 0.14]]},
+  mg:     {cr:3100, lo:[210, 70, 0.09], dr:1.6, md:1600, tl:0.3, cl:0.025, ck:0.16},
+  hawk:   {cr:2800, lo:[160, 52, 0.18], dr:1.7, md:1500, tl:1.1, ec:[[0.28, 0.045, 700, 0.3], [0.7, 0.02, 420, 0.4]]},
+  thunder:{cr:2100, lo:[82, 28, 0.3], dr:2.0, md:1200, tl:1.2, cv:0.8},
+  flame:  {cr:1200, lo:[92, 30, 0.42], dr:2.4, md:900, tl:1.4, cv:0.45, ck:0},
+  dragon: {cr:1400, lo:[100, 34, 0.32], dr:2.2, md:1000, tl:1.2, cv:0.5, ck:0}
+};
+const G68S = {mgT:-9, gold:0, goldT:-9};
+const GOLD68 = [1047, 1175, 1319, 1568, 1760, 2093];                  // 황금 연발총 — 이어 쏘면 오음계로 한 칸씩 오른다(C6 D6 E6 G6 A6 C7)
+const CLOVER68 = [1, 1.26, 1.5, 2];                                   // 네잎클로버 — 솔·시·레·솔
+/* 무기 번호 → 꺼낼 때의 손맛(g68draw 인자). 0 돌 · 1 새총 … 19 용의 숨결 — 전투 쪽 GUN68 과 같은 순서 */
+const DRAW68 = ['', 'rubber', 'flint', 'bolt', 'smg', 'sniper', 'crystal', 'plain', 'bow', 'pump', 'gold', 'lever', 'elec', 'fire', 'pump', 'carbine', 'mg', 'clover', 'hawk', 'dragon'];
+Object.assign(SFX, {
+  /* 1 나무 새총 — 고무줄이 '퉁' 튕기고(아래로 휘는 두 음이 맥놀이) 가죽 주머니가 '탁', 돌이 '휙' 날아간다 */
+  g68sling: ()=>{ const t = now0(), r = 0.95 + Math.random()*0.1;
+    tone(215*r, 118*r, 0.17, 'triangle', 0.075, t); tone(228*r, 124*r, 0.15, 'sine', 0.05, t); tone(430*r, 250*r, 0.07, 'sine', 0.022, t);
+    puff(0.03, 0.2, 1350*r, 1.2, t); puff(0.016, 0.07, 2500, 2, t + 0.002); pluck(330*r, 0.06, 0.045, t, 0, 'triangle');
+    swoosh(0.24, 0.05, 1800, 650, 1.0, t + 0.02, 0.03); },
+  /* 2 돌 화승총 — 부싯돌 딸깍 → 불씨 치직(0.17초) → 흑색화약 '펑'(굵고 낮게, 연기 훅) + 먼 메아리 */
+  g68flint: ()=>{ const t = now0();
+    flintClick(t); hush(0.16, 0.05, 3000, 0.8, t + 0.012); crackle(9, 0.15, 0.06, 2000, 4200, t + 0.015);
+    shot68(t + 0.17, 1.05, S68.flint); swoosh(0.4, 0.05, 700, 300, 0.6, t + 0.2, 0.08); },
+  /* 3 쇠 소총 — 날카로운 '탕' + 두 번 되돌아오는 잔향, 0.34초 뒤 노리쇠 철컥—척 */
+  g68rifle: ()=>{ const t = now0(); shot68(t, 1.0, S68.rifle); bolt68(t + 0.34, 1); },
+  /* 4 연발총 — 짧고 촘촘한 '탁' + 노리쇠가 되돌아오는 작은 딸깍(매 발) */
+  g68smg: ()=>{ const t = now0(); shot68(t, 0.74, S68.smg); puff(0.012, 0.05, 2300, 2.5, t + 0.035); pluck(260, 0.03, 0.02, t + 0.035, 0, 'triangle'); },
+  /* 5 금빛 저격총 — 묵직한 '탕'(아주 낮은 몸통 두 겹) → 산에 부딪혀 세 번 되돌아오는 먼 메아리, 0.62초 뒤 무거운 노리쇠 */
+  g68sniper: ()=>{ const t = now0(); shot68(t, 1.0, S68.sniper); thump(46, 24, 0.55, 0.07, t + 0.015, 1.2); bolt68(t + 0.62, 0.8); },
+  /* 6 수정 광선총 — 충전(오르는 사인) → '피융'(내려가는 사인 둘) → 수정 잔이 우는 공명(맥놀이 나는 두 음 + 비틀린 배음) */
+  g68laser: ()=>{ const t = now0(), r = 0.97 + Math.random()*0.06;
+    tone(380*r, 1250*r, 0.07, 'sine', 0.04, t); tone(1500*r, 520*r, 0.15, 'sine', 0.075, t + 0.05); tone(760*r, 260*r, 0.2, 'triangle', 0.065, t + 0.05);
+    thump(95, 48, 0.18, 0.15, t + 0.05, 1.4); swoosh(0.16, 0.07, 2400, 900, 1.4, t + 0.05, 0.01);
+    pluck(1318*r, 0.75, 0.04, t + 0.07); pluck(1324*r, 0.7, 0.032, t + 0.07); pluck(1318*r*2.32, 0.4, 0.016, t + 0.08); pluck(1976*r, 0.5, 0.022, t + 0.09); },
+  /* 7 연습용 총 — 미니게임에서 모두가 들고 쏜다. 또렷하되 가볍게(꼬리 짧게) */
+  g68practice: ()=>{ shot68(now0(), 0.86, S68.practice); },
+  /* 8 참나무 강궁 — 굵은 시위 '둥'(낮게 떠는 삼각파) + 활대 나무 '톡' + 화살이 '휘익' + 잎사귀 반짝 두 음(레어) */
+  g68oak: ()=>{ const t = now0(), r = 0.96 + Math.random()*0.08;
+    tone(150*r, 108*r, 0.28, 'triangle', 0.08, t); tone(156*r, 112*r, 0.24, 'sine', 0.05, t); pluck(300*r, 0.18, 0.03, t, 0.2, 'triangle');
+    pluck(460, 0.05, 0.05, t, 0, 'triangle'); puff(0.02, 0.12, 1500, 1.5, t); swoosh(0.32, 0.065, 1500, 520, 0.9, t + 0.02, 0.05);
+    pluck(1568, 0.3, 0.016, t + 0.06, 0.3); pluck(2349, 0.26, 0.011, t + 0.1); },
+  /* 9 흑요석 산탄총 — 두꺼운 '쾅' + 검은 유리가 깨지듯 자잘한 비틀린 음 여덟(2~4.8kHz) + 치르르, 0.36초 뒤 펌프 */
+  g68obsid: ()=>{ const t = now0(); shot68(t, 1.12, S68.obsid);
+    for(let i=0;i<8;i++){ const q = t + 0.02 + Math.random()*0.13, f = 2000 + Math.random()*2800; pluck(f, 0.07 + Math.random()*0.1, 0.012 + Math.random()*0.008, q); }
+    swoosh(0.14, 0.04, 3600, 2200, 2.5, t + 0.02, 0.005); pump68(t + 0.36, 0.9); },
+  /* 10 황금 연발총 — 밝은 '탁' + 금 종 한 음. 이어 쏘면 오음계로 한 칸씩 올라가 드르륵이 반짝이는 가락이 된다 */
+  g68gold: ()=>{ const t = now0(); shot68(t, 0.74, S68.gold);
+    if(t - G68S.goldT > 0.7) G68S.gold = 0; G68S.goldT = t; const f = GOLD68[G68S.gold % GOLD68.length]; G68S.gold++;
+    bell68(f, 0.3, 0.024, t + 0.012); pluck(f*1.5, 0.12, 0.008, t + 0.02); },
+  /* 11 목장 장총 — 굵은 '탕' + 들판 건너 한 번 길게 되돌아오는 메아리, 0.3초 뒤 지렛대 철—컥 */
+  g68ranch: ()=>{ const t = now0(); shot68(t, 1.08, S68.ranch); lever68(t + 0.3); },
+  /* 12 천둥 벼락총 — 전기 지지직(잽 여덟 + 거른 톱니 '지익') → '쾅' → 멀리 굴러가는 천둥 우르릉(낮은 잡음 + 굴러가는 쿵 셋) */
+  g68thunder: ()=>{ const t = now0();
+    crackle(8, 0.09, 0.12, 1900, 4300, t, 4); growlV(1400, 240, 0.2, 0.05, t, 1500, 2600, 0.005);
+    shot68(t + 0.02, 0.95, S68.thunder);
+    hush(1.3, 0.06, 170, 0.5, t + 0.1, 'lowpass'); thump(62, 32, 0.4, 0.07, t + 0.16, 1.3); thump(54, 30, 0.45, 0.05, t + 0.46, 1.2); thump(48, 28, 0.5, 0.035, t + 0.82, 1.1); },
+  /* 13 화염 대포 — 불덩이가 '휘익' 솟고(오르는 띠 잡음) 깊은 '펑', 꼬리에 불이 타닥타닥 · 불길 웅— */
+  g68flame: ()=>{ const t = now0();
+    swoosh(0.26, 0.07, 520, 1700, 0.8, t, 0.05); shot68(t + 0.02, 0.88, S68.flame);
+    hush(0.8, 0.045, 420, 0.6, t + 0.08); crackle(12, 0.7, 0.05, 1500, 3400, t + 0.1); },
+  /* 14 사냥 산탄총 — 두꺼운 '쾅' + 산탄 알이 흩어지며 '슈슈슉'(엇갈린 짧은 쓸기 넷), 0.32초 뒤 펌프 착·착 */
+  g68hunt: ()=>{ const t = now0(); shot68(t, 1.1, S68.hunt);
+    for(let i=0;i<4;i++) swoosh(0.07, 0.03, 2700 - i*250, 1100, 1.6, t + 0.02 + i*0.017 + Math.random()*0.01, 0.006); pump68(t + 0.32, 1); },
+  /* 15 은빛 카빈 — 가벼운 반자동 '탕' + 은빛 쇠 울림 '팅'(작게) + 곧바로 가스 작동 딸깍 */
+  g68carbine: ()=>{ const t = now0(); shot68(t, 0.9, S68.carbine); pluck(2637, 0.14, 0.012, t + 0.01, 0); pluck(3951, 0.08, 0.005, t + 0.012); puff(0.014, 0.05, 2400, 2.6, t + 0.05); },
+  /* 16 강철 기관총 — 한 번 누를 때 세 발이 '드르륵' + 회전 총열의 '윙'(쉬었다 쏘면 먼저 도는 소리가 오른다) */
+  g68mg: ()=>{ const t = now0(), fresh = t - G68S.mgT > 0.6; G68S.mgT = t;
+    if(fresh) tone(140, 330, 0.2, 'triangle', 0.035, t);
+    for(let i=0;i<3;i++) shot68(t + i*0.058, 0.56 - i*0.09, S68.mg);
+    tone(330, 352, 0.32, 'triangle', 0.022, t); tone(660, 700, 0.3, 'sine', 0.008, t); hush(0.3, 0.025, 950, 1.6, t); },
+  /* 17 네잎클로버 산탄총 — '쾅' 위에 맑은 종 화음(솔·시·레·솔 — 행운의 딸랑) */
+  g68clover: ()=>{ const t = now0(); shot68(t, 1.0, S68.clover);
+    for(let i=0;i<4;i++) bell68(784*CLOVER68[i], 0.55, 0.019 - i*0.002, t + 0.03 + i*0.035); pump68(t + 0.4, 0.7); },
+  /* 18 매의 눈 카빈 — 공기를 가르는 '쉭'(빠르게 내려가는 좁은 띠 잡음) + '탕' + 멀리서 매 울음처럼 내려가는 여린 휘파람 */
+  g68hawk: ()=>{ const t = now0(); shot68(t, 1.0, S68.hawk);
+    swoosh(0.16, 0.06, 3400, 900, 2.2, t + 0.004, 0.006); tone(2300, 1650, 0.24, 'sine', 0.011, t + 0.06); lever68(t + 0.3); },
+  /* 19 용의 숨결 — 낮은 포효(거른 톱니, 모음 필터) + 불길이 '화아악' 뿜어져 나가고 불티가 타닥 */
+  g68dragon: ()=>{ const t = now0(), r = 0.94 + Math.random()*0.12;
+    growlV(118*r, 70*r, 0.55, 0.06, t, 520, 1300, 0.05); growlV(177*r, 104*r, 0.45, 0.025, t + 0.02, 760, 1500, 0.05);
+    swoosh(0.42, 0.085, 600, 1500, 0.7, t + 0.03, 0.12); shot68(t + 0.02, 0.88, S68.dragon); crackle(10, 0.55, 0.045, 1600, 3600, t + 0.12); },
+  /* ── 손맛 소리 — 빈 총 딸깍 · 꺼내기(총마다) · 넣기 · 총알 채우기 ── */
+  g68dry: ()=>{ const t = now0(); puff(0.012, 0.09, 2800, 3, t); pluck(1900, 0.03, 0.018, t, 0, 'triangle'); puff(0.01, 0.05, 2300, 3, t + 0.07); },
+  g68draw: (i)=>{ const t = now0(), k = DRAW68[i|0] || 'plain';
+    swoosh(0.12, 0.035, 900, 1500, 0.7, t, 0.05);                                           // 옷깃 스치는 소리
+    if(k === 'rubber'){ tone(170, 260, 0.16, 'triangle', 0.03, t + 0.05); puff(0.02, 0.05, 1300, 1.5, t + 0.2); }
+    else if(k === 'bow'){ tone(120, 150, 0.2, 'triangle', 0.035, t + 0.05); pluck(1568, 0.3, 0.012, t + 0.18); }
+    else if(k === 'flint'){ puff(0.02, 0.06, 1800, 2, t + 0.08); flintClick(t + 0.2); }
+    else if(k === 'bolt' || k === 'sniper' || k === 'hawk'){ bolt68(t + 0.07, k === 'sniper' ? 0.8 : 1); if(k === 'hawk') tone(2300, 1800, 0.18, 'sine', 0.008, t + 0.4); }
+    else if(k === 'pump' || k === 'clover'){ pump68(t + 0.06, 1); if(k === 'clover') bell68(1568, 0.4, 0.013, t + 0.3); }
+    else if(k === 'lever'){ lever68(t + 0.06); }
+    else if(k === 'crystal'){ tone(500, 1500, 0.3, 'sine', 0.025, t + 0.05); pluck(1318, 0.5, 0.02, t + 0.3); pluck(1976, 0.4, 0.014, t + 0.36); }
+    else if(k === 'elec'){ crackle(6, 0.2, 0.05, 1800, 3800, t + 0.05, 4); growlV(90, 180, 0.35, 0.012, t + 0.05, 300, 900, 0.1); }
+    else if(k === 'fire' || k === 'dragon'){ swoosh(0.3, 0.05, 400, 1100, 0.8, t + 0.05, 0.12); crackle(6, 0.3, 0.035, 1500, 3000, t + 0.1); if(k === 'dragon') growlV(90, 70, 0.35, 0.02, t + 0.1, 420, 900, 0.1); }
+    else if(k === 'gold'){ for(let j=0;j<3;j++) pluck(GOLD68[2 + j], 0.14, 0.013, t + 0.08 + j*0.05); puff(0.02, 0.06, 2200, 2.5, t + 0.07); }
+    else if(k === 'mg'){ tone(90, 330, 0.4, 'triangle', 0.03, t + 0.05); hush(0.4, 0.025, 900, 1.5, t + 0.05); }
+    else { puff(0.018, 0.07, 2400, 2.5, t + 0.08); pluck(190, 0.05, 0.03, t + 0.08, 0.3, 'triangle'); puff(0.016, 0.06, 2800, 2.8, t + 0.16); } },
+  g68holster: ()=>{ const t = now0(); swoosh(0.14, 0.03, 1300, 700, 0.7, t, 0.04); puff(0.04, 0.08, 500, 1.0, t + 0.1); pluck(160, 0.06, 0.03, t + 0.1, 0, 'triangle'); },
+  g68reload: ()=>{ const t = now0() + 0.12; puff(0.018, 0.07, 2200, 2.4, t); pluck(240, 0.04, 0.03, t, 0, 'triangle');
+    swoosh(0.08, 0.03, 1000, 1600, 1.2, t + 0.1, 0.04); puff(0.025, 0.09, 1700, 2.2, t + 0.2); pluck(170, 0.06, 0.04, t + 0.2, 0.3, 'triangle'); bolt68(t + 0.36, 1); },
+  /* 레어·유니크 명중의 한 줌(인자 = 명중 종류 번호, 전투 쪽 HIT68) — 1 번개 지직 · 2 불길 화륵 · 3 수정 딩 · 4 클로버 딸랑 · 5 흑요석 쨍 · 6 금 짤랑 */
+  g68hit: (i)=>{ const t = now0(), k = i|0;
+    if(k === 1){ crackle(5, 0.08, 0.07, 2000, 4000, t, 4); tone(900, 300, 0.1, 'triangle', 0.02, t); }
+    else if(k === 2){ swoosh(0.22, 0.05, 500, 1300, 0.8, t, 0.03); crackle(5, 0.25, 0.035, 1500, 3200, t + 0.05); }
+    else if(k === 3){ pluck(1760, 0.3, 0.018, t); pluck(2637, 0.22, 0.01, t + 0.02); }
+    else if(k === 4){ bell68(2093, 0.3, 0.012, t); pluck(3136, 0.18, 0.007, t + 0.05); }
+    else if(k === 5){ for(let j=0;j<4;j++) pluck(2200 + Math.random()*2400, 0.07, 0.01, t + Math.random()*0.06); }
+    else if(k === 6){ pluck(2637, 0.12, 0.01, t); pluck(3520, 0.1, 0.007, t + 0.04); } }
+});
+const GUN68_LOUD = ['g68sling','g68flint','g68rifle','g68smg','g68sniper','g68laser','g68practice','g68oak','g68obsid','g68gold','g68ranch','g68thunder','g68flame','g68hunt','g68carbine','g68mg','g68clover','g68hawk','g68dragon'];
 /* 65차 — 같은 소리가 0.025초 안에 또 오면 한 번만 낸다(한 프레임에 번개 셋·관통 둘이 '맞는 소리' 를 겹쳐 부르면 소리가 세 배로 커졌다).
    시계는 오디오 시계(now0) — 검사가 오프라인 컨텍스트의 시간을 밀어 줄지어 재도 그대로 맞는다. */
 const _sfxLast = {};
@@ -26606,6 +27149,7 @@ const SFX_PRIO = {hurt:1, crystalHit:1, win:1, lose:1, fx2BossIn:1, fx2Big:1, go
 /* 크게 터지는 소리 — 울릴 때 배경음을 0.2초쯤 숙였다가(BGMD) 천천히 되돌린다(총소리를 배경음이 안 가리게) */
 const SFX_LOUD = {gun:1, flint:1, rifle:1, smg:1, boom:1, laser:1, shotgun:1, goldsmg:1, ranch:1, thunder:1, flame:1, musket:1,
   blast:1, stomp:1, towerCannon:1, towerBoom:1, fx2BossIn:1, fx2BossDown:1, kill:1};
+for(const k of GUN68_LOUD) SFX_LOUD[k] = 1;   // 68차 — 총마다 제 소리도 배경음을 숙인다
 function sfx(k, a){ audioInit(); if(!SFX[k]) return;
   if(AUD && AUD.state === 'suspended' && typeof document !== 'undefined' && document.hidden) return;   // 66차 — 탭을 떠나 있는 동안은 안 쌓는다
   if(AUD){ const t = now0(), l = _sfxLast[k]; if(l !== undefined && t >= l && t - l < (SFX_GAP[k] || 0.025)) return;
