@@ -5058,7 +5058,9 @@ let fogNear0 = FOG_D.near, fogFar0 = FOG_D.far;
    (시제품: 이게 없으면 사진 01·07 이 통째로 흐리다). updSky 가 아니라 여기서 하는 까닭 — 그리기 직전의 실제 카메라를 본다
    (사진 도구는 updSky 를 부른 뒤에 카메라를 옮긴다). 하늘 돔도 같은 까닭으로 여기서 카메라에 붙인다(updSky 의 옛 줄은 그대로 둬도 된다 —
    시제품: 높은 사진 바로 다음 눈높이 사진은 돔 중심이 70칸 위에 남아 하늘이 통째로 희었다). 3702줄 패스는 scene.fog 를 잠깐 null 로 둔다 → 건너뛴다. */
-scene.onBeforeRender = (r, sc, cam)=>{ if(!sc.fog) return; skyDome.position.copy(cam.position);
+scene.onBeforeRender = (r, sc, cam)=>{ if(cam.layers.test(sun.layers)) scullShadow(cam);
+  skyDome.renderOrder = SCULL.on ? 1e6 : -1000; SKY_U.uSkyFar.value = SCULL.on ? 1 : 0;              // 68차 — 하늘은 맨 나중·먼 면(위 SKY_U 주석)   // 68차 — 해가 보이는 그리기면 그림자 판 전에 거른다(총 빛 패스는 층 1 이라 건너뜀)
+  if(!sc.fog) return; skyDome.position.copy(cam.position);
   const hC = Math.max(0, cam.position.y - GY - 8); sc.fog.near = fogNear0 + hC; sc.fog.far = fogFar0 + hC*1.3; };
 
 scene.fog = FOG_REF;
@@ -5119,14 +5121,22 @@ const skyDome = (()=>{
   m.renderOrder = -1000; m.frustumCulled = false; scene.add(m); return m;
 })();
 const SKY_U = { uSunSky:{value:new THREE.Vector3(0.57, 0.64, 0.51)}, uMoonDir:{value:new THREE.Vector3(0.84, -0.2, -0.25)},
-  uSunGlow:{value:new THREE.Color(0xfff0d0)}, uMoonGlow:{value:new THREE.Color(0x000000)}, uBelt:{value:new THREE.Color(0xd696b2)}, uBeltK:{value:0} };
+  uSunGlow:{value:new THREE.Color(0xfff0d0)}, uMoonGlow:{value:new THREE.Color(0x000000)}, uBelt:{value:new THREE.Color(0xd696b2)}, uBeltK:{value:0},
+  uSkyFar:{value:1} };
+/* 68차 성능 — 하늘을 **맨 나중에**(불투명 목록 끝) 그리고, 깊이를 먼 면(z = w → 깊이 1.0)에 붙인다.
+   전엔 맨 먼저(renderOrder −1000) 화면 전체를 칠한 뒤 땅·성곽이 그 위를 덮었다 — 가려질 하늘 픽셀까지 셰이더(빛무리 pow 넷)를 돌렸다.
+   이제 아무것도 안 그려진 픽셀(깊이 1.0 그대로)에만 칠한다(LessEqual). 불투명한 것은 모두 깊이를 쓰고 보통 섞기라서(68차 점검 —
+   예외는 하늘 자신뿐) 결과 색이 같다. 반투명(구름·별·빛기둥)은 원래대로 그 뒤에 섞인다. SCULL.on 이 꺼지면(?nocull) 옛 순서. */
 skyDome.material.dithering = true;                    // 64×128 그라데이션 띠 끊기(값 0)
 skyDome.material.onBeforeCompile = (sh)=>{ Object.assign(sh.uniforms, SKY_U);
   sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vSkyD;')
-    .replace('#include <begin_vertex>', '#include <begin_vertex>\nvSkyD = position;');          // 돔은 카메라를 따라다니되 돌지 않는다 → 방향 그대로
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\nvSkyD = position;')          // 돔은 카메라를 따라다니되 돌지 않는다 → 방향 그대로
+    .replace('#include <common>', '#include <common>\nuniform float uSkyFar;')
+    .replace('#include <project_vertex>', '#include <project_vertex>\ngl_Position.z = mix(gl_Position.z, gl_Position.w, uSkyFar);');   // 68차 — 먼 면
   sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vSkyD; uniform vec3 uSunSky; uniform vec3 uMoonDir; uniform vec3 uSunGlow; uniform vec3 uMoonGlow; uniform vec3 uBelt; uniform float uBeltK;')
     .replace('#include <color_fragment>', '#include <color_fragment>\n' + SKY_GLSL);
-  if(!sh.fragmentShader.includes('65차 하늘')) console.error('65차 — 하늘 셰이더 치환 실패'); };
+  if(!sh.fragmentShader.includes('65차 하늘')) console.error('65차 — 하늘 셰이더 치환 실패');
+  if(!sh.vertexShader.includes('uSkyFar);')) console.error('68차 — 하늘 먼 면 치환 실패'); };
 skyDome.material.customProgramCacheKey = ()=> 'sky65';
 skyDome.material.needsUpdate = true;
 const SKY_GLSL = `// 65차 하늘 — 해 빛무리·해 둘레 눈부심 · 노을 때 해 반대편 분홍보라 띠(비너스 띠) · 달무리
@@ -5504,7 +5514,7 @@ function bpush(key, geo, mat, x,y,z, ry=0, sx=1,sy=1,sz=1, rz=0, col=0){
   else if(mat === WMAT && PAINT_KEYS.has(key)) mat = WMAT_PAINT;
   else if(mat === WMAT && geo.attributes.color) mat = geo.userData.leaf ? WMATL : WMATV;
   let b = banks.get(key);
-  if(!b){ b = {geo, mat, ms:[], cols:null, chunks:null, map:null}; banks.set(key, b); }
+  if(!b){ b = {key, geo, mat, ms:[], cols:null, chunks:null, map:null}; banks.set(key, b); }
   /* ★ 인스턴스마다 색 — 같은 텍스처·같은 지오메트리인데 색만 다른 것들을
      뱅크 하나로 합치려고 열었다. 잎이 대표적이다: 밝은 잎/중간 잎/기본 잎을
      재질 셋으로 나눠 뒀더니 뱅크가 셋이 되고, 셋이 각각 16조각으로 쪼개져
@@ -5542,6 +5552,7 @@ const NO_CAST = new Set(['petal','pist','stem','bushS','peb','apple','nug','farm
 const BCHUNK = 32;
 const BSPLIT = 300;   // 이보다 인스턴스가 적은 뱅크는 안 쪼갠다 (쪼개 봤자 드로우콜만 는다)
 function bbuild(){
+  SCULL.list.length = 0;
   for(const [k,b] of banks){
     if(b.chunks) for(const m of b.chunks){ scene.remove(m); m.dispose(); }
     const n = b.ms.length;
@@ -5569,9 +5580,88 @@ function bbuild(){
       // 인스턴스까지 품어서 구가 쓸데없이 커지고, 그러면 컬링이 안 먹는다.
       im.computeBoundingSphere();
       if(GFX.shadow){ im.castShadow = !NO_CAST.has(k); im.receiveShadow = true; }   // 25차 — 산·나무·바위가 그늘을 만든다 · 34차 — 잔 꾸밈은 안 드리운다
+      scullAdd(im, b, idxs);                                                            // 68차 성능 — 조각 상자(걸러내기)
       b.chunks.push(im); scene.add(im);
     }
   }
+}
+
+/* ═══ 68차 성능 — 정적 조각 걸러내기 (화면 그림은 한 픽셀도 안 바뀌는 것만) ═══
+   선생님(66차): "그래픽 성능 안 건드리는 선에서 최대한 최적화" — 모습은 그대로, 덜 그리기만 한다.
+   67차 성곽이 들어오며 한 프레임이 본판 150~490콜 · 그림자 판 150~240콜 · 삼각형 합 150~330만이 됐다(rperf 측정).
+   세 가지를 한다. 셋 다 '화면에 안 닿는 것만 뺀다' 라서 결과 그림이 같다(같은 판에서 켬/끔 픽셀 비교 41장 — 40장 0픽셀, 1장 2픽셀: 68차 기록).
+
+   ① 조각 상자(AABB) — three 는 조각을 구(boundingSphere)로 거른다. 32칸 조각은 가로 대각선만 45칸이라
+      구가 하늘 끝까지 부풀어 카메라 위·아래 면에 늘 걸린다. 인스턴스마다 모양 상자를 행렬로 옮겨 합친
+      '진짜 상자' 로 한 번 더 거른다(본판·그림자 판 둘 다 — THREE.Frustum.intersectsObject 한 곳).
+      숨긴 칸(bset → ZEROM)·흔들리는 불꽃(bmatSet)은 처음 자리(b.ms)로 재고 0.5칸 여유를 둬 늘 상자 안이다.
+   ② 그림자 판에서 화면에 그림자가 닿을 수 없는 조각 빼기 — 조각을 햇빛 방향(L)으로 가장 낮은 면(SCULL.ymin)까지
+      밀어 만든 기둥(구 → 캡슐, 상자 → 쓸어 합친 상자)이 카메라 절두체 밖이면, 그 조각이 드리운 그림자를
+      화면의 어떤 점도 읽지 않는다(그림자 지도에서 그 조각이 가리는 칸은 모두 그 기둥 속 점들의 칸이다).
+      PCF 표본 폭(1.5칸 × 0.05)·normalBias 보다 넉넉한 1칸 여유. castShadow 만 프레임마다 켜고 끈다(원래 값은 목록의 cast).
+      움직이는 것(사람·좀비·건물·깃발)은 손대지 않는다 — 여기 목록은 정적 뱅크 조각뿐이다.
+   ③ 하늘을 맨 나중에 먼 면으로 그린다(SKY_U 옆 주석).
+   ✗ 해 보고 뺀 것 — 인스턴스가 적어도 삼각형이 많은 뱅크(횃불·잎·성곽 소품, 6천 삼각 이상 30여 개)를 32칸으로 쪼개기:
+     삼각형은 15~40% 줄지만 드로우콜이 30~45% 늘고(넓은 시야 425 → 620), 같은 재질 조각의 그리는 순서가 바뀌어
+     겹친 면 수십 픽셀 색이 달라졌다(최대 51). '모습 그대로' 가 아니라서 뺐다.
+   ?nocull=1 이면 셋 다 끈다(교실에서 켠/끈 fps 를 견주는 손잡이). */
+const SCULL = {on: !new URLSearchParams(location.search).has('nocull'), list: [], ymin: GY - 3,
+  F: new THREE.Frustum(), PM: new THREE.Matrix4(), L: new THREE.Vector3(), p0: new THREE.Vector3(), p1: new THREE.Vector3(),
+  sp: new THREE.Sphere(), bx: new THREE.Box3(), shOut: 0, shAll: 0};
+const SCULL_BOX = new WeakMap();                  // 조각 → 상자 · userData 에 두면 clone() 이 JSON 으로 베껴 옮긴 복사본이 옛 상자로 걸러진다
+function scullAdd(im, b, idxs){
+  const g = b.geo; if(!g.boundingBox) g.computeBoundingBox();
+  const gb = g.boundingBox, cx = (gb.min.x + gb.max.x)/2, cy = (gb.min.y + gb.max.y)/2, cz = (gb.min.z + gb.max.z)/2,
+        hx = (gb.max.x - gb.min.x)/2, hy = (gb.max.y - gb.min.y)/2, hz = (gb.max.z - gb.min.z)/2;
+  const box = new THREE.Box3();
+  for(let j=0;j<idxs.length;j++){ const e = b.ms[idxs[j]].elements;
+    const wx = e[0]*cx + e[4]*cy + e[8]*cz + e[12], wy = e[1]*cx + e[5]*cy + e[9]*cz + e[13], wz = e[2]*cx + e[6]*cy + e[10]*cz + e[14];
+    const ex = Math.abs(e[0])*hx + Math.abs(e[4])*hy + Math.abs(e[8])*hz,
+          ey = Math.abs(e[1])*hx + Math.abs(e[5])*hy + Math.abs(e[9])*hz,
+          ez = Math.abs(e[2])*hx + Math.abs(e[6])*hy + Math.abs(e[10])*hz;
+    if(wx - ex < box.min.x) box.min.x = wx - ex; if(wx + ex > box.max.x) box.max.x = wx + ex;
+    if(wy - ey < box.min.y) box.min.y = wy - ey; if(wy + ey > box.max.y) box.max.y = wy + ey;
+    if(wz - ez < box.min.z) box.min.z = wz - ez; if(wz + ez > box.max.z) box.max.z = wz + ez; }
+  if(box.isEmpty()) return;
+  box.expandByScalar(0.5);
+  if(box.min.y - 1 < SCULL.ymin) SCULL.ymin = box.min.y - 1;
+  SCULL_BOX.set(im, box);
+  SCULL.list.push({m: im, box, cast: im.castShadow, key: b.key});
+}
+/* ① — 본판·그림자 판이 같은 함수로 거른다. 상자가 없는 것(움직이는 인스턴스·보통 메시)은 three 그대로 */
+{ const io = THREE.Frustum.prototype.intersectsObject;
+  THREE.Frustum.prototype.intersectsObject = function(o){
+    if(!io.call(this, o)) return false;
+    const bx = SCULL.on ? SCULL_BOX.get(o) : undefined;
+    return bx === undefined || this.intersectsBox(bx); }; }
+/* ② — scene.onBeforeRender 가 부른다(행렬이 갱신된 뒤 · 그림자 판 전). 카메라는 그 그리기의 카메라 */
+function scullShadow(cam){
+  if(!GFX.shadow || !renderer.shadowMap.enabled) return;
+  const S = SCULL, list = S.list;
+  if(!S.on){ for(let i=0;i<list.length;i++) list[i].m.castShadow = list[i].cast; return; }
+  S.F.setFromProjectionMatrix(S.PM.multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse));
+  const L = S.L.subVectors(sunTarget.position, sun.position).normalize();
+  const dn = Math.max(0.05, -L.y), pl = S.F.planes;
+  let out = 0, all = 0;
+  for(let i=0;i<list.length;i++){ const c = list[i];
+    if(!c.cast){ c.m.castShadow = false; continue; }
+    all++;
+    /* 구 → 캡슐: 두 끝이 같은 면 바깥(여유 r)이면 밖 */
+    const sp = S.sp.copy(c.m.boundingSphere).applyMatrix4(c.m.matrixWorld), r = sp.radius + 1;
+    const p0 = S.p0.copy(sp.center), p1 = S.p1.copy(sp.center).addScaledVector(L, Math.max(0, (sp.center.y + r - S.ymin)/dn));
+    let hide = false;
+    for(let k=0;k<6;k++){ if(pl[k].distanceToPoint(p0) < -r && pl[k].distanceToPoint(p1) < -r){ hide = true; break; } }
+    if(!hide){   /* 상자 → 쓸어 합친 상자 */
+      const bx = S.bx.copy(c.box), t = Math.max(0, (c.box.max.y - S.ymin)/dn);
+      bx.min.x = Math.min(c.box.min.x, c.box.min.x + L.x*t); bx.max.x = Math.max(c.box.max.x, c.box.max.x + L.x*t);
+      bx.min.y = Math.min(c.box.min.y, c.box.min.y + L.y*t);
+      bx.min.z = Math.min(c.box.min.z, c.box.min.z + L.z*t); bx.max.z = Math.max(c.box.max.z, c.box.max.z + L.z*t);
+      bx.expandByScalar(1);
+      hide = !S.F.intersectsBox(bx);
+    }
+    c.m.castShadow = !hide; if(hide) out++;
+  }
+  S.shOut = out; S.shAll = all;
 }
 function bset(h, on){
   const b = banks.get(h[0]); if(!b || !b.chunks) return;
@@ -14364,23 +14454,33 @@ CLOTHES[10][0][3]=.94;CLOTHES[10][1][3]=1.06;
 let FLIP_ON = false; const FLIP_M = new THREE.Matrix4(), _fq = new THREE.Quaternion(), _fa = new THREE.Vector3(), _fc = new THREE.Vector3();
 function flipSet(cx,cy,cz, ax,ay,az, ang){ _fa.set(ax,ay,az).normalize(); _fq.setFromAxisAngle(_fa, ang); FLIP_M.makeRotationFromQuaternion(_fq);
   _fc.set(cx,cy,cz).applyMatrix4(FLIP_M); FLIP_M.setPosition(cx - _fc.x, cy - _fc.y, cz - _fc.z); FLIP_ON = true; }
+/* 68차 성능 — 16진 색 → 선형 색 셈(sRGB 곡선 pow 셋)을 한 번만 한다. 좀비 70마리 × 부위 40 이면 프레임마다 8천 번 넘게 같은 셈을 했다.
+   값은 _c1.set(col) 과 똑같다(그 결과를 그대로 적어 두고 _c1 도 같은 값으로 둔다). 숫자가 아닌 색(Color·문자열)은 옛 길. 너무 많아지면 비운다. */
+const COL_LIN = new Map();
+function colAt(mesh, idx, col){
+  if(typeof col !== 'number'){ _c1.set(col); mesh.setColorAt(idx, _c1); return; }
+  let c = COL_LIN.get(col);
+  if(c === undefined){ _c1.set(col); c = [_c1.r, _c1.g, _c1.b]; if(COL_LIN.size >= 4096) COL_LIN.clear(); COL_LIN.set(col, c); }
+  else { _c1.r = c[0]; _c1.g = c[1]; _c1.b = c[2]; }
+  const a = mesh.instanceColor.array, o = idx*3; a[o] = c[0]; a[o+1] = c[1]; a[o+2] = c[2];
+}
 function setI(mesh, idx, x,y,z, ry, sx,sy,sz, col){
   _v.set(x,y,z); _q.setFromAxisAngle(UPV, ry); _s.set(sx,sy,sz);
   mesh.setMatrixAt(idx, FLIP_ON ? _m.compose(_v,_q,_s).premultiply(FLIP_M) : _m.compose(_v,_q,_s));
-  if(col!==undefined && mesh.instanceColor){ _c1.set(col); mesh.setColorAt(idx, _c1); }
+  if(col!==undefined && mesh.instanceColor) colAt(mesh, idx, col);
 }
 /* 좌우 회전(ry) + 앞뒤 기울임(rx). YXZ 순서라 rx는 "바라보는 방향 기준" 피치가 된다. */
 const _eu = new THREE.Euler(0,0,0,'YXZ');
 function setIR(mesh, idx, x,y,z, ry, rx, sx,sy,sz, col){
   _v.set(x,y,z); _eu.set(rx, ry, 0, 'YXZ'); _q.setFromEuler(_eu); _s.set(sx,sy,sz);
   mesh.setMatrixAt(idx, FLIP_ON ? _m.compose(_v,_q,_s).premultiply(FLIP_M) : _m.compose(_v,_q,_s));
-  if(col!==undefined && mesh.instanceColor){ _c1.set(col); mesh.setColorAt(idx, _c1); }
+  if(col!==undefined && mesh.instanceColor) colAt(mesh, idx, col);
 }
 /* 롤(rz)까지 주는 판 — 쓰러진 사람의 X 자 눈처럼 기울어진 조각에 쓴다 */
 function setIR3(mesh, idx, x,y,z, ry, rx, rz, sx,sy,sz, col){
   _v.set(x,y,z); _eu.set(rx, ry, rz, 'YXZ'); _q.setFromEuler(_eu); _s.set(sx,sy,sz);
   mesh.setMatrixAt(idx, FLIP_ON ? _m.compose(_v,_q,_s).premultiply(FLIP_M) : _m.compose(_v,_q,_s));
-  if(col!==undefined && mesh.instanceColor){ _c1.set(col); mesh.setColorAt(idx, _c1); }
+  if(col!==undefined && mesh.instanceColor) colAt(mesh, idx, col);
 }
 /* ★ 실제로 그리는 만큼만 GPU 로 올린다.
    needsUpdate 만 세우면 three.js 는 버퍼를 통째로 올린다.
@@ -27303,6 +27403,7 @@ if(new URLSearchParams(location.search).has('diag')){
     renderer.shadowMap.needsUpdate = true; };
   const setGrain = k=>{ for(const m of GRAIN_MATS){ if(m.userData.grainU) m.userData.grainU.value = m.userData.grain.amt*k; } };
   const setSmallCast = on=>{ for(const [k,b] of banks) if(b.chunks && NO_CAST.has(k)) for(const m of b.chunks) m.castShadow = on;
+    for(const c of SCULL.list) if(NO_CAST.has(c.key)) c.cast = on;      // 68차 — 그림자 걸러내기가 프레임마다 cast 를 다시 적용한다
     renderer.shadowMap.needsUpdate = true; };
 
   /* ★ 자동 측정 (Shift+9)
@@ -27656,7 +27757,7 @@ Object.assign(window, {
   __skyPaint:()=>({dusk:skyPaintD, threat:skyPaintT, u:skyPaintU}), __skyU:skyU, __skyTex:()=>skyTex, __skyRepaintNow:()=>{ skyRepaintT = 0; },
   __setLitK:(v)=>{ LIT_K = v; }, __LIT_K:()=>LIT_K,
   /* 34차 성능 3차 (t28) */
-  __heldLight:heldLight, __NO_CAST:NO_CAST, __BCHUNK:BCHUNK, __SH_HZ:SH_HZ, __flatMat:flatMat, __pbrMat:pbrMat, __GRAIN_MATS:GRAIN_MATS,
+  __heldLight:heldLight, __NO_CAST:NO_CAST, __BCHUNK:BCHUNK, __SCULL:SCULL, __SH_HZ:SH_HZ, __flatMat:flatMat, __pbrMat:pbrMat, __GRAIN_MATS:GRAIN_MATS,
   __starsB:()=>starsB, __stars:()=>stars, __meteor:()=>meteor, __metFire:()=>{ metWait = 0; }, __updSky:updSky,
   /* 33차 무서움의 온도 (t34) */
   __dreadTick:dreadTick, __howlN:()=>howlN, __howlStage:()=>howlStage, __threatK:()=>threatK,
