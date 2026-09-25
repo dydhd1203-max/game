@@ -68,10 +68,10 @@ try{
   /* ═══ G0 그림 예산(갈래 2) ═══ */
   if(have.art){
     const g0 = await page.evaluate((BASE)=>{ const W = window; let inst = 0, gg = 0; const nk = [];
-      for(const [k, b] of W.__banks){ const n = b.ms ? b.ms.length : 0; inst += n; if(k === 'gglow') gg = n; if(!BASE.keys.includes(k)) nk.push(k); }
+      for(const [k, b] of W.__banks){ const n = b.ms ? b.ms.length : 0; inst += n; if(k === 'gglow' || k === 'cflameI') gg += n; if(!BASE.keys.includes(k)) nk.push(k); }   /* 통합 — 불꽃은 두 겹(주황 혀 cflame + 밝은 밑동 cflameI) · 불빛 수는 밝은 밑동으로 센다(66 횃불도 같은 불꽃으로 바뀌었다) */
       const mats = new Set(); W.__scene.traverse(o=>{ if(o.isInstancedMesh) mats.add(o.material.uuid); });
       return {newKeys:nk.length, keys:nk, dInst:inst - BASE.inst, dGlow:gg - BASE.gglow, mats:mats.size}; }, BASE);
-    put({id:'G0', name:'새 뱅크 열쇠 ≤ 27 · 새 인스턴스 ≤ 20,000 · gglow 새 ≤ 200 · 인스턴스 재질 수 그대로(57)', pass:g0.newKeys <= 27 && g0.dInst <= 20000 && g0.dGlow <= 200 && g0.mats <= BASE.mats, detail:g0});
+    put({id:'G0', name:'새 뱅크 열쇠 ≤ 27 · 새 인스턴스 ≤ 20,000 · 불빛(gglow + 불꽃 밑동) 새 ≤ 200 · 인스턴스 재질 수 그대로(57)', pass:g0.newKeys <= 27 && g0.dInst <= 20000 && g0.dGlow <= 200 && g0.mats <= BASE.mats, detail:g0});
   } else put({id:'G0', name:'그림 예산(열쇠·인스턴스·불빛·재질)', wait:true, pass:!STRICT, detail:'갈래 2 합친 뒤'});
 
   /* ═══ S — 세계 정적 항목(9-1 의 2~10·16~18) ═══ */
@@ -199,7 +199,7 @@ try{
     landAt(1); tick(60); off(); at({x:CP.secrets[1].chest.x, y:0, z:CP.secrets[1].chest.z});
     o.day1b = {pot:potN(), open2:W.__SECRET_OPEN[1], toast:document.getElementById('toast').textContent};
     G.phase = 'night'; tick(2); at(CP.secrets[0].chest); o.nightPot = potN();
-    G.phase = 'day'; G.day += 1; tick(2); at({x:CP.secrets[1].chest.x + 3, y:0, z:CP.secrets[1].chest.z}); at({x:CP.secrets[1].chest.x, y:0, z:CP.secrets[1].chest.z});
+    G.phase = 'day'; G.day += 1; tick(2); at({x:CP.secrets[1].chest.x + 3, y:0, z:CP.secrets[1].chest.z}); at(CP.secrets[1].coin); at({x:CP.secrets[1].chest.x, y:0, z:CP.secrets[1].chest.z});   /* 통합 — 창고 금화 더미를 상자에서 1.26 떼어(따로 줍게) 금화 자리도 들른다 */
     o.day2 = {pot:potN(), gold:gold() - gA, n:TRE.n, day:TRE.day};
     G.day += 1; tick(2); at(CP.secrets[0].chest); o.day3 = {pot:potN(), gold:gold() - gA};
     /* 새로고침 흉내 — 장부를 지우고 다시 읽는다(같은 날) */

@@ -60,7 +60,7 @@ try{
       /* 통합 — 머리에서 G.paused = true 로 멈춰 둔 채였으면 hostSim 이 아무것도 안 해 모든 장면이 헛돌았다(대기 판에서 짠 가정).
          장면은 noLogic(rAF 루프가 안 끼어듦) + paused false 로, 검사가 hostSim 을 직접 흘린다 */
       const night = ()=>{ W.__goNight(); G.paused = false; W.__spawnQ().length = 0; G.wolves.length = 0; G.players.clear(); G.t = G.set.nightSec; P.down = false; P.hp = W.__maxHP(); W.__CLIMB().kid.clear(); };
-      const spawn = (k, x, z)=>{ W.__spawnWolf(k, 0, x, z); const w = G.wolves[G.wolves.length - 1]; w.x = x; w.z = z; w.rise = 0; return w; };
+      const spawn = (k, x, z)=>{ W.__spawnWolf(k, 0, x, z); const w = G.wolves[G.wolves.length - 1]; w.x = x; w.z = z; w.rise = 0; w.siege = false; return w; };   // 통합 — 뽑기로 공성 좀비가 되면(오르지 않는 종류) 장면이 가끔 헛돌았다 · 공성은 Z5 가 따로 켠다
       const kid = (x, z)=>{ P.x = x; P.z = z; P.y = W.__groundUnder(x, z, P.R, P.y + 0.7); };
       const step = (n, each)=>{ for(let i=0; i<n; i++){ W.__hostSim(dt); W.__sheepHurt(dt); if(each && each(i) === false) break; } };
       /* Z1 */
