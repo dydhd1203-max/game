@@ -6210,7 +6210,8 @@ const TREADG = (()=>{                                 // 나선 디딤 — 부�
   quad(pt(a0, 0, -0.1), pt(a1, 0, -0.1), pt(a1, 0, -0.35), pt(a0, 0, -0.35)); quad(pt(a0, E, 0), pt(a1, E, 0), pt(a1, E, -0.35), pt(a0, E, -0.35));
   const cx = 1.1*Math.cos(Math.PI/12), cz = 1.1*Math.sin(Math.PI/12);
   return geoOf(P, (c,n)=> n[0]*(c[0]-cx) + n[1]*(c[1]+0.175) + n[2]*(c[2]-cz) > 0); })();
-const NEWELG = new THREE.CylinderGeometry(1, 1, 1, 16);                                             // 둥근 기둥 — 나선 가운데 기둥·통 자리·망원경·동전·잔(통합: 10 → 16각, 둥근 것은 둥글게)
+const NEWELG = new THREE.CylinderGeometry(1, 1, 1, 12);
+const ROD8 = new THREE.CylinderGeometry(1, 1, 1, 8), ROD10 = new THREE.CylinderGeometry(1, 1, 1, 10);   // 통합 — 나무 막대(덩굴 줄기·화살·다리·걸상 = cbarrel 8각)·작은 쇠붙이·밧줄(ctele 10각): 삼각형 예산                                             // 둥근 기둥 — 나선 가운데 기둥·통 자리·망원경·동전·잔(통합: 10 → 16각, 둥근 것은 둥글게)
 /* ── 67차 통합 — 소품·조명 새 기하(선생님: '네모 블록으로만 쌓지 말고 새 모양으로 사실적으로'). 새 재질 0 — 꼭짓점 색 + 기존 재질(WMAT_WOODV·WMATV·EMITC_F·WMAT_PAINT).
    소품 하나 = 인스턴스 하나(여러 부품을 한 기하로 굽는다) · 모양 하나 = 뱅크 열쇠 하나 ── */
 function geoMerge(parts, opt){                         // parts: [{g, m(Matrix4|null), c(색 hex), k(x,y,z)→밝기(없으면 1)}] → 꼭짓점 색 기하(법선은 조각 것 그대로 — 둥근 면이 매끈하게)
@@ -6229,46 +6230,44 @@ const M4 = (x, y, z, rx, ry, rz, sx, sy, sz)=> new THREE.Matrix4().compose(new T
 const segM = (a, b, r)=>{ const d = new THREE.Vector3(b[0]-a[0], b[1]-a[1], b[2]-a[2]), L = d.length();   // 두 점을 잇는 원기둥(단위 CylinderGeometry r 1 · 높이 1) 행렬
   const q = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
   return new THREE.Matrix4().compose(new THREE.Vector3((a[0]+b[0])/2, (a[1]+b[1])/2, (a[2]+b[2])/2), q, new THREE.Vector3(r, L, r)); };
-const CYL8 = new THREE.CylinderGeometry(1, 1, 1, 8), CYL12 = new THREE.CylinderGeometry(1, 1, 1, 12), BALLG = new THREE.IcosahedronGeometry(1, 1);
+const CYL6 = new THREE.CylinderGeometry(1, 1, 1, 6, 1, true), CYL8 = new THREE.CylinderGeometry(1, 1, 1, 8), CYL12 = new THREE.CylinderGeometry(1, 1, 1, 12), BALLG = new THREE.IcosahedronGeometry(1, 1), BALL0 = new THREE.IcosahedronGeometry(1, 0);   // 통합 — 작은 알갱이(촛농 등)는 20면
 const lathe = (prof, seg)=> new THREE.LatheGeometry(prof.map(([r, y])=> new THREE.Vector2(r, y)), seg);
 const IRONC = 0x33363b, IRON2 = 0x4a4e54;
 /* 불꽃 — 물방울 윤곽 회전체 + 옆 혀 하나(끝이 살짝 휜다). 밑동 = 원점, 높이 1 · 폭 0.6. EMITC_F(불투명 발광) */
 const FLAMEG = (()=>{ const prof = [[0,0],[0.15,0.035],[0.26,0.12],[0.3,0.26],[0.27,0.42],[0.19,0.6],[0.1,0.78],[0.035,0.93],[0,1]];
   const bend = (g, k, z)=>{ const p = g.attributes.position; for(let i=0; i<p.count; i++){ const y = p.getY(i); p.setX(i, p.getX(i) + k*y*y); p.setZ(i, p.getZ(i)*z); } g.computeVertexNormals(); return g; };
-  const main = bend(lathe(prof, 9), 0.08, 0.86), tongue = bend(lathe(prof, 7), -0.12, 0.8);
-  return geoMerge([{g:main}, {g:tongue, m:M4(-0.06, 0.18, 0.03, 0, 0.6, 0.32, 0.5, 0.78, 0.5)}], {noColor:true}); })();
+  const main = bend(lathe([[0,0],[0.18,0.06],[0.29,0.2],[0.27,0.38],[0.17,0.57],[0.07,0.8],[0,1]], 7), 0.08, 0.86), tongue = bend(lathe([[0,0],[0.26,0.12],[0.27,0.42],[0.1,0.78],[0,1]], 5), -0.12, 0.8);   // 혀는 윤곽 다섯 점
+  return geoMerge([{g:main}, {g:tongue, m:M4(-0.05, 0.05, 0.03, 0, 0.6, 0.26, 0.42, 0.52, 0.42)}], {noColor:true}); })();   // 옆 혀는 낮고 작게(두 끝이 나란하면 귀처럼 보였다)
 /* 횃불 — 둥근 자루(아래로 가늘게) · 기름 먹인 천 머리(짙은 갈색 + 띠 둘) · 쇠 벽판(못 둘) · 팔 · 받침 · 자루를 쥔 고리. 벽 = z 0, 밖 = +z. 불꽃 밑동 TORCH_F */
 const TORCH_TILT = 0.26, TORCH_F = [0, 0.05 + 0.4*Math.cos(0.26), 0.3 + 0.4*Math.sin(0.26)];
 const TORCHG = (()=>{ const T = TORCH_TILT, d = [0, Math.cos(T), Math.sin(T)], H = [0, 0.05, 0.3], at = (s)=> [H[0] + d[0]*s, H[1] + d[1]*s, H[2] + d[2]*s];
   const W = 0x6b4a2c, HEAD = 0x2c1f16, BAND = 0x4f3a26;
   return geoMerge([
-    {g:new THREE.CylinderGeometry(0.031, 0.021, 0.5, 9), m:M4(...at(0), T, 0, 0), c:W, k:(x, y)=> 0.92 + 0.12*Math.sin(y*37)},   // 자루(결)
-    {g:new THREE.CylinderGeometry(0.05, 0.041, 0.15, 10), m:M4(...at(0.32), T, 0, 0), c:HEAD, k:(x, y, z)=> 0.85 + 0.25*Math.abs(Math.sin(x*60 + y*40))},   // 감은 천 머리
-    {g:new THREE.TorusGeometry(0.047, 0.009, 4, 12), m:M4(...at(0.26), T - Math.PI/2, 0, 0), c:BAND}, {g:new THREE.TorusGeometry(0.049, 0.008, 4, 12), m:M4(...at(0.34), T - Math.PI/2, 0, 0), c:BAND},
-    {g:new THREE.TorusGeometry(0.043, 0.011, 5, 12), m:M4(...at(0.02), T - Math.PI/2, 0, 0), c:IRONC},       // 쥔 고리
+    {g:new THREE.CylinderGeometry(0.031, 0.021, 0.5, 8, 1, true), m:M4(...at(0), T, 0, 0), c:W, k:(x, y)=> 0.92 + 0.12*Math.sin(y*37)},   // 자루(결)
+    {g:new THREE.CylinderGeometry(0.05, 0.041, 0.15, 8), m:M4(...at(0.32), T, 0, 0), c:HEAD, k:(x, y, z)=> 0.85 + 0.25*Math.abs(Math.sin(x*60 + y*40))},   // 감은 천 머리
+    {g:new THREE.TorusGeometry(0.048, 0.009, 3, 7), m:M4(...at(0.26), T - Math.PI/2, 0, 0), c:BAND}, {g:new THREE.TorusGeometry(0.05, 0.008, 3, 7), m:M4(...at(0.34), T - Math.PI/2, 0, 0), c:BAND},
+    {g:new THREE.TorusGeometry(0.043, 0.011, 3, 8), m:M4(...at(0.02), T - Math.PI/2, 0, 0), c:IRONC},        // 쥔 고리
     {g:new THREE.BoxGeometry(0.1, 0.26, 0.022), m:M4(0, -0.03, 0.011), c:IRONC},                              // 벽판
-    {g:BALLG, m:M4(0, 0.06, 0.024, 0, 0, 0, 0.012), c:IRON2}, {g:BALLG, m:M4(0, -0.12, 0.024, 0, 0, 0, 0.012), c:IRON2},
-    {g:CYL8, m:segM([0, 0.06, 0.02], [0, 0.065, 0.26], 0.011), c:IRONC},                                         // 팔
-    {g:CYL8, m:segM([0, -0.13, 0.02], [0, 0.03, 0.27], 0.008), c:IRONC},                                         // 받침
-    {g:CYL8, m:segM([0, 0.07, 0.26], [0, 0.07, 0.3], 0.013), c:IRONC}]); })();
+    {g:CYL6, m:segM([0, 0.06, 0.02], [0, 0.065, 0.26], 0.011), c:IRONC},                                         // 팔
+    {g:CYL6, m:segM([0, -0.13, 0.02], [0, 0.03, 0.27], 0.008), c:IRONC}]); })();   // 받침 (통합 — 삼각형 656 → 약 250)
 /* 벽 등잔 — 쇠 벽판 · 굽은 팔 · 받침 접시(테) · 초 · 흘러내린 촛농. 벽 = z 0. 불꽃 밑동 SCONCE_F */
 const SCONCE_F = [0, 0.165, 0.17];
 const SCONCEG = (()=>{ const WAX = 0xeee4cc, WAX2 = 0xdcd0b4;
   return geoMerge([
     {g:new THREE.BoxGeometry(0.075, 0.17, 0.018), m:M4(0, -0.02, 0.009), c:IRONC},
-    {g:CYL8, m:segM([0, -0.06, 0.018], [0, -0.05, 0.11], 0.009), c:IRONC}, {g:CYL8, m:segM([0, -0.05, 0.11], [0, 0.0, 0.165], 0.009), c:IRONC},
+    {g:CYL6, m:segM([0, -0.06, 0.018], [0, -0.05, 0.11], 0.009), c:IRONC}, {g:CYL6, m:segM([0, -0.05, 0.11], [0, 0.0, 0.165], 0.009), c:IRONC},
     {g:CYL12, m:M4(0, 0.012, 0.17, 0, 0, 0, 0.068, 0.014, 0.068), c:IRON2},
-    {g:new THREE.TorusGeometry(0.066, 0.007, 4, 14), m:M4(0, 0.02, 0.17, Math.PI/2, 0, 0), c:IRONC},
+    {g:new THREE.TorusGeometry(0.066, 0.007, 3, 10), m:M4(0, 0.02, 0.17, Math.PI/2, 0, 0), c:IRONC},
     {g:CYL12, m:M4(0, 0.085, 0.17, 0, 0, 0, 0.022, 0.13, 0.022), c:WAX},
-    {g:BALLG, m:M4(0.018, 0.13, 0.182, 0, 0, 0, 0.011, 0.02, 0.011), c:WAX2}, {g:BALLG, m:M4(-0.016, 0.1, 0.164, 0, 0, 0, 0.01, 0.028, 0.01), c:WAX2},
-    {g:BALLG, m:M4(0.024, 0.025, 0.16, 0, 0, 0, 0.016, 0.008, 0.016), c:WAX2},
+    {g:BALL0, m:M4(0.018, 0.13, 0.182, 0, 0, 0, 0.011, 0.02, 0.011), c:WAX2}, {g:BALL0, m:M4(-0.016, 0.1, 0.164, 0, 0, 0, 0.01, 0.028, 0.01), c:WAX2},
+    {g:BALL0, m:M4(0.024, 0.025, 0.16, 0, 0, 0, 0.016, 0.008, 0.016), c:WAX2},
     {g:CYL8, m:M4(0, 0.155, 0.17, 0, 0, 0, 0.003, 0.02, 0.003), c:0x1a1410}]); })();
 /* 화톳불 바구니 — 세 다리 · 둥근 쇠 바구니(테 둘 + 살 여덟) · 장작 셋. 밑 = 원점. 불꽃 밑동 BRAZ_F */
 const BRAZ_F = [0, 0.56, 0];
 const BRAZIERG = (()=>{ const parts = [];
-  for(let k=0; k<3; k++){ const a = k*2*Math.PI/3; parts.push({g:CYL8, m:segM([Math.cos(a)*0.24, 0, Math.sin(a)*0.24], [Math.cos(a)*0.11, 0.4, Math.sin(a)*0.11], 0.014), c:IRONC}); }
-  parts.push({g:new THREE.TorusGeometry(0.12, 0.013, 5, 16), m:M4(0, 0.38, 0, Math.PI/2, 0, 0), c:IRONC}, {g:new THREE.TorusGeometry(0.21, 0.015, 5, 18), m:M4(0, 0.64, 0, Math.PI/2, 0, 0), c:IRONC});
-  for(let k=0; k<8; k++){ const a = k*Math.PI/4 + 0.2; parts.push({g:CYL8, m:segM([Math.cos(a)*0.12, 0.38, Math.sin(a)*0.12], [Math.cos(a)*0.21, 0.64, Math.sin(a)*0.21], 0.009), c:IRONC}); }
+  for(let k=0; k<3; k++){ const a = k*2*Math.PI/3; parts.push({g:CYL6, m:segM([Math.cos(a)*0.24, 0, Math.sin(a)*0.24], [Math.cos(a)*0.11, 0.4, Math.sin(a)*0.11], 0.014), c:IRONC}); }
+  parts.push({g:new THREE.TorusGeometry(0.12, 0.013, 3, 12), m:M4(0, 0.38, 0, Math.PI/2, 0, 0), c:IRONC}, {g:new THREE.TorusGeometry(0.21, 0.015, 3, 14), m:M4(0, 0.64, 0, Math.PI/2, 0, 0), c:IRONC});
+  for(let k=0; k<8; k++){ const a = k*Math.PI/4 + 0.2; parts.push({g:CYL6, m:segM([Math.cos(a)*0.12, 0.38, Math.sin(a)*0.12], [Math.cos(a)*0.21, 0.64, Math.sin(a)*0.21], 0.009), c:IRONC}); }
   parts.push({g:CYL12, m:M4(0, 0.4, 0, 0, 0, 0, 0.11, 0.02, 0.11), c:IRON2});
   for(const [a, y] of [[0.3, 0.5], [1.4, 0.54], [2.5, 0.52]]) parts.push({g:CYL8, m:segM([Math.cos(a)*0.16, y - 0.04, Math.sin(a)*0.16], [-Math.cos(a)*0.16, y + 0.04, -Math.sin(a)*0.16], 0.035), c:0x3a2a1c, k:(x, y2, z)=> 0.8 + 0.3*Math.abs(Math.sin(x*40 + z*30))});
   parts.push({g:BALLG, m:M4(0, 0.5, 0, 0, 0, 0, 0.12, 0.05, 0.12), c:0x5a2410});   // 숯 — 붉은 밑불(밤엔 불꽃이 가린다)
@@ -6277,7 +6276,7 @@ const BRAZIERG = (()=>{ const parts = [];
 const CASKG = (()=>{ const prof = []; for(let i=0; i<=8; i++){ const y = i/8; prof.push([0.42 + 0.08*Math.sin(Math.PI*y), y]); }
   const stave = (x, y, z)=>{ const s = Math.floor((Math.atan2(z, x) + Math.PI)/(2*Math.PI)*14); return [0.9, 1.06, 0.96, 1.12, 0.93, 1.0, 1.08][s % 7]; };
   const rAt = (y)=> 0.42 + 0.08*Math.sin(Math.PI*y), parts = [{g:lathe(prof, 14), c:0x7a5a3d, k:stave}];
-  for(const y of [0.12, 0.5, 0.88]) parts.push({g:new THREE.TorusGeometry(rAt(y) + 0.006, 0.016, 4, 22), m:M4(0, y, 0, Math.PI/2, 0, 0), c:IRONC});
+  for(const y of [0.12, 0.5, 0.88]) parts.push({g:new THREE.TorusGeometry(rAt(y) + 0.006, 0.016, 3, 14), m:M4(0, y, 0, Math.PI/2, 0, 0), c:IRONC});
   parts.push({g:new THREE.CircleGeometry(0.425, 14), m:M4(0, 0.985, 0, -Math.PI/2, 0, 0), c:0x8a6a48, k:(x)=> 0.92 + 0.1*Math.sin(x*30)}, {g:new THREE.CircleGeometry(0.425, 14), m:M4(0, 0.005, 0, Math.PI/2, 0, 0), c:0x5e452d});
   return geoMerge(parts); })();
 /* 방패 — 연 모양 판(돌출 · 모서리 둥금) · 짙은 테 · 가운데 쇠 돌기 · 흰 사선 띠. 폭 1 · 높이 1.3(y −0.75~0.55) · 앞 +z. 인스턴스 색 = 모둠색 */
@@ -6298,7 +6297,7 @@ const LIDG = (()=>{ const r = 0.25, W = 0x7a5636, parts = [];
   parts.push({g:new THREE.BoxGeometry(0.024, 0.12, 0.08), m:M4(2*r + 0.01, -0.02, 0), c:0x9a7a3a}, {g:new THREE.BoxGeometry(0.4, 0.02, 0.82), m:M4(r, -0.01, 0), c:0x5e452d});
   return geoMerge(parts); })();
 /* 쇠 고리 — 사슬 고리·벽 고리·밧줄 고리·경첩 말림. 반지름 1(굵기 0.14) */
-const RINGG = new THREE.TorusGeometry(1, 0.14, 6, 16).rotateX(Math.PI/2);   // 축 y(누운 고리) — rz π/2 로 세우고 ry 로 면 방향(ringRy)
+const RINGG = new THREE.TorusGeometry(1, 0.14, 3, 9).rotateX(Math.PI/2);   // 축 y(누운 고리) — rz π/2 로 세우고 ry 로 면 방향(ringRy)
 /* 쐐기돌 — 사다리꼴(안쪽 좁고 바깥 넓음 · 모서리 모따기). 로컬 y = 바깥(반지름) · x = 둘레 · z = 벽 두께. 돌결(WMATV) */
 const VOUSG = (()=>{ const sh = new THREE.Shape(); sh.moveTo(-0.4, -0.5); sh.lineTo(0.4, -0.5); sh.lineTo(0.5, 0.5); sh.lineTo(-0.5, 0.5); sh.lineTo(-0.4, -0.5);
   const g = new THREE.ExtrudeGeometry(sh, {depth:0.9, bevelEnabled:true, bevelThickness:0.05, bevelSize:0.04, bevelSegments:1}); g.translate(0, 0, -0.45);
@@ -6313,13 +6312,13 @@ const CFL = [];                                        // [열쇠, 번호, x, y,
 let cflOn = null;
 /* 불꽃 두 겹 — 바깥 혀(주황 · 늘 은은히 빛나는 기존 재질 ORE_F)가 위로 솟고, 밑동 속불(밝은 흰노랑 · 밤에 세지는 EMITC_F)이 아래를 감싼다.
    같은 재질 한 겹이면 밤에 판판한 한 색 오림으로 보였다(r1 사진) — 밝은 밑동 · 주황 끝의 차이로 불꽃이 읽힌다 */
-const FLAMECORE = lathe([[0,0],[0.19,0.035],[0.3,0.13],[0.33,0.25],[0.27,0.38],[0.14,0.48],[0,0.52]], 9);
+const FLAMECORE = lathe([[0,0],[0.22,0.05],[0.33,0.2],[0.25,0.38],[0.12,0.48],[0,0.52]], 7);
 function castFlame(x, y, z, ry, s, h, col){             // (x, y, z) = 불꽃 밑동(절대 y). s = 폭 배율 · h = 높이
   const ph = rnd(x*3.7 + z*1.3 + y)*6.283;
-  const hd = bpush('cflame', FLAMEG, ORE_F, x, y, z, ry || 0, s*0.84, h*1.08, s*0.84, 0, col || 0xffb65a);
-  CFL.push(hd[0], hd[1], x, y, z, ry || 0, s*0.84, h*1.08, s*0.84, ph);
-  const hc = bpush('cflameI', FLAMECORE, flatFor(T.glow, EMITC), x, y - 0.005, z, ry || 0, s, h, s, 0, 0xfff4d6);
-  CFL.push(hc[0], hc[1], x, y - 0.005, z, ry || 0, s, h, s, ph + 0.7); return hd;
+  const hd = bpush('cflame', FLAMEG, ORE_F, x, y, z, ry || 0, s*0.92, h*1.12, s*0.92, 0, col || 0xffb65a);
+  CFL.push(hd[0], hd[1], x, y, z, ry || 0, s*0.92, h*1.12, s*0.92, ph);
+  const hc = bpush('cflameI', FLAMECORE, flatFor(T.glow, EMITC), x, y - 0.005, z, ry || 0, s*0.9, h*0.8, s*0.9, 0, 0xfff4d6);
+  CFL.push(hc[0], hc[1], x, y - 0.005, z, ry || 0, s*0.9, h*0.8, s*0.9, ph + 0.7); return hd;
 }
 /* 횃불 하나 = ctorch 인스턴스 하나 + 불꽃 하나. (x, y, z) = 벽판 가운데(절대 y), ry = 밖(+z)을 보는 돌림. lit false = 꺼진 횃대(비밀 문 힌트) */
 function castTorch(x, y, z, ry, lit){
@@ -6371,11 +6370,11 @@ const FILLG = (()=>{                                  // 우리 구석 메움 �
     const r = Math.hypot(c[0], c[2]); if(r < R0 + 0.02) return n[0]*c[0] + n[2]*c[2] < 0;          // 원 면 — 우물 가운데를 본다
     return Math.atan2(c[2], c[0]) < Math.PI/4 ? n[0]*Math.sin(a0) - n[2]*Math.cos(a0) > 0         // 끝 자른 면 — 변 가운데(문 틈) 쪽을 본다
                                                : -n[0]*Math.sin(a1) + n[2]*Math.cos(a1) > 0; }); })();
-/* 담쟁이 잎 한 묶음 — 세 갈래 잎(가장자리 톱니 · 가운데 잎맥이 살짝 솟음) 여섯 장을 크기·각·색을 흔들어 겹쳤다. 앞 +z · 두께 z 0~0.12 · 폭 ≈ 1.
+/* 담쟁이 잎 한 묶음 — 세 갈래 잎(가장자리 톱니 · 가운데 잎맥이 살짝 솟음) 다섯 장을 크기·각·색을 흔들어 겹쳤다. 앞 +z · 두께 z 0~0.12 · 폭 ≈ 1.
    벽에 거의 평평하게 붙여 쓴다(인스턴스 크기 0.4~0.7 → 잎 한 장 0.15~0.3). 꼭짓점 색(잎마다 밝기) + leaf 표시 → 기존 잎 재질(WMATL) */
-const IVYG = (()=>{ const O = [[0,0.55],[0.1,0.33],[0.36,0.37],[0.22,0.1],[0.35,-0.13],[0.1,-0.11],[0,-0.2],[-0.1,-0.11],[-0.35,-0.13],[-0.22,0.1],[-0.36,0.37],[-0.1,0.33]];
+const IVYG = (()=>{ const O = [[0,0.55],[0.36,0.37],[0.22,0.1],[0.35,-0.13],[-0.35,-0.13],[-0.22,0.1],[-0.36,0.37]];   // 세 갈래 잎 윤곽 7점(밑은 곧게 — 잎 한 장 7삼각형)
   const L = [[0, 0, 0.05, 0.1, 0.62, 1.0], [-0.33, -0.12, 0.0, 0.7, 0.5, 0.8], [0.31, -0.1, 0.02, -0.6, 0.52, 0.9], [0.06, 0.34, 0.09, -0.15, 0.46, 1.12],
-             [-0.18, -0.4, 0.07, 0.35, 0.44, 0.74], [0.28, 0.3, 0.1, -0.9, 0.4, 1.05]];   // 잎: 가운데 x·y · 겹 z · 돌림 · 크기 · 밝기
+             [-0.18, -0.4, 0.07, 0.35, 0.44, 0.74]];   // 잎: 가운데 x·y · 겹 z · 돌림 · 크기 · 밝기
   const P = [], Cc = [];
   for(const [lx, ly, lz, rot, sc, br] of L){ const cr = Math.cos(rot), sr = Math.sin(rot), tf = (x, y, z)=> [lx + (x*cr - y*sr)*sc, ly + (x*sr + y*cr)*sc, lz + z];
     const c0 = tf(0, 0.1, 0.04);
@@ -7172,7 +7171,8 @@ function stoneKit(ctx){
     const archTop = (u)=>{ let t = -1e9; for(const A of arch){ const d = Math.abs(u - A.c); if(d < A.rr) t = Math.max(t, A.sp + Math.sqrt(A.rr*A.rr - d*d)); } return t; };
     const emit = (u0, u1, c0, c1, col, pr, q)=>{
       const L = u1 - u0 - 0.055, H = c1 - c0 - 0.055; if(L < 0.28 || H < 0.1) return;  // 0.28 안 되는 부스러기는 줄눈(속 몸)으로 둔다
-      const sm = L < 0.5 && !q, key = q ? (low ? 'cbrkL' : 'cbrk') : sm ? 'csmall' : keyA, geo = sm ? WGEO : key === 'cbrk' ? BRICKF : BRICK_LO;
+      const hi = c0 > 11.4 && !opt.near;   // 통합 — 성벽 길 눈높이(≈ 9.6) 두 줄 위부터는 모따기 안 한 돌(삼각형 20 → 12 · 세계 삼각형 예산)
+      const sm = L < 0.5 && !q, key = q ? (low || hi ? 'cbrkL' : 'cbrk') : sm ? 'csmall' : hi ? 'cbrkL' : keyA, geo = sm ? WGEO : key === 'cbrk' ? BRICKF : BRICK_LO;
       const pr2 = opt.plinth && c0 < 1.2 ? pr + 0.06 : pr;             // 기단 두 줄은 살짝 내민다
       box(F, key, q ? 'quoin' : (opt.kind || (grade === 'I' ? 'inStone' : 'stone')), geo, sm ? WMAT : WMAT, (u0+u1)/2 - L/2, (u0+u1)/2 + L/2, pr2 - 0.16, pr2, c0 + 0.0275, c0 + 0.0275 + H, col);
     };
@@ -7266,7 +7266,7 @@ function stoneKit(ctx){
   const brazier = (F, s, o, yTop)=>{
     const [x, z] = at(F, s, o), ry = ryN(F), k = 0.82;
     put('cbrazier', 'brazier', BRAZIERG, WMAT, x, yTop, z, ry, k, k, k, 0, 0, [x - 0.2, x + 0.2, z - 0.2, z + 0.2, yTop, yTop + 0.55]);
-    castFlame(x, GY + yTop + BRAZ_F[1]*k - 0.03, z, ry, 0.6, 0.42);
+    castFlame(x, GY + yTop + BRAZ_F[1]*k - 0.03, z, ry, 0.56, 0.46);                                        // 통합 — 바구니 폭만큼 넓고 낮게(뾰족한 탑 모양 X)
   };
   /* 겉 활 틈 틀(밝은 문설 돌 + 인방) — 틈은 실제로 뚫려 있다(dark 면 칠한 어둠 판) */
   const slitFrame = (F, s, yb, h, dark)=>{
@@ -7350,6 +7350,7 @@ function buildCastle(){
     else if(key === 'cslate') key = 'gcore';               // 통합 — 같은 기하·재질·그림자인 66 열쇠에 합친다(뱅크 열쇠 예산 27 — 새 소품 모양에 쓴다)
     else if(key === 'cwood') key = 'gwood';
     else if(key === 'cwell') key = 'cnewel';
+    if(key === 'cbarrel') geo = ROD8; else if(key === 'ctele') geo = ROD10;   // 통합 — 막대 열쇠는 기하 하나(삼각형: 48 → 32·40)
     const h = bpush(key, geo, mat, x, GY + y, z, ry || 0, sx, sy, sz, rz || 0, col || 0);
     if(IN_KINDS.has(kind)) INS.push(h, x, y, z, FLOORK.has(kind) ? 1 : 0);
     if(DUSTK.has(key) && DUSTKIND.has(kind)) for(let d=0; d<DUST.length; d+=6) if(x > DUST[d] && x < DUST[d+1] && z > DUST[d+2] && z < DUST[d+3] && y > DUST[d+4] && y < DUST[d+5]){ DUSTH.push(h); break; }
@@ -7976,9 +7977,9 @@ function buildCastle(){
       } }
     /* 오래된 궤짝 — 빛바랜 널 몸 + 둥근 뚜껑 · 녹슨 띠 (궤짝 옆 벽가 · 나선 숨은 방만 — 창고 ②④ 는 좁다) */
     if(sec.kind === 'spiral'){ const o = [c.x + sx2*0.74 - fx*0.08, c.z + sz2*0.74 - fz*0.08], r2 = ry + 0.12;
-      put('cwoodN', 'oldChest', WGEO, WMAT_WOOD, o[0], y + 0.18, o[1], r2, 0.52, 0.36, 0.38, 0, 0x6d6152);
+      put('cwoodN', 'oldChest', WGEO, WMAT_WOOD, o[0], y + 0.18, o[1], r2, 0.52, 0.36, 0.38, 0, 0x55493b);
       put('cpropP', 'oldChest', WGEO, WMAT_PAINT, o[0], y + 0.18, o[1], r2, 0.54, 0.04, 0.4, 0, 0x6b4c3a);
-      put('clid', 'oldChest', LIDG, WMAT, o[0] - Math.sin(r2)*0.19, y + 0.36, o[1] - Math.cos(r2)*0.19, r2 - PI/2, 0.76, 0.66, 0.66, 0, 0xb8b0a0, [o[0] - 0.3, o[0] + 0.3, o[1] - 0.3, o[1] + 0.3, y + 0.36, y + 0.52]);
+      put('clid', 'oldChest', LIDG, WMAT, o[0] - Math.sin(r2)*0.19, y + 0.36, o[1] - Math.cos(r2)*0.19, r2 - PI/2, 0.76, 0.66, 0.66, 0, 0x9a9080, [o[0] - 0.3, o[0] + 0.3, o[1] - 0.3, o[1] + 0.3, y + 0.36, y + 0.52]);
       solidW(o[0] - 0.33, o[0] + 0.33, o[1] - 0.33, o[1] + 0.33, y, y + 0.52); }
   }
 
@@ -8026,7 +8027,7 @@ function buildCastle(){
       for(let k=0; k<pts.length-1; k++){ const [t0, ya] = pts[k], [t1, yb] = pts[k+1], tm = (t0 + t1)/2, ym = (ya + yb)/2;
         if(yb > ceil - 0.3 || openAt(t0, ya) || openAt(t1, yb) || openAt(tm, ym)) continue;
         rodW('ctele', 'rope', WMAT_PAINT, [cx + RR*Math.cos(t0), ya, cz + RR*Math.sin(t0)], [cx + RR*Math.cos(t1), yb, cz + RR*Math.sin(t1)], 0.024, 0x5e4a33);
-        if(k % 2 === 0){ const tx = -Math.sin(t0), tz = Math.cos(t0); put('cring', 'rope', RINGG, WMAT_PAINT, cx + 1.76*Math.cos(t0), ya, cz + 1.76*Math.sin(t0), ringRy(tx, tz), 0.05, 0.35, 0.05, PI/2, IRONC); } } }
+        if(k % 3 === 0){ const tx = -Math.sin(t0), tz = Math.cos(t0); put('cring', 'rope', RINGG, WMAT_PAINT, cx + 1.76*Math.cos(t0), ya, cz + 1.76*Math.sin(t0), ringRy(tx, tz), 0.05, 0.35, 0.05, PI/2, IRONC); } } }
     /* 오르며 보는 창 — 창턱을 밝게(햇빛) · 그 둘레 우물 벽·디딤을 서늘하게 밝힘 */
     for(const X of extra || []){ const Fp = frame(cx + 1.8*X.dir[0], cz + 1.8*X.dir[1], -X.dir[1], X.dir[0], -X.dir[0], -X.dir[1]);
       flat(Fp, -0.22, 0.22, -0.3, 0.02, X.y0 - 0.06, X.y0, 0x9a927f, 'lining'); DAYL.push(cx + 1.4*X.dir[0], (X.y0 + X.y1)/2, cz + 1.4*X.dir[1], 1.0); }
@@ -8195,9 +8196,9 @@ function buildCastle(){
     /* 밀기 돌 문(바깥 얼굴 P 10 의 t 47~48, 0~2.3) — 둘레 줄눈과 같은 줄, 어깨보다 낮은 돌 하나만 따뜻한 색 + 새긴 마름모 */
     const rows = [[0, 0.61], [0.61, 1.27], [1.27, 1.8], [1.8, 2.3]];
     rows.forEach(([y0, y1], r)=>{
-      sec.hs.push(box(F10, 'csec', 'sec', BRICKF, WMAT, 0.03, 0.97, -0.16, 0.05, y0 + 0.03, y1 - 0.03, r === 1 ? 0xb49a78 : STONE_PAL.SC[(r*2 + g) % 5]));
+      sec.hs.push(box(F10, 'csec', 'sec', BRICKF, WMAT, 0.03, 0.97, -0.16, 0.05, y0 + 0.03, y1 - 0.03, r === 1 ? 0xa39b8b : STONE_PAL.SC[(r*2 + g) % 5]));   // 통합: 따뜻한 돌을 은은하게(옆 돌과 한 톤 차)
       sec.hs.push(box(F97, 'csec', 'sec', BRICKF, WMAT, 0.03, 0.97, -0.14, 0.0, y0 + 0.03, y1 - 0.03, 0x746d60)); });
-    { const [x, z] = K.at(F10, 0.5, 0.055); sec.hs.push(put('csmall', 'sec', WGEO, WMAT, x, 0.94, z, K.ryN(F10), 0.2, 0.2, 0.02, PI/4, 0x8c7458)); }
+    { const [x, z] = K.at(F10, 0.5, 0.055); sec.hs.push(put('cpropP', 'sec', WGEO, WMAT_PAINT, x, 0.94, z, K.ryN(F10), 0.13, 0.13, 0.01, PI/4, 0x857c6d)); }   // 새긴 마름모(작고 옅게)
     for(const q of [0, 1]) flat(F10, q - 0.03, q + 0.03, -0.3, -0.12, 0, 2.3, INSTONE, 'lining');   // 열린 뒤 보이는 문 두께(겉면보다 들어가 있어 닫혔을 땐 안 보인다)
     flat(F10, 0, 1, -0.3, -0.12, 2.3, 2.34, INSTONE, 'lining');
     secretRoomArt(sec);
@@ -8207,18 +8208,20 @@ function buildCastle(){
   { const V = [[45.9, 30.6], [30.6, 45.9], [-30.6, 45.9], [-45.9, 30.6], [-45.9, -30.6], [-30.6, -45.9], [30.6, -45.9], [45.9, -30.6]];
     const gapAt = (x, z)=>{ for(let g=0; g<NG; g++){ if(Math.abs(gPP(g, x, z)) < 10.35 && gT(g, x, z) > 38) return true; } return false; };
     for(let e=0; e<8; e++){ const a = V[e], b = V[(e + 1) % 8], L = Math.hypot(b[0]-a[0], b[1]-a[1]), ux = (b[0]-a[0])/L, uz = (b[1]-a[1])/L;
-      for(let s = 0; s < L - 0.3; ){ const Ls = Math.min(L - s, 1.0 + R()*0.5), h = 0.12 + R()*0.06, m = s + Ls/2, x = a[0] + ux*m, z = a[1] + uz*m;
+      for(let s = 0; s < L - 0.3; ){ const Ls = Math.min(L - s, 1.6 + R()*0.9), h = 0.12 + R()*0.06, m = s + Ls/2, x = a[0] + ux*m, z = a[1] + uz*m;
         if(!gapAt(x, z)) putD('cboxN', 'curb', BOXG, WMAT, x, h/2 - 0.02, z, ux, uz, Ls - 0.06, h, 0.3 + R()*0.06, 0, K.stoneC(1));
         s += Ls; } } }
 
   /* ════════ 9. 반짝 보물 주머니 27(오늘 것만 보이게 — 처음엔 숨김, castleArtInit) ════════ */
   CPLAN.sparkHs.length = 0;
   for(const q of CPLAN.spark){ const [x, y, z] = q.p;
-    CPLAN.sparkHs.push([put('cpropP', 'spark', WGEO, WMAT_PAINT, x, y + 0.12, z, 0.4, 0.26, 0.22, 0.24, 0, 0xc9a24a),     // 금 주머니 + 매듭
-                        put('cpropP', 'spark', WGEO, WMAT_PAINT, x, y + 0.26, z, 1.2, 0.12, 0.08, 0.12, 0, GOLD)]); }
+    CPLAN.sparkHs.push([put('moss', 'spark', LEAFG, WMAT, x, y + 0.11, z, 0.4, 0.3, 0.24, 0.28, 0, 0x8c6a3c),              // 가죽 주머니(불룩한 자루)
+                        put('ctele', 'spark', NEWELG, WMAT_PAINT, x, y + 0.25, z, 0, 0.05, 0.08, 0.05, 0, 0x7a5a34),         // 오므린 목
+                        put('cring', 'spark', RINGG, WMAT_PAINT, x, y + 0.23, z, 0.3, 0.06, 0.2, 0.06, 0, 0xc9a24a),         // 금실 매듭
+                        put('ctele', 'spark', NEWELG, WMAT_PAINT, x + 0.13, y + 0.012, z + 0.06, 0.4, 0.05, 0.02, 0.05, 0, GOLD)]); }   // 삐져나온 금화 한 닢
 
   /* ════════ 10. 덩굴(선생님 추가 요청 · 통합에서 새로) — 담쟁이: 땅에서 굵게 나와 벽에 붙어 구불구불 오르며 갈라지고 가늘어지는 줄기(둥근 원기둥 토막) +
-     줄기를 따라 벽에 거의 평평하게 붙은 작은 잎 묶음(IVYG — 세 갈래 잎 여섯 장, 크기·각·색 흔듦 · 짙은 초록·올리브·밝은 새잎).
+     줄기를 따라 벽에 거의 평평하게 붙은 작은 잎 묶음(IVYG — 세 갈래 잎 다섯 장, 크기·각·색 흔듦 · 짙은 초록·올리브·밝은 새잎).
      아래가 빽빽하고 위로 갈수록 성기다. 끝은 몇 가닥만 늘어진다 · 곧은 성벽 갓돌에서 몇 가닥이 아래로 늘어진다.
      탈루스(기단 경사)가 있는 면은 뿌리가 해자 바닥(2)에서 경사를 타고 올라온다. 문·창·활 틈·안내판 둘레는 비운다(ex). 씨앗 고정 ════════ */
   const IVYC = [0x2c4724, 0x36552a, 0x45622f, 0x566f33, 0x6a8a3c, 0x82a84a];
@@ -8234,15 +8237,15 @@ function buildCastle(){
       for(let k=0; k<n; k++){ ang += (R() - 0.5)*0.8 - ang*0.25; const L = 0.62 + R()*0.12, ns = sv + Math.sin(ang)*L, ny = yv + Math.cos(ang)*L;
         if(ny > capY - 0.08 || ns < a0 + 0.12 || ns > a1 - 0.12 || inEx(ns, ny, 0.12)) break;
         const t2 = Math.max(0.014, th*(1 - 0.6*k/n)); ivyStem(F, [sv, yv], [ns, ny], t2); segs.push([sv, yv, ns, ny, gen]);
-        if(gen < 1 && k >= 1 && k < n - 1 && R() < 0.26) grow(ns, ny, ang + (R() < 0.5 ? -1 : 1)*(0.55 + R()*0.45), t2*0.7, (n - k)*L*0.65, gen + 1);
+        if(gen < 1 && k < n - 1 && R() < (k < 3 ? 0.55 : 0.18)) grow(ns, ny, ang + (R() < 0.5 ? -1 : 1)*(k < 3 ? 0.95 + R()*0.35 : 0.55 + R()*0.4), t2*0.7, (n - k)*L*(k < 3 ? 0.55 : 0.5), gen + 1);   // 아래에서는 옆으로 기어 퍼지는 가지
         sv = ns; yv = ny; } };
     const roots = dens > 0.9 ? 2 : 1;
     for(let r=0; r<roots; r++){ const s0 = sC + (r - (roots - 1)/2)*0.28 + (R() - 0.5)*0.15, th = 0.055 - r*0.008;
-      if(tal){ ivyStem(F, [s0 + 0.05, tal[0][0]], [s0, tal[0][1]], th + 0.012, tal[0][2] + 0.03); ivyStem(F, [s0, tal[0][1]], [s0 - 0.02, tal[1][1]], th + 0.006, tal[1][2] + 0.03); }   // 뿌리 — 해자 바닥에서 기단 경사를 타고
-      grow(s0, yb - 0.05, (r - (roots - 1)/2)*0.35 + (R() - 0.5)*0.2, th, H*(0.72 + R()*0.24), 0); }
+      if(tal) for(let q=0; q<3; q++) ivyLeaf(F, s0 + (q - 1)*0.34, tal[1][1] + 0.05, 0.62, 0, (R() - 0.5)*1.4);   // 기단 턱 위 밑동을 잎이 덮는다
+      grow(s0, yb - 0.05, (r - (roots - 1)/2)*0.35 + (R() - 0.5)*0.2, th, H*(0.66 + R()*0.22), 0); }
     /* 잎 — 줄기를 따라(아래 빽빽 · 위 성김) + 밑동 채움 */
     for(let si=0; si<segs.length; si++){ const [s0, y0, s1, y1, gen] = segs[si], t = Math.max(0, Math.min(1, (y0 - yb)/H)), tip = si === segs.length - 1 || segs[si+1][4] !== gen;
-      const nL = Math.max(1, Math.round(dens*(3.4 - 2.0*t)*(gen ? 0.8 : 1)));                                   // 잎 묶음 수 — 아래 빽빽 · 위 성김(줄기를 덮는다)
+      const nL = Math.max(1, Math.round(dens*(3.0 - 1.9*t)*(gen ? 0.75 : 1)));                                   // 잎 묶음 수 — 아래 빽빽 · 위 성김(줄기를 덮는다)
       for(let q=0; q<nL + (tip ? 1 : 0); q++){ const u = tip && q === nL ? 1 : (q + 0.3 + R()*0.4)/nL, side = (q % 2 ? 1 : -1)*(0.08 + R()*0.18);
         const sv = s0 + (s1 - s0)*u + side, yv = y0 + (y1 - y0)*u + (R() - 0.5)*0.12, sc = (0.72 + R()*0.22)*(1 - 0.32*t);
         if(yv + sc*0.45 > capY || sv - sc*0.45 < a0 || sv + sc*0.45 > a1 || inEx(sv, yv, sc*0.5)) continue; ivyLeaf(F, sv, yv, sc, t, (R() - 0.5)*1.4); } }
@@ -27573,6 +27576,7 @@ loop();
 
 /* 개발/검사용 훅 */
 Object.assign(window, {
+  __addStru:addStru,   // 67차 통합 — 균형 하네스(bal36)가 짓기 계획 없이 다 지은 건물을 바로 놓는다
   __BUILD_PLANS:BUILD_PLANS,__BUILD_HANDS:BUILD_HANDS,__BUILD_HELP:BUILD_HELP,
   __tickBuildingGuns:tickBuildingGuns,
   __towerFx:{attack:towerAttack,tick:towerFxTick,cannonSpec,muzzle:buildingGunMuzzle,balls:()=>tfxBallMesh,chips:()=>tfxChipMesh,shells:()=>tfxShellMesh},

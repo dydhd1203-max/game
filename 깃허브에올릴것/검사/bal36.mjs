@@ -12,6 +12,7 @@ const ATK=+(process.argv[10]||1);
 const LV=+(process.argv[11]!==undefined?process.argv[11]:0);
 const NKS=(process.argv[12]||'-1').split(',').map(Number);
 const RUNS=+(process.argv[13]||6);
+const BAIT=+(process.argv[14]||0);   // 67차 — 성벽 위 미끼 친구 수(성문 1·2 윗마당에 서서 좀비를 계단으로 끈다 · 설계 9-3 하네스)
 const srv = serve(PORT, FILE);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
 const pg = await b.newPage({viewport:{width:900,height:600}});
@@ -19,12 +20,16 @@ const errs=[]; pg.on('pageerror', e=> errs.push(e.message));
 await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
 await pg.waitForFunction('window.__READY===true', {timeout:60000});
 await pg.fill('#iName','t'); await pg.click('#bSolo'); await pg.waitForTimeout(800);
-const rows = await pg.evaluate(([SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS])=>{
+const rows = await pg.evaluate(([SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS,BAIT])=>{
   const W=window, G=W.__G, out=[];
   G.started=false; if(W.__PL) W.__PL.down=true;
   /* ★ 'mix' = 교실에서 실제로 나오는 모습 — 몇 채만 Lv6 이고 나머지는 아래 등급이다.
      자재가 한정돼 있어서 전부 Lv6 이 되는 일은 없다. */
   const MIXLV=[6,6,5,5,4,4,4,3,3,3,2,2,2,2,2,2,2];
+  let bid = 0;
+  /* 67차 — __place 는 이제 '짓기 계획'(아이들이 와서 지음)이라 바로 서지 않는다 → 다 지은 건물을 바로 놓는다(__addStru) */
+  const put = (t, x, z)=>{ if(W.__addStru && W.__BUILD_PLANS){ const o = {id:'bal' + (++bid), t, x, z, g:G.me.g, n:'t', by:'t', born:Date.now(), lv:1, hp:1, mx:1, cd:W.__BUILD[t].spawn ? 2 : 0, sol:[]}; W.__addStru(o); return o; }
+    W.__place(t, x, z); return [...W.__STRU.values()].pop(); };
   const build=(lv)=>{
     W.__clear();
     /* ★ 17차 — 자리 계산을 하네스가 손수 하면 안 된다. 입구가 옆으로 밀리자(off)
@@ -38,8 +43,7 @@ const rows = await pg.evaluate(([SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS])=>{
       G.me.g=g; G.res[g]={w:999999,s:999999,g:999999};
       for(let pp=-8; pp<=8; pp+=0.5){
         const x=Math.round(GX(42,pp)), z=Math.round(GZ(42,pp));
-        if(W.__canPlace('swall',x,z)===null){ W.__place('swall',x,z);
-          const o=[...W.__STRU.values()].pop();
+        if(W.__canPlace('swall',x,z)===null){ const o = put('swall', x, z);
           const L2 = lv>0 ? lv : 4;              // 벽은 mix 여도 Lv4 로 본다
           o.lv=L2; o.mx=W.__bs('swall','hp',L2); o.hp=o.mx; } }
       /* ★ 12차에서 탑·배럭 개수 제한을 없앴다. 'many' 는 그 뒤 교실에서 실제로 나올 법한 수
@@ -53,8 +57,7 @@ const rows = await pg.evaluate(([SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS])=>{
            ['barr',24,-3],['barr',24,3],['barr',22,0]];
       TSET.forEach(([t,rr,pp], ti)=>{
         const x=Math.round(GX(rr,pp)), z=Math.round(GZ(rr,pp));
-        if(W.__canPlace(t,x,z)===null){ W.__place(t,x,z);
-          const o=[...W.__STRU.values()].pop();
+        if(W.__canPlace(t,x,z)===null){ const o = put(t, x, z);
           const L2 = lv>0 ? lv : MIXLV[Math.min(MIXLV.length-1, ti)];
           o.lv=L2; o.mx=W.__bs(t,'hp',L2); o.hp=o.mx; } }); }
     G.me.g=0; W.__rebuild();
@@ -81,8 +84,14 @@ const rows = await pg.evaluate(([SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS])=>{
         if(W.__setNk) W.__setNk(nk);
         W.__goNight(); if(run===0){ nmRun = W.__stageName(day); cntRun = G.wolves.length + (W.__spawnQLen ? 0 : 0); }
         const dayMul = 1 + 0.14*(day-1), kids = mkKids();
+        if(G.players) G.players.clear();
+        for(let bi=0; bi<BAIT; bi++){ const g = bi % 5, s2 = bi % 2 ? 1 : -1, uid = 'bait' + bi;   // 미끼 — 성문 g 윗마당(P 9)에 서 있는 친구
+          if(W.__gX && G.players) G.players.set(uid, {uid, x:W.__gX(g, 51, 9*s2), y:W.__GY + 8, z:W.__gZ(g, 51, 9*s2), down:false, g, hp:100}); }
         const steps=Math.ceil(G.set.nightSec*20);
         for(let i=0;i<steps;i++){
+          if(BAIT && G.players) for(let bi=0; bi<BAIT; bi++){ const q = G.players.get('bait' + bi); if(!q) continue;   // 미끼: 4초 계단 발치(땅)에서 끌고 → 12초 성벽 윗마당(8)
+            const g = bi % 5, s2 = bi % 2 ? 1 : -1, ph = (i/20 + bi*3) % 16, up = ph >= 4, t = up ? 51 : 33, pp = (up ? 9 : 8.5)*s2;
+            q.x = W.__gX(g, t, pp); q.z = W.__gZ(g, t, pp); q.y = W.__GY + (up ? 8 : 0); }
           W.__step(1,1/20);
           for(const k of kids){ k.cd -= 0.05; if(k.cd>0) continue;
             let best=null, bd=Wp.rng*Wp.rng;
@@ -132,7 +141,7 @@ const rows = await pg.evaluate(([SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS])=>{
     }
   }
   return out;
-}, [SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS]);
+}, [SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS,BAIT]);
 console.log(rows.join('\n'));
 if(errs.length) console.log('ERR: '+errs.slice(0,3).join(' | '));
 await b.close(); srv.close();
