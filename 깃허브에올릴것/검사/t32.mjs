@@ -162,7 +162,10 @@ await pg.waitForTimeout(1500);
     o.hidden = hidden; o.trunkShown = tree.hs.filter(h=>h[0]==='trunk').every(vis);
     tree.hp = tree.max; W.__nodeVisual(tree); o.allBack = tree.hs.every(vis);
     o.rockN = rock.hs.length; o.rockKeys = rock.hs.map(h=>h[0]);
-    o.goldKeys = gold.hs.map(h=>h[0]); o.oreMat = W.__banks.get('oreG').mat===W.__ORE_F && W.__ORE_F.emissive.getHex()!==0 && !W.__ORE_F.map;
+    o.goldKeys = gold.hs.map(h=>h[0]); /* 68차 2단계 고치기 2 — 결정은 면마다 금빛을 구운 꼭짓점 색(WMATV · 면 밝기 셋 이상), 밤에 멀리서 보이는 발광은 광맥(ORE_F)이 맡는다 */
+    { const gb = W.__banks.get('oreG'), vb = W.__banks.get('oreV'), ca = gb.geo.attributes.color, tones = new Set();
+      if(ca) for(let i=0;i<ca.count;i+=3) tones.add(Math.round((ca.getX(i) + ca.getY(i) + ca.getZ(i))*20));
+      o.oreMat = gb.mat===W.__WMATV && !!ca && tones.size>=3 && vb && vb.mat===W.__ORE_F && W.__ORE_F.emissive.getHex()!==0 && !W.__ORE_F.map; o.oreTones = tones.size; }
     const n=k=>{ const b=W.__banks.get(k); return b?b.ms.length:0; };
     o.cone=n('cone'); o.trunk=n('trunk'); o.stem=n('stem'); o.petal=n('petal'); o.pist=n('pist'); o.bush=n('bush')+n('bushS'); o.petal0=!!W.__banks.get('petal0');
     o.decor = o.bush + o.petal + (n('peb') - 0);
@@ -178,7 +181,7 @@ await pg.waitForTimeout(1500);
   ok('★ 캐면 잎(사과·가지)부터 사라지고 줄기는 남는다', r.hidden.length>=3 && r.hidden.every(k=>k.startsWith('leaf')||k==='branch'||k==='apple') && r.trunkShown, r.hidden.join(','));
   ok('되살리면 전부 돌아온다', r.allBack);
   ok('바위 조각 6 이상 — 큰 덩어리부터, 이끼 있음', r.rockN>=6 && r.rockKeys[0]==='rock' && r.rockKeys.includes('moss'), r.rockKeys.join(','));
-  ok('★ 금광맥 — 빛나는 결정 넷(원색 발광 재질) + 금 알갱이', r.goldKeys.filter(k=>k==='oreG').length===4 && r.goldKeys.includes('nug') && r.oreMat, r.goldKeys.join(','));
+  ok('★ 금광맥 — 면마다 금빛을 구운 결정 넷(꼭짓점 색) + 금 알갱이 + 빛나는 광맥(원색 발광 재질)', r.goldKeys.filter(k=>k==='oreG').length===4 && r.goldKeys.includes('nug') && r.oreMat, r.goldKeys.join(',')+' · 결정 면 밝기 '+r.oreTones+'가지');
   /* 숲 그루 수는 무작위(놓을 자리가 안 나오면 건너뛴다) — 개수를 박지 않고 '고깔은 셋씩(침엽수)' 과 넉넉한 하한만 본다 */
   ok('장식 숲 — 침엽수 고깔(넷 + 꼭지) 40 이상 · 줄기 100 이상', r.cone>=40 && r.trunk>=100, r.cone+' / '+r.trunk);
   ok('풀꽃 — 꽃은 줄기·꽃송이·속이 한 벌씩, 꽃 뱅크는 하나(petal0~4 없음), 수풀+꽃 600 이상', r.stem===r.petal && r.petal===r.pist && !r.petal0 && r.bush+r.petal>=600, r.bush+' + '+r.petal);
