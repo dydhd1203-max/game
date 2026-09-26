@@ -4003,7 +4003,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '71차 · 성벽 총알 규칙';   // 70차 4회차 — 탑 11×11·나선·안쪽 턱으로 판 모양(CASTLE·stairOf)이 바뀌었다: 옛 탭을 연 손님에게 '새로고침' 알림이 뜨게 올린다(판 모양을 바꾸면 늘 같이 올린다)
+const GAME_VER = '72차 · 몸 내밀어 쏘기';   // 70차 4회차 — 탑 11×11·나선·안쪽 턱으로 판 모양(CASTLE·stairOf)이 바뀌었다: 옛 탭을 연 손님에게 '새로고침' 알림이 뜨게 올린다(판 모양을 바꾸면 늘 같이 올린다)
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -7960,8 +7960,8 @@ function buildGates(){
       iron(p, (5.45 + top)/2, GATE_T, 0.1, top - 5.45, 0.1); iron(p, 5.28, GATE_T, 0.09, 0.26, 0.09); }
     /* 성벽 길 — 판석 + 마을 쪽 낮은 흉벽 + 바깥 성가퀴 */
     paving(-GH.tw0, GH.tw0, ct0, ct1, W);
-    parapet('p', ct0 + pw/2, -GH.tw0, -1.95, PARA_HI, false);
-    parapet('p', ct0 + pw/2, 1.95, GH.tw0, PARA_HI, false);
+    parapet('p', ct0 + pw/2, -GH.tw0, -1.95, PARA_LO, false);          // 72차 — 마을 쪽 흉벽을 낮게(갓돌 윗면 8.95 < 눈 9.12 — 통로·마을 쪽을 내려다보고 쏜다). 몸 막는 GBOX 는 그대로 1.05
+    parapet('p', ct0 + pw/2, 1.95, GH.tw0, PARA_LO, false);
     parapet('p', ct1 - pw/2, -GH.tw0, -1.95, 0, true);
     parapet('p', ct1 - pw/2, 1.95, GH.tw0, 0, true);
     /* 번호판 벽 — 성벽 길 흉벽 가운데를 솟게 쌓아 상인방 위에 돌판을 단다(앞뒤 두 얼굴).
@@ -18893,6 +18893,7 @@ const jump2Now = ()=> raceOn() ? JUMP2_R : JUMP2_V;
 const DOWN_CAM = 4.6;           // 쓰러졌을 때 시체에서 물러나는 거리
 let camGY = null;               // 52차 — 캐릭터 발 높이를 따라가는 닻(점프·낙하도 포함)
 let camDistance = null, camShoulder = 0, camBodyHidden = false, camAimBlend = 0;
+let camLean = 0, camLeanX = 0, camLeanY = 0, camLeanZ = 0;          // 72차 — 성벽 위 1인칭 몸 내밀기(보이는 것만)
 // 조준 중에는 머리 위·오른쪽 어깨 바깥에서 본다. 몸과 접힌 날개는 화면 왼쪽 아래에 남는다.
 // 65차 마감 — 어깨 1.10·높이 1.58(예전 0.94·1.32): 가슴 앞에 든 총이 머리·오른팔에 거의 가려서, 카메라를 조금 오른쪽·위로 옮겨 팔 너머로 총이 보이게 했다.
 const AIM_VIEW = {back:2.90, height:1.58, shoulder:1.10, lift:0.10, fov:68};
@@ -19196,6 +19197,14 @@ function updPlayer(dt){
     camBodyHidden = camBodyHidden ? camDistance < (camAimBlend>.5 ? 1.75 : .90) : camDistance < (camAimBlend>.5 ? 1.45 : .52);
   } else {
     camera.position.set(PL.x, footY + PL.EYE + Math.abs(Math.sin(gaitMe))*0.04*runK, PL.z);   // 41차 — 1인칭(마을)도 달리면 머리가 걸음 박자로 흔들린다 · 69차 — 계단은 footY 로 부드럽게
+    /* 72차 — 성벽 위 1인칭: 조준하고 아래(pitch < −0.3)를 보면 눈을 흉벽·크레넬 너머 '몸을 내민 자리'로 부드럽게 옮긴다(보이는 것만 — 판정은 castleShotT 가 따로).
+       성가퀴(눈 높이 돌)에 막히면 안 옮긴다 — 크레넬·낮은 흉벽 앞에서만. 끝나면 0.2초쯤에 돌아온다 */
+    let lw = 0;
+    if(aimMode && !PL.down && PL.pitch < -0.3 && PL.y >= GY + 7.5 && castleLean(PL.x - Math.sin(PL.yaw)*12, PL.z - Math.cos(PL.yaw)*12)
+       && Math.hypot(_lean.x - PL.x, _lean.z - PL.z) < 1.6 && castleHitT(PL.x, PL.y + 1.22, PL.z, _lean.x, _lean.y - 0.1, _lean.z) < 0) lw = Math.min(1, (-0.3 - PL.pitch)*4);
+    camLean += (lw - camLean)*(1 - Math.exp(-dt*10)); if(camLean < 0.002) camLean = 0;
+    if(camLean > 0 && lw > 0){ camLeanX = _lean.x; camLeanY = _lean.y; camLeanZ = _lean.z; }
+    if(camLean > 0) camera.position.set(camera.position.x + (camLeanX - camera.position.x)*camLean, camera.position.y + (camLeanY - camera.position.y)*camLean, camera.position.z + (camLeanZ - camera.position.z)*camLean);
     camAnc = null; camGY = null; camDistance = null; camShoulder = 0; camBodyHidden = false; camHold = 0; camSlow = 0; camLift = 0;
   }
   held.visible = back <= 0 || camBodyHidden;
@@ -20003,13 +20012,44 @@ function castleHitT(ex, ey, ez, tx, ty, tz){
   return best <= 1 ? best : -1;
 }
 function castleOccluded(ex, ey, ez, tx, ty, tz){ return castleHitT(ex, ey, ez, tx, ty, tz) >= 0; }
+/* 72차 — 성벽 위 아이는 바로 앞 흉벽·성가퀴 너머로 몸을 내밀어 쏜다(선생님: '몸을 내밀어 쏘기'). 실제 수비병처럼.
+   쏘는 아이가 성곽 띠 안 · 발이 땅보다 7.5 위 · 지붕 밑이 아니면, 과녁 쪽으로 발 둘레 LEAN_R 안에서 처음 만나는 낮은 돌(발 + 1.7 높이에선 트인 것 — 흉벽·성가퀴·턱)을 찾고
+   그 너머(돌 밖으로 나온 첫 자리)를 몸을 내민 눈(발 + 눈 + 0.2)으로 삼는다. 멀리 있는 벽·탑·성문 돌은 그 눈에서 그대로 막는다. 탑 벽처럼 높은 돌 앞이면 내밀지 않는다.
+   마당·들판(땅)·지붕 밑 복도·탑 안은 그대로(castleHitT 선 하나). 할당 0 — 결과는 _lean 에 */
+const LEAN_R = 1.8, _lean = {on:false, x:0, y:0, z:0};
+function castleLean(tx, tz){
+  _lean.on = false;
+  if(!treAp) treApInit();
+  const fy = PL.y; if(fy < GY + 7.5) return false;                                   // 성벽 길·성문 위·층계참(8)·K 윗마당(14)·망루 윗마당 — 계단 중간·땅은 아님
+  const o = oct(PL.x, PL.z); if(o < CAST_IN || o > CAST_OUT) return false;
+  if(inW(Math.floor(PL.x), Math.floor(PL.z)) && sheltered(PL.x, PL.z, PL.y)) return false;
+  let dx = tx - PL.x, dz = tz - PL.z; const L = Math.hypot(dx, dz); if(L < 0.3) return false; dx /= L; dz /= L;
+  const R = Math.min(LEAN_R, L - 0.1), y0 = fy + 0.3;
+  const u = castleHitT(PL.x, y0, PL.z, PL.x + dx*R, y0, PL.z + dz*R); if(u < 0) return false;
+  const d = u*R;
+  const hi = castleHitT(PL.x, fy + 1.7, PL.z, PL.x + dx*(d + 0.5), fy + 1.7, PL.z + dz*(d + 0.5));   // 높은 돌(탑 벽)이면 안 내민다
+  if(hi >= 0 && hi*(d + 0.5) < d + 0.45) return false;
+  for(let k = d + 0.12; k < d + 1.3 && k < L - 0.1; k += 0.12){                                   // 돌 밖으로 나온 첫 자리
+    const x = PL.x + dx*k, z = PL.z + dz*k;
+    if(castleHitT(x - dx*0.01, y0, z - dz*0.01, x, y0, z) < 0 && castleHitT(x, fy + 1.32, z, x + dx*0.01, fy + 1.32, z + dz*0.01) < 0){
+      _lean.on = true; _lean.x = x; _lean.y = fy + PL.EYE + 0.2; _lean.z = z; return true; } }
+  return false;
+}
+/* 쏘는 선 e→t 가 성곽 돌에 막히는 곳(원래 선의 t · 없으면 −1) — 성벽 위면 몸을 내민 눈에서 잰다 */
+function castleShotT(ex, ey, ez, tx, ty, tz){
+  if(!castleLean(tx, tz)) return castleHitT(ex, ey, ez, tx, ty, tz);
+  const u = castleHitT(_lean.x, _lean.y, _lean.z, tx, ty, tz); if(u < 0) return -1;
+  const hx = _lean.x + (tx - _lean.x)*u, hy = _lean.y + (ty - _lean.y)*u, hz = _lean.z + (tz - _lean.z)*u;
+  const vx = tx - ex, vy = ty - ey, vz = tz - ez, L2 = vx*vx + vy*vy + vz*vz || 1;
+  return Math.max(0, Math.min(1, ((hx - ex)*vx + (hy - ey)*vy + (hz - ez)*vz)/L2));
+}
 /* 71차 — 좀비 판정점: 몸 가운데(발 + 0.85)가 가려지면 머리 높이도 본다 — 머리가 성벽 위로 보이면 맞는다(둘 중 하나라도 트이면).
    머리 = 발 + 1.5 × 몸 크기(sc — 좀비 0.7 → 1.05 · 큰좀비 1.59 · 우두머리 2.4, 가장 높은 조각 가운데보다 조금 아래). 돌려주는 값 = 발에서 겨눌 높이, 둘 다 가려지면 −1 */
 function castleAimY(ex, ey, ez, w){
   const wy = w.y || GY;
-  if(castleHitT(ex, ey, ez, w.x, wy + 0.85, w.z) < 0) return 0.85;
+  if(castleShotT(ex, ey, ez, w.x, wy + 0.85, w.z) < 0) return 0.85;
   const T = WOLF_T[w.k], hy = 1.5*(w.sc || (T && T.sc) || 0.7);
-  if(hy > 0.95 && castleHitT(ex, ey, ez, w.x, wy + hy, w.z) < 0) return hy;
+  if(hy > 0.95 && castleShotT(ex, ey, ez, w.x, wy + hy, w.z) < 0) return hy;
   return -1;
 }
 /* 미니맵 움직이는 층 — 내가 찾은 비밀 문 ✦(오늘 그 상자를 열었으면 회색) · 오늘 반짝 다섯 자리(받았으면 흐리게) */
@@ -20247,7 +20287,7 @@ function fireWeapon(){
     const end = shotEndpoint(W.rng, GY+0.2);
     let tx=end.x, ty=end.y, tz=end.z;
     /* 71차 — 성곽 돌에 막힌 총알은 돌에 맞은 자리에서 멈춘다(예광탄 끝·돌가루·작은 불티 — 돌을 뚫고 사거리 끝까지 날아가 보이지 않게). 조준선(카메라)에서 잰다 — 지붕 밑에서도 같다 */
-    const o = _shotOrigin, sT = castleHitT(o.x, o.y, o.z, tx, ty, tz);
+    const o = _shotOrigin, sT = castleShotT(o.x, o.y, o.z, tx, ty, tz);   // 72차 — 성벽 위면 몸을 내민 눈에서
     if(sT >= 0){ tx = o.x + (tx - o.x)*sT; ty = o.y + (ty - o.y)*sT; tz = o.z + (tz - o.z)*sT; }
     if(isGun){ if(sT >= 0) wallShot(hx, hy, hz, tx, ty, tz, W, f); else gunShot(hx, hy, hz, tx, Math.max(GY+0.2, ty), tz, false, W, f); }
     else shootStone(hx, hy, hz, tx, sT >= 0 ? ty : GY+0.3, tz, false);   // 돌은 날아가 닿는 곳(돌 앞)에서 흙먼지가 인다(stones 도착)
@@ -31205,7 +31245,7 @@ Object.assign(window, {
   __dWall:dWall, __castleTerrainAt:castleTerrainAt, __spiralH:spiralH, __ceilingOver:ceilingOver, __gboxSegClear:gboxSegClear,
   __sheltered:sheltered, __zTop:zTop, __zoneStair:zoneStair, __wolfY:wolfY, __onCastleLayer:onCastleLayer, __castleScarp:castleScarp,
   __climbTick:climbTick, __CLIMB:()=>({n:CL_N, all:CL_ALL, kid:CL_KID}), __camAuto:()=>camAutoK, __TRE:()=>TRE,
-  __updCastleTreasure:updCastleTreasure, __castleOccluded:castleOccluded, __castleHitT:castleHitT, __castleAimY:castleAimY, __castBand:()=>({i:CAST_IN, o:CAST_OUT, boxes:BS ? BS.length/6 : 0, gstone:GSTONE.length/6, gdia:GDIA.length/5}), __wallChip:wallChip, __aimAY:()=>aimAY, __updParts:updParts, __BS:()=>BS, __lerpMobs:lerpMobs, __miniStatic:miniStatic, __CPIECES:()=>CPIECES
+  __updCastleTreasure:updCastleTreasure, __castleOccluded:castleOccluded, __castleHitT:castleHitT, __castleAimY:castleAimY, __castleShotT:castleShotT, __castleLean:(x, z)=> castleLean(x, z) ? {..._lean} : null, __castBand:()=>({i:CAST_IN, o:CAST_OUT, boxes:BS ? BS.length/6 : 0, gstone:GSTONE.length/6, gdia:GDIA.length/5}), __wallChip:wallChip, __aimAY:()=>aimAY, __updParts:updParts, __BS:()=>BS, __lerpMobs:lerpMobs, __miniStatic:miniStatic, __CPIECES:()=>CPIECES
 });
 /* 67차 성곽 — 검사 API 둘째 덩이(설계 2회차에 더한 이름) */
 Object.assign(window, {
