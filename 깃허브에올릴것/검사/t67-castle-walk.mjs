@@ -438,7 +438,7 @@ try{
         const dx = U[0]*Math.cos(a) + N[0]*Math.sin(a), dz = U[1]*Math.cos(a) + N[1]*Math.sin(a); PL.yaw = Math.atan2(-dx, -dz); W.__setStamina(1);
         keys({w:true, shift:true}); let outN = 0, dist = 0; const fr0 = LOG.frames;
         for(let i=0; i<120; i++){ const x0 = PL.x, z0 = PL.z; step(1/60); dist += (PL.x - x0)*U[0] + (PL.z - z0)*U[1];
-          const e = (Math.abs(PL.x) + Math.abs(PL.z))*0.6; if(e < 49.72 - 0.01 || e > 52.02 + 0.01) outN++; if(PL.x > 47.5) break; }
+          const e = (Math.abs(PL.x) + Math.abs(PL.z))*0.6; if(e < 49.72 - 0.01 || e > 52.02 + 0.01) outN++; if(PL.x > 46.8) break; }   /* 70차 4회차 — 탑 문 앞 2.6 칸(회랑 끝 문 쪽 조임 — 쐐기 대신 문으로 꺾는 곳)은 빼고 잰다(옛 47.5) · 끝 쐐기는 t70 C8 */
         keys({}); R.W7.push({side, outN, speedPct:f2(dist/(LOG.frames - fr0)*60/8.613*100)}); }
       /* W10 문턱 — 암문을 0.3초 간격으로 3초 드나들기 */
       { place(16, 0, -48.6); PL.yaw = 0; for(let i=0; i<60; i++) step(1/60); let flips = 0, last = W.__tpvKind();
@@ -595,7 +595,7 @@ try{
     put({id:'W4', name:'성 밖 착지 0(60번)', pass:Object.values(walk.W4).every(n=> n === 0), detail:walk.W4});
     put({id:'W5', name:'마을 쪽 뛰어내림(흉벽 넘어) → 둘레길·마당(y 0) · 다침 0', pass:Math.abs(walk.W5.end[1]) < 0.1 && walk.W5.ck <= 1 && walk.W5.hurt === 0 && walk.W5.od < 49.2, detail:walk.W5});
     const cok = (r)=> r.ok && r.stalls === 0 && r.ceilBad === 0 && r.maxDy <= 0.7;
-    put({id:'W6', name:W_LIST[8][1] + ' · 숨은 문 벽에 막힘', pass:walk.W6.every(([, r])=> cok(r.a) && cok(r.b) && cok(r.c)) && walk.W6push.r >= 2.30 && walk.W6push.r <= 2.44 && Math.abs(walk.W6push.y - 10/3) < 0.4,   /* 70차 2회차 — 우물 벽 b − R = 2.42 에서 한 걸음(0.1) 안(옛 1.52 → 1.45~1.56) */
+    put({id:'W6', name:W_LIST[8][1] + ' · 숨은 문 벽에 막힘', pass:walk.W6.every(([, r])=> cok(r.a) && cok(r.b) && cok(r.c)) && walk.W6push.r >= 2.27 && walk.W6push.r <= 2.44 && Math.abs(walk.W6push.y - 10/3) < 0.4,   /* 70차 2회차 — 우물 벽 b − R = 2.42 에서 한 걸음(0.1) 안(옛 1.52 → 1.45~1.56) · 70차 4회차: 몸 한계가 원 b − R√2 − 0.01 = 2.29(떨림 없앰)라 아래 끝 2.27 */
          detail:{W6:walk.W6.map(([id, r])=> [id, [r.a.t, r.a.stalls, r.a.ceilBad], [r.b.t, r.b.stalls, r.b.ceilBad], [r.c.t, r.c.stalls, r.c.ceilBad], [r.a.ok, r.b.ok, r.c.ok]]), push:walk.W6push, fail:walk.W6.filter(([, r])=> !(cok(r.a) && cok(r.b) && cok(r.c)))}});
     put({id:'W6b', name:W_LIST[9][1], pass:walk.W6b.every(r=> r[1] < 1.5), detail:walk.W6b});
     put({id:'W6c', name:W_LIST[10][1] + ' — 걷기 ≤ 7초 · 달리기 ≤ 5.2초(70차 2회차 — 걸음선 r 1.1 → 1.6, 길이 +46%)', pass:cok(walk.W6c.a) && cok(walk.W6c.b) && cok(walk.W6c.c) && walk.W6c.a.t <= 7 && walk.W6c.b.t <= 5.2, detail:walk.W6c});

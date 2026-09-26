@@ -83,26 +83,28 @@ try{
   /* ═══ B2 아이 손 셋 × 탑 여덟 — 1층 → 망루(12) → 1층 ═══ */
   const B2 = await page.evaluate(()=>{ const W = window, H = W.__t70, PL = W.__PL, K = W.__KEY, GY = W.__GY;
     for(let i=0; i<5; i++){ W.__SECRET_OPEN[i] = 0; const b = W.__CPLAN.secrets[i].box; if(b) b.off = false; }
-    const kid = (i, toY, om, lag, maxT)=>{ const S = W.__SPIRALS[i], up = GY + toY > PL.y, hist = []; H.keys({w:true}); let t = 0, lm = 0, px = PL.x, pz = PL.z, py = PL.y, stalls = 0, maxStall = 0, wall = 0, inC = 0;
+    const kid = (i, toY, om, lag, maxT)=>{ const S = W.__SPIRALS[i], up = GY + toY > PL.y, hist = []; H.keys({w:true}); let t = 0, lm = 0, px = PL.x, pz = PL.z, py = PL.y, stalls = 0, maxStall = 0, wall = 0, wallC = 0, inC = 0, jerk = 0; const cp = [];
       const done = ()=> up ? PL.y - GY >= toY - 0.02 : PL.y - GY <= toY + 0.02;
       while(t < maxT && !done()){ const dx = PL.x - S.cx, dz = PL.z - S.cz, r = Math.hypot(dx, dz); let want;
         if(r > S.b - 0.02) want = Math.atan2(-(S.cx - PL.x), -(S.cz - PL.z));
         else { const th = Math.atan2(dz, dx) + (up ? 0.45 : -1.0), rr = (S.a + S.b)/2 + 0.1; want = Math.atan2(-(S.cx + Math.cos(th)*rr - PL.x), -(S.cz + Math.sin(th)*rr - PL.z)); }
         hist.push(want); const w = hist[Math.max(0, hist.length - 1 - Math.round(lag*60))]; let d = w - PL.yaw; d = Math.atan2(Math.sin(d), Math.cos(d)); PL.yaw += Math.max(-om/60, Math.min(om/60, d));
         K.w = Math.abs(d) < 1.6; W.__updPlayer(1/60); t += 1/60;
-        const r2 = Math.hypot(PL.x - S.cx, PL.z - S.cz); if(r2 < S.b + 0.05){ inC++; if(r2 >= S.b - PL.R - 0.03) wall++; }
+        const r2 = Math.hypot(PL.x - S.cx, PL.z - S.cz); if(r2 < S.b + 0.05){ inC++; if(r2 >= S.b - PL.R - 0.03) wall++; if(r2 >= S.b - PL.R*Math.SQRT2 - 0.03) wallC++; }   // 70차 4회차 — wallC: 몸 한계 원(b − R√2) 곁(기록 — 옛 wall 은 원 조임 뒤 구조상 0)
+        { const c = W.__cam.position; cp.push(c.x, c.z); const n = cp.length; if(n >= 6 && Math.hypot(cp[n-2] - 2*cp[n-4] + cp[n-6], cp[n-1] - 2*cp[n-3] + cp[n-5]) > 0.03) jerk++; }   // 70차 4회차 — 1인칭 화면 좌우 떨림(카메라 xz 2차 차분 > 0.03)
         if(Math.hypot(PL.x - px, PL.z - pz) + Math.abs(PL.y - py) > 0.1){ px = PL.x; pz = PL.z; py = PL.y; lm = t; } else if(t - lm > maxStall) maxStall = t - lm;
         if(t - lm > 1 && t - lm - 1/60 <= 1) stalls++; }
-      H.keys(); return {ok:done(), t:H.f3(t), stalls, maxStall:H.f3(maxStall), wallPct:H.f3(wall/Math.max(1, inC)*100)}; };
+      H.keys(); return {ok:done(), t:H.f3(t), stalls, maxStall:H.f3(maxStall), wallPct:H.f3(wall/Math.max(1, inC)*100), wallCPct:H.f3(wallC/Math.max(1, inC)*100), jerkPct:H.f3(jerk/Math.max(1, cp.length/2)*100)}; };
     const out = [];
     for(let i=0; i<8; i++) for(const [nm, om, lag] of [['숙련', 6, 0.15], ['보통', 5, 0.2], ['서툰', 3, 0.35]]){
       const S = W.__SPIRALS[i], d = H.xf(i, 37, -52.2); H.place(d[0], 0, d[1]); PL.yaw = Math.atan2(-(S.cx - PL.x), -(S.cz - PL.z));
       const a = kid(i, 12, om, lag, 20), b = a.ok ? kid(i, 0, om, lag, 20) : {ok:false};
       out.push([W.__CPLAN.towers[i].id, nm, a, b]); }
     return out; });
-  const b2bad = B2.filter(([, nm, a, b])=> !(a.ok && b.ok && a.stalls === 0 && b.stalls === 0 && (nm !== '서툰' || (a.t <= 12 && b.t <= 12)) && Math.max(a.wallPct, b.wallPct) <= (nm === '서툰' ? 8 : 3)));
-  const b2sum = {}; for(const [, nm, a, b] of B2){ const q = b2sum[nm] || (b2sum[nm] = {up:0, dn:0, wall:0, n:0}); q.up = Math.max(q.up, a.t); q.dn = Math.max(q.dn || 0, b.t || 0); q.wall = Math.max(q.wall, a.wallPct, b.wallPct || 0); q.n++; }
-  put({id:'B2', name:'아이 손 셋(숙련 ω6·보통 ω5·서툰 ω3/지연 .35) × 탑 여덟 1→12→1 — 끝까지 · 멈춤(1초) 0 · 서툰 손 ≤ 12초 · 벽 비빔 ≤ 3%(서툰 손 8% — 늦게 돌아 바깥으로 흐른다)(옛: 숙련 5.1%·보통 5.8% · 서툰 손 30초 못 오름)', pass:!b2bad.length, detail:{worst:b2sum, bad:b2bad.slice(0, 4)}});
+  const b2bad = B2.filter(([, nm, a, b])=> !(a.ok && b.ok && a.stalls === 0 && b.stalls === 0 && (nm !== '서툰' || (a.t <= 12 && b.t <= 12)) && Math.max(a.wallPct, b.wallPct) <= (nm === '서툰' ? 8 : 3)
+    && Math.max(a.jerkPct, b.jerkPct) <= (nm === '서툰' ? 5 : 2.5)));
+  const b2sum = {}; for(const [, nm, a, b] of B2){ const q = b2sum[nm] || (b2sum[nm] = {up:0, dn:0, wall:0, wallC:0, jerk:0, n:0}); q.up = Math.max(q.up, a.t); q.dn = Math.max(q.dn || 0, b.t || 0); q.wall = Math.max(q.wall, a.wallPct, b.wallPct || 0); q.jerk = Math.max(q.jerk, a.jerkPct, b.jerkPct || 0); q.wallC = Math.max(q.wallC, a.wallCPct, b.wallCPct || 0); q.n++; }
+  put({id:'B2', name:'아이 손 셋(숙련 ω6·보통 ω5·서툰 ω3/지연 .35) × 탑 여덟 1→12→1 — 끝까지 · 멈춤(1초) 0 · 서툰 손 ≤ 12초 · 벽 비빔 ≤ 3%(서툰 손 8% — 늦게 돌아 바깥으로 흐른다)(옛: 숙련 5.1%·보통 5.8% · 서툰 손 30초 못 오름) · 70차 4회차: 1인칭 좌우 떨림(카메라 xz 2차 차분 > 0.03) ≤ 2.5%(서툰 손 5%)(3회차 서툰 손 15.4·17.4%)', pass:!b2bad.length, detail:{worst:b2sum, bad:b2bad.slice(0, 4)}});
 
   /* ═══ C 낮은 턱 · 뛰어내리기 · 조준 ═══ */
   const Cr = await page.evaluate(()=>{ const W = window, H = W.__t70, PL = W.__PL, K = W.__KEY, GY = W.__GY, CW = W.__CW, CP = W.__CPLAN, THREE = W.__THREE;
@@ -168,7 +170,28 @@ try{
           while(t < 2.5){ W.__updPlayer(1/60); t += 1/60; if(PL.y - GY > 8.2 && PL.y - GY < 10) dmin = Math.min(dmin, Math.hypot(PL.x - px, PL.z - pz)); if(landT < 0 && PL.ground && PL.y < GY + 0.5){ landT = t; break; } }
           H.keys(); jumps.push({lat, dmin:H.f3(dmin), landT:H.f3(landT), hurt:hp0 - PL.hp}); } }
       W.__camZoom(3.2);
-      out.C6 = {posts:GP.length/5, frac:H.f3(bA/Math.max(1, nA)), n:nA, jumps}; }
+      /* 70차 4회차 — 회랑 한가운데(±0.5 · 선생님 8번 사진 자리)에서 마을 정면(시선 0 · −0.3)으로 겨눈 조준점(15 앞) 가림 0(3회차는 가운데 기둥이 정면을 막았다) */
+      let nM = 0, bM = 0; const exM = [];
+      for(const G of CP.galleries){ const L = Math.hypot(G.b.x - G.a.x, G.b.z - G.a.z);
+        for(const du of [-0.5, -0.25, 0, 0.25, 0.5]){ const u = L/2 + du, cx = G.a.x + (G.b.x - G.a.x)*u/L, cz = G.a.z + (G.b.z - G.a.z)*u/L, e0 = (Math.abs(cx) + Math.abs(cz))*0.6, m = (e0 - 49.74)/(Math.SQRT2*0.6);
+          const x = cx - G.N.x*m, z = cz - G.N.z*m;
+          for(const pt of [0, -0.3]){ H.place(x, 8, z, Math.atan2(G.N.x, G.N.z), pt); const ey = PL.y + 1.12, dx = -G.N.x*Math.cos(pt), dz = -G.N.z*Math.cos(pt), dy = Math.sin(pt); nM++;
+            if(W.__castleOccluded(PL.x, ey, PL.z, PL.x + dx*15, ey + dy*15, PL.z + dz*15)){ bM++; if(exM.length < 4) exM.push([G.id, du, pt]); } } } }
+      out.C6 = {posts:GP.length/5, frac:H.f3(bA/Math.max(1, nA)), n:nA, jumps, mid:{n:nM, blocked:bM, ex:exM}}; }
+    /* C8 — 70차 4회차: 회랑 끝(탑 곁) 쐐기. 회랑 가운데에서 탑 쪽으로 W 만(걷기·달리기) — 마을 쪽 절반(e 49.74·50.1)도 5초 안에 탑 문으로(3회차 32/32 모서리에 멈춤) ·
+       그 모서리에서 탑 쪽으로 한 번 뛴 뒤 걸어서 8방향 중 나갈 수 있는 방향 ≥ 4(3회차 0 — 8방향 0칸 갇힘) */
+    { const bad = [], esc = []; let n = 0;
+      for(const G of CP.galleries) for(const toward of ['a', 'b']) for(const e of [49.74, 50.1, 50.6, 51.5, 51.9]) for(const run of [false, true]){
+        const cx = (G.a.x + G.b.x)/2, cz = (G.a.z + G.b.z)/2, e0 = (Math.abs(cx) + Math.abs(cz))*0.6, m = (e0 - e)/(Math.SQRT2*0.6), x = cx - G.N.x*m, z = cz - G.N.z*m;
+        const U = toward === 'b' ? G.U : {x:-G.U.x, z:-G.U.z}; H.place(x, 8, z, Math.atan2(-U.x, -U.z), -0.1); H.keys({w:true, shift:run}); let t = 0, inT = false; n++;
+        while(t < 5 && !inT){ W.__setStamina(1); W.__updPlayer(1/60); t += 1/60; inT = W.__galleryAt(PL.x, PL.z) < 0 && Math.hypot(PL.x - G[toward].x, PL.z - G[toward].z) < 3 && Math.abs(PL.y - GY - 8) < 0.6; }
+        H.keys(); if(!inT) bad.push([G.id, toward, e, run ? 1 : 0, H.f3(PL.x), H.f3(PL.z)]); }
+      for(let i=0; i<8; i++){ const p = H.xf(i, 34.143, -48.72), f = H.xf(i, -0.996, -0.089); H.place(p[0], 8, p[1], Math.atan2(-f[0], -f[1]), -0.1);
+        H.keys({w:true}); W.__wantJump(); for(let k=0; k<50; k++) W.__updPlayer(1/60); H.keys();
+        const sx = PL.x, sz = PL.z, sy = PL.y; let ok = 0;
+        for(let d=0; d<8; d++){ Object.assign(PL, {x:sx, z:sz, y:sy, vx:0, vz:0, vy:0, ground:true}); PL.yaw = d*Math.PI/4; H.keys({w:true}); for(let k=0; k<40; k++) W.__updPlayer(1/60); H.keys(); if(Math.hypot(PL.x - sx, PL.z - sz) > 0.3) ok++; }
+        esc.push(ok); }
+      out.C8 = {n, bad, esc}; }
     /* C5 — 좀비 구역·계단 가지 그대로(ZONE 칸 수 · 구역마다 계단) */
     let zc = 0; for(let i=0; i<W.__ZONE.length; i++) if(W.__ZONE[i] >= 0) zc++;
     out.C5 = {zone:zc, stairs:CP.zones.map(Z=> Z.stairs.join(','))};
@@ -184,8 +207,10 @@ try{
   const c3bad = Cr.C3.filter(r=> r[3] < 7.99);
   put({id:'C3', name:'걸어선 안 떨어짐 — 턱 쪽으로 걷기·달리기 5초(10°·30°·90°) y 8 그대로', pass:!c3bad.length, detail:{bad:c3bad.slice(0, 6), n:Cr.C3.length}});
   put({id:'C4', name:'마을 쪽 조준 — 회랑 안쪽 끝 눈에서 마을 쪽 좀비(아래로 ≤ 50°) 턱·흉벽 가림 0(기둥에 걸린 선은 C6) · 바깥 돌벽 너머 낮은 선은 가림 그대로', pass:Cr.C4.blocked === 0 && Cr.C4.n > 100 && Cr.C4.outerBlocked === Cr.C4.outer, detail:Cr.C4});
-  put({id:'C6', name:'회랑 기둥 — 28개(0.22 · 3.0 박자) · 안쪽 끝을 따라 걸으며 조준점 가림 ≤ 10%(옛 0.3 · 2.0 박자 15% — 보이는 기둥 = 맞는 가림) · 기둥 바로 뒤에서 뛰어도 몸이 기둥을 안 지남(가운데 거리 ≥ 0.36) · 둘레길 착지 · 다침 0',
-    pass:Cr.C6.posts === 28 && Cr.C6.frac <= 0.10 && Cr.C6.n > 200 && Cr.C6.jumps.length >= 8 && Cr.C6.jumps.every(j=> j.dmin >= 0.36 && j.landT > 0 && j.hurt === 0), detail:Cr.C6});
+  put({id:'C6', name:'회랑 기둥 — 24개(0.22 · 3.0 박자 · 70차 4회차: 가운데를 비우고 GM ± 1.5 + 3k) · 안쪽 끝을 따라 걸으며 조준점 가림 ≤ 10%(옛 0.3 · 2.0 박자 15% — 보이는 기둥 = 맞는 가림) · 회랑 한가운데 ±0.5 마을 정면(시선 0·−0.3) 가림 0(3회차: 가운데 기둥이 정면을 막음) · 기둥 바로 뒤에서 뛰어도 몸이 기둥을 안 지남(가운데 거리 ≥ 0.36) · 둘레길 착지 · 다침 0',
+    pass:Cr.C6.posts === 24 && Cr.C6.mid.n === 40 && Cr.C6.mid.blocked === 0 && Cr.C6.frac <= 0.10 && Cr.C6.n > 200 && Cr.C6.jumps.length >= 8 && Cr.C6.jumps.every(j=> j.dmin >= 0.36 && j.landT > 0 && j.hurt === 0), detail:Cr.C6});
+  put({id:'C8', name:'회랑 끝 쐐기 — 회랑 가운데에서 탑 쪽으로 W 만(e 49.74~51.9 · 걷기·달리기 · 회랑 넷 × 양끝) 5초 안에 모두 탑 문 안(3회차 마을 쪽 절반 32/32 모서리에 멈춤) · 모서리에서 뛴 뒤 걸어서 나갈 방향 ≥ 4/8(3회차 0)',
+    pass:Cr.C8.n === 80 && !Cr.C8.bad.length && Cr.C8.esc.length === 8 && Cr.C8.esc.every(v=> v >= 4), detail:Cr.C8});
   put({id:'C5', name:'좀비 새 길 없음 — ZONE 칸 수 1428(69·70차 1회차와 같음)·구역마다 계단 가지 그대로(턱은 좀비 구역 밖)', pass:Cr.C5.zone === 1428 && Cr.C5.stairs.join('|') === '0,1|2,3|4,5,6,7|8,9', detail:Cr.C5});
 
   /* ═══ E 계단 몸 ═══ */
@@ -244,6 +269,26 @@ try{
       const walk = worst([0.93, 0.98, 1.03, 1.08, 1.13].map(ts=> run((t)=> t < ts ? {x:8 + 4.5*t, y:GY, z:20} : {x:8 + 4.5*ts, y:GY, z:20, stop:true})));
       const fall = worst([[2, 0], [2, 0.07], [4, 0], [4, 0.11], [8, 0.05]].flatMap(([h, t0])=> [26, 36.9].map(gv=> run((t)=>{ const tf = Math.sqrt(2*h/gv), u = t - t0; return u < 0 ? {x:8, y:GY + h, z:20} : u < tf ? {x:8 + 3*u, y:GY + h - 0.5*gv*u*u, z:20} : {x:8 + 3*tf, y:GY, z:20, stop:true}; }))));
       out.friendStop = {walk, fall}; }
+    /* E4c — 70차 4회차: 교실 와이파이처럼 도착이 흔들릴 때(파이어베이스는 순서 그대로 — 늦은 꾸러미 뒤는 같이 늦는다) · 경주 대각선 달리기 · 느린 꾸러미.
+       60fps 흉내 시계로 30초 · 1초 뒤부터 잰 걸음 방향 속도의 p5/p95 · 뒤로 간 프레임 · 순간이동(한 프레임 > 기대의 2.2배) · 멈칫(중앙값 30% 미만) */
+    { let sd = 11; const rnd = ()=>{ sd = (sd*16807) % 2147483647; return (sd - 1)/2147483646; };
+      const run = (v, ang, send, jit)=>{ const p = {}, dx = Math.cos(ang), dz = Math.sin(ang), arr = []; let la = 0;
+        for(let t=0; t<30; t += send){ const a = Math.max(la, t + jit()); la = a; arr.push([a, +(8 + v*t*dx).toFixed(2), GY, +(20 + v*t*dz).toFixed(2)]); }
+        let k = 0, px = null, pz = null, back = 0, tele = 0; const sp = [];
+        for(let f=0; f<1800; f++){ const t = f/60;
+          while(k < arr.length && arr[k][0] <= t){ const d = arr[k]; if(p.bx !== d[1] || p.bz !== d[3] || p.by !== d[2]) W.__friendSeg(p, d[1], d[2], d[3], t); k++; }
+          W.__friendLerp(p, t);
+          if(px !== null && t > 1 && t < 29){ const m = (p.x - px)*dx + (p.z - pz)*dz; sp.push(m*60); if(m < -1e-6) back++; if(Math.hypot(p.x - px, p.z - pz) > 2.2*v/60 + 0.05) tele++; }
+          px = p.x; pz = p.z; }
+        sp.sort((a, b)=> a - b); const med = sp[sp.length >> 1], p5 = sp[Math.floor(sp.length*0.05)], p95 = sp[Math.floor(sp.length*0.95)];
+        return {p5:H.f3(p5), p95:H.f3(p95), r:H.f3(p95/Math.max(0.01, p5)), back, tele, stall:sp.filter(x=> x < 0.3*med).length, n:sp.length}; };
+      out.friendJit = {
+        jit120: run(4.5, 0, 1/6, ()=> rnd()*0.12),
+        late30: run(4.5, 0, 1/6, ()=> rnd() < 0.3 ? 0.25 : 0.05),
+        jit300: run(4.5, 0, 1/6, ()=> 0.05 + rnd()*0.3),
+        race45: run(14.13, Math.PI/4, 1/6, ()=> 0.05),
+        race45j: run(14.13, Math.PI/4, 1/6, ()=> rnd()*0.12),
+        sprint45slow: run(8.61, Math.PI/4, 1/3, ()=> 0.05) }; }
     /* E5 — 3인칭(줌 3.2)으로 성문 계단을 뒤로(S) 오르기 · 시선 −0.15·−0.5·0·0.2: 당겼다 0.3초 안에 풀었다 다시 당기는 톱니 · 몸 숨김 0.4초 안 깜빡 */
     out.back = [];
     for(const pitch of [-0.15, -0.5, 0, 0.2]){ W.__camZoom(3.2); H.place(33.5, 0, -8.5, Math.PI/2, pitch); H.keys({s:true}); const ds = [], hs = [];
@@ -253,6 +298,17 @@ try{
       for(let i=1; i<ds.length; i++) for(let j=Math.max(0, i - 18); j<i; j++) if(ds[i] - ds[j] > 0.1){ let mn = ds[i]; for(let q=i + 1; q<Math.min(ds.length, i + 19); q++) mn = Math.min(mn, ds[q]); if(ds[i] - mn > 0.1){ saw++; i += 18; } break; }
       for(let i=1; i<hs.length; i++) if(hs[i] !== hs[i-1]){ if(i - lastFlip <= 24) blink++; lastFlip = i; }
       out.back.push([pitch, saw, blink]); }
+    /* E6 — 70차 4회차: 3인칭으로 성문 계단 열을 앞으로(W) 걸어 내려가기 · 줌 3.2·6 × 시선 −0.05·−0.15·−0.25·−0.4. 3회차는 엉덩이 높이 선이 뒤쪽 디딤에 걸려
+       3.2 → 0.83 으로 4프레임에 당겨진 채 머물렀다(1.2 안 64~77% · 한 프레임 당김 1.9 · 카메라 y 2차 차분 0.37 — main 0%·0.009) */
+    out.desc = [];
+    for(const zoom of [3.2, 6]) for(const pitch of [-0.05, -0.15, -0.25, -0.4]){ let close = 0, n = 0, pull = 0, a2 = 0;
+      for(let k=0; k<ST.length; k++){ W.__camZoom(zoom); const g = ST[k].g, s = (k % 2) ? 1 : -1, gX = W.__gX, gZ = W.__gZ;
+        H.place(gX(g, 47.6, 8.5*s), 8, gZ(g, 47.6, 8.5*s), 0, pitch); for(let i=0; i<30; i++) W.__updPlayer(1/60);
+        const tx = gX(g, 32.4, 8.5*s), tz = gZ(g, 32.4, 8.5*s); H.keys({w:true}); const cy = [], ds = []; let t = 0;
+        while(t < 4){ PL.yaw = Math.atan2(-(tx - PL.x), -(tz - PL.z)); PL.pitch = pitch; W.__updPlayer(1/60); t += 1/60; cy.push(W.__cam.position.y); const d = W.__camRig().distance;
+          if(ds.length) pull = Math.max(pull, ds[ds.length - 1] - d); ds.push(d); n++; if(d < 1.2) close++; if(W.__gT(g, PL.x, PL.z) < 32.8) break; }
+        H.keys(); a2 = Math.max(a2, a2of(cy.slice(5))); }
+      out.desc.push({zoom, pitch, closePct:H.f3(close/Math.max(1, n)*100), pull:H.f3(pull), a2:H.f3(a2)}); }
     W.__camZoom(3.2);
     /* E3 — 평지 걸음 박자 */
     return out; });
@@ -268,6 +324,11 @@ try{
     detail:{stair:[Math.min(...cads), Math.max(...cads)], flat:E.cad.flat}});
   put({id:'E4', name:'친구 화면(6Hz 받기) — 수평 속도 최대/최소 ≤ 1.3(옛 2.0~12.6) · y 2차 차분 ≤ 0.03 · 공중 깜빡 0 · 멈춘 뒤 0.5초 받은 자리 ±0.01(옛 0.17 앞) · 뛰어내려 착지 뒤 땅속 ≤ 0.01(옛 0.33)',
     pass:E.friend.ratio <= 1.3 && E.friend.a2 <= 0.03 && E.friend.flips === 0 && E.friendStop.walk.after <= 0.01 && E.friendStop.fall.after <= 0.01 && E.friendStop.fall.sink <= 0.01 && E.friendStop.walk.sink <= 0.01, detail:{...E.friend, stop:E.friendStop}});
+  { const J = E.friendJit, ok = J.jit120.r <= 1.6 && J.late30.r <= 1.7 && J.race45.r <= 1.2 && J.race45j.r <= 1.4 && J.sprint45slow.r <= 1.2
+      && Object.values(J).every(q=> q.back === 0 && q.tele === 0) && J.jit120.stall === 0 && J.late30.stall <= 0.02*J.late30.n;
+    put({id:'E4c', name:'친구 화면 — 도착 흔들림(0~120ms · 30% 200ms · 0.05~0.35초)·경주 대각선 달리기(14.1 m/s 45°)·느린 꾸러미(1/3초): 뒤로 간 프레임 0 · 순간이동 0 · 속도 p95/p5 ≤ 1.6(30% 늦음 1.7 · 경주 1.2~1.4) · 멈칫 0(30% 늦음 ≤ 2%)(3회차: 0~120ms 0.58~9.85 · 흔들림 0.3 뒤로 13~18% · 경주 45° 매 꾸러미 순간이동)', pass:ok, detail:J}); }
+  put({id:'E6', name:'3인칭 성문 계단 앞으로 걸어 내려가기(열 곳 × 줌 3.2·6 × 시선 넷) — 카메라 거리 < 1.2 시간 ≤ 5% · 한 프레임 당김 ≤ 0.3 · 카메라 y 2차 차분 ≤ 0.03(3회차 64~77% · 1.9 · 0.37 — 오르막 쪽 카메라는 당기기 전에 끝을 올린다)',
+    pass:E.desc.length === 8 && E.desc.every(r=> r.closePct <= 5 && r.pull <= 0.3 && r.a2 <= 0.03), detail:E.desc});
   put({id:'E5', name:'3인칭 뒤로(S) 성문 계단 오르기 — 카메라 당김 톱니(풀었다 0.3초 안 다시 당김) 0 · 몸 숨김 0.4초 안 깜빡 0(옛 톱니 29~40 · 깜빡 2~4) · 시선 넷', pass:E.back.every(r=> r[1] === 0 && r[2] === 0), detail:E.back});
 
   /* ═══ F 좀비 ═══ */

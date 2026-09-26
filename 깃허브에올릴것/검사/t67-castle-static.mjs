@@ -310,7 +310,9 @@ check('T', "다섯 문을 다 찾으면 🗝️ 성곽 탐험가(큰 알림 + ex
   check('A', "손님 판이 다르면 '새로고침해 주세요' 한 번만(큰 알림)", n === 1, {n}); }
 check('A', '호스트 meta 에 v(GAME_VER)·sid·dg · 손님이 sid·v·dg 를 읽는다', /v:GAME_VER, sid:G\.sid\|\|0, dg:G\.danger\|0/.test(code) && /if\(m\.sid\) G\.sid = m\.sid;/.test(code) && /treVersion\(m\.v\)/.test(code) && /treDangerRun\(G\.danger\)/.test(code), {});
 check('A', "dangerCheck 가 호스트 화면에도 treDangerRun", /say\(`⚠️[\s\S]{0,200}treDangerRun\(worst\)/.test(code), {});
-check('A', "GAME_VER '67차 · 다섯 성문을 잇는 성곽'", /const GAME_VER = '67차 · 다섯 성문을 잇는 성곽'/.test(code), {});
+/* 70차 4회차 — 판 모양(탑 CW.TW 11 · 나선 CW.SP)이 67차 판(TW 9)과 다르면 GAME_VER 도 67차 판 문자열이 아니어야 한다(옛 탭 손님에게 '새로고침' 알림이 뜨게) */
+{ const gv = (code.match(/const GAME_VER = '([^']*)'/) || [])[1] || '', tw = +((code.match(/TW:(\d+)/) || [])[1] || 0), n = +((gv.match(/^(\d+)차 · /) || [])[1] || 0);
+  check('A', "GAME_VER '<N>차 · …' · 탑 11×11(판 모양 바뀜)이면 N ≥ 70 · 67차 판 문자열 아님", n >= 67 && (tw === 9 || (n >= 70 && gv !== '67차 · 다섯 성문을 잇는 성곽')), {gv, tw}); }
 
 /* ═══ O. 조준 가림 ═══ */
 { fresh(); T.CASTLE.fill(0); T.CROOF.fill(0);
