@@ -41,6 +41,21 @@ try{
           if(da < D.half && p[1] > D.y - GY + 0.3 && p[1] < D.y - GY + 2.3) out.wedge.push([s, H.f3(th), H.f3(p[1])]); } }
       out.rail.push(n); }
     out.keys = [...out.keys];
+    /* 고침 — 쇠 까치발(railBracket) 조각 상자 ~ 가장 가까운 손잡이 조각 상자 틈(받칠 손잡이 없이 벽에 뜬 받침 0) */
+    { const kb = C.kinds.indexOf('railBracket'); let gm = 0, at = null, nb = 0;
+      for(let i=0; i<C.n; i++){ const o = i*st; if(d[o + 7] !== kb) continue; nb++; const b = [d[o+1], d[o+2], d[o+5], d[o+6], d[o+3], d[o+4]]; let g = 1e9;
+        for(const p of pieces){ const gx = Math.max(0, p[3] - b[1], b[0] - p[4]), gy = Math.max(0, p[5] - b[3], b[2] - p[6]), gz = Math.max(0, p[7] - b[5], b[4] - p[8]); g = Math.min(g, Math.hypot(gx, gy, gz)); }
+        if(g > gm){ gm = g; at = [H.f3((b[0] + b[1])/2), H.f3((b[2] + b[3])/2), H.f3((b[4] + b[5])/2)]; } }
+      out.bracket = {n:nb, gapMax:H.f3(gm), at}; }
+    /* 고침 — 휜 호(crail·crailK) 이음: 토막 끝 단면 가운데가 이웃 토막 시작과 1mm 안 · 같은 줄기 한 색 · 손잡이 색은 세 나무색 그대로(불빛 웅덩이 안 탐) */
+    { const THREE = W.__THREE, RC = new Set([0x5a3f28, 0x4f3724, 0x563c27]), J = {arcs:0, joints:0, colJump:0, colOut:0, ends:0};
+      for(const k of ['crail', 'crailK']){ const b = W.__banks.get(k); if(!b) continue; const pos = b.geo.attributes.position, NR = 9, n0 = new THREE.Vector3(), n1 = new THREE.Vector3();
+        for(let j=0; j<NR - 1; j++){ n0.x += pos.getX(j)/(NR - 1); n0.y += pos.getY(j)/(NR - 1); n0.z += pos.getZ(j)/(NR - 1); const q = pos.count - NR + j; n1.x += pos.getX(q)/(NR - 1); n1.y += pos.getY(q)/(NR - 1); n1.z += pos.getZ(q)/(NR - 1); }
+        const E = b.ms.map(m=> [n0.clone().applyMatrix4(m), n1.clone().applyMatrix4(m)]); J.arcs += E.length;
+        for(let i=0; i<E.length; i++){ if(!RC.has(b.cols[i])) J.colOut++; let hit = false;
+          for(let j=0; j<E.length; j++) if(j !== i && E[i][1].distanceTo(E[j][0]) < 1e-3){ hit = true; J.joints++; if(b.cols[i] !== b.cols[j]) J.colJump++; }
+          if(!hit) J.ends++; } }
+      out.joint = J; }
     /* A2 — T1·T5 걸음선 36 자리 · 오르는 쪽 접선 시선(위로 0.2) · 화면 가운데 원뿔(가로 ±30° · 세로 ±20°) 안 손잡이 조각 상자까지 가장 가까운 거리 */
     let minD = 1e9, at = null;
     for(const s of [0, 4]){ const S = SP[s], rm = (S.a + S.b)/2;
@@ -56,9 +71,11 @@ try{
     out.slope = SP.slice(0, 8).map(S=>{ const rm = (S.a + S.b)/2; return H.f3(Math.atan(S.h/(2*PI*rm/S.m))*180/PI); });
     out.odd = W.__castleOddN();
     return out; });
-  put({id:'A1', name:'손잡이 — 밧줄 0 · 둥근 나무 막대(cbarrel)만 · 조각 가운데 r ∈ [b−0.15, b−0.04](우물 벽을 따라 도는 곡선) · 문 쐐기 안 0 · 탑당 35~70 조각',
-    pass:AB.rope === 0 && AB.keys.every(k=> k === 'cbarrel') && !AB.railBad.length && !AB.wedge.length && AB.rail.slice(0, 8).every(n=> n >= 35 && n <= 70) && AB.rail[8] >= 15,
-    detail:{rope:AB.rope, keys:AB.keys, rail:AB.rail, bad:AB.railBad.slice(0, 6), wedge:AB.wedge.slice(0, 6)}});
+  put({id:'A1', name:'손잡이 — 밧줄 0 · 둥근 나무(휜 호 crail·crailK + 벽으로 꺾은 끝 cbarrel)만 · 조각 가운데 r ∈ [b−0.15, b−0.04](우물 벽을 따라 도는 곡선) · 문 쐐기 안 0 · 탑당 35~70 조각 · 쇠 까치발 ~ 손잡이 틈 ≤ 0.05(옛 0.17 — 줄기 끝 너머 뜬 받침)',
+    pass:AB.rope === 0 && AB.keys.every(k=> k === 'cbarrel' || k === 'crail' || k === 'crailK') && !AB.railBad.length && !AB.wedge.length && AB.rail.slice(0, 8).every(n=> n >= 35 && n <= 70) && AB.rail[8] >= 15 && AB.bracket.n >= 80 && AB.bracket.gapMax <= 0.05,
+    detail:{rope:AB.rope, keys:AB.keys, rail:AB.rail, bad:AB.railBad.slice(0, 6), wedge:AB.wedge.slice(0, 6), bracket:AB.bracket}});
+  put({id:'A3', name:'손잡이 매끈한 곡선 — 20° 나선 호 관을 맞대 이음(끝 단면 1mm 안 · 꺾임 0) · 한 줄기 한 색(이음매 색 띠 0) · 세 나무색 그대로(횃불 곁 계단식 색 튐 0) · 줄기 끝 = 이음 없는 끝 둘씩',
+    pass:AB.joint.arcs > 300 && AB.joint.colJump === 0 && AB.joint.colOut === 0 && AB.joint.joints + AB.joint.ends === AB.joint.arcs && AB.joint.joints > AB.joint.arcs*0.7, detail:AB.joint});
   put({id:'A2', name:'1인칭 시야 — 걸음선 36 자리 × 오르는 쪽 시선 원뿔(±30°·±20°) 안 손잡이까지 ≥ 0.8(눈앞을 가로지르는 막대 없음)', pass:AB.view.minD >= 0.8, detail:AB.view});
   put({id:'B1', name:'나선 폭 — 탑 여덟 디딤 폭 b − a ≥ 2.1(옛 1.40) · 걸음선 기울기 ≤ 24°(옛 30°) · K 그대로 · castleOddN 0', pass:AB.width.every(w=> w >= 2.1) && AB.slope.every(a=> a <= 24) && AB.K[0] === 0.4 && AB.K[1] === 1.8 && AB.odd === 0,
     detail:{width:AB.width, slope:AB.slope, K:AB.K, odd:AB.odd}});
@@ -109,6 +126,11 @@ try{
       H.place(p.x, 8, p.z, p.yaw, pitch); W.__camZoom(0); for(let i=0; i<40; i++) W.__updPlayer(1/60); PL.pitch = pitch; W.__updPlayer(1/60);
       const m = heldMin(); out.C1.push([p.id, pitch, H.f3(m.min - (8 + CW.CURB + 0.08)), m.l0, m.l2]); }
     W.__setAim(false, true); W.__camZoom(3.2);
+    /* C7 — 층 2(heldPass)는 손 모형(held) 자손에만. 진열 총(상점·대장간 — 손 모형 복제)은 층 0(본 그림)에 · 층 2 0 */
+    { W.__drawNPCs(1); const Hd = W.__held, D = W.__DISP(); let dm = 0, d0 = 0, d2 = 0, stray = 0;
+      for(const q of D) q.m.traverse(o=>{ if(!o.isMesh) return; dm++; if(o.layers.isEnabled(0)) d0++; if(o.layers.isEnabled(2)) d2++; });
+      W.__scene.traverse(o=>{ if(!(o.isMesh || o.isLine || o.isPoints || o.isSprite) || !o.layers.isEnabled(2)) return; let v = o; while(v && v !== Hd) v = v.parent; if(!v) stray++; });
+      out.C7 = {disp:D.length, meshes:dm, l0:d0, l2:d2, stray}; }
     /* C2 — 안쪽 끝에서 마을 쪽으로 W + 한 번 뛰기 → 둘레길(y 0) · 다침 0 · 끼임 0 · 착지 0.7초 뒤 자동 1인칭 풀림 */
     out.C2 = [];
     for(const p of [...galPts, ...strPts.slice(0, 2)]){ H.place(p.x, 8, p.z, p.yaw, -0.1); W.__camZoom(3.2); for(let i=0; i<30; i++) W.__updPlayer(1/60);
@@ -122,6 +144,7 @@ try{
       for(let i=0; i<300; i++){ W.__updPlayer(1/60); minY = Math.min(minY, PL.y - GY); }
       H.keys(); out.C3.push([p.id, a, run ? 1 : 0, H.f3(minY)]); }
     /* C4 — 회랑 안쪽 끝 눈(쏘는 자리)에서 마을 쪽 좀비(od 45·42·38·34 · 가슴 0.85) — 아래로 ≤ 50° 선 막힘 0(옛 흉벽 0.85 는 38° 넘게 숙이면 막혔다) · 바깥 돌벽 너머(해자 쪽) 낮은 선은 여전히 막힘 */
+    const gpSave = (W.__GPOST || []).splice(0);                                   // C4 는 턱·흉벽만(기둥은 아래 C6 에서 따로 잰다)
     let n4 = 0, blk = 0, n4o = 0, blkO = 0; const ex4 = [];
     for(const p of galPts){ H.place(p.x, 8, p.z, p.yaw, -0.1); const eye = [PL.x, PL.y + 1.12, PL.z];
       for(let q=-3; q<=3; q++){ const G = CP.galleries[Math.floor(galPts.indexOf(p)/3)], ux = G.U.x, uz = G.U.z;   // 옆으로 ±2.4(탑 몸에 막히는 두 끝은 빼고)
@@ -130,7 +153,22 @@ try{
           if(W.__castleOccluded(eye[0], eye[1], eye[2], tx, ty, tz)){ blk++; if(ex4.length < 5) ex4.push([p.id, q, od, H.f3(ang)]); } }
         const mo = -3.2/(Math.SQRT2*0.6)*0 - 3.6, ox = p.x + G.N.x*3.6 + ux*q*0.8, oz = p.z + G.N.z*3.6 + uz*q*0.8; n4o++;
         if(W.__castleOccluded(eye[0], eye[1], eye[2], ox, GY + 2.5, oz)) blkO++; } }
+    if(W.__GPOST) W.__GPOST.push(...gpSave);
     out.C4 = {n:n4, blocked:blk, ex:ex4, outer:n4o, outerBlocked:blkO};
+    /* C6 — 회랑 기둥(고침: 0.22 · 3.0 박자 · 턱 마을 쪽 끝 · 몸 상자 · 가림 GPOST): ① 안쪽 끝(e 49.74)을 0.25 마다 걸어 가며 눈 → 마을(od 40·가슴) 조준점 가림 비율
+       ② 기둥 바로 뒤(0.3 좌우 · 0.9 뒤)에서 W + 뛰기 → 몸 가운데 ~ 기둥 가운데 최소 거리 ≥ 기둥 반폭 + 몸 반지름 − 0.05 · 착지 둘레길 */
+    { const GP = W.__GPOST || []; let nA = 0, bA = 0; const jumps = [];
+      for(const G of CP.galleries){ const L = Math.hypot(G.b.x - G.a.x, G.b.z - G.a.z);
+        for(let u = 2.5; u <= L - 2.5; u += 0.25){ const cx = G.a.x + (G.b.x - G.a.x)*u/L, cz = G.a.z + (G.b.z - G.a.z)*u/L, e0 = (Math.abs(cx) + Math.abs(cz))*0.6, m = (e0 - 49.74)/(Math.SQRT2*0.6);
+          const x = cx - G.N.x*m, z = cz - G.N.z*m, m2 = (49.74 - 40)/(Math.SQRT2*0.6); H.place(x, 8, z, Math.atan2(G.N.x, G.N.z), -0.1); nA++;
+          if(W.__castleOccluded(PL.x, PL.y + 1.12, PL.z, x - G.N.x*m2, GY + 0.85, z - G.N.z*m2)) bA++; } }
+      for(let q=0; q<GP.length && jumps.length < 12; q += 5*4){ const px = GP[q], pz = GP[q+1], G = CP.galleries.reduce((a, g)=> Math.hypot(g.a.x + g.b.x - 2*px, g.a.z + g.b.z - 2*pz) < Math.hypot(a.a.x + a.b.x - 2*px, a.a.z + a.b.z - 2*pz) ? g : a);
+        for(const lat of [-0.12, 0.12]){ const x = px - G.N.x*0.9 + G.U.x*lat, z = pz - G.N.z*0.9 + G.U.z*lat; H.place(x, 8, z, Math.atan2(G.N.x, G.N.z), -0.1); W.__camZoom(0); for(let i=0; i<20; i++) W.__updPlayer(1/60);
+          H.keys({w:true}); W.__wantJump(); let t = 0, dmin = 99, landT = -1; const hp0 = PL.hp;
+          while(t < 2.5){ W.__updPlayer(1/60); t += 1/60; if(PL.y - GY > 8.2 && PL.y - GY < 10) dmin = Math.min(dmin, Math.hypot(PL.x - px, PL.z - pz)); if(landT < 0 && PL.ground && PL.y < GY + 0.5){ landT = t; break; } }
+          H.keys(); jumps.push({lat, dmin:H.f3(dmin), landT:H.f3(landT), hurt:hp0 - PL.hp}); } }
+      W.__camZoom(3.2);
+      out.C6 = {posts:GP.length/5, frac:H.f3(bA/Math.max(1, nA)), n:nA, jumps}; }
     /* C5 — 좀비 구역·계단 가지 그대로(ZONE 칸 수 · 구역마다 계단) */
     let zc = 0; for(let i=0; i<W.__ZONE.length; i++) if(W.__ZONE[i] >= 0) zc++;
     out.C5 = {zone:zc, stairs:CP.zones.map(Z=> Z.stairs.join(','))};
@@ -138,12 +176,16 @@ try{
   const c1bad = Cr.C1.filter(r=> r[3] !== 0 || r[4] === 0 || (r[1] === 0 && r[2] < 0));
   put({id:'C1', name:'든 총 — 1인칭 손은 층 2 에만(장면을 그린 뒤 깊이를 지우고 따로 그림 — 턱·흉벽·문설 어디에도 안 묻힘) · 안쪽 끝 앞을 볼 때(시선 0) 총 아랫면이 턱 갓돌 위', pass:!c1bad.length,
     detail:{curb:Cr.curb, bad:c1bad.slice(0, 6), min:Math.min(...Cr.C1.map(r=> r[2])), all:Cr.C1.map(r=> r[2]).slice(0, 12)}});
+  put({id:'C7', name:'진열 총 층 — 상점·대장간 진열 총 조각 모두 층 0 · 층 2 0 · 장면에서 층 2 는 손 모형(held) 자손뿐(옛: 진열 59 조각이 층 1+2 — 3인칭엔 사라지고 1인칭엔 벽 위에 떠 그려짐)',
+    pass:Cr.C7.disp >= 10 && Cr.C7.meshes > 0 && Cr.C7.l0 === Cr.C7.meshes && Cr.C7.l2 === 0 && Cr.C7.stray === 0, detail:Cr.C7});
   const c2bad = Cr.C2.filter(r=> !(r.landT > 0 && r.landT <= 1.5 && Math.abs(r.y) < 0.05 && r.od < 49.05 && r.hurt === 0 && r.auto < 0.02));
   put({id:'C2', name:'뛰어내리기 — 안쪽 끝에서 W + 한 번 뛰면 1.5초 안 둘레길(y 0) · 다침 0 · 끼임 0 · 착지 0.7초 뒤 3인칭(회랑 넷 × 3 · 곧은 벽 둘) — 턱 0.32 < 뜀 ' + Cr.curb.jumpH, pass:!c2bad.length && Cr.curb.h < Cr.curb.jumpH,
     detail:{bad:c2bad.slice(0, 4), landT:Cr.C2.map(r=> r.landT)}});
   const c3bad = Cr.C3.filter(r=> r[3] < 7.99);
   put({id:'C3', name:'걸어선 안 떨어짐 — 턱 쪽으로 걷기·달리기 5초(10°·30°·90°) y 8 그대로', pass:!c3bad.length, detail:{bad:c3bad.slice(0, 6), n:Cr.C3.length}});
-  put({id:'C4', name:'마을 쪽 조준 — 회랑 안쪽 끝 눈에서 마을 쪽 좀비(아래로 ≤ 50°) 가림 0 · 바깥 돌벽 너머 낮은 선은 가림 그대로', pass:Cr.C4.blocked === 0 && Cr.C4.n > 100 && Cr.C4.outerBlocked === Cr.C4.outer, detail:Cr.C4});
+  put({id:'C4', name:'마을 쪽 조준 — 회랑 안쪽 끝 눈에서 마을 쪽 좀비(아래로 ≤ 50°) 턱·흉벽 가림 0(기둥에 걸린 선은 C6) · 바깥 돌벽 너머 낮은 선은 가림 그대로', pass:Cr.C4.blocked === 0 && Cr.C4.n > 100 && Cr.C4.outerBlocked === Cr.C4.outer, detail:Cr.C4});
+  put({id:'C6', name:'회랑 기둥 — 28개(0.22 · 3.0 박자) · 안쪽 끝을 따라 걸으며 조준점 가림 ≤ 10%(옛 0.3 · 2.0 박자 15% — 보이는 기둥 = 맞는 가림) · 기둥 바로 뒤에서 뛰어도 몸이 기둥을 안 지남(가운데 거리 ≥ 0.36) · 둘레길 착지 · 다침 0',
+    pass:Cr.C6.posts === 28 && Cr.C6.frac <= 0.10 && Cr.C6.n > 200 && Cr.C6.jumps.length >= 8 && Cr.C6.jumps.every(j=> j.dmin >= 0.36 && j.landT > 0 && j.hurt === 0), detail:Cr.C6});
   put({id:'C5', name:'좀비 새 길 없음 — ZONE 칸 수 1428(69·70차 1회차와 같음)·구역마다 계단 가지 그대로(턱은 좀비 구역 밖)', pass:Cr.C5.zone === 1428 && Cr.C5.stairs.join('|') === '0,1|2,3|4,5,6,7|8,9', detail:Cr.C5});
 
   /* ═══ E 계단 몸 ═══ */
@@ -172,6 +214,13 @@ try{
       PL.yaw = Math.atan2(-(gX(g, 47, 8.5*s) - PL.x), -(gZ(g, 47, 8.5*s) - PL.z)); for(let i=0; i<60; i++) W.__updPlayer(1/60); H.keys(); for(let i=0; i<18; i++) W.__updPlayer(1/60);
       const stopD = Math.abs(V.y - PL.y); W.__wantJump(); let jmax = 0; for(let i=0; i<30; i++){ W.__updPlayer(1/60); if(!PL.ground) jmax = Math.max(jmax, Math.abs(V.y - PL.y)); }
       for(let i=0; i<60; i++) W.__updPlayer(1/60); out.stop.push([k, H.f3(stopD), H.f3(jmax)]); }
+    /* E1b — 성문 계단을 W 로 오르다 뛰기(0.35~0.75초 다섯 때 × 계단 둘): 공중·뜨고 내리는 프레임의 '보이는 몸 속도 − 충돌 몸 속도' 최대(옛 0.056~0.159 — 뜰 때 경사 몸 → PL.y 로 툭, 내릴 때 0.1 내려앉음) */
+    out.jump = [];
+    for(const k of [2, 5]){ const g = ST[k].g, s = (k % 2) ? 1 : -1, tx = gX(g, 47.8, 8.5*s), tz = gZ(g, 47.8, 8.5*s);
+      for(const tj of [0.35, 0.45, 0.55, 0.65, 0.75]){ H.place(gX(g, 32.5, 8.5*s), 0, gZ(g, 32.5, 8.5*s), 0); H.keys({w:true}); let t = 0, ex = 0, jumped = false, pv = V.y, pp = PL.y, pa = !PL.ground;
+        while(t < 1.8){ PL.yaw = Math.atan2(-(tx - PL.x), -(tz - PL.z)); if(!jumped && t >= tj){ W.__wantJump(); jumped = true; } W.__updPlayer(1/60); t += 1/60;
+          const air = !PL.ground; if(air || pa) ex = Math.max(ex, Math.abs((V.y - pv) - (PL.y - pp))); pv = V.y; pp = PL.y; pa = air; }
+        H.keys(); out.jump.push([k, tj, H.f3(ex)]); } }
     /* E3 — 평지 걸음 박자 */
     H.place(8, 0, 20, 0); H.keys({w:true}); const g0 = W.__gaitMe(); for(let i=0; i<120; i++) W.__updPlayer(1/60); out.cad.flat = H.f3((W.__gaitMe() - g0)/(2*Math.PI)/2); H.keys();
     /* E4 — 친구 흉내: 성문 계단을 걸어 오르는 나(60Hz)를 6Hz 로 보내고(소수 둘째 자리) 친구 쪽 friendSeg/friendLerp 로 60Hz 보간 → 수평 속도 최대/최소 · y 2차 차분 · 공중 깜빡 */
@@ -184,17 +233,42 @@ try{
         if(Math.hypot(PL.x - tx, PL.z - tz) < 0.3) break; }
       H.keys(); const mid = sp.slice(40, sp.length - 40); let flips = 0; for(let i=1; i<air.length; i++) if(air[i] !== air[i-1]) flips++;
       out.friend = {spMin:H.f3(Math.min(...mid)), spMax:H.f3(Math.max(...mid)), ratio:H.f3(Math.max(...mid)/Math.max(0.01, Math.min(...mid))), a2:H.f3(a2of(ys.slice(20, ys.length - 20))), airFrames:air.reduce((a, b)=> a + b, 0), flips}; }
+    /* E4b — 친구가 멈춘 뒤·뛰어내린 뒤(받는 쪽 규칙 그대로: 값이 같으면 새 토막 없음): 멈춘 뒤 0.5초 보이는 자리 = 받은 자리(±0.01) · 착지 뒤 보이는 y ≥ 받은 y − 0.01(땅속 0) */
+    { const run = (traj)=>{ const p = {}; let t = 0, net = 0, last = null, stopT = null, worstAfter = 0, sink = 0; const f2 = (v)=> +v.toFixed(2);
+        for(let i=0; i<150; i++){ t += 1/60; net -= 1/60; const q = traj(t);
+          if(net <= 0){ net += 1/6; const d = {x:f2(q.x), y:f2(q.y), z:f2(q.z)}; if(p.t0 === undefined || p.bx !== d.x || p.bz !== d.z || p.by !== d.y) W.__friendSeg(p, d.x, d.y, d.z, t); last = d; }
+          W.__friendLerp(p, t); if(q.stop && stopT === null) stopT = t; if(last && q.stop) sink = Math.max(sink, last.y - p.y);
+          if(stopT !== null && t >= stopT + 0.5) worstAfter = Math.max(worstAfter, Math.hypot(p.x - last.x, p.y - last.y, p.z - last.z)); }
+        return {after:H.f3(worstAfter), sink:H.f3(sink)}; };
+      const worst = (rs)=> ({after:Math.max(...rs.map(r=> r.after)), sink:Math.max(...rs.map(r=> r.sink))});
+      const walk = worst([0.93, 0.98, 1.03, 1.08, 1.13].map(ts=> run((t)=> t < ts ? {x:8 + 4.5*t, y:GY, z:20} : {x:8 + 4.5*ts, y:GY, z:20, stop:true})));
+      const fall = worst([[2, 0], [2, 0.07], [4, 0], [4, 0.11], [8, 0.05]].flatMap(([h, t0])=> [26, 36.9].map(gv=> run((t)=>{ const tf = Math.sqrt(2*h/gv), u = t - t0; return u < 0 ? {x:8, y:GY + h, z:20} : u < tf ? {x:8 + 3*u, y:GY + h - 0.5*gv*u*u, z:20} : {x:8 + 3*tf, y:GY, z:20, stop:true}; }))));
+      out.friendStop = {walk, fall}; }
+    /* E5 — 3인칭(줌 3.2)으로 성문 계단을 뒤로(S) 오르기 · 시선 −0.15·−0.5·0·0.2: 당겼다 0.3초 안에 풀었다 다시 당기는 톱니 · 몸 숨김 0.4초 안 깜빡 */
+    out.back = [];
+    for(const pitch of [-0.15, -0.5, 0, 0.2]){ W.__camZoom(3.2); H.place(33.5, 0, -8.5, Math.PI/2, pitch); H.keys({s:true}); const ds = [], hs = [];
+      for(let t=0; t<3 && PL.x < 47.6; t += 1/60){ W.__setStamina(1); PL.pitch = pitch; W.__updPlayer(1/60); const rg = W.__camRig(); if(t >= 0.3){ ds.push(rg.distance); hs.push(rg.hidden); } }   // 옮긴 뒤 0.3초(카메라 자리 잡기)는 빼고
+      H.keys(); let saw = 0, blink = 0, lastFlip = -99;
+      /* 톱니 = 0.3초(18 프레임) 안에 0.1 넘게 풀렸다가 그 뒤 0.3초 안에 다시 0.1 넘게 당겨짐(옛: 디딤마다 0.59 ↔ 1.0) */
+      for(let i=1; i<ds.length; i++) for(let j=Math.max(0, i - 18); j<i; j++) if(ds[i] - ds[j] > 0.1){ let mn = ds[i]; for(let q=i + 1; q<Math.min(ds.length, i + 19); q++) mn = Math.min(mn, ds[q]); if(ds[i] - mn > 0.1){ saw++; i += 18; } break; }
+      for(let i=1; i<hs.length; i++) if(hs[i] !== hs[i-1]){ if(i - lastFlip <= 24) blink++; lastFlip = i; }
+      out.back.push([pitch, saw, blink]); }
+    W.__camZoom(3.2);
+    /* E3 — 평지 걸음 박자 */
     return out; });
   const e1g = E.gate.filter(([, , up, dn])=> up.a2 > 0.02 || dn.a2 > 0.02), e1s = E.spiral.filter(([i, up, dn])=>{ const lim = i === 8 ? 0.04 : 0.02; return up.a2 > lim || dn.a2 > lim || !up.ok || !dn.ok; });
   put({id:'E1', name:'보이는 몸 y 2차 차분 ≤ 0.02(옛 0.32 — 디딤마다 툭) — 성문 계단 열 · 걷기·달리기 · 오르내리기 · 나선 T1·T4 · K 0.04(폭 1.4 — 기둥 곁에서 돌면 경사가 가팔라진다)', pass:!e1g.length && !e1s.length,
     detail:{gateMax:Math.max(...E.gate.flatMap(r=> [r[2].a2, r[3].a2])), spiral:E.spiral.map(r=> [r[0], r[1].a2, r[2].a2]), bad:[...e1g, ...e1s].slice(0, 3)}});
   const dmax = Math.max(...E.gate.flatMap(r=> [r[2].dmax, r[3].dmax]), ...E.spiral.flatMap(r=> [r[1].dmax, r[2].dmax])), d0 = Math.max(...E.gate.flatMap(r=> [r[2].d0, r[3].d0]), ...E.spiral.flatMap(r=> [r[1].d0, r[2].d0]));
-  put({id:'E2', name:'보이는 몸 − 충돌 몸 — 걷는 중(0.5초 뒤) ≤ 0.21(성문 계단 끝은 카메라와 같은 1.5단 이음) · 서 있다 막 걸어 첫 디딤에 오를 때도 ≤ 한 단(0.33) · 멈춘 뒤 0.3초 ≤ 0.01 · 뛰는 동안 = 충돌 몸', pass:dmax <= 0.21 && d0 <= 0.33 && E.stop.every(r=> r[1] <= 0.01 && r[2] <= 1e-6),
+  put({id:'E1b', name:'계단에서 뛰기 — 공중·뜨고 내리는 프레임의 보이는 몸 속도 − 충돌 몸 속도 ≤ 0.02(옛 0.056~0.159 — 뜰 때·내릴 때 한 프레임 툭) · 성문 계단 둘 × 다섯 때', pass:E.jump.length === 10 && E.jump.every(r=> r[2] <= 0.02), detail:{max:Math.max(...E.jump.map(r=> r[2])), all:E.jump}});
+  put({id:'E2', name:'보이는 몸 − 충돌 몸 — 걷는 중(0.5초 뒤) ≤ 0.21(성문 계단 끝은 카메라와 같은 1.5단 이음) · 서 있다 막 걸어 첫 디딤에 오를 때도 ≤ 한 단(0.33) · 멈춘 뒤 0.3초 ≤ 0.01 · 뛰는 동안 뜨기 전 어긋남보다 안 커짐(줄어들기만)', pass:dmax <= 0.21 && d0 <= 0.33 && E.stop.every(r=> r[1] <= 0.01 && r[2] <= r[1] + 1e-6),
     detail:{dmax, d0, gate:Math.max(...E.gate.flatMap(r=> [r[2].dmax, r[3].dmax])), spiral:E.spiral.map(r=> [r[0], r[1].dmax, r[2].dmax, r[1].d0]), stop:E.stop}});
   const cads = E.gate.filter(r=> !r[1]).flatMap(r=> [r[2].cad, r[3].cad]).filter(v=> v !== null);
-  put({id:'E3', name:'계단 걸음 박자 2.1~2.45Hz(걷기 · 옛 1.60 그대로) · 평지 1.6Hz 그대로', pass:cads.length >= 10 && cads.every(c=> c >= 2.1 && c <= 2.45) && Math.abs(E.cad.flat - 1.6) < 0.05,
+  put({id:'E3', name:'계단 걸음 박자 ≤ 평지 박자(걷기 · 1.3~1.6Hz — 옛 2.1~2.45Hz 종종걸음) · 평지 1.6Hz 그대로', pass:cads.length >= 10 && cads.every(c=> c >= 1.3 && c <= E.cad.flat + 1e-3) && Math.abs(E.cad.flat - 1.6) < 0.05,
     detail:{stair:[Math.min(...cads), Math.max(...cads)], flat:E.cad.flat}});
-  put({id:'E4', name:'친구 화면(6Hz 받기) — 수평 속도 최대/최소 ≤ 1.3(옛 2.0~12.6) · y 2차 차분 ≤ 0.03 · 공중 깜빡 0', pass:E.friend.ratio <= 1.3 && E.friend.a2 <= 0.03 && E.friend.flips === 0, detail:E.friend});
+  put({id:'E4', name:'친구 화면(6Hz 받기) — 수평 속도 최대/최소 ≤ 1.3(옛 2.0~12.6) · y 2차 차분 ≤ 0.03 · 공중 깜빡 0 · 멈춘 뒤 0.5초 받은 자리 ±0.01(옛 0.17 앞) · 뛰어내려 착지 뒤 땅속 ≤ 0.01(옛 0.33)',
+    pass:E.friend.ratio <= 1.3 && E.friend.a2 <= 0.03 && E.friend.flips === 0 && E.friendStop.walk.after <= 0.01 && E.friendStop.fall.after <= 0.01 && E.friendStop.fall.sink <= 0.01 && E.friendStop.walk.sink <= 0.01, detail:{...E.friend, stop:E.friendStop}});
+  put({id:'E5', name:'3인칭 뒤로(S) 성문 계단 오르기 — 카메라 당김 톱니(풀었다 0.3초 안 다시 당김) 0 · 몸 숨김 0.4초 안 깜빡 0(옛 톱니 29~40 · 깜빡 2~4) · 시선 넷', pass:E.back.every(r=> r[1] === 0 && r[2] === 0), detail:E.back});
 
   /* ═══ F 좀비 ═══ */
   const F = await page.evaluate(()=>{ const W = window, H = W.__t70, PL = W.__PL, GY = W.__GY, G = W.__G, WT = W.__WOLF_T, gT = W.__gT, gPP = W.__gPP, gX = W.__gX, gZ = W.__gZ;
@@ -204,8 +278,19 @@ try{
       for(let bx=Math.floor((w.x - rA)/4); bx<=Math.floor((w.x + rA)/4); bx++) for(let bz=Math.floor((w.z - rA)/4); bz<=Math.floor((w.z + rA)/4); bz++){ const a = grid.get(key(bx, bz)); if(!a) continue;
         for(const b of a){ if(b.off || b.k === 3 || b.y0 >= y1 || b.y1 <= y0) continue; const dx = Math.max(b.x0 - w.x, 0, w.x - b.x1), dz = Math.max(b.z0 - w.z, 0, w.z - b.z1);
           const p = (dx === 0 && dz === 0) ? rA + Math.min(w.x - b.x0, b.x1 - w.x, w.z - b.z0, b.z1 - w.z) : rA - Math.hypot(dx, dz); if(p > pb) pb = p; } }
-      if(!(w.cs >= 2)){ const rc = Math.min(rA, 0.45); for(let n=0; n<16; n++){ const a = n/16*2*Math.PI, x = w.x + Math.cos(a)*rc*0.999, z = w.z + Math.sin(a)*rc*0.999, cx = Math.floor(x), cz = Math.floor(z);
-        if(Math.abs(cx) <= HW && Math.abs(cz) <= HW && CASTLE[(cx + HW) + (cz + HW)*WS] >= 2){ const ex = Math.min(x - cx, cx + 1 - x, z - cz, cz + 1 - z); if(ex > pb) pb = ex; } } }
+      if(!(w.cs >= 2)) pb = Math.max(pb, penC(w.x, w.z, rA));
+      return pb; };
+    /* 고침 — 성곽 칸 파고듦은 팔 폭 전체(rA — 옛 검사는 0.45 로 잘라 큰 좀비·보스를 못 잡았다): 가운데에서 32 방향으로 0.02 씩 나가 처음 닿는 돌까지 거리 d → rA − d.
+       회랑 대각 칸(GALW 10)과 그 곁은 참 얼굴(e 49.0 ~ 52.8)로 · ZGB 0 인 칸(성곽 2칸 밖)은 건너뜀 */
+    const CG = (cx, cz)=> (Math.abs(cx) <= HW && Math.abs(cz) <= HW) ? CASTLE[(cx + HW) + (cz + HW)*WS] : 0;
+    const solidAt = (x, z)=>{ const cx = Math.floor(x), cz = Math.floor(z), ck = CG(cx, cz), ax = Math.abs(x), az = Math.abs(z), e = (ax + az)*0.6;
+      if(ck === 10) return e >= 49 && e <= 52.8;
+      if(ck >= 2) return true;
+      if(e >= 49 && e <= 52.8 && e >= Math.max(ax, az)) for(let dz=-1; dz<=1; dz++) for(let dx=-1; dx<=1; dx++) if(CG(cx + dx, cz + dz) === 10) return true;
+      return false; };
+    const penC = (px0, pz0, rA)=>{ const c = Math.floor(px0), cz0 = Math.floor(pz0); if(Math.abs(c) > HW || Math.abs(cz0) > HW || !W.__ZGB[(c + HW) + (cz0 + HW)*WS]) return 0; let pb = 0;
+      for(let n=0; n<32; n++){ const ux = Math.cos(n/32*2*Math.PI), uz = Math.sin(n/32*2*Math.PI);
+        for(let d = 0; d < rA; d += 0.02) if(solidAt(px0 + ux*d, pz0 + uz*d)){ if(rA - d > pb) pb = rA - d; break; } }
       return pb; };
     const runCase = (nm, setup, secs)=>{ G.wolves.length = 0; setup(); let frames = 0, zf = 0, max = 0, over = 0, onStair = 0, footRow = 0, climbF = 0, ms = 0; const ex = [];
       for(let t=0; t<secs; t+=1/30){ PL.hp = 100; PL.down = false; const t0 = performance.now(); W.__hostSim(1/30); ms += performance.now() - t0; frames++;
@@ -234,13 +319,33 @@ try{
       const seen = new Set(), done = new Set();
       for(let i=0; i<600; i++){ PL.hp = 100; PL.down = false; W.__hostSim(1/30); for(const w of G.wolves){ if(w.cs >= 2) seen.add(w); if(w.cDone && !(w.cs >= 2) && !seen.has(w)) done.add(w); } }
       climbed += seen.size; gaveUp += done.size; }
+    /* F5 — 흑요석 산탄총 밀치기(1.2칸)를 계단 흉벽·곧은 벽·탑 얼굴 쪽으로: 밀린 뒤 2초 파고듦 ≤ 0.05 · 땅 좀비 계단 디딤 위 0 · 5초 안에 다시 걷는다(벽 속 끼임 0) */
+    const push = [];
+    for(const [nm, set] of [['g2 통로→계단벽', [1, -1, 40, 6.2, 1]], ['g2 바깥→계단벽', [1, -1, 40, 11.0, -1]], ['g2 t38', [1, -1, 38, 10.7, -1]], ['g4 통로', [3, 1, 40, 6.2, 1]], ['g1 통로', [0, 1, 40, 6.2, 1]], ['곧은 벽', [20, -48.4, 0, -1]], ['T1 마을 얼굴', [30.5, -47.6, 0, -1]]]){
+      sd = 5; G.wolves.length = 0; W.__goNight(); G.paused = false; Object.assign(PL, {x:3, z:3, y:GY, vx:0, vz:0, vy:0, ground:true});
+      let x0, z0, ux, uz, gate = 0;
+      if(set.length === 5){ const [g, s2, t, P0, dir] = set; gate = g; x0 = gX(g, t, P0*s2); z0 = gZ(g, t, P0*s2); ux = gX(g, t, (P0 + dir)*s2) - x0; uz = gZ(g, t, (P0 + dir)*s2) - z0; }
+      else { [x0, z0, ux, uz] = set; }
+      W.__spawnWolf(0, gate); const w = G.wolves[G.wolves.length - 1]; w.x = x0; w.z = z0; w.gate = gate; w.hp = 1e6;
+      const p0 = pen(w); W.__hostStoneHit(w.id, 1, 't', 0, 1, {push:[ux, uz]}); let mx = pen(w), onSt = 0, path = 0, px = w.x, pz = w.z;
+      for(let i=0; i<150; i++){ PL.hp = 100; PL.down = false; W.__hostSim(1/30); if(i < 60) mx = Math.max(mx, pen(w)); if(i >= 30){ path += Math.hypot(w.x - px, w.z - pz); } px = w.x; pz = w.z;
+        const cx = Math.floor(w.x), cz = Math.floor(w.z), so = W.__stairOf[(cx + HW) + (cz + HW)*WS]; if(!(w.cs >= 1) && so >= 0 && so < 1000 && (w.y || GY) - GY > 0.05) onSt++; }
+      push.push([nm, H.f3(p0), H.f3(mx), onSt, H.f3(path)]); }
+    /* F6 — 큰 좀비·보스가 벽으로 곧장 걸어갈 때(실제 zMoveOk · 0.01 걸음) 멈춘 자리의 팔 폭 파고듦 — 곧은 벽 · 탑 마을 얼굴 · 회랑 대각 안벽 */
+    const big = [];
+    for(const k of [0, 2, 3, 5, 7]) for(const [nm, x0, z0, dx, dz] of [['곧은 벽', 13, -46, 0, -1], ['탑 얼굴', 30, -45, 0, -1], ['회랑 대각', 33.5, -33.5, Math.SQRT1_2, -Math.SQRT1_2], ['회랑 대각2', 31, -36, Math.SQRT1_2, -Math.SQRT1_2]]){
+      const w = {k, sc:WT[k].sc, x:x0, z:z0, y:GY, cs:0}; let n = 0; while(n < 2000 && W.__zMoveOk(w, w.x + dx*0.01, w.z + dz*0.01)){ w.x += dx*0.01; w.z += dz*0.01; n++; }
+      big.push([WT[k].n, nm, H.f3(penC(w.x, w.z, W.__rZ(w))), n]); }
     Math.random = rnd0; G.wolves.length = 0; W.__goDay(); G.paused = true;
-    return {cases:out, climbed, gaveUp}; });
+    return {cases:out, climbed, gaveUp, push, big}; });
   const fmax = Math.max(...F.cases.map(c=> c.max));
   put({id:'F1', name:'좀비 파고듦 — 팔 폭(0.64·크기) 원이 계단 흉벽·발치 기둥·성곽 칸에 파고드는 깊이 ≤ 0.05(옛 0.86) — 성문 2 오르기·성문 4 통로·성문 1 보스·92마리', pass:fmax <= 0.05,
     detail:{max:fmax, cases:F.cases.map(c=> [c.nm, c.max, c.over, c.zf, c.ex[0] || null])}});
   put({id:'F2', name:'오르기 — 쫓기다 성벽으로 달아난 아이 20번: 계단에 오른 좀비 ≥ 30 · 발치 포기 ≤ 오른 수의 절반', pass:F.climbed >= 30 && F.gaveUp <= F.climbed/2, detail:{climbed:F.climbed, gaveUp:F.gaveUp, climbFrames:F.cases.map(c=> c.climbF)}});
   put({id:'F3', name:'성능 — 92마리 hostSim 한 번 평균 ms(기록 · 소프트웨어 렌더라 GPU 무관)', pass:true, detail:{ms:F.cases.map(c=> [c.nm, c.ms])}});
+  put({id:'F5', name:'산탄총 밀치기 — 계단 흉벽·곧은 벽·탑 얼굴 쪽 1.2칸(zStep) · 밀린 뒤 2초 파고듦 ≤ 0.05(옛 0.45 — 흉벽 속 영영) · 땅 좀비 디딤 위 0 · 1~5초 걸은 길 ≥ 1(끼임 0)',
+    pass:F.push.every(r=> r[2] <= 0.05 && r[3] === 0 && r[4] >= 1), detail:F.push});
+  put({id:'F6', name:'큰 좀비·보스 팔 폭 — 곧은 벽·탑 얼굴·회랑 대각 안벽까지 걸어간 자리 파고듦 ≤ 0.05(옛 큰좀비 0.24 · 우두머리 0.59 · 좀비왕 0.76) · 좀비 다섯 종', pass:F.big.every(r=> r[2] <= 0.05 && r[3] > 0 && r[3] < 2000), detail:F.big});
   put({id:'F4', name:'땅 좀비(cs 0)가 계단 디딤 위(y > 0.05) 프레임 0 — 발치 줄(t 34~35: 층 전환점 34.5 에서 내려와 걸어 나오는 몇 프레임)은 따로 셈', pass:F.cases.every(c=> c.onStair === 0), detail:F.cases.map(c=> [c.nm, c.onStair, c.footRow])});
 }catch(e){ errors.push('검사 오류: ' + (e.stack || e.message)); }
 finally{ if(browser) await browser.close(); server.close(); }
