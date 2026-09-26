@@ -3014,6 +3014,139 @@ body.hud66-night[data-n66] #dayPhase{padding:1px 8px;border-radius:999px;backgro
 [data-nt=b-king] .n6f i:nth-child(even){top:74%}
 @keyframes n6ring{0%,100%{transform:scale(.9);opacity:.6}50%{transform:scale(1.08);opacity:1}}
 @media (prefers-reduced-motion:reduce){ .n6a *,.n6f,.n6f *,.n6f::before,.n6f::after,[data-nt] :is(.ncName,.n6N){animation:none!important} }
+/* 69차 — 밤 경고 글씨체. 선생님: "어떤 좀비의 밤 경고 나올 때 디자인은 좋은데, 글씨체도 그 콘셉트에 맞게."
+   ★ 밤 이름(제목) 한 줄만 그 밤다운 표시 글꼴 — 아침 카드 .ncName · 밤 시작 경고 .n6N · 보스 자막 #fx2Cap.b66 .n · 밤의 날짜 옆 #dayPhase.
+     분위기 한 줄·날짜·단추는 읽기 쉬운 본문 글꼴 그대로. 글꼴은 JS NIGHT_FONTS 가 밤 이름 글자만 받는다(못 받으면 Noto Sans KR).
+   ★ data-nt 하나가 글꼴(--n6ff)·굵기(--n6fw)·자간(--n6ls)·이름 색(--n6nc)·글자 그림자(--n6ts)를 정한다.
+     크기 보정(--n6fz — 손글씨처럼 작아 보이는 글꼴)은 그 글꼴을 다 받았을 때(<html class="nf-…">)만 켠다.
+   ★ 70차 — 굵기(--n6fw)는 한 벌(400)뿐인 글꼴도 600 이상으로 둔다. font-synthesis:none 이라 받은 글꼴은 가짜 굵기 없이 제 모양,
+     못 받았을 때(인터넷 없음)만 대체 글꼴(맑은 고딕 등)이 69차 전처럼 굵게 나온다 — 400 이면 대체 글씨가 얇아졌다.
+   ★ 성능: 글자 효과는 text-shadow(움직이지 않음)와 이름 글자 자신·겹쳐 그린 한 벌(::before/::after, content:attr(data-t))의
+     짧은 transform/opacity 애니메이션뿐. filter·반투명 큰 면 없음. 카드·경고가 닫히면 display:none 이라 같이 멈춘다. */
+[data-nt],body[data-n66]{--n6ff:'Noto Sans KR';--n6fw:600;--n6ls:0;--n6fz:1;--n6ts:0 .1em 0 rgba(0,0,0,.45)}
+[data-nt=calm],body[data-n66=calm]{--n6ff:'Gowun Batang';--n6fw:700;--n6ls:.1em;--n6nc:#f7f4ff;
+  --n6ts:0 0 .35em rgba(255,242,184,.6),0 .07em 0 #0a1030}
+[data-nt=more],body[data-n66=more]{--n6ff:'Black And White Picture';--n6fw:600;--n6ls:.02em;--n6nc:#fff0f1;
+  --n6ts:.06em 0 0 rgba(236,70,92,.7),.13em 0 0 rgba(236,70,92,.3),0 .07em 0 #14070a}
+[data-nt=fast],body[data-n66=fast]{--n6ff:'Do Hyeon';--n6fw:600;--n6ls:.03em;--n6nc:#ecfffd;
+  --n6ts:-.07em 0 0 rgba(127,245,234,.4),-.16em 0 0 rgba(127,245,234,.16),0 .06em 0 #05191c}
+[data-nt=hungry],body[data-n66=hungry]{--n6ff:'Kirang Haerang';--n6fw:600;--n6ls:.03em;--n6nc:#fff1de;
+  --n6ts:0 .06em 0 #7a2206,0 .11em 0 #2a0801,0 0 .3em rgba(255,138,42,.5)}
+[data-nt=giant],body[data-n66=giant]{--n6ff:'Black Han Sans';--n6fw:600;--n6ls:.02em;--n6nc:#f6efff;
+  --n6ts:.03em .03em 0 #5a3690,.06em .06em 0 #45287a,.09em .09em 0 #331c5e,.12em .12em 0 #231244,.15em .15em 0 #150a2a,.2em .24em .2em rgba(0,0,0,.6)}
+[data-nt=surround],body[data-n66=surround]{--n6ff:'Gugi';--n6fw:600;--n6ls:.1em;--n6nc:#ffd84a;
+  --n6ts:0 .08em 0 #141003,0 0 .4em rgba(240,194,58,.35)}
+[data-nt=swarm],body[data-n66=swarm]{--n6ff:'Nanum Brush Script';--n6fw:600;--n6ls:.02em;--n6nc:#f4f7fa;
+  --n6ts:0 .06em 0 #110e0b,.05em .13em 0 rgba(204,213,223,.3),.1em .2em 0 rgba(204,213,223,.14)}
+[data-nt=howl],body[data-n66=howl]{--n6ff:'Hi Melody';--n6fw:600;--n6ls:0;--n6nc:#eef7ff;
+  --n6ts:0 0 .25em rgba(191,234,255,.6),0 .06em 0 #04161b}
+[data-nt=endless],body[data-n66=endless]{--n6ff:'Bagel Fat One';--n6fw:600;--n6ls:.02em;--n6nc:#eefff2;
+  --n6ts:0 .07em 0 #04130a,0 0 .35em rgba(80,255,130,.55)}
+[data-nt=long],body[data-n66=long]{--n6ff:'Song Myung';--n6fw:600;--n6ls:.16em;--n6nc:#ffe7a0;
+  --n6ts:0 .04em 0 #8a6614,0 .08em 0 #3a2a06,0 0 .45em rgba(255,212,90,.35)}
+[data-nt=b-chief],body[data-n66=b-chief]{--n6ff:'Gasoek One';--n6fw:600;--n6ls:.02em;--n6nc:#ffd84a;
+  --n6ts:0 .06em 0 #5a3c00,0 .11em 0 #110822,0 0 .4em rgba(255,207,74,.45)}
+[data-nt=b-fire],body[data-n66=b-fire]{--n6ff:'East Sea Dokdo';--n6fw:600;--n6ls:.03em;--n6nc:#ffcf4a;
+  --n6ts:0 .06em 0 #2a0600,0 0 .12em #ff6a1c,0 0 .4em rgba(255,90,20,.75),0 .06em 0 #4d1506}
+[data-nt=b-ice],body[data-n66=b-ice]{--n6ff:'Hahmlet';--n6fw:700;--n6ls:.06em;--n6nc:#f0faff;
+  --n6ts:0 0 .05em #fff,0 0 .18em #9fdcff,.03em .06em 0 #2a6d9e,0 0 .5em rgba(159,220,255,.5)}
+[data-nt=b-hell],body[data-n66=b-hell]{--n6ff:'Dokdo';--n6fw:600;--n6ls:-.02em;--n6nc:#fff0ea;
+  --n6ts:0 0 .1em #ff3a1a,0 0 .4em rgba(232,50,58,.8),.04em .07em 0 #120103}
+[data-nt=b-king],body[data-n66=b-king]{--n6ff:'Noto Serif KR';--n6fw:900;--n6ls:.04em;--n6nc:#f5efff;
+  --n6ts:0 .05em 0 #3b1f6e,0 .09em 0 #120822,0 0 .5em rgba(154,108,255,.85)}
+/* 받은 글꼴에만 크기 보정 — 획이 가늘거나 글자면이 작은 손글씨·붓 글꼴 */
+:root.nf-hm :is([data-nt=howl],body[data-n66=howl]){--n6fz:1.22}
+:root.nf-es :is([data-nt=b-fire],body[data-n66=b-fire]){--n6fz:1.26}
+:root.nf-dk :is([data-nt=b-hell],body[data-n66=b-hell]){--n6fz:1.3}
+:root.nf-es #nightCard[data-nt=b-fire] .ncName{font-size:calc(19px*1.42)}   /* 69차 3바퀴 — 카드에선 붓 글씨가 작아 보였다(자막은 그대로) */
+:root.nf-dk #nightCard[data-nt=b-hell] .ncName{font-size:calc(19px*1.45)}   /* 70차 — 지옥 카드도 긁은 글씨가 다른 보스의 70% 높이였다 */
+@media (max-height:700px){ :root.nf-es #nightCard[data-nt=b-fire] .ncName{font-size:calc(17px*1.42)} :root.nf-dk #nightCard[data-nt=b-hell] .ncName{font-size:calc(17px*1.45)} }
+:root.nf-nb :is([data-nt=swarm],body[data-n66=swarm]){--n6fz:1.25}   /* 70차 — 휘갈긴 붓 글씨는 글자면이 작다 */
+:root.nf-nb #nightCard[data-nt=swarm] .ncName{font-size:calc(19px*1.4)}   /* 카드 19px 에선 붓 획이 서로 붙었다 */
+:root.nf-nb #n66Ban[data-nt=swarm] .n6N{padding-bottom:.12em}   /* 붓 끝이 아래로 흘러 분위기 줄에 닿았다 */
+:root.nf-ns #nightCard[data-nt=b-king] .ncName{font-size:calc(19px*1.12)}   /* 마지막 보스 — 카드 이름이 다른 보스보다 작아 보이지 않게 */
+@media (max-height:700px){ :root.nf-nb #nightCard[data-nt=swarm] .ncName{font-size:calc(17px*1.4)} :root.nf-ns #nightCard[data-nt=b-king] .ncName{font-size:calc(17px*1.12)} }
+:root.nf-kh :is([data-nt=hungry],body[data-n66=hungry]){--n6fz:1.06}
+:root.nf-bh :is([data-nt=giant],body[data-n66=giant]){--n6fz:1.06}
+
+/* 이름 네 곳에 입히기(보스 자막은 .b66 일 때만 — 같은 자막 칸의 '보스 등장'·'조심!' 은 그대로) */
+:is(#nightCard,#n66Ban)[data-nt] :is(.ncName,.n6N),#fx2Cap.b66[data-nt] .n,body.hud66-night[data-n66] #dayPhase{
+  font-family:var(--n6ff),'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',sans-serif;font-weight:var(--n6fw);font-synthesis:none;
+  letter-spacing:var(--n6ls);color:var(--n6nc,var(--n6ink))}
+:is(#nightCard,#n66Ban)[data-nt] :is(.ncName,.n6N),#fx2Cap.b66[data-nt] .n{text-shadow:var(--n6ts);position:relative;isolation:isolate}
+#nightCard[data-nt] .ncName{font-size:calc(19px*var(--n6fz));line-height:1.28;padding-bottom:1px}   /* 표시 글꼴은 획이 많아 17px 에선 뭉개진다 — 19px */
+#n66Ban[data-nt] .n6N{font-size:calc(clamp(28px,4.4vw,42px)*var(--n6fz));line-height:1.16}
+#fx2Cap.b66[data-nt] .n{font-size:calc(clamp(34px,6.6vw,74px)*var(--n6fz));line-height:1.18}
+body.hud66-night[data-n66] #dayPhase{font-size:calc(13px*var(--n6fz));text-shadow:0 1px 0 rgba(0,0,0,.35)}
+@media (max-height:700px){ #nightCard[data-nt] .ncName{font-size:calc(17px*var(--n6fz))} }
+@media (max-height:620px){ #fx2Cap.b66[data-nt] .n{font-size:calc(clamp(28px,8vh,56px)*var(--n6fz))} }
+/* 겹쳐 그리는 한 벌 — 이름과 같은 글자·같은 자리. 기본은 안 보인다(쓰는 밤만 켠다) */
+:where(#nightCard,#n66Ban)[data-nt] :is(.ncName,.n6N)::before,:where(#fx2Cap.b66)[data-nt] .n::before{content:attr(data-t);position:absolute;left:0;top:0;right:0;
+  display:none;z-index:-1;pointer-events:none;white-space:nowrap;text-shadow:none;-webkit-text-stroke:0}
+#fx2Cap.b66[data-nt] .n::before{text-align:center}   /* :where — 아래 밤마다 켜는 규칙(같은 세기)이 뒤에서 이기게 */
+
+/* 조용한 밤 — 부드러운 바탕체, 넓은 자간, 달빛 번짐이 천천히 숨 쉰다 */
+[data-nt=calm] :is(.ncName,.n6N)::before{display:block;color:transparent;text-shadow:0 0 .5em rgba(255,242,184,.85);animation:n69breath 4s ease-in-out infinite}
+@keyframes n69breath{0%,100%{opacity:.2}50%{opacity:.9}}
+/* 좀비가 늘었다 — 번진 잉크 글씨, 붉은 겹글자가 오른쪽으로 하나씩 늘어난다 */
+[data-nt=more] :is(.ncName,.n6N)::before{display:block;color:#ff4d5e;animation:n69multi 1.5s ease-out infinite}
+@keyframes n69multi{0%{transform:translateX(0);opacity:.5}100%{transform:translateX(.42em);opacity:0}}   /* 69차 3바퀴 — .7 은 겹글자가 이름을 흐렸다 */
+/* 날쌘 무리 — 곧은 고딕을 기울이고(기존 skew) 청록 잔상이 뒤로 흩어진다 */
+[data-nt=fast] :is(.ncName,.n6N)::before{display:block;color:#7ff5ea;animation:n69trail .7s linear infinite}
+@keyframes n69trail{0%{transform:translateX(0);opacity:.4}100%{transform:translateX(-.7em);opacity:0}}
+/* 굶주린 밤 — 물어뜯긴 붓 글씨가 침처럼 늘어진다(기존 n6sag·침방울 그대로) */
+/* 커다란 그림자 — 깊게 밀려 나온 보라 그림자 글씨, 카드 이름도 쿵(그림 칸과 같은 박자) */
+#nightCard[data-nt=giant] .ncName{display:inline-block;transform-origin:left bottom;animation:n6thud 1.2s ease-out infinite}
+/* 사방에서 — 경고 표지 글씨: 검은 테두리 노란 글자, 화살표와 같은 박자로 깜빡 커진다 */
+[data-nt=surround] :is(.ncName,.n6N){-webkit-text-stroke:.06em #141003;paint-order:stroke fill}
+[data-nt=surround] :is(.ncName,.n6N){display:inline-block;transform-origin:left center;animation:n69alarm 1.5s ease-in-out infinite}
+@keyframes n69alarm{0%,60%,100%{transform:none}70%{transform:scale(1.05)}80%{transform:none}}
+/* 쉴 틈 없이 — 70차: 급하게 휘갈긴 붓 글씨(69차 Gothic A1 은 원래 고딕과 거의 같아 보였다). 가는 획은 같은 색 테두리로 살찌우고,
+   회색 겹그림자(밀려오는 여러 벌)와 잔걸음처럼 쉬지 않는 들썩임은 그대로. 테두리는 받은 붓 글씨에만(대체 고딕이 뚱뚱해지지 않게) */
+:root.nf-nb [data-nt=swarm] :is(.ncName,.n6N){-webkit-text-stroke:.03em #f4f7fa}
+[data-nt=swarm] :is(.ncName,.n6N){display:inline-block;animation:n69jit .26s steps(2) infinite}
+@keyframes n69jit{0%{transform:translateY(0)}50%{transform:translate(.02em,-.04em)}100%{transform:translateY(0)}}
+/* 산이 우는 밤 — 떨리는 손글씨(기존 n6shiver) + 울음이 퍼지는 메아리 글자 */
+[data-nt=howl] :is(.ncName,.n6N)::before{display:block;color:rgba(191,234,255,.9);transform-origin:50% 60%;animation:n69echo 2.1s ease-out infinite}
+@keyframes n69echo{0%{transform:scale(1);opacity:.55}100%{transform:scale(1.2);opacity:0}}
+/* 끝없는 무리 — 둥글고 통통한 글씨가 초록 하트와 같은 박자로 뛴다 */
+[data-nt=endless] :is(.ncName,.n6N){-webkit-text-stroke:.05em #0b3a1c;paint-order:stroke fill}
+[data-nt=endless] :is(.ncName,.n6N){display:inline-block;transform-origin:left center;animation:n6beat 1.7s ease-in-out infinite}
+/* 가장 긴 밤 — 금빛 옛 명조가 아주 천천히 옆으로 늘어난다 */
+[data-nt=long] :is(.ncName,.n6N){display:inline-block;transform-origin:left center;animation:n69long 6s ease-in-out infinite alternate}
+@keyframes n69long{from{transform:scaleX(.97)}to{transform:scaleX(1.05)}}
+/* 보스 우두머리 — 꽉 찬 덩어리 금 글씨, 금빛이 번쩍 */
+[data-nt=b-chief] :is(.ncName,.n6N),#fx2Cap.b66[data-nt=b-chief] .n{-webkit-text-stroke:.04em #2d1a45;paint-order:stroke fill}
+:is([data-nt=b-chief] .ncName,#fx2Cap.b66[data-nt=b-chief] .n)::before{display:block;z-index:1;color:#fffbe6;animation:n69glint 2.4s ease-in-out infinite}
+@keyframes n69glint{0%,70%,100%{opacity:0}80%{opacity:.75}}
+/* 보스 불꽃 — 불타는 붓 글씨, 위가 하얗게 타는 불길이 일렁인다.
+   70차: 3D 장면 위 자막은 붉은 세계에서 주황 글자가 배경에 녹았다 → 어두운 테두리(우두머리와 같은 방식, 불길 층 밖으로 반만 보임) */
+#fx2Cap.b66[data-nt=b-fire] .n{-webkit-text-stroke:.05em #3a0c02;paint-order:stroke fill}
+:is([data-nt=b-fire] .ncName,#fx2Cap.b66[data-nt=b-fire] .n)::before{display:block;z-index:1;color:transparent;
+  background:linear-gradient(to top,#ff7a2c 10%,#ffd24a 55%,#fff6d8 85%);-webkit-background-clip:text;background-clip:text;
+  transform-origin:50% 100%;animation:n69flame .5s ease-in-out infinite alternate}
+@keyframes n69flame{0%{transform:scaleY(1) skewX(0);opacity:.95}50%{transform:scaleY(1.05) skewX(-2deg);opacity:.75}100%{transform:scaleY(.98) skewX(2deg);opacity:1}}
+/* 보스 눈보라 — 얼음 결 명조, 서리 낀 흰 가장자리 + 반짝 얼음 별 */
+[data-nt=b-ice] :is(.ncName,.n6N),#fx2Cap.b66[data-nt=b-ice] .n{-webkit-text-stroke:.018em rgba(255,255,255,.9)}
+:is([data-nt=b-ice] .ncName,#fx2Cap.b66[data-nt=b-ice] .n)::after{content:'';position:absolute;right:-.28em;top:-.08em;width:.36em;height:.36em;background:#fff;
+  clip-path:polygon(50% 0,60% 40%,100% 50%,60% 60%,50% 100%,40% 60%,0 50%,40% 40%);animation:n69frost 2s ease-in-out infinite}
+[data-nt=b-ice] .ncName{display:inline-block;margin-right:.3em}
+@keyframes n69frost{0%,100%{transform:scale(.3) rotate(0);opacity:.2}50%{transform:scale(1) rotate(45deg);opacity:1}}
+/* 보스 지옥 — 날카롭게 긁은 글씨, 붉은 열기 글자가 어긋나며 떤다. 70차: 가는 흰 획 가장자리에 검붉은 테두리 */
+[data-nt=b-hell] :is(.ncName,.n6N),#fx2Cap.b66[data-nt=b-hell] .n{-webkit-text-stroke:.02em #3a0402;paint-order:stroke fill}
+:is([data-nt=b-hell] .ncName,#fx2Cap.b66[data-nt=b-hell] .n)::before{display:block;color:#ff2a1a;animation:n69heat .3s steps(1) infinite}
+@keyframes n69heat{0%{transform:translate(.05em,0);opacity:.7}33%{transform:translate(-.04em,.03em);opacity:.5}66%{transform:translate(.02em,-.03em);opacity:.8}}
+/* 보스 좀비왕 — 굵은 명조 위 금 왕관 장식, 보랏빛 후광.
+   70차: 가는 Nanum Myeongjo·넓은 자간은 마지막 보스가 가장 얌전해 보였다 → Noto Serif KR 900 한 덩어리 + 보라 테두리 */
+[data-nt=b-king] :is(.ncName,.n6N),#fx2Cap.b66[data-nt=b-king] .n{-webkit-text-stroke:.03em #2a1450;paint-order:stroke fill}
+:is([data-nt=b-king] .ncName,#fx2Cap.b66[data-nt=b-king] .n)::after{content:'';position:absolute;left:50%;top:-.3em;width:1em;height:.36em;margin-left:-.5em;
+  background:linear-gradient(#fff2b0,#ffc83a 60%,#b77a10);clip-path:polygon(0 100%,0 20%,25% 60%,50% 0,75% 60%,100% 20%,100% 100%);animation:n69crown 2.4s ease-in-out infinite}
+[data-nt=b-king] .ncName{display:inline-block;margin-top:.3em}
+#fx2Cap.b66[data-nt=b-king] .n{margin-top:.34em}   /* 왕관이 위 '오늘 밤의 보스' 줄을 덮지 않게 */
+:root.nf-es #fx2Cap.b66[data-nt=b-fire] .n,:root.nf-dk #fx2Cap.b66[data-nt=b-hell] .n{line-height:1;margin-top:-.06em}   /* 붓 글꼴은 글자 위 빈 곳이 커서 윗줄과 벌어졌다 */
+@keyframes n69crown{0%,100%{transform:translateY(0);opacity:.85}50%{transform:translateY(-.06em);opacity:1}}
+@media (prefers-reduced-motion:reduce){ :is(#nightCard,#n66Ban)[data-nt] :is(.ncName,.n6N),:is(#nightCard,#n66Ban)[data-nt] :is(.ncName,.n6N)::before,
+  :is(#nightCard,#n66Ban)[data-nt] :is(.ncName,.n6N)::after,#fx2Cap.b66 .n::before,#fx2Cap.b66 .n::after{animation:none!important} }
 
 /* 66차 FX2 — 축하 배너·보스 연출·드문 사건 알림 층(#celebr). HUD(#hud) 위에 따로 뜨고 누르는 것은 없다.
    ★ 성능(CLAUDE.md 성능 절): 전부 DOM transform·opacity 의 짧은 애니메이션이다. 평소엔 안의 판이 모두 display:none 이라
@@ -20656,7 +20789,7 @@ function paintNightCard(I){
   nightFx(c.querySelector('.ncFx'));
   c.querySelector('.ncDay').textContent = `${G.day}일차 · ` + (I.boss ? '⚠️ 오늘 밤은 보스!' : '오늘 밤');
   nightArt(c.querySelector('.ncIc'), I.look);
-  c.querySelector('.ncName').textContent = I.name;
+  const nm = c.querySelector('.ncName'); nm.textContent = I.name; nm.dataset.t = I.name;   // 69차 — 글자 효과(잔상·불꽃…)가 같은 글자를 겹쳐 그린다
   c.querySelector('.ncMood').textContent = I.look.mood;
   const x = c.querySelector('.ncNote');
   x.textContent = I.last ? NIGHT_NOTE_LAST : I.tmrBoss ? NIGHT_NOTE_TMR_BOSS : '';
@@ -20705,7 +20838,7 @@ function night66Show(I){
   nightFx(b.querySelector('.n6Fx'));
   nightArt(b.querySelector('.n6Art'), L);
   b.querySelector('.n6K').textContent = I && I.last ? '🔥 마지막 밤' : `${G.day}일차 밤`;
-  b.querySelector('.n6N').textContent = I ? I.name : '밤이 왔어요';
+  const nm = b.querySelector('.n6N'); nm.textContent = nm.dataset.t = I ? I.name : '밤이 왔어요';
   b.querySelector('.n6W').textContent = L.warn;
   b.className = ''; void b.offsetWidth; b.className = 'on';
   n66Until = performance.now() + N66_MS;
@@ -20730,7 +20863,8 @@ function night66Tick(){
 }
 /* 보스 밤 시작 자막의 모습 — fx2BossIntro 가 부른다(FX2 덩어리 검사는 이 함수 없이도 돈다) */
 function night66BossLook(){ const bi = bossIndex(FX2.nightDay || G.day);   /* fx2BossName 과 같은 날로 본다 */ return bi >= 0 ? nightLookBoss(bossWolfK(bi)) : null; }
-function night66CapArt(L){ const c = el('fx2Cap'); if(!c) return; c.dataset.nt = L.k; const a = c.querySelector('.art'); if(a) nightArt(a, L); }
+function night66CapArt(L){ const c = el('fx2Cap'); if(!c) return; c.dataset.nt = L.k; const a = c.querySelector('.art'); if(a) nightArt(a, L);
+  const n = c.querySelector('.n'); if(n) n.dataset.t = n.textContent; }   // 69차 — 보스 이름 글자 효과용
 /* 밤 시작 짧은 소리 — SFX 표 안은 안 고치고 한 덩어리로 붙인다(FX2·탑과 같은 방식). 기존 합성 함수 → sfxOut → 버스 압축기, 세기 0.17 이하.
      Calm 잔잔한 종 두세 번 · More 낮은 신음 셋 · Fast 옆으로 스치는 바람 둘 · Hungry 으르렁 + 배고픈 울음(오르다 꺾임)
      Giant 쿵, 쿵 · Surround 사방 다섯 번 두드림 · Swarm 잔발소리 떼 · Howl 산울림 울음 · Endless 초록 반짝 오름 · Long 시계 똑딱 + 낮은 종 */
@@ -27456,7 +27590,49 @@ function loadFonts(force){
   const H = location.hostname;
   if(!force && (navigator.webdriver || H === '127.0.0.1' || H === 'localhost')) return;
   const l = document.createElement('link'); l.id = 'gfonts'; l.rel = 'stylesheet'; l.href = FONT_URL;
+  /* 70차 — '커다란 그림자'는 UI 글꼴의 Black Han Sans 를 쓴다: 그 글자 조각만 미리 당기고, 받으면 nf-bh(크기 보정) */
+  l.onload = ()=>{ try{ document.fonts.load('400 20px "Black Han Sans"', '커다란그림자').then(fs=>{ if(fs && fs.length) document.documentElement.classList.add('nf-bh'); }, ()=>{}); }catch(e){} };
   document.head.appendChild(l);
+  loadNightFonts();
+}
+/* 69차 — 밤 경고 글씨체. 선생님: "경고 디자인은 좋은데, 글씨체도 그 콘셉트에 맞게."
+   밤·보스마다 그 밤다운 한글 표시 글꼴(Google Fonts)을 **밤 이름 글자만**(&text=) 받는다 — 글꼴 하나 3~30KB.
+   ★ 밤 이름(제목)에만 쓴다. 분위기 한 줄·날짜는 읽기 쉬운 본문 글꼴 그대로(3학년이 1초 안에 읽게).
+   ★ 못 받으면(인터넷 없음·느림) CSS 의 뒤 글꼴(Noto Sans KR…)로 그대로 보인다 — 빈칸·깨진 글자 없음(display=swap).
+   ★ 경고가 뜨기 전에 미리 받는다: 대기실(창이 뜬 뒤)에서 CSS 를 받고 document.fonts.load 로 글꼴 파일까지 당겨 둔다.
+     다 받은 글꼴만 <html> 에 nf-<열쇠> 를 단다 → CSS 가 그 글꼴에만 크기 보정(--n6fz)을 켠다(대체 글꼴이 커지지 않게).
+   c = 열쇠 · f = 글꼴 · w = 굵기 · t = 그 글꼴로 쓰는 글자(밤 이름 + 날짜 옆 '보스 밤'·'밤이 왔어요')
+   ★ 70차 — '커다란 그림자'의 Black Han Sans 는 FONT_URL 에 이미 통째로 있다. 여기서 &text= 로 또 받으면 fonts.load 가
+     두 @font-face 를 모두 당겨 요청 하나·약 44KB 가 더 들었다 → 빼고, loadFonts 가 UI 글꼴을 받은 뒤 미리 당겨 nf-bh 를 단다. */
+const NIGHT_FONTS = [
+  {c:'gb', f:'Gowun Batang',            w:700, t:'조용한 밤이 왔어요'},   // 조용한 밤 — 달빛 같은 부드러운 바탕(명조)
+  {c:'bw', f:'Black And White Picture', w:400, t:'좀비가 늘었다'},        // 좀비가 늘었다 — 옛 흑백 공포 영화의 번진 잉크
+  {c:'dh', f:'Do Hyeon',                w:400, t:'날쌘 무리'},            // 날쌘 무리 — 곧은 고딕을 기울여 속도
+  {c:'kh', f:'Kirang Haerang',          w:400, t:'굶주린 밤'},            // 굶주린 밤 — 물어뜯긴 듯 거친 붓
+  {c:'gg', f:'Gugi',                    w:400, t:'사방에서'},             // 사방에서 — 경고 표지 같은 각진 글씨
+  {c:'nb', f:'Nanum Brush Script',      w:400, t:'쉴 틈 없이'},           // 쉴 틈 없이 — 급하게 휘갈긴 붓(70차 — Gothic A1 은 원래 고딕과 같아 보였다)
+  {c:'hm', f:'Hi Melody',               w:400, t:'산이 우는 밤'},         // 산이 우는 밤 — 떨리는 손글씨
+  {c:'bf', f:'Bagel Fat One',           w:400, t:'끝없는 무리'},          // 끝없는 무리 — 둥글고 통통한(살아 있는)
+  {c:'sm', f:'Song Myung',              w:400, t:'가장 긴 밤'},           // 가장 긴 밤 — 고풍스러운 명조
+  {c:'go', f:'Gasoek One',              w:400, t:'우두머리 좀비 보스 밤'}, // 보스 우두머리 — 꽉 찬 덩어리 글씨
+  {c:'es', f:'East Sea Dokdo',          w:400, t:'불꽃 좀비 보스 밤'},     // 보스 불꽃 — 불타는 붓
+  {c:'hl', f:'Hahmlet',                 w:700, t:'눈보라 대장 보스 밤'},   // 보스 눈보라 — 얼음 결 같은 날 선 명조
+  {c:'dk', f:'Dokdo',                   w:400, t:'지옥의 좀비 보스 밤'},   // 보스 지옥 — 날카롭게 긁은 글씨
+  {c:'ns', f:'Noto Serif KR',           w:900, t:'좀비왕 보스 밤'}         // 보스 좀비왕 — 왕관 장식을 얹은 가장 굵은 명조(70차 — Nanum Myeongjo 800 은 가늘었다)
+];
+function nightFontUrl(F){
+  const t = [...new Set(F.t.replace(/\s/g, ''))].join('');
+  return 'https://fonts.googleapis.com/css2?family=' + F.f.replace(/ /g, '+') + (F.w !== 400 ? ':wght@' + F.w : '') + '&text=' + encodeURIComponent(t) + '&display=swap';
+}
+function loadNightFonts(){
+  if(document.getElementById('gfn-' + NIGHT_FONTS[0].c)) return;
+  const root = document.documentElement;
+  NIGHT_FONTS.forEach(F=>{
+    const l = document.createElement('link'); l.id = 'gfn-' + F.c; l.rel = 'stylesheet'; l.href = nightFontUrl(F);
+    /* CSS 가 오면 글꼴 파일도 바로 당긴다(경고가 뜰 때 기다리지 않게). 실패는 조용히 — 대체 글꼴로 보인다 */
+    l.onload = ()=>{ try{ document.fonts.load(F.w + ' 20px "' + F.f + '"', F.t).then(fs=>{ if(fs && fs.length) root.classList.add('nf-' + F.c); }, ()=>{}); }catch(e){} };
+    document.head.appendChild(l);
+  });
 }
 /* ★ load 리스너에 loadFonts 를 그대로 걸면 Event 객체가 force 자리에 들어가 검사기 가림이 안 먹었다(t35 가 두 번 잡았다) — 감싸서 건다 */
 if(document.readyState === 'complete') loadFonts(); else addEventListener('load', ()=>loadFonts(), {once:true});
@@ -28363,7 +28539,7 @@ Object.assign(window, {
   __Pdeco:()=>P_deco, __pvw:()=>pvw, __avatarPreview:{make:mkPvw,set:pvwSet,kill:pvwKill,rows:PVW_BODY,table:tableGroup},
   /* 28차 — 아이콘 공방 (t30) */
   __ICON:()=>ICON, __EMO2ICON:()=>EMO2ICON, __iconImg:iconImg, __ICO_DEF:()=>ICO_DEF, __mkPick:mkPick /* 33차 — 자루 끝 (t31) */,
-  __SFXKEYS:()=>Object.keys(SFX), __chopKey:chopKey, __FONT_URL:FONT_URL, __loadFonts:loadFonts, __setAUD:(a)=>{ AUD = a; audReset(); }, __AUD:()=>AUD, __bgmNote:bgmNote, __bgmStep:()=>bgmStep, __bgmSeq:()=>({dayA:BGM_DAY_A, dayB:BGM_DAY_B, nightA:BGM_NIGHT_A, nightB:BGM_NIGHT_B, stepDay:BGM_STEP_DAY, stepNight:BGM_STEP_NIGHT}), __sfxBus:()=>BUS, __pluck:pluck, __puff:puff, __itemMeshes:()=>[pMesh,aMesh,iMesh,stMesh,bMesh,oMesh,chBody,chTrim,fdBody,fdGlow,...Object.values(FD_SHAPE)],
+  __SFXKEYS:()=>Object.keys(SFX), __chopKey:chopKey, __FONT_URL:FONT_URL, __loadFonts:loadFonts, __NIGHT_FONTS:NIGHT_FONTS, __setAUD:(a)=>{ AUD = a; audReset(); }, __AUD:()=>AUD, __bgmNote:bgmNote, __bgmStep:()=>bgmStep, __bgmSeq:()=>({dayA:BGM_DAY_A, dayB:BGM_DAY_B, nightA:BGM_NIGHT_A, nightB:BGM_NIGHT_B, stepDay:BGM_STEP_DAY, stepNight:BGM_STEP_NIGHT}), __sfxBus:()=>BUS, __pluck:pluck, __puff:puff, __itemMeshes:()=>[pMesh,aMesh,iMesh,stMesh,bMesh,oMesh,chBody,chTrim,fdBody,fdGlow,...Object.values(FD_SHAPE)],
   __Pmouth:()=>P_mouth,
   /* 27차 — 캐릭터 조각 전부 (t29: 무늬 없는 재질 · 둥근 모양) */
   __charMeshes:()=>({

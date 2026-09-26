@@ -6,6 +6,8 @@
    ④ 밤마다 다른 모습: 열 밤 + 보스 다섯의 열쇠(data-nt)가 모두 다르고, 열쇠마다 색·꾸밈 CSS 가 있다 · 밤 시작 소리 세기 0.17 이하
    ⑤ 5초 뒤 사라짐: 아침 카드 5초(4.6초부터 0.4초 흐려짐) · 밤 시작 경고도 5초 뒤 완전히 닫힘 · 보스 밤·방금 들어온 밤은 경고 없음
    ⑥ 통신: 새 코드에 통신 호출 없음
+   ⑦ 69차 밤 경고 글씨체: 밤·보스마다 다른 표시 글꼴(이름 글자를 모두 받음) · &text= 부분 집합·display=swap · 못 받으면 Noto Sans KR · 제목만 · 효과는 transform/opacity
+     (70차: UI 글꼴에 있는 글꼴은 다시 안 받음 · 못 받아도 굵기 600 이상)
    linkedom 이 필요하다(t66-hud-static 과 같은 방식). */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -273,6 +275,40 @@ const i0=code.indexOf('/* ═══ 66차 CTRL — 총 조작 ═══'), i1=co
 const j0=code.indexOf('/* ═══════ 66차 CTRL — 밤마다 그 밤다운 모습'), j1=code.indexOf('/* 화면 모드 —');
 const ctrlCode=noComments(code.slice(i0,i1)+code.slice(j0,j1)+fn('night66Show')+fn('night66Tick')+fn('night66Snd'));
 check('The new CTRL code sends nothing over the network', i0>0&&i1>i0&&j0>0&&j1>j0 && !/\bnet\b|netMeta|netPC|say\(/.test(ctrlCode));
+
+/* ⑦ 69차 — 밤 경고 글씨체: 밤·보스마다 표시 글꼴, 밤 이름 글자만 받기, 못 받아도 대체 글꼴, 제목만(분위기 줄은 본문 글꼴) */
+{
+  const F=vm.runInNewContext(declaration('NIGHT_FONTS')+fn('nightFontUrl')+declaration('WOLF_T')+declaration('NIGHT_DEF')+';({NIGHT_FONTS,nightFontUrl,WOLF_T,NIGHT_DEF})',{});
+  const famOf=k=>((css.match(new RegExp('\\[data-nt='+k+'\\],body\\[data-n66='+k+'\\]\\{--n6ff:\'([^\']+)\''))||[])[1]);
+  const bossName=b=>{ const w=Object.values(F.WOLF_T).find(v=>v&&v.boss===b); return w?w.n.replace(/^\S+\s+/,''):''; };
+  const need=[...T.NIGHT_LOOK.map((L,i)=>[L.k,F.NIGHT_DEF[i].n]),...T.NIGHT_LOOK_BOSS.map((L,i)=>[L.k,bossName(i+1)+' 보스 밤'])];
+  /* 70차 — UI 글꼴 주소(FONT_URL)에 통째로 있는 글꼴(Black Han Sans)은 따로 받지 않는다(두 번 받으면 조각이 더 온다) */
+  const fontUrl=(code.match(/const FONT_URL = '([^']*)'/)||[])[1]||'';
+  const inUi=f=>!!f&&fontUrl.includes('family='+f.replace(/ /g,'+'));
+  const miss=need.filter(([k,name])=>{ const f=famOf(k), E=F.NIGHT_FONTS.find(e=>e.f===f); if(f&&!E&&inUi(f)) return false; return !f||!E||[...name.replace(/\s/g,'')].some(ch=>!E.t.includes(ch)); });
+  check('69: every night and boss names its own display font, and that font is fetched with every letter of the name',
+    miss.length===0 && new Set(need.map(([k])=>famOf(k))).size===need.length && F.NIGHT_FONTS.every(E=>!inUi(E.f)), miss.map(r=>r[0]).join());
+  /* 70차 — 못 받았을 때 대체 글꼴이 69차 전(600)보다 얇아지지 않게: 밤마다 굵기 600 이상(받은 한 벌 글꼴은 font-synthesis:none 이 지킨다) */
+  const fwOf=k=>+((css.match(new RegExp('\\[data-nt='+k+'\\],body\\[data-n66='+k+'\\]\\{[^}]*?--n6fw:(\\d+)'))||[])[1]||0);
+  const thin=need.filter(([k])=>fwOf(k)<600);
+  check('70: without the web fonts the night names stay as bold as before (weight >= 600, no synthetic bold)',
+    thin.length===0 && /font-weight:var\(--n6fw\);font-synthesis:none;/.test(css) && /\[data-nt\],body\[data-n66\]\{--n6ff:'Noto Sans KR';--n6fw:600;/.test(css), thin.map(r=>r[0]+':'+fwOf(r[0])).join());
+  const urls=F.NIGHT_FONTS.map(F.nightFontUrl);
+  check('69: display fonts are Google Fonts subsets (&text= name letters only, display=swap) — the UI font URL stays whole',
+    urls.every(u=>/^https:\/\/fonts\.googleapis\.com\/css2\?family=[^&]+&text=[^&]+&display=swap$/.test(u) && decodeURIComponent(u.split('&text=')[1].split('&')[0]).length<=12)
+    && /const FONT_URL = '[^']*Noto\+Sans\+KR:wght@400;500;600;700[^']*'/.test(code) && !/const FONT_URL = '[^']*text=/.test(code), urls.find(u=>!/&text=/.test(u)));
+  check('69: fonts load with the UI fonts (not in the test browser), before any warning, and a missing font falls back to Noto Sans KR',
+    /document\.head\.appendChild\(l\);\n  loadNightFonts\(\);/.test(fn('loadFonts')) && /document\.fonts\.load\(/.test(fn('loadNightFonts'))
+    && /l\.onload = [^\n]*document\.fonts\.load\('400 20px "Black Han Sans"'[^\n]*nf-bh/.test(fn('loadFonts'))
+    && /font-family:var\(--n6ff\),'Noto Sans KR',[^;]*sans-serif;/.test(css) && /:root\.nf-\w+ :is\(\[data-nt=/.test(css));
+  check('69: only the night name wears the display font (mood line, day line and buttons keep the body font)',
+    /:is\(#nightCard,#n66Ban\)\[data-nt\] :is\(\.ncName,\.n6N\),#fx2Cap\.b66\[data-nt\] \.n,body\.hud66-night\[data-n66\] #dayPhase\{\s*font-family:var\(--n6ff\)/.test(css)
+    && !/\.(ncMood|n6W|ncDay|n6K|ncOk)[^{]*\{[^}]*--n6ff/.test(css) && /#nightCard\[data-nt\] \.ncName\{font-size:calc\(19px\*var\(--n6fz\)\)/.test(css));
+  check('69: name effects copy the same letters (data-t) and animate transform / opacity only',
+    /nm\.dataset\.t = I\.name/.test(fn('paintNightCard')) && /nm\.dataset\.t = I \? I\.name/.test(fn('night66Show')) && /n\.dataset\.t = n\.textContent/.test(fn('night66CapArt'))
+    && [...css.matchAll(/@keyframes (n69\w+)\{([\s\S]*?)\}\s*(?=@|\/\*|\[|#|\.|:|$)/g)].length>=10
+    && [...css.matchAll(/@keyframes (n69\w+)\{([\s\S]*?)\}\s*(?=@|\/\*|\[|#|\.|:|$)/g)].every(m=>!/(width|height|left|top|filter|margin|padding|letter-spacing|text-shadow|font-size)\s*:/.test(m[2])));
+}
 
 console.log(fail?`${fail} failed / ${pass+fail}`:`${pass}/${pass} CTRL checks passed (gun controls, hotbar gun slot, no night tips, per-night designs, 5 s auto-hide).`);
 process.exitCode=fail?1:0;
