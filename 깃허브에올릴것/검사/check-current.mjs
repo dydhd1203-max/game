@@ -29,6 +29,6 @@ for(let i=0;i<names.length;i+=3)await Promise.all(names.slice(i,i+3).map(check))
 if(args.includes('--render')){await check('t54-view');await check('t56-build-view');await check('t57-character-view');await check('t62-motion-view');await check('t59-zombie-view');
   await check('t67-castle-walk');await check('t67-castle-zombie');
   await check('t69-enh');
-  await check('t68-hand-view');}   // 70차 — 오른손잡이 손·부품 움직임·어깨 너머 가림   // 69차 강화 룬 빛 — 떨림·셰이더·유령 빛·강화 순간   // 67차 성곽 — 걷기·보물·좀비(다른 갈래가 합쳐지기 전 항목은 '대기')
+  await check('t68-hand-view');await check('t71-hand-fix');}   // 71차 — 새총 조준점 비움·강궁 화살통 길·장전 손잡이·탄 보이기·지렛대·팔뚝 굴림·노리쇠 손·3인칭 활·터치 재장전   // 70차 — 오른손잡이 손·부품 움직임·어깨 너머 가림   // 69차 강화 룬 빛 — 떨림·셰이더·유령 빛·강화 순간   // 67차 성곽 — 걷기·보물·좀비(다른 갈래가 합쳐지기 전 항목은 '대기')
 console.log(failed?`${failed} check files failed.`:'All selected check files passed.');
 process.exitCode=failed?1:0;

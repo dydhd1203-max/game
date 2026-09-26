@@ -33,7 +33,7 @@ const fn=name=>{const s=source.indexOf('function '+name+'(');if(s<0)throw new Er
 const fixtures=`
 const camera=new THREE.PerspectiveCamera(),G={wolves:[],players:new Map(),me:{g:0},started:true,paused:false,day:1,phase:'night',mini:null},miniPl=new Map();
 const KIT={wpn:0,ammo:0,mag:[],noAmmoSaid:0,ownW:[true]};
-let throwCd=0,gunT=0,aimMode=true,mini=false,SHOTS=0,DRY=0;
+let throwCd=0,gunT=0,aimMode=true,mini=false,throwing=false,SHOTS=0,DRY=0;
 const LOG={toast:[],snd:[]},STOP={};
 const popOpen=()=>false,toast=(...a)=>LOG.toast.push(a),swing=()=>{throw STOP;},gunRecoil=()=>{throw STOP;};
 const window={__sfx:(k,a)=>LOG.snd.push([k,a])};
@@ -48,10 +48,10 @@ vm.runInContext([
   ...['combatRay','combatTargetInRange','shotEndpoint','aimWolf','magNow','rlStart','rlCancel','rlTick','fireWeapon','friendGun'].map(fn),
   `globalThis.T={WEAPONS,GUN_CYCLE,RLK,RL,RL_SND,KIT,PL,G,LOG,magNow,rlStart,rlCancel,rlTick,rlOn,wpnShotCd,wpnMag,friendGun,wpnKT,
     fire(){try{fireWeapon();}catch(e){if(e!==STOP)throw e;}},
-    set(o){if('throwCd'in o)throwCd=o.throwCd;if('gunT'in o)gunT=o.gunT;if('aim'in o)aimMode=o.aim;if('mini'in o)mini=o.mini;},
+    set(o){if('throwCd'in o)throwCd=o.throwCd;if('gunT'in o)gunT=o.gunT;if('aim'in o)aimMode=o.aim;if('mini'in o)mini=o.mini;if('throwing'in o)throwing=o.throwing;},
     get(){return {throwCd,gunT,SHOTS,DRY};},
     tick(dt){if(throwCd>0)throwCd-=dt;rlTick(dt);},
-    reset(w,ammo){KIT.wpn=w;KIT.ammo=ammo;KIT.mag=[];KIT.noAmmoSaid=0;RL.w=-1;RL.t=0;RL.n=0;throwCd=0;gunT=0;aimMode=true;mini=false;SHOTS=0;DRY=0;PL.down=false;LOG.toast.length=0;LOG.snd.length=0;G.day=1;}};`
+    reset(w,ammo){KIT.wpn=w;KIT.ammo=ammo;KIT.mag=[];KIT.noAmmoSaid=0;RL.w=-1;RL.t=0;RL.n=0;throwCd=0;gunT=0;aimMode=true;mini=false;throwing=false;SHOTS=0;DRY=0;PL.down=false;LOG.toast.length=0;LOG.snd.length=0;G.day=1;}};`
 ].join('\n'),context,{timeout:20000});
 const T=context.T,results=[];
 const check=(name,pass,detail)=>{results.push(!!pass);console.log((pass?'OK   ':'FAIL ')+name+(detail!==undefined?' — '+JSON.stringify(detail):''));};
@@ -112,6 +112,15 @@ if(process.env.T68_TABLE)console.log(JSON.stringify(table));
   for(let t=0;t<W[5].rl-0.05;t+=1/60){T.tick(1/60);T.fire();}
   const g=T.get(),dry=T.LOG.snd.filter(s=>s[0]==='g68dry').length;
   check('No shot during a reload; the empty click plays once per reload',g.SHOTS===s0&&g.DRY===1&&dry===1,{shots:g.SHOTS-s0,dry,flick:g.DRY}); }
+/* 8b — 71차: 터치(🔫 버튼 — 공격 모드 없음·gunT 0)로 빈 탄창 총을 누르고 있으면 재장전이 한 번 시작해 끝까지 가고 다시 쏜다(예전엔 매 프레임 시작·취소 되풀이) */
+{ const rows=[];
+  for(const wi of [5,3,9]){ T.reset(wi,999);T.KIT.mag[wi]=0;T.set({aim:false,gunT:0,throwing:true,throwCd:0});
+    let t=0,filledAt=-1,shotAt=-1;const s0=T.get().SHOTS;
+    while(t<W[wi].rl+0.6){const dt=1/60;t+=dt;T.tick(dt);T.fire();if(filledAt<0&&T.KIT.mag[wi]>0)filledAt=t;if(shotAt<0&&T.get().SHOTS>s0){shotAt=t;break;}}
+    rows.push({w:wi,rl:W[wi].rl,n:T.RL.n,filledAt:+filledAt.toFixed(3),shotAt:+shotAt.toFixed(3)}); }
+  check('Touch 🔫 (no aim mode, gunT 0, button held) on an empty magazine: one reload (RL.n 1) finishes within rl + 0.3 s and the next round fires',
+    rows.every(r=>r.n===1&&r.filledAt>0&&r.filledAt<=r.rl+0.3&&r.shotAt>0),rows);
+  check('rlStart raises gunT when not in aim mode; rlTick treats a held 🔫 button as holding the gun',/if\(!aimMode\) gunT = Math\.max\(gunT, 0\.2\)/.test(fn('rlStart'))&&/aimMode \|\| gunT > 0 \|\| throwing/.test(fn('rlTick'))); }
 /* 9 — 미니게임 연습용 총 */
 check('Practice gun (minigame) has no magazine and never reloads',W[7].mag===0&&T.wpnShotCd(W[7])===W[7].cd&&T.magNow(7)===Infinity);
 /* 11 — 박자 소리 · 취소하면 남은 박자 없음 */
