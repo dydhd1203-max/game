@@ -25212,7 +25212,7 @@ function joinRoom(code, asHost){
       keep.add(k);
       const p = G.players.get(k) || {x:d.x,z:d.z,y:d.y,ph:Math.random()*6};
       p.uid = k;                       // 든 무기를 pc 통로에서 찾아오려면 열쇠가 필요하다
-      p.tx=d.x; p.tz=d.z; p.ty=d.y; if(p.y === undefined) p.y = d.y; p.ry=d.r||0;   // 67차 — y 도 보간(나선에서 덜컥거리지 않게, 통신 칸 0) p.g=d.g|0; p.n=d.n; p.mv=!!d.m;
+      p.tx=d.x; p.tz=d.z; p.ty=d.y; if(p.y === undefined) p.y = d.y; p.ry=d.r||0; p.g=d.g|0; p.n=d.n; p.mv=!!d.m;   // 67차 — y 도 보간(나선에서 덜컥거리지 않게, 통신 칸 0)
       p.hp = d.hp===undefined ? SHEEP_HP : d.hp; p.down = !!d.dn;
       p.hat = d.ht|0; p.gls = d.gl|0; p.clo = d.cl|0; p.skin = d.sk|0;
       p.ex = d.ex|0;                   // 67차 — 🗝️ 성곽 탐험가
