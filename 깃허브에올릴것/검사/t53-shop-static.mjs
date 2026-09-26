@@ -65,8 +65,8 @@ const fx2Cel=o=>events.push(['cel',o]),isTouch=false;
 // 65차 — 총 레벨 제한. 이 파일은 돈·재고 거래를 본다(레벨이 넉넉한 아이). 레벨 잠금은 t65-weapons-static 이 본다.
 const XP={lv:99};
 `;
-const declarations=['WEAPONS','wpnLv','wpnLvOk','TIER_ALL','TIER_NAME','ARMORS','POT_SEC','POTIONS','AMMO_PER_GOLD','FARM_ANIMALS','FARM_CAP','farmCount','WDAY','ENH_MAX','ENH_MUL','enhOf','enhMul','enhTxt'];
-const funcs=['canPay','costTxt','lackTxt','equipWeapon','equipArmor','buyWeapon','buyArmor','buyAmmo','buyPotion','sellFarm','josaNum','shopUiResync'];
+const declarations=['WEAPONS','wpnLv','wpnLvOk','TIER_ALL','TIER_NAME','ARMORS','POT_SEC','POTIONS','AMMO_PER_GOLD','FARM_ANIMALS','FARM_CAP','farmCount','WDAY','ENH_MAX','ENH_MUL','enhOf','enhMul','enhTxt','ENH_COL'];   // 69차 — ENH_COL(◆ 칸 색)
+const funcs=['canPay','costTxt','lackTxt','equipWeapon','equipArmor','buyWeapon','buyArmor','buyAmmo','buyPotion','sellFarm','josaNum','shopUiResync','enhDots'];
 const enhBusyStub='let enhBusy=false;const buildForgeUI=()=>{},buildVetUI=()=>{},buildFarmUI=()=>{};';
 const binding=code.match(/document\.querySelectorAll\('#shopTabs \.btn'\)\.forEach\(b=>[\s\S]*?\}\);/)?.[0];
 if(!binding)throw new Error('Actual shop category click binding not found');

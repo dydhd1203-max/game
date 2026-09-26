@@ -49,7 +49,7 @@ const fixtures=`
 const GFX={shadow:false,lowLambert:false},scene=new THREE.Scene(),MAXP=40,GY=0,SPD=5.2,RACE_SPD=1.4;
 const raceOn=()=>false,burst=()=>{},drawAvatarShadows=()=>{},meSheep={},ENH_MAX=6;
 const UPV=new THREE.Vector3(0,1,0),AX_X=new THREE.Vector3(1,0,0);
-const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color();
+const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color(),_ec3=new THREE.Color();   // _ec3 — 69차 3인칭 룬 색
 `;
 const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),
   chunk('function roundBox(', 'const _rbCache'),
