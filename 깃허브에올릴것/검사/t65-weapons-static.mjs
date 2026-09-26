@@ -67,10 +67,10 @@ const fx2Cel=o=>events.push(['cel',o]),isTouch=false;
 `;
 const decls=['WEAPONS','MINI_GUN','TRAIT_TXT','TIER_TXT','TIER_COL','wpnLv','wpnLvOk','TIER_ALL','TIER_NAME',
   'ARMORS','POT_SEC','POTIONS','AMMO_PER_GOLD','FARM_ANIMALS','FARM_CAP','farmCount','WDAY',
-  'ENH_MAX','ENH_ODDS','ENH_SAFE','ENH_DROP','ENH_MUL','ENH_COST','enhOf','enhMul','enhTxt',
+  'ENH_MAX','ENH_ODDS','ENH_SAFE','ENH_DROP','ENH_MUL','ENH_COST','enhOf','enhMul','enhTxt','ENH_COL','enhLvHTML',   // 69차 — ◆ 칸·단계 색 글자
   'BURN_N','burns'];
 const funcs=['canPay','costTxt','lackTxt','equipWeapon','equipArmor','buyWeapon','buyArmor','buyAmmo','buyPotion','sellFarm',
-  'enhCost','craftable','craftWeapon','raceGiveWeapon','burnStart','burnTick'];
+  'enhCost','craftable','craftWeapon','raceGiveWeapon','burnStart','burnTick','enhDots'];
 const forgeUI=chunk('let forgeTab = ','/* 강화 한 번');
 const payload=[fixture,...decls.map(declaration),...funcs.map(fn),
   chunk("let shopTab = 'w';",'/* 농장 산물을 금으로'),

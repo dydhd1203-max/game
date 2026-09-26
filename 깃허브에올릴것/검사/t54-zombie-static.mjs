@@ -34,7 +34,7 @@ function chunk(a,b){const start=source.indexOf(a),end=source.indexOf(b,start);if
 
 const fixtures=`const GFX={q:'high',shadow:false},scene=new THREE.Scene(),MAXW=92,MAXP=40,GY=0,ENV_STEEL=null;let NIGHTK=.7;
 const G={day:1,nk:0,set:{goalDay:15}},topAt=()=>0,burst=()=>{},UPV=new THREE.Vector3(0,1,0);
-const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color();`;
+const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color(),_ec3=new THREE.Color();   // _ec3 — 69차 3인칭 룬 색`;
 const names=['W_body','W_head','W_chest','W_ruff','W_snout','W_tail','W_legs','W_paw','W_eyes','W_ears','W_horn','W_nose','W_belly','W_brow','W_cheek','W_rib','W_plate','W_gem','W_eyeW','W_eyeR','W_pupil','W_fang','W_costume','W_wrap','W_sleeve','W_digit'];
 const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),fn('metalMat'),chunk('function roundBox(','const _rbCache'),
  chunk('const STUD =','const eyeMat ='),fn('imesh'),chunk('const eyeMat =','/* ═══════════════════════ 농장 동물'),

@@ -266,6 +266,9 @@ const gun = await pg.evaluate(async ()=>{
   drawFriends();
   const [G1,G2] = W.__gunMeshes();
   o.총칸 = G1.count; o.빛칸 = G2.count;
+  /* 69차 — 강화는 공 빛(P_gunF)이 아니라 P_gun 셰이더의 룬: 쇠 조각의 aEnhS.z 에 단계가 적힌다 */
+  { const S = G1.geometry.attributes.aEnhS.array, n = G1.count, zs = []; for(let i=0;i<n;i++) zs.push(S[i*4+2]);
+    o.룬6 = zs.filter(z=> z === 6).length; o.룬3 = zs.filter(z=> z === 3).length; o.룬0밖 = zs.filter(z=> z !== 0 && z !== 3 && z !== 6).length; }
   o.총보임 = G1.visible; o.빛보임 = G2.visible;
   o.드로우콜 = 2;                       // 메시 두 벌뿐 — 사람이 몇이든
 
@@ -289,7 +292,8 @@ const gun = await pg.evaluate(async ()=>{
 });
 ok('★ 무기·강화가 pc 통로로 나간다 (자리 통로는 안 건드렸다)', gun.pc칸);
 ok('★ 친구가 든 총이 그려진다', gun.총보임 && gun.총칸 > 0, gun.총칸+'칸');
-ok('★ 강화한 총은 빛 조각이 붙는다', gun.빛보임 && gun.빛칸 > 0, gun.빛칸+'칸');
+ok('★ 강화한 총은 쇠 조각에 룬 단계가 적힌다 (aEnhS.z = 단계 · 공 빛 없음)', gun.룬6 > 0 && gun.룬3 > 0 && gun.룬0밖 === 0,
+   '+6 조각 ' + gun.룬6 + ' · +3 조각 ' + gun.룬3 + ' · 빛 겉(렌즈) ' + gun.빛칸 + '칸');
 ok('★ 사람이 몇이든 그리기는 두 번뿐이다', gun.드로우콜 === 2);
 ok('★ 아무도 총을 안 들면 통째로 숨는다', gun.빈칸숨김);
 ok('★ 쓰러진 친구는 총을 놓는다', gun.쓰러지면숨김);
@@ -308,76 +312,76 @@ ok('★ +4 부터 떨린다 (그 아래는 안 떨린다)',
    ★ 그래서 여기서 못 박는 것: 조각이 없다 · 총마다 자기만의 재질이다(공용 HELD_VC 를 그대로 쓰면
      곡괭이까지 빛난다) · 세기가 1.0 을 안 넘는다(톤매핑이 흰색으로 날린다) · 안 든 총은 꺼진다. */
 const fp = await pg.evaluate(async ()=>{
-  const W=window, T3=W.__THREE, o={};
+  const W=window, T3=W.__THREE, o={}, U=W.__RUNE_U, RB=W.__RUNE_BASE, SPK=W.__ENH_SPK;
   const gms = W.__gunModels(), gg = W.__gunGlow(), HELD_VC = W.__HELD_VC, HELD_ARM = W.__HELD_ARM;
-  const meshesOf = g => g.children.filter(c=>c.isMesh && c.material !== HELD_ARM);      // 팔 조각은 빛 재질이 아니다
-  const extraOf  = g => g.children.filter(c=> c.isMesh && c.material && (c.material.blending === T3.AdditiveBlending || c.material.transparent));
-  const sparksOf = g => g.children.filter(c=> c.isPoints);
+  const all = g => { const a=[]; g.traverse(c=>{ if(c.isMesh) a.push(c); }); return a; };
+  const meshesOf = g => all(g).filter(c=> c.material !== HELD_ARM && !(c.userData && c.userData.arm));   // 팔 조각은 빛 재질이 아니다
+  const extraOf  = g => all(g).filter(c=> c.material && (c.material.blending === T3.AdditiveBlending || c.material.transparent));
   o.맨손없음 = gg[0] === null && meshesOf(gms[0]).every(c=> c.material === HELD_VC);   // 맨손 돌은 강화 못 한다
-  o.총마다있음 = true; o.조각없음 = true; o.재질따로 = true; o.손따로 = true; o.층 = true;
+  o.총마다있음 = true; o.조각없음 = true; o.재질따로 = true; o.손따로 = true; o.층 = true; o.실패 = 0; o.유니폼 = true;
   const seen = new Set();
+  const fake = ()=>({uniforms:{}, vertexShader:'#include <common>\n#include <begin_vertex>\n#include <project_vertex>', fragmentShader:'#include <common>\n#include <opaque_fragment>'});
   for(let i=1;i<gms.length;i++){
-    if(!gg[i] || !gg[i].mats.length || sparksOf(gms[i]).length !== 1) o.총마다있음 = false;
-    if(!meshesOf(gms[i]).every(c=> c.layers.isEnabled(1)) || gms[i].children.some(c=> c.isMesh && c.material === HELD_ARM && c.layers.isEnabled(1))) o.층 = false;
+    if(!gg[i] || !gg[i].mats.length || !gg[i].ax || !gg[i].base) o.총마다있음 = false;
+    if(!meshesOf(gms[i]).every(c=> c.layers.isEnabled(1)) || all(gms[i]).some(c=> c.material === HELD_ARM && c.layers.isEnabled(1))) o.층 = false;
     if(extraOf(gms[i]).length) o.조각없음 = false;
-    if(!gms[i].children.some(c=> c.isMesh && c.material === HELD_ARM)) o.손따로 = false;
+    if(!all(gms[i]).some(c=> c.material === HELD_ARM)) o.손따로 = false;
     for(const c of meshesOf(gms[i])){
       const m = c.material;
-      if(m === HELD_VC || seen.has(m) || !gg[i] || !gg[i].mats.includes(m)) o.재질따로 = false;
+      if(m === HELD_VC || seen.has(m) || !RB.has(m)) o.재질따로 = false;
       seen.add(m);
     }
+    for(const m of gg[i].mats){ if(m.userData.runeFail) o.실패++;
+      const sh = fake(); m.onBeforeCompile(sh); if(sh.uniforms.uRLv !== U.uRLv || sh.uniforms.uRA !== U.uRA || sh.uniforms.uGunFlash !== U.uGunFlash) o.유니폼 = false; }
   }
+  /* 불티는 전체 한 벌(Points 1 · PointsMaterial 1) — 총마다 만들던 19벌은 없다 */
+  const pts = []; for(const g of gms) g && g.traverse(c=>{ if(c.isPoints) pts.push(c); });
+  o.불티한벌 = pts.every(p=> p === SPK.pts) && pts.length <= 1 && SPK.pts.material.isPointsMaterial;
 
-  W.__KIT.ownW=[true,true,true,true,true,true,true];
+  W.__KIT.ownW=W.__WEAPONS.map(()=>true);
   W.__equipWeapon(5); W.__setAim(true);
 
   const meas = async (e)=>{
     W.__setEnh(5, e);
     W.__updHeld(1/60, false, 0);            // 갱신 한 번
-    const ms = gg[5].mats;
-    return { on: ms.every(m=> m.emissiveIntensity > 0) && gg[5].sp.pts.visible && W.__gunGlowK() > 0,
-             off: ms.every(m=> m.emissiveIntensity === 0) && !gg[5].sp.pts.visible && W.__gunGlowK() === 0,
-             k: W.__gunGlowK(),
-             I: Math.max(...ms.map(m=> m.emissiveIntensity)),
-             col:'#'+ms[0].emissive.getHexString(),
-             same: ms.every(m=> m.emissiveIntensity === ms[0].emissiveIntensity && m.emissive.getHex() === ms[0].emissive.getHex()) };
+    return { lv:U.uRLv.value, I:U.uRI.value, k:W.__gunGlowK(), spk:SPK.pts.visible, col:'#'+U.uRA.value.getHexString() };
   };
   o.plain = await meas(0);
-  o.lv1   = await meas(1);
-  o.lv3   = await meas(3);
-  o.lv5   = await meas(5);
-  o.lv6   = await meas(6);
-  /* 다른 총으로 바꾸면 이전 총의 빛은 꺼져야 한다 — 안 든 총이 빛나면 렌더 비용만 든다 */
+  o.lv = []; for(let e=1;e<=6;e++) o.lv[e] = await meas(e);
+  /* 특수 부품(용 입 속 불)은 +0 에서도 제 빛 — 빛 복제본이 원래 emissive 를 지우지 않는다 */
+  o.특수 = gg[19].mats.filter(m=> RB.get(m).emissive && RB.get(m).emissiveIntensity > 0.5)
+            .every(m=> m.emissive.getHex() === RB.get(m).emissive.getHex() && m.emissiveIntensity === RB.get(m).emissiveIntensity)
+          && gg[19].mats.some(m=> m.emissiveIntensity > 0.5);
+  /* 다른 총으로 바꾸면(+0) 룬이 꺼진다 */
   W.__setEnh(5, 6); W.__equipWeapon(2); W.__setEnh(2, 0); W.__updHeld(1/60, false, 0);
-  o.바꾼뒤 = { 이전: gg[5].mats.every(m=> m.emissiveIntensity === 0), 지금: gg[2].mats.every(m=> m.emissiveIntensity === 0) };
+  o.바꾼뒤 = { lv:U.uRLv.value, k:W.__gunGlowK(), spk:SPK.pts.visible };
   W.__equipWeapon(5); W.__setEnh(5,0); W.__setAim(false); W.__updHeld(1/60, false, 0);
-  o.fx = W.__enh.fx.map(f=>[f.glow, f.fp, f.sh]);
+  o.fx = W.__enh.fx.map(f=>[f.glow, f.I, f.sh, f.ring]);
+  o.색 = W.__ENH_COL.map(c=> c ? '#' + new T3.Color(c.a).getHexString() : '');
   return o;
 });
 ok('★ 맨손 돌에는 강화 빛이 없다', fp.맨손없음);
-ok('★ 총 여섯 자루 모두 자기만의 빛 재질·불티(Points 하나)를 가진다', fp.총마다있음);
-ok('★ 총 몸통은 발광 층(layer 1)에 있고 손·팔은 아니다 — 무기 발광 패스가 몸통만 실루엣으로 그린다', fp.층);
-ok('★ 후광 조각(가산합성·반투명 Mesh)이 하나도 없다 — 총 자체가 빛난다', fp.조각없음);
-ok('★ 총마다 재질을 따로 복제했고 손·팔은 빛 재질이 아니다 (공용 HELD_VC 를 그대로 쓰면 곡괭이까지 빛난다)', fp.재질따로 && fp.손따로, '재질 ' + fp.재질따로 + ' · 손 ' + fp.손따로);
-ok('★ +0 은 안 빛나고 불티도 숨고 발광 패스도 쉰다', fp.plain.off === true);
-ok('★ +1 부터 빛나고 불티가 뜨고 발광 패스가 돈다', fp.lv1.on === true, '+1 세기 ' + fp.lv1.I.toFixed(2) + ' · 패스 ' + fp.lv1.k.toFixed(2));
-ok('★ 발광 패스 세기는 단계가 오를수록 세다 (+1 < +3 < +5 · +3 < +6), 1.0 언저리를 안 넘는다', fp.lv1.k < fp.lv3.k && fp.lv3.k < fp.lv5.k && fp.lv3.k < fp.lv6.k && fp.lv6.k < 1.05,
-   [fp.lv1,fp.lv3,fp.lv5,fp.lv6].map(v=>v.k.toFixed(2)).join(' · '));
-ok('★ 세기가 1.0 을 안 넘는다 (넘으면 톤매핑이 흰색으로 날린다)',
-   [fp.lv1,fp.lv3,fp.lv5,fp.lv6].every(v=> v.I <= 1.0), '+6 세기 ' + fp.lv6.I.toFixed(2));
-ok('★ 표(fp)가 단계마다 커진다',
-   fp.fx.every((v,i)=> i===0 || v[1] > fp.fx[i-1][1]),
-   fp.fx.map(v=>v[1]).join(' < '));
-/* ★ 숨쉬는 맥동(±7%)이 얹혀 있어 이웃한 단계(+5·+6)끼리는 띠가 겹친다 — 전체 판에서 실제로 0.57 > 0.55 로 뒤집혔다.
-   두 단계씩 띄운 짝만 본다: +1 < +3 < +5, +3 < +6 */
-ok('★ 단계가 오를수록 더 밝다 (+1 < +3 < +5 · +3 < +6 — 이웃 단계는 맥동이 겹쳐 안 본다)',
-   fp.lv1.I < fp.lv3.I && fp.lv3.I < fp.lv5.I && fp.lv3.I < fp.lv6.I,
-   [fp.lv1,fp.lv3,fp.lv5,fp.lv6].map(v=>v.I.toFixed(2)).join(' · '));
+ok('★ 총마다 룬 빛 재질·룬 축·불티 태어날 자리를 가진다', fp.총마다있음);
+ok('★ 총 몸통은 발광 층(layer 1)에 있고 손·팔은 아니다 — 번짐 원천은 든 총의 선 빛만', fp.층);
+ok('★ 후광 조각(가산합성·반투명 Mesh)이 하나도 없다 — 총에 새긴 선이 빛난다', fp.조각없음);
+ok('★ 총마다 재질을 따로 복제했고(원래 재질은 RUNE_BASE) 손·팔은 빛 재질이 아니다', fp.재질따로 && fp.손따로, '재질 ' + fp.재질따로 + ' · 손 ' + fp.손따로);
+ok('★ 룬 셰이더가 모든 빛 재질에 들어갔다 (runeFail 0 · 같은 RUNE_U 객체를 쓴다)', fp.실패 === 0 && fp.유니폼, '실패 ' + fp.실패);
+ok('★ 불티는 전체 한 벌(Points 1 · PointsMaterial 1)이 든 총에 붙는다', fp.불티한벌);
+ok('★ +0 은 룬 0 · 불티 숨김 · 번짐 패스 쉼', fp.plain.lv === 0 && !fp.plain.spk && fp.plain.k === 0, JSON.stringify(fp.plain));
+ok('★ 특수 부품(용 입 속 불)은 +0 에서도 원래 제 빛 그대로', fp.특수);
+ok('★ +1 부터 룬이 켜지고 번짐 패스가 돈다', fp.lv[1].lv === 1 && fp.lv[1].I > 0 && fp.lv[1].k > 0, '+1 세기 ' + fp.lv[1].I.toFixed(2) + ' · 번짐 ' + fp.lv[1].k.toFixed(3));
+ok('★ 번짐 세기는 단계가 오를수록 세다 (+1 < +3 < +5 · +3 < +6), .32 를 안 넘는다', fp.lv[1].k < fp.lv[3].k && fp.lv[3].k < fp.lv[5].k && fp.lv[3].k < fp.lv[6].k && fp.lv[6].k <= 0.32*1.1 + 1e-6,
+   [1,3,5,6].map(e=> fp.lv[e].k.toFixed(3)).join(' · '));
+ok('★ 선 세기가 1.0 을 안 넘는다 (스크린식 합성 · 상한 .95)', fp.lv.slice(1).every(v=> v.I <= 1.0), '+6 세기 ' + fp.lv[6].I.toFixed(2));
+ok('★ 선 세기(I)가 단계마다 커진다', fp.fx.every((v,i)=> i===0 || v[1] > fp.fx[i-1][1]), fp.fx.map(v=>v[1]).join(' < '));
+ok('★ 테 줄 수 = 단계 (아이가 센다)', fp.fx.every((v,i)=> v[3] === i), fp.fx.map(v=>v[3]).join(' '));
+ok('★ 단계가 오를수록 더 밝다 (+1 < +3 < +5 · +3 < +6)',
+   fp.lv[1].I < fp.lv[3].I && fp.lv[3].I < fp.lv[5].I && fp.lv[3].I < fp.lv[6].I, [1,3,5,6].map(e=> fp.lv[e].I.toFixed(2)).join(' · '));
 ok('★ +5 는 파란 빛, +6 은 붉은 빛 (단계마다 색이 다르다)',
-   fp.lv5.col !== fp.lv6.col && fp.lv5.col === '#4aa8ff' && fp.lv6.col === '#ff4a2a',
-   '+5 ' + fp.lv5.col + ' · +6 ' + fp.lv6.col);
-ok('★ 총을 바꾸면 이전 총의 빛은 꺼진다 (안 든 총·+0 은 안 빛난다)',
-   fp.바꾼뒤.이전 && fp.바꾼뒤.지금 && fp.lv6.same, JSON.stringify(fp.바꾼뒤));
+   fp.lv[5].col === '#4aa8ff' && fp.lv[6].col === '#ff4a2a', '+5 ' + fp.lv[5].col + ' · +6 ' + fp.lv[6].col);
+ok('★ +1~+4 는 초록·보라·금·분홍 (ENH_COL 한 벌 — 가방 테와 같은 색)',
+   [1,2,3,4].map(e=> fp.lv[e].col).join(',') === '#3ddc84,#9a6bff,#ffc23a,#ff4fd8' && fp.색.slice(1).join(',') === fp.lv.slice(1).map(v=>v.col).join(','), fp.lv.slice(1).map(v=>v.col).join(' '));
+ok('★ 총을 바꾸면(+0) 룬·불티·번짐이 꺼진다', fp.바꾼뒤.lv === 0 && fp.바꾼뒤.k === 0 && !fp.바꾼뒤.spk, JSON.stringify(fp.바꾼뒤));
 ok('★ +4 부터 손이 떨린다 (그 아래는 안 떤다)',
    fp.fx[3][2] === 0 && fp.fx[4][2] > 0, '+3 ' + fp.fx[3][2] + ' · +4 ' + fp.fx[4][2]);
 
@@ -409,16 +413,14 @@ const sh = await pg.evaluate(()=>{
 ok('★ +3 까지는 아예 안 떤다 (숨쉬는 움직임만)',
    sh.lv3.deg < 0.001 && Math.abs(sh.lv3.pos - sh.lv0.pos) < 0.0005,
    '+0 ' + sh.lv0.pos.toFixed(4) + ' · +3 ' + sh.lv3.pos.toFixed(4) + '칸');
-ok('★ +4 부터는 실제로 떤다', sh.lv4.pos > sh.lv0.pos && sh.lv4.deg > 0.05,
+ok('★ +4 부터는 실제로 떤다', sh.lv4.pos - sh.lv0.pos > 0.0005 || sh.lv4.deg > 0.005,
    '+' + (sh.lv4.pos - sh.lv0.pos).toFixed(4) + '칸 · ' + sh.lv4.deg.toFixed(2) + '도');
 ok('★ 단계가 오를수록 더 떤다', sh.lv6.pos > sh.lv4.pos,
    '+4 ' + sh.lv4.pos.toFixed(4) + ' < +6 ' + sh.lv6.pos.toFixed(4) + '칸');
-ok('★ 그래도 "아주 살짝" 이다 — +6 이 0.025칸·0.6도를 안 넘는다',
-   (sh.lv6.pos - sh.lv0.pos) < 0.025 && sh.lv6.deg < 0.6,
+/* 69차 — 표의 +6 폭은 ±.0022칸(봉우리 사이 .0044). 명세 초안의 '≤ .004칸' 은 ± 와 봉우리 사이를 섞어 쓴 값이라 봉우리 사이 .005 로 잡는다(옛 .025 의 1/5) */
+ok('★ 그래도 "아주 살짝" 이다 — +6 이 봉우리 사이 0.005칸·0.1도를 안 넘는다 (69차 — 선생님 "떨림을 너무 크게 하지는 말고")',
+   (sh.lv6.pos - sh.lv0.pos) < 0.005 && sh.lv6.deg < 0.1,
    '+' + (sh.lv6.pos - sh.lv0.pos).toFixed(4) + '칸 · ' + sh.lv6.deg.toFixed(2) + '도');
-ok('★ 1인칭 크기(fp)는 남의 총 크기(glow)와 따로 둔다 — 카메라 코앞은 따로 재야 한다',
-   fp.fx.every((v,i)=> i===0 || (v[1] > 0 && v[1] !== v[0])),
-   fp.fx.map(v=>v[1]).join(' '));
 
 /* ═══════ ⑥-3 보물 상자 (15차) ═══════ */
 const ch = await pg.evaluate(async ()=>{

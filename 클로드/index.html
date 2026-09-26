@@ -1815,9 +1815,7 @@ table.rank th,table.rank td{border-bottom:1px solid var(--pk-line);color:var(--p
 .kCell.on:after{content:'✓';position:absolute;left:3px;top:0;font:600 11px/1.4 sans-serif;color:#2f9a64}
 .kCell img.ic{height:72%;margin:0}
 .kCell .kNum{color:#4a3c00;background:#ffe28a;text-shadow:none;padding:1px 5px;border-radius:999px;right:2px;bottom:2px}
-/* 강화 등급 색 — +1 초록 · +2 파랑 · +3 보라 · +4 주황 · +5 분홍 · +6 금 */
-.kCell.e1,.kSlot.e1{border-color:#9be7c4} .kCell.e2,.kSlot.e2{border-color:#a9d8ff} .kCell.e3,.kSlot.e3{border-color:#cdbcff}
-.kCell.e4,.kSlot.e4{border-color:#ffc9a3} .kCell.e5,.kSlot.e5{border-color:#ffb8d1} .kCell.e6,.kSlot.e6{border-color:#ffd257;box-shadow:0 3px 0 #e0b040, 0 0 14px rgba(255,210,87,.6)}
+/* 강화 등급 색 — 69차: 3D 룬 빛과 같은 한 벌(ENH_COL) — 맨 아래 '69차 강화 테' 에 있다 */
 #kitFoot{color:var(--pk-ink)} #kitCount{color:#a07a00} #kitPick{color:var(--pk-ink2)}
 .kitNone{color:var(--pk-ink2);border-color:var(--pk-line2);opacity:1}
 @keyframes cardIn{from{transform:translateY(8px) scale(.96);opacity:0}}
@@ -3151,6 +3149,53 @@ body.hud66-night[data-n66] #dayPhase{font-size:calc(13px*var(--n6fz));text-shado
 @media (prefers-reduced-motion:reduce){ :is(#nightCard,#n66Ban)[data-nt] :is(.ncName,.n6N),:is(#nightCard,#n66Ban)[data-nt] :is(.ncName,.n6N)::before,
   :is(#nightCard,#n66Ban)[data-nt] :is(.ncName,.n6N)::after,#fx2Cap.b66 .n::before,#fx2Cap.b66 .n::after{animation:none!important} }
 
+/* ═══ 69차 — 강화 테(3D 룬 빛·가방·대장간·축포·이름표 한 벌 = ENH_COL). +1 초록 · +2 보라 · +3 금 · +4 분홍 · +5 파랑 · +6 진홍(+금 테)
+   ★ .popC …!important 규칙들 뒤에 둔다(밝은 창 규칙이 테 색을 덮었다). 값은 불러올 때 ENH_COL.ui 로 다시 넣는다 */
+:root{--e1:#1fa862;--e2:#7a4fe0;--e3:#d99a10;--e4:#d63bb4;--e5:#2f86e0;--e6:#e0321c;--e6b:#ffd66a}
+.popC .kCell.e1,.popC .kSlot.e1,.kCell.e1,.kSlot.e1,#tools .slot.gun.e1{border-color:var(--e1)!important;--ec:var(--e1)}
+.popC .kCell.e2,.popC .kSlot.e2,.kCell.e2,.kSlot.e2,#tools .slot.gun.e2{border-color:var(--e2)!important;--ec:var(--e2)}
+.popC .kCell.e3,.popC .kSlot.e3,.kCell.e3,.kSlot.e3,#tools .slot.gun.e3{border-color:var(--e3)!important;--ec:var(--e3)}
+.popC .kCell.e4,.popC .kSlot.e4,.kCell.e4,.kSlot.e4,#tools .slot.gun.e4{border-color:var(--e4)!important;box-shadow:0 0 6px var(--e4)!important;--ec:var(--e4)}
+.popC .kCell.e5,.popC .kSlot.e5,.kCell.e5,.kSlot.e5,#tools .slot.gun.e5{border-color:var(--e5)!important;box-shadow:0 0 8px var(--e5)!important;--ec:var(--e5)}
+.popC .kCell.e6,.popC .kSlot.e6,.kCell.e6,.kSlot.e6,#tools .slot.gun.e6{border-color:var(--e6)!important;box-shadow:inset 0 0 0 1px var(--e6b),0 0 10px rgba(224,50,28,.45)!important;--ec:var(--e6)}
+.kCell.e1,.kCell.e2,.kCell.e3,.kCell.e4,.kCell.e5,.kCell.e6,.kSlot.e1,.kSlot.e2,.kSlot.e3,.kSlot.e4,.kSlot.e5,.kSlot.e6{border-width:2px!important;border-style:solid!important;position:relative}
+/* ◆ 칸 여섯(채운 수 = 단계) — 아이가 센다 */
+.enhD{display:inline-flex;gap:3px;vertical-align:middle;margin:2px 0 0 4px;line-height:1}
+.enhD i{display:inline-block;width:7px;height:7px;transform:rotate(45deg);border:1px solid rgba(40,40,60,.35);background:transparent;box-sizing:border-box}
+.enhD i.on{background:var(--ec,#d99a10);border-color:rgba(255,255,255,.9);box-shadow:0 0 0 1px var(--ec,#d99a10)}
+.enhD.e6 i.on{box-shadow:0 0 0 1px var(--e6b)}
+.kCell .enhD,.kSlot .enhD{display:flex;justify-content:center;margin:3px auto 0}
+.enhLv.eL{font-weight:700;text-shadow:0 1px 0 #fff}
+/* +5·+6 빛줄 — 2.6초마다 비스듬히 한 번 지나간다(CSS 만) · +6 은 테가 2.4초로 숨쉰다 */
+/* ★ 움직임은 transform·opacity 만(노트북 GPU 합성만 — 레이아웃·그림자 다시 그리기 없음). ::after 는 사용 중 ✓ 자리라 ::before 를 쓴다 */
+.kCell.e5 .kArt,.kCell.e6 .kArt{position:relative;overflow:hidden;border-radius:10px}   /* 빛줄은 그림 칸 안에서만(카드 밖으로 안 샌다) */
+.kCell.e5 .kArt::before,.kCell.e6 .kArt::before{content:'';position:absolute;top:-20%;bottom:-20%;left:-45%;width:40%;pointer-events:none;z-index:1;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(0) skewX(-18deg);opacity:0;animation:enhSheen 2.6s ease-in-out infinite}
+@keyframes enhSheen{0%,55%{transform:translateX(0) skewX(-18deg);opacity:0}60%{opacity:1}100%{transform:translateX(420%) skewX(-18deg);opacity:0}}
+.kCell.e6 .enhD i.on,.kSlot.e6 .enhD i.on{animation:enhBreath 2.4s ease-in-out infinite}
+@keyframes enhBreath{50%{transform:rotate(45deg) scale(1.22);opacity:.85}}
+#toast{z-index:44}
+/* 대장간 — 룬 사다리(◆ 여섯 · 다음 칸 테두리가 숨쉰다) · 망치 불꽃 · 새김 선 · 실패 잿빛·김 · ◆ 금 가며 떨어짐 */
+.enhLad{display:flex;align-items:center;justify-content:center;gap:10px;margin:2px 0 8px;font:600 13px/1.3 var(--f-body);color:#4a3c60}
+.enhLad .enhD i{width:13px;height:13px;border-width:1.5px}
+.enhLad .enhD{gap:7px}
+.enhD i.nx{border-color:var(--nc,#999);animation:enhNext 1.2s ease-in-out infinite}
+@keyframes enhNext{50%{transform:rotate(45deg) scale(1.25);opacity:.6}}
+.sItem .si{position:relative}
+.enhFl{position:absolute;left:50%;top:55%;width:8px;height:8px;border-radius:50% 50% 50% 0;background:var(--fc);box-shadow:0 0 8px var(--fc);pointer-events:none;
+  animation:enhFl .5s ease-out forwards}
+@keyframes enhFl{from{transform:translate(-50%,0) rotate(-45deg) scale(1);opacity:1}to{transform:translate(calc(-50% + var(--dx)),-38px) rotate(-45deg) scale(.3);opacity:0}}
+.enhCut{position:absolute;left:8%;right:8%;top:50%;height:3px;border-radius:2px;background:linear-gradient(90deg,transparent,var(--fc),#fff,var(--fc),transparent);
+  box-shadow:0 0 8px var(--fc);transform-origin:left;animation:enhCut .5s ease-out forwards;pointer-events:none}
+@keyframes enhCut{from{transform:scaleX(0);opacity:1}70%{opacity:1}to{transform:scaleX(1);opacity:0}}
+.enhD i.epop{animation:enhPop .35s ease-out}
+@keyframes enhPop{from{transform:rotate(45deg) scale(1.4)}to{transform:rotate(45deg) scale(1)}}
+.sItem.enhGray .si{filter:grayscale(.8) brightness(.9);transition:filter .2s}
+.enhPuff{position:absolute;left:50%;top:40%;width:14px;height:14px;border-radius:50%;background:rgba(210,210,215,.85);pointer-events:none;animation:enhPuff .7s ease-out forwards}
+@keyframes enhPuff{from{transform:translate(calc(-50% + var(--dx)),0) scale(.5);opacity:.9}to{transform:translate(calc(-50% + var(--dx)*2),-30px) scale(1.6);opacity:0}}
+.enhD i.drop{animation:enhDrop .6s ease-in forwards}
+@keyframes enhDrop{30%{transform:rotate(45deg) translate(-1px,1px);opacity:.7}to{transform:rotate(80deg) translate(6px,14px);opacity:0}}
+@media (prefers-reduced-motion:reduce){ .kCell.e5 .kArt::before,.kCell.e6 .kArt::before,.enhD i.on,.enhD i.nx,.enhFl,.enhCut,.enhPuff,.enhD i.epop,.enhD i.drop{animation:none!important} }
 /* 66차 FX2 — 축하 배너·보스 연출·드문 사건 알림 층(#celebr). HUD(#hud) 위에 따로 뜨고 누르는 것은 없다.
    ★ 성능(CLAUDE.md 성능 절): 전부 DOM transform·opacity 의 짧은 애니메이션이다. 평소엔 안의 판이 모두 display:none 이라
      한 픽셀도 안 칠한다. 화면을 덮는 판(테두리 어둠·흰 번쩍·속도선)은 보스 밤 시작·등장·처치 때 한 번씩 0.5~3초만 켠다.
@@ -3316,6 +3361,7 @@ body.touch #specBar .specNav small,body.touch #specHelp small{display:none}
 /* 관전 중엔 아래 도움말 줄(#hint)이 '쓰러졌어요' 띠와 같은 말을 한다 — 띠 쪽에 남은 시간을 넣고 줄은 숨긴다 */
 body.specOn #hint{visibility:hidden}
 @media(max-width:560px){ #specBar{bottom:170px} #specHelp{bottom:118px} }
+
 </style>
 </head>
 <body>
@@ -5552,16 +5598,19 @@ function bloomResize(){
 function fsPass(mat, target){
   fsQuad.material = mat; renderer.setRenderTarget(target); renderer.render(fsScene, fsCam);
 }
-/* ═══ 무기 발광 패스 (총만 블룸) ═══ */
-const GG = {rtA:null, rtB:null, quad:null, scene:null, cam:null, mBlur:null, mComp:null, mSil:null,
-            col:new THREE.Color(0xffffff), k:0, _cc:new THREE.Color()};
+/* ═══ 무기 발광 패스 (총만 블룸) ═══
+   69차 — 실루엣 단색(overrideMaterial) 대신 층 1(든 총)을 **제 재질로** 그리고 uGlowOnly=1 → 새긴 선 빛만 원천이 된다(나무는 검은 가림막).
+   rtA 에 깊이 버퍼(1/4 해상도) — 총 자기 가림이 맞다. 세계 가림은 깊이 누르기로 총이 늘 앞이라 맞다.
+   번짐은 +1~+5 한 바퀴(r 1.4), +6 두 바퀴(r 1.2·2.4). 세기 k 는 .12~.32(× 밤·3인칭 전환 곱) — 원천이 가는 선뿐이라 에너지가 예전의 1/5~1/10.
+   켜지는 조건: 1인칭 총이 보이고(held) +1 이상, gfx low 아님. 3인칭·관전에선 돌지 않는다. */
+const GG = {rtA:null, rtB:null, quad:null, scene:null, cam:null, mBlur:null, mComp:null,
+            col:new THREE.Color(0xffffff), k:0, _cc:new THREE.Color(), lit:false};
 function gunGlowInit(){
   if(GG.rtA) return;
   const w = Math.max(2, Math.floor(innerWidth  * renderer.getPixelRatio() / 4));
   const h = Math.max(2, Math.floor(innerHeight * renderer.getPixelRatio() / 4));
-  GG.rtA = new THREE.WebGLRenderTarget(w, h, {depthBuffer:false});
+  GG.rtA = new THREE.WebGLRenderTarget(w, h, {depthBuffer:true});
   GG.rtB = new THREE.WebGLRenderTarget(w, h, {depthBuffer:false});
-  GG.mSil = new THREE.MeshBasicMaterial({color:0xffffff, fog:false, toneMapped:false});
   GG.mBlur = mkBlurMat();
   GG.mComp = new THREE.ShaderMaterial({
     uniforms:{tB:{value:null}, strength:{value:1}},
@@ -5582,37 +5631,50 @@ function gunGlowResize(){
   GG.rtA.setSize(w, h); GG.rtB.setSize(w, h);
 }
 function gunGlowPass(){
-  if(GG.k <= 0) return;
+  if(GG.k <= 0 || !held.visible) return;
   gunGlowInit();
-  /* ① 실루엣 — 층 1(총 몸통)만, 발광색 한 가지로 */
-  const bg = scene.background, fog = scene.fog; scene.background = null; scene.fog = null;
+  /* 조명도 층 1 에 — 없으면 광원 수가 0 ↔ N 으로 바뀌어 셰이더 변종이 따로 컴파일된다(불러올 때 한 번 · 수정 조명은 만들 때 붙인다) */
+  if(!GG.lit){ GG.lit = true; scene.traverse(o=>{ if(o.isLight) o.layers.enable(1); }); heldLight.layers.enable(1); }
+  /* ① 원천 — 층 1(든 총)만, 제 재질로, 선 빛만 */
+  const bg = scene.background; scene.background = null;
+  const sau = renderer.shadowMap.autoUpdate, snu = renderer.shadowMap.needsUpdate;
+  renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = false;      // 이 패스가 그림자 지도를 층 1 만으로 다시 그리지 않게
   renderer.getClearColor(GG._cc); const ca = renderer.getClearAlpha();
   renderer.setClearColor(0x000000, 0);
   const mask = camera.layers.mask; camera.layers.set(1);
-  GG.mSil.color.copy(GG.col); scene.overrideMaterial = GG.mSil;
+  RUNE_U.uGlowOnly.value = 1;
   renderer.setRenderTarget(GG.rtA); renderer.render(scene, camera);
-  scene.overrideMaterial = null; camera.layers.mask = mask;
-  renderer.setClearColor(GG._cc, ca); scene.background = bg; scene.fog = fog;
-  /* ② 번짐 두 바퀴 — 좁게 한 번, 넓게 한 번 (심은 환하고 둘레는 멀리 옅게) */
+  RUNE_U.uGlowOnly.value = 0;
+  camera.layers.mask = mask;
+  renderer.setClearColor(GG._cc, ca); scene.background = bg;
+  renderer.shadowMap.autoUpdate = sau; renderer.shadowMap.needsUpdate = snu;
+  /* ② 번짐 — +1~+5 좁게 한 바퀴, +6 두 바퀴 */
   if(!fsQuad){ fsQuad = new THREE.Mesh(new THREE.PlaneGeometry(2,2), GG.mBlur); fsQuad.frustumCulled = false;
                fsScene = new THREE.Scene(); fsScene.add(fsQuad); fsCam = new THREE.OrthographicCamera(-1,1,1,-1,0,1); }
   fsQuad.material = GG.mBlur;
-  for(const r of [1.0, 3.0]){
+  const two = RUNE_U.uRLv.value > 5.5;
+  for(let pass=0; pass<(two ? 2 : 1); pass++){
+    const r = two ? (pass ? 2.4 : 1.2) : 1.4;
     const px = r / GG.rtA.width, py = r / GG.rtA.height;
     GG.mBlur.uniforms.tD.value = GG.rtA.texture; GG.mBlur.uniforms.dir.value.set(px, 0);
     renderer.setRenderTarget(GG.rtB); renderer.render(fsScene, fsCam);
     GG.mBlur.uniforms.tD.value = GG.rtB.texture; GG.mBlur.uniforms.dir.value.set(0, py);
     renderer.setRenderTarget(GG.rtA); renderer.render(fsScene, fsCam);
   }
-  /* ③ 화면 위에 가산합성 */
-  GG.mComp.uniforms.tB.value = GG.rtA.texture; GG.mComp.uniforms.strength.value = GG.k;
+  /* ③ 화면 위에 가산합성(번짐 하나만 가산 — 세기 상한 .32) */
+  GG.mComp.uniforms.tB.value = GG.rtA.texture; GG.mComp.uniforms.strength.value = Math.min(0.32, GG.k);
   renderer.setRenderTarget(null);
   const ac = renderer.autoClear; renderer.autoClear = false;
   renderer.render(GG.scene, GG.cam);
   renderer.autoClear = ac;
 }
 /* 한 프레임을 화면에 내놓는 유일한 자리. 빛 번짐이 꺼져 있으면 예전처럼 곧장 그린다. */
+/* 69차 — ?diag=1 이면 renderer.info 를 프레임 단위로 센다(autoReset 끔 · drawFrame 머리에서 reset). 예전엔 render() 마다 지워져
+   진단 화면의 드로우콜이 마지막 합성 패스(1~2)만 보였다. 검사 ⑩ 도 이 값을 읽는다 */
+const INFO_FRAME = new URLSearchParams(location.search).has('diag');
+if(INFO_FRAME) renderer.info.autoReset = false;
 function drawFrame(){
+  if(INFO_FRAME) renderer.info.reset();
   if(!GFX.bloom || DBG.noBloom){ renderer.setRenderTarget(null); renderer.render(scene, camera); gunGlowPass(); return; }
   bloomInit();
   renderer.setRenderTarget(rtScene); renderer.render(scene, camera);
@@ -8931,7 +8993,7 @@ function buildCrystal(){
       depthWrite:false, blending:THREE.AdditiveBlending, fog:false}));
   cGlow.rotation.x = -Math.PI/2; cGlow.position.y = 0.06; crystalGroup.add(cGlow);
 
-  crystalLight = new THREE.PointLight(0x8feaff, 2.8, 34); crystalLight.position.y = 2.0;
+  crystalLight = new THREE.PointLight(0x8feaff, 2.8, 34); crystalLight.position.y = 2.0; crystalLight.layers.enable(1);   // 69차 — 룬 번짐 패스(층 1)에서도 같은 광원 수
   crystalGroup.add(crystalLight);
 
   /* 하늘로 뻗는 빛기둥 — 멀리서도 우리 수정이 보인다 */
@@ -11275,7 +11337,7 @@ function delStru(id){
 
 /* 구조물 인스턴스 메시 (변경 시 다시 만듦) */
 const struMeshes = new Map();   // '타일#모둠' -> InstancedMesh  (47차 — 모둠별로 쪼갠다)
-const _c1 = new THREE.Color();
+const _c1 = new THREE.Color(), _ec3 = new THREE.Color();   // _ec3 — 69차 3인칭 룬 색
 /* 다칠수록 어두워지고 붉게 물든다 — 통째로 다시 만들 때나 색만 고칠 때나 같은 식을 쓴다 */
 function struColor(dmg, tint){
   const k = 0.35 + 0.65*dmg, hurt = 1 - dmg;
@@ -11820,6 +11882,8 @@ function partMesh(geo0, tile, x,y,z, mat){
     for(let i=0;i<n;i++){ const k = mat && mat.k ? mat.k(P0.getX(i), P0.getY(i), P0.getZ(i)) : 1;
       arr[i*3] = c.r*k; arr[i*3+1] = c.g*k; arr[i*3+2] = c.b*k; }
     geo.setAttribute('color', new THREE.BufferAttribute(arr, 3));
+    /* 69차 — 쇠 표시(aRune): 꼭짓점 색 중 쇠(gmet — 놋쇠·그을린 쇠·녹슨 쇠·남색 강철·흑요석·구리)만 강화 룬이 새겨진다 */
+    geo.setAttribute('aRune', new THREE.BufferAttribute(new Float32Array(n).fill(mat && mat.met && !mat.wood ? 1 : 0), 1));
     mm = HELD_VC;
     if(mat && mat.wood){ heldGrainUV(geo, mat.wood); mm = HELD_WOOD; }   // 68차 — 나무는 결 좌표(aGr)를 달고 나무결 재질로
   }
@@ -11863,6 +11927,7 @@ function bakeHeld(g){
     const hasCol = !!list[0].geometry.attributes.color;          // 28차 — 꼭짓점 색도 같이 합친다
     const col = hasCol ? new Float32Array(vc*3) : null;
     const gr = list[0].geometry.attributes.aGr ? new Float32Array(vc*2) : null;   // 68차 — 나무결 좌표도 같이 합친다
+    const ru = list.some(m=> m.geometry.attributes.aRune) ? new Float32Array(vc) : null;   // 69차 — 쇠 표시도(없는 조각은 0)
     const idx = vc > 65535 ? new Uint32Array(ic) : new Uint16Array(ic);
     let vo=0, io=0;
     for(const m of list){
@@ -11876,6 +11941,7 @@ function bakeHeld(g){
         uv[(vo+i)*2] = ua.getX(i); uv[(vo+i)*2+1] = ua.getY(i);
         if(col && ca){ col[(vo+i)*3] = ca.getX(i); col[(vo+i)*3+1] = ca.getY(i); col[(vo+i)*3+2] = ca.getZ(i); }
         const ga = gr && gg.attributes.aGr; if(ga){ gr[(vo+i)*2] = ga.getX(i); gr[(vo+i)*2+1] = ga.getY(i); }
+        const ra = ru && gg.attributes.aRune; if(ra) ru[vo+i] = ra.getX(i);
       }
       for(let i=0;i<ix.count;i++) idx[io+i] = ix.getX(i) + vo;
       vo += pa.count; io += ix.count;
@@ -11886,6 +11952,7 @@ function bakeHeld(g){
     geo.setAttribute('uv',       new THREE.BufferAttribute(uv,2));
     if(col) geo.setAttribute('color', new THREE.BufferAttribute(col,3));
     if(gr) geo.setAttribute('aGr', new THREE.BufferAttribute(gr,2));
+    if(ru) geo.setAttribute('aRune', new THREE.BufferAttribute(ru,1));
     geo.setIndex(new THREE.BufferAttribute(idx,1));
     const mesh = new THREE.Mesh(geo, mat);
     mesh.frustumCulled = false; mesh.renderOrder = 10;
@@ -12094,10 +12161,10 @@ function mkSling(){                              // 🎯 나무 새총 — 한 �
   const pouch = [0, 0.412, -0.30];
   for(const s of [-1, 1]){
     for(const dz of [-0.008, 0.008]) gRC(g, [s*0.128, 0.418, dz], [s*0.03, 0.412 + dz, -0.292], .011, .009, gcol(0x9a2e22), 8);   // 두 겹 고무줄
-    for(const dy of [0.40, 0.425]) gRing(g, RINGY, s*0.13, dy, 0, 0.026, 0.06, 0.04, gcol(0xd8c49a));        // 묶은 끈
+    for(const dy of [0.40, 0.425]) gRing(g, RINGY, s*0.13, dy, 0, 0.026, 0.06, 0.04, gmet(0xd8c49a));        // 묶은 끈(69차 — 강화 테가 새겨진다)
   }
   const p = gL(g, [[0,-0.03],[0.035,-0.028],[0.052,-0.015],[0.056,0],[0.052,0.015],[0.035,0.028],[0,0.03]], ...pouch, C_LE, 12); p.scale.set(1.05, 0.62, 1);   // 가죽 주머니
-  const st = partMesh(PEBH, T.cloth, 0, 0.415, -0.275, gk(0x9a9ea5, (x,y,z)=> 0.82 + 0.3*(y + 0.5))); st.scale.setScalar(0.07); g.add(st);   // 주머니 속 돌
+  const st = partMesh(PEBH, T.cloth, 0, 0.415, -0.275, Object.assign(gk(0x9a9ea5, (x,y,z)=> 0.82 + 0.3*(y + 0.5)), {met:1})); st.scale.setScalar(0.07); g.add(st);   // 주머니 속 돌(69차 — 강화하면 룬석)
   MZ(g, 0, 0.405, 0.04);
   gunGrip(g, 0,-0.10, 0);
   return gunFinish(g, -0.04, 0.13, 0.06, 0.60);
@@ -12483,11 +12550,12 @@ const M_BLUE   = metalMat(0x333b47, {specular:0x9aa8bc, shininess:55, reflectivi
 const M_BRIGHT = metalMat(0x9ca6b3, {specular:0xffffff, shininess:85, reflectivity:0.22});   // 밝은 강철(노리쇠·모서리·은빛 총)
 const M_GOLDM  = metalMat(0xd2962a, {specular:0xffe39a, shininess:65, reflectivity:0.03});   // 금(금빛 저격총·황금 연발총·장식)
 const gcol = hex => ({color:new THREE.Color(hex)});      // 꼭짓점 색 전용 — 재질을 만들지 않는다
+const gmet = hex => ({color:new THREE.Color(hex), met:1});   // 69차 — 꼭짓점 색 쇠(강화 룬이 새겨진다). 색 값은 그대로
 const C_WD = gwood(0x5a3620, 0.3), C_WM = gwood(0x87532d, 0.7), C_WL = gwood(0xb27c45, 1.1),   // 나무 세 톤(호두·참나무·밝은 결) — 68차: 나무결 재질(HELD_WOOD)
-      C_LE = gcol(0x6a4128), C_BR = gcol(0xd9a640), C_BK = gcol(0x2d3238),   // 가죽 · 놋쇠 · 검게 그을린 부품
+      C_LE = gcol(0x6a4128), C_BR = gmet(0xd9a640), C_BK = gmet(0x2d3238),   // 가죽 · 놋쇠 · 검게 그을린 부품
       C_RED = gcol(0xb3372b), C_WHT = gcol(0xf2efe8), C_SPOT = gcol(0x2a2a2c), // 탄피 · 얼룩소 흰색 · 얼룩
       C_GRN = gcol(0x3f8d45), C_GRN2 = gcol(0x2c6634), C_LEAF = gcol(0x62c25a), // 클로버 초록 칠
-      C_NAVY = gcol(0x363d68), C_OBS = gcol(0x2a2332), C_RUST = gcol(0xa33a24), C_RUST2 = gcol(0x74281a);
+      C_NAVY = gmet(0x363d68), C_OBS = gmet(0x2a2332), C_RUST = gmet(0xa33a24), C_RUST2 = gmet(0x74281a);
 const glowy = m => !!(m && m.emissive && (m.emissive.r || m.emissive.g || m.emissive.b));
 /* 조각 붙이기 — 총 만드는 함수 안에서만 쓴다. 빛나는 재질은 예전처럼 수정 타일 위에 얹는다(같은 색이 난다). */
 /* 68차 — 총·도구 조각 상자는 모서리를 조금만 깎는다(짧은 변의 16% — 30% 베개 상자는 장난감처럼 보였다). 손·팔(boxM)은 그대로 */
@@ -12527,9 +12595,9 @@ const MZ = (g, x,y,z, bore)=>{ g.userData.mz = new THREE.Vector3(x,y,z);   // �
    ★ 손 자리(gunGrip)·마무리(gunFinish)·총구(MZ)는 한 치도 안 바꿨다 — 쏘는 자리·화면 배율·조준선 여백 그대로.
    ★ 새 재질 0 — 쇠 세 벌(M_BLUE·M_BRIGHT·M_GOLDM) · 꼭짓점 색(HELD_VC) · 나무결(HELD_WOOD) · 빛 네 벌(matGlow·matEmber·matGlowV·matGlowY)만 쓴다.
      구리·사기·법랑·가죽은 꼭짓점 색이다. 반투명 0 · 점광원 0. */
-const C_CU = gcol(0xc06a34), C_CU2 = gcol(0x8a4524),                 // 구리(감은 선 · 짙은 끝)
-      C_POR = gcol(0xece6d6), C_OBS2 = gcol(0x3d3350), C_OBS3 = gcol(0x17131d),   // 사기(절연 링) · 흑요석 깎인 면 · 흑요석 깊은 곳
-      C_OLV = gcol(0x55603c), C_OLV2 = gcol(0x3c4429), C_ENG = gcol(0x7a4c12),    // 탄약통 올리브 · 짙은 올리브 · 금에 새긴 선
+const C_CU = gmet(0xc06a34), C_CU2 = gmet(0x8a4524),                 // 구리(감은 선 · 짙은 끝)
+      C_POR = gcol(0xece6d6), C_OBS2 = gmet(0x3d3350), C_OBS3 = gmet(0x17131d),   // 사기(절연 링) · 흑요석 깎인 면 · 흑요석 깊은 곳
+      C_OLV = gcol(0x55603c), C_OLV2 = gcol(0x3c4429), C_ENG = gmet(0x7a4c12),    // 탄약통 올리브 · 짙은 올리브 · 금에 새긴 선
       C_FEA = gcol(0xe9dcc2), C_FEA2 = gcol(0x7a5a3a), C_TOOTH = gcol(0xf1ead6),   // 깃털 · 깃털 무늬 · 이
       C_REDP = gcol(0xa8322a), C_GAUGE = gcol(0xf4f0e2), C_RUB = gcol(0x1f2226);   // 붉은 칠 연료통 · 압력계 판 · 고무
 /* 톱니 회전체 윤곽 — 감은 코일·방열 핀. z0~z1 사이에 n 번 r0 ↔ r1 */
@@ -13056,62 +13124,163 @@ const gunModels = [mkFist(), mkSling(), mkMusket(), mkRifle(), mkSMG(), mkSniper
      대장간에서 +6 을 만들고 나와도 자기 화면에서는 아무 일도 안 일어났다. "강화했는데 안 빛나요" 가 그것이었다.
    ★ 28차엔 후광 조각 둘(총열을 감싸는 상자 + 총구 불티)을 가산합성으로 띄웠다. 34차에 선생님이 "네모로 빛나는 게 이상해",
      타원체로 바꾸자 "타원체도 이상해, 무기 자체가 발광했으면" — 조각을 다 없애고 **총 재질의 자체 발광** 으로 바꿨다(gunGlow[i].mats). */
-const gunGlow = [];                       // 무기 번호 -> {mats, lit, sp} (34차 — 총 재질 자체가 빛난다 + 불티)
+const gunGlow = [];                       // 무기 번호 -> {mats, ax, base} (69차 — 룬 빛 재질·룬 축·불티 태어날 자리)
 const _gbb = new THREE.Box3(), _gsz = new THREE.Vector3(), _gct = new THREE.Vector3(), _mzW = new THREE.Vector3();   // _mzW — 42차 총구 세계 좌표
 
 const AIM_D = 10, _aimT = new THREE.Vector3(), _aimD = new THREE.Vector3(), _aimM = new THREE.Vector3(), _aimQ = new THREE.Quaternion(), _aimE = new THREE.Euler();
-/* ═══ 강화 빛 셰이더: 총 재질 위에 ① 가장자리 림 빛 ② 흐르는 마법 결(글린트) 을 얹는다 ═══ */
+/* ═══ 69차 — 룬 강화 빛: 쇠 부분에만 새긴 테·상감 선·룬 글자, 그 선 속으로 빛이 약실 → 총구로 흐른다 ═══
+   ★ 34~68차엔 총 재질 전체의 emissive(한 색) + 실루엣 전체 가산 번짐(GG)이었다. 밤·벽 앞에서 총이 '주황 빛 덩어리' 가 되어
+     모양이 안 보였다(선생님 사진 8). 이제 빛은 **쇠에 새긴 가는 선** 에만 있다. 나무·가죽·손은 제 색이다.
+   ★ 단계 = 테 줄 수(아이가 셀 수 있다) + 상감 선·룬 글자 수 + 색(ENH_COL) + 흐름 빠르기.
+   ★ 합성은 스크린식 — outgoingLight += min(E, .95) × (1 − outgoingLight). 1 을 못 넘어 하얗게 타지 않는다.
+   ★ 1인칭 손에 든 것(총·팔·불티·1인칭 화염)은 꼭짓점 깊이를 가장 가까운 2% 로 누른다(VM_Z) — 난간·벽·건초 속에 안 묻힌다.
+   ★ 새 재질 0 — 총마다 쓰던 빛 복제본을 그대로 쓰고(유니폼만 공유), 총마다 만들던 불티 재질(19벌)·실루엣 재질(1)은 지웠다. */
 const GLOW_T = {value:0};
+/* 룬 빛 공유 유니폼 — 손에 든 총은 한 자루뿐이라 값 한 벌이면 된다(매 프레임 재질을 돌며 쓰지 않는다) */
+const RUNE_U = {
+  uGlowT:GLOW_T, uRLv:{value:0}, uRI:{value:0},
+  uRA:{value:new THREE.Color()}, uRB:{value:new THREE.Color()},
+  uRRim:{value:0}, uRGly:{value:0}, uRLng:{value:0}, uRRing:{value:0},
+  uRWave:{value:0}, uRPer:{value:4}, uRBolt:{value:0}, uRBoost:{value:0},
+  uGlowOnly:{value:0},                      // GG 번짐 원천을 그리는 동안만 1
+  uGunFlash:{value:new THREE.Color(0)}};    // 70차 총 효과 — 총구 화염이 든 총을 비춘다(재질을 돌며 emissive 를 쓰던 것 대신)
+/* 1인칭 손에 든 것은 깊이를 가장 가까운 2% 로 누른다 → 난간·벽·건초 속에 총이 안 묻힌다(선생님 사진 8).
+   near .08 에서 세계 물체가 이 범위에 들어오려면 0.0816칸 안이어야 해서 사실상 없다. 패스·드로우콜 0. */
+const VM_Z = '#include <project_vertex>\n  gl_Position.z = mix(-gl_Position.w, gl_Position.z, 0.02);';
 /* 손·팔 조각은 빛나면 안 된다(살이 파랗게 빛나면 이상하다) — 굽기 전에 팔 재질을 따로 두어 팔만 다른 조각으로 구워지게 한다.
-   든 총 하나에 드로우콜 +1 이지만, 안 든 총은 안 그리므로 전체로는 +1 이다. */
+   69차 — 손도 총과 같이 깊이를 눌러야 쥔 손이 총 뒤로 숨지 않는다(HELD_VC 자체는 절대 안 누른다 — 화살·상자·음식이 같이 쓴다). */
 const HELD_ARM = HELD_VC.clone();
-function addGunGlow(mat){
+HELD_ARM.onBeforeCompile = sh=>{ sh.vertexShader = sh.vertexShader.replace('#include <project_vertex>', VM_Z); };
+HELD_ARM.customProgramCacheKey = ()=> 'heldArmVM';
+const RUNE_VS_HEAD = '\nattribute float aRune; uniform mat4 uPM; varying vec3 vGp; varying vec3 vGn; varying float vRune;';
+const RUNE_FS_HEAD = `
+varying vec3 vGp; varying vec3 vGn; varying float vRune;
+uniform float uGlowT, uRLv, uRI, uRRim, uRGly, uRLng, uRRing, uRWave, uRPer, uRBolt, uRBoost, uGlowOnly, uMetal;
+uniform vec3 uRA, uRB, uGunFlash; uniform vec4 uAx;
+/* 선 덮임 = 화소 폭(fw) 상자와 선 [−w, w] 이 겹치는 비율. 화소보다 가는 선도 '선 가까이에서만' 옅게 남는다(멀리·비스듬히·1/4 해상도에서 깜빡임·번짐 방지).
+   ★ 처음엔 fw > 2w 이면 어디서나 w/fw 로 칠해서, 총열을 비스듬히 보는 1인칭에선 조준경·총열 전체가 선 색으로 얼룩졌다(사진) */
+float gLine(float d, float w){ float fw = max(fwidth(d), 1e-5), h = fw * 0.5, ad = abs(d);
+  return clamp((min(ad + h, w) - max(ad - h, -w)) / fw, 0.0, 1.0); }
+float gHash(float n){ return fract(sin(n * 12.9898) * 43758.5453); }
+float gGlyph(vec2 c, float h){ vec2 q = c - 0.5; float d = 1.0;
+  if(h < 0.55)             d = min(d, max(abs(q.x), abs(q.y) - 0.32));
+  if(fract(h * 7.0) < 0.6) d = min(d, max(abs(q.y - 0.18 * sign(h - 0.5)), abs(q.x) - 0.30));
+  float dg = fract(h * 13.0) < 0.5 ? abs(q.x - q.y) : abs(q.x + q.y);
+  return min(d, max(dg * 0.707, length(q) - 0.36)); }`;
+const RUNE_FS_BODY = `
+{ float wK = uGlowOnly > 0.5 ? 2.5 : 1.0;            /* GG 원천은 선을 2.5배 굵게 — 1/4 해상도에서 깜빡임 방지 */
+  vec3 E = vec3(0.0); float met = 0.0, groove = 0.0;
+  if(uRLv > 0.5){
+    vec3 gn = normalize(vGn);
+    met = (uMetal > -0.5 ? uMetal : vRune) * (1.0 - smoothstep(0.55, 0.85, abs(gn.z)));   /* 총구·뒤끝 면 제외 */
+    if(met > 0.001){
+      float L = uAx.w - uAx.z, s = clamp((vGp.z - uAx.z) / L, 0.0, 1.0);
+      vec2 q = vGp.xy - uAx.xy; float r = max(length(q), 1e-3), th = atan(q.y, q.x);
+      /* ① 테 — 단계 수만큼: .97 · .04 · .50 · .25 · .75 · .125 */
+      float dR = abs(s - 0.97);
+      if(uRRing > 1.5) dR = min(dR, abs(s - 0.04));
+      if(uRRing > 2.5) dR = min(dR, abs(s - 0.50));
+      if(uRRing > 3.5) dR = min(dR, abs(s - 0.25));
+      if(uRRing > 4.5) dR = min(dR, abs(s - 0.75));
+      if(uRRing > 5.5) dR = min(dR, abs(s - 0.125));
+      float dN = dR * L / (0.0075 * wK);
+      /* ② 상감 선 — 총열을 따라 */
+      if(uRLng > 0.5 && s > 0.02 && s < 0.97){
+        float a = (fract(th * uRLng / 6.2832 + 0.5) - 0.5) * 6.2832 / uRLng;
+        float wl = 0.005 * clamp(r / 0.05, 0.35, 1.0);      /* 가는 총열(반지름 .02)에선 선도 가늘게 — 여섯 줄이 둘레 절반을 덮지 않게 */
+        dN = min(dN, abs(a * r) / (wl * wK)); }
+      /* ③ 룬 글자(GG 원천에서는 뺀다 — 너무 잘다) */
+      if(uGlowOnly < 0.5 && uRGly > 0.01 && s < uRGly && r > 0.035 && r < 0.11){   /* 글자는 기관부처럼 넓은 쇠에만(가는 총열엔 테·선만) */
+        float n = max(uRLng, 4.0), band = 6.2832 / n, bi = floor(th / band), v = fract(th / band);
+        float cz = floor(vGp.z / 0.045), h = gHash(cz * 3.1 + bi * 17.0);
+        if(sin((bi + 0.5) * band) > 0.0 && h < 0.70 && v > 0.2 && v < 0.8)
+          dN = min(dN, gGlyph(vec2(fract(vGp.z / 0.045), (v - 0.2) / 0.6), h) * 0.045 / 0.004); }
+      /* ④ 흐름 — 약실 → 총구 */
+      float wave = 0.0;
+      for(int k = 0; k < 3; k++){ if(float(k) >= uRWave) break;
+        float c = fract(uGlowT / uRPer + float(k) / max(uRWave, 1.0)) * 1.4 - 0.2;
+        wave += exp(-pow((s - c) / 0.07, 2.0));
+        /* +5 번개 가지 — 머리 ±.06 구간에서 선 사이를 잇는 지그재그(모양만 3Hz 로 바뀜, 밝기 번쩍임 없음) */
+        if(uRBolt > 0.5 && abs(s - c) < 0.06){
+          float zz = abs(fract(s * L / 0.03 + gHash(floor(uGlowT * 3.0) + float(k))) - 0.5) * 2.0;
+          float a2 = (fract(th * uRLng / 6.2832) - zz) * 6.2832 / uRLng;
+          dN = min(dN, abs(a2 * r) / (0.004 * wK)); } }
+      if(uRBoost > 0.0) wave += exp(-pow((s - (uRBoost * 1.4 - 0.2)) / 0.10, 2.0));
+      wave = clamp(wave, 0.0, 1.0);
+      float flow = uRWave > 0.5 ? 0.55 + 0.9 * wave : 0.94 + 0.06 * sin(6.2832 * uGlowT / uRPer);
+      float lines = gLine(dN, 1.0);
+      groove = clamp(gLine(dN, 1.9) - lines, 0.0, 1.0);
+      vec3 col = mix(uRA, uRB, wave * (uRLv > 5.5 ? 1.0 : 0.45));
+      float rim = pow(1.0 - clamp(dot(normalize(normal), normalize(vViewPosition)), 0.0, 1.0), 5.0);
+      E = (col * lines * flow + uRA * rim * uRRim) * uRI * met;
+    }
+  }
+  if(uGlowOnly > 0.5) outgoingLight = E + totalEmissiveRadiance * 0.35;          /* GG 원천: 선 빛 + 특수 부품 제 빛 조금. 나무 = 검은 가림막 */
+  else { outgoingLight *= 1.0 - 0.45 * groove * met;                             /* 새김 홈 — 낮 밝은 강철 위에서도 대비로 읽힌다 */
+         outgoingLight += min(E + uGunFlash, vec3(0.95)) * (1.0 - clamp(outgoingLight, 0.0, 1.0)); }
+}
+`;
+/* 손에 든 총 재질 복제본에 룬을 새긴다. 원래 emissive 는 지우지 않는다(용 입 속 불·수정·코일 같은 특수 부품의 제 빛).
+   ★ 끼우는 자리는 #include <opaque_fragment> 바로 앞(Lambert·Phong 모두 있다 · 쇠 반사 뒤). 옛 판은 Lambert 전용 문자열을 바꿔서
+     Phong(쇠 세 벌)에서 조용히 실패했다 — 이제 바꾸기 전후가 같으면 runeFail 로 표시하고 알린다(검사가 센다). */
+function addRune(mat){
   const wood = !!(mat.userData && mat.userData.heldWood);          // 68차 — 나무결 재질은 결을 먼저 얹고 빛을 더한다(복제하면 훅이 사라진다)
+  const U = {uAx:{value:new THREE.Vector4(0, 0, 0, 1)}, uMetal:{value:0}, uPM:{value:new THREE.Matrix4()}};
+  mat.userData.runeU = U;
   mat.onBeforeCompile = (sh)=>{
     if(wood) heldWoodHook(sh);
-    sh.uniforms.uGlowT = GLOW_T;
-    sh.vertexShader = sh.vertexShader
-      .replace('#include <common>', '#include <common>\nvarying vec3 vGp;')
-      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvGp = transformed;');
-    sh.fragmentShader = sh.fragmentShader
-      .replace('#include <common>', '#include <common>\nvarying vec3 vGp; uniform float uGlowT;')
-      .replace('vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;',
-        'float gRim = pow(1.0 - clamp(dot(normalize(normal), normalize(vViewPosition)), 0.0, 1.0), 4.0);\n'+
-        'float gGl = smoothstep(0.78, 1.0, sin((vGp.x + vGp.y*0.6 + vGp.z*0.45) * 36.0 - uGlowT * 5.5));\n'+
-        'vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance * (0.10 + gRim * 1.2 + gGl * 1.3);');
+    Object.assign(sh.uniforms, RUNE_U, U);
+    const v0 = sh.vertexShader, f0 = sh.fragmentShader;
+    sh.vertexShader = v0.replace('#include <common>', '#include <common>' + RUNE_VS_HEAD)
+      .replace('#include <begin_vertex>', '#include <begin_vertex>\nvGp = (uPM * vec4(transformed, 1.0)).xyz; vGn = mat3(uPM) * objectNormal; vRune = aRune;')
+      .replace('#include <project_vertex>', VM_Z);
+    sh.fragmentShader = f0.replace('#include <common>', '#include <common>' + RUNE_FS_HEAD)
+      .replace('#include <opaque_fragment>', RUNE_FS_BODY + '#include <opaque_fragment>');
+    if(sh.fragmentShader.indexOf('uRLv > 0.5') < 0 || sh.vertexShader.indexOf('mix(-gl_Position.w') < 0){
+      mat.userData.runeFail = true; console.warn('rune inject fail', mat.type); }
   };
-  mat.customProgramCacheKey = ()=> wood ? 'gunglowW' : 'gunglow';
+  mat.customProgramCacheKey = ()=> wood ? 'runeW' : 'rune';
   mat.needsUpdate = true; return mat;
 }
-/* 불티 — 총 둘레의 점 몇 개가 위로 떠오르며 사라진다(가산합성 점, 드로우콜 1). 총 모형(g) 의 자식이라 반동·떨림을 같이 탄다. */
+/* 진열 복제 → 원래 재질(빛 복제본은 손에 든 총만 쓴다). ★ userData 에 넣지 않는다(clone 이 JSON 으로 복사해 깨진다) */
+const RUNE_BASE = new WeakMap();
+const isHandMat = o => !!(o.userData && o.userData.arm) || o.material === HELD_ARM;   // 손·소매(reload68 은 userData.arm 을 단다)
+/* 불티 — 한 벌(Points 1 · PointsMaterial 1)을 든 총에 옮겨 단다(반동·떨림을 같이 탄다). 34~68차엔 총마다 한 벌(19벌)이었다.
+   모양은 네 갈래 별 — 흰 심(반지름 2px, 딱딱하게) + 가로·세로 가는 빛살(끝으로 옅게). 부드러운 동그라미는 '먼지' 로 읽혔다. */
 const sparkTex = (()=>{ const c = document.createElement('canvas'); c.width = c.height = 32; const g = c.getContext('2d');
-  const r = g.createRadialGradient(16,16,1, 16,16,16);
-  r.addColorStop(0,'rgba(255,255,255,1)'); r.addColorStop(0.35,'rgba(255,255,255,0.7)'); r.addColorStop(1,'rgba(255,255,255,0)');
-  g.fillStyle = r; g.fillRect(0,0,32,32);
+  const im = g.createImageData(32, 32), d = im.data;
+  for(let y=0;y<32;y++) for(let x=0;x<32;x++){ const dx = Math.abs(x - 15.5), dy = Math.abs(y - 15.5), r = Math.hypot(dx, dy);
+    const core = r < 2.2 ? 1 : Math.max(0, 1 - (r - 2.2)/1.6);
+    const ray = Math.max(Math.max(0, 1 - dy/1.1)*Math.max(0, 1 - dx/15), Math.max(0, 1 - dx/1.1)*Math.max(0, 1 - dy/15));
+    const a = Math.min(1, core + ray*ray*0.85 + Math.max(0, 1 - r/7)*0.18), i = (y*32 + x)*4;
+    d[i] = d[i+1] = d[i+2] = 255; d[i+3] = Math.round(a*255); }
+  g.putImageData(im, 0, 0);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })();
-const SPARK_N = 14;
-const _spc = new THREE.Color();
-/* 총 그룹(g) 의 '자기 자리' 상자 — Box3.setFromObject 는 세계 자리로 재서 gunFinish 의 회전·크기가 섞인다. 자식 지오메트리를 직접 모은다. */
+const SPARK_N = 24;                       // +6 꼬리 불씨 8개 × (머리 + 꼬리 2점)
+const SPARK_BASE = 32;                    // 총마다 쇠 위 불티 태어날 자리 후보
+const _spc = new THREE.Color(), _spc2 = new THREE.Color();
+const ENH_SPK = (()=>{
+  const geo = new THREE.BufferGeometry(), pos = new Float32Array(SPARK_N*3), col = new Float32Array(SPARK_N*3), sz = new Float32Array(SPARK_N);
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const m = new THREE.PointsMaterial({map:sparkTex, size:0.014, sizeAttenuation:true, vertexColors:true, transparent:true,
+                                      depthWrite:false, blending:THREE.AdditiveBlending, fog:false});
+  m.onBeforeCompile = sh=>{ sh.vertexShader = sh.vertexShader.replace('#include <project_vertex>', VM_Z); };
+  m.customProgramCacheKey = ()=> 'enhSpkVM';
+  const pts = new THREE.Points(geo, m); pts.frustumCulled = false; pts.visible = false; pts.userData.gradient = true; pts.userData.enhFx = true; pts.renderOrder = 12;
+  /* 불씨 하나의 상태: 나이(0~1)·자리·속도 — 불러올 때 한 번 만든 배열에 숫자만 쓴다 */
+  const S = {life:new Float32Array(8).fill(1), p:new Float32Array(8*3), v:new Float32Array(8*3), h1:new Float32Array(8*3), h2:new Float32Array(8*3), n:0, nPrev:-1, lastHead:0};
+  return {pts, pos, col, S};
+})();
+/* 총 그룹(g) 의 '자기 자리' 상자 — Box3.setFromObject 는 세계 자리로 재서 gunFinish 의 회전·크기가 섞인다. 자식 지오메트리를 직접 모은다.
+   69차 — 직계만이 아니라 전부(reload68 의 움직이는 부품 묶음 mvG 까지). 불티(enhFx)·손은 뺀다. */
+const _lbM = new THREE.Matrix4(), _lbI = new THREE.Matrix4();
 function localBox(g, out){
   out.makeEmpty(); const bb = new THREE.Box3();
-  for(const c of g.children){ if(!c.isMesh) continue;
-    c.updateMatrix(); const gb = c.geometry.boundingBox || (c.geometry.computeBoundingBox(), c.geometry.boundingBox);
-    bb.copy(gb).applyMatrix4(c.matrix); out.union(bb); }
+  g.updateMatrixWorld(true); _lbI.copy(g.matrixWorld).invert();
+  g.traverse(c=>{ if(!c.isMesh || c.userData.enhFx) return;
+    const gb = c.geometry.boundingBox || (c.geometry.computeBoundingBox(), c.geometry.boundingBox);
+    _lbM.multiplyMatrices(_lbI, c.matrixWorld); bb.copy(gb).applyMatrix4(_lbM); out.union(bb); });
   return out;
-}
-function mkSparks(g){
-  localBox(g, _gbb); _gbb.getSize(_gsz); _gbb.getCenter(_gct);
-  const pos = new Float32Array(SPARK_N*3), col = new Float32Array(SPARK_N*3), ph = new Float32Array(SPARK_N), base = new Float32Array(SPARK_N*3);
-  for(let i=0;i<SPARK_N;i++){
-    base[i*3] = _gct.x + (Math.random()-0.5)*_gsz.x*1.1; base[i*3+1] = _gbb.min.y + Math.random()*_gsz.y; base[i*3+2] = _gct.z + (Math.random()-0.5)*_gsz.z*1.1;
-    ph[i] = Math.random(); }
-  const geo = new THREE.BufferGeometry();
-  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-  const m = new THREE.PointsMaterial({map:sparkTex, size:0.022, sizeAttenuation:true, vertexColors:true, transparent:true,
-                                      depthWrite:false, blending:THREE.AdditiveBlending, fog:false});
-  const pts = new THREE.Points(geo, m); pts.frustumCulled = false; pts.visible = false; pts.userData.gradient = true; pts.renderOrder = 3;
-  g.add(pts);
-  return {pts, pos, col, ph, base, t:Math.random()*10};
 }
 
 function gunMuzzleLocal(g){
@@ -13123,10 +13292,27 @@ function gunMuzzleLocal(g){
     if(!best || bb.max.z > best.z + 1e-4){ const ct = bb.getCenter(new THREE.Vector3()); best = {x:ct.x, y:ct.y, z:bb.max.z}; } }
   return best ? new THREE.Vector3(best.x, best.y, best.z) : null;
 }
+/* 룬 축 — (총열 축 x, 축 y, 쇠 뒤끝 z, 총구 z). 쇠 꼭짓점 중 총열 축 가까운(.11 안) 것의 뒤쪽 3% 를 뒤끝으로 본다
+   (개머리 끝 쇠 받침판까지 재면 테가 개머리로 흩어진다). 총마다 어색하면 RUNE_AX_OV 로 덮는다. */
+const RUNE_AX_OV = {};
+const _raV = new THREE.Vector3();
+function runeAxis(g, list){
+  const mz = g.userData.muzzle, zs = [];
+  for(const [c, met, M] of list){ const P = c.geometry.attributes.position, R = c.geometry.attributes.aRune;
+    if(!met && !R) continue;
+    for(let i=0;i<P.count;i+=2){ if(!met && !(R.getX(i) > 0.5)) continue;
+      _raV.fromBufferAttribute(P, i).applyMatrix4(M);
+      if(Math.hypot(_raV.x - mz.x, _raV.y - mz.y) < 0.11) zs.push(_raV.z); } }
+  zs.sort((a,b)=>a-b);
+  let z0 = zs.length ? zs[Math.floor(zs.length*0.03)] : mz.z - 0.5;
+  if(mz.z - z0 < 0.12) z0 = mz.z - 0.12;
+  const ov = RUNE_AX_OV[gunModels.indexOf(g)];
+  return new THREE.Vector4(ov && ov.x !== undefined ? ov.x : mz.x, ov && ov.y !== undefined ? ov.y : mz.y, ov && ov.z0 !== undefined ? ov.z0 : z0, ov && ov.z1 !== undefined ? ov.z1 : mz.z);
+}
 for(let i=0;i<gunModels.length;i++){
   const g = gunModels[i];
   if(!g){ gunGlow.push(null); continue; }
-  if(i > 0) for(const c of g.children) if(c.isMesh && c.userData.arm) c.material = HELD_ARM;   // 팔은 따로 굽는다(안 빛난다)
+  if(i > 0) g.traverse(c=>{ if(c.isMesh && c.userData.arm) c.material = HELD_ARM; });   // 팔은 따로 굽는다(안 빛난다) · 69차 — 직계만이 아니라 전부
   g.userData.muzzle = i > 0 ? gunMuzzleLocal(g) : null;
 
   if(g.userData.muzzle){ g.userData.axisH = new THREE.Vector3(0, 0, 1).applyEuler(g.rotation).normalize();
@@ -13136,11 +13322,39 @@ for(let i=0;i<gunModels.length;i++){
      자식을 갈아치우므로, 먼저 붙이면 빛이 총 몸통에 합쳐져 색을 못 바꾼다. */
   if(i === 0){ gunGlow.push(null); continue; }        // 맨손 돌은 강화 못 한다
 
-  const mats = [];
-  for(const c of g.children){ if(!c.isMesh || c.material === HELD_ARM) continue;
-    c.material = addGunGlow(c.material.clone()); c.material.emissive = new THREE.Color(0); c.material.emissiveIntensity = 0; mats.push(c.material);
-    c.layers.enable(1); }   // 35차 — 층 1: 무기 발광 패스가 이 조각만 실루엣으로 그린다
-  gunGlow.push({mats, lit:false, sp: mkSparks(g)});
+  /* 69차 — 전부(traverse) 돌며: 손은 층 1 에 안 넣고(깊이 누르기 재질 HELD_ARM), 나머지는 룬 복제본 + 층 1(GG 원천).
+     조각의 총 자리 행렬(uPM)을 재질에 적어 둔다 — 하나뿐인 재질은 합쳐지지 않고 제 자리(position)를 가진 채 남기 때문 */
+  const mats = [], list = [];
+  g.updateMatrixWorld(true); _lbI.copy(g.matrixWorld).invert();
+  g.traverse(c=>{
+    if(!c.isMesh || c.isPoints || c.userData.enhFx) return;
+    if(isHandMat(c)){ c.layers.disable(1); return; }      // 손은 층 1 에 넣지 않는다
+    const base = c.material, M = new THREE.Matrix4().multiplyMatrices(_lbI, c.matrixWorld);
+    if(base.isMeshBasicMaterial){                         // 조명 없는 빛 조각 — 룬은 없고 깊이만 누른다
+      const m = base.clone(); m.onBeforeCompile = sh=>{ sh.vertexShader = sh.vertexShader.replace('#include <project_vertex>', VM_Z); };
+      m.customProgramCacheKey = ()=> 'basicVM'; RUNE_BASE.set(m, base); c.material = m; c.layers.enable(1); return; }
+    const m = addRune(base.clone()), met = base.userData.metal ? 1 : 0;   // 특수 부품(제 빛 .5 넘는 것)의 emissive 는 지우지 않는다
+    if(!(base.emissiveIntensity > 0.5) && m.emissive) m.emissiveIntensity = 0;   // 꼭짓점 색·나무결의 옅은 자체 발광(.03)은 34차처럼 0 — +0 모습이 예전 그대로
+    RUNE_BASE.set(m, base);
+    /* uMetal: 쇠 1 · 나무·꼭짓점 색 없는 빛 조각 0 · 꼭짓점 색 −1(aRune 따름) */
+    m.userData.runeU.uMetal.value = met ? 1 : base.userData.heldWood ? 0 : c.geometry.attributes.aRune ? -1 : 0;
+    m.userData.runeU.uPM.value.copy(M);
+    c.material = m; c.layers.enable(1); c.castShadow = false; mats.push(m); list.push([c, met, M]); });
+  const ax = runeAxis(g, list);
+  for(const m of mats) m.userData.runeU.uAx.value.copy(ax);
+  /* 불티 태어날 자리 — 쇠 꼭짓점에서 무작위 32개(불러올 때 한 번). s(총열 비)도 같이 적어 두면 매 프레임 흐름 머리 가까운 것만 고른다 */
+  const cand = [];
+  for(const [c, met, M] of list){ const P = c.geometry.attributes.position, R = c.geometry.attributes.aRune;
+    if(!met && !R) continue;
+    for(let k=0;k<P.count;k+=3){ if(!met && !(R.getX(k) > 0.5)) continue;
+      _raV.fromBufferAttribute(P, k).applyMatrix4(M); if(_raV.z < ax.z - 0.02 || _raV.z > ax.w + 0.01) continue;
+      cand.push(_raV.x, _raV.y, _raV.z); } }
+  const base = new Float32Array(SPARK_BASE*4), nc = cand.length/3;
+  for(let k=0;k<SPARK_BASE;k++){ const j = nc ? Math.floor(((k*7919 + i*104729) % 1000003)/1000003*nc) : 0;
+    const x = nc ? cand[j*3] : ax.x, y = nc ? cand[j*3+1] : ax.y, z = nc ? cand[j*3+2] : ax.z + (ax.w - ax.z)*k/SPARK_BASE;
+    base[k*4] = x; base[k*4+1] = y; base[k*4+2] = z; base[k*4+3] = (z - ax.z)/Math.max(0.05, ax.w - ax.z); }
+  g.userData.mzLen = g.userData.muzzleH ? Math.max(0.12, g.userData.muzzleH.length()*held.scale.x) : 0.3;   // 떨림 shK 용 — 손 자리에서 총구까지(칸)
+  gunGlow.push({mats, ax, base});
 }
 
 let gunKick = 0;
@@ -13288,6 +13502,88 @@ let swingT = 0, bobT = 0, gunT = 0;
      dt 로 스스로 도는 시계를 두면 검사에서도 실제와 똑같이 흔들린다.
    ★ 이름 주의 — shakeT 는 이미 '화면 흔들림'(__shake)이 쓰고 있다. 다른 이름을 쓴다. */
 let gunShakeT = 0;
+/* ═══ 69차 — 룬 빛·불티·떨림(updHeld 에서 떼어냄 — 효과 갈래·재장전 갈래와 줄이 안 겹치게) ═══
+   ★ 전역 유니폼만 쓴다(재질 반복 없음). 시계는 GLOW_T — 걸음(bobT)과 무관(예전엔 걸으면 맥동이 7.5Hz 로 빨라졌다).
+   ★ 할당 0 — 숫자 쓰기와 setHex 뿐. */
+let shEnv = 1, enhShotAgo = 9, runeBoostT = 0, runeDropT = 0, enhShX = 0, enhShY = 0, enhHeldW = -1;
+const gunWake = new Float32Array(32);          // 대장간에서 성공한 총 — 처음 들 때 한 번 깨어난다(0.7초 흐름 + 불티)
+function heldActOn(){ return false; }           // 재장전·꺼내기 모션(reload68)이 들어오면 act ≠ idle 을 돌려준다
+function runeDropK(dt){ if(runeDropT <= 0) return 1; runeDropT = Math.max(0, runeDropT - dt); return 0.4 + 0.6*(1 - runeDropT/0.4); }
+function runeHead(FX, k){ return ((GLOW_T.value/FX.per + k/Math.max(FX.wave, 1)) % 1)*1.4 - 0.2; }   // 셰이더와 같은 흐름 머리 자리(s)
+function waveHeadAtMuzzle(FX){ let m = 0; for(let k=0;k<FX.wave;k++){ const d = (0.97 - runeHead(FX, k))/0.07; m = Math.max(m, Math.exp(-d*d)); } return m; }
+function updEnhHeld(dt, gm, holdGun){
+  const gi = holdGun && gm && gm.visible ? KIT.wpn : -1, gg = gi > 0 ? gunGlow[gi] : null, eLv = gg ? enhOf(gi) : 0;
+  const FX = ENH_FX[eLv], env = (1 - 0.30*NIGHTK) * (1 - 0.15*camAutoK);
+  if(gg && ENH_SPK.pts.parent !== gm) gm.add(ENH_SPK.pts);                      // 총이 바뀔 때만 옮겨 단다(할당 없음)
+  /* 깨어남 — 대장간에서 성공한 총을 처음 들 때 0.7초 동안 빠른 흐름 하나가 약실 → 총구를 휩쓴다 */
+  if(gi !== enhHeldW){ enhHeldW = gi; if(gi > 0 && gunWake[gi] > 0 && eLv > 0){ gunWake[gi] = 0; runeBoostT = 0.7; ENH_SPK.S.boostSpk = 0;
+    if(window.__sfx) window.__sfx('enhWake', eLv); } }
+  RUNE_U.uRLv.value = eLv; RUNE_U.uRI.value = FX.I * env * runeDropK(dt);
+  if(eLv){ RUNE_U.uRA.value.setHex(FX.col); RUNE_U.uRB.value.setHex(FX.col2); }
+  RUNE_U.uRRing.value = FX.ring; RUNE_U.uRLng.value = FX.lng; RUNE_U.uRGly.value = FX.gly;
+  RUNE_U.uRWave.value = FX.wave; RUNE_U.uRPer.value = FX.per; RUNE_U.uRRim.value = FX.rim; RUNE_U.uRBolt.value = FX.bolt;
+  RUNE_U.uRBoost.value = runeBoostT > 0 ? 1 - runeBoostT/0.7 : 0; if(runeBoostT > 0) runeBoostT = Math.max(0, runeBoostT - dt);
+  /* 번짐(GG)은 선 빛만 원천이라 세기가 작다(.12~.32). 흐름 머리가 총구 테에 닿을 때 조금(+20%) 더. 조준경 원이 켜진 동안은 반 */
+  GG.k = (gg && eLv && GFX.q !== 'low') ? FX.gg * env * (0.9 + 0.2*waveHeadAtMuzzle(FX)) * (g68Sc ? 0.5 : 1) : 0;
+  GG.col.setHex(FX.col || 0xffffff);                                               // (옛 검사 호환용 값 — 셰이더는 안 쓴다)
+  /* 70차 효과 갈래 — 총구 화염이 든 총을 비춘다: 재질을 돌며 emissive 를 쓰던 것 대신 유니폼 하나(스크린식, +0 에서도) */
+  if(gg && flashOwn && flashT > 0){ const fk = flashT/flashD; RUNE_U.uGunFlash.value.copy(flashMat.color).multiplyScalar(fk*fk*0.10); }
+  else if(RUNE_U.uGunFlash.value.r || RUNE_U.uGunFlash.value.g || RUNE_U.uGunFlash.value.b) RUNE_U.uGunFlash.value.setRGB(0, 0, 0);
+  updSparks(gg, FX, eLv, dt, env);
+  /* 떨림 — 쏘는 중·꺼내기·재장전 중엔 0(envelope shEnv) → 사격 잔떨림(g68Jit)과 절대 더해지지 않는다.
+     2.2/2.9Hz · +6 ±.0022칸(예전 ±.0078 · 3.8/4.9Hz). 총구가 먼 총은 shK 로 줄여 화면 폭을 맞춘다. 화면·카메라는 안 흔든다 */
+  enhShotAgo += dt;
+  const busy = g68Jit > 0 || flashT > 0 || enhShotAgo < 0.40 || heldActOn();
+  shEnv += ((busy ? 0 : 1) - shEnv) * Math.min(1, dt * (busy ? 12 : 3.3));
+  /* shK — 총구가 카메라에 가까운 총(새총 · 짧은 총)은 같은 폭이 화면에서 크게 보인다. 총구 깊이(카메라 앞 칸)로 나눠 화면 폭을 맞춘다.
+     명세의 0.30/mzLen 은 새총에서 거꾸로(가까울수록 1) 되어 새총이 기준의 1.5배로 떨었다 — 깊이로 바꿨다. 총이 바뀔 때 한 번 잰다(held.matrix 기준) */
+  if(gm && gm.userData.shKw !== KIT.wpn && gm.userData.muzzle){ held.updateMatrix(); gm.updateMatrix();
+    _mzW.copy(gm.userData.muzzle).applyMatrix4(gm.matrix).applyMatrix4(held.matrix);
+    gm.userData.shK = Math.min(1, Math.max(0.3, Math.pow(Math.max(0.01, -_mzW.z)/0.95, 1.6))); gm.userData.shKw = KIT.wpn; }   // 1.6제곱 — 가까운 총구는 회전 떨림도 크게 보인다(잰 값)
+  const shK = gm && gm.userData.shK ? gm.userData.shK : 1;
+  const eSh = gg ? FX.sh * shEnv * shK : 0;
+  enhShX = eSh ? Math.sin(gunShakeT*14)*eSh : 0; enhShY = eSh ? Math.sin(gunShakeT*18 + 1.7)*eSh : 0;
+}
+/* 불티 — 흐름 머리 가까운 쇠 위에서 태어나 .45초 동안 위·뒤로 떠오르며 사그라진다. +3 은 머리가 총구 테에 닿을 때만, +6 은 꼬리 불씨(머리 + 꼬리 두 점) */
+function updSparks(gg, FX, eLv, dt, env){
+  const P = ENH_SPK, S = P.S, pts = P.pts;
+  const want = gg && (FX.spk > 0 || runeBoostT > 0);
+  if(!want){ if(pts.visible){ pts.visible = false; S.life.fill(1); } return; }
+  const pa = P.pos, ca = P.col, base = gg.base, L = Math.max(0.05, gg.ax.w - gg.ax.z);
+  const born = (s0, wd)=>{                                                        // s0 가까운 쇠 자리에서 하나 태어난다
+    let slot = -1; for(let j=0;j<8;j++) if(S.life[j] >= 1){ slot = j; break; } if(slot < 0) return;
+    let bi = -1; const o = (Math.random()*SPARK_BASE)|0;
+    for(let t=0;t<SPARK_BASE;t++){ const k = (o + t) % SPARK_BASE; if(Math.abs(base[k*4+3] - s0) < wd){ bi = k; break; } }
+    if(bi < 0) return;
+    S.life[slot] = 0; const p = slot*3;
+    S.p[p] = base[bi*4]; S.p[p+1] = base[bi*4+1]; S.p[p+2] = base[bi*4+2];
+    for(let q=0;q<3;q++){ S.h1[p+q] = S.p[p+q]; S.h2[p+q] = S.p[p+q]; }
+    S.v[p] = (Math.random() - 0.5)*0.08; S.v[p+1] = 0.14 + Math.random()*0.06; S.v[p+2] = -0.17; };
+  /* 태어남 */
+  const nMax = Math.min(8, FX.spk);
+  if(FX.wave > 0 && FX.spk > 0){
+    if(eLv === 3){ const c = runeHead(FX, 0); if(c > 0.95 && S.lastHead <= 0.95){ born(0.97, 0.06); born(0.97, 0.06); } S.lastHead = c; }
+    else { let alive = 0; for(let j=0;j<8;j++) if(S.life[j] < 1) alive++;
+      if(alive < nMax && Math.random() < dt*nMax/0.45*0.7){ const k = (Math.random()*FX.wave)|0, c = runeHead(FX, k); if(c > 0.02 && c < 1.0) born(c, 0.07); } } }
+  if(runeBoostT > 0){ const c = 1 - runeBoostT/0.7; if(c > 0.82 && !S.boostSpk){ S.boostSpk = 1; for(let j=0;j<8;j++) born(0.97, 0.08); } }
+  /* 움직임 · 색 — 머리 B → 꼬리 A, 밝기 (1 − life)^1.5 */
+  const ember = FX.ember > 0, ka = ENH_FX[Math.max(1, eLv)];
+  _spc.setHex(ka.col2); _spc2.setHex(ember ? 0xff4a2a : ka.col);
+  for(let j=0;j<8;j++){ const p = j*3;
+    let a = 0;
+    if(S.life[j] < 1){ S.life[j] = Math.min(1, S.life[j] + dt/0.45);
+      for(let q=0;q<3;q++){ S.h2[p+q] = S.h1[p+q]; S.h1[p+q] = S.p[p+q]; }
+      S.v[p+1] -= 0.5*dt; S.p[p] += S.v[p]*dt; S.p[p+1] += S.v[p+1]*dt; S.p[p+2] += S.v[p+2]*dt;
+      a = Math.pow(1 - S.life[j], 1.5) * (0.55 + 0.45*env); }
+    const lf = S.life[j];
+    for(let t=0;t<3;t++){ const i = (j*3 + t)*3, src = t === 0 ? S.p : t === 1 ? S.h1 : S.h2;
+      const k = t === 0 ? a : ember ? a*(t === 1 ? 0.55 : 0.25) : 0;
+      pa[i] = src[p]; pa[i+1] = src[p+1]; pa[i+2] = src[p+2];
+      const m = Math.min(1, lf*1.4 + t*0.35);
+      ca[i] = (_spc.r + (_spc2.r - _spc.r)*m)*k; ca[i+1] = (_spc.g + (_spc2.g - _spc.g)*m)*k; ca[i+2] = (_spc.b + (_spc2.b - _spc.b)*m)*k; } }
+  pts.geometry.attributes.position.needsUpdate = true; pts.geometry.attributes.color.needsUpdate = true;
+  pts.visible = true;
+}
 function swing(){ swingT = 1; }
 function updHeld(dt, mining, minePct){
   /* ★ 공격 모드(T)면 총을 계속 들고 있고, 아니면 쏜 직후 잠깐만 든다. */
@@ -13336,66 +13632,21 @@ function updHeld(dt, mining, minePct){
   /* ★ -0.26 으로 뒀더니 총이 아래 트레이 뒤에 완전히 가려져 "총이 안 보인다" 였다.
      화면에 찍어 보고 -0.16 으로 올렸다(트레이 위쪽 y≈470). */
   const BX = holdGun ? 0.24 : 0.50, BY = holdGun ? -0.20 : -0.40, BZ = holdGun ? -0.48 : -0.74;
-  /* ── 강화한 총이 손에서 빛난다 ──
-     단계별 모습은 남의 총(ENH_FX)과 똑같은 표를 쓴다 — 두 곳이 어긋나면
-     "친구 총은 빨간데 내 총은 안 빨개요" 가 된다. */
-  let shake = 0; GG.k = 0;
-  const gg = holdGun ? gunGlow[KIT.wpn] : null;
-  const eLv = gg ? enhOf(KIT.wpn) : 0;
-  for(let i=1;i<gunGlow.length;i++){
-    const q = gunGlow[i]; if(!q) continue;
-    const on = (q === gg) && eLv > 0;
-    if(!on && q.lit){ q.lit = false; for(const m of q.mats) m.emissiveIntensity = 0; q.sp.pts.visible = false; }   // 34차 — 안 든 총·+0 은 안 빛난다
-  }
-  if(gg && eLv > 0){
-    const FX = ENH_FX[eLv];
-    /* 숨쉬듯 밝아졌다 어두워진다. 단계가 높을수록 빠르게. 폭은 ±7% — 단계는 세기보다 '색' 으로 갈린다. */
-    const pulse = 0.93 + Math.sin(bobT*FX.pulse*0.9)*0.07;
-
-    const I = Math.min(1.0, (0.18 + FX.fp*0.55) * pulse), col = FX.col || wpnNow().tr;
-    for(const m of gg.mats){ m.emissive.setHex(col); m.emissiveIntensity = I; }
-    gg.lit = true;
-    /* 불티 — 단계가 높을수록 많이(+1 5개 → +6 13개)·밝게. 위로 0.15칸 떠오르며 살짝 흔들리고 사라진다. */
-    const sp = gg.sp, nAct = 4 + eLv*1.5, pa = sp.pos, ca = sp.col;
-    sp.t += dt; _spc.setHex(col);
-    for(let i=0;i<SPARK_N;i++){
-      const life = (sp.t*0.8 + sp.ph[i]) % 1, k = i < nAct ? Math.sin(life*Math.PI) * (0.45 + FX.fp*0.7) : 0;
-      pa[i*3] = sp.base[i*3] + Math.sin(life*9.0 + i)*0.008; pa[i*3+1] = sp.base[i*3+1] + life*0.15; pa[i*3+2] = sp.base[i*3+2];
-      ca[i*3] = _spc.r*k; ca[i*3+1] = _spc.g*k; ca[i*3+2] = _spc.b*k;
-    }
-    sp.pts.geometry.attributes.position.needsUpdate = true; sp.pts.geometry.attributes.color.needsUpdate = true;
-    sp.pts.visible = true;
-    /* 35차 — 무기 발광 패스(총만 블룸) 세기·색. +1 0.55 → +6 0.93, 숨쉬듯. 처음 0.8~1.35 로 두자 +1 부터 총이 하얗게 타서 모양이 안 보였다 */
-    GG.k = (0.30 + FX.fp*0.75) * pulse; GG.col.setHex(col);
-    shake = FX.sh;                       // +4 부터 손이 떨린다
-  }
-  /* 68차 — 총구 화염이 **손에 든 총을 비춘다**: 화염이 남은 0.06~0.1초 동안 총 재질의 발광을 화염 가장자리 색으로 잠깐 올린다.
-     점광원 없이(새 빛 0) 재질 값만 — 나무 개머리·쇠 총열이 번쩍 주황·보라·하늘빛으로 물들었다 꺼진다. 강화 빛이 있으면 그 위에 세기만 더한다.
-     다음 프레임 위 반복문이 lit 을 보고 0 으로 되돌린다(강화 안 한 총). */
-  if(gg && flashOwn && flashT > 0){ const fk = flashT/flashD, fI = fk*fk*0.10;
-    for(const m of gg.mats){ if(!(eLv > 0)){ m.emissive.copy(flashMat.color); m.emissiveIntensity = fI; } else m.emissiveIntensity += fI; }
-    gg.lit = true; }
+  /* ── 69차 — 강화한 총: 쇠에 새긴 룬 빛·불티·떨림은 updEnhHeld 한 곳에서(재질 반복 없음 · 할당 0) ── */
+  updEnhHeld(dt, holdGun ? gunModels[KIT.wpn] : null, holdGun);
   /* 68차 — 조준경 총을 들면 조준점에 가는 원(바뀔 때만 DOM 을 건드린다) */
   { const sc = holdGun && aimMode && (KIT.wpn === 5 || KIT.wpn === 18); if(sc !== g68Sc){ g68Sc = sc; const ch = el('crosshair'); if(ch) ch.classList.toggle('sc68', sc); } }
   /* 68차 — 잔떨림(기관총·연발·천둥·용): 쏘는 동안 손에 든 총만 잘게 떤다(화면 기울기도 아주 조금 — 보는 방향은 그대로) */
   let jx = 0, jy = 0;
   if(g68Jit > 0){ g68Jit = Math.max(0, g68Jit - dt); const j = Math.min(1, g68Jit/0.12)*0.007; jx = (Math.random()-.5)*j; jy = (Math.random()-.5)*j; if(holdGun) aimRoll += (Math.random()-.5)*j*0.5; }
 
-  /* ★ 떨림은 화면 흔들림이 아니라 '손에 든 것'만 떤다. 화면을 흔들면 조준이 어려워져
-     강화가 벌이 된다 — 9살이 +6 을 만들고 나서 더 못 맞히면 안 된다. */
-  /* ★ 선생님: "진동이 너무 심해. 아주 살짝 떨리게만." — 두 가지가 겹쳐 심했다:
-       ① 폭이 컸다 (0.6 배)
-       ② 빠르기가 7.5~9.7Hz 라 '떨림' 이 아니라 '버저' 로 보였다.
-     폭을 0.6 → 0.17 로, 빠르기를 절반쯤(3.8~4.9Hz)으로 낮췄다.
-     자리 흔들림이 최대 0.028 → 0.008 칸이다. 눈에 겨우 걸리는 정도 —
-     "살아 있는 물건을 쥐고 있다" 는 느낌만 남기고 조준에는 지장이 없다.
-     ★ 남의 총(P_gunF)의 떨림은 안 건드렸다. 거기는 원래도 미세해서
-       (사람 크기 0.7 이 곱해진다) 더 줄이면 아예 안 보인다. */
-  const shx = shake ? Math.sin(gunShakeT*24)*shake*0.17 : 0;
-  const shy = shake ? Math.sin(gunShakeT*31 + 1.7)*shake*0.17 : 0;
+  /* ★ 떨림은 화면 흔들림이 아니라 '손에 든 것'만 떤다. 화면을 흔들면 조준이 어려워져 강화가 벌이 된다.
+     ★ 선생님: "진동이 너무 심해. 아주 살짝 떨리게만" · "떨림을 너무 크게 하지는 말고" — 69차: 폭 ±.0010~.0022칸, 2.2/2.9Hz,
+       쏘는 중·꺼내기 중엔 0(updEnhHeld 의 shEnv). 자리에 **맨 마지막으로** 더한다(걸음·반동·잔떨림 뒤). */
+  const shx = enhShX, shy = enhShY;
   held.position.set(
-    BX + Math.sin(bobT)*0.012 - a*0.07 + shx + jx,
-    BY + Math.abs(Math.sin(bobT*2))*0.012 - a*0.07 + kp*0.05 + shy + jy,
+    BX + Math.sin(bobT)*0.012 - a*0.07 + jx + shx,
+    BY + Math.abs(Math.sin(bobT*2))*0.012 - a*0.07 + kp*0.05 + jy + shy,
     BZ + a*0.07 + kx*0.20);   // 42차 — 몸 쪽으로 더 밀린다(0.16 → 0.20) · 65차 — 위로는 들림(kp)이 올린다
   const gmA = holdGun ? gunModels[KIT.wpn] : null;
   if(gmA && gmA.userData.axisH){
@@ -13411,9 +13662,9 @@ function updHeld(dt, mining, minePct){
       gmA.userData.aimQ = q;
     }
     held.quaternion.copy(q);
-    _aimE.set(Math.sin(bobT)*0.012 + kp*0.40 + shy*0.35, kt*0.10, shx*0.35 + kt*0.14); _aimQ.setFromEuler(_aimE); held.quaternion.premultiply(_aimQ);
+    _aimE.set(Math.sin(bobT)*0.012 + kp*0.40 + shy*0.20, kt*0.10, shx*0.20 + kt*0.14); _aimQ.setFromEuler(_aimE); held.quaternion.premultiply(_aimQ);
   } else {
-    held.rotation.set(-a*1.25 + Math.sin(bobT)*0.012 - kx*0.42 + shy*0.35, 0, a*0.42 + shx*0.35);   // 도구 — y 는 0 으로 되돌린다(총을 들었다 놓으면 남는다)
+    held.rotation.set(-a*1.25 + Math.sin(bobT)*0.012 - kx*0.42 + shy*0.20, 0, a*0.42 + shx*0.20);   // 도구 — y 는 0 으로 되돌린다(총을 들었다 놓으면 남는다)
   }
 }
 
@@ -14119,9 +14370,15 @@ const flashTex = (()=>{ const N = 128, S = N*3;
   const t = new THREE.CanvasTexture(out); t.colorSpace = THREE.NoColorSpace; t.repeat.set(1/3, 1/3); return t; })();
 const flashMat = new THREE.MeshBasicMaterial({map:flashTex, color:0xfff3c0, transparent:true, opacity:1,
   depthWrite:false, blending:THREE.AdditiveBlending, fog:false, side:THREE.DoubleSide});
-flashMat.onBeforeCompile = (sh)=>{ sh.fragmentShader = sh.fragmentShader.replace('#include <map_fragment>',
+/* 69차 — 1인칭 총은 깊이를 눌러 벽 앞에 그려지므로(VM_Z), 내 총구 화염도 그동안만 같이 누른다(uVM 1). 안 그러면 난간 앞에서 쏠 때 화염만 벽에 가려 사라진다.
+   3인칭·남의 화염은 0 — 세계 깊이 그대로. 새 재질 0(유니폼 하나) */
+const FLASH_VM = {value:0};
+flashMat.onBeforeCompile = (sh)=>{ sh.uniforms.uVM = FLASH_VM;
+  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nuniform float uVM;')
+    .replace('#include <project_vertex>', '#include <project_vertex>\n  gl_Position.z = mix(gl_Position.z, mix(-gl_Position.w, gl_Position.z, 0.02), uVM);');
+  sh.fragmentShader = sh.fragmentShader.replace('#include <map_fragment>',
   'vec4 fT68 = texture2D( map, vMapUv );\n  diffuseColor.rgb = diffuseColor.rgb*fT68.r + (vec3(1.0) - diffuseColor.rgb)*fT68.g;'); };
-flashMat.customProgramCacheKey = ()=> 'flash68';
+flashMat.customProgramCacheKey = ()=> 'flash68vm';
 const flashMesh = new THREE.Mesh(new THREE.PlaneGeometry(1,1), flashMat);
 flashMesh.frustumCulled = false; flashMesh.visible = false; flashMesh.renderOrder = 11; scene.add(flashMesh);
 flashMesh.userData.gradient = true;      // 무늬가 아니라 하늘 돔 같은 '결 그림'(t32 는 이걸 무늬 검사에서 뺀다)
@@ -14169,6 +14426,7 @@ function muzzleFlash(x,y,z,col,size,shape,dx,dy,dz){
   flashMesh.scale.set(L*0.8, Wd*0.8, 1); flashMat.opacity = 1;
 }
 function updFlash(dt){
+  FLASH_VM.value = flashT > 0 && flashOwn && held.visible ? 1 : 0;   // 69차 — 1인칭 내 화염만 깊이를 누른다
   if(flashT <= 0) return;
   flashT -= dt; if(flashT <= 0){ flashMesh.visible = false; flashOwn = false; flashGun = null; return; }
   /* 68차 — 1인칭 화염은 **총구를 따라간다**: 쏜 다음 프레임에 총이 반동으로 0.1칸 넘게 밀려
@@ -14865,6 +15123,16 @@ const TPGUN = (()=>{
   /* 68차 — 단면이 정사각형(폭 ≈ 높이)인 조각은 원통이다(총열·조준경·탄창관·코일·띠·드럼). [12] = 1 이면 정점 셰이더가 단면을 원으로 편다(aRnd).
      조각 수·자리·크기·정원은 그대로 — 모양만 둥글어진다(검사 t61·t57 의 약속 그대로) */
   for(const g of T) if(g) for(const r of g.r) r[12] = Math.abs(r[3] - r[4]) <= 0.12*Math.max(r[3], r[4]) ? 1 : 0;
+  /* 69차 — 강화 룬이 새겨지는 쇠 조각(met)과 조각의 총 길이 비(s = [가운데, 반길이]). 표 칸은 늘리지 않는다(재장전 갈래가 r[13] 을 쓴다).
+     쇠 = 짙은·밝은 강철·금·놋쇠·그을린 쇠·녹슨 쇠·남색 강철·흑요석·구리·금 새김. 빛 조각(r[7])은 제 빛이라 뺀다.
+     새총은 가지 끝·주머니 돌(룬석), 활은 화살촉·놋쇠 받침. 뒤끝 f0 = 총열 높이 가까운 쇠 조각의 가장 뒤. */
+  const RUNE_METAL_3P = new Set([ST, SB, AU, BR, BK, RUST, NAVY, OBS, CU, ENG]);
+  T.forEach((g, gi)=>{ if(!g) return;
+    g.met = g.r.map((r, j)=> gi === 1 ? ([6, 7, 11].includes(j) ? 1 : 0) : (RUNE_METAL_3P.has(r[6]) && !r[7] ? 1 : 0));
+    const fMz = g.mz[0]; let f0 = fMz - 0.12;
+    g.r.forEach((r, j)=>{ if(g.met[j] && Math.abs(r[1] - g.mz[1]) < 0.10) f0 = Math.min(f0, r[0] - r[5]/2); });
+    const L = Math.max(0.12, fMz - f0);
+    g.s = g.r.map(r=> [(r[0] - f0)/L, r[5]/2/L]); g.L = L; });
   return T;
 })();
 /* 최악 조합 — 한 사람의 가장 많은 조각(열넷)·빛 조각(넷 — 68차 2단계). 아래 P_gun·P_gunF 정원은 이 값을 곱한 것이다(t61 이 확인한다). */
@@ -15240,7 +15508,10 @@ function dispClone(i, x, yb, z, ry, fit, spin){
   const g = gunModels[i]; if(!g) return null;
   const gun = g.clone();
   gun.visible = true;                                 // ★ 손에 드는 원본은 안 든 자루가 visible=false 라 복제도 숨은 채 온다
-  for(const c of [...gun.children]) if(!c.isMesh || c.material === HELD_ARM) gun.remove(c);   // 손·팔(HELD_ARM)·불티(점) 떼기
+  /* 69차 — 진열은 "+0 파는 물건": 빛 복제본 → 원래 재질(룬·깊이 누르기 없음 · 특수 부품은 제 빛), 층 1(번짐 원천)에서 뺀다.
+     예전엔 복제가 빛 재질·층 1 을 같이 써서 손에 든 총이 빛나면 진열대의 같은 총도 빛나고, 50~64칸 밖에서 번짐 유령이 떴다. */
+  gun.traverse(o=>{ if(!o.isMesh) return; const b = RUNE_BASE.get(o.material); if(b) o.material = b; o.layers.set(0); });
+  for(const c of [...gun.children]) if(!c.isMesh || c.isPoints || c.material === HELD_ARM || c.userData.arm || c.userData.enhFx) gun.remove(c);   // 손·팔(HELD_ARM)·불티(점) 떼기
   gun.traverse(o=>{ if(o.isMesh){ o.renderOrder = 0; o.frustumCulled = true; } });
   gun.rotation.set(0, 0, 0); gun.position.set(0, 0, 0); gun.scale.setScalar(1);
   localBox(gun, _dbb); _dbb.getSize(_dsz); _dbb.getCenter(_dct);
@@ -15726,18 +15997,63 @@ P_jobF.castShadow = P_jobF.receiveShadow = P_jobR.castShadow = P_jobR.receiveSha
      예전에 좀비 체력막대에서 실측으로 잡은 적이 있다).
    ★ 65차 — 총마다 부품 표(TPGUN, 8~14조각)로 그린다. 정원은 최악 조합으로 잡는다:
        몸체  P_gun  = MAXP(그리는 사람 상한 40) × TPGUN_MAX(14) = 560칸 — 실제 교실 21명 × 14 = 294 도 넉넉히 들어간다.
-       빛    P_gunF = MAXP × (TPGUN_GLOW(4, 수정 광선총 — 68차 2단계에 5 → 4) + 강화 빛 2) = 240칸.
+       빛    P_gunF = MAXP × TPGUN_GLOW(4, 수정 광선총 — 68차 2단계에 5 → 4) = 160칸(69차 — 강화 빛 공 둘은 없앴다. 강화는 P_gun 셰이더의 룬).
      칸이 모자라면 오류 없이 총이 잘려 그려지므로 t61 이 마흔 명 × 무기마다 개수를 센다. */
 const P_hand = [imesh(R6_HOOK[0], AVATAR_MAT.skin, MAXP, 1), imesh(R6_HOOK[1], AVATAR_MAT.skin, MAXP, 1)];
 /* 68차 — 3인칭 총·도구 조각의 둥근 단면. 인스턴스마다 aRnd(0 상자 · 1 축 z 원통 · 2 축 y 원통)를 두고 정점 셰이더가 단면 정사각형을 원으로 편다
    (최대 노름 → 원: 모서리 둥근 상자 RBs 의 단면 열두 점이 열두각 원통이 된다). 옆면 법선도 바깥 반지름 방향으로. 조각 수·그리기 횟수 그대로 */
+/* 69차 — 3인칭 총 룬(P_gun 셰이더 · 새 재질 0 · 드로우콜 0). 조각마다 aEnh(선 색·휩쓸기) · aEnhS(총 길이 비 가운데·반길이·단계·사람 위상).
+   쇠 조각에 테(단계 수) · 면 가운데 선 · 흐름. 3~5칸 밖(화소보다 선이 가늘어지면)은 무늬가 평균 물듦 col × (.06 + glow × .09) 로 녹는다(명세 .10+.14 는 짙은 붉은 몸에서 총 전체가 딴 색이 되어 줄였다) —
+   25칸에서도 +5 파랑·+6 진홍 총이 '색 있는 쇠 총' 으로 읽힌다. 공·점 모양 없음. 합성은 스크린식(풀밭 위에서도 빨강이 노랗게 안 바뀐다). */
+const GEAR_RUNE_FS = `
+{ float lv = aEnhSv.z;
+  if(lv > 0.5){
+    float glow = lv < 1.5 ? .30 : lv < 2.5 ? .48 : lv < 3.5 ? .70 : lv < 4.5 ? .85 : lv < 5.5 ? 1.05 : 1.30;
+    float nW = lv < 2.5 ? 0.0 : lv < 4.5 ? 1.0 : lv < 5.5 ? 2.0 : 3.0, per = lv < 1.5 ? 4.0 : lv < 2.5 ? 3.4 : lv < 3.5 ? 2.4 : lv < 5.5 ? 2.0 : 1.8;
+    float nL = lv < 1.5 ? 0.0 : lv < 3.5 ? 1.0 : lv < 5.5 ? 2.0 : 3.0;
+    float Lw = vLsz.z / max(2.0 * aEnhSv.y, 1e-3);                         /* 총 길이(세계) */
+    float s = aEnhSv.x + vLp.z / max(vLsz.z, 1e-4) * 2.0 * aEnhSv.y;
+    float dR = abs(s - 0.97);
+    if(lv > 1.5) dR = min(dR, abs(s - 0.04)); if(lv > 2.5) dR = min(dR, abs(s - 0.50));
+    if(lv > 3.5) dR = min(dR, abs(s - 0.25)); if(lv > 4.5) dR = min(dR, abs(s - 0.75)); if(lv > 5.5) dR = min(dR, abs(s - 0.125));
+    float dN = dR * Lw / 0.004;
+    vec3 an = abs(vLn);
+    if(nL > 0.5){ float dl = 1e3;
+      if(nL != 2.0 && an.y > 0.6) dl = abs(vLp.x);                        /* 윗·아랫면 가운데 */
+      if(nL > 1.5 && an.x > 0.6) dl = min(dl, abs(vLp.y));                  /* 옆면 가운데 */
+      dN = min(dN, dl / 0.003); }
+    float fw = max(fwidth(dN), 1e-4), h = fw * 0.5;
+    float lines = clamp((min(dN + h, 1.0) - max(dN - h, -1.0)) / fw, 0.0, 1.0);
+    float wave = 0.0;
+    for(int k = 0; k < 3; k++){ if(float(k) >= nW) break;
+      float c = fract(uGlowT / per + aEnhSv.w + float(k) / max(nW, 1.0)) * 1.4 - 0.2; wave += exp(-pow((s - c) / 0.07, 2.0)); }
+    if(aEnhV.w > 0.0){ float c = aEnhV.w * 1.4 - 0.2; wave += 1.5 * exp(-pow((s - c) / 0.09, 2.0)); }     /* 친구가 막 강화했다 — 빠른 휩쓸기 한 번 */
+    wave = clamp(wave, 0.0, 1.0);
+    float flow = nW > 0.5 || aEnhV.w > 0.0 ? 0.55 + 0.9 * wave : 0.94 + 0.06 * sin(6.2832 * uGlowT / per + aEnhSv.w * 6.2832);
+    float mz = 1.0 + 0.6 * wave * smoothstep(0.05, 0.0, abs(s - 0.97));    /* 흐름 머리가 총구 테에 닿으면 +60% — 어깨 너머로 보인다 */
+    vec3 hi = lv > 5.5 ? vec3(1.0, 0.68, 0.14) : mix(aEnhV.rgb, vec3(1.0), 0.6);
+    vec3 near = mix(aEnhV.rgb, hi, wave * (lv > 5.5 ? 1.0 : 0.45)) * lines * flow * mz * (0.62 + glow * 0.20);
+    vec3 far = aEnhV.rgb * (0.06 + glow * 0.09) * (0.9 + 0.3 * wave);
+    float lod = smoothstep(1.3, 2.6, fwidth(vLp.z) / 0.004);             /* 화소가 테 두께(.004)의 1.3~2.6배 — 대략 3~5칸 밖에서 무늬 → 평균 물듦 */
+    vec3 E = mix(near, far, lod);
+    outgoingLight += min(E, vec3(0.95)) * (1.0 - clamp(outgoingLight, 0.0, 1.0));
+  }
+}
+`;
 AVATAR_MAT.gear.onBeforeCompile = (sh)=>{
-  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float aRnd;')
+  sh.uniforms.uGlowT = GLOW_T;
+  sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float aRnd; attribute vec4 aEnh; attribute vec4 aEnhS; varying vec4 aEnhV; varying vec4 aEnhSv; varying vec3 vLp; varying vec3 vLsz; varying vec3 vLn;')
     .replace('#include <beginnormal_vertex>', '#include <beginnormal_vertex>\nif(aRnd > 0.5){ vec2 q = aRnd > 1.5 ? position.xz : position.xy; float nq = aRnd > 1.5 ? objectNormal.y : objectNormal.z; float L = length(q);\n  if(abs(nq) < 0.7 && L > 1e-4){ vec2 d = q / L; objectNormal = aRnd > 1.5 ? vec3(d.x, 0.0, d.y) : vec3(d, 0.0); } }')
-    .replace('#include <begin_vertex>', '#include <begin_vertex>\nif(aRnd > 0.5){ vec2 q = aRnd > 1.5 ? transformed.xz : transformed.xy; float L = length(q);\n  if(L > 1e-5){ q *= max(abs(q.x), abs(q.y)) / L; if(aRnd > 1.5) transformed.xz = q; else transformed.xy = q; } }');
+    .replace('#include <begin_vertex>', '#include <begin_vertex>\nif(aRnd > 0.5){ vec2 q = aRnd > 1.5 ? transformed.xz : transformed.xy; float L = length(q);\n  if(L > 1e-5){ q *= max(abs(q.x), abs(q.y)) / L; if(aRnd > 1.5) transformed.xz = q; else transformed.xy = q; } }\n'
+      + 'aEnhV = aEnh; aEnhSv = aEnhS; vLn = objectNormal;\n#ifdef USE_INSTANCING\n vLsz = vec3(length(instanceMatrix[0].xyz), length(instanceMatrix[1].xyz), length(instanceMatrix[2].xyz));\n#else\n vLsz = vec3(1.0);\n#endif\n vLp = transformed * vLsz;');
+  sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nuniform float uGlowT; varying vec4 aEnhV; varying vec4 aEnhSv; varying vec3 vLp; varying vec3 vLsz; varying vec3 vLn;')
+    .replace('#include <opaque_fragment>', GEAR_RUNE_FS + '#include <opaque_fragment>');
 };
-AVATAR_MAT.gear.customProgramCacheKey = ()=> 'gearRnd';
-const P_gun  = imesh((()=>{ const g = RBs.clone(); g.setAttribute('aRnd', new THREE.InstancedBufferAttribute(new Float32Array(MAXP*TPGUN_MAX), 1)); return g; })(), AVATAR_MAT.gear, MAXP*TPGUN_MAX, 1),
+AVATAR_MAT.gear.customProgramCacheKey = ()=> 'gearRune';
+const P_gun  = imesh((()=>{ const g = RBs.clone(); g.setAttribute('aRnd', new THREE.InstancedBufferAttribute(new Float32Array(MAXP*TPGUN_MAX), 1));
+        g.setAttribute('aEnh', new THREE.InstancedBufferAttribute(new Float32Array(MAXP*TPGUN_MAX*4), 4));    // 69차 — 룬 색(선형)·휩쓸기
+        g.setAttribute('aEnhS', new THREE.InstancedBufferAttribute(new Float32Array(MAXP*TPGUN_MAX*4), 4));   // 69차 — 총 길이 비 가운데·반길이·단계·위상
+        return g; })(), AVATAR_MAT.gear, MAXP*TPGUN_MAX, 1),
       /* ★ 빛 조각은 Lambert 의 emissive 로 만들면 안 된다 —
            emissive 에는 인스턴스 색이 안 곱해져서, +5(파랑)든 +6(빨강)이든
            전부 하얗게만 나온다. 화면에 찍어 보고 알았다.
@@ -15745,20 +16061,36 @@ const P_gun  = imesh((()=>{ const g = RBs.clone(); g.setAttribute('aRnd', new TH
          인스턴스 색이 그대로 먹는다. 스스로 빛나 보이는 것도 그대로다. */
       P_gunF = imesh(BALL,
         new THREE.MeshBasicMaterial({transparent:true, opacity:0.85,
-          depthWrite:false, blending:THREE.AdditiveBlending, fog:false}), MAXP*(TPGUN_GLOW+2), 1);
+          depthWrite:false, blending:THREE.AdditiveBlending, fog:false}), MAXP*TPGUN_GLOW, 1);   // 69차 — 강화 몫(+2) 삭제: 공 빛 0
+P_gunF.castShadow = false;                                                                    // 69차 — 빛 겉이 그림자를 드리우지 않는다
 
 /* ★ 그리는 순서를 못 박는다. 투명한 두 메시가 같은 자리에 있으면 어느 것을 나중에
    그릴지가 프레임마다 뒤집혀 빛이 총 뒤로 숨는다 — 9차에 좀비 체력막대에서 겪은 그 병이다. */
 P_gun.renderOrder = 2; P_gunF.renderOrder = 3;
+/* ═══ 69차 — 강화 색 한 벌. 3D 선·가방 테·대장간 글자·축포·이름표 ◆·토스트가 모두 여기서만 읽는다 ═══
+   a 3D 선 색 · b 흐름 머리(+6 은 금 심) · ui 밝은 카드용 짙은 톤. 이웃 단계 색상각 차 ≥ 87°. +5 파랑·+6 빨강은 예전 그대로(아이 기억).
+   크림·흰·은(쇠와 비슷한 색)은 쓰지 않는다 — 무기 예광색(WEAPONS.tr)도 강화색에 더는 안 쓴다. */
+const ENH_COL = [null,
+  {n:'초록 룬',     a:0x3ddc84, b:0xc8ffd8, ui:'#1fa862'},
+  {n:'보라 룬',     a:0x9a6bff, b:0xe0d4ff, ui:'#7a4fe0'},
+  {n:'금빛 흐름',   a:0xffc23a, b:0xfff2b0, ui:'#d99a10'},
+  {n:'분홍 마법 룬', a:0xff4fd8, b:0xffd0f4, ui:'#d63bb4'},
+  {n:'푸른 번개 룬', a:0x4aa8ff, b:0xd8f0ff, ui:'#2f86e0'},
+  {n:'진홍 전설',   a:0xff4a2a, b:0xffd66a, ui:'#e0321c', ui2:'#ffd66a'}];
+/* 69차 — 룬 강화 표. glow 3인칭 쇠 물듦 세기(순증가) · I 1인칭 선 세기 · gg GG 번짐(낮 기준) · ring 테 줄 수(=단계) · lng 상감 선 수 ·
+   gly 룬 글자 덮는 길이 · wave 흐름 개수(0 = 숨쉬기) · per 주기(초) · rim 림 · spk 불티 수 · bolt +5 번개 가지 · ember +6 꼬리 불씨 ·
+   sh 1인칭 떨림 폭(칸, 그대로 더함) · sh3 3인칭 떨림(몸 단위). 떨림은 선생님 말씀("아주 살짝 · 너무 크게 하지는 말고")대로 예전의 약 28%, 2.2/2.9Hz.
+   ★ 사진으로 다듬음 — 명세 초안의 I .55~.84 · gg .12~.32 는 +1~+3 이 +0 과 거의 같아 보였다(복도·밤). 낮은 단계를 올려 I .66~.86 · gg .16~.32(상한 그대로), 테 두께 .006 → .0075 */
 const ENH_FX = [
-  {glow:0.00, fp:0.00, sh:0.000, col:0,        pulse:0.0},
-  {glow:0.30, fp:0.34, sh:0.000, col:0,        pulse:1.4},   // +1 미세하게
-  {glow:0.48, fp:0.45, sh:0.000, col:0,        pulse:2.0},   // +2 더 빛남
-  {glow:0.70, fp:0.58, sh:0.000, col:0xfff0a0, pulse:3.2},   // +3 아주 반짝반짝
-  {glow:0.85, fp:0.66, sh:0.020, col:0xffd24a, pulse:4.2},   // +4 떨리기 시작
-  {glow:1.05, fp:0.74, sh:0.032, col:0x4aa8ff, pulse:5.4},   // +5 파란 빛
-  {glow:1.30, fp:0.84, sh:0.046, col:0xff4a2a, pulse:7.0}    // +6 붉은 빛
-];
+ {glow:0,   I:0,   gg:0,   ring:0, lng:0, gly:0,   wave:0, per:4.0, rim:0,   spk:0, bolt:0, ember:0, sh:0,     sh3:0,     col:0,        col2:0},
+ {glow:.30, I:.66, gg:.16, ring:1, lng:0, gly:0,   wave:0, per:4.0, rim:0,   spk:0, bolt:0, ember:0, sh:0,     sh3:0,     col:0x3ddc84, col2:0xc8ffd8},
+ {glow:.48, I:.70, gg:.19, ring:2, lng:2, gly:0,   wave:0, per:3.4, rim:0,   spk:0, bolt:0, ember:0, sh:0,     sh3:0,     col:0x9a6bff, col2:0xe0d4ff},
+ {glow:.70, I:.74, gg:.22, ring:3, lng:2, gly:0,   wave:1, per:2.4, rim:0,   spk:2, bolt:0, ember:0, sh:0,     sh3:0,     col:0xffc23a, col2:0xfff2b0},
+ {glow:.85, I:.78, gg:.25, ring:4, lng:4, gly:.45, wave:1, per:2.0, rim:.08, spk:4, bolt:0, ember:0, sh:.0010, sh3:.0015, col:0xff4fd8, col2:0xffd0f4},
+ {glow:1.05,I:.82, gg:.29, ring:5, lng:4, gly:.90, wave:2, per:2.0, rim:.12, spk:6, bolt:1, ember:0, sh:.0016, sh3:.0022, col:0x4aa8ff, col2:0xd8f0ff},
+ {glow:1.30,I:.86, gg:.32, ring:6, lng:6, gly:1.0, wave:3, per:1.8, rim:.16, spk:8, bolt:0, ember:1, sh:.0022, sh3:.0030, col:0xff4a2a, col2:0xffd66a}];
+for(let e=1;e<ENH_FX.length;e++){ ENH_FX[e].col = ENH_COL[e].a; ENH_FX[e].col2 = ENH_COL[e].b; }   // 색은 ENH_COL 한 곳에서
+{ const R = document.documentElement.style; for(let e=1;e<ENH_COL.length;e++) R.setProperty('--e'+e, ENH_COL[e].ui); R.setProperty('--e6b', ENH_COL[6].ui2); }   // CSS 테 색도 같은 한 벌
 /* ═══════════ 꾸미기 — 모자 · 안경 · 옷 ═══════════
    조각 하나 = [앞f, 위u, 옆sd, 가로, 세로, 깊이, 색]
    ★ 사람 몸 기준점을 알아야 새 옷을 붙일 수 있다 (한 번 몰라서 볼터치를 머리 속에 파묻었다):
@@ -17711,39 +18043,39 @@ function drawSheep(list, t, cap, colOf, scale){
     if(TG && !down && gunN + TG.r.length <= P_gun.count_max){
       const e  = Math.max(0, Math.min(ENH_MAX, s.we|0));
       const FX = ENH_FX[e];
-      /* 떨림 — +4 부터. 사람마다 위상을 달리해서 스물한 명이 같이 흔들리지 않게 한다 */
-      const sh = FX.sh ? Math.sin(t*38 + (s.ph||0)*7)*FX.sh : 0;
+      /* 69차 — 떨림: +4 부터 총구에서 ±.0015~.0030(몸 단위 — gunPoint 가 × sc), 2.2/2.9Hz, 사람마다 위상을 달리한다.
+         손잡이(쥔 손)를 축으로 총 전체가 한 몸으로 아주 조금 까딱인다 — 조각마다 앞(f)에 비례해서 옮기므로 손잡이(f 0)는 손 한가운데 그대로이고
+         총이 손에서 떨어져 보이지 않는다(예전엔 손잡이만 빼고 나머지를 옮겨 손잡이–몸이 어긋났다) */
+      const s3 = FX.sh3, shU = s3 ? Math.sin(t*14 + (s.ph||0)*7)*s3 : 0, shS = s3 ? Math.sin(t*18 + (s.ph||0)*5)*s3 : 0, shF = 1/Math.max(0.2, TG.mz[0]);
+      /* 친구가 막 강화했다(받은 we 가 올랐다) — 0.6초 빠른 휩쓸기 한 번. 통신 필드 추가 0 */
+      if(s.weP !== undefined && e > (s.weP|0)) s.weT0 = t;
+      s.weP = e;
+      const sweep = s.weT0 !== undefined && t - s.weT0 >= 0 && t - s.weT0 < 0.6 ? Math.max(0.001, (t - s.weT0)/0.6) : 0;
+      if(e > 0) _ec3.setHex(FX.col);                                   // 색은 선형(setHex 가 sRGB → 선형으로 바꿔 준다)
       const origin=[gripX,gripY,gripZ];
       /* 65차 — 무기마다 부품 표(TPGUN)대로 그린다. 모든 조각이 한 반동 축(gunPoint·gunPit)을 쓰고,
-         조각 자기 기울기는 그 축 위에 얹는다(setSheepAttachment = 몸 축 × 조각 축). 손잡이([2])만 떨림을 안 받는다 — 손이 쥐고 있으니까. */
+         조각 자기 기울기는 그 축 위에 얹는다(setSheepAttachment = 몸 축 × 조각 축). */
       /* 단면만 1.15 배 굵게 — 어깨 너머 거리에서 총열이 실처럼 가늘어지지 않게(길이·자리는 표 그대로). 빛 겉(k>1)은 조금 크게, 눌린 색(r[11])으로. */
-      const part=(mesh,i,r,k,q)=>{ const w = k > 1 ? k : TPGUN_TH, pad = k > 1 ? .03 : 0;
-        setSheepAttachment(mesh,i,...gunPoint(origin,r[0],r[1]+q,r[2]*TPGUN_TH+q),ry,gunPit,r[10]||0,r[8]||0,r[9]||0,
+      const part=(mesh,i,r,k)=>{ const w = k > 1 ? k : TPGUN_TH, pad = k > 1 ? .03 : 0;
+        setSheepAttachment(mesh,i,...gunPoint(origin,r[0],r[1]+shU*r[0]*shF,r[2]*TPGUN_TH+shS*r[0]*shF),ry,gunPit,r[10]||0,r[8]||0,r[9]||0,
           (r[3]*w+pad)*sc,(r[4]*w+pad)*sc,(r[5]*(k>1?1.1:1)+pad)*sc,k > 1 ? r[11] : r[6]); };
       const glowOk = glowN + TG.g <= P_gunF.count_max, gp = 1.18 + Math.sin(t*3.1 + (s.ph||0))*0.08;
+      const aE = P_gun.geometry.attributes.aEnh.array, aS = P_gun.geometry.attributes.aEnhS.array;
       TG.r.forEach((r,j)=>{
-        const q = j === 2 ? 0 : sh;
         P_gun.geometry.attributes.aRnd.array[gunN] = r[12] || 0;   // 68차 — 둥근 단면
-        part(P_gun, gunN++, r, 1, q);
-        /* 빛 조각 — 불투명한 속 위에 발광 겉을 한 겹(렌즈·수정·코일·불). 밤에도 제 색으로 빛난다 */
-        if(r[7] && glowOk) part(P_gunF, glowN++, r, gp, q);
+        /* 69차 — 룬: 쇠 조각만 단계·색·총 길이 비. 나머지(+0·나무·가죽·빛 조각)는 0 — 빈 칸도 매번 0 으로 덮는다(칸을 사람끼리 돌려 쓴다) */
+        const o4 = gunN*4;
+        if(e > 0 && TG.met[j]){ aE[o4] = _ec3.r; aE[o4+1] = _ec3.g; aE[o4+2] = _ec3.b; aE[o4+3] = sweep;
+          aS[o4] = TG.s[j][0]; aS[o4+1] = TG.s[j][1]; aS[o4+2] = e; aS[o4+3] = ((s.ph||0)*0.37) % 1; }
+        else { aE[o4] = aE[o4+1] = aE[o4+2] = aE[o4+3] = 0; aS[o4] = aS[o4+1] = aS[o4+2] = aS[o4+3] = 0; }
+        part(P_gun, gunN++, r, 1);
+        /* 빛 조각 — 불투명한 속 위에 발광 겉을 한 겹(렌즈·수정·코일·불). 밤에도 제 색으로 빛난다(+0 부터 · 강화 색과 무관) */
+        if(r[7] && glowOk) part(P_gunF, glowN++, r, gp);
       });
       /* 65차 — 총구 자리를 사람 칸에 적어 둔다(그리기만 읽는 값). fireWeapon 이 어깨 너머 사격의 화염·예광탄을 내 사람(meSheep)의 이 자리에서 낸다.
          표의 mz 가 그 총의 실제 총구 끝이다(총열 끝 한가운데 — 쌍총열·새총 가지·활의 화살촉까지). */
-      { const mp = gunPoint(origin,TG.mz[0],TG.mz[1]+sh,sh); s.mzX = mp[0]; s.mzY = mp[1]; s.mzZ = mp[2]; s.mzT = t; }
-      /* 빛 — 강화 단계가 있을 때만. 숨쉬듯 커졌다 작아진다 */
-      if(FX.glow > 0 && glowN + 2 <= P_gunF.count_max){
-        const bs2 = 0.80 + Math.sin(t*FX.pulse + (s.ph||0))*0.20;
-        const W = WEAPONS[Math.min(WEAPONS.length-1, wi)];
-        const gcol = FX.col || W.tr;
-        const gsz = FX.glow * bs2, B = TG.bar;
-        const glow=(f,u,w,h,d)=>setIR(P_gunF,glowN++,...gunPoint(origin,f,u+sh,sh),ry,gunPit,w*sc,h*sc,d*sc,gcol);
-        /* 총열을 감싸는 빛 — 표의 bar(총열 가운데·길이)를 감싼다 */
-        glow(B[0],B[1],.20*gsz,.20*gsz,B[2]+.10);
-        /* 총구 끝에서 튀는 불티 — +3 부터. 이게 있어야 '반짝반짝' 으로 읽힌다.
-           ★ 총열은 '앞(f)' 으로 뻗으므로 불티도 f 쪽 총구(mz)에 둔다. sd 를 더하면 옆구리에서 불티가 튄다. */
-        if(e >= 3) glow(TG.mz[0]-.02,TG.mz[1],.24*gsz,.24*gsz,.24*gsz);
-      }
+      { const mp = gunPoint(origin,TG.mz[0],TG.mz[1]+shU,shS); s.mzX = mp[0]; s.mzY = mp[1]; s.mzZ = mp[2]; s.mzT = t; }
+      /* ★ 69차 — 총열을 감싸던 빛 공·총구 불티 공(BALL, 가산)은 없앴다("네모로·타원체로 빛나는 게 이상해"). 강화는 P_gun 셰이더의 룬이다 */
     }
     else if(s.tool && !down && gunN+3<=P_gun.count_max){
       /* 곡괭이/망치의 손잡이는 실제 오른손 축에 묶인다. 몸이 휘두르면 도구도 함께 돈다. */
@@ -17767,7 +18099,7 @@ function drawSheep(list, t, cap, colOf, scale){
   P_deco.visible = decoN > 0;
   for(const mesh of P_jobMeshes) mesh.visible=mesh.count>0;
   P_gun.count=gunN; P_gunF.count=glowN;
-  if(gunN) P_gun.geometry.attributes.aRnd.needsUpdate = true;
+  if(gunN){ P_gun.geometry.attributes.aRnd.needsUpdate = true; P_gun.geometry.attributes.aEnh.needsUpdate = true; P_gun.geometry.attributes.aEnhS.needsUpdate = true; }
   P_gun.visible = gunN > 0; P_gunF.visible = glowN > 0;
   P_jobF.count=jobFN; P_jobR.count=jobRN;                       // 45차 — 전직 빛·고리
   P_jobF.visible = jobFN > 0; P_jobR.visible = jobRN > 0;
@@ -17792,18 +18124,22 @@ function tagSprite(){
 let tagRedraws = 0;                 // 이름표를 다시 그린 횟수 (진단용)
 
 const TAG_FONT = w => '600 ' + w + 'px "Noto Sans KR", "Malgun Gothic", -apple-system, sans-serif';   // UI와 같은 고딕, 이름표도 과한 굵기 없이
-function setTag(t, text, color, lv, bic){
-  const key = text + color + '|' + (lv||0) + '|' + (bic||'');
+function setTag(t, text, color, lv, bic, ee){
+  /* 69차 — +4 이상 강화한 총을 든 사람은 이름 앞에 ◆ 하나(단계 UI 색 · 흰 테, +6 은 진홍 + 금 테). 키에 단계를 넣어 바뀔 때만 다시 그린다 */
+  const key = text + color + '|' + (lv||0) + '|' + (bic||'') + '|' + (ee||0);
   if(t.txt === key) return; t.txt = key;
   tagRedraws++;
   const g = t.c.getContext('2d'); g.clearRect(0,0,256,64);
   const mark = bic ? bic + ' ' : '';
   const badge = lv ? 'Lv.' + lv + ' ' : '';
+  const dia = ee >= 4 && ENH_COL[ee] ? '◆ ' : '';
   let fs = 34; g.font = TAG_FONT(fs);
-  while(fs > 15 && g.measureText(mark + badge + text).width > 238){ fs -= 2; g.font = TAG_FONT(fs); }
-  const wM = g.measureText(mark).width, wB = g.measureText(badge).width, wN = g.measureText(text).width;
-  let x = 128 - (wM + wB + wN)/2;
+  while(fs > 15 && g.measureText(dia + mark + badge + text).width > 238){ fs -= 2; g.font = TAG_FONT(fs); }
+  const wD = g.measureText(dia).width, wM = g.measureText(mark).width, wB = g.measureText(badge).width, wN = g.measureText(text).width;
+  let x = 128 - (wD + wM + wB + wN)/2;
   g.textAlign = 'left'; g.textBaseline = 'middle';
+  if(dia){ const C = ENH_COL[ee]; g.lineWidth = Math.max(6, fs*0.30); g.strokeStyle = C.ui2 || '#fff'; g.strokeText('◆', x, 34);
+    g.fillStyle = C.ui; g.fillText('◆', x, 34); x += wD; }
   g.lineWidth = Math.max(5, fs*0.24); g.strokeStyle = 'rgba(0,0,0,.8)';
   if(mark){ g.strokeText(mark, x, 34); g.fillStyle = '#fff'; g.fillText(mark, x, 34); x += wM; }
   if(badge){ g.strokeText(badge, x, 34); g.fillStyle = '#ffd257'; g.fillText(badge, x, 34); x += wB; }
@@ -19450,6 +19786,7 @@ function muzzleFx(hx, hy, hz, f, W, tx, ty, tz){
   /* 크기 — 소총 창 0.85칸 · 저격총 창 1.25칸 · 연발 별 0.75칸(예전 둥근 별은 0.8~1.4칸이었다. 창·부채를 그 크기로 두니 레이저처럼 길었다) */
   const base = (0.42 + Math.min(1.6, k)*0.42)*(S.fs || 1), fc = S.fc || W.mz || 0xfff3c0;
   if(S.mz){ muzzleFlash(hx + dx*0.04, hy + dy*0.04, hz + dz*0.04, fc, S.mz === 'star' ? base*1.25 : base, S.mz, dx, dy, dz); flashOwn = true; }   // 29차 — 총마다 화염 색 · 68차 — 가장자리 색(심은 흰빛)
+  enhShotAgo = 0; FLASH_VM.value = S.mz && held.visible ? 1 : 0;   // 69차 — 쏜 뒤 0.4초는 강화 떨림 0 · 1인칭 화염 깊이 누르기
   const camD = camera.position.distanceTo(_fl0.set(hx, hy, hz)), fp = camD < 1.6;
   if(S.mz && fp){ const gm = gunModels[KIT.wpn]; if(gm && gm.visible && gm.userData.muzzle){ flashGun = gm; _flA.set(hx, hy, hz); } }   // 68차 — 화염이 총구를 따라가게(updFlash)
   /* 연기 — 앞으로 흘러 나가며 천천히 떠오른다(중력 음수). 1인칭이면 1.3칸 앞에서 작게 */
@@ -20073,6 +20410,12 @@ function buildForgeUI(){
     b.classList.toggle('on', b.dataset.tab === forgeTab);
   const w = el('forgeList'); w.innerHTML = '';
   if(forgeTab === 'craft'){ buildCraftList(w); return; }
+  /* 69차 — 룬 사다리: 든 총의 ◆ 여섯(가진 단계까지 채움 · 다음 칸 테두리가 숨쉰다) + 다음 단계 이름·확률 */
+  if(KIT.wpn > 0 && KIT.ownW[KIT.wpn]){ const e0 = enhOf(KIT.wpn), Wn = WEAPONS[KIT.wpn], lad = document.createElement('div'); lad.className = 'enhLad';
+    lad.innerHTML = `<span>${iconImg('wpn'+KIT.wpn, Wn.ic)} ${esc(Wn.n)}</span>${enhDots(e0, e0 < ENH_MAX)}<span>`
+      + (e0 >= ENH_MAX ? '<b style="color:#e0321c">+6 진홍 전설 — 최고 단계!</b>'
+                       : `다음: <b style="color:${ENH_COL[e0+1].ui}">+${e0+1} ${ENH_COL[e0+1].n}</b> · 성공 확률 ${Math.round(ENH_ODDS[e0]*100)}%`) + '</span>';
+    w.appendChild(lad); }
   let any = false;
   WEAPONS.forEach((W,i)=>{
     if(i === 0 || !KIT.ownW[i]) return;            // 안 가진 무기는 안 보인다
@@ -20094,8 +20437,9 @@ function buildForgeUI(){
                          : '✅ 실패해도 <b>안 내려가요</b> (재료만 없어져요)')
                  + '</div>');
     const st = maxed ? 'own' : enhBusy ? 'no' : (c && canPay(c)) ? '' : 'no';
-    w.appendChild(shopCard(iconImg('wpn'+i, W.ic), `${W.n}<span class="enhLv">${e ? '+'+e : ''}</span>`,
-      desc, maxed ? null : c, st, maxed ? '최고 단계' : enhBusy ? '🔨 강화하는 중…' : st === 'no' ? lackLine(c) || '재료가 모자라요' : `+${e+1} 로 강화`, ()=>doEnhance(i)));
+    const card = shopCard(iconImg('wpn'+i, W.ic), `${W.n}${enhLvHTML(e)}${enhDots(e, !maxed)}`,
+      desc, maxed ? null : c, st, maxed ? '최고 단계' : enhBusy ? '🔨 강화하는 중…' : st === 'no' ? lackLine(c) || '재료가 모자라요' : `+${e+1} 로 강화`, ()=>doEnhance(i));
+    card.dataset.w = i; w.appendChild(card);
   });
   if(!any) w.innerHTML =
     '<p class="shopHint" style="text-align:center;padding:18px 6px">'
@@ -20139,36 +20483,78 @@ function doEnhance(i, quick){
   const finish = ()=>{ enhBusy = false; enhResult(i, W, e, ok); };
   if(quick){ finish(); return; }
   enhBusy = true; toast('🔨 강화하는 중…', 1.15, '#ffe9a0'); hudPrev.kit = ''; buildForgeUI();
-  [0, 0.35, 0.7].forEach(t=> setTimeout(()=>{ if(window.__sfx) window.__sfx('enhHit'); }, t*1000));
+  [0, 0.35, 0.7].forEach(t=> setTimeout(()=>{ if(window.__sfx) window.__sfx('enhHit'); enhSparkFx(i, e + 1); }, t*1000));   // 69차 — 망치마다 다음 단계 색 불꽃
   setTimeout(finish, 1100);
 }
 function enhResult(i, W, e, ok){
+  /* 69차 — 강화 순간: 성공은 단계 색 새김 선 + ◆ 한 칸 톡 + 축하 배너(+4·+5 리본, +6 큰 배너·◆ 차례로 불붙음·새 소리),
+     실패는 카드 잿빛 + 김 세 방울(내려가면 마지막 ◆ 가 금 가며 떨어짐). **화면 흔들림 없음**(옛 __shake 삭제). */
+  let fx = '', lv = e;
   if(ok){
-    KIT.enh[i] = e + 1;
-    const lv = e + 1;
-    toast(`✨ 성공!! ${W.ic} ${W.n} +${lv}`, 2.8, '#ffe066'); goodFlash(260);
+    KIT.enh[i] = e + 1; lv = e + 1;
+    const C = ENH_COL[lv];
+    toast(`✨ 성공!! ${W.ic} ${W.n} +${lv}`, 2.8, '#ffe066'); goodFlash(260, C.ui + 'bf');
     feed(`✨ <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')}`
        + ` <b>${W.n} +${lv}</b> 강화에 성공했어요!`
-       + (lv >= 5 ? ' <b style="color:#ff9b6b">무기가 빛나기 시작합니다!</b>' : ''));
-    if(window.__sfx) window.__sfx('enhOk');
-    /* 축포는 앞쪽 위로 띄운다 — 내 자리에 터뜨리면 눈에서 0.3칸 앞이라 화면이 덩어리가 된다
-       (레벨업·총구 화염에서 이미 두 번 겪었다) */
-    { const f = forward();
-      burst(PL.x + f.x*3.0, PL.y + 1.9, PL.z + f.z*3.0, lv>=6?0xff5a3c:lv>=5?0x5fd8ff:0xffd43b, 24, 1.2); }
+       + (lv >= 6 ? ` <b style="color:#ffd66a">+6 진홍 전설이 되었어요!</b>` : ` <b style="color:${C.ui}">+${lv} ${C.n}이 새겨졌어요</b>`));
+    if(window.__sfx) window.__sfx(lv >= 6 ? 'enhMax' : 'enhOk', lv);
+    gunWake[i] = 1;                                         // 창 닫고 이 총을 처음 들 때 한 번 깨어난다(0.7초 흐름 + 불티)
+    if(lv >= 6) fx2Cel({k:'enh6', big:true, rib:'전설 강화', ic:W.ic, tt:'🔥 ' + W.n + ' +6', sub:'진홍 전설 룬이 완성됐어요!', col:C.ui, col2:C.ui2, no3d:true});
+    else fx2Cel({k:'enh', calm:true, ic:W.ic, tt:W.n + ' +' + lv, rib:lv >= 4 ? '+' + lv + ' ' + C.n : '', sub:C.n + josa(C.n, '이', '가') + ' 새겨졌어요!',
+                 col:C.ui, col2:'#' + new THREE.Color(C.b).getHexString(), no3d:true});
+    /* 축포는 앞쪽 위로 띄운다 — 내 자리에 터뜨리면 눈에서 0.3칸 앞이라 화면이 덩어리가 된다(레벨업·총구 화염에서 이미 두 번 겪었다) */
+    { const f = forward(), n = lv >= 6 ? 48 : lv >= 4 ? 36 : 24;
+      burst(PL.x + f.x*3.0, PL.y + 1.9, PL.z + f.z*3.0, C.a, lv >= 6 ? n/2 : n, 1.2);
+      if(lv >= 6) burst(PL.x + f.x*3.0, PL.y + 1.9, PL.z + f.z*3.0, 0xffd66a, n/2, 1.2); }
+    fx = lv >= 6 ? 'max' : 'ok';
   } else {
     if(e + 1 > ENH_SAFE && e > 0 && Math.random() < ENH_DROP){
-      KIT.enh[i] = e - 1;
+      KIT.enh[i] = e - 1; lv = e - 1; fx = 'drop';
       toast(`💥 실패!! ${W.n} 이(가) +${e-1} 로 내려갔어요`, 3.0, '#ff9b9b');
       feed(`💥 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b> 님의 <b>${W.n}</b> 강화 실패 — +${e} → +${e-1}`);
+      if(i === KIT.wpn) runeDropT = 0.4;                   // 든 총이면 룬이 한 번 깜빡이며 한 단계 내려간다
     } else {
-      toast(`💨 실패!! 그래도 +${e} 는 그대로예요 — 다시 해봐요`, 2.6, '#ffd0a0');
+      toast(`💨 실패!! 그래도 +${e} 는 그대로예요 — 다시 해봐요`, 2.6, '#ffd0a0'); fx = 'keep';
     }
-    if(window.__sfx) window.__sfx('enhFail'); if(window.__shake) window.__shake(0.18, 0.12);
+    if(window.__sfx) window.__sfx('enhFail');
   }
   hudPrev.kit = '';
   netPCDirty = true;                       // 남들이 내 무기를 보고 있다 (pc 통로)
   buildForgeUI();
   if(popOpen() && el('popKit').classList.contains('on')) buildKitUI();
+  enhCardFx(i, fx, lv, e);
+}
+/* 69차 — ◆ 칸 여섯(채운 수 = 단계). 가방 칸·장착 칸·대장간 카드·상점 카드·사다리가 같이 쓴다 */
+function enhDots(e, nx){
+  if(!(e > 0) && !nx) return '';
+  const C = ENH_COL[Math.max(1, Math.min(6, e || 1))];
+  let h = `<span class="enhD${e >= 6 ? ' e6' : ''}" style="--ec:${e > 0 ? C.ui : '#999'}" aria-label="강화 +${e|0}">`;
+  for(let k=1;k<=6;k++) h += `<i class="${k <= e ? 'on' : ''}${nx && k === e + 1 ? ' nx' : ''}"${nx && k === e + 1 ? ` style="--nc:${ENH_COL[k].ui}"` : ''}></i>`;
+  return h + '</span>';
+}
+const enhLvHTML = e => e > 0 ? `<span class="enhLv eL" style="color:${ENH_COL[e].ui}">+${e}</span>` : '<span class="enhLv"></span>';
+/* 대장간 카드 위 작은 연출(CSS 만 · 불러올 때 만든 요소 없음 — 카드 DOM 에 잠깐 붙였다 뗀다) */
+function enhCard(i){ return document.querySelector(`#forgeList .sItem[data-w="${i}"]`); }
+function enhSparkFx(i, lvNext){
+  const c = enhCard(i); if(!c) return; const si = c.querySelector('.si'); if(!si) return;
+  const col = ENH_COL[Math.max(1, Math.min(6, lvNext))].ui;
+  for(let k=0;k<3;k++){ const f = document.createElement('i'); f.className = 'enhFl';
+    f.style.setProperty('--fc', col); f.style.setProperty('--dx', ((k - 1)*16 + (Math.random() - 0.5)*8) + 'px'); si.appendChild(f);
+    setTimeout(()=> f.remove(), 560); }
+}
+function enhCardFx(i, fx, lv, e0){
+  const c = enhCard(i); if(!c) return;
+  const si = c.querySelector('.si'), dots = c.querySelectorAll('.sn .enhD i');
+  if(fx === 'ok' || fx === 'max'){
+    if(si){ const L = document.createElement('i'); L.className = 'enhCut'; L.style.setProperty('--fc', ENH_COL[lv].ui); si.appendChild(L); setTimeout(()=> L.remove(), 560); }
+    if(fx === 'max') dots.forEach((d, k)=>{ d.classList.remove('on'); setTimeout(()=>{ d.classList.add('on', 'epop'); }, 80*k); });   // ★ 'pop' 은 창(.pop) 이름이라 쓰면 안 된다(◆ 가 창 모서리로 날아갔다)
+    else if(dots[lv-1]) dots[lv-1].classList.add('epop');
+  } else if(fx === 'keep' || fx === 'drop'){
+    c.classList.add('enhGray'); setTimeout(()=> c.classList.remove('enhGray'), 500);
+    if(si) for(let k=0;k<3;k++){ const p = document.createElement('i'); p.className = 'enhPuff'; p.style.setProperty('--dx', ((k - 1)*10) + 'px');
+      p.style.animationDelay = (k*0.08) + 's'; si.appendChild(p); setTimeout(()=> p.remove(), 900); }
+    if(fx === 'drop' && dots[e0-1]){ dots[e0-1].classList.add('on', 'drop'); }
+  }
 }
 
 /* ── 농장 화면 (번호판 앞에서 H) ── */
@@ -20430,7 +20816,7 @@ function buildShopUI(){
       const st = own ? 'own' : !wpnLvOk(i) ? 'lock' : canPay(W.cost) ? '' : 'no';
       const em = enhMul(i), e = enhOf(i);
       const desc = W.d + (e ? ` <span class="wEnh">(강화 +${e})</span>` : '');
-      const card = shopCatalogCard(iconImg('wpn'+i, W.ic), W.n + enhTxt(e), desc, W.cost, st,
+      const card = shopCatalogCard(iconImg('wpn'+i, W.ic), W.n + enhTxt(e) + enhDots(e), desc, W.cost, st,
         own ? (KIT.wpn===i ? '들고 있음' : '가방에 있음') : st === 'lock' ? `🔒 레벨 ${wpnLv(i)}부터 살 수 있어요` : '사기', ()=>buyWeapon(i));
       card.classList.add('tier-' + TIER_ALL(W));
       card.querySelector('.si').insertAdjacentHTML('beforeend', wpnTags(i));
@@ -20876,7 +21262,7 @@ function buildKitUI(){
       const d = document.createElement('button'); d.type='button';
       d.className = 'kSlot' + (q.empty ? ' empty' : '') + (q.e ? ' e'+q.e : '');
       d.title = KSLOT_NAME[k] + (q.empty ? '' : ' — ' + q.n + ' (눌러서 벗기)');
-      d.innerHTML = `${q.key ? iconImg(q.key, q.ic) : (q.ic || '＋')}<span class="kTag">${KSLOT_NAME[k]} · ${esc(q.n)}</span>`;
+      d.innerHTML = `${q.key ? iconImg(q.key, q.ic) : (q.ic || '＋')}<span class="kTag">${KSLOT_NAME[k]} · ${esc(q.n)}</span>${k === 'wpn' ? enhDots(q.e) : ''}`;
       d.disabled=q.empty;
       d.onclick = ()=>{
         if(q.empty) return;
@@ -20904,7 +21290,7 @@ function buildKitUI(){
     /* 65차 — 무기 칸에는 등급(일반·레어·유니크) 색 딱지와 Lv 를 단다. 가진 총은 레벨과 상관없이 든다 */
     const tierTag = it.t === 'wpn' && it.i > 0
       ? `<span class="kTier ${it.tier||'common'}">${it.tier === 'unique' ? '유니크' : it.tier === 'rare' ? '레어' : '일반'} · Lv ${it.lv}</span>` : '';
-    d.innerHTML = `<span class="kArt">${iconImg(it.key,it.ic)}</span>${tierTag}<span class="kName">${esc(it.n)}</span><span class="kSub">${esc(it.sub)}</span>` + (it.cnt ? `<span class="kNum">${it.cnt}개</span>` : '') + (it.on ? '<span class="kState">사용 중</span>' : '');
+    d.innerHTML = `<span class="kArt">${iconImg(it.key,it.ic)}</span>${tierTag}<span class="kName">${esc(it.n)}</span>${it.t === 'wpn' ? enhDots(it.e) : ''}<span class="kSub">${esc(it.sub)}</span>` + (it.cnt ? `<span class="kNum">${it.cnt}개</span>` : '') + (it.on ? '<span class="kState">사용 중</span>' : '');
     d.setAttribute('aria-pressed',String(!!it.on));
     const tell = ()=>{ el('kitPick').innerHTML =
       `<b>${esc(it.n)}</b> <span style="opacity:.7">· ${esc(it.sub)}</span>`; };
@@ -21514,13 +21900,13 @@ function afford(t){ const c = BUILD[t].cost, r = myRes();
    실제로 바뀌는 건 고른 도구·고른 건물·자원이 모자란지 여부뿐이라, 그것만 열쇠로 삼는다. */
 let barKey = '';
 function paintBar(){
-  const k = curTool + '|' + curBuild + '|' + BKEYS.map(afford).join('') + '|' + aimMode + '|' + KIT.wpn;
+  const k = curTool + '|' + curBuild + '|' + BKEYS.map(afford).join('') + '|' + aimMode + '|' + KIT.wpn + '|' + enhOf(KIT.wpn);   // 69차 — 강화 단계가 바뀌면 총 칸 테도
   if(k === barKey) return;
   barKey = k;
   const tw = el('tools'); tw.innerHTML = '';
   /* 66차 CTRL — 맨 앞 총 칸: 지금 무기 그림·짧은 이름·키 자리엔 '우클릭'. 총을 들면 이 칸만 켜지고 도구·건물 칸은 꺼진다. 누르면 들기/넣기 */
   { const W = wpnNow(), g = document.createElement('div');
-    g.className = 'slot tool gun' + (aimMode ? ' on' : '');
+    g.className = 'slot tool gun' + (aimMode ? ' on' : '') + (enhOf(KIT.wpn) ? ' e' + enhOf(KIT.wpn) : '');   // 69차 — 단계 색 테
     g.title = (aimMode ? '총 넣기' : '총 들기') + ' (우클릭)';
     g.innerHTML = `<div class="ic">${iconImg('wpn'+KIT.wpn, W.ic)}</div><div class="nm">${gunShortName(W)}</div><div class="ky">우클릭</div>`;
     g.onclick = toggleGun;
@@ -21664,7 +22050,8 @@ function say(msg){
 function flash(){ const f = el('dmgFlash'); f.style.opacity = 1;
   setTimeout(()=> f.style.opacity = 0, 90); }
 /* 잘했을 때의 초록 번쩍 */
-function goodFlash(ms){ const f = el('goodFlash'); if(!f) return; f.style.opacity = 1;
+function goodFlash(ms, css){ const f = el('goodFlash'); if(!f) return; f.style.opacity = 1;
+  f.style.boxShadow = css ? `inset 0 0 110px ${css}` : '';          // 69차 — 색 인자(강화 성공은 단계 색). 없으면 지금 초록
   setTimeout(()=> f.style.opacity = 0, ms || 110); }
 
 let verdictN = 0;
@@ -28440,6 +28827,17 @@ function sfxAt(k, x, z, maxD, gap){
   SFX_NODE = lp; SFX_MUL = 1 - 0.6*q;
   try { sfx(k); } finally { SFX_NODE = null; SFX_MUL = 1; }
 }
+/* 69차 — 강화 소리: 성공은 단계마다 두 반음씩 높아진다(+4·+5 맑은 종 0.6초) · +6 은 모루 울림 + 오르는 다섯 음 + 낮은 북(1.6초) · 깨어남 '칭' */
+Object.assign(SFX, {
+  enhOk:  (lv)=>{ const p = Math.pow(2, 2*((lv||1) - 1)/12), t = now0();
+    [523,659,784,1046,1318].forEach((f,i)=> pluck(f*p, 0.24, 0.09, t + i*0.06, 0.35)); puff(0.35, 0.06, 3200, 0.5, t + 0.28); tone(1568*p, 2093*p, 0.18, 'sine', 0.04, t + 0.30);
+    if(lv >= 4){ pluck(2093*p, 0.6, 0.040, t + 0.34, 0.2); pluck(2093*p*2.76, 0.35, 0.008, t + 0.34); } },
+  enhMax: ()=>{ const t = now0();
+    pluck(1760, 1.1, 0.050, t, 0.2); pluck(1760*2.76, 0.6, 0.012, t); pluck(1760*5.4, 0.3, 0.006, t); puff(0.04, 0.12, 3000, 2, t);   // 모루 울림
+    [523,659,784,1046,1318].forEach((f,i)=> pluck(f, 0.4, 0.085, t + 0.22 + i*0.11, 0.35));                                             // 오르는 다섯 음
+    thump(90, 48, 0.9, 0.11, t + 0.78, 1.2); tone(1318, 2637, 0.5, 'sine', 0.035, t + 0.8); puff(0.9, 0.05, 2600, 0.6, t + 0.8); },     // 낮은 북 + 반짝
+  enhWake:(lv)=>{ const p = Math.pow(2, 2*((lv||1) - 1)/12), t = now0(); pluck(1568*p, 0.28, 0.034, t, 0.3); pluck(1568*p*2.76, 0.16, 0.006, t); puff(0.12, 0.025, 4200, 1.2, t + 0.02); }
+});
 window.__sfx = sfx; window.__sfxAt = sfxAt; window.__sfxJump = sfxJump;
 /* ═══════════════════════ 66차 — 좀비 소리(긴장감의 절반) ═══════════════════════
    선생님: "애들이 무서워서 밤을 더 대비하고 싶게." 무섭되 귀가 아프지 않게 — 날카로운 고음 없이 낮고 쉰 목소리다.
@@ -29254,7 +29652,8 @@ function updTags(){
     const pc = pcMap.get(uid);
     const bi = bgTop.has(uid) ? bgTop.get(uid) : badgeTop(pc);
     setTag(t, p.n||'?', GCOL[p.g|0], pc && pc.lv ? pc.lv : 0,
-           p.ex ? (bi >= 0 ? '🗝️' + BADGES[bi].ic : '🗝️') : (bi >= 0 ? BADGES[bi].ic : ''));   // 그대로면 아무 일도 안 한다 · 67차 🗝️ 성곽 탐험가
+           p.ex ? (bi >= 0 ? '🗝️' + BADGES[bi].ic : '🗝️') : (bi >= 0 ? BADGES[bi].ic : ''),   // 그대로면 아무 일도 안 한다 · 67차 🗝️ 성곽 탐험가
+           pc && pc.wp && (pc.we|0) >= 4 ? pc.we|0 : 0);                                         // 69차 — 강화 ◆
     t.sp.position.set(p.x, (p.y||GY)+2.15, p.z);
     const sc = Math.max(1, Math.sqrt(_tagD2.get(uid))*0.075) * (castleInSpiral(p.x, p.z) ? 0.7 : 1);   // 67차 — 나선 우리 안 이름표는 0.7배
     t.sp.scale.set(3.2*sc*0.55, 0.8*sc*0.55, 1);
@@ -29964,6 +30363,8 @@ Object.assign(window, {
   __ghostVisible:()=>ghost.visible, __buildShopUI:buildShopUI, __buildKitUI:buildKitUI,
   __goalText:goalText, __drawMini:drawMini, __THREE:THREE, __mp:(x,z)=>[mpx(x),mpz(z)],
   __updHeld:updHeld, __setHeld:setHeld, __gunModels:()=>gunModels, __HELDS:()=>HELD, __shootStone:shootStone,   /* 68차 — 도구 모형·돌 던지기(사진 검사) */ __gunGlow:()=>gunGlow, __gunGlowK:()=>GG.k, __GG:GG, __HELD_VC:HELD_VC, __HELD_ARM:HELD_ARM,
+  /* 69차 — 룬 강화 빛(검사·사진) */ __RUNE_U:RUNE_U, __RUNE_BASE:RUNE_BASE, __ENH_SPK:ENH_SPK, __ENH_COL:ENH_COL, __updEnhHeld:updEnhHeld, __gunWake:gunWake, __FLASH_VM:FLASH_VM, __VM_Z:VM_Z,
+  __enhShake:()=>({shEnv, x:enhShX, y:enhShY, boost:runeBoostT, drop:runeDropT}), __enhShotNow:()=>{ enhShotAgo = 0; },
 
   __introDone:()=>{ startedAt = tAcc - 999; },
 
