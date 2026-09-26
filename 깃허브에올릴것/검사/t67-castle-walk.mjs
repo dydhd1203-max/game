@@ -19,6 +19,8 @@ const BASE = {keys:['reed','lily','peb','mtB','mtC','bush','mtK','rock','gcore',
   inst:31038, gglow:120, mats:57};
 /* 68차 — 아이템 새 기하(상점 진열·대장간 모루/그루터기·금 광맥)의 뱅크 열쇠. 성곽 예산(G0)과 따로 G0b 로 센다 */
 const ITEM68 = ['shopCoin','shopPotL','shopPotG','shopPotK','shopPotT','shopArm','shopArmR','shopCart','shopCask','forgeStump','forgeAnvil','oreV'];
+/* 68차 2단계(world 갈래) — 자원 바위·바위 발치 이끼(산·성곽 'rock'·'moss' 와 따로), 농장 구유·물통·허수아비 머리·옷. G0c 에서 따로 센다 */
+const ITEM68W = ['nodeRock','nodeMoss','farmTrough','farmWater','farmCrow','farmShirt'];
 let browser;
 try{
   browser = await chromium.launch({args:['--enable-unsafe-swiftshader']});
@@ -69,14 +71,16 @@ try{
 
   /* ═══ G0 그림 예산(갈래 2) ═══ */
   if(have.art){
-    const g0 = await page.evaluate(([BASE, ITEM68])=>{ const W = window; let inst = 0, gg = 0, inst68 = 0; const nk = [], k68 = [];
-      for(const [k, b] of W.__banks){ const n = b.ms ? b.ms.length : 0; if(ITEM68.includes(k)){ k68.push(k); inst68 += n; continue; }   /* 68차 아이템 열쇠는 G0b 에서 따로 */
+    const g0 = await page.evaluate(([BASE, ITEM68, ITEM68W])=>{ const W = window; let inst = 0, gg = 0, inst68 = 0, inst68w = 0; const nk = [], k68 = [], k68w = [];
+      for(const [k, b] of W.__banks){ const n = b.ms ? b.ms.length : 0; if(ITEM68.includes(k)){ k68.push(k); inst68 += n; continue; } if(ITEM68W.includes(k)){ k68w.push(k); inst68w += n; continue; }   /* 68차 아이템 열쇠는 G0b 에서 따로 */
         inst += n; if(k === 'gglow' || k === 'cflameI' || k === 'cwinL') gg += n;   /* 69차 — 망루 창 안쪽 빛 테(cwinL)가 옛 덧창 불빛(gglow 48)을 대신한다 */ if(!BASE.keys.includes(k)) nk.push(k); }   /* 통합 — 불꽃은 두 겹(주황 혀 cflame + 밝은 밑동 cflameI) · 불빛 수는 밝은 밑동으로 센다(66 횃불도 같은 불꽃으로 바뀌었다) */
       const mats = new Set(), all = new Set(), vc = W.__HELD_VC.uuid; W.__scene.traverse(o=>{ if(o.isInstancedMesh){ all.add(o.material.uuid); if(o.material.uuid !== vc) mats.add(o.material.uuid); } });
-      return {newKeys:nk.length, keys:nk, dInst:inst - BASE.inst, dGlow:gg - BASE.gglow, mats:mats.size, k68, inst68, matsAll:all.size, heldVc:all.has(vc)}; }, [BASE, ITEM68]);
+      return {newKeys:nk.length, keys:nk, dInst:inst - BASE.inst, dGlow:gg - BASE.gglow, mats:mats.size, k68, inst68, k68w, inst68w, matsAll:all.size, heldVc:all.has(vc)}; }, [BASE, ITEM68, ITEM68W]);
     put({id:'G0', name:'새 뱅크 열쇠 ≤ 27 · 새 인스턴스 ≤ 20,000 · 불빛(gglow + 불꽃 밑동) 새 ≤ 200 · 인스턴스 재질 수 그대로(57)', pass:g0.newKeys <= 27 && g0.dInst <= 20000 && g0.dGlow <= 200 && g0.mats <= BASE.mats, detail:{newKeys:g0.newKeys, keys:g0.keys, dInst:g0.dInst, dGlow:g0.dGlow, mats:g0.mats}});
     /* 68차 — 아이템 새 기하 예산: 열쇠는 정해 둔 열둘 안 · 인스턴스 ≤ 300 · 세계 인스턴스 재질은 손 모형 꼭짓점 색 재질(HELD_VC — 새로 만든 재질 아님) 하나만 더 */
     put({id:'G0b', name:'68차 아이템 열쇠 ≤ 12(정해 둔 것만) · 인스턴스 ≤ 300 · 인스턴스 재질은 HELD_VC 하나만 더', pass:g0.k68.length <= ITEM68.length && g0.inst68 <= 300 && g0.matsAll <= BASE.mats + (g0.heldVc ? 1 : 0), detail:{k68:g0.k68, inst68:g0.inst68, matsAll:g0.matsAll, heldVc:g0.heldVc}});
+    /* 68차 2단계 — 세계 소품 새 기하: 열쇠는 정해 둔 여섯 안 · 인스턴스 ≤ 600(자원 바위 ≈ 240 · 이끼 45 · 농장 넷 × 모둠 5 × 단계 3 = 60 — 옛 'rock'·'moss'·'farmPost' 에서 옮겨 온 몫) */
+    put({id:'G0c', name:'68차 2단계 세계 소품 열쇠 ≤ 6(정해 둔 것만) · 인스턴스 ≤ 600', pass:g0.k68w.length <= ITEM68W.length && g0.inst68w <= 600, detail:{k68w:g0.k68w, inst68w:g0.inst68w}});
   } else put({id:'G0', name:'그림 예산(열쇠·인스턴스·불빛·재질)', wait:true, pass:!STRICT, detail:'갈래 2 합친 뒤'});
 
   /* ═══ G1 겹친 면(z-fighting) — 69차(선생님: "이쪽도 겹쳐 있고 … 바닥 그래픽 깨지는 거"): 성곽 뱅크(c…)의 상자꼴 조각마다 여섯 면을 평면 사각형으로 보고,
