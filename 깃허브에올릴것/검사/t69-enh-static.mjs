@@ -38,6 +38,9 @@ ok('강화색에 무기 예광색(tr)·크림을 안 쓴다', !/FX\.col \|\| (wp
 const addRune = body('addRune');
 ok('룬은 #include <opaque_fragment> 앞에 끼운다(Lambert·Phong 모두)', /replace\('#include <opaque_fragment>', RUNE_FS_BODY \+ '#include <opaque_fragment>'\)/.test(addRune));
 ok('치환 실패 감지(runeFail + console.warn)', /runeFail = true/.test(addRune) && /console\.warn\('rune inject fail'/.test(addRune));
+ok('72차 — +6 진홍: 금(uRB)은 선 한가운데 심(core6)에만 · 선 몸 금 ≤ .25 · GG 원천·둘레 빛은 colG(진홍) · 3인칭 +6 금 머리 ≤ .35',
+   /vec3 col = red6 \? mix\(uRA, uRB, head \* 0\.25\)/.test(src) && /vec3 colG = red6 \? uRA \* vec3\(/.test(src) && /E = \(colG \* lines \* flow/.test(src) && /colG \* halo \* uRI \* met \* 0\.45 \* uGlowOnly/.test(src)
+   && /E2 = \(uRA \* rim \* uRRim \+ colG \* halo \* 0\.50\)/.test(src) && /core6 = clamp\(gLine\(dN, 0\.40\)/.test(src) && !/head \* \(uRLv > 5\.5 \? 1\.0/.test(src) && /wave \* \(lv > 5\.5 \? 0\.35 : 0\.70\)/.test(src) && /_spc\.setHex\(ember \? 0xff7a50 : ka\.col2\)/.test(src));
 ok('Lambert 전용 문자열 치환(outgoingLight = reflectedLight…)에 기대지 않는다', !/replace\('vec3 outgoingLight = reflectedLight/.test(src));
 ok('깊이 누르기 VM_Z = mix(-gl_Position.w, …, 0.02)', /const VM_Z = '#include <project_vertex>\\n  gl_Position\.z = mix\(-gl_Position\.w, gl_Position\.z, 0\.02\);'/.test(src) && /replace\('#include <project_vertex>', VM_Z\)/.test(addRune));
 ok('70차 — 선 심은 칠하기(mix · 금 위 금도 읽힌다) · 림·총구 화염은 스크린 · 상한 .95', /outgoingLight = mix\(outgoingLight, core, coreK\)/.test(src) && /min\(E2 \+ uGunFlash, vec3\(0\.95\)\) \* \(1\.0 - clamp\(outgoingLight, 0\.0, 1\.0\)\)/.test(src) && /mix\(mix\(col, uRB, 0\.75 \* sim\), vec3\(1\.0\), 0\.35 \* sim\)/.test(src));

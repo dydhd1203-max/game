@@ -13251,22 +13251,28 @@ const RUNE_FS_BODY = `
       float lines = uGlowOnly > 0.5 ? gLine(dN, 1.0) : gLineP(dN, 1.0);
       groove = clamp(gLine(dN, 2.1) - lines, 0.0, 1.0);
       /* 머리는 흰빛 쪽(uRB)으로 달아오른다 — +1~+5 도(예전엔 45%만) */
-      vec3 col = mix(uRA, uRB, head * (uRLv > 5.5 ? 1.0 : 0.62) + wave * 0.15);   /* +1~+5 는 머리도 제 색이 남게(.62 — 파랑이 하얗게 안 바래게) */
+      /* 72차 — +6 진홍: 금(uRB)은 선 한가운데 가는 심(core6)에만. 선 몸·선 둘레 빛·GG 원천은 진홍(uRA) 쪽으로.
+         71차엔 +6 만 머리 가중 1.0 이라 흐름 3개가 선을 금으로 채우고, 그 선이 번짐 원천이 되어 번짐 전체가 금빛(색상각 16~37°)이었다 → +3 금과 같은 무리 */
+      bool red6 = uRLv > 5.5;
+      vec3 col = red6 ? mix(uRA, uRB, head * 0.25) : mix(uRA, uRB, head * 0.62 + wave * 0.15);   /* +1~+5 는 머리도 제 색이 남게(.62 — 파랑이 하얗게 안 바래게) */
+      vec3 colG = red6 ? uRA * vec3(1.0, 0.50, 0.60) : col;                      /* +6 GG 원천·둘레 빛은 한 칸 더 붉게(선형 곱 — sRGB 로 ≈ 0xff331c) — 번짐이 바탕 위에서 주황으로 안 기운다 */
       float rim = pow(1.0 - clamp(dot(normalize(normal), normalize(vViewPosition)), 0.0, 1.0), 5.0);
       /* 71차 — 선 둘레 빛(쇠 위로 번지는 제 색 빛 · 스크린) — 테는 늘 조금, 상감 선은 흐름 머리 둘레에서 크게. 쇠 위에만(나무·배경엔 안 번진다) */
       float haloR = uRRing > 0.5 ? exp(-pow(dRw / (0.020 * wK), 2.0)) : 0.0;
       float haloL = exp(-dLn * dLn / 7.0);
       float halo = haloR * (0.40 + 0.50 * wave) + haloL * (0.12 + 0.60 * wave);
-      E = (col * lines * flow + uRA * rim * uRRim) * uRI * met + uRA * halo * uRI * met * 0.45 * uGlowOnly;
+      E = (colG * lines * flow + uRA * rim * uRRim) * uRI * met + colG * halo * uRI * met * 0.45 * uGlowOnly;
       /* 70차 — 선의 심은 바탕에 더하지(스크린) 않고 칠한다(mix). 스크린은 밝은 금·은 바탕(≈.85)에서 15% 만 더해져 금 위의 금 선이 사라졌다.
          바탕과 색상이 비슷하면(금 총의 +3 금 · 붉은 용의 +6 진홍) 심을 밝은 흐름 머리 색(uRB — 레몬·금)으로 한 단 올린다 */
       vec3 bN = outgoingLight / max(max(outgoingLight.r, max(outgoingLight.g, outgoingLight.b)), 1e-3), cN = col / max(max(col.r, max(col.g, col.b)), 1e-3);
       float sim = 1.0 - clamp(length(bN - cN) * 2.2, 0.0, 1.0);
       vec3 cc = mix(mix(col, uRB, 0.75 * sim), vec3(1.0), 0.35 * sim);            /* 같은 색상 바탕 위에서는 심을 흰빛 쪽으로 — 바탕보다 늘 밝다 */
+      if(red6){ float core6 = clamp(gLine(dN, 0.40) / max(lines, 1e-3), 0.0, 1.0);   /* 72차 — 선 폭의 가운데 40% 만 금 심(흐름 머리가 지날 때) */
+                cc = mix(cc, mix(uRB, vec3(1.0), 0.25), core6 * head); }
       /* 71차 — 심을 더 밝게(× .95~1.55) — 한 채널이 1 에 닿아도 나머지 채널은 제 색이라 하얗게 안 탄다(min 은 채널마다) */
       core = min(cc * (0.95 + 0.60 * wave) * (0.70 + 0.55 * uRI), vec3(1.0));
       coreK = lines * met * 0.95;
-      E2 = (uRA * rim * uRRim + col * halo * 0.50) * uRI * met;
+      E2 = (uRA * rim * uRRim + colG * halo * 0.50) * uRI * met;
     }
   }
   if(uGlowOnly > 0.5) outgoingLight = E + totalEmissiveRadiance * 0.35;          /* GG 원천: 선 빛(+선 둘레 빛) + 특수 부품 제 빛 조금. 나무 = 검은 가림막 */
@@ -13642,7 +13648,7 @@ function updSparks(gg, FX, eLv, dt, env){
   if(runeBoostT > 0){ const c = 1 - runeBoostT/0.7; if(c > 0.82 && !S.boostSpk){ S.boostSpk = 1; for(let j=0;j<8;j++) born(0.97, 0.08); } }
   /* 움직임 · 색 — 머리 B → 꼬리 A, 밝기 (1 − life)^1.2 · 크기 — +3 1.0 → +6 1.35 */
   const ember = FX.ember > 0, ka = ENH_FX[Math.max(1, eLv)], szK = 1 + Math.max(0, eLv - 3)*0.12;
-  _spc.setHex(ka.col2); _spc2.setHex(ember ? 0xff4a2a : ka.col);
+  _spc.setHex(ember ? 0xff7a50 : ka.col2); _spc2.setHex(ember ? 0xff4a2a : ka.col);   // 72차 — +6 불씨 머리는 금(col2) 대신 달아오른 진홍(0xff7a50) — 번짐이 금빛으로 안 기운다
   for(let j=0;j<SPK_MAX;j++){ const p = j*3;
     let a = 0;
     if(S.life[j] < 1){ S.life[j] = Math.min(1, S.life[j] + dt/0.60);
@@ -16106,7 +16112,7 @@ const GEAR_RUNE_FS = `
     float flow = nW > 0.5 || aEnhV.w > 0.0 ? 0.55 + 0.9 * wave : 0.94 + 0.06 * sin(6.2832 * uGlowT / per + aEnhSv.w * 6.2832);
     float mz = 1.0 + 0.6 * wave * smoothstep(0.05, 0.0, abs(s - 0.97));    /* 흐름 머리가 총구 테에 닿으면 +60% — 어깨 너머로 보인다 */
     vec3 hi = lv > 5.5 ? vec3(1.0, 0.68, 0.14) : mix(aEnhV.rgb, vec3(1.0), 0.6);
-    vec3 near = mix(aEnhV.rgb, hi, wave * (lv > 5.5 ? 1.0 : 0.70)) * lines * flow * mz * (0.85 + glow * 0.30)   /* 71차 — .62+.20g → .85+.30g, 머리 흰빛 .45 → .70 */
+    vec3 near = mix(aEnhV.rgb, hi, wave * (lv > 5.5 ? 0.35 : 0.70)) * lines * flow * mz * (0.85 + glow * 0.30)   /* 71차 — .62+.20g → .85+.30g, 머리 흰빛 .45 → .70 · 72차 — +6 금 머리 1.0 → .35(진홍이 금빛으로 안 바뀌게 · 1인칭과 같이) */
               + aEnhV.rgb * (0.05 + glow * 0.05) * (0.8 + 0.6 * wave);                 /* 71차 — 쇠 전체에 옅은 제 색(가까이서도 '빛 도는 쇠') */
     vec3 far = aEnhV.rgb * (0.13 + glow * 0.15) * (0.9 + 0.3 * wave);                 /* 71차 — 먼 물듦 .06+.09g → .13+.15g(25칸에서도 단계 색). 쇠 조각만이라 나무·손은 제 색 */
     float lod = smoothstep(1.3, 2.6, fwidth(vLp.z) / 0.004);             /* 화소가 테 두께(.004)의 1.3~2.6배 — 대략 3~5칸 밖에서 무늬 → 평균 물듦 */
