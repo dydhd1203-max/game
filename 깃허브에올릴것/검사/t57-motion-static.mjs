@@ -9,6 +9,7 @@ const harness=fs.readFileSync(path.join(here,'t54-avatar-static.mjs'),'utf8');
 const load=harness.slice(harness.indexOf('function scanEnd('),harness.indexOf('const A=context.API'));
 const context=new Function('source','THREE','vm',load+'\nreturn context;')(source,THREE,vm),A=context.API;
 const TPGUN=vm.runInContext('TPGUN',context);   // 65차 — 무기마다 부품 표
+const LH_DEF=vm.runInContext('LH_DEF',context);   // 70차 — 왼손 기본 자리
 const results=[],check=(name,pass,detail)=>{results.push(!!pass);console.log((pass?'PASS ':'FAIL ')+name+(detail===undefined?'':' '+JSON.stringify(detail)));};
 const actor=e=>({x:0,y:0,z:0,ry:Math.PI,g:0,ph:0,mv:false,wp:0,we:0,hat:0,gls:0,clo:0,jb:-1,jt:0,...e});
 const pos=m=>new THREE.Vector3().setFromMatrixPosition(m),point=(m,x,y,z)=>new THREE.Vector3(x,y,z).applyMatrix4(m);
@@ -107,7 +108,12 @@ check('All action cycles return exactly to their starting pose phase',actionRese
 let support=0,supportFire=0,partsMatch=true;
 for(let wp=1;wp<TPGUN.length;wp++){const a=pose(actor({wp})),f=pose(actor({wp,kick:1}));
  partsMatch&&=a.gun.length===TPGUN[wp].r.length&&f.gun.length===TPGUN[wp].r.length;
- support=Math.max(support,pos(a.handL[0]).distanceTo(pos(a.gun[3])));supportFire=Math.max(supportFire,pos(f.handL[0]).distanceTo(pos(f.gun[3])));}
+ /* 70차 — 왼손은 번호 [3] 이 아니라 표의 lh 자리(총 축 따라 앞 · 없으면 LH_DEF)를 받친다. 새총·활(hand 'L')은 왼손이 손잡이(꼬리표 grip 또는 [2])를 쥔다.
+    lh 자리는 손잡이 조각의 틀(총 틀 — 손잡이는 기울기 없음)에서 [f, u−.03, sd] 만큼(배율 1) */
+ const T=TPGUN[wp],lh=T.lh||LH_DEF,gi=T.r.findIndex(r=>r[13]==='grip'),g2=gi>=0?gi:2;
+ const lhAt=P=>{const m=P.gun[g2],x=new THREE.Vector3(),y=new THREE.Vector3(),z=new THREE.Vector3();m.extractBasis(x,y,z);x.normalize();y.normalize();z.normalize();
+   return T.hand==='L'?pos(m).addScaledVector(y,-.03):pos(m).addScaledVector(z,lh[0]).addScaledVector(y,lh[1]-.03).addScaledVector(x,lh[2]);};
+ support=Math.max(support,pos(a.handL[0]).distanceTo(lhAt(a)));supportFire=Math.max(supportFire,pos(f.handL[0]).distanceTo(lhAt(f)));}
 const aim=pose(actor({wp:3})),fire=pose(actor({wp:3,kick:1}));
 check('Every weapon part table remains supported by both hands through recoil',partsMatch&&support<.10&&supportFire<.12,{support,supportFire});
 check('Recoil moves both wrists while braced shoes remain grounded',pos(aim.handL[0]).distanceTo(pos(fire.handL[0]))>.04&&pos(aim.handR[0]).distanceTo(pos(fire.handR[0]))>.04&&fire.shoes.every(m=>Math.abs(bottom(m))<.015));

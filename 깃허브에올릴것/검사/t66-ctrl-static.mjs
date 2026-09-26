@@ -62,6 +62,7 @@ const popOpen=()=>popIsOpen;
 const miniOn=()=>G.phase==='mini';
 const LOG={aim:[],toast:[],tool:[],build:[],sfx:[],gain:[]};
 let aimMode=false;
+const wpnMag=W=>(W&&W.mag)|0,MHD={w:0};let gunMg=null;   // 70차 — 총 칸 아래 탄창 막대(paintBar)
 function setAimMode(on,quiet){ on=!!on; LOG.aim.push([on,!!quiet]); if(aimMode===on) return; aimMode=on; paintBar(); }
 function selectTool(t){ curTool=t; curBuild=null; LOG.tool.push(t); paintBar(); }
 function selectBuild(b){ if(!BUILD[b]) return; curBuild=b; curTool='build'; LOG.build.push(b); paintBar(); }

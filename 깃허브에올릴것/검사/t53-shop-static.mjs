@@ -58,6 +58,7 @@ const spend=c=>{for(const [k,v] of Object.entries(c)){resources[k]-=v;}events.pu
 const gain=(k,n)=>{resources[k]+=n;events.push(['gain',k,n]);};
 const iconImg=(id,fallback)=>'<img class="ic" data-ic="'+id+'" alt="'+fallback+'">';
 const esc=s=>String(s),josa=(s,a)=>a,toast=(...a)=>events.push(['toast',...a]);
+const rlCancel=()=>{},heldActStart=()=>{};   // 70차 — 무기 바꿈이 재장전 취소·꺼내기 모션을 부른다(이 검사는 상점·경제만 본다)
 const feed=()=>{},sfx=()=>{},noteRecipes=()=>{},popOpen=()=>false,buildKitUI=()=>{};
 const openPop=id=>el(id).classList.add('on');
 // 66차 — 새 총을 얻으면 축하 배너(fx2Cel)가 뜬다. 여기선 부른 기록만 남긴다

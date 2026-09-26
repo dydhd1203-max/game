@@ -47,7 +47,7 @@ ok('원래 emissive 를 지우지 않는다(특수 부품 제 빛)', !/emissive 
 ok('손·팔(HELD_ARM)도 깊이를 누른다 · HELD_VC 는 절대 안 누른다', /HELD_ARM\.onBeforeCompile = sh=>\{ sh\.vertexShader = sh\.vertexShader\.replace\('#include <project_vertex>', VM_Z\)/.test(src) && !/HELD_VC\.onBeforeCompile/.test(src) && !/HELD_VC\.transparent\s*=/.test(src));
 ok('70차 — 손(HELD_ARM)도 층 1 · 번짐 원천에서는 검은 가림막(uGlowOnly) — 장갑에 룬 번짐이 새지 않는다', /HELD_ARM\.onBeforeCompile[\s\S]{0,500}if\(uGlowOnly > 0\.5\) outgoingLight = vec3\(0\.0\)/.test(src) && /if\(isHandMat\(c\)\)\{ c\.layers\.enable\(1\)/.test(src) && !/c\.layers\.disable\(1\)/.test(src));
 ok('원래 재질은 WeakMap(RUNE_BASE) — userData 에 재질을 안 넣는다', /const RUNE_BASE = new WeakMap\(\)/.test(src) && !/userData\.(base|orig)Mat\s*=/.test(src));
-ok('쇠 표시 aRune — partMesh·bakeHeld 가 달고 합친다', /setAttribute\('aRune'/.test(body('partMesh')) && /aRune/.test(body('bakeHeld')));
+ok('쇠 표시 aRune — partMesh·bakeHeld(bakeList) 가 달고 합친다', /setAttribute\('aRune'/.test(body('partMesh')) && /aRune/.test(body('bakeHeld') + body('bakeList')));
 /* ④ 번짐 패스 */
 const gp = body('gunGlowPass');
 ok('번짐 원천은 제 재질 + uGlowOnly(실루엣 단색 overrideMaterial 없음)', !/overrideMaterial/.test(gp) && /uGlowOnly\.value = 1/.test(gp) && !/mSil/.test(src));

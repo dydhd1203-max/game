@@ -28,6 +28,9 @@ const NKS=(process.argv[12]||'-1').split(',').map(Number);
 const RUNS=+(process.argv[13]||6);
 const BAIT=+(process.argv[14]||0);   // 67차 — 성벽 위 미끼 친구 수(성문 1·2 윗마당에 서서 좀비를 계단으로 끈다 · 설계 9-3 하네스)
 const SEED=+(process.argv[15]!==undefined ? process.argv[15] : 1);   // 67차 균형 — 씨앗(0 = 옛날처럼 무작위)
+/* 70차(reload68 §8.5) — [16] MAGM 1 = 탄창 모형(탄창 안 간격은 게임의 __wpnShotCd · 빈 탄창이면 마지막 간격 뒤 rl 을 더한다 — 게임 rlTick 과 같은 순서),
+   [17] CARRY 1 = 남은 쿨다운을 넘긴다(0.05초 걸음 반올림이 cd′ 와 cd 를 다르게 깎는 것을 없앤다 — 전·후 둘 다 1 로 잰다). 둘 다 0 이면 옛 하네스 그대로 */
+const MAGM=+(process.argv[16]||0), CARRY=+(process.argv[17]||0);
 const srv = serve(PORT, FILE);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
 const pg = await b.newPage({viewport:{width:900,height:600}});
@@ -36,7 +39,7 @@ const errs=[]; pg.on('pageerror', e=> errs.push(e.message));
 await pg.goto('http://127.0.0.1:'+PORT+'/', {waitUntil:'load', timeout:60000});
 await pg.waitForFunction('window.__READY===true', {timeout:60000});
 await pg.fill('#iName','t'); await pg.click('#bSolo'); await pg.waitForTimeout(800);
-const rows = await pg.evaluate(([SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS,BAIT,SEED])=>{
+const rows = await pg.evaluate(([SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS,BAIT,SEED,MAGM,CARRY])=>{
   const W=window, G=W.__G, out=[];
   /* ②④ 씨앗 난수 · 가짜 시계 — 끝나면 돌려놓는다 */
   const R0 = Math.random, P0 = performance.now.bind(performance), D0 = Date.now;
@@ -98,10 +101,10 @@ const rows = await pg.evaluate(([SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS,BAIT
       const a=Math.atan2(z,x); let bg=0,bd=9;
       for(let g=0;g<5;g++){ const dd=Math.abs(((a-W.__DIRS[g].a+Math.PI*3)%(Math.PI*2))-Math.PI);
         if(dd<bd){bd=dd;bg=g;} } return bg; })();
-  const Wp = W.__WEAPONS[WPN];
+  const Wp = W.__WEAPONS[WPN], MAGN = MAGM && W.__wpnMag ? W.__wpnMag(Wp) : 0, IV = MAGN > 1 ? W.__wpnShotCd(Wp) : Wp.cd;
   const mkKids=()=>{ const k=[];
     for(let i=0;i<SHOOT;i++){ const g=i%5, off=((i/5|0)-1)*3;
-      k.push({x:KX(g,38,off), z:KZ(g,38,off), cd:Math.random()*Wp.cd, boss:(i%2)===0}); }
+      k.push({x:KX(g,38,off), z:KZ(g,38,off), cd:Math.random()*Wp.cd, boss:(i%2)===0, m:MAGN > 1 ? 1 + (i*7 % MAGN) : 0}); }   // 70차 — 처음 탄창은 아이 번호로(난수 줄 그대로)
     return k; };
   for(const nk of NKS){
     for(const day of DAYS){
@@ -138,7 +141,7 @@ const rows = await pg.evaluate(([SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS,BAIT
               for(const w of G.wolves){ const dx=w.x-k.x, dz=w.z-k.z, d2=dx*dx+dz*dz;
                 if(d2<bd){ bd=d2; best=w; } } }
             if(!best){ k.cd=0.2; continue; }
-            k.cd=Wp.cd;
+            { let add = IV; if(MAGN > 1 && --k.m <= 0){ add += Wp.rl; k.m = MAGN; } k.cd = CARRY ? k.cd + add : add; }   // 70차 — 옛 판: k.cd=Wp.cd
             if(Math.random() > HIT) continue;      // 겨냥이 빗나갔다
             best.hp -= Math.round(Wp.dmg*dayMul*ATK*(Math.random()<0.14?2:1));
           }
@@ -177,7 +180,7 @@ const rows = await pg.evaluate(([SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS,BAIT
   }
   Math.random = R0; performance.now = P0; Date.now = D0;
   return out;
-}, [SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS,BAIT,SEED]);
+}, [SHOOT,WPN,DAYS,FIX,HIT,TOW,ATK,LV,NKS,RUNS,BAIT,SEED,MAGM,CARRY]);
 console.log(rows.join('\n'));
 if(errs.length) console.log('ERR: '+errs.slice(0,3).join(' | '));
 await b.close(); srv.close();

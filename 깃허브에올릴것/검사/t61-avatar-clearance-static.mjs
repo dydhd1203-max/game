@@ -117,11 +117,13 @@ const weaponCount=vm.runInContext('WEAPONS.length',context);let gunClips=0,gripE
 for(let wp=1;wp<weaponCount;wp++)for(const kick of [0,.8,1.6])for(const scale of [.7,1.5])for(const pose of poses){
  draw(actor({wp,kick,we:6,jb:0,jt:2,...pose}),10,scale);gunCases++;
  for(let i=0;i<A.meshes.gun.count;i++)gunClips+=boxOverlap(A.meshes.gun,i,A.meshes.body)?1:0;
- const grip=new THREE.Vector3().setFromMatrixPosition(matrix(A.meshes.handR)).applyMatrix4(matrix(A.meshes.gun,2).invert());
+ // 70차 — 손잡이는 번호가 아니라 꼬리표('grip')로 찾고, 새총·활(hand 'L')은 왼손이 쥔다(오른손은 주머니·시위를 당긴다)
+ const TG=vm.runInContext('TPGUN',context)[wp],gi=Math.max(0,TG.r.findIndex(r=>r[13]==='grip')),gIdx=TG.r[gi]&&TG.r[gi][13]==='grip'?gi:2;
+ const grip=new THREE.Vector3().setFromMatrixPosition(matrix(TG.hand==='L'?A.meshes.handL:A.meshes.handR)).applyMatrix4(matrix(A.meshes.gun,gIdx).invert());
  gripError=Math.max(gripError,Math.abs(grip.x),Math.abs(grip.z));
 }
 check('Every weapon stays outside the body at all recoil strengths and motion poses',gunClips===0,{gunCases,gunClips});
-check('Weapon grip remains centered in the anatomical right hand',gripError<1e-4,{gripError});
+check('Weapon grip remains centered in the holding hand (right; slingshot/bow left)',gripError<1e-4,{gripError});
 // 65차 — 무기마다 부품 표(TPGUN)로 그린다. 들고 있는 동안(반동 0) 어떤 조각도 머리(둥근 기둥)에 들어가지 않는다.
 // 쏠 때 잠깐 들리는 반동은 위의 몸통 검사가 모든 세기로 본다. +6 떨림(sh)까지 켠 채로 잰다.
 function insideHead(mesh,i){const m=matrix(A.meshes.head).invert().multiply(matrix(mesh,i));

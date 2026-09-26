@@ -90,12 +90,14 @@ const cost = await pg.evaluate(()=>{ const W = window, R = W.__R, o = {};
   o.dispRune = dispRune;
   /* 70차 — 손도 번짐 원천(층 1)에서 검은 가림막으로 한 번 더 그린다(장갑에 룬 번짐이 새지 않게) — 손 메시 수만큼 기준을 옮긴다 */
   let hand = 0; W.__gunModels()[5].traverse(c=>{ if(c.isMesh && (c.userData.arm || c.material === W.__HELD_ARM) && c.layers.isEnabled(1)) hand++; }); o.hand = hand;
+  /* 70차(총 다루기) — 움직이는 부품(mv 꼬리표 — 탄창·노리쇠…)은 몸과 따로 구워 층 1 에서도 따로 그린다 — 그 메시 수만큼 기준을 옮긴다 */
+  let mvL1 = 0; W.__gunModels()[5].traverse(c=>{ if(!c.isMesh || !c.layers.isEnabled(1) || c.userData.arm) return; let p = c.parent; while(p && !p.userData.mvTag) p = p.parent; if(p) mvL1++; }); o.mvL1 = mvL1;
   W.__setEnh(5, 0);
   return o; });
 ok('⑬ 룬 셰이더가 컴파일됐고(runeFail 0) 모두 깊이 누르기를 가진다(㉗)', cost.rune > 0 && cost.runeVM === cost.rune && cost.fails === 0, {rune:cost.rune, vm:cost.runeVM, fails:cost.fails});
 ok('⑪ 층 1(번짐 원천) 메시는 든 총 안에만 · 진열에 빛 재질 0', cost.layer1Out === 0 && cost.dispRune === 0, {out:cost.layer1Out, disp:cost.dispRune});
-ok('⑩ 1인칭 +6 드로우콜 증가 ≤ 재질 수 + 6 (+ 번짐 가림막 손 메시 수 — 70차) · 삼각형 증가 ≤ 든 총 삼각형 + 100', cost.e6.calls - cost.e0.calls <= 6 + 6 + cost.hand && cost.hand <= 2 && cost.e6.tris - cost.e0.tris <= 14100,
-   {e0:cost.e0, e1:cost.e1, e3:cost.e3, e6:cost.e6, hand:cost.hand});
+ok('⑩ 1인칭 +6 드로우콜 증가 ≤ 재질 수 + 6 (+ 번짐 가림막 손 메시 수·움직이는 부품 메시 수 — 70차) · 삼각형 증가 ≤ 든 총 삼각형 + 100', cost.e6.calls - cost.e0.calls <= 6 + 6 + cost.hand + cost.mvL1 && cost.hand <= 7 && cost.mvL1 <= 6 && cost.e6.tris - cost.e0.tris <= 14100,
+   {e0:cost.e0, e1:cost.e1, e3:cost.e3, e6:cost.e6, hand:cost.hand, mvL1:cost.mvL1});   // 70차 — 손 2 → 7(C 손 둘·검지·팔뚝 둘·소매 둘 — 재장전 모션에서 따로 움직인다) · 부품 꼬리표 메시(≤ 6) 만큼만 옮김
 /* ⑱ 3인칭 — 21명 +6 에 강화 공 빛 0 */
 const tp = await pg.evaluate(()=>{ const W = window, [PG, PF] = W.__gunMeshes(), o = {};
   const A = i=>({x:i*1.5, y:W.__GY, z:0, ry:0, g:i%5, ph:i, mv:false, down:false, wp:3, we:6, hat:0, gls:0, clo:0, jb:-1, jt:0, air:false});
