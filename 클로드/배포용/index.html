@@ -3152,12 +3152,15 @@ body.hud66-night[data-n66] #dayPhase{font-size:calc(13px*var(--n6fz));text-shado
 /* ═══ 69차 — 강화 테(3D 룬 빛·가방·대장간·축포·이름표 한 벌 = ENH_COL). +1 초록 · +2 보라 · +3 금 · +4 분홍 · +5 파랑 · +6 진홍(+금 테)
    ★ .popC …!important 규칙들 뒤에 둔다(밝은 창 규칙이 테 색을 덮었다). 값은 불러올 때 ENH_COL.ui 로 다시 넣는다 */
 :root{--e1:#1fa862;--e2:#7a4fe0;--e3:#d99a10;--e4:#d63bb4;--e5:#2f86e0;--e6:#e0321c;--e6b:#ffd66a}
-.popC .kCell.e1,.popC .kSlot.e1,.kCell.e1,.kSlot.e1,#tools .slot.gun.e1{border-color:var(--e1)!important;--ec:var(--e1)}
-.popC .kCell.e2,.popC .kSlot.e2,.kCell.e2,.kSlot.e2,#tools .slot.gun.e2{border-color:var(--e2)!important;--ec:var(--e2)}
-.popC .kCell.e3,.popC .kSlot.e3,.kCell.e3,.kSlot.e3,#tools .slot.gun.e3{border-color:var(--e3)!important;--ec:var(--e3)}
-.popC .kCell.e4,.popC .kSlot.e4,.kCell.e4,.kSlot.e4,#tools .slot.gun.e4{border-color:var(--e4)!important;box-shadow:0 0 6px var(--e4)!important;--ec:var(--e4)}
-.popC .kCell.e5,.popC .kSlot.e5,.kCell.e5,.kSlot.e5,#tools .slot.gun.e5{border-color:var(--e5)!important;box-shadow:0 0 8px var(--e5)!important;--ec:var(--e5)}
-.popC .kCell.e6,.popC .kSlot.e6,.kCell.e6,.kSlot.e6,#tools .slot.gun.e6{border-color:var(--e6)!important;box-shadow:inset 0 0 0 1px var(--e6b),0 0 10px rgba(224,50,28,.45)!important;--ec:var(--e6)}
+.popC .kCell.e1,.popC .kSlot.e1,.kCell.e1,.kSlot.e1,#tools .slot.gun.e1{border-color:var(--e1)!important;box-shadow:0 0 5px var(--e1)!important;--ec:var(--e1)}
+.popC .kCell.e2,.popC .kSlot.e2,.kCell.e2,.kSlot.e2,#tools .slot.gun.e2{border-color:var(--e2)!important;box-shadow:0 0 6px var(--e2)!important;--ec:var(--e2)}
+.popC .kCell.e3,.popC .kSlot.e3,.kCell.e3,.kSlot.e3,#tools .slot.gun.e3{border-color:var(--e3)!important;box-shadow:0 0 7px var(--e3)!important;--ec:var(--e3)}
+.popC .kCell.e4,.popC .kSlot.e4,.kCell.e4,.kSlot.e4,#tools .slot.gun.e4{border-color:var(--e4)!important;box-shadow:0 0 10px var(--e4)!important;--ec:var(--e4)}
+.popC .kCell.e5,.popC .kSlot.e5,.kCell.e5,.kSlot.e5,#tools .slot.gun.e5{border-color:var(--e5)!important;box-shadow:0 0 13px var(--e5)!important;--ec:var(--e5)}
+.popC .kCell.e6,.popC .kSlot.e6,.kCell.e6,.kSlot.e6,#tools .slot.gun.e6{border-color:var(--e6)!important;box-shadow:inset 0 0 0 1px var(--e6b),0 0 16px rgba(224,50,28,.62)!important;--ec:var(--e6)}
+/* 71차 — "더 밝게": 모든 단계 테에 제 색 빛(+1 5px → +6 16px) · 그림 칸 안쪽도 제 색으로 은은히 물든다 · ◆ 도 빛난다 */
+.kCell:is(.e1,.e2,.e3,.e4,.e5,.e6) .kArt{border-radius:10px;box-shadow:inset 0 0 14px -4px var(--ec)}
+.kCell:is(.e5,.e6) .kArt{box-shadow:inset 0 0 18px -3px var(--ec)}
 .kCell.e1,.kCell.e2,.kCell.e3,.kCell.e4,.kCell.e5,.kCell.e6,.kSlot.e1,.kSlot.e2,.kSlot.e3,.kSlot.e4,.kSlot.e5,.kSlot.e6{border-width:2px!important;border-style:solid!important;position:relative}
 /* 70차 — 가방에서 지금 쓰는 칸은 강화 단계와 상관없이 '사용 중' 초록 테를 지킨다(강화 테가 뒤에 있어 이겨 버렸다 — 금빛 +3 을 들면 초록 테가 사라졌다).
    강화 단계는 ◆ 줄·이름 옆 색 글자·+4 이상 빛으로 읽힌다. 사용 중 ✓ 는 초록 동그라미 딱지로 키운다(+1 초록 테와 헷갈리지 않게 안내문도 ✓ 로 바꿨다) */
@@ -3167,14 +3170,14 @@ body.hud66-night[data-n66] #dayPhase{font-size:calc(13px*var(--n6fz));text-shado
 /* ◆ 칸 여섯(채운 수 = 단계) — 아이가 센다 */
 .enhD{display:inline-flex;gap:3px;vertical-align:middle;margin:2px 0 0 4px;line-height:1}
 .enhD i{display:inline-block;width:7px;height:7px;transform:rotate(45deg);border:1px solid rgba(40,40,60,.35);background:transparent;box-sizing:border-box}
-.enhD i.on{background:var(--ec,#d99a10);border-color:rgba(255,255,255,.9);box-shadow:0 0 0 1px var(--ec,#d99a10)}
+.enhD i.on{background:var(--ec,#d99a10);border-color:rgba(255,255,255,.9);box-shadow:0 0 0 1px var(--ec,#d99a10),0 0 5px var(--ec,#d99a10)}
 .enhD.e6 i.on{box-shadow:0 0 0 1px var(--e6b)}
 .kCell .enhD,.kSlot .enhD{display:flex;justify-content:center;margin:3px auto 0}
 .enhLv.eL{font-weight:700;text-shadow:0 1px 0 #fff}
-/* +5·+6 빛줄 — 2.6초마다 비스듬히 한 번 지나간다(CSS 만) · +6 은 테가 2.4초로 숨쉰다 */
+/* +4·+5·+6 빛줄(71차 — +4 도) — 2.6초마다 비스듬히 한 번 지나간다(CSS 만) · +6 은 테가 2.4초로 숨쉰다 */
 /* ★ 움직임은 transform·opacity 만(노트북 GPU 합성만 — 레이아웃·그림자 다시 그리기 없음). ::after 는 사용 중 ✓ 자리라 ::before 를 쓴다 */
-.kCell.e5 .kArt,.kCell.e6 .kArt{position:relative;overflow:hidden;border-radius:10px}   /* 빛줄은 그림 칸 안에서만(카드 밖으로 안 샌다) */
-.kCell.e5 .kArt::before,.kCell.e6 .kArt::before{content:'';position:absolute;top:-20%;bottom:-20%;left:-45%;width:40%;pointer-events:none;z-index:1;
+.kCell.e4 .kArt,.kCell.e5 .kArt,.kCell.e6 .kArt{position:relative;overflow:hidden;border-radius:10px}   /* 빛줄은 그림 칸 안에서만(카드 밖으로 안 샌다) */
+.kCell.e4 .kArt::before,.kCell.e5 .kArt::before,.kCell.e6 .kArt::before{content:'';position:absolute;top:-20%;bottom:-20%;left:-45%;width:40%;pointer-events:none;z-index:1;
   background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:translateX(0) skewX(-18deg);opacity:0;animation:enhSheen 2.6s ease-in-out infinite}
 @keyframes enhSheen{0%,55%{transform:translateX(0) skewX(-18deg);opacity:0}60%{opacity:1}100%{transform:translateX(420%) skewX(-18deg);opacity:0}}
 .kCell.e6 .enhD i.on,.kSlot.e6 .enhD i.on{animation:enhBreath 2.4s ease-in-out infinite}
@@ -3196,10 +3199,16 @@ body.hud66-night[data-n66] #dayPhase{font-size:calc(13px*var(--n6fz));text-shado
 .enhD i.epop{animation:enhPop .35s ease-out}
 @keyframes enhPop{from{transform:rotate(45deg) scale(1.4)}to{transform:rotate(45deg) scale(1)}}
 .sItem.enhGray .si{filter:grayscale(.8) brightness(.9);transition:filter .2s}
+/* 71차 — 대장간 강화 카드: 단계 색 빛(가방 칸과 같은 한 벌 --ec = ENH_COL.ui) */
+.popC #forgeList .sItem.fe{box-shadow:inset 3px 0 0 var(--ec),0 0 6px -1px var(--ec)!important}
+.popC #forgeList .sItem.fe .si{border-radius:10px;box-shadow:inset 0 0 14px -4px var(--ec)}
+.popC #forgeList .sItem:is(.fe4,.fe5){box-shadow:inset 3px 0 0 var(--ec),0 0 11px var(--ec)!important}
+.popC #forgeList .sItem.fe6{box-shadow:inset 3px 0 0 var(--ec),inset 0 0 0 1px var(--e6b),0 0 14px rgba(224,50,28,.6)!important}
 .enhPuff{position:absolute;left:50%;top:40%;width:14px;height:14px;border-radius:50%;background:rgba(210,210,215,.85);pointer-events:none;animation:enhPuff .7s ease-out forwards}
 @keyframes enhPuff{from{transform:translate(calc(-50% + var(--dx)),0) scale(.5);opacity:.9}to{transform:translate(calc(-50% + var(--dx)*2),-30px) scale(1.6);opacity:0}}
 .enhD i.drop{animation:enhDrop .6s ease-in forwards}
 @keyframes enhDrop{30%{transform:rotate(45deg) translate(-1px,1px);opacity:.7}to{transform:rotate(80deg) translate(6px,14px);opacity:0}}
+@media (prefers-reduced-motion:reduce){ .kCell.e4 .kArt::before{animation:none!important} }
 @media (prefers-reduced-motion:reduce){ .kCell.e5 .kArt::before,.kCell.e6 .kArt::before,.enhD i.on,.enhD i.nx,.enhFl,.enhCut,.enhPuff,.enhD i.epop,.enhD i.drop{animation:none!important} }
 /* 66차 FX2 — 축하 배너·보스 연출·드문 사건 알림 층(#celebr). HUD(#hud) 위에 따로 뜨고 누르는 것은 없다.
    ★ 성능(CLAUDE.md 성능 절): 전부 DOM transform·opacity 의 짧은 애니메이션이다. 평소엔 안의 판이 모두 display:none 이라
@@ -5633,7 +5642,10 @@ function gunGlowInit(){
       void main(){ gl_FragColor = vec4(texture2D(tB, vUv).rgb * strength, 1.0);
         #include <colorspace_fragment>
       }`,
-    blending:THREE.AdditiveBlending, transparent:true, depthTest:false, depthWrite:false, toneMapped:false});
+    /* 71차 — 번짐은 가산이 아니라 스크린(src × (1 − dst) + dst) — 이미 밝은 화소(선 심·하늘)엔 거의 안 더해져 하얗게 타지 않는다.
+       그래서 세기를 .32 → .56 까지 올려도 총 영역 포화 화소가 늘지 않는다(사진으로 잼) */
+    blending:THREE.CustomBlending, blendEquation:THREE.AddEquation, blendSrc:THREE.OneMinusDstColorFactor, blendDst:THREE.OneFactor,
+    transparent:true, depthTest:false, depthWrite:false, toneMapped:false});
   GG.quad = new THREE.Mesh(new THREE.PlaneGeometry(2,2), GG.mComp); GG.quad.frustumCulled = false;
   GG.scene = new THREE.Scene(); GG.scene.add(GG.quad);
   GG.cam = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
@@ -5662,21 +5674,21 @@ function gunGlowPass(){
   camera.layers.mask = mask;
   renderer.setClearColor(GG._cc, ca); scene.background = bg;
   renderer.shadowMap.autoUpdate = sau; renderer.shadowMap.needsUpdate = snu;
-  /* ② 번짐 — +1~+5 좁게 한 바퀴, +6 두 바퀴 */
+  /* ② 번짐 — 71차: 모든 단계 두 바퀴(좁게 + 넓게) — 선 둘레에 부드러운 빛 무리. +4 부터 넓은 바퀴가 더 넓다 */
   if(!fsQuad){ fsQuad = new THREE.Mesh(new THREE.PlaneGeometry(2,2), GG.mBlur); fsQuad.frustumCulled = false;
                fsScene = new THREE.Scene(); fsScene.add(fsQuad); fsCam = new THREE.OrthographicCamera(-1,1,1,-1,0,1); }
   fsQuad.material = GG.mBlur;
-  const two = RUNE_U.uRLv.value > 5.5;
-  for(let pass=0; pass<(two ? 2 : 1); pass++){
-    const r = two ? (pass ? 2.4 : 1.2) : 1.4;
+  const lvG = RUNE_U.uRLv.value;
+  for(let pass=0; pass<2; pass++){
+    const r = pass ? (lvG > 5.5 ? 2.6 : lvG > 3.5 ? 2.3 : 2.0) : 1.2;
     const px = r / GG.rtA.width, py = r / GG.rtA.height;
     GG.mBlur.uniforms.tD.value = GG.rtA.texture; GG.mBlur.uniforms.dir.value.set(px, 0);
     renderer.setRenderTarget(GG.rtB); renderer.render(fsScene, fsCam);
     GG.mBlur.uniforms.tD.value = GG.rtB.texture; GG.mBlur.uniforms.dir.value.set(0, py);
     renderer.setRenderTarget(GG.rtA); renderer.render(fsScene, fsCam);
   }
-  /* ③ 화면 위에 가산합성(번짐 하나만 가산 — 세기 상한 .32) */
-  GG.mComp.uniforms.tB.value = GG.rtA.texture; GG.mComp.uniforms.strength.value = Math.min(0.32, GG.k);
+  /* ③ 화면 위에 스크린 합성(71차 — 가산 → 스크린 · 세기 상한 .70 · 원천 배율 2.6). 원천이 1/4 해상도 선이라 두 번 번지면 평균이 낮아 세기를 올려야 보인다 */
+  GG.mComp.uniforms.tB.value = GG.rtA.texture; GG.mComp.uniforms.strength.value = Math.min(0.70, GG.k) * 2.6;
   renderer.setRenderTarget(null);
   const ac = renderer.autoClear; renderer.autoClear = false;
   renderer.render(GG.scene, GG.cam);
@@ -13183,6 +13195,8 @@ uniform vec3 uRA, uRB, uGunFlash; uniform vec4 uAx;
    ★ 처음엔 fw > 2w 이면 어디서나 w/fw 로 칠해서, 총열을 비스듬히 보는 1인칭에선 조준경·총열 전체가 선 색으로 얼룩졌다(사진) */
 float gLine(float d, float w){ float fw = max(fwidth(d), 1e-5), h = fw * 0.5, ad = abs(d);
   return clamp((min(ad + h, w) - max(ad - h, -w)) / fw, 0.0, 1.0); }
+/* 71차 — 선은 화면에서 늘 1.8px 가까이는 되게(가까이·멀리 모두). 단 제 두께의 2.2배까지만 넓힌다 — 비스듬한 총열이 선 색으로 얼룩지지 않게 */
+float gLineP(float d, float w){ return gLine(d, clamp(0.9 * fwidth(d), w, 2.2 * w)); }
 float gHash(float n){ return fract(sin(n * 12.9898) * 43758.5453); }
 float gGlyph(vec2 c, float h){ vec2 q = c - 0.5; float d = 1.0;
   if(h < 0.55)             d = min(d, max(abs(q.x), abs(q.y) - 0.32));
@@ -13196,7 +13210,7 @@ const RUNE_FS_BODY = `
     vec3 gn = normalize(vGn);
     met = (uMetal > -0.5 ? uMetal : vRune) * (1.0 - smoothstep(0.55, 0.85, abs(gn.z)));   /* 총구·뒤끝 면 제외 */
     if(met > 0.001){
-      float L = uAx.w - uAx.z, s = clamp((vGp.z - uAx.z) / L, 0.0, 1.0);
+      float L = uAx.w - uAx.z, s = clamp((vGp.z - uAx.z) / L, 0.0, 1.0), dLn = 1e3;
       vec2 q = vGp.xy - uAx.xy; float r = max(length(q), 1e-3), th = atan(q.y, q.x), th2 = th - 1.5708;   /* th2 — 첫 선이 윗면 한가운데(1인칭에서 늘 보인다) */
       /* ① 테 — 단계 수만큼: .25 · .04 · .97 · .50 · .75 · .125
          70차 — 첫 테는 1인칭에서 크게 보이는 기관부 쪽(.25), 둘째가 뒤끝(.04). 예전엔 첫 테가 가장 작게 보이는 총구(.97)라 +1 = +0 이었다 */
@@ -13206,12 +13220,13 @@ const RUNE_FS_BODY = `
       if(uRRing > 3.5) dR = min(dR, abs(s - 0.50));
       if(uRRing > 4.5) dR = min(dR, abs(s - 0.75));
       if(uRRing > 5.5) dR = min(dR, abs(s - 0.125));
-      float dN = dR * L / (0.0075 * wK);
+      float dN = dR * L / (0.0105 * wK);                  /* 71차 — 테 .0075 → .0105(한 화면에서 굵게 읽히게 — 낮 밝은 쇠 위에서도) */
+      float dRw = dR * L;                                 /* 테까지 세계 거리 — 테 둘레 빛(haloR) */
       /* ② 상감 선 — 총열을 따라(첫 줄은 윗면 · +1 도 한 줄) */
       if(uRLng > 0.5 && s > 0.02 && s < 0.97){
         float a = (fract(th2 * uRLng / 6.2832 + 0.5) - 0.5) * 6.2832 / uRLng;
-        float wl = 0.005 * clamp(r / 0.05, 0.35, 1.0);      /* 가는 총열(반지름 .02)에선 선도 가늘게 — 여섯 줄이 둘레 절반을 덮지 않게 */
-        dN = min(dN, abs(a * r) / (wl * wK)); }
+        float wl = 0.0068 * clamp(r / 0.05, 0.35, 1.0);     /* 가는 총열(반지름 .02)에선 선도 가늘게 — 여섯 줄이 둘레 절반을 덮지 않게 · 71차 .005 → .0068 */
+        dLn = abs(a * r) / (wl * wK); dN = min(dN, dLn); }
       /* ③ 룬 글자(GG 원천에서는 뺀다 — 너무 잘다) */
       float gly = uRGly * uGlyK;                          /* 70차 — uGlyK: 비늘처럼 울퉁불퉁한 총은 0(글자가 찢긴 얼룩이 된다) */
       if(uGlowOnly < 0.5 && gly > 0.01 && s < gly && r > 0.035 && r < 0.11){   /* 글자는 기관부처럼 넓은 쇠에만(가는 총열엔 테·선만) */
@@ -13219,38 +13234,45 @@ const RUNE_FS_BODY = `
         float cz = floor(vGp.z / 0.045), h = gHash(cz * 3.1 + bi * 17.0);
         if(cos((bi + 0.5) * band) > 0.0 && h < 0.70 && v > 0.2 && v < 0.8)
           dN = min(dN, gGlyph(vec2(fract(vGp.z / 0.045), (v - 0.2) / 0.6), h) * 0.045 / 0.004); }
-      /* ④ 흐름 — 약실 → 총구 */
-      float wave = 0.0;
+      /* ④ 흐름 — 약실 → 총구. 71차 — 혜성 모양: 머리는 날카롭고(앞 .05) 꼬리는 길게(뒤 .20) 끌린다 → "빛이 지나간다" 가 한눈에 */
+      float wave = 0.0, head = 0.0;
       for(int k = 0; k < 3; k++){ if(float(k) >= uRWave) break;
-        float c = fract(uGlowT / uRPer + float(k) / max(uRWave, 1.0)) * 1.4 - 0.2;
-        wave += exp(-pow((s - c) / 0.07, 2.0));
-        /* +5 번개 가지 — 머리 ±.06 구간에서 선 사이를 잇는 지그재그(모양만 3Hz 로 바뀜, 밝기 번쩍임 없음) */
-        if(uRBolt > 0.5 && abs(s - c) < 0.06){
+        float c = fract(uGlowT / uRPer + float(k) / max(uRWave, 1.0)) * 1.4 - 0.2, dd = s - c;
+        float hk = exp(-pow(dd / 0.05, 2.0));
+        head = max(head, hk); wave += dd > 0.0 ? hk : exp(dd / 0.20);
+        /* +5 번개 가지 — 머리 ±.10 구간에서 선 사이를 잇는 지그재그(모양만 3Hz 로 바뀜, 밝기 번쩍임 없음) · 71차 .06 → .10, 굵기 .004 → .006 */
+        if(uRBolt > 0.5 && abs(dd) < 0.10){
           float zz = abs(fract(s * L / 0.03 + gHash(floor(uGlowT * 3.0) + float(k))) - 0.5) * 2.0;
           float a2 = (fract(th2 * uRLng / 6.2832) - zz) * 6.2832 / uRLng;
-          dN = min(dN, abs(a2 * r) / (0.004 * wK)); } }
-      if(uRBoost > 0.0) wave += exp(-pow((s - (uRBoost * 1.4 - 0.2)) / 0.10, 2.0));
+          dN = min(dN, abs(a2 * r) / (0.006 * wK)); } }
+      if(uRBoost > 0.0){ float hb = exp(-pow((s - (uRBoost * 1.4 - 0.2)) / 0.10, 2.0)); wave += hb; head = max(head, hb); }
       wave = clamp(wave, 0.0, 1.0);
-      float flow = uRWave > 0.5 ? 0.55 + 0.9 * wave : 0.94 + 0.06 * sin(6.2832 * uGlowT / uRPer);
-      float lines = gLine(dN, 1.0);
-      groove = clamp(gLine(dN, 1.9) - lines, 0.0, 1.0);
-      vec3 col = mix(uRA, uRB, wave * (uRLv > 5.5 ? 1.0 : 0.45));
+      float flow = uRWave > 0.5 ? 0.62 + 0.8 * wave : 0.94 + 0.06 * sin(6.2832 * uGlowT / uRPer);
+      float lines = uGlowOnly > 0.5 ? gLine(dN, 1.0) : gLineP(dN, 1.0);
+      groove = clamp(gLine(dN, 2.1) - lines, 0.0, 1.0);
+      /* 머리는 흰빛 쪽(uRB)으로 달아오른다 — +1~+5 도(예전엔 45%만) */
+      vec3 col = mix(uRA, uRB, head * (uRLv > 5.5 ? 1.0 : 0.62) + wave * 0.15);   /* +1~+5 는 머리도 제 색이 남게(.62 — 파랑이 하얗게 안 바래게) */
       float rim = pow(1.0 - clamp(dot(normalize(normal), normalize(vViewPosition)), 0.0, 1.0), 5.0);
-      E = (col * lines * flow + uRA * rim * uRRim) * uRI * met;
+      /* 71차 — 선 둘레 빛(쇠 위로 번지는 제 색 빛 · 스크린) — 테는 늘 조금, 상감 선은 흐름 머리 둘레에서 크게. 쇠 위에만(나무·배경엔 안 번진다) */
+      float haloR = uRRing > 0.5 ? exp(-pow(dRw / (0.020 * wK), 2.0)) : 0.0;
+      float haloL = exp(-dLn * dLn / 7.0);
+      float halo = haloR * (0.40 + 0.50 * wave) + haloL * (0.12 + 0.60 * wave);
+      E = (col * lines * flow + uRA * rim * uRRim) * uRI * met + uRA * halo * uRI * met * 0.45 * uGlowOnly;
       /* 70차 — 선의 심은 바탕에 더하지(스크린) 않고 칠한다(mix). 스크린은 밝은 금·은 바탕(≈.85)에서 15% 만 더해져 금 위의 금 선이 사라졌다.
          바탕과 색상이 비슷하면(금 총의 +3 금 · 붉은 용의 +6 진홍) 심을 밝은 흐름 머리 색(uRB — 레몬·금)으로 한 단 올린다 */
       vec3 bN = outgoingLight / max(max(outgoingLight.r, max(outgoingLight.g, outgoingLight.b)), 1e-3), cN = col / max(max(col.r, max(col.g, col.b)), 1e-3);
       float sim = 1.0 - clamp(length(bN - cN) * 2.2, 0.0, 1.0);
       vec3 cc = mix(mix(col, uRB, 0.75 * sim), vec3(1.0), 0.35 * sim);            /* 같은 색상 바탕 위에서는 심을 흰빛 쪽으로 — 바탕보다 늘 밝다 */
-      core = min(cc * (0.8 + 0.35 * flow) * (0.6 + 0.5 * uRI), vec3(1.0));       /* 흐름이 지나가지 않을 때도 심이 바탕보다 어두워지지 않게(흐름은 +35% 만) */
-      coreK = lines * met * 0.85;
-      E2 = uRA * rim * uRRim * uRI * met;
+      /* 71차 — 심을 더 밝게(× .95~1.55) — 한 채널이 1 에 닿아도 나머지 채널은 제 색이라 하얗게 안 탄다(min 은 채널마다) */
+      core = min(cc * (0.95 + 0.60 * wave) * (0.70 + 0.55 * uRI), vec3(1.0));
+      coreK = lines * met * 0.95;
+      E2 = (uRA * rim * uRRim + col * halo * 0.50) * uRI * met;
     }
   }
-  if(uGlowOnly > 0.5) outgoingLight = E + totalEmissiveRadiance * 0.35;          /* GG 원천: 선 빛 + 특수 부품 제 빛 조금. 나무 = 검은 가림막 */
-  else { outgoingLight *= 1.0 - 0.55 * groove * met;                             /* 새김 홈 — 낮 밝은 강철 위에서도 대비로 읽힌다 */
+  if(uGlowOnly > 0.5) outgoingLight = E + totalEmissiveRadiance * 0.35;          /* GG 원천: 선 빛(+선 둘레 빛) + 특수 부품 제 빛 조금. 나무 = 검은 가림막 */
+  else { outgoingLight *= 1.0 - 0.62 * groove * met;                             /* 새김 홈 — 낮 밝은 강철 위에서도 대비로 읽힌다(71차 .55 → .62, 폭 1.9 → 2.1) */
          outgoingLight = mix(outgoingLight, core, coreK);                         /* 심 — 어떤 바탕 위에서도 제 색 */
-         outgoingLight += min(E2 + uGunFlash, vec3(0.95)) * (1.0 - clamp(outgoingLight, 0.0, 1.0)); }   /* 림·총구 화염은 스크린 · 상한 .95 */
+         outgoingLight += min(E2 + uGunFlash, vec3(0.95)) * (1.0 - clamp(outgoingLight, 0.0, 1.0)); }   /* 림·선 둘레 빛·총구 화염은 스크린 · 상한 .95 */
 }
 `;
 /* 손에 든 총 재질 복제본에 룬을 새긴다. 원래 emissive 는 지우지 않는다(용 입 속 불·수정·코일 같은 특수 부품의 제 빛).
@@ -13289,20 +13311,23 @@ const sparkTex = (()=>{ const c = document.createElement('canvas'); c.width = c.
     d[i] = d[i+1] = d[i+2] = 255; d[i+3] = Math.round(a*255); }
   g.putImageData(im, 0, 0);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; })();
-const SPARK_N = 24;                       // +6 꼬리 불씨 8개 × (머리 + 꼬리 2점)
+const SPK_MAX = 12;                       // 71차 — 불티 슬롯 8 → 12(+6 불씨 12개)
+const SPARK_N = SPK_MAX*3;                // +6 꼬리 불씨 12개 × (머리 + 꼬리 2점)
 const SPARK_BASE = 32;                    // 총마다 쇠 위 불티 태어날 자리 후보
 const _spc = new THREE.Color(), _spc2 = new THREE.Color();
 const ENH_SPK = (()=>{
   const geo = new THREE.BufferGeometry(), pos = new Float32Array(SPARK_N*3), col = new Float32Array(SPARK_N*3), sz = new Float32Array(SPARK_N);
   geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3));
-  const m = new THREE.PointsMaterial({map:sparkTex, size:0.014, sizeAttenuation:true, vertexColors:true, transparent:true,
+  geo.setAttribute('aSz', new THREE.BufferAttribute(sz, 1));   // 71차 — 점마다 크기(머리 크게 · 꼬리 작게 · 단계가 오르면 크게)
+  const m = new THREE.PointsMaterial({map:sparkTex, size:0.024, sizeAttenuation:true, vertexColors:true, transparent:true,
                                       depthWrite:false, blending:THREE.AdditiveBlending, fog:false});
-  m.onBeforeCompile = sh=>{ sh.vertexShader = sh.vertexShader.replace('#include <project_vertex>', VM_Z); };
+  m.onBeforeCompile = sh=>{ sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float aSz;')
+    .replace('gl_PointSize = size;', 'gl_PointSize = size * aSz;').replace('#include <project_vertex>', VM_Z); };
   m.customProgramCacheKey = ()=> 'enhSpkVM';
   const pts = new THREE.Points(geo, m); pts.frustumCulled = false; pts.visible = false; pts.userData.gradient = true; pts.userData.enhFx = true; pts.renderOrder = 12;
   /* 불씨 하나의 상태: 나이(0~1)·자리·속도 — 불러올 때 한 번 만든 배열에 숫자만 쓴다 */
-  const S = {life:new Float32Array(8).fill(1), p:new Float32Array(8*3), v:new Float32Array(8*3), h1:new Float32Array(8*3), h2:new Float32Array(8*3), n:0, nPrev:-1, lastHead:0};
-  return {pts, pos, col, S};
+  const S = {life:new Float32Array(SPK_MAX).fill(1), p:new Float32Array(SPK_MAX*3), v:new Float32Array(SPK_MAX*3), n:0, nPrev:-1, lastHead:0};
+  return {pts, pos, col, sz, S};
 })();
 /* 총 그룹(g) 의 '자기 자리' 상자 — Box3.setFromObject 는 세계 자리로 재서 gunFinish 의 회전·크기가 섞인다. 자식 지오메트리를 직접 모은다.
    69차 — 직계만이 아니라 전부(reload68 의 움직이는 부품 묶음 mvG 까지). 불티(enhFx)·손은 뺀다. */
@@ -13560,7 +13585,8 @@ function runeHead(FX, k){ return ((GLOW_T.value/FX.per + k/Math.max(FX.wave, 1))
 function waveHeadAtMuzzle(FX){ let m = 0; for(let k=0;k<FX.wave;k++){ const d = (0.97 - runeHead(FX, k))/0.07; m = Math.max(m, Math.exp(-d*d)); } return m; }
 function updEnhHeld(dt, gm, holdGun){
   const gi = holdGun && gm && gm.visible ? KIT.wpn : -1, gg = gi > 0 ? gunGlow[gi] : null, eLv = gg ? enhOf(gi) : 0;
-  const FX = ENH_FX[eLv], env = (1 - 0.30*NIGHTK) * (1 - 0.15*camAutoK);
+  /* 71차 — 밤에 줄이던 몫 .30 → .12(밤에도 "와 빛난다") — 모양은 선에만 빛이 있어서 안 묻힌다(사진 8 자리로 잼) */
+  const FX = ENH_FX[eLv], env = (1 - 0.12*NIGHTK) * (1 - 0.15*camAutoK);
   if(gg && ENH_SPK.pts.parent !== gm) gm.add(ENH_SPK.pts);                      // 총이 바뀔 때만 옮겨 단다(할당 없음)
   /* 깨어남 — 대장간에서 성공한 총을 처음 들 때 0.7초 동안 빠른 흐름 하나가 약실 → 총구를 휩쓴다 */
   if(gi !== enhHeldW){ enhHeldW = gi; if(gi > 0 && gunWake[gi] > 0 && eLv > 0){ gunWake[gi] = 0; runeBoostT = 0.7; ENH_SPK.S.boostSpk = 0;
@@ -13570,8 +13596,9 @@ function updEnhHeld(dt, gm, holdGun){
   RUNE_U.uRRing.value = FX.ring; RUNE_U.uRLng.value = FX.lng; RUNE_U.uRGly.value = FX.gly;
   RUNE_U.uRWave.value = FX.wave; RUNE_U.uRPer.value = FX.per; RUNE_U.uRRim.value = FX.rim; RUNE_U.uRBolt.value = FX.bolt;
   RUNE_U.uRBoost.value = runeBoostT > 0 ? 1 - runeBoostT/0.7 : 0; if(runeBoostT > 0) runeBoostT = Math.max(0, runeBoostT - dt);
-  /* 번짐(GG)은 선 빛만 원천이라 세기가 작다(.12~.32). 흐름 머리가 총구 테에 닿을 때 조금(+20%) 더. 조준경 원이 켜진 동안은 반 */
-  GG.k = (gg && eLv && GFX.q !== 'low') ? FX.gg * env * (0.9 + 0.2*waveHeadAtMuzzle(FX)) * (g68Sc ? 0.5 : 1) : 0;
+  /* 번짐(GG)은 선 빛만 원천이다. 71차 — 낮 ×1.25(밝은 바탕에서 스크린 번짐이 약해지는 것 보정) → 밤 ×.82 · 흐름 머리가 총구 테에 닿을 때 +20% · 조준경 원이 켜진 동안은 반 */
+  GG.k = (gg && eLv && GFX.q !== 'low') ? FX.gg * env * (1.25 - 0.43*NIGHTK) * (0.9 + 0.2*waveHeadAtMuzzle(FX)) * (g68Sc ? 0.5 : 1)
+        * (gm && gm.userData.shK ? 0.6 + 0.4*gm.userData.shK : 1) : 0;   // 71차 — 카메라 가까운 총(새총·짧은 총)은 화면을 넓게 덮어 번짐을 줄인다(shK — 지난 프레임에 잰 값)
   GG.col.setHex(FX.col || 0xffffff);                                               // (옛 검사 호환용 값 — 셰이더는 안 쓴다)
   /* 70차 효과 갈래 — 총구 화염이 든 총을 비춘다: 재질을 돌며 emissive 를 쓰던 것 대신 유니폼 하나(스크린식, +0 에서도) */
   if(gg && flashOwn && flashT > 0){ const fk = flashT/flashD; RUNE_U.uGunFlash.value.copy(flashMat.color).multiplyScalar(fk*fk*0.10); }
@@ -13591,44 +13618,44 @@ function updEnhHeld(dt, gm, holdGun){
   const eSh = gg ? FX.sh * shEnv * shK : 0;
   enhShX = eSh ? Math.sin(gunShakeT*14)*eSh : 0; enhShY = eSh ? Math.sin(gunShakeT*18 + 1.7)*eSh : 0;
 }
-/* 불티 — 흐름 머리 가까운 쇠 위에서 태어나 .45초 동안 위·뒤로 떠오르며 사그라진다. +3 은 머리가 총구 테에 닿을 때만, +6 은 꼬리 불씨(머리 + 꼬리 두 점) */
+/* 불티 — 흐름 머리 가까운 쇠 위에서 태어나 .60초(71차 — .45 → .60) 동안 위·뒤로 떠오르며 사그라진다. +3 은 머리가 총구 테에 닿을 때만, +6 은 꼬리 불씨(머리 + 꼬리 두 점)
+   71차 — 슬롯 12 · 점 크기 aSz(단계가 오르면 크게) · 꼬리는 지난 프레임 자리가 아니라 속도 뒤쪽(60fps 에선 지난 자리가 머리와 겹쳐 꼬리가 안 보였다) */
 function updSparks(gg, FX, eLv, dt, env){
   const P = ENH_SPK, S = P.S, pts = P.pts;
   const want = gg && (FX.spk > 0 || runeBoostT > 0);
   if(!want){ if(pts.visible){ pts.visible = false; S.life.fill(1); } return; }
-  const pa = P.pos, ca = P.col, base = gg.base, L = Math.max(0.05, gg.ax.w - gg.ax.z);
+  const pa = P.pos, ca = P.col, za = P.sz, base = gg.base, L = Math.max(0.05, gg.ax.w - gg.ax.z);
   const born = (s0, wd)=>{                                                        // s0 가까운 쇠 자리에서 하나 태어난다
-    let slot = -1; for(let j=0;j<8;j++) if(S.life[j] >= 1){ slot = j; break; } if(slot < 0) return;
+    let slot = -1; for(let j=0;j<SPK_MAX;j++) if(S.life[j] >= 1){ slot = j; break; } if(slot < 0) return;
     let bi = -1; const o = (Math.random()*SPARK_BASE)|0;
     for(let t=0;t<SPARK_BASE;t++){ const k = (o + t) % SPARK_BASE; if(Math.abs(base[k*4+3] - s0) < wd){ bi = k; break; } }
     if(bi < 0) return;
     S.life[slot] = 0; const p = slot*3;
     S.p[p] = base[bi*4]; S.p[p+1] = base[bi*4+1]; S.p[p+2] = base[bi*4+2];
-    for(let q=0;q<3;q++){ S.h1[p+q] = S.p[p+q]; S.h2[p+q] = S.p[p+q]; }
-    S.v[p] = (Math.random() - 0.5)*0.08; S.v[p+1] = 0.14 + Math.random()*0.06; S.v[p+2] = -0.17; };
+    S.v[p] = (Math.random() - 0.5)*0.10; S.v[p+1] = 0.16 + Math.random()*0.08; S.v[p+2] = -0.17; };
   /* 태어남 */
-  const nMax = Math.min(8, FX.spk);
+  const nMax = Math.min(SPK_MAX, FX.spk);
   if(FX.wave > 0 && FX.spk > 0){
-    if(eLv === 3){ const c = runeHead(FX, 0); if(c > 0.95 && S.lastHead <= 0.95){ born(0.97, 0.06); born(0.97, 0.06); } S.lastHead = c; }
-    else { let alive = 0; for(let j=0;j<8;j++) if(S.life[j] < 1) alive++;
-      if(alive < nMax && Math.random() < dt*nMax/0.45*0.7){ const k = (Math.random()*FX.wave)|0, c = runeHead(FX, k); if(c > 0.02 && c < 1.0) born(c, 0.07); } } }
+    if(eLv === 3){ const c = runeHead(FX, 0); if(c > 0.95 && S.lastHead <= 0.95){ born(0.97, 0.06); born(0.97, 0.06); born(0.97, 0.06); } S.lastHead = c; }
+    else { let alive = 0; for(let j=0;j<SPK_MAX;j++) if(S.life[j] < 1) alive++;
+      if(alive < nMax && Math.random() < dt*nMax/0.60*0.9){ const k = (Math.random()*FX.wave)|0, c = runeHead(FX, k); if(c > 0.02 && c < 1.0) born(c, 0.07); } } }
   if(runeBoostT > 0){ const c = 1 - runeBoostT/0.7; if(c > 0.82 && !S.boostSpk){ S.boostSpk = 1; for(let j=0;j<8;j++) born(0.97, 0.08); } }
-  /* 움직임 · 색 — 머리 B → 꼬리 A, 밝기 (1 − life)^1.5 */
-  const ember = FX.ember > 0, ka = ENH_FX[Math.max(1, eLv)];
+  /* 움직임 · 색 — 머리 B → 꼬리 A, 밝기 (1 − life)^1.2 · 크기 — +3 1.0 → +6 1.35 */
+  const ember = FX.ember > 0, ka = ENH_FX[Math.max(1, eLv)], szK = 1 + Math.max(0, eLv - 3)*0.12;
   _spc.setHex(ka.col2); _spc2.setHex(ember ? 0xff4a2a : ka.col);
-  for(let j=0;j<8;j++){ const p = j*3;
+  for(let j=0;j<SPK_MAX;j++){ const p = j*3;
     let a = 0;
-    if(S.life[j] < 1){ S.life[j] = Math.min(1, S.life[j] + dt/0.45);
-      for(let q=0;q<3;q++){ S.h2[p+q] = S.h1[p+q]; S.h1[p+q] = S.p[p+q]; }
+    if(S.life[j] < 1){ S.life[j] = Math.min(1, S.life[j] + dt/0.60);
       S.v[p+1] -= 0.5*dt; S.p[p] += S.v[p]*dt; S.p[p+1] += S.v[p+1]*dt; S.p[p+2] += S.v[p+2]*dt;
-      a = Math.pow(1 - S.life[j], 1.5) * (0.55 + 0.45*env); }
+      a = Math.pow(1 - S.life[j], 1.2) * (0.75 + 0.25*env); }
     const lf = S.life[j];
-    for(let t=0;t<3;t++){ const i = (j*3 + t)*3, src = t === 0 ? S.p : t === 1 ? S.h1 : S.h2;
-      const k = t === 0 ? a : ember ? a*(t === 1 ? 0.55 : 0.25) : 0;
-      pa[i] = src[p]; pa[i+1] = src[p+1]; pa[i+2] = src[p+2];
+    for(let t=0;t<3;t++){ const i = (j*3 + t)*3, bk = t*0.045;                   // 꼬리 = 속도 뒤쪽 .045·.09초 자리
+      const k = t === 0 ? a : ember ? a*(t === 1 ? 0.75 : 0.45) : 0;
+      pa[i] = S.p[p] - S.v[p]*bk; pa[i+1] = S.p[p+1] - S.v[p+1]*bk; pa[i+2] = S.p[p+2] - S.v[p+2]*bk;
+      za[j*3 + t] = szK * (t === 0 ? 1 : t === 1 ? 0.8 : 0.6);
       const m = Math.min(1, lf*1.4 + t*0.35);
       ca[i] = (_spc.r + (_spc2.r - _spc.r)*m)*k; ca[i+1] = (_spc.g + (_spc2.g - _spc.g)*m)*k; ca[i+2] = (_spc.b + (_spc2.b - _spc.b)*m)*k; } }
-  pts.geometry.attributes.position.needsUpdate = true; pts.geometry.attributes.color.needsUpdate = true;
+  pts.geometry.attributes.position.needsUpdate = true; pts.geometry.attributes.color.needsUpdate = true; pts.geometry.attributes.aSz.needsUpdate = true;
   pts.visible = true;
 }
 function swing(){ swingT = 1; }
@@ -16056,7 +16083,7 @@ const GEAR_RUNE_FS = `
 { float lv = aEnhSv.z;
   if(lv > 0.5){
     float glow = lv < 1.5 ? .30 : lv < 2.5 ? .48 : lv < 3.5 ? .70 : lv < 4.5 ? .85 : lv < 5.5 ? 1.05 : 1.30;
-    float nW = lv < 2.5 ? 0.0 : lv < 4.5 ? 1.0 : lv < 5.5 ? 2.0 : 3.0, per = lv < 1.5 ? 4.0 : lv < 2.5 ? 3.4 : lv < 3.5 ? 2.4 : lv < 5.5 ? 2.0 : 1.8;
+    float nW = lv < 1.5 ? 0.0 : lv < 4.5 ? 1.0 : lv < 5.5 ? 2.0 : 3.0, per = lv < 1.5 ? 4.0 : lv < 2.5 ? 3.2 : lv < 3.5 ? 2.4 : lv < 4.5 ? 2.0 : lv < 5.5 ? 1.9 : 1.7;   /* 71차 — 1인칭 표(ENH_FX)와 같게: +2 부터 흐름 */
     float nL = lv < 3.5 ? 1.0 : lv < 5.5 ? 2.0 : 3.0;                      /* 70차 — +1 도 윗면 한 줄(1인칭과 같이) */
     float Lw = vLsz.z / max(2.0 * aEnhSv.y, 1e-3);                         /* 총 길이(세계) */
     float s = aEnhSv.x + vLp.z / max(vLsz.z, 1e-4) * 2.0 * aEnhSv.y;
@@ -16069,8 +16096,8 @@ const GEAR_RUNE_FS = `
       if(nL != 2.0 && an.y > 0.6) dl = abs(vLp.x);                        /* 윗·아랫면 가운데 */
       if(nL > 1.5 && an.x > 0.6) dl = min(dl, abs(vLp.y));                  /* 옆면 가운데 */
       dN = min(dN, dl / 0.003); }
-    float fw = max(fwidth(dN), 1e-4), h = fw * 0.5;
-    float lines = clamp((min(dN + h, 1.0) - max(dN - h, -1.0)) / fw, 0.0, 1.0);
+    float fw = max(fwidth(dN), 1e-4), h = fw * 0.5, wv = clamp(0.9 * fw, 1.0, 2.2);   /* 71차 — 선은 화면에서 1.8px 가까이(제 두께 2.2배까지) */
+    float lines = clamp((min(dN + h, wv) - max(dN - h, -wv)) / fw, 0.0, 1.0);
     float wave = 0.0;
     for(int k = 0; k < 3; k++){ if(float(k) >= nW) break;
       float c = fract(uGlowT / per + aEnhSv.w + float(k) / max(nW, 1.0)) * 1.4 - 0.2; wave += exp(-pow((s - c) / 0.07, 2.0)); }
@@ -16079,10 +16106,16 @@ const GEAR_RUNE_FS = `
     float flow = nW > 0.5 || aEnhV.w > 0.0 ? 0.55 + 0.9 * wave : 0.94 + 0.06 * sin(6.2832 * uGlowT / per + aEnhSv.w * 6.2832);
     float mz = 1.0 + 0.6 * wave * smoothstep(0.05, 0.0, abs(s - 0.97));    /* 흐름 머리가 총구 테에 닿으면 +60% — 어깨 너머로 보인다 */
     vec3 hi = lv > 5.5 ? vec3(1.0, 0.68, 0.14) : mix(aEnhV.rgb, vec3(1.0), 0.6);
-    vec3 near = mix(aEnhV.rgb, hi, wave * (lv > 5.5 ? 1.0 : 0.45)) * lines * flow * mz * (0.62 + glow * 0.20);
-    vec3 far = aEnhV.rgb * (0.06 + glow * 0.09) * (0.9 + 0.3 * wave);
+    vec3 near = mix(aEnhV.rgb, hi, wave * (lv > 5.5 ? 1.0 : 0.70)) * lines * flow * mz * (0.85 + glow * 0.30)   /* 71차 — .62+.20g → .85+.30g, 머리 흰빛 .45 → .70 */
+              + aEnhV.rgb * (0.05 + glow * 0.05) * (0.8 + 0.6 * wave);                 /* 71차 — 쇠 전체에 옅은 제 색(가까이서도 '빛 도는 쇠') */
+    vec3 far = aEnhV.rgb * (0.13 + glow * 0.15) * (0.9 + 0.3 * wave);                 /* 71차 — 먼 물듦 .06+.09g → .13+.15g(25칸에서도 단계 색). 쇠 조각만이라 나무·손은 제 색 */
     float lod = smoothstep(1.3, 2.6, fwidth(vLp.z) / 0.004);             /* 화소가 테 두께(.004)의 1.3~2.6배 — 대략 3~5칸 밖에서 무늬 → 평균 물듦 */
     vec3 E = mix(near, far, lod);
+    /* 71차 — 먼 거리(lod)에선 쇠 조각을 단계 색으로 물들인다(음영은 제 밝기를 따라 남긴다 → 모양 그대로). 붉은 용의 +1 도 15칸에서 초록 기가 읽힌다.
+       나무·손·빛 조각은 aEnhS 가 0 이라 제 색 — 총 전체가 한 색 덩어리가 되지 않는다 */
+    float lumO = dot(outgoingLight, vec3(0.299, 0.587, 0.114));
+    vec3 tint = aEnhV.rgb / max(max(aEnhV.r, max(aEnhV.g, aEnhV.b)), 1e-3) * clamp(lumO * 1.6 + 0.12, 0.0, 1.0);
+    outgoingLight = mix(outgoingLight, tint, lod * (0.32 + glow * 0.18));
     outgoingLight += min(E, vec3(0.95)) * (1.0 - clamp(outgoingLight, 0.0, 1.0));
   }
 }
@@ -16127,15 +16160,17 @@ const ENH_COL = [null,
 /* 69차 — 룬 강화 표. glow 3인칭 쇠 물듦 세기(순증가) · I 1인칭 선 세기 · gg GG 번짐(낮 기준) · ring 테 줄 수(=단계) · lng 상감 선 수 ·
    gly 룬 글자 덮는 길이 · wave 흐름 개수(0 = 숨쉬기) · per 주기(초) · rim 림 · spk 불티 수 · bolt +5 번개 가지 · ember +6 꼬리 불씨 ·
    sh 1인칭 떨림 폭(칸, 그대로 더함) · sh3 3인칭 떨림(몸 단위). 떨림은 선생님 말씀("아주 살짝 · 너무 크게 하지는 말고")대로 예전의 약 28%, 2.2/2.9Hz.
-   ★ 사진으로 다듬음 — 명세 초안의 I .55~.84 · gg .12~.32 는 +1~+3 이 +0 과 거의 같아 보였다(복도·밤). 낮은 단계를 올려 I .66~.86 · gg .16~.32(상한 그대로), 테 두께 .006 → .0075 */
+   ★ 사진으로 다듬음 — 명세 초안의 I .55~.84 · gg .12~.32 는 +1~+3 이 +0 과 거의 같아 보였다(복도·밤). 낮은 단계를 올려 I .66~.86 · gg .16~.32(상한 그대로), 테 두께 .006 → .0075
+   ★ 71차 — 선생님 "더 밝게 멋있게 빛나게": 69/70차 판은 +1~+3 이 +0 과, +4~+6 도 가는 선만 보였다. I .80~.97 · gg .20~.52(번짐은 스크린 합성이라 안 탄다) ·
+     +2 부터 흐름(예전 +3 부터) · +1 부터 옅은 림 · 불티 +3 3 · +4 6 · +5 8 · +6 12. 떨림(sh·sh3)은 그대로 */
 const ENH_FX = [
- {glow:0,   I:0,   gg:0,   ring:0, lng:0, gly:0,   wave:0, per:4.0, rim:0,   spk:0, bolt:0, ember:0, sh:0,     sh3:0,     col:0,        col2:0},
- {glow:.30, I:.66, gg:.16, ring:1, lng:1, gly:0,   wave:0, per:4.0, rim:0,   spk:0, bolt:0, ember:0, sh:0,     sh3:0,     col:0x3ddc84, col2:0xc8ffd8},
- {glow:.48, I:.70, gg:.19, ring:2, lng:2, gly:0,   wave:0, per:3.4, rim:0,   spk:0, bolt:0, ember:0, sh:0,     sh3:0,     col:0x9a6bff, col2:0xe0d4ff},
- {glow:.70, I:.74, gg:.22, ring:3, lng:2, gly:0,   wave:1, per:2.4, rim:0,   spk:2, bolt:0, ember:0, sh:0,     sh3:0,     col:0xffc23a, col2:0xfff2b0},
- {glow:.85, I:.78, gg:.25, ring:4, lng:4, gly:.45, wave:1, per:2.0, rim:.08, spk:4, bolt:0, ember:0, sh:.0010, sh3:.0015, col:0xff4fd8, col2:0xffd0f4},
- {glow:1.05,I:.82, gg:.29, ring:5, lng:4, gly:.90, wave:2, per:2.0, rim:.12, spk:6, bolt:1, ember:0, sh:.0016, sh3:.0022, col:0x4aa8ff, col2:0xd8f0ff},
- {glow:1.30,I:.86, gg:.32, ring:6, lng:6, gly:1.0, wave:3, per:1.8, rim:.16, spk:8, bolt:0, ember:1, sh:.0022, sh3:.0030, col:0xff4a2a, col2:0xffd66a}];
+ {glow:0,   I:0,   gg:0,   ring:0, lng:0, gly:0,   wave:0, per:4.0, rim:0,   spk:0,  bolt:0, ember:0, sh:0,     sh3:0,     col:0,        col2:0},
+ {glow:.30, I:.80, gg:.20, ring:1, lng:1, gly:0,   wave:0, per:4.0, rim:.04, spk:0,  bolt:0, ember:0, sh:0,     sh3:0,     col:0x3ddc84, col2:0xc8ffd8},
+ {glow:.48, I:.84, gg:.25, ring:2, lng:2, gly:0,   wave:1, per:3.2, rim:.06, spk:0,  bolt:0, ember:0, sh:0,     sh3:0,     col:0x9a6bff, col2:0xe0d4ff},
+ {glow:.70, I:.88, gg:.30, ring:3, lng:2, gly:0,   wave:1, per:2.4, rim:.08, spk:3,  bolt:0, ember:0, sh:0,     sh3:0,     col:0xffc23a, col2:0xfff2b0},
+ {glow:.85, I:.91, gg:.37, ring:4, lng:4, gly:.45, wave:1, per:2.0, rim:.12, spk:6,  bolt:0, ember:0, sh:.0010, sh3:.0015, col:0xff4fd8, col2:0xffd0f4},
+ {glow:1.05,I:.94, gg:.44, ring:5, lng:4, gly:.90, wave:2, per:1.9, rim:.16, spk:8,  bolt:1, ember:0, sh:.0016, sh3:.0022, col:0x4aa8ff, col2:0xd8f0ff},
+ {glow:1.30,I:.97, gg:.52, ring:6, lng:6, gly:1.0, wave:3, per:1.7, rim:.20, spk:12, bolt:0, ember:1, sh:.0022, sh3:.0030, col:0xff4a2a, col2:0xffd66a}];
 for(let e=1;e<ENH_FX.length;e++){ ENH_FX[e].col = ENH_COL[e].a; ENH_FX[e].col2 = ENH_COL[e].b; }   // 색은 ENH_COL 한 곳에서
 { const R = document.documentElement.style; for(let e=1;e<ENH_COL.length;e++) R.setProperty('--e'+e, ENH_COL[e].ui); R.setProperty('--e6b', ENH_COL[6].ui2); }   // CSS 테 색도 같은 한 벌
 /* ═══════════ 꾸미기 — 모자 · 안경 · 옷 ═══════════
@@ -20491,7 +20526,10 @@ function buildForgeUI(){
     const st = maxed ? 'own' : enhBusy ? 'no' : (c && canPay(c)) ? '' : 'no';
     const card = shopCard(iconImg('wpn'+i, W.ic), `${W.n}${enhLvHTML(e)}${enhDots(e, !maxed)}`,
       desc, maxed ? null : c, st, maxed ? '최고 단계' : enhBusy ? '🔨 강화하는 중…' : st === 'no' ? lackLine(c) || '재료가 모자라요' : `+${e+1} 로 강화`, ()=>doEnhance(i));
-    card.dataset.w = i; w.appendChild(card);
+    card.dataset.w = i;
+    /* 71차 — 대장간 카드도 가방처럼 단계 색으로 빛난다(그림 칸 안쪽 물듦 + 왼쪽 빛 테 · +4 부터 카드 빛) */
+    if(e > 0){ card.classList.add('fe', 'fe' + Math.min(6, e)); card.style.setProperty('--ec', ENH_COL[Math.min(6, e)].ui); }
+    w.appendChild(card);
   });
   if(!any) w.innerHTML =
     '<p class="shopHint" style="text-align:center;padding:18px 6px">'

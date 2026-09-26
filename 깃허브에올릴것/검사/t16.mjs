@@ -323,7 +323,9 @@ const fp = await pg.evaluate(async ()=>{
   const fake = ()=>({uniforms:{}, vertexShader:'#include <common>\n#include <begin_vertex>\n#include <project_vertex>', fragmentShader:'#include <common>\n#include <opaque_fragment>'});
   for(let i=1;i<gms.length;i++){
     if(!gg[i] || !gg[i].mats.length || !gg[i].ax || !gg[i].base) o.총마다있음 = false;
-    if(!meshesOf(gms[i]).every(c=> c.layers.isEnabled(1)) || all(gms[i]).some(c=> c.material === HELD_ARM && c.layers.isEnabled(1))) o.층 = false;
+    /* 70차부터 손(HELD_ARM)도 층 1 에 있되 번짐 원천에선 검은 가림막으로 그린다(장갑에 룬 번짐이 새지 않게 — t69-enh-static 70차 항목).
+       71차 — 이 검사가 그 뒤로 옛 약속(손은 층 1 밖)을 보고 있어 4b9d55a 에서도 실패했다. 손이 층 1 이면 반드시 HELD_ARM(가림막 셰이더)이어야 한다로 옮김 */
+    if(!meshesOf(gms[i]).every(c=> c.layers.isEnabled(1)) || all(gms[i]).some(c=> c.userData && c.userData.arm && c.layers.isEnabled(1) && c.material !== HELD_ARM)) o.층 = false;
     if(extraOf(gms[i]).length) o.조각없음 = false;
     if(!all(gms[i]).some(c=> c.material === HELD_ARM)) o.손따로 = false;
     for(const c of meshesOf(gms[i])){
@@ -362,7 +364,7 @@ const fp = await pg.evaluate(async ()=>{
 });
 ok('★ 맨손 돌에는 강화 빛이 없다', fp.맨손없음);
 ok('★ 총마다 룬 빛 재질·룬 축·불티 태어날 자리를 가진다', fp.총마다있음);
-ok('★ 총 몸통은 발광 층(layer 1)에 있고 손·팔은 아니다 — 번짐 원천은 든 총의 선 빛만', fp.층);
+ok('★ 총 몸통은 발광 층(layer 1)에 있고 손·팔은 층 1 이면 검은 가림막(HELD_ARM) — 번짐 원천은 든 총의 선 빛만', fp.층);
 ok('★ 후광 조각(가산합성·반투명 Mesh)이 하나도 없다 — 총에 새긴 선이 빛난다', fp.조각없음);
 ok('★ 총마다 재질을 따로 복제했고(원래 재질은 RUNE_BASE) 손·팔은 빛 재질이 아니다', fp.재질따로 && fp.손따로, '재질 ' + fp.재질따로 + ' · 손 ' + fp.손따로);
 ok('★ 룬 셰이더가 모든 빛 재질에 들어갔다 (runeFail 0 · 같은 RUNE_U 객체를 쓴다)', fp.실패 === 0 && fp.유니폼, '실패 ' + fp.실패);
@@ -370,7 +372,7 @@ ok('★ 불티는 전체 한 벌(Points 1 · PointsMaterial 1)이 든 총에 붙
 ok('★ +0 은 룬 0 · 불티 숨김 · 번짐 패스 쉼', fp.plain.lv === 0 && !fp.plain.spk && fp.plain.k === 0, JSON.stringify(fp.plain));
 ok('★ 특수 부품(용 입 속 불)은 +0 에서도 원래 제 빛 그대로', fp.특수);
 ok('★ +1 부터 룬이 켜지고 번짐 패스가 돈다', fp.lv[1].lv === 1 && fp.lv[1].I > 0 && fp.lv[1].k > 0, '+1 세기 ' + fp.lv[1].I.toFixed(2) + ' · 번짐 ' + fp.lv[1].k.toFixed(3));
-ok('★ 번짐 세기는 단계가 오를수록 세다 (+1 < +3 < +5 · +3 < +6), .32 를 안 넘는다', fp.lv[1].k < fp.lv[3].k && fp.lv[3].k < fp.lv[5].k && fp.lv[3].k < fp.lv[6].k && fp.lv[6].k <= 0.32*1.1 + 1e-6,
+ok('★ 번짐 세기는 단계가 오를수록 세다 (+1 < +3 < +5 · +3 < +6), 표 .56 × 낮 1.25 × 머리 1.1 을 안 넘는다(71차 — 스크린 합성 · 그리는 세기 상한 .70)', fp.lv[1].k < fp.lv[3].k && fp.lv[3].k < fp.lv[5].k && fp.lv[3].k < fp.lv[6].k && fp.lv[6].k <= 0.56*1.25*1.1 + 1e-6,
    [1,3,5,6].map(e=> fp.lv[e].k.toFixed(3)).join(' · '));
 ok('★ 선 세기가 1.0 을 안 넘는다 (스크린식 합성 · 상한 .95)', fp.lv.slice(1).every(v=> v.I <= 1.0), '+6 세기 ' + fp.lv[6].I.toFixed(2));
 ok('★ 선 세기(I)가 단계마다 커진다', fp.fx.every((v,i)=> i===0 || v[1] > fp.fx[i-1][1]), fp.fx.map(v=>v[1]).join(' < '));

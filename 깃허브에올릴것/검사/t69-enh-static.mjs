@@ -31,7 +31,7 @@ const hd = (a,b)=>{ const d = Math.abs(hue(a)-hue(b)); return Math.min(d, 360-d)
 ok('이웃 단계 색상각 차 ≥ 30°(단계 구별)', [1,2,3,4,5].every(e=> hd(ENH_COL[e].a, ENH_COL[e+1].a) >= 30), [1,2,3,4,5].map(e=> Math.round(hd(ENH_COL[e].a, ENH_COL[e+1].a))));
 ok('테 줄 수 = 단계(아이가 센다)', ENH_FX.every((f,i)=> f.ring === i));
 ok('선 세기 I · 3인칭 glow 순증가, I ≤ 1', ENH_FX.every((f,i)=> i === 0 || (f.I > ENH_FX[i-1].I && f.glow > ENH_FX[i-1].glow && f.I <= 1)));
-ok('번짐 세기 gg ≤ .32', ENH_FX.every(f=> f.gg <= 0.32));
+ok('번짐 세기 gg ≤ .56(71차 — 스크린 합성이라 .32 → .56 · 합성 세기 상한 .70)', ENH_FX.every(f=> f.gg <= 0.56) && /blendSrc:THREE\.OneMinusDstColorFactor, blendDst:THREE\.OneFactor/.test(src) && /strength\.value = Math\.min\(0\.70, GG\.k\)/.test(src));
 ok('떨림 — +3 까지 0, +4 부터, +6 ≤ .0022칸(예전 .0078) · 3인칭 ≤ .0030', ENH_FX.slice(0,4).every(f=> !f.sh && !f.sh3) && ENH_FX[4].sh > 0 && ENH_FX[6].sh <= 0.0022 && ENH_FX[6].sh3 <= 0.0030);
 ok('강화색에 무기 예광색(tr)·크림을 안 쓴다', !/FX\.col \|\| (wpnNow\(\)|W)\.tr/.test(src));
 /* ② 1인칭 셰이더 */
@@ -57,7 +57,7 @@ ok('held 가 안 보이면(3인칭) 번짐 패스를 안 돈다', /if\(GG\.k <= 
 /* ⑤ 3인칭 */
 ok('P_gunF 정원 = MAXP × TPGUN_GLOW(강화 공 빛 몫 0) · 그림자 끔', /MAXP\*TPGUN_GLOW, 1\);/.test(src) && /P_gunF\.castShadow = false/.test(src));
 ok('3인칭 강화 공 빛(총열 감싸기·총구 불티 공) 없음', !/glow\(B\[0\],B\[1\]/.test(src) && !/const glow=\(f,u,w,h,d\)=>setIR\(P_gunF/.test(src));
-ok('3인칭 룬 셰이더(gearRune) · LOD 평균 물듦 · 스크린식', /customProgramCacheKey = \(\)=> 'gearRune'/.test(src) && /0\.06 \+ glow \* 0\.09/.test(src) && /aEnhS/.test(src));
+ok('3인칭 룬 셰이더(gearRune) · LOD 평균 물듦(71차 — .13+.15g · 먼 쇠 단계 색 물들임) · 스크린식', /customProgramCacheKey = \(\)=> 'gearRune'/.test(src) && /0\.13 \+ glow \* 0\.15/.test(src) && /mix\(outgoingLight, tint, lod \* \(0\.32 \+ glow \* 0\.18\)\)/.test(src) && /aEnhS/.test(src));
 ok('3인칭 떨림 2.2/2.9Hz(t*14 · t*18) · 손잡이를 축으로 한 몸(손잡이 f 0 은 안 움직인다)', /Math\.sin\(t\*14 \+ \(s\.ph\|\|0\)\*7\)\*s3/.test(src) && /r\[1\]\+shU\*r\[0\]\*shF/.test(src) && !/const q = j === 2 \? 0 : sh;/.test(src));
 /* ⑥ 진열 */
 const dc = body('dispClone');
