@@ -27,6 +27,7 @@ async function check(name){
 // Source/CPU checks run in small batches; rendered checks never overlap.
 for(let i=0;i<names.length;i+=3)await Promise.all(names.slice(i,i+3).map(check));
 if(args.includes('--render')){await check('t54-view');await check('t56-build-view');await check('t57-character-view');await check('t62-motion-view');await check('t59-zombie-view');
-  await check('t67-castle-walk');await check('t67-castle-zombie');}   // 67차 성곽 — 걷기·보물·좀비(다른 갈래가 합쳐지기 전 항목은 '대기')
+  await check('t67-castle-walk');await check('t67-castle-zombie');   // 67차 성곽 — 걷기·보물·좀비(다른 갈래가 합쳐지기 전 항목은 '대기')
+  await check('t70-castle-teach');}   // 70차 2회차 — 선생님 새 요청(나선 손잡이·넓히기·낮은 턱·계단 몸·좀비 계단 벽)
 console.log(failed?`${failed} check files failed.`:'All selected check files passed.');
 process.exitCode=failed?1:0;

@@ -4087,10 +4087,15 @@ function gapHalfAt(t){ return GAP_HALF + Math.min(9, Math.max(0, t-RING_D))*0.85
 const CW = {
   LANE0:46, IN:49, MID:51, OUT:53, WALK:8, PARA:0.45,                     // 둘레길 od 46~49 · 성벽 od 49~53(가운데 51 = 성문 다리) · 성벽 길 높이 8
   DITCH_W:2.5, DITCH_H:2, SCARP_K:1.0, SCARP_CAP:7, SPUR_P:15, NOTREE:8,   // 마른 해자(폭 2.5·높이 2) → 풀 비탈 +1.0/칸(성곽 8칸 안은 ≤ 7) · 바위 톱 P < 15
-  TW:9, CEIL_G:3.0, LOOK:12, ROOF_IN:14.3, EAVE:14.3, ROOF_H:5.5,          // 탑 9×9 · 1층 천장 3 · 망루 바닥 12 · 망루 천장 = 처마 14.3(통합: 그림 널 천장 14.05 가 몸 14.3·'천장 ≥ 12 + 2.2' 보다 낮아 맞춤) · 사모 지붕 높이
+  TW:11, CEIL_G:3.0, LOOK:12, ROOF_IN:14.3, EAVE:14.3, ROOF_H:5.5,          // 탑 9×9 · 1층 천장 3 · 망루 바닥 12 · 망루 천장 = 처마 14.3(통합: 그림 널 천장 14.05 가 몸 14.3·'천장 ≥ 12 + 2.2' 보다 낮아 맞춤) · 사모 지붕 높이
   GAL_E0:49.45, GAL_E1:52.29, GAL_OUT:52.8, GAL_EAVE:10.25, GAL_RIDGE:11.0, GAL_RIDGE_TOP:11.12,   // 회랑 걷는 띠 e 49.45~52.29 · 바깥 얼굴 e 52.8 · 지붕 처마 10.25 → 마루 11.0
   POST:2.0, MOD:3, LANTERN:6, MERL:1.6, TORCH_Y:2.6,                      // 회랑 기둥 2 · 복도 벽 모듈 3 · 밤 불빛 6 · 성가퀴 1.6 박자 · 바깥 횃불 높이
-  SP:{a:0.4, b:1.8, h:1/3, m:12, Ht:4, half:0.38, land:5*Math.PI/6, doorUp:2.3},   // 나선(기둥·우물 반지름·한 단·한 바퀴 12단 = 4·문 반각…) — 69차: 레일 값(spd·yawK·hold·holdYaw·pushV)은 레일과 함께 뺐다
+  SP:{a:0.45, b:2.7, h:1/3, m:12, Ht:4, half:0.30, land:5*Math.PI/6, doorUp:2.3, s:1.5, door:1.6},   // 나선(기둥·우물 반지름·한 단·한 바퀴 12단 = 4·문 반각·그림 배율·문 폭) — 69차: 레일 값은 레일과 함께 뺐다
+    /* 70차 2회차 — 선생님: "나선형 계단 넓이를 좀 더 넓혀줘. 올라가기 힘들다". 탑 9×9 → 11×11(해자 쪽 두 칸), 우리 4×4 → 6×6, 기둥 0.40 → 0.45 · 우물 1.80 → 2.70:
+       디딤 폭 1.40 → 2.25(×1.61) · 몸 가운데 띠 0.84 → 1.69(×2.0) · 걸음선(r 1.6) 기울기 30° → 21.7°. 한 단·한 바퀴·층 높이는 그대로(초소 8·망루 12·숨은 문 10/3) */
+  SPK:{a:0.4, b:1.8, half:0.38, s:1, door:1.34},                         // 가운데 망대 K 나선 — 두 협곡 사이 바위 톱이라 이번엔 그대로(넓히면 받침이 협곡 통로로 들어간다)
+  CURB:0.32, GAL_CURB_E1:49.28,                                        // 70차 2회차 — 성벽 길 마을 쪽 낮은 돌 턱(흉벽 0.85 → 0.32 · 윗면 8.32). 뛰면 넘고 걸어선 안 넘는다(groundUnder curb)
+                                                                         //   회랑 턱 몸 = e 49.0~49.28(그림 두께 0.4 = e 49.34) — 회랑 바닥 조임(lo 49.72)에 선 몸 네 귀퉁이(−0.336)가 한 프레임 비벼 들어가도(달리기 30° 0.06) 턱에 안 닿게
   FUN_R:3.0, FUN_ANG:0.35, FUN_TURN:2, FUN_MAX:0.35, FUN_LOOK:1.5, FUN_COS:0.819, FUN_LAT:0.7,   // 70차 — 걸음 직선 옆 어긋남 ≤ 반폭 + 0.7 · 문 쪽 35° 안이면도 잡음   // 69차 문 깔때기 — 3칸·20° 안·초당 2 rad·최대 20° 휨·문 축 1.5칸 앞을 겨눔(시선은 안 돌림)
     /* 67차는 5.5칸·30°·초당 3 rad 에 시선까지 돌렸다(아이가 yaw 를 한 번만 돌려도 회랑·T2 까지 끌려감). 69차에 선생님이 '조작을 빼앗는다'고 해
        시선 돌리기를 없애고 걸음만 조금 휘게 줄였다 — 회랑 문도 곧은 문(탑 벽에 수직)이 되어 45° 문설에 걸릴 일이 없다 */
@@ -4133,7 +4138,7 @@ function castlePlan(){
   const gW = [], towers = [];
   for(let i=0; i<8; i++){ const w = xf(i, 30.5, -51); gW.push(sectorOf(w.x, w.z)); }   // 서쪽 8층 문이 이어지는 곧은 벽의 성문
   for(let i=0; i<8; i++){
-    const c = xf(i, 34.5, -53.5), sc = xf(i, 36, -55), d0 = xf(i, 0, 1), th0 = Math.atan2(d0.z, d0.x);
+    const c = xf(i, 35.5, -54.5), sc = xf(i, 37, -56), d0 = xf(i, 0, 1), th0 = Math.atan2(d0.z, d0.x);   // 70차 2회차 — 탑 11×11(x 30~41 · z −60~−49) · 우리 6×6 가운데 (37, −56)
     const gA = gW[i], gB = gW[i ^ 1];                                   // gA = 서쪽 문 쪽 성문 · gB = 회랑 건너 짝 탑의 성문
     const pt = (x, z)=> xf(i, x, z);
     const fn = (x, z, nx, nz, w, y, door)=>{ const p = pt(x, z), n = pt(nx, nz);          // 문 깔때기 과녁 — (x,z) 문 구멍 가운데, n = 문을 지나는 방향
@@ -4147,9 +4152,9 @@ function castlePlan(){
     const n0 = pt(-1, 0), nN = pt(0, 1), tW = pt(29.95, -54.4), tN = pt(29.6, -48.9), gC = pt(36, -49.5);
     towers.push({
       id:'T'+(i+1), i, even:!!(i & 1), g:sectorOf(c.x, c.z), room:ROOMS[i], gateW:gA, gateG:gB,
-      ...bx(i, 30, 39, -58, -49), cx:c.x, cz:c.z,
-      cage:bx(i, 34, 38, -57, -53), spiral:i, th0, scx:sc.x, scz:sc.z,     // 나선 가운데 = 우리 가운데
-      armA:bx(i, 31, 38, -53, -50), armB:bx(i, 31, 34, -57, -53),        // ㄱ자 1층 방(초소·망루도 같은 자리)
+      ...bx(i, 30, 41, -60, -49), cx:c.x, cz:c.z,
+      cage:bx(i, 34, 40, -59, -53), spiral:i, th0, scx:sc.x, scz:sc.z,     // 나선 가운데 = 우리 가운데
+      armA:bx(i, 31, 40, -53, -50), armB:bx(i, 31, 34, -59, -53),        // ㄱ자 1층 방(초소·망루도 같은 자리)
       doors:{
         /* n = 탑 밖(열린 쪽)으로 향하는 법선 */
         wIn:Object.assign(bx(i, 30, 31, -52, -50), {y:8, w:2.0, h:2.3, nx:n0.x, nz:n0.z, zone:ZG[gA], torch:[tW.x, tW.z]}),   // 곧은 벽 쪽 8층 문 · 판 너머 벽 횃불(9.9)
@@ -4166,16 +4171,16 @@ function castlePlan(){
       funnels:[
         fn(30.5, -51, 1, 0, 2.0, 8, 'wIn'), fn(30.5, -51, -1, 0, 2.0, 8, 'wIn'),                 // 서쪽 8층 문 양쪽
         fn(36, -49.5, 0, 1, 1.8, 8, 'gal'), fn(36, -49.5, 0, -1, 1.8, 8, 'gal'),                 // 회랑 문 양쪽(69차 — 곧은 문 · 폭 1.8)
-        fn(36, -53.1, 0, -1, 1.34, 0, 'spiral'), fn(36, -53.1, 0, -1, 1.34, 8, 'spiral'), fn(36, -53.1, 0, -1, 1.34, 12, 'spiral'),   // 나선 문(방·초소·망루 쪽 → 우리 안)
+        fn(37, -53.15, 0, -1, CW.SP.door, 0, 'spiral'), fn(37, -53.15, 0, -1, CW.SP.door, 8, 'spiral'), fn(37, -53.15, 0, -1, CW.SP.door, 12, 'spiral'),   // 나선 문(방·초소·망루 쪽 → 우리 안)
         fn(31.5, -49.5, 0, -1, 1.0, 0, 'nook'), fn(31.5, -49.5, 0, 1, 1.0, 0, 'nook')            // 구석 문 양쪽
       ],
-      hidden:hid >= 0 ? Object.assign(bx(i, 31, 34, -57, -53), {y0:10/3, y1:7.2, secret:hid}) : null,
+      hidden:hid >= 0 ? Object.assign(bx(i, 31, 34, -59, -53), {y0:10/3, y1:7.2, secret:hid}) : null,
       signs:[
         sg('wIn', 'out', gB, 29.95, -53.06, 9.65, 10.35, -1, 0), sg('wIn', 'in', gA, 31.05, -53.06, 9.65, 10.35, 1, 0),
         sg('gal', 'out', gA, 33.9, -48.95, 9.35, 10.05, 0, 1),   sg('gal', 'in', gB, 33.0, -50.05, 9.35, 10.05, 0, -1)
       ],
-      windows:[wn(30, -55.5, -1, 0, 'B'), wn(30, -51.5, -1, 0, 'A'), wn(32.5, -49, 0, 1, 'B'), wn(36.5, -49, 0, 1, 'A'),
-               wn(32.5, -58, 0, -1, 'B'), wn(39, -51.5, 1, 0, 'A')]      // 창 6 — armA·armB 쪽에만(우리 쪽 면엔 하나씩)
+      windows:[wn(30, -56.5, -1, 0, 'B'), wn(30, -51.5, -1, 0, 'A'), wn(32.5, -49, 0, 1, 'B'), wn(36.5, -49, 0, 1, 'A'),
+               wn(32.5, -60, 0, -1, 'B'), wn(41, -51.5, 1, 0, 'A')]      // 창 6 — armA·armB 쪽에만(우리 쪽 면엔 하나씩)
     });
   }
 
@@ -4230,7 +4235,7 @@ function castlePlan(){
 
   /* ── 비밀 방 다섯(모둠마다 제 성문 가까이 하나) ── */
   const spiralSecret = (id, i)=>{                                    // 짝수 탑 나선 270° — 탑 로컬에선 늘 −x 쪽(34.2, −55) 우물 벽 돌 판 → armB
-    const T = towers[i], ch = xf(i, 31.55, -55), cf = xf(i, 1, 0), co = xf(i, 32.7, -56.2);
+    const T = towers[i], ch = xf(i, 31.55, -56), cf = xf(i, 1, 0), co = xf(i, 32.7, -57.2);
     return {id, g:id, kind:'spiral', tower:T.id, spiral:i, th:norm(T.th0 + 1.5*PI), y:10/3, door:null,
       room:{x0:T.armB.x0, x1:T.armB.x1, z0:T.armB.z0, z1:T.armB.z1, y0:10/3, y1:7.2},
       chest:{x:ch.x, y:10/3, z:ch.z, ry:f3(Math.atan2(cf.x, cf.z))}, coin:{x:co.x, y:10/3, z:co.z},   // 상자는 문 맞은편 벽 앞(문을 봄) · 금화 더미는 옆
@@ -4249,8 +4254,8 @@ function castlePlan(){
 
   /* ── 반짝 보물 후보 27(초소 armB 가운데 8 · 망루 armA 가운데 8 · 성문 윗마당 P 9 10 · K 1) ── */
   const spark = [];
-  for(let i=0; i<8; i++){ const p = xf(i, 32.5, -55); spark.push({p:[p.x, 8, p.z], g:[sectorOf(p.x, p.z)], at:towers[i].id + ':post'}); }
-  for(let i=0; i<8; i++){ const p = xf(i, 34.5, -51.5); spark.push({p:[p.x, 12, p.z], g:[sectorOf(p.x, p.z)], at:towers[i].id + ':watch'}); }   // 옛 '탑 가운데'는 나선 우리 돌 속
+  for(let i=0; i<8; i++){ const p = xf(i, 32.5, -56); spark.push({p:[p.x, 8, p.z], g:[sectorOf(p.x, p.z)], at:towers[i].id + ':post'}); }
+  for(let i=0; i<8; i++){ const p = xf(i, 35.5, -51.5); spark.push({p:[p.x, 12, p.z], g:[sectorOf(p.x, p.z)], at:towers[i].id + ':watch'}); }   // 옛 '탑 가운데'는 나선 우리 돌 속
   for(let g=0; g<NG; g++) for(let s=-1; s<=1; s+=2){ const p = ax(g, 51, 9*s); spark.push({p:[p.x, 8, p.z], g:[g], at:'gate' + (g+1) + (s < 0 ? 'a' : 'b')}); }
   spark.push({p:[0, 14, 59.5], g:[2, 3], at:'K'});
   const sparkByG = [[], [], [], [], []];
@@ -4282,7 +4287,7 @@ function castlePlan(){
   for(const S of straights) if(S.corr) for(const P of S.deco.slits){                       // 복도 안벽 쏘기 틈(안벽 t 49~50)
     const c = ax(S.g, 49.5, P), d = DIRS[S.g]; ap(c.x, c.z, -d.dz, d.dx, d.dx, d.dz, [-0.5, 0.4, 0.5, 1.9], [0.5, 0.65, 0.4, 2.05], 'slit', [-0.65, 0.4, 0.5, 1.9]); }   // 마을 쪽 t 49 트인 0.8 · 복도 쪽 t 50 벽감 1.3
   for(const T of towers){                                                                    // 탑 초소 쏘기 틈 둘(북 armB · 동 armA 벽, 벽 가운데 선)
-    for(const [x, z, ux, uz, nx, nz] of [[32.5, -57.5, 1, 0, 0, -1], [38.5, -51.5, 0, 1, 1, 0]]){ const c = xf(T.i, x, z), u = xf(T.i, ux, uz), n = xf(T.i, nx, nz);
+    for(const [x, z, ux, uz, nx, nz] of [[32.5, -59.5, 1, 0, 0, -1], [40.5, -51.5, 0, 1, 1, 0]]){ const c = xf(T.i, x, z), u = xf(T.i, ux, uz), n = xf(T.i, nx, nz);
       ap(c.x, c.z, u.x, u.z, n.x, n.z, [0.5, 0.4, 8.45, 9.85], [-0.5, 0.6, 8.35, 10.0], 'postSlit', [0.65, 0.4, 8.45, 9.85]); }   // 바깥 0.8 · 안 벽감 1.2
     for(const w of T.windows) ap(w.x - w.nx*0.5, w.z - w.nz*0.5, -w.nz, w.nx, w.nx, w.nz, [0.5, 0.4, 12.55, 13.65], [-0.5, 0.4, 12.55, 13.65], 'window');   // 망루 창 6
   }
@@ -4298,7 +4303,7 @@ function castlePlan(){
     funnels.push({x:c.x, z:c.z, nx:d.dx, nz:d.dz, half:f3(1.4/2 - BODY), y:0, lv:CR.G, door:'corrDoor', tower:-1},
                  {x:c.x, z:c.z, nx:-d.dx, nz:-d.dz, half:f3(1.4/2 - BODY), y:0, lv:CR.G, door:'corrDoor', tower:-1}); }
   funnels.push({x:0, z:53.5, nx:0, nz:1, half:f3(2.0/2 - BODY), y:8, lv:CR.W, door:'kN', tower:-1},
-               {x:K.doorS.x, z:K.doorS.z, nx:0, nz:-1, half:f3(1.34/2 - BODY), y:14, lv:CR.T, door:'kS', tower:-1});
+               {x:K.doorS.x, z:K.doorS.z, nx:0, nz:-1, half:f3(CW.SPK.door/2 - BODY), y:14, lv:CR.T, door:'kS', tower:-1});
 
   return {towers, K, straights, link, galleries, zones, stairs, secrets, spark, sparkByG, sparkHs:[], safe, apertures, funnels};
 }
@@ -4368,6 +4373,44 @@ function onCastleLayer(x, z, y){                     // 이 아이가 좀비 성
       && y <= GY + CW.WALK + SHEEP_REACH_Y;           // 66 모서리 망대·깃대 상자 위(W+3.4·W+4.3)는 물 수 없는 자리 → 목표 아님
 }
 function zTop(cx, cz){ return (inW(cx, cz) && CASTLE[gi(cx, cz)] >= CK.SOLID) ? 999 : solidTop(cx, cz); }   // 좀비 땅 걸음용 — 성곽 칸(복도·탑·문 terrH GY 포함)은 벽
+/* 70차 2회차 — 좀비가 계단 옆벽·성곽 벽을 파고들지 않게(선생님: "좀비가 이 쪽 계단을 살짝 통과하는게 보였어"). 땅 좀비 걸음 검사 하나:
+   ① 가운데 칸 zTop(그대로 — 흐름장·건물 틈 균형) ② 성문 계단 칸(stairOf 0~999)은 땅 좀비에게 벽 — 발치로 가는 좀비(cs 1)만 제 계단 디딤 가운데 띠
+   ③ 팔 폭 원(rZ = 0.64·크기 — 소매 끝)이 FENCE 아닌 GBOX(계단 흉벽·발치 기둥·문설·창고 문…)와 겹치면 막힘 ④ 가운데 ±min(rZ, 0.45) 네 점이 성곽 칸이면 막힘.
+   ③④는 ZGB(그런 상자·성곽 칸 곁 칸 표 — castleLayout 끝에 한 번 굽는다)가 1 인 칸에서만 본다(성문·성곽 곁만 — 92마리 성능). 호스트·손님 같은 자리(손님은 호스트 자리를 받는다) · 할당 0 */
+const ZGB = new Uint8Array(WS*WS);
+function rZ(w){ return Math.max(0.25, Math.min(1.2, 0.64*(w.sc || (WOLF_T[w.k] || WOLF_T[0]).sc))); }
+function zMoveOk(w, x, z){
+  const cx = Math.floor(x), cz = Math.floor(z);
+  if(zTop(cx, cz) > GY + 1) return false;
+  if(!inW(cx, cz)) return true;
+  const i = gi(cx, cz), k = stairOf[i], r = rZ(w);
+  if(k >= 0 && k < 1000){
+    if(!(w.cs === 1 && w.ck === k) && w.cOut !== k) return false;       // cOut — 발치로 가다 포기하고 디딤 칸에 남은 좀비가 걸어 나오는 동안
+    const P = Math.abs(gPP(STAIRS[k].g, x, z)), m = Math.min(r, 0.6);
+    if(P < GH.sp0 + GH.pw + m || P > GH.sp1 - GH.pw - m) return false; }
+  if(!ZGB[i]) return true;
+  const rc = Math.min(r, 0.45);
+  for(let n=0; n<4; n++){ const qx = Math.floor(x + (n & 1 ? rc : -rc)), qz = Math.floor(z + (n & 2 ? rc : -rc));
+    if(inW(qx, qz) && CASTLE[gi(qx, qz)] >= CK.SOLID) return false; }
+  const wy = w.y === undefined ? GY : w.y, hz = 1.7*(w.sc || (WOLF_T[w.k] || WOLF_T[0]).sc), r2 = r*r;
+  for(let bx=Math.floor((x - r)/4); bx<=Math.floor((x + r)/4); bx++) for(let bz=Math.floor((z - r)/4); bz<=Math.floor((z + r)/4); bz++){
+    const a = gboxGrid.get(gboxKey(bx, bz)); if(!a) continue;
+    for(let j=0; j<a.length; j++){ const b = a[j];
+      if(b.off || b.k === GK.FENCE || b.y0 >= wy + hz || b.y1 <= wy + 0.15) continue;
+      const ex = x < b.x0 ? b.x0 - x : x > b.x1 ? x - b.x1 : 0, ez = z < b.z0 ? b.z0 - z : z > b.z1 ? z - b.z1 : 0;
+      if(ex*ex + ez*ez < r2) return false; }
+  }
+  return true;
+}
+/* 한 프레임 걸음 — 0.4 토막씩(흉벽 두께 0.45 를 한 프레임에 건너뛰지 않게) · 축마다 따로. 지금 자리가 이미 벽 속이면(옛 자리·밀려 듦) 옛 규칙(zTop)으로 빠져나오게 둔다 */
+function zStep(w, mx, mz){
+  const L = Math.hypot(mx, mz), n = Math.max(1, Math.ceil(L/0.4)), sx = mx/n, sz = mz/n, inside = !zMoveOk(w, w.x, w.z);
+  for(let q=0; q<n; q++){
+    const bx = w.x + sx, bz = w.z + sz;
+    if(inside ? zTop(Math.floor(bx), Math.floor(w.z)) <= GY+1 : zMoveOk(w, bx, w.z)) w.x = bx;
+    if(inside ? zTop(Math.floor(w.x), Math.floor(bz)) <= GY+1 : zMoveOk(w, w.x, bz)) w.z = bz;
+  }
+}
 function zoneStair(x, z){                            // (x,z) 가 66 계단·층계참 칸(t 34~49 · P 7~10)이면 그 계단 번호 k(= 2g + (s>0)), 아니면 −1
   for(let g=0; g<NG; g++){
     const t = gT(g, x, z); if(t < 34 || t >= 49) continue;
@@ -4455,16 +4498,16 @@ function castleLayout(){
   /* ② 곧은 벽 상자 — 안 흉벽 · 바깥 성가퀴 줄(FENCE 8→14.5 + 카메라용 WALL 8→9.53) · 화톳불 받침 · 복도 천장 · 암문 문설·인방 */
   for(const S of CPLAN.straights){
     const bx = (p0, p1, t0, t1, y0, y1, k)=> gboxAdd(S.g, p0*S.s, p1*S.s, t0, t1, y0, y1, k), P1 = 11 + S.len;
-    bx(11, P1, 49, 49.45, 8, 8.85);
+    bx(11, P1, 49, 49.45, 8, 8 + CW.CURB).curb = true;                // 70차 2회차 — 안 흉벽 0.85 → 낮은 턱 0.32(뛰면 넘어 마을로 · 걸어선 벽)
     bx(11, P1 - 2, 52.55, 53, 8, 8 + CW.FENCE_UP, FN); bx(P1 - 2, P1, 52.55, 53, 8, 12 + CW.FENCE_UP, FN); bx(11, P1, 52.55, 53, 8, 9.53);   // 탑 곁 2칸은 망루 바닥(12) + 6.5
-    for(const P of S.deco.braziers){ const a = Math.abs(P); bx(a - 0.2, a + 0.2, 49, 49.4, 8.85, 9.55); }   // 흉벽 위 불 속에 서지 않게
+    for(const P of S.deco.braziers){ const a = Math.abs(P); bx(a - 0.2, a + 0.2, 49, 49.4, 8 + CW.CURB, 8 + CW.CURB + 0.7); }   // 턱 위 불 속에 서지 않게(70차 2회차 — 턱 0.32 위)
     if(S.corr){ bx(15, 30, 50, 50.5, 2.3, 8, FL); bx(15, 30, 51.5, 52, 2.3, 8, FL); bx(15, 30, 50.5, 51.5, 2.9, 8, FL); }   // 궁륭: 벽 가 2.3 · 가운데 2.9
     if(S.corrDoor){
       bx(15, 15.3, 49, 50, 0, 2.3); bx(16.7, 17, 49, 50, 0, 2.3); bx(15, 17, 49, 50, 2.3, 8);     // 문설(폭 1.4) · 인방
       for(const P of [15.5, 16.5]){ const c = cellAt(gX(S.g, 48.5, P*S.s), gZ(S.g, 48.5, P*S.s)); if(c >= 0 && CASTLE[c] === CK.LANE) CROOF[c] |= CR.NB; }   // 문 앞 1칸 — 친구끼리 안 막히게
     }
   }
-  gboxAddW(CPLAN.link.x0, CPLAN.link.x1, 49, 49.45, 8, 8.85);          // 3·4 연결 벽 — 안 흉벽만(바깥은 K 북쪽 얼굴이 막는다)
+  gboxAddW(CPLAN.link.x0, CPLAN.link.x1, 49, 49.45, 8, 8 + CW.CURB).curb = true;   // 3·4 연결 벽 — 안 낮은 턱만(바깥은 K 북쪽 얼굴이 막는다)
 
   /* ③ 모서리 탑 여덟 */
   for(const T of CPLAN.towers){
@@ -4484,16 +4527,16 @@ function castleLayout(){
     if(T.hidden){ boxW(T.armB, 3.0, 10/3, FL); boxW(T.armB, 7.2, 8, FL); }   // 짝수 탑 숨은 방(3.33~7.2)
     else boxW(T.armB, 3.0, 8, FL);
     boxW(T.armA, 11.4, 12, FL); boxW(T.armB, 11.4, 12, FL);                  // 망루 바닥(= 초소 천장)
-    for(const [hw, y0, y1] of [[4.8, CW.ROOF_IN, 16], [3.2, 16, 17.5], [1.6, 17.5, 19]])   // 망루 천장 + 사모 지붕 몸(카메라가 지붕 속으로 안 들어가게)
+    for(const [hw, y0, y1] of [[5.8, CW.ROOF_IN, 16], [3.9, 16, 17.5], [1.95, 17.5, 19]])   // 망루 천장 + 사모 지붕 몸(카메라가 지붕 속으로 안 들어가게) — 70차 2회차: 탑 11×11(지붕 밑변 11.7)
       gboxAddW(T.cx - hw, T.cx + hw, T.cz - hw, T.cz + hw, y0, y1, RF);
     boxW(D.wIn, 10.3, 14); if(corr) boxW(D.wIn, 2.3, 8, FL);
     boxW(D.nook, 2.3, 14);
     boxW(D.gal.cells, 10.3, 14); for(const j of D.gal.jambs) boxW(j, j.y0, j.y1);   // 회랑 문 — 인방 + 문설 벽 둘(69차 곧은 문)
     if(T.hidden){                                                            // 숨은 문(나선 270°) — 닫힌 동안 벽. 연 아이 화면에선 off
-      const sec = CPLAN.secrets[T.hidden.secret], a = T.th0 + 1.5*Math.PI, ca = Math.cos(a), sa = Math.sin(a);
+      const sec = CPLAN.secrets[T.hidden.secret], a = T.th0 + 1.5*Math.PI, ca = Math.cos(a), sa = Math.sin(a), B0 = CW.SP.b, B1 = CW.SP.b + 0.3, HW = CW.SP.door/2;
       const b = Math.abs(ca) > Math.abs(sa)
-        ? gboxAddW(T.scx + Math.sign(ca)*1.8, T.scx + Math.sign(ca)*2.0, T.scz - 0.7, T.scz + 0.7, 10/3, 10/3 + 2.3)
-        : gboxAddW(T.scx - 0.7, T.scx + 0.7, T.scz + Math.sign(sa)*1.8, T.scz + Math.sign(sa)*2.0, 10/3, 10/3 + 2.3);
+        ? gboxAddW(Math.min(T.scx + Math.sign(ca)*B0, T.scx + Math.sign(ca)*B1), Math.max(T.scx + Math.sign(ca)*B0, T.scx + Math.sign(ca)*B1), T.scz - HW, T.scz + HW, 10/3, 10/3 + 2.3)
+        : gboxAddW(T.scx - HW, T.scx + HW, Math.min(T.scz + Math.sign(sa)*B0, T.scz + Math.sign(sa)*B1), Math.max(T.scz + Math.sign(sa)*B0, T.scz + Math.sign(sa)*B1), 10/3, 10/3 + 2.3);
       b.sec = sec.id; sec.box = b;
     }
     SPIRALS[T.spiral] = {cx:T.scx, cz:T.scz, a:CW.SP.a, b:CW.SP.b, y0:GY, h:CW.SP.h, m:CW.SP.m, n:36, turns:3, Ht:CW.SP.Ht, th0:T.th0, land:CW.SP.land,
@@ -4514,8 +4557,8 @@ function castleLayout(){
     for(const b of [[-3, -2, 53, 58], [2, 3, 53, 58], [-2, 2, 53, 54], [-2, -0.7, 57.75, 58], [0.7, 2, 57.75, 58]]) gboxAddW(b[0], b[1], b[2], b[3], 14, 16.4);   // 계단 머리 벽(남쪽은 문 자리 비움)
     gboxAddW(K.head.x0, K.head.x1, K.head.z0, K.head.z1, 16.4, 16.7, RF);
     for(const b of [[-3, 3, 60.55, 61], [2.55, 3, 58, 61], [-3, -2.55, 58, 61]]){ gboxAddW(b[0], b[1], b[2], b[3], 14, 20.5, FN); gboxAddW(b[0], b[1], b[2], b[3], 14, 15.45); }
-    SPIRALS[K.spiral] = {cx:(K.cage.x0 + K.cage.x1)/2, cz:(K.cage.z0 + K.cage.z1)/2, a:CW.SP.a, b:CW.SP.b, y0:W8, h:CW.SP.h, m:CW.SP.m, n:18, turns:1.5, Ht:CW.SP.Ht, th0:K.th0, land:null,
-      doors:[{rel:0, half:CW.SP.half, y:W8, sec:-1, end:true, hub:false}, {rel:Math.PI, half:CW.SP.half, y:GY + 14, sec:-1, end:true, hub:false}]};
+    SPIRALS[K.spiral] = {cx:(K.cage.x0 + K.cage.x1)/2, cz:(K.cage.z0 + K.cage.z1)/2, a:CW.SPK.a, b:CW.SPK.b, y0:W8, h:CW.SP.h, m:CW.SP.m, n:18, turns:1.5, Ht:CW.SP.Ht, th0:K.th0, land:null,
+      doors:[{rel:0, half:CW.SPK.half, y:W8, sec:-1, end:true, hub:false}, {rel:Math.PI, half:CW.SPK.half, y:GY + 14, sec:-1, end:true, hub:false}]};
   }
 
   /* ⑤ 66 성문 칸 — 망루 윗마당·층계참 = SOLID(윗면 8), 계단 = ZONE 만, 다리 = CASTLE 0 그대로(아이 벽·좀비 땅길) + ZONE + RUN */
@@ -4549,10 +4592,16 @@ function castleLayout(){
   for(const Gl of CPLAN.galleries){
     const sx = Math.sign(Gl.N.x), sz = Math.sign(Gl.N.z), eIn = CW.GAL_E1/CHAM;   // 로컬(X = x·sx, Z = z·sz)에서 바깥 = +X +Z, 안쪽 모서리 e ≥ 52.29
     for(let X0=39; X0<49; X0+=0.5){
-      const Z0 = Math.ceil((eIn - X0)*2)/2;
-      gboxAddW(X0*sx, (X0 + 0.5)*sx, Z0*sz, (Z0 + 2)*sz, 8, (X0 < 41 || Z0 < 41 ? 12 : 8) + CW.FENCE_UP, FN);   // 탑 곁 2칸은 망루 바닥(12) + 6.5
+      const Z0 = Math.ceil((eIn - X0)*2)/2, Z1 = X0 < 30 + CW.TW ? Math.min(Z0 + 2, 49) : Z0 + 2;   // 70차 2회차 — 해자로 나온 탑(x 39~41 · z ≥ 49) 속엔 안 박히게 탑 얼굴까지만
+      gboxAddW(X0*sx, (X0 + 0.5)*sx, Z0*sz, Z1*sz, 8, (X0 < 43 || Z0 < 43 ? 12 : 8) + CW.FENCE_UP, FN);   // 탑 곁 2칸은 망루 바닥(12) + 6.5
     }
   }
+  /* 70차 2회차 — ZGB: 좀비 원 검사(zMoveOk ③④)를 할 칸 — FENCE 아닌 낮은 상자(밑 < GY+4) 둘레 1.3칸 · 성곽 칸(SOLID 이상) 곁 1칸 */
+  ZGB.fill(0);
+  for(const b of GBOX){ if(b.k === GK.FENCE || b.y0 >= GY + 4) continue;
+    for(let z=Math.floor(b.z0 - 1.3); z<=Math.floor(b.z1 + 1.3); z++) for(let x=Math.floor(b.x0 - 1.3); x<=Math.floor(b.x1 + 1.3); x++) if(inW(x, z)) ZGB[gi(x, z)] = 1; }
+  for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){ const i = gi(x, z); if(CASTLE[i] >= CK.SOLID) continue;
+    for(let n=0; n<8 && !ZGB[i]; n++){ const qx = x + [1,-1,0,0,1,1,-1,-1][n], qz = z + [0,0,1,-1,1,-1,1,-1][n]; if(inW(qx, qz) && CASTLE[gi(qx, qz)] >= CK.SOLID) ZGB[i] = 1; } }
   castleDebugBoxes();
 }
 /* ?castledbg — 몸 상자(GBOX)를 선으로 그린다(갈래 2 가 그림을 몸에 맞출 때 쓰는 디버그 · 평소엔 아무것도 안 만든다).
@@ -4731,14 +4780,15 @@ function doorFunnel(dt, vx, vz){
   return FUN.ang;
 }
 /* 69차 — 나선 우물 벽·가운데 기둥 미끄러짐. 두 축을 한 번에 옮기지 못했을 때만 부른다(축 나눠 걷기는 둥근 벽에서 톱니에 걸린다).
-   걸음의 접선 성분만큼 가운데를 도는 호 위로 옮긴다 — 같은 반지름, 안 되면 반지름을 1.15 쪽으로 0.08·0.16·0.24 당겨 다시. 옮기면 true(할당 0) */
+   걸음의 접선 성분만큼 가운데를 도는 호 위로 옮긴다 — 같은 반지름, 안 되면 반지름을 몸 띠 가운데((a+b)/2 — 탑 1.575 · K 1.1) 쪽으로 0.08·0.16·0.24 당겨 다시. 옮기면 true(할당 0) */
 function spiralSlide(wx, wz, dt, stuck){
   const cx = Math.floor(PL.x), cz = Math.floor(PL.z); if(!inW(cx, cz)) return false;
   const k = stairOf[gi(cx, cz)]; if(k < 1000) return false;
   const S = SPIRALS[k - 1000], dx = PL.x - S.cx, dz = PL.z - S.cz, r = Math.hypot(dx, dz); if(r < 1e-3 || r > S.b + 0.5) return false;   // 70차 — 문 목(우물 벽 밖 쐐기)에서도
   const vt = (wz*dx - wx*dz)/r; if(Math.abs(vt) < 0.05) return false;
   const a0 = Math.atan2(dz, dx) + vt*dt/r;
-  for(let n=0; n<4; n++){ const rr = n === 0 ? r : r + Math.max(-0.08*n, Math.min(0.08*n, 1.15 - r));   // 70차 — 0.08·0.16·0.24 까지 안쪽으로(문 쐐기 문설 모서리에서 한 번에 못 빠져 멈췄다)
+  const rm = (S.a + S.b)/2;
+  for(let n=0; n<4; n++){ const rr = n === 0 ? r : r + Math.max(-0.08*n, Math.min(0.08*n, rm - r));   // 70차 — 0.08·0.16·0.24 까지 안쪽으로(문 쐐기 문설 모서리에서 한 번에 못 빠져 멈췄다)
     const x = S.cx + Math.cos(a0)*rr, z = S.cz + Math.sin(a0)*rr;
     if(groundUnder(x, z, PL.R, PL.y, true) <= PL.y + STEP && (stuck || !solidHit(x, z, PL.y))){ PL.x = x; PL.z = z; return true; } }
   /* 70차 — 문 목에서 문설 모서리에 걸렸다(몸 귀퉁이가 쐐기 밖 벽 속): 문 가운데 쪽으로 조금 되돌며(0.06·0.12·0.18 rad) 안으로 0.1~0.2 — 다음 프레임부터 모서리를 돌아 오른다 */
@@ -4765,7 +4815,10 @@ function galleryClamp(){                             // 회랑 걷는 띠 e ∈ 
   const gl = galleryAt(PL.x, PL.z); if(gl < 0) return;
   const N = CPLAN.galleries[gl].N, e = (Math.abs(PL.x) + Math.abs(PL.z))*CHAM;
   const lo = CW.GAL_E0 + PL.R*0.849 + 0.03, hi = CW.GAL_E1 - PL.R*0.849 - 0.03;
-  let de = 0; if(e < lo) de = lo - e; else if(e > hi) de = hi - e; else return;
+  /* 70차 2회차 — 마을 쪽(lo) 조임은 회랑 바닥(8)에 선 몸에게만: 뛴 몸은 낮은 턱(0.32)을 넘어 둘레길로 뛰어내리고, 턱 위(8.32)에 선 몸은 조이지 않는다.
+     걸어서는 턱이 벽(groundUnder curb)이라 안 떨어진다. 바깥(hi) 조임은 늘(해자 쪽 돌벽) */
+  const loOn = PL.ground && PL.y < GY + CW.WALK + 0.15;
+  let de = 0; if(e < lo && loOn) de = lo - e; else if(e > hi) de = hi - e; else return;
   const m = de/(Math.SQRT2*CHAM); PL.x += N.x*m; PL.z += N.z*m;             // 법선 1칸 = e 0.849
   const vn = (PL.vx||0)*N.x + (PL.vz||0)*N.z;
   if((de < 0 && vn > 0) || (de > 0 && vn < 0)){ PL.vx -= N.x*vn; PL.vz -= N.z*vn; }   // 벽 쪽 속도만 0 — 비비며 걸어도 속도 그대로
@@ -4790,7 +4843,7 @@ function castleRescue(dt){
   } else { CRS.stuckT = 0; CRS.sx = PL.x; CRS.sz = PL.z; }
   /* 지붕 위 — 서 있는 윗면이 그 칸의 걷는 바닥이 아니다(탑 벽 윗면·K 몸·회랑 바닥 위·성벽 흉벽 불 위) */
   const yl = PL.y - GY, K = CPLAN.K;
-  const odd = PL.ground && inC && (ck === CK.TWALL || (ck === CK.KBODY && !(PL.z > K.yard.z0 && Math.abs(yl - 14) < 0.3)) || (ck === CK.GALW && yl > 8.3) || (ck === CK.SOLID && yl > 9.6));
+  const odd = PL.ground && inC && (ck === CK.TWALL || (ck === CK.KBODY && !(PL.z > K.yard.z0 && Math.abs(yl - 14) < 0.3)) || (ck === CK.GALW && yl > CW.WALK + CW.CURB + 0.1) || (ck === CK.SOLID && yl > 9.6));
   CRS.roofT = odd ? CRS.roofT + dt : 0;
   if(CRS.roofT > 1.5) castleSafeGo(CPLAN.safe);
   /* 성 밖(해자·비탈·산) — 버그가 아니면 안 불린다 */
@@ -4823,6 +4876,76 @@ function camStepAdd(dy){ if(dy) camStepY = Math.max(-CAM_STEP.lim, Math.min(CAM_
 function stairRamp(k, x, z, R){ const S = STAIRS[k], u = (gT(S.g, x, z) - S.t0)*2 + R*2 + 0.5, n = S.n + 1, b = 1.5;   // 끝 = 윗마당(디딤 n 개 위 한 단)   // 양 끝은 이차 곡선으로 부드럽게(기울기 이음 — 첫·끝 디딤에서 카메라가 꺾여 튀지 않게)
   const f = u <= -b ? 0 : u < b ? (u + b)*(u + b)/(4*b) : u <= n - b ? u : u < n + b ? n - (n + b - u)*(n + b - u)/(4*b) : n;
   return GY + f*S.r; }
+/* 70차 2회차 — 나선의 연속 경사(보이는 몸·카메라 과녁). spiralH 는 몸 네 귀퉁이 중 가장 앞선 각의 디딤 높이(계단꼴)라, 가운데 각에 귀퉁이가 앞서는 몫
+   δ = R(|tx| + |tz|)/r 를 더한 연속 식 y0 + (φ/(2π/m) + 0.5)·h 이 걷는 동안 평균 0 으로 겹친다. 바퀴는 발 높이 y 로 고르고, 층계참·문 목처럼 경사가 아닌 곳(0.3 넘게 어긋남)은 null */
+function spiralRamp(k, x, z, y, R){
+  const S = SPIRALS[k]; if(!S) return null;
+  const dx = x - S.cx, dz = z - S.cz, r = Math.hypot(dx, dz); if(r < S.a || r > S.b + 0.6) return null;   // 문 목(우물 벽 밖 0.6)도 — 문턱에서 첫 디딤으로 오를 때 경사가 끊기지 않게
+  const th = spiralRel(S, x, z), tx = -dz/r, tz = dx/r, n = S.n, bb = 1.0, st = TAU/S.m, top = S.y0 + S.Ht*S.turns, re = Math.max(r, (S.a + S.b)/2);   // 귀퉁이 앞섬 δ 의 반지름은 걸음선 × 0.7 아래로 안 내린다(기둥에 붙으면 1/r 로 부풀어 경사가 출렁인다)
+  /* 바퀴는 몸 판정과 같은 spiralQ(발 높이) — 맨 아래 층계참(첫 바퀴 끝 디딤 밑 바닥)은 q −1, 윗끝 층계참은 q turns(경사 끝 = 평평).
+     양 끝 1 단은 이차 곡선으로 평평하게(stairRamp 와 같은 이음 · 층계참 바닥과 차 ≤ 0.19 — 층계참·문으로 나가며 경사가 null 로 바뀌는 순간 카메라 속도가 꺾여 튀지 않게) */
+  let q = spiralQ(S, th, y);
+  if(q === 0 && th > TAU - 1.0 && y < S.y0 + 1.0) q = -1;
+  else if(S.land && q === Math.ceil(S.turns) - 1 && th <= S.land && y >= top - 0.6) q = S.turns;
+  const u = (th + R*(Math.abs(tx) + Math.abs(tz))/Math.max(r, re*0.7) + TAU*q)/st + 0.5;
+  const f = u <= -bb ? 0 : u < bb ? (u + bb)*(u + bb)/(4*bb) : u <= n - bb ? u : u < n + bb ? n - (n + bb - u)*(n + bb - u)/(4*bb) : n;
+  const v = S.y0 + f*S.h;
+  return Math.abs(v - y) <= 0.35 ? v : null;
+}
+/* 70차 2회차 — 발밑 연속 경사 하나로(성문 계단 stairRamp · 나선 spiralRamp). 카메라 과녁(camStepTick)·보이는 몸(PLV)·친구 몸이 같이 쓴다. 없으면 null */
+function stairRampAt(x, z, y, R){
+  if(miniOn()) return null;
+  const cx = Math.floor(x), cz = Math.floor(z);
+  if(inW(cx, cz)){ const k0 = stairOf[gi(cx, cz)]; if(k0 >= 1000) return spiralRamp(k0 - 1000, x, z, y, R); }
+  for(let n=0; n<CAM_NB.length; n += 2){ const qx = cx + CAM_NB[n], qz = cz + CAM_NB[n+1]; if(!inW(qx, qz)) continue;   // 몸 칸 · 곁 두 칸(계단 앞뒤 1.3 의 부드러운 끝도 경사로)
+    const k = stairOf[gi(qx, qz)]; if(k < 0) continue;
+    if(k >= 1000){ if(n < 10){ const h = spiralRamp(k - 1000, x, z, y, R); if(h !== null) return h; } continue; }   // 나선 문 목(우리 칸 바로 밖 — 첫 디딤에 오르기 전부터 경사)
+    const h = stairRamp(k, x, z, R); if(Math.abs(h - y) > 0.6) continue; return h; }
+  return null;
+}
+/* 70차 2회차 — 보이는 몸 높이(선생님: "계단 오르내릴 때 캐릭터가 엄청 와다다다 움직여"). 충돌 몸(PL.y)은 디딤마다 0.32 씩 12Hz 로 툭 오르내리지만
+   3인칭 몸은 계단 경사를 따라 미끄러지듯 오른다: 과녁 T = PL.y + (경사 − PL.y)·k(걷는 빠르기 0~1 — 멈추면 발이 디딤에 정확히).
+   경사가 움직인 만큼은 그대로 따라가고(늦어짐 0), 그 밖의 툭(디딤·턱·경사 켜짐/꺼짐)은 어긋남 o 로 받아 임계 감쇠 용수철(ω 14 — 카메라와 같은 식)로 0 까지 되돌린다.
+   공중(뜀·낙하)·쓰러짐·0.8 넘는 차(순간이동)는 PL.y 그대로. st = 보이는 몸의 기울기(걸음·자세용). 충돌·위치·통신은 그대로 · 할당 0 */
+const PLV = {y:0, k:0, on:false, st:0, lx:0, lz:0, ly:0, o:0, v:0, T:0, ramp:null, air:true};
+function plvTick(dt, ramp){
+  if(miniOn() || PL.down || !PLV.on || !(dt > 0) || !PL.ground){ PLV.y = PL.y; PLV.o = 0; PLV.v = 0; PLV.T = PL.y; PLV.ramp = null; PLV.air = true;
+    if(!PLV.on || miniOn() || PL.down){ PLV.k = 0; PLV.st = 0; } PLV.on = true; PLV.lx = PL.x; PLV.lz = PL.z; PLV.ly = PL.y; return; }
+  const sp = Math.hypot(PL.vx || 0, PL.vz || 0);
+  PLV.k += (Math.min(1, sp/1.5) - PLV.k)*(1 - Math.exp(-dt*10));
+  const T = ramp !== null ? PL.y + (ramp - PL.y)*PLV.k : PL.y;
+  const cont = (ramp !== null && PLV.ramp !== null) ? (ramp - PLV.ramp)*PLV.k : 0;   // 경사가 움직인 몫 — 그대로 따라간다
+  if(PLV.air){ PLV.o = 0; PLV.v = 0; PLV.air = false; } else PLV.o += PLV.T - T + cont;   // 착지한 프레임은 받지 않는다(떨어진 높이만큼 몸이 떠 보이지 않게)
+  PLV.T = T; PLV.ramp = ramp;
+  if(Math.abs(PLV.o) > 0.8){ PLV.o = 0; PLV.v = 0; }
+  { const w = 14, e = Math.exp(-w*dt), c = PLV.v + w*PLV.o; PLV.o = (PLV.o + c*dt)*e; PLV.v = (PLV.v - w*c*dt)*e; }
+  PLV.y = T + PLV.o;
+  const d = Math.hypot(PL.x - PLV.lx, PL.z - PLV.lz);
+  const st = (d > 0.004 && d < 1.5) ? Math.max(-1, Math.min(1, (PLV.y - PLV.ly)/d)) : 0;
+  PLV.st += (st - PLV.st)*(1 - Math.exp(-dt*10));
+  PLV.lx = PL.x; PLV.lz = PL.z; PLV.ly = PLV.y;
+}
+/* 70차 2회차 — 친구 화면 보간. 67차는 초당 6번 받는 과녁을 지수로 쫓아(τ 0.1초) 받을 때마다 속도가 5배로 출렁였다(수평 2.0~12.6 m/s — 걸음이 뛰었다 멈췄다).
+   이제 받은 순간의 보이는 자리(a)에서 새 값(b)까지 받은 간격(dT, 지수 평균 0.1~0.35)에 걸쳐 등속으로 간다 — 한 꾸러미(≈0.167초) 늦는 대신 속도가 고르다.
+   늦게 온 꾸러미는 25% 까지 앞질러 멈춤 없이 · 3칸 넘게 튀면 바로. 계단·나선 위면 보이는 y 를 연속 경사로(빠르기만큼). 통신·충돌 그대로 · 할당 0 */
+function friendSeg(p, x, y, z, tNow){
+  const now = tNow === undefined ? performance.now()*0.001 : tNow;       // tNow — 검사가 흉내 시계를 넘길 때만
+  if(p.t0 !== undefined){   // 새 토막의 시작 = 옛 토막이 '지금' 있을 자리(마지막으로 그린 자리가 아니라 — 그 프레임에 멈춰 보이지 않게)
+    const iv = now - p.t0, u = Math.min(1.25, iv/(p.dT || 1/6)), jump = Math.abs(p.bx - p.ax) + Math.abs(p.bz - p.az) > 3 || Math.abs(p.by - p.ay) > 3;
+    p.ax = jump ? p.bx : p.ax + (p.bx - p.ax)*u; p.ay = jump ? p.by : p.ay + (p.by - p.ay)*u; p.az = jump ? p.bz : p.az + (p.bz - p.az)*u;
+    p.dT = iv > 0.5 ? 1/6 : Math.max(0.1, Math.min(0.35, (p.dT || 1/6)*0.7 + iv*0.3)); }
+  else { p.dT = 1/6; p.ax = p.x === p.x && p.x !== undefined ? p.x : x; p.ay = p.y === p.y && p.y !== undefined ? p.y : y; p.az = p.z === p.z && p.z !== undefined ? p.z : z; }
+  p.bx = x; p.by = y; p.bz = z; p.t0 = now;
+}
+function friendLerp(p, tNow){
+  const u = Math.min(1.25, ((tNow === undefined ? performance.now()*0.001 : tNow) - p.t0)/(p.dT || 1/6));
+  const jump = Math.abs(p.bx - p.ax) + Math.abs(p.bz - p.az) > 3 || Math.abs(p.by - p.ay) > 3;
+  p.x = jump ? p.bx : p.ax + (p.bx - p.ax)*u; p.z = jump ? p.bz : p.az + (p.bz - p.az)*u;
+  let y = jump ? p.by : p.ay + (p.by - p.ay)*u; p.yn = y;                   // yn = 받은 y 의 보간(경사 얹기 전)
+  const rp = p.down ? null : stairRampAt(p.x, p.z, y, 0.28); p.rp = rp;
+  if(rp !== null && Math.abs(rp - y) < 0.35){ const k = Math.min(1, Math.hypot(p.bx - p.ax, p.bz - p.az)/(p.dT || 1/6)/1.5); y += (rp - y)*k; }
+  p.y = y;
+}
 function camStepTick(dt, tgt){
   tgt = tgt || 0;
   const sp = Math.hypot(PL.vx || 0, PL.vz || 0), w = CAM_STEP.w + (CAM_STEP.wRun - CAM_STEP.w)*Math.max(0, Math.min(1, (sp - 6)/2.6)), e = Math.exp(-w*dt), er = camStepY - tgt, c = camStepV + w*er;
@@ -5355,11 +5478,19 @@ function gunGlowPass(){
   renderer.render(GG.scene, GG.cam);
   renderer.autoClear = ac;
 }
+/* 70차 2회차 — 1인칭 손 패스: 장면 뒤에 깊이만 지우고 층 2(손)만 그린다. 배경색 지움·그림자 판 갱신은 끈다(두 번 그리지 않게) · 할당 0 */
+function heldPass(){
+  if(!held.visible || DBG.noHeldPass) return;
+  const bg = scene.background, m = camera.layers.mask, ac = renderer.autoClear, sa = renderer.shadowMap.autoUpdate, sn = renderer.shadowMap.needsUpdate;
+  scene.background = null; camera.layers.set(2); renderer.autoClear = false; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = false;
+  renderer.clearDepth(); renderer.render(scene, camera);
+  scene.background = bg; camera.layers.mask = m; renderer.autoClear = ac; renderer.shadowMap.autoUpdate = sa; renderer.shadowMap.needsUpdate = sn;
+}
 /* 한 프레임을 화면에 내놓는 유일한 자리. 빛 번짐이 꺼져 있으면 예전처럼 곧장 그린다. */
 function drawFrame(){
-  if(!GFX.bloom || DBG.noBloom){ renderer.setRenderTarget(null); renderer.render(scene, camera); gunGlowPass(); return; }
+  if(!GFX.bloom || DBG.noBloom){ renderer.setRenderTarget(null); renderer.render(scene, camera); heldPass(); gunGlowPass(); return; }
   bloomInit();
-  renderer.setRenderTarget(rtScene); renderer.render(scene, camera);
+  renderer.setRenderTarget(rtScene); renderer.render(scene, camera); heldPass();
   mBright.uniforms.tD.value = rtScene.texture;                       fsPass(mBright, rtA);
   const px = BLOOM.radius / rtA.width, py = BLOOM.radius / rtA.height;
   mBlur.uniforms.tD.value = rtA.texture; mBlur.uniforms.dir.value.set(px, 0); fsPass(mBlur, rtB);
@@ -5464,13 +5595,13 @@ const ASH_VERT = `vAsh = 0.0;
 #ifdef USE_INSTANCING_COLOR
 { float ir = instanceColor.r; if(ir > 1.5){ vAsh = floor(ir*0.5); vColor.r *= (ir - 2.0*vAsh)/ir; } }
 #endif`;
-const ASH_FRAG = `if(vAsh > 2.5){                                                     // 69차 돌판(나선 디딤) — 줄눈 없이 잔 쪼은 자국·얼룩만, 큰 결은 절반
+const ASH_FRAG = `if(vAsh > 2.5 && vAsh < 3.5){                                      // 69차 돌판(나선 디딤) — 줄눈 없이 잔 쪼은 자국·얼룩만, 큰 결은 절반
   vec4 gq = texture2D(tGrain, guv*2.1);
   diffuseColor.rgb *= (1.0 + (gq.r - 0.5)*0.3)*(0.92 + 0.16*gq.b)*(1.0 + (gg - 0.5)*uGrainAmt*0.5)/(1.0 + (gg - 0.5)*uGrainAmt);
 } else if(vAsh > 0.5 && wn.y < 0.5){                                // 69차 마름돌 — 선 면만
-  float cyl = step(1.5, vAsh);
-  vec2 cc = floor(vWp.xz + 1.8*wN.xz + 0.5);
-  float au = mix(dot(vWp.xz, th), atan(vWp.z - cc.y, vWp.x - cc.x)*1.8, cyl), av = vWp.y;
+  float cyl = step(1.5, vAsh), rc = vAsh > 3.5 ? 2.7 : 1.8;          // 70차 2회차 — 4 = 탑 나선 우물 반지름 2.7(2 = K 1.8). 가운데를 반지름으로 찾아야 줄눈이 이어진다(1.8 로 찾으면 세로 점선)
+  vec2 cc = floor(vWp.xz + rc*wN.xz + 0.5);
+  float au = mix(dot(vWp.xz, th), atan(vWp.z - cc.y, vWp.x - cc.x)*rc, cyl), av = vWp.y;
   float blk = floor(av/1.41), bf = fract(av/1.41)*1.41;                // 세 줄 한 묶음(1.41) — 줄 높이 0.42~0.55 로 흔든다
   float s1 = 0.42 + 0.11*fract(sin(blk*91.7 + 3.1)*43758.5453), s2 = s1 + 0.42 + 0.11*fract(sin(blk*47.3 + 8.9)*43758.5453);
   float rw = bf < s1 ? 0.0 : (bf < s2 ? 1.0 : 2.0), r0 = rw < 0.5 ? 0.0 : (rw < 1.5 ? s1 : s2), r1 = rw < 0.5 ? s1 : (rw < 1.5 ? s2 : 1.41);
@@ -6318,17 +6449,17 @@ const MERLV = withAMt(shadeGeo(chamferBox(0.07), 0.82, 1.05, 0, 0));            
 const COPEG = chamferBox(0.04);                                                                      // 갓돌(모따기 0.04 — 가는 선)
 const PYRG = (()=>{ const g = new THREE.ConeGeometry(Math.SQRT1_2, 1, 4, 1, false); g.rotateY(Math.PI/4);   // 사모 지붕 — 밑판 닫음(처마 밑에서 하늘이 안 새게)
   const n = g.toNonIndexed(); n.computeVertexNormals(); return n; })();
-const TREADG = (()=>{                                 // 나선 디딤 — 부채꼴(반지름 0.4~1.8, 30°, 두께 0.35 · 윗면 y 0). atan2(z,x) 0 → 30°
+const TREADG = (()=>{                                 // 나선 디딤 — 부채꼴(반지름 0.3~1.8, 30°, 두께 0.35 · 윗면 y 0). atan2(z,x) 0 → 30° · 70차 2회차: 탑은 인스턴스 배율 (1.5, 1, 1.5) → 0.45~2.7(K 는 1 — 안쪽은 기둥 0.40 속)
   /* 통합 — 앞 모서리(각 0 쪽 = 오르는 아이가 딛고 넘는 코)를 닳은 듯 둥글게 세 면으로 깎는다(모양만 · 몸 높이 그대로)
      69차 — 돌판 결을 꼭짓점 색으로(선생님: "계단 돌 질감 … 더 살려 줘"): 윗면은 반지름 1.1 에서 두 장으로 갈라 짙은 줄눈 · 바깥 장은 조금 짙게,
      발이 닿는 코(앞 0.08 rad)와 가운데 길은 닳아 밝게, 챌판(앞면)은 한 단 어둡게 + 맨 밑 0.05 는 짙은 줄눈(아래 디딤과 만나는 곳), 옆·밑은 그늘.
      색은 흰 바탕의 배율 — 디딤마다 다른 돌 색은 인스턴스 색(spiralArt)이 맡는다. WMATV(돌결) · aMt 0 */
-  const a0 = 0.4, a1 = 1.8, E = Math.PI/6, P = [], C = [], pt = (r, a, y)=> [r*Math.cos(a), y, r*Math.sin(a)];
+  const a0 = 0.3, a1 = 1.8, E = Math.PI/6, P = [], C = [], pt = (r, a, y)=> [r*Math.cos(a), y, r*Math.sin(a)];
   const tri = (A, B, Cc, k)=>{ P.push(...A, ...B, ...Cc); for(let i=0;i<3;i++) C.push(k[i], k[i]*0.99, k[i]*0.97); };
   const quad = (A, B, Cc, D, kA, kB, kC, kD)=>{ tri(A, B, Cc, [kA, kB, kC]); tri(A, Cc, D, [kA, kC, kD]); };
   const prof = [[0, -0.1], [0.024, -0.04], [0.052, -0.01], [0.08, 0], [E*0.55, 0], [E, 0]];   // 윗면 윤곽(각, 높이) — 코 → 뒤
-  const RJ = [a0, 1.07, 1.13, a1];                                                             // 윗면 두 장 + 줄눈 띠(1.07~1.13)
-  const topK = (r, a)=>{ if(r > 1.069 && r < 1.131) return 0.5;                                 // 줄눈
+  const RJ = [a0, 1.05, 1.11, a1];                                                             // 윗면 두 장 + 줄눈 띠(1.05~1.11 — 탑 ×1.5 = 1.58~1.67 걸음선)
+  const topK = (r, a)=>{ if(r > 1.049 && r < 1.111) return 0.5;                                 // 줄눈
     const wear = Math.max(0, 1 - Math.abs(r - 1.2)/0.5)*0.08, nose = a < 0.085 ? 0.12*(1 - a/0.085) + 0.04 : 0;
     return (r > 1.1 ? 0.93 : 1.0) + wear + nose; };
   for(let k=0; k<prof.length-1; k++){ const [s, ys] = prof[k], [e, ye] = prof[k+1];
@@ -7348,7 +7479,7 @@ function stoneKit(ctx){
       if(opt.qs){ const q = ((ci + par) % 2) ? 0.55 : 1.0; segs.push([a0 - (q > 0.6 ? 0.1 : 0), a0 + q, 1]); u = a0 + q; }
       const endQ = opt.qe ? (((ci + par) % 2) ? 1.0 : 0.55) : 0, uEnd = a1 - endQ;
       if(!opt.qs){ const f = 0.5 + R()*0.6; if(u + f < uEnd - 0.5) { segs.push([u, u + f, 0]); u += f; } }   // 줄마다 이음매가 엇갈리게(첫 돌 0.5 이상 — 작은 돌 구슬 방지·조각 수)
-      while(u < uEnd - 0.05){ let Ls = grade === 'B' ? 1.9 + R()*1.2 : grade === 'I' ? 1.2 + R()*0.8 : 1.0 + R()*0.9; if(ci < 2) Ls *= 1.2;   // A 1.0~1.9 · B 1.9~3.1(해자·먼 쪽 — 큰 마름돌) · 안 1.2~2.0
+      while(u < uEnd - 0.05){ let Ls = (grade === 'B' ? 1.9 + R()*1.2 : grade === 'I' ? 1.2 + R()*0.8 : 1.0 + R()*0.9)*(opt.ls || 1); if(ci < 2) Ls *= 1.2;   // A 1.0~1.9 · B 1.9~3.1(해자·먼 쪽 — 큰 마름돌) · 안 1.2~2.0 · ls = 큰 탑의 큰 마름돌(70차 2회차)
         if(uEnd - (u + Ls) < 0.35) Ls = uEnd - u; segs.push([u, Math.min(uEnd, u + Ls), 0]); u += Ls; }
       if(opt.qe) segs.push([a1 - endQ, a1 + (endQ > 0.6 ? 0.1 : 0), 1]);
       /* 69차 — 이음매가 이 줄에 걸친 네모 구멍의 가장자리 0.36 안에 떨어지면 가장자리로 옮긴다. 그대로 두면 구멍 옆·밑에 0.34 도 안 되는
@@ -7401,7 +7532,7 @@ function stoneKit(ctx){
     for(let u = a0; u < a1 - 0.05; ){ let Ls = 1.1 + R()*0.6; if(a1 - (u + Ls) < 0.4) Ls = a1 - u;
       box(F, low ? 'cbrkL' : 'cbrk', 'para', low ? BRICK_LO : BRICKF, WMAT, u + 0.02, u + Ls - 0.02, o0 - pw, o0, yb, yb + h - 0.02, stoneC()); u += Ls; }   // 흉벽 돌 — 겉돌 뱅크(그림자는 뒤 받침 몸이)
     if(!noCope) box(F, 'ccope', 'cope', COPEG, WMAT, a0, a1, o0 - pw - 0.04, o0 + 0.04, yb + h - 0.02, yb + h + 0.08, PAL.COPE);
-    core(F, a0 + 0.05, a1 - 0.05, o0 - pw + 0.08, o0 - 0.08, yb, yb + Math.max(0.57, h - 0.04), PAL.CORE, 'paraBody');   // 70차 — 속 몸을 돌 윗면 0.02 밑까지(0.57 위 줄눈 0.04 가 앞뒤로 뚫려 바깥 풀빛이 보였다)
+    core(F, a0 + 0.05, a1 - 0.05, o0 - pw + 0.08, o0 - 0.08, yb, yb + (h < 0.6 ? h - 0.06 : Math.max(0.57, h - 0.04)), PAL.CORE, 'paraBody');   // 70차 — 속 몸을 돌 윗면 0.02 밑까지(0.57 위 줄눈 0.04 가 앞뒤로 뚫려 바깥 풀빛이 보였다) · 70차 2회차: 낮은 턱(0.32)은 턱 안에
   };
   /* 성가퀴 줄 — 밑돌 0.57 · 턱돌 · n = round(L/1.6) 성가퀴(양끝 반 틈) · 갓돌 · 둘째마다 활 틈(어둠 칠) */
   const merlons = (F, a0, a1, o0, pw, yb, slitEvery, mcol)=>{
@@ -7416,10 +7547,10 @@ function stoneKit(ctx){
       if(slitEvery && i % slitEvery === 1) box(F, 'gdk', 'crenelSlit', WGEO, WMAT_PAINT, m - 0.06, m + 0.06, o0 - 0.01, o0 + 0.02, yb + 0.72, yb + 1.34, PAL.BOARD); }
   };
   /* 판석 — 윗면이 딱 y */
-  const paving = (F, a0, a1, o0, o1, y, cols, kind, bed)=>{
-    const lo = Math.min(o0, o1), hi = Math.max(o0, o1), C = cols || PAL.TREAD;
-    for(let s = a0; s < a1 - 0.05; ){ let ds = 1.25 + R()*0.7; if(a1 - (s + ds) < 0.5) ds = a1 - s;
-      for(let o = lo; o < hi - 0.05; ){ let d2 = 1.2 + R()*0.7; if(hi - (o + d2) < 0.6) d2 = hi - o;
+  const paving = (F, a0, a1, o0, o1, y, cols, kind, bed, ps)=>{              // ps — 판석 크기 배율(70차 2회차: 큰 탑 방)
+    const lo = Math.min(o0, o1), hi = Math.max(o0, o1), C = cols || PAL.TREAD, k = ps || 1;
+    for(let s = a0; s < a1 - 0.05; ){ let ds = (1.25 + R()*0.7)*k; if(a1 - (s + ds) < 0.5*k) ds = a1 - s;
+      for(let o = lo; o < hi - 0.05; ){ let d2 = (1.2 + R()*0.7)*k; if(hi - (o + d2) < 0.6*k) d2 = hi - o;
         flat(F, s + 0.02, s + ds - 0.02, o + 0.02, o + d2 - 0.02, y - 0.1, y + 0.004, C[(R()*C.length*0.999)|0], kind || 'pave'); o += d2; }
       s += ds; }
     if(bed) flat(F, a0, a1, lo, hi, y - 0.019, y - 0.009, PAL.CORE, 'bed');   // 판석 틈 밑 짙은 바닥(땅 원판의 풀빛이 틈으로 안 보이게)
@@ -7532,8 +7663,8 @@ function buildCastle(){
   const BEAM = 0x5a4330, CEIL = 0x3b3731;
   /* 불빛 웅덩이 — 실내 횃불·촛불 둘레 조각의 색을 따뜻하게(인스턴스 색만 — 빛·재질 추가 0). bbuild 전에 b.cols 를 고친다 */
   const LIGHTS = [], INS = []; let litIn = false;
-  const IN_KINDS = new Set(['inStone', 'plaster', 'ashlar', 'reveal', 'cheek', 'dado', 'lining', 'vault', 'rib', 'floor', 'fill', 'cagePanel', 'tread', 'newel', 'ceil', 'beam', 'joist', 'plank', 'rail', 'bed', 'skirting', 'threshold']);
-  const ASHK = {ashlar:1, cagePanel:1, cheek:1, reveal:1, fill:2, tread:3, floor:3, pave:3, threshold:3, inStone:3, slitFrame:3};                            // 69차 — 마름돌 무늬 종류(bflag): 1 평면 · 2 나선 우물 원통
+  const IN_KINDS = new Set(['inStone', 'plaster', 'ashlar', 'reveal', 'cheek', 'dado', 'lining', 'vault', 'rib', 'floor', 'fill', 'fillW', 'cagePanel', 'tread', 'newel', 'ceil', 'beam', 'joist', 'plank', 'rail', 'railBracket', 'bed', 'skirting', 'threshold']);
+  const ASHK = {ashlar:1, cagePanel:1, cheek:1, reveal:1, fill:2, fillW:4, tread:3, floor:3, pave:3, threshold:3, inStone:3, slitFrame:3};   // 70차 2회차 — fillW = 탑 나선 우물(반지름 2.7)                            // 69차 — 마름돌 무늬 종류(bflag): 1 평면 · 2 나선 우물 원통
   const FLOORK = new Set(['floor', 'tread', 'plank', 'bed', 'threshold']);   // 바닥은 조각마다 물들이면 네모 얼룩 — 둥근 원판 웅덩이(아래)로
   let sd = 6700; const R = ()=> rnd(((sd++) * 0.6180339) % 997 + 0.37);
   /* 먼지 앉은 방 — 비밀 방·창고 안 돌·널 조각은 끝에서 색을 흐리고 밝게(오래 닫혀 있던 방). 금화·상자 쇠띠는 그대로 */
@@ -7575,6 +7706,12 @@ function buildCastle(){
   /* 탑 로컬(T1 = 세계) → 탑 i. castlePlan 의 xf 와 같은 식: 홀수 번째(짝수 탑)는 대각선 거울 M 뒤 R 을 (i>>1) 번 */
   const cxf = (i, x, z)=>{ let p = (i & 1) ? [-z, -x] : [x, z]; for(let n = i >> 1; n > 0; n--) p = [-p[1], p[0]]; return p; };
   const tf = (i, F)=>{ const p = cxf(i, F.x0, F.z0), u = cxf(i, F.ux, F.uz), n = cxf(i, F.nx, F.nz); return frame(p[0], p[1], u[0], u[1], n[0], n[1]); };
+  /* 70차 2회차 — 탑 9×9 → 11×11 소품 옮김(탑 로컬): armA 동쪽 끝(x > 35.5 · 옛 우리 문 동쪽)은 +2(새 동쪽 벽 x 40 에 다시 기댄다 — 새 나선 문 x 36.2~37.8 앞을 비운다),
+     armB(x < 34.5 · z < −53)는 −2(북쪽 벽 z −59 쪽으로). 한 소품은 가운데 한 점으로 정해 통째로 옮긴다(조각마다 따로면 걸친 소품이 늘어난다) */
+  const TD = CW.TW - 9;
+  const shD = (x, z)=> [x > 35.5 && z > -53.6 ? TD : 0, z < -53.05 && x < 34.5 ? -TD : 0];
+  const shL = (x, z)=>{ const d = shD(x, z); return [x + d[0], z + d[1]]; };
+  const boxS = (F, key, kind, geo, mat, s0, s1, o0, o1, y0, y1, col, rz)=>{ const d = shD((s0 + s1)/2, (o0 + o1)/2); return box(F, key, kind, geo, mat, s0 + d[0], s1 + d[0], o0 + d[1], o1 + d[1], y0, y1, col, rz); };
   const LF = (x0, z0, ux, uz, nx, nz)=> frame(x0, z0, ux, uz, nx, nz);
   /* 통합 — 소품 몸(WALL) 상자: 탑 로컬(T1) 또는 세계 AABB(GY 기준) → 끝에서 castlePropBoxes · 젖은 돌(우물)·먼지 앉은 방(비밀 방) 색 */
   const PROPB = [], WET = [], DAMP = [], DAYL = [];   // DAMP = 벽 밑 물때 상자 [x0,x1,z0,z1] · DAYL = 틈·문으로 드는 햇빛 [x,y,z,세기]
@@ -7611,7 +7748,7 @@ function buildCastle(){
     bandCut(FI, 10, P1 + 2.67, 1.30, 0.12, 0.16, gaps, COPE);
     band(FI, 10, P1 + 2.67, 6.92, 0.16, 0.12, COPE);
     /* 흉벽(안) · 판석 · 이음 돌기둥(P 11) */
-    lowPara(FI, 11.5, P1, 0, 0.45, 0.85, W);
+    lowPara(FI, 11.5, P1, 0, 0.45, CW.CURB, W);                           // 70차 2회차 — 안 흉벽 0.85 → 낮은 턱 0.32(선생님: "밑에 돌을 아주 낮게만 깔아서 점프해서 바로 밖으로")
     paving(FI, 11, P1, -0.45, -3.55, W);
     for(const o of [-0.225, -3.775]){ box(FI, 'cmerl', 'pillar', MERLV, WMAT, 11.0, 11.5, o - 0.25, o + 0.25, W, W + 1.45, PAL.QUOIN);
       box(FI, 'ccope', 'cope', COPEG, WMAT, 10.97, 11.53, o - 0.28, o + 0.28, W + 1.45, W + 1.53, COPE); }
@@ -7623,7 +7760,7 @@ function buildCastle(){
     for(let u = 11.5; u < P1 - 0.2; u += 1.0) small(FO, u - 0.14, u + 0.14, -0.02, 0.32, 7.2, 7.56, PAL.SC_D, 'corbel');
     merlons(FI, 11.5, P1, -3.55, 0.45, W, 2);
     /* 불빛 — 화톳불(흉벽 갓돌 위) · 바깥 횃불 · 석루조 */
-    for(const v of dec.braziers) brazier(FI, v*s, -0.2, W + 0.95);
+    for(const v of dec.braziers) brazier(FI, v*s, -0.2, W + CW.CURB + 0.1);
     for(const v of dec.torches) torch(FI, v*s, 2.6);
     torch(FI, P1 - 0.4, 2.6);                                             // 탑 구석 문 횃불(곧은 벽 안 얼굴 x 29.6)
     if(corr) doorFrame(FI, 16, 1.4, 2.3, 0, {shield:gc});                   // 암문 — 반원 홍예 + 모둠 방패(쏘기 틈 틀은 벽감(embrasure)이 함께 짓는다)
@@ -7712,11 +7849,11 @@ function buildCastle(){
     core(FI, 1, 5, -3.9, -0.12, 0, 7.98);
     face(FI, 1, 5, -0.05, 7.98, {plinth:true, damp:true});
     band(FI, 0, 6, 1.30, 0.12, 0.16, COPE); band(FI, 0, 6, 6.92, 0.16, 0.12, COPE);
-    lowPara(FI, 1.5, 4.5, 0, 0.45, 0.85, W);
+    lowPara(FI, 1.5, 4.5, 0, 0.45, CW.CURB, W);
     paving(FI, 1, 5, -0.45, -4.0, W);
     for(const x of [1, 4.5]){ box(FI, 'cmerl', 'pillar', MERLV, WMAT, x, x + 0.5, -0.475, 0.025, W, W + 1.45, PAL.QUOIN);
       box(FI, 'ccope', 'cope', COPEG, WMAT, x - 0.03, x + 0.53, -0.505, 0.055, W + 1.45, W + 1.53, COPE); }
-    brazier(FI, 3, -0.2, W + 0.95);
+    brazier(FI, 3, -0.2, W + CW.CURB + 0.1);
   }
 
   /* ════════ 3. 모서리 탑 여덟 (T1 로컬 = 세계에서 지어 R·M 으로) ════════ */
@@ -7725,47 +7862,50 @@ function buildCastle(){
     const F = (x0, z0, ux, uz, nx, nz)=> tf(i, LF(x0, z0, ux, uz, nx, nz));
     const P2 = (x, z)=> cxf(i, x, z);
     const HC = !!T.doors.corr, TOPY = 12, TT = 11.84, EAVE = CW.EAVE;
-    const T_W = F(30, -58, 0, 1, -1, 0), T_S = F(30, -49, 1, 0, 0, 1), T_E = F(39, -49, 0, -1, 1, 0), T_N = F(39, -58, -1, 0, 0, -1);
-    const I_W = F(31, -58, 0, 1, 1, 0), I_S = F(30, -50, 1, 0, 0, -1), I_E = F(38, -49, 0, -1, -1, 0), I_N = F(39, -57, -1, 0, 0, 1);   // 안쪽 얼굴(방을 본다)
-    /* 구멍(탑 로컬 s): W 면 s = z+58 · S 면 s = x−30 · E 면 s = −49−z · N 면 s = 39−x */
-    const WINS = {W:[2.5, 6.5], S:[2.5, 6.5], N:[6.5], E:[2.5]};
+    /* 70차 2회차 — 탑 11×11(TWS): 마을 쪽 두 얼굴(x 30 · z −49)은 그대로, 해자 쪽으로 두 칸(동 x 41 · 북 z −60) */
+    const TWS = CW.TW, TX = 30 + TWS, TZ = -49 - TWS, LSC = TWS/9;         // 41 · −60 · LSC = 큰 탑의 큰 마름돌(면마다 돌 수 그대로)
+    const T_W = F(30, TZ, 0, 1, -1, 0), T_S = F(30, -49, 1, 0, 0, 1), T_E = F(TX, -49, 0, -1, 1, 0), T_N = F(TX, TZ, -1, 0, 0, -1);
+    const I_W = F(31, TZ, 0, 1, 1, 0), I_S = F(30, -50, 1, 0, 0, -1), I_E = F(TX - 1, -49, 0, -1, -1, 0), I_N = F(TX, TZ + 1, -1, 0, 0, 1);   // 안쪽 얼굴(방을 본다)
+    /* 구멍(탑 로컬 s): W 면 s = z+60 · S 면 s = x−30 · E 면 s = −49−z · N 면 s = 41−x */
+    const WINS = {W:[3.5, 8.5], S:[2.5, 6.5], N:[8.5], E:[2.5]};
     const win = (arr)=> arr.map(c=> ({s0:c - 0.4, s1:c + 0.4, y0:12.55, y1:13.65}));
     /* 나선 창(오르며 보는 좁은 창 0.24) · 69차 초소 쏘기 틈(N s 6.5 · E s 2.5 — 바깥 0.8 × 1.4 → 안 벽감 1.2, embrasure) */
-    const spwN = [{c:3, y:8.9, h:1.1}], spwE = [{c:6, y:4.0, h:1.1}], PSL = {y0:8.45, y1:9.85, w:0.8, c:{N:6.5, E:2.5}};
+    const spwN = [{c:4, y:8.9, h:1.1}], spwE = [{c:7, y:4.0, h:1.1}], PSL = {y0:8.45, y1:9.85, w:0.8, c:{N:8.5, E:2.5}};   // 나선 창 = 우리 가운데(x 37 · z −56)
     const sl = (a)=> a.map(q=> slitHole(q.c, q.y, q.h, 0.24)), psl = (c)=> slitHole(c, PSL.y0, PSL.y1 - PSL.y0, PSL.w);
-    const hW = [{arch:true, c:7, w:2.0, yb:W, h:2.3}, ...win(WINS.W)], hS = [{arch:true, c:6, w:1.8, yb:W, h:2.3}, ...win(WINS.S)];   // 69차 — 회랑 문은 곧은 문(폭 1.8)
+    const hW = [{arch:true, c:9, w:2.0, yb:W, h:2.3}, ...win(WINS.W)], hS = [{arch:true, c:6, w:1.8, yb:W, h:2.3}, ...win(WINS.S)];   // 69차 — 회랑 문은 곧은 문(폭 1.8) · 서쪽 8층 문 z −51 = s 9
     const hN = [...win(WINS.N), ...sl(spwN), psl(PSL.c.N)], hE = [...win(WINS.E), ...sl(spwE), psl(PSL.c.E)];
     /* ── 속 몸 — 벽 네 장(구멍에서 끊음) + 층 사이 채움 ── */
     const bh = (arr, extra)=> arr.map(h=> h.arch ? [h.c - h.w/2 - 0.02, h.c + h.w/2 + 0.02, h.yb, h.yb + h.h + 0.3] : [h.s0 - 0.02, h.s1 + 0.02, h.y0, h.y1]).concat(extra || []);
     const pcore = (c)=> [[c - 0.63, c + 0.63, PSL.y0 - 0.22, PSL.y1 + 0.28]];   // 초소 쏘기 틈 — 속 몸은 벽감 폭(1.2)만큼 뚫고 볼·창턱·머리 돌이 채운다
-    slab(T_W, 'cboxC', 'body', BOXG, WMAT, 0, 9, -0.88, -0.12, 0, 14.3, bh(hW, HC ? [[6, 8, 0, 2.62]] : []), CORE);
-    slab(T_S, 'cboxC', 'body', BOXG, WMAT, 0, 9, -0.88, -0.12, 0, 14.3, bh(hS, [[1, 2, 0, 2.62]]), CORE);
+    slab(T_W, 'cboxC', 'body', BOXG, WMAT, 0, TWS, -0.88, -0.12, 0, 14.3, bh(hW, HC ? [[8, 10, 0, 2.62]] : []), CORE);
+    slab(T_S, 'cboxC', 'body', BOXG, WMAT, 0, TWS, -0.88, -0.12, 0, 14.3, bh(hS, [[1, 2, 0, 2.62]]), CORE);
     const spc = (a)=> a.map(q=> [q.c - 0.13, q.c + 0.13, q.y, q.y + q.h]);   // 나선 창 — 속 몸은 트인 폭만(틀 돌 구멍보다 좁게: 틈 옆 빈 속이 안 보이게)
-    slab(T_E, 'cboxC', 'body', BOXG, WMAT, 0, 9, -0.88, -0.12, 1.9, 14.3, bh(win(WINS.E), [...spc(spwE), ...pcore(PSL.c.E)]), CORE);
-    slab(T_N, 'cboxC', 'body', BOXG, WMAT, 0, 9, -0.88, -0.12, 1.9, 14.3, bh(win(WINS.N), [...spc(spwN), ...pcore(PSL.c.N)]), CORE);
-    const FT = F(31, -53, 1, 0, 0, 1);                                     // 탑 안(armA 남쪽 선) — s = x − 31, o = z + 53
-    if(T.hidden){ core(FT, 0, 7, 0.02, 2.98, 3.02, 7.98); core(FT, 0, 3, -3.98, -0.02, 3.02, 3.3); core(FT, 0, 3, -3.98, -0.02, 7.23, 7.98); }
-    else { core(FT, 0, 7, 0.02, 2.98, 3.02, 7.98); core(FT, 0, 3, -3.98, -0.02, 3.02, 7.98); }
-    core(FT, 0, 7, 0.02, 2.98, 11.45, 11.9); core(FT, 0, 3, -3.98, -0.02, 11.45, 11.9);
+    slab(T_E, 'cboxC', 'body', BOXG, WMAT, 0, TWS, -0.88, -0.12, 1.9, 14.3, bh(win(WINS.E), [...spc(spwE), ...pcore(PSL.c.E)]), CORE);
+    slab(T_N, 'cboxC', 'body', BOXG, WMAT, 0, TWS, -0.88, -0.12, 1.9, 14.3, bh(win(WINS.N), [...spc(spwN), ...pcore(PSL.c.N)]), CORE);
+    const FT = F(31, -53, 1, 0, 0, 1), AL = TWS - 2, BD = TWS - 5;         // 탑 안(armA 남쪽 선) — s = x − 31, o = z + 53 · armA 길이 9 · armB 깊이 6
+    if(T.hidden){ core(FT, 0, AL, 0.02, 2.98, 3.02, 7.98); core(FT, 0, 3, -BD + 0.02, -0.02, 3.02, 3.3); core(FT, 0, 3, -BD + 0.02, -0.02, 7.23, 7.98); }
+    else { core(FT, 0, AL, 0.02, 2.98, 3.02, 7.98); core(FT, 0, 3, -BD + 0.02, -0.02, 3.02, 7.98); }
+    core(FT, 0, AL, 0.02, 2.98, 11.45, 11.9); core(FT, 0, 3, -BD + 0.02, -0.02, 11.45, 11.9);
     /* ── 겉 — 네 면(마을·성문 쪽 A급, 바깥 두 면 B급 큰 돌 · 귓돌은 늘 모따기) ── */
-    face(T_W, 0, 5, 3.3, 7.98, {qs:true, par:0});                         // 해자 쪽 — 탈루스 위부터
-    face(T_W, 0, 9, 7.98, TT, {qs:true, qe:true, par:0, holes:hW, soot:[[3.6, 9.9]]});
-    face(T_S, 0, 9, 7.98, TT, {qs:true, qe:true, par:1, holes:hS});
-    face(T_E, 0, 9, 3.3, TT, {qs:true, qe:true, par:0, holes:hE, grade:'B'});
-    face(T_N, 0, 9, 3.3, TT, {qs:true, qe:true, par:1, holes:hN, grade:'B'});
+    face(T_W, 0, TWS - 4, 3.3, 7.98, {ls:LSC, qs:true, par:0});                   // 해자 쪽 — 탈루스 위부터(곧은 벽 z −53~−49 = s 7~11 밖)
+    face(T_W, 0, TWS, 7.98, TT, {ls:LSC, qs:true, qe:true, par:0, holes:hW, soot:[[5.6, 9.9]]});
+    face(T_S, 0, TWS, 7.98, TT, {ls:LSC, qs:true, qe:true, par:1, holes:hS});
+    face(T_S, 9.02, TWS, 3.3, 7.98, {ls:LSC, qe:true, par:1, grade:'B'});          // 70차 2회차 — 회랑 바깥 벽(x 39)보다 해자 쪽으로 나온 두 칸의 밑(s 9~11)
+    face(T_E, 0, TWS, 3.3, TT, {ls:LSC, qs:true, qe:true, par:0, holes:hE, grade:'B'});
+    face(T_N, 0, TWS, 3.3, TT, {ls:LSC, qs:true, qe:true, par:1, holes:hN, grade:'B'});
     /* 망루 층 겉(12.18~처마 14.3) — 창 6 */
-    face(T_W, 0, 9, 12.18, EAVE, {qs:true, qe:true, par:0, holes:win(WINS.W)});
-    face(T_S, 0, 9, 12.18, EAVE, {qs:true, qe:true, par:1, holes:win(WINS.S)});
-    face(T_E, 0, 9, 12.18, EAVE, {qs:true, qe:true, par:0, holes:win(WINS.E), grade:'B'});
-    face(T_N, 0, 9, 12.18, EAVE, {qs:true, qe:true, par:1, holes:win(WINS.N), grade:'B'});
+    face(T_W, 0, TWS, 12.18, EAVE, {ls:LSC, qs:true, qe:true, par:0, holes:win(WINS.W)});
+    face(T_S, 0, TWS, 12.18, EAVE, {ls:LSC, qs:true, qe:true, par:1, holes:win(WINS.S)});
+    face(T_E, 0, TWS, 12.18, EAVE, {ls:LSC, qs:true, qe:true, par:0, holes:win(WINS.E), grade:'B'});
+    face(T_N, 0, TWS, 12.18, EAVE, {ls:LSC, qs:true, qe:true, par:1, holes:win(WINS.N), grade:'B'});
     /* 밑동 — 해자 쪽 탈루스 두 단(모서리 감쌈) · 띠돌(6.92) */
-    for(const [Lf, a0, a1] of [[T_W, -0.5, 5], [T_N, -0.5, 9.5], [T_E, -0.5, 9.5]]){
+    for(const [Lf, a0, a1] of [[T_W, -0.5, TWS - 4], [T_N, -0.5, TWS + 0.5], [T_E, -0.5, TWS + 0.5], [T_S, 9.1, TWS + 0.5]]){
       core(Lf, a0, a1, -0.02, 0.5, 1.95, 3.0, PAL.SC_D, 'talus'); core(Lf, a0 + 0.24, a1 - 0.24, -0.02, 0.26, 3.0, 3.45, PAL.SC[3], 'talus'); }
-    band(T_W, -0.12, 5, 6.92, 0.16, 0.12, COPE); band(T_N, -0.12, 9.12, 6.92, 0.16, 0.12, COPE);
-    bandCut(T_E, -0.12, 9.12, 6.92, 0.16, 0.12, [], COPE);
+    band(T_W, -0.12, TWS - 4, 6.92, 0.16, 0.12, COPE); band(T_N, -0.12, TWS + 0.12, 6.92, 0.16, 0.12, COPE);
+    bandCut(T_E, -0.12, TWS + 0.12, 6.92, 0.16, 0.12, [], COPE); band(T_S, 9.1, TWS + 0.12, 6.92, 0.16, 0.12, COPE);
     /* 돌림띠 11.84~12.18 + 까치발(11.2~11.56) — 66 망루 좀비 쪽 얼굴과 같은 말 */
-    for(const Lf of [T_W, T_S, T_E, T_N]){ band(Lf, -0.16, 9.16, 11.84, 0.34, 0.16, COPE, 'cornice');
-      for(let u = 0.5; u < 9; u += 1.0) small(Lf, u - 0.14, u + 0.14, -0.02, 0.34, 11.2, 11.56, PAL.SC_D, 'corbel'); }
+    for(const Lf of [T_W, T_S, T_E, T_N]){ band(Lf, -0.16, TWS + 0.16, 11.84, 0.34, 0.16, COPE, 'cornice');
+      for(let u = 0.5*LSC; u < TWS; u += LSC) small(Lf, u - 0.14, u + 0.14, -0.02, 0.34, 11.2, 11.56, PAL.SC_D, 'corbel'); }   // 까치발 아홉(간격 1.22)
     /* 69차 망루 창 6 — 트인 창(선생님: "창문에 이거 가려져 있는 거 치워 주고"): 가운데 창살·덧창을 뺐다.
        바깥 창턱 돌·인방 돌 + 창 구멍 안쪽 볼 둘·창턱 = 마름돌(70차 — 겉면 0.03 뒤 ~ 안벽 면 0.005 뒤, 구멍 안쪽으로 0.012 · 머리는 속 몸 돌) +
        방 쪽 끝 0.12 에만 얇은 빛 띠(cwinL — 밤엔 '탑 창 불빛 줄', 낮엔 돌빛 인스턴스 색) */
@@ -7779,10 +7919,10 @@ function buildCastle(){
     for(const [Lf, arr] of [[T_N, spwN], [T_E, spwE]]) for(const q of arr) slitFrame(Lf, q.c, q.y, q.h, 0.24);
     for(const [Lf, Li, c] of [[T_N, I_N, PSL.c.N], [T_E, I_E, PSL.c.E]]) embrasure(Lf, Li, c, 1.0, {wo:PSL.w, wi:1.2, yo0:PSL.y0, yo1:PSL.y1, yi0:PSL.y0 - 0.1, yi1:PSL.y1 + 0.15, col:INSTONE});
     /* 처마 널 · 사모 지붕 · 줄 턱 · 꼭지 · 깃발 */
-    const [tcx, tcz] = P2(34.5, -53.5);
-    for(const Lf of [T_W, T_S, T_E, T_N]) band(Lf, -0.3, 9.3, EAVE - 0.07, 0.14, 0.3, TIMBER_D, 'eave');
-    put('cpyr', 'roof', PYRG, WMAT, tcx, EAVE + 0.05 + CW.ROOF_H/2, tcz, 0, 9.7, CW.ROOF_H, 9.7, 0, PAL.SLATE);
-    { const B = 9.7/2, H = CW.ROOF_H, base = EAVE + 0.05;
+    const [tcx, tcz] = P2(30 + TWS/2, -49 - TWS/2);
+    for(const Lf of [T_W, T_S, T_E, T_N]) band(Lf, -0.3, TWS + 0.3, EAVE - 0.07, 0.14, 0.3, TIMBER_D, 'eave');
+    put('cpyr', 'roof', PYRG, WMAT, tcx, EAVE + 0.05 + CW.ROOF_H/2, tcz, 0, TWS + 0.7, CW.ROOF_H, TWS + 0.7, 0, PAL.SLATE);
+    { const B = (TWS + 0.7)/2, H = CW.ROOF_H, base = EAVE + 0.05;
       for(const [nx, nz] of [[1,0],[-1,0],[0,1],[0,-1]]) for(let k=0; k<7; k++){
         const h = 0.45 + k*0.68, dd = B*(1 - h/H), len = 2*dd - 0.5;
         const x = tcx + nx*(dd + 0.02), z = tcz + nz*(dd + 0.02);
@@ -7799,9 +7939,9 @@ function buildCastle(){
     doorFrame(T_S, 1.5, 1.0, 2.3, 0, {shield:gc});
     reveal(T_S, 1.5, 1.0, 2.3, 0, 1.0, INSTONE);
     /* 8층 서쪽 문 · 회랑 문(비스듬) — 테 · 안감 · 안내판 · 곁 횃불 */
-    doorFrame(T_W, 7, 2.0, 2.3, W, {nq:7}); reveal(T_W, 7, 2.0, 2.3, W, 1.0, INSTONE);
-    doorFrame(I_W, 7, 2.0, 2.3, W, {nq:7, noJamb:true});                   // 초소 쪽 얼굴 테(I_W: s = z+58 → 문 가운데 z −51 = s 7)
-    torch(T_W, 3.6, W + 1.9);
+    doorFrame(T_W, 9, 2.0, 2.3, W, {nq:7}); reveal(T_W, 9, 2.0, 2.3, W, 1.0, INSTONE);
+    doorFrame(I_W, 9, 2.0, 2.3, W, {nq:7, noJamb:true});                   // 초소 쪽 얼굴 테(I_W: s = z+60 → 문 가운데 z −51 = s 9)
+    torch(T_W, 5.6, W + 1.9);                                              // 서쪽 8층 문 곁(z −54.4)
     for(const sg of T.signs){                                              // CPLAN 안내판(세계) — 문 옆 벽에 박은 작은 나무 판. 화살은 문이 있는 쪽
       const n = {x:sg.nx, z:sg.nz}, u = {x:n.z, z:-n.x}, Fs = frame(sg.x, sg.z, u.x, u.z, n.x, n.z), D = T.doors[sg.door];
       const dcx = D.cx !== undefined ? D.cx : (D.x0 + D.x1)/2, dcz = D.cz !== undefined ? D.cz : (D.z0 + D.z1)/2;
@@ -7833,8 +7973,10 @@ function buildCastle(){
   }
   function towerRooms0(T, F, P2){
     const i = T.i, room = T.room, HC = !!T.doors.corr;
-    const I_W = F(31, -58, 0, 1, 1, 0), I_S = F(30, -50, 1, 0, 0, -1), I_E = F(38, -49, 0, -1, -1, 0), I_N = F(39, -57, -1, 0, 0, 1);
-    const CA = F(34, -53, 1, 0, 0, 1), CB = F(34, -57, 0, 1, -1, 0), AB = F(31, -53, 1, 0, 0, -1);   // 우리의 방 쪽 얼굴 둘 · armA 채움 밑 얼굴(armB 를 본다)
+    /* 70차 2회차 — 탑 11×11: 안쪽 얼굴 I_W(s = z+60)·I_N(s = 41−x) 은 두 칸 밀리고, armA 길이 7 → 9 · armB 깊이 4 → 6 · 우리 4 → 6(나선 문 x 37) */
+    const TWS = CW.TW, TX = 30 + TWS, TZ = -49 - TWS, AL = TWS - 2, BD = TWS - 5, IN0 = TWS - 4, CL = TWS - 5, CD = CW.SP.door;   // armA 9 · armB 6 · I_N 은 x 34(s 7)부터 · 우리 6
+    const I_W = F(31, TZ, 0, 1, 1, 0), I_S = F(30, -50, 1, 0, 0, -1), I_E = F(TX - 1, -49, 0, -1, -1, 0), I_N = F(TX, TZ + 1, -1, 0, 0, 1);
+    const CA = F(34, -53, 1, 0, 0, 1), CB = F(34, TZ + 1, 0, 1, -1, 0), AB = F(31, -53, 1, 0, 0, -1);   // 우리의 방 쪽 얼굴 둘 · armA 채움 밑 얼굴(armB 를 본다)
     const FT = F(31, -53, 1, 0, 0, 1);                                     // 바닥 판(s = x−31, o = z+53)
     /* 69차 — 탑 안벽은 쌓은 마름돌(선생님: "계단 돌 질감, 벽 질감 같은 거 더 살려 줘" — 67차 회칠 판은 대리석 무늬 매끈한 회색 판으로 보였다).
        판 조각은 그대로 두고 결 셰이더가 세계 좌표 줄눈·돌마다 색·모서리 닳음·잔 자국을 그린다(ASHK — 조각 수·재질 그대로). 1층은 밑에 굽도리 돌 한 줄 */
@@ -7844,30 +7986,31 @@ function buildCastle(){
       if(dado) slab(Fw, 'cboxN', 'skirting', BOXG, WMAT, a0, a1, 0, 0.075, y0, y0 + 0.14, hs, dk(0x736c5f, INK));          // 굽도리 돌
       slab(Fw, 'cboxN', 'ashlar', BOXG, WMAT, a0, a1, 0, 0.04, y0 + (dado ? 0.14 : 0), y1, hs, ()=> ASHC[(R()*ASHC.length*0.999)|0]);
     };
-    const rough = (Fw, a0, a1, y0, y1, holes)=> face(Fw, a0, a1, y0, y1, {grade:'I', holes, pal:K.IN_ROUGH});   // 거친 돌 벽(숨은 방·우물방) — 70차: 좁은 색 범위(숯빛·청회·베이지가 섞여 한 방만 튀었다)
+    const rough = (Fw, a0, a1, y0, y1, holes)=> face(Fw, a0, a1, y0, y1, {grade:'I', holes, pal:K.IN_ROUGH, ls:TWS/9});   // 거친 돌 벽(숨은 방·우물방) — 70차: 좁은 색 범위(숯빛·청회·베이지가 섞여 한 방만 튀었다)
     const aH = (c, w, yb, h)=> archHoles(c, w, yb, h, 0.06);
     const stoneRoom = room === 'well';                                   // 우물방은 회칠 없이 축축한 돌
     const W0 = stoneRoom ? rough : (Fw, a0, a1, y0, y1, holes)=> wall(Fw, a0, a1, y0, y1, holes && holes.length && holes[0].arch !== undefined ? holes.flatMap(h=> h.arch ? aH(h.c, h.w, h.yb, h.h) : [[h.s0, h.s1, h.y0, h.y1]]) : holes, true);
     /* ══ 1층 방(0 → 3.0) ══ */
-    const gHolesW = HC ? [{arch:true, c:7, w:2.0, yb:0, h:2.3}] : [];
-    W0(I_W, 1, 8, 0, 3.0, gHolesW);
-    W0(I_S, 1, 8, 0, 3.0, [{arch:true, c:1.5, w:1.0, yb:0, h:HC ? 2.5 : 2.3}]);   // 70차 — 복도 문과 만나는 방은 구석 문 방 쪽 홍예를 0.2 높여 모서리에서 두 테가 다른 높이로 지나게
+    const gHolesW = HC ? [{arch:true, c:9, w:2.0, yb:0, h:2.3}] : [];
+    W0(I_W, 1, TWS - 1, 0, 3.0, gHolesW);
+    W0(I_S, 1, TWS - 1, 0, 3.0, [{arch:true, c:1.5, w:1.0, yb:0, h:HC ? 2.5 : 2.3}]);   // 70차 — 복도 문과 만나는 방은 구석 문 방 쪽 홍예를 0.2 높여 모서리에서 두 테가 다른 높이로 지나게
     W0(I_E, 1, 4, 0, 3.0, []);
-    W0(I_N, 5, 8, 0, 3.0, []);
-    W0(CA, 0, 4, 0, 3.0, [{arch:true, c:2, w:1.34, yb:0, h:2.3}]);
-    W0(CB, 0, 4, 0, 3.0, []);
-    doorFrame(CA, 2, 1.34, 2.3, 0, {nq:5, noJamb:!stoneRoom});         // 70차 — 우물방도 홍예 테(거친 돌 면은 테 폭 0.26 만큼 돌을 파 두니 테·문설주가 채운다)
+    W0(I_N, IN0, TWS - 1, 0, 3.0, []);
+    W0(CA, 0, CL, 0, 3.0, [{arch:true, c:3, w:CD, yb:0, h:2.3}]);
+    W0(CB, 0, CL, 0, 3.0, []);
+    doorFrame(CA, 3, CD, 2.3, 0, {nq:5, noJamb:!stoneRoom});           // 70차 — 우물방도 홍예 테(거친 돌 면은 테 폭 0.26 만큼 돌을 파 두니 테·문설주가 채운다)
     /* 복도 문·구석 문 방 쪽 테 — 두 문 가장자리가 방 모서리(31, −50)에 붙어 있다. 70차: 모서리 쪽 맨 아래 쐐기돌(상대 벽 속으로 들어가는 돌)을 빼고
        두 테를 얕게(0.07 — 벽 판 0.04 앞) 해서 모서리에서 서로 박히지 않게 */
     if(HC){ const Fw = F(31, -51, 0, -1, 1, 0); doorFrame(Fw, 0, 2.0, 2.3, 0, {nq:7, noJamb:true, proud:0.07, skip:[0]}); }   // 복도 문 방 쪽 테
     { const Fn = F(31.5, -50, -1, 0, 0, -1); doorFrame(Fn, 0, 1.0, HC ? 2.5 : 2.3, 0, HC ? {nq:5, noJamb:true, proud:0.07, skip:[4]} : {nq:5, noJamb:true}); }      // 구석 문 방 쪽 테
-    paving(FT, 0, 7, 0, 3, 0.02, FLOOR_T, 'floor', true); paving(FT, 0, 3, -4, 0, 0.02, FLOOR_T, 'floor', true);   // 69차 — armB 는 x 31~34(0~3). 67차 0~7 은 나선 우리 바닥 판석과 같은 높이로 겹쳐 번쩍였다
+    paving(FT, 0, AL, 0, 3, 0.02, FLOOR_T, 'floor', true, 1.2); paving(FT, 0, 3, -BD, 0, 0.02, FLOOR_T, 'floor', true, 1.2);   // 69차 — armB 는 x 31~34(0~3). 67차 0~7 은 나선 우리 바닥 판석과 같은 높이로 겹쳐 번쩍였다
     /* 천장 — 짙은 판 + 참나무 들보(armA 는 짧은 쪽(z)으로 네 개, armB 는 x 로 둘) */
-    flat(FT, 0, 7, 0, 3, 3.0, 3.08, CEIL, 'ceil'); flat(FT, 0, 3, -4, 0, 3.0, 3.08, CEIL, 'ceil');
+    flat(FT, 0, AL, 0, 3, 3.0, 3.08, CEIL, 'ceil'); flat(FT, 0, 3, -BD, 0, 3.0, 3.08, CEIL, 'ceil');
     /* 들보 — 모따기 나무 + 밑면 결 줄무늬 둘(밝고 짙게) */
-    for(const x of [1.2, 2.7, 4.2, 5.7]){ box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, x - 0.11, x + 0.11, 0.0, 3.0, 2.74, 3.0, BEAM);
+    const BMX = [1.2, 2.7, 4.2, 5.7, 7.2], BMO = [-1.5, -3.0, -4.5];         // 70차 2회차 — armA 9 · armB 6 에 맞춰 들보 하나씩 더
+    for(const x of BMX){ box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, x - 0.11, x + 0.11, 0.0, 3.0, 2.74, 3.0, BEAM);
       box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, x - 0.06, x - 0.01, 0.05, 2.95, 2.735, 2.745, 0x6e5539); box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, x + 0.03, x + 0.07, 0.05, 2.95, 2.735, 2.745, 0x4a3726); }
-    for(const o of [-1.4, -2.8]){ box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0.0, 3.0, o - 0.11, o + 0.11, 2.74, 3.0, BEAM);
+    for(const o of BMO){ box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0.0, 3.0, o - 0.11, o + 0.11, 2.74, 3.0, BEAM);
       box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0.05, 2.95, o - 0.06, o - 0.01, 2.735, 2.745, 0x6e5539); box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0.05, 2.95, o + 0.03, o + 0.07, 2.735, 2.745, 0x4a3726); }
     /* 문지방 돌 · 쇠 경첩 — 구석 문(1층) · 서쪽 8층 문. 구석 문으로 드는 햇빛 */
     flat(FT, 0.03, 0.97, 3.0, 4.02, -0.08, 0.03, dk(0x8a8373, INK*0.5), 'threshold');
@@ -7878,48 +8021,48 @@ function buildCastle(){
       for(const y of [0.45, 1.8]) hinge(31.06, -49.55, y, Math.atan2(dz[0], dz[1]) + PI/2);
       for(const y of [W + 0.45, W + 1.8]) hinge(30.45, -52.04, y, Math.atan2(dx[0], dx[1]) + PI/2);
       const [lx, lz] = P2(31.5, -50.6); DAYL.push(lx, 1.0, lz, 0.9); }
-    for(const x of [1.2, 2.7, 4.2, 5.7]) for(const o of [0.08, 2.92]) box(FT, 'csmall', 'corbel', WGEO, WMAT, x - 0.12, x + 0.12, o - 0.08, o + 0.08, 2.5, 2.74, 0x6d675c);
+    for(const x of BMX) for(const o of [0.08, 2.92]) box(FT, 'csmall', 'corbel', WGEO, WMAT, x - 0.12, x + 0.12, o - 0.08, o + 0.08, 2.5, 2.74, 0x6d675c);
     /* 방 종류 소품(≤ 6, armB 쪽 벽을 따라 — 문에서 문으로 가는 길 비움) */
     roomProps(T, F, room);
     torch(I_W, 3.2, 1.9);
     /* ══ 초소(8 → 11.4) ══ */
-    const pS = [{arch:true, c:7, w:2.0, yb:W, h:2.3}];
-    wall(I_W, 1, 8, W, 11.4, pS.flatMap(h=> aH(h.c, h.w, h.yb, h.h)), false);
-    wall(I_S, 1, 8, W, 11.4, aH(6, 1.8, W, 2.3), false);                   // 회랑 문 안 얼굴(69차 — 곧은 문 x 35.1~36.9)
+    const pS = [{arch:true, c:9, w:2.0, yb:W, h:2.3}];
+    wall(I_W, 1, TWS - 1, W, 11.4, pS.flatMap(h=> aH(h.c, h.w, h.yb, h.h)), false);
+    wall(I_S, 1, TWS - 1, W, 11.4, aH(6, 1.8, W, 2.3), false);             // 회랑 문 안 얼굴(69차 — 곧은 문 x 35.1~36.9)
     wall(I_E, 1, 4, W, 11.4, [[1.9, 3.1, 8.35, 10.0]], false);             // 69차 — 쏘기 틈 벽감(1.2 × 8.35~10.0)
-    wall(I_N, 5, 8, W, 11.4, [[5.9, 7.1, 8.35, 10.0]], false);
-    wall(CA, 0, 4, W, 11.4, aH(2, 1.34, W, 2.3), false); wall(CB, 0, 4, W, 11.4, [], false);
-    doorFrame(CA, 2, 1.34, 2.3, W, {nq:5, noJamb:true});
-    paving(FT, 0, 7, 0, 3, W, FLOOR_T, 'floor'); paving(FT, 0, 3, -4, 0, W, FLOOR_T, 'floor');
+    wall(I_N, IN0, TWS - 1, W, 11.4, [[7.9, 9.1, 8.35, 10.0]], false);
+    wall(CA, 0, CL, W, 11.4, aH(3, CD, W, 2.3), false); wall(CB, 0, CL, W, 11.4, [], false);
+    doorFrame(CA, 3, CD, 2.3, W, {nq:5, noJamb:true});
+    paving(FT, 0, AL, 0, 3, W, FLOOR_T, 'floor', false, 1.2); paving(FT, 0, 3, -BD, 0, W, FLOOR_T, 'floor', false, 1.2);
     /* 천장 = 망루 바닥 밑 — 장선(짧은 쪽으로) + 널 밑면 */
-    for(let x = 0.45; x < 7; x += 0.9) box(FT, 'cwoodN', 'joist', WGEO, WMAT_WOOD, x - 0.08, x + 0.08, 0.0, 3.0, 11.18, 11.4, BEAM);
-    for(let o = -0.45; o > -4; o -= 0.9) box(FT, 'cwoodN', 'joist', WGEO, WMAT_WOOD, 0.0, 3.0, o - 0.08, o + 0.08, 11.18, 11.4, BEAM);
-    for(let o = 0; o < 3 - 0.01; o += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, 0, 7, o + 0.01, o + 0.44, 11.4, 11.46, BOARDS[(R()*3)|0]);
-    for(let x = 0; x < 3 - 0.01; x += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, x + 0.01, x + 0.44, -4, 0, 11.4, 11.46, BOARDS[(R()*3)|0]);
+    for(let x = 0.45; x < AL; x += 0.9) box(FT, 'cwoodN', 'joist', WGEO, WMAT_WOOD, x - 0.08, x + 0.08, 0.0, 3.0, 11.18, 11.4, BEAM);
+    for(let o = -0.45; o > -BD; o -= 0.9) box(FT, 'cwoodN', 'joist', WGEO, WMAT_WOOD, 0.0, 3.0, o - 0.08, o + 0.08, 11.18, 11.4, BEAM);
+    for(let o = 0; o < 3 - 0.01; o += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, 0, AL, o + 0.01, o + 0.44, 11.4, 11.46, BOARDS[(R()*3)|0]);
+    for(let x = 0; x < 3 - 0.01; x += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, x + 0.01, x + 0.44, -BD, 0, 11.4, 11.46, BOARDS[(R()*3)|0]);
     postProps(T, F);
-    torch(I_S, 7.6, 9.9);
+    torch(I_S, 9.6, 9.9);
     /* ══ 망루(12 → 14.3) — 창 6 · 널 바닥 · 널 천장 ══ */
     const wS = (arr)=> arr.map(c=> [c - 0.4, c + 0.4, 12.55, 13.65]);
-    wall(I_W, 1, 8, 12, CW.EAVE, wS([2.5, 6.5]), false);                        // I_W 의 s = z+58 (W 창 z −55.5·−51.5 → s 2.5·6.5)
-    wall(I_S, 1, 8, 12, CW.EAVE, wS([2.5, 6.5]), false);
+    wall(I_W, 1, TWS - 1, 12, CW.EAVE, wS([3.5, 8.5]), false);                  // I_W 의 s = z+60 (W 창 z −56.5·−51.5 → s 3.5·8.5)
+    wall(I_S, 1, TWS - 1, 12, CW.EAVE, wS([2.5, 6.5]), false);
     wall(I_E, 1, 4, 12, CW.EAVE, wS([2.5]), false);
-    wall(I_N, 5, 8, 12, CW.EAVE, wS([6.5]), false);
-    wall(CA, 0, 4, 12, CW.EAVE, [[1.33, 2.67, 12, 14.05]], false); wall(CB, 0, 4, 12, CW.EAVE, [], false);
-    for(let o = 0; o < 3 - 0.01; o += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, 0, 7, o + 0.01, o + 0.44, 11.94, 12.0, BOARDS[(R()*3)|0]);
-    for(let x = 0; x < 3 - 0.01; x += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, x + 0.01, x + 0.44, -4, 0, 11.94, 12.0, BOARDS[(R()*3)|0]);
-    flat(FT, 0, 7, 0, 3, CW.EAVE, CW.EAVE + 0.05, dk(0x5b4431, INK*0.5), 'ceil'); flat(FT, 0, 3, -4, 0, CW.EAVE, CW.EAVE + 0.05, dk(0x5b4431, INK*0.5), 'ceil');
-    for(const x of [1.5, 3.5, 5.5]) box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, x - 0.1, x + 0.1, 0, 3, CW.EAVE - 0.1, CW.EAVE, TIMBER_D);   // 들보 밑 14.2 = 망루 바닥 12 + 2.2
-    box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0, 3, -2.1, -1.9, CW.EAVE - 0.1, CW.EAVE, TIMBER_D);
+    wall(I_N, IN0, TWS - 1, 12, CW.EAVE, wS([8.5]), false);
+    wall(CA, 0, CL, 12, CW.EAVE, [[3 - CD/2, 3 + CD/2, 12, 14.05]], false); wall(CB, 0, CL, 12, CW.EAVE, [], false);
+    for(let o = 0; o < 3 - 0.01; o += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, 0, AL, o + 0.01, o + 0.44, 11.94, 12.0, BOARDS[(R()*3)|0]);
+    for(let x = 0; x < 3 - 0.01; x += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, x + 0.01, x + 0.44, -BD, 0, 11.94, 12.0, BOARDS[(R()*3)|0]);
+    flat(FT, 0, AL, 0, 3, CW.EAVE, CW.EAVE + 0.05, dk(0x5b4431, INK*0.5), 'ceil'); flat(FT, 0, 3, -BD, 0, CW.EAVE, CW.EAVE + 0.05, dk(0x5b4431, INK*0.5), 'ceil');
+    for(const x of [1.5, 3.5, 5.5, 7.5]) box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, x - 0.1, x + 0.1, 0, 3, CW.EAVE - 0.1, CW.EAVE, TIMBER_D);   // 들보 밑 14.2 = 망루 바닥 12 + 2.2
+    for(const o of [-2.0, -4.0]) box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0, 3, o - 0.1, o + 0.1, CW.EAVE - 0.1, CW.EAVE, TIMBER_D);
     watchProps(T, F);
     /* ══ 숨은 방(짝수 탑 armB 3.33 → 7.2) ══ */
     if(T.hidden){
       const sec = CPLAN.secrets[T.hidden.secret];
-      rough(I_W, 1, 5, 3.33, 7.2, []); rough(I_N, 5, 8, 3.33, 7.2, []); rough(AB, 0, 3, 3.33, 7.2, []);
-      rough(CB, 0, 4, 3.33, 7.2, [{arch:true, c:2, w:1.34, yb:10/3, h:2.3}]); doorFrame(CB, 2, 1.34, 2.3, 10/3, {nq:5});   // 70차 — 나선으로 나가는 문도 홍예 테·문설주(테 없이 창백한 기둥만 보였다)
-      for(let x = 0; x < 3 - 0.01; x += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, x + 0.01, x + 0.44, -4, 0, 3.262, 3.322, BOARDS[(R()*3)|0]);   // 69차 — 숨은 문 구멍 밑면(10/3)과 0.011 떼기
-      flat(FT, 0, 3, -4, 0, 7.2, 7.26, CEIL, 'ceil');
-      for(const o of [-1.3, -2.7]) box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0, 3, o - 0.1, o + 0.1, 6.96, 7.2, TIMBER_D);
-      torch(I_N, 7.4, 5.2);
+      rough(I_W, 1, BD + 1, 3.33, 7.2, []); rough(I_N, IN0, TWS - 1, 3.33, 7.2, []); rough(AB, 0, 3, 3.33, 7.2, []);
+      rough(CB, 0, CL, 3.33, 7.2, [{arch:true, c:3, w:CD, yb:10/3, h:2.3}]); doorFrame(CB, 3, CD, 2.3, 10/3, {nq:5});   // 70차 — 나선으로 나가는 문도 홍예 테·문설주(테 없이 창백한 기둥만 보였다)
+      for(let x = 0; x < 3 - 0.01; x += 0.45) box(FT, 'cwoodN', 'plank', WGEO, WMAT_WOOD, x + 0.01, x + 0.44, -BD, 0, 3.262, 3.322, BOARDS[(R()*3)|0]);   // 69차 — 숨은 문 구멍 밑면(10/3)과 0.011 떼기
+      flat(FT, 0, 3, -BD, 0, 7.2, 7.26, CEIL, 'ceil');
+      for(const o of [-1.5, -3.0, -4.5]) box(FT, 'cwoodN', 'beam', WGEO, WMAT_WOOD, 0, 3, o - 0.1, o + 0.1, 6.96, 7.2, TIMBER_D);
+      torch(I_N, 9.4, 5.2);
       secretRoomArt(sec);
     }
   }
@@ -7930,11 +8073,12 @@ function buildCastle(){
      무기고(창 걸이·방패 걸이·화살통·통·상자 더미·숫돌) · 경비실(투구 선반·열쇠 걸이·걸린 망토·간이 침상·벽 등잔) · 우물방(돌 쐐기 테 우물·도르래·밧줄·물통·바가지·젖은 돌).
      둥근 것은 둥글게(ccask·cspear·cshield·clid·cring·cbarrel 원기둥). 소품마다 몸 상자(solidL — 설계 '방 소품 WALL') */
   function roomProps(T, F, room){
-    const i = T.i, L = (x, z)=> cxf(i, x, z), Fz = F(0, 0, 1, 0, 0, 1);  // 로컬 축 틀(s = x, o = z)
-    const wd = (kind, x0, x1, z0, z1, y0, y1, col)=> box(Fz, 'cwoodN', kind, WGEO, WMAT_WOOD, x0, x1, z0, z1, y0, y1, col || TIMBER);
-    const pp = (kind, x0, x1, z0, z1, y0, y1, col)=> box(Fz, 'cpropP', kind, WGEO, WMAT_PAINT, x0, x1, z0, z1, y0, y1, col);
+    const i = T.i, L = (x, z)=> cxf(i, ...shL(x, z)), Fz = F(0, 0, 1, 0, 0, 1);  // 로컬 축 틀(s = x, o = z) · 70차 2회차: 소품 자리는 shL 로 11×11 방에 옮긴다
+    const boxZ = (...a)=> boxS(Fz, ...a), solidS = (i, x0, x1, z0, z1, y0, y1)=>{ const d = shD((x0 + x1)/2, (z0 + z1)/2); solidL(i, x0 + d[0], x1 + d[0], z0 + d[1], z1 + d[1], y0, y1); };
+    const wd = (kind, x0, x1, z0, z1, y0, y1, col)=> boxZ('cwoodN', kind, WGEO, WMAT_WOOD, x0, x1, z0, z1, y0, y1, col || TIMBER);
+    const pp = (kind, x0, x1, z0, z1, y0, y1, col)=> boxZ('cpropP', kind, WGEO, WMAT_PAINT, x0, x1, z0, z1, y0, y1, col);
     const ryL = (dx, dz)=>{ const d = cxf(i, dx, dz); return Math.atan2(d[0], d[1]); };    // 로컬 방향(dx,dz)을 로컬 +z 로 보는 ry
-    const rod = (key, kind, mat, a, b, r, col)=>{ const A = L(a[0], a[2]), B = L(b[0], b[2]), dx = B[0] - A[0], dy = b[1] - a[1], dz = B[1] - A[1], len = Math.hypot(dx, dy, dz);   // 두 점(로컬)을 잇는 둥근 막대
+    const rod = (key, kind, mat, a, b, r, col)=>{ const d = shD((a[0] + b[0])/2, (a[2] + b[2])/2), A = cxf(i, a[0] + d[0], a[2] + d[1]), B = cxf(i, b[0] + d[0], b[2] + d[1]), dx = B[0] - A[0], dy = b[1] - a[1], dz = B[1] - A[1], len = Math.hypot(dx, dy, dz);   // 두 점(로컬)을 잇는 둥근 막대(가운데로 옮김을 정한다)
       const ry = Math.atan2(-dz, dx), rz = Math.atan2(Math.hypot(dx, dz), dy);   // 로컬 y 를 (dx,dy,dz) 로: y 축을 z 둘레로 rz 기울이면 +x 쪽 — ry 로 수평 방향을 맞춘다
       return put(key, kind, NEWELG, mat, (A[0] + B[0])/2, (a[1] + b[1])/2, (A[1] + B[1])/2, ry, r, len, r, -rz, col); };
     const leg = (x, z, y0, y1, r, col)=> rod('cbarrel', 'leg', WMAT_WOOD, [x, y0, z], [x, y1, z], r, col || 0x5e452d);
@@ -7943,13 +8087,13 @@ function buildCastle(){
       wd('table', cx - lx/2, cx + lx/2, cz - lz/2, cz + lz/2, h - 0.07, h, 0x6f5236);
       for(const [a, b, c2, d2] of [[-1, 1, -1, -1], [-1, 1, 1, 1]]) wd('table', cx - lx/2 + 0.1, cx + lx/2 - 0.1, cz + c2*(lz/2 - 0.1) - 0.02, cz + d2*(lz/2 - 0.1) + 0.02, h - 0.19, h - 0.07, 0x5e452d);
       for(const [a, b] of [[-1,-1],[1,-1],[-1,1],[1,1]]) leg(cx + a*(lx/2 - 0.1), cz + b*(lz/2 - 0.1), 0, h - 0.07, 0.045);
-      solidL(i, cx - lx/2, cx + lx/2, cz - lz/2, cz + lz/2, 0, h); };
+      solidS(i, cx - lx/2, cx + lx/2, cz - lz/2, cz + lz/2, 0, h); };
     const stool = (cx, cz)=>{ const p = L(cx, cz); put('cbarrel', 'stool', NEWELG, WMAT_WOOD, p[0], 0.43, p[1], 0, 0.19, 0.05, 0.19, 0, 0x7a5a3d);
       for(let k=0; k<3; k++){ const a = k*2.094 + 0.4; rod('cbarrel', 'stool', WMAT_WOOD, [cx + Math.cos(a)*0.15, 0, cz + Math.sin(a)*0.15], [cx + Math.cos(a)*0.09, 0.41, cz + Math.sin(a)*0.09], 0.022, 0x5e452d); }
-      solidL(i, cx - 0.19, cx + 0.19, cz - 0.19, cz + 0.19, 0, 0.46); };
+      solidS(i, cx - 0.19, cx + 0.19, cz - 0.19, cz + 0.19, 0, 0.46); };
     const crate = (x0, x1, z0, z1, y0, y1, col)=>{ wd('crate', x0, x1, z0, z1, y0, y1, col || 0x7a5a3d);
       for(const f of [0.18, 0.82]){ const y = y0 + (y1 - y0)*f; wd('crate', x0 - 0.012, x1 + 0.012, z0 - 0.012, z1 + 0.012, y - 0.03, y + 0.03, 0x5a4330); }
-      for(const x of [x0 + 0.02, x1 - 0.02]) for(const z of [z0 + 0.02, z1 - 0.02]) box(Fz, 'cpropP', 'crate', WGEO, WMAT_PAINT, x - 0.025, x + 0.025, z - 0.025, z + 0.025, y0, y1, IRON2); };   // 쇠 모서리
+      for(const x of [x0 + 0.02, x1 - 0.02]) for(const z of [z0 + 0.02, z1 - 0.02]) boxZ('cpropP', 'crate', WGEO, WMAT_PAINT, x - 0.025, x + 0.025, z - 0.025, z + 0.025, y0, y1, IRON2); };   // 쇠 모서리
     const shieldAt = (x, z, y, face, col, h)=>{ const p = L(x, z); put('cshield', 'shield', SHIELDG, WMAT, p[0], y, p[1], ryL(face[0], face[1]), h*0.77, h, h*0.77, 0, col); };
     const sconce = (x, z, y, face)=>{ const p = L(x, z), ry = ryL(face[0], face[1]); put('csconce', 'sconce', SCONCEG, WMAT, p[0], y, p[1], ry, 1, 1, 1, 0, 0, [p[0] - 0.1, p[0] + 0.1, p[1] - 0.1, p[1] + 0.1, y - 0.1, y + 0.2]);
       const sn = Math.sin(ry), cs = Math.cos(ry); castFlame(p[0] + sn*SCONCE_F[2], GY + y + SCONCE_F[1], p[1] + cs*SCONCE_F[2], ry, 0.17, 0.13, 0xffe0a0); LIGHTS.push(p[0] + sn*0.17, y + 0.2, p[1] + cs*0.17, 0.7); };
@@ -7972,7 +8116,7 @@ function buildCastle(){
       /* 두루마리 선반 — 우리 벽(x 34, armB 쪽 얼굴) 앞: 기둥 둘 · 선반 넷 · 까치발 · 누운 두루마리(끝 말림 고리) · 맨 위 잉크병·깃펜 */
       for(const z of [-56.84, -55.46]) rod('cbarrel', 'shelf', WMAT_WOOD, [33.85, 0, z], [33.85, 1.78, z], 0.035, TIMBER_D);
       for(const y of [0.35, 0.85, 1.35, 1.78]) wd('shelf', 33.64, 33.98, -56.88, -55.42, y - 0.035, y, 0x6f5236);
-      for(const y of [0.85, 1.35]) for(const z of [-56.7, -55.6]) box(Fz, 'cwoodN', 'shelf', WGEO, WMAT_WOOD, 33.9, 33.98, z - 0.02, z + 0.02, y - 0.2, y - 0.035, TIMBER_D);
+      for(const y of [0.85, 1.35]) for(const z of [-56.7, -55.6]) boxZ('cwoodN', 'shelf', WGEO, WMAT_WOOD, 33.9, 33.98, z - 0.02, z + 0.02, y - 0.2, y - 0.035, TIMBER_D);
       const SCR = [0xe3d4ad, 0xd6c49a, 0xcdb98a, 0xe8dcc0];
       for(const [y, zs] of [[0.35, [-56.62, -56.4, -56.18, -55.8]], [0.85, [-56.55, -56.1, -55.72]], [1.35, [-56.6, -56.35, -55.95, -55.7]]]) zs.forEach((z, k)=>{
         const r = 0.05 + (k % 2)*0.012, c = SCR[(k + Math.round(y*3)) % 4], a = [33.68, y + r, z], b = [33.96, y + r, z];
@@ -7980,7 +8124,7 @@ function buildCastle(){
         for(const e of [a, b]){ const p = L(e[0], e[2]), d = cxf(i, 1, 0); put('cring', 'scroll', RINGG, WMAT_PAINT, p[0], e[1], p[1], ringRy(d[0], d[1]), r*0.78, r*0.5, r*0.78, PI/2, dk(c, 0.3)); } });   // 끝 말림
       { const p = L(33.8, -56.5); put('ctele', 'ink', NEWELG, WMAT_PAINT, p[0], 1.82, p[1], 0, 0.045, 0.08, 0.045, 0, 0x1f2430); put('ctele', 'ink', NEWELG, WMAT_PAINT, p[0], 1.87, p[1], 0, 0.022, 0.03, 0.022, 0, 0x3a3e44);
         put('cpropP', 'quill', WGEO, WMAT_PAINT, p[0], 1.96, p[1], ryL(1, 0), 0.018, 0.24, 0.01, 0.4, 0xf1ead8); }
-      solidL(i, 33.64, 34, -56.88, -55.42, 0, 1.8);
+      solidS(i, 33.64, 34, -56.88, -55.42, 0, 1.8);
       /* 쇠 촛대(탁자 위에 매단) — 둥근 쇠 고리 · 사슬 세 가닥(고리 이음) · 초 다섯 · 흘러내린 촛농 · 불꽃 */
       { const [cx, cz] = L(32.5, -55.2), yR = 2.08, R0 = 0.34;
         put('cring', 'chandelier', RINGG, WMAT_PAINT, cx, yR, cz, 0, R0, R0*0.55, R0, 0, 0x2f3237);   // 누운 둥근 쇠 고리
@@ -7999,16 +8143,16 @@ function buildCastle(){
         rod('cbarrel', 'rack', WMAT_WOOD, P2(x0, 1.55), P2(x1, 1.55), 0.035, TIMBER_D); rod('cbarrel', 'rack', WMAT_WOOD, P2(x0, 0.1), P2(x1, 0.1), 0.05, TIMBER_D);
         for(const u of [x0, x1]) rod('cbarrel', 'rack', WMAT_WOOD, P2(u, 0.05), P2(u, 1.6), 0.03, TIMBER_D);
         for(let k=0; k<n; k++){ const u = x0 + (x1 - x0)*(k + 0.5)/n, q = P2(u, 0.12), p = L(q[0], q[2]); put('cspear', 'spear', SPEARG, WMAT, p[0], 0.12, p[1], k*1.3, 1, 1, 1, 0, 0xffffff, [p[0] - 0.06, p[0] + 0.06, p[1] - 0.06, p[1] + 0.06, 0.12, 2.67]); }
-        if(alongX) solidL(i, x0, x1, z - 0.14, z + 0.14, 0, 3.0); else solidL(i, z - 0.14, z + 0.14, x0, x1, 0, 3.0); };
+        if(alongX) solidS(i, x0, x1, z - 0.14, z + 0.14, 0, 3.0); else solidS(i, z - 0.14, z + 0.14, x0, x1, 0, 3.0); };
       rack(31.5, 33.6, -56.75, true); rack(-56.3, -54.2, 31.25, false);
       /* 방패 걸이 — 동쪽 벽(x 38): 둥근 가로대 · 연 모양 방패 셋(모둠색 · 쇠 돌기) */
       rod('cbarrel', 'shieldRack', WMAT_WOOD, [37.93, 2.02, -52.75], [37.93, 2.02, -50.25], 0.03, TIMBER_D);
       for(let k=0; k<3; k++) shieldAt(37.9, -50.6 - k*0.9, 1.55, [-1, 0], GHEX[(T.g + k) % 5], 0.72);
       /* 통 둘(배부른 통 · 쇠 테) + 상자 더미(동쪽 끝 방패 밑) */
       cask('barrel', 33.45, -54.1, 0, 0.27, 0.74); cask('barrel', 33.45, -53.45, 0, 0.25, 0.68, 0xeeddcc);
-      solidL(i, 33.18, 33.72, -54.37, -53.18, 0, 0.74);
+      solidS(i, 33.18, 33.72, -54.37, -53.18, 0, 0.74);
       crate(37.35, 37.95, -52.25, -51.45, 0, 0.55); crate(37.4, 37.95, -51.35, -50.7, 0, 0.45, 0x6f5236); crate(37.45, 37.93, -52.1, -51.55, 0.55, 0.93, 0x836244);
-      solidL(i, 37.35, 38, -52.25, -50.7, 0, 0.93);
+      solidS(i, 37.35, 38, -52.25, -50.7, 0, 0.93);
       /* 화살통 둘 — 남쪽 벽(z −50) 앞: 가죽 통(둥근) + 화살 대 · 깃이 삐죽 */
       for(const [x, lean] of [[33.2, 0.08], [33.55, -0.06]]){ const p = L(x, -50.25);
         put('cbarrel', 'quiver', NEWELG, WMAT_WOOD, p[0], 0.28, p[1], 0, 0.085, 0.56, 0.085, lean, 0x6b4a2c);
@@ -8016,7 +8160,7 @@ function buildCastle(){
         for(const [a, b] of [[-0.03, -0.02], [0.03, 0.01], [0, 0.035], [0.02, -0.035]]){ const q = L(x + a, -50.25 + b);
           put('cbarrel', 'arrow', NEWELG, WMAT_WOOD, q[0] + Math.sin(lean)*0.05, 0.72, q[1], 0, 0.009, 0.42, 0.009, lean, 0x9a7b55);
           for(const f of [0, PI/2]) put('cpropP', 'arrow', WGEO, WMAT_PAINT, q[0] + Math.sin(lean)*0.2, 0.88, q[1], f, 0.05, 0.1, 0.006, lean, CREAM); } }
-      solidL(i, 33.05, 33.7, -50.4, -50.05, 0, 0.6);
+      solidS(i, 33.05, 33.7, -50.4, -50.05, 0, 0.6);
       /* 숫돌 — 나무 틀 · 둥근 돌 바퀴(굴대·손잡이) · 물받이 */
       { const cx = 35.2, cz = -50.45, p = L(cx, cz), ry = ryL(1, 0);
         put('cnewel', 'grindstone', NEWELG, WMAT, p[0], 0.62, p[1], ry, 0.26, 0.1, 0.26, PI/2, 0x6f695e);
@@ -8024,12 +8168,12 @@ function buildCastle(){
         rod('cbarrel', 'grindstone', WMAT_WOOD, [cx + 0.3, 0.62, cz], [cx + 0.3, 0.62, cz + 0.12], 0.015, 0x6b4a2c);
         for(const k of [-1, 1]){ rod('cbarrel', 'grindstone', WMAT_WOOD, [cx + k*0.2, 0, cz - 0.1], [cx + k*0.2, 0.66, cz], 0.035, TIMBER_D); rod('cbarrel', 'grindstone', WMAT_WOOD, [cx + k*0.2, 0, cz + 0.1], [cx + k*0.2, 0.66, cz], 0.035, TIMBER_D); }
         put('ccask', 'grindstone', CASKG, WMAT, p[0], 0.18, p[1], ry, 0.46, 0.14, 0.3, 0, 0xddccbb, [p[0] - 0.24, p[0] + 0.24, p[1] - 0.24, p[1] + 0.24, 0.18, 0.32]);
-        solidL(i, cx - 0.32, cx + 0.32, cz - 0.2, cz + 0.2, 0, 0.95); }
+        solidS(i, cx - 0.32, cx + 0.32, cz - 0.2, cz + 0.2, 0, 0.95); }
     } else if(room === 'guard'){
       table(32.5, -55.3, 0.8, 1.4, 0.78);
       for(const x of [31.65, 33.35]){ wd('bench', x - 0.16, x + 0.16, -56.0, -54.6, 0.42, 0.48, 0x7a5a3d);
         for(const z of [-55.85, -54.75]) for(const dx of [-0.09, 0.09]) leg(x + dx, z, 0, 0.42, 0.028);
-        solidL(i, x - 0.16, x + 0.16, -56.0, -54.6, 0, 0.48); }
+        solidS(i, x - 0.16, x + 0.16, -56.0, -54.6, 0, 0.48); }
       /* 투구 선반 — 우리 벽(x 34, armB 쪽) 선반 + 까치발 · 둥근 투구(정수리 + 목 가림 + 테 + 코 가리개) */
       { wd('helmShelf', 33.66, 33.98, -56.6, -55.8, 1.3, 1.34, 0x6f5236);
         for(const z of [-56.45, -55.95]) rod('cbarrel', 'helmShelf', WMAT_WOOD, [33.97, 1.08, z], [33.72, 1.3, z], 0.018, TIMBER_D);
@@ -8057,7 +8201,7 @@ function buildCastle(){
       pp('cot', 37.0, 37.9, -52.8, -50.2, 0.3, 0.42, 0xc9b27a);
       pp('cot', 36.98, 37.92, -52.1, -50.18, 0.42, 0.46, dk(GHEX[T.g], 0.55)); pp('cot', 36.97, 37.93, -52.14, -52.08, 0.4, 0.47, CREAM);
       pp('cot', 37.1, 37.8, -52.72, -52.3, 0.42, 0.52, 0xe9dfc8);
-      solidL(i, 36.95, 38, -52.85, -50.15, 0, 0.47);
+      solidS(i, 36.95, 38, -52.85, -50.15, 0, 0.47);
     } else {                                                              // 우물방
       /* 우물 — 둥근 돌 몸 + 쐐기돌 갓(열둘) · 검은 물 · 도르래 틀(둥근 기둥) · 도르래 바퀴(고리 + 살) · 밧줄 · 두레박 */
       const [px, pz] = L(32.5, -55.1);
@@ -8079,28 +8223,29 @@ function buildCastle(){
       { const q = L(33.35, -53.75); put('cnewel', 'water', NEWELG, WMAT, q[0], 0.41, q[1], 0, 0.27, 0.02, 0.27, 0, 0x284b66);
         put('moss', 'ladle', LEAFG, WMAT, q[0] + 0.1, 0.46, q[1] + 0.05, 0, 0.12, 0.06, 0.12, 0, 0x7a5a3d);
         rod('cbarrel', 'ladle', WMAT_WOOD, [33.35 + 0.1, 0.47, -53.75 + 0.05], [33.35 + 0.34, 0.62, -53.75 + 0.1], 0.012, 0x6b4e35); }
-      solidL(i, 31.76, 33.24, -55.76, -54.44, 0, 3.0); solidL(i, 33.05, 33.65, -54.05, -53.45, 0, 0.44);
+      solidS(i, 31.76, 33.24, -55.76, -54.44, 0, 3.0); solidS(i, 33.05, 33.65, -54.05, -53.45, 0, 0.44);
       for(let k=0; k<5; k++){ const u = R()*4, [x, z] = K.at(I_Wm(), 1 + u, 0.05); const sz = 0.35 + R()*0.25;
         put('moss', 'moss', LEAFG, WMAT, x, 0.02 + sz*0.1, z, R()*3, sz, sz*0.3, sz*0.8, 0, 0x3e5530); }
     }
-    function I_Wm(){ return F(31, -58, 0, 1, 1, 0); }
+    function I_Wm(){ return F(31, -49 - CW.TW, 0, 1, 1, 0); }
   }
   /* 초소 소품 — 긴 의자(서쪽 벽 armB) · 석궁 받침(북쪽 활 틈 밑) · 무기 선반(동쪽 벽) · 경보 종(우리 벽). 달리기 꺾은선·반짝 자리(32.5, −55) 0.8 비움 */
   function postProps(T, F){
-    const i = T.i, Fz = F(0, 0, 1, 0, 0, 1), L = (x, z)=> cxf(i, x, z), ryL = (dx, dz)=>{ const d = cxf(i, dx, dz); return Math.atan2(d[0], d[1]); };
-    const wd = (kind, x0, x1, z0, z1, y0, y1, col)=> box(Fz, 'cwoodN', kind, WGEO, WMAT_WOOD, x0, x1, z0, z1, y0, y1, col || TIMBER);
-    const rod = (key, kind, mat, a, b, r, col)=>{ const A = L(a[0], a[2]), B = L(b[0], b[2]), dx = B[0] - A[0], dy = b[1] - a[1], dz = B[1] - A[1], len = Math.hypot(dx, dy, dz);
+    const i = T.i, Fz = F(0, 0, 1, 0, 0, 1), L = (x, z)=> cxf(i, ...shL(x, z)), ryL = (dx, dz)=>{ const d = cxf(i, dx, dz); return Math.atan2(d[0], d[1]); };
+    const boxZ = (...a)=> boxS(Fz, ...a), solidS = (i, x0, x1, z0, z1, y0, y1)=>{ const d = shD((x0 + x1)/2, (z0 + z1)/2); solidL(i, x0 + d[0], x1 + d[0], z0 + d[1], z1 + d[1], y0, y1); };
+    const wd = (kind, x0, x1, z0, z1, y0, y1, col)=> boxZ('cwoodN', kind, WGEO, WMAT_WOOD, x0, x1, z0, z1, y0, y1, col || TIMBER);
+    const rod = (key, kind, mat, a, b, r, col)=>{ const d = shD((a[0] + b[0])/2, (a[2] + b[2])/2), A = cxf(i, a[0] + d[0], a[2] + d[1]), B = cxf(i, b[0] + d[0], b[2] + d[1]), dx = B[0] - A[0], dy = b[1] - a[1], dz = B[1] - A[1], len = Math.hypot(dx, dy, dz);
       return put(key, kind, NEWELG, mat, (A[0] + B[0])/2, (a[1] + b[1])/2, (A[1] + B[1])/2, Math.atan2(-dz, dx), r, len, r, -Math.atan2(Math.hypot(dx, dz), dy), col); };
     wd('bench', 31.1, 31.5, -56.8, -54.9, W + 0.42, W + 0.48, 0x7a5a3d);
     for(const z of [-56.6, -55.1]) for(const dx of [-0.1, 0.1]) rod('cbarrel', 'bench', WMAT_WOOD, [31.3 + dx, W, z], [31.3 + dx, W + 0.42, z], 0.028, 0x5e452d);
-    solidL(i, 31.1, 31.5, -56.8, -54.9, W, W + 0.48);
+    solidS(i, 31.1, 31.5, -56.8, -54.9, W, W + 0.48);
     /* 석궁 받침 — 둥근 기둥 · 가로대 · 석궁(나무 몸 + 쇠 활). 69차 — 북쪽 쏘기 틈(x 31.9~33.1 벽감) 바로 앞이면 아이가 틈에 못 붙어 옆(x 33.55)으로 옮겼다 */
     { const X = 33.55;
       rod('cbarrel', 'crossbow', WMAT_WOOD, [X, W, -56.6], [X, W + 1.0, -56.6], 0.05, TIMBER_D);
       rod('cbarrel', 'crossbow', WMAT_WOOD, [X - 0.3, W + 1.04, -56.6], [X + 0.3, W + 1.04, -56.6], 0.035, 0x6f5236);
       rod('cbarrel', 'crossbow', WMAT_WOOD, [X, W + 1.1, -56.95], [X, W + 1.1, -56.25], 0.03, 0x5e452d);
       for(const k of [-1, 1]) rod('ctele', 'crossbow', WMAT_PAINT, [X, W + 1.1, -56.3], [X + k*0.26, W + 1.1, -56.4], 0.012, IRONC);   // 쇠 활(두 팔)
-      solidL(i, X - 0.3, X + 0.3, -56.95, -56.25, W, W + 1.2); }
+      solidS(i, X - 0.3, X + 0.3, -56.95, -56.25, W, W + 1.2); }
     /* 무기 선반 — 동쪽 벽(x 38) armA 끝: 둥근 기둥 둘 · 선반 둘 · 석궁 둘 · 볼트 상자. 69차 — 동쪽 쏘기 틈 벽감(z −52.1~−50.9)을 비우게 z −52.95~−52.2 로 줄였다 */
     for(const z of [-52.88, -52.27]) rod('cbarrel', 'weaponShelf', WMAT_WOOD, [37.8, W, z], [37.8, W + 1.55, z], 0.04, TIMBER_D);
     for(const y of [W + 0.7, W + 1.3]) wd('weaponShelf', 37.6, 37.98, -52.93, -52.22, y - 0.05, y, 0x6f5236);
@@ -8108,7 +8253,7 @@ function buildCastle(){
       for(const k of [-1, 1]) rod('ctele', 'crossbow', WMAT_PAINT, [37.8, y + 0.06, z + 0.22], [37.8 + k*0.16, y + 0.06, z + 0.14], 0.01, IRONC); }
     wd('boltBox', 37.64, 37.96, -52.9, -52.5, W + 0.02, W + 0.16, 0x7a5a3d);
     for(let k=0; k<4; k++){ const z = -52.84 + k*0.09; rod('cbarrel', 'boltBox', WMAT_WOOD, [37.7, W + 0.18, z], [37.92, W + 0.18, z], 0.012, 0x9a7b55); }
-    solidL(i, 37.58, 38, -52.95, -52.2, W, W + 1.6);
+    solidS(i, 37.58, 38, -52.95, -52.2, W, W + 1.6);
     /* 경보 종 — 우리 벽(z −53, armA 쪽) 쇠 까치발에 종(회전체) + 줄 */
     { const x = 37.35, p = L(x, -52.66);
       rod('ctele', 'bell', WMAT_PAINT, [x, W + 2.62, -53.0], [x, W + 2.62, -52.62], 0.02, IRONC); rod('ctele', 'bell', WMAT_PAINT, [x, W + 2.2, -53.0], [x, W + 2.62, -52.75], 0.014, IRONC);
@@ -8117,14 +8262,15 @@ function buildCastle(){
   }
   /* 망루 소품 — 걸상 · 지도 핀 판(우리 벽). 69차 — 망원경은 뺐다(선생님: "창문 옆에 망원경 치워 줘. 기능 없잖아") */
   function watchProps(T, F){
-    const i = T.i, L = (x, z)=> cxf(i, x, z), Y = 12, Fz = F(0, 0, 1, 0, 0, 1);
+    const i = T.i, L = (x, z)=> cxf(i, ...shL(x, z)), Y = 12, Fz = F(0, 0, 1, 0, 0, 1);
+    const boxZ = (...a)=> boxS(Fz, ...a), solidS = (i, x0, x1, z0, z1, y0, y1)=>{ const d = shD((x0 + x1)/2, (z0 + z1)/2); solidL(i, x0 + d[0], x1 + d[0], z0 + d[1], z1 + d[1], y0, y1); };
     const s = L(33.3, -56.4);
     put('cbarrel', 'stool', NEWELG, WMAT_WOOD, s[0], Y + 0.44, s[1], 0, 0.19, 0.05, 0.19, 0, 0x7a5a3d);
     for(let k=0; k<3; k++){ const a = k*2.094 + 0.4; put('cbarrel', 'stool', NEWELG, WMAT_WOOD, s[0] + Math.cos(a)*0.12, Y + 0.21, s[1] + Math.sin(a)*0.12, Math.atan2(-Math.sin(a), Math.cos(a)), 0.022, 0.43, 0.022, -0.14, 0x5e452d); }
-    solidL(i, 33.11, 33.49, -56.59, -56.21, Y, Y + 0.46);
+    solidS(i, 33.11, 33.49, -56.59, -56.21, Y, Y + 0.46);
     /* 지도 핀 판 — 우리 벽(x 34 armB 얼굴) · 성문 쪽 붉은 핀 셋(둥근 머리 핀) */
-    box(Fz, 'cwoodN', 'pinBoard', WGEO, WMAT_WOOD, 33.93, 33.98, -55.7, -54.5, Y + 0.85, Y + 1.65, TIMBER_D);
-    box(Fz, 'cpropP', 'pinBoard', WGEO, WMAT_PAINT, 33.9, 33.94, -55.62, -54.58, Y + 0.92, Y + 1.58, 0xd8c79e);
+    boxZ('cwoodN', 'pinBoard', WGEO, WMAT_WOOD, 33.93, 33.98, -55.7, -54.5, Y + 0.85, Y + 1.65, TIMBER_D);
+    boxZ('cpropP', 'pinBoard', WGEO, WMAT_PAINT, 33.9, 33.94, -55.62, -54.58, Y + 0.92, Y + 1.58, 0xd8c79e);
     for(const [z, y, c] of [[-55.3, 1.35, 0xd6352a], [-54.95, 1.12, 0xd6352a], [-54.8, 1.42, GHEX[T.g]]]){ const p = L(33.86, z); put('moss', 'pinBoard', LEAFG, WMAT, p[0], Y + y, p[1], 0, 0.04, 0.04, 0.04, 0, c); }
   }
   /* 비밀 방 소품 — 궤짝(몸 + 둥근 뚜껑(닫힘/열림) · 쇠 띠 · 자물쇠) · 금화 더미와 쏟아진 금화 · 오래된 궤짝 — 손잡이는 CPLAN.secrets[i] 에 */
@@ -8171,72 +8317,93 @@ function buildCastle(){
   function spiralArt(o){ litIn = true; try { spiralArt0(o); } finally { litIn = false; } }
   function spiralArt0(o){
     const {cx, cz, th0, y0, n, top, ceil, doors, land, extra} = o;
+    /* 70차 2회차 — 나선마다 배율 s(탑 1.5 · K 1) · 기둥 A · 우물 B · 문 폭 DW. 같은 기하(TREADG·FILLG)를 인스턴스 배율로 키운다(새 기하·새 열쇠 0) */
+    const s = o.s || 1, A = o.a || 0.4, B = o.b || 1.8, DW = o.dw || 1.34, HC = 2*s, PT = HC - B;   // HC = 우리 반폭 · PT = 변 판 두께
     const ptA = (a, r)=> [cx + r*Math.cos(a), cz + r*Math.sin(a)];
     const secBB = (a, yT)=>{ let x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9;       // 부채꼴 상자
-      for(const aa of [a, a + PI/12, a + PI/6]) for(const r of [0.4, 1.8]){ const [x, z] = ptA(aa, r); x0 = Math.min(x0, x); x1 = Math.max(x1, x); z0 = Math.min(z0, z); z1 = Math.max(z1, z); }
+      for(const aa of [a, a + PI/12, a + PI/6]) for(const r of [A, B]){ const [x, z] = ptA(aa, r); x0 = Math.min(x0, x); x1 = Math.max(x1, x); z0 = Math.min(z0, z); z1 = Math.max(z1, z); }
       return [x0, x1, z0, z1, yT - 0.35, yT]; };
     /* 69차 — 디딤마다 돌 색을 흔든다(밝고 짙은 회색·따뜻한 사암·서늘한 청회) · 한 디딤 안의 결·닳은 코·줄눈은 TREADG 꼭짓점 색 */
     const TRC = [0x857d6e, 0x7a7366, 0x8e8676, 0x716a5e, 0x817869, 0x8b7f69, 0x7b7568, 0x7d7465];   // 70차 — 모두 R ≥ G ≥ B(0x757670 은 G > R 라 푸른 반구광 아래 파랗게 튀었다)
     const trc = ()=> dk(TRC[(R()*TRC.length*0.999)|0], INK*0.5);
     for(let j=0; j<n; j++){ const a = th0 + j*PI/6, yT = y0 + (j + 1)/3;
-      put('ctread', 'tread', TREADG, WMAT, cx, yT, cz, -a, 1, 1, 1, 0, trc(), secBB(a, yT)); }
+      put('ctread', 'tread', TREADG, WMAT, cx, yT, cz, -a, s, 1, s, 0, trc(), secBB(a, yT)); }
     if(land) for(let k=0; k<5; k++){ const a = th0 + k*PI/6;                 // 윗끝 층계참(th 0 ~ 150°) — 망루 문 앞
-      put('ctread', 'tread', TREADG, WMAT, cx, top, cz, -a, 1, 1, 1, 0, trc(), secBB(a, top)); }
+      put('ctread', 'tread', TREADG, WMAT, cx, top, cz, -a, s, 1, s, 0, trc(), secBB(a, top)); }
     for(let y = y0, k = 0; y < ceil - 0.01; y += 1.0, k++){ const h = Math.min(1.0, ceil - y);
-      put('cnewel', 'newel', NEWELG, WMAT, cx, y + h/2, cz, 0, 0.4, h, 0.4, 0, dk(k % 2 ? 0x6a645a : 0x716b60, INK*0.5)); }
+      put('cnewel', 'newel', NEWELG, WMAT, cx, y + h/2, cz, 0, A, h, A, 0, dk(k % 2 ? 0x6a645a : 0x716b60, INK*0.5)); }
     const bands = []; for(let y = y0; y < ceil - 0.01; y += 4.8) bands.push([y, Math.min(ceil, y + 4.8)]);
     for(const [sx, sz] of [[1,1],[1,-1],[-1,1],[-1,-1]]){ const ry = PI/4 - Math.atan2(sz, sx);
-      bands.forEach(([b0, b1], k)=> put('cfill', 'fill', FILLG, WMAT, cx, (b0 + b1)/2, cz, ry, 1, b1 - b0, 1, 0, dk(k % 2 ? 0x736b5e : 0x7a7264, INK*0.6),
-        [cx + Math.min(0, sx*2), cx + Math.max(0, sx*2), cz + Math.min(0, sz*2), cz + Math.max(0, sz*2), b0, b1])); }
+      bands.forEach(([b0, b1], k)=> put('cfill', s > 1 ? 'fillW' : 'fill', FILLG, WMAT, cx, (b0 + b1)/2, cz, ry, s, b1 - b0, s, 0, dk(k % 2 ? 0x736b5e : 0x7a7264, INK*0.6),
+        [cx + Math.min(0, sx*HC), cx + Math.max(0, sx*HC), cz + Math.min(0, sz*HC), cz + Math.max(0, sz*HC), b0, b1])); }
     /* 변 가운데 판 넷 — 문(홍예)·창 구멍 */
-    for(let k=0; k<4; k++){ const a = th0 + k*PI/2, c = Math.cos(a), s = Math.sin(a), Fp = frame(cx + 1.8*c, cz + 1.8*s, -s, c, -c, -s);
+    const DR = DW/2, VR = DR + 0.1;                                          // 문 반폭 · 홍예돌 가운데 반지름
+    for(let k=0; k<4; k++){ const a = th0 + k*PI/2, c = Math.cos(a), sn = Math.sin(a), Fp = frame(cx + B*c, cz + B*sn, -sn, c, -c, -sn);
       const hs = [];
       for(const D of doors) if(Math.abs(Math.atan2(Math.sin(D.th - a), Math.cos(D.th - a))) < 0.3){
-        const hh = D.flat ? [[-0.67, 0.67, D.y, D.y + D.flat]] : archHoles(0, 1.34, D.y, 2.3, 0);
+        const hh = D.flat ? [[-DR, DR, D.y, D.y + D.flat]] : archHoles(0, DW, D.y, 2.3, 0);
         hs.push(...hh);
-        if(!D.flat) for(let q=0; q<3; q++){ const aa = -PI/2 + (q + 0.5)*PI/3, rr = 0.77, [x, z] = K.at(Fp, rr*Math.sin(aa), 0.02);
-          put('cvous', 'doorFrame', VOUSG, WMAT, x, D.y + 2.3 - 0.67 + rr*Math.cos(aa), z, K.ryN(Fp), 0.74, 0.2, 0.12, -aa*K.xs(Fp), q === 1 ? 0x857e70 : 0x746d60); }
-        if(D.sec >= 0) secretSlab(Fp, D, CPLAN.secrets[D.sec]);
+        if(!D.flat) for(let q=0; q<3; q++){ const aa = -PI/2 + (q + 0.5)*PI/3, [x, z] = K.at(Fp, VR*Math.sin(aa), 0.02);
+          put('cvous', 'doorFrame', VOUSG, WMAT, x, D.y + 2.3 - DR + VR*Math.cos(aa), z, K.ryN(Fp), 0.74*VR/0.77, 0.2, 0.12, -aa*K.xs(Fp), q === 1 ? 0x857e70 : 0x746d60); }
+        if(D.sec >= 0) secretSlab(Fp, D, CPLAN.secrets[D.sec], DW, PT);
       }
-      for(const X of extra || []) if(Math.abs(X.dir[0]*c + X.dir[1]*s - 1) < 0.01) hs.push([-0.2, 0.2, X.y0, X.y1]);
-      slab(Fp, 'cboxN', 'cagePanel', BOXG, WMAT, -0.76, 0.76, -0.2, 0.0, y0, ceil, hs, ()=> dk(R() < 0.5 ? 0x736b5e : 0x7a7264, INK*0.6)); }   // 69차 — 마름돌(ASHK) 무늬가 얹히니 한 단 밝게 · ±0.76(구석 메움과 0.7 사이 틈으로 뒤가 점선처럼 비치던 것)
-    /* 문마다 곁 횃불(우물 벽 1.9) · 숨은 문 곁은 불 꺼진 횃대(힌트) */
+      for(const X of extra || []) if(Math.abs(X.dir[0]*c + X.dir[1]*sn - 1) < 0.01) hs.push([-0.2, 0.2, X.y0, X.y1]);
+      slab(Fp, 'cboxN', 'cagePanel', BOXG, WMAT, -0.76*s, 0.76*s, -PT, 0.0, y0, ceil, hs, ()=> dk(R() < 0.5 ? 0x736b5e : 0x7a7264, INK*0.6)); }   // 69차 — 마름돌(ASHK) 무늬가 얹히니 한 단 밝게 · ±0.76(구석 메움과 0.7 사이 틈으로 뒤가 점선처럼 비치던 것)
     /* 문 곁 불빛 — 8층 초소 문(가운데 층)은 횃불, 끝 문(1층·망루·K)은 작은 벽 등잔, 숨은 문 곁은 불 꺼진 횃대(힌트) */
-    for(const D of doors){ const a = D.sec >= 0 ? D.th - 0.62 : D.th + 0.62, c = Math.cos(a), s = Math.sin(a), Ft = frame(cx + 1.8*c, cz + 1.8*s, -s, c, -c, -s);
+    const tA = Math.asin(Math.min(0.95, (DR + 0.45)/B));                   // 문 가장자리에서 0.45 떨어진 각(탑 0.47 · K 0.62)
+    for(const D of doors){ const a = D.sec >= 0 ? D.th - tA : D.th + tA, c = Math.cos(a), sn = Math.sin(a), Ft = frame(cx + B*c, cz + B*sn, -sn, c, -c, -sn);
       if(D.noTorch) continue;
       if(D.sec >= 0) torch(Ft, 0, D.y + 1.55, false);
       else if(Math.abs(D.y - 8) < 0.01 && !o.k) torch(Ft, 0, D.y + Math.min(1.9, ceil - D.y - 0.75), true);
       else if(!(D.flat && !o.k)) sconce(Ft, 0, D.y + Math.min(1.5, ceil - D.y - 0.65)); }   // 망루 문(12)은 창빛이 밝혀 등잔을 안 단다(불빛 예산)
-    /* 벽 손잡이 밧줄 — 우물 벽 1.72 에 쇠 고리(120°마다)로 걸어 디딤 위 0.95 를 따라 오른다. 문 쐐기는 건너뛴다 */
-    { const RR = 1.7, pts = [], openAt = (th, y)=> doors.some(D=> Math.abs(Math.atan2(Math.sin(th - D.th), Math.cos(th - D.th))) < 0.55 && y > D.y - 0.4 && y < D.y + 2.6) || (extra || []).some(X=> Math.abs(Math.cos(th)*X.dir[0] + Math.sin(th)*X.dir[1] - 1) < 0.08 && y > X.y0 - 0.6 && y < X.y1 + 0.3);
-      for(let j=0; j<=n; j+=2){ const th = th0 + j*PI/6, y = y0 + (j + 0.5)/3 + 0.95; pts.push([th, y]); }
-      for(let k=0; k<pts.length-1; k++){ const [t0, ya] = pts[k], [t1, yb] = pts[k+1], tm = (t0 + t1)/2, ym = (ya + yb)/2;
-        if(yb > ceil - 0.3 || openAt(t0, ya) || openAt(t1, yb) || openAt(tm, ym)) continue;
-        rodW('ctele', 'rope', WMAT_PAINT, [cx + RR*Math.cos(t0), ya, cz + RR*Math.sin(t0)], [cx + RR*Math.cos(t1), yb, cz + RR*Math.sin(t1)], 0.024, 0x5e4a33);
-        if(k % 3 === 0){ const tx = -Math.sin(t0), tz = Math.cos(t0); put('cring', 'rope', RINGG, WMAT_PAINT, cx + 1.76*Math.cos(t0), ya, cz + 1.76*Math.sin(t0), ringRy(tx, tz), 0.05, 0.35, 0.05, PI/2, IRONC); } } }
+    /* 70차 2회차 벽 손잡이(선생님: "난간 나무 같은거 모양이 좀 잘못됐다") — 69차 밧줄은 우물 벽 r 1.7 에 60° 곧은 현(길이 1.7)으로 이어
+       현 가운데가 r 1.47(몸이 다니는 띠 안)까지 들어와 눈앞을 대각선으로 가로질렀다. 이제 중세 나선 계단의 벽 손잡이: 우물 벽을 따라 나선으로 오르는
+       둥근 나무 손잡이(8각 cbarrel · 굵기 0.035)를 20° 토막(처짐 0.04)으로 잇고, 60° 마다 쇠 까치발(ctele)이 벽에서 받친다.
+       높이 = 그 각의 디딤 윗면(연속 나선 y0 + (θ/30° + 0.5)/3) + 0.82 · 반지름 B − 0.09. 문·숨은 문·창 곁·천장 밑에서 끊고, 끊긴 끝은 벽으로 꺾는다 */
+    { const RR = B - 0.09, RW = B - 0.01, RK = 0.035, SEG = PI/9, yAt = (t)=> y0 + (t/(PI/6) + 0.5)/3 + 0.82;
+      const RCOL = [0x5a3f28, 0x4f3724, 0x563c27];
+      const openAt = (t, y)=> doors.some(D=> Math.abs(Math.atan2(Math.sin(th0 + t - D.th), Math.cos(th0 + t - D.th))) < Math.asin(Math.min(0.95, DR/B)) + 0.12 && y > D.y + 0.4 && y < D.y + 2.9)
+        || (extra || []).some(X=> Math.abs(Math.cos(th0 + t)*X.dir[0] + Math.sin(th0 + t)*X.dir[1] - 1) < 0.02 && y > X.y0 - 0.4 && y < X.y1 + 0.3)
+        || y > ceil - 0.35 || (land && t > n*PI/6 - PI/6);
+      const P3 = (t, r)=>{ const a = th0 + t; return [cx + r*Math.cos(a), yAt(t), cz + r*Math.sin(a)]; };
+      const tEnd = n*PI/6, ends = [];
+      let run = false, prev = null, k = 0;
+      for(let t = PI/12; t <= tEnd + 1e-6; t += SEG/2){                      // 반 토막(10°)씩 열림을 보고 20° 토막을 잇는다
+        const ok = !openAt(t, yAt(t));
+        if(ok && !run){ run = true; prev = t; ends.push(t); continue; }
+        if(!ok && run){ run = false; if(t - SEG/2 > prev + 1e-6){ rodW('cbarrel', 'rail', WMAT_WOOD, P3(prev, RR), P3(t - SEG/2, RR), RK, RCOL[k++ % 3]); } ends.push(t - SEG/2); continue; }
+        if(ok && run && t - prev >= SEG - 1e-6){ rodW('cbarrel', 'rail', WMAT_WOOD, P3(prev, RR), P3(t, RR), RK, RCOL[k++ % 3]); prev = t; }
+      }
+      if(run){ const t1 = Math.min(tEnd, prev + SEG); if(t1 > prev + 1e-3) rodW('cbarrel', 'rail', WMAT_WOOD, P3(prev, RR), P3(t1, RR), RK, RCOL[k++ % 3]); ends.push(t1); }
+      /* 쇠 까치발 — 60° 마다(열린 곳 빼고) 벽(RW, 0.16 아래)에서 손잡이 밑으로 · 토막 끝은 벽으로 꺾는 나무 끝토막 */
+      for(let t = PI/6; t < tEnd; t += PI/3){ const y = yAt(t); if(openAt(t, y)) continue;
+        const r0 = P3(t, RW), r1 = P3(t, RR + 0.01); rodW('ctele', 'railBracket', WMAT_PAINT, [r0[0], y - 0.17, r0[2]], [r1[0], y - RK, r1[2]], 0.012, IRONC); }
+      for(const t of ends){ const p0 = P3(t, RR), p1 = P3(t, RW); rodW('cbarrel', 'rail', WMAT_WOOD, p0, [p1[0], p0[1] - 0.05, p1[2]], RK, RCOL[0]); }
+    }
     /* 오르며 보는 창 — 창턱을 밝게(햇빛) · 그 둘레 우물 벽·디딤을 서늘하게 밝힘 */
-    for(const X of extra || []){ const Fp = frame(cx + 1.8*X.dir[0], cz + 1.8*X.dir[1], -X.dir[1], X.dir[0], -X.dir[0], -X.dir[1]);
-      flat(Fp, -0.22, 0.22, -0.3, 0.02, X.y0 - 0.06, X.y0 + 0.012, 0x9a927f, 'lining'); DAYL.push(cx + 1.4*X.dir[0], (X.y0 + X.y1)/2, cz + 1.4*X.dir[1], 1.0); }   // 69차 — 창턱 윗면을 우리 판 구멍 밑면보다 0.012 위로
-    flat(frame(cx - 2, cz - 2, 1, 0, 0, 1), 0, 4, 0, 4, ceil - 0.015, ceil + 0.085, CEIL, 'ceil');   // 69차 — 0.015 낮춤(K 계단 머리 지붕 밑면 16.4 와 같은 면에서 번쩍이던 것)
+    for(const X of extra || []){ const Fp = frame(cx + B*X.dir[0], cz + B*X.dir[1], -X.dir[1], X.dir[0], -X.dir[0], -X.dir[1]);
+      flat(Fp, -0.22, 0.22, -PT - 0.1, 0.02, X.y0 - 0.06, X.y0 + 0.012, 0x9a927f, 'lining'); DAYL.push(cx + (B - 0.4)*X.dir[0], (X.y0 + X.y1)/2, cz + (B - 0.4)*X.dir[1], 1.0); }   // 69차 — 창턱 윗면을 우리 판 구멍 밑면보다 0.012 위로
+    flat(frame(cx - HC, cz - HC, 1, 0, 0, 1), 0, 2*HC, 0, 2*HC, ceil - 0.015, ceil + 0.085, CEIL, 'ceil');   // 69차 — 0.015 낮춤(K 계단 머리 지붕 밑면 16.4 와 같은 면에서 번쩍이던 것)
   }
   /* 숨은 문 돌 판 — 우물 쪽·방 쪽 두 겹(csec, 앞면이 각자 밖을 본다). 연 아이 화면에서만 bset(false) */
-  function secretSlab(Fp, D, sec){
+  function secretSlab(Fp, D, sec, DW, PT){
     /* 70차 — 줄은 우리 판 구멍(archHoles 0 — 계단 네모 홍예: 1.63 까지 ±0.67 · 1.7975 ±0.67 · 1.965 ±0.649 · 2.1325 ±0.58 · 2.3 ±0.443)을 그대로 채운다.
        69차 판은 맨 윗줄(1.72~2.3)이 ±0.42 한 장이라 양옆에 폭 0.14~0.27 구멍이 앞뒤로 뚫려 숨은 방 불빛이 새고 홍예돌이 떠 보였다.
        우물 쪽 얼굴(Fp)은 줄눈 0.04 를 두고, 방 쪽 얼굴(Fr)은 줄마다 한 장·틈 없이(줄눈이 앞뒤로 곧게 뚫려 바깥·방 빛이 비치던 것) */
-    const Fr = frame(Fp.x0 - Fp.nx*0.2, Fp.z0 - Fp.nz*0.2, Fp.ux, Fp.uz, -Fp.nx, -Fp.nz);   // 방 쪽 얼굴(0.2 뒤)
-    const rows = [[0, 0.62, 0.67, 0.12], [0.62, 1.2, 0.67, -0.1], [1.2, 1.7975, 0.67, 0.12], [1.7975, 1.965, 0.6487, -0.1], [1.965, 2.1325, 0.5802, null], [2.1325, 2.3, 0.4431, null]];
+    const Fr = frame(Fp.x0 - Fp.nx*PT, Fp.z0 - Fp.nz*PT, Fp.ux, Fp.uz, -Fp.nx, -Fp.nz);   // 방 쪽 얼굴(판 두께 PT 뒤 — 70차 2회차: 탑 0.3)
+    const r = DW/2, sp = 2.3 - r, q = (k)=> r*Math.sqrt(1 - k*k/16);        // archHoles(0, DW, 0, 2.3, 0) 과 같은 줄(1.34 면 69차 표 그대로)
+    const rows = [[0, 0.62, r, 0.12], [0.62, 1.2, r, -0.1], [1.2, sp + r/4, r, 0.12], [sp + r/4, sp + r/2, q(1), -0.1], [sp + r/2, sp + 0.75*r, q(2), null], [sp + 0.75*r, 2.3, q(3), null]];
     rows.forEach(([a, b, hw, cut], r)=>{ const col = dk(0x5f594f + (r % 2 ? 0x060606 : 0), INK*0.4);
       const parts = cut === null ? [[-hw, hw]] : [[-hw, cut], [cut, hw]];
       for(const [u0, u1] of parts) sec.hs.push(box(Fp, 'csec', 'sec', BRICKF, WMAT, u0 === -hw ? u0 : u0 + 0.02, u1 === hw ? u1 : u1 - 0.02, -0.1, 0.0, D.y + a + (r ? 0.02 : 0.005), D.y + b - (r < rows.length - 1 ? 0.02 : 0.005), col));
       sec.hs.push(box(Fr, 'csec', 'sec', BRICKF, WMAT, -hw, hw, -0.1, 0.0, D.y + a + (r ? 0 : 0.005), D.y + b, col)); });
   }
   for(const T of CPLAN.towers){
-    const i = T.i, c = cxf(i, 36, -55), ex = [{dir:cxf(i, 1, 0), y0:4.0, y1:5.1}, {dir:cxf(i, 0, -1), y0:8.9, y1:10.0}];
+    const i = T.i, c = cxf(i, 37, -56), ex = [{dir:cxf(i, 1, 0), y0:4.0, y1:5.1}, {dir:cxf(i, 0, -1), y0:8.9, y1:10.0}];
     const doors = [{th:T.th0, y:0, sec:-1}, {th:T.th0, y:8, sec:-1}, {th:T.th0, y:12, sec:-1, flat:2.05}];
     if(T.hidden) doors.push({th:T.th0 + 1.5*PI, y:10/3, sec:T.hidden.secret});
-    spiralArt({cx:c[0], cz:c[1], th0:T.th0, y0:0, n:36, top:12, ceil:CW.EAVE, doors, land:true, extra:ex});   // 그림 천장은 망루 널 천장(처마 14.3)과 같이 — 지붕 밑판(14.35)이 우물 위로 안 보이게
-    paving(frame(c[0] - 2, c[1] - 2, 1, 0, 0, 1), 0, 4, 0, 4, 0.02, FLOOR_T, 'floor', true);
+    spiralArt({cx:c[0], cz:c[1], th0:T.th0, y0:0, n:36, top:12, ceil:CW.EAVE, doors, land:true, extra:ex, s:CW.SP.s, a:CW.SP.a, b:CW.SP.b, dw:CW.SP.door});   // 그림 천장은 망루 널 천장(처마 14.3)과 같이 — 지붕 밑판(14.35)이 우물 위로 안 보이게
+    paving(frame(c[0] - 3, c[1] - 3, 1, 0, 0, 1), 0, 6, 0, 6, 0.02, FLOOR_T, 'floor', true, CW.SP.s);
   }
 
   /* ════════ 5. 지붕 덮인 회랑 넷(NE 를 세계에서 짓고 R 로 돌림 — 회랑은 거울 대칭이라 돌림만) ════════
@@ -8273,7 +8440,7 @@ function buildCastle(){
     face(FW, 3.877, GL - 3.877, 7.98, 10.86, {grade:'A', holes:ES.map(s=> ({s0:s - 0.6, s1:s + 0.6, y0:8.42, y1:10.0}))});
     for(const s of ES) embrasure(FO, FW, s, 0.601, {wo:0.8, wi:1.2, yo0:8.5, yo1:9.9, yi0:8.42, yi1:10.0, col:INSTONE});
     /* 안 흉벽 · 판석(8) · 탑 면 문턱돌 */
-    lowPara(FI, 0.1, GL - 0.1, 0, 0.5, 0.85, W);
+    lowPara(FI, 0.1, GL - 0.1, 0, 0.4, CW.CURB, W);                       // 70차 2회차 — 회랑 마을 쪽 흉벽 0.85 → 낮은 턱 0.32(e 49.0~49.34 — 몸 판정 groundUnder 턱 띠 49.0~49.28)
     for(let o = E0; o < 3.877 - 0.05; ){ const d2 = Math.min(3.877 - o, 0.56);
       for(let s = o; s < GL - o - 0.05; ){ const ds = Math.min(GL - o - s, 0.8 + R()*0.5);
         flat(FI, s + 0.02, s + ds - 0.02, -o - d2 + 0.02, -o - 0.02, W - 0.1, W + 0.004, PAL.TREAD[(R()*4)|0], 'pave'); s += ds; }
@@ -8281,8 +8448,8 @@ function buildCastle(){
     for(const [x0, x1, z0, z1] of [[33.3, 38.3, -49.0, -48.62], [48.62, 49.0, -38.3, -33.3]]){ const a = mp(x0, z0), b = mp(x1, z1);
       put('cboxN', 'pave', BOXG, WMAT, (a[0]+b[0])/2, W - 0.03, (a[1]+b[1])/2, 0, Math.abs(b[0]-a[0]), 0.12, Math.abs(b[1]-a[1]), 0, 0x978f81); }
     /* 기둥(대각 가운데 기준 2.0 박자) · 도리 · 기둥 등(가운데·±6, 마을 쪽 면) */
-    for(let q = -5; q <= 5; q++){ const s = GM + 2*q; box(FI, 'cwood', 'post', WGEO, WMAT_WOOD, s - 0.15, s + 0.15, -0.4, -0.1, W + 0.95, 10.0, TIMBER);
-      box(FI, 'csmall', 'postBase', WGEO, WMAT, s - 0.22, s + 0.22, -0.47, -0.03, W + 0.92, W + 1.04, 0x9a927f);        // 기둥 받침돌(흉벽 갓돌 위)
+    for(let q = -5; q <= 5; q++){ const s = GM + 2*q; box(FI, 'cwood', 'post', WGEO, WMAT_WOOD, s - 0.15, s + 0.15, -0.4, -0.1, W + CW.CURB + 0.17, 10.0, TIMBER);   // 70차 2회차 — 턱 위에 선 기둥(사이 1.7 트임 — 조준을 막지 않는다)
+      box(FI, 'csmall', 'postBase', WGEO, WMAT, s - 0.22, s + 0.22, -0.47, -0.03, W + CW.CURB + 0.05, W + CW.CURB + 0.17, 0x9a927f);        // 기둥 받침돌(턱 갓돌 위)
       box(FI, 'cwoodN', 'post', WGEO, WMAT_WOOD, s - 0.155, s + 0.155, -0.405, -0.095, 9.62, 9.7, 0x5a4330); }            // 기둥 머리 띠
     /* 기대 놓은 창·방패 · 물통 — 회랑 두 끝 가까이 바깥 돌벽 앞(달리는 띠 가운데는 비움) */
     for(const sE of [GM - 7.9, GM + 7.9]){ const [x, z] = K.at(FW, sE, 0.14), ry2 = K.ryN(FW), sgn = sE < GM ? 1 : -1;
@@ -8360,7 +8527,7 @@ function buildCastle(){
       put('moss', 'moss', LEAFG, WMAT, x, 10.05 + sz*0.1, z, R()*3, sz, sz*0.34, sz*0.8, 0, R() < 0.5 ? PAL.MOSS : PAL.MOSS2); }
     /* K 나선(8 → 14, 1.5바퀴) — 디딤 17 + 윗끝 층계참(150°~360°) */
     const th0 = CPLAN.K.th0;
-    spiralArt({cx:0, cz:56, th0, y0:W, n:17, top:KT, ceil:16.4, land:false, k:true,
+    spiralArt({cx:0, cz:56, th0, y0:W, n:17, top:KT, ceil:16.4, land:false, k:true, s:CW.SPK.s, a:CW.SPK.a, b:CW.SPK.b, dw:CW.SPK.door,
       doors:[{th:th0, y:W, sec:-1}, {th:th0 + PI, y:KT, sec:-1}], extra:[]});
     for(let q=0; q<7; q++){ const a = th0 + 2*PI + (5 + q)*PI/6;
       put('ctread', 'tread', TREADG, WMAT, 0, KT, 56, -a, 1, 1, 1, 0, 0x8f887a, [-1.8, 1.8, 54.2, 57.8, KT - 0.35, KT]); }   // 부채꼴 상자는 우리 전체로(겹침 검사엔 디딤끼리 쓰지 않는다)
@@ -8444,10 +8611,10 @@ function buildCastle(){
   /* 모서리 탑 — 바깥 모서리(북·동 면이 만나는 곳, 해자 쪽): 북 면 큰 포기 + 동 면 작은 포기 */
   const TAL = [[2.0, 3.0, 0.5], [3.0, 3.45, 0.26]];                        // 기단 경사 [아래, 위, 내민 폭]
   for(const T of CPLAN.towers){ const i = T.i, F = (x0, z0, ux, uz, nx, nz)=> tf(i, LF(x0, z0, ux, uz, nx, nz));
-    const T_E = F(39, -49, 0, -1, 1, 0), T_N = F(39, -58, -1, 0, 0, -1);
-    const exN = [[2.4, 3.6, 8.7, 10.2], [5.9, 7.1, 8.7, 10.2], [5.8, 7.2, 12.3, 14.1]], exE = [[5.4, 6.6, 3.8, 5.3], [1.9, 3.1, 8.7, 10.2], [1.8, 3.2, 12.3, 14.1]];
-    ivy(T_N, 1.4 + R()*0.4, 3.45, 5.0 + R()*1.4, 0.95, exN, 11.1, 0, 9, TAL);
-    ivy(T_E, 7.6 + R()*0.3, 3.45, 3.2 + R()*1.0, 0.7, exE, 11.1, 0, 9, TAL); }
+    const TX = 30 + CW.TW, TZ = -49 - CW.TW, T_E = F(TX, -49, 0, -1, 1, 0), T_N = F(TX, TZ, -1, 0, 0, -1);   // 70차 2회차 — 탑 11×11 바깥 얼굴(x 41 · z −60)
+    const exN = [[3.4, 4.6, 8.7, 10.2], [7.9, 9.1, 8.7, 10.2], [7.8, 9.2, 12.3, 14.1]], exE = [[6.4, 7.6, 3.8, 5.3], [1.9, 3.1, 8.7, 10.2], [1.8, 3.2, 12.3, 14.1]];
+    ivy(T_N, 1.4 + R()*0.4, 3.45, 5.0 + R()*1.4, 0.95, exN, 11.1, 0, CW.TW, TAL);
+    ivy(T_E, CW.TW - 1.4 + R()*0.3, 3.45, 3.2 + R()*1.0, 0.7, exE, 11.1, 0, CW.TW, TAL); }
   /* 곧은 성벽 바깥(해자 쪽) — 성가퀴 밑돌까지 타고 오름 · 갓돌에서 늘어진 가닥 둘 */
   for(const S of CPLAN.straights){ if(!S.corr) continue; const g = S.g, s = S.s, d = DIRS[g], o53 = {x:gX(g, 53, 0), z:gZ(g, 53, 0)};
     const FO = frame(o53.x, o53.z, -d.dz*s, d.dx*s, d.dx, d.dz), P = 19 + R()*7;
@@ -8591,7 +8758,7 @@ function buildCrystal(){
       depthWrite:false, blending:THREE.AdditiveBlending, fog:false}));
   cGlow.rotation.x = -Math.PI/2; cGlow.position.y = 0.06; crystalGroup.add(cGlow);
 
-  crystalLight = new THREE.PointLight(0x8feaff, 2.8, 34); crystalLight.position.y = 2.0;
+  crystalLight = new THREE.PointLight(0x8feaff, 2.8, 34); crystalLight.position.y = 2.0; crystalLight.layers.enable(2);   // 70차 2회차 — 손 층(2)도 같은 빛(재질 변형이 두 패스에서 같게)
   crystalGroup.add(crystalLight);
 
   /* 하늘로 뻗는 빛기둥 — 멀리서도 우리 수정이 보인다 */
@@ -12323,6 +12490,10 @@ for(const k of Object.keys(BUILD)){
   g.rotation.set(-0.14, 0.50, 0.16);
   bakeHeld(g); g.visible = false; held.add(g); heldBlocks[k] = g;
 }
+/* 70차 2회차 — 1인칭 손(든 도구·총·팔)은 층 2 에만 둔다(층 1 = 총 발광 실루엣은 그대로). drawFrame 이 장면(층 0)을 다 그린 뒤 깊이만 지우고
+   층 2 를 한 번 더 그린다 — 벽·흉벽·문설에 바짝 붙어도 총이 돌 속에 묻히지 않는다(선생님 사진: 회랑 난간 속 '용의 숨결'). 새 재질·빛 0 */
+held.traverse((o)=>{ if(o.isMesh || o.isLine || o.isPoints || o.isSprite){ o.layers.disable(0); o.layers.enable(2); } });
+for(const L of [hemi, sun, amb, heldLight]) L.layers.enable(2);
 let heldCur = null;
 function setHeld(key){
   /* ★ 총은 무기마다 모형이 다르므로 '지금 든 무기 번호'까지 열쇠에 넣는다.
@@ -15886,16 +16057,22 @@ function limb2(mesh, i, hx, hy, hz, fx, fz, rxv, rzv, ry, th, rl, off, L2, w, d,
     ry, -th, rl, w, L2, d, col);
 }
 const GAIT_M = new WeakMap();
-const STRIDE_WALK = 3.4, STRIDE_RUN = 4.8;
+const STRIDE_WALK = 3.4, STRIDE_RUN = 4.8, STRIDE_STAIR = {walk:2.6, run:3.7, capW:2.4, capR:2.6};
+/* 70차 2회차 — 계단 걸음: 보이는 몸 기울기 |st| 0.15~0.35 에서 짧은 보폭(2.6·3.7)·빠른 박자 상한(2.4·2.6Hz)으로 섞는다 — 한 걸음에 디딤 두세 칸(발과 몸이 계단 박자에 맞게).
+   평지(st 0)는 그대로(걷기 1.6 · 달리기 2.0Hz 상한) */
 // 게임 이동 속도와 별개인 표시용 박자. 물약·전직으로 빨라져도 발을 떨지 않는다.
-function sheepGaitStep(distance,dt,run){
-  const stride=(run?STRIDE_RUN:STRIDE_WALK)*(raceOn()?1.4:1);
-  return Math.min(Math.max(0,distance)/stride,Math.max(0,dt)*(run?2.0:1.6))*Math.PI*2;
+function sheepGaitStep(distance,dt,run,st){
+  const sk=Math.max(0,Math.min(1,(Math.abs(st||0)-.15)/.2)), stride=((run?STRIDE_RUN:STRIDE_WALK) + ((run?STRIDE_STAIR.run:STRIDE_STAIR.walk) - (run?STRIDE_RUN:STRIDE_WALK))*sk)*(raceOn()?1.4:1);
+  const cap=(run?2.0:1.6) + ((run?STRIDE_STAIR.capR:STRIDE_STAIR.capW) - (run?2.0:1.6))*sk;
+  return Math.min(Math.max(0,distance)/stride,Math.max(0,dt)*cap)*Math.PI*2;
 }
 function sheepGait(s, t){
-  let g = GAIT_M.get(s); if(!g){ g = {gp:(s.ph||0), lx:s.x, lz:s.z, lt:t, v:0, acc:0, dt:0.016, dust:0}; GAIT_M.set(s, g); return g; }
+  let g = GAIT_M.get(s); if(!g){ g = {gp:(s.ph||0), lx:s.x, lz:s.z, ly:s.y, st:0, lt:t, v:0, acc:0, dt:0.016, dust:0}; GAIT_M.set(s, g); return g; }
   const dt = t - g.lt; if(dt <= 0) return g; g.lt = t; g.dt = dt;
   const dx=s.x-g.lx,dz=s.z-g.lz,d=Math.hypot(dx,dz);g.lx=s.x;g.lz=s.z;
+  { const yv = s.y === undefined ? 0 : s.y, dy = yv - (g.ly === undefined ? yv : g.ly); g.ly = yv;   // 70차 2회차 — 보이는 몸 기울기(친구·3인칭 — 통신 없음). 내 몸은 PLV.st 를 s.stair 로 받는다
+    const st0 = s.stair !== undefined ? s.stair : (!s.air && !s.down && !raceOn() && d > 0.004 && d < 1.5) ? Math.max(-1, Math.min(1, dy/d)) : 0;
+    g.st = s.stair !== undefined ? st0 : (g.st || 0) + (st0 - (g.st || 0))*(1 - Math.exp(-dt*10)); }
   g.travel=d;
   if(g.dust > 0) g.dust -= dt;
   if(d>3){g.acc=0;g.vx=g.vz=0;return g;}
@@ -15903,7 +16080,7 @@ function sheepGait(s, t){
   const v0 = g.v; g.v += (d/dt - g.v) * (1-Math.exp(-dt*14));
   g.acc += ((g.v - v0)/dt - g.acc) * (1-Math.exp(-dt*9));
   const run = s.run !== undefined ? !!s.run : g.v > SPD*1.2*(raceOn() ? RACE_SPD : 1);
-  if(!s.down && !s.air) g.gp += sheepGaitStep(d,dt,run);
+  if(!s.down && !s.air) g.gp += sheepGaitStep(d,dt,run,g.st);
   return g;
 }
 function sheepEase(v){v=Math.max(0,Math.min(1,v));return v*v*(3-2*v);}
@@ -16073,7 +16250,10 @@ function drawSheep(list, t, cap, colOf, scale){
     const legSpan=.525,strideAmp=(.23+.06*runK)*mvK,stanceF=strideAmp*Math.cos(gait);
     const stanceDip=legSpan-Math.sqrt(Math.max(0,legSpan*legSpan-stanceF*stanceF));                                           // 두 발의 디딤마다 작게 올라온다
     // Lower the hips into each support step; two-bone knees preserve floor contact.
-    const bob=(mvK*(-stanceDip*.60-.004)-take*.035-land/.22*.055)*sc;
+    /* 70차 2회차 — 계단 걸음 자세: 보이는 몸 기울기(stS)만큼 앞발은 높은 디딤·뒷발은 낮은 디딤으로, 오를 땐 흔드는 발을 더 들어(무릎 들기) 몸을 조금 앞으로,
+       내릴 땐 살짝 뒤로. 디딤 위아래는 보이는 몸 높이(PLV)가 맡으니 컴퍼스 낙차는 줄인다. 경주·서바이벌·공중은 0 */
+    const stS=sheepBlend(gs,'stS',(down||air)?0:Math.max(-.8,Math.min(.8,gs.st||0)),poseDt,8),stK=Math.max(0,Math.min(1,(Math.abs(stS)-.15)/.2))*mvK,stUp=stS>0?1:0;
+    const bob=(mvK*(-stanceDip*.60*(1-.4*stK)-.004)-take*.035-land/.22*.055)*sc;
     /* 44차 — 출발·급정지 자세: 가속(acc>0)이면 뒤로 살짝 눌리고(코 위), 급정지(acc<0)면 앞으로 쏠린다(코 아래). 급정지 땐 발밑 먼지 한 번(0.6초에 한 번만) */
     const accL = (down || air) ? 0 : Math.max(-0.22, Math.min(0.22, -gs.acc*0.022));
     if(!down && !air && gs.acc < -9 && gs.v > 1.4 && !(gs.dust > 0)){ gs.dust = 0.6; burst(s.x, y + 0.06, s.z, 0xd9cdb4, 4, 0.45); }
@@ -16093,7 +16273,7 @@ function drawSheep(list, t, cap, colOf, scale){
     const kick = !down ? Math.min(1.6, s.kick || 0) : 0;
     /* 54차 — 허리 중심으로 온몸에 힘을 싣는다. 준비는 뒤로, 타격은 앞으로, 사격은 반동으로 뒤로.
        다리는 이 회전을 보상하면서 앞뒤로 벌려 버틴다. 경주 달리기도 실제 전방으로 기운다. */
-    const rootPitch = glideK*.95 + mvK*(.045+runK*.110)*dirF
+    const rootPitch = glideK*.95 + mvK*(.045+runK*.110)*dirF + stK*(stUp ? .10 : -.04)
       - wind*(isThrow ? .18 : .13) + strike*(isWork ? .16 : .27) - kick*.14;
     const rootF = down ? 0 : -wind*.025 + strike*.045 - kick*.035;
     const lean = accL*.45 + airK*(1-glideK)*(.035-rise*.075) + (1-airK)*mvK*Math.sin(gait+.4)*(.012+runK*.013)
@@ -16259,12 +16439,12 @@ function drawSheep(list, t, cap, colOf, scale){
       const hip=sheepPoint([X(0,R6_HSD*si),hipY,Z(0,R6_HSD*si)]),step=sheepFootPose(gait+(si>0?0:Math.PI),runK);
       const intent=Math.min(1,wind+strike),brace=si*(intent*.055+(hasGun?.045:0)),stepF=step.f*mvK,f=si*(wind*.06-strike*.085-kick*.04);
       const sd=(R6_HSD+intent*.045+(hasGun?.035:0))*si;
-      const toe=step.toe*mvK,lift=step.lift*mvK,shoeY=(.065*Math.cos(toe)+.195*Math.abs(Math.sin(toe)))*sc;
+      const toe=step.toe*mvK,lift=step.lift*mvK*(1+stK*(stUp?1.3:.4)),shoeY=(.065*Math.cos(toe)+.195*Math.abs(Math.sin(toe)))*sc;
       // 옆걸음은 각 발의 바깥쪽 통로에서 작은 호를 그린다. 발을 바닥에 붙잡았다가
       // 관절 길이 한계에서 튕기거나, 가운데 선에서 좌표를 갑자기 잘라내지 않는다.
       const stepSide=sd+dirS*stepF*.32+si*Math.abs(dirS)*mvK*.14;
       const stepFront=dirF*stepF+f+brace;
-      const ground=[s.x+(fx*stepFront+rx*stepSide)*sc,y+shoeY+.01*sc+lift*sc,s.z+(fz*stepFront+rz*stepSide)*sc];
+      const ground=[s.x+(fx*stepFront+rx*stepSide)*sc,y+shoeY+.01*sc+lift*sc+stepF*sc*stS*(1-airK),s.z+(fz*stepFront+rz*stepSide)*sc];   // 70차 2회차 — 계단 경사 따라 앞발 높게
       const th=down?-.20*si:.12+rise*.24+take*.30+glideK*.16,bend=down?.15:.20+rise*.55+take*.35+glideK*.32;
       const airF=Math.sin(th)*.275+Math.sin(th-bend)*.250;
       const airU=R6_HIP-Math.cos(th)*.275-Math.cos(th-bend)*.250;
@@ -16626,9 +16806,13 @@ function groundUnder(x,z,R,y,mv){
   for(const [ox,oz] of [[-R,-R],[R,-R],[-R,R],[R,R],[0,0]]){
     const px = x+ox, pz = z+oz, cx = Math.floor(px), cz = Math.floor(pz);
     let h = solidTop(cx, cz);
-    if(inW(cx,cz)){ const k = stairOf[gi(cx,cz)];
+    if(inW(cx,cz)){ const ii = gi(cx,cz), k = stairOf[ii];
       if(k >= 1000) h = spiralH(k - 1000, px, pz, y === undefined ? SPIRALS[k - 1000].y0 : y);   // 67차 — 나선: 발 높이로 바퀴를 고른다
-      else if(k >= 0) h = stairH(k, px, pz); }   // 66차 — 성문 계단은 반 칸 디딤의 정확한 높이
+      else if(k >= 0) h = stairH(k, px, pz);    // 66차 — 성문 계단은 반 칸 디딤의 정확한 높이
+      else if(CASTLE[ii] === CK.GALW){          // 70차 2회차 — 회랑 마을 쪽 끝은 칸 톱니가 아니라 참 얼굴(e 49.0): 그 안쪽은 둘레길(GY), 49.0~49.45 는 낮은 턱(윗면 8.32)
+        const e = (Math.abs(px) + Math.abs(pz))*CHAM;
+        if(e < CW.IN) h = GY;
+        else if(e < CW.GAL_CURB_E1){ h = GY + CW.WALK + CW.CURB; if(mv && y !== undefined && PL.ground && y > GY + CW.WALK - 0.05 && y < h - 0.1) h = y + STEP + 0.1; } } }   // 회랑 바닥에 선 몸(발이 턱 밑)에겐 벽 — 걸어서는 안 넘고 뛰면 넘는다
     if(h > m) m = h;
   }
   /* 66차 — 성문 상자(성벽 길 다리·흉벽). 발 높이 y 를 아는 부름(사람 몸)에서만 본다:
@@ -16641,6 +16825,7 @@ function groundUnder(x,z,R,y,mv){
         /* 67차 — 지붕(ROOF)은 딛지 않는다: 착지 부름에선 없는 셈(위에서 떨어져도 지붕을 지나 밑 바닥으로 — 들썩임 없음),
            수평 이동 부름(mv)에선 몸 세로 범위와 겹칠 때만 벽 */
         if(b.k === GK.ROOF){ if(mv && b.y0 < y + 1.4 && b.y1 > y) m = b.y1; continue; }
+        if(b.curb && mv && PL.ground && y > b.y0 - 0.05 && y < b.y1 - 0.1){ if(y + STEP + 0.1 > m) m = y + STEP + 0.1; continue; }   // 70차 2회차 — 성벽 길 낮은 턱: 성벽 길 바닥에 선 몸의 수평 이동엔 벽(공중·턱 위 몸은 보통 바닥 · 밑 둘레길 몸은 보통 벽)
         if(b.y1 <= y + STEP + 0.001 || b.y0 < y + 1.4){
           /* 70차 — 올라설 윗면 위에 머리(1.4)가 안 들어가면(지도 방 선반 1.8 · 천장 3.0 — 그 자리 몸 둘레 천장으로 잰다 · 올라서는 프레임에만) 딛지 않고 벽으로 친다 — 뛰어 올라서면 머리가 천장 속에 박혀 굳었다 */
           if(b.y1 > y + 0.05 && b.y1 <= y + STEP + 0.001 && ceilingOver(x, z, R, b.y1) < b.y1 + 1.4){ if(y + STEP + 0.1 > m) m = y + STEP + 0.1; continue; }
@@ -16939,7 +17124,7 @@ function updPlayer(dt){
   if(!miniOn() && gnd0 && PL.ground) camStepAdd(PL.y - yV0);         // 69차 — 땅에 붙은 채 디딤 높이만큼 툭 오르내림 → 카메라는 제자리에서 부드럽게 따라간다
   /* 내 몸과 친구의 몸은 같은 느린 걸음 시계를 쓴다. 물리 속도는 바꾸지 않는다. */
   { const dm = PL._px === undefined ? 0 : Math.hypot(PL.x - PL._px, PL.z - PL._pz);
-    if(dm > 0.001 && dm < 1.5 && PL.ground && !PL.down){ const prev = gaitMe; gaitMe += sheepGaitStep(dm,dt,sprinting);
+    if(dm > 0.001 && dm < 1.5 && PL.ground && !PL.down){ const prev = gaitMe; gaitMe += sheepGaitStep(dm,dt,sprinting,PLV.st);   // 70차 2회차 — 계단이면 짧은 보폭·빠른 박자
       if(Math.floor(gaitMe/(Math.PI*2)) !== Math.floor(prev/(Math.PI*2)) && window.__sfx){
         /* 42차 — 연못·개울 위에서는 찰랑(선생님: "물 위를 걷는 찰랑찰랑 소리") + 물방울 */
         const wet = !miniOn() && (Math.hypot(PL.x - POND.x, PL.z - POND.z) < POND.r || streamDist(PL.x, PL.z) < 0.9);
@@ -16975,12 +17160,10 @@ function updPlayer(dt){
   if(PL.down && specCam(dt)){ camBodyHidden = false; held.visible = false; return; }
 
   camAutoTick(dt);                                                    // 67차 — 지붕 밑 자동 1인칭(0.25초 들어감 · 0.4초 늦게 나옴)
-  { let tgt = 0, ramp = null; const cx = Math.floor(PL.x), cz = Math.floor(PL.z);   // 70차 — 성문 계단 위면 연속 경사를 과녁으로(경사가 오른 만큼은 바로 더한다 — 늦어짐 0)
-    if(!miniOn() && PL.ground) for(let n=0; n<CAM_NB.length; n += 2){ const qx = cx + CAM_NB[n], qz = cz + CAM_NB[n+1]; if(!inW(qx, qz)) continue;   // 몸 칸 · 곁 두 칸(계단 앞뒤 1.3 의 부드러운 끝도 경사로)
-      const k = stairOf[gi(qx, qz)]; if(k < 0 || k >= 1000) continue; const h = stairRamp(k, PL.x, PL.z, PL.R); if(Math.abs(h - PL.y) > 0.6) continue;
-      ramp = h; tgt = Math.max(-0.5, Math.min(0.5, h - PL.y)); break; }
+  { let tgt = 0; const ramp = PL.ground ? stairRampAt(PL.x, PL.z, PL.y, PL.R) : null;   // 70차 — 성문 계단 위면 연속 경사를 과녁으로(경사가 오른 만큼은 바로 더한다 — 늦어짐 0) · 70차 2회차: 나선도(spiralRamp)
+    if(ramp !== null) tgt = Math.max(-0.5, Math.min(0.5, ramp - PL.y));
     if(ramp !== null && camRamp !== null && Math.abs(camRamp - ramp) < 0.5) camStepAdd(camRamp - ramp);   // (0.5 넘게 바뀌면 순간이동 — 안 더함)
-    camRamp = ramp; camStepTick(dt, tgt); }                           // 69차 — 계단 카메라 보간(임계 감쇠)
+    camRamp = ramp; camStepTick(dt, tgt); plvTick(dt, ramp); }        // 69차 — 계단 카메라 보간(임계 감쇠) · 70차 2회차 — 보이는 몸 높이(PLV)
   const footY = PL.y + camStepY;                                      // 카메라가 따라가는 발 높이 — 디딤 계단 대신 부드러운 경사
   const tk = tpvKind(), aK = (tk === 1 && !PL.down) ? camAutoK*camAutoK*(3 - 2*camAutoK) : 0;   // 빨려 들어가는 정도(smoothstep)
   const back = (PL.down ? DOWN_CAM : tk === 1 ? camZoom + (AIM_VIEW.back-camZoom)*camAimBlend + fovRun*0.05*(1-camAimBlend) : tk >= 0 ? MINI_CAM[tk] + fovRun*0.05 : 0) * (1 - aK);      // 39차 — 달리면 조금 더 물러난다 · 48차 — 마을은 휠로 정한 거리
@@ -17536,7 +17719,7 @@ function trePushWhich(){
       const T = CPLAN.towers[sec.spiral]; if(!T || !fwd) continue;
       if(Math.abs(PL.y - (GY + sec.y)) >= 0.5) continue;
       const dx = PL.x - T.scx, dz = PL.z - T.scz, r = Math.hypot(dx, dz);
-      if(r < 1.2 || r > CW.SP.b + 0.4) continue;
+      if(r < CW.SP.b - 1.5 || r > CW.SP.b + 0.4) continue;                // 70차 2회차 — 우물 벽에서 1.5 안(옛 1.2~2.2 → 1.2~3.1)
       let da = Math.atan2(dz, dx) - sec.th; da -= Math.round(da/(2*Math.PI))*2*Math.PI;
       if(Math.abs(da) >= CW.SP.half) continue;
       if((-Math.sin(PL.yaw)*dx - Math.cos(PL.yaw)*dz)/r <= 0.7) continue;   // 시선이 바깥 반지름(벽) 쪽
@@ -17639,7 +17822,7 @@ function treGuide(dt){
     if(py < GY + 5 && ck === CK.TROOM){ for(const T of CPLAN.towers) if(px > T.x0 && px < T.x1 && pz > T.z0 && pz < T.z1){ const r = TRE_ROOM[T.room]; if(r) treOnce(r[1] << 4, r[0]); break; } }
     else if(py >= GY + 11.5) treOnce(256, '👀 망루 — 창으로 마을·성벽·해자가 다 보여요');
     if(ck === CK.CAGE && !treHoldSaid && Math.abs(py - (GY + CW.WALK)) < 0.3){   // 나선 8층(초소) 문 앞 — 첫 '층 멈춤'
-      for(const T of CPLAN.towers){ const dx = px - T.scx, dz = pz - T.scz; if(dx*dx + dz*dz > 4) continue;
+      for(const T of CPLAN.towers){ const dx = px - T.scx, dz = pz - T.scz; if(dx*dx + dz*dz > (CW.SP.b + 0.3)*(CW.SP.b + 0.3)) continue;
         let da = Math.atan2(dz, dx) - T.th0; da -= Math.round(da/(2*Math.PI))*2*Math.PI;
         if(Math.abs(da) < 0.6){ treHoldSaid = true; toast('↗ 초소 — 계단 쪽을 보고 걸으면 계속 올라가요(내려가요)', 3, '#e8f4ff'); } break; }
     }
@@ -17706,10 +17889,22 @@ function castleOccluded(ex, ey, ez, tx, ty, tz){
     if(inW(cx, cz)){
       const i = gi(cx, cz), k = CASTLE[i];
       if(k === CK.SOLID || k === CK.TWALL || k === CK.KBODY || k === CK.GALW || (shel && k === CK.DOOR)){
-        let top = terrH[i];
+        let top = terrH[i], ta = t0, tb = t1;
         if(k === CK.DOOR) top = Math.max(top, GY + CW.WALK);
         else if(k === CK.GALW && oct(cx + 0.5, cz + 0.5) > 52.0) top = GY + CW.GAL_RIDGE_TOP;   // 회랑 바깥 돌벽·마루(칸 terrH 8 에 없는 높이)
-        const ya = ey + (ty - ey)*t0, yb = ey + (ty - ey)*t1;
+        else if(k === CK.GALW){
+          /* 70차 2회차 — 회랑 마을 쪽 칸: 칸 톱니 대신 참 얼굴로 가린다. e < 49.0(마을 쪽 허공) 은 벽 아님 · 49.0~49.45 는 낮은 턱 윗면(8.32) · 그 안은 바닥(8).
+             한 칸 안에서는 x·z 부호가 그대로라 e 는 t 에 대해 곧은 선 — 턱·바닥 두 토막의 t 구간을 잘라 본다 */
+          const ea = (Math.abs(ex + dx*t0) + Math.abs(ez + dz*t0))*CHAM, eb = (Math.abs(ex + dx*t1) + Math.abs(ez + dz*t1))*CHAM, de = eb - ea;
+          const tAt = (e)=> Math.abs(de) < 1e-9 ? (ea >= e ? t0 : t1 + 1) : t0 + (t1 - t0)*(e - ea)/de;
+          const seg = (e0, e1)=>{ let u0 = tAt(e0), u1 = tAt(e1); if(u0 > u1){ const q = u0; u0 = u1; u1 = q; } return [Math.max(t0, u0), Math.min(t1, u1)]; };
+          let hitG = false;
+          for(const [e0, e1, h] of [[CW.IN, CW.GAL_CURB_E1, GY + CW.WALK + CW.CURB], [CW.GAL_CURB_E1, 99, GY + CW.WALK]]){
+            const [u0, u1] = Math.abs(de) < 1e-9 ? (ea >= e0 && ea < e1 ? [t0, t1] : [1, 0]) : seg(e0, e1); if(u1 <= u0) continue;
+            if(Math.min(ey + (ty - ey)*u0, ey + (ty - ey)*u1) < h){ hitG = true; break; } }
+          if(hitG) return true;
+          top = -1e9; }
+        const ya = ey + (ty - ey)*ta, yb = ey + (ty - ey)*tb;
         if(Math.min(ya, yb) < top){
           const L = treAp.get(i), ym = (ya + yb)/2;
           let hole = false;
@@ -22766,7 +22961,7 @@ function climbProj(cz, x, z){
   const k = zoneStair(x, z);
   if(k >= 0 && CPLAN.stairs[k].zone === cz){
     const S = CPLAN.stairs[k];
-    CL_TB = k; CL_TP = climbCl(gT(S.g, x, z) - 33.6, 0.9, 17.4); CL_TN = climbCl(gPP(S.g, x, z) - S.s*8.5, -0.6, 0.6); return;
+    CL_TB = k; CL_TP = climbCl(gT(S.g, x, z) - 33.6, 0.9, 17.4); CL_TN = climbCl(gPP(S.g, x, z) - S.s*8.5, -0.35, 0.35); return;
   }
   const Z = CPLAN.zones[cz], dx = x - Z.O.x, dz = z - Z.O.z;
   const sg = climbCl(dx*Z.U.x + dz*Z.U.z, Z.s0, Z.s1); climbNLim(Z, sg);
@@ -22821,6 +23016,10 @@ function climbApproach(w, dt, sheep){
     w.cs = 0; w.cDone = 1; return false;                          // 늦었거나 아이가 구역을 떠남 — 그 밤 다시 안 오른다(계단 오르내리기로 예산 없는 쫓기 되풀이 금지)
   }
   if(!w.cStep){
+    /* 70차 2회차 — 계단 곁 띠(통로 쪽 P < 7 · 바깥 쪽 P > 10, t 33.3~49)면 먼저 계단 앞 모서리를 돈다: 계단 흉벽·발치 기둥이 이제 좀비에게도 벽(zMoveOk)이라
+       곧장 (33.5, 8.5) 로 가면 기둥에 걸려 approachSec 을 넘겨 포기한다 */
+    const tt = gT(S.g, w.x, w.z), PP = gPP(S.g, w.x, w.z)*S.s;
+    if(tt > 33.3 && tt < 49 && (PP < 7.0 || PP > 10.0)){ const pc = S.s*(PP < 7.0 ? 6.4 : 10.6); CL_AX = gX(S.g, 32.6, pc); CL_AZ = gZ(S.g, 32.6, pc); return true; }
     CL_AX = gX(S.g, 33.5, S.s*8.5); CL_AZ = gZ(S.g, 33.5, S.s*8.5);
     const dx = CL_AX - w.x, dz = CL_AZ - w.z; if(dx*dx + dz*dz >= 0.36) return true;
     w.cStep = 1;
@@ -22829,7 +23028,7 @@ function climbApproach(w, dt, sheep){
   const dx = CL_AX - w.x, dz = CL_AZ - w.z; if(dx*dx + dz*dz >= 0.36) return true;
   /* 발치 — 성곽 층으로. 1차원 자리는 지금 자리에서 잰다(p ≥ 0.9 · 옆 자리는 ±0.6 안에서 그대로 — 가지 위 고정 흔들림 cj 로 천천히 모인다) */
   w.cs = 2; w.ly = 1; w.cb = w.ck; w.cck = 0; w.cLost = 0;
-  w.cp = Math.max(0.9, gT(S.g, w.x, w.z) - 33.6); w.cn = climbCl(gPP(S.g, w.x, w.z) - S.s*8.5, -0.6, 0.6);
+  w.cp = Math.max(0.9, gT(S.g, w.x, w.z) - 33.6); w.cn = climbCl(gPP(S.g, w.x, w.z) - S.s*8.5, -0.35, 0.35);   // 70차 2회차 — 옆 자리 ±0.6 → ±0.35(흉벽 안 얼굴까지 0.7 — 팔·손끝이 흉벽에 안 묻힌다)
   climbPos(w);
   return false;
 }
@@ -22866,7 +23065,7 @@ function climbWalk(w, tb, tp, tn, dt){
       if(w.cs === 2 && (o.cdir === dir || o.cdir === 0) && ah > 0 && ah <= C.gap && dn > -0.8 && dn < 0.8){ w.mv = false; w.cdir = dir; return; }   // 줄서기 — 추월 없음
       if(w.cs === 3 && o.cdir === -dir && ah > 0 && ah <= 1.5 && dn > -0.8 && dn < 0.8) pass = w.cn >= o.cn ? 1 : -1;
     }
-    if(pass) w.cpo = 0.4*pass; else if(w.cpo) w.cpo = Math.abs(w.cpo) < dt*0.8 ? 0 : w.cpo - Math.sign(w.cpo)*dt*0.8;
+    if(pass) w.cpo = 0.3*pass; else if(w.cpo) w.cpo = Math.abs(w.cpo) < dt*0.8 ? 0 : w.cpo - Math.sign(w.cpo)*dt*0.8;
   }
   let tl = dt;
   for(let it = 0; it < 3 && tl > 1e-6; it++){
@@ -22888,7 +23087,7 @@ function climbWalk(w, tb, tp, tn, dt){
     }
   }
   if(w.cb < 0){ const Z = CPLAN.zones[w.cz]; w.cp = climbCl(w.cp, Z.s0, Z.s1); climbNLim(Z, w.cp); w.cn = climbCl(w.cn, CL_LO, CL_HI); }
-  else { const g = climbCl(w.cj + (w.cpo||0), -0.6, 0.6), dd = g - w.cn, m = dt*1.5; w.cn += dd > m ? m : dd < -m ? -m : dd; }
+  else { const g = climbCl(w.cj + (w.cpo||0), -0.35, 0.35), dd = g - w.cn, m = dt*1.5; w.cn += dd > m ? m : dd < -m ? -m : dd; }
   climbPos(w);
   const mx = w.x - ox, mz = w.z - oz;
   if(mx*mx + mz*mz > 1e-8){ w.ry = Math.atan2(mx, mz); w.mv = true; } else w.mv = false;
@@ -22996,7 +23195,7 @@ function struNear(x, z){
   return null;
 }
 /* 옆으로 최대 3칸 안에 뚫린 곳이 있으면 그 좌표 */
-function findGap(x, z, dirx, dirz){
+function findGap(x, z, dirx, dirz, w){
   const px = -dirz, pz = dirx;
   for(let s=1; s<=3; s++){
     for(const sg of [1,-1]){
@@ -23006,6 +23205,7 @@ function findGap(x, z, dirx, dirz){
       if(cellOwner.has(Math.floor(gx)+','+Math.floor(gz))) continue;
       if(zTop(Math.floor(gx), Math.floor(gz)) > GY+1) continue;     // 67차 — 좀비 땅 걸음은 zTop(성곽 칸 = 벽)
       if(zTop(Math.floor(ax), Math.floor(az)) > GY+1) continue;
+      if(w && (!zMoveOk(w, gx, gz) || !zMoveOk(w, ax, az))) continue;   // 70차 2회차 — 틈 찾기가 벽 속(계단 흉벽·성곽 벽 곁)을 고르지 않게
       return [ax, az];
     }
   }
@@ -23059,9 +23259,7 @@ function biteStru(o, w, ix, iz){
 const WOLF_R = w => 0.52 * (w.sc || (WOLF_T[w.k]||WOLF_T[0]).sc) + 0.30;
 const SEP_K = 16;                       // 겹친 만큼을 한 프레임에 얼마나 풀지
 function wolfNudge(w, dx, dz){
-  const bx = w.x+dx, bz = w.z+dz;       // 벽·산으로는 안 밀린다 (축마다 따로 본다)
-  if(zTop(Math.floor(bx), Math.floor(w.z)) <= GY+1) w.x = bx;      // 67차 — zTop: 복도·탑·문 칸(terrH GY)으로도 안 밀린다
-  if(zTop(Math.floor(w.x), Math.floor(bz)) <= GY+1) w.z = bz;
+  zStep(w, dx, dz);                     // 벽·산으로는 안 밀린다 (축마다 따로 본다) · 70차 2회차: 계단 옆벽·성곽 벽도 팔 폭만큼(zMoveOk)
 }
 function separateWolves(dt){
   const _sp0 = PROF_ON ? performance.now() : 0;
@@ -23306,7 +23504,12 @@ function hostSim(dt){
          → 자기 입구가 막혔다고 다른 모둠 입구로 우회하지 않는다.
          마을 안(r<36)에서는 흐름장을 따라 수정으로 간다.               */
       let tx, tz;
-      if(clGo){ tx = CL_AX; tz = CL_AZ; }      // 67차 — 발치로(계단 앞 맨땅 → 발치 두 점)
+      /* 70차 2회차 — 발치로 가다 포기한(cs 0) 좀비가 계단 디딤 칸 안에 남았으면 먼저 계단 앞(t 33.2)으로 걸어 나온다(디딤 위 땅 좀비 0 · zMoveOk 가 그 계단 가운데 띠만 허락) */
+      { const cx0 = Math.floor(w.x), cz0 = Math.floor(w.z), k0 = inW(cx0, cz0) ? stairOf[gi(cx0, cz0)] : -1;
+        w.cOut = (!(w.cs >= 1) && k0 >= 0 && k0 < 1000) ? k0 : -1;
+        if(w.cOut >= 0){ const S0 = CPLAN.stairs[k0]; clGo = false; tx = gX(S0.g, 33.2, S0.s*8.5); tz = gZ(S0.g, 33.2, S0.s*8.5); } }
+      if(w.cOut >= 0){}
+      else if(clGo){ tx = CL_AX; tz = CL_AZ; }      // 67차 — 발치로(계단 앞 맨땅 → 발치 두 점)
       else if(shTgt){ tx = shTgt.x; tz = shTgt.z; }
       else if(sTgt){ tx = struCX(sTgt); tz = struCZ(sTgt); }
       /* 67차 — 축 따라가기는 **제 성문 축 t** 가 마을 가장자리 밖일 때만. 둘레길(od 46~49)은 걸을 수 있는 땅이라 흐름장으로 간다 —
@@ -23337,7 +23540,7 @@ function hostSim(dt){
       /* ── 옆에 빈 틈이 있으면 그리로 (작은 구멍은 뚫린다) ──
          단, 지금 노리고 있는 탑·배럭이면 피하지 않고 그대로 문다. ── */
       if(hitId && !w.noGap && !(sTgt && hitId === sTgt.id)){    // 36차 — 갑옷 좀비는 틈을 안 찾고 정면을 갉는다
-        const gap = findGap(w.x, w.z, dx/L, dz/L);
+        const gap = findGap(w.x, w.z, dx/L, dz/L, w);
         if(gap){ dx = gap[0]-w.x; dz = gap[1]-w.z; L = Math.hypot(dx,dz)||1;
           hitId = struAhead(w.x, w.z, dx/L, dz/L); }
       }
@@ -23351,8 +23554,7 @@ function hostSim(dt){
           const sg = (w.id % 2) ? 1 : -1;
           const px = -dz/L*sg, pz = dx/L*sg;
           const nx2 = w.x + px*sp*dt, nz2 = w.z + pz*sp*dt;
-          if(zTop(Math.floor(nx2), Math.floor(w.z)) <= GY+1) w.x = nx2;     // 67차 — 좀비 땅 걸음은 zTop(성곽 칸 = 벽)
-          if(zTop(Math.floor(w.x), Math.floor(nz2)) <= GY+1) w.z = nz2;
+          zStep(w, nx2 - w.x, nz2 - w.z);                                   // 67차 — 좀비 땅 걸음은 zTop(성곽 칸 = 벽) · 70차 2회차: zMoveOk(팔 폭)
           w.ry = Math.atan2(px, pz); w.mv = true; w.bt = null;
           if(w.stall > 3.0 && w.atkT <= 0){ biteStru(o, w, w.x + dx/L*0.9, w.z + dz/L*0.9); w.stall = 0; }
         } else if(!SIEGE_T[o.t] && w.bt !== o.id
@@ -23363,8 +23565,7 @@ function hostSim(dt){
           const sg = (w.id % 2) ? 1 : -1;
           const px = -dz/L*sg, pz = dx/L*sg;
           const nx2 = w.x + px*sp*dt, nz2 = w.z + pz*sp*dt;
-          if(zTop(Math.floor(nx2), Math.floor(w.z)) <= GY+1) w.x = nx2;     // 67차 — 좀비 땅 걸음은 zTop(성곽 칸 = 벽)
-          if(zTop(Math.floor(w.x), Math.floor(nz2)) <= GY+1) w.z = nz2;
+          zStep(w, nx2 - w.x, nz2 - w.z);                                   // 67차 — 좀비 땅 걸음은 zTop(성곽 칸 = 벽) · 70차 2회차: zMoveOk(팔 폭)
           w.ry = Math.atan2(dx, dz); w.mv = true; w.bt = null; w.stuck = 0;
         } else {
           w.mv = false; w.stuck = 0;
@@ -23382,8 +23583,7 @@ function hostSim(dt){
            걷든 물든 모든 좀비를 늘 밀어낸다 (왜인지는 그 함수 설명 참고). */
         const ox = w.x, oz = w.z;
         const bx = w.x+mx, bz = w.z+mz;
-        if(zTop(Math.floor(bx), Math.floor(w.z)) <= GY+1) w.x = bx;       // 67차 — zTop: 복도·탑·문 칸(terrH GY)에 걸어 들어가지 않게
-        if(zTop(Math.floor(w.x), Math.floor(bz)) <= GY+1) w.z = bz;
+        zStep(w, bx - w.x, bz - w.z);                                     // 67차 — zTop: 복도·탑·문 칸(terrH GY)에 걸어 들어가지 않게 · 70차 2회차: 계단 옆벽·발치 기둥·성곽 벽을 팔 폭만큼(zMoveOk · 0.4 토막)
         w.ry = Math.atan2(dx, dz); w.mv = true; w.bt = null;
         /* ── 끼임 방지: 못 움직이면 옆 건물이라도 부순다 ── */
         if(Math.hypot(w.x-ox, w.z-oz) < sp*dt*0.25){
@@ -23396,7 +23596,7 @@ function hostSim(dt){
             } else { // 건물이 아니라 지형에 끼었으면 통로 한가운데로 살짝 밀어 준다
               const d = DIRS[w.gate], sgn = gPP(w.gate, w.x, w.z) > 0 ? 1 : -1;
               const px = w.x - (-d.dz) * sgn * sp*dt*0.8, pz = w.z - ( d.dx) * sgn * sp*dt*0.8;
-              if(zTop(Math.floor(px), Math.floor(pz)) <= GY+1){ w.x = px; w.z = pz; }   // 67차 — 민 자리가 걸을 수 있는 땅일 때만(구석 문·암문 칸으로 밀려 들어가지 않게)
+              if(zMoveOk(w, px, pz)){ w.x = px; w.z = pz; }   // 67차 — 민 자리가 걸을 수 있는 땅일 때만(구석 문·암문 칸으로 밀려 들어가지 않게)
             }
             w.stuck = 0;
           }
@@ -25213,6 +25413,7 @@ function joinRoom(code, asHost){
       const p = G.players.get(k) || {x:d.x,z:d.z,y:d.y,ph:Math.random()*6};
       p.uid = k;                       // 든 무기를 pc 통로에서 찾아오려면 열쇠가 필요하다
       p.tx=d.x; p.tz=d.z; p.ty=d.y; if(p.y === undefined) p.y = d.y; p.ry=d.r||0; p.g=d.g|0; p.n=d.n; p.mv=!!d.m;   // 67차 — y 도 보간(나선에서 덜컥거리지 않게, 통신 칸 0)
+      if(p.bx !== d.x || p.bz !== d.z || p.by !== d.y) friendSeg(p, d.x, d.y, d.z);   // 70차 2회차 — 받은 두 점 사이를 등속으로(friendLerp)
       p.hp = d.hp===undefined ? SHEEP_HP : d.hp; p.down = !!d.dn;
       p.hat = d.ht|0; p.gls = d.gl|0; p.clo = d.cl|0; p.skin = d.sk|0;
       p.ex = d.ex|0;                   // 67차 — 🗝️ 성곽 탐험가
@@ -27691,7 +27892,8 @@ function loop(){
 
     // 친구들 보간
     const kk = Math.min(1, dt*10);
-    for(const p of G.players.values()){ if(p.tx!==undefined){ p.x+=(p.tx-p.x)*kk; p.z+=(p.tz-p.z)*kk; }
+    for(const p of G.players.values()){ if(p.t0 !== undefined){ friendLerp(p); continue; }   // 70차 2회차 — 등속 보간(아래 friendLerp)
+      if(p.tx!==undefined){ p.x+=(p.tx-p.x)*kk; p.z+=(p.tz-p.z)*kk; }
       if(p.ty!==undefined){ const dy = p.ty - p.y; p.y = (Math.abs(dy) > 3 || !(p.y === p.y)) ? p.ty : p.y + dy*kk; } }   // 67차 — 3칸 넘게 튀면 바로
 
     struT -= dt;
@@ -27719,7 +27921,7 @@ function loop(){
         if(pc){ q.wp = pc.wp|0; q.we = pc.we|0;
                 q.jb = pc.jb===undefined ? -1 : pc.jb|0; q.jt = pc.jt|0; }
         /* 40차 — 친구가 떠 있나: 자리 통로엔 뜀 표시가 없으니 발밑 땅과 견준다(통신은 그대로) */
-        q.air = !q.down && q.x !== undefined && q.y !== undefined && (q.y - groundUnder(q.x, q.z, 0.28, q.y)) > 0.3;
+        q.air = !q.down && q.x !== undefined && q.y !== undefined && (q.y - Math.max(groundUnder(q.x, q.z, 0.28, q.y), q.rp === null || q.rp === undefined ? -999 : q.rp - 0.25)) > 0.4;   // 70차 2회차 — 계단 경사 기준 · 0.3 → 0.4(디딤 0.32 와 붙어 깜빡이던 것)
       }
       /* 67차 — 1인칭(자동 포함)이면 카메라 코앞(0.9칸 · 덮인 칸 1.6칸) 친구 몸은 이 프레임 안 그린다(투명 아님 — 건너뛰기).
          성 안에선 서로 안 부딪혀 몸이 겹치므로, 없으면 좁은 나선·초소에서 화면이 친구 몸·모자·총으로 찬다 */
@@ -27733,7 +27935,7 @@ function loop(){
       /* ★ 3인칭일 때는 내 몸도 그려야 한다. 평소(1인칭)엔 안 그린다.
          쓰러졌을 때 · 줄넘기 · OX 퀴즈 셋 다 여기로 온다(20차). */
       if(tpvOn() && !camBodyHidden){
-        meSheep.x=PL.x; meSheep.y=PL.y; meSheep.z=PL.z; meSheep.ry=PL.yaw;
+        meSheep.x=PL.x; meSheep.y=PLV.on ? PLV.y : PL.y; meSheep.z=PL.z; meSheep.ry=PL.yaw; meSheep.stair=PLV.st;   // 70차 2회차 — 보이는 몸은 계단 경사(PLV) · 기울기(걸음 자세)
         meSheep.g=G.me.g|0; meSheep.hat=G.me.hat|0; meSheep.gls=G.me.gls|0; meSheep.clo=G.me.clo|0; meSheep.skin=G.me.skin|0;
         meSheep.jb=XP.job; meSheep.jt=XP.jt; meSheep.aim=aimMode || gunT>0;
         /* ★ meSheep 은 '쓰러진 몸' 으로 만들어 둔 것이라 down 이 켜져 있다.
@@ -28304,6 +28506,8 @@ Object.assign(window, {
   __tpvOn:tpvOn, __tpvKind:tpvKind, __MINI_CAM:()=>MINI_CAM, __DOWN_CAM:()=>DOWN_CAM,
   __camPos:()=>({x:camera.position.x, y:camera.position.y, z:camera.position.z}),
   __camRig:()=>({zoom:camZoom, distance:camDistance, shoulder:camShoulder, hidden:camBodyHidden, aimBlend:camAimBlend}),
+  __stairRampAt:stairRampAt, __spiralRamp:spiralRamp, __PLV:PLV, __meSheep:()=>meSheep, __friendSeg:friendSeg, __friendLerp:friendLerp,
+  __zMoveOk:zMoveOk, __rZ:rZ, __ZGB:ZGB, __heldPass:heldPass,   // 70차 2회차 — 검사용
   __combatRay:combatRay, __shotEndpoint:shotEndpoint, __fovTick:fovTick,
   __cameraClearance:cameraClearance,
   __meSheep:()=>meSheep,
