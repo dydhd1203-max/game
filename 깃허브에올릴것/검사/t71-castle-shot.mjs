@@ -2,7 +2,7 @@
    벽 윗면 위로 넘어가는 총알은 맞고, 돌을 뚫어야 닿는 총알만 막힌다(castleHitT · castleOccluded · castleAimY). 숨김 브라우저 한 개(pw.mjs · ?gfx=low · 혼자 놀기 · 멈춘 채).
    G1 마당 → 벽 뒤(성 밖) 좀비 못 맞힘 · G2 마당 → 성문 계단 위 좀비(보이면 맞고 흉벽에 가리면 안 맞음 — 돌 조각 광선과 같게) · G3 트인 성벽 길 크레넬 사이로 맞힘 · 성가퀴 뒤는 막힘
    G4 지붕 밑 쏘기 틈 그대로(틈으로 통과 · 옆 벽 막힘) · G5 머리만 보이는 좀비 맞힘(가슴은 턱에 가림) · G6 예광탄이 돌에서 멈춤(돌가루·불티 · 벽에 붙어 쏘면 예광탄 없이)
-   G7 모델 ↔ 실제 돌 조각 광선(성곽·성문 돌 뱅크) — 보이는데 막힘 · 가렸는데 통과 비율(장면 다섯) · G8 비용(한 번 µs · 기록) · G9 탑 사격·서바이벌·손님 길 그대로(소스) · G10 72차 성벽 위 몸 내밀어 쏘기(맞힘 비율·안 내미는 곳·먼 돌) */
+   G7 모델 ↔ 실제 돌 조각 광선(성곽·성문 돌 뱅크) — 보이는데 막힘 · 가렸는데 통과 비율(장면 다섯) · G8 비용(한 번 µs · 기록) · G9 탑 사격·서바이벌·손님 길 그대로(소스) · G10 72차 성벽 위 몸 내밀어 쏘기(맞힘 비율·안 내미는 곳·먼 돌) · G11 몸 내밀기 카메라(잠겼는데 안 보임·돌 속·떨림) */
 import fs from 'node:fs';
 import {chromium} from './pw.mjs'; import {serve} from './serve2.mjs'; import {GAME} from './gamefile.mjs';
 const PORT = +(process.env.T71_PORT || 20198), file = process.argv[2] || GAME;
@@ -75,6 +75,24 @@ try{
         const e = [ln.x, ln.y, ln.z], h3 = hit3(e, t); if(h3 === 1 || h3 === 2) continue; n++; const m = W.__castleShotT(ex, GY + 9.12, ez, t[0], t[1], t[2]) >= 0;
         if(h3 === 3) hid++; if(m === (h3 === 3)) same++; else if(bad.length < 4) bad.push([e.map(f3), t.map(f3), h3, m]); }
       out.G10 = {a, b, c, d, e:{n, same, hid, bad}}; }
+    /* G11 — 72차 2회차 몸 내밀기 카메라(보이는 것만): 성벽 길(가장자리·가운데)에서 조준하고 발치 좀비(성 밖 3~15칸)를 겨누면 1인칭·3인칭 모두
+       '조준점이 잠기는데 화면(카메라 → 가슴·머리)이 돌에 가림' ≤ 5% · 옮기는 동안(5·10·20 프레임) 카메라가 돌 속 0 · 멈춰 있으면 카메라 안 움직임 */
+    { let seed = 31; const rnd = ()=>{ seed = (seed*16807) % 2147483647; return seed/2147483647; };
+      const res = {}; W.__KIT.ownW[3] = true; W.__equipWeapon(3);
+      for(const [nm, zoom] of [['p1', 0], ['p3', 3.2]]){ let n = 0, lock = 0, lockHid = 0, inStone = 0, jit = 0; seed = 31;
+        for(let i=0; i<400 && n < 60; i++){ const St = CP.straights[(rnd()*8)|0], P = 12 + rnd()*(St.len - 2), wt = i % 2 ? 52.0 + rnd()*0.25 : 50.8 + rnd()*0.4, fx = W.__gX(St.g, wt, P*St.s), fz = W.__gZ(St.g, wt, P*St.s);
+          const dd = 3 + rnd()*12, P2 = (P + (rnd() - 0.5)*6)*St.s, tx = W.__gX(St.g, 53 + dd, P2), tz = W.__gZ(St.g, 53 + dd, P2), g = ground(tx, tz); if(g > GY + 3) continue;
+          G.wolves.length = 0; W.__spawnWolf(0, 0, tx, tz); const w = G.wolves[G.wolves.length - 1]; if(!w) continue; w.x = tx; w.z = tz; w.y = g; w.rise = 0;
+          for(const k in W.__KEY) W.__KEY[k] = false; Object.assign(PL, {x:fx, y:GY + 8, z:fz, vx:0, vz:0, vy:0, down:false, ground:true, mv:false}); W.__camZoom(zoom); W.__setAim(true, true);
+          const yaw = Math.atan2(-(tx - fx), -(tz - fz)); let pitch = -0.6;
+          for(let it=0; it<4; it++){ for(let k=0; k<40; k++){ PL.x = fx; PL.z = fz; PL.y = GY + 8; PL.yaw = yaw; PL.pitch = pitch; W.__updPlayer(1/60);
+              if(it === 0 && (k === 5 || k === 10 || k === 20)){ const c = W.__cam.position; if(occ([c.x, c.y, c.z], [c.x + 0.001, c.y + 0.001, c.z])) inStone++; } }
+            const c = W.__cam.position; pitch = Math.max(-1.3, Math.atan2(g + 0.85 - c.y, Math.hypot(tx - c.x, tz - c.z))); }
+          const c0 = W.__cam.position.clone(); PL.yaw = yaw; PL.pitch = pitch; W.__updPlayer(1/60); const c = W.__cam.position; if(c.distanceTo(c0) > 0.02) jit++;
+          n++; const aw = W.__aimWolf(W.__WEAPONS[3]), cp = [c.x, c.y, c.z], v = hit3(cp, [tx, g + 0.85, tz]) < 3 || hit3(cp, [tx, g + 1.05, tz]) < 3;
+          if(aw === w){ lock++; if(!v) lockHid++; } }
+        res[nm] = {n, lock, lockHid, inStone, jit}; }
+      W.__setAim(false, true); W.__camZoom(3.2); G.wolves.length = 0; out.G11 = res; }
     /* G4 — 복도 쏘기 틈(지붕 밑): 틈 가운데로 마을 쪽 · 옆 6칸 벽 쪽 */
     { const seen = new Set(); let n = 0, pass = 0, side = 0;
       for(const a of CP.apertures){ if(a.kind !== 'slit' || !a.g) continue; const g = a.g, k = f3(g.cx) + ',' + f3(g.cz); if(seen.has(k)) continue; seen.add(k);
@@ -136,6 +154,8 @@ try{
     return out; });
   put({id:'G1', name:'마당 → 벽 뒤(성 밖 해자·비탈) 좀비 못 맞힘 — 가슴·머리 둘 다 돌에 가림(70차: 지붕 밖이라 전부 맞았다)', pass:R.G1.n === 15 && R.G1.hit === 0, detail:R.G1});
   put({id:'G2', name:'마당 → 성문 계단 위 좀비 — 보이면(가슴·머리 중 하나) 맞고 계단 흉벽에 다 가리면 안 맞음 · 돌 조각 광선과 같음 ≥ 95% · 보이는 것 ≥ 1/3', pass:R.G2.same >= R.G2.n*0.95 && R.G2.vis >= R.G2.n/3 && R.G2.hit >= R.G2.vis*0.9, detail:R.G2});
+  console.log('  G11 몸 내밀기 카메라 — ' + JSON.stringify(R.G11));
+  put({id:'G11', name:'72차 몸 내밀기 카메라(보이는 것만) — 성벽 길에서 발치 좀비를 겨누면 1인칭·3인칭 모두 조준점 잠김인데 화면이 돌에 가림 ≤ 5% · 옮기는 동안 카메라 돌 속 0 · 멈춰 있으면 안 움직임', pass:['p1', 'p3'].every(k=>{ const q = R.G11[k]; return q.n >= 30 && q.lock >= q.n*0.8 && q.lockHid <= q.lock*0.05 && q.inStone === 0 && q.jit === 0; }), detail:R.G11});
   console.log('  G10 몸 내밀기 — ' + JSON.stringify(R.G10));
   put({id:'G10', name:'72차 몸 내밀어 쏘기 — 성벽 길(가장자리·가운데)·성문 위(번호판 벽 옆)·K 윗마당 → 성 밖 발치 좀비 ≥ 80% · 마당·회랑 지붕 밑·번호판 벽 앞은 안 내밈 · 내민 눈에서도 멀리 있는 돌은 막음(돌 조각 광선과 같음 ≥ 97% · 가린 선 ≥ 5)', pass:R.G10.a.pct >= 80 && R.G10.b.pct >= 80 && R.G10.c.pct >= 80 && R.G10.d.yard && R.G10.d.gallery && R.G10.d.plate && R.G10.d.walk && R.G10.e.n >= 50 && R.G10.e.same >= R.G10.e.n*0.97 && R.G10.e.hid >= 5, detail:R.G10});
   put({id:'G3', name:'트인 성벽 길 → 성 밖 — 돌 선 하나로: 크레넬(성가퀴 사이 틈)은 구멍 · 성가퀴 가운데는 막힘 · 72차 몸을 내밀면 성가퀴 뒤에서도 맞음', pass:R.G3.n >= 8 && R.G3.leanM === R.G3.n && R.G3.cren === R.G3.n && R.G3.merl === 0, detail:R.G3});

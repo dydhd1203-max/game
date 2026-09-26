@@ -18893,7 +18893,7 @@ const jump2Now = ()=> raceOn() ? JUMP2_R : JUMP2_V;
 const DOWN_CAM = 4.6;           // 쓰러졌을 때 시체에서 물러나는 거리
 let camGY = null;               // 52차 — 캐릭터 발 높이를 따라가는 닻(점프·낙하도 포함)
 let camDistance = null, camShoulder = 0, camBodyHidden = false, camAimBlend = 0;
-let camLean = 0, camLeanX = 0, camLeanY = 0, camLeanZ = 0;          // 72차 — 성벽 위 1인칭 몸 내밀기(보이는 것만)
+let camLean = 0, camLeanX = 0, camLeanY = 0, camLeanZ = 0;          // 72차 — 성벽 위 몸 내밀기 카메라(1인칭·3인칭 · 보이는 것만)
 // 조준 중에는 머리 위·오른쪽 어깨 바깥에서 본다. 몸과 접힌 날개는 화면 왼쪽 아래에 남는다.
 // 65차 마감 — 어깨 1.10·높이 1.58(예전 0.94·1.32): 가슴 앞에 든 총이 머리·오른팔에 거의 가려서, 카메라를 조금 오른쪽·위로 옮겨 팔 너머로 총이 보이게 했다.
 const AIM_VIEW = {back:2.90, height:1.58, shoulder:1.10, lift:0.10, fov:68};
@@ -19197,16 +19197,28 @@ function updPlayer(dt){
     camBodyHidden = camBodyHidden ? camDistance < (camAimBlend>.5 ? 1.75 : .90) : camDistance < (camAimBlend>.5 ? 1.45 : .52);
   } else {
     camera.position.set(PL.x, footY + PL.EYE + Math.abs(Math.sin(gaitMe))*0.04*runK, PL.z);   // 41차 — 1인칭(마을)도 달리면 머리가 걸음 박자로 흔들린다 · 69차 — 계단은 footY 로 부드럽게
-    /* 72차 — 성벽 위 1인칭: 조준하고 아래(pitch < −0.3)를 보면 눈을 흉벽·크레넬 너머 '몸을 내민 자리'로 부드럽게 옮긴다(보이는 것만 — 판정은 castleShotT 가 따로).
-       성가퀴(눈 높이 돌)에 막히면 안 옮긴다 — 크레넬·낮은 흉벽 앞에서만. 끝나면 0.2초쯤에 돌아온다 */
-    let lw = 0;
-    if(aimMode && !PL.down && PL.pitch < -0.3 && PL.y >= GY + 7.5 && castleLean(PL.x - Math.sin(PL.yaw)*12, PL.z - Math.cos(PL.yaw)*12)
-       && Math.hypot(_lean.x - PL.x, _lean.z - PL.z) < 1.6 && castleHitT(PL.x, PL.y + 1.22, PL.z, _lean.x, _lean.y - 0.1, _lean.z) < 0) lw = Math.min(1, (-0.3 - PL.pitch)*4);
-    camLean += (lw - camLean)*(1 - Math.exp(-dt*10)); if(camLean < 0.002) camLean = 0;
-    if(camLean > 0 && lw > 0){ camLeanX = _lean.x; camLeanY = _lean.y; camLeanZ = _lean.z; }
-    if(camLean > 0) camera.position.set(camera.position.x + (camLeanX - camera.position.x)*camLean, camera.position.y + (camLeanY - camera.position.y)*camLean, camera.position.z + (camLeanZ - camera.position.z)*camLean);
     camAnc = null; camGY = null; camDistance = null; camShoulder = 0; camBodyHidden = false; camHold = 0; camSlow = 0; camLift = 0;
   }
+  /* 72차 — 성벽 위 몸 내밀기 카메라(보이는 것만 — 판정은 castleShotT · 통신 그대로). 성벽 위에서 조준하고 아래(pitch < −0.2)를 보면
+     1인칭은 흉벽·크레넬 너머 몸을 내민 눈으로, 성가퀴 바로 뒤면 성가퀴 위로(발 + 1.8), 3인칭 어깨 카메라는 흉벽 너머 위(발 + 2.2 · 0.35 뒤)로 옮긴다.
+     가는 길(위로 올라간 뒤 앞으로)이 돌에 안 걸릴 때만. 올라가기(√k)가 앞으로 가기(k²)보다 먼저라 성가퀴를 뚫지 않는다. 목표 자리도 부드럽게 따라가 떨리지 않는다 */
+  { let lw = 0;
+    if(aimMode && !PL.down && (tk === -1 || tk === 1) && PL.pitch < -0.2 && PL.y >= GY + 7.5 && castleLean(PL.x - Math.sin(PL.yaw)*12, PL.z - Math.cos(PL.yaw)*12)
+       && Math.hypot(_lean.x - PL.x, _lean.z - PL.z) < 2.3){                                  // 성벽 길 가운데(흉벽까지 1.2 + 두께)에서도
+      const tp = back > 0, fx = -Math.sin(PL.yaw), fz = -Math.cos(PL.yaw);
+      let lx = _lean.x, ly = _lean.y, lz = _lean.z;
+      if(tp){ lx -= fx*0.35; lz -= fz*0.35; ly = PL.y + 2.2; }
+      else if(castleHitT(PL.x, PL.y + 1.22, PL.z, lx, ly - 0.1, lz) >= 0) ly = PL.y + 1.8;          // 성가퀴 바로 뒤 — 위로 넘겨 본다
+      if(castleHitT(PL.x, PL.y + 1.1, PL.z, PL.x + 0.001, ly, PL.z) < 0 && castleHitT(PL.x, ly, PL.z, lx, ly, lz) < 0){
+        lw = Math.min(1, (-0.2 - PL.pitch)*8);                                              // −0.2 에서 시작 · −0.325 부터 다 내민다
+        if(camLean <= 0){ camLeanX = lx; camLeanY = ly; camLeanZ = lz; }
+        else { const q = 1 - Math.exp(-dt*10); camLeanX += (lx - camLeanX)*q; camLeanY += (ly - camLeanY)*q; camLeanZ += (lz - camLeanZ)*q; } } }
+    camLean += (lw - camLean)*(1 - Math.exp(-dt*8)); if(camLean < 0.002) camLean = 0;
+    if(camLean > 0){ const p = camera.position, bx = p.x, by = p.y, bz = p.z, hy = PL.y + 1.1;
+      /* 끼임 막기 — 옮긴 자리와 머리 → (위로) → 그 자리 길이 돌에 걸리면 덜 내민다(0.66 · 0.33 · 0). 순간이동·빠른 고개 돌림에서도 돌 속을 안 본다 */
+      for(let j=0; j<4; j++){ const k = camLean*(1 - j/3); if(k <= 0){ camLean = 0; break; }
+        const kh = k*k, kv = Math.sqrt(k), x = bx + (camLeanX - bx)*kh, y = by + (camLeanY - by)*kv, z = bz + (camLeanZ - bz)*kh;
+        if(castleHitT(x, y, z, x + 0.001, y + 0.001, z) < 0 && castleHitT(PL.x, hy, PL.z, PL.x + 0.001, y, PL.z) < 0 && castleHitT(PL.x, y, PL.z, x, y, z) < 0){ p.set(x, y, z); camLean = k; break; } } } }
   held.visible = back <= 0 || camBodyHidden;
 }
 
