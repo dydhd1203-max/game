@@ -90,10 +90,11 @@ check('1', 'HW === FIELD_R + 5 (83)', T.HW === T.FIELD_R + 5 && T.HW === 83, {HW
 { let mn = 1e9; for(let a=0; a<Math.PI*2; a+=0.002) mn = Math.min(mn, T.oct(Math.cos(a)*T.FIELD_R, Math.sin(a)*T.FIELD_R)); check('1', '세상 끝 원 위 최소 oct ≥ 64.5', mn >= 64.5, {min:+mn.toFixed(2)}); }
 check('1', 'gapHalfAt(80) === 14.25(벌어짐 9칸에서 멈춤)', near(T.gapHalfAt(80), 14.25), {v:T.gapHalfAt(80)});
 const P = T.CPLAN;
-{ const want = [[36,-55,Math.PI/2],[55,-36,Math.PI],[55,36,Math.PI],[36,55,-Math.PI/2],[-36,55,-Math.PI/2],[-55,36,0],[-55,-36,0],[-36,-55,Math.PI/2]];
+{ /* 70차 2회차 — 탑 11×11(해자 쪽 두 칸) · 나선 우리 6×6 가운데 T1 (37, −56) */
+  const want = [[37,-56,Math.PI/2],[56,-37,Math.PI],[56,37,Math.PI],[37,56,-Math.PI/2],[-37,56,-Math.PI/2],[-56,37,0],[-56,-37,0],[-37,-56,Math.PI/2]];
   const bad = P.towers.filter((t,i)=> !near(t.scx, want[i][0]) || !near(t.scz, want[i][1]) || !near(Math.cos(t.th0), Math.cos(want[i][2])) || !near(Math.sin(t.th0), Math.sin(want[i][2]))).map(t=>t.id);
   check('1', '탑 여덟 나선 가운데·th0 = 설계 계산', P.towers.length === 8 && !bad.length, {bad}); }
-{ const box = [[30,39,-58,-49],[49,58,-39,-30],[49,58,30,39],[30,39,49,58],[-39,-30,49,58],[-58,-49,30,39],[-58,-49,-39,-30],[-39,-30,-58,-49]];
+{ const box = [[30,41,-60,-49],[49,60,-41,-30],[49,60,30,41],[30,41,49,60],[-41,-30,49,60],[-60,-49,30,41],[-60,-49,-41,-30],[-41,-30,-60,-49]];
   const bad = P.towers.filter((t,i)=> t.x0 !== box[i][0] || t.x1 !== box[i][1] || t.z0 !== box[i][2] || t.z1 !== box[i][3]).map(t=>t.id);
   check('1', '탑 상자 = 2-2 표', !bad.length, {bad}); }
 { const want = [[-11,-51,-30,-51],[11,-51,30,-51],[51,-11,51,-30],[51,11,51,30],[24,51,30,51],[-24,51,-30,51],[-51,11,-51,30],[-51,-11,-51,-30]];
@@ -106,19 +107,19 @@ const P = T.CPLAN;
   const bad = P.galleries.filter((g,i)=> !on(g.a) || !on(g.b) || Math.hypot(g.a.x - want[i][0], g.a.z - want[i][1]) > 0.75 || Math.hypot(g.b.x - want[i][2], g.b.z - want[i][3]) > 0.75).map(g=>g.id);
   const d = +Math.hypot(P.galleries[0].a.x - want[0][0], P.galleries[0].a.z - want[0][1]).toFixed(3);
   check('1', '회랑 넷 끝점 — 가운데 선(e 51) 위 · 설계 계산과 ≤ 0.75' + (d > 1e-3 ? ` (차 ${d} — 문 바깥 얼굴 가운데를 씀)` : ''), P.galleries.length === 4 && !bad.length, {bad, d}); }
-{ const want = [[32.5,8,-55],[55,8,-32.5],[55,8,32.5],[32.5,8,55],[-32.5,8,55],[-55,8,32.5],[-55,8,-32.5],[-32.5,8,-55],[34.5,12,-51.5],[51.5,12,-34.5],[51.5,12,34.5],[34.5,12,51.5],[-34.5,12,51.5],[-51.5,12,34.5],[-51.5,12,-34.5],[-34.5,12,-51.5],[-9,8,-51],[9,8,-51],[51,8,-9],[51,8,9],[22,8,51],[4,8,51],[-4,8,51],[-22,8,51],[-51,8,9],[-51,8,-9],[0,14,59.5]];
+{ const want = [[32.5,8,-56],[56,8,-32.5],[56,8,32.5],[32.5,8,56],[-32.5,8,56],[-56,8,32.5],[-56,8,-32.5],[-32.5,8,-56],[35.5,12,-51.5],[51.5,12,-35.5],[51.5,12,35.5],[35.5,12,51.5],[-35.5,12,51.5],[-51.5,12,35.5],[-51.5,12,-35.5],[-35.5,12,-51.5],[-9,8,-51],[9,8,-51],[51,8,-9],[51,8,9],[22,8,51],[4,8,51],[-4,8,51],[-22,8,51],[-51,8,9],[-51,8,-9],[0,14,59.5]];
   const bad = []; P.spark.forEach((s,i)=>{ if(!want.some(w=> near(w[0], s.p[0]) && near(w[1], s.p[1]) && near(w[2], s.p[2]))) bad.push(i); });
   check('1', '반짝 후보 27 = 설계 계산(초소 8·망루 armA 8·성문 윗마당 10·K 1)', P.spark.length === 27 && !bad.length, {n:P.spark.length, bad}); }
 check('1', 'sparkByG 다섯 구간 모두 ≥ 4 곳', P.sparkByG.length === 5 && P.sparkByG.every(L=>L.length >= 4), {n:P.sparkByG.map(L=>L.length)});
-{ const want = [{k:'spiral', t:'T8', room:[-34,-31,-57,-53]}, {k:'landing', room:[47,49,-10,-8], door:[47,48,-10,-9.7]}, {k:'spiral', t:'T4', room:[31,34,53,57]},
-                {k:'landing', room:[-23,-21,47,49], door:[-23,-22.7,47,48]}, {k:'spiral', t:'T6', room:[-57,-53,31,34]}];
+{ const want = [{k:'spiral', t:'T8', room:[-34,-31,-59,-53]}, {k:'landing', room:[47,49,-10,-8], door:[47,48,-10,-9.7]}, {k:'spiral', t:'T4', room:[31,34,53,59]},
+                {k:'landing', room:[-23,-21,47,49], door:[-23,-22.7,47,48]}, {k:'spiral', t:'T6', room:[-59,-53,31,34]}];
   const bad = P.secrets.filter((s,i)=>{ const w = want[i], r = s.room;
     if(s.kind !== w.k || (w.t && s.tower !== w.t)) return true;
     if(!near(r.x0, w.room[0]) || !near(r.x1, w.room[1]) || !near(r.z0, w.room[2]) || !near(r.z1, w.room[3])) return true;
     if(w.door){ const d = s.door; if(!d || !near(d.x0, w.door[0]) || !near(d.x1, w.door[1]) || !near(d.z0, w.door[2]) || !near(d.z1, w.door[3])) return true; }
     return false; }).map(s=>s.id);
   check('1', '비밀 방 다섯 = 3-9 표(①T8·②성문2 위·③T4·④성문4 바깥·⑤T6)', P.secrets.length === 5 && !bad.length, {bad}); }
-{ const bad = P.secrets.filter(s=> s.kind === 'spiral').filter(s=>{ const T8 = P.towers[s.spiral], th = s.th, px = T8.scx + Math.cos(th)*1.8, pz = T8.scz + Math.sin(th)*1.8;
+{ const bad = P.secrets.filter(s=> s.kind === 'spiral').filter(s=>{ const T8 = P.towers[s.spiral], th = s.th, px = T8.scx + Math.cos(th)*T.CW.SP.b, pz = T8.scz + Math.sin(th)*T.CW.SP.b;
     return !(px >= s.room.x0 - 1 && px <= s.room.x1 + 1 && pz >= s.room.z0 - 1 && pz <= s.room.z1 + 1); }).map(s=>s.id);
   check('1', '짝수 탑 숨은 문(th0+270°)이 armB 숨은 방 쪽', !bad.length, {bad}); }
 check('1', '비밀 방마다 상자·금화 더미 자리(방 안)', P.secrets.every(s=> s.chest && s.coin && s.coin.x >= s.room.x0 && s.coin.x <= s.room.x1 && s.coin.z >= s.room.z0 && s.coin.z <= s.room.z1
@@ -309,7 +310,9 @@ check('T', "다섯 문을 다 찾으면 🗝️ 성곽 탐험가(큰 알림 + ex
   check('A', "손님 판이 다르면 '새로고침해 주세요' 한 번만(큰 알림)", n === 1, {n}); }
 check('A', '호스트 meta 에 v(GAME_VER)·sid·dg · 손님이 sid·v·dg 를 읽는다', /v:GAME_VER, sid:G\.sid\|\|0, dg:G\.danger\|0/.test(code) && /if\(m\.sid\) G\.sid = m\.sid;/.test(code) && /treVersion\(m\.v\)/.test(code) && /treDangerRun\(G\.danger\)/.test(code), {});
 check('A', "dangerCheck 가 호스트 화면에도 treDangerRun", /say\(`⚠️[\s\S]{0,200}treDangerRun\(worst\)/.test(code), {});
-check('A', "GAME_VER '67차 · 다섯 성문을 잇는 성곽'", /const GAME_VER = '67차 · 다섯 성문을 잇는 성곽'/.test(code), {});
+/* 70차 4회차 — 판 모양(탑 CW.TW 11 · 나선 CW.SP)이 67차 판(TW 9)과 다르면 GAME_VER 도 67차 판 문자열이 아니어야 한다(옛 탭 손님에게 '새로고침' 알림이 뜨게) */
+{ const gv = (code.match(/const GAME_VER = '([^']*)'/) || [])[1] || '', tw = +((code.match(/TW:(\d+)/) || [])[1] || 0), n = +((gv.match(/^(\d+)차 · /) || [])[1] || 0);
+  check('A', "GAME_VER '<N>차 · …' · 탑 11×11(판 모양 바뀜)이면 N ≥ 70 · 67차 판 문자열 아님", n >= 67 && (tw === 9 || (n >= 70 && gv !== '67차 · 다섯 성문을 잇는 성곽')), {gv, tw}); }
 
 /* ═══ O. 조준 가림 ═══ */
 { fresh(); T.CASTLE.fill(0); T.CROOF.fill(0);

@@ -317,7 +317,7 @@ const fp = await pg.evaluate(async ()=>{
   const all = g => { const a=[]; g.traverse(c=>{ if(c.isMesh) a.push(c); }); return a; };
   const meshesOf = g => all(g).filter(c=> c.material !== HELD_ARM && !(c.userData && c.userData.arm));   // 팔 조각은 빛 재질이 아니다
   const extraOf  = g => all(g).filter(c=> c.material && (c.material.blending === T3.AdditiveBlending || c.material.transparent));
-  o.맨손없음 = gg[0] === null && meshesOf(gms[0]).every(c=> c.material === HELD_VC);   // 맨손 돌은 강화 못 한다
+  o.맨손없음 = gg[0] === null && all(gms[0]).length > 0 && all(gms[0]).every(c=> (c.material === HELD_VC || c.material === HELD_ARM) && !RB.has(c.material));   // 맨손 돌은 강화 못 한다(룬 재질 0) · 70차 합치기 — 든 것은 깊이 누르기 짝(HELD_ARM)으로 그린다
   o.총마다있음 = true; o.조각없음 = true; o.재질따로 = true; o.손따로 = true; o.층 = true; o.실패 = 0; o.유니폼 = true;
   const seen = new Set();
   const fake = ()=>({uniforms:{}, vertexShader:'#include <common>\n#include <begin_vertex>\n#include <project_vertex>', fragmentShader:'#include <common>\n#include <opaque_fragment>'});
