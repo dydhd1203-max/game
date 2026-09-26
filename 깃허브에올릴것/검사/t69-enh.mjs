@@ -88,33 +88,42 @@ const cost = await pg.evaluate(()=>{ const W = window, R = W.__R, o = {};
   o.layer1Out = out1;
   let dispRune = 0; W.__scene.traverse(c=>{ if(!c.isMesh) return; let p = c; while(p && p !== held) p = p.parent; if(!p && c.material && c.material.userData && c.material.userData.runeU) dispRune++; });
   o.dispRune = dispRune;
+  /* 70차 — 손도 번짐 원천(층 1)에서 검은 가림막으로 한 번 더 그린다(장갑에 룬 번짐이 새지 않게) — 손 메시 수만큼 기준을 옮긴다 */
+  let hand = 0; W.__gunModels()[5].traverse(c=>{ if(c.isMesh && (c.userData.arm || c.material === W.__HELD_ARM) && c.layers.isEnabled(1)) hand++; }); o.hand = hand;
   W.__setEnh(5, 0);
   return o; });
 ok('⑬ 룬 셰이더가 컴파일됐고(runeFail 0) 모두 깊이 누르기를 가진다(㉗)', cost.rune > 0 && cost.runeVM === cost.rune && cost.fails === 0, {rune:cost.rune, vm:cost.runeVM, fails:cost.fails});
 ok('⑪ 층 1(번짐 원천) 메시는 든 총 안에만 · 진열에 빛 재질 0', cost.layer1Out === 0 && cost.dispRune === 0, {out:cost.layer1Out, disp:cost.dispRune});
-ok('⑩ 1인칭 +6 드로우콜 증가 ≤ 재질 수 + 6 · 삼각형 증가 ≤ 든 총 삼각형 + 100', cost.e6.calls - cost.e0.calls <= 6 + 6 && cost.e6.tris - cost.e0.tris <= 14100,
-   {e0:cost.e0, e1:cost.e1, e3:cost.e3, e6:cost.e6});
+ok('⑩ 1인칭 +6 드로우콜 증가 ≤ 재질 수 + 6 (+ 번짐 가림막 손 메시 수 — 70차) · 삼각형 증가 ≤ 든 총 삼각형 + 100', cost.e6.calls - cost.e0.calls <= 6 + 6 + cost.hand && cost.hand <= 2 && cost.e6.tris - cost.e0.tris <= 14100,
+   {e0:cost.e0, e1:cost.e1, e3:cost.e3, e6:cost.e6, hand:cost.hand});
 /* ⑱ 3인칭 — 21명 +6 에 강화 공 빛 0 */
 const tp = await pg.evaluate(()=>{ const W = window, [PG, PF] = W.__gunMeshes(), o = {};
   const A = i=>({x:i*1.5, y:W.__GY, z:0, ry:0, g:i%5, ph:i, mv:false, down:false, wp:3, we:6, hat:0, gls:0, clo:0, jb:-1, jt:0, air:false});
   W.__drawSheep(Array.from({length:21}, (_,i)=>A(i)), 10, 40, s=>W.__GHEX[s.g|0], W.__avatarRender().scale);
   o.glow = PF.count; o.cap = PF.count_max; o.shadow = PF.castShadow;
   const S = PG.geometry.attributes.aEnhS.array; let n6 = 0; for(let i=0;i<PG.count;i++) if(S[i*4+2] === 6) n6++; o.rune6 = n6;
+  /* 70차 — 같은 21명이 총 → 도구(곡괭이·망치)로 바꾼 다음 프레임: 도구 칸에 앞 프레임 룬 단계가 남으면 안 된다 */
+  W.__drawSheep(Array.from({length:21}, (_,i)=>({...A(i), wp:0, tool:i % 2 ? 'mine' : 'work'})), 10.1, 40, s=>W.__GHEX[s.g|0], W.__avatarRender().scale);
+  const E = PG.geometry.attributes.aEnh.array; let left = 0; for(let i=0;i<PG.count;i++) if(S[i*4+2] !== 0 || E[i*4] !== 0) left++;
+  o.toolN = PG.count; o.toolLeft = left;
   return o; });
 ok('⑱ 3인칭 21명 +6 — 강화 공 빛 0 · 정원 = 40 × 4 · 그림자 끔 · 쇠 조각에 룬 단계', tp.glow === 0 && tp.cap === 160 && tp.shadow === false && tp.rune6 > 21, tp);
+ok('⑱ 70차 — 총 → 도구로 바꾼 다음 프레임에 룬 값(aEnhS.z·aEnh)이 남은 도구 칸 0', tp.toolN >= 21 && tp.toolLeft === 0, {toolN:tp.toolN, left:tp.toolLeft});
 /* ㉒ UI 테·◆ */
 const ui = await pg.evaluate(()=>{ const W = window, o = {};
   [1,2,3,4,5,6].forEach((e,k)=> W.__setEnh([1,3,5,6,8,19][k], e));
   document.querySelectorAll('.pop').forEach(e=>e.classList.remove('on')); W.__openKit();
   const want = {}; for(let e=1;e<=6;e++) want[e] = getComputedStyle(document.documentElement).getPropertyValue('--e' + e).trim();
   o.cells = [...document.querySelectorAll('#kitGrid .kCell')].filter(c=> /\be[1-6]\b/.test(c.className)).map(c=>{ const e = +c.className.match(/\be([1-6])\b/)[1];
-    const cs = getComputedStyle(c); return {e, col:cs.borderTopColor, want:want[e], dots:c.querySelectorAll('.enhD i.on').length, sh:cs.boxShadow !== 'none'}; });
+    const cs = getComputedStyle(c); return {e, col:cs.borderTopColor, want:c.classList.contains('on') ? '#72af8d' : want[e], dots:c.querySelectorAll('.enhD i.on').length, sh:cs.boxShadow !== 'none', on:c.classList.contains('on')}; });
   const hex = s=>{ const m = s.match(/\d+/g); return m ? '#' + m.slice(0,3).map(x=>(+x).toString(16).padStart(2,'0')).join('') : s; };
   o.bad = o.cells.filter(c=> hex(c.col) !== c.want.toLowerCase() || c.dots !== c.e || (c.e === 6 && !c.sh));
+  o.hint = (document.querySelector('#popKit .shopHint')||{}).textContent || '';
   document.querySelectorAll('.pop').forEach(e=>e.classList.remove('on'));
   o.toastZ = getComputedStyle(document.getElementById('toast')).zIndex;
   return o; });
-ok('㉒ 가방 테 = --e1~--e6 · ◆ 채운 수 = 단계 · +6 빛', ui.cells.length >= 6 && ui.bad.length === 0, ui.bad.length ? ui.bad : ui.cells.length + '칸');
+ok('㉒ 가방 테 = --e1~--e6(사용 중 칸은 초록 #72af8d) · ◆ 채운 수 = 단계 · +6 빛', ui.cells.length >= 6 && ui.bad.length === 0, ui.bad.length ? ui.bad : ui.cells.length + '칸');
+ok('㉒ 70차 — 강화된 무기를 든 칸(사용 중)도 초록 테 · 안내문은 ✓ 딱지(초록 테 = 사용 중 문구 없음)', ui.cells.some(c=> c.on) && ui.hint.includes('✓') && !ui.hint.includes('초록 테는'), {on:ui.cells.filter(c=>c.on), hint:ui.hint});
 ok('㉓ 토스트 z-index 44', ui.toastZ === '44', ui.toastZ);
 /* ㉓ 강화 순간 · ㉖ 깨어남 */
 const mo = await pg.evaluate(()=>{ const W = window, G = W.__G, o = {};

@@ -40,9 +40,12 @@ ok('룬은 #include <opaque_fragment> 앞에 끼운다(Lambert·Phong 모두)', 
 ok('치환 실패 감지(runeFail + console.warn)', /runeFail = true/.test(addRune) && /console\.warn\('rune inject fail'/.test(addRune));
 ok('Lambert 전용 문자열 치환(outgoingLight = reflectedLight…)에 기대지 않는다', !/replace\('vec3 outgoingLight = reflectedLight/.test(src));
 ok('깊이 누르기 VM_Z = mix(-gl_Position.w, …, 0.02)', /const VM_Z = '#include <project_vertex>\\n  gl_Position\.z = mix\(-gl_Position\.w, gl_Position\.z, 0\.02\);'/.test(src) && /replace\('#include <project_vertex>', VM_Z\)/.test(addRune));
-ok('스크린식 합성 · 상한 .95', /min\(E \+ uGunFlash, vec3\(0\.95\)\) \* \(1\.0 - clamp\(outgoingLight, 0\.0, 1\.0\)\)/.test(src));
+ok('70차 — 선 심은 칠하기(mix · 금 위 금도 읽힌다) · 림·총구 화염은 스크린 · 상한 .95', /outgoingLight = mix\(outgoingLight, core, coreK\)/.test(src) && /min\(E2 \+ uGunFlash, vec3\(0\.95\)\) \* \(1\.0 - clamp\(outgoingLight, 0\.0, 1\.0\)\)/.test(src) && /mix\(mix\(col, uRB, 0\.75 \* sim\), vec3\(1\.0\), 0\.35 \* sim\)/.test(src));
+ok('70차 — 첫 테(+1)는 총구가 아니라 기관부 쪽(.25) · +1 도 윗면 상감 선 한 줄(1인칭·3인칭 같은 순서)', /float dR = abs\(s - 0\.25\);\n\s*if\(uRRing > 1\.5\) dR = min\(dR, abs\(s - 0\.04\)\)/.test(src) && /float dR = abs\(s - 0\.25\);/.test(src.slice(src.indexOf('const GEAR_RUNE_FS'))) && ENH_FX[1].lng === 1);
+ok('70차 — 새총·강궁은 룬 자리를 90° 돌려 자루→갈래로 새기고 나무에 불로 지진 룬(.5) · 용의 숨결은 글자 0', /1: \{rot:_rotX90, [^}]*wood:0\.5\}/.test(src) && /8: \{rot:_rotX90, [^}]*wood:0\.5\}/.test(src) && /19:\{gly:0\}/.test(src) && /if\(OV\.rot\) M\.premultiply\(OV\.rot\)/.test(src) && /base\.userData\.heldWood \? \(OV\.wood \|\| 0\)/.test(src));
 ok('원래 emissive 를 지우지 않는다(특수 부품 제 빛)', !/emissive = new THREE\.Color\(0\); c\.material\.emissiveIntensity = 0/.test(src));
 ok('손·팔(HELD_ARM)도 깊이를 누른다 · HELD_VC 는 절대 안 누른다', /HELD_ARM\.onBeforeCompile = sh=>\{ sh\.vertexShader = sh\.vertexShader\.replace\('#include <project_vertex>', VM_Z\)/.test(src) && !/HELD_VC\.onBeforeCompile/.test(src) && !/HELD_VC\.transparent\s*=/.test(src));
+ok('70차 — 손(HELD_ARM)도 층 1 · 번짐 원천에서는 검은 가림막(uGlowOnly) — 장갑에 룬 번짐이 새지 않는다', /HELD_ARM\.onBeforeCompile[\s\S]{0,500}if\(uGlowOnly > 0\.5\) outgoingLight = vec3\(0\.0\)/.test(src) && /if\(isHandMat\(c\)\)\{ c\.layers\.enable\(1\)/.test(src) && !/c\.layers\.disable\(1\)/.test(src));
 ok('원래 재질은 WeakMap(RUNE_BASE) — userData 에 재질을 안 넣는다', /const RUNE_BASE = new WeakMap\(\)/.test(src) && !/userData\.(base|orig)Mat\s*=/.test(src));
 ok('쇠 표시 aRune — partMesh·bakeHeld 가 달고 합친다', /setAttribute\('aRune'/.test(body('partMesh')) && /aRune/.test(body('bakeHeld')));
 /* ④ 번짐 패스 */
