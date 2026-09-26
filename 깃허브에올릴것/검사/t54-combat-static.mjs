@@ -51,6 +51,7 @@ let throwCd=0,gunT=0;
 const popOpen=()=>false,toast=()=>{},swing=()=>{},window={},gunModels=[],held={visible:false},MINE={out:false,rs:0};
 const survTopAt=(x,z)=>cover&&z>=-2.5&&z<=-1.5?3:0;
 const castleOccluded=()=>false;   // 67차 — aimWolf 가 부르는 성곽 가림(여기선 성곽 밖)
+const castleAimY=()=>0.85,castleHitT=()=>-1,wallShot=()=>{},wallChip=()=>{};let aimAY=0.85;   // 71차 — 가슴·머리 판정점 · 막힌 총알(여기선 성곽 밖 — 안 막음)
 const survOn=()=>survival,miniOn=()=>survival,
 solidTop=(x,z)=>wall&&z===1?GY+3:GY,solidHit=()=>false;
 const gboxSegClear=(a,b,c,d,e,f,len)=>len;   // 67차 — cameraClearance 가 성곽 상자(GBOX)도 본다 — 여기선 상자 없음

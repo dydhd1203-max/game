@@ -5,7 +5,7 @@
      1  파생값·CPLAN(설계 계산 `_spec67.cjs cplan` 값과 대조) · 12 검사 리터럴 동기 · 20 길 도우미 · 11 좀비 표(갈래 3 이 들어오면)
      T  보물 규칙(밀기 0.8초·세 dt · 창고 막힌 축 · 금화 더미 · 하루 한 상자·낮만·다음 날 · 반짝 다섯 곳 · 힌트 소리 · 🗝️ · 저장/복원)
      A  안내(구간 알림 두 겹 경계·5초 쉼 · 밤 위험 '🏃 성벽 길로 N모둠까지 약 T초' · 판 다름 알림)
-     O  조준 가림 castleOccluded(덮인 곳에서만 · 틈으로만 · sheltered 면 문도 막음)
+     O  조준 가림 castleOccluded(71차 — 어디서나 같은 선 검사: 벽 윗면 아래 선만 막음 · 틈으로 통과 · sheltered 면 문도 막음)
      S  발소리 STEP_G 가름 · 통신/그림 연결(meta v·sid·dg · 사람 칸 ex · 이름표 🗝️ · 미니맵) · 검사 목록
    '대기' = 다른 갈래(1 몸 · 2 그림 · 3 좀비)가 합쳐져야 잴 수 있는 항목. T67_STRICT=1 이면 대기도 실패로 센다(전부 합친 뒤). */
 import fs from 'node:fs';
@@ -67,6 +67,7 @@ const miniOn = ()=>false;
 const stairOf = new Int16Array(${'WS'}*${'WS'}).fill(-1);
 const mg = {fillStyle:'', strokeStyle:'', lineWidth:1, n:0, beginPath(){}, moveTo(){}, lineTo(){}, closePath(){}, fill(){ this.n++; }, arc(){}, stroke(){}};
 const mpx = (x)=>75 + x, mpz = (z)=>75 + z;
+const GBOX = [];   // 71차 — castleHitT 가 문 칸 인방·문설(GBOX 벽 상자)을 총알 막는 돌로 읽는다(여기선 상자 없음)
 `;
 const ctx = vm.createContext({console, Math, JSON, Map, Set, Array, Object, Number, String, Int8Array, Int16Array, Uint8Array, Float32Array, Float64Array, Infinity, NaN, Error});
 let loadErr = null;
@@ -328,17 +329,19 @@ check('A', "dangerCheck 가 호스트 화면에도 treDangerRun", /say\(`⚠️[
   P.apertures.pop(); run('__T.win.__treReset()');
   Object.assign(T.PL, {x:20.5, z:-47.5}); T.CROOF[I(20, -48)] = 0;
   const c = T.castleOccluded(20.5, T.GY + 1.1, -47.5, 20.5, T.GY + 0.85, -60);
+  const c2 = T.castleOccluded(20.5, T.GY + 9.1, -47.5, 20.5, T.GY + 8.5, -60), c3 = T.castleOccluded(20.5, T.GY + 1.1, -47.5, 20.5, T.GY + 30, -60);
   check('O', '덮인 곳에서 쏘면 성곽 벽이 막음', a === true, {a});
   check('O', '쏘기 틈(apertures) 높이로 지나가면 통과', b === false, {b});
-  check('O', '밖(지붕 없음)에서는 막지 않음(비용 0)', c === false, {c});
+  check('O', '71차 — 밖(지붕 없음)에서도 같은 선 검사: 벽 윗면보다 낮은 선은 막음(67~70차는 지붕 밑에서만 막았다)', c === true, {c});
+  check('O', '71차 — 벽 윗면 위로 넘어가는 선은 통과(성벽 길 눈 → 성벽 너머 · 마당 눈 → 벽 위로 높이)', c2 === false && c3 === false, {c2, c3});
   T.CASTLE.fill(0); for(let x=10; x<=30; x++){ T.CASTLE[I(x, -52)] = T.CK.DOOR; T.terrH[I(x, -52)] = T.GY; }
   Object.assign(T.PL, {x:20.5, z:-50.5}); T.CROOF[I(20, -51)] = T.CR.G;
   const d = occ(); T.CROOF[I(20, -51)] = T.CR.G | T.CR.DG; const e = occ();
   check('O', 'sheltered(지붕 밑·문턱 아님)면 문 칸도 막음 · 문턱에 서면 문으로 쏠 수 있음', d === true && e === false, {d, e});
   T.CASTLE.fill(0); T.CROOF.fill(0); }
-check('O', 'aimWolf 가 castleOccluded 를 조준 통 안 후보에만 부른다', /if\(perp > AR \+ along\*0\.05\) continue;\s*\n\s*if\(castleOccluded\(ex, ey, ez, w\.x, \(w\.y\|\|GY\)\+0\.85, w\.z\)\) continue;/.test(code), {});
+check('O', 'aimWolf 가 성곽 가림(castleAimY — 가슴·머리)을 조준 통 안 · 점수가 나은 후보에만 부른다', /if\(perp > AR \+ along\*0\.05\) continue;[\s\S]{0,240}if\(score >= bs\) continue;\s*\n\s*const ay = castleAimY\(ex, ey, ez, w\); if\(ay < 0\) continue;/.test(code), {});
 { const t54 = fs.readFileSync(path.join(here, 't54-combat-static.mjs'), 'utf8');
-  check('O', 't54-combat-static 의 vm 목에 castleOccluded = ()=>false', /const castleOccluded=\(\)=>false/.test(t54), {}); }
+  check('O', 't54-combat-static 의 vm 목에 castleOccluded·castleAimY·castleHitT(성곽 밖 — 안 막음)', /const castleOccluded=\(\)=>false/.test(t54) && /castleAimY=\(\)=>0\.85/.test(t54) && /castleHitT=\(\)=>-1/.test(t54), {}); }
 
 /* ═══ S. 발소리 · 연결 · 목록 ═══ */
 { const I = (x, z)=> T.gi(x, z); T.CASTLE.fill(0); T.ZONE.fill(-1); T.CROOF.fill(0);
