@@ -1,6 +1,6 @@
 // Actual hit timing, stone pool, guest snapshots, and bounded sound scheduling.
 import fs from 'node:fs';import path from 'node:path';import vm from 'node:vm';import {fileURLToPath} from 'node:url';import {GAME} from './gamefile.mjs';
-const here=path.dirname(fileURLToPath(import.meta.url)),source=fs.readFileSync(process.argv[2]||GAME,'utf8');
+const here=path.dirname(fileURLToPath(import.meta.url)),source=fs.readFileSync(process.argv[2]||GAME,'utf8').replace(/\r\n/g,'\n');   // 윈도(CRLF)로 받아도 '\n}\n\n' 자르기가 같게
 const parser=fs.readFileSync(path.join(here,'t54-race-static.mjs'),'utf8');
 const {fn,decl}=new Function('source',parser.slice(parser.indexOf('function end('),parser.indexOf('const results=[];'))+';return {fn,decl};')(source);
 const checks=[],check=(name,pass,data)=>{checks.push({name,pass:!!pass,data});console.log((pass?'PASS ':'FAIL ')+name+' '+JSON.stringify(data??''));};
