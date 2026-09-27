@@ -47,11 +47,11 @@ function fn(name){const start=source.indexOf('function '+name+'(');if(start<0)th
 function chunk(a,b){const start=source.indexOf(a),end=source.indexOf(b,start);if(start<0||end<0)throw new Error('Missing chunk '+a);return source.slice(start,end);}
 const fixtures=`
 const GFX={shadow:false,lowLambert:false},scene=new THREE.Scene(),MAXP=40,GY=0,SPD=5.2,RACE_SPD=1.4;
-const raceOn=()=>false,burst=()=>{},drawAvatarShadows=()=>{},meSheep={},ENH_MAX=6;
+const raceFixture={on:false},raceOn=()=>raceFixture.on,burst=()=>{},drawAvatarShadows=()=>{},meSheep={},ENH_MAX=6;
 const UPV=new THREE.Vector3(0,1,0),AX_X=new THREE.Vector3(1,0,0);
 const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color(),_ec3=new THREE.Color();   // _ec3 — 69차 3인칭 룬 색
 `;
-const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),
+const pieces=[fixtures,declaration('RACE74'),fn('raceFlightPose'),declaration('RB_SPEC'),declaration('flatMat'),
   chunk('function roundBox(', 'const _rbCache'),
   chunk('const STUD =','const eyeMat ='),fn('imesh'),declaration('P_body'),declaration('P_hand'),declaration('P_gun'),
   declaration('ENH_FX'),declaration('WEAPONS'),declaration('HATS'),declaration('GLASSES'),declaration('CLOTHES'),
@@ -62,7 +62,7 @@ const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),
   declaration('JOB_LOOK'),declaration('JOB_GEO'),declaration('JOB_UNIFORM'),declaration('P_jobParts'),declaration('JOB_AURA'),
   chunk('let FLIP_ON =','const fxq ='),
   chunk('const HEAD_M =','function drawSheep('),fn('drawSheep'),
-  `globalThis.API={drawSheep,smoothHead,sheepGait,sheepJoint,sheepFootPose,sheepActionPose,avatarWingPose,wingBend,R6_HOOK,R6_HEAD,R6_HK,R6_ARM,R6_ASD,R6_SHU,R6_HAND_AT,
+  `globalThis.API={drawSheep,smoothHead,sheepGait,raceFixture,RACE74,sheepJoint,sheepFootPose,sheepActionPose,avatarWingPose,wingBend,R6_HOOK,R6_HEAD,R6_HK,R6_ARM,R6_ASD,R6_SHU,R6_HAND_AT,
     JOB_LOOK,JOB_GEO,JOB_UNIFORM,P_jobParts,JOB_WING,WING_GEO,wingSpine,r6body,P_jobF,P_jobR,
     R6_SMILE,CYL,HATS,GLASSES,CLOTHES,meshes:{body:P_body,head:P_head,arm:P_arm,eyes:P_eye,mouth:P_mouth,nose:P_nose,
     legs:P_legs,shoes:P_shoe,deco:P_deco,gun:P_gun,gunGlow:P_gunF,handL:P_hand[0],handR:P_hand[1],

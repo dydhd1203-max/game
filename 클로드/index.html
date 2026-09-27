@@ -3976,13 +3976,12 @@ body.specOn #hint{visibility:hidden}
     <button class="btn sm" id="tLvJob">✨ 전직 레벨로 (15 → 30)</button>
     <button class="btn sm warn" id="tReset">🔄 처음부터</button>
   </div>
-  <h3>🏁 장애물 경주 — 로블록스식 오비</h3>
+  <h3>☁️ 통통! 구름 운동회</h3>
   <div class="hgrid">
     <div class="hrow"><i>🏃</i><div><b>Shift 를 누르면 달립니다.</b> 3초 달리면 숨이 차고 4초 쉬면 다시 찹니다 — 마을에서도 똑같이 달릴 수 있어요.</div></div>
-    <div class="hrow"><i>🦘</i><div><b>스페이스 두 번이면 2단 점프.</b> 징검다리·좁은 다리·사라지는 발판·흔들리는 통나무·마지막 계단을 넘어 골인!</div></div>
-    <div class="hrow"><i>🚩</i><div>떨어지면 <b>1.5초 뒤 마지막 깃발</b>에서 다시 출발합니다. 발판이 갑자기 꺼지거나 바위가 굴러오기도 해요.</div></div>
-    <div class="hrow"><i>🪨</i><div><b>굴러오는 바위·공</b>(통나무 길 · 마지막 계단), <b>흔들리는 진자</b>(좁은 다리), <b>도는 막대</b>(3·5번 깃발 판).
-      맞으면 튕기고 잠깐 미끄러져요 — <b>우르릉 소리가 커지면 비켜요!</b> 막대는 뛰어넘을 수 있어요.</div></div>
+    <div class="hrow"><i>🦘</i><div><b>동그란 매트의 화살표를 밟으면 붕!</b> 공중에서도 방향을 조절할 수 있어요. 스페이스는 점프, 두 번 누르면 2단 점프예요.</div></div>
+    <div class="hrow"><i>🚩</i><div>떨어지면 <b>마지막 깃발에서 다시 출발</b>해요. 일곱 구간을 지나 별 모양 결승문까지 달려요!</div></div>
+    <div class="hrow"><i>🌀</i><div><b>빙글 도는 봉과 통통 범퍼를 피해요.</b> 봉은 뛰어넘거나 옆으로 지나갈 수 있어요. <b>미끄럼틀에서는 앞으로 누르면 빨라지고, 놓으면 느려져요.</b></div></div>
     <div class="hrow"><i>🏆</i><div><b>1등 유니크 총 · 2~3등 레어 총 · 4~5등 제일 좋은 방어구 · 6~10등 자원</b>, 90초 안에 들어온 사람은 모두 자원 조금. 이미 가진 건 그만큼 자원으로.</div></div>
   </div>
 
@@ -4003,7 +4002,7 @@ body.specOn #hint{visibility:hidden}
   <div id="tMiniBox">
     <div id="tMiniSt" style="opacity:.8;margin-bottom:4px">지금은 미니게임이 아닙니다. 연습해 보려면 아래에서 바로 열 수 있어요.</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
-      <button class="btn sm" id="tMini0">🏁 장애물 경주 열기</button>
+      <button class="btn sm" id="tMini0">☁️ 구름 운동회 열기</button>
       <button class="btn sm" id="tMini1">🎯 서바이벌 열기</button>
       <button class="btn sm warn" id="tMiniEnd">⏹️ 미니게임 끝내고 아침으로</button>
     </div>
@@ -4043,7 +4042,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '73차 · 교실 안정화';   // 70차 4회차 — 탑 11×11·나선·안쪽 턱으로 판 모양(CASTLE·stairOf)이 바뀌었다: 옛 탭을 연 손님에게 '새로고침' 알림이 뜨게 올린다(판 모양을 바꾸면 늘 같이 올린다)
+const GAME_VER = '74차 · 통통 구름 운동회';   // 70차 4회차 — 탑 11×11·나선·안쪽 턱으로 판 모양(CASTLE·stairOf)이 바뀌었다: 옛 탭을 연 손님에게 '새로고침' 알림이 뜨게 올린다(판 모양을 바꾸면 늘 같이 올린다)
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -5830,13 +5829,13 @@ if(GFX.shadow){
 }
 const _sunDir = new THREE.Vector3();
 const _shFwd = new THREE.Vector3();                // 67차 — 그림자 판 가운데를 시선 앞으로 미는 데 쓰는 벡터(매 프레임 할당 0)
-function shadowFollow(cx, cz){
+function shadowFollow(cx, cz, cy=GY){
   if(!GFX.shadow) return;
   const texel = (SH_R*2) / GFX.shadow;    // 그림자 한 칸의 크기
   const qx = Math.round(cx/texel)*texel, qz = Math.round(cz/texel)*texel;
   _sunDir.copy(sun.position).normalize();  // 지금 해가 있는 방향
-  sunTarget.position.set(qx, GY, qz);
-  sun.position.set(qx + _sunDir.x*150, GY + Math.max(40, _sunDir.y*150), qz + _sunDir.z*150);
+  sunTarget.position.set(qx, cy, qz);
+  sun.position.set(qx + _sunDir.x*150, cy + Math.max(40, _sunDir.y*150), qz + _sunDir.z*150);
 }
 
 addEventListener('resize', ()=>{ camera.aspect = innerWidth/innerHeight;
@@ -10726,21 +10725,15 @@ const miniPadX = g => (g-2)*MINI_PADX;
 const RACE_Z_EDGE = 34;                                    // 섬 가장자리 — 여기까지는 섬 바닥, 그 뒤는 발판만
 const RACE_P = [];                                         // 발판 표 {x,z,y,w,d,h,col,sec,kind,mv?,fade?,blink?,cp?,fin?}
 const RACE_X = 4;                                          // 횡방향 길·이동 폭 배율. 점프 간격은 각 구간에서 정한다.
-const RACE_S = [                                           // 일곱 구간 — 이름 · z 구간 · 색
-  {n:'징검다리',        z0:38,  z1:78,  col:0x5fb8ff},
-  {n:'좁은 다리',       z0:84,  z1:124, col:0xffa04a},
-  {n:'사라지는 발판',   z0:130, z1:170, col:0xd89bff},
-  {n:'흔들리는 통나무', z0:176, z1:216, col:0xc08a5a},
-  {n:'무지개 점프',     z0:222, z1:270, col:0x51cfb5},
-  /* 63차 — 새 구간(선생님: "장애물 코스 하나만 추가하자 네가 아이디어를 내봐").
-     여기까지 오는 다섯 구간은 전부 **떨어지면 죽는** 구간이다 — 발 놓을 자리를 겨누는 놀이다.
-     여섯째는 일부러 정반대로 만들었다: 길이 한 장으로 이어져 **떨어질 구멍이 하나도 없고**,
-     대신 하늘에서 내려찍는 도장 셋의 **박자**를 읽어야 지나간다. 빨리 가는 것이 늘 이기는
-     것이 아니라는 걸 코스가 처음으로 가르친다. 맞아도 죽지 않고 뒤로 밀릴 뿐이라
-     겁이 많은 아이도 계속 도전한다. */
-  {n:'쿵쿵 도장',       z0:276, z1:307, col:0xff5f8d},
-  {n:'마지막 계단',     z0:312, z1:346, col:0xffe066}];
-const RACE_Z_FIN = 348, RACE_Y_FIN = 8.1;
+const RACE_S = [
+  {n:'구름 출발광장',z0:28,z1:78,col:0x68cde6},
+  {n:'통통 도넛섬',z0:88,z1:164,col:0xff9ac3},
+  {n:'빙글 캔디마당',z0:184,z1:258,col:0x9b8aed},
+  {n:'출렁 구름다리',z0:270,z1:350,col:0x6edab4},
+  {n:'붕붕 하늘항로',z0:362,z1:442,col:0xffbd62},
+  {n:'무지개 미끄럼',z0:456,z1:522,col:0x61d7c1},
+  {n:'별빛 대도약',z0:534,z1:592,col:0xffc759}];
+const RACE_Z_FIN = 594, RACE_Y_FIN = 3;
 /* 무지개 점프 여섯 발판의 앞뒤 간격. 발판(raceBuild)과 옆 장식이 같은 값을 봐야
    깃대·풍선이 발판 옆에 선다. 예전엔 장식만 옛 간격 5 로 남아 뒤쪽이 텅 비었다. */
 const RACE_RAINBOW_DZ = 8.6;
@@ -10821,14 +10814,13 @@ function survBlocked(ax, ay, az, bx, by, bz){
 const miParts = {quiz:[], surv:[], race:[]};   // 37차 — race: 출발·골인 아치, 구간 표지, 깃발대
 let miVis = 'quiz';
 function miniShow(k){
-  /* 3인칭인 판인지 몸에 표시해 둔다 — 조준점을 숨기는 데 쓴다 (37차: 경주 k=0 이 3인칭) */
-  document.body.classList.toggle('tpv', k === 0);
-  const want = k === 1 ? 'surv' : 'quiz';
-  if(miVis === want) return;
-  for(const h of miParts.quiz) bset(h, want === 'quiz');
-  for(const h of miParts.surv) bset(h, want === 'surv');
-  for(const h of miParts.race) bset(h, want === 'quiz');
-  miVis = want;
+  document.body.classList.toggle('tpv',k===0);
+  const want=k===1?'surv':'race';
+  if(miVis===want)return;
+  for(const h of miParts.quiz)bset(h,false);
+  for(const h of miParts.surv)bset(h,want==='surv');
+  for(const h of miParts.race)bset(h,false);
+  miVis=want;
 }
 /* 이 판에서 우리 모둠이 시작하는 자리 */
 function miniSpawnXZ(g){
@@ -10920,303 +10912,6 @@ function buildMiniIsle(){
     S(bpush('miMark', gMark, MAT, px+0.6, MINI_Y+3.4, pz, 0, 1.1, 0.7, 0.10, 0, GHEX[g]));
     S(bpush('miGlow', gGlow, EMITC, px, MINI_Y+3.9, pz, 0, 0.5,0.5,0.5));
   }
-  /* ══ 37차 — 경주 코스의 붙박이 미술: 출발 아치(체크무늬) · 구간 표지판·깃발대 · 골인 아치 · 코스 아래 구름 ══
-     발판 자체는 변형이 있어 R_plat(인스턴스)이 그린다. 여기는 seed 와 상관없는 것만. */
-  const Rp = h => (miParts.race.push(h), h);
-  /* 39차 — 머리 위 것들은 전부 7.4칸 위로 올렸다. 3인칭 카메라(땅 위 1.55 + 뒤 6.4 × 내려보는 각)가 4.5칸까지 오르는데,
-     37·38차의 문·만국기·트러스 윗보가 4.2~4.6 이라 카메라가 그 속을 지나며 화면이 파랗게 찼다. */
-  const arch = (z, y, col, span)=>{ for(const sx of [-1,1]) Rp(bpush('miEdge', gEdge, MAT, sx*span, MINI_Y+y+3.7, z, 0, 0.36, 7.4, 0.36, 0, 0xf4f1ea));
-    for(let i=0;i<10;i++) Rp(bpush('miMark', gMark, MAT, -span + (i+0.5)*(span*2/10), MINI_Y+y+7.6, z, 0, span*2/10, 0.6, 0.36, 0, i%2 ? 0x1e1e26 : 0xf4f1ea));
-    Rp(bpush('miGlow', gGlow, EMITC, 0, MINI_Y+y+8.3, z, 0, 0.7,0.7,0.7)); };
-  /* 출발 문은 ⑧ 광장 블록에서 카트라이더식으로 세운다(38차 ⑥) — 파란 현수막·별 기둥·노랑검정 차단봉 */
-  arch(RACE_Z_FIN + 2, RACE_Y_FIN, 0xffe066, 15.5);                    // 폭 28인 골인판 바깥 아치
-  RACE_S.forEach((Sx,i)=>{ const z = Sx.z0 - 3.2;
-    for(const sx of [-1,1]){ const x = sx*(i === 0 ? 27 : 17.5); Rp(bpush('miEdge', gEdge, MAT, x, MINI_Y+1.6, z, 0, 0.16, 3.2, 0.16, 0, 0xb98b58));
-      Rp(bpush('miMark', gMark, MAT, x + sx*0.55, MINI_Y+3.0, z, 0, 1.1, 0.7, 0.10, 0, Sx.col)); }
-    Rp(bpush('miGlow', gGlow, EMITC, 0, MINI_Y+4.2, z, 0, 0.45,0.45,0.45)); });
-  /* 코스 아래 구름 — 허공이 '하늘' 로 읽히게 (떨어지면 구름 속으로) */
-  for(let i=0;i<26;i++){ const z = 40 + i*8.6, x = Math.sin(i*1.7)*9, y = -6 - (i%3)*1.4;
-    Rp(bpush('miMark', gMark, MAT, x, MINI_Y+y, z, 0, 5.5 + (i%2)*2, 1.6, 4.2, 0, 0xffffff)); }
-  /* ══ 트랙 꾸미기 (선생님: "맵을 미술적으로 잘 꾸며야 할 것 같아" — 카트라이더 식 마을 트랙 예시) ══ */
-  const gBall = new THREE.SphereGeometry(0.5, 12, 8);                                                    // BALL 은 이 아래에서 정의된다 — 여기서 하나 만든다
-  const FLAGC = [0xff5a5a, 0xffd43b, 0x51cf66, 0x4dabf7, 0xcc7bff, 0xff922b];                        // 만국기·꽃·풍선 색 (여기서 먼저 — 아래 화단이 먼저 쓴다)
-  const BX = (x,y,z, sx,sy,sz, col, ry, rz)=> Rp(bpush('miMark', gMark, MAT, x, MINI_Y+y, z, ry||0, sx, sy, sz, rz||0, col));
-  const GL = (x,y,z, sc)=> Rp(bpush('miGlow', gGlow, EMITC, x, MINI_Y+y, z, 0, sc,sc,sc));
-  /* ① 출발 다리(z 29.6~37.6, 폭 52) — 양옆 연석 + 흰 난간 + 가운데 점선 + 가로등 */
-  for(let i=0;i<8;i++){ const z = 29.6 + 0.5 + i*1.0;
-    for(const sx of [-1,1]) BX(sx*25.7, 0.36, z, 0.6, 0.22, 1.0, i%2 ? 0xff5a5a : 0xffffff); }
-  for(const sx of [-1,1]) for(let i=0;i<7;i++){ const z = 30 + i*1.1;                      // 연석 안쪽 꽃 화단 + 생울타리
-    BX(sx*24.6, 0.5, z, 0.9, 0.36, 1.1, 0x4faa5a); Rp(bpush('rcBall', gBall, WMAT, sx*24.6, MINI_Y+0.85, z, 0, 0.42, 0.42, 0.42, 0, FLAGC[(i+(sx>0?3:0))%6])); }
-  for(const sx of [-1,1]) for(let i=0;i<3;i++){ const z = 30.4 + i*3.2;
-    BX(sx*26.4, 1.0, z, 0.14, 1.3, 0.14, 0xf4f1ea); BX(sx*26.4, 1.55, z + 1.6, 0.10, 0.10, 3.4, 0xff5a5a); }
-  for(const sx of [-1,1]) for(let i=0;i<2;i++){ const z = 31 + i*5;
-    BX(sx*27.2, 1.9, z, 0.16, 3.8, 0.16, 0x6b6f78); BX(sx*27.2 - sx*0.5, 3.8, z, 1.2, 0.12, 0.16, 0x6b6f78); GL(sx*27.2 - sx*1.0, 3.6, z, 0.5); }
-
-  /* 54차 — 넓어진 트랙 바깥에만 기둥을 세운 색깔 경주 게이트. 가운데는 시원하게 열린다. */
-  const gate = (i, z, y)=>{ const c = RACE_S[i].col, span = i === 0 ? 27 : 17.5;
-    for(const side of [-1,1]){ const x = side*span;
-      BX(x,y+0.3,z,1.8,0.6,1.8,0xffffff);
-      BX(x,y+4.0,z,0.9,7.4,0.9,c);
-      BX(x,y+7.8,z,1.5,0.6,1.5,0xffffff);
-      Rp(bpush('rcBall',gBall,WMAT,x,MINI_Y+y+8.7,z,0,1.5,1.5,1.5,0,0xffdf57));
-      for(let q=0;q<4;q++) BX(x,y+1.0+q*1.5,z+0.48,0.95,0.3,0.08,0xffffff);
-      BX(x+side*1.5,y+4.4,z,2.3,1.3,0.16,c);
-      Rp(bpush('rcCone',CONEG,WMAT,x+side*2.8,MINI_Y+y+4.4,z,0,1.1,1.0,0.16,-side*Math.PI/2,0xffffff));
-    }
-    BX(0,y+8.0,z,span*2,1.0,0.8,c);
-    for(let q=0;q<24;q++) BX(-span+(q+0.5)*span/12,y+7.48,z+0.04,span/12,0.3,0.85,q%2?0x34456a:0xffffff);
-    // 1~6개의 노란 점으로 진행 구간을 글씨 없이 읽을 수 있다.
-    for(let q=0;q<=i;q++) Rp(bpush('rcBall',gBall,WMAT,(q-i/2)*1.3,MINI_Y+y+8.1,z+0.5,0,0.7,0.7,0.16,0,0xffe878));
-  };
-  const gGem2 = new THREE.OctahedronGeometry(0.5, 0);
-  /* (문은 ④ 아래에서 세운다 — win·gable 이 거기서 정의된다. 앞에서 부르면 TDZ 로 게임이 안 뜬다) */
-  /* ③ 풍선 — 출발 아치 옆 여섯, 골인 옆 여섯 (가는 줄 + 공) */
-  const balloon = (x,y,z, col)=>{ BX(x, y-1.1, z, 0.03, 2.0, 0.03, 0xf4f1ea); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y, z, 0, 0.5, 0.6, 0.5, 0, col)); };   // 작게 — 0.72 는 구름 덩어리로 보였다
-  for(let k=0;k<6;k++) balloon((k<3?-1:1)*(21.5 + (k%3)*1.1), 5.6 + (k%3)*0.7, MINI_PADZ + 3.5 + (k%2)*1.2, FLAGC[k]);
-  for(let k=0;k<6;k++) balloon((k<3?-1:1)*(17.5 + (k%3)*0.8), RACE_Y_FIN + 6.6 + (k%3)*0.6, RACE_Z_FIN + 4.5 + (k%2)*1.2, FLAGC[(k+2)%6]);
-  /* ④ 길가의 떠 있는 작은 섬 — 카트라이더 마을 트랙처럼 예쁜 건물들로 채운다 (선생님: "관중은 빼고 예쁜 건물들로만").
-     박공지붕 집 · 차양 달린 가게 · 뾰족 지붕 둥근 탑 · 풍차 · 2층 타운하우스 · 나무와 울타리·가로등. 코스 양옆에 번갈아, 발판보다 조금 낮게 */
-  const WALL = [0xfff0c8, 0xd8ecff, 0xffe0e6, 0xe6ffd8, 0xfff7d0, 0xe8e0ff], ROOF = [0xe05a4a, 0xff8c42, 0x4dabf7, 0x9b6bff, 0x2fb37a, 0xff5a8a];
-  const gable = (x,y,z, w,d, col)=>{ const h = w*0.42;                                                     // 박공지붕 — 두 판이 마루에서 만난다
-    BX(x - w*0.26, y + h*0.55, z, w*0.62, 0.22, d + 0.5, col, 0,  0.62); BX(x + w*0.26, y + h*0.55, z, w*0.62, 0.22, d + 0.5, col, 0, -0.62);
-    BX(x, y + h*0.98, z, 0.30, 0.22, d + 0.55, furLight(col, 0.15)); };
-  const win = (x,y,z, sx,sy, dz)=>{ BX(x, y, z + dz, sx + 0.16, sy + 0.16, 0.06, 0xf4f1ea); BX(x, y, z + dz + 0.04, sx, sy, 0.06, 0xa8e0ff); };
-  const house = (x,y,z, k)=>{ const wc = WALL[k%6], rc = ROOF[(k+1)%6];                                  // 0 박공지붕 집
-    BX(x, y+1.35, z, 3.4, 2.7, 3.0, wc); gable(x, y+2.7, z, 3.8, 3.0, rc);
-    BX(x + 1.05, y+3.5, z - 0.6, 0.5, 1.4, 0.5, 0x9a6a4a); BX(x + 1.05, y+4.25, z - 0.6, 0.62, 0.16, 0.62, 0x6a4a3a);
-    BX(x, y+0.85, z + 1.53, 0.8, 1.7, 0.08, 0x8a5a3a); win(x - 1.05, y+1.7, z, 0.7, 0.7, 1.53); win(x + 1.05, y+1.7, z, 0.7, 0.7, 1.53);
-    for(let q=-1;q<=1;q++) BX(x + q*1.2, y+0.35, z + 2.7, 0.3, 0.7, 0.10, 0xf4f1ea); BX(x, y+0.55, z + 2.7, 2.8, 0.08, 0.08, 0xf4f1ea); };
-  const shop = (x,y,z, k)=>{ const wc = WALL[(k+2)%6], ac = ROOF[(k+3)%6];                                // 1 가게 — 줄무늬 차양 + 간판 + 진열창
-    BX(x, y+1.4, z, 4.0, 2.8, 3.2, wc); BX(x, y+2.95, z, 4.4, 0.3, 3.6, furLight(wc, -0.25));
-    for(let q=0;q<6;q++) BX(x - 1.75 + q*0.7, y+2.05, z + 1.95, 0.7, 0.10, 1.0, q%2 ? ac : 0xffffff, 0, 0); 
-    BX(x, y+2.0, z + 1.45, 4.2, 0.10, 0.1, ac);
-    BX(x - 0.9, y+1.0, z + 1.63, 1.6, 1.3, 0.06, 0xa8e0ff); BX(x + 1.2, y+0.85, z + 1.63, 0.8, 1.7, 0.08, 0x8a5a3a);
-    BX(x, y+2.55, z + 1.66, 2.4, 0.5, 0.08, 0xffffff); BX(x, y+2.55, z + 1.71, 1.6, 0.26, 0.04, ac); };
-  const tower = (x,y,z, k)=>{ const wc = WALL[(k+4)%6], rc = ROOF[(k+5)%6];                               // 2 둥근 탑 — 뾰족 지붕 + 작은 깃발
-    for(let q=0;q<3;q++) BX(x, y + 0.9 + q*1.8, z, 2.4 - q*0.1, 1.8, 2.4 - q*0.1, q%2 ? furLight(wc, -0.08) : wc, q*0.26);
-    Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y + y + 6.6, z, 0, 3.0, 2.4, 3.0, 0, rc));
-    BX(x, y+8.2, z, 0.06, 1.2, 0.06, 0x6b6f78); BX(x + 0.3, y+8.6, z, 0.6, 0.36, 0.05, ROOF[k%6]);
-    win(x, y+1.8, z, 0.5, 0.8, 1.2); win(x, y+3.6, z, 0.5, 0.8, 1.15); };
-  const mill = (x,y,z, k)=>{ const wc = WALL[(k+1)%6], rc = ROOF[(k+2)%6];                                // 3 풍차 — 몸통 + 날개 넷
-    BX(x, y+1.6, z, 2.6, 3.2, 2.6, wc, 0.78); Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y + y + 3.9, z, 0.78, 3.2, 1.6, 3.2, 0, rc));
-    BX(x, y+2.6, z + 1.5, 0.3, 0.3, 0.6, 0x6a4a3a);
-    for(let q=0;q<4;q++) BX(x, y+2.6, z + 1.85, 0.34, 3.6, 0.10, q%2 ? 0xf4f1ea : 0xffd9a0, 0, q*Math.PI/2 + 0.4);
-    BX(x, y+0.85, z + 1.33, 0.7, 1.6, 0.08, 0x8a5a3a); };
-  const town = (x,y,z, k)=>{ const wc = WALL[(k+3)%6], wc2 = WALL[(k+5)%6], rc = ROOF[(k+4)%6];         // 4 2층 타운하우스 둘 나란히
-    BX(x - 1.5, y+2.0, z, 2.8, 4.0, 3.0, wc); BX(x + 1.5, y+1.7, z, 2.8, 3.4, 3.0, wc2);
-    gable(x - 1.5, y+4.0, z, 3.1, 3.0, rc); BX(x + 1.5, y+3.55, z, 3.2, 0.3, 3.4, ROOF[(k+1)%6]);
-    win(x - 1.5, y+1.3, z, 0.7, 0.8, 1.53); win(x - 1.5, y+3.0, z, 0.7, 0.8, 1.53); win(x + 1.5, y+2.4, z, 0.7, 0.8, 1.53); BX(x + 1.5, y+0.85, z + 1.53, 0.8, 1.7, 0.08, 0x8a5a3a);
-    for(let q=0;q<4;q++) BX(x - 2.6 + q*0.9, y+1.0, z + 1.6, 0.8, 0.28, 0.4, ROOF[(k+q)%6]); };            // 창가 꽃상자
-  const park = (x,y,z, k)=>{                                                                              // 5 나무 셋 + 울타리 + 가로등 + 꽃
-    for(const [dx,dz,h] of [[-1.6,-0.8,2.4],[1.4,0.6,3.0],[-0.2,1.9,2.0]]){
-      Rp(bpush('rcTrunk', TRUNKG, WMAT, x+dx, MINI_Y+y+h*0.35, z+dz, 0, 0.9, h*0.7, 0.9, 0, 0x8a5a3a));
-      Rp(bpush('rcBall', gBall, WMAT, x+dx, MINI_Y+y+h*0.85, z+dz, 0, 2.6, 2.2, 2.6, 0, [0x51cf66, 0x3fbf5a, 0x74d97a][k%3]));
-      Rp(bpush('rcBall', gBall, WMAT, x+dx+0.7, MINI_Y+y+h*0.85+0.6, z+dz-0.4, 0, 1.6, 1.4, 1.6, 0, 0x8ae08a)); }
-    for(let q=0;q<8;q++){ const a = q*2.4 + k, r = 2.4 + (q%3)*0.5; Rp(bpush('rcBall', gBall, WMAT, x+Math.sin(a)*r, MINI_Y+y+0.3, z+Math.cos(a)*r, 0, 0.36, 0.36, 0.36, 0, FLAGC[q%6])); }
-    BX(x + 2.6, y+1.9, z, 0.14, 3.8, 0.14, 0x6b6f78); GL(x + 2.6, y+3.8, z, 0.5); };
-  const cafe = (x,y,z, k)=>{ const ac = ROOF[(k+2)%6];                                                  // 6 카페 — 줄무늬 파라솔 둘 + 둥근 탁자 + 작은 매점
-    BX(x + 1.4, y+1.2, z - 0.4, 2.6, 2.4, 2.4, WALL[(k+1)%6]); BX(x + 1.4, y+2.55, z - 0.4, 3.0, 0.3, 2.8, ac);
-    for(let q=0;q<4;q++) BX(x + 0.35 + q*0.7, y+1.7, z + 0.9, 0.7, 0.10, 0.8, q%2 ? ac : 0xffffff); BX(x + 1.4, y+0.9, z + 0.83, 1.6, 1.2, 0.06, 0xa8e0ff);
-    for(const [dx,dz,cc] of [[-1.6,0.6,0xff5a5a],[-1.2,-1.6,0x4dabf7]]){ BX(x+dx, y+0.55, z+dz, 0.9, 0.10, 0.9, 0xf4f1ea); BX(x+dx, y+0.28, z+dz, 0.10, 0.5, 0.10, 0x6b6f78);
-      BX(x+dx, y+1.5, z+dz, 0.06, 1.6, 0.06, 0xf4f1ea); Rp(bpush('rcCone', CONEG, WMAT, x+dx, MINI_Y+y+2.35, z+dz, 0, 2.2, 0.7, 2.2, 0, cc)); Rp(bpush('rcCone', CONEG, WMAT, x+dx, MINI_Y+y+2.37, z+dz, 0.45, 2.1, 0.66, 2.1, 0, 0xffffff)); }
-    for(let q=0;q<5;q++) Rp(bpush('rcBall', gBall, WMAT, x - 2.6 + q*0.4, MINI_Y+y+0.3, z + 2.2, 0, 0.36, 0.36, 0.36, 0, FLAGC[(q+k)%6])); };
-  const chapel = (x,y,z, k)=>{ const wc = WALL[(k+4)%6], rc = ROOF[(k+3)%6];                                // 7 작은 예배당 — 뾰족 종탑 + 둥근 창
-    BX(x, y+1.5, z, 3.0, 3.0, 4.0, wc); gable(x, y+3.0, z, 3.4, 4.0, rc);
-    BX(x, y+3.2, z + 1.2, 1.3, 2.4, 1.3, wc); Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y+y+5.2, z+1.2, 0, 1.7, 1.8, 1.7, 0, rc)); BX(x, y+6.3, z+1.2, 0.08, 0.6, 0.08, 0xffd43b); BX(x, y+6.4, z+1.2, 0.36, 0.08, 0.08, 0xffd43b);
-    Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y+2.1, z+2.03, 0, 0.9, 0.9, 0.08, 0, 0xa8e0ff)); BX(x, y+0.85, z+2.03, 0.8, 1.7, 0.08, 0x8a5a3a);
-    for(const sx of [-1,1]) win(x + sx*1.5, y+1.6, z - 0.6, 0.5, 0.9, 0), win(x + sx*1.5, y+1.6, z + 0.6, 0.5, 0.9, 0); };
-  const flat = (x,y,z, k)=>{ const wc = WALL[(k+2)%6], ac = ROOF[(k+5)%6], pc = ROOF[(k+1)%6];                    // 8 3층 건물 — 카트라이더 마을의 길가 건물(줄무늬 차양·창 두 줄씩·옥상 난간·간판)
-    BX(x, y+3.2, z, 3.6, 6.4, 3.2, wc); BX(x, y+6.55, z, 4.0, 0.3, 3.6, pc); for(let q=0;q<3;q++) BX(x - 1.4 + q*1.4, y+6.95, z, 0.9, 0.5, 3.4, furLight(pc, 0.2));
-    for(let r=0;r<2;r++) for(const sx of [-1,1]) win(x + sx*0.9, y+3.3 + r*1.8, z, 0.7, 0.9, 1.6);
-    for(let q=0;q<5;q++) BX(x - 1.6 + q*0.8, y+2.15, z + 1.95, 0.8, 0.10, 1.0, q%2 ? ac : 0xffffff, 0, 0); BX(x, y+2.1, z + 1.45, 3.8, 0.10, 0.1, ac);
-    BX(x - 0.8, y+0.95, z + 1.63, 1.4, 1.3, 0.06, 0xa8e0ff); BX(x + 1.0, y+0.85, z + 1.63, 0.8, 1.7, 0.08, 0x8a5a3a);
-    BX(x, y+2.6, z + 1.66, 2.6, 0.5, 0.08, 0xffffff); BX(x, y+2.6, z + 1.71, 1.8, 0.26, 0.04, ac); };
-  const KINDS = [house, shop, tower, mill, town, park, cafe, chapel, flat];
-  const islet = (x, y, z, kind, k)=>{
-    Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y+y-2.4, z, 0, 8.6, 4.4, 8.6, Math.PI, 0x7a5a3c));            // 흙 고깔
-    Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y-0.35, z, 0, 8.8, 0.9, 8.8, 0, 0x7ed36a));                 // 풀 뚜껑
-    KINDS[kind % KINDS.length](x, y, z, k); };
-  /* ═══ 코스 양옆은 **이어진 거리**다 ═══ */
-  /* 63차 — '마지막 계단' 이 여섯째에서 일곱째로 밀렸다. 번호를 박지 말고 마지막 구간을 가리킨다. */
-  const rise = z => Math.max(0,Math.min(RACE_Y_FIN,(z-RACE_S.at(-1).z0)/34*RACE_Y_FIN));
-  const ST_X = 33, ST_Z0 = 38, ST_Z1 = RACE_Z_FIN - 4;
-  { const seg = 6, ns = Math.round((ST_Z1 - ST_Z0)/seg);
-    for(let i=0;i<ns;i++){ const zc = ST_Z0 + (i + 0.5)*seg, y = -1.5 + rise(zc);
-      for(const side of [-1,1]){
-        BX(side*ST_X, y - 2.1, zc, 11.4, 3.2, seg + 0.5, 0x7a5a3c);                     // 흙
-        BX(side*ST_X, y - 0.28, zc, 11.8, 0.56, seg + 0.6, 0x7ed36a);                   // 풀 뚜껑 — 윗면이 딱 y
-        BX(side*(ST_X - 5.7), y - 0.90, zc, 0.6, 1.8, seg + 0.5, 0xa9b4c0);             // 길 쪽 돌 축대
-        BX(side*(ST_X - 5.7), y + 0.12, zc, 0.95, 0.24, seg + 0.5, 0xd8d2c4); } } }     // 축대 갓돌
-  /* 건물 — 7.4칸마다 한 채. 앞뒤로 ±0.9 씩 물려 정면이 한 장의 벽으로 안 보이게 한다 */
-  { let k = 0;
-    for(let z = ST_Z0 + 4.4; z < ST_Z1 - 2.5; z += 7.4, k++){
-      const y = -1.5 + rise(z);
-      for(const side of [-1,1]){ const s1 = side > 0 ? 1 : 0, o3 = (k + s1) % 3;
-        KINDS[(k*4 + s1*5) % KINDS.length](side*(ST_X + (o3 === 1 ? 0.9 : o3 === 2 ? -0.9 : 0)), y, z, k*2 + s1); } } }
-  /* 가로수 — 건물 두 채마다 하나, 길 쪽 가장자리에 */
-  { for(let z = ST_Z0 + 8.1, k = 0; z < ST_Z1 - 2.5; z += 14.8, k++){
-      const y = -1.5 + rise(z);
-      for(const side of [-1,1]){ const x = side*(ST_X - 3.9);
-        Rp(bpush('rcTrunk', TRUNKG, WMAT, x, MINI_Y+y+0.9, z, 0, 0.7, 1.9, 0.7, 0, 0x8a5a3a));
-        Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y+2.6, z, 0, 2.9, 2.5, 2.9, 0, k%2 ? 0x51cf66 : 0x3fbf5a));
-        Rp(bpush('rcBall', gBall, WMAT, x + side*0.7, MINI_Y+y+3.1, z - 0.5, 0, 1.7, 1.5, 1.7, 0, 0x8ae08a)); } } }
-  /* 가로등 섬 — 6칸마다 양옆 번갈아, 24칸마다는 양쪽 다 세우고 그 사이에 만국기 줄. 카트라이더 트랙의 '반복되는 리듬' 이 이것이다 */
-  const lampPad = (x, y, z, k, tall)=>{ Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y+y-1.0, z, 0, 2.4, 1.7, 2.4, Math.PI, 0x7a5a3c)); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y-0.12, z, 0, 2.6, 0.5, 2.6, 0, 0x7ed36a));
-    const H = tall ? 7.4 : 3.2;                                                                         // 39차 — 만국기가 걸리는 기둥은 카메라보다 높게
-    BX(x, y+H/2, z, 0.14, H, 0.14, 0x6b6f78); BX(x, y+H+0.1, z, 0.5, 0.56, 0.5, 0xfff0c8); BX(x, y+H+0.42, z, 0.66, 0.10, 0.66, 0x6b6f78); GL(x, y+H+0.1, z, 0.42);
-    Rp(bpush('rcBall', gBall, WMAT, x + 0.7, MINI_Y+y+0.4, z + 0.5, 0, 1.0, 0.9, 1.0, 0, k%2 ? 0x51cf66 : 0x3fbf5a)); Rp(bpush('rcBall', gBall, WMAT, x - 0.6, MINI_Y+y+0.3, z - 0.5, 0, 0.36, 0.36, 0.36, 0, FLAGC[k%6])); };
-  for(let i=0;i<40;i++){ const z = 50 + i*6, y = -0.8 + rise(z), both = i%4 === 0;
-    for(const sx of (both ? [-1,1] : [i%2 ? 1 : -1])) lampPad(sx*24, y, z, i, both);
-    if(both){ for(let k=0;k<19;k++){ const u = (k+0.5)/19, x = -24 + u*48, sag = Math.sin(u*Math.PI)*0.7;
-        Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y + y + 7.55 - sag, z, 0, 0.5, 0.62, 0.5, Math.PI, FLAGC[(k+i)%6])); }
-      BX(0, y+7.62, z, 48, 0.04, 0.04, 0xf4f1ea); } }
-  /* ⑤ 하늘 위 볼거리 — 무지개 · 열기구 · 구간 테마(물 · 등불 · 수정과 사탕 · 숲과 버섯 · 성) */
-  const gGem = new THREE.OctahedronGeometry(0.5, 0);
-
-  const RB_RI = 0.953;                                   // 띠 하나의 두께 비율 — 일곱 띠를 쌓으면 바깥 34 → 안쪽 24.3
-  const gRbow = (()=>{ const sh = new THREE.Shape(), N = 96;
-    for(let k=0;k<=N;k++){ const a = k/N*Math.PI, x = Math.cos(a), y = Math.sin(a); k ? sh.lineTo(x, y) : sh.moveTo(x, y); }
-    for(let k=N;k>=0;k--){ const a = k/N*Math.PI; sh.lineTo(Math.cos(a)*RB_RI, Math.sin(a)*RB_RI); }
-    sh.closePath();
-    const g = new THREE.ExtrudeGeometry(sh, {depth:0.9, bevelEnabled:false, curveSegments:1, steps:1});
-    g.translate(0, 0, -0.45); return g; })();
-  { const RB7 = [0xff5a5a, 0xff9a3c, 0xffe066, 0x51cf66, 0x4dabf7, 0x7b6bff, 0xcc7bff];
-    for(let c=0;c<7;c++){ const r = 34*Math.pow(RB_RI, c);
-      Rp(bpush('rcRbow', gRbow, WMAT, 0, MINI_Y + 5, 52, 0, r, r*0.6, 1, 0, RB7[c])); } }
-  /* 열기구 넷 — 큰 공 + 줄 넷 + 바구니, 하늘 여기저기 */
-  const airBalloon = (x,y,z, col, col2)=>{ Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y, z, 0, 5.6, 6.4, 5.6, 0, col));
-    Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+y+0.3, z, 0, 5.75, 3.4, 5.75, 0, col2));                     // 가운데 띠
-    Rp(bpush('rcCone', CONEG, WMAT, x, MINI_Y+y-3.7, z, 0, 2.4, 1.6, 2.4, Math.PI, col));
-    for(const [dx,dz] of [[-0.55,-0.55],[0.55,-0.55],[-0.55,0.55],[0.55,0.55]]) BX(x+dx, y-5.2, z+dz, 0.05, 1.8, 0.05, 0x6a4a3a);
-    BX(x, y-6.3, z, 1.4, 1.0, 1.4, 0xb98b58); BX(x, y-5.75, z, 1.5, 0.12, 1.5, 0x8a5a3a); };
-  airBalloon(-26, 14, 70, 0xff6b6b, 0xfff0c8); airBalloon(28, 18, 140, 0x4dabf7, 0xffffff); airBalloon(-30, 22, 200, 0xffd43b, 0xff6b6b); airBalloon(26, 26, 250, 0x51cf66, 0xfff0c8);
-  /* ① 징검다리 아래 — 물웅덩이(파란 원반) · 연잎 · 분수 */
-  for(let i=0;i<4;i++){ const z = 44 + i*10, x = (i%2 ? 7 : -7);
-    Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y - 3.2 - (i%2)*0.6, z, 0, 9 + (i%2)*2, 0.5, 7, 0, 0x6fd3ff));
-    for(let k=0;k<3;k++) Rp(bpush('rcBall', gBall, WMAT, x + Math.sin(k*2.1+i)*2.6, MINI_Y - 2.9 - (i%2)*0.6, z + Math.cos(k*2.1+i)*2.2, 0, 1.3, 0.16, 1.3, 0, 0x5cc96a)); }
-  { const x = 9, z = 68; Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y-3.0, z, 0, 5.0, 0.5, 5.0, 0, 0x6fd3ff)); BX(x, -1.9, z, 1.0, 2.4, 1.0, 0xe8e0d0); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y-0.6, z, 0, 2.0, 0.4, 2.0, 0, 0xe8e0d0));
-    for(let k=0;k<6;k++) Rp(bpush('rcBall', gBall, WMAT, x + Math.sin(k)*0.9, MINI_Y - 0.2 + (k%3)*0.5, z + Math.cos(k)*0.9, 0, 0.35, 0.5, 0.35, 0, 0xc8f0ff)); }
-  /* ② 좁은 다리 옆 — 등불 기둥 여섯 (다리 양옆 허공에 떠 있는 작은 받침 위) */
-  /* 38차 ⑥ — 카트라이더 다리 트랙처럼 파란 철제 트러스 틀 넷이 외다리를 감싼다. 틀마다 주황 등 둘이 매달린다 */
-  for(let i=0;i<4;i++){ const z = 86 + i*9.6, TB = 0x3b7ddb;
-    for(const sx of [-1,1]){ BX(sx*20, -0.9, z, 1.0, 0.5, 1.0, 0x8a5a3a); BX(sx*20, 4.0, z, 0.36, 8.6, 0.36, TB);
-      BX(sx*21.5, 4.2, z, 0.22, 9.0, 0.22, TB, 0, sx*0.6); BX(sx*20, 0.2, z, 0.9, 0.22, 0.9, TB); }
-    BX(0, 8.65, z, 40.6, 0.36, 0.44, TB); BX(0, 9.05, z, 40.0, 0.20, 0.30, furLight(TB, 0.35));
-    if(i === 1 || i === 3){ /* 커진 진자가 마루를 뚫지 않도록 걸이도 함께 올린다. */ BX(0, 8.4, z, 0.5, 0.2, 0.5, 0x4a4a52); }
-    else for(const sx of [-1,1]){ BX(sx*15, 6.85, z, 0.04, 0.9, 0.04, 0x2b2b33); BX(sx*15, 6.1, z, 0.62, 0.8, 0.62, 0xff9a3c); GL(sx*15, 6.1, z, 0.42); } }
-  /* ③ 사라지는 발판 옆 — 보랏빛 수정 무리 · 줄무늬 사탕 기둥 */
-  for(let i=0;i<8;i++){ const z = 130 + i*5.5, x = (i%2 ? 21.5 : -21.5) + (i%3)*0.6, y = -0.6 - (i%3)*0.5;
-    BX(x, y-0.5, z, 1.8, 0.6, 1.8, 0x5a4a6a);
-    for(let k=0;k<3;k++) Rp(bpush('rcGem', gGem, WMAT, x + (k-1)*0.6, MINI_Y + y + 0.7 + k*0.3, z + (k%2)*0.4, 0.4*k, 0.9, 1.6 + k*0.5, 0.9, 0, [0xd89bff, 0xff8ad8, 0x9ad8ff][k])); }
-  for(let i=0;i<4;i++){ const z = 134 + i*11, x = (i%2 ? -23.5 : 23.5);
-    for(let k=0;k<8;k++) BX(x, -0.5 + k*0.55, z, 0.5, 0.55, 0.5, k%2 ? 0xffffff : 0xff5a8a); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y + 4.1, z, 0, 1.0, 1.0, 1.0, 0, 0xff5a8a)); }
-  /* ④ 통나무 구간 옆 — 버섯 · 통나무 더미 · 빽빽한 나무 */
-  for(let i=0;i<6;i++){ const z = 178 + i*6.5, x = (i%2 ? 20.2 : -20.2), y = -1.4 - (i%2)*0.5;
-    BX(x, y-0.4, z, 2.2, 0.5, 2.2, 0x6a5a3a);
-    BX(x, y+0.5, z, 0.5, 1.2, 0.5, 0xfff0c8); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y + y + 1.25, z, 0, 1.7, 1.0, 1.7, 0, i%2 ? 0xff5a5a : 0xffa04a));
-    for(let k=0;k<3;k++) Rp(bpush('rcBall', gBall, WMAT, x + Math.sin(k*2.3)*0.5, MINI_Y + y + 1.62, z + Math.cos(k*2.3)*0.5, 0, 0.3, 0.16, 0.3, 0, 0xffffff)); }
-  for(let i=0;i<3;i++){ const z = 185 + i*12, x = (i%2 ? -21.4 : 21.4);
-    for(let k=0;k<3;k++) Rp(bpush('rcTrunk', TRUNKG, WMAT, x + (k-1)*0.8, MINI_Y - 1.2 + (k===1 ? 0.7 : 0), z, Math.PI/2, 0.9, 2.6, 0.9, Math.PI/2, 0x8a5a3a)); }
-  /* 54차 — 무지개 점프는 컬러 표지와 응원 풍선이 이어진다. 기둥은 폭 32 발판 밖이다. */
-  for(let i=0;i<6;i++) for(const side of [-1,1]){ const z=RACE_S[4].z0+1.8+i*RACE_RAINBOW_DZ, x=side*19;
-    BX(x,1.1,z,0.16,2.2,0.16,0xffffff); BX(x,2.3,z,1.8,1.1,0.16,FLAGC[i]);
-    BX(x-side*0.24,2.3,z-0.1,0.65,0.18,0.06,0xffffff,0,side*0.65);
-    BX(x+side*0.24,2.3,z-0.1,0.65,0.18,0.06,0xffffff,0,-side*0.65);
-    if(i%2===0) balloon(x+side*1.8,4.0,z,FLAGC[(i+2)%6]); }
-  /* 63차 — 쿵쿵 도장: 바닥 표적과 양옆 안내 기둥.
-     ★ 이건 장식이 아니라 **규칙 설명**이다. 도장은 길 전체 폭을 덮으니 지금까지 배운
-       '비켜서면 된다' 가 안 통한다. 어디에 떨어지는지 바닥에 칠해 두지 않으면
-       초3에게는 그냥 억울하게 맞는 구간이 된다.
-     기둥은 폭 36 판(±18) 바로 바깥 ±19 에 세운다 — 무지개 깃대와 같은 자리다. */
-  { const S = RACE_S[5], deckTop = 0.03;
-    for(const dz of STAMP_DZ){ const z = S.z0 + dz;
-      for(const sx of [-1,1]) BX(sx*16.6, deckTop, z, 2.4, 0.05, RACE_STAMP.dz*2 + 0.6, 0xffe066);   // 표적 — 길 양쪽 끝의 노란 띠
-      for(let k=-7;k<=7;k++) BX(k*2.3, deckTop, z, 1.5, 0.05, 0.34, 0xff5f8d);                      // 가운데는 분홍 빗금(도장 색)
-      for(const side of [-1,1]){ const x = side*19;
-        BX(x, 1.4, z, 0.18, 2.8, 0.18, 0xffffff); BX(x, 2.9, z, 1.5, 1.0, 0.18, 0xff8c42);          // 안내 기둥 + 주황 표지
-        BX(x, 5.4, z, 1.1, 0.5, 1.1, 0xffe066); } } }                                               // 도장이 쉬는 높이(5.2)를 알려 주는 표시
-  /* ⑤ 골인 뒤 하늘 성 — 탑 넷 · 성벽 · 성문 · 깃발 (골인 광장 건물 뒤에, 조금 높게) */
-  { const cx = 0, cy = RACE_Y_FIN + 1.0, cz = RACE_Z_FIN + 24;
-    Rp(bpush('rcCone', CONEG, WMAT, cx, MINI_Y + cy - 3.0, cz, 0, 24, 6, 20, Math.PI, 0x7a5a3c)); Rp(bpush('rcBall', gBall, WMAT, cx, MINI_Y + cy - 0.4, cz, 0, 24.5, 1.0, 20.5, 0, 0x7ed36a));
-    for(const [dx,dz] of [[-8,-6],[8,-6],[-8,6],[8,6]]){ BX(cx+dx, cy+3.5, cz+dz, 3.2, 7.0, 3.2, 0xf4ece0); BX(cx+dx, cy+7.2, cz+dz, 3.8, 0.5, 3.8, 0xe0d8cc);
-      Rp(bpush('rcCone', CONEG, WMAT, cx+dx, MINI_Y + cy + 9.2, cz+dz, 0, 3.9, 3.6, 3.9, 0, 0x4dabf7)); BX(cx+dx, cy+11.6, cz+dz, 0.06, 1.6, 0.06, 0x6b6f78); BX(cx+dx+0.35, cy+12.1, cz+dz, 0.7, 0.4, 0.05, 0xff5a5a);
-      for(let k=0;k<3;k++) win(cx+dx, cy+1.6+k*2.0, cz+dz, 0.5, 0.9, 1.62); }
-    BX(cx, cy+2.6, cz-6, 16, 5.2, 1.6, 0xf4ece0); BX(cx, cy+2.6, cz+6, 16, 5.2, 1.6, 0xf4ece0); BX(cx-8, cy+2.6, cz, 1.6, 5.2, 12, 0xf4ece0); BX(cx+8, cy+2.6, cz, 1.6, 5.2, 12, 0xf4ece0);
-    for(let k=0;k<7;k++) BX(cx-6.6+k*2.2, cy+5.6, cz-6, 1.2, 1.0, 1.7, 0xe0d8cc);
-    BX(cx, cy+1.9, cz-6.85, 3.2, 3.8, 0.3, 0x6a4a3a); BX(cx, cy+3.7, cz-6.9, 3.6, 0.5, 0.4, 0x8a6a4a);
-    BX(cx, cy+5.5, cz, 6.0, 5.8, 6.0, 0xfff0c8); gable(cx, cy+8.4, cz, 6.8, 6.0, 0xe05a4a); BX(cx, cy+11.3, cz, 0.08, 2.4, 0.08, 0x6b6f78); BX(cx+0.5, cy+12.2, cz, 1.0, 0.6, 0.06, 0xffd43b); }
-  /* ⑥ 골인 광장 — 골인 판 뒤와 양옆에 건물 셋(관중석 대신) */
-  islet( 22, RACE_Y_FIN - 0.6, RACE_Z_FIN + 6, 1, 3); islet(-22, RACE_Y_FIN - 0.6, RACE_Z_FIN + 6, 4, 6); islet(0, RACE_Y_FIN - 0.4, RACE_Z_FIN + 13, 2, 9);
-  /* 골인 판 연석 + 체크무늬 바닥 줄 */
-  for(let k=0;k<7;k++) for(const sx of [-1,1]) BX(sx*14.2, RACE_Y_FIN + 0.36, RACE_Z_FIN + 0.5 + k*0.7, 0.4, 0.2, 0.7, k%2 ? 0xff5a5a : 0xffffff);
-  for(let k=0;k<28;k++) BX(-13.5 + k, RACE_Y_FIN + 0.14, RACE_Z_FIN + 2, 1, 0.05, 0.9, k%2 ? 0x34456a : 0xf4f1ea);
-  RACE_S.forEach((Sx,i)=>{ const z = Sx.z0 - 3.2, y = 0;                                              // ② 구간 문 세우기 + 양옆 연석
-    if(i > 0) for(let k=0;k<4;k++) for(const sx of [-1,1]) BX(sx*15.8, y+0.36, z - 1.5 + k*1.0, 0.5, 0.2, 1.0, k%2 ? 0xff5a5a : 0xffffff);
-    gate(i, z, y); });
-
-  { const CLD = (x,y,z, sz)=> Rp(bpush('rcBuoy', gBall, WMAT, x, MINI_Y+y, z, 0, sz, sz*0.62, sz, 0, 0xffffff));
-    let k = 0;
-    for(let z = 40; z <= RACE_Z_FIN-2; z += 5.5, k++){
-      const S = RACE_S.find(q=> z < q.z1 + 6) || RACE_S.at(-1), col = S.col;
-      const y = rise(z);
-      for(const sx of [-1,1]){ const x = sx*((z<55?29:21) + ((k + (sx>0?1:0)) % 3)*0.35), kind = (k + (sx>0?2:0)) % 3;
-        CLD(x, y-0.55, z, 1.5); CLD(x + sx*0.55, y-0.45, z+0.4, 1.1); CLD(x - sx*0.4, y-0.4, z-0.45, 1.0);
-        if(kind === 2){ BX(x, y+1.3, z, 0.10, 3.6, 0.10, 0xf4f1ea); Rp(bpush('rcBuoy', gBall, WMAT, x, MINI_Y+y+3.6, z, 0, 1.1, 1.3, 1.1, 0, FLAGC[k % 6])); }
-        else { BX(x, y+1.1, z, 0.12, 3.2, 0.12, kind ? 0xf4f1ea : 0x6b6f78); BX(x, y+2.75, z, 0.24, 0.24, 0.24, 0xffd43b);
-          Rp(bpush('rcCone', CONEG, WMAT, x + sx*0.62, MINI_Y+y+2.35, z, 0, 0.7, 1.25, 0.10, -sx*Math.PI/2, kind ? col : furLight(col, 0.35))); } } } }
-
-  { const LY = -22;
-    const LAND = (x,y,z, sx,sy,sz, col)=> Rp(bpush('rcLand', WGEO, WMAT, x, MINI_Y+LY+y, z, 0, sx, sy, sz, 0, col));
-    const LB = (x,y,z, sx,sy,sz, col)=> Rp(bpush('rcLandB', gBall, WMAT, x, MINI_Y+LY+y, z, 0, sx, sy, sz, 0, col));
-    const FIELD = [0x8fd46a, 0x7bc95c, 0xa8dc72, 0xc9e07a, 0x9ad36a, 0xe4d77a];
-    for(let a=-6;a<6;a++) for(let b=2;b<21;b++){ const x = a*16 + 8, z = b*16 + 8, k = ((a*7 + b*3) % 6 + 6) % 6;
-      LAND(x, -0.5 + (k===5 ? 0.12 : 0), z, 15.7, 1.0, 15.7, FIELD[k]); LAND(x, -1.2, z, 15.9, 0.4, 15.9, 0x2f4a2c); }
-    for(let b=10;b<40;b++){ const z = -60 + b*10, x = 30 + Math.sin(b*0.45)*14; LAND(x, 0.16, z, 9, 0.5, 10.8, 0x6fd3ff); }       // 강
-    LB(-58, 0.1, 150, 22, 0.5, 26, 0x6fd3ff);                                                                                       // 호수
-    for(let k=0;k<16;k++){ const x = (k%2 ? 1 : -1)*(50 + (k*7)%30), z = -40 + k*22, r = 10 + (k*5)%9; if(z < 48) continue; LB(x, -1, z, r*2, r*0.9, r*2, k%3 ? 0x6fbf5a : 0x83cf66); }   // 언덕
-    for(let k=0;k<14;k++){ const cx = ((k*37)%110) - 55, cz = -30 + k*24; if(cz < 48) continue;                                    // 숲
-      for(let q=0;q<7;q++){ const a = q*0.9 + k, r = (q%3)*2.4 + 1.5; LB(cx + Math.sin(a)*r*1.6, 1.3 + (q%2)*0.5, cz + Math.cos(a)*r*1.4, 3.2, 3.6, 3.2, q%2 ? 0x3fbf5a : 0x51cf66); } }
-    for(let k=0;k<10;k++){ const x = -26 + (k%5)*6, z = 64 + Math.floor(k/5)*9 + (k%2)*2;                                          // 마을
-      LAND(x, 1.1, z, 3.4, 2.4, 3.0, WALL[k%6]); LAND(x, 2.6, z, 3.9, 0.55, 3.6, ROOF[k%6]); }
-    LAND(-14, 0.05, 70, 3.0, 0.2, 60, 0xbfc4cc); LAND(-4, 0.05, 40, 60, 0.2, 3.0, 0xbfc4cc); }                                    // 길
-  /* ⑧ 출발 광장(38차) — 섬 위를 회색 돌길(폭 44)과 잔디로 나누고 연석·가로등·분수·가게·나무·화단을 놓는다. 경주 얼굴에서만(Rp).
-     바닥 흰 체크는 그대로 두고 그 위에 얇은 판(0.04)을 깐다 — 서바이벌 얼굴로 바뀌면 판만 숨는다. */
-  { for(let a=-nq; a<=nq; a++) for(let b=-nq; b<=nq; b++){ const x = a*TQ, z = b*TQ; if(Math.hypot(x,z) > MINI_R-0.4) continue;
-      /* 38차 ⑥ — 길은 밝은 회색 돌길(선생님: 푸른 아스팔트는 그 맵만의 색이라 안 따라도 된다), 출발 구역(z < -9)은 밝은 초록 큰 체크, 그 밖은 잔디 체크 */
-      const road = Math.abs(x) < 22.1 && z > -25.5, startZone = road && z < -9;
-      BX(x, 0.015, z, TQ, 0.04, TQ, startZone ? (((a+b)%2) ? 0x6fd15a : 0xa9ea7a) : road ? (((a+b)%2) ? 0xc9ced6 : 0xd9dde4) : (((a+b)%2) ? 0x86cf5f : 0x93d86c)); }
-    /* 차선 — 가운데 흰 점선 · 가장자리 흰 선. 다리 위(z 29.6~)는 R_trim 이 같은 무늬로 잇는다 */
-    for(let k=0;k<12;k++) BX(0, 0.045, -8 + k*3.3, 0.36, 0.03, 1.7, 0xffffff);
-    for(const sx of [-1,1]) BX(sx*21.6, 0.045, 10.2, 0.20, 0.03, 38.8, 0xffffff);
-    /* 출발 문 — 파란 현수막(노란 간판 + 흰 글자 자리) · 초록 기둥에 노란 별 · 밑동에 노랑·검정 차단봉 · 현수막 아래 체크 띠 */
-    { const z = MINI_PADZ + 3.5, gGemS = new THREE.OctahedronGeometry(0.5, 0);
-      for(const sx of [-1,1]){ BX(sx*20, 4.3, z, 0.8, 8.6, 0.8, 0x51cf66); BX(sx*20, 8.7, z, 1.1, 0.3, 1.1, 0xffd43b);
-        Rp(bpush('rcGem', gGemS, WMAT, sx*20, MINI_Y+9.6, z, 0, 0.8, 1.5, 1.5, 0, 0xffd43b)); Rp(bpush('rcGem', gGemS, WMAT, sx*20, MINI_Y+9.6, z, Math.PI/4, 0.8, 1.1, 1.1, 0, 0x51cf66));
-        BX(sx*20, 0.5, z + 1.4, 2.4, 0.5, 0.3, 0xffd43b); for(let q=0;q<3;q++) BX(sx*20 - 0.8 + q*0.8, 0.5, z + 1.42, 0.3, 0.5, 0.3, 0x1e1e26, 0, 0.5); }
-      BX(0, 9.4, z, 40, 1.7, 0.5, 0x3b7ddb); BX(0, 9.4, z, 40.4, 0.16, 0.6, 0xffd43b); BX(0, 10.15, z, 40.4, 0.16, 0.6, 0xffd43b);
-      BX(0, 9.4, z + 0.3, 9.0, 0.9, 0.06, 0xffd43b); for(let q=0;q<5;q++) BX(-3.2 + q*1.6, 9.4, z + 0.36, 0.9, 0.5, 0.05, 0xffffff);
-      for(let q=0;q<20;q++) BX(-19 + q*2, 8.4, z, 2, 0.34, 0.5, q%2 ? 0x1e1e26 : 0xf4f1ea);
-      GL(0, 10.6, z, 0.6); }
-    /* 길가 광고판 — 카트라이더 드리프트 트랙의 담장 배너처럼 보라·노랑·파랑이 번갈아 */
-    for(let k=0;k<6;k++){ const z = -20 + k*9; if(Math.hypot(24.8, z) > MINI_R-1.0) continue;
-      for(const sx of [-1,1]){ const c = [0x7b4dff, 0xffd43b, 0x3b7ddb][(k + (sx>0?1:0)) % 3];
-        BX(sx*24.8, 1.0, z, 0.12, 1.2, 3.2, c); BX(sx*24.8 - sx*0.05, 1.0, z, 0.06, 0.7, 2.4, 0xffffff); for(const dz of [-1.4, 1.4]) BX(sx*24.8, 0.5, z + dz, 0.14, 1.0, 0.14, 0x6b6f78); } }
-    for(let k=0;k<42;k++){ const z = -25 + k*1.3; if(Math.hypot(22.4, z) > MINI_R-0.6) continue;
-      for(const sx of [-1,1]) BX(sx*22.4, 0.14, z, 0.6, 0.22, 1.3, k%2 ? 0xff5a5a : 0xffffff); }
-    for(let k=0;k<5;k++){ const z = -22 + k*9; if(Math.hypot(23.6, z) > MINI_R-1.2) continue;
-      for(const sx of [-1,1]){ BX(sx*23.6, 1.9, z, 0.16, 3.8, 0.16, 0x6b6f78); BX(sx*23.6 - sx*0.5, 3.8, z, 1.2, 0.12, 0.16, 0x6b6f78); GL(sx*23.6 - sx*1.0, 3.6, z, 0.5); } }
-    { const x = 0, z = -29.5; Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+0.1, z, 0, 6.4, 0.6, 6.4, 0, 0xe8e0d0)); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+0.35, z, 0, 5.4, 0.4, 5.4, 0, 0x6fd3ff));   // 분수
-      BX(x, 1.1, z, 0.9, 1.8, 0.9, 0xe8e0d0); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+2.1, z, 0, 2.2, 0.4, 2.2, 0, 0xe8e0d0)); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+2.5, z, 0, 0.8, 0.8, 0.8, 0, 0x6fd3ff));
-      for(let k=0;k<8;k++) Rp(bpush('rcBall', gBall, WMAT, x + Math.sin(k*0.785)*1.4, MINI_Y + 1.6 + (k%2)*0.5, z + Math.cos(k*0.785)*1.4, 0, 0.35, 0.5, 0.35, 0, 0xc8f0ff)); }
-    shop(-27.5, 0.04, -4, 2); house(27.5, 0.04, -4, 4); cafe(-26.5, 0.04, 14, 1); chapel(26.5, 0.04, 14, 3); flat(-27.5, 0.04, -19, 0); flat(27.5, 0.04, -19, 3);
-    for(const [tx,tz,h] of [[-30,-9,3.0],[30,-9,2.6],[-29,4,2.4],[29,4,2.8],[-24,24,2.4],[24,24,2.6],[-9,-31,2.2],[9,-31,2.2]]){
-      Rp(bpush('rcTrunk', TRUNKG, WMAT, tx, MINI_Y+h*0.35, tz, 0, 0.9, h*0.7, 0.9, 0, 0x8a5a3a));
-      Rp(bpush('rcBall', gBall, WMAT, tx, MINI_Y+h*0.85, tz, 0, 2.6, 2.2, 2.6, 0, 0x51cf66)); Rp(bpush('rcBall', gBall, WMAT, tx+0.7, MINI_Y+h*0.85+0.6, tz-0.4, 0, 1.6, 1.4, 1.6, 0, 0x8ae08a)); }
-    for(let k=0;k<26;k++){ const a = k/26*Math.PI*2, r = 31.5, x = Math.sin(a)*r, z = Math.cos(a)*r; if(Math.abs(x) < 23 && z > -25) continue;   // 가장자리 화단
-      Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+0.32, z, 0, 0.9, 0.7, 0.9, 0, 0x4faa5a)); Rp(bpush('rcBall', gBall, WMAT, x, MINI_Y+0.72, z, 0, 0.42, 0.42, 0.42, 0, FLAGC[k%6])); } }
-  /* ⑨ 코스 옆 구름 — 세계의 떠다니는 구름은 섬 아래에 있다. 눈높이 옆에 몇 덩이가 있어야 '하늘을 달린다' 가 된다 */
-  for(let k=0;k<14;k++){ const side = k%2 ? 1 : -1, z = 30 + k*18, x = side*(30 + (k*11)%22), y = -2 + (k*5)%9;
-    for(let q=0;q<4;q++) Rp(bpush('rcLandB', gBall, WMAT, x + (q-1.5)*2.6, MINI_Y + y + (q%2)*0.6, z + (q%2)*1.2, 0, 4.2 - Math.abs(q-1.5)*0.9, 2.6, 3.4, 0, 0xffffff)); }
   /* 네 귀퉁이 등불 */
   for(let i=0;i<12;i++){
     const a = i/12*Math.PI*2, px = Math.sin(a)*(MINI_R-1.2), pz = Math.cos(a)*(MINI_R-1.2);
@@ -18862,6 +18557,7 @@ function drawSheep(list, t, cap, colOf, scale){
     if(gs.airK===undefined)gs.airK=airTarget;
     else gs.airK+=(airTarget-gs.airK)*(1-Math.exp(-12*poseDt));
     const airK=down?0:gs.airK;
+    const raceAirK=raceFlightPose(s,gs,air,poseDt),raceRise=gs.r74Rise||0;
     const glideTarget = air && !!s.glide ? 1 : 0;
     if(gs.glideK === undefined) gs.glideK = glideTarget;
     else gs.glideK += (glideTarget-gs.glideK)*(1-Math.exp(-12*Math.min(.05,gs.dt || .016)));
@@ -18879,7 +18575,7 @@ function drawSheep(list, t, cap, colOf, scale){
     if(travelV>.15){gs.moveFX=gs.vx/travelV;gs.moveFZ=gs.vz/travelV;}
     const moveFX=gs.moveFX??fx,moveFZ=gs.moveFZ??fz;
     const dirF=sheepBlend(gs,'dirF',moveFX*fx+moveFZ*fz,poseDt,10),dirS=sheepBlend(gs,'dirS',moveFX*rx+moveFZ*rz,poseDt,10);
-    const sq   = land > 0 ? 1 - (land/0.22)*0.08 : 1;                                   // 블록 비율을 지키며 착지 충격만 살짝
+    const sq   = gs.r74On ? 1 : land > 0 ? 1 - (land/0.22)*0.08 : 1;                                   // 블록 비율을 지키며 착지 충격만 살짝
     /* 61차 — 컴퍼스 보행: 다리를 곧게 편 채 흔들려면 보폭만큼 엉덩이가 내려가야 한다.
        그 낙차를 상수로 주지 않고 기하에서 직접 구한다. cos(gait) 구동이라 주기 전체에서 연속이고,
        두 발이 모이는 중간 디딤에서는 0 이라 몸이 제 높이로 돌아온다. */
@@ -18889,7 +18585,7 @@ function drawSheep(list, t, cap, colOf, scale){
     /* 70차 2회차 — 계단 걸음 자세: 보이는 몸 기울기(stS)만큼 앞발은 높은 디딤·뒷발은 낮은 디딤으로, 오를 땐 흔드는 발을 더 들어(무릎 들기) 몸을 조금 앞으로,
        내릴 땐 살짝 뒤로. 디딤 위아래는 보이는 몸 높이(PLV)가 맡으니 컴퍼스 낙차는 줄인다. 경주·서바이벌·공중은 0 */
     const stS=sheepBlend(gs,'stS',(down||air)?0:Math.max(-.8,Math.min(.8,gs.st||0)),poseDt,8),stK=Math.max(0,Math.min(1,(Math.abs(stS)-.15)/.2))*mvK,stUp=stS>0?1:0;
-    const bob=(mvK*(-stanceDip*.60*(1-.4*stK)-.004)-take*.035-land/.22*.055)*sc;
+    const bob=(mvK*(-stanceDip*.60*(1-.4*stK)-.004)-take*.035-(gs.r74On?gs.r74Land:land/.22)*.055)*sc;
     /* 44차 — 출발·급정지 자세: 가속(acc>0)이면 뒤로 살짝 눌리고(코 위), 급정지(acc<0)면 앞으로 쏠린다(코 아래). 급정지 땐 발밑 먼지 한 번(0.6초에 한 번만) */
     const accL = (down || air) ? 0 : Math.max(-0.22, Math.min(0.22, -gs.acc*0.022));
     if(!down && !air && gs.acc < -9 && gs.v > 1.4 && !(gs.dust > 0)){ gs.dust = 0.6; burst(s.x, y + 0.06, s.z, 0xd9cdb4, 4, 0.45); }
@@ -18919,7 +18615,7 @@ function drawSheep(list, t, cap, colOf, scale){
     /* 머리 끄덕임 — 몸통 반동보다 한 박자 늦게 따라온다. 이게 있어야 살아 있어 보인다. */
     const groundNod=Math.sin(gait-.9)*(.016+runK*.010)*mvK+Math.sin(t*1.5+(s.ph||0))*.008*(1-mvK);
     const nod=groundNod*(1-airK)+(-.05+rise*.11)*airK;
-    const stretch = (1+rise*.02+take*.03)*airK+sq*(1-wind*.012-strike*.03-kick*.015)*(1-airK);
+    const stretch = gs.r74On ? 1 : (1+rise*.02+take*.03)*airK+sq*(1-wind*.012-strike*.03-kick*.015)*(1-airK);
     const widen = 1 + (1-airK)*(1-sq)*.35;
     const lng=1+(down?0:(1-airK)*runK*mvK*Math.sin(gait+.4)*.035);
     const col = uniform ? uniform.shirt : CLOTH_BODY[s.clo|0] ?? colOf(s);
@@ -18999,13 +18695,15 @@ function drawSheep(list, t, cap, colOf, scale){
         const diagRl=si*mvK*(.05+runK*.24)*Math.max(0,armSwing[si>0?0:1]);
         armDiag[si>0?0:1]=diagRl;
         rl=si*(.02+runK*mvK*.08+idleK*life.br*.02)+diagRl-mvK*swing*dirS*.30;
-        const airTh=(.10+rise*2.95)*(1-glideK)+.35*glideK+lean*.5;
+        let airTh=(.10+rise*2.95)*(1-glideK)+.35*glideK+lean*.5;
         /* ★ 63차 — 떨어질 때 팔을 덜 벌린다. 예전에는 rise=0(낙하)에서 1.20rad = 69° 까지
            벌어졌는데, 어깨를 축으로 그만큼 돌면 겨드랑이에 쐐기 같은 틈이 생겨 팔이 몸에서
            떨어져 나간 것처럼 보였다. R6 점프 자세는 40° 면 충분하다.
              올라갈 때 rise=1 → .10rad ( 6°)   떨어질 때 rise=0 → .70rad (40°)
            활공은 날개를 펴는 자세라 그대로 둔다(.72 = 41°). */
-        const airRl=si*((.70-rise*.60)*(1-glideK)+.72*glideK);
+        let airRl=si*((.70-rise*.60)*(1-glideK)+.72*glideK);
+        airTh+=(1.20+raceRise*1.05+lean*.5-airTh)*raceAirK;
+        airRl+=(si*(.62+(.5-raceRise)*.16)-airRl)*raceAirK;
         th+=(airTh-th)*airK;rl+=(airRl-rl)*airK; }
       if(actPose && !down && !hasGun){
         /* 작업 중에도 이동 자세를 바탕으로 삼는다. 진행률 0/1에서 기본 자세로 이어지고 취소하면 부드럽게 내려온다. */
@@ -19105,7 +18803,8 @@ function drawSheep(list, t, cap, colOf, scale){
       const stepSide=sd+dirS*stepF*.32+si*Math.abs(dirS)*mvK*.14;
       const stepFront=dirF*stepF+f+brace;
       const ground=[s.x+(fx*stepFront+rx*stepSide)*sc,y+shoeY+.01*sc+lift*sc+stepF*sc*stS*(1-airK),s.z+(fz*stepFront+rz*stepSide)*sc];   // 70차 2회차 — 계단 경사 따라 앞발 높게
-      const th=down?-.20*si:.12+rise*.24+take*.30+glideK*.16,bend=down?.15:.20+rise*.55+take*.35+glideK*.32;
+      let th=down?-.20*si:.12+rise*.24+take*.30+glideK*.16,bend=down?.15:.20+rise*.55+take*.35+glideK*.32;
+      th+=(.12+raceRise*.16-th)*raceAirK;bend+=(.52-raceRise*.30-bend)*raceAirK;
       const airF=Math.sin(th)*.275+Math.sin(th-bend)*.250;
       const airU=R6_HIP-Math.cos(th)*.275-Math.cos(th-bend)*.250;
       const airborne=sheepPoint([X(airF,R6_HSD*si+si*.04*(1-rise)),Y(airU),Z(airF,R6_HSD*si+si*.04*(1-rise))]);
@@ -19713,7 +19412,7 @@ function updPlayer(dt){
     const a = doorFunnel(dt, tvx, tvz); if(a){ const ca = Math.cos(a), sa = Math.sin(a), v0 = tvx; tvx = v0*ca - tvz*sa; tvz = v0*sa + tvz*ca; }
   }
   if(PL._px !== undefined && Math.hypot(PL.x - PL._px, PL.z - PL._pz) > 1.5){ PL.vx = 0; PL.vz = 0; }
-  { const ak = Math.min(1, dt * (len > 0.06 ? ACC_UP : ACC_DOWN)); PL.vx = (PL.vx||0) + (tvx - (PL.vx||0))*ak; PL.vz = (PL.vz||0) + (tvz - (PL.vz||0))*ak; }
+  { const ak = raceMotion(dt,tvx,tvz,len) ? 0 : Math.min(1, dt * (len > 0.06 ? ACC_UP : ACC_DOWN)); PL.vx = (PL.vx||0) + (tvx - (PL.vx||0))*ak; PL.vz = (PL.vz||0) + (tvz - (PL.vz||0))*ak; }
   const wx = PL.vx, wz = PL.vz;
   /* ★ 이미 무언가에 박혀 있으면(자리를 옮겨 놨거나 우리가 커져서 울타리가 몸을 지나갔거나)
      막지 않는다. 안 그러면 그 자리에서 영영 못 빠져나온다. */
@@ -19774,7 +19473,7 @@ function updPlayer(dt){
     if(PL.vy > 0 && PL.y + 1.4 + PL.vy*dt > ceil){ PL.y = Math.min(PL.y, ceil - 1.4 - 0.02); PL.vy = 0; } }
   PL.y += PL.vy*dt;
   if(!PL.ground && !PL.down){ if(PL.flipT !== undefined && PL.flipT < 9) PL.flipT += dt;                                    // 공중제비 진행
-    PL.trailT = (PL.trailT||0) - dt; if(PL.trailT <= 0 && Math.abs(PL.vy) > 2.5 && jTier <= 0){ PL.trailT = 0.05; burst(PL.x, PL.y + 0.15, PL.z, 0xffffff, 1, 0.26); } }   // 66차 — 날개가 있으면 날개 꼬리(wingFxPeople)가 대신한다   // 공중 잔상 — 흰 퍼프가 궤적을 그린다
+    PL.trailT = (PL.trailT||0) - dt; if(PL.trailT <= 0 && Math.abs(PL.vy) > 2.5 && jTier <= 0 && !raceOn()){ PL.trailT = 0.05; burst(PL.x, PL.y + 0.15, PL.z, 0xffffff, 1, 0.26); } }   // 66차 — 날개가 있으면 날개 꼬리(wingFxPeople)가 대신한다   // 공중 잔상 — 흰 퍼프가 궤적을 그린다
   if(PL.takeT > 0) PL.takeT -= dt;
   if(camDip > 0){ camDip *= Math.exp(-dt*9); if(camDip < 0.004) camDip = 0; }
   /* 67차 — 착지 안전망: 발보다 STEP 넘게 높은 '바닥'(벽·천장·높이 함수의 틈)엔 올라서지 않는다 — 이번 프레임 수평 이동을 되돌리고 그대로 떨어진다 */
@@ -19788,13 +19487,14 @@ function updPlayer(dt){
   /* 69차 — 계단 내려가기: 땅에 붙어 걷던 아이(이번 프레임 뛰지 않음)가 한 단(≤ STEP) 아래 디딤으로 가면 떨어지지 않고 바로 붙는다.
      예전엔 디딤마다 잠깐 공중이 되어 착지 먼지·'툭'·카메라 내려앉음(camDip)이 한 단에 한 번씩 터졌다(선생님: "계단 올라갈 때 카메라가 엄청 떨려").
      마을·밤만 — 경주·서바이벌 몸 규칙은 그대로 */
-  if(!miniOn() && PL.ground && PL.vy <= 0 && PL.y > gnd && PL.y - gnd <= STEP + 0.02) PL.y = gnd;
+  if((!miniOn() || raceOn()) && PL.ground && PL.vy <= 0 && PL.y > gnd && PL.y - gnd <= STEP + 0.02) PL.y = gnd;
   if(PL.y <= gnd){
     if(!PL.ground){ PL.landT = 0.22; PL.flipT = 99;                                          // 40차 — 착지 납작 · 42차: 0.22초·더 깊게, 늘 흙먼지와 툭 소리, 세게 떨어지면 크게 + 흔들림 + 카메라 내려앉음
-      const hard = PL.vy < -9; burst(PL.x, PL.y + 0.05, PL.z, 0xe6dccb, hard ? 10 : 4, hard ? 0.9 : 0.5); if(window.__sfx) window.__sfx('land');
-      camDip = hard ? 0.18 : 0.08; if(hard && window.__shake) window.__shake(0.12, 0.08); }
+      if(raceOn()){PL.y=gnd;raceLand(PL.vy);}else {const hard = PL.vy < -9; burst(PL.x, PL.y + 0.05, PL.z, 0xe6dccb, hard ? 10 : 4, hard ? 0.9 : 0.5); if(window.__sfx) window.__sfx('land');
+      camDip = hard ? 0.18 : 0.08; if(hard && window.__shake) window.__shake(0.12, 0.08);} }
     PL.y = gnd; PL.vy = 0; PL.ground = true; PL.jumps = 0; PL.glideT = GLIDE_T[jTier]; PL.airT = (PL.airT||0) + dt; }   // 45차 — 땅을 밟으면 활공 시간이 다시 찬다
   else { PL.ground = false; PL.airT = 0; }
+  racePhysicsAfter(dt);
   if(!miniOn() && gnd0 && PL.ground) camStepAdd(PL.y - yV0);         // 69차 — 땅에 붙은 채 디딤 높이만큼 툭 오르내림 → 카메라는 제자리에서 부드럽게 따라간다
   /* 내 몸과 친구의 몸은 같은 느린 걸음 시계를 쓴다. 물리 속도는 바꾸지 않는다. */
   { const dm = PL._px === undefined ? 0 : Math.hypot(PL.x - PL._px, PL.z - PL._pz);
@@ -27522,7 +27222,7 @@ function farmMorning(){
 }
 /* ═══════════════════════ 미니게임 (18차) ═══════════════════════ */
 const MINI_DAYS  = [5, 10, 15];                 // 이 날 밤이 끝나면 미니게임
-const MINI_NAME  = ['🏁 장애물 경주', '🎯 모둠 서바이벌'];     // 37차 — OX 퀴즈·줄넘기를 빼고 장애물 경주를 넣었다
+const MINI_NAME  = ['☁️ 구름 운동회', '🎯 모둠 서바이벌'];     // 37차 — OX 퀴즈·줄넘기를 빼고 장애물 경주를 넣었다
 const MINI_KIND  = [0, 1, 0];                    // 5일차 경주 · 10일차 서바이벌 · 15일차 경주
 const MINI_INTRO = 7, MINI_DONE = 10;           // 설명 · 순위 보여 주는 시간
 /* ★ 서바이벌 2분은 짧았다 — 스물한 명이 서로 찾아다니고 4초 부활까지 있으면
@@ -27596,6 +27296,7 @@ function miniEnter(){
   toast('🎪 하늘 섬 미니게임장으로 왔어요!', 3, '#ffe9a0');
 }
 function miniLeave(){
+  race74Reset();RACE.on=false;RACE.slipT=RACE.hitCd=RACE.fallT=0;RACE.knock=null;PL.vx=PL.vz=0;
   setAimMode(false, true);
   const backY = miniBack ? miniBack.y : undefined;                    // 67차 — 성벽 길·탑 위에서 갔다 오면 그 층으로(y 없는 부름은 밑층을 준다)
   if(miniBack){
@@ -27624,6 +27325,7 @@ function goMini(k){
 }
 function miniExit(){
   const M = G.mini; if(!M) return;
+  race74Reset();PL.vx=PL.vz=0;
   /* ★ 서바이벌에서 쓰러진 채로 나가면 마을에서도 누운 채로 시작한다.
      미니게임의 죽음은 그 판에서만 끝나는 것이다 — 아침에는 다들 멀쩡히 일어난다. */
   PL.down = false; PL.hp = maxHP(); PL.vy = 0;
@@ -27896,6 +27598,83 @@ function aimPlayer(W = wpnNow()){
      움직이는 통나무·깜빡이는 발판·굴러오는 바위도 seed 와 '출발 뒤 지난 시간'(RACE_SEC − G.t, 호스트가 맞춰 준다)의 식이다.
    ★ 발판은 '높이' 로만 막는다 — groundUnder 가 raceTopAt 을 본다. 발판이 없으면 허공(-999)이라 떨어진다.
      떨어지면 1.5초 뒤 마지막 깃발. (39차 — 아이템은 뺐다. 장애물은 바위·공·진자·막대) */
+/* 74차 — 곡면 쿠션과 같은 발자국을 사용하는, 시간 기반 구름 운동회. */
+const RACE74 = {flight:0,land:0,speedK:0,pulse:new Map(),pending:null,lastPad:-1,slide:0,clock:0,lastNet:-1,landAge:9,impact:0,stepped:0};
+
+function race74Reset(){
+  RACE74.flight=RACE74.land=RACE74.speedK=RACE74.slide=0;
+  RACE74.pending=null;RACE74.lastPad=-1;RACE74.pulse.clear();RACE74.landAge=9;RACE74.impact=0;RACE74.lastNet=-1;RACE74.stepped=0;
+}
+
+function raceContains(p,x,z,r=0,t=RACE.t){
+  const dx=Math.abs(x-p.x-(p.mv?raceOff(p,t):0)),dz=Math.abs(z-p.z),a=p.w/2+r,b=p.d/2+r;
+  if(a<=0||b<=0||dx>a||dz>b)return false;
+  if(p.shape==='round')return dx*dx/(a*a)+dz*dz/(b*b)<=1;
+  const cr=Math.min(p.round||0,p.w/2,p.d/2),rx=Math.max(0,dx-(p.w/2-cr)),rz=Math.max(0,dz-(p.d/2-cr));
+  return cr===0||rx*rx+rz*rz<=(cr+r)*(cr+r);
+}
+
+function raceSurface(p,x,z){
+  if(p.shape!=='slide')return MINI_Y+p.y;
+  const u=Math.max(0,Math.min(1,(z-p.z+p.d/2)/p.d));
+  return MINI_Y+p.y+(p.yEnd-p.y)*u*u*(3-2*u);
+}
+
+function raceMotion(dt,tvx,tvz,len){
+  if(!raceOn())return false;
+  const prev=RACE.t,p=PL.ground?raceUnder(prev):null;
+  if(G.mini.st==='run'&&!G.paused){RACE.t+=dt;RACE74.stepped+=dt;}
+  RACE.hitCd=Math.max(0,RACE.hitCd-dt);RACE.slipT=Math.max(0,RACE.slipT-dt);
+  if(raceHold()||G.mini.st!=='run'||RACE.fallT>0){PL.vx=PL.vz=0;return true;}
+  if(p&&p.mv)PL.x+=raceOff(p,RACE.t)-raceOff(p,prev);
+  RACE74.landAge+=dt;const a=RACE74.landAge;
+  RACE74.land=RACE74.impact*(a<.04?a/.04:Math.exp(-(a-.04)*17));
+  for(const [id,v] of RACE74.pulse){if(v<=dt)RACE74.pulse.delete(id);else RACE74.pulse.set(id,v-dt);}
+  if(RACE74.pending){PL.vx*=Math.exp(-dt*20);PL.vz*=Math.exp(-dt*20);return true;}
+  if(RACE74.flight>0&&!PL.ground){
+    RACE74.flight+=dt;
+    PL.vx+=(Math.max(-9,Math.min(9,tvx))-PL.vx)*(1-Math.exp(-dt*3.2));
+    // 앞으로 누르거나 놓으면 도약 관성 유지, 뒤 입력이면 확실하게 제동할 수 있다.
+    const brake=tvz<-.5;
+    PL.vz+=(brake?tvz-PL.vz:Math.max(tvz,PL.vz*.99)-PL.vz)*(1-Math.exp(-dt*(brake?3.5:1)));
+    return true;
+  }
+  const sliding=!!(p&&p.shape==='slide'&&PL.ground);
+  RACE74.slide=sliding?1:0;
+  const k=1-Math.exp(-dt*(sliding?3.5:len>.06?ACC_UP:ACC_DOWN));
+  if(sliding){const forward=tvz>.3,target=forward?Math.min(22,tvz+9):tvz;
+    PL.vx+=(tvx-PL.vx)*k;PL.vz+=(target-PL.vz)*k;return true;}
+  return false;
+}
+
+function raceLand(impact){
+  RACE74.flight=0;RACE74.lastPad=-1;RACE74.landAge=0;RACE74.impact=Math.max(.25,Math.min(1,-impact/22));
+  const p=raceUnder();if(p){RACE74.pulse.set(p.id,1);if(!p.bounce)raceLandSound(RACE74.impact);}
+  else raceLandSound(RACE74.impact);
+  camDip=Math.min(.065,RACE74.impact*.055);
+}
+
+function racePhysicsAfter(dt){
+  if(!raceOn()||raceHold()||G.paused||G.mini.st!=='run'||RACE.fallT>0||MINE.fin>=0)return;
+  const p=PL.ground?raceUnder():null;
+  if(RACE74.pending){
+    const q=RACE74.pending;
+    if(!p||p.id!==q.p.id){RACE74.pending=null;}
+    else if((q.t-=dt)<=0){
+      PL.vy=q.p.bounce.v;PL.vz=q.p.bounce.forward;PL.vx=Math.max(-4,Math.min(4,PL.vx));
+      PL.ground=false;PL.jumps=1;PL.flipT=99;PL.takeT=0;RACE74.flight=.001;
+      RACE74.lastPad=q.p.id;RACE74.pending=null;RACE74.pulse.set(q.p.id,.86);raceBounceSound(q.p.kind);
+    }
+  }else if(p&&p.bounce&&p.id!==RACE74.lastPad&&PL.z>=p.z-2.5&&Math.abs(PL.x-p.x-(p.mv?raceOff(p,RACE.t):0))<p.w*.4){
+    RACE74.pending={p,t:.085};RACE74.pulse.set(p.id,1);RACE74.landAge=0;RACE74.impact=.5;
+  }
+  if(p&&p.id!==RACE74.lastPad&&!RACE74.pending)RACE74.lastPad=-1;
+  if(p&&p.cp&&p.cp>MINE.cp){MINE.cp=p.cp;RACE.cp=raceCheckpointXZ(p);toast(`🚩 ${p.cp}번 깃발 · ${RACE_S[p.cp-1].n}`,1.8,'#c8ffb0');if(window.__sfx)window.__sfx('get');miniReport(true);}
+  if(p&&p.fin&&PL.z>=RACE_Z_FIN){raceFinishMe();return;}
+  raceHazardTick(dt);
+  RACE74.speedK+=(Math.max(0,Math.min(1,(Math.hypot(PL.vx,PL.vz)-10)/13))-RACE74.speedK)*(1-Math.exp(-dt*7));
+}
+
 const RACE = {on:false, t:0, fallT:0, cp:{x:0, z:MINI_PADZ, y:0},
               seed:0, vars:[0,0,0,0,0,0,0], countdown:-1, slipT:0, hitCd:0, knock:null, knockPow:1, lastGround:0, rumbleT:0, dustT:0, passed:{}};   // 63차 — 구간이 일곱이라 vars 도 일곱
 const raceOn = ()=> miniOn() && !!G.mini && G.mini.k === 0;
@@ -27904,95 +27683,34 @@ const FADE_T = {arm:1.8, gone:1.6};                                       // 42�
 /* 작은 난수 — 같은 seed 면 같은 코스 */
 function mulberry(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function raceBuild(seed){
-  const rng = mulberry(seed|0); RACE.seed = seed|0; RACE_P.length = 0;
-  const P = (o)=>{ const p = Object.assign({y:0, h:0.5, kind:'pad'}, o);
-    p.x *= RACE_X; p.w *= RACE_X; if(p.mv && p.mv.ax === 'x') p.mv.amp *= RACE_X;
-    RACE_P.push(p); return p; };
-  const V = RACE.vars;
-  /* 깃발(체크포인트) 판 — 구간 앞마다 하나. 0번은 출발대(섬 위) */
-  RACE_S.forEach((S,i)=>{ V[i] = (rng()*3)|0;
-    /* 첫 깃발 판은 섬 가장자리에 걸친 넓은 다리(폭 44) — 다섯 모둠 출발대(x ±18)에서 곧장 달려와도 발이 닿는다. 그 뒤 깃발 판은 폭 8 */
-    if(i === 0) P({x:0, z:S.z0-4.4, w:13, d:8.0, h:0.6, col:S.col, sec:i, kind:'cp', cp:1}); // 공용 섬에서 첫 돌까지 폭 52
-    else P({x:0, z:S.z0-3.2, w:8.0, d:4.0, h:0.6, col:S.col, sec:i, kind:'cp', cp:i+1}); });
-
-  { const S = RACE_S[0], n = 4, st = 10.2, v = V[0];   // 42차 — 경주 속도 1.8배: 발판 7.2 · 틈 3.0 · 네 개
-    for(let i=0;i<n;i++){ const z = S.z0 + 2 + i*st;
-      const x = v === 1 ? (i%2 ? 1.6 : -1.6) : 0, y = v === 2 ? (i%2 ? 0.8 : 0) : 0;
-      P({x, z, y, w:i < 2 ? 13.0 - i*5.0 : 2.8, d:7.2, h:0.7, col:i%2 ? S.col : furLight(S.col, 0.18), sec:0, kind:'stone'}); } }   // 앞 두 돌은 넓다(13 · 8) — 양옆 출발대(x ±18)에서 곧장 달려온 아이가 모이는 깔때기
-  /* ② 좁은 다리 — a 굽은 외다리 · b 끊긴 다리 셋 · c 미끄러지는 블록 */
-  { const S = RACE_S[1], v = V[1], L = S.z1 - S.z0;
-    /* ★ 47차 — 외다리 폭 1.0 → 2.4. 사람 부딪힘 지름이 0.95라 1.0 은 **구조적으로 한 명만** 지나갈 수 있었다.
-         2.4면 둘이 스친다. 폭은 앞뒤 뜀 셈과 무관해서 난이도는 그대로다. */
-    if(v === 0){ const segs = [[0, 0, 14], [3.0, 14, 27], [-2.5, 27, 40]];
-      for(const [x, a, b] of segs) P({x, z:S.z0 + (a+b)/2, w:2.4, d:b-a+0.6, h:0.5, col:S.col, sec:1, kind:'beam'});
-      P({x:1.5, z:S.z0+14, w:4.6, d:2.6, h:0.5, col:furLight(S.col, 0.2), sec:1, kind:'beam'}); P({x:0.25, z:S.z0+27, w:7.1, d:2.6, h:0.5, col:furLight(S.col, 0.2), sec:1, kind:'beam'}); }   // 꺾이는 자리는 네모난 마당(깊이 2.6) — 옆걸음으로 방향을 바꿀 자리
-    else if(v === 1){ for(let i=0;i<3;i++){ const a = i*(L/3); P({x:0, z:S.z0 + a + 5.75, w:2.4, d:11.5, h:0.5, col:S.col, sec:1, kind:'beam'}); } }   // 틈 1.8
-    else { P({x:0, z:S.z0 + L/2, w:2.4, d:L, h:0.5, col:S.col, sec:1, kind:'beam'});
-      for(let i=0;i<3;i++) P({x:0, z:S.z0 + 8 + i*12, y:0.25, w:1.4, d:1.4, h:1.1, col:0xff5c5c, sec:1, kind:'block', mv:{ax:'x', amp:2.6, spd:1.3 + i*0.25, ph:rng()*6.28}}); } }
-  /* ③ 사라지는 발판 — a 전부 · b 체크무늬 · c 두 줄 + 깜빡임. 밟으면 1초 뒤 꺼져 2초 뒤 돌아온다. 발판 4.0 · 틈 1.8 (①과 같은 셈) */
-  { const S = RACE_S[2], v = V[2], lanes = v === 2 ? [-1.5, 1.5] : [-2.8, 0, 2.8], rows = 4, st = 10.2;   // 42차 — 발판 7.2 · 틈 3.0 (①과 같은 셈)
-    for(let r=0;r<rows;r++) lanes.forEach((x, li)=>{
-      if(v === 1 && (r + li) % 2) return;
-      /* 깜빡임 — c 는 3초마다 1.1초씩 규칙적으로, a·b 는 10~14초에 한 번 1.3초 '갑자기'(seed 로 자리를 뽑아 전원 같다) */
-      const blink = v === 2 ? {per:4.5, off:0.9, ph:(r*0.45 + li*1.5)} : {per:10 + rng()*4, off:1.0, ph:rng()*12};   // 42차 — 더 드물게·짧게 꺼진다
-      P({x, z:S.z0 + 2 + r*st, w:2.6, d:7.2, h:0.45, col:(r+li)%2 ? S.col : furLight(S.col, 0.15), sec:2, kind:'fade', fade:{t:-1}, blink}); }); }
-  /* ④ 흔들리는 통나무 + 굴러오는 바위 — 통나무 넷이 좌우로 흔들리고, 가운데 길로 바위가 굴러 내려온다 */
-  { const S = RACE_S[3], v = V[3];
-    for(let i=0;i<4;i++){ const z = S.z0 + 4.5 + i*10.4;
-      P({x:0, z, w:2.6, d:9.0, h:0.9, col:i%2 ? S.col : furLight(S.col, 0.16), sec:3, kind:'log',   // 47차 — 1.5 는 한 명만 지나갔다
-         mv:{ax:'x', amp:v === 0 ? 1.0 : v === 1 ? 1.5 : 1.25, spd:0.55 + i*0.15 + v*0.1, ph:rng()*6.28}}); } }   // 봇 21 중 일곱이 여기서 못 나와 흔들림을 줄였다
-  /* ⑤ 무지개 점프 — 몸 반지름으로 틈을 건너뛰지 못하게 간격을 확보한다. 낮은 높낮이는 기본 한 번 점프로 넘는다. */
-  { const S = RACE_S[4], colors = [0xff7799,0xffb657,0xffe878,0x7cdf92,0x66c9ff,0xb59aff];
-    for(let i=0;i<6;i++) P({x:0,z:S.z0+1.8+i*RACE_RAINBOW_DZ,y:i%2?.15:0,w:8,d:3.6,h:.6+(i%2?.15:0),col:colors[i],sec:4,kind:'rainbow'}); }
-  /* ⑥ 쿵쿵 도장 — 넓은 길 한 장 위로 도장 셋이 번갈아 내려찍는다(장애물은 raceHazards 가 만든다).
-     ★ 판을 **한 장으로** 두는 것이 이 구간의 전부다. 쪼개면 "떨어질 데가 없다" 는 약속이 깨지고,
-       21명이 닫힌 박자에 한 줄로 모였을 때 서로 밀어 떨어뜨리게 된다(sheepBump).
-       그래서 폭도 9(실폭 36)로 제일 넓게 잡아 가장자리에 밀려도 판 위에 남게 했다.
-     ★ 세로로 움직이는 '발판' 으로 만들지 않은 이유 — 검사가 움직이는 발판에 amp>=4 를 요구한다(t54 64줄).
-       세로 진폭 8칸짜리 발판이 되어 버리므로, 도장은 발판이 아니라 장애물이어야 한다. */
-  { const S = RACE_S[5], z0 = S.z0 - 1.5;
-    P({x:0, z:(z0 + S.z1)/2, w:9, d:S.z1 - z0, h:0.7, col:S.col, sec:5, kind:'pad'}); }
-  /* ⑦ 마지막 계단 — 아홉 단, 셋마다 큰 틈. 꼭대기가 골인
-     ★ 63차 — 예전에는 발판 깊이 3.0 에 틈이 0.35 뿐이라 **그냥 걸어 올라가는 계단**이었다.
-       몸 반지름보다 작은 틈은 틈이 아니다. 발판을 얕게(2.2) 하고 틈을 1.4 로 넓혀
-       한 칸마다 뛰어야 하게 만든다. 셋째·여섯째는 2.0 으로 더 벌린다.
-       한 단 오름(0.9)은 그대로라, 뛰면서 올라가는 계단이 된다.
-       길이 계산: 일곱 칸 × (2.2+1.4) + 두 칸 × (2.2+2.0) = 33.6 — 구간(276~310) 안에 든다. */
-  { const S = RACE_S[6], v = V[6], n = 9, step = 0.9, d = 2.2;
-    let z = S.z0;
-    for(let i=0;i<n;i++){ const gap = (i === 3 || i === 6) ? (v === 2 ? 2.2 : 2.0) : 1.4;
-      P({x:v === 1 ? (i%2 ? 0.8 : -0.8) : 0, z:z + d/2, y:i*step, w:v === 1 ? 4.0 : 4.6, d, h:0.6 + i*step, col:i%2 ? S.col : furLight(S.col, 0.16), sec:6, kind:'stair'});
-      z += d + gap; }
-    P({x:0, z:RACE_Z_FIN + 2, y:RACE_Y_FIN, w:7.0, d:5.0, h:0.7 + RACE_Y_FIN, col:0xffffff, sec:6, kind:'fin', fin:1}); }
+  const rng=mulberry(seed|0);RACE.seed=seed|0;RACE_P.length=0;race74Reset();
+  const P=o=>{const p=Object.assign({id:RACE_P.length,x:0,y:0,h:2.2,shape:'cushion',round:3,kind:'cushion'},o);RACE_P.push(p);return p;};
+  const cps=[[22,0,48,14],[84,0,36,14],[178,0,36,14],[264,0,36,14],[356,0,36,14],[450,10,36,16],[530,1,36,16]];
+  cps.forEach(([z,y,w,d],i)=>{RACE.vars[i]=(rng()*3)|0;P({z,y:y+.075,w,d,sec:i,cp:i+1,kind:'cp',col:RACE_S[i].col});});
+  P({z:50,w:44,d:64,h:2.8,round:8,sec:0,col:0x68cde6});
+  P({z:55,y:.18,w:12,d:10,shape:'round',sec:0,kind:'small',col:0xffca58,bounce:{v:10,forward:13}});
+  for(let i=0;i<3;i++)P({x:(rng()-.5)*2.4,z:98+i*26,w:30,d:24,h:3,shape:'round',sec:1,kind:'bounce',col:[0xff9ac3,0xffd166,0x9b8aed][i],bounce:{v:15.5,forward:21}});
+  P({z:220,w:38,d:84,h:2.6,round:19,sec:2,col:0x9b8aed});
+  for(let i=0;i<4;i++)P({z:280+i*22,y:i%2?.34:.2,w:30,d:24,shape:'round',sec:3,kind:'moving',col:i%2?0x6edab4:0x6bcff0,mv:{ax:'x',amp:3,spd:.5+i*.07,ph:rng()*Math.PI*2}});
+  for(let i=0;i<3;i++)P({z:372+i*29,y:i*5,w:i===2?34:32,d:28,h:3,shape:'round',sec:4,kind:i<2?'high':'cushion',col:[0xffbd62,0xff96c1,0x6bcff0][i],...(i<2?{bounce:{v:20.5,forward:21.5}}:{})});
+  P({z:489,y:10,yEnd:1,w:34,d:70,shape:'slide',round:4,sec:5,kind:'slide',col:0x61d7c1});
+  P({z:548,y:1,w:34,d:28,h:3,shape:'round',sec:6,kind:'final',col:0xffc759,bounce:{v:22.5,forward:25}});
+  P({z:600,y:3,w:42,d:38,round:8,sec:6,kind:'fin',fin:1,col:0x92b6f3});
 }
 /* 발판의 지금 위치(움직이는 것) */
 function raceOff(p, t){ if(!p.mv) return 0; return Math.sin(t*p.mv.spd + p.mv.ph)*p.mv.amp; }
 /* 발판이 지금 있나 — 밟혀서 꺼졌거나(fade) 깜빡임 주기에서 꺼진 때(blink)면 없다 */
-function raceAlive(p, t){
-  if(p.fade && p.fade.t >= 0 && p.fade.t < 0){ }
-  if(p.fade && p.fade.gone > 0) return false;
-  if(p.blink){ const u = ((t + p.blink.ph) % p.blink.per + p.blink.per) % p.blink.per; if(u > p.blink.per - p.blink.off) return false; }
-  return true;
-}
+function raceAlive(p,t){return true;}
 /* 이 자리의 발판 윗면 높이 — 없으면 -999. all=true 면 꺼진 발판도 센다(아이템 자리 잡을 때) */
-function raceTopAt(x, z, t, all){
-  t = t === undefined ? RACE.t : t;
-  let m = -999;
-  if(x*x + z*z < (MINI_R-0.3)*(MINI_R-0.3)) m = MINI_Y;                  // 섬 바닥
-  for(let i=0;i<RACE_P.length;i++){ const p = RACE_P[i];
-    if(!all && !raceAlive(p, t)) continue;
-    const px = p.x + (p.mv && p.mv.ax === 'x' ? raceOff(p, t) : 0);
-    if(Math.abs(x - px) > p.w/2 + 0.04 || Math.abs(z - p.z) > p.d/2 + 0.04) continue;
-    const top = MINI_Y + p.y; if(top > m) m = top; }
-  return m;
+function raceTopAt(x,z,t,all){
+  t=t===undefined?RACE.t:t;let top=x*x+z*z<MINI_R*MINI_R?MINI_Y:-999;
+  for(const p of RACE_P)if(raceContains(p,x,z,0,t))top=Math.max(top,raceSurface(p,x,z));
+  return top;
 }
 /* 발밑 발판 — 몸통 가운데가 올라선 것 */
-function raceUnder(){
-  const t = RACE.t; let best = null, by = -999;
-  for(let i=0;i<RACE_P.length;i++){ const p = RACE_P[i]; if(!raceAlive(p, t)) continue;
-    const px = p.x + (p.mv && p.mv.ax === 'x' ? raceOff(p, t) : 0);
-    if(Math.abs(PL.x - px) > p.w/2 + PL.R || Math.abs(PL.z - p.z) > p.d/2 + PL.R) continue;
-    const top = MINI_Y + p.y; if(Math.abs(PL.y - top) < 0.35 && top > by){ by = top; best = p; } }
+function raceUnder(t=RACE.t){
+  let best=null,top=-999;
+  for(const p of RACE_P){const y=raceSurface(p,PL.x,PL.z);if(y>=top&&Math.abs(PL.y-y)<.38&&raceContains(p,PL.x,PL.z,PL.R*.5,t)){best=p;top=y;}}
   return best;
 }
 
@@ -28012,57 +27730,37 @@ function raceCheckpointXZ(p){
 function cntShow(v, go){ const e = el('cnt'); if(!e) return; e.textContent = String(v); e.classList.toggle('go', !!go);
   e.classList.remove('cntOn'); void e.offsetWidth; e.classList.add('cntOn'); }
 function raceStart(){
-  RACE.on = true; RACE.t = 0; RACE.fallT = 0; RACE.slipT = 0; RACE.hitCd = 0; RACE.knock = null; RACE.knockPow = 1; RACE.passed = {}; RACE.rumbleT = 0; RACE.dustT = 0;
+  RACE.on = true; RACE.t = 0; RACE74.clock=0; RACE.fallT = 0; RACE.slipT = 0; RACE.hitCd = 0; RACE.knock = null; RACE.knockPow = 1; RACE.passed = {}; RACE.rumbleT = 0; RACE.dustT = 0;
   { const s0 = raceSlotXZ(); RACE.cp = {x:s0[0], z:s0[1], y:0}; }
   for(const p of RACE_P){ if(p.fade){ p.fade.t = -1; p.fade.gone = 0; } }
   MINE.fin = -1; MINE.cp = 0; MINE.prog = 0; stamina = 1;
   cntShow('출발!! 🏁', true);                                         // 41차 — 안내 띠 대신 큰 글씨 · 42차 — 깃발 이모티콘
-  if(window.__sfx) window.__sfx('go'); if(window.__shake) window.__shake(0.25, 0.15);
+  if(window.__sfx) window.__sfx('go'); race74Reset();
 }
 function raceProg(){ return Math.max(0, Math.min(1, (PL.z - MINI_PADZ) / (RACE_Z_FIN - MINI_PADZ))); }
 /* 매 프레임(호스트도 손님도) */
 function raceTick(dt){
-  const M = G.mini; if(!M) return;
-  if(M.st === 'intro'){ const left = Math.ceil(G.t);                  // 3·2·1 초읽기
-    if(left <= 3 && left >= 1 && left !== RACE.countdown){ RACE.countdown = left; if(window.__sfx) window.__sfx('tak'); cntShow(left, false); }   // 41차 — 큰 글씨
-    return; }
-  if(M.st !== 'run'){ RACE.on = false; return; }
-  if(!RACE.on) raceStart();
-  RACE.t = Math.max(0, RACE_SEC - G.t);                                // 출발 뒤 지난 시간 — 호스트가 meta 로 맞춰 준다
-  if(RACE.slipT > 0) RACE.slipT -= dt;
-  /* 밟은 '사라지는 발판' 은 0.5초 뒤 꺼지고 2.5초 뒤 돌아온다 */
-  for(const p of RACE_P){ if(!p.fade) continue;
-    if(p.fade.gone > 0){ p.fade.gone -= dt; if(p.fade.gone <= 0){ p.fade.gone = 0; p.fade.t = -1; } }
-    else if(p.fade.t >= 0){ p.fade.t += dt; if(p.fade.t >= FADE_T.arm){ p.fade.gone = FADE_T.gone; p.fade.t = -1; if(Math.hypot(PL.x-p.x, PL.z-p.z) < 6) { if(window.__sfx) window.__sfx('crumble'); } } } }   // 밟고 1.8초(노랑→빨강으로 경고) 뒤 꺼져 1.6초 뒤 돌아온다 — 37차 1초/2초는 "너무 빨리 검은색으로 변해서 통과하기 너무 힘들어"(42차)
-  /* 움직이는 발판 위에 서 있으면 같이 실려 간다 — 안 그러면 통나무가 발밑에서 빠져나가 떨어진다 */
-  if(PL.ground){ const p = raceUnder(); if(p && p.mv && p.mv.ax === 'x'){ PL.x += raceOff(p, RACE.t) - raceOff(p, Math.max(0, RACE.t - dt)); } }
-  if(MINE.fin >= 0){ return; }                                         // 골인했으면 구경
-  /* 떨어짐 — 1.5초 뒤 마지막 깃발로 */
-  if(RACE.fallT > 0){
-    RACE.fallT -= dt; PL.vy = 0; PL.y = MINI_Y - 9;
-    if(RACE.fallT <= 0) raceRespawn();
-    return; }
-  if(PL.y < MINI_Y - 7){
-    RACE.fallT = 1.5; toast('💫 떨어졌어요! 마지막 깃발로…', 1.5, '#ffc4c4'); if(window.__sfx) window.__sfx('lose'); if(window.__shake) window.__shake(0.4, 0.2);
-    return; }
-  /* 발밑 — 깃발·골인·꺼지는 발판·착지 */
-  if(PL.ground){
-    const p = raceUnder();
-    if(p){
-      if(p.cp && p.cp > MINE.cp){ MINE.cp = p.cp; RACE.cp = raceCheckpointXZ(p);
-        toast(`🚩 ${p.cp}번 깃발! — ${RACE_S[p.cp-1].n}`, 1.8, '#c8ffb0'); if(window.__sfx) window.__sfx('get'); burst(PL.x, PL.y+1.2, PL.z, RACE_S[p.cp-1].col, 12, 1.2); miniReport(true); }
-      if(p.fin){ raceFinishMe(); return; }
-      if(p.fade && p.fade.t < 0 && !p.fade.gone) p.fade.t = 0;
-    }
-    if(RACE.lastGround === 0 && PL.airT !== undefined) {}
-  }
-  MINE.prog = Math.max(MINE.prog, raceProg());
-  raceHazardTick(dt);
+  const M=G.mini;if(!M)return;
+  if(M.st==='intro'){const left=Math.ceil(G.t);if(left<=3&&left>=1&&left!==RACE.countdown){RACE.countdown=left;if(window.__sfx)window.__sfx('tak');cntShow(left,false);}return;}
+  if(M.st!=='run'){RACE.on=false;return;}
+  if(!RACE.on)raceStart();
+  if(G.paused){RACE74.stepped=0;return;}
+  // 팝업 중에도 장애물/경주 시계는 흐른다. 이동 서브스텝에서 센 시간은 중복 계산하지 않는다.
+  RACE.t+=Math.max(0,dt-RACE74.stepped);RACE74.stepped=0;
+  // 1Hz 손님 meta 사이에도 시계가 흐른다. 작은 교정은 0.1초/초 이내로 흡수한다.
+  if(G.t!==RACE74.lastNet){RACE74.clock=Math.max(0,RACE_SEC-G.t);RACE74.lastNet=G.t;}
+  else RACE74.clock+=dt;
+  const drift=RACE74.clock-RACE.t;
+  if(Math.abs(drift)>2)RACE.t=RACE74.clock;else RACE.t+=Math.max(-dt*.1,Math.min(dt*.1,drift));
+  if(MINE.fin>=0)return;
+  if(RACE.fallT>0){RACE.fallT-=dt;PL.vy=0;PL.y=MINI_Y-9;if(RACE.fallT<=0)raceRespawn();return;}
+  if(PL.y<MINI_Y-7){RACE.fallT=.75;RACE74.pending=null;RACE74.flight=0;toast('☁️ 마지막 깃발에서 다시 출발!',1.2,'#c7ebff');return;}
+  MINE.prog=Math.max(MINE.prog,raceProg());
 }
 function raceRespawn(){
-  PL.x = RACE.cp.x; PL.z = RACE.cp.z; PL.y = MINI_Y + RACE.cp.y + 0.05; PL.vy = 0; PL.ground = true; PL.jumps = 0;
-  RACE.fallT = 0; PL.yaw = Math.PI;
-  burst(PL.x, PL.y+0.6, PL.z, 0xffffff, 14, 1.2); if(window.__sfx) window.__sfx('up');
+  PL.x=RACE.cp.x;PL.z=RACE.cp.z;PL.y=MINI_Y+RACE.cp.y+.02;PL.vx=PL.vz=PL.vy=0;PL._px=PL.x;PL._pz=PL.z;PL.ground=true;PL.jumps=0;
+  RACE.fallT=RACE.slipT=0;RACE.hitCd=.8;race74Reset();
+  burst(PL.x,PL.y+.5,PL.z,0xffffff,6,.7);if(window.__sfx)window.__sfx('up');
 }
 function raceFinishMe(){
   MINE.fin = +RACE.t.toFixed(2); MINE.prog = 1; miniReport(true);
@@ -28085,13 +27783,7 @@ function raceFinished(){ let n = 0; for(const d of miniPl.values()) if(d && d.fi
 const ROCK = {per:6.5, spd:17.0, r:2.30};   // 넓어진 트랙에 맞춰 크기와 이동 속도는 두 배, 생성 간격은 유지한다.
 
 function rockU(tt){ const a = ROCK.spd / 1.2; return tt < 1.2 ? 0.5*a*tt*tt : 0.6*ROCK.spd + ROCK.spd*(tt - 1.2); }
-function raceRocks(t){
-  const S = RACE_S[3], out = [], z1 = S.z1-ROCK.r-.8, z0 = S.z0+ROCK.r+.8, len = z1 - z0, ph = (RACE.seed % 1000) / 1000 * ROCK.per;
-  for(let k=-1;k<=3;k++){ const t0 = Math.floor((t - ph) / ROCK.per - k) * ROCK.per + ph, tt = t - t0; if(tt < 0) continue; const u = rockU(tt); if(u > len) continue;
-    const drop = tt < 0.55 ? 6.0 * Math.pow(1 - tt/0.55, 2) : 0, hop = tt >= 0.55 ? 0.16 * Math.abs(Math.sin(u*1.6)) : 0;
-    out.push({k:'rock', x:Math.sin(t0*1.7)*0.9*RACE_X, z:z1 - u, y:ROCK.r + drop + hop, r:ROCK.r, roll:u/ROCK.r, tt, u, id:'k'+Math.round(t0*10)}); }
-  return out;
-}
+function raceRocks(t){return [];}
 /* ═══ 장애물: 바위(④) · 계단을 굴러 내려오는 공(⑤) · 좁은 다리 위 진자(②) · 깃발 판 회전 막대(3·5번) ═══ */
 /* 막대는 길이·속도를 코스 폭에 맞춰 낸다. 넓히기 전에는 폭 8 판을 길이 7 이 쓸어
    87% 를 덮었는데, RACE_X 로 판만 4배가 되면서 길이 7 은 32칸 중 7칸(22%)만 덮어
@@ -28112,35 +27804,10 @@ function stampY(u){
   return K.up*Math.min(1, (u - K.fall - K.dn)/K.rise);                // 스르르 올라가기 → 위에서 대기
 }
 function raceHazards(t){
-  const out = [], seed = (RACE.seed % 1000) / 1000;
-  /* 계단 공 — 골인 앞에서 번갈아 두 길로 내려온다. 처음 3초와 양끝 체크포인트는 안전하게 둔다. */
-  { const S = RACE_S[6], zTop = RACE_Z_FIN - 1, zEnd = S.z0+HAZ.ball.r+.8, len = zTop - zEnd, ph = seed * HAZ.ball.per;
-    for(let k=-1;k<=2;k++){ const t0 = Math.floor((t - ph) / HAZ.ball.per - k) * HAZ.ball.per + ph; const u = (t - t0) * HAZ.ball.spd; if(t0 < 3 || u < 0 || u > len) continue;
-      const z = zTop - u, lane = ((Math.round(t0 / HAZ.ball.per) % 2) ? 1.1 : -1.1)*RACE_X;
-      const top = raceTopAt(lane, z, t, true), y = (top > -900 ? top - MINI_Y : Math.max(0, RACE_Y_FIN * (z - zEnd) / len)) + HAZ.ball.r + 0.2*Math.abs(Math.sin(u*2.0));   // 40차 — 계단마다 통통
-      out.push({k:'ball', x:lane, z, y, r:HAZ.ball.r, roll:u / HAZ.ball.r, id:'b' + Math.round(t0*10)}); } }
-  /* 진자 — 좁은 다리의 트러스 2·4번째. 최저점에서도 구체 아래가 마루보다 .2칸 높다. */
-  for(const i of [1, 3]){ const z = 86 + i*9.6, w = Math.PI*2 / HAZ.pend.per, ph = i*1.3 + seed*6.28;
-    /* 축은 그 자리 다리 한가운데다. 예전에는 x 0 에 매달아도 다리가 x 0 둘레였는데,
-       RACE_X 로 넓어진 뒤 변형에 따라 다리가 x -10 쯤으로 치우쳐서 추가 허공만 휘젓는 판이 나왔다. */
-    const deck = RACE_P.find(q => q.sec === 1 && Math.abs(q.z - z) <= q.d/2 + 1);
-    const px = deck ? deck.x : 0;
-    const th = Math.sin(t*w + ph) * HAZ.pend.swing, vx = Math.cos(t*w + ph);
-    out.push({k:'pend', x:px + Math.sin(th)*HAZ.pend.len, z, y:HAZ.pend.top - Math.cos(th)*HAZ.pend.len, r:HAZ.pend.r, px, py:HAZ.pend.top, len:HAZ.pend.len, ang:th, vx, id:'p'+i}); }
-  /* 쿵쿵 도장 — 길 전체를 덮는 넓적한 판 셋이 똑바로 내려찍는다(63차).
-     ★ x·폭은 **그 자리 발판을 그대로 따라간다**. 예전에 진자를 x 0 에 고정해 뒀다가
-       길이 x -10 쯤으로 치우친 변형에서 허공만 휘저은 일이 있었다(위 진자 주석) —
-       같은 실수를 되풀이하지 않으려고 deck 을 찾아서 붙인다. */
-  { const S = RACE_S[5], K = RACE_STAMP;
-    STAMP_DZ.forEach((dz, i)=>{ const z = S.z0 + dz;
-      const deck = RACE_P.find(q => q.sec === 5 && Math.abs(q.z - z) <= q.d/2);
-      if(!deck) return;
-      const ph = i*K.per/2 + seed*K.per, u = ((t - ph) % K.per + K.per) % K.per;
-      out.push({k:'stamp', x:deck.x, z, w:deck.w, dz:K.dz, y:deck.y + stampY(u), h:K.h, u, id:'s'+i}); }); }
-  /* 회전 막대 — 3번·5번 깃발 판 가운데서 돈다. 0.3~0.8칸 높이라 뛰어넘을 수 있다(한 번 뜀 1.36) */
-  for(const cpN of [3, 5]){ const p = RACE_P.find(q=> q.cp === cpN); if(!p) continue;
-    const w = HAZ.bar.spd * (cpN === 3 ? 1 : -1);
-    out.push({k:'bar', x:p.x, z:p.z, y:p.y + 0.55, len:HAZ.bar.len, ang:t*w + seed*3, w, id:'r'+cpN}); }
+  const ph=(RACE.seed>>>0)%1000/1000*Math.PI*2,out=[];
+  for(let i=0;i<2;i++){const w=i?-.9:.82;out.push({k:'bar',x:0,z:i?241:208,y:.6,len:24,r:.55,ang:t*w+ph+i*1.8,w,id:'r'+i});}
+  const p=RACE_P.find(q=>q.shape==='slide');
+  if(p)for(let i=0;i<2;i++){const x=i?8:-8,z=i?507:478,r=2.1;out.push({k:'bumper',x,z,y:raceSurface(p,x,z)-MINI_Y+r,r,id:'b'+i});}
   return out;
 }
 // 그려진 구체와 사람의 세로 캡슐이 실제로 닿을 때만 맞는다. 공 아래/위의 빈 공간은 피할 수 있다.
@@ -28150,128 +27817,367 @@ function raceSphereHit(h){
   return dx*dx+dy*dy+dz*dz<r*r;
 }
 function raceHazardTick(dt){
-  const t = RACE.t;
-  const hitBy = (kx, kz, pow, label, col)=>{ RACE.slipT = 0.8; RACE.hitCd = 1.5; PL.vy = 6.5; PL.ground = false; RACE.knock = {x:kx, z:kz}; RACE.knockPow = pow;
-    toast(label, 1.2, '#ffc4c4'); if(window.__sfx) window.__sfx('hurt'); if(window.__shake) window.__shake(0.5, 0.22); burst(PL.x, PL.y+0.8, PL.z, col, 12, 1.3); };
-  const canHit = t >= 0.5 && RACE.slipT <= 0 && RACE.hitCd <= 0;
-  const hz = raceHazards(t), rolling = raceRocks(t).concat(hz.filter(h=> h.k === 'ball'));
-  /* 바위·공 — 몸에 닿으면 */
-  if(canHit) for(const r of rolling){
-    const dx = PL.x - r.x, dz = PL.z - r.z;
-    if(raceSphereHit(r)){ hitBy(dx, dz, 1, r.k === 'rock' ? '🪨 바위에 맞았어요!' : '⚫ 공에 맞았어요!', 0xa08a70); break; } }
-  /* 진자 — 공이 몸 높이를 지날 때. 뒤로 밀린다 */
-  if(canHit && RACE.slipT <= 0) for(const h of hz){ if(h.k !== 'pend') continue;
-    if(raceSphereHit(h)){ hitBy(Math.sign(h.vx || 1)*0.15, -1, 0.7, '🔔 진자에 맞았어요!', 0x8a6a4a); break; } }
-  /* 막대 — 판 위에 서 있고(뛰어넘지 못했고) 막대 선 안에 있으면. 도는 방향으로 옆으로 밀린다 */
-  if(canHit && RACE.slipT <= 0) for(const h of hz){ if(h.k !== 'bar') continue;
-    const dx = PL.x - h.x, dz = PL.z - h.z, ca = Math.cos(h.ang), sa = Math.sin(h.ang);
-    const along = dx*ca - dz*sa, perp = dx*sa + dz*ca, feet = PL.y - MINI_Y - (h.y - 0.55);
-    if(Math.abs(along) < h.len/2 && Math.abs(perp) < 0.65 && feet < 0.75 && feet > -0.5){ const s = Math.sign(along * h.w) || 1; hitBy(sa*s, ca*s, 0.8, '🌀 막대에 맞았어요!', 0xff8080); break; } }
-  /* 도장 — 구체가 아니라 넓적한 상자다(raceSphereHit 를 안 쓴다). 뒤(-z)로만 밀린다 —
-     옆으로 밀면 폭 36 판이라도 가장자리로 쫓겨나고, 앞으로 밀면 맞고도 이득이 된다. */
-  if(canHit && RACE.slipT <= 0) for(const h of hz){ if(h.k !== 'stamp') continue;
-    const feet = PL.y - MINI_Y - h.y;                       // 도장 바닥과 내 발의 높이 차
-    if(Math.abs(PL.z - h.z) < h.dz + PL.R && Math.abs(PL.x - h.x) < h.w/2 + PL.R
-       && feet > -1.3 && feet < h.h){                       // 머리(발+1.3)가 도장 바닥 위 ~ 발이 도장 윗면 아래
-      hitBy(0, -1, 0.6, '🔨 도장에 눌렸어요!', 0xff8c42); break; } }
-  if(RACE.hitCd > 0) RACE.hitCd -= dt;
-  if(RACE.slipT > 0 && RACE.knock){ const L = Math.hypot(RACE.knock.x, RACE.knock.z) || 1, pw = 5.5 * (RACE.knockPow || 1); PL.x += RACE.knock.x/L * pw * dt; PL.z += RACE.knock.z/L * pw * dt; }
-  else RACE.knock = null;
-  /* 우르릉 — 제일 가까운 바위·공까지의 거리로 소리 크기를 정한다(30칸 안). 굴러가는 뒤로 흙먼지. 스쳐 지나가면 한 번 흔들린다 */
-  let near = 99; RACE.dustT -= dt; const dust = RACE.dustT <= 0; if(dust) RACE.dustT = 0.07;
-  for(const r of rolling){ const d = Math.hypot(PL.x - r.x, PL.z - r.z); if(d < near) near = d;
-    if(dust && d < 45) burst(r.x + (Math.random()-0.5)*0.5, MINI_Y + r.y - r.r*0.5, r.z + r.r*0.9, 0xb8a890, 2, 0.7);
-    if(d < 3.4 && !RACE.passed[r.id]){ RACE.passed[r.id] = 1; if(window.__shake) window.__shake(0.22, 0.14); if(window.__sfx) window.__sfx('whoosh'); } }
-  if(near < 45){ RACE.rumbleT -= dt; if(RACE.rumbleT <= 0){ RACE.rumbleT = 0.24; if(window.__sfx) window.__sfx('rumble', Math.max(0.3, 1 - near/45)); } }   // 42차 — 45칸
-  /* 40차 — 무게: 바위가 떨어져 닿는 순간 쿵(멀수록 작게) + 흙먼지 + 흔들림 · 튈 때마다 작은 쿵 · 9칸 안에서는 계속 잔진동 */
-  for(const r of rolling){ const d = Math.hypot(PL.x - r.x, PL.z - r.z);
-    if(r.k === 'rock'){
-      if(r.tt >= 0.55 && r.tt < 0.55 + Math.max(dt, 0.05)*2 && !RACE.passed['L'+r.id]){ RACE.passed['L'+r.id] = 1;
-        if(d < 80){ const g = Math.max(0.4, 1 - d/80); if(window.__sfx) window.__sfx('thud2', g); if(window.__shake) window.__shake(0.12 + 0.35*g, 0.22); }   // 42차 — 80칸 안에서 들리고 멀어도 40% 는 남는다
-        burst(r.x, MINI_Y + 0.3, r.z, 0xb8a890, 16, 1.6); }
-      if(r.tt > 0.55 && d < 22){ const s0 = Math.sin(r.u*1.6), s1 = Math.sin((r.u - ROCK.spd*dt)*1.6); if(s0 * s1 <= 0 && dt > 0){ if(window.__sfx) window.__sfx('thud2', 0.45*(1 - d/22)); burst(r.x, MINI_Y + 0.2, r.z, 0xb8a890, 4, 0.9); } } }
-    if(d < 9 && window.__shake) window.__shake(0.05*(1 - d/9), 0.05); }
-  for(const h of hz){ if(h.k !== 'pend') continue; const d = Math.hypot(PL.x - h.x, PL.z - h.z);
-    const ext = Math.abs(h.ang) > HAZ.pend.swing*0.97, ke = 'E'+h.id;            // 끝에서 삐걱
-    if(ext && !RACE.passed[ke]){ RACE.passed[ke] = 1; if(d < 30 && window.__sfx) window.__sfx('creak', 1 - d/30); }
-    else if(!ext && Math.abs(h.ang) < HAZ.pend.swing*0.6) RACE.passed[ke] = 0;
-    const bot = Math.abs(h.ang) < 0.06, kb = 'B'+h.id;                             // 바닥을 지날 때 쉭 + 흔들림(가까우면)
-    if(bot && !RACE.passed[kb]){ RACE.passed[kb] = 1; if(d < 9){ if(window.__sfx) window.__sfx('whoosh'); if(window.__shake) window.__shake(0.10, 0.08); } }
-    else if(!bot && Math.abs(h.ang) > 0.3) RACE.passed[kb] = 0; }
-}
-/* ── 그리기 — 발판은 인스턴스 하나, 움직이는 것·꺼지는 것이 있어 매 프레임 놓는다 ── */
-/* ★ 63차 — 정원을 숫자 24 로 여섯 군데에 흩뿌려 놓았더니 도장을 더할 때 전부 따로 고쳐야 했다.
-   상수로 묶는다. 상자 뱅크는 진자 사슬 7×2 + 막대 2×2 = 18 이었는데 도장 3×2 = 6 이 붙어
-   정확히 24 — 정원이 딱 찼다. 한 칸이라도 넘치면 도장이 **조용히 안 그려지고 판정만 남는다**
-   (안 보이는데 맞는다 = 최악). 넉넉히 32 로 올린다. */
-const HAZB_MAX = 32, HAZR_MAX = 24;
-const R_plat = imesh(WGEO, WMAT, 420, 1), R_rock = imesh(BALL, WMAT, HAZR_MAX, 1), R_hazB = imesh(WGEO, WMAT, HAZB_MAX, 1);   // 39차 — 바위·공·진자 공은 R_rock, 막대·줄·도장은 R_hazB
-/* 39차 — 코스 아래 들판(rcLand·rcLandB)은 섬에 있을 때만 그린다. 마을에서는 하늘 저 위의 밑면이 화면 위쪽에 걸려 t28 빛 번짐 항목을 빨갛게 했다(3/3). */
-let landVis = true;
-function landShow(on){ if(on === landVis) return; landVis = on; for(const k of ['rcLand','rcLandB']){ const b = banks.get(k); if(!b || !b.chunks) continue; for(const m of b.chunks) m.visible = on; } }
-R_plat.castShadow = R_plat.receiveShadow = true;
-
-const R_trim = imesh(WGEO, WMAT, 1400, 1); R_trim.receiveShadow = true;
-function raceDrawTrim(rt){
-  let n = 0; const cap = 1400;
-  const T = (x,y,z, sx,sy,sz, col)=>{ if(n < cap) setIR(R_trim, n++, x, y, z, 0, 0, sx, sy, sz, col); };
-  for(let i=0;i<RACE_P.length;i++){ const p = RACE_P[i]; if(!raceAlive(p, rt)) continue;
-    const ox = p.mv && p.mv.ax === 'x' ? raceOff(p, rt) : 0, x = p.x + ox, top = MINI_Y + p.y, k = p.kind;
-    let col = p.col; if(p.fade && p.fade.t >= 0) col = p.fade.t > FADE_T.arm*0.5 ? 0xff8080 : 0xffd0a0;
-    const lite = furLight(col, 0.42);
-    if(k === 'fin'){ const cols = Math.ceil(p.w/1.4), tw = p.w/cols;
-      for(let a=0;a<cols;a++) for(let b=0;b<5;b++) T(x-p.w/2+(a+0.5)*tw, top+0.04, p.z-2+b, tw-0.04,0.08,0.96,(a+b)%2?0x34456a:0xffffff); continue; }
-    if(k === 'beam' || k === 'log'){
-      const nS = Math.max(1, Math.round(p.d / 1.5)), sl = p.d / nS;
-      for(let s=0;s<nS;s++) T(x, top + 0.03, p.z - p.d/2 + (s+0.5)*sl, p.w - 0.16, 0.06, sl - 0.12, s%2 ? lite : furLight(col, 0.18));
-      if(k === 'beam') for(let s=0;s<=Math.floor(p.d/3);s++) for(const sx of [-1,1]) T(x + sx*(p.w/2 + 0.12), top + 0.28, p.z - p.d/2 + 0.3 + s*3, 0.10, 0.56, 0.10, 0x8a5a3a);
-      else for(const sz of [-1,1]) T(x, top - p.h/2, p.z + sz*(p.d/2 + 0.02), p.w - 0.2, p.h - 0.2, 0.06, furLight(col, 0.5));
-      continue; }
-    if(k === 'cp'){ T(x, top + 0.03, p.z, p.w - 0.34, 0.06, p.d - 0.34, p.cp === 1 ? 0xd9dde4 : lite);
-      if(p.w > 20){ for(let s=0;s<Math.floor(p.d/3.3);s++) T(x, top + 0.07, p.z - p.d/2 + 1.0 + s*3.3, 0.36, 0.03, 1.7, 0xffffff);
-        for(const sx of [-1,1]) T(x + sx*(p.w/2-0.4), top + 0.07, p.z, 0.20, 0.03, p.d - 0.4, 0xffffff); }
-      else for(let s=0;s<Math.floor(p.d/1.4);s++) T(x, top + 0.07, p.z - p.d/2 + 0.7 + s*1.4, 0.18, 0.03, 0.7, 0xffffff); }
-    else T(x, top + 0.03, p.z, p.w - 0.34, 0.06, p.d - 0.34, lite);
-    /* 41차 — 발판 위 가로 줄(1칸마다, 발판 제 색) — 발밑에서 흘러가는 무늬가 있어야 속도가 보인다. 한 색 판은 서 있는지 달리는지 안 보였다 */
-    if(p.w < 20) for(let q=1; q*1.0 < p.d - 0.3; q++) T(x, top + 0.05, p.z - p.d/2 + q*1.0, p.w - 0.5, 0.04, 0.10, col);
-    if(k === 'fade'){ for(const sz of [-1,1]) T(x, top + 0.06, p.z + sz*(p.d/2 - 0.14), p.w - 0.2, 0.05, 0.12, 0xffffff); for(const sx of [-1,1]) T(x + sx*(p.w/2 - 0.14), top + 0.06, p.z, 0.12, 0.05, p.d - 0.2, 0xffffff); continue; }
-    if(k === 'block'){ for(let s=0;s<3;s++) for(const sz of [-1,1]) T(x, top - p.h + 0.2 + s*0.3, p.z + sz*(p.d/2 + 0.02), p.w*0.9, 0.14, 0.06, s%2 ? 0x1e1e26 : 0xffd43b); continue; }
-    if(p.w >= 4.0){ const nC = Math.max(2, Math.round(p.d / 1.0)), cl = p.d / nC;
-      for(let s=0;s<nC;s++) for(const sx of [-1,1]) T(x + sx*(p.w/2 - 0.22), top + 0.10, p.z - p.d/2 + (s+0.5)*cl, 0.34, 0.14, cl - 0.08, s%2 ? 0xff5a5a : 0xffffff); }
-    if(k === 'stair') T(x, top - 0.25, p.z - p.d/2 - 0.02, p.w - 0.3, 0.16, 0.06, 0xffffff);
+  if(RACE.t<.5||RACE.hitCd>0||RACE.slipT>0)return;
+  for(const h of raceHazards(RACE.t)){
+    let dx=PL.x-h.x,dz=PL.z-h.z,hit=false;
+    if(h.k==='bar'){
+      const ca=Math.cos(h.ang),sa=Math.sin(h.ang),along=Math.max(-h.len/2+h.r,Math.min(h.len/2-h.r,dx*ca-dz*sa));
+      const q={x:h.x+ca*along,z:h.z-sa*along,y:h.y,r:h.r};hit=raceSphereHit(q);
+      if(hit){dx=sa*Math.sign(along*h.w||1);dz=ca*Math.sign(along*h.w||1);}
+    }else hit=raceSphereHit(h);
+    if(hit){const L=Math.hypot(dx,dz)||1;PL.vx=dx/L*8;PL.vz=dz/L*8;PL.vy=7;PL.ground=false;RACE74.flight=.001;RACE74.pending=null;RACE.hitCd=1.1;RACE.slipT=.12;
+      RACE74.pulse.set(h.id,1);raceBounceSound('small');break;}
   }
-  R_trim.count = n; R_trim.instanceMatrix.needsUpdate = true; if(R_trim.instanceColor) R_trim.instanceColor.needsUpdate = true; R_trim.visible = n > 0;
 }
+/* 74차 구름 운동회 — 곡면 비닐 데크·고무 매트·도장 금속.
+   불투명 재질 셋 / 512 텍스처 둘 / 정적 버퍼는 빌드 때만 생성.
+   정적 기하는 z 순서로 굽고 drawRange 만 바꿔 가까운 240칸만 그린다.
+   움직이는 매트·회전봉·범퍼는 고정 정원의 인스턴스이며 CPU 천 시뮬레이션은 없다. */
+let RACE_ART74 = null;
+const RACE_ART_PALETTE = {cream:0xfff2d1, teal:0x39c8c1, coral:0xff806f, yellow:0xffd76d,
+  lavender:0x9894d6, ink:0x31415c, silver:0xb8c8d6};
+
+function raceArtTextures(){
+  const c=document.createElement('canvas'); c.width=c.height=512; const x=c.getContext('2d');
+  x.fillStyle='#fffdf8'; x.fillRect(0,0,512,512);
+  // 위쪽 절반의 직조는 낮은 대비. 멀어지면 밉맵에 섞여 사선에서도 깜빡이지 않는다.
+  const rng=mulberry(74051);
+  for(let y=0;y<256;y+=4){x.fillStyle=y%8?'rgba(84,73,62,.035)':'rgba(255,255,255,.18)';x.fillRect(0,y,512,1);}
+  for(let k=0;k<4200;k++){const v=210+Math.floor(rng()*40);x.fillStyle=`rgba(${v},${v},${v},.16)`;x.fillRect(rng()*512,rng()*256,1.1,1.1);}
+  // 실제 코팅 천처럼 큰 패널 접합선과 짧은 바늘땀을 같은 표면에 그린다.
+  for(let sx=64;sx<512;sx+=96){x.fillStyle='rgba(65,58,53,.10)';x.fillRect(sx,0,2,256);
+    x.fillStyle='rgba(255,255,255,.60)';x.fillRect(sx-2,0,1,256);x.fillRect(sx+3,0,1,256);
+    for(let sy=3;sy<256;sy+=9){x.fillRect(sx-5,sy,4,1.2);x.fillRect(sx+3,sy+4,4,1.2);}}
+  // 같은 비닐 atlas 아래 절반에 표지판을 넣는다. 새 글꼴·외부 이미지 요청 없음.
+  const labels=[['01','구름 출발광장'],['02','통통 도넛섬'],['03','빙글 캔디마당'],['04','출렁 구름다리'],
+    ['05','붕붕 하늘항로'],['06','무지개 미끄럼'],['07','별빛 대도약'],['FINISH','구름 운동회']];
+  labels.forEach(([num,label],i)=>{const sx=(i%2)*256,sy=256+Math.floor(i/2)*64;
+    x.fillStyle='#fff9e9';x.fillRect(sx,sy,256,64);x.textAlign='left';x.textBaseline='middle';
+    x.fillStyle='#304362';x.font=`900 ${num.length>2?18:26}px "Noto Sans KR",sans-serif`;x.fillText(num,sx+13,sy+31);
+    x.font='700 19px "Noto Sans KR",sans-serif';x.textAlign='right';x.fillText(label,sx+244,sy+33);});
+  const paint=new THREE.CanvasTexture(c); paint.colorSpace=THREE.SRGBColorSpace;paint.anisotropy=4;
+  const b=document.createElement('canvas');b.width=b.height=512;const bx=b.getContext('2d'),im=bx.createImageData(512,512);
+  for(let y=0;y<512;y++)for(let xx=0;xx<512;xx++){const k=(y*512+xx)*4;
+    const seam=y<256&&xx>=63?Math.max(0,1-Math.abs(((xx-64+48)%96)-48)/2)*17:0;
+    const wave=Math.sin(xx*Math.PI/2)*3+Math.cos(y*Math.PI/2)*3,n=126+wave+(rng()-.5)*22-seam;
+    im.data[k]=im.data[k+1]=im.data[k+2]=n;im.data[k+3]=255;}
+  bx.putImageData(im,0,0);const grain=new THREE.CanvasTexture(b);grain.wrapS=grain.wrapT=THREE.RepeatWrapping;grain.anisotropy=4;
+  return [paint,grain];
+}
+
+// 색은 부품별 꼭짓점에, UV는 로컬 좌표에 둔다. 움직여도 직조가 표면에 고정된다.
+function raceArtUV(g){
+  const p=g.attributes.position,u=new Float32Array(p.count*2);
+  g.computeBoundingBox();const b=g.boundingBox,sx=Math.max(.001,b.max.x-b.min.x),sz=Math.max(.001,b.max.z-b.min.z);
+  for(let i=0;i<p.count;i++){u[i*2]=.025+(p.getX(i)-b.min.x)/sx*.95;u[i*2+1]=.54+(p.getZ(i)-b.min.z)/sz*.42;}
+  g.setAttribute('uv',new THREE.BufferAttribute(u,2));return g;
+}
+function raceArtMerge(parts){
+  let n=0;const gs=parts.map(q=>{const g=q.g.index?q.g.toNonIndexed():q.g.clone();if(q.m)g.applyMatrix4(q.m);
+    if(!g.attributes.normal)g.computeVertexNormals();if(!g.attributes.uv)raceArtUV(g);n+=g.attributes.position.count;return {g,c:q.c??0xffffff};});
+  const P=new Float32Array(n*3),N=new Float32Array(n*3),U=new Float32Array(n*2),C=new Float32Array(n*3),cl=new THREE.Color();let o=0;
+  for(const q of gs){const g=q.g,p=g.attributes.position,nn=g.attributes.normal,uv=g.attributes.uv;cl.setHex(q.c);
+    P.set(p.array,o*3);N.set(nn.array,o*3);U.set(uv.array,o*2);
+    for(let i=0;i<p.count;i++){C[(o+i)*3]=cl.r;C[(o+i)*3+1]=cl.g;C[(o+i)*3+2]=cl.b;}o+=p.count;g.dispose();}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(P,3));g.setAttribute('normal',new THREE.BufferAttribute(N,3));
+  g.setAttribute('uv',new THREE.BufferAttribute(U,2));g.setAttribute('color',new THREE.BufferAttribute(C,3));g.computeBoundingSphere();return g;
+}
+function raceArtPath(points,r=.08,closed=false,segments){
+  const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)),closed,'centripetal');
+  return raceArtUV(new THREE.TubeGeometry(curve,segments||Math.max(32,points.length*(points.length>32?2:6)),r,10,closed));
+}
+function raceArtRoundOutline(w,d,r,scale=1,y=0){
+  r=Math.min(r,w/2,d/2);const out=[];
+  for(let c=0;c<4;c++){const ang=c*Math.PI/2,cx=(c===0||c===3?1:-1)*(w/2-r),cz=(c<2?1:-1)*(d/2-r);
+    for(let i=0;i<7;i++){const a=ang+i/6*Math.PI/2;out.push([(cx+Math.cos(a)*r)*scale,y,(cz+Math.sin(a)*r)*scale]);}}
+  return out;
+}
+function raceArtSlab(w,d,h,round,oval=false){
+  // 윗면의 마지막 1.3%만 0.02h 내려간다. 높이 3인 통통한 매트도 발끝 오차는 0.06 이하다.
+  const P=[],UV=[],IX=[],n=oval?64:28,prof=[[0,-1],[.87,-1],[.97,-.86],[1,-.48],[1,-.02],[.987,0],[0,0]];
+  for(let j=0;j<prof.length;j++){const [s,y]=prof[j],pts=oval?Array.from({length:n},(_,i)=>[Math.cos(i/n*Math.PI*2)*w/2*s,y*h,Math.sin(i/n*Math.PI*2)*d/2*s]):raceArtRoundOutline(w,d,round,s,y*h);
+    for(const [px,py,pz]of pts){P.push(px,py,pz);UV.push(.025+(px/w+.5)*.95,.54+(pz/d+.5)*.42);}}
+  for(let j=0;j<prof.length-1;j++)for(let i=0;i<n;i++){const a=j*n+i,b=j*n+(i+1)%n,c=b+n,e=a+n;IX.push(a,c,b,a,e,c);}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(UV,2));g.setIndex(IX);g.computeVertexNormals();return g;
+}
+function raceArtArrow(w=1.4,d=1.7){
+  const g=new THREE.BufferGeometry(),P=[-w/2,0,-d*.25,-w*.18,0,-d*.25,-w*.18,0,-d*.5,w*.18,0,-d*.5,w*.18,0,-d*.25,w/2,0,-d*.25,0,0,d*.5];
+  g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setIndex([0,6,1,1,6,4,1,3,2,1,4,3,4,6,5]);g.computeVertexNormals();return raceArtUV(g);
+}
+function raceArtSlide(p){
+  const P=[],U=[],I=[],rows=48,cols=20;
+  for(let j=0;j<=rows;j++){const f=j/rows,z=(f-.5)*p.d,yy=(p.yEnd-p.y)*f*f*(3-2*f);
+    for(let i=0;i<=cols;i++){const u=i/cols,edge=Math.abs(u-.5)*2,bevel=edge>.93?.08*(edge-.93)/.07:0;
+      P.push((u-.5)*p.w,yy-bevel,z);U.push(.025+u*.95,.54+f*.42);}}
+  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const a=j*(cols+1)+i,b=a+1,c=a+cols+1,d=c+1;I.push(a,c,b,b,c,d);}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.setIndex(I);g.computeVertexNormals();
+  const bottom=g.clone(),bp=bottom.attributes.position;
+  for(let i=0;i<bp.count;i++)bp.setY(i,bp.getY(i)-p.h);
+  const bi=bottom.index.array;for(let i=0;i<bi.length;i+=3){const q=bi[i];bi[i]=bi[i+2];bi[i+2]=q;}bottom.computeVertexNormals();
+  const parts=[{g,c:0xffffff},{g:bottom,c:0xd6d1e7}];
+  // 성형된 한 장의 슈트. 양쪽 가장자리에도 둥근 두께가 있다.
+  for(const side of [-1,1]){const pp=[];for(let j=0;j<=24;j++){const f=j/24;pp.push([side*p.w/2,(p.yEnd-p.y)*f*f*(3-2*f)-p.h*.45,(f-.5)*p.d]);}
+    parts.push({g:raceArtPath(pp,Math.max(.38,p.h*.56),false,72),c:0xffffff});}
+  const out=raceArtMerge(parts);for(const q of parts)q.g.dispose();return out;
+}
+function raceArtSignGeometry(i,w=13,h=3.25){
+  const shape=new THREE.Shape(),r=h*.44,hw=w/2,hh=h/2;
+  shape.moveTo(-hw+r,-hh);shape.lineTo(hw-r,-hh);shape.quadraticCurveTo(hw,-hh,hw,-hh+r);shape.lineTo(hw,hh-r);shape.quadraticCurveTo(hw,hh,hw-r,hh);
+  shape.lineTo(-hw+r,hh);shape.quadraticCurveTo(-hw,hh,-hw,hh-r);shape.lineTo(-hw,-hh+r);shape.quadraticCurveTo(-hw,-hh,-hw+r,-hh);
+  const g=new THREE.ShapeGeometry(shape,6),p=g.attributes.position,uv=g.attributes.uv,col=i%2,row=Math.floor(i/2);
+  for(let k=0;k<p.count;k++)uv.setXY(k,col*.5+.01+(p.getX(k)/w+.5)*.48,.5-row*.125-.012-(.5-p.getY(k)/h)*.101);
+  return g;
+}
+
+function raceArtDispose(){
+  if(!RACE_ART74)return;const a=RACE_ART74;
+  for(const m of a.meshes){scene.remove(m);m.geometry.dispose();}
+  for(const m of a.mats)m.dispose();for(const t of a.textures)t.dispose();RACE_ART74=null;
+}
+function raceArtBuild(){
+  raceArtDispose();const textures=raceArtTextures(),mats=[
+    new THREE.MeshPhongMaterial({map:textures[0],bumpMap:textures[1],bumpScale:.085,vertexColors:true,shininess:32,specular:0x899391}),
+    new THREE.MeshPhongMaterial({map:textures[0],bumpMap:textures[1],bumpScale:.07,vertexColors:true,shininess:12,specular:0x34414a}),
+    new THREE.MeshPhongMaterial({vertexColors:true,shininess:100,specular:0xbdcbd8})];
+  const A=RACE_ART74={textures,mats,meshes:[],static:[],dynamic:[],builtSeed:RACE.seed,stamp:'',
+    stats:{materials:3,textures:2,visibleDraws:0,visibleTriangles:0,instances:0,overflow:0}},buckets=[[],[],[],[]],pal=RACE_ART_PALETTE;
+  const keep=(g,mat,z,span=2)=>{buckets[mat].push({g,z,span});};
+  const bake=(parts,mat,z,span=2)=>{if(!parts.length)return;const g=raceArtMerge(parts);for(const q of parts)q.g.dispose();keep(g,mat,z,span);};
+  const part=(g,x,y,z,c,rx=0,ry=0,rz=0,sx=1,sy=1,sz=1)=>({g,c,m:M4(x,MINI_Y+y,z,rx,ry,rz,sx,sy,sz)});
+  const ring=(r,t=.08)=>raceArtUV(new THREE.TorusGeometry(r,t,6,64));
+  const tube=(points,r)=>raceArtPath(points.map(q=>[q[0],q[1]+MINI_Y,q[2]]),r);
+  const top=(p,z)=>p.shape==='slide'?p.y+(p.yEnd-p.y)*Math.pow(Math.max(0,Math.min(1,(z-p.z)/p.d+.5)),2)*(3-2*Math.max(0,Math.min(1,(z-p.z)/p.d+.5))):p.y;
+  const seam=(p,c)=>{const pts=p.shape==='round'?Array.from({length:64},(_,i)=>[p.x+Math.cos(i/64*Math.PI*2)*p.w*.502,p.y-p.h*.17,p.z+Math.sin(i/64*Math.PI*2)*p.d*.502]):raceArtRoundOutline(p.w,p.d,p.round||Math.min(p.w,p.d)*.25,1.004,p.y-p.h*.17).map(q=>[q[0]+p.x,q[1],q[2]+p.z]);
+    return {g:tube(pts.concat([pts[0]]),.065),c};};
+  const valve=(p)=>{const y=p.y-p.h*.52,z=p.z-p.d*.48;
+    bake([part(raceArtUV(new THREE.CylinderGeometry(.31,.36,.12,16)),p.x,y,z,pal.ink,Math.PI/2)],1,p.z,p.d/2+1);
+    bake([part(raceArtUV(new THREE.CylinderGeometry(.13,.16,.18,12)),p.x,y,z-.09,pal.silver,Math.PI/2)],2,p.z,p.d/2+1);};
+  // 출발 광장도 한 장의 공기 주입 원반. 옛 바닥보다 0.02 위라 표면끼리 겹치지 않는다.
+  const plaza={x:0,z:0,y:.02,w:MINI_R*1.99,d:MINI_R*1.99,h:3.3,shape:'round',col:pal.teal,round:MINI_R};
+  bake([part(raceArtSlab(plaza.w,plaza.d,plaza.h,MINI_R,true),0,plaza.y,0,plaza.col),seam(plaza,pal.cream)],0,0,MINI_R+2);
+  // 진행 방향 페인트는 곡면 바로 위 0.025에서 한 번만 그린다.
+  const startMarks=[];for(let lane=-2;lane<=2;lane++){for(let j=0;j<3;j++)startMarks.push(part(raceArtArrow(2.0,2.3),lane*8,.047,-10+j*6,pal.cream));}
+  bake(startMarks,1,0,26);
+  for(const p of RACE_P){
+    const isDyn=!!(p.mv||p.bounce);if(isDyn){A.dynamic.push(p);continue;}
+    const g=p.shape==='slide'?raceArtSlide(p):raceArtSlab(p.w,p.d,p.h||1,p.round||Math.min(p.w,p.d)*.28,p.shape==='round');
+    const body=[part(g,p.x,p.y,p.z,p.col??pal.teal)];if(p.shape!=='slide')body.push(seam(p,pal.cream));
+    bake(body,0,p.z,p.d/2+2);
+    const marks=[];
+    if(p.fin){
+      // 벌집 무늬 결승선 페인트.
+      for(let xx=-7;xx<=7;xx++)for(let row=0;row<3;row++)marks.push(part(raceArtUV(new THREE.CircleGeometry(.74,6)),p.x+xx*1.6+(row%2)*.8,p.y+.029,p.z-6+row*1.5,(xx+row)%2?pal.ink:pal.cream,-Math.PI/2));
+    }else for(let z=p.z-p.d*.34;z<p.z+p.d*.4;z+=p.shape==='slide'?5:8){
+      const f=(z-p.z)/p.d+.5,slope=p.shape==='slide'?Math.atan((p.yEnd-p.y)*6*f*(1-f)/p.d):0;
+      for(const lane of (p.w>30?[-1,0,1]:[0]))marks.push(part(raceArtArrow(p.shape==='slide'?1.65:1.8,2.0),p.x+lane*p.w*.22,top(p,z)+.025,z,pal.cream,slope));
+    }
+    bake(marks,1,p.z,p.d/2+1);
+    if(p.shape==='slide'){
+      const rails=[];
+      for(const s of [-1,1]){const pts=[];for(let k=0;k<=28;k++){const z=p.z-p.d/2+p.d*k/28;pts.push([p.x+s*(p.w/2+.27),top(p,z)+.5,z]);}
+        rails.push({g:tube(pts,.48),c:s<0?pal.coral:pal.yellow});
+        // Unbroken speed strips are painted into the chute, no transparent trails.
+        for(let k=0;k<11;k++){const z=p.z-p.d*.44+k*p.d*.085,yy=top(p,z),f=(z-p.z)/p.d+.5,slope=Math.atan((p.yEnd-p.y)*6*f*(1-f)/p.d);
+          rails.push(part(raceArtUV(new THREE.CylinderGeometry(.11,.11,2.7,6)),p.x+s*(p.w*.44),yy+.034,z,k%2?pal.cream:pal.yellow,Math.PI/2+slope));}}
+      bake(rails,0,p.z,p.d/2+2);
+    }else if(p.cp){
+      const rails=[];for(const s of [-1,1]){const x=p.x+s*(p.w/2+.35),pts=[[x,p.y+.2,p.z-p.d*.33],[x,p.y+1.6,p.z-p.d*.33],[x,p.y+1.9,p.z],[x,p.y+1.6,p.z+p.d*.33],[x,p.y+.2,p.z+p.d*.33]];rails.push({g:tube(pts,.23),c:pal.cream});}
+      bake(rails,0,p.z,p.d/2+1);valve(p);
+    }else if(p.w>30)valve(p);
+  }
+  // 넓고 읽기 쉬운 관문. 글씨는 공유 atlas, 기둥은 봉제 튜브다.
+  for(let i=0;i<RACE_S.length;i++){
+    const s=RACE_S[i],z=s.z0-6,cp=RACE_P.find(p=>p.cp===i+1),y=cp?cp.y:0,span=cp?Math.min(15,cp.w*.4):15,col=s.col||pal.coral;
+    const pts=[[-span,y,z],[-span,y+4.4,z],[-span*.78,y+7.5,z],[-span*.36,y+8.5,z],[span*.36,y+8.5,z],[span*.78,y+7.5,z],[span,y+4.4,z],[span,y,z]];
+    const pp=[{g:tube(pts,.58),c:col}];
+    for(const side of [-1,1]){
+      pp.push(part(raceArtUV(new THREE.SphereGeometry(1,16,10)),side*span,y+.15,z,pal.lavender,0,0,0,1.55,.5,1.3));
+      for(let k=0;k<3;k++)pp.push(part(ring(.61,.045),side*span,y+1.4+k*.8,z,pal.cream,Math.PI/2));
+    }
+    bake(pp,0,z,4);
+    bake([part(raceArtSignGeometry(i),0,y+7.65,z-.62,pal.cream,0,Math.PI)],0,z,3);
+    const metal=[];for(const side of [-1,1]){metal.push(part(raceArtUV(new THREE.CylinderGeometry(.28,.38,.16,14)),side*span,y+.14,z,pal.silver));
+      for(let k=0;k<4;k++){const a=k*Math.PI/2;metal.push(part(raceArtUV(new THREE.CylinderGeometry(.09,.09,.10,6)),side*span+Math.sin(a)*.48,y+.20,z+Math.cos(a)*.48,pal.ink));}}
+    bake(metal,2,z,3);
+  }
+  // 코스 옆 고리와 구름 풍선. 밟는 발판과 구별되도록 장외·발밑 아래에 둔다.
+  for(let i=0;i<RACE_S.length;i++){
+    const s=RACE_S[i],z=(s.z0+s.z1)/2,base=RACE_P.find(p=>p.sec===i),y=base?base.y:0;
+    const pp=[];
+    for(const side of [-1,1]){
+      const x=side*(i===0?34:29),cloudz=z+(side>0?9:-10);
+      pp.push(part(raceArtUV(new THREE.SphereGeometry(1,18,12)),x,y-7,cloudz,0xeeeafa,0,0,0,7.7,2.8,4.5));
+      pp.push(part(raceArtUV(new THREE.SphereGeometry(1,18,12)),x-side*3,y-5.9,cloudz+.7,pal.cream,0,0,0,4.4,3.7,4.0));
+      pp.push(part(ring(4.8,.43),x,y+6,cloudz,s.col||pal.coral,0,Math.PI*.10*side));
+      pp.push(part(ring(4.8,.045),x,y+6,cloudz-.43,pal.cream,0,Math.PI*.10*side));
+    }
+    bake(pp,0,z,27);
+  }
+  // 둥근 별 모양 결승 튜브. 가운데가 비어 착지 시야를 가리지 않는다.
+  {
+    const z=RACE_Z_FIN+8,y=RACE_Y_FIN,points=[];for(let k=0;k<10;k++){const a=Math.PI/2+k*Math.PI/5,r=k%2?9.3:15;
+      points.push([Math.cos(a)*r,y+15+Math.sin(a)*r,z]);}
+    const pp=[{g:tube(points.concat([points[0]]),.85),c:pal.yellow}];
+    for(const side of [-1,1]){const xx=side*15*Math.cos(Math.PI*.3),joinY=y+15-15*Math.sin(Math.PI*.3);
+      pp.push({g:tube([[xx,y,z],[xx,y+1.5,z],[xx,joinY,z]],.74),c:pal.coral});
+      pp.push(part(raceArtUV(new THREE.SphereGeometry(1,20,12)),xx,y+.35,z,pal.lavender,0,0,0,2.3,.70,2.0));}
+    pp.push(part(raceArtSignGeometry(7,17,4.25),0,y+7.8,z-.9,pal.cream,0,Math.PI));
+    bake(pp,3,z,18);
+  }
+  // 정적 그리기는 z의 연속 구간만 참조한다. 매 프레임 큰 배열을 다시 채우지 않는다.
+  for(let b=0;b<buckets.length;b++){
+    const q=buckets[b].sort((a,c)=>a.z-c.z);if(!q.length)continue;const n=q.reduce((v,o)=>v+o.g.attributes.position.count,0),out=new THREE.BufferGeometry();
+    for(const [name,size]of [['position',3],['normal',3],['uv',2],['color',3]]){const arr=new Float32Array(n*size);let off=0;for(const o of q){arr.set(o.g.attributes[name].array,off);off+=o.g.attributes[name].array.length;}out.setAttribute(name,new THREE.BufferAttribute(arr,size));}
+    let off=0;const spans=q.map(o=>{const r={start:off,count:o.g.attributes.position.count,z:o.z,span:o.span};off+=r.count;o.g.dispose();return r;});
+    out.computeBoundingSphere();const mesh=new THREE.Mesh(out,mats[b===3?0:b]);mesh.castShadow=mesh.receiveShadow=true;mesh.matrixAutoUpdate=false;mesh.frustumCulled=false;mesh.visible=false;
+    scene.add(mesh);A.meshes.push(mesh);A.static.push({mesh,spans,always:b===3});
+  }
+  const dyn=(g,mat,cap)=>{
+    // Phong vertexColors 셰이더는 InstancedMesh에서도 color 속성이 필요하다.
+    // 없는 기본 속성은 검정으로 읽히므로 흰 꼭짓점 색을 명시한다(인스턴스 색은 그대로 곱한다).
+    if(!g.attributes.color)g.setAttribute('color',new THREE.BufferAttribute(new Float32Array(g.attributes.position.count*3).fill(1),3));
+    const m=imesh(g,mats[mat],cap,1);m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);m.matrixAutoUpdate=false;A.meshes.push(m);return m;};
+  A.pad=dyn(raceArtSlab(2,2,1,1,true),0,64);
+  const ap=[];ap.push({g:ring(1.003,.014),m:M4(0,-.14,0,Math.PI/2,0,0),c:pal.cream});
+  ap.push({g:ring(.69,.024),m:M4(0,.023,0,Math.PI/2,0,0),c:pal.cream});
+  for(let k=0;k<3;k++)ap.push({g:raceArtArrow(.23,.27),m:M4(0,.028,(k-1)*.31,0,0,0),c:pal.cream});
+  A.padTrim=dyn(raceArtMerge(ap),1,64);for(const p of ap)p.g.dispose();
+  // 봉의 축과 둥근 끝을 나눠 인스턴싱해 긴 봉에서도 끝의 구면 비율을 유지한다.
+  A.bar=dyn(raceArtUV(new THREE.CylinderGeometry(1,1,1,16,1,false)),0,128);
+  A.ball=dyn(raceArtUV(new THREE.SphereGeometry(1,24,16)),1,192);
+  A.metal=dyn(raceArtUV(new THREE.CylinderGeometry(1,1,1,16)),2,48);
+  return A;
+}
+function raceArtDraw(t){
+  if(!raceOn()||!RACE_P.length){if(RACE_ART74)for(const m of RACE_ART74.meshes)m.visible=false;return;}
+  if(!RACE_ART74||RACE_ART74.builtSeed!==RACE.seed)raceArtBuild();const A=RACE_ART74,rt=RACE.t,pal=RACE_ART_PALETTE;
+  const z=PL.z,stamp=Math.floor(z/8);let tri=0,draws=0;
+  if(stamp!==A.stamp){A.stamp=stamp;for(const s of A.static){let first=Infinity,last=0;
+    for(const q of s.spans)if(s.always||Math.abs(q.z-z)<120+q.span){first=Math.min(first,q.start);last=Math.max(last,q.start+q.count);}
+    s.mesh.geometry.setDrawRange(first===Infinity?0:first,first===Infinity?0:last-first);}}
+  for(const s of A.static){s.mesh.visible=s.mesh.geometry.drawRange.count>0;if(s.mesh.visible){tri+=s.mesh.geometry.drawRange.count/3;draws++;}}
+  let np=0,nb=0,ns=0,nm=0;A.stats.overflow=0;
+  const put=(m,i,x,y,z,ry,rx,sx,sy,sz,col)=>{if(i>=m.count_max){A.stats.overflow++;return false;}setIR(m,i,x,MINI_Y+y,z,ry,rx,sx,sy,sz,col);return true;};
+  for(const p of A.dynamic){if(Math.abs(p.z-z)>125+p.d/2)continue;if(np>=A.pad.count_max){A.stats.overflow++;break;}
+    const ox=p.mv&&p.mv.ax==='x'?raceOff(p,rt):0,phase=RACE74.pulse.get(p.id)||0;
+    const u=Math.max(0,Math.min(1,phase)),squash=u>0?Math.sin((1-u)*Math.PI*2.1)*u*.16:0;
+    const h=(p.h||1)*(1-squash),yy=p.y-Math.max(0,squash)*.20;
+    put(A.pad,np,p.x+ox,yy,p.z,0,0,p.w/2,h,p.d/2,p.col??pal.teal);
+    put(A.padTrim,np,p.x+ox,yy,p.z,0,0,p.w/2,h,p.d/2,0xffffff);np++;
+  }
+  for(const h of raceHazards(rt)){if(Math.abs(h.z-z)>126)continue;
+    if(h.k==='bar'){
+      const r=h.r||.55,len=h.len||24,cs=Math.cos(h.ang),sn=Math.sin(h.ang),ends=Math.max(0,len/2-r);
+      // setIR uses YXZ, so a vertical cylinder's roll is supplied by setIR3 below.
+      if(nb<A.bar.count_max){setIR3(A.bar,nb++,h.x,MINI_Y+h.y,h.z,h.ang||0,0,Math.PI/2,r,len-2*r,r,pal.coral);}else A.stats.overflow++;
+      for(const s of [-1,1]){put(A.ball,ns++,h.x+s*ends*cs,h.y,h.z-s*ends*sn,0,0,r,r,r,pal.coral);}
+      // Soft rounded bands lie slightly proud of the red tube, never coplanar paint meshes.
+      for(let q=-4;q<=4;q++){const d=q*(len-2*r)/10;if(nb<A.bar.count_max)setIR3(A.bar,nb++,h.x+d*cs,MINI_Y+h.y,h.z-d*sn,h.ang||0,0,Math.PI/2,r*1.018,.35,r*1.018,q%2?pal.cream:pal.yellow);else A.stats.overflow++;}
+      put(A.metal,nm++,h.x,h.y*.5,h.z,0,0,.32,Math.max(.3,h.y),.32,pal.silver);
+      put(A.ball,ns++,h.x,h.y+.18,h.z,0,0,.74,.39,.74,pal.yellow);
+    }else if(h.k==='bumper'){
+      const r=h.r||1.3;put(A.ball,ns++,h.x,h.y,h.z,0,0,r,r,r,h.col||pal.coral);
+      put(A.ball,ns++,h.x,h.y+r*.15,h.z,0,0,r*1.022,r*.29,r*1.022,pal.cream);
+      put(A.metal,nm++,h.x,h.y-r*.8,h.z,0,0,r*.42,r*.40,r*.42,pal.silver);
+    }
+  }
+  A.pad.count=A.padTrim.count=np;A.bar.count=Math.min(nb,A.bar.count_max);A.ball.count=Math.min(ns,A.ball.count_max);A.metal.count=Math.min(nm,A.metal.count_max);
+  for(const m of [A.pad,A.padTrim,A.bar,A.ball,A.metal]){flush(m);if(m.count){draws++;tri+=(m.geometry.index?m.geometry.index.count:m.geometry.attributes.position.count)*m.count/3;}}
+  A.stats.visibleDraws=draws;A.stats.visibleTriangles=Math.round(tri);A.stats.instances=np*2+A.bar.count+A.ball.count+A.metal.count;
+}
+
+/* 74차 — 구름 운동회 표시·소리. 이 조각에는 새 오디오 엔진/메시/통신 필드가 없다.
+   RACE74.flight: 바운스로 떠 있는 동안 > 0, RACE74.land: 착지 뒤 1→0,
+   RACE74.speedK: 속도 체감 0→1. root의 물리 갱신이 이 세 값을 소유한다. */
+
+/* 표시용 상태만 기존 GAIT_M 안에 붙인다. 친구의 수직 속도/착지는 수신 위치에서
+   추정하므로 패킷을 늘리지 않는다. 플레이어 위치/물리/카메라 방향은 바꾸지 않는다. */
+function raceFlightPose(s, gs, air, dt){
+  const on = raceOn() && !s.down;
+  const y = s.y === undefined ? 0 : s.y;
+  const dy = gs.r74Y === undefined ? 0 : y - gs.r74Y;
+  gs.r74Y = y; gs.r74On = on;
+  if(!on){ gs.r74Air = 0; gs.r74Land = 0; gs.r74WasAir = false; gs.r74Vy = 0; gs.r74Rise = .5; return 0; }
+  const h = Math.max(.001, Math.min(.05, dt || .016));
+  // 순간이동/체크포인트 복귀는 낙하 속도로 오인하지 않는다.
+  const v = s.me ? (s.vy || 0) : Math.abs(dy) < 2 ? Math.max(-35, Math.min(35, dy/h)) : 0;
+  gs.r74Vy = (gs.r74Vy || 0) + (v - (gs.r74Vy || 0))*(1 - Math.exp(-h*16));
+  gs.r74Rise = sheepEase((gs.r74Vy + 4)/12);
+  const flying = air && (s.me ? RACE74.flight > 0 : true);
+  gs.r74Air = (gs.r74Air || 0) + ((flying ? 1 : 0) - (gs.r74Air || 0))*(1 - Math.exp(-h*14));
+  if(s.me) gs.r74Land = Math.max(0, Math.min(1, RACE74.land || 0));
+  else if(gs.r74WasAir && !air && Math.abs(dy) < 2) gs.r74Land = 1;
+  else gs.r74Land = (gs.r74Land || 0)*Math.exp(-h*18);
+  if(gs.r74Air < .001) gs.r74Air = 0;
+  if(gs.r74Land < .001) gs.r74Land = 0;
+  gs.r74WasAir = air;
+  return gs.r74Air;
+}
+
+/* 기존 fovRun(+10°)과 따로 보간하되 최종 FOV에서 한 번만 더한다.
+   전후 이동/시점 회전/카메라 흔들림은 추가하지 않는다. */
+let fovRace74 = 0;
+function raceFovTick(dt){
+  const want = raceOn() && !raceHold() && G.mini.st==='run' && MINE.fin<0 && !PL.down
+    ? 4*Math.max(0, Math.min(1, RACE74.speedK || 0)) : 0;
+  fovRace74 += (want - fovRace74)*(1 - Math.exp(-Math.max(0, dt)*5.5));
+  if(Math.abs(fovRace74 - want) < .002) fovRace74 = want;
+  return fovRace74;
+}
+
+/* 첫 호출 때만 기존 SFX 표에 등록한다. 모든 소스는 tone/puff/pluck의 VOX 상한과
+   nodeEnd 정리를 따른다. 교실에서 21대가 동시에 내도 날카로운 소리가 쌓이지 않게
+   넓은 잡음/삼각파보다 둥근 사인파를 주로 쓰고, 가장 큰 도약도 최대 5목소리다. */
+function raceFeelSoundsInit(){
+  if(SFX.r74spring) return;
+  Object.assign(SFX, {
+    r74spring:(a)=>{
+      const k = Math.max(.2, Math.min(1, a === undefined ? .55 : a)), t = now0();
+      puff(.065, .050, 440, .7, t);                       // 발 아래 비닐 속 공기가 눌리는 푹
+      tone(138, 205, .085, 'sine', .055, t);              // 쿠션 몸통
+      tone(250 + 65*k, 580 + 140*k, .21, 'sine', .050, t + .025); // 퉁→보잉
+      pluck(740 + 80*k, .12, .015, t + .145, 0);         // 짧은 끝음, 고음은 작게
+    },
+    r74launch:(a)=>{
+      const k = Math.max(.2, Math.min(1, a === undefined ? 1 : a)), t = now0();
+      puff(.095, .058, 380, .65, t);
+      tone(128, 215, .12, 'sine', .058, t);
+      tone(255, 810, .29, 'sine', .060, t + .035);
+      tone(430, 1170, .24, 'sine', .021*k, t + .08);      // 큰 발사만 가벼운 배음
+      puff(.24, .030, 1300, .6, t + .095);               // 출구의 공기; 연속 바람은 기존 wind
+    },
+    r74cushion:(a)=>{
+      const k = Math.max(.15, Math.min(1, a === undefined ? .5 : a)), t = now0();
+      puff(.075 + .035*k, .040 + .025*k, 420 + 120*k, .65, t);
+      tone(180, 112, .10 + .07*k, 'sine', .038 + .017*k, t);
+      pluck(265, .11, .018*k, t + .028, 0, 'triangle');  // 단단한 돌 대신 푹신한 복원음
+    }
+  });
+  SFX_GAP.r74spring = .14; SFX_GAP.r74launch = .18; SFX_GAP.r74cushion = .11;
+}
+function raceBounceSound(kind){
+  raceFeelSoundsInit();
+  const big = kind === 'big' || kind === 'high' || kind === 'launch' || kind === 'final'
+    || typeof kind === 'number' && kind >= .75;
+  const strength = typeof kind === 'number' ? Math.max(.2, Math.min(1, kind)) : big ? 1 : kind === 'small' ? .35 : .60;
+  sfx(big ? 'r74launch' : 'r74spring', strength);
+}
+function raceLandSound(strength){
+  raceFeelSoundsInit();
+  sfx('r74cushion', Math.max(.15, Math.min(1, strength === undefined ? .5 : strength)));
+}
+
+// 옛 진단 API의 count 호환용. 게임 메시를 만들지 않는다.
+const R_plat={count:0};
+let raceIslandVis74=null;
+function landShow(on){}
 function raceDraw(t){
-  landShow(miniOn());
-  if(!raceOn() || !RACE_P.length){ if(R_plat.count){ R_plat.count = 0; R_rock.count = 0; R_hazB.count = 0; R_trim.count = 0; R_plat.visible = R_rock.visible = R_hazB.visible = R_trim.visible = false; } return; }
-  const rt = RACE.t; let n = 0;
-  for(let i=0;i<RACE_P.length && n < 420;i++){ const p = RACE_P[i];
-    const alive = raceAlive(p, rt);
-    const ox = p.mv && p.mv.ax === 'x' ? raceOff(p, rt) : 0;
-    let col = p.col, sy = p.h;
-    if(p.fade && p.fade.t >= 0){ const k = p.fade.t/FADE_T.arm; col = k > 0.5 ? 0xff8080 : 0xffd0a0; }   // 곧 꺼진다 — 노랑 → 빨강
-    if(!alive){ if(p.fade && p.fade.gone > 0.4) continue; col = 0x30303a; sy = p.h*0.25; }          // 깜빡임으로 꺼진 발판은 어둡고 얇게 남긴다(돌아올 자리)
-    setIR(R_plat, n++, p.x + ox, MINI_Y + p.y - sy/2, p.z, 0, 0, p.w, sy, p.d, col); }
-  R_plat.count = n; R_plat.instanceMatrix.needsUpdate = true; if(R_plat.instanceColor) R_plat.instanceColor.needsUpdate = true; R_plat.visible = n > 0;
-  raceDrawTrim(rt);
-  /* 바위·공(구르는 각도만큼 돌린다) · 진자(공 + 줄) · 회전 막대(막대 + 가운데 기둥) — 전부 seed·시간 식이라 전원 같다 */
-  let rn = 0, hb = 0;
-  for(const rk of raceRocks(rt)){ if(rn >= HAZR_MAX) break; setIR(R_rock, rn++, rk.x, MINI_Y + rk.y, rk.z, 0, -rk.roll, rk.r*2, rk.r*2, rk.r*2, 0x8f7c66); }
-  for(const h of raceHazards(rt)){
-    if(h.k === 'ball'){ if(rn < HAZR_MAX) setIR(R_rock, rn++, h.x, MINI_Y + h.y, h.z, 0, -h.roll, h.r*2, h.r*2, h.r*2, 0x6f7f9a); }
-    else if(h.k === 'pend'){ if(rn < HAZR_MAX) setIR(R_rock, rn++, h.x, MINI_Y + h.y, h.z, h.ang*0.5, 0, h.r*2, h.r*2, h.r*2, 0x4a4f5a);
-      /* 40차 — 쇠사슬: 고리 일곱을 줄 따라 번갈아 돌려 꿴다. 가는 줄 하나였을 땐 풍선처럼 가벼워 보였다(선생님: "무거운 추 같은 느낌이 안 듦") */
-      for(let c=0;c<7 && hb<HAZB_MAX;c++){ const u = (c + 0.5)/7*(h.len-h.r)/h.len, cx = h.px + (h.x - h.px)*u, cy = h.py + (h.y - h.py)*u;
-        setIR3(R_hazB, hb++, cx, MINI_Y + cy, h.z, c%2 ? Math.PI/2 : 0, 0, h.ang, 0.25, (h.len - h.r)/7 + 0.12, 0.25, c%2 ? 0x5a5f6a : 0x3a3f48); } }
-    else if(h.k === 'bar'){ if(hb < HAZB_MAX) setIR(R_hazB, hb++, h.x, MINI_Y + h.y, h.z, h.ang, 0, h.len, 0.5, 0.5, 0xff5c5c);
-      if(hb < HAZB_MAX) setIR(R_hazB, hb++, h.x, MINI_Y + h.y + 0.25, h.z, h.ang, 0, 0.45, 0.9, 0.45, 0x3a3a44); }
-    /* 도장 — 몸통 하나 + 밑면 노란 띠 하나. 띠는 장식이 아니라 **판정선**이다:
-       저 띠가 내 키(1.3칸)보다 위에 있으면 지나갈 수 있다는 뜻이라, 아이가 눈으로 박자를 읽는다. */
-    else if(h.k === 'stamp'){ if(hb < HAZB_MAX) setIR(R_hazB, hb++, h.x, MINI_Y + h.y + h.h/2, h.z, 0, 0, h.w, h.h, h.dz*2, 0xff8c42);
-      if(hb < HAZB_MAX) setIR(R_hazB, hb++, h.x, MINI_Y + h.y + 0.09, h.z, 0, 0, h.w + 0.3, 0.18, h.dz*2 + 0.3, 0xffe066); } }
-  R_rock.count = rn; R_rock.instanceMatrix.needsUpdate = true; if(R_rock.instanceColor) R_rock.instanceColor.needsUpdate = true; R_rock.visible = rn > 0;
-  R_hazB.count = hb; R_hazB.instanceMatrix.needsUpdate = true; if(R_hazB.instanceColor) R_hazB.instanceColor.needsUpdate = true; R_hazB.visible = hb > 0;
+  const on=raceOn();
+  if(on!==raceIslandVis74){
+    for(const k of ['miFloor','miBase','miMark','miEdge','miGlow']){const b=banks.get(k);if(b&&b.chunks)for(const m of b.chunks)m.visible=!on;}
+    raceIslandVis74=on;
+  }
+  raceArtDraw(RACE.t);R_plat.count=on?RACE_P.length:0;
 }
 /* ── 순위 — 호스트가 매긴다: 골인한 사람은 시간 순, 못 들어온 사람은 진행도 순. 사람마다 한 줄 {u,n,g,fin,prog} ── */
 function raceFinish(M){
@@ -31350,7 +31256,7 @@ function updSky(dt, night){
   /* 67차 — 그림자 판 가운데를 시선 앞으로(최대 16칸, 4칸 걸음 — 카메라를 돌릴 때 그림자가 헤엄치지 않게).
      수정 곁에서 본 탑·회랑(빛 가로축 ±61~63)에도 해 그림자가 닿고, 판 끝선이 대각 성벽을 가로지르지 않는다 */
   camera.getWorldDirection(_shFwd); { const h = Math.hypot(_shFwd.x, _shFwd.z) || 1;
-    shadowFollow(camera.position.x + Math.round(_shFwd.x/h*4)*4, camera.position.z + Math.round(_shFwd.z/h*4)*4); }
+    shadowFollow(camera.position.x + Math.round(_shFwd.x/h*4)*4, camera.position.z + Math.round(_shFwd.z/h*4)*4, miniOn()?MINI_Y:GY); }
   stars.position.copy(camera.position);
   stars.material.opacity = Math.max(0, skyK*1.35 - 0.32);
   stars.rotation.y += dt*0.006;
@@ -31496,15 +31402,21 @@ const SH_HZ = GFX.shHz|0; let shAcc = 1;         // 그림자 지도 갱신 빈�
 const FOV0 = 70; let fovKick = 0, fovRun = 0, windT = 0;   // 48차 — 로블록스 Camera.FieldOfView 기본값이 70 이다(74 였다)
 function fovPunch(k){ fovKick = Math.min(4, fovKick + k); }
 function fovTick(dt){
-  /* 37차 — 달리면 시야가 넓어진다(39차: +6 → +10) — 속도감. 화면 가장자리 속도선(#speedFx)과 바람 소리도 같이 */
   const want = (sprinting && PL.mv) ? 10 : 0;
-  const prev = fovRun; fovRun += (want - fovRun) * Math.min(1, dt*7); if(Math.abs(fovRun) < 0.02) fovRun = 0;
-  const fx = el('speedFx'); if(fx){ const on = want > 0; if(fx.__on !== on){ fx.__on = on; fx.classList.toggle('on', on); } }
-  if(want > 0){ windT -= dt; if(windT <= 0){ windT = 0.26; if(window.__sfx) window.__sfx('wind', 0.35 + 0.65*Math.min(1, fovRun/10)); } }   // 41차 — 속도가 붙을수록 바람이 커지고 높아진다
-  const baseFov = FOV0 + (AIM_VIEW.fov-FOV0)*camAimBlend;
-  if(fovKick <= 0 && fovRun === prev && Math.abs(camera.fov-baseFov-fovRun)<0.001) return;
-  fovKick *= Math.exp(-dt*16); if(fovKick < 0.02) fovKick = 0;
-  camera.fov = baseFov + fovKick + fovRun; camera.updateProjectionMatrix();
+  const prev = fovRun, prevRace = fovRace74;
+  fovRun += (want - fovRun)*Math.min(1, dt*7);
+  if(Math.abs(fovRun)<.02) fovRun=0;
+  const raceFov = raceFovTick(dt);
+  const rush = Math.max(want>0 ? fovRun/10 : 0, raceFov/4);
+  const fx=el('speedFx');
+  if(fx){ const on=want>0 || raceFov>.65;
+    if(fx.__on!==on){ fx.__on=on; fx.classList.toggle('on',on); } }
+  if(want>0 || raceFov>.2){ windT-=dt;
+    if(windT<=0){ windT=.26; if(window.__sfx)window.__sfx('wind',.35+.65*Math.min(1,rush)); } }
+  const baseFov=FOV0+(AIM_VIEW.fov-FOV0)*camAimBlend;
+  if(fovKick<=0 && fovRun===prev && raceFov===prevRace && Math.abs(camera.fov-baseFov-fovRun-raceFov)<.001) return;
+  fovKick*=Math.exp(-dt*16); if(fovKick<.02)fovKick=0;
+  camera.fov=baseFov+fovKick+fovRun+raceFov; camera.updateProjectionMatrix();
 }
 window.__shake = shake;
 
@@ -31653,7 +31565,7 @@ function loop(){
     if(PROF_ON) pS();
     if(!DBG.noSim){ netTick(elapsed); metaTick(elapsed); }
     checkpointTick(elapsed);
-    miniTick(dt);
+    miniTick(raceOn()?elapsed:dt);
     /* 오늘의 임무 — 호스트가 0.5초마다 세고, 모두가 완료를 한 번 본다.
        통신이 없어도(혼자 하기) 돌아야 하므로 metaTick 밖에 둔다. */
     misT -= dt;
@@ -32285,7 +32197,7 @@ Object.assign(window, {
                DMG:SURV_DMG, HEAD:SURV_HEAD, HEAD_R:SURV_HEAD_R, HP:SURV_HP,
                SPAWN_R:SURV_SPAWN_R}),
   __SPRINT:SPRINT, __stamina:()=>stamina, __sprinting:()=>sprinting, __setStamina:(v)=>{ stamina = v; },
-  __raceSlotXZ:raceSlotXZ, __RACE_ROWZ:RACE_ROWZ, __FADE_T:FADE_T, __RACE_SPD:RACE_SPD, __raceHold:raceHold, __flipSet:flipSet, __gaitMe:()=>gaitMe, __camAnc:()=>camAnc, __ACC:{up:ACC_UP, down:ACC_DOWN}, __SPD:SPD, __sheepGait:sheepGait, __STRIDE:{walk:STRIDE_WALK, run:STRIDE_RUN}, __cntShow:cntShow,
+  __race74:{state:RACE74,contains:raceContains,surface:raceSurface,under:raceUnder,before:raceMotion,after:racePhysicsAfter,tick:raceTick,reset:race74Reset,draw:raceArtDraw,art:()=>RACE_ART74}, __raceSlotXZ:raceSlotXZ, __RACE_ROWZ:RACE_ROWZ, __FADE_T:FADE_T, __RACE_SPD:RACE_SPD, __raceHold:raceHold, __flipSet:flipSet, __gaitMe:()=>gaitMe, __camAnc:()=>camAnc, __ACC:{up:ACC_UP, down:ACC_DOWN}, __SPD:SPD, __sheepGait:sheepGait, __STRIDE:{walk:STRIDE_WALK, run:STRIDE_RUN}, __cntShow:cntShow,
   __MINI_NAME:MINI_NAME, __survOn:survOn, __RACE:()=>RACE, __raceRocks:raceRocks, __ROCK:ROCK, __raceGiveWeapon:raceGiveWeapon, __raceGiveArmor:raceGiveArmor, __RACE_RES:RACE_RES, __RACE_FIN:RACE_FIN, __raceHazards:raceHazards, __HAZ:HAZ, __camGY:()=>camGY, __bgmRace:bgmRace, __rockU:rockU, __fovRun:()=>fovRun, __sheepBump:sheepBump, __SHEEP_R2:SHEEP_R2, __kb:()=>({x:kbx, z:kbz}), __kbReset:()=>{ kbx = kbz = 0; }, __RACE_P:()=>RACE_P, __RACE_S:RACE_S, __raceTopAt:raceTopAt, __raceBuild:raceBuild, __raceOn:raceOn, __raceRespawn:raceRespawn, __R_plat:()=>R_plat, __RACE_Z_FIN:RACE_Z_FIN,
   __tpvOn:tpvOn, __tpvKind:tpvKind, __MINI_CAM:()=>MINI_CAM, __DOWN_CAM:()=>DOWN_CAM,
   __camPos:()=>({x:camera.position.x, y:camera.position.y, z:camera.position.z}),

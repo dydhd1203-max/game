@@ -113,6 +113,47 @@ for(let jb=0;jb<3;jb++)for(let jt=1;jt<=2;jt++){
 capMaterial.dispose();
 check('All five closed job hats enclose the skull cap with surface clearance',capCases===30&&exposedCap===0,{capCases,capSamples,exposedCap});
 check('Hat crowns remain rigidly attached to the head across all motion poses',hatDrift<1e-5,{hatDrift});
+// 74차 — 바운스는 같은 관절/옷/모자를 쓴다. 실제 새 자세 함수를 켜서 8개
+// 꾸미기 + 6개 직업 옷을 상승→정점→하강→착지까지 검사한다. 친구는 전송되지
+// 않는 vy/land를 주지 않고 위치 차분만 제공한다. 기존 보행 검사는 그대로다.
+const raceLooks=[...clothes.map(clo=>({clo})),...Array.from({length:6},(_,i)=>({jb:i%3,jt:1+Math.floor(i/3)}))];
+let raceFrames=0,raceArmClips=0,raceLegClips=0,raceClothingClips=0,raceNonFinite=0,raceHatDrift=0;
+const raceExamples=[];
+A.raceFixture.on=true;
+for(const fps of [30,60,120])for(const me of [true,false])for(const look of raceLooks){
+ const s=actor({...look,me,mv:true,run:true,dir:Math.PI/4,air:false,land:0});
+ const hats=new Map();draw(s,0,.7);
+ for(let frame=1;frame<=Math.round(fps*1.5);frame++){
+  const t=frame/fps,air=t<1.2,landing=Math.max(0,t-1.2);
+  s.x=t*4;s.z=t*4;s.y=air?12*t-10*t*t:0;s.air=air;
+  if(me){s.vy=air?12-20*t:0;s.land=air?0:Math.max(0,.22-landing);}
+  A.RACE74.flight=air?2-t:0;
+  A.RACE74.land=air?0:landing<.04?landing/.04:Math.max(0,1-(landing-.04)/.18);
+  draw(s,t,.7);raceFrames++;
+  const phase=air?s.vy>0?'rise':'air':'land';
+  for(let i=0;i<4;i++){
+   raceArmClips+=boxOverlap(A.meshes.arm,i,A.meshes.body)?1:0;
+   for(const mesh of [A.meshes.deco,...Object.values(A.P_jobParts)])for(let j=0;j<mesh.count;j++){
+    const clip=boxOverlap(mesh,j,A.meshes.arm,i);
+    if(clip&&raceExamples.length<6)raceExamples.push({fps,me,look,phase,t,arm:i,part:j});
+    raceClothingClips+=clip?1:0;
+   }
+  }
+  for(const[i,j]of[[0,2],[0,3],[1,2],[1,3]])raceLegClips+=boxOverlap(A.meshes.legs,i,A.meshes.legs,j)||boxOverlap(A.meshes.legs,j,A.meshes.legs,i)?1:0;
+  for(const mesh of Object.values(A.meshes))for(let i=0;i<mesh.count;i++)raceNonFinite+=matrix(mesh,i).elements.every(Number.isFinite)?0:1;
+  const invHead=matrix(A.meshes.head).invert();
+  for(const[key,mesh]of Object.entries(A.P_jobParts))if(key.endsWith('Crown')&&mesh.count){
+   const local=invHead.clone().multiply(matrix(mesh));
+   if(hats.has(key))raceHatDrift=Math.max(raceHatDrift,...local.elements.map((v,i)=>Math.abs(v-hats.get(key)[i])));
+   else hats.set(key,local.elements.slice());
+  }
+ }
+}
+A.raceFixture.on=false;A.RACE74.flight=0;A.RACE74.land=0;
+check('Cloud-race launch and landing keep all outfits clear at 30/60/120 Hz for local and remote players',
+ raceArmClips===0&&raceLegClips===0&&raceClothingClips===0&&raceNonFinite===0,
+ {raceFrames,raceArmClips,raceLegClips,raceClothingClips,raceNonFinite,raceExamples});
+check('Cloud-race hat crowns stay rigidly attached throughout the full bounce',raceHatDrift<1e-5,{raceHatDrift});
 const weaponCount=vm.runInContext('WEAPONS.length',context);let gunClips=0,gripError=0,gunCases=0;
 for(let wp=1;wp<weaponCount;wp++)for(const kick of [0,.8,1.6])for(const scale of [.7,1.5])for(const pose of poses){
  draw(actor({wp,kick,we:6,jb:0,jt:2,...pose}),10,scale);gunCases++;

@@ -1,15 +1,16 @@
 # 검사 (테스트 하네스)
 
-## 현재 검증 — 73차 교실 안정화
+## 현재 검증 — 74차 구름 운동회 / 73차 교실 안정화
 
 저장소 뿌리에서 `node 깃허브에올릴것/검사/check-current.mjs`를 실행한다.
 처음 한 번은 검사 폴더에서 `npm i three@0.160.0 linkedom playwright`로 필요한 것을 받고 `npx playwright install chromium`을 실행한다.
 push·pull request 마다 `.github/workflows/checks.yml`이 같은 명령을 자동으로 돌린다.
 기본 묶음은 Node 검사 34개 파일이다. GitHub Actions에서 Windows와 Linux를 모두 검사한다.
-`--browser-smoke`는 핵심 숨김 브라우저 검사 4개(`t73-classroom`, `t73-performance`, `t72-hand-grip`, `t71-castle-shot`)를 순서대로 실행하며 push·PR 때 자동으로 돈다.
+`--browser-smoke`는 핵심 숨김 브라우저 검사 5개(`t73-classroom`, `t73-performance`, `t74-race-view`, `t72-hand-grip`, `t71-castle-shot`)를 순서대로 실행하며 push·PR 때 자동으로 돈다.
 `--render`는 Node 검사와 전체 숨김 브라우저 묶음을 실행한다. GitHub Actions 수동 실행의 `render` 선택으로도 실행할 수 있다.
 `t73-network-static`은 실제 게임 함수를 21개 독립 VM 클라이언트에서 실행해 공동 결제·중복 명중·새로고침·지연 전달을 검증한다. 실제 Firebase에 접속하지 않는다.
 `t73-performance`는 21개 아바타와 총 발광 합성 전후 픽셀을 검사한다. SwiftShader의 CPU 시간은 그램의 실제 FPS가 아니다. 자세한 범위는 [73차 기록](../73차-교실안정화.md)을 확인한다.
+`t74-race-view`는 21명 화면, 7구간의 실제 플레이 시점, 상승·정점·착지, 3개 씨앗×30/60/120Hz의 바운스·슬라이드·전체 경로를 검사한다. `--capture-only`는 화면과 렌더 비용만 갱신한다. 순수 물리·보상 검사는 `t54-race-static`에 있고, 비행 자세의 옷·모자 검사는 `t61-avatar-clearance-static`에 있다. 상세 결과는 [74차 기록](../74차-구름운동회-구현.md)을 확인한다.
 
 ## 2026-09-19 검사 기록
 

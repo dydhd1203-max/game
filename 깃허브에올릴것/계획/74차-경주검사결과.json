@@ -1,0 +1,1551 @@
+{
+  "seed": 740021,
+  "players": 21,
+  "graphics": {
+    "shadow": 2048,
+    "bloom": 0,
+    "aa": 2,
+    "pr": 0.85,
+    "shHz": 0,
+    "q": "mid",
+    "width": 1088,
+    "height": 680
+  },
+  "cpuMs": {
+    "p50": 1.8999998569488525,
+    "p95": 4.5,
+    "samples": 360
+  },
+  "overflow": [],
+  "captures": [
+    {
+      "name": "start",
+      "calls": 142,
+      "triangles": 925539,
+      "memory": {
+        "geometries": 134,
+        "textures": 25
+      },
+      "programs": 39,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 6,
+        "visibleTriangles": 52979,
+        "instances": 8,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "middle",
+      "calls": 60,
+      "triangles": 476056,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 9,
+        "visibleTriangles": 83275,
+        "instances": 42,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "finish",
+      "calls": 58,
+      "triangles": 406362,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 8,
+        "visibleTriangles": 48428,
+        "instances": 8,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "play-section-1",
+      "calls": 54,
+      "triangles": 438228,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-1",
+      "calls": 54,
+      "triangles": 438228,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 6,
+        "visibleTriangles": 64361,
+        "instances": 8,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "play-section-2",
+      "calls": 60,
+      "triangles": 467752,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-2",
+      "calls": 60,
+      "triangles": 467752,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 9,
+        "visibleTriangles": 79123,
+        "instances": 36,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "play-section-3",
+      "calls": 60,
+      "triangles": 443320,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-3",
+      "calls": 60,
+      "triangles": 443320,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 9,
+        "visibleTriangles": 66907,
+        "instances": 42,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "play-section-4",
+      "calls": 60,
+      "triangles": 456208,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-4",
+      "calls": 60,
+      "triangles": 456208,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 9,
+        "visibleTriangles": 73351,
+        "instances": 40,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "play-section-5",
+      "calls": 58,
+      "triangles": 480914,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-5",
+      "calls": 58,
+      "triangles": 480914,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 8,
+        "visibleTriangles": 85704,
+        "instances": 18,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "play-section-6",
+      "calls": 58,
+      "triangles": 455424,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-6",
+      "calls": 58,
+      "triangles": 455424,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 8,
+        "visibleTriangles": 72959,
+        "instances": 12,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "play-section-7",
+      "calls": 58,
+      "triangles": 446148,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-7",
+      "calls": 58,
+      "triangles": 446148,
+      "memory": {
+        "geometries": 137,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 8,
+        "visibleTriangles": 68321,
+        "instances": 8,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "overview",
+      "calls": 493,
+      "triangles": 2861996,
+      "memory": {
+        "geometries": 212,
+        "textures": 25
+      },
+      "programs": 46
+    }
+  ],
+  "colorAttributes": [
+    {
+      "key": "pad",
+      "vertexColors": true,
+      "valid": true
+    },
+    {
+      "key": "padTrim",
+      "vertexColors": true,
+      "valid": true
+    },
+    {
+      "key": "bar",
+      "vertexColors": true,
+      "valid": true
+    },
+    {
+      "key": "ball",
+      "vertexColors": true,
+      "valid": true
+    },
+    {
+      "key": "metal",
+      "vertexColors": true,
+      "valid": true
+    }
+  ],
+  "sections": [
+    "구름 출발광장",
+    "통통 도넛섬",
+    "빙글 캔디마당",
+    "출렁 구름다리",
+    "붕붕 하늘항로",
+    "무지개 미끄럼",
+    "별빛 대도약"
+  ],
+  "platformCount": 23,
+  "renderer": "WebKit WebGL",
+  "airCaptures": [
+    {
+      "name": "compression",
+      "y": 1,
+      "vy": 0,
+      "ground": true,
+      "flight": 0,
+      "fov": 70.00362906156802,
+      "yaw": 3.141592653589793,
+      "pitch": -0.22
+    },
+    {
+      "name": "ascent",
+      "y": 5.758333333333638,
+      "vy": 15.999999999999446,
+      "ground": false,
+      "flight": 0.2510000000000213,
+      "fov": 72.02515122173719,
+      "yaw": 3.141592653589793,
+      "pitch": -0.22
+    },
+    {
+      "name": "apex",
+      "y": 10.548333333333346,
+      "vy": 0.39999999999839275,
+      "ground": false,
+      "flight": 0.8510000000000618,
+      "fov": 73.88031740160828,
+      "yaw": 3.141592653589793,
+      "pitch": -0.22
+    },
+    {
+      "name": "landing",
+      "y": 3,
+      "vy": 0,
+      "ground": true,
+      "flight": 0,
+      "fov": 73.92108498706874,
+      "yaw": 3.141592653589793,
+      "pitch": -0.22
+    }
+  ],
+  "physics": {
+    "flights": [
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 8,
+        "kind": "small",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 7,
+        "forward": 10.548529369291536,
+        "peak": 1.760000000000012,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 9,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 10,
+        "forward": 24.97693687311201,
+        "peak": 4.363333333333344,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 10,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 11,
+        "forward": 24.976936873112038,
+        "peak": 4.363333333333344,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 11,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 2,
+        "forward": 24.976936873112038,
+        "peak": 4.363333333333344,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 17,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 18,
+        "forward": 26.973121992774736,
+        "peak": 7.743333333333339,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 18,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 19,
+        "forward": 26.973121992774736,
+        "peak": 7.743333333333339,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 21,
+        "kind": "final",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 22,
+        "forward": 41.12139124052953,
+        "peak": 9.361111111111114,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 8,
+        "kind": "small",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 7,
+        "forward": 10.487852983758799,
+        "peak": 1.8400000000000103,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 9,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 10,
+        "forward": 25.047517495620838,
+        "peak": 4.49166666666666,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 10,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 11,
+        "forward": 25.047517495620923,
+        "peak": 4.49166666666666,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 11,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 2,
+        "forward": 25.047517495620923,
+        "peak": 4.49166666666666,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 17,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 18,
+        "forward": 27.405561421638367,
+        "peak": 7.911666666666662,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 18,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 19,
+        "forward": 27.405561421638367,
+        "peak": 7.911666666666662,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 21,
+        "kind": "final",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 22,
+        "forward": 40.84584168032109,
+        "peak": 9.548333333333318,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 8,
+        "kind": "small",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 7,
+        "forward": 10.295705562057108,
+        "peak": 1.8815277777777835,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 9,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 10,
+        "forward": 25.02847021984833,
+        "peak": 4.555833333333325,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 10,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 11,
+        "forward": 25.028470219848316,
+        "peak": 4.555833333333325,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 11,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 2,
+        "forward": 24.85553478256307,
+        "peak": 4.555833333333325,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 17,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 18,
+        "forward": 27.213572837155823,
+        "peak": 7.9965277777778,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 18,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 19,
+        "forward": 27.213572837155823,
+        "peak": 7.9965277777778,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 21,
+        "kind": "final",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 22,
+        "forward": 40.65375634832833,
+        "peak": 9.64194444444449,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 8,
+        "kind": "small",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 7,
+        "forward": 10.548529369291536,
+        "peak": 1.760000000000012,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 9,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 10,
+        "forward": 24.97693687311201,
+        "peak": 4.363333333333344,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 10,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 11,
+        "forward": 24.976936873112038,
+        "peak": 4.363333333333344,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 11,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 2,
+        "forward": 24.976936873112038,
+        "peak": 4.363333333333344,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 17,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 18,
+        "forward": 26.973121992774736,
+        "peak": 7.743333333333339,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 18,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 19,
+        "forward": 26.973121992774736,
+        "peak": 7.743333333333339,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 21,
+        "kind": "final",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 22,
+        "forward": 41.12139124052953,
+        "peak": 9.361111111111114,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 8,
+        "kind": "small",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 7,
+        "forward": 10.487852983758799,
+        "peak": 1.8400000000000103,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 9,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 10,
+        "forward": 25.047517495620838,
+        "peak": 4.49166666666666,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 10,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 11,
+        "forward": 25.047517495620923,
+        "peak": 4.49166666666666,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 11,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 2,
+        "forward": 25.047517495620923,
+        "peak": 4.49166666666666,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 17,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 18,
+        "forward": 27.405561421638367,
+        "peak": 7.911666666666662,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 18,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 19,
+        "forward": 27.405561421638367,
+        "peak": 7.911666666666662,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 21,
+        "kind": "final",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 22,
+        "forward": 40.84584168032109,
+        "peak": 9.548333333333318,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 8,
+        "kind": "small",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 7,
+        "forward": 10.295705562057108,
+        "peak": 1.8815277777777835,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 9,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 10,
+        "forward": 25.02847021984833,
+        "peak": 4.555833333333325,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 10,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 11,
+        "forward": 25.028470219848316,
+        "peak": 4.555833333333325,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 11,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 2,
+        "forward": 24.85553478256307,
+        "peak": 4.555833333333325,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 17,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 18,
+        "forward": 27.213572837155823,
+        "peak": 7.9965277777778,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 18,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 19,
+        "forward": 27.213572837155823,
+        "peak": 7.9965277777778,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 21,
+        "kind": "final",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 22,
+        "forward": 40.65375634832833,
+        "peak": 9.64194444444449,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 8,
+        "kind": "small",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 7,
+        "forward": 10.548529369291536,
+        "peak": 1.760000000000012,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 9,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 10,
+        "forward": 24.97693687311201,
+        "peak": 4.363333333333344,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 10,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 11,
+        "forward": 24.976936873112038,
+        "peak": 4.363333333333344,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 11,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 2,
+        "forward": 24.976936873112038,
+        "peak": 4.363333333333344,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 17,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 18,
+        "forward": 26.973121992774736,
+        "peak": 7.743333333333339,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 18,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 19,
+        "forward": 26.973121992774736,
+        "peak": 7.743333333333339,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 21,
+        "kind": "final",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 22,
+        "forward": 41.12139124052953,
+        "peak": 9.361111111111114,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 8,
+        "kind": "small",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 7,
+        "forward": 10.487852983758799,
+        "peak": 1.8400000000000103,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 9,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 10,
+        "forward": 25.047517495620838,
+        "peak": 4.49166666666666,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 10,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 11,
+        "forward": 25.047517495620923,
+        "peak": 4.49166666666666,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 11,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 2,
+        "forward": 25.047517495620923,
+        "peak": 4.49166666666666,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 17,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 18,
+        "forward": 27.405561421638367,
+        "peak": 7.911666666666662,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 18,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 19,
+        "forward": 27.405561421638367,
+        "peak": 7.911666666666662,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 21,
+        "kind": "final",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 22,
+        "forward": 40.84584168032109,
+        "peak": 9.548333333333318,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 8,
+        "kind": "small",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 7,
+        "forward": 10.295705562057108,
+        "peak": 1.8815277777777835,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 9,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 10,
+        "forward": 25.02847021984833,
+        "peak": 4.555833333333325,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 10,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 11,
+        "forward": 25.028470219848316,
+        "peak": 4.555833333333325,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 11,
+        "kind": "bounce",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 2,
+        "forward": 24.85553478256307,
+        "peak": 4.555833333333325,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 17,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 18,
+        "forward": 27.213572837155823,
+        "peak": 7.9965277777778,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 18,
+        "kind": "high",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 19,
+        "forward": 27.213572837155823,
+        "peak": 7.9965277777778,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 21,
+        "kind": "final",
+        "launched": true,
+        "launches": 1,
+        "landed": true,
+        "landingPad": 22,
+        "forward": 40.65375634832833,
+        "peak": 9.64194444444449,
+        "maxViewChange": 0
+      }
+    ],
+    "carries": [
+      {
+        "seed": 13,
+        "fps": 30,
+        "grounded": true,
+        "supported": true,
+        "shift": 0.2681103358151242
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "grounded": true,
+        "supported": true,
+        "shift": 0.2681103358151393
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "grounded": true,
+        "supported": true,
+        "shift": 0.26811033581387944
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "grounded": true,
+        "supported": true,
+        "shift": 2.3912909590562283
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "grounded": true,
+        "supported": true,
+        "shift": 2.3912909590562297
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "grounded": true,
+        "supported": true,
+        "shift": 2.3912909590566525
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "grounded": true,
+        "supported": true,
+        "shift": 2.4431099460506185
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "grounded": true,
+        "supported": true,
+        "shift": 2.4431099460506185
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "grounded": true,
+        "supported": true,
+        "shift": 2.443109946051217
+      }
+    ],
+    "slides": [
+      {
+        "seed": 13,
+        "fps": 30,
+        "fast": 18.17565271885227,
+        "released": 2.225725513117247,
+        "grounded": true,
+        "supported": true
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "fast": 18.175652718852273,
+        "released": 2.2257255131172498,
+        "grounded": true,
+        "supported": true
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "fast": 18.175652718852273,
+        "released": 2.2257255131172458,
+        "grounded": true,
+        "supported": true
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "fast": 18.17565271885227,
+        "released": 2.225725513117247,
+        "grounded": true,
+        "supported": true
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "fast": 18.175652718852273,
+        "released": 2.2257255131172498,
+        "grounded": true,
+        "supported": true
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "fast": 18.175652718852273,
+        "released": 2.2257255131172458,
+        "grounded": true,
+        "supported": true
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "fast": 18.17565271885227,
+        "released": 2.225725513117247,
+        "grounded": true,
+        "supported": true
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "fast": 18.175652718852273,
+        "released": 2.2257255131172498,
+        "grounded": true,
+        "supported": true
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "fast": 18.175652718852273,
+        "released": 2.2257255131172458,
+        "grounded": true,
+        "supported": true
+      }
+    ],
+    "routes": [
+      {
+        "seed": 13,
+        "fps": 30,
+        "finished": true,
+        "seconds": 52.43333333333333,
+        "falls": 0,
+        "checkpoint": 7,
+        "z": 594.0859377650231,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "finished": true,
+        "seconds": 52.2,
+        "falls": 0,
+        "checkpoint": 7,
+        "z": 594.042346496678,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "finished": true,
+        "seconds": 52.05,
+        "falls": 0,
+        "checkpoint": 7,
+        "z": 594.0131364982445,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "finished": true,
+        "seconds": 52.5,
+        "falls": 0,
+        "checkpoint": 7,
+        "z": 594.2598363349576,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "finished": true,
+        "seconds": 52.21666666666667,
+        "falls": 0,
+        "checkpoint": 7,
+        "z": 594.1095872774039,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "finished": true,
+        "seconds": 52.05,
+        "falls": 0,
+        "checkpoint": 7,
+        "z": 594.0131364982453,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "finished": true,
+        "seconds": 52.4,
+        "falls": 0,
+        "checkpoint": 7,
+        "z": 594.1416509090755,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "finished": true,
+        "seconds": 52.13333333333333,
+        "falls": 0,
+        "checkpoint": 7,
+        "z": 594.058664498768,
+        "maxViewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "finished": true,
+        "seconds": 51.96666666666667,
+        "falls": 0,
+        "checkpoint": 7,
+        "z": 594.0097569293572,
+        "maxViewChange": 0
+      }
+    ],
+    "clocks": [
+      {
+        "fps": 30,
+        "mode": "normal",
+        "elapsed": 0.9999999999999432,
+        "expected": 1
+      },
+      {
+        "fps": 30,
+        "mode": "popup",
+        "elapsed": 0.9999999999999432,
+        "expected": 1
+      },
+      {
+        "fps": 30,
+        "mode": "falling",
+        "elapsed": 0.9999999999999432,
+        "expected": 1
+      },
+      {
+        "fps": 30,
+        "mode": "paused",
+        "elapsed": 0,
+        "expected": 0
+      },
+      {
+        "fps": 60,
+        "mode": "normal",
+        "elapsed": 0.9999999999999432,
+        "expected": 1
+      },
+      {
+        "fps": 60,
+        "mode": "popup",
+        "elapsed": 0.9999999999999432,
+        "expected": 1
+      },
+      {
+        "fps": 60,
+        "mode": "falling",
+        "elapsed": 0.9999999999999432,
+        "expected": 1
+      },
+      {
+        "fps": 60,
+        "mode": "paused",
+        "elapsed": 0,
+        "expected": 0
+      },
+      {
+        "fps": 120,
+        "mode": "normal",
+        "elapsed": 1.0000000000007958,
+        "expected": 1
+      },
+      {
+        "fps": 120,
+        "mode": "popup",
+        "elapsed": 1.0000000000007958,
+        "expected": 1
+      },
+      {
+        "fps": 120,
+        "mode": "falling",
+        "elapsed": 1.0000000000007958,
+        "expected": 1
+      },
+      {
+        "fps": 120,
+        "mode": "paused",
+        "elapsed": 0,
+        "expected": 0
+      }
+    ],
+    "returnBounces": [
+      {
+        "fps": 30,
+        "first": true,
+        "contacted": true,
+        "second": true
+      },
+      {
+        "fps": 60,
+        "first": true,
+        "contacted": true,
+        "second": true
+      },
+      {
+        "fps": 120,
+        "first": true,
+        "contacted": true,
+        "second": true
+      }
+    ],
+    "actualLoopClocks": [
+      {
+        "mode": "normal",
+        "fps": 10,
+        "elapsed": 0.9999999999999432,
+        "hostElapsed": 0.9999999999999432,
+        "expected": 1,
+        "moved": 9.660464528956098
+      },
+      {
+        "mode": "popup",
+        "fps": 10,
+        "elapsed": 0.9999999999999432,
+        "hostElapsed": 0.9999999999999432,
+        "expected": 1,
+        "moved": 0
+      },
+      {
+        "mode": "paused",
+        "fps": 10,
+        "elapsed": 0,
+        "hostElapsed": 0,
+        "expected": 0,
+        "moved": 9.660464528956098
+      }
+    ],
+    "leftRace": {
+      "on": false,
+      "slip": 0,
+      "hit": 0,
+      "fall": 0,
+      "knock": null,
+      "velocity": [
+        0,
+        0,
+        0
+      ],
+      "flight": 0,
+      "pending": null,
+      "pulses": 0
+    }
+  }
+}
