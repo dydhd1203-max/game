@@ -142,7 +142,7 @@ check('Two-part legs stay joined at the knee, keep equal segment lengths and ben
  const jerky=jumps.filter(j=>j>.09).length;
  check('Only part of a crowd jerks its head in sudden twitches, without moving anyone',jerky>=4&&jerky<=18&&crowd.every((w,i)=>w.x===i&&w.z===0),{jerky,of:crowd.length});}
 {const src=String(A.ZSKIN.onBeforeCompile),skinGeos=[A.meshes.W_head,A.meshes.W_legs,A.meshes.W_paw].map(m=>m.geometry.getAttribute('zwk'));
- check('Dried wounds live in the skin shader (no new pieces) and never animate or flow',A.ZSKIN.customProgramCacheKey()==='zombie-wound-66'&&skinGeos.every(a=>a&&a.count>0)&&[1,2,3].every((v,i)=>skinGeos[i].getX(0)===v)&&!/uTime|time|drip|flow/i.test(src));
+ check('Dried wounds live in the skin shader (no new pieces) and never animate or flow',A.ZSKIN.customProgramCacheKey()==='zombie-wound-78'&&skinGeos.every(a=>a&&a.count>0)&&[1,2,3].every((v,i)=>skinGeos[i].getX(0)===v)&&!/uTime|time|drip|flow/i.test(src));
  const p=snapshot(actor(0,{id:3})),col=A.meshes.W_legs.instanceColor.array;
  check('Trouser thighs are marked to skip skin wounds while forearms keep them',col[0]>0&&col[3]>0&&col[6]<0&&col[9]<0&&p.W_legs.length===4);}
 // 66차 심사 — 상처 씨앗(살 조각의 인스턴스 색)은 해질녘·새벽(NIGHTK)에도, 쫓기 시작해도 바뀌지 않는다. 밤 어둡게 하기는 살 셰이더(uZNight)가 한다.

@@ -1,0 +1,10 @@
+[PASS] t73-classroom — PASS: classroom health, 21 purchases, reconnect, real clock, bounded uploads, spiral view, unchanged graphics
+[PASS] t73-performance — PASS: 21 avatars, bounded instance capacity, identical glow pixels, unchanged quality
+[PASS] t74-race-view — PASS: race78 21 avatars, all sections present, bounded instance capacity, unchanged mid preset
+[PASS] t75-race-playview — PASS: race78 actual start/player camera, 21 avatars, visible obstacle bounds, actual encounters, unchanged mid quality
+[PASS] t76-wall-view — 125/125 wall checks passed; 50 screenshots in C:\Users\Yu\Documents\Codex\2026-09-18\new-chat-3\outputs\game\artifacts\76-wall-view
+[PASS] t78-lobby-view — {"first":{"phase":"lobby","t":0,"started":true,"children":2},"mechanics":{"waited":{"phase":"lobby","t":0,"day":1,"zombies":0},"moved":2.5245613589518836,"changed":true,"hat":3,"guestStart":false,"graphics":{"shadow":2048,"bloom":0,"aa":2,"pr":0.85,"shHz":0,"q":"mid"},"roomMeshes":2},"ending":{"phase":"day","t":140,"day":1,"goal":"18일 밤까지 함께 버텨라!","hidden":true,"roomVisible":false,"blockedDress":false,"zombies":0},"errors":[]}
+[PASS] t78-lobby-network — 25/25 passed
+[PASS] t72-hand-grip — t72-hand-grip: 6 passed
+[PASS] t71-castle-shot — 11/11 71차 성벽 총알 규칙 검사 통과
+All selected check files passed.

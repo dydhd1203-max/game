@@ -41,6 +41,7 @@ try{
   await page.waitForFunction(()=>window.__G.started&&window.__wall76);
   await page.evaluate(()=>{
     const W=window,G=W.__G;
+    W.__introDone(); // Leave the real waiting room before world-building fixtures.
     W.__freezeWallView();W.__DBG().noLogic=true;G.phase='day';G.paused=false;G.day=1;
     W.__base.forEach(r=>{r.w=100000;r.s=100000;r.o=100000;});W.__recompute();
     W.__setAim(false);W.__clear();W.__buildApi.clearBuildCoop();W.__selectTool('mine');
@@ -63,19 +64,22 @@ try{
     W.__wallView.measure=o=>{
       const T=W.__THREE,blocks=W.__blocks(o.t,o.lv,o.branch,W.__buildApi.fortStyleOf(o.g));
       const actual=new T.Matrix4(),expected=new T.Matrix4(),p=new T.Vector3(),q=new T.Quaternion(),s=new T.Vector3(),e=new T.Euler();
-      const d=W.__DIRS[W.__wall76.sector(o.x,o.z)];let matrixError=0,minT=Infinity,maxT=-Infinity,minN=Infinity,maxN=-Infinity;
+      const d=W.__DIRS[W.__wall76.sector(o.x,o.z)];let matrixError=0,minT=Infinity,maxT=-Infinity,minN=Infinity,maxN=-Infinity,minY=Infinity,maxY=-Infinity;
       blocks.forEach((b,i)=>{
         const mesh=W.__struMeshes.get(o._rk[i]);mesh.getMatrixAt(o._ri[i],actual);
         const pose=W.__wall76.partPose(o,b);p.set(...pose.slice(0,3));q.setFromEuler(e.set(0,pose[3],pose[4],'YXZ'));
         s.set(b[4]??1,b[5]??1,b[6]??1);expected.compose(p,q,s);
         for(let j=0;j<16;j++)matrixError=Math.max(matrixError,Math.abs(actual.elements[j]-expected.elements[j]));
         mesh.geometry.computeBoundingBox();const box=mesh.geometry.boundingBox;
+        const vertices=mesh.geometry.attributes.position;
+        for(let j=0;j<vertices.count;j++){p.fromBufferAttribute(vertices,j).applyMatrix4(actual);minY=Math.min(minY,p.y);maxY=Math.max(maxY,p.y);}
         for(const x of [box.min.x,box.max.x])for(const y of [box.min.y,box.max.y])for(const z of [box.min.z,box.max.z]){
           p.set(x,y,z).applyMatrix4(actual);const t=-p.x*d.dz+p.z*d.dx,n=p.x*d.dx+p.z*d.dz;
           minT=Math.min(minT,t);maxT=Math.max(maxT,t);minN=Math.min(minN,n);maxN=Math.max(maxN,n);
         }
       });
       return {r:o.r,lv:o.lv,x:o.x,z:o.z,parts:blocks.length,matrixError,frontWidth:maxT-minT,depth:maxN-minN,
+        meshTop:maxY-W.__GY,meshBottom:minY-W.__GY,statHeight:W.__bs(o.t,'hi',o.lv),collisionHeight:W.__bldH[(o.x+W.__HW)+(o.z+W.__HW)*Math.sqrt(W.__bldH.length)]-W.__GY,
         packedR:W.__buildApi.packBuilding(o).r};
     };
   });
@@ -140,12 +144,14 @@ try{
       return V.measure(W.__STRU.get(F.id));
     });
     check(`${label} completed renderer and serialized direction match`,completed.r===fixture.r&&completed.packedR===fixture.r&&completed.matrixError<1e-5,completed);
+    check(`${label} completed real vertices and collision share the twenty-percent taller height`,Math.abs(completed.meshTop-1.68)<.002&&Math.abs(completed.collisionHeight-1.68)<.00001&&completed.statHeight===1.68&&completed.meshBottom>=-.064&&completed.meshBottom<=.001,completed);
     await capture('03-completed');
     const upgraded=await page.evaluate(()=>{
       const W=window,V=W.__wallView,F=V.fixture,o=W.__STRU.get(F.id);W.__up(o);
       V.render(`${F.g+1}모둠 ${F.t==='wwall'?'나무벽':'돌벽'} · 실제 강화 2단계`);return V.measure(o);
     });
     check(`${label} real upgrade preserves its direction`,upgraded.lv===2&&upgraded.r===fixture.r&&upgraded.matrixError<1e-5,upgraded);
+    check(`${label} real upgrade preserves the taller grounded mesh and collision`,Math.abs(upgraded.meshTop-completed.meshTop)<.00001&&Math.abs(upgraded.meshBottom-completed.meshBottom)<.00001&&Math.abs(upgraded.collisionHeight-1.68)<.00001);
     await capture('04-upgraded');
     const moved=await page.evaluate(()=>{
       const W=window,V=W.__wallView,F=V.fixture,A=W.__buildApi,o=W.__STRU.get(F.id),d=W.__DIRS[F.g];let target;
@@ -159,6 +165,7 @@ try{
       return {...V.measure(current),requested:target,moved:current.x===target[0]&&current.z===target[1]};
     });
     check(`${label} actual move preserves direction and updates renderer`,moved.moved&&moved.r===fixture.r&&moved.matrixError<1e-5,moved);
+    check(`${label} actual move carries its taller collision and exact base height`,Math.abs(moved.meshTop-completed.meshTop)<.00001&&Math.abs(moved.meshBottom-completed.meshBottom)<.00001&&Math.abs(moved.collisionHeight-1.68)<.00001);
     await capture('05-moved');
     const restored=await page.evaluate(()=>{
       const W=window,V=W.__wallView,F=V.fixture,A=W.__buildApi,o=W.__STRU.get(F.id),pack=A.packBuilding(o);

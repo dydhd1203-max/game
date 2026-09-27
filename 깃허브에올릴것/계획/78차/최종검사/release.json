@@ -1,0 +1,27 @@
+{
+  "checkedAt": "2026-09-27T11:32:39.331Z",
+  "passed": true,
+  "files": [
+    {
+      "role": "원본",
+      "path": "C:\\Users\\Yu\\Documents\\Codex\\2026-09-18\\new-chat-3\\outputs\\game\\클로드\\index.html",
+      "bytes": 2756133,
+      "version": "78차 · 우리 반 수비대",
+      "sha256": "f7a7bef3505d59a3105ed15c51fe45c139e29600951a74eceb784f0d05ed6106"
+    },
+    {
+      "role": "배포용",
+      "path": "C:\\Users\\Yu\\Documents\\Codex\\2026-09-18\\new-chat-3\\outputs\\game\\클로드\\배포용\\index.html",
+      "bytes": 2756133,
+      "version": "78차 · 우리 반 수비대",
+      "sha256": "f7a7bef3505d59a3105ed15c51fe45c139e29600951a74eceb784f0d05ed6106"
+    },
+    {
+      "role": "실행/전달 파일",
+      "path": "C:\\Users\\Yu\\Desktop\\좀비의 밤\\index.html",
+      "bytes": 2756133,
+      "version": "78차 · 우리 반 수비대",
+      "sha256": "f7a7bef3505d59a3105ed15c51fe45c139e29600951a74eceb784f0d05ed6106"
+    }
+  ]
+}

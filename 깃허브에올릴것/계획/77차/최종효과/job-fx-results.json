@@ -1,0 +1,121 @@
+{
+  "results": [
+    {
+      "name": "Job 0 tier 2 running renders real foot FX without a following ring",
+      "pass": true,
+      "detail": {
+        "steps": 4,
+        "live": 1,
+        "banks": 1,
+        "ring": 0,
+        "ringVisible": false,
+        "finite": true
+      }
+    },
+    {
+      "name": "Job 1 tier 2 running renders real foot FX without a following ring",
+      "pass": true,
+      "detail": {
+        "steps": 4,
+        "live": 1,
+        "banks": 1,
+        "ring": 0,
+        "ringVisible": false,
+        "finite": true
+      }
+    },
+    {
+      "name": "Job 2 tier 2 running renders real foot FX without a following ring",
+      "pass": true,
+      "detail": {
+        "steps": 4,
+        "live": 1,
+        "banks": 1,
+        "ring": 0,
+        "ringVisible": false,
+        "finite": true
+      }
+    },
+    {
+      "name": "Job 1 idle has no persistent ring or foot trail",
+      "pass": true,
+      "detail": {
+        "ring": 0,
+        "visible": false,
+        "marks": 0
+      }
+    },
+    {
+      "name": "21 real promoted avatars keep foot FX bounded and following rings absent",
+      "pass": true,
+      "detail": {
+        "people": 21,
+        "steps": 126,
+        "maxMarks": 29,
+        "maxBanks": 3,
+        "ring": 0,
+        "ringVisible": false,
+        "triangles": 2039031
+      }
+    },
+    {
+      "name": "Actual movement and default race camera show local third-person foot FX",
+      "pass": true,
+      "detail": {
+        "third": true,
+        "steps": 5,
+        "marks": 2,
+        "position": [
+          -4.8724186988558636e-15,
+          87,
+          12.786317999999984
+        ],
+        "camera": [
+          -3.869195081478041e-15,
+          89.94666958771757,
+          4.594375489912126
+        ]
+      }
+    },
+    {
+      "name": "No page or shader errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "images": [
+    {
+      "file": "job0-tier2-run.png",
+      "label": "0직업 2차 달리기"
+    },
+    {
+      "file": "job1-tier2-run.png",
+      "label": "1직업 2차 달리기"
+    },
+    {
+      "file": "job2-tier2-run.png",
+      "label": "2직업 2차 달리기"
+    },
+    {
+      "file": "job1-tier2-idle.png",
+      "label": "상시 고리 없는 대기"
+    },
+    {
+      "file": "job0-tier2-promote-62.png",
+      "label": "0직업 2차 전직 0.62s"
+    },
+    {
+      "file": "job2-tier2-promote-62.png",
+      "label": "2직업 2차 전직 0.62s"
+    },
+    {
+      "file": "21-promoted-running.png",
+      "label": "21명 직업 발 효과"
+    },
+    {
+      "file": "default-third-person.png",
+      "label": "실제 기본 경주 카메라"
+    }
+  ],
+  "errors": []
+}

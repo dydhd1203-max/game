@@ -84,6 +84,7 @@ const pluck=(f,dur,vol)=>LOG.gain.push(vol), puff=(dur,vol)=>LOG.gain.push(vol),
 const FX2={rareT:0,nightDay:0};
 `;
 const parts=[fixture,
+  fn('waiting78'),fn('pregame78'),
   declaration('PROG_REF'),declaration('PROG_OVER'),declaration('progRef'),fn('prog'),fn('bossDays'),fn('bossIndex'),
   declaration('BOSS_K4'),fn('bossWolfK'),declaration('WOLF_T'),declaration('NIGHT_DEF'),
   declaration('NIGHT_LOOK'),declaration('NIGHT_LOOK_BOSS'),fn('nightLookBoss'),fn('nightArt'),fn('nightFx'),

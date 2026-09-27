@@ -75,8 +75,8 @@ let gunFx=true;for(const branch of ['rapid','sniper'])for(let lv=3;lv<=7;lv++)fo
   &&A.events.some(e=>e.kind==='sound'&&e.v[0]===(branch==='rapid'?'towerRapid':'towerSniper'));
 }
 check('Every gun level fires its muzzle tracer and flash toward targets with weapon-only recoil state',gunFx);
-let oldFx=true;for(const [lv,branch]of [[2,'rapid'],[2,'sniper'],[3,undefined],[3,'unknown']]){const w=wolf(4,1),o=tower('arrow',lv,branch);reset([w]);A.towerAttack(o,w);oldFx&&=A.events.some(e=>e.kind==='arrow')&&!A.events.some(e=>e.kind==='bullet')&&o.gunKick===undefined;}
-check('Unbranched, invalid and pre-level-three towers retain arrow visuals',oldFx);
+let oldFx=true;for(const [lv,branch]of [[2,'rapid'],[2,'sniper'],[3,undefined],[3,'unknown']]){const w=wolf(4,1),o=tower('arrow',lv,branch);reset([w]);A.towerAttack(o,w);const shot=A.events.find(e=>e.kind==='arrow'),m=A.buildingGunMuzzle(o);oldFx&&=!!shot&&!A.events.some(e=>e.kind==='bullet')&&o.gunKick===1&&Math.abs(o.gunYaw-Math.PI/2)<1e-9&&JSON.stringify(shot.v.slice(0,3))===JSON.stringify([m.x,m.y,m.z])&&Math.abs(m.y-(A.buildStat(o,'hi')-.05))<1e-9;}
+check('Unbranched, invalid and pre-level-three towers retain arrows fired from their visible rotating bow tip',oldFx);
 reset([]);A.SFX.towerRapid();A.SFX.towerSniper();
 check('Tower guns use short quiet synthetic game sounds',A.events.length===4&&A.events.every(e=>e.kind==='puff'?e.v[0]<=.04&&e.v[1]<=.05:e.kind==='tone'&&e.v[2]<=.1&&e.v[4]<=.04));
 // 65차 대포탑 — 같은 대상·같은 피해를 쏘는 순간 판정하고, 포가가 표적을 향해 돌며 반동한다. 포탄·폭발·숫자는 towerFx 가 착탄 때 띄운다.

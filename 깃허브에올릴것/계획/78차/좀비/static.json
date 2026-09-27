@@ -1,0 +1,48 @@
+[
+  {
+    "name": "All 13 types keep the same geometry instances and capacities",
+    "pass": true
+  },
+  {
+    "name": "Updated poses are finite and never change world position or health",
+    "pass": true
+  },
+  {
+    "name": "Ordinary zombies have visibly paler skin while bosses retain their palettes",
+    "pass": true,
+    "detail": {
+      "palerTypes": 8
+    }
+  },
+  {
+    "name": "Existing skeleton gives a measurable shoulder twist without extra meshes",
+    "pass": true,
+    "detail": {
+      "maximumMatrixDelta": 0.11905810981988907
+    }
+  },
+  {
+    "name": "Night outfits and all combat definitions are unchanged",
+    "pass": true
+  },
+  {
+    "name": "Skin adds no sampler, texture lookup, animated wound uniform or extra noise calls",
+    "pass": true
+  },
+  {
+    "name": "Wounds keep per-instance stable seeds and trouser/white-flash exclusion",
+    "pass": true
+  },
+  {
+    "name": "Five-second story uses nine pooled actors moving toward gate zero on real floor",
+    "pass": true
+  },
+  {
+    "name": "Story actors never register real enemies, rewards, attacks or particles",
+    "pass": true
+  },
+  {
+    "name": "Replaying story resets animation state and deterministic starting positions",
+    "pass": true
+  }
+]

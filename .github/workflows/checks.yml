@@ -56,15 +56,7 @@ jobs:
       # 개발 안내의 규칙: 원본과 배포용은 바이트 단위로 같아야 한다.
       # 검사보다 먼저 본다 — 어긋나면 어느 파일을 검사한 것인지가 흐려진다.
       - name: 원본과 배포용이 같은지
-        run: |
-          src=$(sha256sum 클로드/index.html | cut -d' ' -f1)
-          deploy=$(sha256sum 클로드/배포용/index.html | cut -d' ' -f1)
-          echo "원본   $src"
-          echo "배포용 $deploy"
-          if [ "$src" != "$deploy" ]; then
-            echo "::error file=클로드/배포용/index.html::원본을 배포용에 복사하지 않았다 — cp 클로드/index.html 클로드/배포용/index.html"
-            exit 1
-          fi
+        run: node 깃허브에올릴것/검사/check-release.mjs
 
       - name: 검사에 필요한 것 받기
         working-directory: 깃허브에올릴것/검사

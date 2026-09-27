@@ -21,6 +21,7 @@ try{
   await page.waitForFunction(()=>window.__G && window.__G.started, null, {timeout:120000});
   const R = await page.evaluate(()=>{
     const W = window, G = W.__G, GY = W.__GY, PL = W.__PL, CP = W.__CPLAN, THREE = W.__THREE, f3 = v=> Math.round(v*1000)/1000;
+    W.__introDone(); // Test the castle after leaving the pre-game waiting room.
     document.querySelectorAll('.pop').forEach(e=>e.classList.remove('on'));
     W.__DBG().noLogic = true; W.__DBG().noRender = true; G.paused = true; G.wolves.length = 0;
     const occ = (e, t)=> W.__castleOccluded(e[0], e[1], e[2], t[0], t[1], t[2]);

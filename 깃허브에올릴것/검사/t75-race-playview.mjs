@@ -13,10 +13,11 @@ import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 
 const file=path.resolve(process.argv.slice(2).find(a=>!a.startsWith('--'))||GAME);
-const baseline=process.argv.includes('--baseline'),label=baseline?'baseline75':'race76';
+const version=/const GAME_VER = '(\d+)/.exec(fs.readFileSync(file,'utf8'))?.[1]||'76';
+const baseline=process.argv.includes('--baseline'),label=baseline?'baseline75':'race'+version;
 const hudOnly=process.argv.includes('--hud-only');
 assert.ok(!(baseline&&hudOnly),'HUD capture-only mode uses the current race');
-const out=path.resolve('artifacts/race76');fs.mkdirSync(out,{recursive:true});
+const out=path.resolve('artifacts/race'+version);fs.mkdirSync(out,{recursive:true});
 const server=serve(20576,file);let browser;
 try {
   browser=await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
@@ -71,7 +72,10 @@ try {
   });
   const result=hudOnly?JSON.parse(fs.readFileSync(path.join(out,`${label}-playview.json`),'utf8')):await page.evaluate(()=>{
     const W=window,G=W.__G,P=W.__PL,R=W.__R,C=W.__cam,KEY=W.__KEY,Y=W.__MINI().Y;
-    const captures=[],timings=[],events=[],overflow=[],capsules=[];
+    const captures=[],timings=[],events=[],overflow=[],capsules=[],toys=[],jumpMarks=[],cameraChecks=[];
+    const cameraCheck=name=>{if(!W.__raceCameraBlocked)return;const cam=W.__cam.position,haz=W.__raceHazards(W.__RACE().t);
+      cameraChecks.push({name,distance:W.__camRig().distance,inside:haz.filter(h=>W.__raceCameraBlocked(h,cam.x,cam.y-Y,cam.z,.08)).map(h=>h.id),
+        floors:W.__raceCameraFloorBlocked?W.__RACE_P().filter(p=>W.__raceCameraFloorBlocked(p,cam.x,cam.y,cam.z,.18)).map(p=>p.id):[]});};
     const energyRead=()=>{W.__paintMini();const board=document.getElementById('raceBoard76'),bar=document.getElementById('r76EnergyBar'),fill=document.getElementById('r76EnergyFill');
       const box=bar?.getBoundingClientRect(),style=bar?getComputedStyle(bar):null;
       return {visible:!!(board?.classList.contains('on')&&box?.width>0&&box?.height>0&&style?.visibility!=='hidden'),
@@ -110,7 +114,24 @@ try {
       // Compare real rendered round endcaps against the full vertical capsule.
       // A shaft alone can pass collision tests yet leave a visibly chopped top.
       const art=W.__race74.art(),caps=[art.cap,art.ball].filter(Boolean),mat=C.matrixWorld.clone();
-      for(const h of W.__raceHazards(W.__RACE().t).filter(h=>h.k==='punch'&&Math.abs(h.z-P.z)<=125)){
+      if(W.__race74.jumpPose)for(const pad of W.__RACE_P().filter(p=>p.bounce?.manual&&Math.abs(p.z-P.z)<=125)){
+        const jump=W.__race74.jumpPose(pad,W.__RACE().t),land=W.__race74.landingPose(pad,W.__RACE().t);
+        const has=(mesh,xy)=>{for(let i=0;i<mesh.count;i++){mesh.getMatrixAt(i,mat);const e=mat.elements;
+          if(Math.hypot(e[12]-xy.x,e[14]-xy.z)<.015)return true;}return false;};
+        jumpMarks.push({shot:name,pad:pad.id,launch:has(art.jump,jump),landing:has(art.padTrim,land),radius:pad.bounce.zone});
+      }
+      for(const h of W.__raceHazards(W.__RACE().t).filter(h=>h.k==='punch'&&h.toy77!==undefined&&Math.abs(h.z-P.z)<=120)){
+        const target=Y+h.y+h.h/2;let top=null;
+        if(h.toy77<3){const mesh=art.toys[h.toy77];mesh.geometry.computeBoundingBox();
+          for(let i=0;i<mesh.count;i++){mesh.getMatrixAt(i,mat);const e=mat.elements;
+            if(Math.hypot(e[12]-h.x,e[14]-h.z)<.025){top=e[13]+mesh.geometry.boundingBox.max.y*Math.hypot(e[4],e[5],e[6]);break;}}
+        }else for(const s of art.static){const p=s.mesh.geometry.attributes.position;
+          for(let i=0;i<p.count;i++)if(Math.abs(p.getX(i)-h.x)<h.r+.03&&Math.abs(p.getZ(i)-h.z)<h.r&&Math.abs(p.getY(i)-target)<.015){top=p.getY(i);break;}
+          if(top!==null)break;
+        }
+        toys.push({shot:name,id:h.id,form:h.toy77,renderedTop:top,colliderTop:target,aligned:top!==null&&Math.abs(top-target)<.03});
+      }
+      for(const h of W.__raceHazards(W.__RACE().t).filter(h=>h.k==='punch'&&h.toy77===undefined&&Math.abs(h.z-P.z)<=125)){
         const target=Y+h.y+Math.max(0,h.h/2-h.r);let top=null;
         for(const ball of caps)for(let i=0;i<ball.count;i++){
           ball.getMatrixAt(i,mat);const e=mat.elements,sy=Math.hypot(e[4],e[5],e[6]);
@@ -125,7 +146,7 @@ try {
         camera:{x:C.position.x,y:C.position.y,z:C.position.z,fov:C.fov},potentiallyVisibleHazards:projectedHazards(),
         calls:R.info.render.calls,triangles:R.info.render.triangles,memory:{...R.info.memory},
         programs:R.info.programs.length,raceArt:{...W.__race74.art().stats},energy:energyRead()});
-      verifyInstances(name);
+      verifyInstances(name);cameraCheck(name);
     };
     shot('start-default-camera-21');
     G.mini.st='run';G.t=W.__MINI().RACE;W.__miniOnState();
@@ -169,9 +190,12 @@ try {
     }
     // Stand beside the first padded capsule to inspect vinyl, rubber bands and
     // its metal base at ordinary play scale. Friends remain at the last CP.
-    const firstPunch=W.__raceHazards(W.__RACE().t).find(h=>h.k==='punch'&&h.z<15);
+    const firstPunch=W.__raceHazards(W.__RACE().t).find(h=>h.k==='punch'&&h.toy77===undefined&&h.z<15);
     if(firstPunch){
-      settlePlayer(firstPunch.x+3,firstPunch.z-3,W.__raceTopAt(firstPunch.x+3,firstPunch.z-3));
+      // The requested giant is eight metres tall. Step back on the actual
+      // floor while retaining the ordinary camera; never crop its top.
+      const back=Math.max(3,firstPunch.h*1.7);
+      settlePlayer(firstPunch.x+3,firstPunch.z-back,W.__raceTopAt(firstPunch.x+3,firstPunch.z-back));
       shot('material-probe-first-punch-default-camera','material-waypoint',{target:firstPunch.id});
     }
     // Full-energy display is part of the race interface. Exercise real sprint
@@ -185,7 +209,7 @@ try {
       for(let f=0;f<60;f++){G.t-=1/60;W.__advance(1000/60);}energy.push({phase:'running',...energyRead()});
       for(const k of Object.keys(KEY))delete KEY[k];
       for(let f=0;f<Math.ceil(W.__SPRINT.rest*60)+30;f++){G.t-=1/60;W.__advance(1000/60);}
-      energy.push({phase:'recovered',...energyRead()});W.__drawFrame();
+      energy.push({phase:'recovered',...energyRead()});W.__drawFrame();cameraCheck('post-sprint-hud');
     }
     // Distance is measured from the actual seeded starting slot, not the first
     // checkpoint or the artificial comparison camera used by the older test.
@@ -198,7 +222,7 @@ try {
     const font={faces:[...document.fonts].filter(f=>f.family.replaceAll('"','')==='CloudRaceTitle')
       .map(f=>({family:f.family,status:f.status})),draws:[...W.__raceTitleDraws75.values()],externalFontsBlocked:true};
     return {fileVersion:document.title,seed:G.mini.seed,players:G.players.size+1,viewport:{width:innerWidth,height:innerHeight},
-      start,captures,events,progress,maxViewChange,pointerLocked:!!document.pointerLockElement,font,capsules,energy,
+      start,captures,events,progress,maxViewChange,pointerLocked:!!document.pointerLockElement,font,capsules,toys,jumpMarks,energy,cameraChecks,
       hazards:{count:allHazards.length,kinds,firstDistance:earlyHazard?earlyHazard.z-start.z:null,bySection:hazardsBySection},
       graphics:{...W.__GFX,width:R.domElement.width,height:R.domElement.height},
       noRenderCpuMs:{p50:timings[Math.floor(timings.length*.5)],p95:timings[Math.floor(timings.length*.95)],samples:timings.length},
@@ -251,16 +275,24 @@ try {
     await page.setViewportSize({width:1366,height:768});
     result.donutShots=[];
     await page.evaluate(()=>{const W=window,P=W.__PL,G=W.__G,pad=W.__RACE_P().find(p=>p.bounce?.manual);
+      const next=W.__RACE_P().find(p=>p.bounce?.manual&&p.z>pad.z),jump=W.__race74.jumpPose(pad,0),land=W.__race74.landingPose(next,0);
+      W.__donutCaptureDestination={id:next.id,x:land.x,z:land.z};
       W.__race74.reset();Object.assign(W.__RACE(),{t:0,on:true,fallT:0,hitCd:0,slipT:0});G.mini.st='run';G.t=W.__MINI().RACE;W.__MINE.cp=3;W.__MINE.fin=-1;
       for(const k of Object.keys(W.__KEY))delete W.__KEY[k];
-      Object.assign(P,{x:pad.x,z:pad.z,y:W.__MINI().Y+pad.y,vx:0,vz:0,vy:0,ground:true,down:false,jumps:0,yaw:Math.PI,pitch:-.22,_px:pad.x,_pz:pad.z});
+      Object.assign(P,{x:jump.x,z:jump.z,y:W.__MINI().Y+pad.y,vx:0,vz:0,vy:0,ground:true,down:false,jumps:0,yaw:Math.PI,pitch:-.22,_px:jump.x,_pz:jump.z});
       for(let i=0;i<12;i++)W.__advance(1000/60);W.__KEY.w=true;W.__KEY[' ']=true;W.__wantJump();});
     for(const phase of ['apex','landing']){
       const sample=await page.evaluate(phase=>{const W=window,P=W.__PL;let found=false;
-        for(let i=0;i<150;i++){const wasAir=!P.ground,oldVy=P.vy;W.__G.t-=1/60;W.__advance(1000/60);
+        for(let i=0;i<180;i++){const wasAir=!P.ground,oldVy=P.vy;
+          if(W.__race74.state.flightKind==='manual'){
+            const target=W.__donutCaptureDestination.x-P.vx*.25;W.__KEY.w=false;
+            W.__KEY.a=P.x<target-.18;W.__KEY.d=P.x>target+.18;
+          }
+          W.__G.t-=1/60;W.__advance(1000/60);
           if(phase==='apex'&&W.__race74.state.flight>0&&oldVy>0&&P.vy<=0){found=true;break;}
-          if(phase==='landing'&&wasAir&&P.ground){found=true;break;}}
+          if(phase==='landing'&&wasAir&&P.ground){found=W.__race74.under()?.id===W.__donutCaptureDestination.id;break;}}
         W.__paintMini();W.__drawFrame();return {phase,found,x:P.x,z:P.z,height:P.y-W.__MINI().Y,vy:P.vy,ground:P.ground,
+          landingPad:W.__race74.under()?.id,expectedPad:W.__donutCaptureDestination.id,
           stage:document.getElementById('r76Stage')?.textContent,energy:document.getElementById('r76EnergyBar')?.getAttribute('aria-valuenow')};},phase);
       sample.sceneProbe=await fullFrame(`donut-${phase}-hud`);result.donutShots.push(sample);
     }
@@ -270,13 +302,17 @@ try {
   fs.writeFileSync(path.join(out,`${label}-playview.json`),JSON.stringify({...result,errors},null,2));
   console.log(JSON.stringify({...result,errors},null,2));
   assert.deepEqual(errors,[]);assert.deepEqual(result.overflow,[]);
+  if(!baseline)assert.ok(result.donutShots?.length===2&&result.donutShots.every(s=>s.found),
+    'Capture the actual buoyant apex and steered landing on the next donut, never a checkpoint respawn');
   assert.equal(result.players,21);assert.equal(result.pointerLocked,false);
   assert.equal(result.graphics.pr,.85);assert.equal(result.graphics.shadow,2048);
   assert.equal(result.graphics.aa,2);assert.equal(result.graphics.shHz,0);
   assert.ok(result.maxViewChange<1e-8,'Ordinary obstacle movement must preserve the chosen view direction');
-  assert.ok(result.captures.every(c=>c.raceArt.materials<=3&&c.raceArt.textures<=2&&c.raceArt.visibleDraws<=12&&c.raceArt.overflow===0),
+  assert.ok(result.captures.every(c=>c.raceArt.materials<=3&&c.raceArt.textures<=2&&c.raceArt.visibleDraws<=15&&c.raceArt.overflow===0),
     'Detailed race scenery retains the shared-material/draw/capacity budget');
   if(!baseline){
+    if(!hudOnly)assert.ok(result.cameraChecks.length>=13&&result.cameraChecks.every(q=>q.inside.length===0&&q.floors.length===0),
+      'Every actual captured camera, including the post-sprint giant-bumper regression, stays outside the visible obstacle volume');
     assert.ok(result.hazards.count>=80&&result.hazards.count<=128,'The seven distinct challenges retain a bounded total obstacle pool');
     assert.ok(result.hazards.kinds.length>=2,'The course includes at least two different real obstacle motions');
     assert.ok(result.hazards.firstDistance>0&&result.hazards.firstDistance<=35,'The first obstacle is within the first 35 m of the actual spawn');
@@ -291,6 +327,10 @@ try {
     assert.ok(result.hazards.bySection.every(s=>result.font.draws.some(d=>d.text===s.name&&d.loaded&&d.font.includes('CloudRaceTitle'))),
       'Every section title was actually painted with the loaded bundled face');
     assert.ok(result.capsules.length>0&&result.capsules.every(c=>c.aligned),'Rendered padded capsule endcaps match their full collider height in all captured sections');
+    if(result.toys?.length)assert.ok(result.toys.every(c=>c.aligned)&&new Set(result.toys.map(c=>c.form)).size===5,
+      'Three entrance toys and both baked candy-border silhouettes occupy their actual collision height');
+    if(result.jumpMarks?.length)assert.ok(result.jumpMarks.every(m=>m.launch&&m.landing&&m.radius===2.5),
+      'Visible launch circles and landing stitching match the actual offset trigger and alternating landing pocket');
     const detail=result.captures.find(c=>c.kind==='material-waypoint');
     assert.ok(detail?.potentiallyVisibleHazards.some(h=>h.id===detail.target&&h.fullyInFrame),
       'The ordinary-camera material detail includes the complete first punch capsule without clipping its top');

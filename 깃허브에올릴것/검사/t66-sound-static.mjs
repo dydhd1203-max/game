@@ -90,7 +90,7 @@ function makeGame(opts={}){
     setPop:v=>{POP=v;}, setPerf:v=>{PERF=v;}, BGM_XF, BGM_AHEAD, BGM_BASE, BGM_MORN, BGM_DUSK, SFX_GAP, SFX_PRIO};`;
   const ctx=vm.createContext({document,console,Math,JSON,Map,Set,Infinity,Object,Array,String,Number,Float64Array,Float32Array,Promise,Proxy,
     STORE:store,isFinite});
-  new vm.Script(fixture+block+api,{filename:'t66-sound-actual.js'}).runInContext(ctx,{timeout:10000});
+  new vm.Script(fixture+fnSrc('waiting78')+block+api,{filename:'t66-sound-actual.js'}).runInContext(ctx,{timeout:10000});
   const A=ctx.API;
   /* 가짜 컨텍스트가 지금 어느 갈래(sfx·bgm·amb)에서 조각을 만드는지 알게 한다 */
   A.audioInit(); A.AUD.lane=()=>A.lane; A.busIn();

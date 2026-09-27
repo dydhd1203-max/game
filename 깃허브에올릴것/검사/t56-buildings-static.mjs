@@ -37,8 +37,8 @@ for(const t of types){if(!A.BUILD[t])continue;let maxParts=0;const forms=new Set
     const center=size===2?.5:0,bounds=new THREE.Box3();maxParts=Math.max(maxParts,rows.length);
     for(const r of rows){
       if(![10,11].includes(r.length)||!r.slice(0,10).every(Number.isFinite)||r.slice(4,7).some(n=>n<=0)||(r.length===11&&r[10]!=='gun'))failures.push([t,lv,branch,style,'invalid part']);
-      // 움직이는 무장은 Lv3 기관총/저격총과 대포탑(65차 — 모든 단계의 포가·포신)만 갖는다.
-      if(r[10]==='gun'&&!(t==='pulse'||(t==='arrow'&&lv>=3&&['rapid','sniper'].includes(branch))))failures.push([t,lv,branch,style,'invalid animated gun tag']);
+      // 77차 기본 쇠뇌도 지붕 위에서 조준/반동한다. 모든 화살탑 무장과 대포만 움직인다.
+      if(r[10]==='gun'&&!(t==='pulse'||t==='arrow'))failures.push([t,lv,branch,style,'invalid animated gun tag']);
       q.setFromEuler(new THREE.Euler(0,r[8],r[9],'YXZ'));
       matrix.compose(new THREE.Vector3(r[0],r[1]+.5,r[2]),q,new THREE.Vector3(r[4],r[5],r[6]));
       for(const x of [-.5,.5])for(const y of [-.5,.5])for(const z of [-.5,.5])bounds.expandByPoint(v.set(x,y,z).applyMatrix4(matrix));
@@ -61,6 +61,10 @@ for(const [t,branches] of [['arrow',['','rapid','sniper']],['ice',['','blizzard'
 }
 check('Invalid styles and levels normalize to supported cached variants',A.blocksOf('arrow',99,'unknown',99)===A.blocksOf('arrow',7,'',3));
 check('Levels 1 and 2 remain basic bows even with a premature gun branch',[1,2].every(lv=>['rapid','sniper'].every(b=>A.blocksOf('arrow',lv,b)===A.blocksOf('arrow',lv))));
+for(let lv=1;lv<=A.MAXLV;lv++){
+  const rows=A.blocksOf('arrow',lv),guns=rows.filter(r=>r[10]==='gun'),hi=A.BUILD.arrow.hi[lv-1];
+  check('Basic bow '+lv+' has exposed stock, two limbs and two taut strings above a fixed roof',guns.length===6&&guns.every(r=>r[1]+.5-r[5]/2>=hi-.101)&&rows.filter(r=>!r[10]).every(r=>r[1]+.5+r[5]/2<hi-.10));
+}
 for(const branch of ['rapid','sniper']){
   const rows=A.blocksOf('arrow',3,branch),guns=rows.filter(r=>r[10]==='gun'),hi=A.BUILD.arrow.hi[2];
   check(branch+' tags moving gun parts while keeping its tower and mount fixed',guns.length>=15&&rows.some(r=>!r[10]&&r[1]+.5<hi-.5));

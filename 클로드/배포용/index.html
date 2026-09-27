@@ -3582,6 +3582,19 @@ body.hud76-race.touch #mbAct,body.hud76-race.touch #mbThrow{display:none!importa
 }
 @media(max-width:380px){#raceBoard76 .r76Brand{font-size:17px}#raceBoard76 .r76Brand:before{width:9px;height:9px;margin-right:4px}
   #raceBoard76 .r76Stage{max-width:48%}#raceControls76 .r76Esc{display:none}}
+/* Shared waiting room: UI leaves the actual friends visible. */
+#lobby78[hidden],#story78[hidden]{display:none!important}
+#lobby78{position:fixed;inset:0;z-index:35;pointer-events:none;color:#213e49}
+.l78board{position:absolute;left:24px;top:22px;width:310px;box-sizing:border-box;padding:19px 20px;background:#fff8e9f5;border:2px solid #d0bb8a;border-radius:19px;box-shadow:0 6px 0 #294c6077,0 16px 40px #14394222;pointer-events:auto}
+.l78eyebrow{font-size:12px;letter-spacing:3px;color:#54757b;font-weight:700}.l78board h2{margin:5px 0 14px;font-size:27px;font-weight:800}.l78code{display:flex;align-items:center;justify-content:space-between;border-block:1px solid #d9cbaa;padding:10px 0;margin-bottom:13px;font-size:13px}.l78code b{font-size:22px;letter-spacing:3px;color:#197d91}
+#lobbyCount78{font-size:19px}#lobbyNames78{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px;max-height:235px;overflow:auto}#lobbyNames78 span{display:inline-flex;align-items:center;gap:5px;background:#edf3f2;border:1px solid #d4e1df;padding:5px 7px;border-radius:8px;font-size:12px}#lobbyNames78 i{background:var(--team);width:7px;height:7px;border-radius:50%}#lobbyNames78 small{font-size:10px;color:#526c71}
+.l78bottom{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);min-width:410px;text-align:center;background:#fff8e9f5;border:2px solid #cfbd93;border-radius:20px;padding:14px 24px;box-shadow:0 5px 0 #32576655;pointer-events:auto}.l78bottom p{font-size:13px;margin:0 0 10px}.l78bottom .btn{margin:0 4px;padding:10px 24px;font-size:16px}.l78bottom small{display:block;margin-top:10px;color:#4d7077;font-size:12px}
+#popLobby78 .panel{width:min(690px,94vw);max-height:85vh;overflow:auto;background:#fff9ec;color:#274551;border:2px solid #ccb785;border-radius:20px;padding:22px}#popLobby78 h2{margin-top:0}#popLobby78 #dressPick{display:block}#popLobby78 .dsec{margin-bottom:14px}#popLobby78 .grp{flex-wrap:wrap}
+body.waiting78 #hud,body.story78 #hud{visibility:hidden!important}body.waiting78 #bTeach{visibility:hidden!important}body.waiting78 #stick,body.waiting78 #mbJump{visibility:visible}body.story78 #stick,body.story78 #mbtns{visibility:hidden}body.story78 #tags{visibility:hidden}
+#story78{position:fixed;inset:0;z-index:80;pointer-events:none;box-shadow:inset 0 0 180px #07121fc0;color:#fff8dc;background:linear-gradient(0deg,#051421cc,transparent 42%)}#story78:before,#story78:after{content:'';position:absolute;left:0;right:0;height:9%;background:#06121b}#story78:before{top:0}#story78:after{bottom:0}.s78cap{position:absolute;left:6%;right:6%;bottom:16%;text-align:center;text-shadow:0 3px 12px #000;animation:s78rise .4s ease-out}.s78cap small{font-size:13px;font-weight:800;letter-spacing:6px;color:#dfbd79}#storyTitle78{font-size:clamp(26px,4.3vw,56px);font-weight:900;letter-spacing:-1.5px;margin:12px 0}#storySub78{font-size:clamp(14px,1.7vw,20px);margin:0;color:#f1ead6}#storyProgress78{position:absolute;bottom:9%;left:0;right:0;height:3px;background:#e2bf79;transform-origin:left}
+@keyframes s78rise{from{transform:translateY(15px);opacity:0}to{transform:translateY(0);opacity:1}}
+@media(max-width:720px){.l78board{left:12px;top:12px;width:215px;padding:12px}.l78board h2{font-size:21px;margin-bottom:8px}#lobbyNames78{max-height:130px}.l78bottom{min-width:0;width:calc(100% - 56px);bottom:15px;padding:12px}.l78bottom .btn{font-size:14px;padding:9px 16px}}
+
 </style>
 </head>
 <body>
@@ -3634,7 +3647,7 @@ body.hud76-race.touch #mbAct,body.hud76-race.touch #mbThrow{display:none!importa
       </div>
     </div>
 
-    <p class="hint" id="dressHint">모자·옷·장식을 자유롭게 골라요. 꾸미기는 시작 화면에서만 바꿀 수 있어요.</p>
+    <p class="hint" id="dressHint">모자·옷·장식을 자유롭게 골라요. 게임 시작 전 대기실에서도 바꿀 수 있어요.</p>
 
     <div class="row">
       <button class="btn pri" id="bJoin">들어가기</button>
@@ -3665,6 +3678,13 @@ body.hud76-race.touch #mbAct,body.hud76-race.touch #mbThrow{display:none!importa
   </div>
  </div>
 </div>
+
+<div id="lobby78" hidden>
+ <aside class="l78board"><div class="l78eyebrow">우리 반 · 수비대</div><h2>친구들과 출발 준비</h2><div class="l78code"><span>방 코드</span><b id="lobbyCode78"></b></div><b id="lobbyCount78"></b><div id="lobbyNames78"></div></aside>
+ <div class="l78bottom"><p id="lobbyWait78"></p><button class="btn" id="lobbyDress78">✦ 내 아바타 꾸미기</button><button class="btn pri" id="lobbyStart78">▶ 게임 시작</button><small>WASD 이동 · Space 점프 · C 꾸미기 · Esc 마우스 풀기</small></div>
+</div>
+<div class="pop" id="popLobby78"><div class="panel"><h2>✦ 출발 전, 나답게 꾸미기</h2><p>고른 모습이 대기실 친구들에게도 바로 보여요.</p><div id="lobbyDressSlot78"></div><button class="btn pri" data-close="popLobby78">꾸미기 끝 · 친구들에게 돌아가기</button></div></div>
+<div id="story78" hidden><div class="s78cap"><small>좀비의 밤</small><h1 id="storyTitle78"></h1><p id="storySub78"></p></div><i id="storyProgress78"></i></div>
 
 <!-- HUD -->
 <div id="hud">
@@ -4210,7 +4230,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '76차 · 구름 운동회 도전 코스';   // 70차 4회차 — 탑 11×11·나선·안쪽 턱으로 판 모양(CASTLE·stairOf)이 바뀌었다: 옛 탭을 연 손님에게 '새로고침' 알림이 뜨게 올린다(판 모양을 바꾸면 늘 같이 올린다)
+const GAME_VER = '78차 · 우리 반 수비대';   // 대기실/도입 단계와 새 코스 규칙이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -6626,18 +6646,40 @@ const GRASS_DRY = 0xa3ab5a, GRASS_FOOT = 0x76a64b;
    75칸 파장이라 마당 한쪽은 촉촉하고 반대쪽은 마른다. 연못 둘레 16칸은 늘 촉촉하다. */
 const moistAt = (x,z)=> Math.max(0.5 + 0.5*Math.sin(x*0.085 + 1.3)*Math.cos(z*0.075 - 0.6),
                                  0.95 - Math.max(0, Math.hypot(x - POND.x, z - POND.z) - POND.r)/16);
-function grGrainGB(tex){                              // 65차 — R 은 그대로, G·B 에만 무늬 (h65/gb.js 와 같다)
+function grGrainGB(tex){                              // 77차 — 기존 128² G에만 잎결을 굽는다. R 물결/B 큰 얼룩은 그대로.
   const cv = tex.image, N = cv.width, g2d = cv.getContext('2d'), img = g2d.getImageData(0, 0, N, N), d = img.data;
   const vn = (x,y,f,sd)=>{ const gx = x*f/N, gy = y*f/N, x0 = Math.floor(gx), y0 = Math.floor(gy), tx = gx-x0, ty = gy-y0,
       sx = tx*tx*(3-2*tx), sy = ty*ty*(3-2*ty), wr = v=>((v%f)+f)%f, v = (i,j)=>rnd(sd + wr(i)*12.9898 + wr(j)*78.233);
     return (v(x0,y0)*(1-sx) + v(x0+1,y0)*sx)*(1-sy) + (v(x0,y0+1)*(1-sx) + v(x0+1,y0+1)*sx)*sy; };
   const chG = new Float32Array(N*N), chB = new Float32Array(N*N);
   for(let y=0;y<N;y++) for(let x=0;x<N;x++){ const j = y*N + x;
-    chG[j] = vn(x,y,64,21)*0.6 + vn(x,y,32,22)*0.4;                  // 풀끝 반점(잘다)
+    chG[j] = vn(x,y,64,21)*0.6 + vn(x,y,32,22)*0.4;
     chB[j] = vn(x,y,4,23)*0.65 + vn(x,y,8,24)*0.35; }               // 큰 얼룩(타일 하나에 네댓 덩이)
+  // G는 흙길 자갈도 함께 읽으므로, 76차의 밝은 자갈 픽셀은 원래 자리에 남긴다.
+  let glo=1,ghi=0;for(const v of chG){glo=Math.min(glo,v);ghi=Math.max(ghi,v);}
+  const gravel=Float32Array.from(chG,v=>(v-glo)/Math.max(1e-6,ghi-glo));
+  for(let j=0;j<N*N;j++)chG[j]=.5+(chG[j]-.5)*.20;
+  // 짧고 휜 풀잎의 밝은 능선 + 옆 그늘. 시작할 때 한 번만 계산하며 새 메시/텍스처/샘플은 없다.
+  // 타일 밖으로 나간 잎도 반대쪽에 이어 굽는다. 무늬는 세계 좌표에 고정되고 밉맵으로 작아진다.
+  const wr = n=>(n%N+N)%N, blend=(x,y,v,a)=>{const j=wr(y)*N+wr(x);chG[j]+=(v-chG[j])*a;};
+  for(let i=0;i<360;i++){
+    const sd=77+i*19.73,cx=rnd(sd)*N,cy=rnd(sd+2.4)*N,a=rnd(sd+4.8)*Math.PI*2;
+    const ux=Math.cos(a),uy=Math.sin(a),len=4.5+rnd(sd+7.1)*9,w=.58+rnd(sd+9.2)*.70,bend=(rnd(sd+11.3)-.5)*3.4;
+    const reach=Math.ceil(len+3);
+    for(let y=Math.floor(cy)-reach;y<=cy+reach;y++)for(let x=Math.floor(cx)-reach;x<=cx+reach;x++){
+      const dx=x+.5-cx,dy=y+.5-cy,t=(dx*ux+dy*uy)/len;if(t<0||t>1)continue;
+      const side=-dx*uy+dy*ux-bend*4*t*(1-t),width=w*(1-t)+.12;
+      const shade=Math.max(0,Math.min(1,(width+.7-Math.abs(side-.65))/.65))*(1-t)*.52;
+      if(shade>0)blend(x,y,.25,shade);
+      const cover=Math.max(0,Math.min(1,(width+.40-Math.abs(side))/.80));
+      if(cover>0){const ridge=Math.max(0,1-Math.abs(side+width*.26)/(width+.18));
+        blend(x,y,.49+ridge*.30,cover*(.75+.25*t));}
+    }
+  }
+  for(let j=0;j<N*N;j++)if(Math.round(gravel[j]*255)>=212)chG[j]=gravel[j];
   const put = (A, ch)=>{ let lo = 1e9, hi = -1e9; for(const v of A){ if(v < lo) lo = v; if(v > hi) hi = v; }
     for(let j=0;j<N*N;j++) d[j*4+ch] = Math.round((A[j]-lo)/Math.max(1e-6, hi-lo)*255); };
-  put(chG, 1); put(chB, 2); for(let j=0;j<N*N;j++) d[j*4+3] = 255;
+  put(chB, 2); for(let j=0;j<N*N;j++){d[j*4+1]=Math.round(Math.max(0,Math.min(1,chG[j]))*255);d[j*4+3]=255;}
   g2d.putImageData(img, 0, 0); tex.needsUpdate = true;
 }
 function grGroundShader(mat){                       // 65차 — addGrain 결 블록 안에 이어 붙인다(addGrain 은 안 고친다)
@@ -6655,11 +6697,11 @@ function grGroundShader(mat){                       // 65차 — addGrain 결 �
       .replace('* uGrainAmt; }', '* uGrainAmt;\n' + GR_GROUND_GLSL + '\n}');
     if(!sh.fragmentShader.includes('65차 땅')) console.error('65차 — 바닥 셰이더 치환 실패');
   };
-  mat.customProgramCacheKey = ()=> 'grain65-ground';
+  mat.customProgramCacheKey = ()=> 'grain77-ground';
   return mat;
 }
 const GR_GROUND_GLSL = `// 65차 땅 — 풀밭·흙길·물가를 픽셀에서 짓는다 (이 블록 안에서 wn·guv·gg·vWp 가 보인다)
-vec4 gt = texture2D(tGrain, guv * uGrainScale);                      // r 풀결(=gg) · g 풀끝 반점 · b 큰 얼룩 (M1-2)
+vec4 gt = texture2D(tGrain, guv * uGrainScale);                      // r 풀결(=gg) · g 풀잎 능선/그늘 · b 큰 얼룩
 vec4 gm = texture2D(tGrain, vWp.xz * 0.043 + vec2(0.37, 0.11));      // 23칸 큰 얼룩
 float gdist = length(vViewPosition);
 vec3 gr = vGBase;
@@ -6667,8 +6709,8 @@ float dry = smoothstep(0.55, 0.80, gm.b + (gt.b - 0.5) * 0.35) * (1.0 - vGMask.y
 gr = mix(gr, gr * vec3(1.18, 1.06, 0.74), dry * 0.55);               // 마른 풀 무리 (물가엔 없다)
 gr *= 0.90 + 0.20 * gm.r;                                            // 몇 칸짜리 밝기 물결
 gr *= 1.0 + (gt.r - 0.5) * uGrainAmt * 2.1;                          // 풀결 0.16 → 0.34 ('결 끔' 진단이 0 으로 만든다)
-float tip = smoothstep(0.66, 0.86, gt.g) * (1.0 - smoothstep(12.0, 30.0, gdist));
-gr = mix(gr, gr * vec3(1.14, 1.16, 0.88), tip * 0.5);                // 볕 받은 풀끝 — 가까이만 (멀면 잡음)
+float tip = (gt.g - 0.5) * (1.0 - smoothstep(12.0, 30.0, gdist));
+gr = mix(gr, gr * vec3(1.82, 1.92, 1.38), tip);                     // 기존 풀끝 항을 잎의 밝고 어두운 결로 대체(샘플 추가 0)
 float bare = smoothstep(0.80, 0.95, (1.0 - gm.b) * 0.55 + gt.g * 0.45 + vGMask.w * 0.25) * 0.5;
 gr = mix(gr, uDirtB * (0.9 + 0.2 * gt.r), bare);                     // 흙이 비치는 데 — 절벽 발치에 더
 float rwv = vGMask.x + (gt.r - 0.5) * 0.42 + (gt.b - 0.5) * 0.22;
@@ -11113,13 +11155,13 @@ for(const h of miParts.surv) bset(h, false);
 /* ═══════════════════════ 건물 정의 ═══════════════════════ */
 /* 건물은 7단계까지 성장한다. 화살·얼음탑은 Lv3에서 역할을 고른다. */
 const BUILD = {
-  wwall:{ name:'나무벽', icon:'🪵', cost:{w:4,s:0,g:0},  size:1, hi:1.4, pass:1,
+  wwall:{ name:'나무벽', icon:'🪵', cost:{w:4,s:0,g:0},  size:1, hi:1.4*1.2, pass:1, // 77차 — 공통 hi가 실제 벽·고스트·충돌 높이를 함께 20% 올린다.
 
           hp:[870, 1330, 1960, 2800, 3920, 5320, 7230],
 
           up:[{w:5,s:1,g:0},{w:8,s:4,g:0},{w:12,s:8,g:2},{w:18,s:13,g:4},{w:26,s:19,g:8},{w:40,s:30,g:16}],
           desc:'싸고 빠르게 산길을 막아요. 낮아서 화살이 넘어가고 탑보다 훨씬 튼튼해요. 벽 안쪽에 포탑을 세워 함께 지켜요.' },
-  swall:{ name:'돌벽',   icon:'🧱', cost:{w:1,s:6,g:0},  size:1, hi:1.4, pass:1,
+  swall:{ name:'돌벽',   icon:'🧱', cost:{w:1,s:6,g:0},  size:1, hi:1.4*1.2, pass:1,
           hp:[1500, 2210, 3190, 4490, 6180, 8320, 11230],   // ★ 15차 30% 상향 · 17차c Lv7
           up:[{w:2,s:9,g:0},{w:3,s:14,g:1},{w:5,s:21,g:3},{w:8,s:30,g:7},{w:12,s:40,g:12},{w:20,s:62,g:24}],
           desc:'가장 튼튼한 벽이에요. 산길 정면에 세우고 친구들과 수리하면서 뒤쪽 포탑을 지켜요.' },
@@ -11300,7 +11342,12 @@ function blocksOfRaw(t, lv, branch='', style=0){
   };
   const roofGable=(x,z,y,w,d,topY,col,tile=C)=>{
     const th=.08,rise=topY-y-.06,angle=Math.atan2(rise,w/2),len=Math.hypot(w/2,rise);
-    for(const s of [-1,1]){P(x+s*w/4,y+rise/2,z,len,th,d,col,tile,0,-s*angle);if(t==='barr')tag(s>0?'shR':'shL');}   // 병영 지붕 = 겹친 널(68차 2단계 · 탑 지붕은 65차 그대로)
+    for(const s of [-1,1]){
+      // Share one roof bank without mirroring the left plank texture/shading:
+      // Rz(angle)·Ry(PI) = Ry(PI)·Rz(-angle), since the two-axis scale commutes.
+      const ry=t==='arrow'&&s<0?Math.PI:0,rz=t==='arrow'?-angle:-s*angle;
+      P(x+s*w/4,y+rise/2,z,len,th,d,col,tile,ry,rz);if(t==='barr')tag(s>0?'shR':'shL');else if(t==='arrow')tag('towerRoof');
+    }
     P(x,topY-.045,z,.14,.09,d+.025,top?gold:timberD);
     for(const s of [-1,1])P(x+s*w/4,y+rise/2,z+d/2+.012,len,.055,.055,timberD,C,0,-s*angle);
   };
@@ -11340,10 +11387,7 @@ function blocksOfRaw(t, lv, branch='', style=0){
     slab(x+.02,z,y-h/2-.09,.17,w+.14,.07,stoneD,S);
   };
   const crystal=(x,z,y,h,w,col=ice)=>{
-    const cut=h*.56,halfY=cut/Math.sqrt(2),cy=y+h-halfY;
-    post(x,z,y,y+h*.26,w*.48,w*.48,tier===2?iron:coolD,tier===2?C:S);
-    P(x,cy,z,cut,cut,w*.84,col,C,Math.PI/4,Math.PI/4);
-    P(x,cy,z+w*.43,cut*.37,cut*.37,.035,iceLight,GL,0,Math.PI/4);
+    P(x,y+h*.50,z,w*1.30,h,w*1.30,col,C);tag('ice');
   };
   if(t==='wwall'){
     // 뾰족하게 깎은 통나무 말뚝 울타리 — 북돋운 흙둑에 박아 세우고 가로 띠장으로 묶는다.
@@ -11379,7 +11423,7 @@ function blocksOfRaw(t, lv, branch='', style=0){
     if(style===1||lv>=4)banner(0,.495,.65,.30,.45);
     if(style===3)lantern(0,.47,.79,.58);
   }else if(t==='arrow'){
-    const deck=H-.94,eave=H-.47,bodyW=1.17;
+    const deck=H-(branch?.94:1.16),eave=H-(branch?.47:.82),bodyW=1.17;
     const roofCol=pastel||(tier?slate:shingle),roofTile=pastel?C:tier?S:WD;
     slab(cx,cz,0,1.76,1.76,.16,stoneD,S);
     slab(cx,cz,.16,1.54,1.54,.14,stoneM,S);
@@ -11408,11 +11452,12 @@ function blocksOfRaw(t, lv, branch='', style=0){
     }
     if(tier){slab(cx,cz,deck-.12,1.62,1.62,.18,stoneM,S);slab(cx,cz,deck+.06,1.76,1.76,.09,stoneL,S);}
     else{slab(cx,cz,deck-.12,1.66,1.66,.18,timberD,WD);slab(cx,cz,deck+.06,1.74,1.74,.09,plank,WD);}
-    if(!branch)corners(.68,(x,z)=>post(x,z,deck+.15,eave,.105,.105,timberD,WD));
+    if(!branch)corners(.68,(x,z)=>post(x,z,deck+.15,eave+.10,.105,.105,timberD,WD));
     for(const s of [-1,1]){
-      const py=deck+(branch?.23:.34),ph=branch?.15:.27,pc=tier?stoneL:plank,pt=tier?S:WD,th=tier?.12:.09;
+      const py=deck+(branch?.23:.24),ph=branch?.15:.18,pc=tier?stoneL:plank,pt=tier?S:WD,th=tier?.12:.09;
       P(cx+s*.76,py,cz,th,ph,1.45,pc,pt);
-      P(cx,py,cz+s*.76,1.45,ph,th,pc,pt);
+      if(!branch&&s===1)for(const side of [-1,1])P(cx+side*.50,py,cz+.76,.45,ph,th,pc,pt);
+      else P(cx,py,cz+s*.76,1.45,ph,th,pc,pt);
     }
     // 기관총·저격총 받침의 흉벽 — 네 모서리의 낮은 성가퀴(총이 돌아가는 반경 밖)
     if(branch)corners(.72,(x,z)=>post(x,z,deck+.15,deck+.40,.22,.22,stoneL,S));
@@ -11461,45 +11506,51 @@ function blocksOfRaw(t, lv, branch='', style=0){
       }
       for(let i=gunStart;i<out.length;i++)out[i][10]='gun';
     }else{
-      // 앞을 겨눈 큰 활(쇠뇌) — 활대·시위·살
-      P(cx,deck+.51,cz+.68,.68,.10,.16,timberD);
-      for(const s of [-1,1])P(cx+s*.32,deck+.51,cz+.63,.39,.065,.08,timber,C,s*.48);
-      P(cx,deck+.51,cz+.70,.06,.06,.52,tier===2?iron:plank);
-      roofGable(cx,cz-.06,eave,1.82,1.48,H,roofCol,roofTile);
+      // 판자 박공지붕에 연결된 고정 회전받침 위로 쇠뇌의 활대/팽팽한 시위가 드러난다.
+      P(cx,H-.24,cz,.19,.27,.19,ironD);P(cx,H-.30,cz,.34,.06,.34,timberD,WD);
+      const gunStart=out.length, bowY=H-.05;
+      P(cx,bowY,cz+.34,.68,.10,.16,timberD);
+      for(const s of [-1,1])P(cx+s*.32,bowY,cz+.29,.39,.065,.08,timber,C,s*.48);
+      P(cx,bowY,cz+.38,.06,.06,.88,tier===2?iron:plank);
+      for(const s of [-1,1])P(cx+s*.25,bowY+.012,cz+.05,.583,.013,.013,0xddd2bb,C,-s*Math.atan2(.3,.5));
+      for(let i=gunStart;i<out.length;i++)out[i][10]='gun';
+      roofGable(cx,cz-.06,eave,1.82,1.48,H-.30,roofCol,roofTile);
     }
     if(lv>=2||style===1)banner(cx+.47,cz+.65,Math.max(.75,deck-.38),.28,.38);
     if(lv>=2||style===3)lantern(cx-.55,cz+.65,deck-.24,.70);
     if(lv>=6&&!branch){P(cx,H-.22,cz-.77,.25,.20,.06,gold,C,0,Math.PI/4);}
   }else if(t==='ice'){
-    // 찬 돌로 쌓은 탑 위에 얼음 수정. 나무 모서리 기둥 → 마름돌 → 쇠 테·쇠 받침으로 자란다.
+    // 탑 전체가 얼어붙은 감시탑: 한 덩어리의 서리 몸체, 두꺼운 얼음 처마, 오목한 냉기 창과 불규칙 고드름.
     const ledge=H-(branch==='frost'?1.40:branch==='blizzard'?1.04:1.12);
-    slab(cx,cz,0,1.74,1.74,.18,coolD,S);
-    slab(cx,cz,.18,1.50,1.50,.13,coolM,S);
-    masonry(cx,cz,.31,ledge,1.12,1.12,tier?[coolM,coolL]:[coolD,coolM],tier>0,tier?0:2);
-    if(!tier)corners(.52,(x,z)=>post(x,z,.32,ledge+.02,.14,.14,timberD,WD));
-    if(tier===2)for(const y of [.62,ledge-.30])slab(cx,cz,y,1.17,1.17,.07,iron);
-    slab(cx,cz,ledge,1.54,1.54,.12,pastel||slate,pastel?C:S);
-    slab(cx,cz,ledge+.12,1.36,1.36,.10,iceLight);
-    windowFront(cx,cz+.585,Math.max(.70,ledge*.62),.27,.43);
-    if(tier)windowSide(cx+.585,cz,Math.max(.71,ledge*.60),.26,.43);
+    const frozen=(x,z,y,w,d,h,col)=>{slab(x,z,y,w,d,h,col,C);tag('frost');};
+    frozen(cx,cz,0,1.75,1.75,.20,0xc5e5ed);
+    frozen(cx,cz,.16,1.43,1.43,.17,0xe4f5f6);
+    frozen(cx,cz,.28,1.18,1.18,ledge-.26,0xc3e7f1);
+    frozen(cx,cz,ledge-.015,1.58,1.58,.19,0xe4f5f6);
+    frozen(cx,cz,ledge+.14,1.38,1.38,.09,0xf6ffff);
+    P(cx,ledge-.025,cz,1.55,.36,1.55,0xe1f6ff,C);tag('icicles');
+    const wy=Math.max(.71,ledge*.61);
+    P(cx,wy,cz+.695,.51,.64,.18,0xffffff,C);tag('iceWindow');
+    if(tier){P(cx+.695,wy,cz,.51,.64,.18,0xffffff,C,Math.PI/2);tag('iceWindow');}
     if(branch==='blizzard'){
       // 넓은 눈꽃 왕관: 중앙의 짧은 수정과 여섯 주변 결정.
-      crystal(cx,cz,ledge+.22,H-ledge-.22,.37,iceLight);
-      band(cx,cz,H-.62,.54,.10,.09,iron,6);
+      crystal(cx,cz,ledge+.22,H-ledge-.22,.37,0xe8f8ff);
       for(let i=0;i<6;i++){const a=i*Math.PI/3;
-        crystal(cx+Math.cos(a)*.57,cz+Math.sin(a)*.57,ledge+.21,.62,.21,ice);}
+        crystal(cx+Math.cos(a)*.54,cz+Math.sin(a)*.54,ledge+.20,.53+(i%3)*.055,.20,0xd0eef8);}
     }else if(branch==='frost'){
       // 집중 빙결: 한 개의 굵고 긴 창 모양 수정.
-      crystal(cx,cz,ledge+.22,H-ledge-.22,.51,ice);
-      for(const s of [-1,1])crystal(cx+s*.48,cz,ledge+.22,.48,.20,0x9fd3e6);
-      P(cx,H-.61,cz+.41,.23,.23,.055,brass,C,0,Math.PI/4);
+      crystal(cx,cz,ledge+.22,H-ledge-.22,.51,0xd6f2fc);
+      for(const s of [-1,1])crystal(cx+s*.47,cz,ledge+.21,.43+(s+1)*.055,.21,0xd8f1fa);
     }else{
-      crystal(cx,cz,ledge+.22,H-ledge-.22,.45,ice);
-      for(const s of [-1,1])crystal(cx+s*.47,cz,ledge+.22,.52,.22,0x9fd3e6);
+      crystal(cx,cz,ledge+.22,H-ledge-.22,.45,0xdaf5ff);
+      for(const s of [-1,1])crystal(cx+s*.46,cz,ledge+.21,.46+(s+1)*.065,.21,0xd7f1fa);
     }
     if(lv>=2||style===1)banner(cx,cz+.66,.43,.30,.38);
-    if(lv>=4||style===3)for(const s of [-1,1])lantern(cx+s*.58,cz+.61,ledge-.21,.62);
-    if(top)band(cx,cz,ledge+.15,.67,.08,.08,gold);
+    if(lv>=4||style===3)for(const s of [-1,1]){P(cx+s*.57,ledge-.26,cz+.60,.11,.24,.11,0xc9efff,C);tag('ice');}
+    if(style===3)for(const s of [-1,1])for(const a of [-1,1])P(cx+s*.57,ledge-.25,cz+.673,.16,.022,.02,0xf1e5bd,C,0,a*Math.PI/4);
+    if(lv>=6)for(const s of [-1,1])crystal(cx+s*.49,cz+.54,.22,.25,.13,0xe4f7ff);
+    if(top)for(const s of [-1,1])P(cx+s*.30,.25,cz+.731,.09,.09,.025,gold,C,0,Math.PI/4);
+    if(pastel)P(cx,ledge+.105,cz+.802,.48,.045,.026,pastel);
   }else if(t==='barr'){
     // 병영 — 돌 기초 위 회벽·목조 뼈대(Lv1~2) → 아래층 돌(Lv3~4) → 전부 돌·양쪽 망루(Lv5~).
     const wall=H-.65, front=cz+1.00, stoneTo=tier===0?.30:tier===1?1.02:wall;
@@ -11745,10 +11796,75 @@ const STRU_GEO = roundBox(2, 0.09, 1, 1, 1);     // 30차 — 건물 조각의 �
 const STRU_CYLZ = (()=>{ const g = lathe([[0,-0.5],[0.46,-0.5],[0.5,-0.46],[0.5,0.46],[0.46,0.5],[0,0.5]], 14); g.rotateX(Math.PI/2); g.computeVertexNormals(); return g; })();
 const STRU_CYLY = (()=>{ const g = lathe([[0,-0.5],[0.46,-0.5],[0.5,-0.46],[0.5,0.46],[0.46,0.5],[0,0.5]], 14); g.computeVertexNormals(); return g; })();
 const STRU_CYLX = (()=>{ const g = lathe([[0,-0.5],[0.46,-0.5],[0.5,-0.46],[0.5,0.46],[0.46,0.5],[0,0.5]], 14); g.rotateZ(Math.PI/2); g.computeVertexNormals(); return g; })();
+// 얼어붙은 몸체·창틀·결정이 한 장의 구운 서리를 공유한다. 런타임 노이즈/투명 겹침/추가 빛 없음.
+const STRU_FROST_TEX = (()=>{
+  const cv=document.createElement('canvas');cv.width=cv.height=256;const ctx=cv.getContext('2d'),im=ctx.createImageData(256,256),d=im.data;
+  for(let y=0;y<256;y++)for(let x=0;x<256;x++){const j=(y*256+x)*4,
+    cl=Math.max(0,Math.min(1,.50+.22*Math.sin(x*.039+y*.021)*Math.cos(y*.043)+.15*Math.sin(x*.101-y*.08)+.06*(rnd(x*12.98+y*78.23)-.5)));
+    d[j]=126+109*cl;d[j+1]=183+64*cl;d[j+2]=207+44*cl;d[j+3]=255;}
+  ctx.putImageData(im,0,0);ctx.lineCap='round';ctx.lineJoin='round';
+  for(let k=0;k<19;k++){
+    const points=[];let x=rnd(k*17.31+4)*256,y=rnd(k*11.71+9)*256,a=rnd(k*9.73+2)*Math.PI*2;
+    for(let i=0;i<12;i++){points.push([x,y]);a+=(rnd(k*41+i*7.17)-.5)*1.35;x+=Math.cos(a)*(10+rnd(k+i*19)*12);y+=Math.sin(a)*(10+rnd(k+i*3)*12);}
+    for(const [dx,col,w]of [[0,'rgba(39,104,136,.46)',2.3],[.9,'rgba(246,255,255,.92)',.9]]){
+      ctx.strokeStyle=col;ctx.lineWidth=w;ctx.beginPath();points.forEach(([px,py],i)=>i?ctx.lineTo(px+dx,py-.7*dx):ctx.moveTo(px+dx,py-.7*dx));ctx.stroke();}
+  }
+  // 뿌옇게 성에가 자란 테와 작은 양치 모양 결정. 색 그림 한 번으로 가까운 얼음결과 먼 흰 서리를 함께 만든다.
+  for(let k=0;k<54;k++){const x=rnd(11+k*3.17)*256,y=rnd(31+k*7.91)*256,a=rnd(k*1.91)*6.28,len=9+rnd(k*23.1)*31;
+    ctx.save();ctx.translate(x,y);ctx.rotate(a);ctx.strokeStyle='rgba(246,255,255,.62)';ctx.lineWidth=.75;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(0,-len);
+    for(let j=2;j<8;j++){const yy=-len*j/8,ww=(1-j/9)*len*.28;ctx.moveTo(0,yy);ctx.lineTo(-ww,yy-ww*.75);ctx.moveTo(0,yy);ctx.lineTo(ww,yy-ww*.75);}ctx.stroke();ctx.restore();}
+  for(let k=0;k<1050;k++){const x=rnd(k*13.13)*256,y=rnd(k*7.73+7)*256,r=.3+rnd(k*3.17)*1.2;ctx.fillStyle='rgba(250,255,255,'+(.12+rnd(k*19.7)*.35)+')';ctx.beginPath();ctx.arc(x,y,r,0,6.283);ctx.fill();}
+  const tex=new THREE.CanvasTexture(cv);tex.colorSpace=THREE.SRGBColorSpace;tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
+  tex.minFilter=THREE.LinearMipmapLinearFilter;tex.magFilter=THREE.LinearFilter;tex.anisotropy=4;tex.userData.kind='towerFrost77';return tex;
+})();
+const STRU_ICE_MAT = flatMat(0xffffff,{map:STRU_FROST_TEX,vertexColors:true,specular:0x527989,shininess:24});
 /* 68차 2단계 — 아이들이 짓는 건물 중 상자 티가 나던 곳(나무벽 말뚝·뾰족 끝·띠장, 병영 지붕·문)을 제 모양으로 그린다.
    blocksOfRaw 가 조각을 넣으며 tag() 로 모양 열쇠를 WeakMap 에 적는다 — 행(길이 10/11 · 값)·조각 수·짓기 판정·footprint·색칠 표는 그대로.
    기하는 단위 상자(−0.5~0.5) 안에 두고 행의 크기·회전으로 늘인다. 재질은 타일 재질 그대로(struMat) — 새 재질 0 */
 const STRU_SHAPE_GEO = (()=>{ const G = {};
+  const frostUV=g=>{const p=g.attributes.position,n=g.attributes.normal,uv=[];
+    for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),nx=Math.abs(n.getX(i)),ny=Math.abs(n.getY(i)),nz=Math.abs(n.getZ(i));
+      uv.push((ny>nx&&ny>nz?x:nx>nz?z:x)+.5,(ny>nx&&ny>nz?z:y)+.5);}
+    g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.userData.frost=true;return g;};
+  { const pos=[],col=[],side=[.95,.90,.98,.93,.87,1];
+    const push=(a,b,c,ca,cb,cc)=>{pos.push(...a,...b,...c);col.push(...ca,...cb,...cc);};
+    for(let f=0;f<6;f++){
+      const a=f*Math.PI/3,b=(f+1)*Math.PI/3,edge=u=>[Math.cos(a)*(1-u)+Math.cos(b)*u,Math.sin(a)*(1-u)+Math.sin(b)*u];
+      const point=(u,v)=>{const e=edge(u);return [e[0]*.5,-.40+v*.42,e[1]*.5];};
+      const row=j=>{const v=j/5,cr=.40+.14*Math.sin(j*2.3+f);return {v,u:[0,.065,cr-.022,cr+.022,.935,1]};};
+      const tint=(k,j)=>{const frost=k===0||k===5?1:k===2||k===3?.92:0,foot=j===0?.22:0;
+        const t=Math.max(frost*.75,foot),s=side[f];return [.76*s*(1-t)+.99*t,.90*s*(1-t)+.99*t,.96*s*(1-t)+t];};
+      for(let j=0;j<5;j++){const r0=row(j),r1=row(j+1);
+        for(let k=0;k<5;k++){const A=point(r0.u[k],r0.v),B=point(r0.u[k+1],r0.v),C=point(r1.u[k+1],r1.v),D=point(r1.u[k],r1.v);
+          push(A,C,B,tint(k,j),tint(k+1,j+1),tint(k+1,j));push(A,D,C,tint(k,j),tint(k,j+1),tint(k+1,j+1));}}
+      const c=[.84*side[f],.94*side[f],1],white=[.98,1,1];
+      push(point(0,1),[.035,.5,-.018],point(1,1),c,white,c);
+      push(point(1,0),[0,-.5,0],point(0,0),c,[.36,.61,.78],c);
+    }
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('color',new THREE.Float32BufferAttribute(col,3));
+    g.computeVertexNormals();g.computeBoundingBox();g.userData.vc=true;G.ice=frostUV(g); }
+  { const g=chamferBox(.12),p=g.attributes.position,c=[];
+    for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),k=.95-.06*y+.018*Math.sin(y*15+x*4+z*3);
+      p.setXYZ(i,x*k,y,z*k);const top=y>.35;c.push(top?1:.88,top?1:.96,1);}
+    g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));g.computeVertexNormals();g.userData.vc=true;G.frost=frostUV(g); }
+  { const P=[];for(let side=0;side<4;side++)for(let i=0;i<6;i++){
+      const a=side*Math.PI/2,along=-.42+i*.166,h=.32+.68*rnd(side*23+i*9.17+4),r=.017+.012*rnd(i*7.11+side);
+      const x=along*Math.cos(a)+.467*Math.sin(a),z=-along*Math.sin(a)+.467*Math.cos(a);
+      P.push({g:new THREE.ConeGeometry(r,h,5),m:M4(x,.5-h/2,z,0,0,Math.PI),c:0xe1f5ff});}
+    const g=geoMerge(P);g.userData.vc=true;G.icicles=frostUV(g); }
+  { const pos=[],colors=[],outer=[[-.5,-.5],[.5,-.5],[.5,.16],[0,.5],[-.5,.16]],inner=[[-.30,-.29],[.30,-.29],[.30,.08],[0,.30],[-.30,.08]];
+    const tri=(a,b,c,color)=>{pos.push(...a,...b,...c);for(let i=0;i<3;i++)colors.push(...color);},at=(p,z)=>[p[0],p[1],z];
+    for(let i=0;i<5;i++){const j=(i+1)%5,A=at(outer[i],.5),B=at(outer[j],.5),C=at(inner[j],.38),D=at(inner[i],.38),E=at(inner[i],-.31),F=at(inner[j],-.31),white=[.93,.99,1],shade=[.51,.73,.84];
+      tri(A,B,C,white);tri(A,C,D,white);tri(D,C,F,shade);tri(D,F,E,shade);tri([0,-.04,-.32],at(inner[i],-.32),at(inner[j],-.32),[.20,.47,.60]);}
+    const vein=[[-.22,.19],[-.06,.07],[.055,.02],[.005,-.12],[.22,-.22]];
+    for(let i=0;i<vein.length-1;i++){const a=vein[i],b=vein[i+1],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy),nx=-dy/l*.011,ny=dx/l*.011;
+      tri([a[0]-nx,a[1]-ny,-.29],[b[0]-nx,b[1]-ny,-.29],[b[0]+nx,b[1]+ny,-.29],[.9,1,1]);tri([a[0]-nx,a[1]-ny,-.29],[b[0]+nx,b[1]+ny,-.29],[a[0]+nx,a[1]+ny,-.29],[.9,1,1]);}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));g.computeVertexNormals();g.userData.vc=true;G.iceWindow=frostUV(g); }
+  { const P=[{g:new THREE.BoxGeometry(1,.4,1),m:M4(0,-.3,0),c:0xb6aa94}];
+    for(let r=0;r<5;r++)for(let c=0;c<4;c++){
+      const x=r===0?-.397:r===4?.397:-.4+r*.2,z=-.375+c*.25,shade=.78+.22*rnd(r*11.17+c*31.7);
+      P.push({g:new THREE.BoxGeometry(r===0||r===4?.206:.212,.50,.242),m:M4(x,.18+(r%2)*.04,z),k:()=>shade});}
+    const g=geoMerge(P);g.userData.vc=true;G.towerRoof=g; } // 양쪽 경사는 행의 회전으로 만든다. 같은 판자 기하를 공유해 모둠당 2 draw를 아낀다.
   /* 말뚝 — 한 줄(0.225 × 0.73) 안에 통나무 셋(가로 반지름 0.5 · 깊이 1/6 → 거의 둥근 0.11 × 0.12). 굵기 흔들림 · 위 12% 는 깎여 가늘어진다.
      2단계 고치기 2 — 결도 껍질도 없는 같은 굵기 매끈한 연필 셋이었다 → 통나무마다 굵기(0.93/1.06/0.98)·밝기(0.9/1.1/1.0)를 달리하고,
      세로 껍질 골(깊게 파여 어둡다 · 두둑은 밝다 · 옹이 자국), 위 12% 는 도끼로 깎은 다섯 면(평평한 면 · 밝은 생나무 1.25).
@@ -11866,7 +11982,7 @@ function rebuildStru(){
       const cap = Math.max(64, Math.ceil(arr.length*1.6));
       /* 30차 — 건물은 둥근 원색 조각(로블록스). 무늬 타일 대신 flatFor(tile)·둥근 상자. 빛(glow)은 발광 원색 */
       const sg = STRU_SHAPE_GEO[grp.rs];
-      mesh = new THREE.InstancedMesh(sg || (tile===T.bricks ? BRICKV : grp.rs === 'z' ? STRU_CYLZ : grp.rs === 'y' ? STRU_CYLY : grp.rs === 'x' ? STRU_CYLX : STRU_GEO), sg && sg.userData.vc && tile === T.plank ? WMAT_WOODV : struMat(tile), cap);   // 2단계 고치기 2 — 꼭짓점 색을 구운 나무 모양(말뚝·끝)은 이미 있는 WMAT_WOODV   // 31차b·32차 — 벽돌은 모따기 판 + 꼭짓점 색 · 68차 — 둥근 조각은 원통
+      mesh = new THREE.InstancedMesh(sg || (tile===T.bricks ? BRICKV : grp.rs === 'z' ? STRU_CYLZ : grp.rs === 'y' ? STRU_CYLY : grp.rs === 'x' ? STRU_CYLX : STRU_GEO), sg?.userData.frost ? STRU_ICE_MAT : sg && sg.userData.vc && tile === T.plank ? WMAT_WOODV : struMat(tile), cap);   // 서리 몸체·결정·고드름·창틀은 한 재질을 공유한다.
       mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap*3).fill(1),3);
       mesh.frustumCulled = true;      // 47차 — 모둠별로 쪼갰으니 이제 걸러진다
       if(GFX.shadow){ mesh.castShadow = true; mesh.receiveShadow = true; }  // 25차 — 아이가 지은 벽이 그늘을 만든다
@@ -14994,6 +15110,102 @@ const wfxBeam = new THREE.InstancedMesh(new THREE.CylinderGeometry(1, 1, 1, 12, 
 wfxBeam.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(WFX_JN*3).fill(1), 3);
 for(const m of [wfxSpMesh, wfxFeMesh, wfxBeam, ...wfxRune]){ m.frustumCulled = false; m.visible = false; m.castShadow = m.receiveShadow = false; scene.add(m); }
 
+/* 77차 — 발꿈치에서 휘어 빠지는 자취 + 직업 문양. 세 기하/공유 불투명 재질, 전체 96칸.
+   잔상 캐릭터·투명 판·조명은 없다. 신발의 실제 접지 좌표를 읽고 월드에 짧게 남긴다. */
+const WFX_MN=96,WFX_MRATE=84,wfxMark=[],wfxMarkStats={steps:0,takeoffs:0,landings:0,emitted:0,dropped:0};
+let wfxMI=0,wfxMTok=24;
+for(let i=0;i<WFX_MN;i++)wfxMark.push({t:0,t0:1,x:0,y:0,z:0,a:0,side:1,len:1,width:1,slope:0,jb:0,c:new THREE.Color()});
+const wfxMarkGeo=kind=>{
+  const p=[],c=[],tri=(a,b,d,light=1)=>{for(const q of [a,b,d]){p.push(...q);c.push(light,light,light);}},quad=(a,b,d,e,k=1)=>{tri(a,b,d,k);tri(a,d,e,k);};
+  const strip=(points,width,light=1)=>{for(let i=0;i<points.length-1;i++){
+    const a=points[i],b=points[i+1],dx=b[0]-a[0],dz=b[2]-a[2],n=Math.hypot(dx,dz)||1;
+    const w0=width*(1-i/points.length),w1=width*(1-(i+1)/points.length),nx=dz/n,nz=-dx/n;
+    quad([a[0]-nx*w0,a[1],a[2]-nz*w0],[a[0]+nx*w0,a[1],a[2]+nz*w0],[b[0]+nx*w1,b[1],b[2]+nz*w1],[b[0]-nx*w1,b[1],b[2]-nz*w1],light);
+  }};
+  const polygon=(points,light=1)=>{for(let i=0;i<points.length;i++)tri([0,.012,0],points[i],points[(i+1)%points.length],light);};
+  if(kind===0){
+    polygon(Array.from({length:10},(_,i)=>{const a=i*Math.PI/5,r=i%2?.065:.18;return [Math.cos(a)*r,.014,Math.sin(a)*r];}));
+    for(const off of [-.055,.065])strip(Array.from({length:10},(_,i)=>{const u=i/9;return [off+Math.sin(u*Math.PI*.85)*.28,.035+Math.sin(u*Math.PI)*.095,-.13-u*.92];}),off<0?.022:.038,off<0?.72:1);
+    for(let i=0;i<2;i++){const z=-.33-i*.35;tri([-.10,.04,z+.08],[.05,.045,z],[.01,.05,z-.14],.9);}
+  }else if(kind===1){
+    for(let i=0;i<8;i++){const a=i*Math.PI/4,b=a+.40,r=i%2?.155:.19;
+      quad([Math.cos(a)*.09,.015,Math.sin(a)*.09],[Math.cos(a)*r,.015,Math.sin(a)*r],[Math.cos(b)*r,.015,Math.sin(b)*r],[Math.cos(b)*.09,.015,Math.sin(b)*.09]);}
+    polygon([[0,.018,.058],[.058,.018,0],[0,.018,-.058],[-.058,.018,0]],.72);
+    for(let k=0;k<2;k++)for(let j=0;j<3;j++){
+      const u=j*.29,off=k?.09:-.05;strip([[off+u*.12,.04,-.16-u],[off+.06+u*.12,.07,-.24-u],[off+.10+u*.12,.09,-.37-u]],.022,k?.72:1);
+    }
+  }else{
+    const leaf=(x,z,a,s)=>{for(let i=0;i<6;i++){
+      const u=i/6,v=(i+1)/6;const pt=(k,side)=>{const width=Math.sin(k*Math.PI)*.08*s,along=(k-.2)*.34*s;
+        return [x+Math.sin(a)*along+Math.cos(a)*width*side,.015+Math.sin(k*Math.PI)*.03,z+Math.cos(a)*along-Math.sin(a)*width*side];};
+      quad(pt(u,-1),pt(u,1),pt(v,1),pt(v,-1),i%2?.80:1);
+    }};
+    leaf(-.02,-.05,-.55,1);leaf(.045,-.12,.65,.74);
+    for(const off of [-.035,.065])strip(Array.from({length:11},(_,i)=>{const u=i/10;return [off+Math.sin(u*Math.PI)*.34,.025+Math.sin(u*Math.PI)*.09,-.18-u*.88];}),off<0?.025:.014,off<0?1:.76);
+    leaf(.26,-.59,-.45,.48);
+  }
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('color',new THREE.Float32BufferAttribute(c,3));return g;
+};
+const wfxMarkMeshes=[0,1,2].map(jb=>{
+  const m=new THREE.InstancedMesh(wfxMarkGeo(jb),wfxSpMesh.material,WFX_MN);
+  m.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(WFX_MN*3).fill(1),3);
+  m.count=0;m.visible=false;m.frustumCulled=false;m.castShadow=m.receiveShadow=false;scene.add(m);return m;
+});
+const wfxLocal={me:true,_wf:null};
+function wingFxMark(x,y,z,jb,jt,angle,side,run,slope=0,celebrate=false){
+  if(jb<0||jb>2)return;
+  if(!celebrate&&wfxMTok<1){wfxMarkStats.dropped++;return;}if(!celebrate)wfxMTok--;
+  const p=wfxMark[wfxMI=(wfxMI+1)%WFX_MN],big=jt>=2;
+  p.t=p.t0=celebrate?.66:run?(big?.58:.43):.27;p.x=x;p.y=y+.045;p.z=z;p.a=angle;p.side=side;
+  p.len=celebrate?1.05:run?(big?1.50:1.08):.47;p.width=celebrate?1.14:run?(big?1.05:.87):.68;
+  p.slope=Math.max(-.65,Math.min(.65,slope));p.jb=jb;p.c.setHex(JOB_AURA[jb]);if(big)p.c.lerp(_wfxW,.20);
+  wfxMarkStats.emitted++;
+}
+function wingFxGround(s,dt,t,me=false){
+  const w=s._wf||(s._wf={jt:-1,seen:t,cyc:0,acc:0,fa:0,gl:false});if(w.fxAt===t)return;
+  const known=Number.isFinite(w.fxX)&&t-(w.fxAt??t)<.25,dx=known?s.x-w.fxX:0,dz=known?s.z-w.fxZ:0,dist=Math.hypot(dx,dz);w.fxAt=t;
+  const air=!!s.air,down=!!s.down,jt=s.jt|0,jb=s.jb|0,teleport=dist>Math.max(2,dt*80);
+  w.fxX=s.x;w.fxZ=s.z;
+  const eligible=jt>0&&jb>=0&&jb<3&&!down&&!teleport,near=me||Math.hypot(s.x-PL.x,s.z-PL.z)<48;
+  const speed=dt>0?dist/dt:0,run=s.wrun!==undefined?!!s.wrun:!!s.run,angle=dist>.001?Math.atan2(dx,dz):(w.fxAngle??(s.ry||0));
+  if(dist>.001)w.fxAngle=angle;
+  const hasFeet=s.wfootT===t&&s.wfoot,mask=hasFeet?((s.wfoot[4]?1:0)|(s.wfoot[9]?2:0)):0;
+  if(known&&eligible&&near){
+    const ac=JOB_AURA[jb],big=jt>=2,fy=s.y??GY;
+    if(!w.fxAir&&air){
+      wfxMarkStats.takeoffs++;
+      for(const side of [-1,1]){
+        const xx=s.x+Math.cos(angle)*side*.24,zz=s.z-Math.sin(angle)*side*.24;
+        wingFxSpark(xx,fy+.18,zz,ac,-Math.sin(angle)*.65+Math.cos(angle)*side*.45,.65,-Math.cos(angle)*.65-Math.sin(angle)*side*.45,.36,.055,0);
+        if(big)wingFxFeather(xx,fy+.38,zz,wfxWhite,Math.cos(angle)*side*.32,.26,-Math.sin(angle)*side*.32,.13);
+      }
+    }else if(w.fxAir&&!air){
+      wfxMarkStats.landings++;
+      for(const side of [-1,1]){
+        wingFxMark(s.x+Math.cos(angle)*side*.15,fy,s.z-Math.sin(angle)*side*.15,jb,jt,angle+side*.70,side,run,0);
+        for(let k=0;k<(big?3:2);k++)wingFxSpark(s.x,fy+.10,s.z,k?ac:wfxWhite,Math.cos(angle)*side*(.5+k*.15),.4,-Math.sin(angle)*side*(.5+k*.15),.28,.035,0);
+      }
+    }else if(!air&&hasFeet&&speed>.35&&dist>.001&&dist<2){
+      const landed=mask&~(w.fxMask||0);
+      for(let leg=0;leg<2;leg++)if(landed&(1<<leg)){
+        const o=leg*5,side=leg?-1:1;wfxMarkStats.steps++;
+        wingFxMark(s.wfoot[o],s.wfoot[o+1],s.wfoot[o+2],jb,jt,angle,side,run,s.wfootSlope||0);
+        if(run){wingFxSpark(s.wfoot[o],s.wfoot[o+1]+.08,s.wfoot[o+2],big?wfxWhite:ac,-Math.sin(angle)*.7,.24,-Math.cos(angle)*.7,.24,big?.04:.027,0);
+          if(big)wingFxSpark(s.wfoot[o],s.wfoot[o+1]+.10,s.wfoot[o+2],ac,-Math.sin(angle)*.35+side*.08,.43,-Math.cos(angle)*.35,.28,.027,0);}
+      }
+    }
+  }
+  w.fxAir=air;w.fxMask=mask;
+}
+function wingFxGroundLocal(dt,t){
+  const s=wfxLocal;s.x=PL.x;s.y=PL.y;s.z=PL.z;s.ry=PL.yaw;s.down=!!PL.down;s.air=!PL.ground;s.jb=XP.job;s.jt=XP.jt;
+  s.run=typeof sprinting!=='undefined'&&sprinting;s.wrun=s.run;
+  const feet=s.wfoot||(s.wfoot=new Float32Array(10)),phase=typeof gaitMe!=='undefined'?gaitMe:0;
+  for(let leg=0;leg<2;leg++){const side=leg?-1:1,o=leg*5,step=typeof sheepFootPose==='function'?sheepFootPose(phase+(leg?Math.PI:0),s.run):null;
+    feet[o]=PL.x+Math.cos(PL.yaw)*side*.14;feet[o+1]=PL.y;feet[o+2]=PL.z-Math.sin(PL.yaw)*side*.14;feet[o+3]=PL.yaw;feet[o+4]=!s.air&&step?.plant?1:0;}
+  s.wfootT=t;wingFxGround(s,dt,t,true);
+}
+
 /* 반짝이 한 알 · 깃털 한 장. take=false 면 예산을 안 본다(전직 연출처럼 드물고 한 번뿐인 것) */
 function wingFxSpark(x,y,z,col,vx,vy,vz,life,size,g,take){
   if(take !== false){ if(wfxTok < 1) return; wfxTok--; }
@@ -15015,8 +15227,12 @@ const wfxWhite = 0xfffbea;
    · 친구의 전직: pc 로 오는 jt 가 오르면 그 자리에 마법진(들어온 지 4초 안은 무시 — pc 가 자리보다 늦게 와서 0→2 로 보인다) */
 function wingFxPeople(list, dt, t){
   let meDrawn = false;
+  // 내 발을 먼저 배정한다. 3인칭은 실제 신발 좌표, 몸을 안 그리는 1인칭만 대체 좌표.
+  const localDrawn=list.includes(meSheep);
+  if(localDrawn)wingFxGround(meSheep,dt,t,true);else wingFxGroundLocal(dt,t);
   for(const s of list){
     const me = s === meSheep; if(me) meDrawn = true;
+    if(!me)wingFxGround(s,dt,t,false);
     const w = s._wf || (s._wf = {jt:-1, seen:t, cyc:0, acc:0, fa:0, gl:false});
     const jt = s.jt|0;
     if(!me && w.jt >= 0 && jt > w.jt && t - w.seen > 4 && s.jb >= 0){ const sy = s.y !== undefined ? s.y : GY, gy = groundUnder(s.x, s.z, .3, sy);
@@ -15065,10 +15281,22 @@ function wingFxPeople(list, dt, t){
 }
 /* 전직 마법진 — 내 전직은 takeJob, 친구 전직은 wingFxPeople 이 부른다 */
 function jobUpFx(x, y, z, jb, jt, mine){
-  const J = wfxJob[wfxJI = (wfxJI+1)%WFX_JN], big = jt >= 2;
-  J.t = 0; J.x = x; J.y = y; J.z = z; J.big = big; J.R = big ? 1.55 : 1.25; J.rung = 0;
+  // 0번은 내 전직을 보존한다. 동시에 전직한 친구는 가까운 둘을 우선 보여준다.
+  let slot=0;
+  if(!mine){
+    slot=1;for(let i=1;i<WFX_JN;i++)if(wfxJob[i].t<0){slot=i;break;}else if(Math.hypot(wfxJob[i].x-PL.x,wfxJob[i].z-PL.z)>Math.hypot(wfxJob[slot].x-PL.x,wfxJob[slot].z-PL.z))slot=i;
+    const old=wfxJob[slot],distance=Math.hypot(x-PL.x,z-PL.z);
+    if(old.t>=0&&distance>Math.hypot(old.x-PL.x,old.z-PL.z)){
+      for(let k=0;k<4;k++)wingFxSpark(x,y+.2,z,JOB_AURA[jb]||wfxWhite,(k%2?1:-1)*.4,1+k*.2,(k<2?1:-1)*.3,.6,.055,0);
+      return;
+    }
+  }
+  const J=wfxJob[slot],big=jt>=2;
+  J.t = 0; J.x = x; J.y = y; J.z = z; J.big = big; J.R = big ? 1.55 : 1.25; J.rung = 0;J.jb=jb;J.crest=false;J.mine=!!mine;
   J.c.setHex(JOB_AURA[jb] || 0xffd94a); J.cw.copy(J.c).lerp(_wfxW, .35);
   wfxJLive = WFX_JN;
+  for(let k=0;k<(big?6:4);k++){const a=k*Math.PI*2/(big?6:4),r=J.R*.65;
+    wingFxMark(x+Math.sin(a)*r,y,z+Math.cos(a)*r,jb,jt,a,1,true,0,true);}
   ring(x, y + .07, z, J.cw.getHex(), J.R*1.05, .55, true);
   const n = big ? 34 : 22, col = J.c.getHex(), cw = J.cw.getHex();
   for(let i=0;i<n;i++){ const a = i/n*Math.PI*2 + Math.random()*.2, r = J.R*(.55 + Math.random()*.4);
@@ -15081,6 +15309,15 @@ const _wfxW = new THREE.Color(0xffffff), _wfxC = new THREE.Color();
 const _wfxE = new THREE.Euler(0, 0, 0, 'YXZ'), _wfxQ = new THREE.Quaternion();
 function wingFxTick(dt){
   wfxTok = Math.min(40, wfxTok + dt*WFX_RATE);
+  wfxMTok=Math.min(24,wfxMTok+dt*WFX_MRATE);
+  for(const m of wfxMarkMeshes)m.count=0;
+  for(const p of wfxMark){
+    if(p.t<=0)continue;p.t=Math.max(0,p.t-dt);if(!p.t)continue;
+    const age=p.t0-p.t,fade=Math.min(1,p.t/.18),grow=.78+.22*Math.min(1,age/.055),mesh=wfxMarkMeshes[p.jb],i=mesh.count++;
+    _v.set(p.x,p.y,p.z);_q.setFromEuler(_wfxE.set(-Math.atan(p.slope),p.a,0,'YXZ'));
+    _s.set(p.side*p.width*fade,1,p.len*grow*fade);mesh.setMatrixAt(i,_m.compose(_v,_q,_s));mesh.setColorAt(i,p.c);
+  }
+  for(const m of wfxMarkMeshes){m.visible=m.count>0;if(m.count){m.instanceMatrix.needsUpdate=true;m.instanceColor.needsUpdate=true;}}
   if(wfxSLive){ let live = 0;
     for(let i=0;i<WFX_SN;i++){ const p = wfxSp[i];
       if(p.t <= 0){ wfxSpMesh.setMatrixAt(i, ZEROM); continue; }
@@ -15109,6 +15346,14 @@ function wingFxTick(dt){
       J.t += dt; const T = J.t, END = J.big ? 2.7 : 2.3;
       if(T > END){ J.t = -1; for(let k=0;k<3;k++) wfxRune[k].setMatrixAt(i, ZEROM); wfxBeam.setMatrixAt(i, ZEROM); continue; }
       live++;
+      // 77차 — 한 번 모였다가 날개 높이에서 양쪽으로 펼쳐지는 깃. 큰 전직은 두 겹이다.
+      if(!J.crest&&T>.42){J.crest=true;
+        for(const side of [-1,1])for(let k=0;k<(J.big?3:2);k++){
+          const a=side*(.4+k*.3),h=J.y+.85+k*.25;
+          wingFxFeather(J.x+side*.30,h,J.z,J.cw.getHex(),side*(.65+k*.24),.55+k*.18,.10,.18+(J.big?.035:0));
+          wingFxSpark(J.x+side*.28,h,J.z,k%2?J.c.getHex():wfxWhite,Math.sin(a)*1.6,.65,Math.cos(a)*.3,.48,.06,0,false);
+        }
+      }
       if(J.rung === 0 && T > .28){ J.rung = 1; ring(J.x, J.y + .08, J.z, J.c.getHex(), J.R*1.55, .8, true); }
       if(J.rung === 1 && J.big && T > .55){ J.rung = 2; ring(J.x, J.y + .09, J.z, J.cw.getHex(), J.R*1.25, .7, true); }
       // 무늬 세 겹 — 튀어나오듯 커지고(0.4초), 서로 반대로 돌고, 끝 0.7초에 살짝 퍼지며 사라진다
@@ -15575,7 +15820,7 @@ function updOrbs(dt, tt){
     const k = 1-a.t;
     const x = a.x+(a.tx-a.x)*k, y = a.y+(a.ty-a.y)*k + Math.sin(k*Math.PI)*0.35, z = a.z+(a.tz-a.z)*k;
     /* 65차 — 얼음탑 결정은 날아가는 쪽으로 길게 늘인 빛나는 창(파란 빛줄기)이다. 서리 가루 꼬리는 towerFxTick 이 흘린다. */
-    const sc = 0.17 + Math.sin(tt*22+i)*0.03;
+    const sc = 0.24 + Math.sin(tt*22+i)*0.025; // 같은 26칸 결정 풀: 날아가는 면이 보이는 굵기, 빛판/꼬리 메시 추가 없음
     _dir.set(a.tx-a.x, a.ty-a.y + Math.cos(k*Math.PI)*Math.PI*0.35, a.tz-a.z).normalize();
     _mm.lookAt(_zeroV, _dir, _up2); _q.setFromRotationMatrix(_mm).multiply(_iceSpinQ.setFromAxisAngle(_iceZ, tt*9 + i));   // 긴 축으로 돈다
     _v.set(x,y,z); _s.set(sc, sc, sc*3.4);
@@ -16180,7 +16425,7 @@ const ZOMBIE_MAT = {
   detail:flatMat(0xffffff,{specular:0x111611,shininess:10})
 };
 /* ═══ 66차 — 좀비 살갗의 상처(선생님: "상처는 있어도 돼") ═══
-   조각(행렬)을 하나도 더하지 않고 **살 재질의 셰이더**에 그린다 — 92마리 × 매 프레임 비용이 0 이다.
+   조각(행렬)을 하나도 더하지 않고 **살 재질의 셰이더**에 그린다. 드로콜·행렬은 늘지 않지만 보이는 살 픽셀의 셰이더 연산은 든다.
    부위는 기하에 붙인 zwk 값으로 가른다(머리 1 · 팔다리 2 · 손바닥 3 · 나머지 0 = 상처 없음). 무늬는 단위 상자 안 자리(θ 둘레각·높이)에 그린다.
    같은 팔다리 기하를 쓰는 바지 허벅지는 인스턴스 색의 빨강을 음수로 적어 표시한다(zombieNoWound) — 셰이더가 절댓값으로 색을 되돌린다.
    · 말라붙은 상처: 검붉게 굳은 벌어진 틈(가운데는 어두운 속, 몇 마리는 뼈가 희미하게) + 부어오른 가장자리 + 굳은 얼룩
@@ -16243,10 +16488,15 @@ void zBruise(inout vec3 c, vec2 p, vec2 o, float r){
 if(vZK > .5 && vZW > .01){
   vec3 c0 = diffuseColor.rgb, c = c0; vec3 p = vZP; float sd = vZS;
   vec2 u = vec2(atan(p.x, p.z + 1e-5)*.5, p.y);                                                 // 둘레(반지름 .5 로 편 길이) · 높이
-  c *= 0.86 + 0.26*zN(u*vec2(9.0, 7.0) + sd*31.0);                                        // 시체의 얼룩덜룩한 살
+  float mottled = zN(u*vec2(9.0, 7.0) + sd*31.0);
+  c *= 0.89 + 0.20*mottled;
+  c = mix(c, c*vec3(.77, .87, 1.06), (1.0-smoothstep(.24,.48,mottled))*.34);               // 78차 — 같은 잡음으로 피부 아래 차가운 멍; 새 표본/텍스처 없음
   if(vZK < 1.5){                                                                          // 머리
-    if(sd < .55) zGash(c, u, vec2(-.46 + sd*.2, .26), vec2(-.10, .41), .026, 1.0, 0.0);   // 이마에서 관자놀이로 — 꿰맨 상처
-    else zGash(c, u, vec2(.30, -.02), vec2(.58, -.26), .024, step(.8, sd), step(.72, sd));   // 광대 아래로 벌어진 틈
+    float hollow = (1.0-smoothstep(.72,1.0,length((u-vec2(-.30,-.10))/vec2(.15,.20))))
+                 + (1.0-smoothstep(.72,1.0,length((u-vec2(.30,-.10))/vec2(.15,.20))));
+    c = mix(c,c*vec3(.59,.63,.72),min(1.0,hollow)*.48);                                  // 퀭한 두 볼, 기하를 늘리지 않는 앙상한 얼굴
+    if(sd < .55) zGash(c, u, vec2(-.43 + sd*.2, .22), vec2(.02, .36), .036, 1.0, 0.0);    // 기본 시점에서도 읽히는 말라붙은 이마 봉합
+    else zGash(c, u, vec2(.22, -.01), vec2(.43, -.27), .031, step(.8, sd), 0.0);            // 광대의 건조한 상처; 살빛과 대비하되 젖은 효과 없음
     if(fract(sd*7.3) < .5) zBruise(c, u, vec2(-.20, .10), .10);                           // 눈두덩 멍
     else zScratch(c, u, vec2(-.62, -.02), vec2(-.42, -.22));                              // 뺨의 긁힌 자국
     if(fract(sd*3.1) > .45) zGash(c, u, vec2(1.05, .36), vec2(1.40, .20), .030, 0.0, 1.0);   // 뒤통수 찢긴 자리
@@ -16262,7 +16512,7 @@ if(vZK > .5 && vZW > .01){
 diffuseColor.rgb *= 1.0 - 0.22*uZNight*vZT;                                             // 66차 — 밤엔 살이 어둠에 묻힌다(예전 nightDim 과 같은 22%)
 `);
   };
-  mat.customProgramCacheKey = ()=> 'zombie-wound-66';
+  mat.customProgramCacheKey = ()=> 'zombie-wound-78';
   mat.needsUpdate = true; return mat;
 }
 zombieWoundSkin(ZOMBIE_MAT.skin);
@@ -16289,12 +16539,17 @@ vZP = position;
   sh.fragmentShader = sh.fragmentShader
     .replace('#include <common>', '#include <common>\nuniform float uZNight;\nvarying vec3 vZP; varying float vZD;')
     .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
-{ float pu = (1.0 - smoothstep(.10, .17, length(vZP.xy/vec2(1.0, 1.35))))*(1.0 - smoothstep(7.0, 14.0, vZD));   // 동공은 가까이서만 — 멀면 빛나는 점 그대로
+{ float nearEye=1.0-smoothstep(7.0,14.0,vZD), iris=length(vZP.xy/vec2(1.0,1.35));
+  float pu = (1.0 - smoothstep(.09, .15, iris))*nearEye;                                 // 동공은 가까이서만 — 멀면 빛나는 점 그대로
   float fr = smoothstep(.18, .40, vZP.z);
 #if defined( USE_COLOR ) || defined( USE_INSTANCING_COLOR )
   totalEmissiveRadiance *= vColor.rgb*1.15;
 #endif
-  totalEmissiveRadiance *= 1.0 - .93*pu*fr; diffuseColor.rgb *= 1.0 - .90*pu*fr; }`)
+  float rim=(1.0-smoothstep(.17,.28,iris))*smoothstep(.10,.16,iris)*nearEye*fr;
+  totalEmissiveRadiance *= (1.0 - .93*pu*fr)*(1.0+rim*.15);
+  diffuseColor.rgb *= 1.0 - .90*pu*fr;
+  float glint=(1.0-smoothstep(.024,.065,length(vZP.xy-vec2(-.10,.11))))*nearEye*fr;
+  totalEmissiveRadiance += vec3(.20,.16,.10)*glint; }`)                                  // 기존 눈 면에 홍채와 작은 반사점만, 빛·입자 추가 없음
     .replace('#include <fog_fragment>', `#ifdef USE_FOG
   #ifdef FOG_EXP2
     float fogFactor = 1.0 - exp(-fogDensity*fogDensity*vFogDepth*vFogDepth);
@@ -16304,7 +16559,7 @@ vZP = position;
   gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, fogFactor*(1.0 - .75*uZNight));
 #endif`);
 };
-eyeMat.customProgramCacheKey = ()=> 'zombie-eye-66';
+eyeMat.customProgramCacheKey = ()=> 'zombie-eye-78';
 eyeMat.emissive.setHex(0xffffff);
 const ZOMBIE_FANG_GEO=new THREE.ConeGeometry(.5,1,10,1).rotateZ(Math.PI);
 const W_body = imesh(ZOMBIE_GEO.torso, ZOMBIE_MAT.cloth, MAXW, 1),
@@ -17604,6 +17859,9 @@ const WOLF_T = [
   {n:'🐾 새끼 좀비',   hp:11, spd:4.30,dmg:4,  cd:0.6, sc:0.42, col:0xf0e8dc, look:'pup', climb:1},
   {n:'👁️ 공포 좀비',   hp:110,spd:3.35,dmg:20, cd:2.0, sc:1.12, col:0x5a4c6a, look:'fear',   fear:1}
 ];
+// 77차 — 모든 일반·특수·보스 좀비: 최종 체력 두 배, 공격력 절반.
+// 교사 세기/날짜/등급의 기존 계산 뒤에 한 번 적용하며 저장된 설정은 바꾸지 않는다.
+const ZOMBIE_COMBAT = Object.freeze({hp:2, damage:.5});
 /* 날이 갈수록 걸음이 빨라지는 상한. spawnWolf 가 실제 spd 를 만들 때 쓰고,
    손님 화면이 "이만큼은 넘지 않는다" 를 알아야 해서 여기 한 곳에 둔다. */
 const WOLF_SPD_GROW = 0.42;
@@ -17634,15 +17892,15 @@ const isBoss   = k => !!(WOLF_T[k] && WOLF_T[k].boss);
 /* 66차 — 더 무섭게: 모두 앞으로 더 쏠리고(lean) 팔이 길어 손이 무릎 아래까지 온다(arm ×1.12).
    crawl — 낮게 기는 정도(날쌘 좀비는 쫓을 때 네 발로 달리듯 · 새끼 좀비는 늘 기는 듯 · 굶주린 좀비는 쫓을 때 조금). neck — 머리가 어깨 사이로 더 파묻힘(큰좀비) */
 const ZOMBIE_STYLE = {
-  base:  {shirt:0x667b8b,pants:0x3b465d,bw:1.02,bh:1,hw:1,arm:1.14,drag:.40,lean:.26,gear:'jacket'},
-  runner:{shirt:0x856065,pants:0x354856,bw:.83,bh:1.06,hw:.97,arm:1.24,drag:.90,lean:.40,gear:'runner',crawl:.62},
-  brute: {shirt:0x847349,pants:0x42485e,bw:1.46,bh:.97,hw:.94,arm:1.26,drag:.50,lean:.20,gear:'overalls',neck:.07},
-  hungry:{shirt:0x867957,pants:0x424951,bw:.73,bh:1.08,hw:1.02,arm:1.32,drag:.30,lean:.34,gear:'rags',crawl:.22},
-  armor: {shirt:0x606a7b,pants:0x36444e,bw:1.18,bh:1.02,hw:1.04,arm:1.10,drag:.64,lean:.12,gear:'armor',neck:.03},
-  heal:  {shirt:0xc1d4c7,pants:0x3e6762,bw:.95,bh:1.02,hw:1.02,arm:1.12,drag:.52,lean:.20,gear:'coat'},
-  pup:   {shirt:0x826e9b,pants:0x45495e,bw:.91,bh:.94,hw:1.08,arm:1.12,drag:.75,lean:.30,gear:'hood',crawl:.80},
-  fear:  {shirt:0x4e4566,pants:0x353545,bw:.83,bh:1.12,hw:1.05,arm:1.40,drag:.28,lean:.30,gear:'cloak'},
-  boss:  {shirt:0x665779,pants:0x34344b,bw:1.24,bh:1.04,hw:1.04,arm:1.20,drag:.60,lean:.18,gear:'boss',neck:.04}
+  base:  {shirt:0x667b8b,pants:0x3b465d,bw:1.02,bh:1,hw:1,arm:1.14,drag:.40,lean:.26,gear:'jacket',twist:.15},
+  runner:{shirt:0x856065,pants:0x354856,bw:.83,bh:1.06,hw:.97,arm:1.24,drag:.90,lean:.40,gear:'runner',crawl:.62,twist:.21},
+  brute: {shirt:0x847349,pants:0x42485e,bw:1.46,bh:.97,hw:.94,arm:1.26,drag:.50,lean:.20,gear:'overalls',neck:.07,twist:.09},
+  hungry:{shirt:0x867957,pants:0x424951,bw:.73,bh:1.08,hw:1.02,arm:1.32,drag:.30,lean:.34,gear:'rags',crawl:.22,twist:.23},
+  armor: {shirt:0x606a7b,pants:0x36444e,bw:1.18,bh:1.02,hw:1.04,arm:1.10,drag:.64,lean:.12,gear:'armor',neck:.03,twist:.07},
+  heal:  {shirt:0xc1d4c7,pants:0x3e6762,bw:.95,bh:1.02,hw:1.02,arm:1.12,drag:.52,lean:.20,gear:'coat',twist:.12},
+  pup:   {shirt:0x826e9b,pants:0x45495e,bw:.91,bh:.94,hw:1.08,arm:1.12,drag:.75,lean:.30,gear:'hood',crawl:.80,twist:.18},
+  fear:  {shirt:0x4e4566,pants:0x353545,bw:.83,bh:1.12,hw:1.05,arm:1.40,drag:.28,lean:.30,gear:'cloak',twist:.26},
+  boss:  {shirt:0x665779,pants:0x34344b,bw:1.24,bh:1.04,hw:1.04,arm:1.20,drag:.60,lean:.18,gear:'boss',neck:.04,twist:.11}
 };
 const ZOMBIE_NIGHT = ['cap','hood','runner','rags','overalls','jacket','hood','cloak','coat','rags'];
 function zombieStyle(w){ const d=WOLF_T[w.k],base=ZOMBIE_STYLE[d.boss?'boss':d.look||(w.k===1?'runner':w.k===2?'brute':'base')];
@@ -17673,10 +17931,9 @@ function rankTint(col, rk){
 /* 36차 — 밝은 털(배·주둥이·볼·꼬리 끝): 몸색을 흰색 쪽으로 k 만큼 */
 /* ═══ 좀비 ═══ 선생님: "늑대 컨셉은 좀비 컨셉으로 바꿔." */
 function zomSkin(col){
-  // 65차 — 짙은 풀색(0x6d9450) 대신 창백한 회녹색으로 당긴다. 시체의 핏기 없는 살빛이다
-  // 66차 — 더 차갑고 탁한 **잿빛 회청색 시체색**(0x7a8589)으로. 종류 색은 12%만 남긴다
-  const r=(col>>16)&255, g=(col>>8)&255, b=col&255, k=0.88, m=1-k;
-  return ((Math.round(r*m+0x7a*k))<<16)|((Math.round(g*m+0x85*k))<<8)|Math.round(b*m+0x89*k);
+  // 78차 — 옷/일차 색을 18% 남기고 핏기 없는 회백 피부로. 밤 감광은 기존 셰이더 하나가 맡는다.
+  const r=(col>>16)&255, g=(col>>8)&255, b=col&255, k=0.82, m=1-k;
+  return ((Math.round(r*m+0xa0*k))<<16)|((Math.round(g*m+0xac*k))<<8)|Math.round(b*m+0xaa*k);
 }
 function zomDark(col, k){                 // 옷 그늘 — 같은 색을 k 만큼 어둡게
   const m=1-k, r=(col>>16)&255, g=(col>>8)&255, b=col&255;
@@ -17815,6 +18072,24 @@ function wolfPose(w, t, dt){
   const dead = w.dead === undefined ? 0 : (w.dead > 0 ? 1 - w.dead/0.55 : 1);
   const threat=zombieThreatPose(w,t,dt,mvK);
   return {run, mvK, gait:w.gp, dry:h.ry, turn:h.turn, lead:h.lead, ap, bite, shake, crouch, sniff, life, dead,threat};
+}
+// 78차 도입용 배우: 실제 적 목록·체력·보상·네트워크에 등록하지 않는다. 9개 객체를 재사용한다.
+const STORY_WOLVES78 = [];
+let storyWolfTime78 = -1;
+function storyWolves78(t){
+  t=Math.max(0,Math.min(5,Number.isFinite(t)?t:0));
+  if(t<storyWolfTime78)STORY_WOLVES78.length=0;
+  storyWolfTime78=t;
+  const m=GMOUTH[0],len=Math.hypot(m[0],m[1])||1,nx=m[0]/len,nz=m[1]/len,ry=Math.atan2(-nx,-nz);
+  for(let i=0;i<9;i++){
+    const row=Math.floor(i/3),off=(i%3-1)*1.55+(row%2?.25:0),speed=1.10+(i%3)*.055;
+    const r=4.6+row*1.75-t*speed,x=m[0]+nx*r+nz*off,z=m[1]+nz*r-nx*off;
+    let w=STORY_WOLVES78[i];
+    if(!w){const k=i===4?8:i===6?2:0;w=STORY_WOLVES78[i]={id:-780-i,k,x,z,y:GY,ry,hp:1,mx:1,ph:.37+i*.71,
+      mv:true,atkT:0,hurt:0,shT:false,noChase:true,spd:speed,gv:speed,lx:x,lz:z,gp:i*.77,ly:0};}
+    w.x=x;w.z=z;w.y=wolfY(w);w.ry=ry;
+  }
+  return STORY_WOLVES78;
 }
 function drawWolves(list, t, dt){
   dt = Math.min(0.05, dt || 0.016);
@@ -17972,7 +18247,8 @@ function drawWolves(list, t, dt){
       + hc*mvK*.11*Math.sin(2*Math.PI*pG + sA*3) + jerk*jerkS*.07
       + stL*.20*stW + hSl*.10)*(1 - buck);
     const bank = -bT;
-    const roll = mvK*Math.sin(2*Math.PI*pG)*(heavy ? .06 : .09)*(1 - hc*.5) + hSl*.22 + recv*.10*Math.sin(t*7);
+    const torsion = (ZS.twist||0)*side*(.62+.38*swayS)*(1-buck)*(1-riseK)*(1-alert*.6);     // 78차 — 허리/어깨가 서로 다른 방향으로 비틀린다. 이미 계산한 걸음 위상을 재사용한다.
+    const roll = mvK*Math.sin(2*Math.PI*pG)*(heavy ? .06 : .09)*(1 - hc*.5) + hSl*.22 + recv*.10*Math.sin(t*7) + torsion;
     const lean = ZS.lean*(.55 + .45*mvK) + bite*.42 - crouch*.42 + mvK*(heavy ? .02 : .035)*Math.cos(4*Math.PI*pG)
       + hc*mvK*(heavy ? .20 : .36) + hc*(1 - mvK)*.10 - alert*.10 + hAl*(heavy ? .26 : .40) + stF*.12*stW + buck*.38 + recv*.10
       + crawl*.62 + riseK*.55;
@@ -17990,7 +18266,7 @@ function drawWolves(list, t, dt){
     /* ★ 살빛에는 nd 를 곱하지 않는다 — 상처 씨앗이 인스턴스 색에서 나오므로, 해질녘에 색이 한 단계씩 바뀔 때마다 상처가 번쩍이며 바뀌었다.
        살의 밤 어둡게 하기는 살 셰이더(uZNight)가 맡는다. 옷(바지·셔츠)은 상처가 없어 그대로 nd 를 쓴다. */
     const skin   = hit ? col : zomMix(skin0, sA < .5 ? 0x969278 : 0x71889a, Math.abs(sA - .5)*.50);
-    const skinF  = hit ? col : furLight(skin, .05);                 // 얼굴
+    const skinF  = hit ? col : furLight(skin, .10);                 // 78차 — 얼굴은 더 창백, 꺼진 눈과 상처 대비
     const skinN  = hit ? col : zomMix(zomDark(skin, .36), 0x3a3140, .20);   // 앙상한 목·손끝(뼈가 드러난 그늘)
     const skinA  = hit ? col : zomDark(skin, .12);                  // 마른 팔뚝
     const boneC  = hit ? col : furLight(skin, .20);                 // 광대
@@ -18035,7 +18311,7 @@ function drawWolves(list, t, dt){
     else if(ev < .42) sniff2 = Math.sin(Math.PI*(ev - .22)/.20);
     const snapDir = (zr(idn*3.3 + Math.floor(evT)) - .5)*1.4;
     const hnod = mvK*Math.cos(4*Math.PI*(pG - .10))*.022*sc;
-    const hYaw = ry + roll*0.5 + Math.max(-.9,Math.min(.9,PZ.lead*(.85+hc*.4+alert*.9)))
+    const hYaw = ry + roll*0.5 - torsion*.90 + Math.max(-.9,Math.min(.9,PZ.lead*(.85+hc*.4+alert*.9)))
       +(1-mvK)*(1-crouch)*(1-buck)*life.look*.22*(1-hc)*(1-alert)+shake*.22+hunt.twitch*(1-alert)+snap*snapDir*idleK
       +jerk*jerkS*.62+lieTw*.30*Math.sin(t*23+sC*5);                                            // 66차 — 고개가 홱 꺾여 멈칫 · 쓰러져서도 경련
     const hPit = lean*.40+.10-bite*.30+LK.hpit+PZ.sniff*.5+crouch*.12-hc*.21-alert*.30+hunt.twitch*.5+hAl*.30   // 65차 — 맞으면 고개가 더 젖혀진다
@@ -18043,7 +18319,7 @@ function drawWolves(list, t, dt){
       -crawl*.62-riseK*.40+jerk*.22+hc*mvK*.05*Math.sin(4*Math.PI*pG+1.1);                     // 66차 — 기면서도 앞을 노려보고, 올라올 땐 고개를 쳐든다
     const hT = ((mvK*(1-runK*.5)*(.075+.095*limpC)*side*swayLag + (-side)*.06*limpK*(1-hc*.6))*1.5*(1-alert)
       + (sC-.5)*.22*(1-hc)*(1-alert) + snap*.14*Math.sign(snapDir)*idleK + stL*.25*stW
-      + alert*side*.30 + jerk*jerkS*.42)*(1-buck);                                               // 66차 — 노려볼 때 고개를 삐딱하게 · 경련
+      + alert*side*.30 + jerk*jerkS*.42 + torsion*.32)*(1-buck);                                // 어깨와 반대로 돌아간 목, 딛은 발은 기존 IK로 고정
     const hRl = -hT;
     const cph = Math.cos(hPit), sph = Math.sin(hPit), chr = Math.cos(hRl), shr = Math.sin(hRl);
     const hfx = Math.sin(hYaw), hfz = Math.cos(hYaw);      // 머리 기준 '앞'
@@ -18631,28 +18907,32 @@ function sheepFootPose(phase,run){
      제곱 곡선(lift*lift)은 그대로 둔다 — 접지 경계에서 수직 속도가 0 으로 이어진다. */
   return {f:-amp+vel*q+(2*amp-vel)*sw,lift:lift*lift*(.060+.090*r),toe,plant:false};
 }
-function avatarWingPose(si,{t=0,phase=0,mv=0,run=0,air=0,glide=0,aim=false,down=false}={}){
-  const a=typeof aim==='number'?Math.max(0,Math.min(1,aim)):aim?1:0,flight=Math.max(0,Math.min(1,air))*(1-a),g=Math.max(0,Math.min(1,glide));
-  // 같은 주기를 유지해 점프↔활공 전환 때 위상이 튀지 않는다. 내려치기는 짧고 회복은 길게 한다.
+function avatarWingPose(si,{t=0,phase=0,mv=0,run=0,air=0,glide=0,aim=false,down=false,turn=0,take=0,land=0}={}){
+  const clamp=v=>Math.max(0,Math.min(1,v)),a=typeof aim==='number'?clamp(aim):aim?1:0;
+  const flight=down?0:clamp(air)*(1-a),g=clamp(glide),move=clamp(mv),sprint=clamp(run)*move;
+  const bank=Math.max(-1,Math.min(1,turn)),lift=clamp(take),settle=clamp(land/.22);
+  // 77차: 위상 자체를 연속적으로 휘어 내려치기는 빠르게, 회복은 길게 한다.
+  // 옛 두 cos 조각과 회복 sin의 경계에서 손목/칼깃 속도가 갑자기 꺾이던 것을 없앤다.
   const cycle=((t*1.75+phase/(Math.PI*2))%1+1)%1;
-  const st=c=>{c=(c%1+1)%1;return c<.40?Math.cos(Math.PI*c/.40):-Math.cos(Math.PI*(c-.40)/.60);};
-  const stroke=st(cycle);
-  /* ★ 66차 — 실제 새 날갯짓.
-       · 어깨가 먼저 움직이고 팔꿈치·손목이 차례로 늦게 따라온다(위상 차 — 내려칠 때 깃 끝이 위로 휘어 끌려오고, 올릴 때 아래로 처져 끌려온다).
-       · 올릴 때는 손을 뒤로 접어(손 접기) 공기를 덜 받고 칼깃을 모은다. 내려칠 때는 쫙 펴고 칼깃을 부채처럼 벌린다.
-       · 활공은 날개를 활짝 편 채 천천히 오르내리며, 깃 끝만 바람에 떨듯 미세하게 고친다. */
-  const up=cycle>=.40?Math.sin(Math.PI*(cycle-.40)/.60):0;
-  const soar=Math.sin(Math.PI*2*(t*.875+phase/(Math.PI*4)));
-  const flap=stroke*.50*(1-g)+soar*.07*g;
-  const flutter=Math.sin(t*11.3+phase*1.7)*.045+Math.sin(t*17.9+phase)*.02;
-  const fe=flight*((1-g)*.55*(st(cycle-.08)-stroke)+g*(.05*soar)),
-        fw=flight*((1-g)*(.50*(st(cycle-.16)-st(cycle-.08))-.08*up)+g*(.06+flutter)),
-        fs=flight*(1-g)*.65*up,
-        ff=flight*((1-g)*(.14-.34*up)+g*(.16+.5*flutter));
-  const fold=down?1.40:(1.12+.36*a)*(1-flight)+(.36-.22*g+(1-g)*(.14*up-.05))*flight;
-  const roll=down?-.84:(-.62-.14*a)*(1-flight)+(.08-.05*g+.13*g+flap)*flight;
-  return {f:-.21,u:1.06,sd:.19*si,yaw:si*fold,pitch:-.08-.15*g,
-    roll:si*(roll+(down?0:Math.sin(t*1.8+phase)*.012*(1-flight)*(1-a))),span:(.90-.14*a)*(1-flight)+(1+.10*g)*flight,
+  const angle=c=>{const p=c*Math.PI*2;return p+.34*(1-Math.cos(p));},st=c=>Math.cos(angle(c));
+  const theta=angle(cycle),stroke=Math.cos(theta),up=Math.max(0,-Math.sin(theta))**3;
+  const breath=Math.sin(t*1.8+phase),soar=Math.sin(Math.PI*2*(t*.875+phase/(Math.PI*4)));
+  const ripple=Math.sin(t*7.1+phase*1.7+si*.38)*.024+Math.sin(t*12.7+phase+si*.7)*.009;
+  // 어깨 다음 팔꿈치, 그다음 손목/칼깃. 회복에서만 뒤로 접어 실제 끝의 궤적이 타원이 된다.
+  const fe=flight*((1-g)*.55*(st(cycle-.08)-stroke)+g*(.045*soar+bank*si*.018)),
+        fw=flight*((1-g)*(.50*(st(cycle-.16)-st(cycle-.08))-.085*up)+g*(.06+ripple)),
+        fs=flight*(1-g)*.68*up,
+        ff=flight*((1-g)*(.14-.36*up)+g*(.16+.55*ripple));
+  // 지상에서는 관절을 접은 채 유지한다. 달릴 때 뒤로 모이고, 숨과 착지 여운만 어깨에서 받는다.
+  const groundFold=1.12+.36*a+(1-a)*(.075*sprint+.010*breath*(1-move)+.020*settle);
+  const groundRoll=-.62-.14*a+(1-a)*(.012*breath-.025*sprint-.025*settle);
+  const openFold=.35-.21*g+(1-g)*(.16*up-.05)-.045*lift+bank*si*.035*g;
+  const openRoll=.08+.08*g+(.50+.055*lift)*(1-g)*stroke+.060*g*soar+bank*si*.070*g;
+  const fold=down?1.40:groundFold*(1-flight)+openFold*flight;
+  const roll=down?-.84:groundRoll*(1-flight)+openRoll*flight;
+  return {f:-.21,u:1.06,sd:.19*si,yaw:si*fold,
+    pitch:down?-.08:-.08-.15*g*flight+(1-a)*(-.024*sprint*(1-flight)+.018*breath*(1-flight)-.035*lift*flight+.025*settle*(1-flight)),
+    roll:si*roll,span:down?.90:(.90-.14*a-.025*sprint*(1-a))*(1-flight)+(1+.10*g)*flight,
     cycle,fe,fw,fs,ff};
 }
 /* ★ 66차 — 꼭짓점 셰이더(WMAT_W 의 wingBend)와 **같은 셈**. 날개 끝 꼬리 효과 자리와 검사가 쓴다.
@@ -18763,6 +19043,7 @@ function drawSheep(list, t, cap, colOf, scale){
     const wingAimK=sheepBlend(gs,'wingAimK',s.me&&s.aim?1:0,poseDt,24);
     /* 42차 — 도약(take 0→1: 뜀 직후 0.12초 용수철처럼 늘어나며 다리를 아래로 뻗는다) · 공중제비(flip 0→1: 두 번째 뜀 동안 앞으로 한 바퀴) */
     const take = (!down && air && s.take > 0) ? Math.min(1, s.take/0.12) : 0, flip = (!down && air && s.flip > 0 && s.flip < 1) ? s.flip : 0;
+    const wingTake=sheepBlend(gs,'wingTake',take,poseDt,18),wingBank=sheepBlend(gs,'wingBank',Math.tanh(hd.turn*.12),poseDt,7);
     // Gait follows travelled distance. Pose weights blend independently of input/physics,
     // and feet retain the last movement direction while relaxing into the stopped pose.
     const run = s.run !== undefined ? !!s.run : gs.v > SPD*1.2*(raceOn() ? RACE_SPD : 1);
@@ -19016,6 +19297,11 @@ function drawSheep(list, t, cap, colOf, scale){
       const shoePitch=toe*(1-airBlend)+(th-bend)*.45*airBlend;
       const footYaw=ry+Math.max(-.28,Math.min(.28,Math.atan2(dirS,Math.abs(dirF))))*mvK*(1-airBlend);
       setIR3(P_shoe,shoeN,joint.end[0]+fx*.035*sc,joint.end[1]-.01*sc,joint.end[2]+fz*.035*sc,footYaw,-shoePitch,0,.315*sc,.13*sc,.39*sc,uniform?uniform.shoe:0xf2f3f5);
+      // 77차 — 실제 신발의 접지점을 FX에 게시한다. 미리보기/그리기 자체는 입자를 만들지 않는다.
+      if(hasJob){const feet=s.wfoot||(s.wfoot=new Float32Array(10)),o=si>0?0:5;
+        feet[o]=joint.end[0]+fx*.035*sc;feet[o+1]=joint.end[1]-.01*sc-shoeY;feet[o+2]=joint.end[2]+fz*.035*sc;
+        feet[o+3]=footYaw;feet[o+4]=!air&&!down&&step.plant?1:0;
+        if(si<0){s.wfootT=t;s.wfootSlope=stS;s.wrun=run;}}
       if(bodyFlip&&airBlend>0){
         P_shoe.getMatrixAt(shoeN,_m);_m.decompose(_v,_q,_s);
         const rot=new THREE.Quaternion().setFromRotationMatrix(FLIP_M).slerp(new THREE.Quaternion(),1-airBlend);
@@ -19062,13 +19348,7 @@ function drawSheep(list, t, cap, colOf, scale){
       const orbA = t*1.45 + (s.ph||0)*0.7;                               // 공전 각
       const flap = down ? 0 : mvK*(.62+runK*.38) + Math.abs(hd.turn)*0.08;
       const puls = 0.90 + Math.sin(t*2.6 + (s.ph||0))*0.14;              // 빛이 숨쉰다
-      /* 달릴 때 발에서 직업 색 불티 — 걸음 한 바퀴에 한 번. 내 사람(1인칭)은 updPlayer 가 내므로 여기서는 건너뛴다 */
-      if(run && mvK > 0.5 && !air && !down && s !== meSheep){
-        const cyc = Math.floor(gait/(Math.PI*2));
-        if(gs.fxc !== cyc){ gs.fxc = cyc;
-          const ac = JOB_AURA[s.jb] || 0xffd94a, big = jt >= 2;
-          burst(s.x, y + 0.05*sc, s.z, ac, big ? 5 : 3, big ? 0.8 : 0.5);
-          if(big) burst(s.x, y + 0.12*sc, s.z, 0xfff6e0, 2, 0.35); } }
+      // 77차 — 달리기 효과는 wingFxPeople가 실제 양발 접지를 읽어 나/친구 모두 한 번만 낸다.
       for(const h of JOB_LOOK[s.jb][jt-1]){
         const mesh=P_jobParts[h[12]]||P_deco;
         if((mesh===P_deco?decoN:mesh.count)>=mesh.count_max) continue;
@@ -19109,7 +19389,7 @@ function drawSheep(list, t, cap, colOf, scale){
       // Both roots stay attached to the torso; ground/aim fold back, flight opens outward.
       { const WG = JOB_WING[s.jb][Math.min(1, jt-1)], ws = WG.s*sc, mi = WG.k|0;
         for(const si of [1,-1]){
-          const wing=avatarWingPose(si,{t,phase:s.ph||0,mv:mvK,run:runK,air:airK,glide:glideK,aim:wingAimK,down});
+          const wing=avatarWingPose(si,{t,phase:s.ph||0,mv:mvK,run:runK,air:airK,glide:glideK,aim:wingAimK,down,turn:wingBank,take:wingTake,land});
           const px=BX(wing.f,wing.u,wing.sd),py=BY(wing.f,wing.u),pz=BZ(wing.f,wing.u,wing.sd);
           if(wN[mi] < P_wing[mi].count_max){ const wi = wN[mi]++;
             setSheepAttachment(P_wing[mi],wi,px,py,pz,ry,lean,wing.yaw,wing.pitch,wing.roll,ws*si*wing.span,ws,ws,WG.c);
@@ -19121,13 +19401,8 @@ function drawSheep(list, t, cap, colOf, scale){
           if(WG.g && wgN[mi] < P_wingG[mi].count_max)
             setSheepAttachment(P_wingG[mi],wgN[mi]++,px,py,pz,ry,lean,wing.yaw,wing.pitch,wing.roll,ws*si*wing.span*1.018,ws*1.018,ws*1.018,WG.c);
         } }
-      /* 2차 전직은 발밑에 직업 색 고리가 돈다 — 멀리서도 "쟤 2차다" 가 바닥으로 보인다 */
-      if(jt >= 2 && !down && jobRN < P_jobR.count_max){
-        const rr = sc*(0.98 + Math.sin(t*2.0 + (s.ph||0))*0.06);
-        _v.set(s.x, y + 0.045, s.z); _q.setFromAxisAngle(AX_X, -Math.PI/2); _s.set(rr, rr, 1);
-        P_jobR.setMatrixAt(jobRN, _m.compose(_v,_q,_s));
-        _c1.setHex(JOB_AURA[s.jb] || 0xffd94a); P_jobR.setColorAt(jobRN, _c1); jobRN++;
-      }
+      // 77차 — 몸을 따라다니던 두꺼운 바닥 고리는 그리지 않는다.
+      // 직업 표식은 실제 발 접지의 짧은 궤적과 전직 순간의 축하 연출로만 보인다.
     }
     /* ── 든 총 ──
        ★ 쓰러진 친구는 총을 놓는다(9차에서 내 화면에 대해 같은 걸 고쳤다).
@@ -19338,10 +19613,10 @@ const MORNING_HEAL = 20;
 const SHEEP_BITE = [10, 7, 17, 26, 29, 32, 36, 42, 11];
 function sheepBiteDmg(w){
   const dd = prog(G.day), rk = isBoss(w.k) ? 3 : wolfRank(G.day);
-  /* 위 55 로 막아 둔다 — 좀비왕 한 방에 반 넘게 날아가면 손 쓸 새가 없다.
-     최소 두 번, 보통 서너 번은 물려야 쓰러지도록. */
+  /* 기존 3~55 상한을 계산한 뒤 77차 공격 배율을 한 번 적용한다.
+     방어구 감산·반올림·최소 피해 1은 sheepHurt에서 예전 규칙대로 처리한다. */
   return Math.max(3, Math.min(55,
-    Math.round((SHEEP_BITE[w.k]||10) * (1 + 1.3*curveL(dd)) * (1 + 0.09*rk))));
+    Math.round((SHEEP_BITE[w.k]||10) * (1 + 1.3*curveL(dd)) * (1 + 0.09*rk)))) * ZOMBIE_COMBAT.damage;
 }
 function solidTop(x,z){
   if(!inW(x,z)) return 999;
@@ -19495,11 +19770,9 @@ const STEP = 0.68, SPD = 5.94;   // 45차 — 걷기·달리기 10% 더(5.4 → 
    47차까지 우리: 높이 8.4²/(2·26) = 1.357칸 = 키(0.88)의 1.54배 · 체공 2·8.4/26 = **0.646초**
      → 높이는 거의 같은데 **19% 더 붕 떠 있었다**. 그게 '로블록스가 아닌' 느낌의 나머지 한 조각이다.
    높이 H 를 지킨 채 체공 T 를 맞추면  g = 8H/T² · v = 4H/T  →  g 36.9 · v 10.02 (2단 12.53).
-   ★ **경주는 예전 값 그대로 둔다.** 체공이 짧아지면 앞으로 가는 거리가 6.29 → 5.29칸이 되는데,
-     코스에서 제일 먼 틈이 4.6칸이라(probe49 로 씨앗 여덟을 지어 재 봤다) 여유가 1.69 → 0.69칸으로 준다.
-     47차가 바로 "애들이 골인을 거의 못 한다" 를 고친 판이다 — 코스를 다시 어렵게 만들지 않는다.
-     경주는 이미 제 빠르기(RACE_SPD 1.64)를 따로 쓰고 있으므로 물리도 따로 두는 게 앞뒤가 맞는다. */
-const GRAV   = 26,   JUMP   = 8.4,   JUMP2_R = 10.5;      // 경주 — 37차에 맞춰 둔 값
+   ★ 77차 경주는 JUMP 14.2와 별도 RACE_SPD를 쓴다. 세 배 굵어진 봉을 넘을 높이를 보장하며,
+     마을·밤의 중력/점프는 아래 GRAV_V/JUMP_V 값과 선택 함수로 그대로 유지한다. */
+const GRAV   = 26,   JUMP   = 14.2, JUMP2_R = 14.2;        // 77차 — 세 배 굵어진 회전봉을 한 번의 경주 점프로 넘는다.
 const GRAV_V = 36.9, JUMP_V = 10.02, JUMP2_V = 12.53;     // 마을·밤 — 로블록스 체공(0.54초)
 const gravNow  = ()=> raceOn() ? GRAV  : GRAV_V;
 const jumpNow  = ()=> raceOn() ? JUMP  : JUMP_V;
@@ -19519,7 +19792,7 @@ const MINI_CAM = [6.4];         // 0: 장애물 경주 — 뒤 위에서 따라�
 const CAM_FAR = 3.2, CAM_MAX = 12.5, CAM_MIN = 1.6;
 let camZoom = CAM_FAR;
 const tpvKind = ()=> (miniOn() && G.mini && G.mini.k === 0) ? 0 : (camZoom >= CAM_MIN && camAutoK < 0.98 ? 1 : -1);   // 67차 — 지붕 밑 자동 1인칭(camAutoK)
-const tpvOn   = ()=> PL.down || tpvKind() >= 0;
+const tpvOn   = ()=> waiting78() || PL.down || tpvKind() >= 0;
 /* 휠 — 로블록스처럼 한 칸에 1.2칸씩. CAM_MIN 아래로 당기면 1인칭으로 넘어간다(그때 사람이 안 그려진다) */
 addEventListener('wheel', (e)=>{
   if(!G.started || popOpen() || miniOn() && !raceOn()) return;
@@ -19543,7 +19816,7 @@ const GLIDE_T = [0, 0.6, 1.2];        // 한 번 뜰 때 활공할 수 있는 �
 const GLIDE_VY = -1.7;                // 활공 중 내려가는 빠르기(칸/초) — 그냥 떨어지면 -20 을 넘는다
 function jobTier(){ return (miniOn() || XP.job < 0) ? 0 : Math.max(0, Math.min(2, XP.jt|0)); }
 
-const RACE_SPD = 1.64;                      // 42차 — 경주에서만 걷기·달리기 1.8배(선생님: "50%는 더 빠르게… 평상시는 지금 속도로" → "양 속도 20% 더"). 걸음 박자는 1.4배만 빨라진다
+const RACE_SPD = 3.28;                      // 77차 — 구름 운동회에서만 기존 이동 속도의 두 배. 마을·전투는 그대로다.
 let stamina = 1, sprinting = false, touchRun = false, runDustT = 0;
 
 const ACC_UP = 40, ACC_DOWN = 40;
@@ -19592,6 +19865,8 @@ function sheepBump(dt, wx, wz){
     const f = Math.exp(-dt*5); kbx *= f; kbz *= f; if(Math.abs(kbx) + Math.abs(kbz) < 0.05) kbx = kbz = 0; }
 }
 function updPlayer(dt){
+  if(waiting78()){lobbyMove78(dt);return;}
+  if(G.phase==='intro'){PL.mv=false;held.visible=false;return;}
   const s = Math.sin(PL.yaw), c = Math.cos(PL.yaw);
   let fx=0, fz=0;
   /* ★ 쓰러진 사람은 그 자리에 누워 있는다. 둘러볼 수는 있어야 친구를 부를 수 있다. */
@@ -19603,7 +19878,7 @@ function updPlayer(dt){
   if(len>1){ fx/=len; fz/=len; }
   PL.mv = len > 0.06;
   const prevX = PL.x, prevZ = PL.z, prevY = PL.y;                     // 67차 — 착지 안전망이 되돌릴 이 프레임 시작 자리(숫자 셋 — 할당 0)
-  const SP2 = SPD * spdMul() * sprintMul(dt, len > 0.06) * (raceOn() ? RACE_SPD : JOB_SPD[jobTier()]);   // 날쌘 물약 · 37차 달리기(Shift) · 42차 경주 1.8배 · 45차 전직 날개(마을·밤만)
+  const SP2 = SPD * spdMul() * sprintMul(dt, len > 0.06) * (raceOn() ? RACE_SPD : JOB_SPD[jobTier()]);   // 물약 · Shift · 경주 전용 배속 · 마을/밤 전직 날개
 
   let tvx = (fx*c - fz*s) * SP2, tvz = (fx*(-s) - fz*c) * SP2;
   if(!miniOn()){                                                      // 67차 성곽 — 문 깔때기(마을·밤만). 69차: 나선 레일·회랑 시선을 없앴다 — 시선은 아이 것
@@ -19687,7 +19962,7 @@ function updPlayer(dt){
   /* 69차 — 계단 내려가기: 땅에 붙어 걷던 아이(이번 프레임 뛰지 않음)가 한 단(≤ STEP) 아래 디딤으로 가면 떨어지지 않고 바로 붙는다.
      예전엔 디딤마다 잠깐 공중이 되어 착지 먼지·'툭'·카메라 내려앉음(camDip)이 한 단에 한 번씩 터졌다(선생님: "계단 올라갈 때 카메라가 엄청 떨려").
      마을·밤만 — 경주·서바이벌 몸 규칙은 그대로 */
-  if((!miniOn() || raceOn()) && PL.ground && PL.vy <= 0 && PL.y > gnd && PL.y - gnd <= STEP + 0.02) PL.y = gnd;
+  if((!miniOn() || raceOn()) && PL.ground && PL.vy <= 0 && PL.y > gnd && (PL.y - gnd <= STEP + 0.02 || raceSlideAdhere78(gnd,dt))) PL.y = gnd;
   if(PL.y <= gnd){
     if(!PL.ground){ PL.landT = 0.22; PL.flipT = 99;                                          // 40차 — 착지 납작 · 42차: 0.22초·더 깊게, 늘 흙먼지와 툭 소리, 세게 떨어지면 크게 + 흔들림 + 카메라 내려앉음
       if(raceOn()){PL.y=gnd;raceLand(PL.vy);}else {const hard = PL.vy < -9; burst(PL.x, PL.y + 0.05, PL.z, 0xe6dccb, hard ? 10 : 4, hard ? 0.9 : 0.5); if(window.__sfx) window.__sfx('land');
@@ -19704,12 +19979,8 @@ function updPlayer(dt){
         const wet = !miniOn() && (Math.hypot(PL.x - POND.x, PL.z - POND.z) < POND.r || streamDist(PL.x, PL.z) < 0.9);
         window.__sfx(wet ? 'splash' : 'step', sprinting ? 1 : 0.55);
         if(wet) burst(PL.x, PL.y + 0.06, PL.z, 0x9fd8ff, sprinting ? 5 : 3, 0.5);
-        /* 45차 — 전직한 사람이 달리면 발에서 직업 색 불티가 튄다(선생님: "달릴 때 발에서 멋진 효과"). 2차는 더 크고 흰 빛이 한 겹 더.
-           ★ 1인칭에서는 내 사람을 안 그리므로 여기서 낸다. 3인칭·친구 사람은 drawSheep 이 같은 박자로 낸다 — 둘이 겹치지 않게 그쪽은 meSheep 을 건너뛴다. */
-        if(sprinting && (XP.jt|0) > 0 && XP.job >= 0 && !tpvOn()){
-          const ac = JOB_AURA[XP.job] || 0xffd94a, big = (XP.jt|0) >= 2;
-          burst(PL.x, PL.y + 0.05, PL.z, ac, big ? 5 : 3, big ? 0.8 : 0.5);
-          if(big) burst(PL.x, PL.y + 0.12, PL.z, 0xfff6e0, 2, 0.35); } } } }
+        // 77차 — 1인칭 발 효과도 wingFxPeople의 공통 접지 경로에서 처리한다.
+      } } }
   PL._px = PL.x; PL._pz = PL.z;
   if(PL.y < -20 && !raceOn()) placePlayer(true);
   if(!miniOn()) castleRescue(dt);                                     // 67차 — 끼임·지붕 위·성 밖 구조(땅에 선 프레임만 센다)
@@ -19745,18 +20016,20 @@ function updPlayer(dt){
     /* 52차 — 삭제된 줄넘기용 '땅 높이 고정'을 걷어 낸다. 몸을 따라가되
        위아래 지연을 0.22칸 안에 묶어 2단 점프·활공·낙하에서도 화면을 벗어나지 않는다.
        마을은 좌우 지연 없이 중앙에서, 경주는 기존 달리기 뒤처짐을 유지한다. */
-    const snap = camAnc === null || Math.hypot(PL.x - camAnc.x, PL.z - camAnc.z) > 3
+    // Fast race flight naturally trails its camera by speed/13. That is not a teleport.
+    const raceLag = raceOn() ? Math.max(3,Math.hypot(PL.vx,PL.vz)*(.12+dt)+1) : 3;
+    const snap = camAnc === null || Math.hypot(PL.x - camAnc.x, PL.z - camAnc.z) > raceLag
       || camGY === null || Math.abs(footY - camGY) > 3;
     if(snap){ camAnc = {x:PL.x, z:PL.z}; camGY = footY; camDistance = null; camHold = 0; camSlow = 0; camLift = 0; }
     else {
-      const ck = tk === 0 ? Math.min(1, dt*13) : 1;
+      const ck = tk === 0 ? 1-Math.exp(-dt*13) : 1;
       camAnc.x += (PL.x - camAnc.x)*ck; camAnc.z += (PL.z - camAnc.z)*ck;
       /* 69차 — 발 높이 대신 계단 보간한 높이(footY)를 따른다. 예전엔 성문 계단 반 칸 디딤(0.32)마다 ±0.22 묶기가 한 번에 0.1 을 튀게 해
          3인칭 카메라가 디딤마다 떨렸다. 점프·낙하(공중)는 footY = PL.y 라 예전과 같다 */
       camGY += (footY - camGY)*(1 - Math.exp(-dt*18));
       camGY = Math.max(footY - 0.22, Math.min(footY + 0.22, camGY));
     }
-    const tx = camAnc.x, tz = camAnc.z;
+    let tx = camAnc.x, tz = camAnc.z;
     const look0 = (tk === 1 && !PL.down) ? 0.80 + (AIM_VIEW.height-0.80)*camAimBlend : 1.55;
     const look = look0 + (PL.EYE - look0)*aK;                          // 67차 — 목표 높이도 눈으로(한 번에 0.32 튀지 않게)
     const ty = PL.down ? PL.y + 0.95 : camGY + (footY - camGY)*aK + look - camDip*0.25;   // 69차 — 자동 1인칭으로 빨려 들수록 뒤처진 닻(camGY) 대신 1인칭과 같은 footY(넘어가는 순간 0.07 튀던 것)
@@ -19766,8 +20039,8 @@ function updPlayer(dt){
        어깨 경로를 쓴다 — 예전에는 중앙만 검사한 뒤 옆으로 밀어 벽을 뚫었다. */
     const sh = (tk === 1 && !PL.down) ? AIM_VIEW.shoulder*camAimBlend*(1 - aK) : 0;
     camShoulder += (sh - camShoulder)*(1 - Math.exp(-dt*14));
-    const ox = -dx*back + Math.cos(PL.yaw)*camShoulder;
-    const oz = -dz*back - Math.sin(PL.yaw)*camShoulder;
+    let ox = -dx*back + Math.cos(PL.yaw)*camShoulder;
+    let oz = -dz*back - Math.sin(PL.yaw)*camShoulder;
     /* 70차 4회차 — 성문 계단에서 카메라가 오르막 쪽(앞으로 걸어 내려갈 때 늘)이면 거리를 당기기 전에 카메라 끝을 먼저 올린다: 카메라 선 세 점(0.45·0.7·1)이
        같은 계단의 연속 경사 + 0.85(칸 윗면이 경사보다 한 칸 디딤 둘만큼 높을 수 있다) 위로 오도록(선 기울기로 · 한도 max(1.6, 거리 × 0.55) · 결 0.07초). 3회차는 엉덩이 높이 선이 뒤쪽 디딤에 걸려 3.2 → 0.83 으로 4프레임에 당겨진 채
        계단 끝까지 머물렀다(내려가는 동안 77% 가 1.2 안 · main 0%). 올린 만큼 몸은 화면 가운데보다 조금 아래 — 시선(조준 방향)은 그대로 */
@@ -19775,15 +20048,26 @@ function updPlayer(dt){
     if(tk !== 0 && camK >= 0 && !PL.down){ const hb = Math.hypot(ox, oz), oy0 = -dy*back;
       if(hb > 1e-3) for(let j=0; j<3; j++){ const f = j === 0 ? 0.45 : j === 1 ? 0.7 : 1, h = stairRamp(camK, tx + ox*f, tz + oz*f, 0) + 0.85 - (ty + oy0*f); if(h > 0) lift = Math.max(lift, h/f); } }
     camLift += (Math.min(Math.max(1.6, back*0.55), lift) - camLift)*(1 - Math.exp(-dt*14)); if(camLift < 1e-4) camLift = 0;
-    const oy = -dy*back + camLift;
-    const length = Math.hypot(ox, oy, oz);
+    let oy = -dy*back + camLift;
+    let length = Math.hypot(ox, oy, oz);
     /* 69차 — 벽 검사는 몸의 실제 눈높이 쪽에서 시작한다: 계단을 오를 때 부드럽게 뒤처진 목표(footY)가 다음 디딤 윗면보다 낮아지면
        검사 첫 점이 디딤 속이라 거리 0(카메라가 머리 속으로 한 번에 빨려 듦)이 나왔다 */
     /* 70차 — 검사한 선에 카메라를 놓는다. 69차는 눈높이 선(cyH)을 검사하고 뒤처진 ty 선에 놓아, 뒤로 오르거나 위를 보며 오를 때
        검사 안 한 낮은 선의 카메라가 디딤·땅 칸 속으로 들어갔다(143 프레임 중 58~102). 평소엔 ty 선(계단 보간 그대로 — 떨림 0)을 검사해 놓고,
        ty 선이 몸 곁에서 막히면(뒤처진 목표가 디딤 속) 그 순간 눈높이 선으로 올려 놓고(camHi 1) 낮은 선이 트이면 초당 2 로 천천히 ty 선으로 내린다 */
     let cy = ty, clear = length;
-    if(tk !== 0){
+    if(tk===0&&raceOn()){
+      // Preserve the free camera endpoint, but cast from the actual avatar rather than
+      // its trailing anchor: during a shove that anchor can already be inside a bumper.
+      const eye=PL.down?PL.y+.95:footY+look-camDip*.25;
+      ox+=tx-PL.x;oz+=tz-PL.z;oy+=ty-eye;tx=PL.x;tz=PL.z;cy=eye;
+      // Lift the trailing camera above the continuous deck before shortening
+      // its boom. Input yaw/pitch and the avatar's physics remain untouched.
+      const floorLift=raceCameraLift(tx,cy,tz,ox,oy,oz),oldLift=RACE74.cameraLift||0;
+      RACE74.cameraLift=oldLift+(floorLift-oldLift)*(1-Math.exp(-dt*(floorLift>oldLift?18:5)));
+      oy+=RACE74.cameraLift;
+      length=Math.hypot(ox,oy,oz);clear=raceCameraClearance(tx,cy,tz,ox,oy,oz);camHi=0;
+    }else if(tk !== 0){
       const cyH = PL.down ? ty : Math.max(ty, (camRamp !== null ? Math.max(PL.y - 0.2, camRamp) : PL.y) + look - camDip*0.25), clearH = cameraClearance(tx, cyH, tz, ox, oy, oz);   // 성문 계단 위면 눈높이도 연속 경사로(디딤마다 안 튀게)
       if(cyH - ty < 0.02){ cy = ty; clear = clearH; camHi = 0; }        // 두 선이 거의 같다(0.02 안) — 뒤처진 선에 그대로(선을 갈아타며 0.02 씩 튀지 않게)
       else {
@@ -20932,6 +21216,7 @@ function setAimMode(on, quiet){
 }
 
 function fireWeapon(){
+  if(pregame78())return;
   if(!G.host && hitQueue.length>=64){ throwCd=0.2; return; }
   if(!G.started || G.paused || PL.down || throwCd > 0 || popOpen()) return;
 
@@ -22702,12 +22987,13 @@ function kitItems(){
 }
 /* 꾸미기는 시작 전만. 예전 가방 호출이 남아 있어도 진행 중에는 착장을 바꾸지 않는다. */
 function wearDeco(t, i){
-  if(G.started || G.phase !== 'title' || !DRESS_OPTIONS[t]) return false;
+  if(!dressAllowed78() || !DRESS_OPTIONS[t]) return false;
   i = dressPickId(t,i);
   if(t === 'hat'){ pickHat = i; LS.set('sheepHat', i); }
   else if(t === 'gls'){ pickGls = i; LS.set('sheepGls', i); }
   else if(t === 'skin'){ pickSkin = i; LS.set('sheepSkin', i); }
   else { pickClo = i; LS.set('sheepClo', i); }
+  if(waiting78()){Object.assign(G.me,myDress());lastPosSig='';netT=0;}
   sfx('equip'); buildPicker(); return true;
 }
 function kitClick(it){
@@ -23210,7 +23496,9 @@ if(isTouch) document.body.classList.add('touch');
 
 addEventListener('keydown', e=>{
   const k = e.key.toLowerCase();
+  if(e.target?.closest?.('input,textarea,select,[contenteditable=true]'))return;
   KEY[k] = true;
+  if(pregame78()){if(k===' '){if(!e.repeat&&waiting78()&&!popOpen())wantJump=true;e.preventDefault();}if(k==='c'&&waiting78()&&!popOpen())lobbyDress78();if(k==='escape'){document.exitPointerLock?.();el('popLobby78').classList.remove('on');}return;}
   /* ★ 20차 — 키를 꾹 누르고 있으면 브라우저가 keydown 을 초당 서른 번씩 다시 보낸다(e.repeat).
      그래서 스페이스를 누르고만 있으면 착지하는 프레임마다 다시 뛰어서, 줄넘기 내내
      거의 공중에 떠 있었다. 애들이 찾아낸 그 방법이다 — 한 번 누르면 한 번 뛴다.
@@ -23351,7 +23639,7 @@ function selectBuild(b){ if(!BUILD[b]) return; resetBuildPlacement(); buildLineM
      알림은 도구 쪽 한 줄만("⛏️ 캐기") — 총을 넣었다는 말을 따로 하지 않는다(같은 소식 두 줄 X). 총을 안 들었으면 예전처럼 말없이 바꾼다.
    ★ selectTool/selectBuild 는 그대로 둔다 — 시작·아침처럼 코드가 부르는 곳이 총 상태를 건드리지 않게.
    ★ 쓰러짐·창(상점 등)·관전·시작 전에는 총을 들거나 넣지 않는다(쓰러지면 Q·E·F 는 관전 키 — SPEC 이 먼저 가로챈다). */
-function gunToggleOk(){ return G.started && G.phase !== 'title' && !popOpen() && !PL.down && !SPEC.on && !miniOn(); }   // 미니게임 중엔 miniOnState 가 총을 맡는다(Q·1·우클릭·총 칸이 총을 넣지 않게)
+function gunToggleOk(){ return !pregame78() && G.started && G.phase !== 'title' && !popOpen() && !PL.down && !SPEC.on && !miniOn(); }   // 미니게임 중엔 miniOnState 가 총을 맡는다(Q·1·우클릭·총 칸이 총을 넣지 않게)
 function toggleGun(){ if(gunToggleOk()) setAimMode(!aimMode); }
 function gunAway(ic, name){ if(!aimMode || !gunToggleOk()) return; setAimMode(false, true); toast(`${ic} ${name}`, 1.4, '#c8ffb0'); }
 function pickTool(t){ const T = TOOLS.find(x => x.id === t); if(T) gunAway(T.icon, T.name); selectTool(t); }
@@ -25039,6 +25327,7 @@ function aimInfo(o){
   aimOn(true);
 }
 function doAction(dt){
+  if(pregame78()){hl.visible=false;ghost.visible=false;workStop();return;}
   hl.visible = false; ghost.visible = false;
   if(G.paused){ workStop(); aimOn(false); return; }
   /* ★ 총을 들고 있으면 캐지도 짓지도 않는다. 안 막으면 좀비를 쏘려다
@@ -25578,9 +25867,9 @@ function spawnWolf(k, gate, atX, atZ){
   /* ★ 보스는 배수를 따로 준다. 잡몹과 똑같이 2배로 했더니 마지막 밤(좀비왕 34000)이
      열 명이 저격총을 쏴도 안 죽어서, '어려운 밤'이 아니라 '못 이기는 밤'이 됐다. */
   const hp = (bi>=0 ? BAL.bossHP[bi]*P*BAL.bossMul
-                    : T0.hp * (1 + BAL.hpGrow*curveL(dd)) * rH * P * BAL.hpMul);
-  const dmg = (bi>=0 ? T0.dmg*P : T0.dmg * (1 + BAL.dmgGrow*curveL(dd)) * rD * P) * BAL.dmgMul;
-  const cd = (bi>=0 ? T0.cd*P : T0.cd * (1 + BAL.crystalGrow*curveL(dd)) * rD * P) * BAL.crystalMul;
+                    : T0.hp * (1 + BAL.hpGrow*curveL(dd)) * rH * P * BAL.hpMul) * ZOMBIE_COMBAT.hp;
+  const dmg = (bi>=0 ? T0.dmg*P : T0.dmg * (1 + BAL.dmgGrow*curveL(dd)) * rD * P) * BAL.dmgMul * ZOMBIE_COMBAT.damage;
+  const cd = (bi>=0 ? T0.cd*P : T0.cd * (1 + BAL.crystalGrow*curveL(dd)) * rD * P) * BAL.crystalMul * ZOMBIE_COMBAT.damage;
 
   const w = { id:wid++, k, x, z, y:GY, ry:Math.atan2(-x,-z), hp, mx:hp, dmg, cd,
     /* 날이 갈수록 더 빨라진다 (예전 +30% -> +42%) */
@@ -27011,10 +27300,10 @@ function towerFxShot(o, target, hits, victims, dm, cr){
   }
   if(o.t === 'ice'){
     // 얼음 결정 — 결정이 날아가는 길에 서리 가루를 흘리고, 닿으면 서리가 터지며 좀비 몸에 얼음 껍질이 잠깐 붙는다.
-    const sy = GY + buildStat(o,'hi') + .35, d3 = Math.max(.1, Math.hypot(tx - cx, ty + .8 - sy, tz - cz));
+    const m=buildingGunMuzzle(o),d3=Math.max(.1,Math.hypot(tx-m.x,ty+.8-m.y,tz-m.z));
     if(near){ const n = towerFxTake(4);
-      for(let i=0;i<n;i++) towerFxChip(cx + (Math.random()-.5)*.5, sy - .15, cz + (Math.random()-.5)*.5, (tx-cx)/d3*1.2, 1.2 + Math.random(), (tz-cz)/d3*1.2,
-        .45, .06, .10, .06, i%2 ? 0xe8fbff : 0xa6dcf2, .5, 10); }
+      for(let i=0;i<n;i++) towerFxChip(m.x+(Math.random()-.5)*.20,m.y,m.z+(Math.random()-.5)*.20,(tx-m.x)/d3*3,1.2+Math.random(),(tz-m.z)/d3*3,
+        .45,.09,.16,.09,i%2?0xe8fbff:0x8bcfe9,.5,10); }
     towerFxLater(d3/30, 'ice', o, target, tx, ty + .8, tz, dm, cr, victims);
     towerFxSfx('towerIce', cx, cz, 26, 120);
     return;
@@ -27038,10 +27327,10 @@ function towerFxShot(o, target, hits, victims, dm, cr){
     return;
   }
   // 화살 — 시위가 튕기며 나무 가루가 살짝 튀고, 화살이 닿으면 불꽃과 나무 조각이 튀고 잠깐 꽂혀 있다.
-  const sy = GY + buildStat(o,'hi') + .35, d3 = Math.max(.1, Math.hypot(tx - cx, ty + .8 - sy, tz - cz));
-  if(near){ const n = towerFxTake(2), ux = (tx-cx)/d3, uz = (tz-cz)/d3;
-    for(let i=0;i<n;i++) towerFxChip(cx + ux*.7, sy - .6, cz + uz*.7, ux*1.5 + (Math.random()-.5), 1.2 + Math.random(), uz*1.5 + (Math.random()-.5),
-      .40, .03, .03, .12, 0xefe2c4, 1, 14); }
+  const m=buildingGunMuzzle(o),d3=Math.max(.1,Math.hypot(tx-m.x,ty+.8-m.y,tz-m.z));
+  if(near){ const n=towerFxTake(2),ux=(tx-m.x)/d3,uz=(tz-m.z)/d3;
+    for(let i=0;i<n;i++) towerFxChip(m.x,m.y,m.z,ux*1.5+(Math.random()-.5),1.2+Math.random(),uz*1.5+(Math.random()-.5),
+      .40,.04,.04,.18,0xefe2c4,1,14); }
   towerFxLater(d3/44, 'arrow', o, target, tx, ty + .8, tz, dm, cr, hits);
   towerFxSfx('towerBow', cx, cz, 26, 95);
 }
@@ -27222,12 +27511,16 @@ function buildingGunMuzzle(o){
   const yaw=Number.isFinite(o.gunYaw)?o.gunYaw:0;
   if(o.t==='pulse'){const K=cannonSpec(o.lv),h=Math.cos(K.pitch)*K.muzzle;   // 들린 포신의 끝(외형과 같은 치수)
     return {x:struCX(o)+Math.sin(yaw)*h,y:GY+K.py+Math.sin(K.pitch)*K.muzzle,z:struCZ(o)+Math.cos(yaw)*h};}
+  if(o.t==='ice')return {x:struCX(o),y:GY+buildStat(o,'hi')+.055,z:struCZ(o)};
+  if(o.t==='arrow'&&!((o.lv||1)>=3&&(o.branch==='rapid'||o.branch==='sniper')))
+    return {x:struCX(o)+Math.sin(yaw)*.82,y:GY+buildStat(o,'hi')-.05,z:struCZ(o)+Math.cos(yaw)*.82};
   return {x:struCX(o)+Math.sin(yaw)*1.04,y:GY+buildStat(o,'hi')-.33,z:struCZ(o)+Math.cos(yaw)*1.04};
 }
 function towerAttack(o,target,damage=true){
   const b=BUILD[o.t];if(!b||!b.dmg||!target||!(target.hp>0))return false;
-  const cx=struCX(o),cz=struCZ(o),sy=GY+buildStat(o,'hi')+.35;
+  const cx=struCX(o),cz=struCZ(o);
   if(Math.hypot(target.x-cx,target.z-cz)>buildStat(o,'range'))return false;
+  o.gunYaw=Math.atan2(target.x-cx,target.z-cz);
   const victims=towerVictims(o,target),cr=rollCrit(),dm=Math.round(buildStat(o,'dmg')*(cr?CRIT_MUL:1));
   const hits=o.t==='pulse'?victims:[target];
   const gun=o.t==='arrow'&&(o.lv||1)>=3&&(o.branch==='rapid'||o.branch==='sniper');
@@ -27244,7 +27537,7 @@ function towerAttack(o,target,damage=true){
         w.slow=duration;w.slowK=slow; // 약한 눈보라가 이미 걸린 강한 빙결을 풀지 않는다.
       }
     }
-    shootIce(cx,sy,cz,target.x,(target.y||GY)+.8,target.z);
+    const m=buildingGunMuzzle(o);shootIce(m.x,m.y,m.z,target.x,(target.y||GY)+.8,target.z);
   } else if(o.t==='pulse'){
     // 대포 — 포가·포신이 표적을 향해 돌고(gunYaw) 쏘면 뒤로 밀린다(gunKick). 포탄·폭발은 towerFxShot.
     o.gunYaw=Math.atan2(target.x-cx,target.z-cz);o.gunKick=1;
@@ -27258,7 +27551,8 @@ function towerAttack(o,target,damage=true){
     burst(muzzle.x,muzzle.y,muzzle.z,col,sniper?5:3,.45);
     if(window.__sfxAt)window.__sfxAt(sniper?'towerSniper':'towerRapid',cx,cz,24,sniper?160:90);
   } else {
-    shootArrow(cx,sy,cz,target.x,(target.y||GY)+.8,target.z);
+    const m=buildingGunMuzzle(o);o.gunKick=1;
+    shootArrow(m.x,m.y,m.z,target.x,(target.y||GY)+.8,target.z);
   }
   towerFxShot(o,target,hits,victims,dm,cr);
   return {damage:dm,hits:hits.length,affected:victims.length,crit:cr};
@@ -27814,6 +28108,7 @@ function race74Reset(){
   RACE74.flight=RACE74.land=RACE74.speedK=RACE74.slide=0;
   RACE74.rate=1;RACE74.flightKind='';RACE74.forward=0;RACE74.boostT=0;
   RACE74.pending=null;RACE74.lastPad=-1;RACE74.pulse.clear();RACE74.landAge=9;RACE74.impact=0;RACE74.lastNet=-1;RACE74.stepped=0;
+  RACE74.prevTime=-999;RACE74.cameraLift=0;
 }
 
 function raceContains(p,x,z,r=0,t=RACE.t){
@@ -27833,11 +28128,27 @@ function raceSurface(p,x,z){
   return MINI_Y+p.y+(p.yEnd-p.y)*u*u*(3-2*u);
 }
 
-function raceGravityScale(){return raceOn()&&RACE74.flight>0?RACE74.rate*RACE74.rate:1;}
+function raceGravityScale(){
+  if(!raceOn()||RACE74.flight<=0)return 1;
+  if(RACE74.flightKind==='manual'){
+    // Strong take-off, then a smooth buoyant apex, followed by a readable accelerating descent.
+    const u=Math.max(0,Math.min(1,(Math.abs(PL.vy)-5)/10));
+    return (12+60*u*u*(3-2*u))/GRAV;
+  }
+  return RACE74.rate*RACE74.rate;
+}
+
+// Follow only a continuous downhill chute; jumps, knockback and an open edge still leave it.
+function raceSlideAdhere78(gnd,dt){
+  if(!raceOn()||!RACE74.slide||RACE74.flight||!PL.ground||PL.vy>0)return false;
+  const p=RACE_P.find(q=>q.shape==='slide');
+  return !!p&&raceContains(p,PL.x,PL.z,0)&&gnd>MINI_Y-1&&PL.y-gnd<=Math.abs(PL.vz)*dt*1.5+.12;
+}
 
 function raceMotion(dt,tvx,tvz,len){
   if(!raceOn())return false;
   const prev=RACE.t,p=PL.ground?raceUnder(prev):null;
+  RACE74.prevX=PL.x;RACE74.prevY=PL.y;RACE74.prevZ=PL.z;RACE74.prevTime=prev;
   if(G.mini.st==='run'&&!G.paused){RACE.t+=dt;RACE74.stepped+=dt;}
   RACE.hitCd=Math.max(0,RACE.hitCd-dt);RACE.slipT=Math.max(0,RACE.slipT-dt);
   if(raceHold()||G.mini.st!=='run'||RACE.fallT>0){PL.vx=PL.vz=0;return true;}
@@ -27855,10 +28166,15 @@ function raceMotion(dt,tvx,tvz,len){
   }
   if(RACE74.flight>0&&!PL.ground){
     const rate=RACE74.rate;RACE74.flight+=dt;
-    if(RACE74.flightKind==='manual'||RACE74.flightKind==='slide'){
-      // Flight is a fast arc; left/right can refine the landing, reverse only weakly brakes.
+    if(RACE74.flightKind==='manual'){
+      // Enough lateral authority to steer between diagonally staggered islands and dodge landing obstacles.
+      PL.vx+=(Math.max(-13,Math.min(13,tvx))-PL.vx)*(1-Math.exp(-dt*4));
+      const target=RACE74.forward*(tvz<-.5?.60:tvz>.5?1.10:1);
+      PL.vz+=(target-PL.vz)*(1-Math.exp(-dt*1.7));
+    }else if(RACE74.flightKind==='slide'){
+      // Keep chute momentum with gentle course correction and weak reverse braking.
       PL.vx+=(Math.max(-7,Math.min(7,tvx))-PL.vx)*(1-Math.exp(-dt*2.0));
-      const target=RACE74.forward*(tvz<-.5?.78:RACE74.flightKind==='manual'&&tvz>.5?1.015:1);
+      const target=RACE74.forward*(tvz<-.5?.78:1);
       PL.vz+=(target-PL.vz)*(1-Math.exp(-dt*.8));
     }else{
       PL.vx+=(Math.max(-9,Math.min(9,tvx))*rate-PL.vx)*(1-Math.exp(-dt*3.2*rate));
@@ -27878,8 +28194,10 @@ function raceMotion(dt,tvx,tvz,len){
   }
   RACE74.boostT=0;
   if(RACE74.slide){
-    const target=tvz>.3?3*Math.min(22,tvz+9):tvz<-.3?35:52,k=1-Math.exp(-dt*5);
-    PL.vx+=(tvx*1.05-PL.vx)*k;PL.vz+=(target-PL.vz)*k;return true;
+    // A/D carve through alternating candy gates; S brakes without cancelling the downhill rush.
+    const target=tvz>.3?66:tvz<-.3?34:58;
+    PL.vx+=(Math.max(-26,Math.min(26,tvx*1.35))-PL.vx)*(1-Math.exp(-dt*8.5));
+    PL.vz+=(target-PL.vz)*(1-Math.exp(-dt*4.2));return true;
   }
   return false;
 }
@@ -27897,9 +28215,13 @@ function raceTryJump(){
   if(!raceOn()||!PL.ground||raceHold()||G.paused||G.mini.st!=='run'||RACE.fallT>0||MINE.fin>=0)return false;
   if(RACE74.pending)return true;
   const p=raceUnder();if(!p||!p.bounce||!p.bounce.manual)return false;
-  const pose=racePose(p,RACE.t),r=p.bounce.zone||4.4;
+  const pose=raceJumpPose(p,RACE.t),r=p.bounce.zone||2.5;
   if((PL.x-pose.x)**2+(PL.z-pose.z)**2>r*r)return false;
-  RACE74.pending={p,t:.085};RACE74.pulse.set(p.id,1);RACE74.landAge=0;RACE74.impact=.5;return true;
+  // An input edge launches immediately; compression is visual and never stalls movement.
+  RACE74.rate=1;PL.vy=p.bounce.v;PL.vz=p.bounce.forward;PL.vx=Math.max(-13,Math.min(13,PL.vx));
+  PL.ground=false;PL.jumps=1;PL.flipT=99;PL.takeT=0;RACE74.flight=.001;
+  RACE74.flightKind='manual';RACE74.forward=PL.vz;RACE74.lastPad=p.id;
+  RACE74.pulse.set(p.id,1);RACE74.landAge=0;RACE74.impact=.5;raceBounceSound(p.kind);return true;
 }
 
 function racePhysicsAfter(dt){
@@ -27926,7 +28248,8 @@ function racePhysicsAfter(dt){
   }
   if(p&&p.fin&&PL.z>=RACE_Z_FIN&&MINE.cp===RACE_S.length){raceFinishMe();return;}
   raceHazardTick(dt);
-  RACE74.speedK+=(Math.max(0,Math.min(1,(Math.hypot(PL.vx,PL.vz)-10)/32))-RACE74.speedK)*(1-Math.exp(-dt*7));
+  const rush=Math.max((Math.hypot(PL.vx,PL.vz)-10)/32,RACE74.flightKind==='manual'?Math.abs(PL.vy)/55*.95:0);
+  RACE74.speedK+=(Math.max(0,Math.min(1,rush))-RACE74.speedK)*(1-Math.exp(-dt*7));
 }
 
 const RACE = {on:false, t:0, fallT:0, cp:{x:0, z:MINI_PADZ, y:0},
@@ -27943,9 +28266,10 @@ function raceBuild(seed){
   cps.forEach(([z,y,w,d],i)=>{RACE.vars[i]=(rng()*3)|0;P({z,y:y+.075,w,d,sec:i,cp:i+1,kind:'cp',col:RACE_S[i].col});});
   P({z:50,w:44,d:64,h:2.8,round:8,sec:0,col:0x68cde6});
   P({z:150,w:44,d:120,h:2.6,round:3,sec:1,col:0x9b8aed});
-  for(let i=0;i<4;i++)P({z:244+i*56,w:24,d:24,h:3,shape:'round',sec:2,kind:'bounce',col:[0xff9ac3,0xffd166,0x9b8aed,0x68cde6][i],bounce:{v:15.5*Math.sqrt(5),forward:21,rate:RACE_LAUNCH_RATE*2,manual:true,zone:4.4}});
+  for(let i=0;i<4;i++)P({x:[-7,8,-8,7][i],z:244+i*56,w:24,d:24,h:3,shape:'round',sec:2,kind:'bounce',donutIndex:i,col:[0xff9ac3,0xffd166,0x9b8aed,0x68cde6][i],bounce:{v:55,forward:21.5,rate:1,manual:true,zone:2.5}});
   P({z:523,y:0,yEnd:30,w:26,d:90,h:3,shape:'ramp',round:3,sec:3,kind:'ramp',col:0xffbd62,boosts:[494,513,532,551].map((z,i)=>({x:i%2?5:-5,z,w:7,d:5}))});
-  for(let i=0;i<7;i++)P({x:i%2?1.3:-1.3,z:594+i*12,y:30+(i%2?.2:0),w:8,d:8,h:2.2,shape:'round',sec:4,kind:'moving',col:i%2?0x6edab4:0x6bcff0,mv:{ax:'xz',amp:1.1,zamp:.65,spd:.65+i*.035,ph:rng()*Math.PI*2,rot:(i%2?-.30:.30)}});
+  // 78차 — shipped 76 baseline: translation frequency ×5, rotation .30→.60 (×2).
+  for(let i=0;i<7;i++)P({x:i%2?1.3:-1.3,z:594+i*12,y:30+(i%2?.2:0),w:8,d:8,h:2.2,shape:'round',sec:4,kind:'moving',col:i%2?0x6edab4:0x6bcff0,mv:{ax:'xz',amp:1.1,zamp:.65,spd:(.65+i*.035)*5,ph:rng()*Math.PI*2,rot:(i%2?-.60:.60)}});
   P({z:722,y:30,yEnd:0,w:26,d:64,h:3,shape:'slide',round:3,sec:5,kind:'slide',col:0x61d7c1});
   P({z:790,y:0,w:34,d:28,h:3,shape:'round',sec:6,kind:'final',col:0xffc759,bounce:{v:22.5,forward:25}});
   P({z:842,y:2,w:42,d:38,round:8,sec:6,kind:'fin',fin:1,col:0x92b6f3});
@@ -27954,6 +28278,9 @@ function raceBuild(seed){
 function raceOff(p,t){return p.mv?Math.sin(t*p.mv.spd+p.mv.ph)*p.mv.amp:0;}
 function raceZOff(p,t){return p.mv?Math.sin(t*p.mv.spd*.83+p.mv.ph+1.2)*(p.mv.zamp||0):0;}
 function racePose(p,t=RACE.t){return {x:p.x+raceOff(p,t),z:p.z+raceZOff(p,t),a:p.mv?(p.mv.rot||0)*t:0};}
+// The launch marking and collision use the same offset. Landing hints never steer the player.
+function raceJumpPose(p,t=RACE.t){const q=racePose(p,t),s=p.donutIndex%2?-1:1;return p.bounce?.manual?{x:q.x-s*4,z:q.z+5.5}:q;}
+function raceLandingPose(p,t=RACE.t){const q=racePose(p,t),s=p.donutIndex%2?-1:1;return p.bounce?.manual?{x:q.x+s*6.4,z:q.z+5.5}:q;}
 /* 발판이 지금 있나 — 밟혀서 꺼졌거나(fade) 깜빡임 주기에서 꺼진 때(blink)면 없다 */
 function raceAlive(p,t){return true;}
 /* 이 자리의 발판 윗면 높이 — 없으면 -999. all=true 면 꺼진 발판도 센다(아이템 자리 잡을 때) */
@@ -28047,11 +28374,11 @@ function raceRocks(t){
     if(h.z<477||h.z>570)continue;h.x=(h.lane-1)*8;h.y=raceSurface(ramp,h.x,h.z)-MINI_Y+h.r;h.roll=-rockU(age)/h.r;result.push(h);}
   return result;
 }
-/* 76차 — 회전봉은 75차 출발 회전봉보다 짧고(30→22), 각속도는 정확히 세 배(.6→1.8).
+/* 77차 — 다섯 회전봉의 길이22 유지, 76차보다 굵기 세 배(.55→1.65), 각속도1.5배(1.8→2.7).
    바깥 테두리에는 화면에도 보이는 펀치백을 두어 장애물 옆의 무조건 안전한 직선 통로를 없앤다.
    ball/pend/stamp는 옛 저장·진단 도구 호환용이며 현재 raceHazards는 생성하지 않는다. */
 const HAZ = {ball:{per:5.0,spd:15.0,r:1.6},pend:{per:.91,len:6.2,swing:.44,top:8.8,r:2.4},
-  bar:{spd:1.8, len:22},
+  bar:{spd:2.7, len:22},
   stamp:RACE_STAMP};
 /* 도장 바닥 높이 — 0(눌린 상태)에서 up(쉬는 높이) 사이. t 의 순수 함수라 21명이 통신 없이 같은 화면을 본다 */
 function stampY(u){
@@ -28064,26 +28391,33 @@ function raceHazards(t){
   if(!RACE._haz){
     const a=[];const punch=(x,z,floor,sec,id,r=1.65,h=5.6)=>a.push({k:'punch',x,z,y:floor+h/2,h,r,sec,id,power:5});
     // Four staggered rows: 14 launch columns, including the outer edges of the broad start deck.
-    for(let i=0;i<14;i++)punch(-20.6+i*41.2/13,[6,35,52,69][i%4],0,0,'start'+i,1.75,5.6);
-    // Two soft slalom gates leave broad alternating openings for a crowd, not single-file slots.
-    // The close-set capsules keep narrow seams impassable; their entire row sways together.
+    for(let i=0;i<14;i++)punch(-19.6+i*39.2/13,[12,35,52,69][i%4],0,0,'start'+i,2.35,8);
+    // Multiple two/three-person seams breathe independently. Checkpoint decks remain clear.
     for(let row=0;row<2;row++)for(let i=0;i<6;i++){
-      const x=[-19,-14.5,-10,-5.5,-1,19][i]*(row?-1:1);
-      punch(x,42+row*19,0,0,'jellyGate'+row+':'+i,2.15,5.7);
-      Object.assign(a[a.length-1],{baseX:x,sway:.5,swaySpeed:.78,swayPhase:row*Math.PI});
+      const x=(row?[-18.6,-11.4,-3.9,3.6,11.1,18.6]:[-18.6,-11.1,-3.6,3.9,11.4,18.6])[i];
+      punch(x,42+row*19,0,0,'jellyGate'+row+':'+i,2.4,8.2);
+      Object.assign(a[a.length-1],{baseX:x,sway:i===0||i===5?.35:.4,swaySpeed:.92,swayPhase:row*Math.PI+i*Math.PI});
     }
     const candyCenters=[[-9,108],[8,122],[0,151],[-8,181],[9,196]];
     for(let i=0;i<candyCenters.length;i++){
-      const [x,z]=candyCenters[i],w=i%2?-1.8:1.8;a.push({k:'bar',x,z,y:.6,len:22,r:.55,ang:0,w,phase:i*1.1,sec:1,id:'candy'+i});
+      const [x,z]=candyCenters[i],w=i%2?-2.7:2.7;a.push({k:'bar',x,z,y:1.7,len:22,r:1.65,ang:0,w,phase:i*1.1,sec:1,id:'candy'+i});
       // Visible rubber columns occupy both outer strips; a player must choose the moving gate.
       for(const side of [-1,1])for(const dz of [-6,6])punch(side*21,z+dz,0,1,'candyEdge'+i+':'+side+':'+dz,2.3,5.2);
     }
-    for(const p of RACE_P.filter(p=>p.sec===2&&p.bounce))for(let i=0;i<8;i++){
-      const a0=i*Math.PI/4+Math.PI/8;punch(p.x+Math.sin(a0)*8.3,p.z+Math.cos(a0)*8.3,p.y,2,'donut'+p.id+':'+i,1.5,4.9);
+    for(const p of RACE_P.filter(p=>p.sec===2&&p.bounce)){
+      const s=p.donutIndex%2?-1:1;
+      for(const [i,dx,dz]of [[0,-9,-4.8],[1,9,-4.8],[2,-9,4.8],[3,9,4.8]])punch(p.x+dx,p.z+dz,p.y,2,'donut'+p.id+':'+i,1.5,4.9);
+      // A central bumper and staggered clusters punish center-only landings. The safe arrival flank
+      // alternates; reaching the small opposite launch zone requires weaving around the front bag.
+      const inner=[[0,0,2],[1,5.4,1.55],[-2.9,-5.5,1.4],[2.6,-6.5,1.45],[-5.8,-1.8,1.55],[3.5,1.5,1.45],[-1,-3,1.4],[-7,-5.7,1.3]];
+      inner.forEach(([dx,dz,r],i)=>{const x=p.x+s*dx;punch(x,p.z+dz,p.y,2,'donutInner'+p.id+':'+i,r,5.4);
+        if(i===3||i===4)Object.assign(a[a.length-1],{baseX:x,sway:.45,swaySpeed:1.15,swayPhase:p.donutIndex+i*Math.PI});});
     }
     const slide=RACE_P.find(p=>p.shape==='slide');
-    if(slide)for(let row=0;row<6;row++)for(let k=0;k<3;k++){
-      const x=(k-1)*9+(row%2?2:-2),z=695+row*10;punch(x,z,raceSurface(slide,x,z)-MINI_Y,5,'slide'+row+':'+k,k===1?1.65:2.3,5.2);
+    if(slide)for(let row=0;row<3;row++)for(let k=0;k<4;k++){
+      if(k===(row%2?2:1))continue; // One generous gap alternates left/right; straight center hits rubber.
+      // Embed the rounded foot into the chute: the visible wide body, not a narrowing toe, blocks straight travel.
+      const x=-10.2+k*6.8,z=703+row*18;punch(x,z,raceSurface(slide,x,z)-MINI_Y-1.5,5,'slide'+row+':'+k,3.2,6.8);
     }
     for(const x of [-11,11])punch(x,791,0,6,'finalGate'+x,1.65,5.6);
     RACE._haz=a;RACE._hazAll=[];
@@ -28103,20 +28437,177 @@ function raceSphereHit(h){
   return dx*dx+dy*dy+dz*dz<r*r;
 }
 function racePunchHit(h){
+  if(raceToyForm77(h)>=0)return raceToyHit77(h);
   const y=PL.y-MINI_Y,half=Math.max(0,h.h/2-h.r),lo=h.y-half,hi=h.y+half;
   const dy=Math.max(0,lo-(y+1.3),y+PL.R-hi),dx=PL.x-h.x,dz=PL.z-h.z,r=h.r+PL.R;
   return dx*dx+dy*dy+dz*dz<r*r;
 }
+// 77차: one silhouette drives both the padded sculpture and its collision.
+// Ground-level rubber feet still close narrow bypass seams; empty space above
+// or beside a star/cloud/candy hook is genuinely empty.
+const RACE_TOY77=Array.from({length:5},(_,kind)=>{
+  let p=[];
+  if(kind<3){for(let i=0;i<72;i++){const a=i/72*Math.PI*2;
+    const r=kind===0?.79+.21*Math.cos(6*a):kind===1?.73+.27*Math.cos(5*(a-Math.PI/2)):1;
+    if(kind===2){let cloud=0;for(const [x,y,rr]of [[-.62,-.13,.40],[-.22,.25,.54],[.34,.15,.50],[.66,-.15,.34],[0,-.28,.48]]){
+      const dot=x*Math.cos(a)+y*Math.sin(a),disc=rr*rr-x*x-y*y+dot*dot;if(disc>=0)cloud=Math.max(cloud,dot+Math.sqrt(disc));}
+      p.push([Math.cos(a)*cloud,Math.sin(a)*cloud]);
+    }else p.push([Math.cos(a)*r,Math.sin(a)*r]);}}
+  else if(kind===3){ // A real open candy hook, not another oval with stripes.
+    p=[[-.66,-1],[-.66,.40],[-.54,.75],[-.20,.98],[.24,1],[.66,.79],[.83,.47],[.83,.12],[.31,.12],[.31,.38],[.17,.49],[-.02,.48],[-.13,.34],[-.13,-1]];
+  }else{ // Broad cheering pennant on a padded mast, with a visible swallowtail.
+    p=[[-.78,-1],[-.78,1],[.84,.77],[.34,.30],[.85,-.09],[-.29,.02],[-.29,-1]];
+  }
+  if(kind>=3)for(let k=0;k<2;k++){const q=[];for(let i=0;i<p.length;i++){
+    const a=p[i],b=p[(i+1)%p.length];q.push([a[0]*.85+b[0]*.15,a[1]*.85+b[1]*.15],[a[0]*.15+b[0]*.85,a[1]*.15+b[1]*.85]);}p=q;}
+  const xs=p.map(q=>q[0]),ys=p.map(q=>q[1]),x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  return p.map(q=>[(q[0]-x0)*2/(x1-x0)-1,(q[1]-y0)*2/(y1-y0)-1]);
+});
+function raceToyForm77(h){
+  if(h.k!=='punch'||(h.sec!==0&&h.sec!==1))return -1;
+  // Keep nine original giant launch bags among the seventeen new mascots.
+  // These already have the same fivefold knockback as the sculpted toys.
+  if(h.sec===0&&(/^start\d+$/.test(h.id)&&((Number(h.id.slice(5))%3===1&&h.id!=='start13')||h.id==='start12')||/^jellyGate[01]:[25]$/.test(h.id)))return -1;
+  if(h.toy77===undefined){let n=0;for(const c of h.id||'')n=(n*31+c.charCodeAt(0))>>>0;h.toy77=h.sec===0?n%3:3+n%2;}
+  return h.toy77;
+}
+function raceToyHit77(h){
+  const dx=PL.x-h.x,dz=Math.abs(PL.z-h.z),r=PL.R,base=h.y-h.h/2,lo=PL.y-MINI_Y+r,hi=PL.y-MINI_Y+1.3;
+  if(Math.abs(dx)>h.r+r||dz>h.r+r)return false;
+  const radial=Math.max(0,Math.hypot(dx,dz)-h.r),by=Math.max(0,base-hi,lo-(base+.7));
+  if(radial*radial+by*by<r*r)return true;
+  const dzOut=Math.max(0,dz-h.r*.46);if(dzOut>=r)return false;
+  const sy=(h.h-.65)/2,cy=base+.65+sy,p=RACE_TOY77[raceToyForm77(h)];
+  let best=Infinity,insideLo=false,insideHi=false;
+  for(let i=0,j=p.length-1;i<p.length;j=i++){
+    const ax=p[j][0]*h.r,ay=cy+p[j][1]*sy,bx=p[i][0]*h.r,by=cy+p[i][1]*sy;
+    if((ay>lo)!==(by>lo)&&dx<(bx-ax)*(lo-ay)/(by-ay)+ax)insideLo=!insideLo;
+    if((ay>hi)!==(by>hi)&&dx<(bx-ax)*(hi-ay)/(by-ay)+ax)insideHi=!insideHi;
+    // A polygon edge crossing the player's vertical axis has zero XY distance.
+    if((ax<=dx&&bx>=dx)||(bx<=dx&&ax>=dx)){
+      const t=Math.abs(bx-ax)>.000001?(dx-ax)/(bx-ax):0,yy=ay+(by-ay)*t;
+      if(yy>=lo&&yy<=hi)best=0;
+    }
+    const ex=bx-ax,ey=by-ay,ll=ex*ex+ey*ey;
+    for(let end=0;end<2;end++){const yy=end?hi:lo,t=Math.max(0,Math.min(1,((dx-ax)*ex+(yy-ay)*ey)/ll));
+      best=Math.min(best,(dx-ax-t*ex)**2+(yy-ay-t*ey)**2);}
+    const yy=Math.max(lo,Math.min(hi,ay));best=Math.min(best,(dx-ax)**2+(yy-ay)**2);
+  }
+  return (insideLo||insideHi?0:best)+dzOut*dzOut<r*r;
+}
+// Small camera volume, independent from avatar physics. Reuse the sculpture
+// profile, so gaps beside stars and inside candy hooks remain genuinely open.
+function raceCameraBlocked(h,x,y,z,r){
+  const dx=x-h.x,dz=z-h.z,dy=y-h.y;
+  if(h.k==='bar'){
+    const cs=Math.cos(h.ang),sn=Math.sin(h.ang),d=Math.max(-h.len/2+h.r,Math.min(h.len/2-h.r,dx*cs-dz*sn));
+    return (dx-cs*d)**2+(dz+sn*d)**2+dy*dy<(h.r+r)**2;
+  }
+  if(h.k==='rock')return dx*dx+dz*dz+dy*dy<(h.r+r)**2;
+  if(h.k!=='punch')return false;
+  const base=h.y-h.h/2,toy=raceToyForm77(h);
+  if(toy<0){
+    const half=Math.max(0,h.h/2-h.r),vy=Math.max(0,Math.abs(dy)-half);
+    if(dx*dx+dz*dz+vy*vy<(h.r+r)**2)return true;
+    // The shallow rubber foot is visibly wider than the upright capsule.
+    return (dx*dx+dz*dz)/(h.r*1.18+r)**2+(y-base-.18)**2/(.22+r)**2<1;
+  }
+  const radial=Math.max(0,Math.hypot(dx,dz)-h.r*1.01),by=Math.max(0,base-y,y-(base+.7));
+  if(radial*radial+by*by<r*r)return true;
+  const zOut=Math.max(0,Math.abs(dz)-h.r*.46);if(zOut>=r)return false;
+  const sy=(h.h-.65)/2,cy=base+.65+sy,p=RACE_TOY77[toy];let inside=false,best=Infinity;
+  for(let i=0,j=p.length-1;i<p.length;j=i++){
+    const ax=p[j][0]*h.r,ay=cy+p[j][1]*sy,bx=p[i][0]*h.r,by=cy+p[i][1]*sy;
+    if((ay>y)!==(by>y)&&dx<(bx-ax)*(y-ay)/(by-ay)+ax)inside=!inside;
+    const ex=bx-ax,ey=by-ay,t=Math.max(0,Math.min(1,((dx-ax)*ex+(y-ay)*ey)/(ex*ex+ey*ey)));
+    best=Math.min(best,(dx-ax-t*ex)**2+(y-ay-t*ey)**2);
+  }
+  return (inside?0:best)+zOut*zOut<r*r;
+}
+// World-space camera volume against the visible deck, including its underside.
+// A small sphere encloses the .08m near plane even at a wide viewport.
+function raceCameraFloorBlocked(p,x,y,z,r,t=RACE.t){
+  if(!raceContains(p,x,z,r,t))return false;
+  const top=raceSurface(p,x,z),u=Math.max(0,Math.min(1,(z-p.z+p.d/2)/p.d));
+  const slope=p.shape==='slide'||p.shape==='ramp'?Math.abs((p.yEnd-p.y)*6*u*(1-u)/p.d):0;
+  const margin=r*Math.sqrt(1+slope*slope)+.025;
+  return y<top+margin&&y>top-p.h-margin;
+}
+function raceCameraLift(x,y,z,ox,oy,oz){
+  if(!raceOn())return 0;let lift=0;
+  const x0=Math.min(x,x+ox)-.4,x1=Math.max(x,x+ox)+.4,z0=Math.min(z,z+oz)-.4,z1=Math.max(z,z+oz)+.4;
+  for(const p of RACE_P){
+    const pose=racePose(p),reach=Math.max(p.w,p.d)*.5+1;
+    if(pose.x+reach<x0||pose.x-reach>x1||pose.z+reach<z0||pose.z-reach>z1)continue;
+    // A falling avatar underneath an island must not lift its view through it.
+    if(raceContains(p,x,z,0)&&y<raceSurface(p,x,z)+.15)continue;
+    for(let j=2;j<=12;j++){const f=j/12,xx=x+ox*f,zz=z+oz*f;
+      if(raceContains(p,xx,zz,.28)){
+        const top=raceSurface(p,xx,zz),current=y+oy*f;
+        if(current>top-p.h-.35)lift=Math.max(lift,(top+.42-current)/f);
+      }
+    }
+  }
+  return Math.max(0,Math.min(12,lift));
+}
+function raceCameraClearance(x,y,z,ox,oy,oz){
+  const length=Math.hypot(ox,oy,oz);if(!raceOn()||length<1e-8)return length;
+  const steps=Math.max(1,Math.ceil(length/.12)),r=.24,yy=y-MINI_Y;
+  const x0=Math.min(x,x+ox)-r,x1=Math.max(x,x+ox)+r,z0=Math.min(z,z+oz)-r,z1=Math.max(z,z+oz)+r,y0=Math.min(yy,yy+oy)-r,y1=Math.max(yy,yy+oy)+r;
+  let limit=steps;
+  for(const p of RACE_P){
+    const pose=racePose(p),reach=Math.max(p.w,p.d)*.5+1;
+    if(pose.x+reach<x0||pose.x-reach>x1||pose.z+reach<z0||pose.z-reach>z1)continue;
+    for(let i=0;i<=limit;i++){const u=i/steps;
+      if(raceCameraFloorBlocked(p,x+ox*u,y+oy*u,z+oz*u,r)){limit=Math.max(0,i-1);break;}}
+    if(limit===0)return 0;
+  }
+  for(const h of raceHazards(RACE.t)){
+    const reach=h.k==='bar'?h.len*.5:h.k==='punch'?h.r*1.18:h.r,half=h.k==='punch'?h.h*.5:h.r;
+    if(h.x+reach<x0||h.x-reach>x1||h.z+reach<z0||h.z-reach>z1||h.y+half<y0||h.y-half>y1)continue;
+    for(let i=0;i<=limit;i++){const u=i/steps;
+      if(raceCameraBlocked(h,x+ox*u,yy+oy*u,z+oz*u,r)){limit=Math.max(0,i-1);break;}}
+    if(limit===0)return 0;
+  }
+  return length*limit/steps;
+}
+function raceBarHit(h,dt){
+  const swept=Math.abs(RACE74.prevTime-(RACE.t-dt))<1e-7;
+  const x0=swept?RACE74.prevX:PL.x,y0=swept?RACE74.prevY:PL.y,z0=swept?RACE74.prevZ:PL.z;
+  const travel=Math.hypot(PL.x-x0,PL.y-y0,PL.z-z0)+Math.abs(h.w||0)*dt*h.len*.5;
+  const steps=swept?Math.max(1,Math.min(64,Math.ceil(travel/.10))):1;
+  for(let i=swept?0:1;i<=steps;i++){
+    const u=i/steps,ang=h.ang-(swept?(1-u)*(h.w||0)*dt:0),ca=Math.cos(ang),sa=Math.sin(ang);
+    const x=x0+(PL.x-x0)*u-h.x,z=z0+(PL.z-z0)*u-h.z,y=y0+(PL.y-y0)*u-MINI_Y;
+    const along=Math.max(-h.len/2+h.r,Math.min(h.len/2-h.r,x*ca-z*sa));
+    const dx=x-ca*along,dz=z+sa*along,dy=Math.max(y+PL.R,Math.min(y+1.3,h.y))-h.y,r=h.r+PL.R;
+    if(dx*dx+dy*dy+dz*dz<r*r){RACE74.barAlong=along;RACE74.barAngle=ang;return true;}
+  }
+  return false;
+}
+function raceSlideHit78(h,dt){
+  const swept=Math.abs(RACE74.prevTime-(RACE.t-dt))<1e-7;
+  const x0=swept?RACE74.prevX:PL.x,y0=swept?RACE74.prevY:PL.y,z0=swept?RACE74.prevZ:PL.z;
+  const steps=swept?Math.max(1,Math.min(64,Math.ceil(Math.hypot(PL.x-x0,PL.y-y0,PL.z-z0)/.12))):1;
+  const half=Math.max(0,h.h/2-h.r),lo=h.y-half,hi=h.y+half,r=h.r+PL.R;
+  for(let i=swept?0:1;i<=steps;i++){
+    const u=i/steps,x=x0+(PL.x-x0)*u,z=z0+(PL.z-z0)*u,y=y0+(PL.y-y0)*u-MINI_Y;
+    const dy=Math.max(0,lo-(y+1.3),y+PL.R-hi),dx=x-h.x,dz=z-h.z;
+    if(dx*dx+dy*dy+dz*dz<r*r){RACE74.slideHitX=dx;RACE74.slideHitZ=dz;return true;}
+  }
+  return false;
+}
 function raceHazardTick(dt){
   if(RACE.t<.5||RACE.hitCd>0||RACE.slipT>0)return;
   for(const h of raceHazards(RACE.t)){
-    if(Math.abs(h.z-PL.z)>h.r+2+(h.len||0)*.5)continue;
+    const sweptZ=(h.k==='bar'||h.sec===5)&&Math.abs(RACE74.prevTime-(RACE.t-dt))<1e-7?Math.abs(PL.z-RACE74.prevZ):0;
+    if(Math.abs(h.z-PL.z)>h.r+2+(h.len||0)*.5+sweptZ)continue;
     let dx=PL.x-h.x,dz=PL.z-h.z,hit=false;
     if(h.k==='bar'){
-      const ca=Math.cos(h.ang),sa=Math.sin(h.ang),along=Math.max(-h.len/2+h.r,Math.min(h.len/2-h.r,dx*ca-dz*sa));
-      const q={x:h.x+ca*along,z:h.z-sa*along,y:h.y,r:h.r};hit=raceSphereHit(q);
-      if(hit){dx=sa*Math.sign(along*h.w||1);dz=ca*Math.sign(along*h.w||1);}
-    }else hit=h.k==='punch'?racePunchHit(h):raceSphereHit(h);
+      hit=raceBarHit(h,dt);
+      if(hit){const turn=Math.sign(RACE74.barAlong*h.w||1);dx=-Math.sin(RACE74.barAngle)*turn;dz=-Math.cos(RACE74.barAngle)*turn;}
+    }else if(h.k==='punch'&&h.sec===5){hit=raceSlideHit78(h,dt);if(hit){dx=RACE74.slideHitX;dz=RACE74.slideHitZ;}}
+    else hit=h.k==='punch'?racePunchHit(h):raceSphereHit(h);
     if(hit){
       if(Math.hypot(dx,dz)<.001){dx=0;dz=-1;}const L=Math.hypot(dx,dz),power=h.k==='punch'?8*(h.power||1):h.k==='rock'?26:18;
       PL.vx=dx/L*power;PL.vz=dz/L*power;PL.vy=h.k==='rock'?9:7;PL.ground=false;PL.jumps=1;
@@ -28176,20 +28667,40 @@ function raceMaterial75(mat,rubber=false){
   mat.toneMapped=false;
   mat.color.setScalar(1.38);
   mat.onBeforeCompile=sh=>{
-    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vRaceLocal75;')
+    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nvarying vec3 vRaceLocal75;\nattribute float raceCandy77;\nvarying float vRaceCandy77;')
       .replace('#include <begin_vertex>',`#include <begin_vertex>
-      vRaceLocal75=position;
+      vRaceLocal75=position;vRaceCandy77=raceCandy77;
       #ifdef USE_INSTANCING
-      vRaceLocal75*=vec3(length(instanceMatrix[0].xyz),length(instanceMatrix[1].xyz),length(instanceMatrix[2].xyz));
+      vec3 raceScale77=vec3(length(instanceMatrix[0].xyz),length(instanceMatrix[1].xyz),length(instanceMatrix[2].xyz));
+      vRaceLocal75*=raceScale77;
+      // Negative flags belong to the shared cylinder: only long, thick sweeper
+      // bodies use candy paint. Thin belts, short bases and punch posts stay intact.
+      if(vRaceCandy77<0.0)vRaceCandy77=raceScale77.y>12.0&&raceScale77.x>1.2?-vRaceCandy77:0.0;
       #endif`);
-    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vRaceLocal75;')
+    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vRaceLocal75;\nvarying float vRaceCandy77;')
       .replace('#include <color_fragment>',`#include <color_fragment>
+      float candyPhase77=vRaceCandy77-32.0;
+      float candyAa77=clamp(fwidth(candyPhase77),0.004,0.18);
+      float candyRed77=1.0-smoothstep(0.115-candyAa77,0.115+candyAa77,abs(fract(candyPhase77-0.115+0.5)-0.5));
+      float candyGreen77=1.0-smoothstep(0.14-candyAa77,0.14+candyAa77,abs(fract(candyPhase77-0.53+0.5)-0.5));
+      vec3 candyColor77=mix(vec3(1.0,0.88,0.65),vec3(0.88,0.055,0.041),candyRed77);
+      candyColor77=mix(candyColor77,vec3(0.035,0.43,0.17),candyGreen77);
+      candyColor77=mix(candyColor77,vec3(0.66,0.61,0.43),smoothstep(0.22,0.65,fwidth(candyPhase77)));
+      diffuseColor.rgb=mix(diffuseColor.rgb,candyColor77*1.16,step(8.0,vRaceCandy77));
       vec3 grainP=vRaceLocal75*${rubber?'29.0':'18.0'};
       float fade75=1.0-smoothstep(0.25,1.4,max(max(fwidth(grainP.x),fwidth(grainP.y)),fwidth(grainP.z)));
       float weave75=sin(grainP.x)*sin(grainP.z)+sin(grainP.y)*0.45;
       diffuseColor.rgb*=1.0+weave75*fade75*${rubber?'0.028':'0.037'};`);
   };
-  mat.customProgramCacheKey=()=>rubber?'race75-rubber':'race75-vinyl';return mat;
+  mat.customProgramCacheKey=()=>rubber?'race77-rubber-candy':'race77-vinyl-candy';return mat;
+}
+
+// One scalar follows native tube length/circumference UV through all baked
+// buffers. No extra mesh/material/texture; inactive faces carry zero.
+function raceCandyGeometry77(g,turns=0,sharedBar=false){
+  const p=g.attributes.position,uv=g.attributes.uv,a=new Float32Array(p.count);
+  for(let i=0;i<p.count;i++)a[i]=(sharedBar?-1:1)*(32+(turns&&uv?uv.getX(i)+uv.getY(i)*turns:p.getX(i)*2.4+p.getY(i)*3.5+p.getZ(i)*.35));
+  g.setAttribute('raceCandy77',new THREE.BufferAttribute(a,1));return g;
 }
 
 // 색은 부품별 꼭짓점에, UV는 로컬 좌표에 둔다. 움직여도 직조가 표면에 고정된다.
@@ -28201,17 +28712,18 @@ function raceArtUV(g){
 }
 function raceArtMerge(parts){
   let n=0;const gs=parts.map(q=>{const g=q.g.index?q.g.toNonIndexed():q.g.clone();if(q.m)g.applyMatrix4(q.m);
-    if(!g.attributes.normal)g.computeVertexNormals();if(!g.attributes.uv)raceArtUV(g);n+=g.attributes.position.count;return {g,c:q.c??0xffffff};});
-  const P=new Float32Array(n*3),N=new Float32Array(n*3),U=new Float32Array(n*2),C=new Float32Array(n*3),cl=new THREE.Color();let o=0;
+    if(!g.attributes.normal)g.computeVertexNormals();if(!g.attributes.uv)raceArtUV(g);n+=g.attributes.position.count;return {g,c:q.c??0xffffff,keepColors:q.keepColors};});
+  const P=new Float32Array(n*3),N=new Float32Array(n*3),U=new Float32Array(n*2),C=new Float32Array(n*3),F=new Float32Array(n),cl=new THREE.Color();let o=0;
   for(const q of gs){const g=q.g,p=g.attributes.position,nn=g.attributes.normal,uv=g.attributes.uv;cl.setHex(q.c);
-    P.set(p.array,o*3);N.set(nn.array,o*3);U.set(uv.array,o*2);
-    for(let i=0;i<p.count;i++){C[(o+i)*3]=cl.r;C[(o+i)*3+1]=cl.g;C[(o+i)*3+2]=cl.b;}o+=p.count;g.dispose();}
+    P.set(p.array,o*3);N.set(nn.array,o*3);U.set(uv.array,o*2);if(g.attributes.raceCandy77)F.set(g.attributes.raceCandy77.array,o);
+    const old=q.keepColors&&g.attributes.color;
+    for(let i=0;i<p.count;i++){C[(o+i)*3]=cl.r*(old?old.getX(i):1);C[(o+i)*3+1]=cl.g*(old?old.getY(i):1);C[(o+i)*3+2]=cl.b*(old?old.getZ(i):1);}o+=p.count;g.dispose();}
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(P,3));g.setAttribute('normal',new THREE.BufferAttribute(N,3));
-  g.setAttribute('uv',new THREE.BufferAttribute(U,2));g.setAttribute('color',new THREE.BufferAttribute(C,3));g.computeBoundingSphere();return g;
+  g.setAttribute('uv',new THREE.BufferAttribute(U,2));g.setAttribute('color',new THREE.BufferAttribute(C,3));g.setAttribute('raceCandy77',new THREE.BufferAttribute(F,1));g.computeBoundingSphere();return g;
 }
-function raceArtPath(points,r=.08,closed=false,segments){
+function raceArtPath(points,r=.08,closed=false,segments,radial=10){
   const curve=new THREE.CatmullRomCurve3(points.map(p=>new THREE.Vector3(...p)),closed,'centripetal');
-  return raceArtUV(new THREE.TubeGeometry(curve,segments||Math.max(32,points.length*(points.length>32?2:6)),r,10,closed));
+  return raceArtUV(new THREE.TubeGeometry(curve,segments||Math.max(32,points.length*(points.length>32?2:6)),r,radial,closed));
 }
 function raceArtRoundOutline(w,d,r,scale=1,y=0){
   r=Math.min(r,w/2,d/2);const out=[];
@@ -28261,6 +28773,42 @@ function raceArtDispose(){
   for(const m of a.meshes){scene.remove(m);if(m.isInstancedMesh)m.dispose();m.geometry.dispose();}
   for(const m of a.mats)m.dispose();for(const t of a.textures)t.dispose();RACE_ART74=null;
 }
+function raceToyGeometry77(kind){
+  const pts=RACE_TOY77[kind],shape=new THREE.Shape(pts.map(p=>new THREE.Vector2(p[0],p[1])));
+  const body=new THREE.ExtrudeGeometry(shape,{depth:.92,bevelEnabled:false,steps:1});body.translate(0,0,-.46);
+  if(kind===3)raceCandyGeometry77(body);
+  const P=[{g:raceArtUV(body),c:0xffffff}];
+  // A stitched edge follows the actual outline, with short inset fabric seams.
+  for(const side of [-1,1]){
+    if(kind>=3){
+      // Hooks and swallowtails are concave: a radial inset would fold over
+      // itself inside the opening, so their static seam follows a thin tube.
+      P.push({g:raceArtPath(pts.map(p=>[p[0]*.96,p[1]*.96,side*.468]),.022,true,pts.length,6),c:0xffe8b5});
+    }else{
+    // Three raised fabric ridges follow the existing contour vertices. A full
+    // round tube hid most of its triangles inside the cushion on both faces.
+    const pv=[],ix=[],nn=pts.length;
+    for(const [scale,z]of [[.933,.461],[.959,.488],[.985,.461]])for(const [x,y]of pts)pv.push(x*scale,y*scale,side*z);
+    for(let row=0;row<2;row++)for(let i=0;i<nn;i++){const a=row*nn+i,b=row*nn+(i+1)%nn,c=b+nn,d=a+nn;
+      if(side>0)ix.push(a,c,b,a,d,c);else ix.push(a,b,c,a,c,d);}
+    const rim=new THREE.BufferGeometry();rim.setAttribute('position',new THREE.Float32BufferAttribute(pv,3));rim.setIndex(ix);rim.computeVertexNormals();
+    P.push({g:raceArtUV(raceCandyGeometry77(rim)),c:0xffe8b5});
+    }
+    if(kind<3){
+      const face=kind===0?.528:.48;
+      for(const x of [-.20,.20])P.push({g:raceArtUV(new THREE.SphereGeometry(1,8,5)),c:0x263849,m:M4(x,.05,side*face,0,0,0,.05,.07,.025)});
+      P.push({g:raceArtPath([[-.12,-.12,side*(face+.006)],[0,-.17,side*(face+.006)],[.12,-.12,side*(face+.006)]],.016,false,10),c:0x34415a});
+      if(kind===0)P.push({g:raceArtUV(new THREE.SphereGeometry(1,12,8)),c:0xfff1af,m:M4(0,.12,side*.47,0,0,0,.39,.32,.045)});
+    }else if(kind===3){
+      // The red/green/cream spiral is surface paint; its open hook silhouette
+      // and cream stitched outline remain exactly the physical obstacle.
+    }else{
+      P.push({g:raceArtPath([[-.30,.57,side*.476],[.15,.42,side*.476],[-.27,.23,side*.476]],.063,false,10),c:0xfff3ce});
+    }
+  }
+  // Tiny fasteners are merged too, so the cloth/padding details add no draws.
+  const g=raceArtMerge(P);for(const q of P)q.g.dispose();return g;
+}
 function raceArtBuild(){
   raceArtDispose();const textures=raceArtTextures(),mats=[
     raceMaterial75(new THREE.MeshPhongMaterial({map:textures[0],bumpMap:textures[1],bumpScale:.10,vertexColors:true,shininess:42,specular:0x899391})),
@@ -28271,8 +28819,25 @@ function raceArtBuild(){
   const keep=(g,mat,z,span=2)=>{buckets[mat].push({g,z,span});};
   const bake=(parts,mat,z,span=2)=>{if(!parts.length)return;const g=raceArtMerge(parts);for(const q of parts)q.g.dispose();keep(g,mat,z,span);};
   const part=(g,x,y,z,c,rx=0,ry=0,rz=0,sx=1,sy=1,sz=1)=>({g,c,m:M4(x,MINI_Y+y,z,rx,ry,rz,sx,sy,sz)});
+  // Fixed candy sculptures are baked into the existing scenery buffers. Only
+  // the swaying start toys need the three additional instanced silhouettes.
+  const toyGeo=RACE_TOY77.map((_,i)=>raceToyGeometry77(i));
+  raceHazards(0).forEach((h,i)=>{const kind=raceToyForm77(h);if(kind<3)return;
+    const base=h.y-h.h/2,sy=(h.h-.65)/2,col=h.col??RACE_RAINBOW76[i%7];
+    bake([{...part(toyGeo[kind].clone(),h.x,base+.65+sy,h.z,col,0,0,0,h.r,sy,h.r),keepColors:true},
+      part(raceArtUV(new THREE.CylinderGeometry(h.r,h.r,.7,24)),h.x,base+.35,h.z,col),
+      part(raceArtUV(new THREE.CylinderGeometry(h.r*1.01,h.r*1.01,.12,24)),h.x,base+.16,h.z,0xfff2d1)],0,h.z,4);
+  });
   const ring=(r,t=.08)=>raceArtUV(new THREE.TorusGeometry(r,t,6,64));
   const tube=(points,r)=>raceArtPath(points.map(q=>[q[0],q[1]+MINI_Y,q[2]]),r);
+  const candyTube=(points,r,turns)=>{
+    const curve=new THREE.CatmullRomCurve3(points.map(q=>new THREE.Vector3(q[0],q[1]+MINI_Y,q[2])),false,'centripetal');
+    const g=new THREE.TubeGeometry(curve,Math.max(32,points.length*6),r,10,false),uv=g.attributes.uv;
+    // Tube UV x is length, y is circumference; the shared helper uses the
+    // opposite order of a cylinder, so swap only this pre-atlas native pair.
+    for(let i=0;i<uv.count;i++){const u=uv.getX(i),v=uv.getY(i);uv.setXY(i,v,u);}
+    return raceArtUV(raceCandyGeometry77(g,turns));
+  };
   const top=(p,z)=>(p.shape==='slide'||p.shape==='ramp')?p.y+(p.yEnd-p.y)*Math.pow(Math.max(0,Math.min(1,(z-p.z)/p.d+.5)),2)*(3-2*Math.max(0,Math.min(1,(z-p.z)/p.d+.5))):p.y;
   const seam=(p,c)=>{const pts=p.shape==='round'?Array.from({length:64},(_,i)=>[p.x+Math.cos(i/64*Math.PI*2)*p.w*.502,p.y-p.h*.17,p.z+Math.sin(i/64*Math.PI*2)*p.d*.502]):raceArtRoundOutline(p.w,p.d,p.round||Math.min(p.w,p.d)*.25,1.004,p.y-p.h*.17).map(q=>[q[0]+p.x,q[1],q[2]+p.z]);
     return {g:tube(pts.concat([pts[0]]),.065),c};};
@@ -28321,6 +28886,22 @@ function raceArtBuild(){
         marks.push(part(raceArtArrow(2.15,1.28),q.x,top(p,zz)+.084,zz,pal.yellow,-angle));
       }
     }
+    if(p.shape==='slide'){
+      // Seven continuous rainbow ribbons are baked into the existing opaque paint batch.
+      for(let lane=0;lane<7;lane++){
+        const pp=[],ii=[],left=-p.w/2+lane*p.w/7+.045,right=-p.w/2+(lane+1)*p.w/7-.045;
+        for(let j=0;j<=48;j++){const zz=p.z-p.d/2+p.d*j/48,yy=top(p,zz)+.027;
+          pp.push(p.x+left,MINI_Y+yy,zz,p.x+right,MINI_Y+yy,zz);}
+        for(let j=0;j<48;j++){const k=j*2;ii.push(k,k+2,k+1,k+1,k+2,k+3);}
+        const ribbon=new THREE.BufferGeometry();ribbon.setAttribute('position',new THREE.Float32BufferAttribute(pp,3));ribbon.setIndex(ii);ribbon.computeVertexNormals();
+        marks.push({g:raceArtUV(ribbon),c:RACE_RAINBOW76[lane]});
+      }
+      // Visible chevrons show the open slalom flank before each group of launch bumpers.
+      for(let row=0;row<3;row++){
+        const xx=row%2?3.4:-3.4,zz=698+row*18,u=(zz-p.z)/p.d+.5,slope=Math.atan((p.yEnd-p.y)*6*u*(1-u)/p.d);
+        marks.push(part(raceArtArrow(2.6,2.8),xx,top(p,zz)+.09,zz,pal.cream,-slope));
+      }
+    }
     bake(marks,1,p.z,p.d/2+1);
     if((p.shape==='slide'||p.shape==='ramp')){
       const rails=[];
@@ -28339,7 +28920,8 @@ function raceArtBuild(){
   for(let i=0;i<RACE_S.length;i++){
     const s=RACE_S[i],z=i===0?7:s.z0-6,cp=RACE_P.find(p=>p.cp===i+1),y=cp?cp.y:0,span=i===0?20:cp?Math.min(15,cp.w*.4):15,col=s.col||pal.coral;
     const pts=[[-span,y,z],[-span,y+4.4,z],[-span*.78,y+7.5,z],[-span*.36,y+8.5,z],[span*.36,y+8.5,z],[span*.78,y+7.5,z],[span,y+4.4,z],[span,y,z]];
-    const pp=[{g:tube(pts,i===0?.95:.72),c:col}];
+    const candy=i===0||i===1||i===4;
+    const pp=[{g:candy?candyTube(pts,i===0?.95:.72,i===0?13:10):tube(pts,.72),c:col}];
     if(i===0){
       for(const side of [-1,1])for(let k=0;k<4;k++)pp.push(part(ring(1.0,.15),side*span,y+1.3+k*1.0,z,[pal.cream,pal.coral,pal.yellow,pal.lavender][k],Math.PI/2));
       // Cloud-shaped upholstered backing; the painted sign sits on its front.
@@ -28638,7 +29220,7 @@ function raceArtBuild(){
   // 정적 그리기는 z의 연속 구간만 참조한다. 매 프레임 큰 배열을 다시 채우지 않는다.
   for(let b=0;b<buckets.length;b++){
     const q=buckets[b].sort((a,c)=>a.z-c.z);if(!q.length)continue;const n=q.reduce((v,o)=>v+o.g.attributes.position.count,0),out=new THREE.BufferGeometry();
-    for(const [name,size]of [['position',3],['normal',3],['uv',2],['color',3]]){const arr=new Float32Array(n*size);let off=0;for(const o of q){arr.set(o.g.attributes[name].array,off);off+=o.g.attributes[name].array.length;}out.setAttribute(name,new THREE.BufferAttribute(arr,size));}
+    for(const [name,size]of [['position',3],['normal',3],['uv',2],['color',3],['raceCandy77',1]]){const arr=new Float32Array(n*size);let off=0;for(const o of q){arr.set(o.g.attributes[name].array,off);off+=o.g.attributes[name].array.length;}out.setAttribute(name,new THREE.BufferAttribute(arr,size));}
     let off=0;const spans=q.map(o=>{const r={start:off,count:o.g.attributes.position.count,z:o.z,span:o.span};off+=r.count;o.g.dispose();return r;});
     out.computeBoundingSphere();const mesh=new THREE.Mesh(out,mats[b===3?0:b]);mesh.castShadow=mesh.receiveShadow=true;mesh.matrixAutoUpdate=false;mesh.frustumCulled=false;mesh.visible=false;
     scene.add(mesh);A.meshes.push(mesh);A.static.push({mesh,spans,always:b===3});
@@ -28647,6 +29229,7 @@ function raceArtBuild(){
     // Phong vertexColors 셰이더는 InstancedMesh에서도 color 속성이 필요하다.
     // 없는 기본 속성은 검정으로 읽히므로 흰 꼭짓점 색을 명시한다(인스턴스 색은 그대로 곱한다).
     if(!g.attributes.color)g.setAttribute('color',new THREE.BufferAttribute(new Float32Array(g.attributes.position.count*3).fill(1),3));
+    if(!g.attributes.raceCandy77)g.setAttribute('raceCandy77',new THREE.BufferAttribute(new Float32Array(g.attributes.position.count),1));
     const m=imesh(g,mats[mat],cap,1);m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);m.matrixAutoUpdate=false;A.meshes.push(m);return m;};
   A.pad=dyn(raceArtSlab(2,2,1,1,true),0,64);
   const ap=[];ap.push({g:ring(1.003,.014),m:M4(0,-.14,0,Math.PI/2,0,0),c:pal.cream});
@@ -28657,17 +29240,18 @@ function raceArtBuild(){
   A.padTrim=dyn(raceArtMerge(ap),1,64);for(const p of ap)p.g.dispose();
   // 봉의 축과 둥근 끝을 나눠 인스턴싱해 긴 봉에서도 끝의 구면 비율을 유지한다.
   // Match the hemisphere's 24-column equator: unequal rings leave tiny sky-colored gaps.
-  A.bar=dyn(raceArtUV(new THREE.CylinderGeometry(1,1,1,24,1,false)),0,320);
+  A.bar=dyn(raceArtUV(raceCandyGeometry77(new THREE.CylinderGeometry(1,1,1,24,1,false),9,true)),0,320);
   A.ball=dyn(raceArtUV(new THREE.SphereGeometry(1,24,16)),1,320);
   // Same 24-column / 16-latitude curvature, with hidden inner hemisphere triangles removed.
   A.cap=dyn(raceArtUV(new THREE.SphereGeometry(1,24,8,0,Math.PI*2,0,Math.PI/2)),1,192);
+  A.toys=toyGeo.slice(0,3).map(g=>dyn(g,0,32));toyGeo.slice(3).forEach(g=>g.dispose());
   A.metal=dyn(raceArtUV(new THREE.CylinderGeometry(1,1,1,16)),2,112);
-  const jp=[{g:ring(12.036,.17),m:M4(0,-.42,0,Math.PI/2,0,0),c:pal.cream},
-    {g:ring(10.8,.08),m:M4(0,.048,0,Math.PI/2,0,0),c:pal.cream},
-    {g:raceArtUV(new THREE.CircleGeometry(4.4,48)),m:M4(0,.041,0,-Math.PI/2,0,0),c:pal.yellow},
-    {g:ring(4.34,.085),m:M4(0,.07,0,Math.PI/2,0,0),c:pal.cream},
-    {g:raceArtSignGeometry(9,6.1,1.12),m:M4(0,.063,.1,-Math.PI/2,0,Math.PI),c:0xffffff}];
-  for(const side of [-1,1])jp.push({g:raceArtArrow(1.0,1.25),m:M4(side*1.45,.065,2.0,0,0,0),c:pal.cream});
+  // The launch mat follows the actual offset 2.5m trigger. The large island
+  // centre is an obstacle course, so its old central target rings are removed.
+  const jp=[{g:raceArtUV(new THREE.CircleGeometry(2.5,48)),m:M4(0,.041,0,-Math.PI/2,0,0),c:pal.yellow},
+    {g:ring(2.44,.065),m:M4(0,.07,0,Math.PI/2,0,0),c:pal.cream},
+    {g:raceArtSignGeometry(9,4.0,.78),m:M4(0,.063,.0,-Math.PI/2,0,Math.PI),c:0xffffff}];
+  for(const side of [-1,1])jp.push({g:raceArtArrow(.62,.85),m:M4(side*.85,.065,1.12,0,0,0),c:pal.cream});
   A.jump=dyn(raceArtMerge(jp),0,8);for(const p of jp)p.g.dispose();
   // Rounded rock volumes with inset dark facets, one opaque instanced mesh. No new material.
   const rock=raceArtUV(new THREE.IcosahedronGeometry(1,2)),pos=rock.attributes.position,co=new Float32Array(pos.count*3),cl=new THREE.Color();
@@ -28688,7 +29272,7 @@ function raceArtDraw(t){
     for(const q of s.spans)if(s.always||Math.abs(q.z-z)<120+q.span){first=Math.min(first,q.start);last=Math.max(last,q.start+q.count);}
     s.mesh.geometry.setDrawRange(first===Infinity?0:first,first===Infinity?0:last-first);}}
   for(const s of A.static){s.mesh.visible=s.mesh.geometry.drawRange.count>0;if(s.mesh.visible){tri+=s.mesh.geometry.drawRange.count/3;draws++;}}
-  let np=0,nt=0,nb=0,ns=0,nm=0,nj=0,nr=0,nc=0;A.stats.overflow=0;
+  let np=0,nt=0,nb=0,ns=0,nm=0,nj=0,nr=0,nc=0;const toyCounts=[0,0,0];A.stats.overflow=0;
   const put=(m,i,x,y,z,ry,rx,sx,sy,sz,col)=>{if(i>=m.count_max){A.stats.overflow++;return false;}setIR(m,i,x,MINI_Y+y,z,ry,rx,sx,sy,sz,col);return true;};
   for(const p of A.dynamic){if(Math.abs(p.z-z)>125+p.d/2)continue;if(np>=A.pad.count_max){A.stats.overflow++;break;}
     const pose=racePose(p,rt),phase=RACE74.pulse.get(p.id)||0;
@@ -28696,7 +29280,13 @@ function raceArtDraw(t){
     const h=(p.h||1)*(1-squash),yy=p.y-Math.max(0,squash)*.20;
     put(A.pad,np,pose.x,yy,pose.z,pose.a,0,p.w/2,h,p.d/2,p.col??pal.teal);
     if(!p.bounce?.manual)put(A.padTrim,nt++,pose.x,yy,pose.z,pose.a,0,p.w/2,h,p.d/2,0xffffff);np++;
-    if(p.bounce&&p.bounce.manual)put(A.jump,nj++,pose.x,yy,pose.z,0,0,1,1,1,0xffffff);
+    if(p.bounce&&p.bounce.manual){
+      const jump=raceJumpPose(p,rt),land=raceLandingPose(p,rt);
+      put(A.jump,nj++,jump.x,yy,jump.z,0,0,1,1,1,0xffffff);
+      // Small directional stitching identifies a possible landing pocket.
+      // Reuse the moving-pad trim bank: no new draw, texture or light.
+      put(A.padTrim,nt++,land.x,yy,land.z,0,0,.85,1,.85,0xc6ffec);
+    }
   }
   let tintIndex=0;
   for(const h of raceHazards(rt)){const tint=h.col??RACE_RAINBOW76[tintIndex++%7];if(Math.abs(h.z-z)>126)continue;
@@ -28710,6 +29300,15 @@ function raceArtDraw(t){
       put(A.metal,nm++,h.x,h.y*.5,h.z,0,0,.32,Math.max(.3,h.y),.32,pal.silver);
       put(A.ball,ns++,h.x,h.y+.18,h.z,0,0,.74,.39,.74,pal.yellow);
     }else if(h.k==='punch'){
+      const toy=raceToyForm77(h);
+      if(toy>=0){
+        if(toy<3){const base=h.y-h.h/2,sy=(h.h-.65)/2;
+          put(A.toys[toy],toyCounts[toy]++,h.x,base+.65+sy,h.z,0,0,h.r,sy,h.r,tint);
+          put(A.bar,nb++,h.x,base+.35,h.z,0,0,h.r,.7,h.r,tint);
+          put(A.bar,nb++,h.x,base+.16,h.z,0,0,h.r*1.01,.12,h.r*1.01,pal.cream);
+        }
+        continue;
+      }
       const r=h.r,hh=Math.max(0,h.h/2-r),col=tint,base=h.y-h.h/2;
       put(A.bar,nb++,h.x,h.y,h.z,0,0,r,hh*2,r,col);
       for(const side of [-1,1])put(A.cap,nc++,h.x,h.y+side*hh,h.z,0,side<0?Math.PI:0,r,r,r,col);
@@ -28732,8 +29331,9 @@ function raceArtDraw(t){
     }
   }
   A.cap.count=Math.min(nc,A.cap.count_max);A.jump.count=nj;A.rock.count=nr;A.pad.count=np;A.padTrim.count=nt;A.bar.count=Math.min(nb,A.bar.count_max);A.ball.count=Math.min(ns,A.ball.count_max);A.metal.count=Math.min(nm,A.metal.count_max);
-  for(const m of [A.pad,A.padTrim,A.bar,A.ball,A.cap,A.metal,A.jump,A.rock]){flush(m);if(m.count){draws++;tri+=(m.geometry.index?m.geometry.index.count:m.geometry.attributes.position.count)*m.count/3;}}
-  A.stats.visibleDraws=draws;A.stats.visibleTriangles=Math.round(tri);A.stats.instances=np+nt+A.bar.count+A.ball.count+A.cap.count+A.metal.count+nj+nr;
+  if(A.toys)A.toys.forEach((m,i)=>m.count=Math.min(toyCounts[i],m.count_max));
+  for(const m of [A.pad,A.padTrim,A.bar,A.ball,A.cap,A.metal,A.jump,A.rock,...A.toys||[]]){flush(m);if(m.count){draws++;tri+=(m.geometry.index?m.geometry.index.count:m.geometry.attributes.position.count)*m.count/3;}}
+  A.stats.visibleDraws=draws;A.stats.visibleTriangles=Math.round(tri);A.stats.instances=np+nt+A.bar.count+A.ball.count+A.cap.count+A.metal.count+nj+nr+toyCounts.reduce((a,b)=>a+b,0);
 }
 
 /* 74차 — 구름 운동회 표시·소리. 이 조각에는 새 오디오 엔진/메시/통신 필드가 없다.
@@ -28963,6 +29563,8 @@ function goNight(){
   netMeta();
 }
 function hostPhase(dt){
+  if(waiting78())return;
+  if(G.phase==='intro'){G.t=Math.max(0,G.t-dt);if(G.t<=0){lessonEnter78();goDay();}return;}
   if(G.paused) return;      /* ★ 멈춤은 여기서도 막는다 — 루프 밖에서 불려도 시간이 안 가게 */
   G.t -= dt;
   if(G.phase === 'day'){
@@ -29391,7 +29993,9 @@ function joinRoom(code, asHost){
     G.mis = m.mis|0; G.misD = m.misD|0;
     if(m.sid && G.sid && m.sid!==G.sid && G.started){
       G.sid=m.sid;kitReset();xpReset();myReset();myPC={g:G.me.g,n:G.me.name};pcMap.set(uid,myPC);
+      endShown=false;document.querySelectorAll('.pop.on').forEach(p=>p.classList.remove('on'));
       sessionFresh();PL.hp=maxHP();PL.down=false;setAimMode(false,true);placePlayer();netPCDirty=true;
+      if(wasPh==='lobby'&&G.phase==='lobby')lobbyEnter78(); // Same-phase new lessons do not trigger onPhaseChange.
     }
     if(m.sid) G.sid = m.sid;                                           // 67차 — 판 번호(보물 장부 열쇠)
     treVersion(m.v);                                                   // 67차 — 판이 다르면 한 번 크게
@@ -29554,8 +30158,8 @@ function buildPicker(){
     const b = document.createElement('button');
     b.textContent = (i+1); b.style.setProperty('--c', GCOL[i]);
     if(i===pickG) b.classList.add('on');
-    b.disabled=G.started || G.phase!=='title';
-    b.onclick = ()=>{ if(G.started || G.phase!=='title') return; pickG = i; LS.set('sheepG', i); buildPicker(); };
+    b.disabled=!dressAllowed78();
+    b.onclick = ()=>{if(!dressAllowed78())return;pickG=i;LS.set('sheepG',i);if(waiting78()){G.me.g=i;myPC.g=i;pcMap.set(uid,myPC);netPCDirty=true;lastPosSig='';netT=0;lobbyPaint78();}buildPicker();};
     w.appendChild(b);
   }
   /* 피부색 (63차) — 모자·안경·옷과 달리 3D 아이콘이 아니라 색 동그라미를 보여 준다.
@@ -29575,7 +30179,7 @@ function buildPicker(){
       b.appendChild(nm);
       b.title = SKIN_NAME[i]; b.setAttribute('aria-label', SKIN_NAME[i]);
       b.setAttribute('aria-pressed', String(i === pickSkin));
-      b.disabled = G.started || G.phase !== 'title';
+      b.disabled = !dressAllowed78();
       if(i === pickSkin) b.classList.add('on');
       b.onclick = ()=>wearDeco('skin', i);
       w2.appendChild(b);
@@ -29600,7 +30204,7 @@ function buildPicker(){
       b.style.setProperty('--c', '#cbd5c0');
       const optionName=document.createElement('span'); optionName.className='dressOptionName'; optionName.textContent=names[i]; b.appendChild(optionName);
       b.style.fontFamily = 'inherit'; b.title = names[i]; b.setAttribute('aria-label',names[i]);
-      b.setAttribute('aria-pressed',String(i===get())); b.disabled=G.started || G.phase!=='title';
+      b.setAttribute('aria-pressed',String(i===get())); b.disabled=!dressAllowed78();
       if(i===get()) b.classList.add('on');
       b.onclick = ()=>wearDeco(kind,i);
       w2.appendChild(b);
@@ -29841,10 +30445,12 @@ function heldGroup(mk){
 /* 건물 — blocksOf 의 조각을 그대로 (타일 원색 × 물감) */
 function buildingGroup(k, lv, branch='', style=0){
   const g = new THREE.Group();
-  for(const [x,y,z,tile0,w,h,d,tint,ry,rz] of blocksOf(k, lv||1, branch, style)){
+  for(const row of blocksOf(k, lv||1, branch, style)){
+    const [x,y,z,tile0,w,h,d,tint,ry,rz]=row,shape=STRU_SHAPE.get(row),sg=STRU_SHAPE_GEO[shape],isFrost=!!sg?.userData.frost,isRoof=shape==='towerRoof';
     const tile = (tile0===T.cutStone||tile0===T.plank) ? T.cloth : tile0;   // 65차 — 돌·나무 조각도 아이콘에선 틴트 색 그대로
     const mat = tint ? flatFor(tile, {uuid:'tint'+tint, color:new THREE.Color(tint)}) : flatFor(tile);
-    const m = new THREE.Mesh(rboxGeo(w,h,d), mat);
+    const m = new THREE.Mesh(isFrost||isRoof?sg:rboxGeo(w,h,d),isFrost?STRU_ICE_MAT:isRoof&&tile0===T.plank?WMAT_WOODV:mat);
+    if(isFrost||isRoof)m.scale.set(w,h,d); // 상점/건축 아이콘도 실제 표면과 실루엣을 공유한다.
     m.position.set(x,y,z); m.rotation.set(0, ry||0, rz||0); g.add(m);
   }
   return g;
@@ -30252,6 +30858,135 @@ el('bMake').onclick = ()=>{
   startGame();
 };
 
+/* 78차 — host-owned waiting phase, shared dressing room and five-second story. */
+const LOBBY78={x:0,z:-160,y:GY+64,group:null,roster:'',story:0,shot:-1};
+function waiting78(){return G.phase==='lobby';}
+function pregame78(){return waiting78()||G.phase==='intro';}
+function dressAllowed78(){return G.phase==='title'||waiting78();}
+function lobbyBuild78(){
+  if(LOBBY78.group)return;
+  const root=new THREE.Group(),positions=[],normals=[],colors=[],col=new THREE.Color();
+  root.position.set(LOBBY78.x,LOBBY78.y,LOBBY78.z);root.name='수비대 집결소';scene.add(root);LOBBY78.group=root;
+  const add=(geo,x,y,z,sx,sy,sz,color,rx=0,ry=0,rz=0)=>{
+    let g=geo.index?geo.toNonIndexed():geo;const m=new THREE.Matrix4().compose(new THREE.Vector3(x,y,z),new THREE.Quaternion().setFromEuler(new THREE.Euler(rx,ry,rz)),new THREE.Vector3(sx,sy,sz));
+    g.applyMatrix4(m);col.setHex(color);const p=g.attributes.position,n=g.attributes.normal;
+    for(let i=0;i<p.count;i++){positions.push(p.getX(i),p.getY(i),p.getZ(i));normals.push(n.getX(i),n.getY(i),n.getZ(i));colors.push(col.r,col.g,col.b);}g.dispose();if(g!==geo)geo.dispose();
+  };
+  const box=(x,y,z,w,h,d,c,rx=0,ry=0,rz=0)=>add(new THREE.BoxGeometry(1,1,1),x,y,z,w,h,d,c,rx,ry,rz);
+  const cyl=(x,y,z,r,h,c,rx=0,rz=0)=>add(new THREE.CylinderGeometry(1,1,1,16),x,y,z,r,h,r,c,rx,0,rz);
+  const arch=(x,y,z,r,c,ry=0)=>add(new THREE.TorusGeometry(r,.11,5,24,Math.PI),x,y,z,1,1,1,c,0,ry,0);
+  box(0,-.25,0,28,.5,26,0xded7c4);box(0,.008,0,16,.014,19,0x728f96);
+  for(let x=-12;x<=12;x+=2)for(let z=-12;z<=12;z+=2){if(Math.abs(x)<8&&Math.abs(z)<10)continue;box(x,.012,z,1.94,.018,1.94,((x+z)%4===0)?0xebe5d5:0xd5d0c0);}
+  for(const x of [-8.1,8.1])box(x,.032,0,.1,.02,19.4,0xe0bf76);
+  for(let z=-8;z<=8;z+=4){box(0,.032,z,.12,.02,1,0xd6b87e);box(0,.032,z,1,.02,.12,0xd6b87e);}
+  box(0,4.5,-12.5,28,9,.5,0xe5e0ce);
+  for(const side of [-1,1]){
+    box(side*13.7,4.5,0,.6,9,25,0xe5e0ce);box(side*13.3,1.05,0,.14,2.1,25,0x637f88);
+    for(let z=-9;z<=9;z+=6){
+      box(side*13.27,4.5,z,.1,3.3,3.1,0xa8cbd5);box(side*13.17,4.5,z,.12,3.6,.08,0xe6c892);box(side*13.17,4.1,z,.12,.1,3.25,0xe6c892);
+      arch(side*13.1,5.9,z,1.65,0xe6c892,Math.PI/2);
+      // Curved upholstered benches and turned metal feet sit beyond the walkable boundary.
+      box(side*11.9,.78,z,1.15,.28,3.8,0x637d74);cyl(side*11.9,.83,z-1.85,.58,1.15,0x637d74,0,Math.PI/2);cyl(side*11.9,.83,z+1.85,.58,1.15,0x637d74,0,Math.PI/2);
+      for(const dz of [-1.3,1.3])cyl(side*11.9,.35,z+dz,.10,.65,0x556773);
+      cyl(side*13.03,3.6,z+2.2,.15,.8,0xd6b77c);cyl(side*13.03,4.02,z+2.2,.26,.36,0xffe5ac);
+    }
+    for(let z=-12;z<=12;z+=6){cyl(side*13.1,4.3,z,.22,8.6,0x8a7458);}
+  }
+  // Open clerestory and curved timber ribs keep the room light without new lights.
+  for(let z=-12;z<=12;z+=6){
+    box(-6.6,9.7,z,13.8,.22,.24,0x796754,0,0,.20);box(6.6,9.7,z,13.8,.22,.24,0x796754,0,0,-.20);
+  }
+  box(0,9.4,-12.3,27,.18,.5,0xb9a47d);
+  // Five stitched pennants, one for each team. The middle doorway is a real arch silhouette.
+  for(let i=0;i<5;i++){
+    const x=(i-2)*4.7,s=new THREE.Shape();s.moveTo(-.72,0);s.lineTo(.72,0);s.lineTo(.72,-2.25);s.lineTo(0,-2.75);s.lineTo(-.72,-2.25);s.closePath();
+    add(new THREE.ExtrudeGeometry(s,{depth:.04,bevelEnabled:false}),x,7.7,-12.12,1,1,1,GHEX[i]);cyl(x,7.82,-12, .06,1.8,0xd8bf83,0,Math.PI/2);
+  }
+  box(0,2.7,-12.1,4.4,5.4,.12,0x33464b);arch(0,5.4,-11.99,2.2,0xc7b899);
+  for(const x of [-2.2,2.2])box(x,2.7,-11.99,.23,5.4,.18,0xc7b899);
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));g.setAttribute('color',new THREE.Float32BufferAttribute(colors,3));g.computeBoundingSphere();
+  const mat=new THREE.MeshLambertMaterial({vertexColors:true}),mesh=new THREE.Mesh(g,mat);mesh.receiveShadow=true;root.add(mesh);
+  const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=256;const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#213d49';ctx.fillRect(0,0,1024,256);ctx.strokeStyle='#d6b980';ctx.lineWidth=9;ctx.strokeRect(13,13,998,230);
+  ctx.textAlign='center';ctx.fillStyle='#fff3d0';ctx.font='bold 63px "Noto Sans KR", sans-serif';ctx.fillText('우리 반 수비대 · 집결소',512,112);
+  ctx.font='29px "Noto Sans KR", sans-serif';ctx.fillStyle='#bce3e1';ctx.fillText('함께 준비하고, 함께 마을을 지켜요',512,187);
+  const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;
+  const sign=new THREE.Mesh(new THREE.PlaneGeometry(9.6,2.4),new THREE.MeshBasicMaterial({map:tex}));sign.position.set(0,6.8,-11.85);root.add(sign);
+}
+function lobbyEnter78(){
+  endShown=false;document.querySelectorAll('.pop.on').forEach(p=>p.classList.remove('on'));
+  lobbyBuild78();LOBBY78.group.visible=true;document.body.classList.add('waiting78');document.body.classList.remove('story78');
+  el('lobby78').hidden=false;el('story78').hidden=true;el('lobbyStart78').hidden=!G.host;
+  el('lobbyCode78').textContent=G.room||'혼자 연습';el('lobbyWait78').textContent=G.host?'친구들이 모이면 게임 시작을 눌러 주세요.':'꾸미고 놀면서 기다려요. 선생님이 게임을 시작해요.';
+  // The same stable uid always chooses the same non-overlapping entry slot on reload.
+  let n=0;for(const ch of uid)n=(n*31+ch.charCodeAt(0))>>>0;n%=21;
+  Object.assign(PL,{x:(n%7-3)*1.7,z:LOBBY78.z+3+Math.floor(n/7)*1.8,y:LOBBY78.y,vx:0,vz:0,vy:0,ground:true,down:false,yaw:0,pitch:-.17,_px:undefined,mv:false});
+  PLV.on=false;camBodyHidden=false;camAutoK=0;LOBBY78.roster='';held.visible=false;lobbyPaint78();
+}
+function lobbyPaint78(){
+  if(!waiting78())return;
+  const people=[{n:G.me.name,g:G.me.g},...[...G.players.values()].map(p=>({n:p.n||'친구',g:p.g|0}))],key=JSON.stringify(people);
+  if(key===LOBBY78.roster)return;LOBBY78.roster=key;
+  el('lobbyCount78').textContent=people.length+'명 모였어요';el('lobbyNames78').innerHTML=people.map(p=>`<span style="--team:${GCOL[p.g]}"><i></i>${esc(p.n)}<small>${p.g+1}모둠</small></span>`).join('');
+}
+function lobbyDress78(){
+  if(!waiting78())return;document.exitPointerLock?.();el('lobbyDressSlot78').appendChild(el('dressPick'));buildPicker();openPop('popLobby78');
+}
+function lobbyMove78(dt){
+  let x=(KEY.d?1:0)-(KEY.a?1:0)+mvx,z=(KEY.w?1:0)-(KEY.s?1:0)+mvz;const len=Math.hypot(x,z),k=len>1?1/len:1;x*=k;z*=k;
+  const vx=(x*Math.cos(PL.yaw)-z*Math.sin(PL.yaw))*SPD,vz=(-x*Math.sin(PL.yaw)-z*Math.cos(PL.yaw))*SPD,a=1-Math.exp(-dt*12);
+  PL.vx+=(vx-PL.vx)*a;PL.vz+=(vz-PL.vz)*a;const px=PL.x,pz=PL.z;
+  PL.x=Math.max(-10.9,Math.min(10.9,PL.x+PL.vx*dt));PL.z=Math.max(LOBBY78.z-9.2,Math.min(LOBBY78.z+9.2,PL.z+PL.vz*dt));
+  if(wantJump&&PL.ground){PL.vy=JUMP_V;PL.ground=false;sfx('jump');}wantJump=false;
+  PL.vy-=GRAV_V*dt;PL.y+=PL.vy*dt;if(PL.y<=LOBBY78.y){PL.y=LOBBY78.y;PL.vy=0;PL.ground=true;}
+  PL.mv=len>.06;gaitMe+=sheepGaitStep(Math.hypot(PL.x-px,PL.z-pz),dt,false,0);PLV.on=false;camBodyHidden=false;held.visible=false;
+  const back=4.4,pi=Math.max(-.8,Math.min(.18,PL.pitch));
+  camera.position.set(Math.max(-12.6,Math.min(12.6,PL.x+Math.sin(PL.yaw)*back)),PL.y+1.6-Math.sin(pi)*back,Math.max(LOBBY78.z-11.5,Math.min(LOBBY78.z+11.5,PL.z+Math.cos(PL.yaw)*back)));
+  camera.lookAt(PL.x,PL.y+1.05,PL.z);camera.updateMatrixWorld();
+}
+function lessonStart78(){
+  if(!G.host||!waiting78())return false;
+  G.phase='intro';G.t=5;G.paused=false;storyEnter78(0);netMeta();return true;
+}
+function lobbyReset78(){
+  if(!G.host)return;
+  if(miniBack){G.mini=null;miniLeave();kitReset();} // A new lesson must not restore the previous race's saved weapon/ammo.
+  Object.assign(PL,{hp:maxHP(),down:false,downT:0,biteT:0,hurtFx:0,landT:0});
+  G.mini=null;if(net)net.child('mini').remove();
+  G.wolves.length=0;G.soldiers.length=0;spawnQ=[];G.phase='lobby';G.t=0;setPaused(false);
+  lobbyEnter78();netMeta();
+}
+function storyEnter78(elapsed=0){
+  if(LOBBY78.group)LOBBY78.group.visible=false;
+  el('popLobby78').classList.remove('on');el('lobby78').hidden=true;document.body.classList.remove('waiting78');document.body.classList.add('story78');el('story78').hidden=false;
+  document.querySelectorAll('.pop.on').forEach(p=>p.classList.remove('on'));document.exitPointerLock?.();
+  LOBBY78.story=Math.max(0,Math.min(5,elapsed));LOBBY78.shot=-1;acting=throwing=false;wantJump=false;for(const k in KEY)KEY[k]=false;
+  PL.mv=false;held.visible=false;setAimMode(false,true);placePlayer();
+}
+function lessonEnter78(){
+  if(LOBBY78.group)LOBBY78.group.visible=false;
+  el('lobby78').hidden=true;el('story78').hidden=true;el('popLobby78').classList.remove('on');document.body.classList.remove('waiting78','story78');
+  if(el('dressPick').parentElement!==el('dressRow'))el('dressRow').appendChild(el('dressPick'));
+  placePlayer();camAnc=null;camGY=null;PLV.on=false;PL.vx=PL.vz=0;startedAt=tAcc;held.visible=true;
+  drawWolves([],tAcc,0);skyK=0;updSky(0,false);camera.fov=FOV0;camera.updateProjectionMatrix();
+}
+function storyTick78(dt){
+  if(G.phase!=='intro')return;
+  LOBBY78.story=Math.min(5,LOBBY78.story+dt);const t=LOBBY78.story,shot=t<1.85?0:t<3.5?1:2;
+  if(shot!==LOBBY78.shot){LOBBY78.shot=shot;el('story78').dataset.shot=shot;
+    el('storyTitle78').textContent=shot===0?'성문 밖… 무언가 다가온다':shot===1?'우리 마을의 수정을 지켜라!':`${G.set.goalDay}일 밤까지 함께 버텨라!`;
+    el('storySub78').textContent=shot===0?'어둠 속에서 깨어난 좀비들':shot===1?'모으고 · 짓고 · 힘을 합쳐 싸워요':'우리 반 수비대, 출발!';sfx(shot===0?'dusk':shot===1?'stomp':'up');
+  }
+  const [gx,gz]=GMOUTH[0],len=Math.hypot(gx,gz),nx=gx/len,nz=gz/len,tx=nz,tz=-nx;
+  if(shot===0){const u=t/1.85;camera.position.set(gx-nx*(3.2-u*1.4)+tx*1.2,GY+1.75,gz-nz*(3.2-u*1.4)+tz*1.2);camera.lookAt(gx+nx*6,GY+1.35,gz+nz*6);}
+  else if(shot===1){const u=(t-1.85)/1.65;camera.position.set(7-u*2,GY+5.5-u,10-u*3);camera.lookAt(0,GY+2.2,0);}
+  else {const u=(t-3.5)/1.5;camera.position.set(14+u*3,GY+12+u*3,22+u*2);camera.lookAt(0,GY+1,0);}
+  camera.fov=shot===0?59:shot===1?62:70;camera.updateProjectionMatrix();camera.updateMatrixWorld();
+  if(typeof storyWolves78==='function')drawWolves(storyWolves78(t),tAcc,dt);
+  el('storyProgress78').style.transform=`scaleX(${t/5})`;held.visible=false;
+}
+el('lobbyDress78').onclick=lobbyDress78;el('lobbyStart78').onclick=lessonStart78;
+
 function startGame(){
   el('title').style.display = 'none';
   pvwDispose();                 // WebGL 판을 둘 켜 둘 이유가 없다
@@ -30277,12 +31012,17 @@ function startGame(){
   fitHint();
 
   if(G.host){ G.sid = Date.now(); sessionFresh(); }              // 67차 — 판 번호(방을 만든/혼자 놀기를 시작한 시각) — 보물 장부 열쇠 · meta sid
-  if(G.host){ G.day = 1; G.crystal = G.set.crystalMax; goDay(); netBase(); }
+  if(G.host){G.day=1;G.crystal=G.set.crystalMax;G.phase='lobby';G.t=0;lobbyEnter78();netBase();netMeta();}
+  else if(waiting78())lobbyEnter78();
+  else if(G.phase==='intro')storyEnter78(5-G.t);
   else { toast((restored?'이어서 들어왔어요! ':'들어왔어요! ') + (G.me.g+1) + '모둠 입구를 지켜 주세요', 3, '#c8ffb0'); }
   // 자동 마우스 잠금 금지. 시작 후 사용자가 게임 화면을 직접 클릭할 때만 잠근다.
   selectTool('mine');
 }
 function onPhaseChange(from, to){
+  if(to==='lobby'){lobbyEnter78();return;}
+  if(to==='intro'){storyEnter78(5-G.t);return;}
+  if(from==='lobby'||from==='intro')lessonEnter78();
   if(to==='day'){
     /* ★ 아침 — 쓰러진 사람은 다시 일어나고, 버틴 사람은 조금 회복한다 */
     /* 아침이 오면 총을 자동으로 내린다 — 공격 모드인 줄 모르고
@@ -30321,6 +31061,7 @@ function fireworks(dt){
 }
 function showEnd(){
   if(endShown) return; endShown = true;
+  el('bAgain').disabled=!G.host;el('bAgain').textContent=G.host?'대기실로 돌아가기':'선생님의 다음 시작을 기다려요';
   const win = G.phase==='win';
   sfx(win ? 'win' : 'lose');
   if(win){ fireN = 26; fireT = 0; if(window.__shake) window.__shake(0.5, 0.5); }
@@ -30407,6 +31148,7 @@ function paintEndCard(){
   el('ecNote').innerHTML = bits.join('<br>');
 }
 el('bAgain').onclick = ()=>{
+  if(!G.host)return;
   el('popEnd').classList.remove('on'); endShown = false;
   kitReset(); xpReset();
   PL.hp = maxHP(); PL.down = false; PL.biteT = 0;
@@ -30416,7 +31158,7 @@ el('bAgain').onclick = ()=>{
     myPC={g:G.me.g,w:0,s:0,o:0,sw:0,ss:0,so:0,n:G.me.name,mined:0,built:0};
     myReset(); pcMap.set(uid,myPC);
     if(net) net.child('pc').remove();
-    netBase(); goDay(); }
+    netBase(); lobbyReset78(); }
 };
 
 /* ═══════════════════════ 자원 보내기 ═══════════════════════ */
@@ -30570,7 +31312,7 @@ el('tReset').onclick = ()=>{ if(!confirm('처음부터 다시 시작할까요?')
   /* 산 무기·갑옷·물약도 같이 처음으로 — 자원만 되돌리면 총만 남아 첫날부터 무적이 된다 */
   kitReset(); xpReset(); setAimMode(false, true);
 
-  netBase(); goDay(); el('popTeach').classList.remove('on'); };
+  netBase(); lobbyReset78(); el('popTeach').classList.remove('on'); };
 
 /* ═══════════════════════ 스테이지 안내 / 보스바 ═══════════════════════ */
 let stageT = 0;
@@ -31534,6 +32276,8 @@ function bgmSwitch(k, now){
 /* 지금 어느 곡인가 — 소리 꺼짐·멈춤·짐은 조용히. 대기실은 게임 전에만 */
 function bgmSceneNow(){
   if(!sndOn) return null;
+  if(waiting78())return 'lobby';
+  if(G.phase==='intro')return 'boss';
   if(!G.started) return G.phase === 'title' ? 'lobby' : null;
   if(G.paused || G.phase === 'lose') return null;
   if(G.phase === 'win') return 'victory';
@@ -32200,7 +32944,7 @@ function loop(){
     if(hurtCd>0) hurtCd -= dt;
     kitTick(dt); burnTick(dt); downTick(dt); specTick(dt); comboTick(dt);
     if(!popOpen()) doAction(dt); else { hl.visible=false; ghost.visible=false; workStop(); }
-    buildCoopTick(dt); buildAssistTick();
+    if(!pregame78()){buildCoopTick(dt);buildAssistTick();}
     sheepHurt(dt);
     if(throwCd > 0) throwCd -= dt;
     rlTick(dt);                                // 70차 — 자동 재장전(박자 소리·취소·끝나면 탄창 채움)
@@ -32246,7 +32990,7 @@ function loop(){
     /* 오늘의 임무 — 호스트가 0.5초마다 세고, 모두가 완료를 한 번 본다.
        통신이 없어도(혼자 하기) 돌아야 하므로 metaTick 밖에 둔다. */
     misT -= dt;
-    if(misT <= 0){ misT = 0.5; syncMyPC(); if(G.host) misTally(); badgeCheck(); }
+    if(misT <= 0){misT=.5;syncMyPC();if(!pregame78()){if(G.host)misTally();badgeCheck();}lobbyPaint78();}
     misWatch();
     bgmLoop(dt);
     if(PROF_ON) pE('통신');
@@ -32283,7 +33027,8 @@ function loop(){
                 q.jb = pc.jb===undefined ? -1 : pc.jb|0; q.jt = pc.jt|0; }
         friendGun(q, dt);                                  // 70차 — 친구 쏘기·재장전 추정(통신 0)
         /* 40차 — 친구가 떠 있나: 자리 통로엔 뜀 표시가 없으니 발밑 땅과 견준다(통신은 그대로) */
-        q.air = !q.down && q.x !== undefined && q.y !== undefined && (q.y - Math.max(groundUnder(q.x, q.z, 0.28, q.y), q.rp === null || q.rp === undefined ? -999 : q.rp - 0.25)) > 0.4;   // 70차 2회차 — 계단 경사 기준 · 0.3 → 0.4(디딤 0.32 와 붙어 깜빡이던 것)
+        const friendFloor78=waiting78()?LOBBY78.y:Math.max(groundUnder(q.x,q.z,.28,q.y),q.rp===null||q.rp===undefined?-999:q.rp-.25);
+        q.air = !q.down && q.x !== undefined && q.y !== undefined && q.y-friendFloor78 > .4; // Lobby friends stand on the same hall floor as the local player.
       }
       /* 67차 — 1인칭(자동 포함)이면 카메라 코앞(0.9칸 · 덮인 칸 1.6칸) 친구 몸은 이 프레임 안 그린다(투명 아님 — 건너뛰기).
          성 안에선 서로 안 부딪혀 몸이 겹치므로, 없으면 좁은 나선·초소에서 화면이 친구 몸·모자·총으로 찬다 */
@@ -32327,7 +33072,7 @@ function loop(){
     fireworks(dt);
     if(PROF_ON) pE('효과');
     if(PROF_ON) pS();
-    updSky(dt, G.phase==='night');
+    updSky(dt, G.phase==='night'||G.phase==='intro');
     updCrystal(dt, tAcc, G.crystal/G.set.crystalMax, !!G.lastLight, skyK);
     /* 63차 — 마을이 살아 있게(참새·오리·흔들리는 풀·나비·굴뚝 연기. 65차 — 고양이·빨래·풍차는 뺐다).
        updCrystal 과 같은 묶음에 둔다 — 둘 다 마을 화면에서만 뜻이 있고 한 번에 프로파일된다. */
@@ -32353,6 +33098,8 @@ function loop(){
     if(toastT>0){ toastT -= dt; if(toastT<=0) el('toast').classList.remove('on'); }
     dreadTick(dt);      // 33차 무서움의 온도 — 울음이 가까워지고, 보스는 발소리·땅울림으로 먼저 온다
   }
+  if(G.phase==='intro')storyTick78(elapsed);
+  if(pregame78())held.visible=false;
   updClouds(dt);
   if(PROF_ON){ pS(); gpuBegin(); }
   /* ★ 상인·대장장이는 시작 화면에서도 서 있어야 한다 — G.started 밖에서 그린다.
@@ -32804,7 +33551,8 @@ Object.assign(window, {
   /* 69차 — 룬 강화 빛(검사·사진) */ __RUNE_U:RUNE_U, __RUNE_BASE:RUNE_BASE, __ENH_SPK:ENH_SPK, __ENH_COL:ENH_COL, __updEnhHeld:updEnhHeld, __gunWake:gunWake, __FLASH_VM:FLASH_VM, __VM_Z:VM_Z,
   __enhShake:()=>({shEnv, x:enhShX, y:enhShY, boost:runeBoostT, drop:runeDropT}), __enhShotNow:()=>{ enhShotAgo = 0; },
 
-  __introDone:()=>{ startedAt = tAcc - 999; },
+  __introDone:()=>{if(pregame78()){lessonEnter78();if(G.host)goDay();else G.phase='day';}startedAt=tAcc-999;},
+  __lobby78:{enter:lobbyEnter78,start:lessonStart78,move:lobbyMove78,story:storyTick78,phase:onPhaseChange,hostPhase,dress:wearDeco,pack:packPlayer,meta:netMeta,state:()=>LOBBY78},
 
   __equipA:equipArmor,
 
@@ -32875,7 +33623,7 @@ Object.assign(window, {
                DMG:SURV_DMG, HEAD:SURV_HEAD, HEAD_R:SURV_HEAD_R, HP:SURV_HP,
                SPAWN_R:SURV_SPAWN_R}),
   __SPRINT:SPRINT, __stamina:()=>stamina, __sprinting:()=>sprinting, __setStamina:(v)=>{ stamina = v; },
-  __race74:{state:RACE74,pose:racePose,tryJump:raceTryJump,contains:raceContains,surface:raceSurface,under:raceUnder,before:raceMotion,after:racePhysicsAfter,tick:raceTick,reset:race74Reset,draw:raceArtDraw,art:()=>RACE_ART74}, __raceSlotXZ:raceSlotXZ, __RACE_ROWZ:RACE_ROWZ, __FADE_T:FADE_T, __RACE_SPD:RACE_SPD, __raceHold:raceHold, __flipSet:flipSet, __gaitMe:()=>gaitMe, __camAnc:()=>camAnc, __ACC:{up:ACC_UP, down:ACC_DOWN}, __SPD:SPD, __sheepGait:sheepGait, __STRIDE:{walk:STRIDE_WALK, run:STRIDE_RUN}, __cntShow:cntShow,
+  __race74:{state:RACE74,pose:racePose,jumpPose:raceJumpPose,landingPose:raceLandingPose,tryJump:raceTryJump,contains:raceContains,surface:raceSurface,under:raceUnder,before:raceMotion,after:racePhysicsAfter,tick:raceTick,reset:race74Reset,draw:raceArtDraw,art:()=>RACE_ART74}, __raceSlotXZ:raceSlotXZ, __RACE_ROWZ:RACE_ROWZ, __FADE_T:FADE_T, __RACE_SPD:RACE_SPD, __raceHold:raceHold, __flipSet:flipSet, __gaitMe:()=>gaitMe, __camAnc:()=>camAnc, __ACC:{up:ACC_UP, down:ACC_DOWN}, __SPD:SPD, __sheepGait:sheepGait, __STRIDE:{walk:STRIDE_WALK, run:STRIDE_RUN}, __cntShow:cntShow,
   __MINI_NAME:MINI_NAME, __survOn:survOn, __RACE:()=>RACE, __raceRocks:raceRocks, __ROCK:ROCK, __raceGiveWeapon:raceGiveWeapon, __raceGiveArmor:raceGiveArmor, __RACE_RES:RACE_RES, __RACE_FIN:RACE_FIN, __raceHazards:raceHazards, __HAZ:HAZ, __camGY:()=>camGY, __bgmRace:bgmRace, __rockU:rockU, __fovRun:()=>fovRun, __sheepBump:sheepBump, __SHEEP_R2:SHEEP_R2, __kb:()=>({x:kbx, z:kbz}), __kbReset:()=>{ kbx = kbz = 0; }, __RACE_P:()=>RACE_P, __RACE_S:RACE_S, __raceTopAt:raceTopAt, __raceBuild:raceBuild, __raceOn:raceOn, __raceRespawn:raceRespawn, __R_plat:()=>R_plat, __RACE_Z_FIN:RACE_Z_FIN,
   __tpvOn:tpvOn, __tpvKind:tpvKind, __MINI_CAM:()=>MINI_CAM, __DOWN_CAM:()=>DOWN_CAM,
   __camPos:()=>({x:camera.position.x, y:camera.position.y, z:camera.position.z}),
@@ -32883,7 +33631,8 @@ Object.assign(window, {
   __stairRampAt:stairRampAt, __spiralRamp:spiralRamp, __PLV:PLV, __friendSeg:friendSeg, __friendLerp:friendLerp,
   __zMoveOk:zMoveOk, __rZ:rZ, __ZGB:ZGB, __GPOST:GPOST,   // 70차 2회차 — 검사용
   __combatRay:combatRay, __shotEndpoint:shotEndpoint, __fovTick:fovTick,
-  __cameraClearance:cameraClearance,
+  __cameraClearance:cameraClearance, __raceCameraClearance:raceCameraClearance, __raceCameraBlocked:raceCameraBlocked,
+  __raceCameraFloorBlocked:raceCameraFloorBlocked, __raceCameraLift:raceCameraLift,
   __meSheep:()=>meSheep,
   __updDanger:updDanger, __paintMini:paintMini,
   __applyHitNode:applyHitNode, __survSend:survSend,
@@ -32911,7 +33660,7 @@ Object.assign(window, {
   __JOBS:JOBS, __JOB_LV:JOB_LV, __JOB_STEP:()=>JOB_STEP, __JOB_LOOK:JOB_LOOK, __JOB_GEO:JOB_GEO, __JOB_UNIFORM:JOB_UNIFORM, __P_jobParts:()=>P_jobParts, __JOB_AURA:JOB_AURA, __P_jobF:()=>P_jobF, __P_jobR:()=>P_jobR,
   __JOB_WING:JOB_WING, __P_wing:()=>P_wing, __P_wingG:()=>P_wingG, __wingSpine:wingSpine,
   __wingBend:wingBend, __avatarWingPose:avatarWingPose, __jobUpFx:jobUpFx, __wingFxPeople:wingFxPeople, __wingFxTick:wingFxTick,   // 66차 WING
-  __wingFx:()=>({sp:wfxSp, fe:wfxFe, job:wfxJob, meshes:[wfxSpMesh, wfxFeMesh, wfxBeam, ...wfxRune], rate:WFX_RATE, SN:WFX_SN, FN:WFX_FN}),
+  __wingFx:()=>({sp:wfxSp, fe:wfxFe, job:wfxJob, meshes:[wfxSpMesh, wfxFeMesh, wfxBeam, ...wfxRune], rate:WFX_RATE, SN:WFX_SN, FN:WFX_FN,marks:wfxMark,markMeshes:wfxMarkMeshes,markStats:wfxMarkStats,markRate:WFX_MRATE,markMax:WFX_MN}),
   __jobTier:jobTier, __JOB_SPD:JOB_SPD, __JOB_JMP:JOB_JMP, __GLIDE_T:GLIDE_T, __GLIDE_VY:GLIDE_VY, __setJumpHeld:(v)=>{ KEY[' '] = !!v; },   // 45차
   __statMax:statMax, __jobDue:jobDue, __takeJob:takeJob, __buildJobUI:buildJobUI,
   __jobCheck:jobCheck,

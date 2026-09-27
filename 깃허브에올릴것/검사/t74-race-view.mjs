@@ -7,11 +7,13 @@ import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 import { race76Physics, validateRace76 } from './race76-physics.mjs';
+import { race78SlidePhysics, validateRace78Slide } from './race78-slide-physics.mjs';
 
 const file=process.argv.slice(2).find(a=>!a.startsWith('--'))||GAME;
-const baseline=process.argv.includes('--baseline'), label=baseline?'baseline75':'race76';
+const version=/const GAME_VER = '(\d+)/.exec(fs.readFileSync(file,'utf8'))?.[1]||'76';
+const baseline=process.argv.includes('--baseline'), label=baseline?'baseline75':'race'+version;
 const captureOnly=process.argv.includes('--capture-only'),physicsOnly=process.argv.includes('--physics-only');
-const out=path.resolve('artifacts/race76');fs.mkdirSync(out,{recursive:true});
+const out=path.resolve('artifacts/race'+version);fs.mkdirSync(out,{recursive:true});
 const server=serve(20575,file);let browser;
 try {
   browser=await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
@@ -64,9 +66,15 @@ try {
       if(stage.detail){R.info.autoReset=false;R.info.reset();W.__drawFrame();
         captures.push({name:'play-'+stage.name,png:R.domElement.toDataURL('image/png'),calls:R.info.render.calls,triangles:R.info.render.triangles,memory:{...R.info.memory},programs:R.info.programs.length});}
       // Camera deliberately identical relative to the player for before/after art comparison.
-      W.__cam.position.set(stage.x+8,stage.y+7,stage.z-12);W.__cam.lookAt(stage.x,stage.y+1,stage.z+15);
+      W.__cam.position.set(stage.x+8,stage.y+7,stage.z-12);
+      // This is a labeled diagnostic camera, not a player-view photograph.
+      // Keep its endpoint above real geometry instead of photographing the underside of a steep chute.
+      const requestedY=W.__cam.position.y;
+      if(W.__race74)for(const p of W.__RACE_P())if(W.__race74.contains(p,W.__cam.position.x,W.__cam.position.z,.25))
+        W.__cam.position.y=Math.max(W.__cam.position.y,W.__race74.surface(p,W.__cam.position.x,W.__cam.position.z)+.6);
+      W.__cam.lookAt(stage.x,stage.y+1,stage.z+15);
       R.info.autoReset=false;R.info.reset();W.__drawFrame();
-      captures.push({name:stage.name,png:R.domElement.toDataURL('image/png'),calls:R.info.render.calls,triangles:R.info.render.triangles,memory:{...R.info.memory},programs:R.info.programs.length,...W.__race74?{raceArt:{...W.__race74.art().stats}}:{}});
+      captures.push({name:stage.name,kind:'staged-diagnostic',cameraFloorLift:W.__cam.position.y-requestedY,png:R.domElement.toDataURL('image/png'),calls:R.info.render.calls,triangles:R.info.render.triangles,memory:{...R.info.memory},programs:R.info.programs.length,...W.__race74?{raceArt:{...W.__race74.art().stats}}:{}});
     }
     const longCourse=W.__RACE_Z_FIN>400;
     let oldZ,flags;
@@ -102,7 +110,7 @@ try {
     }
     for(const k of Object.keys(W.__KEY))delete W.__KEY[k];return shots;
   });
-  if(!baseline&&!captureOnly)results.physics=await page.evaluate(race76Physics);
+  if(!baseline&&!captureOnly){results.slidePhysics=await page.evaluate(race78SlidePhysics);results.physics=await page.evaluate(race76Physics);}
   for(const c of results.captures){fs.writeFileSync(path.join(out,`${label}-${c.name}.png`),Buffer.from(c.png.split(',')[1],'base64'));delete c.png;}
   for(const c of results.airCaptures||[]){fs.writeFileSync(path.join(out,`${label}-air-${c.name}.png`),Buffer.from(c.png.split(',')[1],'base64'));delete c.png;}
   fs.writeFileSync(path.join(out,`${label}${captureOnly?'-captures':''}.json`),JSON.stringify(results,null,2));
@@ -110,9 +118,10 @@ try {
   assert.equal(results.players,21);assert.deepEqual(results.overflow,[]);assert.deepEqual(errors,[]);
   assert.equal(results.sections.length,7);assert.equal(results.graphics.pr,.85);
   assert.ok(results.colorAttributes.every(c=>!c.vertexColors||c.valid),'Dynamic geometry must supply colors to vertex-colored materials');
-  assert.ok(results.captures.every(c=>!c.raceArt||(c.raceArt.materials<=3&&c.raceArt.textures<=2&&c.raceArt.visibleDraws<=12&&c.raceArt.overflow===0)),'Race art stays inside its material, texture and draw budgets');
+  assert.ok(results.captures.every(c=>!c.raceArt||(c.raceArt.materials<=3&&c.raceArt.textures<=2&&c.raceArt.visibleDraws<=15&&c.raceArt.overflow===0)),'Race art retains three materials/two textures; three moving toy silhouettes add at most three draws');
   if(results.airCaptures){assert.deepEqual(results.airCaptures.map(c=>c.name),['compression','ascent','apex','landing']);
     assert.ok(results.airCaptures.every(c=>Number.isFinite(c.fov)&&c.fov<=76.01),'Spring speed FOV stays within six degrees without sprint or jump kick');}
+  if(results.slidePhysics)validateRace78Slide(results.slidePhysics);
   if(results.physics)validateRace76(results.physics);
   console.log(`PASS: ${label} 21 avatars, all sections present, bounded instance capacity, unchanged mid preset`);
 } finally { await browser?.close();await new Promise(r=>server.close(r)); }

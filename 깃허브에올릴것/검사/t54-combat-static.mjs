@@ -45,7 +45,7 @@ const hiddenLine=source.match(/camBodyHidden = camBodyHidden \? camDistance < [^
 if(!hiddenLine)throw new Error('Missing camera visibility hysteresis assignment');
 const fixtures=`
 const hitQueue=[];
-const camera=new THREE.PerspectiveCamera(),G={wolves:[],players:new Map(),me:{g:0}},miniPl=new Map();
+const camera=new THREE.PerspectiveCamera(),G={phase:'day',wolves:[],players:new Map(),me:{g:0}},miniPl=new Map();
 const KIT={wpn:0,ammo:0,mag:[]};
 const heldShot=()=>{},heldDryFlick=()=>{},heldActStart=()=>{},heldActStop=()=>{},magHudRl=()=>{},heldAct={k:0};   // 70차 — 손 모션·HUD 는 그림(판정 밖)
 let cover=false,wall=false,survival=false,camBodyHidden=false,camAimBlend=0;
@@ -68,7 +68,7 @@ vm.runInContext([
   declaration('wpnNow'),declaration('wpnEff'),
   ...['RL','wpnMag','wpnShotCd','rlOn'].map(declaration),...['magNow','rlStart','rlCancel'].map(fn),   // 70차 — 탄창 규칙(실제 함수)
   declaration('_shotOrigin'),declaration('_shotRay'),
-  ...['combatRay','combatTargetInRange','shotEndpoint','survBlocked','aimWolf','aimPlayer','cameraClearance','fireWeapon'].map(fn),
+  ...['waiting78','pregame78','combatRay','combatTargetInRange','shotEndpoint','survBlocked','aimWolf','aimPlayer','cameraClearance','fireWeapon'].map(fn),
 ].join('\n'),context,{timeout:10000});
 const run=code=>vm.runInContext(code,context,{timeout:1000});
 const results=[];

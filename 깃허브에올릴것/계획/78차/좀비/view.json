@@ -1,0 +1,1601 @@
+{
+  "sourceSha256": "57280f0a3f3042f6c5076a6387114d2b42bb4538cda2b69688cb0288826a678d",
+  "baseline": "C:\\Users\\Yu\\Documents\\Codex\\2026-09-18\\new-chat-3\\work\\race76\\baseline76.html",
+  "control": "Same current world; only zombie visuals restored from build76",
+  "results": [
+    {
+      "label": "before",
+      "shots": [
+        {
+          "name": "near-day",
+          "players": 21,
+          "zombies": 3,
+          "counts": [
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 256
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 280
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 384
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 9,
+              "capacity": 276,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 12,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 6,
+              "capacity": 368,
+              "triangles": 144
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 108
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 920,
+              "triangles": 120
+            },
+            {
+              "count": 0,
+              "capacity": 3312,
+              "triangles": 300
+            },
+            {
+              "count": 0,
+              "capacity": 92,
+              "triangles": 8
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 0,
+              "capacity": 460,
+              "triangles": 30
+            },
+            {
+              "count": 24,
+              "capacity": 5888,
+              "triangles": 120
+            },
+            {
+              "count": 12,
+              "capacity": 368,
+              "triangles": 280
+            },
+            {
+              "count": 24,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 0,
+              "capacity": 368,
+              "triangles": 384
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 12
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 6,
+              "triangles": 40
+            }
+          ],
+          "updateMs": 0.5433333357175191,
+          "calls": 484,
+          "triangles": 3166041,
+          "memory": {
+            "geometries": 177,
+            "textures": 19
+          },
+          "quality": {
+            "shadow": 2048,
+            "bloom": 0,
+            "aa": 2,
+            "pr": 0.85,
+            "shHz": 0,
+            "q": "mid"
+          },
+          "lights": [
+            "HemisphereLight",
+            "DirectionalLight",
+            "AmbientLight",
+            "PointLight"
+          ],
+          "camera": {
+            "x": 11,
+            "y": 10.120000000000001,
+            "z": 19,
+            "fov": 70
+          },
+          "finite": true
+        },
+        {
+          "name": "near-night",
+          "players": 21,
+          "zombies": 3,
+          "counts": [
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 256
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 280
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 384
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 9,
+              "capacity": 276,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 12,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 6,
+              "capacity": 368,
+              "triangles": 144
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 108
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 920,
+              "triangles": 120
+            },
+            {
+              "count": 0,
+              "capacity": 3312,
+              "triangles": 300
+            },
+            {
+              "count": 0,
+              "capacity": 92,
+              "triangles": 8
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 0,
+              "capacity": 460,
+              "triangles": 30
+            },
+            {
+              "count": 9,
+              "capacity": 5888,
+              "triangles": 120
+            },
+            {
+              "count": 12,
+              "capacity": 368,
+              "triangles": 280
+            },
+            {
+              "count": 24,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 12,
+              "capacity": 368,
+              "triangles": 384
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 12
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 6,
+              "triangles": 40
+            }
+          ],
+          "updateMs": 0.2966666658719381,
+          "calls": 462,
+          "triangles": 3026567,
+          "memory": {
+            "geometries": 177,
+            "textures": 19
+          },
+          "quality": {
+            "shadow": 2048,
+            "bloom": 0,
+            "aa": 2,
+            "pr": 0.85,
+            "shHz": 0,
+            "q": "mid"
+          },
+          "lights": [
+            "HemisphereLight",
+            "DirectionalLight",
+            "AmbientLight",
+            "PointLight"
+          ],
+          "camera": {
+            "x": 11,
+            "y": 10.120000000000001,
+            "z": 19,
+            "fov": 70
+          },
+          "finite": true
+        },
+        {
+          "name": "pursuit",
+          "players": 21,
+          "zombies": 8,
+          "counts": [
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 256
+            },
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 280
+            },
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 384
+            },
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 9,
+              "capacity": 276,
+              "triangles": 120
+            },
+            {
+              "count": 16,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 16,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 32,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 16,
+              "capacity": 368,
+              "triangles": 144
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 108
+            },
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 16,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 16,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 21,
+              "capacity": 920,
+              "triangles": 120
+            },
+            {
+              "count": 29,
+              "capacity": 3312,
+              "triangles": 300
+            },
+            {
+              "count": 1,
+              "capacity": 92,
+              "triangles": 8
+            },
+            {
+              "count": 2,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 2,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 2,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 4,
+              "capacity": 460,
+              "triangles": 30
+            },
+            {
+              "count": 46,
+              "capacity": 5888,
+              "triangles": 120
+            },
+            {
+              "count": 32,
+              "capacity": 368,
+              "triangles": 280
+            },
+            {
+              "count": 64,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 4,
+              "capacity": 368,
+              "triangles": 384
+            },
+            {
+              "count": 1,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 12
+            },
+            {
+              "count": 1,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 6,
+              "triangles": 40
+            }
+          ],
+          "updateMs": 1.1399999976158142,
+          "calls": 526,
+          "triangles": 3265316,
+          "memory": {
+            "geometries": 207,
+            "textures": 23
+          },
+          "quality": {
+            "shadow": 2048,
+            "bloom": 0,
+            "aa": 2,
+            "pr": 0.85,
+            "shHz": 0,
+            "q": "mid"
+          },
+          "lights": [
+            "HemisphereLight",
+            "DirectionalLight",
+            "AmbientLight",
+            "PointLight"
+          ],
+          "camera": {
+            "x": 11,
+            "y": 9.8,
+            "z": 26.2,
+            "fov": 70
+          },
+          "finite": true
+        },
+        {
+          "name": "crowd-92",
+          "players": 21,
+          "zombies": 92,
+          "counts": [
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 256
+            },
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 280
+            },
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 384
+            },
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 105,
+              "capacity": 276,
+              "triangles": 120
+            },
+            {
+              "count": 184,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 184,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 368,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 184,
+              "capacity": 368,
+              "triangles": 144
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 108
+            },
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 184,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 184,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 243,
+              "capacity": 920,
+              "triangles": 120
+            },
+            {
+              "count": 319,
+              "capacity": 3312,
+              "triangles": 300
+            },
+            {
+              "count": 11,
+              "capacity": 92,
+              "triangles": 8
+            },
+            {
+              "count": 22,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 22,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 22,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 44,
+              "capacity": 460,
+              "triangles": 30
+            },
+            {
+              "count": 533,
+              "capacity": 5888,
+              "triangles": 120
+            },
+            {
+              "count": 368,
+              "capacity": 368,
+              "triangles": 280
+            },
+            {
+              "count": 736,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 48,
+              "capacity": 368,
+              "triangles": 384
+            },
+            {
+              "count": 11,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 12
+            },
+            {
+              "count": 11,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 6,
+              "triangles": 40
+            }
+          ],
+          "updateMs": 8.24333333571752,
+          "calls": 544,
+          "triangles": 4860611,
+          "memory": {
+            "geometries": 207,
+            "textures": 23
+          },
+          "quality": {
+            "shadow": 2048,
+            "bloom": 0,
+            "aa": 2,
+            "pr": 0.85,
+            "shHz": 0,
+            "q": "mid"
+          },
+          "lights": [
+            "HemisphereLight",
+            "DirectionalLight",
+            "AmbientLight",
+            "PointLight"
+          ],
+          "camera": {
+            "x": 10,
+            "y": 11.545836984646956,
+            "z": 37.80717959464484,
+            "fov": 70
+          },
+          "finite": true
+        }
+      ]
+    },
+    {
+      "label": "after",
+      "shots": [
+        {
+          "name": "near-day",
+          "players": 21,
+          "zombies": 3,
+          "counts": [
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 256
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 280
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 384
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 9,
+              "capacity": 276,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 12,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 6,
+              "capacity": 368,
+              "triangles": 144
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 108
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 920,
+              "triangles": 120
+            },
+            {
+              "count": 0,
+              "capacity": 3312,
+              "triangles": 300
+            },
+            {
+              "count": 0,
+              "capacity": 92,
+              "triangles": 8
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 0,
+              "capacity": 460,
+              "triangles": 30
+            },
+            {
+              "count": 24,
+              "capacity": 5888,
+              "triangles": 120
+            },
+            {
+              "count": 12,
+              "capacity": 368,
+              "triangles": 280
+            },
+            {
+              "count": 24,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 0,
+              "capacity": 368,
+              "triangles": 384
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 12
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 6,
+              "triangles": 40
+            }
+          ],
+          "updateMs": 0.6416666666666667,
+          "calls": 484,
+          "triangles": 3166041,
+          "memory": {
+            "geometries": 177,
+            "textures": 19
+          },
+          "quality": {
+            "shadow": 2048,
+            "bloom": 0,
+            "aa": 2,
+            "pr": 0.85,
+            "shHz": 0,
+            "q": "mid"
+          },
+          "lights": [
+            "HemisphereLight",
+            "DirectionalLight",
+            "AmbientLight",
+            "PointLight"
+          ],
+          "camera": {
+            "x": 11,
+            "y": 10.120000000000001,
+            "z": 19,
+            "fov": 70
+          },
+          "finite": true
+        },
+        {
+          "name": "near-night",
+          "players": 21,
+          "zombies": 3,
+          "counts": [
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 256
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 280
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 384
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 9,
+              "capacity": 276,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 12,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 6,
+              "capacity": 368,
+              "triangles": 144
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 108
+            },
+            {
+              "count": 3,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 6,
+              "capacity": 920,
+              "triangles": 120
+            },
+            {
+              "count": 0,
+              "capacity": 3312,
+              "triangles": 300
+            },
+            {
+              "count": 0,
+              "capacity": 92,
+              "triangles": 8
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 0,
+              "capacity": 460,
+              "triangles": 30
+            },
+            {
+              "count": 9,
+              "capacity": 5888,
+              "triangles": 120
+            },
+            {
+              "count": 12,
+              "capacity": 368,
+              "triangles": 280
+            },
+            {
+              "count": 24,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 12,
+              "capacity": 368,
+              "triangles": 384
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 12
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 6,
+              "triangles": 40
+            }
+          ],
+          "updateMs": 0.3900000015894572,
+          "calls": 462,
+          "triangles": 3026567,
+          "memory": {
+            "geometries": 177,
+            "textures": 19
+          },
+          "quality": {
+            "shadow": 2048,
+            "bloom": 0,
+            "aa": 2,
+            "pr": 0.85,
+            "shHz": 0,
+            "q": "mid"
+          },
+          "lights": [
+            "HemisphereLight",
+            "DirectionalLight",
+            "AmbientLight",
+            "PointLight"
+          ],
+          "camera": {
+            "x": 11,
+            "y": 10.120000000000001,
+            "z": 19,
+            "fov": 70
+          },
+          "finite": true
+        },
+        {
+          "name": "pursuit",
+          "players": 21,
+          "zombies": 8,
+          "counts": [
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 256
+            },
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 280
+            },
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 384
+            },
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 9,
+              "capacity": 276,
+              "triangles": 120
+            },
+            {
+              "count": 16,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 16,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 32,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 16,
+              "capacity": 368,
+              "triangles": 144
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 108
+            },
+            {
+              "count": 8,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 16,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 16,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 21,
+              "capacity": 920,
+              "triangles": 120
+            },
+            {
+              "count": 29,
+              "capacity": 3312,
+              "triangles": 300
+            },
+            {
+              "count": 1,
+              "capacity": 92,
+              "triangles": 8
+            },
+            {
+              "count": 2,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 2,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 2,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 4,
+              "capacity": 460,
+              "triangles": 30
+            },
+            {
+              "count": 46,
+              "capacity": 5888,
+              "triangles": 120
+            },
+            {
+              "count": 32,
+              "capacity": 368,
+              "triangles": 280
+            },
+            {
+              "count": 64,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 4,
+              "capacity": 368,
+              "triangles": 384
+            },
+            {
+              "count": 1,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 12
+            },
+            {
+              "count": 1,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 6,
+              "triangles": 40
+            }
+          ],
+          "updateMs": 0.7800000031789144,
+          "calls": 526,
+          "triangles": 3265316,
+          "memory": {
+            "geometries": 207,
+            "textures": 23
+          },
+          "quality": {
+            "shadow": 2048,
+            "bloom": 0,
+            "aa": 2,
+            "pr": 0.85,
+            "shHz": 0,
+            "q": "mid"
+          },
+          "lights": [
+            "HemisphereLight",
+            "DirectionalLight",
+            "AmbientLight",
+            "PointLight"
+          ],
+          "camera": {
+            "x": 11,
+            "y": 9.8,
+            "z": 26.2,
+            "fov": 70
+          },
+          "finite": true
+        },
+        {
+          "name": "crowd-92",
+          "players": 21,
+          "zombies": 92,
+          "counts": [
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 256
+            },
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 280
+            },
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 384
+            },
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 105,
+              "capacity": 276,
+              "triangles": 120
+            },
+            {
+              "count": 184,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 184,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 368,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 184,
+              "capacity": 368,
+              "triangles": 144
+            },
+            {
+              "count": 0,
+              "capacity": 184,
+              "triangles": 108
+            },
+            {
+              "count": 92,
+              "capacity": 92,
+              "triangles": 120
+            },
+            {
+              "count": 184,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 184,
+              "capacity": 184,
+              "triangles": 120
+            },
+            {
+              "count": 243,
+              "capacity": 920,
+              "triangles": 120
+            },
+            {
+              "count": 319,
+              "capacity": 3312,
+              "triangles": 300
+            },
+            {
+              "count": 11,
+              "capacity": 92,
+              "triangles": 8
+            },
+            {
+              "count": 22,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 22,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 22,
+              "capacity": 184,
+              "triangles": 24
+            },
+            {
+              "count": 44,
+              "capacity": 460,
+              "triangles": 30
+            },
+            {
+              "count": 533,
+              "capacity": 5888,
+              "triangles": 120
+            },
+            {
+              "count": 368,
+              "capacity": 368,
+              "triangles": 280
+            },
+            {
+              "count": 736,
+              "capacity": 736,
+              "triangles": 144
+            },
+            {
+              "count": 48,
+              "capacity": 368,
+              "triangles": 384
+            },
+            {
+              "count": 11,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 24,
+              "triangles": 12
+            },
+            {
+              "count": 11,
+              "capacity": 24,
+              "triangles": 56
+            },
+            {
+              "count": 0,
+              "capacity": 6,
+              "triangles": 40
+            }
+          ],
+          "updateMs": 7.995000000794729,
+          "calls": 544,
+          "triangles": 4860611,
+          "memory": {
+            "geometries": 207,
+            "textures": 23
+          },
+          "quality": {
+            "shadow": 2048,
+            "bloom": 0,
+            "aa": 2,
+            "pr": 0.85,
+            "shHz": 0,
+            "q": "mid"
+          },
+          "lights": [
+            "HemisphereLight",
+            "DirectionalLight",
+            "AmbientLight",
+            "PointLight"
+          ],
+          "camera": {
+            "x": 10,
+            "y": 11.545836984646956,
+            "z": 37.80717959464484,
+            "fov": 70
+          },
+          "finite": true
+        }
+      ]
+    }
+  ],
+  "compared": [
+    {
+      "name": "near-day",
+      "calls": [
+        484,
+        484
+      ],
+      "triangles": [
+        3166041,
+        3166041
+      ],
+      "updateMs": [
+        0.5433333357175191,
+        0.6416666666666667
+      ],
+      "memory": [
+        {
+          "geometries": 177,
+          "textures": 19
+        },
+        {
+          "geometries": 177,
+          "textures": 19
+        }
+      ]
+    },
+    {
+      "name": "near-night",
+      "calls": [
+        462,
+        462
+      ],
+      "triangles": [
+        3026567,
+        3026567
+      ],
+      "updateMs": [
+        0.2966666658719381,
+        0.3900000015894572
+      ],
+      "memory": [
+        {
+          "geometries": 177,
+          "textures": 19
+        },
+        {
+          "geometries": 177,
+          "textures": 19
+        }
+      ]
+    },
+    {
+      "name": "pursuit",
+      "calls": [
+        526,
+        526
+      ],
+      "triangles": [
+        3265316,
+        3265316
+      ],
+      "updateMs": [
+        1.1399999976158142,
+        0.7800000031789144
+      ],
+      "memory": [
+        {
+          "geometries": 207,
+          "textures": 23
+        },
+        {
+          "geometries": 207,
+          "textures": 23
+        }
+      ]
+    },
+    {
+      "name": "crowd-92",
+      "calls": [
+        544,
+        544
+      ],
+      "triangles": [
+        4860611,
+        4860611
+      ],
+      "updateMs": [
+        8.24333333571752,
+        7.995000000794729
+      ],
+      "memory": [
+        {
+          "geometries": 207,
+          "textures": 23
+        },
+        {
+          "geometries": 207,
+          "textures": 23
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "limitations": "CPU update timings are a short sample; software rendering is not LG Gram FPS. Auxiliary sheet adds a fill light only for inspection."
+}

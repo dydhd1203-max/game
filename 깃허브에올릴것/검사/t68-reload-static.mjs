@@ -46,7 +46,7 @@ const context=vm.createContext({THREE,console});
 vm.runInContext([
   ...['GY','MINI_Y','CAM_FAR','PL','WEAPONS','GUN_CYCLE','RLK','RL','wpnMag','wpnShotCd','rlOn','RL_SND','wpnKT'].map(declaration),fixtures,
   declaration('wpnNow'),declaration('wpnEff'),declaration('_shotOrigin'),declaration('_shotRay'),
-  ...['combatRay','combatTargetInRange','shotEndpoint','aimWolf','magNow','rlStart','rlCancel','rlTick','fireWeapon','friendGun'].map(fn),
+  ...['waiting78','pregame78','combatRay','combatTargetInRange','shotEndpoint','aimWolf','magNow','rlStart','rlCancel','rlTick','fireWeapon','friendGun'].map(fn),
   `globalThis.T={WEAPONS,GUN_CYCLE,RLK,RL,RL_SND,KIT,PL,G,LOG,magNow,rlStart,rlCancel,rlTick,rlOn,wpnShotCd,wpnMag,friendGun,wpnKT,
     fire(){try{fireWeapon();}catch(e){if(e!==STOP)throw e;}},
     set(o){if('throwCd'in o)throwCd=o.throwCd;if('gunT'in o)gunT=o.gunT;if('aim'in o)aimMode=o.aim;if('mini'in o)mini=o.mini;if('throwing'in o)throwing=o.throwing;},

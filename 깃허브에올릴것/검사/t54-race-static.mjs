@@ -30,11 +30,11 @@ let uid='kid00',racing=true;const raceOn=()=>racing,raceHold=()=>false;
 const raceArtBuild=()=>{},raceArtRebuild=()=>{},raceArtReset=()=>{};
 const raceBounceSound=()=>{};
 `;
-const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE_SEC','ROCK','RACE_LAUNCH_RATE','RACE74','GRAV'];
-const functions=['mulberry','furLight','race74Reset','raceGravityScale','raceMotion','raceBuild','raceOff','raceZOff','racePose','raceAlive','raceContains','raceSurface','raceTopAt','raceUnder','raceSlotXZ','raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','racePunchHit','raceHazardTick'];
+const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE_SEC','ROCK','RACE_LAUNCH_RATE','RACE74','GRAV','RACE_TOY77'];
+const functions=['mulberry','furLight','race74Reset','raceGravityScale','raceMotion','raceBuild','raceOff','raceZOff','racePose','raceJumpPose','raceLandingPose','raceAlive','raceContains','raceSurface','raceTopAt','raceUnder','raceSlotXZ','raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','racePunchHit','raceToyForm77','raceToyHit77','raceBarHit','raceSlideHit78','raceHazardTick'];
 const ctx=vm.createContext({console});
 new vm.Script([fixtures,...declarations.map(decl),...functions.map(fn),`
-globalThis.A={RACE,RACE_P,RACE_S,RACE_SEC,RACE_Z_FIN,RACE_LAUNCH_RATE,RACE74,GRAV,JUMP,PL,G,MINE,raceBuild,raceOff,racePose,raceContains,raceSurface,raceTopAt,raceUnder,raceHazards,racePunchHit,raceHazardTick,raceGravityScale,raceMotion,
+globalThis.A={RACE,RACE_P,RACE_S,RACE_SEC,RACE_Z_FIN,RACE_LAUNCH_RATE,RACE74,GRAV,JUMP,PL,G,MINE,raceBuild,raceOff,racePose,raceJumpPose,raceLandingPose,raceContains,raceSurface,raceTopAt,raceUnder,raceHazards,racePunchHit,raceToyForm77,raceHazardTick,raceGravityScale,raceMotion,
  spawn(id){uid=id;return raceSlotXZ();},cp(id,p){uid=id;return raceCheckpointXZ(p);},setRacing(v){racing=v;}};`].join('\n')).runInContext(ctx,{timeout:10000});
 const A=ctx.A,seeds=Array.from({length:90},(_,i)=>i*7919+13);
 let deterministic=true,finite=true,centerSupport=true,moving=false,checkpoints=true;
@@ -94,7 +94,8 @@ const launchPads=A.RACE_P.filter(p=>p.bounce),manualPads=launchPads.filter(p=>p.
 check('Four manual donut pads and the final launch expose finite bounce impulses',manualPads.length===4&&launchPads.length===5&&
   launchPads.every(p=>Number.isFinite(p.bounce.v)&&p.bounce.v>0&&Number.isFinite(p.bounce.forward)&&p.bounce.forward>0),
   {pads:launchPads.length,manualPads:manualPads.length});
-check('Manual donuts have a bounded jump zone and exact separated landing circles',manualPads.every((p,i)=>p.w===24&&p.d===24&&p.bounce.zone===4.4&&p.z===244+i*56&&
+check('Manual donuts have a small offset jump zone and exact separated landing circles',manualPads.every((p,i)=>p.w===24&&p.d===24&&p.bounce.zone===2.5&&p.z===244+i*56&&
+  A.raceJumpPose(p).z===p.z+5.5&&Math.abs(A.raceJumpPose(p).x-p.x)===4&&
   (i===0||!A.raceContains(manualPads[i-1],0,(p.z+manualPads[i-1].z)/2,0,0))));
 const movingPads=A.RACE_P.filter(p=>p.sec===4&&p.mv),movingGaps=[];
 for(let t=0;t<12;t+=.25)for(let i=1;i<movingPads.length;i++){
@@ -103,6 +104,11 @@ for(let t=0;t<12;t+=.25)for(let i=1;i<movingPads.length;i++){
 }
 check('Seven small moving circles leave actual jump gaps while translating in both axes and rotating',movingPads.length===7&&movingPads.every(p=>p.w===8&&p.d===8&&p.mv.zamp>0&&Math.abs(p.mv.rot)>0)&&
   movingGaps.every(g=>g>1.5&&g<7),{minGap:Math.min(...movingGaps),maxGap:Math.max(...movingGaps)});
+const bridgeRates=movingPads.map((p,i)=>{const t=(Math.PI*4-p.mv.ph)/p.mv.spd,e=.00001,a=A.racePose(p,t-e),b=A.racePose(p,t+e);
+  return {translationFactor:p.mv.spd/(.65+i*.035),rotationFactor:Math.abs(p.mv.rot)/.30,
+    measuredPeakXSpeed:(b.x-a.x)/(2*e),expectedPeakXSpeed:1.1*(.65+i*.035)*5};});
+check('Cloud circles move five times and rotate twice as fast as shipped 76, without widening their motion envelope',
+  movingPads.every(p=>p.mv.amp===1.1&&p.mv.zamp===.65)&&bridgeRates.every(q=>Math.abs(q.translationFactor-5)<1e-10&&Math.abs(q.rotationFactor-2)<1e-10&&Math.abs(q.measuredPeakXSpeed-q.expectedPeakXSpeed)<1e-7),bridgeRates);
 const ramp=A.RACE_P.find(p=>p.shape==='ramp');
 check('The uphill section has a real thirty-meter rise and four bounded booster strips',!!ramp&&ramp.yEnd-ramp.y===30&&ramp.boosts?.length===4&&
   ramp.boosts.every(b=>A.raceContains(ramp,b.x,b.z,0,0)&&b.w>0&&b.d>0));
@@ -128,9 +134,27 @@ const firstEdge=Math.min(...obstacles.map(h=>h.z-(h.k==='bar'?h.len/2:h.r)));
 check('The start retains fourteen strong punch bags plus twelve moving slalom bags, five faster sweeps and a dense donut ring',
   obstacles.filter(h=>h.sec===0&&/^start/.test(h.id)).length===14&&obstacles.filter(h=>/^jellyGate/.test(h.id)).length===12&&
   obstacles.filter(h=>h.sec===0&&h.k==='punch').length===26&&obstacles.filter(h=>h.k==='bar').length===5&&
-  obstacles.filter(h=>h.k==='bar').every(h=>h.len===22&&Math.abs(h.w)===1.8)&&sectionCounts[2]>=32&&firstEdge+19<30,
+  obstacles.filter(h=>h.k==='bar').every(h=>h.len===22&&Math.abs(h.w)===2.7&&h.r===1.65&&h.y===1.7)&&sectionCounts[2]===48&&firstEdge+19<30,
   {sectionCounts,firstObstacleDistance:firstEdge+19});
-let gatesSafe=true,gatesMove=false,gatesDet=true,minCrowdWidth=Infinity,maxSway=0;
+check('All twenty-six giant starting sculptures and their visible footings stay within the wide deck, including their full sideways sway',
+  obstacles.filter(h=>h.sec===0).every(h=>h.h>=8&&h.h<=8.2&&Math.abs(h.baseX??h.x)+h.r*(A.raceToyForm77(h)<0?1.18:1.01)+(h.sway||0)<=22&&
+    (h.id.startsWith('start')?h.r===2.35:h.r===2.4)),{heights:[...new Set(obstacles.filter(h=>h.sec===0).map(h=>h.h))]});
+let landingHazards=true,clearJumpZones=true,blockedCenters=true,clearLandings=true,walkableWeave=true;
+for(let t=0;t<12;t+=.25){const all=A.raceHazards(t);
+  for(const pad of manualPads){const inner=all.filter(h=>h.id.startsWith('donutInner'+pad.id+':')),bags=all.filter(h=>h.sec===2);
+    landingHazards&&=inner.length===8&&inner.filter(h=>h.sway).length===2&&inner.every(h=>{Object.assign(A.PL,{x:h.x,z:h.z,y:100+pad.y});return A.raceContains(pad,h.x,h.z,-h.r)&&A.racePunchHit(h);});
+    Object.assign(A.PL,{x:pad.x,z:pad.z,y:100+pad.y});blockedCenters&&=bags.some(h=>A.racePunchHit(h));
+    const jp=A.raceJumpPose(pad,t),lp=A.raceLandingPose(pad,t);
+    Object.assign(A.PL,{x:lp.x,z:lp.z,y:100+pad.y});clearLandings&&=!bags.some(h=>A.racePunchHit(h));
+    for(let i=0;i<72;i++){const a=i*Math.PI/36;Object.assign(A.PL,{x:jp.x+Math.cos(a)*pad.bounce.zone,z:jp.z+Math.sin(a)*pad.bounce.zone,y:100+pad.y});
+      clearJumpZones&&=A.raceContains(pad,A.PL.x,A.PL.z,-.3,t)&&!bags.some(h=>A.racePunchHit(h));}
+    // A real walkable U-shaped detour, never a straight center-to-center auto route.
+    const way=[lp,{x:lp.x,z:pad.z+8.5},{x:jp.x,z:pad.z+8.5},jp];
+    for(let j=1;j<way.length;j++)for(let u=0;u<=1;u+=.025){Object.assign(A.PL,{x:way[j-1].x*(1-u)+way[j].x*u,z:way[j-1].z*(1-u)+way[j].z*u,y:100+pad.y});walkableWeave&&=A.raceContains(pad,A.PL.x,A.PL.z,-.3,t)&&!bags.some(h=>A.racePunchHit(h));}
+  }}
+check('Eight interior bags block center landings while alternating landing flanks and full offset jump zones stay clear through every sway phase',landingHazards&&blockedCenters&&clearLandings&&clearJumpZones,{landingHazards,blockedCenters,clearLandings,clearJumpZones});
+check('Every landing flank connects to its opposite launch zone through a supported obstacle-free weaving route',walkableWeave);
+let gatesSafe=true,gatesMove=false,gatesDet=true,minCrowdWidth=Infinity,maxCrowdWidth=0,maxSway=0;
 const gateSamples=[];
 for(const seed of seeds.slice(0,8)){
   A.raceBuild(seed);
@@ -140,24 +164,18 @@ for(const seed of seeds.slice(0,8)){
     for(let row=0;row<2;row++){
       const bags=gates.filter(h=>h.id.startsWith('jellyGate'+row+':')).sort((a,b)=>a.x-b.x);
       const shifts=bags.map(h=>h.x-h.baseX);maxSway=Math.max(maxSway,...shifts.map(Math.abs));gatesMove||=Math.abs(shifts[0])>.3;
-      gatesSafe&&=bags.length===6&&bags.every(h=>h.sec===0&&h.z===42+row*19&&h.power===5)&&Math.max(...shifts)-Math.min(...shifts)<1e-8;
+      gatesSafe&&=bags.length===6&&bags.every(h=>h.sec===0&&h.z===42+row*19&&h.power===5)&&Math.max(...shifts)-Math.min(...shifts)>.001;
       const openings=bags.slice(1).map((b,i)=>({left:bags[i].x+bags[i].r+A.PL.R,right:b.x-b.r-A.PL.R}));
-      const opening=openings.sort((a,b)=>(b.right-b.left)-(a.right-a.left))[0];
-      minCrowdWidth=Math.min(minCrowdWidth,opening.right-opening.left);
-      const center=(opening.left+opening.right)/2;
-      Object.assign(A.PL,{x:center,z:42+row*19,y:100});
-      gatesSafe&&=(row?center<-6:center>6)&&!bags.some(h=>A.racePunchHit(h));
-      // Narrow seams between neighboring bags remain actual capsule barriers.
-      for(let i=1;i<bags.length;i++)if(bags[i].x-bags[i-1].x<5){
-        Object.assign(A.PL,{x:(bags[i].x+bags[i-1].x)/2,z:bags[i].z,y:100});gatesSafe&&=bags.some(h=>A.racePunchHit(h));}
-      if(seed===seeds[0]&&t===0)gateSamples.push({row,left:opening.left,right:opening.right});
+      for(const opening of openings){minCrowdWidth=Math.min(minCrowdWidth,opening.right-opening.left);maxCrowdWidth=Math.max(maxCrowdWidth,opening.right-opening.left);
+        const center=(opening.left+opening.right)/2;Object.assign(A.PL,{x:center,z:42+row*19,y:100});gatesSafe&&=!bags.some(h=>A.racePunchHit(h));}
+      if(seed===seeds[0]&&t===0)gateSamples.push({row,widths:openings.map(q=>q.right-q.left)});
     }
   }
 }
-check('Seeded moving slalom rows preserve broad alternating crowd openings while their narrow seams remain collidable',
-  gatesSafe&&gatesDet&&gatesMove&&maxSway<=.500001&&minCrowdWidth>=14,{seeds:8,maxSway,minCrowdWidth,gateSamples});
+check('Seeded slalom bags breathe independently, leaving multiple narrow crowd lanes instead of a broad bypass',
+  gatesSafe&&gatesDet&&gatesMove&&maxSway<=.400001&&minCrowdWidth>1.0&&maxCrowdWidth<3.5,{seeds:8,maxSway,minCrowdWidth,maxCrowdWidth,gateSamples});
 A.raceBuild(740021);A.RACE.t=2;obstacles.splice(0,obstacles.length,...A.raceHazards(2));
-const bag=obstacles.find(h=>h.k==='punch'),probeBag=(dx,foot)=>{
+const bag=obstacles.find(h=>h.k==='punch'&&h.sec===2),probeBag=(dx,foot)=>{
   Object.assign(A.PL,{x:bag.x+dx,z:bag.z,y:100+foot});return A.racePunchHit(bag);
 };
 const sweepDeck=A.RACE_P.find(p=>p.sec===1&&!p.cp),sweeps=obstacles.filter(h=>h.k==='bar');
@@ -196,7 +214,7 @@ const completeHazards=A.RACE._haz;
 const bar=A.raceHazards(2).find(h=>h.k==='bar'),probeBar=offset=>{
   // len includes both rounded end caps, just like the rendered padded tube.
   const distance=bar.len/2+A.PL.R+offset;
-  Object.assign(A.PL,{x:bar.x+Math.cos(bar.ang)*distance,z:bar.z-Math.sin(bar.ang)*distance,y:100,ground:true,vx:0,vz:0,vy:0});
+  Object.assign(A.PL,{x:bar.x+Math.cos(bar.ang)*distance,z:bar.z-Math.sin(bar.ang)*distance,y:100+bar.y-1.3,ground:true,vx:0,vz:0,vy:0});
   A.RACE.hitCd=A.RACE.slipT=0;A.raceHazardTick(1/60);return A.RACE.hitCd>0;
 };
 A.RACE._haz=[bar];
@@ -211,50 +229,49 @@ for(const fps of [30,60,120]){
 check('A normal single jump clears the padded bar even at 30 Hz',jumpClearance.every(q=>q.clear&&q.peak>q.barTop+.04),jumpClearance);
 A.RACE._haz=completeHazards;
 const rate=manualPads[0].bounce.rate,arcs=[];
-for(const p of manualPads){A.RACE74.flight=1;A.RACE74.rate=p.bounce.rate;
-  const vy=p.bounce.v*A.RACE74.rate,vz=p.bounce.forward*A.RACE74.rate,g=A.GRAV*A.raceGravityScale(),seconds=2*vy/g;
-  arcs.push({vy,vz,g,seconds,peak:vy*vy/(2*g),range:seconds*vz});}
-check('Manual donuts deliver twice the previous real speed and five times its height, with a matching landing span',
-  arcs.every(q=>Math.abs(q.vz-49.56)<1e-8&&Math.abs(q.peak-5*(15.5**2/(2*A.GRAV)))<1e-8&&Math.abs(q.range-56)<.1),arcs);
+for(const p of manualPads)arcs.push({vy:p.bounce.v,vz:p.bounce.forward});
+check('Manual donuts stagger left and right and launch rapidly with time reserved for air steering',
+  manualPads.every((p,i)=>p.x===[-7,8,-8,7][i]&&p.bounce.v===55&&p.bounce.forward===21.5&&p.bounce.rate===1));
 const integrated=[];
 for(const fps of [30,60,120])for(const q of arcs){
-  const steps=Math.ceil((1/fps)/(1/120)),dt=1/fps/steps;let y=0,z=0,v=q.vy,peak=0,t=0;
-  for(let i=0;i<fps*steps*3;i++){const oldY=y,oldZ=z;v-=q.g*dt;y+=v*dt;z+=q.vz*dt;t+=dt;peak=Math.max(peak,y);
-    if(y<0){const u=oldY/(oldY-y);integrated.push({fps,range:oldZ+(z-oldZ)*u,peak,time:t-dt+u*dt});break;}}
+  const steps=Math.ceil((1/fps)/(1/120)),dt=1/fps/steps;let y=0,z=0,v=q.vy,peak=0,t=0,apexTime=0;
+  Object.assign(A.RACE74,{flight:1,rate:1,flightKind:'manual'});
+  for(let i=0;i<fps*steps*4;i++){const oldY=y,oldZ=z;A.PL.vy=v;v-=A.GRAV*A.raceGravityScale()*dt;y+=v*dt;z+=q.vz*dt;t+=dt;peak=Math.max(peak,y);if(Math.abs(v)<8)apexTime+=dt;
+    if(y<0){const u=oldY/(oldY-y);integrated.push({fps,range:oldZ+(z-oldZ)*u,peak,time:t-dt+u*dt,apexTime});break;}}
 }
 check('Real 120 Hz movement substeps retain the calibrated donut height and landing circle at 30/60/120 display Hz',
-  integrated.every(q=>Math.abs(q.range-56)<.6&&Math.abs(q.peak-arcs[0].peak)<.4&&q.time>1&&q.time<1.2),integrated);
+  integrated.every(q=>Math.abs(q.range-56)<1&&Math.abs(q.peak-23.1)<.4&&q.time>2.5&&q.time<2.7&&q.apexTime>1),integrated);
 A.RACE74.flight=0;
 const ordinary=A.raceGravityScale();A.RACE74.flight=1;
-A.RACE74.rate=1;
+A.RACE74.rate=1;A.RACE74.flightKind='knock';
 const knockback=A.raceGravityScale();A.RACE74.rate=rate;A.setRacing(false);const outsideRace=A.raceGravityScale();A.setRacing(true);
 check('Normal jumps, obstacle knockback and play outside the race keep the original gravity',ordinary===1&&knockback===1&&outsideRace===1);
 const airControls=[];
 for(const fps of [30,60,120])for(const [name,vx,vz]of [['coast',0,0],['left',-10,0],['right',10,0],['brake',0,-10]]){
-  Object.assign(A.RACE,{t:2,fallT:0,hitCd:0,slipT:0});Object.assign(A.RACE74,{flight:.001,rate:2.36,flightKind:'manual',forward:49.56,pending:null,landAge:9});
-  Object.assign(A.PL,{ground:false,vx:0,vz:49.56});let x=0,z=0;
+  Object.assign(A.RACE,{t:2,fallT:0,hitCd:0,slipT:0});Object.assign(A.RACE74,{flight:.001,rate:1,flightKind:'manual',forward:21.5,pending:null,landAge:9});
+  Object.assign(A.PL,{ground:false,vx:0,vz:21.5});let x=0,z=0;
   for(let i=0;i<fps*.6;i++){A.raceMotion(1/fps,vx,vz,Math.hypot(vx,vz)>0?1:0);x+=A.PL.vx/fps;z+=A.PL.vz/fps;}
   airControls.push({fps,name,x,z,vz:A.PL.vz});
 }
-check('Real manual-flight steering makes small sideways corrections and weak reverse braking while preserving forward momentum',
-  airControls.every(q=>q.name==='coast'?Math.abs(q.x)<1e-8&&Math.abs(q.vz-49.56)<1e-8:
-    q.name==='brake'?q.vz>44&&q.vz<49.56&&q.z>28:
-    Math.sign(q.x)===(q.name==='left'?-1:1)&&Math.abs(q.x)>1&&Math.abs(q.x)<2.2&&q.z>29),airControls);
+check('Real buoyant-flight steering provides substantial sideways control and bounded reverse braking',
+  airControls.every(q=>q.name==='coast'?Math.abs(q.x)<1e-8&&Math.abs(q.vz-21.5)<1e-8:
+    q.name==='brake'?q.vz>15&&q.vz<18&&q.z>10:
+    Math.sign(q.x)===(q.name==='left'?-1:1)&&Math.abs(q.x)>3.5&&Math.abs(q.x)<4.1&&q.z>12),airControls);
 
 // The cylinder and hemisphere must share the same actual equator polygon.
 // Merely matching radius leaves tiny sky-colored holes when 16-sided shafts
 // meet 24-sided caps. Execute the source geometry and real draw transforms;
 // inspect both ends of vertical punch bags and rotated horizontal bars.
-const geometryFor=name=>{const m=new RegExp('A\\.'+name+'=dyn\\(raceArtUV\\((new THREE\\.[A-Za-z]+Geometry\\([^\\n]+?\\))\\),').exec(source);
+const geometryFor=name=>{const m=new RegExp('A\\.'+name+'=dyn\\(raceArtUV\\((?:raceCandyGeometry77\\()?'+ '(new THREE\\.[A-Za-z]+Geometry\\([^\\n]+?\\))').exec(source);
   if(!m)throw Error('Missing race geometry '+name);return vm.runInNewContext(m[1],{THREE});};
 const shaft=geometryFor('bar'),cap=geometryFor('cap'),seamCases=[];
 const bank=geometry=>({geometry,matrices:[],count:0,count_max:512,setMatrixAt(i,m){this.matrices[i]=m.clone();}});
-const artFixture=()=>{const art={builtSeed:1,stamp:0,static:[],dynamic:[],stats:{}};
+const artFixture=()=>{const art={builtSeed:1,stamp:0,static:[],dynamic:[],toys:[],stats:{}};
   for(const n of ['pad','padTrim','bar','ball','cap','metal','jump','rock'])art[n]=bank(n==='bar'?shaft:cap);return art;};
 const drawContext=vm.createContext({THREE,art:artFixture(),hazards:[]});
 vm.runInContext(`const MINI_Y=100,PL={z:0},RACE={seed:1,t:0},RACE_P=[{}],RACE74={pulse:new Map()},RACE_RAINBOW76=[0xffffff];
  const RACE_ART_PALETTE={cream:0xffffff,yellow:0xffff00,silver:0xaaaaaa,lavender:0xccccff};let RACE_ART74=art;
- const raceOn=()=>true,raceHazards=()=>hazards,flush=()=>{},FLIP_ON=false;
+ const raceOn=()=>true,raceHazards=()=>hazards,flush=()=>{},FLIP_ON=false,raceToyForm77=()=>-1;
  const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_eu=new THREE.Euler();
  ${fn('setIR')}\n${fn('setIR3')}\n${fn('raceArtDraw')}`,drawContext);
 const ring=(g,y,m)=>{const p=g.attributes.position,points=[];
@@ -264,7 +281,7 @@ const ring=(g,y,m)=>{const p=g.attributes.position,points=[];
   return points;};
 const gap=(a,b)=>Math.max(...a.map(p=>Math.min(...b.map(q=>p.distanceTo(q)))));
 for(const h of [{k:'punch',x:0,y:4,z:0,r:2.3,h:8},{k:'punch',x:1,y:2.8,z:0,r:1.5,h:5.6},
-  ...[0,.37,1.2].map(ang=>({k:'bar',x:0,y:.6,z:0,r:.55,len:22,ang}))]){
+  ...[0,.37,1.2].map(ang=>({k:'bar',x:0,y:1.7,z:0,r:1.65,len:22,ang}))]){
   drawContext.hazards=[h];vm.runInContext('raceArtDraw(0)',drawContext);const art=drawContext.art;
   const ends=[...ring(shaft,-.5,art.bar.matrices[0]),...ring(shaft,.5,art.bar.matrices[0])];
   const rims=[...ring(cap,0,art.cap.matrices[0]),...ring(cap,0,art.cap.matrices[1])];
