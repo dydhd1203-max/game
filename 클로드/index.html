@@ -12927,11 +12927,13 @@ function handForearm(grp, wx, wy, wz, dx, dy, dz, L, th, sf){   // sf — 소매
   const a = handMesh(HG.arm, wx + _hv.x*L*0.5, wy + _hv.y*L*0.5, wz + _hv.z*L*0.5, th, L, th*0.92); a.quaternion.copy(_hq); grp.add(a);
   const f = sf || 1.12, s = handMesh(HG.slv, wx + _hv.x*L*f, wy + _hv.y*L*f, wz + _hv.z*L*f, th*1.22, L*0.3, th*1.14); s.quaternion.copy(_hq); grp.add(s);
 }
-/* 쥔 손 — C 손의 구멍 축을 (ax,ay,az) 로, 입(엄지·손가락 끝이 만나는 틈)을 (ox,oy,oz) 쪽으로 돌린다 */
+/* 쥔 손 — C 손의 구멍 축을 (ax,ay,az) 로, 입(엄지·손가락 끝이 만나는 틈)을 (ox,oy,oz) 쪽으로 돌린다.
+   72차 고침(선생님: "장전할 때 손가락 집게 방향이 바깥을 향하잖아 — 총 쪽(안)을 향하게") — 입은 오른손(cR) 기하 −x, **왼손(cL — 기하를 y 로 반 바퀴 돌림)은 +x** 다.
+   예전엔 둘 다 −x 로 셈해 왼손 입이 늘 거꾸로(바깥)였다: 총대를 받치는 손은 입이 아래(둥근 등이 총대에 닿음), 장전 손잡이를 당기는 손은 입이 손잡이 반대쪽(1.33초 사진) */
 function hookAt(geo, x, y, z, sx, sy, sz, ax, ay, az, ox, oy, oz){
   const m = handMesh(geo, x, y, z, sx, sy, sz);
   _hv.set(ax, ay, az).normalize(); _hq.setFromUnitVectors(_hz, _hv);             // 기하 z(깊이) → 구멍 축
-  const o = new THREE.Vector3(-1, 0, 0).applyQuaternion(_hq), want = new THREE.Vector3(ox, oy, oz);   // 입은 기하 −x 쪽
+  const o = new THREE.Vector3(geo === HG.cL ? 1 : -1, 0, 0).applyQuaternion(_hq), want = new THREE.Vector3(ox, oy, oz);   // 입 — 오른손 기하 −x · 왼손 +x
   want.addScaledVector(_hv, -want.dot(_hv)).normalize();
   const ang = Math.atan2(new THREE.Vector3().crossVectors(o, want).dot(_hv), o.dot(want));
   _hq2.setFromAxisAngle(_hv, ang); m.quaternion.copy(_hq2.multiply(_hq)); return m;
@@ -14252,10 +14254,13 @@ function kfv(a, p){
 }
 function trackEval(T, p, out, w){ if(!T) return; for(let c=0;c<CH;c++){ const a = T[c]; if(a) out[c] += w*kfv(a, p); } }
 const D2R = Math.PI/180;
-/* ── 꺼내기 · 넣기 ── 오른쪽 아래(허리)에서 E_back 으로 들어와 5% 넘쳤다 선다. 넣기는 살짝 들렸다가(예비) 떨어지듯 내려간다 */
+/* ── 꺼내기 · 넣기 ── 오른쪽 아래(허리)에서 들어와 살짝 넘쳤다 선다. 넣기는 살짝 들렸다가(예비) 떨어지듯 내려간다.
+   72차 고침 — 예전엔 시작 자리(GY −.26 · 총구 −38°)가 화면 밖 한참 아래에 0.045초 머물렀다가(예비) E_back 으로 확 올라와,
+   0.05초 컷엔 총이 전혀 없고 0.12초에 갑자기 나타났다. 이제 총 윗부분이 첫 프레임부터 화면 아래 가장자리에 걸리고(GY −.155 · −28°),
+   머뭇거림 없이 곧바로(E_out) 올라와 0.2초에 1° 넘쳤다 선다 — 화면 아래에서 올라오는 궤적이 매 프레임 보인다 */
 const TK_DRAW = TR({
-  GY:[[0,-0.26],[0.16,-0.272,1],[1,0,4]], GX:[[0,0.06],[0.16,0.062],[1,0,4]], GZ:[[0,0.05],[1,0,1]],
-  PIT:[[0,-38*D2R],[0.16,-40*D2R,1],[1,0,4]], ROL:[[0,22*D2R],[0.16,23*D2R],[1,0,4]], YAW:[[0,-10*D2R],[1,0,1]]});
+  GY:[[0,-0.155],[0.74,0.006,1],[1,0,3]], GX:[[0,0.05],[0.74,-0.002,1],[1,0,3]], GZ:[[0,0.04],[0.8,0,1]],
+  PIT:[[0,-28*D2R],[0.74,1.2*D2R,1],[1,0,3]], ROL:[[0,17*D2R],[0.74,-0.8*D2R,1],[1,0,3]], YAW:[[0,-8*D2R],[0.8,0,1]]});
 const TK_HOLS = TR({
   GY:[[0,0],[0.15,0.012,1],[1,-0.3,2]], GX:[[0,0],[1,0.06,2]], PIT:[[0,0],[0.15,2*D2R,1],[1,-40*D2R,2]], ROL:[[0,0],[1,24*D2R,2]]});
 /* ── 쏜 뒤 장전(0~1 = GUN_CYCLE.cyc 길이) ── */
@@ -14275,8 +14280,8 @@ const TK_CYC = {
      71차 고침 — 거는 자리가 갈래 꼭대기(조준선)였어서 0.3~0.45초 동안 주먹·팔뚝이 조준점을 덮었다. 이제 손은 갈래 가랑이보다 아래에만 온다 */
   pouch: TR({AUX:[[0,0],[0.09,-1,1],[0.62,-1],[1,0,3]], MV:[[0,-1],[0.48,-1,6],[0.49,0]],   // AUX = 당김 − 1(쉬는 자세 = 당김 0) · MV −1 = 돌 없음(손이 주머니에 닿을 때 돌이 얹힌다)
              RA:[[0,0],[0.03,1,1],[0.36,1],[0.5,0,1]],                                             // 손이 주머니를 놓은 정도 — 놓는 순간 손은 뺨에 남는다
-             RX:[[0,0],[0.09,0.02,1],[0.3,-0.06,3],[0.5,0,1]], RY:[[0,0],[0.06,0.03,1],[0.28,-0.4,3],[0.36,-0.4],[0.5,0,1]],
-             RZ:[[0,0],[0.09,0.03,1],[0.3,0.05,3],[0.5,0,1]], ROL:[[0,0],[0.1,-3*D2R,1],[0.6,0],[0.85,1.5*D2R,3],[1,0,3]], PIT:[[0,0],[0.08,2*D2R,1],[0.5,0,1],[1,0]]}),
+             RX:[[0,0],[0.02,0.005,1],[0.1,-0.06,1],[0.3,-0.06],[0.5,0,1]], RY:[[0,0],[0.02,0.015,1],[0.1,-0.4,1],[0.36,-0.4],[0.5,0,1]],   // 72차 고침 — 놓은 손은 0.05초 안에 화면 아래로 빠진다(예전엔 0.1초 넘게 팔 없는 C 가 화면 아래 가운데에 떴다)
+             RZ:[[0,0],[0.02,0.01,1],[0.1,0.05,1],[0.3,0.05],[0.5,0,1]], ROL:[[0,0],[0.1,-3*D2R,1],[0.6,0],[0.85,1.5*D2R,3],[1,0,3]], PIT:[[0,0],[0.08,2*D2R,1],[0.5,0,1],[1,0]]}),
   /* 화승총: 총구를 숙이고 → 오른손이 꽂을대를 뽑아(앞으로) 두 번 다지고 → 도로 꽂고 → 공이치기를 당겨(.90s) 든다 */
   rod: TR({PIT:[[0,0],[0.06,1.5*D2R,1],[0.18,-24*D2R,3],[0.8,-24*D2R],[1,0,4]], ROL:[[0,0],[0.18,-12*D2R,3],[0.8,-12*D2R],[1,0,4]], GY:[[0,0],[0.18,-0.03,3],[0.8,-0.03],[1,0,4]],
            GZ:[[0,0],[0.18,0.03,3],[0.8,0.03],[1,0,4]],
@@ -14286,7 +14291,7 @@ const TK_CYC = {
      71차 고침 — 예전엔 어깨 너머(위·뒤)로 가다 손이 카메라 코앞 위쪽을 지나 팔뚝 없는 큰 C 손이 하늘에 떴다(매 발). 이제 손은 화면 아래 가장자리로 빠졌다 들어온다 */
   arrow: TR({AUX:[[0,0],[0.06,-1,1],[0.6,-1],[1,0,3]], MV:[[0,-1],[0.46,-1,6],[0.47,0]],
              RA:[[0,0],[0.03,1,1],[0.34,1],[0.5,0,1]],
-             RZ:[[0,0],[0.06,-0.06,1],[0.28,-0.5,3],[0.34,-0.5],[0.5,0,1]], RY:[[0,0],[0.06,0.01,1],[0.26,-0.75,3],[0.34,-0.75],[0.5,0,1]], RX:[[0,0],[0.26,-0.15,3],[0.34,-0.15],[0.5,0,1]],
+             RZ:[[0,0],[0.02,-0.02,1],[0.1,-0.5,1],[0.34,-0.5],[0.5,0,1]], RY:[[0,0],[0.02,0.008,1],[0.1,-0.75,1],[0.34,-0.75],[0.5,0,1]], RX:[[0,0],[0.1,-0.15,1],[0.34,-0.15],[0.5,0,1]],   // 72차 고침 — 시위를 놓은 손도 0.05초 안에 화면 아래로
              ROL:[[0,0],[0.08,2*D2R,1],[0.5,0,1],[1,0]], PIT:[[0,0],[0.06,1.5*D2R,1],[0.4,0,1]]})
 };
 /* ── 재장전(0~1 = rl) ── 세 박 = GUN_CYCLE.beats. 예비 → 굴림 → 빼기 → 허리(화면 밖) → 꽂기(탁 · 넘침) → 철컥 → 견착 복귀(넘침) */
@@ -14342,13 +14347,13 @@ const TK_RL = {
   cell: TR({ROL:[[0,0],[0.04,2*D2R,1],[0.12,-15*D2R,1],[0.84,-14*D2R],[1,0,4]], PIT:[[0,0],[0.12,8*D2R,1],[0.84,8*D2R],[1,0,4]], GZ:[[0,0],[0.12,0.04,1],[0.84,0.04],[1,0,4]],
             MAG:[[0,0],[0.16,0],[0.2,0.05,1],[0.24,0.045,1],[0.241,0,6]], MH:[[0,0],[0.24,0],[0.241,1,6],[0.62,1],[0.621,0,6]],
             LA:[[0,0],[0.12,0,1],[0.22,1,1],[0.7,1],[0.82,0,4]], LR:[[0,0],[0.22,1.25,1],[0.62,1.25],[0.72,0,1]],
-            LY:[[0,0],[0.26,-0.04,1],[0.42,-1.1,2],[0.56,-0.1,1],[0.62,0,5]], LX:[[0,0],[0.42,0.3,2],[0.56,0.02,1],[0.62,0,1]], LZ:[[0,0],[0.42,-0.25,2],[0.56,0,1]],
+            LY:[[0,0],[0.26,-0.04,1],[0.42,-1.1,2],[0.56,-0.1,1],[0.62,0,5]], LX:[[0,0],[0.24,0],[0.42,0.3,2],[0.56,0.02,1],[0.62,0,1]], LZ:[[0,0],[0.24,0],[0.42,-0.25,2],[0.56,0,1]],   // 72차 — 쥐는 동안(~.24) 손이 옆으로 새지 않게
             AUX:[[0.62,0],[0.78,1,2],[0.95,0,1]], CR:[[0,0],[0.12,-0.4*D2R,1],[0.84,-0.4*D2R],[1,0,4]]}),
   /* 연료통(화염·용): 오른쪽 20°·숙임 · 왼손이 통을 90° 돌려 풀고(쉭 .20) 내려 · 새 통 끼워 돌려 잠금(.62) · 점화 훅(.84) */
   tank: TR({ROL:[[0,0],[0.04,-2*D2R,1],[0.12,20*D2R,1],[0.86,18*D2R],[1,0,4]], PIT:[[0,0],[0.12,-8*D2R,1],[0.86,-8*D2R],[1,0,4]], GZ:[[0,0],[0.12,0.05,1],[0.86,0.05],[1,0,4]],
             LA:[[0,0],[0.1,0,1],[0.18,1,1],[0.7,1],[0.84,0,4]], LR:[[0,0],[0.18,1.3,1],[0.66,1.3],[0.74,0,1]],
             AUX:[[0.18,0],[0.26,-1.4,1],[0.42,-1.4],[0.421,-1.4,6],[0.58,-1.4],[0.66,0,4]], MH:[[0,0],[0.26,0],[0.261,1,6],[0.66,1],[0.661,0,6]],
-            LY:[[0,0],[0.28,-0.05,1],[0.44,-1.1,2],[0.58,-0.08,1],[0.62,0,5]], LX:[[0,0],[0.44,0.3,2],[0.58,0.02,1],[0.62,0,1]], LZ:[[0,0],[0.44,-0.25,2],[0.58,0,1]],
+            LY:[[0,0],[0.26,0],[0.29,-0.05,1],[0.44,-1.1,2],[0.58,-0.08,1],[0.62,0,5]], LX:[[0,0],[0.26,0],[0.44,0.3,2],[0.58,0.02,1],[0.62,0,1]], LZ:[[0,0],[0.26,0],[0.44,-0.25,2],[0.58,0,1]],   // 72차 — 돌려 푸는 동안(.18~.26)은 손이 통을 쥔 채 제자리(예전엔 5cm 미끄러져 내려가 통 옆구리를 비볐다)
             CR:[[0,0],[0.12,0.4*D2R,1],[0.86,0.4*D2R],[1,0,4]], FG:[[0.8,0],[0.84,0.4,1],[0.9,0,1]]})
 };
 /* 빈 탄창 딸깍 — 검지 8° 까딱 30ms + 총 0.5mm 떨림 */
@@ -14422,6 +14427,11 @@ function heldRig(i){
   if(G.mag){ ctr(G.mag.userData.box, R.grab); const b = G.mag.userData.box; R.drop.set((b[0]+b[3])/2, b[1], (b[2]+b[5])/2).sub(G.mag.userData.p0).normalize(); }
   else if(A.mag) R.grab.set(A.mag[0], A.mag[1], A.mag[2]);
   else if(R.hl) R.grab.copy(R.hl.userData.p0).add(_mA.set(0, -0.2, -0.1));
+  /* 72차 — 탄창(상자·드럼·판·연료통·탄약통)을 쥐는 왼손: C 구멍 축 = 탄창 긴 축(빠지는 쪽 반대 — 위), 입 = 오른쪽 앞(손바닥·둥근 등은 왼쪽 뒤, 손가락이 앞·오른쪽으로 감싼다).
+     손 가운데를 입 반대쪽으로 0.018 비켜 탄창이 C 안 입 쪽에 든다(오른손이 손잡이를 쥔 모양의 거울). 예전엔 구멍 축이 총 축 그대로(LR 로 입만 돌림)라 탄창이 C 고리를 뚫는 도넛이었다 */
+  if(G.mag && R.hl){ const A = R.drop.clone().negate().normalize(), M = new THREE.Vector3(-1, 0, 0.35); M.addScaledVector(A, -M.dot(A)).normalize();
+    R.magQ = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(M, new THREE.Vector3().crossVectors(A, M), A));   // 왼손 기하 입 = +x
+    R.magOff = M.clone().multiplyScalar(-0.018); R.magTw = GUN_CYCLE[i] && (GUN_CYCLE[i].rk === 'tank' || GUN_CYCLE[i].rk === 'drum'); }
   if(G.boltH) R.boltA = ctr(G.boltH.userData.box, new THREE.Vector3());
   if(G.bolt){ R.chgA = ctr(G.bolt.userData.box, new THREE.Vector3());
     /* 71차 고침 — 장전 손잡이를 당기는 왼손: 예전엔 손 중심을 손잡이 상자 한가운데에 두고 C 구멍 축이 총 축(z) 그대로라, 기관부가 C 구멍을 지나가
@@ -14458,8 +14468,14 @@ function applyRig(g, R, i, dt){
     if(G.pump) _mA.z -= HP[CHI.PUMP];
     _mA.x += HP[CHI.LX]; _mA.y += HP[CHI.LY]; _mA.z += HP[CHI.LZ];
     R.hl.position.copy(_mA);
-    const hk = R.hl.children[0]; _mQ.setFromAxisAngle(_mZ, HP[CHI.LR]); hk.quaternion.copy(hk.userData.q0).premultiply(_mQ);
-    if(LB > 0 && R.chgQ){ _mQ2.identity().slerp(R.chgQ, Math.min(1, LB)); hk.quaternion.premultiply(_mQ2); } }
+    const hk = R.hl.children[0]; _mQ.setFromAxisAngle(_mZ, R.magQ ? 0 : HP[CHI.LR]); hk.quaternion.copy(hk.userData.q0).premultiply(_mQ);   // 72차 — 탄창 총은 LR 대신 magQ
+    if(LB > 0 && R.chgQ){ _mQ2.identity().slerp(R.chgQ, Math.min(1, LB)); hk.quaternion.premultiply(_mQ2); }
+    /* 72차 — 탄창 쥐기: 손이 탄창으로 가는 동안(LA .35→.9) 부드럽게 탄창 쥔 모양으로 · 새 탄창을 든 동안(MH) 그대로 · 장전 손잡이(LB)가 먼저 */
+    if(R.magQ){ const u = Math.max(0, Math.min(1, (LA - 0.35)/0.55)), w = Math.max(u*u*(3 - 2*u), MH > 0.5 ? 1 : 0)*(1 - Math.max(0, Math.min(1, LB)));
+      if(w > 0){ _mQ2.copy(R.magQ); _mB.copy(R.magOff);
+        if(R.magTw && HP[CHI.AUX]){ _mQ.setFromAxisAngle(R.drop, HP[CHI.AUX]); _mQ2.premultiply(_mQ); _mB.applyQuaternion(_mQ); }   // 돌려 푸는 통·드럼은 손(과 비킴)도 같이 돈다
+        hk.quaternion.slerp(_mQ2, w); hk.position.copy(hk.userData.p0).addScaledVector(_mB, w); }
+      else hk.position.copy(hk.userData.p0); } }
   /* 새총·활 — 주머니(오늬)는 AUX 만큼 당겨지고, 고무줄·시위는 끝에서 주머니까지 늘어난다 */
   const pz = G.pouch || G.arrow;
   if(pz){ const k = HP[CHI.AUX] + 1, kc = Math.max(0, Math.min(1.2, k));   // 쉬는 자세(당김) = 1
@@ -14495,7 +14511,8 @@ function applyRig(g, R, i, dt){
        주먹은 0.8배(기관부 폭의 두 배쯤이던 것), 검지는 굽힘 0(꼭지처럼 서지 않게) */
     const bA = RA > 0 && R.boltA ? Math.min(1, RA) : 0;
     const hk = R.hr.children[0]; _mQ.setFromAxisAngle(_mZ, -0.5*Math.PI*bA); if(lv !== 0){ _mQ2.setFromAxisAngle(_mX, -lv); _mQ.premultiply(_mQ2); } hk.quaternion.copy(hk.userData.q0).premultiply(_mQ); hk.scale.copy(hk.userData.s0).multiplyScalar(1 - 0.2*bA);
-    if(R.fg){ R.fg.position.copy(R.fg.userData.p0).sub(hk.userData.p0).multiplyScalar(1 - 0.2*bA).applyQuaternion(_mQ).add(hk.userData.p0); _mQ2.setFromAxisAngle(_mX, R.fg.userData.r0 - HP[CHI.FG]*(1 - bA)); R.fg.quaternion.copy(_mQ).multiply(_mQ2); } }
+    hk.position.copy(hk.userData.p0).multiplyScalar(1 - bA);   // 72차 — 노리쇠 꼭지를 쥘 땐 손잡이 쪽 비킴(−.028)을 빼 꼭지가 C 입 한가운데로 든다
+    if(R.fg){ R.fg.position.copy(R.fg.userData.p0).sub(hk.userData.p0).multiplyScalar(1 - 0.2*bA).applyQuaternion(_mQ).add(hk.position); _mQ2.setFromAxisAngle(_mX, R.fg.userData.r0 - HP[CHI.FG]*(1 - bA)); R.fg.quaternion.copy(_mQ).multiply(_mQ2); } }
   if(R.px){ const lr = HP[CHI.LR]; R.px.position.set(-Math.sin(lr)*0.115, Math.cos(lr)*0.115, 0); R.px.rotation.z = lr; }   // 71차 — 탄은 C 입(LR 로 돈다) 밖으로 나와 보인다
   if(R.px) R.px.visible = HP[CHI.PX] > 0.5;
   /* 부품 */
@@ -17559,6 +17576,41 @@ function setIR(mesh, idx, x,y,z, ry, rx, sx,sy,sz, col){
   if(col!==undefined && mesh.instanceColor) colAt(mesh, idx, col);
 }
 /* 롤(rz)까지 주는 판 — 쓰러진 사람의 X 자 눈처럼 기울어진 조각에 쓴다 */
+/* 72차 — 3인칭(내 몸·친구 화면) 총 쥔 손: C 입(손가락 끝·엄지가 만나는 틈)이 쥔 부품 쪽, 구멍 축은 쥔 부품의 긴 축(1인칭 applyRig 와 같은 약속).
+   오른손 = 손잡이(구멍 축 = 총 위 · 입 = 총 왼쪽 앞) · 왼손 = 총대 밑(구멍 축 = 총 축 · 입 = 위) → 탄창을 쥐고 든 동안(la·mh) 구멍 축 = 총 위 · 입 = 오른쪽 앞 ·
+   새총·활은 왼손 = 자루(구멍 축 = 위 · 입 = 앞 오른쪽) · 오른손 = 주머니·오늬(구멍 축 = 옆 · 입 = 앞). 쥔 곳은 C 구멍 한가운데를 지난다(부품이 C 안 — 손 가운데 = 쥔 곳 그대로).
+   허리로 가는 손(lw · rw — 탄창·돌·화살을 가지러)은 팔 자세로 돌아간다(쥔 곳이 없다). 예전엔 늘 팔뚝 자세(wristPose)라 입이 쥔 곳과 상관없이 옆을 봤다. 할당 0 */
+const _g3F = new THREE.Vector3(), _g3U = new THREE.Vector3(), _g3S = new THREE.Vector3(), _g3M = new THREE.Vector3(), _g3Y = new THREE.Vector3(), _g3P = new THREE.Vector3(), _g3V = new THREE.Vector3(),
+      _g3m = new THREE.Matrix4(), _g3q = new THREE.Quaternion(), _g3q2 = new THREE.Quaternion(), _g3e = new THREE.Euler(0, 0, 0, 'YXZ'), _g3sc = new THREE.Vector3();
+function g3Basis(out, A, M, sg){                                   // 기하 z → A(구멍 축) · 기하 입(sg·x) → M(A 와 직각으로 맞춘다)
+  _g3M.copy(M).addScaledVector(A, -M.dot(A)).normalize(); if(sg < 0) _g3M.negate();
+  _g3Y.crossVectors(A, _g3M); _g3m.makeBasis(_g3M, _g3Y, A); return out.setFromRotationMatrix(_g3m);
+}
+function handGrip3(mesh, n, hand, si, HL, W3, ry, rx, rz, sc, skin, afx, afz, arx, arz, gC, gS, cR, sR, s){
+  _g3F.set(afx*gC, -gS, afz*gC);                                   // 총 앞
+  _g3U.set(afx*gS*cR - arx*sR, gC*cR, afz*gS*cR - arz*sR);          // 총 위(총 축 굴림 포함 — gunPoint 와 같은 틀)
+  _g3S.set(afx*gS*sR + arx*cR, gC*sR, afz*gS*sR + arz*cR);          // 총 왼쪽(+sd)
+  const sg = si > 0 ? -1 : 1;                                       // P_hand[0](왼손) 입 기하 −x · P_hand[1](오른손) +x
+  let fade = 0, k = 0;
+  if(!HL && si < 0){ _g3P.copy(_g3S).addScaledVector(_g3F, 0.35); g3Basis(_g3q, _g3U, _g3P, sg); }
+  else if(!HL){ g3Basis(_g3q, _g3F, _g3U, sg);
+    k = W3 ? Math.max(Math.min(1, W3.la || 0), (W3.mh || 0) > 0.5 ? 1 : 0) : 0;
+    if(k > 0){ _g3P.copy(_g3S).negate().addScaledVector(_g3F, 0.35); g3Basis(_g3q2, _g3U, _g3P, sg); _g3q.slerp(_g3q2, k); }
+    fade = W3 && (W3.mh || 0) <= 0.5 ? Math.min(1, W3.lw || 0) : 0; }
+  else if(si > 0){ _g3P.copy(_g3F).addScaledVector(_g3S, -0.5); g3Basis(_g3q, _g3U, _g3P, sg); }
+  else { _g3P.copy(_g3F).addScaledVector(_g3U, 0.2); g3Basis(_g3q, _g3S, _g3P, sg); fade = W3 ? Math.min(1, Math.max(W3.rw || 0, W3.rn || 0)) : 0; }
+  if(fade > 0){ _g3e.set(rx, ry, rz, 'YXZ'); _g3q2.setFromEuler(_g3e); _g3q.slerp(_g3q2, fade); }
+  _g3V.set(sg, 0, 0).applyQuaternion(_g3q);                         // 지금 입 방향
+  const d = 0;                                                        // 3인칭은 쥔 곳(총 원점 = 손 가운데 — t61 약속)이 C 구멍 한가운데를 지난다(부품이 C 안). 1인칭만 입 쪽으로 조금 비킨다
+  _v.set(hand[0] - _g3V.x*d, hand[1] - _g3V.y*d, hand[2] - _g3V.z*d); _g3sc.set(R6_HAND[0]*sc, R6_HAND[1]*sc, R6_HAND[2]*sc);
+  mesh.setMatrixAt(n, FLIP_ON ? _m.compose(_v, _g3q, _g3sc).premultiply(FLIP_M) : _m.compose(_v, _g3q, _g3sc));
+  if(skin !== undefined && mesh.instanceColor) colAt(mesh, n, skin);
+  /* 검사용 기록(사람마다 한 번 만든 칸에 덮어쓴다) — 쥔 곳(팔 끝) · 총 틀 · 섞는 값 */
+  const g = s.g3 || (s.g3 = new Float32Array(26)), o = si > 0 ? 3 : 0;
+  _g3V.set(hand[0], hand[1], hand[2]); if(FLIP_ON){ _g3V.applyMatrix4(FLIP_M); _g3F.transformDirection(FLIP_M); _g3U.transformDirection(FLIP_M); _g3S.transformDirection(FLIP_M); }   // 몸 전체 기울기(FLIP_M)까지 — 그린 손과 같은 틀
+  g[o] = _g3V.x; g[o+1] = _g3V.y; g[o+2] = _g3V.z; g[6] = _g3F.x; g[7] = _g3F.y; g[8] = _g3F.z; g[9] = _g3U.x; g[10] = _g3U.y; g[11] = _g3U.z; g[12] = _g3S.x; g[13] = _g3S.y; g[14] = _g3S.z;
+  g[si > 0 ? 15 : 16] = fade; if(si > 0) g[17] = k; g[18] = HL ? 1 : 0;
+}
 function setIR3(mesh, idx, x,y,z, ry, rx, rz, sx,sy,sz, col){
   _v.set(x,y,z); _eu.set(rx, ry, rz, 'YXZ'); _q.setFromEuler(_eu); _s.set(sx,sy,sz);
   mesh.setMatrixAt(idx, FLIP_ON ? _m.compose(_v,_q,_s).premultiply(FLIP_M) : _m.compose(_v,_q,_s));
@@ -18995,7 +19047,8 @@ function drawSheep(list, t, cap, colOf, scale){
       const fl=Math.hypot(hand[0]-elbow[0],hand[1]-elbow[1],hand[2]-elbow[2]),gap=aL*.02;
       const wrist=hand.map((v,i)=>v+(elbow[i]-v)*gap/fl);
       const wristPose=sheepBone(P_arm,armN++,elbow,wrist,ry,aW*.80,aD*.82,skin);
-      setIR3(P_hand[si>0?0:1],n,...hand,ry,-wristPose.th,wristPose.rl,R6_HAND[0]*sc,R6_HAND[1]*sc,R6_HAND[2]*sc,skin);
+      if(hasGun && TG0) handGrip3(P_hand[si>0?0:1],n,hand,si,HL,W3,ry,-wristPose.th,wristPose.rl,sc,skin,afx,afz,arx,arz,gunC,gunS,gunCR,gunSR,s);   // 72차 — 쥔 손은 C 입이 쥔 부품 쪽
+      else setIR3(P_hand[si>0?0:1],n,...hand,ry,-wristPose.th,wristPose.rl,R6_HAND[0]*sc,R6_HAND[1]*sc,R6_HAND[2]*sc,skin);
       if(si<0){[gripX,gripY,gripZ]=hand;gripTh=wristPose.th;gripRl=wristPose.rl;} else { lhX=hand[0]; lhY=hand[1]; lhZ=hand[2]; }
     }
     // Feet stay on the ground while knees absorb body weight, landing and tool impact.
