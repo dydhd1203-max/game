@@ -11,7 +11,7 @@ function chunk(a,b){const x=source.indexOf(a),y=source.indexOf(b,x);if(x<0||y<0)
 const pieces=[
   `const GFX={q:'mid',shadow:2048},MAXP=40,GY=9,scene=new THREE.Scene();
    let floor=9;const groundUnder=()=>floor;
-   const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color();
+   const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color(),_ec3=new THREE.Color();   // _ec3 — 69차 3인칭 룬 색
    const UPV=new THREE.Vector3(0,1,0),FLIP_ON=false;`,
   chunk('const RB_SPEC =','const pbrMat'),
   chunk('const AVATAR_MAT =','/* 크기가 붙은'),

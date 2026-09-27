@@ -49,7 +49,7 @@ const fixtures=`
 const GFX={shadow:false,lowLambert:false},scene=new THREE.Scene(),MAXP=40,GY=0,SPD=5.2,RACE_SPD=1.4;
 const raceOn=()=>false,burst=()=>{},drawAvatarShadows=()=>{},meSheep={},JOB_LOOK=[],JOB_UNIFORM=[],JOB_AURA=[],P_jobParts={},P_jobMeshes=[],ENH_MAX=6;
 const UPV=new THREE.Vector3(0,1,0),AX_X=new THREE.Vector3(1,0,0);
-const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color();
+const _v=new THREE.Vector3(),_q=new THREE.Quaternion(),_s=new THREE.Vector3(),_m=new THREE.Matrix4(),_c1=new THREE.Color(),_ec3=new THREE.Color();   // _ec3 — 69차 3인칭 룬 색
 `;
 const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),
   chunk('function roundBox(', 'const _rbCache'),
@@ -91,11 +91,12 @@ const hit=(geometry,x,y)=>{const mesh=new THREE.Mesh(geometry,new THREE.MeshBasi
 check('C-hand centers and inward mouths are open; outer palms remain solid',
   A.R6_HOOK.every(g=>!hit(g,0,0))&&!hit(A.R6_HOOK[0],-.43,0)&&!hit(A.R6_HOOK[1],.43,0)&&hit(A.R6_HOOK[0],.4,0)&&hit(A.R6_HOOK[1],-.4,0));
 let worstGripAngle=0,worstGripGap=0;
-for(const pose of poses.values())for(const [key,index] of [['handR',3],['handL',1]]){
-  worstGripAngle=Math.max(worstGripAngle,quat(pose[key][0]).angleTo(quat(pose.arm[index])));
+// 72차 — 총을 쥔 손(aim·fire)은 손목이 아니라 쥔 부품에 맞춰 돈다(C 입이 쥔 곳 쪽 — handGrip3 · t72-hand-grip). 붙어 있음(틈)은 모든 자세에서 본다
+for(const [name,pose] of poses)for(const [key,index] of [['handR',3],['handL',1]]){
+  if(name!=='aim'&&name!=='fire')worstGripAngle=Math.max(worstGripAngle,quat(pose[key][0]).angleTo(quat(pose.arm[index])));
   worstGripGap=Math.max(worstGripGap,pos(pose[key][0]).distanceTo(pos(pose.arm[index])));
 }
-check('Hands follow wrist rotation and remain attached in every pose',worstGripAngle<1e-5&&worstGripGap<.14,{worstGripAngle,worstGripGap});
+check('Hands follow wrist rotation (gun grips follow the held part) and remain attached in every pose',worstGripAngle<1e-5&&worstGripGap<.14,{worstGripAngle,worstGripGap});
 let gripOffset=0,gripWithin=true;
 for(const key of ['mine-ready','mine-hit','work','aim','fire']){
   const pose=poses.get(key),grip=pos(pose.handR[0]).applyMatrix4(pose.gun[key==='aim'||key==='fire'?2:0].clone().invert());

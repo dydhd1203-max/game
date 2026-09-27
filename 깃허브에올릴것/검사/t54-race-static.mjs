@@ -43,7 +43,8 @@ let move=fn('updPlayer');move=move.slice(0,move.indexOf('  recoilTick(dt);'))+'\
 // RACE_STAMP 는 HAZ 보다 먼저 적는다 — HAZ 가 `stamp:RACE_STAMP` 로 그것을 읽는다.
 const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_RAINBOW_DZ','STAMP_DZ','RACE_STAMP','RACE_ROWZ','RACE_P','RACE','FADE_T','ROCK','HAZ',
   'HAZB_MAX',
-  'STEP','GRAV','GRAV_V','gravNow','jumpNow','jump2Now','RACE_SPD','SPRINT','ACC_UP','JOB_JMP','GLIDE_T','GLIDE_VY','STRIDE_WALK'];
+  'STEP','GRAV','GRAV_V','gravNow','jumpNow','jump2Now','RACE_SPD','SPRINT','ACC_UP','JOB_JMP','GLIDE_T','GLIDE_VY','STRIDE_WALK',
+  'PLV'];   // 70차 2회차 — 내 걸음 박자가 보이는 몸 기울기(PLV.st)를 읽는다(경주에선 0)
 const functions=['mulberry','furLight','raceBuild','raceOff','raceAlive','raceTopAt','raceUnder','raceSlotXZ',
   'raceCheckpointXZ','rockU','raceRocks','stampY','raceHazards','raceSphereHit','raceDrawTrim','raceDraw','groundUnder','sheepGaitStep'];
 const code=[fixtures,...declarations.map(decl),...functions.map(fn),move,`globalThis.A={RACE,RACE_P,RACE_S,RACE_Z_FIN,RACE_RAINBOW_DZ,RACE_X,PL,G,MINE,R_trim,R_plat,R_rock,R_hazB,

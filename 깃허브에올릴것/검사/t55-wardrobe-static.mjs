@@ -47,7 +47,7 @@ const openPop=()=>{};
 // 자기 완결형이라 선언 한 줄씩만 떼어 와도 그대로 돈다(R6_SKIN 은 필요 없다).
 `,...['HAT_ICON','HAT_NAME','HATS','GLS_ICON','GLS_NAME','GLASSES','CLO_ICON','CLO_NAME','CLOTHES','SKINS','SKIN_NAME','skinCol','WEAPONS','ARMORS','POT_SEC','POTIONS'].map(decl),
 code.slice(a,b),...['KIT_TABS','KSLOT_R','KSLOT_NAME','kitTab','pickG','pickHat','pickGls','pickClo','pickSkin','myDress'].map(decl),
-...['kitSlot','kitItems','wearDeco','kitClick','openKit','buildKitUI','buildPicker'].map(fun),
+...['kitSlot','kitItems','wearDeco','kitClick','openKit','buildKitUI','buildPicker','enhDots'].map(fun),
 // esc deliberately remains in its temporal dead zone at first buildPicker.
 `buildPicker();const esc=s=>String(s);buildKitUI();
 globalThis.A={G,KIT,stored,events,HATS,GLASSES,CLOTHES,SKINS,skinCol,DRESS_OPTIONS,DRESS_LEGACY,dressPickId,myDress,wearDeco,kitItems,kitClick,buildPicker,buildKitUI,

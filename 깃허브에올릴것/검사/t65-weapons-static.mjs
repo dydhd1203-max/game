@@ -57,6 +57,7 @@ const gain=(k,n)=>{resources[k]+=n;};
 const gainAll=c=>{for(const [k,v] of Object.entries(c))resources[k]+=v;events.push(['gainAll',{...c}]);};
 const iconImg=(id,fallback)=>'<img class="ic" data-ic="'+id+'" alt="'+fallback+'">';
 const esc=s=>String(s),josa=(s,a)=>a,toast=(...a)=>events.push(['toast',...a]);
+const rlCancel=()=>{},heldActStart=()=>{};   // 70차 — 무기 바꿈이 재장전 취소·꺼내기 모션을 부른다(이 검사는 상점·경제만 본다)
 const feed=()=>{},noteRecipes=()=>{},popOpen=()=>false,buildKitUI=()=>{},forward=()=>({x:0,z:-1});
 const PL={x:0,y:0,z:0,hp:50};const GY=0;
 const burstLog=[];const burst=(...a)=>burstLog.push(a);
@@ -67,10 +68,10 @@ const fx2Cel=o=>events.push(['cel',o]),isTouch=false;
 `;
 const decls=['WEAPONS','MINI_GUN','TRAIT_TXT','TIER_TXT','TIER_COL','wpnLv','wpnLvOk','TIER_ALL','TIER_NAME',
   'ARMORS','POT_SEC','POTIONS','AMMO_PER_GOLD','FARM_ANIMALS','FARM_CAP','farmCount','WDAY',
-  'ENH_MAX','ENH_ODDS','ENH_SAFE','ENH_DROP','ENH_MUL','ENH_COST','enhOf','enhMul','enhTxt',
+  'ENH_MAX','ENH_ODDS','ENH_SAFE','ENH_DROP','ENH_MUL','ENH_COST','enhOf','enhMul','enhTxt','ENH_COL','enhLvHTML',   // 69차 — ◆ 칸·단계 색 글자
   'BURN_N','burns'];
 const funcs=['canPay','costTxt','lackTxt','equipWeapon','equipArmor','buyWeapon','buyArmor','buyAmmo','buyPotion','sellFarm',
-  'enhCost','craftable','craftWeapon','raceGiveWeapon','burnStart','burnTick'];
+  'enhCost','craftable','craftWeapon','raceGiveWeapon','burnStart','burnTick','enhDots'];
 const forgeUI=chunk('let forgeTab = ','/* 강화 한 번');
 const payload=[fixture,...decls.map(declaration),...funcs.map(fn),
   chunk("let shopTab = 'w';",'/* 농장 산물을 금으로'),
@@ -102,7 +103,7 @@ check('Commons are sold for resources; rares/uniques craft from an existing lowe
   NEW.every((w,k)=>w.tier?(!w.cost&&w.mat&&W[w.from]&&w.from!==14+k&&W[w.from].lv<=w.lv):(w.cost&&!w.mat&&!w.mini)));
 check('Every trait used has a readable name',W.every(w=>!w.trait||vm.runInContext('!!TRAIT_TXT['+JSON.stringify(w.trait)+']',ctx)));
 check('New weapons carry all fields used by firing, tracers, sound and held models',
-  NEW.every(w=>['n','ic','lv','dmg','cd','rng','ammo','col','tr','mz','len','aimR','kick','snd','d'].every(k=>w[k]!==undefined&&w[k]!==null&&w[k]!=='')));
+  NEW.every(w=>['n','ic','lv','dmg','cd','rng','ammo','col','tr','mz','len','aimR','kick','snd','d','mag','rl','act','wt'].every(k=>w[k]!==undefined&&w[k]!==null&&w[k]!=='')));   // 70차 — 탄창·재장전·조작 종류·무게(t68)
 { const sfx=code.slice(code.indexOf('const SFX = {'),code.indexOf('const SFX = {')+60000);
   check('Every weapon sound is an existing SFX entry',W.every(w=>new RegExp('\\b'+w.snd+'\\s*:').test(sfx)),W.map(w=>w.snd)); }
 { const arr=code.slice(code.indexOf('const gunModels = ['),scanEnd(code.indexOf('const gunModels = [')));
@@ -130,7 +131,10 @@ const card=i=>[...document.querySelectorAll('#shopList .sItem')].find(c=>c.query
 { const c=card(14);
   check('Low level: shop card is locked, grey and shows the level',c&&c.classList.contains('lock')&&c.dataset.state==='locked'&&
     c.querySelector('button').disabled&&/레벨 4부터/.test(c.querySelector('button').textContent)&&/Lv 4/.test(c.querySelector('.wLv').textContent)&&c.querySelector('.wLv').classList.contains('need')&&/레벨 부족/.test(c.querySelector('.shopBadge').textContent));
-  check('Level-1 weapons stay purchasable at level 1',!card(1).classList.contains('lock')&&!card(1).querySelector('button').disabled); }
+  check('Level-1 weapons stay purchasable at level 1',!card(1).classList.contains('lock')&&!card(1).querySelector('button').disabled);
+  // 69차 — 레벨 딱지는 내 레벨과 견준다: 됨 = ok(✔) · 아직 = need(🔒 … 부터)
+  check('Level badge compares with my level (ok ✓ / need 🔒 … 부터)',card(1).querySelector('.wLv').classList.contains('ok')&&card(1).querySelector('.wLv .ck')&&
+    !c.querySelector('.wLv').classList.contains('ok')&&/🔒 Lv 4 부터/.test(c.querySelector('.wLv').textContent)); }
 let before=JSON.stringify(A.resources);A.buyWeapon(14);
 check('Direct buy call below the level is refused and spends nothing',!A.KIT.ownW[14]&&before===JSON.stringify(A.resources)&&A.events.some(e=>e[0]==='toast'&&/레벨/.test(e[1])));
 A.XP.lv=4;A.buyWeapon(14);

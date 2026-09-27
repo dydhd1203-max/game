@@ -117,11 +117,13 @@ const weaponCount=vm.runInContext('WEAPONS.length',context);let gunClips=0,gripE
 for(let wp=1;wp<weaponCount;wp++)for(const kick of [0,.8,1.6])for(const scale of [.7,1.5])for(const pose of poses){
  draw(actor({wp,kick,we:6,jb:0,jt:2,...pose}),10,scale);gunCases++;
  for(let i=0;i<A.meshes.gun.count;i++)gunClips+=boxOverlap(A.meshes.gun,i,A.meshes.body)?1:0;
- const grip=new THREE.Vector3().setFromMatrixPosition(matrix(A.meshes.handR)).applyMatrix4(matrix(A.meshes.gun,2).invert());
+ // 70차 — 손잡이는 번호가 아니라 꼬리표('grip')로 찾고, 새총·활(hand 'L')은 왼손이 쥔다(오른손은 주머니·시위를 당긴다)
+ const TG=vm.runInContext('TPGUN',context)[wp],gi=Math.max(0,TG.r.findIndex(r=>r[13]==='grip')),gIdx=TG.r[gi]&&TG.r[gi][13]==='grip'?gi:2;
+ const grip=new THREE.Vector3().setFromMatrixPosition(matrix(TG.hand==='L'?A.meshes.handL:A.meshes.handR)).applyMatrix4(matrix(A.meshes.gun,gIdx).invert());
  gripError=Math.max(gripError,Math.abs(grip.x),Math.abs(grip.z));
 }
 check('Every weapon stays outside the body at all recoil strengths and motion poses',gunClips===0,{gunCases,gunClips});
-check('Weapon grip remains centered in the anatomical right hand',gripError<1e-4,{gripError});
+check('Weapon grip remains centered in the holding hand (right; slingshot/bow left)',gripError<1e-4,{gripError});
 // 65차 — 무기마다 부품 표(TPGUN)로 그린다. 들고 있는 동안(반동 0) 어떤 조각도 머리(둥근 기둥)에 들어가지 않는다.
 // 쏠 때 잠깐 들리는 반동은 위의 몸통 검사가 모든 세기로 본다. +6 떨림(sh)까지 켠 채로 잰다.
 function insideHead(mesh,i){const m=matrix(A.meshes.head).invert().multiply(matrix(mesh,i));
@@ -132,11 +134,12 @@ for(let wp=1;wp<weaponCount;wp++)for(const scale of [.7,1.5])for(const pose of p
  for(let i=0;i<A.meshes.gun.count;i++)headClips+=insideHead(A.meshes.gun,i)?1:0;
 }
 check('Every held weapon stays out of the head through running, jumps, flips, glide and landing',headClips===0,{headCases,headClips});
-// imesh 정원은 최악 조합(그리는 사람 상한 40명 × 제일 많은 조각 · 빛 조각 + 강화 빛 2)으로 잡는다. 모자라면 오류 없이 잘린다.
+// imesh 정원은 최악 조합(그리는 사람 상한 40명 × 제일 많은 조각 · 빛 조각)으로 잡는다. 모자라면 오류 없이 잘린다.
+// 69차 — 강화 빛 공 둘(+2)은 없앴다(강화는 P_gun 셰이더 룬). 빛 조각은 고유 빛(렌즈·수정·불)만.
 const TPGUN=vm.runInContext('TPGUN',context),MAXP=vm.runInContext('MAXP',context);let capShort=[];
 for(let wp=1;wp<weaponCount;wp++){
  A.drawSheep(Array.from({length:MAXP},(_,i)=>actor({x:i*2,wp,we:6})),10,MAXP,()=>0x67a7cb,1);
- if(A.meshes.gun.count!==MAXP*TPGUN[wp].r.length||A.meshes.gunGlow.count!==MAXP*(TPGUN[wp].g+2))capShort.push(wp);
+ if(A.meshes.gun.count!==MAXP*TPGUN[wp].r.length||A.meshes.gunGlow.count!==MAXP*TPGUN[wp].g)capShort.push(wp);
 }
 check('Forty players holding any weapon at +6 fit the weapon part and glow capacities',capShort.length===0&&TPGUN.every(g=>!g||g.r.length<=14&&g.r.length>=8),
  {capShort,partCap:A.meshes.gun.count_max,glowCap:A.meshes.gunGlow.count_max,parts:TPGUN.map(g=>g?g.r.length:0)});

@@ -15,7 +15,7 @@ const names=['chk','input52-static','t53-static','t54-avatar-static','t53-shop-s
   't59-zombie-shape-static','t59-zombie-attachment-static','t60-zombie-wrap-static','t61-avatar-clearance-static',
   't65-weapons-static',
   't66-hud-static','t66-fx2-static','t66-spec-static','t66-wing-static','t66-sound-static','t66-ctrl-static',
-  't67-castle-static'];
+  't67-castle-static','t69-enh-static','t68-reload-static','t68-motion-static'];   // 70차 — 탄창·자동 재장전·총 다루기 모션
 let failed=0;
 async function check(name){
   try{
@@ -27,6 +27,11 @@ async function check(name){
 // Source/CPU checks run in small batches; rendered checks never overlap.
 for(let i=0;i<names.length;i+=3)await Promise.all(names.slice(i,i+3).map(check));
 if(args.includes('--render')){await check('t54-view');await check('t56-build-view');await check('t57-character-view');await check('t62-motion-view');await check('t59-zombie-view');
-  await check('t67-castle-walk');await check('t67-castle-zombie');}   // 67차 성곽 — 걷기·보물·좀비(다른 갈래가 합쳐지기 전 항목은 '대기')
+  await check('t67-castle-walk');await check('t67-castle-zombie');   // 67차 성곽 — 걷기·보물·좀비(다른 갈래가 합쳐지기 전 항목은 '대기')
+  await check('t69-enh');   // 69차 강화 룬 빛 — 떨림·셰이더·유령 빛·강화 순간
+  await check('t70-castle-teach');   // 70차 2회차 — 선생님 새 요청(나선 손잡이·넓히기·낮은 턱·계단 몸·좀비 계단 벽) · 든 것 VM_Z(C1 픽셀)
+  await check('t71-castle-shot');   // 71·72차 — 성벽 총알 규칙 · 몸 내밀어 쏘기·카메라
+  await check('t68-hand-view');await check('t71-hand-fix');
+  await check('t72-hand-grip');}   // 72차 — 손가락으로 쥔다(C 입이 쥔 부품 쪽 · 1인칭·3인칭·친구) · 꺼내기 첫 컷 · 새총·활 놓은 손   // 총 다루기 70차 — 오른손잡이 손·부품 움직임·어깨 너머 가림 · 71차 — 새총 조준점 비움·강궁 화살통 길·장전 손잡이·탄 보이기·지렛대·팔뚝 굴림·노리쇠 손·3인칭 활·터치 재장전
 console.log(failed?`${failed} check files failed.`:'All selected check files passed.');
 process.exitCode=failed?1:0;
