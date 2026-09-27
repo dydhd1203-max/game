@@ -315,7 +315,7 @@ function envMax(src,buses){ // 버스 바로 앞 게인(봉투)의 봉우리 —
     ['hitNode: leaf/grit + chunk + coin per block, treeFall/rockBreak when done',has('hitNode',/'leaf'/)&&has('hitNode',/'grit'/)&&has('hitNode',/'chunk'/)&&has('hitNode',/'coin'/)&&has('hitNode',/'treeFall'/)&&has('hitNode',/'rockBreak'/)],
     ['workTick: feed scoop · broom · pry · squeak · tok/tak',has('workTick',/feedScoop/)&&has('workTick',/broom/)&&has('workTick',/pry/)&&has('workTick',/squeak/)&&has('workTick',/'tok'/)],
     ['openPop: shop door+bell · forge anvil · farm gate',has('openPop',/shopOpen/)&&has('openPop',/forgeOpen/)&&has('openPop',/farmOpen/)],
-    ['buy sounds: weapon·armor·ammo·potion·trade · sell farm goods',has('buyWeapon',/'buy'/)&&has('buyArmor',/'buy'/)&&has('buyAmmo',/'buy'/)&&has('buyPotion',/'buy'/)&&has('sellFarm',/'sell'/)&&has('doTrade',/'buy'/)],
+    ['buy sounds: weapon·armor·ammo·potion·trade · sell farm goods',has('buyWeapon',/'buy'/)&&has('buyArmor',/'buy'/)&&has('buyAmmo',/'buy'/)&&has('buyPotion',/'buy'/)&&has('acceptPurchase',/'sell'/)&&has('acceptPurchase',/'buy'/)],
     ['buyAnimal: nope when short · coin + that animal’s voice',has('buyAnimal',/'nope'/)&&has('buyAnimal',/__sfx\(kind\)/)],
     ['unaffordable shop card press → nope (not the farm status roster)',/closest\('\.sItem\.no'\);\s*if\(t && !t\.closest\('#farmList'\)\) sfx\('nope'\)/.test(code)],
     ['farm: feedDone · cleanDone · pickDrop pop',has('farmFeed',/feedDone/)&&has('farmClean',/cleanDone/)&&has('pickDrop',/'pop'/)],

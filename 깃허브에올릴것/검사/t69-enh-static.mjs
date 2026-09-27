@@ -5,7 +5,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {GAME} from './gamefile.mjs';
-const src = fs.readFileSync(process.argv[2] || GAME, 'utf8');
+const src = fs.readFileSync(process.argv[2] || GAME, 'utf8').replace(/\r\n/g,'\n');
 let pass = 0, fail = 0;
 const ok = (name, cond, info)=>{ if(cond) pass++; else { fail++; console.log('✗ ' + name + (info !== undefined ? '  — ' + (typeof info === 'string' ? info : JSON.stringify(info)) : '')); } };
 function body(name){

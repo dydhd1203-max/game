@@ -21,7 +21,9 @@ await pg.addInitScript(()=>{ const real = performance.now.bind(performance); let
   performance.now = ()=> fz === null ? real() : fz;
   const realRAF = window.requestAnimationFrame.bind(window); window.__raf = []; window.__rafHold = false;
   window.requestAnimationFrame = cb=>{ if(window.__rafHold){ window.__raf.push(cb); return 0; } return realRAF(cb); };
-  window.__stepFrame = ()=>{ const q = window.__raf; window.__raf = []; for(const cb of q) cb(performance.now()); };
+  // Drive exactly one real loop. Depending on arrival of an already scheduled native rAF
+  // left some Windows runs with no frames (and falsely missing six grip states).
+  window.__stepFrame = ()=>{ window.__raf.length=0; window.__loop73(); };
   try { localStorage.setItem('sndOn', '0'); } catch(e){} });
 try {
 await pg.route(/fonts\.(googleapis|gstatic)\.com/, r=>r.abort());
@@ -34,7 +36,7 @@ await pg.evaluate(()=>{ const W = window, THREE = W.__THREE; document.querySelec
   /* C 입 방향(기하) — 호 조각의 무게중심 반대쪽(오른손 −x · 왼손 +x 를 기하에서 읽는다) */
   const mouthOf = geo=>{ if(geo.userData.mouth) return geo.userData.mouth; const P = geo.attributes.position; let x = 0, y = 0; for(let i=0;i<P.count;i++){ x += P.getX(i); y += P.getY(i); } const L = Math.hypot(x, y) || 1; return geo.userData.mouth = [-x/L, -y/L, 0]; };
   const V = ()=> new THREE.Vector3();
-  W.__t72setup = (w, zoom)=>{ const P = W.__PL, G = W.__G; G.phase = 'day'; G.mini = null; G.players.clear(); G.wolves = [];
+  W.__t72setup = (w, zoom)=>{ const P = W.__PL, G = W.__G; G.phase = 'day'; G.paused=false; G.mini = null; G.players.clear(); G.wolves = [];
     let spot = W.__t72spot || null;
     if(!spot) outer: for(let z = 30; z >= -30; z -= 3) for(let x = -24; x <= 24; x += 3){ if(Math.hypot(x, z) < 12) continue;
       const y = W.__groundUnder(x, z, P.R); if(y < 0 || y > 80) continue;

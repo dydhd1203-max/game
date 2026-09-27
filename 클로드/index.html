@@ -4043,7 +4043,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '72차 · 몸 내밀어 쏘기';   // 70차 4회차 — 탑 11×11·나선·안쪽 턱으로 판 모양(CASTLE·stairOf)이 바뀌었다: 옛 탭을 연 손님에게 '새로고침' 알림이 뜨게 올린다(판 모양을 바꾸면 늘 같이 올린다)
+const GAME_VER = '73차 · 교실 안정화';   // 70차 4회차 — 탑 11×11·나선·안쪽 턱으로 판 모양(CASTLE·stairOf)이 바뀌었다: 옛 탭을 연 손님에게 '새로고침' 알림이 뜨게 올린다(판 모양을 바꾸면 늘 같이 올린다)
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -5319,7 +5319,13 @@ function castleRescue(dt){
    선생님: "성 안에 있다가 나오면 3인칭으로 바뀌어야 되는데 안 바뀐다" — 성 안에서 화면이 안 바뀌니 아이가 휠을 굴렸고,
    당기는 쪽 두 칸(3.2 → 2.0 → 0)이면 camZoom 이 0(진짜 1인칭)으로 저장되어 밖에 나와도 1인칭이었다. 이제 자동 1인칭 동안 휠은 camZoom 을 안 건드린다(wheel 처리기).
    덮임 판정은 칸 비트(CROOF) + '머리 위에 실제 천장 상자가 있나'(ceilingOver) — 회랑 지붕·탑 지붕 위에 올라선 아이는 덮인 칸 위라도 밖이다 */
-function camCov(x, z, y){ return covAt(x, z, y) && ceilingOver(x, z, 0.05, y) < y + 30; }
+function camSpiral(x,z,y){
+  for(const S of SPIRALS){ const dx=x-S.cx,dz=z-S.cz;
+    if(y >= S.y0-0.3 && y < S.y0+S.Ht*S.turns-0.35 && dx*dx+dz*dz <= (S.b+0.3)**2) return true;
+  }
+  return false;
+}
+function camCov(x, z, y){ return camSpiral(x,z,y) || (covAt(x, z, y) && ceilingOver(x, z, 0.05, y) < y + 30); }
 function camAutoTick(dt){
   const auto = CAM_AUTO_FP && camZoom >= CAM_MIN && !PL.down && !miniOn();
   if(auto && camCov(PL.x, PL.z, PL.y)) camAutoHold = 0.4;
@@ -5943,6 +5949,28 @@ function gunGlowResize(){
   const h = Math.max(2, Math.floor(innerHeight * renderer.getPixelRatio() / 4));
   GG.rtA.setSize(w, h); GG.rtB.setSize(w, h);
 }
+/* 73차 — 해상도/샘플/빛 세기는 그대로. 총이 없는 검은 영역에는 합성할 빛이 없다.
+   움직인 부품의 상자를 투영하고 실제 블러 커널의 최대 범위(두 바퀴 × 3.2308 + 필터 여유)를
+   더한 사각형만 합성한다. 근평면을 가로지르는 상자는 안전하게 전체 화면으로 돌아간다. */
+const PERF73={glowScissor:true,glowArea:1}, glowBoundsV=new THREE.Vector3(), glowScissorOld=new THREE.Vector4();
+function gunGlowRect(){
+  let x0=1,y0=1,x1=-1,y1=-1,full=false;
+  const g=gunModels[KIT.wpn];if(!g || !g.visible)return null;
+  g.traverseVisible(o=>{if(!o.isMesh || o.userData.arm)return;
+    const geo=o.geometry;if(!geo.boundingBox)geo.computeBoundingBox();const b=geo.boundingBox;
+    for(let i=0;i<8;i++){
+      glowBoundsV.set(i&1?b.max.x:b.min.x,i&2?b.max.y:b.min.y,i&4?b.max.z:b.min.z).applyMatrix4(o.matrixWorld).applyMatrix4(camera.matrixWorldInverse);
+      if(glowBoundsV.z>=-camera.near){full=true;return;}
+      glowBoundsV.applyMatrix4(camera.projectionMatrix);
+      x0=Math.min(x0,glowBoundsV.x);x1=Math.max(x1,glowBoundsV.x);y0=Math.min(y0,glowBoundsV.y);y1=Math.max(y1,glowBoundsV.y);
+    }
+  });
+  if(full || x1<x0)return null;
+  const pad=16*Math.max(innerWidth/GG.rtA.width,innerHeight/GG.rtA.height),
+    l=Math.max(0,Math.floor((x0+1)*innerWidth/2-pad)),r=Math.min(innerWidth,Math.ceil((x1+1)*innerWidth/2+pad)),
+    b=Math.max(0,Math.floor((y0+1)*innerHeight/2-pad)),t=Math.min(innerHeight,Math.ceil((y1+1)*innerHeight/2+pad));
+  return [l,b,Math.max(0,r-l),Math.max(0,t-b)];
+}
 function gunGlowPass(){
   if(GG.k <= 0 || !held.visible) return;
   gunGlowInit();
@@ -5956,7 +5984,10 @@ function gunGlowPass(){
   renderer.setClearColor(0x000000, 0);
   const mask = camera.layers.mask; camera.layers.set(1);
   RUNE_U.uGlowOnly.value = 1;
+  // 본 패스에서 이미 계산한 세계 행렬을 재사용한다. 움직임/그림자는 매 프레임 그대로 갱신한다.
+  const worldAuto=scene.matrixWorldAutoUpdate;scene.matrixWorldAutoUpdate=false;
   renderer.setRenderTarget(GG.rtA); renderer.render(scene, camera);
+  scene.matrixWorldAutoUpdate=worldAuto;
   RUNE_U.uGlowOnly.value = 0;
   camera.layers.mask = mask;
   renderer.setClearColor(GG._cc, ca); scene.background = bg;
@@ -5974,11 +6005,19 @@ function gunGlowPass(){
     GG.mBlur.uniforms.tD.value = GG.rtB.texture; GG.mBlur.uniforms.dir.value.set(0, py);
     renderer.setRenderTarget(GG.rtA); renderer.render(fsScene, fsCam);
   }
+  gunGlowCompose();
+}
+function gunGlowCompose(){
   /* ③ 화면 위에 스크린 합성(71차 — 가산 → 스크린 · 세기 상한 .70 · 원천 배율 2.6). 원천이 1/4 해상도 선이라 두 번 번지면 평균이 낮아 세기를 올려야 보인다 */
   GG.mComp.uniforms.tB.value = GG.rtA.texture; GG.mComp.uniforms.strength.value = Math.min(0.70, GG.k) * 2.6;
   renderer.setRenderTarget(null);
   const ac = renderer.autoClear; renderer.autoClear = false;
+  const st=renderer.getScissorTest();renderer.getScissor(glowScissorOld);
+  const rect=PERF73.glowScissor ? gunGlowRect() : null;
+  PERF73.glowArea=rect ? rect[2]*rect[3]/(innerWidth*innerHeight) : 1;
+  if(rect){renderer.setScissor(...rect);renderer.setScissorTest(true);}
   renderer.render(GG.scene, GG.cam);
+  renderer.setScissor(glowScissorOld);renderer.setScissorTest(st);
   renderer.autoClear = ac;
 }
 /* 한 프레임을 화면에 내놓는 유일한 자리. 빛 번짐이 꺼져 있으면 예전처럼 곧장 그린다. */
@@ -6243,6 +6282,7 @@ function bbuild(){
       // 지금 재 둬야 한다. 나중에(블록이 캐여서 사라진 뒤에) 재면 원점으로 눌린
       // 인스턴스까지 품어서 구가 쓸데없이 커지고, 그러면 컬링이 안 먹는다.
       im.computeBoundingSphere();
+      im.updateMatrix(); im.matrixAutoUpdate = false; // 정적 뱅크: 인스턴스만 변하고 메시의 변환은 항등행렬이다
       if(GFX.shadow){ im.castShadow = !NO_CAST.has(k); im.receiveShadow = true; }   // 25차 — 산·나무·바위가 그늘을 만든다 · 34차 — 잔 꾸밈은 안 드리운다
       scullAdd(im, b, idxs);                                                            // 68차 성능 — 조각 상자(걸러내기)
       b.chunks.push(im); scene.add(im);
@@ -17626,10 +17666,11 @@ function flush(...ms){ for(const m of ms){
   m.visible = n > 0;                     // 34차 — 하나도 없으면 그리기 자체를 건너뛴다(빈 인스턴스 메시도 콜 하나다)
   if(!n) continue;                       // 하나도 안 그리면 올릴 것도 없다
   const a = m.instanceMatrix;
+  a.clearUpdateRanges(); // 렌더가 생략돼도 지난 프레임 범위를 쌓지 않는다
   if(n < a.count) a.addUpdateRange(0, n*16);
   a.needsUpdate = true;
   const c = m.instanceColor;
-  if(c){ if(n < c.count) c.addUpdateRange(0, n*3); c.needsUpdate = true; }
+  if(c){ c.clearUpdateRanges(); if(n < c.count) c.addUpdateRange(0, n*3); c.needsUpdate = true; }
 } }
 
 const fxq = (r)=> Math.sin(r), fzq = (r)=> Math.cos(r);
@@ -19540,12 +19581,12 @@ function spawnPoint(g){
   const r = (ARENA_R-14) + Math.random()*7, off = (Math.random()-0.5)*9;
   return [gX(g, r, off), gZ(g, r, off)];
 }
-function placePlayer(){
+function placePlayer(keepView=false){
   const [x,z] = spawnPoint(G.me.g);
   PL.x = x; PL.z = z; PL.y = groundUnder(x,z,PL.R); PL.vy = 0;
-  PL.yaw = Math.atan2(x, z);   // 카메라 정면은 (-sin,-cos) — 수정 쪽을 보게
+  if(!keepView) PL.yaw = Math.atan2(x, z);   // 카메라 정면은 (-sin,-cos) — 수정 쪽을 보게
 
-  PL.pitch = -0.22;   // 52차 — 발과 앞길이 함께 보이는 가벼운 내려다보기
+  if(!keepView) PL.pitch = -0.22;   // 52차 — 발과 앞길이 함께 보이는 가벼운 내려다보기
 }
 
 const KEY = {};
@@ -19770,7 +19811,7 @@ function updPlayer(dt){
           burst(PL.x, PL.y + 0.05, PL.z, ac, big ? 5 : 3, big ? 0.8 : 0.5);
           if(big) burst(PL.x, PL.y + 0.12, PL.z, 0xfff6e0, 2, 0.35); } } } }
   PL._px = PL.x; PL._pz = PL.z;
-  if(PL.y < -20 && !raceOn()) placePlayer();
+  if(PL.y < -20 && !raceOn()) placePlayer(true);
   if(!miniOn()) castleRescue(dt);                                     // 67차 — 끼임·지붕 위·성 밖 구조(땅에 선 프레임만 센다)
   /* ★ 망루에 처음 올라가면 알려 준다. 안 알려 주면 9살은 계단이 있어도 안 올라간다.
      67차 — 좀비가 계단으로 올라오게 되어 '못 물어요' 는 거짓말이 됐다 */
@@ -20832,7 +20873,7 @@ const wpnShotCd = W => wpnMag(W) > 1 ? W.cd - W.rl/W.mag : W.cd;   // 탄창 안
 function magNow(i){
   const W = WEAPONS[i], m = wpnMag(W); if(m <= 1) return Infinity;
   const k = KIT.mag[i];
-  return Math.min(k === undefined ? m : k, W.ammo > 0 ? Math.floor(KIT.ammo / W.ammo) : m);
+  return Math.min(k == null ? m : k, W.ammo > 0 ? Math.floor(KIT.ammo / W.ammo) : m); // JSON의 빈 탄창 슬롯(null)도 아직 안 쓴 총이다
 }
 const rlOn = ()=> RL.w >= 0 && RL.w === KIT.wpn && RL.t > 0;
 function rlStart(i){
@@ -20991,6 +21032,7 @@ function setAimMode(on, quiet){
 }
 
 function fireWeapon(){
+  if(!G.host && hitQueue.length>=64){ throwCd=0.2; return; }
   if(!G.started || G.paused || PL.down || throwCd > 0 || popOpen()) return;
 
   /* ── 무기를 골라 쏜다 ──
@@ -21070,7 +21112,7 @@ function fireWeapon(){
     comboHit();
     const dmg = Math.max(1, Math.round(base * atkMul() * enhMul(KIT.wpn)
                                             * comboMul() * (crit ? CRIT_MUL : 1)));
-    const kill = w.hp - dmg <= 0;
+    const kill = G.host && w.hp - dmg <= 0; // 손님 막타는 호스트 확인 뒤 표시한다
     /* 65차 — 숫자는 세 갈래로 읽힌다: 치명타(금빛·크게 튐) · 막타(주황·크게) · 보통 · 약함(돌 — 작고 흐리게)
        ★ 33차 타격감 — 맞는 순간을 **내 화면에서 바로** 보여 준다: 움찔(hurt)·쏜 방향으로 밀림(k)·충격 고리·소리.
        전엔 움찔이 호스트 왕복(최대 170ms) 뒤에 왔다. 막타(예상)는 흰 큰 고리 + 빛 알갱이 + 흔들림 + 붉은 X.
@@ -21097,10 +21139,11 @@ function fireWeapon(){
        내 칸은 어차피 초당 6번 나가므로 통신이 한 번도 안 는다.
        ★ 피해량을 내가 계산해서 보내는 이유: 무기도 크리티컬도 내 것이라,
          호스트가 다시 굴리면 내 화면에 뜬 숫자와 실제로 깎인 피가 달라진다. */
-    xpGain((dmg * XP_DMG + (w.hp - dmg <= 0 ? XP_KILL : 0)) * comboMul());
+    xpGain(dmg * XP_DMG * comboMul());
     thrown = (thrown + 1) & 255; thTgt = w.id; thDmg = dmg;
     thF = W.trait === 'push' ? [+f.x.toFixed(2), +f.z.toFixed(2)] : null;    // 29차 — 밀치기는 방향이 같이 간다
-    if(G.host) hostStoneHit(w.id, 1, G.me.name, G.me.g, dmg, thF ? {push:thF} : null);
+    if(G.host) hostStoneHit(w.id, 1, G.me.name, G.me.g, dmg, thF ? {push:thF} : null, uid, comboMul());
+    else queueHit(w.id, dmg, comboMul(), thF);
     if(window.__sfx) window.__sfx(isGun ? gunVoice(W) : (W.snd || 'thud'), isGun ? W.kick : undefined);   // 쏘는 소리는 지금 · 맞은 소리는 hitVis(닿는 순간)
     if(W.trait) wpnTraitHit(W, w, dmg, f);                                   // 29차 — 관통·번개·폭발·흡혈
   } else {
@@ -21129,7 +21172,7 @@ function extraHit(o, d){
   hitSpark(o.x, (o.y||GY) + 0.85, o.z, wpnNow().tr);
   MY.hits++; xpGain(d * XP_DMG * 0.5);
   if(G.host) hostStoneHit(o.id, 1, G.me.name, G.me.g, d);
-  else thX.push([o.id, d]);
+  else queueHit(o.id,d);
 }
 function wolvesNear(x, z, r, skip){
   const out = [];
@@ -21554,7 +21597,7 @@ const POTIONS = [
   {n:'철벽 물약', ic:'🧱', cost:{w:0,s:25,g:3},  d:`${POT_SEC}초 동안 방어력 +25`}
 ];
 const AMMO_PER_GOLD = 6;
-/* 내 장비 — 판마다 새로 시작한다. 기기에 저장하지 않는다(다음 수업은 처음부터).
+/* 내 장비 — 같은 방·같은 판의 새로고침만 복구한다. 판 번호가 달라진 다음 수업은 처음부터.
    ★ ownW/ownA 는 '가지고 있는가', wpn/arm 은 '지금 들고/입고 있는가' 다.
      인벤토리에서 풀었다 꼈다 할 수 있게 되면서 둘을 갈라야 했다 —
      예전엔 wpn 숫자 하나가 두 뜻을 겸해서, 낮은 무기로 바꾸면 산 기록이 사라졌다. */
@@ -21623,8 +21666,8 @@ const enhOf   = i => Math.max(0, Math.min(ENH_MAX, KIT.enh[i]|0));
 const enhMul  = i => ENH_MUL[enhOf(i)];
 const enhTxt  = e => e > 0 ? ' +' + e : '';
 /* 강화에 드는 재료 — 맨손 돌(값이 없는 무기)은 강화할 수 없다 */
-function enhCost(i){
-  const W = WEAPONS[i], e = enhOf(i);
+function enhCost(i, e=enhOf(i)){
+  const W = WEAPONS[i];
   if(!W || e >= ENH_MAX) return null;
 
   let base = W.cost || (W.mat ? {w:W.mat.w||0, s:W.mat.s||0, g:W.mat.g||0} : null) || (W.tier ? {w:60, s:60, g:20} : null);
@@ -22022,16 +22065,9 @@ function doEnhance(i, quick){
   const e = enhOf(i); if(e >= ENH_MAX) return;
   if(enhBusy) return;
   const c = enhCost(i); if(!c || !canPay(c)) return;
-  spend(c);
-  const ok = Math.random() < ENH_ODDS[e];
-
-  const finish = ()=>{ enhBusy = false; enhResult(i, W, e, ok); };
-  if(quick){ finish(); return; }
-  enhBusy = true; toast('🔨 강화하는 중…', 1.15, '#ffe9a0'); hudPrev.kit = ''; buildForgeUI();
-  [0, 0.35, 0.7].forEach(t=> setTimeout(()=>{ if(window.__sfx) window.__sfx('enhHit'); enhSparkFx(i, e + 1); }, t*1000));   // 69차 — 망치마다 다음 단계 색 불꽃
-  setTimeout(finish, 1100);
+  return purchaseRequest('enhance',{i,quick:!!quick});
 }
-function enhResult(i, W, e, ok){
+function enhResult(i, W, e, ok, level){
   /* 69차 — 강화 순간: 성공은 단계 색 새김 선 + ◆ 한 칸 톡 + 축하 배너(+4·+5 리본, +6 큰 배너·◆ 차례로 불붙음·새 소리),
      실패는 카드 잿빛 + 김 세 방울(내려가면 마지막 ◆ 가 금 가며 떨어짐). **화면 흔들림 없음**(옛 __shake 삭제). */
   let fx = '', lv = e;
@@ -22053,7 +22089,7 @@ function enhResult(i, W, e, ok){
       if(lv >= 6) burst(PL.x + f.x*3.0, PL.y + 1.9, PL.z + f.z*3.0, 0xffd66a, n/2, 1.2); }
     fx = lv >= 6 ? 'max' : 'ok';
   } else {
-    if(e + 1 > ENH_SAFE && e > 0 && Math.random() < ENH_DROP){
+    if(level !== undefined ? level < e : e + 1 > ENH_SAFE && e > 0 && Math.random() < ENH_DROP){
       KIT.enh[i] = e - 1; lv = e - 1; fx = 'drop';
       toast(`💥 실패!! ${W.n} 이(가) +${e-1} 로 내려갔어요`, 3.0, '#ff9b9b');
       feed(`💥 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b> 님의 <b>${W.n}</b> 강화 실패 — +${e} → +${e-1}`);
@@ -22165,15 +22201,13 @@ function farmBuyHint(){
       + '<b>🛒 상인에게 바꾸기</b>로 얻을 수 있어요.';
   return pp;
 }
-function buyAnimal(kind){
+function buyAnimal(kind, approved=false){
   const f = myFarm(), A = FARM_ANIMALS.find(a=>a.k===kind);
   if(!A) return;
-  if(farmCount(f) >= FARM_CAP){ toast('🐾 우리가 꽉 찼어요', 1.6, '#ffd0a0'); return; }
-  if(!canPay(A.cost)){ toast('자원이 모자라요 — ' + costTxt(A.cost), 1.8, '#ffbdbd'); if(window.__sfx) window.__sfx('nope'); return; }
-  spend({w:A.cost.w||0, s:A.cost.s||0, g:A.cost.g||0});
-  f[kind] = (f[kind]|0) + 1;
-  netFarm();
-  toast(`${A.ic} ${A.n}${josa(A.n,'을','를')} 데려왔어요! 날마다 먹이를 주세요`, 2.8, '#ffe9a0');
+  if(!approved && farmCount(f) >= FARM_CAP){ toast('🐾 우리가 꽉 찼어요', 1.6, '#ffd0a0'); return; }
+  if(!approved && !canPay(A.cost)){ toast('자원이 모자라요 — ' + costTxt(A.cost), 1.8, '#ffbdbd'); if(window.__sfx) window.__sfx('nope'); return; }
+  if(!approved) return purchaseRequest('animal',{animal:kind});
+    toast(`${A.ic} ${A.n}${josa(A.n,'을','를')} 데려왔어요! 날마다 먹이를 주세요`, 2.8, '#ffe9a0');
   if(window.__sfx){ window.__sfx('buy'); window.__sfx(kind); }     // 66차 — 동전 + 데려온 동물 울음
   const [x,z] = farmSpotXZ(G.me.g,'buy');
   burst(x, GY+1.4, z, 0xfff0a0, 20, 1.8);
@@ -22328,13 +22362,7 @@ function doTrade(from, to){
   if(!get) return;
   const r = myRes();
   if(r[from] < give){ toast(`${RES_IC[from]} ${RES_NM[from]}${josa(RES_NM[from],'이','가')} ${give} 필요해요`, 1.8, '#ffbdbd'); return; }
-  spend({w: from==='w'?give:0, s: from==='s'?give:0, g: from==='g'?give:0});
-  gain(to, get);
-  toast(`🔄 ${RES_IC[from]}${give} → ${RES_IC[to]}${get} 바꿨어요!`, 2.0, '#ffe066');
-  if(window.__sfx) window.__sfx('buy');
-  feed(`🔄 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
-     + `${RES_IC[from]}${give}${josaNum(give,'을','를')} ${RES_IC[to]}${get}${josaNum(get,'으로','로',true)} 바꿨어요`);
-  buildShopUI();
+  return purchaseRequest('trade',{from,to,mul:tradeMul});
 }
 function buildShopUI(){
   const r = myRes();
@@ -22483,12 +22511,7 @@ function sellFarm(res){
     gold += v * A.gold; cnt += v; cost[A.res] = v;
   }
   if(!gold) return;
-  spend(cost); gain('g', gold);
-  toast(`✨ ${cnt}개를 바꿔 금 ${gold}을 받았어요!`, 2.4, '#ffe066');
-  if(window.__sfx) window.__sfx('sell');
-  feed(`🧺 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
-     + `농장 산물을 바꿔 <b>✨${gold}</b>을 벌었어요`);
-  buildShopUI();
+  return purchaseRequest('sell',{res:res||''});
 }
 /* ── 장착 ── */
 function equipWeapon(i){
@@ -22508,12 +22531,12 @@ function equipArmor(i){
   KIT.arm = i; hudPrev.kit = '';
   if(popOpen() && el('popKit').classList.contains('on')) buildKitUI();
 }
-function buyWeapon(i){
+function buyWeapon(i, approved=false){
   const W = WEAPONS[i];
   if(!W || !W.cost || W.tier || W.mini) return;       // 65차 — 파는 총만 (조합 무기·연습용 총은 여기서 안 판다)
-  if(KIT.ownW[i] || !canPay(W.cost)) return;
+  if(KIT.ownW[i] || (!approved && !canPay(W.cost))) return;
   if(!wpnLvOk(i)){ toast(`🔒 ${W.n}${josa(W.n,'은','는')} 레벨 ${wpnLv(i)}부터 살 수 있어요`, 2.2, '#ffd0a0'); return; }   // 65차 — 단추를 우회해도 막는다
-  spend(W.cost); KIT.ownW[i] = true; equipWeapon(i);
+  if(!approved) return purchaseRequest('weapon',{i}); KIT.ownW[i] = true; equipWeapon(i);
   if(window.__sfx) window.__sfx('buy');            // 66차 — 동전 짤랑(뒤이어 축하 팡파르)
   fx2Cel({k:'gun', ic:W.ic, rib:'새 무기', tt:`${W.n}!`, sub:`샀어요 — 🎒 ${isTouch ? '가방' : 'I'} 에서 바꿔 낄 수 있어요`, snd:'fx2Gun', col:'#ffd9a0'});   // 66차
   setTimeout(()=>noteRecipes(i), 1400);           // 29차 — 이 총이 들어가는 조합표가 있으면 알려 준다
@@ -22523,9 +22546,9 @@ function buyWeapon(i){
 }
 /* ═══ 29차 — 조합 (대장장이의 조합표) ═══ */
 function craftable(i){ const W = WEAPONS[i]; return !!(W && W.tier && !KIT.ownW[i] && KIT.ownW[W.from] && wpnLvOk(i)); }   // 65차 — 레벨도 본다
-function craftWeapon(i){
-  const W = WEAPONS[i]; if(!craftable(i) || !canPay(W.mat)) return;
-  spend(W.mat);
+function craftWeapon(i, approved=false){
+  const W = WEAPONS[i]; if(!craftable(i) || (!approved && !canPay(W.mat))) return;
+  if(!approved) return purchaseRequest('craft',{i});
   const e = enhOf(W.from);                        // 넣은 총의 강화 단계를 새 총이 물려받는다
   KIT.ownW[W.from] = false; KIT.enh[W.from] = 0;
   KIT.ownW[i] = true; KIT.enh[i] = e;
@@ -22549,26 +22572,26 @@ function noteRecipes(i){
   toast(`📜 대장장이: 새 조합표! ${names} — 🔨 대장간에서 만들 수 있어요`, 4.0, '#ffe9a0');
   feed(`📜 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b> 님에게 새 조합표 — <b>${names}</b>`);
 }
-function buyArmor(i){
+function buyArmor(i, approved=false){
   const A = ARMORS[i];
-  if(KIT.ownA[i] || !canPay(A.cost)) return;
-  spend(A.cost); KIT.ownA[i] = true; equipArmor(i);
+  if(!A || !A.cost || KIT.ownA[i] || (!approved && !canPay(A.cost))) return;
+  if(!approved) return purchaseRequest('armor',{i}); KIT.ownA[i] = true; equipArmor(i);
   toast(`${A.ic} ${A.n}${josa(A.n,'을','를')} 입었어요!`, 2.4, '#c8ffb0');
   if(window.__sfx){ window.__sfx('buy'); window.__sfx('equip'); }
   buildShopUI();
 }
 
-function buyAmmo(g){
+function buyAmmo(g, approved=false){
   const cost = {w:0,s:0,g};
-  if(!canPay(cost)) return;
-  spend(cost); KIT.ammo += g*AMMO_PER_GOLD;
+  if(!Number.isInteger(g) || g<=0 || (!approved && !canPay(cost))) return;
+  if(!approved) return purchaseRequest('ammo',{gld:g}); KIT.ammo += g*AMMO_PER_GOLD;
   toast(`🔸 총알 ${g*AMMO_PER_GOLD}발!`, 1.8, '#ffe08a'); if(window.__sfx){ window.__sfx('buy'); window.__sfx('g68reload'); }   // 68차 — 탄알을 채우는 철컥
   hudPrev.kit = ''; buildShopUI();
 }
-function buyPotion(i){
+function buyPotion(i, approved=false){
   const P = POTIONS[i];
-  if(!canPay(P.cost)) return;
-  spend(P.cost); KIT.pot[i]++;
+  if(!P || (!approved && !canPay(P.cost))) return;
+  if(!approved) return purchaseRequest('potion',{i}); KIT.pot[i]++;
   toast(`${P.ic} ${P.n}${josa(P.n,'을','를')} 샀어요 — ${i+6} 키를 누르면 마셔요`, 2.4, '#c8ffb0'); if(window.__sfx) window.__sfx('buy');
   hudPrev.kit = ''; buildShopUI();
 }
@@ -22997,14 +23020,16 @@ function killPraise(w){
    무기도 크리티컬도 그 아이 것이라, 호스트가 다시 굴리면
    아이 화면에 뜬 노란 숫자와 실제로 깎인 피가 서로 달라진다.
    옛 버전 손님이 dmg 없이 보내면 맨손 돌로 친다. */
-function hostStoneHit(wid, n, byName, byG, dmg, fx){
+function hostStoneHit(wid, n, byName, byG, dmg, fx, byUid, bonusMul=1){
   const w = G.wolves.find(o=>o.id===wid);
   if(!w || w.hp <= 0) return;
   w.hp -= (dmg > 0 ? dmg : stoneDmg()) * n; w.hurt = 0.18;
   /* 29차 밀치기(흑요석 산탄총) — 쏜 방향으로 1.2칸. 보스는 안 밀린다
      67차 — 성벽 위 좀비(cs ≥ 2)도 xz 는 안 민다(자리는 늘 1차원 좌표에서 다시 만든다 — 벽 속·허공으로 밀려 나가지 않게). 피해·움찔은 그대로 */
   if(fx && fx.push && w.hp > 0 && !(w.bi >= 0 || isBoss(w.k)) && !(w.cs >= 2)) zStep(w, (+fx.push[0]||0)*1.2, (+fx.push[1]||0)*1.2);   // 70차 2회차 고침 — 벽·계단 흉벽 앞에서 멈춘다(0.4 토막·zMoveOk). 처음 판은 좌표를 바로 더해 흉벽 속 0.45 에 박힌 채 계단 디딤 위에 떴다
-  if(w.hp <= 0){ w.byName = byName; w.byG = byG; }
+  if(w.hp <= 0){ w.byName = byName; w.byG = byG;
+    if(byUid) confirmKill(byUid, XP_KILL * bonusMul, w);
+  }
 }
 
 /* ═══════════ 사람이 물린다 ═══════════
@@ -24637,15 +24662,14 @@ const DEL_SEC = 3;
 const TOK_GAP = 0.42;                 // 망치를 한 번 내리치는 간격(초)
 let work = null;                      // {kind:'build'|'up'|'repair', t,X,Z | o, prog, tok}
 /* ═══════════ 농장 일 — 먹이 · 청소 · 거두기 ═══════════ */
-function farmFeed(g){
+function farmFeed(g, approved=false){
   const f = G.farm[g], n = farmCount(f);
   if(!n){ toast('🐔 아직 동물이 없어요 — 번호판에서 사세요', 1.8, '#ffd0a0'); return; }
-  if(f.fed === G.day){ toast('🌾 오늘은 벌써 먹였어요', 1.2, '#c8ffb0'); return; }
+  if(!approved && f.fed === G.day){ toast('🌾 오늘은 벌써 먹였어요', 1.2, '#c8ffb0'); return; }
   const need = n * FARM_FEED, r = myRes();
-  if(r.w < need){ toast(`🪵 나무가 ${need} 필요해요`, 1.6, '#ffbdbd'); return; }
-  spend({w:need, s:0, g:0});
-  f.fed = G.day; f.hun = 0;
-  netFarm(); xpGain(XP_FEED);
+  if(!approved && r.w < need){ toast(`🪵 나무가 ${need} 필요해요`, 1.6, '#ffbdbd'); return; }
+  if(!approved) return purchaseRequest('feed',{farmG:g});
+  xpGain(XP_FEED);
   const [x,z] = farmSpotXZ(g,'feed');
   burst(x, GY+1.0, z, 0xf0dc9a, 14, 1.4);
   toast(`🌾 배불리 먹었어요! (🪵${need})`, 1.6, '#c8ffb0');
@@ -24653,11 +24677,11 @@ function farmFeed(g){
   feed(`🌾 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
      + `<b style="color:${GCOL[g]}">${g+1}모둠</b> 농장에 먹이를 줬어요`);
 }
-function farmClean(g){
+function farmClean(g, approved=false){
   const f = G.farm[g];
-  if((f.dirt||0) < 0.05){ toast('🧹 이미 깨끗해요', 1.2, '#c8ffb0'); return; }
-  f.dirt = 0;
-  netFarm(); xpGain(XP_CLEAN);
+  if(!approved && (f.dirt||0) < 0.05){ toast('🧹 이미 깨끗해요', 1.2, '#c8ffb0'); return; }
+  if(!approved) return purchaseRequest('clean',{farmG:g});
+  xpGain(XP_CLEAN);
   const [x,z] = farmSpotXZ(g,'clean');
   burst(x, GY+0.8, z, 0xbfe8ff, 18, 1.6);
   burst(x, GY+1.4, z, 0xffffff, 10, 1.9);
@@ -28444,6 +28468,199 @@ const uid = (()=>{
   return v;
 })();
 
+/* 73차 — 한 방 안에서만 복구한다. 새 수업은 sid가 달라 처음부터 시작한다.
+   매 프레임 저장하지 않는다. 1초/장비 결제 직후/pagehide에 작은 로컬 장부 한 개만 쓴다. */
+let checkpointWait=0, checkpointActive='', joinPC=null;
+let marketSeq=0, marketApplied=0, marketPending=null;
+const marketReceipts=new Map(), marketWaiting=new Map();
+let hitSeq=0, combatXPSeen=0;
+const hitQueue=[], combatTotals=new Map();
+function checkpointKey(){ return G.room && G.sid ? 'sheepSave:'+G.room+':'+uid : ''; }
+function checkpointSave(){
+  const key=checkpointKey(); if(!G.started || !key || checkpointActive!==key) return;
+  syncMyPC();
+  const savedKit=miniBack ? {...KIT,wpn:miniBack.wpn,ammo:miniBack.ammo} : KIT;
+  const v={v:1,sid:G.sid,g:G.me.g,kit:savedKit,xp:{lv:XP.lv,xp:XP.xp,pts:XP.pts,st:XP.st,job:XP.job,jt:XP.jt},
+    my:MY,pc:myPC,hp:PL.hp,down:PL.down,seq:marketSeq,applied:marketApplied,pending:marketPending,hitSeq,combatXPSeen};
+  LS.set(key,JSON.stringify(v));
+}
+function checkpointTick(dt){ checkpointWait-=dt; if(checkpointWait<=0){ checkpointWait=1; checkpointSave(); } }
+function checkpointRestore(){
+  checkpointActive=checkpointKey(); if(!checkpointActive) return false;
+  let v; try{ v=JSON.parse(LS.get(checkpointActive,'null')); }catch(e){ return false; }
+  if(!v || v.v!==1 || v.sid!==G.sid || v.g!==G.me.g || !v.kit || !v.xp || !v.pc || !v.my) return false;
+  const finite=n=>typeof n==='number' && Number.isFinite(n);
+  if(!finite(v.xp.lv) || v.xp.lv<1 || v.xp.lv>LV_MAX || !Array.isArray(v.xp.st) || v.xp.st.length!==4 ||
+     !v.xp.st.every(n=>finite(n)&&n>=0&&n<=12) || !finite(v.kit.ammo) || v.kit.ammo<0 ||
+     !['ownW','ownA','enh','pot','mag'].every(k=>Array.isArray(v.kit[k]))) return false;
+  if(!['xp','pts','job','jt'].every(k=>finite(v.xp[k])) || v.xp.xp<0 || v.xp.pts<0 ||
+     !Number.isInteger(v.xp.lv) || !Number.isInteger(v.xp.job) || v.xp.job < -1 || v.xp.job>2 ||
+     !Number.isInteger(v.xp.jt) || v.xp.jt<0 || v.xp.jt>2 ||
+     v.kit.ownW.length>WEAPONS.length || v.kit.ownA.length>ARMORS.length ||
+     !v.kit.ownW.every(n=>n==null || typeof n==='boolean') || !v.kit.ownA.every(n=>n==null || typeof n==='boolean') ||
+     v.kit.enh.length>WEAPONS.length || !v.kit.enh.every(n=>n==null || Number.isInteger(n)&&n>=0&&n<=ENH_MAX) ||
+     !Number.isInteger(v.kit.wpn) || !v.kit.ownW[v.kit.wpn] || !Number.isInteger(v.kit.arm) || !v.kit.ownA[v.kit.arm] ||
+     v.kit.pot.length!==POTIONS.length || !v.kit.pot.every(n=>Number.isSafeInteger(n)&&n>=0) ||
+     v.kit.mag.length>WEAPONS.length || !v.kit.mag.every(n=>n==null || Number.isSafeInteger(n)&&n>=0) ||
+     !['bSpd','bAtk','bDef'].every(k=>finite(v.kit[k])&&v.kit[k]>=0)) return false;
+  for(const k of Object.keys(KIT)) if(v.kit[k]!==undefined) KIT[k]=v.kit[k];
+  for(const k of ['lv','xp','pts','st','job','jt']) XP[k]=v.xp[k];
+  for(const k of Object.keys(MY)) MY[k]=Math.max(0,+v.my[k]||0);
+  myPC={...myPC,...v.pc,g:G.me.g}; pcMap.set(uid,myPC);
+  PL.hp=Math.max(0,Math.min(maxHP(),+v.hp||0)); PL.down=!!v.down;
+  marketSeq=Math.max(0,+v.seq||0); marketApplied=Math.max(0,+v.applied||0);
+  marketPending=v.pending && v.pending.sid===G.sid ? v.pending : null;
+  hitSeq=Math.max(0,+v.hitSeq||0); combatXPSeen=Math.max(0,+v.combatXPSeen||0);
+  hudPrev.kit='';hudPrev.xp='';netPCDirty=true; return true;
+}
+function sessionFresh(){
+  marketPending=null; marketApplied=marketSeq=0; marketReceipts.clear();marketWaiting.clear();
+  hitQueue.length=0;hitSeq=0;combatXPSeen=0;combatTotals.clear();
+  checkpointActive=checkpointKey();checkpointWait=1;
+}
+addEventListener('pagehide',()=>checkpointSave());
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) checkpointSave(); });
+
+/* 명중을 최신 표적 하나로 뭉치지 않는다. 기존 6Hz 위치 통로에 작은 미확인 목록만 싣고
+   7Hz sim의 누적 확인으로 지운다. 여러 아이의 막타는 호스트에서 한 번만 확정된다. */
+function queueHit(wid,dmg,mul=0,push=null){
+  hitSeq=Math.max(hitSeq+1,Date.now()*10);
+  hitQueue.push([hitSeq,wid,dmg,mul,push,G.day]);
+}
+function confirmKill(id,amount,w){
+  if(id===uid){ xpGain(amount); return; }
+  const v=combatTotals.get(id)||[0,0];v[1]+=amount;combatTotals.set(id,v);
+}
+function acceptCombat(v){
+  if(!Array.isArray(v)) return;
+  while(hitQueue.length && hitQueue[0][0]<=v[0]) hitQueue.shift();
+  const total=+v[1]||0;
+  if(total>combatXPSeen){ const bonus=total-combatXPSeen; combatXPSeen=total; xpGain(bonus);
+    hitMark(2); if(window.__sfx)window.__sfx('kill'); checkpointSave(); }
+}
+function hostHits(id,d){
+  if(!Array.isArray(d.hq)) return;
+  const total=combatTotals.get(id)||[0,0];combatTotals.set(id,total);
+  for(const h of d.hq){
+    if(!Array.isArray(h) || !Number.isSafeInteger(h[0]) || h[0]<=total[0]) continue;
+    total[0]=h[0];
+    if(h[5]!==G.day || G.phase!=='night' || G.paused || !(h[2]>0) || !Number.isFinite(h[2])) continue;
+    hostStoneHit(h[1],1,d.n||'친구',d.g|0,h[2],h[4]?{push:h[4]}:null,h[3]>0?id:null,Math.min(3,Math.max(1,+h[3]||1)));
+  }
+}
+
+/* 상점/조합/강화/교환/농장: 건축과 같은 호스트 장부(base)에서 순서대로 결제한다.
+   승인 전 물건은 주지 않는다. 요청 번호 + 판 번호 + 남겨 둔 영수증으로 재전송도 한 번만 결제한다.
+   한 아이는 미확인 결제 하나만 가진다. 원격 호출은 구매할 때만, 위치 전송 빈도는 그대로다. */
+function purchaseRequest(kind,args={}){
+  if(marketPending){ toast('앞서 누른 구매를 확인하고 있어요',1.5);return; }
+  marketSeq=Math.max(marketSeq+1,Date.now());
+  const c={kind,...args,seq:marketSeq,sid:G.sid||0,g:G.me.g,lv:XP.lv};
+  if(kind==='enhance') c.e=enhOf(c.i);
+  marketPending=c;checkpointSave();
+  if(G.host || !net){ hostPurchase(uid,c); }
+  else net.child('purchaseCmd/'+uid).set(c).catch(()=>toast('연결을 기다리고 있어요. 구매는 한 번만 처리돼요',2));
+}
+function purchaseOffer(c){
+  const i=c.i,W=WEAPONS[i];
+  if(c.kind==='weapon' && W && W.cost && !W.tier && !W.mini && c.lv>=wpnLv(i)) return {cost:W.cost};
+  if(c.kind==='craft' && W && W.tier && c.lv>=wpnLv(i)) return {cost:W.mat};
+  if(c.kind==='armor' && ARMORS[i] && ARMORS[i].cost) return {cost:ARMORS[i].cost};
+  if(c.kind==='ammo' && Number.isInteger(c.gld) && c.gld>0 && c.gld<=1000) return {cost:{g:c.gld}};
+  if(c.kind==='potion' && POTIONS[i]) return {cost:POTIONS[i].cost};
+  if(c.kind==='enhance' && W && Number.isInteger(c.e) && c.e>=0 && c.e<ENH_MAX){
+    const cost=enhCost(i,c.e); if(!cost) return null;
+    const ok=Math.random()<ENH_ODDS[c.e], drop=!ok && c.e+1>ENH_SAFE && c.e>0 && Math.random()<ENH_DROP;
+    return {cost,ok,level:ok?c.e+1:drop?c.e-1:c.e};
+  }
+  if(c.kind==='trade' && ['w','s','g'].includes(c.from) && ['w','s','g'].includes(c.to) && c.from!==c.to && TRADE_MULS.includes(c.mul))
+    return {cost:{[c.from]:tradeGive(c.from,c.mul)},gain:{[c.to]:tradeGet(c.from,c.to,c.mul)}};
+  if(c.kind==='sell'){
+    const cost={},gain={g:0};for(const A of FARM_ANIMALS){ if(c.res && c.res!==A.res)continue;
+      const n=G.res[c.g][A.res]|0;if(n>0){cost[A.res]=n;gain.g+=n*A.gold;} }
+    return gain.g>0?{cost,gain}:null;
+  }
+  if(c.kind==='animal'){
+    const A=FARM_ANIMALS.find(a=>a.k===c.animal),f=G.farm[c.g];
+    return A && f && farmCount(f)<FARM_CAP ? {cost:A.cost,farm:{...f,[A.k]:(f[A.k]|0)+1},farmG:c.g}:null;
+  }
+  if(c.kind==='clean'){const f=G.farm[c.farmG];return f && (f.dirt||0)>=0.05 ? {cost:{},farm:{...f,dirt:0},farmG:c.farmG}:null;}
+  if(c.kind==='feed'){
+    const f=G.farm[c.farmG],n=f&&farmCount(f);
+    return n && f.fed!==G.day ? {cost:{w:n*FARM_FEED},farm:{...f,fed:G.day,hun:0},farmG:c.farmG}:null;
+  }
+  return null;
+}
+function retryPurchase(id){
+  const c=marketWaiting.get(id);if(G.host && c){marketWaiting.delete(id);hostPurchase(id,c);}
+}
+function hostPurchase(id,c){
+  if(!c || !Number.isSafeInteger(c.seq) || c.sid!==(G.sid||0)) return;
+  const prev=marketReceipts.get(id);
+  if(prev && prev.sid===c.sid && c.seq<=prev.seq){ if(id===uid)acceptPurchase(prev);return; }
+  const actor=id===uid?G.me:pcMap.get(id)||G.players.get(id);
+  // 첫 접속의 구매 요청이 p/pc보다 먼저 도착해도 장부가 도착하면 한 번 처리한다.
+  if(!actor){marketWaiting.set(id,c);return;}
+  const offer=(actor.g|0)===c.g && G.res[c.g] ? purchaseOffer(c) : null,
+    valid=offer && offer.cost && RES_KEYS.every(k=>Number.isFinite(offer.cost[k]||0)&&(offer.cost[k]||0)>=0),
+    ok=!!(valid && !G.paused && ['day','night'].includes(G.phase) && RES_KEYS.every(k=>(G.res[c.g][k]||0)>=(offer.cost[k]||0)));
+  const r={...c,ok,offer:ok?offer:null};marketReceipts.set(id,r);
+  if(ok){
+    for(const k of RES_KEYS) base[c.g][RES_PC[k]]=(base[c.g][RES_PC[k]]||0)-(offer.cost[k]||0)+(offer.gain?.[k]||0);
+    if(offer.farm){ G.farm[offer.farmG]=offer.farm;farmDirty=true; }
+    recomputeRes();
+  }
+  if(net){ const update={base,['purchaseReply/'+id]:r,['purchaseCmd/'+id]:null};
+    if(ok&&offer.farm)update['farm/'+offer.farmG]=offer.farm;
+    net.update(update);
+  }
+  if(id===uid)acceptPurchase(r);
+}
+function acceptPurchase(r){
+  if(!r || r.sid!==(G.sid||0) || !marketPending || r.seq!==marketPending.seq || r.seq<=marketApplied) return;
+  if(r.ok){
+    const i=r.i,o=r.offer;
+    if(o.farm){G.farm[o.farmG]=o.farm;farmDirty=true;}
+    if(r.kind==='weapon')buyWeapon(i,true);
+    else if(r.kind==='craft')craftWeapon(i,true);
+    else if(r.kind==='armor')buyArmor(i,true);
+    else if(r.kind==='ammo')buyAmmo(r.gld,true);
+    else if(r.kind==='potion')buyPotion(i,true);
+    else if(r.kind==='enhance')KIT.enh[i]=o.level;
+    else if(r.kind==='feed')farmFeed(r.farmG,true);
+    else if(r.kind==='clean')farmClean(r.farmG,true);
+    else if(r.kind==='animal')buyAnimal(r.animal,true);
+    marketApplied=r.seq;marketPending=null;netPCDirty=true;hudPrev.kit='';checkpointSave();
+    if(r.kind==='enhance'){
+      enhBusy=true;buildForgeUI();const sid=G.sid;
+      const finish=()=>{ if(G.sid!==sid)return;enhBusy=false;enhResult(i,WEAPONS[i],r.e,o.ok,o.level); };
+      if(r.quick)finish();else{ toast('🔨 강화하는 중…',1.15,'#ffe9a0');
+        [0,350,700].forEach(t=>setTimeout(()=>{if(G.sid===sid){if(window.__sfx)window.__sfx('enhHit');enhSparkFx(i,r.e+1);}},t));setTimeout(finish,1100); }
+    } else if(r.kind==='trade'){
+      const give=o.cost[r.from],get=o.gain[r.to];
+      toast(`🔄 ${RES_IC[r.from]}${give} → ${RES_IC[r.to]}${get} 바꿨어요!`,2,'#ffe066');
+      if(window.__sfx)window.__sfx('buy');
+      feed(`🔄 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
+        + `${RES_IC[r.from]}${give}${josaNum(give,'을','를')} ${RES_IC[r.to]}${get}${josaNum(get,'으로','로',true)} 바꿨어요`);
+    } else if(r.kind==='sell'){
+      const count=Object.values(o.cost).reduce((a,b)=>a+b,0),gold=o.gain.g;
+      toast(`✨ ${count}개를 바꿔 금 ${gold}을 받았어요!`,2.4,'#ffe066');
+      if(window.__sfx)window.__sfx('sell');
+      feed(`🧺 <b style="color:${GCOL[G.me.g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} 농장 산물을 바꿔 <b>✨${gold}</b>을 벌었어요`);
+    }
+  } else {marketApplied=r.seq;marketPending=null;checkpointSave();toast('친구가 먼저 자원을 사용했거나 조건이 바뀌었어요. 지갑을 확인해 주세요',3,'#ffd0a0');}
+  shopUiSig='';shopUiResync();if(el('popKit').classList.contains('on'))buildKitUI();
+}
+function bindPurchaseNetwork(){
+  net.child('purchaseReply/'+uid).on('value',s=>acceptPurchase(s.val()));
+  if(marketPending)net.child('purchaseCmd/'+uid).set(marketPending);
+  if(!G.host)return;
+  net.child('purchaseReply').once('value').then(s=>{
+    for(const [id,r] of Object.entries(s.val()||{}))if(r.sid===G.sid)marketReceipts.set(id,r);
+    const take=s=>hostPurchase(s.key,s.val());net.child('purchaseCmd').on('child_added',take);net.child('purchaseCmd').on('child_changed',take);
+  });
+}
+
 function netMeta(){
   if(!net || !G.host) return;
   net.child('meta').set({ph:G.phase, day:G.day, t:Math.round(G.t*10)/10, focus:G.focus, nk:G.nk,
@@ -28474,7 +28691,7 @@ function netBuildHp(o){ if(!net) return; net.child('b/'+o.id+'/hp').set(Math.rou
    선생님 화면·결과표·오늘의 임무가 다 이 숫자를 읽기 때문이다.
    예전엔 이게 netPC 안에 있어서, 혼자 할 때는 캔 자원이 0으로 남았다. */
 function syncMyPC(){
-  myPC.g = G.me.g; myPC.n = G.me.name; myPC.mined = MY.mined; myPC.built = MY.built;
+  myPC.sid = G.sid||0; myPC.g = G.me.g; myPC.n = G.me.name; myPC.mined = MY.mined; myPC.built = MY.built;
   myPC.hits = MY.hits; myPC.saved = MY.saved; myPC.helped = MY.helped; myPC.fixed = MY.fixed;
   myPC.rsc = MY.rescue;                  // 살린 횟수 — 친구들은 이 숫자가 는 걸 보고 알아챈다
   /* ★ 거둔 개수 — 농장을 챙긴 아이의 이름이 '으뜸' 판에 남는 자리다.
@@ -28497,11 +28714,10 @@ function netPC(){ syncMyPC(); if(!net) return;
 
 function packSim(){
   const w = [];
-  /* 일곱째 칸은 mv 비트다(16차엔 위 비트에 뛰는 좀비의 뜬 높이를 실었는데 36차에 그 좀비를 뺐다 — 칸 수는 그대로라 옛 판과 서로 읽힌다)
-     67차 — 둘째 비트 = 성곽 층(ly). 옛 손님은 `& 1` 로 읽어 층을 버린다(그림만 땅) · 새 손님이 옛 호스트를 받으면 ly 0. **칸 수 7 그대로**.
-     병사 칸(8개)에는 싣지 않는다 — 옛 손님이 `!!mv` 로 읽는다 */
+  /* 73차 v2: 좀비마다 8칸. 체력은 백분율 대신 실제 값이며 마지막 칸은 최대 체력이다.
+     일곱째 칸의 bit 0=이동, bit 1=성곽 층(ly). 병사의 기존 8칸 형식은 그대로다. */
   for(const o of G.wolves) w.push(o.id, o.k, Math.round(o.x*8), Math.round(o.z*8),
-    Math.round(o.ry*100), Math.round(o.hp/o.mx*100), (o.mv?1:0) | (o.ly?2:0));
+    Math.round(o.ry*100), Math.max(0, Math.round(o.hp)), (o.mv?1:0) | (o.ly?2:0), Math.round(o.mx));
   const s = [];
   /* ★ 예전엔 종류(k)를 안 보내서 손님 화면에는 전부 창병으로 보였다.
      등급(lv)도 같이 보내야 갑옷·깃털이 배럭 등급을 따라간다. */
@@ -28513,7 +28729,7 @@ function packSim(){
   /* 숫자 배열을 문자열 하나로 묶어 보내 봤다(칸 206개 -> 3개).
      크롬북 짝비교에서 차이가 없어 되돌린다. Firebase 비용은 칸 수가 아니라
      .set() 을 부르는 횟수 자체에 붙는 모양이다. 근거 없는 복잡함은 남기지 않는다. */
-  return {w, s, c:Math.round(G.crystal*10)};
+  return {v:2, w, s, c:Math.round(G.crystal*10), hit:Object.fromEntries(combatTotals)};
 }
 /* 66차 — 손님 화면: 수정 체력은 숫자로만 온다. 받은 값이 앞 값보다 내려가면 좀비가 문 것(회복은 올리기만 한다) —
    선생님 화면과 같은 유리 '팅'(같은 0.7초 간격)과 붉은 번쩍임. 처음 받은 값(밤 중간에 들어옴)은 비교하지 않는다 */
@@ -28529,33 +28745,35 @@ function cryGuestWatch(){
 function applySim(d){
   if(!d) return;
   G.crystal = (d.c||0)/10; cryGuestWatch();
+  if(d.hit) acceptCombat(d.hit[uid]);
   const seen = new Set();
-  /* w·s 는 이제 쉼표로 이은 문자열이다. 옛 버전이 보낸 숫자 배열도 그대로 읽는다 —
-     선생님 화면만 먼저 새로 고쳐지고 애들 화면은 아직 옛 것인 순간이 있을 수 있다.
-     빈 문자열을 split 하면 [''] 가 되어 한 바퀴 헛돌므로 따로 걸러 준다. */
+  /* v2의 w는 실제 체력·최대 체력이 든 8칸 숫자 배열이다.
+     기록된 옛 7칸 배열/문자열도 읽지만, 방 입장은 같은 GAME_VER만 허용한다. */
   const arr = typeof d.w === 'string' ? (d.w ? d.w.split(',') : []) : (d.w||[]);
-  for(let i=0;i<arr.length;i+=7){
+  const stride = d.v === 2 ? 8 : 7, byId = new Map(G.wolves.map(o=>[o.id,o]));
+  for(let i=0;i<arr.length;i+=stride){
     const id=+arr[i], k=+arr[i+1], x=arr[i+2]/8, z=arr[i+3]/8, ry=arr[i+4]/100,
           hp=+arr[i+5], mv = (+arr[i+6]) & 1, ly = ((+arr[i+6]) >> 1) & 1;   // 67차 — 윗비트 = 성곽 층
     seen.add(id);
-    let w = G.wolves.find(o=>o.id===id);
-    if(!w){ w = {id,k,x,z,y:GY,ry,hp:hp,mx:100,mv:!!mv,ph:Math.random()*6,hurt:0,tx:x,tz:z,ly};
+    const mx = stride === 8 ? Math.max(1,+arr[i+7]||1) : 100;
+    let w = byId.get(id);
+    if(!w){ w = {id,k,x,z,y:GY,ry,hp:hp,mx,mv:!!mv,ph:Math.random()*6,hurt:0,tx:x,tz:z,ly};
       if(isBoss(k)){ const B = WOLF_T[k]; w.sc = B.sc; w.col = B.col; w.bi = B.boss-1;
         burst(x, GY+3, z, 0x9a83bf, 24, 2.2); }   // 66차 — 자막·땅울림·흔들림은 fx2Boss(호스트와 같은 코드)
       G.wolves.push(w); zombieRiseAt(w); }
     w.tx = x; w.tz = z; w.ry = ry; w.k = k; w.mv = !!mv; w.ly = ly;
     if(hp < w.hp) w.hurt = 0.18;
-    w.hp = hp;
+    w.hp = hp; w.mx = mx; w.hpExact = stride === 8;
   }
   for(let i=G.wolves.length-1;i>=0;i--) if(!seen.has(G.wolves[i].id)){
     const w = G.wolves[i]; burst(w.x, (w.y||GY)+0.9, w.z, 0xb3aac4, 6, 1.1); wolfCorpse(w); G.wolves.splice(i,1); }   // 손님 화면도 보랏빛 먼지로 사라진다(67차 — 성벽 위면 그 높이에서)
   const sa = typeof d.s === 'string' ? (d.s ? d.s.split(',') : []) : (d.s||[]);
-  const ss = new Set();
+  const ss = new Set(), soldiersById = new Map(G.soldiers.map(o=>[o.id,o]));
   for(let i=0;i<sa.length;i+=8){
     const id=+sa[i], k=+sa[i+1], x=sa[i+2]/8, z=sa[i+3]/8, ry=sa[i+4]/100,
           mv=+sa[i+5], lv=+sa[i+6], g=+sa[i+7];
     ss.add(id);
-    let s = G.soldiers.find(o=>o.id===id);
+    let s = soldiersById.get(id);
     if(!s){ s={id,k,x,z,y:GY,ry,mv:!!mv,ph:Math.random()*6,tx:x,tz:z,lv,g}; G.soldiers.push(s); }
     s.tx=x; s.tz=z; s.ry=ry; s.mv=!!mv; s.k=k; s.lv=lv; s.g=g;
   }
@@ -28572,7 +28790,7 @@ function lerpMobs(dt){
 
 function joinRoom(code, asHost){
   net = fb.ref(DB_ROOT+'/'+code); G.room = code; G.host = asHost;
-  myRef = net.child('p/'+uid);
+  myRef = net.child('p/'+uid);lastPosSig=lastSimSig='';netIdleT=simIdleT=0;
   myRef.onDisconnect().remove();
 
   net.child('meta').on('value', s=>{
@@ -28583,11 +28801,15 @@ function joinRoom(code, asHost){
     const wasMini = G.phase === 'mini';
     G.phase = m.ph; G.day = m.day; G.t = m.t; G.focus = m.focus||0; G.nk = (m.nk === undefined ? -1 : m.nk);   // 36차 — 오늘 밤 구성
     if(!G.host){
-      if(G.phase === 'mini' && !wasMini) miniEnter();
+      if(G.phase === 'mini' && !wasMini && G.mini) miniEnter();
       else if(G.phase !== 'mini' && wasMini){ G.mini = null; miniLeave(); }
     }
     if(m.crystal!==undefined){ G.crystal = m.crystal; cryGuestWatch(); }
     G.mis = m.mis|0; G.misD = m.misD|0;
+    if(m.sid && G.sid && m.sid!==G.sid && G.started){
+      G.sid=m.sid;kitReset();xpReset();myReset();myPC={g:G.me.g,n:G.me.name};pcMap.set(uid,myPC);
+      sessionFresh();PL.hp=maxHP();PL.down=false;setAimMode(false,true);placePlayer();netPCDirty=true;
+    }
     if(m.sid) G.sid = m.sid;                                           // 67차 — 판 번호(보물 장부 열쇠)
     treVersion(m.v);                                                   // 67차 — 판이 다르면 한 번 크게
     if(m.dg !== undefined){ const was = G.danger; G.danger = m.dg|0; if(G.danger >= 0 && G.danger !== was) treDangerRun(G.danger); }
@@ -28597,7 +28819,8 @@ function joinRoom(code, asHost){
   net.child('sim').on('value', s=>{ if(!G.host) applySim(s.val()); });
   /* 미니게임 — 단계·문제·순위. 호스트가 쓰고 모두가 읽는다 */
   net.child('mini').on('value', s=>{ if(G.host) return; const v = s.val();
-    if(v && !v.pl) G.mini = v; else if(v){ const {pl, ...rest} = v; G.mini = rest; } });
+    if(v && !v.pl) G.mini = v; else if(v){ const {pl, ...rest} = v; G.mini = rest; }
+    if(G.phase==='mini' && G.mini && !miniBack)miniEnter(); });
   /* 내가 맞았다 — 쏜 아이마다 제 칸(mini/hit/<나>/<쏜아이>)에 적는다.
      ★ 예전엔 칸이 하나여서 두 명이 동시에 쏘면 한 발만 들어갔다. 이제 칸이 따로라
        한 번에 여러 명이 쏴도 여기서 전부 훑어 하나씩 다 맞는다.
@@ -28626,21 +28849,13 @@ function joinRoom(code, asHost){
   net.child('farm').on('value', s=>{ const v = s.val();
     if(v) for(let i=0;i<NG;i++) if(v[i]) G.farm[i] = v[i];
     farmDirty = true; });
-  net.child('pc').on('value', s=>{
-    const v = s.val()||{};
-    /* ★ 17차b — 친구가 벽을 '살렸다' 는 소식.
-       새 통로를 파지 않고, 이미 오는 rsc(살린 횟수)가 늘어난 것만 보고 알린다.
-       ★ 처음 들어온 친구(prev 없음)는 안 알린다 — 안 그러면 들어오자마자
-         그 아이가 여태 살린 횟수만큼 소식이 쏟아진다. */
-    for(const k in v){
-      if(k===uid) continue;
-      const prev = pcMap.get(k), now = v[k];
-      if(prev && now && (now.rsc|0) > (prev.rsc|0) && now.n) rescueSay(now);
-    }
-    pcMap.clear();
-    for(const k in v){ if(k===uid) continue; pcMap.set(k, v[k]); }
-    pcMap.set(uid, myPC);
-    recomputeRes(); });
+  const pcChanged=s=>{
+    const k=s.key,now=s.val();if(!now || k===uid)return;
+    const prev=pcMap.get(k);if(prev && (now.rsc|0)>(prev.rsc|0) && now.n)rescueSay(now);
+    pcMap.set(k,now);recomputeRes();retryPurchase(k);
+  };
+  net.child('pc').on('child_added',pcChanged);net.child('pc').on('child_changed',pcChanged);
+  net.child('pc').on('child_removed',s=>{ if(s.key!==uid)pcMap.delete(s.key);recomputeRes(); });
   net.child('nd').on('value', s=>{
     const v = s.val()||{};
     for(const k in v){ const n = NODES[+k]; if(!n) continue;
@@ -28654,11 +28869,8 @@ function joinRoom(code, asHost){
   net.child('b').on('child_changed',s=>applyNetworkBuilding(s.key,s.val()));
   net.child('b').on('child_removed',s=>{if(STRU.has(s.key))delStru(s.key);});
 
-  net.child('p').on('value', s=>{
-    const v = s.val()||{}; const keep = new Set();
-    for(const k in v){ if(k===uid) continue;
-      const d = v[k]; if(!d || d.x===undefined) continue;   /* ★ v 는 묶음, 실제 값은 v[k] */
-      keep.add(k);
+  const playerChanged=s=>{
+    const k=s.key,d=s.val();if(k===uid || !d || d.x===undefined)return;
       const p = G.players.get(k) || {x:d.x,z:d.z,y:d.y,ph:Math.random()*6};
       p.uid = k;                       // 든 무기를 pc 통로에서 찾아오려면 열쇠가 필요하다
       p.tx=d.x; p.tz=d.z; p.ty=d.y; if(p.y === undefined) p.y = d.y; p.ry=d.r||0; p.g=d.g|0; p.n=d.n; p.mv=!!d.m; p.tcN = d.tc;   // 67차 — y 도 보간(나선에서 덜컥거리지 않게, 통신 칸 0) · 70차 총 다루기 — 맞힌 횟수(이미 오는 칸) — 친구 쏘기·재장전 그림 추정(friendGun)
@@ -28668,7 +28880,8 @@ function joinRoom(code, asHost){
       p.ex = d.ex|0;                   // 67차 — 🗝️ 성곽 탐험가
       /* ★ 친구가 던진 돌 — 좀비 체력은 호스트만 들고 있으므로 여기서 처리한다.
          '몇 번 던졌나(tc)'의 차이만큼 피해를 준다. 통신은 한 번도 안 늘었다. */
-      if(G.host && d.tc !== undefined){
+      if(G.host && Array.isArray(d.hq)) hostHits(k,d);
+      if(G.host && d.hv!==2 && d.tc !== undefined){
         const prev = thSeen.get(k);
         if(prev !== undefined && d.tc !== prev){
           let n = (d.tc - prev) & 255;
@@ -28683,8 +28896,11 @@ function joinRoom(code, asHost){
       }
       if(p.x===undefined){p.x=d.x;p.z=d.z;}
       { const hl = d.dn === 2; if(hl && !p.help) specHeard(p); p.help = hl; }   // 66차 — 친구가 "일으켜 줘요" 를 누른 순간 한 번
-      G.players.set(k,p); }
-    for(const k of [...G.players.keys()]) if(!keep.has(k)) G.players.delete(k); });
+      G.players.set(k,p);retryPurchase(k);
+  };
+  net.child('p').on('child_added',playerChanged);net.child('p').on('child_changed',playerChanged);
+  net.child('p').on('child_removed',s=>G.players.delete(s.key));
+  bindPurchaseNetwork();
 
   if(asHost){
     net.child('meta').once('value', s=>{ if(!s.val()) { G.day=1; G.crystal=G.set.crystalMax; } });
@@ -28693,16 +28909,19 @@ function joinRoom(code, asHost){
 let netT = 0, pcT = 0, simT = 0, saySeen = -1, grabSeen = -1, pickSeen = '';
 const thSeen = new Map();   // uid -> 마지막으로 본 던진 횟수
 const thXSeen = new Map();  // uid -> 마지막으로 적용한 추가 명중 묶음 번호 (29차)
-function netTick(dt){
-  if(!net) return;
-  netT -= dt;
-  if(netT <= 0){ netT = DBG.slowNet ? 1/3 : 1/6;
-    myRef.set({n:G.me.name, g:G.me.g, x:+PL.x.toFixed(2), y:+PL.y.toFixed(2),
+function packPlayer(){ return {n:G.me.name, g:G.me.g, x:+PL.x.toFixed(2), y:+PL.y.toFixed(2),
       z:+PL.z.toFixed(2), r:+PL.yaw.toFixed(2), m:PL.mv?1:0,
       hp:PL.hp|0, dn:PL.down?(SPEC.helpT>0?2:1):0,   /* 66차 — 2 = 쓰러져서 "일으켜 줘요" 부르는 중(칸·횟수 그대로) */ tc:thrown, tt:thTgt, td:thDmg,
-      tf:thF, txs:thXs, tx:thX.length ? thX : null,             // 29차 — 밀치기 방향 · 추가 명중 목록
+      hv:2, hq:hitQueue.length ? hitQueue : null, tf:thF, txs:thXs, tx:thX.length ? thX : null,             // 29차 — 밀치기 방향 · 추가 명중 목록
       ht:G.me.hat|0, gl:G.me.gls|0, cl:G.me.clo|0, sk:G.me.skin|0,
-      ex:treExplorer()?1:0});                                    // 67차 — 🗝️ 성곽 탐험가(비밀 문 다섯 — 옛 판은 모르는 칸을 무시)
+      ex:treExplorer()?1:0}; }
+let netIdleT=0,simIdleT=0,lastPosSig='',lastSimSig='';
+function netTick(dt){
+  if(!net) return;
+  netIdleT+=dt;simIdleT+=dt;netT -= dt;
+  if(netT <= 0){ netT = DBG.slowNet ? 1/3 : 1/6;
+    const packet=packPlayer(),sig=JSON.stringify(packet);
+    if(sig!==lastPosSig || netIdleT>=2 || hitQueue.length){myRef.set(packet);lastPosSig=sig;netIdleT=0;}                                    // 67차 — 🗝️ 성곽 탐험가(비밀 문 다섯 — 옛 판은 모르는 칸을 무시)
     if(thX.length){ thX = []; thXs = (thXs + 1) & 255; } }
   pcT -= dt;
   if(pcT <= 0 && netPCDirty){ pcT = 0.9; netPC(); }
@@ -28712,7 +28931,8 @@ function netTick(dt){
        크롬북 실측: 시뮬·통신을 끄면 브라우저작업 15.23 -> 7.30ms (7.93ms 차이).
        포장 방식(칸 206 -> 3)은 차이가 없었으므로, 비용은 칸 수가 아니라
        .set() 호출 자체에 붙는다. 그래서 횟수를 줄여 보고 짝으로 잰다. */
-    if(simT <= 0){ simT = DBG.slowNet ? 1/3 : 1/7; net.child('sim').set(packSim()); }
+    if(simT <= 0){ simT = DBG.slowNet ? 1/3 : 1/7; const packet=packSim(),sig=JSON.stringify(packet);
+      if(sig!==lastSimSig || simIdleT>=2){net.child('sim').set(packet);lastSimSig=sig;simIdleT=0;} }
   }
 }
 let metaT = 0, misT = 0;
@@ -29424,9 +29644,15 @@ el('bJoin').onclick = ()=>{
   LS.set('sheepName', n);
   G.me = {name:n, g:pickG, uid, ...myDress()}; myPC.g = pickG;
   tmsg('들어가는 중…');
-  fb.ref(DB_ROOT+'/'+c+'/meta').once('value').then(s=>{
+  Promise.all([fb.ref(DB_ROOT+'/'+c+'/meta').once('value'),fb.ref(DB_ROOT+'/'+c+'/pc/'+uid).once('value')]).then(([s,own])=>{
     if(!s.val()){ tmsg('그런 방이 없어요. 코드를 다시 확인해 주세요.'); return; }
-    joinRoom(c, false); startGame();
+    const m=s.val();
+    if(m.v!==GAME_VER){tmsg('선생님과 게임 버전이 달라요. 모두 최신 파일을 열거나 새로고침한 뒤 새 방을 만들어 주세요.');return;}
+    G.room=c;G.host=false;G.sid=m.sid||0;G.phase=m.ph;G.day=m.day;G.t=m.t;
+    if(m.set)G.set=Object.assign(G.set,m.set);
+    joinPC=own.val();
+    if(joinPC?.sid===G.sid && Number.isInteger(joinPC.g) && joinPC.g>=0 && joinPC.g<NG){G.me.g=joinPC.g;myPC.g=joinPC.g;}
+    startGame();joinRoom(c, false);
   }).catch(e=>{ tmsg('연결 실패: '+e.message); });
 };
 el('bMake').onclick = ()=>{
@@ -29455,12 +29681,21 @@ function startGame(){
   placePlayer();
   xpReset();
   PL.hp = maxHP(); PL.down = false; PL.biteT = 0;
+  let restored=false;
+  if(!G.host){restored=checkpointRestore();
+    if(joinPC && (!joinPC.sid || joinPC.sid===G.sid)){
+      // Firebase's last committed counters may be ahead of the local snapshot.
+      for(const k of [...Object.values(RES_PC),...Object.values(RES_SPC)])myPC[k]=Math.max(myPC[k]||0,joinPC[k]||0);
+      for(const k of Object.keys(MY))MY[k]=Math.max(MY[k]||0,joinPC[k==='rescue'?'rsc':k]||0);
+      pcMap.set(uid,myPC);
+    }joinPC=null;recomputeRes();
+  }
   G.started = true; startedAt = tAcc;
   fitHint();
 
-  if(G.host) G.sid = Date.now();              // 67차 — 판 번호(방을 만든/혼자 놀기를 시작한 시각) — 보물 장부 열쇠 · meta sid
+  if(G.host){ G.sid = Date.now(); sessionFresh(); }              // 67차 — 판 번호(방을 만든/혼자 놀기를 시작한 시각) — 보물 장부 열쇠 · meta sid
   if(G.host){ G.day = 1; G.crystal = G.set.crystalMax; goDay(); netBase(); }
-  else { toast('들어왔어요! ' + (G.me.g+1) + '모둠 입구를 지켜 주세요', 3, '#c8ffb0'); }
+  else { toast((restored?'이어서 들어왔어요! ':'들어왔어요! ') + (G.me.g+1) + '모둠 입구를 지켜 주세요', 3, '#c8ffb0'); }
   // 자동 마우스 잠금 금지. 시작 후 사용자가 게임 화면을 직접 클릭할 때만 잠근다.
   selectTool('mine');
 }
@@ -29592,7 +29827,7 @@ el('bAgain').onclick = ()=>{
   el('popEnd').classList.remove('on'); endShown = false;
   kitReset(); xpReset();
   PL.hp = maxHP(); PL.down = false; PL.biteT = 0;
-  if(G.host){ clearBuildCoop(); G.day=1; G.crystal=G.set.crystalMax;
+  if(G.host){ G.sid=Date.now();sessionFresh();clearBuildCoop(); G.day=1; G.crystal=G.set.crystalMax;
     for(const id of [...STRU.keys()]) { delStru(id); netUnbuild(id); }
     for(let i=0;i<NG;i++) base[i]={...START};
     myPC={g:G.me.g,w:0,s:0,o:0,sw:0,ss:0,so:0,n:G.me.name,mined:0,built:0};
@@ -29745,7 +29980,7 @@ el('tReset').onclick = ()=>{ if(!confirm('처음부터 다시 시작할까요?')
   clearBuildCoop();
   for(const id of [...STRU.keys()]){ delStru(id); netUnbuild(id); }
   for(let i=0;i<NG;i++) base[i]={...START};
-  G.day=1; G.crystal=G.set.crystalMax; endShown=false;
+  G.sid=Date.now();sessionFresh();G.day=1; G.crystal=G.set.crystalMax; endShown=false;
   if(net) net.child('pc').remove();
   myPC={g:G.me.g,w:0,s:0,o:0,sw:0,ss:0,so:0,n:G.me.name,mined:0,built:0};
   myReset(); pcMap.set(uid,myPC);
@@ -31346,11 +31581,12 @@ let fpsVal = 0, fpsN = 0, fpsT = 0, struT = 0;
 function loop(){
   requestAnimationFrame(loop);
   const now = performance.now()/1000;
-  let dt = Math.min(0.05, now - last); last = now; tAcc += dt;
-  fpsN++; fpsT += dt; if(fpsT>0.5){ fpsVal = Math.round(fpsN/fpsT); fpsN=0; fpsT=0; }
+  const elapsed = Math.max(0, now - last); last = now;
+  const dt = Math.min(0.05, elapsed), motionDt = Math.min(0.25, elapsed); tAcc += motionDt;
+  fpsN++; fpsT += elapsed; if(fpsT>0.5){ fpsVal = Math.round(fpsN/fpsT); fpsN=0; fpsT=0; }
   if(PROF_ON){
-    frameMs = frameMs*0.9 + dt*1000*0.1;
-    frameTally(dt*1000);
+    frameMs = frameMs*0.9 + elapsed*1000*0.1;
+    frameTally(elapsed*1000);
     /* ★ rAF 콜백 밖에서 브라우저가 쓰는 시간. 여기에 HUD 의 DOM 레이아웃·그리기,
        화면 합성, GPU 대기, 쓰레기 수거가 다 들어간다. 이걸 안 재면 어디로 샜는지 모른다. */
     if(loopEnd) PROF['브라우저작업'] = (PROF['브라우저작업']||0)*0.9
@@ -31363,7 +31599,9 @@ function loop(){
 
   if(G.started && !DBG.noLogic){
     if(PROF_ON) pS();
-    if(!popOpen()) updPlayer(dt); else { PL.mv=false; }
+    if(!popOpen()){ const steps = Math.max(1,Math.ceil(motionDt/(1/50)));
+      for(let i=0;i<steps;i++) updPlayer(motionDt/steps);
+    } else { PL.mv=false; }
     if(shakeT > 0){ shakeT -= dt;
       const a = shakeT*shakeP;
       camera.position.x += (Math.random()-.5)*a; camera.position.y += (Math.random()-.5)*a;
@@ -31400,7 +31638,10 @@ function loop(){
        시간·좀비·병정이 다 선다. 둘러보고 움직이는 건 되게 둔다(9살은 가만 못 있는다).
        호스트가 meta 로 알려 주므로 반 전체가 같이 멈춘다. */
     if(!DBG.noSim && !G.paused){
-      if(G.host){ hostPhase(dt); if(G.phase==='night') hostSim(dt);
+      if(G.host){ hostPhase(elapsed); if(G.phase==='night'){
+        const steps = Math.max(1,Math.ceil(motionDt/(1/30)));
+        for(let i=0;i<steps;i++) hostSim(motionDt/steps);
+      }
                   /* 47차 — 낮에는 0.45초 쉰 뒤에 한 번만 깐다(연달아 지으면 마지막 것 하나로 끝난다) */
                   else if(flowDirty){ flowWait -= dt; if(flowWait <= 0){ buildFlow(); flowDirty = false; } } }
       else lerpMobs(dt);
@@ -31410,7 +31651,8 @@ function loop(){
     if(G.phase==='win' || G.phase==='lose') showEnd();
 
     if(PROF_ON) pS();
-    if(!DBG.noSim){ netTick(dt); metaTick(dt); }
+    if(!DBG.noSim){ netTick(elapsed); metaTick(elapsed); }
+    checkpointTick(elapsed);
     miniTick(dt);
     /* 오늘의 임무 — 호스트가 0.5초마다 세고, 모두가 완료를 한 번 본다.
        통신이 없어도(혼자 하기) 돌아야 하므로 metaTick 밖에 둔다. */
@@ -31868,6 +32110,11 @@ Object.assign(window, {
   __buildApi:{handleBuildCommand,hostBuildTick,buildActor,buildCanMove,buildCanPay,canPlaceBuilding,buildWorkers,buildSpeed,finishBuildPlan,packBuilding,applyNetworkBuilding,upgradeStru,buildCoopTick,drawBuildPlans,fortStyleOf,setFortStyle,clearBuildCoop},
   __selectTool:selectTool,__selectBuild:selectBuild,
 
+  __perf73:PERF73, __loop73:loop, __glowCompose73:gunGlowCompose,
+  __session73:{checkpointSave,checkpointRestore,checkpointKey,checkpointTick,sessionFresh,purchaseRequest,hostPurchase,acceptPurchase,purchaseOffer,
+    queueHit,hostHits,acceptCombat,confirmKill,packSim,packPlayer,applySim,netTick,joinRoom,camSpiral,
+    state:()=>({marketSeq,marketApplied,marketPending,combatXPSeen,hitQueue,combatTotals,marketReceipts,fpsVal}),
+    setNet:(n,r)=>{net=n;myRef=r;},setPC:p=>{myPC=p;pcMap.set(uid,myPC);},getPC:()=>myPC,uid},
   __G:G, __PL:PL, __R:renderer, __NODES:NODES, __STRU:STRU, __DIRS:DIRS, __base:base,
   /* 17차 — 맵 모양. 검사가 값을 베끼지 않고 게임에 물어보게 내보낸다. */
   __GMOUTH:GMOUTH, __oct:oct, __gX:gX, __gZ:gZ, __gT:gT, __gPP:gPP, __CHAM:()=>CHAM,

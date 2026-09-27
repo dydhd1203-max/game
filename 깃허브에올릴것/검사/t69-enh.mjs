@@ -11,6 +11,7 @@ const args = process.argv.slice(2), file = args.find(a=>!a.startsWith('--') && !
 const SHAKE_ONLY = args.includes('--shake-only');
 const srv = serve(PORT, file);
 const b = await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
+try {
 const pg = await b.newPage({viewport:{width:1366, height:768}});
 const errs = []; pg.on('pageerror', e=>errs.push(e.message)); pg.on('console', m=>{ if(m.type()==='error' || /rune inject fail/.test(m.text())) errs.push(m.text()); });
 let pass = 0, fail = 0;
@@ -134,7 +135,8 @@ const mo = await pg.evaluate(()=>{ const W = window, G = W.__G, o = {};
   const run = (i, from, seq)=>{ W.__setEnh(i, from); G.res[G.me.g] = {w:1e6, s:1e6, g:1e6, eg:1e6, mk:1e6, pk:1e6};
     const R0 = Math.random; let n = 0; Math.random = ()=> n < seq.length ? seq[n++] : R0();
     snd.length = 0; shk.length = 0; const c0 = W.__fx2.FX2.q.length + (W.__fx2.FX2.cur ? 1 : 0);
-    W.__doEnhance(i, true); Math.random = R0;
+    const paused=G.paused;G.paused=false;
+    try{W.__doEnhance(i, true);}finally{G.paused=paused;Math.random = R0;}
     const q = W.__fx2.FX2.q, cur = W.__fx2.FX2.cur, last = q.length ? q[q.length-1] : cur;
     return {e:W.__enhOf(i), snd:[...snd], shake:shk.length, k:last && last.k, big:!!(last && last.big)}; };
   o.ok23 = run(3, 2, [0]); o.ok56 = run(19, 5, [0]); o.keep = run(3, 1, [0.9999]); o.drop = run(5, 4, [0.9999, 0]);
@@ -150,4 +152,5 @@ ok('㉓ 실패(유지·내려감) — 소리 enhFail · 화면 흔들림 0', mo.
 ok('㉖ 깨어남 — 성공한 총을 처음 들 때 0.7초 한 번, 두 번째엔 없음', mo.wake1 > 0.6 && mo.wake2 === 0, [mo.wake1, mo.wake2]);
 ok('오류 없음', errs.length === 0, errs.slice(0, 4));
 console.log(fail ? `${fail} failed, ${pass} passed` : `t69-enh: ${pass} passed`);
-await b.close(); srv.close(); process.exitCode = fail ? 1 : 0;
+process.exitCode = fail ? 1 : 0;
+} finally { await b.close(); await new Promise(r=>srv.close(r)); }

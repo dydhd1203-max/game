@@ -31,6 +31,7 @@ function end(start,isFunction){
 const declaration=name=>{const m=new RegExp('(?:const|let)\\s+'+name+'\\s*=').exec(source);if(!m)throw new Error('Missing declaration '+name);return source.slice(m.index,end(m.index,false));};
 const fn=name=>{const s=source.indexOf('function '+name+'(');if(s<0)throw new Error('Missing function '+name);return source.slice(s,end(s,true));};
 const fixtures=`
+const hitQueue=[];
 const camera=new THREE.PerspectiveCamera(),G={wolves:[],players:new Map(),me:{g:0},started:true,paused:false,day:1,phase:'night',mini:null},miniPl=new Map();
 const KIT={wpn:0,ammo:0,mag:[],noAmmoSaid:0,ownW:[true]};
 let throwCd=0,gunT=0,aimMode=true,mini=false,throwing=false,SHOTS=0,DRY=0;
@@ -140,11 +141,11 @@ const hud=source.match(/<div id="magHud">[\s\S]*?<\/div><\/div>/)?.[0]||'';
 check('HUD: ten pre-made pips, bar+number for big magazines, SVG ring driven by a CSS animation of length --rl (no per-frame DOM)',
   (hud.match(/<span><\/span>/g)||[]).length===10&&/class="bar"/.test(hud)&&/class="ring"/.test(hud)&&/animation:rlRing var\(--rl/.test(source)&&/function magHudPaint\(\)\{[\s\S]*?MHD\.on[\s\S]*?return;/.test(fn('magHudPaint')));
 /* 12 — 통신 */
-const send=source.match(/myRef\.set\(\{([\s\S]*?)\}\);/)[1].replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/[^\n]*/g,'');
+const send=fn('packPlayer').match(/return\s*\{([\s\S]*?)\};/)[1].replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/[^\n]*/g,'');
 const keys=[...send.matchAll(/(?:^|[,{\s])([a-z]+):/g)].map(m=>m[1]);
-const WANT=['n','g','x','y','z','r','m','hp','dn','tc','tt','td','tf','txs','tx','ht','gl','cl','sk','ex'];
+const WANT=['n','g','x','y','z','r','m','hp','dn','tc','tt','td','hv','hq','tf','txs','tx','ht','gl','cl','sk','ex']; // 73차: 명중 확인 목록만 추가, 재장전 전송 없음
 const pcKeys=fn('netPC');
-check('Network: position record keys unchanged (snapshot) and netPC has no magazine/reload field',JSON.stringify(keys)===JSON.stringify(WANT)&&!/mag|rl|reload/.test(pcKeys),{keys});
+check('Network: expected position keys (73 hit receipts) and no magazine/reload field',JSON.stringify(keys)===JSON.stringify(WANT)&&!/mag|rl|reload/.test(pcKeys),{keys});
 { const q={wp:3,tcN:10,down:false};T.friendGun(q,1/60);q.tcN=15;let reload=false,kicks=0,prev=0;
   for(let t=0;t<6;t+=1/60){T.friendGun(q,1/60);if(q.wak===3)reload=true;if(q.kick>prev+0.2)kicks++;prev=q.kick;}
   check('Friend view estimates shots/reload from tc alone (5 hits → 5 recoils, 5-round rifle → one reload)',kicks===5&&reload&&!/net\.|myRef|pcMap/.test(fn('friendGun')),{kicks,reload}); }

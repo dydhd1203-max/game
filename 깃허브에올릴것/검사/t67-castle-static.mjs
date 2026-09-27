@@ -355,7 +355,7 @@ check('S', "사람 칸 ex(🗝️) · 받는 쪽 p.ex · 이름표 앞 '🗝️'
 check('S', '미니맵 — 성벽 위 좀비(ly) 흰 테두리 · treMini(✦·반짝 다섯)', /if\(w\.ly\)\{ mg\.strokeStyle = '#fff'/.test(code) && /\n\s*treMini\(mg\);/.test(code), {});
 { fresh(); T.TRE.found = 5; T.TRE.opened = 1; T.G.room = 'R'; T.G.day = 3; T.G.t = 10; tick(1, 1/60); T.mg.n = 0; T.treMini(T.mg);
   check('S', 'treMini — 찾은 문 둘 ✦ + 오늘 나타난 반짝 다섯', T.mg.n === 2 + 5, {n:T.mg.n}); }
-check('S', '판 번호 sid — 호스트가 판을 시작할 때 적는다', /if\(G\.host\) G\.sid = Date\.now\(\);/.test(code), {});
+check('S', '판 번호 sid — 호스트가 판을 시작할 때 적는다', /if\(G\.host\)\s*\{?\s*G\.sid = Date\.now\(\);/.test(code), {});
 { const cc = fs.readFileSync(path.join(here, 'check-current.mjs'), 'utf8');
   check('S', "check-current 목록에 't67-castle-static' · --render 에 walk·zombie", /'t67-castle-static'/.test(cc) && /t67-castle-walk/.test(cc) && /t67-castle-zombie/.test(cc), {}); }
 { const v = path.join(here, 'views67.json'); let ok = false, n = 0; try{ const j = JSON.parse(fs.readFileSync(v, 'utf8')); n = j.length; ok = j.every(o=> o.n && o.p.length === 3 && o.t.length === 3); }catch(e){}

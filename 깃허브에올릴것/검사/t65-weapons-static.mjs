@@ -46,6 +46,15 @@ function chunk(from,to){const start=code.indexOf(from),end=code.indexOf(to,start
   if(start<0||end<0)throw new Error('Missing chunk '+from);return code.slice(start,end);}
 
 const fixture=`
+// UI fixture: synchronous approved transport. Authority/replay/21-way contention are exercised by t73-classroom.
+function purchaseRequest(kind,args){
+  const c={kind,...args,g:G.me.g,lv:XP.lv},o=purchaseOffer(c);if(!o||!canPay(o.cost))return;
+  spend(o.cost);for(const [k,n]of Object.entries(o.gain||{}))gain(k,n);
+  if(kind==='weapon')buyWeapon(c.i,true);else if(kind==='craft')craftWeapon(c.i,true);
+  else if(kind==='armor')buyArmor(c.i,true);else if(kind==='ammo')buyAmmo(c.gld,true);
+  else if(kind==='potion')buyPotion(c.i,true);else buildShopUI();
+}
+
 const G={day:1,phase:'day',me:{g:0,name:'검사'},wolves:[],host:true};
 const GCOL=['#123'],hudPrev={},KIT={ownW:[],ownA:[],pot:[],enh:[],wpn:0,arm:0,ammo:0};
 const XP={lv:1};
@@ -70,7 +79,7 @@ const decls=['WEAPONS','MINI_GUN','TRAIT_TXT','TIER_TXT','TIER_COL','wpnLv','wpn
   'ARMORS','POT_SEC','POTIONS','AMMO_PER_GOLD','FARM_ANIMALS','FARM_CAP','farmCount','WDAY',
   'ENH_MAX','ENH_ODDS','ENH_SAFE','ENH_DROP','ENH_MUL','ENH_COST','enhOf','enhMul','enhTxt','ENH_COL','enhLvHTML',   // 69차 — ◆ 칸·단계 색 글자
   'BURN_N','burns'];
-const funcs=['canPay','costTxt','lackTxt','equipWeapon','equipArmor','buyWeapon','buyArmor','buyAmmo','buyPotion','sellFarm',
+const funcs=['purchaseOffer','canPay','costTxt','lackTxt','equipWeapon','equipArmor','buyWeapon','buyArmor','buyAmmo','buyPotion','sellFarm',
   'enhCost','craftable','craftWeapon','raceGiveWeapon','burnStart','burnTick','enhDots'];
 const forgeUI=chunk('let forgeTab = ','/* 강화 한 번');
 const payload=[fixture,...decls.map(declaration),...funcs.map(fn),

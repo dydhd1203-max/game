@@ -48,6 +48,15 @@ function fn(name){const start=code.indexOf('function '+name+'(');if(start<0)thro
 function chunk(from,to){const start=code.indexOf(from),end=code.indexOf(to,start);
   if(start<0||end<0)throw new Error('Missing chunk '+from);return code.slice(start,end);}
 const fixture=`
+// UI fixture: synchronous approved transport. Authority/replay/21-way contention are exercised by t73-classroom.
+function purchaseRequest(kind,args){
+  const c={kind,...args,g:G.me.g,lv:XP.lv},o=purchaseOffer(c);if(!o||!canPay(o.cost))return;
+  spend(o.cost);for(const [k,n]of Object.entries(o.gain||{}))gain(k,n);
+  if(kind==='weapon')buyWeapon(c.i,true);else if(kind==='craft')craftWeapon(c.i,true);
+  else if(kind==='armor')buyArmor(c.i,true);else if(kind==='ammo')buyAmmo(c.gld,true);
+  else if(kind==='potion')buyPotion(c.i,true);else buildShopUI();
+}
+
 const G={day:1,phase:'day',me:{g:1,name:'테스트'},res:[]};
 const GCOL=['#123','#234','#345'],hudPrev={},KIT={ownW:[],ownA:[],pot:[],enh:[],wpn:0,arm:0,ammo:0};
 let netPCDirty=false;
@@ -67,7 +76,7 @@ const fx2Cel=o=>events.push(['cel',o]),isTouch=false;
 const XP={lv:99};
 `;
 const declarations=['WEAPONS','wpnLv','wpnLvOk','TIER_ALL','TIER_NAME','ARMORS','POT_SEC','POTIONS','AMMO_PER_GOLD','FARM_ANIMALS','FARM_CAP','farmCount','WDAY','ENH_MAX','ENH_MUL','enhOf','enhMul','enhTxt','ENH_COL'];   // 69차 — ENH_COL(◆ 칸 색)
-const funcs=['canPay','costTxt','lackTxt','equipWeapon','equipArmor','buyWeapon','buyArmor','buyAmmo','buyPotion','sellFarm','josaNum','shopUiResync','enhDots'];
+const funcs=['purchaseOffer','canPay','costTxt','lackTxt','equipWeapon','equipArmor','buyWeapon','buyArmor','buyAmmo','buyPotion','sellFarm','josaNum','shopUiResync','enhDots'];
 const enhBusyStub='let enhBusy=false;const buildForgeUI=()=>{},buildVetUI=()=>{},buildFarmUI=()=>{};';
 const binding=code.match(/document\.querySelectorAll\('#shopTabs \.btn'\)\.forEach\(b=>[\s\S]*?\}\);/)?.[0];
 if(!binding)throw new Error('Actual shop category click binding not found');

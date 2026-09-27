@@ -22,7 +22,7 @@ for(const c of [process.env.DOM_MODULE,'linkedom',path.join(os.tmpdir(),'zombie-
   try{domLib=require(c);break;}catch{}
 }
 if(!domLib)throw new Error('linkedom is required');
-const source=fs.readFileSync(process.argv[2]||GAME,'utf8');
+const source=fs.readFileSync(process.argv[2]||GAME,'utf8').replace(/\r\n/g,'\n');
 const {document}=domLib.parseHTML(source);
 const code=source.match(/<script type="module">([\s\S]*?)<\/script>/)?.[1];
 if(!code)throw new Error('Game module not found');

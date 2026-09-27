@@ -15,17 +15,21 @@ const names=['chk','input52-static','t53-static','t54-avatar-static','t53-shop-s
   't59-zombie-shape-static','t59-zombie-attachment-static','t60-zombie-wrap-static','t61-avatar-clearance-static',
   't65-weapons-static',
   't66-hud-static','t66-fx2-static','t66-spec-static','t66-wing-static','t66-sound-static','t66-ctrl-static',
-  't67-castle-static','t69-enh-static','t68-reload-static','t68-motion-static'];   // 70차 — 탄창·자동 재장전·총 다루기 모션
+  't67-castle-static','t69-enh-static','t68-reload-static','t68-motion-static','t73-network-static'];
 let failed=0;
 async function check(name){
   try{
     const {stdout}=await run(process.execPath,[path.join(here,name+'.mjs'),game],
-      {cwd:root,windowsHide:true,maxBuffer:4*1024*1024,timeout:180000});
+      {cwd:root,windowsHide:true,maxBuffer:4*1024*1024,timeout:name==='t73-performance'?600000:240000,env:{...process.env,T67_STRICT:'1'}});
     console.log('[PASS] '+name+' — '+stdout.trim().split(/\r?\n/).at(-1));
   }catch(e){failed++;console.error('[FAIL] '+name+'\n'+(e.stdout||'')+(e.stderr||e.message));}
 }
 // Source/CPU checks run in small batches; rendered checks never overlap.
-for(let i=0;i<names.length;i+=3)await Promise.all(names.slice(i,i+3).map(check));
+if(!args.includes('--browser-smoke'))for(let i=0;i<names.length;i+=3)await Promise.all(names.slice(i,i+3).map(check));
+if(args.includes('--browser-smoke') || args.includes('--render')){
+  await check('t73-classroom');await check('t73-performance');
+}
+if(args.includes('--browser-smoke')){await check('t72-hand-grip');await check('t71-castle-shot');}
 if(args.includes('--render')){await check('t54-view');await check('t56-build-view');await check('t57-character-view');await check('t62-motion-view');await check('t59-zombie-view');
   await check('t67-castle-walk');await check('t67-castle-zombie');   // 67차 성곽 — 걷기·보물·좀비(다른 갈래가 합쳐지기 전 항목은 '대기')
   await check('t69-enh');   // 69차 강화 룬 빛 — 떨림·셰이더·유령 빛·강화 순간

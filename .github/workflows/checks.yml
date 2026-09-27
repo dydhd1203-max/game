@@ -1,6 +1,6 @@
 # 검사를 사람이 기억해서 돌리지 않아도 되게 한다.
 #
-# 이 저장소는 검사를 잘 갖춰 두었는데(현재 21개 파일) 자동으로 돌지 않아서,
+# 이 저장소는 검사를 잘 갖춰 두었는데 자동으로 돌지 않아서,
 # XP_BUILD 에 pulse 한 줄이 빠진 것 같은 실수가 그대로 main 에 들어갔다.
 # 이제 push 와 pull request 마다 같은 명령을 돌린다.
 #
@@ -36,8 +36,15 @@ concurrency:
 
 jobs:
   node-checks:
-    name: Node 검사
-    runs-on: ubuntu-latest
+    name: Node 검사 (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -68,8 +75,7 @@ jobs:
 
   browser-checks:
     name: 숨김 브라우저 검사
-    # 브라우저를 받아 띄우느라 느리다. 손으로 돌릴 때만 한다.
-    if: github.event_name == 'workflow_dispatch' && inputs.render
+    # 모든 변경에서 핵심 실제 동작을 검사한다. 전체 화면 묶음만 수동 확장한다.
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -87,7 +93,12 @@ jobs:
 
       # pw.mjs 가 새 헤드리스(channel:'chromium')로 띄우고 finally 에서 닫는다.
       # 커서 잠금은 pw.mjs 가 막는다. OS 마우스·키보드는 건드리지 않는다.
-      - name: 화면까지 검사
+      - name: 교실·시점·손·그래픽 보존 검사
+        if: github.event_name != 'workflow_dispatch' || !inputs.render
+        run: node 깃허브에올릴것/검사/check-current.mjs --browser-smoke
+
+      - name: 전체 화면 검사
+        if: github.event_name == 'workflow_dispatch' && inputs.render
         run: node 깃허브에올릴것/검사/check-current.mjs --render
 
       - if: always()
