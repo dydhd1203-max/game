@@ -63,11 +63,12 @@ const pieces=[fixtures,declaration('RACE74'),fn('raceFlightPose'),declaration('R
   chunk('let FLIP_ON =','const fxq ='),
   chunk('const HEAD_M =','function drawSheep('),fn('drawSheep'),
   `globalThis.API={drawSheep,smoothHead,sheepGait,raceFixture,RACE74,sheepJoint,sheepFootPose,sheepActionPose,avatarWingPose,wingBend,R6_HOOK,R6_HEAD,R6_HK,R6_ARM,R6_ASD,R6_SHU,R6_HAND_AT,
-    JOB_LOOK,JOB_GEO,JOB_UNIFORM,P_jobParts,JOB_WING,WING_GEO,wingSpine,r6body,P_jobF,P_jobR,
+    JOB_LOOK,JOB_GEO,JOB_UNIFORM,P_jobParts,P_cosParts,COSMETIC_GEO,JOB_WING,WING_GEO,wingSpine,r6body,P_jobF,P_jobR,
     R6_SMILE,CYL,HATS,GLASSES,CLOTHES,meshes:{body:P_body,head:P_head,arm:P_arm,eyes:P_eye,mouth:P_mouth,nose:P_nose,
     legs:P_legs,shoes:P_shoe,deco:P_deco,gun:P_gun,gunGlow:P_gunF,handL:P_hand[0],handR:P_hand[1],
     wing0:P_wing[0],wing1:P_wing[1],wingGlow0:P_wingG[0],wingGlow1:P_wingG[1],
-    ...Object.fromEntries(Object.entries(P_jobParts).map(([key,mesh])=>['job_'+key,mesh]))}};`
+    ...Object.fromEntries(Object.entries(P_jobParts).map(([key,mesh])=>['job_'+key,mesh])),
+    ...Object.fromEntries(Object.entries(P_cosParts).map(([key,mesh])=>['cos_'+key,mesh]))}};`
 ];
 const context=vm.createContext({THREE,console});
 new vm.Script(pieces.join('\n'),{filename:'extracted-avatar-from-index.js'}).runInContext(context,{timeout:10000});
@@ -149,7 +150,7 @@ for(const level of [0,5,20]){
 check('Upgraded gathering speed preserves the full visible motion cycle',miningCycle);
 
 const jobScenarios=[];
-const outfitCount=p=>p.deco.length+Object.entries(p).filter(([key])=>key.startsWith('job_')).reduce((sum,[,parts])=>sum+parts.length,0);
+const outfitCount=p=>p.deco.length+Object.entries(p).filter(([key])=>key.startsWith('job_')||key.startsWith('cos_')).reduce((sum,[,parts])=>sum+parts.length,0);
 for(let jb=0;jb<3;jb++)for(let jt=1;jt<=2;jt++){
   const s=actor({jb,jt}),p=snapshot(s);jobScenarios.push([['Cowboy','Inventor','Explorer'][jb]+' '+jt,s]);
   check('Job '+jb+'/'+jt+' renders every authored costume piece and one full wing pair',finiteSnapshot(p)&&outfitCount(p)===A.JOB_LOOK[jb][jt-1].length&&p['wing'+(jt-1)].length===2&&p['wing'+(2-jt)].length===0,{costume:outfitCount(p),authored:A.JOB_LOOK[jb][jt-1].length,wings:p['wing'+(jt-1)].length});

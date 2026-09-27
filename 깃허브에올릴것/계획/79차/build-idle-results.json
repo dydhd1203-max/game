@@ -1,0 +1,11 @@
+{
+  "passed": 6,
+  "results": [
+    "Idle plan remains through 2999 ms and disappears on host and guest at 3000 ms without payment",
+    "Fresh worker wins over an old touched timestamp after a long host frame",
+    "Active worker heartbeats keep a plan alive beyond three seconds on both clients",
+    "Stopping construction starts a fresh three-second idle window and expiry never charges resources",
+    "A disconnected builder cannot keep a plan alive with a stale hand record",
+    "Guest tick cannot expire authoritative plans; host expiry broadcasts the removal"
+  ]
+}

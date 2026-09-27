@@ -72,7 +72,7 @@ try {
   });
   const result=hudOnly?JSON.parse(fs.readFileSync(path.join(out,`${label}-playview.json`),'utf8')):await page.evaluate(()=>{
     const W=window,G=W.__G,P=W.__PL,R=W.__R,C=W.__cam,KEY=W.__KEY,Y=W.__MINI().Y;
-    const captures=[],timings=[],events=[],overflow=[],capsules=[],toys=[],jumpMarks=[],cameraChecks=[];
+    const captures=[],timings=[],events=[],overflow=[],capsules=[],toys=[],donuts=[],jumpMarks=[],cameraChecks=[],donutShapes=new Map();
     const cameraCheck=name=>{if(!W.__raceCameraBlocked)return;const cam=W.__cam.position,haz=W.__raceHazards(W.__RACE().t);
       cameraChecks.push({name,distance:W.__camRig().distance,inside:haz.filter(h=>W.__raceCameraBlocked(h,cam.x,cam.y-Y,cam.z,.08)).map(h=>h.id),
         floors:W.__raceCameraFloorBlocked?W.__RACE_P().filter(p=>W.__raceCameraFloorBlocked(p,cam.x,cam.y,cam.z,.18)).map(p=>p.id):[]});};
@@ -118,7 +118,12 @@ try {
         const jump=W.__race74.jumpPose(pad,W.__RACE().t),land=W.__race74.landingPose(pad,W.__RACE().t);
         const has=(mesh,xy)=>{for(let i=0;i<mesh.count;i++){mesh.getMatrixAt(i,mat);const e=mat.elements;
           if(Math.hypot(e[12]-xy.x,e[14]-xy.z)<.015)return true;}return false;};
-        jumpMarks.push({shot:name,pad:pad.id,launch:has(art.jump,jump),landing:has(art.padTrim,land),radius:pad.bounce.zone});
+        if(art.donut){const pose=W.__race74.pose(pad,W.__RACE().t);let perimeter=false;
+          for(let i=0;i<art.padTrim.count;i++){art.padTrim.getMatrixAt(i,mat);const e=mat.elements;
+            if(Math.hypot(e[12]-pose.x,e[14]-pose.z)<.015&&Math.abs(Math.hypot(e[0],e[1],e[2])-pad.w/2)<.015&&Math.abs(Math.hypot(e[8],e[9],e[10])-pad.d/2)<.015)perimeter=true;}
+          jumpMarks.push({shot:name,pad:pad.id,wholePad:true,roundPlatform:pad.shape==='round',
+            entranceInstruction:has(art.jump,{x:pose.x,z:pose.z-pad.d*.405}),perimeter,exclusiveZone:pad.bounce.zone!==undefined});
+        }else jumpMarks.push({shot:name,pad:pad.id,launch:has(art.jump,jump),landing:has(art.padTrim,land),radius:pad.bounce.zone});
       }
       for(const h of W.__raceHazards(W.__RACE().t).filter(h=>h.k==='punch'&&h.toy77!==undefined&&Math.abs(h.z-P.z)<=120)){
         const target=Y+h.y+h.h/2;let top=null;
@@ -131,7 +136,25 @@ try {
         }
         toys.push({shot:name,id:h.id,form:h.toy77,renderedTop:top,colliderTop:target,aligned:top!==null&&Math.abs(top-target)<.03});
       }
-      for(const h of W.__raceHazards(W.__RACE().t).filter(h=>h.k==='punch'&&h.toy77===undefined&&Math.abs(h.z-P.z)<=125)){
+      // Donut obstacles no longer have capsule shafts/endcaps. Verify the actual
+      // flavor bank, ring opening, physical torus envelope and instance transform.
+      for(const h of W.__raceHazards(W.__RACE().t).filter(h=>h.donut79&&Math.abs(h.z-P.z)<=125)){
+        const flavor=h.flavor79,mesh=art.donut?.[flavor];let aligned=false,index=-1,shape=null;
+        if(mesh){
+          if(!donutShapes.has(mesh.geometry.uuid)){const p=mesh.geometry.attributes.position;let minHole=Infinity,maxShell=0,finite=true;
+            for(let v=0;v<p.count;v++){const x=p.getX(v),y=p.getY(v),z=p.getZ(v),rho=Math.hypot(x,y);minHole=Math.min(minHole,rho);maxShell=Math.max(maxShell,Math.hypot(rho-.66,z));finite&&=Number.isFinite(rho+z);}
+            donutShapes.set(mesh.geometry.uuid,{minHole,maxShell,finite,triangles:(mesh.geometry.index?.count||p.count)/3});}
+          shape=donutShapes.get(mesh.geometry.uuid);
+          for(let i=0;i<mesh.count;i++){mesh.getMatrixAt(i,mat);const e=mat.elements;
+            if(Math.hypot(e[12]-h.x,e[13]-Y-h.y,e[14]-h.z)>.025)continue;
+            index=i;const expect=C.matrixWorld.clone().makeRotationFromEuler(C.rotation.clone().set(0,h.ry||0,h.rz||0,'YXZ'));
+            expect.scale(C.position.clone().set(h.r,h.r,h.r));expect.setPosition(h.x,Y+h.y,h.z);
+            aligned=e.every((v,j)=>Math.abs(v-expect.elements[j])<.00005)&&Math.abs(h.h-2*h.r)<.00001;break;
+          }
+        }
+        donuts.push({shot:name,id:h.id,flavor,index,aligned,shape});
+      }
+      for(const h of W.__raceHazards(W.__RACE().t).filter(h=>h.k==='punch'&&!h.donut79&&h.toy77===undefined&&Math.abs(h.z-P.z)<=125)){
         const target=Y+h.y+Math.max(0,h.h/2-h.r);let top=null;
         for(const ball of caps)for(let i=0;i<ball.count;i++){
           ball.getMatrixAt(i,mat);const e=mat.elements,sy=Math.hypot(e[4],e[5],e[6]);
@@ -222,7 +245,7 @@ try {
     const font={faces:[...document.fonts].filter(f=>f.family.replaceAll('"','')==='CloudRaceTitle')
       .map(f=>({family:f.family,status:f.status})),draws:[...W.__raceTitleDraws75.values()],externalFontsBlocked:true};
     return {fileVersion:document.title,seed:G.mini.seed,players:G.players.size+1,viewport:{width:innerWidth,height:innerHeight},
-      start,captures,events,progress,maxViewChange,pointerLocked:!!document.pointerLockElement,font,capsules,toys,jumpMarks,energy,cameraChecks,
+      start,captures,events,progress,maxViewChange,pointerLocked:!!document.pointerLockElement,font,capsules,toys,donuts,jumpMarks,energy,cameraChecks,
       hazards:{count:allHazards.length,kinds,firstDistance:earlyHazard?earlyHazard.z-start.z:null,bySection:hazardsBySection},
       graphics:{...W.__GFX,width:R.domElement.width,height:R.domElement.height},
       noRenderCpuMs:{p50:timings[Math.floor(timings.length*.5)],p95:timings[Math.floor(timings.length*.95)],samples:timings.length},
@@ -327,10 +350,14 @@ try {
     assert.ok(result.hazards.bySection.every(s=>result.font.draws.some(d=>d.text===s.name&&d.loaded&&d.font.includes('CloudRaceTitle'))),
       'Every section title was actually painted with the loaded bundled face');
     assert.ok(result.capsules.length>0&&result.capsules.every(c=>c.aligned),'Rendered padded capsule endcaps match their full collider height in all captured sections');
+    if(Number(version)>=79)assert.ok(result.donuts?.length>=48&&new Set(result.donuts.map(d=>d.flavor)).size===3&&result.donuts.every(d=>
+      d.aligned&&d.index>=0&&d.shape?.finite&&d.shape.minHole>.30&&d.shape.maxShell<.401&&d.shape.triangles<3000),
+      'Every captured donut uses its actual flavor bank and torus transform, retains a real hole, and stays within its 3,000-triangle envelope');
     if(result.toys?.length)assert.ok(result.toys.every(c=>c.aligned)&&new Set(result.toys.map(c=>c.form)).size===5,
       'Three entrance toys and both baked candy-border silhouettes occupy their actual collision height');
-    if(result.jumpMarks?.length)assert.ok(result.jumpMarks.every(m=>m.launch&&m.landing&&m.radius===2.5),
-      'Visible launch circles and landing stitching match the actual offset trigger and alternating landing pocket');
+    if(result.jumpMarks?.length)assert.ok(result.jumpMarks.every(m=>m.wholePad?
+      m.roundPlatform&&m.entranceInstruction&&m.perimeter&&!m.exclusiveZone:m.launch&&m.landing&&m.radius===2.5),
+      'Whole-pad spring islands retain their entrance instructions and full perimeter; older releases retain their matching restricted markers');
     const detail=result.captures.find(c=>c.kind==='material-waypoint');
     assert.ok(detail?.potentiallyVisibleHazards.some(h=>h.id===detail.target&&h.fullyInFrame),
       'The ordinary-camera material detail includes the complete first punch capsule without clipping its top');

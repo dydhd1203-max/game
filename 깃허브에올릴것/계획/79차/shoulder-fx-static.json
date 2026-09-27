@@ -1,0 +1,235 @@
+{
+  "checks": [
+    {
+      "name": "All three jobs emit from the current outside shoulder positions while the avatar moves",
+      "pass": true,
+      "data": [
+        {
+          "jb": 0,
+          "jt": 1,
+          "count": 9,
+          "size": 0.052,
+          "colors": [
+            16762447
+          ]
+        },
+        {
+          "jb": 0,
+          "jt": 2,
+          "count": 30,
+          "size": 0.075,
+          "colors": [
+            16762447,
+            16773548
+          ]
+        },
+        {
+          "jb": 1,
+          "jt": 1,
+          "count": 9,
+          "size": 0.044199999999999996,
+          "colors": [
+            5498591
+          ]
+        },
+        {
+          "jb": 1,
+          "jt": 2,
+          "count": 30,
+          "size": 0.06375,
+          "colors": [
+            5498591,
+            12648438
+          ]
+        },
+        {
+          "jb": 2,
+          "jt": 1,
+          "count": 9,
+          "size": 0.052,
+          "colors": [
+            13934847
+          ]
+        },
+        {
+          "jb": 2,
+          "jt": 2,
+          "count": 30,
+          "size": 0.075,
+          "colors": [
+            13934847,
+            9437156
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Second promotion visibly increases size and paired activity without exceeding the shoulder budget",
+      "pass": true
+    },
+    {
+      "name": "No promotion, invalid job, downed, distant, missing and stale poses emit nothing",
+      "pass": true
+    },
+    {
+      "name": "Hiding the local body stops emission, old pieces expire, and third-person return resumes",
+      "pass": true,
+      "data": {
+        "before": 10,
+        "after": 20
+      }
+    },
+    {
+      "name": "21 promoted fliers share the existing 150/s total and 128 slots at 30/60/120 FPS; shoulders stay below 30/s plus eight burst",
+      "pass": true,
+      "data": [
+        {
+          "hz": 30,
+          "shoulder": 154,
+          "sparks": 444,
+          "feathers": 24,
+          "peakLive": 51,
+          "meshesAdded": 0,
+          "slots": 128
+        },
+        {
+          "hz": 60,
+          "shoulder": 154,
+          "sparks": 447,
+          "feathers": 25,
+          "peakLive": 50,
+          "meshesAdded": 0,
+          "slots": 128
+        },
+        {
+          "hz": 120,
+          "shoulder": 154,
+          "sparks": 441,
+          "feathers": 31,
+          "peakLive": 51,
+          "meshesAdded": 0,
+          "slots": 128
+        }
+      ]
+    },
+    {
+      "name": "Pool reuse clears shoulder stretching before ordinary wing sparkles reuse that slot",
+      "pass": true
+    },
+    {
+      "name": "No shoulder mesh, material, light, or per-frame geometry creation is introduced",
+      "pass": true
+    },
+    {
+      "name": "Real avatar draw publishes two finite, separated and freshly moving shoulder points",
+      "pass": true,
+      "data": {
+        "first": [
+          1.3271253108978271,
+          1.2845699787139893,
+          2.9948923587799072,
+          2.6445326805114746,
+          1.3113183975219727,
+          2.9948923587799072
+        ],
+        "next": [
+          3.016498565673828,
+          1.1805189847946167,
+          2.5322980880737305,
+          4.175266265869141,
+          1.3921878337860107,
+          1.9379442930221558
+        ],
+        "stamp": 20.05
+      }
+    }
+  ],
+  "profiles": [
+    {
+      "jb": 0,
+      "jt": 1,
+      "count": 9,
+      "size": 0.052,
+      "colors": [
+        16762447
+      ]
+    },
+    {
+      "jb": 0,
+      "jt": 2,
+      "count": 30,
+      "size": 0.075,
+      "colors": [
+        16762447,
+        16773548
+      ]
+    },
+    {
+      "jb": 1,
+      "jt": 1,
+      "count": 9,
+      "size": 0.044199999999999996,
+      "colors": [
+        5498591
+      ]
+    },
+    {
+      "jb": 1,
+      "jt": 2,
+      "count": 30,
+      "size": 0.06375,
+      "colors": [
+        5498591,
+        12648438
+      ]
+    },
+    {
+      "jb": 2,
+      "jt": 1,
+      "count": 9,
+      "size": 0.052,
+      "colors": [
+        13934847
+      ]
+    },
+    {
+      "jb": 2,
+      "jt": 2,
+      "count": 30,
+      "size": 0.075,
+      "colors": [
+        13934847,
+        9437156
+      ]
+    }
+  ],
+  "loads": [
+    {
+      "hz": 30,
+      "shoulder": 154,
+      "sparks": 444,
+      "feathers": 24,
+      "peakLive": 51,
+      "meshesAdded": 0,
+      "slots": 128
+    },
+    {
+      "hz": 60,
+      "shoulder": 154,
+      "sparks": 447,
+      "feathers": 25,
+      "peakLive": 50,
+      "meshesAdded": 0,
+      "slots": 128
+    },
+    {
+      "hz": 120,
+      "shoulder": 154,
+      "sparks": 441,
+      "feathers": 31,
+      "peakLive": 51,
+      "meshesAdded": 0,
+      "slots": 128
+    }
+  ]
+}

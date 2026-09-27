@@ -1,0 +1,239 @@
+{
+  "villageState": [
+    {
+      "visible": true,
+      "count": 113
+    },
+    {
+      "visible": true,
+      "count": 8
+    },
+    {
+      "visible": true,
+      "count": 3
+    },
+    {
+      "visible": true,
+      "count": 30
+    },
+    {
+      "visible": true,
+      "count": 3
+    },
+    {
+      "visible": true,
+      "count": 5
+    }
+  ],
+  "lobby": [
+    {
+      "visible": false,
+      "count": 0
+    },
+    {
+      "visible": false,
+      "count": 0
+    },
+    {
+      "visible": false,
+      "count": 0
+    },
+    {
+      "visible": false,
+      "count": 0
+    },
+    {
+      "visible": false,
+      "count": 0
+    },
+    {
+      "visible": false,
+      "count": 0
+    }
+  ],
+  "lobbyParts": 0,
+  "story": [
+    {
+      "visible": true,
+      "count": 113
+    },
+    {
+      "visible": true,
+      "count": 8
+    },
+    {
+      "visible": true,
+      "count": 3
+    },
+    {
+      "visible": true,
+      "count": 30
+    },
+    {
+      "visible": true,
+      "count": 3
+    },
+    {
+      "visible": true,
+      "count": 5
+    }
+  ],
+  "race": [
+    {
+      "visible": false,
+      "count": 0
+    },
+    {
+      "visible": false,
+      "count": 0
+    },
+    {
+      "visible": false,
+      "count": 0
+    },
+    {
+      "visible": false,
+      "count": 0
+    },
+    {
+      "visible": false,
+      "count": 0
+    },
+    {
+      "visible": false,
+      "count": 0
+    }
+  ],
+  "raceParts": 0,
+  "culled": {
+    "calls": 71,
+    "triangles": 778526,
+    "memory": {
+      "geometries": 164,
+      "textures": 25
+    },
+    "players": 21,
+    "art": {
+      "materials": 3,
+      "textures": 2,
+      "visibleDraws": 14,
+      "visibleTriangles": 250400,
+      "instances": 98,
+      "overflow": 0,
+      "smallDecor76": {
+        "count": 68,
+        "triangles": 49524,
+        "types": [
+          13,
+          16,
+          14,
+          11,
+          12,
+          2
+        ]
+      },
+      "startDecor76": {
+        "count": 10,
+        "triangles": 6056,
+        "placements": [
+          {
+            "x": -26.7,
+            "z": 27,
+            "type": 0,
+            "scale": 1.22
+          },
+          {
+            "x": -25.1,
+            "z": 31,
+            "type": 2,
+            "scale": 1.12
+          },
+          {
+            "x": -24.3,
+            "z": 37,
+            "type": 1,
+            "scale": 0.88
+          },
+          {
+            "x": -25.25,
+            "z": 39.1,
+            "type": 1,
+            "scale": 1.08
+          },
+          {
+            "x": -25,
+            "z": 61,
+            "type": 5,
+            "scale": 1
+          },
+          {
+            "x": 26.7,
+            "z": 27,
+            "type": 0,
+            "scale": 1.22
+          },
+          {
+            "x": 25.1,
+            "z": 31,
+            "type": 2,
+            "scale": 1.12
+          },
+          {
+            "x": 24.3,
+            "z": 37,
+            "type": 1,
+            "scale": 0.88
+          },
+          {
+            "x": 25.25,
+            "z": 39.1,
+            "type": 1,
+            "scale": 1.08
+          },
+          {
+            "x": 25,
+            "z": 61,
+            "type": 5,
+            "scale": 1
+          }
+        ]
+      },
+      "scenery75Triangles": 283452
+    }
+  },
+  "uncullProbe": {
+    "calls": 83,
+    "triangles": 832246
+  },
+  "returned": {
+    "state": [
+      {
+        "visible": true,
+        "count": 113
+      },
+      {
+        "visible": true,
+        "count": 8
+      },
+      {
+        "visible": true,
+        "count": 3
+      },
+      {
+        "visible": true,
+        "count": 30
+      },
+      {
+        "visible": true,
+        "count": 3
+      },
+      {
+        "visible": true,
+        "count": 5
+      }
+    ],
+    "calls": 526,
+    "triangles": 3437666
+  },
+  "errors": []
+}

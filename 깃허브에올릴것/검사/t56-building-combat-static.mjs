@@ -17,7 +17,7 @@ const fn=n=>{const i=source.indexOf('function '+n+'(');if(i<0)throw Error(n);ret
 const costStart=source.indexOf('const COST_MUL ='),costEnd=source.indexOf('const SOL_COMP =',costStart);
 const bookStart=source.indexOf("el('bBook').onclick ="),book=source.slice(bookStart,end(bookStart,true));
 const ctx=vm.createContext({console});
-const fixtures=`const G={wolves:[]},STRU=new Map(),GY=0,CRIT_MUL=2;let crit=false,clock=0;
+const fixtures=`const G={wolves:[]},STRU=new Map(),GY=0,CRIT_MUL=2;let crit=false,clock=0;const performance={now:()=>clock*1000};
 const events=[],nodes={};const el=id=>nodes[id]||(nodes[id]={});const openPop=id=>{nodes.open=id;};
 const costTxt=c=>Object.entries(c).map(([k,v])=>k+v).join(' ');
 const rollCrit=()=>crit,popDmg=(...v)=>events.push({kind:'number',v,clock}),
@@ -25,10 +25,10 @@ const rollCrit=()=>crit,popDmg=(...v)=>events.push({kind:'number',v,clock}),
  shootBullet=(...v)=>events.push({kind:'bullet',v,clock}),muzzleFlash=(...v)=>events.push({kind:'flash',v,clock}),
  shootOrb=(...v)=>events.push({kind:'orb',v,clock}),ring=(...v)=>events.push({kind:'ring',v,clock}),
  burst=(...v)=>events.push({kind:'burst',v,clock}),window={__sfxAt:(...v)=>events.push({kind:'sound',v,clock})},
- towerFxShot=(...v)=>events.push({kind:'towerFx',v,clock});
- const puff=(...v)=>events.push({kind:'puff',v}),tone=(...v)=>events.push({kind:'tone',v});`;
+ towerFxShot=(...v)=>events.push({kind:'towerFx',v,clock}),towerFxSfx=(...v)=>events.push({kind:'sound',v,clock});
+ const puff=(...v)=>events.push({kind:'puff',v}),tone=(...v)=>events.push({kind:'tone',v}),pluck=(...v)=>events.push({kind:'pluck',v}),now0=()=>clock;`;
 new vm.Script([fixtures,...['BUILD','BUILD_BRANCHES','MAXLV','BKEYS','SOL_COMP','WOLF_T','cliCd','SFX'].map(dec),source.slice(costStart,costEnd),
- ...['bs','cannonSpec','buildStat','buildingName','struCX','struCZ','buildingGunMuzzle','towerTarget','towerVictims','towerAttack','towerAttackTick','clientTowerFx'].map(fn),book,
+ ...['zombieHit79','bs','cannonSpec','buildStat','buildingName','struCX','struCZ','buildingGunMuzzle','towerTarget','towerVictims','towerAttack','towerAttackTick','clientTowerFx'].map(fn),book,
  `globalThis.A={BUILD,BUILD_BRANCHES,SFX,cannonSpec,buildStat,buildingName,buildingGunMuzzle,towerTarget,towerAttack,towerAttackTick,clientTowerFx,G,STRU,cliCd,events,nodes,
  setCrit(v){crit=v;},time(v){clock=v;},book(){nodes.bBook.onclick();}};`].join('\n')).runInContext(ctx,{timeout:10000});
 const A=ctx.A,results=[];
@@ -78,7 +78,7 @@ check('Every gun level fires its muzzle tracer and flash toward targets with wea
 let oldFx=true;for(const [lv,branch]of [[2,'rapid'],[2,'sniper'],[3,undefined],[3,'unknown']]){const w=wolf(4,1),o=tower('arrow',lv,branch);reset([w]);A.towerAttack(o,w);const shot=A.events.find(e=>e.kind==='arrow'),m=A.buildingGunMuzzle(o);oldFx&&=!!shot&&!A.events.some(e=>e.kind==='bullet')&&o.gunKick===1&&Math.abs(o.gunYaw-Math.PI/2)<1e-9&&JSON.stringify(shot.v.slice(0,3))===JSON.stringify([m.x,m.y,m.z])&&Math.abs(m.y-(A.buildStat(o,'hi')-.05))<1e-9;}
 check('Unbranched, invalid and pre-level-three towers retain arrows fired from their visible rotating bow tip',oldFx);
 reset([]);A.SFX.towerRapid();A.SFX.towerSniper();
-check('Tower guns use short quiet synthetic game sounds',A.events.length===4&&A.events.every(e=>e.kind==='puff'?e.v[0]<=.04&&e.v[1]<=.05:e.kind==='tone'&&e.v[2]<=.1&&e.v[4]<=.04));
+check('Tower guns use three short bounded synthetic layers with a gentle mechanical tail',A.events.length===6&&A.events.every(e=>e.kind==='puff'?e.v[0]<=.04&&e.v[1]<=.06:e.kind==='tone'?e.v[2]<=.13&&e.v[4]<=.05:e.kind==='pluck'&&e.v[1]<=.08&&e.v[2]<=.025));
 // 65차 대포탑 — 같은 대상·같은 피해를 쏘는 순간 판정하고, 포가가 표적을 향해 돌며 반동한다. 포탄·폭발·숫자는 towerFx 가 착탄 때 띄운다.
 let cannon=true;for(let lv=1;lv<=7;lv++)for(const [x,z]of [[5,1],[1,5],[-3,1],[1,-3]]){
  const o=tower('pulse',lv),a=wolf(x,z),b=wolf(x+.4,z),far=wolf(x+6,z+6);reset([a,b,far]);const r=A.towerAttack(o,a);

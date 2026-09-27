@@ -21,7 +21,7 @@ export function race76Physics(){
       reset(jp.x,jp.z-3,Y+pad.y);KEY.w=true;let auto=false;
       for(let i=0;i<fps*.3;i++){step(1/fps);auto ||= A.state.flightKind==='manual'||!!A.state.pending?.p?.bounce?.manual;}
       const walked=P.z-(jp.z-3);
-      reset(jp.x,jp.z-pad.bounce.zone-1,Y+pad.y);press();step(1/fps);
+      reset(jp.x,jp.z-3.5,Y+pad.y);press();step(1/fps);
       manual.push({seed,fps,pad:pad.id,auto,walked,outsideZoneSpring:A.state.flightKind==='manual'||!!A.state.pending?.p?.bounce?.manual});
     }
     for(const pad of W.__RACE_P().filter(p=>p.bounce)){
@@ -139,11 +139,12 @@ export function race76Physics(){
         if((z>=46&&z<49||z>=56&&z<58)&&Math.abs(P.x-target)> .45)go=false;
       }
       else if(z<210){
-        const bar=W.__raceHazards(S.t).filter(h=>h.k==='bar').find(h=>h.z>z-10);
+        const bar=W.__raceHazards(S.t).filter(h=>h.k==='bar').find(h=>h.z>z-2);
         target=bar?bar.x<0?6.8:bar.x>0?-6.8:6.8:0;
         const dist=bar?bar.z-z:99;
         sprint=dist<13&&dist>-12;
-        if(P.ground&&dist<10.5&&dist>-7)jump=true;
+        // The restored walking speed needs a later take-off and an earlier switch toward the next scattered bar.
+        if(P.ground&&dist<5.8&&dist>-7)jump=true;
         if(!P.ground&&airAge>.48&&!doubleUsed&&(P.jumps|0)<1){jump=true;doubleUsed=true;}
       }else if(z<476){
         const donuts=W.__RACE_P().filter(p=>p.bounce?.manual);
@@ -207,8 +208,8 @@ export function race76Physics(){
 export function validateRace76(p){
   const check=(ok,why)=>{if(!ok)throw Error(why);};
   check(p.limit===180,'The race limit must be 180 seconds');
-  check(p.manual.length===36&&p.manual.every(q=>!q.auto&&q.walked>3&&!q.outsideZoneSpring),
-    'Walking never launches a donut, and Space outside its jump zone remains an ordinary jump');
+  check(p.manual.length===36&&p.manual.every(q=>!q.auto&&q.walked>2&&q.outsideZoneSpring),
+    'Walking never launches a donut, and a fresh Space outside the former tiny jump zone now launches from the supported platform');
   check(p.flights.length===45&&p.flights.every(q=>q.count===1&&q.launch&&q.land&&q.viewChange<1e-8&&
     Math.abs(q.launch.vy-q.expectedVy)<1e-8&&Math.abs(q.launch.vz-q.expectedVz)<1e-8&&Math.abs(q.gravity-q.expectedGravity)<1e-6),
     'Every actual spring must launch once, integrate its calibrated impulse/gravity, land, and preserve the view');

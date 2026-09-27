@@ -26,11 +26,18 @@ new vm.Script([fn('roundBox'),fn('roundCyl'),source.slice(start,stop),fn('wingSp
   'globalThis.A={WING_GEO,JOB_WING,JOB_LOOK,JOB_GEO,JOB_UNIFORM,MAXP,P_jobParts,wingSpine,r6body,r6head};'].join('\n')).runInContext(context);
 const A=context.A,checks=[],check=(name,ok,detail)=>{checks.push(!!ok);console.log((ok?'PASS ':'FAIL ')+name+(detail?' '+JSON.stringify(detail):''));};
 const counts=A.JOB_LOOK.map(j=>j.map(rows=>rows.length));
-check('All three roles retain two distinct compact outfit stages',counts.every(c=>c[0]>=8&&c[0]<=24&&c[1]>c[0]&&c[1]<=32),counts);
-check('Job outfits contain no orbiting, floating, or additive glow clutter',A.JOB_LOOK.flat(2).every(r=>r[8]===0&&r[9]===0));
+// 79차: requested curved shoulder armor adds bounded shared parts; the complete
+// outfit triangle/capacity budgets below remain enforced independently.
+check('All three roles retain two distinct bounded outfit stages',counts.every(c=>c[0]>=8&&c[0]<=32&&c[1]>c[0]&&c[1]<=44),counts);
+check('Outfits never orbit or float; glow is limited to six small attached shoulder inlays',
+  A.JOB_LOOK.flat().every(rows=>rows.filter(r=>r[9]).length<=6&&rows.every(r=>{
+    const q=A.r6body(...r.slice(0,6));
+    return r[8]===0&&(!r[9]||Math.abs(r[13])===1&&q[3]<=.141&&q[4]<=.068&&q[5]<=.056);
+  })));
 let badBody=0,backPlanks=0,faceCovers=0;
 for(const rows of A.JOB_LOOK.flat())for(const row of rows){
   if(row[7]){if(row[1]-row[4]/2<1.26&&row[0]>1)faceCovers++;continue;}
+  if(row[13])continue; // Shoulder/arm/head clearance is swept by t79-shoulder-static.
   const q=A.r6body(...row.slice(0,6));
   if(Math.abs(q[2])+q[3]/2>.43||q[1]-q[4]/2<.60||q[1]+q[4]/2>1.30)badBody++;
   if(q[0]<-.08&&q[3]>.35&&q[4]>.35)backPlanks++;

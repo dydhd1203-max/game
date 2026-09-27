@@ -61,7 +61,7 @@ check('Lobby initializes before late esc helper without a runtime error',documen
 check('Legacy saved selection migrates to a non-empty supported outfit',same(A.myDress(),{hat:9,gls:8,clo:10,skin:0}));
 check('Skin tone picker offers every tone with one selected and named',document.querySelectorAll('#skinPick button').length===A.DRESS_OPTIONS.skin.length&&document.querySelectorAll('#skinPick [aria-pressed="true"]').length===1&&[...document.querySelectorAll('#skinPick button')].every(n=>n.getAttribute('aria-label')));
 check('Every skin tone maps to a finite colour and unknown IDs fall back to the default',A.DRESS_OPTIONS.skin.every(i=>Number.isFinite(A.skinCol(i)))&&A.skinCol(99)===A.SKINS[0]&&A.dressPickId('skin',99)===0);
-check('Stable catalog array lengths preserve existing network IDs',A.HATS.length===14&&A.GLASSES.length===9&&A.CLOTHES.length===11);
+check('Nine appended styles retain every legacy network ID',A.HATS.length===17&&A.GLASSES.length===12&&A.CLOTHES.length===14&&[14,15,16].every(i=>A.DRESS_OPTIONS.hat.includes(i))&&[9,10,11].every(i=>A.DRESS_OPTIONS.gls.includes(i))&&[11,12,13].every(i=>A.DRESS_OPTIONS.clo.includes(i)));
 for(const [kind,rows,container] of [['hat',A.HATS,'hatPick'],['gls',A.GLASSES,'glsPick'],['clo',A.CLOTHES,'cloPick']]){
   check(kind+' picker only offers the curated choices',document.querySelectorAll('#'+container+' button').length===A.DRESS_OPTIONS[kind].length);
   check(kind+' selected style and label are accessible',document.querySelectorAll('#'+container+' [aria-pressed="true"]').length===1&&[...document.querySelectorAll('#'+container+' button')].every(n=>n.getAttribute('aria-label')));

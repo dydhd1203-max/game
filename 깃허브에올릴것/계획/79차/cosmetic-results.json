@@ -1,0 +1,387 @@
+{
+  "selected": [
+    {
+      "kind": "hat",
+      "id": 14,
+      "packet": 14,
+      "visible": 4
+    },
+    {
+      "kind": "hat",
+      "id": 15,
+      "packet": 15,
+      "visible": 5
+    },
+    {
+      "kind": "hat",
+      "id": 16,
+      "packet": 16,
+      "visible": 7
+    },
+    {
+      "kind": "gls",
+      "id": 9,
+      "packet": 9,
+      "visible": 11
+    },
+    {
+      "kind": "gls",
+      "id": 10,
+      "packet": 10,
+      "visible": 11
+    },
+    {
+      "kind": "gls",
+      "id": 11,
+      "packet": 11,
+      "visible": 9
+    },
+    {
+      "kind": "clo",
+      "id": 11,
+      "packet": 11,
+      "visible": 16
+    },
+    {
+      "kind": "clo",
+      "id": 12,
+      "packet": 12,
+      "visible": 17
+    },
+    {
+      "kind": "clo",
+      "id": 13,
+      "packet": 13,
+      "visible": 18
+    }
+  ],
+  "catalog": {
+    "parts": {
+      "soft": {
+        "capacity": 1280,
+        "triangles": 168
+      },
+      "cap": {
+        "capacity": 40,
+        "triangles": 240
+      },
+      "petal": {
+        "capacity": 280,
+        "triangles": 284
+      },
+      "heart": {
+        "capacity": 280,
+        "triangles": 188
+      },
+      "star": {
+        "capacity": 200,
+        "triangles": 116
+      }
+    },
+    "catalog": [
+      "별빛 베레모 · 세일러",
+      "아기 오리 · 딸기 후디",
+      "데이지 핀 · 오리 멜빵",
+      "크림 고양이 · 민트 파자마",
+      "토끼 귀 · 라벤더 잠옷",
+      "곰돌이 모자 · 파자마",
+      "딸기 리본 · 원피스",
+      "봄꽃 화관 · 하늘별 잠옷",
+      "나비핀 · 복숭아 나비넥타이"
+    ]
+  },
+  "shared": [
+    {
+      "name": "hat",
+      "id": 9,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "hat",
+      "id": 4,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "hat",
+      "id": 6,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "hat",
+      "id": 3,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "hat",
+      "id": 8,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "hat",
+      "id": 12,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "hat",
+      "id": 14,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "hat",
+      "id": 15,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "hat",
+      "id": 16,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "gls",
+      "id": 8,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "gls",
+      "id": 9,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "gls",
+      "id": 10,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "gls",
+      "id": 11,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "clo",
+      "id": 2,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "clo",
+      "id": 4,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "clo",
+      "id": 8,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "clo",
+      "id": 6,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "clo",
+      "id": 10,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "clo",
+      "id": 3,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "clo",
+      "id": 5,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "clo",
+      "id": 11,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "clo",
+      "id": 12,
+      "preview": true,
+      "icon": true
+    },
+    {
+      "name": "clo",
+      "id": 13,
+      "preview": true,
+      "icon": true
+    }
+  ],
+  "crowds": {
+    "sets": [
+      {
+        "hat": 8,
+        "gls": 10,
+        "clo": 13,
+        "banks": {
+          "soft": {
+            "count": 609,
+            "cap": 1280,
+            "finite": true,
+            "expected": 609
+          },
+          "cap": {
+            "count": 0,
+            "cap": 40,
+            "finite": true,
+            "expected": 0
+          },
+          "petal": {
+            "count": 42,
+            "cap": 280,
+            "finite": true,
+            "expected": 42
+          },
+          "heart": {
+            "count": 0,
+            "cap": 280,
+            "finite": true,
+            "expected": 0
+          },
+          "star": {
+            "count": 42,
+            "cap": 200,
+            "finite": true,
+            "expected": 42
+          }
+        }
+      },
+      {
+        "hat": 14,
+        "gls": 9,
+        "clo": 11,
+        "banks": {
+          "soft": {
+            "count": 189,
+            "cap": 1280,
+            "finite": true,
+            "expected": 189
+          },
+          "cap": {
+            "count": 21,
+            "cap": 40,
+            "finite": true,
+            "expected": 21
+          },
+          "petal": {
+            "count": 63,
+            "cap": 280,
+            "finite": true,
+            "expected": 63
+          },
+          "heart": {
+            "count": 0,
+            "cap": 280,
+            "finite": true,
+            "expected": 0
+          },
+          "star": {
+            "count": 42,
+            "cap": 200,
+            "finite": true,
+            "expected": 42
+          }
+        }
+      },
+      {
+        "hat": 15,
+        "gls": 10,
+        "clo": 12,
+        "banks": {
+          "soft": {
+            "count": 231,
+            "cap": 1280,
+            "finite": true,
+            "expected": 231
+          },
+          "cap": {
+            "count": 21,
+            "cap": 40,
+            "finite": true,
+            "expected": 21
+          },
+          "petal": {
+            "count": 42,
+            "cap": 280,
+            "finite": true,
+            "expected": 42
+          },
+          "heart": {
+            "count": 21,
+            "cap": 280,
+            "finite": true,
+            "expected": 21
+          },
+          "star": {
+            "count": 42,
+            "cap": 200,
+            "finite": true,
+            "expected": 42
+          }
+        }
+      },
+      {
+        "hat": 16,
+        "gls": 11,
+        "clo": 13,
+        "banks": {
+          "soft": {
+            "count": 315,
+            "cap": 1280,
+            "finite": true,
+            "expected": 315
+          },
+          "cap": {
+            "count": 0,
+            "cap": 40,
+            "finite": true,
+            "expected": 0
+          },
+          "petal": {
+            "count": 21,
+            "cap": 280,
+            "finite": true,
+            "expected": 21
+          },
+          "heart": {
+            "count": 42,
+            "cap": 280,
+            "finite": true,
+            "expected": 42
+          },
+          "star": {
+            "count": 0,
+            "cap": 200,
+            "finite": true,
+            "expected": 0
+          }
+        }
+      }
+    ],
+    "empty": true
+  },
+  "errors": []
+}

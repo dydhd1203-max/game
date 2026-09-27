@@ -1,0 +1,354 @@
+{
+  "checks": [
+    {
+      "name": "Day motifs have bright question/answer phrases; nights have lower register and breathing room",
+      "pass": true,
+      "data": [
+        {
+          "k": "day1",
+          "density": 0.796875,
+          "medianHz": 440.00745824565865,
+          "seconds": 16
+        },
+        {
+          "k": "day2",
+          "density": 0.71875,
+          "medianHz": 554.3693707201638,
+          "seconds": 16.32
+        },
+        {
+          "k": "day3",
+          "density": 0.765625,
+          "medianHz": 439.99285619560635,
+          "seconds": 15.36
+        },
+        {
+          "k": "night",
+          "density": 0.5,
+          "medianHz": 219.99642809780318,
+          "seconds": 18.560000000000002
+        },
+        {
+          "k": "boss",
+          "density": 0.5625,
+          "medianHz": 219.99642809780318,
+          "seconds": 16.32
+        }
+      ]
+    },
+    {
+      "name": "Day one opens with the same rhythmic motif answered a fourth higher",
+      "pass": true
+    },
+    {
+      "name": "All five arrangements stay within 28 simultaneous BGM sources over four variations, with no dropped notes or leaks",
+      "pass": true,
+      "data": [
+        {
+          "k": "day1",
+          "peak": 14,
+          "drop": 0,
+          "perLoop": [
+            254,
+            302,
+            216,
+            302
+          ],
+          "remaining": 0
+        },
+        {
+          "k": "day2",
+          "peak": 15,
+          "drop": 0,
+          "perLoop": [
+            306,
+            354,
+            264,
+            354
+          ],
+          "remaining": 0
+        },
+        {
+          "k": "day3",
+          "peak": 14,
+          "drop": 0,
+          "perLoop": [
+            250,
+            298,
+            216,
+            298
+          ],
+          "remaining": 0
+        },
+        {
+          "k": "night",
+          "peak": 15,
+          "drop": 0,
+          "perLoop": [
+            168,
+            216,
+            162,
+            216
+          ],
+          "remaining": 0
+        },
+        {
+          "k": "boss",
+          "peak": 16,
+          "drop": 0,
+          "perLoop": [
+            204,
+            252,
+            196,
+            252
+          ],
+          "remaining": 0
+        }
+      ]
+    },
+    {
+      "name": "Master mute creates no scheduled instrument source",
+      "pass": true
+    },
+    {
+      "name": "Dedicated music instruments use the existing BGM routing; transition, pause and ducking code is shared",
+      "pass": true
+    },
+    {
+      "name": "Real eight-bar music phrases are audible, non-clipping and release every source with no dropped notes",
+      "pass": true,
+      "data": [
+        {
+          "key": "day1",
+          "made": 254,
+          "ended": 254,
+          "drop": 0,
+          "seconds": 16.05,
+          "total": 19.05,
+          "count": 64,
+          "peak": 0.02308209054172039,
+          "rms": 0.005951577806151807,
+          "tail": 6.38020349436752e-20,
+          "roughness": 0.013994847191031692
+        },
+        {
+          "key": "day2",
+          "made": 306,
+          "ended": 306,
+          "drop": 0,
+          "seconds": 16.37,
+          "total": 19.37,
+          "count": 64,
+          "peak": 0.023946652188897133,
+          "rms": 0.002432106046186544,
+          "tail": 2.988411190673378e-20,
+          "roughness": 0.015804524518783076
+        },
+        {
+          "key": "day3",
+          "made": 250,
+          "ended": 250,
+          "drop": 0,
+          "seconds": 15.41,
+          "total": 18.41,
+          "count": 64,
+          "peak": 0.022124728187918663,
+          "rms": 0.005561266129872465,
+          "tail": 6.631730472011727e-20,
+          "roughness": 0.01794487101364798
+        },
+        {
+          "key": "night",
+          "made": 168,
+          "ended": 168,
+          "drop": 0,
+          "seconds": 18.034000000000002,
+          "total": 21.034000000000002,
+          "count": 64,
+          "peak": 0.026979094371199608,
+          "rms": 0.004602268125431333,
+          "tail": 3.741017377410668e-20,
+          "roughness": 0.002955645050409712
+        },
+        {
+          "key": "boss",
+          "made": 204,
+          "ended": 204,
+          "drop": 0,
+          "seconds": 15.986000000000002,
+          "total": 18.986000000000004,
+          "count": 64,
+          "peak": 0.03117266111075878,
+          "rms": 0.005952884843983829,
+          "tail": 3.558039420532133e-20,
+          "roughness": 0.003609972995788715
+        }
+      ]
+    },
+    {
+      "name": "Night uses a softer spectral texture and stays at a comparable, non-startling level",
+      "pass": true
+    }
+  ],
+  "summary": [
+    {
+      "k": "day1",
+      "density": 0.796875,
+      "medianHz": 440.00745824565865,
+      "seconds": 16
+    },
+    {
+      "k": "day2",
+      "density": 0.71875,
+      "medianHz": 554.3693707201638,
+      "seconds": 16.32
+    },
+    {
+      "k": "day3",
+      "density": 0.765625,
+      "medianHz": 439.99285619560635,
+      "seconds": 15.36
+    },
+    {
+      "k": "night",
+      "density": 0.5,
+      "medianHz": 219.99642809780318,
+      "seconds": 18.560000000000002
+    },
+    {
+      "k": "boss",
+      "density": 0.5625,
+      "medianHz": 219.99642809780318,
+      "seconds": 16.32
+    }
+  ],
+  "loads": [
+    {
+      "k": "day1",
+      "peak": 14,
+      "drop": 0,
+      "perLoop": [
+        254,
+        302,
+        216,
+        302
+      ],
+      "remaining": 0
+    },
+    {
+      "k": "day2",
+      "peak": 15,
+      "drop": 0,
+      "perLoop": [
+        306,
+        354,
+        264,
+        354
+      ],
+      "remaining": 0
+    },
+    {
+      "k": "day3",
+      "peak": 14,
+      "drop": 0,
+      "perLoop": [
+        250,
+        298,
+        216,
+        298
+      ],
+      "remaining": 0
+    },
+    {
+      "k": "night",
+      "peak": 15,
+      "drop": 0,
+      "perLoop": [
+        168,
+        216,
+        162,
+        216
+      ],
+      "remaining": 0
+    },
+    {
+      "k": "boss",
+      "peak": 16,
+      "drop": 0,
+      "perLoop": [
+        204,
+        252,
+        196,
+        252
+      ],
+      "remaining": 0
+    }
+  ],
+  "renders": [
+    {
+      "key": "day1",
+      "made": 254,
+      "ended": 254,
+      "drop": 0,
+      "seconds": 16.05,
+      "total": 19.05,
+      "count": 64,
+      "peak": 0.02308209054172039,
+      "rms": 0.005951577806151807,
+      "tail": 6.38020349436752e-20,
+      "roughness": 0.013994847191031692
+    },
+    {
+      "key": "day2",
+      "made": 306,
+      "ended": 306,
+      "drop": 0,
+      "seconds": 16.37,
+      "total": 19.37,
+      "count": 64,
+      "peak": 0.023946652188897133,
+      "rms": 0.002432106046186544,
+      "tail": 2.988411190673378e-20,
+      "roughness": 0.015804524518783076
+    },
+    {
+      "key": "day3",
+      "made": 250,
+      "ended": 250,
+      "drop": 0,
+      "seconds": 15.41,
+      "total": 18.41,
+      "count": 64,
+      "peak": 0.022124728187918663,
+      "rms": 0.005561266129872465,
+      "tail": 6.631730472011727e-20,
+      "roughness": 0.01794487101364798
+    },
+    {
+      "key": "night",
+      "made": 168,
+      "ended": 168,
+      "drop": 0,
+      "seconds": 18.034000000000002,
+      "total": 21.034000000000002,
+      "count": 64,
+      "peak": 0.026979094371199608,
+      "rms": 0.004602268125431333,
+      "tail": 3.741017377410668e-20,
+      "roughness": 0.002955645050409712
+    },
+    {
+      "key": "boss",
+      "made": 204,
+      "ended": 204,
+      "drop": 0,
+      "seconds": 15.986000000000002,
+      "total": 18.986000000000004,
+      "count": 64,
+      "peak": 0.03117266111075878,
+      "rms": 0.005952884843983829,
+      "tail": 3.558039420532133e-20,
+      "roughness": 0.003609972995788715
+    }
+  ]
+}

@@ -13,9 +13,9 @@ const fixtures=`
  const sheltered=()=>false,defNow=()=>defense,forward=()=>({x:0,z:1}),popDmg=(x,y,z,d)=>hits.push(d),flash=()=>{},goDown=()=>{PL.down=true;};
 `;
 const declarations=['WOLF_T','ZOMBIE_COMBAT','WOLF_SPD_GROW','BAL','PROG_REF','PROG_OVER','progRef','isBoss','SHEEP_BITE','SHEEP_BITE_R','SHEEP_REACH_Y'];
-const functions=['wolfRank','curveL','prog','spawnWolf','sheepBiteDmg','sheepHurt','biteStru','packSim','applySim'];
+const functions=['zombieHit79','wolfRank','curveL','prog','spawnWolf','sheepBiteDmg','sheepHurt','biteStru','packSim','applySim'];
 const program=[fixtures,...declarations.map(decl),...functions.map(fn),`globalThis.A={G,PL,WOLF_T,BAL,ZOMBIE_COMBAT,spawnWolf,sheepBiteDmg,sheepHurt,biteStru,packSim,applySim,hits,setDefense:v=>defense=v};`].join('\n');
-const make=before=>{const C=vm.createContext({Math,isFinite,console});new vm.Script(before?program.replace(decl('ZOMBIE_COMBAT'),'const ZOMBIE_COMBAT=Object.freeze({hp:1,damage:1});'):program).runInContext(C);return C.A;};
+const make=before=>{const C=vm.createContext({Math,isFinite,console,performance:{now:()=>0}});new vm.Script(before?program.replace(decl('ZOMBIE_COMBAT'),'const ZOMBIE_COMBAT=Object.freeze({hp:1,damage:1});'):program).runInContext(C);return C.A;};
 const A=make(false),B=make(true),results=[];
 const check=(name,pass,detail)=>{results.push({name,pass:!!pass,detail});console.log(`${pass?'PASS':'FAIL'} ${name} ${JSON.stringify(detail??'')}`);};
 const close=(a,b)=>Math.abs(a-b)<1e-7*Math.max(1,Math.abs(b));

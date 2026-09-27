@@ -313,7 +313,7 @@ function envMax(src,buses){ // 버스 바로 앞 게인(봉투)의 봉우리 —
 { const has=(fn,re)=>re.test(fnSrc(fn)),A0=makeGame();
   const W=[
     ['hitNode: leaf/grit + chunk + coin per block, treeFall/rockBreak when done',has('hitNode',/'leaf'/)&&has('hitNode',/'grit'/)&&has('hitNode',/'chunk'/)&&has('hitNode',/'coin'/)&&has('hitNode',/'treeFall'/)&&has('hitNode',/'rockBreak'/)],
-    ['workTick: feed scoop · broom · pry · squeak · tok/tak',has('workTick',/feedScoop/)&&has('workTick',/broom/)&&has('workTick',/pry/)&&has('workTick',/squeak/)&&has('workTick',/'tok'/)],
+    ['workTick: feed scoop · broom · pry · construction/repair wood hammer · other tok/tak',has('workTick',/feedScoop/)&&has('workTick',/broom/)&&has('workTick',/pry/)&&has('workTick',/'buildKnock79'/)&&has('workTick',/'tok'/)],
     ['openPop: shop door+bell · forge anvil · farm gate',has('openPop',/shopOpen/)&&has('openPop',/forgeOpen/)&&has('openPop',/farmOpen/)],
     ['buy sounds: weapon·armor·ammo·potion·trade · sell farm goods',has('buyWeapon',/'buy'/)&&has('buyArmor',/'buy'/)&&has('buyAmmo',/'buy'/)&&has('buyPotion',/'buy'/)&&has('acceptPurchase',/'sell'/)&&has('acceptPurchase',/'buy'/)],
     ['buyAnimal: nope when short · coin + that animal’s voice',has('buyAnimal',/'nope'/)&&has('buyAnimal',/__sfx\(kind\)/)],

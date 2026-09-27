@@ -1,6 +1,6 @@
 /* 66차 CTRL — 브라우저 없이 실제 게임 소스의 함수를 떼어 와 실행한다(계산식을 복사하지 않는다).
-   ① 총 조작: 우클릭 한 번 = 총 들기/넣기(잠금 있든 없든, 자동 잠금 없음) · Q·R·E·F·V·1~6 은 총을 넣고 그 도구를 바로 잡는다(알림 한 줄)
-      · 6~9 물약은 총을 안 넣는다 · 쓰러짐·창·관전 중엔 그대로 · T 는 말없이 같은 동작 · 안내 글에 'T 총' 없음
+   ① 총 조작: 우클릭 한 번 = 총 들기/넣기(잠금 있든 없든, 자동 잠금 없음) · Q·T·E·F·V·1~6 은 총을 넣고 그 도구를 바로 잡는다(알림 한 줄)
+      · 6~9 물약은 총을 안 넣는다 · 쓰러짐·창·관전 중엔 그대로 · 79차 R 재장전/T 수리 · 안내 글에 'T 총' 없음
    ② 도구 줄 맨 앞 총 칸: 무기 그림·짧은 이름·'우클릭' · 총을 들면 이 칸만 켜짐 · 누르면 들기/넣기
    ③ 오늘 밤 안내: 팁(대비법) 없음 — NIGHT_DEF.hint·"이렇게 대비해요"·보스 대비법 자막·내일 보스 조언 모두 없음, 분위기 한 줄만
    ④ 밤마다 다른 모습: 열 밤 + 보스 다섯의 열쇠(data-nt)가 모두 다르고, 열쇠마다 색·꾸밈 CSS 가 있다 · 밤 시작 소리 세기 0.17 이하
@@ -67,7 +67,7 @@ function setAimMode(on,quiet){ on=!!on; LOG.aim.push([on,!!quiet]); if(aimMode==
 function selectTool(t){ curTool=t; curBuild=null; LOG.tool.push(t); paintBar(); }
 function selectBuild(b){ if(!BUILD[b]) return; curBuild=b; curTool='build'; LOG.build.push(b); paintBar(); }
 function toast(m){ LOG.toast.push(m); }
-const TOOLS=[{id:'mine',name:'캐기',icon:'⛏️',key:'Q'},{id:'repair',name:'수리',icon:'🔧',key:'R'},{id:'up',name:'강화',icon:'⬆️',key:'E'},{id:'del',name:'철거',icon:'💥',key:'F'},{id:'move',name:'옮기기',icon:'↔️',key:'V'}];
+const TOOLS=[{id:'mine',name:'캐기',icon:'⛏️',key:'Q'},{id:'repair',name:'수리',icon:'🔧',key:'T'},{id:'up',name:'강화',icon:'⬆️',key:'E'},{id:'del',name:'철거',icon:'💥',key:'F'},{id:'move',name:'옮기기',icon:'↔️',key:'V'}];
 const BUILD={wwall:{name:'나무벽',icon:'🪵',cost:{w:5,s:0,g:0}},swall:{name:'돌벽',icon:'🧱',cost:{w:1,s:7,g:0}}};
 const BKEYS=Object.keys(BUILD);
 const WEAPONS=[{n:'맨손 돌',ic:'🪨'},{n:'나무 새총',ic:'🪃'},{n:'돌 화승총',ic:'🔫'}];
@@ -146,14 +146,14 @@ check('mousedown: button 2 toggles the gun with or without pointer lock, never a
   /document\.pointerLockElement===cv\)\{[\s\S]*e\.button===2\)\{ e\.preventDefault\(\); toggleGun\(\); \}/.test(mdn)
   && /else if\(e\.button===2 && e\.target===cv\) toggleGun\(\)/.test(mdn) && !/requestPointerLock/.test(mdn), mdn.slice(0,300));
 const kd=noComments(code.slice(code.indexOf("if(k===' '){ if(!e.repeat) wantJump = true;"),code.indexOf("if(k==='i'){")));
-check('Q·R·E·F·V go through pickTool, 1~6 through pickBuild', ['mine','repair','up','del','move'].every(t=>kd.includes(`pickTool('${t}')`))
+check('Q·T·E·F·V go through pickTool, 1~6 through pickBuild', ['mine','repair','up','del','move'].every(t=>kd.includes(`pickTool('${t}')`))
   && /pickBuild\(BKEYS\[\+k-1\]\)/.test(kd) && !/selectTool\(/.test(kd));
 check('6~9 while aiming only drink a potion (the gun stays)', /!\(aimMode && k>='6'\)\) pickBuild/.test(kd) && /if\(k>='6' && k<='9'\)\{ usePotion\(\+k-6\); \}/.test(kd));
-check('T still toggles (silently, same path as right click)', /if\(k==='t'\) toggleGun\(\);/.test(kd));
+check('79: R reloads and T selects repair; T no longer toggles the gun', /if\(k==='r'\)manualReload79\(\);else pickTool\('repair'\)/.test(kd) && !/if\(k==='t'\) toggleGun\(\)/.test(kd));
 /* 안내 글에서 'T 로 총' 류가 사라졌다 — 주석은 빼고, 글(문자열·HTML)만 본다 */
 const html=source.replace(/<script type="module">[\s\S]*?<\/script>/,'').replace(/<!--[\s\S]*?-->/g,'').replace(/\/\*[\s\S]*?\*\//g,'');   // 글만 — HTML·CSS 주석은 뺀다
 const jsText=noComments(code);
-const tRe=/T 총|T 로 총|T로 총|T 로 풀|<b>T<\/b>|T 를 누르면 총|T 키로 총/;
+const tRe=/T 총|T 로 총|T로 총|T 로 풀|T 를 누르면 총|T 키로 총/;
 check('No guide text explains T as the gun key (help, start screen, goal line)', !tRe.test(html) && !tRe.test(jsText),
   (html.match(tRe)||jsText.match(tRe)||[''])[0]);
 check('The guide now says right click for the gun', /우클릭 총/.test(jsText) && /오른쪽 클릭/.test(html) && /우클릭 총 들기\/넣기/.test(html));

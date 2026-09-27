@@ -27,14 +27,21 @@ for(const p of clothPoses.slice(1)){
 }
 ok('Wing roots remain rigidly attached to the torso during running, work, recoil and landing',mountError<1e-6,{mountError});
 ok('Torso clothing shares the body lean, breath and landing transform',clothError<1e-6,{clothError});
-let jobMountError=0;
+let jobMountError=0,shoulderMountError=0,shoulderSamples=0;
 for(const p of poses.slice(1))for(let j=0;j<A.JOB_LOOK[0][1].length;j++){
  const row=A.JOB_LOOK[0][1][j];if(row[7]||row[8])continue;
  const key=A.JOB_GEO[row[12]]?'job_'+row[12]:'deco';
  const idx=A.JOB_LOOK[0][1].slice(0,j).filter(h=>(A.JOB_GEO[h[12]]?'job_'+h[12]:'deco')===key).length;
+ if(row[13]){
+  // Compare with the rigid shoulder joint at the top of the upper arm. The
+  // rendered arm's scale describes its segment dimensions, not an accessory scale.
+  const arm=row[13]>0?0:2,at=(pose)=>{const p0=new THREE.Vector3(),q0=new THREE.Quaternion(),s0=new THREE.Vector3();pose.arm[arm].decompose(p0,q0,s0);const rigid=new THREE.Matrix4().compose(p0,q0,new THREE.Vector3(1,1,1)).invert();const v=position(rigid.multiply(pose[key][idx]));v.y-=s0.y*.5;return v;};
+  shoulderMountError=Math.max(shoulderMountError,at(p).distanceTo(at(poses[0])));shoulderSamples++;continue;
+ }
  jobMountError=Math.max(jobMountError,position(local(p,p[key][idx])).distanceTo(position(local(poses[0],poses[0][key][idx]))));
 }
 ok('Authored torso job pieces keep their body-local mounting points',jobMountError<1e-6,{jobMountError});
+ok('Curved shoulder pieces keep their upper-arm mounting points through all six actions',shoulderSamples>0&&shoulderMountError<1e-6,{shoulderMountError,shoulderSamples});
 // 66차 — 날개는 꼭짓점 셰이더가 관절에서 굽힌다. 인스턴스 칸(wflex)에 적힌 굽힘값을 소스의 wingBend(셰이더와 같은 셈)로 꼭짓점에 입혀 잰다.
 function wingBounds(p){const box=new THREE.Box3(),inv=p.body[0].clone().invert();let inside=0;
  for(const key of ['wing0','wing1'])p[key].forEach((m,n)=>{const full=inv.clone().multiply(m),G=A.meshes[key].geometry,geo=G.attributes.position,B=G.attributes.wbone,V=G.attributes.wpiv,F=p._flex&&p._flex[key],f=F&&F.length?[0,1,2,3].map(k=>F[n*4+k]):[0,0,0,0],o=[0,0,0];

@@ -1,0 +1,158 @@
+{
+  "checks": [
+    {
+      "name": "Construction, assistance, upgrade and repair use the original 0.42-second tool beats at 30/60/120 FPS",
+      "pass": true,
+      "data": [
+        {
+          "kind": "coop",
+          "dt": 0.03333333333333333,
+          "beats": 15
+        },
+        {
+          "kind": "coop",
+          "dt": 0.016666666666666666,
+          "beats": 15
+        },
+        {
+          "kind": "coop",
+          "dt": 0.008333333333333333,
+          "beats": 15
+        },
+        {
+          "kind": "build",
+          "dt": 0.03333333333333333,
+          "beats": 15
+        },
+        {
+          "kind": "build",
+          "dt": 0.016666666666666666,
+          "beats": 15
+        },
+        {
+          "kind": "build",
+          "dt": 0.008333333333333333,
+          "beats": 15
+        },
+        {
+          "kind": "up",
+          "dt": 0.03333333333333333,
+          "beats": 15
+        },
+        {
+          "kind": "up",
+          "dt": 0.016666666666666666,
+          "beats": 15
+        },
+        {
+          "kind": "up",
+          "dt": 0.008333333333333333,
+          "beats": 15
+        },
+        {
+          "kind": "repair",
+          "dt": 0.03333333333333333,
+          "beats": 15
+        },
+        {
+          "kind": "repair",
+          "dt": 0.016666666666666666,
+          "beats": 15
+        },
+        {
+          "kind": "repair",
+          "dt": 0.008333333333333333,
+          "beats": 15
+        }
+      ]
+    },
+    {
+      "name": "Farm, demolition, revive and shared UI/countdown tick sounds retain their original routes",
+      "pass": true
+    },
+    {
+      "name": "Each wooden hammer stroke uses three short bounded sources with warm body, dry contact and timber resonance",
+      "pass": true,
+      "data": [
+        {
+          "hard": 0,
+          "voices": 3,
+          "peakGain": 0.0853372173124281,
+          "end": 0.135,
+          "types": [
+            "triangle",
+            null,
+            "sine"
+          ]
+        },
+        {
+          "hard": 1,
+          "voices": 3,
+          "peakGain": 0.08548557014504107,
+          "end": 0.135,
+          "types": [
+            "triangle",
+            null,
+            "sine"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Duplicate callers are limited to one cue per 0.30 seconds and every source disconnects",
+      "pass": true,
+      "data": {
+        "cues": 20,
+        "sources": 60
+      }
+    },
+    {
+      "name": "Master mute schedules no wood voice; normal effects bus controls the dedicated sound",
+      "pass": true
+    },
+    {
+      "name": "Actual ten-stroke WebAudio phrase is audible, non-clipping, and releases all thirty voices",
+      "pass": true,
+      "data": {
+        "made": 30,
+        "ended": 30,
+        "drop": 0,
+        "peak": 0.0634574443101883,
+        "rms": 0.004107366983260752,
+        "tail": 2.3502708919552197e-11
+      }
+    }
+  ],
+  "profiles": [
+    {
+      "hard": 0,
+      "voices": 3,
+      "peakGain": 0.0853372173124281,
+      "end": 0.135,
+      "types": [
+        "triangle",
+        null,
+        "sine"
+      ]
+    },
+    {
+      "hard": 1,
+      "voices": 3,
+      "peakGain": 0.08548557014504107,
+      "end": 0.135,
+      "types": [
+        "triangle",
+        null,
+        "sine"
+      ]
+    }
+  ],
+  "render": {
+    "made": 30,
+    "ended": 30,
+    "drop": 0,
+    "peak": 0.0634574443101883,
+    "rms": 0.004107366983260752,
+    "tail": 2.3502708919552197e-11
+  }
+}

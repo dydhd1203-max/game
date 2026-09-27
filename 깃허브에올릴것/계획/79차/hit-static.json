@@ -1,0 +1,100 @@
+{
+  "checks": [
+    {
+      "name": "Readable flash/recoil at 20/30/60/120 FPS always recover without changing authority state",
+      "pass": true,
+      "data": [
+        {
+          "fps": 20,
+          "white": 2,
+          "peak": 1.1599999999999957
+        },
+        {
+          "fps": 30,
+          "white": 2,
+          "peak": 1.16
+        },
+        {
+          "fps": 60,
+          "white": 4,
+          "peak": 1.16
+        },
+        {
+          "fps": 120,
+          "white": 8,
+          "peak": 1.16
+        }
+      ]
+    },
+    {
+      "name": "Boss recoil is less than half; visual helpers preserve HP, world position and attack timer",
+      "pass": true,
+      "data": {
+        "normal": 1.16,
+        "boss": 0.5568
+      }
+    },
+    {
+      "name": "A hidden actor returns without stale flash, recoil or hurt",
+      "pass": true
+    },
+    {
+      "name": "Rapid simultaneous hits do not restart reaction on every frame",
+      "pass": true,
+      "data": {
+        "accepted": 5,
+        "attempted": 100
+      }
+    },
+    {
+      "name": "Guest HP drop triggers once; identical later snapshots do not replay or hold white",
+      "pass": true
+    },
+    {
+      "name": "Own in-flight impact is not replayed early by its HP snapshot",
+      "pass": true
+    },
+    {
+      "name": "Host keeps immediate exact damage, defers own projectile picture, and reacts to friend damage",
+      "pass": true
+    },
+    {
+      "name": "A real pooled stone invokes impact exactly once on arrival with dust in the same tick",
+      "pass": true
+    },
+    {
+      "name": "A missed stone emits environment dust but never a hit callback",
+      "pass": true
+    },
+    {
+      "name": "Saturated fixed stone pool neither loses nor duplicates callbacks",
+      "pass": true,
+      "data": {
+        "callbacks": 40
+      }
+    },
+    {
+      "name": "Late lethal impact never resurrects or changes corpse lifetime",
+      "pass": true
+    },
+    {
+      "name": "Actual fireWeapon defers stone hitVis, provides normal stone sound, and preserves hit authority",
+      "pass": true
+    },
+    {
+      "name": "Short normal hit gets three free sources; saturated pool and ordinary sound guards remain bounded",
+      "pass": true
+    },
+    {
+      "name": "One thousand burst requests yield at most sixteen short impact cues per second",
+      "pass": true,
+      "data": {
+        "cues": 16
+      }
+    },
+    {
+      "name": "No mesh/texture/light allocation was added to the per-hit or pose paths",
+      "pass": true
+    }
+  ]
+}

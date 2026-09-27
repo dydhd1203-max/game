@@ -42,8 +42,9 @@ const pieces=[fixtures,declaration('RB_SPEC'),declaration('flatMat'),fn('metalMa
  // zombieChaseGate 가 쫓을 때의 최소 걸음(BAL.chaseMin)과 종류별 배수를 읽는다.
  declaration('BAL'),
  chunk('const WOLF_T =','function drawWolves('),fn('drawWolves'),declaration('HEAD_M'),fn('smoothHead'),fn('idleLife'),fn('limb1'),fn('limb2'),
- `globalThis.A={G,WOLF_T,BAL,WOLF_SPD_GROW,zombieChaseGate,LOOKS,ZOMBIE_STYLE,ZOMBIE_NIGHT,WOLF_DEAD,wolfPose,drawWolves,meshes:{${names.map(n=>n+':'+n).join(',')}},ZOMBIE_RISE_T,ZOMBIE_LIE_T,ZSKIN:ZOMBIE_MAT.skin,ZGEO:ZOMBIE_GEO,wolfCorpse,setNight:v=>{NIGHTK=v;}};`];
-const context=vm.createContext({THREE,console});new vm.Script(pieces.join('\n')).runInContext(context,{timeout:10000});const A=context.A;
+ `globalThis.A={G,WOLF_T,BAL,WOLF_SPD_GROW,zombieChaseGate,LOOKS,ZOMBIE_STYLE,ZOMBIE_NIGHT,WOLF_DEAD,wolfPose,drawWolves,zombieHit79,meshes:{${names.map(n=>n+':'+n).join(',')}},ZOMBIE_RISE_T,ZOMBIE_LIE_T,ZSKIN:ZOMBIE_MAT.skin,ZGEO:ZOMBIE_GEO,wolfCorpse,setNight:v=>{NIGHTK=v;}};`];
+let hitClock79=0;
+const context=vm.createContext({THREE,console,performance:{now:()=>hitClock79*1000}});new vm.Script(pieces.join('\n')).runInContext(context,{timeout:10000});const A=context.A;
 const results=[];const check=(n,p,d)=>{results.push({name:n,pass:!!p,detail:d});console.log((p?'OK   ':'FAIL ')+n+(d===undefined?'':' '+JSON.stringify(d)));};
 const actor=(k=0,extra={})=>({k,x:0,y:0,z:0,ry:0,id:2,ph:.3,hp:40,mx:40,mv:false,atkT:0,hurt:0,...extra});
 function snapshot(w,t=4,dt=.016){A.drawWolves([w],t,dt);return Object.fromEntries(Object.entries(A.meshes).map(([n,m])=>[n,Array.from({length:m.count},(_,i)=>{const a=new THREE.Matrix4();m.getMatrixAt(i,a);return a;})]));}
@@ -115,9 +116,9 @@ check('Two-part legs stay joined at the knee, keep equal segment lengths and ben
  check('A crowd at the same speed walks with individual stride and cadence',new Set(rates).size>=5&&Math.max(...rates)/Math.min(...rates)>1.12,{gaitRates:rates});}
 {const w=actor(0,{id:4}),dt=1/60;let t=4;for(let i=0;i<30;i++){t+=dt;A.drawWolves([w],t,dt);}
  const feet=()=>[2,3].map(j=>{const m=new THREE.Matrix4();A.meshes.W_sleeve.getMatrixAt(j,m);return endOf(m);});
- const before=feet(),x0=w.x,z0=w.z;w.kT=.22;w.kx=1;w.kz=0;w.hurt=.18;let moved=0;
- for(let i=0;i<14;i++){t+=dt;w.hurt=Math.max(0,w.hurt-dt);A.drawWolves([w],t,dt);const f=feet();moved=Math.max(moved,...f.map((p,j)=>p.distanceTo(before[j])));}
- for(let i=0;i<40;i++){t+=dt;w.hurt=Math.max(0,w.hurt-dt);A.drawWolves([w],t,dt);}
+ const before=feet(),x0=w.x,z0=w.z;hitClock79=t;A.zombieHit79(w,1,0);let moved=0;
+ for(let i=0;i<14;i++){t+=dt;hitClock79=t;A.drawWolves([w],t,dt);const f=feet();moved=Math.max(moved,...f.map((p,j)=>p.distanceTo(before[j])));}
+ for(let i=0;i<40;i++){t+=dt;hitClock79=t;A.drawWolves([w],t,dt);}
  const settled=Math.max(...feet().map((p,j)=>p.distanceTo(before[j])));
  check('A hit adds a display-only stagger half-step that settles back without moving the zombie',moved>.03&&settled<.01&&w.x===x0&&w.z===z0,{step:+moved.toFixed(3),settled:+settled.toFixed(4)});}
 {const w=actor(0,{id:4}),dt=1/60;let t=4;for(let i=0;i<20;i++){t+=dt;A.drawWolves([w],t,dt);}

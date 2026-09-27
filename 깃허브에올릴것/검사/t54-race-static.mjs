@@ -31,7 +31,7 @@ const raceArtBuild=()=>{},raceArtRebuild=()=>{},raceArtReset=()=>{};
 const raceBounceSound=()=>{};
 `;
 const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE_SEC','ROCK','RACE_LAUNCH_RATE','RACE74','GRAV','RACE_TOY77'];
-const functions=['mulberry','furLight','race74Reset','raceGravityScale','raceMotion','raceBuild','raceOff','raceZOff','racePose','raceJumpPose','raceLandingPose','raceAlive','raceContains','raceSurface','raceTopAt','raceUnder','raceSlotXZ','raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','racePunchHit','raceToyForm77','raceToyHit77','raceBarHit','raceSlideHit78','raceHazardTick'];
+const functions=['mulberry','furLight','race74Reset','raceGravityScale','raceMotion','raceBuild','raceOff','raceZOff','racePose','raceJumpPose','raceLandingPose','raceAlive','raceContains','raceSurface','raceTopAt','raceUnder','raceSlotXZ','raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','racePunchHit','raceDonutContact79','raceDonutHit79','raceToyForm77','raceToyHit77','raceBarHit','raceBarSeparate79','raceSlideHit78','raceHazardTick'];
 const ctx=vm.createContext({console});
 new vm.Script([fixtures,...declarations.map(decl),...functions.map(fn),`
 globalThis.A={RACE,RACE_P,RACE_S,RACE_SEC,RACE_Z_FIN,RACE_LAUNCH_RATE,RACE74,GRAV,JUMP,PL,G,MINE,raceBuild,raceOff,racePose,raceJumpPose,raceLandingPose,raceContains,raceSurface,raceTopAt,raceUnder,raceHazards,racePunchHit,raceToyForm77,raceHazardTick,raceGravityScale,raceMotion,
@@ -94,7 +94,7 @@ const launchPads=A.RACE_P.filter(p=>p.bounce),manualPads=launchPads.filter(p=>p.
 check('Four manual donut pads and the final launch expose finite bounce impulses',manualPads.length===4&&launchPads.length===5&&
   launchPads.every(p=>Number.isFinite(p.bounce.v)&&p.bounce.v>0&&Number.isFinite(p.bounce.forward)&&p.bounce.forward>0),
   {pads:launchPads.length,manualPads:manualPads.length});
-check('Manual donuts have a small offset jump zone and exact separated landing circles',manualPads.every((p,i)=>p.w===24&&p.d===24&&p.bounce.zone===2.5&&p.z===244+i*56&&
+check('Manual donuts retain separated diagonal landing circles without an exclusive jump-zone radius',manualPads.every((p,i)=>p.w===24&&p.d===24&&p.bounce.zone===undefined&&p.z===244+i*56&&
   A.raceJumpPose(p).z===p.z+5.5&&Math.abs(A.raceJumpPose(p).x-p.x)===4&&
   (i===0||!A.raceContains(manualPads[i-1],0,(p.z+manualPads[i-1].z)/2,0,0))));
 const movingPads=A.RACE_P.filter(p=>p.sec===4&&p.mv),movingGaps=[];
@@ -146,14 +146,14 @@ for(let t=0;t<12;t+=.25){const all=A.raceHazards(t);
     Object.assign(A.PL,{x:pad.x,z:pad.z,y:100+pad.y});blockedCenters&&=bags.some(h=>A.racePunchHit(h));
     const jp=A.raceJumpPose(pad,t),lp=A.raceLandingPose(pad,t);
     Object.assign(A.PL,{x:lp.x,z:lp.z,y:100+pad.y});clearLandings&&=!bags.some(h=>A.racePunchHit(h));
-    for(let i=0;i<72;i++){const a=i*Math.PI/36;Object.assign(A.PL,{x:jp.x+Math.cos(a)*pad.bounce.zone,z:jp.z+Math.sin(a)*pad.bounce.zone,y:100+pad.y});
+    for(let i=0;i<72;i++){const a=i*Math.PI/36;Object.assign(A.PL,{x:jp.x+Math.cos(a)*2.5,z:jp.z+Math.sin(a)*2.5,y:100+pad.y});
       clearJumpZones&&=A.raceContains(pad,A.PL.x,A.PL.z,-.3,t)&&!bags.some(h=>A.racePunchHit(h));}
     // A real walkable U-shaped detour, never a straight center-to-center auto route.
     const way=[lp,{x:lp.x,z:pad.z+8.5},{x:jp.x,z:pad.z+8.5},jp];
     for(let j=1;j<way.length;j++)for(let u=0;u<=1;u+=.025){Object.assign(A.PL,{x:way[j-1].x*(1-u)+way[j].x*u,z:way[j-1].z*(1-u)+way[j].z*u,y:100+pad.y});walkableWeave&&=A.raceContains(pad,A.PL.x,A.PL.z,-.3,t)&&!bags.some(h=>A.racePunchHit(h));}
   }}
-check('Eight interior bags block center landings while alternating landing flanks and full offset jump zones stay clear through every sway phase',landingHazards&&blockedCenters&&clearLandings&&clearJumpZones,{landingHazards,blockedCenters,clearLandings,clearJumpZones});
-check('Every landing flank connects to its opposite launch zone through a supported obstacle-free weaving route',walkableWeave);
+check('Eight interior donuts block center landings while alternating landing flanks and optional clear launch pockets stay clear through every sway phase',landingHazards&&blockedCenters&&clearLandings&&clearJumpZones,{landingHazards,blockedCenters,clearLandings,clearJumpZones});
+check('Every landing flank connects to another optional take-off pocket through a supported obstacle-free weaving route',walkableWeave);
 let gatesSafe=true,gatesMove=false,gatesDet=true,minCrowdWidth=Infinity,maxCrowdWidth=0,maxSway=0;
 const gateSamples=[];
 for(const seed of seeds.slice(0,8)){
@@ -175,7 +175,7 @@ for(const seed of seeds.slice(0,8)){
 check('Seeded slalom bags breathe independently, leaving multiple narrow crowd lanes instead of a broad bypass',
   gatesSafe&&gatesDet&&gatesMove&&maxSway<=.400001&&minCrowdWidth>1.0&&maxCrowdWidth<3.5,{seeds:8,maxSway,minCrowdWidth,maxCrowdWidth,gateSamples});
 A.raceBuild(740021);A.RACE.t=2;obstacles.splice(0,obstacles.length,...A.raceHazards(2));
-const bag=obstacles.find(h=>h.k==='punch'&&h.sec===2),probeBag=(dx,foot)=>{
+const bag=obstacles.find(h=>h.k==='punch'&&h.sec===6),probeBag=(dx,foot)=>{
   Object.assign(A.PL,{x:bag.x+dx,z:bag.z,y:100+foot});return A.racePunchHit(bag);
 };
 const sweepDeck=A.RACE_P.find(p=>p.sec===1&&!p.cp),sweeps=obstacles.filter(h=>h.k==='bar');
@@ -256,7 +256,7 @@ for(const fps of [30,60,120])for(const [name,vx,vz]of [['coast',0,0],['left',-10
 check('Real buoyant-flight steering provides substantial sideways control and bounded reverse braking',
   airControls.every(q=>q.name==='coast'?Math.abs(q.x)<1e-8&&Math.abs(q.vz-21.5)<1e-8:
     q.name==='brake'?q.vz>15&&q.vz<18&&q.z>10:
-    Math.sign(q.x)===(q.name==='left'?-1:1)&&Math.abs(q.x)>3.5&&Math.abs(q.x)<4.1&&q.z>12),airControls);
+    Math.sign(q.x)===(q.name==='left'?-1:1)&&Math.abs(q.x)>4.8&&Math.abs(q.x)<5.1&&q.z>12),airControls);
 
 // The cylinder and hemisphere must share the same actual equator polygon.
 // Merely matching radius leaves tiny sky-colored holes when 16-sided shafts
@@ -267,7 +267,7 @@ const geometryFor=name=>{const m=new RegExp('A\\.'+name+'=dyn\\(raceArtUV\\((?:r
 const shaft=geometryFor('bar'),cap=geometryFor('cap'),seamCases=[];
 const bank=geometry=>({geometry,matrices:[],count:0,count_max:512,setMatrixAt(i,m){this.matrices[i]=m.clone();}});
 const artFixture=()=>{const art={builtSeed:1,stamp:0,static:[],dynamic:[],toys:[],stats:{}};
-  for(const n of ['pad','padTrim','bar','ball','cap','metal','jump','rock'])art[n]=bank(n==='bar'?shaft:cap);return art;};
+  for(const n of ['pad','padTrim','bar','ball','cap','metal','jump','rock'])art[n]=bank(n==='bar'?shaft:cap);art.donut=[bank(cap),bank(cap),bank(cap)];return art;};
 const drawContext=vm.createContext({THREE,art:artFixture(),hazards:[]});
 vm.runInContext(`const MINI_Y=100,PL={z:0},RACE={seed:1,t:0},RACE_P=[{}],RACE74={pulse:new Map()},RACE_RAINBOW76=[0xffffff];
  const RACE_ART_PALETTE={cream:0xffffff,yellow:0xffff00,silver:0xaaaaaa,lavender:0xccccff};let RACE_ART74=art;

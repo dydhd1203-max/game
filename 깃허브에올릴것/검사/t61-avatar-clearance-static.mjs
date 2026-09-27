@@ -59,10 +59,10 @@ const clothes=vm.runInContext('DRESS_OPTIONS.clo',context);
 let clothingClips=0,accessoryClips=0,clothingFrames=0,accessoryFrames=0;
 for(const clo of clothes)for(const run of [false,true])for(let dir=0;dir<8;dir++)for(let step=0;step<24;step++){
  draw(actor({clo,mv:true,run,dir:dir*Math.PI/4,gp:step*Math.PI/12}),10,.7);clothingFrames++;
- for(let i=0;i<4;i++)for(let j=0;j<A.meshes.deco.count;j++)
-  clothingClips+=boxOverlap(A.meshes.deco,j,A.meshes.arm,i)||boxOverlap(A.meshes.arm,i,A.meshes.deco,j)?1:0;
+ for(const mesh of [A.meshes.deco,...Object.values(A.P_cosParts)])for(let i=0;i<4;i++)for(let j=0;j<mesh.count;j++)
+  clothingClips+=boxOverlap(mesh,j,A.meshes.arm,i)||boxOverlap(A.meshes.arm,i,mesh,j)?1:0;
 }
-check('All eight current outfits stay outside both arm swing paths',clothes.length===8&&clothingClips===0,{clothingFrames,clothingClips});
+check('All eleven current outfit choices stay outside both arm swing paths',clothes.length===11&&clothingClips===0,{clothingFrames,clothingClips});
 for(let jb=0;jb<3;jb++)for(let jt=1;jt<=2;jt++)for(const run of [false,true])for(let dir=0;dir<8;dir++)for(let step=0;step<24;step++){
  draw(actor({jb,jt,mv:true,run,dir:dir*Math.PI/4,gp:step*Math.PI/12}),10,.7);accessoryFrames++;
  for(const mesh of [A.meshes.deco,...Object.values(A.P_jobParts)])for(let i=0;i<4;i++)for(let j=0;j<mesh.count;j++)
@@ -133,7 +133,7 @@ for(const fps of [30,60,120])for(const me of [true,false])for(const look of race
   const phase=air?s.vy>0?'rise':'air':'land';
   for(let i=0;i<4;i++){
    raceArmClips+=boxOverlap(A.meshes.arm,i,A.meshes.body)?1:0;
-   for(const mesh of [A.meshes.deco,...Object.values(A.P_jobParts)])for(let j=0;j<mesh.count;j++){
+   for(const mesh of [A.meshes.deco,...Object.values(A.P_jobParts),...Object.values(A.P_cosParts)])for(let j=0;j<mesh.count;j++){
     const clip=boxOverlap(mesh,j,A.meshes.arm,i);
     if(clip&&raceExamples.length<6)raceExamples.push({fps,me,look,phase,t,arm:i,part:j});
     raceClothingClips+=clip?1:0;
@@ -189,7 +189,7 @@ const start=source.indexOf('/* ★ 직업 옷·모자·소품'),end=source.index
 if(start<0||end<start)throw Error('Missing avatar shadow setup');
 vm.runInContext(source.slice(start,end),context);
 check('Thin costume and face layers neither cast nor receive unstable self shadows',
- [A.meshes.deco,A.meshes.eyes,A.meshes.mouth,A.meshes.nose,...Object.values(A.P_jobParts)].every(m=>!m.castShadow&&!m.receiveShadow));
+ [A.meshes.deco,A.meshes.eyes,A.meshes.mouth,A.meshes.nose,...Object.values(A.P_jobParts),...Object.values(A.P_cosParts)].every(m=>!m.castShadow&&!m.receiveShadow));
 check('Solid avatar parts retain ground shadows without sampling their own shadow map',
  ['body','head','arm','handL','handR','legs','shoes','gun'].every(k=>A.meshes[k].castShadow&&!A.meshes[k].receiveShadow));
 console.log(`${checks.filter(Boolean).length}/${checks.length} avatar clearance checks passed.`);

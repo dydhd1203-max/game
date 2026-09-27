@@ -54,6 +54,9 @@ try {
       stages.push({name:'section-'+(sec+1),x:p.x,z:p.z,y:W.__race74.surface(p,p.x,p.z),detail:true});
     }
     const captures=[],timing=[],overflow=[];
+    const artBudget=()=>{const a=W.__race74.art();return {...a.stats,donutBanks:(a.donut||[]).map((m,flavor)=>({flavor,
+      count:m.count,capacity:m.instanceMatrix.count,triangles:(m.geometry.index?.count||m.geometry.attributes.position.count)/3,
+      materialShared:m.material===a.mats[2],geometry:m.geometry.uuid,colorsValid:!!m.geometry.attributes.color&&m.geometry.attributes.color.count===m.geometry.attributes.position.count}))};};
     for(const stage of stages){
       Object.assign(P,{x:stage.x,y:stage.y,z:stage.z,vx:0,vz:0,vy:0,ground:true,down:false,mv:false,yaw:Math.PI,pitch:-.22});
       W.__crowdAt(stage.x,stage.z,stage.y);
@@ -74,7 +77,7 @@ try {
         W.__cam.position.y=Math.max(W.__cam.position.y,W.__race74.surface(p,W.__cam.position.x,W.__cam.position.z)+.6);
       W.__cam.lookAt(stage.x,stage.y+1,stage.z+15);
       R.info.autoReset=false;R.info.reset();W.__drawFrame();
-      captures.push({name:stage.name,kind:'staged-diagnostic',cameraFloorLift:W.__cam.position.y-requestedY,png:R.domElement.toDataURL('image/png'),calls:R.info.render.calls,triangles:R.info.render.triangles,memory:{...R.info.memory},programs:R.info.programs.length,...W.__race74?{raceArt:{...W.__race74.art().stats}}:{}});
+      captures.push({name:stage.name,kind:'staged-diagnostic',cameraFloorLift:W.__cam.position.y-requestedY,png:R.domElement.toDataURL('image/png'),calls:R.info.render.calls,triangles:R.info.render.triangles,memory:{...R.info.memory},programs:R.info.programs.length,...W.__race74?{raceArt:artBudget()}:{}});
     }
     const longCourse=W.__RACE_Z_FIN>400;
     let oldZ,flags;
@@ -118,7 +121,10 @@ try {
   assert.equal(results.players,21);assert.deepEqual(results.overflow,[]);assert.deepEqual(errors,[]);
   assert.equal(results.sections.length,7);assert.equal(results.graphics.pr,.85);
   assert.ok(results.colorAttributes.every(c=>!c.vertexColors||c.valid),'Dynamic geometry must supply colors to vertex-colored materials');
-  assert.ok(results.captures.every(c=>!c.raceArt||(c.raceArt.materials<=3&&c.raceArt.textures<=2&&c.raceArt.visibleDraws<=15&&c.raceArt.overflow===0)),'Race art retains three materials/two textures; three moving toy silhouettes add at most three draws');
+  assert.ok(results.captures.every(c=>{if(!c.raceArt)return true;const a=c.raceArt,banks=a.donutBanks||[],active=banks.filter(b=>b.count>0).length;
+    return a.materials<=3&&a.textures<=2&&a.visibleDraws-active<=15&&a.visibleDraws<=18&&a.overflow===0&&
+      (!banks.length||banks.length===3&&new Set(banks.map(b=>b.geometry)).size===3&&banks.every((b,i)=>b.flavor===i&&b.capacity===64&&b.count<=b.capacity&&b.triangles<3000&&b.materialShared&&b.colorsValid));}),
+    'Race art retains three materials/two textures and its15-draw base budget, plus exactly three bounded shared donut-flavor banks');
   if(results.airCaptures){assert.deepEqual(results.airCaptures.map(c=>c.name),['compression','ascent','apex','landing']);
     assert.ok(results.airCaptures.every(c=>Number.isFinite(c.fov)&&c.fov<=76.01),'Spring speed FOV stays within six degrees without sprint or jump kick');}
   if(results.slidePhysics)validateRace78Slide(results.slidePhysics);

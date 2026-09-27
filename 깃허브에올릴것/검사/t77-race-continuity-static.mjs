@@ -33,6 +33,7 @@ const ctx=vm.createContext({Math});new vm.Script(`
  const PL={R:.3},MINI_Y=100,RACE={t:2},RACE74={pulse:new Map()};
  let hazards=[];const raceHazards=()=>hazards,racePunchHit=()=>false,raceSphereHit=()=>false,raceBounceSound=()=>{},burst=()=>{};
  ${fn('raceBarHit')}
+ ${fn('raceBarSeparate79')}
  ${fn('raceHazardTick')}
  globalThis.A={PL,RACE,RACE74,raceBarHit,raceHazardTick,setHazards:q=>{hazards=q;}};`).runInContext(ctx);
 const A=ctx.A;

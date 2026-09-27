@@ -1,0 +1,259 @@
+{
+  "desktop": {
+    "width": 1366,
+    "height": 768,
+    "entry": [
+      {
+        "id": "iName",
+        "x": 819.28125,
+        "y": 296.640625,
+        "w": 210.359375,
+        "h": 53,
+        "b": 349.640625,
+        "r": 1029.640625
+      },
+      {
+        "id": "iRoom",
+        "x": 1041.640625,
+        "y": 296.640625,
+        "w": 210.359375,
+        "h": 53,
+        "b": 349.640625,
+        "r": 1252
+      },
+      {
+        "id": "grpPick",
+        "x": 819.28125,
+        "y": 394.640625,
+        "w": 432.71875,
+        "h": 45,
+        "b": 439.640625,
+        "r": 1252
+      },
+      {
+        "id": "bJoin",
+        "x": 819.28125,
+        "y": 462.640625,
+        "w": 432.71875,
+        "h": 52,
+        "b": 514.640625,
+        "r": 1252
+      },
+      {
+        "id": "bMake",
+        "x": 819.28125,
+        "y": 528.640625,
+        "w": 212.359375,
+        "h": 33.1875,
+        "b": 561.828125,
+        "r": 1031.640625
+      },
+      {
+        "id": "bSolo",
+        "x": 1039.640625,
+        "y": 528.640625,
+        "w": 212.359375,
+        "h": 33.1875,
+        "b": 561.828125,
+        "r": 1252
+      }
+    ],
+    "hasCosmetics": false,
+    "preview": false,
+    "entryOverflow": false,
+    "settings": false
+  },
+  "settingsHeight": 227.359375,
+  "phone": {
+    "width": 390,
+    "height": 844,
+    "entry": [
+      {
+        "id": "iName",
+        "x": 38,
+        "y": 420.1875,
+        "w": 152.5,
+        "h": 49,
+        "b": 469.1875,
+        "r": 190.5
+      },
+      {
+        "id": "iRoom",
+        "x": 199.5,
+        "y": 420.1875,
+        "w": 152.5,
+        "h": 49,
+        "b": 469.1875,
+        "r": 352
+      },
+      {
+        "id": "grpPick",
+        "x": 38,
+        "y": 514.1875,
+        "w": 314,
+        "h": 45,
+        "b": 559.1875,
+        "r": 352
+      },
+      {
+        "id": "bJoin",
+        "x": 38,
+        "y": 582.1875,
+        "w": 314,
+        "h": 52,
+        "b": 634.1875,
+        "r": 352
+      },
+      {
+        "id": "bMake",
+        "x": 38,
+        "y": 648.1875,
+        "w": 153,
+        "h": 33.1875,
+        "b": 681.375,
+        "r": 191
+      },
+      {
+        "id": "bSolo",
+        "x": 199,
+        "y": 648.1875,
+        "w": 153,
+        "h": 33.1875,
+        "b": 681.375,
+        "r": 352
+      }
+    ],
+    "hasCosmetics": false,
+    "preview": false,
+    "entryOverflow": false,
+    "settings": false
+  },
+  "small": {
+    "width": 320,
+    "height": 568,
+    "entry": [
+      {
+        "id": "iName",
+        "x": 38,
+        "y": 353.96875,
+        "w": 117.5,
+        "h": 49,
+        "b": 402.96875,
+        "r": 155.5
+      },
+      {
+        "id": "iRoom",
+        "x": 164.5,
+        "y": 353.96875,
+        "w": 117.5,
+        "h": 49,
+        "b": 402.96875,
+        "r": 282
+      },
+      {
+        "id": "grpPick",
+        "x": 38,
+        "y": 447.96875,
+        "w": 244,
+        "h": 45,
+        "b": 492.96875,
+        "r": 282
+      },
+      {
+        "id": "bJoin",
+        "x": 38,
+        "y": 515.96875,
+        "w": 244,
+        "h": 52,
+        "b": 567.96875,
+        "r": 282
+      },
+      {
+        "id": "bMake",
+        "x": 38,
+        "y": 581.96875,
+        "w": 118,
+        "h": 32.09375,
+        "b": 614.0625,
+        "r": 156
+      },
+      {
+        "id": "bSolo",
+        "x": 164,
+        "y": 581.96875,
+        "w": 118,
+        "h": 32.09375,
+        "b": 614.0625,
+        "r": 282
+      }
+    ],
+    "hasCosmetics": false,
+    "preview": false,
+    "entryOverflow": false,
+    "settings": false
+  },
+  "open": {
+    "phase": "lobby",
+    "pvw": true,
+    "frontDot": 0.821234445796179,
+    "group": 2,
+    "canvasInModal": true,
+    "choices": 36,
+    "frame": 2
+  },
+  "change": {
+    "packet": {
+      "n": "하늘",
+      "g": 2,
+      "x": 3.4,
+      "y": 73,
+      "z": -157,
+      "r": 0,
+      "m": 0,
+      "hp": 100,
+      "dn": 0,
+      "tc": 0,
+      "tt": 0,
+      "td": 0,
+      "hv": 2,
+      "hq": null,
+      "tf": null,
+      "txs": 0,
+      "tx": null,
+      "ht": 9,
+      "gl": 8,
+      "cl": 2,
+      "sk": 1,
+      "ex": 0
+    },
+    "deco": 18,
+    "skin": 16248035,
+    "headVisible": true
+  },
+  "reuse": {
+    "sameRenderer": true,
+    "closedFrames": 0,
+    "openFrames": 18,
+    "contexts": 1
+  },
+  "phoneModal": {
+    "overflow": false,
+    "closeBottom": 801.671875,
+    "closeTop": 764.28125
+  },
+  "scrolledPreview": {
+    "top": 114.3125,
+    "bottom": 267.3125
+  },
+  "teacherGuard": {
+    "hidden": true,
+    "guest": false,
+    "host": true,
+    "phase": "intro",
+    "closed": true,
+    "blocked": true,
+    "dress": false,
+    "storyFrames": 0
+  },
+  "errors": []
+}
