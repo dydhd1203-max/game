@@ -1,0 +1,4524 @@
+{
+  "seed": 740021,
+  "players": 21,
+  "graphics": {
+    "shadow": 2048,
+    "bloom": 0,
+    "aa": 2,
+    "pr": 0.85,
+    "shHz": 0,
+    "q": "mid",
+    "width": 1088,
+    "height": 680
+  },
+  "cpuMs": {
+    "p50": 3,
+    "p95": 8.200000047683716,
+    "samples": 360
+  },
+  "overflow": [],
+  "captures": [
+    {
+      "name": "start",
+      "calls": 144,
+      "triangles": 1214453,
+      "memory": {
+        "geometries": 135,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 8,
+        "visibleTriangles": 197216,
+        "instances": 300,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      }
+    },
+    {
+      "name": "middle",
+      "calls": 66,
+      "triangles": 670496,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 12,
+        "visibleTriangles": 180500,
+        "instances": 152,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      }
+    },
+    {
+      "name": "finish",
+      "calls": 62,
+      "triangles": 547040,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 10,
+        "visibleTriangles": 118767,
+        "instances": 90,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      }
+    },
+    {
+      "name": "play-section-1",
+      "calls": 58,
+      "triangles": 745370,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-1",
+      "calls": 64,
+      "triangles": 805518,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 8,
+        "visibleTriangles": 217932,
+        "instances": 362,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      }
+    },
+    {
+      "name": "play-section-2",
+      "calls": 62,
+      "triangles": 883042,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-2",
+      "calls": 62,
+      "triangles": 883042,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 10,
+        "visibleTriangles": 286768,
+        "instances": 472,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      }
+    },
+    {
+      "name": "play-section-3",
+      "calls": 62,
+      "triangles": 647150,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-3",
+      "calls": 62,
+      "triangles": 647150,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 10,
+        "visibleTriangles": 168822,
+        "instances": 264,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      }
+    },
+    {
+      "name": "play-section-4",
+      "calls": 66,
+      "triangles": 655242,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-4",
+      "calls": 66,
+      "triangles": 655242,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 12,
+        "visibleTriangles": 172868,
+        "instances": 94,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      }
+    },
+    {
+      "name": "play-section-5",
+      "calls": 64,
+      "triangles": 739840,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-5",
+      "calls": 64,
+      "triangles": 739840,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 11,
+        "visibleTriangles": 215182,
+        "instances": 176,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      }
+    },
+    {
+      "name": "play-section-6",
+      "calls": 62,
+      "triangles": 698256,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-6",
+      "calls": 62,
+      "triangles": 698256,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 10,
+        "visibleTriangles": 194375,
+        "instances": 176,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      }
+    },
+    {
+      "name": "play-section-7",
+      "calls": 62,
+      "triangles": 626784,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40
+    },
+    {
+      "name": "section-7",
+      "calls": 62,
+      "triangles": 626784,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 10,
+        "visibleTriangles": 158639,
+        "instances": 164,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      }
+    },
+    {
+      "name": "overview",
+      "calls": 171,
+      "triangles": 2272782,
+      "memory": {
+        "geometries": 139,
+        "textures": 25
+      },
+      "programs": 40
+    }
+  ],
+  "colorAttributes": [
+    {
+      "key": "pad",
+      "vertexColors": true,
+      "valid": true
+    },
+    {
+      "key": "padTrim",
+      "vertexColors": true,
+      "valid": true
+    },
+    {
+      "key": "bar",
+      "vertexColors": true,
+      "valid": true
+    },
+    {
+      "key": "ball",
+      "vertexColors": true,
+      "valid": true
+    },
+    {
+      "key": "metal",
+      "vertexColors": true,
+      "valid": true
+    },
+    {
+      "key": "cap",
+      "vertexColors": true,
+      "valid": true
+    },
+    {
+      "key": "jump",
+      "vertexColors": true,
+      "valid": true
+    },
+    {
+      "key": "rock",
+      "vertexColors": true,
+      "valid": true
+    }
+  ],
+  "sections": [
+    "통통 범퍼숲",
+    "빙글빙글 캔디마당",
+    "통통 도넛섬",
+    "데굴데굴 도넛마당",
+    "출렁출렁 구름다리",
+    "무지개 미끄럼",
+    "별빛 대도약"
+  ],
+  "platformCount": 24,
+  "renderer": "WebKit WebGL",
+  "airCaptures": [
+    {
+      "name": "compression",
+      "y": 0,
+      "vy": 0,
+      "ground": true,
+      "flight": 0,
+      "fov": 70.04086126698834,
+      "yaw": 3.141592653589793,
+      "pitch": -0.22
+    },
+    {
+      "name": "ascent",
+      "y": 5.476006333333629,
+      "vy": 17.499399999999383,
+      "ground": false,
+      "flight": 0.25100000000001776,
+      "fov": 71.77582260558825,
+      "yaw": 3.141592653589793,
+      "pitch": -0.22
+    },
+    {
+      "name": "apex",
+      "y": 9.646746925925925,
+      "vy": 0.0015733333315312015,
+      "ground": false,
+      "flight": 0.734333333333384,
+      "fov": 73.4203834283059,
+      "yaw": 3.141592653589793,
+      "pitch": -0.22
+    },
+    {
+      "name": "landing",
+      "y": 2,
+      "vy": 0,
+      "ground": true,
+      "flight": 0,
+      "fov": 73.52544008752818,
+      "yaw": 3.141592653589793,
+      "pitch": -0.22
+    }
+  ],
+  "physics": {
+    "limit": 180,
+    "flights": [
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 9,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 244.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 10,
+          "z": 300.1898003149806,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 10,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 300.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 11,
+          "z": 356.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 11,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 356.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 12,
+          "z": 412.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 12,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 412.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 3,
+          "z": 468.1898003149805,
+          "y": 87.075,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 22,
+        "kind": "final",
+        "isManual": false,
+        "count": 1,
+        "launch": {
+          "vy": 26.549999999999997,
+          "vz": 29.5,
+          "y": 87,
+          "z": 790.1524106965048
+        },
+        "gravity": 36.20239999999981,
+        "expectedVy": 26.549999999999997,
+        "expectedVz": 29.5,
+        "expectedGravity": 36.2024,
+        "peak": 9.624958444444502,
+        "land": {
+          "pad": 23,
+          "z": 830.6291029274975,
+          "y": 89,
+          "time": 1.3833333333333304
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 9,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 244.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 10,
+          "z": 300.1898003149806,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 10,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 300.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 11,
+          "z": 356.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 11,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 356.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 12,
+          "z": 412.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 12,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 412.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 3,
+          "z": 468.1898003149805,
+          "y": 87.075,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 22,
+        "kind": "final",
+        "isManual": false,
+        "count": 1,
+        "launch": {
+          "vy": 26.549999999999997,
+          "vz": 29.5,
+          "y": 87,
+          "z": 790.1524106965048
+        },
+        "gravity": 36.20239999999981,
+        "expectedVy": 26.549999999999997,
+        "expectedVz": 29.5,
+        "expectedGravity": 36.2024,
+        "peak": 9.624958444444502,
+        "land": {
+          "pad": 23,
+          "z": 830.6291029274975,
+          "y": 89,
+          "time": 1.3833333333333304
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 9,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 244.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 10,
+          "z": 300.1898003149806,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 10,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 300.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 11,
+          "z": 356.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 11,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 356.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 12,
+          "z": 412.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 12,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 412.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 3,
+          "z": 468.1898003149805,
+          "y": 87.075,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 22,
+        "kind": "final",
+        "isManual": false,
+        "count": 1,
+        "launch": {
+          "vy": 26.549999999999997,
+          "vz": 29.5,
+          "y": 87,
+          "z": 790.1524106965048
+        },
+        "gravity": 36.20239999999981,
+        "expectedVy": 26.549999999999997,
+        "expectedVz": 29.5,
+        "expectedGravity": 36.2024,
+        "peak": 9.624958444444502,
+        "land": {
+          "pad": 23,
+          "z": 830.6291029274975,
+          "y": 89,
+          "time": 1.3833333333333304
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 9,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 244.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 10,
+          "z": 300.1898003149806,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 10,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 300.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 11,
+          "z": 356.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 11,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 356.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 12,
+          "z": 412.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 12,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 412.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 3,
+          "z": 468.1898003149805,
+          "y": 87.075,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 22,
+        "kind": "final",
+        "isManual": false,
+        "count": 1,
+        "launch": {
+          "vy": 26.549999999999997,
+          "vz": 29.5,
+          "y": 87,
+          "z": 790.1524106965048
+        },
+        "gravity": 36.20239999999981,
+        "expectedVy": 26.549999999999997,
+        "expectedVz": 29.5,
+        "expectedGravity": 36.2024,
+        "peak": 9.624958444444502,
+        "land": {
+          "pad": 23,
+          "z": 830.6291029274975,
+          "y": 89,
+          "time": 1.3833333333333304
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 9,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 244.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 10,
+          "z": 300.1898003149806,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 10,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 300.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 11,
+          "z": 356.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 11,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 356.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 12,
+          "z": 412.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 12,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 412.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 3,
+          "z": 468.1898003149805,
+          "y": 87.075,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 22,
+        "kind": "final",
+        "isManual": false,
+        "count": 1,
+        "launch": {
+          "vy": 26.549999999999997,
+          "vz": 29.5,
+          "y": 87,
+          "z": 790.1524106965048
+        },
+        "gravity": 36.20239999999981,
+        "expectedVy": 26.549999999999997,
+        "expectedVz": 29.5,
+        "expectedGravity": 36.2024,
+        "peak": 9.624958444444502,
+        "land": {
+          "pad": 23,
+          "z": 830.6291029274975,
+          "y": 89,
+          "time": 1.3833333333333304
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 9,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 244.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 10,
+          "z": 300.1898003149806,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 10,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 300.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 11,
+          "z": 356.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 11,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 356.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 12,
+          "z": 412.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 12,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 412.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 3,
+          "z": 468.1898003149805,
+          "y": 87.075,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 22,
+        "kind": "final",
+        "isManual": false,
+        "count": 1,
+        "launch": {
+          "vy": 26.549999999999997,
+          "vz": 29.5,
+          "y": 87,
+          "z": 790.1524106965048
+        },
+        "gravity": 36.20239999999981,
+        "expectedVy": 26.549999999999997,
+        "expectedVz": 29.5,
+        "expectedGravity": 36.2024,
+        "peak": 9.624958444444502,
+        "land": {
+          "pad": 23,
+          "z": 830.6291029274975,
+          "y": 89,
+          "time": 1.3833333333333304
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 9,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 244.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 10,
+          "z": 300.1898003149806,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 10,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 300.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 11,
+          "z": 356.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 11,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 356.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 12,
+          "z": 412.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 12,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 412.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 3,
+          "z": 468.1898003149805,
+          "y": 87.075,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 22,
+        "kind": "final",
+        "isManual": false,
+        "count": 1,
+        "launch": {
+          "vy": 26.549999999999997,
+          "vz": 29.5,
+          "y": 87,
+          "z": 790.1524106965048
+        },
+        "gravity": 36.20239999999981,
+        "expectedVy": 26.549999999999997,
+        "expectedVz": 29.5,
+        "expectedGravity": 36.2024,
+        "peak": 9.624958444444502,
+        "land": {
+          "pad": 23,
+          "z": 830.6291029274975,
+          "y": 89,
+          "time": 1.3833333333333304
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 9,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 244.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 10,
+          "z": 300.1898003149806,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 10,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 300.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 11,
+          "z": 356.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 11,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 356.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 12,
+          "z": 412.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 12,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 412.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 3,
+          "z": 468.1898003149805,
+          "y": 87.075,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 22,
+        "kind": "final",
+        "isManual": false,
+        "count": 1,
+        "launch": {
+          "vy": 26.549999999999997,
+          "vz": 29.5,
+          "y": 87,
+          "z": 790.1524106965048
+        },
+        "gravity": 36.20239999999981,
+        "expectedVy": 26.549999999999997,
+        "expectedVz": 29.5,
+        "expectedGravity": 36.2024,
+        "peak": 9.624958444444502,
+        "land": {
+          "pad": 23,
+          "z": 830.6291029274975,
+          "y": 89,
+          "time": 1.3833333333333304
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 9,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 244.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 10,
+          "z": 300.1898003149806,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 10,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 300.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 11,
+          "z": 356.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 11,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 356.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 12,
+          "z": 412.1898003149805,
+          "y": 87,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 12,
+        "kind": "bounce",
+        "isManual": true,
+        "count": 1,
+        "launch": {
+          "vy": 81.79536661694232,
+          "vz": 49.559999999999995,
+          "y": 87,
+          "z": 412.14808435057574
+        },
+        "gravity": 144.80959999999925,
+        "expectedVy": 81.79536661694232,
+        "expectedVz": 49.559999999999995,
+        "expectedGravity": 144.8096,
+        "peak": 22.761005472237258,
+        "land": {
+          "pad": 3,
+          "z": 468.1898003149805,
+          "y": 87.075,
+          "time": 1.1249999999999982
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 22,
+        "kind": "final",
+        "isManual": false,
+        "count": 1,
+        "launch": {
+          "vy": 26.549999999999997,
+          "vz": 29.5,
+          "y": 87,
+          "z": 790.1524106965048
+        },
+        "gravity": 36.20239999999981,
+        "expectedVy": 26.549999999999997,
+        "expectedVz": 29.5,
+        "expectedGravity": 36.2024,
+        "peak": 9.624958444444502,
+        "land": {
+          "pad": 23,
+          "z": 830.6291029274975,
+          "y": 89,
+          "time": 1.3833333333333304
+        },
+        "heldRepeat": false,
+        "viewChange": 0
+      }
+    ],
+    "manual": [
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 9,
+        "auto": false,
+        "walked": 6.332040000000035,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 10,
+        "auto": false,
+        "walked": 6.332039999999893,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 11,
+        "auto": false,
+        "walked": 6.332039999999893,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 13,
+        "fps": 30,
+        "pad": 12,
+        "auto": false,
+        "walked": 6.332039999999893,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 9,
+        "auto": false,
+        "walked": 6.1696800000000565,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 10,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 11,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "pad": 12,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 9,
+        "auto": false,
+        "walked": 6.1696800000000565,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 10,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 11,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "pad": 12,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 9,
+        "auto": false,
+        "walked": 6.332040000000035,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 10,
+        "auto": false,
+        "walked": 6.332039999999893,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 11,
+        "auto": false,
+        "walked": 6.332039999999893,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "pad": 12,
+        "auto": false,
+        "walked": 6.332039999999893,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 9,
+        "auto": false,
+        "walked": 6.1696800000000565,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 10,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 11,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "pad": 12,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 9,
+        "auto": false,
+        "walked": 6.1696800000000565,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 10,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 11,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "pad": 12,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 9,
+        "auto": false,
+        "walked": 6.332040000000035,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 10,
+        "auto": false,
+        "walked": 6.332039999999893,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 11,
+        "auto": false,
+        "walked": 6.332039999999893,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "pad": 12,
+        "auto": false,
+        "walked": 6.332039999999893,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 9,
+        "auto": false,
+        "walked": 6.1696800000000565,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 10,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 11,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "pad": 12,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 9,
+        "auto": false,
+        "walked": 6.1696800000000565,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 10,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 11,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "pad": 12,
+        "auto": false,
+        "walked": 6.1696799999998575,
+        "outsideZoneSpring": false
+      }
+    ],
+    "freshPress": {
+      "first": true,
+      "touched": true,
+      "heldLaunch": false,
+      "fresh": true
+    },
+    "carries": [
+      {
+        "seed": 13,
+        "fps": 30,
+        "ground": true,
+        "error": 8.623530973241797e-13,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22,
+        "supported": true,
+        "movement": 1.362372004470076,
+        "rotation": 0.5999999999999659
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "ground": true,
+        "error": 1.2241741764582372e-12,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22,
+        "supported": true,
+        "movement": 1.3623720044712175,
+        "rotation": 0.6000000000004775
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "ground": true,
+        "error": 2.376606172753945e-12,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22,
+        "supported": true,
+        "movement": 1.3623720044689718,
+        "rotation": 0.5999999999994543
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "ground": true,
+        "error": 8.620967215057927e-13,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22,
+        "supported": true,
+        "movement": 1.3686480921411113,
+        "rotation": 0.5999999999999659
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "ground": true,
+        "error": 1.327899976733389e-12,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22,
+        "supported": true,
+        "movement": 1.368648092142066,
+        "rotation": 0.6000000000004775
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "ground": true,
+        "error": 1.9096949086517406e-12,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22,
+        "supported": true,
+        "movement": 1.3686480921401833,
+        "rotation": 0.5999999999994543
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "ground": true,
+        "error": 8.240922197922109e-13,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22,
+        "supported": true,
+        "movement": 0.889629339832618,
+        "rotation": 0.5999999999999659
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "ground": true,
+        "error": 5.115036527086274e-13,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22,
+        "supported": true,
+        "movement": 0.889629339832801,
+        "rotation": 0.6000000000004775
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "ground": true,
+        "error": 2.0464480786740973e-12,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22,
+        "supported": true,
+        "movement": 0.8896293398324352,
+        "rotation": 0.5999999999994543
+      }
+    ],
+    "ramps": [
+      {
+        "seed": 13,
+        "fps": 30,
+        "idleBack": 3.103981065966309,
+        "idleSpeed": -4.016534076324633,
+        "idleGround": true,
+        "boostSpeed": 17.470144702194947,
+        "boosted": true
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "idleBack": 3.103981065966309,
+        "idleSpeed": -4.016534076324633,
+        "idleGround": true,
+        "boostSpeed": 17.470144702194947,
+        "boosted": true
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "idleBack": 3.103981065966309,
+        "idleSpeed": -4.016534076324633,
+        "idleGround": true,
+        "boostSpeed": 17.470144702194947,
+        "boosted": true
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "idleBack": 3.103981065966309,
+        "idleSpeed": -4.016534076324633,
+        "idleGround": true,
+        "boostSpeed": 17.470144702194947,
+        "boosted": true
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "idleBack": 3.103981065966309,
+        "idleSpeed": -4.016534076324633,
+        "idleGround": true,
+        "boostSpeed": 17.470144702194947,
+        "boosted": true
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "idleBack": 3.103981065966309,
+        "idleSpeed": -4.016534076324633,
+        "idleGround": true,
+        "boostSpeed": 17.470144702194947,
+        "boosted": true
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "idleBack": 3.103981065966309,
+        "idleSpeed": -4.016534076324633,
+        "idleGround": true,
+        "boostSpeed": 17.470144702194947,
+        "boosted": true
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "idleBack": 3.103981065966309,
+        "idleSpeed": -4.016534076324633,
+        "idleGround": true,
+        "boostSpeed": 17.470144702194947,
+        "boosted": true
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "idleBack": 3.103981065966309,
+        "idleSpeed": -4.016534076324633,
+        "idleGround": true,
+        "boostSpeed": 17.470144702194947,
+        "boosted": true
+      }
+    ],
+    "slides": [
+      {
+        "seed": 13,
+        "fps": 30,
+        "maxSpeed": 48.6156007670781,
+        "hit": false,
+        "ground": true,
+        "dz": 12.967958189071055,
+        "drop": 3.2506689024841933
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "maxSpeed": 48.6156007670781,
+        "hit": false,
+        "ground": true,
+        "dz": 12.967958189071055,
+        "drop": 3.2506689024841933
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "maxSpeed": 48.6156007670781,
+        "hit": false,
+        "ground": true,
+        "dz": 12.967958189071055,
+        "drop": 3.2506689024841933
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "maxSpeed": 48.6156007670781,
+        "hit": false,
+        "ground": true,
+        "dz": 12.967958189071055,
+        "drop": 3.2506689024841933
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "maxSpeed": 48.6156007670781,
+        "hit": false,
+        "ground": true,
+        "dz": 12.967958189071055,
+        "drop": 3.2506689024841933
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "maxSpeed": 48.6156007670781,
+        "hit": false,
+        "ground": true,
+        "dz": 12.967958189071055,
+        "drop": 3.2506689024841933
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "maxSpeed": 48.6156007670781,
+        "hit": false,
+        "ground": true,
+        "dz": 12.967958189071055,
+        "drop": 3.2506689024841933
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "maxSpeed": 48.6156007670781,
+        "hit": false,
+        "ground": true,
+        "dz": 12.967958189071055,
+        "drop": 3.2506689024841933
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "maxSpeed": 48.6156007670781,
+        "hit": false,
+        "ground": true,
+        "dz": 12.967958189071055,
+        "drop": 3.2506689024841933
+      }
+    ],
+    "slideExits": [
+      {
+        "seed": 13,
+        "fps": 30,
+        "crossed": true,
+        "landed": true,
+        "minGapSpeed": 56.20703002349777,
+        "exitTime": 0.16666666666666666,
+        "checkpoint": 7,
+        "z": 758.9403076891847
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "crossed": true,
+        "landed": true,
+        "minGapSpeed": 56.20703002349777,
+        "exitTime": 0.15,
+        "checkpoint": 7,
+        "z": 758.5867289433991
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "crossed": true,
+        "landed": true,
+        "minGapSpeed": 56.20703002349777,
+        "exitTime": 0.14166666666666666,
+        "checkpoint": 7,
+        "z": 758.3334520721921
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "crossed": true,
+        "landed": true,
+        "minGapSpeed": 56.20703002349777,
+        "exitTime": 0.16666666666666666,
+        "checkpoint": 7,
+        "z": 758.9403076891847
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "crossed": true,
+        "landed": true,
+        "minGapSpeed": 56.20703002349777,
+        "exitTime": 0.15,
+        "checkpoint": 7,
+        "z": 758.5867289433991
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "crossed": true,
+        "landed": true,
+        "minGapSpeed": 56.20703002349777,
+        "exitTime": 0.14166666666666666,
+        "checkpoint": 7,
+        "z": 758.3334520721921
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "crossed": true,
+        "landed": true,
+        "minGapSpeed": 56.20703002349777,
+        "exitTime": 0.16666666666666666,
+        "checkpoint": 7,
+        "z": 758.9403076891847
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "crossed": true,
+        "landed": true,
+        "minGapSpeed": 56.20703002349777,
+        "exitTime": 0.15,
+        "checkpoint": 7,
+        "z": 758.5867289433991
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "crossed": true,
+        "landed": true,
+        "minGapSpeed": 56.20703002349777,
+        "exitTime": 0.14166666666666666,
+        "checkpoint": 7,
+        "z": 758.3334520721921
+      }
+    ],
+    "knocks": [
+      {
+        "actual": {
+          "dx": 5.830410253079133,
+          "dz": 0,
+          "impulse": 40
+        },
+        "old": {
+          "dx": 1.1660820506158274,
+          "dz": 0,
+          "impulse": 8
+        },
+        "ratio": 4.999999999999997
+      }
+    ],
+    "checkpoints": [
+      {
+        "cp": 1,
+        "registered": 1,
+        "expected": {
+          "x": -22.7,
+          "z": 21.35,
+          "y": 0.075
+        },
+        "yWorld": 87.075,
+        "x": -22.7,
+        "z": 21.35,
+        "y": 87.075,
+        "ground": true,
+        "fall": 0
+      },
+      {
+        "cp": 2,
+        "registered": 2,
+        "expected": {
+          "x": -11.7,
+          "z": 83.35,
+          "y": 0.075
+        },
+        "yWorld": 87.075,
+        "x": -11.7,
+        "z": 83.35,
+        "y": 87.075,
+        "ground": true,
+        "fall": 0
+      },
+      {
+        "cp": 3,
+        "registered": 3,
+        "expected": {
+          "x": -11.7,
+          "z": 219.35,
+          "y": 0.075
+        },
+        "yWorld": 87.075,
+        "x": -11.7,
+        "z": 219.35,
+        "y": 87.075,
+        "ground": true,
+        "fall": 0
+      },
+      {
+        "cp": 4,
+        "registered": 4,
+        "expected": {
+          "x": -11.7,
+          "z": 467.35,
+          "y": 0.075
+        },
+        "yWorld": 87.075,
+        "x": -11.7,
+        "z": 467.35,
+        "y": 87.075,
+        "ground": true,
+        "fall": 0
+      },
+      {
+        "cp": 5,
+        "registered": 5,
+        "expected": {
+          "x": -11.7,
+          "z": 577.35,
+          "y": 30.075
+        },
+        "yWorld": 117.075,
+        "x": -11.7,
+        "z": 577.35,
+        "y": 117.075,
+        "ground": true,
+        "fall": 0
+      },
+      {
+        "cp": 6,
+        "registered": 6,
+        "expected": {
+          "x": -11.7,
+          "z": 679.35,
+          "y": 30.075
+        },
+        "yWorld": 117.075,
+        "x": -11.7,
+        "z": 679.35,
+        "y": 117.075,
+        "ground": true,
+        "fall": 0
+      },
+      {
+        "cp": 7,
+        "registered": 7,
+        "expected": {
+          "x": -13.7,
+          "z": 769.35,
+          "y": 0.075
+        },
+        "yWorld": 87.075,
+        "x": -13.7,
+        "z": 769.35,
+        "y": 87.075,
+        "ground": true,
+        "fall": 0
+      }
+    ],
+    "skipped": 0,
+    "skippedFinish": -1,
+    "belowDeck": {
+      "before": 85.075,
+      "after": 85.00291666666666,
+      "ground": false
+    },
+    "routes": [
+      {
+        "seed": 13,
+        "fps": 30,
+        "finished": true,
+        "seconds": 69.13333333333334,
+        "falls": 0,
+        "hits": 5,
+        "jumps": 39,
+        "manualLaunches": 4,
+        "checkpoint": 7,
+        "z": 836.1322300518018,
+        "maxViewChange": 0,
+        "gatePasses": [
+          {
+            "gate": 42,
+            "x": 6.773545562613407,
+            "t": 6.566666666666666
+          },
+          {
+            "gate": 61,
+            "x": -7.9767374342483714,
+            "t": 10
+          }
+        ],
+        "trail": [
+          {
+            "t": 0.03,
+            "cp": 0,
+            "x": 0,
+            "z": -18.81,
+            "y": 0,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 3.53,
+            "cp": 1,
+            "x": 0,
+            "z": 15.26,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 11.77,
+            "cp": 2,
+            "x": -5.11,
+            "z": 77.09,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 21.8,
+            "cp": 2,
+            "x": 6.79,
+            "z": 189.88,
+            "y": 1.24,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 24.9,
+            "cp": 3,
+            "x": -0.91,
+            "z": 212.04,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 33.23,
+            "cp": 4,
+            "x": 0.13,
+            "z": 466.74,
+            "y": 3.61,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 43.23,
+            "cp": 4,
+            "x": -0.01,
+            "z": 549.47,
+            "y": 31.01,
+            "falls": 0,
+            "hits": 4
+          },
+          {
+            "t": 46.57,
+            "cp": 5,
+            "x": 0.7,
+            "z": 570.01,
+            "y": 30.08,
+            "falls": 0,
+            "hits": 4
+          },
+          {
+            "t": 56.57,
+            "cp": 5,
+            "x": 0.05,
+            "z": 639.5,
+            "y": 30,
+            "falls": 0,
+            "hits": 4
+          },
+          {
+            "t": 62.03,
+            "cp": 6,
+            "x": -0.05,
+            "z": 672.14,
+            "y": 31.23,
+            "falls": 0,
+            "hits": 4
+          },
+          {
+            "t": 65.87,
+            "cp": 7,
+            "x": 2.14,
+            "z": 758.38,
+            "y": 0.98,
+            "falls": 0,
+            "hits": 5
+          },
+          {
+            "t": 69.13,
+            "cp": 7,
+            "x": -0.08,
+            "z": 836.13,
+            "y": 2,
+            "falls": 0,
+            "hits": 5
+          }
+        ]
+      },
+      {
+        "seed": 13,
+        "fps": 60,
+        "finished": true,
+        "seconds": 66.28333333333333,
+        "falls": 0,
+        "hits": 3,
+        "jumps": 40,
+        "manualLaunches": 4,
+        "checkpoint": 7,
+        "z": 836.0233619342978,
+        "maxViewChange": 0,
+        "gatePasses": [
+          {
+            "gate": 42,
+            "x": 6.773545562613407,
+            "t": 6.566666666666666
+          },
+          {
+            "gate": 61,
+            "x": -7.976737434248715,
+            "t": 10
+          }
+        ],
+        "trail": [
+          {
+            "t": 0.02,
+            "cp": 0,
+            "x": 0,
+            "z": -18.93,
+            "y": 0,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 3.52,
+            "cp": 1,
+            "x": 0,
+            "z": 15.1,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 11.77,
+            "cp": 2,
+            "x": -5.11,
+            "z": 77.09,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 21.78,
+            "cp": 2,
+            "x": 6.74,
+            "z": 189.68,
+            "y": 1.2,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 24.9,
+            "cp": 3,
+            "x": -1.07,
+            "z": 212.06,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 33.17,
+            "cp": 4,
+            "x": -0.03,
+            "z": 467.04,
+            "y": 3.61,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 43.17,
+            "cp": 4,
+            "x": -0.2,
+            "z": 553.68,
+            "y": 31.68,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 44.98,
+            "cp": 5,
+            "x": 0.91,
+            "z": 570.1,
+            "y": 30.08,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 54.98,
+            "cp": 5,
+            "x": 0.93,
+            "z": 640.87,
+            "y": 30,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 60.53,
+            "cp": 6,
+            "x": -0.04,
+            "z": 672.01,
+            "y": 31.14,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 63.8,
+            "cp": 7,
+            "x": 4.44,
+            "z": 758.11,
+            "y": 1.16,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 66.28,
+            "cp": 7,
+            "x": -0.15,
+            "z": 836.02,
+            "y": 2,
+            "falls": 0,
+            "hits": 3
+          }
+        ]
+      },
+      {
+        "seed": 13,
+        "fps": 120,
+        "finished": true,
+        "seconds": 75.89166666666667,
+        "falls": 1,
+        "hits": 4,
+        "jumps": 61,
+        "manualLaunches": 4,
+        "checkpoint": 7,
+        "z": 836.0542307066972,
+        "maxViewChange": 0,
+        "gatePasses": [
+          {
+            "gate": 42,
+            "x": 6.773545562613407,
+            "t": 6.566666666666666
+          },
+          {
+            "gate": 61,
+            "x": -7.952960362745097,
+            "t": 9.983333333333333
+          }
+        ],
+        "trail": [
+          {
+            "t": 0.01,
+            "cp": 0,
+            "x": 0,
+            "z": -18.97,
+            "y": 0,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 3.51,
+            "cp": 1,
+            "x": 0,
+            "z": 15.01,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 11.75,
+            "cp": 2,
+            "x": -5.14,
+            "z": 77.05,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 21.75,
+            "cp": 2,
+            "x": 6.86,
+            "z": 181.18,
+            "y": 2.96,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 25.74,
+            "cp": 3,
+            "x": -0.95,
+            "z": 212.03,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 33.99,
+            "cp": 4,
+            "x": -0.03,
+            "z": 467.24,
+            "y": 3.61,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 43.99,
+            "cp": 4,
+            "x": 0.28,
+            "z": 555.42,
+            "y": 28.47,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 47.68,
+            "cp": 5,
+            "x": 0.9,
+            "z": 570.03,
+            "y": 30.08,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 57.68,
+            "cp": 5,
+            "x": 0.54,
+            "z": 593.63,
+            "y": 30,
+            "falls": 1,
+            "hits": 4
+          },
+          {
+            "t": 67.68,
+            "cp": 5,
+            "x": -1.25,
+            "z": 652.78,
+            "y": 30.2,
+            "falls": 1,
+            "hits": 4
+          },
+          {
+            "t": 70.05,
+            "cp": 6,
+            "x": 0.02,
+            "z": 672.07,
+            "y": 30.99,
+            "falls": 1,
+            "hits": 4
+          },
+          {
+            "t": 73.41,
+            "cp": 7,
+            "x": 4.44,
+            "z": 758.14,
+            "y": 1.15,
+            "falls": 1,
+            "hits": 4
+          },
+          {
+            "t": 75.89,
+            "cp": 7,
+            "x": -0.17,
+            "z": 836.05,
+            "y": 2,
+            "falls": 1,
+            "hits": 4
+          }
+        ]
+      },
+      {
+        "seed": 7919,
+        "fps": 30,
+        "finished": true,
+        "seconds": 104.26666666666667,
+        "falls": 2,
+        "hits": 9,
+        "jumps": 64,
+        "manualLaunches": 4,
+        "checkpoint": 7,
+        "z": 836.317928931912,
+        "maxViewChange": 0,
+        "gatePasses": [
+          {
+            "gate": 42,
+            "x": 6.773545562613407,
+            "t": 6.566666666666666
+          },
+          {
+            "gate": 61,
+            "x": -7.9767374342483714,
+            "t": 10
+          }
+        ],
+        "trail": [
+          {
+            "t": 0.03,
+            "cp": 0,
+            "x": 0,
+            "z": -18.81,
+            "y": 0,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 3.53,
+            "cp": 1,
+            "x": 0,
+            "z": 15.26,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 11.77,
+            "cp": 2,
+            "x": -5.11,
+            "z": 77.09,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 21.8,
+            "cp": 2,
+            "x": 6.75,
+            "z": 179.62,
+            "y": 2.74,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 31.8,
+            "cp": 2,
+            "x": -5.97,
+            "z": 131.32,
+            "y": 2.27,
+            "falls": 1,
+            "hits": 3
+          },
+          {
+            "t": 41.83,
+            "cp": 2,
+            "x": 0,
+            "z": 211.72,
+            "y": -9,
+            "falls": 2,
+            "hits": 4
+          },
+          {
+            "t": 51.83,
+            "cp": 2,
+            "x": 6.84,
+            "z": 176.49,
+            "y": 1.15,
+            "falls": 2,
+            "hits": 5
+          },
+          {
+            "t": 57.13,
+            "cp": 3,
+            "x": -1.06,
+            "z": 212.1,
+            "y": 0.08,
+            "falls": 2,
+            "hits": 6
+          },
+          {
+            "t": 65.47,
+            "cp": 4,
+            "x": -0.02,
+            "z": 466.79,
+            "y": 3.61,
+            "falls": 2,
+            "hits": 6
+          },
+          {
+            "t": 75.47,
+            "cp": 4,
+            "x": 4.48,
+            "z": 519.96,
+            "y": 13.62,
+            "falls": 2,
+            "hits": 7
+          },
+          {
+            "t": 80.37,
+            "cp": 5,
+            "x": 0.43,
+            "z": 570.13,
+            "y": 30.08,
+            "falls": 2,
+            "hits": 7
+          },
+          {
+            "t": 90.37,
+            "cp": 5,
+            "x": 0.64,
+            "z": 641.67,
+            "y": 30,
+            "falls": 2,
+            "hits": 7
+          },
+          {
+            "t": 96.67,
+            "cp": 6,
+            "x": 0.07,
+            "z": 672.31,
+            "y": 31.32,
+            "falls": 2,
+            "hits": 7
+          },
+          {
+            "t": 101.13,
+            "cp": 7,
+            "x": 4.58,
+            "z": 759.33,
+            "y": 1.25,
+            "falls": 2,
+            "hits": 9
+          },
+          {
+            "t": 104.27,
+            "cp": 7,
+            "x": -0.02,
+            "z": 836.32,
+            "y": 2,
+            "falls": 2,
+            "hits": 9
+          }
+        ]
+      },
+      {
+        "seed": 7919,
+        "fps": 60,
+        "finished": true,
+        "seconds": 96.93333333333334,
+        "falls": 3,
+        "hits": 6,
+        "jumps": 63,
+        "manualLaunches": 4,
+        "checkpoint": 7,
+        "z": 836.0108268387971,
+        "maxViewChange": 0,
+        "gatePasses": [
+          {
+            "gate": 42,
+            "x": 6.773545562613407,
+            "t": 6.566666666666666
+          },
+          {
+            "gate": 61,
+            "x": -7.976737434248715,
+            "t": 10
+          }
+        ],
+        "trail": [
+          {
+            "t": 0.02,
+            "cp": 0,
+            "x": 0,
+            "z": -18.93,
+            "y": 0,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 3.52,
+            "cp": 1,
+            "x": 0,
+            "z": 15.1,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 11.77,
+            "cp": 2,
+            "x": -5.11,
+            "z": 77.09,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 21.78,
+            "cp": 2,
+            "x": 6.85,
+            "z": 178.85,
+            "y": 2.53,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 26.02,
+            "cp": 3,
+            "x": -1.07,
+            "z": 212.05,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 34.28,
+            "cp": 4,
+            "x": -0.03,
+            "z": 467.04,
+            "y": 3.61,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 44.28,
+            "cp": 4,
+            "x": 1.74,
+            "z": 553.16,
+            "y": 27.9,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 48.08,
+            "cp": 5,
+            "x": 0.39,
+            "z": 570.08,
+            "y": 30.08,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 58.08,
+            "cp": 5,
+            "x": 1.27,
+            "z": 593.41,
+            "y": 30,
+            "falls": 1,
+            "hits": 4
+          },
+          {
+            "t": 68.1,
+            "cp": 5,
+            "x": 1.88,
+            "z": 595.93,
+            "y": 30,
+            "falls": 2,
+            "hits": 5
+          },
+          {
+            "t": 78.1,
+            "cp": 5,
+            "x": 1.97,
+            "z": 593.69,
+            "y": 30,
+            "falls": 3,
+            "hits": 6
+          },
+          {
+            "t": 88.1,
+            "cp": 5,
+            "x": 0.94,
+            "z": 644.86,
+            "y": 30,
+            "falls": 3,
+            "hits": 6
+          },
+          {
+            "t": 91.05,
+            "cp": 6,
+            "x": 0.07,
+            "z": 672.01,
+            "y": 31.19,
+            "falls": 3,
+            "hits": 6
+          },
+          {
+            "t": 94.45,
+            "cp": 7,
+            "x": 4.44,
+            "z": 758.14,
+            "y": 1.15,
+            "falls": 3,
+            "hits": 6
+          },
+          {
+            "t": 96.93,
+            "cp": 7,
+            "x": -0.1,
+            "z": 836.01,
+            "y": 2,
+            "falls": 3,
+            "hits": 6
+          }
+        ]
+      },
+      {
+        "seed": 7919,
+        "fps": 120,
+        "finished": true,
+        "seconds": 66.76666666666667,
+        "falls": 0,
+        "hits": 2,
+        "jumps": 64,
+        "manualLaunches": 4,
+        "checkpoint": 7,
+        "z": 836.0453672709319,
+        "maxViewChange": 0,
+        "gatePasses": [
+          {
+            "gate": 42,
+            "x": 6.773545562613407,
+            "t": 6.566666666666666
+          },
+          {
+            "gate": 61,
+            "x": -7.952960362745097,
+            "t": 9.983333333333333
+          }
+        ],
+        "trail": [
+          {
+            "t": 0.01,
+            "cp": 0,
+            "x": 0,
+            "z": -18.97,
+            "y": 0,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 3.51,
+            "cp": 1,
+            "x": 0,
+            "z": 15.01,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 11.75,
+            "cp": 2,
+            "x": -5.14,
+            "z": 77.05,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 21.75,
+            "cp": 2,
+            "x": 6.86,
+            "z": 178.85,
+            "y": 2.48,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 25.98,
+            "cp": 3,
+            "x": -0.89,
+            "z": 212.03,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 34.23,
+            "cp": 4,
+            "x": -0.03,
+            "z": 467.26,
+            "y": 3.61,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 44.23,
+            "cp": 4,
+            "x": 2.49,
+            "z": 549.95,
+            "y": 26.95,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 45.29,
+            "cp": 5,
+            "x": 1,
+            "z": 570.01,
+            "y": 30.08,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 55.29,
+            "cp": 5,
+            "x": 0.7,
+            "z": 641.42,
+            "y": 30,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 61.02,
+            "cp": 6,
+            "x": 0.12,
+            "z": 672.06,
+            "y": 31.3,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 64.28,
+            "cp": 7,
+            "x": 4.49,
+            "z": 758.13,
+            "y": 1.15,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 66.77,
+            "cp": 7,
+            "x": -0.13,
+            "z": 836.05,
+            "y": 2,
+            "falls": 0,
+            "hits": 2
+          }
+        ]
+      },
+      {
+        "seed": 740021,
+        "fps": 30,
+        "finished": true,
+        "seconds": 68.06666666666666,
+        "falls": 0,
+        "hits": 4,
+        "jumps": 33,
+        "manualLaunches": 4,
+        "checkpoint": 7,
+        "z": 836.1803605299019,
+        "maxViewChange": 0,
+        "gatePasses": [
+          {
+            "gate": 42,
+            "x": 6.773545562613407,
+            "t": 6.566666666666666
+          },
+          {
+            "gate": 61,
+            "x": -7.9767374342483714,
+            "t": 10
+          }
+        ],
+        "trail": [
+          {
+            "t": 0.03,
+            "cp": 0,
+            "x": 0,
+            "z": -18.81,
+            "y": 0,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 3.53,
+            "cp": 1,
+            "x": 0,
+            "z": 15.26,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 11.77,
+            "cp": 2,
+            "x": -5.11,
+            "z": 77.09,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 21.8,
+            "cp": 2,
+            "x": 6.86,
+            "z": 189.18,
+            "y": 1.14,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 25,
+            "cp": 3,
+            "x": -1.07,
+            "z": 212.22,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 33.33,
+            "cp": 4,
+            "x": -0.03,
+            "z": 466.92,
+            "y": 3.61,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 43.33,
+            "cp": 4,
+            "x": 0.2,
+            "z": 551.2,
+            "y": 30.75,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 44.97,
+            "cp": 5,
+            "x": 1.88,
+            "z": 570.01,
+            "y": 30.08,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 54.97,
+            "cp": 5,
+            "x": -0.17,
+            "z": 641.63,
+            "y": 30,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 60.93,
+            "cp": 6,
+            "x": -0.02,
+            "z": 672.05,
+            "y": 31.29,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 64.77,
+            "cp": 7,
+            "x": 2.37,
+            "z": 759.13,
+            "y": 1.22,
+            "falls": 0,
+            "hits": 4
+          },
+          {
+            "t": 68.07,
+            "cp": 7,
+            "x": 0.03,
+            "z": 836.18,
+            "y": 2,
+            "falls": 0,
+            "hits": 4
+          }
+        ]
+      },
+      {
+        "seed": 740021,
+        "fps": 60,
+        "finished": true,
+        "seconds": 68.83333333333333,
+        "falls": 0,
+        "hits": 3,
+        "jumps": 41,
+        "manualLaunches": 4,
+        "checkpoint": 7,
+        "z": 836.1294720785716,
+        "maxViewChange": 0,
+        "gatePasses": [
+          {
+            "gate": 42,
+            "x": 6.773545562613407,
+            "t": 6.566666666666666
+          },
+          {
+            "gate": 61,
+            "x": -7.976737434248715,
+            "t": 10
+          }
+        ],
+        "trail": [
+          {
+            "t": 0.02,
+            "cp": 0,
+            "x": 0,
+            "z": -18.93,
+            "y": 0,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 3.52,
+            "cp": 1,
+            "x": 0,
+            "z": 15.1,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 11.77,
+            "cp": 2,
+            "x": -5.11,
+            "z": 77.09,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 21.78,
+            "cp": 2,
+            "x": 6.88,
+            "z": 181.58,
+            "y": 2.82,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 25.73,
+            "cp": 3,
+            "x": -1.04,
+            "z": 212.02,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 33.98,
+            "cp": 4,
+            "x": -0.01,
+            "z": 467.17,
+            "y": 3.61,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 43.98,
+            "cp": 4,
+            "x": 0.04,
+            "z": 555.07,
+            "y": 28.39,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 47.68,
+            "cp": 5,
+            "x": 1.1,
+            "z": 570.07,
+            "y": 30.08,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 57.68,
+            "cp": 5,
+            "x": 0.52,
+            "z": 642.4,
+            "y": 30,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 63.08,
+            "cp": 6,
+            "x": -0.15,
+            "z": 672.21,
+            "y": 31.19,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 66.33,
+            "cp": 7,
+            "x": 4.45,
+            "z": 758.1,
+            "y": 1.16,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 68.83,
+            "cp": 7,
+            "x": -0.1,
+            "z": 836.13,
+            "y": 2,
+            "falls": 0,
+            "hits": 3
+          }
+        ]
+      },
+      {
+        "seed": 740021,
+        "fps": 120,
+        "finished": true,
+        "seconds": 68.71666666666667,
+        "falls": 0,
+        "hits": 3,
+        "jumps": 54,
+        "manualLaunches": 4,
+        "checkpoint": 7,
+        "z": 836.0191106359375,
+        "maxViewChange": 0,
+        "gatePasses": [
+          {
+            "gate": 42,
+            "x": 6.773545562613407,
+            "t": 6.566666666666666
+          },
+          {
+            "gate": 61,
+            "x": -7.952960362745097,
+            "t": 9.983333333333333
+          }
+        ],
+        "trail": [
+          {
+            "t": 0.01,
+            "cp": 0,
+            "x": 0,
+            "z": -18.97,
+            "y": 0,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 3.51,
+            "cp": 1,
+            "x": 0,
+            "z": 15.01,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 11.75,
+            "cp": 2,
+            "x": -5.14,
+            "z": 77.05,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 0
+          },
+          {
+            "t": 21.75,
+            "cp": 2,
+            "x": 6.86,
+            "z": 181.34,
+            "y": 2.89,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 25.73,
+            "cp": 3,
+            "x": -0.95,
+            "z": 212.02,
+            "y": 0.08,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 33.98,
+            "cp": 4,
+            "x": -0.03,
+            "z": 467.24,
+            "y": 3.61,
+            "falls": 0,
+            "hits": 1
+          },
+          {
+            "t": 43.98,
+            "cp": 4,
+            "x": 0.32,
+            "z": 555.51,
+            "y": 28.49,
+            "falls": 0,
+            "hits": 2
+          },
+          {
+            "t": 47.68,
+            "cp": 5,
+            "x": 0.78,
+            "z": 570.05,
+            "y": 30.08,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 57.68,
+            "cp": 5,
+            "x": 0.43,
+            "z": 642.3,
+            "y": 30,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 62.97,
+            "cp": 6,
+            "x": -0.11,
+            "z": 672.05,
+            "y": 31.19,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 66.23,
+            "cp": 7,
+            "x": 4.49,
+            "z": 758.1,
+            "y": 1.16,
+            "falls": 0,
+            "hits": 3
+          },
+          {
+            "t": 68.72,
+            "cp": 7,
+            "x": -0.14,
+            "z": 836.02,
+            "y": 2,
+            "falls": 0,
+            "hits": 3
+          }
+        ]
+      }
+    ],
+    "clocks": [
+      {
+        "fps": 30,
+        "mode": "normal",
+        "elapsed": 0.9999999999999432,
+        "expected": 1
+      },
+      {
+        "fps": 30,
+        "mode": "popup",
+        "elapsed": 0.9999999999999432,
+        "expected": 1
+      },
+      {
+        "fps": 30,
+        "mode": "paused",
+        "elapsed": 0,
+        "expected": 0
+      },
+      {
+        "fps": 60,
+        "mode": "normal",
+        "elapsed": 1.0000000000007958,
+        "expected": 1
+      },
+      {
+        "fps": 60,
+        "mode": "popup",
+        "elapsed": 1.0000000000007958,
+        "expected": 1
+      },
+      {
+        "fps": 60,
+        "mode": "paused",
+        "elapsed": 0,
+        "expected": 0
+      },
+      {
+        "fps": 120,
+        "mode": "normal",
+        "elapsed": 0.9999999999990905,
+        "expected": 1
+      },
+      {
+        "fps": 120,
+        "mode": "popup",
+        "elapsed": 0.9999999999990905,
+        "expected": 1
+      },
+      {
+        "fps": 120,
+        "mode": "paused",
+        "elapsed": 0,
+        "expected": 0
+      }
+    ],
+    "leftRace": {
+      "on": false,
+      "slip": 0,
+      "hit": 0,
+      "fall": 0,
+      "knock": null,
+      "velocity": [
+        0,
+        0,
+        0
+      ],
+      "flight": 0,
+      "rate": 1,
+      "boost": 0,
+      "pending": null,
+      "pulses": 0
+    }
+  }
+}

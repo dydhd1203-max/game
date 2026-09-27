@@ -34,7 +34,8 @@ class Bus{
 }
 let now=100000;class Clock extends Date{static now(){return now;}}
 const bus=new Bus(),results=[];
-const funcs=['bs','upCost','footprint','buildStat','buildingName','fortSurvived','fortStyleOf','setFortStyle','buildOwn','buildActor','buildNear','buildCanPay','buildPay','buildReward','buildReply','packBuilding','submitBuildCommand','planAtCell','canPlaceBuilding','createBuildPlans','handleBuildCommand','buildCanMove','requestRepairHelp','publishBuildPlans','buildWorkers','buildSpeed','observeBuilt','finishBuildPlan','hostBuildTick','setBuildHand','buildMissingCost','bindBuildNetwork','applyBuildUpgrade','repairStru','applyBuildRepair','applyNetworkBuilding','netBuild','canPlace','addStru','delStru'];
+const funcs=['bs','upCost','footprint','buildStat','buildingName','fortSurvived','fortStyleOf','setFortStyle','buildOwn','buildActor','buildNear','buildCanPay','buildPay','buildReward','buildReply','packBuilding','submitBuildCommand','planAtCell','canPlaceBuilding','createBuildPlans','handleBuildCommand','buildCanMove','requestRepairHelp','publishBuildPlans','buildWorkers','buildSpeed','observeBuilt','finishBuildPlan','hostBuildTick','setBuildHand','buildMissingCost','bindBuildNetwork','applyBuildUpgrade','repairStru','applyBuildRepair','applyNetworkBuilding','netBuild','canPlace','addStru','delStru',
+ 'wallType','wallSector','wallQuarter','wallLineQuarter','wallMoveQuarter','corridorDist','sectorOf','gapHalfAt'];
 function client(id,host){const ctx=vm.createContext({console,Date:Clock,net:bus.ref()});
  const fixture=`const uid=${JSON.stringify(id)},NG=5,GY=9;
  const G={host:${host},phase:'day',paused:false,day:1,me:{name:${JSON.stringify(id)},g:0},res:[],players:new Map()};
@@ -48,7 +49,8 @@ function client(id,host){const ctx=vm.createContext({console,Date:Clock,net:bus.
  const myRes=()=>G.res[G.me.g],popDmg=()=>{},feed=m=>messages.push(m),GCOL=Array(5).fill('#fff'),josa=(n,s)=>s;
  function recomputeRes(){G.res=base.map(r=>({w:r.w,s:r.s,g:r.o}));}recomputeRes();
  const el=()=>({});`;
- const state=['BUILD','BUILD_BRANCHES','MAXLV','WORK_SEC','BUILD_PLANS','buildParticipated','FORT_STYLES','buildSequence','buildPlansNeedSync','buildPlanDirty','buildLineMode','BUILD_PLAN_LIMIT','RESCUE_MARK'].map(dec);
+ const state=['BUILD','BUILD_BRANCHES','MAXLV','WORK_SEC','BUILD_PLANS','buildParticipated','FORT_STYLES','buildSequence','buildPlansNeedSync','buildPlanDirty','buildLineMode','BUILD_PLAN_LIMIT','RESCUE_MARK',
+ 'GATE_OFF','DIRS','gT','gPP','gX','gZ','GMOUTH','GAP_HALF'].map(dec);
  const c0=source.indexOf('const COST_MUL ='),c1=source.indexOf('const SOL_COMP =',c0);
  vm.runInContext([fixture,...state,source.slice(c0,c1),...funcs.map(fn),
   `net.child('base').on('value',s=>{const v=s.val();if(v){for(let i=0;i<5;i++)base[i]=v[i];recomputeRes();}});
@@ -57,7 +59,7 @@ function client(id,host){const ctx=vm.createContext({console,Date:Clock,net:bus.
    net.child('b').on('child_changed',s=>applyNetworkBuilding(s.key,s.val()));
    net.child('b').on('child_removed',s=>{if(STRU.has(s.key))delStru(s.key);});
    globalThis.A={G,PL,base,STRU,cellOwner,BUILD,BUILD_PLANS,BUILD_HANDS,BUILD_HELP,credits,messages,MY,buildParticipated,
-    submitBuildCommand,hostBuildTick,setBuildHand,canPlaceBuilding,buildCanMove,buildSpeed,fortStyleOf,setFortStyle,handleBuildCommand,packBuilding,applyNetworkBuilding,buildCanPay,repairStru,buildPay,buildReply,
+    submitBuildCommand,hostBuildTick,setBuildHand,canPlaceBuilding,buildCanMove,buildSpeed,fortStyleOf,setFortStyle,handleBuildCommand,packBuilding,applyNetworkBuilding,buildCanPay,repairStru,buildPay,buildReply,wallQuarter,wallSector,
     reset(){BUILD_PLANS.clear();BUILD_HANDS.clear();STRU.clear();cellOwner.clear();for(const r of base){r.w=1000;r.s=1000;r.o=1000;}recomputeRes();}};`].join('\n'),ctx);
  return ctx.A;
 }
@@ -148,6 +150,34 @@ H.buildReply('child','second repair credit',{xp:6,stats:{fixed:1}});
 const firstReply=clone(bus.pending[0]);release();
 ok('Two delayed credit acknowledgements both reach the guest',C.MY.fixed===repliesBefore+2);
 bus.write(firstReply);ok('Replayed acknowledgement cannot grant contribution twice',C.MY.fixed===repliesBefore+2);
+
+// 76: the host derives line direction, then the existing building records carry it
+// through completion, upgrades, relocation and late or legacy reads.
+H.reset();C.reset();bus.ref('base').set(H.base);
+H.PL.x=C.PL.x=12;H.PL.z=C.PL.z=12;H.G.players.set('child',{x:12,z:12,n:'child',g:0});
+command(C,{kind:'plan',t:'wwall',cells:[[12,12],[12,13]],r:2});
+const wallPlans=[...H.BUILD_PLANS.values()];
+ok('Host derives the Z line orientation and peers receive it, ignoring an arbitrary command r',wallPlans.length===2&&wallPlans.every(p=>p.r===1&&C.BUILD_PLANS.get(p.id)?.r===1));
+for(const p of wallPlans){C.setBuildHand(p.id);H.hostBuildTick(20);C.setBuildHand('');}
+const wall=H.STRU.get(wallPlans[0].id);
+ok('Blueprint completion preserves wall direction on both clients',wallPlans.every(p=>H.STRU.get(p.id)?.r===1&&C.STRU.get(p.id)?.r===1));
+command(C,{kind:'upgrade',id:wall.id,lv:wall.lv});
+ok('Wall upgrade retains line direction and packed network state',wall.lv===2&&wall.r===1&&C.STRU.get(wall.id).r===1&&H.packBuilding(wall).r===1);
+command(C,{kind:'move',id:wall.id,x:14,z:12});
+ok('Relocation in the same sector keeps line direction and moves peer collisions',wall.x===14&&wall.r===1&&C.STRU.get(wall.id).r===1&&C.cellOwner.get('14,12')===wall.id&&!C.cellOwner.has('12,12'));
+const oldRecord=H.packBuilding(wall);delete oldRecord.r;
+H.applyNetworkBuilding(wall.id,{...oldRecord,r:3});C.applyNetworkBuilding(wall.id,{...oldRecord,r:3});
+ok('An orientation-only remote update replaces the displayed direction',wall.r===3&&C.STRU.get(wall.id).r===3);
+H.applyNetworkBuilding(wall.id,oldRecord);C.applyNetworkBuilding(wall.id,oldRecord);
+ok('Legacy remote data with no r infers its actual location instead of keeping a stale turn',wall.r===H.wallQuarter(wall.t,wall.x,wall.z)&&C.STRU.get(wall.id).r===wall.r);
+// South doorway -> east doorway, still inside the actual command reach window.
+const oldSector=H.wallSector(wall.x,wall.z);command(C,{kind:'move',id:wall.id,x:18,z:7});
+ok('Moving into another doorway recomputes direction and synchronizes it',wall.x===18&&wall.z===7&&H.wallSector(wall.x,wall.z)!==oldSector&&wall.r===1&&C.STRU.get(wall.id).r===1);
+const late=client('late-wall-reader',false);
+ok('A late joining client restores the saved wall direction and level',late.STRU.get(wall.id)?.r===1&&late.STRU.get(wall.id)?.lv===wall.lv);
+ok('Non-wall network records stay unchanged and omit r',!Object.hasOwn(H.packBuilding({t:'arrow',x:0,z:0,hp:1,g:0,lv:1,r:3}),'r'));
+ok('Wall orientation adds no position-channel traffic',!bus.writes.some(k=>k==='p'||k.startsWith('p/')));
+
 const inputContext=vm.createContext({});
 vm.runInContext(`let work={kind:'coop',id:'finished'},curTool='mine',buildLineMode=false,acting=false,_aimEl=null;
  const BUILD_PLANS=new Map(),PL={x:0,z:0},BUILD={arrow:{name:'탑',cost:{}}};let plan=null,node=null,stopped=0;

@@ -1,0 +1,115 @@
+{
+  "hp": {
+    "hp": 1000,
+    "mx": 1000,
+    "stride": 8
+  },
+  "firstHit": {
+    "hp": 850,
+    "credit": 0
+  },
+  "kill": {
+    "a": 12,
+    "b": 0,
+    "hp": 0
+  },
+  "purchase": {
+    "accepted": 1,
+    "gold": 2
+  },
+  "rejoin": {
+    "restored": true,
+    "expected": {
+      "ammo": 79,
+      "lv": 16,
+      "job": 0,
+      "enh": 4
+    },
+    "actual": {
+      "ammo": 79,
+      "lv": 16,
+      "job": 0,
+      "enh": 4
+    }
+  },
+  "newLesson": false,
+  "clock": {
+    "elapsed": 3.9999999999997726,
+    "fps": 10
+  },
+  "ranges": 1,
+  "camera": [
+    {
+      "si": 0,
+      "uncovered": 0,
+      "oldUncovered": 0,
+      "maxYaw": 0,
+      "flips": 0
+    },
+    {
+      "si": 1,
+      "uncovered": 0,
+      "oldUncovered": 0,
+      "maxYaw": 0,
+      "flips": 0
+    },
+    {
+      "si": 2,
+      "uncovered": 0,
+      "oldUncovered": 0,
+      "maxYaw": 0,
+      "flips": 0
+    },
+    {
+      "si": 3,
+      "uncovered": 0,
+      "oldUncovered": 0,
+      "maxYaw": 0,
+      "flips": 0
+    },
+    {
+      "si": 4,
+      "uncovered": 0,
+      "oldUncovered": 0,
+      "maxYaw": 0,
+      "flips": 0
+    },
+    {
+      "si": 5,
+      "uncovered": 0,
+      "oldUncovered": 0,
+      "maxYaw": 0,
+      "flips": 0
+    },
+    {
+      "si": 6,
+      "uncovered": 0,
+      "oldUncovered": 0,
+      "maxYaw": 0,
+      "flips": 0
+    },
+    {
+      "si": 7,
+      "uncovered": 0,
+      "oldUncovered": 0,
+      "maxYaw": 0,
+      "flips": 0
+    },
+    {
+      "si": 8,
+      "uncovered": 0,
+      "oldUncovered": 0,
+      "maxYaw": 0,
+      "flips": 0
+    }
+  ],
+  "graphics": {
+    "shadow": 2048,
+    "bloom": 0,
+    "aa": 2,
+    "pr": 0.85,
+    "shHz": 0,
+    "q": "mid",
+    "pixelRatio": 0.85
+  }
+}

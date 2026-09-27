@@ -1,0 +1,132 @@
+{
+  "players": 21,
+  "cpuMs": {
+    "p50": 6.599999904632568,
+    "p95": 13.699999809265137
+  },
+  "overflow": [],
+  "comparisons": [
+    {
+      "wi": 1,
+      "pose": "idle",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.199810546875
+    },
+    {
+      "wi": 1,
+      "pose": "reload",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.2034921875
+    },
+    {
+      "wi": 3,
+      "pose": "idle",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.166763671875
+    },
+    {
+      "wi": 3,
+      "pose": "reload",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.206787109375
+    },
+    {
+      "wi": 5,
+      "pose": "idle",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.194306640625
+    },
+    {
+      "wi": 5,
+      "pose": "reload",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.2522802734375
+    },
+    {
+      "wi": 8,
+      "pose": "idle",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.204466796875
+    },
+    {
+      "wi": 8,
+      "pose": "reload",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.209015625
+    },
+    {
+      "wi": 13,
+      "pose": "idle",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.1845751953125
+    },
+    {
+      "wi": 13,
+      "pose": "reload",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.184078125
+    },
+    {
+      "wi": 16,
+      "pose": "idle",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.1509375
+    },
+    {
+      "wi": 16,
+      "pose": "reload",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.1838525390625
+    },
+    {
+      "wi": 19,
+      "pose": "idle",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.187953125
+    },
+    {
+      "wi": 19,
+      "pose": "reload",
+      "pixels": 0,
+      "max": 0,
+      "control": 0,
+      "area": 0.1995791015625
+    }
+  ],
+  "graphics": {
+    "shadow": 2048,
+    "bloom": 0,
+    "aa": 2,
+    "pr": 0.85,
+    "shHz": 0,
+    "q": "mid",
+    "width": 1088,
+    "height": 680
+  }
+}

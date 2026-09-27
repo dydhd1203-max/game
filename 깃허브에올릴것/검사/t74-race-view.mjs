@@ -6,11 +6,12 @@ import path from 'node:path';
 import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
+import { race76Physics, validateRace76 } from './race76-physics.mjs';
 
 const file=process.argv.slice(2).find(a=>!a.startsWith('--'))||GAME;
-const baseline=process.argv.includes('--baseline'), label=baseline?'baseline73':'race74';
-const captureOnly=process.argv.includes('--capture-only');
-const out=path.resolve('artifacts/race74');fs.mkdirSync(out,{recursive:true});
+const baseline=process.argv.includes('--baseline'), label=baseline?'baseline75':'race76';
+const captureOnly=process.argv.includes('--capture-only'),physicsOnly=process.argv.includes('--physics-only');
+const out=path.resolve('artifacts/race76');fs.mkdirSync(out,{recursive:true});
 const server=serve(20575,file);let browser;
 try {
   browser=await chromium.launch({args:['--use-gl=swiftshader','--enable-unsafe-swiftshader','--no-sandbox']});
@@ -42,7 +43,7 @@ try {
       const qx=x+(i%5-2)*2.2,qz=z+3+Math.floor(i/5)*2.2;
       Object.assign(q,{x:qx,tx:qx,y,ty:y,z:qz,tz:qz,ry:Math.PI,mv:true});i++;}};
   });
-  const results=await page.evaluate(()=>{
+  const results=physicsOnly?await page.evaluate(()=>({players:window.__G.players.size+1,graphics:{...window.__GFX},overflow:[],captures:[],colorAttributes:[],sections:window.__RACE_S.map(s=>s.n)})):await page.evaluate(()=>{
     const W=window,G=W.__G,P=W.__PL,R=W.__R,Y=W.__MINI().Y;
     const stages=[{name:'start',x:0,z:18,y:Y},{name:'middle',...(()=>{const p=W.__RACE_P().find(p=>p.cp===4);return{x:p.x,z:p.z,y:Y+p.y};})()},
       {name:'finish',...(()=>{const p=W.__RACE_P().find(p=>p.fin);return{x:p.x,z:p.z,y:Y+p.y};})()}];
@@ -80,10 +81,10 @@ try {
     if(flags){P.z=oldZ;W.__race74.art().static.forEach((s,i)=>s.always=flags[i]);W.__race74.draw();}
     W.__scene.traverse(m=>{if(m.isInstancedMesh&&m.count>m.instanceMatrix.count)overflow.push({name:m.name,id:m.id,used:m.count,capacity:m.instanceMatrix.count});});
     timing.sort((a,b)=>a-b);
-    const colorAttributes=W.__race74?[...['pad','padTrim','bar','ball','metal'].map(key=>{const m=W.__race74.art()[key],c=m.geometry.attributes.color;return {key,vertexColors:m.material.vertexColors,valid:!!c&&c.count===m.geometry.attributes.position.count&&c.array.every(Number.isFinite)&&c.array.some(v=>v>0)};})]:[];
+    const colorAttributes=W.__race74?[...['pad','padTrim','bar','ball','metal','cap','jump','rock'].filter(key=>W.__race74.art()[key]).map(key=>{const m=W.__race74.art()[key],c=m.geometry.attributes.color;return {key,vertexColors:m.material.vertexColors,valid:!!c&&c.count===m.geometry.attributes.position.count&&c.array.every(Number.isFinite)&&c.array.some(v=>v>0)};})]:[];
     return {seed:G.mini.seed,players:G.players.size+1,graphics:{...W.__GFX,width:R.domElement.width,height:R.domElement.height},cpuMs:{p50:timing[Math.floor(timing.length*.5)],p95:timing[Math.floor(timing.length*.95)],samples:timing.length},overflow,captures,colorAttributes,sections:W.__RACE_S.map(s=>s.n),platformCount:W.__RACE_P().length,renderer:R.getContext().getParameter(R.getContext().RENDERER)};
   });
-  if(!baseline)results.airCaptures=await page.evaluate(()=>{
+  if(!baseline&&!physicsOnly)results.airCaptures=await page.evaluate(()=>{
     const W=window,A=W.__race74,P=W.__PL,G=W.__G,Y=W.__MINI().Y,pad=W.__RACE_P().find(p=>p.kind==='final'),shots=[];
     G.players.clear();W.__pcMap.clear();for(const k of Object.keys(W.__KEY))delete W.__KEY[k];W.__KEY.w=true;
     A.reset();const S=W.__RACE();S.t=0;S.on=true;S.fallT=S.hitCd=S.slipT=0;G.t=W.__MINI().RACE;W.__MINE.fin=-1;
@@ -101,117 +102,7 @@ try {
     }
     for(const k of Object.keys(W.__KEY))delete W.__KEY[k];return shots;
   });
-  if(!baseline&&!captureOnly)results.physics=await page.evaluate(()=>{
-    const W=window,A=W.__race74,P=W.__PL,G=W.__G,KEY=W.__KEY,Y=W.__MINI().Y,flights=[],carries=[],slides=[],routes=[];
-    if(!A)throw Error('Missing __race74 physics hook');
-    G.players.clear();W.__pcMap.clear();
-    const clearKeys=()=>{for(const k of Object.keys(KEY))delete KEY[k];};
-    const reset=(x,z,y)=>{clearKeys();A.reset();const S=W.__RACE();S.t=0;S.on=true;S.fallT=S.hitCd=S.slipT=0;
-      G.t=W.__MINI().RACE;W.__MINE.fin=-1;W.__MINE.cp=0;W.__MINE.prog=0;
-      Object.assign(P,{x,z,y,ground:true,vx:0,vz:0,vy:0,jumps:0,down:false,glide:false,yaw:Math.PI,pitch:-.22,_px:x,_pz:z,flipT:99,takeT:0});};
-    const step=dt=>{G.t-=dt;W.__updPlayer(dt);A.tick(dt);};
-    for(const seed of [13,7919,740021])for(const fps of [30,60,120]){
-      G.mini.seed=seed;W.__raceBuild(seed);
-      for(const pad of W.__RACE_P().filter(p=>p.bounce)){
-        reset(pad.x,pad.z-2.4,Y+pad.y);KEY.w=true;
-        let launched=false,landed=false,launches=0,air=false,peak=0,land=null,maxViewChange=0;
-        let launchFrame=-1,launchVy=0,launchVz=0,launchY=0,flightSeconds=0,observedGravity=0;
-        for(let f=0;f<fps*5;f++){
-          const oldFlight=A.state.flight;step(1/fps);
-          if(oldFlight===0&&A.state.flight>0){launched=true;launches++;launchFrame=f;launchVy=P.vy;launchVz=P.vz;launchY=P.y;}
-          if(f===launchFrame+1&&launchFrame>=0&&!P.ground)observedGravity=(launchVy-P.vy)*fps;
-          if(launched&&!P.ground)air=true;
-          peak=Math.max(peak,P.y-Y-pad.y);maxViewChange=Math.max(maxViewChange,Math.abs(P.yaw-Math.PI),Math.abs(P.pitch+.22));
-          if(air&&P.ground){land=A.under();landed=!!land;flightSeconds=(f-launchFrame)/fps;break;}
-          if(P.y<Y-6||W.__RACE().fallT>0)break;
-        }
-        const gravity=W.__gravNow(),oldDiscriminant=pad.bounce.v**2+2*gravity*(launchY-P.y);
-        const uncompressedSeconds=oldDiscriminant>=0?(pad.bounce.v+Math.sqrt(oldDiscriminant))/gravity:0;
-        flights.push({seed,fps,pad:pad.id,kind:pad.kind,launched,launches,landed,landingPad:land?.id,forward:P.z-(pad.z-2.4),peak,maxViewChange,
-          launchRatioY:launchVy/pad.bounce.v,launchRatioZ:launchVz/pad.bounce.forward,gravityRatio:observedGravity/gravity,
-          flightSeconds,uncompressedSeconds,timeRatio:uncompressedSeconds>0?flightSeconds/uncompressedSeconds:0});
-      }
-      const moving=W.__RACE_P().find(p=>p.mv),startX=moving.x+Math.sin(moving.mv.ph)*moving.mv.amp;
-      reset(startX,moving.z,Y+moving.y);let grounded=true;
-      for(let f=0;f<fps*2;f++){step(1/fps);grounded&&=P.ground;}
-      carries.push({seed,fps,grounded,supported:A.contains(moving,P.x,P.z,.1,W.__RACE().t),shift:Math.abs(P.x-startX)});
-      // Use the open slalom lane for the braking test; the central punch bag is
-      // intentionally a collision obstacle, not part of the slide's friction.
-      const slide=W.__RACE_P().find(p=>p.shape==='slide'),slideX=slide.x+4;
-      reset(slideX,slide.z-slide.d*.3,A.surface(slide,slideX,slide.z-slide.d*.3));KEY.w=true;
-      let groundedSlide=true;for(let f=0;f<fps;f++){step(1/fps);groundedSlide&&=P.ground;}
-      const fast=P.vz;clearKeys();for(let f=0;f<fps*.6;f++)step(1/fps);
-      slides.push({seed,fps,fast,released:P.vz,grounded:groundedSlide,supported:A.contains(slide,P.x,P.z,0,W.__RACE().t)});
-    }
-    // One deliberate continuous line through the whole course. Steer through
-    // the starting slalom, pass the sweeps on their open sides, and choose the
-    // clear slide lane. Only ordinary input is used: no teleports, invulnerability,
-    // hazard disabling, sprint or jump. Isolated checks above exercise every pad.
-    // This catches connecting gaps that isolated launch-pad checks cannot see.
-    for(const seed of [13,7919,740021])for(const fps of [30,60,120]){
-      G.mini.seed=seed;W.__raceBuild(seed);reset(0,-19,Y);
-      let falls=0,wasFalling=false,maxViewChange=0,sec=0;
-      for(let f=0;f<fps*90&&W.__MINE.fin<0;f++){
-        const target=P.z<18?3:P.z<55?18:P.z<174?0:P.z<244?-16:P.z<468?0:P.z<510?4:0;
-        clearKeys();KEY.w=true;if(P.x<target-.22)KEY.a=true;else if(P.x>target+.22)KEY.d=true;
-        step(1/fps);sec=(f+1)/fps;
-        const falling=W.__RACE().fallT>0;if(falling&&!wasFalling)falls++;wasFalling=falling;
-        maxViewChange=Math.max(maxViewChange,Math.abs(P.yaw-Math.PI),Math.abs(P.pitch+.22));
-      }
-      routes.push({seed,fps,finished:W.__MINE.fin>=0,seconds:sec,falls,checkpoint:W.__MINE.cp,z:P.z,maxViewChange});
-    }
-    // Race time belongs to the race, including frames where movement is skipped.
-    // The normal case uses the real loop's bounded movement substeps so tick()
-    // cannot count the same elapsed interval a second time.
-    const clocks=[];
-    for(const fps of [30,60,120])for(const mode of ['normal','popup','falling','paused']){
-      reset(0,-19,Y);G.paused=false;const S=W.__RACE();
-      if(mode==='falling'){S.fallT=1.5;P.y=Y-9;P.ground=false;}
-      if(mode==='paused')G.paused=true;
-      const start=S.t,dt=1/fps;
-      for(let f=0;f<fps;f++){
-        if(mode!=='paused')G.t-=dt;
-        if(mode==='normal'||mode==='falling'){
-          const steps=Math.ceil(dt/(1/50));for(let sub=0;sub<steps;sub++)W.__updPlayer(dt/steps);
-        }
-        A.tick(dt);
-      }
-      clocks.push({fps,mode,elapsed:S.t-start,expected:mode==='paused'?0:1});G.paused=false;
-    }
-    // A real landing on a previously used mat must arm it again. Position the
-    // returning player over that same mat; gravity and the actual landing path
-    // decide when contact occurs, rather than calling the launch function.
-    const returnBounces=[];
-    for(const fps of [30,60,120]){
-      const pad=W.__RACE_P().find(p=>p.kind==='small');reset(pad.x,pad.z,Y+pad.y);KEY.w=true;
-      let first=false;for(let f=0;f<fps;f++){step(1/fps);if(A.state.flight>0){first=true;break;}}
-      clearKeys();Object.assign(P,{x:pad.x,z:pad.z,y:Y+pad.y+.5,vy:-5,vx:0,vz:0,ground:false,_px:pad.x,_pz:pad.z});
-      let contacted=false,second=false;
-      for(let f=0;f<fps;f++){
-        step(1/fps);if(P.ground&&A.under()?.id===pad.id)contacted=true;
-        if(contacted&&A.state.flight>0&&!P.ground){second=true;break;}
-      }
-      returnBounces.push({fps,first,contacted,second});
-    }
-    // The real outer loop clamps visual dt to 50 ms. At 10 FPS its race clock
-    // must still receive the 100 ms elapsed time when a popup skips updPlayer.
-    const actualLoopClocks=[],wasHost=G.host,popup=document.getElementById('popShop');
-    for(const mode of ['normal','popup','paused']){
-      popup.classList.remove('on');reset(0,-19,Y);G.host=true;G.paused=mode==='paused';KEY.w=true;
-      if(mode==='popup')popup.classList.add('on');
-      W.__advance(0);const raceStart=W.__RACE().t,hostStart=G.t,x=P.x,z=P.z;
-      for(let f=0;f<10;f++)W.__advance(100);
-      actualLoopClocks.push({mode,fps:10,elapsed:W.__RACE().t-raceStart,hostElapsed:hostStart-G.t,expected:mode==='paused'?0:1,moved:Math.hypot(P.x-x,P.z-z)});
-      popup.classList.remove('on');G.paused=false;
-    }
-    G.host=wasHost;
-    // Race-only knockback/animation state must not disable walking back in town.
-    const S=W.__RACE();S.slipT=.8;S.hitCd=1;S.fallT=.5;S.knock={x:1,z:1};S.on=true;
-    A.state.flight=1;A.state.rate=1.18;A.state.pending={p:W.__RACE_P().find(p=>p.bounce),t:.05};A.state.pulse.set(1,.8);
-    Object.assign(P,{vx:3,vz:5,vy:8});clearKeys();G.phase='day';G.mini=null;W.__miniLeave();
-    const leftRace={on:S.on,slip:S.slipT,hit:S.hitCd,fall:S.fallT,knock:S.knock,velocity:[P.vx,P.vy,P.vz],flight:A.state.flight,rate:A.state.rate,pending:A.state.pending,pulses:A.state.pulse.size};
-    clearKeys();return {flights,carries,slides,routes,clocks,returnBounces,actualLoopClocks,leftRace};
-  });
+  if(!baseline&&!captureOnly)results.physics=await page.evaluate(race76Physics);
   for(const c of results.captures){fs.writeFileSync(path.join(out,`${label}-${c.name}.png`),Buffer.from(c.png.split(',')[1],'base64'));delete c.png;}
   for(const c of results.airCaptures||[]){fs.writeFileSync(path.join(out,`${label}-air-${c.name}.png`),Buffer.from(c.png.split(',')[1],'base64'));delete c.png;}
   fs.writeFileSync(path.join(out,`${label}${captureOnly?'-captures':''}.json`),JSON.stringify(results,null,2));
@@ -222,20 +113,6 @@ try {
   assert.ok(results.captures.every(c=>!c.raceArt||(c.raceArt.materials<=3&&c.raceArt.textures<=2&&c.raceArt.visibleDraws<=12&&c.raceArt.overflow===0)),'Race art stays inside its material, texture and draw budgets');
   if(results.airCaptures){assert.deepEqual(results.airCaptures.map(c=>c.name),['compression','ascent','apex','landing']);
     assert.ok(results.airCaptures.every(c=>Number.isFinite(c.fov)&&c.fov<=76.01),'Spring speed FOV stays within six degrees without sprint or jump kick');}
-  if(results.physics){
-    assert.ok(results.physics.flights.every(r=>r.launched&&r.launches===1&&r.landed&&r.forward>5&&r.peak>1.3&&r.maxViewChange<1e-8),'Every actual bounce must launch once, advance, land, and preserve view');
-    assert.ok(results.physics.flights.every(r=>Math.abs(r.launchRatioY-1.18)<1e-8&&Math.abs(r.launchRatioZ-1.18)<1e-8&&Math.abs(r.gravityRatio-1.18**2)<1e-7),
-      'Actual player integration must apply the faster spring impulse and its matching gravity');
-    assert.ok(results.physics.flights.every(r=>r.flightSeconds>0&&r.timeRatio>.72&&r.timeRatio<.90),
-      'Every spring must land faster than its original arc at 30/60/120 Hz');
-    assert.ok(results.physics.carries.every(r=>r.grounded&&r.supported&&r.shift>.01),'Moving cloud mats must carry a standing player');
-    assert.ok(results.physics.slides.every(r=>r.fast>16&&r.released<r.fast*.3&&r.grounded&&r.supported),'Slide must accelerate and permit controlled braking');
-    assert.ok(results.physics.routes.every(r=>r.finished&&r.falls===0&&r.checkpoint===7&&r.seconds<90&&r.maxViewChange<1e-8),'The complete course must connect into a playable route at 30/60/120 Hz');
-    assert.ok(results.physics.clocks.every(r=>Math.abs(r.elapsed-r.expected)<.02),'Race clock must advance once during normal movement, popups and falling, and stop while paused');
-    assert.ok(results.physics.returnBounces.every(r=>r.first&&r.contacted&&r.second),'Landing back on the same bounce mat must permit another launch');
-    assert.ok(results.physics.actualLoopClocks.every(r=>Math.abs(r.elapsed-r.expected)<.02&&Math.abs(r.hostElapsed-r.expected)<.02),'The real 10 FPS loop must retain elapsed race time even when popups skip movement and stop while paused');
-    assert.ok(results.physics.actualLoopClocks.find(r=>r.mode==='popup').moved<1e-8,'The popup-clock check must actually skip movement');
-    assert.deepEqual(results.physics.leftRace,{on:false,slip:0,hit:0,fall:0,knock:null,velocity:[0,0,0],flight:0,rate:1,pending:null,pulses:0},'Leaving a race must clear race-only movement state');
-  }
+  if(results.physics)validateRace76(results.physics);
   console.log(`PASS: ${label} 21 avatars, all sections present, bounded instance capacity, unchanged mid preset`);
 } finally { await browser?.close();await new Promise(r=>server.close(r)); }

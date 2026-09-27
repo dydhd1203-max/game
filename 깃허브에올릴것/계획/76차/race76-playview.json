@@ -1,0 +1,6367 @@
+{
+  "fileVersion": "좀비의 밤 — 수정을 지켜라",
+  "seed": 740021,
+  "players": 21,
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "start": {
+    "x": -16.5,
+    "y": 87,
+    "z": -20.8,
+    "yaw": 3.141592653589793,
+    "pitch": -0.22
+  },
+  "captures": [
+    {
+      "name": "start-default-camera-21",
+      "kind": "actual-run",
+      "player": {
+        "x": -16.5,
+        "y": 87,
+        "z": -20.8,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": -16.5,
+        "y": 89.94666958771757,
+        "z": -27.045743675715876,
+        "fov": 70
+      },
+      "potentiallyVisibleHazards": [
+        {
+          "id": "start0",
+          "kind": "punch",
+          "width": 65.5,
+          "height": 96.4,
+          "fullyInFrame": true,
+          "distance": 27.1
+        },
+        {
+          "id": "start1",
+          "kind": "punch",
+          "width": 30.9,
+          "height": 50.1,
+          "fullyInFrame": true,
+          "distance": 55.8
+        },
+        {
+          "id": "start2",
+          "kind": "punch",
+          "width": 24.2,
+          "height": 39.1,
+          "fullyInFrame": true,
+          "distance": 72.8
+        },
+        {
+          "id": "start3",
+          "kind": "punch",
+          "width": 20.7,
+          "height": 32,
+          "fullyInFrame": true,
+          "distance": 90
+        },
+        {
+          "id": "start4",
+          "kind": "punch",
+          "width": 75.8,
+          "height": 96.4,
+          "fullyInFrame": true,
+          "distance": 28.1
+        },
+        {
+          "id": "start5",
+          "kind": "punch",
+          "width": 37.4,
+          "height": 50.1,
+          "fullyInFrame": true,
+          "distance": 57
+        },
+        {
+          "id": "start6",
+          "kind": "punch",
+          "width": 29.3,
+          "height": 39.1,
+          "fullyInFrame": true,
+          "distance": 74.3
+        },
+        {
+          "id": "start7",
+          "kind": "punch",
+          "width": 24.1,
+          "height": 32,
+          "fullyInFrame": true,
+          "distance": 91.6
+        },
+        {
+          "id": "start8",
+          "kind": "punch",
+          "width": 104.9,
+          "height": 96.4,
+          "fullyInFrame": true,
+          "distance": 34.2
+        },
+        {
+          "id": "start9",
+          "kind": "punch",
+          "width": 45.6,
+          "height": 50.1,
+          "fullyInFrame": true,
+          "distance": 60.9
+        },
+        {
+          "id": "start10",
+          "kind": "punch",
+          "width": 34.4,
+          "height": 39.1,
+          "fullyInFrame": true,
+          "distance": 77.9
+        },
+        {
+          "id": "start11",
+          "kind": "punch",
+          "width": 27.6,
+          "height": 32,
+          "fullyInFrame": true,
+          "distance": 94.9
+        },
+        {
+          "id": "start12",
+          "kind": "punch",
+          "width": 134.1,
+          "height": 96.4,
+          "fullyInFrame": true,
+          "distance": 43.2
+        },
+        {
+          "id": "start13",
+          "kind": "punch",
+          "width": 53.9,
+          "height": 50.1,
+          "fullyInFrame": true,
+          "distance": 67
+        },
+        {
+          "id": "jellyGate0:0",
+          "kind": "punch",
+          "width": 34.4,
+          "height": 46,
+          "fullyInFrame": true,
+          "distance": 62.8
+        },
+        {
+          "id": "jellyGate0:1",
+          "kind": "punch",
+          "width": 34.2,
+          "height": 46,
+          "fullyInFrame": true,
+          "distance": 62.8
+        },
+        {
+          "id": "jellyGate0:2",
+          "kind": "punch",
+          "width": 36.9,
+          "height": 46,
+          "fullyInFrame": true,
+          "distance": 63.1
+        },
+        {
+          "id": "jellyGate0:3",
+          "kind": "punch",
+          "width": 39.7,
+          "height": 46,
+          "fullyInFrame": true,
+          "distance": 63.8
+        },
+        {
+          "id": "jellyGate0:4",
+          "kind": "punch",
+          "width": 42.5,
+          "height": 46,
+          "fullyInFrame": true,
+          "distance": 64.7
+        },
+        {
+          "id": "jellyGate0:5",
+          "kind": "punch",
+          "width": 54.8,
+          "height": 46,
+          "fullyInFrame": true,
+          "distance": 72.2
+        },
+        {
+          "id": "jellyGate1:0",
+          "kind": "punch",
+          "width": 39.2,
+          "height": 35.8,
+          "fullyInFrame": true,
+          "distance": 89.1
+        },
+        {
+          "id": "jellyGate1:1",
+          "kind": "punch",
+          "width": 37.5,
+          "height": 35.8,
+          "fullyInFrame": true,
+          "distance": 87.5
+        },
+        {
+          "id": "jellyGate1:2",
+          "kind": "punch",
+          "width": 35.8,
+          "height": 35.8,
+          "fullyInFrame": true,
+          "distance": 86
+        },
+        {
+          "id": "jellyGate1:3",
+          "kind": "punch",
+          "width": 34.1,
+          "height": 35.8,
+          "fullyInFrame": true,
+          "distance": 84.7
+        },
+        {
+          "id": "jellyGate1:4",
+          "kind": "punch",
+          "width": 32.4,
+          "height": 35.8,
+          "fullyInFrame": true,
+          "distance": 83.6
+        },
+        {
+          "id": "jellyGate1:5",
+          "kind": "punch",
+          "width": 26.7,
+          "height": 35.8,
+          "fullyInFrame": true,
+          "distance": 81.8
+        },
+        {
+          "id": "candyEdge0:-1:-6",
+          "kind": "punch",
+          "width": 19.6,
+          "height": 22.1,
+          "fullyInFrame": true,
+          "distance": 122.9
+        },
+        {
+          "id": "candyEdge0:1:-6",
+          "kind": "punch",
+          "width": 25.6,
+          "height": 22.1,
+          "fullyInFrame": true,
+          "distance": 128.4
+        }
+      ],
+      "calls": 215,
+      "triangles": 1481338,
+      "memory": {
+        "geometries": 137,
+        "textures": 19
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 8,
+        "visibleTriangles": 167304,
+        "instances": 224,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      },
+      "energy": {
+        "visible": false,
+        "value": 100,
+        "fill": null,
+        "stamina": 1,
+        "rank": "1",
+        "time": "3:00",
+        "label": "3.0초 달리기"
+      }
+    },
+    {
+      "name": "run-2s-default-camera-21",
+      "kind": "actual-run",
+      "player": {
+        "x": -3.878166032973097,
+        "y": 87,
+        "z": -6.564089607923881,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": -4.352432206282447,
+        "y": 89.94666958771757,
+        "z": -13.284101512469832,
+        "fov": 70
+      },
+      "potentiallyVisibleHazards": [
+        {
+          "id": "start0",
+          "kind": "punch",
+          "width": 207.6,
+          "height": 172,
+          "fullyInFrame": true,
+          "distance": 20.9
+        },
+        {
+          "id": "start1",
+          "kind": "punch",
+          "width": 52.3,
+          "height": 64.9,
+          "fullyInFrame": true,
+          "distance": 43.7
+        },
+        {
+          "id": "start2",
+          "kind": "punch",
+          "width": 34.1,
+          "height": 47.5,
+          "fullyInFrame": true,
+          "distance": 59.5
+        },
+        {
+          "id": "start3",
+          "kind": "punch",
+          "width": 24.9,
+          "height": 37.5,
+          "fullyInFrame": true,
+          "distance": 75.9
+        },
+        {
+          "id": "start4",
+          "kind": "punch",
+          "width": 121.2,
+          "height": 172,
+          "fullyInFrame": true,
+          "distance": 13.2
+        },
+        {
+          "id": "start5",
+          "kind": "punch",
+          "width": 40.1,
+          "height": 64.9,
+          "fullyInFrame": true,
+          "distance": 41.6
+        },
+        {
+          "id": "start6",
+          "kind": "punch",
+          "width": 29.9,
+          "height": 47.5,
+          "fullyInFrame": true,
+          "distance": 58.6
+        },
+        {
+          "id": "start7",
+          "kind": "punch",
+          "width": 24.6,
+          "height": 37.5,
+          "fullyInFrame": true,
+          "distance": 75.8
+        },
+        {
+          "id": "start8",
+          "kind": "punch",
+          "width": 159,
+          "height": 172,
+          "fullyInFrame": true,
+          "distance": 15.2
+        },
+        {
+          "id": "start9",
+          "kind": "punch",
+          "width": 51.5,
+          "height": 64.9,
+          "fullyInFrame": true,
+          "distance": 43.2
+        },
+        {
+          "id": "start10",
+          "kind": "punch",
+          "width": 37.3,
+          "height": 47.5,
+          "fullyInFrame": true,
+          "distance": 60.4
+        },
+        {
+          "id": "start11",
+          "kind": "punch",
+          "width": 29.3,
+          "height": 37.5,
+          "fullyInFrame": true,
+          "distance": 77.7
+        },
+        {
+          "id": "start12",
+          "kind": "punch",
+          "width": 153.5,
+          "height": 172,
+          "fullyInFrame": false,
+          "distance": 24.7
+        },
+        {
+          "id": "start13",
+          "kind": "punch",
+          "width": 65.1,
+          "height": 64.9,
+          "fullyInFrame": true,
+          "distance": 48.2
+        },
+        {
+          "id": "jellyGate0:0",
+          "kind": "punch",
+          "width": 54.7,
+          "height": 57.9,
+          "fullyInFrame": true,
+          "distance": 50.7
+        },
+        {
+          "id": "jellyGate0:1",
+          "kind": "punch",
+          "width": 50.4,
+          "height": 57.9,
+          "fullyInFrame": true,
+          "distance": 49.6
+        },
+        {
+          "id": "jellyGate0:2",
+          "kind": "punch",
+          "width": 46,
+          "height": 57.9,
+          "fullyInFrame": true,
+          "distance": 48.9
+        },
+        {
+          "id": "jellyGate0:3",
+          "kind": "punch",
+          "width": 43.1,
+          "height": 57.9,
+          "fullyInFrame": true,
+          "distance": 48.6
+        },
+        {
+          "id": "jellyGate0:4",
+          "kind": "punch",
+          "width": 44.8,
+          "height": 57.9,
+          "fullyInFrame": true,
+          "distance": 48.7
+        },
+        {
+          "id": "jellyGate0:5",
+          "kind": "punch",
+          "width": 64,
+          "height": 57.9,
+          "fullyInFrame": true,
+          "distance": 53.9
+        },
+        {
+          "id": "jellyGate1:0",
+          "kind": "punch",
+          "width": 42.7,
+          "height": 42.6,
+          "fullyInFrame": true,
+          "distance": 71.2
+        },
+        {
+          "id": "jellyGate1:1",
+          "kind": "punch",
+          "width": 40.3,
+          "height": 42.6,
+          "fullyInFrame": true,
+          "distance": 69.9
+        },
+        {
+          "id": "jellyGate1:2",
+          "kind": "punch",
+          "width": 37.9,
+          "height": 42.6,
+          "fullyInFrame": true,
+          "distance": 68.9
+        },
+        {
+          "id": "jellyGate1:3",
+          "kind": "punch",
+          "width": 35.5,
+          "height": 42.6,
+          "fullyInFrame": true,
+          "distance": 68.1
+        },
+        {
+          "id": "jellyGate1:4",
+          "kind": "punch",
+          "width": 33.1,
+          "height": 42.6,
+          "fullyInFrame": true,
+          "distance": 67.7
+        },
+        {
+          "id": "jellyGate1:5",
+          "kind": "punch",
+          "width": 38.6,
+          "height": 42.6,
+          "fullyInFrame": true,
+          "distance": 69.3
+        },
+        {
+          "id": "candyEdge0:-1:-6",
+          "kind": "punch",
+          "width": 24.8,
+          "height": 24.8,
+          "fullyInFrame": true,
+          "distance": 109.9
+        },
+        {
+          "id": "candyEdge0:-1:6",
+          "kind": "punch",
+          "width": 22.2,
+          "height": 22.4,
+          "fullyInFrame": true,
+          "distance": 121.8
+        },
+        {
+          "id": "candyEdge0:1:-6",
+          "kind": "punch",
+          "width": 26.8,
+          "height": 24.8,
+          "fullyInFrame": true,
+          "distance": 111.4
+        },
+        {
+          "id": "candyEdge0:1:6",
+          "kind": "punch",
+          "width": 23.8,
+          "height": 22.4,
+          "fullyInFrame": true,
+          "distance": 123.1
+        },
+        {
+          "id": "candyEdge1:-1:-6",
+          "kind": "punch",
+          "width": 21.8,
+          "height": 22.1,
+          "fullyInFrame": true,
+          "distance": 123.8
+        },
+        {
+          "id": "candyEdge1:1:-6",
+          "kind": "punch",
+          "width": 23.3,
+          "height": 22.1,
+          "fullyInFrame": true,
+          "distance": 125.1
+        }
+      ],
+      "calls": 174,
+      "triangles": 1449926,
+      "memory": {
+        "geometries": 137,
+        "textures": 19
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 8,
+        "visibleTriangles": 177320,
+        "instances": 270,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      },
+      "energy": {
+        "visible": true,
+        "value": 100,
+        "fill": 100,
+        "stamina": 1,
+        "rank": "1",
+        "time": "2:58",
+        "label": "3.0초 달리기"
+      }
+    },
+    {
+      "name": "run-5s-default-camera-21",
+      "kind": "actual-run",
+      "player": {
+        "x": -0.19405766046012218,
+        "y": 87.075,
+        "z": 21.134702738928826,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": -0.19405766046012254,
+        "y": 90.02166912690164,
+        "z": 14.20440124204201,
+        "fov": 70
+      },
+      "potentiallyVisibleHazards": [
+        {
+          "id": "start1",
+          "kind": "punch",
+          "width": 190.2,
+          "height": 158.1,
+          "fullyInFrame": true,
+          "distance": 22.1
+        },
+        {
+          "id": "start2",
+          "kind": "punch",
+          "width": 73.6,
+          "height": 83.7,
+          "fullyInFrame": true,
+          "distance": 33.9
+        },
+        {
+          "id": "start3",
+          "kind": "punch",
+          "width": 42.8,
+          "height": 56.9,
+          "fullyInFrame": true,
+          "distance": 49.1
+        },
+        {
+          "id": "start5",
+          "kind": "punch",
+          "width": 116.2,
+          "height": 158.1,
+          "fullyInFrame": true,
+          "distance": 14.6
+        },
+        {
+          "id": "start6",
+          "kind": "punch",
+          "width": 52,
+          "height": 83.7,
+          "fullyInFrame": true,
+          "distance": 30.9
+        },
+        {
+          "id": "start7",
+          "kind": "punch",
+          "width": 35.2,
+          "height": 56.9,
+          "fullyInFrame": true,
+          "distance": 47.9
+        },
+        {
+          "id": "start9",
+          "kind": "punch",
+          "width": 137,
+          "height": 158.1,
+          "fullyInFrame": true,
+          "distance": 16.1
+        },
+        {
+          "id": "start10",
+          "kind": "punch",
+          "width": 68.7,
+          "height": 83.7,
+          "fullyInFrame": true,
+          "distance": 32.9
+        },
+        {
+          "id": "start11",
+          "kind": "punch",
+          "width": 45.7,
+          "height": 56.9,
+          "fullyInFrame": true,
+          "distance": 50
+        },
+        {
+          "id": "start13",
+          "kind": "punch",
+          "width": 207.9,
+          "height": 158.1,
+          "fullyInFrame": false,
+          "distance": 25
+        },
+        {
+          "id": "jellyGate0:0",
+          "kind": "punch",
+          "width": 155.7,
+          "height": 119.7,
+          "fullyInFrame": true,
+          "distance": 28.4
+        },
+        {
+          "id": "jellyGate0:1",
+          "kind": "punch",
+          "width": 138.5,
+          "height": 119.7,
+          "fullyInFrame": true,
+          "distance": 25.5
+        },
+        {
+          "id": "jellyGate0:2",
+          "kind": "punch",
+          "width": 121.3,
+          "height": 119.7,
+          "fullyInFrame": true,
+          "distance": 23.2
+        },
+        {
+          "id": "jellyGate0:3",
+          "kind": "punch",
+          "width": 104,
+          "height": 119.7,
+          "fullyInFrame": true,
+          "distance": 21.6
+        },
+        {
+          "id": "jellyGate0:4",
+          "kind": "punch",
+          "width": 90.4,
+          "height": 119.7,
+          "fullyInFrame": true,
+          "distance": 20.9
+        },
+        {
+          "id": "jellyGate0:5",
+          "kind": "punch",
+          "width": 154.2,
+          "height": 119.7,
+          "fullyInFrame": true,
+          "distance": 28.1
+        },
+        {
+          "id": "jellyGate1:0",
+          "kind": "punch",
+          "width": 74.9,
+          "height": 68.8,
+          "fullyInFrame": true,
+          "distance": 44.4
+        },
+        {
+          "id": "jellyGate1:1",
+          "kind": "punch",
+          "width": 68.8,
+          "height": 68.8,
+          "fullyInFrame": true,
+          "distance": 42.6
+        },
+        {
+          "id": "jellyGate1:2",
+          "kind": "punch",
+          "width": 62.8,
+          "height": 68.8,
+          "fullyInFrame": true,
+          "distance": 41.2
+        },
+        {
+          "id": "jellyGate1:3",
+          "kind": "punch",
+          "width": 56.7,
+          "height": 68.8,
+          "fullyInFrame": true,
+          "distance": 40.3
+        },
+        {
+          "id": "jellyGate1:4",
+          "kind": "punch",
+          "width": 51.4,
+          "height": 68.8,
+          "fullyInFrame": true,
+          "distance": 39.9
+        },
+        {
+          "id": "jellyGate1:5",
+          "kind": "punch",
+          "width": 73.3,
+          "height": 68.8,
+          "fullyInFrame": true,
+          "distance": 43.9
+        },
+        {
+          "id": "candy0",
+          "kind": "bar",
+          "width": 122.7,
+          "height": 7.3,
+          "fullyInFrame": true,
+          "distance": 87.3
+        },
+        {
+          "id": "candyEdge0:-1:-6",
+          "kind": "punch",
+          "width": 35.8,
+          "height": 32.8,
+          "fullyInFrame": true,
+          "distance": 83.5
+        },
+        {
+          "id": "candyEdge0:-1:6",
+          "kind": "punch",
+          "width": 30.6,
+          "height": 28.7,
+          "fullyInFrame": true,
+          "distance": 95.2
+        },
+        {
+          "id": "candyEdge0:1:-6",
+          "kind": "punch",
+          "width": 35.9,
+          "height": 32.8,
+          "fullyInFrame": true,
+          "distance": 83.6
+        },
+        {
+          "id": "candyEdge0:1:6",
+          "kind": "punch",
+          "width": 30.7,
+          "height": 28.7,
+          "fullyInFrame": true,
+          "distance": 95.3
+        },
+        {
+          "id": "candy1",
+          "kind": "bar",
+          "width": 22.5,
+          "height": 8,
+          "fullyInFrame": true,
+          "distance": 101.2
+        },
+        {
+          "id": "candyEdge1:-1:-6",
+          "kind": "punch",
+          "width": 29.9,
+          "height": 28.2,
+          "fullyInFrame": true,
+          "distance": 97.1
+        },
+        {
+          "id": "candyEdge1:-1:6",
+          "kind": "punch",
+          "width": 26.2,
+          "height": 25.1,
+          "fullyInFrame": true,
+          "distance": 108.9
+        },
+        {
+          "id": "candyEdge1:1:-6",
+          "kind": "punch",
+          "width": 30,
+          "height": 28.2,
+          "fullyInFrame": true,
+          "distance": 97.2
+        },
+        {
+          "id": "candyEdge1:1:6",
+          "kind": "punch",
+          "width": 26.3,
+          "height": 25.1,
+          "fullyInFrame": true,
+          "distance": 108.9
+        },
+        {
+          "id": "candyEdge2:-1:-6",
+          "kind": "punch",
+          "width": 22.2,
+          "height": 21.8,
+          "fullyInFrame": true,
+          "distance": 125.6
+        },
+        {
+          "id": "candyEdge2:1:-6",
+          "kind": "punch",
+          "width": 22.3,
+          "height": 21.8,
+          "fullyInFrame": true,
+          "distance": 125.7
+        }
+      ],
+      "calls": 60,
+      "triangles": 867023,
+      "memory": {
+        "geometries": 137,
+        "textures": 19
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 8,
+        "visibleTriangles": 200992,
+        "instances": 316,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      },
+      "energy": {
+        "visible": true,
+        "value": 100,
+        "fill": 100,
+        "stamina": 1,
+        "rank": "1",
+        "time": "2:55",
+        "label": "3.0초 달리기"
+      }
+    },
+    {
+      "name": "run-10s-default-camera-21",
+      "kind": "actual-run",
+      "player": {
+        "x": 0.16158409065899793,
+        "y": 87.075,
+        "z": 27.980442939325258,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": 0.36871495664535153,
+        "y": 90.02175972941295,
+        "z": 21.146576935471334,
+        "fov": 70.64549199800453
+      },
+      "potentiallyVisibleHazards": [
+        {
+          "id": "start1",
+          "kind": "punch",
+          "width": 126.8,
+          "height": 245.4,
+          "fullyInFrame": false,
+          "distance": 18.9
+        },
+        {
+          "id": "start2",
+          "kind": "punch",
+          "width": 97.4,
+          "height": 102.3,
+          "fullyInFrame": true,
+          "distance": 28
+        },
+        {
+          "id": "start3",
+          "kind": "punch",
+          "width": 50.5,
+          "height": 64.7,
+          "fullyInFrame": true,
+          "distance": 42.5
+        },
+        {
+          "id": "start5",
+          "kind": "punch",
+          "width": 202.5,
+          "height": 245.4,
+          "fullyInFrame": true,
+          "distance": 8.6
+        },
+        {
+          "id": "start6",
+          "kind": "punch",
+          "width": 64.4,
+          "height": 102.3,
+          "fullyInFrame": true,
+          "distance": 24.1
+        },
+        {
+          "id": "start7",
+          "kind": "punch",
+          "width": 40,
+          "height": 64.7,
+          "fullyInFrame": true,
+          "distance": 41
+        },
+        {
+          "id": "start9",
+          "kind": "punch",
+          "width": 234.6,
+          "height": 245.4,
+          "fullyInFrame": true,
+          "distance": 10.5
+        },
+        {
+          "id": "start10",
+          "kind": "punch",
+          "width": 87.3,
+          "height": 102.3,
+          "fullyInFrame": true,
+          "distance": 26.4
+        },
+        {
+          "id": "start11",
+          "kind": "punch",
+          "width": 53.1,
+          "height": 64.7,
+          "fullyInFrame": true,
+          "distance": 43.4
+        },
+        {
+          "id": "start13",
+          "kind": "punch",
+          "width": 49,
+          "height": 245.4,
+          "fullyInFrame": false,
+          "distance": 21.6
+        },
+        {
+          "id": "jellyGate0:0",
+          "kind": "punch",
+          "width": 236.8,
+          "height": 162.1,
+          "fullyInFrame": true,
+          "distance": 23.3
+        },
+        {
+          "id": "jellyGate0:1",
+          "kind": "punch",
+          "width": 206.4,
+          "height": 162.1,
+          "fullyInFrame": true,
+          "distance": 19.9
+        },
+        {
+          "id": "jellyGate0:2",
+          "kind": "punch",
+          "width": 175.9,
+          "height": 162.1,
+          "fullyInFrame": true,
+          "distance": 17
+        },
+        {
+          "id": "jellyGate0:3",
+          "kind": "punch",
+          "width": 145.4,
+          "height": 162.1,
+          "fullyInFrame": true,
+          "distance": 14.9
+        },
+        {
+          "id": "jellyGate0:4",
+          "kind": "punch",
+          "width": 123.6,
+          "height": 162.1,
+          "fullyInFrame": true,
+          "distance": 14
+        },
+        {
+          "id": "jellyGate0:5",
+          "kind": "punch",
+          "width": 238.6,
+          "height": 162.1,
+          "fullyInFrame": true,
+          "distance": 23.9
+        },
+        {
+          "id": "jellyGate1:0",
+          "kind": "punch",
+          "width": 89.6,
+          "height": 80.5,
+          "fullyInFrame": true,
+          "distance": 37.8
+        },
+        {
+          "id": "jellyGate1:1",
+          "kind": "punch",
+          "width": 81.4,
+          "height": 80.5,
+          "fullyInFrame": true,
+          "distance": 35.8
+        },
+        {
+          "id": "jellyGate1:2",
+          "kind": "punch",
+          "width": 73.1,
+          "height": 80.5,
+          "fullyInFrame": true,
+          "distance": 34.3
+        },
+        {
+          "id": "jellyGate1:3",
+          "kind": "punch",
+          "width": 64.9,
+          "height": 80.5,
+          "fullyInFrame": true,
+          "distance": 33.4
+        },
+        {
+          "id": "jellyGate1:4",
+          "kind": "punch",
+          "width": 60.3,
+          "height": 80.5,
+          "fullyInFrame": true,
+          "distance": 33
+        },
+        {
+          "id": "jellyGate1:5",
+          "kind": "punch",
+          "width": 92.8,
+          "height": 80.5,
+          "fullyInFrame": true,
+          "distance": 38.4
+        },
+        {
+          "id": "candy0",
+          "kind": "bar",
+          "width": 110.8,
+          "height": 9.2,
+          "fullyInFrame": true,
+          "distance": 80.5
+        },
+        {
+          "id": "candyEdge0:-1:-6",
+          "kind": "punch",
+          "width": 39.4,
+          "height": 35.2,
+          "fullyInFrame": true,
+          "distance": 77
+        },
+        {
+          "id": "candyEdge0:-1:6",
+          "kind": "punch",
+          "width": 33.2,
+          "height": 30.6,
+          "fullyInFrame": true,
+          "distance": 88.6
+        },
+        {
+          "id": "candyEdge0:1:-6",
+          "kind": "punch",
+          "width": 39.1,
+          "height": 35.2,
+          "fullyInFrame": true,
+          "distance": 76.9
+        },
+        {
+          "id": "candyEdge0:1:6",
+          "kind": "punch",
+          "width": 33,
+          "height": 30.6,
+          "fullyInFrame": true,
+          "distance": 88.5
+        },
+        {
+          "id": "candy1",
+          "kind": "bar",
+          "width": 66.3,
+          "height": 8.3,
+          "fullyInFrame": true,
+          "distance": 94.3
+        },
+        {
+          "id": "candyEdge1:-1:-6",
+          "kind": "punch",
+          "width": 32.4,
+          "height": 29.9,
+          "fullyInFrame": true,
+          "distance": 90.5
+        },
+        {
+          "id": "candyEdge1:-1:6",
+          "kind": "punch",
+          "width": 28,
+          "height": 26.5,
+          "fullyInFrame": true,
+          "distance": 102.2
+        },
+        {
+          "id": "candyEdge1:1:-6",
+          "kind": "punch",
+          "width": 32.1,
+          "height": 29.9,
+          "fullyInFrame": true,
+          "distance": 90.5
+        },
+        {
+          "id": "candyEdge1:1:6",
+          "kind": "punch",
+          "width": 27.8,
+          "height": 26.5,
+          "fullyInFrame": true,
+          "distance": 102.2
+        },
+        {
+          "id": "candy2",
+          "kind": "bar",
+          "width": 12.9,
+          "height": 6.2,
+          "fullyInFrame": true,
+          "distance": 123
+        },
+        {
+          "id": "candyEdge2:-1:-6",
+          "kind": "punch",
+          "width": 23.5,
+          "height": 22.8,
+          "fullyInFrame": true,
+          "distance": 118.9
+        },
+        {
+          "id": "candyEdge2:1:-6",
+          "kind": "punch",
+          "width": 23.4,
+          "height": 22.8,
+          "fullyInFrame": true,
+          "distance": 118.9
+        }
+      ],
+      "calls": 51,
+      "triangles": 770366,
+      "memory": {
+        "geometries": 137,
+        "textures": 19
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 8,
+        "visibleTriangles": 203456,
+        "instances": 330,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      },
+      "energy": {
+        "visible": true,
+        "value": 100,
+        "fill": 100,
+        "stamina": 1,
+        "rank": "1",
+        "time": "2:50",
+        "label": "3.0초 달리기"
+      }
+    },
+    {
+      "name": "section-probe-01-default-camera-21",
+      "kind": "section-waypoint",
+      "section": 1,
+      "sectionName": "통통 범퍼숲",
+      "player": {
+        "x": 0,
+        "y": 87.075,
+        "z": 22,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": 7.648830000760271e-16,
+        "y": 90.02166958771757,
+        "z": 15.754256324284125,
+        "fov": 70.0026379782612
+      },
+      "potentiallyVisibleHazards": [
+        {
+          "id": "start1",
+          "kind": "punch",
+          "width": 216,
+          "height": 172,
+          "fullyInFrame": true,
+          "distance": 21.7
+        },
+        {
+          "id": "start2",
+          "kind": "punch",
+          "width": 78.2,
+          "height": 87.4,
+          "fullyInFrame": true,
+          "distance": 33.2
+        },
+        {
+          "id": "start3",
+          "kind": "punch",
+          "width": 44.5,
+          "height": 58.6,
+          "fullyInFrame": true,
+          "distance": 48.3
+        },
+        {
+          "id": "start5",
+          "kind": "punch",
+          "width": 129.5,
+          "height": 172,
+          "fullyInFrame": true,
+          "distance": 13.8
+        },
+        {
+          "id": "start6",
+          "kind": "punch",
+          "width": 54.4,
+          "height": 87.4,
+          "fullyInFrame": true,
+          "distance": 30
+        },
+        {
+          "id": "start7",
+          "kind": "punch",
+          "width": 36.2,
+          "height": 58.6,
+          "fullyInFrame": true,
+          "distance": 47
+        },
+        {
+          "id": "start9",
+          "kind": "punch",
+          "width": 151.1,
+          "height": 172,
+          "fullyInFrame": true,
+          "distance": 15.2
+        },
+        {
+          "id": "start10",
+          "kind": "punch",
+          "width": 72.2,
+          "height": 87.4,
+          "fullyInFrame": true,
+          "distance": 32
+        },
+        {
+          "id": "start11",
+          "kind": "punch",
+          "width": 47.3,
+          "height": 58.6,
+          "fullyInFrame": true,
+          "distance": 49.1
+        },
+        {
+          "id": "start13",
+          "kind": "punch",
+          "width": 181.8,
+          "height": 172,
+          "fullyInFrame": false,
+          "distance": 24.4
+        },
+        {
+          "id": "jellyGate0:0",
+          "kind": "punch",
+          "width": 166.7,
+          "height": 127.4,
+          "fullyInFrame": true,
+          "distance": 27.2
+        },
+        {
+          "id": "jellyGate0:1",
+          "kind": "punch",
+          "width": 147.4,
+          "height": 127.4,
+          "fullyInFrame": true,
+          "distance": 24.4
+        },
+        {
+          "id": "jellyGate0:2",
+          "kind": "punch",
+          "width": 128,
+          "height": 127.4,
+          "fullyInFrame": true,
+          "distance": 22.1
+        },
+        {
+          "id": "jellyGate0:3",
+          "kind": "punch",
+          "width": 108.7,
+          "height": 127.4,
+          "fullyInFrame": true,
+          "distance": 20.6
+        },
+        {
+          "id": "jellyGate0:4",
+          "kind": "punch",
+          "width": 96.4,
+          "height": 127.4,
+          "fullyInFrame": true,
+          "distance": 20
+        },
+        {
+          "id": "jellyGate0:5",
+          "kind": "punch",
+          "width": 171,
+          "height": 127.4,
+          "fullyInFrame": true,
+          "distance": 27.9
+        },
+        {
+          "id": "jellyGate1:0",
+          "kind": "punch",
+          "width": 76.8,
+          "height": 71.3,
+          "fullyInFrame": true,
+          "distance": 43.2
+        },
+        {
+          "id": "jellyGate1:1",
+          "kind": "punch",
+          "width": 70.3,
+          "height": 71.3,
+          "fullyInFrame": true,
+          "distance": 41.4
+        },
+        {
+          "id": "jellyGate1:2",
+          "kind": "punch",
+          "width": 63.9,
+          "height": 71.3,
+          "fullyInFrame": true,
+          "distance": 40.1
+        },
+        {
+          "id": "jellyGate1:3",
+          "kind": "punch",
+          "width": 57.4,
+          "height": 71.3,
+          "fullyInFrame": true,
+          "distance": 39.3
+        },
+        {
+          "id": "jellyGate1:4",
+          "kind": "punch",
+          "width": 53.3,
+          "height": 71.3,
+          "fullyInFrame": true,
+          "distance": 39
+        },
+        {
+          "id": "jellyGate1:5",
+          "kind": "punch",
+          "width": 78.2,
+          "height": 71.3,
+          "fullyInFrame": true,
+          "distance": 43.6
+        },
+        {
+          "id": "candy0",
+          "kind": "bar",
+          "width": 104.6,
+          "height": 8.7,
+          "fullyInFrame": true,
+          "distance": 86.5
+        },
+        {
+          "id": "candyEdge0:-1:-6",
+          "kind": "punch",
+          "width": 36.7,
+          "height": 33.4,
+          "fullyInFrame": true,
+          "distance": 82.7
+        },
+        {
+          "id": "candyEdge0:-1:6",
+          "kind": "punch",
+          "width": 31.3,
+          "height": 29.2,
+          "fullyInFrame": true,
+          "distance": 94.4
+        },
+        {
+          "id": "candyEdge0:1:-6",
+          "kind": "punch",
+          "width": 36.7,
+          "height": 33.4,
+          "fullyInFrame": true,
+          "distance": 82.7
+        },
+        {
+          "id": "candyEdge0:1:6",
+          "kind": "punch",
+          "width": 31.3,
+          "height": 29.2,
+          "fullyInFrame": true,
+          "distance": 94.4
+        },
+        {
+          "id": "candy1",
+          "kind": "bar",
+          "width": 63.6,
+          "height": 7.8,
+          "fullyInFrame": true,
+          "distance": 100.3
+        },
+        {
+          "id": "candyEdge1:-1:-6",
+          "kind": "punch",
+          "width": 30.5,
+          "height": 28.6,
+          "fullyInFrame": true,
+          "distance": 96.3
+        },
+        {
+          "id": "candyEdge1:-1:6",
+          "kind": "punch",
+          "width": 26.6,
+          "height": 25.5,
+          "fullyInFrame": true,
+          "distance": 108.1
+        },
+        {
+          "id": "candyEdge1:1:-6",
+          "kind": "punch",
+          "width": 30.5,
+          "height": 28.6,
+          "fullyInFrame": true,
+          "distance": 96.3
+        },
+        {
+          "id": "candyEdge1:1:6",
+          "kind": "punch",
+          "width": 26.6,
+          "height": 25.5,
+          "fullyInFrame": true,
+          "distance": 108.1
+        },
+        {
+          "id": "candyEdge2:-1:-6",
+          "kind": "punch",
+          "width": 22.6,
+          "height": 22.1,
+          "fullyInFrame": true,
+          "distance": 124.8
+        },
+        {
+          "id": "candyEdge2:1:-6",
+          "kind": "punch",
+          "width": 22.6,
+          "height": 22.1,
+          "fullyInFrame": true,
+          "distance": 124.8
+        }
+      ],
+      "calls": 68,
+      "triangles": 823519,
+      "memory": {
+        "geometries": 137,
+        "textures": 23
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 8,
+        "visibleTriangles": 200992,
+        "instances": 316,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      },
+      "energy": {
+        "visible": false,
+        "value": 100,
+        "fill": 100,
+        "stamina": 1,
+        "rank": "1",
+        "time": "2:50",
+        "label": "3.0초 달리기"
+      }
+    },
+    {
+      "name": "section-probe-02-default-camera-21",
+      "kind": "section-waypoint",
+      "section": 2,
+      "sectionName": "빙글빙글 캔디마당",
+      "player": {
+        "x": 0,
+        "y": 87.075,
+        "z": 84,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": 7.648830000760271e-16,
+        "y": 90.02166958771757,
+        "z": 77.75425632428413,
+        "fov": 70
+      },
+      "potentiallyVisibleHazards": [
+        {
+          "id": "candy0",
+          "kind": "bar",
+          "width": 387,
+          "height": 41.8,
+          "fullyInFrame": true,
+          "distance": 25.6
+        },
+        {
+          "id": "candyEdge0:-1:-6",
+          "kind": "punch",
+          "width": 210.1,
+          "height": 126.9,
+          "fullyInFrame": true,
+          "distance": 27.7
+        },
+        {
+          "id": "candyEdge0:-1:6",
+          "kind": "punch",
+          "width": 115.7,
+          "height": 82.3,
+          "fullyInFrame": true,
+          "distance": 36.6
+        },
+        {
+          "id": "candyEdge0:1:-6",
+          "kind": "punch",
+          "width": 210.1,
+          "height": 126.9,
+          "fullyInFrame": true,
+          "distance": 27.7
+        },
+        {
+          "id": "candyEdge0:1:6",
+          "kind": "punch",
+          "width": 115.7,
+          "height": 82.3,
+          "fullyInFrame": true,
+          "distance": 36.6
+        },
+        {
+          "id": "candy1",
+          "kind": "bar",
+          "width": 183,
+          "height": 26.9,
+          "fullyInFrame": true,
+          "distance": 38.8
+        },
+        {
+          "id": "candyEdge1:-1:-6",
+          "kind": "punch",
+          "width": 107.2,
+          "height": 77.7,
+          "fullyInFrame": true,
+          "distance": 38.3
+        },
+        {
+          "id": "candyEdge1:-1:6",
+          "kind": "punch",
+          "width": 73.5,
+          "height": 58.3,
+          "fullyInFrame": true,
+          "distance": 48.8
+        },
+        {
+          "id": "candyEdge1:1:-6",
+          "kind": "punch",
+          "width": 107.2,
+          "height": 77.7,
+          "fullyInFrame": true,
+          "distance": 38.3
+        },
+        {
+          "id": "candyEdge1:1:6",
+          "kind": "punch",
+          "width": 73.5,
+          "height": 58.3,
+          "fullyInFrame": true,
+          "distance": 48.8
+        },
+        {
+          "id": "candy2",
+          "kind": "bar",
+          "width": 24.7,
+          "height": 13.5,
+          "fullyInFrame": true,
+          "distance": 67
+        },
+        {
+          "id": "candyEdge2:-1:-6",
+          "kind": "punch",
+          "width": 50.1,
+          "height": 43.1,
+          "fullyInFrame": true,
+          "distance": 64.5
+        },
+        {
+          "id": "candyEdge2:-1:6",
+          "kind": "punch",
+          "width": 40.7,
+          "height": 36.4,
+          "fullyInFrame": true,
+          "distance": 76
+        },
+        {
+          "id": "candyEdge2:1:-6",
+          "kind": "punch",
+          "width": 50.1,
+          "height": 43.1,
+          "fullyInFrame": true,
+          "distance": 64.5
+        },
+        {
+          "id": "candyEdge2:1:6",
+          "kind": "punch",
+          "width": 40.7,
+          "height": 36.4,
+          "fullyInFrame": true,
+          "distance": 76
+        },
+        {
+          "id": "candy3",
+          "kind": "bar",
+          "width": 58.4,
+          "height": 8.2,
+          "fullyInFrame": true,
+          "distance": 97.3
+        },
+        {
+          "id": "candyEdge3:-1:-6",
+          "kind": "punch",
+          "width": 31.7,
+          "height": 29.5,
+          "fullyInFrame": true,
+          "distance": 93.4
+        },
+        {
+          "id": "candyEdge3:-1:6",
+          "kind": "punch",
+          "width": 27.5,
+          "height": 26.2,
+          "fullyInFrame": true,
+          "distance": 105.1
+        },
+        {
+          "id": "candyEdge3:1:-6",
+          "kind": "punch",
+          "width": 31.7,
+          "height": 29.5,
+          "fullyInFrame": true,
+          "distance": 93.4
+        },
+        {
+          "id": "candyEdge3:1:6",
+          "kind": "punch",
+          "width": 27.5,
+          "height": 26.2,
+          "fullyInFrame": true,
+          "distance": 105.1
+        },
+        {
+          "id": "candy4",
+          "kind": "bar",
+          "width": 88.9,
+          "height": 6.1,
+          "fullyInFrame": true,
+          "distance": 112.4
+        },
+        {
+          "id": "candyEdge4:-1:-6",
+          "kind": "punch",
+          "width": 26.6,
+          "height": 25.5,
+          "fullyInFrame": true,
+          "distance": 108.1
+        },
+        {
+          "id": "candyEdge4:-1:6",
+          "kind": "punch",
+          "width": 23.6,
+          "height": 23,
+          "fullyInFrame": true,
+          "distance": 119.9
+        },
+        {
+          "id": "candyEdge4:1:-6",
+          "kind": "punch",
+          "width": 26.6,
+          "height": 25.5,
+          "fullyInFrame": true,
+          "distance": 108.1
+        },
+        {
+          "id": "candyEdge4:1:6",
+          "kind": "punch",
+          "width": 23.6,
+          "height": 23,
+          "fullyInFrame": true,
+          "distance": 119.9
+        }
+      ],
+      "calls": 56,
+      "triangles": 793854,
+      "memory": {
+        "geometries": 137,
+        "textures": 23
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 8,
+        "visibleTriangles": 242176,
+        "instances": 438,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      },
+      "energy": {
+        "visible": false,
+        "value": 100,
+        "fill": 100,
+        "stamina": 1,
+        "rank": "1",
+        "time": "2:50",
+        "label": "3.0초 달리기"
+      }
+    },
+    {
+      "name": "section-probe-03-default-camera-21",
+      "kind": "section-waypoint",
+      "section": 3,
+      "sectionName": "통통 도넛섬",
+      "player": {
+        "x": 0,
+        "y": 87.075,
+        "z": 220,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": 7.648830000760271e-16,
+        "y": 90.02166958771757,
+        "z": 213.7542563242841,
+        "fov": 70
+      },
+      "potentiallyVisibleHazards": [
+        {
+          "id": "donut9:0",
+          "kind": "punch",
+          "width": 46.4,
+          "height": 72.2,
+          "fullyInFrame": true,
+          "distance": 31.8
+        },
+        {
+          "id": "donut9:1",
+          "kind": "punch",
+          "width": 62,
+          "height": 82.2,
+          "fullyInFrame": true,
+          "distance": 28.2
+        },
+        {
+          "id": "donut9:2",
+          "kind": "punch",
+          "width": 80.9,
+          "height": 102.5,
+          "fullyInFrame": true,
+          "distance": 22.2
+        },
+        {
+          "id": "donut9:3",
+          "kind": "punch",
+          "width": 83.6,
+          "height": 124.1,
+          "fullyInFrame": true,
+          "distance": 16.6
+        },
+        {
+          "id": "donut9:4",
+          "kind": "punch",
+          "width": 83.6,
+          "height": 124.1,
+          "fullyInFrame": true,
+          "distance": 16.6
+        },
+        {
+          "id": "donut9:5",
+          "kind": "punch",
+          "width": 80.9,
+          "height": 102.5,
+          "fullyInFrame": true,
+          "distance": 22.2
+        },
+        {
+          "id": "donut9:6",
+          "kind": "punch",
+          "width": 62,
+          "height": 82.2,
+          "fullyInFrame": true,
+          "distance": 28.2
+        },
+        {
+          "id": "donut9:7",
+          "kind": "punch",
+          "width": 46.4,
+          "height": 72.2,
+          "fullyInFrame": true,
+          "distance": 31.8
+        },
+        {
+          "id": "donut10:0",
+          "kind": "punch",
+          "width": 17.6,
+          "height": 28.5,
+          "fullyInFrame": true,
+          "distance": 87.7
+        },
+        {
+          "id": "donut10:1",
+          "kind": "punch",
+          "width": 19.7,
+          "height": 30,
+          "fullyInFrame": true,
+          "distance": 83.5
+        },
+        {
+          "id": "donut10:2",
+          "kind": "punch",
+          "width": 21.4,
+          "height": 32.3,
+          "fullyInFrame": true,
+          "distance": 77.2
+        },
+        {
+          "id": "donut10:3",
+          "kind": "punch",
+          "width": 21.2,
+          "height": 34.2,
+          "fullyInFrame": true,
+          "distance": 72.4
+        },
+        {
+          "id": "donut10:4",
+          "kind": "punch",
+          "width": 21.2,
+          "height": 34.2,
+          "fullyInFrame": true,
+          "distance": 72.4
+        },
+        {
+          "id": "donut10:5",
+          "kind": "punch",
+          "width": 21.4,
+          "height": 32.3,
+          "fullyInFrame": true,
+          "distance": 77.2
+        },
+        {
+          "id": "donut10:6",
+          "kind": "punch",
+          "width": 19.7,
+          "height": 30,
+          "fullyInFrame": true,
+          "distance": 83.5
+        },
+        {
+          "id": "donut10:7",
+          "kind": "punch",
+          "width": 17.6,
+          "height": 28.5,
+          "fullyInFrame": true,
+          "distance": 87.7
+        }
+      ],
+      "calls": 60,
+      "triangles": 701890,
+      "memory": {
+        "geometries": 139,
+        "textures": 23
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 10,
+        "visibleTriangles": 196194,
+        "instances": 364,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      },
+      "energy": {
+        "visible": false,
+        "value": 100,
+        "fill": 100,
+        "stamina": 1,
+        "rank": "1",
+        "time": "2:50",
+        "label": "3.0초 달리기"
+      }
+    },
+    {
+      "name": "section-probe-04-default-camera-21",
+      "kind": "section-waypoint",
+      "section": 4,
+      "sectionName": "데굴데굴 도넛마당",
+      "player": {
+        "x": 0,
+        "y": 87.075,
+        "z": 468,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": 7.648830000760271e-16,
+        "y": 90.02166958771757,
+        "z": 461.75425632428414,
+        "fov": 70
+      },
+      "potentiallyVisibleHazards": [
+        {
+          "id": "rock2",
+          "kind": "rock",
+          "width": 35,
+          "height": 44.1,
+          "fullyInFrame": true,
+          "distance": 77.7
+        },
+        {
+          "id": "rock3",
+          "kind": "rock",
+          "width": 55.2,
+          "height": 59.9,
+          "fullyInFrame": true,
+          "distance": 49.2
+        },
+        {
+          "id": "rock4",
+          "kind": "rock",
+          "width": 104.9,
+          "height": 105.5,
+          "fullyInFrame": true,
+          "distance": 19.7
+        }
+      ],
+      "calls": 64,
+      "triangles": 670502,
+      "memory": {
+        "geometries": 141,
+        "textures": 23
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 12,
+        "visibleTriangles": 180500,
+        "instances": 152,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      },
+      "energy": {
+        "visible": false,
+        "value": 100,
+        "fill": 100,
+        "stamina": 1,
+        "rank": "1",
+        "time": "2:50",
+        "label": "3.0초 달리기"
+      }
+    },
+    {
+      "name": "section-probe-05-default-camera-21",
+      "kind": "section-waypoint",
+      "section": 5,
+      "sectionName": "출렁출렁 구름다리",
+      "player": {
+        "x": 0,
+        "y": 117.075,
+        "z": 578,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": 7.648830000760271e-16,
+        "y": 120.02166958771757,
+        "z": 571.7542563242841,
+        "fov": 70
+      },
+      "potentiallyVisibleHazards": [
+        {
+          "id": "slide0:0",
+          "kind": "punch",
+          "width": 21.8,
+          "height": 23.1,
+          "fullyInFrame": true,
+          "distance": 117.5
+        },
+        {
+          "id": "slide0:1",
+          "kind": "punch",
+          "width": 14.4,
+          "height": 23,
+          "fullyInFrame": true,
+          "distance": 117
+        },
+        {
+          "id": "slide0:2",
+          "kind": "punch",
+          "width": 21,
+          "height": 23.1,
+          "fullyInFrame": true,
+          "distance": 117.2
+        }
+      ],
+      "calls": 62,
+      "triangles": 683730,
+      "memory": {
+        "geometries": 141,
+        "textures": 23
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 11,
+        "visibleTriangles": 187114,
+        "instances": 56,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      },
+      "energy": {
+        "visible": false,
+        "value": 100,
+        "fill": 100,
+        "stamina": 1,
+        "rank": "1",
+        "time": "2:50",
+        "label": "3.0초 달리기"
+      }
+    },
+    {
+      "name": "section-probe-06-default-camera-21",
+      "kind": "section-waypoint",
+      "section": 6,
+      "sectionName": "무지개 미끄럼",
+      "player": {
+        "x": 0,
+        "y": 117.075,
+        "z": 680,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": 7.648830000760271e-16,
+        "y": 120.02166958771757,
+        "z": 673.7542563242841,
+        "fov": 70
+      },
+      "potentiallyVisibleHazards": [
+        {
+          "id": "slide0:0",
+          "kind": "punch",
+          "width": 188.9,
+          "height": 145.1,
+          "fullyInFrame": true,
+          "distance": 18.6
+        },
+        {
+          "id": "slide0:1",
+          "kind": "punch",
+          "width": 92.2,
+          "height": 140.3,
+          "fullyInFrame": true,
+          "distance": 15.1
+        },
+        {
+          "id": "slide0:2",
+          "kind": "punch",
+          "width": 162,
+          "height": 145.1,
+          "fullyInFrame": true,
+          "distance": 16.6
+        },
+        {
+          "id": "slide1:0",
+          "kind": "punch",
+          "width": 96.3,
+          "height": 95.4,
+          "fullyInFrame": true,
+          "distance": 26
+        },
+        {
+          "id": "slide1:1",
+          "kind": "punch",
+          "width": 58.7,
+          "height": 92.2,
+          "fullyInFrame": true,
+          "distance": 25.1
+        },
+        {
+          "id": "slide1:2",
+          "kind": "punch",
+          "width": 108,
+          "height": 95.4,
+          "fullyInFrame": true,
+          "distance": 27.3
+        },
+        {
+          "id": "slide2:0",
+          "kind": "punch",
+          "width": 73.4,
+          "height": 74.8,
+          "fullyInFrame": true,
+          "distance": 36.7
+        },
+        {
+          "id": "slide2:1",
+          "kind": "punch",
+          "width": 42.4,
+          "height": 70.8,
+          "fullyInFrame": true,
+          "distance": 35.1
+        },
+        {
+          "id": "slide2:2",
+          "kind": "punch",
+          "width": 67,
+          "height": 74.8,
+          "fullyInFrame": true,
+          "distance": 35.7
+        },
+        {
+          "id": "slide3:0",
+          "kind": "punch",
+          "width": 51.1,
+          "height": 61.6,
+          "fullyInFrame": true,
+          "distance": 45.5
+        },
+        {
+          "id": "slide3:1",
+          "kind": "punch",
+          "width": 33.1,
+          "height": 57.6,
+          "fullyInFrame": true,
+          "distance": 45
+        },
+        {
+          "id": "slide3:2",
+          "kind": "punch",
+          "width": 55.1,
+          "height": 61.6,
+          "fullyInFrame": true,
+          "distance": 46.3
+        },
+        {
+          "id": "slide4:0",
+          "kind": "punch",
+          "width": 44,
+          "height": 52.2,
+          "fullyInFrame": true,
+          "distance": 56.1
+        },
+        {
+          "id": "slide4:1",
+          "kind": "punch",
+          "width": 27.2,
+          "height": 48.4,
+          "fullyInFrame": true,
+          "distance": 55
+        },
+        {
+          "id": "slide4:2",
+          "kind": "punch",
+          "width": 41.2,
+          "height": 52.2,
+          "fullyInFrame": true,
+          "distance": 55.4
+        },
+        {
+          "id": "slide5:0",
+          "kind": "punch",
+          "width": 34.8,
+          "height": 45,
+          "fullyInFrame": true,
+          "distance": 65.4
+        },
+        {
+          "id": "slide5:1",
+          "kind": "punch",
+          "width": 23.2,
+          "height": 41.6,
+          "fullyInFrame": true,
+          "distance": 65
+        },
+        {
+          "id": "slide5:2",
+          "kind": "punch",
+          "width": 36.8,
+          "height": 45,
+          "fullyInFrame": true,
+          "distance": 65.9
+        },
+        {
+          "id": "finalGate-11",
+          "kind": "punch",
+          "width": 15.7,
+          "height": 26.6,
+          "fullyInFrame": true,
+          "distance": 111.5
+        },
+        {
+          "id": "finalGate11",
+          "kind": "punch",
+          "width": 15.7,
+          "height": 26.6,
+          "fullyInFrame": true,
+          "distance": 111.5
+        }
+      ],
+      "calls": 60,
+      "triangles": 764964,
+      "memory": {
+        "geometries": 141,
+        "textures": 23
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 10,
+        "visibleTriangles": 227731,
+        "instances": 176,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      },
+      "energy": {
+        "visible": false,
+        "value": 100,
+        "fill": 100,
+        "stamina": 1,
+        "rank": "1",
+        "time": "2:50",
+        "label": "3.0초 달리기"
+      }
+    },
+    {
+      "name": "section-probe-07-default-camera-21",
+      "kind": "section-waypoint",
+      "section": 7,
+      "sectionName": "별빛 대도약",
+      "player": {
+        "x": 0,
+        "y": 87.075,
+        "z": 770,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": 7.648830000760271e-16,
+        "y": 90.02166958771757,
+        "z": 763.7542563242841,
+        "fov": 70
+      },
+      "potentiallyVisibleHazards": [
+        {
+          "id": "finalGate-11",
+          "kind": "punch",
+          "width": 99.8,
+          "height": 117.7,
+          "fullyInFrame": true,
+          "distance": 23.7
+        },
+        {
+          "id": "finalGate11",
+          "kind": "punch",
+          "width": 99.8,
+          "height": 117.7,
+          "fullyInFrame": true,
+          "distance": 23.7
+        }
+      ],
+      "calls": 60,
+      "triangles": 661372,
+      "memory": {
+        "geometries": 141,
+        "textures": 23
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 10,
+        "visibleTriangles": 175935,
+        "instances": 168,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      },
+      "energy": {
+        "visible": false,
+        "value": 100,
+        "fill": 100,
+        "stamina": 1,
+        "rank": "1",
+        "time": "2:50",
+        "label": "3.0초 달리기"
+      }
+    },
+    {
+      "name": "material-probe-first-punch-default-camera",
+      "kind": "material-waypoint",
+      "target": "start0",
+      "player": {
+        "x": -17.6,
+        "y": 87,
+        "z": 3,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": -17.6,
+        "y": 89.94666958771757,
+        "z": -3.2457436757158753,
+        "fov": 70
+      },
+      "potentiallyVisibleHazards": [
+        {
+          "id": "start0",
+          "kind": "punch",
+          "width": 306,
+          "height": 402.6,
+          "fullyInFrame": true,
+          "distance": 4.2
+        },
+        {
+          "id": "start1",
+          "kind": "punch",
+          "width": 51.4,
+          "height": 82.7,
+          "fullyInFrame": true,
+          "distance": 32
+        },
+        {
+          "id": "start2",
+          "kind": "punch",
+          "width": 36.2,
+          "height": 56.4,
+          "fullyInFrame": true,
+          "distance": 49.1
+        },
+        {
+          "id": "start3",
+          "kind": "punch",
+          "width": 28.7,
+          "height": 42.8,
+          "fullyInFrame": true,
+          "distance": 66.3
+        },
+        {
+          "id": "start4",
+          "kind": "punch",
+          "width": 281.7,
+          "height": 402.6,
+          "fullyInFrame": false,
+          "distance": 10.1
+        },
+        {
+          "id": "start5",
+          "kind": "punch",
+          "width": 70.4,
+          "height": 82.7,
+          "fullyInFrame": true,
+          "distance": 34.5
+        },
+        {
+          "id": "start6",
+          "kind": "punch",
+          "width": 46.6,
+          "height": 56.4,
+          "fullyInFrame": true,
+          "distance": 51.6
+        },
+        {
+          "id": "start7",
+          "kind": "punch",
+          "width": 34.7,
+          "height": 42.8,
+          "fullyInFrame": true,
+          "distance": 68.7
+        },
+        {
+          "id": "start9",
+          "kind": "punch",
+          "width": 92.1,
+          "height": 82.7,
+          "fullyInFrame": true,
+          "distance": 40.9
+        },
+        {
+          "id": "start10",
+          "kind": "punch",
+          "width": 57,
+          "height": 56.4,
+          "fullyInFrame": true,
+          "distance": 56.8
+        },
+        {
+          "id": "start11",
+          "kind": "punch",
+          "width": 40.8,
+          "height": 42.8,
+          "fullyInFrame": true,
+          "distance": 73.3
+        },
+        {
+          "id": "start13",
+          "kind": "punch",
+          "width": 113.9,
+          "height": 82.7,
+          "fullyInFrame": true,
+          "distance": 49.8
+        },
+        {
+          "id": "jellyGate0:0",
+          "kind": "punch",
+          "width": 53.3,
+          "height": 71.3,
+          "fullyInFrame": true,
+          "distance": 39
+        },
+        {
+          "id": "jellyGate0:1",
+          "kind": "punch",
+          "width": 55.4,
+          "height": 71.3,
+          "fullyInFrame": true,
+          "distance": 39.2
+        },
+        {
+          "id": "jellyGate0:2",
+          "kind": "punch",
+          "width": 61.9,
+          "height": 71.3,
+          "fullyInFrame": true,
+          "distance": 39.8
+        },
+        {
+          "id": "jellyGate0:3",
+          "kind": "punch",
+          "width": 68.4,
+          "height": 71.3,
+          "fullyInFrame": true,
+          "distance": 41
+        },
+        {
+          "id": "jellyGate0:4",
+          "kind": "punch",
+          "width": 74.8,
+          "height": 71.3,
+          "fullyInFrame": true,
+          "distance": 42.6
+        },
+        {
+          "id": "jellyGate0:5",
+          "kind": "punch",
+          "width": 103.6,
+          "height": 71.3,
+          "fullyInFrame": true,
+          "distance": 53.8
+        },
+        {
+          "id": "jellyGate1:0",
+          "kind": "punch",
+          "width": 61,
+          "height": 49.5,
+          "fullyInFrame": true,
+          "distance": 68.3
+        },
+        {
+          "id": "jellyGate1:1",
+          "kind": "punch",
+          "width": 57.8,
+          "height": 49.5,
+          "fullyInFrame": true,
+          "distance": 66.1
+        },
+        {
+          "id": "jellyGate1:2",
+          "kind": "punch",
+          "width": 54.6,
+          "height": 49.5,
+          "fullyInFrame": true,
+          "distance": 64
+        },
+        {
+          "id": "jellyGate1:3",
+          "kind": "punch",
+          "width": 51.4,
+          "height": 49.5,
+          "fullyInFrame": true,
+          "distance": 62.2
+        },
+        {
+          "id": "jellyGate1:4",
+          "kind": "punch",
+          "width": 48.2,
+          "height": 49.5,
+          "fullyInFrame": true,
+          "distance": 60.8
+        },
+        {
+          "id": "jellyGate1:5",
+          "kind": "punch",
+          "width": 36.8,
+          "height": 49.5,
+          "fullyInFrame": true,
+          "distance": 58
+        },
+        {
+          "id": "candy0",
+          "kind": "bar",
+          "width": 85.3,
+          "height": 6.8,
+          "fullyInFrame": true,
+          "distance": 105.4
+        },
+        {
+          "id": "candyEdge0:-1:-6",
+          "kind": "punch",
+          "width": 24,
+          "height": 27.2,
+          "fullyInFrame": true,
+          "distance": 99.1
+        },
+        {
+          "id": "candyEdge0:-1:6",
+          "kind": "punch",
+          "width": 21.4,
+          "height": 24.4,
+          "fullyInFrame": true,
+          "distance": 111.1
+        },
+        {
+          "id": "candyEdge0:1:-6",
+          "kind": "punch",
+          "width": 33.6,
+          "height": 27.2,
+          "fullyInFrame": true,
+          "distance": 106.3
+        },
+        {
+          "id": "candyEdge0:1:6",
+          "kind": "punch",
+          "width": 29.2,
+          "height": 24.4,
+          "fullyInFrame": true,
+          "distance": 117.5
+        },
+        {
+          "id": "candy1",
+          "kind": "bar",
+          "width": 64.5,
+          "height": 6.3,
+          "fullyInFrame": true,
+          "distance": 121.7
+        },
+        {
+          "id": "candyEdge1:-1:-6",
+          "kind": "punch",
+          "width": 21,
+          "height": 24,
+          "fullyInFrame": true,
+          "distance": 113.1
+        },
+        {
+          "id": "candyEdge1:-1:6",
+          "kind": "punch",
+          "width": 19.1,
+          "height": 21.7,
+          "fullyInFrame": true,
+          "distance": 125
+        },
+        {
+          "id": "candyEdge1:1:-6",
+          "kind": "punch",
+          "width": 28.6,
+          "height": 24,
+          "fullyInFrame": true,
+          "distance": 119.4
+        },
+        {
+          "id": "candyEdge1:1:6",
+          "kind": "punch",
+          "width": 25.3,
+          "height": 21.7,
+          "fullyInFrame": true,
+          "distance": 130.8
+        }
+      ],
+      "calls": 155,
+      "triangles": 1295650,
+      "memory": {
+        "geometries": 141,
+        "textures": 23
+      },
+      "programs": 40,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 8,
+        "visibleTriangles": 183560,
+        "instances": 300,
+        "overflow": 0,
+        "smallDecor76": {
+          "count": 68,
+          "triangles": 49524,
+          "types": [
+            13,
+            16,
+            14,
+            11,
+            12,
+            2
+          ]
+        },
+        "startDecor76": {
+          "count": 10,
+          "triangles": 6056,
+          "placements": [
+            {
+              "x": -26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": -25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": -24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": -25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": -25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            },
+            {
+              "x": 26.7,
+              "z": 27,
+              "type": 0,
+              "scale": 1.22
+            },
+            {
+              "x": 25.1,
+              "z": 31,
+              "type": 2,
+              "scale": 1.12
+            },
+            {
+              "x": 24.3,
+              "z": 37,
+              "type": 1,
+              "scale": 0.88
+            },
+            {
+              "x": 25.25,
+              "z": 39.1,
+              "type": 1,
+              "scale": 1.08
+            },
+            {
+              "x": 25,
+              "z": 61,
+              "type": 5,
+              "scale": 1
+            }
+          ]
+        },
+        "scenery75Triangles": 283452
+      },
+      "energy": {
+        "visible": false,
+        "value": 100,
+        "fill": 100,
+        "stamina": 1,
+        "rank": "1",
+        "time": "2:50",
+        "label": "3.0초 달리기"
+      }
+    }
+  ],
+  "events": [
+    {
+      "kind": "hit",
+      "seconds": 6.95,
+      "x": -0.030073518719492237,
+      "z": 39.76437179453722
+    },
+    {
+      "kind": "hit",
+      "seconds": 9.05,
+      "x": 0.28204367051885565,
+      "z": 39.706009917937145
+    }
+  ],
+  "progress": 48.780442939325255,
+  "maxViewChange": 0,
+  "pointerLocked": false,
+  "font": {
+    "faces": [
+      {
+        "family": "CloudRaceTitle",
+        "status": "loaded"
+      }
+    ],
+    "draws": [
+      {
+        "text": "00",
+        "font": "41px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "통통 범퍼숲",
+        "font": "43px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "01",
+        "font": "41px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "빙글빙글 캔디마당",
+        "font": "43px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "02",
+        "font": "41px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "통통 도넛섬",
+        "font": "43px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "03",
+        "font": "41px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "데굴데굴 도넛마당",
+        "font": "43px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "04",
+        "font": "41px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "출렁출렁 구름다리",
+        "font": "43px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "05",
+        "font": "41px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "무지개 미끄럼",
+        "font": "43px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "06",
+        "font": "41px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "별빛 대도약",
+        "font": "43px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "골인",
+        "font": "41px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "구름 운동회",
+        "font": "43px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "출발",
+        "font": "41px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "통통! 구름 운동회",
+        "font": "41px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      },
+      {
+        "text": "SPACE · 눌러서 도약",
+        "font": "45px CloudRaceTitle, \"Malgun Gothic\", sans-serif",
+        "loaded": true
+      }
+    ],
+    "externalFontsBlocked": true
+  },
+  "capsules": [
+    {
+      "shot": "start-default-camera-21",
+      "id": "start0",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "start1",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "start2",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "start3",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "start4",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "start5",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "start6",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "start7",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "start8",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "start9",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "start10",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "start11",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "start12",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "start13",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "jellyGate0:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "jellyGate0:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "jellyGate0:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "jellyGate0:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "jellyGate0:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "jellyGate0:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "jellyGate1:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "jellyGate1:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "jellyGate1:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "jellyGate1:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "jellyGate1:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "jellyGate1:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "candyEdge0:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "start-default-camera-21",
+      "id": "candyEdge0:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start0",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start1",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start2",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start3",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start4",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start5",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start6",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start7",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start8",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start9",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start10",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start11",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start12",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "start13",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "jellyGate0:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "jellyGate0:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "jellyGate0:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "jellyGate0:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "jellyGate0:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "jellyGate0:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "jellyGate1:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "jellyGate1:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "jellyGate1:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "jellyGate1:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "jellyGate1:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "jellyGate1:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "candyEdge0:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "candyEdge0:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "candyEdge0:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "candyEdge0:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "candyEdge1:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-2s-default-camera-21",
+      "id": "candyEdge1:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start0",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start1",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start2",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start3",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start4",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start5",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start6",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start7",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start8",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start9",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start10",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start11",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start12",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "start13",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "jellyGate0:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "jellyGate0:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "jellyGate0:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "jellyGate0:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "jellyGate0:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "jellyGate0:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "jellyGate1:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "jellyGate1:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "jellyGate1:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "jellyGate1:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "jellyGate1:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "jellyGate1:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "candyEdge0:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "candyEdge0:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "candyEdge0:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "candyEdge0:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "candyEdge1:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "candyEdge1:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "candyEdge1:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "candyEdge1:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "candyEdge2:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-5s-default-camera-21",
+      "id": "candyEdge2:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start0",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start1",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start2",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start3",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start4",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start5",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start6",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start7",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start8",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start9",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start10",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start11",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start12",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "start13",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "jellyGate0:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "jellyGate0:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "jellyGate0:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "jellyGate0:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "jellyGate0:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "jellyGate0:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "jellyGate1:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "jellyGate1:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "jellyGate1:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "jellyGate1:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "jellyGate1:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "jellyGate1:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "candyEdge0:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "candyEdge0:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "candyEdge0:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "candyEdge0:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "candyEdge1:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "candyEdge1:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "candyEdge1:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "candyEdge1:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "candyEdge2:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "run-10s-default-camera-21",
+      "id": "candyEdge2:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start0",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start1",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start2",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start3",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start4",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start5",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start6",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start7",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start8",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start9",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start10",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start11",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start12",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "start13",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "jellyGate0:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "jellyGate0:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "jellyGate0:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "jellyGate0:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "jellyGate0:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "jellyGate0:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "jellyGate1:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "jellyGate1:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "jellyGate1:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "jellyGate1:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "jellyGate1:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "jellyGate1:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "candyEdge0:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "candyEdge0:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "candyEdge0:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "candyEdge0:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "candyEdge1:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "candyEdge1:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "candyEdge1:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "candyEdge1:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "candyEdge2:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-01-default-camera-21",
+      "id": "candyEdge2:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start0",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start1",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start2",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start3",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start4",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start5",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start6",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start7",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start8",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start9",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start10",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start11",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start12",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "start13",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "jellyGate0:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "jellyGate0:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "jellyGate0:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "jellyGate0:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "jellyGate0:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "jellyGate0:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "jellyGate1:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "jellyGate1:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "jellyGate1:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "jellyGate1:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "jellyGate1:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "jellyGate1:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge0:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge0:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge0:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge0:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge1:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge1:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge1:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge1:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge2:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge2:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge2:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge2:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge3:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge3:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge3:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge3:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge4:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge4:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge4:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-02-default-camera-21",
+      "id": "candyEdge4:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge0:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge0:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge0:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge0:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge1:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge1:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge1:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge1:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge2:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge2:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge2:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge2:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge3:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge3:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge3:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge3:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge4:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge4:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge4:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "candyEdge4:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut9:0",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut9:1",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut9:2",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut9:3",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut9:4",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut9:5",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut9:6",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut9:7",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut10:0",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut10:1",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut10:2",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut10:3",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut10:4",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut10:5",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut10:6",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-03-default-camera-21",
+      "id": "donut10:7",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut11:0",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut11:1",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut11:2",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut11:3",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut11:4",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut11:5",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut11:6",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut11:7",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut12:0",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut12:1",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut12:2",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut12:3",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut12:4",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut12:5",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut12:6",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-04-default-camera-21",
+      "id": "donut12:7",
+      "renderedTop": 91.9000015258789,
+      "colliderTop": 91.9,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-05-default-camera-21",
+      "id": "slide0:0",
+      "renderedTop": 121.67929530143738,
+      "colliderTop": 121.67929382324218,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-05-default-camera-21",
+      "id": "slide0:1",
+      "renderedTop": 121.67929685115814,
+      "colliderTop": 121.67929382324218,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-05-default-camera-21",
+      "id": "slide0:2",
+      "renderedTop": 121.67929530143738,
+      "colliderTop": 121.67929382324218,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide0:0",
+      "renderedTop": 121.67929530143738,
+      "colliderTop": 121.67929382324218,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide0:1",
+      "renderedTop": 121.67929685115814,
+      "colliderTop": 121.67929382324218,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide0:2",
+      "renderedTop": 121.67929530143738,
+      "colliderTop": 121.67929382324218,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide1:0",
+      "renderedTop": 118.02863001823425,
+      "colliderTop": 118.02862854003905,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide1:1",
+      "renderedTop": 118.02863156795502,
+      "colliderTop": 118.02862854003905,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide1:2",
+      "renderedTop": 118.02863001823425,
+      "colliderTop": 118.02862854003905,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide2:0",
+      "renderedTop": 112.04337000846863,
+      "colliderTop": 112.04336853027343,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide2:1",
+      "renderedTop": 112.04337155818939,
+      "colliderTop": 112.04336853027343,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide2:2",
+      "renderedTop": 112.04337000846863,
+      "colliderTop": 112.04336853027343,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide3:0",
+      "renderedTop": 105.0968062877655,
+      "colliderTop": 105.0968048095703,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide3:1",
+      "renderedTop": 105.09680783748627,
+      "colliderTop": 105.0968048095703,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide3:2",
+      "renderedTop": 105.0968062877655,
+      "colliderTop": 105.0968048095703,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide4:0",
+      "renderedTop": 98.56222987174988,
+      "colliderTop": 98.56222839355468,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide4:1",
+      "renderedTop": 98.56223142147064,
+      "colliderTop": 98.56222839355468,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide4:2",
+      "renderedTop": 98.56222987174988,
+      "colliderTop": 98.56222839355468,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide5:0",
+      "renderedTop": 93.81293177604675,
+      "colliderTop": 93.81293029785155,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide5:1",
+      "renderedTop": 93.81293332576752,
+      "colliderTop": 93.81293029785155,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "slide5:2",
+      "renderedTop": 93.81293177604675,
+      "colliderTop": 93.81293029785155,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "finalGate-11",
+      "renderedTop": 92.59999692440033,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-06-default-camera-21",
+      "id": "finalGate11",
+      "renderedTop": 92.59999692440033,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide0:0",
+      "renderedTop": 121.67929530143738,
+      "colliderTop": 121.67929382324218,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide0:1",
+      "renderedTop": 121.67929685115814,
+      "colliderTop": 121.67929382324218,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide0:2",
+      "renderedTop": 121.67929530143738,
+      "colliderTop": 121.67929382324218,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide1:0",
+      "renderedTop": 118.02863001823425,
+      "colliderTop": 118.02862854003905,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide1:1",
+      "renderedTop": 118.02863156795502,
+      "colliderTop": 118.02862854003905,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide1:2",
+      "renderedTop": 118.02863001823425,
+      "colliderTop": 118.02862854003905,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide2:0",
+      "renderedTop": 112.04337000846863,
+      "colliderTop": 112.04336853027343,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide2:1",
+      "renderedTop": 112.04337155818939,
+      "colliderTop": 112.04336853027343,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide2:2",
+      "renderedTop": 112.04337000846863,
+      "colliderTop": 112.04336853027343,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide3:0",
+      "renderedTop": 105.0968062877655,
+      "colliderTop": 105.0968048095703,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide3:1",
+      "renderedTop": 105.09680783748627,
+      "colliderTop": 105.0968048095703,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide3:2",
+      "renderedTop": 105.0968062877655,
+      "colliderTop": 105.0968048095703,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide4:0",
+      "renderedTop": 98.56222987174988,
+      "colliderTop": 98.56222839355468,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide4:1",
+      "renderedTop": 98.56223142147064,
+      "colliderTop": 98.56222839355468,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide4:2",
+      "renderedTop": 98.56222987174988,
+      "colliderTop": 98.56222839355468,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide5:0",
+      "renderedTop": 93.81293177604675,
+      "colliderTop": 93.81293029785155,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide5:1",
+      "renderedTop": 93.81293332576752,
+      "colliderTop": 93.81293029785155,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "slide5:2",
+      "renderedTop": 93.81293177604675,
+      "colliderTop": 93.81293029785155,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "finalGate-11",
+      "renderedTop": 92.59999692440033,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "section-probe-07-default-camera-21",
+      "id": "finalGate11",
+      "renderedTop": 92.59999692440033,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start0",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start1",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start2",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start3",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start4",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start5",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start6",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start7",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start8",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start9",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start10",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start11",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start12",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "start13",
+      "renderedTop": 92.5999984741211,
+      "colliderTop": 92.6,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "jellyGate0:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "jellyGate0:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "jellyGate0:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "jellyGate0:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "jellyGate0:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "jellyGate0:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "jellyGate1:0",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "jellyGate1:1",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "jellyGate1:2",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "jellyGate1:3",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "jellyGate1:4",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "jellyGate1:5",
+      "renderedTop": 92.70000314712524,
+      "colliderTop": 92.69999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "candyEdge0:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "candyEdge0:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "candyEdge0:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "candyEdge0:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "candyEdge1:-1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "candyEdge1:-1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "candyEdge1:1:-6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    },
+    {
+      "shot": "material-probe-first-punch-default-camera",
+      "id": "candyEdge1:1:6",
+      "renderedTop": 92.20000147819519,
+      "colliderTop": 92.19999999999999,
+      "aligned": true
+    }
+  ],
+  "energy": [
+    {
+      "phase": "full",
+      "visible": true,
+      "value": 100,
+      "fill": 100,
+      "stamina": 1,
+      "rank": "1",
+      "time": "3:00",
+      "label": "3.0초 달리기"
+    },
+    {
+      "phase": "running",
+      "visible": true,
+      "value": 67,
+      "fill": 67,
+      "stamina": 0.6666666666666409,
+      "rank": "1",
+      "time": "2:59",
+      "label": "2.0초 달리기"
+    },
+    {
+      "phase": "recovered",
+      "visible": true,
+      "value": 100,
+      "fill": 100,
+      "stamina": 1,
+      "rank": "1",
+      "time": "2:55",
+      "label": "3.0초 달리기"
+    }
+  ],
+  "hazards": {
+    "count": 106,
+    "kinds": [
+      "punch",
+      "bar",
+      "rock"
+    ],
+    "firstDistance": 26.8,
+    "bySection": [
+      {
+        "section": 1,
+        "name": "통통 범퍼숲",
+        "count": 26,
+        "manualPads": 0,
+        "movingPads": 0,
+        "incline": false,
+        "slide": false,
+        "final": false
+      },
+      {
+        "section": 2,
+        "name": "빙글빙글 캔디마당",
+        "count": 25,
+        "manualPads": 0,
+        "movingPads": 0,
+        "incline": false,
+        "slide": false,
+        "final": false
+      },
+      {
+        "section": 3,
+        "name": "통통 도넛섬",
+        "count": 32,
+        "manualPads": 4,
+        "movingPads": 0,
+        "incline": false,
+        "slide": false,
+        "final": false
+      },
+      {
+        "section": 4,
+        "name": "데굴데굴 도넛마당",
+        "count": 3,
+        "manualPads": 0,
+        "movingPads": 0,
+        "incline": true,
+        "slide": false,
+        "final": false
+      },
+      {
+        "section": 5,
+        "name": "출렁출렁 구름다리",
+        "count": 0,
+        "manualPads": 0,
+        "movingPads": 7,
+        "incline": false,
+        "slide": false,
+        "final": false
+      },
+      {
+        "section": 6,
+        "name": "무지개 미끄럼",
+        "count": 18,
+        "manualPads": 0,
+        "movingPads": 0,
+        "incline": false,
+        "slide": true,
+        "final": false
+      },
+      {
+        "section": 7,
+        "name": "별빛 대도약",
+        "count": 2,
+        "manualPads": 0,
+        "movingPads": 0,
+        "incline": false,
+        "slide": false,
+        "final": true
+      }
+    ]
+  },
+  "graphics": {
+    "shadow": 2048,
+    "bloom": 0,
+    "aa": 2,
+    "pr": 0.85,
+    "shHz": 0,
+    "q": "mid",
+    "width": 1088,
+    "height": 612
+  },
+  "noRenderCpuMs": {
+    "p50": 3.0999999046325684,
+    "p95": 8.300000190734863,
+    "samples": 570
+  },
+  "overflow": [],
+  "renderer": "WebKit WebGL",
+  "hudLayouts": [
+    {
+      "width": 1920,
+      "height": 1080,
+      "visible": true,
+      "x": 692,
+      "y": 12,
+      "right": 1228,
+      "bottom": 151.6875,
+      "scroll": 532,
+      "client": 532,
+      "total": "/ 21명",
+      "energy": "100",
+      "sceneProbe": {
+        "colors": 522,
+        "dominantFraction": 0.3424479166666667
+      }
+    },
+    {
+      "width": 1366,
+      "height": 768,
+      "visible": true,
+      "x": 415,
+      "y": 12,
+      "right": 951,
+      "bottom": 151.6875,
+      "scroll": 532,
+      "client": 532,
+      "total": "/ 21명",
+      "energy": "100",
+      "sceneProbe": {
+        "colors": 605,
+        "dominantFraction": 0.3458116319444444
+      }
+    },
+    {
+      "width": 480,
+      "height": 900,
+      "visible": true,
+      "x": 12,
+      "y": 8,
+      "right": 468,
+      "bottom": 157.28125,
+      "scroll": 452,
+      "client": 452,
+      "total": "/ 21명",
+      "energy": "100",
+      "sceneProbe": {
+        "colors": 453,
+        "dominantFraction": 0.42578125
+      }
+    }
+  ],
+  "donutShots": [
+    {
+      "phase": "apex",
+      "found": true,
+      "x": -3.5993459043940033e-16,
+      "z": 272.7310505080688,
+      "height": 22.746559138075412,
+      "vy": -1.4701533830447093,
+      "ground": false,
+      "stage": "2 · 통통 도넛섬",
+      "energy": "100",
+      "sceneProbe": {
+        "colors": 790,
+        "dominantFraction": 0.3707682291666667
+      }
+    },
+    {
+      "phase": "landing",
+      "found": true,
+      "x": -9.096956350484619e-16,
+      "z": 300.18980031497244,
+      "height": 0,
+      "vy": 0,
+      "ground": true,
+      "stage": "2 · 통통 도넛섬",
+      "energy": "100",
+      "sceneProbe": {
+        "colors": 827,
+        "dominantFraction": 0.1716579861111111
+      }
+    }
+  ],
+  "errors": []
+}

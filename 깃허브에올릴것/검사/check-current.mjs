@@ -15,7 +15,7 @@ const names=['chk','input52-static','t53-static','t54-avatar-static','t53-shop-s
   't59-zombie-shape-static','t59-zombie-attachment-static','t60-zombie-wrap-static','t61-avatar-clearance-static',
   't65-weapons-static',
   't66-hud-static','t66-fx2-static','t66-spec-static','t66-wing-static','t66-sound-static','t66-ctrl-static',
-  't67-castle-static','t69-enh-static','t68-reload-static','t68-motion-static','t73-network-static'];
+  't67-castle-static','t69-enh-static','t68-reload-static','t68-motion-static','t73-network-static','t76-race-network-static','t76-wall-orientation-static'];
 let failed=0;
 async function check(name){
   try{
@@ -30,6 +30,7 @@ if(args.includes('--browser-smoke') || args.includes('--render')){
   await check('t73-classroom');await check('t73-performance');
   await check('t74-race-view');
   await check('t75-race-playview'); // Actual start camera + every section, not only an overview/clear route.
+  await check('t76-wall-view'); // All five gates: preview, plan, completion, upgrade and move.
 }
 if(args.includes('--browser-smoke')){await check('t72-hand-grip');await check('t71-castle-shot');}
 if(args.includes('--render')){await check('t54-view');await check('t56-build-view');await check('t57-character-view');await check('t62-motion-view');await check('t59-zombie-view');
