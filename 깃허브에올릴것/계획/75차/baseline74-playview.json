@@ -1,0 +1,213 @@
+{
+  "fileVersion": "좀비의 밤 — 수정을 지켜라",
+  "seed": 740021,
+  "players": 21,
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "start": {
+    "x": -16.5,
+    "y": 87,
+    "z": -20.8,
+    "yaw": 3.141592653589793,
+    "pitch": -0.22
+  },
+  "captures": [
+    {
+      "name": "start-default-camera-21",
+      "player": {
+        "x": -16.5,
+        "y": 87,
+        "z": -20.8,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": -16.5,
+        "y": 89.94666958771757,
+        "z": -27.045743675715876,
+        "fov": 70
+      },
+      "potentiallyVisibleHazards": [],
+      "calls": 214,
+      "triangles": 1322568,
+      "memory": {
+        "geometries": 136,
+        "textures": 19
+      },
+      "programs": 39,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 6,
+        "visibleTriangles": 48341,
+        "instances": 4,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "run-2s-default-camera-21",
+      "player": {
+        "x": -3.8907030139475864,
+        "y": 87,
+        "z": -6.650889103832741,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": -4.30576993653963,
+        "y": 89.94666958771757,
+        "z": -13.311700404268564,
+        "fov": 70
+      },
+      "potentiallyVisibleHazards": [],
+      "calls": 172,
+      "triangles": 1196706,
+      "memory": {
+        "geometries": 136,
+        "textures": 19
+      },
+      "programs": 39,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 6,
+        "visibleTriangles": 50660,
+        "instances": 6,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "run-5s-default-camera-21",
+      "player": {
+        "x": -0.2743185186541043,
+        "y": 87.075,
+        "z": 21.0759553914621,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": -0.2743185186541036,
+        "y": 90.02166912690164,
+        "z": 14.243217869592389,
+        "fov": 70
+      },
+      "potentiallyVisibleHazards": [],
+      "calls": 58,
+      "triangles": 571037,
+      "memory": {
+        "geometries": 136,
+        "textures": 19
+      },
+      "programs": 39,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 6,
+        "visibleTriangles": 52979,
+        "instances": 8,
+        "overflow": 0
+      }
+    },
+    {
+      "name": "run-10s-default-camera-21",
+      "player": {
+        "x": -0.2743185186541043,
+        "y": 87,
+        "z": 71.70308993611576,
+        "yaw": 3.141592653589793,
+        "pitch": -0.22
+      },
+      "camera": {
+        "x": -0.2743185186541036,
+        "y": 89.94666961162174,
+        "z": 64.87035188445729,
+        "fov": 70.02501985565623
+      },
+      "potentiallyVisibleHazards": [],
+      "calls": 40,
+      "triangles": 446956,
+      "memory": {
+        "geometries": 136,
+        "textures": 19
+      },
+      "programs": 39,
+      "raceArt": {
+        "materials": 3,
+        "textures": 2,
+        "visibleDraws": 6,
+        "visibleTriangles": 68739,
+        "instances": 8,
+        "overflow": 0
+      }
+    }
+  ],
+  "events": [],
+  "progress": 92.50308993611576,
+  "maxViewChange": 0,
+  "pointerLocked": false,
+  "hazards": {
+    "count": 4,
+    "kinds": [
+      "bar",
+      "bumper"
+    ],
+    "firstDistance": 228.8,
+    "bySection": [
+      {
+        "section": 1,
+        "name": "구름 출발광장",
+        "count": 0
+      },
+      {
+        "section": 2,
+        "name": "통통 도넛섬",
+        "count": 0
+      },
+      {
+        "section": 3,
+        "name": "빙글 캔디마당",
+        "count": 2
+      },
+      {
+        "section": 4,
+        "name": "출렁 구름다리",
+        "count": 0
+      },
+      {
+        "section": 5,
+        "name": "붕붕 하늘항로",
+        "count": 0
+      },
+      {
+        "section": 6,
+        "name": "무지개 미끄럼",
+        "count": 2
+      },
+      {
+        "section": 7,
+        "name": "별빛 대도약",
+        "count": 0
+      }
+    ]
+  },
+  "graphics": {
+    "shadow": 2048,
+    "bloom": 0,
+    "aa": 2,
+    "pr": 0.85,
+    "shHz": 0,
+    "q": "mid",
+    "width": 1088,
+    "height": 612
+  },
+  "noRenderCpuMs": {
+    "p50": 2.4000000953674316,
+    "p95": 6.200000047683716,
+    "samples": 570
+  },
+  "overflow": [],
+  "renderer": "WebKit WebGL",
+  "errors": []
+}

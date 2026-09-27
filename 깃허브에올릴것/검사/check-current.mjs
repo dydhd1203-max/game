@@ -29,6 +29,7 @@ if(!args.includes('--browser-smoke'))for(let i=0;i<names.length;i+=3)await Promi
 if(args.includes('--browser-smoke') || args.includes('--render')){
   await check('t73-classroom');await check('t73-performance');
   await check('t74-race-view');
+  await check('t75-race-playview'); // Actual start camera + every section, not only an overview/clear route.
 }
 if(args.includes('--browser-smoke')){await check('t72-hand-grip');await check('t71-castle-shot');}
 if(args.includes('--render')){await check('t54-view');await check('t56-build-view');await check('t57-character-view');await check('t62-motion-view');await check('t59-zombie-view');

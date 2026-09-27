@@ -25,16 +25,16 @@ const results=[];
 function check(name,pass,detail){results.push({name,pass:!!pass,...detail===undefined?{}:{detail}});console.log((pass?'OK   ':'FAIL ')+name+(detail===undefined?'':' '+JSON.stringify(detail)));}
 const fixtures=`
 const MINI_Y=100,MINI_R=34,MINI_PADZ=-19,PL={R:.3},G={players:new Map(),mini:{seed:1,st:'run'}},MINE={cp:0};
-let uid='kid00';const raceOn=()=>true;
+let uid='kid00',racing=true;const raceOn=()=>racing;
 const raceArtBuild=()=>{},raceArtRebuild=()=>{},raceArtReset=()=>{};
 const raceBounceSound=()=>{};
 `;
-const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE74','GRAV'];
-const functions=['mulberry','furLight','race74Reset','raceBuild','raceOff','raceAlive','raceContains','raceSurface','raceTopAt','raceUnder','raceSlotXZ','raceCheckpointXZ','raceHazards','raceSphereHit','raceHazardTick'];
+const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE_LAUNCH_RATE','RACE74','GRAV'];
+const functions=['mulberry','furLight','race74Reset','raceGravityScale','raceBuild','raceOff','raceAlive','raceContains','raceSurface','raceTopAt','raceUnder','raceSlotXZ','raceCheckpointXZ','raceHazards','raceSphereHit','racePunchHit','raceHazardTick'];
 const ctx=vm.createContext({console});
 new vm.Script([fixtures,...declarations.map(decl),...functions.map(fn),`
-globalThis.A={RACE,RACE_P,RACE_S,RACE_Z_FIN,GRAV,JUMP,PL,G,MINE,raceBuild,raceOff,raceContains,raceSurface,raceTopAt,raceUnder,raceHazards,raceHazardTick,
- spawn(id){uid=id;return raceSlotXZ();},cp(id,p){uid=id;return raceCheckpointXZ(p);}};`].join('\n')).runInContext(ctx,{timeout:10000});
+globalThis.A={RACE,RACE_P,RACE_S,RACE_Z_FIN,RACE_LAUNCH_RATE,RACE74,GRAV,JUMP,PL,G,MINE,raceBuild,raceOff,raceContains,raceSurface,raceTopAt,raceUnder,raceHazards,racePunchHit,raceHazardTick,raceGravityScale,
+ spawn(id){uid=id;return raceSlotXZ();},cp(id,p){uid=id;return raceCheckpointXZ(p);},setRacing(v){racing=v;}};`].join('\n')).runInContext(ctx,{timeout:10000});
 const A=ctx.A,seeds=Array.from({length:90},(_,i)=>i*7919+13);
 let deterministic=true,finite=true,centerSupport=true,moving=false,checkpoints=true;
 let platformCount=0,variantCount=new Set();
@@ -108,6 +108,20 @@ for(const seed of seeds.slice(0,16)){
 check('Shared seed and time generate deterministic finite obstacles within the 64-object budget',hazardDet&&hazardFinite&&maxHazards>0&&maxHazards<=64,{maxHazards});
 check('Moving hazards never hit any of the 21 respawn slots at any checkpoint',hazardSafe,{seeds:16,timesPerSeed:48,slots:21});
 A.raceBuild(740021);A.RACE.t=2;
+const obstacles=A.raceHazards(2),sectionCounts=A.RACE_S.map((_,i)=>obstacles.filter(h=>h.sec===i).length);
+const firstEdge=Math.min(...obstacles.map(h=>h.z-(h.k==='bar'?h.len/2:h.r)));
+check('Every wide section has actual obstacles and the first bags are close to the real spawn',
+  sectionCounts.every(n=>n>=2)&&obstacles.length>=20&&firstEdge-(-19)<25,{sectionCounts,firstObstacleDistance:firstEdge+19});
+const bag=obstacles.find(h=>h.k==='punch'&&h.x===0),probeBag=(dx,foot)=>{
+  Object.assign(A.PL,{x:bag.x+dx,z:bag.z,y:100+foot});return A.racePunchHit(bag);
+};
+check('Punch bags use rounded vertical capsules with no invisible side or top walls',
+  probeBag(0,0)&&probeBag(bag.r+A.PL.R-.001,1)&&!probeBag(bag.r+A.PL.R+.001,1)&&
+  probeBag(0,bag.y+bag.h/2-.001)&&!probeBag(0,bag.y+bag.h/2+.001));
+Object.assign(A.PL,{x:bag.x,z:bag.z,y:100,ground:true,vx:0,vz:0,vy:0});
+A.RACE.hitCd=A.RACE.slipT=0;A.RACE74.rate=A.RACE_LAUNCH_RATE;A.raceHazardTick(1/60);
+check('Touching a punch bag really bounces the player and restores normal knockback gravity',
+  A.RACE.hitCd>0&&!A.PL.ground&&A.PL.vy>0&&A.RACE74.rate===1&&A.raceGravityScale()===1);
 const bar=A.raceHazards(2).find(h=>h.k==='bar'),probeBar=offset=>{
   // len includes both rounded end caps, just like the rendered padded tube.
   const distance=bar.len/2+A.PL.R+offset;
@@ -123,6 +137,31 @@ for(const fps of [30,60,120]){
   jumpClearance.push({fps,peak,barTop:bar.y+bar.r,clear:A.RACE.hitCd===0});
 }
 check('A normal single jump clears the padded bar even at 30 Hz',jumpClearance.every(q=>q.clear&&q.peak>q.barTop+.04),jumpClearance);
+// The actual game gravity multiplier is applied only during a spring flight.
+// Compressing time must preserve arc height/range rather than overshooting the next mat.
+const rate=A.RACE_LAUNCH_RATE;A.RACE74.flight=1;A.RACE74.rate=rate;
+const gravity=A.GRAV*A.raceGravityScale(),arcs=[];
+for(const p of A.RACE_P.filter(p=>p.bounce)){
+  const v=p.bounce.v,fwd=p.bounce.forward,oldTime=2*v/A.GRAV,newTime=2*v*rate/gravity;
+  arcs.push({kind:p.kind,timeRatio:newTime/oldTime,oldPeak:v*v/(2*A.GRAV),newPeak:(v*rate)**2/(2*gravity),
+    oldRange:oldTime*fwd,newRange:newTime*fwd*rate});
+}
+check('Spring flight is faster while preserving continuous arc height and landing distance',
+  rate>=1.15&&rate<=1.25&&arcs.every(q=>q.timeRatio<.88&&Math.abs(q.oldPeak-q.newPeak)<1e-9&&Math.abs(q.oldRange-q.newRange)<1e-9),arcs);
+const integrated=[];
+for(const fps of [30,60,120])for(const p of A.RACE_P.filter(p=>p.bounce)){
+  const sim=f=>{let y=0,z=0,v=p.bounce.v*f,peak=0,t=0;const dt=1/fps,g=A.GRAV*f*f;
+    for(let i=0;i<fps*5;i++){const oldY=y,oldZ=z;v-=g*dt;y+=v*dt;z+=p.bounce.forward*f*dt;t+=dt;peak=Math.max(peak,y);
+      if(y<0){const u=oldY/(oldY-y);return {time:t-dt+u*dt,range:oldZ+(z-oldZ)*u,peak};}}throw Error('Flight did not land');};
+  const old=sim(1),fast=sim(rate);integrated.push({fps,kind:p.kind,timeRatio:fast.time/old.time,heightError:Math.abs(fast.peak-old.peak),rangeError:Math.abs(fast.range-old.range)});
+}
+check('30/60/120 Hz integration retains landing range and height within sub-meter tolerances',
+  integrated.every(q=>q.timeRatio<.88&&q.heightError<.15&&q.rangeError<.18),{maxHeightError:Math.max(...integrated.map(q=>q.heightError)),maxRangeError:Math.max(...integrated.map(q=>q.rangeError))});
+A.RACE74.flight=0;
+const ordinary=A.raceGravityScale();A.RACE74.flight=1;
+A.RACE74.rate=1;
+const knockback=A.raceGravityScale();A.RACE74.rate=rate;A.setRacing(false);const outsideRace=A.raceGravityScale();A.setRacing(true);
+check('Normal jumps, obstacle knockback and play outside the race keep the original gravity',ordinary===1&&knockback===1&&outsideRace===1);
 
 // Ranking and the existing classroom rewards are part of the course contract.
 // Real catalog data and real reward functions run; only UI and the resource sink are fixtures.
