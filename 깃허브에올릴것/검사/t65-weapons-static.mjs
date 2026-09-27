@@ -57,6 +57,7 @@ const gain=(k,n)=>{resources[k]+=n;};
 const gainAll=c=>{for(const [k,v] of Object.entries(c))resources[k]+=v;events.push(['gainAll',{...c}]);};
 const iconImg=(id,fallback)=>'<img class="ic" data-ic="'+id+'" alt="'+fallback+'">';
 const esc=s=>String(s),josa=(s,a)=>a,toast=(...a)=>events.push(['toast',...a]);
+const rlCancel=()=>{},heldActStart=()=>{};   // 70차 — 무기 바꿈이 재장전 취소·꺼내기 모션을 부른다(이 검사는 상점·경제만 본다)
 const feed=()=>{},noteRecipes=()=>{},popOpen=()=>false,buildKitUI=()=>{},forward=()=>({x:0,z:-1});
 const PL={x:0,y:0,z:0,hp:50};const GY=0;
 const burstLog=[];const burst=(...a)=>burstLog.push(a);
@@ -102,7 +103,7 @@ check('Commons are sold for resources; rares/uniques craft from an existing lowe
   NEW.every((w,k)=>w.tier?(!w.cost&&w.mat&&W[w.from]&&w.from!==14+k&&W[w.from].lv<=w.lv):(w.cost&&!w.mat&&!w.mini)));
 check('Every trait used has a readable name',W.every(w=>!w.trait||vm.runInContext('!!TRAIT_TXT['+JSON.stringify(w.trait)+']',ctx)));
 check('New weapons carry all fields used by firing, tracers, sound and held models',
-  NEW.every(w=>['n','ic','lv','dmg','cd','rng','ammo','col','tr','mz','len','aimR','kick','snd','d'].every(k=>w[k]!==undefined&&w[k]!==null&&w[k]!=='')));
+  NEW.every(w=>['n','ic','lv','dmg','cd','rng','ammo','col','tr','mz','len','aimR','kick','snd','d','mag','rl','act','wt'].every(k=>w[k]!==undefined&&w[k]!==null&&w[k]!=='')));   // 70차 — 탄창·재장전·조작 종류·무게(t68)
 { const sfx=code.slice(code.indexOf('const SFX = {'),code.indexOf('const SFX = {')+60000);
   check('Every weapon sound is an existing SFX entry',W.every(w=>new RegExp('\\b'+w.snd+'\\s*:').test(sfx)),W.map(w=>w.snd)); }
 { const arr=code.slice(code.indexOf('const gunModels = ['),scanEnd(code.indexOf('const gunModels = [')));
