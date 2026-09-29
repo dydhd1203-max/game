@@ -156,7 +156,7 @@ await pg.waitForTimeout(1500);
       W.__STRU.delete(7777); W.__rebuild(); return okk; })();
     const tb = W.__banks.get('trunk'), t0 = tree.hs[0]; const e = tb.ms[t0[1]].elements; o.trunkBottom = e[13] - e[5]/2 - GY;
     /* 캐면 잎부터 — 체력 4 깎고 그리기 */
-    const vis = h=>{ const b=W.__banks.get(h[0]); const m=b.chunks[b.map[h[1]*2]]; const a=m.instanceMatrix.array, li=b.map[h[1]*2+1]; return a[li*16]!==0 || a[li*16+5]!==0; };
+    const vis = h=>{ if(W.__bankFlush) W.__bankFlush(); const b=W.__banks.get(h[0]); const m=b.chunks[b.map[h[1]*2]]; const a=m.instanceMatrix.array, li=b.map[h[1]*2+1]; if(li<0 || li>=m.count) return false; return a[li*16]!==0 || a[li*16+5]!==0; };   // 81차 — 숨긴 칸은 버퍼에서 빠진다(자리 -1)
     tree.hp = tree.max - 4; W.__nodeVisual(tree);
     const hidden = tree.hs.filter(h=>!vis(h)).map(h=>h[0]);
     o.hidden = hidden; o.trunkShown = tree.hs.filter(h=>h[0]==='trunk').every(vis);
