@@ -5891,8 +5891,20 @@ if(!new URLSearchParams(location.search).get('gfx')){
       GFX.shadow = 0; GFX.bloom = 0; GFX.aa = 0;
       window.__GFX_SOFT = nm;                 // 진단 화면에 그대로 보여 준다
     }
+    /* 81차 — 이름만 읽고 버리는 1픽셀 엿보기 판도 GL 문맥 하나를 쥐고 있다(가비지 수거 전까지). 바로 돌려준다(메모리·문맥 수 한도) */
+    const lc = g && g.getExtension('WEBGL_lose_context'); if(lc) lc.loseContext();
   }catch(e){}
 }
+/* 81차 성능 — 그림을 바꾸지 않고 일만 덜어 내는 새 동작마다 이름 붙은 손잡이 하나. 기본은 전부 켬.
+   ?p81off=이름,이름 은 그것만 끄고, ?p81off=all 이나 ?nocull=1 은 전부 끈다(교실에서 켠/끈 fps 견주기).
+   자주 도는 자리에서는 이 Proxy 를 매번 읽지 말고 시작할 때 const 로 한 번 받아 둔다. */
+const P81 = (()=>{ const s=new URLSearchParams(location.search).get('p81off')||''; const off=new Set(s.split(',')); const all=off.has('all')||new URLSearchParams(location.search).has('nocull'); return new Proxy({}, {get:(_,k)=>!(all||off.has(String(k)))}); })();
+/* 81차 heldFirst — 1인칭 손에 든 것(총·팔·도구)은 VM_Z 로 깊이가 [0,0.02] 에 눌려 세상 무엇보다 늘 앞이다. 그런데 맨 나중(10)에 그려서
+   그 밑의 땅·성벽 픽셀을 다 칠한 뒤 덮었다. 불투명 부품만 맨 먼저(−10) 그리면 그 픽셀은 깊이에서 바로 걸러진다 — 모습은 같다.
+   반투명 부품은 10 그대로(반투명끼리 섞는 순서 유지). 든 것끼리는 한 값을 같이 쓰므로 서로의 순서도 그대로 */
+const P81_HELDFIRST = P81.heldFirst;
+const heldRO81 = m=>(P81_HELDFIRST && !(m && m.transparent)) ? -10 : 10;
+const P81_STARS = P81.starsHide;              // 81차 starsHide — 낮(투명도 0) 별 무리는 그리지 않는다(updSky)
 
 const renderer = new THREE.WebGLRenderer({
   antialias: GFX.aa > 0,          // 빛 번짐이 꺼진 판에서 가장자리를 매끈하게 하는 자리
@@ -6001,7 +6013,10 @@ let fogNear0 = FOG_D.near, fogFar0 = FOG_D.far;
    (시제품: 이게 없으면 사진 01·07 이 통째로 흐리다). updSky 가 아니라 여기서 하는 까닭 — 그리기 직전의 실제 카메라를 본다
    (사진 도구는 updSky 를 부른 뒤에 카메라를 옮긴다). 하늘 돔도 같은 까닭으로 여기서 카메라에 붙인다(updSky 의 옛 줄은 그대로 둬도 된다 —
    시제품: 높은 사진 바로 다음 눈높이 사진은 돔 중심이 70칸 위에 남아 하늘이 통째로 희었다). 3702줄 패스는 scene.fog 를 잠깐 null 로 둔다 → 건너뛴다. */
-scene.onBeforeRender = (r, sc, cam)=>{ if(cam.layers.test(sun.layers)) scullShadow(cam);
+/* 81차 ggScull — 총 빛 패스(층 1 만 그리기)는 그림자 판을 다시 그리지 않는다(autoUpdate·needsUpdate 를 끈다). 그런데 GG.lit 뒤로는 해도 층 1 에 있어
+   이 검사를 통과해 같은 카메라로 419 조각 그림자 거르기를 한 번 더 돌았다(결과 깃발은 그 패스에서 안 쓰이고 다음 본 패스가 다시 구한다). 판을 그리는 그리기에서만 돈다 */
+const P81_GGSCULL = P81.ggScull;
+scene.onBeforeRender = (r, sc, cam)=>{ if((!P81_GGSCULL || r.shadowMap.autoUpdate || r.shadowMap.needsUpdate) && cam.layers.test(sun.layers)) scullShadow(cam);
   skyDome.renderOrder = SCULL.on ? 1e6 : -1000; SKY_U.uSkyFar.value = SCULL.on ? 1 : 0;              // 68차 — 하늘은 맨 나중·먼 면(위 SKY_U 주석)   // 68차 — 해가 보이는 그리기면 그림자 판 전에 거른다(총 빛 패스는 층 1 이라 건너뜀)
   if(!sc.fog) return; skyDome.position.copy(cam.position);
   const hC = Math.max(0, cam.position.y - GY - 8); sc.fog.near = fogNear0 + hC; sc.fog.far = fogFar0 + hC*1.3; };
@@ -6086,10 +6101,12 @@ const SKY_GLSL = `// 65차 하늘 — 해 빛무리·해 둘레 눈부심 · 노
 { vec3 sd = normalize(vSkyD);
   float mu = max(dot(sd, uSunSky), 0.0);
   diffuseColor.rgb += uSunGlow * (pow(mu, 16.0) * 0.06 + pow(mu, 48.0) * 0.30 + pow(mu, 600.0) * 1.2);
-  vec2 ah = normalize(vec2(-uSunSky.x, -uSunSky.z) + 1e-5), shz = normalize(sd.xz + 1e-5);
-  float belt = pow(max(dot(ah, shz), 0.0), 3.0) * smoothstep(0.02, 0.10, sd.y) * (1.0 - smoothstep(0.20, 0.38, sd.y));
-  diffuseColor.rgb = mix(diffuseColor.rgb, uBelt, belt * uBeltK);
-  diffuseColor.rgb += uMoonGlow * pow(max(dot(sd, uMoonDir), 0.0), 48.0); }`;
+  // 81차 — 띠는 노을에만(uBeltK>0), 달무리는 달이 떴을 때만(uMoonGlow>0) 계산한다. 꺼져 있으면 mix(…, 0)·+= 0 이라 결과가 같다(한 그리기 안에서 같은 값인 유니폼 분기)
+  if(uBeltK > 0.0){
+    vec2 ah = normalize(vec2(-uSunSky.x, -uSunSky.z) + 1e-5), shz = normalize(sd.xz + 1e-5);
+    float belt = pow(max(dot(ah, shz), 0.0), 3.0) * smoothstep(0.02, 0.10, sd.y) * (1.0 - smoothstep(0.20, 0.38, sd.y));
+    diffuseColor.rgb = mix(diffuseColor.rgb, uBelt, belt * uBeltK); }
+  if(uMoonGlow.r + uMoonGlow.g + uMoonGlow.b > 0.0) diffuseColor.rgb += uMoonGlow * pow(max(dot(sd, uMoonDir), 0.0), 48.0); }`;
 /* 노을 — 낮과 밤 사이에만 지나간다. skyK 0.5 에서 제일 붉고 양 끝에서 사라진다.
    하루가 통째로 붉으면 이상하고, 없으면 밤이 그냥 '색이 바뀐 낮' 이 된다. */
 const SKY_DUSK = new THREE.Color(0xff9a5c);
@@ -6305,6 +6322,19 @@ function gunGlowRect(){
     b=Math.max(0,Math.floor((y0+1)*innerHeight/2-pad)),t=Math.min(innerHeight,Math.ceil((y1+1)*innerHeight/2+pad));
   return [l,b,Math.max(0,r-l),Math.max(0,t-b)];
 }
+/* 81차 ggHide — 총 빛 원천 패스는 층 1(든 총·손·조명)만 그리는데, three 는 장면 1152 마디를 전부 돌며 층을 검사한다.
+   층 1 그릴 것(메시·점·선·스프라이트)도 조명도 없는 장면 맨 윗가지 묶음(자식 있는 것)은 이 패스 동안만 visible=false 로 두면 그 가지를 통째로 건너뛴다.
+   그릴 목록·조명 수가 같아서 결과는 같다. 층 1 은 불러올 때(든 모형·손)와 GG.lit(조명)에만 붙으므로 목록은 맨 윗가지 수가 바뀔 때만 다시 만든다 */
+const P81_GGHIDE = P81.ggHide;
+const _ggHide81 = [], _ggHideVis81 = [];
+let _ggHideN81 = -1;
+function ggHideBuild81(){
+  _ggHide81.length = 0; _ggHideN81 = scene.children.length;
+  for(const c of scene.children){ if(!c.children.length) continue;
+    let need = false;
+    c.traverse(o=>{ if(!need && (o.isLight || ((o.isMesh || o.isPoints || o.isLine || o.isSprite) && (o.layers.mask & 2)))) need = true; });
+    if(!need) _ggHide81.push(c); }
+}
 function gunGlowPass(){
   if(GG.k <= 0 || !held.visible) return;
   gunGlowInit();
@@ -6320,7 +6350,10 @@ function gunGlowPass(){
   RUNE_U.uGlowOnly.value = 1;
   // 본 패스에서 이미 계산한 세계 행렬을 재사용한다. 움직임/그림자는 매 프레임 그대로 갱신한다.
   const worldAuto=scene.matrixWorldAutoUpdate;scene.matrixWorldAutoUpdate=false;
+  if(P81_GGHIDE){ if(_ggHideN81 !== scene.children.length) ggHideBuild81();   // 81차 ggHide — 층 1 없는 가지는 이 그리기 동안만 숨긴다(끝나면 제 값으로)
+    for(let i=0;i<_ggHide81.length;i++){ _ggHideVis81[i] = _ggHide81[i].visible; _ggHide81[i].visible = false; } }
   renderer.setRenderTarget(GG.rtA); renderer.render(scene, camera);
+  if(P81_GGHIDE) for(let i=0;i<_ggHide81.length;i++) _ggHide81[i].visible = _ggHideVis81[i];
   scene.matrixWorldAutoUpdate=worldAuto;
   RUNE_U.uGlowOnly.value = 0;
   camera.layers.mask = mask;
@@ -6507,7 +6540,7 @@ function addGrain(mat, tex, scale, amt){
       .replace('#include <project_vertex>', '#include <project_vertex>\n{ vec4 wq = vec4(transformed, 1.0); vec3 wn0 = objectNormal;\n#ifdef USE_INSTANCING\n  wq = instanceMatrix * wq; mat3 wim = mat3(instanceMatrix); wn0 = wim * (wn0 / vec3(dot(wim[0], wim[0]), dot(wim[1], wim[1]), dot(wim[2], wim[2])));\n#endif\n  vWp = (modelMatrix * wq).xyz; vWn = mat3(modelMatrix) * wn0; }');
     sh.fragmentShader = sh.fragmentShader
       .replace('#include <common>', '#include <common>\nvarying vec3 vWp; varying vec3 vWn; varying float vAsh;\nuniform sampler2D tGrain; uniform float uGrainScale; uniform float uGrainAmt;')
-      .replace('#include <color_fragment>', '#include <color_fragment>\n{ vec3 wN = normalize(vWn); vec3 wn = abs(wN);\n  vec2 th = normalize(vec2(wN.z, -wN.x) + vec2(1e-4, 0.0));\n  vec2 guv = (wn.y > wn.x + 0.02 && wn.y > wn.z + 0.02) ? vWp.xz : (wn.x + 0.02 > wn.z ? vWp.zy : vWp.xy);\n  float gg = texture2D(tGrain, guv * uGrainScale).r;\n' + ASH_FRAG + '\n  diffuseColor.rgb *= 1.0 + (gg - 0.5) * uGrainAmt; }');
+      .replace('#include <color_fragment>', '#include <color_fragment>\n{ vec3 wN = normalize(vWn); vec3 wn = abs(wN);\n  vec2 th = normalize(vec2(wN.z, -wN.x) + vec2(1e-4, 0.0));\n  vec2 guv = (wn.y > wn.x + 0.02 && wn.y > wn.z + 0.02) ? vWp.xz : (wn.x + 0.02 > wn.z ? vWp.zy : vWp.xy);\n  vec4 ggv = texture2D(tGrain, guv * uGrainScale); float gg = ggv.r;\n' + ASH_FRAG + '\n  diffuseColor.rgb *= 1.0 + (gg - 0.5) * uGrainAmt; }');
   };
   mat.customProgramCacheKey = ()=> 'grain';
   mat.extensions = Object.assign(mat.extensions || {}, {derivatives:true});
@@ -6846,7 +6879,7 @@ function grGroundShader(mat){                       // 65차 — addGrain 결 �
   return mat;
 }
 const GR_GROUND_GLSL = `// 65차 땅 — 풀밭·흙길·물가를 픽셀에서 짓는다 (이 블록 안에서 wn·guv·gg·vWp 가 보인다)
-vec4 gt = texture2D(tGrain, guv * uGrainScale);                      // r 풀결(=gg) · g 풀잎 능선/그늘 · b 큰 얼룩
+vec4 gt = ggv;                                                       // 81차 — addGrain 이 읽은 같은 텍셀(ggv) 재사용 · r 풀결(=gg) · g 풀잎 능선/그늘 · b 큰 얼룩
 vec4 gm = texture2D(tGrain, vWp.xz * 0.043 + vec2(0.37, 0.11));      // 23칸 큰 얼룩
 float gdist = length(vViewPosition);
 vec3 gr = vGBase;
@@ -7000,6 +7033,9 @@ function buildWorldMesh(){
   disc.position.y = GY;
   if(GFX.shadow) disc.receiveShadow = true;       // 바닥은 받기만 한다 (드리울 것이 없다)
   scene.add(disc); groundDisc = disc;
+  /* 81차 groundLate — 바닥은 가장 비싼 셰이더(결 4번 읽기+그림자 16)인데 재질이 일찍 만들어져(재질 번호가 작아) 친구·좀비·NPC 보다 먼저 칠해졌다.
+     그 위에 선 사람 밑 픽셀까지 다 칠한 뒤 덮였다. 순서만 1 로 미루면 가려진 픽셀은 깊이에서 걸러진다(테두리 원기둥도 같이 1 — 바닥 뒤 차례 유지) */
+  if(P81.groundLate) disc.renderOrder = 1;
   /* ── 33차 연못 — 반투명 물 원판(바닥 사발이 비친다) + 물결 고리 하나 + 갈대(부들) · 연잎, 개울 머리엔 돌무더기 ── */
   const water = new THREE.Mesh(new THREE.CircleGeometry(POND.r + 0.15, 40),
     new THREE.MeshLambertMaterial({color:0xffffff, transparent:true, opacity:0.70, depthWrite:false}));
@@ -7043,6 +7079,7 @@ function buildWorldMesh(){
   const rim = new THREE.Mesh(new THREE.CylinderGeometry(FIELD_R,FIELD_R,5,72,1,true),
                 flatMat(0x8a6342, {side:THREE.BackSide}));
   rim.position.y = GY-2.5; scene.add(rim); groundRim = rim;
+  if(P81.groundLate) rim.renderOrder = 1;   // 81차 groundLate — 바닥 원판과 같은 층(재질이 뒤라 여전히 바닥 다음)
 
   /* ── 산 — 칸 합치기 ── */
   /* 풀·바위·이끼·눈 — 33차: 눈은 봉우리(GY+18↑)에만, 이끼는 낮은 비탈(GY+11 아래)에만. 높은 마루가 이끼 무늬로 잘게 쪼개지면
@@ -7230,7 +7267,7 @@ mtShade(WMATV);
 const MT_GLSL = `// 65차 산 — vMt 1 기둥: 기둥을 가로질러 이어지는 기운 지층·물때·밑동 그늘·흘러내린 이끼·높이 온도
 //          vMt 2 뚜껑: 풀·이끼 뚜껑 윗면은 들판 풀색, 옆면은 흙 테(레고 초록 줄 없앰), 눈은 푸른 결 그늘
 //          vMt 0(벽돌·바위·그 밖) 은 base0 그대로 — 아이 벽돌·성문 벽돌은 안 바뀐다
-vec4 mg4 = texture2D(tGrain, guv * uGrainScale);                     // r=gg · g 능선 잡음(물때) · b 지의류 얼룩 (M2-6)
+vec4 mg4 = ggv;                                                      // 81차 — addGrain 의 같은 텍셀 재사용 · r=gg · g 능선 잡음(물때) · b 지의류 얼룩 (M2-6)
 vec2 fuv = vec2(wn.x > wn.z ? vWp.z : vWp.x, vWp.y);
 float stv = texture2D(tGrain, fuv * vec2(0.9, 0.08)).g;              // 세로로 늘인 물때 줄 (탭 +1, 분기 밖)
 vec4 gmc = texture2D(tGrain, vWp.xz * 0.043 + vec2(0.37, 0.11));     // 뚜껑 큰 얼룩 (탭 +1, 분기 밖)
@@ -7276,7 +7313,7 @@ function leafShade(mat){                            // 65차 — 잎 무리 명�
 }
 leafShade(WMATL);
 const LEAF_COLOR_GLSL = `// 65차 잎 — 무리 가운데 밝고 틈 어둡게(보로노이 G) · 위 따뜻·아래 서늘 (텍스처 탭은 기존 결과 같은 자리)
-vec4 lg4 = texture2D(tGrain, guv * uGrainScale);
+vec4 lg4 = ggv;                                                      // 81차 — addGrain 의 같은 텍셀 재사용
 diffuseColor.rgb *= mix(0.82, 1.08, smoothstep(0.15, 0.6, lg4.g));
 vec3 upV = normalize((viewMatrix * vec4(0.0, 1.0, 0.0, 0.0)).xyz);
 float upK = dot(normalize(vNormal), upV) * 0.5 + 0.5;
@@ -12582,7 +12619,7 @@ function partMesh(geo0, tile, x,y,z, mat){
     if(mat && mat.wood){ heldGrainUV(geo, mat.wood); mm = HELD_WOOD; }   // 68차 — 나무는 결 좌표(aGr)를 달고 나무결 재질로
   }
   const m = new THREE.Mesh(geo, mm);
-  m.position.set(x,y,z); m.frustumCulled = false; m.renderOrder = 10;
+  m.position.set(x,y,z); m.frustumCulled = false; m.renderOrder = heldRO81(mm);   // 81차 heldFirst
   if(HELD_TAG) m.userData.mv = HELD_TAG;                     // 70차 — 움직이는 부품 꼬리표(bakeHeld 가 따로 굽는다)
   return m;
 }
@@ -12661,7 +12698,7 @@ function bakeList(list, pre){
     if(ru) geo.setAttribute('aRune', new THREE.BufferAttribute(ru,1));
     geo.setIndex(new THREE.BufferAttribute(idx,1));
     const mesh = new THREE.Mesh(geo, mat);
-    mesh.frustumCulled = false; mesh.renderOrder = 10;
+    mesh.frustumCulled = false; mesh.renderOrder = heldRO81(mat);   // 81차 heldFirst
     made.push(mesh);
   }
   return made;
@@ -13178,7 +13215,7 @@ heldSkinPaint(HAND_SKIN_DEF, 0x4dabf7);
 const _hq = new THREE.Quaternion(), _hq2 = new THREE.Quaternion(), _hv = new THREE.Vector3(), _hz = new THREE.Vector3(0, 0, 1);
 function handMesh(geo, x, y, z, sx, sy, sz){ const m = new THREE.Mesh(geo, HELD_VC);   // 굽기 뒤에 HELD_ARM 으로 바뀐다(아래 gunModels 고리 — 손 재질은 뒤에 정의된다)
   m.position.set(x, y, z); m.scale.set(sx, sy, sz);
-  m.userData.arm = true; m.frustumCulled = false; m.renderOrder = 10; m.castShadow = false; return m; }
+  m.userData.arm = true; m.frustumCulled = false; m.renderOrder = heldRO81(HELD_VC); m.castShadow = false; return m; }   // 81차 heldFirst
 /* 팔뚝 — 손목(wx,wy,wz)에서 방향 (dx,dy,dz) 로 길이 L. 끝 쪽 소매 한 뼘(옷 색) */
 function handForearm(grp, wx, wy, wz, dx, dy, dz, L, th, sf){   // sf — 소매 자리(팔 길이 배, 기본 1.12)
   _hv.set(dx, dy, dz).normalize(); _hq.setFromUnitVectors(new THREE.Vector3(0, 1, 0), _hv);
@@ -14669,7 +14706,7 @@ function pxGeo(kind){   // 왼손에 든 작은 탄 조각 — 산탄 둘(빨간
     add(new THREE.BoxGeometry(0.068, 0.012, 0.018), 0x6a6e74, 0, -0.012, 0); }
   else { for(let k=0;k<3;k++){ add(new THREE.CylinderGeometry(0.007, 0.0085, 0.05, 8), 0xdcae48, (k - 1)*0.018, 0.012, 0);
       add(new THREE.ConeGeometry(0.007, 0.016, 8), 0x8a8e94, (k - 1)*0.018, 0.045, 0); } }
-  const mesh = bakeList(g.children.slice(), null)[0]; mesh.material = HELD_ARM; mesh.userData.arm = true; mesh.renderOrder = 10; mesh.frustumCulled = false; return mesh;
+  const mesh = bakeList(g.children.slice(), null)[0]; mesh.material = HELD_ARM; mesh.userData.arm = true; mesh.renderOrder = heldRO81(HELD_ARM); mesh.frustumCulled = false; return mesh;   // 81차 heldFirst
 }
 function heldRig(i){
   const g = gunModels[i]; if(!g) return null; if(g.userData.rig) return g.userData.rig;
@@ -16740,9 +16777,11 @@ if(vZK > .5 && vZW > .01){
   c *= 0.89 + 0.20*mottled;
   c = mix(c, c*vec3(.77, .87, 1.06), (1.0-smoothstep(.24,.48,mottled))*.34);               // 78차 — 같은 잡음으로 피부 아래 차가운 멍; 새 표본/텍스처 없음
   if(vZK < 1.5){                                                                          // 머리
+    if(abs(u.y + .10) < .21 && abs(abs(u.x) - .30) < .16){                               // 81차 — 두 볼 타원(반지름 .15×.20) 둘레 상자 밖은 hollow 가 정확히 0(mix(c,…,0)=c)이라 건너뛴다(여유 .01)
     float hollow = (1.0-smoothstep(.72,1.0,length((u-vec2(-.30,-.10))/vec2(.15,.20))))
                  + (1.0-smoothstep(.72,1.0,length((u-vec2(.30,-.10))/vec2(.15,.20))));
     c = mix(c,c*vec3(.59,.63,.72),min(1.0,hollow)*.48);                                  // 퀭한 두 볼, 기하를 늘리지 않는 앙상한 얼굴
+    }
     if(sd < .55) zGash(c, u, vec2(-.43 + sd*.2, .22), vec2(.02, .36), .036, 1.0, 0.0);    // 기본 시점에서도 읽히는 말라붙은 이마 봉합
     else zGash(c, u, vec2(.22, -.01), vec2(.43, -.27), .031, step(.8, sd), 0.0);            // 광대의 건조한 상처; 살빛과 대비하되 젖은 효과 없음
     if(fract(sd*7.3) < .5) zBruise(c, u, vec2(-.20, .10), .10);                           // 눈두덩 멍
@@ -29270,13 +29309,18 @@ function raceMaterial75(mat,rubber=false){
     sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 vRaceLocal75;\nvarying float vRaceCandy77;')
       .replace('#include <color_fragment>',`#include <color_fragment>
       float candyPhase77=vRaceCandy77-32.0;
-      float candyAa77=clamp(fwidth(candyPhase77),0.004,0.18);
+      // 81차 — 사탕 줄무늬는 사탕 면(vRaceCandy77≥8)만 계산한다. 나머지 면은 예전에도 mix(…, 0) 로 버려지던 값이다.
+      // fwidth(미분)는 갈라지는 분기 안에서 쓰면 안 되므로 분기 밖에서 한 번 구해 둔다(가장자리 픽셀도 같은 값)
+      float candyAaRaw77=fwidth(candyPhase77);
+      if(vRaceCandy77>=8.0){
+      float candyAa77=clamp(candyAaRaw77,0.004,0.18);
       float candyRed77=1.0-smoothstep(0.115-candyAa77,0.115+candyAa77,abs(fract(candyPhase77-0.115+0.5)-0.5));
       float candyGreen77=1.0-smoothstep(0.14-candyAa77,0.14+candyAa77,abs(fract(candyPhase77-0.53+0.5)-0.5));
       vec3 candyColor77=mix(vec3(1.0,0.88,0.65),vec3(0.88,0.055,0.041),candyRed77);
       candyColor77=mix(candyColor77,vec3(0.035,0.43,0.17),candyGreen77);
-      candyColor77=mix(candyColor77,vec3(0.66,0.61,0.43),smoothstep(0.22,0.65,fwidth(candyPhase77)));
+      candyColor77=mix(candyColor77,vec3(0.66,0.61,0.43),smoothstep(0.22,0.65,candyAaRaw77));
       diffuseColor.rgb=mix(diffuseColor.rgb,candyColor77*1.16,step(8.0,vRaceCandy77));
+      }
       vec3 grainP=vRaceLocal75*${rubber?'29.0':'18.0'};
       float fade75=1.0-smoothstep(0.25,1.4,max(max(fwidth(grainP.x),fwidth(grainP.y)),fwidth(grainP.z)));
       float weave75=sin(grainP.x)*sin(grainP.z)+sin(grainP.y)*0.45;
@@ -31635,7 +31679,7 @@ function storyTick78(dt){
 el('lobbyDress78').onclick=lobbyDress78;el('lobbyStart78').onclick=lessonStart78;
 
 function startGame(){
-  el('title').style.display = 'none';
+  el('title').style.display = 'none'; titleUp81 = false;   // 81차 titleSkip — 가림막이 걷혔으니 이 프레임부터 매 프레임 그린다
   pvwDispose();                 // Reloaded entry starts with no wardrobe renderer; first lobby opening creates it lazily.
 
   el('hud').classList.add('on');
@@ -33350,6 +33394,8 @@ function updSky(dt, night){
   /* 33차 — 큰별은 따로 깜빡이고, 별똥별은 밤에 가끔 긋는다. 연못 물결 고리는 늘 퍼진다 */
   starsB.position.copy(camera.position); starsB.rotation.y = stars.rotation.y;
   starsB.material.opacity = stars.material.opacity * (0.72 + 0.28*Math.sin(tAcc*2.3));
+  /* 81차 starsHide — 낮엔 투명도 0 인데도 별 두 무리(점 590개)가 섞기 그리기로 매 프레임 나갔다(0 섞기 = 바탕 그대로). 0 이면 아예 안 그린다 */
+  if(P81_STARS){ const on = stars.material.opacity > 0; stars.visible = on; starsB.visible = on; }
   if(skyK > 0.6){
     if(metT <= 0 && (metWait -= dt) <= 0){ metT = 0.9; metWait = 14 + Math.random()*16;
       const a = Math.random()*Math.PI*2, el = 0.45 + Math.random()*0.5;
@@ -33577,6 +33623,15 @@ function gpuEnd(){
 /* ═══════════════════════ 메인 루프 ═══════════════════════ */
 let last = performance.now()/1000, tAcc = 0, hudT = 0;
 let fpsVal = 0, fpsN = 0, fpsT = 0, struT = 0;
+/* 81차 titleSkip — 이름·방 번호를 치는 시작 화면(#title)은 불투명(바탕색 #071019)이라 뒤의 3D 가 한 픽셀도 안 보인다. 그런데 매 프레임
+   마을 전체(그림자 2048·MSAA)를 그려 21대 노트북을 수업 전부터 달궜다. 시작 화면이 떠 있는 동안은 첫 프레임과 2초에 한 번만 그린다
+   (셰이더 컴파일·버퍼 올리기는 예전처럼 시작 화면 동안 끝나 첫 게임 프레임이 걸리지 않는다). 입장(startGame)에서 꺼진다 */
+let titleUp81 = P81.titleSkip, titleWarm81 = 0;
+function titleSkip81(dt){
+  if(!titleUp81) return false;
+  titleWarm81 -= dt; if(titleWarm81 > 0) return true;
+  titleWarm81 = 2; return false;
+}
 function loop(){
   requestAnimationFrame(loop);
   const now = performance.now()/1000;
@@ -33772,7 +33827,9 @@ function loop(){
      조각이 마흔여덟 개뿐이라 값은 거의 안 든다(뱅크 하나, 그리기 한 번). */
   if(!DBG.noInst){ drawNPCs(tAcc); raceDraw(tAcc); }   // 37차 — 경주 코스는 raceDraw 가 움직이는 발판을 그린다
   if(SH_HZ){ shAcc += dt; if(shAcc >= 1/SH_HZ){ renderer.shadowMap.needsUpdate = true; shAcc = 0; } }   // SH_HZ 0 이면 autoUpdate 가 매 프레임 그린다
-  if(!DBG.noRender) drawFrame();
+  if(!DBG.noRender){
+    if(titleSkip81(dt)) scene.updateMatrixWorld();   // 81차 titleSkip — 불투명한 시작 화면 뒤: 그리지 않고 세계 행렬만(그리기가 하던 일 — 다음 프레임 계산이 읽는다)
+    else drawFrame(); }
   else renderer.clear();          // 화면이 얼어붙은 걸로 안 보이게 (거의 공짜다)
   if(PROF_ON){ gpuEnd(); pE('★그리기'); }
   if(window.__sweepTick) window.__sweepTick(dt);
@@ -33813,7 +33870,8 @@ if(new URLSearchParams(location.search).has('diag')){
     if(off){ camera.remove(heldLight);
              if(crystalLight && crystalLight.parent) crystalLight.parent.remove(crystalLight); }
     else   { camera.add(heldLight);
-             if(crystalLight && crystalGroup) crystalGroup.add(crystalLight); } };
+             if(crystalLight && crystalGroup) crystalGroup.add(crystalLight); }
+    _ggHideN81 = -1; };   // 81차 ggHide — 층 1 조명이 가지를 옮겼다(맨윗가지 수는 그대로) → 숨길 목록을 다시 만든다
   const setFlat = on=>{ DBG.flatGround = on;
     for(const m of [groundDisc, groundRim]){ if(!m) continue;
       if(!m.userData.lit) m.userData.lit = m.material;
