@@ -30,7 +30,7 @@ const mean=G.reduce((a,b)=>a+b,0)/G.length,sd=Math.sqrt(G.reduce((a,b)=>a+(b-mea
 assert.ok(mean>115&&mean<145&&sd>10&&sd<38,'Baked leaf shading remains varied without darkening the whole field');
 const ground=/const GR_GROUND_GLSL = `([\s\S]*?)`;/.exec(source)[1];
 const taps=(ground.match(/texture2D\(/g)||[]).length;
-assert.equal(taps,3,'Ground still has its original three texture reads beyond the shared grain read');
+assert.equal(taps,2,'Ground keeps its own two texture reads; 81차 reuses the shared grain read (ggv) instead of sampling the same texel again');
 assert.ok(ground.includes('smoothstep(12.0, 30.0, gdist)'),'Fine leaves fade continuously by 30 m');
 const tip=/float tip = ([^;]+);/.exec(ground)[1];
 assert.ok(!/uTime|sin\(|cos\(/.test(tip),'Leaf detail never animates in screen space');

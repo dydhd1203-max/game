@@ -154,10 +154,10 @@ ok('★ 대문 쪽으로 걸으면 우리 안까지 들어간다', walk.대문�
 const grow = await pg.evaluate(()=>{
   const W=window, o={단계:[], 반너비:[], 짚칸:[], 여물통:[]};
   const g = W.__G.me.g, f = W.__G.farm[g];
-  const 짚 = ()=>{ let n=0; const S=W.__farmParts()[g];
+  const 짚 = ()=>{ let n=0; const S=W.__farmParts()[g]; if(W.__bankFlush) W.__bankFlush();   // 81차 — 숨긴 칸은 버퍼에서 빠진다(자리 -1)
     for(let s=0;s<S.length;s++) for(const h of S[s].gnd){
       const bk=W.__banks.get(h[0]); const m=bk.chunks[bk.map[h[1]*2]];
-      if(!m) continue;
+      if(!m || bk.map[h[1]*2+1] < 0) continue;
       const e=new Array(16); m.instanceMatrix.array.slice(bk.map[h[1]*2+1]*16,
         bk.map[h[1]*2+1]*16+16).forEach((v,i)=>e[i]=v);
       if(e[0] !== 0) n++;                    // 크기 0 이면 감춘 것

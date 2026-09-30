@@ -30,7 +30,11 @@ try{
     const Z = (x, y, z, k)=> ({x, y, z, k:k || 0, hp:10, id:9999});
     const aimY = (e, w)=> W.__castleAimY(e[0], e[1], e[2], w);
     /* 실제 돌 조각 광선(참값) — 성곽·성문 돌 뱅크만(나무·지붕 판·소품·땅은 뺀다) */
-    const ms = []; for(const k of ['cbrk', 'cbrkL', 'cboxC', 'cboxN', 'ccope', 'cvous', 'cmerl', 'gbrick', 'gcore']){ const bk = W.__banks.get(k); if(bk && bk.chunks) ms.push(...bk.chunks); }
+    const ms = []; for(const k of ['cbrk', 'cbrkL', 'cboxC', 'cboxN', 'ccope', 'cvous', 'cmerl', 'gbrick', 'gcore']){ const bk = W.__banks.get(k); if(!bk || !bk.chunks) continue;
+      if(!bk.on){ ms.push(...bk.chunks); continue; }
+      /* 81차 — 그리기 버퍼엔 화면·그림자에 닿는 칸만 담긴다(칸 뺐다 채우기). 참값은 켜진 칸 전부(처음 자리 b.ms)로 따로 만든다 */
+      const live = []; for(let i=0; i<bk.ms.length; i++) if(bk.on[i]) live.push(i);
+      const im = new THREE.InstancedMesh(bk.geo, bk.mat, live.length); live.forEach((i, j)=> im.setMatrixAt(j, bk.ms[i])); im.computeBoundingSphere(); im.updateMatrixWorld(true); ms.push(im); }
     const rc = new THREE.Raycaster(), o = new THREE.Vector3(), dv = new THREE.Vector3();
     const ray1 = (e, t)=>{ const L = Math.hypot(t[0] - e[0], t[1] - e[1], t[2] - e[2]); o.set(e[0], e[1], e[2]); dv.set(t[0] - e[0], t[1] - e[1], t[2] - e[2]).normalize(); rc.set(o, dv); rc.near = 0.05; rc.far = L - 0.3; return rc.intersectObjects(ms, false).length > 0; };
     /* 참값 = 선 셋(가운데 · 옆 ±0.03) 다수결 — 66 성문 흉벽 돌 사이 4cm 줄눈(속 몸 없음)·모서리 모따기를 스치는 한 줄 광선에 안 흔들리게 */
