@@ -5946,6 +5946,8 @@ if(!new URLSearchParams(location.search).get('gfx')){
    반투명 부품은 10 그대로(반투명끼리 섞는 순서 유지). 든 것끼리는 한 값을 같이 쓰므로 서로의 순서도 그대로 */
 const P81_HELDFIRST = P81.heldFirst;
 const heldRO81 = m=>(P81_HELDFIRST && !(m && m.transparent)) ? -10 : 10;
+/* 81차 검토 고침 — groundLate(바닥 늦게 그리기)는 같은 깊이 닿는 선에서 0~1px 이 바뀔 수 있어 **기본 끔**. ?p81on=groundLate 로만 켠다(끄는 손잡이가 이긴다) */
+const P81_GROUND_LATE = P81.groundLate && (new URLSearchParams(location.search).get('p81on') || '').split(',').includes('groundLate');
 const P81_STARS = P81.starsHide;              // 81차 starsHide — 낮(투명도 0) 별 무리는 그리지 않는다(updSky)
 /* 81차 misc 갈래 손잡이 — 불러올 때 한 번 읽는다. npcCull 상인 거르기 · fxPool 효과 풀(입자·불티·깃털·총 효과 조각, 빈 오라·반딧불 콜)
    · upRange 쓴 칸만 올리기(3인칭 총 룬·날개 굽힘·발자국·포탑 돌기·건물 색) · raceArtCull 경주 풍경 판마다 그리는 구간 */
@@ -6238,6 +6240,18 @@ function shadowFollow(cx, cz, cy=GY){
   _sunDir.copy(sun.position).normalize();  // 지금 해가 있는 방향
   sunTarget.position.set(qx, cy, qz);
   sun.position.set(qx + _sunDir.x*150, cy + Math.max(40, _sunDir.y*150), qz + _sunDir.z*150);
+}
+/* 81차 검토 고침 — 그림자 카메라 절두체를 해·과녁 자리(월드)에서 바로 만든다(DirectionalLightShadow.updateMatrices 와 같은 셈:
+   해 자리에서 과녁을 보는 직교 카메라). 해·과녁은 scene 바로 아래라 자리 = 월드 자리. 행렬을 안 건드리고, 할당 0.
+   좀비·친구·상인 거르기가 '그림자 판에 드는가' 를 그림자 절두체로 본다 — 예전 '그림자가 화면에 닿나(쓸어 합친 캡슐)' 는
+   MSAA 가장자리 픽셀이 픽셀 가운데서 그림자 좌표를 늘려(외삽) 읽는 먼 지도 칸을 못 품어 1~2px 이 1~6단계 달라졌다(bankCull 과 같은 까닭). */
+const _shfM = new THREE.Matrix4(), _shfE = new THREE.Vector3(), _shfT = new THREE.Vector3();
+function shadowFrustum81(ex, ey, ez, tx, ty, tz, F){
+  const sc = sun.shadow.camera, M = _shfM.identity();
+  _shfE.set(ex, ey, ez); _shfT.set(tx, ty, tz);
+  M.lookAt(_shfE, _shfT, sc.up); M.setPosition(_shfE);
+  F.setFromProjectionMatrix(M.invert().premultiply(sc.projectionMatrix));
+  return F;
 }
 
 /* ═══ 81차 성능 — 그림자 판을 해에 가까운 것부터 그린다 (그림자 지도는 한 칸도 안 바뀐다) ═══
@@ -6767,9 +6781,13 @@ const BSPLIT = 300;   // 이보다 인스턴스가 적은 뱅크는 안 쪼갠�
    그림이 한 픽셀도 안 바뀌는 까닭: 남은 칸의 순서가 같고(같은 조각 안 겹친 면의 이기고 짐이 같다), 조각 구(boundingSphere)·상자는
    건드리지 않아 three 의 불투명 정렬(재질 → 깊이)도 그대로다. 뺀 칸은 원래 한 점도 안 찍히던 것뿐이다.
    ③ 32칸 조각(성곽 돌·잎…)도 절두체에 걸친 조각은 칸마다 같은 셈으로 거른다(조각이 통째로 안이면 셈 없이 전부 · 통째로 밖이고 안 드리우면 손대지 않음).
-   다시 담기는 '필요한 칸이 빠졌을 때' 또는 '필요 없는 칸이 필요한 칸의 1/4+8 을 넘을 때' 만 한다 — 늘 필요한 칸을 품으니(모자람 없음) 그림은 같고,
-   카메라를 조금 돌릴 때마다 올리지 않아 업로드가 적다.
-   손잡이: ?p81off=bankPack(전부 끔 — 예전 ZEROM) · ?p81off=bankCull(②③ 끔) · ?p81off=chunkCull(③만 끔) · ?nocull=1(전부 끔).
+   다시 담기는 '필요한 칸이 빠졌을 때' 또는 '넓은 보임 밖 칸이 필요한 칸의 1/2+16 을 넘을 때' 만 하고, 담을 때는 둘레를 넓힌 절두체까지 담는다
+   (81차 검토 고침 — 딱 맞게 담으면 카메라를 1° 돌릴 때마다 다시 올렸다 · bankRefresh 주석). 늘 필요한 칸을 품으니(모자람 없음) 그림은 같다.
+   손잡이: ?p81off=bankPack(전부 끔 — 예전 ZEROM) · ?p81off=bankCull(②③ 끔) · ?nocull=1(전부 끔).
+   ?p81off=chunkCull(③만 끔).
+   ③ 81차 검토 고침 — 32칸 조각은 움직이는 동안엔 칸을 빼지 않고(넓은 보임 = 켠 칸 전부) 카메라가 서서 필요한 칸이 그대로일 때만(bankSettle) 딱 맞게 줄인다.
+     움직일 때도 칸마다 걸렀더니 32칸 조각(이미 조각째 걸러짐) 안에서 더 빠지는 삼각형은 거의 없는데(마을 1°/프레임 돌기 본판 1.288M → 1.286M)
+     가장자리 칸이 드나들 때마다 조각을 다시 올려 올림 51 → 67KB/프레임 · JS 가 두 배였다. 서 있을 때는 탑 안처럼 많이 빠진다(0.38M → 0.25M).
    b.map[i*2+1] 은 이제 '지금 담긴 자리' 이고 빠진 칸은 -1 이다(b.map 을 읽는 곳은 bset·bmatSet 둘뿐 — 다른 곳은 이 둘을 부른다). */
 const BANK_PACK = P81.bankPack, BANK_CULL = BANK_PACK && P81.bankCull, BANK_CULL32 = BANK_CULL && P81.chunkCull;
 const BANK_CULL_TRI = 5000;          // 81차 — 안 쪼갠 뱅크 중 삼각형 합이 이 이상인 것만 칸마다 거른다(가벼운 것은 거르는 셈이 더 든다)
@@ -6815,7 +6833,7 @@ function bbuild(){
 }
 /* 81차 — 조각 기록 하나: 담을 칸 목록(원래 순서)·지금 담긴 칸 표시·(거르는 조각이면) 칸마다 상자 */
 function bankCR(b, im, idxs, sc, single){
-  const len = idxs.length, cr = {m: im, b, idxs: Int32Array.from(idxs), keep: new Uint8Array(len).fill(1), vis: null, box: null, sc: sc || null, dirty: false};
+  const len = idxs.length, cr = {m: im, b, idxs: Int32Array.from(idxs), keep: new Uint8Array(len).fill(1), vis: null, wv: null, box: null, sc: sc || null, dirty: false};
   if(b.col0){ const A = im.instanceColor.array; for(let j=0;j<len;j++){ const g = idxs[j]*3; b.col0[g] = A[j*3]; b.col0[g+1] = A[j*3+1]; b.col0[g+2] = A[j*3+2]; } }
   const g = b.geo; if(!g.boundingBox) g.computeBoundingBox();
   const tri = (g.index ? g.index.count : g.attributes.position.count)/3;
@@ -6829,7 +6847,9 @@ function bankCR(b, im, idxs, sc, single){
             ey = Math.abs(e[1])*hx + Math.abs(e[5])*hy + Math.abs(e[9])*hz + 0.5,
             ez = Math.abs(e[2])*hx + Math.abs(e[6])*hy + Math.abs(e[10])*hz + 0.5;
       B[o] = wx - ex; B[o+1] = wy - ey; B[o+2] = wz - ez; B[o+3] = wx + ex; B[o+4] = wy + ey; B[o+5] = wz + ez; }
-    cr.box = B; cr.vis = new Uint8Array(len).fill(1); cr.full = true; BANK_CULLS.push(cr);   // full — 보임이 전부 1 인 채로 담겨 있음
+    cr.box = B; cr.vis = new Uint8Array(len).fill(1); cr.wv = new Uint8Array(len).fill(1); cr.full = true; cr.age = 0; cr.tight = false; cr.drawn = false;
+    cr.wideAll = !single;                                          // 81차 검토 고침 — 32칸 조각: 넓은 보임은 늘 전부(움직일 땐 안 빼고 서 있을 때만 줄인다 — ③ 주석)
+    BANK_CULLS.push(cr);   // full — 보임이 전부 1 인 채로 담겨 있음
   }
   BANK_CR.push(cr); b.crs[b.chunks.length] = cr;
 }
@@ -6847,18 +6867,40 @@ function bankPack(cr){
   const a = m.instanceMatrix; a.clearUpdateRanges(); a.addUpdateRange(0, j*16); a.needsUpdate = true;
   if(C){ const c = m.instanceColor; c.clearUpdateRanges(); c.addUpdateRange(0, j*3); c.needsUpdate = true; }
 }
-/* 81차 — 조각의 남길 칸 다시 셈. 필요 = 켬 × 보임. 꺼진 칸이 담겨 있거나 필요한 칸이 빠졌으면 반드시, 남는 칸이 많으면 다시 담는다 */
+/* 81차 — 조각의 남길 칸 다시 셈. 필요 = 켬 × 보임(딱 맞는 절두체). 꺼진 칸이 담겨 있거나 필요한 칸이 빠졌으면 반드시 다시 담는다.
+   81차 검토 고침 — 다시 담을 때는 '넓은 보임'(wv — 절두체를 둘레로 넓힌 것, bankCull)까지 담는다. 예전엔 딱 맞게 담아서 카메라를 1° 만 돌려도
+   어느 조각엔가 새 칸이 가장자리를 넘어와 거의 매 프레임 조각 10여 개를 통째로 다시 올렸다(1°/프레임 돌기 107KB/프레임 · 81차 전 48KB).
+   넓게 담아 두면 돌거나 걸어도 몇 도·몇 칸마다 한 번만 다시 담는다. 넓은 보임 밖으로 나간 칸이 필요한 칸의 1/2+16 을 넘어야 줄인다.
+   담긴 칸은 늘 필요한 칸을 품고(wv ⊇ vis — bankCull 이 그렇게 센다) 순서도 같으니 그림은 그대로다. */
 function bankRefresh(cr){
-  const on = cr.b.on, idxs = cr.idxs, keep = cr.keep, vis = cr.vis; let must = false, extra = 0, need = 0;
+  const on = cr.b.on, idxs = cr.idxs, keep = cr.keep, vis = cr.vis, wv = cr.wv; let must = false, extra = 0, need = 0;
   for(let k=0; k<idxs.length; k++){ const o = on[idxs[k]];
     if(o && (vis === null || vis[k])){ need++; if(!keep[k]) must = true; }
-    else if(keep[k]){ if(!o) must = true; else extra++; } }
-  if(!must && extra <= (need >> 2) + 8) return;
-  for(let k=0; k<idxs.length; k++) keep[k] = (on[idxs[k]] && (vis === null || vis[k])) ? 1 : 0;
+    else if(keep[k]){ if(!o) must = true; else if(wv === null || !wv[k]) extra++; } }
+  if(!must && extra <= (need >> 1) + 16) return;
+  for(let k=0; k<idxs.length; k++) keep[k] = (on[idxs[k]] && (wv === null || wv[k])) ? 1 : 0;
   bankPack(cr);
+  if(vis !== null){ cr.age = 0; cr.tight = false; }             // 넓게 담았다 — 한동안 그대로면 bankSettle 이 딱 맞게 줄인다
+}
+/* 81차 검토 고침 — 가라앉히기: 필요한 칸이 BANK_SETTLE 번 그리는 동안 그대로였던(카메라가 서 있는) 조각은
+   필요한 칸만 딱 맞게 한 번 다시 담는다 — 서서 볼 때는 예전(딱 맞게) 삼각형 그대로(탑 안 본판 0.39M → 0.25M), 돌 때는 넓게 담아 덜 올린다.
+   한 번에 두 조각까지(한 프레임에 몰려 올리지 않게). 필요한 칸이 다시 빠지면 bankRefresh 가 넓게 담는다. 그리는 조각만 본다(안 그리는 조각은 줄여도 소용없다). */
+const BANK_SETTLE = 30;
+function bankSettle(){
+  let n = 0;
+  for(let c=0; c<BANK_CULLS.length && n < 2; c++){ const cr = BANK_CULLS[c];
+    if(cr.tight || !cr.drawn || ++cr.age < BANK_SETTLE) continue;
+    cr.tight = true;
+    const on = cr.b.on, idxs = cr.idxs, keep = cr.keep, vis = cr.vis; let d = false;
+    for(let k=0; k<idxs.length; k++){ const v = (on[idxs[k]] && vis[k]) ? 1 : 0; if(v !== keep[k]){ keep[k] = v; d = true; } }
+    if(d){ bankPack(cr); n++; } }
 }
 /* 81차 — scene.onBeforeRender 가 그리기마다 부른다(행렬 갱신 뒤 · 그림자 판 전). ① bset 로 바뀐 조각 ② 칸 거르기(층 0 을 보는 그리기만) */
-const _bkF = new THREE.Frustum(), _bkPM = new THREE.Matrix4();
+const _bkF = new THREE.Frustum(), _bkPM = new THREE.Matrix4(), _bkFW = new THREE.Frustum(), _bkPW = new THREE.Matrix4();
+/* 81차 검토 고침 — '넓은 보임' 여유: 화면 절두체는 가로·세로 시야를 넓히고(투영 x·y 줄 × BANK_WIDE_K 0.6 → 반시야 약 +13~14°),
+   화면·그림자 절두체 모두 면을 BANK_WIDE_M 8칸 밖으로 민다(그림자 판 가운데는 시선 따라 4칸씩 뛴다 — shadowFollow). 고르는 칸이 늘 뿐 그림은 그대로.
+   잰 값(검토 turn.mjs, 마을 1인칭 1°/프레임 돌기): 올림 107 → 51KB/프레임(81차 전 49) · 버퍼 호출 37 → 27(전 27) · 삼각형 본판 1.29M(전 1.70M) — 0.85·4칸은 82KB 였다. */
+const BANK_WIDE_K = 0.6, BANK_WIDE_M = 8;
 let BANK_BUMP = false;
 function bankTick(cam){
   if(!BANK_PACK) return;
@@ -6880,26 +6922,36 @@ function bankCull(cam){
     if(!_bkSame(16, sp.x)) same = false; if(!_bkSame(17, sp.y)) same = false; if(!_bkSame(18, sp.z)) same = false;
     if(!_bkSame(19, tp.x)) same = false; if(!_bkSame(20, tp.y)) same = false; if(!_bkSame(21, tp.z)) same = false;
     if(!_bkSame(22, sh ? 1 : 0)) same = false;
-    _bkCastV = BANK_CAST_V; if(same) return; }
+    _bkCastV = BANK_CAST_V; if(same){ bankSettle(); return; } }
   _bkF.setFromProjectionMatrix(_bkPM);
+  { const w = _bkPW.copy(cam.projectionMatrix).elements;             // 투영 x·y 줄을 줄이면 |x_clip| ≤ w 가 넓어진다(시야만 넓힘 · 가까운·먼 면 그대로)
+    w[0] *= BANK_WIDE_K; w[4] *= BANK_WIDE_K; w[8] *= BANK_WIDE_K; w[12] *= BANK_WIDE_K;
+    w[1] *= BANK_WIDE_K; w[5] *= BANK_WIDE_K; w[9] *= BANK_WIDE_K; w[13] *= BANK_WIDE_K;
+    _bkFW.setFromProjectionMatrix(_bkPW.multiply(cam.matrixWorldInverse)); }
   /* 81차 검증 — 그림자 쪽은 '이번 그리기에서 이 조각이 그림자 판에 드는가'(scullShadow 가 방금 정한 castShadow) × '칸이 그림자 절두체 안' 만 본다.
      그림자 지도가 예전과 한 칸도 안 다르게 하려는 것이다(그림자 절두체 밖 칸은 지도에 한 점도 안 찍는다).
      예전 셈(칸마다 '그림자가 화면에 닿는가' 쓸어 합친 상자)은 기하로는 맞지만, MSAA 가장자리 픽셀은 셰이더를 픽셀 가운데서 돌려
      그림자 좌표가 삼각형 밖으로 늘어나(외삽) 먼 지도 칸을 읽는다 — 밤 먼 성벽 끝 1~3px 이 1~3단계 달라졌다(aa=0 이면 0px). */
-  const P = _bkPl(_bkF.planes, _bkP);
-  let SP = null;
-  if(sh){ sun.shadow.updateMatrices(sun); SP = _bkPl(sun.shadow.getFrustum().planes, _bkS); }   // three 가 그림자 판에서 하는 것과 같은 셈(같은 결과) — 먼저 해 둔다
+  const P = _bkPl(_bkF.planes, _bkP), PW = _bkPl(_bkFW.planes, _bkPWa, BANK_WIDE_M);
+  let SP = null, SW = null;
+  if(sh){ sun.shadow.updateMatrices(sun); const sf = sun.shadow.getFrustum().planes;   // three 가 그림자 판에서 하는 것과 같은 셈(같은 결과) — 먼저 해 둔다
+          SP = _bkPl(sf, _bkS); SW = _bkPl(sf, _bkSW, BANK_WIDE_M); }
   for(let c=0; c<BANK_CULLS.length; c++){ const cr = BANK_CULLS[c], B = cr.box, vis = cr.vis, len = vis.length, cb = cr.sc.box;
     const cls = boxCls(P, cb.min.x, cb.min.y, cb.min.z, cb.max.x, cb.max.y, cb.max.z),
           scls = (SP !== null && cr.m.castShadow) ? boxCls(SP, cb.min.x, cb.min.y, cb.min.z, cb.max.x, cb.max.y, cb.max.z) : 0;
     /* 조각이 통째로 화면 안이거나, 드리우는 조각이 통째로 그림자 절두체 안 — 칸마다 셀 것 없이 전부(이미 전부면 할 일 없음) */
-    if(cls === 2 || scls === 2){ if(!cr.full){ vis.fill(1); cr.full = true; bankRefresh(cr); } continue; }
-    if(cls === 0 && scls === 0) continue;                             // 두 판 어디에도 안 그려진다(다시 걸릴 때 센다)
-    let ch = false;
-    for(let k=0; k<len; k++){ const o = k*6;
-      const v = (boxIn(P, B[o], B[o+1], B[o+2], B[o+3], B[o+4], B[o+5]) || (scls !== 0 && boxIn(SP, B[o], B[o+1], B[o+2], B[o+3], B[o+4], B[o+5]))) ? 1 : 0;
+    cr.drawn = cls !== 0 || scls !== 0;
+    if(cls === 2 || scls === 2){ if(!cr.full){ vis.fill(1); cr.wv.fill(1); cr.full = true; bankRefresh(cr); } continue; }
+    if(!cr.drawn) continue;                                           // 두 판 어디에도 안 그려진다(다시 걸릴 때 센다)
+    let ch = false; const wv = cr.wv, cs = SP !== null && cr.m.castShadow;
+    for(let k=0; k<len; k++){ const o = k*6, x0 = B[o], y0 = B[o+1], z0 = B[o+2], x1 = B[o+3], y1 = B[o+4], z1 = B[o+5];
+      /* 넓은 보임 먼저(넓은 절두체 밖이면 딱 맞는 절두체 밖 — 칸 대부분이 한 번 셈으로 끝) · 딱 맞는 보임은 넓은 보임 안에서만 → vis ⊆ wv */
+      const w = (cr.wideAll || boxIn(PW, x0, y0, z0, x1, y1, z1) || (cs && boxIn(SW, x0, y0, z0, x1, y1, z1))) ? 1 : 0;
+      const v = (w && (boxIn(P, x0, y0, z0, x1, y1, z1) || (scls !== 0 && boxIn(SP, x0, y0, z0, x1, y1, z1)))) ? 1 : 0;
+      wv[k] = w;
       if(v !== vis[k]){ vis[k] = v; ch = true; } }
-    if(ch){ cr.full = false; bankRefresh(cr); } }                  // 보임이 그대로면 담긴 칸도 그대로 맞다(켬/끔은 bankFlush 가 따로)
+    if(ch){ cr.full = false; cr.age = 0; bankRefresh(cr); } }      // 필요한 칸이 그대로면 담긴 칸도 그대로 맞다(켬/끔은 bankFlush 가 따로)
+  bankSettle();
 }
 function bankFlush(){                                 // bset 로 켬/끔이 바뀐 조각만 다시 담는다(검사도 부른다 — __bankFlush)
   for(let i=0; i<BANK_DIRTY.length; i++){ const cr = BANK_DIRTY[i]; cr.dirty = false; bankRefresh(cr); }
@@ -6907,8 +6959,8 @@ function bankFlush(){                                 // bset 로 켬/끔이 바
 }
 /* 0 밖 · 1 걸침 · 2 통째로 안 */
 /* 81차 검증 — 절두체 면 6개를 [nx, ny, nz, d] × 6 숫자 배열로 옮겨 둔다(칸 수만 번 도는 셈이 객체 속성을 안 뒤진다 · 값은 그대로라 결과 같음) */
-const _bkP = new Float64Array(24), _bkS = new Float64Array(24);
-function _bkPl(pl, A){ for(let i=0; i<6; i++){ const n = pl[i].normal, o = i*4; A[o] = n.x; A[o+1] = n.y; A[o+2] = n.z; A[o+3] = pl[i].constant; } return A; }
+const _bkP = new Float64Array(24), _bkS = new Float64Array(24), _bkPWa = new Float64Array(24), _bkSW = new Float64Array(24);
+function _bkPl(pl, A, m = 0){ for(let i=0; i<6; i++){ const n = pl[i].normal, o = i*4; A[o] = n.x; A[o+1] = n.y; A[o+2] = n.z; A[o+3] = pl[i].constant + m; } return A; }   // m — 면을 m 칸 밖으로(81차 검토 고침 넓은 보임)
 function boxCls(P, x0, y0, z0, x1, y1, z1){
   let r = 2;
   for(let o=0; o<24; o+=4){ const nx = P[o], ny = P[o+1], nz = P[o+2], d = P[o+3];
@@ -7002,53 +7054,55 @@ function scullShadow(cam){
   }
   S.shOut = out; S.shAll = all;
 }
-/* ═══ 81차 — 화면에도, 화면에 닿는 그림자에도 안 걸리는 좀비·친구는 통째로 안 그린다 (zombieCull · friendCull) ═══
+/* ═══ 81차 — 화면에도, 그림자 판에도 안 걸리는 좀비·친구는 통째로 안 그린다 (zombieCull · friendCull) ═══
    좀비·친구 부품은 인스턴스 메시(imesh, frustumCulled=false)라 three 가 거르지 못한다 — 등 뒤 90마리도 본판·그림자 판에서
    정점을 다 돌고, 행렬·색을 매 프레임 올렸다. 그래서 한 마리(한 사람)씩 구 하나로 본다.
      · 구가 카메라 절두체 안이면 그린다.
-     · 아니어도 그 구를 해 빛 방향으로 땅(SCULL.ymin)까지 쓸어 만든 캡슐이 절두체에 닿으면 그린다(scullShadow 와 같은 식) —
-       화면 밖 좀비의 그림자가 화면 안 땅에 떨어질 수 있다. 빛 방향은 둘 다 본다: 지난 프레임 것 + 이번 프레임 updSky 가 낼 것
-       (skyLight81 — 같은 식으로 미리 낸다. 그림자 판은 updSky 뒤에 그려진다).
+     · 아니어도 그림자를 그리는 프레임이면, 구가 **이번 프레임 그림자 카메라 절두체**(여유 1칸)에 닿으면 그린다 —
+       그 좀비가 그림자 지도에 찍는 칸은 예전과 한 칸도 안 달라야 한다.
+       81차 검토 고침: 예전엔 '구를 해 빛으로 쓸은 캡슐이 카메라 절두체에 닿나' 로 봤다. 기하로는 맞지만 MSAA 가장자리 픽셀은 셰이더를
+       픽셀 가운데서 돌려 그림자 좌표가 늘어나(외삽) 그 캡슐 밖 지도 칸을 읽는다 — 카메라 뒤에서 커진 우두머리 좀비 하나로 땅 가장자리 2px 이
+       최대 6단계 달라졌다(검토 vxr.mjs). 그래서 bankCull 과 같이 그림자 절두체로 바꿨다(그림자 상자 ±52칸 밖 등 뒤 좀비는 여전히 빠진다).
+       그림자 카메라 자리는 이번 프레임 끝 updSky → shadowFollow 가 놓을 자리를 **같은 식**으로 미리 낸다(skyLight81 · 시선 앞 4칸 걸음 · 칸 맞춤).
      · 둘 다 아니면 건너뛴다. 걸음·맞음·쓰러짐·올라옴 시계와 흙먼지·소리는 그대로 돈다(다시 들어와도 한 프레임도 튀지 않는다).
    본판·그림자 판이 **같은 프레임에 같은 목록**을 쓰므로 '움직이는 것을 한 판에서만 덜 갱신' 하는 일(68차 그림자 깜빡임)은 없다.
    카메라 틀은 camera 의 위치·회전에서 직접 만든다(camera.updateMatrixWorld 를 부르면 이름표 등 뒤따르는 셈이 한 프레임 빨라져 달라진다).
    ?p81off=zombieCull / friendCull / all · ?nocull=1 이면 끈다. */
-const ACT81 = {zombie: P81.zombieCull, friend: P81.friendCull, on: false, sh: false, nL: 0, ymin: 0,
-  F: new THREE.Frustum(), PM: new THREE.Matrix4(), CM: new THREE.Matrix4(),
-  L: [new THREE.Vector3(), new THREE.Vector3()], dn: [1, 1], sky: {k:0, kD:0, sEl:0, mEl:0, sun:new THREE.Vector3(), moon:new THREE.Vector3(), litT:new THREE.Vector3(), litW:new THREE.Vector3()},
+const ACT81 = {zombie: P81.zombieCull, friend: P81.friendCull, on: false, sh: false,
+  F: new THREE.Frustum(), S: new THREE.Frustum(), PM: new THREE.Matrix4(), CM: new THREE.Matrix4(),
+  sky: {k:0, kD:0, sEl:0, mEl:0, sun:new THREE.Vector3(), moon:new THREE.Vector3(), litT:new THREE.Vector3(), litW:new THREE.Vector3()},
   zOut: 0, zAll: 0, pOut: 0, pAll: 0};
 /* 한 프레임에 한 번 — 카메라가 정해진 뒤(updPlayer·흔들림·fovTick 다음), drawWolves 앞에서 부른다 */
 function actorCullPrep(dt, night){
   const A = ACT81; A.on = false; A.zOut = A.zAll = A.pOut = A.pAll = 0;
   if(!(A.zombie || A.friend) || camera.parent !== scene) return;
   if(G.phase === 'intro') return;      // 78차 도입 장면은 이 뒤(storyTick78)에서 카메라를 옮긴다 — 그 프레임 카메라를 모르니 거르지 않는다
-  A.CM.compose(camera.position, camera.quaternion, camera.scale).invert();
-  A.F.setFromProjectionMatrix(A.PM.multiplyMatrices(camera.projectionMatrix, A.CM));
+  const CM = A.CM.compose(camera.position, camera.quaternion, camera.scale);
   A.sh = !!(GFX.shadow && renderer.shadowMap.enabled && sun.castShadow);
   if(A.sh && !renderer.shadowMap.autoUpdate) return;   // 그림자 지도를 몇 프레임에 한 번만 그리면(shHz) 그 지도는 다음 카메라들에도 쓰인다 — 이 프레임 카메라로 거르면 안 된다
-  A.nL = 0;
   if(A.sh){
-    const L0 = A.L[0].subVectors(sunTarget.position, sun.position).normalize();
-    const d = skyLight81(dt, night, A.sky).litW, L1 = A.L[1];   // shadowFollow 가 해를 놓는 식 그대로: (d·150, max(40, d.y·150)) 의 반대쪽
-    L1.set(-d.x*150, -Math.max(40, d.y*150), -d.z*150).normalize();
-    A.dn[0] = Math.max(0.05, -L0.y); A.dn[1] = Math.max(0.05, -L1.y); A.nL = 2;
+    /* updSky 가 이 프레임 끝에 하는 것 그대로: sun.position = litW·100 → camera.getWorldDirection → shadowFollow(시선 앞 4칸 걸음 · 칸 맞춤) */
+    const w = skyLight81(dt, night, A.sky).litW, e = CM.elements;
+    let il = 1/(Math.sqrt(e[8]*e[8] + e[9]*e[9] + e[10]*e[10]) || 1);
+    const fx = -(e[8]*il), fz = -(e[10]*il), h = Math.hypot(fx, fz) || 1;
+    const cx = camera.position.x + Math.round(fx/h*4)*4, cz = camera.position.z + Math.round(fz/h*4)*4, cy = miniOn() ? MINI_Y : GY;
+    const texel = (SH_R*2) / GFX.shadow, qx = Math.round(cx/texel)*texel, qz = Math.round(cz/texel)*texel;
+    const sx = w.x*100, sy = w.y*100, sz = w.z*100; il = 1/(Math.sqrt(sx*sx + sy*sy + sz*sz) || 1);
+    shadowFrustum81(qx + sx*il*150, cy + Math.max(40, sy*il*150), qz + sz*il*150, qx, cy, qz, A.S);
   }
-  A.ymin = SCULL.ymin; A.on = true;
+  A.F.setFromProjectionMatrix(A.PM.multiplyMatrices(camera.projectionMatrix, CM.invert()));
+  A.on = true;
 }
-/* 구(x,y,z,r)가 보이나 — 절두체 안이거나, 해 빛으로 쓸은 캡슐이 절두체에 닿으면 true */
+/* 구(x,y,z,r)가 보이나 — 카메라 절두체 안이거나, (그림자를 그리면) 그림자 절두체에 여유 1칸으로 닿으면 true */
 function actorVis81(x, y, z, r){
-  const A = ACT81, pl = A.F.planes;
-  let k = 0;
-  for(; k<6; k++){ const p = pl[k]; if(p.normal.x*x + p.normal.y*y + p.normal.z*z + p.constant < -r) break; }
+  const A = ACT81;
+  let pl = A.F.planes, k = 0;
+  for(; k<6; k++){ const p = pl[k], n = p.normal; if(n.x*x + n.y*y + n.z*z + p.constant < -r) break; }
   if(k === 6) return true;
-  for(let i=0; i<A.nL; i++){
-    const L = A.L[i], t = Math.max(0, (y + r - A.ymin)/A.dn[i]), x1 = x + L.x*t, y1 = y + L.y*t, z1 = z + L.z*t;
-    let hide = false;
-    for(let j=0; j<6; j++){ const p = pl[j], n = p.normal;
-      if(n.x*x + n.y*y + n.z*z + p.constant < -r && n.x*x1 + n.y*y1 + n.z*z1 + p.constant < -r){ hide = true; break; } }
-    if(!hide) return true;
-  }
-  return false;
+  if(!A.sh) return false;
+  pl = A.S.planes; const R = r + 1;
+  for(k=0; k<6; k++){ const p = pl[k], n = p.normal; if(n.x*x + n.y*y + n.z*z + p.constant < -R) return false; }
+  return true;
 }
 function bset(h, on){
   const b = banks.get(h[0]); if(!b || !b.chunks) return;
@@ -7364,8 +7418,10 @@ function buildWorldMesh(){
      그 위에 선 사람 밑 픽셀까지 다 칠한 뒤 덮였다. 순서만 1 로 미루면 가려진 픽셀은 깊이에서 걸러진다(테두리 원기둥도 같이 1 — 바닥 뒤 차례 유지)
      ★ 비트까지 같지는 않다 — 깊이가 똑같은 곳(좀비 발이 땅에 닿는 선)은 나중에 그린 쪽이 이기는데, 이제 바닥이 나중이다.
        검증(81차 검증): 밤 좀비 근접 10장 중 2장에서 발끝 가장자리 1픽셀(MSAA 표본 하나)이 땅색 쪽으로, 낮 친구 장면 23장은 0픽셀.
-       바닥을 엄격한 깊이(Less)로 두면 이번엔 먼저 그린 바위·성벽·나무와 닿는 선이 뒤집히므로 답이 아니다. 교실 비교는 ?p81off=groundLate */
-  if(P81.groundLate) disc.renderOrder = 1;
+       바닥을 엄격한 깊이(Less)로 두면 이번엔 먼저 그린 바위·성벽·나무와 닿는 선이 뒤집히므로 답이 아니다.
+     81차 검토 고침 — '그림이 한 픽셀도 안 바뀌는 것만' 규칙에 어긋나므로 **기본은 끔**(예전 순서). 켜 보려면 주소에 ?p81on=groundLate
+     (그래도 ?p81off=groundLate·all·?nocull=1 이 이긴다). */
+  if(P81_GROUND_LATE) disc.renderOrder = 1;
   /* ── 33차 연못 — 반투명 물 원판(바닥 사발이 비친다) + 물결 고리 하나 + 갈대(부들) · 연잎, 개울 머리엔 돌무더기 ── */
   const water = new THREE.Mesh(new THREE.CircleGeometry(POND.r + 0.15, 40),
     new THREE.MeshLambertMaterial({color:0xffffff, transparent:true, opacity:0.70, depthWrite:false}));
@@ -7409,7 +7465,7 @@ function buildWorldMesh(){
   const rim = new THREE.Mesh(new THREE.CylinderGeometry(FIELD_R,FIELD_R,5,72,1,true),
                 flatMat(0x8a6342, {side:THREE.BackSide}));
   rim.position.y = GY-2.5; scene.add(rim); groundRim = rim;
-  if(P81.groundLate) rim.renderOrder = 1;   // 81차 groundLate — 바닥 원판과 같은 층(재질이 뒤라 여전히 바닥 다음)
+  if(P81_GROUND_LATE) rim.renderOrder = 1;   // 81차 groundLate(기본 끔 — ?p81on=groundLate) — 바닥 원판과 같은 층(재질이 뒤라 여전히 바닥 다음)
 
   /* ── 산 — 칸 합치기 ── */
   /* 풀·바위·이끼·눈 — 33차: 눈은 봉우리(GY+18↑)에만, 이끼는 낮은 비탈(GY+11 아래)에만. 높은 마루가 이끼 무늬로 잘게 쪼개지면
@@ -17407,8 +17463,10 @@ const NPCS = [
 /* 81차 — 상인 거르기(npcCull). 여섯 뱅크는 imesh 라 frustumCulled=false — 시장이 등 뒤여도 본판 6 · 그림자 판 6 번을 그리고
    조각 180개를 매 프레임 다시 올렸다. 상인마다 **모든 조각이 어떤 고개·팔 각도에서도 들어가는 구**(가운데 = 발밑 + NPC_CY81)를
    불러올 때 한 번 잰다 — 조각 기하 상자의 반대각선 + 피벗(목·어깨)까지 + 피벗에서 조각까지 + 숨쉬기·몸무게 흔들림.
-   drawNPCs 가 그 구를 카메라 절두체와, 햇빛 방향으로 가장 낮은 면(SCULL.ymin)까지 민 캡슐(scullShadow 와 같은 셈 · 여유 1칸)과 견준다.
-   둘 다 밖이면 그 상인의 조각을 안 쓴다 → 화면에도 그림자에도 닿을 수 없는 조각만 빠진다. 셋 다 빠지면 뱅크 수 0 → flush 가 visible=false. */
+   drawNPCs 가 그 구를 카메라 절두체와, (그림자를 그리면) 이번 프레임 그림자 카메라 절두체(여유 1칸)와 견준다.
+   둘 다 밖이면 그 상인의 조각을 안 쓴다 → 화면에도 그림자 지도에도 한 점도 안 찍히는 조각만 빠진다. 셋 다 빠지면 뱅크 수 0 → flush 가 visible=false.
+   81차 검토 고침 — 예전 그림자 쪽 셈(햇빛으로 민 캡슐이 카메라 절두체에 닿나)은 MSAA 가장자리의 늘어난 그림자 좌표가 읽는 지도 칸을
+   못 품었다(좀비 거르기에서 2px 재현 · actorVis81 주석). 그림자 절두체로 바꿨다(bankCull 과 같은 셈). */
 const NPC_CY81 = 1.1;
 { const ext = {};
   for(const k in NPC_GEO79){ const g = NPC_GEO79[k]; g.computeBoundingBox(); const b = g.boundingBox;
@@ -17421,21 +17479,18 @@ const NPC_CY81 = 1.1;
       else d = Math.hypot(P[1], P[2] - NPC_CY81, P[3]);
       r = Math.max(r, d + hd); }
     N.r81 = r + 0.036 + 0.1; } }                                   // 몸무게 0.028 · 숨 0.022 흔들림 + 여유
-const NPC_F81 = new THREE.Frustum(), NPC_PM81 = new THREE.Matrix4(), NPC_L81 = new THREE.Vector3(), NPC_S81 = new THREE.Sphere();
+const NPC_F81 = new THREE.Frustum(), NPC_PM81 = new THREE.Matrix4(), NPC_SF81 = new THREE.Frustum(), NPC_S81 = new THREE.Sphere();
 let npcSphOk81 = false;
 function npcSph81(){ if(npcSphOk81) return true;
   for(const k in NPC_BANK79) if(NPC_BANK79[k].boundingSphere === null) return false;
   return npcSphOk81 = true; }
 function npcOut81(N, sh){
-  const r = N.r81, cx = N.x, cy = N.y0 + NPC_CY81, cz = N.z, pl = NPC_F81.planes;
+  const r = N.r81, cx = N.x, cy = N.y0 + NPC_CY81, cz = N.z;
   NPC_S81.center.set(cx, cy, cz); NPC_S81.radius = r + 0.05;
   if(NPC_F81.intersectsSphere(NPC_S81)) return false;               // 화면 안(여유 0.05) — 그린다
   if(!sh) return true;                                               // 그림자가 없는 판 — 화면 밖이면 끝
-  const L = NPC_L81, R = r + 1, t = Math.max(0, (cy + R - SCULL.ymin)/Math.max(0.05, -L.y));
-  const qx = cx + L.x*t, qy = cy + L.y*t, qz = cz + L.z*t;
-  for(let k=0;k<6;k++){ const p = pl[k], n = p.normal;
-    if(n.x*cx + n.y*cy + n.z*cz + p.constant < -R && n.x*qx + n.y*qy + n.z*qz + p.constant < -R) return true; }   // 캡슐 두 끝이 같은 면 바깥
-  return false;
+  NPC_S81.radius = r + 1;
+  return !NPC_SF81.intersectsSphere(NPC_S81);                        // 그림자 절두체(여유 1칸) 밖이면 지도에 한 점도 안 찍는다
 }
 /* ═══ 세계에 놓인 총 진열. 손에 드는 모형(gunModels)을 복제해 받침대·걸이·선반에 얹는다.
    65차 — ① 손·팔·불티는 떼고 총만 올린다. 복제에 손에 쥔 흰 주먹·팔뚝이 같이 와서 걸이마다 흰 손이 둥둥 떠 있었다(사진).
@@ -17523,7 +17578,7 @@ function drawNPCs(t){
   if(cull81){ const cm = NPC_PM81.compose(camera.position, camera.quaternion, camera.scale);   // 카메라 행렬을 건드리지 않고 같은 셈으로(렌더가 곧 똑같이 만든다)
     if(camera.parent) cm.premultiply(camera.parent.matrixWorld);
     NPC_F81.setFromProjectionMatrix(cm.invert().premultiply(camera.projectionMatrix));
-    NPC_L81.subVectors(sunTarget.position, sun.position).normalize(); }
+    if(sh81){ const sp = sun.position, tp = sunTarget.position; shadowFrustum81(sp.x, sp.y, sp.z, tp.x, tp.y, tp.z, NPC_SF81); } }   // updSky·shadowFollow 가 끝난 이번 프레임 해 자리
   for(const N of NPCS){
     if(cull81 && npcOut81(N, sh81)) continue;        // 81차 — 화면에도 그림자에도 안 닿는 상인은 조각을 안 쓴다(고개·팔은 매 프레임 t 로 새로 셈 — 건너뛰어도 남는 상태 없음)
     /* ── 제일 가까운 아이 쪽으로 고개를 돌린다 ── */
@@ -30090,39 +30145,34 @@ function raceDonutGeometry79(flavor=0){
 /* 81차 — 경주 정적 풍경의 판마다 그리는 구간(raceArtCull). 정적 메시 3~4개는 z 로 줄 세운 조각(span)의 연속 구간을 그리는데,
    raceArtDraw 의 창(±120칸)은 본판에도 그림자 판에도 그대로 쓰여 카메라 뒤·그림자 상자 밖 풍경까지 꼭짓점을 돌렸다.
    조각마다 꼭짓점 상자(bb)를 불러올 때 한 번 재 두고, 그리기 직전(onBeforeRender·onBeforeShadow)에 창 안에서
-   ① 본판: 상자(여유 0.5)가 카메라 절두체에 닿는 조각 ② 그림자 판: 상자가 그림자 카메라 절두체에 닿고, 햇빛 방향으로 가장 낮은 면(SCULL.ymin)까지
-   민 상자(여유 1 — scullShadow 와 같은 셈)가 카메라 절두체에 닿는 조각만 골라 그 처음~끝을 그린다(사이의 안 닿는 조각도 그려 — 늘 넉넉한 쪽).
-   그린 뒤 onAfter… 가 창을 되돌린다(raceArtDraw 의 visible·통계는 창 그대로). 안 닿는 조각은 화면·그림자 지도의 읽히는 칸 어디에도 못 닿는다. */
-const RR81 = {F:new THREE.Frustum(), G:new THREE.Frustum(), PM:new THREE.Matrix4(), bx:new THREE.Box3(), L:new THREE.Vector3(), s0:0, c0:0};
+   ① 본판: 상자(여유 0.5)가 카메라 절두체에 닿는 조각 ② 그림자 판: 상자가 그림자 카메라 절두체에 닿는 조각만 골라 그 처음~끝을 그린다
+   (사이의 안 닿는 조각도 그려 — 늘 넉넉한 쪽). 그린 뒤 onAfter… 가 창을 되돌린다(raceArtDraw 의 visible·통계는 창 그대로).
+   안 닿는 조각은 화면에도 그림자 지도에도 한 점도 안 찍는다.
+   81차 검토 고침 — 그림자 판에서 '햇빛으로 민 상자가 카메라 절두체에 닿나' 로 더 빼던 것은 없앴다. MSAA 가장자리 픽셀은 늘어난 그림자 좌표로
+   그 상자 밖 지도 칸을 읽을 수 있다(좀비 거르기에서 2px 재현 · bankCull·actorVis81 주석) — 그림자 지도는 예전과 한 칸도 안 다르게 둔다. */
+const RR81 = {F:new THREE.Frustum(), PM:new THREE.Matrix4(), bx:new THREE.Box3(), s0:0, c0:0};
 function raceRangeHook81(st, pos){
   for(const q of st.spans){ let x0=Infinity,y0=Infinity,z0=Infinity,x1=-Infinity,y1=-Infinity,z1=-Infinity;
     for(let i=q.start*3, e=(q.start+q.count)*3; i<e; i+=3){ const x=pos[i], y=pos[i+1], z=pos[i+2];
       if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; if(z<z0)z0=z; if(z>z1)z1=z; }
     q.bb81 = [x0, y0, z0, x1, y1, z1]; }
   const m = st.mesh, dr = m.geometry.drawRange;
-  const pick = (F, G, sweep)=>{
-    const o0 = dr.start, o1 = dr.start + dr.count, bx = RR81.bx, L = RR81.L; let first = Infinity, last = -Infinity;
-    const dn = Math.max(0.05, -L.y);
+  const pick = (F)=>{
+    const o0 = dr.start, o1 = dr.start + dr.count, bx = RR81.bx; let first = Infinity, last = -Infinity;
     for(const q of st.spans){ if(q.start < o0 || q.start + q.count > o1) continue;
       const b = q.bb81;
       bx.min.set(b[0] - .5, b[1] - .5, b[2] - .5); bx.max.set(b[3] + .5, b[4] + .5, b[5] + .5);
       if(!F.intersectsBox(bx)) continue;                                   // 본판: 카메라 · 그림자 판: 그림자 카메라
-      if(sweep){ const t = Math.max(0, (b[4] - SCULL.ymin)/dn);              // 그림자 판: 쓸어 합친 상자가 화면에 닿나
-        bx.min.set(Math.min(b[0], b[0] + L.x*t) - 1, Math.min(b[1], b[1] + L.y*t) - 1, Math.min(b[2], b[2] + L.z*t) - 1);
-        bx.max.set(Math.max(b[3], b[3] + L.x*t) + 1, b[4] + 1, Math.max(b[5], b[5] + L.z*t) + 1);
-        if(!G.intersectsBox(bx)) continue; }
       if(q.start < first) first = q.start; if(q.start + q.count > last) last = q.start + q.count; }
     RR81.s0 = dr.start; RR81.c0 = dr.count;
     if(first === Infinity){ dr.start = o0; dr.count = 0; } else { dr.start = first; dr.count = last - first; }
   };
   const back = ()=>{ dr.start = RR81.s0; dr.count = RR81.c0; };
   m.onBeforeRender = (r, sc, cam)=>{ if(!SCULL.on || !dr.count) return RR81.c0 = -1;
-    RR81.F.setFromProjectionMatrix(RR81.PM.multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse)); pick(RR81.F, null, false); };
+    RR81.F.setFromProjectionMatrix(RR81.PM.multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse)); pick(RR81.F); };
   m.onAfterRender = ()=>{ if(RR81.c0 >= 0) back(); };
   m.onBeforeShadow = (r, o, cam, shCam)=>{ if(!SCULL.on || !dr.count) return RR81.c0 = -1;
-    RR81.F.setFromProjectionMatrix(RR81.PM.multiplyMatrices(shCam.projectionMatrix, shCam.matrixWorldInverse));
-    RR81.G.setFromProjectionMatrix(RR81.PM.multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse));
-    RR81.L.subVectors(sunTarget.position, sun.position).normalize(); pick(RR81.F, RR81.G, true); };
+    RR81.F.setFromProjectionMatrix(RR81.PM.multiplyMatrices(shCam.projectionMatrix, shCam.matrixWorldInverse)); pick(RR81.F); };
   m.onAfterShadow = ()=>{ if(RR81.c0 >= 0) back(); };
 }
 function raceArtBuild(){
@@ -34741,10 +34791,11 @@ let diagGpu = null, diagT = 0;
    그중 bankPack(뱅크 칸 뺐다 채우기)은 인스턴스 버퍼의 칸 배치를 처음부터 바꿔 두므로 판 도중에 켜고 끌 수 없다.
    그래서 진단에는 '끔' 토글을 두지 않고 주소로 견준다: ?diag=1 과 ?diag=1&p81off=all 을 따로 열어 Shift+9 를 한 번씩
    (하나만 끄려면 &p81off=bankPack 처럼 이름 · ?nocull=1 은 68차 거르기까지 전부 끔). */
-const P81_NOTE = (()=>{ const q = new URLSearchParams(location.search), s = q.get('p81off') || '';
+const P81_NOTE = (()=>{ const q = new URLSearchParams(location.search), s = q.get('p81off') || '', on = q.get('p81on') || '';
   if(q.has('nocull')) return '끔(nocull — 68차 거르기도 끔)';
-  if(!s) return '켬';
-  return s.split(',').includes('all') ? '끔(p81off=all)' : '일부 끔(' + s.slice(0, 40) + ')'; })();
+  const more = on ? ' + 켬(' + on.slice(0, 30) + ')' : '';                  // 81차 검토 고침 — 기본 끔인 groundLate 를 켠 판
+  if(!s) return '켬' + more;
+  return s.split(',').includes('all') ? '끔(p81off=all)' : '일부 끔(' + s.slice(0, 40) + ')' + more; })();
 function updDiag(dt){
   diagT -= dt; if(diagT > 0) return; diagT = 0.5;
   // 자동 측정 중이거나 끝났으면 결과표만 크게 보여 준다
