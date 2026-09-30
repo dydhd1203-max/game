@@ -15119,12 +15119,14 @@ function updChunks(dt){
 /* 81차 — 입자 풀(fxPool). 예전엔 산 입자가 하나도 없어도 160칸을 매 프레임 0 크기로 다시 쓰고(12KB 올림) 그리기 한 번을 냈다.
    산 입자가 없고 새로 뿌린 것도 없으면(뿌리는 셋 burst·spark·pt 는 모두 pI 를 민다 → pI81 과 다르면 새 입자) 칸을 안 건드린다 —
    마지막으로 돈 프레임에 죽은 칸은 이미 0 크기로 적혔다. 산 것이 없으면 visible=false(0 크기 삼각형만 있던 그리기라 화면은 같다).
-   다시 뿌리면 그 프레임에 160칸을 전부 새로 쓰고 통째로 올린다. */
+   다시 뿌리면 그 프레임에 160칸을 전부 새로 쓰고 통째로 올린다.
+   81차 검증 고침 — pI 만 보면 한 프레임에 꼭 160(의 배수)알을 뿌렸을 때 pI 가 한 바퀴 돌아 제자리라 '새 입자 없음'으로 보고 건너뛰었다
+   (조용한 뒤 16×burst(10) — 새 입자가 안 보이고 멈춘 채 남았다, 검증에서 재현). 가장 최근에 뿌린 칸은 늘 parts[pI] 이므로 그 칸이 살아 있으면 새 입자다. */
 let pLive81 = 1, pI81 = -1;
 function updParts(dt){
   updCases(dt); updChunks(dt); g68Tick(dt);                    // 68차 — 캔 조각 · 총 효과 조각(불티·파편·번개·클로버 잎)
   const fx81 = typeof P81_FX === 'boolean' && P81_FX && pMesh.boundingSphere !== null;          // 정렬 구가 잡힌 뒤부터(flush 옆 81차 주석)
-  if(fx81 && !pLive81 && pI === pI81){ pMesh.visible = false; return; }
+  if(fx81 && !pLive81 && pI === pI81 && !(parts[pI].t > 0)){ pMesh.visible = false; return; }
   pI81 = pI; let live = 0;
   for(let i=0;i<PN;i++){
     const p = parts[i];
