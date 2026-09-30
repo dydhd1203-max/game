@@ -17372,16 +17372,16 @@ function drawWolfHP(){
   /* 81차 zombieCull — 화면·화면에 닿는 그림자 밖 막대는 안 쓴다(순서는 그대로 당겨지므로 겹친 막대의 섞임 순서도 같다).
      막대 메시가 처음 보이는 프레임엔 거르지 않는다 — three 가 그때 한 번 잰 구(투명 정렬 기준)가 예전과 같아야 한다 */
   const hc = typeof ACT81 !== 'undefined' && ACT81.on && ACT81.zombie && HB_BG.boundingSphere !== null && HB_FG.boundingSphere !== null;
-  let n = 0;
+  let n = 0, hsk = 0;
   for(const w of G.wolves){
-    if(n >= MAXW) break;
+    if(n + hsk >= MAXW) break;                // 81차 검증 — 건너뛴 막대도 자리를 센다(drawWolves 의 zsk 와 같게 — 끊기는 자리가 예전과 같다)
     const dx = w.x-PL.x, dz = w.z-PL.z;
     if(dx*dx + dz*dz > HB_R2) continue;
     const T0 = WOLF_T[w.k] || WOLF_T[0];
     const boss = w.bi >= 0 || isBoss(w.k);
     const wd = HB_W * (boss ? 1.75 : 1) * (0.7 + T0.sc*0.45);
     const y = (w.y||GY) + T0.sc*1.55 + 0.62;
-    if(hc && !actorVis81(w.x, y, w.z, wd*0.5 + 0.8)) continue;
+    if(hc && !actorVis81(w.x, y, w.z, wd*0.5 + 0.8)){ hsk++; continue; }
     const f = Math.max(0, Math.min(1, w.mx ? w.hp/w.mx : 0));
     setI(HB_BG, n, w.x, y, w.z, ry, wd+0.09, HB_H+0.07, 1, 0x1a1218);
     /* 채움은 왼쪽 끝에 붙여야 줄어드는 게 보인다 — 가운데 정렬이면 양쪽에서 줄어든다 */
