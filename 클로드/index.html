@@ -4391,7 +4391,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '79차 · 집결소와 달콤한 도약';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '81차 · 그림 그대로 더 가볍게';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -34737,6 +34737,14 @@ const diagEl = (()=>{
   return d;
 })();
 let diagGpu = null, diagT = 0;
+/* 81차 — 이번 판의 81차 최적화 손잡이(P81) 상태를 진단 화면에 적는다. 손잡이는 불러올 때 한 번만 읽고(뜨거운 길이 Proxy 를 안 부르게),
+   그중 bankPack(뱅크 칸 뺐다 채우기)은 인스턴스 버퍼의 칸 배치를 처음부터 바꿔 두므로 판 도중에 켜고 끌 수 없다.
+   그래서 진단에는 '끔' 토글을 두지 않고 주소로 견준다: ?diag=1 과 ?diag=1&p81off=all 을 따로 열어 Shift+9 를 한 번씩
+   (하나만 끄려면 &p81off=bankPack 처럼 이름 · ?nocull=1 은 68차 거르기까지 전부 끔). */
+const P81_NOTE = (()=>{ const q = new URLSearchParams(location.search), s = q.get('p81off') || '';
+  if(q.has('nocull')) return '끔(nocull — 68차 거르기도 끔)';
+  if(!s) return '켬';
+  return s.split(',').includes('all') ? '끔(p81off=all)' : '일부 끔(' + s.slice(0, 40) + ')'; })();
 function updDiag(dt){
   diagT -= dt; if(diagT > 0) return; diagT = 0.5;
   // 자동 측정 중이거나 끝났으면 결과표만 크게 보여 준다
@@ -34761,7 +34769,8 @@ function updDiag(dt){
   if(st && st.sweepOut){
     const o = st.sweepOut;
     diagEl.textContent = '측정 끝 — 이 표를 알려주세요\n'
-      + '(오른쪽 숫자 = 바로 직전 기준과의 차이)\n\n'
+      + '(오른쪽 숫자 = 바로 직전 기준과의 차이)\n'
+      + '81차 최적화 ' + P81_NOTE + '\n\n'                        // 81차 — 켠 판·끈 판(&p81off=all) 표를 섞지 않게
       + o.rows.map(fmt).join('\n')
       + (o.warn ? '\n\n⚠ 시작할 때: ' + o.warn : '')
       + (o.drift ? '\n\n⚠ ' + o.drift : '')
@@ -34785,7 +34794,8 @@ function updDiag(dt){
     '[전송 ' + (DBG.slowNet ? '초당6회(줄임)' : '초당13회(기본)')
       + (DBG.noSim ? ' · 시뮬통신끔' : '')
       + (DBG.noRender ? ' · 그리기끔' : '')
-      + (DBG.noLogic ? ' · 로직끔' : '') + ']\n' +
+      + (DBG.noLogic ? ' · 로직끔' : '')
+      + ' · 81차 최적화 ' + P81_NOTE + ']\n' +                   // 81차 — 켠/끈 판을 한눈에(끄는 법은 아래 Shift+9 밑 줄)
     'FPS      ' + fpsVal + '\n' +
     'GPU      ' + diagGpu + '\n' +
     '화면배율  ' + devicePixelRatio + ' → ' + renderer.getPixelRatio().toFixed(2) + '\n' +
@@ -34826,6 +34836,8 @@ function updDiag(dt){
     'Shift+8 전송횟수 ' + (DBG.slowNet ? '초당 6회' : '초당 13회') + '\n' +
     '★ Shift+9 = 자동으로 전부 측정\n' +
     '   (30초, 밤에 하세요)\n' +
+    '81차 켬/끔 견주기: 주소 끝 &p81off=all 로 새로 열어\n' +
+    '   Shift+9 한 번 더(판 도중엔 못 바꿈 · 창 하나만·전원 꽂고)\n' +
     '손으로: 0그리기 ' + (DBG.noRender?'끔':'켬') +
     ' 1해상도 ' + DBG.pr.toFixed(2) +
     ' 2점광원 ' + (DBG.noPoint?'끔':'켬') + '\n' +
