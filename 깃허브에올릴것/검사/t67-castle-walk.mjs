@@ -556,7 +556,11 @@ try{
         R.W22 = {n, bad, ex}; }
       /* W20 — 쏘기 틈 조준 가림(castleOccluded)을 실제 그림(성곽 돌 조각 광선)과 견줌 — 복도 T1 쪽 쏘기 틈 셋 · 초소 틈 · 회랑 틈: 눈은 벽감 앞, 과녁은 틈 너머 좀비 가운데(+0.85).
          그림으로 보이는데 막힘 · 그림으로 가렸는데 통과 — 69차 18% · 5% → 둘 다 ≤ 1.5% */
-      { const THREE = W.__THREE, ms = []; for(const k of ['cbrk', 'cbrkL', 'cboxC', 'cboxN', 'ccope', 'cvous', 'cmerl', 'cwood']){ const b = W.__banks.get(k); if(b && b.chunks) ms.push(...b.chunks); }
+      { const THREE = W.__THREE, ms = []; for(const k of ['cbrk', 'cbrkL', 'cboxC', 'cboxN', 'ccope', 'cvous', 'cmerl', 'cwood']){ const b = W.__banks.get(k); if(!b || !b.chunks) continue;
+          if(!b.on){ ms.push(...b.chunks); continue; }
+          /* 81차 — 그리기 버퍼엔 화면·그림자에 닿는 칸만 담긴다(칸 뺐다 채우기). 참값은 켜진 칸 전부(처음 자리 b.ms)로 따로 만든다 */
+          const live = []; for(let i=0; i<b.ms.length; i++) if(b.on[i]) live.push(i);
+          const im = new THREE.InstancedMesh(b.geo, b.mat, live.length); live.forEach((i, j)=> im.setMatrixAt(j, b.ms[i])); im.computeBoundingSphere(); im.updateMatrixWorld(true); ms.push(im); }
         const rc = new THREE.Raycaster(), o = new THREE.Vector3(), dv = new THREE.Vector3(); let seed = 7; const rnd = ()=>{ seed = (seed*16807) % 2147483647; return seed/2147483647; };
         const out = {vis:0, visBlocked:0, hid:0, hidPassed:0, cases:[]};
         const trial = (e, tgt, place0)=>{ Object.assign(PL, {x:place0[0], z:place0[1], y:GY + place0[2]}); const L = Math.hypot(tgt[0] - e[0], tgt[1] - e[1], tgt[2] - e[2]);
