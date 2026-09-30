@@ -4343,6 +4343,20 @@ body.waiting78 #hud,body.story78 #hud{visibility:hidden!important}body.waiting78
 </script>
 <script type="module">
 import * as THREE from 'three';
+/* 81차 성능 — InstancedMesh.setMatrixAt/setColorAt 를 곧은 복사로 바꿔 끼운다. three 는 Matrix4.toArray/Color.toArray 를 부르는데, 그 함수는 three 곳곳에서
+   보통 배열·여러 형식 배열로 불려 V8 이 느린(메가모픽) 쓰기 길로 간다 — 밤 좀비 90 마리면 한 프레임 6천6백 번, 자세 셈보다 복사가 더 비쌌다(밤 JS 의 약 40%).
+   여기서는 늘 Float32Array ← 보통 배열 한 가지라 빠른 길이다. 적는 float32 값은 toArray 와 한 비트도 다르지 않다(같은 수 → 같은 반올림).
+   instanceColor 가 없을 때 새로 만드는 것도 three 와 같다. 그림을 안 바꾸는 순수 효율 고침이라 스위치 없음(부르는 곳 그대로 — 검사·다른 갈래와 안 부딪힌다) */
+{ const IM = THREE.InstancedMesh.prototype;
+  IM.setMatrixAt = function(index, matrix){
+    const a = this.instanceMatrix.array, e = matrix.elements, o = index*16;
+    a[o] = e[0]; a[o+1] = e[1]; a[o+2] = e[2]; a[o+3] = e[3]; a[o+4] = e[4]; a[o+5] = e[5]; a[o+6] = e[6]; a[o+7] = e[7];
+    a[o+8] = e[8]; a[o+9] = e[9]; a[o+10] = e[10]; a[o+11] = e[11]; a[o+12] = e[12]; a[o+13] = e[13]; a[o+14] = e[14]; a[o+15] = e[15];
+  };
+  IM.setColorAt = function(index, color){
+    if(this.instanceColor === null) this.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(this.instanceMatrix.count*3), 3);
+    const a = this.instanceColor.array, o = index*3; a[o] = color.r; a[o+1] = color.g; a[o+2] = color.b;
+  }; }
 
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
@@ -5880,6 +5894,9 @@ if(new URLSearchParams(location.search).get('bloom') === '1') GFX.bloom = 1;
   if(q.has('pr'))     GFX.pr     = Math.max(0.25, Math.min(3, +q.get('pr') || GFX.pr));
   if(q.has('shadow')) GFX.shadow = Math.max(0, q.get('shadow')|0); }
 if(isTouch){ GFX.shadow = 0; GFX.bloom = 0; GFX.aa = 0; GFX.pr = 1.0; }
+/* 81차 성능 — 새 건너뛰기·순서·다시 묶기는 모두 이 한 표의 스위치로 끈다(교실 A/B). P81.이름 은 기본 true,
+   ?p81off=이름1,이름2 면 그것만 끄고, ?p81off=all 이나 ?nocull=1 이면 전부 끈다. 뜨거운 길에서는 시작할 때 const 로 한 번만 읽는다. */
+const P81 = (()=>{ const s=new URLSearchParams(location.search).get('p81off')||''; const off=new Set(s.split(',')); const all=off.has('all')||new URLSearchParams(location.search).has('nocull'); return new Proxy({}, {get:(_,k)=>!(all||off.has(String(k)))}); })();
 
 if(!new URLSearchParams(location.search).get('gfx')){
   try{
@@ -9967,10 +9984,11 @@ function buildClouds(){
 const _cv2=new THREE.Vector3(), _cq2=new THREE.Quaternion(), _cs2=new THREE.Vector3(), _cm3=new THREE.Matrix4();
 function updClouds(dt){
   let i = 0;
+  const racing = window.__READY && raceOn();                // 81차 성능 — 구름 조각마다 부르던 raceOn() 을 한 번만(프레임 안에서 안 바뀐다 · 움직임은 그대로 매 프레임)
   for(const c of clouds){
     c.x += dt*(c.sp || 0.55); if(c.x > 160) c.x = -160;
     for(const p of c.puffs){
-      const highRace=window.__READY&&raceOn()&&c.y>90;
+      const highRace=racing&&c.y>90;
       _cv2.set(c.x+p.dx, c.y+p.dy+(highRace?32:0), c.z+p.dz); _cs2.set(p.sx, p.sy*(highRace?2.5:1), p.sz);
       cloudMesh.setMatrixAt(i++, _cm3.compose(_cv2, _cq2, _cs2));
     }
@@ -14376,6 +14394,14 @@ function heldVM(m){
 }
 for(const g of [gunModels[0], ...Object.values(HELD), ...Object.values(heldBlocks)])
   if(g) g.traverse(c=>{ if(c.isMesh) c.material = heldVM(c.material); });
+/* 81차 성능 — 손에 드는 모형(총 스물몇·도구 여섯·설계도 두루마리 — 마디 약 430 개)은 전부 카메라 밑에 숨겨 매달려 있다.
+   카메라가 매 프레임 움직이니 three 의 updateMatrixWorld 는 숨은 것까지 모든 마디의 행렬을 다시 셈했다(장면 마디의 3분의 1이 넘는다).
+   숨은 모형은 그리지 않으니 그 셈을 건너뛴다. 다시 보이면(visible) 그 프레임의 장면 셈에서 곧바로 새로 셈한다(카메라가 안 움직여도 자기 행렬을 다시 짜므로).
+   보이는 것의 행렬은 한 비트도 안 바뀐다. 숨은 모형의 matrixWorld 를 읽는 곳은 없다(총구·불꽃은 gm.visible 을 먼저 본다). 끄기: ?p81off=heldSkip */
+if(P81.heldSkip){
+  const skipHidden = function(force){ if(this.visible) THREE.Object3D.prototype.updateMatrixWorld.call(this, force); };
+  for(const g of [...gunModels, ...Object.values(HELD), ...Object.values(heldBlocks)]) if(g) g.updateMatrixWorld = skipHidden;
+}
 let heldCur = null;
 function setHeld(key){
   /* ★ 총은 무기마다 모형이 다르므로 '지금 든 무기 번호'까지 열쇠에 넣는다.
@@ -16230,6 +16256,7 @@ function avatarShadowMaterial(){
 }
 const P_contact=imesh(new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),avatarShadowMaterial(),MAXP,1);
 P_contact.castShadow=P_contact.receiveShadow=false;
+const SH_LIST81 = [];                  // 81차 — loop 의 사람 목록 한 벌(drawSheep·wingFxPeople·그림자가 그 프레임 안에서만 읽는다)
 function drawAvatarShadows(list,cap,scale){
   let n=0,seen=0;
   for(const s of list){
@@ -16341,7 +16368,7 @@ function r6EyeRotation(yaw,pitch,side,roll=0,out=new THREE.Quaternion()){
 function setR6Eye(mesh,idx,x,y,z,yaw,pitch,side,roll,sx,sy,sz,col){
   _v.set(x,y,z);r6EyeRotation(yaw,pitch,side,roll,_q);_s.set(sx,sy,sz);
   mesh.setMatrixAt(idx,FLIP_ON?_m.compose(_v,_q,_s).premultiply(FLIP_M):_m.compose(_v,_q,_s));
-  if(col!==undefined&&mesh.instanceColor){_c1.set(col);mesh.setColorAt(idx,_c1);}
+  if(col!==undefined&&mesh.instanceColor)colAt(mesh,idx,col);   // 81차 — sRGB→선형 셈을 colAt 캐시로(같은 값)
 }
 /* ── 사람 표 좌표 → 선 몸통 자리 ──
    옷(11가지)·전직 차림새(직업 3 × 단계 2)는 **네발 몸통**(0.84 × 0.62 × 0.94)에 맞춰 적어 둔 표다.
@@ -18173,16 +18200,49 @@ function colAt(mesh, idx, col){
   else { _c1.r = c[0]; _c1.g = c[1]; _c1.b = c[2]; }
   const a = mesh.instanceColor.array, o = idx*3; a[o] = c[0]; a[o+1] = c[1]; a[o+2] = c[2];
 }
+/* 81차 성능 — 16진 색 → 선형 색을 COL_LIN 캐시로(Color.setHex 와 같은 값). 값을 셈하는 칸(_cl81)이 따로라 _c1 은 건드리지 않는다 */
+const _cl81 = new THREE.Color();
+function linHex81(out, hex){
+  let c = COL_LIN.get(hex);
+  if(c === undefined){ _cl81.setHex(hex); c = [_cl81.r, _cl81.g, _cl81.b]; if(COL_LIN.size >= 4096) COL_LIN.clear(); COL_LIN.set(hex, c); }
+  out.r = c[0]; out.g = c[1]; out.b = c[2]; return out;
+}
+/* 81차 — 옛 mesh.setColorAt(i,_c1.setHex(h)) 와 같은 값·같은 _c1 (숫자 색 + 색 칸이 있으면 colAt 캐시, 아니면 옛 길) */
+function colHex81(mesh, i, hex){ if(typeof hex === 'number' && mesh.instanceColor) colAt(mesh, i, hex); else mesh.setColorAt(i, _c1.setHex(hex)); }
+const GP81 = [0, 0, 0], _shoeQ81 = new THREE.Quaternion(), _shoeQI81 = new THREE.Quaternion();   // 81차 — drawSheep 한 벌 칸(총 부품 자리 · 뒤집힌 신발)
+/* 81차 성능 — setI·setIR·setIR3: 행렬을 _m 에 짜서 setMatrixAt 으로 옮기지 않고, three 의 Matrix4.compose 와 **같은 식·같은 순서**로 인스턴스 칸
+   (Float32Array)에 바로 적는다 → 같은 float32 값. setIR·setIR3 의 회전도 Quaternion.setFromEuler(YXZ) 와 같은 식으로 바로 셈한다(Euler 객체·순서 분기 없음).
+   FLIP_M 을 곱해야 할 때(쓰러짐·공중제비)와 진짜 InstancedMesh 가 아닐 때는 옛 길 그대로. 이 셋 뒤에 _m 을 읽는 곳은 없다(_v·_q·_s 는 옛날처럼 채워 둔다). 떼어 검사할 수 있게 셋 다 스스로 선다 */
 function setI(mesh, idx, x,y,z, ry, sx,sy,sz, col){
   _v.set(x,y,z); _q.setFromAxisAngle(UPV, ry); _s.set(sx,sy,sz);
-  mesh.setMatrixAt(idx, FLIP_ON ? _m.compose(_v,_q,_s).premultiply(FLIP_M) : _m.compose(_v,_q,_s));
+  if(FLIP_ON || mesh.isInstancedMesh !== true) mesh.setMatrixAt(idx, FLIP_ON ? _m.compose(_v,_q,_s).premultiply(FLIP_M) : _m.compose(_v,_q,_s));   // 인스턴스 메시가 아닌 흉내(검사용)도 옛 길
+  else {
+    const a = mesh.instanceMatrix.array, o = idx*16, qx = _q._x, qy = _q._y, qz = _q._z, qw = _q._w, SX = _s.x, SY = _s.y, SZ = _s.z;   // 자리·크기는 _v·_s 에서(Vector3.set 의 z 빠짐 처리까지 compose 와 같게)
+    const x2 = qx + qx, y2 = qy + qy, z2 = qz + qz, xx = qx * x2, xy = qx * y2, xz = qx * z2, yy = qy * y2, yz = qy * z2, zz = qz * z2, wx = qw * x2, wy = qw * y2, wz = qw * z2;
+    a[o] = (1 - (yy + zz)) * SX; a[o+1] = (xy + wz) * SX; a[o+2] = (xz - wy) * SX; a[o+3] = 0;
+    a[o+4] = (xy - wz) * SY; a[o+5] = (1 - (xx + zz)) * SY; a[o+6] = (yz + wx) * SY; a[o+7] = 0;
+    a[o+8] = (xz + wy) * SZ; a[o+9] = (yz - wx) * SZ; a[o+10] = (1 - (xx + yy)) * SZ; a[o+11] = 0;
+    a[o+12] = _v.x; a[o+13] = _v.y; a[o+14] = _v.z; a[o+15] = 1;
+  }
   if(col!==undefined && mesh.instanceColor) colAt(mesh, idx, col);
 }
 /* 좌우 회전(ry) + 앞뒤 기울임(rx). YXZ 순서라 rx는 "바라보는 방향 기준" 피치가 된다. */
 const _eu = new THREE.Euler(0,0,0,'YXZ');
 function setIR(mesh, idx, x,y,z, ry, rx, sx,sy,sz, col){
-  _v.set(x,y,z); _eu.set(rx, ry, 0, 'YXZ'); _q.setFromEuler(_eu); _s.set(sx,sy,sz);
-  mesh.setMatrixAt(idx, FLIP_ON ? _m.compose(_v,_q,_s).premultiply(FLIP_M) : _m.compose(_v,_q,_s));
+  const RZ = 0;
+  _v.set(x,y,z);
+  { const c1 = Math.cos(rx / 2), c2 = Math.cos(ry / 2), c3 = Math.cos(RZ / 2), s1 = Math.sin(rx / 2), s2 = Math.sin(ry / 2), s3 = Math.sin(RZ / 2);
+    _q._x = s1 * c2 * c3 + c1 * s2 * s3; _q._y = c1 * s2 * c3 - s1 * c2 * s3; _q._z = c1 * c2 * s3 - s1 * s2 * c3; _q._w = c1 * c2 * c3 + s1 * s2 * s3; }
+  _s.set(sx,sy,sz);
+  if(FLIP_ON || mesh.isInstancedMesh !== true) mesh.setMatrixAt(idx, FLIP_ON ? _m.compose(_v,_q,_s).premultiply(FLIP_M) : _m.compose(_v,_q,_s));   // 인스턴스 메시가 아닌 흉내(검사용)도 옛 길
+  else {
+    const a = mesh.instanceMatrix.array, o = idx*16, qx = _q._x, qy = _q._y, qz = _q._z, qw = _q._w, SX = _s.x, SY = _s.y, SZ = _s.z;   // 자리·크기는 _v·_s 에서(Vector3.set 의 z 빠짐 처리까지 compose 와 같게)
+    const x2 = qx + qx, y2 = qy + qy, z2 = qz + qz, xx = qx * x2, xy = qx * y2, xz = qx * z2, yy = qy * y2, yz = qy * z2, zz = qz * z2, wx = qw * x2, wy = qw * y2, wz = qw * z2;
+    a[o] = (1 - (yy + zz)) * SX; a[o+1] = (xy + wz) * SX; a[o+2] = (xz - wy) * SX; a[o+3] = 0;
+    a[o+4] = (xy - wz) * SY; a[o+5] = (1 - (xx + zz)) * SY; a[o+6] = (yz + wx) * SY; a[o+7] = 0;
+    a[o+8] = (xz + wy) * SZ; a[o+9] = (yz - wx) * SZ; a[o+10] = (1 - (xx + yy)) * SZ; a[o+11] = 0;
+    a[o+12] = _v.x; a[o+13] = _v.y; a[o+14] = _v.z; a[o+15] = 1;
+  }
   if(col!==undefined && mesh.instanceColor) colAt(mesh, idx, col);
 }
 /* 롤(rz)까지 주는 판 — 쓰러진 사람의 X 자 눈처럼 기울어진 조각에 쓴다 */
@@ -18222,8 +18282,20 @@ function handGrip3(mesh, n, hand, si, HL, W3, ry, rx, rz, sc, skin, afx, afz, ar
   g[si > 0 ? 15 : 16] = fade; if(si > 0) g[17] = k; g[18] = HL ? 1 : 0;
 }
 function setIR3(mesh, idx, x,y,z, ry, rx, rz, sx,sy,sz, col){
-  _v.set(x,y,z); _eu.set(rx, ry, rz, 'YXZ'); _q.setFromEuler(_eu); _s.set(sx,sy,sz);
-  mesh.setMatrixAt(idx, FLIP_ON ? _m.compose(_v,_q,_s).premultiply(FLIP_M) : _m.compose(_v,_q,_s));
+  const RZ = rz;
+  _v.set(x,y,z);
+  { const c1 = Math.cos(rx / 2), c2 = Math.cos(ry / 2), c3 = Math.cos(RZ / 2), s1 = Math.sin(rx / 2), s2 = Math.sin(ry / 2), s3 = Math.sin(RZ / 2);
+    _q._x = s1 * c2 * c3 + c1 * s2 * s3; _q._y = c1 * s2 * c3 - s1 * c2 * s3; _q._z = c1 * c2 * s3 - s1 * s2 * c3; _q._w = c1 * c2 * c3 + s1 * s2 * s3; }
+  _s.set(sx,sy,sz);
+  if(FLIP_ON || mesh.isInstancedMesh !== true) mesh.setMatrixAt(idx, FLIP_ON ? _m.compose(_v,_q,_s).premultiply(FLIP_M) : _m.compose(_v,_q,_s));   // 인스턴스 메시가 아닌 흉내(검사용)도 옛 길
+  else {
+    const a = mesh.instanceMatrix.array, o = idx*16, qx = _q._x, qy = _q._y, qz = _q._z, qw = _q._w, SX = _s.x, SY = _s.y, SZ = _s.z;   // 자리·크기는 _v·_s 에서(Vector3.set 의 z 빠짐 처리까지 compose 와 같게)
+    const x2 = qx + qx, y2 = qy + qy, z2 = qz + qz, xx = qx * x2, xy = qx * y2, xz = qx * z2, yy = qy * y2, yz = qy * z2, zz = qz * z2, wx = qw * x2, wy = qw * y2, wz = qw * z2;
+    a[o] = (1 - (yy + zz)) * SX; a[o+1] = (xy + wz) * SX; a[o+2] = (xz - wy) * SX; a[o+3] = 0;
+    a[o+4] = (xy - wz) * SY; a[o+5] = (1 - (xx + zz)) * SY; a[o+6] = (yz + wx) * SY; a[o+7] = 0;
+    a[o+8] = (xz + wy) * SZ; a[o+9] = (yz - wx) * SZ; a[o+10] = (1 - (xx + yy)) * SZ; a[o+11] = 0;
+    a[o+12] = _v.x; a[o+13] = _v.y; a[o+14] = _v.z; a[o+15] = 1;
+  }
   if(col!==undefined && mesh.instanceColor) colAt(mesh, idx, col);
 }
 /* ★ 실제로 그리는 만큼만 GPU 로 올린다.
@@ -18327,7 +18399,13 @@ const ZOMBIE_STYLE = {
 const ZOMBIE_NIGHT = ['cap','hood','runner','rags','overalls','jacket','hood','cloak','coat','rags'];
 function zombieStyle(w){ const d=WOLF_T[w.k],base=ZOMBIE_STYLE[d.boss?'boss':d.look||(w.k===1?'runner':w.k===2?'brute':'base')];
   if(!d.boss)return base;
-  return {...base,bw:[0,1.24,1.43,1.12,1.30,1.18][d.boss],bh:[0,1.04,.98,1.09,1.02,1.14][d.boss]}; }
+  /* 81차 성능 — 보스 몸꼴은 (바탕 표, 보스 번호)로 정해지는 값이라 한 번 만든 것을 다시 쓴다(매 프레임 새 객체 없음 · 읽기만 한다) */
+  let a=ZSB81.get(base); if(!a) ZSB81.set(base,a=[]);
+  return a[d.boss]||(a[d.boss]={...base,bw:[0,1.24,1.43,1.12,1.30,1.18][d.boss],bh:[0,1.04,.98,1.09,1.02,1.14][d.boss]}); }
+const ZSB81=new WeakMap(), LK81=new WeakMap();
+/* 81차 성능 — 좀비 몸꼴 표 LK = 생김새 표 + 옷꼴(ZS)의 bw·bh·hw. 둘 다 고정 표라 (ZS, 생김새) 짝마다 한 번만 합친다 — 좀비마다 매 프레임 펼쳐 만들던 객체를 없앤다 */
+function zombieLook81(look, ZS){ const src=LOOKS[look]||LOOKS.base; let m=LK81.get(ZS); if(!m) LK81.set(ZS,m=new Map());
+  let lk=m.get(src); if(!lk) m.set(src,lk={...src,bw:ZS.bw,bh:ZS.bh,hw:ZS.hw}); return lk; }
 /* ── 좀비 등급 ──
    밤이 깊어질수록 같은 '좀비'라도 더 크고, 더 검고, 등갈기가 솟고, 눈이 붉어진다.
    ★ 등급은 날짜만 보고 정한다 — 그래서 통신에 한 칸도 더 안 실어도
@@ -18553,7 +18631,7 @@ function drawWolves(list, t, dt){
     const fl=zombieHitPose79(w),kk=fl*.24,kox=(w.kx||0)*kk,koz=(w.kz||0)*kk;
     w.x+=kox;w.z+=koz;
     const d = WOLF_T[w.k], boss = isBoss(w.k), rk = boss ? 3 : RK;
-    const look = d.look, ZS=zombieStyle(w), LK={...(LOOKS[look]||LOOKS.base),bw:ZS.bw,bh:ZS.bh,hw:ZS.hw};
+    const look = d.look, ZS=zombieStyle(w), LK=zombieLook81(look,ZS);
     /* ★ 맞으면 잠깐 움찔한다 — 몸이 눌렸다 펴진다.
        색만 붉게 바꿨을 땐 밤이라 잘 안 보여서 "맞고 있는지" 를 몰랐다.
        그리기만 건드리므로 길찾기·판정에는 아무 영향이 없다. */
@@ -19339,14 +19417,16 @@ function sheepFootPose(phase,run){
      제곱 곡선(lift*lift)은 그대로 둔다 — 접지 경계에서 수직 속도가 0 으로 이어진다. */
   return {f:-amp+vel*q+(2*amp-vel)*sw,lift:lift*lift*(.060+.090*r),toe,plant:false};
 }
+/* 81차 성능 — 날개 자세의 작은 셈 셋을 밖으로 뺐다(날개마다 매 프레임 새 함수 셋을 만들지 않는다 · 셈은 그대로) */
+const wpClamp81=v=>Math.max(0,Math.min(1,v)), wpAngle81=c=>{const p=c*Math.PI*2;return p+.34*(1-Math.cos(p));}, wpSt81=c=>Math.cos(wpAngle81(c));
 function avatarWingPose(si,{t=0,phase=0,mv=0,run=0,air=0,glide=0,aim=false,down=false,turn=0,take=0,land=0}={}){
-  const clamp=v=>Math.max(0,Math.min(1,v)),a=typeof aim==='number'?clamp(aim):aim?1:0;
+  const clamp=wpClamp81,a=typeof aim==='number'?clamp(aim):aim?1:0;
   const flight=down?0:clamp(air)*(1-a),g=clamp(glide),move=clamp(mv),sprint=clamp(run)*move;
   const bank=Math.max(-1,Math.min(1,turn)),lift=clamp(take),settle=clamp(land/.22);
   // 77차: 위상 자체를 연속적으로 휘어 내려치기는 빠르게, 회복은 길게 한다.
   // 옛 두 cos 조각과 회복 sin의 경계에서 손목/칼깃 속도가 갑자기 꺾이던 것을 없앤다.
   const cycle=((t*1.75+phase/(Math.PI*2))%1+1)%1;
-  const angle=c=>{const p=c*Math.PI*2;return p+.34*(1-Math.cos(p));},st=c=>Math.cos(angle(c));
+  const angle=wpAngle81,st=wpSt81;
   const theta=angle(cycle),stroke=Math.cos(theta),up=Math.max(0,-Math.sin(theta))**3;
   const breath=Math.sin(t*1.8+phase),soar=Math.sin(Math.PI*2*(t*.875+phase/(Math.PI*4)));
   const ripple=Math.sin(t*7.1+phase*1.7+si*.38)*.024+Math.sin(t*12.7+phase+si*.7)*.009;
@@ -19430,7 +19510,7 @@ function setSheepAttachment(mesh,i,x,y,z,bodyYaw,bodyPitch,yaw,pitch,roll,sx,sy,
   _v.set(x,y,z);_s.set(sx,sy,sz);_q.setFromEuler(_sheepAttachE.set(bodyPitch,bodyYaw,bodyRoll||0,'YXZ'));
   _sheepAttachQ.setFromEuler(_sheepAttachE.set(pitch,yaw,roll,'YXZ'));_q.multiply(_sheepAttachQ);
   mesh.setMatrixAt(i,FLIP_ON?_m.compose(_v,_q,_s).premultiply(FLIP_M):_m.compose(_v,_q,_s));
-  if(col!==undefined&&mesh.instanceColor){_c1.set(col);mesh.setColorAt(i,_c1);}
+  if(col!==undefined&&mesh.instanceColor)colAt(mesh,i,col);   // 81차 — sRGB→선형 셈을 colAt 캐시로(같은 값)
 }
 const _jobBone79=new THREE.Matrix4(),_jobMatrix79=new THREE.Matrix4(),_jobRot79=new THREE.Quaternion(),_jobTurn79=new THREE.Quaternion(),
       _jobCenter79=new THREE.Vector3(),_jobSize79=new THREE.Vector3(),_jobOffset79=new THREE.Vector3(),_jobEuler79=new THREE.Euler();
@@ -19585,8 +19665,10 @@ function drawSheep(list, t, cap, colOf, scale){
       const dx = gunOrigin[0]-sh[0], dy = gunOrigin[1]-sh[1], dz = gunOrigin[2]-sh[2], d = Math.hypot(dx, dy, dz), lim = R6_ARM[1]*sc*.93*.97;
       if(d > lim){ const k = lim/d; gunOrigin[0] = sh[0] + dx*k; gunOrigin[1] = sh[1] + dy*k; gunOrigin[2] = sh[2] + dz*k; } }
     // 두 손과 모든 총 부품이 같은 반동 축을 쓴다. 긴 총열도 뒤로 길어지지 않는다.
-    const gunPoint=(origin,f,u,sd)=>{ const u2=u*gunCR+sd*gunSR, s2=sd*gunCR-u*gunSR;   // 70차 — 조준 틀 · 총 축 굴림
-      return [origin[0]+(afx*(f*gunC+u2*gunS)+arx*s2)*sc, origin[1]+(u2*gunC-f*gunS)*sc, origin[2]+(afz*(f*gunC+u2*gunS)+arz*s2)*sc]; };
+    const gunPoint=(origin,f,u,sd,out)=>{ const u2=u*gunCR+sd*gunSR, s2=sd*gunCR-u*gunSR;   // 70차 — 조준 틀 · 총 축 굴림
+      const x=origin[0]+(afx*(f*gunC+u2*gunS)+arx*s2)*sc, y=origin[1]+(u2*gunC-f*gunS)*sc, z=origin[2]+(afz*(f*gunC+u2*gunS)+arz*s2)*sc;
+      if(out){ out[0]=x; out[1]=y; out[2]=z; return out; }   // 81차 — 그 자리에서 바로 쓰고 버리는 곳(총 부품·총구)은 한 벌 칸에 적는다(새 배열 없음 · 같은 값)
+      return [x,y,z]; };
     let gripX=0, gripY=0, gripZ=0, gripTh=0, gripRl=0, lhX=0, lhY=0, lhZ=0;
     for(const si of [1,-1]){
       let th, rl;
@@ -19739,7 +19821,7 @@ function drawSheep(list, t, cap, colOf, scale){
         if(si<0){s.wfootT=t;s.wfootSlope=stS;s.wrun=run;}}
       if(bodyFlip&&airBlend>0){
         P_shoe.getMatrixAt(shoeN,_m);_m.decompose(_v,_q,_s);
-        const rot=new THREE.Quaternion().setFromRotationMatrix(FLIP_M).slerp(new THREE.Quaternion(),1-airBlend);
+        const rot=_shoeQ81.setFromRotationMatrix(FLIP_M).slerp(_shoeQI81,1-airBlend);   // 81차 — 새 사원수 둘 대신 한 벌(_shoeQI81 은 늘 단위)
         _q.premultiply(rot);P_shoe.setMatrixAt(shoeN,_m.compose(_v,_q,_s));
       }
       shoeN++;
@@ -19807,9 +19889,9 @@ function drawSheep(list, t, cap, colOf, scale){
           const si=h[13];P_arm.getMatrixAt(armN-(si>0?4:2),_jobBone79);_jobBone79.decompose(_jobCenter79,_jobRot79,_jobSize79);
           _jobOffset79.set((hsd-si*R6_ASD)*sc,(hu-(R6_SHU-.025))*sc+_jobSize79.y*.5,hf*sc).applyQuaternion(_jobRot79);
           _jobCenter79.add(_jobOffset79);_jobTurn79.setFromEuler(_jobEuler79.set(h[10]||0,0,h[11]||0,'YXZ'));_jobRot79.multiply(_jobTurn79);
-          _jobSize79.set(hw*sc,hh*sc,hd6*sc);_jobMatrix79.compose(_jobCenter79,_jobRot79,_jobSize79);mesh.setMatrixAt(partN,_jobMatrix79);mesh.setColorAt(partN,_c1.setHex(h[6]));
+          _jobSize79.set(hw*sc,hh*sc,hd6*sc);_jobMatrix79.compose(_jobCenter79,_jobRot79,_jobSize79);mesh.setMatrixAt(partN,_jobMatrix79);colHex81(mesh,partN,h[6]);
           if(h[14]){const pts=s.jsh79||(s.jsh79=new Float32Array(6)),o=si>0?0:3;_jobOffset79.set(si*.36,.32,0).applyMatrix4(_jobMatrix79);pts[o]=_jobOffset79.x;pts[o+1]=_jobOffset79.y;pts[o+2]=_jobOffset79.z;s.jshT79=t;}
-          if(h[9]&&jobFN<P_jobF.count_max){_jobSize79.multiplyScalar(1.18);_jobMatrix79.compose(_jobCenter79,_jobRot79,_jobSize79);P_jobF.setMatrixAt(jobFN,_jobMatrix79);P_jobF.setColorAt(jobFN++,_c1.setHex(h[6]));}
+          if(h[9]&&jobFN<P_jobF.count_max){_jobSize79.multiplyScalar(1.18);_jobMatrix79.compose(_jobCenter79,_jobRot79,_jobSize79);P_jobF.setMatrixAt(jobFN,_jobMatrix79);colHex81(P_jobF,jobFN++,h[6]);}
           continue;
         }
         const bodyBound=!h[7]&&an!==2&&an!==3;
@@ -19871,7 +19953,7 @@ function drawSheep(list, t, cap, colOf, scale){
       if(s.weP !== undefined && e > (s.weP|0)) s.weT0 = t;
       s.weP = e;
       const sweep = s.weT0 !== undefined && t - s.weT0 >= 0 && t - s.weT0 < 0.6 ? Math.max(0.001, (t - s.weT0)/0.6) : 0;
-      if(e > 0) _ec3.setHex(FX.col);                                   // 색은 선형(setHex 가 sRGB → 선형으로 바꿔 준다)
+      if(e > 0) linHex81(_ec3, FX.col);                                // 색은 선형(setHex 가 sRGB → 선형으로 바꿔 준다) · 81차: 같은 값을 COL_LIN 캐시에서
       const origin=TG.hand === 'L' ? [lhX,lhY,lhZ] : [gripX,gripY,gripZ];   // 70차 — 새총·활은 왼손이 쥔 자리가 원점
       /* 65차 — 무기마다 부품 표(TPGUN)대로 그린다. 모든 조각이 한 반동 축(gunPoint·gunPit)을 쓰고,
          조각 자기 기울기는 그 축 위에 얹는다(setSheepAttachment = 몸 축 × 조각 축). */
@@ -19879,7 +19961,7 @@ function drawSheep(list, t, cap, colOf, scale){
       const part=(mesh,i,r,k)=>{ const tg = W3 ? r[13] : undefined, hz = (tg === 'arrow' || tg === 'stone') && W3.hid > 0.5 ? 0.0001 : 1,   // 71차 — 놓은 돌·화살은 다시 걸 때까지 없다
         w = (k > 1 ? k : TPGUN_TH)*hz, pad = k > 1 ? .03*hz : 0;
         /* 70차 — 꼬리표 줄: 펌프·노리쇠는 총 축 따라 뒤로, 탄창은 빠져 떨어졌다가 왼손을 따라간다 */
-        const P = gunPoint(origin, r[0] - (tg === 'pump' ? W3.pump : tg === 'bolt' ? W3.bolt : 0), r[1]+shU*r[0]*shF, r[2]*TPGUN_TH+shS*r[0]*shF);
+        const P = gunPoint(origin, r[0] - (tg === 'pump' ? W3.pump : tg === 'bolt' ? W3.bolt : 0), r[1]+shU*r[0]*shF, r[2]*TPGUN_TH+shS*r[0]*shF, GP81);
         if(tg === 'mag'){ if(W3.mh > 0.5){ P[0] += lhX - W3.mx; P[1] += lhY - W3.my; P[2] += lhZ - W3.mz; } else P[1] -= W3.drop*sc; }
         setSheepAttachment(mesh,i,P[0],P[1],P[2],ryA,gunPit,r[10]||0,(r[8]||0) + (tg === 'lever' && W3 ? W3.lev : 0),r[9]||0,
           (r[3]*w+pad)*sc,(r[4]*w+pad)*sc,(r[5]*(k>1?1.1:1)*hz+pad)*sc,k > 1 ? r[11] : r[6],gunRoll); };
@@ -19898,7 +19980,7 @@ function drawSheep(list, t, cap, colOf, scale){
       });
       /* 65차 — 총구 자리를 사람 칸에 적어 둔다(그리기만 읽는 값). fireWeapon 이 어깨 너머 사격의 화염·예광탄을 내 사람(meSheep)의 이 자리에서 낸다.
          표의 mz 가 그 총의 실제 총구 끝이다(총열 끝 한가운데 — 쌍총열·새총 가지·활의 화살촉까지). */
-      { const mp = gunPoint(origin,TG.mz[0],TG.mz[1]+shU,shS); s.mzX = mp[0]; s.mzY = mp[1]; s.mzZ = mp[2]; s.mzT = t; }
+      { const mp = gunPoint(origin,TG.mz[0],TG.mz[1]+shU,shS,GP81); s.mzX = mp[0]; s.mzY = mp[1]; s.mzZ = mp[2]; s.mzT = t; }
       /* ★ 69차 — 총열을 감싸던 빛 공·총구 불티 공(BALL, 가산)은 없앴다("네모로·타원체로 빛나는 게 이상해"). 강화는 P_gun 셰이더의 룬이다 */
     }
     else if(s.tool && !down && gunN+3<=P_gun.count_max){
@@ -19949,14 +20031,17 @@ function tagSprite(){
   const tx = new THREE.CanvasTexture(c);
   const sp = new THREE.Sprite(new THREE.SpriteMaterial({map:tx, depthTest:false, transparent:true}));
   sp.scale.set(3.2,0.8,1); sp.renderOrder = 999; scene.add(sp); sp.visible=false;
-  return {c, tx, sp, txt:''};
+  return {c, tx, sp, txt:'', k81:null, a81:null, b81:null, c81:null, d81:null, e81:null};   // 81차 — k81~e81: setTag 가 지난번 받은 값(같으면 건너뛴다)
 }
 let tagRedraws = 0;                 // 이름표를 다시 그린 횟수 (진단용)
 
 const TAG_FONT = w => '600 ' + w + 'px "Noto Sans KR", "Malgun Gothic", -apple-system, sans-serif';   // UI와 같은 고딕, 이름표도 과한 굵기 없이
 function setTag(t, text, color, lv, bic, ee){
   /* 69차 — +4 이상 강화한 총을 든 사람은 이름 앞에 ◆ 하나(단계 UI 색 · 흰 테, +6 은 진홍 + 금 테). 키에 단계를 넣어 바뀔 때만 다시 그린다 */
+  /* 81차 성능 — 넘겨받은 값이 지난번과 하나하나 같으면(그리고 txt 를 누가 비우지 않았으면) 열쇠 글자를 만들지도 않고 돌아간다(이름표마다 매 프레임) */
+  if(t.txt !== '' && t.txt === t.k81 && t.a81 === text && t.b81 === color && t.c81 === lv && t.d81 === bic && t.e81 === ee) return;
   const key = text + color + '|' + (lv||0) + '|' + (bic||'') + '|' + (ee||0);
+  t.k81 = key; t.a81 = text; t.b81 = color; t.c81 = lv; t.d81 = bic; t.e81 = ee;
   if(t.txt === key) return; t.txt = key;
   tagRedraws++;
   const g = t.c.getContext('2d'); g.clearRect(0,0,256,64);
@@ -27246,20 +27331,24 @@ function biteStru(o, w, ix, iz){
 /* ═══════ 좀비끼리 밀어내기 (17차에 통째로 고침) ═══════ */
 const WOLF_R = w => 0.52 * (w.sc || (WOLF_T[w.k]||WOLF_T[0]).sc) + 0.30;
 const SEP_K = 16;                       // 겹친 만큼을 한 프레임에 얼마나 풀지
+let SEP_R = new Float64Array(128);      // 81차 — separateWolves 반지름 칸(늘기만 한다)
 function wolfNudge(w, dx, dz){
   zStep(w, dx, dz);                     // 벽·산으로는 안 밀린다 (축마다 따로 본다) · 70차 2회차: 계단 옆벽·성곽 벽도 팔 폭만큼(zMoveOk)
 }
 function separateWolves(dt){
   const _sp0 = PROF_ON ? performance.now() : 0;
   const L = G.wolves, n = L.length, k = Math.min(1, dt*SEP_K) * 0.5;
+  /* 81차 성능 — 반지름(WOLF_R)을 짝마다(92마리면 4천 번) 다시 셈하지 않고 한 번씩만 적어 둔다. 몸집(sc·k)은 밀어내는 동안 안 바뀌어 값·순서가 그대로다 */
+  if(SEP_R.length < n) SEP_R = new Float64Array(Math.max(n, SEP_R.length*2));
+  for(let i=0;i<n;i++) SEP_R[i] = WOLF_R(L[i]);
   for(let i=0;i<n;i++){
     const a = L[i];
     if(a.ly) continue;
-    const ra = WOLF_R(a);
+    const ra = SEP_R[i];
     for(let j=i+1;j<n;j++){
       const b = L[j];
       if(b.ly) continue;                  // 67차 — 성벽 위 좀비는 안 민다(성벽 좀비끼리는 climbTick 줄서기가 맡고, 다리 위·밑 좀비는 서로 모른다)
-      const dx = a.x-b.x, dz = a.z-b.z, rr = ra + WOLF_R(b);
+      const dx = a.x-b.x, dz = a.z-b.z, rr = ra + SEP_R[j];
       if(dx > rr || dx < -rr || dz > rr || dz < -rr) continue;   // 값싼 네모 검사 먼저
       const d2 = dx*dx + dz*dz;
       if(d2 >= rr*rr || d2 < 1e-8) continue;
@@ -29914,7 +30003,9 @@ function raceArtDraw(t){
   let np=0,nt=0,nb=0,ns=0,nm=0,nj=0,nr=0,nc=0;const nd=[0,0,0],toyCounts=[0,0,0];A.stats.overflow=0;
   const put=(m,i,x,y,z,ry,rx,sx,sy,sz,col)=>{if(i>=m.count_max){A.stats.overflow++;return false;}setIR(m,i,x,MINI_Y+y,z,ry,rx,sx,sy,sz,col);return true;};
   for(const p of A.dynamic){if(Math.abs(p.z-z)>125+p.d/2)continue;if(np>=A.pad.count_max){A.stats.overflow++;break;}
-    const pose=racePose(p,rt),phase=RACE74.pulse.get(p.id)||0;
+    const pose=raceArtDraw.rp81||(raceArtDraw.rp81={x:0,z:0,a:0});   // 81차 성능 — racePose 와 같은 셈·순서를 발판마다 새 객체 대신 한 벌에(바로 읽고 버린다)
+    pose.x=p.x+raceOff(p,rt);pose.z=p.z+raceZOff(p,rt);pose.a=p.mv?(p.mv.rot||0)*rt:0;
+    const phase=RACE74.pulse.get(p.id)||0;
     const u=Math.max(0,Math.min(1,phase)),squash=u>0?Math.sin((1-u)*Math.PI*2.1)*u*.16:0;
     const h=(p.h||1)*(1-squash),yy=p.y-Math.max(0,squash)*.20;
     put(A.pad,np,pose.x,yy,pose.z,pose.a,0,p.w/2,h,p.d/2,p.col??pal.teal);
@@ -33683,7 +33774,7 @@ function loop(){
     if(PROF_ON) pE('병사');
     if(PROF_ON) pS();
     if(!DBG.noInst){
-      const shList = [...G.players.values()];
+      const shList = SH_LIST81; shList.length = 0; for(const q of G.players.values()) shList.push(q);   // 81차 성능 — 매 프레임 새 배열 대신 한 벌을 다시 채운다(순서 그대로 · 그리기 동안만 쓴다)
       /* ★ 친구가 든 무기는 pc 통로로 온다(자리 통로는 초당 6번이라 안 건드렸다).
          두 통로가 따로 오므로 그리기 직전에 이어 붙인다 — 사람이 스물한 명이라
          한 프레임에 스물한 번 찾아보는 값은 잰 값으로 0.001ms 아래다. */
