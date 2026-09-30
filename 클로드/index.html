@@ -6196,11 +6196,16 @@ function shadowFollow(cx, cz, cy=GY){
      상자가 없는 것(사람·좀비·상인·효과·무리 등)은 벽이다 — 그 앞뒤로 아무것도 넘어가지 않는다. 그래서 그림자 지도는 바이트까지 같다.
    본 판은 영향이 없다: 바꾼 배열은 그림자 판을 그리는 동안만 scene.children 에 끼워 두고 바로 되돌린다
    (본 판은 three 가 그룹·renderOrder·재질·깊이·id 로 따로 정렬하고, 빛 목록은 그림자 판 전에 이미 모인다).
-   조각 목록이 지난 프레임과 같으면(같은 자식 · 토막 조각의 같은 드리움 · 같은 상자 · 해 방향 1.8° 안) 지난 순서를 그대로 쓴다
+   조각 목록이 지난 프레임과 같으면(같은 자식 · 토막 조각의 같은 '드리울 수 있음' · 같은 상자 · 해 방향 1.8° 안) 지난 순서를 그대로 쓴다
    — 매 프레임 할당 0, 다시 짤 때만 O(조각²)(마을 146조각).
+   ★ 81차 검증 — '드리울 수 있음' 은 보이고 · (castShadow 또는 68차 목록의 cast) 다. 처음엔 castShadow 만 봤는데, 68차 그림자 걸러내기(scullShadow)가
+     카메라를 돌릴 때마다 조각의 castShadow 를 켜고 꺼서 도는 동안 거의 매 프레임(2°/프레임으로 30프레임 중 23~28번) 순서를 새로 짰다(한 번 60~175µs, 검사기).
+     cast 인 조각은 이번 프레임에 걸러져도 순서에 넣어 두고, 실제로 그리는 것은 그 순서의 부분열이다 — 부분열도 '닿는 짝은 원래 앞뒤' 를 그대로 지키므로
+     그림자 지도는 여전히 바이트까지 같다. 잰 값: 조각 수·그림자 지도 해시 네 장면 모두 같고, 돌 때 다시 짜기 23~28 → 0번.
    ?p81off=shOrder 또는 ?nocull=1 이면 예전 그대로 그린다. */
-const SHO = {on: !!GFX.shadow && P81.shOrder, out: [], cs: [], prev: [], n: -1,
-  ro: [], rf: new Uint8Array(1024), nr: 0,                // 토막에 든 조각과 그때의 드리움(보이고 · castShadow) — 바뀌면 다시 짠다(사람·좀비 켜짐은 상관없다)
+const SHO = {on: !!GFX.shadow && P81.shOrder, out: [], no: 0, cs: [], prev: [], n: -1,
+  ro: [], re: [], rf: new Uint8Array(1024), nr: 0,        // 토막에 든 조각 · 그 조각의 68차 목록 칸(SCULL.list — cast) · 그때의 '드리울 수 있음' — 바뀌면 다시 짠다(사람·좀비 켜짐은 상관없다)
+  ent: new WeakMap(), entL: 0,                            // 조각 → SCULL.list 칸 (목록 길이가 바뀔 때만 다시 채운다 — bbuild 는 처음 한 번)
   bo: [], bs: new Float64Array(6*256), nb: 0,             // 순서를 짤 때 쓴 상자 값 — 상자가 바뀌면(다른 갈래가 상자를 좁혀도) 다시 짠다
   cap: 0, E: null, deg: null, done: null, dmin: null, vv: null, L: new THREE.Vector3(), Lc: new THREE.Vector3(), MG: 0.01, builds: 0};
 function shoCap(m){                                   // 조각 수가 늘 때만 새로 잡는다(처음 한 번 · 드물게)
@@ -6212,8 +6217,8 @@ function shoCap(m){                                   // 조각 수가 늘 때�
 function shoRun(ch, i0, i1){                          // 상자 있는 조각이 이어진 한 토막 [i0, i1) 을 다시 줄 세운다
   const S = SHO, L = S.L, MG = S.MG; let m = 0;
   if(S.nr + (i1 - i0) > S.rf.length){ let c = S.rf.length; while(c < S.nr + (i1 - i0)) c *= 2; const nf = new Uint8Array(c); nf.set(S.rf); S.rf = nf; }
-  const t0 = S.nb;                                     // 이 토막 드리우는 조각의 상자 값은 S.bs[6*(t0+p) …] 에 모인다(아래 비교도 이 숫자 배열로)
-  for(let k=i0;k<i1;k++){ const o = ch[k], f = o.visible && o.castShadow ? 1 : 0; S.ro[S.nr] = o; S.rf[S.nr++] = f; if(!f) continue;
+  const t0 = S.nb, r0 = S.nr;                          // 이 토막 드리우는 조각의 상자 값은 S.bs[6*(t0+p) …] 에 모인다(아래 비교도 이 숫자 배열로)
+  for(let k=i0;k<i1;k++){ const o = ch[k], e = S.ent.get(o), f = shoCan(o, e); S.ro[S.nr] = o; S.re[S.nr] = e; S.rf[S.nr++] = f; if(!f) continue;
     const b = SCULL_BOX.get(o); shoCap(m + 1); S.cs[m] = o; S.vv[m] = o.instanceColor !== null ? 1 : 0; m++;
     const t = S.nb++; if(6*S.nb > S.bs.length){ const nb = new Float64Array(S.bs.length*2); nb.set(S.bs); S.bs = nb; }
     S.bo[t] = o; S.bs[6*t] = b.min.x; S.bs[6*t+1] = b.min.y; S.bs[6*t+2] = b.min.z; S.bs[6*t+3] = b.max.x; S.bs[6*t+4] = b.max.y; S.bs[6*t+5] = b.max.z; }
@@ -6235,9 +6240,9 @@ function shoRun(ch, i0, i1){                          // 상자 있는 조각이
     for(let p=0;p<m;p++){ if(done[p] || deg[p]) continue;
       const sw = vv[p] === lastV ? 0 : 1;
       if(best < 0 || sw < bs || (sw === bs && dmin[p] < bv)){ best = p; bv = dmin[p]; bs = sw; } }
-    done[best] = 1; S.out.push(S.cs[best]); lastV = vv[best];
+    done[best] = 1; S.out[S.no++] = S.cs[best]; lastV = vv[best];   // 81차 검증 — push 대신 자리 쓰기(길이 0 → push 는 V8 에 따라 배열을 새로 잡는다)
     const row = best*cap; for(let q=best+1;q<m;q++) if(E[row + q]) deg[q]--; }
-  for(let k=i0;k<i1;k++){ const o = ch[k]; if(!(o.visible && o.castShadow)) S.out.push(o); }   // 안 드리우는 조각은 그림자 판에 안 그려진다 — 자리는 상관없다
+  for(let k=i0;k<i1;k++) if(!S.rf[r0 + k - i0]) S.out[S.no++] = ch[k];   // 드리울 수 없는 조각은 그림자 판에 안 그려진다 — 자리는 상관없다
   for(let p=0;p<m;p++) S.cs[p] = null;
 }
 function shoBuild(ch){
@@ -6245,20 +6250,25 @@ function shoBuild(ch){
   S.L.subVectors(sunTarget.position, sun.position).normalize();
   let same = n === S.n && S.L.dot(S.Lc) > 0.9995;      // 해 방향이 거의 그대로(≈1.8°)면 우선순위도 그대로
   if(same) for(let i=0;i<n;i++) if(ch[i] !== S.prev[i]){ same = false; break; }
-  if(same) for(let t=0;t<S.nr;t++){ const o = S.ro[t]; if((o.visible && o.castShadow ? 1 : 0) !== S.rf[t]){ same = false; break; } }
+  if(same) for(let t=0;t<S.nr;t++) if(shoCan(S.ro[t], S.re[t]) !== S.rf[t]){ same = false; break; }
   if(same) for(let t=0;t<S.nb;t++){ const b = SCULL_BOX.get(S.bo[t]), q = 6*t, v = S.bs;
     if(!b || b.min.x !== v[q] || b.min.y !== v[q+1] || b.min.z !== v[q+2] || b.max.x !== v[q+3] || b.max.y !== v[q+4] || b.max.z !== v[q+5]){ same = false; break; } }
   if(same) return S.out;
   for(let i=0;i<n;i++) S.prev[i] = ch[i];
   S.prev.length = n; S.n = n; S.Lc.copy(S.L); S.builds++;
-  S.out.length = 0; S.nb = 0; S.nr = 0;
+  S.no = 0; S.nb = 0; S.nr = 0;
+  if(S.entL !== SCULL.list.length){ S.ent = new WeakMap(); for(let i=0;i<SCULL.list.length;i++) S.ent.set(SCULL.list[i].m, SCULL.list[i]); S.entL = SCULL.list.length; }
   for(let i=0;i<n;){
-    if(!shoFree(ch[i])){ S.out.push(ch[i]); i++; continue; }    // 상자 없는 것 = 벽, 제자리
+    if(!shoFree(ch[i])){ S.out[S.no++] = ch[i]; i++; continue; }    // 상자 없는 것 = 벽, 제자리
     let j = i + 1; while(j < n && shoFree(ch[j])) j++;
     shoRun(ch, i, j); i = j;
   }
+  if(S.out.length !== S.no) S.out.length = S.no;          // 늘 n 개 — 자식 수가 바뀔 때만 길이가 바뀐다
   return S.out;
 }
+/* 81차 검증 — 이 조각이 그림자 판에 그려질 수 있나(순서에 넣나): 보이고, 지금 드리우거나 68차 목록에서 드리우는 조각(cast).
+   scullShadow 는 cast 인 조각만 castShadow 를 켜므로 '실제로 그리는 것 ⊂ 여기' 다. 목록에 없으면(e 없음) castShadow 만 본다. */
+function shoCan(o, e){ return o.visible && (o.castShadow || (e !== undefined && e.cast)) ? 1 : 0; }
 // 옮겨도 되는 것: 상자(SCULL_BOX)가 있고 자식이 없는 것(뱅크 조각). 자식이 있으면 그 자식들의 그림자 순서까지 따라 움직이므로 벽으로 둔다
 function shoFree(o){ return o.children.length === 0 && SCULL_BOX.has(o); }
 if(GFX.shadow){                                       // SHO.on 은 시작할 때 P81 에서 한 번 읽은 값 — 검사는 __SHO.on 으로 같은 판에서 켜고 끈다

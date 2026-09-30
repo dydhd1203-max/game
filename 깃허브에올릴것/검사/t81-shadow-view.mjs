@@ -1,6 +1,7 @@
 // 81차 실제 브라우저 검사 — 그림자 판 순서(SHO)와 진단 Shift+9 되돌리기.
 // ① 같은 상태의 프레임을 순서 끔/켬으로 그려 그림자 지도(2048² RGBA 읽기)와 화면이 바이트까지 같다 — 마을 첫 자리 · 성벽 위 · 밤(좀비).
 //    그리는 것(물체 모음)은 같고 순서만 바뀐다. 그림자 판 순서는 같은 깊이가 생길 수 있는 짝(상자가 닿는 짝)을 안 바꾸므로 같아야 한다.
+//    81차 검증: 카메라를 돌려 68차 걸러내기가 조각 castShadow 를 바꿔도 순서를 프레임마다 다시 짜지 않고(지난 순서의 부분열) 지도는 같다.
 // ② 진단 Shift+9: 워밍업·스윕이 끝나면 그림자 갱신·켬·해상도·손 조명·결·작은 것 그림자·DBG 가 처음 값 그대로(80차까지는 워밍업이
 //    그림자 지도를 멈춰 버렸다), '그림자 다시그리기 멈춤' 창에서만 그림자 지도가 멈춘다.
 import assert from 'node:assert/strict';import fs from 'node:fs';import path from 'node:path';
@@ -39,6 +40,11 @@ try{
   };
   const views=[];
   W.__camZoom(0);Object.assign(P,{x:0,y:GY,z:18,vx:0,vy:0,vz:0,ground:true,yaw:0,pitch:-.06,_px:undefined});step(40);views.push(view('village'));
+  // 81차 검증 — 카메라를 돌리면 68차 걸러내기가 조각 castShadow 를 켜고 끈다. 순서는 다시 짜지 않고(그리는 것은 지난 순서의 부분열) 그림자 지도는 그대로 같아야 한다
+  {const cs0=W.__SCULL.list.map(c=>c.m.castShadow),b0=S.builds;
+   for(let k=1;k<=8;k++){P.yaw=k*.35;P.x=0;P.z=18;P.vx=P.vz=0;W.__advance81(1000/60);}
+   const tb=S.builds-b0,flips=W.__SCULL.list.filter((c,i)=>c.m.castShadow!==cs0[i]).length;
+   const tv=view('village-turned');tv.turnBuilds=tb;tv.flips=flips;views.push(tv);}
   Object.assign(P,{x:20,y:GY+8,z:-51.8,vx:0,vy:0,vz:0,ground:true,yaw:-Math.PI/2,pitch:-.05,_px:undefined});step(40);views.push(view('wall'));
   const Dg=W.__DIRS[0],dx=Dg.dx,dz=Dg.dz,px=-dz,pz=dx;G.day=8;G.phase='night';G.t=9999;W.__setSky(1);W.__updSky(0,true);
   for(let i=0;i<40;i++){const r=18+(i%9)*3,off=((i*7)%11-5)*2;W.__spawnWolf(i%3,0,dx*r+px*off,dz*r+pz*off);}
@@ -67,6 +73,9 @@ try{
   assert.ok(v.mainDiff===0||v.mainDiff<=v.redrawNoise,v.name+': 화면이 같다 (다시 그리기 흔들림 '+v.redrawNoise+'px 이내)');
  }
  assert.ok(res.views[0].moved>0,'마을 첫 자리에서 그림자 판 순서가 실제로 바뀐다');
+ const tv=res.views.find(v=>v.name==='village-turned');
+ assert.ok(tv&&tv.flips>0,'카메라를 돌리는 동안 68차 걸러내기가 조각 castShadow 를 실제로 바꿨다 (검사가 그 길을 지난다)');
+ assert.ok(tv.turnBuilds<=1,'카메라를 돌려도 그림자 판 순서를 프레임마다 다시 짜지 않는다 ('+tv.turnBuilds+'번 / 8프레임)');
  const d=res.diag;
  assert.ok(d.names.includes('그림자 다시그리기 멈춤')&&!d.names.includes('그림자 매 프레임'),'진단 줄 이름');
  assert.ok(d.warmSame,'Shift+9 워밍업 뒤 모든 스위치가 처음 값 그대로');
@@ -77,5 +86,5 @@ try{
  assert.ok(d.heldWin&&d.heldWin.hl===true,'손 조명 창에서는 손 조명이 켜진다');
  assert.equal(d.rows,d.names.length,'표 줄 수');
  assert.deepEqual(errors,[]);
- console.log('PASS shadow order: '+res.views.map(v=>v.name+' '+v.draws+' draws / '+v.moved+' moved / sm '+v.smDiff+' / main '+v.mainDiff).join(' · ')+' · diag sweep restores every toggle.');
+ console.log('PASS shadow order: '+res.views.map(v=>v.name+' '+v.draws+' draws / '+v.moved+' moved / sm '+v.smDiff+' / main '+v.mainDiff+(v.flips!==undefined?' / turn flips '+v.flips+' rebuilds '+v.turnBuilds:'')).join(' · ')+' · diag sweep restores every toggle.');
 }finally{await browser?.close();await new Promise(r=>server.close(r));}
