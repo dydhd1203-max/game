@@ -742,6 +742,14 @@ body{color:var(--cream)}
 /* 65차 — 쏠 때마다 조준점 네 팔이 벌어졌다 모인다(0.16초). 세게 차는 총일수록 넓게 — fireMark 가 --spr 를 준다 */
 #crosshair.fire:before,#crosshair.fire:after{animation:chFire .16s ease-out}
 @keyframes chFire{from{transform:scale(var(--spr,1.25))}to{transform:scale(1)}}
+/* 81차 — 다시 틀기용 쌍둥이(reKick): 이름만 다르고 내용은 위와 똑같다 — 한쪽을 고치면 다른 쪽도 같이 고친다.
+   k81f/k81h 를 뒤집으면 animation-name 이 바뀌어 처음부터 다시 돈다(강제 배치 없이). 길이·곡선은 위 규칙 그대로 쓴다 */
+#crosshair.fire.k81f:before,#crosshair.fire.k81f:after{animation-name:chFire81}
+@keyframes chFire81{from{transform:scale(var(--spr,1.25))}to{transform:scale(1)}}
+#crosshair.hit.k81h i,#crosshair.critHit.k81h i{animation-name:hitm81}
+#crosshair.killHit.k81h i{animation-name:hitk81}
+@keyframes hitm81{0%{transform:scale(.5);opacity:1}35%{transform:scale(1.12);opacity:1}100%{transform:scale(1.35);opacity:.1}}
+@keyframes hitk81{0%{transform:scale(.5) rotate(-12deg);opacity:1}30%{transform:scale(1.2) rotate(0);opacity:1}100%{transform:scale(1.45);opacity:.1}}
 
 /* ══ 공격 모드 — 33차: 조준점 위 '왼쪽 클릭으로 쏘기 · T 로 풀기' 말풍선(#aimBadge)을 없앴다.
    선생님: "애들 이제 T 인 거 다 아니까." 든 총은 핫바와 조준점 모양이 이미 말해 준다. ══ */
@@ -1419,6 +1427,8 @@ body.touch #topRight2 .kk{display:none}
    콤보가 뜨는 동안 총이 안 나가고 움직임이 멈췄다. 검사가 잡아 줬다. */
 #combo.cbHit{animation:cbpop .22s}
 @keyframes cbpop{from{transform:translateX(-50%) scale(1.45)}to{transform:translateX(-50%) scale(1)}}
+#combo.cbHit.k81{animation-name:cbpop81}   /* 81차 — 다시 틀기용 쌍둥이(내용은 cbpop 과 같다) */
+@keyframes cbpop81{from{transform:translateX(-50%) scale(1.45)}to{transform:translateX(-50%) scale(1)}}
 @media (max-height:620px){ #combo{font-size:18px} }
 /* 아주 낮은 화면(작은 창)에서는 자리가 정말 없다 — 콤보는 재미용이므로 접는다 */
 @media (max-height:520px){ #combo{display:none} }
@@ -1715,6 +1725,12 @@ body.mini #grpBar, body.mini #misWrap, body.mini #farmTip, body.mini #shopTip, b
   50%{box-shadow:var(--soft), 0 0 26px -2px rgba(255,90,90,.75)}}
 #crystalWrap.danger{animation:cDanger 1.1s ease-in-out infinite;
   border-color:rgba(255,140,140,.62)}
+/* 81차 — 다시 틀기용 쌍둥이. shake281 은 shake2 와 같다. 위험(.danger)일 땐 예전처럼 cDanger 가 이긴다
+   (뒤에 오는 같은 세기 규칙이 이긴다 — .hurt 가 흔들림을 덮지 못하던 예전 그대로, cDanger 는 다시 틀리지 않는다) */
+#crystalWrap.hurt.k81{animation-name:shake281}
+#crystalWrap.danger.k81{animation-name:cDanger}
+@keyframes shake281{0%,100%{transform:translateX(0)}
+  25%{transform:translate(-3px,2px)}75%{transform:translate(3px,-2px)}}
 /* ═══════════════════════════════════════════════════════════════════════════
    28차 — UI 키트: 파스텔 둥근 결 (로블록스 느낌) + 3D 아이콘 + 움직임
    ★ 선생님: "스텟 창·가방·아이템 모양·인터페이스가 부족하다. 진짜 게임 같지가 않다.
@@ -1753,6 +1769,11 @@ img.ic{display:inline-block;height:1.3em;width:auto;vertical-align:-.32em;margin
 .res.eg{background:#fff8ea;border-color:#f6e4c0} .res.mk{background:#eef6ff;border-color:#c9e2ff} .res.pk{background:#fff0f4;border-color:#ffc9d8}
 .res.up b{animation:popn .45s}
 @keyframes popn{0%{transform:scale(1);color:var(--pk-ink)}30%{transform:scale(1.4);color:#3fb37a}100%{transform:scale(1);color:var(--pk-ink)}}
+/* 81차 — 다시 틀기용 쌍둥이(pop81 = 위의 마지막 pop, popn81 = 바로 위 popn) */
+.res.up.k81{animation-name:pop81}
+.res.up.k81 b{animation-name:popn81}
+@keyframes pop81{0%{transform:scale(1)}35%{transform:scale(1.28)}100%{transform:scale(1)}}
+@keyframes popn81{0%{transform:scale(1);color:var(--pk-ink)}30%{transform:scale(1.4);color:#3fb37a}100%{transform:scale(1);color:var(--pk-ink)}}
 #hpRow{border-top:1px solid var(--pk-line)}
 #hpRow .hpIc{filter:none} #hpRow .hpIc img.ic{height:22px}
 #hpBar,#xpBar,#timeBar,#misBar,#cBar,#bBar{background:rgba(120,104,170,.14);border:none;box-shadow:inset 0 2px 3px rgba(60,40,100,.12)}
@@ -2241,7 +2262,8 @@ table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
   #toast:not(.resource):is([style*="#9cd8"],[style*="#9de8"],[style*="#4dabf7"]){color:#276995!important}
 :is(.popC,#feed,#toast,#aimInfo,#miniBar) [style*="#cc7bff"],
   #toast:not(.resource)[style*="#cc7bff"]{color:#70439b!important}
-@media (prefers-reduced-motion:reduce){.pop.on .popC,#toast.on,.res.up,.res.up b,.grp button,.slot,.btn{animation:none;transition:none}}
+@media (prefers-reduced-motion:reduce){.pop.on .popC,#toast.on,.res.up,.res.up b,.grp button,.slot,.btn{animation:none;transition:none}
+  .res.up.k81,.res.up.k81 b{animation:none}}   /* 81차 — 쌍둥이도 똑같이 끈다 */
 /* 53차 — 상점: 큰 아이템 그림, 공용 지갑, 고정된 닫기 버튼. 목록만 스크롤한다. */
 #popShop{padding:12px;overflow:hidden}
 #popShop .popC{--shop-preview:176px;display:flex;flex-direction:column;gap:12px;width:min(1040px,100%);height:min(820px,calc(100vh - 24px));height:min(820px,calc(100dvh - 24px));max-height:none;min-height:0;overflow:hidden;padding:22px;background:#fff!important;border-radius:22px}
@@ -2894,8 +2916,10 @@ body.tpv #magHud{display:none!important}
 #magHud .ring .fg{stroke:#fff3d6;stroke-linecap:round;stroke-dasharray:138.3;stroke-dashoffset:138.3}
 #magHud.rl .ring{display:block}
 #magHud.rl .ring .fg{animation:rlRing var(--rl,1s) linear forwards}
+#magHud.rl.k81 .ring .fg{animation-name:rlRing81}   /* 81차 — 다시 틀기용 쌍둥이 */
 #magHud.rl .pips,#magHud.rl .bar{visibility:hidden}
 @keyframes rlRing{0%{stroke-dashoffset:138.3;stroke:#fff3d6}100%{stroke-dashoffset:0;stroke:#ffc84a}}
+@keyframes rlRing81{0%{stroke-dashoffset:138.3;stroke:#fff3d6}100%{stroke-dashoffset:0;stroke:#ffc84a}}
 #magHud .lb{display:none;margin-top:-12px;font:600 11px/1 'Noto Sans KR',sans-serif;color:#fff3d6;letter-spacing:.02em}
 #magHud.rl.say .lb{display:block}
 @media (max-height:520px),(max-width:420px){ #magHud .pips span{width:3px;height:7px} #magHud .ring{transform:rotate(-90deg) scale(.82)} #magHud .bar i{width:48px} }
@@ -2903,12 +2927,16 @@ body.tpv #magHud{display:none!important}
 .slot.tool.gun .mg i{display:block;height:100%;width:100%;background:#e0a23a;border-radius:2px}
 .slot.tool.gun .mg.rl i{animation:mgFill var(--rl,1s) linear forwards}
 @keyframes mgFill{from{width:0}to{width:100%}}
+.slot.tool.gun .mg.rl.k81 i{animation-name:mgFill81}   /* 81차 — 다시 틀기용 쌍둥이 */
+@keyframes mgFill81{from{width:0}to{width:100%}}
 @property --rlp{syntax:'<percentage>';inherits:false;initial-value:0%}
 #mbThrow{position:relative}
 #mbThrow.rl::after{content:'';position:absolute;inset:-4px;border-radius:inherit;padding:3px;pointer-events:none;
   background:conic-gradient(#ffc84a var(--rlp),rgba(255,255,255,.3) 0);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
   -webkit-mask-composite:xor;mask-composite:exclude;animation:rlp var(--rl,1s) linear forwards}
 @keyframes rlp{to{--rlp:100%}}
+#mbThrow.rl.k81::after{animation-name:rlp81}   /* 81차 — 다시 틀기용 쌍둥이 */
+@keyframes rlp81{to{--rlp:100%}}
 .slot.tool.gun::after{content:'🎯';position:absolute;right:2px;top:1px;font-size:10px;line-height:1;pointer-events:none}   /* 무기 칸 표시 — 390px 처럼 '우클릭' 글씨가 숨는 폭에서도 총 칸인 줄 알게 */
 .slot.tool.gun:hover{background:#ffe8c7}
 .slot.tool.gun .nm{color:#8a4b12}
@@ -2937,6 +2965,8 @@ body.touch .slot.tool.gun{background:#fff3e0} body.touch .slot.tool.gun.on{backg
 #combatHud79 .reloadTrack79{height:3px;background:#41525a;border-radius:2px;overflow:hidden;position:absolute;left:15px;right:15px;top:62px;visibility:hidden}#combatHud79 .reloadTrack79 i{display:block;height:100%;background:#f3d894;transform:scaleX(0);transform-origin:left}
 #combatHud79.reloading79 .reloadTrack79{visibility:visible}#combatHud79.reloading79 .reloadTrack79 i{animation:reloadProgress79 var(--rl79,1s) linear forwards;animation-delay:var(--rl79-delay,0s)}
 @keyframes reloadProgress79{to{transform:scaleX(1)}}
+#combatHud79.reloading79.k81 .reloadTrack79 i{animation-name:reloadProgress7981}   /* 81차 — 다시 틀기용 쌍둥이 */
+@keyframes reloadProgress7981{to{transform:scaleX(1)}}
 #combatHud79 #hpRow{display:block;margin:5px 0 0;padding:0;border:0;color:#e5f6ee;animation:none}
 #combatHud79 .hpHead79{display:flex;align-items:center;gap:5px;margin-bottom:4px;font-size:12px;font-weight:500;color:#bdd9d1}#combatHud79 .hpIc{font-size:13px;line-height:1;filter:none;color:#96eed3}
 #combatHud79 .hpValues79{margin-left:auto;display:flex;align-items:baseline;gap:4px;color:#bdcdc7}#combatHud79 #hpNum{font-size:15px;font-weight:600;min-width:0;color:#efffe9;opacity:1;text-shadow:none}#hpMax79{font-size:12px;color:#b7c9c6}
@@ -5874,6 +5904,9 @@ const GFX_Q = new URLSearchParams(location.search).get('gfx')
 const GFX = Object.assign({}, GFX_PRESET[GFX_Q] || GFX_PRESET.high);
 GFX.q = GFX_PRESET[GFX_Q] ? GFX_Q : 'high';      // 49차 — 고른 이름도 들고 있는다(flatMat 이 '부드럽게'면 광택을 끈다)
 if(new URLSearchParams(location.search).get('bloom') === '1') GFX.bloom = 1;
+/* 81차 — 성능 고치기 하나하나를 교실에서 켜고 끌 수 있게: ?p81off=이름,이름 (all 이면 전부) · ?nocull=1 도 전부 끈다.
+   P81.이름 은 끄지 않았으면 true. 뜨거운 자리에서는 시작할 때 한 번 const 로 읽어 둔다(Proxy 를 매번 안 부른다). */
+const P81 = (()=>{ const s=new URLSearchParams(location.search).get('p81off')||''; const off=new Set(s.split(',')); const all=off.has('all')||new URLSearchParams(location.search).has('nocull'); return new Proxy({}, {get:(_,k)=>!(all||off.has(String(k)))}); })();
 
 { const q = new URLSearchParams(location.search);
   if(q.has('aa'))     GFX.aa     = Math.max(0, q.get('aa')|0);
@@ -12281,7 +12314,7 @@ const BUILD_ASSIST_STYLES = [
   {name:'파스텔 지붕',icon:'🌈',art:'pastel',desc:'민트와 분홍 지붕으로 알록달록하게'},
   {name:'별 등불',icon:'⭐',art:'star',desc:'반짝이는 별 등불로 밤도 따뜻하게'}
 ];
-const buildAssistState = {ready:false,range:null,line:null,lineKey:'',choice:null,focus:null,styleKey:'',fitKey:'',target:null};
+const buildAssistState = {ready:false,range:null,line:null,lineKey:'',choice:null,focus:null,styleKey:'',fitW:-1,fitH:-1,fitS:null,target:null};   // 81차 — fitKey 글 대신 세 값
 function buildAssistStatus(t,x,z,resources,quantity=1,ignoreId=''){
   const b=BUILD[t]; if(!b)return null;
   const r=resources||myRes(),short=[];
@@ -12400,8 +12433,9 @@ function buildAssistHotkey(e){
   }
 }
 function buildAssistFit(force=false){
-  const dock=el('dock'),key=innerWidth+'|'+innerHeight+'|'+dock.getAttribute('style');
-  if(!force&&key===buildAssistState.fitKey)return;buildAssistState.fitKey=key;
+  /* 81차 — 매 프레임 열쇠 글을 이어 붙이지 않고 세 값을 따로 견준다(같은 조건, 할당 없음) */
+  const dock=el('dock'),w=innerWidth,h=innerHeight,ds=dock.getAttribute('style'),st=buildAssistState;
+  if(!force&&w===st.fitW&&h===st.fitH&&ds===st.fitS)return;st.fitW=w;st.fitH=h;st.fitS=ds;
   const top=dock.getBoundingClientRect().top;
   const combat=el('combatHud79'),extra=combat&&!combat.hidden?combat.offsetHeight+8:0;
   if(Number.isFinite(top))el('buildAssistDock').style.bottom=Math.max(8,Math.ceil(innerHeight-top+8+extra))+'px';
@@ -12435,20 +12469,23 @@ function buildAssistTick(){
     if(G.phase!=='day'||PL.down)buildAssistClose('buildAssistStylePop');else buildAssistStyleUI();
   }
   const active=G.started&&!G.paused&&!PL.down&&!miniOn()&&!popOpen()&&(G.phase==='day'||G.phase==='night');
-  const dock=el('buildAssistDock');dock.style.display=active?'flex':'none';
+  /* 81차 — 매 프레임 도는 곳이라 hidden·aria-pressed·data-state·display 를 값이 바뀔 때만 쓴다(baHid 등).
+     같은 값을 다시 넣어도 속성 변경으로 처리돼 도우미 칸 스타일을 매 프레임 다시 계산했다. 비교는 DOM 의 지금 값과 한다
+     — 다른 곳(닫기 단추 등)이 바꿔도 어긋나지 않는다. */
+  const dock=el('buildAssistDock'),dd=active?'flex':'none';if(dock.style.display!==dd)dock.style.display=dd;
   if(!active){buildAssistShowRange(null);buildAssistClearLine();return;}
   buildAssistFit();
-  el('buildAssistStyle').hidden=G.phase!=='day';
+  baHid('buildAssistStyle',G.phase!=='day');
   const moving=curTool==='move'&&typeof buildMove!=='undefined'&&buildMove;
   const type=moving?moving.t:curBuild,placing=(curTool==='build'||!!moving)&&!!BUILD[type],wall=placing&&!moving&&(type==='wwall'||type==='swall');
   const lineOn=wall&&typeof buildLineMode!=='undefined'&&buildLineMode;
-  el('buildAssistLine').hidden=!wall;el('buildAssistLine').setAttribute('aria-pressed',String(!!lineOn));
+  baHid('buildAssistLine',!wall);{const b=el('buildAssistLine'),v=lineOn?'true':'false';if(b.getAttribute('aria-pressed')!==v)b.setAttribute('aria-pressed',v);}
   setTxt('buildAssistLine',lineOn?'✓ 벽 이어짓기 켜짐 (L)':'🧱 벽 이어짓기 (L)');
   const target=!placing&&!aimMode?aimStru():null;buildAssistState.target=target;
-  el('buildAssistRepair').hidden=!target||target.hp>=target.mx;
+  baHid('buildAssistRepair',!target||target.hp>=target.mx);
   const summary=el('buildAssistSummary');let title='',detail='',state='ready';
   if(typeof work!=='undefined'&&work?.kind==='coop'){
-    summary.hidden=true;buildAssistClearLine();buildAssistShowRange(BUILD_PLANS.get(work.id));return;
+    if(!summary.hidden)summary.hidden=true;buildAssistClearLine();buildAssistShowRange(BUILD_PLANS.get(work.id));return;
   }
   if(placing){
     const b=BUILD[type];title=b.icon+' '+(moving?buildingName(moving):b.name)+(moving?' · 위치 다시 잡기':'');
@@ -12470,8 +12507,9 @@ function buildAssistTick(){
     if(curTool==='move'){title='📦 건물 위치 다시 잡기';detail=G.phase==='day'?'낮에 막 지은 내 건물을 골라 주세요':'위치 바꾸기는 낮에 할 수 있어요';}
     else if(target&&BUILD[target.t]?.range){const range=typeof buildStat==='function'?buildStat(target,'range'):bs(target.t,'range',target.lv||1);title=`${BUILD[target.t].icon} ${buildingName(target)} · 공격 사거리 ${Math.round(range*10)/10}칸`;detail='하늘색 원 안의 좀비를 공격해요';}
   }
-  summary.hidden=!title;summary.dataset.state=state;setTxt('buildAssistTitle',title);setTxt('buildAssistDetail',detail);
+  if(summary.hidden!==!title)summary.hidden=!title;if(summary.dataset.state!==state)summary.dataset.state=state;setTxt('buildAssistTitle',title);setTxt('buildAssistDetail',detail);
 }
+function baHid(id,v){const e=el(id);if(e.hidden!==v)e.hidden=v;}   // 81차 — 값이 다를 때만 hidden 을 쓴다
 
 /* ═══════════════════════ 로블록스 룩 1단계: 캐릭터 ═══════════════════════ */
 function roundBox(seg, r, w=1, h=1, d=1){
@@ -21608,13 +21646,15 @@ function friendGun(q, dt){
 /* 70차 — 탄창 HUD. 바뀔 때만 DOM 을 쓴다(쏠 때 알 클래스 · 재장전 시작·끝에 고리 클래스 두 번). 매 프레임 비교는 숫자만(할당 0) */
 const MHD = {on:-1, w:-2, m:-1, rl:-1, lo:-1};
 let magEl = null, magPips = null, magBarB = null, gunMg = null;
+/* 81차 — 재장전 고리·막대를 강제 배치 없이 처음부터(reKick). ?p81off=kick 이면 예전처럼 offsetWidth */
+function rlKick(e, st){ if(KICK81){ if(!e.classList.contains('rl')) e.classList.add('rl'); reKick(e, 'k81', st); } else { e.classList.remove('rl'); void e.offsetWidth; e.classList.add('rl'); } }
 function magHudRl(on){
   if(!magEl){ magEl = el('magHud'); if(!magEl) return; magPips = magEl.querySelectorAll('.pips span'); magBarB = magEl.querySelector('.bar b'); }
   const mb = el('mbThrow');
   if(on){ const T = RL.T.toFixed(2) + 's';
-    magEl.style.setProperty('--rl', T); magEl.classList.remove('rl'); void magEl.offsetWidth; magEl.classList.add('rl'); magEl.classList.toggle('say', RL.n <= 3);
-    if(gunMg){ gunMg.style.setProperty('--rl', T); gunMg.classList.remove('rl'); void gunMg.offsetWidth; gunMg.classList.add('rl'); }
-    if(mb && document.body.classList.contains('touch')){ mb.style.setProperty('--rl', T); mb.classList.remove('rl'); void mb.offsetWidth; mb.classList.add('rl'); } }
+    magEl.style.setProperty('--rl', T); rlKick(magEl, _kMag); magEl.classList.toggle('say', RL.n <= 3);
+    if(gunMg){ gunMg.style.setProperty('--rl', T); rlKick(gunMg, _kGunMg); }
+    if(mb && document.body.classList.contains('touch')){ mb.style.setProperty('--rl', T); rlKick(mb, _kMb); } }
   else { magEl.classList.remove('rl'); if(gunMg) gunMg.classList.remove('rl'); if(mb) mb.classList.remove('rl'); }
   MHD.rl = -1;
 }
@@ -21652,7 +21692,8 @@ function combatHudPaint79(){
   panel.classList.toggle('emptyAmmo79',cost>0&&KIT.ammo<cost);
   if(rl&&(C.rl!==rl||C.n!==RL.n||C.w!==KIT.wpn)){
     panel.style.setProperty('--rl79',RL.T+'s');panel.style.setProperty('--rl79-delay',-Math.max(0,RL.T-RL.t)+'s');
-    panel.classList.remove('reloading79');void panel.offsetWidth;panel.classList.add('reloading79');
+    if(KICK81){if(!panel.classList.contains('reloading79'))panel.classList.add('reloading79');reKick(panel,'k81',_kRl79);}   // 81차 — 강제 배치 없이 다시 튼다
+    else{panel.classList.remove('reloading79');void panel.offsetWidth;panel.classList.add('reloading79');}
   }else if(!rl)panel.classList.remove('reloading79');
   C.w=KIT.wpn;C.ammo=KIT.ammo;C.m=m;C.rl=rl;C.t=t;C.n=RL.n;C.down=PL.down;C.aim=aimMode;
 }
@@ -22168,12 +22209,25 @@ function rptTick(dt){
     shootBullet(hx, hy, hz, r.tx + (Math.random()-.5)*j, r.ty + (Math.random()-.5)*j*0.6, r.tz + (Math.random()-.5)*j, false, W.tr, W.len, S);
     muzzleFx(hx, hy, hz, r.f, W, r.tx, r.ty, r.tz); }
 }
+/* 81차 — CSS 애니메이션을 강제 배치 없이 다시 튼다(reKick).
+   예전엔 remove → void el.offsetWidth → add 로 다시 틀었는데, 그 읽기가 그 프레임에 쌓인 스타일·배치를 loop 한가운데서
+   통째로 계산하게 만들었다(총 쏠 때마다·맞힐 때마다·연속 칸·수정 흔들림·자원 튐·재장전 시작).
+   이제는 같은 키프레임을 이름만 다르게 한 벌 더 두고(CSS 의 …81), k81 류 클래스를 뒤집어 이름을 바꾼다 —
+   이름이 바뀌면 다음 스타일 계산에서 처음부터 다시 돈다(화면에 보이는 것은 예전과 같다).
+   한 그리기 사이에 두 번 뒤집으면 제자리가 되어 안 틀리므로, 그리기 차례마다 한 번만 뒤집는다.
+   _ep81 = 그리기 차례: loop() 맨 끝에서 하나 늘어난다 → loop 안과, 그 뒤 다음 loop 전에 오는 입력 처리가 같은 차례가 된다.
+   ?p81off=kick 이면 예전 방식(offsetWidth). */
+const KICK81 = P81.kick;
+let _ep81 = 0;
+function reKick(e, cls, st){ if(st.ep81 === _ep81) return; st.ep81 = _ep81; e.classList.toggle(cls); }
+const _kFire = {ep81:-1}, _kHit = {ep81:-1}, _kCombo = {ep81:-1}, _kCrys = {ep81:-1}, _kMag = {ep81:-1}, _kGunMg = {ep81:-1}, _kMb = {ep81:-1}, _kRl79 = {ep81:-1};
 /* 쏠 때 조준점 네 팔이 잠깐 벌어졌다 모인다 — 세게 차는 총일수록 넓게(CSS 변수 --spr) */
 let _chFire = null;
 function fireMark(k){
   if(!_chFire) _chFire = el('crosshair'); const ch = _chFire; if(!ch) return;
   ch.style.setProperty('--spr', (1.18 + Math.min(1.6, k||0.5)*0.22).toFixed(2));
-  ch.classList.remove('fire'); void ch.offsetWidth; ch.classList.add('fire');
+  if(KICK81){ if(!ch.classList.contains('fire')) ch.classList.add('fire'); reKick(ch, 'k81f', _kFire); }
+  else { ch.classList.remove('fire'); void ch.offsetWidth; ch.classList.add('fire'); }
 }
 /* 조준점 한가운데가 잠깐 X 로 번쩍인다 — "맞았다"를 손끝으로 알려 주는 장치 */
 
@@ -22181,8 +22235,15 @@ let hitMarkT = 0;
 function hitMark(crit){                     // crit: 0 맞음 · 1 치명타 · 2 막타(33차)
   const ch = el('crosshair'); if(!ch) return;
   hitMarkT = crit === 2 ? 0.38 : crit ? 0.30 : 0.20;
+  const kc = crit === 2 ? 'killHit' : crit ? 'critHit' : 'hit';
+  if(KICK81){   // 81차 — 종류 클래스는 하나만 남기고, k81h 를 뒤집어 다시 튼다(reKick)
+    if(kc !== 'hit' && ch.classList.contains('hit')) ch.classList.remove('hit');
+    if(kc !== 'critHit' && ch.classList.contains('critHit')) ch.classList.remove('critHit');
+    if(kc !== 'killHit' && ch.classList.contains('killHit')) ch.classList.remove('killHit');
+    if(!ch.classList.contains(kc)) ch.classList.add(kc);
+    reKick(ch, 'k81h', _kHit); return; }
   ch.classList.remove('hit','critHit','killHit'); void ch.offsetWidth;
-  ch.classList.add(crit === 2 ? 'killHit' : crit ? 'critHit' : 'hit');
+  ch.classList.add(kc);
 }
 
 /* 호스트가 실제로 피해를 준다 (자기 것도, 친구 것도 여기로 온다) */
@@ -22589,8 +22650,15 @@ function showCombo(n){
   if(!_cbEl) _cbEl = el('combo');
   if(!_cbEl || _cbShown === n) return; _cbShown = n;
   if(n < 3){ _cbEl.classList.remove('on'); return; }
-  _cbEl.textContent = '🔥 ' + n + '연속!' + (comboMul() > 1 ? '  +' + Math.round((comboMul()-1)*100) + '%' : '');
-  _cbEl.classList.remove('cbHit'); void _cbEl.offsetWidth; _cbEl.classList.add('on','cbHit');
+  /* 81차 — 🔥 는 이모지 관찰자가 한 번 그림(<img>+<span class=emoT>)으로 바꿔 둔다. 그 뒤에는 뒤의 글 마디만 고친다
+     (예전엔 연속마다 글 전체를 새로 넣어 그림을 다시 만들었다). 구조가 다르면(아직 안 바뀜 등) 예전처럼 전체를 넣는다 */
+  const cbTail = ' ' + n + '연속!' + (comboMul() > 1 ? '  +' + Math.round((comboMul()-1)*100) + '%' : '');
+  const cbT = _cbEl.lastChild, cbS = cbT && cbT.previousSibling;
+  if(cbT && cbT.nodeType === 3 && _cbEl.childNodes.length === 3 && cbS && cbS.nodeType === 1 && cbS.classList.contains('emoT') && cbS.textContent === '🔥'
+     && _cbEl.firstChild.nodeType === 1 && _cbEl.firstChild.tagName === 'IMG'){ if(cbT.nodeValue !== cbTail) cbT.nodeValue = cbTail; }
+  else _cbEl.textContent = '🔥' + cbTail;
+  if(KICK81){ if(!_cbEl.classList.contains('on')) _cbEl.classList.add('on'); if(!_cbEl.classList.contains('cbHit')) _cbEl.classList.add('cbHit'); reKick(_cbEl, 'k81', _kCombo); }   // 81차 — 강제 배치 없이 다시 튼다
+  else { _cbEl.classList.remove('cbHit'); void _cbEl.offsetWidth; _cbEl.classList.add('on','cbHit'); }
 }
 
 const atkMul  = ()=> (KIT.bAtk > 0 ? 1.6 : 1) * (1 + 0.08*stLv(ST_STR) + 0.03*stLv(ST_AGI));
@@ -24263,7 +24331,7 @@ function dreadBoss(dt){
   }
 }
 /* ═══ 공포 좀비의 무서움: 가까이 오면 화면 가장자리가 어두워지고 심장이 뛴다 ═══ */
-let fearK = 0, heartT = 0;
+let fearK = 0, heartT = 0, _fvEl = null, _fvOp = null;
 function fearTick(dt){
   let near = 99, nw = null;
   for(const w of G.wolves){ if(!WOLF_T[w.k] || !WOLF_T[w.k].fear || w.hp <= 0) continue;
@@ -24274,9 +24342,11 @@ function fearTick(dt){
   const want = near < 9 ? 1 - (near/9)*0.55 : 0;
   fearK += (want - fearK) * Math.min(1, dt*2.2);
   if(fearK < 0.004 && want === 0) fearK = 0;
-  const el0 = document.getElementById('fearVig');
-  if(el0){ const pulse = 1 + Math.max(0, Math.sin(heartT*Math.PI*2/1.0))*0.18;
-    el0.style.opacity = fearK > 0 ? (fearK*0.62*pulse).toFixed(3) : '0'; }
+  /* 81차 — 요소는 한 번만 찾고, 글이 같으면(낮·무서움 없음 = 늘 '0') 다시 안 쓴다. 값은 예전과 같다 */
+  if(!_fvEl) _fvEl = document.getElementById('fearVig');
+  if(_fvEl){ const pulse = 1 + Math.max(0, Math.sin(heartT*Math.PI*2/1.0))*0.18;
+    const op = fearK > 0 ? (fearK*0.62*pulse).toFixed(3) : '0';
+    if(op !== _fvOp){ _fvOp = op; _fvEl.style.opacity = op; } }
   heartT -= dt;
   if(fearK > 0.15 && heartT <= 0 && nw){ heartT = 1.15 - fearK*0.5; sfxFrom('heart', nw.x, nw.z, 0.5 + fearK*0.7); }
 }
@@ -24375,7 +24445,7 @@ function dnInit(){
   for(let i=0;i<DN_MAX;i++){
     const d = document.createElement('div'); d.className = 'dnum';
     dnLayer.appendChild(d);
-    dnums.push({el:d, t:0, life:1, x:0, y:0, z:0, cls:'dnum', txt:'', shown:false, k:0, dx:0, up:1.15, pop:0.2});
+    dnums.push({el:d, t:0, life:1, x:0, y:0, z:0, cls:'dnum', txt:'', shown:false, k:0, dx:0, up:1.15, pop:0.2, tx:NaN, ty:NaN, tsc:NaN, op:NaN});   // 81차 — tx·ty·tsc·op: 마지막으로 쓴 값
   }
 }
 /* kind: 0 보통 · 1 크리티컬 · 2 내가 다침 · 3 회복 · 4 약함(돌) · 5 막타(65차)
@@ -24406,7 +24476,7 @@ function dnTick(dt){
   for(const s of dnums){
     if(s.t <= 0){
       if(s.shown){ s.shown = false; s.el.style.opacity = '0';
-                   s.el.style.transform = 'translate3d(-999px,-999px,0)'; }
+                   s.el.style.transform = 'translate3d(-999px,-999px,0)'; s.tx = s.ty = s.tsc = s.op = NaN; }
       continue;
     }
     s.t -= dt;
@@ -24414,14 +24484,17 @@ function dnTick(dt){
     const e = 1 - (1-k)*(1-k)*(1-k);                  // 65차 — 처음에 확 뜨고 천천히 멈춘다
     _dnv.set(s.x, s.y + e*s.up, s.z).project(camera);
     if(_dnv.z > 1 || _dnv.x < -1.3 || _dnv.x > 1.3){  // 뒤쪽·화면 밖
-      if(s.shown){ s.shown = false; s.el.style.opacity = '0'; }
+      if(s.shown){ s.shown = false; s.el.style.opacity = '0'; s.op = NaN; }
       continue;
     }
     const px = (_dnv.x*0.5+0.5)*W + s.dx*e, py = (-_dnv.y*0.5+0.5)*H;
     /* 뜨는 순간 0.07초에 부풀었다(pop) 0.2초에 제 크기 — 치명타가 제일 크게 튄다 */
     const sc = (k < 0.07 ? 0.55 + 0.45*k/0.07 : 1) + s.pop*(k < 0.07 ? k/0.07 : Math.max(0, 1-(k-0.07)/0.2));
-    s.el.style.transform = 'translate3d(' + (px|0) + 'px,' + (py|0) + 'px,0) scale(' + sc.toFixed(2) + ')';
-    s.el.style.opacity = k < 0.65 ? '1' : ((1-k)/0.35).toFixed(2);
+    /* 81차 — 정수 자리·배율·투명도가 지난번과 똑같으면 글을 만들지도 쓰지도 않는다(같은 값이면 같은 글) */
+    const ix = px|0, iy = py|0, op = k < 0.65 ? 1 : (1-k)/0.35;
+    if(ix !== s.tx || iy !== s.ty || sc !== s.tsc){ s.tx = ix; s.ty = iy; s.tsc = sc;
+      s.el.style.transform = 'translate3d(' + ix + 'px,' + iy + 'px,0) scale(' + sc.toFixed(2) + ')'; }
+    if(op !== s.op){ s.op = op; s.el.style.opacity = k < 0.65 ? '1' : op.toFixed(2); }
     s.shown = true;
   }
 }
@@ -24983,8 +25056,9 @@ function paintHUD(){
   for(const [k,id] of [['w','rW'],['s','rS'],['g','rG'],['eg','rE'],['mk','rM'],['pk','rP']]){
     const v = r[k]|0;
     if(hudPrev['r'+id] !== v){ hudPrev['r'+id] = v; el(id).querySelector('b').textContent = v; }
-    if(r[k] > (lastRes[k]||0) && lastRes[k] >= 0){ el(id).classList.remove('up'); void el(id).offsetWidth;
-      el(id).classList.add('up'); }
+    if(r[k] > (lastRes[k]||0) && lastRes[k] >= 0){ const e = el(id);
+      if(KICK81){ if(!e.classList.contains('up')) e.classList.add('up'); reKick(e, 'k81', e); }   // 81차 — 강제 배치 없이 다시 튼다(차례는 칸마다 e.ep81)
+      else { e.classList.remove('up'); void e.offsetWidth; e.classList.add('up'); } }
     lastRes[k] = r[k];
   }
   /* 산물 줄 — 우리에 동물이 있거나 주운 게 있을 때만 보인다.
@@ -25058,7 +25132,9 @@ function paintHUD(){
     setTxt('bossIc', '');
     setTxt('bossName', B.n);
     const bp = bw.mx ? Math.max(0, bw.hp/bw.mx*100) : Math.max(0,bw.hp);
-    setSty('bFill', 'width', (Math.round(bp*10)/10) + '%');
+    /* 81차 — 막대 너비: 예전엔 여기서 0.1% 로 끊은 값을 쓰고, 같은 틱 바로 뒤 updBoss 가 끊지 않은 값으로 늘 덮어썼다
+       (화면에 남는 건 updBoss 값). 이제 그 최종 값(bossBarW)을 한 번만, 바뀔 때만 쓴다 — 보이는 너비는 예전과 같다 */
+    setSty('bFill', 'width', bossBarW(bw));
     setTxt('bNum', Math.ceil(bp) + '%');
   } else if(hudPrev.boss !== false){ hudPrev.boss = false; el('bossWrap').classList.remove('on'); }
   paintHudMode(!!bw);      // 66차 — 낮/밤/미니게임 화면 모드
@@ -25136,6 +25212,9 @@ function mpClamp(x, z){
   const r = Math.hypot(x, z), k = r > MM_R ? MM_R/r : 1;
   return [mpx(x*k), mpz(z*k)];
 }
+/* 81차 — drawMini 의 점마다 배열을 만들지 않게: 같은 계산을 _mcx/_mcz 에 담는다(그리는 좌표는 같다) */
+let _mcx = 0, _mcz = 0;
+function mpClampTo(x, z){ const r = Math.hypot(x, z), k = r > MM_R ? MM_R/r : 1; _mcx = mpx(x*k); _mcz = mpz(z*k); }
 /* ★ 안 변하는 부분(바닥·산·입구 5개·번호 글자·건물)은 따로 그려 두고 붙이기만 한다.
    예전엔 초당 8번 전부 새로 그렸고, 그 중 번호 글자 10번이 특히 비쌌다.
    교실 크롬북에서 미니맵 한 번에 2.79ms 였다. 낮밤이 바뀌거나 건물이 생기면 다시 그린다. */
@@ -25196,14 +25275,14 @@ function drawMini(){
   mg.fillStyle = '#66e0ff'; mg.beginPath(); mg.arc(75,75,4,0,7); mg.fill();
   // 좀비
   mg.fillStyle = '#ff3b3b';
-  for(const w of G.wolves){ const [wx,wz] = mpClamp(w.x, w.z); mg.beginPath(); mg.arc(wx, wz, w.k>=2?2.6:1.8, 0,7); mg.fill();
+  for(const w of G.wolves){ mpClampTo(w.x, w.z); mg.beginPath(); mg.arc(_mcx, _mcz, w.k>=2?2.6:1.8, 0,7); mg.fill();
     if(w.ly){ mg.strokeStyle = '#fff'; mg.lineWidth = 1; mg.stroke(); } }                         // 67차 — 성벽 위 좀비(ly 1)는 흰 테두리
   // 병정
   mg.fillStyle = '#ffffff';
-  for(const s of G.soldiers){ const [sx,sz] = mpClamp(s.x, s.z); mg.fillRect(sx-1, sz-1, 2,2); }
+  for(const s of G.soldiers){ mpClampTo(s.x, s.z); mg.fillRect(_mcx-1, _mcz-1, 2,2); }
   // 친구들
   for(const p of G.players.values()){ mg.fillStyle = GCOL[p.g]; mg.beginPath();
-    const [fx,fz] = mpClamp(p.x, p.z); mg.arc(fx, fz, 2.2, 0,7); mg.fill(); }
+    mpClampTo(p.x, p.z); mg.arc(_mcx, _mcz, 2.2, 0,7); mg.fill(); }
   /* 상인 — 낮에만 문을 연다.
      ★ 지도에 없으면 좌판을 우연히 지나가야만 발견한다. 실제로 그랬다. */
   if(G.phase === 'day'){
@@ -25242,7 +25321,15 @@ function drawMini(){
 }
 
 /* ═══════════════════════ 팝업 ═══════════════════════ */
-function popOpen(){ return !!document.querySelector('.pop.on'); }
+/* 81차 — 한 프레임에 네다섯 번 불린다(움직임·행동·사격·건설 도우미·배경음). 예전엔 부를 때마다 querySelector 가
+   문서 전체(요소 2~4천 개)를 훑었다. 살아 있는 모음(getElementsByClassName 'pop on' = '.pop.on' 과 같은 뜻)은
+   클래스가 바뀌기 전까지 개수를 기억해 두므로, 같은 답을 훑지 않고 준다. 창이 새로 열리면 바로 반영된다(지연 없음).
+   모음은 함수 자신(popOpen.L)에 둔다 — 함수만 떼어 쓰는 검사에서도 돌고, 살아 있는 모음이 아닌 환경이면 예전 querySelector 로. */
+function popOpen(){
+  if(popOpen.L === undefined){ const c = document.getElementsByClassName ? document.getElementsByClassName('pop on') : null;
+    popOpen.L = typeof HTMLCollection !== 'undefined' && c instanceof HTMLCollection ? c : null; }
+  return popOpen.L ? popOpen.L.length > 0 : !!document.querySelector('.pop.on');
+}
 document.querySelectorAll('[data-close]').forEach(b=>
   b.onclick = ()=>{ el(b.dataset.close).classList.remove('on'); sfx('close'); });
 /* 28차 — 누르는 것마다 '톡'. 한 곳에서 잡는다(단추가 생길 때마다 붙이면 반드시 하나 빠진다) */
@@ -25650,8 +25737,7 @@ function buildPlanAction(dt){
     if(!work||work.kind!=='coop'||work.id!==p.id) work={kind:'coop',id:p.id,X:p.x,Z:p.z,prog:0,tok:-1};
     workTick(dt,99999); setBuildHand(p.id,dt);
   }else setBuildHand('');
-  workInfo(title,p.prog);
-  if(_aimEl) _aimEl.innerHTML+=`<br><span>${missing||'가까이서 꾹 누르면 함께 지어요 · 손을 떼도 진행 유지'}</span>`;
+  workInfo(title,p.prog,`<br><span>${missing||'가까이서 꾹 누르면 함께 지어요 · 손을 떼도 진행 유지'}</span>`);   // 81차 — 뒤에 덧붙이던 줄을 한 번에 넣는다(같은 글이면 DOM 을 안 건드린다)
   return true;
 }
 function buildMissingCost(g,c){
@@ -25731,9 +25817,10 @@ function drawBuildPlans(){
 }
 function buildCoopTick(dt){
   hostBuildTick(dt);buildDrawWait-=dt;
-  if(buildPlanMesh)buildPlanMesh.visible=['day','night'].includes(G.phase);
+  if(buildPlanMesh)buildPlanMesh.visible=G.phase==='day'||G.phase==='night';
   if(buildPlanDirty&&buildDrawWait<=0){buildDrawWait=.25;drawBuildPlans();}
-  const req=[...STRU.values()].find(o=>o.delReq&&Date.now()-o.delReq.ts<30000&&buildOwn(o,buildActor(uid)));
+  /* 81차 — 매 프레임 [...STRU.values()] 배열을 새로 만들던 것을 같은 순서의 for 로(첫 번째 것을 고르는 규칙 그대로) */
+  let req;for(const o of STRU.values())if(o.delReq&&Date.now()-o.delReq.ts<30000&&buildOwn(o,buildActor(uid))){req=o;break;}
   showBuildDeleteRequest(req);
 }
 function clearBuildCoop(){
@@ -25767,7 +25854,7 @@ function bindBuildNetwork(){
 function showBuildDeleteRequest(o){
   let box=el('buildDeleteRequest');
   if(!box){box=document.createElement('div');box.id='buildDeleteRequest';box.style.cssText='position:fixed;right:16px;top:110px;max-width:300px;padding:14px;background:#fff8e9;color:#294d63;border:2px solid #ffd592;border-radius:16px;z-index:45;box-shadow:0 5px 18px #294d6320;pointer-events:auto';document.body.appendChild(box);}
-  box.hidden=!o;if(!o){box.dataset.key='';return;}
+  if(box.hidden!==!o)box.hidden=!o;if(!o){if(box.dataset.key!=='')box.dataset.key='';return;}   // 81차 — 매 프레임 불린다: 값이 다를 때만 쓴다
   const key=o.id+':'+o.delReq.ts;if(box.dataset.key===key)return;box.dataset.key=key;
   box.innerHTML=`<div><b>${esc(o.delReq.n)}</b> 친구가 내 ${buildingName(o)} 철거를 요청했어요.</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn">철거 허락</button><button class="btn">그대로 두기</button></div>`;
   const buttons=box.querySelectorAll('button');
@@ -25785,12 +25872,12 @@ function workTick(dt, need){
     else window.__sfx(kd==='farm' ? (work.fw==='feed' ? 'feedScoop' : 'broom') : kd==='del' ? (tk % 2 ? 'tak' : 'pry') : (tk % 2 ? 'tak' : 'tok')); } }
   return work.prog >= need;
 }
-function workInfo(title, pct){
+function workInfo(title, pct, tail=''){
   if(!_aimEl) _aimEl = document.getElementById('aimInfo');
   if(!_aimEl) return;
-  _aimEl.innerHTML = `<b>${title}</b> <span class="hp">${Math.round(pct*100)}%</span>` +
+  aimSet(`<b>${title}</b> <span class="hp">${Math.round(pct*100)}%</span>` +
     `<div class="prog"><i style="width:${Math.round(pct*100)}%"></i></div>` +
-    `<span style="opacity:.72">누르고 있어야 해요</span>`;
+    `<span style="opacity:.72">누르고 있어야 해요</span>` + tail);
   aimOn(true);
 }
 /* 시작 전에 미리 막을 이유가 있는지 — 8초 두들기고 나서 "안 돼요" 하면 안 되니까 */
@@ -25818,10 +25905,22 @@ const MY = { mined:0, built:0, hits:0, saved:0, helped:0, fixed:0, rescue:0, far
    첫 곡괭이를 다시 캐도 아무 일도 안 일어난다 (오류는 안 난다 — 조용히 안 뜬다). */
 function myReset(){ for(const k in MY) MY[k] = 0; bgReset(); }
 let _aimEl = null, _chEl = null, _chOn = null;
+/* 81차 — 조준판 글은 바뀔 때만 넣는다. 예전엔 돌·나무를 바라보는 동안 매 프레임 innerHTML 을 새로 만들어서
+   글자·막대가 통째로 다시 배치되고, 이모지 관찰자가 🪨 를 매번 새 <img> 로 바꿨다(낮 내내 초당 60번).
+   _aimHtml 은 마지막으로 넣은 글 그대로다(이모지가 그림으로 바뀐 뒤의 DOM 이 아니라) — 같은 글이면 보이는 것도 같다.
+   _aimNk* 는 자원 칸(aimNodeInfo) 전용 열쇠 — 같은 칸·같은 체력·같은 진행이면 글을 만들지도 않는다. */
+let _aimHtml = null, _aimNk = null, _aimNkT = '', _aimNkHp = 0, _aimNkMax = 0, _aimNkPc = 0;
+function aimSet(h){ _aimNk = null; if(h !== _aimHtml){ _aimHtml = h; _aimEl.innerHTML = h; } }
+/* 81차 — doAction 한 번 안에서 aimOn(false) → aimOn(true) 로 뒤집혔다 돌아오는 일이 매 프레임 있었다
+   (맨 앞 aimInfo(null) 이 끄고, 바로 뒤 aimNodeInfo 가 켠다). 클래스를 두 번 바꾸면 결과가 같아도
+   십자·조준판 스타일을 매 프레임 다시 계산한다. doAction 안에서는 마지막 값만 기억했다가 끝에서 한 번 적용한다
+   (그리기 전에 적용되므로 화면은 같다). */
+let _aimHold = false, _aimWant = null;
 /* ★ 조준선을 조준 정보와 같이 켠다. 캘 수 있는 자리·고칠 수 있는 건물 앞에서
    십자가 꿀색으로 커지므로, 애들이 "여기 눌러도 되나?" 를 안 헷갈린다.
    DOM 은 상태가 바뀔 때만 건드린다 (이 함수는 초당 수십 번 불린다). */
 function aimOn(on){
+  if(_aimHold){ _aimWant = on; return; }
   if(_chOn === on) return; _chOn = on;
   if(!_chEl) _chEl = document.getElementById('crosshair');
   if(_chEl) _chEl.classList.toggle('act', on);
@@ -25831,16 +25930,18 @@ function aimNodeInfo(n, prog){
   if(!_aimEl) _aimEl = document.getElementById('aimInfo');
   if(!_aimEl) return;
   if(!n){ aimOn(false); return; }
+  const night = G.phase === 'night', pc = night ? -1 : Math.round(prog*100);
+  if(_aimNk === n && _aimNkT === n.type && _aimNkHp === n.hp && _aimNkMax === n.max && _aimNkPc === pc){ aimOn(true); return; }   // 81차 — 그대로면 글도 안 만든다
   const d = NODE_DEF[n.type];
   const seg = [];
   for(let i=0;i<n.max;i++) seg.push(`<i class="${i < n.hp ? 'f':''}"></i>`);
-  const night = G.phase === 'night';
-  _aimEl.innerHTML =
+  aimSet(
     `<b>${d.icon} ${d.name}</b> <span class="hp">${n.hp}/${n.max}</span>` +
     `<div class="segs">${seg.join('')}</div>` +
     (night ? '<span style="color:#ffb0b0">🌙 밤에는 캘 수 없어요</span>'
-           : `<div class="prog"><i style="width:${Math.round(prog*100)}%"></i></div>` +
-             `<span style="color:#c8ffb0">한 번 캘 때 ${d.icon} +${d.amt}</span>`);
+           : `<div class="prog"><i style="width:${pc}%"></i></div>` +
+             `<span style="color:#c8ffb0">한 번 캘 때 ${d.icon} +${d.amt}</span>`));
+  _aimNk = n; _aimNkT = n.type; _aimNkHp = n.hp; _aimNkMax = n.max; _aimNkPc = pc;
   aimOn(true);
 }
 function aimInfo(o){
@@ -25857,15 +25958,17 @@ function aimInfo(o){
   else { const c = upCost(o.t, lv);
     line2 = c ? `<span style="color:#397ba3">⬆️ Lv.${lv+1}로 — ${costTxt(c)}</span>`
               : '<span style="color:#397ba3">Lv.'+MAXLV+' · 최고 등급</span>'; }
-  _aimEl.innerHTML =
+  aimSet(
     `<b>${b.icon} ${buildingName(o)}</b> <span class="lv lv${lv}">Lv.${lv}</span>
      <span class="hp">${pct}%</span>` +
     (o.n ? ` <span class="hp">· ${esc(o.n)} 지음</span>` : '') +
     (o.g !== G.me.g ? ` <span class="hp" style="color:#9cd8ff">· ${(o.g|0)+1}모둠</span>` : '') +
-    `<br>${line2}`;
+    `<br>${line2}`);
   aimOn(true);
 }
-function doAction(dt){
+/* 81차 — 조준 표시(aimOn)는 doAction 이 끝날 때 한 번만 적용한다(위 _aimHold 설명) */
+function doAction(dt){ _aimHold = true; _aimWant = _chOn; try{ doAction0(dt); } finally { _aimHold = false; aimOn(_aimWant); } }
+function doAction0(dt){
   if(pregame78()){hl.visible=false;ghost.visible=false;workStop();return;}
   hl.visible = false; ghost.visible = false;
   if(G.paused){ workStop(); aimOn(false); return; }
@@ -28114,8 +28217,10 @@ function towerAttackTick(o,dt){
 let hurtCd = 0;
 function onCrystalHit(){
   if(hurtCd>0) return; hurtCd = 0.5;
-  el('crystalWrap').classList.remove('hurt'); void el('crystalWrap').offsetWidth;
-  el('crystalWrap').classList.add('hurt'); flash();
+  const cw = el('crystalWrap');
+  if(KICK81){ if(!cw.classList.contains('hurt')) cw.classList.add('hurt'); reKick(cw, 'k81', _kCrys); }   // 81차 — 강제 배치 없이 다시 튼다
+  else { cw.classList.remove('hurt'); void cw.offsetWidth; cw.classList.add('hurt'); }
+  flash();
   if(window.__shake) window.__shake(0.5, 0.28);
 }
 
@@ -31976,17 +32081,19 @@ function showStage(){
   /* 66차 — 마지막 밤·내일 보스·오늘 보스 알림(feed 두 줄 + toast)은 날짜 글씨가 걷힌 뒤 뜨는
      오늘 밤 미리 보기 카드(paintNightPreview → ncNote·보스 카드)에 한 번에 담았다. 같은 말을 세 곳에 띄우지 않는다. */
 }
+/* 81차 — 초당 8번 돈다. 같은 글·같은 너비·같은 클래스면 DOM 을 안 건드린다(setTxt/setSty 캐시, 클래스는 지금 값과 비교).
+   예전엔 보스 이름(👑 이모지)을 매번 새로 넣어 이모지 관찰자가 그림을 다시 만들었다. */
+function bossBarW(b){ const pct = G.host ? (b.hp/b.mx*100) : b.hp; return Math.max(0,Math.min(100,pct)) + '%'; }
 function updBoss(){
   const b = G.wolves.find(w=>isBoss(w.k));
   const wrap = el('bossWrap');
-  if(!b){ wrap.classList.remove('on'); return; }
-  wrap.classList.add('on');
-  const pct = G.host ? (b.hp/b.mx*100) : b.hp;
-  el('bossName').textContent = WOLF_T[b.k].n;
-  el('bFill').style.width = Math.max(0,Math.min(100,pct)) + '%';
+  if(!b){ if(wrap.classList.contains('on')) wrap.classList.remove('on'); return; }
+  if(!wrap.classList.contains('on')) wrap.classList.add('on');
+  setTxt('bossName', WOLF_T[b.k].n);
+  setSty('bFill', 'width', bossBarW(b));
   const adds = G.wolves.length - 1;
   const dist = Math.hypot(b.x, b.z);
-  el('bAdds').textContent = `부하 ${adds}마리 · 수정까지 ${Math.max(0,Math.round(dist-6))}칸`;
+  setTxt('bAdds', `부하 ${adds}마리 · 수정까지 ${Math.max(0,Math.round(dist-6))}칸`);
 }
 function updDanger(){
   const p = G.crystal / G.set.crystalMax;
@@ -31994,11 +32101,16 @@ function updDanger(){
   /* ★ 경주 마지막 5초는 비상이다(37차 — 예전엔 OX 퀴즈). 아직 골인 못 한 아이만 — 시계 숫자만으로는 안 본다. */
   const M = G.mini;
   if(miniOn() && M && M.k === 0 && M.st === 'run' && G.t <= MINI_WARN && MINE.fin < 0){
-    d.style.opacity = 1; d.classList.add('on'); d.classList.add('urgent'); return;
+    dangerSet(d, '1', true, true); return;
   }
-  d.classList.remove('urgent');
-  if(G.phase==='night' && p < 0.3){ d.style.opacity = 1; d.classList.add('on'); }
-  else { d.style.opacity = 0; d.classList.remove('on'); }
+  if(G.phase==='night' && p < 0.3) dangerSet(d, '1', true, false);
+  else dangerSet(d, '0', false, false);
+}
+/* 81차 — 초당 8번: 투명도·on·urgent 를 지금 값과 다를 때만 쓴다(최종 상태는 예전과 같다) */
+function dangerSet(d, op, on, ur){
+  if(d.style.opacity !== op) d.style.opacity = op;
+  if(d.classList.contains('urgent') !== ur) d.classList.toggle('urgent', ur);
+  if(d.classList.contains('on') !== on) d.classList.toggle('on', on);
 }
 
 /* ═══════════════════════ 소리 (파일 없이 코드로 합성) ═══════════════════════ */
@@ -33787,6 +33899,7 @@ function loop(){
       heapMB = mb;
     }
   }
+  _ep81++;   // 81차 — 그리기 차례(reKick): 이 loop 가 바꾼 클래스는 곧 이어지는 그리기에서 한 번에 반영된다
 }
 
 /* ══════════════ 성능 원인 찾기 스위치 ══════════════
