@@ -5880,6 +5880,9 @@ if(new URLSearchParams(location.search).get('bloom') === '1') GFX.bloom = 1;
   if(q.has('pr'))     GFX.pr     = Math.max(0.25, Math.min(3, +q.get('pr') || GFX.pr));
   if(q.has('shadow')) GFX.shadow = Math.max(0, q.get('shadow')|0); }
 if(isTouch){ GFX.shadow = 0; GFX.bloom = 0; GFX.aa = 0; GFX.pr = 1.0; }
+/* 81차 성능 — 새로 넣은 '덜 그리기' 손잡이 한 곳. 켠 채가 기본이고 ?p81off=이름,이름 / ?p81off=all / ?nocull=1 이면 끈다
+   (교실에서 켠/끈 fps 를 견주는 손잡이). 자주 도는 곳은 여기를 매번 읽지 않고 시작할 때 상수로 한 번 읽어 둔다. */
+const P81 = (()=>{ const s=new URLSearchParams(location.search).get('p81off')||''; const off=new Set(s.split(',')); const all=off.has('all')||new URLSearchParams(location.search).has('nocull'); return new Proxy({}, {get:(_,k)=>!(all||off.has(String(k)))}); })();
 
 if(!new URLSearchParams(location.search).get('gfx')){
   try{
@@ -6700,6 +6703,54 @@ function scullShadow(cam){
     c.m.castShadow = !hide; if(hide) out++;
   }
   S.shOut = out; S.shAll = all;
+}
+/* ═══ 81차 — 화면에도, 화면에 닿는 그림자에도 안 걸리는 좀비·친구는 통째로 안 그린다 (zombieCull · friendCull) ═══
+   좀비·친구 부품은 인스턴스 메시(imesh, frustumCulled=false)라 three 가 거르지 못한다 — 등 뒤 90마리도 본판·그림자 판에서
+   정점을 다 돌고, 행렬·색을 매 프레임 올렸다. 그래서 한 마리(한 사람)씩 구 하나로 본다.
+     · 구가 카메라 절두체 안이면 그린다.
+     · 아니어도 그 구를 해 빛 방향으로 땅(SCULL.ymin)까지 쓸어 만든 캡슐이 절두체에 닿으면 그린다(scullShadow 와 같은 식) —
+       화면 밖 좀비의 그림자가 화면 안 땅에 떨어질 수 있다. 빛 방향은 둘 다 본다: 지난 프레임 것 + 이번 프레임 updSky 가 낼 것
+       (skyLight81 — 같은 식으로 미리 낸다. 그림자 판은 updSky 뒤에 그려진다).
+     · 둘 다 아니면 건너뛴다. 걸음·맞음·쓰러짐·올라옴 시계와 흙먼지·소리는 그대로 돈다(다시 들어와도 한 프레임도 튀지 않는다).
+   본판·그림자 판이 **같은 프레임에 같은 목록**을 쓰므로 '움직이는 것을 한 판에서만 덜 갱신' 하는 일(68차 그림자 깜빡임)은 없다.
+   카메라 틀은 camera 의 위치·회전에서 직접 만든다(camera.updateMatrixWorld 를 부르면 이름표 등 뒤따르는 셈이 한 프레임 빨라져 달라진다).
+   ?p81off=zombieCull / friendCull / all · ?nocull=1 이면 끈다. */
+const ACT81 = {zombie: P81.zombieCull, friend: P81.friendCull, on: false, sh: false, nL: 0, ymin: 0,
+  F: new THREE.Frustum(), PM: new THREE.Matrix4(), CM: new THREE.Matrix4(),
+  L: [new THREE.Vector3(), new THREE.Vector3()], dn: [1, 1], sky: {k:0, kD:0, sEl:0, mEl:0, sun:new THREE.Vector3(), moon:new THREE.Vector3(), litT:new THREE.Vector3(), litW:new THREE.Vector3()},
+  zOut: 0, zAll: 0, pOut: 0, pAll: 0};
+/* 한 프레임에 한 번 — 카메라가 정해진 뒤(updPlayer·흔들림·fovTick 다음), drawWolves 앞에서 부른다 */
+function actorCullPrep(dt, night){
+  const A = ACT81; A.on = false; A.zOut = A.zAll = A.pOut = A.pAll = 0;
+  if(!(A.zombie || A.friend) || camera.parent !== scene) return;
+  if(G.phase === 'intro') return;      // 78차 도입 장면은 이 뒤(storyTick78)에서 카메라를 옮긴다 — 그 프레임 카메라를 모르니 거르지 않는다
+  A.CM.compose(camera.position, camera.quaternion, camera.scale).invert();
+  A.F.setFromProjectionMatrix(A.PM.multiplyMatrices(camera.projectionMatrix, A.CM));
+  A.sh = !!(GFX.shadow && renderer.shadowMap.enabled && sun.castShadow);
+  if(A.sh && !renderer.shadowMap.autoUpdate) return;   // 그림자 지도를 몇 프레임에 한 번만 그리면(shHz) 그 지도는 다음 카메라들에도 쓰인다 — 이 프레임 카메라로 거르면 안 된다
+  A.nL = 0;
+  if(A.sh){
+    const L0 = A.L[0].subVectors(sunTarget.position, sun.position).normalize();
+    const d = skyLight81(dt, night, A.sky).litW, L1 = A.L[1];   // shadowFollow 가 해를 놓는 식 그대로: (d·150, max(40, d.y·150)) 의 반대쪽
+    L1.set(-d.x*150, -Math.max(40, d.y*150), -d.z*150).normalize();
+    A.dn[0] = Math.max(0.05, -L0.y); A.dn[1] = Math.max(0.05, -L1.y); A.nL = 2;
+  }
+  A.ymin = SCULL.ymin; A.on = true;
+}
+/* 구(x,y,z,r)가 보이나 — 절두체 안이거나, 해 빛으로 쓸은 캡슐이 절두체에 닿으면 true */
+function actorVis81(x, y, z, r){
+  const A = ACT81, pl = A.F.planes;
+  let k = 0;
+  for(; k<6; k++){ const p = pl[k]; if(p.normal.x*x + p.normal.y*y + p.normal.z*z + p.constant < -r) break; }
+  if(k === 6) return true;
+  for(let i=0; i<A.nL; i++){
+    const L = A.L[i], t = Math.max(0, (y + r - A.ymin)/A.dn[i]), x1 = x + L.x*t, y1 = y + L.y*t, z1 = z + L.z*t;
+    let hide = false;
+    for(let j=0; j<6; j++){ const p = pl[j], n = p.normal;
+      if(n.x*x + n.y*y + n.z*z + p.constant < -r && n.x*x1 + n.y*y1 + n.z*z1 + p.constant < -r){ hide = true; break; } }
+    if(!hide) return true;
+  }
+  return false;
 }
 function bset(h, on){
   const b = banks.get(h[0]); if(!b || !b.chunks) return;
@@ -17318,6 +17369,9 @@ function drawWolfHP(){
   const ry = camera.rotation.y;
   const rx2 = Math.cos(ry), rz2 = -Math.sin(ry);     // 막대의 '오른쪽' 방향
   const fx2 = -Math.sin(ry)*0.05, fz2 = -Math.cos(ry)*0.05;   // 채움을 카메라 쪽으로
+  /* 81차 zombieCull — 화면·화면에 닿는 그림자 밖 막대는 안 쓴다(순서는 그대로 당겨지므로 겹친 막대의 섞임 순서도 같다).
+     막대 메시가 처음 보이는 프레임엔 거르지 않는다 — three 가 그때 한 번 잰 구(투명 정렬 기준)가 예전과 같아야 한다 */
+  const hc = typeof ACT81 !== 'undefined' && ACT81.on && ACT81.zombie && HB_BG.boundingSphere !== null && HB_FG.boundingSphere !== null;
   let n = 0;
   for(const w of G.wolves){
     if(n >= MAXW) break;
@@ -17327,6 +17381,7 @@ function drawWolfHP(){
     const boss = w.bi >= 0 || isBoss(w.k);
     const wd = HB_W * (boss ? 1.75 : 1) * (0.7 + T0.sc*0.45);
     const y = (w.y||GY) + T0.sc*1.55 + 0.62;
+    if(hc && !actorVis81(w.x, y, w.z, wd*0.5 + 0.8)) continue;
     const f = Math.max(0, Math.min(1, w.mx ? w.hp/w.mx : 0));
     setI(HB_BG, n, w.x, y, w.z, ry, wd+0.09, HB_H+0.07, 1, 0x1a1218);
     /* 채움은 왼쪽 끝에 붙여야 줄어드는 게 보인다 — 가운데 정렬이면 양쪽에서 줄어든다 */
@@ -18532,8 +18587,9 @@ function zombieHitPose79(w, at=performance.now()/1000){
   const q=age<.05?age/.05:age<.09?1:Math.pow(Math.max(0,1-(age-.09)/.21),2);
   return q*(w.hitC?1.42:1.16)*(isBoss(w.k)?.48:1);
 }
-function drawWolves(list, t, dt){
+function drawWolves(list, t, dt, cull){
   dt = Math.min(0.05, dt || 0.016);
+  const zc = cull === true && ACT81.on && ACT81.zombie; let zsk = 0;   // 81차 zombieCull — 본 게임 루프에서 부를 때만(도입 배우·검사 호출은 그대로)
   for(let i=WOLF_DEAD.length-1;i>=0;i--) if(!(WOLF_DEAD[i].dead > 0) && !(WOLF_DEAD[i].lieT > 0)) WOLF_DEAD.splice(i,1);   // 44차 — 다 쓰러진 시체는 치운다(66차: 쓰러진 뒤 팔을 떠는 동안은 남긴다)
   let n=0, ln=0, en=0, pn=0, horn=0, rib=0, pl=0, gem=0, ew=0, fg=0, hr=0, dr=0, bm=0, hrn=0, costume=0, wrap=0, sl=0, dg=0;
   const RK = wolfRank(G.day);          // 오늘 밤 좀비들의 등급 (보스는 늘 3)
@@ -18546,7 +18602,7 @@ function drawWolves(list, t, dt){
   const nL = list.length, nAll = nL + WOLF_DEAD.length;
   for(let wi=0; wi<nAll; wi++){   // 44차 — 시체도 같은 셈으로 그린다 · 66차: 두 목록을 이어 붙이지 않고 번갈아 읽는다(매 프레임 새 배열 없음)
     const w = wi < nL ? list[wi] : WOLF_DEAD[wi - nL];
-    if(n>=MAXW) break;
+    if(n + zsk >= MAXW) break;                // 81차 — 건너뛴 좀비도 자리를 센다(92마리 넘을 때 끊기는 자리가 예전과 같게)
     FLIP_ON = false;
     // 보폭은 실제 이동으로 먼저 계산한다. 시각 반동을 보폭 거리로 오인하지 않는다.
     const PZ = wolfPose(w, t, dt), hunt=PZ.threat;
@@ -18634,6 +18690,16 @@ function drawWolves(list, t, dt){
     if(w.stT > 0 && !(dead > 0)){ w.stT -= dt; stq = 1 - Math.max(0, w.stT)/0.5;
       stP = Math.sin(Math.PI*Math.min(1, stq*1.7))*(1 - stq*.6); stW = Math.sin(stq*Math.PI*3)*(1 - stq);
       stL = (w.stx||0)*rx + (w.stz||0)*rz; stF = (w.stx||0)*fx + (w.stz||0)*fz; }
+    /* 81차 zombieCull — 여기까지가 좀비 상태(걸음·맞음·비틀·올라옴·쓰러짐 시계와 흙먼지)다. 아래는 그리기뿐이라 안 보이면 건너뛴다.
+       구: 발밑+0.9·크기 가운데, 반지름 5·크기+0.6 — 잰 값(모든 종류·보스·올라옴·쓰러짐·검은 고리, 12일차 등급) 최대 3.9·크기의 1.3배.
+       치유 고리(반지름 heal.r)는 넣고, 다른 좀비로 이어진 치유 줄이 있으면 늘 그린다 */
+    if(zc && !(w.healTgt && w.healBeam > 0)){
+      const scB = (w.sc || d.sc)*(boss ? 1 : 1 + rk*0.085);
+      let r = 5*scB + 0.6;
+      if(look === 'heal' && d.heal && !(w.healPool !== undefined && w.healPool <= 0)) r = Math.max(r, d.heal.r + 1);
+      ACT81.zAll++;
+      if(!actorVis81(w.x, gy0 + 0.9*scB, w.z, r)){ ACT81.zOut++; zsk++; w.x -= kox; w.z -= koz; continue; }
+    }
     /* 공격 회복 — 타격 뒤 비틀 */
     const recv = (!w.mv && !(dead > 0) && ap > .32 && ap < .72) ? Math.sin((ap - .32)/.40*Math.PI) : 0;
     const thrust = bite*.30 - crouch*.10 - alert*.04;
@@ -19434,16 +19500,28 @@ function setSheepAttachment(mesh,i,x,y,z,bodyYaw,bodyPitch,yaw,pitch,roll,sx,sy,
 }
 const _jobBone79=new THREE.Matrix4(),_jobMatrix79=new THREE.Matrix4(),_jobRot79=new THREE.Quaternion(),_jobTurn79=new THREE.Quaternion(),
       _jobCenter79=new THREE.Vector3(),_jobSize79=new THREE.Vector3(),_jobOffset79=new THREE.Vector3(),_jobEuler79=new THREE.Euler();
-function drawSheep(list, t, cap, colOf, scale){
+/* 81차 friendCull — 화면·화면에 닿는 그림자 밖 사람은 자세 셈은 **다 하고**(팔 따라오기 기억 gs.arms·걸음 섞기·날개 끝 꼬리 s.wtip·
+   발 자리 s.wfoot·총구 s.mzX·손잡이 기록 s.g3 가 한 프레임도 멈추지 않는다 → 다시 들어와도 그대로 이어진다) 그린 칸만 되돌린다.
+   다음 사람이 그 칸부터 다시 쓰므로 GPU 에는 보이는 사람만 올라가고 본판·그림자 판 정점도 그만큼 준다.
+   구: 발밑+1.0·크기, 반지름 FRIEND_R81·크기+0.6(=2.84칸) — 잰 값(총 12종·전직 차림·날개 편 활공·쓰러짐) 최대 1.6칸의 1.8배. 내 몸(me)은 늘 그린다 */
+const FRIEND_R81 = 3.2, SV81 = new Int32Array(P_jobMeshes.length + P_cosMeshes.length);
+function drawSheep(list, t, cap, colOf, scale, cull){
   let n=0, ln=0, shoeN=0, armN=0, eyeN=0, noseN=0, decoN=0, gunN=0, glowN=0, mouthN=0, jobFN=0, jobRN=0;
   const wN = [0,0], wgN = [0,0];                                     // 45차 — 날개(깃털·불꽃) · 날개 빛
   for(const mesh of P_jobMeshes) mesh.count=0;
   for(const mesh of P_cosMeshes) mesh.count=0;
+  const fc = cull === true && ACT81.on && ACT81.friend; let fsk = 0;   // 81차 friendCull (cull 이 없으면 ACT81 을 읽지도 않는다 — 함수만 떼어 도는 정적 검사)
+  let s0n=0, s0ln=0, s0shoe=0, s0arm=0, s0eye=0, s0nose=0, s0deco=0, s0gun=0, s0glow=0, s0mouth=0, s0jobF=0, s0jobR=0, s0w0=0, s0w1=0, s0wg0=0, s0wg1=0;
 
   for(const s of list){
     FLIP_ON = false;
-    if(n>=cap) break;
+    if(n + fsk >=cap) break;                  // 81차 — 되돌린 사람도 자리를 센다(정원에서 끊기는 자리가 예전과 같게)
     const y  = s.y!==undefined ? s.y : GY;
+    let cul = false;
+    if(fc){ ACT81.pAll++; cul = !s.me && !actorVis81(s.x, y + 1.0*scale, s.z, FRIEND_R81*scale + 0.6);
+      if(cul){ s0n=n; s0ln=ln; s0shoe=shoeN; s0arm=armN; s0eye=eyeN; s0nose=noseN; s0deco=decoN; s0gun=gunN; s0glow=glowN; s0mouth=mouthN; s0jobF=jobFN; s0jobR=jobRN;
+        s0w0=wN[0]; s0w1=wN[1]; s0wg0=wgN[0]; s0wg1=wgN[1];
+        let q = 0; for(const mesh of P_jobMeshes) SV81[q++] = mesh.count; for(const mesh of P_cosMeshes) SV81[q++] = mesh.count; } }
     const jt = Math.max(0, Math.min(2, s.jt|0));
     const hasJob = jt > 0 && s.jb >= 0 && s.jb < JOB_LOOK.length;
     const uniform = hasJob ? JOB_UNIFORM[s.jb][jt-1] : null;
@@ -19921,6 +19999,11 @@ function drawSheep(list, t, cap, colOf, scale){
       tool(.395,.19,s.tool==='work'?.22:.075,s.tool==='work'?.15:.15,s.tool==='work'?.07:.12,s.tool==='work'?0x9aa3ae:0xc7d0da);
     }
     n++;
+    if(cul){   // 81차 friendCull — 셈은 끝났다. 쓴 칸을 되돌린다(다음 사람이 이 칸부터 덮어쓴다)
+      n=s0n; ln=s0ln; shoeN=s0shoe; armN=s0arm; eyeN=s0eye; noseN=s0nose; decoN=s0deco; gunN=s0gun; glowN=s0glow; mouthN=s0mouth; jobFN=s0jobF; jobRN=s0jobR;
+      wN[0]=s0w0; wN[1]=s0w1; wgN[0]=s0wg0; wgN[1]=s0wg1;
+      let q = 0; for(const mesh of P_jobMeshes) mesh.count = SV81[q++]; for(const mesh of P_cosMeshes) mesh.count = SV81[q++];
+      fsk++; ACT81.pOut++; }
   }
   FLIP_ON = false;
   P_body.count=n; P_head.count=n; P_nose.count=noseN; P_mouth.count=mouthN;
@@ -19939,7 +20022,7 @@ function drawSheep(list, t, cap, colOf, scale){
                         const wf = P_wing[i].geometry.attributes.wflex; if(wf && wN[i] > 0) wf.needsUpdate = true; }   // 66차 — 관절 굽힘 칸
   flush(P_body,P_head,P_arm,P_hand[0],P_hand[1],P_eye,P_nose,P_mouth,P_legs,P_shoe,P_deco,P_gun,P_gunF,P_jobF,P_jobR,
         P_wing[0],P_wing[1],P_wingG[0],P_wingG[1],...P_jobMeshes,...P_cosMeshes);
-  drawAvatarShadows(list,cap,scale);
+  drawAvatarShadows(list,cap,scale);   // 81차 — 발밑 그림자는 거르지 않는다(날아오른 사람의 그림자는 몸에서 8칸 아래 땅에 떨어진다 · 한 사람 삼각형 2개)
 }
 
 /* 이름표 */
@@ -33320,20 +33403,32 @@ function skyToneLin(c, out){
   const cl = v=> Math.min(1, Math.max(0, v));
   return out.setRGB(cl(1.6605*r3 - 0.5876*g3 - 0.0728*b3), cl(-0.1246*r3 + 1.1329*g3 - 0.0083*b3), cl(-0.0182*r3 - 0.1006*g3 + 1.1187*b3));
 }
-function updSky(dt, night){
+/* 81차 — updSky 의 '하늘 시계 · 해·달 · 그림자 빛 방향' 셈을 떼어 냈다(식·순서 그대로라 값이 비트까지 같다).
+   좀비·친구 거르기(ACT81)가 그리기 전에 **같은 함수**로 이번 프레임 끝(updSky 뒤)의 그림자 빛 방향을 미리 낸다 —
+   식이 두 벌이면 언젠가 한쪽만 고쳐져 그림자가 잘린다. o 에만 쓰고 전역(skyK·_litW)은 건드리지 않는다. */
+const SKY81 = {k:0, kD:0, sEl:0, mEl:0, sun:new THREE.Vector3(), moon:new THREE.Vector3(), litT:new THREE.Vector3(), litW:new THREE.Vector3()};
+function skyLight81(dt, night, o){
   const k = night ? 1 : 0;
-  skyK += (k - skyK) * Math.min(1, dt*1.3);
-  NIGHTK = skyK;
+  let sk = skyK; sk += (k - sk) * Math.min(1, dt*1.3); o.k = sk;
   // 해·달이 하늘을 가로지른다
-  const kD = THREE.MathUtils.smoothstep(skyK, 0.0, 0.5), kN = THREE.MathUtils.smoothstep(skyK, 0.5, 0.9);
+  const kD = THREE.MathUtils.smoothstep(sk, 0.0, 0.5), kN = THREE.MathUtils.smoothstep(sk, 0.5, 0.9);
   const sEl = SUN_PATH.elDay + (SUN_PATH.elDusk - SUN_PATH.elDay)*kD + (-0.30 - SUN_PATH.elDusk)*kN;
   const sAz = SUN_PATH.azDay + (SUN_PATH.azDusk - SUN_PATH.azDay)*kD + 0.30*kN;
-  const mEl = -0.20 + (SUN_PATH.moonEl + 0.20)*THREE.MathUtils.smoothstep(skyK, 0.5, 0.95), mAz = SUN_PATH.moonAz;
-  _sunW.set(Math.cos(sEl)*Math.cos(sAz), Math.sin(sEl), Math.cos(sEl)*Math.sin(sAz));
-  _moonW.set(Math.cos(mEl)*Math.cos(mAz), Math.sin(mEl), Math.cos(mEl)*Math.sin(mAz));
-  _litT.copy(sEl > 0.03 ? _sunW : _moonW);                      // ★ 지평선 위에 있는 쪽이 빛을 낸다 (skyK 문턱으로 고르면 노을에 지평선 아래 달을 고른다)
-  if(_litT.y < 0.22) _litT.y = 0.22; _litT.normalize();          // 그림자 빛은 12.7° 아래로 안 내려간다(그림자 상자·여드름)
-  _litW.lerp(_litT, dt > 0 ? Math.min(1, dt*1.5) : 1).normalize();   // 둘 다 y ≥ 0.22 라 섞어도 길이가 0 이 안 된다
+  const mEl = -0.20 + (SUN_PATH.moonEl + 0.20)*THREE.MathUtils.smoothstep(sk, 0.5, 0.95), mAz = SUN_PATH.moonAz;
+  o.kD = kD; o.sEl = sEl; o.mEl = mEl;
+  o.sun.set(Math.cos(sEl)*Math.cos(sAz), Math.sin(sEl), Math.cos(sEl)*Math.sin(sAz));
+  o.moon.set(Math.cos(mEl)*Math.cos(mAz), Math.sin(mEl), Math.cos(mEl)*Math.sin(mAz));
+  o.litT.copy(sEl > 0.03 ? o.sun : o.moon);                      // ★ 지평선 위에 있는 쪽이 빛을 낸다 (skyK 문턱으로 고르면 노을에 지평선 아래 달을 고른다)
+  if(o.litT.y < 0.22) o.litT.y = 0.22; o.litT.normalize();       // 그림자 빛은 12.7° 아래로 안 내려간다(그림자 상자·여드름)
+  o.litW.copy(_litW).lerp(o.litT, dt > 0 ? Math.min(1, dt*1.5) : 1).normalize();   // 둘 다 y ≥ 0.22 라 섞어도 길이가 0 이 안 된다
+  return o;
+}
+function updSky(dt, night){
+  const SL = skyLight81(dt, night, SKY81);
+  skyK = SL.k;
+  NIGHTK = skyK;
+  const kD = SL.kD, sEl = SL.sEl, mEl = SL.mEl;
+  _sunW.copy(SL.sun); _moonW.copy(SL.moon); _litT.copy(SL.litT); _litW.copy(SL.litW);
   skyPivot.position.copy(camera.position);
   sunDisc.position.copy(_sunW).multiplyScalar(195);  sunDisc.visible = sEl > -0.10;
   moonDisc.position.copy(_moonW).multiplyScalar(195); moonDisc.visible = mEl > -0.10;
@@ -33675,7 +33770,8 @@ function loop(){
     if(!DBG.noInst) towerFxTick(dt);                       // 65차 — 탑 포탄·타격 조각
     if(PROF_ON) pE('건물메시');
     if(PROF_ON) pS();
-    if(!DBG.noInst) drawWolves(G.wolves, tAcc, dt);
+    if(!DBG.noInst){ actorCullPrep(dt, G.phase==='night'||G.phase==='intro');   // 81차 — 카메라가 정해진 뒤 한 번(좀비·친구 거르기)
+                     drawWolves(G.wolves, tAcc, dt, true); }
     if(!DBG.noInst) drawFarm(tAcc);
     if(PROF_ON) pE('좀비');
     if(PROF_ON) pS();
@@ -33720,7 +33816,7 @@ function loop(){
         meSheep.take = PL.takeT > 0 ? PL.takeT : 0; meSheep.flip = (PL.flipT !== undefined && PL.flipT < 0.6 && !PL.ground) ? PL.flipT/0.6 : 0;   // 42차 — 도약 늘어남 · 공중제비
         shList.push(meSheep);
       }
-      drawSheep(shList, tAcc, MAXP, s=>GHEX[s.g|0], SHEEP_S);
+      drawSheep(shList, tAcc, MAXP, s=>GHEX[s.g|0], SHEEP_S, true);   // 81차 — 본 루프만 거른다
       wingFxPeople(shList, dt, tAcc);                               // 66차 — 날개 꼬리·친구 전직 마법진(굽힌 날개 끝에서)
     }
     if(PROF_ON) pE('사람');
@@ -34169,7 +34265,7 @@ Object.assign(window, {
   __LV_MAX:LV_MAX, __openStat:openStat, __openBadge:openBadge, __maxHP:maxHP, __mineTime:mineTime,
   __workSec:workSec, __upSec:upSec, __fixSec:fixSec, __mineBonus:mineBonus,
   __atkMul:atkMul, __defNow:defNow, __xpReset:xpReset,
-  __drawWolves:drawWolves, __hit79:{hit:zombieHit79,pose:zombieHitPose79,stones,upd:updOrbs}, __drawSoldiers:drawSoldiers, __wolfMeshes:()=>({sleeve:W_sleeve, digit:W_digit, body:W_body, belly:W_belly, brow:W_brow, rib:W_rib, plate:W_plate, gem:W_gem, heal:W_heal, beam:W_beam, eyeW:W_eyeW, fang:W_fang, dread:W_dread, legs:W_legs, paw:W_paw, wrap:W_wrap}),
+  __drawWolves:drawWolves, __ACT81:ACT81, __hit79:{hit:zombieHit79,pose:zombieHitPose79,stones,upd:updOrbs}, __drawSoldiers:drawSoldiers, __wolfMeshes:()=>({sleeve:W_sleeve, digit:W_digit, body:W_body, belly:W_belly, brow:W_brow, rib:W_rib, plate:W_plate, gem:W_gem, heal:W_heal, beam:W_beam, eyeW:W_eyeW, fang:W_fang, dread:W_dread, legs:W_legs, paw:W_paw, wrap:W_wrap}),
   __wolfPose:wolfPose, __wolfCorpse:wolfCorpse, __WOLF_DEAD:WOLF_DEAD, __smoothHead:smoothHead, __idleLife:idleLife, __P_legs:P_legs,   // 44차
   __work:()=>work, __doAction:doAction, __setActing:v=>{ acting = v; },
   __sheepHurt:sheepHurt, __goDown:goDown, __reviveMe:reviveMe, __aimDown:aimDown,
