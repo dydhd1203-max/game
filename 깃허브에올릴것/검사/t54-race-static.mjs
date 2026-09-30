@@ -28,13 +28,14 @@ const fixtures=`
 const MINI_Y=100,MINI_R=34,MINI_PADZ=-19,PL={R:.3},G={players:new Map(),mini:{seed:1,st:'run'}},MINE={cp:0};
 let uid='kid00',racing=true;const raceOn=()=>racing,raceHold=()=>false;
 const raceArtBuild=()=>{},raceArtRebuild=()=>{},raceArtReset=()=>{};
-const raceBounceSound=()=>{};
+const raceBounceSound=()=>{},fovPunch=()=>{};
 `;
-const declarations=['RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE_SEC','ROCK','RACE_LAUNCH_RATE','RACE74','GRAV','RACE_TOY77'];
-const functions=['mulberry','furLight','race74Reset','raceGravityScale','raceMotion','raceBuild','raceOff','raceZOff','racePose','raceJumpPose','raceLandingPose','raceAlive','raceContains','raceSurface','raceTopAt','raceUnder','raceSlotXZ','raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','racePunchHit','raceDonutContact79','raceDonutHit79','raceToyForm77','raceToyHit77','raceBarHit','raceBarSeparate79','raceSlideHit78','raceHazardTick'];
+const declarations=['CH82','CH82_Z1','CH82T','CH82Q','chuteSq82','chuteRise82','chuteZone82','RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE_SEC','ROCK','RACE_LAUNCH_RATE','RACE74','GRAV','RACE_TOY77'];
+const functions=['mulberry','furLight','race74Reset','raceGravityScale','raceMotion','raceBuild','raceOff','raceZOff','racePose','raceJumpPose','raceLandingPose','raceAlive','raceContains','raceSurface','raceTopAt','raceUnder','raceSlotXZ','raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','racePunchHit','raceDonutContact79','raceDonutHit79','raceToyForm77','raceToyHit77','raceBarHit','raceBarSeparate79','raceSlideHit78','raceHazardTick',
+  'chute82','chuteQ82','chuteProf82','chuteProfSlope82','chuteContains82','chuteSurf82','chuteGrad82','chuteMotion82','chuteFlight82','chuteLaunch82','chuteAfter82','chuteBump82'];
 const ctx=vm.createContext({console});
 new vm.Script([fixtures,...declarations.map(decl),...functions.map(fn),`
-globalThis.A={RACE,RACE_P,RACE_S,RACE_SEC,RACE_Z_FIN,RACE_LAUNCH_RATE,RACE74,GRAV,JUMP,PL,G,MINE,raceBuild,raceOff,racePose,raceJumpPose,raceLandingPose,raceContains,raceSurface,raceTopAt,raceUnder,raceHazards,racePunchHit,raceToyForm77,raceHazardTick,raceGravityScale,raceMotion,
+globalThis.A={CH82,CH82_Z1,chuteQ82,chuteProf82,chuteSurf82,RACE,RACE_P,RACE_S,RACE_SEC,RACE_Z_FIN,RACE_LAUNCH_RATE,RACE74,GRAV,JUMP,PL,G,MINE,raceBuild,raceOff,racePose,raceJumpPose,raceLandingPose,raceContains,raceSurface,raceTopAt,raceUnder,raceHazards,racePunchHit,raceToyForm77,raceHazardTick,raceGravityScale,raceMotion,
  spawn(id){uid=id;return raceSlotXZ();},cp(id,p){uid=id;return raceCheckpointXZ(p);},setRacing(v){racing=v;}};`].join('\n')).runInContext(ctx,{timeout:10000});
 const A=ctx.A,seeds=Array.from({length:90},(_,i)=>i*7919+13);
 let deterministic=true,finite=true,centerSupport=true,moving=false,checkpoints=true;
@@ -78,18 +79,20 @@ const cushion={shape:'cushion',x:100,z:500,y:2,w:12,d:14,h:1,round:3};
 check('Cushion collision retains the straight center and rounded corner clearance',
   A.raceContains(cushion,105.8,500,0,0)&&A.raceContains(cushion,100,506.8,0,0)&&
   !A.raceContains(cushion,105.8,506.8,0,0)&&!A.raceContains(cushion,106.2,500,0,0));
-const slide=A.RACE_P.find(p=>p.shape==='slide');
-let slideSmooth=!!slide,largestStep=0,slopes=[];
-if(slide){const z0=slide.z-slide.d/2,z1=slide.z+slide.d/2,step=slide.d/1000;
-  let previous=A.raceSurface(slide,slide.x,z0);
-  slideSmooth&&=Math.abs(previous-100-slide.y)<1e-8&&Math.abs(A.raceSurface(slide,slide.x,z1)-100-slide.yEnd)<1e-8;
-  for(let i=1;i<=1000;i++){const h=A.raceSurface(slide,slide.x,z0+i*step);largestStep=Math.max(largestStep,Math.abs(h-previous));
-    slideSmooth&&=Number.isFinite(h)&&h<=previous+1e-9;previous=h;}
-  slopes=[Math.abs(A.raceSurface(slide,slide.x,z0+step)-A.raceSurface(slide,slide.x,z0))/step,
-    Math.abs(A.raceSurface(slide,slide.x,z1)-A.raceSurface(slide,slide.x,z1-step))/step];
-  slideSmooth&&=slopes.every(s=>s<.02)&&largestStep<.08;
+// 82차 — the rainbow slide is now the curved U roller coaster (chute82). Its centre line must be continuous from the
+// flat flag deck to the kicker; U depth grows from zero at the mouth, and every lane is reachable without a stair step.
+const slide=A.RACE_P.find(p=>p.shape==='slide'),C=A.CH82;
+let slideSmooth=!!slide&&!!slide.chute,largestStep=0,mouthStep=0,slopes=[];
+if(slideSmooth){const z0=C.z0,z1=A.CH82_Z1,n=4000,step=(z1-z0)/n;
+  const at=(d,z)=>{const q=A.chuteQ82(z);return A.raceSurface(slide,q.cx+d/q.cs,z)-100;};
+  slideSmooth&&=Math.abs(at(0,z0)-C.knots[0][1])<1e-6&&Math.abs(at(0,z1)-C.knots[C.knots.length-1][1])<1e-6;
+  for(const d of [0,-6,6,-10.5,10.5]){let previous=at(d,z0);for(let i=1;i<=n;i++){const h=at(d,z0+i*step);largestStep=Math.max(largestStep,Math.abs(h-previous));slideSmooth&&=Number.isFinite(h);previous=h;}}
+  // Entering from anywhere on the 26-wide flag deck (y 30) never meets a wall: the mouth is flush and rises gently.
+  for(let x=-12.6;x<=12.6;x+=.3)mouthStep=Math.max(mouthStep,A.raceSurface(slide,x,z0+.5)-100-30);
+  slopes=[Math.abs(at(0,z0+step)-at(0,z0))/step,Math.abs(at(0,z1)-at(0,z1-step))/step];
+  slideSmooth&&=slopes[0]<.02&&largestStep<.2&&mouthStep<.5;   // rubber lip bead .42 < the 0.68 stair step
 }
-check('Actual slide collision descends continuously with gentle entry and exit slopes',slideSmooth,{largestStep,slopes});
+check('Actual roller-coaster collision is continuous on every lane, flush at the flag-deck mouth and ends at the kicker',slideSmooth,{largestStep,mouthStep,slopes});
 const launchPads=A.RACE_P.filter(p=>p.bounce),manualPads=launchPads.filter(p=>p.bounce.manual);
 check('Four manual donut pads and the final launch expose finite bounce impulses',manualPads.length===4&&launchPads.length===5&&
   launchPads.every(p=>Number.isFinite(p.bounce.v)&&p.bounce.v>0&&Number.isFinite(p.bounce.forward)&&p.bounce.forward>0),
@@ -194,13 +197,18 @@ const openStraightLines=(sec,lo,hi,from,to)=>{const open=[],guards=obstacles.fil
     for(let z=from;z<=to;z+=.25){if(!footSupported(x,z)){supported=false;break;}Object.assign(A.PL,{x,z,y:100});
       if(guards.some(h=>A.racePunchHit(h))){blocked=true;break;}}
     if(supported&&!blocked)open.push(+x.toFixed(3));}return open;};
-const edgeAudit={start:openStraightLines(0,-22.3,22.3,0,76),left:openStraightLines(1,-22.3,-18.7,97,202),right:openStraightLines(1,18.7,22.3,97,202),slide:[]};
-for(const x of [-13.3,-13.29,-12.7,-12,-11,11,12,12.7,13.29,13.3]){let supported=true,blocked=false;
-  for(let z=695;z<=745;z+=.25){if(!footSupported(x,z)){supported=false;break;}Object.assign(A.PL,{x,z,y:A.raceSurface(slide,x,z)});
-    if(obstacles.some(h=>h.sec===5&&h.k==='punch'&&A.racePunchHit(h))){blocked=true;break;}}
-  edgeAudit.slide.push({x,supported,blocked});}
-check('Actual foot support and capsule collision block constant-X start routes and both outer-edge walking shortcuts',
-  !edgeAudit.start.length&&!edgeAudit.left.length&&!edgeAudit.right.length&&edgeAudit.slide.every(q=>!q.supported||q.blocked),edgeAudit);
+const edgeAudit={start:openStraightLines(0,-22.3,22.3,0,76),left:openStraightLines(1,-22.3,-18.7,97,202),right:openStraightLines(1,18.7,22.3,97,202),chute:[]};
+// 82차 — each candy row across the U: sample the actual ground-level player against the actual capsules. Every row keeps
+// one lane at least 4 wide, and a candy standing on a wall closes that wall up to the body clamp (no lip sneaking).
+{const lim=C.hw-A.PL.R-.03;
+ for(const [zr,ds] of C.bumpRows){const z=C.z0+zr,q=A.chuteQ82(z),cx=q.cx,cs=q.cs,open=[];
+  for(let d=-lim;d<=lim+1e-9;d+=.02){const x=cx+d/cs;Object.assign(A.PL,{x,z,y:A.raceSurface(slide,x,z)});
+   if(!obstacles.some(h=>h.chute82&&Math.abs(h.z-z)<.01&&A.racePunchHit(h)))open.push(d);}
+  const lanes=[];for(const d of open){const l=lanes.at(-1);if(l&&d-l[1]<.021)l[1]=d;else lanes.push([d,d]);}
+  const wide=lanes.filter(([a,b])=>b-a>=4),wallsClosed=ds.filter(d=>Math.abs(d)>6).every(d=>!lanes.some(([a,b])=>Math.sign(d)*(Math.sign(d)>0?b:a)>=lim-.03));
+  edgeAudit.chute.push({z,lanes:lanes.map(([a,b])=>[+a.toFixed(2),+b.toFixed(2)]),wide:wide.length,wallsClosed});}}
+check('Actual foot support and capsule collision block constant-X start routes and both outer-edge walking shortcuts; every chute candy row leaves a 4-wide lane and closes its wall',
+  !edgeAudit.start.length&&!edgeAudit.left.length&&!edgeAudit.right.length&&edgeAudit.chute.length===C.bumpRows.length&&edgeAudit.chute.every(q=>q.wide>=1&&q.wallsClosed),edgeAudit);
 check('Punch bags use rounded vertical capsules with no invisible side or top walls',
   probeBag(0,0)&&probeBag(bag.r+A.PL.R-.001,1)&&!probeBag(bag.r+A.PL.R+.001,1)&&
   probeBag(0,bag.y+bag.h/2-.001)&&!probeBag(0,bag.y+bag.h/2+.001));
