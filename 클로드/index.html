@@ -5874,6 +5874,9 @@ const GFX_Q = new URLSearchParams(location.search).get('gfx')
 const GFX = Object.assign({}, GFX_PRESET[GFX_Q] || GFX_PRESET.high);
 GFX.q = GFX_PRESET[GFX_Q] ? GFX_Q : 'high';      // 49차 — 고른 이름도 들고 있는다(flatMat 이 '부드럽게'면 광택을 끈다)
 if(new URLSearchParams(location.search).get('bloom') === '1') GFX.bloom = 1;
+/* 81차 성능 — 새로 넣은 걸러내기·순서 바꾸기·다시 담기를 하나씩 끄는 스위치(교실 A/B 용).
+   P81.이름 은 기본 참, ?p81off=이름 (쉼표로 여럿) · ?p81off=all · ?nocull=1 이면 거짓. 뜨거운 길에서는 시작할 때 한 번 상수로 읽는다. */
+const P81 = (()=>{ const s=new URLSearchParams(location.search).get('p81off')||''; const off=new Set(s.split(',')); const all=off.has('all')||new URLSearchParams(location.search).has('nocull'); return new Proxy({}, {get:(_,k)=>!(all||off.has(String(k)))}); })();
 
 { const q = new URLSearchParams(location.search);
   if(q.has('aa'))     GFX.aa     = Math.max(0, q.get('aa')|0);
@@ -5968,7 +5971,7 @@ if(GFX.shadow){
      즉 15Hz 는 성능도 못 얻고 깜빡임만 만들고 있었다.
 
      교실 기기에서 무거우면 GFX_PRESET 의 shHz 를 15 나 30 으로 되돌리면 된다(0 = 매 프레임).
-     진단(?diag) 의 '그림자 매 프레임' 으로 그 자리에서 비용을 잴 수 있다. */
+     진단(?diag) 의 '그림자 다시그리기 멈춤'(81차 — 옛 '그림자 매 프레임') 으로 그 자리에서 비용을 잴 수 있다. */
   renderer.shadowMap.autoUpdate = !GFX.shHz;   // shHz 0 이면 three.js 가 알아서 매 프레임 갱신한다
   renderer.shadowMap.needsUpdate = true;
 }
@@ -6171,6 +6174,100 @@ function shadowFollow(cx, cz, cy=GY){
   _sunDir.copy(sun.position).normalize();  // 지금 해가 있는 방향
   sunTarget.position.set(qx, cy, qz);
   sun.position.set(qx + _sunDir.x*150, cy + Math.max(40, _sunDir.y*150), qz + _sunDir.z*150);
+}
+
+/* ═══ 81차 성능 — 그림자 판을 해에 가까운 것부터 그린다 (그림자 지도는 한 칸도 안 바뀐다) ═══
+   교실 실측(81차 진단): 그림자 지도를 다시 그리는 값이 낮 처음 자리 ≈ 11ms, 밤 전투 ≈ 8ms — 그리기에서 제일 큰 덩어리 중 하나다.
+   three r160 그림자 판(WebGLShadowMap.renderObject)은 정렬 없이 장면 나무(scene.children) 순서대로 그린다.
+   우리 장면은 뱅크 조각이 산(mtB·mtC) → 성문 → 성곽 → 가게 → 농장 → 나무 순으로 들어가서, 해에서 먼 산 비탈·땅 가까운 것을 먼저 칠하고
+   가까운 나무 잎·성벽 윗면이 그 위를 다시 칠한다. 그림자 판은 깊이만 쓰므로, 해에 가까운 것을 먼저 그리면 뒤에 오는 가려진 조각은
+   칠하기 전에 깊이 검사(early-z / Hi-Z)에서 버려진다 — 칠하기·깊이·색 쓰기(메모리 대역폭)가 준다. 그리기 횟수·삼각형 수는 그대로.
+   잰 값(SwiftShader, 해에서 본 '깊이 검사를 통과해 칠해진 조각' 수, 2048² 판, 같은 프레임 — 그림자 지도·화면 바이트 같음 7장면):
+     마을 1인칭 583만 → 475만(−18.5%) · 마을 3인칭 728만 → 644만(−11.5%) · 탑 안 539만 → 496만(−8%) · 성벽·밤·경주·대기실 ≈ 0%.
+     깊이 셰이더 프로그램 다시 고르기(getProgram)도 마을 10 → 6 번(아래 갈래 묶기).
+     ✗ 제약 없이 해에 가까운 순으로 다 바꾸면 마을 −44% · 성벽 −47% · 밤 −19% 까지 줄지만, 서로 파고든 물체(잎 셋 · 성곽 조각 이음매 · 성문 벽돌과 산)가
+       같은 깊이로 만나는 1~5칸의 맨 아래 자리가 바뀌었다(화면은 0픽셀) — '그림자 지도도 같다' 가 아니라서 안 했다.
+   ★ 왜 그림자 지도가 똑같은가: 깊이 검사(LessEqual)는 한 칸에서 가장 가까운 깊이를 남기므로 그리는 순서와 상관없다.
+     예외는 딱 하나 — 두 조각이 24비트 깊이 버퍼에서 '같은 깊이' 일 때다. 그때는 나중에 그린 쪽이 색(RGBA 로 싼 깊이)을 덮어써서
+     맨 아래 자리가 1~3 달라질 수 있다(묶음 순서를 마음대로 뒤집어 보니 마을에서 1~4칸이 그랬다 — 화면은 0픽셀이었지만).
+     그래서 같은 깊이가 생길 수 있는 짝은 앞뒤를 절대 안 바꾼다: 같은 칸·같은 깊이의 두 점은 같은 광선 위 한 점(1e-4 칸 안)이라,
+     두 조각의 상자(SCULL_BOX — 68차, 그 조각의 모든 인스턴스를 품는다)가 서로 안 닿으면 같은 깊이가 나올 수 없다.
+     상자가 닿는 짝은 원래 앞뒤 그대로, 안 닿는 짝만 해에 가까운 순으로 당긴다(제약 있는 위상 정렬 — 원래 순서도 답 중 하나라 늘 풀린다).
+     상자가 없는 것(사람·좀비·상인·효과·무리 등)은 벽이다 — 그 앞뒤로 아무것도 넘어가지 않는다. 그래서 그림자 지도는 바이트까지 같다.
+   본 판은 영향이 없다: 바꾼 배열은 그림자 판을 그리는 동안만 scene.children 에 끼워 두고 바로 되돌린다
+   (본 판은 three 가 그룹·renderOrder·재질·깊이·id 로 따로 정렬하고, 빛 목록은 그림자 판 전에 이미 모인다).
+   조각 목록이 지난 프레임과 같으면(같은 자식 · 토막 조각의 같은 드리움 · 같은 상자 · 해 방향 1.8° 안) 지난 순서를 그대로 쓴다
+   — 매 프레임 할당 0, 다시 짤 때만 O(조각²)(마을 146조각).
+   ?p81off=shOrder 또는 ?nocull=1 이면 예전 그대로 그린다. */
+const SHO = {on: !!GFX.shadow && P81.shOrder, out: [], cs: [], prev: [], n: -1,
+  ro: [], rf: new Uint8Array(1024), nr: 0,                // 토막에 든 조각과 그때의 드리움(보이고 · castShadow) — 바뀌면 다시 짠다(사람·좀비 켜짐은 상관없다)
+  bo: [], bs: new Float64Array(6*256), nb: 0,             // 순서를 짤 때 쓴 상자 값 — 상자가 바뀌면(다른 갈래가 상자를 좁혀도) 다시 짠다
+  cap: 0, E: null, deg: null, done: null, dmin: null, vv: null, L: new THREE.Vector3(), Lc: new THREE.Vector3(), MG: 0.01, builds: 0};
+function shoCap(m){                                   // 조각 수가 늘 때만 새로 잡는다(처음 한 번 · 드물게)
+  if(m <= SHO.cap) return;
+  let c = Math.max(256, SHO.cap); while(c < m) c *= 2;
+  const vv = new Uint8Array(c); if(SHO.vv) vv.set(SHO.vv);
+  SHO.cap = c; SHO.E = new Uint8Array(c*c); SHO.deg = new Int32Array(c); SHO.done = new Uint8Array(c); SHO.dmin = new Float64Array(c); SHO.vv = vv;
+}
+function shoRun(ch, i0, i1){                          // 상자 있는 조각이 이어진 한 토막 [i0, i1) 을 다시 줄 세운다
+  const S = SHO, L = S.L, MG = S.MG; let m = 0;
+  if(S.nr + (i1 - i0) > S.rf.length){ let c = S.rf.length; while(c < S.nr + (i1 - i0)) c *= 2; const nf = new Uint8Array(c); nf.set(S.rf); S.rf = nf; }
+  const t0 = S.nb;                                     // 이 토막 드리우는 조각의 상자 값은 S.bs[6*(t0+p) …] 에 모인다(아래 비교도 이 숫자 배열로)
+  for(let k=i0;k<i1;k++){ const o = ch[k], f = o.visible && o.castShadow ? 1 : 0; S.ro[S.nr] = o; S.rf[S.nr++] = f; if(!f) continue;
+    const b = SCULL_BOX.get(o); shoCap(m + 1); S.cs[m] = o; S.vv[m] = o.instanceColor !== null ? 1 : 0; m++;
+    const t = S.nb++; if(6*S.nb > S.bs.length){ const nb = new Float64Array(S.bs.length*2); nb.set(S.bs); S.bs = nb; }
+    S.bo[t] = o; S.bs[6*t] = b.min.x; S.bs[6*t+1] = b.min.y; S.bs[6*t+2] = b.min.z; S.bs[6*t+3] = b.max.x; S.bs[6*t+4] = b.max.y; S.bs[6*t+5] = b.max.z; }
+  const E = S.E, cap = S.cap, deg = S.deg, done = S.done, dmin = S.dmin, vv = S.vv, B = S.bs, o6 = 6*t0;
+  for(let p=0;p<m;p++){ const a = o6 + 6*p; deg[p] = 0; done[p] = 0;
+    // 상자에서 해에 가장 가까운 꼭짓점의 깊이(해 방향 L 로 잰 거리) — 우선순위일 뿐, 같은 그림인지와는 상관없다
+    dmin[p] = Math.min(L.x*B[a], L.x*B[a+3]) + Math.min(L.y*B[a+1], L.y*B[a+4]) + Math.min(L.z*B[a+2], L.z*B[a+5]); }
+  for(let p=0;p<m;p++){ const a = o6 + 6*p, row = p*cap;
+    const ax0 = B[a] - MG, ay0 = B[a+1] - MG, az0 = B[a+2] - MG, ax1 = B[a+3] + MG, ay1 = B[a+4] + MG, az1 = B[a+5] + MG;
+    for(let q=p+1;q<m;q++){ const b = o6 + 6*q;
+      const touch = !(ax1 < B[b] || B[b+3] < ax0 || ay1 < B[b+1] || B[b+4] < ay0 || az1 < B[b+2] || B[b+5] < az0);   // 두 상자가 0.01 여유로 닿나
+      E[row + q] = touch ? 1 : 0; if(touch) deg[q]++; } }
+  /* 앞에 와야 할 짝이 다 놓인 것 중 — 바로 앞과 같은 깊이 셰이더 갈래(인스턴스 색 있음/없음)를 먼저, 그 안에서 해에 가장 가까운 것.
+     three 는 그림자 판 전체를 깊이 재질 하나로 그리는데, 인스턴스 색이 있는 것과 없는 것이 번갈아 오면 그때마다 프로그램을 다시 고른다
+     (getProgram: 매개변수·열쇠 문자열을 새로 만든다 — CPU). 갈래를 묶으면 그 전환이 원래(마을 10번)보다 늘지 않는다. */
+  let lastV = -1;
+  for(let c=0;c<m;c++){
+    let best = -1, bv = 0, bs = 0;
+    for(let p=0;p<m;p++){ if(done[p] || deg[p]) continue;
+      const sw = vv[p] === lastV ? 0 : 1;
+      if(best < 0 || sw < bs || (sw === bs && dmin[p] < bv)){ best = p; bv = dmin[p]; bs = sw; } }
+    done[best] = 1; S.out.push(S.cs[best]); lastV = vv[best];
+    const row = best*cap; for(let q=best+1;q<m;q++) if(E[row + q]) deg[q]--; }
+  for(let k=i0;k<i1;k++){ const o = ch[k]; if(!(o.visible && o.castShadow)) S.out.push(o); }   // 안 드리우는 조각은 그림자 판에 안 그려진다 — 자리는 상관없다
+  for(let p=0;p<m;p++) S.cs[p] = null;
+}
+function shoBuild(ch){
+  const S = SHO, n = ch.length;
+  S.L.subVectors(sunTarget.position, sun.position).normalize();
+  let same = n === S.n && S.L.dot(S.Lc) > 0.9995;      // 해 방향이 거의 그대로(≈1.8°)면 우선순위도 그대로
+  if(same) for(let i=0;i<n;i++) if(ch[i] !== S.prev[i]){ same = false; break; }
+  if(same) for(let t=0;t<S.nr;t++){ const o = S.ro[t]; if((o.visible && o.castShadow ? 1 : 0) !== S.rf[t]){ same = false; break; } }
+  if(same) for(let t=0;t<S.nb;t++){ const b = SCULL_BOX.get(S.bo[t]), q = 6*t, v = S.bs;
+    if(!b || b.min.x !== v[q] || b.min.y !== v[q+1] || b.min.z !== v[q+2] || b.max.x !== v[q+3] || b.max.y !== v[q+4] || b.max.z !== v[q+5]){ same = false; break; } }
+  if(same) return S.out;
+  for(let i=0;i<n;i++) S.prev[i] = ch[i];
+  S.prev.length = n; S.n = n; S.Lc.copy(S.L); S.builds++;
+  S.out.length = 0; S.nb = 0; S.nr = 0;
+  for(let i=0;i<n;){
+    if(!shoFree(ch[i])){ S.out.push(ch[i]); i++; continue; }    // 상자 없는 것 = 벽, 제자리
+    let j = i + 1; while(j < n && shoFree(ch[j])) j++;
+    shoRun(ch, i, j); i = j;
+  }
+  return S.out;
+}
+// 옮겨도 되는 것: 상자(SCULL_BOX)가 있고 자식이 없는 것(뱅크 조각). 자식이 있으면 그 자식들의 그림자 순서까지 따라 움직이므로 벽으로 둔다
+function shoFree(o){ return o.children.length === 0 && SCULL_BOX.has(o); }
+if(GFX.shadow){                                       // SHO.on 은 시작할 때 P81 에서 한 번 읽은 값 — 검사는 __SHO.on 으로 같은 판에서 켜고 끈다
+  const smRender = renderer.shadowMap.render;
+  renderer.shadowMap.render = function(lights, sc, cam){
+    if(!SHO.on || sc !== scene || !SCULL.on || !this.enabled || (this.autoUpdate === false && this.needsUpdate === false)) return smRender.call(this, lights, sc, cam);
+    const ch = sc.children; sc.children = shoBuild(ch);
+    try{ return smRender.call(this, lights, sc, cam); } finally { sc.children = ch; }
+  };
 }
 
 addEventListener('resize', ()=>{ camera.aspect = innerWidth/innerHeight;
@@ -33771,7 +33868,7 @@ function loop(){
   /* ★ 상인·대장장이는 시작 화면에서도 서 있어야 한다 — G.started 밖에서 그린다.
      조각이 마흔여덟 개뿐이라 값은 거의 안 든다(뱅크 하나, 그리기 한 번). */
   if(!DBG.noInst){ drawNPCs(tAcc); raceDraw(tAcc); }   // 37차 — 경주 코스는 raceDraw 가 움직이는 발판을 그린다
-  if(SH_HZ){ shAcc += dt; if(shAcc >= 1/SH_HZ){ renderer.shadowMap.needsUpdate = true; shAcc = 0; } }   // SH_HZ 0 이면 autoUpdate 가 매 프레임 그린다
+  if(SH_HZ && !DBG.shFreeze){ shAcc += dt; if(shAcc >= 1/SH_HZ){ renderer.shadowMap.needsUpdate = true; shAcc = 0; } }   // SH_HZ 0 이면 autoUpdate 가 매 프레임 그린다 · 81차 — 진단 '그림자 다시그리기 멈춤' 동안은 안 그린다
   if(!DBG.noRender) drawFrame();
   else renderer.clear();          // 화면이 얼어붙은 걸로 안 보이게 (거의 공짜다)
   if(PROF_ON){ gpuEnd(); pE('★그리기'); }
@@ -33797,7 +33894,8 @@ const DBG = { noRender:false, noLogic:false, pr:1, noPoint:false, noShadow:false
               flatGround:false, noTerrain:false,
               noHUD:false, noInst:false, noSim:false, noTags:false,
               noHPBar:false, noNum:false,     // 좀비 체력 막대 / 뜨는 숫자 끄기 — 짝비교용
-              slowNet:false };  // 전송 횟수를 초당 13회 -> 6회로 줄이기 — 짝비교용
+              slowNet:false,    // 전송 횟수를 초당 13회 -> 6회로 줄이기 — 짝비교용
+              shFreeze:false }; // 81차 — 진단 '그림자 다시그리기 멈춤': 그림자 지도를 한 장도 새로 안 그린다(SH_HZ 가 있어도)
 let sweep = null, sweepOut = null;        // 자동 측정 상태 / 결과표
 if(new URLSearchParams(location.search).has('diag')){
 
@@ -33838,32 +33936,61 @@ if(new URLSearchParams(location.search).has('diag')){
      그래서 한 항목씩 켜고 → 재고 → 반드시 되돌리고 → 다음으로 간다.
      조명·재질을 바꾸면 셰이더를 새로 컴파일하느라 잠깐 멈추므로,
      시작할 때 모든 조합을 한 번씩 미리 그려서 컴파일을 끝내 놓는다(워밍업). */
-  /* 교실 실측으로 이미 정리된 것 — 다시 안 잰다:
-       해상도 0.85/0.70/0.55 모두 +2~3 (0.55 까지 내려도 안 늘어남 = 픽셀 문제 아님)
-       점광원 +1, 바닥조명 -2, 지형숨김 0, 화면그리기 아예 끔 +3 (= GPU 는 범인이 아님)
-       게임로직 끔 +21  <-- 여기 하나에 다 있다.
-     그래서 이번엔 그 로직을 네 조각으로 쪼개서 어느 것인지만 가린다. */
+  /* ★ 81차 — 여기 있던 '이미 정리된 것' 은 24차 크롬북 시절 값이었다(화면그리기 아예 끔 +3 = GPU 는 범인이 아님, 게임로직 끔 +21).
+     25차부터 교실은 gram(Iris Xe)이고, 병목은 그리기다(CLAUDE.md 「성능 — 교실 노트북」). 81차 교실 실측(선생님 gram, Shift+9):
+       화면그리기 끔   +22~+33 fps (낮 처음 자리 38 → 60 · 성벽 27 → 60 · 밤 성곽 33 → 60 상한)
+       그림자 지도 다시 그리기  낮 처음 자리 53 → 33 fps(≈ 11ms) · 밤 전투 38 → 29(≈ 8ms)
+       게임로직 통째로 끔  낮 0 안팎 · 밤 +7.5
+     (그 표의 기준 줄은 아래 되돌리기 버그 때문에 그림자 지도가 멈춘 채로 재졌다 — 실제 게임에선 그리기 몫이 더 크다.)
+     그래서 로직을 네 조각(HUD·캐릭터갱신·이름표·시뮬)으로 쪼갠 줄과 그리기 쪽 줄(그림자·해상도·결·작은 것 그림자)을 같이 잰다. */
+  /* ★ 81차 — 되돌리기는 '켜기 직전에 찍어 둔 실제 값' 으로 한다.
+     예전 되돌리기는 34차 기본값을 가정했다: '그림자 매 프레임' 을 되돌리면 autoUpdate = false(34차 15Hz 시절 기본),
+     '손 조명 켬' 을 되돌리면 손 조명을 뗀다. 그런데 63차부터 기본은 autoUpdate = !GFX.shHz(모든 프리셋에서 켬)다.
+     시작할 때 워밍업이 모든 항목의 되돌리기를 부르므로, Shift+9 를 누른 순간부터 그 판이 끝날 때까지 그림자 지도가 멈췄고
+     표의 기준 줄이 전부 '그림자 멈춘 채' 로 재졌다(81차 교실 표 10~14 — 그림자 매 프레임 줄이 −19.5 로 나온 까닭).
+     이제 C() 가 항목을 켜기 전에 snapNow() 로 그림자 켬·갱신·해상도·손 조명/수정 빛이 붙은 자리·결 세기·작은 것 그림자·DBG 스위치를
+     찍고, 되돌릴 때 snapBack() 이 정확히 그 값으로 돌린다. 기본값이 또 바뀌어도 되돌리기가 어긋나지 않는다. */
+  const snapNow = ()=>{
+    const s = {dbg:Object.assign({}, DBG), shOn:renderer.shadowMap.enabled, shAuto:renderer.shadowMap.autoUpdate, sho:SHO.on,   // 81차 새 스위치(그림자 판 순서)도 같이
+               pr:renderer.getPixelRatio(), hl:heldLight.parent, cl:crystalLight ? crystalLight.parent : null,
+               grain:new Map(), cast:new Map(), lcast:new Map()};
+    for(const m of GRAIN_MATS) if(m.userData.grainU) s.grain.set(m, m.userData.grainU.value);
+    for(const [k,b] of banks) if(b.chunks && NO_CAST.has(k)) for(const m of b.chunks) s.cast.set(m, m.castShadow);
+    for(const c of SCULL.list) if(NO_CAST.has(c.key)) s.lcast.set(c, c.cast);
+    return s; };
+  const snapBack = s=>{
+    Object.assign(DBG, s.dbg);
+    renderer.shadowMap.enabled = s.shOn; renderer.shadowMap.autoUpdate = s.shAuto; SHO.on = s.sho;
+    renderer.shadowMap.needsUpdate = true;                     // 멈춰 있던 동안의 그림자를 바로 새로 그린다
+    if(renderer.getPixelRatio() !== s.pr){ renderer.setPixelRatio(s.pr); renderer.setSize(innerWidth, innerHeight); bloomResize(); gunGlowResize(); }
+    const rePar = (o, p)=>{ if(!o || o.parent === p) return; if(o.parent) o.parent.remove(o); if(p) p.add(o); };
+    rePar(heldLight, s.hl); rePar(crystalLight, s.cl);
+    for(const [m, v] of s.grain) m.userData.grainU.value = v;
+    for(const [m, v] of s.cast) m.castShadow = v;
+    for(const [c, v] of s.lcast) c.cast = v; };
+  const C = (name, on)=>{ let s = null; return [name, ()=>{ s = snapNow(); on(); }, ()=>{ if(s){ snapBack(s); s = null; } }]; };
   const CASES = [
-    ['HUD 끔',        ()=>{DBG.noHUD=true;},   ()=>{DBG.noHUD=false;}],
-    ['캐릭터갱신 끔', ()=>{DBG.noInst=true;},  ()=>{DBG.noInst=false;}],
-    ['이름표 끔',     ()=>{DBG.noTags=true;},  ()=>{DBG.noTags=false;}],
-    ['시뮬·통신 끔',  ()=>{DBG.noSim=true;},   ()=>{DBG.noSim=false;}],
-    ['넷다 끔',       ()=>{DBG.noHUD=DBG.noInst=DBG.noTags=DBG.noSim=true;},
-                      ()=>{DBG.noHUD=DBG.noInst=DBG.noTags=DBG.noSim=false;}],
-    ['게임로직 통째로 끔', ()=>{DBG.noLogic=true;},  ()=>{DBG.noLogic=false;}],
-    ['화면그리기 끔', ()=>{DBG.noRender=true;}, ()=>{DBG.noRender=false;}],
+    C('HUD 끔',        ()=>{DBG.noHUD=true;}),
+    C('캐릭터갱신 끔', ()=>{DBG.noInst=true;}),
+    C('이름표 끔',     ()=>{DBG.noTags=true;}),
+    C('시뮬·통신 끔',  ()=>{DBG.noSim=true;}),
+    C('넷다 끔',       ()=>{DBG.noHUD=DBG.noInst=DBG.noTags=DBG.noSim=true;}),
+    C('게임로직 통째로 끔', ()=>{DBG.noLogic=true;}),
+    C('화면그리기 끔', ()=>{DBG.noRender=true;}),
 
-    ['그림자 끔',     ()=>setShadow(true),  ()=>setShadow(false)],
-    ['해상도 원본',   ()=>setNative(true),  ()=>setNative(false)],
-    /* 34차 — 성능 3차에서 바꾼 넷을 '되돌리면 얼마나 느려지나' 로 잰다 */
-    ['그림자 매 프레임', ()=>{ renderer.shadowMap.autoUpdate = true; },  ()=>{ renderer.shadowMap.autoUpdate = false; }],
-    ['손 조명 켬',       ()=>{ camera.add(heldLight); },                 ()=>{ camera.remove(heldLight); }],
-    ['결 끔',            ()=>setGrain(0), ()=>setGrain(1)],
-    ['작은 것 그림자 켬', ()=>setSmallCast(true), ()=>setSmallCast(false)],
+    C('그림자 끔',     ()=>setShadow(true)),
+    C('해상도 원본',   ()=>setNative(true)),
+    /* 34차 — 성능 3차에서 바꾼 것을 '되돌리면 얼마나 달라지나' 로 잰다.
+       81차 — '그림자 매 프레임'(켜 보기) → '그림자 다시그리기 멈춤'(꺼 보기). 63차부터 매 프레임이 기본이라 켜 보는 줄은 늘 0 이었다.
+       이제 그림자 지도를 한 장도 새로 안 그렸을 때 얼마나 빨라지나(+)를 잰다 = 그림자 지도를 다시 그리는 값 그 자체.
+       (그리는 동안 움직이는 것의 그림자가 멈춰 보이는 건 그 창 2.8초뿐이고, 되돌리면 바로 새로 그린다.) */
+    C('그림자 다시그리기 멈춤', ()=>{ DBG.shFreeze = true; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = false; }),
+    C('손 조명 켬',       ()=>{ camera.add(heldLight); }),
+    C('결 끔',            ()=>setGrain(0)),
+    C('작은 것 그림자 켬', ()=>setSmallCast(true)),
     ...(GFX.bloom ? [
-      ['빛번짐 끔',     ()=>{DBG.noBloom=true;},  ()=>{DBG.noBloom=false;}],
-      ['그래픽 둘 다 끔',()=>{setShadow(true); DBG.noBloom=true;},
-                        ()=>{setShadow(false); DBG.noBloom=false;}] ] : []),
+      C('빛번짐 끔',     ()=>{DBG.noBloom=true;}),
+      C('그래픽 둘 다 끔',()=>{setShadow(true); DBG.noBloom=true;}) ] : []),
   ];
   /* ★ 항목마다 바로 직전에 기준을 다시 잰다.
      예전엔 처음에 한 번만 재고 쭉 갔는데, 재는 30초 동안 밤이 흘러 좀비가 계속 늘었다.
@@ -33899,8 +34026,7 @@ if(new URLSearchParams(location.search).has('diag')){
 
   window.__startSweep = ()=>{
     if(sweep) return;
-    for(const c of CASES){ c[1](); renderer.render(scene,camera); c[2](); }  // 워밍업
-    renderer.setPixelRatio(baseR); renderer.setSize(innerWidth, innerHeight);
+    for(const c of CASES){ c[1](); renderer.render(scene,camera); c[2](); }  // 워밍업 — 81차: 되돌리기가 켜기 전 값(해상도 포함)으로 돌리므로 baseR 로 억지로 맞추던 줄은 뺐다(Shift+1 로 고른 배율이 풀렸다)
     sweepOut = null;
     let warn = '';
     if(G.phase !== 'night') warn = '지금 밤이 아니다 — 좀비가 없어 로직이 거의 안 돈다';
@@ -34190,7 +34316,7 @@ Object.assign(window, {
   __skyPaint:()=>({dusk:skyPaintD, threat:skyPaintT, u:skyPaintU}), __skyU:skyU, __skyTex:()=>skyTex, __skyRepaintNow:()=>{ skyRepaintT = 0; },
   __setLitK:(v)=>{ LIT_K = v; }, __LIT_K:()=>LIT_K,
   /* 34차 성능 3차 (t28) */
-  __heldLight:heldLight, __NO_CAST:NO_CAST, __BCHUNK:BCHUNK, __SCULL:SCULL, __SH_HZ:SH_HZ, __flatMat:flatMat, __pbrMat:pbrMat, __GRAIN_MATS:GRAIN_MATS,
+  __heldLight:heldLight, __NO_CAST:NO_CAST, __BCHUNK:BCHUNK, __SCULL:SCULL, __SHO:SHO, __SH_HZ:SH_HZ, __flatMat:flatMat, __pbrMat:pbrMat, __GRAIN_MATS:GRAIN_MATS,
   __starsB:()=>starsB, __stars:()=>stars, __meteor:()=>meteor, __metFire:()=>{ metWait = 0; }, __updSky:updSky,
   /* 33차 무서움의 온도 (t34) */
   __dreadTick:dreadTick, __howlN:()=>howlN, __howlStage:()=>howlStage, __threatK:()=>threatK,
