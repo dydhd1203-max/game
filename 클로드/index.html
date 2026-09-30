@@ -5947,6 +5947,10 @@ if(!new URLSearchParams(location.search).get('gfx')){
 const P81_HELDFIRST = P81.heldFirst;
 const heldRO81 = m=>(P81_HELDFIRST && !(m && m.transparent)) ? -10 : 10;
 const P81_STARS = P81.starsHide;              // 81차 starsHide — 낮(투명도 0) 별 무리는 그리지 않는다(updSky)
+/* 81차 misc 갈래 손잡이 — 불러올 때 한 번 읽는다. npcCull 상인 거르기 · fxPool 효과 풀(입자·불티·깃털·총 효과 조각, 빈 오라·반딧불 콜)
+   · upRange 쓴 칸만 올리기(3인칭 총 룬·날개 굽힘·발자국·포탑 돌기·건물 색) · raceArtCull 경주 풍경 판마다 그리는 구간 */
+const P81_NPC = P81.npcCull, P81_FX = P81.fxPool, P81_UP = P81.upRange, P81_RACE = P81.raceArtCull;
+/* ★ 쓰는 자리는 typeof P81_… === 'boolean' && P81_… 로 읽는다 — 검사(t53·t54·t79…)가 함수만 떼어 VM 에서 돌리면 이 줄이 없어 끈 것(예전 동작)으로 본다 */
 
 const renderer = new THREE.WebGLRenderer({
   antialias: GFX.aa > 0,          // 빛 번짐이 꺼진 판에서 가장자리를 매끈하게 하는 자리
@@ -12059,11 +12063,23 @@ function tintStru(){
       if(!mesh || !mesh.instanceColor || ri[bi] >= mesh.count) continue;
       struColor(dmg, blks[bi][7]);
       mesh.setColorAt(ri[bi], _c1);
+      const k = ri[bi];                                   // 81차 — 이 프레임에 칠한 칸의 처음·끝(upRange)
+      if(!_tintHit.has(mesh)){ mesh._clo81 = k; mesh._chi81 = k; } else { if(k < mesh._clo81) mesh._clo81 = k; if(k > mesh._chi81) mesh._chi81 = k; }
       _tintHit.add(mesh);
     }
   }
-  for(const m of _tintHit) m.instanceColor.needsUpdate = true;
+  for(const m of _tintHit) struRange81(m.instanceColor, m._clo81, m._chi81, 3);
   struTint.clear();
+}
+/* 81차 — 건물 메시에서 바뀐 칸 구간 [lo, hi] 만 올린다(upRange). 포탑 하나가 돌면 같은 열쇠의 벽·지붕까지 정원(1.6배)을 통째로 올렸다.
+   범위는 늘 **하나**로 합친다 — 화면 밖이라 업로드가 미뤄지거나 rebuildStru(통째 범위)와 한 프레임에 겹쳐도 같은 칸을 두 번 올리지 않고,
+   올리는 양이 통째(예전)보다 커지지 않는다. rebuildStru 는 범위를 비우고 통째로 적는다(그 뒤 합쳐도 통째). */
+function struRange81(a, lo, hi, w){
+  if(typeof P81_UP === 'boolean' && P81_UP){ const R = a.updateRanges, s = lo*w, e = (hi + 1)*w;
+    if(R.length === 1){ const r = R[0], rs = r.start < s ? r.start : s, re = r.start + r.count > e ? r.start + r.count : e; r.start = rs; r.count = re - rs; }
+    else if(R.length === 0) a.addUpdateRange(s, e - s);
+    else { a.clearUpdateRanges(); a.addUpdateRange(0, a.array.length); } }   // (여럿이면 — 여기 말고 쌓는 곳은 없지만 — 통째로)
+  a.needsUpdate = true;
 }
 const STRU_GEO = roundBox(2, 0.09, 1, 1, 1);     // 30차 — 건물 조각의 단위 둥근 상자(인스턴스 배율로 늘인다)
 /* 68차 — 단면이 정사각형이고 길쭉한 조각(총신·포신·띠·세로 기둥·통나무)은 원통으로 그린다. 행(blocksOf)·부품 수·판정·색칠 표(_rk/_ri)는 그대로,
@@ -12273,8 +12289,10 @@ function rebuildStru(){
       mesh.setColorAt(i, _c1);
     }
     mesh.count = arr.length;
+    /* 81차 — 통째로 다시 적었으니 쌓인 칸 범위(포탑 돌기·색칠)를 비우고 전체를 적는다 — 안 비우면 그 범위만 올라가 새 칸이 빠진다 */
+    mesh.instanceMatrix.clearUpdateRanges(); if(typeof P81_UP === 'boolean' && P81_UP) mesh.instanceMatrix.addUpdateRange(0, mesh.instanceMatrix.array.length);
     mesh.instanceMatrix.needsUpdate = true;
-    if(mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+    if(mesh.instanceColor){ mesh.instanceColor.clearUpdateRanges(); if(typeof P81_UP === 'boolean' && P81_UP) mesh.instanceColor.addUpdateRange(0, mesh.instanceColor.array.length); mesh.instanceColor.needsUpdate = true; }
     /* ★ 지금 재 둬야 컬링이 먹는다 — 인스턴스가 바뀌었으니 낡은 구를 버리고 다시 잰다
        (뱅크 쪽 bbuild 와 같은 이유다). InstancedMesh 는 제 boundingSphere 로 걸러진다. */
     mesh.boundingSphere = null; mesh.computeBoundingSphere();
@@ -12300,11 +12318,13 @@ function tickBuildingGuns(dt){
       const dx=b[0]-.5,dz=b[2]-.5-recoil;
       _v.set(struCX(o)+dx*c+dz*s,GY+.5+b[1],struCZ(o)+dz*c-dx*s);
       _s.set(b[4],b[5],b[6]);_eu.set(0,yaw+(b[8]||0),b[9]||0,'YXZ');_q.setFromEuler(_eu);
-      mesh.setMatrixAt(index,_m.compose(_v,_q,_s));buildingGunDirty.add(mesh);
+      mesh.setMatrixAt(index,_m.compose(_v,_q,_s));
+      if(!buildingGunDirty.has(mesh)){mesh._lo81=index;mesh._hi81=index;}else{if(index<mesh._lo81)mesh._lo81=index;if(index>mesh._hi81)mesh._hi81=index;}   // 81차 — 돈 칸의 처음·끝
+      buildingGunDirty.add(mesh);
     }
     o._gunPoseDirty=false;o._gunDrawKick=kick;o._gunDrawYaw=yaw;
   }
-  for(const mesh of buildingGunDirty)mesh.instanceMatrix.needsUpdate=true;
+  for(const mesh of buildingGunDirty)struRange81(mesh.instanceMatrix,mesh._lo81,mesh._hi81,16);   // 81차 — 그 구간만 올린다(upRange)
 }
 
 /* ═══════════════════════ 미리보기(고스트) ═══════════════════════ */
@@ -15172,8 +15192,18 @@ function updChunks(dt){
   chkMesh.tree.visible = !!anyT; chkMesh.rock.visible = !!anyR; chkMesh.gold.visible = !!anyG;
   chkLive = live;
 }
+/* 81차 — 입자 풀(fxPool). 예전엔 산 입자가 하나도 없어도 160칸을 매 프레임 0 크기로 다시 쓰고(12KB 올림) 그리기 한 번을 냈다.
+   산 입자가 없고 새로 뿌린 것도 없으면(뿌리는 셋 burst·spark·pt 는 모두 pI 를 민다 → pI81 과 다르면 새 입자) 칸을 안 건드린다 —
+   마지막으로 돈 프레임에 죽은 칸은 이미 0 크기로 적혔다. 산 것이 없으면 visible=false(0 크기 삼각형만 있던 그리기라 화면은 같다).
+   다시 뿌리면 그 프레임에 160칸을 전부 새로 쓰고 통째로 올린다.
+   81차 검증 고침 — pI 만 보면 한 프레임에 꼭 160(의 배수)알을 뿌렸을 때 pI 가 한 바퀴 돌아 제자리라 '새 입자 없음'으로 보고 건너뛰었다
+   (조용한 뒤 16×burst(10) — 새 입자가 안 보이고 멈춘 채 남았다, 검증에서 재현). 가장 최근에 뿌린 칸은 늘 parts[pI] 이므로 그 칸이 살아 있으면 새 입자다. */
+let pLive81 = 1, pI81 = -1;
 function updParts(dt){
   updCases(dt); updChunks(dt); g68Tick(dt);                    // 68차 — 캔 조각 · 총 효과 조각(불티·파편·번개·클로버 잎)
+  const fx81 = typeof P81_FX === 'boolean' && P81_FX && pMesh.boundingSphere !== null;          // 정렬 구가 잡힌 뒤부터(flush 옆 81차 주석)
+  if(fx81 && !pLive81 && pI === pI81 && !(parts[pI].t > 0)){ pMesh.visible = false; return; }
+  pI81 = pI; let live = 0;
   for(let i=0;i<PN;i++){
     const p = parts[i];
     if(p.t>0){ p.t-=dt; p.vy-=17*p.g*dt; p.x+=p.vx*dt; p.y+=p.vy*dt; p.z+=p.vz*dt;
@@ -15181,10 +15211,13 @@ function updParts(dt){
       if(p.g > .5 && p.y < GY+0.1){ p.y = GY+0.1; p.vy *= -0.32; p.vx*=.6; p.vz*=.6; } }
     // 수명에 견준 비율로 줄인다 — 짧게 사는 꼬리도 끝까지 부드럽게 사라진다.
     const sc = p.t>0 ? Math.min(1, p.t/p.t0*2.2) * p.sz : 0;
+    if(p.t > 0) live++;
     _v.set(p.x,p.y,p.z); _q.identity(); _s.set(sc,sc,sc);
     pMesh.setMatrixAt(i, _m.compose(_v,_q,_s));
     pMesh.setColorAt(i, p.c);
   }
+  pLive81 = live;
+  if(fx81){ pMesh.visible = live > 0; if(!live) return; }       // 81차 — 다 죽었으면 안 올리고 안 그린다(다음에 뿌리면 위 고리가 통째로 새로 쓴다)
   pMesh.instanceMatrix.needsUpdate = true; pMesh.instanceColor.needsUpdate = true;
 }
 
@@ -15264,10 +15297,10 @@ function g68Bolt(x,y,z, x2,y2,z2, n, j, life, size, c0, c1, dl){
     px = qx; py = qy; pz = qz; }
 }
 function g68Tick(dt){
-  if(g68Live){ let live = 0;
+  if(g68Live){ let live = 0, hi = 0;
     for(let i=0;i<G68N;i++){ const p = G68P[i];
       if(p.t <= 0){ g68Mesh.setMatrixAt(i, ZEROM); continue; }
-      live++;
+      live++; hi = i + 1;
       if(p.dl > 0){ p.dl -= dt; g68Mesh.setMatrixAt(i, ZEROM); continue; }
       p.t -= dt; const age = Math.min(1, Math.max(0, 1 - p.t/p.t0)), k = 1 - age;
       if(p.m === 3){                                                        // 번개 — 가만히, 깜빡
@@ -15291,8 +15324,10 @@ function g68Tick(dt){
       g68Mesh.setMatrixAt(i, _m.compose(_v,_q,_s));
       _g68c.copy(p.c0).lerp(p.c1, age); g68Mesh.setColorAt(i, _g68c);
     }
-    g68Mesh.instanceMatrix.needsUpdate = true; g68Mesh.instanceColor.needsUpdate = true;
-    g68Mesh.visible = live > 0; g68Live = live; }
+    /* 81차 — 마지막 산 칸까지만 그리고 올린다(fxPool). 뒤 칸은 ZEROM(0 크기)이라 화면은 같다. 128칸 × 76B 를 통째로 올리던 것 */
+    if(typeof P81_FX === 'boolean' && P81_FX && g68Mesh.boundingSphere !== null){ g68Mesh.count = hi; flush(g68Mesh); }
+    else { g68Mesh.count = G68N; g68Mesh.instanceMatrix.needsUpdate = true; g68Mesh.instanceColor.needsUpdate = true; g68Mesh.visible = live > 0; }
+    g68Live = live; }
   if(lf68Live) lf68Tick(dt);
   /* 불붙은 좀비(용의 숨결 burns)에서 불씨가 솟는다 — 초당 여섯 알쯤. burnStart/burnTick(판정)은 건드리지 않고 목록만 읽는다 */
   if(typeof burns !== 'undefined') for(let i=0;i<burns.length;i++){ const o = burns[i].o; if(!o || !(o.hp > 0) || Math.random() > dt*6) continue;
@@ -15641,29 +15676,33 @@ function wingFxTick(dt){
     _v.set(p.x,p.y,p.z);_q.setFromEuler(_wfxE.set(-Math.atan(p.slope),p.a,0,'YXZ'));
     _s.set(p.side*p.width*fade,1,p.len*grow*fade);mesh.setMatrixAt(i,_m.compose(_v,_q,_s));mesh.setColorAt(i,p.c);
   }
-  for(const m of wfxMarkMeshes){m.visible=m.count>0;if(m.count){m.instanceMatrix.needsUpdate=true;m.instanceColor.needsUpdate=true;}}
-  if(wfxSLive){ let live = 0;
+  if(typeof P81_UP === 'boolean' && P81_UP)flush(wfxMarkMeshes[0],wfxMarkMeshes[1],wfxMarkMeshes[2]);   // 81차 — 발자국은 0 칸부터 채우므로 쓴 칸만 올린다(flush 가 visible 도 같은 규칙으로 정한다)
+  else for(const m of wfxMarkMeshes){m.visible=m.count>0;if(m.count){m.instanceMatrix.needsUpdate=true;m.instanceColor.needsUpdate=true;}}
+  if(wfxSLive){ let live = 0, hi = 0;
     for(let i=0;i<WFX_SN;i++){ const p = wfxSp[i];
       if(p.t <= 0){ wfxSpMesh.setMatrixAt(i, ZEROM); continue; }
-      p.t -= dt; live++; p.vy -= 17*p.g*dt; const drag = Math.exp(-1.6*dt); p.vx *= drag; p.vz *= drag;
+      p.t -= dt; live++; hi = i + 1; p.vy -= 17*p.g*dt; const drag = Math.exp(-1.6*dt); p.vx *= drag; p.vz *= drag;
       p.x += p.vx*dt; p.y += p.vy*dt; p.z += p.vz*dt; p.a += dt*(p.fx79===2?0:p.fx79?2.4:9);
       const k = Math.max(0, p.t/p.t0), sc = p.sz*Math.min(1, k*2.4)*(p.fx79?1:(0.70 + .30*Math.sin(p.a*2.3))); // 견갑은 번쩍이는 반복 점멸 없이 한 번 흐려진다.
       _v.set(p.x, p.y, p.z); _q.copy(camera.quaternion).multiply(_wfxQ.setFromAxisAngle(AX_Z, p.a*.35)); _s.set(sc*(p.sx79||1), sc*(p.sy79||1), sc);
       wfxSpMesh.setMatrixAt(i, _m.compose(_v,_q,_s)); wfxSpMesh.setColorAt(i, p.c); }
-    wfxSpMesh.instanceMatrix.needsUpdate = true; wfxSpMesh.instanceColor.needsUpdate = true;
-    wfxSpMesh.visible = live > 0; wfxSLive = live; }
-  if(wfxFLive){ let live = 0;
+    /* 81차 — 마지막 산 칸까지만 그리고 올린다(fxPool). 그 뒤 칸은 모두 0 크기(ZEROM)였으니 화면은 같다. 128칸 → 보통 수십 칸 */
+    if(typeof P81_FX === 'boolean' && P81_FX && wfxSpMesh.boundingSphere !== null){ wfxSpMesh.count = hi; flush(wfxSpMesh); }
+    else { wfxSpMesh.count = WFX_SN; wfxSpMesh.instanceMatrix.needsUpdate = true; wfxSpMesh.instanceColor.needsUpdate = true; wfxSpMesh.visible = live > 0; }
+    wfxSLive = live; }
+  if(wfxFLive){ let live = 0, hi = 0;
     for(let i=0;i<WFX_FN;i++){ const p = wfxFe[i];
       if(p.t <= 0){ wfxFeMesh.setMatrixAt(i, ZEROM); continue; }
-      p.t -= dt; live++; const age = p.t0 - p.t;
+      p.t -= dt; live++; hi = i + 1; const age = p.t0 - p.t;
       p.vy += (-.55 - p.vy)*Math.min(1, dt*3); const drag = Math.exp(-1.2*dt); p.vx *= drag; p.vz *= drag;   // 깃털은 금방 느려져 하늘하늘 떨어진다
       const sway = Math.sin(age*5.2 + p.ph);
       p.x += (p.vx + Math.cos(p.ry)*sway*.35)*dt; p.y += p.vy*dt; p.z += (p.vz - Math.sin(p.ry)*sway*.35)*dt;
       const k = Math.min(1, p.t/.35), sc = p.sz*k;
       _v.set(p.x, p.y, p.z); _q.setFromEuler(_wfxE.set(.9 + sway*.25, p.ry + age*.8, sway*.7)); _s.set(sc, sc, sc);
       wfxFeMesh.setMatrixAt(i, _m.compose(_v,_q,_s)); wfxFeMesh.setColorAt(i, p.c); }
-    wfxFeMesh.instanceMatrix.needsUpdate = true; wfxFeMesh.instanceColor.needsUpdate = true;
-    wfxFeMesh.visible = live > 0; wfxFLive = live; }
+    if(typeof P81_FX === 'boolean' && P81_FX && wfxFeMesh.boundingSphere !== null){ wfxFeMesh.count = hi; flush(wfxFeMesh); }            // 81차 — 깃털도 마지막 산 칸까지
+    else { wfxFeMesh.count = WFX_FN; wfxFeMesh.instanceMatrix.needsUpdate = true; wfxFeMesh.instanceColor.needsUpdate = true; wfxFeMesh.visible = live > 0; }
+    wfxFLive = live; }
   if(wfxJLive){ let live = 0;
     for(let i=0;i<WFX_JN;i++){ const J = wfxJob[i];
       if(J.t < 0){ for(let k=0;k<3;k++) wfxRune[k].setMatrixAt(i, ZEROM); wfxBeam.setMatrixAt(i, ZEROM); continue; }
@@ -17068,6 +17107,39 @@ const NPCS = [
   npcMake(FORGE_X, FORGE_Z, FORGE_A, [0,1.34, 0.25], [ 0.50,1.18, 0.33], [-0.50,1.14, 0.25], 'smith', 1.7),
   npcMake(VET_X,   VET_Z,   SHOP_A, [0,1.28,-0.85], [ 0.42,1.10,-0.85], [-0.42,1.10,-0.85], 'vet',   2.6)
 ];
+/* 81차 — 상인 거르기(npcCull). 여섯 뱅크는 imesh 라 frustumCulled=false — 시장이 등 뒤여도 본판 6 · 그림자 판 6 번을 그리고
+   조각 180개를 매 프레임 다시 올렸다. 상인마다 **모든 조각이 어떤 고개·팔 각도에서도 들어가는 구**(가운데 = 발밑 + NPC_CY81)를
+   불러올 때 한 번 잰다 — 조각 기하 상자의 반대각선 + 피벗(목·어깨)까지 + 피벗에서 조각까지 + 숨쉬기·몸무게 흔들림.
+   drawNPCs 가 그 구를 카메라 절두체와, 햇빛 방향으로 가장 낮은 면(SCULL.ymin)까지 민 캡슐(scullShadow 와 같은 셈 · 여유 1칸)과 견준다.
+   둘 다 밖이면 그 상인의 조각을 안 쓴다 → 화면에도 그림자에도 닿을 수 없는 조각만 빠진다. 셋 다 빠지면 뱅크 수 0 → flush 가 visible=false. */
+const NPC_CY81 = 1.1;
+{ const ext = {};
+  for(const k in NPC_GEO79){ const g = NPC_GEO79[k]; g.computeBoundingBox(); const b = g.boundingBox;
+    ext[k] = [Math.max(-b.min.x, b.max.x), Math.max(-b.min.y, b.max.y), Math.max(-b.min.z, b.max.z)]; }
+  for(const N of NPCS){ let r = 0;
+    for(const P of N.parts){ const e = ext[P[9]], hd = Math.hypot(P[4]*e[0], P[5]*e[1], P[6]*e[2]), g = P[0];
+      let d;
+      if(g === 1){ const H = N.hp; d = Math.hypot(H[0], H[2]) + Math.hypot(P[1] - H[0], P[3] - H[2]) + Math.abs(P[2] - NPC_CY81); }   // 고개 — 목을 지나는 세로축으로 돈다
+      else if(g >= 2){ const A = g === 2 ? N.apA : N.apB; d = Math.hypot(A[0], A[1] - NPC_CY81) + Math.hypot(P[1] - A[0], P[2] - A[1]) + Math.abs(P[3]); }   // 팔 — 어깨를 지나는 앞뒤축으로 돈다
+      else d = Math.hypot(P[1], P[2] - NPC_CY81, P[3]);
+      r = Math.max(r, d + hd); }
+    N.r81 = r + 0.036 + 0.1; } }                                   // 몸무게 0.028 · 숨 0.022 흔들림 + 여유
+const NPC_F81 = new THREE.Frustum(), NPC_PM81 = new THREE.Matrix4(), NPC_L81 = new THREE.Vector3(), NPC_S81 = new THREE.Sphere();
+let npcSphOk81 = false;
+function npcSph81(){ if(npcSphOk81) return true;
+  for(const k in NPC_BANK79) if(NPC_BANK79[k].boundingSphere === null) return false;
+  return npcSphOk81 = true; }
+function npcOut81(N, sh){
+  const r = N.r81, cx = N.x, cy = N.y0 + NPC_CY81, cz = N.z, pl = NPC_F81.planes;
+  NPC_S81.center.set(cx, cy, cz); NPC_S81.radius = r + 0.05;
+  if(NPC_F81.intersectsSphere(NPC_S81)) return false;               // 화면 안(여유 0.05) — 그린다
+  if(!sh) return true;                                               // 그림자가 없는 판 — 화면 밖이면 끝
+  const L = NPC_L81, R = r + 1, t = Math.max(0, (cy + R - SCULL.ymin)/Math.max(0.05, -L.y));
+  const qx = cx + L.x*t, qy = cy + L.y*t, qz = cz + L.z*t;
+  for(let k=0;k<6;k++){ const p = pl[k], n = p.normal;
+    if(n.x*cx + n.y*cy + n.z*cz + p.constant < -R && n.x*qx + n.y*qy + n.z*qz + p.constant < -R) return true; }   // 캡슐 두 끝이 같은 면 바깥
+  return false;
+}
 /* ═══ 세계에 놓인 총 진열. 손에 드는 모형(gunModels)을 복제해 받침대·걸이·선반에 얹는다.
    65차 — ① 손·팔·불티는 떼고 총만 올린다. 복제에 손에 쥔 흰 주먹·팔뚝이 같이 와서 걸이마다 흰 손이 둥둥 떠 있었다(사진).
           ② 총의 한가운데를 축으로 둔다. 예전엔 손잡이가 축이라 받침대에서 돌 때 긴 총은 총구가 1칸 가까이 휘둘렸다.
@@ -17146,7 +17218,17 @@ function drawNPCs(t){
       const ay = terrAt(Math.round(FORGE_X), Math.round(FORGE_Z)) + 1.20;
       if(Math.hypot(ax-PL.x, az-PL.z) < 40){ burst(ax, ay, az, 0xffc040, 5, 0.9); burst(ax, ay, az, 0xff7a30, 3, 0.7);
         if(window.__sfxAt) window.__sfxAt('tak', ax, az, 18, 40); } } }
+  /* 81차 — 이 프레임 카메라(여기가 그리기 바로 앞 — updPlayer·updSky 가 끝났다)로 절두체·햇빛 방향을 한 번 만든다. 할당 0 · 카메라 상태는 안 바꾼다 */
+  /* ★ three 는 frustumCulled=false 인 인스턴스 메시의 정렬 깊이를 처음 그릴 때 한 번 잰 구(boundingSphere)로 정한다.
+     그 첫 그리기에서 상인을 걸러 버리면 구가 예전(셋 다)과 달라져 같은 재질끼리 그리는 순서가 바뀌고, 겹친 머리카락·얼굴 가장자리 몇 픽셀이 달라졌다.
+     그래서 여섯 뱅크의 구가 다 잡힌 뒤부터만 거른다(첫 그리기는 예전과 똑같이 셋 다). */
+  const cull81 = typeof P81_NPC === 'boolean' && P81_NPC && npcSph81(), sh81 = cull81 && GFX.shadow > 0 && renderer.shadowMap.enabled;
+  if(cull81){ const cm = NPC_PM81.compose(camera.position, camera.quaternion, camera.scale);   // 카메라 행렬을 건드리지 않고 같은 셈으로(렌더가 곧 똑같이 만든다)
+    if(camera.parent) cm.premultiply(camera.parent.matrixWorld);
+    NPC_F81.setFromProjectionMatrix(cm.invert().premultiply(camera.projectionMatrix));
+    NPC_L81.subVectors(sunTarget.position, sun.position).normalize(); }
   for(const N of NPCS){
+    if(cull81 && npcOut81(N, sh81)) continue;        // 81차 — 화면에도 그림자에도 안 닿는 상인은 조각을 안 쓴다(고개·팔은 매 프레임 t 로 새로 셈 — 건너뛰어도 남는 상태 없음)
     /* ── 제일 가까운 아이 쪽으로 고개를 돌린다 ── */
     let bx = 0, bz = 0, bd = 1e9;
     const see = (px,pz)=>{ const d = (px-N.x)*(px-N.x) + (pz-N.z)*(pz-N.z);
@@ -18370,6 +18452,15 @@ function flush(...ms){ for(const m of ms){
   const c = m.instanceColor;
   if(c){ c.clearUpdateRanges(); if(n < c.count) c.addUpdateRange(0, n*3); c.needsUpdate = true; }
 } }
+/* 81차 — fxPool(입자·불티·깃털·총 효과 조각의 칸 수 줄이기, 빈 오라·반딧불 숨기기)은 그 메시의 정렬 구가 잡힌 뒤부터 한다
+   (쓰는 자리마다 boundingSphere !== null 을 본다). three 는 frustumCulled=false 인 인스턴스 메시의 그리는 순서(같은 재질끼리 깊이)를
+   처음 그릴 때의 인스턴스로 한 번 잰 boundingSphere 로 정한다. 첫 그리기를 예전과 같은 칸 수·같은 visible 로 두어야 그 구 — 곧 순서 — 가 예전과 같다. */
+/* 81차 — 인스턴스 속성 하나를 앞 n 칸만 올린다(flush 와 같은 방식 · 뒤 칸은 그리지 않는 칸). 3인칭 총 룬 칸(aRnd·aEnh·aEnhS)은
+   정원 560칸을 매 프레임 통째로(20KB) 올렸다. ?p81off=upRange 면 예전처럼 통째로. */
+function upRange81(a, n){
+  if(typeof P81_UP === 'boolean' && P81_UP){ a.clearUpdateRanges(); if(n < a.count) a.addUpdateRange(0, n*a.itemSize); }
+  a.needsUpdate = true;
+}
 
 const fxq = (r)=> Math.sin(r), fzq = (r)=> Math.cos(r);
 /* 좀비 렌더 */
@@ -19218,6 +19309,7 @@ function drawWolves(list, t, dt){
   }
   W_horn.count = horn; W_aura.count = bn;
   W_aura.instanceMatrix.needsUpdate = true;
+  if(typeof P81_FX === 'boolean' && P81_FX && W_aura.boundingSphere !== null) W_aura.visible = bn > 0;              // 81차 — 보스가 없으면 0 인스턴스 그리기(프로그램·상태 준비만 하던 콜)를 건너뛴다
   W_costume.count=costume; W_wrap.count=wrap; W_sleeve.count=sl; W_digit.count=dg;
   W_body.count=n; W_chest.count=n; W_head.count=n; W_snout.count=n;
   W_nose.count=n; W_ruff.count=n;
@@ -20067,14 +20159,14 @@ function drawSheep(list, t, cap, colOf, scale){
   for(const mesh of P_jobMeshes) mesh.visible=mesh.count>0;
   for(const mesh of P_cosMeshes) mesh.visible=mesh.count>0;
   P_gun.count=gunN; P_gunF.count=glowN;
-  if(gunN){ P_gun.geometry.attributes.aRnd.needsUpdate = true; P_gun.geometry.attributes.aEnh.needsUpdate = true; P_gun.geometry.attributes.aEnhS.needsUpdate = true; }
+  if(gunN){ const ga = P_gun.geometry.attributes; upRange81(ga.aRnd, gunN); upRange81(ga.aEnh, gunN); upRange81(ga.aEnhS, gunN); }   // 81차 — 쓴 칸만 올린다
   P_gun.visible = gunN > 0; P_gunF.visible = glowN > 0;
   P_jobF.count=jobFN; P_jobR.count=jobRN;                       // 45차 — 전직 빛·고리
   P_jobF.visible = jobFN > 0; P_jobR.visible = jobRN > 0;
   if(jobRN > 0 && P_jobR.instanceColor) P_jobR.instanceColor.needsUpdate = true;
   for(let i=0;i<2;i++){ P_wing[i].count = wN[i]; P_wing[i].visible = wN[i] > 0;
                         P_wingG[i].count = wgN[i]; P_wingG[i].visible = wgN[i] > 0;
-                        const wf = P_wing[i].geometry.attributes.wflex; if(wf && wN[i] > 0) wf.needsUpdate = true; }   // 66차 — 관절 굽힘 칸
+                        const wf = P_wing[i].geometry.attributes.wflex; if(wf && wN[i] > 0) upRange81(wf, wN[i]); }   // 66차 — 관절 굽힘 칸(81차 — 쓴 칸만 · P_wingG 재질은 wflex 를 안 읽는다)
   flush(P_body,P_head,P_arm,P_hand[0],P_hand[1],P_eye,P_nose,P_mouth,P_legs,P_shoe,P_deco,P_gun,P_gunF,P_jobF,P_jobR,
         P_wing[0],P_wing[1],P_wingG[0],P_wingG[1],...P_jobMeshes,...P_cosMeshes);
   drawAvatarShadows(list,cap,scale);
@@ -29667,6 +29759,44 @@ function raceDonutGeometry79(flavor=0){
   }
   const out=raceArtMerge(pieces);for(const p of pieces)p.g.dispose();out.rotateY(Math.PI);return out;
 }
+/* 81차 — 경주 정적 풍경의 판마다 그리는 구간(raceArtCull). 정적 메시 3~4개는 z 로 줄 세운 조각(span)의 연속 구간을 그리는데,
+   raceArtDraw 의 창(±120칸)은 본판에도 그림자 판에도 그대로 쓰여 카메라 뒤·그림자 상자 밖 풍경까지 꼭짓점을 돌렸다.
+   조각마다 꼭짓점 상자(bb)를 불러올 때 한 번 재 두고, 그리기 직전(onBeforeRender·onBeforeShadow)에 창 안에서
+   ① 본판: 상자(여유 0.5)가 카메라 절두체에 닿는 조각 ② 그림자 판: 상자가 그림자 카메라 절두체에 닿고, 햇빛 방향으로 가장 낮은 면(SCULL.ymin)까지
+   민 상자(여유 1 — scullShadow 와 같은 셈)가 카메라 절두체에 닿는 조각만 골라 그 처음~끝을 그린다(사이의 안 닿는 조각도 그려 — 늘 넉넉한 쪽).
+   그린 뒤 onAfter… 가 창을 되돌린다(raceArtDraw 의 visible·통계는 창 그대로). 안 닿는 조각은 화면·그림자 지도의 읽히는 칸 어디에도 못 닿는다. */
+const RR81 = {F:new THREE.Frustum(), G:new THREE.Frustum(), PM:new THREE.Matrix4(), bx:new THREE.Box3(), L:new THREE.Vector3(), s0:0, c0:0};
+function raceRangeHook81(st, pos){
+  for(const q of st.spans){ let x0=Infinity,y0=Infinity,z0=Infinity,x1=-Infinity,y1=-Infinity,z1=-Infinity;
+    for(let i=q.start*3, e=(q.start+q.count)*3; i<e; i+=3){ const x=pos[i], y=pos[i+1], z=pos[i+2];
+      if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; if(z<z0)z0=z; if(z>z1)z1=z; }
+    q.bb81 = [x0, y0, z0, x1, y1, z1]; }
+  const m = st.mesh, dr = m.geometry.drawRange;
+  const pick = (F, G, sweep)=>{
+    const o0 = dr.start, o1 = dr.start + dr.count, bx = RR81.bx, L = RR81.L; let first = Infinity, last = -Infinity;
+    const dn = Math.max(0.05, -L.y);
+    for(const q of st.spans){ if(q.start < o0 || q.start + q.count > o1) continue;
+      const b = q.bb81;
+      bx.min.set(b[0] - .5, b[1] - .5, b[2] - .5); bx.max.set(b[3] + .5, b[4] + .5, b[5] + .5);
+      if(!F.intersectsBox(bx)) continue;                                   // 본판: 카메라 · 그림자 판: 그림자 카메라
+      if(sweep){ const t = Math.max(0, (b[4] - SCULL.ymin)/dn);              // 그림자 판: 쓸어 합친 상자가 화면에 닿나
+        bx.min.set(Math.min(b[0], b[0] + L.x*t) - 1, Math.min(b[1], b[1] + L.y*t) - 1, Math.min(b[2], b[2] + L.z*t) - 1);
+        bx.max.set(Math.max(b[3], b[3] + L.x*t) + 1, b[4] + 1, Math.max(b[5], b[5] + L.z*t) + 1);
+        if(!G.intersectsBox(bx)) continue; }
+      if(q.start < first) first = q.start; if(q.start + q.count > last) last = q.start + q.count; }
+    RR81.s0 = dr.start; RR81.c0 = dr.count;
+    if(first === Infinity){ dr.start = o0; dr.count = 0; } else { dr.start = first; dr.count = last - first; }
+  };
+  const back = ()=>{ dr.start = RR81.s0; dr.count = RR81.c0; };
+  m.onBeforeRender = (r, sc, cam)=>{ if(!SCULL.on || !dr.count) return RR81.c0 = -1;
+    RR81.F.setFromProjectionMatrix(RR81.PM.multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse)); pick(RR81.F, null, false); };
+  m.onAfterRender = ()=>{ if(RR81.c0 >= 0) back(); };
+  m.onBeforeShadow = (r, o, cam, shCam)=>{ if(!SCULL.on || !dr.count) return RR81.c0 = -1;
+    RR81.F.setFromProjectionMatrix(RR81.PM.multiplyMatrices(shCam.projectionMatrix, shCam.matrixWorldInverse));
+    RR81.G.setFromProjectionMatrix(RR81.PM.multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse));
+    RR81.L.subVectors(sunTarget.position, sun.position).normalize(); pick(RR81.F, RR81.G, true); };
+  m.onAfterShadow = ()=>{ if(RR81.c0 >= 0) back(); };
+}
 function raceArtBuild(){
   raceArtDispose();const textures=raceArtTextures(),mats=[
     raceMaterial75(new THREE.MeshPhongMaterial({map:textures[0],bumpMap:textures[1],bumpScale:.10,vertexColors:true,shininess:42,specular:0x899391})),
@@ -30081,7 +30211,8 @@ function raceArtBuild(){
     for(const [name,size]of [['position',3],['normal',3],['uv',2],['color',3],['raceCandy77',1]]){const arr=new Float32Array(n*size);let off=0;for(const o of q){arr.set(o.g.attributes[name].array,off);off+=o.g.attributes[name].array.length;}out.setAttribute(name,new THREE.BufferAttribute(arr,size));}
     let off=0;const spans=q.map(o=>{const r={start:off,count:o.g.attributes.position.count,z:o.z,span:o.span};off+=r.count;o.g.dispose();return r;});
     out.computeBoundingSphere();const mesh=new THREE.Mesh(out,mats[b===3?0:b]);mesh.castShadow=mesh.receiveShadow=true;mesh.matrixAutoUpdate=false;mesh.frustumCulled=false;mesh.visible=false;
-    scene.add(mesh);A.meshes.push(mesh);A.static.push({mesh,spans,always:b===3});
+    scene.add(mesh);A.meshes.push(mesh);const st={mesh,spans,always:b===3};A.static.push(st);
+    if(typeof P81_RACE === 'boolean' && P81_RACE)raceRangeHook81(st,out.attributes.position.array);
   }
   const dyn=(g,mat,cap)=>{
     // Phong vertexColors 셰이더는 InstancedMesh에서도 color 속성이 필요하다.
@@ -33596,6 +33727,7 @@ function updSky(dt, night){
   EMITC.emissiveIntensity = fl*1.1; EMITC_F.emissiveIntensity = fl*1.1;
   castleFlameTick(tAcc);                                          // 67차 통합 — 가까운 불꽃만 흔든다
   fireMesh.count = skyK > 0.35 ? FN : 0;
+  if(typeof P81_FX === 'boolean' && P81_FX && fireMesh.boundingSphere !== null) fireMesh.visible = fireMesh.count > 0;   // 81차 — 낮엔 0 인스턴스라 그리기 준비만 하던 콜을 건너뛴다(그림자 안 드리움)
   if(fireMesh.count){
     for(let i=0;i<FN;i++){ const f = flies[i];
       f.p += dt*f.s;
