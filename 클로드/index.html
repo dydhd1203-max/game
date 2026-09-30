@@ -4316,7 +4316,7 @@ body.waiting78 #hud,body.story78 #hud{visibility:hidden!important}body.waiting78
     <div class="hrow"><i>🏃</i><div><b>Shift 를 누르면 달립니다.</b> 3초 달리면 숨이 차고 4초 쉬면 다시 찹니다 — 마을에서도 똑같이 달릴 수 있어요.</div></div>
     <div class="hrow"><i>🦘</i><div><b>도넛섬의 노란 점프 존에서 스페이스를 누르면 붕!</b> 걷기만 하면 발사되지 않아요. 날아가는 동안 좌우로 착지를 맞추고, 뒤로 누르면 조금 감속해요. 다른 곳에서는 스페이스로 점프해요.</div></div>
     <div class="hrow"><i>🚩</i><div>떨어지면 <b>현재 구간 입구에서 다시 출발</b>해요. 0~6단계 깃발을 차례로 지나 별 모양 결승문까지 달려요!</div></div>
-    <div class="hrow"><i>🌀</i><div><b>빠른 회전봉은 타이밍을 맞춰 뛰어넘고, 범퍼는 사이로 피해요.</b> 오르막에서는 굴러오는 바위를 피하며 노란 부스터를 밟아요. 움직이는 작은 원판 사이는 점프! <b>급한 미끄럼에서는 뒤로 눌러 조금 감속할 수 있어요.</b></div></div>
+    <div class="hrow"><i>🌀</i><div><b>빠른 회전봉은 타이밍을 맞춰 뛰어넘고, 범퍼는 사이로 피해요.</b> 오르막에서는 굴러오는 바위를 피하며 노란 부스터를 밟아요. 움직이는 작은 원판 사이는 점프! <b>무지개 롤러코스터는 A/D 로 커브 벽을 타고, 사탕 범퍼 사이 빈 길로 빠져나가요.</b> 언덕 꼭대기에선 붕 뜨고, 앞으로 누르면 더 빨리 · 뒤로 누르면 천천히!</div></div>
     <div class="hrow"><i>🏆</i><div><b>1등 유니크 총 · 2~3등 레어 총 · 4~5등 제일 좋은 방어구 · 6~10등 자원</b>, 180초 안에 들어온 사람은 모두 자원 조금. 이미 가진 건 그만큼 자원으로.</div></div>
   </div>
 
@@ -11573,15 +11573,36 @@ const miniPadX = g => (g-2)*MINI_PADX;
 const RACE_Z_EDGE = 34;                                    // 섬 가장자리 — 여기까지는 섬 바닥, 그 뒤는 발판만
 const RACE_P = [];                                         // 발판 표 {x,z,y,w,d,h,col,sec,kind,mv?,fade?,blink?,cp?,fin?}
 const RACE_X = 4;                                          // 횡방향 길·이동 폭 배율. 점프 간격은 각 구간에서 정한다.
+/* 82차 — 무지개 롤러코스터 미끄럼(선생님: "레이싱 마지막 무지개 미끄럼틀이 좀 부족해, 그냥 쭉 띡 내려가고 끝이야"
+   → 고른 안: '구불구불 롤러코스터'). 76~81차 미끄럼은 폭 26 · 길이 64 의 곧은 내리막이라 58 속도로 1.1초면 끝났다.
+   이제 z 687 → 1020(333칸)을 ① 급경사 → ② 첫 S자(왼 → 오른, U자 벽을 타고 오름) → ③ 물결 언덕 셋(꼭대기마다 붕) + 평평한 착지 마당
+   → ④ 사탕 범퍼 네 줄이 선 둘째 S자(오른 → 왼) → ⑤ 점프대 순으로 8~9초 탄다.
+   · 가운데 선 x 는 '머리 방향' 굽이 넷을 0.25칸 표로 적분한 값이다(넷째 굽이 세기는 끝이 x 0 으로 돌아오게 chute82 가 푼다).
+   · 단면은 U(바닥 → 가장자리 rim 4.5 · 지름 23)다. 커브에서는 바깥 벽으로 쏠려 올라가고, 벽이 몸을 붙잡아 밖으로 떨어지지 않는다.
+   · 카메라 방향(yaw·pitch)은 건드리지 않는다(79차 약속) — 굽이는 머리 방향 ±32° 안이라 앞이 늘 보인다.
+   · 뒤 구간(6 별빛 대도약·골인)은 CH82_SHIFT 만큼 뒤로 밀었다. 치수는 모두 여기 한 곳(섬을 지을 때 벌써 읽는 자리). */
+const CH82 = {z0:687, lz:333, hw:11.5, rim:4.5, rimP:2.2, lip:.9, step:.25,
+  // 높이 매듭 [시작부터 z, y] — 단조 3차(Fritsch–Carlson)라 매듭 사이에서 넘치지 않는다. 첫 매듭은 앞 깃발 판(y 30)과 평평하게 잇는다
+  // 언덕 구간(131~221)은 바탕을 평평하게 — 꼭대기 높이가 같아야 다음 언덕 오르막에 내린다. 셋째 언덕 뒤 12칸(209~221)은 평평한 착지 마당(첫 범퍼 줄 18칸 앞)
+  knots:[[0,30],[27,19.5],[131,13.5],[221,13.5],[309,3.0],[319,2.2],[333,6.0]],
+  // 굽이 [가운데, 폭, 머리 방향 봉우리(rad, 왼쪽 +x 가 +)] — null 은 끝 x 0 이 되게 푼다
+  bends:[[52,50,.52],[104,50,-.52],[243,40,-.54],[285,40,null]],
+  humps:[[131,26,3.0],[157,26,3.0],[183,26,3.0]],                   // [시작, 길이, 높이] — 꼭대기는 시작 + 길이/2
+  bumpRows:[[239,1],[257,-1],[277,1],[295,-1]],                      // [z, 빈 길 쪽(+1 왼 · −1 오른)] — 한 줄 셋, 반대쪽이 막힌다. 셋째 언덕 착지(≈216) 뒤
+  bumpR:2.6, bumpH:6.4,
+  vC:46, vW:58, vS:28, vMin:16, vMax:66, kAcc:1.4, g:26,            // 길 따라 빠르기(그냥·W·S) · 경사가 더하고 빼는 몫(중력)
+  steer:30, cf:.25, damp:3.2, vdMax:24,                               // 옆: A/D · 원심(게임 몫 .25) · 흔들림 줄임
+  hopVy:3.2, kickVy:15, kickVz:33};   // 꼭대기 붕 3.2(± 빠르기) — 골을 2~3칸 위로 날아 다음 언덕 오르막에 내린다(통·통·통)                                     // 언덕 꼭대기 붕 · 끝 점프대(속도와 무관하게 늘 같은 궤적 → 착지판 가운데)
+const CH82_Z1 = CH82.z0 + CH82.lz, CH82_SHIFT = 294;   // 옛 7단계 깃발 770 → 끝 + 44
 const RACE_S = [
   {n:'통통 범퍼숲',z0:28,z1:78,col:0x68cde6},
   {n:'빙글빙글 캔디마당',z0:90,z1:210,col:0x9b8aed},
   {n:'통통 도넛섬',z0:232,z1:454,col:0xff9ac3},
   {n:'데굴데굴 도넛마당',z0:478,z1:568,col:0xffbd62},
   {n:'출렁출렁 구름다리',z0:590,z1:670,col:0x6edab4},
-  {n:'무지개 미끄럼',z0:690,z1:754,col:0x61d7c1},
-  {n:'별빛 대도약',z0:778,z1:836,col:0xffc759}];
-const RACE_Z_FIN = 836, RACE_Y_FIN = 2;
+  {n:'무지개 미끄럼',z0:690,z1:CH82_Z1,col:0x61d7c1},
+  {n:'별빛 대도약',z0:778+CH82_SHIFT,z1:836+CH82_SHIFT,col:0xffc759}];
+const RACE_Z_FIN = 836 + CH82_SHIFT, RACE_Y_FIN = 2;
 /* 무지개 점프 여섯 발판의 앞뒤 간격. 발판(raceBuild)과 옆 장식이 같은 값을 봐야
    깃대·풍선이 발판 옆에 선다. 예전엔 장식만 옛 간격 5 로 남아 뒤쪽이 텅 비었다. */
 const RACE_RAINBOW_DZ = 8.6;
@@ -20985,7 +21006,7 @@ function updPlayer(dt){
     const a = doorFunnel(dt, tvx, tvz); if(a){ const ca = Math.cos(a), sa = Math.sin(a), v0 = tvx; tvx = v0*ca - tvz*sa; tvz = v0*sa + tvz*ca; }
   }
   if(PL._px !== undefined && Math.hypot(PL.x - PL._px, PL.z - PL._pz) > 1.5){ PL.vx = 0; PL.vz = 0; }
-  { const ak = raceMotion(dt,tvx,tvz,len) ? 0 : Math.min(1, dt * (len > 0.06 ? ACC_UP : ACC_DOWN)); PL.vx = (PL.vx||0) + (tvx - (PL.vx||0))*ak; PL.vz = (PL.vz||0) + (tvz - (PL.vz||0))*ak; }
+  { const ak = raceMotion(dt,tvx,tvz,len,fx,fz) ? 0 : Math.min(1, dt * (len > 0.06 ? ACC_UP : ACC_DOWN)); PL.vx = (PL.vx||0) + (tvx - (PL.vx||0))*ak; PL.vz = (PL.vz||0) + (tvz - (PL.vz||0))*ak; }
   const wx = PL.vx, wz = PL.vz;
   /* ★ 이미 무언가에 박혀 있으면(자리를 옮겨 놨거나 우리가 커져서 울타리가 몸을 지나갔거나)
      막지 않는다. 안 그러면 그 자리에서 영영 못 빠져나온다. */
@@ -29342,10 +29363,11 @@ function race74Reset(){
   RACE74.flight=RACE74.land=RACE74.speedK=RACE74.slide=0;
   RACE74.rate=1;RACE74.flightKind='';RACE74.forward=0;RACE74.boostT=0;
   RACE74.pending=null;RACE74.lastPad=-1;RACE74.pulse.clear();RACE74.landAge=9;RACE74.impact=0;RACE74.lastNet=-1;RACE74.stepped=0;
-  RACE74.prevTime=-999;RACE74.cameraLift=0;RACE74.knockT=0;
+  RACE74.prevTime=-999;RACE74.cameraLift=0;RACE74.knockT=0;RACE74.kick82=false;
 }
 
 function raceContains(p,x,z,r=0,t=RACE.t){
+  if(p.chute)return chuteContains82(x,z,r);
   let dx=x-p.x-raceOff(p,t),dz=z-p.z-raceZOff(p,t);
   const angle=p.mv?(p.mv.rot||0)*t:0;
   if(angle){const ca=Math.cos(angle),sa=Math.sin(angle),xx=dx;dx=xx*ca-dz*sa;dz=xx*sa+dz*ca;}
@@ -29357,9 +29379,127 @@ function raceContains(p,x,z,r=0,t=RACE.t){
 }
 
 function raceSurface(p,x,z){
+  if(p.chute)return MINI_Y+chuteSurf82(x,z);
   if(p.shape!=='slide'&&p.shape!=='ramp')return MINI_Y+p.y;
   const u=Math.max(0,Math.min(1,(z-p.z+p.d/2)/p.d));
   return MINI_Y+p.y+(p.yEnd-p.y)*u*u*(3-2*u);
+}
+
+/* ═══ 82차 무지개 롤러코스터 미끄럼 — 모양(표)·판정·물리. 치수는 CH82(RACE_S 바로 위) 한 곳 ═══
+   표(0.25칸)는 처음 부를 때 한 번 만든다 — 그 뒤 매 프레임 할당 0.
+   d = 길 가운데에서 왼쪽(+x 쪽)으로 잰 거리 ≈ (x − cx)·cosθ. 바닥 높이 = y(z) + prof(d).
+   그림(raceArtBuild)도 같은 함수로 꼭짓점을 찍어 발 높이와 그림이 어긋나지 않는다. */
+let CH82T = null;
+const CH82Q = {cx:0, sn:0, cs:1, kp:0, y:0, dy:0};
+function chute82(){
+  if(CH82T) return CH82T;
+  const C = CH82, n = Math.round(C.lz/C.step) + 1;
+  const T = {n, cx:new Float32Array(n), sn:new Float32Array(n), cs:new Float32Array(n), kp:new Float32Array(n), y:new Float32Array(n), dy:new Float32Array(n), aD:0};
+  const head = (z, aD)=>{ let th = 0, dth = 0;
+    for(const [c, w, a0] of C.bends){ const a = a0 === null ? aD : a0, u = (z - c)/w + .5;
+      if(u <= 0 || u >= 1) continue; const s = Math.sin(Math.PI*u); th += a*s*s; dth += a*Math.PI/w*Math.sin(2*Math.PI*u); }
+    return [th, dth]; };
+  const endX = aD=>{ let x = 0, prev = Math.tan(head(0, aD)[0]);
+    for(let i=1;i<n;i++){ const t = Math.tan(head(i*C.step, aD)[0]); x += C.step*(prev + t)/2; prev = t; } return x; };
+  // 넷째 굽이 세기 — 끝 x 가 0 이 되는 값(끝 x 는 세기에 대해 단조라 이분법)
+  let lo = -1.2, hi = 1.2; const up = endX(hi) > endX(lo);
+  for(let k=0;k<64;k++){ const mid = (lo + hi)/2; if((endX(mid) > 0) === up) hi = mid; else lo = mid; }
+  T.aD = (lo + hi)/2;
+  // 높이 — 단조 3차(Fritsch–Carlson) 매듭 + 물결 언덕. 첫 기울기 0(앞 깃발 판과 평평하게), 끝은 점프대 오르막 그대로
+  const K = C.knots, m = K.length, dk = [], sk = new Array(m).fill(0);
+  for(let i=0;i<m-1;i++) dk.push((K[i+1][1] - K[i][1])/(K[i+1][0] - K[i][0]));
+  sk[m-1] = dk[m-2];
+  for(let i=1;i<m-1;i++) sk[i] = dk[i-1]*dk[i] <= 0 ? 0 : (dk[i-1] + dk[i])/2;
+  for(let i=0;i<m-1;i++){ if(dk[i] === 0){ sk[i] = sk[i+1] = 0; continue; }
+    const a = sk[i]/dk[i], b = sk[i+1]/dk[i], s = a*a + b*b; if(s > 9){ const t = 3/Math.sqrt(s); sk[i] = t*a*dk[i]; sk[i+1] = t*b*dk[i]; } }
+  const base = z=>{ let i = 0; while(i < m - 2 && z > K[i+1][0]) i++;
+    const h = K[i+1][0] - K[i][0], t = Math.max(0, Math.min(1, (z - K[i][0])/h)), t2 = t*t, t3 = t2*t;
+    return (2*t3 - 3*t2 + 1)*K[i][1] + (t3 - 2*t2 + t)*h*sk[i] + (-2*t3 + 3*t2)*K[i+1][1] + (t3 - t2)*h*sk[i+1]; };
+  let x = 0, prevT = 0;
+  for(let i=0;i<n;i++){
+    const z = i*C.step, [th, dth] = head(z, T.aD), t = Math.tan(th);
+    if(i) x += C.step*(prevT + t)/2; prevT = t;
+    T.cx[i] = x; T.sn[i] = Math.sin(th); T.cs[i] = Math.cos(th); T.kp[i] = dth*Math.cos(th);
+    let y = base(z); for(const [a, L, A] of C.humps) if(z > a && z < a + L){ const s = Math.sin(Math.PI*(z - a)/L); y += A*s*s; }
+    T.y[i] = y;
+  }
+  for(let i=0;i<n;i++){ const a = Math.max(0, i - 1), b = Math.min(n - 1, i + 1); T.dy[i] = (T.y[b] - T.y[a])/((b - a)*C.step); }
+  CH82T = T; return T;
+}
+/* z 자리의 길 가운데 x·방향(sin·cos)·굽음(κ = dθ/ds)·바닥 높이·z 기울기 — CH82Q 한 벌에(바로 읽고 버린다). 표 밖 z 는 끝 값 */
+function chuteQ82(z){
+  const T = chute82(), C = CH82; let f = (z - C.z0)/C.step;
+  if(!(f > 0)) f = 0; else if(f > T.n - 1) f = T.n - 1;
+  const i = Math.min(T.n - 2, f|0), u = f - i, Q = CH82Q;
+  Q.cx = T.cx[i] + (T.cx[i+1] - T.cx[i])*u; Q.sn = T.sn[i] + (T.sn[i+1] - T.sn[i])*u; Q.cs = T.cs[i] + (T.cs[i+1] - T.cs[i])*u;
+  Q.kp = T.kp[i] + (T.kp[i+1] - T.kp[i])*u; Q.y = T.y[i] + (T.y[i+1] - T.y[i])*u; Q.dy = T.dy[i] + (T.dy[i+1] - T.dy[i])*u;
+  return Q;
+}
+/* 단면 — 바닥에서 가장자리까지 U(rim·(|d|/hw)^2.2), 가장자리 밖 lip 0.9 는 둥근 고무 테 윗면 */
+function chuteProf82(d){ const C = CH82; d = Math.abs(d);
+  if(d <= C.hw) return C.rim*Math.pow(d/C.hw, C.rimP);
+  return C.rim + .42*Math.sin(Math.PI*Math.min(1, (d - C.hw)/C.lip)); }
+function chuteProfSlope82(d){ const C = CH82, a = Math.abs(d); if(a >= C.hw || a < 1e-6) return 0;
+  return Math.sign(d)*C.rim*C.rimP/C.hw*Math.pow(a/C.hw, C.rimP - 1); }
+function chuteContains82(x, z, r){ const C = CH82; if(z < C.z0 - r || z > CH82_Z1 + r) return false;
+  const q = chuteQ82(z); return Math.abs((x - q.cx)*q.cs) <= C.hw + C.lip + r; }
+function chuteSurf82(x, z){ const q = chuteQ82(z); return q.y + chuteProf82((x - q.cx)*q.cs); }
+function chuteGrad82(x, z){ const q = chuteQ82(z), sl = chuteProfSlope82((x - q.cx)*q.cs); return Math.hypot(sl*q.cs, q.dy - sl*q.sn); }
+const chuteZone82 = z=> z >= CH82.z0 - 1 && z <= CH82_Z1 + 1;
+/* 길 위(땅)의 물리 — 속도를 길 방향(V)·옆(vd)으로 나눈다.
+   V: 그냥 46 · W 58 · S 28 로 다가가고(1.4/초) 경사가 중력만큼 더하고 뺀다(급경사 → 슝, 언덕 오르막 → 조금 느려짐).
+   vd: A/D + U자 벽이 가운데로 끄는 힘 − 커브 원심(게임 몫 .25 — 빠르면 바깥 벽을 높이 탄다) − 흔들림 줄임.
+   W/S/A/D 는 카메라 방향이 아니라 길 기준으로 읽는다 — 앞을 보고 있어도 길이 굽으면 입력이 옆으로 새지 않는다. */
+function chuteMotion82(dt, ix, iz){
+  const C = CH82, q = chuteQ82(PL.z), sn = q.sn, cs = q.cs, kp = q.kp, dyz = q.dy, d = (PL.x - q.cx)*cs;
+  let V = PL.vx*sn + PL.vz*cs, vd = PL.vx*cs - PL.vz*sn;
+  const target = iz > .3 ? C.vW : iz < -.3 ? C.vS : C.vC;
+  V += (C.kAcc*(target - V) - C.g*dyz*cs)*dt;
+  V = Math.max(C.vMin, Math.min(C.vMax, V));
+  vd += (-ix*C.steer - C.g*chuteProfSlope82(d) - C.cf*V*V*kp - C.damp*vd)*dt;
+  vd = Math.max(-C.vdMax, Math.min(C.vdMax, vd));
+  PL.vx = sn*V + cs*vd; PL.vz = cs*V - sn*vd;
+}
+/* 떠 있는 동안(언덕 붕·범퍼 튕김·점프대) — 수평 속도는 그대로, 길 옆으로만 조금 조종. 점프대 뒤(길 밖)는 좌우 ±4 — 벽 끝에서 날아도 착지판(반폭 20) 안 */
+function chuteFlight82(dt, ix){
+  if(PL.z >= CH82.z0 && PL.z <= CH82_Z1){ const q = chuteQ82(PL.z), a = -ix*9*dt; PL.vx += q.cs*a; PL.vz -= q.sn*a; }
+  else PL.vx += (Math.max(-4, Math.min(4, -ix*4)) - PL.vx)*(1 - Math.exp(-dt*1.2));
+}
+function chuteLaunch82(vy){
+  PL.vy = vy; PL.ground = false; PL.jumps = 1; PL.flipT = 99; PL.takeT = 0;
+  RACE74.flight = .001; RACE74.flightKind = 'chute'; RACE74.rate = 1; RACE74.slide = 0; RACE74.pending = null;
+}
+/* 이동 뒤(racePhysicsAfter) — ① 고무 테 안쪽에 몸을 붙잡는 벽(길 밖으로 떨어지지 않는다 · 바닥 밑으로 떨어진 몸은 안 건드림)
+   ② 땅에 붙어 언덕 꼭대기를 지나면 붕(한 번) ③ 점프대 끝을 지나면 늘 같은 궤적으로 착지판(7단계 깃발) 가운데로 */
+function chuteAfter82(dt){
+  const C = CH82, z = PL.z, z0 = RACE74.prevZ === undefined ? z : RACE74.prevZ;
+  if(z < C.z0 - 1 || Math.min(z, z0) > CH82_Z1 + 1) return;
+  const q = chuteQ82(z), sn = q.sn, cs = q.cs, cx = q.cx, yb = MINI_Y + q.y;
+  if(z >= C.z0 + .4 && z <= CH82_Z1 && PL.y > yb - 2.5 && PL.y < yb + C.rim + 9){
+    const d = (PL.x - cx)*cs, lim = C.hw - PL.R - .03;
+    if(Math.abs(d) > lim){ const s = Math.sign(d); PL.x = cx + s*lim/cs;
+      const vd = PL.vx*cs - PL.vz*sn; if(vd*s > 0){ PL.vx -= cs*vd*1.15; PL.vz += sn*vd*1.15; } }
+  }
+  if(RACE74.pending) return;
+  // '이 걸음을 길 위에서 시작했다'(slide 1 · 안 뜸) — 한 번에 1.6칸씩 움직이는 30Hz 에서도 꼭대기·끝을 밟고 넘어가는 걸음을 놓치지 않는다
+  const onChute = RACE74.slide && !(RACE74.flight > 0), V = PL.vx*sn + PL.vz*cs;
+  if(onChute) for(const [a, L] of C.humps){ const crest = C.z0 + a + L/2;
+    if(z0 < crest && z >= crest){ chuteLaunch82(Math.max(2.2, Math.min(4.2, C.hopVy + (V - C.vC)*.03))); raceBounceSound('small'); return; } }
+  // 점프대 — 길 위에서, 또는 점프대 바로 위(2.5 안)에서 날다가 끝을 넘으면 늘 같은 궤적(옆 속도는 3 까지만). 한 번만(kick82).
+  if(z < CH82_Z1 - 30) RACE74.kick82 = false;
+  if(!RACE74.kick82 && z0 < CH82_Z1 - .5 && z >= CH82_Z1 - .5 && (onChute || RACE74.flightKind === 'chute' && PL.y - (MINI_Y + chuteSurf82(PL.x, CH82_Z1 - .5)) < 2.5)){
+    const vd = Math.max(-3, Math.min(3, PL.vx*cs - PL.vz*sn));
+    PL.vx = sn*C.kickVz + cs*vd; PL.vz = cs*C.kickVz - sn*vd;
+    PL.y = Math.max(PL.y, MINI_Y + chuteSurf82(PL.x, CH82_Z1 - .5));
+    chuteLaunch82(C.kickVy); RACE74.kick82 = true; raceBounceSound('launch'); fovPunch(2.4);
+  }
+}
+/* 사탕 범퍼에 부딪히면 — 멀리 날리지 않고(U자 길 밖으로 튕겨 나가지 않게) 길 방향 속도를 42%(10~20)로 줄이고 옆으로 조금 튕겨 통 뛴다 */
+function chuteBump82(h){
+  const q = chuteQ82(PL.z), sn = q.sn, cs = q.cs, cx = q.cx;
+  const V = PL.vx*sn + PL.vz*cs, side = (PL.x - cx)*cs >= (h.x - cx)*cs ? 1 : -1, v2 = Math.max(10, Math.min(V*.42, 20)), vd = side*9;
+  PL.vx = sn*v2 + cs*vd; PL.vz = cs*v2 - sn*vd;
+  chuteLaunch82(4.5); RACE.hitCd = .9; RACE.slipT = .12;
 }
 
 function raceGravityScale(){
@@ -29376,10 +29516,12 @@ function raceGravityScale(){
 function raceSlideAdhere78(gnd,dt){
   if(!raceOn()||!RACE74.slide||RACE74.flight||!PL.ground||PL.vy>0)return false;
   const p=RACE_P.find(q=>q.shape==='slide');
-  return !!p&&raceContains(p,PL.x,PL.z,0)&&gnd>MINI_Y-1&&PL.y-gnd<=Math.abs(PL.vz)*dt*1.5+.12;
+  // 82차 — 굽은 길이라 z 속도만이 아니라 수평 속도 전체로 본다(옆으로 기울어 달릴 때 붙잡는 폭이 모자라지 않게)
+  return !!p&&raceContains(p,PL.x,PL.z,0)&&gnd>MINI_Y-1&&PL.y-gnd<=Math.hypot(PL.vx,PL.vz)*dt*1.5+.12;
 }
 
-function raceMotion(dt,tvx,tvz,len){
+// ix·iz = 날 입력(A/D·W/S, -1~1). 82차 롤러코스터는 카메라가 아닌 길 기준으로 읽는다.
+function raceMotion(dt,tvx,tvz,len,ix=0,iz=0){
   if(!raceOn())return false;
   const prev=RACE.t,p=PL.ground?raceUnder(prev):null;
   RACE74.prevX=PL.x;RACE74.prevY=PL.y;RACE74.prevZ=PL.z;RACE74.prevTime=prev;
@@ -29394,9 +29536,10 @@ function raceMotion(dt,tvx,tvz,len){
   RACE74.land=RACE74.impact*(a<.04?a/.04:Math.exp(-(a-.04)*17));
   for(const [id,v] of RACE74.pulse){if(v<=dt)RACE74.pulse.delete(id);else RACE74.pulse.set(id,v-dt);}
   if(RACE74.pending){PL.vx*=Math.exp(-dt*20);PL.vz*=Math.exp(-dt*20);return true;}
-  if(RACE74.slide&&!PL.ground&&!RACE74.flight&&PL.vz>15){
+  if(RACE74.slide&&!PL.ground&&!RACE74.flight&&(chuteZone82(PL.z)||PL.vz>15)){
     // A jump or the lip of the chute keeps its earned momentum instead of abruptly returning to walking speed.
-    RACE74.flight=.001;RACE74.flightKind='slide';RACE74.forward=PL.vz;RACE74.rate=1;RACE74.slide=0;
+    // 82차 — 롤러코스터 안에서 뜨면(스페이스 점프·가장자리) 수평 속도를 그대로 들고 난다('chute').
+    RACE74.flight=.001;RACE74.flightKind=chuteZone82(PL.z)?'chute':'slide';RACE74.forward=PL.vz;RACE74.rate=1;RACE74.slide=0;
   }
   if(RACE74.flight>0&&!PL.ground){
     const rate=RACE74.rate;RACE74.flight+=dt;
@@ -29408,6 +29551,8 @@ function raceMotion(dt,tvx,tvz,len){
       PL.vx+=(Math.max(-13,Math.min(13,tvx*2))-PL.vx)*(1-Math.exp(-dt*4));
       const target=RACE74.forward*(tvz<-.5?.60:tvz>.5?1.10:1);
       PL.vz+=(target-PL.vz)*(1-Math.exp(-dt*1.7));
+    }else if(RACE74.flightKind==='chute'){
+      chuteFlight82(dt,ix);
     }else if(RACE74.flightKind==='slide'){
       // Keep chute momentum with gentle course correction and weak reverse braking.
       PL.vx+=(Math.max(-7,Math.min(7,tvx))-PL.vx)*(1-Math.exp(-dt*2.0));
@@ -29422,6 +29567,7 @@ function raceMotion(dt,tvx,tvz,len){
   }
   // The feet remain supported slightly beyond the center probe. Keep the lip's surface mode until actual take-off.
   RACE74.slide=p?(p.shape==='slide'?1:0):PL.ground?RACE74.slide:0;
+  if(p&&p.chute){RACE74.boostT=0;chuteMotion82(dt,ix,iz);return true;}
   if(p&&p.shape==='ramp'){
     let boost=false;for(const b of p.boosts||[])if(Math.abs(PL.x-b.x)<b.w/2&&Math.abs(PL.z-b.z)<b.d/2)boost=true;
     RACE74.boostT=Math.max(0,(RACE74.boostT||0)-dt);
@@ -29462,6 +29608,7 @@ function raceTryJump(){
 
 function racePhysicsAfter(dt){
   if(!raceOn()||raceHold()||G.paused||G.mini.st!=='run'||RACE.fallT>0||MINE.fin>=0)return;
+  chuteAfter82(dt);                                                  // 82차 — 롤러코스터 벽·언덕 붕·점프대
   const p=PL.ground?raceUnder():null;
   if(RACE74.pending){
     const q=RACE74.pending;
@@ -29498,7 +29645,8 @@ function mulberry(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; let t =
 function raceBuild(seed){
   const rng=mulberry(seed|0);RACE.seed=seed|0;RACE_P.length=0;race74Reset();RACE._haz=null;
   const P=o=>{const p=Object.assign({id:RACE_P.length,x:0,y:0,h:2.2,shape:'cushion',round:3,kind:'cushion'},o);RACE_P.push(p);return p;};
-  const cps=[[22,0,48,14],[84,0,26,14],[220,0,26,16],[468,0,26,16],[578,30,26,16],[680,30,26,16],[770,0,30,24]];
+  // 82차 — 마지막 깃발 판은 롤러코스터 점프대 착지 자리(끝 + 44)로 옮기고 넓혔다(40 × 32 — 벽 끝에서 날아도 받는다). 별빛 대도약·골인도 같은 만큼 뒤로.
+  const cps=[[22,0,48,14],[84,0,26,14],[220,0,26,16],[468,0,26,16],[578,30,26,16],[680,30,26,16],[770+CH82_SHIFT,0,40,32]];
   cps.forEach(([z,y,w,d],i)=>{RACE.vars[i]=(rng()*3)|0;P({z,y:y+.075,w,d,sec:i,cp:i+1,kind:'cp',col:RACE_S[i].col});});
   P({z:50,w:44,d:64,h:2.8,round:8,sec:0,col:0x68cde6});
   P({z:150,w:44,d:120,h:2.6,round:3,sec:1,col:0x9b8aed});
@@ -29506,9 +29654,10 @@ function raceBuild(seed){
   P({z:523,y:0,yEnd:30,w:26,d:90,h:3,shape:'ramp',round:3,sec:3,kind:'ramp',col:0xffbd62,boosts:[494,513,532,551].map((z,i)=>({x:i%2?5:-5,z,w:7,d:5}))});
   // 78차 — shipped 76 baseline: translation frequency ×5, rotation .30→.60 (×2).
   for(let i=0;i<7;i++)P({x:i%2?1.3:-1.3,z:594+i*12,y:30+(i%2?.2:0),w:8,d:8,h:2.2,shape:'round',sec:4,kind:'moving',col:i%2?0x6edab4:0x6bcff0,mv:{ax:'xz',amp:1.1,zamp:.65,spd:(.65+i*.035)*5,ph:rng()*Math.PI*2,rot:(i%2?-.60:.60)}});
-  P({z:722,y:30,yEnd:0,w:26,d:64,h:3,shape:'slide',round:3,sec:5,kind:'slide',col:0x61d7c1});
-  P({z:790,y:0,w:34,d:28,h:3,shape:'round',sec:6,kind:'final',col:0xffc759,bounce:{v:22.5,forward:25}});
-  P({z:842,y:2,w:42,d:38,round:8,sec:6,kind:'fin',fin:1,col:0x92b6f3});
+  // 82차 — 곧은 미끄럼(z 722 · 폭 26 · 길이 64) 대신 구불구불 롤러코스터 한 판. 모양·판정은 chute82(CH82) 가 맡는다(w·d 는 겉 테두리 — 경치 자리·카메라 범위용)
+  P({x:0,z:CH82.z0+CH82.lz/2,y:CH82.knots[0][1],yEnd:CH82.knots[CH82.knots.length-1][1],w:2*(CH82.hw+CH82.lip),d:CH82.lz,h:3,shape:'slide',chute:1,round:0,sec:5,kind:'slide',col:0x61d7c1});
+  P({z:790+CH82_SHIFT,y:0,w:34,d:28,h:3,shape:'round',sec:6,kind:'final',col:0xffc759,bounce:{v:22.5,forward:25}});
+  P({z:842+CH82_SHIFT,y:2,w:42,d:38,round:8,sec:6,kind:'fin',fin:1,col:0x92b6f3});
 }
 /* 발판의 지금 위치(움직이는 것) */
 function raceOff(p,t){return p.mv?Math.sin(t*p.mv.spd+p.mv.ph)*p.mv.amp:0;}
@@ -29652,13 +29801,13 @@ function raceHazards(t){
       for(let i=first;i<a.length;i++){const h=a[i],floor=h.y-h.h/2,r=h.r*1.18;
         Object.assign(h,{donut79:true,flavor79:(i+p.donutIndex)%3,r,h:2*r,y:floor+r,ry:(i+p.donutIndex)%2?.25:-.25,rz:i%2?.10:-.10});}
     }
-    const slide=RACE_P.find(p=>p.shape==='slide');
-    if(slide)for(let row=0;row<3;row++)for(let k=0;k<4;k++){
-      if(k===(row%2?2:1))continue; // One generous gap alternates left/right; straight center hits rubber.
-      // Embed the rounded foot into the chute: the visible wide body, not a narrowing toe, blocks straight travel.
-      const x=-10.2+k*6.8,z=703+row*18;punch(x,z,raceSurface(slide,x,z)-MINI_Y-1.5,5,'slide'+row+':'+k,3.2,6.8);
-    }
-    for(const x of [-11,11])punch(x,791,0,6,'finalGate'+x,1.65,5.6);
+    // 82차 — 롤러코스터 둘째 S자의 사탕 범퍼 네 줄. 한 줄 셋(반지름 2.6)이 맞닿아 가운데와 한쪽 벽을 막고, 반대쪽 벽 쪽 한 길(폭 ≈7.4)만 연다.
+    // 빈 길은 줄마다 왼 → 오른 → 왼 → 오른 — 커브 바깥(저절로 쏠리는 쪽)일 때도, 안쪽이라 A/D 로 버텨야 할 때도 있다.
+    // 벽 비탈에 선 범퍼는 비탈만큼 더 묻고 그만큼 키를 늘려(드러난 높이 ≈4.9 — 스페이스 점프 3.9 로 못 넘는다) 밑동 틈이 안 보이게.
+    for(let row=0;row<CH82.bumpRows.length;row++){const [zr,open]=CH82.bumpRows[row],z=CH82.z0+zr,q=chuteQ82(z),cx=q.cx,cs=q.cs,yb=q.y,R=CH82.bumpR;
+      for(let k=0;k<3;k++){const d=-open*(CH82.hw-R-k*2*R),embed=1.5+Math.abs(chuteProfSlope82(d))*R;
+        punch(cx+d/cs,z,yb+chuteProf82(d)-embed,5,'chute'+row+':'+k,R,CH82.bumpH-1.5+embed);a[a.length-1].chute82=true;}}
+    for(const x of [-11,11])punch(x,791+CH82_SHIFT,0,6,'finalGate'+x,1.65,5.6);
     RACE._haz=a;RACE._hazAll=[];
   }
   const phase=(RACE.seed>>>0)%1000/1000*Math.PI*2,out=RACE._hazAll;out.length=0;
@@ -29793,7 +29942,7 @@ function raceCameraBlocked(h,x,y,z,r){
 function raceCameraFloorBlocked(p,x,y,z,r,t=RACE.t){
   if(!raceContains(p,x,z,r,t))return false;
   const top=raceSurface(p,x,z),u=Math.max(0,Math.min(1,(z-p.z+p.d/2)/p.d));
-  const slope=p.shape==='slide'||p.shape==='ramp'?Math.abs((p.yEnd-p.y)*6*u*(1-u)/p.d):0;
+  const slope=p.chute?chuteGrad82(x,z):p.shape==='slide'||p.shape==='ramp'?Math.abs((p.yEnd-p.y)*6*u*(1-u)/p.d):0;
   const margin=r*Math.sqrt(1+slope*slope)+.025;
   return y<top+margin&&y>top-p.h-margin;
 }
@@ -29884,6 +30033,7 @@ function raceHazardTick(dt){
       PL.x=RACE74.contactX;PL.y=RACE74.contactY;PL.z=RACE74.contactZ;}
     }else if(h.k==='punch'&&h.sec===5){hit=raceSlideHit78(h,dt);if(hit){dx=RACE74.slideHitX;dz=RACE74.slideHitZ;}}
     else hit=h.k==='punch'?racePunchHit(h):raceSphereHit(h);
+    if(hit&&h.chute82){chuteBump82(h);RACE74.pulse.set(h.id,1);raceBounceSound('small');break;}   // 82차 — 롤러코스터 범퍼는 멀리 안 날린다
     if(hit){
       if(Math.hypot(dx,dz)<.001){dx=0;dz=-1;}const L=Math.hypot(dx,dz),power=h.k==='punch'?8*(h.power||1):h.k==='rock'?26:32;
       PL.vx=dx/L*power;PL.vz=dz/L*power;PL.vy=h.k==='bar'?14:h.k==='rock'?9:7;PL.ground=false;PL.jumps=1;
@@ -30204,7 +30354,7 @@ function raceArtBuild(){
     for(let i=0;i<uv.count;i++){const u=uv.getX(i),v=uv.getY(i);uv.setXY(i,v,u);}
     return raceArtUV(raceCandyGeometry77(g,turns));
   };
-  const top=(p,z)=>(p.shape==='slide'||p.shape==='ramp')?p.y+(p.yEnd-p.y)*Math.pow(Math.max(0,Math.min(1,(z-p.z)/p.d+.5)),2)*(3-2*Math.max(0,Math.min(1,(z-p.z)/p.d+.5))):p.y;
+  const top=(p,z)=>p.chute?chuteQ82(z).y:(p.shape==='slide'||p.shape==='ramp')?p.y+(p.yEnd-p.y)*Math.pow(Math.max(0,Math.min(1,(z-p.z)/p.d+.5)),2)*(3-2*Math.max(0,Math.min(1,(z-p.z)/p.d+.5))):p.y;
   const seam=(p,c)=>{const pts=p.shape==='round'?Array.from({length:64},(_,i)=>[p.x+Math.cos(i/64*Math.PI*2)*p.w*.502,p.y-p.h*.17,p.z+Math.sin(i/64*Math.PI*2)*p.d*.502]):raceArtRoundOutline(p.w,p.d,p.round||Math.min(p.w,p.d)*.25,1.004,p.y-p.h*.17).map(q=>[q[0]+p.x,q[1],q[2]+p.z]);
     return {g:tube(pts.concat([pts[0]]),.065),c};};
   const valve=(p)=>{const y=p.y-p.h*.52,z=p.z-p.d*.48;
@@ -30227,7 +30377,56 @@ function raceArtBuild(){
     startMarks.push({g:tube([[Math.sin(a)*32,.40,Math.cos(a)*32],[Math.sin(a1)*32,.40,Math.cos(a1)*32]],.36),c:laneColors[k%5]});
   }
   bake(startMarks,1,0,36);
+  /* 82차 — 무지개 롤러코스터 그림. 판정(chute82)과 같은 함수로 꼭짓점을 찍고, 12칸 토막마다 구워 drawRange 거리 제한을 그대로 쓴다.
+     윗면 = 무지개 일곱 길 + 크림 솔기 여섯(한 겹 — 겹친 면 없음, 법선은 면 기울기 식), 바깥 = 연보라 껍질(바닥 밑 1.8),
+     가장자리 = 둥근 고무 테(오른 산호 · 왼 노랑 — 옛 미끄럼 난간 색), 시작·끝 = 단면 뚜껑, 바닥 화살표·점프대 셰브런. 새 재질 0 · 투명 0. */
+  const chuteArt82=()=>{
+    const C=CH82,hw=C.hw,SEAM=.14,laneW=2*hw/7,SEG=12,skinCol=0xd9d3ea;
+    const Y0=MINI_Y,at=(zr,d)=>{const q=chuteQ82(C.z0+zr);return [q.cx+d/q.cs,Y0+q.y+chuteProf82(d),C.z0+zr];};
+    const nrm=(zr,d)=>{const q=chuteQ82(C.z0+zr),sl=chuteProfSlope82(d),gx=sl*q.cs,gz=q.dy-sl*q.sn,l=Math.hypot(gx,1,gz);return [-gx/l,1/l,-gz/l];};
+    const bands=[];
+    for(let k=0;k<7;k++){const a=-hw+k*laneW,b=a+laneW;bands.push([k?a+SEAM/2:a,k<6?b-SEAM/2:b,RACE_RAINBOW76[k],4]);if(k<6)bands.push([b-SEAM/2,b+SEAM/2,pal.cream,1]);}
+    // 바깥 껍질 단면(왼 테 밖 → 밑 → 오른 테 밖). 밑은 바닥 U 를 넓혀 1.8 내린 모양
+    const ring=[[hw+.42,C.rim+.08],[hw+.95,C.rim-.55],[hw+1.05,C.rim-1.6]];
+    for(let i=0;i<=16;i++){const dh=(hw+1.05)*(1-2*i/16);ring.push([dh,chuteProf82(dh*hw/(hw+1.05))-1.8]);}
+    ring.push([-(hw+1.05),C.rim-1.6],[-(hw+.95),C.rim-.55],[-(hw+.42),C.rim+.08]);
+    const grid=(rows,cols,pos,normal,flip)=>{
+      const P=new Float32Array((rows+1)*(cols+1)*3),N=normal?new Float32Array(P.length):null,I=[];
+      for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++){const o=(j*(cols+1)+i)*3,p=pos(j,i);P[o]=p[0];P[o+1]=p[1];P[o+2]=p[2];if(N){const n=normal(j,i);N[o]=n[0];N[o+1]=n[1];N[o+2]=n[2];}}
+      for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const a=j*(cols+1)+i,b=a+1,c=a+cols+1,d=c+1;if(flip)I.push(a,b,c,b,d,c);else I.push(a,c,b,b,c,d);}
+      const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(P,3));g.setIndex(I);
+      if(N)g.setAttribute('normal',new THREE.BufferAttribute(N,3));else g.computeVertexNormals();return raceArtUV(g);};
+    // 껍질·뚜껑은 바깥을 보게 — 한 꼭짓점 법선이 기대 방향과 반대면 감은 순서를 뒤집어 다시 만든다
+    const outward=(make,probe,want)=>{let g=make(false);const n=g.attributes.normal;if(n.getX(probe)*want[0]+n.getY(probe)*want[1]+n.getZ(probe)*want[2]<0){g.dispose();g=make(true);}return g;};
+    for(let zs=0;zs<C.lz;zs+=SEG){
+      const ze=Math.min(C.lz,zs+SEG),rows=Math.max(1,Math.round(ze-zs)),zAt=j=>zs+(ze-zs)*j/rows,parts=[],skin=[];
+      for(const [d0,d1,col,cols] of bands)parts.push({g:grid(rows,cols,(j,i)=>at(zAt(j),d0+(d1-d0)*i/cols),(j,i)=>nrm(zAt(j),d0+(d1-d0)*i/cols),false),c:col});
+      const ringAt=(j,i)=>{const zr=zAt(j),q=chuteQ82(C.z0+zr),[d,dy]=ring[i];return [q.cx+d/q.cs,Y0+q.y+dy,C.z0+zr];};
+      skin.push({g:outward(f=>grid(rows,ring.length-1,ringAt,null,f),(ring.length>>1),[0,-1,0]),c:skinCol});
+      // 고무 테 — 한 칸씩 이웃 토막과 겹쳐 튜브 끝이 안 보인다
+      for(const s of [-1,1]){const pts=[];for(let zr=Math.max(0,zs-1);zr<=Math.min(C.lz,ze+1)+1e-6;zr+=1){const q=chuteQ82(C.z0+zr);pts.push([q.cx+s*(hw+.25)/q.cs,Y0+q.y+C.rim+.3,C.z0+zr]);}
+        skin.push({g:raceArtPath(pts,.5,false,pts.length*3,8),c:s<0?pal.coral:pal.yellow});}
+      const mid=C.z0+(zs+ze)/2;bake(parts,0,mid,SEG/2+2);bake(skin,1,mid,SEG/2+2);
+    }
+    // 시작·끝 단면 뚜껑(윗면 U ↔ 바깥 껍질) · 테 끝 둥근 마개
+    for(const [zr,dir] of [[0,-1],[C.lz,1]]){
+      const q=chuteQ82(C.z0+zr),cx=q.cx,cs=q.cs,yb=Y0+q.y,z=C.z0+zr,M=ring.length-1,inner=[];
+      for(let i=0;i<=M;i++){const d=(hw)*(1-2*i/M);inner.push([cx+d/cs,yb+chuteProf82(d),z]);}
+      const outer=ring.map(([d,dy])=>[cx+d/cs,yb+dy,z]);
+      const cap=outward(f=>grid(1,M,(j,i)=>j?outer[i]:inner[i],null,f),M>>1,[0,0,dir]);
+      const ends=[{g:cap,c:skinCol}];
+      for(const s of [-1,1])ends.push({g:raceArtUV(new THREE.SphereGeometry(.5,12,8)),c:s<0?pal.coral:pal.yellow,m:M4(cx+s*(hw+.25)/cs,yb+C.rim+.3,z)});
+      bake(ends,1,z,4);
+    }
+    // 바닥 화살표(가운데 길)와 점프대 노란 셰브런 — 면 틀(접선·법선)로 눕힌다
+    const marks=[],arrowAt=(zr,d,w,l,col)=>{const [x,y,z]=at(zr,d),n=nrm(zr,d),q=chuteQ82(C.z0+zr),T=new THREE.Vector3(q.sn,q.dy*q.cs,q.cs).normalize(),N=new THREE.Vector3(...n),B=new THREE.Vector3().crossVectors(N,T);
+      marks.push({g:raceArtArrow(w,l),c:col,m:new THREE.Matrix4().makeBasis(B,N,T).setPosition(x+n[0]*.035,y+n[1]*.035,z+n[2]*.035)});};
+    for(const zr of [8,20,52,84,112,128,214,232,272,312])arrowAt(zr,0,1.9,2.2,pal.cream);
+    for(const zr of [323,326.5,330])for(const d of [-4.6,0,4.6])arrowAt(zr,d,2.6,2.3,pal.yellow);
+    bake(marks,1,C.z0+C.lz/2,C.lz/2+2);
+  };
   for(const p of RACE_P){
+    if(p.chute){chuteArt82();continue;}
     const isDyn=!!(p.mv||p.bounce);if(isDyn){A.dynamic.push(p);continue;}
     const g=(p.shape==='slide'||p.shape==='ramp')?raceArtSlide(p):raceArtSlab(p.w,p.d,p.h||1,p.round||Math.min(p.w,p.d)*.28,p.shape==='round');
     const body=[part(g,p.x,p.y,p.z,p.col??pal.teal)];if(p.shape!=='slide'&&p.shape!=='ramp')body.push(seam(p,pal.cream));
@@ -30366,9 +30565,9 @@ function raceArtBuild(){
         P[2].push(part(raceArtUV(new THREE.CylinderGeometry(.12,.18,.60,6)),x+side*2.7,y-10.55,z+1.9,pal.silver));
       }
     };
-    const stand=(P,side,z,y,col,edge=29.8)=>{
+    const stand=(P,side,z,y,col,edge=29.8,x0=0)=>{
       // 세 줄의 휘어진 공기 쿠션 좌석과 둥근 캐노피. 상자 계단과 개별 캐릭터 애니메이션 없음.
-      const x=side*edge;
+      const x=x0+side*edge;
       island(P,x,y-.25,z,col,1.05);
       for(let row=0;row<3;row++){
         const pts=[];for(let j=0;j<=10;j++){const f=j/10;pts.push([x+side*(row*.94+.40*Math.cos((f-.5)*Math.PI)),y+.65+row*.55,z+(f-.5)*8.8]);}
@@ -30535,40 +30734,52 @@ function raceArtBuild(){
     for(let i=0;i<RACE_S.length;i++){
       const sec=RACE_S[i],mid=(sec.z0+sec.z1)/2,col=sec.col||pal.coral;
       const pads=RACE_P.filter(p=>p.sec===i&&!p.cp),wide=Math.max(...pads.map(p=>p.w)),edge=wide/2+6.2;
-      const height=zz=>{const p=pads.find(p=>Math.abs(zz-p.z)<=p.d/2)||pads.reduce((a,b)=>Math.abs(zz-a.z)<Math.abs(zz-b.z)?a:b);return top(p,zz);};
+      // 82차 — 롤러코스터 구간은 길 가운데가 z 마다 옆으로 굽는다: 경치 x 는 그 자리 길 가운데(ox) + 그 자리 겉폭(ew — 굽이에서 cosθ 만큼 넓다).
+      // 벽이 바닥보다 4.5 높아 옆 섬·장식을 2.6 올린다(안에서 벽 너머로 보이게)
+      const ch=pads.some(p=>p.chute),ox=z=>ch?chuteQ82(z).cx:0,ew=z=>ch?(CH82.hw+CH82.lip)/chuteQ82(z).cs+6.2:edge,lift=ch?2.6:0;
+      const height=zz=>{const p=pads.find(p=>Math.abs(zz-p.z)<=p.d/2)||pads.reduce((a,b)=>Math.abs(zz-a.z)<Math.abs(zz-b.z)?a:b);return top(p,zz)+lift;};
       const count=Math.max(2,Math.ceil((sec.z1-sec.z0)/27));
       for(let j=0;j<count;j++){
         const zz=sec.z0+10+j*(sec.z1-sec.z0-18)/(count-1),yy=height(zz),P=[[],[],[]];
         for(const side of [-1,1]){
-          const x=side*(edge+(j%2)*1.8),z=zz+side*3.5,c=laneColors[(i+j+(side>0?1:0))%5];
+          const z=zz+side*3.5,x=ox(z)+side*(ew(z)+(j%2)*1.8),c=laneColors[(i+j+(side>0?1:0))%5];
           island(P,x,yy-.8,z,c,.82);
           if((j+i+(side>0?1:0))%3===0)flower(P,x,yy-.45,z,c);
           else if((j+i)%3===1)hoop(P,x,yy-.4,z,col);
           else bunting(P,x,yy+3.3,z-1,c,5.4);
-          cloud(P[1],side*(edge+6.0),yy-1.8,z+6,1.0);
-          if(j%2===0)cloud(P[1],side*(edge+17),yy+3.0,z+14,1.5);
+          cloud(P[1],ox(z+6)+side*(ew(z+6)+6.0),yy-1.8,z+6,1.0);
+          if(j%2===0)cloud(P[1],ox(z+14)+side*(ew(z+14)+17),yy+3.0,z+14,1.5);
           // Keep small objects close enough to read from the running camera, outside every swept pad edge.
           const near=pads.reduce((a,b)=>Math.abs(z-a.z)<Math.abs(z-b.z)?a:b),margin=2.3+(j%2)*.45;
-          let nearEdge=near.w/2+Math.abs(near.x)+(near.mv?Math.abs(near.mv.amp||0):0);
-          for(const cp of RACE_P)if(cp.cp&&Math.abs(cp.z-z)<cp.d/2+1.2)nearEdge=Math.max(nearEdge,cp.w/2+Math.abs(cp.x));
           const dz=j%2?3:-3,type=(i*2+j+(side>0?2:0))%5;
-          littleDecor76(P,side*(nearEdge+margin),height(z+dz)-.04,z+dz,c,type,side);
+          let nearEdge=near.chute?ew(z+dz)-6.2:near.w/2+Math.abs(near.x)+(near.mv?Math.abs(near.mv.amp||0):0);
+          for(const cp of RACE_P)if(cp.cp&&Math.abs(cp.z-z)<cp.d/2+1.2)nearEdge=Math.max(nearEdge,cp.w/2+Math.abs(cp.x));
+          littleDecor76(P,ox(z+dz)+side*(nearEdge+margin),height(z+dz)-.04,z+dz,c,type,side);
         }
         if(j===0||j===count-1){const side=j===0?-1:1;
-          balloon(P,side*(edge+7),yy+13,zz+8,col,laneColors[(i+2)%5]);
-          windsock(P,-side*edge,yy,zz-4,col);
+          balloon(P,ox(zz+8)+side*(ew(zz+8)+7),yy+13,zz+8,col,laneColors[(i+2)%5]);
+          windsock(P,ox(zz-4)-side*ew(zz-4),yy,zz-4,col);
         }
         finishScenery(P,zz,24);
       }
       const P=[[],[],[]],yy=height(mid);
-      stand(P,i%2?1:-1,mid,yy+.25,col,edge+1.5);
+      stand(P,i%2?1:-1,mid,yy+.25,col,ew(mid)+1.5,ox(mid));
       // Long, soft fabric garlands connect the viewing islands along each edge.
       for(const side of [-1,1]){
-        const x=side*(edge+1),z=mid-7;
-        for(let j=0;j<3;j++)bunting(P,x,yy+4.5,z+j*7.2,laneColors[(j+i)%5],5.5);
+        const z=mid-7;
+        for(let j=0;j<3;j++)bunting(P,ox(z+j*7.2)+side*(ew(z+j*7.2)+1),yy+4.5,z+j*7.2,laneColors[(j+i)%5],5.5);
       }
       finishScenery(P,mid,24);
     }
+    // 82차 — 롤러코스터 무지개 아치 둘(가운데 언덕 · 점프대). 일곱 겹 둥근 줄(안쪽 보라 → 바깥 빨강)이 테 밖 5칸에서 선다 —
+    // 아이가 벽을 높이 타도 카메라(몸 뒤 ≈3칸)가 아치 줄에 닿지 않는 안쪽 지름. 발은 구름 받침. 길 밑에는 38칸마다 구름 받침.
+    { const C=CH82;
+      for(const zr of [170,330]){const z=C.z0+zr,q=chuteQ82(z),cx=q.cx,y=q.y,P=[[],[],[]];
+        for(let k=0;k<7;k++){const R=C.hw+5+k*.66,pts=[];for(let j=0;j<=24;j++){const a=Math.PI*j/24;pts.push([cx+Math.cos(a)*R,y+1+Math.sin(a)*R,z]);}
+          softTube(P[0],pts,.33,RACE_RAINBOW76[6-k],48);}
+        for(const s of [-1,1])cloud(P[1],cx+s*(C.hw+8.2),y+.3,z,1.1);
+        finishScenery(P,z,24);}
+      for(let zr=20;zr<C.lz-12;zr+=38){const z=C.z0+zr,q=chuteQ82(z),P=[[],[],[]];cloud(P[1],q.cx,q.y-4.4,z,1.3);finishScenery(P,z,10);} }
     A.stats.scenery75Triangles=Math.round(sceneryTris);
   }
 
@@ -35095,7 +35306,7 @@ Object.assign(window, {
                DMG:SURV_DMG, HEAD:SURV_HEAD, HEAD_R:SURV_HEAD_R, HP:SURV_HP,
                SPAWN_R:SURV_SPAWN_R}),
   __SPRINT:SPRINT, __stamina:()=>stamina, __sprinting:()=>sprinting, __setStamina:(v)=>{ stamina = v; },
-  __race74:{state:RACE74,pose:racePose,jumpPose:raceJumpPose,landingPose:raceLandingPose,tryJump:raceTryJump,contains:raceContains,surface:raceSurface,under:raceUnder,before:raceMotion,after:racePhysicsAfter,tick:raceTick,reset:race74Reset,draw:raceArtDraw,art:()=>RACE_ART74}, __raceSlotXZ:raceSlotXZ, __RACE_ROWZ:RACE_ROWZ, __FADE_T:FADE_T, __RACE_SPD:RACE_SPD, __raceHold:raceHold, __flipSet:flipSet, __gaitMe:()=>gaitMe, __camAnc:()=>camAnc, __ACC:{up:ACC_UP, down:ACC_DOWN}, __SPD:SPD, __sheepGait:sheepGait, __STRIDE:{walk:STRIDE_WALK, run:STRIDE_RUN}, __cntShow:cntShow,
+  __CH82:CH82, __CH82_Z1:CH82_Z1, __chute82:chute82, __chuteQ82:chuteQ82, __chuteProf82:chuteProf82, __chuteSurf82:chuteSurf82, __race74:{state:RACE74,pose:racePose,jumpPose:raceJumpPose,landingPose:raceLandingPose,tryJump:raceTryJump,contains:raceContains,surface:raceSurface,under:raceUnder,before:raceMotion,after:racePhysicsAfter,tick:raceTick,reset:race74Reset,draw:raceArtDraw,art:()=>RACE_ART74}, __raceSlotXZ:raceSlotXZ, __RACE_ROWZ:RACE_ROWZ, __FADE_T:FADE_T, __RACE_SPD:RACE_SPD, __raceHold:raceHold, __flipSet:flipSet, __gaitMe:()=>gaitMe, __camAnc:()=>camAnc, __ACC:{up:ACC_UP, down:ACC_DOWN}, __SPD:SPD, __sheepGait:sheepGait, __STRIDE:{walk:STRIDE_WALK, run:STRIDE_RUN}, __cntShow:cntShow,
   __MINI_NAME:MINI_NAME, __survOn:survOn, __RACE:()=>RACE, __raceRocks:raceRocks, __ROCK:ROCK, __raceGiveWeapon:raceGiveWeapon, __raceGiveArmor:raceGiveArmor, __RACE_RES:RACE_RES, __RACE_FIN:RACE_FIN, __raceHazards:raceHazards, __HAZ:HAZ, __camGY:()=>camGY, __bgmRace:bgmRace, __rockU:rockU, __fovRun:()=>fovRun, __sheepBump:sheepBump, __SHEEP_R2:SHEEP_R2, __kb:()=>({x:kbx, z:kbz}), __kbReset:()=>{ kbx = kbz = 0; }, __RACE_P:()=>RACE_P, __RACE_S:RACE_S, __raceTopAt:raceTopAt, __raceBuild:raceBuild, __raceOn:raceOn, __raceRespawn:raceRespawn, __R_plat:()=>R_plat, __RACE_Z_FIN:RACE_Z_FIN,
   __tpvOn:tpvOn, __tpvKind:tpvKind, __MINI_CAM:()=>MINI_CAM, __DOWN_CAM:()=>DOWN_CAM,
   __camPos:()=>({x:camera.position.x, y:camera.position.y, z:camera.position.z}),
