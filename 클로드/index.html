@@ -6638,43 +6638,12 @@ function bbuild(){
       im.computeBoundingSphere();
       im.updateMatrix(); im.matrixAutoUpdate = false; // 정적 뱅크: 인스턴스만 변하고 메시의 변환은 항등행렬이다
       if(GFX.shadow){ im.castShadow = !NO_CAST.has(k); im.receiveShadow = true; }   // 25차 — 산·나무·바위가 그늘을 만든다 · 34차 — 잔 꾸밈은 안 드리운다
-      if(CORE_LATE && k === 'cboxC') coreLate(im, b, idxs);                            // 81차 — 성벽 속 몸은 맨 나중(구는 원래 순서로 잰 뒤)
       const sc = scullAdd(im, b, idxs);                                                 // 68차 성능 — 조각 상자(걸러내기)
       if(BANK_PACK) bankCR(b, im, idxs, sc, n < BSPLIT);                               // 81차 — 칸 뺐다 채우기 기록
       b.chunks.push(im); scene.add(im);
     }
   }
 }
-/* 81차 성능 — 성벽 속 몸(cboxC)을 불투명 맨 나중에 그리기. 켬/끔: ?p81off=coreLate
-   three 는 불투명을 재질 번호 → 깊이 순으로 그린다. 속 몸은 WMAT(뱅크 재질 중 가장 먼저 만든 것)라 겉돌(WMATV)보다 늘 먼저 그려져,
-   겉돌 뒤에 숨은 속 몸이 결·빛·그림자 16번 읽기를 다 하고 덮인다(마을 첫 화면 24만 조각 중 1.9만만 보임 · 탑 방·회랑은 화면 합의 29~37%).
-   맨 나중(renderOrder 1)에 그리면 앞돌에 가려 깊이 검사에서 바로 버려진다. 같은 깊이(겹친 면)에서 누가 이기는지를 그대로 두려고 셋을 같이 한다:
-   ① 속 몸은 '더 가까울 때만' 통과(LessDepth) — 예전엔 먼저 그려져 뒤에 온 것에 같은 깊이에서 졌다 → 지금도 앞서 그린 것에 진다.
-   ② 속 몸끼리는 순서를 거꾸로(조각 순서 · 조각 안 칸 순서) — '나중 것이 이김(LessEqual)' 을 '먼저 것이 이김(Less)' 으로 뒤집어 같은 결과.
-   ③ 조각 구(boundingSphere)는 원래 칸 순서로 잰 값 그대로(정렬 깊이 z 가 같다). 그림자 판은 깊이 최솟값이라 순서와 무관하다.
-   새 재질 0 — WMAT 의 depthFunc 를 속 몸 조각 그리기 동안만 바꿨다가 되돌린다.
-   실측(81차, 불투명 조각 셈): 마을 −6% · 성벽 길 −8.5% · 3인칭 성벽 −11% · 벽 속 복도 −14~19% · 회랑 −29% · 탑 방 −37%.
-   남는 차이: 예전부터 겹쳐 싸우던 이음매에서 속 몸보다 '먼저' 그려지던 판(cboxN·cpyr)과 같은 깊이인 점만 이기는 쪽이 바뀐다 —
-   광장 3px · 성벽 안 길 3px · 회랑 1px 처럼 한 화면에 0~6 픽셀(1088×680). 속 판(cboxN)·지붕(cpyr)·gcore 까지 같이 늦추면
-   그 픽셀은 줄지만 탑 방 +60%·성벽 길 +42% 로 오히려 무거워져서 속 몸만 늦춘다. */
-const CORE_LATE = P81.coreLate, CORE81 = new WeakSet();
-function coreBefore(){ WMAT.depthFunc = THREE.LessDepth; }
-function coreAfter(){ WMAT.depthFunc = THREE.LessEqualDepth; }
-function coreLate(im, b, idxs){
-  idxs.reverse();
-  for(let j=0;j<idxs.length;j++){ im.setMatrixAt(j, b.ms[idxs[j]]); b.map[idxs[j]*2+1] = j; }
-  if(b.cols){ const A = im.instanceColor.array;
-    for(let j=0;j<idxs.length;j++){ _col.setHex(b.cols[idxs[j]]); im.setColorAt(j, _col); const t = b.fl && b.fl[idxs[j]]; if(t) A[j*3] += 2*t; } }
-  im.renderOrder = 1; im.onBeforeRender = coreBefore; im.onAfterRender = coreAfter; CORE81.add(im);
-}
-/* three r160 painterSortStable 과 같다 — 속 몸 둘끼리만 깊이·번호 비교를 뒤집는다(②) */
-if(CORE_LATE) renderer.setOpaqueSort((a, b)=>{
-  if(a.groupOrder !== b.groupOrder) return a.groupOrder - b.groupOrder;
-  if(a.renderOrder !== b.renderOrder) return a.renderOrder - b.renderOrder;
-  if(a.material.id !== b.material.id) return a.material.id - b.material.id;
-  const r = CORE81.has(a.object) && CORE81.has(b.object) ? -1 : 1;
-  if(a.z !== b.z) return r*(a.z - b.z);
-  return r*(a.id - b.id); });
 /* 81차 — 조각 기록 하나: 담을 칸 목록(원래 순서)·지금 담긴 칸 표시·(거르는 조각이면) 칸마다 상자 */
 function bankCR(b, im, idxs, sc, single){
   const len = idxs.length, cr = {m: im, b, idxs: Int32Array.from(idxs), keep: new Uint8Array(len).fill(1), vis: null, box: null, sc: sc || null, dirty: false};
