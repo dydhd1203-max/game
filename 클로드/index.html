@@ -6322,19 +6322,6 @@ function gunGlowRect(){
     b=Math.max(0,Math.floor((y0+1)*innerHeight/2-pad)),t=Math.min(innerHeight,Math.ceil((y1+1)*innerHeight/2+pad));
   return [l,b,Math.max(0,r-l),Math.max(0,t-b)];
 }
-/* 81차 ggHide — 총 빛 원천 패스는 층 1(든 총·손·조명)만 그리는데, three 는 장면 1152 마디를 전부 돌며 층을 검사한다.
-   층 1 그릴 것(메시·점·선·스프라이트)도 조명도 없는 장면 맨 윗가지 묶음(자식 있는 것)은 이 패스 동안만 visible=false 로 두면 그 가지를 통째로 건너뛴다.
-   그릴 목록·조명 수가 같아서 결과는 같다. 층 1 은 불러올 때(든 모형·손)와 GG.lit(조명)에만 붙으므로 목록은 맨 윗가지 수가 바뀔 때만 다시 만든다 */
-const P81_GGHIDE = P81.ggHide;
-const _ggHide81 = [], _ggHideVis81 = [];
-let _ggHideN81 = -1;
-function ggHideBuild81(){
-  _ggHide81.length = 0; _ggHideN81 = scene.children.length;
-  for(const c of scene.children){ if(!c.children.length) continue;
-    let need = false;
-    c.traverse(o=>{ if(!need && (o.isLight || ((o.isMesh || o.isPoints || o.isLine || o.isSprite) && (o.layers.mask & 2)))) need = true; });
-    if(!need) _ggHide81.push(c); }
-}
 function gunGlowPass(){
   if(GG.k <= 0 || !held.visible) return;
   gunGlowInit();
@@ -6350,10 +6337,7 @@ function gunGlowPass(){
   RUNE_U.uGlowOnly.value = 1;
   // 본 패스에서 이미 계산한 세계 행렬을 재사용한다. 움직임/그림자는 매 프레임 그대로 갱신한다.
   const worldAuto=scene.matrixWorldAutoUpdate;scene.matrixWorldAutoUpdate=false;
-  if(P81_GGHIDE){ if(_ggHideN81 !== scene.children.length) ggHideBuild81();   // 81차 ggHide — 층 1 없는 가지는 이 그리기 동안만 숨긴다(끝나면 제 값으로)
-    for(let i=0;i<_ggHide81.length;i++){ _ggHideVis81[i] = _ggHide81[i].visible; _ggHide81[i].visible = false; } }
   renderer.setRenderTarget(GG.rtA); renderer.render(scene, camera);
-  if(P81_GGHIDE) for(let i=0;i<_ggHide81.length;i++) _ggHide81[i].visible = _ggHideVis81[i];
   scene.matrixWorldAutoUpdate=worldAuto;
   RUNE_U.uGlowOnly.value = 0;
   camera.layers.mask = mask;
@@ -7033,8 +7017,11 @@ function buildWorldMesh(){
   disc.position.y = GY;
   if(GFX.shadow) disc.receiveShadow = true;       // 바닥은 받기만 한다 (드리울 것이 없다)
   scene.add(disc); groundDisc = disc;
-  /* 81차 groundLate — 바닥은 가장 비싼 셰이더(결 4번 읽기+그림자 16)인데 재질이 일찍 만들어져(재질 번호가 작아) 친구·좀비·NPC 보다 먼저 칠해졌다.
-     그 위에 선 사람 밑 픽셀까지 다 칠한 뒤 덮였다. 순서만 1 로 미루면 가려진 픽셀은 깊이에서 걸러진다(테두리 원기둥도 같이 1 — 바닥 뒤 차례 유지) */
+  /* 81차 groundLate — 바닥은 가장 비싼 셰이더(결 3번 읽기+그림자 16)인데 재질이 일찍 만들어져(재질 번호가 작아) 친구·좀비·NPC 보다 먼저 칠해졌다.
+     그 위에 선 사람 밑 픽셀까지 다 칠한 뒤 덮였다. 순서만 1 로 미루면 가려진 픽셀은 깊이에서 걸러진다(테두리 원기둥도 같이 1 — 바닥 뒤 차례 유지)
+     ★ 비트까지 같지는 않다 — 깊이가 똑같은 곳(좀비 발이 땅에 닿는 선)은 나중에 그린 쪽이 이기는데, 이제 바닥이 나중이다.
+       검증(81차 검증): 밤 좀비 근접 10장 중 2장에서 발끝 가장자리 1픽셀(MSAA 표본 하나)이 땅색 쪽으로, 낮 친구 장면 23장은 0픽셀.
+       바닥을 엄격한 깊이(Less)로 두면 이번엔 먼저 그린 바위·성벽·나무와 닿는 선이 뒤집히므로 답이 아니다. 교실 비교는 ?p81off=groundLate */
   if(P81.groundLate) disc.renderOrder = 1;
   /* ── 33차 연못 — 반투명 물 원판(바닥 사발이 비친다) + 물결 고리 하나 + 갈대(부들) · 연잎, 개울 머리엔 돌무더기 ── */
   const water = new THREE.Mesh(new THREE.CircleGeometry(POND.r + 0.15, 40),
@@ -33870,8 +33857,7 @@ if(new URLSearchParams(location.search).has('diag')){
     if(off){ camera.remove(heldLight);
              if(crystalLight && crystalLight.parent) crystalLight.parent.remove(crystalLight); }
     else   { camera.add(heldLight);
-             if(crystalLight && crystalGroup) crystalGroup.add(crystalLight); }
-    _ggHideN81 = -1; };   // 81차 ggHide — 층 1 조명이 가지를 옮겼다(맨윗가지 수는 그대로) → 숨길 목록을 다시 만든다
+             if(crystalLight && crystalGroup) crystalGroup.add(crystalLight); } };
   const setFlat = on=>{ DBG.flatGround = on;
     for(const m of [groundDisc, groundRim]){ if(!m) continue;
       if(!m.userData.lit) m.userData.lit = m.material;
