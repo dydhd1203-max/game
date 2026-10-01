@@ -28,22 +28,23 @@ export function race82ChutePhysics(){
   {const d0=C.bumpRows[0][1][0],q=Q(yardZ);reset(q.cx+d0/q.cs,yardZ,46);}let centerHit=null;
   for(let f=0;f<fps*2&&!centerHit;f++){clear();step();if(W.__RACE().hitCd>0)centerHit={z:P.z,kind:A.state.flightKind,...lat()};}
   // Whole ride from the flag deck at native rate: W held, steering toward the lane a child can see ahead.
-  const ride=pol=>{reset(0,682,0,Y+30.075);let t=0,hits=0,lastHit=0,falls=0,air=0,airStart=0,kind='',maxWallS1=0,maxView=0,tEnter=null,tLip=null,prevZ=P.z,landZ=null;const hops=[];
-   for(let f=0;f<fps*20;f++){clear();if(pol==='skill'||t<.8)K.w=true;
+  const ride=pol=>{reset(0,682,0,Y+30.075);let t=0,loops=0,thrown=false,hits=0,lastHit=0,falls=0,air=0,airStart=0,kind='',maxWallS1=0,maxView=0,tEnter=null,tLip=null,prevZ=P.z,landZ=null;const hops=[];
+   for(let f=0;f<fps*40;f++){clear();if(pol==='skill'||t<.8)K.w=true;
     if(pol==='skill'&&P.z>C.z0){const nxt=rows.find(r=>r.z+r.R>P.z);
      if(nxt&&nxt.z-P.z<70){const {d,vd}=lat(),pred=d+vd*.3;let best=null,bd=1e9;
       for(const [a,b] of gaps(nxt)){const w=b-a,tg=Math.max(a+Math.min(2,w/2),Math.min(b-Math.min(2,w/2),pred));if(Math.abs(tg-pred)<bd){bd=Math.abs(tg-pred);best=tg;}}
-      if(best!==null){if(pred<best-.35)K.a=true;else if(pred>best+.35)K.d=true;}}}
-    step();t+=1/fps;
+      if(best!==null){if(pred<best-.35)K.a=true;else if(pred>best+.35)K.d=true;}}
+     else if(P.z>C.z0+C.throws[0][0]-12&&P.z<C.z0+C.throws[0][1]){const {d,vd}=lat(),pred=d+vd*.3;if(pred<-1.5)K.a=true;else if(pred>1.5)K.d=true;}}   // 84차 — 급커브 구간에선 길 가운데를 지킨다(커브 안쪽으로 꺾게 된다) · 그 밖은 82차처럼 벽을 탄다
+    step();t+=1/fps;if(A.state.loop82)loops=1;
     if(tEnter===null&&P.z>=C.z0)tEnter=t;if(tLip===null&&prevZ<Z1&&P.z>=Z1)tLip=t;
     if(!P.ground&&!air){air=1;airStart=t;}
     if(P.ground&&air){air=0;hops.push({z:+P.z.toFixed(1),dur:+(t-airStart).toFixed(2),kind});if(prevZ>Z1-1&&landZ===null)landZ=P.z;}
     kind=A.state.flightKind||kind;
-    if(W.__RACE().hitCd>lastHit+.05)hits++;lastHit=W.__RACE().hitCd;if(W.__RACE().fallT>0){falls++;break;}
+    if(W.__RACE().hitCd>lastHit+.05)hits++;lastHit=W.__RACE().hitCd;if(W.__RACE().fallT>0){falls++;thrown=!!A.state.thrown82||thrown;break;}
     const rz=P.z-C.z0;if(P.ground&&rz>27&&rz<131)maxWallS1=Math.max(maxWallS1,P.y-Y-Q(P.z).y);
     maxView=Math.max(maxView,Math.abs(P.yaw-Math.PI),Math.abs(P.pitch+.22));prevZ=P.z;
     if(W.__MINE.cp===7&&landZ!==null)break;}
-   return {pol,cp:W.__MINE.cp,hits,falls,hops,ride:tLip!==null&&tEnter!==null?+(tLip-tEnter).toFixed(2):null,landZ,maxWallS1:+maxWallS1.toFixed(2),maxView};};
+   return {pol,cp:W.__MINE.cp,hits,falls,thrown,loops,hops,ride:tLip!==null&&tEnter!==null?+(tLip-tEnter).toFixed(2):null,landZ,maxWallS1:+maxWallS1.toFixed(2),maxView};};
   const pad7=W.__RACE_P().find(p=>p.cp===7);
   result.push({fps,controls,centerHit,skill:ride('skill'),coast:ride('coast'),pad7:{z:pad7.z,d:pad7.d}});
  }
@@ -59,8 +60,9 @@ export function validateRace82Chute(result){
   const s=q.skill,c=q.coast,crest=h=>h.kind==='chute'&&h.dur>.25&&h.dur<1;
   check(s.cp===7&&s.hits===0&&s.falls===0&&s.maxView<1e-8,'A real-input native-rate ride threads every candy row, stays inside and reaches the next checkpoint without touching the camera');
   check(s.hops.filter(crest).length>=3&&s.maxWallS1>1.5,'The ride pops over the three humps and climbs the first S-curve wall');
-  check(s.ride>6&&s.ride<9.5&&c.ride>s.ride&&c.ride<11,'The ride lasts 6–9.5 s held forward and longer when coasting');
+  check(s.loops===1&&s.ride>13&&s.ride<20,'84차: the steered ride goes through the 360° loop and lasts 13–20 s (twice the 82차 coaster)');
+  check(c.falls===1&&c.thrown&&c.cp===6,'84차: coasting straight (no steering) is thrown off a sharp curve and cannot reach the next flag');
   const onPad=z=>z!==null&&Math.abs(z-q.pad7.z)<q.pad7.d/2-2;
-  check(onPad(s.landZ)&&onPad(c.landZ)&&c.cp===7&&c.falls===0,'The kicker lands on the next flag deck whether steering or coasting (hits allowed)');
+  check(onPad(s.landZ),'The kicker lands the steered ride on the next flag deck');
  }
 }
