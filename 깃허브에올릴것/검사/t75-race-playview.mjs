@@ -138,7 +138,9 @@ try {
       }
       // Donut obstacles no longer have capsule shafts/endcaps. Verify the actual
       // flavor bank, ring opening, physical torus envelope and instance transform.
-      for(const h of W.__raceHazards(W.__RACE().t).filter(h=>h.donut79&&Math.abs(h.z-P.z)<=125)){
+      // 82차b — window = raceArtDraw's own hazard range (|z − PL.z| ≤ 126). The flag deck after the donuts now centres at
+      // z 475 (was 468), so the former 125 cut dropped one drawn donut (z 349.5) from the section-4 probe.
+      for(const h of W.__raceHazards(W.__RACE().t).filter(h=>h.donut79&&Math.abs(h.z-P.z)<=126)){
         const flavor=h.flavor79,mesh=art.donut?.[flavor];let aligned=false,index=-1,shape=null;
         if(mesh){
           if(!donutShapes.has(mesh.geometry.uuid)){const p=mesh.geometry.attributes.position;let minHole=Infinity,maxShell=0,finite=true;

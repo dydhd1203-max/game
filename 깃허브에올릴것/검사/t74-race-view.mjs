@@ -7,7 +7,7 @@ import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
 import { race76Physics, validateRace76 } from './race76-physics.mjs';
-import { race78SlidePhysics, validateRace78Slide } from './race78-slide-physics.mjs';
+import { race82ChutePhysics, validateRace82Chute } from './race82-chute-physics.mjs';
 
 const file=process.argv.slice(2).find(a=>!a.startsWith('--'))||GAME;
 const version=/const GAME_VER = '(\d+)/.exec(fs.readFileSync(file,'utf8'))?.[1]||'76';
@@ -113,7 +113,7 @@ try {
     }
     for(const k of Object.keys(W.__KEY))delete W.__KEY[k];return shots;
   });
-  if(!baseline&&!captureOnly){results.slidePhysics=await page.evaluate(race78SlidePhysics);results.physics=await page.evaluate(race76Physics);}
+  if(!baseline&&!captureOnly){results.slidePhysics=await page.evaluate(race82ChutePhysics);results.physics=await page.evaluate(race76Physics);}
   for(const c of results.captures){fs.writeFileSync(path.join(out,`${label}-${c.name}.png`),Buffer.from(c.png.split(',')[1],'base64'));delete c.png;}
   for(const c of results.airCaptures||[]){fs.writeFileSync(path.join(out,`${label}-air-${c.name}.png`),Buffer.from(c.png.split(',')[1],'base64'));delete c.png;}
   fs.writeFileSync(path.join(out,`${label}${captureOnly?'-captures':''}.json`),JSON.stringify(results,null,2));
@@ -127,7 +127,7 @@ try {
     'Race art retains three materials/two textures and its15-draw base budget, plus exactly three bounded shared donut-flavor banks');
   if(results.airCaptures){assert.deepEqual(results.airCaptures.map(c=>c.name),['compression','ascent','apex','landing']);
     assert.ok(results.airCaptures.every(c=>Number.isFinite(c.fov)&&c.fov<=76.01),'Spring speed FOV stays within six degrees without sprint or jump kick');}
-  if(results.slidePhysics)validateRace78Slide(results.slidePhysics);
+  if(results.slidePhysics)validateRace82Chute(results.slidePhysics);
   if(results.physics)validateRace76(results.physics);
   console.log(`PASS: ${label} 21 avatars, all sections present, bounded instance capacity, unchanged mid preset`);
 } finally { await browser?.close();await new Promise(r=>server.close(r)); }

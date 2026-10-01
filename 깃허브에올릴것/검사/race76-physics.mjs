@@ -2,7 +2,7 @@
 // the full routes below use normal input from the real start to the finish.
 export function race76Physics(){
   const W=window,A=W.__race74,P=W.__PL,G=W.__G,KEY=W.__KEY,Y=W.__MINI().Y;
-  const flights=[],manual=[],carries=[],ramps=[],slides=[],slideExits=[],routes=[],checkpoints=[],knocks=[],clocks=[],crowdPush=[],centerLandings=[];
+  const flights=[],manual=[],carries=[],ramps=[],slides=[],slideExits=[],routes=[],checkpoints=[],knocks=[],clocks=[],crowdPush=[],centerLandings=[],lastDonut=[];
   G.players.clear();W.__pcMap.clear();G.phase='mini';G.mini.st='run';G.paused=false;
   const clear=()=>{for(const k of Object.keys(KEY))delete KEY[k];};
   const reset=(x,z,y,cp=0)=>{clear();A.reset();const S=W.__RACE();
@@ -52,6 +52,15 @@ export function race76Physics(){
       step(1/fps);centerLaunched ||= A.state.flightKind==='manual';centerAir=(i+1)/fps;
       if(W.__RACE().hitCd>0){centerHit=true;break;}if(centerLaunched&&P.ground)break;}
     centerLandings.push({seed,fps,launched:centerLaunched,hit:centerHit,time:centerAir,x:P.x,z:P.z,y:P.y-Y});
+    // 82차b — the last donut launched from its far side while W stays held flies past the former deck end (z 476).
+    // The longer flag deck must catch it, and the flag registers already while flying high over the deck.
+    {const last=donuts.at(-1),deck=W.__RACE_P().find(p=>p.cp===4);reset(last.x,last.z+10,Y+last.y,3);press();
+      let launched=false,regH=null,land=null;
+      for(let i=0;i<fps*4&&!land;i++){if(launched){steer(deck.x,true);KEY[' ']=true;}
+        step(1/fps,()=>{launched ||= A.state.flightKind==='manual';if(regH===null&&W.__MINE.cp===4)regH=P.y-Y-deck.y;
+          if(launched&&P.ground&&!land)land={z:P.z,x:P.x,on:A.under()?.cp??A.under()?.kind??null};});
+        if(W.__RACE().fallT>0)break;}
+      lastDonut.push({seed,fps,launched,regH,land,checkpoint:W.__MINE.cp,deckEnd:deck.z+deck.d/2});}
     for(const moving of W.__RACE_P().filter(p=>p.mv)){const pose=A.pose(moving,0),offset=1.2;
     reset(pose.x+offset,pose.z,Y+moving.y);let ground=true;
     for(let i=0;i<fps*2;i++){step(1/fps);ground&&=P.ground;}
@@ -64,15 +73,17 @@ export function race76Physics(){
     const b=ramp.boosts[0];reset(b.x,b.z,A.surface(ramp,b.x,b.z));KEY.w=true;
     let boostSpeed=0,boosted=false;for(let i=0;i<fps*.3;i++){step(1/fps);boostSpeed=Math.max(boostSpeed,P.vz);boosted ||= A.state.boostT>0;}
     ramps.push({seed,fps,idleBack:startZ-idle.z,idleSpeed:idle.vz,idleGround:idle.ground,boostSpeed,boosted});
-    const slide=W.__RACE_P().find(p=>p.shape==='slide'),slideX=-3.4,z0=slide.z-slide.d/2+.4;
+    // 82차 — the slide is the curved U roller coaster: start at its mouth from rest, hold W for 1.2 s down the steep drop.
+    const slide=W.__RACE_P().find(p=>p.shape==='slide'),Z1=W.__CH82_Z1,z0=W.__CH82.z0+.4,slideX=W.__chuteQ82(z0).cx;
     reset(slideX,z0,A.surface(slide,slideX,z0));KEY.w=true;
-    let maxSpeed=0,hit=false;for(let i=0;i<fps*.4;i++){step(1/fps);maxSpeed=Math.max(maxSpeed,P.vz);hit ||= W.__RACE().hitCd>0;}
+    let maxSpeed=0,hit=false;for(let i=0;i<fps*1.2;i++){step(1/fps);maxSpeed=Math.max(maxSpeed,Math.hypot(P.vx,P.vz));hit ||= W.__RACE().hitCd>0;}
     slides.push({seed,fps,maxSpeed,hit,ground:P.ground,dz:P.z-z0,drop:Y+slide.y-P.y});
-    const exitZ=slide.z+slide.d/2-3.5;reset(slideX,exitZ,A.surface(slide,slideX,exitZ),6);P.vz=56.2;KEY.w=true;
-    let crossed=false,landed=false,minGapSpeed=Infinity,exitTime=0;
-    for(let i=0;i<fps*2;i++){step(1/fps,()=>{if(P.z>slide.z+slide.d/2&&P.z<758){crossed=true;minGapSpeed=Math.min(minGapSpeed,P.vz);}
+    // The kicker at its end throws every rider onto the next flag deck (≈1.4 s flight).
+    const exitZ=Z1-3.5,qe=W.__chuteQ82(exitZ);reset(qe.cx,exitZ,A.surface(slide,qe.cx,exitZ),6);P.vx=qe.sn*56.2;P.vz=qe.cs*56.2;KEY.w=true;
+    let crossed=false,landed=false,minGapSpeed=Infinity,exitTime=0,kind='';
+    for(let i=0;i<fps*3;i++){step(1/fps,()=>{if(P.z>Z1&&!P.ground){crossed=true;minGapSpeed=Math.min(minGapSpeed,P.vz);kind=A.state.flightKind||kind;}
         if(crossed&&P.ground&&A.under()?.cp===7)landed=true;});exitTime=(i+1)/fps;if(landed&&W.__MINE.cp===7)break;}
-    slideExits.push({seed,fps,crossed,landed,minGapSpeed,exitTime,checkpoint:W.__MINE.cp,z:P.z});
+    slideExits.push({seed,fps,crossed,landed,minGapSpeed,exitTime,kind,checkpoint:W.__MINE.cp,z:P.z});
   }
   // A held key cannot cause another donut launch. A fresh press must work.
   const pad=W.__RACE_P().find(p=>p.bounce?.manual);
@@ -112,7 +123,12 @@ export function race76Physics(){
   // Checkpoint fixtures test ordering and recovery. These placements are NOT
   // used in the continuous route below.
   const cps=W.__RACE_P().filter(p=>p.cp).sort((a,b)=>a.cp-b.cp);
+  // 82차b — the flag counter keeps the farthest deck reached: a deck missed beside/over it never blocks later flags or the finish.
   reset(cps[3].x,cps[3].z,Y+cps[3].y);step(1/60);const skipped=W.__MINE.cp;
+  reset(cps[1].x,cps[1].z,Y+cps[1].y,6);step(1/60);const backwards=W.__MINE.cp;
+  // A body inside a deck's footprint but below its top (falling past its side) never registers it.
+  const below=[];for(const cp of cps){reset(cp.x+2,cp.z,Y+cp.y-1.5,cp.cp-1);P.ground=false;P.vy=-3;let r=0;
+    for(let i=0;i<20;i++){step(1/60);r=Math.max(r,W.__MINE.cp);}below.push({cp:cp.cp,registered:r});}
   for(const cp of cps){reset(cp.x,cp.z,Y+cp.y,cp.cp-1);step(1/60);const registered=W.__MINE.cp,expected={...W.__RACE().cp};
     P.x=1000;P.y=Y-8;P.ground=false;P.vy=-5;for(let i=0;i<75;i++)step(1/60);
     checkpoints.push({cp:cp.cp,registered,expected,yWorld:Y+expected.y,x:P.x,z:P.z,y:P.y,ground:P.ground,fall:W.__RACE().fallT});}
@@ -171,11 +187,14 @@ export function race76Physics(){
         if(P.ground){const edge=current?A.pose(current,S.t).z+current.d/2:586;
           if(z>=edge-1.4)jump=true;
         }else {go=z<pose.z-.4;if(z>pose.z+.4)reverse=true;}
-      }else if(z<758){
-        // Brake through the alternating visible gaps, then carry downhill momentum over the exit lip.
-        const ahead=z+P.vz*.12;
-        target=(ahead<703?-3.4:ahead>739?-3.4:-3.4*Math.cos((ahead-703)/18*Math.PI))-P.vx*.07;
-        go=z<690.4||z>744;reverse=!go;
+      }else if(z<W.__CH82_Z1+2){
+        // 82차 roller coaster: hold W, read the next candy row's open lane ahead and steer into it (lateral d → world x).
+        const C=W.__CH82,q=W.__chuteQ82(Math.min(z,W.__CH82_Z1)),d=(P.x-q.cx)*q.cs,vd=P.vx*q.cs-P.vz*q.sn,pred=d+vd*.3;
+        const row=C.bumpRows.map(([zr,ds,Rr])=>({z:C.z0+zr,ds,R:Rr||C.bumpR})).find(r=>r.z+r.R>z);let want=pred;
+        if(row&&row.z-z<70&&z>C.z0){const lim=C.hw-P.R-.03,bl=row.ds.map(x=>[x-row.R-P.R-.35,x+row.R+P.R+.35]).sort((a,b)=>a[0]-b[0]),open=[];let cur=-lim,bd=1e9;
+          for(const [a,b] of bl){if(a>cur)open.push([cur,a]);cur=Math.max(cur,b);}if(cur<lim)open.push([cur,lim]);
+          for(const [a,b] of open){const w=b-a;if(w<.6)continue;const tg=Math.max(a+Math.min(2,w/2),Math.min(b-Math.min(2,w/2),pred));if(Math.abs(tg-pred)<bd){bd=Math.abs(tg-pred);want=tg;}}}
+        target=P.x+(want-pred)/q.cs;
       }
       else target=0;
       steer(target,go);if(reverse&&!go)KEY.s=true;if(sprint)KEY.shift=true;if(jump){press();jumps++;}
@@ -202,7 +221,7 @@ export function race76Physics(){
   A.state.flight=1;A.state.rate=2.36;A.state.boostT=.7;A.state.pending={p:pad,t:.05};A.state.pulse.set(1,.8);
   Object.assign(P,{vx:3,vz:5,vy:8});clear();G.phase='day';G.mini=null;W.__miniLeave();
   const leftRace={on:S.on,slip:S.slipT,hit:S.hitCd,fall:S.fallT,knock:S.knock,velocity:[P.vx,P.vy,P.vz],flight:A.state.flight,rate:A.state.rate,boost:A.state.boostT,pending:A.state.pending,pulses:A.state.pulse.size};
-  return {limit:W.__MINI().RACE,flights,manual,freshPress,carries,ramps,slides,slideExits,knocks,crowdPush,centerLandings,checkpoints,skipped,skippedFinish,belowDeck,routes,clocks,leftRace};
+  return {limit:W.__MINI().RACE,flights,manual,freshPress,carries,ramps,slides,slideExits,knocks,crowdPush,centerLandings,lastDonut,checkpoints,skipped,backwards,below,skippedFinish,belowDeck,routes,clocks,leftRace};
 }
 
 export function validateRace76(p){
@@ -226,13 +245,17 @@ export function validateRace76(p){
     'Moving circles must carry a rider through X/Z translation and rotation without turning the camera');
   check(p.ramps.every(q=>q.idleBack>2&&q.idleSpeed<0&&q.idleGround&&q.boosted&&q.boostSpeed>14),
     'The uphill ramp must slide idle players back and accelerate them on actual booster strips');
-  check(p.slides.every(q=>q.maxSpeed>45&&!q.hit&&q.ground&&q.drop>1),
-    'The open slide lane must reach the faster downhill speed while staying on its curved surface');
-  check(p.slideExits.length===9&&p.slideExits.every(q=>q.crossed&&q.landed&&q.minGapSpeed>45&&q.exitTime<1&&q.checkpoint===7),
-    'The fast slide must preserve momentum across its exit gap and land on the next checkpoint without requiring a jump');
+  check(p.slides.every(q=>q.maxSpeed>38&&!q.hit&&q.ground&&q.drop>1),
+    'The roller-coaster mouth must accelerate down the steep drop while staying on its curved surface');
+  check(p.slideExits.length===9&&p.slideExits.every(q=>q.crossed&&q.landed&&q.kind==='chute'&&q.minGapSpeed>30&&q.exitTime<2.2&&q.checkpoint===7),
+    'The roller-coaster kicker must throw every rider across the gap onto the next checkpoint without requiring a jump');
   check(p.knocks.length>0&&p.knocks.every(q=>Math.abs(q.actual.impulse-40)<1e-8&&Math.abs(q.ratio-5)<.04),
     'Punch contact must cause five times the measured travel of the former impulse');
-  check(p.skipped===0&&p.skippedFinish<0&&p.checkpoints.length===7&&p.checkpoints.every(q=>q.registered===q.cp&&q.ground&&!q.fall&&
+  check(p.lastDonut.length===9&&p.lastDonut.every(q=>q.launched&&q.land&&q.land.on===4&&q.land.z>476&&q.land.z<q.deckEnd-2&&q.checkpoint===4&&q.regH>4),
+    'A held-W launch from the far side of the last donut lands on the lengthened flag deck past the former end and registers the flag while flying over it');
+  check(p.skipped===4&&p.backwards===6&&p.below.length===7&&p.below.every(q=>q.registered===q.cp-1),
+    'The flag counter keeps the farthest deck reached, never goes back, and a body below a deck never registers it');
+  check(p.skippedFinish<0&&p.checkpoints.length===7&&p.checkpoints.every(q=>q.registered===q.cp&&q.ground&&!q.fall&&
     Math.hypot(q.x-q.expected.x,q.z-q.expected.z)<.03&&Math.abs(q.y-q.yWorld)<.03),
     'Checkpoints must register sequentially and falling must return to the registered section entrance');
   check(!p.belowDeck.ground&&p.belowDeck.after<p.belowDeck.before,'A descending player below a platform must not snap up through its surface');
