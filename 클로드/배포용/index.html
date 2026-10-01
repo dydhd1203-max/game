@@ -4391,7 +4391,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '82차 · 무지개 롤러코스터';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '83차 · 그림자 가볍게';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -5903,8 +5903,12 @@ const isTouch = matchMedia('(pointer:coarse)').matches || 'ontouchstart' in wind
 /* shHz — 그림자 지도를 초당 몇 번 다시 그리나. 0 이면 매 프레임이다.
    34차에 15 로 줄였다가 63차에 되돌렸다. 아래 '그림자 갱신' 주석 참고. */
 const GFX_PRESET = {
-  high: {shadow:2048, bloom:0, aa:4, pr:1.0,  shHz:0},   // 선명
-  mid:  {shadow:2048, bloom:0, aa:2, pr:0.85, shHz:0},   // 보통 (기본) — 49차c 에 그림자만 1024 → 2048
+  high: {shadow:0, bloom:0, aa:4, pr:1.0,  shHz:0},      // 선명
+  mid:  {shadow:0, bloom:0, aa:2, pr:0.85, shHz:0},      // 보통 (기본)
+  /* ★ 83차 — 실시간 그림자를 모든 화질에서 끈다(선생님 결정: "그냥 다 똑같이 기본 동그란 연한 그림자로").
+     교실 그램(배터리 · Iris Xe)에서 ?gfx=mid&shadow=0 만 모든 줄이 60fps 에 붙었다(그림자 켠 '보통' 은 24~35fps,
+     계단 없애기 끔·해상도 0.7 은 30~40 대). 대신 사람·좀비 발밑에 동그란 연한 그림자(blob83)를 그린다.
+     ?shadow=2048 을 주소에 붙이면 그 판만 옛 그림자로 견줘 볼 수 있다. */
   low:  {shadow:0,    bloom:0, aa:0, pr:0.7,  shHz:0}    // 부드럽게 (그림자가 없어 shHz 는 뜻이 없다)
 };
 const GFX_NAME = {high:'선명', mid:'보통', low:'부드럽게'};
@@ -34689,6 +34693,47 @@ function gpuEnd(){
   }
 }
 
+
+/* ★ 83차 — 발밑 동그란 연한 그림자. 실시간 그림자 지도 대신 사람·좀비·병정 발밑 땅에 가장자리가 흐린 검은 원을 하나씩 눕힌다.
+   인스턴스 한 벌(그리기 1번) · 깊이 안 씀 · 땅에서 높이 뜰수록 작아진다(점프하면 그림자가 줄어든다). */
+const BLOB83 = (()=>{
+  const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+  const gr = g.createRadialGradient(32,32,0,32,32,32);
+  gr.addColorStop(0,'rgba(0,0,0,1)'); gr.addColorStop(.55,'rgba(0,0,0,.75)'); gr.addColorStop(1,'rgba(0,0,0,0)');
+  g.fillStyle = gr; g.fillRect(0,0,64,64);
+  const tex = new THREE.CanvasTexture(c);
+  const mat = new THREE.MeshBasicMaterial({map:tex, color:0x000000, transparent:true, opacity:.34, depthWrite:false,
+    polygonOffset:true, polygonOffsetFactor:-2, polygonOffsetUnits:-2});
+  const geo = new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2);
+  const m = new THREE.InstancedMesh(geo, mat, 160); m.count = 0; m.frustumCulled = false; m.renderOrder = 2;
+  m.castShadow = false; m.receiveShadow = false; m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
+  scene.add(m); return {m, mat:new THREE.Matrix4(), n:0};
+})();
+function blob83Put(x, y, z, r){
+  const B = BLOB83; if(B.n >= 160) return;
+  const gnd = groundUnder(x, z, .28, y + .2);
+  if(!(gnd > -900)) return;
+  const k = Math.max(0, 1 - Math.max(0, y - gnd)/5);           // 높이 뜰수록 작게, 5칸 위면 없음
+  if(k <= .05) return;
+  const d = r*2*(.45 + .55*k);
+  B.mat.makeScale(d, 1, d).setPosition(x, gnd + .03, z); B.m.setMatrixAt(B.n++, B.mat);
+}
+function blob83Draw(people){
+  const B = BLOB83; B.n = 0;
+  if(!DBG.noInst){
+    const cx = camera.position.x, cz = camera.position.z, far = 70*70;
+    for(const q of people){ if(q.x === undefined) continue; const dx = q.x - cx, dz = q.z - cz; if(dx*dx + dz*dz > far) continue;
+      blob83Put(q.x, q.y === undefined ? GY : q.y, q.z, q.down ? .85 : .7); }
+    if(!miniOn()){
+      for(const w of G.wolves){ if(B.n >= 160) break; const dx = w.x - cx, dz = w.z - cz; if(dx*dx + dz*dz > far) continue;
+        blob83Put(w.x, w.y === undefined ? GY : w.y, w.z, .8*(w.sc || 1)); }
+      for(const w of G.soldiers || []){ if(B.n >= 160) break; if(w.x === undefined) continue; const dx = w.x - cx, dz = w.z - cz; if(dx*dx + dz*dz > far) continue;
+        blob83Put(w.x, w.y === undefined ? GY : w.y, w.z, .7); }
+    }
+  }
+  B.m.count = B.n; B.m.instanceMatrix.needsUpdate = true;
+}
+
 /* ═══════════════════════ 메인 루프 ═══════════════════════ */
 let last = performance.now()/1000, tAcc = 0, hudT = 0;
 let fpsVal = 0, fpsN = 0, fpsT = 0, struT = 0;
@@ -34848,6 +34893,7 @@ function loop(){
         shList.push(meSheep);
       }
       drawSheep(shList, tAcc, MAXP, s=>GHEX[s.g|0], SHEEP_S, true);   // 81차 — 본 루프만 거른다
+      blob83Draw(shList);                                             // 83차 — 발밑 동그란 연한 그림자(사람·좀비·병정)
       wingFxPeople(shList, dt, tAcc);                               // 66차 — 날개 꼬리·친구 전직 마법진(굽힌 날개 끝에서)
     }
     if(PROF_ON) pE('사람');
