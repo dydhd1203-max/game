@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "image": "painted-grass-ground.png",
+  "width": 1254,
+  "height": 1254,
+  "format": "RGB",
+  "sha256": "2405a20c23daee634240e12f8f5fee54b0e5bdd3ea2cc31c66088da806a6f95b",
+  "source": "Generated using image_gen, unchanged original output bytes",
+  "references": "User village.zip, visually reviewed originals preserved in assets/village-library",
+  "lighting": "Warm upper-left sunlight and soft teal woodland shadows",
+  "perspective": "Elevated three-quarter view",
+  "usage": "Quiet low-opacity grass material on separate lower/upper/garden surfaces; keep paths and water clear"
+}

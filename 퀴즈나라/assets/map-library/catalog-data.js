@@ -14,7 +14,10 @@ window.QPMapLibraryCatalog = {
     "multiPanelBackgroundSheets": 5,
     "completeScenesOrScreenshots": 5,
     "transparentUserOriginals": 0,
-    "isolatedRuntimeSpritesPrepared": 0
+    "isolatedRuntimeSpritesPrepared": 0,
+    "originalRegionsRuntimeIntegrated": 1,
+    "runtimePlacementApplied": true,
+    "runtimeFinalArtReview": "pending"
   },
   "pathBase": "catalog-directory",
   "referenceSheets": [
@@ -1426,7 +1429,7 @@ window.QPMapLibraryCatalog = {
       "frames": [],
       "sourceCredit": null,
       "usageMetadata": "사용자가 제공한 맵 기본 에셋 원본. 출처 표기는 시각 검토 후 기록.",
-      "runtimeStatus": "not-integrated",
+      "runtimeStatus": "partial-region-integrated",
       "sourceStatus": "original-stored",
       "classificationStatus": "visually-reviewed",
       "imagePath": "originals/reference-download-07.jpg",
@@ -1455,7 +1458,81 @@ window.QPMapLibraryCatalog = {
         "platformer"
       ],
       "preparationNotes": "숲 유적의 색감과 재질에 잘 맞지만 시점은 옆 시점이다. 발판별 영역·알파·앵커·상단 충돌 면과 반복 연결부를 별도 준비한다. 별도 점프 퀴즈 게임의 기본 지형 후보이며 큰 JPEG를 통째로 소품 배경처럼 붙이지 않는다.",
-      "contentType": "sprite-sheet"
+      "contentType": "sprite-sheet",
+      "usageStatus": "direct-source-crop-in-runtime",
+      "runtimeRegions": [
+        {
+          "id": "natural-cliff-strip",
+          "purpose": "큰 불규칙 돌·잔디 윗면을 함께 살린 실제 원본 절벽",
+          "sourceRect": [
+            332,
+            188,
+            231,
+            81
+          ],
+          "rendererPath": "../../village-scene.js",
+          "rendererFunction": "originalCliffStrip",
+          "clipPath": "M333 219L337 216L342 216L346 214L350 215L350 210L352 207L350 202L352 198L355 197L356 192L360 189L363 189L366 194L368 194L370 199L370 203L375 207L375 209L378 211L379 217L383 215L399 214L411 214L418 216L425 217L438 218L448 221L455 222L464 220L473 219L476 216L481 216L486 214L491 213L493 211L494 207L498 206L498 203L500 201L503 202L505 206L507 204L511 205L513 208L515 210L515 213L517 215L521 214L532 214L541 215L547 217L551 215L556 214L559 216L561 222L561 232L559 240L561 245L558 253L553 258L547 258L540 263L535 268L523 268L518 266L516 260L510 256L505 254L499 254L494 257L489 258L484 265L478 265L473 265L469 267L461 266L457 264L451 265L446 263L441 265L435 264L431 262L422 264L414 263L407 263L397 262L391 260L388 264L380 263L378 260L373 258L368 256L364 255L361 258L355 256L349 257L345 259L340 262L334 262L333 251L334 244L333 236L334 229L332 224L333 219Z",
+          "coordinateSpace": "original source image pixels",
+          "rawDisplaySize": [
+            230,
+            80.65
+          ],
+          "rawRepeatStep": 210,
+          "alternatingMirror": true,
+          "worldScale": 1.5,
+          "publicDisplaySize": [
+            345,
+            120.975
+          ],
+          "rawPlacementBands": [
+            {
+              "id": "main-cliff",
+              "x": 280,
+              "y": 657,
+              "width": 1210
+            },
+            {
+              "id": "garden-cliff",
+              "x": 340,
+              "y": 449,
+              "width": 340
+            }
+          ],
+          "directPixelReuse": true,
+          "sourceBytesModified": false,
+          "backgroundTreatment": "Original image clipped to traced irregular cliff silhouette, excluding the opaque dark background; successive modules overlap and alternate reflection.",
+          "placementStatus": "implemented-in-source",
+          "visualVerificationStatus": "pending-final-game-review"
+        }
+      ],
+      "runtimeStatusMeaning": "The documented original cliff module is rendered on two retaining faces in village-scene.js. The complete JPEG is not integrated as a map or intrinsically transparent sprite. The old tiny face pattern and unused definition were removed. Final visual review is pending.",
+      "retiredRuntimeRegions": [
+        {
+          "id": "cliff-stone-face-pattern",
+          "sourceRect": [
+            484,
+            139,
+            50,
+            23
+          ],
+          "rendererPath": "../../village-scene.js",
+          "displayTileSize": [
+            86,
+            40
+          ],
+          "mirrorPatternSize": [
+            172,
+            80
+          ],
+          "directPixelReuse": true,
+          "sourceBytesModified": false,
+          "backgroundTreatment": "Crop inside source material only; preserve JPEG bytes; reflected copies soften repetition edges",
+          "placementStatus": "removed-from-runtime",
+          "visualVerificationStatus": "pending-final-game-review",
+          "retirementReason": "Tiny 50x23 wall texture and its unused SVG pattern definition were removed; visible retaining faces use the larger original cliff module."
+        }
+      ]
     },
     {
       "id": "reference-download-08",

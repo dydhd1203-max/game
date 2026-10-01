@@ -5,6 +5,10 @@ const definitions=[
   ['map','맵·환경','QPMapLibraryCatalog'],
   ['grass','풀·꽃·지형','QPGrassCatalog'],
   ['house','집·건물','QPHouseCatalog'],
+  ['village','마을·생활 풍경','QPVillageLibraryCatalog'],
+  ['metaverse-map','메타버스 공간','QPMetaverseMapLibraryCatalog'],
+  ['motion','모션·보행','QPMotionLibraryCatalog'],
+  ['water','물·연못·폭포','QPWaterLibraryCatalog'],
   ['interface','기본 인터페이스','QPInterfaceLibraryCatalog'],
   ['button','버튼','QPButtonCatalog'],
   ['icon','아이콘','QPIconCatalog'],
@@ -35,6 +39,7 @@ function build(check=false){
     generated(target,assignment?assignment[1]:defaultVariable,catalog,check);
     const originals=catalog.referenceSheets||catalog.referenceScreens||[];
     for(const entry of originals){verifyOriginal(folder,entry);if(entry.sha256)hashes.add(entry.sha256);}
+    for(const entry of catalog.projectAssets||[])verifyOriginal(folder,entry);
     if(catalog.archive?.imagePath)verifyOriginal(folder,catalog.archive);
     const count=catalog.archive?.regularImageFiles??originals.length;
     originalEntries+=count;storedImages+=originals.length;

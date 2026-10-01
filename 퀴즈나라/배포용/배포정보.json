@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-01T09:38:05.130Z",
+  "builtAt": "2026-10-01T12:08:31.130Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -11,23 +11,23 @@
     },
     {
       "path": "index.html",
-      "bytes": 307458,
-      "sha256": "236124980d85857c8aea8a53472eb4a880580f3469d632c944b4bd65954ab18b"
+      "bytes": 307604,
+      "sha256": "ebd499b897f1f1c5652786fd35ca40edb32ee263b08b8cc35cf2603f12ed99b7"
     },
     {
       "path": "avatar-image.js",
-      "bytes": 2877,
-      "sha256": "79846e7755615a79981bff9a6b7cfb19264718e48748c52c64c9bcf77e3df2ea"
+      "bytes": 2955,
+      "sha256": "0b348846dc869ee5cbdc1c9808f29f988ce9d12beceeb5c8ddbdb0fdd5561510"
     },
     {
       "path": "assets/avatar-file-data.js",
-      "bytes": 16695358,
-      "sha256": "22dd118c97e3684334f295d853ee58c6cebc51e51c9dcce27671cd69a8b4da03"
+      "bytes": 21136608,
+      "sha256": "af64d5b6361d8c585267025a05fc80a923b9d511cc35adc2872cc9a1be850cd2"
     },
     {
       "path": "avatar-pixel.js",
-      "bytes": 64230,
-      "sha256": "edab57ee6fda5fa714d1e3feea12021e07a5b2eedd7e5338031f4c7ec8707b04"
+      "bytes": 64411,
+      "sha256": "7e915ff31d09d8fa006bcd3ffdfd7b8ac14e362fbe2776738eb6d882179829a4"
     },
     {
       "path": "avatar-clothes.js",
@@ -111,13 +111,18 @@
     },
     {
       "path": "village-presence.js",
-      "bytes": 15222,
-      "sha256": "d0869e7e1bb276f4966abbe64d5e4366fad2bf0573d1c49842bd19619d4beffa"
+      "bytes": 15835,
+      "sha256": "a2caf18887c1e4ec0a596281e1279cb7bd7ec5251bbc9cc3a6a6e3d8632c11f4"
+    },
+    {
+      "path": "village-neighborhood.js",
+      "bytes": 7256,
+      "sha256": "e087186ff7087c155292fe4c6fa14540af761cf058fdd975f351db777c3df0bf"
     },
     {
       "path": "village-scene.js",
-      "bytes": 32493,
-      "sha256": "819fde200eb0b704666f1b46582c9bc3a2d4c59c88d4aeb8cc51399de8ee627e"
+      "bytes": 27155,
+      "sha256": "be97a44ab2e89b70eff305b83cfc48b1c02aa06cf620d2f91f8e0a1089e9d097"
     },
     {
       "path": "village-shop-scene.js",
@@ -126,8 +131,68 @@
     },
     {
       "path": "village-world.js",
-      "bytes": 29669,
-      "sha256": "8b592601ea18bf89622ff4fff52e59ceaec8ae57edc1d630a9f4adb375a485f2"
+      "bytes": 30019,
+      "sha256": "95a2113c2f7933b23d895ae898f68e29f8647216718d40c3fbfcc4679880056c"
+    },
+    {
+      "path": "assets/forest-village-homes.png",
+      "bytes": 3073681,
+      "sha256": "e9c27b18a0e20a31ad796a7e8ee08e4e08301889c0c5229fef2c272439d49e50"
+    },
+    {
+      "path": "assets/forest-village-homes.json",
+      "bytes": 2914,
+      "sha256": "57093dff0c9d67d79c8f12393a8ed22c9559f889148ede1f000563683d2f0195"
+    },
+    {
+      "path": "assets/forest-village-life.png",
+      "bytes": 2411263,
+      "sha256": "7b427ce909059f72df9dc855a6e4ebdb9c37d0ec49987ab1d23878b8e5ff6644"
+    },
+    {
+      "path": "assets/forest-village-life.json",
+      "bytes": 2833,
+      "sha256": "9a08c9635d02d6e6907905c77a7287c82b12f16ace52a99caa74ab3c451aeebe"
+    },
+    {
+      "path": "assets/forest-village-grove.png",
+      "bytes": 2244499,
+      "sha256": "a5f139f86c0da91ee74ebf9bd0da27d01df70dbae645b2e7f4c4db6be2d9666a"
+    },
+    {
+      "path": "assets/forest-village-grove.json",
+      "bytes": 800,
+      "sha256": "fe7cdccbb416513043883c6cf045777f25300acb622c15d03e8454d5511e9b4a"
+    },
+    {
+      "path": "assets/painted-grass-ground.png",
+      "bytes": 2849831,
+      "sha256": "2405a20c23daee634240e12f8f5fee54b0e5bdd3ea2cc31c66088da806a6f95b"
+    },
+    {
+      "path": "assets/painted-grass-ground.json",
+      "bytes": 609,
+      "sha256": "49e5d2e98e9e2966b9bceee9e88458ab8465549763e6a9463316b30cef96574d"
+    },
+    {
+      "path": "assets/village-library/originals/village-841cd8ade4d81085.jpg",
+      "bytes": 271497,
+      "sha256": "841cd8ade4d810859ad4d0879045e1c35e06c5a59ba17e227c616723cdb27f39"
+    },
+    {
+      "path": "assets/map-library/originals/reference-download-07.jpg",
+      "bytes": 51398,
+      "sha256": "51bc2e65c881e124808ddf48436e703daae1f6c7fc18513489a481b823246e58"
+    },
+    {
+      "path": "village-water-assets.js",
+      "bytes": 14990,
+      "sha256": "acd2653fadc21b478d432700d88652f711258159fb48afb000ec0ea750450e3d"
+    },
+    {
+      "path": "assets/water-library/originals/water-0e50bcc49b81bd14.jpg",
+      "bytes": 169275,
+      "sha256": "0e50bcc49b81bd1431849ea7943e72fbc9e4019724f1a65fa2c75ad8133124fb"
     },
     {
       "path": "assets/forest-town-landmarks.png",
@@ -245,9 +310,14 @@
       "sha256": "12383c8c4009a6c701f2362997d57298592fa3fff07268dedf8ca1a359613636"
     },
     {
+      "path": "avatar-direction.js",
+      "bytes": 19647,
+      "sha256": "0072abf9dd8b984f5c73672e0a322aace0239f265631570fead748345a6f3eab"
+    },
+    {
       "path": "avatar-poses.js",
-      "bytes": 29212,
-      "sha256": "0d50897fa8b02cfc06690fe9ba4337244e65a8d5db250af78e36bff1af46fed4"
+      "bytes": 30794,
+      "sha256": "6deadaf8bfb13207f98d2033085886067e4c846227d4f08e2f867ca024feeda8"
     },
     {
       "path": "avatar-motion.js",
@@ -258,6 +328,21 @@
       "path": "avatar-motion.css",
       "bytes": 7426,
       "sha256": "46ef33f4b02dc906a81921772367072653a16fac0b4026d68cc03406c1cb5885"
+    },
+    {
+      "path": "assets/sd-heads-profile-female.png",
+      "bytes": 1609899,
+      "sha256": "d1fec060a6d6a2ee10b5d68f6afe998562e0cf10c973b30a5e21c531499dbcb6"
+    },
+    {
+      "path": "assets/sd-heads-profile-male.png",
+      "bytes": 1720946,
+      "sha256": "2ae99eacd9f1e03cb82843363a3579e93478ca7a9b3fe6fb2739beca5811645c"
+    },
+    {
+      "path": "assets/sd-heads-profile.json",
+      "bytes": 3638,
+      "sha256": "d7070abe385829727ef74c08fec21d6b9f5ac2c6277d6a33975fc59d57f3e717"
     },
     {
       "path": "quiz-questions.js",

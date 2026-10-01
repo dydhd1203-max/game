@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-01",
+  "title": "퀴즈나라 모션·보행 원본 보관함",
+  "pathBase": "catalog-directory",
+  "archive": {
+    "originalName": "motion.zip",
+    "imagePath": "source.zip",
+    "byteLength": 354878,
+    "sha256": "553b1d5eab7dedc50f428ea817cce2331bd7c1a39726fe928ab62e7a01c8178e",
+    "entries": 3,
+    "regularImageEntries": 3,
+    "directoryEntries": 0,
+    "uncompressedImageBytes": 363616,
+    "uniqueImageFiles": 3,
+    "duplicateImageEntries": 0,
+    "uniqueImageBytes": 363616,
+    "originalPreservation": "Untouched ZIP plus unique original image bytes; every original filename retained in aliases",
+    "regularImageFiles": 3,
+    "safetyCheck": {
+      "pathTraversal": false,
+      "absolutePaths": false,
+      "symbolicLinks": false,
+      "encryptedEntries": false,
+      "nonImageRegularFiles": 0,
+      "crcVerified": true
+    }
+  },
+  "status": {
+    "originalsStored": 3,
+    "originalEntriesStored": 3,
+    "uniqueOriginalImagesStored": 3,
+    "deduplicatedAliases": 0,
+    "originalsVisuallyReviewed": 3,
+    "transparentUserOriginals": 0,
+    "runtimeSpritesPrepared": 0,
+    "runtimePlacementApplied": false,
+    "projectMotionFinalReview": "pending"
+  },
+  "classificationSummary": {
+    "styles": {
+      "pixel-art-pose-sheet": 1,
+      "illustrated-sd-pose-sheet": 1,
+      "cartoon-walk-pose-study": 1
+    },
+    "contentTypes": {
+      "pose-sheet-reference": 1,
+      "motion-sheet-reference": 1,
+      "pose-study-reference": 1
+    }
+  },
+  "referenceSheets": [
+    {
+      "id": "motion-89cb17ecfbb23270",
+      "reviewIndex": 1,
+      "kind": "user-reference-image",
+      "originalName": "2D pixel art monster, animal, character sprite animation - video game assets.jpg",
+      "imagePath": "originals/motion-89cb17ecfbb23270.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "89cb17ecfbb23270b9375d4c5c62bbffabfd217565e8d8e9f0e53a7ba9de0936",
+      "byteLength": 97392,
+      "dimensions": {
+        "width": 736,
+        "height": 1472
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "2D pixel art monster, animal, character sprite animation - video game assets.jpg",
+          "originalName": "2D pixel art monster, animal, character sprite animation - video game assets.jpg",
+          "byteLength": 97392,
+          "crc32": "a9eabe86",
+          "archiveIndex": 0
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "reviewedAt": "2026-10-01",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 참고 원본. 원본 화면의 글자·브라우저·메뉴·로고·채팅·조작 안내는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "2D pixel art monster, animal, character sprite animation - video game assets.jpg",
+      "archiveCrc32": "a9eabe86",
+      "style": "pixel-art-pose-sheet",
+      "contentType": "pose-sheet-reference",
+      "perspective": "side-and-three-quarter",
+      "label": "도트 인물·동물·몬스터와 작은 포즈",
+      "visualSummary": "여러 인물·동물·몬스터의 실루엣과 흰 캐릭터의 발 들기·몸 낮추기·방향 차이를 모은 도트 참고 시트",
+      "subjects": [
+        "인물 포즈",
+        "동물 실루엣",
+        "몬스터 실루엣",
+        "발 들기",
+        "몸 낮추기",
+        "방향 차이",
+        "도트"
+      ],
+      "categories": [
+        "characters",
+        "pixel"
+      ],
+      "preparationNotes": "회색·흰색 배경이 JPEG 안에 포함되어 있다. 발 지지·몸 낮추기·동물의 실루엣 차이를 동작 참고로 쓰되 현재 부드러운 SD 아바타·펫을 도트로 바꾸지 않는다. 프레임 간격·시간·뼈대 정보는 제공되지 않았다.",
+      "assetType": "pose-sheet-reference",
+      "usageStatus": "used-as-motion-and-direction-reference",
+      "referenceUse": {
+        "mode": "pose-and-direction-reference",
+        "projectOutputs": [
+          "../../avatar-direction.js",
+          "../../avatar-poses.js",
+          "../sd-heads-profile-제작기록.md"
+        ],
+        "directPixelReuse": false,
+        "finalGameMotionReview": "pending"
+      }
+    },
+    {
+      "id": "motion-9be22ade5defeda5",
+      "reviewIndex": 2,
+      "kind": "user-reference-image",
+      "originalName": "character sprite sheet.jpg",
+      "imagePath": "originals/motion-9be22ade5defeda5.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "9be22ade5defeda590a231e97da627871ef3536aa55226c68822c818551c6f85",
+      "byteLength": 209348,
+      "dimensions": {
+        "width": 736,
+        "height": 1097
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "character sprite sheet.jpg",
+          "originalName": "character sprite sheet.jpg",
+          "byteLength": 209348,
+          "crc32": "ccffd667",
+          "archiveIndex": 1
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "reviewedAt": "2026-10-01",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 참고 원본. 원본 화면의 글자·브라우저·메뉴·로고·채팅·조작 안내는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "character sprite sheet.jpg",
+      "archiveCrc32": "ccffd667",
+      "style": "illustrated-sd-pose-sheet",
+      "contentType": "motion-sheet-reference",
+      "perspective": "three-quarter-side",
+      "label": "청록 코트 캐릭터의 정지·걷기·달리기·점프",
+      "visualSummary": "검은 머리와 청록 코트 캐릭터의 정지·걷기·달리기·점프/착지 포즈를 네 줄에 모은 일러스트 시트",
+      "subjects": [
+        "정지",
+        "걷기",
+        "달리기",
+        "점프",
+        "착지",
+        "청록 코트",
+        "팔 반대 박자",
+        "앞다리 지지",
+        "무릎 굽힘",
+        "옷자락",
+        "머리"
+      ],
+      "categories": [
+        "characters"
+      ],
+      "preparationNotes": "체커무늬가 찍힌 불투명 JPEG이며 투명 스프라이트가 아니다. 전신 무게 중심·팔과 다리의 반대 박자·무릎 굽힘·코트 옷자락 후행과 점프/착지 포즈를 참고한다. 현재 아바타 얼굴·뼈대·착용 레이어를 교체하지 않는다. 네 방향이나 부위별 착용 모션이 제공된 자료는 아니다.",
+      "assetType": "motion-sheet-reference",
+      "usageStatus": "used-as-motion-and-direction-reference",
+      "referenceUse": {
+        "mode": "pose-and-direction-reference",
+        "projectOutputs": [
+          "../../avatar-direction.js",
+          "../../avatar-poses.js",
+          "../sd-heads-profile-제작기록.md"
+        ],
+        "directPixelReuse": false,
+        "finalGameMotionReview": "pending"
+      }
+    },
+    {
+      "id": "motion-9e7d2773dd90d4ac",
+      "reviewIndex": 3,
+      "kind": "user-reference-image",
+      "originalName": "Walk Cycles.jpg",
+      "imagePath": "originals/motion-9e7d2773dd90d4ac.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "9e7d2773dd90d4ac5d642322241eeb745a119adc48839647ca5ddd36825ae9ea",
+      "byteLength": 56876,
+      "dimensions": {
+        "width": 736,
+        "height": 736
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "Walk Cycles.jpg",
+          "originalName": "Walk Cycles.jpg",
+          "byteLength": 56876,
+          "crc32": "c7aa8d6c",
+          "archiveIndex": 2
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "reviewedAt": "2026-10-01",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 참고 원본. 원본 화면의 글자·브라우저·메뉴·로고·채팅·조작 안내는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "Walk Cycles.jpg",
+      "archiveCrc32": "c7aa8d6c",
+      "style": "cartoon-walk-pose-study",
+      "contentType": "pose-study-reference",
+      "perspective": "side-view",
+      "label": "서로 다른 성격의 보행 포즈 25종",
+      "visualSummary": "색과 자세가 서로 다른 둥근 캐릭터 25종을 통해 긴 보폭·높은 무릎·몸 기울기·발 지지·팔 움직임을 비교하는 손그림",
+      "subjects": [
+        "보행 포즈",
+        "보폭",
+        "무릎 들기",
+        "몸 기울기",
+        "발 지지",
+        "체중 이동",
+        "팔 움직임",
+        "걸음 성격"
+      ],
+      "categories": [
+        "characters"
+      ],
+      "preparationNotes": "25개 캐릭터의 다른 보행 포즈 모음이며 한 캐릭터의 정렬된 25프레임 애니메이션이 아니다. 접지·체중 이동·보폭·몸 기울기의 차이를 참고하고 실제 SD 뼈대에서 연속 동작을 별도로 설계·검수한다. 흰 배경을 포함한 불투명 JPEG다.",
+      "assetType": "pose-study-reference",
+      "usageStatus": "used-as-motion-and-direction-reference",
+      "referenceUse": {
+        "mode": "pose-and-direction-reference",
+        "projectOutputs": [
+          "../../avatar-direction.js",
+          "../../avatar-poses.js",
+          "../sd-heads-profile-제작기록.md"
+        ],
+        "directPixelReuse": false,
+        "finalGameMotionReview": "pending"
+      }
+    }
+  ],
+  "projectAssets": []
+}

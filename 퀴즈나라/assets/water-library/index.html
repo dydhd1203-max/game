@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>퀴즈나라 물·연못·폭포 원본 보관함</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f6f3e9;color:#304e41;font:16px/1.5 system-ui,sans-serif}header,main{max-width:1400px;margin:auto;padding:24px}header{padding-bottom:8px}h1{font-size:28px;line-height:1.3;margin:0 0 10px}p{margin:6px 0}a{color:#266f63}header p{color:#657161}.controls{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}input,select{font:inherit;max-width:100%;padding:10px;border:1px solid #bfc9b4;border-radius:9px;background:#fffdf7;color:#304e41}input{flex:1;min-width:220px}label{display:flex;align-items:center;gap:6px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}.card{background:#fffdf8;border:1px solid #dedbcc;border-radius:14px;overflow:hidden;display:flex;flex-direction:column;min-width:0}.preview{height:280px;padding:8px;display:flex;align-items:center;justify-content:center;background:#ececde}.preview img{width:100%;height:100%;object-fit:contain}.card section{padding:14px;flex:1}.card h2{font-size:17px;margin:0 0 6px;overflow-wrap:anywhere}.card p{font-size:14px}.filename{display:block;font-size:12px;color:#697763;overflow-wrap:anywhere}.tags{display:flex;gap:5px;flex-wrap:wrap;margin:9px 0}.tag{font-size:12px;background:#e8efe1;border-radius:6px;padding:2px 7px}.status{color:#527057;font-size:13px}.open{display:inline-block;font-weight:600;margin-top:6px}.meta{display:block;font-size:12px;color:#6c7465}.empty{padding:24px;background:#fffdf8;border-radius:12px}.count{font-size:14px}.foot{margin-top:24px}.links{display:flex;flex-wrap:wrap;gap:14px}
+@media(max-width:600px){header,main{padding:16px}h1{font-size:24px}.grid{grid-template-columns:minmax(0,1fr)}.controls input,.controls label{width:100%;min-width:0}.controls label select{flex:1;min-width:0}.preview{height:300px}}
+</style>
+</head>
+<body>
+<header><h1>물·연못·폭포 원본 보관함</h1><p>사용자가 제공한 수면·돌 해안·폭포·강 지형 원본을 찾아보세요.</p><p id="intro">자료 목록을 불러오고 있어요.</p><div class="links"><a href="source.zip" download="water.zip">water.zip 원본</a><a href="README.md">보관·활용 안내</a><a href="catalog.json">상세 소재 목록</a></div>
+<div class="controls"><input id="query" type="search" placeholder="연못, 폭포, 돌 해안, 강, 요정 마을…" aria-label="물·연못·폭포 소재 검색"><label>분류 <select id="category"><option value="">전체</option></select></label><label>화풍 <select id="style"><option value="">전체</option></select></label><label>구성 <select id="type"><option value="">전체</option></select></label></div><p id="count" class="count" aria-live="polite"></p></header>
+<main><div id="grid" class="grid"></div><p class="foot">원본 이미지를 바꾸거나 게임 데이터를 저장하지 않는 목록입니다.</p></main>
+<script src="catalog-data.js"></script>
+<script>
+'use strict';
+const catalog=window.QPWaterLibraryCatalog;
+const labels={town:'마을·광장',buildings:'건물·실내',production:'농장·생산',shops:'상점',plants:'식물',flowers:'꽃',props:'소품',water:'물',terrain:'지형·길',wood:'목재',forest:'숲',characters:'캐릭터·동작',lights:'조명',interface:'게임·브라우저 UI 포함',pixel:'도트 동작 참고'};
+const styleLabels={'storybook-painted-scene':'동화풍 완성 마을','painted-isometric-terrain':'입체 사선 지형 원화'};
+const typeLabels={'complete-scene':'완성 장면','terrain-module':'강·산 지형 모듈','terrain-module-sheet':'연못·폭포 지형 여러종 시트'};
+const el=(tag,text,cls)=>{const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;};
+const query=document.getElementById('query'),category=document.getElementById('category'),style=document.getElementById('style'),type=document.getElementById('type'),grid=document.getElementById('grid');
+if(!catalog){document.getElementById('intro').textContent='목록 파일이 없어요. water-library 폴더 전체를 사용해 주세요.';}
+else{
+const entries=catalog.referenceSheets||[];
+document.getElementById('intro').textContent='JPEG 원본 '+catalog.status.originalsStored+'장 저장·시각 분류 완료. 불투명 JPEG는 원본 좌표 crop·SVG 외곽 클리핑으로 게임에 직접 사용할 수 있어요. 물·연못·폭포의 일부 영역을 실제 장면에 연결하고 원본 crop·윤곽 클리핑을 상·하류 화면에서 확인했어요.';
+for(const [control,values,names] of [[category,entries.flatMap(e=>e.categories||[]),labels],[style,entries.map(e=>e.style),styleLabels],[type,entries.map(e=>e.contentType),typeLabels]])for(const value of [...new Set(values)].sort()){const option=el('option',names[value]||value);option.value=value;control.append(option);}
+const searchable=e=>[e.label,e.originalName,e.visualSummary,...(e.subjects||[]),...(e.categories||[]).map(v=>labels[v]||v),styleLabels[e.style],typeLabels[e.contentType],...(e.aliases||[]).map(a=>a.originalName)].join(' ').toLocaleLowerCase();
+function paint(){
+ const words=query.value.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+ const found=entries.filter(e=>(!category.value||e.categories.includes(category.value))&&(!style.value||e.style===style.value)&&(!type.value||e.contentType===type.value)&&words.every(w=>searchable(e).includes(w)));
+ grid.replaceChildren();document.getElementById('count').textContent=found.length+'장 / 전체 '+entries.length+'장';
+ for(const e of found){
+  const card=el('article',undefined,'card');card.dataset.assetId=e.id;const preview=el('div',undefined,'preview'),img=el('img');img.src=e.imagePath;img.alt=e.label;img.loading='lazy';preview.append(img);card.append(preview);
+  const info=el('section');info.append(el('h2',e.label),el('small',e.originalName,'filename'),el('p',e.visualSummary));
+  const tags=el('div',undefined,'tags');for(const c of e.categories)tags.append(el('span',labels[c]||c,'tag'));info.append(tags,el('small',e.subjects.join(' · '),'meta'));
+  info.append(el('p',e.runtimeStatus==='partial-region-integrated'?'원본 저장됨 · 일부 영역 사용 중 · '+(e.runtimeVisualVerificationStatus==='verified-original-crop-and-clipping-in-game'?'원본 클립 확인':'화면 검수 진행'):'원본 저장됨 · 게임 배치 전','status'),el('small',e.dimensions.width+' × '+e.dimensions.height+' · '+e.format+' · 알파 없음','meta'),el('small',(styleLabels[e.style]||e.style)+' · '+(typeLabels[e.contentType]||e.contentType),'meta'));
+  const a=el('a','원본 보기','open');a.href=e.imagePath;a.target='_blank';a.rel='noopener';info.append(a);card.append(info);grid.append(card);
+ }
+ if(!found.length)grid.append(el('p','검색 조건에 맞는 참고 자료가 없어요.','empty'));
+}
+for(const control of [query,category,style,type])control.addEventListener('input',paint);paint();
+}
+</script>
+</body></html>

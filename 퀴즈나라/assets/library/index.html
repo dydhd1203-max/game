@@ -51,7 +51,7 @@ function paint(){
   if(e.visualSummary)info.append(element('p',e.visualSummary));
   const tags=element('div',undefined,'tags');for(const tag of e.categories||[])tags.append(element('span',labels[tag]||tag,'tag'));info.append(tags);
   const reviewed=e.classificationStatus==='visually-reviewed'||e.classificationStatus==='visually-inspected';
-  const status=e.origin==='project'?'게임 원화 · '+(e.runtimeStatus==='integrated'?'사용 중':'목록 등록'):'원본 저장 · '+(e.hasAlpha?'알파 채널 있음':'불투명 이미지')+(reviewed?'':' · 개별 그림 확인 필요');
+  const status=e.origin==='project'?'게임 원화 · '+(e.runtimeStatus==='integrated'?'사용 중':'목록 등록'):'원본 저장 · '+(e.hasAlpha?'알파 채널 있음':'불투명 이미지')+(e.runtimeStatus==='partial-region-integrated'?' · 원본 영역 사용 중 · '+(e.runtimeVisualVerificationStatus==='verified-original-crop-and-clipping-in-game'?'원본 클립 확인':'화면 검수 진행'):'')+(reviewed?'':' · 개별 그림 확인 필요');
   info.append(element('p',status,'status'));if(e.aliases?.length>1)info.append(element('small','같은 이미지 파일명 '+e.aliases.length+'개'));
   if(e.imagePath){const a=element('a','원본 보기','open');a.href=e.imagePath;a.target='_blank';a.rel='noopener';info.append(element('br'),a);}
   card.append(info);grid.append(card);

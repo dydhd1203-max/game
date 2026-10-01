@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "image": "forest-village-grove.png",
+  "width": 1536,
+  "height": 1024,
+  "format": "RGBA",
+  "sha256": "a5f139f86c0da91ee74ebf9bd0da27d01df70dbae645b2e7f4c4db6be2d9666a",
+  "reference": "map.zip 7.png: tree-stump outdoor classroom and leisure objects",
+  "source": "image_gen original PNG, copied unchanged",
+  "purpose": "Outdoor reading-grove scenery; interactive sitting is not claimed",
+  "sourceRect": [
+    150,
+    0,
+    1300,
+    972
+  ],
+  "displaySize": [
+    325,
+    243
+  ],
+  "anchor": [
+    155,
+    230.5
+  ],
+  "runtimeModule": "village-neighborhood.js",
+  "sceneObject": "village-reading-grove",
+  "originalPixelsUnchanged": true,
+  "anchorCoordinateSpace": "displaySize pixels relative to cropped sourceRect",
+  "sourceAnchor": [
+    620,
+    922
+  ]
+}

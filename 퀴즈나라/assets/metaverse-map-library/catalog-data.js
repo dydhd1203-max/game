@@ -1,0 +1,869 @@
+/* Generated from catalog.json; original image files remain unchanged. */
+window.QPMetaverseMapLibraryCatalog = {
+  "schemaVersion": 1,
+  "createdAt": "2026-10-01",
+  "title": "퀴즈나라 메타버스 공간 원본 보관함",
+  "pathBase": "catalog-directory",
+  "archive": {
+    "originalName": "map.zip",
+    "imagePath": "source.zip",
+    "byteLength": 23439816,
+    "sha256": "5934a0f6fd4aa20a1d616c06ffe072ffbdbd5d31f4e9089d7ae8c548d9848e5e",
+    "entries": 10,
+    "regularImageEntries": 10,
+    "directoryEntries": 0,
+    "uncompressedImageBytes": 23461109,
+    "uniqueImageFiles": 10,
+    "duplicateImageEntries": 0,
+    "uniqueImageBytes": 23461109,
+    "originalPreservation": "Untouched ZIP plus unique original image bytes; every original filename retained in aliases",
+    "regularImageFiles": 10,
+    "safetyCheck": {
+      "pathTraversal": false,
+      "absolutePaths": false,
+      "symbolicLinks": false,
+      "encryptedEntries": false,
+      "nonImageRegularFiles": 0,
+      "crcVerified": true
+    }
+  },
+  "status": {
+    "originalsStored": 10,
+    "originalEntriesStored": 10,
+    "uniqueOriginalImagesStored": 10,
+    "deduplicatedAliases": 0,
+    "originalsVisuallyReviewed": 10,
+    "transparentUserOriginals": 0,
+    "runtimeSpritesPrepared": 0,
+    "runtimePlacementApplied": false,
+    "projectArtworkFiles": 1,
+    "projectSceneryPrepared": 1,
+    "projectPlacementImplemented": true,
+    "projectFinalArtReview": "pending"
+  },
+  "classificationSummary": {
+    "styles": {
+      "illustrated-2d-isometric": 10
+    },
+    "contentTypes": {
+      "game-screen-reference": 10
+    }
+  },
+  "referenceSheets": [
+    {
+      "id": "metaverse-map-18096e961b5c6bc0",
+      "reviewIndex": 1,
+      "kind": "user-reference-image",
+      "originalName": "10.png",
+      "imagePath": "originals/metaverse-map-18096e961b5c6bc0.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "18096e961b5c6bc0f961e628041614ad4a9a2cc4047f7cb865c8fc2a3fc5b707",
+      "byteLength": 1096812,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "format": "PNG",
+      "hasAlpha": false,
+      "transparency": "none-rgb-opaque",
+      "aliases": [
+        {
+          "archiveMember": "10.png",
+          "originalName": "10.png",
+          "byteLength": 1096812,
+          "crc32": "ed015f20",
+          "archiveIndex": 0
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "reviewedAt": "2026-10-01",
+      "sourceCredit": "ZEP / ZEP QUIZ (원본 캡처에 표시된 서비스 이름)",
+      "usageMetadata": "사용자가 제공한 참고 원본. 원본 화면의 글자·브라우저·메뉴·로고·채팅·조작 안내는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "10.png",
+      "archiveCrc32": "ed015f20",
+      "style": "illustrated-2d-isometric",
+      "contentType": "game-screen-reference",
+      "perspective": "isometric",
+      "label": "여러 교실 문이 이어진 학교 복도",
+      "visualSummary": "크림 벽과 목재 바닥의 긴 복도에 교실 문·창·게시판·수납장·화분을 반복 배치한 메타버스 화면",
+      "subjects": [
+        "교실 문",
+        "창문",
+        "게시판",
+        "수납장",
+        "화분",
+        "목재 바닥",
+        "복도",
+        "안내 화살표",
+        "작은 아바타"
+      ],
+      "categories": [
+        "buildings",
+        "props",
+        "wood",
+        "characters",
+        "interface"
+      ],
+      "preparationNotes": "실내 복도의 문·가구와 통행 공간 구분을 참고한다. 30·50·100·150인 시험이라는 문구는 원본 공간 안내이며 퀴즈나라 수용인원이나 시험 기능을 뜻하지 않는다.",
+      "assetType": "game-screen-reference"
+    },
+    {
+      "id": "metaverse-map-f204dcd40c0ac9a2",
+      "reviewIndex": 2,
+      "kind": "user-reference-image",
+      "originalName": "3.png",
+      "imagePath": "originals/metaverse-map-f204dcd40c0ac9a2.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "f204dcd40c0ac9a24b5a5a8265865543759a6019120693dcd42f610394f92621",
+      "byteLength": 1974228,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "format": "PNG",
+      "hasAlpha": false,
+      "transparency": "none-rgb-opaque",
+      "aliases": [
+        {
+          "archiveMember": "3.png",
+          "originalName": "3.png",
+          "byteLength": 1974228,
+          "crc32": "78ba00d5",
+          "archiveIndex": 1
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "reviewedAt": "2026-10-01",
+      "sourceCredit": "ZEP / ZEP QUIZ (원본 캡처에 표시된 서비스 이름)",
+      "usageMetadata": "사용자가 제공한 참고 원본. 원본 화면의 글자·브라우저·메뉴·로고·채팅·조작 안내는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "3.png",
+      "archiveCrc32": "78ba00d5",
+      "style": "illustrated-2d-isometric",
+      "contentType": "game-screen-reference",
+      "perspective": "isometric",
+      "label": "안내 아치·우체통·대나무의 만남 광장",
+      "visualSummary": "원형 돌 광장의 붉은 우체통, 갈래길을 안내하는 큰 아치·화살표, 말풍선 NPC와 대나무 구역이 밝은 흙길로 연결된 활동 공간",
+      "subjects": [
+        "만남 광장",
+        "안내 아치",
+        "갈래길",
+        "안내 화살표",
+        "원형 돌길",
+        "우체통",
+        "말풍선 NPC",
+        "대나무",
+        "피크닉 돗자리",
+        "선물 상자",
+        "꽃"
+      ],
+      "categories": [
+        "town",
+        "terrain",
+        "plants",
+        "flowers",
+        "props",
+        "characters",
+        "interface"
+      ],
+      "preparationNotes": "두 브라우저 화면이 겹친 캡처다. 하단 활동 광장의 목적지 안내·큰 볼거리·말풍선 상호작용과 넓은 보행 길을 참고한다. 브랜드·게임 문구·미니맵·메뉴를 그대로 복제하지 않는다.",
+      "assetType": "game-screen-reference",
+      "usageStatus": "used-as-visual-reference",
+      "referenceUse": {
+        "mode": "style-color-layout-reference",
+        "features": [
+          "큰 볼거리와 생활 사물",
+          "활동 광장과 넓은 보행 길"
+        ],
+        "projectOutputs": [
+          "../forest-village-life.png",
+          "../../village-neighborhood.js"
+        ],
+        "directPixelReuse": false,
+        "finalGameArtReview": "pending"
+      }
+    },
+    {
+      "id": "metaverse-map-6672fd99f8b1a9dd",
+      "reviewIndex": 3,
+      "kind": "user-reference-image",
+      "originalName": "4.png",
+      "imagePath": "originals/metaverse-map-6672fd99f8b1a9dd.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "6672fd99f8b1a9ddfbce5e79c4976bdcc16970f5a8ab51bde606d46c5a8f352c",
+      "byteLength": 2730530,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "format": "PNG",
+      "hasAlpha": false,
+      "transparency": "none-rgb-opaque",
+      "aliases": [
+        {
+          "archiveMember": "4.png",
+          "originalName": "4.png",
+          "byteLength": 2730530,
+          "crc32": "5d938581",
+          "archiveIndex": 2
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "reviewedAt": "2026-10-01",
+      "sourceCredit": "ZEP / ZEP QUIZ (원본 캡처에 표시된 서비스 이름)",
+      "usageMetadata": "사용자가 제공한 참고 원본. 원본 화면의 글자·브라우저·메뉴·로고·채팅·조작 안내는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "4.png",
+      "archiveCrc32": "5d938581",
+      "style": "illustrated-2d-isometric",
+      "contentType": "game-screen-reference",
+      "perspective": "isometric",
+      "label": "큰 나무·돌계단·연못이 겹치는 공원",
+      "visualSummary": "밝은 윗잎과 어두운 밑잎을 가진 큰 수관, 뿌리와 접촉 그림자, 석벽 위로 오르는 넓은 계단, 돌 연못과 NPC가 깊이를 만드는 녹색 공원",
+      "subjects": [
+        "큰 활엽수",
+        "수관 명암",
+        "나무 뿌리",
+        "접촉 그림자",
+        "전경 나무",
+        "후경 나무",
+        "돌계단",
+        "석벽",
+        "돌 연못",
+        "연잎",
+        "오리",
+        "꽃",
+        "바위",
+        "NPC"
+      ],
+      "categories": [
+        "forest",
+        "terrain",
+        "water",
+        "plants",
+        "flowers",
+        "props",
+        "characters",
+        "interface"
+      ],
+      "preparationNotes": "두 브라우저 화면이 겹친 캡처다. 나무 전후 겹침·큰 수관 명암·접지 그림자와 계단/석벽의 높낮이를 현재 숲속 마을의 깊이 기준으로 삼는다. 작은 NPC와 길의 읽기 공간을 유지한다.",
+      "assetType": "game-screen-reference",
+      "usageStatus": "used-as-visual-reference",
+      "referenceUse": {
+        "mode": "style-color-layout-reference",
+        "features": [
+          "전후 수관 겹침·잎 명암·나무 뿌리·접촉 그림자",
+          "계단·석벽·연못의 지형 깊이"
+        ],
+        "projectOutputs": [
+          "../../village-scene.js"
+        ],
+        "directPixelReuse": false,
+        "finalGameArtReview": "pending"
+      }
+    },
+    {
+      "id": "metaverse-map-d07c7c9405959968",
+      "reviewIndex": 4,
+      "kind": "user-reference-image",
+      "originalName": "5.png",
+      "imagePath": "originals/metaverse-map-d07c7c9405959968.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "d07c7c940595996845f578e35af9fa6b01daf1dcaabd8efbb107f6272d8118b8",
+      "byteLength": 1027290,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "format": "PNG",
+      "hasAlpha": false,
+      "transparency": "none-rgb-opaque",
+      "aliases": [
+        {
+          "archiveMember": "5.png",
+          "originalName": "5.png",
+          "byteLength": 1027290,
+          "crc32": "708aa35b",
+          "archiveIndex": 3
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "reviewedAt": "2026-10-01",
+      "sourceCredit": "ZEP / ZEP QUIZ (원본 캡처에 표시된 서비스 이름)",
+      "usageMetadata": "사용자가 제공한 참고 원본. 원본 화면의 글자·브라우저·메뉴·로고·채팅·조작 안내는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "5.png",
+      "archiveCrc32": "708aa35b",
+      "style": "illustrated-2d-isometric",
+      "contentType": "game-screen-reference",
+      "perspective": "isometric",
+      "label": "바다 위 연구선과 미래 관측 기지",
+      "visualSummary": "청록 바다와 파도빛 위로 거대한 흰 연구선, 계단·투명 통로·로켓·발광 표지와 작은 아바타가 연결된 상상 공간",
+      "subjects": [
+        "연구선",
+        "청록 바다",
+        "물결빛",
+        "큰 계단",
+        "투명 통로",
+        "로켓",
+        "발광 표지",
+        "관측 기지",
+        "아바타",
+        "상호작용 단말"
+      ],
+      "categories": [
+        "water",
+        "buildings",
+        "terrain",
+        "props",
+        "lights",
+        "characters",
+        "interface"
+      ],
+      "preparationNotes": "미래 기지의 높낮이·연결 통로·발견 지점을 참고한다. 현재 숲속 마을을 전체 공상과학 화풍으로 바꾸지 않고 탐험 구조 참고로 분리한다.",
+      "assetType": "game-screen-reference"
+    },
+    {
+      "id": "metaverse-map-4a549a8aeb495eb1",
+      "reviewIndex": 5,
+      "kind": "user-reference-image",
+      "originalName": "6.png",
+      "imagePath": "originals/metaverse-map-4a549a8aeb495eb1.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "4a549a8aeb495eb15bace8165e7ef848f2a2e20e3e4f92e9a1fbcf3bd25c1219",
+      "byteLength": 3142898,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "format": "PNG",
+      "hasAlpha": false,
+      "transparency": "none-rgb-opaque",
+      "aliases": [
+        {
+          "archiveMember": "6.png",
+          "originalName": "6.png",
+          "byteLength": 3142898,
+          "crc32": "8ac16c6b",
+          "archiveIndex": 4
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "reviewedAt": "2026-10-01",
+      "sourceCredit": "ZEP / ZEP QUIZ (원본 캡처에 표시된 서비스 이름)",
+      "usageMetadata": "사용자가 제공한 참고 원본. 원본 화면의 글자·브라우저·메뉴·로고·채팅·조작 안내는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "6.png",
+      "archiveCrc32": "8ac16c6b",
+      "style": "illustrated-2d-isometric",
+      "contentType": "game-screen-reference",
+      "perspective": "isometric",
+      "label": "가을 주택·텃밭·수확 소품의 마을",
+      "visualSummary": "주황·노랑·붉은 단풍나무, 크림 흙길과 서로 다른 소형 주택, 텃밭·호박·건초·통·수확 상자가 이어진 따뜻한 가을 퀴즈 마을",
+      "subjects": [
+        "가을 단풍",
+        "주황 수관",
+        "노랑 수관",
+        "붉은 수관",
+        "크림 흙길",
+        "소형 주택",
+        "텃밭",
+        "채소",
+        "호박",
+        "건초",
+        "통",
+        "수확 상자",
+        "울타리",
+        "퀴즈 사물"
+      ],
+      "categories": [
+        "town",
+        "buildings",
+        "terrain",
+        "plants",
+        "production",
+        "props",
+        "wood",
+        "characters",
+        "interface"
+      ],
+      "preparationNotes": "가을 마을의 황금 바닥·따뜻한 잎색, 여러 집 실루엣, 텃밭/호박/건초/통의 용도별 묶음을 생활감 기준으로 삼는다. 화면의 퀴즈 마커·학습 리포트·메뉴·점수는 현재 게임 기능과 구분한다.",
+      "assetType": "game-screen-reference",
+      "usageStatus": "used-as-visual-reference",
+      "referenceUse": {
+        "mode": "style-color-layout-reference",
+        "features": [
+          "소형 주택과 텃밭",
+          "호박·건초·통·수확 소품의 장소별 묶음"
+        ],
+        "projectOutputs": [
+          "../forest-village-homes.png",
+          "../forest-village-life.png",
+          "../../village-neighborhood.js"
+        ],
+        "directPixelReuse": false,
+        "finalGameArtReview": "pending"
+      }
+    },
+    {
+      "id": "metaverse-map-5bd9ae915fa48051",
+      "reviewIndex": 6,
+      "kind": "user-reference-image",
+      "originalName": "7.png",
+      "imagePath": "originals/metaverse-map-5bd9ae915fa48051.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "5bd9ae915fa48051878cad9a012796be5717bf75f6a2256e9a5d7f3e190ccafd",
+      "byteLength": 3016405,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "format": "PNG",
+      "hasAlpha": false,
+      "transparency": "none-rgb-opaque",
+      "aliases": [
+        {
+          "archiveMember": "7.png",
+          "originalName": "7.png",
+          "byteLength": 3016405,
+          "crc32": "d9abd3b6",
+          "archiveIndex": 5
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "reviewedAt": "2026-10-01",
+      "sourceCredit": "ZEP / ZEP QUIZ (원본 캡처에 표시된 서비스 이름)",
+      "usageMetadata": "사용자가 제공한 참고 원본. 원본 화면의 글자·브라우저·메뉴·로고·채팅·조작 안내는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "7.png",
+      "archiveCrc32": "d9abd3b6",
+      "style": "illustrated-2d-isometric",
+      "contentType": "game-screen-reference",
+      "perspective": "isometric",
+      "label": "나이테 책상·그루터기 의자의 숲속 교실",
+      "visualSummary": "활엽수와 침엽수가 둘러싼 밝은 잔디에 나이테 책상과 그루터기 의자, 나무 무대·칠판·랜턴·버섯·꽃·해먹·돗자리를 배치한 숲 수업 공간",
+      "subjects": [
+        "숲속 교실",
+        "나이테 책상",
+        "그루터기 의자",
+        "나무 무대",
+        "칠판",
+        "랜턴",
+        "버섯",
+        "꽃",
+        "활엽수",
+        "침엽수",
+        "해먹",
+        "돗자리",
+        "책",
+        "사다리",
+        "울타리",
+        "줄 전구"
+      ],
+      "categories": [
+        "forest",
+        "terrain",
+        "plants",
+        "flowers",
+        "props",
+        "wood",
+        "lights",
+        "characters",
+        "interface"
+      ],
+      "preparationNotes": "숲 경계와 넓은 가운데 잔디, 나이테 책상/의자 접지, 꽃·버섯·랜턴·해먹을 이어 장소가 읽히는 미술 기준으로 삼는다. 향후 교실·앉기 참고이며 현재 퀴즈나라에 좌석·교실 내부를 구현했다고 표시하지 않는다.",
+      "assetType": "game-screen-reference",
+      "usageStatus": "used-as-visual-reference",
+      "referenceUse": {
+        "mode": "style-color-layout-reference",
+        "features": [
+          "나이테 책상·그루터기 의자",
+          "버섯·꽃·랜턴·책이 연결된 숲 쉼터"
+        ],
+        "projectOutputs": [
+          "../forest-village-grove.png",
+          "../../village-neighborhood.js"
+        ],
+        "directPixelReuse": false,
+        "finalGameArtReview": "pending"
+      }
+    },
+    {
+      "id": "metaverse-map-71ade0b5af1aec17",
+      "reviewIndex": 7,
+      "kind": "user-reference-image",
+      "originalName": "8.png",
+      "imagePath": "originals/metaverse-map-71ade0b5af1aec17.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "71ade0b5af1aec17451e04a64d23c4564a7cc119e29c14fbe594a42a51d14890",
+      "byteLength": 3351556,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "format": "PNG",
+      "hasAlpha": false,
+      "transparency": "none-rgb-opaque",
+      "aliases": [
+        {
+          "archiveMember": "8.png",
+          "originalName": "8.png",
+          "byteLength": 3351556,
+          "crc32": "f73410c2",
+          "archiveIndex": 6
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "reviewedAt": "2026-10-01",
+      "sourceCredit": "ZEP / ZEP QUIZ (원본 캡처에 표시된 서비스 이름)",
+      "usageMetadata": "사용자가 제공한 참고 원본. 원본 화면의 글자·브라우저·메뉴·로고·채팅·조작 안내는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "8.png",
+      "archiveCrc32": "f73410c2",
+      "style": "illustrated-2d-isometric",
+      "contentType": "game-screen-reference",
+      "perspective": "isometric",
+      "label": "학교 건물 앞 단차와 운동장",
+      "visualSummary": "주황 기와의 학교 건물 앞 분홍 포장 보도와 긴 계단, 벤치, 녹색 잔디 운동장과 육상 트랙이 층을 이루는 학교 공간",
+      "subjects": [
+        "학교 건물",
+        "주황 기와",
+        "보도",
+        "긴 계단",
+        "단차",
+        "벤치",
+        "잔디 운동장",
+        "육상 트랙",
+        "꽃",
+        "작은 아바타"
+      ],
+      "categories": [
+        "buildings",
+        "terrain",
+        "plants",
+        "props",
+        "characters",
+        "interface"
+      ],
+      "preparationNotes": "넓은 운동장과 건물 사이 계단·벤치의 연속 배치를 참고한다. 학교 실루엣은 향후 별도 공간 참고로 남기며 현재 숲속 마을 건물로 그대로 배치하지 않는다.",
+      "assetType": "game-screen-reference"
+    },
+    {
+      "id": "metaverse-map-67ca97f666b1a94c",
+      "reviewIndex": 8,
+      "kind": "user-reference-image",
+      "originalName": "9.png",
+      "imagePath": "originals/metaverse-map-67ca97f666b1a94c.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "67ca97f666b1a94c72a73e8074b069828504949bd45ffc074ebd72229bc1c4ee",
+      "byteLength": 1783787,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "format": "PNG",
+      "hasAlpha": false,
+      "transparency": "none-rgb-opaque",
+      "aliases": [
+        {
+          "archiveMember": "9.png",
+          "originalName": "9.png",
+          "byteLength": 1783787,
+          "crc32": "367fe6a8",
+          "archiveIndex": 7
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "reviewedAt": "2026-10-01",
+      "sourceCredit": "ZEP / ZEP QUIZ (원본 캡처에 표시된 서비스 이름)",
+      "usageMetadata": "사용자가 제공한 참고 원본. 원본 화면의 글자·브라우저·메뉴·로고·채팅·조작 안내는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "9.png",
+      "archiveCrc32": "367fe6a8",
+      "style": "illustrated-2d-isometric",
+      "contentType": "game-screen-reference",
+      "perspective": "isometric",
+      "label": "학교 건물·가로등·분수의 마당",
+      "visualSummary": "높이가 다른 학교 건물과 넓은 길, 가로등·벤치·디딤돌·꽃 덤불·침엽수와 분수가 어울린 캠퍼스 마당",
+      "subjects": [
+        "학교 건물",
+        "높이 다른 건물",
+        "캠퍼스 마당",
+        "가로등",
+        "벤치",
+        "디딤돌",
+        "꽃 덤불",
+        "침엽수",
+        "분수",
+        "횡단보도",
+        "작은 아바타"
+      ],
+      "categories": [
+        "town",
+        "buildings",
+        "terrain",
+        "water",
+        "plants",
+        "flowers",
+        "props",
+        "lights",
+        "characters",
+        "interface"
+      ],
+      "preparationNotes": "두 브라우저 화면이 겹친 캡처다. 하단 마당에서 각 건물의 높이 차이와 주변 벤치·화단·조명으로 생활감이 연결되는 방식을 참고한다.",
+      "assetType": "game-screen-reference"
+    },
+    {
+      "id": "metaverse-map-5f75cb364599348b",
+      "reviewIndex": 9,
+      "kind": "user-reference-image",
+      "originalName": "제목 없음.png",
+      "imagePath": "originals/metaverse-map-5f75cb364599348b.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "5f75cb364599348b560018bb39ac3e6143e1560041a4ccb997b2a9ed70468118",
+      "byteLength": 3803554,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "format": "PNG",
+      "hasAlpha": false,
+      "transparency": "none-rgb-opaque",
+      "aliases": [
+        {
+          "archiveMember": "제목 없음.png",
+          "originalName": "제목 없음.png",
+          "byteLength": 3803554,
+          "crc32": "779045d2",
+          "archiveIndex": 8
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "reviewedAt": "2026-10-01",
+      "sourceCredit": "ZEP / ZEP QUIZ (원본 캡처에 표시된 서비스 이름)",
+      "usageMetadata": "사용자가 제공한 참고 원본. 원본 화면의 글자·브라우저·메뉴·로고·채팅·조작 안내는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "제목 없음.png",
+      "archiveCrc32": "779045d2",
+      "style": "illustrated-2d-isometric",
+      "contentType": "game-screen-reference",
+      "perspective": "isometric",
+      "label": "여러 친구가 모이는 학교 중앙 정원",
+      "visualSummary": "학교 본관과 신관·매점을 나무 데크와 계단으로 잇고 돌 경계 정원, 큰 나무·시계탑과 여러 아바타의 말풍선을 배치한 공동 공간",
+      "subjects": [
+        "중앙 정원",
+        "본관",
+        "신관",
+        "매점",
+        "나무 데크",
+        "계단",
+        "돌 경계",
+        "큰 나무",
+        "시계탑",
+        "작은 아바타",
+        "여러 친구",
+        "말풍선",
+        "포털"
+      ],
+      "categories": [
+        "town",
+        "buildings",
+        "terrain",
+        "plants",
+        "props",
+        "wood",
+        "characters",
+        "interface"
+      ],
+      "preparationNotes": "함께 모이는 작은 아바타, 서로 연결된 데크·계단·정원과 읽기 쉬운 건물 안내를 참고한다. 이름·채팅·미니맵·게임 로고·브라우저 주소를 복제하거나 실제 서비스로 연결하지 않는다.",
+      "assetType": "game-screen-reference"
+    },
+    {
+      "id": "metaverse-map-54489ee5d1798cc1",
+      "reviewIndex": 10,
+      "kind": "user-reference-image",
+      "originalName": "제목 없음2.png",
+      "imagePath": "originals/metaverse-map-54489ee5d1798cc1.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "54489ee5d1798cc1aa1b96ad86dd0fe49545cf86b11ddd2023bf5c98380fab83",
+      "byteLength": 1534049,
+      "dimensions": {
+        "width": 1920,
+        "height": 1080
+      },
+      "format": "PNG",
+      "hasAlpha": false,
+      "transparency": "none-rgb-opaque",
+      "aliases": [
+        {
+          "archiveMember": "제목 없음2.png",
+          "originalName": "제목 없음2.png",
+          "byteLength": 1534049,
+          "crc32": "06901a60",
+          "archiveIndex": 9
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "reviewedAt": "2026-10-01",
+      "sourceCredit": "ZEP / ZEP QUIZ (원본 캡처에 표시된 서비스 이름)",
+      "usageMetadata": "사용자가 제공한 참고 원본. 원본 화면의 글자·브라우저·메뉴·로고·채팅·조작 안내는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "제목 없음2.png",
+      "archiveCrc32": "06901a60",
+      "style": "illustrated-2d-isometric",
+      "contentType": "game-screen-reference",
+      "perspective": "isometric",
+      "label": "아치 창과 시계가 있는 마법 실내",
+      "visualSummary": "푸른·보랏빛 아치 창과 흰 기둥, 큰 시계·랜턴·입장 단말과 작은 물방울 캐릭터가 있는 마법 실내 공간",
+      "subjects": [
+        "마법 실내",
+        "아치 창",
+        "흰 기둥",
+        "푸른 빛",
+        "보라 빛",
+        "큰 시계",
+        "랜턴",
+        "입장 단말",
+        "NPC",
+        "말풍선",
+        "체크 바닥"
+      ],
+      "categories": [
+        "buildings",
+        "props",
+        "lights",
+        "characters",
+        "interface"
+      ],
+      "preparationNotes": "두 브라우저 화면이 겹친 캡처다. 아치·기둥·시계·NPC가 연결된 특별 공간의 시각 계층을 참고한다. 큰 체크 바닥은 투명 배경이 아닌 실제 실내 바닥이며 입장코드·키 안내는 참고 화면 기능이다.",
+      "assetType": "game-screen-reference"
+    }
+  ],
+  "projectAssets": [
+    {
+      "id": "project-forest-village-grove",
+      "kind": "project-original-scenery",
+      "label": "나이테 그림책 쉼터",
+      "visualSummary": "나이테 책상과 온전한 그루터기 의자, 그림책·버섯·꽃·랜턴이 연결된 야외 독서 쉼터",
+      "purpose": "village-neighborhood.js의 높은 숲 정원에 나이테 책 쉼터를 배치하고 발견 문구를 표시한다. 실제 앉기나 새로운 교실 내부를 구현했다고 표시하지 않는다.",
+      "categories": [
+        "forest",
+        "props",
+        "wood",
+        "plants",
+        "flowers",
+        "lights"
+      ],
+      "subjects": [
+        "forest-village-grove.png",
+        "나이테 그림책 쉼터",
+        "forest",
+        "props",
+        "wood",
+        "plants",
+        "flowers",
+        "lights"
+      ],
+      "style": "painted-2d-stylized",
+      "perspective": "Elevated three-quarter view",
+      "lighting": "Warm upper-left sunlight",
+      "imagePath": "../forest-village-grove.png",
+      "imagePathScope": "catalog-directory",
+      "metadataPath": "../forest-village-grove.json",
+      "sha256": "a5f139f86c0da91ee74ebf9bd0da27d01df70dbae645b2e7f4c4db6be2d9666a",
+      "byteLength": 2244499,
+      "dimensions": {
+        "width": 1536,
+        "height": 1024
+      },
+      "format": "PNG",
+      "pixelFormat": "RGBA",
+      "hasAlpha": true,
+      "transparency": "generated-alpha-original",
+      "sourceStatus": "present",
+      "sourceOrigin": "image_gen-original-output",
+      "runtimeStatus": "integrated",
+      "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
+      "classificationStatus": "visually-reviewed",
+      "reviewedAt": "2026-10-01",
+      "visualVerificationStatus": "pending-final-game-review",
+      "sourceRect": [
+        150,
+        0,
+        1300,
+        972
+      ],
+      "anchor": [
+        620,
+        922
+      ],
+      "collision": null,
+      "collisionStatus": "Explicit scene geometry managed by village-neighborhood.js and village-scene.js; not inferred from artwork",
+      "rendererPath": "../../village-neighborhood.js",
+      "sourceReferences": [
+        {
+          "library": "metaverse-map-library",
+          "referenceId": "metaverse-map-5bd9ae915fa48051",
+          "originalName": "7.png",
+          "imagePath": "../metaverse-map-library/originals/metaverse-map-5bd9ae915fa48051.png",
+          "sha256": "5bd9ae915fa48051878cad9a012796be5717bf75f6a2256e9a5d7f3e190ccafd",
+          "role": "visual-style-color-layout-reference",
+          "features": [
+            "나이테 책상·그루터기 의자",
+            "버섯·꽃·랜턴·책이 연결된 숲 쉼터"
+          ],
+          "directPixelReuse": false
+        }
+      ],
+      "usageMetadata": "프로젝트에서 별도 생성한 원화. 사용자 원본의 색·화풍·배치를 참고했으며 원본 화면에서 픽셀을 잘라 붙인 자료가 아니다. 생성 PNG 원본 바이트를 보존하며 런타임 SVG 표시 영역으로 재사용한다.",
+      "anchorUnits": "runtime source-rectangle pixels",
+      "layer": "ground-sorted",
+      "originalName": "forest-village-grove.png",
+      "components": [
+        "나이테 책상·그루터기 의자",
+        "버섯·꽃·랜턴·책이 연결된 숲 쉼터"
+      ]
+    }
+  ]
+};

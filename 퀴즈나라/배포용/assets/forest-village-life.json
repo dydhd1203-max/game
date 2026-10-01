@@ -1,0 +1,169 @@
+{
+  "schemaVersion": 1,
+  "image": "forest-village-life.png",
+  "width": 1536,
+  "height": 1024,
+  "format": "RGBA",
+  "sha256": "7b427ce909059f72df9dc855a6e4ebdb9c37d0ec49987ab1d23878b8e5ff6644",
+  "props": {
+    "fountain": {
+      "label": "꽃잎 분수",
+      "source": [
+        16,
+        140,
+        354,
+        347
+      ],
+      "anchor": [
+        177,
+        326
+      ],
+      "opaqueBounds": [
+        18,
+        17,
+        336,
+        336
+      ]
+    },
+    "market": {
+      "label": "숲 채소 가판대",
+      "source": [
+        390,
+        90,
+        372,
+        398
+      ],
+      "anchor": [
+        188,
+        363
+      ],
+      "opaqueBounds": [
+        12,
+        16,
+        351,
+        379
+      ]
+    },
+    "bench": {
+      "label": "꽃 화분 벤치",
+      "source": [
+        784,
+        155,
+        372,
+        338
+      ],
+      "anchor": [
+        185,
+        303
+      ],
+      "opaqueBounds": [
+        8,
+        24,
+        361,
+        320
+      ]
+    },
+    "garden": {
+      "label": "울타리 텃밭",
+      "source": [
+        1154,
+        135,
+        382,
+        354
+      ],
+      "anchor": [
+        185,
+        325
+      ],
+      "opaqueBounds": [
+        14,
+        19,
+        370,
+        344
+      ]
+    },
+    "fence": {
+      "label": "들꽃 울타리",
+      "source": [
+        12,
+        632,
+        383,
+        308
+      ],
+      "anchor": [
+        191,
+        282
+      ],
+      "opaqueBounds": [
+        16,
+        27,
+        370,
+        296
+      ]
+    },
+    "cart": {
+      "label": "호박 꽃 수레",
+      "source": [
+        406,
+        594,
+        439,
+        340
+      ],
+      "anchor": [
+        211,
+        309
+      ],
+      "opaqueBounds": [
+        18,
+        21,
+        423,
+        323
+      ]
+    },
+    "lantern": {
+      "label": "꽃바구니 랜턴",
+      "source": [
+        856,
+        528,
+        277,
+        439
+      ],
+      "anchor": [
+        106,
+        403
+      ],
+      "opaqueBounds": [
+        17,
+        20,
+        228,
+        421
+      ]
+    },
+    "beehive": {
+      "label": "통나무 벌집",
+      "source": [
+        1195,
+        610,
+        310,
+        352
+      ],
+      "anchor": [
+        157,
+        326
+      ],
+      "opaqueBounds": [
+        20,
+        15,
+        292,
+        336
+      ]
+    }
+  },
+  "source": "Generated with image_gen; spacing refined with image_gen; original final bytes retained unchanged",
+  "references": [
+    "village.zip: warm roofs and lived-in props",
+    "map.zip: readable gathering plaza, gardens and park"
+  ],
+  "lighting": "Warm upper-left sunlight",
+  "notes": "Source rectangles are measured nonuniform rectangles; include complete wheels, feet, shadows and bees. Runtime SVG clips original bytes; no edited raster copies."
+}

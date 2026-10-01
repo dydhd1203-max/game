@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "image": "forest-village-homes.png",
+  "width": 1536,
+  "height": 1024,
+  "format": "RGBA",
+  "sha256": "e9c27b18a0e20a31ad796a7e8ee08e4e08301889c0c5229fef2c272439d49e50",
+  "source": "Generated using image_gen, unchanged original output bytes",
+  "references": "User village.zip, visually reviewed originals preserved in assets/village-library",
+  "lighting": "Warm upper-left sunlight and soft teal woodland shadows",
+  "perspective": "Elevated three-quarter view",
+  "props": {
+    "bakery": {
+      "label": "꿀빵집",
+      "source": [
+        0,
+        0,
+        512,
+        490
+      ],
+      "anchor": [
+        250,
+        470
+      ],
+      "opaqueBounds": [
+        28,
+        15,
+        491,
+        479
+      ],
+      "sourceNotes": "Nonuniform measured original source rectangles; runtime SVG clipping only, no resampling of original PNG"
+    },
+    "blueHome": {
+      "label": "푸른지붕 이웃집",
+      "source": [
+        512,
+        0,
+        512,
+        490
+      ],
+      "anchor": [
+        274,
+        477
+      ],
+      "opaqueBounds": [
+        4,
+        7,
+        496,
+        484
+      ],
+      "sourceNotes": "Nonuniform measured original source rectangles; runtime SVG clipping only, no resampling of original PNG"
+    },
+    "herbHome": {
+      "label": "보랏빛 약초집",
+      "source": [
+        1024,
+        0,
+        512,
+        498
+      ],
+      "anchor": [
+        246,
+        480
+      ],
+      "opaqueBounds": [
+        7,
+        7,
+        504,
+        490
+      ],
+      "sourceNotes": "Nonuniform measured original source rectangles; runtime SVG clipping only, no resampling of original PNG"
+    },
+    "watermill": {
+      "label": "개울 물레방앗간",
+      "source": [
+        0,
+        490,
+        518,
+        502
+      ],
+      "anchor": [
+        259,
+        470
+      ],
+      "opaqueBounds": [
+        16,
+        4,
+        513,
+        483
+      ],
+      "sourceNotes": "Nonuniform measured original source rectangles; runtime SVG clipping only, no resampling of original PNG"
+    },
+    "farmHome": {
+      "label": "해바라기 농가",
+      "source": [
+        518,
+        492,
+        506,
+        504
+      ],
+      "anchor": [
+        248,
+        480
+      ],
+      "opaqueBounds": [
+        8,
+        17,
+        489,
+        483
+      ],
+      "sourceNotes": "Nonuniform measured original source rectangles; runtime SVG clipping only, no resampling of original PNG"
+    },
+    "postOffice": {
+      "label": "빨간지붕 우편집",
+      "source": [
+        1024,
+        496,
+        512,
+        510
+      ],
+      "anchor": [
+        253,
+        482
+      ],
+      "opaqueBounds": [
+        3,
+        6,
+        496,
+        492
+      ],
+      "sourceNotes": "Nonuniform measured original source rectangles; runtime SVG clipping only, no resampling of original PNG"
+    }
+  }
+}

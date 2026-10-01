@@ -129,10 +129,10 @@
       else if(originalMask===null)top.removeAttribute('mask');else top.setAttribute('mask',originalMask);
     }
   }
-  function positionArm(rig,arm,upperTransform,shoulder,forearm,wrist=0) {
+  function positionArm(rig,arm,upperTransform,shoulder,forearm,wrist=0,offset=0) {
     const bodyMatrix=rig.body.getCTM(),idleMatrix=rig.idle.getCTM();
     if(bodyMatrix&&idleMatrix){const m=idleMatrix.inverse().multiply(bodyMatrix);setTransform(arm.carrier,'matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].map(number).join(' ')+')');}
-    setTransform(arm.arm,upperTransform+' '+rotated(shoulder,...arm.pivot));
+    setTransform(arm.arm,upperTransform+' '+translated(offset,0)+' '+rotated(shoulder,...arm.pivot));
     setTransform(arm.forearm,rotated(forearm,...arm.elbow));
     for(const hand of arm.hands)setTransform(hand,rotated(wrist,...arm.wrist));
   }
@@ -384,10 +384,11 @@
     if (walkPose) {
       // The thigh turns at the hip and the shin bends at the knee. Each
       // complete shoe follows its shin, preserving the native ankle overlap.
-      const leftBend=Math.max(0,walkPose.stride)*10,rightBend=-Math.max(0,-walkPose.stride)*10;
+      const sideView=window.QPAvatarDirection?.atlas.ready&&state.direction!=='front'&&(['left','right'].includes(state.direction)||['left','right'].includes(state.facing));
+      const leftBend=Math.max(0,walkPose.stride)*(sideView?22:10),rightBend=-Math.max(0,-walkPose.stride)*(sideView?22:10);
       shinLeft=rotated(leftBend,13.75,rig.knee);shinRight=rotated(rightBend,18.25,rig.knee);
-      left=upperTransform+' '+rotated(-walkPose.stride*8,13.75,rig.waist);
-      right=upperTransform+' '+rotated(walkPose.stride*8,18.25,rig.waist);
+      left=upperTransform+' '+rotated(-walkPose.stride*(sideView?22:8),13.75,rig.waist);
+      right=upperTransform+' '+rotated(walkPose.stride*(sideView?22:8),18.25,rig.waist);
       footLeft=left+' '+shinLeft;footRight=right+' '+shinRight;
     }
     setTransform(rig.left, left); setTransform(rig.right, right);
@@ -405,8 +406,21 @@
       if (hand) setTransform(hand, translated(...(index ? handRight : handLeft)) + ' ' +
         rotated(index ? handAngleRight : handAngleLeft, ...rig.wrists[index]));
     });
-    showArm(rig,'right',activeGesture==='wave'||action==='climb');
-    showArm(rig,'left',action==='climb');
+    const profile=window.QPAvatarDirection?.apply(svg,{...state,action,gesture:activeGesture},rig)||false;
+    showArm(rig,'right',activeGesture==='wave'||action==='climb'||profile);
+    showArm(rig,'left',action==='climb'||profile);
+    if(profile){
+      const stride=walkPose?.stride||0;
+      for(const [side,angle]of[['left',action==='jump'?14:stride*22],['right',action==='jump'?-16:-stride*22]]){
+        const arm=rig.gestureArms.get(side),near=side==='right';
+        positionArm(rig,arm,upperTransform,angle,action==='jump'?(near?14:-14):near?Math.max(0,stride)*9:-Math.max(0,-stride)*9,0,(near?16.6:15.6)-arm.pivot[0]);
+        arm.carrier.style.opacity=near?'':'0.78';
+        // The far arm is behind the complete dressed torso; the near sleeve
+        // and wrist move together in front, matching the direction reference.
+        if(near)rig.idle.appendChild(arm.carrier);
+        else {let bodyRoot=rig.body.closest('[data-qpx-direction-part="body-profile"]');if(bodyRoot){while(bodyRoot.parentNode&&bodyRoot.parentNode!==rig.idle)bodyRoot=bodyRoot.parentNode;rig.idle.insertBefore(arm.carrier,bodyRoot);}}
+      }
+    }else if(rig.gestureArms)for(const arm of rig.gestureArms.values())arm.carrier.style.opacity='';
     if(activeGesture==='wave'){
       const arm=rig.gestureArms.get('right'),swing=Math.sin(progress*Math.PI*8);
       positionArm(rig,arm,upperTransform,(-70+swing*5)*envelope,(-80+swing*8)*envelope,swing*17*envelope);
@@ -419,13 +433,15 @@
       }
     }
     const shadow=svg.querySelector('.qpx-contact-shadow');if(shadow)shadow.style.visibility=action==='climb'?'hidden':'';
-    setTransform(rig.facing, state.facing === 'left' ? 'translate(32 0) scale(-1 1)' : '');
+    const mirror=profile?svg.dataset.qpxViewFacing==='left':state.direction!=='front'&&!activeGesture&&state.facing==='left';
+    setTransform(rig.facing, mirror ? 'translate(32 0) scale(-1 1)' : '');
     if(activeGesture)svg.setAttribute('data-qpx-gesture',activeGesture);else svg.removeAttribute('data-qpx-gesture');
     if (svg.getAttribute('data-qpx-pose') !== action) svg.setAttribute('data-qpx-pose', action);
     return true;
   }
   function reset(svg) {
     const rig = rigs.get(svg); if (!rig) return false;
+    window.QPAvatarDirection?.reset(svg);
     [rig.upper, rig.left, rig.right, rig.leftShin,rig.rightShin,rig.hem, rig.leftFoot, rig.rightFoot,
       rig.headPose, rig.backHairPose, rig.facing, ...rig.arms, ...rig.hands].forEach(group => {
       if (group) group.removeAttribute('transform');
@@ -440,6 +456,7 @@
   }
   function destroy(svg) {
     const rig = rigs.get(svg); if (!rig) return false;
+    window.QPAvatarDirection?.destroy(svg);
     showArm(rig,'right',false);showArm(rig,'left',false);
     if(rig.gestureArms)for(const arm of rig.gestureArms.values())arm.carrier.remove();
     const shadow=svg.querySelector('.qpx-contact-shadow');if(shadow)shadow.style.visibility='';

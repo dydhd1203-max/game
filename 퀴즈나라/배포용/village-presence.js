@@ -5,6 +5,7 @@
   const AVATAR_KEYS = ['sk', 'ec', 'sex', 'eyes', 'hair', 'top', 'bottom', 'shoes', 'hat', 'glass', 'ear', 'neck', 'back', 'pet', 'bg', 'face', 'frame', 'effect', 'expression'];
   const GESTURES = new Set(['wave', 'hello', 'happy', 'heart', 'clap', 'surprise', 'sad', 'laugh', 'cheer']);
   const POSES = new Set(['idle', 'walk', 'wave', 'climb', 'jump', 'sit', 'land']);
+  const DIRECTIONS = new Set(['front', 'left', 'right']);
   const ZONE = /^[a-z][a-z0-9_-]{0,47}$/;
   const text = (value, length) => String(value == null ? '' : value).replace(/[\u0000-\u001f\u007f]/g, '').slice(0, length);
   const key = value => encodeURIComponent(text(value, 120) || 'class').replace(/\./g, '%2E');
@@ -33,7 +34,7 @@
     const base = text(options.base || 'quiz', 100).replace(/^\/+|\/+$/g, '');
     if (!base || /[.#$\[\]]/.test(base)) throw new Error('마을 저장 경로가 올바르지 않아요.');
     const path = base + '/village/' + key(options.classId || '3-3') + '/connections';
-    let state = { uid, name: text(options.name || uid, 32), avatar: avatar(options.avatar), x: 0, y: 0, height: 0, zone: 'village', facing: 1, moving: false, pose: 'idle', gesture: null };
+    let state = { uid, name: text(options.name || uid, 32), avatar: avatar(options.avatar), x: 0, y: 0, height: 0, zone: 'village', facing: 1, direction: 'front', moving: false, pose: 'idle', gesture: null };
     let destroyed = false, collectionRef = null, ownRef = null, connectedRef = null, offsetRef = null;
     let observed = {}, offset = 0, network = null, registered = false, sequence = 0, statusSignature = '', rosterSignature = '', currentMode = 'local';
     let scheduleTimer = null, heartbeatTimer = null, expiryTimer = null;
@@ -56,6 +57,7 @@
       if (typeof patch.zone === 'string' && ZONE.test(patch.zone)) next.zone = patch.zone;
       if (patch.facing === -1 || patch.facing === 1) next.facing = patch.facing;
       if (patch.facing === 'left' || patch.facing === 'right') next.facing = patch.facing === 'left' ? -1 : 1;
+      if (typeof patch.direction === 'string' && DIRECTIONS.has(patch.direction)) next.direction = patch.direction;
       if (typeof patch.moving === 'boolean') next.moving = patch.moving;
       if (typeof patch.pose === 'string' && POSES.has(patch.pose)) next.pose = patch.pose;
       else if (typeof patch.moving === 'boolean') next.pose = patch.moving ? 'walk' : 'idle';
@@ -77,7 +79,12 @@
       if (!Number.isFinite(updatedAt) || updatedAt < at - TTL || updatedAt > at + 60000) return null;
       if (![record.x, record.y, record.height].every(v => typeof v === 'number' && Number.isFinite(v))) return null;
       if (record.x < 0 || record.x > maxX || record.y < 0 || record.y > maxY || record.height < -128 || record.height > 1024) return null;
-      return { ...sanitizePosition(record, { x: 0, y: 0, height: 0, zone: 'village', facing: 1, moving: false, pose: 'idle' }), uid: text(record.uid, 120), name: text(record.name || record.uid, 32), avatar: avatar(record.avatar), gesture: cleanGesture(record.gesture, at, true), updatedAt, sequence: finite(record.sequence, 0, 0, Number.MAX_SAFE_INTEGER), connectionId: id, self: record.uid === uid };
+      // Older version-1 clients have only facing. Moving left/right can use a
+      // profile frame; an idle record defaults to the safe front painting.
+      let direction = 'front';
+      if (record.moving === true && (record.facing === -1 || record.facing === 'left')) direction = 'left';
+      else if (record.moving === true && (record.facing === 1 || record.facing === 'right')) direction = 'right';
+      return { ...sanitizePosition(record, { x: 0, y: 0, height: 0, zone: 'village', facing: 1, direction, moving: false, pose: 'idle' }), uid: text(record.uid, 120), name: text(record.name || record.uid, 32), avatar: avatar(record.avatar), gesture: cleanGesture(record.gesture, at, true), updatedAt, sequence: finite(record.sequence, 0, 0, Number.MAX_SAFE_INTEGER), connectionId: id, self: record.uid === uid };
     }
     function emitPlayers() {
       if (destroyed) return;

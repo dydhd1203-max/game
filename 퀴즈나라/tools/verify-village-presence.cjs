@@ -135,6 +135,32 @@ const passed = [];
     passed.push('Expired, malformed, future-dated and out-of-world friends are hidden; invalid local coordinates and storage-like zone paths cannot escape world bounds.');
   }
   {
+    const e = environment(), sender = e.runtime(), receiver = e.runtime();
+    const a = sender.join('direction_sender'), b = receiver.join('direction_receiver'); await settle();
+    assert.equal(a.getState().direction, 'front'); assert.equal(receiver.latest().find(p => p.uid === 'direction_sender').direction, 'front');
+    for (const direction of ['left', 'front', 'right']) {
+      a.update({ x: 200, direction, moving: true, facing: -1 }); await e.clock.advance(160);
+      const remote = receiver.latest().find(p => p.uid === 'direction_sender');
+      assert.equal(remote.direction, direction); assert.equal(remote.facing, -1, 'New profile direction must not rewrite the legacy facing');
+    }
+    a.update({ moving: false }); await e.clock.advance(160);
+    assert.equal(receiver.latest().find(p => p.uid === 'direction_sender').direction, 'right', 'Stopping preserves the last chosen frame');
+    let x = 210;
+    for (const direction of ['back', 'left\" onclick=\"injected', '<svg>', null, 1, {}, []]) a.update({ x: x++, direction });
+    await e.clock.advance(160);
+    assert.equal(a.getState().direction, 'right'); assert.equal(receiver.latest().find(p => p.uid === 'direction_sender').direction, 'right');
+    assert(e.writes.every(w => !Object.prototype.hasOwnProperty.call(w.value, 'direction') || ['front', 'left', 'right'].includes(w.value.direction)), 'Only the three safe direction values may be broadcast');
+    sender.sdk.client.drop(); await settle(); a.update({ direction: 'left', x: 777 }); sender.sdk.client.reconnect(); await settle();
+    assert.equal(receiver.latest().find(p => p.uid === 'direction_sender').direction, 'left'); assert.equal(receiver.latest().find(p => p.uid === 'direction_sender').x, 777);
+    const legacy = { name: 'legacy', avatar: {}, version: 1, x: 20, y: 30, height: 0, zone: 'village', updatedAt: e.clock.time, pose: 'idle' };
+    for (const [id, patch] of Object.entries({ legacy_left: { facing: 'left', moving: true }, legacy_right: { facing: 1, moving: true }, legacy_idle: { facing: -1, moving: false }, malformed_direction: { direction: 'front\" data-evil', facing: 'left', moving: false } })) e.set(a.getState().path + '/' + id, { ...legacy, uid: id, ...patch });
+    e.notify(); await settle();
+    for (const [id, direction] of Object.entries({ legacy_left: 'left', legacy_right: 'right', legacy_idle: 'front', malformed_direction: 'front' })) assert.equal(receiver.latest().find(p => p.uid === id)?.direction, direction, 'Old or malformed direction records remain safely readable');
+    assert.equal(e.get(a.getState().path + '/' + a.getState().connectionId).version, 1);
+    await a.disconnect(); await b.disconnect();
+    passed.push('Front/left/right frames synchronize independently of legacy facing, survive stop and reconnect, reject injected enums, and preserve safe version-1 legacy records.');
+  }
+  {
     const e = environment(), earlySDK = e.sdk(), lateSDK = e.sdk();
     earlySDK.client.offset = 60000; lateSDK.client.offset = -60000;
     const early = e.runtime(earlySDK, -60000), late = e.runtime(lateSDK, 60000);
