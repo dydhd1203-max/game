@@ -1,0 +1,1820 @@
+/* Generated from catalog.json; original image files remain unchanged. */
+window.QPHouseLibraryCatalog = {
+  "schemaVersion": 1,
+  "createdAt": "2026-10-01",
+  "title": "퀴즈나라 집·건물 원본 보관함",
+  "pathBase": "catalog-directory",
+  "archive": {
+    "originalName": "house.zip",
+    "imagePath": "source.zip",
+    "byteLength": 3077801,
+    "sha256": "f9992b7f9095b2370224707b82887e01139eeb92d00067e697c20d0881c95530",
+    "entries": 30,
+    "regularImageEntries": 29,
+    "directoryEntries": 1,
+    "uncompressedImageBytes": 3091134,
+    "uniqueImageFiles": 29,
+    "duplicateImageEntries": 0,
+    "uniqueImageBytes": 3091134,
+    "originalPreservation": "Untouched ZIP plus unique original image bytes; every original filename retained in aliases",
+    "regularImageFiles": 29,
+    "safetyCheck": {
+      "pathTraversal": false,
+      "absolutePaths": false,
+      "symbolicLinks": false,
+      "encryptedEntries": false,
+      "nonImageRegularFiles": 0,
+      "crcVerified": true
+    }
+  },
+  "status": {
+    "originalsStored": 29,
+    "originalEntriesStored": 29,
+    "uniqueOriginalImagesStored": 29,
+    "deduplicatedAliases": 0,
+    "originalsVisuallyReviewed": 29,
+    "transparentUserOriginals": 0,
+    "runtimeSpritesPrepared": 0,
+    "runtimePlacementApplied": false
+  },
+  "classificationSummary": {
+    "styles": {
+      "painted-3d-stylized": 10,
+      "painted-2d-stylized": 5,
+      "watercolor-illustration": 1,
+      "line-and-wash-concept": 1,
+      "realistic-building-render": 2,
+      "realistic-diorama-render": 3,
+      "miniature-photograph": 4,
+      "voxel-3d": 1,
+      "render-and-line-concept": 1,
+      "painted-2d-isometric": 1
+    },
+    "contentTypes": {
+      "building-sheet": 3,
+      "building-reference": 14,
+      "scene-reference": 9,
+      "design-reference": 2,
+      "multi-view-reference": 1
+    }
+  },
+  "referenceSheets": [
+    {
+      "id": "house-7a7690eeec3a7a0f",
+      "reviewIndex": 1,
+      "kind": "user-reference-image",
+      "originalName": "AI-Art _ Medieval Buildings Isometric Art.jpg",
+      "imagePath": "originals/house-7a7690eeec3a7a0f.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "7a7690eeec3a7a0f79063231c673f7e9aa690d0d613754c9bfdf01f8eec219b8",
+      "byteLength": 135965,
+      "dimensions": {
+        "width": 736,
+        "height": 736
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/AI-Art _ Medieval Buildings Isometric Art.jpg",
+          "originalName": "AI-Art _ Medieval Buildings Isometric Art.jpg",
+          "byteLength": 135965,
+          "crc32": "7ed39c64",
+          "archiveIndex": 1
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "중세 농장·상점 건물 9종",
+      "visualSummary": "풍차·물레방아·농가·상점과 작은 농경지를 아홉 칸에 배치한 입체 건물 시트",
+      "subjects": [
+        "풍차",
+        "물레방아",
+        "농가",
+        "상점 천막",
+        "밀밭",
+        "건초",
+        "수레",
+        "자루"
+      ],
+      "style": "painted-3d-stylized",
+      "perspective": "isometric",
+      "contentType": "building-sheet",
+      "assetType": "building-sheet",
+      "categories": [
+        "buildings",
+        "production",
+        "shops",
+        "plants",
+        "props",
+        "water"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "흰색 배경의 3×3 참고 시트이며 투명 분리 건물은 아니다. 건물마다 포함된 지면·소품의 범위를 함께 검토한다.",
+      "visibleText": "samahrigu",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/AI-Art _ Medieval Buildings Isometric Art.jpg",
+      "archiveCrc32": "7ed39c64"
+    },
+    {
+      "id": "house-0bd08eff24d5a911",
+      "reviewIndex": 2,
+      "kind": "user-reference-image",
+      "originalName": "Fantasy House _ Cottage fantasy houses, Fairy house architecture, Fairy house concept.jpg",
+      "imagePath": "originals/house-0bd08eff24d5a911.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "0bd08eff24d5a9114a617ef51a1267e7cffc0212d0027964f350b463d0ef8cf5",
+      "byteLength": 72504,
+      "dimensions": {
+        "width": 474,
+        "height": 842
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/Fantasy House _ Cottage fantasy houses, Fairy house architecture, Fairy house concept.jpg",
+          "originalName": "Fantasy House _ Cottage fantasy houses, Fairy house architecture, Fairy house concept.jpg",
+          "byteLength": 72504,
+          "crc32": "e3f58478",
+          "archiveIndex": 2
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "뾰족 지붕의 강가 판타지 집",
+      "visualSummary": "청록 지붕의 높은 목조 탑집과 붉은 지붕 별채, 물가의 돌 아치가 연결된 회화형 콘셉트",
+      "subjects": [
+        "목조 탑집",
+        "붉은 지붕 별채",
+        "돌 아치",
+        "발코니",
+        "보트",
+        "물"
+      ],
+      "style": "painted-2d-stylized",
+      "perspective": "three-quarter",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "water",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "큰 건물과 왼쪽 위의 작은 다른 각도 그림이 한 JPEG에 함께 있다. 배치용 투명 원화와 시점별 구조는 따로 준비한다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/Fantasy House _ Cottage fantasy houses, Fairy house architecture, Fairy house concept.jpg",
+      "archiveCrc32": "e3f58478"
+    },
+    {
+      "id": "house-5ec2da9808327c7f",
+      "reviewIndex": 3,
+      "kind": "user-reference-image",
+      "originalName": "Fantasy House.jpg",
+      "imagePath": "originals/house-5ec2da9808327c7f.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "5ec2da9808327c7fe78db2db5d149f3acd2cf79a4d7ad69a521dd8413d8f9eb8",
+      "byteLength": 193999,
+      "dimensions": {
+        "width": 736,
+        "height": 1308
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/Fantasy House.jpg",
+          "originalName": "Fantasy House.jpg",
+          "byteLength": 193999,
+          "crc32": "26d76d77",
+          "archiveIndex": 3
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "폭포 위의 숲속 탑마을",
+      "visualSummary": "겹친 목조 집과 높은 원형 탑, 계단·정원·폭포가 여러 높이로 연결된 세로 장면",
+      "subjects": [
+        "원형 첨탑",
+        "목조 집",
+        "돌 계단",
+        "나무",
+        "정원",
+        "폭포",
+        "물길"
+      ],
+      "style": "painted-2d-stylized",
+      "perspective": "elevated-three-quarter",
+      "contentType": "scene-reference",
+      "assetType": "scene-reference",
+      "categories": [
+        "buildings",
+        "plants",
+        "terrain",
+        "water",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "검은 배경이 포함된 불투명 JPEG이다. 높은 층과 물길의 연결을 참고하며 개별 건물·나무·지형 분리는 아직 하지 않았다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/Fantasy House.jpg",
+      "archiveCrc32": "26d76d77"
+    },
+    {
+      "id": "house-fd31fff7c44e7676",
+      "reviewIndex": 4,
+      "kind": "user-reference-image",
+      "originalName": "Free Watercolor Illustrations – Autumn Magic on the Farm.jpg",
+      "imagePath": "originals/house-fd31fff7c44e7676.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "fd31fff7c44e76765f00e8a18f0a815f8285f901ba061b2c468979edeaca4da9",
+      "byteLength": 216098,
+      "dimensions": {
+        "width": 735,
+        "height": 649
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/Free Watercolor Illustrations – Autumn Magic on the Farm.jpg",
+          "originalName": "Free Watercolor Illustrations – Autumn Magic on the Farm.jpg",
+          "byteLength": 216098,
+          "crc32": "79ce7ff9",
+          "archiveIndex": 4
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "가을 덩굴과 호박의 돌집",
+      "visualSummary": "돌벽·기와·낙엽 덩굴·꽃과 호박·장작을 세밀하게 그린 따뜻한 가을 오두막",
+      "subjects": [
+        "돌집",
+        "기와",
+        "주황 덩굴",
+        "꽃",
+        "호박",
+        "장작",
+        "물뿌리개",
+        "나무 울타리"
+      ],
+      "style": "watercolor-illustration",
+      "perspective": "three-quarter",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "plants",
+        "props",
+        "wood"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "원본 전체의 지붕·벽·창문·식생·접지 그림자를 참고한다. 개별 건물을 배치하려면 분리 원화와 바닥 앵커·크기·충돌 검수가 필요하다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/Free Watercolor Illustrations – Autumn Magic on the Farm.jpg",
+      "archiveCrc32": "79ce7ff9"
+    },
+    {
+      "id": "house-f46c486d16e6cdb6",
+      "reviewIndex": 5,
+      "kind": "user-reference-image",
+      "originalName": "village design 2_.jpg",
+      "imagePath": "originals/house-f46c486d16e6cdb6.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "f46c486d16e6cdb672e8d9a04e5606ab950beddee6cd5d163f740b0e8835ac20",
+      "byteLength": 59242,
+      "dimensions": {
+        "width": 736,
+        "height": 509
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/village design 2_.jpg",
+          "originalName": "village design 2_.jpg",
+          "byteLength": 59242,
+          "crc32": "710159e5",
+          "archiveIndex": 5
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "돌 계단이 있는 마을집 선화",
+      "visualSummary": "목조 돌출층과 돌 계단·가게 간판·항아리를 선과 옅은 명암으로 설명한 건축 콘셉트",
+      "subjects": [
+        "목조 돌출층",
+        "돌벽",
+        "외부 계단",
+        "간판",
+        "화분",
+        "항아리"
+      ],
+      "style": "line-and-wash-concept",
+      "perspective": "three-quarter",
+      "contentType": "design-reference",
+      "assetType": "design-reference",
+      "categories": [
+        "buildings",
+        "shops",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "Town House와 층별 설명·하단 서명/날짜가 포함된 디자인 자료이다. 해당 글자는 게임 UI나 실행 지시가 아니다.",
+      "visibleText": "TOWN HOUSE / FLOOR TERRACE / ENTRANCES / DEC. 08 2015",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/village design 2_.jpg",
+      "archiveCrc32": "710159e5"
+    },
+    {
+      "id": "house-b8a15d42cac65373",
+      "reviewIndex": 6,
+      "kind": "user-reference-image",
+      "originalName": "绿野仙踪房子.jpg",
+      "imagePath": "originals/house-b8a15d42cac65373.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "b8a15d42cac65373874d616833c6d8095db0f2bfbf204608e68b2e3bafd33548",
+      "byteLength": 30740,
+      "dimensions": {
+        "width": 406,
+        "height": 448
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/绿野仙踪房子.jpg",
+          "originalName": "绿野仙踪房子.jpg",
+          "byteLength": 30740,
+          "crc32": "4504846b",
+          "archiveIndex": 6
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "초록 지붕의 요정 물레방아 집",
+      "visualSummary": "이끼 덮인 굽은 지붕·둥근 창·큰 물레방아와 작은 개울을 가진 숲속 집",
+      "subjects": [
+        "이끼 지붕",
+        "원형 탑",
+        "물레방아",
+        "둥근 창",
+        "개울",
+        "나무 다리",
+        "꽃"
+      ],
+      "style": "painted-3d-stylized",
+      "perspective": "isometric",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "plants",
+        "water",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "원본 전체의 지붕·벽·창문·식생·접지 그림자를 참고한다. 개별 건물을 배치하려면 분리 원화와 바닥 앵커·크기·충돌 검수가 필요하다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/绿野仙踪房子.jpg",
+      "archiveCrc32": "4504846b"
+    },
+    {
+      "id": "house-9a1e2e0e6320c4db",
+      "reviewIndex": 7,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (1).jpg",
+      "imagePath": "originals/house-9a1e2e0e6320c4db.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "9a1e2e0e6320c4db3e258167118788e1ccfa5627d1ca3fecae63b7e4e8e07f6d",
+      "byteLength": 67559,
+      "dimensions": {
+        "width": 535,
+        "height": 573
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (1).jpg",
+          "originalName": "다운로드 (1).jpg",
+          "byteLength": 67559,
+          "crc32": "a08b6906",
+          "archiveIndex": 7
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "체크무늬 배경의 중세 목골조 집",
+      "visualSummary": "갈색 급경사 지붕과 목골조 윗층, 돌벽 아랫층이 있는 단독 중세 집",
+      "subjects": [
+        "급경사 지붕",
+        "목골조",
+        "돌벽",
+        "문",
+        "창",
+        "벽등",
+        "풀"
+      ],
+      "style": "realistic-building-render",
+      "perspective": "three-quarter",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "plants",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "회색 체크무늬는 JPEG 픽셀에 구워진 배경이며 투명도가 아니다. 분리 건물로 쓰려면 새 알파 원화 또는 별도 분리 작업이 필요하다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (1).jpg",
+      "archiveCrc32": "a08b6906"
+    },
+    {
+      "id": "house-7953003aa39bdfe8",
+      "reviewIndex": 8,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (10).jpg",
+      "imagePath": "originals/house-7953003aa39bdfe8.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "7953003aa39bdfe859f600ea3291c50ebb4fc350f5ddfc08157a8e767a1685f7",
+      "byteLength": 125593,
+      "dimensions": {
+        "width": 736,
+        "height": 736
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (10).jpg",
+          "originalName": "다운로드 (10).jpg",
+          "byteLength": 125593,
+          "crc32": "b55b4174",
+          "archiveIndex": 8
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "농경지와 파란 지붕 마을",
+      "visualSummary": "파란 지붕의 집과 탑·풍차, 울타리 밭·밀밭·수레가 길로 이어진 정사각 디오라마",
+      "subjects": [
+        "파란 지붕 집",
+        "탑",
+        "풍차",
+        "울타리",
+        "채소밭",
+        "밀밭",
+        "수레",
+        "통"
+      ],
+      "style": "painted-3d-stylized",
+      "perspective": "isometric",
+      "contentType": "scene-reference",
+      "assetType": "scene-reference",
+      "categories": [
+        "buildings",
+        "production",
+        "plants",
+        "props",
+        "terrain"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "원본 전체의 지붕·벽·창문·식생·접지 그림자를 참고한다. 개별 건물을 배치하려면 분리 원화와 바닥 앵커·크기·충돌 검수가 필요하다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (10).jpg",
+      "archiveCrc32": "b55b4174"
+    },
+    {
+      "id": "house-5e0703e54460c11f",
+      "reviewIndex": 9,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (11).jpg",
+      "imagePath": "originals/house-5e0703e54460c11f.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "5e0703e54460c11f4ec3803f00abd3774b45d0611d3f843ad91a6c8ab5c0f4ce",
+      "byteLength": 129320,
+      "dimensions": {
+        "width": 736,
+        "height": 736
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (11).jpg",
+          "originalName": "다운로드 (11).jpg",
+          "byteLength": 129320,
+          "crc32": "f5b8ea8b",
+          "archiveIndex": 9
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "첨탑 교회와 정돈된 정원",
+      "visualSummary": "중앙 교회와 주변 집·묘지·화단·울타리를 정돈된 길로 연결한 디오라마",
+      "subjects": [
+        "첨탑 교회",
+        "마을집",
+        "묘지",
+        "기념비",
+        "정원",
+        "나무",
+        "울타리"
+      ],
+      "style": "realistic-diorama-render",
+      "perspective": "isometric",
+      "contentType": "scene-reference",
+      "assetType": "scene-reference",
+      "categories": [
+        "buildings",
+        "temples",
+        "plants",
+        "props",
+        "terrain"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "원본 전체의 지붕·벽·창문·식생·접지 그림자를 참고한다. 개별 건물을 배치하려면 분리 원화와 바닥 앵커·크기·충돌 검수가 필요하다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (11).jpg",
+      "archiveCrc32": "f5b8ea8b"
+    },
+    {
+      "id": "house-701601634def24eb",
+      "reviewIndex": 10,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (12).jpg",
+      "imagePath": "originals/house-701601634def24eb.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "701601634def24eb64c84ad4fd97e64e23d7c433c7d88751d9852c970e111891",
+      "byteLength": 115759,
+      "dimensions": {
+        "width": 736,
+        "height": 736
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (12).jpg",
+          "originalName": "다운로드 (12).jpg",
+          "byteLength": 115759,
+          "crc32": "6d900559",
+          "archiveIndex": 10
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "흰 교회와 묘지 마당",
+      "visualSummary": "흰 벽과 갈색 지붕의 교회, 목골조 집과 묘지·과수·마차가 있는 농촌 디오라마",
+      "subjects": [
+        "흰 교회",
+        "목골조 집",
+        "묘비",
+        "과수",
+        "마차",
+        "울타리",
+        "우물"
+      ],
+      "style": "realistic-diorama-render",
+      "perspective": "isometric",
+      "contentType": "scene-reference",
+      "assetType": "scene-reference",
+      "categories": [
+        "buildings",
+        "temples",
+        "plants",
+        "props",
+        "terrain"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "원본 전체의 지붕·벽·창문·식생·접지 그림자를 참고한다. 개별 건물을 배치하려면 분리 원화와 바닥 앵커·크기·충돌 검수가 필요하다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (12).jpg",
+      "archiveCrc32": "6d900559"
+    },
+    {
+      "id": "house-68164df6ff8d3c87",
+      "reviewIndex": 11,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (13).jpg",
+      "imagePath": "originals/house-68164df6ff8d3c87.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "68164df6ff8d3c87333386305e53146a25a7a3d60b35e99893f466e39d781e3b",
+      "byteLength": 110143,
+      "dimensions": {
+        "width": 736,
+        "height": 736
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (13).jpg",
+          "originalName": "다운로드 (13).jpg",
+          "byteLength": 110143,
+          "crc32": "b9c26a5b",
+          "archiveIndex": 11
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "황금 밀밭의 중세 안뜰",
+      "visualSummary": "넓은 밀밭 사이의 목골조 건물군과 중앙 안뜰, 사람·말·통을 사실적인 명암으로 표현한 장면",
+      "subjects": [
+        "목골조 건물",
+        "돌 탑",
+        "밀밭",
+        "안뜰",
+        "말",
+        "사람",
+        "통",
+        "깃발"
+      ],
+      "style": "realistic-diorama-render",
+      "perspective": "elevated-three-quarter",
+      "contentType": "scene-reference",
+      "assetType": "scene-reference",
+      "categories": [
+        "buildings",
+        "production",
+        "plants",
+        "characters",
+        "props",
+        "terrain"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "건물·인물·주변 밀밭·하늘이 합쳐진 전체 장면이다. 배경의 깊이와 안뜰의 공간 설계 참고로 보관한다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (13).jpg",
+      "archiveCrc32": "b9c26a5b"
+    },
+    {
+      "id": "house-8657597c8958f241",
+      "reviewIndex": 12,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (14).jpg",
+      "imagePath": "originals/house-8657597c8958f241.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "8657597c8958f241e776b9e1993954e660606a1cc580e917de2cfe63a571b981",
+      "byteLength": 123167,
+      "dimensions": {
+        "width": 736,
+        "height": 736
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (14).jpg",
+          "originalName": "다운로드 (14).jpg",
+          "byteLength": 123167,
+          "crc32": "e141974d",
+          "archiveIndex": 12
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "파란 지붕의 시장 광장",
+      "visualSummary": "목골조 건물 사이에 줄무늬 천막과 시장 좌판·사람·통을 배치한 입체 마을 광장",
+      "subjects": [
+        "목골조 집",
+        "파란 지붕",
+        "줄무늬 천막",
+        "시장 좌판",
+        "사람",
+        "통",
+        "돌바닥"
+      ],
+      "style": "painted-3d-stylized",
+      "perspective": "isometric",
+      "contentType": "scene-reference",
+      "assetType": "scene-reference",
+      "categories": [
+        "buildings",
+        "shops",
+        "characters",
+        "props",
+        "terrain"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "원본 전체의 지붕·벽·창문·식생·접지 그림자를 참고한다. 개별 건물을 배치하려면 분리 원화와 바닥 앵커·크기·충돌 검수가 필요하다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (14).jpg",
+      "archiveCrc32": "e141974d"
+    },
+    {
+      "id": "house-52c5bebf9f5f4e5a",
+      "reviewIndex": 13,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (15).jpg",
+      "imagePath": "originals/house-52c5bebf9f5f4e5a.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "52c5bebf9f5f4e5afcfdbe7b170ddca398a63f57b6c82d16844e410462166677",
+      "byteLength": 88279,
+      "dimensions": {
+        "width": 735,
+        "height": 495
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (15).jpg",
+          "originalName": "다운로드 (15).jpg",
+          "byteLength": 88279,
+          "crc32": "d52a3dbd",
+          "archiveIndex": 13
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "꽃 창가의 중세 거리 정면",
+      "visualSummary": "붉은 지붕 집들이 나란히 서고 창가 꽃·카페 탁자·덩굴·가로등이 풍성한 거리 정면",
+      "subjects": [
+        "연속 주택",
+        "붉은 지붕",
+        "꽃 창가",
+        "덩굴",
+        "카페 탁자",
+        "가로등",
+        "돌바닥"
+      ],
+      "style": "painted-3d-stylized",
+      "perspective": "front",
+      "contentType": "scene-reference",
+      "assetType": "scene-reference",
+      "categories": [
+        "buildings",
+        "shops",
+        "plants",
+        "props",
+        "terrain",
+        "interface"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "화면 모서리에 정보·깃발·하트·회전 아이콘이 포함된 캡처이다. 버튼을 건물 소품으로 취급하지 않는다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (15).jpg",
+      "archiveCrc32": "d52a3dbd"
+    },
+    {
+      "id": "house-bed6710d3766a981",
+      "reviewIndex": 14,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (16).jpg",
+      "imagePath": "originals/house-bed6710d3766a981.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "bed6710d3766a98113732c1b6afdf775d5349341d5242cd07a937137f61d079e",
+      "byteLength": 87051,
+      "dimensions": {
+        "width": 736,
+        "height": 527
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (16).jpg",
+          "originalName": "다운로드 (16).jpg",
+          "byteLength": 87051,
+          "crc32": "4276c99c",
+          "archiveIndex": 14
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "중세 상점가 미니어처 정면",
+      "visualSummary": "낡은 지붕과 다채로운 벽의 작은 상점들이 일렬로 선 미니어처풍 정면 장면",
+      "subjects": [
+        "상점 정면",
+        "갈색 기와",
+        "창",
+        "간판",
+        "화분",
+        "통",
+        "돌바닥"
+      ],
+      "style": "miniature-photograph",
+      "perspective": "front",
+      "contentType": "scene-reference",
+      "assetType": "scene-reference",
+      "categories": [
+        "buildings",
+        "shops",
+        "plants",
+        "props",
+        "terrain",
+        "interface"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "하단 바닥·회전 아이콘·상단 화면 버튼 일부가 포함되어 있다. 외국어처럼 보이는 간판 문자를 한국어 상품명으로 옮기지 않는다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (16).jpg",
+      "archiveCrc32": "4276c99c"
+    },
+    {
+      "id": "house-a3c840c14ecb5dfd",
+      "reviewIndex": 15,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (17).jpg",
+      "imagePath": "originals/house-a3c840c14ecb5dfd.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "a3c840c14ecb5dfd79c705f5e2ecd8e36cafb6471ce774bff04ced67d410cabf",
+      "byteLength": 104993,
+      "dimensions": {
+        "width": 736,
+        "height": 688
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (17).jpg",
+          "originalName": "다운로드 (17).jpg",
+          "byteLength": 104993,
+          "crc32": "5e80d771",
+          "archiveIndex": 15
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "시계탑이 있는 붉은 지붕 모형집",
+      "visualSummary": "붉은 기와의 목골조 건물과 시계탑·벽돌 벽·작은 안뜰을 만든 미니어처 사진",
+      "subjects": [
+        "시계탑",
+        "붉은 기와",
+        "목골조",
+        "벽돌",
+        "안뜰",
+        "덩굴",
+        "돌받침"
+      ],
+      "style": "miniature-photograph",
+      "perspective": "three-quarter",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "plants",
+        "props",
+        "terrain"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "실물 모형의 받침과 촬영 배경을 포함한 JPEG이다. 모형의 벽·지붕 재질과 부속 건물 비율을 참고한다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (17).jpg",
+      "archiveCrc32": "5e80d771"
+    },
+    {
+      "id": "house-c337ea8a6806a722",
+      "reviewIndex": 16,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (18).jpg",
+      "imagePath": "originals/house-c337ea8a6806a722.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "c337ea8a6806a722f3ff34e2000ea5ecc5b23d7e18b66d34830173ef7336ba37",
+      "byteLength": 20706,
+      "dimensions": {
+        "width": 236,
+        "height": 329
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (18).jpg",
+          "originalName": "다운로드 (18).jpg",
+          "byteLength": 20706,
+          "crc32": "774a3cf9",
+          "archiveIndex": 16
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "목골조 모형의 앞·뒤 두 시점",
+      "visualSummary": "같은 목골조 건물 모형의 앞면과 뒷면을 위아래로 비교한 작은 사진 자료",
+      "subjects": [
+        "목골조 건물",
+        "굴뚝",
+        "중앙 아치",
+        "모형 받침",
+        "앞면",
+        "뒷면"
+      ],
+      "style": "miniature-photograph",
+      "perspective": "front-and-back",
+      "contentType": "multi-view-reference",
+      "assetType": "multi-view-reference",
+      "categories": [
+        "buildings",
+        "plants",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "236×329의 작은 불투명 이미지이며 Front/Back 라벨과 두 시점을 포함한다. 단일 건물 스프라이트나 고해상도 원화로 표시하지 않는다.",
+      "visibleText": "Front / Back",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (18).jpg",
+      "archiveCrc32": "774a3cf9"
+    },
+    {
+      "id": "house-1cf4a20089cdbdb7",
+      "reviewIndex": 17,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (19).jpg",
+      "imagePath": "originals/house-1cf4a20089cdbdb7.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "1cf4a20089cdbdb75308d77420243865b822f86d38ec00b609b61c2bf71dc0b8",
+      "byteLength": 126595,
+      "dimensions": {
+        "width": 736,
+        "height": 736
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (19).jpg",
+          "originalName": "다운로드 (19).jpg",
+          "byteLength": 126595,
+          "crc32": "8bddba6f",
+          "archiveIndex": 17
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "복셀 숲속 대형 목조집",
+      "visualSummary": "계단식 블록의 지붕·굴뚝·현관·돌 언덕과 침엽수 숲이 있는 복셀 건축 화면",
+      "subjects": [
+        "복셀 목조집",
+        "검은 지붕",
+        "굴뚝",
+        "돌 언덕",
+        "계단",
+        "침엽수",
+        "정원"
+      ],
+      "style": "voxel-3d",
+      "perspective": "three-quarter",
+      "contentType": "scene-reference",
+      "assetType": "scene-reference",
+      "categories": [
+        "buildings",
+        "plants",
+        "terrain",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "복셀 게임풍 블록 구조와 주변 지형이 합쳐진 화면이다. 부드러운 SD 화면에 직접 같은 화풍으로 붙인 것으로 기록하지 않는다.",
+      "visibleText": "AIRTUGMC",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (19).jpg",
+      "archiveCrc32": "8bddba6f"
+    },
+    {
+      "id": "house-8acf43058834b8d3",
+      "reviewIndex": 18,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (2).jpg",
+      "imagePath": "originals/house-8acf43058834b8d3.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "8acf43058834b8d35961f996faf5905f43009dc6d617a0fe8ba434af2d1dad5e",
+      "byteLength": 76237,
+      "dimensions": {
+        "width": 736,
+        "height": 658
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (2).jpg",
+          "originalName": "다운로드 (2).jpg",
+          "byteLength": 76237,
+          "crc32": "30ca4145",
+          "archiveIndex": 18
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "청록 지붕과 연기의 손그림 집",
+      "visualSummary": "길게 꺾인 청록 지붕과 목골조·굴뚝 연기·덩굴을 선명한 선으로 그린 판타지 건물",
+      "subjects": [
+        "청록 지붕",
+        "목골조",
+        "굴뚝 연기",
+        "덩굴",
+        "계단",
+        "문",
+        "창"
+      ],
+      "style": "painted-2d-stylized",
+      "perspective": "three-quarter",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "plants",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "배경 색판과 우하단 서명/연도가 함께 있는 손그림 자료이다. 지붕 실루엣·연기·덩굴의 형태를 참고한다.",
+      "visibleText": "JOURDANTUFFAN 2019",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (2).jpg",
+      "archiveCrc32": "30ca4145"
+    },
+    {
+      "id": "house-29ee8e4bea88febc",
+      "reviewIndex": 19,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (20).jpg",
+      "imagePath": "originals/house-29ee8e4bea88febc.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "29ee8e4bea88febce6f956cc08f67cca095cd7b9ac716195ec8f37788690144e",
+      "byteLength": 119329,
+      "dimensions": {
+        "width": 736,
+        "height": 977
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (20).jpg",
+          "originalName": "다운로드 (20).jpg",
+          "byteLength": 119329,
+          "crc32": "c9e89814",
+          "archiveIndex": 19
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "분수 마당의 시계탑 모형",
+      "visualSummary": "큰 둥근 시계와 따뜻한 창빛, 분수·벤치·벽등·꽃이 둘러싼 돌집 미니어처",
+      "subjects": [
+        "시계탑",
+        "둥근 시계",
+        "분수",
+        "벤치",
+        "벽등",
+        "꽃",
+        "돌바닥",
+        "나무"
+      ],
+      "style": "miniature-photograph",
+      "perspective": "three-quarter",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "plants",
+        "water",
+        "lights",
+        "props",
+        "terrain"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "원본 전체의 지붕·벽·창문·식생·접지 그림자를 참고한다. 개별 건물을 배치하려면 분리 원화와 바닥 앵커·크기·충돌 검수가 필요하다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (20).jpg",
+      "archiveCrc32": "c9e89814"
+    },
+    {
+      "id": "house-5807334be5effaaf",
+      "reviewIndex": 20,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (21).jpg",
+      "imagePath": "originals/house-5807334be5effaaf.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "5807334be5effaafc828a38fdf2890e175bc352f7908024a9879355e0b517857",
+      "byteLength": 95416,
+      "dimensions": {
+        "width": 736,
+        "height": 736
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (21).jpg",
+          "originalName": "다운로드 (21).jpg",
+          "byteLength": 95416,
+          "crc32": "c7e04aee",
+          "archiveIndex": 20
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "장미 덩굴과 유리 온실 저택",
+      "visualSummary": "붉은 지붕의 뾰족 탑들과 유리 돔 온실·장미 덩굴·스테인드글라스가 있는 저택",
+      "subjects": [
+        "뾰족 탑",
+        "붉은 기와",
+        "유리 돔 온실",
+        "장미",
+        "발코니",
+        "계단",
+        "스테인드글라스"
+      ],
+      "style": "painted-3d-stylized",
+      "perspective": "isometric",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "plants",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "원본 전체의 지붕·벽·창문·식생·접지 그림자를 참고한다. 개별 건물을 배치하려면 분리 원화와 바닥 앵커·크기·충돌 검수가 필요하다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (21).jpg",
+      "archiveCrc32": "c7e04aee"
+    },
+    {
+      "id": "house-b1f85bfd4fb06857",
+      "reviewIndex": 21,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (22).jpg",
+      "imagePath": "originals/house-b1f85bfd4fb06857.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "b1f85bfd4fb06857bd14af7341e187d37a81bff3caf9cd56238cbc0142aef939",
+      "byteLength": 205728,
+      "dimensions": {
+        "width": 720,
+        "height": 1311
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (22).jpg",
+          "originalName": "다운로드 (22).jpg",
+          "byteLength": 205728,
+          "crc32": "006ea4ee",
+          "archiveIndex": 21
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "개울가의 이끼 풍차 집",
+      "visualSummary": "흰 돌 풍차 탑과 붉은 기와·이끼·화분·아치 개울·작은 보트를 수채풍으로 표현한 세로 장면",
+      "subjects": [
+        "풍차 탑",
+        "붉은 기와",
+        "이끼",
+        "돌 계단",
+        "화분",
+        "아치",
+        "개울",
+        "보트"
+      ],
+      "style": "painted-2d-stylized",
+      "perspective": "three-quarter",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "plants",
+        "water",
+        "props",
+        "terrain"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "풍차 날개는 화면 위쪽에 잘린 부분이 있다. 완전한 회전용 날개나 독립 부품으로 등록하지 않는다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (22).jpg",
+      "archiveCrc32": "006ea4ee"
+    },
+    {
+      "id": "house-84d1bf01bc8be6d6",
+      "reviewIndex": 22,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (3).jpg",
+      "imagePath": "originals/house-84d1bf01bc8be6d6.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "84d1bf01bc8be6d69dc82db36e1e7de51672cf71662e2c94ac0ef09c57429507",
+      "byteLength": 62379,
+      "dimensions": {
+        "width": 736,
+        "height": 685
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (3).jpg",
+          "originalName": "다운로드 (3).jpg",
+          "byteLength": 62379,
+          "crc32": "37b5bed0",
+          "archiveIndex": 22
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "청록 지붕의 목골조 집과 크기 표시",
+      "visualSummary": "밝은 돌벽과 큰 청록 지붕·작은 첨탑을 가진 목골조 집 옆에 사람 실루엣을 둔 콘셉트",
+      "subjects": [
+        "청록 지붕",
+        "목골조",
+        "돌벽",
+        "첨탑",
+        "계단",
+        "사람 실루엣",
+        "접지 그림자"
+      ],
+      "style": "painted-3d-stylized",
+      "perspective": "three-quarter",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "props",
+        "characters"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "오른쪽 사람 실루엣은 크기 비교용으로 보인다. 실제 학생 아바타나 NPC 자산으로 분리하지 않았다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (3).jpg",
+      "archiveCrc32": "37b5bed0"
+    },
+    {
+      "id": "house-05e82ecd45294a75",
+      "reviewIndex": 23,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (4).jpg",
+      "imagePath": "originals/house-05e82ecd45294a75.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "05e82ecd45294a75c5e2b6aed934bf143d9ea562f5e7d9592ef1098152c79aa5",
+      "byteLength": 62630,
+      "dimensions": {
+        "width": 735,
+        "height": 582
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (4).jpg",
+          "originalName": "다운로드 (4).jpg",
+          "byteLength": 62630,
+          "crc32": "f4a7b572",
+          "archiveIndex": 23
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "연결 통로와 높은 탑의 이끼 건물",
+      "visualSummary": "이끼 지붕의 긴 목골조 건물 두 부분을 상층 통로와 지붕으로 연결한 사선 자료",
+      "subjects": [
+        "이끼 지붕",
+        "높은 탑",
+        "목골조",
+        "상층 연결 통로",
+        "창",
+        "상자",
+        "접지 그림자"
+      ],
+      "style": "painted-3d-stylized",
+      "perspective": "three-quarter",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "plants",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "기존 이미지는 흰 배경과 긴 바닥 그림자를 포함한다. 아래 통과 공간은 실제 맵 충돌·통행 검수 전에는 길로 적용하지 않는다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (4).jpg",
+      "archiveCrc32": "f4a7b572"
+    },
+    {
+      "id": "house-1f05967a1f7054e4",
+      "reviewIndex": 24,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (5).jpg",
+      "imagePath": "originals/house-1f05967a1f7054e4.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "1f05967a1f7054e4451ed2e35658d7a5d4f68ade4997e6a65ff6e4efa6141d66",
+      "byteLength": 46688,
+      "dimensions": {
+        "width": 735,
+        "height": 485
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (5).jpg",
+          "originalName": "다운로드 (5).jpg",
+          "byteLength": 46688,
+          "crc32": "de79d632",
+          "archiveIndex": 24
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "열린 지붕 아래의 조선 작업장",
+      "visualSummary": "돌과 목재로 만든 작업장 안에 배·도구·통·상자를 놓고 작은 사람을 표시한 건물 캡처",
+      "subjects": [
+        "작업장",
+        "배",
+        "도구",
+        "통",
+        "상자",
+        "지붕",
+        "굴뚝",
+        "사람"
+      ],
+      "style": "painted-3d-stylized",
+      "perspective": "three-quarter",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "production",
+        "props",
+        "characters",
+        "interface"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "상단 닫기·앞/뒤 화살표가 포함된 캡처이다. 열린 지붕의 실내 공간은 별도 맵 구조와 충돌 설계가 필요하다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (5).jpg",
+      "archiveCrc32": "de79d632"
+    },
+    {
+      "id": "house-0ddfbfe1521bf0fb",
+      "reviewIndex": 25,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (6).jpg",
+      "imagePath": "originals/house-0ddfbfe1521bf0fb.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "0ddfbfe1521bf0fbac9a22bef4a12248f6c71b42e683702d75bf80374dfc0ea9",
+      "byteLength": 45464,
+      "dimensions": {
+        "width": 736,
+        "height": 460
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (6).jpg",
+          "originalName": "다운로드 (6).jpg",
+          "byteLength": 45464,
+          "crc32": "b6b6fbc4",
+          "archiveIndex": 25
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "주황 벽과 화덕의 마을 공방",
+      "visualSummary": "주황 벽과 돌 굴뚝·외부 계단·화덕이 있는 열린 작업장과 꽃·나무를 회화풍으로 표현",
+      "subjects": [
+        "주황 집",
+        "돌 굴뚝",
+        "외부 계단",
+        "화덕",
+        "작업 도구",
+        "꽃",
+        "나무",
+        "통"
+      ],
+      "style": "painted-2d-stylized",
+      "perspective": "three-quarter",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "production",
+        "plants",
+        "lights",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "원본 전체의 지붕·벽·창문·식생·접지 그림자를 참고한다. 개별 건물을 배치하려면 분리 원화와 바닥 앵커·크기·충돌 검수가 필요하다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (6).jpg",
+      "archiveCrc32": "b6b6fbc4"
+    },
+    {
+      "id": "house-7f08796d68ac5dcc",
+      "reviewIndex": 26,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (7).jpg",
+      "imagePath": "originals/house-7f08796d68ac5dcc.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "7f08796d68ac5dcc2caaca2bbfbbf3b4b4ecf772465b687f9559263e58abd574",
+      "byteLength": 56271,
+      "dimensions": {
+        "width": 736,
+        "height": 878
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (7).jpg",
+          "originalName": "다운로드 (7).jpg",
+          "byteLength": 56271,
+          "crc32": "25551fdb",
+          "archiveIndex": 26
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "석조 망루의 구조 설명 시트",
+      "visualSummary": "석조 망루와 목재 전망대·지붕을 크게 그리고 옆에 층 구조 선화를 덧붙인 제작 자료",
+      "subjects": [
+        "석조 망루",
+        "목재 전망대",
+        "기와 지붕",
+        "구조 선화",
+        "지붕 질감 표본",
+        "입구"
+      ],
+      "style": "render-and-line-concept",
+      "perspective": "three-quarter",
+      "contentType": "design-reference",
+      "assetType": "design-reference",
+      "categories": [
+        "buildings",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "완성 망루·구조 선화 두 개·작은 질감 표본이 한 JPEG에 함께 있다. 구조도와 텍스처 표본을 게임 소품으로 오인하지 않는다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (7).jpg",
+      "archiveCrc32": "25551fdb"
+    },
+    {
+      "id": "house-0c0b1bd03495c453",
+      "reviewIndex": 27,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (8).jpg",
+      "imagePath": "originals/house-0c0b1bd03495c453.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "0c0b1bd03495c453311103c2f4961373a3eac14ab6bb173b7e77c8b00a8e30eb",
+      "byteLength": 163080,
+      "dimensions": {
+        "width": 735,
+        "height": 919
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (8).jpg",
+          "originalName": "다운로드 (8).jpg",
+          "byteLength": 163080,
+          "crc32": "a2e77eec",
+          "archiveIndex": 27
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "꽃집·식료품·빵집·카페 등 상점 6종",
+      "visualSummary": "붉은 지붕과 덩굴·발코니·가게 앞 진열을 갖춘 작은 마을 상점 여섯 종",
+      "subjects": [
+        "꽃집",
+        "식료품점",
+        "빵집",
+        "카페",
+        "문구점",
+        "공방",
+        "발코니",
+        "덩굴",
+        "자전거"
+      ],
+      "style": "painted-2d-isometric",
+      "perspective": "isometric",
+      "contentType": "building-sheet",
+      "assetType": "building-sheet",
+      "categories": [
+        "buildings",
+        "shops",
+        "plants",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "크림색 배경의 2×3 건물 시트이다. 가게 간판의 외국어는 원본 시각 자료이며 실제 게임 문구는 따로 작성한다.",
+      "visibleText": "FLEURISTE / EPICERIE / BOULANGERIE / CAFE de la PLACE / PAPETERIE / ATELIER",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (8).jpg",
+      "archiveCrc32": "a2e77eec"
+    },
+    {
+      "id": "house-7d1e0bbb8c9b63c7",
+      "reviewIndex": 28,
+      "kind": "user-reference-image",
+      "originalName": "다운로드 (9).jpg",
+      "imagePath": "originals/house-7d1e0bbb8c9b63c7.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "7d1e0bbb8c9b63c7d2ed33d43a37d503f1f72cea85eb8f63976cb4421bdce069",
+      "byteLength": 238616,
+      "dimensions": {
+        "width": 735,
+        "height": 1104
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드 (9).jpg",
+          "originalName": "다운로드 (9).jpg",
+          "byteLength": 238616,
+          "crc32": "b045023d",
+          "archiveIndex": 28
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "이끼와 초가지붕 판타지 오두막 15종",
+      "visualSummary": "물레방아·통나무·초가지붕·등불·이끼로 각 실루엣을 달리한 열다섯 오두막 시트",
+      "subjects": [
+        "초가 오두막",
+        "돌벽",
+        "이끼",
+        "물레방아",
+        "통나무",
+        "등불",
+        "작은 풍차",
+        "계단",
+        "통"
+      ],
+      "style": "painted-3d-stylized",
+      "perspective": "three-quarter",
+      "contentType": "building-sheet",
+      "assetType": "building-sheet",
+      "categories": [
+        "buildings",
+        "plants",
+        "water",
+        "wood",
+        "lights",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "흰색 배경의 3×5 참고 시트이며 건물별 배경 제거·바닥 앵커·크기 맞춤은 하지 않았다. 같은 계열의 마을 건물 다양성 참고로 보관한다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드 (9).jpg",
+      "archiveCrc32": "b045023d"
+    },
+    {
+      "id": "house-ded1a228a7e8b3ae",
+      "reviewIndex": 29,
+      "kind": "user-reference-image",
+      "originalName": "다운로드.jpg",
+      "imagePath": "originals/house-ded1a228a7e8b3ae.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "ded1a228a7e8b3aef2b5e5a229a3b719e95575128b609ee88a973e37ac51046a",
+      "byteLength": 111583,
+      "dimensions": {
+        "width": 736,
+        "height": 736
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "house/다운로드.jpg",
+          "originalName": "다운로드.jpg",
+          "byteLength": 111583,
+          "crc32": "e82d5089",
+          "archiveIndex": 29
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "label": "높은 굴뚝의 중세 돌·목골조 집",
+      "visualSummary": "거친 돌벽과 목골조 윗층·갈색 급경사 지붕·큰 아치 문이 있는 단독 집",
+      "subjects": [
+        "높은 돌 굴뚝",
+        "목골조",
+        "갈색 기와",
+        "큰 아치 문",
+        "창",
+        "통",
+        "덩굴"
+      ],
+      "style": "realistic-building-render",
+      "perspective": "three-quarter",
+      "contentType": "building-reference",
+      "assetType": "building-reference",
+      "categories": [
+        "buildings",
+        "plants",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "원본 전체의 지붕·벽·창문·식생·접지 그림자를 참고한다. 개별 건물을 배치하려면 분리 원화와 바닥 앵커·크기·충돌 검수가 필요하다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 건물 참고 원본. 이미지에 보이는 글자와 서명은 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "archiveMember": "house/다운로드.jpg",
+      "archiveCrc32": "e82d5089"
+    }
+  ]
+};

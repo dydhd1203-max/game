@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "id": "forest-village-frame",
+  "file": "forest-village-frame.png",
+  "dimensions": { "width": 1536, "height": 1024 },
+  "mode": "RGBA",
+  "sha256": "b72a5b4381514a1fcd01bcb54acfe252bea33432839e0335dcf8857a8d597272",
+  "source": {
+    "kind": "original-generated-art",
+    "tool": "image_gen.imagegen",
+    "generatedFile": "exec-db2308c9-9d57-4c9b-b3a0-cb2f0efcd8f3.png",
+    "created": "2026-10-01",
+    "copiedUnchanged": true
+  },
+  "nineSlice": {
+    "units": "source-pixels",
+    "top": 240,
+    "right": 385,
+    "bottom": 240,
+    "left": 385,
+    "fillCenter": false,
+    "repeat": "stretch",
+    "recommendedCssWidth": { "desktop": 38, "mobile": 28 }
+  },
+  "alpha": {
+    "boundsIncludingSoftFringe": [0, 0, 1536, 1024],
+    "range": [0, 254],
+    "centerPixel": [0, 0, 0, 0],
+    "centerHasOpaquePixels": false,
+    "sliceCenterRange": [0, 1],
+    "sliceCenterPixelsAtAlpha8OrAbove": 0,
+    "useSourceCenter": false
+  },
+  "artDirection": {
+    "setting": "bright-forest-village",
+    "lightDirection": "upper-left",
+    "materials": ["honey-chestnut-wood", "ivory-bevel", "restrained-brass-trim"],
+    "cornerDetails": ["jade-leaves", "moss-green-vines", "cream-daisies", "orange-mushroom", "red-berries"],
+    "contentSafeArea": "Use an independent cream panel background and keep content inside the CSS frame padding. The image only paints the border."
+  }
+}

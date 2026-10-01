@@ -6,12 +6,12 @@
     bottom:['shorts','jeans','skirt','pleat','track','legging','hanbok','tutu','cargo','jean_skirt','star_skirt']
   };
   const defaults={
-    top:{url:'assets/pixel-tops-v3.png',columns:4,rows:4,names:names.top},
-    bottom:{url:'assets/pixel-bottoms-v3.png',columns:4,rows:4,names:names.bottom}
+    top:{url:'assets/sd-tops.png',columns:4,rows:4,hue:220,hueTolerance:45,names:names.top},
+    bottom:{url:'assets/sd-bottoms.png',columns:4,rows:4,hue:220,hueTolerance:45,names:names.bottom}
   };
   const targets={
-    top:{default:[8.5,28,15,9.5],tank:[11,28,10,9.5],dress:[8.5,28,15,14.5],robe:[8.5,28,15,14.5],overall:[8.5,28,15,14.5]},
-    bottom:{default:[10.5,36,11,8.5],shorts:[10.5,36,11,5.5],skirt:[10.5,36,11,6.5],pleat:[10.5,36,11,6.5],jean_skirt:[10.5,36,11,6.5],star_skirt:[10.5,36,11,6.5],hanbok:[8.5,36,15,6.5],tutu:[9,36,14,6.5]}
+    top:{default:[8.5,28,15,9.5],hood:[8.5,28,15,8.5],cardi:[8.5,28,15,8.5],knit:[8.5,28,15,8.5],tank:[11,28,10,9.5],dress:[8.5,28,15,11.5],robe:[8.5,28,15,12.5],overall:[8.5,28,15,11.5]},
+    bottom:{default:[10.5,36,11,8.5],jeans:[11.875,36,8.25,8.5],legging:[11.75,36,8.5,8.5],shorts:[10.5,36,11,5.5],skirt:[10.5,36,11,6.5],pleat:[10.5,36,11,6.5],jean_skirt:[10.5,36,11,6.5],star_skirt:[10.5,36,11,6.5],hanbok:[8.5,36,15,6.5],tutu:[9,36,14,6.5]}
   };
   const atlas={ready:false,revision:0,error:null,categories:{top:{ready:false},bottom:{ready:false}}};
   const sprites=new Map(),tinted=new Map(),markup=new Map();let generation=0,loading=Promise.resolve(false);
@@ -36,7 +36,7 @@
   }
   const hueDistance=(a,b)=>Math.min(Math.abs(a-b),360-Math.abs(a-b));
   function canvas(w,h){const c=document.createElement('canvas');c.width=w;c.height=h;return c;}
-  function image(url){return new Promise((resolve,reject)=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=()=>reject(new Error('Clothes image could not load: '+url));img.src=url;});}
+  function image(url){return window.QPAvatarImage.load(url);}
   function removeBackground(data,w,h,options){
     if(options.background===false)return;
     let transparent=false;for(let i=3;i<data.length;i+=4)if(data[i]<8){transparent=true;break;}
@@ -103,7 +103,7 @@
     if(!opaque)throw new Error('Clothes cell is empty: '+category+'/'+shape);
     ctx.putImageData(pixels,0,0);const w=x1-x0+1,h=y1-y0+1,crop=canvas(w,h),cc=crop.getContext('2d',{willReadFrequently:true});cc.imageSmoothingEnabled=false;cc.drawImage(c,x0,y0,w,h,0,0,w,h);
     const source=cc.getImageData(0,0,w,h),target=perShape.target||options.targets?.[shape]||targets[category][shape]||targets[category].default;
-    return {category,shape,w,h,data:new Uint8ClampedArray(source.data),url:crop.toDataURL('image/png'),sourceRect:[sx+x0,sy+y0,w,h],target:target.slice(),opaque,tint:dominantTint(source.data,perShape),options:perShape};
+    return {category,shape,w,h,data:new Uint8ClampedArray(source.data),url:crop.toDataURL('image/png'),sourceUrl:options.url,sourceCell:[sx,sy,sw,sh],sourceRect:[sx+x0,sy+y0,w,h],target:target.slice(),opaque,tint:dominantTint(source.data,perShape),options:perShape};
   }
   function colorize(sprite,color,skin){
     const rgbColor=rgb(color),skinColor=rgb(skin),key=sprite.category+'/'+sprite.shape+'/'+rgbColor.join(',')+'/'+(sprite.options.skinColors?skinColor.join(','):'');
@@ -117,7 +117,7 @@
       if(skinIndex>=0){data[i]=skinColor[0];data[i+1]=skinColor[1];data[i+2]=skinColor[2];continue;}
       const tintable=tint.neutral?s<.1&&l>.42&&l<.95:s>.09&&l>.015&&l<.985&&hueDistance(h,tint.hue)<=tint.tolerance;
       if(!tintable)continue;
-      const delta=l-tint.lightness,nl=clamp(tl+delta*(tl<.3?.48:tl>.8?.7:.85),.025,.98),ns=clamp(ts*(.82+.18*s/Math.max(.15,tint.saturation)),0,1),out=fromHsl(th,ns,nl);
+      const delta=l-tint.lightness,nl=clamp(tl+delta*(tl<.3?.48:tl>.8?.7:.85),.025,.93),ns=clamp(ts*(.82+.18*s/Math.max(.15,tint.saturation)),0,.72),out=fromHsl(th,ns,nl);
       data[i]=out[0];data[i+1]=out[1];data[i+2]=out[2];
     }
     const c=canvas(sprite.w,sprite.h),ctx=c.getContext('2d');ctx.putImageData(new ImageData(data,sprite.w,sprite.h),0,0);
@@ -127,10 +127,10 @@
     const sprite=sprites.get(category+'/'+shape);if(!sprite)return '';
     const key=[atlas.revision,category,shape,color,sex,skin].join('|');if(markup.has(key))return markup.get(key);
     const [x,y,w,h]=sprite.target,url=colorize(sprite,color,skin);
-    const out=`<g class="qpc-garment qpc-${esc(category)}" data-qpc-category="${esc(category)}" data-qpc-shape="${esc(shape)}" data-qpc-sex="${sex==='m'?'m':'f'}"><svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${sprite.w} ${sprite.h}" preserveAspectRatio="none" overflow="hidden"><image href="${url}" width="${sprite.w}" height="${sprite.h}" style="image-rendering:pixelated"/></svg></g>`;
+    const out=`<g class="qpc-garment qpc-${esc(category)}" data-qpc-category="${esc(category)}" data-qpc-shape="${esc(shape)}" data-qpc-sex="${sex==='m'?'m':'f'}"><svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${sprite.w} ${sprite.h}" preserveAspectRatio="none" overflow="hidden"><image href="${url}" width="${sprite.w}" height="${sprite.h}" style="image-rendering:auto"/></svg></g>`;
     if(markup.size>500)markup.clear();markup.set(key,out);return out;
   }
-  function inspect(category,shape){const s=sprites.get(category+'/'+shape);return s?{width:s.w,height:s.h,opaquePixels:s.opaque,sourceRect:s.sourceRect.slice(),target:s.target.slice(),tint:{...s.tint}}:null;}
+  function inspect(category,shape){const s=sprites.get(category+'/'+shape);return s?{width:s.w,height:s.h,opaquePixels:s.opaque,sourceUrl:s.sourceUrl,sourceCell:s.sourceCell.slice(),sourceRect:s.sourceRect.slice(),target:s.target.slice(),tint:{...s.tint}}:null;}
   function load(next){
     if(next)for(const category of ['top','bottom'])if(next[category])config[category]={...config[category],...next[category]};
     const version=++generation;atlas.ready=false;atlas.error=null;tinted.clear();markup.clear();
@@ -138,7 +138,12 @@
       const results=await Promise.allSettled(['top','bottom'].map(async category=>{
         const options=config[category];if(options.enabled===false)return;
         const img=await image(options.url),loaded=[];
-        for(const [index,shape] of (options.names||names[category]).entries())loaded.push(extract(img,category,shape,index,options));
+        for(const [index,shape] of (options.names||names[category]).entries()){
+          if(category==='top'&&shape==='hood'&&options.url===defaults.top.url){
+            const hood=await image('assets/sd-hood.png');
+            loaded.push(extract(hood,category,shape,0,{...options,url:'assets/sd-hood.png',columns:1,rows:1,cells:undefined}));
+          }else loaded.push(extract(img,category,shape,index,options));
+        }
         if(version!==generation)return;
         for(const key of sprites.keys())if(key.startsWith(category+'/'))sprites.delete(key);
         loaded.forEach(s=>sprites.set(category+'/'+s.shape,s));

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>퀴즈나라 전체 소재 보관함</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3efdc;color:#435237;font:16px/1.5 system-ui,sans-serif}header,main{max-width:1360px;margin:auto;padding:24px}header{padding-bottom:8px}h1{font-size:28px;margin:0 0 8px}p{margin:7px 0;color:#6f785c}a{color:#38735b}.packs{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}.packs a{background:#fffaf0;border:1px solid #cab989;border-radius:10px;text-decoration:none;padding:9px 13px;color:#536c42}.packs small{display:block;color:#7e815f;font-size:12px}.controls{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}input,select{font:inherit;background:#fffdf6;border:1px solid #bfc59c;border-radius:9px;padding:10px;min-width:170px}input{flex:1;min-width:0}label{display:flex;align-items:center;gap:6px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}.card{background:#fffdf6;border:1px solid #d8d1b3;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}.preview{display:flex;align-items:center;justify-content:center;height:280px;background:#e8ead7;padding:8px}.preview img,.preview svg{width:100%;height:100%;max-width:100%;max-height:100%;object-fit:contain}.card section{padding:14px;flex:1}.card h2{font-size:17px;margin:0 0 7px;overflow-wrap:anywhere}.tags{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}.tag{background:#edf1dd;border-radius:5px;padding:2px 7px;font-size:12px}.status{font-size:13px;color:#728055}.open{display:inline-block;margin-top:8px;font-weight:600}.card small{color:#7c846c}.count{font-size:14px}.empty{padding:25px;background:#fffdf6;border-radius:12px}.pager{display:flex;align-items:center;justify-content:center;gap:14px;margin:24px 0}button{font:inherit;border:1px solid #b6bd90;border-radius:9px;background:#e4edcf;color:#526b41;padding:10px 16px;cursor:pointer}button:disabled{opacity:.5;cursor:default}.foot{margin-top:24px}
+@media(max-width:600px){header,main{padding:16px}h1{font-size:24px}.grid{grid-template-columns:1fr}.controls label,.controls input,.controls select{width:100%}.controls label select{flex:1}.preview{height:300px}}
+</style>
+<header>
+  <h1>퀴즈나라 전체 소재 보관함</h1>
+  <p>숲속 마을을 만들 때 필요한 풍경·건물·꽃·버튼을 찾아보세요.</p>
+  <p id="intro">소재 목록을 불러오고 있어요.</p>
+  <nav id="packs" class="packs" aria-label="종류별 보관함"></nav>
+  <div class="controls">
+    <input id="query" type="search" placeholder="숲, 나무, 꽃, 집, 테두리…" aria-label="전체 소재 검색">
+    <label>보관함 <select id="library"><option value="">전체</option></select></label>
+    <label>분류 <select id="category"><option value="">전체</option></select></label>
+    <label>출처 <select id="origin"><option value="">전체</option><option value="user">받은 자료</option><option value="project">게임 원화</option></select></label>
+  </div>
+  <p class="count" id="count" aria-live="polite"></p>
+</header>
+<main><div class="grid" id="grid"></div><div class="pager"><button id="previous">이전</button><span id="pageNumber"></span><button id="next">다음</button></div><p class="foot"><a href="README.md">자료 보관·다른 컴퓨터에서 이어 쓰기</a></p></main>
+<script src="catalog-data.js"></script>
+<script>
+'use strict';
+const catalog=window.QPAssetLibraryCatalog;
+const labels={terrain:'지형',plants:'식물',grass:'풀',flowers:'꽃',buildings:'건물',props:'소품',lights:'조명',production:'농장·생산',water:'물',shops:'상점',temples:'사원',islands:'섬',backgrounds:'배경',forest:'숲',caves:'동굴',ruins:'폐허',wood:'나무·목재',town:'마을',pixel:'도트',isometric:'입체 사선',tiles:'타일',characters:'캐릭터',interface:'인터페이스',panels:'창·테두리',frames:'창 테두리',buttons:'버튼',progress:'진행',icons:'아이콘','forest-village':'숲속 마을'};
+const grid=document.getElementById('grid'),query=document.getElementById('query'),library=document.getElementById('library'),category=document.getElementById('category'),origin=document.getElementById('origin');
+const element=(tag,text,className)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;};
+const name=e=>e.label||e.originalName||e.id;
+const searchable=e=>[name(e),e.libraryLabel,e.visualSummary,...(e.subjects||[]),...(e.components||[]),...(e.themes||[]),...(e.categories||[]).map(c=>labels[c]||c),...(e.aliases||[]).map(a=>a.originalName),e.style,e.perspective].join(' ').toLocaleLowerCase();
+let pageIndex=0;const pageSize=24;
+if(!catalog){document.getElementById('intro').textContent='목록 파일이 없어요. assets 폴더 전체를 사용해 주세요.';}else{
+const entries=catalog.entries;
+document.getElementById('intro').textContent=catalog.status.archives+'개 ZIP · 원본 파일 '+catalog.status.originalEntries+'장. 같은 이미지는 묶어 보관하며, 투명 소품 준비와 게임 배치는 각 자료의 상태를 확인합니다.';
+for(const pack of catalog.libraries){const a=element('a',pack.label);a.href=pack.indexPath;a.append(element('small',pack.sourceCount+'장 · 보관 '+pack.storedCount+'개'));document.getElementById('packs').append(a);const o=element('option',pack.label);o.value=pack.id;library.append(o);}
+for(const c of [...new Set(entries.flatMap(e=>e.categories||[]))].sort()){const o=element('option',labels[c]||c);o.value=c;category.append(o);}
+function paint(){
+ grid.replaceChildren();const words=query.value.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+ const found=entries.filter(e=>(!library.value||e.library===library.value)&&(!category.value||(e.categories||[]).includes(category.value))&&(!origin.value||e.origin===origin.value)&&words.every(w=>searchable(e).includes(w)));
+ const pages=Math.max(1,Math.ceil(found.length/pageSize));pageIndex=Math.min(pageIndex,pages-1);
+ document.getElementById('count').textContent=found.length+'개 / 전체 '+entries.length+'개';
+ document.getElementById('pageNumber').textContent=(pageIndex+1)+' / '+pages;
+ document.getElementById('previous').disabled=pageIndex===0;document.getElementById('next').disabled=pageIndex===pages-1;
+ for(const e of found.slice(pageIndex*pageSize,(pageIndex+1)*pageSize)){
+  const card=element('article',undefined,'card');card.dataset.assetId=e.id;
+  const preview=element('div',undefined,'preview');
+  if(e.imagePath){if(e.sourceRect){const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),img=document.createElementNS(ns,'image'),defs=document.createElementNS(ns,'defs'),clip=document.createElementNS(ns,'clipPath'),rect=document.createElementNS(ns,'rect'),clipId='asset-clip-'+e.id.replace(/[^A-Za-z0-9_-]/g,'-');svg.setAttribute('viewBox',e.sourceRect.join(' '));svg.setAttribute('overflow','hidden');clip.id=clipId;clip.setAttribute('clipPathUnits','userSpaceOnUse');['x','y','width','height'].forEach((attr,i)=>rect.setAttribute(attr,e.sourceRect[i]));clip.append(rect);defs.append(clip);img.setAttribute('href',e.imagePath);img.setAttribute('width',e.dimensions.width);img.setAttribute('height',e.dimensions.height);img.setAttribute('clip-path','url(#'+clipId+')');svg.append(defs,img);preview.append(svg);}else{const img=element('img');img.src=e.imagePath;img.alt=name(e);img.loading='lazy';preview.append(img);}}
+  card.append(preview);const info=element('section');info.append(element('small',e.libraryLabel),element('h2',name(e)));
+  if(e.visualSummary)info.append(element('p',e.visualSummary));
+  const tags=element('div',undefined,'tags');for(const tag of e.categories||[])tags.append(element('span',labels[tag]||tag,'tag'));info.append(tags);
+  const reviewed=e.classificationStatus==='visually-reviewed'||e.classificationStatus==='visually-inspected';
+  const status=e.origin==='project'?'게임 원화 · '+(e.runtimeStatus==='integrated'?'사용 중':'목록 등록'):'원본 저장 · '+(e.hasAlpha?'알파 채널 있음':'불투명 이미지')+(reviewed?'':' · 개별 그림 확인 필요');
+  info.append(element('p',status,'status'));if(e.aliases?.length>1)info.append(element('small','같은 이미지 파일명 '+e.aliases.length+'개'));
+  if(e.imagePath){const a=element('a','원본 보기','open');a.href=e.imagePath;a.target='_blank';a.rel='noopener';info.append(element('br'),a);}
+  card.append(info);grid.append(card);
+ }
+ if(!found.length)grid.append(element('p','검색 조건에 맞는 소재가 없어요.','empty'));
+}
+for(const control of [query,library,category,origin])control.addEventListener('input',()=>{pageIndex=0;paint();});
+document.getElementById('previous').addEventListener('click',()=>{pageIndex--;paint();});document.getElementById('next').addEventListener('click',()=>{pageIndex++;paint();});paint();
+}
+</script>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>풀·식생 보관함 · 퀴즈나라</title>
+<style>
+:root{color-scheme:light;--ink:#254c32;--soft:#617363;--cream:#fffdf2;--green:#396c42;--gold:#cda859}*{box-sizing:border-box}body{margin:0;font-family:system-ui,-apple-system,"Malgun Gothic",sans-serif;color:var(--ink);background:linear-gradient(145deg,#eaf1d8,#f6eed7 60%,#dcecd4);min-height:100vh}a{color:#235e4b}button,input,select{font:inherit}a,button,input,select,summary{outline-offset:4px}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #008986}header,main{max-width:1280px;margin:auto;padding:24px}header{padding-bottom:12px}nav{display:flex;flex-wrap:wrap;gap:10px 22px;font-size:14px}h1{font-size:clamp(25px,4vw,40px);margin:24px 0 8px}p{line-height:1.65;margin:8px 0}.intro{max-width:880px;color:var(--soft)}.toolbar{display:grid;grid-template-columns:minmax(150px,1fr) minmax(190px,280px);gap:14px;padding:18px;border:1px solid #c3cda9;border-radius:18px;background:var(--cream);box-shadow:0 6px 15px #31553113}.toolbar label{display:grid;gap:6px;font-weight:650}.toolbar input,.toolbar select{width:100%;min-height:45px;padding:9px 12px;border:1px solid #92aa8d;border-radius:9px;background:white;color:var(--ink)}.stats{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin:16px 0;color:var(--soft)}.stats strong{color:var(--ink)}.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}.card{background:var(--cream);border:1px solid #cbd5b1;border-radius:15px;overflow:hidden;box-shadow:0 5px 13px #30452313;min-width:0}.preview{display:block;background:#eceee5;text-align:center}.preview img{display:block;width:100%;height:310px;object-fit:contain;image-rendering:auto}.info{padding:14px}.info h2{font-size:17px;margin:0 0 9px;line-height:1.5;overflow-wrap:anywhere}.info p{font-size:14px;color:var(--soft)}.tags{display:flex;flex-wrap:wrap;gap:6px;margin:9px 0}.tag{border:1px solid #d0d8b8;border-radius:999px;padding:3px 8px;font-size:12px;background:#edf3df;color:#355b40}.filename{font-size:12px;overflow-wrap:anywhere}details{margin:12px 0;font-size:13px;color:var(--soft)}summary{cursor:pointer}details ul{padding-left:19px;overflow-wrap:anywhere}details li{margin:7px 0}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;font-size:14px}.pager{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:14px;margin:26px 0}.pager button{border:1px solid #8aa075;border-radius:10px;padding:10px 18px;background:#fffdf2;color:var(--ink);min-height:44px;cursor:pointer}.pager button:disabled{opacity:.45;cursor:default}.empty{padding:36px;border:1px dashed #a7b590;border-radius:15px;grid-column:1/-1;background:#fffdf2;text-align:center}.note{background:#fff6d9;border:1px solid #d8bd73;padding:16px 20px;border-radius:12px;font-size:14px;margin:26px 0}.status{font-size:12px!important;color:#765c33!important}@media(max-width:1000px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:740px){header,main{padding:18px}.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.toolbar{grid-template-columns:1fr}.preview img{height:280px}}@media(max-width:430px){.grid{grid-template-columns:1fr}.preview img{height:365px}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header>
+ <nav aria-label="소재 보관함 이동"><a href="../library/index.html">전체 소재 보관함</a><a href="../map-library/index.html">맵 에셋 보관함</a><a href="../interface-library/index.html">숲 마을 UI 자료</a><a href="./README.md">풀 자료 사용 안내</a><a href="./source.zip" download="grass pack.zip">원본 ZIP 다운로드</a></nav>
+ <h1>풀·식생 보관함</h1>
+ <p class="intro">풀 자료를 팩과 이미지 단위로 찾아보세요. 같은 바이트의 파일은 미리보기를 하나로 묶었으며, 모든 원래 파일 이름은 함께 보관했습니다.</p>
+</header>
+<main>
+ <div class="toolbar" role="search" aria-label="풀 자료 검색">
+  <label for="query">이름·소재 검색<input id="query" type="search" placeholder="예: 클로버, 숲, Grass, 파일 번호" autocomplete="off"></label>
+  <label for="family">자료 묶음<select id="family"><option value="">전체</option></select></label>
+ </div>
+ <p class="stats" id="summary" role="status" aria-live="polite"></p>
+ <div class="grid" id="grid"></div>
+ <div class="pager" aria-label="미리보기 페이지"><button id="prev" type="button">이전</button><span id="pageLabel"></span><button id="next" type="button">다음</button></div>
+ <p class="note">원본은 배경이 포함된 JPG입니다. 아직 개별 풀을 투명하게 분리하거나 실제 퀴즈 맵에 배치한 상태는 아닙니다. 이미지 파일 수는 서로 다른 디자인이나 애니메이션 프레임 수를 뜻하지 않습니다.</p>
+ <noscript><p class="note">미리보기 검색에는 JavaScript가 필요합니다. <a href="./catalog.json">전체 자료 목록</a> 또는 <a href="./source.zip">원본 ZIP</a>을 열 수 있습니다.</p></noscript>
+</main>
+<script src="./catalog-data.js"></script>
+<script>
+(function(){
+'use strict';
+const catalog=window.QPGrassCatalog,grid=document.getElementById('grid'),query=document.getElementById('query'),family=document.getElementById('family'),summary=document.getElementById('summary'),prev=document.getElementById('prev'),next=document.getElementById('next'),pageLabel=document.getElementById('pageLabel');
+if(!catalog||!Array.isArray(catalog.referenceSheets)){summary.textContent='목록을 불러오지 못했습니다. 같은 폴더의 catalog-data.js가 필요합니다.';prev.disabled=next.disabled=true;return;}
+const labels={plants:'식생',grass:'풀',forest:'숲',garden:'정원',outdoor:'야외',clover:'클로버',clovers:'클로버',flowers:'꽃',wildflowers:'야생화',daisies:'데이지',dandelions:'민들레',terrain:'지형',props:'소품',ferns:'고사리',rocks:'바위','mossy-rocks':'이끼 바위','rock-borders':'바위 테두리','ground-cover':'지면 식생','wild-grass':'야생 풀','grassy-cliffs':'풀 덮인 절벽','ground-patches':'풀밭','lush-shrubs':'풍성한 관목','wild-shrubs':'야생 관목','broad-leaf-plants':'넓은 잎 식물','grassy-rocks':'풀 덮인 바위','small-props':'작은 소품','large-ground-clusters':'큰 식생 군락',meadow:'초원',ground:'바닥',moss:'이끼',reeds:'갈대',marsh:'습지',dry:'마른 풀',tropical:'열대',snow:'눈',bushes:'덤불'};
+const families=new Map(catalog.families.map(f=>[f.id,f]));let page=0,found=[],pageSize=24;
+function node(tag,text,cls){const n=document.createElement(tag);if(text!==undefined)n.textContent=text;if(cls)n.className=cls;return n;}
+for(const f of catalog.families){const o=node('option',f.label);o.value=f.id;family.append(o);}
+function matches(entry,words){const group=families.get(entry.family);const text=[entry.originalName,...entry.aliases.map(a=>a.originalName),entry.visualSummary,...(entry.subjects||[]),...(entry.categories||[]).map(x=>labels[x]||x),...(entry.themes||[]).map(x=>labels[x]||x),group&&group.label,group&&group.visualSummary].join(' ').toLocaleLowerCase();return words.every(w=>text.includes(w));}
+function draw(){
+ const words=query.value.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean),priority=new Map((catalog.visualReview&&catalog.visualReview.recommendedRepresentativeIds||[]).map((id,i)=>[id,i]));found=catalog.referenceSheets.filter(e=>(!family.value||e.family===family.value)&&matches(e,words)).sort((a,b)=>(priority.get(a.id)??(a.classificationStatus==='visually-reviewed'?100:1000))-(priority.get(b.id)??(b.classificationStatus==='visually-reviewed'?100:1000)));const pages=Math.max(1,Math.ceil(found.length/pageSize));page=Math.max(0,Math.min(page,pages-1));grid.replaceChildren();
+ summary.textContent='검색 결과 '+found.length+'장 · 원본 파일명 '+catalog.archive.regularImageEntries+'개 / 고유 이미지 '+catalog.archive.uniqueImageFiles+'장';
+ if(!found.length)grid.append(node('p','검색어 또는 자료 묶음을 바꾸면 다른 이미지를 찾을 수 있어요.','empty'));
+ for(const e of found.slice(page*pageSize,(page+1)*pageSize)){
+  const card=node('article',undefined,'card'),a=node('a',undefined,'preview'),img=document.createElement('img');a.href=e.imagePath;a.target='_blank';a.rel='noopener';a.setAttribute('aria-label',e.originalName+' 원본 크게 보기');img.src=e.imagePath;img.alt=e.visualSummary||e.originalName;img.width=e.dimensions.width;img.height=e.dimensions.height;img.loading='lazy';img.decoding='async';a.append(img);card.append(a);
+  const info=node('div',undefined,'info'),group=families.get(e.family);info.append(node('h2',e.label||group&&group.label||'풀 자료'));info.append(node('p',e.originalName,'filename'));
+  const tags=node('div',undefined,'tags');for(const t of [...new Set([...(e.categories||[]),...(e.themes||[])])].slice(0,6))tags.append(node('span',labels[t]||t,'tag'));info.append(tags);
+  if(e.classificationStatus==='visually-reviewed')info.append(node('p',e.visualSummary));
+  info.append(node('p',e.dimensions.width+' × '+e.dimensions.height+' · JPG · 동일 원본 파일명 '+e.aliases.length+'개'));
+  const details=node('details'),s=node('summary','원래 파일 이름 '+e.aliases.length+'개');details.append(s);const list=node('ul');for(const alias of e.aliases)list.append(node('li',alias.originalName));details.append(list);info.append(details);
+  info.append(node('p',e.classificationStatus==='visually-reviewed'?'원본 그림 확인 · 게임 배치 전':'팩 단위 자료 등록 · 개별 그림 검수 전','status'));
+  const actions=node('div',undefined,'actions'),open=node('a','원본 크게 보기'),download=node('a','JPG 다운로드');open.href=e.imagePath;open.target='_blank';open.rel='noopener';download.href=e.imagePath;download.download=e.originalName;actions.append(open,download);info.append(actions);card.append(info);grid.append(card);
+ }
+ pageLabel.textContent=(page+1)+' / '+pages;prev.disabled=page===0;next.disabled=page===pages-1;
+}
+function reset(){page=0;draw();}query.addEventListener('input',reset);family.addEventListener('change',reset);prev.addEventListener('click',()=>{page--;draw();});next.addEventListener('click',()=>{page++;draw();});draw();
+})();
+</script>
+</body>
+</html>

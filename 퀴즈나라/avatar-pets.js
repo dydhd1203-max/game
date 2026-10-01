@@ -1,4 +1,4 @@
-/* Native-detail companion artwork. The outer qpx-pet pose stays on the pixel grid. */
+/* Native-detail companion artwork with smooth illustrated rendering. */
 (function () {
   'use strict';
 
@@ -114,7 +114,7 @@
   function content(shape, color) {
     const sprite = sprites.get(shape); if (!sprite) return '';
     const [x, y, w, h] = sprite.target;
-    return `<svg class="qpp-art" x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${sprite.w} ${sprite.h}" preserveAspectRatio="xMidYMid meet" overflow="hidden"><image href="${colorize(sprite, color)}" width="${sprite.w}" height="${sprite.h}" style="image-rendering:pixelated"/></svg>`;
+    return `<svg class="qpp-art" x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${sprite.w} ${sprite.h}" preserveAspectRatio="xMidYMid meet" overflow="hidden"><image href="${colorize(sprite, color)}" width="${sprite.w}" height="${sprite.h}" style="image-rendering:auto"/></svg>`;
   }
   function render(shape, color = '#77aec0') {
     if (!names.includes(shape)) return '';
@@ -130,9 +130,7 @@
     const version = ++generation; atlas.url = url; atlas.ready = false; atlas.error = null;
     loading = (async () => {
       try {
-        const source = await new Promise((resolve, reject) => {
-          const img = new Image(); img.onload = () => resolve(img); img.onerror = () => reject(new Error('Pet image could not load: ' + url)); img.src = url;
-        });
+        const source = await window.QPAvatarImage.load(url);
         if (version !== generation) return false;
         if (source.naturalWidth !== 1254 || source.naturalHeight !== 1254) throw new Error('Pet atlas dimensions changed; update native crop cells.');
         const loaded = names.map(shape => crop(source, shape));

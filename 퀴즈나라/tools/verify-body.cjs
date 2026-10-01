@@ -28,7 +28,14 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
     return {atlas:QPShoes.atlas,tiles,colorChecks,unknownShape:QPShoes.render('missing','#ff8ad4'),renderedShoeImages:document.querySelectorAll('.qps-shoes image').length,handPaths:document.querySelector('.qpx-hand-left').querySelectorAll('path').length,skinColors:[...new Set([...document.querySelectorAll('.qpx-arms *')].map(e=>e.getAttribute('fill')).filter(Boolean))]};
   });
   assert.equal(report.atlas.count,9);assert.equal(report.tiles.length,9);assert.equal(report.colorChecks.length,108);assert.equal(report.unknownShape,'');
-  for(const t of report.tiles){assert(t.width>=300&&t.height>=200,t.shape+' must keep fine native painting');assert(t.opaquePixels>15000,t.shape+' should have two complete shoes');}
+  for(const t of report.tiles){
+    const [x,y,w,h]=t.sourceRect;
+    assert.equal(t.width,w);assert.equal(t.height,h);
+    assert(x>=0&&y>=0&&x+w<=report.atlas.width&&y+h<=report.atlas.height,t.shape+' must retain an independent original painting');
+    assert(t.width>=160&&t.height>=120&&t.opaquePixels>15000,t.shape+' should have two detailed complete shoes');
+    const mappedRatio=t.target[2]/(t.target[3]*1.35),nativeRatio=t.width/t.height;
+    assert(Math.abs(mappedRatio/nativeRatio-1)<.025,t.shape+' must preserve the native shoe proportions on the actual full body');
+  }
   for(const c of report.colorChecks){assert.equal(c.alphaChanged,0,c.shape+' recoloring must preserve transparency');assert.equal(c.whiteChanged,0,c.shape+' neutral trim must be preserved');assert.equal(c.goldChanged,0,c.shape+' metallic details must be preserved');if(c.color!=='#ff647c')assert(c.changed>2000,c.shape+' needs visible color choices');}
   assert(report.handPaths>=4);assert.equal(report.renderedShoeImages,13);assert.deepEqual(errors,[]);
   await page.evaluate(()=>document.fonts.ready);await page.waitForTimeout(100);await page.screenshot({path:path.resolve(__dirname,'../검증/몸과-신발-디테일.png')});

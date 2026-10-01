@@ -6549,6 +6549,9 @@ function gunGlowCompose(){
 const INFO_FRAME = new URLSearchParams(location.search).has('diag');
 if(INFO_FRAME) renderer.info.autoReset = false;
 function drawFrame(){
+  if(DBG.noTransp){ const hid = drawFrame.hid || (drawFrame.hid = []); hid.length = 0;   // 85차 진단 '투명한 것 안 그림' — 겹쳐 칠하는 투명·반투명(효과·발밑 그림자·고리…)의 값
+    scene.traverseVisible(o=>{ const m = o.material; if(m && !Array.isArray(m) && m.transparent) hid.push(o); });
+    for(const o of hid) o.visible = false; DBG.noTransp = false; drawFrame(); DBG.noTransp = true; for(const o of hid) o.visible = true; return; }
   if(INFO_FRAME) renderer.info.reset();
   if(!GFX.bloom || DBG.noBloom){ renderer.setRenderTarget(null); renderer.render(scene, camera); gunGlowPass(); return; }
   bloomInit();
@@ -25059,7 +25062,7 @@ function fearTick(dt){
   heartT -= dt;
   if(fearK > 0.15 && heartT <= 0 && nw){ heartT = 1.15 - fearK*0.5; sfxFrom('heart', nw.x, nw.z, 0.5 + fearK*0.7); }
 }
-function dreadTick(dt){ dreadHowls(dt); dreadBoss(dt); fearTick(dt); fx2Tick(dt); zombieVoices(dt); }   // 66차 — 축하·드문 사건·보스 연출(fx2Tick) · 좀비 신음·발견 비명·끄는 발·이빨·숨(zombieVoices)
+function dreadTick(dt){ dreadHowls(dt); dreadBoss(dt); fearTick(dt); fx2Tick(dt); if(!(typeof DBG === 'object' && DBG.noVoice)) zombieVoices(dt); }   // 66차 — 축하·드문 사건·보스 연출(fx2Tick) · 좀비 신음·발견 비명·끄는 발·이빨·숨(zombieVoices)
 /* ★ 63차 — 기본값이 '#fff' 였다. 색을 안 주는 토스트까지 인라인으로 흰색이 박혀서
    밝은 테마의 크림색 판 위에 흰 글자가 됐다. 빈 문자열이면 style.color 가 지워져
    #toast 의 CSS(어두운 테마 #fff · 밝은 테마 var(--rb-ink))가 그대로 산다. */
@@ -35156,7 +35159,7 @@ function loop(){
         shList.push(meSheep);
       }
       drawSheep(shList, tAcc, MAXP, s=>GHEX[s.g|0], SHEEP_S, true);   // 81차 — 본 루프만 거른다
-      blob83Draw(shList);                                             // 83차 — 발밑 동그란 연한 그림자(사람·좀비·병정)
+      if(DBG.noBlob) BLOB83.count = 0; else blob83Draw(shList);       // 83차 — 발밑 동그란 연한 그림자(사람·좀비·병정) · 85차 진단 '발밑 그림자 끔'
       wingFxPeople(shList, dt, tAcc);                               // 66차 — 날개 꼬리·친구 전직 마법진(굽힌 날개 끝에서)
     }
     if(PROF_ON) pE('사람');
@@ -35214,6 +35217,7 @@ function loop(){
   else renderer.clear();          // 화면이 얼어붙은 걸로 안 보이게 (거의 공짜다)
   if(PROF_ON){ gpuEnd(); pE('★그리기'); }
   if(window.__sweepTick) window.__sweepTick(dt);
+  autoResTick(elapsed);                                                   // 85차 — 자동 해상도
   if(diagEl) updDiag(dt);
   if(PROF_ON){
     loopEnd = performance.now();
@@ -35236,9 +35240,31 @@ const DBG = { noRender:false, noLogic:false, noZombie:false, zlodOff:false, zlod
               flatGround:false, noTerrain:false,
               noHUD:false, noInst:false, noSim:false, noTags:false,
               noHPBar:false, noNum:false,     // 좀비 체력 막대 / 뜨는 숫자 끄기 — 짝비교용
+              noTransp:false, noBlob:false, hudHide:false, noVoice:false,   // 85차 — 투명한 것 안 그림 · 발밑 그림자 끔 · HUD 화면에서 숨김 · 좀비 소리 끔
               slowNet:false,    // 전송 횟수를 초당 13회 -> 6회로 줄이기 — 짝비교용
               shFreeze:false }; // 81차 — 진단 '그림자 다시그리기 멈춤': 그림자 지도를 한 장도 새로 안 그린다(SH_HZ 가 있어도)
 let sweep = null, sweepOut = null;        // 자동 측정 상태 / 결과표
+/* ═══ 85차 — 자동 해상도(선생님이 고름: "자동 해상도 + 원인 더 찾기") ═══
+   교실 그램 Shift+9 표(좀비 57마리): 화면 그리기 끔 +29 · 좀비 안 그림 +6 · 해상도 원본 −5 — 좀비 모양보다 밤 화면 전체를 칠하는 양이 무겁다.
+   그래서 2초 평균이 45fps 아래면 그리는 해상도를 한 단 내린다(배율 × 1 → .91 → .82, '보통' 0.85 → 0.77 → 0.70). 58 이상이 8초 이어지면 한 단 올린다.
+   올렸더니 4초 안에 다시 떨어지면 60초 동안은 안 올린다(오르내림 깜빡 방지). 화면 크기·UI·조작은 그대로, 그리는 픽셀 수만 바뀐다.
+   ?autores=0 이면 끈다(검사기 브라우저는 기본 끔 · ?autores=1 로 켬) · 진단 측정(Shift+9) 중·손으로 해상도를 바꾼 동안(1 키)은 쉰다. */
+const AUTORES = {on:(()=>{ const q = new URLSearchParams(location.search).get('autores'); return q === '1' || (q !== '0' && !navigator.webdriver); })(),   // 검사기(자동 조종 브라우저)는 ?autores=1 일 때만
+                 base:renderer.getPixelRatio(), steps:[1, .91, .82], lv:0,
+                 t:0, n:0, good:0, upAt:-1, lock:0, clock:0, changes:0};
+function autoResApply(){ renderer.setPixelRatio(AUTORES.base*AUTORES.steps[AUTORES.lv]); renderer.setSize(innerWidth, innerHeight); bloomResize(); gunGlowResize(); AUTORES.changes++; }
+function autoResTick(elapsed){
+  const A = AUTORES; A.clock += elapsed;
+  if(!A.on || sweep || DBG.pr !== 1 || DBG.noRender || document.hidden || !G.started || G.paused || elapsed > .25){ A.t = A.n = 0; return; }
+  A.t += elapsed; A.n++; if(A.t < 2) return;
+  const fps = A.n/A.t; A.t = A.n = 0;
+  if(fps < 45 && A.lv < A.steps.length - 1){
+    if(A.upAt >= 0 && A.clock - A.upAt < 4) A.lock = A.clock + 60;      // 방금 올려서 떨어졌다 — 한동안 안 올린다
+    A.lv++; A.good = 0; A.upAt = -1; autoResApply(); return; }
+  if(fps >= 58 && A.lv > 0 && A.clock > A.lock){ A.good += 2; if(A.good >= 8){ A.lv--; A.good = 0; A.upAt = A.clock; autoResApply(); } }
+  else A.good = 0;
+}
+const autoResNote = ()=> AUTORES.on ? '자동 해상도 ' + renderer.getPixelRatio().toFixed(2) + (AUTORES.lv ? '(내림 ' + AUTORES.lv + '단)' : '(그대로)') : '자동 해상도 끔';
 if(new URLSearchParams(location.search).has('diag')){
 
   /* 켜고 끄는 동작을 함수로 모아 둔다. 손으로 누를 때도, 자동 측정도 이걸 쓴다. */
@@ -35302,7 +35328,7 @@ if(new URLSearchParams(location.search).has('diag')){
     for(const c of SCULL.list) if(NO_CAST.has(c.key)) s.lcast.set(c, c.cast);
     return s; };
   const snapBack = s=>{
-    Object.assign(DBG, s.dbg);
+    Object.assign(DBG, s.dbg); if(!DBG.hudHide) hudHide85(false);
     renderer.shadowMap.enabled = s.shOn; renderer.shadowMap.autoUpdate = s.shAuto; SHO.on = s.sho;
     renderer.shadowMap.needsUpdate = true;                     // 멈춰 있던 동안의 그림자를 바로 새로 그린다
     if(renderer.getPixelRatio() !== s.pr){ renderer.setPixelRatio(s.pr); renderer.setSize(innerWidth, innerHeight); bloomResize(); gunGlowResize(); }
@@ -35311,6 +35337,8 @@ if(new URLSearchParams(location.search).has('diag')){
     for(const [m, v] of s.grain) m.userData.grainU.value = v;
     for(const [m, v] of s.cast) m.castShadow = v;
     for(const [c, v] of s.lcast) c.cast = v; };
+  /* 85차 — HUD 를 갱신만 멈추는 것(HUD 끔)과 달리 화면에서 통째로 숨겨 합성(겹친 DOM 층) 값을 잰다 */
+  const hudHide85 = on=>{ for(const id of ['hud','miniWrap','combatHud79','dmgLayer','magHud','crosshair']){ const e = document.getElementById(id); if(e) e.style.visibility = on ? 'hidden' : ''; } };
   const C = (name, on)=>{ let s = null; return [name, ()=>{ s = snapNow(); on(); }, ()=>{ if(s){ snapBack(s); s = null; } }]; };
   const CASES = [
     C('HUD 끔',        ()=>{DBG.noHUD=true;}),
@@ -35324,6 +35352,13 @@ if(new URLSearchParams(location.search).has('diag')){
     C('그림자 끔',     ()=>setShadow(true)),
     /* 84차 — 좀비: 안 그리면 얼마나 빨라지나(= 좀비 그리는 값) · 먼 좀비 단순화를 끄면 얼마나 느려지나 · 문턱을 1픽셀로 올리면 */
     C('좀비 안 그림',       ()=>{DBG.noZombie=true;}),
+    /* 85차 — 좀비가 나오면 같이 늘어나는 것들을 하나씩: 투명·반투명 전부 · 발밑 그림자 · HUD 화면(DOM)을 숨김 · 좀비 체력 막대 · 뜨는 숫자 · 좀비 소리 */
+    C('투명한 것 안 그림',  ()=>{DBG.noTransp=true;}),
+    C('발밑 그림자 끔',     ()=>{DBG.noBlob=true;}),
+    C('HUD 화면 숨김',      ()=>{DBG.hudHide=true; hudHide85(true);}),
+    C('좀비 체력막대 끔',   ()=>{DBG.noHPBar=true;}),
+    C('뜨는 숫자 끔',       ()=>{DBG.noNum=true;}),
+    C('좀비 소리 끔',       ()=>{DBG.noVoice=true;}),
     C('좀비 단순화 끔',     ()=>{DBG.zlodOff=true;}),
     C('좀비 단순화 1px',    ()=>{DBG.zlodPx=1;}),
     C('해상도 원본',   ()=>setNative(true)),
@@ -35501,7 +35536,7 @@ function updDiag(dt){
     const o = st.sweepOut;
     diagEl.textContent = '측정 끝 — 이 표를 알려주세요\n'
       + '(오른쪽 숫자 = 바로 직전 기준과의 차이)\n'
-      + '81차 최적화 ' + P81_NOTE + '\n\n'                        // 81차 — 켠 판·끈 판(&p81off=all) 표를 섞지 않게
+      + '81차 최적화 ' + P81_NOTE + ' · ' + autoResNote() + '\n\n'                        // 81차 — 켠 판·끈 판(&p81off=all) 표를 섞지 않게
       + o.rows.map(fmt).join('\n')
       + (o.warn ? '\n\n⚠ 시작할 때: ' + o.warn : '')
       + (o.drift ? '\n\n⚠ ' + o.drift : '')
@@ -35655,7 +35690,7 @@ Object.assign(window, {
   __LV_MAX:LV_MAX, __openStat:openStat, __openBadge:openBadge, __maxHP:maxHP, __mineTime:mineTime,
   __workSec:workSec, __upSec:upSec, __fixSec:fixSec, __mineBonus:mineBonus,
   __atkMul:atkMul, __defNow:defNow, __xpReset:xpReset,
-  __drawWolves:drawWolves, __ZLOD:ZLOD, __ZLOD_PAIRS:ZLOD_PAIRS, __ZLOD_ERR:ZLOD_ERR, __ZLOD_ALL:ZLOD_ALL, __ACT81:ACT81, __hit79:{hit:zombieHit79,pose:zombieHitPose79,stones,upd:updOrbs}, __drawSoldiers:drawSoldiers, __wolfMeshes:()=>({sleeve:W_sleeve, digit:W_digit, body:W_body, belly:W_belly, brow:W_brow, rib:W_rib, plate:W_plate, gem:W_gem, heal:W_heal, beam:W_beam, eyeW:W_eyeW, fang:W_fang, dread:W_dread, legs:W_legs, paw:W_paw, wrap:W_wrap}),
+  __drawWolves:drawWolves, __ZLOD:ZLOD, __ZLOD_PAIRS:ZLOD_PAIRS, __AUTORES:AUTORES, __autoResTick:autoResTick, __ZLOD_ERR:ZLOD_ERR, __ZLOD_ALL:ZLOD_ALL, __ACT81:ACT81, __hit79:{hit:zombieHit79,pose:zombieHitPose79,stones,upd:updOrbs}, __drawSoldiers:drawSoldiers, __wolfMeshes:()=>({sleeve:W_sleeve, digit:W_digit, body:W_body, belly:W_belly, brow:W_brow, rib:W_rib, plate:W_plate, gem:W_gem, heal:W_heal, beam:W_beam, eyeW:W_eyeW, fang:W_fang, dread:W_dread, legs:W_legs, paw:W_paw, wrap:W_wrap}),
   __wolfPose:wolfPose, __wolfCorpse:wolfCorpse, __WOLF_DEAD:WOLF_DEAD, __smoothHead:smoothHead, __idleLife:idleLife, __P_legs:P_legs,   // 44차
   __work:()=>work, __doAction:doAction, __setActing:v=>{ acting = v; },
   __sheepHurt:sheepHurt, __goDown:goDown, __reviveMe:reviveMe, __aimDown:aimDown,

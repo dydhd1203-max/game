@@ -2,8 +2,9 @@
 (function(){
   'use strict';
   const names=['sneaker','loafer','boots','sandal','hitop','ballet','rain','slipper','wing_shoes'];
-  const targets={sneaker:[10.875,43.35,10.25,2.7],loafer:[10.875,43.55,10.25,2.5],boots:[11,40.8,10,5.25],sandal:[11,43.15,10,2.9],hitop:[11,41.8,10,4.25],ballet:[10.9,41.75,10.2,4.3],rain:[11,40.8,10,5.25],slipper:[11,43.3,10,2.75],wing_shoes:[9.25,42.15,13.5,3.9]};
-  const atlas={url:'assets/pixel-shoes-v1.png',ready:false,error:null,count:0};
+  // Keep each painting's proportions after the full-body 1.35 vertical scale.
+  const targets={sneaker:[11.6,41.555,8.8,4.495],loafer:[11.7,41.724,8.6,4.326],boots:[11.9,41.88,8.2,4.17],sandal:[11.7,41.261,8.6,4.789],hitop:[11.7,41.064,8.6,4.986],ballet:[11.8,41.223,8.4,4.827],rain:[11.8,40.814,8.4,5.236],slipper:[11.5,41.493,9,4.557],wing_shoes:[11,41.025,10,5.025]};
+  const atlas={url:'assets/sd-shoes.png',ready:false,error:null,count:0};
   const sprites=new Map(),tints=new Map();let loading;
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const rgb=hex=>String(hex).match(/[a-f0-9]{2}/gi).slice(0,3).map(v=>parseInt(v,16));
@@ -32,11 +33,17 @@
     for(let i=0;i<data.length;i+=4){if(data[i+3]<25)continue;const [h,s,l]=hsl(data[i],data[i+1],data[i+2]);if(!blue(data[i],data[i+1],data[i+2],h,s))continue;const delta=l-sprite.light,out=fromHsl(hue,clamp(sat*(.78+.25*s),0,1),clamp(light+delta*(light<.25?.52:light>.82?.66:.85),.025,.985));data[i]=out[0];data[i+1]=out[1];data[i+2]=out[2];}
     const c=canvas(sprite.w,sprite.h);c.getContext('2d').putImageData(new ImageData(data,sprite.w,sprite.h),0,0);const url=c.toDataURL('image/png');if(tints.size>150)tints.clear();tints.set(key,url);return url;
   }
-  function render(shape,color){const sprite=sprites.get(shape);if(!sprite)return '';const [x,y,w,h]=targets[shape];return `<g class="qps-shoes" data-qps-shape="${shape}"><svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${sprite.w} ${sprite.h}" preserveAspectRatio="none" overflow="hidden"><image href="${colorize(shape,color)}" width="${sprite.w}" height="${sprite.h}" style="image-rendering:pixelated"/></svg></g>`;}
-  function inspect(shape){const s=sprites.get(shape);return s?{width:s.w,height:s.h,opaquePixels:s.opaque,sourceRect:s.sourceRect.slice(),target:targets[shape].slice()}:null;}
+  function render(shape,color){shape=shape==='dress'?'loafer':shape;const sprite=sprites.get(shape);if(!sprite)return '';const [x,y,w,h]=targets[shape];return `<g class="qps-shoes" data-qps-shape="${shape}"><svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${sprite.w} ${sprite.h}" preserveAspectRatio="none" overflow="hidden"><image href="${colorize(shape,color)}" width="${sprite.w}" height="${sprite.h}" style="image-rendering:auto"/></svg></g>`;}
+  function inspect(shape){shape=shape==='dress'?'loafer':shape;const s=sprites.get(shape);return s?{width:s.w,height:s.h,opaquePixels:s.opaque,sourceRect:s.sourceRect.slice(),target:targets[shape].slice()}:null;}
   function load(){
     if(loading&&!atlas.error)return loading;atlas.ready=false;atlas.error=null;
-    loading=new Promise((resolve)=>{const img=new Image();img.onload=()=>{try{sprites.clear();tints.clear();names.forEach((shape,index)=>sprites.set(shape,extract(img,index)));atlas.width=img.naturalWidth;atlas.height=img.naturalHeight;atlas.count=sprites.size;atlas.ready=true;window.QPAvatar?.clearCache();document.querySelectorAll('[data-qpx-shoes]').forEach(node=>{node.innerHTML=render(node.dataset.qpxShoes,node.dataset.qpxShoeColor);});window.dispatchEvent(new CustomEvent('qp-shoes-ready'));resolve(true);}catch(error){failed(error);resolve(false);}};img.onerror=()=>{failed(new Error('신발 원화를 불러오지 못했어요.'));resolve(false);};img.src=atlas.url;});return loading;
+    loading=(async()=>{try{
+      const img=await window.QPAvatarImage.load(atlas.url);
+      sprites.clear();tints.clear();names.forEach((shape,index)=>sprites.set(shape,extract(img,index)));
+      atlas.width=img.naturalWidth;atlas.height=img.naturalHeight;atlas.count=sprites.size;atlas.ready=true;
+      window.QPAvatar?.clearCache();document.querySelectorAll('[data-qpx-shoes]').forEach(node=>{node.innerHTML=render(node.dataset.qpxShoes,node.dataset.qpxShoeColor);});
+      window.dispatchEvent(new CustomEvent('qp-shoes-ready'));return true;
+    }catch(error){failed(error);return false;}})();return loading;
   }
   function failed(error){atlas.error=String(error.message||error);window.dispatchEvent(new CustomEvent('qp-shoes-error'));}
   window.QPShoes={render,inspect,atlas,names,targets,load,whenReady:()=>loading};load();

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>퀴즈나라 아이콘·소품 참고 보관함</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f0e2;color:#4b3b28;font:16px/1.55 system-ui,sans-serif}header,main{max-width:1320px;margin:auto;padding:24px}header{padding-bottom:8px}h1{font-size:28px;margin:0 0 8px}p{margin:6px 0;color:#6e634f}.controls{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}input,select{font:inherit;background:#fffef9;border:1px solid #c9b996;border-radius:10px;padding:10px;min-width:160px}input{flex:1}label{display:flex;align-items:center;gap:7px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px}.card{background:#fffef9;border:1px solid #ddceb1;border-radius:16px;overflow:hidden;display:flex;flex-direction:column}.preview{display:flex;align-items:center;justify-content:center;height:320px;background:#eee5d5;padding:8px}.preview img{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain}.card section{padding:16px;flex:1}.card h2{font-size:18px;margin:0 0 8px}.tags{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.tag{background:#eaf0d8;border-radius:6px;padding:2px 7px;font-size:12px;color:#536538}.status{font-size:14px;color:#71542e}.open{display:inline-block;margin-top:8px;color:#547330;font-weight:600}.empty{padding:30px;background:#fff;border-radius:12px}.count{font-size:14px}.foot{margin-top:26px}a{color:#547330}.card small{color:#786b57}.details{font-size:13px;overflow-wrap:anywhere}details{margin-top:10px}summary{cursor:pointer;font-size:14px}
+@media(max-width:600px){header,main{padding:16px}h1{font-size:24px}.grid{grid-template-columns:1fr}.controls label,.controls input{width:100%}.controls label select{flex:1}.preview{height:320px}}
+</style>
+<header>
+  <h1>아이콘·소품 참고 보관함</h1>
+  <p>보내주신 icon.zip의 원본 자료를 검색하고 확인하는 목록입니다.</p>
+  <p id="intro">소재 목록을 불러오고 있어요.</p>
+  <div class="controls">
+    <input id="query" type="search" placeholder="상자, 보석, 나무, 꽃, 음식, 모자…" aria-label="자료 검색">
+    <label>분류 <select id="category"><option value="">전체</option></select></label>
+    <label>종류 <select id="type"><option value="">전체</option></select></label>
+  </div>
+  <p class="count" id="count" aria-live="polite"></p>
+</header>
+<main><div class="grid" id="grid"></div><p class="foot"><a href="README.md">보관·활용 안내</a> · <a href="catalog.json">전체 메타데이터</a> · <a href="source.zip" download="icon.zip">원본 ZIP 받기</a> · <a href="../button-library/index.html">버튼 자료</a> · <a href="../interface-library/index.html">숲 UI 자료</a> · <a href="../map-library/index.html">맵 소재</a></p></main>
+<script src="catalog-data.js"></script>
+<script>
+'use strict';
+const catalog=window.QPIconCatalog;
+const labels={buttons:'버튼',panels:'창·테두리',progress:'진행바',icons:'아이콘',wood:'나무·목재',materials:'재질',pixel:'도트 참고',terrain:'지형',plants:'식물',water:'물',resources:'자원',tools:'도구',equipment:'장비',weapons:'무기',potions:'물약',buildings:'건물',variants:'변형·단계',isometric:'입체 사선',gems:'보석',treasure:'보상 상자',food:'음식',production:'농사·제작',props:'맵 소품',lights:'조명',magic:'마법·능력',shops:'상점',interface:'인터페이스',accessories:'모자·장식',animals:'동물'};
+const types={'inventory-icon-sheet':'인벤토리 아이콘','map-building-sheet':'마을·건물','resource-icon-sheet':'자원 아이콘','crafting-icon-sheet':'제작 재료·도구','food-plant-icon-sheet':'음식·식물','map-prop-sheet':'맵 소품','treasure-state-sheet':'보상 상자 상태','equipment-icon-sheet':'장비·모자','resource-bundle-sheet':'자원 묶음 단계','plant-resource-sheet':'식물·약초','mineral-resource-sheet':'광석·보석','interface-icon-sheet':'메뉴 아이콘','interface-component-sheet':'UI 판·버튼','map-obstacle-sheet':'목재 장애물','skill-icon-sheet':'마법·능력 카드'};
+const grid=document.getElementById('grid'),query=document.getElementById('query'),category=document.getElementById('category'),type=document.getElementById('type');
+const element=(tag,text,className)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;};
+if(!catalog){document.getElementById('intro').textContent='목록 파일이 없어요. icon-library 폴더 전체를 사용해 주세요.';}else{
+const entries=catalog.referenceSheets||[];
+const name=e=>e.label||e.originalName||e.id;
+const searchable=e=>[name(e),e.originalName,e.visualSummary,e.preparationNotes,e.sourceCredit,...(e.components||[]),...(e.materials||[]),...(e.themes||[]),...(e.categories||[]).map(c=>labels[c]||c),e.style].join(' ').toLocaleLowerCase();
+for(const t of [...new Set(entries.map(e=>e.contentType))].sort()){const o=element('option',types[t]||t);o.value=t;type.append(o);}
+for(const c of [...new Set(entries.flatMap(e=>e.categories||[]))].sort()){const o=element('option',labels[c]||c);o.value=c;category.append(o);}
+document.getElementById('intro').textContent='원본 JPEG '+catalog.status.originalsStored+'장을 그대로 저장하고 직접 확인했습니다. 투명 아이콘·런타임 소재 준비: '+catalog.status.transparentRuntimeSpritesPrepared+'개. 이미지 속 라벨과 워터마크는 참고 자료의 일부입니다.';
+function paint(){
+ grid.replaceChildren();const words=query.value.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+ const found=entries.filter(e=>(!category.value||(e.categories||[]).includes(category.value))&&(!type.value||type.value===e.contentType)&&words.every(w=>searchable(e).includes(w)));
+ document.getElementById('count').textContent=found.length+'장 / 전체 '+entries.length+'장';
+ for(const e of found){
+  const card=element('article',undefined,'card');card.dataset.assetId=e.id;
+  const preview=element('div',undefined,'preview');const img=element('img');img.src=e.imagePath;img.alt=name(e);img.loading='lazy';preview.append(img);card.append(preview);
+  const info=element('section');info.append(element('h2',name(e)),element('p',e.visualSummary));
+  const tags=element('div',undefined,'tags');for(const tag of e.categories||[])tags.append(element('span',labels[tag]||tag,'tag'));info.append(tags);
+  info.append(element('p','원본 저장·직접 확인됨 · 불투명 JPEG 참고','status'));
+  info.append(element('small',e.dimensions.width+' × '+e.dimensions.height+' · '+e.byteLength.toLocaleString('ko-KR')+'바이트'));
+  const detail=element('details');detail.append(element('summary','활용·출처·원래 이름'));
+  detail.append(element('p',(e.components||[]).join(' · '),'details'),element('p',e.preparationNotes,'details'),element('p',e.sourceCredit||'출처·사용 권리 문서는 제공되지 않았습니다.','details'),element('p',e.originalName,'details'));info.append(detail);
+  const a=element('a','원본 보기','open');a.href=e.imagePath;a.target='_blank';a.rel='noopener';info.append(a);card.append(info);grid.append(card);
+ }
+ if(!found.length)grid.append(element('p','검색 조건에 맞는 자료가 없어요.','empty'));
+}
+for(const input of [query,category,type])input.addEventListener('input',paint);paint();
+}
+</script>
+</html>
