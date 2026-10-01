@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 1,
+  "image": "forest-town-tailor-details.png",
+  "width": 2172,
+  "height": 724,
+  "format": "RGBA",
+  "sha256": "cd929b47345d5fbdd013f1823db6924f4d6ef9ff2a7c190c40cdc93b026268ed",
+  "created": "2026-10-01",
+  "source": {
+    "tool": "image_gen.imagegen",
+    "generatedFile": "exec-07008888-70ee-4091-a2cc-fd47f6ce80b4.png",
+    "copiedUnchanged": true
+  },
+  "referenceMaterials": [
+    "forest-town-tailor-room.png",
+    "forest-shop-props.png",
+    "sd-tops.png",
+    "sd-bottoms.png"
+  ],
+  "props": {
+    "fittingRoom": {
+      "label": "잎사귀 커튼 피팅룸",
+      "sourceRect": [
+        11,
+        15,
+        657,
+        677
+      ],
+      "anchorAtlas": [
+        339,
+        663
+      ],
+      "thresholdAtlas": [
+        339,
+        607
+      ],
+      "cropAnchor": [
+        328,
+        648
+      ],
+      "alpha8Bounds": [
+        23,
+        27,
+        656,
+        680
+      ],
+      "opaqueBounds": [
+        24,
+        28,
+        655,
+        676
+      ],
+      "cellEdgesContainAlpha8": false,
+      "cropThreshold": [
+        328,
+        592
+      ]
+    },
+    "mannequins": {
+      "label": "꽃치마와 숲빛 조끼 마네킹 두 개",
+      "sourceRect": [
+        705,
+        128,
+        551,
+        545
+      ],
+      "anchorAtlas": [
+        980,
+        645
+      ],
+      "cropAnchor": [
+        275,
+        517
+      ],
+      "alpha8Bounds": [
+        717,
+        140,
+        1244,
+        661
+      ],
+      "opaqueBounds": [
+        717,
+        140,
+        1244,
+        656
+      ],
+      "cellEdgesContainAlpha8": false
+    },
+    "clothesRack": {
+      "label": "서로 다른 옷 여섯 벌과 신발 진열대",
+      "sourceRect": [
+        1270,
+        29,
+        898,
+        667
+      ],
+      "anchorAtlas": [
+        1717,
+        672
+      ],
+      "cropAnchor": [
+        447,
+        643
+      ],
+      "alpha8Bounds": [
+        1282,
+        41,
+        2156,
+        684
+      ],
+      "opaqueBounds": [
+        1282,
+        41,
+        2155,
+        682
+      ],
+      "cellEdgesContainAlpha8": false
+    }
+  },
+  "notes": {
+    "camera": "Elevated frontal 3/4, warm upper-left light, same forest-village shop materials",
+    "coordinates": "sourceRect is atlas x/y/width/height; alpha bounds right/bottom exclusive; cropAnchor is ground contact, cropThreshold is fitting-room doorway lip",
+    "layout": "Actual output is 2172×724 with uneven columns; use measured rectangles, not the requested equal-cell template",
+    "purpose": "Fitting booth, two distinct garment mannequins, six distinct silhouettes on rack; no people, lettering or opaque background"
+  }
+}

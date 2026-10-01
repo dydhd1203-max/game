@@ -69,16 +69,18 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
     await page.keyboard.type('1234');await page.keyboard.press('Enter');
     await page.waitForFunction(()=>document.querySelector('#lgLab').textContent==='한 번 더');
     await page.keyboard.type('1234');await page.keyboard.press('Enter');
-    await page.waitForSelector('#mShop');assert.equal(await page.evaluate(()=>QPGame.getMe().name),'focus12');
-    checks.push('Keyboard-only signup confirms the PIN twice, recovers from a mismatch, and opens the student lobby');
+    await page.waitForFunction(()=>QPGame.getVillage()?.getState().zone==='village');
+    await page.waitForSelector('.vt-viewport');assert.equal(await page.evaluate(()=>QPGame.getMe().name),'focus12');
+    checks.push('Keyboard-only signup confirms the PIN twice, recovers from a mismatch, and enters the shared village with the created account');
 
     await page.locator('#tbOut').click();await page.locator('#mOut').click();await page.waitForSelector('#lgId');
     assert.equal(await active(),'lgId');await page.keyboard.type('focus12');await page.keyboard.press('Enter');
     await page.keyboard.type('9999');await page.keyboard.press('Enter');
     await page.waitForFunction(()=>document.querySelector('#lgMsg').textContent.includes('비밀번호가 달라요'));assert.equal(await active(),'lgDots');assert.equal(await pin(),'');
     await page.keyboard.type('1234');await page.keyboard.press('Tab');assert.equal(await active(),'lgGo');await page.keyboard.press('Enter');
-    await page.waitForSelector('#mShop');assert.equal(await page.evaluate(()=>QPGame.getMe().name),'focus12');
-    checks.push('Logout returns to ID focus; a wrong PIN returns to password focus; Enter on the focused entry button signs in correctly');
+    await page.waitForFunction(()=>QPGame.getVillage()?.getState().zone==='village');
+    await page.waitForSelector('.vt-viewport');assert.equal(await page.evaluate(()=>QPGame.getMe().name),'focus12');
+    checks.push('Logout returns to ID focus; a wrong PIN returns to password focus; Enter on the focused entry button signs in to the shared village');
 
     for(const viewport of [{width:1280,height:632},{width:1024,height:632}]){
       await page.setViewportSize(viewport);

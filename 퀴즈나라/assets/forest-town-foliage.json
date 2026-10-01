@@ -1,0 +1,202 @@
+{
+  "schemaVersion": 1,
+  "image": "forest-town-foliage.png",
+  "width": 1254,
+  "height": 1254,
+  "format": "RGBA",
+  "sha256": "3fe92528e4c9f56e5b39860f751dffc81f32dd4e7c889b0c528c814cce057356",
+  "props": {
+    "fir": {
+      "label": "층진 전나무",
+      "source": [
+        0,
+        0,
+        604,
+        698
+      ],
+      "anchor": [
+        322,
+        688
+      ],
+      "suggestedWidths": [
+        170,
+        210
+      ],
+      "placement": "북쪽 숲과 먼 가장자리, 높은 삼각 실루엣",
+      "opaqueBounds": [
+        30,
+        11,
+        601,
+        695
+      ]
+    },
+    "flowering": {
+      "label": "연분홍 꽃나무",
+      "source": [
+        604,
+        0,
+        650,
+        734
+      ],
+      "anchor": [
+        340,
+        718
+      ],
+      "suggestedWidths": [
+        155,
+        195
+      ],
+      "placement": "교실 정원과 상점 주변의 밝은 포인트",
+      "opaqueBounds": [
+        2,
+        75,
+        630,
+        720
+      ]
+    },
+    "willow": {
+      "label": "강가 버드나무",
+      "source": [
+        0,
+        698,
+        705,
+        556
+      ],
+      "anchor": [
+        322,
+        526
+      ],
+      "suggestedWidths": [
+        205,
+        235
+      ],
+      "placement": "개울과 연못의 넓은 풀밭, 주요 길을 가리지 않게 배치",
+      "clipPathAtlas": "M0 698H700V1000L690 1020L675 1050L660 1080L642 1110L630 1150V1254H0Z",
+      "clipPolygonAtlas": [
+        [
+          0,
+          698
+        ],
+        [
+          700,
+          698
+        ],
+        [
+          700,
+          1000
+        ],
+        [
+          690,
+          1020
+        ],
+        [
+          675,
+          1050
+        ],
+        [
+          660,
+          1080
+        ],
+        [
+          642,
+          1110
+        ],
+        [
+          630,
+          1150
+        ],
+        [
+          630,
+          1254
+        ],
+        [
+          0,
+          1254
+        ]
+      ],
+      "opaqueBounds": [
+        27,
+        1,
+        683,
+        532
+      ]
+    },
+    "flowers": {
+      "label": "클로버와 들꽃 군락",
+      "source": [
+        630,
+        734,
+        624,
+        520
+      ],
+      "anchor": [
+        312,
+        480
+      ],
+      "suggestedWidths": [
+        85,
+        135
+      ],
+      "placement": "건물 화단·절벽 가장자리·길 바깥의 낮은 식생, 바닥 장식으로 충돌 없음",
+      "clipPathAtlas": "M700 734H1254V1254H630V1150L642 1110L660 1080L675 1050L690 1020L700 1000Z",
+      "clipPolygonAtlas": [
+        [
+          700,
+          734
+        ],
+        [
+          1254,
+          734
+        ],
+        [
+          1254,
+          1254
+        ],
+        [
+          630,
+          1254
+        ],
+        [
+          630,
+          1150
+        ],
+        [
+          642,
+          1110
+        ],
+        [
+          660,
+          1080
+        ],
+        [
+          675,
+          1050
+        ],
+        [
+          690,
+          1020
+        ],
+        [
+          700,
+          1000
+        ]
+      ],
+      "opaqueBounds": [
+        25,
+        111,
+        604,
+        486
+      ]
+    }
+  },
+  "notes": {
+    "source": "[x,y,width,height], original PNG. NOT a uniform 2x2 grid.",
+    "anchor": "[x,y] relative to source, ground/root placement anchor",
+    "opaqueBounds": "[left,top,right,bottom] relative to source after optional clip, alpha>=64, right/bottom exclusive",
+    "clipPathAtlas": "MANDATORY for willow and flowers. Global PNG-space SVG clipPath applied to atlas image before viewport crop; safe transparent gutter path, never clips their actual large opaque component.",
+    "clipVerification": "Using alpha>=64 connected components: willow263280 + flowers146805 opaque pixels, 0 intended main-component pixels clipped, 0 other main-component pixels included.",
+    "lighting": "Warm upper-left sunlight / cool teal shade",
+    "perspective": "Elevated three-quarter view matching forest-town-landmarks and painted-forest-props",
+    "provenance": "Image_gen original PNG retained unchanged; visually inspected user grass clover/daisy reference JPEG sheets informed richer original low plant grouping."
+  }
+}
