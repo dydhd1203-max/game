@@ -330,7 +330,7 @@ try {
   if(!baseline)assert.ok(result.donutShots?.length===2&&result.donutShots.every(s=>s.found),
     'Capture the actual buoyant apex and steered landing on the next donut, never a checkpoint respawn');
   assert.equal(result.players,21);assert.equal(result.pointerLocked,false);
-  assert.equal(result.graphics.pr,.85);assert.equal(result.graphics.shadow,2048);
+  assert.equal(result.graphics.pr,.85);assert.equal(result.graphics.shadow,0);   // 83차 — 실시간 그림자 끔
   assert.equal(result.graphics.aa,2);assert.equal(result.graphics.shHz,0);
   assert.ok(result.maxViewChange<1e-8,'Ordinary obstacle movement must preserve the chosen view direction');
   assert.ok(result.captures.every(c=>c.raceArt.materials<=3&&c.raceArt.textures<=2&&c.raceArt.visibleDraws<=15&&c.raceArt.overflow===0),
