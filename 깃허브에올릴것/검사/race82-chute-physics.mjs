@@ -34,7 +34,7 @@ export function race82ChutePhysics(){
      if(nxt&&nxt.z-P.z<70){const {d,vd}=lat(),pred=d+vd*.3;let best=null,bd=1e9;
       for(const [a,b] of gaps(nxt)){const w=b-a,tg=Math.max(a+Math.min(2,w/2),Math.min(b-Math.min(2,w/2),pred));if(Math.abs(tg-pred)<bd){bd=Math.abs(tg-pred);best=tg;}}
       if(best!==null){if(pred<best-.35)K.a=true;else if(pred>best+.35)K.d=true;}}
-     else{const {d,vd}=lat(),pred=d+vd*.3;if(pred<-1.5)K.a=true;else if(pred>1.5)K.d=true;}}   // 84차 — 사탕 줄이 멀면 길 가운데를 지킨다(급커브에선 커브 안쪽으로 꺾게 된다)
+     else if(P.z>C.z0+C.throws[0][0]-12&&P.z<C.z0+C.throws[0][1]){const {d,vd}=lat(),pred=d+vd*.3;if(pred<-1.5)K.a=true;else if(pred>1.5)K.d=true;}}   // 84차 — 급커브 구간에선 길 가운데를 지킨다(커브 안쪽으로 꺾게 된다) · 그 밖은 82차처럼 벽을 탄다
     step();t+=1/fps;if(A.state.loop82)loops=1;
     if(tEnter===null&&P.z>=C.z0)tEnter=t;if(tLip===null&&prevZ<Z1&&P.z>=Z1)tLip=t;
     if(!P.ground&&!air){air=1;airStart=t;}
