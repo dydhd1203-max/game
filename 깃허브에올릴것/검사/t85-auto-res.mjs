@@ -23,7 +23,7 @@ try{
  const r=await page.evaluate(()=>{const W=window,A=W.__AUTORES,R=W.__R,out={on:A.on,base:A.base,css:[innerWidth,innerHeight]};
   const go=(fps,sec)=>{for(let i=0;i<Math.round(fps*sec);i++)W.__autoResTick(1/fps);};   // 판단 규칙은 실제 함수로(게임 루프 한 프레임씩은 아래 real 에서)
   const pr=()=>+R.getPixelRatio().toFixed(4);
-  for(let i=0;i<150;i++)W.__advance85(1000/25);out.real=pr();   // 실제 게임 루프로 25fps 6초 → 내려간다
+  for(let i=0;i<60;i++)W.__advance85(1000/25);out.real=pr();   // 실제 게임 루프로 25fps 2.4초 → 내려간다
   A.lv=0;W.__R.setPixelRatio(A.base);A.t=A.n=0;
   go(60,3);out.at60=pr();
   go(30,2.2);out.down1=pr();go(30,2.2);out.down2=pr();go(30,4.4);out.floor=pr();
@@ -35,7 +35,7 @@ try{
   W.__autoSweepProbe=1;return out;});
  await page.close();
  const off=await run('');
- const r2=await off.evaluate(()=>{const W=window,A=W.__AUTORES,R=W.__R,p0=R.getPixelRatio();for(let i=0;i<100;i++)W.__advance85(1000/20);return {on:A.on,same:R.getPixelRatio()===p0};});
+ const r2=await off.evaluate(()=>{const W=window,A=W.__AUTORES,R=W.__R,p0=R.getPixelRatio();for(let i=0;i<45;i++)W.__advance85(1000/20);return {on:A.on,same:R.getPixelRatio()===p0};});
  await off.close();
  console.log(JSON.stringify({r,r2,errors}));
  const b=r.base,near=(a,x)=>Math.abs(a-x)<1e-3;

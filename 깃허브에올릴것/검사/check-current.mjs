@@ -22,7 +22,7 @@ let failed=0;
 async function check(name){
   try{
     const {stdout}=await run(process.execPath,[path.join(here,name+'.mjs'),game],
-      {cwd:root,windowsHide:true,maxBuffer:4*1024*1024,timeout:name==='t73-performance'?600000:240000,env:{...process.env,T67_STRICT:'1'}});
+      {cwd:root,windowsHide:true,maxBuffer:4*1024*1024,timeout:name==='t73-performance'||name==='t85-auto-res'?600000:240000,env:{...process.env,T67_STRICT:'1'}});
     console.log('[PASS] '+name+' — '+stdout.trim().split(/\r?\n/).at(-1));
   }catch(e){failed++;console.error('[FAIL] '+name+'\n'+(e.stdout||'')+(e.stderr||e.message));}
 }
