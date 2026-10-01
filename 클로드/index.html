@@ -4391,7 +4391,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '83차 · 그림자 가볍게';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '84차 · 먼 좀비 단순화';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -17140,23 +17140,26 @@ function zombieLoft(profile,segments=16,frontPower=.65,backPower=1,shoulder=0){
       if(up)ids.push(center,a,b);else ids.push(center,b,a);}
   }
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
-  g.setIndex(ids);g.computeVertexNormals();g.computeBoundingBox();return g;
+  g.setIndex(ids);g.computeVertexNormals();g.computeBoundingBox();
+  g.userData.zl=[profile,frontPower,backPower,shoulder];   // 84차 — 먼 좀비용 성긴 짝(ZOMBIE_GEO_LO)을 같은 단면으로 다시 만든다
+  return g;
 }
 // 65차 — 해진 천 통: 위는 닫히고 아래 가장자리가 톱니처럼 찢긴 얇은 두 겹 통. 소매·바짓단·셔츠 자락이 같이 쓴다.
-function zombieTatterGeo(N=20){
+function zombieTatterGeo(N=20,lo=false){
   const pos=[],ids=[],jag=i=>{const s=Math.sin(i*12.9898+4.1)*43758.5453;return s-Math.floor(s);};
   const ring=(r,yAt)=>{const b=pos.length/3;for(let i=0;i<N;i++){const a=i*Math.PI*2/N;pos.push(Math.sin(a)*r,yAt(i),Math.cos(a)*r);}return b;};
   const edge=i=>i%2?-.5+.13+.15*jag(i):-.5+.035*jag(i+11);          // 톱니 — 끝이 들쭉날쭉하다
-  const outer=[ring(.36,()=>.5),ring(.42,()=>.2),ring(.47,()=>-.16),ring(.5,edge)];
-  const inner=[ring(.43,edge),ring(.41,()=>-.16),ring(.37,()=>.12)];
+  // 84차 lo — 먼 좀비용 짝: 톱니(둘레 마디)는 그대로, 겉·안의 가운데 고리만 뺀다(높이 윤곽 오차 ≈ .02)
+  const outer=lo?[ring(.36,()=>.5),ring(.5,edge)]:[ring(.36,()=>.5),ring(.42,()=>.2),ring(.47,()=>-.16),ring(.5,edge)];
+  const inner=lo?[ring(.43,edge),ring(.37,()=>.12)]:[ring(.43,edge),ring(.41,()=>-.16),ring(.37,()=>.12)];
   const band=(a,b,flip)=>{for(let i=0;i<N;i++){const j=(i+1)%N,p=a+i,q=a+j,r=b+j,s=b+i;
     if(flip)ids.push(p,q,s,q,r,s);else ids.push(p,s,q,q,s,r);}};
-  for(let k=0;k<3;k++)band(outer[k],outer[k+1],false);             // 바깥 겉면(위→아래)
-  band(outer[3],inner[0],false);                                   // 찢긴 가장자리 두께
-  for(let k=0;k<2;k++)band(inner[k],inner[k+1],false);             // 안쪽 면(아래→위)
+  for(let k=0;k<outer.length-1;k++)band(outer[k],outer[k+1],false); // 바깥 겉면(위→아래)
+  band(outer[outer.length-1],inner[0],false);                      // 찢긴 가장자리 두께
+  for(let k=0;k<inner.length-1;k++)band(inner[k],inner[k+1],false); // 안쪽 면(아래→위)
   const cap=(ringB,y,up)=>{const c=pos.length/3;pos.push(0,y,0);
     for(let i=0;i<N;i++){const a=ringB+i,b=ringB+(i+1)%N;if(up)ids.push(c,a,b);else ids.push(c,b,a);}};
-  cap(outer[0],.5,true);cap(inner[2],.12,false);
+  cap(outer[0],.5,true);cap(inner[inner.length-1],.12,false);
   const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
   g.setIndex(ids);g.computeVertexNormals();g.computeBoundingBox();return g;
 }
@@ -17296,6 +17299,22 @@ diffuseColor.rgb *= 1.0 - 0.22*uZNight*vZT;                                     
   mat.needsUpdate = true; return mat;
 }
 zombieWoundSkin(ZOMBIE_MAT.skin);
+/* ═══ 84차 — 먼 좀비는 성긴 짝 모양으로(LOD) ═══
+   교실 그램에서 좀비가 나오면 프레임이 반으로 떨어졌다(밤 1일차 35마리 · 0마리면 60). 화면 그리기를 끄면 60, 해상도를 올리면 더 느림 — 그리는 쪽 비용이다.
+   멀리 있는 좀비 한 마리는 화면 70px 남짓인데 삼각형이 5~8천 개다(손가락 8개 × 144 · 소매 4 × 280 · 의상 조각 × 120 …) —
+   한 삼각형이 1~2픽셀이라 GPU 가 2×2 픽셀 묶음을 거의 빈 채로 몇 번씩 칠한다(작은 삼각형 낭비).
+   그래서 **조각 하나하나**를 화면 크기로 잰다: 성긴 짝으로 바꿨을 때 윤곽이 움직이는 거리(둘레 마디 수로 정해진 값)가
+   지금 화면에서 0.5픽셀 이하면 성긴 짝으로 그린다. 가까운 좀비·큰 조각은 그대로, 재질·색·자세·상처 셰이더도 그대로다.
+   단면 고리(높이 방향 윤곽)는 그대로 두고 둘레 마디만 줄인다(손가락은 길이 마디도 9 → 5).
+   본 게임 루프에서 부를 때만 한다(도입 배우·검사가 부르는 drawWolves 는 예전 그대로) · ?p81off=zombieLod 로 끈다. */
+const ZOMBIE_GEO_LO = {}, ZLOD_SEG = {skull:12, torso:10, limb:6, palm:6, soft:6, ear:6, taper:6};
+for(const k in ZLOD_SEG){ const [pr, fp, bp, sh] = ZOMBIE_GEO[k].userData.zl; ZOMBIE_GEO_LO[k] = zombieLoft(pr, ZLOD_SEG[k], fp, bp, sh); }
+ZOMBIE_GEO_LO.tatter = zombieTatterGeo(20, true); ZOMBIE_GEO_LO.digit = zombieDigitGeo(4, 5);
+for(const [k,g] of Object.entries(ZOMBIE_GEO_LO)){ const v = k==='skull' ? 1 : k==='limb' ? 2 : k==='palm' ? 3 : 0;
+  g.setAttribute('zwk', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count).fill(v), 1)); }
+/* 윤곽 오차 = 짝과 원래 모양 사이의 가장 먼 거리(단위 상자, 두 방향 하우스도르프 — 실측해 올림, t84-zombie-lod 가 다시 잰다).
+   둘레 마디만 줄인 짝은 오차가 둘레 방향이라 x·z 배율에, 손가락은 길이 마디도 줄여 세 축 중 큰 배율에 곱한다 */
+const ZLOD_ERR = {skull:.021, torso:.026, limb:.08, palm:.08, soft:.08, ear:.08, taper:.08, tatter:.02, digit:.155, wrap:.02};
 function zombieNoWound(mesh, i){ const a = mesh.instanceColor && mesh.instanceColor.array; if(a) a[i*3] = -Math.abs(a[i*3]) - 1e-4; }
 for(const [k,g] of Object.entries(ZOMBIE_GEO)){ const v = k==='skull' ? 1 : k==='limb' ? 2 : k==='palm' ? 3 : 0;
   g.setAttribute('zwk', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count).fill(v), 1)); }
@@ -17377,8 +17396,8 @@ const W_rib    = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.detail, MAXW*10, 1), // 눈 �
       W_beam   = imesh(new THREE.BoxGeometry(1, 1, 1), healBeamMat, 24, 0),        // 36차 — 치유 좀비 → 채우는 좀비로 이어지는 초록 줄
       W_dread  = imesh(new THREE.RingGeometry(0.55, 1.0, 28), dreadRingMat, 24, 0);
 // 속이 열린 얇은 천 띠. 앞/뒤 곡면을 이어 머리·몸·팔을 한 바퀴 감싼다.
-function zombieWrapGeo(){
-  const p=[],idx=[],N=24,edge=[[.488,-.5],[.5,-.40],[.5,.40],[.488,.5],[.467,.46],[.46,.36],[.46,-.36],[.467,-.46]];
+function zombieWrapGeo(N=24){
+  const p=[],idx=[],edge=[[.488,-.5],[.5,-.40],[.5,.40],[.488,.5],[.467,.46],[.46,.36],[.46,-.36],[.467,-.46]];
   for(const [r,y] of edge)for(let i=0;i<N;i++){
     const a=i*Math.PI*2/N,s=Math.sin(a),c=Math.cos(a),power=c>=0?.55:.85;
     p.push(Math.sign(s)*Math.pow(Math.abs(s),power)*r,y,Math.sign(c)*Math.pow(Math.abs(c),power)*r);
@@ -17396,6 +17415,43 @@ const W_costume = imesh(ZOMBIE_GEO.soft, ZOMBIE_MAT.cloth, MAXW*64, 1); // 낡�
    무릎(2)·발(2)을 더해도 한 마리의 조각 수가 예전(42)보다 적다. 재질은 기존 좀비 전용 셋을 그대로 쓴다. */
 const W_sleeve = imesh(ZOMBIE_GEO.tatter, ZOMBIE_MAT.cloth, MAXW*4, 1),
       W_digit  = imesh(ZOMBIE_GEO.digit, ZOMBIE_MAT.skin, MAXW*8, 1);
+/* 84차 — 성긴 짝 메시(같은 재질 · 같은 정원). [원래, 짝, 둘레 오차 비율, 길이 오차 비율] */
+const zlodTwin = (m, geo, k, all=0)=>{ const lo = imesh(geo, m.material, m.count_max, m.instanceColor ? 1 : 0); return [m, lo, ZLOD_ERR[k], all]; };
+const ZLOD_PAIRS = [
+  zlodTwin(W_head, ZOMBIE_GEO_LO.skull, 'skull'), zlodTwin(W_body, ZOMBIE_GEO_LO.torso, 'torso'),
+  zlodTwin(W_legs, ZOMBIE_GEO_LO.limb, 'limb'), zlodTwin(W_paw, ZOMBIE_GEO_LO.palm, 'palm'),
+  zlodTwin(W_ears, ZOMBIE_GEO_LO.ear, 'ear'), zlodTwin(W_tail, ZOMBIE_GEO_LO.taper, 'taper'), zlodTwin(W_brow, ZOMBIE_GEO_LO.taper, 'taper'),
+  ...[W_snout, W_nose, W_ruff, W_belly, W_cheek, W_rib, W_costume, W_eyes].map(m=>zlodTwin(m, ZOMBIE_GEO_LO.soft, 'soft')),
+  zlodTwin(W_chest, ZOMBIE_GEO_LO.tatter, 'tatter'), zlodTwin(W_sleeve, ZOMBIE_GEO_LO.tatter, 'tatter'),
+  zlodTwin(W_digit, ZOMBIE_GEO_LO.digit, 'digit', 1), zlodTwin(W_wrap, zombieWrapGeo(12), 'wrap')];
+const ZLOD_ALL = [W_body,W_chest,W_head,W_snout,W_tail,W_legs,W_paw,W_eyes,W_ears,W_horn,W_nose,W_ruff,
+  W_belly,W_brow,W_cheek,W_rib,W_plate,W_gem,W_eyeW,W_eyeR,W_pupil,W_fang,W_costume,W_wrap,W_sleeve,W_digit];
+const ZLOD = {px:(typeof location === 'object' && +new URLSearchParams(location.search).get('zlod')) || .5, hi:0, lo:0};   // ?zlod=픽셀 — 교실에서 문턱을 견줘 볼 때
+const P84_ZLOD = typeof P81 === 'object' && P81.zombieLod;   // 검사가 떼어 돌리는 조각에는 P81 이 없다
+/* 원래 메시에 다 그린 뒤(같은 순서·같은 칸) 조각마다 잰다 — 멀어서 0.5px 안이면 짝 메시 뒤로 옮기고 원래 메시는 앞으로 당겨 채운다 */
+function zombieLod84(on){
+  let K = 0, cx = 0, cy = 0, cz = 0, fx = 0, fy = 0, fz = 0;
+  if(on){ const e = camera.matrixWorld.elements; cx = e[12]; cy = e[13]; cz = e[14]; fx = -e[8]; fy = -e[9]; fz = -e[10];
+    K = renderer.domElement.height/(2*Math.tan(camera.fov*Math.PI/360))*(camera.zoom || 1)/(DBG.zlodPx || ZLOD.px); }
+  let hi = 0, lo = 0;
+  for(const [m, t, e, all] of ZLOD_PAIRS){
+    const n = m.count|0; let k = 0, f = 0;
+    if(on && n){
+      const A = m.instanceMatrix.array, T = t.instanceMatrix.array, C = m.instanceColor ? m.instanceColor.array : null, TC = C ? t.instanceColor.array : null;
+      for(let i=0; i<n; i++){
+        const o = i*16, sx = Math.hypot(A[o], A[o+1], A[o+2]), sy = Math.hypot(A[o+4], A[o+5], A[o+6]), sz = Math.hypot(A[o+8], A[o+9], A[o+10]);
+        const dep = (A[o+12] - cx)*fx + (A[o+13] - cy)*fy + (A[o+14] - cz)*fz - .5*Math.max(sx, sy, sz);   // 조각에서 가장 가까운 쪽 깊이
+        const far = dep > .05 && e*(all ? Math.max(sx, sy, sz) : Math.max(sx, sz))*K <= dep;          // 윤곽 오차 × 화면 배율 ≤ 문턱 픽셀
+        if(far){ T.set(A.subarray(o, o + 16), f*16); if(C) TC.set(C.subarray(i*3, i*3 + 3), f*3); f++; }
+        else { if(k !== i){ A.copyWithin(k*16, o, o + 16); if(C) C.copyWithin(k*3, i*3, i*3 + 3); } k++; }
+      }
+      m.count = k;
+    } else k = n;
+    t.count = f; hi += k; lo += f;
+  }
+  ZLOD.hi = hi; ZLOD.lo = lo;
+  for(const p of ZLOD_PAIRS) flush(p[1]);
+}
 W_heal.castShadow = W_heal.receiveShadow = W_dread.castShadow = W_dread.receiveShadow = W_beam.castShadow = W_beam.receiveShadow = false;
 const AX_X = new THREE.Vector3(1,0,0), AX_Z = new THREE.Vector3(0,0,1), _tmpV = new THREE.Vector3();
 /* ═══════════════════════ 농장 동물 (17차d) ═══════════════════════
@@ -19741,6 +19797,9 @@ function drawWolves(list, t, dt, cull){
   W_rib.count=rib; W_plate.count=pl; W_gem.count=gem; W_eyeW.count=ew; W_eyeR.count=ew; W_pupil.count=ew; W_fang.count=fg;
   W_heal.count=hr; W_dread.count=dr; W_beam.count=bm; W_heal.instanceMatrix.needsUpdate = W_dread.instanceMatrix.needsUpdate = W_beam.instanceMatrix.needsUpdate = true;
   W_heal.visible = hr > 0; W_dread.visible = dr > 0; W_beam.visible = bm > 0;
+  const zdbg = zc ? DBG : null;                             // 진단 스위치는 본 게임 루프에서만 본다(DBG 는 뒤에서 선언된다)
+  if(zdbg && zdbg.noZombie) for(const m of ZLOD_ALL) m.count = 0;   // 84차 진단 '좀비 안 그림' — 좀비 그리는 값 그 자체를 잰다
+  zombieLod84(zc && P84_ZLOD && !(zdbg && zdbg.zlodOff));   // 84차 — 먼 조각은 성긴 짝으로(counts 를 원래/짝으로 나눈다 · 꺼져 있으면 짝은 0)
   flush(W_body,W_chest,W_head,W_snout,W_tail,W_legs,W_paw,W_eyes,W_ears,W_horn,W_nose,W_ruff,
         W_belly,W_brow,W_cheek,W_rib,W_plate,W_gem,W_eyeW,W_eyeR,W_pupil,W_fang,W_costume,W_wrap,W_sleeve,W_digit);
 }
@@ -34969,7 +35028,7 @@ function loop(){
    ?diag=1 일 때만 켜진다. 숫자키로 하나씩 껐다 켜면서 FPS 가 어디서 뛰는지 본다.
    느린 기기가 선생님 교실에만 있어서, 개발 PC 로는 원인을 못 가른다.
    그래서 실제 기기에서 직접 재도록 스위치를 만들어 뒀다. */
-const DBG = { noRender:false, noLogic:false, pr:1, noPoint:false, noShadow:false, noBloom:false,
+const DBG = { noRender:false, noLogic:false, noZombie:false, zlodOff:false, zlodPx:0, pr:1, noPoint:false, noShadow:false, noBloom:false,
               flatGround:false, noTerrain:false,
               noHUD:false, noInst:false, noSim:false, noTags:false,
               noHPBar:false, noNum:false,     // 좀비 체력 막대 / 뜨는 숫자 끄기 — 짝비교용
@@ -35059,6 +35118,10 @@ if(new URLSearchParams(location.search).has('diag')){
     C('화면그리기 끔', ()=>{DBG.noRender=true;}),
 
     C('그림자 끔',     ()=>setShadow(true)),
+    /* 84차 — 좀비: 안 그리면 얼마나 빨라지나(= 좀비 그리는 값) · 먼 좀비 단순화를 끄면 얼마나 느려지나 · 문턱을 1픽셀로 올리면 */
+    C('좀비 안 그림',       ()=>{DBG.noZombie=true;}),
+    C('좀비 단순화 끔',     ()=>{DBG.zlodOff=true;}),
+    C('좀비 단순화 1px',    ()=>{DBG.zlodPx=1;}),
     C('해상도 원본',   ()=>setNative(true)),
     /* 34차 — 성능 3차에서 바꾼 것을 '되돌리면 얼마나 달라지나' 로 잰다.
        81차 — '그림자 매 프레임'(켜 보기) → '그림자 다시그리기 멈춤'(꺼 보기). 63차부터 매 프레임이 기본이라 켜 보는 줄은 늘 0 이었다.
@@ -35388,7 +35451,7 @@ Object.assign(window, {
   __LV_MAX:LV_MAX, __openStat:openStat, __openBadge:openBadge, __maxHP:maxHP, __mineTime:mineTime,
   __workSec:workSec, __upSec:upSec, __fixSec:fixSec, __mineBonus:mineBonus,
   __atkMul:atkMul, __defNow:defNow, __xpReset:xpReset,
-  __drawWolves:drawWolves, __ACT81:ACT81, __hit79:{hit:zombieHit79,pose:zombieHitPose79,stones,upd:updOrbs}, __drawSoldiers:drawSoldiers, __wolfMeshes:()=>({sleeve:W_sleeve, digit:W_digit, body:W_body, belly:W_belly, brow:W_brow, rib:W_rib, plate:W_plate, gem:W_gem, heal:W_heal, beam:W_beam, eyeW:W_eyeW, fang:W_fang, dread:W_dread, legs:W_legs, paw:W_paw, wrap:W_wrap}),
+  __drawWolves:drawWolves, __ZLOD:ZLOD, __ZLOD_PAIRS:ZLOD_PAIRS, __ZLOD_ERR:ZLOD_ERR, __ZLOD_ALL:ZLOD_ALL, __ACT81:ACT81, __hit79:{hit:zombieHit79,pose:zombieHitPose79,stones,upd:updOrbs}, __drawSoldiers:drawSoldiers, __wolfMeshes:()=>({sleeve:W_sleeve, digit:W_digit, body:W_body, belly:W_belly, brow:W_brow, rib:W_rib, plate:W_plate, gem:W_gem, heal:W_heal, beam:W_beam, eyeW:W_eyeW, fang:W_fang, dread:W_dread, legs:W_legs, paw:W_paw, wrap:W_wrap}),
   __wolfPose:wolfPose, __wolfCorpse:wolfCorpse, __WOLF_DEAD:WOLF_DEAD, __smoothHead:smoothHead, __idleLife:idleLife, __P_legs:P_legs,   // 44차
   __work:()=>work, __doAction:doAction, __setActing:v=>{ acting = v; },
   __sheepHurt:sheepHurt, __goDown:goDown, __reviveMe:reviveMe, __aimDown:aimDown,
