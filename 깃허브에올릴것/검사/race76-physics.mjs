@@ -194,6 +194,7 @@ export function race76Physics(){
         if(row&&row.z-z<70&&z>C.z0){const lim=C.hw-P.R-.03,bl=row.ds.map(x=>[x-row.R-P.R-.35,x+row.R+P.R+.35]).sort((a,b)=>a[0]-b[0]),open=[];let cur=-lim,bd=1e9;
           for(const [a,b] of bl){if(a>cur)open.push([cur,a]);cur=Math.max(cur,b);}if(cur<lim)open.push([cur,lim]);
           for(const [a,b] of open){const w=b-a;if(w<.6)continue;const tg=Math.max(a+Math.min(2,w/2),Math.min(b-Math.min(2,w/2),pred));if(Math.abs(tg-pred)<bd){bd=Math.abs(tg-pred);want=tg;}}}
+        else if(C.throws&&C.throws.some(([a,b])=>z>C.z0+a-12&&z<C.z0+b))want=0;   // 84차 급커브 — 길 가운데를 지킨다(커브 안쪽으로 꺾는다)
         target=P.x+(want-pred)/q.cs;
       }
       else target=0;
