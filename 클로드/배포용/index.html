@@ -11607,7 +11607,7 @@ const RACE_S = [
   {n:'통통 범퍼숲',z0:28,z1:78,col:0x68cde6},
   {n:'빙글빙글 캔디마당',z0:90,z1:210,col:0x9b8aed},
   {n:'통통 도넛섬',z0:232,z1:454,col:0xff9ac3},
-  {n:'데굴데굴 도넛마당',z0:478,z1:568,col:0xffbd62},
+  {n:'데굴데굴 도넛마당',z0:478,z1:568,gz:486,col:0xffbd62},   // 82차b — gz: 관문 자리(없으면 z0 − 6). 도넛 도약 착지(≤484) 뒤 · 오르막(490) 앞
   {n:'출렁출렁 구름다리',z0:590,z1:670,col:0x6edab4},
   {n:'무지개 미끄럼',z0:690,z1:CH82_Z1,col:0x61d7c1},
   {n:'별빛 대도약',z0:778+CH82_SHIFT,z1:836+CH82_SHIFT,col:0xffc759}];
@@ -12759,6 +12759,24 @@ function buildAssistStatus(t,x,z,resources,quantity=1,ignoreId=''){
   const reason=typeof canPlaceBuilding==='function'?canPlaceBuilding(t,x,z,ignoreId):canPlace(t,x,z);
   return {t,x,z,reason,short,ok:!reason&&!short.length};
 }
+/* 82차 — 선생님: "1~4일차 사이에 건물이 안 지어지던 버그". 모둠 금은 0 에서 시작하고(START o:0) 아침 보상 금도 1·2일차는 0 이라,
+   금이 드는 얼음탑·배럭·대포탑은 누군가 금광맥을 캐기 전까지 값을 못 낸다. 그런데 설계도는 놓였고, 모자라면 손 신호를 안 보내서
+   꾹 누르고 있어도 79차 '아무도 짓지 않는 설계도는 3초 뒤 제거'에 걸려 사라졌다. 화면은 '친구와 함께 채워요'·'금 2개 더 필요해요'
+   뿐이라 금을 어디서 구하는지 몰랐다. 모자란 것과 나오는 곳을 한 줄로 말한다(69차 상점 문법: 하나면 '금 2개가 모자라요', 둘 이상이면 이름만).
+   금은 모둠 구역마다 금광맥 넷(광맥 하나 ✨20 · 아침마다 다시 생김)에서 캐고, 밤에는 캘 수 없으니 좀비가 떨어뜨린 금을 줍는다. */
+const BUILD_LACK_SRC = {w:['나무','를'], s:['바위','를'], g:['금광맥','을']};
+function buildLackHow(keys,night=false){
+  if(!keys.length) return '';
+  if(night && keys.every(k=>k==='g')) return '좀비가 떨어뜨린 ✨금을 주워요';   // 밤에는 캘 수 없다 — 금만 모자라면 줍고, 나무·돌이 섞이면 아침에 캘 곳을 말한다
+  return (night?'아침에 ':'')+'⛏️ '+keys.map(k=>BUILD_LACK_SRC[k][0]).join('·')+BUILD_LACK_SRC[keys[keys.length-1]][1]+' 캐 와요';
+}
+function buildLackText(short,night=false){
+  if(!short || !short.length) return '';
+  const keys=short.map(s=>s.key),last=keys[keys.length-1];
+  const lack=short.length===1 ? `${RES_IC[last]} ${RES_NM[last]} ${short[0].amount}개가 모자라요`
+                              : keys.map(k=>RES_NM[k]).join('·')+(last==='w'?'가':'이')+' 모자라요';
+  return lack+' · '+buildLackHow(keys,night);
+}
 /* 처음 찍은 칸을 포함한 곧은 벽. 대각선은 주된 축에 맞춰 틈 없이 잇는다. */
 function buildAssistLineCells(t,start,end,max=12){
   if((t!=='wwall'&&t!=='swall')||!start||!end||![...start,...end].every(Number.isFinite))return [];
@@ -12921,8 +12939,9 @@ function buildAssistTick(){
   const target=!placing&&!aimMode?aimStru():null;buildAssistState.target=target;
   baHid('buildAssistRepair',!target||target.hp>=target.mx);
   const summary=el('buildAssistSummary');let title='',detail='',state='ready';
-  if(typeof work!=='undefined'&&work?.kind==='coop'){
-    if(!summary.hidden)summary.hidden=true;buildAssistClearLine();buildAssistShowRange(BUILD_PLANS.get(work.id));return;
+  const holding=typeof buildHeldPlan!=='undefined'&&buildHeldPlan?buildHeldPlan:'';   // 82차 — 모자라서 멈춘 설계도를 꾹 누르는 동안도 '짓는 중'
+  if((typeof work!=='undefined'&&work?.kind==='coop')||holding){
+    if(!summary.hidden)summary.hidden=true;buildAssistClearLine();buildAssistShowRange(BUILD_PLANS.get(holding||work.id));return;
   }
   if(placing){
     const b=BUILD[type];title=b.icon+' '+(moving?buildingName(moving):b.name)+(moving?' · 위치 다시 잡기':'');
@@ -12932,7 +12951,11 @@ function buildAssistTick(){
       const info=buildAssistStatus(type,ghost.position.x,ghost.position.z,undefined,moving?0:lineCells.length||1,moving?.id||'');
       if(lineCells.length)info.reason=lineCells.map(([x,z])=>typeof canPlaceBuilding==='function'?canPlaceBuilding(type,x,z):canPlace(type,x,z)).find(Boolean)||null;
       if(info.reason){state='blocked';detail=info.reason;}
-      else if(info.short.length){state='short';detail=info.short.map(s=>`${RES_IC[s.key]} ${RES_NM[s.key]} ${s.amount}개`).join(' · ')+' 부족 · 친구와 함께 채워요';}
+      else if(info.short.length){
+        /* 82차 — 한 채 값도 없으면 놓지 않는다(buildPlacementAction). 무엇이 몇 개 모자라고 어디서 캐 오는지 말한다.
+           벽 이어짓기는 한 칸 값만 있으면 놓고, 있는 만큼 먼저 짓는다(줄은 하나의 일 — hostBuildTick). */
+        const one=lineCells.length>1?buildAssistStatus(type,info.x,info.z,undefined,1,''):info,how=buildLackHow(info.short.map(s=>s.key),G.phase==='night');
+        state='short';detail=info.short.map(s=>`${RES_IC[s.key]} ${RES_NM[s.key]} ${s.amount}개`).join(' · ')+' 부족 · '+(one.short.length?how:'있는 만큼 짓고 '+how);}
       else detail=moving?'눌러 위치 확정 · 자원 손해 없음':lineOn?(lineCells.length?'끝점을 한 번 눌러 벽 설계도 놓기':'시작점을 한 번 눌러 주세요'):'한 번 눌러 설계도 놓기 · 설계도를 꾹 눌러 함께 짓기';
       if(info.reason&&info.short.length)detail+=' · '+info.short.map(s=>`${RES_NM[s.key]} ${s.amount}개`).join(' · ')+' 부족';
       const preview=Object.assign({},moving||{t:type,lv:1},{x:info.x,z:info.z});buildAssistShowRange(preview,!info.reason);
@@ -21052,10 +21075,11 @@ function updPlayer(dt){
   if(wantJump && !raceTryJump() && canJump){
     const second = !PL.ground;                                   // 33차 — 공중에서 한 번 더 = 더 센 뜀(JUMP2)
     /* 42차 — 점프 손맛(선생님: "점프 할 때 아직 밋밋해"). 첫 뜀: 발밑 흙먼지 고리 + 보잉(jump) + 시야 펀치 + 0.12초 용수철 늘어남(takeT).
-       두 번째 뜀: 흰 구름 + 탁(hop) + 더 센 시야 펀치 + **앞으로 한 바퀴 공중제비**(flipT 0.6초 — drawSheep 이 부위 행렬에 회전을 앞에 곱한다). */
+       두 번째 뜀: 흰 구름 + 탁(hop) + 더 센 시야 펀치 + **앞으로 한 바퀴 공중제비**(flipT 0.6초 — drawSheep 이 부위 행렬에 회전을 앞에 곱한다).
+       82차 — 경주에서만 폴가이즈 느낌 고무 '뾰잉'(r82jump · 2단은 r82jump2). 마을·밤·대기실은 jump·hop 그대로. */
     if(second){ PL.jumps = (PL.jumps|0) + 1; PL.flipT = 0;
-      burst(PL.x, PL.y + 0.05, PL.z, 0xfffaf0, 9, 0.9); if(window.__sfx) window.__sfx('hop'); fovPunch(3.2); }
-    else { PL.takeT = 0.12; burst(PL.x, PL.y + 0.04, PL.z, 0xe6dccb, 6, 0.55); if(window.__sfx) window.__sfx('jump'); fovPunch(2.0); }
+      burst(PL.x, PL.y + 0.05, PL.z, 0xfffaf0, 9, 0.9); if(window.__sfx) window.__sfx(raceOn() ? 'r82jump2' : 'hop'); fovPunch(3.2); }
+    else { PL.takeT = 0.12; burst(PL.x, PL.y + 0.04, PL.z, 0xe6dccb, 6, 0.55); if(window.__sfx) window.__sfx(raceOn() ? 'r82jump' : 'jump'); fovPunch(2.0); }
     PL.vy = (second ? jump2Now() : jumpNow()) * jMul; PL.ground = false; PL.trailT = 0;
   }
   wantJump = false;
@@ -26115,11 +26139,16 @@ function farmClean(g, approved=false){
 const BUILD_PLANS = new Map(), BUILD_HANDS = new Map(), BUILD_HELP = new Map();
 const buildParticipated = new Set(), buildSeenCommands = new Map();
 const FORT_STYLES = Array(NG).fill(0);
-let buildSequence = 0, buildNetWait = 0, buildDrawWait = 0, buildHandWait = 0;
+let buildSequence = 0, buildNetWait = 0, buildDrawWait = 0, buildHandWait = 0, buildHandSent = 0;
 let buildPlansNeedSync=false;
 let buildPlanDirty = true, buildHeldPlan = '', buildPress = false;
 let buildLineMode = false, buildLineStart = null, buildMove = null;
-const BUILD_PLAN_LIMIT = 12, BUILD_PLAN_TTL = 3000, BUILD_MOVE_MS = 60000, BUILD_REACH=10;
+/* 82차 — 선생님: "1~4일차 사이에 건물이 안 지어지던 버그". 79차의 '아무도 짓지 않는 설계도는 3초 뒤 제거'(BUILD_PLAN_TTL)가
+   모든 설계도에 똑같이 걸려서 ① 벽 이어짓기로 놓은 줄은 지금 망치질하는 한 칸만 남고 나머지가 3초 만에 사라졌고(7칸 중 1칸),
+   ② 짓다가 손을 3초 넘게 떼면(좀비를 쏘거나 자원을 가지러 가면) 반쯤 지은 탑이 진행과 함께 사라졌다 — 화면은 '손을 떼도 진행 유지'라고 한다.
+   그래서 한 번도 안 지은 설계도만 3초(선생님 요청 그대로), 진행이 있는 설계도는 15초(BUILD_PLAN_KEEP) 동안 기다리고,
+   같은 줄(line)은 한 칸이라도 짓고 있으면 줄 전체가 '작업 중'이다. */
+const BUILD_PLAN_LIMIT = 12, BUILD_PLAN_TTL = 3000, BUILD_PLAN_KEEP = 15000, BUILD_MOVE_MS = 60000, BUILD_REACH=10;
 function fortSurvived(g){ return Math.max(0, (G.day|0)-1); }
 function fortStyleOf(g){ return Math.min(3, fortSurvived(g), Math.max(0,FORT_STYLES[g]|0)); }
 function setFortStyle(style){
@@ -26190,6 +26219,7 @@ function createBuildPlans(a,c){
     const id='p_'+a.id+'_'+c.seq+'_'+made, now=Date.now();
     const p={id,t:c.t,x,z,g:a.g,n:a.n,by:a.id,prog:0,people:0,created:now,touched:now};
     if(wallType(p.t))p.r=wallLineQuarter(p.t,c.cells.slice(0,limit));
+    if(c.cells.length>1)p.line=a.id+'_'+c.seq;   // 82차 — 벽 이어짓기 한 번으로 놓은 칸들은 한 줄(hostBuildTick 이 함께 살려 둔다)
     BUILD_PLANS.set(id,p); if(a.id===uid) buildParticipated.add(id);
     count++; made++;
   }
@@ -26286,20 +26316,23 @@ function finishBuildPlan(p){
   const mx=bs(p.t,'hp',1),o={id:p.id,t:p.t,x:p.x,z:p.z,g:p.g,n:p.n,by:p.by,born:Date.now(),lv:1,hp:mx,mx,cd:BUILD[p.t].spawn?2:0,sol:[]};
   if(wallType(o.t))o.r=wallQuarter(o.t,o.x,o.z,p.r);
   buildPay(p.g,BUILD[p.t].cost); BUILD_PLANS.delete(p.id); addStru(o); observeBuilt(o);
+  if(p.line){const t=Date.now();for(const q of BUILD_PLANS.values())if(q.line===p.line)q.touched=t;}   // 82차 — 한 칸을 다 지으면 다음 칸으로 옮겨 갈 3초를 준다
   burst(struCX(o),GY+1,struCZ(o),0xc9f4d5,15,1.2);
   if(net) net.update({['b/'+o.id]:packBuilding(o),['buildPlans/'+p.id]:null,base});
   buildPlanDirty=true; return true;
 }
 function hostBuildTick(dt){
-  if((!G.host && net) || G.paused) return;
+  if(!G.host && net) return;
+  if(G.paused){ const t=Date.now(); for(const p of BUILD_PLANS.values()) p.touched=t; return; }   // 82차 — 선생님이 멈춘 동안은 설계도 시계도 선다
   const now=Date.now(); let dirty=false;
   for(const [id,p] of BUILD_PLANS){
     if(!['day','night'].includes(G.phase)){ BUILD_PLANS.delete(id);dirty=true;continue; }
     const workers=buildWorkers(p,now), people=workers.length;
-    if(!people && now-p.touched>=BUILD_PLAN_TTL){ BUILD_PLANS.delete(id);dirty=true;continue; }
+    if(!people && now-p.touched>=(p.prog>0?BUILD_PLAN_KEEP:BUILD_PLAN_TTL)){ BUILD_PLANS.delete(id);dirty=true;continue; }   // 82차 — 짓던 것은 15초
     if(p.people!==people){p.people=people;dirty=true;}
     if(people){
       p.touched=now;
+      if(p.line)for(const q of BUILD_PLANS.values())if(q.line===p.line)q.touched=now;   // 82차 — 줄의 한 칸을 짓는 동안 나머지 칸도 작업 중
       if(buildCanPay(p.g,BUILD[p.t].cost)){
         p.prog=Math.min(1,p.prog+dt*buildSpeed(workers)/(WORK_SEC[p.t]||6.4)); dirty=true;
         if(p.prog>=1) finishBuildPlan(p);
@@ -26311,13 +26344,16 @@ function hostBuildTick(dt){
   if(dirty){buildPlanDirty=true;buildPlansNeedSync=true;}
   if(buildNetWait<=0 && buildPlansNeedSync){buildNetWait=.5;buildPlansNeedSync=false;publishBuildPlans();}
 }
+/* 82차 — 손 신호는 실제 시간으로도 0.6초마다 다시 보낸다. dt 는 0.05 로 잘려서 20fps 아래 기기에서는 '0.6초'가 실제 1.2~3초가 되고,
+   호스트는 1.6초 지난 손을 빼므로(buildWorkers) 짓기가 멈췄다 섰다 했다(5fps: 0.55·0.55·0.24·0.24 …). */
 function setBuildHand(id,dt=0){
   buildHandWait-=dt;
-  if(id===buildHeldPlan && (id===''||buildHandWait>0)) return;
+  const t=Date.now();
+  if(id===buildHeldPlan && (id===''||(buildHandWait>0 && t-buildHandSent<600))) return;
   buildHeldPlan=id; buildHandWait=.6;
   if(id){
-    buildParticipated.add(id);
-    const h={id,ts:Date.now(),speed:1/workMul()}; BUILD_HANDS.set(uid,h);
+    buildParticipated.add(id); buildHandSent=t;
+    const h={id,ts:t,speed:1/workMul()}; BUILD_HANDS.set(uid,h);
     if(net) net.child('buildHands/'+uid).set(h);
   }else{BUILD_HANDS.delete(uid);if(net)net.child('buildHands/'+uid).remove();}
 }
@@ -26341,16 +26377,22 @@ function buildPlanAction(dt){
   }
   const missing=buildMissingCost(p.g,BUILD[p.t].cost);
   const title=`🤝 ${BUILD[p.t].name} · ${p.people||0}/3명 함께 건설`;
-  if(acting && !missing){
-    if(!work||work.kind!=='coop'||work.id!==p.id) work={kind:'coop',id:p.id,X:p.x,Z:p.z,prog:0,tok:-1};
-    workTick(dt,99999); setBuildHand(p.id,dt);
+  /* 82차 — 자원이 모자라도 꾹 누르고 있으면 '짓는 중'이다(79차 선생님 규칙: 작업 중인 설계도는 유지). 예전엔 모자라면 손 신호를 안 보내서
+     누르고 있어도 호스트가 '아무도 안 짓는다'며 3초 뒤 지웠다. 진행은 호스트가 그대로 막는다(hostBuildTick 은 buildCanPay 일 때만 채운다) —
+     그동안 친구가 캐 오면 그 자리에서 이어 지어진다. 망치질(work·소리·몸짓)은 실제로 지어질 때만. */
+  if(acting){
+    if(!missing){
+      if(!work||work.kind!=='coop'||work.id!==p.id) work={kind:'coop',id:p.id,X:p.x,Z:p.z,prog:0,tok:-1};
+      workTick(dt,99999);
+    }else if(work?.kind==='coop') work=null;
+    setBuildHand(p.id,dt);
   }else setBuildHand('');
-  workInfo(title,p.prog,`<br><span>${missing||'가까이서 꾹 누르면 함께 지어요 · 손을 떼도 진행 유지'}</span>`);   // 81차 — 뒤에 덧붙이던 줄을 한 번에 넣는다(같은 글이면 DOM 을 안 건드린다)
+  workInfo(title,p.prog,`<br><span>${missing?'⏸ '+missing:'가까이서 꾹 누르면 함께 지어요 · 손을 떼도 진행 유지'}</span>`);   // 81차 — 뒤에 덧붙이던 줄을 한 번에 넣는다(같은 글이면 DOM 을 안 건드린다)
   return true;
 }
-function buildMissingCost(g,c){
-  const r=G.res[g]||{},names={w:'나무',s:'돌',g:'금'};
-  return ['w','s','g'].filter(k=>(c[k]||0)>(r[k]||0)).map(k=>`${names[k]} ${(c[k]||0)-(r[k]||0)}개`).join(' · ').replace(/(.+)/,'$1 더 필요해요');
+function buildMissingCost(g,c){   // '' = 낼 수 있다 · 아니면 '✨ 금 2개가 모자라요 · ⛏️ 금광맥을 캐 와요'(82차 — 어디서 구하는지까지)
+  const r=G.res[g]||{};
+  return buildLackText(['w','s','g'].filter(k=>(c[k]||0)>(r[k]||0)).map(k=>({key:k,amount:(c[k]||0)-(r[k]||0)})),G.phase==='night');
 }
 function toggleBuildLine(){buildLineMode=!buildLineMode;buildLineStart=null;buildAssistClearLine();acting=false;buildPress=false;workStop();}
 function resetBuildPlacement(){ buildLineStart=null;buildMove=null;buildPress=false;buildAssistClearLine(); }
@@ -26374,7 +26416,7 @@ function buildPlacementAction(dt){
   const turn=buildMove?wallMoveQuarter(buildMove,X,Z):wallLineQuarter(t,buildLineMode&&buildLineStart?[buildLineStart,[X,Z]]:[[X,Z]]);
   setGhost(t,buildMove?.lv||1,buildMove?.branch||'',fortStyleOf(buildMove?.g??G.me.g),turn);
   ghost.visible=true;ghost.position.set(X,GY,Z);ghostFill(1);
-  const err=canPlaceBuilding(t,X,Z,buildMove?.id||'');ghostSet(!err);
+  const err=canPlaceBuilding(t,X,Z,buildMove?.id||''),poor=!buildMove&&!buildCanPay(G.me.g,BUILD[t].cost);ghostSet(!err&&!poor);
   if(curTool==='move'){
     if(acting&&!buildPress){
       if(err)toast(err,1.4);else{submitBuildCommand({kind:'move',id:buildMove.id,x:X,z:Z});resetBuildPlacement();setGhost(null);}
@@ -26383,13 +26425,21 @@ function buildPlacementAction(dt){
   if(buildLineMode && BUILD[t].size===1){
     if(buildLineStart) buildAssistSetLine(buildLineStart,[X,Z],t);
     if(acting&&!buildPress){
-      if(!buildLineStart){buildLineStart=[X,Z];toast('벽의 끝 지점을 골라 한 번 더 눌러요',1.8);}
+      if(poor) buildLackToast(t);
+      else if(!buildLineStart){buildLineStart=[X,Z];toast('벽의 끝 지점을 골라 한 번 더 눌러요',1.8);}
       else{const cells=buildAssistLineCells(t,buildLineStart,[X,Z],BUILD_PLAN_LIMIT);submitBuildCommand({kind:'plan',t,cells});buildLineStart=null;buildLineMode=false;buildAssistClearLine();}
     }
   }else if(acting&&!buildPress){
-    if(err)toast(err,1.3);else submitBuildCommand({kind:'plan',t,cells:[[X,Z]]});
+    if(err)toast(err,1.3);else if(poor)buildLackToast(t);else submitBuildCommand({kind:'plan',t,cells:[[X,Z]]});
   }
   buildPress=acting;
+}
+/* 82차 — 우리 모둠이 한 채 값도 못 내면 설계도를 놓지 않는다(업그레이드·수리의 upCheck·fixCheck 와 같은 '시작 전에 막기').
+   79차 규칙(아무도 짓지 않는 설계도는 3초 뒤 제거) 아래에서는 못 짓는 설계도가 놓였다 사라지는 것이 '건물이 안 지어지는 버그'로 보였다.
+   호스트(createBuildPlans)는 그대로 받는다 — 손님 화면의 자원이 조금 늦거나 이르게 와도 막히지 않게. 놓인 뒤 모자라지면 buildPlanAction 이 꾹 누르는 동안 살려 둔다. */
+function buildLackToast(t){
+  toast(buildMissingCost(G.me.g,BUILD[t].cost)||'자원이 모자라요',2.6,'#ffd9d9');
+  if(window.__sfx) window.__sfx('nope');
 }
 const buildPlanMaterial=new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:.42,depthWrite:false});
 let buildPlanMesh=null;
@@ -29648,10 +29698,15 @@ function racePhysicsAfter(dt){
     RACE74.pending={p,t:.085};RACE74.pulse.set(p.id,1);RACE74.landAge=0;RACE74.impact=.5;
   }
   if(p&&p.id!==RACE74.lastPad&&!RACE74.pending)RACE74.lastPad=-1;
-  // A normal jump through the visible entry still counts; a high launch over a whole stage does not.
-  const next=RACE_P.find(q=>q.cp===MINE.cp+1);
-  if(next&&raceContains(next,PL.x,PL.z,0)&&PL.y>=MINI_Y+next.y-.4&&PL.y<=MINI_Y+next.y+4){
-    MINE.cp=next.cp;RACE.cp=raceCheckpointXZ(next);toast(`🚩 ${next.cp-1}단계 · ${RACE_S[next.cp-1].n}`,1.8,'#c8ffb0');if(window.__sfx)window.__sfx('get');miniReport(true);
+  // 82차b — 깃발 판 등록(선생님: "깃발 넘어야 리스폰 장소가 업데이트되잖아. 근데 통통도넛 마지막 점프하면 리스폰 장소 위로 통과하니까 인식을 못하더라고").
+  // ① 판 발자국 안이면 높이와 상관없이 센다 — 높이 떠서 판 위를 넘어가도 깃발을 지난 것이다(예전엔 윗면 +4 보다 높이 날면 안 셌다).
+  //    판 윗면보다 0.4 넘게 아래(옆으로 떨어지는 몸)는 그대로 안 센다.
+  // ② '다음 판 하나'만 보지 않고, 지금보다 뒤 판 가운데 닿은 가장 먼 판까지 올린다 — 깃발 하나를 놓쳐도(옆으로 돌아감·빈 곳 건너뜀)
+  //    다음 깃발에서 따라잡는다. 예전엔 한 번 놓치면 뒤 깃발이 모두 막혀 떨어질 때마다 그 앞 깃발로 돌아가고 골인(깃발 7 필요)도 못 했다. 뒤로 가도 줄지 않는다.
+  let reach=null;
+  for(const q of RACE_P)if(q.cp>MINE.cp&&(!reach||q.cp>reach.cp)&&PL.y>=MINI_Y+q.y-.4&&raceContains(q,PL.x,PL.z,0))reach=q;
+  if(reach){
+    MINE.cp=reach.cp;RACE.cp=raceCheckpointXZ(reach);toast(`🚩 ${reach.cp-1}단계 · ${RACE_S[reach.cp-1].n}`,1.8,'#c8ffb0');if(window.__sfx)window.__sfx('get');miniReport(true);
   }
   if(p&&p.fin&&PL.z>=RACE_Z_FIN&&MINE.cp===RACE_S.length){raceFinishMe();return;}
   raceHazardTick(dt);
@@ -29670,12 +29725,15 @@ function raceBuild(seed){
   const rng=mulberry(seed|0);RACE.seed=seed|0;RACE_P.length=0;race74Reset();RACE._haz=null;
   const P=o=>{const p=Object.assign({id:RACE_P.length,x:0,y:0,h:2.2,shape:'cushion',round:3,kind:'cushion'},o);RACE_P.push(p);return p;};
   // 82차 — 마지막 깃발 판은 롤러코스터 점프대 착지 자리(끝 + 44)로 옮기고 넓혔다(40 × 32 — 벽 끝에서 날아도 받는다). 별빛 대도약·골인도 같은 만큼 뒤로.
-  const cps=[[22,0,48,14],[84,0,26,14],[220,0,26,16],[468,0,26,16],[578,30,26,16],[680,30,26,16],[770+CH82_SHIFT,0,40,32]];
+  // 82차b — 도넛 섬 뒤 깃발 판(4)은 마지막 도넛 도약이 내리는 자리 전체를 받게 뒤로 늘렸다(z 460~476 → 460~490).
+  // 실제 도약(어디서 뛰든 · W/S/A/D · 30/60/120Hz)의 착지 z 는 460~484 — 예전 판(끝 476)을 넘어 오르막에 내리면 깃발을 못 셌다.
+  // 관문(RACE_S[3].gz 486)은 착지 자리 뒤에 서서, 내려서 달려 지나간다. 오르막은 판 끝(490)에서 시작한다(위 끝 568·높이 30 그대로).
+  const cps=[[22,0,48,14],[84,0,26,14],[220,0,26,16],[475,0,26,30],[578,30,26,16],[680,30,26,16],[770+CH82_SHIFT,0,40,32]];
   cps.forEach(([z,y,w,d],i)=>{RACE.vars[i]=(rng()*3)|0;P({z,y:y+.075,w,d,sec:i,cp:i+1,kind:'cp',col:RACE_S[i].col});});
   P({z:50,w:44,d:64,h:2.8,round:8,sec:0,col:0x68cde6});
   P({z:150,w:44,d:120,h:2.6,round:3,sec:1,col:0x9b8aed});
   for(let i=0;i<4;i++)P({x:[-7,8,-8,7][i],z:244+i*56,w:24,d:24,h:3,shape:'round',sec:2,kind:'bounce',donutIndex:i,col:[0xff9ac3,0xffd166,0x9b8aed,0x68cde6][i],bounce:{v:55,forward:21.5,rate:1,manual:true}});
-  P({z:523,y:0,yEnd:30,w:26,d:90,h:3,shape:'ramp',round:3,sec:3,kind:'ramp',col:0xffbd62,boosts:[494,513,532,551].map((z,i)=>({x:i%2?5:-5,z,w:7,d:5}))});
+  P({z:529,y:0,yEnd:30,w:26,d:78,h:3,shape:'ramp',round:3,sec:3,kind:'ramp',col:0xffbd62,boosts:[494,513,532,551].map((z,i)=>({x:i%2?5:-5,z,w:7,d:5}))});   // 82차b — 490~568(예전 478~568). 부스터 자리는 그대로
   // 78차 — shipped 76 baseline: translation frequency ×5, rotation .30→.60 (×2).
   for(let i=0;i<7;i++)P({x:i%2?1.3:-1.3,z:594+i*12,y:30+(i%2?.2:0),w:8,d:8,h:2.2,shape:'round',sec:4,kind:'moving',col:i%2?0x6edab4:0x6bcff0,mv:{ax:'xz',amp:1.1,zamp:.65,spd:(.65+i*.035)*5,ph:rng()*Math.PI*2,rot:(i%2?-.60:.60)}});
   // 82차 — 곧은 미끄럼(z 722 · 폭 26 · 길이 64) 대신 구불구불 롤러코스터 한 판. 모양·판정은 chute82(CH82) 가 맡는다(w·d 는 겉 테두리 — 경치 자리·카메라 범위용)
@@ -29778,9 +29836,9 @@ function raceRocks(t){
   const ramp=RACE_P.find(p=>p.shape==='ramp');if(!ramp)return [];
   if(!RACE._rocks)RACE._rocks=Array.from({length:6},(_,i)=>({k:'rock',id:'rock'+i,sec:3,r:ROCK.r,lane:i%3,wave:(i/3)|0}));
   const result=RACE._rockVisible||(RACE._rockVisible=[]);result.length=0;
-  const ph=(RACE.seed>>>0)%1000/1000;
+  const ph=(RACE.seed>>>0)%1000/1000,foot=ramp.z-ramp.d/2-1,top=ramp.z+ramp.d/2+2;   // 82차b — 오르막 발치·꼭대기에서 잘라낸다(예전 477·570 고정 — 발치가 490 으로 옮겨 깃발 판 위로 굴러 내려오지 않게)
   for(const h of RACE._rocks){const age=(t+ph+h.lane*.9+h.wave*ROCK.per/2)%ROCK.per;h.z=578-rockU(age);
-    if(h.z<477||h.z>570)continue;h.x=(h.lane-1)*8;h.y=raceSurface(ramp,h.x,h.z)-MINI_Y+h.r;h.roll=-rockU(age)/h.r;result.push(h);}
+    if(h.z<foot||h.z>top)continue;h.x=(h.lane-1)*8;h.y=raceSurface(ramp,h.x,h.z)-MINI_Y+h.r;h.roll=-rockU(age)/h.r;result.push(h);}
   return result;
 }
 /* 77차 — 다섯 회전봉의 길이22 유지, 76차보다 굵기 세 배(.55→1.65), 각속도1.5배(1.8→2.7).
@@ -30512,7 +30570,7 @@ function raceArtBuild(){
   }
   // 넓고 읽기 쉬운 관문. 글씨는 공유 atlas, 기둥은 봉제 튜브다.
   for(let i=0;i<RACE_S.length;i++){
-    const s=RACE_S[i],z=i===0?7:s.z0-6,cp=RACE_P.find(p=>p.cp===i+1),y=cp?cp.y:0,span=i===0?20:cp?Math.min(15,cp.w*.4):15,col=s.col||pal.coral;
+    const s=RACE_S[i],z=i===0?7:s.gz??s.z0-6,cp=RACE_P.find(p=>p.cp===i+1),y=cp?cp.y:0,span=i===0?20:cp?Math.min(15,cp.w*.4):15,col=s.col||pal.coral;
     const pts=[[-span,y,z],[-span,y+4.4,z],[-span*.78,y+7.5,z],[-span*.36,y+8.5,z],[span*.36,y+8.5,z],[span*.78,y+7.5,z],[span,y+4.4,z],[span,y,z]];
     const candy=i===0||i===1||i===4;
     const pp=[{g:candy?candyTube(pts,i===0?.95:.72,i===0?13:10):tube(pts,.72),c:col}];
@@ -31281,7 +31339,9 @@ function checkpointTick(dt){ checkpointWait-=dt; if(checkpointWait<=0){ checkpoi
 function checkpointRestore(){
   checkpointActive=checkpointKey(); if(!checkpointActive) return false;
   let v; try{ v=JSON.parse(LS.get(checkpointActive,'null')); }catch(e){ return false; }
-  if(!v || v.v!==1 || v.sid!==G.sid || v.g!==G.me.g || !v.kit || !v.xp || !v.pc || !v.my) return false;
+  /* 82차 — 다른 모둠을 골라 다시 들어와도 레벨·직업·장비·탄약은 그 아이를 따라간다.
+     모둠 자원 장부(w·s·o… / sw·ss·so…)만은 옛 모둠에 남는다 — 아래에서 0부터 센다(옛 몫은 호스트 pcLedgerMove82가 옛 모둠 base로 옮긴다). */
+  if(!v || v.v!==1 || v.sid!==G.sid || !v.kit || !v.xp || !v.pc || !v.my) return false;
   const finite=n=>typeof n==='number' && Number.isFinite(n);
   if(!finite(v.xp.lv) || v.xp.lv<1 || v.xp.lv>LV_MAX || !Array.isArray(v.xp.st) || v.xp.st.length!==4 ||
      !v.xp.st.every(n=>finite(n)&&n>=0&&n<=12) || !finite(v.kit.ammo) || v.kit.ammo<0 ||
@@ -31299,7 +31359,9 @@ function checkpointRestore(){
   for(const k of Object.keys(KIT)) if(v.kit[k]!==undefined) KIT[k]=v.kit[k];
   for(const k of ['lv','xp','pts','st','job','jt']) XP[k]=v.xp[k];
   for(const k of Object.keys(MY)) MY[k]=Math.max(0,+v.my[k]||0);
-  myPC={...myPC,...v.pc,g:G.me.g}; pcMap.set(uid,myPC);
+  myPC={...myPC,...v.pc,g:G.me.g};
+  if(v.g!==G.me.g) for(const k of [...Object.values(RES_PC),...Object.values(RES_SPC)]) myPC[k]=0;
+  pcMap.set(uid,myPC);
   PL.hp=Math.max(0,Math.min(maxHP(),+v.hp||0)); PL.down=!!v.down;
   marketSeq=Math.max(0,+v.seq||0); marketApplied=Math.max(0,+v.applied||0);
   marketPending=v.pending && v.pending.sid===G.sid ? v.pending : null;
@@ -31581,6 +31643,21 @@ function lerpMobs(dt){
     s.y = Math.min(GY+1, Math.max(GY, solidTop(Math.floor(s.x), Math.floor(s.z)))); } }
 }
 
+/* 82차 — 같은 판(sid)에서 다른 모둠을 골라 다시 들어온 아이: 그 아이 칸(pc)의 g 가 바뀐다.
+   옛 모둠에서 캔 자원은 그 모둠 몫이라, 호스트가 옛 칸의 순 몫을 옛 모둠 밑천(base)으로 옮겨 남긴다.
+   새 모둠 칸은 0부터 센다(startGame·checkpointRestore). 그래서 어느 모둠도 자원을 잃거나 공짜로 얻지 않는다.
+   base 는 호스트만 쓴다 — hostPurchase·건설 결제와 같은 장부다. */
+function pcLedgerMove82(prev,now){
+  if(!G.host || !prev || !now || !G.sid || prev.sid!==G.sid || now.sid!==G.sid) return false;
+  const a=prev.g;if(!Number.isInteger(a) || a<0 || a>=NG || a===now.g) return false;
+  // 새 모둠 칸이 0 인 '막 옮긴' 기록일 때만 옮긴다 — 한 아이가 두 탭을 오가며 모둠을 바꿔도 자원이 불어나지 않게
+  for(const k of RES_KEYS) if((now[RES_PC[k]]||0) || (now[RES_SPC[k]]||0)) return false;
+  let moved=false;
+  for(const k of RES_KEYS){ const v=(prev[RES_PC[k]]||0)-(prev[RES_SPC[k]]||0);
+    if(v){ base[a][RES_PC[k]]=(base[a][RES_PC[k]]||0)+v; moved=true; } }
+  if(moved) netBase();
+  return moved;
+}
 function joinRoom(code, asHost){
   net = fb.ref(DB_ROOT+'/'+code); G.room = code; G.host = asHost;
   myRef = net.child('p/'+uid);lastPosSig=lastSimSig='';netIdleT=simIdleT=0;
@@ -31647,6 +31724,7 @@ function joinRoom(code, asHost){
   const pcChanged=s=>{
     const k=s.key,now=s.val();if(!now || k===uid)return;
     const prev=pcMap.get(k);if(prev && (now.rsc|0)>(prev.rsc|0) && now.n)rescueSay(now);
+    pcLedgerMove82(prev,now);
     pcMap.set(k,now);recomputeRes();retryPurchase(k);
   };
   net.child('pc').on('child_added',pcChanged);net.child('pc').on('child_changed',pcChanged);
@@ -32449,8 +32527,9 @@ el('bJoin').onclick = ()=>{
     if(m.v!==GAME_VER){tmsg('선생님과 게임 버전이 달라요. 모두 최신 파일을 열거나 새로고침한 뒤 새 방을 만들어 주세요.');return;}
     G.room=c;G.host=false;G.sid=m.sid||0;G.phase=m.ph;G.day=m.day;G.t=m.t;
     if(m.set)G.set=Object.assign(G.set,m.set);
+    /* 82차 — 다시 들어올 때 고른 모둠(pickG)이 이긴다. 예전엔 같은 판의 옛 칸(pc/<uid>.g)으로 되돌려서
+       첫 화면에서 다른 모둠을 골라도 옛 모둠으로 들어갔다(집결소·게임 중 모두). 옛 칸은 장부 합치기에만 쓴다(startGame). */
     joinPC=own.val();
-    if(joinPC?.sid===G.sid && Number.isInteger(joinPC.g) && joinPC.g>=0 && joinPC.g<NG){G.me.g=joinPC.g;myPC.g=joinPC.g;}
     startGame();joinRoom(c, false);
   }).catch(e=>{ tmsg('연결 실패: '+e.message); });
 };
@@ -32615,13 +32694,18 @@ function startGame(){
   xpReset();
   PL.hp = maxHP(); PL.down = false; PL.biteT = 0;
   let restored=false;
-  if(!G.host){restored=checkpointRestore();
+  if(!G.host){restored=checkpointRestore();const teamSwitch82=!!joinPC && joinPC.g!==G.me.g;
     if(joinPC && (!joinPC.sid || joinPC.sid===G.sid)){
       // Firebase's last committed counters may be ahead of the local snapshot.
-      for(const k of [...Object.values(RES_PC),...Object.values(RES_SPC)])myPC[k]=Math.max(myPC[k]||0,joinPC[k]||0);
+      // 82차 — 모둠 자원 장부는 같은 모둠을 골랐을 때만 합친다. 다른 모둠이면 새 모둠 칸은 0부터 센다
+      // (옛 모둠 몫은 호스트 pcLedgerMove82가 옛 모둠 base로 옮긴다). 개인 기록(MY)은 아이를 따라간다.
+      const ledger=[...Object.values(RES_PC),...Object.values(RES_SPC)];
+      if(joinPC.g===G.me.g) for(const k of ledger)myPC[k]=Math.max(myPC[k]||0,joinPC[k]||0);
+      else for(const k of ledger)myPC[k]=0;
       for(const k of Object.keys(MY))MY[k]=Math.max(MY[k]||0,joinPC[k==='rescue'?'rsc':k]||0);
       pcMap.set(uid,myPC);
     }joinPC=null;recomputeRes();
+    if(teamSwitch82) netPCDirty=true;   // 82차 — 모둠을 바꿔 들어왔으면 첫 통신 때 pc 칸에도 바로 적는다(호스트 결제·선생님 화면이 pc.g를 읽는다)
   }
   G.started = true; startedAt = tAcc;
   fitHint();
@@ -33623,6 +33707,47 @@ Object.assign(SFX, {
     thump(90, 48, 0.9, 0.11, t + 0.78, 1.2); tone(1318, 2637, 0.5, 'sine', 0.035, t + 0.8); puff(0.9, 0.05, 2600, 0.6, t + 0.8); },     // 낮은 북 + 반짝
   enhWake:(lv)=>{ const p = Math.pow(2, 2*((lv||1) - 1)/12), t = now0(); pluck(1568*p, 0.28, 0.034, t, 0.3); pluck(1568*p*2.76, 0.16, 0.006, t); puff(0.12, 0.025, 4200, 1.2, t + 0.02); }
 });
+/* ═══ 82차 — 경주 점프 '뾰잉' ═══
+   선생님: "레이싱 모드에서는 점프할 때 효과음이 폴가이즈 점프 효과음이랑 똑같았으면 좋겠어."
+   남의 게임 녹음을 가져다 쓸 수는 없다(저작권) — 파일 없이 합성으로 그 결만 낸다: 아주 짧고(0.22초) 밝고 통통 튀는 고무 인형의 '뾰잉'.
+     · 목소리(raceBoing82) — 배음 여섯 개짜리 둥근 파형(RJ82_W)이 한 옥타브 반 가까이 튀어 오르고(300→780Hz, 0.03초에 63%·0.085초에 95%),
+       용수철처럼 ±6%(한 반음쯤)·17Hz 로 한두 번 출렁이다 잦아든다. 공명 저역 필터가 음높이의 1.6배→3.8배로 열려 '우→이' 입 모양이 된다.
+     · 몸통 '뽁'(낮은 사인 175→250Hz 0.065초, 첫 점프만) · 발밑 바람(1.9kHz 띠 잡음 0.05초)
+     · 2단 점프(r82jump2)는 같은 목소리를 네 반음 반 위로·조금 짧게, 공중이라 몸통은 없다. 뛸 때마다 높이를 ±3% 흔든다(기계처럼 똑같이 반복되지 않게).
+   updPlayer 가 경주(raceOn)에서만 부른다. 마을·밤·대기실 점프(jump·hop)와 도넛 원판 발사(raceBounceSound)는 그대로다.
+   효과음 버스(sfxOut → SFXB = 효과음 크기 설정)·음소거(sndOn)·동시 목소리 상한(voxOk)·끝나면 끊기(nodeEnd)·같은 소리 간격(SFX_GAP)을 그대로 따른다.
+   한 번에 목소리 셋 이하, 가장 큰 조각 0.045(옛 jump 0.07 보다 작다) · 필터 4.2kHz 상한이라 6kHz 위는 거의 없다. */
+let RJ82_W = null;                                   // 목소리 파형 — 오디오 컨텍스트마다 하나(audReset 이 비운다)
+function rj82Wave(){
+  if(!RJ82_W && AUD.createPeriodicWave){ const sn = new Float32Array([0, 1, 0.46, 0.24, 0.11, 0.05, 0.02]); RJ82_W = AUD.createPeriodicWave(new Float32Array(sn.length), sn); }
+  return RJ82_W;
+}
+function raceBoing82(f0, f1, dur, vol, t0, wob){
+  if(!AUD || !sndOn) return;
+  audWake();
+  if(!voxOk(t0, t0 + dur + 0.03)) return;
+  const o = AUD.createOscillator(), fl = AUD.createBiquadFilter(), g = AUD.createGain(), v = vol*SFX_MUL, L = Math.log(f1/f0);
+  const w = rj82Wave(); if(w) o.setPeriodicWave(w); else o.type = 'triangle';
+  o.frequency.setValueAtTime(f0, t0);
+  fl.type = 'lowpass'; fl.Q.value = 2.5; fl.frequency.setValueAtTime(f0*1.6, t0);
+  for(let i=1;i<=44;i++){ const tt = dur*i/44, e = 1 - Math.exp(-tt/0.028);            // 0.03초에 63% · 0.085초에 95% 올라간다
+    const f = f1*Math.exp(-L*(1 - e) + wob*e*Math.exp(-tt/0.1)*Math.sin(106.8*tt));    // 106.8 = 2π×17Hz 용수철 출렁임(잦아든다)
+    o.frequency.linearRampToValueAtTime(f, t0 + tt); fl.frequency.linearRampToValueAtTime(Math.min(4200, f*(1.6 + 2.2*e)), t0 + tt); }
+  g.gain.setValueAtTime(0.0001, t0); g.gain.exponentialRampToValueAtTime(v, t0 + 0.01);
+  g.gain.setValueAtTime(v, t0 + 0.06); g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+  o.connect(fl); fl.connect(g); g.connect(sfxOut()); o._a = fl; o._b = g; o.onended = nodeEnd;
+  o.start(t0); o.stop(t0 + dur + 0.03);
+}
+Object.assign(SFX, {
+  r82jump:  ()=>{ const t = now0(), d = 0.97 + Math.random()*0.06;
+    tone(175*d, 250*d, 0.065, 'sine', 0.045, t);                   // 몸통 '뽁'
+    puff(0.05, 0.018, 1900*d, 0.9, t + 0.008);                     // 발밑 바람
+    raceBoing82(300*d, 780*d, 0.22, 0.042, t + 0.012, 0.12); },    // '뾰잉'
+  r82jump2: ()=>{ const t = now0(), d = 0.97 + Math.random()*0.06;
+    puff(0.04, 0.014, 2300*d, 0.9, t);
+    raceBoing82(390*d, 1010*d, 0.19, 0.038, t + 0.004, 0.12); }
+});
+SFX_GAP.r82jump = SFX_GAP.r82jump2 = 0.06;
 window.__sfx = sfx; window.__sfxAt = sfxAt; window.__sfxJump = sfxJump;
 /* ═══════════════════════ 66차 — 좀비 소리(긴장감의 절반) ═══════════════════════
    선생님: "애들이 무서워서 밤을 더 대비하고 싶게." 무섭되 귀가 아프지 않게 — 날카로운 고음 없이 낮고 쉰 목소리다.
@@ -34194,7 +34319,7 @@ const SND66 = {
 Object.assign(SFX, SND66);
 /* 검사 — 새 오디오(오프라인 컨텍스트)로 바꿀 때 버스·목소리 칸·판을 모두 비운다 · 장면 하나를 sec 초 앞까지 한 번에 건다 */
 function audReset(){
-  BUS = SFXB = BGMB = BGMD = AMBB = null; NOISE_BUF = null; SHAPE_C = null;
+  BUS = SFXB = BGMB = BGMD = AMBB = null; NOISE_BUF = null; SHAPE_C = null; RJ82_W = null;
   for(const k in VOX) VOX[k].fill(0);
   for(const k in _sfxLast) delete _sfxLast[k];
   for(const k in bgmCompat) delete bgmCompat[k];
@@ -34609,7 +34734,9 @@ function loop(){
     if(hurtCd>0) hurtCd -= dt;
     kitTick(dt); burnTick(dt); downTick(dt); specTick(dt); comboTick(dt);
     if(!popOpen()) doAction(dt); else { hl.visible=false; ghost.visible=false; workStop(); }
-    if(!pregame78()){buildCoopTick(dt);buildAssistTick();}
+    /* 82차 — 공동 건설 막대는 실제 시간으로 찬다(73차 규칙: 시계는 실제 경과 · 따라잡기 0.25초). dt(0.05 상한)를 쓰면
+       호스트가 10fps 면 절반, 5fps 면 4분의 1 빠르기로 차서(나무벽 2.8초 → 11초, 화살탑 6.4초 → 26초) 낮 시간·좀비보다 짓기만 느려졌다 */
+    if(!pregame78()){buildCoopTick(motionDt);buildAssistTick();}
     sheepHurt(dt);
     if(throwCd > 0) throwCd -= dt;
     rlTick(dt);                                // 70차 — 자동 재장전(박자 소리·취소·끝나면 탄창 채움)
