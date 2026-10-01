@@ -275,7 +275,7 @@ const geometryFor=name=>{const m=new RegExp('A\\.'+name+'=dyn\\(raceArtUV\\((?:r
 const shaft=geometryFor('bar'),cap=geometryFor('cap'),seamCases=[];
 const bank=geometry=>({geometry,matrices:[],count:0,count_max:512,setMatrixAt(i,m){this.matrices[i]=m.clone();}});
 const artFixture=()=>{const art={builtSeed:1,stamp:0,static:[],dynamic:[],toys:[],stats:{}};
-  for(const n of ['pad','padTrim','bar','ball','cap','metal','jump','rock'])art[n]=bank(n==='bar'?shaft:cap);art.donut=[bank(cap),bank(cap),bank(cap)];return art;};
+  for(const n of ['pad','padTrim','bar','ball','cap','metal','jump','rock'])art[n]=bank(n==='bar'?shaft:cap);art.donut=[bank(cap),bank(cap),bank(cap)];art.bag82=[bank(cap),bank(cap),bank(cap)];return art;};   // 82차b — 봉지 사탕 맛 셋
 const drawContext=vm.createContext({THREE,art:artFixture(),hazards:[]});
 vm.runInContext(`const MINI_Y=100,PL={z:0},RACE={seed:1,t:0},RACE_P=[{}],RACE74={pulse:new Map()},RACE_RAINBOW76=[0xffffff];
  const RACE_ART_PALETTE={cream:0xffffff,yellow:0xffff00,silver:0xaaaaaa,lavender:0xccccff};let RACE_ART74=art;

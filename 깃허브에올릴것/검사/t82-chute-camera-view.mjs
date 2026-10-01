@@ -41,10 +41,11 @@ try{
   const gaps=row=>{const lim=CH.hw-P.R-.03,bl=row.ds.map(d=>[d-row.R-P.R-.35,d+row.R+P.R+.35]).sort((a,b)=>a[0]-b[0]),o=[];let cur=-lim;
     for(const [a,b] of bl){if(a>cur)o.push([cur,a]);cur=Math.max(cur,b);}if(cur<lim)o.push([cur,lim]);return o.filter(([a,b])=>b-a>.6);};
   reset(0,682,0,Y+30.075,60);let hit=false;
-  W.__chuteCameraRun=mark=>{for(let f=0;f<1200&&P.z<mark;f++){clear();K.w=true;
+  W.__chuteCameraRun=mark=>{for(let f=0;f<2400&&P.z<mark;f++){clear();K.w=true;
     if(P.z>CH.z0){const nxt=rows.find(r=>r.z+r.R>P.z);if(nxt&&nxt.z-P.z<70){const q=W.__chuteQ82(P.z),d=(P.x-q.cx)*q.cs,vd=P.vx*q.cs-P.vz*q.sn,pred=d+vd*.3;let best=null,bd=1e9;
       for(const [a,b] of gaps(nxt)){const w=b-a,tg=Math.max(a+Math.min(2,w/2),Math.min(b-Math.min(2,w/2),pred));if(Math.abs(tg-pred)<bd){bd=Math.abs(tg-pred);best=tg;}}
-      if(best!==null){if(pred<best-.35)K.a=true;else if(pred>best+.35)K.d=true;}}}
+      if(best!==null){if(pred<best-.35)K.a=true;else if(pred>best+.35)K.d=true;}}
+     else if(P.z<CH.z0+CH.lz){const q=W.__chuteQ82(P.z),d=(P.x-q.cx)*q.cs,vd=P.vx*q.cs-P.vz*q.sn,pred=d+vd*.3;if(pred<-1.5)K.a=true;else if(pred>1.5)K.d=true;}}   // 84차 — 급커브에선 가운데를 지킨다
     W.__advance(1000/60);hit ||= W.__RACE().hitCd>0;
    }W.__paintMini();W.__drawFrame();return {name:'chute-live-'+mark,player:{x:P.x,y:P.y,z:P.z},camera:{x:C.position.x,y:C.position.y,z:C.position.z},check:inspect(),ground:P.ground,hit,checkpoint:W.__MINE.cp};};
   return {results,shots:[]};

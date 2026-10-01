@@ -4391,7 +4391,7 @@ import * as THREE from 'three';
 /* ═══════════════════════ 상수 ═══════════════════════ */
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '84차b · 롤러코스터 2배·360도 회전';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '86차 · 롤러코스터 2배·360도 회전';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -20279,7 +20279,7 @@ function drawSheep(list, t, cap, colOf, scale, cull){
     // Downed characters rotate onto their backs; a double jump rotates around the waist.
     if(down) flipSet(s.x, y + 0.26*sc, s.z, rx, 0, rz, Math.PI*0.5);
     else if(flip) flipSet(s.x, y + 0.72*sc*stretch + bob, s.z, rx, 0, rz, -Math.PI*2*flip);
-    else if(raceOn()){ const lp = raceLoopPh84(s); if(lp > .01 && lp < 2*Math.PI - .01) flipSet(s.x, y, s.z, 1, 0, 0, -lp); }   // 84차 — 360도 회전: 발을 고리에 붙인 채 몸이 고리 가운데를 본다
+    else if(raceOn() && typeof raceLoopPh84 === 'function'){ const lp = raceLoopPh84(s); if(lp > .01 && lp < 2*Math.PI - .01) flipSet(s.x, y, s.z, 1, 0, 0, -lp); }   // 84차 — 360도 회전: 발을 고리에 붙인 채 몸이 고리 가운데를 본다
     else {   // 44차 — 굴림 훅: 도는 안쪽으로 기울기(오른쪽으로 돌면 오른쪽이 낮아진다) + 서 있을 때 무게 옮기기
       const phi = -Math.max(-0.16, Math.min(0.16, hd.turn*0.045)) + idleK*life.sway*0.022
         + wind*.035-strike*.045 + runK*Math.sin(gait)*mvK*.035-dirS*mvK*(.025+runK*.07);
@@ -21326,7 +21326,7 @@ function updPlayer(dt){
       : clear < camDistance ? clear : camHold > 0 && upCam ? camDistance : camDistance + (clear - camDistance)*(1 - Math.exp(-dt*(camSlow > 0 ? 3 : 12)));   // 머문 뒤(계단 끝에서 벗어나도)는 천천히 풀기(초당 3)
     const ratio = length > 0 ? camDistance/length : 0;
     camera.position.set(tx + ox*ratio, cy + oy*ratio, tz + oz*ratio);
-    if(tk === 0 && raceOn()) raceLoopCam84(dt, dx, dy, dz);         // 84차 — 360도 회전 동안 고리 앞으로 물러난 카메라
+    if(tk === 0 && raceOn()) raceLoopCam84(dt);                      // 84차 — 360도 회전 동안 내 몸 뒤에 붙어 같이 도는 카메라
     // 몸 숨김/복귀에 서로 다른 경계를 써 점프·벽 가장자리에서 깜빡이지 않는다.
     camBodyHidden = camBodyHidden ? camDistance < (camAimBlend>.5 ? 1.75 : .90) : camDistance < (camAimBlend>.5 ? 1.45 : .52);
   } else {
@@ -29663,13 +29663,24 @@ function raceLoopPh84(s){
   if(s.y < y0 + 1 || Math.abs(Math.hypot(dy, dz) - L.R) > 1.6 || Math.abs(s.x - q.cx) > L.lane + 3) return 0;
   const ph = Math.atan2(dz, -dy); return ph < 0 ? ph + 2*Math.PI : ph;
 }
-/* 84차 — 360도 회전 동안 카메라를 고리 앞으로 물려 고리 전체가 보이게(보는 방향 yaw·pitch 는 그대로 — 자리만 옮긴다). 들어갈 때·나올 때 0.3초쯤에 걸쳐 섞는다 */
-function raceLoopCam84(dt, fx, fy, fz){
-  const want = RACE74.loop82 && RACE74.loop82.u > CH82.loop.pre*.5 ? 1 : 0;
-  raceLoopCamK84 += (want - raceLoopCamK84)*(1 - Math.exp(-dt*(want ? 5 : 3.5)));
-  if(raceLoopCamK84 < .002){ raceLoopCamK84 = 0; return; }
-  const C = CH82, L = C.loop, za = C.z0 + L.z, q = chuteQ82(za), cy = MINI_Y + q.y + L.R + 1, k = raceLoopCamK84*raceLoopCamK84*(3 - 2*raceLoopCamK84), D = 31;
-  camera.position.set(camera.position.x + (q.cx - fx*D - camera.position.x)*k, camera.position.y + (cy - fy*D - camera.position.y)*k, camera.position.z + (za - fz*D - camera.position.z)*k);
+/* 84차 — 360도 회전: 카메라가 내 몸 바로 뒤(고리 위 5칸 뒤 · 길에서 2.4 위)에 붙어 같이 한 바퀴 돈다(선생님: "내 시점 그대로 한 바퀴").
+   오르면 하늘, 꼭대기에선 화면이 거꾸로, 내려와 그대로 달려 나간다. 카메라 '위'는 고리 가운데 쪽. 들어갈 때·나올 때 0.35 rad 동안 보통 카메라와 섞는다.
+   레일 위라 조작이 없는 동안만이고, 아이의 시선 값(PL.yaw·pitch)은 건드리지 않는다 — 나오면 원래 시선 그대로다. */
+const _lcQ = new THREE.Quaternion(), _lcM = new THREE.Matrix4(), _lcE = new THREE.Vector3(), _lcT = new THREE.Vector3(), _lcU = new THREE.Vector3();
+function raceLoopPt84(ph, h, out){
+  const C = CH82, L = C.loop, za = C.z0 + L.z, q = chuteQ82(za), y0 = MINI_Y + q.y + chuteProf82(L.lane), k = Math.max(0, Math.min(1, ph/(2*Math.PI))), e = k*k*(3 - 2*k);
+  const c = Math.cos(ph), sn = Math.sin(ph);
+  return out.set(q.cx + L.lane - 2*L.lane*e, y0 + L.R*(1 - c) + h*c, za + L.R*sn - h*sn);
+}
+function raceLoopCam84(dt){
+  const S = RACE74.loop82, ph = S ? RACE74.loopPh || 0 : 0;
+  if(!S || ph <= 0 || ph >= 2*Math.PI){ raceLoopCamK84 = 0; return; }
+  const b = .35, w = Math.min(1, ph/b, (2*Math.PI - ph)/b), k = w*w*(3 - 2*w); raceLoopCamK84 = k;
+  const L = CH82.loop, back = Math.max(0, ph - 5/L.R);
+  raceLoopPt84(back, 2.4, _lcE); raceLoopPt84(ph + 4/L.R, 1.0, _lcT);
+  _lcU.set(0, Math.cos(back), -Math.sin(back));                     // 고리 가운데 쪽이 화면 위
+  _lcM.lookAt(_lcE, _lcT, _lcU); _lcQ.setFromRotationMatrix(_lcM);
+  camera.position.lerp(_lcE, k); camera.quaternion.slerp(_lcQ, k);
 }
 /* 84차 급커브에서 튕겨 나가기 — 바깥으로 몸을 밀고 위로 조금(테를 넘는 게 보이게). 레일처럼 돌리는 것(chuteFlight82)과 벽은 이제 안 붙잡는다 */
 function chuteThrow82(s, cs, sn, vd){
@@ -29706,6 +29717,8 @@ function chuteLoop82(dt){
   const end = L.pre + ring + L.post, P = chuteLoopAt82(Math.min(S.u, end), S.d0);
   PL.x = P.x; PL.y = P.y; PL.z = P.z; PL.vy = 0; PL.ground = true; PL.jumps = 0; RACE74.slide = 1; RACE74.flight = 0;
   RACE74.loopPh = P.ph;
+  S.fx = (S.fx || 0) - dt;                                            // 반짝이 꼬리(무지개 색 돌아가며) — 옆 카메라에서 고리를 도는 몸이 잘 보이게 · 기존 입자 풀
+  if(S.fx <= 0 && P.ph > 0 && P.ph < 2*Math.PI){ S.fx = .045; S.ci = ((S.ci || 0) + 1)%7; burst(PL.x, PL.y + .4, PL.z, RACE_RAINBOW76[S.ci], 2, .45); }
   if(S.u >= end){ const q = chuteQ82(PL.z);   // 놓는다 — 길 방향으로 v0, 옆 0
     PL.vx = q.sn*S.v0; PL.vz = q.cs*S.v0; RACE74.loop82 = null; RACE74.loopPh = 0; RACE74.sn82 = q.sn; RACE74.cs82 = q.cs;
     }
@@ -30718,13 +30731,17 @@ function raceArtBuild(){
   };
   /* 84차 — 360도 회전 고리. 몸 레일(chuteLoopAt82)과 같은 중심선·같은 옆 이동(왼 줄 +4 → 오른 줄 −4)으로 꼭짓점을 찍는다.
      안쪽 바닥 = 무지개 일곱 길(고리 가운데를 보는 얕은 U · 폭 7.6), 바깥 = 연보라 껍질, 양 끝 = 산호·노랑 고무 테, 받침 = 길 테에서 고리 옆으로 가는 흰 버팀대 넷.
-     입구·출구(아래 0.3 rad 안)는 길 바닥과 겹치므로 그리지 않는다. 새 재질 0 · 투명 0. */
+     고리 시작·끝(바닥 0.7 rad 안)은 단면을 넓은 길 바닥 모양으로 섞어 길 바닥에 딱 붙인다(떠 있는 끝·겹친 길이 없게 — 선생님: "길이 자연스럽게 이어지게").
+     고리 앞뒤 넓은 길 위엔 고리 폭과 같은 무지개 줄(들어가는 왼 줄 · 나오는 오른 줄)을 칠해 '줄 → 고리 → 줄' 한 길로 읽힌다. 새 재질 0 · 투명 0. */
   const loopArt84=()=>{
-    const C=CH82,L=C.loop,R=L.R,hwL=3.8,rimL=1.5,za=C.z0+L.z,q0=chuteQ82(za),cxL=q0.cx,y0=MINI_Y+q0.y+chuteProf82(L.lane),A0=.3,A1=2*Math.PI-.3,NS=120,laneW=2*hwL/7;
+    const C=CH82,L=C.loop,R=L.R,hwL=3.8,rimL=.55,za=C.z0+L.z,q0=chuteQ82(za),cxL=q0.cx,y0=MINI_Y+q0.y+chuteProf82(L.lane),A0=0,A1=2*Math.PI,NS=160,laneW=2*hwL/7;
     const dAt=ph=>{const k=ph/(2*Math.PI),e=k*k*(3-2*k);return L.lane-2*L.lane*e;};
     // 고리 위 점: 중심선 + 옆 u + 안쪽(가운데 쪽) h
     const P=(ph,u,h)=>{const c=Math.cos(ph),sn=Math.sin(ph);return [cxL+dAt(ph)+u,y0+R*(1-c)+h*c,za+R*sn-h*sn];};
-    const prof=u=>rimL*Math.pow(Math.min(1,Math.abs(u)/hwL),2);
+    const profT=u=>rimL*Math.pow(Math.min(1,Math.abs(u)/hwL),2);
+    const ground=(ph,u)=>{const d=dAt(ph)+u;return chuteProf82(Math.max(-C.hw,Math.min(C.hw,d)))-chuteProf82(L.lane)+.03;};   // 넓은 길 바닥(고리 바닥 기준 높이)
+    const blend=ph=>{const a=Math.min(ph,2*Math.PI-ph),w=Math.max(0,Math.min(1,a/.7));return w*w*(3-2*w);};                     // 0 = 길 바닥 모양 · 1 = 고리 U
+    const prof=(u,ph)=>{const b=blend(ph);return profT(u)*b+ground(ph,u)*(1-b);};
     const grid=(cols,pos,flip)=>{const rows=NS,Pp=new Float32Array((rows+1)*(cols+1)*3),I=[];
       for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++){const o=(j*(cols+1)+i)*3,pt=pos(A0+(A1-A0)*j/rows,i/cols);Pp[o]=pt[0];Pp[o+1]=pt[1];Pp[o+2]=pt[2];}
       for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const a=j*(cols+1)+i,b=a+1,c=a+cols+1,d=c+1;if(flip)I.push(a,b,c,b,d,c);else I.push(a,c,b,b,c,d);}
@@ -30733,19 +30750,27 @@ function raceArtBuild(){
     const facing=(make,want)=>{let g=make(false);const n=g.attributes.normal,i=Math.floor(n.count/2);if(n.getX(i)*want[0]+n.getY(i)*want[1]+n.getZ(i)*want[2]<0){g.dispose();g=make(true);}return g;};
     const parts=[],skin=[];
     for(let k=0;k<7;k++){const u0=-hwL+k*laneW,u1=u0+laneW;
-      parts.push({g:facing(f=>grid(4,(ph,t)=>{const u=u0+(u1-u0)*t;return P(ph,u,prof(u));},f),[0,-1,0]),c:RACE_RAINBOW76[k]});}
+      parts.push({g:facing(f=>grid(4,(ph,t)=>{const u=u0+(u1-u0)*t;return P(ph,u,prof(u,ph));},f),[0,-1,0]),c:RACE_RAINBOW76[k]});}
     // 바깥 껍질 — 테 끝에서 바깥으로 0.9 아래로 돌아가는 단면
-    const sec=[[hwL,rimL],[hwL+.45,rimL+.1],[hwL+.75,rimL-.6],[hwL+.6,-.8],[0,-.95],[-(hwL+.6),-.8],[-(hwL+.75),rimL-.6],[-(hwL+.45),rimL+.1],[-hwL,rimL]];
-    skin.push({g:facing(f=>grid(sec.length-1,(ph,t)=>{const x=t*(sec.length-1),i=Math.min(sec.length-2,Math.floor(x)),w=x-i,a=sec[i],b=sec[i+1];return P(ph,a[0]+(b[0]-a[0])*w,a[1]+(b[1]-a[1])*w);},f),[0,1,0]),c:0xd9d3ea});
+    const sec=[[hwL,rimL],[hwL+.4,rimL+.08],[hwL+.65,rimL-.35],[hwL+.55,-.7],[0,-.85],[-(hwL+.55),-.7],[-(hwL+.65),rimL-.35],[-(hwL+.4),rimL+.08],[-hwL,rimL]];
+    skin.push({g:facing(f=>grid(sec.length-1,(ph,t)=>{const x=t*(sec.length-1),i=Math.min(sec.length-2,Math.floor(x)),w=x-i,a=sec[i],b=sec[i+1];const u=a[0]+(b[0]-a[0])*w,h=a[1]+(b[1]-a[1])*w,bl=blend(ph);return P(ph,u,h*bl+(Math.min(h,0)+ground(ph,Math.max(-hwL,Math.min(hwL,u)))-.06)*(1-bl));},f),[0,1,0]),c:0xc4b2f2});   // 연보라 껍질(길 밑 껍질보다 진하게 — 고리가 장난감 롤러코스터로 읽히게)
     // 고무 테
-    for(const sg of [-1,1]){const pts=[];for(let j=0;j<=NS;j++){const ph=A0+(A1-A0)*j/NS;pts.push(P(ph,sg*(hwL+.2),rimL+.25));}
-      skin.push({g:raceArtPath(pts,.42,false,NS*2,8),c:sg<0?pal.coral:pal.yellow});}
+    for(const sg of [-1,1]){const pts=[];for(let j=0;j<=NS;j++){const ph=A0+(A1-A0)*j/NS,bl=blend(ph);pts.push(P(ph,sg*(hwL+.2),(rimL+.2)*bl+(ground(ph,sg*(hwL+.2))+.12)*(1-bl)));}
+      skin.push({g:raceArtPath(pts,.32,false,NS*2,8),c:sg<0?pal.coral:pal.yellow});}
     // 버팀대 — 길 테(바깥) → 고리 옆(앞·뒤 반 바퀴 자리)
     for(const ph of [Math.PI/2,3*Math.PI/2]){const [x,y,z]=P(ph,0,0),side=Math.sign(dAt(ph))||1,qz=chuteQ82(z),rimY=MINI_Y+qz.y+C.rim+.2;
       for(const zo of [-1.6,1.6]){const a=[qz.cx+side*(C.hw+.6),rimY,z+zo],b=[x+side*(hwL+.7),y-1.2,z+zo*.4];
         skin.push({g:raceArtPath([a,[(a[0]+b[0])/2,(a[1]+b[1])/2+.6,(a[2]+b[2])/2],b],.28,false,12,8),c:pal.cream});}
       const o=[qz.cx-side*(C.hw+.6),rimY,z],t=[x-side*(hwL+.7),y-2.0,z];
       skin.push({g:raceArtPath([o,[(o[0]+t[0])/2,(o[1]+t[1])/2+1.2,(o[2]+t[2])/2],t],.28,false,12,8),c:pal.cream});}
+    // 들어가는 줄(왼 +lane, 고리 앞 pre+R 칸)·나오는 줄(오른 −lane, 고리 뒤 R+post 칸) — 넓은 길 바닥 위 0.03, 고리와 같은 일곱 색
+    const laneStrip=(z0,z1,d)=>{const rows=Math.max(2,Math.round(z1-z0));for(let k=0;k<7;k++){const u0=-hwL+k*laneW,u1=u0+laneW,Pp=[],I=[];
+      for(let j=0;j<=rows;j++){const z=z0+(z1-z0)*j/rows,q=chuteQ82(z);for(let i=0;i<=2;i++){const dd=d+u0+(u1-u0)*i/2;Pp.push(q.cx+dd/q.cs,MINI_Y+q.y+chuteProf82(dd,q.k)+.03,z);}}
+      for(let j=0;j<rows;j++)for(let i=0;i<2;i++){const a=j*3+i,b=a+1,c=a+3,e=c+1;I.push(a,c,b,b,c,e);}
+      const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(Pp,3));g.setIndex(I);g.computeVertexNormals();
+      if(g.attributes.normal.getY(0)<0){g.setIndex(I.map((v,i)=>I[i-i%3+(2-i%3)]));g.computeVertexNormals();}
+      parts.push({g:raceArtUV(g),c:RACE_RAINBOW76[k]});}};
+    laneStrip(za-R-L.pre,za,L.lane);laneStrip(za,za+R+L.post,-L.lane);
     bake(parts,0,za,R+6);bake(skin,1,za,R+8);
   };
   for(const p of RACE_P){

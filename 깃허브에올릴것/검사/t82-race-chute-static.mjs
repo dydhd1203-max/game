@@ -10,20 +10,22 @@ const results=[],check=(name,pass,detail)=>{results.push({name,pass:!!pass,detai
 const ctx=vm.createContext({Math,Map,Float32Array,Number});
 const PLR=+(/const PL = \{[^}]*\bR:([\d.]+)/.exec(source)||[])[1];
 vm.runInContext(`const MINI_Y=100,MINI_PADZ=-19,PL={R:${PLR}},G={mini:{st:'run'},paused:false},MINE={cp:0,fin:-1};
- let racing=true;const raceOn=()=>racing,raceHold=()=>false,raceBounceSound=()=>{},burst=()=>{},fovPunch=()=>{};
- ${['CH82','CH82_Z1','CH82T','CH82Q','chuteSq82','chuteRise82','chuteZone82','RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE74','RACE_LAUNCH_RATE','ROCK','STEP','GRAV','RACE_TOY77'].map(decl).join('\n')}
+ let racing=true;const raceOn=()=>racing,raceHold=()=>false,raceBounceSound=()=>{},burst=()=>{},fovPunch=()=>{},toast=()=>{};
+ ${['CH82','CH82_Z1','CH82T','CH82Q','CH82LP','chuteThrowZ82','RACE_RAINBOW76','chuteSq82','chuteRise82','chuteZone82','RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE74','RACE_LAUNCH_RATE','ROCK','STEP','GRAV','RACE_TOY77'].map(decl).join('\n')}
  ${['mulberry','race74Reset','raceBuild','raceOff','raceZOff','racePose','raceContains','raceSurface','raceUnder','rockU','raceRocks','raceHazards','raceSphereHit','racePunchHit','raceToyForm77','raceToyHit77','raceBarHit','raceSlideAdhere78','raceSlideHit78','raceHazardTick','raceGravityScale','raceMotion',
-   'chute82','chuteQ82','chuteProf82','chuteProfSlope82','chuteContains82','chuteSurf82','chuteGrad82','chuteMotion82','chuteFlight82','chuteLaunch82','chuteAfter82','chuteBump82'].map(fn).join('\n')}
- globalThis.A={PL,G,RACE,RACE_P,RACE74,STEP,GRAV,CH82,CH82_Z1,CH82_SHIFT,CH82_LAND,chute82,chuteQ82,chuteProf82,chuteProfSlope82,chuteContains82,chuteSurf82,chuteAfter82,chuteFlight82,raceBuild,raceContains,raceSurface,raceUnder,raceHazards,raceSlideAdhere78,raceSlideHit78,raceHazardTick,raceMotion,setRacing:q=>racing=q};`,ctx);
+   'chute82','chuteQ82','chuteProf82','chuteProfSlope82','chuteContains82','chuteSurf82','chuteGrad82','chuteMotion82','chuteFlight82','chuteLaunch82','chuteAfter82','chuteBump82','chuteThrow82','chuteLoopAt82','chuteLoopStart82','chuteLoop82'].map(fn).join('\n')}
+ globalThis.A={PL,G,RACE,RACE_P,RACE74,STEP,GRAV,CH82,CH82_Z1,CH82_SHIFT,CH82_LAND,chute82,chuteQ82,chuteProf82,chuteProfSlope82,chuteContains82,chuteSurf82,chuteAfter82,chuteFlight82,chuteMotion82,chuteThrowZ82,chuteLoop82,raceBuild,raceContains,raceSurface,raceUnder,raceHazards,raceSlideAdhere78,raceSlideHit78,raceHazardTick,raceMotion,setRacing:q=>racing=q};`,ctx);
 const A=ctx.A,C=A.CH82,Z0=C.z0,Z1=A.CH82_Z1;A.raceBuild(78021);A.RACE.t=3;
 const chute=A.RACE_P.find(p=>p.chute),Q=z=>({...A.chuteQ82(z)}),Y=100;
 const dOf=(x,z)=>{const q=Q(z);return (x-q.cx)*q.cs;},xOf=(d,z)=>{const q=Q(z);return q.cx+d/q.cs;};
 
 // ── Geometry ──
-{const T=A.chute82();let maxHead=0,maxTurn=0,prev=null;
- for(let i=0;i<T.n;i++){const th=Math.atan2(T.sn[i],T.cs[i]);maxHead=Math.max(maxHead,Math.abs(th));if(prev!==null)maxTurn=Math.max(maxTurn,Math.abs(th-prev)/C.step);prev=th;}
+{const T=A.chute82();let maxHead=0,maxHeadSafe=0,maxTurn=0,maxTurnSafe=0,prev=null;
+ for(let i=0;i<T.n;i++){const th=Math.atan2(T.sn[i],T.cs[i]),thr=A.chuteThrowZ82(Z0+i*C.step);maxHead=Math.max(maxHead,Math.abs(th));if(!thr)maxHeadSafe=Math.max(maxHeadSafe,Math.abs(th));
+  if(prev!==null){const k=Math.abs(th-prev)/C.step;maxTurn=Math.max(maxTurn,k);if(!thr)maxTurnSafe=Math.max(maxTurnSafe,k);}prev=th;}
  const endX=T.cx[T.n-1],startX=T.cx[0];
- check('The centre line starts and ends on x 0 with headings inside ±36° and no kinks',Math.abs(startX)<1e-6&&Math.abs(endX)<.05&&maxHead<.63&&maxTurn<.06&&!!chute&&chute.sec===5&&chute.shape==='slide',{endX,maxHead,maxTurn});
+ // 84차 — 급커브(throws)만 ±47° · 굽음 .06 까지, 나머지는 82차처럼 ±36° 안(카메라가 앞을 늘 본다)
+ check('The centre line starts and ends on x 0; headings stay inside ±36° except the sharp-curve zone (±47°), no kinks',Math.abs(startX)<1e-6&&Math.abs(endX)<.05&&maxHeadSafe<.63&&maxHead<.82&&maxTurn<.06&&maxTurnSafe<.045&&!!chute&&chute.sec===5&&chute.shape==='slide',{endX,maxHead,maxHeadSafe,maxTurn,maxTurnSafe});
  let mouthMax=0,mouthOk=true;for(let x=-12.6;x<=12.6;x+=.1){const h=A.raceSurface(chute,x,Z0+.3)-Y;mouthMax=Math.max(mouthMax,h-30);mouthOk&&=A.raceContains(chute,x,Z0+.3,A.PL.R);}
  const k0=Q(Z0).k,kM=Q(Z0+C.mouth).k,kHalf=Q(Z0+C.mouth/2).k;
  check('The mouth funnel grows the U from flat, so the whole 26-wide flag deck enters without a stair step',k0===0&&Math.abs(kM-1)<1e-6&&kHalf>.3&&kHalf<.7&&mouthOk&&mouthMax<A.STEP*.7,{k0,kHalf,kM,mouthMax,step:A.STEP});
@@ -119,6 +121,34 @@ function after(x0,z0,x,z,{y=null,vx=0,vz=50,vy=0,ground=true,slide=1,flight=0,ki
   probes.every(p=>Math.abs(Math.abs(p.d)-lim)<1e-6&&p.vd*p.s<=0)&&Math.abs(dOf(under.x,zc)-(C.hw+3))<1e-6,{probes,lim});
 }
 
+// ── 84차 sharp curves: the wall does not hold — reaching the rim while still moving outward throws you off; moving inward is still clamped ──
+{const zt=Z0+C.throws[0][0]+20,q=Q(zt),lim=C.hw-A.PL.R-.03,res=[];
+ for(const s of [-1,1])for(const out of [1,-1]){Object.assign(A.RACE74,{thrown82:false,loop82:null});
+  const x=xOf(s*(C.hw+.3),zt),y=q.y+Y+C.rim,vd=out*s*6;const r=after(x,zt-.5,x,zt,{y,vx:q.cs*vd+q.sn*45,vz:q.cs*45-q.sn*vd});
+  res.push({s,out,thrown:!!A.RACE74.thrown82,kind:r.kind,ground:r.ground,d:+dOf(r.x,zt).toFixed(3),still:A.chuteContains82(r.x,zt,0)});}
+ const thrownOK=res.filter(r=>r.out===1).every(r=>r.thrown&&r.kind==='thrown'&&!r.still&&!r.ground),clampOK=res.filter(r=>r.out===-1).every(r=>!r.thrown&&Math.abs(Math.abs(r.d)-lim)<1e-6);
+ Object.assign(A.RACE74,{thrown82:false});
+ const safeZ=Z0+80,qs=Q(safeZ),xs=xOf(C.hw+.3,safeZ),rs=after(xs,safeZ-.5,xs,safeZ,{y:qs.y+Y+C.rim,vx:qs.cs*6+qs.sn*45,vz:qs.cs*45-qs.sn*6});
+ check('In the sharp-curve zone the rim throws an outward rider off the coaster (no re-landing below); inward riders and the other curves are still held',
+  thrownOK&&clampOK&&!A.RACE74.thrown82&&Math.abs(dOf(rs.x,safeZ)-lim)<1e-6,{res});
+ A.RACE74.thrown82=false;
+}
+// ── 84차 360° loop: crossing the rail start captures the rider; one turn around a vertical circle; release on the exit lane at entry speed ──
+{const L=C.loop,za=Z0+L.z,zc=za-L.R-L.pre,q=Q(zc),x=xOf(-5,zc),V=60;Object.assign(A.RACE74,{thrown82:false,loop82:null,pending:null});A.RACE.cp={x:0,z:680,y:30};
+ after(x,zc-.6,x,zc+.2,{vx:q.sn*V,vz:q.cs*V});const captured=!!A.RACE74.loop82,cp=A.RACE.cp;
+ let maxY=-1e9,maxR=0,steps=0,topZ=null;const yc=Q(za).y+Y+A.chuteProf82(L.lane)+L.R;
+ while(A.RACE74.loop82&&steps<2000){A.chuteLoop82(1/60);steps++;const ph=A.RACE74.loopPh;
+  if(ph>0&&ph<2*Math.PI){maxR=Math.max(maxR,Math.abs(Math.hypot(A.PL.y-yc,A.PL.z-za)-L.R));if(A.PL.y>maxY){maxY=A.PL.y;topZ=A.PL.z;}}}
+ const qe=Q(A.PL.z),dEnd=dOf(A.PL.x,A.PL.z),vEnd=A.PL.vx*qe.sn+A.PL.vz*qe.cs,t=steps/60;
+ check('Crossing the rail start rides once around an 11-radius vertical loop (~2 s), then releases on the exit lane at entry speed and moves the respawn to the drop before the loop',
+  captured&&maxR<1e-6&&Math.abs(maxY-(yc+L.R))<.05&&Math.abs(topZ-za)<.3&&Math.abs(dEnd+L.lane)<1e-6&&Math.abs(vEnd-V)<1e-6&&t>1.2&&t<2.6&&Math.abs(cp.z-(Z0+C.respawn))<1e-6,
+  {captured,maxR,top:maxY-yc,topZ:topZ-za,dEnd,vEnd,t,cpZ:cp.z});
+}
+// ── 84차 boosters: on a booster even S keeps you fast (target vMax) ──
+{const zb=Z0+(C.boosts[0][0]+C.boosts[0][1])/2,q=Q(zb),x=xOf(0,zb);Object.assign(A.PL,{x,z:zb,y:A.chuteSurf82(x,zb)+Y,vx:q.sn*40,vz:q.cs*40,vy:0,ground:true});A.RACE74.boost82=false;
+ for(let i=0;i<30;i++)A.chuteMotion82(1/60,0,-1);const V=A.PL.vx*q.sn+A.PL.vz*q.cs;
+ check('A booster pushes the rider toward top speed even while braking',V>52,{V});
+}
 // ── Rail-following flight: the horizontal velocity turns with the chute while airborne ──
 {const z1=Z0+60,z2=z1+.8,q1=Q(z1),q2=Q(z2),V=50;
  Object.assign(A.PL,{x:q1.cx,z:z1,vx:q1.sn*V,vz:q1.cs*V});Object.assign(A.RACE74,{sn82:q1.sn,cs82:q1.cs});
