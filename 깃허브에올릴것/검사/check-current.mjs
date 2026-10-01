@@ -22,7 +22,7 @@ let failed=0;
 async function check(name){
   try{
     const {stdout}=await run(process.execPath,[path.join(here,name+'.mjs'),game],
-      {cwd:root,windowsHide:true,maxBuffer:4*1024*1024,timeout:name==='t73-performance'?600000:240000,env:{...process.env,T67_STRICT:'1'}});
+      {cwd:root,windowsHide:true,maxBuffer:4*1024*1024,timeout:name==='t73-performance'||name==='t85-auto-res'?600000:240000,env:{...process.env,T67_STRICT:'1'}});
     console.log('[PASS] '+name+' — '+stdout.trim().split(/\r?\n/).at(-1));
   }catch(e){failed++;console.error('[FAIL] '+name+'\n'+(e.stdout||'')+(e.stderr||e.message));}
 }
@@ -47,6 +47,7 @@ if(args.includes('--browser-smoke') || args.includes('--render')){
   await check('t79-combat-hud-view'); // Actual health/ammo state, reload progress and small-screen layout.
   await check('t81-shadow-view'); // 81차: shadow-pass order keeps the shadow map and screen byte-identical; ?diag Shift+9 restores every toggle.
   await check('t84-zombie-lod'); // 84차: far zombie pieces use coarse twins only within a measured 0.5 px outline error; no piece lost; diag rows.
+  await check('t85-auto-res'); // 85차: drawing resolution steps down to ×0.82 below 45fps, back up after 8 s at 58+, locks after a flip-flop; off in automation unless ?autores=1.
 }
 if(args.includes('--browser-smoke')){await check('t72-hand-grip');await check('t71-castle-shot');}
 if(args.includes('--render')){await check('t54-view');await check('t56-build-view');await check('t57-character-view');await check('t62-motion-view');await check('t59-zombie-view');
