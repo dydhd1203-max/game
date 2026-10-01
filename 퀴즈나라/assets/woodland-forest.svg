@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-label="커다란 나무와 버섯이 둘러싼 동화 속 초록 숲">
+  <defs>
+    <radialGradient id="forest" cx="51%" cy="39%" r="77%">
+      <stop offset="0" stop-color="#a2ab66"/>
+      <stop offset=".38" stop-color="#78834a"/>
+      <stop offset=".76" stop-color="#394a29"/>
+      <stop offset="1" stop-color="#1d2f20"/>
+    </radialGradient>
+    <linearGradient id="floor" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#7b8545" stop-opacity="0"/>
+      <stop offset=".37" stop-color="#66753b"/>
+      <stop offset="1" stop-color="#253e24"/>
+    </linearGradient>
+    <linearGradient id="trunk" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#36271d"/>
+      <stop offset=".25" stop-color="#664424"/>
+      <stop offset=".51" stop-color="#8b6030"/>
+      <stop offset=".72" stop-color="#694426"/>
+      <stop offset="1" stop-color="#37251b"/>
+    </linearGradient>
+    <linearGradient id="branch" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#926b36"/>
+      <stop offset=".52" stop-color="#6d4828"/>
+      <stop offset="1" stop-color="#3d2a1c"/>
+    </linearGradient>
+    <radialGradient id="leaf" cx="40%" cy="21%" r="85%">
+      <stop stop-color="#759745"/>
+      <stop offset=".45" stop-color="#526e2e"/>
+      <stop offset="1" stop-color="#283d20"/>
+    </radialGradient>
+    <linearGradient id="fern" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#8aaa47"/>
+      <stop offset=".55" stop-color="#4b762c"/>
+      <stop offset="1" stop-color="#274a26"/>
+    </linearGradient>
+    <radialGradient id="cap" cx="40%" cy="23%" r="88%">
+      <stop stop-color="#f69a65"/>
+      <stop offset=".2" stop-color="#e87552"/>
+      <stop offset=".6" stop-color="#b8473c"/>
+      <stop offset="1" stop-color="#762c2d"/>
+    </radialGradient>
+    <linearGradient id="stem" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#9e9570"/>
+      <stop offset=".52" stop-color="#e7dbb1"/>
+      <stop offset="1" stop-color="#b6a47d"/>
+    </linearGradient>
+    <linearGradient id="moss" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#89a64a"/>
+      <stop offset="1" stop-color="#3c5727"/>
+    </linearGradient>
+    <g id="leaflet">
+      <path d="M0 0C-23-24-57-53-66-85C-27-82 8-50 0 0Z" fill="url(#leaf)" stroke="#23351d" stroke-width="3"/>
+      <path d="M-3-8-49-64" fill="none" stroke="#9cb564" stroke-opacity=".35" stroke-width="2.5"/>
+    </g>
+    <g id="fern-frond" stroke-linejoin="round">
+      <path d="M0 0C4-53 13-104 30-145" fill="none" stroke="#1e3c21" stroke-width="6"/>
+      <path d="M3-19C-29-18-48-30-48-41C-20-42-5-31 3-19ZM7-43C-20-44-39-59-38-71C-14-66 2-53 7-43ZM12-67C-10-73-24-87-23-98C-3-91 8-79 12-67ZM18-91C-1-98-10-112-9-123C7-116 15-104 18-91ZM24-117C12-127 13-138 20-147C27-139 29-129 24-117Z" fill="url(#fern)" stroke="#264524" stroke-width="3"/>
+      <path d="M3-19C31-11 50-15 55-25C32-34 15-30 3-19ZM7-43C32-34 50-40 53-50C32-56 16-53 7-43ZM12-67C35-59 47-66 51-75C34-80 22-77 12-67ZM18-91C37-86 48-93 50-102C36-106 26-101 18-91ZM24-117C38-111 46-119 44-128C33-130 27-125 24-117Z" fill="url(#fern)" stroke="#264524" stroke-width="3"/>
+    </g>
+    <g id="mushroom">
+      <ellipse cx="0" cy="5" rx="61" ry="13" fill="#1b3423" opacity=".45"/>
+      <path d="M-19-79C-13-53-19-26-28-7C-11 5 16 6 34-5C20-34 21-52 22-80Z" fill="url(#stem)" stroke="#493d2b" stroke-width="5"/>
+      <path d="M-14-60C-7-38-13-22-15-13M18-59C13-35 19-23 22-15" fill="none" stroke="#f6eac6" stroke-width="3" opacity=".65"/>
+      <path d="M-76-78C-64-120-43-154-4-158C32-157 65-126 83-82C59-64-48-57-76-78Z" fill="url(#cap)" stroke="#522f27" stroke-width="6"/>
+      <path d="M-74-80C-39-65 53-66 80-83C66-52-43-45-74-80Z" fill="#ddb48a" stroke="#522f27" stroke-width="5"/>
+      <path d="M-48-105C-31-128-11-139 9-141" fill="none" stroke="#ffc39b" stroke-opacity=".48" stroke-width="7" stroke-linecap="round"/>
+      <g fill="#ffefd3" stroke="#bd7050" stroke-width="1.5">
+        <ellipse cx="-37" cy="-107" rx="11" ry="7" transform="rotate(-18 -37 -107)"/>
+        <ellipse cx="3" cy="-134" rx="12" ry="8"/>
+        <ellipse cx="39" cy="-108" rx="12" ry="8" transform="rotate(24 39 -108)"/>
+        <ellipse cx="8" cy="-91" rx="15" ry="8"/>
+        <ellipse cx="-54" cy="-86" rx="7" ry="4"/>
+        <ellipse cx="61" cy="-85" rx="8" ry="4"/>
+      </g>
+      <path d="M-47-68-27-59M-25-64-15-56M-4-62-3-54M17-63 13-55M39-65 28-57M57-69 42-59" fill="none" stroke="#ac8a65" stroke-width="2"/>
+    </g>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#forest)"/>
+  <!-- Quiet distant trunks keep the middle open for the actual game menu. -->
+  <g fill="#334e2b" opacity=".17">
+    <path d="M298 0H349L331 573L372 765H276L307 553Z"/>
+    <path d="M410 0H447L439 622L478 809H385L421 598Z"/>
+    <path d="M1191 0H1237L1209 552L1249 816H1167L1183 561Z"/>
+    <path d="M1335 0H1382L1347 659L1398 863H1285L1328 629Z"/>
+  </g>
+  <g fill="#bfd092" opacity=".09">
+    <path d="M478 99 413 745 606 745 648 103Z"/>
+    <path d="M849 64 1008 775 1144 775 1006 62Z"/>
+  </g>
+  <path d="M0 695C262 654 370 768 602 750C853 731 1172 684 1600 718V1000H0Z" fill="url(#floor)"/>
+  <g fill="#283e23" opacity=".4">
+    <path d="M0 851C95 794 181 793 296 844C379 798 431 824 478 879V1000H0Z"/>
+    <path d="M1181 879C1237 817 1326 791 1391 837C1490 787 1551 805 1600 834V1000H1181Z"/>
+  </g>
+
+  <!-- Heavy outer trees and hand drawn bark; the central 650px stays clear. -->
+  <g stroke="#291f18" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M-48-44H240C209 94 198 188 237 267C271 337 252 422 227 516C211 606 219 713 260 833L337 1032H-68L-11 844C40 701 19 573 39 448C53 351 17 263 6 166Z" fill="url(#trunk)" stroke-width="11"/>
+    <path d="M104 254C189 198 221 127 284 58L366-17H433C366 58 291 109 260 188C238 244 210 290 161 323Z" fill="url(#branch)" stroke-width="9"/>
+    <path d="M82 517C31 440-38 412-94 376L-125 431C-44 485 2 544 65 589Z" fill="url(#branch)" stroke-width="9"/>
+    <path d="M106 40C73 175 115 287 85 411C57 531 94 615 73 737L25 945M167 62C153 139 153 175 174 225M177 348C202 441 142 500 164 589C177 647 157 696 184 795L229 941" fill="none" stroke="#ac7d42" stroke-opacity=".42" stroke-width="8"/>
+    <path d="M42 65 62 134 42 208 66 264M135 31 122 113 139 161 114 207M218 382 184 419 194 447 166 482M57 528 42 560 57 617 43 673M137 620 123 677 140 736 118 812M82 859 107 903 82 972M182 833 182 875 214 912M248 163 286 126 293 92 321 68" fill="none" stroke-width="5"/>
+    <path d="M52 366C41 329 58 297 78 299C103 298 113 335 100 367C83 397 62 391 52 366Z" fill="#4d3421" stroke-width="5"/>
+    <path d="M65 364C54 336 66 315 79 317C94 326 92 350 77 359C69 355 67 345 71 336" fill="none" stroke="#b08043" stroke-width="4"/>
+    <path d="M144 534C130 507 136 474 155 471C179 470 189 502 176 528C165 549 151 548 144 534Z" fill="#4e3522" stroke-width="4"/>
+    <path d="M151 520C144 500 153 486 162 488C176 496 164 518 155 509" fill="none" stroke="#98713c" stroke-width="3"/>
+    <path d="M119 407 114 428M150 264 141 291M205 688 204 707M99 752 94 773M33 475 29 492" fill="none" stroke="#36251b" stroke-width="3"/>
+
+    <path d="M1397-36H1652L1608 224C1579 329 1577 419 1596 512C1620 644 1578 746 1639 1008H1267C1334 878 1370 779 1375 652C1381 548 1346 457 1373 367C1404 264 1386 117 1397-36Z" fill="url(#trunk)" stroke-width="11"/>
+    <path d="M1444 285C1369 244 1332 198 1271 139C1222 95 1171 58 1114 19L1078-22H1169C1270 45 1348 82 1393 152C1423 190 1454 217 1490 232Z" fill="url(#branch)" stroke-width="9"/>
+    <path d="M1495 514C1568 437 1620 421 1694 396L1718 455C1640 491 1579 537 1525 586Z" fill="url(#branch)" stroke-width="9"/>
+    <path d="M1454 36C1480 160 1460 259 1434 345C1405 444 1460 551 1441 647C1421 749 1428 825 1378 966M1555 18C1533 140 1549 245 1522 345C1489 461 1537 560 1522 689L1564 968" fill="none" stroke="#ac7d42" stroke-opacity=".43" stroke-width="8"/>
+    <path d="M1420 52 1437 107 1418 179M1504 96 1490 155 1501 191 1481 249M1554 280 1536 324 1544 363M1401 412 1424 460 1404 502M1480 498 1463 548 1477 599 1460 660M1567 608 1547 660 1563 706M1434 739 1450 797 1424 839M1519 837 1508 888 1533 949M1350 156 1303 127 1280 91" fill="none" stroke-width="5"/>
+    <path d="M1475 413C1452 384 1465 346 1488 344C1510 344 1526 381 1510 410C1498 430 1485 430 1475 413Z" fill="#513522" stroke-width="5"/>
+    <path d="M1482 408C1469 388 1481 362 1494 365C1509 374 1502 402 1488 400L1485 385" fill="none" stroke="#aa7b42" stroke-width="4"/>
+    <path d="M1416 636C1402 616 1408 590 1422 587C1444 587 1452 612 1441 633C1432 647 1422 648 1416 636Z" fill="#49321f" stroke-width="4"/>
+    <path d="M1421 629C1414 611 1422 599 1430 605C1437 617 1430 628 1425 619" fill="none" stroke="#94703c" stroke-width="3"/>
+    <path d="M1460 230 1455 248M1564 473 1559 493M1493 732 1494 754M1411 877 1406 903" fill="none" stroke="#36251b" stroke-width="3"/>
+  </g>
+
+  <!-- Canopy is several distinct leaf layers, with sunlight on its inner rim. -->
+  <path d="M0 0H1600V172C1538 214 1478 207 1433 166C1384 212 1318 185 1286 142C1237 181 1183 152 1150 115C1102 149 1036 122 1011 91C949 125 901 95 863 67C804 95 753 83 719 56C661 108 604 109 563 86C513 144 453 151 412 119C369 173 304 184 265 145C217 209 150 226 99 184C56 242 20 244 0 223Z" fill="#1d301d" stroke="#18251a" stroke-width="7"/>
+  <path d="M0-24H1600V108C1534 151 1486 113 1452 81C1408 127 1357 112 1329 69C1277 107 1227 90 1197 58C1146 102 1091 97 1056 46C1009 81 957 67 921 31C867 73 815 65 781 18C728 83 669 87 637 48C585 99 537 92 503 60C453 112 394 116 361 80C310 144 252 151 209 105C143 157 95 147 61 113C33 143 17 146 0 143Z" fill="url(#leaf)" stroke="#25361e" stroke-width="6"/>
+  <path d="M0 44C67 32 86 85 130 98C155 105 180 95 200 80M250 64C295 42 326 77 355 81M405 46C454 16 481 65 512 62M570 31C610 9 631 44 651 43M970 21C1001 15 1026 44 1046 44M1124 41C1173 20 1212 64 1240 63M1321 49C1368 33 1396 69 1413 76M1462 65C1507 45 1541 84 1600 71" fill="none" stroke="#95ac56" stroke-opacity=".28" stroke-width="7" stroke-linecap="round"/>
+  <g>
+    <use href="#leaflet" transform="translate(40 345) rotate(29) scale(1.7)"/>
+    <use href="#leaflet" transform="translate(123 267) rotate(-18) scale(1.8)"/>
+    <use href="#leaflet" transform="translate(256 200) rotate(29) scale(1.5)"/>
+    <use href="#leaflet" transform="translate(328 145) rotate(3) scale(1.25)"/>
+    <use href="#leaflet" transform="translate(406 161) rotate(46) scale(1.1)"/>
+    <use href="#leaflet" transform="translate(516 109) rotate(8) scale(.95)"/>
+    <use href="#leaflet" transform="translate(1085 110) rotate(49) scale(.9)"/>
+    <use href="#leaflet" transform="translate(1195 158) rotate(66) scale(1.1)"/>
+    <use href="#leaflet" transform="translate(1300 162) rotate(34) scale(1.4)"/>
+    <use href="#leaflet" transform="translate(1390 239) rotate(76) scale(1.6)"/>
+    <use href="#leaflet" transform="translate(1485 283) rotate(105) scale(1.75)"/>
+    <use href="#leaflet" transform="translate(1585 365) rotate(90) scale(1.8)"/>
+  </g>
+  <g fill="none" stroke="#304721" stroke-width="6" stroke-linecap="round">
+    <path d="M246 100C304 172 254 218 297 270C335 316 330 344 309 358"/>
+    <path d="M1346 84C1301 161 1340 213 1307 271C1286 309 1295 341 1315 350"/>
+  </g>
+  <use href="#leaflet" transform="translate(293 272) rotate(94) scale(.68)"/>
+  <use href="#leaflet" transform="translate(1306 269) rotate(13) scale(.72)"/>
+
+  <!-- Moss, red caps and fern fans stay outside the menu's clear centre. -->
+  <g fill="url(#moss)" stroke="#334621" stroke-width="4">
+    <path d="M0 955C23 909 44 902 74 911C94 870 133 867 157 892C191 872 220 884 233 918C261 912 301 938 305 979L300 1000H0Z"/>
+    <path d="M1284 987C1300 949 1335 932 1360 941C1374 907 1403 897 1436 919C1460 887 1497 888 1516 922C1560 909 1590 927 1600 950V1000H1284Z"/>
+  </g>
+  <g opacity=".98">
+    <use href="#fern-frond" transform="translate(65 972) rotate(-65) scale(1.36)"/>
+    <use href="#fern-frond" transform="translate(69 976) rotate(-33) scale(1.55)"/>
+    <use href="#fern-frond" transform="translate(74 977) rotate(0) scale(1.58)"/>
+    <use href="#fern-frond" transform="translate(78 980) rotate(38) scale(1.24)"/>
+    <use href="#fern-frond" transform="translate(1511 986) rotate(-52) scale(1.4)"/>
+    <use href="#fern-frond" transform="translate(1518 984) rotate(-12) scale(1.62)"/>
+    <use href="#fern-frond" transform="translate(1524 983) rotate(28) scale(1.59)"/>
+    <use href="#fern-frond" transform="translate(1529 985) rotate(65) scale(1.32)"/>
+  </g>
+  <use href="#mushroom" transform="translate(239 955) rotate(-8) scale(.98)"/>
+  <use href="#mushroom" transform="translate(331 972) rotate(8) scale(.63)"/>
+  <use href="#mushroom" transform="translate(1376 953) rotate(9) scale(1.05)"/>
+  <use href="#mushroom" transform="translate(1282 977) rotate(-10) scale(.58)"/>
+  <g fill="#52762e" stroke="#233e23" stroke-width="3" stroke-linejoin="round">
+    <path d="M158 1003 128 921 156 954 169 888 183 960 220 915 200 974 239 950 213 1003Z"/>
+    <path d="M354 1003 332 948 356 970 368 919 381 970 411 936 397 979 430 964 407 1003Z"/>
+    <path d="M1168 1003 1148 962 1172 980 1189 933 1205 978 1235 951 1223 982 1252 969 1233 1003Z"/>
+    <path d="M1444 1003 1420 953 1445 971 1458 914 1477 973 1506 939 1492 986 1514 975 1508 1003Z"/>
+  </g>
+  <g fill="#ccbd74" opacity=".4">
+    <ellipse cx="394" cy="900" rx="7" ry="3"/>
+    <ellipse cx="1198" cy="907" rx="6" ry="3"/>
+    <ellipse cx="460" cy="947" rx="6" ry="2"/>
+    <ellipse cx="1119" cy="952" rx="8" ry="3"/>
+  </g>
+</svg>

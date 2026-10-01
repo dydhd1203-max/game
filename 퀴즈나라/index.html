@@ -784,7 +784,12 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <div id="modal"><div class="pnl mbox"><div class="pnl-h" id="mTitle">알림</div><div class="mbody" id="mBody"></div></div></div>
 
 <link rel="stylesheet" href="./qplay.css">
+<link rel="stylesheet" href="./candy-controls.css">
+<link rel="stylesheet" href="./candy-panels.css">
+<link rel="stylesheet" href="./candy-game.css">
+<link rel="stylesheet" href="./woodland-home.css">
 <link rel="stylesheet" href="./button-feedback.css">
+<script src="./ui-icons.js"></script>
 <script src="./avatar-clothes.js"></script>
 <script src="./avatar-effects.js"></script>
 <script src="./avatar-pets.js"></script>
@@ -804,6 +809,7 @@ const clamp = (v,a,b)=> v<a?a:v>b?b:v;
 const now = ()=> Date.now();
 const today = ()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const R = window.RULES;
+const uiIcon = name => window.QPCandyIcons?.render(name) || '';
 
 /* 배경에 물방울과 별을 흩어 놓는다. 한 번만 만들고 안 움직인다 */
 (function paintDeco(){
@@ -2454,7 +2460,7 @@ const SND = {
     this.paintControls();
   },
   paintControls(){
-    const icon=el('tbSnd');if(icon){icon.textContent=(this.on&&this.fxVolume)||(this.bgm&&this.musicVolume)?'🔊':'🔇';icon.setAttribute('aria-label','소리 설정');}
+    const icon=el('tbSnd');if(icon){icon.innerHTML=uiIcon((this.on&&this.fxVolume)||(this.bgm&&this.musicVolume)?'sound':'mute');icon.setAttribute('aria-label','소리 설정');}
     [['sndFX',this.on],['sndMusic',this.bgm]].forEach(([id,on])=>{const b=el(id);if(b){b.textContent=on?'켜짐':'꺼짐';b.setAttribute('aria-pressed',String(on));b.classList.toggle('p',on);b.classList.toggle('gray',!on);}});
     [['sndFXVolume','sndFXValue',this.fxVolume],['sndMusicVolume','sndMusicValue',this.musicVolume]].forEach(([id,out,v])=>{if(el(id))el(id).value=v;if(el(out))el(out).textContent=v+'%';});
     if(el('sndState'))el('sndState').textContent=this.ctx&&this.ctx.state==='running'?'설정은 다음에도 그대로예요.':'화면을 누르거나 키보드를 사용하면 소리가 준비돼요.';
@@ -2609,18 +2615,19 @@ let leaveFn = null, curScr = '';
 function go(name, arg){
   if(leaveFn){ try{ leaveFn(); }catch(e){} leaveFn = null; }
   curScr = name; closeModal();
+  document.body.classList.toggle('qp-woodland', name==='home');
   el('stage').innerHTML = '';
   SCREENS[name](el('stage'), arg);
 }
 function topbar(title, back){
   return `<div class="top">
-    ${back? `<button class="btn sm gray" id="tbBack">◀ 뒤로</button>`:''}
+    ${back? `<button class="btn sm gray" id="tbBack">${uiIcon('arrow')} 뒤로</button>`:''}
     <div class="nm">${esc(title)}</div>
     <div class="f1"></div>
-    <button class="icb" id="tbSnd" title="소리 설정" aria-label="소리 설정">${(SND.on&&SND.fxVolume)||(SND.bgm&&SND.musicVolume)?'🔊':'🔇'}</button>
-    ${ME&&!IS_TEACHER? `<button class="icb" id="tbHome" title="홈">🏠</button>
-       <button class="icb y" id="tbShop" title="옷 가게">👗</button>
-       <button class="icb" id="tbRank" title="순위">🏆</button>`:''}
+    <button class="icb" id="tbSnd" title="소리 설정" aria-label="소리 설정">${uiIcon((SND.on&&SND.fxVolume)||(SND.bgm&&SND.musicVolume)?'sound':'mute')}</button>
+    ${ME&&!IS_TEACHER? `<button class="icb" id="tbHome" title="홈" aria-label="홈">${uiIcon('home')}</button>
+       <button class="icb y" id="tbShop" title="옷 가게" aria-label="옷 가게">${uiIcon('shop')}</button>
+       <button class="icb" id="tbRank" title="순위" aria-label="순위">${uiIcon('trophy')}</button>`:''}
     ${ME? `<div class="gold"><span class="coin"></span>골드 <b id="goldNum">${(ME.gold||0).toLocaleString()}</b></div>`:''}
     ${ME? `<button class="btn sm gray" id="tbOut">나가기</button>`:''}
   </div>`;
@@ -2690,10 +2697,10 @@ SCREENS.login = function(st){
       <div class="lgWho" style="left:964px;top:36px;animation-delay:.7s">${avatarSVG(guestB,168,3)}</div>
     </div>
     <div class="lgMid">
-      <div class="lgSup">우리 반 퀴즈 놀이터</div>
-      <div class="logo">퀴즈나라<small>${esc(window.CLASS_NAME||'우리 반')}</small></div>
+      <div class="lgSup">${uiIcon('star')} 우리 반 퀴즈 놀이터 ${uiIcon('star')}</div>
+      <div class="logo lgLogo">퀴즈나라<small>${esc(window.CLASS_NAME||'우리 반')}</small></div>
       <div class="lgPanel">
-        <div class="lgTitle">L·O·G·I·N</div>
+        <div class="lgTitle">같이 놀자!</div>
         <div id="lgSexBox" class="lgSex hide">
           <label>아바타</label>
           <div class="row gap4">
@@ -2703,7 +2710,7 @@ SCREENS.login = function(st){
         <div class="lgForm">
           <label for="lgId">아이디</label>
           <input class="inp" id="lgId" maxlength="12" placeholder="예) 하늘이" autocomplete="off">
-          <button class="lgGoBtn" id="lgGo">GO</button>
+          <button class="lgGoBtn" id="lgGo">입장하기</button>
           <label id="lgLab">비밀번호</label>
           <div class="lgDots" id="lgDots"><i></i><i></i><i></i><i></i></div>
         </div>
@@ -2738,7 +2745,7 @@ SCREENS.login = function(st){
 
   function setMode(m){
     mode = m; step = 1; pin=''; pin2=''; dots();
-    el('lgGo').textContent  = m==='up' ? '만들기' : 'GO';
+    el('lgGo').textContent  = m==='up' ? '만들기' : '입장하기';
     el('lgNew').textContent = m==='up' ? '이미 있어요 — 돌아가기' : '처음이에요 — 무료 회원가입';
     el('lgLab').textContent = m==='up' ? '쓸 비밀번호' : '비밀번호';
     el('lgSexBox').classList.toggle('hide', m!=='up');
@@ -2838,13 +2845,13 @@ SCREENS.home = function(st){
     <div class="col gap" style="min-height:0">
     <div id="fBan"></div>
     <div class="menu f1">
-      <button class="mtile" id="mPractice"><span class="ic">📚</span>
+      <button class="mtile" id="mPractice"><span class="ic">${uiIcon('book')}</span>
         <h3>혼자 연습하기</h3><p>문제를 풀면 골드를 벌어요.<br>오늘 더 벌 수 있는 골드 <b id="capLeft"></b></p></button>
-      <button class="mtile" id="mLive"><span class="ic">🎪</span>
+      <button class="mtile" id="mLive"><span class="ic">${uiIcon('play')}</span>
         <h3>수업 참가하기</h3><p id="liveHint">선생님이 방을 열었는지 보고 있어요…</p></button>
-      <button class="mtile" id="mShop"><span class="ic">👗</span>
+      <button class="mtile" id="mShop"><span class="ic">${uiIcon('shop')}</span>
         <h3>옷 가게</h3><p>옷·모자·안경·펫이 ${ITEM_COUNT}가지!<br>골드로 사서 꾸며요.</p></button>
-      <button class="mtile" id="mRank"><span class="ic">🏆</span>
+      <button class="mtile" id="mRank"><span class="ic">${uiIcon('trophy')}</span>
         <h3>우리 반 순위</h3><p>누가 제일 많이 맞혔을까?</p></button>
     </div>
     <div class="ticker"><span>📢</span><span id="tick"></span></div></div>
@@ -2998,7 +3005,7 @@ SCREENS.shop = function(st){
 
   function paintTabs(){
     el('shTabs').innerHTML = CATS.map(c=>
-      `<button class="tab ${c.k===S.cat?'on':''}" data-c="${c.k}">${c.n}</button>`).join('');
+      `<button class="tab ${c.k===S.cat?'on':''}" data-c="${c.k}">${uiIcon(c.k)}<span>${c.n}</span></button>`).join('');
     $$('#shTabs .tab').forEach(b=> b.onclick = ()=>{ S.cat=b.dataset.c; S.ci=0; S.sel=null;
       paintTabs(); paintPal(); paintGrid(); paintInfo(); });
   }

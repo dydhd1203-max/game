@@ -8,13 +8,15 @@ body :is(button,[role="button"],.mtile,.itm,.ch,.setrow,.clue,.stone,.oxzone,.fc
   scale: .975;
   filter: brightness(.9) saturate(1.08);
   transition-duration: .055s;
+  /* Keep the held button within its 3px press; spring back only on release. */
+  transition-timing-function: cubic-bezier(.18,.8,.28,1);
 }
 /* These controls used a second transform in their earlier styles. */
 body :is(.btn,.icb,.mtile,.itm,.ch,.fcard.pick):not(:disabled):not(.lock):is(:active,.qp-pressed) { transform: none; }
 /* O/X retains its positioning transform while the common scale presses it. */
 body .oxland .oxzone:not(:disabled):not([aria-disabled="true"]):not(.lock):is(:active,.qp-pressed) { scale: none; transform: translateY(-50%) scale(.975); }
 body :is(.btn,.icb,.lgGoBtn,.lgPad button):not(:disabled):is(:active,.qp-pressed) {
-  box-shadow: inset 0 2px 4px #062e5826, inset 0 1px 0 #ffffff8c, 0 1px 0 #174d79;
+  box-shadow: inset 0 2px 4px #062e5826, inset 0 1px 0 #ffffff8c, 0 1px 0 var(--candy-base, #174d79);
 }
 body :is(#shPal button,#fSk button,.stone,.cc.open):not(:disabled):is(:active,.qp-pressed) { translate: 0 1px; scale: .92; }
 @media (prefers-reduced-motion: reduce) {

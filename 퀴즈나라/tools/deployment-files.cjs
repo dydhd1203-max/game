@@ -1,6 +1,9 @@
 module.exports=[
   '_headers',
   'index.html','avatar-pixel.js','avatar-clothes.js','avatar-effects.js','avatar-pets.js','avatar-shoes.js','qplay.css','button-feedback.css','demo.js',
+  'candy-controls.css','candy-panels.css','candy-game.css','ui-icons.js',
+  'woodland-home.css','assets/woodland-forest.svg','assets/wood-planks.svg',
+  'assets/candy-sky.svg','assets/fonts/Jua-Regular.ttf','assets/fonts/Jua-OFL.txt',
   'assets/pixel-heads-v2.png','assets/pixel-heads-male-v2.png',
   'assets/pixel-tops-v3.png','assets/pixel-bottoms-v3.png',
   'assets/angel-effect.png',
