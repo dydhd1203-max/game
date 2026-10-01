@@ -1,0 +1,36 @@
+{
+  "image": "painted-forest-props.png",
+  "width": 1254,
+  "height": 1254,
+  "format": "RGBA",
+  "description": "Original painted forest village props. The generated layout has four separate props but is not a strict 627px quadrant atlas; use these source rectangles.",
+  "props": {
+    "cottage": {
+      "source": [0, 0, 665, 718],
+      "opaqueBounds": [44, 31, 658, 691],
+      "anchor": [347, 691]
+    },
+    "oak": {
+      "source": [665, 0, 589, 720],
+      "opaqueBounds": [675, 52, 1233, 714],
+      "anchor": [292, 714]
+    },
+    "rocks": {
+      "source": [0, 720, 675, 534],
+      "opaqueBounds": [57, 867, 647, 1197],
+      "anchor": [352, 477]
+    },
+    "well": {
+      "source": [715, 720, 539, 534],
+      "opaqueBounds": [746, 725, 1138, 1202],
+      "anchor": [227, 482]
+    }
+  },
+  "notes": {
+    "source": "[x, y, width, height] in the original image",
+    "opaqueBounds": "[left, top, right, bottom] in the original image at alpha >= 64; right and bottom are exclusive",
+    "anchor": "[x, y] relative to the source rectangle, a suggested ground point for placement and depth sorting",
+    "lighting": "Warm light from upper left, cool teal reflected shade",
+    "perspective": "Elevated three-quarter view"
+  }
+}

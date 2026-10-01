@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340 120" fill="none">
+  <defs>
+    <linearGradient id="wood" x1="170" y1="28" x2="170" y2="105" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#e6ac61"/><stop offset=".48" stop-color="#c5823c"/><stop offset=".5" stop-color="#ae672e"/><stop offset="1" stop-color="#b87935"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="0" y2="45" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#c0ed51"/><stop offset=".48" stop-color="#72c630"/><stop offset="1" stop-color="#348826"/>
+    </linearGradient>
+    <linearGradient id="deepLeaf" x1="0" y1="0" x2="0" y2="46" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#81d749"/><stop offset="1" stop-color="#247b37"/>
+    </linearGradient>
+    <path id="blade" d="M0 0C-19 2-20 26 0 43C20 26 19 2 0 0Z"/>
+    <g id="sprig">
+      <path d="M9 45C1 20-15 9-34 1" stroke="#326f25" stroke-width="5" stroke-linecap="round"/>
+      <use href="#blade" transform="translate(-29 -8) rotate(-42) scale(.86)" fill="url(#deepLeaf)" stroke="#277f2a" stroke-width="2"/>
+      <use href="#blade" transform="translate(-13 -7) rotate(-15) scale(.94)" fill="url(#leaf)" stroke="#4a9423" stroke-width="2"/>
+      <use href="#blade" transform="translate(4 0) rotate(32) scale(.9)" fill="url(#leaf)" stroke="#4a9423" stroke-width="2"/>
+      <path d="M-15 4L-15 21M-28 4L-37 13M3 10L-7 26" stroke="#daff898c" stroke-width="2" stroke-linecap="round"/>
+    </g>
+  </defs>
+  <!-- Hand-drawn trim only: the Korean game name and classroom caption remain HTML. -->
+  <path d="M45 31L297 28L304 40L299 91L284 103L55 103L38 92L38 44Z" fill="#fff7d7" stroke="#fff7d7" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M45 33L296 30L301 42L297 91L283 100L55 100L41 91L41 45Z" fill="url(#wood)" stroke="#754019" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M49 37L291 34M46 88L292 90" stroke="#ffd990" stroke-width="3" stroke-linecap="round"/>
+  <path d="M57 49C110 43 143 53 190 47S256 49 284 44M54 69C91 63 118 70 144 65M173 86C203 80 243 90 279 82M63 94C98 90 119 93 149 89" stroke="#8d4b1d" stroke-width="2" stroke-linecap="round" opacity=".48"/>
+  <path d="M64 39C67 54 59 77 63 93M282 38C279 56 288 75 281 93" stroke="#955021" stroke-width="2" opacity=".65"/>
+  <ellipse cx="51" cy="46" rx="4" ry="5" fill="#f2cf88" stroke="#835022" stroke-width="2"/>
+  <ellipse cx="291" cy="44" rx="4" ry="5" fill="#f2cf88" stroke="#835022" stroke-width="2"/>
+  <g transform="translate(58 25)"><use href="#sprig"/></g>
+  <g transform="translate(284 21) scale(-1 1)"><use href="#sprig"/></g>
+  <g transform="translate(44 83) rotate(-45)"><use href="#blade" fill="url(#leaf)" stroke="#478b22" stroke-width="2"/><path d="M0 7V31" stroke="#d6ff85" stroke-width="2" stroke-linecap="round"/></g>
+  <g transform="translate(299 79) rotate(44)"><use href="#blade" fill="url(#leaf)" stroke="#478b22" stroke-width="2"/><path d="M0 7V31" stroke="#d6ff85" stroke-width="2" stroke-linecap="round"/></g>
+  <path d="M22 58L24 52L26 58L32 60L26 62L24 68L22 62L16 60Z" fill="#fff8a9"/>
+  <path d="M318 52L320 47L322 52L327 54L322 56L320 61L318 56L313 54Z" fill="#fff8a9"/>
+  <circle cx="30" cy="82" r="4" fill="#ffe66a" stroke="#cf9239" stroke-width="1.5"/>
+  <circle cx="310" cy="79" r="3" fill="#ffe66a" stroke="#cf9239" stroke-width="1.5"/>
+</svg>

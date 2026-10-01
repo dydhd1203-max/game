@@ -11,7 +11,7 @@
      ═══════════════════════════════════════════════════════════════ -->
 <script>
 window.TEACHER_CODE = "1234";        // 선생님 화면 암호 (애들한테는 비밀)
-window.CLASS_NAME   = "3학년 2반";   // 화면 위에 뜨는 우리 반 이름
+window.CLASS_NAME   = "3학년 3반";   // 화면 위에 뜨는 우리 반 이름
 
 // 지난 게임(양들의 밤)의 FIREBASE_CONFIG 를 그대로 붙여넣어도 됩니다.
 // 이 게임은 데이터를 'quiz' 아래에 따로 저장하므로 섞이지 않습니다.
@@ -788,6 +788,15 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <link rel="stylesheet" href="./candy-panels.css">
 <link rel="stylesheet" href="./candy-game.css">
 <link rel="stylesheet" href="./woodland-home.css">
+<link rel="stylesheet" href="./woodland-avatar.css">
+<link rel="stylesheet" href="./quiz-brand.css">
+<link rel="stylesheet" href="./quiz-hud.css">
+<link rel="stylesheet" href="./avatar-motion.css">
+<link rel="stylesheet" href="./teacher-builder.css">
+<link rel="stylesheet" href="./quiz-classroom.css">
+<link rel="stylesheet" href="./quiz-map.css">
+<link rel="stylesheet" href="./round-scene.css">
+<link rel="stylesheet" href="./classroom-flow.css">
 <link rel="stylesheet" href="./button-feedback.css">
 <script src="./ui-icons.js"></script>
 <script src="./avatar-clothes.js"></script>
@@ -795,6 +804,17 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <script src="./avatar-pets.js"></script>
 <script src="./avatar-shoes.js"></script>
 <script src="./avatar-pixel.js"></script>
+<script src="./avatar-poses.js"></script>
+<script src="./avatar-motion.js"></script>
+<script src="./quiz-questions.js"></script>
+<script src="./teacher-builder.js"></script>
+<script src="./quiz-classroom.js"></script>
+<script src="./map-painted-props.js"></script>
+<script src="./map-art-forest.js"></script>
+<script src="./map-art-adventure.js"></script>
+<script src="./quiz-map.js"></script>
+<script src="./round-scene.js"></script>
+<script src="./classroom-flow.js"></script>
 <script src="./demo.js"></script>
 <script>
 "use strict";
@@ -810,6 +830,7 @@ const now = ()=> Date.now();
 const today = ()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const R = window.RULES;
 const uiIcon = name => window.QPCandyIcons?.render(name) || '';
+const quizBrand = compact => `<span class="quiz-brand${compact?' quiz-brand-compact':''}"><span class="quiz-brand-class">${esc(window.CLASS_NAME||'우리 반')}</span><span class="quiz-brand-title">${['퀴','즈','나','라'].map(c=>`<span><span class="quiz-brand-face">${c}</span></span>`).join('')}</span></span>`;
 
 /* 배경에 물방울과 별을 흩어 놓는다. 한 번만 만들고 안 움직인다 */
 (function paintDeco(){
@@ -834,8 +855,12 @@ function modal(title, html, onOpen){
   el('mTitle').textContent = title; el('mBody').innerHTML = html;
   el('modal').classList.add('on'); if(onOpen) onOpen();
 }
-function closeModal(){ el('modal').classList.remove('on'); }
+function closeModal(){
+  el('modal').classList.remove('on');
+  if(curScr==='classroom')$('.qp-map-viewport')?.focus({preventScroll:true});
+}
 el('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('modal').classList.contains('on'))closeModal();});
 
 /* 답을 견주는 규칙 — 초등학생이 띄어쓰기 하나 틀렸다고 오답이 되면 안 된다.
    공백/문장부호를 지우고, 영문 대소문자를 맞추고, 전각 숫자를 반각으로 바꾼다. */
@@ -2612,23 +2637,29 @@ async function recordPracticeAnswer(correct, claimId, accountKey){
    ═══════════════════════════════════════════════════════════════════ */
 const SCREENS = {};
 let leaveFn = null, curScr = '';
+let activeMotion = null, activeClassroom = null, activeClassroomView = null;
+const linkedClassroom = new URLSearchParams(location.search).get('classroom');
+const entryScreen = ()=>linkedClassroom && /^[a-zA-Z0-9_-]{1,80}$/.test(linkedClassroom)?go('classroom',linkedClassroom):go('home');
 function go(name, arg){
+  if(name==='live'&&curScr==='live'&&!arg)return;
   if(leaveFn){ try{ leaveFn(); }catch(e){} leaveFn = null; }
   curScr = name; closeModal();
   document.body.classList.toggle('qp-woodland', name==='home');
   el('stage').innerHTML = '';
   SCREENS[name](el('stage'), arg);
 }
-function topbar(title, back){
+function topbar(title, back, brand){
+  const dailyGold = ME&&ME.day&&ME.day.d===today()?Math.max(0,ME.day.g||0):0;
   return `<div class="top">
     ${back? `<button class="btn sm gray" id="tbBack">${uiIcon('arrow')} 뒤로</button>`:''}
-    <div class="nm">${esc(title)}</div>
+    <div class="nm${brand?' quiz-brand-host':''}">${brand?quizBrand(true):esc(title)}</div>
+    ${brand&&ME?`<div class="quiz-daily"><span class="daily-label">오늘의 연습</span><span class="daily-track" role="progressbar" aria-label="오늘 연습으로 모은 골드" aria-valuemin="0" aria-valuemax="${R.practiceCap}" aria-valuenow="${dailyGold}"><i style="width:${clamp(dailyGold/Math.max(1,R.practiceCap)*100,0,100)}%"></i><b>${dailyGold} / ${R.practiceCap} 골드</b></span></div>`:''}
     <div class="f1"></div>
     <button class="icb" id="tbSnd" title="소리 설정" aria-label="소리 설정">${uiIcon((SND.on&&SND.fxVolume)||(SND.bgm&&SND.musicVolume)?'sound':'mute')}</button>
     ${ME&&!IS_TEACHER? `<button class="icb" id="tbHome" title="홈" aria-label="홈">${uiIcon('home')}</button>
        <button class="icb y" id="tbShop" title="옷 가게" aria-label="옷 가게">${uiIcon('shop')}</button>
        <button class="icb" id="tbRank" title="순위" aria-label="순위">${uiIcon('trophy')}</button>`:''}
-    ${ME? `<div class="gold"><span class="coin"></span>골드 <b id="goldNum">${(ME.gold||0).toLocaleString()}</b></div>`:''}
+    ${ME? `<div class="gold"><span class="coin">${uiIcon('coin')}</span>골드 <b id="goldNum">${(ME.gold||0).toLocaleString()}</b></div>`:''}
     ${ME? `<button class="btn sm gray" id="tbOut">나가기</button>`:''}
   </div>`;
 }
@@ -2698,7 +2729,7 @@ SCREENS.login = function(st){
     </div>
     <div class="lgMid">
       <div class="lgSup">${uiIcon('star')} 우리 반 퀴즈 놀이터 ${uiIcon('star')}</div>
-      <div class="logo lgLogo">퀴즈나라<small>${esc(window.CLASS_NAME||'우리 반')}</small></div>
+      <div class="logo lgLogo">${quizBrand(false)}</div>
       <div class="lgPanel">
         <div class="lgTitle">같이 놀자!</div>
         <div id="lgSexBox" class="lgSex hide">
@@ -2810,7 +2841,7 @@ SCREENS.login = function(st){
     watchMe();
     if(u.av&&u.av.hair!==ME.av.hair) save({av:ME.av});
     if(!ME.day || ME.day.d!==today()) save({day:{d:today(),g:0}});
-    go('home');
+    entryScreen();
   }
 
   /* 지난번에 들어왔던 아이디면 바로 들어간다 */
@@ -2831,15 +2862,15 @@ SCREENS.login = function(st){
 SCREENS.home = function(st){
   const ownedN = Object.keys(ME.owned||{}).length + STARTER.length;
   const s = ME.stat||{};
-  st.innerHTML = topbar((window.CLASS_NAME||'우리 반')+' 퀴즈나라') + `
+  st.innerHTML = topbar((window.CLASS_NAME||'우리 반')+' 퀴즈나라', false, true) + `
   <div class="homewrap">
     <div class="pnl mecard">
-      <div class="pnl-h">내 캐릭터</div>
+      <div class="pnl-h"><span class="wood-name" title="${esc(ME.name)}">${esc(ME.name)}${crownStr(ME.crown)}</span></div>
       <div class="mestage" id="meStage"></div>
-      <div style="padding:9px 12px;background:#dceffd;border-top:2px solid #b8d8f0">
-        <div style="font-size:19px;font-weight:900;color:#12467e;letter-spacing:-.03em">${esc(ME.name)}${crownStr(ME.crown)}</div>
-        <div class="hint mt8">맞힌 문제 <b>${s.correct||0}</b>개 · 푼 문제 <b>${s.solved||0}</b>개<br>
-          가진 아이템 <b>${ownedN}</b>개 / 전체 ${ITEM_COUNT}개</div>
+      <div class="wood-records">
+        <div class="wood-caption"><button class="wood-motion-trigger" id="btnMotion" title="이동·점프·앉기 연습">움직임 연습</button></div>
+        <div class="wood-progress"><span>정답 <b>${s.correct||0}</b></span><span>도전 <b>${s.solved||0}</b></span></div>
+        <div class="hint">가진 아이템 <b>${ownedN}</b>개 / 전체 ${ITEM_COUNT}개</div>
       </div>
     </div>
     <div class="col gap" style="min-height:0">
@@ -2848,7 +2879,7 @@ SCREENS.home = function(st){
       <button class="mtile" id="mPractice"><span class="ic">${uiIcon('book')}</span>
         <h3>혼자 연습하기</h3><p>문제를 풀면 골드를 벌어요.<br>오늘 더 벌 수 있는 골드 <b id="capLeft"></b></p></button>
       <button class="mtile" id="mLive"><span class="ic">${uiIcon('play')}</span>
-        <h3>수업 참가하기</h3><p id="liveHint">선생님이 방을 열었는지 보고 있어요…</p></button>
+        <h3>수업·퀴즈 참가</h3><p id="liveHint">실시간 수업이나 혼자 풀 퀴즈를 골라요.</p></button>
       <button class="mtile" id="mShop"><span class="ic">${uiIcon('shop')}</span>
         <h3>옷 가게</h3><p>옷·모자·안경·펫이 ${ITEM_COUNT}가지!<br>골드로 사서 꾸며요.</p></button>
       <button class="mtile" id="mRank"><span class="ic">${uiIcon('trophy')}</span>
@@ -2857,12 +2888,14 @@ SCREENS.home = function(st){
     <div class="ticker"><span>📢</span><span id="tick"></span></div></div>
   </div>`;
   wireTop();
-  el('meStage').innerHTML = avatarSVG(ME.av, 250, 3);
+  el('meStage').innerHTML = `<div class="wood-backdrop">${window.QPAvatar?.backdrop(ME.av.bg)||''}</div><div class="wood-stump" aria-hidden="true"></div>`
+    + avatarSVG(Object.assign({},ME.av,{bg:''}),250,3).replace('class="qp-pixel-avatar"','class="qp-pixel-avatar wood-avatar"');
   const left = Math.max(0, R.practiceCap - ((ME.day&&ME.day.d===today())?ME.day.g:0));
   el('capLeft').textContent = left + '골드';
   el('mPractice').onclick = ()=> go('practice');
   el('mShop').onclick     = ()=> go('shop');
-  el('mLive').onclick     = ()=> go('live');
+  el('mLive').onclick     = ()=> go('school');
+  el('btnMotion').onclick = ()=> go('motion');
   el('mRank').onclick     = showRank;
 
   /* 아래 띠에 안내가 돌아간다 — 화면이 비어 보이지 않게 하는 것도 겸한다 */
@@ -2909,15 +2942,61 @@ SCREENS.home = function(st){
 
   /* 선생님이 방을 열었으면 알려 준다 */
   if(FB.ok){
-    const rf = rref().child('meta');
-    const cb = rf.on('value', sn=>{
-      const m = sn.val(); const h = el('liveHint'); if(!h) return;
-      if(m && m.open) h.innerHTML = '<b style="color:#c0392b">지금 수업이 열려 있어요! 눌러서 들어가기</b>';
-      else h.textContent = '아직 안 열렸어요. 선생님이 열면 여기에 표시돼요.';
+    const rf = rref().child('meta'), activeRef=FB.db.ref(DBR+'/classroomActive');
+    let legacyOpen=false, general=null, generalRef=null, generalCb=null;
+    const paintHint=()=>{const h=el('liveHint');if(!h)return;
+      h.textContent=general&&general.status!=='ended'?'지금 “'+general.title+'” 수업이 열려 있어요!':legacyOpen?'별도 퀴즈룸이 열려 있어요. 들어가서 골라요.':'실시간 수업 또는 선생님이 준비한 혼자 풀기 퀴즈를 골라요.';};
+    const cb = rf.on('value', sn=>{legacyOpen=!!sn.val()?.open;paintHint();});
+    const activeCb=activeRef.on('value',sn=>{
+      if(generalRef)generalRef.off('value',generalCb);
+      general=null;generalRef=null;generalCb=null;
+      const id=sn.val();if(typeof id==='string'){
+        generalRef=FB.db.ref(DBR+'/classrooms/'+id);
+        generalCb=generalRef.on('value',room=>{general=room.val();paintHint();});
+      }else paintHint();
     });
     const before = leaveFn;
-    leaveFn = ()=>{ if(before) before(); rf.off('value', cb); };
+    leaveFn = ()=>{ if(before) before(); rf.off('value', cb);activeRef.off('value',activeCb);if(generalRef)generalRef.off('value',generalCb); };
   }
+};
+
+SCREENS.motion = function(st){
+  st.innerHTML=topbar('움직임 연습',true)+`<section class="qp-motion-page">
+    <div class="qp-motion-heading"><div><h2>내 캐릭터로 움직여 봐요</h2><p>걷기 · 점프 · 앉기를 다른 퀴즈 맵에서도 사용해요.</p></div><button class="btn sm gray" id="motionReset">처음 위치</button></div>
+    <div class="qp-motion-world" id="motionWorld" tabindex="0" aria-label="아바타 움직임 연습장. 방향키로 이동, 스페이스로 점프, 아래 방향키로 앉기"><div class="qp-motion-actor" id="motionActor">${avatarSVG(Object.assign({},ME.av,{bg:'',frame:''}),224,3)}</div></div>
+    <div class="qp-motion-status" id="motionStatus" role="status">가만히 서 있어요</div>
+    <div class="qp-motion-controls" id="motionControls">
+      <button class="btn" data-motion="left">◀ 왼쪽 <small>A / ←</small></button>
+      <button class="btn" data-motion="right">오른쪽 ▶ <small>D / →</small></button>
+      <button class="btn g" data-motion="jump">점프 <small>Space / ↑</small></button>
+      <button class="btn y" data-motion="sit">앉기 <small>S / ↓</small></button>
+    </div><p class="qp-motion-help">방향 버튼과 점프를 함께 누를 수 있어요. 앉기 버튼은 누르고 있는 동안 앉아요.</p>
+  </section>`;
+  wireTop();
+  let lastAction='';
+  activeMotion=window.QPAvatarMotion.create({element:el('motionActor'),world:el('motionWorld'),groundBottom:32,controls:el('motionControls'),
+    onState:state=>{if(state.action!==lastAction){lastAction=state.action;el('motionStatus').textContent={idle:'가만히 서 있어요',walk:'걸어가요',jump:'점프!',sit:'앉아 있어요'}[state.action];}}});
+  el('motionReset').onclick=()=>{activeMotion.reset();el('motionWorld').focus({preventScroll:true});};
+  el('motionWorld').focus({preventScroll:true});
+  const previous=leaveFn;
+  leaveFn=()=>{if(previous)previous();activeMotion?.destroy();activeMotion=null;};
+};
+
+SCREENS.school = function(st){
+  st.innerHTML=topbar('수업·혼자 퀴즈',true)+'<div class="classroom-student-body" id="classroomBody"></div>';
+  wireTop();
+  const hub=window.QPClassroomFlow.mountStudentHub(el('classroomBody'),{store:FB.db,user:ME,onOpen:id=>go('classroom',id),onLegacy:()=>go('live')});
+  const previous=leaveFn;leaveFn=()=>{if(previous)previous();hub.destroy();};
+};
+SCREENS.classroom = function(st,id){
+  if(!ME){go('login');return;}
+  st.innerHTML=topbar('우리 반 퀴즈',true)+'<div class="classroom-student-body" id="classroomBody"></div>';
+  wireTop('school');
+  const view=window.QPClassroomFlow.mountStudent(el('classroomBody'),{store:FB.db,id,user:ME,
+    avatar:av=>avatarSVG(Object.assign(newAvatar(),av||{},{bg:'',frame:''}),90,3),
+    modal,closeModal,toast,onExit:()=>go('school'),onSession:s=>{activeClassroom=s;}});
+  activeClassroomView=view;
+  const previous=leaveFn;leaveFn=()=>{if(previous)previous();view.destroy();activeClassroom=null;activeClassroomView=null;};
 };
 
 function showRank(){
@@ -3214,13 +3293,18 @@ const isOX = it => /^(o|x|O|X|ㅇ|ㅁ|맞|틀)/.test(String(it.a).trim()) && Str
    10) 선생님 화면
    ═══════════════════════════════════════════════════════════════════ */
 SCREENS.teacher = function(st){
-  let tab = 'make', curSet = null;
-  st.innerHTML = `<div class="top">
+  let tab = 'make', curSet = null, viewCleanup = null, stopped = false;
+  const cleanupView = ()=>{ if(viewCleanup){ viewCleanup(); viewCleanup=null; } };
+  const cleanupTeacher = ()=>{ stopped=true; cleanupView(); };
+  leaveFn=cleanupTeacher;
+  st.innerHTML = `<div class="top teacher-top">
       <div class="nm">선생님 화면 — ${esc(window.CLASS_NAME||'우리 반')}</div>
       <div class="f1"></div>
       <div class="tabs" style="padding:0">
-        <button class="tab on" data-t="make">문제 만들기</button>
-        <button class="tab" data-t="live">수업 열기</button>
+        <button class="tab on" data-t="make">일반 퀴즈 만들기</button>
+        <button class="tab" data-t="classroom">수업·혼자 풀기</button>
+        <button class="tab" data-t="live">별도 퀴즈룸</button>
+        <button class="tab" data-t="legacy">기존·OX 문제</button>
         <button class="tab" data-t="fash">👑 패션왕</button>
         <button class="tab" data-t="kids">학생 명단</button>
       </div>
@@ -3233,14 +3317,61 @@ SCREENS.teacher = function(st){
   });
 
   function paint(){
+    cleanupView();
+    el('tBody').classList.toggle('classroom-body',tab==='make'||tab==='classroom');
     if(tab==='make') paintMake();
+    else if(tab==='classroom') paintClassrooms();
     else if(tab==='live') paintLive();
+    else if(tab==='legacy') paintLegacyMake();
     else if(tab==='fash'){ el('tBody').innerHTML=''; fashionPanel(el('tBody')); }
     else paintKids();
+    if(leaveFn!==cleanupTeacher){ const childLeave=leaveFn; viewCleanup=()=>{if(childLeave)childLeave();}; }
+    leaveFn=cleanupTeacher;
+  }
+
+  function paintMake(){
+    cleanupView();
+    const body=el('tBody');
+    viewCleanup=window.QPClassroomFlow.mountTeacherChooser(body,{bank:BANK,onChoose:editSet}).destroy;
+  }
+  async function saveSet(set){
+    const id=set.id||('s'+now().toString(36)+Math.random().toString(36).slice(2,7));
+    const value=JSON.parse(JSON.stringify(Object.assign({},set,{made:set.made||now(),updated:now()})));
+    delete value.id;
+    await bref().child(id).set(value); BANK[id]=value; curSet=id;
+    return Object.assign({id},value);
+  }
+  function editSet(mode,id){
+    cleanupView();
+    el('tBody').replaceChildren();
+    const set=id&&BANK[id]?Object.assign({id},BANK[id]):{id:'s'+now().toString(36)+Math.random().toString(36).slice(2,7),title:'새 퀴즈',qs:[],made:now()};
+    viewCleanup=window.QPTeacherBuilder.mount(el('tBody'),{set,mode,
+      onBack:paintMake,onSave:saveSet,onNext:async draft=>{const saved=await saveSet(draft);if(!stopped)configure(saved,saved.mode||mode);}}).destroy;
+  }
+  function configure(set,mode){
+    cleanupView();
+    viewCleanup=window.QPTeacherClassroom.mountSetup(el('tBody'),{set,mode,
+      onBack:()=>editSet(mode,set.id),onLaunch:async settings=>{
+        const id=await window.QPClassroom.create(FB.db,{set,mode,settings,teacherId:ME.k});
+        if(stopped)return;
+        tab='classroom'; $$('.top .tab').forEach(b=>b.classList.toggle('on',b.dataset.t===tab));
+        showClassroom(id);
+      }}).destroy;
+  }
+  function paintClassrooms(){
+    cleanupView();
+    viewCleanup=window.QPClassroomFlow.mountTeacherHub(el('tBody'),{store:FB.db,onOpen:showClassroom,onNew:()=>{
+      tab='make'; $$('.top .tab').forEach(b=>b.classList.toggle('on',b.dataset.t===tab)); paint();
+    }}).destroy;
+  }
+  function showClassroom(id){
+    cleanupView();
+    viewCleanup=window.QPClassroomFlow.mountHost(el('tBody'),{store:FB.db,id,onBack:paintClassrooms,toast,
+      renderAvatar:(p,h)=>avatarSVG(Object.assign(newAvatar(),p.av||{},{bg:'',frame:''}),h,1)}).destroy;
   }
 
   /* ── 문제 만들기 ─────────────────────────────────────────── */
-  function paintMake(){
+  function paintLegacyMake(){
     el('tBody').innerHTML = `
       <div class="pnl col" style="overflow:hidden">
         <div class="pnl-h">문제 묶음 <div class="f1"></div>
@@ -3420,7 +3551,8 @@ SCREENS.teacher = function(st){
 
   function paintLive(){ el('tBody').innerHTML=''; hostPanel(el('tBody')); }
 
-  loadBank().then(()=>{ paint(); }).catch(e=>{
+  loadBank().then(()=>{ if(!stopped)paint(); }).catch(e=>{
+    if(stopped)return;
     el('tBody').innerHTML = '<div class="pnl" style="padding:20px">연결 실패: '+esc(e.message)+'</div>'; });
 };
 
@@ -3470,10 +3602,13 @@ function markAnswer(root, item, picked){
    12) 연습 모드 — 혼자 풀기
    ═══════════════════════════════════════════════════════════════════ */
 SCREENS.practice = function(st){
+  let complexAnswer=null;
   st.innerHTML = topbar('혼자 연습하기', true) + `<div id="prWrap" style="position:absolute;inset:54px 0 0 0;
     display:grid;place-items:center;padding:12px"><div class="pnl" style="padding:20px;width:min(760px,94vw)">
     불러오는 중…</div></div>`;
   wireTop();
+  const priorLeave=leaveFn;
+  leaveFn=()=>{if(priorLeave)priorLeave();complexAnswer?.destroy();complexAnswer=null;};
   const wrap = el('prWrap');
   const capLeft = ()=> Math.max(0, R.practiceCap - ((ME.day&&ME.day.d===today())?ME.day.g:0));
 
@@ -3520,6 +3655,7 @@ SCREENS.practice = function(st){
       return h;
     }
     function step(){
+      complexAnswer?.destroy();complexAnswer=null;
       if(i >= qs.length) return done();
       wrap.style.placeItems = 'stretch';
       const item = qs[i];
@@ -3556,14 +3692,18 @@ SCREENS.practice = function(st){
             <div style="font-size:19px;font-weight:900;color:#b57700">${capLeft()}</div></div>
         </div>
       </div>`;
-      wireAnswer(wrap, (v, btn)=> judge(item, v));
+      if(item.type==='match'||item.type==='order')complexAnswer=window.QPQuizQuestions.mountAnswer(el('ansArea'),item,{onSubmit:v=>judge(item,v)});
+      else wireAnswer(wrap, (v, btn)=> judge(item, v));
     }
     async function judge(item, v){
       if(judging || marks[i]!=null) return;
       if(!String(v||'').trim()){ toast('답을 골라 주세요'); return; }
       judging=true;
-      let ok = isRight(v, item.a);
-      const right2 = markAnswer(wrap, item, v);
+      const complex=item.type==='match'||item.type==='order';
+      const typed=['choice','short','match','order'].includes(item.type);
+      let ok = typed?window.QPQuizQuestions.grade(item,v):isRight(v, item.a);
+      const right2 = complex?(item.type==='match'?item.pairs.map(p=>p.left+' → '+p.right).join(' / '):item.items.join(' → ')):markAnswer(wrap, item, v);
+      if(complex)$$('#ansArea button,#ansArea input').forEach(e=>e.disabled=true);
       let receipt;
       try{receipt=await recordPracticeAnswer(ok,practiceSession+'_'+i,practiceKey);}
       catch(e){judging=false;toast(e.message+' · 같은 문제에 다시 도전해 주세요',3000);if(curScr==='practice'&&ME&&ME.k===practiceKey&&wrap.isConnected)step();return;}
@@ -3630,7 +3770,7 @@ const svNow = ()=> Date.now() + SVOFF;
 function seedRnd(seed){ let s = seed>>>0 || 1;
   return ()=>{ s ^= s<<13; s>>>=0; s ^= s>>17; s ^= s<<5; s>>>=0; return s/4294967296; }; }
 function pickQs(setId, seed, count, onlyOX){
-  let all = (BANK[setId] && BANK[setId].qs || []).slice();
+  let all = (BANK[setId] && BANK[setId].qs || []).filter(q=>q.type!=='match'&&q.type!=='order').slice();
   if(onlyOX) all = all.filter(isOX);
   const rnd = seedRnd(seed);
   for(let i=all.length-1;i>0;i--){ const j=(rnd()*(i+1))|0; const t=all[i]; all[i]=all[j]; all[j]=t; }
@@ -4363,6 +4503,8 @@ function hostPanel(box){
 function qpLiveScreen(stage){
   ensureClock();
   const ref=rref(), key=ME.k;
+  const presence='v'+now().toString(36)+Math.random().toString(36).slice(2,9);
+  let disposed=false;
   const S={room:null,session:null,joining:false,pending:null,clue:null,draft:'',lastQuestion:null,feedback:null,lastSound:null,lastWarning:null};
   stage.innerHTML=topbar('퀴즈룸',true)+'<div id="lvWrap" style="position:absolute;inset:54px 0 0"></div>';
   wireTop(); const wrap=el('lvWrap');
@@ -4370,18 +4512,18 @@ function qpLiveScreen(stage){
   const mine=()=>S.room&&S.room.p&&S.room.p[key]||{};
   function join(){
     const m=S.room&&S.room.meta;
-    if(!m||!m.open||S.joining||S.session===m.session) return;
+    if(disposed||!m||!m.open||S.joining||S.session===m.session) return;
     S.joining=true; S.session=m.session; S.clue=null; S.pending=null; S.draft=''; S.lastQuestion=null;
     ref.transaction(room=>{
-      if(!room||room.meta.session!==m.session) return;
+      if(disposed||!room||room.meta.session!==m.session) return;
       if(m.mode==='cross'&&m.phase!=='lobby'&&!(m.memberTeams&&m.memberTeams[key])) return;
       room.p=room.p||{};
       if(!room.p[key]){
         const counts={A:0,B:0}; Object.values(room.p).forEach(p=>{if(p.online!==false) counts[p.team||'A']++;});
         room.p[key]={name:ME.name,av:ME.av,sc:0,ok:0,team:counts.A<=counts.B?'A':'B'};
       }
-      room.p[key].online=true; room.p[key].av=ME.av; return room;
-    },undefined,false).then(result=>{const joined=result.snapshot.val();if(result.committed&&joined&&joined.p&&joined.p[key])ref.child('p/'+key).onDisconnect().update({online:false});})
+      room.p[key].online=true; room.p[key].presence=presence;room.p[key].av=ME.av; return room;
+    },undefined,false).then(result=>{const joined=result.snapshot.val();if(!disposed&&result.committed&&joined&&joined.p&&joined.p[key])ref.child('p/'+key).onDisconnect().update({online:false});})
       .catch(e=>toast('입장 연결을 확인해 주세요: '+e.message,2500)).finally(()=>S.joining=false);
   }
   function teamRows(){return qpTeamRows(S.room);}
@@ -4526,7 +4668,15 @@ function qpLiveScreen(stage){
     if(el('lvBar')){const percent=clamp(left/(m.sec*1000)*100,0,100);el('lvBar').style.width=percent+'%';el('lvBar').className=percent<20?'hot':percent<50?'warn':'';}
     if(left<=0){['ansIn','ansOk','cIn'].forEach(id=>{if(el(id))el(id).disabled=true;});}
   },250);
-  leaveFn=()=>{ref.off('value',listener);clearInterval(interval);if(S.session&&mine().name)ref.child('p/'+key+'/online').set(false).catch(()=>{});};
+  leaveFn=()=>{
+    disposed=true;ref.off('value',listener);clearInterval(interval);
+    const session=S.session;
+    ref.child('p/'+key).onDisconnect().cancel().catch(()=>{});
+    if(session&&mine().name)ref.transaction(room=>{
+      if(!room||room.meta?.session!==session||room.p?.[key]?.presence!==presence)return;
+      room.p[key].online=false;return room;
+    },undefined,false).catch(()=>{});
+  };
   render();
 }
 SCREENS.live=qpLiveScreen;
@@ -4539,13 +4689,14 @@ window.QPGame = {
   newAvatar, avatarForSex, itemForSex, initFB, go,
   getMe:()=>ME, getBank:()=>BANK, setBank:value=>{BANK=value||{};},
   getFB:()=>FB, getHost:()=>HOST,
+  getMotion:()=>activeMotion, getClassroom:()=>activeClassroom, getMap:()=>activeClassroomView?.getMap(),
   getSound:()=>SND,
   getCatalog:()=>({CATS,ITEMS,PAL,STARTER}),
   enterUser(k,u){
     if(!initFB()) return false;
     ME={k,name:u.name||k,gold:u.gold||0,av:avatarForSex(Object.assign(newAvatar(u.av&&u.av.sex),u.av||{}),null,u.owned),owned:u.owned||{},
       stat:u.stat||{solved:0,correct:0},crown:u.crown||0,day:u.day||{d:today(),g:0}};
-    IS_TEACHER=false; watchMe(); if(u.av&&u.av.hair!==ME.av.hair)save({av:ME.av}); go('home'); return true;
+    IS_TEACHER=false; watchMe(); if(u.av&&u.av.hair!==ME.av.hair)save({av:ME.av}); entryScreen(); return true;
   },
   enterTeacher(){
     if(!initFB()) return false;

@@ -1,0 +1,212 @@
+/* Small toy controls, a real gold balance and the actual daily practice progress.
+   The illustrated forest, wooden signs and character board remain separate layers. */
+body .top .gold {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 116px;
+  height: 36px;
+  gap: 5px;
+  padding: 3px 12px 3px 8px;
+  color: #967139;
+  background: linear-gradient(#fffdf0, #fff1cd);
+  border: 3px solid #fffbed;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 2px #dfb864, inset 0 3px 0 #fff, 0 3px 0 #a8742c, 0 5px 0 #fff5dba6;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  text-shadow: none;
+  -webkit-text-stroke: 0;
+  overflow: visible;
+}
+body .top .gold b {
+  color: #795326;
+  font-family: var(--candy-font);
+  font-size: 23px;
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: .005em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: none;
+  -webkit-text-stroke: 0;
+  white-space: nowrap;
+}
+body .top .gold .coin {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  margin-left: -9px;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  overflow: visible;
+}
+body .top .gold .coin::before,
+body .top .gold .coin::after { display: none; content: none; }
+body .top .gold .coin :is(.rich-icon, .candy-icon) { display: block; width: 34px; height: 34px; max-width: none; filter: drop-shadow(0 2px 0 #b1812745); }
+
+body .top :is(#tbSnd, #tbHome, #tbShop, #tbRank) {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  padding: 3px;
+  border: 3px solid #fffbea;
+  border-radius: 12px;
+  color: #349fae;
+  background: linear-gradient(#efffff, #bbebf5 50%, #96d3e5);
+  box-shadow: inset 0 0 0 1px #6dafbb, inset 0 2px 0 #fff, inset 0 -3px 0 #71b2c42e, 0 3px 0 #527f80, 0 5px 0 #fff6dda6;
+  text-shadow: none;
+  -webkit-text-stroke: 0;
+  transform: none;
+}
+body .top #tbShop { background: linear-gradient(#fffbe2, #ffe397 50%, #eeca6a); box-shadow: inset 0 0 0 1px #d1a352, inset 0 2px 0 #fff, inset 0 -3px 0 #bb8a3430, 0 3px 0 #927035, 0 5px 0 #fff6dda6; }
+body .top :is(#tbSnd, #tbHome, #tbShop, #tbRank)::before {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  right: 3px;
+  height: 40%;
+  max-height: none;
+  background: linear-gradient(#ffffff80, #ffffff04);
+  border-radius: 7px 7px 45% 45%;
+  pointer-events: none;
+  z-index: -1;
+}
+body .top :is(#tbSnd, #tbHome, #tbShop, #tbRank)::after { display: none; content: none; }
+body .top :is(#tbSnd, #tbHome, #tbShop, #tbRank) :is(.rich-icon, .candy-icon) { width: 26px; height: 26px; filter: drop-shadow(0 1px 0 #34617345); }
+body .top :is(#tbSnd, #tbHome, #tbShop, #tbRank):is(:hover, :active, .qp-pressed) { transform: none; background: linear-gradient(#efffff, #bbebf5 50%, #96d3e5); }
+body .top #tbShop:is(:hover, :active, .qp-pressed) { background: linear-gradient(#fffbe2, #ffe397 50%, #eeca6a); }
+body .top :is(#tbSnd, #tbHome, #tbShop, #tbRank):is(:active, .qp-pressed) { box-shadow: inset 0 0 0 1px #6dafbb, inset 0 2px 2px #4b8a942e, 0 1px 0 #527f80, 0 3px 0 #fff6dda6; }
+
+body.qp-woodland .top :is(#tbSnd, #tbHome, #tbShop, #tbRank) { width: 44px; height: 44px; border-radius: 14px; }
+body.qp-woodland .top :is(#tbSnd, #tbHome, #tbShop, #tbRank) :is(.rich-icon, .candy-icon) { width: 31px; height: 31px; }
+body.qp-woodland .top .gold { height: 39px; min-width: 126px; }
+body.qp-woodland .top .gold b { font-size: 25px; }
+
+body .top .quiz-daily {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 0 0 185px;
+  width: 185px;
+  height: 44px;
+  padding: 4px 7px 5px;
+  gap: 3px;
+  background: linear-gradient(#fff8d3, #ecd18b);
+  border: 2px solid #fff7da;
+  border-radius: 13px;
+  box-shadow: inset 0 0 0 1px #c9a051, 0 3px 0 #825c2c;
+}
+body .top .daily-label {
+  display: block;
+  color: #795a2b;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.05;
+  text-align: center;
+  text-shadow: none;
+  white-space: nowrap;
+}
+body .top .daily-track {
+  position: relative;
+  display: block;
+  flex: 0 0 22px;
+  min-height: 22px;
+  height: 22px;
+  width: 100%;
+  color: #fffde1;
+  background: #315b35;
+  border: 2px solid #487239;
+  border-radius: 999px;
+  box-shadow: inset 0 2px 3px #182c3166, 0 1px 0 #fff3c786;
+  isolation: isolate;
+  overflow: hidden;
+}
+body .top .daily-track i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: block;
+  height: 100%;
+  min-width: 0;
+  max-width: 100%;
+  background: linear-gradient(#dcfa72 0%, #98d342 48%, #70b330 54%, #56912d);
+  border-radius: inherit;
+  box-shadow: inset 0 2px 0 #f1ffbe90, inset 0 -2px 0 #417b293d;
+  transition: width .2s ease;
+  z-index: 0;
+}
+body .top .daily-track b {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fffde4;
+  font-family: 'NanumSquareRound', sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 1px #31532a;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+@media (min-width: 661px) and (max-width: 1050px) {
+  body.qp-woodland .top { gap: 8px; padding-inline: 15px; }
+  body .top .quiz-daily { flex-basis: 173px; width: 173px; }
+}
+@media (max-width: 660px) {
+  body .top :is(#tbSnd, #tbHome, #tbShop, #tbRank) { width: 32px; height: 32px; padding: 2px; border-width: 2px; border-radius: 10px; }
+  body .top :is(#tbSnd, #tbHome, #tbShop, #tbRank) :is(.rich-icon, .candy-icon) { width: 24px; height: 24px; }
+  body .top .gold { height: 33px; min-width: 101px; padding-inline: 7px; font-size: 0; gap: 4px; border-width: 2px; }
+  body .top .gold b { font-size: 21px; }
+  body .top .gold .coin { margin-left: -7px; width: 29px; height: 29px; flex-basis: 29px; }
+  body .top .gold .coin :is(.rich-icon, .candy-icon) { width: 31px; height: 31px; }
+  body.qp-woodland { --qp-top-height: 112px; }
+  body.qp-woodland .top {
+    display: grid;
+    grid-template-columns: repeat(4, 34px) minmax(110px, 1fr) 56px;
+    grid-template-rows: 48px 34px;
+    align-content: center;
+    align-items: center;
+    column-gap: 7px;
+    row-gap: 9px;
+    height: 112px;
+    padding: 9px 12px;
+  }
+  body.qp-woodland .top > .nm { grid-column: 1 / span 4; grid-row: 1; justify-self: start; min-width: 0; }
+  body.qp-woodland .top > .f1 { display: none; }
+  body.qp-woodland .top .quiz-daily { grid-column: 5 / span 2; grid-row: 1; justify-self: end; width: 172px; height: 40px; padding: 3px 7px 4px; border-radius: 12px; }
+  body.qp-woodland .top .daily-label { font-size: 9px; }
+  body.qp-woodland .top .daily-track { height: 21px; min-height: 21px; flex-basis: 21px; }
+  body.qp-woodland .top #tbSnd { grid-column: 1; grid-row: 2; }
+  body.qp-woodland .top #tbHome { grid-column: 2; grid-row: 2; }
+  body.qp-woodland .top #tbShop { grid-column: 3; grid-row: 2; }
+  body.qp-woodland .top #tbRank { grid-column: 4; grid-row: 2; }
+  body.qp-woodland .top :is(#tbSnd, #tbHome, #tbShop, #tbRank) { width: 34px; height: 34px; border-radius: 11px; }
+  body.qp-woodland .top :is(#tbSnd, #tbHome, #tbShop, #tbRank) :is(.rich-icon, .candy-icon) { width: 26px; height: 26px; }
+  body.qp-woodland .top .gold { grid-column: 5; grid-row: 2; justify-self: stretch; width: 100%; min-width: 110px; height: 34px; margin: 0; padding-inline: 8px; }
+  body.qp-woodland .top .gold b { font-size: 22px; }
+  body.qp-woodland .top #tbOut { grid-column: 6; grid-row: 2; width: 56px; padding: 6px 3px; font-size: 11px; white-space: nowrap; }
+}
+@media (max-width: 360px) {
+  body.qp-woodland .top { grid-template-columns: repeat(4, 32px) minmax(94px, 1fr) 48px; column-gap: 5px; }
+  body.qp-woodland .top .quiz-brand-compact { --brand-width: 150px; --brand-letter-size: 27px; }
+  body.qp-woodland .top .quiz-daily { width: 140px; padding-inline: 5px; }
+  body.qp-woodland .top .daily-track b { font-size: 10px; }
+  body.qp-woodland .top :is(#tbSnd, #tbHome, #tbShop, #tbRank) { width: 32px; height: 32px; }
+  body.qp-woodland .top :is(#tbSnd, #tbHome, #tbShop, #tbRank) :is(.rich-icon, .candy-icon) { width: 24px; height: 24px; }
+  body.qp-woodland .top .gold { min-width: 94px; padding-inline: 4px; }
+  body.qp-woodland .top .gold b { font-size: 20px; }
+  body.qp-woodland .top #tbOut { width: 48px; font-size: 10px; }
+}
+@media (prefers-reduced-motion: reduce) { body .top .daily-track i { transition: none; } }
