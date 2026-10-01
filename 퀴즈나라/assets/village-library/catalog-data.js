@@ -35,13 +35,16 @@ window.QPVillageLibraryCatalog = {
     "originalsVisuallyReviewed": 8,
     "transparentUserOriginals": 0,
     "runtimeSpritesPrepared": 0,
-    "runtimePlacementApplied": true,
+    "runtimePlacementApplied": false,
     "projectArtworkFiles": 3,
     "projectSpritesPrepared": 14,
     "projectPlacementImplemented": true,
     "projectFinalArtReview": "pending",
-    "originalRegionsRuntimeIntegrated": 1,
-    "runtimeFinalArtReview": "pending"
+    "originalRegionsRuntimeIntegrated": 0,
+    "runtimeFinalArtReview": "pending",
+    "runtimePlacementStatusMeaning": "No original village-library image region remains active in current floor renderer; existing project homes and life objects have separate project placement status.",
+    "projectRetiredMaterials": 1,
+    "projectArtworkFilesInCurrentVillage": 2
   },
   "classificationSummary": {
     "styles": {
@@ -576,7 +579,7 @@ window.QPVillageLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "partial-region-integrated",
+      "runtimeStatus": "not-integrated",
       "classificationStatus": "visually-reviewed",
       "sourceRect": null,
       "anchor": null,
@@ -620,8 +623,10 @@ window.QPVillageLibraryCatalog = {
       ],
       "preparationNotes": "세로 전체 마을 일러스트인 불투명 JPEG다. 상점 종류를 읽게 하는 차양·진열·화분, 석재 광장과 숲 경계, 청록 분수·보라 조명·따뜻한 창빛을 참고한다. 의사문자 간판은 한국어 게임 문구가 아니며 원본 전체를 이동 맵으로 덮지 않는다.",
       "visibleText": "작은 간판에 판독하기 어려운 장식 글자",
-      "usageStatus": "direct-source-crop-in-runtime",
-      "runtimeRegions": [
+      "usageStatus": "historical-reference-and-retired-direct-road-crop",
+      "runtimeRegions": [],
+      "runtimeStatusMeaning": "Stored original and historical reference remain unchanged. The old direct paving crop [320,590,120,160] has been removed from the current village ground; current paving is a quiet region of map3 screenshot.",
+      "retiredRuntimeRegions": [
         {
           "id": "stone-paving-pattern",
           "sourceRect": [
@@ -642,11 +647,11 @@ window.QPVillageLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "backgroundTreatment": "Crop inside source material only; preserve JPEG bytes; reflected copies soften repetition edges",
-          "placementStatus": "implemented-in-source",
-          "visualVerificationStatus": "pending-final-game-review"
+          "placementStatus": "removed-from-current-village-ground",
+          "visualVerificationStatus": "pending-final-game-review",
+          "retirementReason": "Replaced by quieter provided map3 paving source crop from QPVillageScene.groundSources.paving."
         }
-      ],
-      "runtimeStatusMeaning": "One documented material crop is rendered in village-scene.js. The complete original image is not integrated as a map or isolated sprite. Final visual verification remains pending."
+      ]
     }
   ],
   "projectAssets": [
@@ -857,7 +862,7 @@ window.QPVillageLibraryCatalog = {
       "kind": "project-original-material",
       "label": "햇살숲 잔디 바닥 재질",
       "visualSummary": "황금 햇살과 차분한 녹색 잎이 섞인 회화형 잔디 재질",
-      "purpose": "village-scene.js의 낮은 땅·높은 땅·정원 표면에 낮은 불투명도로 적용하며 길과 물을 덮지 않는다.",
+      "purpose": "이전 패치에서 제작·사용한 회화형 잔디 재질 원본 보관. 현재 바닥은 사용자 map7의 차분한 실제 잔디 crop로 교체됐다.",
       "categories": [
         "terrain",
         "grass",
@@ -888,11 +893,11 @@ window.QPVillageLibraryCatalog = {
       "transparency": "none-rgb-opaque",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
-      "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
+      "runtimeStatus": "retired-from-current-village-ground",
+      "runtimeStatusMeaning": "Previous generated grass material is preserved as an original project file but is no longer referenced by current village floor sourceAssets or groundSources.",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
-      "visualVerificationStatus": "pending-final-game-review",
+      "visualVerificationStatus": "retired-not-current-game-art",
       "sourceRect": [
         0,
         0,
@@ -923,7 +928,8 @@ window.QPVillageLibraryCatalog = {
       "components": [
         "청록 지붕·크림 벽·황금 흙길",
         "집 옆 텃밭·통·천막·분수"
-      ]
+      ],
+      "retirementReason": "Current map design uses provided original assets directly; quieter map7 ground crop replaces this generated material."
     },
     {
       "id": "project-forest-village-homes-bakery",

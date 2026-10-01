@@ -51,6 +51,7 @@
     }
     const destination=el('div','vt-destination');destination.hidden=true;world.appendChild(destination);
     viewport.appendChild(world);container.appendChild(viewport);
+    const ambience=window.QPVillageAmbience?.mount(world,{zone,viewport});
     const hud=el('div','vt-hud');hud.innerHTML='<div class="vt-place"><strong></strong><span class="vt-connection"></span></div><button class="vt-friends-toggle" aria-expanded="false">우리 반 친구 <b>1</b></button>';
     hud.querySelector('strong').textContent=zone==='tailor'?'새잎 옷 가게':'햇살숲 마을';container.appendChild(hud);
     const friends=el('div','vt-friends');friends.hidden=true;friends.setAttribute('aria-label','접속한 우리 반 친구');container.appendChild(friends);
@@ -234,7 +235,8 @@
     const clearKeys=()=>{keys.clear();state.moving=false;send();};window.addEventListener('blur',clearKeys);document.addEventListener('visibilitychange',clearKeys);
     function tick(time){
       if(dead)return;const dt=Math.min(.045,last?(time-last)/1000:0);last=time;
-      if(suspended()){clearKeys();last=0;raf=requestAnimationFrame(tick);return;}
+      const isSuspended=suspended();ambience?.setPaused(isSuspended);
+      if(isSuspended){clearKeys();last=0;raf=requestAnimationFrame(tick);return;}
       if(travel){
         travel.phase=clamp(travel.phase+dt*1000/(travel.duration||3000),0,1);const t=travel.phase,a=travel.from,b=travel.to;
         state.x=a.x+(b.x-a.x)*t;state.y=a.y+(b.y-a.y)*t;state.height=a.height+(b.height-a.height)*t;state.moving=false;state.jump=0;state.vy=0;
@@ -295,7 +297,7 @@
       getState:()=>({...state,zone,scale,camera:{...camera},pathLength:path.length,nearPortal:nearest?.id||null,travel:travel?{id:travel.id,phase:travel.phase}:null,players:roster.map(p=>({...p})),discovered:[...found]}),
       getScene:()=>scene,
       focus:()=>viewport.focus({preventScroll:true}),
-      destroy(){if(dead)return;dead=true;clearKeys();cancelAnimationFrame(raf);clearTimeout(noticeTimer);observer.disconnect();document.removeEventListener('keyup',keyup);window.removeEventListener('blur',clearKeys);document.removeEventListener('visibilitychange',clearKeys);
+      destroy(){if(dead)return;dead=true;clearKeys();cancelAnimationFrame(raf);clearTimeout(noticeTimer);observer.disconnect();ambience?.destroy();document.removeEventListener('keyup',keyup);window.removeEventListener('blur',clearKeys);document.removeEventListener('visibilitychange',clearKeys);
         options.onCheckpoint?.({...state,jump:0,vy:0,moving:false});presence?.update({moving:false,pose:'idle'});if(ownPresence)presence?.disconnect();for(const actor of actors.values())window.QPAvatarPose?.destroy(actor.svg);container.replaceChildren();container.classList.remove('vt-host');}
     };
   }

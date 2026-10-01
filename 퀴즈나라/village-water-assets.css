@@ -1,0 +1,11 @@
+/* Subtle movement of original pond water pixels; the shore remains fixed. */
+.vt-water-current{animation:vt-water-current 25s linear infinite;transform-box:view-box;will-change:transform;opacity:.2}
+@keyframes vt-water-current{
+  0%{transform:translate(0,0)}
+  50%{transform:translate(6px,46px)}
+  100%{transform:translate(0,92px)}
+}
+.vt-ambient-paused .vt-water-current{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){
+  .vt-water-current{animation:none!important;transform:none!important}
+}

@@ -11,6 +11,7 @@ const session = 'village-' + Date.now() + '-' + process.pid;
 const preview = new URL(process.env.QUIZ_PREVIEW_URL || 'http://127.0.0.1:4173/');
 preview.searchParams.set('demo', '1'); preview.searchParams.set('session', session);
 const checks = [], screenshots = [], errors = [], paths = [], layouts = [], keyboardTraces = [], climbs = [], floorClicks = [], screenMetrics = [];
+const landRoutes = [], pondChecks = [], missing = [];
 let browser, a, b, sibling, phase = 'startup';
 fs.mkdirSync(out, { recursive: true });
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -126,6 +127,83 @@ async function floorClick(page, target) {
   } finally { record.end = await state(page); }
   assert(Math.abs((await state(page)).height - target.height) < 1, 'Floor clicking picked the wrong elevation');
 }
+async function inspectRetiredStream(page) {
+  const inspection = await page.evaluate(() => {
+    const scene = QPGame.getVillage().getScene(), data = scene.build(), scale = scene.width / 1800;
+    const probes = [[1105,600,72],[1165,890,0]].map(([x,y,height]) => ({ x:x*scale, y:y*scale, height:height*scale,
+      canal:QPVillageWaterAssets.containsCanal(x,y,11/scale), brook:QPVillageWaterAssets.containsBrook(x,y,11/scale),
+      legal:scene.canStand(x*scale,y*scale,height*scale,11) }));
+    return { surfaces:Object.keys(scene.surfaces), objects:data.objects.filter(o => /bridge/.test(o.id)).map(o => o.id),
+      bridgeDOM:document.querySelectorAll('.vt-object[data-object*="bridge"]').length,
+      pieces:[...document.querySelectorAll('.vt-ground [data-water-piece]')].map(n => n.dataset.waterPiece),
+      sources:QPVillageWaterAssets.sourceAssets, probes };
+  });
+  for (const retired of ['bridge','lowerBridge','river']) assert(!inspection.surfaces.includes(retired), 'Retired terrain remains: ' + retired);
+  assert.deepEqual(inspection.objects, []); assert.equal(inspection.bridgeDOM, 0);
+  assert.deepEqual(inspection.pieces, ['original-pond'], 'The ground should retain only the original standalone pond');
+  assert.deepEqual(inspection.sources, ['assets/water-library/originals/water-0e50bcc49b81bd14.jpg']);
+  assert(inspection.probes.every(p => !p.canal && !p.brook && p.legal), 'Retired water still blocks the open land');
+  landRoutes.push({ kind:'retired-stream-inspection', ...inspection });
+  pass('The retired stream, both bridge drawings and fake river terrain are absent; former water points are open land');
+}
+async function landRoad(page, name) {
+  const scale = await page.evaluate(() => QPGame.getVillage().getScene().width / 1800);
+  const raw = name === 'upper'
+    ? [[1000,492,72],[1105,492,72],[1208,492,72]]
+    : [[1020,916,0],[1078.5,886,0],[1154,858,0],[1198,836.25,0],[1238,821,0],[1350,821,0]];
+  const waypoints = raw.map(([x,y,height]) => ({ x:x*scale, y:y*scale, height:height*scale }));
+  const paving = await page.evaluate(points => {
+    const world = document.querySelector('.vt-world').getBoundingClientRect(), state = QPGame.getVillage().getState();
+    const paint = [...document.querySelectorAll('.vt-ground path,.vt-ground ellipse')].filter(n =>
+      [n.getAttribute('fill'),n.getAttribute('stroke')].some(v => v && /-path\)/.test(v)));
+    return points.map(p => {
+      const screen = new DOMPoint(world.x+p.x*state.scale,world.y+(p.y-p.height)*state.scale);
+      return { ...p, paved:paint.some(n => { const m=n.getScreenCTM(); if(!m)return false; const q=screen.matrixTransform(m.inverse());
+        return (/-path\)/.test(n.getAttribute('stroke')||'') && n.isPointInStroke(q)) ||
+          (/-path\)/.test(n.getAttribute('fill')||'') && n.isPointInFill(q)); }) };
+    });
+  }, waypoints);
+  assert(paving.every(p => p.paved), name + ': a road waypoint has no visible paving');
+  for (let i=0;i<waypoints.length;i++) {
+    await walk(page,waypoints[i],name+'-open-land-road-'+i);
+    if (process.env.QUIZ_VILLAGE_LAND_WATER_ONLY==='1' && i===(name==='upper'?1:3))
+      await landView(page,name==='upper'?'마을-높은길-옛강물자리':'마을-산책길-옛강물자리');
+  }
+  landRoutes.push({kind:'actual-paved-road',name,waypoints,paving});
+  await screenshot(page,name==='upper'?'마을-높은길-이어진도로':'마을-연못북쪽-산책길');
+  pass('Actual walking follows the continuous ' + name + ' paved land road without a bridge or invisible stream collider');
+}
+async function retainedPond(page) {
+  const boundary = await page.evaluate(() => {
+    const scene=QPGame.getVillage().getScene(),water=QPVillageWaterAssets,scale=scene.width/1800,y=1000;
+    let edge=null;for(let x=1200;x<1500;x+=.25)if(water.containsPond(x,y)){edge=x;break;}
+    const point=x=>({x:x*scale,y:y*scale,height:0});
+    const inside=point(1280),outside=point(1210),oldBridgeHole={x:1235*scale,y:915*scale,height:0};
+    let samples=0,blocked=0;
+    for(let yy=900;yy<=1040;yy+=10)for(let x=1210;x<=1540;x+=10)if(water.containsPond(x,yy)){
+      samples++;if(!scene.canStand(x*scale,yy*scale,0,0))blocked++;
+    }
+    return {scale,edge,samples,blocked,inside,outside,oldBridgeHole,
+      insideBlocked:!scene.canStand(inside.x,inside.y,0,0),outsideLegal:scene.canStand(outside.x,outside.y,0,11),
+      oldBridgeHoleBlocked:!scene.canStand(oldBridgeHole.x,oldBridgeHole.y,0,0),
+      near:edge===null?null:point(edge-4),start:edge===null?null:point(edge-24),wet:edge===null?null:point(edge+12),
+      nearCentreLegal:edge!==null&&scene.canStand((edge-4)*scale,y*scale,0,0),
+      nearFeetBlocked:edge!==null&&!scene.canStand((edge-4)*scale,y*scale,0,11)};
+  });
+  assert(boundary.edge!==null&&boundary.samples>0&&boundary.samples===boundary.blocked,'The retained painted pond needs a solid interior');
+  assert(boundary.insideBlocked&&boundary.outsideLegal&&boundary.oldBridgeHoleBlocked,'The pond boundary or retired bridge exemption is incorrect');
+  assert(boundary.nearCentreLegal&&boundary.nearFeetBlocked,'Foot radius must stop at the painted water edge');
+  await walk(page,boundary.start,'standalone-pond-shore');
+  const before=await state(page),screen=await page.evaluate(p=>{const s=QPGame.getVillage().getState(),r=document.querySelector('.vt-world').getBoundingClientRect();return{x:r.x+p.x*s.scale,y:r.y+p.y*s.scale};},boundary.wet);
+  await page.mouse.click(screen.x,screen.y);await pause(200);const clicked=await state(page);
+  assert(Math.hypot(clicked.x-before.x,clicked.y-before.y)<1&&!clicked.pathLength,'Clicking the retained pond started an illegal route');
+  await keyHold(page,['ArrowRight'],550);const end=await state(page);
+  assert(end.x<=boundary.edge*boundary.scale-10,'Actual keyboard feet crossed the painted pond edge');
+  assert.equal(await page.evaluate(({p,scale})=>QPVillageWaterAssets.containsPond(p.x/scale,p.y/scale,11/scale),{p:end,scale:boundary.scale}),false);
+  pondChecks.push({...boundary,before,clicked,end});await screenshot(page,'마을-단독연못-실제물경계');
+  if (process.env.QUIZ_VILLAGE_LAND_WATER_ONLY==='1') await landView(page,'마을-단독연못-실제물경계');
+  pass('Only the retained original pond blocks its interior and foot boundary, including the retired bridge hole; actual clicks and keyboard cannot enter it');
+}
 async function climb(page, friend, uid, link) {
   await walk(page, link.from, 'rope-approach-' + link.id);
   await page.waitForFunction(id => QPGame.getVillage().getState().nearPortal === id, link.id);
@@ -183,6 +261,14 @@ async function climb(page, friend, uid, link) {
   await friend.waitForFunction(uid => QPGame.getVillage().getState().players.some(p => p.uid === uid && p.pose !== 'climb'), uid);
   climbs.push({ id: link.id, from: link.from, to: link.to, samples, localSamples, remoteSamples });
 }
+async function landView(page, name) {
+  const previous = page.viewportSize();
+  for (const [width,height] of [[1366,768],[1920,1080]]) {
+    await page.setViewportSize({width,height}); await pause(150);
+    await screenshot(page,name+'-'+width,false);
+  }
+  await page.setViewportSize(previous);
+}
 async function logout(page) {
   await page.bringToFront(); await page.locator('#tbOut').click();
   await page.locator('#mOut').click();
@@ -229,12 +315,34 @@ async function checkNameSignSeparation(page) {
     const open = async name => {
       const url = new URL(preview); url.searchParams.set('user', name);
       const page = await context.newPage(); page.on('pageerror', e => errors.push(e.message));
+      page.on('response', r => { if (r.status() >= 400) missing.push({ status:r.status(), url:r.url() }); });
       await page.goto(url.href); await ready(page);
       const previewToolbar = page.locator('.qp-demo-toolbar:not(.collapsed) [data-hide]');
       if (await previewToolbar.count()) await previewToolbar.click();
       return page;
     };
-    a = await open('마을검수하늘'); b = await open('마을검수민트');
+    a = await open('마을검수하늘');
+    if (process.env.QUIZ_VILLAGE_LAND_WATER_ONLY === '1') {
+      phase = 'retired stream and retained pond review';
+      await a.evaluate(async () => { await Promise.all(QPGame.getVillage().getScene().build().sourceAssets.map(src => {
+        const image = new Image(); image.src = src; return image.decode();
+      })); });
+      await landView(a, '마을-강물제거-실제입장');
+      await inspectRetiredStream(a);
+      await landRoad(a, 'upper'); await landRoad(a, 'lower'); await retainedPond(a);
+      await enterPortal(a, 'shop', 'tailor'); await landView(a, '옷가게-강물제거후-실제입장');
+      const exit = (await terrain(a)).portals.find(p => p.action === 'village');
+      await enterPortal(a, exit.id, 'village');
+      await enterPortal(a, 'school', null, '.class-hub'); await landView(a, '교실-강물제거후-실제입장');
+      pass('The connected land roads still lead to the staffed shop and existing classroom list');
+      assert.deepEqual(errors, []);
+      assert.deepEqual(missing, [], 'The changed village references a missing image or runtime file');
+      fs.writeFileSync(path.join(out, '숲속마을-연못과산책길.json'), JSON.stringify({ preview: preview.href, session, isolated: true,
+        checks, screenshots, errors, missing, paths, keyboardTraces, landRoutes, pondChecks, screenMetrics }, null, 2));
+      console.log('Focused land/pond review: ' + checks.length + ' checks; evidence in ' + out);
+      return;
+    }
+    b = await open('마을검수민트');
     if (process.env.QUIZ_VILLAGE_ROPE_ONLY === '1') {
       phase = 'final rope and compositor review';
       const uid = await a.evaluate(() => QPGame.getMe().k);
@@ -295,7 +403,8 @@ async function checkNameSignSeparation(page) {
 
     phase = 'keyboard and collision';
     const outdoor = await terrain(a);
-    const { mainRamp, plateau, garden, bridge: bridgeSurface, lowerBridge: stoneBridge } = outdoor.surfaces;
+    const { mainRamp, plateau, garden } = outdoor.surfaces;
+    await inspectRetiredStream(a);
     const groundHeight = outdoor.spawn.height || 0;
     const keyboardStart = await state(a);
     await keyHold(a, ['ArrowRight'], 550);
@@ -326,11 +435,8 @@ async function checkNameSignSeparation(page) {
     pass('Real keyboard moves and synchronizes; diagonal walking and jumps respect cliffs and building bodies');
 
     await a.locator('[data-tool="reset"]').click();
-    assert(stoneBridge, 'The waterfall brook needs a walkable stone crossing');
-    assert.equal(await a.evaluate(({ bridge, height }) => QPGame.getVillage().getScene().canStand(bridge.x + bridge.w * .12, bridge.y - bridge.h * .23, height), { bridge: stoneBridge, height: groundHeight }), false, 'Waterfall water needs an actual collider');
-    const lowerBridge = await walk(a, { x: stoneBridge.x + stoneBridge.w + 30, y: stoneBridge.y + stoneBridge.h / 3, height: groundHeight }, 'lower-stone-bridge');
-    assert(lowerBridge.some(s => s.x > stoneBridge.x && s.x < stoneBridge.x + stoneBridge.w && s.y > stoneBridge.y && s.y < stoneBridge.y + stoneBridge.h));
-    await screenshot(a, '마을-폭포앞-돌다리');
+    await landRoad(a, 'lower');
+    await retainedPond(a);
 
     phase = 'greetings';
     await a.locator('[data-tool="reset"]').click();
@@ -344,7 +450,7 @@ async function checkNameSignSeparation(page) {
     assert(gesture.at > 0 && gesture.duration >= 400 && gesture.duration <= 5000);
     pass('A real F-key greeting reaches the other student with its original timestamp and visible bubble');
 
-    phase = 'continuous ramps and bridge';
+    phase = 'continuous ramps and open upper road';
     const rampFoot = { x: mainRamp.x + mainRamp.w / 2, y: mainRamp.y + mainRamp.h - 3 };
     rampFoot.height = await a.evaluate(p => QPGame.getVillage().getScene().surfaceAt(p.x, p.y).height, rampFoot);
     await walk(a, rampFoot, 'main-ramp-foot');
@@ -352,12 +458,8 @@ async function checkNameSignSeparation(page) {
     assert(ascent.some(s => s.height > plateau.height * .2 && s.height < plateau.height * .85), 'The slope must expose intermediate elevations');
     for (let i = 1; i < ascent.length; i++) assert(ascent[i].height >= ascent[i - 1].height - 0.1, 'Ascent should be monotonic');
     await screenshot(a, '마을-돌계단-상단');
-    const river = outdoor.surfaces.river;
-    const bridge = await walk(a, { x: bridgeSurface.x + bridgeSurface.w + 20, y: bridgeSurface.y + bridgeSurface.h / 2, height: bridgeSurface.height }, 'rope-bridge-crossing');
-    assert(bridge.some(s => s.x > river.x + 11 && s.x < river.x + river.w - 11 && s.y >= bridgeSurface.y && s.y <= bridgeSurface.y + bridgeSurface.h && Math.abs(s.height - bridgeSurface.height) < 0.5));
-    for (const s of bridge) if (s.x > river.x && s.x < river.x + river.w) assert(s.y >= bridgeSurface.y && s.y <= bridgeSurface.y + bridgeSurface.h, 'Crossing used water instead of the bridge');
-    await screenshot(a, '마을-구름다리-건넌뒤');
-    pass('The actual walk gradually climbs the main staircase and crosses the river on the bridge');
+    await landRoad(a, 'upper');
+    pass('The actual walk gradually climbs the main staircase and follows the connected upper land road');
 
     const wood = outdoor.surfaces.woodRamp;
     assert(wood, 'A second, curving staircase should lead up the western forest');

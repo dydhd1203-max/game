@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-01T12:08:31.130Z",
+  "builtAt": "2026-10-01T13:16:12.607Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -11,8 +11,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 307604,
-      "sha256": "ebd499b897f1f1c5652786fd35ca40edb32ee263b08b8cc35cf2603f12ed99b7"
+      "bytes": 307762,
+      "sha256": "713b5781ba93611c0cb3d63697ba49a267c3c2b54ce3108749b50ce8f456884a"
     },
     {
       "path": "avatar-image.js",
@@ -116,13 +116,13 @@
     },
     {
       "path": "village-neighborhood.js",
-      "bytes": 7256,
-      "sha256": "e087186ff7087c155292fe4c6fa14540af761cf058fdd975f351db777c3df0bf"
+      "bytes": 6582,
+      "sha256": "14cbb71bbba5ccf6cc672fad4b750d84c084f4216727b12684bb5df13a69b7a3"
     },
     {
       "path": "village-scene.js",
-      "bytes": 27155,
-      "sha256": "be97a44ab2e89b70eff305b83cfc48b1c02aa06cf620d2f91f8e0a1089e9d097"
+      "bytes": 25251,
+      "sha256": "aa2f07424049923c5db7d7755c11a538cc0197e7de26c820922c1f58b22a5809"
     },
     {
       "path": "village-shop-scene.js",
@@ -131,8 +131,33 @@
     },
     {
       "path": "village-world.js",
-      "bytes": 30019,
-      "sha256": "95a2113c2f7933b23d895ae898f68e29f8647216718d40c3fbfcc4679880056c"
+      "bytes": 30184,
+      "sha256": "f1c8297853224f950c1f20bd8bcc1d45d4160595fc0e2366c377ea1985938801"
+    },
+    {
+      "path": "village-ambience.js",
+      "bytes": 7425,
+      "sha256": "ab4a03fd0fd6c272ac3e5f30a8498315b70afb1d1233a39b86593d79dd63d063"
+    },
+    {
+      "path": "village-ambience.css",
+      "bytes": 1634,
+      "sha256": "9d1fc1ce0f079be2c3ce876e1a370753f44a812b918ec7c50bb7d9c6a744f413"
+    },
+    {
+      "path": "village-water-assets.css",
+      "bytes": 513,
+      "sha256": "f68eee4e5c9d759cdf0bcb7f4a59a39e8dda99443c3d3edf8103ca068867efb5"
+    },
+    {
+      "path": "assets/metaverse-map-library/originals/metaverse-map-5bd9ae915fa48051.png",
+      "bytes": 3016405,
+      "sha256": "5bd9ae915fa48051878cad9a012796be5717bf75f6a2256e9a5d7f3e190ccafd"
+    },
+    {
+      "path": "assets/metaverse-map-library/originals/metaverse-map-f204dcd40c0ac9a2.png",
+      "bytes": 1974228,
+      "sha256": "f204dcd40c0ac9a24b5a5a8265865543759a6019120693dcd42f610394f92621"
     },
     {
       "path": "assets/forest-village-homes.png",
@@ -186,8 +211,8 @@
     },
     {
       "path": "village-water-assets.js",
-      "bytes": 14990,
-      "sha256": "acd2653fadc21b478d432700d88652f711258159fb48afb000ec0ea750450e3d"
+      "bytes": 7197,
+      "sha256": "997a2137f6a596112434e2a743ec2ccddf1272ee83edd3168bbfba1bf65002a6"
     },
     {
       "path": "assets/water-library/originals/water-0e50bcc49b81bd14.jpg",

@@ -1,0 +1,13 @@
+/* Motion is confined to original source pixels, never the positioned object. */
+.vt-ambient-crown{transform-box:view-box;animation:vt-crown-breeze var(--vt-wind-duration,8s) ease-in-out var(--vt-ambient-phase,0ms) infinite}
+.vt-ambient-object[data-ambient="leaves"][data-object^="flowers-"] .vt-ambient-crown{animation-name:vt-flower-breeze}
+.vt-ambient-pool{animation:vt-fountain-pool 3.4s ease-in-out infinite;transform-origin:200px 314px;transform-box:view-box}
+.vt-ambient-jets{animation:vt-fountain-jets 1.7s linear infinite;transform-box:view-box}
+.vt-ambient-lantern-light{animation:vt-lantern-light 4.6s ease-in-out var(--vt-ambient-phase,0ms) infinite;mix-blend-mode:screen}
+@keyframes vt-crown-breeze{0%,100%{transform:skewX(-.45deg)}38%{transform:skewX(.65deg)}70%{transform:skewX(.12deg)}}
+@keyframes vt-flower-breeze{0%,100%{transform:skewX(-.7deg)}43%{transform:skewX(1.1deg)}72%{transform:skewX(.2deg)}}
+@keyframes vt-fountain-pool{0%,100%{transform:translate(-1.2px,.4px);opacity:.36}48%{transform:translate(1.7px,-.5px);opacity:.82}}
+@keyframes vt-fountain-jets{0%{transform:translateY(-5px);opacity:0}18%{opacity:.82}75%{opacity:.68}100%{transform:translateY(5px);opacity:0}}
+@keyframes vt-lantern-light{0%,100%{opacity:.18}42%{opacity:.62}69%{opacity:.29}}
+.vt-ambient-world.vt-ambient-paused .vt-ambient-object *,.vt-ambient-object.vt-ambient-outside *{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){.vt-ambient-crown,.vt-ambient-pool,.vt-ambient-jets,.vt-ambient-lantern-light{animation:none!important}.vt-ambient-pool,.vt-ambient-jets,.vt-ambient-lantern-light{visibility:hidden}}

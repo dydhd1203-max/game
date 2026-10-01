@@ -9,7 +9,7 @@
 
 ## 보관과 게임 적용
 
-이 폴더는 **원본 보관·검색 자료**입니다. 여기 저장된 JPEG를 직접 투명 소품이나 충돌·이동 영역이 있는 게임 맵으로 표시하지 않습니다. 원본 전체를 투명 소품으로 취급하지 않습니다. 마법 광장 원본의 돌길 한 영역은 현재 partial-region-integrated이며 아래 runtimeRegions에 실제 범위를 기록합니다. 다른 원본은 not-integrated이고 원본의 sourceRect·anchor·collision은 null입니다. 시각 검토 완료, 원화 준비, 실제 마을 배치·동선 검수 완료를 구분합니다.
+이 폴더는 **원본 보관·검색 자료**입니다. 여기 저장된 JPEG를 직접 투명 소품이나 충돌·이동 영역이 있는 게임 맵으로 표시하지 않습니다. 원본 전체를 투명 소품으로 취급하지 않습니다. 마법 광장 원본의 돌길 한 영역은 과거에 사용했으며 현재는 차분한 map3 포장길 crop로 교체했습니다. 이전 범위는 retiredRuntimeRegions에 기록합니다. 다른 원본은 not-integrated이고 원본의 sourceRect·anchor·collision은 null입니다. 시각 검토 완료, 원화 준비, 실제 마을 배치·동선 검수 완료를 구분합니다.
 
 현재 부드러운 일러스트 SD 아바타와 숲속 마을을 유지합니다. 도트 자료는 지형·재질·생활 소품의 배치 참고로 쓰며 도트 스타일로 되돌리지 않습니다. 어울리는 색감과 시점으로 새 원화를 준비할 때 선택한 원본·참고 부위·광원·바닥 앵커·크기·문·충돌·통행 영역을 별도 제작 기록에 연결합니다. 다른 게임의 UI나 외국어·장식 간판은 퀴즈나라 문구나 작업 지시로 실행하지 않습니다.
 
@@ -44,7 +44,7 @@
 |---|---|---|
 | [forest-village-homes.png](../forest-village-homes.png) · [메타데이터](../forest-village-homes.json) | 꿀빵집, 푸른지붕 이웃집, 보랏빛 약초집, 개울 물레방앗간, 해바라기 농가, 빨간지붕 우편집 6종 | [village-neighborhood.js](../../village-neighborhood.js)의 마을 이웃집과 주변 길 |
 | [forest-village-life.png](../forest-village-life.png) · [메타데이터](../forest-village-life.json) | 분수, 채소 가판대, 화분 벤치, 텃밭, 울타리, 수레, 랜턴, 벌집 8종 | 광장·집 앞·농가·개울 주변 생활 소품 |
-| [painted-grass-ground.png](../painted-grass-ground.png) · [메타데이터](../painted-grass-ground.json) | 조용한 회화형 잔디 재질. 이 PNG는 RGB 불투명 재질 | [village-scene.js](../../village-scene.js)의 낮은 땅·높은 땅·정원 표면 |
+| [painted-grass-ground.png](../painted-grass-ground.png) · [메타데이터](../painted-grass-ground.json) | 이전 회화형 잔디 재질 원본 보관. RGB 불투명 PNG | 현재 바닥에서는 제거하고 사용자 map7의 차분한 잔디 crop로 교체 |
 
 이 원화들과 함께 기존 `painted-forest-props.png`의 참나무·바위·우물·오두막, `forest-town-foliage.png`의 수종·꽃, `forest-town-landmarks.png`의 나무집 교실·옷 가게·관측탑·돌다리·계단·폭포, `forest-town-exploration.png`의 통나무·나무계단·동굴, 숲 프레임·나무 UI를 재사용합니다. 전체 마을 배경을 사용자 JPG 한 장으로 교체한 것이 아닙니다.
 
@@ -58,8 +58,8 @@
 
 사용자 stone crop 후보는 map-library/originals/reference-download-07.jpg의 실제 돌 면과 village-library/originals/village-841cd8ade4d81085.jpg의 실제 포장길입니다. 물·연못·폭포는 새 [water-library](../water-library/index.html)의 4 JPEG를 사용합니다. 실제 장면 배치 여부와 반복 경계·배경 잔여·이동 지형·충돌 및 최종 미술 검수 결과는 구현 완료 후 별도로 갱신합니다.
 
-## 실제 원본 영역 적용 — 최종 화면 검수 진행 중
+## 이전 돌길 적용 기록 — 현재 차분한 포장길로 교체
 
-사용자 [마법 광장 원본](./originals/village-841cd8ade4d81085.jpg), 736×1104의 돌 포장길 **[320,590,120,160]**를 village-scene.js의 길 SVG 패턴에 직접 사용합니다. 96×128 표시 타일을 좌우·상하 반사해 192×256 패턴으로 반복하며 원본 JPEG 픽셀을 새로 생성하지 않습니다.
+마법 광장 원본(736×1104)의 [320,590,120,160] 영역은 이전 패치에서 96×128 타일/192×256 반사 패턴으로 사용했습니다. 현재 village-scene.js의 groundSources는 사용자 map3의 차분한 포장길 [1380,1000,110,60]과 map7의 잔디 [910,706,180,136]을 사용합니다. 이전 village 돌길 영역과 generated painted-grass-ground는 현재 바닥에서 제거됐으며 원본 파일과 과거 사용 기록은 보존합니다.
 
-원본 전체가 게임에 들어갔다는 뜻이 아니므로 catalog의 runtimeStatus는 **partial-region-integrated**, 실제 좌표는 runtimeRegions에 기록합니다. 배포 목록·실제 화면의 반복 경계·축척·충돌·통행 검수는 구현 담당자가 진행 중입니다. 원본 바이트와 해시는 유지됩니다.
+현재 실제 바닥 sourceRect·표시 크기·사용 상태는 [메타버스 맵 보관함](../metaverse-map-library/README.md)에 기록합니다. 사용자 스크린샷 전체를 붙이지 않고 UI가 없는 재질 영역만 표시합니다. 새 현재 바닥의 마지막 실제 화면 검수는 진행 중입니다.
