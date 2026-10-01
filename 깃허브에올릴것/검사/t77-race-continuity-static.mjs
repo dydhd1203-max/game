@@ -10,8 +10,8 @@ const {fn}=new Function('source',extractor.slice(extractor.indexOf('function end
 const begin=source.indexOf('    const raceLag ='),end=source.indexOf('    let tx = camAnc.x',begin);
 if(begin<0||end<0)throw Error('Missing live camera anchor block');
 const current=source.slice(begin,end),legacy=current.replace(/    const raceLag =[^\n]+\n/,'').replace('> raceLag','> 3');
-const camera=code=>new Function('PL','dt','S','racing',`
- let {camAnc,camGY,camDistance,camHold,camSlow,camLift}=S;
+const camera=code=>new Function('PL','dt','S','racing','RACE74',`
+ let {camAnc,camGY,camDistance,camHold,camSlow,camLift}=S;RACE74=RACE74||{carryX:0,carryZ:0};
  const raceOn=()=>racing,footY=PL.y,tk=0;
  ${code}
  return {camAnc,camGY,camDistance,camHold,camSlow,camLift,snap};`);
@@ -19,9 +19,17 @@ const now=camera(current),old=camera(legacy);
 const initial=()=>({camAnc:{x:0,z:0},camGY:100,camDistance:6.4,camHold:0,camSlow:0,camLift:0});
 const runCamera=(F,hz,speed,turn=false)=>{let S=initial(),P={x:0,y:100,z:0,vx:0,vz:speed},snaps=0,maxLag=0,maxStep=0;
  for(let i=0;i<hz*6;i++){const a=turn?Math.sin(i/hz*.75)*.8:0,dt=1/hz;P.vx=Math.sin(a)*speed;P.vz=Math.cos(a)*speed;P.x+=P.vx*dt;P.z+=P.vz*dt;
-  const before={...S.camAnc};S=F(P,dt,S,true);if(S.snap)snaps++;maxLag=Math.max(maxLag,Math.hypot(P.x-S.camAnc.x,P.z-S.camAnc.z));maxStep=Math.max(maxStep,Math.hypot(S.camAnc.x-before.x,S.camAnc.z-before.z));
+  const before={...S.camAnc};S=F(P,dt,S,true,{carryX:0,carryZ:0});if(S.snap)snaps++;maxLag=Math.max(maxLag,Math.hypot(P.x-S.camAnc.x,P.z-S.camAnc.z));maxStep=Math.max(maxStep,Math.hypot(S.camAnc.x-before.x,S.camAnc.z-before.z));
  }return {snaps,maxLag,maxStep};};
 const regression={old:runCamera(old,60,52),now:runCamera(now,60,52)};
+// 88차 — a child standing still on a cloud-bridge disc (side swing 4.4 at up to 8.6 rad/s → carried at ~38 u/s) has no walking speed,
+// so raceLag stays 3. The carry raceCarry88 adds to RACE74.carryX/Z must move the anchor with the disc; without it the anchor trails and snaps.
+const rideDisc=(F,hz,feed,amp=4.4,spd=8.6,lx=0)=>{let S=initial(),snaps=0,maxLag=0;const R={carryX:0,carryZ:0},P={x:lx,y:100,z:0,vx:0,vz:0};S.camAnc={x:lx,z:0};
+ for(let i=1;i<=hz*4;i++){const t=i/hz,x=lx+amp*Math.sin(spd*t),dx=x-P.x;P.x=x;if(feed){R.carryX+=dx;}S=F(P,1/hz,S,true,R);R.carryX=R.carryZ=0;if(S.snap)snaps++;maxLag=Math.max(maxLag,Math.hypot(P.x-S.camAnc.x,P.z-S.camAnc.z));}
+ return {snaps,maxLag:+maxLag.toFixed(3)};};
+const disc={fed30:rideDisc(now,30,true),fed60:rideDisc(now,60,true),fed120:rideDisc(now,120,true),unfed30:rideDisc(now,30,false),unfed60:rideDisc(now,60,false)};
+check('88차: riding a 4.4-swing bridge disc moves the camera anchor with the disc (no snaps at 30/60/120 Hz); unfed carry would snap',
+ disc.fed30.snaps===0&&disc.fed60.snaps===0&&disc.fed120.snaps===0&&disc.fed30.maxLag<1e-9&&disc.unfed30.snaps>0,disc);
 check('Prior three-meter camera threshold reproduces repeated slide-speed snaps; current anchor does not',regression.old.snaps>10&&regression.now.snaps===0,regression);
 const cameraCases=[];for(const hz of [30,60,120])for(const speed of [19.4832,28.25064,40,52,66])for(const turn of [false,true])cameraCases.push({hz,speed,turn,...runCamera(now,hz,speed,turn)});
 check('Current race walking, sprinting, knockback and slide tracking stay continuous at 30/60/120 Hz',cameraCases.every(q=>q.snaps===0),{cases:cameraCases.length,maxLag:Math.max(...cameraCases.map(q=>q.maxLag))});

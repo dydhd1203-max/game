@@ -113,7 +113,9 @@ export function race76Physics(){
   }
   // The same post-contact integration must move five times farther for the new
   // punch impulse than the old eight-unit impulse, without changing its duration.
-  const bag=W.__raceHazards(1).find(h=>h.k==='punch'&&h.sec===0&&Math.abs(h.x)<3);
+  // 88차 — 가운데 시작 캡슐 줄이 빠져, 가운데에서 가장 가까운 인형으로 잰다(밑이 둥근 발사 주머니 start4·젤리 문 :2·:5 는
+  // 발 높이에서 x+r+.2 가 닿지 않는다 — 인형은 발판 고무 받침이 닿는다).
+  const bag=W.__raceHazards(1).filter(h=>h.k==='punch'&&h.sec===0&&!/^(start4|jellyGate[01]:[25])$/.test(h.id)).sort((a,b)=>Math.abs(a.x)-Math.abs(b.x))[0];
   if(bag){const startX=bag.x+bag.r+.2,z=bag.z;
     const run=reference=>{reset(startX,z,Y);W.__RACE().t=1;
       if(reference){Object.assign(P,{vx:8,vz:0,vy:7,ground:false,jumps:1});Object.assign(A.state,{flight:.001,flightKind:'knock',rate:1});W.__RACE().hitCd=1.1;}
@@ -146,13 +148,12 @@ export function race76Physics(){
       const S=W.__RACE(),z=P.z,under=P.ground?A.under():null;
       let target=0,go=true,sprint=false,jump=false,reverse=false;
       if(z<78){
-        // Read one of the narrow, breathing seams in each row, then cross to the other side.
-        const gates=W.__raceHazards(S.t).filter(h=>h.id.startsWith(z<51?'jellyGate0:':'jellyGate1:')).sort((a,b)=>a.x-b.x);
-        const seam=z<51?(gates[2].x+gates[3].x)/2:(gates[3].x+gates[4].x)/2;
-        // Read the fixed columns before choosing a breathing seam. The former
-        // x=7.5 approach walked straight into the preceding row at z=35.
-        target=z<30?0:z<46?seam:z<56?4.5:z<74?seam:0;
-        if((z>=46&&z<49||z>=56&&z<58)&&Math.abs(P.x-target)> .45)go=false;
+        // 88차 — two zig-zag jelly rows (z 54 five bags · z 61.2 six): read the first row's seam right of centre, cross it,
+        // then line up with the second row's centre seam (its bags stand behind the first row's gaps) before crossing that.
+        const hz=W.__raceHazards(S.t),g0=hz.filter(h=>h.id.startsWith('jellyGate0:')).sort((a,b)=>a.x-b.x),g1=hz.filter(h=>h.id.startsWith('jellyGate1:')).sort((a,b)=>a.x-b.x);
+        const seamA=(g0[2].x+g0[3].x)/2,seamB=(g1[2].x+g1[3].x)/2;
+        target=z<57?seamA:z<72?seamB:0;
+        if((z>=48&&z<50.6||z>=57&&z<58.5)&&Math.abs(P.x-target)> .45)go=false;
       }
       else if(z<210){
         const bar=W.__raceHazards(S.t).filter(h=>h.k==='bar').find(h=>h.z>z-2);
@@ -160,7 +161,13 @@ export function race76Physics(){
         const dist=bar?bar.z-z:99;
         sprint=dist<13&&dist>-12;
         // The restored walking speed needs a later take-off and an earlier switch toward the next scattered bar.
-        if(P.ground&&dist<5.8&&dist>-7)jump=true;
+        // 88차 — inside a bar's swept circle, read the bar itself: take off when its line will cross this spot while the
+        // jump is above the bar (.34~.72 s after take-off). The former distance-only rule hit or missed by entry timing alone.
+        const swept=W.__raceHazards(S.t).filter(h=>h.k==='bar'&&Math.hypot(P.x-h.x,z-h.z)<h.len/2+h.r+1.2);
+        if(P.ground&&swept.length){for(const h of swept){const rx=P.x-h.x,rz=z-h.z,perp=a=>rx*Math.sin(a)+rz*Math.cos(a),s0=Math.sign(perp(h.ang));
+            let cross=99;for(let tau=.02;tau<=1.2;tau+=.02){const a=h.ang+h.w*tau;if(Math.sign(perp(a))!==s0||Math.abs(perp(a))<h.r+P.R+.35){cross=tau;break;}}
+            if(cross>=.34&&cross<=.72)jump=true;}}
+        else if(P.ground&&dist<5.8&&dist>-7)jump=true;
         if(!P.ground&&airAge>.48&&!doubleUsed&&(P.jumps|0)<1){jump=true;doubleUsed=true;}
       }else if(z<476){
         const donuts=W.__RACE_P().filter(p=>p.bounce?.manual);
@@ -185,7 +192,8 @@ export function race76Physics(){
         if(P.ground)bridgeGoal=next||null;
         const pose=bridgeGoal?A.pose(bridgeGoal,S.t+Math.max(0,1.05-airAge)):{x:0,z:680};target=pose.x-P.vx*.025;
         if(P.ground){const edge=current?A.pose(current,S.t).z+current.d/2:586;
-          if(z>=edge-1.4)jump=true;
+          // 88차 — 원판이 옆으로 4.4 움직인다: 다음 원판이 착지할 때(약 1초 뒤) 옆으로 2.6 안에 올 때 뛰고, 아니면 가장자리에서 기다린다.
+          if(z>=edge-1.4){if(!bridgeGoal||Math.abs(A.pose(bridgeGoal,S.t+1.05).x-P.x)<2.6)jump=true;else go=false;}
         }else {go=z<pose.z-.4;if(z>pose.z+.4)reverse=true;}
       }else if(z<W.__CH82_Z1+2){
         // 82차 roller coaster: hold W, read the next candy row's open lane ahead and steer into it (lateral d → world x).
@@ -200,7 +208,7 @@ export function race76Physics(){
       else target=0;
       steer(target,go);if(reverse&&!go)KEY.s=true;if(sprint)KEY.shift=true;if(jump){press();jumps++;}
       const oldGround=P.ground,oldFlight=A.state.flight;step(1/fps);elapsed=(f+1)/fps;
-      for(const gate of [42,61])if(z<gate&&P.z>=gate){const row=W.__raceHazards(S.t).filter(h=>h.id.startsWith('jellyGate'+(gate===42?0:1)+':')).sort((a,b)=>a.x-b.x);
+      for(const gate of [54,61.2])if(z<gate&&P.z>=gate){const row=W.__raceHazards(S.t).filter(h=>h.id.startsWith('jellyGate'+(gate===54?0:1)+':')).sort((a,b)=>a.x-b.x);
         const left=row.filter(h=>h.x<P.x).at(-1),right=row.find(h=>h.x>P.x),lo=left?left.x+left.r+P.R:Infinity,hi=right?right.x-right.r-P.R:-Infinity;
         gatePasses.push({gate,x:P.x,t:elapsed,lo,hi,clear:P.x>lo&&P.x<hi,width:hi-lo});}
       if(oldFlight===0&&A.state.flight>0&&A.state.flightKind==='manual')manualLaunches++;
@@ -262,7 +270,7 @@ export function validateRace76(p){
   check(!p.belowDeck.ground&&p.belowDeck.after<p.belowDeck.before,'A descending player below a platform must not snap up through its surface');
   check(p.routes.length===9&&p.routes.every(q=>q.finished&&q.seconds<180&&q.checkpoint===7&&q.manualLaunches>=4&&q.jumps>=10&&q.maxViewChange<1e-8),
     'All three seeds must complete the connected 180-second course using real jumps and manual launches at 30/60/120 Hz');
-  check(p.routes.every(q=>[42,61].every(gate=>q.gatePasses.some(g=>g.gate===gate&&g.clear&&g.width>1&&g.width<3.5))),
+  check(p.routes.every(q=>[54,61.2].every(gate=>q.gatePasses.some(g=>g.gate===gate&&g.clear&&g.width>1&&g.width<3.5))),
     'Every continuous route must cross real narrow gaps between both rows of independently swaying crowd bumpers');
   check(p.clocks.every(q=>Math.abs(q.elapsed-q.expected)<.02),'The race clock must count elapsed time once and pause correctly');
   check(JSON.stringify(p.leftRace)===JSON.stringify({on:false,slip:0,hit:0,fall:0,knock:null,velocity:[0,0,0],flight:0,rate:1,boost:0,pending:null,pulses:0}),
