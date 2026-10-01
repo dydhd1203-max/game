@@ -42,7 +42,13 @@ const assert=require('node:assert/strict'),path=require('node:path'),fs=require(
       return{atlas:QPClothes.atlas,tiles,colorChecks,unknownShape:QPClothes.render('top','does-not-exist','#ff8ad4')};
     });
     assert.equal(report.tiles.length,25);assert.equal(report.colorChecks.length,125);assert.equal(report.unknownShape,'');
-    for(const tile of report.tiles){assert(tile.width>70&&tile.height>70&&tile.opaquePixels>5000,'Native garment must have substantial independent artwork: '+tile.category+'/'+tile.shape);assert(tile.width<=315&&tile.height<=315,'Crop must remain inside its atlas cell');}
+    for(const tile of report.tiles){
+      assert(tile.width>70&&tile.height>70&&tile.opaquePixels>5000,'Native garment must have substantial independent artwork: '+tile.category+'/'+tile.shape);
+      const [x,y,w,h]=tile.sourceRect,[cx,cy,cw,ch]=tile.sourceCell;
+      assert(x>=cx&&y>=cy&&x+w<=cx+cw&&y+h<=cy+ch,'Crop must remain inside its original source cell');
+      if(tile.category==='top'&&tile.shape==='hood')assert.equal(tile.sourceUrl,'assets/sd-hood.png','Actual worn hood must use the lowered-hood painting');
+      else assert(tile.width<=315&&tile.height<=315,'Atlas garments must retain independent cells');
+    }
     for(const c of report.colorChecks){assert(c.sameAlpha);assert(c.targetHueFraction>.95,JSON.stringify(c));assert(c.remainingBlueFraction<.01,JSON.stringify(c));assert(c.whiteTrimUnchanged&&c.goldTrimUnchanged,JSON.stringify(c));}
     const out=path.resolve(__dirname,'../검증');fs.mkdirSync(out,{recursive:true});await page.screenshot({path:path.join(out,'의상-25종.png'),fullPage:true});
     await page.waitForFunction(()=>window.QPAvatar?.atlas.ready===true);

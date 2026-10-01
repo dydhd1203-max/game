@@ -1,0 +1,1256 @@
+{
+  "version": 2,
+  "style": "matte illustrated SD chibi, clean warm outlines, broad hair clumps and simple large oval eyes",
+  "layout": {
+    "columns": 4,
+    "rows": 3,
+    "width": 1448,
+    "height": 1086,
+    "cellWidth": 362,
+    "cellHeight": 362
+  },
+  "lighting": "upper left",
+  "baseHair": "muted chestnut brown",
+  "baseSkin": "warm peach",
+  "landmarkUnits": "all per-head coordinates are pixels within its own 362x362 source cell",
+  "eyeApertureNote": "Bounds include sclera and upper lash line, exclude eyebrow; detected iris bounds expanded by 7px left, 9px top, 7px right and 3px bottom. Treat as blink paint hints and verify actual eye patch in game.",
+  "alphaNote": "Original PNG preserved; transparent edge noise at alpha 1-2/255 may be discarded at runtime without flattening the image.",
+  "frames": {
+    "female": {
+      "file": "sd-heads-female.png",
+      "sha256": "30c5ad61d932ddfff9a5f75c8630e2dc9ac84a2f43d97040cb04ffdd726ae52c",
+      "heads": [
+        {
+          "id": "short",
+          "sourceRect": [
+            0,
+            0,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            64,
+            111,
+            307,
+            319
+          ],
+          "eyeCenters": [
+            [
+              153.6,
+              259.3
+            ],
+            [
+              215.6,
+              256.9
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              137,
+              237,
+              173,
+              271
+            ],
+            [
+              195,
+              235,
+              233,
+              271
+            ]
+          ],
+          "eyeMidpoint": [
+            184.6,
+            258.1
+          ],
+          "neckBaseHint": [
+            184.6,
+            316
+          ],
+          "faceChinHint": [
+            184.6,
+            297
+          ]
+        },
+        {
+          "id": "bob",
+          "sourceRect": [
+            362,
+            0,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            61,
+            109,
+            307,
+            317
+          ],
+          "eyeCenters": [
+            [
+              152.1,
+              256.4
+            ],
+            [
+              212.4,
+              255.9
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              136,
+              235,
+              172,
+              269
+            ],
+            [
+              194,
+              233,
+              231,
+              268
+            ]
+          ],
+          "eyeMidpoint": [
+            182.2,
+            256.1
+          ],
+          "neckBaseHint": [
+            182.2,
+            314
+          ],
+          "faceChinHint": [
+            182.2,
+            294
+          ]
+        },
+        {
+          "id": "long",
+          "sourceRect": [
+            724,
+            0,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            32,
+            103,
+            319,
+            348
+          ],
+          "eyeCenters": [
+            [
+              144.4,
+              249.6
+            ],
+            [
+              204.8,
+              247.0
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              127,
+              227,
+              163,
+              261
+            ],
+            [
+              185,
+              225,
+              223,
+              261
+            ]
+          ],
+          "eyeMidpoint": [
+            174.6,
+            248.3
+          ],
+          "neckBaseHint": [
+            174.6,
+            308
+          ],
+          "faceChinHint": [
+            174.6,
+            289
+          ]
+        },
+        {
+          "id": "twin",
+          "sourceRect": [
+            1086,
+            0,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            31,
+            114,
+            302,
+            353
+          ],
+          "eyeCenters": [
+            [
+              140.6,
+              246.0
+            ],
+            [
+              197.8,
+              245.4
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              125,
+              226,
+              160,
+              258
+            ],
+            [
+              180,
+              224,
+              216,
+              258
+            ]
+          ],
+          "eyeMidpoint": [
+            169.2,
+            245.7
+          ],
+          "neckBaseHint": [
+            169.2,
+            303
+          ],
+          "faceChinHint": [
+            169.2,
+            283
+          ]
+        },
+        {
+          "id": "pony",
+          "sourceRect": [
+            0,
+            362,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            75,
+            67,
+            322,
+            329
+          ],
+          "eyeCenters": [
+            [
+              151.4,
+              238.2
+            ],
+            [
+              212.1,
+              237.4
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              135,
+              217,
+              171,
+              251
+            ],
+            [
+              193,
+              215,
+              231,
+              250
+            ]
+          ],
+          "eyeMidpoint": [
+            181.8,
+            237.8
+          ],
+          "neckBaseHint": [
+            181.8,
+            297
+          ],
+          "faceChinHint": [
+            181.8,
+            277
+          ]
+        },
+        {
+          "id": "curly",
+          "sourceRect": [
+            362,
+            362,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            62,
+            96,
+            314,
+            304
+          ],
+          "eyeCenters": [
+            [
+              154.4,
+              242.1
+            ],
+            [
+              214.5,
+              240.5
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              137,
+              221,
+              174,
+              254
+            ],
+            [
+              195,
+              219,
+              232,
+              254
+            ]
+          ],
+          "eyeMidpoint": [
+            184.4,
+            241.3
+          ],
+          "neckBaseHint": [
+            184.4,
+            301
+          ],
+          "faceChinHint": [
+            184.4,
+            281
+          ]
+        },
+        {
+          "id": "bun",
+          "sourceRect": [
+            724,
+            362,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            57,
+            91,
+            301,
+            317
+          ],
+          "eyeCenters": [
+            [
+              146.5,
+              241.8
+            ],
+            [
+              206.3,
+              242.0
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              129,
+              222,
+              166,
+              254
+            ],
+            [
+              187,
+              220,
+              224,
+              255
+            ]
+          ],
+          "eyeMidpoint": [
+            176.4,
+            241.9
+          ],
+          "neckBaseHint": [
+            176.4,
+            301
+          ],
+          "faceChinHint": [
+            176.4,
+            281
+          ]
+        },
+        {
+          "id": "hime",
+          "sourceRect": [
+            1086,
+            362,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            33,
+            87,
+            300,
+            320
+          ],
+          "eyeCenters": [
+            [
+              140.6,
+              227.7
+            ],
+            [
+              197.7,
+              229.5
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              123,
+              208,
+              159,
+              241
+            ],
+            [
+              179,
+              208,
+              216,
+              240
+            ]
+          ],
+          "eyeMidpoint": [
+            169.1,
+            228.6
+          ],
+          "neckBaseHint": [
+            169.1,
+            287
+          ],
+          "faceChinHint": [
+            169.1,
+            267
+          ]
+        },
+        {
+          "id": "part",
+          "sourceRect": [
+            0,
+            724,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            62,
+            52,
+            306,
+            274
+          ],
+          "eyeCenters": [
+            [
+              149.6,
+              208.5
+            ],
+            [
+              213.5,
+              206.4
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              131,
+              188,
+              170,
+              221
+            ],
+            [
+              193,
+              184,
+              231,
+              221
+            ]
+          ],
+          "eyeMidpoint": [
+            181.6,
+            207.4
+          ],
+          "neckBaseHint": [
+            181.6,
+            270
+          ],
+          "faceChinHint": [
+            181.6,
+            250
+          ]
+        },
+        {
+          "id": "messy",
+          "sourceRect": [
+            362,
+            724,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            60,
+            50,
+            321,
+            270
+          ],
+          "eyeCenters": [
+            [
+              153.4,
+              204.7
+            ],
+            [
+              216.7,
+              205.3
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              137,
+              185,
+              174,
+              219
+            ],
+            [
+              197,
+              184,
+              234,
+              219
+            ]
+          ],
+          "eyeMidpoint": [
+            185.1,
+            205.0
+          ],
+          "neckBaseHint": [
+            185.1,
+            266
+          ],
+          "faceChinHint": [
+            185.1,
+            246
+          ]
+        },
+        {
+          "id": "spiky",
+          "sourceRect": [
+            724,
+            724,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            65,
+            44,
+            297,
+            267
+          ],
+          "eyeCenters": [
+            [
+              145.8,
+              203.1
+            ],
+            [
+              208.9,
+              204.0
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              129,
+              182,
+              166,
+              216
+            ],
+            [
+              189,
+              180,
+              227,
+              216
+            ]
+          ],
+          "eyeMidpoint": [
+            177.4,
+            203.6
+          ],
+          "neckBaseHint": [
+            177.4,
+            263
+          ],
+          "faceChinHint": [
+            177.4,
+            243
+          ]
+        },
+        {
+          "id": "braid",
+          "sourceRect": [
+            1086,
+            724,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            58,
+            46,
+            293,
+            304
+          ],
+          "eyeCenters": [
+            [
+              145.0,
+              186.8
+            ],
+            [
+              205.4,
+              185.7
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              128,
+              166,
+              164,
+              199
+            ],
+            [
+              187,
+              164,
+              224,
+              199
+            ]
+          ],
+          "eyeMidpoint": [
+            175.2,
+            186.2
+          ],
+          "neckBaseHint": [
+            175.2,
+            246
+          ],
+          "faceChinHint": [
+            175.2,
+            226
+          ]
+        }
+      ]
+    },
+    "male": {
+      "file": "sd-heads-male.png",
+      "sha256": "5c08a093dad7800553d956cbd0928e1b1ac4467254b1da48ed6b5179c3a838c3",
+      "heads": [
+        {
+          "id": "short",
+          "sourceRect": [
+            0,
+            0,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            67,
+            110,
+            310,
+            325
+          ],
+          "eyeCenters": [
+            [
+              158.5,
+              264.9
+            ],
+            [
+              222.0,
+              263.1
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              139,
+              242,
+              178,
+              276
+            ],
+            [
+              202,
+              241,
+              240,
+              275
+            ]
+          ],
+          "eyeMidpoint": [
+            190.2,
+            264.0
+          ],
+          "neckBaseHint": [
+            190.2,
+            321
+          ],
+          "faceChinHint": [
+            190.2,
+            304
+          ]
+        },
+        {
+          "id": "bob",
+          "sourceRect": [
+            362,
+            0,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            59,
+            110,
+            313,
+            325
+          ],
+          "eyeCenters": [
+            [
+              154.4,
+              263.5
+            ],
+            [
+              214.1,
+              262.8
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              137,
+              243,
+              174,
+              275
+            ],
+            [
+              196,
+              240,
+              234,
+              274
+            ]
+          ],
+          "eyeMidpoint": [
+            184.2,
+            263.1
+          ],
+          "neckBaseHint": [
+            184.2,
+            321
+          ],
+          "faceChinHint": [
+            184.2,
+            303
+          ]
+        },
+        {
+          "id": "long",
+          "sourceRect": [
+            724,
+            0,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            46,
+            108,
+            314,
+            331
+          ],
+          "eyeCenters": [
+            [
+              150.1,
+              263.4
+            ],
+            [
+              211.3,
+              262.7
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              132,
+              241,
+              169,
+              275
+            ],
+            [
+              192,
+              241,
+              230,
+              274
+            ]
+          ],
+          "eyeMidpoint": [
+            180.7,
+            263.0
+          ],
+          "neckBaseHint": [
+            180.7,
+            322
+          ],
+          "faceChinHint": [
+            180.7,
+            304
+          ]
+        },
+        {
+          "id": "twin",
+          "sourceRect": [
+            1086,
+            0,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            35,
+            108,
+            309,
+            324
+          ],
+          "eyeCenters": [
+            [
+              144.7,
+              263.1
+            ],
+            [
+              202.9,
+              263.7
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              127,
+              240,
+              164,
+              275
+            ],
+            [
+              185,
+              245,
+              222,
+              274
+            ]
+          ],
+          "eyeMidpoint": [
+            173.8,
+            263.4
+          ],
+          "neckBaseHint": [
+            173.8,
+            321
+          ],
+          "faceChinHint": [
+            173.8,
+            303
+          ]
+        },
+        {
+          "id": "pony",
+          "sourceRect": [
+            0,
+            362,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            61,
+            67,
+            328,
+            341
+          ],
+          "eyeCenters": [
+            [
+              145.1,
+              246.3
+            ],
+            [
+              206.8,
+              245.7
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              128,
+              225,
+              163,
+              258
+            ],
+            [
+              188,
+              223,
+              225,
+              257
+            ]
+          ],
+          "eyeMidpoint": [
+            175.9,
+            246.0
+          ],
+          "neckBaseHint": [
+            175.9,
+            304
+          ],
+          "faceChinHint": [
+            175.9,
+            286
+          ]
+        },
+        {
+          "id": "curly",
+          "sourceRect": [
+            362,
+            362,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            62,
+            98,
+            319,
+            309
+          ],
+          "eyeCenters": [
+            [
+              156.8,
+              246.6
+            ],
+            [
+              218.1,
+              246.5
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              140,
+              226,
+              177,
+              259
+            ],
+            [
+              200,
+              223,
+              236,
+              259
+            ]
+          ],
+          "eyeMidpoint": [
+            187.4,
+            246.6
+          ],
+          "neckBaseHint": [
+            187.4,
+            305
+          ],
+          "faceChinHint": [
+            187.4,
+            288
+          ]
+        },
+        {
+          "id": "bun",
+          "sourceRect": [
+            724,
+            362,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            57,
+            88,
+            310,
+            313
+          ],
+          "eyeCenters": [
+            [
+              154.1,
+              248.0
+            ],
+            [
+              216.4,
+              248.3
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              137,
+              227,
+              173,
+              261
+            ],
+            [
+              197,
+              226,
+              234,
+              261
+            ]
+          ],
+          "eyeMidpoint": [
+            185.2,
+            248.2
+          ],
+          "neckBaseHint": [
+            185.2,
+            306
+          ],
+          "faceChinHint": [
+            185.2,
+            289
+          ]
+        },
+        {
+          "id": "hime",
+          "sourceRect": [
+            1086,
+            362,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            48,
+            98,
+            309,
+            323
+          ],
+          "eyeCenters": [
+            [
+              150.0,
+              248.8
+            ],
+            [
+              209.7,
+              246.5
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              133,
+              227,
+              168,
+              259
+            ],
+            [
+              191,
+              224,
+              228,
+              258
+            ]
+          ],
+          "eyeMidpoint": [
+            179.8,
+            247.7
+          ],
+          "neckBaseHint": [
+            179.8,
+            306
+          ],
+          "faceChinHint": [
+            179.8,
+            287
+          ]
+        },
+        {
+          "id": "part",
+          "sourceRect": [
+            0,
+            724,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            73,
+            68,
+            320,
+            281
+          ],
+          "eyeCenters": [
+            [
+              164.2,
+              219.8
+            ],
+            [
+              227.2,
+              217.8
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              147,
+              198,
+              184,
+              231
+            ],
+            [
+              208,
+              195,
+              245,
+              230
+            ]
+          ],
+          "eyeMidpoint": [
+            195.7,
+            218.8
+          ],
+          "neckBaseHint": [
+            195.7,
+            278
+          ],
+          "faceChinHint": [
+            195.7,
+            260
+          ]
+        },
+        {
+          "id": "messy",
+          "sourceRect": [
+            362,
+            724,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            72,
+            61,
+            315,
+            282
+          ],
+          "eyeCenters": [
+            [
+              160.0,
+              217.4
+            ],
+            [
+              222.9,
+              217.6
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              143,
+              196,
+              180,
+              229
+            ],
+            [
+              204,
+              194,
+              242,
+              229
+            ]
+          ],
+          "eyeMidpoint": [
+            191.4,
+            217.5
+          ],
+          "neckBaseHint": [
+            191.4,
+            278
+          ],
+          "faceChinHint": [
+            191.4,
+            259
+          ]
+        },
+        {
+          "id": "spiky",
+          "sourceRect": [
+            724,
+            724,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            64,
+            50,
+            304,
+            282
+          ],
+          "eyeCenters": [
+            [
+              151.0,
+              217.6
+            ],
+            [
+              214.2,
+              220.3
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              133,
+              197,
+              172,
+              230
+            ],
+            [
+              197,
+              199,
+              233,
+              231
+            ]
+          ],
+          "eyeMidpoint": [
+            182.6,
+            218.9
+          ],
+          "neckBaseHint": [
+            182.6,
+            278
+          ],
+          "faceChinHint": [
+            182.6,
+            260
+          ]
+        },
+        {
+          "id": "braid",
+          "sourceRect": [
+            1086,
+            724,
+            362,
+            362
+          ],
+          "opaqueBounds": [
+            64,
+            68,
+            299,
+            315
+          ],
+          "eyeCenters": [
+            [
+              152.7,
+              216.4
+            ],
+            [
+              211.8,
+              215.9
+            ]
+          ],
+          "eyeApertureBounds": [
+            [
+              135,
+              195,
+              171,
+              227
+            ],
+            [
+              194,
+              194,
+              230,
+              227
+            ]
+          ],
+          "eyeMidpoint": [
+            182.2,
+            216.2
+          ],
+          "neckBaseHint": [
+            182.2,
+            272
+          ],
+          "faceChinHint": [
+            182.2,
+            255
+          ]
+        }
+      ]
+    }
+  }
+}

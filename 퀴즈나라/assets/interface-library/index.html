@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>퀴즈나라 기본 UI 보관함</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f7ef;color:#274432;font:16px/1.5 system-ui,sans-serif}header,main{max-width:1360px;margin:auto;padding:24px}header{padding-bottom:10px}h1{font-size:28px;margin:0 0 8px}p{margin:6px 0;color:#56715f}.controls{display:flex;gap:10px;flex-wrap:wrap;margin:18px 0}input,select{font:inherit;background:white;border:1px solid #b4c9b4;border-radius:9px;padding:10px;min-width:170px}input{flex:1}label{display:flex;align-items:center;gap:6px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}.card{background:#fff;border:1px solid #d8e3d3;border-radius:14px;overflow:hidden;display:flex;flex-direction:column}.preview{display:flex;align-items:center;justify-content:center;height:280px;background:#e5ecdf;padding:8px}.preview img,.preview svg{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain}.card section{padding:14px;flex:1}.card h2{font-size:17px;margin:0 0 7px;overflow-wrap:anywhere}.tags{display:flex;gap:5px;flex-wrap:wrap;margin:8px 0}.tag{background:#edf5e4;border-radius:5px;padding:2px 7px;font-size:12px}.status{font-size:13px;color:#527349}.open{display:inline-block;margin-top:8px;color:#246c63;font-weight:600}.empty{padding:30px;background:white;border-radius:12px}.count{font-size:14px}.foot{margin-top:24px}a{color:#246c63}button{font:inherit}.card small{color:#67806b}
+@media(max-width:600px){header,main{padding:16px}h1{font-size:24px}.grid{grid-template-columns:1fr}.controls label,.controls input,.controls select{width:100%}.controls label select{flex:1}.preview{height:300px}}
+</style>
+<header>
+  <h1>퀴즈나라 기본 UI 보관함</h1>
+  <p>숲속 마을의 버튼·프레임·화면 분위기를 확인해 보세요.</p>
+  <p id="intro">소재 목록을 불러오고 있어요.</p>
+  <div class="controls">
+    <input id="query" type="search" placeholder="숲, 집, 꽃, 바다, 상점…" aria-label="소재 검색">
+    <label>분류 <select id="category"><option value="">전체</option></select></label>
+    <label>출처 <select id="origin"><option value="">전체</option><option value="user">받은 자료</option><option value="project">게임 원화</option></select></label>
+    <label>화풍 <select id="style"><option value="">전체</option></select></label>
+  </div>
+  <p class="count" id="count" aria-live="polite"></p>
+</header>
+<main><div class="grid" id="grid"></div><p class="foot"><a href="README.md">원본 보관·활용 안내</a> · <a href="catalog.json">소재 목록</a> · <a href="interface.zip" download>원본 ZIP 받기</a> · <a href="../map-library/index.html">맵 소재 보관함</a></p></main>
+<script src="catalog-data.js"></script>
+<script>
+'use strict';
+const catalog=window.QPInterfaceLibraryCatalog;
+const labels={terrain:'지형',plants:'식물',buildings:'건물',props:'소품',lights:'조명',variants:'변형',production:'농장·생산',water:'물',shops:'상점',temples:'사원',islands:'섬',backgrounds:'배경',forest:'숲',caves:'동굴',ruins:'폐허',wood:'나무·목재',town:'마을',pixel:'도트',isometric:'입체 사선',tiles:'타일',characters:'캐릭터',interface:'인터페이스','forest-village':'숲속 마을',panels:'창·테두리',buttons:'버튼',progress:'진행',icons:'아이콘'};
+const grid=document.getElementById('grid'),query=document.getElementById('query'),category=document.getElementById('category'),origin=document.getElementById('origin'),style=document.getElementById('style');
+const element=(tag,text,className)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(className)e.className=className;return e;};
+if(!catalog){document.getElementById('intro').textContent='소재 목록 파일이 없어요. map-library 폴더 전체를 사용해 주세요.';}else{
+const entries=[...(catalog.referenceScreens||[]).map(e=>({...e,origin:'user'})),...(catalog.projectAssets||[]).map(e=>({...e,origin:'project'}))];
+const name=e=>e.label||e.originalName||e.id;
+const searchable=e=>[name(e),e.visualSummary,...(e.subjects||[]),...(e.components||[]),...(e.themes||[]),...(e.categories||[]).map(c=>labels[c]||c),e.style,e.perspective].join(' ').toLocaleLowerCase();
+const categories=[...new Set(entries.flatMap(e=>e.categories||[]))].sort();
+for(const c of categories){const o=element('option',labels[c]||c);o.value=c;category.append(o);}
+for(const s of [...new Set(entries.map(e=>e.style).filter(Boolean))].sort()){const o=element('option',s);o.value=s;style.append(o);}
+document.getElementById('intro').textContent='기본 UI 원본 '+catalog.status.originalsStored+'장과 interface.zip을 원본 그대로 보관했습니다. 숲속 마을의 공통 재질·프레임·장식 기준입니다.';
+function paint(){
+ grid.replaceChildren();const words=query.value.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+ const found=entries.filter(e=>(!category.value||(e.categories||[]).includes(category.value))&&(!origin.value||origin.value===e.origin)&&(!style.value||style.value===e.style)&&words.every(w=>searchable(e).includes(w)));
+ document.getElementById('count').textContent=found.length+'개 / 전체 '+entries.length+'개';
+ for(const e of found){
+  const card=element('article',undefined,'card');card.dataset.assetId=e.id;
+  const preview=element('div',undefined,'preview');
+  if(e.imagePath){
+   if(e.sourceRect){const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),image=document.createElementNS(ns,'image');svg.setAttribute('viewBox',e.sourceRect.join(' '));svg.setAttribute('overflow','hidden');image.setAttribute('href',e.imagePath);image.setAttribute('width',e.dimensions.width);image.setAttribute('height',e.dimensions.height);svg.append(image);preview.append(svg);}
+   else{const img=element('img');img.src=e.imagePath;img.alt=name(e);img.loading='lazy';preview.append(img);}
+  }else preview.append(element('span','원본 파일 대기 중'));
+  card.append(preview);const info=element('section');info.append(element('h2',name(e)));
+  if(e.visualSummary)info.append(element('p',e.visualSummary));
+  const tags=element('div',undefined,'tags');for(const tag of e.categories||[])tags.append(element('span',labels[tag]||tag,'tag'));info.append(tags);
+  if(e.subjects?.length)info.append(element('small',e.subjects.join(' · ')));
+  info.append(element('p',e.origin==='project'?'게임 원화 · '+(e.runtimeStatus==='integrated'?'사용 중':'소재 등록'):e.sourceStatus==='original-stored'?'원본 저장됨 · '+(e.contentType==='sprite-sheet'?'소품 시트':'참고 자료'):'원본 대기 중','status'));
+  if(e.dimensions)info.append(element('small',e.dimensions.width+' × '+e.dimensions.height));
+  if(e.imagePath){const a=element('a','원본 보기','open');a.href=e.imagePath;a.target='_blank';a.rel='noopener';info.append(element('br'),a);}
+  card.append(info);grid.append(card);
+ }
+ if(!found.length)grid.append(element('p','검색 조건에 맞는 소재가 없어요.','empty'));
+}
+for(const input of [query,category,origin,style])input.addEventListener('input',paint);paint();
+}
+</script>
+</html>

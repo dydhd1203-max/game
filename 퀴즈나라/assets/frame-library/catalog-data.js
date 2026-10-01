@@ -1,0 +1,916 @@
+/* Generated from catalog.json; original image files remain unchanged. */
+window.QPFrameCatalog = {
+  "schemaVersion": 1,
+  "createdAt": "2026-10-01",
+  "title": "퀴즈나라 프레임·UI·숲 소재 원본 보관함",
+  "pathBase": "catalog-directory",
+  "archive": {
+    "originalName": "frame.zip",
+    "imagePath": "source.zip",
+    "byteLength": 1358571,
+    "sha256": "089330256ec3888c27f085e77625cb85d52c7fc4a534e81daf105eabc3e4095f",
+    "entries": 13,
+    "regularImageFiles": 12,
+    "directoryEntries": 1,
+    "uncompressedImageBytes": 1379512,
+    "uniqueImageFiles": 12,
+    "duplicateImageEntries": 0,
+    "uniqueImageBytes": 1379512,
+    "originalPreservation": "Untouched ZIP plus unique original image bytes; every original filename retained in aliases",
+    "safetyCheck": {
+      "pathTraversal": false,
+      "absolutePaths": false,
+      "symbolicLinks": false,
+      "encryptedEntries": false,
+      "nonImageRegularFiles": 0,
+      "crcVerified": true
+    }
+  },
+  "status": {
+    "originalsStored": 12,
+    "originalEntriesStored": 12,
+    "uniqueOriginalImagesStored": 12,
+    "deduplicatedAliases": 0,
+    "originalsVisuallyReviewed": 12,
+    "transparentUserOriginals": 0,
+    "runtimeSpritesPrepared": 0,
+    "nineSliceFramesPrepared": 0,
+    "responsiveFramesPrepared": 0,
+    "runtimePlacementApplied": false
+  },
+  "classificationSummary": {
+    "styles": {
+      "polished-raster-fantasy": 1,
+      "painted-cartoon-ui": 8,
+      "platform-fantasy-illustration": 2,
+      "anime-fantasy-illustration": 1
+    },
+    "contentTypes": {
+      "ui-sheet": 3,
+      "ui-screen": 2,
+      "ui-preview-sheet": 4,
+      "background-sheet": 1,
+      "frame-reference": 1,
+      "map-props-sheet": 1
+    }
+  },
+  "referenceSheets": [
+    {
+      "id": "frame-855d1ec782fb1044",
+      "reviewIndex": 1,
+      "kind": "user-reference-image",
+      "originalName": "173036810678651962.jpg",
+      "imagePath": "originals/frame-855d1ec782fb1044.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "855d1ec782fb1044c282ea5c3bd2905226d26f5a5236d72d49861b6185938b52",
+      "byteLength": 135956,
+      "dimensions": {
+        "width": 736,
+        "height": 1745
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "frame/173036810678651962.jpg",
+          "originalName": "173036810678651962.jpg",
+          "byteLength": 135956,
+          "crc32": "c504771f",
+          "archiveIndex": 1
+        }
+      ],
+      "archiveMember": "frame/173036810678651962.jpg",
+      "archiveCrc32": "c504771f",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "nineSlice": null,
+      "label": "금속·보석 판타지 UI 부품",
+      "visualSummary": "검은 배경에 금속·금색·초록 보석 테두리, 큰 창과 탭·버튼·수치판을 배열한 세로 자료",
+      "subjects": [
+        "금속 테두리",
+        "금색 장식",
+        "초록 보석",
+        "탭",
+        "큰 창",
+        "버튼",
+        "진행바",
+        "색 구슬",
+        "부엉이"
+      ],
+      "style": "polished-raster-fantasy",
+      "perspective": "screen-layout",
+      "contentType": "ui-sheet",
+      "assetType": "ui-sheet",
+      "categories": [
+        "interface",
+        "panels",
+        "buttons",
+        "progress",
+        "icons",
+        "borders"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "검은 배경과 예시 수치·영문 라벨이 합쳐진 JPEG이다. 창·탭·버튼은 분리된 알파 PNG나 실제 기능이 아니다.",
+      "visibleText": "USER INTERFACE / MAX BET / LINES / COIN VALUE / YGGDRASIL",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 프레임·UI·숲 소재 참고 원본. 이미지 안의 글자·서명·워터마크는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "preparation": {
+        "transparentPartsPrepared": false,
+        "nineSlicePrepared": false,
+        "responsiveFramePrepared": false,
+        "interactiveUiPrepared": false
+      }
+    },
+    {
+      "id": "frame-540fa1f5755ae0c6",
+      "reviewIndex": 2,
+      "kind": "user-reference-image",
+      "originalName": "210332245093964171.jpg",
+      "imagePath": "originals/frame-540fa1f5755ae0c6.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "540fa1f5755ae0c689123a471e768a7f27de5f6b5a9e69d00eaafeffe8b34dd0",
+      "byteLength": 106481,
+      "dimensions": {
+        "width": 735,
+        "height": 535
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "frame/210332245093964171.jpg",
+          "originalName": "210332245093964171.jpg",
+          "byteLength": 106481,
+          "crc32": "b19950ff",
+          "archiveIndex": 2
+        }
+      ],
+      "archiveMember": "frame/210332245093964171.jpg",
+      "archiveCrc32": "b19950ff",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "nineSlice": null,
+      "label": "정글 목재 메뉴·상점·아이콘 시트",
+      "visualSummary": "잎과 덩굴이 감싼 목재 메뉴·레벨창·설정·상점과 버튼·진행바·아이콘을 한 장에 모은 시트",
+      "subjects": [
+        "목재 메뉴",
+        "잎 테두리",
+        "덩굴",
+        "레벨 선택",
+        "설정",
+        "상점",
+        "진행바",
+        "별",
+        "물약",
+        "화폐"
+      ],
+      "style": "painted-cartoon-ui",
+      "perspective": "screen-layout",
+      "contentType": "ui-sheet",
+      "assetType": "ui-sheet",
+      "categories": [
+        "interface",
+        "panels",
+        "buttons",
+        "progress",
+        "icons",
+        "plants",
+        "wood"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "흰 배경과 워터마크·하단 출처 띠가 포함된 원본이다. 이미지 속 버튼을 동작하는 메뉴로 연결하지 않았다.",
+      "visibleText": "dreamstime.com / ID 258594474 / Seamartini",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 프레임·UI·숲 소재 참고 원본. 이미지 안의 글자·서명·워터마크는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "preparation": {
+        "transparentPartsPrepared": false,
+        "nineSlicePrepared": false,
+        "responsiveFramePrepared": false,
+        "interactiveUiPrepared": false
+      }
+    },
+    {
+      "id": "frame-6b99379d3662c645",
+      "reviewIndex": 3,
+      "kind": "user-reference-image",
+      "originalName": "2111131068175679.jpg",
+      "imagePath": "originals/frame-6b99379d3662c645.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "6b99379d3662c645c14e9bcc2b69e9d8a02f7a303e9475dea6b4a7625534c1d9",
+      "byteLength": 66946,
+      "dimensions": {
+        "width": 736,
+        "height": 636
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "frame/2111131068175679.jpg",
+          "originalName": "2111131068175679.jpg",
+          "byteLength": 66946,
+          "crc32": "a05fbf2e",
+          "archiveIndex": 3
+        }
+      ],
+      "archiveMember": "frame/2111131068175679.jpg",
+      "archiveCrc32": "a05fbf2e",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "nineSlice": null,
+      "label": "숲 나무·양피지 설정창",
+      "visualSummary": "목재 가로 간판과 덩굴·잎, 크림색 종이 창에 슬라이더·체크박스·라디오·탭을 배치한 설정 화면",
+      "subjects": [
+        "목재 간판",
+        "양피지 창",
+        "잎",
+        "덩굴",
+        "옆 탭",
+        "슬라이더",
+        "체크박스",
+        "라디오",
+        "확인·취소 버튼"
+      ],
+      "style": "painted-cartoon-ui",
+      "perspective": "screen-layout",
+      "contentType": "ui-screen",
+      "assetType": "ui-screen",
+      "categories": [
+        "interface",
+        "panels",
+        "buttons",
+        "progress",
+        "plants",
+        "wood"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "완성 설정 화면의 참고 JPEG이다. 크림색 내용 영역과 입력 가독성·나무 테두리 두께를 참고하며 실제 입력 컨트롤은 별도 제작한다.",
+      "visibleText": "INTO THE FOREST / SETTINGS",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 프레임·UI·숲 소재 참고 원본. 이미지 안의 글자·서명·워터마크는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "preparation": {
+        "transparentPartsPrepared": false,
+        "nineSlicePrepared": false,
+        "responsiveFramePrepared": false,
+        "interactiveUiPrepared": false
+      }
+    },
+    {
+      "id": "frame-735b9554c2c68f85",
+      "reviewIndex": 4,
+      "kind": "user-reference-image",
+      "originalName": "337558934594860818.jpg",
+      "imagePath": "originals/frame-735b9554c2c68f85.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "735b9554c2c68f8552c51d43fe82a993aa523a98d108cc6bd4043e180b4c7088",
+      "byteLength": 112018,
+      "dimensions": {
+        "width": 590,
+        "height": 748
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "frame/337558934594860818.jpg",
+          "originalName": "337558934594860818.jpg",
+          "byteLength": 112018,
+          "crc32": "2d7db345",
+          "archiveIndex": 4
+        }
+      ],
+      "archiveMember": "frame/337558934594860818.jpg",
+      "archiveCrc32": "2d7db345",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "nineSlice": null,
+      "label": "숲·버섯 게임 UI 미리보기",
+      "visualSummary": "숲 배경의 레벨 카드·메뉴·양피지 맵·버섯 퍼즐·결과창과 작은 버튼을 묶은 자료",
+      "subjects": [
+        "레벨 카드",
+        "나무 버튼",
+        "양피지 맵",
+        "버섯 퍼즐",
+        "별",
+        "진행바",
+        "결과창"
+      ],
+      "style": "painted-cartoon-ui",
+      "perspective": "screen-layout",
+      "contentType": "ui-preview-sheet",
+      "assetType": "ui-preview-sheet",
+      "categories": [
+        "interface",
+        "panels",
+        "buttons",
+        "progress",
+        "icons",
+        "maps",
+        "plants",
+        "wood"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "여러 완성 화면과 부품이 한 JPEG에 섞여 있다. Game Ui - Forest.jpg와 같은 디자인의 다른 JPEG 원본이며 두 파일을 보존했다.",
+      "visibleText": "envato / GAME UI FOREST",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 프레임·UI·숲 소재 참고 원본. 이미지 안의 글자·서명·워터마크는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "preparation": {
+        "transparentPartsPrepared": false,
+        "nineSlicePrepared": false,
+        "responsiveFramePrepared": false,
+        "interactiveUiPrepared": false
+      },
+      "visuallyRelatedImageIds": [
+        "frame-4a6234f296d9e9ff"
+      ]
+    },
+    {
+      "id": "frame-a95f3f6499989786",
+      "reviewIndex": 5,
+      "kind": "user-reference-image",
+      "originalName": "35114072075222250.jpg",
+      "imagePath": "originals/frame-a95f3f6499989786.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "a95f3f64999897864b34edadf316fbceb5d0b9e4e1f4412eb7c9f23c158759cb",
+      "byteLength": 106890,
+      "dimensions": {
+        "width": 590,
+        "height": 673
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "frame/35114072075222250.jpg",
+          "originalName": "35114072075222250.jpg",
+          "byteLength": 106890,
+          "crc32": "a178ad71",
+          "archiveIndex": 5
+        }
+      ],
+      "archiveMember": "frame/35114072075222250.jpg",
+      "archiveCrc32": "a178ad71",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "nineSlice": null,
+      "label": "네 가지 횡스크롤 숲 배경",
+      "visualSummary": "보랏빛 숲·큰 초록 나무·어두운 정글·밝은 잎의 네 횡스크롤 지형을 위아래로 모은 자료",
+      "subjects": [
+        "보라 숲",
+        "큰 나무",
+        "정글",
+        "덩굴",
+        "지면",
+        "뿌리",
+        "잎",
+        "하늘"
+      ],
+      "style": "platform-fantasy-illustration",
+      "perspective": "front",
+      "contentType": "background-sheet",
+      "assetType": "background-sheet",
+      "categories": [
+        "backgrounds",
+        "plants",
+        "terrain",
+        "platforms"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "네 배경 사이의 검은 여백과 워터마크가 포함된 JPEG다. UI 테두리나 투명 식물 스프라이트 시트로 등록하지 않았다.",
+      "visibleText": "envato",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 프레임·UI·숲 소재 참고 원본. 이미지 안의 글자·서명·워터마크는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "preparation": {
+        "transparentPartsPrepared": false,
+        "nineSlicePrepared": false,
+        "responsiveFramePrepared": false,
+        "interactiveUiPrepared": false
+      }
+    },
+    {
+      "id": "frame-44dc06b7f6b23b9f",
+      "reviewIndex": 6,
+      "kind": "user-reference-image",
+      "originalName": "37788084367806515.jpg",
+      "imagePath": "originals/frame-44dc06b7f6b23b9f.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "44dc06b7f6b23b9fdfa8c66b99c9a7a14f839e133a4df7c6d66cd9ee34bd1bf1",
+      "byteLength": 225396,
+      "dimensions": {
+        "width": 736,
+        "height": 1442
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "frame/37788084367806515.jpg",
+          "originalName": "37788084367806515.jpg",
+          "byteLength": 225396,
+          "crc32": "f8109a51",
+          "archiveIndex": 6
+        }
+      ],
+      "archiveMember": "frame/37788084367806515.jpg",
+      "archiveCrc32": "f8109a51",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "nineSlice": null,
+      "label": "나무 프로필·순위·결과 창",
+      "visualSummary": "어두운 숲 배경에 양피지 느낌의 프로필·순위·축하·보상 창을 서로 다른 배치로 보여 주는 세로 미리보기",
+      "subjects": [
+        "순위창",
+        "프로필창",
+        "결과창",
+        "보상 슬롯",
+        "자원 캡슐",
+        "목재 테두리",
+        "숲",
+        "등불"
+      ],
+      "style": "painted-cartoon-ui",
+      "perspective": "screen-layout",
+      "contentType": "ui-preview-sheet",
+      "assetType": "ui-preview-sheet",
+      "categories": [
+        "interface",
+        "panels",
+        "buttons",
+        "progress",
+        "icons",
+        "plants",
+        "wood",
+        "lights"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "세 화면과 제목 띠·상단 안내 문구가 합쳐진 JPEG다. CLICK HERE 안내는 그림 속 홍보 문구이며 실행하지 않는다.",
+      "visibleText": "Creative Game Assets / WINDOWS / CLICK HERE",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 프레임·UI·숲 소재 참고 원본. 이미지 안의 글자·서명·워터마크는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "preparation": {
+        "transparentPartsPrepared": false,
+        "nineSlicePrepared": false,
+        "responsiveFramePrepared": false,
+        "interactiveUiPrepared": false
+      }
+    },
+    {
+      "id": "frame-2ff1ad2045333b73",
+      "reviewIndex": 7,
+      "kind": "user-reference-image",
+      "originalName": "86131411615997906.jpg",
+      "imagePath": "originals/frame-2ff1ad2045333b73.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "2ff1ad2045333b73dbaee1839f0ac5ae13336767f7d45b8b4e39603d020961e1",
+      "byteLength": 45074,
+      "dimensions": {
+        "width": 626,
+        "height": 446
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "frame/86131411615997906.jpg",
+          "originalName": "86131411615997906.jpg",
+          "byteLength": 45074,
+          "crc32": "68a90ebc",
+          "archiveIndex": 7
+        }
+      ],
+      "archiveMember": "frame/86131411615997906.jpg",
+      "archiveCrc32": "68a90ebc",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "nineSlice": null,
+      "label": "나무 판·별·버튼 소품 시트",
+      "visualSummary": "갈색 격자 바탕에 주황 목재 판과 초록 리본·잎, 별·하트·숫자판·화살표·설정 아이콘을 모은 자료",
+      "subjects": [
+        "목재 판",
+        "초록 리본",
+        "잎",
+        "별",
+        "하트",
+        "숫자판",
+        "화살표",
+        "설정 아이콘",
+        "잠금"
+      ],
+      "style": "painted-cartoon-ui",
+      "perspective": "screen-layout",
+      "contentType": "ui-sheet",
+      "assetType": "ui-sheet",
+      "categories": [
+        "interface",
+        "panels",
+        "buttons",
+        "icons",
+        "plants",
+        "wood",
+        "borders"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "배경 격자까지 포함된 불투명 JPEG다. 큰 판과 버튼의 원형·직사각형 실루엣을 참고한다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 프레임·UI·숲 소재 참고 원본. 이미지 안의 글자·서명·워터마크는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "preparation": {
+        "transparentPartsPrepared": false,
+        "nineSlicePrepared": false,
+        "responsiveFramePrepared": false,
+        "interactiveUiPrepared": false
+      }
+    },
+    {
+      "id": "frame-cb7193d41b220376",
+      "reviewIndex": 8,
+      "kind": "user-reference-image",
+      "originalName": "b1a_jpg by Graphic Assets.jpg",
+      "imagePath": "originals/frame-cb7193d41b220376.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "cb7193d41b220376f03cc3a6fb90ef2dba491f592f82e63259da43236c337f06",
+      "byteLength": 119138,
+      "dimensions": {
+        "width": 590,
+        "height": 1032
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "frame/b1a_jpg by Graphic Assets.jpg",
+          "originalName": "b1a_jpg by Graphic Assets.jpg",
+          "byteLength": 119138,
+          "crc32": "5df77284",
+          "archiveIndex": 8
+        }
+      ],
+      "archiveMember": "frame/b1a_jpg by Graphic Assets.jpg",
+      "archiveCrc32": "5df77284",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "nineSlice": null,
+      "label": "나무·종이 캐릭터·미션·상점창",
+      "visualSummary": "입체 목재 테두리와 크림색 종이에 캐릭터·능력치·미션·상점 카드를 배치한 세 화면 자료",
+      "subjects": [
+        "목재 테두리",
+        "종이 창",
+        "캐릭터 슬롯",
+        "능력치 막대",
+        "미션 카드",
+        "상점 카드",
+        "옆 탭",
+        "초록 잎"
+      ],
+      "style": "painted-cartoon-ui",
+      "perspective": "screen-layout",
+      "contentType": "ui-preview-sheet",
+      "assetType": "ui-preview-sheet",
+      "categories": [
+        "interface",
+        "panels",
+        "buttons",
+        "progress",
+        "icons",
+        "characters",
+        "plants",
+        "wood"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "상단에 PSD/PNG 포함 문구가 있지만 받은 ZIP에는 JPEG만 있다. PSD·투명 PNG·가변 프레임을 받거나 준비한 것으로 기록하지 않는다.",
+      "visibleText": "envato / Horizontal Cartoon Game UI / 9 psd files + png included",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 프레임·UI·숲 소재 참고 원본. 이미지 안의 글자·서명·워터마크는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "preparation": {
+        "transparentPartsPrepared": false,
+        "nineSlicePrepared": false,
+        "responsiveFramePrepared": false,
+        "interactiveUiPrepared": false
+      }
+    },
+    {
+      "id": "frame-766b110c806244cd",
+      "reviewIndex": 9,
+      "kind": "user-reference-image",
+      "originalName": "frame01.jpg",
+      "imagePath": "originals/frame-766b110c806244cd.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "766b110c806244cdd28b579d492be382c0992ca59818d42d931ed2548caa7813",
+      "byteLength": 54859,
+      "dimensions": {
+        "width": 736,
+        "height": 736
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "frame/frame01.jpg",
+          "originalName": "frame01.jpg",
+          "byteLength": 54859,
+          "crc32": "330867af",
+          "archiveIndex": 9
+        }
+      ],
+      "archiveMember": "frame/frame01.jpg",
+      "archiveCrc32": "330867af",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "nineSlice": null,
+      "label": "덩굴·잎·상자의 정글 테두리",
+      "visualSummary": "금갈색 사각 테두리에 덩굴·큰 잎·나뭇가지·상자를 둘러 장식한 한 장의 프레임",
+      "subjects": [
+        "금갈색 테두리",
+        "덩굴",
+        "큰 잎",
+        "상자",
+        "나뭇가지",
+        "넓은 중앙"
+      ],
+      "style": "painted-cartoon-ui",
+      "perspective": "front",
+      "contentType": "frame-reference",
+      "assetType": "frame-reference",
+      "categories": [
+        "interface",
+        "borders",
+        "panels",
+        "plants",
+        "props",
+        "wood"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "중앙과 바깥의 흰색은 불투명 JPEG 픽셀이다. 투명 구멍·모서리 분리·nine-slice·크기 변경용 테두리는 준비하지 않았다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 프레임·UI·숲 소재 참고 원본. 이미지 안의 글자·서명·워터마크는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "preparation": {
+        "transparentPartsPrepared": false,
+        "nineSlicePrepared": false,
+        "responsiveFramePrepared": false,
+        "interactiveUiPrepared": false
+      }
+    },
+    {
+      "id": "frame-dd254ff5b0b0e35c",
+      "reviewIndex": 10,
+      "kind": "user-reference-image",
+      "originalName": "Game location __ Behance.jpg",
+      "imagePath": "originals/frame-dd254ff5b0b0e35c.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "dd254ff5b0b0e35c9015376514c7dbd9ff92c61cc58b554f3ff38138dbce738b",
+      "byteLength": 103038,
+      "dimensions": {
+        "width": 600,
+        "height": 1200
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "frame/Game location __ Behance.jpg",
+          "originalName": "Game location __ Behance.jpg",
+          "byteLength": 103038,
+          "crc32": "63c270b4",
+          "archiveIndex": 10
+        }
+      ],
+      "archiveMember": "frame/Game location __ Behance.jpg",
+      "archiveCrc32": "63c270b4",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "nineSlice": null,
+      "label": "숲 플랫폼과 다리·나무 제작 시트",
+      "visualSummary": "상단 숲 플랫폼 장면 아래에 밧줄 다리·사다리·기둥·가지·그루터기를 배열한 제작 자료",
+      "subjects": [
+        "숲 플랫폼",
+        "밧줄 다리",
+        "사다리",
+        "목재 기둥",
+        "나뭇가지",
+        "밧줄",
+        "그루터기",
+        "잎"
+      ],
+      "style": "platform-fantasy-illustration",
+      "perspective": "front",
+      "contentType": "map-props-sheet",
+      "assetType": "map-props-sheet",
+      "categories": [
+        "backgrounds",
+        "terrain",
+        "platforms",
+        "wood",
+        "plants",
+        "props"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "검은 배경과 부품 설명 글자가 포함된 JPEG이며 하단 그루터기 일부가 잘려 있다. 프레임 시트나 완전한 투명 소품으로 표시하지 않았다.",
+      "visibleText": "STAIRS and BRIDGES / TRUNKS and BRANCHES / STUMPS",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 프레임·UI·숲 소재 참고 원본. 이미지 안의 글자·서명·워터마크는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "preparation": {
+        "transparentPartsPrepared": false,
+        "nineSlicePrepared": false,
+        "responsiveFramePrepared": false,
+        "interactiveUiPrepared": false
+      }
+    },
+    {
+      "id": "frame-4a6234f296d9e9ff",
+      "reviewIndex": 11,
+      "kind": "user-reference-image",
+      "originalName": "Game Ui - Forest.jpg",
+      "imagePath": "originals/frame-4a6234f296d9e9ff.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "4a6234f296d9e9ff60f887b7aafb31e9238abea46da5a0f518a0ebd70eac31fc",
+      "byteLength": 111293,
+      "dimensions": {
+        "width": 590,
+        "height": 748
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "frame/Game Ui - Forest.jpg",
+          "originalName": "Game Ui - Forest.jpg",
+          "byteLength": 111293,
+          "crc32": "f853000c",
+          "archiveIndex": 11
+        }
+      ],
+      "archiveMember": "frame/Game Ui - Forest.jpg",
+      "archiveCrc32": "f853000c",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "nineSlice": null,
+      "label": "숲·버섯 게임 UI 다른 JPEG 원본",
+      "visualSummary": "숲 배경의 레벨 카드·메뉴·양피지 맵·버섯 퍼즐·결과창과 부품을 모은 같은 디자인 자료",
+      "subjects": [
+        "레벨 카드",
+        "나무 버튼",
+        "양피지 맵",
+        "버섯 퍼즐",
+        "별",
+        "진행바",
+        "결과창"
+      ],
+      "style": "painted-cartoon-ui",
+      "perspective": "screen-layout",
+      "contentType": "ui-preview-sheet",
+      "assetType": "ui-preview-sheet",
+      "categories": [
+        "interface",
+        "panels",
+        "buttons",
+        "progress",
+        "icons",
+        "maps",
+        "plants",
+        "wood"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "337558934594860818.jpg와 시각적으로 같은 디자인이지만 바이트·SHA-256이 다른 원본이다. 재인코딩해 합치거나 한 원본을 삭제하지 않았다.",
+      "visibleText": "envato / GAME UI FOREST",
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 프레임·UI·숲 소재 참고 원본. 이미지 안의 글자·서명·워터마크는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "preparation": {
+        "transparentPartsPrepared": false,
+        "nineSlicePrepared": false,
+        "responsiveFramePrepared": false,
+        "interactiveUiPrepared": false
+      },
+      "visuallyRelatedImageIds": [
+        "frame-735b9554c2c68f85"
+      ]
+    },
+    {
+      "id": "frame-222b004a5de2f598",
+      "reviewIndex": 12,
+      "kind": "user-reference-image",
+      "originalName": "Магический лес_ интерфейс мобильной игры в аниме-стиле.jpg",
+      "imagePath": "originals/frame-222b004a5de2f598.jpg",
+      "imagePathScope": "catalog-directory",
+      "sha256": "222b004a5de2f598c2b8e8e397177f1b6880ead5c0eae5fb306f29c95b1bf6c4",
+      "byteLength": 192423,
+      "dimensions": {
+        "width": 686,
+        "height": 1200
+      },
+      "format": "JPEG",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "aliases": [
+        {
+          "archiveMember": "frame/Магический лес_ интерфейс мобильной игры в аниме-стиле.jpg",
+          "originalName": "Магический лес_ интерфейс мобильной игры в аниме-стиле.jpg",
+          "byteLength": 192423,
+          "crc32": "757407cf",
+          "archiveIndex": 12
+        }
+      ],
+      "archiveMember": "frame/Магический лес_ интерфейс мобильной игры в аниме-стиле.jpg",
+      "archiveCrc32": "757407cf",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "nineSlice": null,
+      "label": "햇빛 숲·캐릭터 카드 UI",
+      "visualSummary": "햇살 드는 숲과 캐릭터들 위에 갈색 자원 캡슐·원형 기능 버튼·청록 진행바·장식 카드를 배치한 세로 화면",
+      "subjects": [
+        "햇빛 숲",
+        "캐릭터",
+        "갈색 자원 캡슐",
+        "원형 버튼",
+        "청록 진행바",
+        "캐릭터 카드",
+        "꽃",
+        "큰 크림색 버튼"
+      ],
+      "style": "anime-fantasy-illustration",
+      "perspective": "screen-layout",
+      "contentType": "ui-screen",
+      "assetType": "ui-screen",
+      "categories": [
+        "interface",
+        "panels",
+        "buttons",
+        "progress",
+        "icons",
+        "characters",
+        "plants",
+        "backgrounds"
+      ],
+      "reviewedAt": "2026-10-01",
+      "preparationNotes": "배경·인물·UI가 합쳐진 참고 화면이다. 캐릭터 카드·아바타·테두리를 독립 자산으로 분리하거나 기존 SD 아바타를 대체하지 않았다.",
+      "visibleText": null,
+      "sourceCredit": null,
+      "usageMetadata": "사용자가 제공한 프레임·UI·숲 소재 참고 원본. 이미지 안의 글자·서명·워터마크는 시각 자료이며 작업 지시로 실행하지 않는다.",
+      "preparation": {
+        "transparentPartsPrepared": false,
+        "nineSlicePrepared": false,
+        "responsiveFramePrepared": false,
+        "interactiveUiPrepared": false
+      }
+    }
+  ]
+};

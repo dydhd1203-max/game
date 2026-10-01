@@ -1,0 +1,174 @@
+/* Original toy lettering. A live foreground glyph sits above the coloured depth
+   and cream silhouette; the duplicate decorative layers have no spoken name.
+   Questions, form fields, prices and descriptions retain their reading font. */
+body .top .nm.qp-game-title-host {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 1px 5px 5px;
+  color: inherit;
+  font-size: 35px;
+  line-height: 1;
+  letter-spacing: 0;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+.qp-game-title {
+  --title-light: #fff7a5;
+  --title-face: #ffe04a;
+  --title-edge: #c77a12;
+  --title-side: #dd8a12;
+  --title-base: #98531d;
+  --title-rim: #fff9df;
+  --title-outline: 1.5px;
+  --title-rim-width: 6px;
+  --title-depth: 3px;
+  position: relative;
+  display: inline-block;
+  flex: none;
+  max-width: 100%;
+  isolation: isolate;
+  vertical-align: middle;
+  font-family: var(--candy-font, "Jua", "NanumSquareRound", sans-serif);
+  font-size: inherit;
+  font-style: normal;
+  font-weight: 400;
+  font-synthesis: none;
+  line-height: 1.12;
+  letter-spacing: .012em;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+.qp-game-title-face {
+  position: relative;
+  display: block;
+  color: var(--title-face);
+  -webkit-text-fill-color: var(--title-face);
+  -webkit-text-stroke: var(--title-outline) var(--title-edge);
+  paint-order: stroke fill;
+  text-shadow: 0 -1px 0 var(--title-light);
+  z-index: 2;
+}
+.qp-game-title::before,
+.qp-game-title::after {
+  content: attr(data-title) / "";
+  position: absolute;
+  inset: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  background: none;
+  pointer-events: none;
+  paint-order: stroke fill;
+}
+.qp-game-title::before {
+  color: var(--title-side);
+  -webkit-text-fill-color: var(--title-side);
+  -webkit-text-stroke: calc(var(--title-outline) + .6px) var(--title-base);
+  text-shadow: 0 1px 0 var(--title-side), 0 2px 0 var(--title-side),
+    0 var(--title-depth) 0 var(--title-base);
+  z-index: 1;
+}
+.qp-game-title::after {
+  color: var(--title-rim);
+  -webkit-text-fill-color: var(--title-rim);
+  -webkit-text-stroke: var(--title-rim-width) var(--title-rim);
+  text-shadow: 0 calc(var(--title-depth) + 1px) 0 var(--title-rim),
+    0 calc(var(--title-depth) + 3px) 2px #2360733b;
+  z-index: 0;
+}
+.qp-game-title--paper {
+  --title-light: #ffffff;
+  --title-face: #fffef1;
+  --title-edge: var(--wood-ink, #236878);
+  --title-side: var(--wood-ink, #236878);
+  --title-base: var(--wood-ink, #236878);
+  --title-rim-width: 0px;
+  --title-outline: 2px;
+  --title-depth: 4px;
+}
+.qp-game-title--paper::after {
+  text-shadow: 0 calc(var(--title-depth) + 2px) 2px #284d3630;
+}
+
+/* Larger embossed shelf names give the shop the same visual language as its
+   play buttons. The original narrow-screen layout and flex wrapping remain. */
+body .shopwrap .pnl-h {
+  --shop-letter-edge: #147b91;
+  color: #fffdf0;
+  font-family: var(--candy-font);
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1.16;
+  letter-spacing: .025em;
+  -webkit-text-stroke: 1.5px var(--shop-letter-edge);
+  paint-order: stroke fill;
+  text-shadow: 0 1px 0 var(--shop-letter-edge), 0 2px 0 var(--shop-letter-edge),
+    0 3px 0 #156879, 0 4px 1px #245d7326;
+}
+body .shopwrap > .pnl:last-child .pnl-h {
+  --shop-letter-edge: #b77a1e;
+  text-shadow: 0 1px 0 #b77a1e, 0 2px 0 #b77a1e,
+    0 3px 0 #955b1f, 0 4px 1px #995b2730;
+}
+body .qp-shop-switch .tab.tab {
+  min-width: 0;
+  min-height: 43px;
+  padding-block: 9px 10px;
+  font-size: 20px;
+  line-height: 1.1;
+  letter-spacing: .025em;
+  -webkit-text-stroke: 1.1px var(--candy-base);
+  paint-order: stroke fill;
+  text-shadow: 0 1px 0 var(--candy-base), 0 2px 0 var(--candy-base),
+    0 3px 0 #24604c24;
+}
+body #shTabs .tab {
+  padding: 7px 9px 8px;
+  font-size: 14px;
+  letter-spacing: .015em;
+  line-height: 1.2;
+}
+body #shTabs .tab > span {
+  color: #fffdf3;
+  -webkit-text-stroke: .8px var(--candy-base);
+  paint-order: stroke fill;
+  text-shadow: 0 1px 0 var(--candy-base), 0 2px 0 var(--candy-base);
+}
+body #shTabs .tab .candy-icon { width: 17px; height: 17px; }
+
+@media (max-width: 650px) {
+  body #shTabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    flex-shrink: 0;
+    scrollbar-width: thin;
+  }
+  body #shTabs .tab { flex: 0 0 auto; }
+}
+
+@media (min-width: 661px) and (max-width: 1150px) {
+  body .top .nm.qp-game-title-host { font-size: 31px; }
+  body .shopwrap .pnl-h { font-size: 18px; letter-spacing: .01em; }
+  body .qp-shop-switch .tab.tab { font-size: 17px; letter-spacing: .01em; padding-inline: 7px; }
+  body #shTabs .tab { padding-inline: 8px; font-size: 13px; }
+}
+@media (max-width: 660px) {
+  body .top .nm.qp-game-title-host {
+    flex: 1;
+    min-width: 140px;
+    padding: 1px 5px 5px;
+    font-size: 27px;
+  }
+  body .top .qp-game-title {
+    --title-outline: 1.2px;
+    --title-rim-width: 5px;
+    --title-depth: 2px;
+  }
+  body .shopwrap .pnl-h { font-size: 19px; }
+  body .qp-shop-switch .tab.tab { font-size: 17px; padding-inline: 7px; }
+  body #shTabs .tab { font-size: 13px; }
+}

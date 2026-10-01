@@ -513,7 +513,7 @@ button:disabled { cursor: default; }
 .qp-feedback { color: #7e5b95; }
 .qp-feed-line span { color: #7b618b; }
 .qp-bubble { color: #7f6194; }
-.qp-pixel-avatar, .qp-pixel-avatar image { image-rendering: pixelated; }
+.qp-pixel-avatar, .qp-pixel-avatar image { image-rendering: auto; }
 .qp-pixel-avatar svg { border-radius: 0; }
 
 /* Results and teacher tools follow the same palette. */

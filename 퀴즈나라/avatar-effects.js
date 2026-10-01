@@ -136,12 +136,7 @@
     const token = ++generation;
     atlas.url = url; atlas.ready = false; atlas.error = null;
     try {
-      const source = await new Promise((resolve, reject) => {
-        const image = new Image();
-        image.onload = () => resolve(image);
-        image.onerror = () => reject(new Error('Angel effect image could not load: ' + url));
-        image.src = url;
-      });
+      const source = await window.QPAvatarImage.load(url);
       const w = Math.floor(source.naturalWidth / 2), h = Math.floor(source.naturalHeight / 2);
       if (w < 64 || h < 64) throw new Error('Angel effect atlas resolution is too small');
       const loaded = new Map([

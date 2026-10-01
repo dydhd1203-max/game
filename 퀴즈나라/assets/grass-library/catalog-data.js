@@ -1,0 +1,5501 @@
+/* Generated from catalog.json; original image files remain unchanged. */
+window.QPGrassCatalog = {
+  "schemaVersion": 1,
+  "createdAt": "2026-10-01",
+  "title": "퀴즈나라 풀·식생 원본 보관함",
+  "pathBase": "catalog-directory",
+  "archive": {
+    "originalName": "grass pack.zip",
+    "imagePath": "source.zip",
+    "byteLength": 25695753,
+    "sha256": "fbe7dca59c0a44be58c2585847fbd8b7868397748f08bae2557b74f0d8beb473",
+    "entries": 170,
+    "regularImageEntries": 169,
+    "directoryEntries": 1,
+    "uncompressedImageBytes": 25763686,
+    "uniqueImageFiles": 95,
+    "duplicateImageEntries": 74,
+    "uniqueImageBytes": 14463443,
+    "originalPreservation": "Untouched ZIP plus unique original JPEG bytes; every original filename retained in aliases",
+    "regularImageFiles": 169
+  },
+  "status": {
+    "originalEntriesStored": 169,
+    "uniqueOriginalImagesStored": 95,
+    "deduplicatedAliases": 74,
+    "transparentUserOriginals": 0,
+    "runtimeSpritesPrepared": 0,
+    "runtimePlacementApplied": false,
+    "originalsStored": 95,
+    "userOriginalsStored": 95,
+    "individuallyVisuallyReviewed": 18,
+    "metadataOnlyImages": 77
+  },
+  "families": [
+    {
+      "id": "grass-pack",
+      "label": "Grass Pack / 풀 소재 묶음",
+      "sourceEntryCount": 157,
+      "uniqueImageCount": 83,
+      "imageIds": [
+        "grass-8fcbf7b009fd757a",
+        "grass-c1a66bca04a81af3",
+        "grass-ee49449be38e02e1",
+        "grass-648fb4e79d657c31",
+        "grass-530ea63523bfcf57",
+        "grass-c09684e4fec63a19",
+        "grass-78d6e171a9639118",
+        "grass-67d6eb4349a03371",
+        "grass-c32844b86c4ff53d",
+        "grass-c25f9cedcfc103b0",
+        "grass-706b4938b0f3815e",
+        "grass-5f6fc53ceb032629",
+        "grass-f71751f2bb6bb3c2",
+        "grass-af205735896fd213",
+        "grass-6c9b3418f93cc260",
+        "grass-ae60cb31b3f309ce",
+        "grass-8afce6c01b612d96",
+        "grass-d814c4988bbe4c0f",
+        "grass-6f326f0c735244af",
+        "grass-59a5829bd05319d5",
+        "grass-357ec131c8e0627c",
+        "grass-e58fec94c5069a68",
+        "grass-58a3577cbe869c31",
+        "grass-e6e38415ffd9b623",
+        "grass-ed4336a590ada08a",
+        "grass-0fb8ea5a6cd6f643",
+        "grass-70a7b35c63c5ff07",
+        "grass-15777c9d0b22c75f",
+        "grass-6b7d9644c9b75b84",
+        "grass-b86e0d861affacef",
+        "grass-0599c03871f7e4b7",
+        "grass-557fb9074478df91",
+        "grass-c0922cb6deb648b3",
+        "grass-e3d45723c842e390",
+        "grass-02bd6bf145fbd3c3",
+        "grass-0de18c7e086aa84e",
+        "grass-82fdf6f9c71daa7a",
+        "grass-36ada73bea3177fd",
+        "grass-f37d2ca0e52bef5c",
+        "grass-055ed4585339922f",
+        "grass-04a100cf56f96f38",
+        "grass-4411c0c8123bdbec",
+        "grass-625c20e7c1cfd973",
+        "grass-de2b165000b4dc9e",
+        "grass-9b3cd0965a2b7172",
+        "grass-b17ab2c4f174d7a5",
+        "grass-29ec5c64fc609f86",
+        "grass-89e8ac6da34ed435",
+        "grass-fc4a1c6f6fcbdcb1",
+        "grass-c8eb49cc7bad6665",
+        "grass-3adcd041039e6510",
+        "grass-5d8daf410944b883",
+        "grass-1137bfdacd5a3f27",
+        "grass-366c1de47c332bec",
+        "grass-13d83ff525c1d669",
+        "grass-8069cb9d140fbe62",
+        "grass-01f0410a594bffdb",
+        "grass-7a9825116175936a",
+        "grass-f2c32b677d82780f",
+        "grass-55de67bf583182d0",
+        "grass-4e2523278a4e45f7",
+        "grass-60be4fbd5a3a630a",
+        "grass-f5d1dfab5fe86bd3",
+        "grass-1b269698d8b81c98",
+        "grass-41ad28e3b040d325",
+        "grass-c3d5f3ef6f8e17b4",
+        "grass-ae99b5bd9e44b858",
+        "grass-006b02575af93208",
+        "grass-222b40d73f077265",
+        "grass-941b21d6b28efa4c",
+        "grass-e9e7ca0a7a22c639",
+        "grass-ed24ab1f27cfd223",
+        "grass-478a345536ca4289",
+        "grass-a80d4fcd6bd2cc14",
+        "grass-519b10f773e1ae6d",
+        "grass-a0482fda43e6e59c",
+        "grass-7db334fd511cab70",
+        "grass-35b4bd69298c03e5",
+        "grass-41fb6f3a978e1485",
+        "grass-2b3f0f1aea3ea5e6",
+        "grass-d5818d0c6df4ff4e",
+        "grass-34644eebb6cd4516",
+        "grass-f7f131552d501eca"
+      ],
+      "classificationStatus": "representative-reviewed",
+      "family": "grass-pack",
+      "visuallyReviewedUniqueImages": 6,
+      "unreviewedUniqueImages": 77,
+      "observedThemes": [
+        "wild-grass",
+        "broad-leaf-plants",
+        "shrubs",
+        "mossy-rocks",
+        "daisies",
+        "dandelions"
+      ],
+      "reviewScope": "representatives-only"
+    },
+    {
+      "id": "grass-single",
+      "label": "Grass / 개별 풀 자료",
+      "sourceEntryCount": 11,
+      "uniqueImageCount": 11,
+      "imageIds": [
+        "grass-35abc978719c5d23",
+        "grass-b16415002dd5f895",
+        "grass-af8d72e12ec83632",
+        "grass-e8b4ea1a0c876f86",
+        "grass-7cb956ee154c891c",
+        "grass-30c42acb34a5ac06",
+        "grass-7c4db405807c5bee",
+        "grass-764f5337e41a6f34",
+        "grass-d6fd0201e4548384",
+        "grass-6a0d44d14c517478",
+        "grass-2cb94b18e258bda9"
+      ],
+      "classificationStatus": "family-images-reviewed",
+      "family": "grass-single",
+      "visuallyReviewedUniqueImages": 11,
+      "unreviewedUniqueImages": 0,
+      "observedThemes": [
+        "clovers",
+        "mossy-rocks",
+        "grassy-cliffs",
+        "daisies",
+        "dandelions",
+        "ground-patches"
+      ],
+      "reviewScope": "all-eleven-family-images",
+      "note": "Filename family Grass includes clover, wildflower and rocky ground sheets; name alone is not the motif classification."
+    },
+    {
+      "id": "grass-clovers",
+      "label": "Grass with Clovers / 클로버 풀 자료",
+      "sourceEntryCount": 1,
+      "uniqueImageCount": 1,
+      "imageIds": [
+        "grass-d3d628ec77dbd7e5"
+      ],
+      "classificationStatus": "family-images-reviewed",
+      "family": "grass-clovers",
+      "visuallyReviewedUniqueImages": 1,
+      "unreviewedUniqueImages": 0,
+      "observedThemes": [
+        "clovers",
+        "grass-patches",
+        "ground-cover"
+      ],
+      "reviewScope": "single-image-family"
+    }
+  ],
+  "relatedLibraries": [
+    {
+      "label": "맵 기본 에셋",
+      "imagePath": "../map-library/index.html"
+    },
+    {
+      "label": "숲 마을 UI 기본 자료",
+      "imagePath": "../interface-library/README.md"
+    }
+  ],
+  "contracts": {
+    "originalPreservation": "Do not re-encode/crop original images; exact bytes identified by SHA-256",
+    "duplicates": "Equal bytes share one stored image and retain all ZIP member names in aliases; byte differences do not prove different designs",
+    "alpha": "All originals in this upload are opaque JPEG, not prepared transparent PNG assets",
+    "frameReadiness": "No frame rectangles, tile size, motion sequence, ground anchors, or collisions inferred from naming",
+    "graphicText": "Visible image labels are reference content, not execution instructions",
+    "mapReadiness": "Stored assets are not automatically placed into live quiz maps"
+  },
+  "referenceSheets": [
+    {
+      "id": "grass-8fcbf7b009fd757a",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (1).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (1).jpg",
+      "imagePath": "originals/grass-8fcbf7b009fd757a.jpg",
+      "sha256": "8fcbf7b009fd757a1a6bd9bccb0c3c32709387f8e1b62311e0aa4d2a150ba9b5",
+      "byteLength": 168638,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (1).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (1).jpg",
+          "byteLength": 168638,
+          "archiveCrc32": "c51d8c35"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (75).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (75).jpg",
+          "byteLength": 168638,
+          "archiveCrc32": "c51d8c35"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass",
+        "props"
+      ],
+      "subjects": [
+        "폭이 다른 야생 풀 덩어리",
+        "뾰족한 잎 식물",
+        "청록 넓은 잎",
+        "관목",
+        "작은 돌"
+      ],
+      "themes": [
+        "wild-grass",
+        "forest",
+        "broad-leaf-plants"
+      ],
+      "visualSummary": "여러 실루엣의 야생 풀·넓은 잎 식물을 모은 회색 배경 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-c1a66bca04a81af3",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (10).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (10).jpg",
+      "imagePath": "originals/grass-c1a66bca04a81af3.jpg",
+      "sha256": "c1a66bca04a81af38ff73c5c9069caac47879377be0d626ca853550ae8f66c4f",
+      "byteLength": 130801,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (10).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (10).jpg",
+          "byteLength": 130801,
+          "archiveCrc32": "29ef02b3"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (84).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (84).jpg",
+          "byteLength": 130801,
+          "archiveCrc32": "29ef02b3"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (10).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-ee49449be38e02e1",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (100).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (100).jpg",
+      "imagePath": "originals/grass-ee49449be38e02e1.jpg",
+      "sha256": "ee49449be38e02e165c544ac2c3fabef6d8a4c2082a88999c1b36dad2191f511",
+      "byteLength": 169200,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (100).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (100).jpg",
+          "byteLength": 169200,
+          "archiveCrc32": "873039d7"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (26).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (26).jpg",
+          "byteLength": 169200,
+          "archiveCrc32": "873039d7"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (100).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-648fb4e79d657c31",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (11).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (11).jpg",
+      "imagePath": "originals/grass-648fb4e79d657c31.jpg",
+      "sha256": "648fb4e79d657c311333747852cf22ea67155352984ec0529679fb2c83e44256",
+      "byteLength": 165216,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (11).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (11).jpg",
+          "byteLength": 165216,
+          "archiveCrc32": "0120f895"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (85).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (85).jpg",
+          "byteLength": 165216,
+          "archiveCrc32": "0120f895"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (11).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-530ea63523bfcf57",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (12).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (12).jpg",
+      "imagePath": "originals/grass-530ea63523bfcf57.jpg",
+      "sha256": "530ea63523bfcf572b975e7e41d92d58c8e4c2df56c6d1f7b96aa5619b77b4ae",
+      "byteLength": 134379,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (12).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (12).jpg",
+          "byteLength": 134379,
+          "archiveCrc32": "ec44316f"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (86).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (86).jpg",
+          "byteLength": 134379,
+          "archiveCrc32": "ec44316f"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (12).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-c09684e4fec63a19",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (13).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (13).jpg",
+      "imagePath": "originals/grass-c09684e4fec63a19.jpg",
+      "sha256": "c09684e4fec63a19a36d76148cb83a0b481ce823e47a5649c9eb2aaca165ebb3",
+      "byteLength": 140781,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (13).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (13).jpg",
+          "byteLength": 140781,
+          "archiveCrc32": "a06c2c75"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (87).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (87).jpg",
+          "byteLength": 140781,
+          "archiveCrc32": "a06c2c75"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (13).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-78d6e171a9639118",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (14).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (14).jpg",
+      "imagePath": "originals/grass-78d6e171a9639118.jpg",
+      "sha256": "78d6e171a9639118466c1c46089e41e6821b9efb0f99d6bc3e37ed08855b380b",
+      "byteLength": 174133,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (14).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (14).jpg",
+          "byteLength": 174133,
+          "archiveCrc32": "703d9275"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (88).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (88).jpg",
+          "byteLength": 174133,
+          "archiveCrc32": "703d9275"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (14).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-67d6eb4349a03371",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (15).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (15).jpg",
+      "imagePath": "originals/grass-67d6eb4349a03371.jpg",
+      "sha256": "67d6eb4349a033718bf4344d90a33c3e512e8665c1323bbb40c2bc5bf61c8e6e",
+      "byteLength": 141816,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (15).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (15).jpg",
+          "byteLength": 141816,
+          "archiveCrc32": "0b1c3089"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (89).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (89).jpg",
+          "byteLength": 141816,
+          "archiveCrc32": "0b1c3089"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (15).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-c32844b86c4ff53d",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (16).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (16).jpg",
+      "imagePath": "originals/grass-c32844b86c4ff53d.jpg",
+      "sha256": "c32844b86c4ff53d3580508d75e8a4aa18f7e25b7928ddab34a9967af9184352",
+      "byteLength": 156595,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (16).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (16).jpg",
+          "byteLength": 156595,
+          "archiveCrc32": "a6773054"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (90).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (90).jpg",
+          "byteLength": 156595,
+          "archiveCrc32": "a6773054"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (16).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-c25f9cedcfc103b0",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (17).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (17).jpg",
+      "imagePath": "originals/grass-c25f9cedcfc103b0.jpg",
+      "sha256": "c25f9cedcfc103b07b9d8eb411f02ca267f39176f7ae4ef9801bda64cf6b1554",
+      "byteLength": 144276,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (17).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (17).jpg",
+          "byteLength": 144276,
+          "archiveCrc32": "d277e88f"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (91).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (91).jpg",
+          "byteLength": 144276,
+          "archiveCrc32": "d277e88f"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (17).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-706b4938b0f3815e",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (18).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (18).jpg",
+      "imagePath": "originals/grass-706b4938b0f3815e.jpg",
+      "sha256": "706b4938b0f3815e0a79be87173d3e976b49e90833aafec08f098ad818430422",
+      "byteLength": 134304,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (18).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (18).jpg",
+          "byteLength": 134304,
+          "archiveCrc32": "d1f73ebe"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (92).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (92).jpg",
+          "byteLength": 134304,
+          "archiveCrc32": "d1f73ebe"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (18).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-5f6fc53ceb032629",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (19).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (19).jpg",
+      "imagePath": "originals/grass-5f6fc53ceb032629.jpg",
+      "sha256": "5f6fc53ceb0326294e6c12118065847ecba10a08cd57e57d804bf6f52b32829f",
+      "byteLength": 133293,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (19).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (19).jpg",
+          "byteLength": 133293,
+          "archiveCrc32": "de4e528a"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (93).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (93).jpg",
+          "byteLength": 133293,
+          "archiveCrc32": "de4e528a"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (19).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-f71751f2bb6bb3c2",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (2).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (2).jpg",
+      "imagePath": "originals/grass-f71751f2bb6bb3c2.jpg",
+      "sha256": "f71751f2bb6bb3c2fa3fb6c231f4dc82588feb82987d70cada52536b522b69a0",
+      "byteLength": 180048,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (2).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (2).jpg",
+          "byteLength": 180048,
+          "archiveCrc32": "7ae2e36e"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (76).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (76).jpg",
+          "byteLength": 180048,
+          "archiveCrc32": "7ae2e36e"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (2).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-af205735896fd213",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (20).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (20).jpg",
+      "imagePath": "originals/grass-af205735896fd213.jpg",
+      "sha256": "af205735896fd213e60075314a4be5028dac6de84e926aad502206b82a300075",
+      "byteLength": 159561,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (20).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (20).jpg",
+          "byteLength": 159561,
+          "archiveCrc32": "bf8df64f"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (94).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (94).jpg",
+          "byteLength": 159561,
+          "archiveCrc32": "bf8df64f"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass",
+        "terrain",
+        "props"
+      ],
+      "subjects": [
+        "밝은 관목",
+        "열매 덩굴",
+        "이끼 바위",
+        "작은 돌",
+        "풀이 감싼 큰 바위 묶음"
+      ],
+      "themes": [
+        "lush-shrubs",
+        "mossy-rocks",
+        "forest"
+      ],
+      "visualSummary": "관목과 이끼 바위의 큰·중간·작은 조합이 풍성한 숲 소품 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-6c9b3418f93cc260",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (21).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (21).jpg",
+      "imagePath": "originals/grass-6c9b3418f93cc260.jpg",
+      "sha256": "6c9b3418f93cc260217fa8b63f82dfea1ab5e4315051015d42927764f2bc6c2c",
+      "byteLength": 126328,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (21).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (21).jpg",
+          "byteLength": 126328,
+          "archiveCrc32": "7bef29fa"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (95).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (95).jpg",
+          "byteLength": 126328,
+          "archiveCrc32": "7bef29fa"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (21).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-ae60cb31b3f309ce",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (22).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (22).jpg",
+      "imagePath": "originals/grass-ae60cb31b3f309ce.jpg",
+      "sha256": "ae60cb31b3f309ce9e2c1d08642bf8805789de056b97af6c792a75d3dc60895e",
+      "byteLength": 181192,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (22).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (22).jpg",
+          "byteLength": 181192,
+          "archiveCrc32": "479b2e43"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (96).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (96).jpg",
+          "byteLength": 181192,
+          "archiveCrc32": "479b2e43"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (22).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-8afce6c01b612d96",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (23).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (23).jpg",
+      "imagePath": "originals/grass-8afce6c01b612d96.jpg",
+      "sha256": "8afce6c01b612d96ae87a946b946ed0011f397405f27ac5ef3cf5490ff165922",
+      "byteLength": 148964,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (23).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (23).jpg",
+          "byteLength": 148964,
+          "archiveCrc32": "9d3ddfc1"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (97).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (97).jpg",
+          "byteLength": 148964,
+          "archiveCrc32": "9d3ddfc1"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (23).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-d814c4988bbe4c0f",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (24).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (24).jpg",
+      "imagePath": "originals/grass-d814c4988bbe4c0f.jpg",
+      "sha256": "d814c4988bbe4c0f86cfe54f37d9673ecb8ae72ced3828eb1ad0d82fa0788cfe",
+      "byteLength": 172655,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (24).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (24).jpg",
+          "byteLength": 172655,
+          "archiveCrc32": "cdd73805"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (98).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (98).jpg",
+          "byteLength": 172655,
+          "archiveCrc32": "cdd73805"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (24).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-6f326f0c735244af",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (25).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (25).jpg",
+      "imagePath": "originals/grass-6f326f0c735244af.jpg",
+      "sha256": "6f326f0c735244af35de2aa12f830848831cf60a102d329ddbf809d771b9ddf8",
+      "byteLength": 131499,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (25).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (25).jpg",
+          "byteLength": 131499,
+          "archiveCrc32": "05eef65a"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (99).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (99).jpg",
+          "byteLength": 131499,
+          "archiveCrc32": "05eef65a"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (25).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-59a5829bd05319d5",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (27).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (27).jpg",
+      "imagePath": "originals/grass-59a5829bd05319d5.jpg",
+      "sha256": "59a5829bd05319d5cf918ea1fe9c4837c9933ea878de5e98e0d2b7214604d9e5",
+      "byteLength": 165139,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (27).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (27).jpg",
+          "byteLength": 165139,
+          "archiveCrc32": "56607fb6"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145716.150.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145716.150.jpg",
+          "byteLength": 165139,
+          "archiveCrc32": "56607fb6"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (27).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-357ec131c8e0627c",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (28).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (28).jpg",
+      "imagePath": "originals/grass-357ec131c8e0627c.jpg",
+      "sha256": "357ec131c8e0627c780234b6a0f7d31e3fd3dc672e5114d7d2a51c3648e51047",
+      "byteLength": 152074,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (28).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (28).jpg",
+          "byteLength": 152074,
+          "archiveCrc32": "6196a9aa"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145717.522.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145717.522.jpg",
+          "byteLength": 152074,
+          "archiveCrc32": "6196a9aa"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (28).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-e58fec94c5069a68",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (29).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (29).jpg",
+      "imagePath": "originals/grass-e58fec94c5069a68.jpg",
+      "sha256": "e58fec94c5069a68eca0c9a8a66492ec52db04e6b4e1aba331d5722bdf561298",
+      "byteLength": 126878,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (29).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (29).jpg",
+          "byteLength": 126878,
+          "archiveCrc32": "7d97c4b5"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145719.190.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145719.190.jpg",
+          "byteLength": 126878,
+          "archiveCrc32": "7d97c4b5"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (29).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-58a3577cbe869c31",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (3).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (3).jpg",
+      "imagePath": "originals/grass-58a3577cbe869c31.jpg",
+      "sha256": "58a3577cbe869c31a3f5ce3d1ea62da0962b95f1334b10c3f91f3497e192dd4c",
+      "byteLength": 144974,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (3).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (3).jpg",
+          "byteLength": 144974,
+          "archiveCrc32": "aba80fde"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (77).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (77).jpg",
+          "byteLength": 144974,
+          "archiveCrc32": "aba80fde"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (3).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-e6e38415ffd9b623",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (30).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (30).jpg",
+      "imagePath": "originals/grass-e6e38415ffd9b623.jpg",
+      "sha256": "e6e38415ffd9b62391a62999f4019ac92e948b1a50df95675f69fe765dd8bdd2",
+      "byteLength": 145684,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (30).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (30).jpg",
+          "byteLength": 145684,
+          "archiveCrc32": "fa9b908c"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145721.972.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145721.972.jpg",
+          "byteLength": 145684,
+          "archiveCrc32": "fa9b908c"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (30).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-ed4336a590ada08a",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (31).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (31).jpg",
+      "imagePath": "originals/grass-ed4336a590ada08a.jpg",
+      "sha256": "ed4336a590ada08ab60ee63ea117ca5996ed320c5ac3ac1ddbcfd9e8aee11476",
+      "byteLength": 130052,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (31).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (31).jpg",
+          "byteLength": 130052,
+          "archiveCrc32": "444ec66f"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145724.318.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145724.318.jpg",
+          "byteLength": 130052,
+          "archiveCrc32": "444ec66f"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (31).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-0fb8ea5a6cd6f643",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (32).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (32).jpg",
+      "imagePath": "originals/grass-0fb8ea5a6cd6f643.jpg",
+      "sha256": "0fb8ea5a6cd6f643819e1b857364d8799d2434a3906a513680aefd28a47f14bb",
+      "byteLength": 142851,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (32).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (32).jpg",
+          "byteLength": 142851,
+          "archiveCrc32": "28c83498"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145725.356.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145725.356.jpg",
+          "byteLength": 142851,
+          "archiveCrc32": "28c83498"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (32).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-70a7b35c63c5ff07",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (33).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (33).jpg",
+      "imagePath": "originals/grass-70a7b35c63c5ff07.jpg",
+      "sha256": "70a7b35c63c5ff079ae8ebd7217a39888eca25e543b7b4137d01a04c074476ad",
+      "byteLength": 134042,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (33).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (33).jpg",
+          "byteLength": 134042,
+          "archiveCrc32": "5c89b6f9"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145726.322.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145726.322.jpg",
+          "byteLength": 134042,
+          "archiveCrc32": "5c89b6f9"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (33).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-15777c9d0b22c75f",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (34).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (34).jpg",
+      "imagePath": "originals/grass-15777c9d0b22c75f.jpg",
+      "sha256": "15777c9d0b22c75fc38d37039ba2ca8b13f89c2a6aaeb08dcab27b467abceeef",
+      "byteLength": 140197,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (34).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (34).jpg",
+          "byteLength": 140197,
+          "archiveCrc32": "9087762f"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145727.430.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145727.430.jpg",
+          "byteLength": 140197,
+          "archiveCrc32": "9087762f"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (34).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-6b7d9644c9b75b84",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (35).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (35).jpg",
+      "imagePath": "originals/grass-6b7d9644c9b75b84.jpg",
+      "sha256": "6b7d9644c9b75b8476373d27947846d3ba536ab3b1233b36642176c5437c15e7",
+      "byteLength": 162397,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (35).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (35).jpg",
+          "byteLength": 162397,
+          "archiveCrc32": "06a21e8a"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145728.705.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145728.705.jpg",
+          "byteLength": 162397,
+          "archiveCrc32": "06a21e8a"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (35).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-b86e0d861affacef",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (36).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (36).jpg",
+      "imagePath": "originals/grass-b86e0d861affacef.jpg",
+      "sha256": "b86e0d861affacefedf9044ac2f825c60a65220ef2806b97b50e05ea6fa9dee7",
+      "byteLength": 142272,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (36).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (36).jpg",
+          "byteLength": 142272,
+          "archiveCrc32": "9d6585be"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145729.789.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145729.789.jpg",
+          "byteLength": 142272,
+          "archiveCrc32": "9d6585be"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (36).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-0599c03871f7e4b7",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (37).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (37).jpg",
+      "imagePath": "originals/grass-0599c03871f7e4b7.jpg",
+      "sha256": "0599c03871f7e4b771c8e5109fab83c1304f2e9558f360aa30532f036388732f",
+      "byteLength": 129115,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (37).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (37).jpg",
+          "byteLength": 129115,
+          "archiveCrc32": "93cc68e7"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145730.822.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145730.822.jpg",
+          "byteLength": 129115,
+          "archiveCrc32": "93cc68e7"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (37).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-557fb9074478df91",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (38).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (38).jpg",
+      "imagePath": "originals/grass-557fb9074478df91.jpg",
+      "sha256": "557fb9074478df91540aa88fc36ab6f60e4738aae9bbb5f9178da2432f6f2376",
+      "byteLength": 167320,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (38).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (38).jpg",
+          "byteLength": 167320,
+          "archiveCrc32": "76687e26"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145732.710.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145732.710.jpg",
+          "byteLength": 167320,
+          "archiveCrc32": "76687e26"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (38).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-c0922cb6deb648b3",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (39).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (39).jpg",
+      "imagePath": "originals/grass-c0922cb6deb648b3.jpg",
+      "sha256": "c0922cb6deb648b3a3ca353515cb1020ab68090d81e10ae412b5d24adde6166e",
+      "byteLength": 173198,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (39).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (39).jpg",
+          "byteLength": 173198,
+          "archiveCrc32": "2828c36e"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145733.903.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145733.903.jpg",
+          "byteLength": 173198,
+          "archiveCrc32": "2828c36e"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (39).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-e3d45723c842e390",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (4).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (4).jpg",
+      "imagePath": "originals/grass-e3d45723c842e390.jpg",
+      "sha256": "e3d45723c842e3901e25db0fdc420178ebb49b53f16e141497ae159c034052bc",
+      "byteLength": 159990,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (4).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (4).jpg",
+          "byteLength": 159990,
+          "archiveCrc32": "5d02eeec"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (78).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (78).jpg",
+          "byteLength": 159990,
+          "archiveCrc32": "5d02eeec"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (4).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-02bd6bf145fbd3c3",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (40).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (40).jpg",
+      "imagePath": "originals/grass-02bd6bf145fbd3c3.jpg",
+      "sha256": "02bd6bf145fbd3c3c97e669a399f305af8ccc09fdff717080e7aedaa5a4a34a7",
+      "byteLength": 165259,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (40).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (40).jpg",
+          "byteLength": 165259,
+          "archiveCrc32": "2ee59690"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145735.390.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145735.390.jpg",
+          "byteLength": 165259,
+          "archiveCrc32": "2ee59690"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass",
+        "terrain"
+      ],
+      "subjects": [
+        "길고 뾰족한 풀",
+        "낮은 관목",
+        "풀이 덮인 바위",
+        "작은 절벽 덩어리"
+      ],
+      "themes": [
+        "wild-grass",
+        "grassy-rocks",
+        "forest"
+      ],
+      "visualSummary": "뾰족한 풀 실루엣과 풀 덮인 암석 높낮이를 섞은 지면 소재 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-0de18c7e086aa84e",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (41).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (41).jpg",
+      "imagePath": "originals/grass-0de18c7e086aa84e.jpg",
+      "sha256": "0de18c7e086aa84ead2374073a61ab44728bc2c3cad5463b9cda7509c88fee5d",
+      "byteLength": 143971,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (41).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (41).jpg",
+          "byteLength": 143971,
+          "archiveCrc32": "0a92f222"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145736.398.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145736.398.jpg",
+          "byteLength": 143971,
+          "archiveCrc32": "0a92f222"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (41).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-82fdf6f9c71daa7a",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (42).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (42).jpg",
+      "imagePath": "originals/grass-82fdf6f9c71daa7a.jpg",
+      "sha256": "82fdf6f9c71daa7a3340c9486110727eadbbccc9005f48821e8a46a0fb67c811",
+      "byteLength": 159772,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (42).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (42).jpg",
+          "byteLength": 159772,
+          "archiveCrc32": "f3276488"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145738.069.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145738.069.jpg",
+          "byteLength": 159772,
+          "archiveCrc32": "f3276488"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (42).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-36ada73bea3177fd",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (43).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (43).jpg",
+      "imagePath": "originals/grass-36ada73bea3177fd.jpg",
+      "sha256": "36ada73bea3177fd9664191b717a3bf674cd7973f305fcb6c3751a7e3599c434",
+      "byteLength": 149625,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (43).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (43).jpg",
+          "byteLength": 149625,
+          "archiveCrc32": "ddf1d1cd"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145739.122.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145739.122.jpg",
+          "byteLength": 149625,
+          "archiveCrc32": "ddf1d1cd"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (43).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-f37d2ca0e52bef5c",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (44).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (44).jpg",
+      "imagePath": "originals/grass-f37d2ca0e52bef5c.jpg",
+      "sha256": "f37d2ca0e52bef5cf38b7e6851f1c39a4e2be7519999876d2c4a8b8ec5477bb9",
+      "byteLength": 145214,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (44).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (44).jpg",
+          "byteLength": 145214,
+          "archiveCrc32": "7c0bf5e1"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145740.494.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145740.494.jpg",
+          "byteLength": 145214,
+          "archiveCrc32": "7c0bf5e1"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (44).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-055ed4585339922f",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (45).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (45).jpg",
+      "imagePath": "originals/grass-055ed4585339922f.jpg",
+      "sha256": "055ed4585339922fe43458baceabe92bacf86afc0255478141adb133618ca0bd",
+      "byteLength": 156562,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (45).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (45).jpg",
+          "byteLength": 156562,
+          "archiveCrc32": "b46f7aef"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145742.262.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145742.262.jpg",
+          "byteLength": 156562,
+          "archiveCrc32": "b46f7aef"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (45).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-04a100cf56f96f38",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (46).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (46).jpg",
+      "imagePath": "originals/grass-04a100cf56f96f38.jpg",
+      "sha256": "04a100cf56f96f383ebfdf2a5626f04273f182cc4a6971ab10acac666b441288",
+      "byteLength": 153043,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (46).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (46).jpg",
+          "byteLength": 153043,
+          "archiveCrc32": "b1a5dd87"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145743.439.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145743.439.jpg",
+          "byteLength": 153043,
+          "archiveCrc32": "b1a5dd87"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (46).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-4411c0c8123bdbec",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (47).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (47).jpg",
+      "imagePath": "originals/grass-4411c0c8123bdbec.jpg",
+      "sha256": "4411c0c8123bdbecb002d6535791e61157aa7e089cc35ed23ea7dd50162f4b06",
+      "byteLength": 158084,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (47).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (47).jpg",
+          "byteLength": 158084,
+          "archiveCrc32": "ab687c9a"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145744.457.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145744.457.jpg",
+          "byteLength": 158084,
+          "archiveCrc32": "ab687c9a"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (47).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-625c20e7c1cfd973",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (48).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (48).jpg",
+      "imagePath": "originals/grass-625c20e7c1cfd973.jpg",
+      "sha256": "625c20e7c1cfd97380eed376cdb16e1763b559d327edc00bb3275423a19ac78c",
+      "byteLength": 130774,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (48).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (48).jpg",
+          "byteLength": 130774,
+          "archiveCrc32": "51250446"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145745.489.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145745.489.jpg",
+          "byteLength": 130774,
+          "archiveCrc32": "51250446"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (48).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-de2b165000b4dc9e",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (49).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (49).jpg",
+      "imagePath": "originals/grass-de2b165000b4dc9e.jpg",
+      "sha256": "de2b165000b4dc9ee8555514b94673f2e20bc2e3ffc41414104ea5ffc8ae0c60",
+      "byteLength": 176126,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (49).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (49).jpg",
+          "byteLength": 176126,
+          "archiveCrc32": "5f6b97e7"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145746.453.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145746.453.jpg",
+          "byteLength": 176126,
+          "archiveCrc32": "5f6b97e7"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (49).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-9b3cd0965a2b7172",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (5).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (5).jpg",
+      "imagePath": "originals/grass-9b3cd0965a2b7172.jpg",
+      "sha256": "9b3cd0965a2b717291b206b0415ccad7437953006c592cad5757f99c9d6006a9",
+      "byteLength": 160747,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (5).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (5).jpg",
+          "byteLength": 160747,
+          "archiveCrc32": "c7698021"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (79).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (79).jpg",
+          "byteLength": 160747,
+          "archiveCrc32": "c7698021"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (5).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-b17ab2c4f174d7a5",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (50).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (50).jpg",
+      "imagePath": "originals/grass-b17ab2c4f174d7a5.jpg",
+      "sha256": "b17ab2c4f174d7a52f90a6981c42039cfa14b2a24d3d9581c091708013977940",
+      "byteLength": 153999,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (50).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (50).jpg",
+          "byteLength": 153999,
+          "archiveCrc32": "28353832"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145748.822.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145748.822.jpg",
+          "byteLength": 153999,
+          "archiveCrc32": "28353832"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (50).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-29ec5c64fc609f86",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (51).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (51).jpg",
+      "imagePath": "originals/grass-29ec5c64fc609f86.jpg",
+      "sha256": "29ec5c64fc609f865624b57a0843f328c926db3634c244b411300ef901ab7078",
+      "byteLength": 138513,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (51).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (51).jpg",
+          "byteLength": 138513,
+          "archiveCrc32": "4524f3e4"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145749.973.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145749.973.jpg",
+          "byteLength": 138513,
+          "archiveCrc32": "4524f3e4"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (51).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-89e8ac6da34ed435",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (52).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (52).jpg",
+      "imagePath": "originals/grass-89e8ac6da34ed435.jpg",
+      "sha256": "89e8ac6da34ed43507c71df6c3a960ccb1d99df50efc3a6797747860588555f6",
+      "byteLength": 158451,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (52).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (52).jpg",
+          "byteLength": 158451,
+          "archiveCrc32": "e4295fdb"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145752.123.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145752.123.jpg",
+          "byteLength": 158451,
+          "archiveCrc32": "e4295fdb"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (52).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-fc4a1c6f6fcbdcb1",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (53).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (53).jpg",
+      "imagePath": "originals/grass-fc4a1c6f6fcbdcb1.jpg",
+      "sha256": "fc4a1c6f6fcbdcb10bceab483a33298c0b62bafae067b7b1ece52b7b15a02491",
+      "byteLength": 136722,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (53).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (53).jpg",
+          "byteLength": 136722,
+          "archiveCrc32": "a395fdd1"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145753.398.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145753.398.jpg",
+          "byteLength": 136722,
+          "archiveCrc32": "a395fdd1"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (53).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-c8eb49cc7bad6665",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (54).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (54).jpg",
+      "imagePath": "originals/grass-c8eb49cc7bad6665.jpg",
+      "sha256": "c8eb49cc7bad666542fa389a7d5a41ec3689bc5d7ea3c0d2d1cf8d6879bf22f7",
+      "byteLength": 132391,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (54).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (54).jpg",
+          "byteLength": 132391,
+          "archiveCrc32": "2c49e4b1"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145754.472.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145754.472.jpg",
+          "byteLength": 132391,
+          "archiveCrc32": "2c49e4b1"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (54).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-3adcd041039e6510",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (55).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (55).jpg",
+      "imagePath": "originals/grass-3adcd041039e6510.jpg",
+      "sha256": "3adcd041039e651012d0b457b6d185b6b6770958f5ed411091d2c02f0b5ed807",
+      "byteLength": 166290,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (55).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (55).jpg",
+          "byteLength": 166290,
+          "archiveCrc32": "2f21f9f4"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145755.470.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145755.470.jpg",
+          "byteLength": 166290,
+          "archiveCrc32": "2f21f9f4"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (55).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-5d8daf410944b883",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (56).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (56).jpg",
+      "imagePath": "originals/grass-5d8daf410944b883.jpg",
+      "sha256": "5d8daf410944b883b4a91a40e85d89cfa42114d53e30a2dfdd6b6e3a2b068b73",
+      "byteLength": 146431,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (56).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (56).jpg",
+          "byteLength": 146431,
+          "archiveCrc32": "8e7388e1"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145756.455.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145756.455.jpg",
+          "byteLength": 146431,
+          "archiveCrc32": "8e7388e1"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (56).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-1137bfdacd5a3f27",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (57).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (57).jpg",
+      "imagePath": "originals/grass-1137bfdacd5a3f27.jpg",
+      "sha256": "1137bfdacd5a3f27c66657b1ca7b69a801777f538ddf2aaccbd9162ee645ce29",
+      "byteLength": 156477,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (57).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (57).jpg",
+          "byteLength": 156477,
+          "archiveCrc32": "89382687"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145757.337.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145757.337.jpg",
+          "byteLength": 156477,
+          "archiveCrc32": "89382687"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (57).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-366c1de47c332bec",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (58).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (58).jpg",
+      "imagePath": "originals/grass-366c1de47c332bec.jpg",
+      "sha256": "366c1de47c332becc6f70b491db54e417a9aebef719fd19e32df53b46be3f63e",
+      "byteLength": 172647,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (58).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (58).jpg",
+          "byteLength": 172647,
+          "archiveCrc32": "1d26911b"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145758.373.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145758.373.jpg",
+          "byteLength": 172647,
+          "archiveCrc32": "1d26911b"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (58).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-13d83ff525c1d669",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (59).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (59).jpg",
+      "imagePath": "originals/grass-13d83ff525c1d669.jpg",
+      "sha256": "13d83ff525c1d6692bdfddf6af04eca486456f8831a3f9af9696594810a658f4",
+      "byteLength": 183498,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (59).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (59).jpg",
+          "byteLength": 183498,
+          "archiveCrc32": "934e9dc0"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145800.062.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145800.062.jpg",
+          "byteLength": 183498,
+          "archiveCrc32": "934e9dc0"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (59).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-8069cb9d140fbe62",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (6).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (6).jpg",
+      "imagePath": "originals/grass-8069cb9d140fbe62.jpg",
+      "sha256": "8069cb9d140fbe62f52a19ee7ca49ee6aa0b5b27e9517894ddff3b5b4b4b7873",
+      "byteLength": 156203,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (6).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (6).jpg",
+          "byteLength": 156203,
+          "archiveCrc32": "c019ac9a"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (80).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (80).jpg",
+          "byteLength": 156203,
+          "archiveCrc32": "c019ac9a"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (6).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-01f0410a594bffdb",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (60).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (60).jpg",
+      "imagePath": "originals/grass-01f0410a594bffdb.jpg",
+      "sha256": "01f0410a594bffdb8c30feb9cdfb9cee97caa7725094ac5aec5fa9a27c385a04",
+      "byteLength": 139654,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (60).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (60).jpg",
+          "byteLength": 139654,
+          "archiveCrc32": "89ec9cca"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145801.156.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145801.156.jpg",
+          "byteLength": 139654,
+          "archiveCrc32": "89ec9cca"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass",
+        "flowers",
+        "props"
+      ],
+      "subjects": [
+        "흰 데이지 군락",
+        "꽃이 적은 낮은 잔디",
+        "잔돌",
+        "작은 흰 꽃"
+      ],
+      "themes": [
+        "daisies",
+        "meadow",
+        "garden",
+        "ground-patches"
+      ],
+      "visualSummary": "흰 데이지와 낮은 잔디·잔돌의 다양한 크기 조합을 모은 밝은 풀 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-7a9825116175936a",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (61).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (61).jpg",
+      "imagePath": "originals/grass-7a9825116175936a.jpg",
+      "sha256": "7a9825116175936ad9cedfb32f7c9c3246591a2ae6887fc265e94f637eae69ca",
+      "byteLength": 145627,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (61).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (61).jpg",
+          "byteLength": 145627,
+          "archiveCrc32": "a604e3dd"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145801.987.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145801.987.jpg",
+          "byteLength": 145627,
+          "archiveCrc32": "a604e3dd"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (61).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-f2c32b677d82780f",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (62).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (62).jpg",
+      "imagePath": "originals/grass-f2c32b677d82780f.jpg",
+      "sha256": "f2c32b677d82780f3669fc43a346a4327d54bdc059614f50694e648b116980b6",
+      "byteLength": 175746,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (62).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (62).jpg",
+          "byteLength": 175746,
+          "archiveCrc32": "a42772d7"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145802.954.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145802.954.jpg",
+          "byteLength": 175746,
+          "archiveCrc32": "a42772d7"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (62).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-55de67bf583182d0",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (63).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (63).jpg",
+      "imagePath": "originals/grass-55de67bf583182d0.jpg",
+      "sha256": "55de67bf583182d0d1d3577ded06d51fa4cd1587b247f1467b921202ddf797d5",
+      "byteLength": 146008,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (63).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (63).jpg",
+          "byteLength": 146008,
+          "archiveCrc32": "3c526e4f"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145803.871.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145803.871.jpg",
+          "byteLength": 146008,
+          "archiveCrc32": "3c526e4f"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (63).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-4e2523278a4e45f7",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (64).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (64).jpg",
+      "imagePath": "originals/grass-4e2523278a4e45f7.jpg",
+      "sha256": "4e2523278a4e45f7821b61c80f6eb3bf3c7c4bb7f540bc8ff3a2cba81526c62e",
+      "byteLength": 154210,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (64).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (64).jpg",
+          "byteLength": 154210,
+          "archiveCrc32": "7de88e5a"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145805.213.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145805.213.jpg",
+          "byteLength": 154210,
+          "archiveCrc32": "7de88e5a"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (64).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-60be4fbd5a3a630a",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (65).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (65).jpg",
+      "imagePath": "originals/grass-60be4fbd5a3a630a.jpg",
+      "sha256": "60be4fbd5a3a630a232e7da40b30549a56af5446ad60bded397877f3b885b8a4",
+      "byteLength": 142745,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (65).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (65).jpg",
+          "byteLength": 142745,
+          "archiveCrc32": "794f84cc"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145806.293.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145806.293.jpg",
+          "byteLength": 142745,
+          "archiveCrc32": "794f84cc"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (65).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-f5d1dfab5fe86bd3",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (66).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (66).jpg",
+      "imagePath": "originals/grass-f5d1dfab5fe86bd3.jpg",
+      "sha256": "f5d1dfab5fe86bd391a4e14b9eaf9b70db78bffa20ad06e8bc0362ed61e4be89",
+      "byteLength": 176228,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (66).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (66).jpg",
+          "byteLength": 176228,
+          "archiveCrc32": "6c964f71"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145807.971.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145807.971.jpg",
+          "byteLength": 176228,
+          "archiveCrc32": "6c964f71"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (66).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-1b269698d8b81c98",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (67).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (67).jpg",
+      "imagePath": "originals/grass-1b269698d8b81c98.jpg",
+      "sha256": "1b269698d8b81c98b5d780e585b50977968a4b31541e515bf62647102523854e",
+      "byteLength": 189884,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (67).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (67).jpg",
+          "byteLength": 189884,
+          "archiveCrc32": "1ff71c02"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145808.893.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145808.893.jpg",
+          "byteLength": 189884,
+          "archiveCrc32": "1ff71c02"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (67).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-41ad28e3b040d325",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (68).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (68).jpg",
+      "imagePath": "originals/grass-41ad28e3b040d325.jpg",
+      "sha256": "41ad28e3b040d3256642875478126b235c9a9fe2000dfb731b9c25f4214525f5",
+      "byteLength": 152384,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (68).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (68).jpg",
+          "byteLength": 152384,
+          "archiveCrc32": "d0e4ff96"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145810.083.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145810.083.jpg",
+          "byteLength": 152384,
+          "archiveCrc32": "d0e4ff96"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (68).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-c3d5f3ef6f8e17b4",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (69).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (69).jpg",
+      "imagePath": "originals/grass-c3d5f3ef6f8e17b4.jpg",
+      "sha256": "c3d5f3ef6f8e17b4e902c0a7dfde86313799e99d682a990537fdc34198df6b1e",
+      "byteLength": 138023,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (69).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (69).jpg",
+          "byteLength": 138023,
+          "archiveCrc32": "c2eb7c1d"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145811.138.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145811.138.jpg",
+          "byteLength": 138023,
+          "archiveCrc32": "c2eb7c1d"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (69).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-ae99b5bd9e44b858",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (7).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (7).jpg",
+      "imagePath": "originals/grass-ae99b5bd9e44b858.jpg",
+      "sha256": "ae99b5bd9e44b858cdc0493bcdb23548823dd6b8b81a624ec847e193defd85b1",
+      "byteLength": 147843,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (7).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (7).jpg",
+          "byteLength": 147843,
+          "archiveCrc32": "c0dcd985"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (81).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (81).jpg",
+          "byteLength": 147843,
+          "archiveCrc32": "c0dcd985"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (7).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-006b02575af93208",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (70).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (70).jpg",
+      "imagePath": "originals/grass-006b02575af93208.jpg",
+      "sha256": "006b02575af93208bc0db2f4093359f20862e1e654ead0a73feedad8947e9f4c",
+      "byteLength": 143710,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (70).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (70).jpg",
+          "byteLength": 143710,
+          "archiveCrc32": "7d66b55f"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145812.206.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145812.206.jpg",
+          "byteLength": 143710,
+          "archiveCrc32": "7d66b55f"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (70).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-222b40d73f077265",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (71).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (71).jpg",
+      "imagePath": "originals/grass-222b40d73f077265.jpg",
+      "sha256": "222b40d73f077265d0ede608a6e39f218cb700935e1d2b1d9cf42d300a3b877c",
+      "byteLength": 171383,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (71).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (71).jpg",
+          "byteLength": 171383,
+          "archiveCrc32": "2ccaa451"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145813.366.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145813.366.jpg",
+          "byteLength": 171383,
+          "archiveCrc32": "2ccaa451"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (71).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-941b21d6b28efa4c",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (72).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (72).jpg",
+      "imagePath": "originals/grass-941b21d6b28efa4c.jpg",
+      "sha256": "941b21d6b28efa4cccae4130a5f2d03d040d6d113644df9bfa263da616841357",
+      "byteLength": 155669,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (72).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (72).jpg",
+          "byteLength": 155669,
+          "archiveCrc32": "9cc15fd4"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145814.421.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145814.421.jpg",
+          "byteLength": 155669,
+          "archiveCrc32": "9cc15fd4"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (72).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-e9e7ca0a7a22c639",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (73).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (73).jpg",
+      "imagePath": "originals/grass-e9e7ca0a7a22c639.jpg",
+      "sha256": "e9e7ca0a7a22c6395d9484c432ea628f82eaf08ec68539ef597996d557be50ae",
+      "byteLength": 167707,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (73).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (73).jpg",
+          "byteLength": 167707,
+          "archiveCrc32": "f09342d6"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145815.874.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145815.874.jpg",
+          "byteLength": 167707,
+          "archiveCrc32": "f09342d6"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (73).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-ed24ab1f27cfd223",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (74).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (74).jpg",
+      "imagePath": "originals/grass-ed24ab1f27cfd223.jpg",
+      "sha256": "ed24ab1f27cfd2232c834ed72e9704306664bbdd73090113d32f82002cd03a52",
+      "byteLength": 146345,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (74).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (74).jpg",
+          "byteLength": 146345,
+          "archiveCrc32": "475a1781"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin.jpg",
+          "byteLength": 146345,
+          "archiveCrc32": "475a1781"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass",
+        "terrain",
+        "props"
+      ],
+      "subjects": [
+        "야생 덤불",
+        "뾰족한 풀",
+        "바위 가장자리 식생",
+        "밝은 돌 조각",
+        "작은 지면 묶음"
+      ],
+      "themes": [
+        "wild-shrubs",
+        "rock-borders",
+        "forest"
+      ],
+      "visualSummary": "돌 바닥과 야생 관목·풀을 연결한 숲 가장자리 장식 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-478a345536ca4289",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (8).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (8).jpg",
+      "imagePath": "originals/grass-478a345536ca4289.jpg",
+      "sha256": "478a345536ca4289956f4d90604a5abdca1f6c8c3f73ee691a9fb0aec641f6f8",
+      "byteLength": 128290,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (8).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (8).jpg",
+          "byteLength": 128290,
+          "archiveCrc32": "366af035"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (82).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (82).jpg",
+          "byteLength": 128290,
+          "archiveCrc32": "366af035"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (8).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-a80d4fcd6bd2cc14",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin (83).jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (83).jpg",
+      "imagePath": "originals/grass-a80d4fcd6bd2cc14.jpg",
+      "sha256": "a80d4fcd6bd2cc1469cc2da19e3ecd4ce7adf91fdd9fc8fe6f31860b363fcc27",
+      "byteLength": 168126,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (83).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (83).jpg",
+          "byteLength": 168126,
+          "archiveCrc32": "c05dfd49"
+        },
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin (9).jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin (9).jpg",
+          "byteLength": 168126,
+          "archiveCrc32": "c05dfd49"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin (83).jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-519b10f773e1ae6d",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145816.940.jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145816.940.jpg",
+      "imagePath": "originals/grass-519b10f773e1ae6d.jpg",
+      "sha256": "519b10f773e1ae6d58e9169a644ac439b74e3c8814b9e2ae83e388e40f704f86",
+      "byteLength": 151959,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145816.940.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145816.940.jpg",
+          "byteLength": 151959,
+          "archiveCrc32": "46d719db"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145816.940.jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-a0482fda43e6e59c",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145818.202.jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145818.202.jpg",
+      "imagePath": "originals/grass-a0482fda43e6e59c.jpg",
+      "sha256": "a0482fda43e6e59c4179341c2fe7dd153ac82ce1f5d08931dc432911bfd0d544",
+      "byteLength": 140901,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145818.202.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145818.202.jpg",
+          "byteLength": 140901,
+          "archiveCrc32": "6f16e905"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145818.202.jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-7db334fd511cab70",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145819.460.jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145819.460.jpg",
+      "imagePath": "originals/grass-7db334fd511cab70.jpg",
+      "sha256": "7db334fd511cab70fb495288bbb3c653c0e473a99fc75f1d9feef1dc3ff8be00",
+      "byteLength": 157631,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145819.460.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145819.460.jpg",
+          "byteLength": 157631,
+          "archiveCrc32": "14708ddc"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145819.460.jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-35b4bd69298c03e5",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145820.589.jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145820.589.jpg",
+      "imagePath": "originals/grass-35b4bd69298c03e5.jpg",
+      "sha256": "35b4bd69298c03e558ba2eeffc7d13e853e87110f3488edd8d3bf53aacccd837",
+      "byteLength": 140939,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145820.589.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145820.589.jpg",
+          "byteLength": 140939,
+          "archiveCrc32": "413940e7"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145820.589.jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-41fb6f3a978e1485",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145821.906.jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145821.906.jpg",
+      "imagePath": "originals/grass-41fb6f3a978e1485.jpg",
+      "sha256": "41fb6f3a978e1485152314d59f41296b15b3f9f3e87a2b0330008fcdee753bac",
+      "byteLength": 161992,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145821.906.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145821.906.jpg",
+          "byteLength": 161992,
+          "archiveCrc32": "1346519b"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145821.906.jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-2b3f0f1aea3ea5e6",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145822.606.jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145822.606.jpg",
+      "imagePath": "originals/grass-2b3f0f1aea3ea5e6.jpg",
+      "sha256": "2b3f0f1aea3ea5e6caa95a57d92bf31e706ac9e7955d2b99457b7eac68ede370",
+      "byteLength": 131209,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145822.606.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145822.606.jpg",
+          "byteLength": 131209,
+          "archiveCrc32": "430f8f95"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145822.606.jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-d5818d0c6df4ff4e",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145824.838.jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145824.838.jpg",
+      "imagePath": "originals/grass-d5818d0c6df4ff4e.jpg",
+      "sha256": "d5818d0c6df4ff4e2f05181140e1bd385546568ec9f21caca6694c3652995e22",
+      "byteLength": 159452,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145824.838.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145824.838.jpg",
+          "byteLength": 159452,
+          "archiveCrc32": "826ee375"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145824.838.jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-34644eebb6cd4516",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145825.890.jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145825.890.jpg",
+      "imagePath": "originals/grass-34644eebb6cd4516.jpg",
+      "sha256": "34644eebb6cd45162f4f42b0852feff9d65edb5bf9b28df44cfdaa0fd1961368",
+      "byteLength": 160494,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145825.890.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145825.890.jpg",
+          "byteLength": 160494,
+          "archiveCrc32": "8066d0fe"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass"
+      ],
+      "subjects": [],
+      "themes": [
+        "forest",
+        "garden",
+        "outdoor"
+      ],
+      "visualSummary": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145825.890.jpg",
+      "style": null,
+      "perspective": null,
+      "contentType": "reference-image",
+      "classificationStatus": "metadata-only",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "preparationNotes": "이 파일의 바이트·이미지 형식·크기는 확인했으나 그림의 개별 소재·스타일은 아직 검수하지 않았다.",
+      "assetType": "unclassified-image"
+    },
+    {
+      "id": "grass-f7f131552d501eca",
+      "kind": "user-original-image",
+      "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145827.044.jpg",
+      "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145827.044.jpg",
+      "imagePath": "originals/grass-f7f131552d501eca.jpg",
+      "sha256": "f7f131552d501eca87becb7ac9cd11c8b866c9c292264e1ff7e10eddded08b6c",
+      "byteLength": 146927,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145827.044.jpg",
+          "archiveMember": "grass pack/Grass Pack _ Game Asset _ Ev Ganin - 2026-10-01T145827.044.jpg",
+          "byteLength": 146927,
+          "archiveCrc32": "a2beb5df"
+        }
+      ],
+      "family": "grass-pack",
+      "categories": [
+        "plants",
+        "grass",
+        "flowers",
+        "props"
+      ],
+      "subjects": [
+        "노란 민들레 군락",
+        "꽃봉오리",
+        "씨앗이 날리는 꽃대",
+        "풀·잎",
+        "작은 바위"
+      ],
+      "themes": [
+        "dandelions",
+        "meadow",
+        "garden"
+      ],
+      "visualSummary": "노란 민들레의 여러 높이·개화 모습과 풀 덩어리를 모은 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-d3d628ec77dbd7e5",
+      "kind": "user-original-image",
+      "originalName": "Grass with Clovers _ Game Asset _ Ev Ganin.jpg",
+      "archiveMember": "grass pack/Grass with Clovers _ Game Asset _ Ev Ganin.jpg",
+      "imagePath": "originals/grass-d3d628ec77dbd7e5.jpg",
+      "sha256": "d3d628ec77dbd7e5a52a14f1b7452a4db629984e8278ad235887405819528aa8",
+      "byteLength": 130571,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass with Clovers _ Game Asset _ Ev Ganin.jpg",
+          "archiveMember": "grass pack/Grass with Clovers _ Game Asset _ Ev Ganin.jpg",
+          "byteLength": 130571,
+          "archiveCrc32": "8fd288bd"
+        }
+      ],
+      "family": "grass-clovers",
+      "categories": [
+        "plants",
+        "grass",
+        "clovers"
+      ],
+      "subjects": [
+        "큰 클로버 잎",
+        "클로버 군락",
+        "낮은 잔디 덩어리",
+        "작은 지면 잎"
+      ],
+      "themes": [
+        "clovers",
+        "ground-cover",
+        "garden"
+      ],
+      "visualSummary": "클로버 한 잎부터 잔디·클로버 군락까지 크기를 달리한 바닥 식생 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-35abc978719c5d23",
+      "kind": "user-original-image",
+      "originalName": "Grass _ Game Asset _ Ev Ganin (1).jpg",
+      "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (1).jpg",
+      "imagePath": "originals/grass-35abc978719c5d23.jpg",
+      "sha256": "35abc978719c5d23104333ab980277792f46a7120d2c6afe14be16864821724f",
+      "byteLength": 145564,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass _ Game Asset _ Ev Ganin (1).jpg",
+          "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (1).jpg",
+          "byteLength": 145564,
+          "archiveCrc32": "9044cc75"
+        }
+      ],
+      "family": "grass-single",
+      "categories": [
+        "plants",
+        "grass",
+        "flowers",
+        "terrain"
+      ],
+      "subjects": [
+        "잔디가 덮인 암석 발판",
+        "길고 곧은 풀",
+        "민들레 군락",
+        "작은 암석 높낮이"
+      ],
+      "themes": [
+        "dandelions",
+        "grassy-cliffs",
+        "meadow"
+      ],
+      "visualSummary": "암석 지면에 풀과 민들레를 심은 작은 높낮이 지형 소재 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-b16415002dd5f895",
+      "kind": "user-original-image",
+      "originalName": "Grass _ Game Asset _ Ev Ganin (10).jpg",
+      "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (10).jpg",
+      "imagePath": "originals/grass-b16415002dd5f895.jpg",
+      "sha256": "b16415002dd5f8951d3e72615abd68440d96598e0f08bf85a9e1cbc82f248b3b",
+      "byteLength": 161484,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass _ Game Asset _ Ev Ganin (10).jpg",
+          "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (10).jpg",
+          "byteLength": 161484,
+          "archiveCrc32": "d0374b3c"
+        }
+      ],
+      "family": "grass-single",
+      "categories": [
+        "plants",
+        "grass",
+        "clovers"
+      ],
+      "subjects": [
+        "작고 큰 클로버 군락",
+        "낱개의 클로버 잎",
+        "길가 잔디",
+        "짙은 녹색 접지 그림자"
+      ],
+      "themes": [
+        "clovers",
+        "ground-cover",
+        "garden"
+      ],
+      "visualSummary": "큰 잎의 밝은 면과 짙은 잎 그늘로 부피를 만든 다양한 클로버 군락 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-af8d72e12ec83632",
+      "kind": "user-original-image",
+      "originalName": "Grass _ Game Asset _ Ev Ganin (2).jpg",
+      "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (2).jpg",
+      "imagePath": "originals/grass-af8d72e12ec83632.jpg",
+      "sha256": "af8d72e12ec8363292543f0a6f5170cd8fd601eba9cad8a7ac6fa50dc4497653",
+      "byteLength": 144019,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass _ Game Asset _ Ev Ganin (2).jpg",
+          "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (2).jpg",
+          "byteLength": 144019,
+          "archiveCrc32": "668557aa"
+        }
+      ],
+      "family": "grass-single",
+      "categories": [
+        "plants",
+        "grass",
+        "clovers",
+        "terrain"
+      ],
+      "subjects": [
+        "풀과 클로버가 덮인 바위",
+        "낮은 암석 덩어리",
+        "큰 클로버 지면 군락",
+        "작은 돌"
+      ],
+      "themes": [
+        "clovers",
+        "mossy-rocks",
+        "ground-cover"
+      ],
+      "visualSummary": "클로버가 둘러싼 바위의 크기 변형과 넓은 지면 묶음 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-e8b4ea1a0c876f86",
+      "kind": "user-original-image",
+      "originalName": "Grass _ Game Asset _ Ev Ganin (3).jpg",
+      "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (3).jpg",
+      "imagePath": "originals/grass-e8b4ea1a0c876f86.jpg",
+      "sha256": "e8b4ea1a0c876f869c1206f9f7e634f131a83e5a02ebc881e99e3b836b08c8c1",
+      "byteLength": 143295,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass _ Game Asset _ Ev Ganin (3).jpg",
+          "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (3).jpg",
+          "byteLength": 143295,
+          "archiveCrc32": "f240d724"
+        }
+      ],
+      "family": "grass-single",
+      "categories": [
+        "plants",
+        "grass",
+        "clovers",
+        "terrain"
+      ],
+      "subjects": [
+        "풍성한 잔디 덩어리",
+        "클로버",
+        "낮은 바위 테두리",
+        "길고 뾰족한 잎"
+      ],
+      "themes": [
+        "clovers",
+        "grassy-rocks",
+        "forest"
+      ],
+      "visualSummary": "밝은 잔디와 클로버·돌 테두리를 연결한 큰 지면 소품 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-7cb956ee154c891c",
+      "kind": "user-original-image",
+      "originalName": "Grass _ Game Asset _ Ev Ganin (4).jpg",
+      "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (4).jpg",
+      "imagePath": "originals/grass-7cb956ee154c891c.jpg",
+      "sha256": "7cb956ee154c891ca4653e0743d04d9f07fd47be042e5775c55389c872b6959a",
+      "byteLength": 202879,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass _ Game Asset _ Ev Ganin (4).jpg",
+          "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (4).jpg",
+          "byteLength": 202879,
+          "archiveCrc32": "a64baa93"
+        }
+      ],
+      "family": "grass-single",
+      "categories": [
+        "plants",
+        "grass",
+        "clovers"
+      ],
+      "subjects": [
+        "작은 클로버 군락",
+        "넓게 퍼진 클로버",
+        "낱개 잎",
+        "낮은 풀 덩어리"
+      ],
+      "themes": [
+        "clovers",
+        "ground-cover",
+        "small-props"
+      ],
+      "visualSummary": "작은 클로버 장식을 여러 밀도·크기로 조밀하게 배치한 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-30c42acb34a5ac06",
+      "kind": "user-original-image",
+      "originalName": "Grass _ Game Asset _ Ev Ganin (5).jpg",
+      "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (5).jpg",
+      "imagePath": "originals/grass-30c42acb34a5ac06.jpg",
+      "sha256": "30c42acb34a5ac06c64328afe944f724adf1c7f19d5b8f552ff565f0a268acc3",
+      "byteLength": 142464,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass _ Game Asset _ Ev Ganin (5).jpg",
+          "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (5).jpg",
+          "byteLength": 142464,
+          "archiveCrc32": "2610bf66"
+        }
+      ],
+      "family": "grass-single",
+      "categories": [
+        "plants",
+        "grass",
+        "clovers",
+        "terrain"
+      ],
+      "subjects": [
+        "클로버 군락",
+        "밝은 바위",
+        "잔디 덮인 암석",
+        "큰 지면 식생 묶음"
+      ],
+      "themes": [
+        "clovers",
+        "mossy-rocks",
+        "forest"
+      ],
+      "visualSummary": "밝은 암석과 풍성한 클로버·잔디를 함께 구성한 숲 바닥 소재 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-7c4db405807c5bee",
+      "kind": "user-original-image",
+      "originalName": "Grass _ Game Asset _ Ev Ganin (6).jpg",
+      "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (6).jpg",
+      "imagePath": "originals/grass-7c4db405807c5bee.jpg",
+      "sha256": "7c4db405807c5bee70e77f5c2b631464103016f2940cccc28e33a94a5c5d0e95",
+      "byteLength": 135987,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass _ Game Asset _ Ev Ganin (6).jpg",
+          "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (6).jpg",
+          "byteLength": 135987,
+          "archiveCrc32": "f0f022ff"
+        }
+      ],
+      "family": "grass-single",
+      "categories": [
+        "plants",
+        "grass",
+        "flowers",
+        "terrain"
+      ],
+      "subjects": [
+        "흰 데이지·노란 야생화",
+        "풀 덮인 작은 절벽",
+        "이끼 바위",
+        "넓은 잎 식물",
+        "낮은 꽃밭"
+      ],
+      "themes": [
+        "wildflowers",
+        "daisies",
+        "mossy-rocks",
+        "forest"
+      ],
+      "visualSummary": "흰 꽃·노란 꽃·풀과 바위의 높낮이가 현재 따뜻한 숲에 어울리는 풍성한 지면 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-764f5337e41a6f34",
+      "kind": "user-original-image",
+      "originalName": "Grass _ Game Asset _ Ev Ganin (7).jpg",
+      "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (7).jpg",
+      "imagePath": "originals/grass-764f5337e41a6f34.jpg",
+      "sha256": "764f5337e41a6f34c6e722e7ea3bfe1bdfaaeba3aeab035bf6d6752aa8745c7c",
+      "byteLength": 157100,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass _ Game Asset _ Ev Ganin (7).jpg",
+          "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (7).jpg",
+          "byteLength": 157100,
+          "archiveCrc32": "a270c6b0"
+        }
+      ],
+      "family": "grass-single",
+      "categories": [
+        "plants",
+        "grass",
+        "clovers",
+        "terrain"
+      ],
+      "subjects": [
+        "큰 클로버 덤불",
+        "낮은 풀밭",
+        "잎과 지면이 이어진 군락 두 가지"
+      ],
+      "themes": [
+        "clovers",
+        "large-ground-clusters",
+        "garden"
+      ],
+      "visualSummary": "큰 클로버 덤불과 잔디 중심의 지면 묶음 두 가지를 크게 보여 주는 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-d6fd0201e4548384",
+      "kind": "user-original-image",
+      "originalName": "Grass _ Game Asset _ Ev Ganin (8).jpg",
+      "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (8).jpg",
+      "imagePath": "originals/grass-d6fd0201e4548384.jpg",
+      "sha256": "d6fd0201e45483849ffd300fc9828b4b907f818778ae5abc2d2bba962fb310b2",
+      "byteLength": 162959,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass _ Game Asset _ Ev Ganin (8).jpg",
+          "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (8).jpg",
+          "byteLength": 162959,
+          "archiveCrc32": "be4aa758"
+        }
+      ],
+      "family": "grass-single",
+      "categories": [
+        "plants",
+        "grass",
+        "flowers",
+        "terrain"
+      ],
+      "subjects": [
+        "뾰족한 풀",
+        "흰 데이지",
+        "작은 노란 꽃",
+        "풀·이끼 바위",
+        "넓은 바닥 꽃밭"
+      ],
+      "themes": [
+        "wildflowers",
+        "daisies",
+        "rock-borders",
+        "forest"
+      ],
+      "visualSummary": "꽃밭·뾰족한 풀·밝은 바위를 연결해 숲 가장자리를 풍성하게 만드는 지면 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-6a0d44d14c517478",
+      "kind": "user-original-image",
+      "originalName": "Grass _ Game Asset _ Ev Ganin (9).jpg",
+      "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (9).jpg",
+      "imagePath": "originals/grass-6a0d44d14c517478.jpg",
+      "sha256": "6a0d44d14c5174785509137f7964666b870333e436cf8a42fcd0a2bf868fcafa",
+      "byteLength": 138306,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass _ Game Asset _ Ev Ganin (9).jpg",
+          "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin (9).jpg",
+          "byteLength": 138306,
+          "archiveCrc32": "3483cea8"
+        }
+      ],
+      "family": "grass-single",
+      "categories": [
+        "plants",
+        "grass",
+        "clovers"
+      ],
+      "subjects": [
+        "큰 클로버 덤불 두 가지",
+        "낮은 클로버 잎",
+        "풀·잎의 접지 그늘"
+      ],
+      "themes": [
+        "clovers",
+        "large-ground-clusters",
+        "garden"
+      ],
+      "visualSummary": "큰 클로버 잎을 중심으로 밝은 면과 짙은 접지 그늘을 구성한 군락 두 가지",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    },
+    {
+      "id": "grass-2cb94b18e258bda9",
+      "kind": "user-original-image",
+      "originalName": "Grass _ Game Asset _ Ev Ganin.jpg",
+      "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin.jpg",
+      "imagePath": "originals/grass-2cb94b18e258bda9.jpg",
+      "sha256": "2cb94b18e258bda98bad5eb5263fbf0139874bbcc40549d7db80a672e7ceadb6",
+      "byteLength": 147068,
+      "dimensions": {
+        "width": 736,
+        "height": 1273
+      },
+      "format": "JPEG",
+      "colorMode": "RGB",
+      "hasAlpha": false,
+      "transparency": "none-jpeg-opaque",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "aliases": [
+        {
+          "originalName": "Grass _ Game Asset _ Ev Ganin.jpg",
+          "archiveMember": "grass pack/Grass _ Game Asset _ Ev Ganin.jpg",
+          "byteLength": 147068,
+          "archiveCrc32": "a1ad8171"
+        }
+      ],
+      "family": "grass-single",
+      "categories": [
+        "plants",
+        "grass",
+        "clovers",
+        "props"
+      ],
+      "subjects": [
+        "둥근 잔디 덩어리",
+        "클로버 꽃대·잎",
+        "작은 돌",
+        "클로버 군락"
+      ],
+      "themes": [
+        "clovers",
+        "ground-patches",
+        "garden"
+      ],
+      "visualSummary": "둥근 잔디 중심에 크고 작은 클로버가 자란 여러 지면 장식 시트",
+      "style": "smooth-2d-painted-illustration",
+      "perspective": "elevated-front-three-quarter",
+      "contentType": "sprite-sheet",
+      "classificationStatus": "visually-reviewed",
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "frames": [],
+      "assetType": "reference-sheet",
+      "preparationNotes": "불투명 JPEG에 여러 식생·지면 소품이 함께 그려져 있다. 선택 영역·투명 원화·바닥 앵커·레이어를 준비해야 하며 파일 번호를 모션 순서로 쓰지 않는다."
+    }
+  ],
+  "visualReview": {
+    "visuallyInspectedAt": "2026-10-01",
+    "inspectionMethod": "Opened 18 original JPEGs individually: 6 of 83 grass-pack unique images, all 11 grass-family unique images, and the one clovers-family image. This is a representative review, not a visual review of all 95 unique images.",
+    "visualCounts": {
+      "individuallyReviewed": 18,
+      "notIndividuallyReviewed": 77,
+      "reviewedGrassPack": 6,
+      "reviewedGrass": 11,
+      "reviewedClovers": 1
+    },
+    "overview": "대표 시트에서 매끄러운 손그림 풀·클로버·데이지·민들레·관목과 이끼 바위·작은 절벽을 확인했다. 위에서 조금 내려다보는 시점, 짙은 녹색 윤곽과 두세 단계 밝은 황록색/차가운 녹색 명암이 현재 따뜻한 SD 숲과 잘 어울린다. 많은 파일은 한 장에 여러 크기와 조합을 넣은 소재 시트이며 이름 번호는 모션 순서가 아니다. 아직 열지 않은 77개에 대표 시트의 세부 스타일/소재 분류를 그대로 복사하지 않는다.",
+    "commonPreparationNotes": "All 95 originals are opaque RGB JPEGs by file inspection. In the 18 visually reviewed originals, gray/cream backgrounds, visible title/credit text and contact shadows are baked into the pixels. Preserve originals and printed provenance. Selected motifs need recorded irregular source rectangles, proper transparent derived artwork, ground anchors, drawing layers, and any genuine ground collision footprint before runtime use. Grass decoration is generally passable; cliffs and large rocks require separate collision decisions. Do not treat filename numbering or byte uniqueness as an animation frame list or a count of distinct isolated designs.",
+    "representativeFamilyOverviews": [
+      {
+        "family": "grass-pack",
+        "visuallyReviewedUniqueImages": 6,
+        "unreviewedUniqueImages": 77,
+        "observedThemes": [
+          "wild-grass",
+          "broad-leaf-plants",
+          "shrubs",
+          "mossy-rocks",
+          "daisies",
+          "dandelions"
+        ],
+        "reviewScope": "representatives-only"
+      },
+      {
+        "family": "grass-single",
+        "visuallyReviewedUniqueImages": 11,
+        "unreviewedUniqueImages": 0,
+        "observedThemes": [
+          "clovers",
+          "mossy-rocks",
+          "grassy-cliffs",
+          "daisies",
+          "dandelions",
+          "ground-patches"
+        ],
+        "reviewScope": "all-eleven-family-images",
+        "note": "Filename family Grass includes clover, wildflower and rocky ground sheets; name alone is not the motif classification."
+      },
+      {
+        "family": "grass-clovers",
+        "visuallyReviewedUniqueImages": 1,
+        "unreviewedUniqueImages": 0,
+        "observedThemes": [
+          "clovers",
+          "grass-patches",
+          "ground-cover"
+        ],
+        "reviewScope": "single-image-family"
+      }
+    ],
+    "recommendedRepresentativeIds": [
+      "grass-7c4db405807c5bee",
+      "grass-d6fd0201e4548384",
+      "grass-af205735896fd213",
+      "grass-af8d72e12ec83632",
+      "grass-01f0410a594bffdb",
+      "grass-d3d628ec77dbd7e5"
+    ]
+  }
+};

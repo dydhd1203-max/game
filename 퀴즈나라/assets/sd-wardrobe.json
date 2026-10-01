@@ -1,0 +1,557 @@
+{
+  "version": 1,
+  "style": "smooth-painted-sd-chibi",
+  "created": "2026-10-01",
+  "source": "Generated original transparent PNG artwork; reference used only for visual style. Original generated pixels are preserved.",
+  "lighting": "upper-left",
+  "mainFabricHue": 220,
+  "fabricHueTolerance": 45,
+  "sets": {
+    "top": {
+      "url": "assets/sd-tops.png",
+      "width": 1254,
+      "height": 1254,
+      "columns": 4,
+      "rows": 4,
+      "names": [
+        "tee",
+        "hood",
+        "shirt",
+        "dress",
+        "vest",
+        "cardi",
+        "sailor",
+        "jacket",
+        "knit",
+        "tank",
+        "hanbok",
+        "robe",
+        "overall",
+        "space"
+      ],
+      "sha256": "5af7a340ce1a0b6f4faaf444ed1254da15b0f638a31169c635f5fa925617e40e",
+      "cells": {
+        "tee": [
+          0,
+          0,
+          313,
+          313
+        ],
+        "hood": [
+          313,
+          0,
+          314,
+          313
+        ],
+        "shirt": [
+          627,
+          0,
+          313,
+          313
+        ],
+        "dress": [
+          940,
+          0,
+          314,
+          313
+        ],
+        "vest": [
+          0,
+          313,
+          313,
+          314
+        ],
+        "cardi": [
+          313,
+          313,
+          314,
+          314
+        ],
+        "sailor": [
+          627,
+          313,
+          313,
+          314
+        ],
+        "jacket": [
+          940,
+          313,
+          314,
+          314
+        ],
+        "knit": [
+          0,
+          627,
+          313,
+          313
+        ],
+        "tank": [
+          313,
+          627,
+          314,
+          313
+        ],
+        "hanbok": [
+          627,
+          627,
+          313,
+          313
+        ],
+        "robe": [
+          940,
+          627,
+          314,
+          313
+        ],
+        "overall": [
+          0,
+          940,
+          313,
+          314
+        ],
+        "space": [
+          313,
+          940,
+          314,
+          314
+        ]
+      },
+      "opaqueBounds": {
+        "tee": [
+          42,
+          105,
+          244,
+          186
+        ],
+        "hood": [
+          351,
+          71,
+          236,
+          232
+        ],
+        "shirt": [
+          665,
+          112,
+          231,
+          181
+        ],
+        "dress": [
+          968,
+          98,
+          254,
+          215
+        ],
+        "vest": [
+          45,
+          395,
+          244,
+          209
+        ],
+        "cardi": [
+          334,
+          409,
+          277,
+          188
+        ],
+        "sailor": [
+          662,
+          401,
+          251,
+          195
+        ],
+        "jacket": [
+          963,
+          387,
+          261,
+          215
+        ],
+        "knit": [
+          28,
+          697,
+          275,
+          191
+        ],
+        "tank": [
+          351,
+          682,
+          238,
+          221
+        ],
+        "hanbok": [
+          650,
+          673,
+          266,
+          229
+        ],
+        "robe": [
+          954,
+          663,
+          273,
+          243
+        ],
+        "overall": [
+          53,
+          983,
+          221,
+          214
+        ],
+        "space": [
+          340,
+          978,
+          275,
+          212
+        ]
+      },
+      "opaquePixels": {
+        "tee": 32078,
+        "hood": 42181,
+        "shirt": 30182,
+        "dress": 41812,
+        "vest": 33813,
+        "cardi": 38534,
+        "sailor": 34996,
+        "jacket": 37719,
+        "knit": 38478,
+        "tank": 32967,
+        "hanbok": 40082,
+        "robe": 47087,
+        "overall": 36992,
+        "space": 41608
+      },
+      "transparentFraction": 0.66176
+    },
+    "bottom": {
+      "url": "assets/sd-bottoms.png",
+      "width": 1254,
+      "height": 1254,
+      "columns": 4,
+      "rows": 4,
+      "names": [
+        "shorts",
+        "jeans",
+        "skirt",
+        "pleat",
+        "track",
+        "legging",
+        "hanbok",
+        "tutu",
+        "cargo",
+        "jean_skirt",
+        "star_skirt"
+      ],
+      "sha256": "18b1934654aa31d4f8a87beaf2e05d57514285af0f30ad940b7818d634beca6b",
+      "cells": {
+        "shorts": [
+          0,
+          0,
+          313,
+          313
+        ],
+        "jeans": [
+          313,
+          0,
+          314,
+          313
+        ],
+        "skirt": [
+          627,
+          0,
+          313,
+          313
+        ],
+        "pleat": [
+          940,
+          0,
+          314,
+          313
+        ],
+        "track": [
+          0,
+          313,
+          313,
+          314
+        ],
+        "legging": [
+          313,
+          313,
+          314,
+          314
+        ],
+        "hanbok": [
+          627,
+          313,
+          313,
+          314
+        ],
+        "tutu": [
+          940,
+          313,
+          314,
+          314
+        ],
+        "cargo": [
+          0,
+          627,
+          313,
+          313
+        ],
+        "jean_skirt": [
+          313,
+          627,
+          314,
+          313
+        ],
+        "star_skirt": [
+          627,
+          627,
+          313,
+          313
+        ]
+      },
+      "opaqueBounds": {
+        "shorts": [
+          73,
+          147,
+          189,
+          124
+        ],
+        "jeans": [
+          410,
+          129,
+          121,
+          170
+        ],
+        "skirt": [
+          672,
+          145,
+          220,
+          145
+        ],
+        "pleat": [
+          991,
+          148,
+          203,
+          134
+        ],
+        "track": [
+          72,
+          438,
+          191,
+          157
+        ],
+        "legging": [
+          410,
+          435,
+          123,
+          169
+        ],
+        "hanbok": [
+          664,
+          437,
+          238,
+          174
+        ],
+        "tutu": [
+          979,
+          452,
+          227,
+          151
+        ],
+        "cargo": [
+          72,
+          744,
+          199,
+          153
+        ],
+        "jean_skirt": [
+          370,
+          752,
+          206,
+          141
+        ],
+        "star_skirt": [
+          668,
+          744,
+          237,
+          159
+        ]
+      },
+      "opaquePixels": {
+        "shorts": 18023,
+        "jeans": 18071,
+        "skirt": 23500,
+        "pleat": 18635,
+        "track": 23936,
+        "legging": 17074,
+        "hanbok": 28231,
+        "tutu": 25916,
+        "cargo": 24995,
+        "jean_skirt": 21668,
+        "star_skirt": 27040
+      },
+      "transparentFraction": 0.84155
+    },
+    "shoes": {
+      "url": "assets/sd-shoes.png",
+      "width": 1254,
+      "height": 1254,
+      "columns": 3,
+      "rows": 3,
+      "names": [
+        "sneaker",
+        "loafer",
+        "boots",
+        "sandal",
+        "hitop",
+        "ballet",
+        "rain",
+        "slipper",
+        "wing_shoes"
+      ],
+      "sha256": "130027125f189d7bc2e9673bc45c5ad9a42144d84395c16778df554bd8cce402",
+      "cells": {
+        "sneaker": [
+          0,
+          0,
+          418,
+          418
+        ],
+        "loafer": [
+          418,
+          0,
+          418,
+          418
+        ],
+        "boots": [
+          836,
+          0,
+          418,
+          418
+        ],
+        "sandal": [
+          0,
+          418,
+          418,
+          418
+        ],
+        "hitop": [
+          418,
+          418,
+          418,
+          418
+        ],
+        "ballet": [
+          836,
+          418,
+          418,
+          418
+        ],
+        "rain": [
+          0,
+          836,
+          418,
+          418
+        ],
+        "slipper": [
+          418,
+          836,
+          418,
+          418
+        ],
+        "wing_shoes": [
+          836,
+          836,
+          418,
+          418
+        ]
+      },
+      "opaqueBounds": {
+        "sneaker": [
+          77,
+          220,
+          277,
+          191
+        ],
+        "loafer": [
+          494,
+          227,
+          268,
+          182
+        ],
+        "boots": [
+          904,
+          220,
+          268,
+          184
+        ],
+        "sandal": [
+          80,
+          581,
+          274,
+          206
+        ],
+        "hitop": [
+          490,
+          575,
+          276,
+          216
+        ],
+        "ballet": [
+          901,
+          577,
+          272,
+          211
+        ],
+        "rain": [
+          78,
+          920,
+          265,
+          223
+        ],
+        "slipper": [
+          481,
+          947,
+          297,
+          203
+        ],
+        "wing_shoes": [
+          899,
+          952,
+          286,
+          194
+        ]
+      },
+      "opaquePixels": {
+        "sneaker": 38123,
+        "loafer": 36627,
+        "boots": 37864,
+        "sandal": 43003,
+        "hitop": 45921,
+        "ballet": 41318,
+        "rain": 45184,
+        "slipper": 44517,
+        "wing_shoes": 42234
+      },
+      "transparentFraction": 0.76
+    }
+  },
+  "runtimeOverrides": {
+    "top": {
+      "hood": {
+        "url": "assets/sd-hood.png",
+        "width": 1536,
+        "height": 1024,
+        "columns": 1,
+        "rows": 1,
+        "sha256": "1b831d9cf572d1e5668697f68b71214e0d84e30464914ab5bbb574e60c181b81",
+        "opaqueBoundsAlpha8": [
+          163,
+          114,
+          1210,
+          803
+        ],
+        "reason": "Lowered hood with ordinary neckline; no empty raised hood below the head."
+      }
+    }
+  }
+}
