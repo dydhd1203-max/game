@@ -30,12 +30,12 @@ let uid='kid00',racing=true;const raceOn=()=>racing,raceHold=()=>false;
 const raceArtBuild=()=>{},raceArtRebuild=()=>{},raceArtReset=()=>{};
 const raceBounceSound=()=>{},fovPunch=()=>{};
 `;
-const declarations=['CH82','CH82_Z1','CH82T','CH82Q','chuteSq82','chuteRise82','chuteZone82','RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE_SEC','ROCK','RACE_LAUNCH_RATE','RACE74','GRAV','RACE_TOY77'];
-const functions=['mulberry','furLight','race74Reset','raceGravityScale','raceMotion','raceBuild','raceOff','raceZOff','racePose','raceJumpPose','raceLandingPose','raceAlive','raceContains','raceSurface','raceTopAt','raceUnder','raceSlotXZ','raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','racePunchHit','raceDonutContact79','raceDonutHit79','raceToyForm77','raceToyHit77','raceBarHit','raceBarSeparate79','raceSlideHit78','raceHazardTick',
-  'chute82','chuteQ82','chuteProf82','chuteProfSlope82','chuteContains82','chuteSurf82','chuteGrad82','chuteMotion82','chuteFlight82','chuteLaunch82','chuteAfter82','chuteBump82'];
+const declarations=['CH82','CH82_Z1','CANDY87','CH82T','CH82Q','raceDonutSide87','chuteSq82','chuteRise82','chuteZone82','RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE_SEC','ROCK','RACE_LAUNCH_RATE','RACE74','GRAV','RACE_TOY77'];
+const functions=['mulberry','furLight','race74Reset','raceGravityScale','raceMotion','raceBuild','raceOff','raceZOff','racePose','raceDonutLayout87','raceJumpPose','raceLandingPose','raceAlive','raceContains','raceSurface','raceTopAt','raceUnder','raceSlotXZ','raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','racePunchHit','raceDonutContact79','raceDonutHit79','raceToyForm77','raceToyHit77','raceBarHit','raceBarSeparate79','raceSlideHit78','raceHazardTick',
+  'chute82','chuteQ82','chuteProf82','chuteProfSlope82','chuteContains82','chuteSurf82','chuteGrad82','chuteMotion82','chuteFlight82','chuteLaunch82','chuteAfter82','chuteCandyProf87','chuteCandyFrame87','chuteCandySpan87','chuteCandyFar87','chuteCandyAt87','chuteCandyHit87','chuteCandyPush87','chuteBump87','chuteCandyCam87'];
 const ctx=vm.createContext({console});
 new vm.Script([fixtures,...declarations.map(decl),...functions.map(fn),`
-globalThis.A={CH82,CH82_Z1,chuteQ82,chuteProf82,chuteSurf82,RACE,RACE_P,RACE_S,RACE_SEC,RACE_Z_FIN,RACE_LAUNCH_RATE,RACE74,GRAV,JUMP,PL,G,MINE,raceBuild,raceOff,racePose,raceJumpPose,raceLandingPose,raceContains,raceSurface,raceTopAt,raceUnder,raceHazards,racePunchHit,raceToyForm77,raceHazardTick,raceGravityScale,raceMotion,
+globalThis.A={CH82,CH82_Z1,chuteQ82,chuteProf82,chuteSurf82,RACE,RACE_P,RACE_S,RACE_SEC,RACE_Z_FIN,RACE_LAUNCH_RATE,RACE74,GRAV,JUMP,PL,G,MINE,raceBuild,raceOff,racePose,raceDonutLayout87,raceJumpPose,raceLandingPose,raceContains,raceSurface,raceTopAt,raceUnder,raceHazards,racePunchHit,chuteCandyHit87,chuteCandyAt87,raceToyForm77,raceHazardTick,raceGravityScale,raceMotion,
  spawn(id){uid=id;return raceSlotXZ();},cp(id,p){uid=id;return raceCheckpointXZ(p);},setRacing(v){racing=v;}};`].join('\n')).runInContext(ctx,{timeout:10000});
 const A=ctx.A,seeds=Array.from({length:90},(_,i)=>i*7919+13);
 let deterministic=true,finite=true,centerSupport=true,moving=false,checkpoints=true;
@@ -97,7 +97,7 @@ const launchPads=A.RACE_P.filter(p=>p.bounce),manualPads=launchPads.filter(p=>p.
 check('Four manual donut pads and the final launch expose finite bounce impulses',manualPads.length===4&&launchPads.length===5&&
   launchPads.every(p=>Number.isFinite(p.bounce.v)&&p.bounce.v>0&&Number.isFinite(p.bounce.forward)&&p.bounce.forward>0),
   {pads:launchPads.length,manualPads:manualPads.length});
-check('Manual donuts retain separated diagonal landing circles without an exclusive jump-zone radius',manualPads.every((p,i)=>p.w===24&&p.d===24&&p.bounce.zone===undefined&&p.z===244+i*56&&
+check('Manual donuts retain separated diagonal landing circles without an exclusive jump-zone radius',manualPads.every((p,i)=>p.w===28&&p.d===28&&(p.side===1||p.side===-1)&&p.bounce.zone===undefined&&p.z===244+i*56&&
   A.raceJumpPose(p).z===p.z+5.5&&Math.abs(A.raceJumpPose(p).x-p.x)===4&&
   (i===0||!A.raceContains(manualPads[i-1],0,(p.z+manualPads[i-1].z)/2,0,0))));
 const movingPads=A.RACE_P.filter(p=>p.sec===4&&p.mv),movingGaps=[];
@@ -109,9 +109,11 @@ check('Seven small moving circles leave actual jump gaps while translating in bo
   movingGaps.every(g=>g>1.5&&g<7),{minGap:Math.min(...movingGaps),maxGap:Math.max(...movingGaps)});
 const bridgeRates=movingPads.map((p,i)=>{const t=(Math.PI*4-p.mv.ph)/p.mv.spd,e=.00001,a=A.racePose(p,t-e),b=A.racePose(p,t+e);
   return {translationFactor:p.mv.spd/(.65+i*.035),rotationFactor:Math.abs(p.mv.rot)/.30,
-    measuredPeakXSpeed:(b.x-a.x)/(2*e),expectedPeakXSpeed:1.1*(.65+i*.035)*5};});
-check('Cloud circles move five times and rotate twice as fast as shipped 76, without widening their motion envelope',
-  movingPads.every(p=>p.mv.amp===1.1&&p.mv.zamp===.65)&&bridgeRates.every(q=>Math.abs(q.translationFactor-5)<1e-10&&Math.abs(q.rotationFactor-2)<1e-10&&Math.abs(q.measuredPeakXSpeed-q.expectedPeakXSpeed)<1e-7),bridgeRates);
+    measuredPeakXSpeed:(b.x-a.x)/(2*e),expectedPeakXSpeed:2.2*(.65+i*.035)*10};});
+// 87차 — 선생님: "2배로 빠르게, 2배로 더 길게" → 옆 폭 1.1 → 2.2 · 왕복 ×10(76차 기준, 86차 ×5 의 두 배) · 옆으로 가장 빠를 때 4배.
+// 앞뒤 폭은 .45 로 줄여 원판 사이 틈이 7 을 넘지 않는다(위 검사). 원판 반지름 4 > 옆 폭 → 가운데 1.8 은 늘 원판 위
+check('87차: cloud circles swing twice as wide and twice as often as 86차 (side speed ×4), still overlapping their own centre line',
+  movingPads.every(p=>p.mv.amp===2.2&&p.mv.zamp===.45&&p.w/2-p.mv.amp>1.79)&&bridgeRates.every(q=>Math.abs(q.translationFactor-10)<1e-10&&Math.abs(q.rotationFactor-2)<1e-10&&Math.abs(q.measuredPeakXSpeed-q.expectedPeakXSpeed)<1e-7),bridgeRates);
 const ramp=A.RACE_P.find(p=>p.shape==='ramp');
 check('The uphill section has a real thirty-meter rise and four bounded booster strips',!!ramp&&ramp.yEnd-ramp.y===30&&ramp.boosts?.length===4&&
   ramp.boosts.every(b=>A.raceContains(ramp,b.x,b.z,0,0)&&b.w>0&&b.d>0));
@@ -157,6 +159,28 @@ for(let t=0;t<12;t+=.25){const all=A.raceHazards(t);
   }}
 check('Eight interior donuts block center landings while alternating landing flanks and optional clear launch pockets stay clear through every sway phase',landingHazards&&blockedCenters&&clearLandings&&clearJumpZones,{landingHazards,blockedCenters,clearLandings,clearJumpZones});
 check('Every landing flank connects to another optional take-off pocket through a supported obstacle-free weaving route',walkableWeave);
+// 87차 — 도넛 자리는 경주마다(씨앗) 다르다. 씨앗 40개에서: 예전 배치로 물러서지 않고, 배치가 씨앗마다 다르며,
+// 같은 씨앗은 같은 배치(손님·호스트 같은 화면), 위 착지·뛰는 자리·U 길·가운데 막힘·판 안 조건을 흔들림 양 끝까지 지킨다.
+{const layouts=new Set();let seedsOk=true,deterministic=true,noFallback=true;const bad=[];
+ for(let k=0;k<40;k++){const seed=1000+k*7919;A.raceBuild(seed);const pads=A.RACE_P.filter(p=>p.bounce&&p.bounce.manual);
+  const sig=A.raceHazards(0).filter(h=>h.sec===2).map(h=>h.x.toFixed(2)+','+h.z.toFixed(2)).join(';');layouts.add(sig);
+  A.raceBuild(seed);deterministic&&=A.raceHazards(0).filter(h=>h.sec===2).map(h=>h.x.toFixed(2)+','+h.z.toFixed(2)).join(';')===sig;
+  for(const pad of pads){const L=A.raceDonutLayout87(pad);noFallback&&=!(L[4][1]===0&&L[4][2]===0&&L[0][1]===-9);}
+  for(const tt of [0,.7,1.4,2.1,2.8]){const all=A.raceHazards(tt);
+   for(const pad of pads){const inner=all.filter(h=>h.id.startsWith('donutInner'+pad.id+':')),bags=all.filter(h=>h.sec===2&&Math.hypot(h.x-pad.x,h.z-pad.z)<pad.w);
+    let ok=inner.length===8&&inner.filter(h=>h.sway).length===2&&bags.length===12&&bags.every(h=>A.raceContains(pad,h.x,h.z,-h.r));
+    Object.assign(A.PL,{x:pad.x,z:pad.z,y:100+pad.y});ok&&=bags.some(h=>A.racePunchHit(h));
+    const jp=A.raceJumpPose(pad,tt),lp=A.raceLandingPose(pad,tt);Object.assign(A.PL,{x:lp.x,z:lp.z,y:100+pad.y});ok&&=!bags.some(h=>A.racePunchHit(h));
+    // 길목: 섬 가운데만 보고 내리면(가운데 x, 착지 줄 z) 부딪히고, 착지 자리에서 도약 자리로 곧장 걸어가는 줄도 막혀 있다(U 길로 돌아가야 한다)
+    Object.assign(A.PL,{x:pad.x,z:lp.z,y:100+pad.y});ok&&=bags.some(h=>A.racePunchHit(h));
+    {let blockedLine=false;for(let u=0;u<=1;u+=.02){Object.assign(A.PL,{x:lp.x*(1-u)+jp.x*u,z:lp.z,y:100+pad.y});blockedLine||=bags.some(h=>A.racePunchHit(h));}ok&&=blockedLine;}
+    for(let i=0;i<36;i++){const a=i*Math.PI/18;Object.assign(A.PL,{x:jp.x+Math.cos(a)*2.5,z:jp.z+Math.sin(a)*2.5,y:100+pad.y});ok&&=A.raceContains(pad,A.PL.x,A.PL.z,-.3,tt)&&!bags.some(h=>A.racePunchHit(h));}
+    const way=[{x:lp.x,z:pad.z-Math.sqrt((pad.w/2)**2-(lp.x-pad.x)**2)+.8},lp,{x:lp.x,z:pad.z+8.5},{x:jp.x,z:pad.z+8.5},jp];   // 앞 가장자리에서 걸어 들어오는 길까지
+    for(let j=1;j<way.length;j++)for(let u=0;u<=1;u+=.05){Object.assign(A.PL,{x:way[j-1].x*(1-u)+way[j].x*u,z:way[j-1].z*(1-u)+way[j].z*u,y:100+pad.y});ok&&=A.raceContains(pad,A.PL.x,A.PL.z,-.3,tt)&&!bags.some(h=>A.racePunchHit(h));}
+    if(!ok){seedsOk=false;bad.push({seed,pad:pad.id,t:tt});}}}}
+ A.raceBuild(78021);A.RACE.t=3;
+ check('87차: donut positions change with every race seed, stay identical for the same seed, and always keep the landing spot, take-off ring, U route, centre block and the chicane on the landing line',
+  seedsOk&&deterministic&&noFallback&&layouts.size===40,{layouts:layouts.size,deterministic,noFallback,bad:bad.slice(0,5)});}
 let gatesSafe=true,gatesMove=false,gatesDet=true,minCrowdWidth=Infinity,maxCrowdWidth=0,maxSway=0;
 const gateSamples=[];
 for(const seed of seeds.slice(0,8)){
@@ -198,14 +222,17 @@ const openStraightLines=(sec,lo,hi,from,to)=>{const open=[],guards=obstacles.fil
       if(guards.some(h=>A.racePunchHit(h))){blocked=true;break;}}
     if(supported&&!blocked)open.push(+x.toFixed(3));}return open;};
 const edgeAudit={start:openStraightLines(0,-22.3,22.3,0,76),left:openStraightLines(1,-22.3,-18.7,97,202),right:openStraightLines(1,18.7,22.3,97,202),chute:[]};
-// 82차 — each candy row across the U: sample the actual ground-level player against the actual capsules. Every row keeps
+// 82차 — each candy row across the U: sample the actual ground-level player against the actual candies. Every row keeps
 // one lane at least 4 wide, and a candy standing on a wall closes that wall up to the body clamp (no lip sneaking).
+// 87차 — the candies are wrapped candies (candy87) lying on the chute floor, judged by their own outline (chuteCandyAt87: body + wing plates).
+// A lane is open only if a ground-level rider can follow it straight along the track through the whole row (row z ± 7 — yawed wings included).
 {const lim=C.hw-A.PL.R-.03;
- for(const [zr,ds] of C.bumpRows){const z=C.z0+zr,q=A.chuteQ82(z),cx=q.cx,cs=q.cs,open=[];
-  for(let d=-lim;d<=lim+1e-9;d+=.02){const x=cx+d/cs;Object.assign(A.PL,{x,z,y:A.raceSurface(slide,x,z)});
-   if(!obstacles.some(h=>h.chute82&&Math.abs(h.z-z)<.01&&A.racePunchHit(h)))open.push(d);}
+ for(let row=0;row<C.bumpRows.length;row++){const [zr,ds]=C.bumpRows[row],z=C.z0+zr,open=[],mine=obstacles.filter(h=>h.candy87&&h.id.startsWith('chute'+row+':'));
+  for(let d=-lim;d<=lim+1e-9;d+=.02){let blocked=false;
+   for(let zz=z-7;zz<=z+7&&!blocked;zz+=.25){const q=A.chuteQ82(zz),x=q.cx+d/q.cs,y=A.raceSurface(slide,x,zz)-100;blocked=mine.some(h=>A.chuteCandyAt87(h,x,y,zz));}
+   if(!blocked)open.push(d);}
   const lanes=[];for(const d of open){const l=lanes.at(-1);if(l&&d-l[1]<.021)l[1]=d;else lanes.push([d,d]);}
-  const wide=lanes.filter(([a,b])=>b-a>=4),wallsClosed=ds.filter(d=>Math.abs(d)>6).every(d=>!lanes.some(([a,b])=>Math.sign(d)*(Math.sign(d)>0?b:a)>=lim-.03));
+  const wide=lanes.filter(([a,b])=>b-a>=4),wallsClosed=ds.filter(d=>Math.abs(d)>=8).every(d=>!lanes.some(([a,b])=>Math.sign(d)*(Math.sign(d)>0?b:a)>=lim-.03));
   edgeAudit.chute.push({z,lanes:lanes.map(([a,b])=>[+a.toFixed(2),+b.toFixed(2)]),wide:wide.length,wallsClosed});}}
 check('Actual foot support and capsule collision block constant-X start routes and both outer-edge walking shortcuts; every chute candy row leaves a 4-wide lane and closes its wall',
   !edgeAudit.start.length&&!edgeAudit.left.length&&!edgeAudit.right.length&&edgeAudit.chute.length===C.bumpRows.length&&edgeAudit.chute.every(q=>q.wide>=1&&q.wallsClosed),edgeAudit);
@@ -275,7 +302,7 @@ const geometryFor=name=>{const m=new RegExp('A\\.'+name+'=dyn\\(raceArtUV\\((?:r
 const shaft=geometryFor('bar'),cap=geometryFor('cap'),seamCases=[];
 const bank=geometry=>({geometry,matrices:[],count:0,count_max:512,setMatrixAt(i,m){this.matrices[i]=m.clone();}});
 const artFixture=()=>{const art={builtSeed:1,stamp:0,static:[],dynamic:[],toys:[],stats:{}};
-  for(const n of ['pad','padTrim','bar','ball','cap','metal','jump','rock'])art[n]=bank(n==='bar'?shaft:cap);art.donut=[bank(cap),bank(cap),bank(cap)];art.bag82=[bank(cap),bank(cap),bank(cap)];return art;};   // 82차b — 봉지 사탕 맛 셋
+  for(const n of ['pad','padTrim','bar','ball','cap','metal','jump','rock'])art[n]=bank(n==='bar'?shaft:cap);art.donut=[bank(cap),bank(cap),bank(cap)];art.candy87=[0,1,2,3,4,5].map(()=>bank(cap));return art;};   // 87차 — 포장 사탕 색 여섯
 const drawContext=vm.createContext({THREE,art:artFixture(),hazards:[]});
 vm.runInContext(`const MINI_Y=100,PL={z:0},RACE={seed:1,t:0},RACE_P=[{}],RACE74={pulse:new Map()},RACE_RAINBOW76=[0xffffff];
  const RACE_ART_PALETTE={cream:0xffffff,yellow:0xffff00,silver:0xaaaaaa,lavender:0xccccff};let RACE_ART74=art;

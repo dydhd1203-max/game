@@ -5,13 +5,13 @@ export function race82ChutePhysics(){
  G.players.clear();W.__pcMap.clear();G.phase='mini';G.mini.st='run';G.paused=false;
  const clear=()=>{for(const k of Object.keys(K))delete K[k];};
  const Q=z=>{const q=W.__chuteQ82(z);return {cx:q.cx,sn:q.sn,cs:q.cs,y:q.y};};
- const rows=C.bumpRows.map(([zr,ds,Rr])=>({z:C.z0+zr,ds,R:Rr||C.bumpR}));
- // Open lanes of a candy row (body radius and a small margin included), in chute-lateral d.
- const gaps=row=>{const lim=C.hw-P.R-.03,bl=row.ds.map(d=>[d-row.R-P.R-.35,d+row.R+P.R+.35]).sort((a,b)=>a[0]-b[0]),o=[];let cur=-lim;
-   for(const [a,b] of bl){if(a>cur)o.push([cur,a]);cur=Math.max(cur,b);}if(cur<lim)o.push([cur,lim]);return o.filter(([a,b])=>b-a>.6);};
+ // 87차 — open lanes of a candy row come from the game itself (h.lanes: body + wings + rider radius), with a small margin, in chute-lateral d.
+ // A row stays the target until 8 past its middle (yawed wings reach ~4.3 along the track).
+ let rows=[];const candyRows=()=>C.bumpRows.map(([zr],ri)=>{const hs=W.__raceHazards(W.__RACE().t).filter(h=>h.candy87&&h.id.startsWith('chute'+ri+':'));return {z:C.z0+zr,R:8,lanes:hs[0].lanes};});
+ const gaps=row=>row.lanes.map(([a,b])=>[a+.35,b-.35]).filter(([a,b])=>b-a>.6);
  const yardZ=C.z0+(C.humps.at(-1)[0]+C.humps.at(-1)[1]+C.knots.find(k=>k[0]>C.humps.at(-1)[0])[0])/2;
  for(const fps of [30,60,120]){
-  W.__raceBuild(13);const chute=W.__RACE_P().find(p=>p.chute);
+  W.__raceBuild(13);const chute=W.__RACE_P().find(p=>p.chute);rows=candyRows();
   const reset=(x,z,V,y)=>{clear();A.reset();W.__kbReset();W.__setStamina(1);G.t=180;W.__MINE.cp=6;W.__MINE.fin=-1;
    Object.assign(W.__RACE(),{t:1,on:true,fallT:0,hitCd:0,slipT:0,cp:{x:0,z:680,y:30}});const q=Q(z);
    Object.assign(P,{x,z,y:y??A.surface(chute,x,z),vx:q.sn*V,vz:q.cs*V,vy:0,_px:x,_pz:z,ground:true,jumps:0,down:false,glide:false,yaw:Math.PI,pitch:-.22,flipT:99});};
@@ -24,9 +24,11 @@ export function race82ChutePhysics(){
     step();ground&&=P.ground;hit ||= W.__RACE().hitCd>0;}
    controls.push({mode,...lat(),ground,hit});
   }
-  // A no-steer run from the landing yard lined up behind the first candy meets it and bounces as a short chute hop.
-  {const d0=C.bumpRows[0][1][0],q=Q(yardZ);reset(q.cx+d0/q.cs,yardZ,46);}let centerHit=null;
+  // 87차 — a no-steer run lined up 30 behind a middle candy meets it, pops as a short chute hop and is bounced sideways past it (never through).
+  const hc=W.__raceHazards(W.__RACE().t).find(h=>h.candy87&&Math.abs(h.d)<1);
+  {const zs=hc.z-30,q=Q(zs);reset(q.cx+hc.d/q.cs,zs,46);}let centerHit=null,passed=false;
   for(let f=0;f<fps*2&&!centerHit;f++){clear();step();if(W.__RACE().hitCd>0)centerHit={z:P.z,kind:A.state.flightKind,...lat()};}
+  for(let f=0;f<fps*2&&!passed;f++){clear();step();passed=P.z>hc.z+6;}if(centerHit)centerHit.passed=passed&&Math.abs(lat().d-hc.d)>2;
   // Whole ride from the flag deck at native rate: W held, steering toward the lane a child can see ahead.
   const ride=pol=>{reset(0,682,0,Y+30.075);let t=0,loops=0,thrown=false,hits=0,lastHit=0,falls=0,air=0,airStart=0,kind='',maxWallS1=0,maxView=0,tEnter=null,tLip=null,prevZ=P.z,landZ=null;const hops=[];
    for(let f=0;f<fps*40;f++){clear();if(pol==='skill'||t<.8)K.w=true;
@@ -56,7 +58,7 @@ export function validateRace82Chute(result){
   check(q.controls.every(x=>x.ground&&!x.hit),'Native-rate chute controls stay grounded on the landing yard');
   check(get('accelerate').V>get('coast').V+1.5&&get('brake').V<get('coast').V-2.5,'W speeds up and S slows the roller coaster');
   check(get('left').vd>2&&get('right').vd<-2,'A/D give real sideways authority inside the U');
-  check(q.centerHit&&q.centerHit.kind==='chute','A no-steer run lined up behind the first candy meets it and pops as a short chute hop');
+  check(q.centerHit&&q.centerHit.kind==='chute'&&q.centerHit.passed,'A no-steer run lined up behind a middle candy meets it, pops as a short chute hop and goes on beside it');
   const s=q.skill,c=q.coast,crest=h=>h.kind==='chute'&&h.dur>.25&&h.dur<1;
   check(s.cp===7&&s.hits===0&&s.falls===0&&s.maxView<1e-8,'A real-input native-rate ride threads every candy row, stays inside and reaches the next checkpoint without touching the camera');
   check(s.hops.filter(crest).length>=3&&s.maxWallS1>1.5,'The ride pops over the three humps and climbs the first S-curve wall');
