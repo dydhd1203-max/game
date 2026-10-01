@@ -1,0 +1,23 @@
+const {chromium}=require('playwright');
+const fs=require('node:fs'),path=require('node:path');
+(async()=>{
+  const out=path.resolve(__dirname,'../검증');fs.mkdirSync(out,{recursive:true});
+  const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});
+  const context=await browser.newContext({viewport:{width:1440,height:900}});
+  await context.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({body:'/* preview uses isolated demo adapter */',contentType:'text/javascript'}));
+  const page=await context.newPage(),errors=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  const base='http://127.0.0.1:4173/';
+  await page.goto(base+'?demo=1&session=smoke-'+Date.now());
+  await page.waitForSelector('#meStage');
+  await page.waitForFunction(()=>window.QPAvatar?.atlas.ready===true&&window.QPClothes?.atlas.ready===true);
+  await page.screenshot({path:path.join(out,'로비.png')});
+  await page.locator('#mShop').click();await page.waitForSelector('#shTabs');
+  await page.screenshot({path:path.join(out,'꾸미기.png')});
+  await page.locator('#shTabs [data-c="expression"]').click();
+  await page.screenshot({path:path.join(out,'얼굴상점.png')});
+  console.log(JSON.stringify({errors,avatars:await page.locator('.qp-idle,.qpx-idle').count(),faceItems:await page.locator('#shGrid [data-id]').count(),motion:await page.evaluate(()=>document.getAnimations().map(a=>a.animationName).filter(Boolean).slice(0,20))},null,2));
+  await page.setViewportSize({width:1280,height:632});await page.screenshot({path:path.join(out,'크롬북-꾸미기.png')});
+  await page.setViewportSize({width:390,height:844});await page.screenshot({path:path.join(out,'모바일-꾸미기.png')});
+  await browser.close();if(errors.length)process.exitCode=1;
+})().catch(e=>{console.error(e);process.exit(1);});

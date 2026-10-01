@@ -1,0 +1,35 @@
+const {chromium}=require('playwright');
+const assert=require('node:assert/strict'),path=require('node:path');
+(async()=>{
+  const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});
+  const context=await browser.newContext({viewport:{width:1440,height:900}});
+  await context.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({body:'/* isolated demo */',contentType:'text/javascript'}));
+  const page=await context.newPage(),errors=[],checks=[];
+  page.on('pageerror',e=>errors.push(e.message));
+  await page.goto('http://127.0.0.1:4173/?demo=1&session=demo-ui-'+Date.now());
+  await page.waitForSelector('#meStage');
+  await page.waitForFunction(()=>window.QPAvatar?.atlas.ready===true&&window.QPClothes?.atlas.ready===true);
+  const room=()=>page.evaluate(async()=>(await QPDemo.db.ref('quiz/room').once()).val());
+  const choose=async mode=>{
+    const toolbar=page.locator('.qp-demo-toolbar');
+    if(await toolbar.getAttribute('class').then(c=>c.includes('collapsed')))await toolbar.locator('[data-hide]').click();
+    await toolbar.locator('[data-mode="'+mode+'"]').click();
+    await page.waitForFunction(mode=>{const r=JSON.parse(localStorage.getItem(QPDemo.storageKey))?.quiz?.room;return r?.meta?.mode===mode&&r.meta.phase==='ask'&&Object.keys(r.p||{}).length===4;},mode);
+  };
+  await choose('quiz');await page.waitForSelector('#ansIn');
+  await page.waitForFunction(()=>{const r=JSON.parse(localStorage.getItem(QPDemo.storageKey))?.quiz?.room;return r?.p?.preview_star?.sc>0&&r.p.preview_mint.sc>0;});
+  let r=await room();assert(r.p.preview_mint.sc>0);assert.equal(r.p.preview_yuri.sc,0);
+  await page.screenshot({path:path.resolve(__dirname,'../검증/체험-퀴즈.png')});
+  checks.push('Toolbar starts quiz with three animated companions that answer and score');
+  await choose('ox');await page.locator('[data-z="0"]').click();
+  await page.waitForFunction(()=>{const r=JSON.parse(localStorage.getItem(QPDemo.storageKey))?.quiz?.room;return Object.keys(r?.ans||{}).length===4;});
+  await page.screenshot({path:path.resolve(__dirname,'../검증/체험-OX.png')});
+  assert.equal((await room()).meta.phase,'ask');
+  checks.push('Toolbar changes to OX, all four players can choose before deadline');
+  await choose('cross');await page.waitForSelector('#crossForm');
+  await page.waitForFunction(()=>{const r=JSON.parse(localStorage.getItem(QPDemo.storageKey))?.quiz?.room;return r?.cross?.teams?.A?.score>0&&r.cross.teams.B.score>0;});
+  await page.screenshot({path:path.resolve(__dirname,'../검증/체험-팀퍼즐.png')});
+  checks.push('Toolbar changes to team crossword with independently advancing team boards');
+  assert.deepEqual(errors,[]);console.log(JSON.stringify({passed:checks,errors},null,2));
+  await browser.close();
+})().catch(e=>{console.error(e);process.exit(1);});
