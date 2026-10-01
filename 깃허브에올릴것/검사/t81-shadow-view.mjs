@@ -19,7 +19,7 @@ try{
   performance.now=()=>time===null?now():time;const raf=requestAnimationFrame.bind(window);requestAnimationFrame=f=>time===null?raf(f):0;
   localStorage.setItem('sndOn','0');localStorage.setItem('sheepUid','t81-shadow');localStorage.removeItem('gfxPick');
  });
- await page.goto(`http://127.0.0.1:${PORT}/?gfx=mid&diag=1`,{waitUntil:'load',timeout:400000});
+ await page.goto(`http://127.0.0.1:${PORT}/?gfx=mid&shadow=2048&diag=1`   /* 83차 — 기본은 그림자 끔. 그림자 판 순서는 ?shadow=2048 로 켠 판에서 잰다 */,{waitUntil:'load',timeout:400000});
  await page.waitForFunction(()=>window.__READY,null,{timeout:400000,polling:500});
  const res=await page.evaluate(()=>{const W=window,R=W.__R,G=W.__G,P=W.__PL,S=W.__SHO,D=W.__DBG(),GY=W.__GY;
   document.getElementById('iName').value='그림자 순서';document.getElementById('bSolo').click();W.__introDone();

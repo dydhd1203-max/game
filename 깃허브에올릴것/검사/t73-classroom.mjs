@@ -79,6 +79,7 @@ try{
   assert.ok(result.rejoin.restored);assert.deepEqual(result.rejoin.actual,result.rejoin.expected);assert.equal(result.newLesson,false);
   assert.ok(Math.abs(result.clock.elapsed-4)<1e-6);assert.equal(result.clock.fps,10);
   assert.ok(result.ranges<=1);assert.ok(result.camera.length>=8 && result.camera.every(r=>r.uncovered===0 && r.maxYaw===0));
-  assert.equal(result.graphics.pr,0.85);assert.equal(result.graphics.shadow,2048);assert.equal(result.graphics.aa,2);
+  assert.equal(result.graphics.pr,0.85);assert.equal(result.graphics.shadow,0);   // 83차 — 실시간 그림자는 모든 화질에서 끈다(발밑 동그란 그림자)
+  assert.equal(result.graphics.aa,2);
   assert.deepEqual(errors,[]);console.log('PASS: classroom health, 21 purchases, reconnect, real clock, bounded uploads, spiral view, unchanged graphics');
 }finally{await browser?.close();await new Promise(r=>srv.close(r));}
