@@ -1,0 +1,73 @@
+/* Readable paper controls surround a continuous illustrated, shared world. */
+body.qp-in-village #deco{display:none}
+.vt-host{position:absolute;inset:var(--qp-top-height,60px) 0 0;overflow:hidden;color:#38472f;background:#345b42;font-family:"NanumSquareRound","Malgun Gothic",sans-serif;isolation:isolate}
+.vt-viewport{position:absolute;inset:0;overflow:hidden;outline:0;background:linear-gradient(#759c68,#a9c985);touch-action:none}
+.vt-viewport:focus-visible{box-shadow:inset 0 0 0 3px #fff4a8}
+.vt-world{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform}
+.vt-ground,.vt-objects,.vt-labels{position:absolute;inset:0;pointer-events:none}
+.vt-ground>svg{display:block;width:100%;height:100%}
+.vt-objects{isolation:isolate}
+.vt-object{position:absolute;pointer-events:none}
+.vt-object>svg{display:block;width:100%;height:100%;overflow:hidden}
+.vt-object svg image{image-rendering:auto}
+.vt-labels{z-index:9000}
+body .vt-landmark{position:absolute;transform:translate(-50%,0);pointer-events:auto;padding:7px 15px;border:2px solid #b59451;border-radius:10px;background:#fff5dceF;box-shadow:0 3px 0 #694c2c70;color:#3e4b32;font:800 16px/1.25 "NanumSquareRound",sans-serif;white-space:nowrap;text-shadow:none;-webkit-text-stroke:0}
+body .vt-landmark:hover{background:#fffbdc;border-color:#5b8d49}
+.vt-actor{position:absolute;left:0;top:0;width:0;height:0;pointer-events:auto;outline:0;cursor:pointer}
+.vt-actor.is-me{pointer-events:none;cursor:default}
+.vt-avatar{position:absolute;overflow:visible;pointer-events:none}
+.vt-actor:not(.is-me) .vt-avatar{pointer-events:auto}
+.vt-avatar>svg{max-width:none;max-height:none;filter:none!important;image-rendering:auto}
+.vt-avatar .qpx-contact-shadow{visibility:hidden}
+.vt-contact{position:absolute;left:-12px;top:-2px;width:24px;height:7px;border-radius:50%;background:#304e35;opacity:.23;pointer-events:none}
+.vt-name{position:absolute;left:0;transform:translateX(-50%);padding:3px 7px;border:1px solid #d5cda1;border-radius:7px;background:#fff9eaeE;color:#34432e;font-size:13px;line-height:1.25;font-weight:800;white-space:nowrap;pointer-events:none;box-shadow:0 2px 2px #294f3720}
+.is-me .vt-name{background:#ecf8df;border-color:#72965b}
+.vt-bubble{position:absolute;left:0;transform:translateX(-50%);padding:7px 11px;border:2px solid #c5ac68;border-radius:12px;background:#fffce9;color:#3a4f32;font-size:15px;font-weight:800;white-space:nowrap;pointer-events:none}
+.vt-bubble::after{content:'';position:absolute;bottom:-6px;left:45%;width:8px;height:8px;background:#fffce9;border-right:2px solid #c5ac68;border-bottom:2px solid #c5ac68;transform:rotate(45deg)}
+.vt-destination{position:absolute;width:28px;height:12px;border:3px solid #fff4a7;background:#85a84d80;border-radius:50%;transform:translate(-50%,-50%);z-index:7900;pointer-events:none}
+.vt-hud{position:absolute;top:16px;left:20px;display:flex;gap:10px;align-items:center;z-index:10}
+.vt-place{padding:10px 17px;border:2px solid #be9f5c;border-radius:13px;background:#fff8e8f2;box-shadow:0 4px 0 #4d5c3645}
+.vt-place strong{display:block;font-family:"Jua",sans-serif;font-weight:400;font-size:24px;line-height:1.15;color:#3f673e}
+.vt-connection{display:block;margin-top:4px;font-size:13px;color:#656c50;font-weight:700}
+.vt-connection[data-status="connected"]::before{content:'● ';color:#5b9146}
+body .vt-host button:not(.vt-landmark){font-family:"NanumSquareRound",sans-serif;font-synthesis:none;-webkit-text-stroke:0;text-shadow:none;font-weight:800}
+.vt-friends-toggle,.vt-tools button,.vt-emotes button,.vt-enter{padding:10px 13px;border:2px solid #c5ad73;border-radius:11px;background:#fff8e9f2;color:#46513a;box-shadow:0 3px 0 #65734455;font-size:14px;line-height:1.3;white-space:nowrap}
+.vt-friends-toggle b{color:#4e7741;margin-left:5px;font-size:17px}
+.vt-tools{position:absolute;right:20px;top:18px;display:flex;gap:7px;z-index:10}
+.vt-tools button{padding:8px 12px}
+.vt-tools [data-tool^="zoom"]{min-width:36px;font-size:19px}
+.vt-controls{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;max-width:calc(100% - 36px);z-index:10;padding:9px 11px;border-radius:16px;border:2px solid #ae995a;background:#fff7e9ed;box-shadow:0 4px 0 #425a3655}
+.vt-emotes{display:flex;gap:7px;align-items:center}
+.vt-emotes button{padding:9px 12px;background:linear-gradient(#fffdf0,#f3e4be);font-size:14px}
+.vt-emotes small{padding:1px 4px;background:#d5dbb9;border-radius:4px;color:#486242;font-size:12px;margin-left:3px}
+body .vt-enter{background:linear-gradient(#a6cb7c,#769e55);color:#fffdf0;border-color:#557845;min-width:168px;font-size:15px;box-shadow:0 3px 0 #365330}
+body .vt-enter:disabled{background:#ebe4d1;color:#7a7764;border-color:#c6baa0;box-shadow:0 3px 0 #b0a58b;cursor:default;opacity:1}
+.vt-notice{position:absolute;left:50%;bottom:108px;transform:translateX(-50%);max-width:min(620px,90%);padding:10px 17px;border:2px solid #bc9e62;border-radius:12px;background:#fff9e9f5;color:#41583a;font-size:15px;line-height:1.5;font-weight:700;z-index:11;opacity:0;pointer-events:none;transition:opacity .15s}
+.vt-notice.show{opacity:1}
+.vt-level{position:absolute;bottom:20px;left:20px;max-width:200px;padding:7px 12px;border-radius:9px;background:#314e35cb;color:#fff9da;font-size:13px;line-height:1.2;font-weight:800;z-index:9}
+.vt-help{position:absolute;right:20px;top:70px;padding:15px 19px;border:2px solid #c6ab70;border-radius:14px;background:#fff9edf7;color:#4c5943;font-size:14px;line-height:1.8;z-index:11;box-shadow:0 6px 12px #33493025}
+.vt-map{position:absolute;right:20px;top:72px;width:260px;padding:13px;border:2px solid #c1a467;border-radius:14px;background:#fff9eef7;z-index:11;box-shadow:0 6px 12px #33493025}
+.vt-map{max-height:calc(100% - 175px);overflow:auto}
+.vt-object[data-object^="bird-flight"]{animation:vt-bird-flight 8s ease-in-out infinite alternate}
+.vt-object[data-object^="bird-flight"]:nth-child(2n){animation-delay:-3s;animation-duration:11s}
+@keyframes vt-bird-flight{from{transform:translate(0,0)}to{transform:translate(45px,-12px)}}
+.vt-map>strong{display:block;margin:2px 4px 10px;color:#48663b;font-size:16px}
+body .vt-map-stop{display:block;width:100%;padding:12px 9px;border-top:1px solid #ddcfac;text-align:left;color:#445437;font-size:14px;line-height:1.3}
+.vt-dialogue{position:absolute;bottom:103px;left:50%;transform:translateX(-50%);width:min(620px,calc(100% - 40px));padding:18px 21px;border:3px solid #ae8f51;border-radius:16px;background:#fff9eaf8;box-shadow:0 5px 0 #67523960;z-index:14;color:#3e5035}
+.vt-dialogue>strong{font-size:19px;color:#5b703f}
+.vt-dialogue p{margin:9px 0 15px;font-size:17px;line-height:1.5;font-weight:700}
+.vt-dialogue-choices{display:flex;gap:9px;flex-wrap:wrap}
+body .vt-dialogue-choices button{padding:9px 13px;border:2px solid #9fb279;border-radius:10px;background:#eaf2d6;color:#415a36;font-size:15px;line-height:1.4}
+body .vt-dialogue-choices .vt-dialogue-close{background:#f6eddb;border-color:#c7b48a;color:#6a624e}
+.vt-actor[data-npc] .vt-name{background:#fff2c9;border-color:#bd9957;color:#65512d}
+.vt-actor[data-npc] .vt-bubble{width:260px;white-space:normal;line-height:1.45;text-align:center}
+.vt-host[data-zone="tailor"] .vt-viewport{background:linear-gradient(#39513e50,#314c4166),url('./assets/woodland-home-painted.png') center/cover}
+.vt-friends{position:absolute;top:87px;left:20px;width:285px;max-height:calc(100% - 185px);overflow:auto;padding:9px;border:2px solid #bca16a;border-radius:13px;background:#fff9eff5;z-index:11}
+body .vt-friend-row{display:flex;width:100%;justify-content:space-between;gap:12px;align-items:center;padding:12px 8px;border-bottom:1px solid #ded1af;font-size:14px;line-height:1.25;color:#3f503a;text-align:left}
+.vt-friend-row span{font-size:12px;font-weight:700;color:#6d765e}
+body .vt-friend-row:disabled{opacity:1;cursor:default}
+.vt-friend-row strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vt-host [hidden]{display:none!important}
+@media(max-height:700px){.vt-hud{top:10px}.vt-place{padding:8px 13px}.vt-place strong{font-size:21px}.vt-controls{bottom:12px}.vt-tools{top:12px}.vt-level{bottom:12px}.vt-notice{bottom:91px}}
+@media(max-width:1100px){.vt-tools{right:14px}.vt-hud{left:14px}.vt-controls{gap:8px;padding:8px}.vt-emotes{gap:5px}.vt-emotes button{padding:8px 10px}.vt-level{bottom:91px;left:14px}.vt-emotes small{display:none}}
+@media(prefers-reduced-motion:reduce){.vt-notice{transition:none}.vt-avatar .qpx-pet,.vt-avatar .qp-angel-effect,.vt-object[data-object^="bird-flight"]{animation:none!important}}

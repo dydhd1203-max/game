@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-01T08:00:56.909Z",
+  "builtAt": "2026-10-01T09:38:05.130Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -11,8 +11,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 303263,
-      "sha256": "0b384f06eb35a87b75b18ccc7acc877b506a189f8fb071cd45920d137fc392ed"
+      "bytes": 307458,
+      "sha256": "236124980d85857c8aea8a53472eb4a880580f3469d632c944b4bd65954ab18b"
     },
     {
       "path": "avatar-image.js",
@@ -105,6 +105,81 @@
       "sha256": "6e931b8ada0c444043ff811262a4c24e928138751e319afcc57ed45a9a34ca67"
     },
     {
+      "path": "village-world.css",
+      "bytes": 8561,
+      "sha256": "97ce96a221a62a4e483b58360783fefe000c38ab71f4360317bbdc33d944f855"
+    },
+    {
+      "path": "village-presence.js",
+      "bytes": 15222,
+      "sha256": "d0869e7e1bb276f4966abbe64d5e4366fad2bf0573d1c49842bd19619d4beffa"
+    },
+    {
+      "path": "village-scene.js",
+      "bytes": 32493,
+      "sha256": "819fde200eb0b704666f1b46582c9bc3a2d4c59c88d4aeb8cc51399de8ee627e"
+    },
+    {
+      "path": "village-shop-scene.js",
+      "bytes": 12741,
+      "sha256": "b296a5df231336797de0a90eb3d87b163324e8caedf8a2db9d4fcde9e8b44fc5"
+    },
+    {
+      "path": "village-world.js",
+      "bytes": 29669,
+      "sha256": "8b592601ea18bf89622ff4fff52e59ceaec8ae57edc1d630a9f4adb375a485f2"
+    },
+    {
+      "path": "assets/forest-town-landmarks.png",
+      "bytes": 3137495,
+      "sha256": "4b1ee6e3c21b7e0acd1bc32f2b33dad6ccaa35edc183ab3edd3b4464e00ebb4b"
+    },
+    {
+      "path": "assets/forest-town-landmarks.json",
+      "bytes": 3909,
+      "sha256": "1546c8afb0712b58026e2993b5aba0f206c2fbffdfed115dc20eced7f59f9faa"
+    },
+    {
+      "path": "assets/forest-town-tailor-room.png",
+      "bytes": 2799155,
+      "sha256": "7d52651b94912cae5ac46be0f205b07475af06541ba4b1ff65f7e504be41cbe6"
+    },
+    {
+      "path": "assets/forest-town-tailor-room.json",
+      "bytes": 1879,
+      "sha256": "8df7c92db3f8e1aed6ac5dfe348e8644052dbb77b4f31e8e8489bc1c6f9b1563"
+    },
+    {
+      "path": "assets/forest-town-foliage.png",
+      "bytes": 2596790,
+      "sha256": "3fe92528e4c9f56e5b39860f751dffc81f32dd4e7c889b0c528c814cce057356"
+    },
+    {
+      "path": "assets/forest-town-foliage.json",
+      "bytes": 4220,
+      "sha256": "ae545bd506fdbdbba412519207b2fc132d3cc85da36541928f2b2362c763590b"
+    },
+    {
+      "path": "assets/forest-town-exploration.png",
+      "bytes": 2134257,
+      "sha256": "34a717ac0730e475d6b4c45fee2ab5868dbe428aca6298b192e800dee3466d38"
+    },
+    {
+      "path": "assets/forest-town-exploration.json",
+      "bytes": 4448,
+      "sha256": "039e58d480f26d01f417cccbdf637cedfb276cb5697f92764b06509b32fc10c0"
+    },
+    {
+      "path": "assets/forest-town-tailor-details.png",
+      "bytes": 2332856,
+      "sha256": "cd929b47345d5fbdd013f1823db6924f4d6ef9ff2a7c190c40cdc93b026268ed"
+    },
+    {
+      "path": "assets/forest-town-tailor-details.json",
+      "bytes": 2666,
+      "sha256": "fb081cec7b080de69f98f1c6b50f70db466e2d6574f173544dfff8c661d077dc"
+    },
+    {
       "path": "assets/forest-village-frame.png",
       "bytes": 1673167,
       "sha256": "b72a5b4381514a1fcd01bcb54acfe252bea33432839e0335dcf8857a8d597272"
@@ -171,8 +246,8 @@
     },
     {
       "path": "avatar-poses.js",
-      "bytes": 18409,
-      "sha256": "b019bbb4c11ad69168b33367c40ef8f60d478ab04673fb7d5916f45d51495640"
+      "bytes": 29212,
+      "sha256": "0d50897fa8b02cfc06690fe9ba4337244e65a8d5db250af78e36bff1af46fed4"
     },
     {
       "path": "avatar-motion.js",
