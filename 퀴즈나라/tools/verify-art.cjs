@@ -23,7 +23,7 @@ const assert=require('node:assert/strict'),path=require('node:path');
     const img=document.createElement('img');img.src=document.querySelector('[data-qpx-hair-color]').getAttribute('href');await img.decode();
     return {sheet:[img.naturalWidth,img.naturalHeight],avatars:document.querySelectorAll('.qp-pixel-avatar').length,sexes:[...new Set([...document.querySelectorAll('[data-qpx-sex]')].map(e=>e.dataset.qpxSex))].sort(),frames:document.querySelectorAll('svg')[0].getAttribute('viewBox')};
   });
-  assert.deepEqual(art.sheet,[1024,768],'Avatar sheet must retain the requested final detail');
+  assert.deepEqual(art.sheet,[256,256],'Each head must retain native detail without sampling a neighbouring atlas cell');
   assert.equal(art.avatars,6);assert.deepEqual(art.sexes,['f','m']);await page.evaluate(()=>document.fonts.ready);await page.screenshot({path:path.resolve(__dirname,'../검증/아바타-디테일.png')});
   console.log(JSON.stringify(art,null,2));await browser.close();
 })().catch(e=>{console.error(e);process.exit(1);});

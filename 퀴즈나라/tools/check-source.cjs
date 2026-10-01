@@ -11,7 +11,7 @@ for(const entry of ['index.html',...deployments.map(p=>p+'/index.html')]){
   }
   console.log(entry+': '+count+' inline scripts parse successfully');
 }
-for(const file of ['avatar-pixel.js','avatar-clothes.js','avatar-effects.js','demo.js'])new vm.Script(fs.readFileSync(path.join(root,file),'utf8'),{filename:file});
+for(const file of ['avatar-pixel.js','avatar-clothes.js','avatar-effects.js','avatar-pets.js','avatar-shoes.js','demo.js'])new vm.Script(fs.readFileSync(path.join(root,file),'utf8'),{filename:file});
 console.log('Avatar and isolated preview scripts parse successfully');
 if(process.argv.includes('--deployment')||process.argv.includes('--root-deployment')){
   for(const target of deployments)for(const file of require('./deployment-files.cjs')){

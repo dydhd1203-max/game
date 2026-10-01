@@ -1,8 +1,10 @@
 module.exports=[
-  'index.html','avatar-pixel.js','avatar-clothes.js','avatar-effects.js','qplay.css','button-feedback.css','demo.js',
+  'index.html','avatar-pixel.js','avatar-clothes.js','avatar-effects.js','avatar-pets.js','avatar-shoes.js','qplay.css','button-feedback.css','demo.js',
   'assets/pixel-heads-v2.png','assets/pixel-heads-male-v2.png',
   'assets/pixel-tops-v3.png','assets/pixel-bottoms-v3.png',
   'assets/angel-effect.png',
+  'assets/pixel-pets-v2.png',
+  'assets/pixel-shoes-v1.png',
   'assets/quiz-studio.webp',
   'assets/fonts/NanumSquareRoundR.ttf','assets/fonts/NanumSquareRoundB.ttf','assets/fonts/NanumSquareRoundEB.ttf',
   'assets/fonts/NanumSquareRound-OFL.txt','assets/fonts/NanumSquareRound-출처.md'

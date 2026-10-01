@@ -787,6 +787,8 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <link rel="stylesheet" href="./button-feedback.css">
 <script src="./avatar-clothes.js"></script>
 <script src="./avatar-effects.js"></script>
+<script src="./avatar-pets.js"></script>
+<script src="./avatar-shoes.js"></script>
 <script src="./avatar-pixel.js"></script>
 <script src="./demo.js"></script>
 <script>
@@ -2108,6 +2110,29 @@ const STARTER = ['expression:bright:0','hair:short:0','hair:short:1','hair:bob:1
   'bottom:skirt:7','shoes:sneaker:9','shoes:sneaker:8'];
 const STARTER_SET = new Set(STARTER);
 
+/* 원화의 남자·여자 헤어를 계정의 아바타와 같은 목록으로 보여 준다. */
+const AVATAR_HAIR = {
+  m:['short','part','messy','spiky'],
+  f:['bob','long','twin','pony','curly','bun','hime','braid']
+};
+const HAIR_ALIAS = {crop:'short',buzz:'short',longm:'long',wave:'long',afro:'curly',mohawk:'spiky'};
+const avatarSex = sex=>sex==='m'?'m':'f';
+const avatarSexName = sex=>avatarSex(sex)==='m'?'남자':'여자';
+function itemForSex(it, sex){
+  return !!it && (it.cat!=='hair'||AVATAR_HAIR[avatarSex(sex)].includes(HAIR_ALIAS[it.shape]||it.shape));
+}
+function avatarForSex(value, wantSex, owned){
+  const av=Object.assign({},value||{}), sex=avatarSex(wantSex==null?av.sex:wantSex);
+  av.sex=sex;
+  if(itemForSex(ITEMS['hair:'+av.hair],sex)) return av;
+  const color=String(av.hair||'').split(':')[1];
+  const available=Object.values(ITEMS).filter(it=>it.cat==='hair'&&!it.legacy&&itemForSex(it,sex)
+    &&(STARTER_SET.has(it.id)||owned&&owned[it.id]));
+  const match=available.find(it=>String(it.ci)===color)||available.find(it=>it.id===(sex==='m'?'hair:short:1':'hair:bob:1'))||available[0];
+  av.hair=match?match.shape+':'+match.ci:(sex==='m'?'short:1':'bob:1');
+  return av;
+}
+
 const ITEMS = {};      // id -> {id,cat,shape,ci,name,price,color}
 (function buildCatalog(){
   for(const c of CATS){
@@ -2119,6 +2144,7 @@ const ITEMS = {};      // id -> {id,cat,shape,ci,name,price,color}
         ITEMS[id] = { id, cat:c.k, shape:sk, ci:i, color:pal[i][0],
           name: sname + ' ('+pal[i][1]+')', short: sname,
           price: STARTER_SET.has(id) ? 0 : sprice,
+          sexes:c.k==='hair'?['m','f'].filter(sex=>AVATAR_HAIR[sex].includes(HAIR_ALIAS[sk]||sk)):['m','f'],
           legacy: c.k==='hair' && !['short','bob','long','twin','pony','curly','bun','hime','part','messy','spiky','braid'].includes(sk) };
       }
     }
@@ -2165,6 +2191,7 @@ function avKey(a){
    lod 2 = 크게 + 정지 (패션왕처럼 21명이 한꺼번에 뜨는 곳)
    lod 1 = 작게 (명단·OX). 배경·등장식·펫을 아예 안 그린다 */
 function avatarSVG(av, size, lod){
+  av=avatarForSex(av||newAvatar());
   if(window.QPAvatar && window.QPAvatar.render) return window.QPAvatar.render(av||newAvatar(), size, lod==null?2:lod);
   av = av || newAvatar(); lod = lod==null?2:lod;
   const key = avKey(av)+'#'+size+'#'+lod;
@@ -2206,10 +2233,11 @@ function avatarSVG(av, size, lod){
   return svg;
 }
 /* 상점 미리보기 — 그 파츠가 잘 보이도록 잘라서 보여 준다 */
-function partThumb(catKey, shape, ci, h){
-  if(window.QPAvatar && window.QPAvatar.thumb) return window.QPAvatar.thumb(catKey, shape, ci, h);
+function partThumb(catKey, shape, ci, h, sex){
+  sex=avatarSex(sex==null?ME&&ME.av&&ME.av.sex:sex);
+  if(window.QPAvatar && window.QPAvatar.thumb) return window.QPAvatar.thumb(catKey, shape, ci, h, sex);
   const c = CAT[catKey];
-  const base = { sk:1, ec:0, eyes:'round', sex:'f', hair:'', top:'', bottom:'', shoes:'',
+  const base = { sk:1, ec:0, eyes:'round', sex, hair:'', top:'', bottom:'', shoes:'',
                  hat:'', glass:'', ear:'', neck:'', back:'', pet:'', bg:'', face:'' };
   base[catKey] = shape+':'+ci;
   if(catKey==='bg'){                        // 배경은 배경만 보여 준다
@@ -2225,7 +2253,6 @@ function partThumb(catKey, shape, ci, h){
   if(catKey==='bottom') base.top    = 'tee:8';
   if(catKey==='hair'||catKey==='hat'||catKey==='glass'||catKey==='ear'||catKey==='face')
     base.hair = (catKey==='hair'? shape+':'+ci : 'short:0');
-  if(catKey==='face') base.sex = 'm';
   const sks = (PAL.skin[base.sk])[0];
   const mm = base.sex === 'm';
   let s = '';
@@ -2252,7 +2279,7 @@ function newAvatar(wantSex){
     ec: (Math.random()*PAL.eye.length)|0,
     sex: boy ? 'm' : 'f',
     eyes: pick(boy? ['round','smile','sharp','dot','sleepy'] : eyeKeys),
-    hair:   boy ? pick(['short:0','short:1']) : pick(['short:0','short:1','bob:1','bob:5']),
+    hair:   boy ? pick(['short:0','short:1']) : pick(['bob:1','bob:5']),
     top:    pick(['tee:5','tee:7','tee:3']),
     bottom: boy ? pick(['shorts:5','jeans:5']) : pick(['shorts:5','jeans:5','skirt:7']),
     shoes:  pick(['sneaker:9','sneaker:8']),
@@ -2768,12 +2795,13 @@ SCREENS.login = function(st){
   };
 
   function enter(k, u){
-    ME = { k, name:u.name||k, gold:u.gold||0, av:Object.assign(newAvatar(), u.av||{}),
+    ME = { k, name:u.name||k, gold:u.gold||0, av:avatarForSex(Object.assign(newAvatar(u.av&&u.av.sex), u.av||{}),null,u.owned),
            owned:u.owned||{}, stat:u.stat||{solved:0,correct:0}, crown:u.crown||0,
            day:(u.day && u.day.d===today()) ? u.day : {d:today(), g:0} };
     IS_TEACHER = false;
     LS.set('login', {k, h:u.pin});
     watchMe();
+    if(u.av&&u.av.hair!==ME.av.hair) save({av:ME.av});
     if(!ME.day || ME.day.d!==today()) save({day:{d:today(),g:0}});
     go('home');
   }
@@ -2915,7 +2943,7 @@ function showRank(){
    8) 옷 가게 (상점 + 꾸미기)
    ═══════════════════════════════════════════════════════════════════ */
 SCREENS.shop = function(st){
-  const S = { cat:'hair', ci:0, sel:null, pv:Object.assign({}, ME.av) };
+  const S = { cat:'hair', ci:0, sel:null, pv:avatarForSex(ME.av,null,ME.owned) };
 
   st.innerHTML = topbar('옷 가게', true) + `
   <div class="shopwrap">
@@ -2951,8 +2979,12 @@ SCREENS.shop = function(st){
   wireTop();
 
   const paintPv = ()=>{
+    S.pv=avatarForSex(S.pv,ME.av.sex,ME.owned);
     el('pvStage').innerHTML = avatarSVG(S.pv, 236, 3);
-    el('pvTitle').textContent = '입어 보기 · '+(S.pv.sex==='m'?'남자':'여자');
+    el('pvTitle').textContent = '입어 보기 · '+avatarSexName(S.pv.sex);
+    el('shopAll').textContent = avatarSexName(S.pv.sex)+' 아이템 상점';
+    el('shopOwned').textContent = avatarSexName(S.pv.sex)+' 옷장';
+    el('btnGender').textContent = avatarSexName(S.pv.sex)+' 아바타';
     el('btnGender').setAttribute('aria-label','남자 또는 여자 아바타 고르기. 현재 '+(S.pv.sex==='m'?'남자':'여자'));
   };
   S.onlyOwned=false;
@@ -2988,13 +3020,14 @@ SCREENS.shop = function(st){
     for(const sk in c.src){
       for(const ci of (S.onlyOwned?PAL[c.pal].map((_,i)=>i):[S.ci])){
       const id = S.cat+':'+sk+':'+ci, it = ITEMS[id];
+      if(!itemForSex(it,S.pv.sex))continue;
       const own = owns(id), eq = ME.av[S.cat] === sk+':'+ci;
       if(!S.onlyOwned&&it.legacy)continue;
       if(S.onlyOwned&&!own)continue;
       const rare = it.price>=600?' r3':it.price>=300?' r2':'';
       h += `<button class="itm${rare} ${own?'own':''} ${S.sel===id?'on':''}" data-id="${id}">
         ${eq?'<span class="badge eq">입음</span>':(own?'<span class="badge">보유</span>':'')}
-        <div class="thumb">${partThumb(S.cat, sk, ci, 62)}</div>
+        <div class="thumb">${partThumb(S.cat, sk, ci, 62, S.pv.sex)}</div>
         <div class="nm2">${esc(S.onlyOwned?it.name:it.short)}</div>
         <div class="pr ${own?'free':''}">${own?'가지고 있음':it.price.toLocaleString()+'골드'}</div></button>`;
       }
@@ -3032,7 +3065,7 @@ SCREENS.shop = function(st){
                : it.price>=300?'<span class="tag" style="background:#eee2ff;color:#5b3ba8">고급</span>':'';
     box.innerHTML = `
       <div class="center" style="background:#eef7ff;border-radius:12px;padding:6px;margin-bottom:10px">
-        ${partThumb(it.cat, it.shape, it.ci, 96)}</div>
+        ${partThumb(it.cat, it.shape, it.ci, 96, S.pv.sex)}</div>
       <div style="font-weight:900;font-size:18px;color:#12467e;letter-spacing:-.03em">${esc(it.name)} ${rare}</div>
       <div class="hint mt8">${CAT[it.cat].n} · ${own?'<b style="color:#3d8f2e">이미 가지고 있어요</b>'
         :'<b style="color:#b57700">'+it.price.toLocaleString()+'골드</b>'}</div>
@@ -3077,7 +3110,7 @@ SCREENS.shop = function(st){
     /* 가지고 있는 것 중에서만 아무렇게나 입혀 본다 */
     const av = Object.assign({}, ME.av);
     for(const c of CATS){
-      const mine = Object.keys(ITEMS).filter(id=> ITEMS[id].cat===c.k && owns(id));
+      const mine = Object.keys(ITEMS).filter(id=> ITEMS[id].cat===c.k && itemForSex(ITEMS[id],av.sex) && owns(id));
       if(!mine.length){ continue; }
       if(c.off && Math.random()<0.3){ av[c.k]=''; continue; }
       const it = ITEMS[mine[(Math.random()*mine.length)|0]];
@@ -3091,16 +3124,16 @@ SCREENS.shop = function(st){
     modal('남자 / 여자 아바타 고르기', `
       <div class="row gap" id="avatarSexChoices" style="align-items:stretch">
         ${[['m','남자'],['f','여자']].map(([sex,name])=>`<div class="f1" style="min-width:0;text-align:center;background:#fffaf5;border:1px solid #e9dded;border-radius:14px;padding:12px 6px">
-          <div data-avatar-sex="${sex}" style="display:flex;align-items:center;justify-content:center;min-height:210px">${avatarSVG(Object.assign({},previewAv,{sex}),210,3)}</div>
+          <div data-avatar-sex="${sex}" style="display:flex;align-items:center;justify-content:center;min-height:210px">${avatarSVG(avatarForSex(previewAv,sex,ME.owned),210,3)}</div>
           <button class="btn sm ${ME.av.sex===sex?'p':'gray'}" data-sex="${sex}" aria-pressed="${ME.av.sex===sex}" style="width:100%;margin-top:8px">${name} 아바타</button>
         </div>`).join('')}
       </div>
-      <div class="hint mt12">무료로 바꿀 수 있어요. 지금 입은 머리·얼굴·옷과 보유 아이템은 그대로 유지됩니다.</div>
+      <div class="hint mt12">무료로 바꿀 수 있어요. 얼굴·옷·피부색과 보유 아이템은 유지하고, 머리는 고른 아바타의 보유 헤어에 맞춰요.</div>
       <button class="btn gray mt12" style="width:100%" id="avatarSexClose">닫기</button>`, ()=>{
       $$('#avatarSexChoices [data-sex]').forEach(b=>b.onclick=()=>{
         if(!ME || ME.k!==accountKey || curScr!=='shop')return;
-        const av=Object.assign({},ME.av,{sex:b.dataset.sex});
-        ME.av=av;save({av});S.pv=Object.assign({},S.pv,{sex:av.sex});
+        const av=avatarForSex(ME.av,b.dataset.sex,ME.owned);
+        ME.av=av;save({av});S.pv=Object.assign({},av);S.sel=null;
         paintPv();paintGrid();paintInfo();closeModal();toast((av.sex==='m'?'남자':'여자')+' 아바타로 바꿨어요');
       });
       el('avatarSexClose').onclick=closeModal;
@@ -4496,16 +4529,16 @@ SCREENS.live=qpLiveScreen;
    ═══════════════════════════════════════════════════════════════════ */
 window.go = go; window.closeModal = closeModal;
 window.QPGame = {
-  newAvatar, initFB, go,
+  newAvatar, avatarForSex, itemForSex, initFB, go,
   getMe:()=>ME, getBank:()=>BANK, setBank:value=>{BANK=value||{};},
   getFB:()=>FB, getHost:()=>HOST,
   getSound:()=>SND,
   getCatalog:()=>({CATS,ITEMS,PAL,STARTER}),
   enterUser(k,u){
     if(!initFB()) return false;
-    ME={k,name:u.name||k,gold:u.gold||0,av:Object.assign(newAvatar(),u.av||{}),owned:u.owned||{},
+    ME={k,name:u.name||k,gold:u.gold||0,av:avatarForSex(Object.assign(newAvatar(u.av&&u.av.sex),u.av||{}),null,u.owned),owned:u.owned||{},
       stat:u.stat||{solved:0,correct:0},crown:u.crown||0,day:u.day||{d:today(),g:0}};
-    IS_TEACHER=false; watchMe(); go('home'); return true;
+    IS_TEACHER=false; watchMe(); if(u.av&&u.av.hair!==ME.av.hair)save({av:ME.av}); go('home'); return true;
   },
   enterTeacher(){
     if(!initFB()) return false;
