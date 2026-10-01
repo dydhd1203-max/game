@@ -4,7 +4,7 @@
 
 먼저 `개발환경.md`와 변경할 부분의 `디자인기준.md`를 확인한다. 사용자가 보낸 아바타 스크린샷을 최소 미술 품질로 유지한다. 머리·피부·눈의 겹침, 감은 눈, 상의·하의의 분리와 여러 색, 남녀 아바타, 항상 살아 있는 움직임을 실제 화면에서 확인한다. 그램·크롬북 노트북 화면을 우선한다.
 
-개발 기준은 이 폴더의 소스이며 배포 목록은 `tools/deployment-files.cjs`다. 수정 후 `node tools/sync-deployment.cjs`, `node tools/check-source.cjs --deployment`를 실행한다. GitHub 기존 루트 `퀴즈게임/`도 갱신할 때는 두 명령에 `--root-deployment`를 사용한다. 원격 최신 변경을 먼저 확인하고 퀴즈 경로만 커밋한다.
+개발·실행·배포 기준은 이 `퀴즈나라/` 폴더 하나다. 실행 파일 목록은 `tools/deployment-files.cjs`이며, 수정 후 `node tools/check-source.cjs`를 실행한다. 배포할 때는 `_headers`와 `assets/`를 포함한 이 폴더 전체를 업로드한다. 별도 배포 복사본을 만들지 않는다. 원격 최신 변경을 먼저 확인하고 퀴즈 경로만 커밋한다.
 
 레이아웃·글꼴 변경은 `tools/verify-layout.cjs`, 음향 변경은 `tools/verify-audio.cjs`, 게임 규칙·결제 변경은 `tools/verify-game.cjs`와 `tools/verify-economy.cjs` 등 해당 검사를 실행한다. `?demo=1` 체험 모드로 실제 수업 데이터에 쓰지 않으며, 자동 검사와 실제 화면을 함께 확인한다. 재생성 가능한 `검증/` 출력은 GitHub에 올리지 않는다.
 

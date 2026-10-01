@@ -7,7 +7,7 @@ const fs=require('node:fs'),path=require('node:path');
   await context.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({body:'/* preview uses isolated demo adapter */',contentType:'text/javascript'}));
   const page=await context.newPage(),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
-  const base=process.argv.includes('--deployment')?'http://127.0.0.1:4173/퀴즈게임/index.html':'http://127.0.0.1:4173/';
+  const base='http://127.0.0.1:4173/';
   await page.goto(base+'?demo=1&session=smoke-'+Date.now());
   await page.waitForSelector('#meStage');
   await page.waitForFunction(()=>window.QPAvatar?.atlas.ready===true&&window.QPClothes?.atlas.ready===true);
