@@ -29734,7 +29734,7 @@ function chuteLoop82(dt){
 }
 /* 87차 — 포장 사탕 판정(선생님: "사탕에 맞으면 통과돼"). 82차는 맞아도 앞으로 42% 빠르기로 계속 가서 사탕 몸을 그대로 지나갔다.
    사탕은 그 자리 길 바닥에 기대 눕는다(chuteCandyFrame87 — 길 기울기·U 벽 비탈에 맞춘 틀, 그림도 같은 틀로 그린다).
-   ① 한 점 판정(chuteCandyAt87): 몸(발 +.05 ~ +1.3, 반지름 PL.R)을 여섯 점으로 사탕 틀에 옮겨 몸통 초타원(그림과 같은 식) · 날개 판(목·부채 치수 그대로,
+   ① 한 점 판정(chuteCandyAt87): 몸(발 +.05 ~ +1.3, 반지름 PL.R)을 열한 점으로 사탕 틀에 옮겨 몸통 초타원(그림과 같은 식) · 날개 판(목·부채 치수 그대로,
       판 밑은 길까지 막힘)에 닿나 본다 ② 걸음 사이를 0.12 칸마다 쓸어 본다(chuteCandyHit87 — 빠르게 달려도 건너뛰지 않는다)
    ③ 닿으면 처음 닿은 자리로 되돌려 사탕 밖으로 밀고 튕긴다(chuteBump87) ④ 맞은 뒤 쉬는 동안(hitCd)에도 매 걸음 사탕 안으로 못 들어간다(chuteCandySolid87). */
 function chuteCandyFrame87(z, d, yaw = 0){   // 사탕 틀: 가운데(MINI_Y 기준) · 옆(날개 축 X)·위(바닥 법선 Y)·앞(Z) · 그림 회전(YXZ)
@@ -29751,24 +29751,36 @@ function chuteCandySpan87(yaw = 0){   // 길 옆으로 사탕이 차지하는 �
   const K = CANDY87, R = CH82.bumpR, c = Math.abs(Math.cos(yaw)), s = Math.abs(Math.sin(yaw));
   return Math.max(Math.hypot(K.ax*R*c, R*s), K.reach*R*c + K.fanT(1)*R*s);
 }
+function chuteCandyFar87(h){ const K = CANDY87; return Math.hypot(K.reach*h.r + PL.R, h.h/2 + 1.6, K.fanT(1)*1.6*h.r + PL.R); }   // 사탕 가운데에서 판정이 닿는 가장 먼 곳
 function chuteCandyAt87(h, x, y, z, grow = 0){   // 한 점(발 높이 y — MINI_Y 기준): 0 안 닿음 · 1 몸통 · 2 날개
-  const K = CANDY87, R = h.r, hh = h.h/2, PR = PL.R + grow, dx = x - h.x, dz = z - h.z, far = K.reach*R + PR + .6;
-  if(dx*dx + dz*dz > far*far) return 0;
+  const K = CANDY87, R = h.r, hh = h.h/2, PR = PL.R + grow, dx = x - h.x, dz = z - h.z, dm = y + .68 - h.y, far = chuteCandyFar87(h) + .7;   // 3차원 거르기(누운 날개 밑 막힌 곳까지)
+  if(dx*dx + dm*dm + dz*dz > far*far) return 0;
   const X = h.bx, Y = h.by, Z = h.bz; let wing = false;
-  for(let k=0;k<6;k++){ const dy = y + .05 + .25*k - h.y,
+  for(let k=0;k<11;k++){ const dy = y + .05 + .125*k - h.y,                // 몸 높이 열한 점(기울어 누운 날개 판 모서리도 놓치지 않게)
       lx = dx*X[0] + dy*X[1] + dz*X[2], ly = dx*Y[0] + dy*Y[1] + dz*Y[2], lz = dx*Z[0] + dy*Z[1] + dz*Z[2], u = ly/hh;
     if(Math.abs(u) < 1){ const pr = chuteCandyProf87(u), A = K.ax*R*pr + PR, B = R*pr + PR; if((lx/A)*(lx/A) + (lz/B)*(lz/B) < 1) return 1; }
     const ex = Math.abs(lx)/R;
     if(!wing && ex > K.neck0 && ex < K.reach + PR/R){ const neck = ex < K.fan0, t = Math.max(0, Math.min(1, (ex - K.fan0)/K.fanL));
       const th = R*(neck ? K.neckR*1.2 : K.fanT(t)*1.6) + PR, top = hh*(K.fanY + (neck ? K.neckR*1.2 : K.lift(t) + K.fanW(t)*1.08));
-      if(Math.abs(lz) < th && ly < top) wing = true; }
+      if(Math.abs(lz) < th && ly < top && ly > -hh - 1.5) wing = true; }   // 날개 밑은 사탕 바닥 조금 아래(길 속)까지 막힌다
   }
   return wing ? 2 : 0;
+}
+function chuteCandyCam87(h, x, y, z, r){   // 카메라 점(y 는 MINI_Y 기준)이 사탕의 보이는 몸통·목·날개 판(여유 r) 안인가 — 날개 밑 빈 곳은 비어 있다
+  const K = CANDY87, R = h.r, hh = h.h/2, dx = x - h.x, dy = y - h.y, dz = z - h.z, far = K.reach*R + r + .5;
+  if(dx*dx + dy*dy + dz*dz > far*far) return false;
+  const X = h.bx, Y = h.by, Z = h.bz, lx = dx*X[0] + dy*X[1] + dz*X[2], ly = dx*Y[0] + dy*Y[1] + dz*Y[2], lz = dx*Z[0] + dy*Z[1] + dz*Z[2], u = ly/(hh + r);
+  if(Math.abs(u) < 1){ const pr = chuteCandyProf87(u), A = K.ax*R*pr + r, B = R*pr + r; if((lx/A)*(lx/A) + (lz/B)*(lz/B) < 1) return true; }
+  const ex = Math.abs(lx)/R;
+  if(ex > K.neck0 && ex < K.reach + r/R){ const neck = ex < K.fan0, t = Math.max(0, Math.min(1, (ex - K.fan0)/K.fanL));
+    const th = R*(neck ? K.neckR*1.2 : K.fanT(t)*1.6) + r, c = hh*(K.fanY + (neck ? 0 : K.lift(t))), w = hh*(neck ? K.neckR*1.2 : K.fanW(t)*1.08) + r;
+    if(Math.abs(lz) < th && Math.abs(ly - c) < w) return true; }
+  return false;
 }
 function chuteCandyHit87(h, dt){
   const swept = Math.abs(RACE74.prevTime - (RACE.t - dt)) < 1e-7;
   const x0 = swept ? RACE74.prevX : PL.x, y0 = (swept ? RACE74.prevY : PL.y) - MINI_Y, z0 = swept ? RACE74.prevZ : PL.z, y1 = PL.y - MINI_Y;
-  const far = CANDY87.reach*h.r + PL.R + .6;
+  const far = chuteCandyFar87(h) + .7;
   if(h.x > Math.max(x0, PL.x) + far || h.x < Math.min(x0, PL.x) - far || h.z > Math.max(z0, PL.z) + far || h.z < Math.min(z0, PL.z) - far) return false;
   const steps = swept ? Math.max(1, Math.min(64, Math.ceil(Math.hypot(PL.x - x0, y1 - y0, PL.z - z0)/.12))) : 1;
   for(let i=swept?0:1;i<=steps;i++){ const u = i/steps, x = x0 + (PL.x - x0)*u, y = y0 + (y1 - y0)*u, z = z0 + (PL.z - z0)*u;
@@ -29806,7 +29818,7 @@ function chuteBump87(h){
 }
 function chuteCandySolid87(){
   if(!chuteZone82(PL.z) || RACE74.loop82) return;
-  for(const h of raceHazards(RACE.t)) if(h.candy87 && Math.abs(h.z - PL.z) < CANDY87.reach*h.r + 2) chuteCandyPush87(h, RACE74.prevX ?? PL.x, RACE74.prevZ ?? PL.z);
+  for(const h of raceHazards(RACE.t)) if(h.candy87 && Math.abs(h.z - PL.z) < chuteCandyFar87(h) + .7) chuteCandyPush87(h, RACE74.prevX ?? PL.x, RACE74.prevZ ?? PL.z);
 }
 
 function raceGravityScale(){
@@ -30103,13 +30115,13 @@ function stampY(u){
    씨앗(경주 씨앗 · 판 번호)만으로 정해지므로 호스트·손님이 같은 배치를 본다. */
 function raceDonutLayout87(p){
   const s=raceDonutSide87(p),R=p.w/2,PR=.45,K=1.18,L={x:s*6.4,z:5.5},J={x:-s*4,z:5.5};
-  const way=[[L.x,L.z,L.x,8.5],[L.x,8.5,J.x,8.5],[J.x,8.5,J.x,J.z]];
+  const way=[[L.x,-Math.sqrt(R*R-L.x*L.x)+.8,L.x,L.z],[L.x,L.z,L.x,8.5],[L.x,8.5,J.x,8.5],[J.x,8.5,J.x,J.z]];   // 앞 가장자리 → 착지 자리(첫 섬은 걸어 들어온다) → U 길 → 도약 자리
   const seg=(x,z,[ax,az,bx,bz])=>{const vx=bx-ax,vz=bz-az,l=vx*vx+vz*vz,u=l?Math.max(0,Math.min(1,((x-ax)*vx+(z-az)*vz)/l)):0;return Math.hypot(x-ax-vx*u,z-az-vz*u);};
-  const fits=(x,z,rb,sw,placed)=>{const r=rb*K;
+  const fits=(x,z,rb,sw,placed,jm=.35)=>{const r=rb*K;
     for(const dx of sw?[-sw,0,sw]:[0]){const xx=x+dx;
       if(Math.hypot(xx,z)+r>R-.4)return false;
       if(Math.hypot(xx-L.x,z-L.z)<r+PR+.9)return false;
-      if(Math.hypot(xx-J.x,z-J.z)<r+2.5+PR+.35)return false;
+      if(Math.hypot(xx-J.x,z-J.z)<r+2.5+PR+jm)return false;
       for(const w of way)if(seg(xx,z,w)<r+PR+.3)return false;
       for(const q of placed)if(Math.hypot(xx-q[1],z-q[2])<r+q[3]*K+.9+(q[4]||0))return false;}
     return true;};
@@ -30119,8 +30131,11 @@ function raceDonutLayout87(p){
     // 가운데 큰 도넛 — 판 가운데를 늘 덮는다(조금씩 비켜 선다)
     const cx=(rng()-.5)*1.2,cz=(rng()-.5)*1.2;if(!fits(cx,cz,2,0,[])){continue;}
     inner.push([4,cx,cz,2,0]);
-    const swayIdx=new Set();while(swayIdx.size<2)swayIdx.add(5+((rng()*7)|0));
-    for(let i=5;i<12&&ok;i++){const rb=1.3+rng()*.3,sw=swayIdx.has(i)?.45:0;let done=false;
+    // 길목 도넛 — 착지 자리와 도약 자리 사이(가운데 앞 z 5.5 줄)를 늘 막는다: 섬 가운데만 보고 뛰면 부딪히고, 걸어서도 U 길로 돌아가야 한다(86차 배치의 몫 그대로)
+    //   세운 바퀴라 가운데 줄이 테두리(가운데에서 .6~1.8)를 지나게 가운데에서 .9~1.3 · 도약 고리와는 고리 테 + 몸 반지름만큼만 띄운다(86차 배치와 같은 몫)
+    {let done=false;for(let k=0;k<400&&!done;k++){const x=s*(.9+rng()*.4),z=5+rng()*.7,rb=1.5+rng()*.08;if(fits(x,z,rb,0,inner,0)){inner.push([5,x,z,rb,0]);done=true;}}if(!done)continue;}
+    const swayIdx=new Set();while(swayIdx.size<2)swayIdx.add(6+((rng()*6)|0));
+    for(let i=6;i<12&&ok;i++){const rb=1.3+rng()*.3,sw=swayIdx.has(i)?.45:0;let done=false;
       for(let k=0;k<400&&!done;k++){const a=rng()*Math.PI*2,d=Math.sqrt(rng())*(R-1.5);const x=Math.cos(a)*d,z=Math.sin(a)*d;
         if(fits(x,z,rb,sw,[...out,...inner])){inner.push([i,x,z,rb,sw]);done=true;}}
       ok=done;}
@@ -30278,6 +30293,7 @@ function raceToyHit77(h){
 function raceCameraBlocked(h,x,y,z,r){
   const dx=x-h.x,dz=z-h.z,dy=y-h.y;
   if(h.donut79)return raceDonutContact79(h,x,y,y,z,r);
+  if(h.candy87)return chuteCandyCam87(h,x,y,z,r);   // 87차 — 포장 사탕은 보이는 몸통·날개 그대로(카메라가 사탕 속·날개 판을 지나지 않게)
   if(h.k==='bar'){
     const cs=Math.cos(h.ang),sn=Math.sin(h.ang),d=Math.max(-h.len/2+h.r,Math.min(h.len/2-h.r,dx*cs-dz*sn));
     return (dx-cs*d)**2+(dz+sn*d)**2+dy*dy<(h.r+r)**2;
@@ -30342,7 +30358,7 @@ function raceCameraClearance(x,y,z,ox,oy,oz){
     if(limit===0)return 0;
   }
   for(const h of raceHazards(RACE.t)){
-    const reach=h.k==='bar'?h.len*.5:h.k==='punch'?h.r*1.18:h.r,half=h.k==='punch'?h.h*.5:h.r;
+    const reach=h.candy87?CANDY87.reach*h.r+.5:h.k==='bar'?h.len*.5:h.k==='punch'?h.r*1.18:h.r,half=h.candy87?h.h*.5+2.5:h.k==='punch'?h.h*.5:h.r;
     if(h.x+reach<x0||h.x-reach>x1||h.z+reach<z0||h.z-reach>z1||h.y+half<y0||h.y-half>y1)continue;
     for(let i=0;i<=limit;i++){const u=i/steps;
       if(raceCameraBlocked(h,x+ox*u,yy+oy*u,z+oz*u,r)){limit=Math.max(0,i-1);break;}}
@@ -30390,7 +30406,7 @@ function raceHazardTick(dt){
   if(RACE.t<.5||RACE.hitCd>0||RACE.slipT>0)return;
   for(const h of raceHazards(RACE.t)){
     const sweptZ=(h.k==='bar'||h.sec===5||h.donut79)&&Math.abs(RACE74.prevTime-(RACE.t-dt))<1e-7?Math.abs(PL.z-RACE74.prevZ):0;
-    if(Math.abs(h.z-PL.z)>h.r+2+(h.len||0)*.5+sweptZ)continue;
+    if(Math.abs(h.z-PL.z)>(h.candy87?chuteCandyFar87(h)+.7:h.r+2+(h.len||0)*.5)+sweptZ)continue;   // 87차 — 사탕은 날개 끝·날개 밑까지(비스듬히 누운 날개도)
     let dx=PL.x-h.x,dz=PL.z-h.z,hit=false;
     if(h.k==='bar'){
       hit=raceBarHit(h,dt);

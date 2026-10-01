@@ -30,16 +30,16 @@ try{
     hazards:W.__raceHazards(W.__RACE().t).filter(h=>W.__raceCameraBlocked(h,C.position.x,C.position.y-Y,C.position.z,.08)).map(h=>h.id),
     screen:{x:v.x,y:v.y,z:v.z},viewChange:Math.abs(P.yaw-Math.PI)+Math.abs(P.pitch+.22)};};
   // Probe starts: S1 wall ride (both walls), hump crest, candy approach on a wall, S2, kicker.
-  const starts=[[60,-7],[104,7],[150,0],[238,-8],[300,4],[360,0]];
+  const starts=[[60,-7],[104,7],[150,0],[250,-8],[300,4],[360,0]];
   for(const fps of [30,60,120])for(const mode of ['normal','fast','brake'])for(const [zr,d] of starts){
    const z=CH.z0+zr,q=Q(z);reset(q.cx+d/q.cs,z,mode==='fast'?58:mode==='brake'?30:46,null,fps);if(mode==='fast')K.w=true;if(mode==='brake')K.s=true;
    const frames=[];for(let f=0;f<Math.round(fps*.15);f++){G.t-=1/fps;W.__updPlayer(1/fps);A.tick(1/fps);frames.push(inspect());}
    results.push({fps,mode,startZ:z,d,frames});
   }
   // One continuous real-input ride (W + steering into the lane a child can see ahead) supplies the screenshots.
-  const rows=CH.bumpRows.map(([zr,ds,Rr])=>({z:CH.z0+zr,ds,R:Rr||CH.bumpR}));
-  const gaps=row=>{const lim=CH.hw-P.R-.03,bl=row.ds.map(d=>[d-row.R-P.R-.35,d+row.R+P.R+.35]).sort((a,b)=>a[0]-b[0]),o=[];let cur=-lim;
-    for(const [a,b] of bl){if(a>cur)o.push([cur,a]);cur=Math.max(cur,b);}if(cur<lim)o.push([cur,lim]);return o.filter(([a,b])=>b-a>.6);};
+  // 87차 — open lanes from the game (h.lanes: wrapped candy body + wings + rider radius) with a small margin; a row stays the target until 8 past it.
+  const rows=CH.bumpRows.map(([zr],ri)=>{const hs=W.__raceHazards(W.__RACE().t).filter(h=>h.candy87&&h.id.startsWith('chute'+ri+':'));return {z:CH.z0+zr,R:8,lanes:hs[0].lanes};});
+  const gaps=row=>row.lanes.map(([a,b])=>[a+.35,b-.35]).filter(([a,b])=>b-a>.6);
   reset(0,682,0,Y+30.075,60);let hit=false;
   W.__chuteCameraRun=mark=>{for(let f=0;f<2400&&P.z<mark;f++){clear();K.w=true;
     if(P.z>CH.z0){const nxt=rows.find(r=>r.z+r.R>P.z);if(nxt&&nxt.z-P.z<70){const q=W.__chuteQ82(P.z),d=(P.x-q.cx)*q.cs,vd=P.vx*q.cs-P.vz*q.sn,pred=d+vd*.3;let best=null,bd=1e9;

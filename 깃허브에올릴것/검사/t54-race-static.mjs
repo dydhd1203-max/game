@@ -32,7 +32,7 @@ const raceBounceSound=()=>{},fovPunch=()=>{};
 `;
 const declarations=['CH82','CH82_Z1','CANDY87','CH82T','CH82Q','raceDonutSide87','chuteSq82','chuteRise82','chuteZone82','RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE_SEC','ROCK','RACE_LAUNCH_RATE','RACE74','GRAV','RACE_TOY77'];
 const functions=['mulberry','furLight','race74Reset','raceGravityScale','raceMotion','raceBuild','raceOff','raceZOff','racePose','raceDonutLayout87','raceJumpPose','raceLandingPose','raceAlive','raceContains','raceSurface','raceTopAt','raceUnder','raceSlotXZ','raceCheckpointXZ','rockU','raceRocks','raceHazards','raceSphereHit','racePunchHit','raceDonutContact79','raceDonutHit79','raceToyForm77','raceToyHit77','raceBarHit','raceBarSeparate79','raceSlideHit78','raceHazardTick',
-  'chute82','chuteQ82','chuteProf82','chuteProfSlope82','chuteContains82','chuteSurf82','chuteGrad82','chuteMotion82','chuteFlight82','chuteLaunch82','chuteAfter82','chuteCandyProf87','chuteCandyFrame87','chuteCandySpan87','chuteCandyAt87','chuteCandyHit87','chuteCandyPush87','chuteBump87'];
+  'chute82','chuteQ82','chuteProf82','chuteProfSlope82','chuteContains82','chuteSurf82','chuteGrad82','chuteMotion82','chuteFlight82','chuteLaunch82','chuteAfter82','chuteCandyProf87','chuteCandyFrame87','chuteCandySpan87','chuteCandyFar87','chuteCandyAt87','chuteCandyHit87','chuteCandyPush87','chuteBump87','chuteCandyCam87'];
 const ctx=vm.createContext({console});
 new vm.Script([fixtures,...declarations.map(decl),...functions.map(fn),`
 globalThis.A={CH82,CH82_Z1,chuteQ82,chuteProf82,chuteSurf82,RACE,RACE_P,RACE_S,RACE_SEC,RACE_Z_FIN,RACE_LAUNCH_RATE,RACE74,GRAV,JUMP,PL,G,MINE,raceBuild,raceOff,racePose,raceDonutLayout87,raceJumpPose,raceLandingPose,raceContains,raceSurface,raceTopAt,raceUnder,raceHazards,racePunchHit,chuteCandyHit87,chuteCandyAt87,raceToyForm77,raceHazardTick,raceGravityScale,raceMotion,
@@ -171,12 +171,15 @@ check('Every landing flank connects to another optional take-off pocket through 
     let ok=inner.length===8&&inner.filter(h=>h.sway).length===2&&bags.length===12&&bags.every(h=>A.raceContains(pad,h.x,h.z,-h.r));
     Object.assign(A.PL,{x:pad.x,z:pad.z,y:100+pad.y});ok&&=bags.some(h=>A.racePunchHit(h));
     const jp=A.raceJumpPose(pad,tt),lp=A.raceLandingPose(pad,tt);Object.assign(A.PL,{x:lp.x,z:lp.z,y:100+pad.y});ok&&=!bags.some(h=>A.racePunchHit(h));
+    // 길목: 섬 가운데만 보고 내리면(가운데 x, 착지 줄 z) 부딪히고, 착지 자리에서 도약 자리로 곧장 걸어가는 줄도 막혀 있다(U 길로 돌아가야 한다)
+    Object.assign(A.PL,{x:pad.x,z:lp.z,y:100+pad.y});ok&&=bags.some(h=>A.racePunchHit(h));
+    {let blockedLine=false;for(let u=0;u<=1;u+=.02){Object.assign(A.PL,{x:lp.x*(1-u)+jp.x*u,z:lp.z,y:100+pad.y});blockedLine||=bags.some(h=>A.racePunchHit(h));}ok&&=blockedLine;}
     for(let i=0;i<36;i++){const a=i*Math.PI/18;Object.assign(A.PL,{x:jp.x+Math.cos(a)*2.5,z:jp.z+Math.sin(a)*2.5,y:100+pad.y});ok&&=A.raceContains(pad,A.PL.x,A.PL.z,-.3,tt)&&!bags.some(h=>A.racePunchHit(h));}
-    const way=[lp,{x:lp.x,z:pad.z+8.5},{x:jp.x,z:pad.z+8.5},jp];
+    const way=[{x:lp.x,z:pad.z-Math.sqrt((pad.w/2)**2-(lp.x-pad.x)**2)+.8},lp,{x:lp.x,z:pad.z+8.5},{x:jp.x,z:pad.z+8.5},jp];   // 앞 가장자리에서 걸어 들어오는 길까지
     for(let j=1;j<way.length;j++)for(let u=0;u<=1;u+=.05){Object.assign(A.PL,{x:way[j-1].x*(1-u)+way[j].x*u,z:way[j-1].z*(1-u)+way[j].z*u,y:100+pad.y});ok&&=A.raceContains(pad,A.PL.x,A.PL.z,-.3,tt)&&!bags.some(h=>A.racePunchHit(h));}
     if(!ok){seedsOk=false;bad.push({seed,pad:pad.id,t:tt});}}}}
  A.raceBuild(78021);A.RACE.t=3;
- check('87차: donut positions change with every race seed, stay identical for the same seed, and always keep the landing spot, take-off ring, U route and centre block',
+ check('87차: donut positions change with every race seed, stay identical for the same seed, and always keep the landing spot, take-off ring, U route, centre block and the chicane on the landing line',
   seedsOk&&deterministic&&noFallback&&layouts.size===40,{layouts:layouts.size,deterministic,noFallback,bad:bad.slice(0,5)});}
 let gatesSafe=true,gatesMove=false,gatesDet=true,minCrowdWidth=Infinity,maxCrowdWidth=0,maxSway=0;
 const gateSamples=[];

@@ -11,10 +11,10 @@ const ctx=vm.createContext({Math,Map,Float32Array,Number});
 const PLR=+(/const PL = \{[^}]*\bR:([\d.]+)/.exec(source)||[])[1];
 vm.runInContext(`const MINI_Y=100,MINI_PADZ=-19,PL={R:${PLR}},G={mini:{st:'run'},paused:false},MINE={cp:0,fin:-1};
  let racing=true;const raceOn=()=>racing,raceHold=()=>false,raceBounceSound=()=>{},burst=()=>{},fovPunch=()=>{},toast=()=>{};
- ${['CH82','CH82_Z1','CH82T','CH82Q','CH82LP','chuteThrowZ82','RACE_RAINBOW76','chuteSq82','chuteRise82','chuteZone82','RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE74','RACE_LAUNCH_RATE','ROCK','STEP','GRAV','RACE_TOY77'].map(decl).join('\n')}
- ${['mulberry','race74Reset','raceBuild','raceOff','raceZOff','racePose','raceContains','raceSurface','raceUnder','rockU','raceRocks','raceHazards','raceSphereHit','racePunchHit','raceToyForm77','raceToyHit77','raceBarHit','raceSlideAdhere78','raceSlideHit78','raceHazardTick','raceGravityScale','raceMotion',
-   'chute82','chuteQ82','chuteProf82','chuteProfSlope82','chuteContains82','chuteSurf82','chuteGrad82','chuteMotion82','chuteFlight82','chuteLaunch82','chuteAfter82','chuteBump82','chuteThrow82','chuteLoopAt82','chuteLoopStart82','chuteLoop82'].map(fn).join('\n')}
- globalThis.A={PL,G,RACE,RACE_P,RACE74,STEP,GRAV,CH82,CH82_Z1,CH82_SHIFT,CH82_LAND,chute82,chuteQ82,chuteProf82,chuteProfSlope82,chuteContains82,chuteSurf82,chuteAfter82,chuteFlight82,chuteMotion82,chuteThrowZ82,chuteLoop82,raceBuild,raceContains,raceSurface,raceUnder,raceHazards,raceSlideAdhere78,raceSlideHit78,raceHazardTick,raceMotion,setRacing:q=>racing=q};`,ctx);
+ ${['CH82','CH82_Z1','CH82T','CH82Q','CH82LP','CANDY87','raceDonutSide87','chuteThrowZ82','RACE_RAINBOW76','chuteSq82','chuteRise82','chuteZone82','RACE_X','RACE_S','RACE_Z_FIN','RACE_ROWZ','RACE_P','RACE','RACE74','RACE_LAUNCH_RATE','ROCK','STEP','GRAV','RACE_TOY77'].map(decl).join('\n')}
+ ${['mulberry','race74Reset','raceBuild','raceOff','raceZOff','racePose','raceContains','raceSurface','raceUnder','rockU','raceRocks','raceDonutLayout87','raceHazards','raceSphereHit','racePunchHit','raceToyForm77','raceToyHit77','raceBarHit','raceSlideAdhere78','raceSlideHit78','raceHazardTick','raceGravityScale','raceMotion',
+   'chute82','chuteQ82','chuteProf82','chuteProfSlope82','chuteContains82','chuteSurf82','chuteGrad82','chuteMotion82','chuteFlight82','chuteLaunch82','chuteAfter82','chuteCandyProf87','chuteCandyFrame87','chuteCandySpan87','chuteCandyFar87','chuteCandyAt87','chuteCandyHit87','chuteCandyPush87','chuteBump87','chuteCandySolid87','chuteThrow82','chuteLoopAt82','chuteLoopStart82','chuteLoop82'].map(fn).join('\n')}
+ globalThis.A={PL,G,RACE,RACE_P,RACE74,STEP,GRAV,CANDY87,chuteCandyProf87,chuteCandyHit87,chuteCandySolid87,raceGravityScale,race74Reset,CH82,CH82_Z1,CH82_SHIFT,CH82_LAND,chute82,chuteQ82,chuteProf82,chuteProfSlope82,chuteContains82,chuteSurf82,chuteAfter82,chuteFlight82,chuteMotion82,chuteThrowZ82,chuteLoop82,raceBuild,raceContains,raceSurface,raceUnder,raceHazards,raceSlideAdhere78,raceSlideHit78,raceHazardTick,raceMotion,setRacing:q=>racing=q};`,ctx);
 const A=ctx.A,C=A.CH82,Z0=C.z0,Z1=A.CH82_Z1;A.raceBuild(78021);A.RACE.t=3;
 const chute=A.RACE_P.find(p=>p.chute),Q=z=>({...A.chuteQ82(z)}),Y=100;
 const dOf=(x,z)=>{const q=Q(z);return (x-q.cx)*q.cs;},xOf=(d,z)=>{const q=Q(z);return q.cx+d/q.cs;};
@@ -35,55 +35,87 @@ const dOf=(x,z)=>{const q=Q(z);return (x-q.cx)*q.cs;},xOf=(d,z)=>{const q=Q(z);r
  const zi=Z0+200;check('Containment covers the rubber lip and nothing wider',A.raceContains(chute,xOf(C.hw+C.lip,zi),zi,0)&&!A.raceContains(chute,xOf(C.hw+C.lip+.05,zi),zi,0)&&A.chuteContains82(xOf(0,Z1),Z1,0)&&!A.chuteContains82(0,Z1+1,0));
 }
 
-// ── Candy rows ──
-const hazards=A.raceHazards(3).filter(h=>h.chute82).map(h=>({...h}));
-{const expected=C.bumpRows.reduce((n,r)=>n+r[1].length,0);let embedded=true,tall=true;const rowsZ=[...new Set(hazards.map(h=>h.z))];
- for(const h of hazards){const d=dOf(h.x,h.z),q=Q(h.z),floorC=q.y+A.chuteProf82(d),bottom=h.y-h.h/2;
-  // The capsule foot sits under the surface across its whole footprint (no visible gap on a wall slope).
-  for(const s of [-1,1])embedded&&=bottom<q.y+A.chuteProf82(d+s*h.r)-.05;
-  tall&&=h.y+h.h/2-floorC>4.8&&h.k==='punch'&&h.sec===5;}
- check('Every configured candy stands in the chute as an embedded, taller-than-one-jump capsule',hazards.length===expected&&rowsZ.length===C.bumpRows.length&&embedded&&tall,{count:hazards.length,expected,rows:rowsZ});
+// ── 87차 candy rows: giant wrapped candies (candy87) lying on the chute floor ──
+// Rest check uses the game's own frame (chuteCandyFrame87) and outline (chuteCandyProf87 + CANDY87 wing sizes) against the actual floor (chuteSurf82):
+// the body must touch the floor without sinking in (teacher: "길에 파묻혀 있으면 안 되지") and the wings must stay above it.
+const K=A.CANDY87,hazards=A.raceHazards(3).filter(h=>h.candy87).map(h=>({...h}));
+const toW=(h,lx,ly,lz)=>[h.x+h.bx[0]*lx+h.by[0]*ly+h.bz[0]*lz,h.y+h.bx[1]*lx+h.by[1]*ly+h.bz[1]*lz,h.z+h.bx[2]*lx+h.by[2]*ly+h.bz[2]*lz];
+{const expected=C.bumpRows.reduce((n,r)=>n+r[1].length,0);let bodyMin=Infinity,bodyMax=-Infinity,wingMin=Infinity,tallMin=Infinity;
+ for(const h of hazards){const hh=h.h/2;let low=Infinity;
+  for(let i=0;i<=40;i++)for(let j=0;j<72;j++){const u=-1+i/40*1.2,r=A.chuteCandyProf87(u),a=j/72*2*Math.PI,p=toW(h,Math.cos(a)*r*K.ax*h.r,u*hh,Math.sin(a)*r*h.r),gap=p[1]-A.chuteSurf82(p[0],p[2]);
+   low=Math.min(low,gap);}
+  bodyMin=Math.min(bodyMin,low);bodyMax=Math.max(bodyMax,low);
+  for(const sd of [-1,1])for(let t=0;t<=1.0001;t+=.05)for(let j=0;j<36;j++){const a=j/36*2*Math.PI,p=toW(h,sd*(K.fan0+t*K.fanL)*h.r,(K.fanY+K.lift(t)+Math.sin(a)*K.fanW(t)*1.08)*hh,0);
+   wingMin=Math.min(wingMin,p[1]-A.chuteSurf82(p[0],p[2]));}
+  const top=toW(h,0,hh,0);tallMin=Math.min(tallMin,top[1]-A.chuteSurf82(top[0],top[2]));}
+ check('16 wrapped candies in nine rows rest on the chute floor: the body touches it without sinking in, the wings stay above it, and each stands taller than one jump',
+  expected===16&&hazards.length===expected&&C.bumpRows.length===9&&bodyMin>-.005&&bodyMax<.1&&wingMin>0&&tallMin>4.6,{count:hazards.length,bodyMin,bodyMax,wingMin,tallMin});
 }
 
-// ── Swept candy contact against an independent oracle (same capsule model as 78차) ──
-function distanceOracle(p0,p1,h){
- const vx=p1.x-p0.x,vy=p1.y-p0.y,vz=p1.z-p0.z,dx=p0.x-h.x,dz=p0.z-h.z;
- const lo=h.y-Math.max(0,h.h/2-h.r),hi=h.y+Math.max(0,h.h/2-h.r),times=[0,1];
- if(vy)for(const y of [lo-1.3,hi-A.PL.R]){const t=(y-p0.y)/vy;if(t>0&&t<1)times.push(t);}
- times.sort((a,b)=>a-b);let min2=Infinity;
- for(let i=1;i<times.length;i++){
-  const a=times[i-1],b=times[i],mid=(a+b)/2,y=p0.y+vy*mid;
-  const g=y+1.3<lo?lo-p0.y-1.3:y+A.PL.R>hi?p0.y+A.PL.R-hi:0,gv=y+1.3<lo?-vy:y+A.PL.R>hi?vy:0;
-  const den=vx*vx+vz*vz+gv*gv,u=den?Math.max(a,Math.min(b,-(dx*vx+dz*vz+g*gv)/den)):a;
-  for(const t of [a,b,u])min2=Math.min(min2,(dx+vx*t)**2+(dz+vz*t)**2+(g+gv*t)**2);
- }return Math.sqrt(min2);
-}
+// ── Swept candy contact against a dense oracle: the same outline sampled 26× finer along the body and ~12× finer along the step ──
+// The oracle shrinks/grows the rider (and the wing top) by 0.03: a clear overlap must hit, a clear miss must not.
+const prof=u=>Math.pow(Math.max(0,1-Math.pow(Math.min(1,Math.abs(u)),K.p)),1/K.p);
+function inside(h,x,y,z,grow){const R=h.r,hh=h.h/2,PR=A.PL.R+grow,dx=x-h.x,dz=z-h.z;
+ for(let k=0;k<=25;k++){const dy=y+.05+1.25*k/25-h.y,lx=dx*h.bx[0]+dy*h.bx[1]+dz*h.bx[2],ly=dx*h.by[0]+dy*h.by[1]+dz*h.by[2],lz=dx*h.bz[0]+dy*h.bz[1]+dz*h.bz[2],u=ly/hh;
+  if(Math.abs(u)<1){const pr=prof(u),a=K.ax*R*pr+PR,b=R*pr+PR;if((lx/a)**2+(lz/b)**2<1)return true;}
+  const ex=Math.abs(lx)/R;if(ex>K.neck0&&ex<K.reach+PR/R){const neck=ex<K.fan0,t=Math.max(0,Math.min(1,(ex-K.fan0)/K.fanL));
+   const th=R*(neck?K.neckR*1.2:K.fanT(t)*1.6)+PR,top=hh*(K.fanY+(neck?K.neckR*1.2:K.lift(t)+K.fanW(t)*1.08))+grow;if(Math.abs(lz)<th&&ly<top&&ly>-hh-1.5-grow)return true;}}
+ return false;}
+const pathHits=(p0,p1,h,grow)=>{for(let i=0;i<=200;i++){const u=i/200;if(inside(h,p0.x+(p1.x-p0.x)*u,p0.y+(p1.y-p0.y)*u,p0.z+(p1.z-p0.z)*u,grow))return true;}return false;};
 function sample(p0,p1,h,dt=1/60,stale=false){
  A.RACE.t=3;Object.assign(A.PL,{...p1,y:Y+p1.y});Object.assign(A.RACE74,{prevX:p0.x,prevY:Y+p0.y,prevZ:p0.z,prevTime:stale?-999:3-dt});
- return A.raceSlideHit78(h,dt);
+ return A.chuteCandyHit87(h,dt);
 }
 {let seed=8227;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
- let misses=0,falseHits=0,contacts=0;
+ let misses=0,falseHits=0,deep=0,clear=0;
  for(let i=0;i<1800;i++){
-  const dt=[1/30,1/60,1/120][i%3],h=hazards[i%hazards.length],angle=(rand()-.5)*1.4,speed=16+rand()*50;
-  const p0={x:h.x+(rand()-.5)*12,y:h.y-h.h/2-2+rand()*12,z:h.z+(rand()-.5)*12};
+  const dt=[1/30,1/60,1/120][i%3],h=hazards[i%hazards.length],angle=(rand()-.5)*1.4,speed=16+rand()*54,reach=K.reach*h.r;
+  const p0={x:h.x+(rand()-.5)*2*(reach+2),y:h.y-h.h/2-1.5+rand()*6,z:h.z+(rand()-.5)*2*(reach+2)};
   const p1={x:p0.x+Math.sin(angle)*speed*dt,y:p0.y+(rand()-.5)*60*dt,z:p0.z+Math.cos(angle)*speed*dt};
-  const min=distanceOracle(p0,p1,h),hit=sample(p0,p1,h,dt),r=h.r+A.PL.R;
-  if(min<r-.005){contacts++;if(!hit)misses++;}
-  if(min>r+1e-6&&hit)falseHits++;
+  const hit=sample(p0,p1,h,dt),inDeep=pathHits(p0,p1,h,-.03),inWide=pathHits(p0,p1,h,.03);
+  if(inDeep){deep++;if(!hit){misses++;if(process.env.T82DBG)console.log('MISS',JSON.stringify({id:h.id,dt,p0,p1,hc:{x:h.x,y:h.y,z:h.z}}));}}
+  if(!inWide){clear++;if(hit)falseHits++;}
  }
- check('Swept candy capsules match an analytic oracle at 16–66 speed and 30/60/120 Hz',misses===0&&falseHits===0&&contacts>250,{cases:1800,contacts,misses,falseHits});
+ check('Swept candy contact (body + wing plates) matches a dense oracle at 16–70 speed and 30/60/120 Hz',misses===0&&falseHits===0&&deep>300&&clear>300,{cases:1800,deep,clear,misses,falseHits});
 }
 
-// ── Contact response: slows down and pops, never a long knockback out of the U ──
-{const h=hazards[0],q=Q(h.z),d=dOf(h.x,h.z),z=h.z,y=q.y+A.chuteProf82(d)+.02,xa=h.x-.05,V=50;
- const p0={x:xa,y,z:z-4},p1={x:xa,y,z:z+.2};
- const oldHaz=A.RACE._haz;A.RACE._haz=[h];Object.assign(A.RACE,{hitCd:0,slipT:0,t:3});Object.assign(A.RACE74,{pulse:new Map()});
- sample(p0,p1,h,.05);Object.assign(A.PL,{vx:q.sn*V,vz:q.cs*V,vy:0,ground:true});A.raceHazardTick(.05);
- const qh=Q(A.PL.z),along=A.PL.vx*qh.sn+A.PL.vz*qh.cs,side=A.PL.vx*qh.cs-A.PL.vz*qh.sn;
- check('A candy hit keeps you in the chute: 42% speed (10–20), a small hop and a sideways nudge away from the candy',
-  A.RACE.hitCd>.8&&!A.PL.ground&&Math.abs(A.PL.vy-4.5)<1e-9&&A.RACE74.flightKind==='chute'&&Math.abs(along-20)<.01&&Math.abs(Math.abs(side)-9)<.01&&Math.sign(side)===Math.sign(xa-h.x),{along,side,vy:A.PL.vy});
- A.RACE._haz=oldHaz;
+// ── Contact response: pushed out of the candy, then bounced sideways toward the row's open lane (no pass-through, no pocket ping-pong) ──
+{const res=[];
+ for(const h of hazards.filter(h=>h.lanes.length===1||Math.abs(h.d)<1)){const zc=h.z,q=Q(zc),x0=h.x-q.sn*6,z0=zc-q.cs*6,V=50;
+  const oldHaz=A.RACE._haz;A.RACE._haz=[h];Object.assign(A.RACE,{hitCd:0,slipT:0,t:3});A.RACE74.pulse=new Map();
+  const y=A.chuteSurf82(h.x,zc)+.02;sample({x:x0,y,z:z0},{x:h.x,y,z:zc},h,6/V);Object.assign(A.PL,{vx:q.sn*V,vz:q.cs*V,vy:0,ground:true});A.raceHazardTick(6/V);
+  const qq=Q(A.PL.z),along=A.PL.vx*qq.sn+A.PL.vz*qq.cs,side=A.PL.vx*qq.cs-A.PL.vz*qq.sn,d=dOf(A.PL.x,A.PL.z);
+  let best=Infinity;for(const [lo,hi] of h.lanes){const t=Math.max(lo+1,Math.min(hi-1,d));if(Math.abs(t-d)<Math.abs(best-d))best=t;}
+  res.push({id:h.id,out:!inside(h,A.PL.x,A.PL.y-Y,A.PL.z,-.005),along:+along.toFixed(3),side:+side.toFixed(2),toLane:Math.sign(side)===Math.sign(best-d)||Math.abs(best-d)<.3,
+   vy:A.PL.vy,cd:A.RACE.hitCd,kind:A.RACE74.flightKind,ground:A.PL.ground});A.RACE._haz=oldHaz;}
+ check('A candy hit puts you outside the candy and bounces you sideways (≥12) toward the open lane with a 4.5 hop and no forward push',
+  res.length>=6&&res.every(r=>r.out&&Math.abs(r.along)<1e-6&&Math.abs(r.side)>=12-1e-9&&r.toLane&&Math.abs(r.vy-4.5)<1e-9&&r.cd>.79&&r.kind==='chute'&&!r.ground),res);
+}
+
+// ── No pass-through: riding straight at every candy (body middle and both wing tips) with the actual chute motion, hit, push-out and solid steps ──
+// A minimal integrator stands in for updPlayer (position, gravity, landing on the chute floor). Every frame end must be outside the candy
+// (0.05 deeper than the collider) and the rider may never get from the front of the candy to its back (local z sign flip) while still
+// inside its width (body + wings, minus 0.3) — going round a wing tip or over nothing is the only way past.
+{let frames=0,insideEnd=0,through=0;const runs=[];
+ const loc=(h,p)=>{const dx=p.x-h.x,dy=p.y+.6-h.y,dz=p.z-h.z;return [h.bx,h.by,h.bz].map(V=>dx*V[0]+dy*V[1]+dz*V[2]);};
+ for(const fps of [30,60,120])for(const h of hazards)for(const aim of [0,-1,1]){const dt=1/fps,X=h.bx,reach=K.reach*h.r-.4,span=K.reach*h.r+A.PL.R-.3;
+  const tx=h.x+X[0]*reach*aim,tz=h.z+X[2]*reach*aim,q=Q(tz),z0=tz-14*q.cs,x0=tx-14*q.sn,y0=A.chuteSurf82(x0,z0)+Y;
+  Object.assign(A.PL,{x:x0,z:z0,y:y0,vx:q.sn*50,vz:q.cs*50,vy:0,ground:true});A.race74Reset();A.RACE74.pulse=new Map();
+  Object.assign(A.RACE,{t:3,hitCd:0,slipT:0,fallT:0,_haz:[h]});A.RACE74.slide=1;
+  let prev={x:A.PL.x,y:A.PL.y-Y,z:A.PL.z},hit=false;
+  for(let f=0;f<fps*1.6;f++){A.raceMotion(dt,0,0,0,0,0);
+   A.PL.x+=A.PL.vx*dt;A.PL.z+=A.PL.vz*dt;if(!A.PL.ground){A.PL.vy-=A.GRAV*A.raceGravityScale()*dt;A.PL.y+=A.PL.vy*dt;}
+   const g=A.chuteSurf82(A.PL.x,A.PL.z)+Y;if(A.PL.y<=g||A.PL.ground&&A.PL.vy<=0){if(!A.PL.ground)A.RACE74.flight=0;A.PL.y=g;A.PL.vy=0;A.PL.ground=true;}
+   A.chuteAfter82(dt);A.raceHazardTick(dt);A.chuteCandySolid87();hit||=A.RACE.hitCd>0;
+   const cur={x:A.PL.x,y:A.PL.y-Y,z:A.PL.z};frames++;
+   if(inside(h,cur.x,cur.y,cur.z,-.05))insideEnd++;
+   const a=loc(h,prev),b=loc(h,cur);
+   if(Math.sign(a[2])!==Math.sign(b[2])&&Math.abs(a[0])<span&&Math.abs(b[0])<span&&Math.max(a[1],b[1])<h.h/2&&Math.min(a[1],b[1])>-h.h/2-1.5){through++;if(process.env.T82DBG)console.log('THROUGH',h.id,aim,fps,f,a.map(v=>+v.toFixed(2)),b.map(v=>+v.toFixed(2)));}
+   prev=cur;}
+  runs.push({id:h.id,aim,fps,hit});}
+ A.RACE._haz=null;
+ check('Riding straight at any candy (middle or wing tip, 30/60/120 Hz) bounces off: never inside a candy, never from its front to its back through it',
+  insideEnd===0&&through===0&&runs.filter(r=>r.aim===0).every(r=>r.hit),{frames,insideEnd,through,runs:runs.length,hits:runs.filter(r=>r.hit).length,missedMiddle:runs.filter(r=>r.aim===0&&!r.hit).map(r=>r.id+'@'+r.fps)});
 }
 
 // ── Ground dynamics (actual raceMotion → chuteMotion82) on the flat landing yard ──

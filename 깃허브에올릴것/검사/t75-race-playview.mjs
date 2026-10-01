@@ -156,11 +156,11 @@ try {
         }
         donuts.push({shot:name,id:h.id,flavor,index,aligned,shape});
       }
-      // 82차b — 롤러코스터 사탕은 봉지 사탕(맛 셋 bag82): 그 인스턴스가 판정 캡슐 자리·크기(r, h/2, r)에 놓였는지 본다
+      // 87차 — 롤러코스터 사탕은 거대 포장 사탕(색 여섯 candy87): 그 인스턴스가 판정 틀 그대로(가운데 · 옆 bx×r · 위 by×h/2 · 앞 bz×r) 놓였는지 본다
       for(const h of W.__raceHazards(W.__RACE().t).filter(h=>h.chute82&&Math.abs(h.z-P.z)<=125)){let ok=false;
-        for(const bag of W.__race74.art().bag82)for(let i=0;i<bag.count&&!ok;i++){bag.getMatrixAt(i,mat);const e=mat.elements;
-          ok=Math.hypot(e[12]-h.x,e[13]-Y-h.y,e[14]-h.z)<.025&&Math.abs(Math.hypot(e[4],e[5],e[6])-h.h/2)<.025&&Math.abs(Math.hypot(e[0],e[1],e[2])-h.r)<.025;}
-        capsules.push({shot:name,id:h.id,bag:true,aligned:ok});}
+        for(const m of W.__race74.art().candy87)for(let i=0;i<m.count&&!ok;i++){m.getMatrixAt(i,mat);const e=mat.elements,col=(c,V,k)=>Math.hypot(e[c]-V[0]*k,e[c+1]-V[1]*k,e[c+2]-V[2]*k)<.02;
+          ok=Math.hypot(e[12]-h.x,e[13]-Y-h.y,e[14]-h.z)<.025&&col(0,h.bx,h.r)&&col(4,h.by,h.h/2)&&col(8,h.bz,h.r);}
+        capsules.push({shot:name,id:h.id,candy:true,aligned:ok});}
       for(const h of W.__raceHazards(W.__RACE().t).filter(h=>h.k==='punch'&&!h.donut79&&!h.chute82&&h.toy77===undefined&&Math.abs(h.z-P.z)<=125)){
         const target=Y+h.y+Math.max(0,h.h/2-h.r);let top=null;
         for(const ball of caps)for(let i=0;i<ball.count;i++){
@@ -356,8 +356,9 @@ try {
     assert.ok(result.font.faces.some(f=>f.status==='loaded'),'The bundled rounded title font loads with external font requests blocked');
     assert.ok(result.hazards.bySection.every(s=>result.font.draws.some(d=>d.text===s.name&&d.loaded&&d.font.includes('CloudRaceTitle'))),
       'Every section title was actually painted with the loaded bundled face');
-    assert.ok(result.capsules.length>0&&result.capsules.every(c=>c.aligned),'Rendered padded capsule endcaps (and roller-coaster candy bags) match their collider in all captured sections');
-    if(Number(version)>=79)assert.ok(result.donuts?.length>=48&&new Set(result.donuts.map(d=>d.flavor)).size===3&&result.donuts.every(d=>
+    assert.ok(result.capsules.length>0&&result.capsules.every(c=>c.aligned),'Rendered padded capsule endcaps (and roller-coaster wrapped candies) match their collider in all captured sections');
+    // 87차 — 도넛 자리가 판마다 무작위라 사진 창(±126)에 걸리는 수가 조금 달라진다: 섬 넷 모두에서 40개 이상
+    if(Number(version)>=79)assert.ok(result.donuts?.length>=40&&new Set(result.donuts.map(d=>d.id.split(':')[0])).size>=4&&new Set(result.donuts.map(d=>d.flavor)).size===3&&result.donuts.every(d=>
       d.aligned&&d.index>=0&&d.shape?.finite&&d.shape.minHole>.30&&d.shape.maxShell<.401&&d.shape.triangles<3000),
       'Every captured donut uses its actual flavor bank and torus transform, retains a real hole, and stays within its 3,000-triangle envelope');
     if(result.toys?.length)assert.ok(result.toys.every(c=>c.aligned)&&new Set(result.toys.map(c=>c.form)).size===5,

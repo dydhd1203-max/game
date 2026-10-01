@@ -190,9 +190,9 @@ export function race76Physics(){
       }else if(z<W.__CH82_Z1+2){
         // 82차 roller coaster: hold W, read the next candy row's open lane ahead and steer into it (lateral d → world x).
         const C=W.__CH82,q=W.__chuteQ82(Math.min(z,W.__CH82_Z1)),d=(P.x-q.cx)*q.cs,vd=P.vx*q.cs-P.vz*q.sn,pred=d+vd*.3;
-        const row=C.bumpRows.map(([zr,ds,Rr])=>({z:C.z0+zr,ds,R:Rr||C.bumpR})).find(r=>r.z+r.R>z);let want=pred;
-        if(row&&row.z-z<70&&z>C.z0){const lim=C.hw-P.R-.03,bl=row.ds.map(x=>[x-row.R-P.R-.35,x+row.R+P.R+.35]).sort((a,b)=>a[0]-b[0]),open=[];let cur=-lim,bd=1e9;
-          for(const [a,b] of bl){if(a>cur)open.push([cur,a]);cur=Math.max(cur,b);}if(cur<lim)open.push([cur,lim]);
+        // 87차 — open lanes from the game (h.lanes: wrapped candy body + wings + rider radius); a row stays the target until 8 past it.
+        const row=C.bumpRows.map(([zr],ri)=>({z:C.z0+zr,R:8,ri})).find(r=>r.z+r.R>z);let want=pred;
+        if(row&&row.z-z<70&&z>C.z0){const hs=W.__raceHazards(S.t).filter(h=>h.candy87&&h.id.startsWith('chute'+row.ri+':')),open=hs[0].lanes.map(([a,b])=>[a+.35,b-.35]);let bd=1e9;
           for(const [a,b] of open){const w=b-a;if(w<.6)continue;const tg=Math.max(a+Math.min(2,w/2),Math.min(b-Math.min(2,w/2),pred));if(Math.abs(tg-pred)<bd){bd=Math.abs(tg-pred);want=tg;}}}
         else if(C.throws&&C.throws.some(([a,b])=>z>C.z0+a-12&&z<C.z0+b))want=0;   // 84차 급커브 — 길 가운데를 지킨다(커브 안쪽으로 꺾는다)
         target=P.x+(want-pred)/q.cs;
