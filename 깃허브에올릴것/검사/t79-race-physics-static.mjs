@@ -9,7 +9,7 @@ vm.runInContext(`const MINI_Y=100,PL={R:.3},G={mini:{st:'run'},paused:false},MIN
 const RACE_P=[],RACE={t:2,seed:13,hitCd:0,slipT:0,fallT:0},RACE74={pulse:new Map()};let active=true,hazards=[];
 const raceOn=()=>active,raceHold=()=>false,raceHazards=()=>hazards,raceBounceSound=()=>{},burst=()=>{};
 ${decl('STEP')}\n${decl('RACE_SPD')}\n${decl('GRAV')}
-${['race74Reset','raceContains','raceSurface','raceOff','raceZOff','racePose','raceUnder','raceTryJump','raceGravityScale','raceMotion','raceBarHit','raceBarSeparate79','raceDonutContact79','raceDonutHit79','raceHazardTick'].map(fn).join('\n')}
+${['race74Reset','raceContains','raceSurface','raceOff','raceZOff','racePose','racePadLocal88','racePadWorld88','raceCarry88','raceUnder','raceTryJump','raceGravityScale','raceMotion','raceBarHit','raceBarSeparate79','raceDonutContact79','raceDonutHit79','raceHazardTick'].map(fn).join('\n')}
 globalThis.A={PL,G,MINE,RACE,RACE_P,RACE74,RACE_SPD,SPD,raceTryJump,raceUnder,raceContains,raceMotion,raceGravityScale,raceBarHit,raceDonutContact79,raceDonutHit79,raceHazardTick,reset:race74Reset,haz:a=>hazards=a,active:v=>active=v};`,C);
 const A=C.A,checks=[],check=(name,pass,data)=>{checks.push({name,pass:!!pass,data});console.log((pass?'PASS ':'FAIL ')+name+' '+JSON.stringify(data??''));};
 check('Race walking/sprinting return to the pre-doubling factor; ordinary village speed remains 5.94',A.RACE_SPD===1.64&&A.SPD===5.94);

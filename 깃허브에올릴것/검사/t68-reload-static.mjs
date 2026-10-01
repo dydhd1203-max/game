@@ -143,7 +143,7 @@ check('HUD: ten pre-made pips, bar+number for big magazines, SVG ring driven by 
 /* 12 — 통신 */
 const send=fn('packPlayer').match(/return\s*\{([\s\S]*?)\};/)[1].replace(/\/\*[\s\S]*?\*\//g,'').replace(/\/\/[^\n]*/g,'');
 const keys=[...send.matchAll(/(?:^|[,{\s])([a-z]+):/g)].map(m=>m[1]);
-const WANT=['n','g','x','y','z','r','m','hp','dn','tc','tt','td','hv','hq','tf','txs','tx','ht','gl','cl','sk','ex']; // 73차: 명중 확인 목록만 추가, 재장전 전송 없음
+const WANT=['n','g','x','y','z','r','m','hp','dn','tc','tt','td','hv','hq','tf','txs','tx','ht','gl','cl','sk','ex','pd']; // 73차: 명중 확인 목록만 추가, 재장전 전송 없음 · 88차: pd = 구름다리 원판 기준 자리(원판 위일 때만, 아니면 null)
 const pcKeys=fn('netPC');
 check('Network: expected position keys (73 hit receipts) and no magazine/reload field',JSON.stringify(keys)===JSON.stringify(WANT)&&!/mag|rl|reload/.test(pcKeys),{keys});
 { const q={wp:3,tcN:10,down:false};T.friendGun(q,1/60);q.tcN=15;let reload=false,kicks=0,prev=0;

@@ -39,7 +39,7 @@ const tick=()=>new Promise(r=>setImmediate(r));
 const block=source.slice(source.indexOf('let checkpointWait='),source.indexOf('function netMeta(){'));
 const decls=['WEAPONS','wpnLv','wpnLvOk','ARMORS','POT_SEC','POTIONS','AMMO_PER_GOLD','FARM_ANIMALS','FARM_CAP','farmCount','FARM_FEED',
  'ENH_MAX','ENH_ODDS','ENH_SAFE','ENH_DROP','ENH_COST','enhOf','RES_KEYS','RES_IC','RES_PC','RES_SPC','TRADE_MULS','TRADE_PACK','TRADE_VAL','TRADE_KEEP','tradeGive','tradeGet','KIT','XP','MY','netIdleT','netT'];
-const funcs=['zombieHit79','recomputeRes','canPay','enhCost','buyAmmo','buyPotion','buyWeapon','buyArmor','craftable','craftWeapon','hostStoneHit','buildCanPay','buildPay','farmFeed','farmClean','buyAnimal','packPlayer','packSim','netTick','pcLedgerMove82'];
+const funcs=['zombieHit79','recomputeRes','canPay','enhCost','buyAmmo','buyPotion','buyWeapon','buyArmor','craftable','craftWeapon','hostStoneHit','buildCanPay','buildPay','farmFeed','farmClean','buyAnimal','racePadNet88','packPlayer','packSim','netTick','pcLedgerMove82'];
 function client(id,host=false){
  const ls=stores.get(id)||new Map();stores.set(id,ls);
  const ctx=vm.createContext({console,performance:{now:()=>0},net:bus.ref(),store:ls,setTimeout:f=>f(),addEventListener:()=>{},document:{addEventListener(){}}});

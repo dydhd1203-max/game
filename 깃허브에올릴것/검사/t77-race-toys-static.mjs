@@ -14,9 +14,11 @@ vm.runInContext(`const MINI_Y=100,PL={R:.3};${decl('M4')}\n${decl('RACE_TOY77')}
 const A=C.A,checks=[];const check=(name,pass,data)=>{checks.push(!!pass);console.log(`${pass?'PASS':'FAIL'} ${name}${data===undefined?'':' '+JSON.stringify(data)}`);};
 const formSet=sec=>new Set(Array.from({length:26},(_,i)=>A.raceToyForm77({k:'punch',sec,id:'obstacle'+i})));
 check('Entrance uses three distinct silhouettes; candy borders use hooks and pennants',formSet(0).size===3&&formSet(1).size===2&&[...formSet(1)].every(i=>i>=3));
-const entrance=[...Array.from({length:14},(_,i)=>'start'+i),...Array.from({length:12},(_,i)=>'jellyGate'+Math.floor(i/6)+':'+i%6)];
-const original=entrance.filter(id=>A.raceToyForm77({k:'punch',sec:0,id})===-1);
-check('Nine original giant launch bags are mixed into the twenty-six entrance obstacles',original.length===9,{original});
+// 88차 — the overlapping ones were removed: four start bags (start4·8 on the plaza, start0·13 deck-edge posts) and eleven jelly-gate bags remain.
+const entrance=['start0','start4','start8','start13',...Array.from({length:5},(_,i)=>'jellyGate0:'+i),...Array.from({length:6},(_,i)=>'jellyGate1:'+i)];
+const original=entrance.filter(id=>A.raceToyForm77({k:'punch',sec:0,id})===-1),entranceForms=new Set(entrance.map(id=>A.raceToyForm77({k:'punch',sec:0,id})));
+check('Four original giant launch bags are mixed among the fifteen entrance obstacles, beside all three mascot silhouettes',
+  original.join()==='start4,jellyGate0:2,jellyGate1:2,jellyGate1:5'&&[0,1,2].every(f=>entranceForms.has(f)),{original,forms:[...entranceForms]});
 check('Donut and slide colliders retain their own capsule contract',A.raceToyForm77({k:'punch',sec:2,id:'donut'})===-1&&A.raceToyForm77({k:'punch',sec:5,id:'slide'})===-1);
 const shapes=[];let finite=true,edgeError=0,triangles=0,rimVertices=0,rimBackfaces=0;
 for(let kind=0;kind<5;kind++){

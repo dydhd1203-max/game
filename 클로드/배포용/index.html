@@ -4389,9 +4389,10 @@ import * as THREE from 'three';
   }; }
 
 /* ═══════════════════════ 상수 ═══════════════════════ */
-/* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 시작 화면 제목 밑에 뜬다.
+/* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
+   같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '87차 · 포장 사탕·앉아 타기';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '88차 · 출발 숲 정리·구름다리 넓게';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -5786,9 +5787,10 @@ function plvTick(dt, ramp){
    순간이동(부활·구조)은 유클리드 수평 거리 > max(4, 40·간격) 또는 높이 > max(3, 30·간격) — 3회차의 맨해튼 3칸은 경주 대각선 달리기(14 m/s)를 매 꾸러미 순간이동으로 봤다.
    계단·나선 위면 보이는 y 를 연속 경사로(빠르기만큼). 통신 칸·충돌 그대로 · 매 프레임 할당 0 */
 const FRB = {M:0.02, W:0.3, N:8};
-function friendSeg(p, x, y, z, tNow){
+function friendSeg(p, x, y, z, tNow, pd){
   const now = tNow === undefined ? performance.now()*0.001 : tNow;       // tNow — 검사가 흉내 시계를 넘길 때만
   if(!p.fq){ p.fq = new Float64Array(FRB.N*4); p.fj = new Uint8Array(FRB.N); p.fn = 0; }
+  if(!p.fp){ p.fp = new Int16Array(FRB.N).fill(-1); p.fl = new Float64Array(FRB.N*2); p.ft = new Float64Array(FRB.N); }   // 88차 — 점마다 원판 번호(-1 = 원판 아님)·원판 기준 자리·받은 시각
   const q = p.fq; let s = now, jm = 0;                                     // 첫 점 — 바로 그 자리에 선다
   if(p.fn){
     const iv = now - p.fa, L = (p.fn - 1)*4;
@@ -5802,18 +5804,42 @@ function friendSeg(p, x, y, z, tNow){
     const racing=typeof raceOn==='function'&&raceOn(),maxXZ=racing?90:40,maxY=racing?110:30;
     jm = Math.hypot(x - q[L], z - q[L + 2]) > Math.max(4, maxXZ*tl) || Math.abs(y - q[L + 1]) > Math.max(3, maxY*tl) ? 1 : 0; }
   else p.dT = 1/6;
-  if(p.fn === FRB.N){ q.copyWithin(0, 4); p.fj.copyWithin(0, 1); p.fn--; }
-  const o = p.fn*4; q[o] = x; q[o + 1] = y; q[o + 2] = z; q[o + 3] = s; p.fj[p.fn] = jm; p.fn++;
+  if(p.fn === FRB.N){ q.copyWithin(0, 4); p.fj.copyWithin(0, 1); p.fp.copyWithin(0, 1); p.fl.copyWithin(0, 2); p.ft.copyWithin(0, 1); p.fn--; }
+  const o = p.fn*4; q[o] = x; q[o + 1] = y; q[o + 2] = z; q[o + 3] = s; p.fj[p.fn] = jm;
+  p.fp[p.fn] = pd && pd.length === 3 ? pd[0]|0 : -1; p.fl[p.fn*2] = pd ? +pd[1] || 0 : 0; p.fl[p.fn*2 + 1] = pd ? +pd[2] || 0 : 0; p.ft[p.fn] = now; p.fn++;
   p.bx = x; p.by = y; p.bz = z; p.t0 = p.fa = now;
+}
+/* 88차 — 구름다리 원판 위 친구. 원판 점 k 의 보정(지금 내 시계의 원판 위 자리 − 받은 세상 자리)을 FPAD88 에 담는다(할당 없음).
+   원판 위(앞뒤 점이 같은 원판)는 보정을 그대로 섞어 정확히 원판 위에 그린다. 뛰어오르면 그 보정을 0.5초에 걸쳐 0 으로 풀고,
+   내려앉을 원판 점은 받은 순간부터 그 점을 그릴 때까지(보통 0.34초 — 늦게 오면 더 짧다) 0 에서 채운다.
+   한 토막(1/6초)에 몰아 옆으로 휙 꺾이지 않고, 점이 도착하는 순간에도 튀지 않는다. */
+const FPAD88 = {x:0, z:0}, FPAD88_OFF = 0.5;
+function friendPadFix88(p, q, k){
+  const pad = RACE_P[p.fp[k]]; if(!pad || !pad.mv) return false;
+  const t = RACE.t, a = (pad.mv.rot || 0)*t, ca = Math.cos(a), sa = Math.sin(a), lx = p.fl[k*2], lz = p.fl[k*2 + 1];
+  FPAD88.x = pad.x + raceOff(pad, t) + lx*ca + lz*sa - q[k*4]; FPAD88.z = pad.z + raceZOff(pad, t) - lx*sa + lz*ca - q[k*4 + 2]; return true;
+}
+function friendPad88(p, q, n, k0, k1, u, r){
+  if(p.fp[k0] >= 0 && p.fp[k0] === p.fp[k1]){                              // 같은 원판 위 — 정확히
+    if(!friendPadFix88(p, q, k0)) return; const ax = FPAD88.x, az = FPAD88.z;
+    if(k1 !== k0 && !friendPadFix88(p, q, k1)) return;
+    p.x += ax + (FPAD88.x - ax)*u; p.z += az + (FPAD88.z - az)*u; return; }
+  let cx = 0, cz = 0;
+  for(let k = k0; k >= 0; k--) if(p.fp[k] >= 0){ const w = 1 - Math.max(0, r - q[k*4 + 3])/FPAD88_OFF; if(w > 0 && friendPadFix88(p, q, k)){ cx += FPAD88.x*w; cz += FPAD88.z*w; } break; }
+  for(let k = k1; k < n; k++) if(p.fp[k] >= 0){ if(k === k0) break; const ta = p.ft[k], ts = q[k*4 + 3], w = ts > ta ? Math.min(1, Math.max(0, (r - ta)/(ts - ta))) : 1;
+    if(w > 0 && friendPadFix88(p, q, k)){ cx += FPAD88.x*w; cz += FPAD88.z*w; } break; }
+  p.x += cx; p.z += cz;
 }
 function friendLerp(p, tNow){
   const q = p.fq, n = p.fn; if(!q || !n) return;
   const r = tNow === undefined ? performance.now()*0.001 : tNow;
   let i = n - 1; while(i > 0 && q[i*4 + 3] > r) i--;
-  const a = i*4; let spd = 0;
-  if(i === n - 1 || q[a + 3] > r || p.fj[i + 1]){ const b = (i < n - 1 && q[a + 3] <= r) ? a + 4 : a; p.x = q[b]; p.y = q[b + 1]; p.z = q[b + 2]; }   // 버퍼 끝(서 있음) · 맨 앞 점 전 · 순간이동 토막
-  else { const b = a + 4, T = q[b + 3] - q[a + 3], u = (r - q[a + 3])/T;
+  const a = i*4; let spd = 0, k0 = i, k1 = i, u = 0;
+  if(i === n - 1 || q[a + 3] > r || p.fj[i + 1]){ const b = (i < n - 1 && q[a + 3] <= r) ? a + 4 : a; k0 = k1 = b/4; p.x = q[b]; p.y = q[b + 1]; p.z = q[b + 2]; }   // 버퍼 끝(서 있음) · 맨 앞 점 전 · 순간이동 토막
+  else { const b = a + 4, T = q[b + 3] - q[a + 3]; u = (r - q[a + 3])/T; k1 = i + 1;
     p.x = q[a] + (q[b] - q[a])*u; p.y = q[a + 1] + (q[b + 1] - q[a + 1])*u; p.z = q[a + 2] + (q[b + 2] - q[a + 2])*u; spd = Math.hypot(q[b] - q[a], q[b + 2] - q[a + 2])/T; }
+  // 88차 — 원판 위에서 보낸 점은 내 시계의 그 원판 위에 다시 얹는다(받은 세상 자리는 0.34초 전 원판 자리라 옆 폭 4.4 원판에서는 허공이었다).
+  if(p.fp && typeof raceOn === 'function' && raceOn()) friendPad88(p, q, n, k0, k1, u, r);
   let y = p.y; p.yn = y;                                                  // yn = 받은 y 의 보간(경사 얹기 전)
   const rp = p.down ? null : stairRampAt(p.x, p.z, y, 0.28); p.rp = rp;
   if(rp !== null && Math.abs(rp - y) < 0.35){ const k = Math.min(1, spd/1.5); y += (rp - y)*k; }
@@ -21265,6 +21291,9 @@ function updPlayer(dt){
        마을은 좌우 지연 없이 중앙에서, 경주는 기존 달리기 뒤처짐을 유지한다. */
     // Fast race flight naturally trails its camera by speed/13. That is not a teleport.
     const raceLag = raceOn() ? Math.max(3,Math.hypot(PL.vx,PL.vz)*(.12+dt)+1) : 3;
+    // 88차 — 원판에 실려 간 만큼은 기준점도 같이 옮긴다(옆 폭 4.4 원판은 초속 30 넘게 실어 가, 30Hz 교실 기기에서 raceLag 3 을 넘겨 카메라가 튀었다 — t77).
+    if(camAnc !== null && raceOn() && (RACE74.carryX || RACE74.carryZ)){ camAnc.x += RACE74.carryX; camAnc.z += RACE74.carryZ; }
+    RACE74.carryX = RACE74.carryZ = 0;
     const snap = camAnc === null || Math.hypot(PL.x - camAnc.x, PL.z - camAnc.z) > raceLag
       || camGY === null || Math.abs(footY - camGY) > 3;
     if(snap){ camAnc = {x:PL.x, z:PL.z}; camGY = footY; camDistance = null; camHold = 0; camSlow = 0; camLift = 0; }
@@ -29511,12 +29540,12 @@ function aimPlayer(W = wpnNow()){
 /* 74차 — 곡면 쿠션과 같은 발자국을 사용하는, 시간 기반 구름 운동회. */
 const RACE_LAUNCH_RATE = 1.18; // 75차 — 같은 도약 궤적을 더 짧은 시간에: 속도 f, 중력 f².
 let raceLoopCamK84 = 0;   // 84차 — 360도 회전 카메라 섞기(0~1)
-const RACE74 = {flight:0,rate:1,land:0,speedK:0,pulse:new Map(),pending:null,lastPad:-1,slide:0,clock:0,lastNet:-1,landAge:9,impact:0,stepped:0};
+const RACE74 = {flight:0,rate:1,land:0,speedK:0,pulse:new Map(),pending:null,lastPad:-1,slide:0,clock:0,lastNet:-1,landAge:9,impact:0,stepped:0,carryX:0,carryZ:0};
 
 function race74Reset(){
   RACE74.flight=RACE74.land=RACE74.speedK=RACE74.slide=0;
   RACE74.rate=1;RACE74.flightKind='';RACE74.forward=0;RACE74.boostT=0;
-  RACE74.pending=null;RACE74.lastPad=-1;RACE74.pulse.clear();RACE74.landAge=9;RACE74.impact=0;RACE74.lastNet=-1;RACE74.stepped=0;
+  RACE74.pending=null;RACE74.lastPad=-1;RACE74.pulse.clear();RACE74.landAge=9;RACE74.impact=0;RACE74.lastNet=-1;RACE74.stepped=0;RACE74.carryX=RACE74.carryZ=0;
   RACE74.prevTime=-999;RACE74.cameraLift=0;RACE74.knockT=0;RACE74.kick82=false;RACE74.sn82=undefined;RACE74.loop82=null;RACE74.loopPh=0;RACE74.thrown82=false;RACE74.boost82=false;raceLoopCamK84=0;
 }
 
@@ -29867,10 +29896,7 @@ function raceMotion(dt,tvx,tvz,len,ix=0,iz=0){
   RACE.hitCd=Math.max(0,RACE.hitCd-dt);RACE.slipT=Math.max(0,RACE.slipT-dt);
   if(raceHold()||G.mini.st!=='run'||RACE.fallT>0){PL.vx=PL.vz=0;return true;}
   if(RACE74.loop82){PL.vx=PL.vz=0;PL.vy=0;return true;}   // 84차 — 360도 회전 레일: 위치는 chuteLoop82 가 정한다
-  if(p&&p.mv){
-    const before=racePose(p,prev),after=racePose(p,RACE.t),a=after.a-before.a,ca=Math.cos(a),sa=Math.sin(a),x=PL.x-before.x,z=PL.z-before.z;
-    PL.x=after.x+x*ca+z*sa;PL.z=after.z-x*sa+z*ca;
-  }
+  if(p&&p.mv)raceCarry88(prev,RACE.t,p);
   RACE74.landAge+=dt;const a=RACE74.landAge;
   RACE74.land=RACE74.impact*(a<.04?a/.04:Math.exp(-(a-.04)*17));
   for(const [id,v] of RACE74.pulse){if(v<=dt)RACE74.pulse.delete(id);else RACE74.pulse.set(id,v-dt);}
@@ -30009,8 +30035,9 @@ function raceBuild(seed){
   P({z:529,y:0,yEnd:30,w:26,d:78,h:3,shape:'ramp',round:3,sec:3,kind:'ramp',col:0xffbd62,boosts:[494,513,532,551].map((z,i)=>({x:i%2?5:-5,z,w:7,d:5}))});   // 82차b — 490~568(예전 478~568). 부스터 자리는 그대로
   // 78차 — shipped 76 baseline: translation frequency ×5, rotation .30→.60 (×2).
   // 87차 — 선생님: "구름다리 원판이 양옆으로 너무 느리게 움직여 — 2배로 빠르게, 2배로 더 길게". 옆 폭 1.1 → 2.2 · 왕복 빠르기 ×5 → ×10(76차 기준) · 앞뒤 폭 .65 → .45(원판 사이 틈이 7 을 넘지 않게 — 한 번 점프로 건넌다).
-  // 원판 반지름 4 > 옆 폭 2.2 라 가운데 1.8 은 늘 원판 위다(가운데를 보고 뛰면 언제나 내린다). 회전은 그대로
-  for(let i=0;i<7;i++)P({x:i%2?1.3:-1.3,z:594+i*12,y:30+(i%2?.2:0),w:8,d:8,h:2.2,shape:'round',sec:4,kind:'moving',col:i%2?0x6edab4:0x6bcff0,mv:{ax:'xz',amp:2.2,zamp:.45,spd:(.65+i*.035)*10,ph:rng()*Math.PI*2,rot:(i%2?-.60:.60)}});
+  // 88차 — 선생님: "구름다리 옆으로 움직이는 원판 지금보다 2배 더 길게". 옆 폭 2.2 → 4.4(왕복 빠르기·앞뒤 폭·회전은 87차 그대로).
+  //  이제 원판이 가운데 줄을 잠깐씩 완전히 벗어나므로, 다음 원판이 가까이 올 때를 보고 뛴다(가장 멀 때 틈 9.2 — 달려 뛰면 닿는다).
+  for(let i=0;i<7;i++)P({x:i%2?1.3:-1.3,z:594+i*12,y:30+(i%2?.2:0),w:8,d:8,h:2.2,shape:'round',sec:4,kind:'moving',col:i%2?0x6edab4:0x6bcff0,mv:{ax:'xz',amp:4.4,zamp:.45,spd:(.65+i*.035)*10,ph:rng()*Math.PI*2,rot:(i%2?-.60:.60)}});
   // 82차 — 곧은 미끄럼(z 722 · 폭 26 · 길이 64) 대신 구불구불 롤러코스터 한 판. 모양·판정은 chute82(CH82) 가 맡는다(w·d 는 겉 테두리 — 경치 자리·카메라 범위용)
   P({x:0,z:CH82.z0+CH82.lz/2,y:CH82.knots[0][1],yEnd:CH82.knots[CH82.knots.length-1][1],w:2*(CH82.hw+CH82.lip),d:CH82.lz,h:3,shape:'slide',chute:1,round:0,sec:5,kind:'slide',col:0x61d7c1});
   P({z:790+CH82_SHIFT,y:0,w:34,d:28,h:3,shape:'round',sec:6,kind:'final',col:0xffc759,bounce:{v:22.5,forward:25}});
@@ -30020,6 +30047,23 @@ function raceBuild(seed){
 function raceOff(p,t){return p.mv?Math.sin(t*p.mv.spd+p.mv.ph)*p.mv.amp:0;}
 function raceZOff(p,t){return p.mv?Math.sin(t*p.mv.spd*.83+p.mv.ph+1.2)*(p.mv.zamp||0):0;}
 function racePose(p,t=RACE.t){return {x:p.x+raceOff(p,t),z:p.z+raceZOff(p,t),a:p.mv?(p.mv.rot||0)*t:0};}
+// 88차 — 움직이는 발판(구름다리 원판) 기준 자리 ↔ 세상 자리. 내 몸 실어 가기·카메라·친구 그리기가 이 한 식을 쓴다(raceContains 와 같은 회전).
+function racePadLocal88(p,x,z,t){const q=racePose(p,t),dx=x-q.x,dz=z-q.z,ca=Math.cos(q.a),sa=Math.sin(q.a);return {lx:dx*ca-dz*sa,lz:dx*sa+dz*ca};}
+function racePadWorld88(p,lx,lz,t){const q=racePose(p,t),ca=Math.cos(q.a),sa=Math.sin(q.a);return {x:q.x+lx*ca+lz*sa,z:q.z-lx*sa+lz*ca};}
+// 경주 시계가 t0 → t1 로 가는 동안 원판에 서 있던 나를 같이 옮긴다. 옮긴 만큼은 카메라 기준점에도 더한다(RACE74.carryX/Z — 순간이동이 아니다).
+// 걸음(raceMotion)뿐 아니라 팝업·멈칫·시계 맞춤으로 흐른 시간(raceTick)도 실어 간다 — 옆 폭 4.4 원판은 0.3초만 놓쳐도 발밑이 빠진다.
+function raceCarry88(t0,t1,p){
+  if(p===undefined)p=PL.ground?raceUnder(t0):null;
+  if(!p||!p.mv||t1===t0)return;
+  const l=racePadLocal88(p,PL.x,PL.z,t0),w=racePadWorld88(p,l.lx,l.lz,t1);
+  RACE74.carryX+=w.x-PL.x;RACE74.carryZ+=w.z-PL.z;PL.x=w.x;PL.z=w.z;
+}
+// 88차 — 원판 위에 서 있으면 [발판 번호, 발판 기준 x, z] 를 같이 보낸다. 받는 쪽은 자기 시계의 원판 위에 다시 얹어 그린다(0.34초 늦게 그려도 허공에 서지 않게).
+function racePadNet88(){
+  if(typeof raceOn!=='function'||!raceOn()||!PL.ground)return null;
+  const p=raceUnder();if(!p||!p.mv)return null;
+  const l=racePadLocal88(p,PL.x,PL.z,RACE.t);return [RACE_P.indexOf(p),+l.lx.toFixed(2),+l.lz.toFixed(2)];
+}
 // The launch marking and collision use the same offset. Landing hints never steer the player.
 const raceDonutSide87=p=>p.side||(p.donutIndex%2?-1:1);   // 87차 — 판마다 씨앗으로 고른 안전한 착지 쪽(없으면 예전처럼 번갈아)
 function raceJumpPose(p,t=RACE.t){const q=racePose(p,t),s=raceDonutSide87(p);return p.bounce?.manual?{x:q.x-s*4,z:q.z+5.5}:q;}
@@ -30071,12 +30115,14 @@ function raceTick(dt){
   if(!RACE.on)raceStart();
   if(G.paused){RACE74.stepped=0;return;}
   // 팝업 중에도 장애물/경주 시계는 흐른다. 이동 서브스텝에서 센 시간은 중복 계산하지 않는다.
+  const tCarry=RACE.t;
   RACE.t+=Math.max(0,dt-RACE74.stepped);RACE74.stepped=0;
   // 1Hz 손님 meta 사이에도 시계가 흐른다. 작은 교정은 0.1초/초 이내로 흡수한다.
   if(G.t!==RACE74.lastNet){RACE74.clock=Math.max(0,RACE_SEC-G.t);RACE74.lastNet=G.t;}
   else RACE74.clock+=dt;
   const drift=RACE74.clock-RACE.t;
   if(Math.abs(drift)>2)RACE.t=RACE74.clock;else RACE.t+=Math.max(-dt*.1,Math.min(dt*.1,drift));
+  if(RACE.fallT<=0&&!RACE74.loop82)raceCarry88(tCarry,RACE.t);   // 88차 — 걸음 밖에서 흐른 시계(팝업·멈칫·시계 맞춤)에도 원판이 나를 실어 간다
   if(MINE.fin>=0)return;
   if(RACE.fallT>0){RACE.fallT-=dt;PL.vy=0;PL.y=MINI_Y-9;if(RACE.fallT<=0)raceRespawn();return;}
   if(PL.y<MINI_Y-7){RACE.fallT=.75;RACE74.pending=null;RACE74.flight=0;toast('☁️ 마지막 깃발에서 다시 출발!',1.2,'#c7ebff');return;}
@@ -30172,14 +30218,20 @@ function raceDonutLayout87(p){
 function raceHazards(t){
   if(!RACE._haz){
     const a=[];const punch=(x,z,floor,sec,id,r=1.65,h=5.6)=>a.push({k:'punch',x,z,y:floor+h/2,h,r,sec,id,power:5});
-    // Four staggered rows: 14 launch columns, including the outer edges of the broad start deck.
-    for(let i=0;i<14;i++)punch(-19.6+i*39.2/13,[12,35,52,69][i%4],0,0,'start'+i,2.35,8);
-    // Multiple two/three-person seams breathe independently. Checkpoint decks remain clear.
-    for(let row=0;row<2;row++)for(let i=0;i<6;i++){
-      const x=(row?[-18.6,-11.4,-3.9,3.6,11.1,18.6]:[-18.6,-11.1,-3.6,3.9,11.4,18.6])[i];
-      punch(x,42+row*19,0,0,'jellyGate'+row+':'+i,2.4,8.2);
-      Object.assign(a[a.length-1],{baseX:x,sway:i===0||i===5?.35:.4,swaySpeed:.92,swayPhase:row*Math.PI+i*Math.PI});
-    }
+    // 88차 — 선생님: "0단계 장애물은 겹쳐 있는 것은 빼고, 옆으로 살짝살짝 움직이게". 26 → 15. 자리는 실제 출발 카메라(출발 자리 24곳,
+    //  뒤 6.25)에서 서로 가리지 않게 골랐다 — 가운데 출발 자리에서 절반 넘게 가려지는 장애물 0(87차 16.8), 모든 자리 평균 2.4(87차 17.3).
+    //  [이름, x, z, 반지름, 키, 옆 흔들림, 빠르기, 박자] — 이름은 예전 것을 다시 쓴다(인형 모양 raceToyForm77 과 검사가 이름으로 고른다).
+    //  · 출발 광장 양옆(z 12) 둘: 처음 30 m 안의 첫 장애물. 서로 반대로 1.0 흔들린다.
+    //  · 갑판 가장자리 기둥(z 40, x ±19.6) 둘은 서 있다: 갑판 끝을 따라 곧게 달리는 길을 막는다(닿는 끝 22.23 · 발끝 받침 22.28 — 5 cm 남는다).
+    //  · 젤리 문 두 줄(z 54 다섯 · z 61.2 여섯)은 지그재그로 서서 앞에서 겹쳐 보이지 않고, 물결처럼 함께 0.5~0.7 흔들린다.
+    //    둘째 줄 양 끝(±19.25, 0.3)이 젤리 문 바깥 빈 길을 닫는다 — 바깥 길 0.6 m 이하(87차 0.65~1.35, 첫 배치는 3~7 m 로 돌아가는 길이 열려 있었다).
+    //    틈 너비 1.6~2.8, 갑판 위에서 곧게만 달리면(어느 x·어느 순간, 걷기 9.74·달리기 14.13) 부딪힌다 — 87차는 약 2% 가 빠져나갔다.
+    const STAGE0_88=[
+      ['start4',-18,12,2.35,8,1,1.25,0],['start8',18,12,2.35,8,1,1.25,Math.PI],['start0',-19.6,40,2.35,8,0,0,0],['start13',19.6,40,2.35,8,0,0,0],
+      ...[-14.5,-7.15,0,7.15,14.5].map((x,i)=>['jellyGate0:'+i,x,54,2.4,8.2,i===0||i===4?.5:.6,.95,i*.15]),
+      // 둘째 줄 이름: 양 끝은 인형(:0·:4 — 발판 무늬가 갑판 안에 든다), 밑이 둥근 발사 주머니(:2·:5)는 안쪽에
+      ...[[0,-19.25],[1,-11.85],[2,-4.05],[3,4.05],[5,11.85],[4,19.25]].map(([k,x],i)=>['jellyGate1:'+k,x,61.2,2.4,8.2,i===0||i===5?.3:.7,.95,-.13+i*.13])];
+    for(const [id,x,z,r,h,sway,swaySpeed,swayPhase] of STAGE0_88){punch(x,z,0,0,id,r,h);if(sway)Object.assign(a[a.length-1],{baseX:x,sway,swaySpeed,swayPhase});}
     const candyCenters=[[-9,108],[8,122],[0,151],[-8,181],[9,196]];
     for(let i=0;i<candyCenters.length;i++){
       const [x,z]=candyCenters[i],w=i%2?-2.7:2.7;a.push({k:'bar',x,z,y:1.7,len:22,r:1.65,ang:0,w,phase:i*1.1,sec:1,id:'candy'+i});
@@ -30277,7 +30329,7 @@ const RACE_TOY77=Array.from({length:5},(_,kind)=>{
 });
 function raceToyForm77(h){
   if(h.k!=='punch'||(h.sec!==0&&h.sec!==1))return -1;
-  // Keep nine original giant launch bags among the seventeen new mascots.
+  // Original giant launch bags mixed among the mascots (88차 stage 0: start4 and each jelly row's :2 — three bags, ten mascots; the id rule is unchanged).
   // These already have the same fivefold knockback as the sculpted toys.
   if(h.sec===0&&(/^start\d+$/.test(h.id)&&((Number(h.id.slice(5))%3===1&&h.id!=='start13')||h.id==='start12')||/^jellyGate[01]:[25]$/.test(h.id)))return -1;
   if(h.toy77===undefined){let n=0;for(const c of h.id||'')n=(n*31+c.charCodeAt(0))>>>0;h.toy77=h.sec===0?n%3:3+n%2;}
@@ -31256,7 +31308,8 @@ function raceArtBuild(){
     };
     for(let i=0;i<RACE_S.length;i++){
       const sec=RACE_S[i],mid=(sec.z0+sec.z1)/2,col=sec.col||pal.coral;
-      const pads=RACE_P.filter(p=>p.sec===i&&!p.cp),wide=Math.max(...pads.map(p=>p.w)),edge=wide/2+6.2;
+      // 88차 — 움직이는 판(구름다리 원판)은 가장 멀리 간 자리까지가 길 폭이다: 옆 폭이 4.4 로 커져 옆 섬·천막·깃발을 그만큼 밖으로 뺀다(원판이 장식을 뚫지 않게).
+      const pads=RACE_P.filter(p=>p.sec===i&&!p.cp),edge=Math.max(...pads.map(p=>p.w/2+(p.mv?Math.abs(p.x)+Math.abs(p.mv.amp||0):0)))+6.2;
       // 82차 — 롤러코스터 구간은 길 가운데가 z 마다 옆으로 굽는다: 경치 x 는 그 자리 길 가운데(ox) + 그 자리 겉폭(ew — 굽이에서 cosθ 만큼 넓다).
       // 벽이 바닥보다 4.5 높아 옆 섬·장식을 2.6 올린다(안에서 벽 너머로 보이게)
       const ch=pads.some(p=>p.chute),ox=z=>ch?chuteQ82(z).cx:0,ew=z=>ch?(CH82.hw+CH82.lip)/chuteQ82(z).cs+6.2:edge,lift=ch?2.6:0;
@@ -32189,7 +32242,7 @@ function joinRoom(code, asHost){
       const p = G.players.get(k) || {x:d.x,z:d.z,y:d.y,ph:Math.random()*6};
       p.uid = k;                       // 든 무기를 pc 통로에서 찾아오려면 열쇠가 필요하다
       p.tx=d.x; p.tz=d.z; p.ty=d.y; if(p.y === undefined) p.y = d.y; p.ry=d.r||0; p.g=d.g|0; p.n=d.n; p.mv=!!d.m; p.tcN = d.tc;   // 67차 — y 도 보간(나선에서 덜컥거리지 않게, 통신 칸 0) · 70차 총 다루기 — 맞힌 횟수(이미 오는 칸) — 친구 쏘기·재장전 그림 추정(friendGun)
-      if(p.bx !== d.x || p.bz !== d.z || p.by !== d.y) friendSeg(p, d.x, d.y, d.z);   // 70차 2회차 — 받은 두 점 사이를 등속으로(friendLerp)
+      if(p.bx !== d.x || p.bz !== d.z || p.by !== d.y) friendSeg(p, d.x, d.y, d.z, undefined, d.pd);   // 70차 2회차 — 받은 두 점 사이를 등속으로(friendLerp)
       p.hp = d.hp===undefined ? SHEEP_HP : d.hp; p.down = !!d.dn;
       p.hat = d.ht|0; p.gls = d.gl|0; p.clo = d.cl|0; p.skin = d.sk|0;
       p.ex = d.ex|0;                   // 67차 — 🗝️ 성곽 탐험가
@@ -32229,7 +32282,7 @@ function packPlayer(){ return {n:G.me.name, g:G.me.g, x:+PL.x.toFixed(2), y:+PL.
       hp:PL.hp|0, dn:PL.down?(SPEC.helpT>0?2:1):0,   /* 66차 — 2 = 쓰러져서 "일으켜 줘요" 부르는 중(칸·횟수 그대로) */ tc:thrown, tt:thTgt, td:thDmg,
       hv:2, hq:hitQueue.length ? hitQueue : null, tf:thF, txs:thXs, tx:thX.length ? thX : null,             // 29차 — 밀치기 방향 · 추가 명중 목록
       ht:G.me.hat|0, gl:G.me.gls|0, cl:G.me.clo|0, sk:G.me.skin|0,
-      ex:treExplorer()?1:0}; }
+      ex:treExplorer()?1:0, pd:racePadNet88()}; }   // 88차 — 구름다리 원판 위면 [발판 번호, 발판 기준 x, z], 아니면 null
 let netIdleT=0,simIdleT=0,lastPosSig='',lastSimSig='';
 function netTick(dt){
   if(!net) return;

@@ -349,7 +349,8 @@ try {
     assert.ok(result.captures[0].potentiallyVisibleHazards.length>0,'At least one nearby obstacle occupies the actual starting camera view');
     assert.ok(result.events.some(e=>e.kind==='hit'),'A naive ten-second forward run must encounter a real obstacle; it must not be scenery only');
     const sections=result.hazards.bySection;
-    assert.ok(sections[0].count>=26&&sections[1].count>=5&&sections[2].manualPads===4&&sections[3].incline&&sections[3].count>0&&
+    // 88차 — 겹쳐 보이던 0단계 장애물을 26 → 15 로 줄였다(선생님 요청).
+    assert.ok(sections[0].count>=15&&sections[1].count>=5&&sections[2].manualPads===4&&sections[3].incline&&sections[3].count>0&&
       sections[4].movingPads>=7&&sections[5].slide&&sections[6].final,
       'Every named section exposes its intended physical challenge: punch bags, sweeps, Space donuts, uphill rocks, moving gaps, steep slide, and final launch');
     assert.equal(result.captures.filter(c=>c.kind==='section-waypoint').length,7,'Save all seven section entry views through the ordinary player camera');
