@@ -58,7 +58,7 @@
     hud.querySelector('button').onclick=()=>{friends.hidden=!friends.hidden;hud.querySelector('button').setAttribute('aria-expanded',String(!friends.hidden));};
     const tools=el('div','vt-tools');tools.innerHTML='<button data-tool="map">마을 지도</button><button data-tool="profile">내 정보</button><button data-tool="help" title="조작 안내">조작 안내</button><button data-tool="zoom-out" aria-label="마을 축소">−</button><button data-tool="zoom-in" aria-label="마을 확대">＋</button><button data-tool="reset">광장으로</button>';
     if(zone==='tailor')tools.querySelector('[data-tool="reset"]').textContent='입구로';container.appendChild(tools);
-    const help=el('div','vt-help');help.hidden=true;help.innerHTML='<b>방향키 / WASD</b> 걷기 · <b>바닥 클릭</b> 길 찾아 걷기<br><b>E</b> 입장·이용 · <b>F</b> 손 흔들기 · <b>Space</b> 점프<br>계단을 따라 올라가고, 다리로 개울을 건너요.';container.appendChild(help);
+    const help=el('div','vt-help');help.hidden=true;help.innerHTML='<b>방향키 / WASD</b> 걷기 · <b>바닥 클릭</b> 길 찾아 걷기<br><b>E</b> 입장·이용 · <b>F</b> 손 흔들기 · <b>Space</b> 점프<br>계단과 밧줄로 높은 곳을 탐험해요.';container.appendChild(help);
     const map=el('div','vt-map');map.hidden=true;map.append(el('strong','','어디로 가 볼까요?'));
     for(const portal of interactions){if(portal.id?.endsWith('-down'))continue;const button=el('button','vt-map-stop',portal.label);button.onclick=()=>{map.hidden=true;navigate(portal);};map.appendChild(button);}
     container.appendChild(map);
@@ -255,7 +255,7 @@
       if(dx)state.facing=dx<0?'left':'right';
       if(state.moving)state.direction=Math.abs(dx)>=Math.abs(dy)?state.facing:'front';
       if(state.moving){phase=(phase+dt*2.2)%1;gesture=null;}
-      if(length&&!state.moving&&Date.now()-blockedAt>3500){blockedAt=Date.now();announce('길이 막혀 있어요. 계단이나 다리 쪽으로 돌아가요.');path=[];goal=null;destination.hidden=true;}
+      if(length&&!state.moving&&Date.now()-blockedAt>3500){blockedAt=Date.now();announce('길이 막혀 있어요. 열린 길이나 계단 쪽으로 돌아가요.');path=[];goal=null;destination.hidden=true;}
       if(state.vy||state.jump){state.vy-=690*dt;state.jump+=state.vy*dt;if(state.jump<=0){state.jump=0;state.vy=0;}}
       if(gesture&&clock()>gesture.at+gesture.duration)gesture=null;
       const p=project(state.x,state.y,state.height),vw=viewport.clientWidth/scale,vh=viewport.clientHeight/scale;

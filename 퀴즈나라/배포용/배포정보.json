@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-01T13:16:12.607Z",
+  "builtAt": "2026-10-01T13:34:03.099Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -131,8 +131,8 @@
     },
     {
       "path": "village-world.js",
-      "bytes": 30184,
-      "sha256": "f1c8297853224f950c1f20bd8bcc1d45d4160595fc0e2366c377ea1985938801"
+      "bytes": 30174,
+      "sha256": "4e6105bd17eff30b51bfcedb0b9d68a20f84d339f5f86a7cf0e5ac8ecbfe0787"
     },
     {
       "path": "village-ambience.js",
