@@ -1,0 +1,8 @@
+퀴즈나라 배포
+
+Cloudflare Pages Direct Upload 또는 Netlify 수동 배포에는 이 폴더 전체를 올리세요.
+index.html, JS, CSS, assets, _headers가 함께 있어야 합니다.
+사용자 에셋 원본 ZIP과 개발·검수 도구는 배포본에 포함하지 않습니다.
+업데이트 후 상위 퀴즈나라 폴더에서 node tools/build-deployment.cjs를 실행해 다시 만드세요.
+node tools/build-deployment.cjs --check로 최신 원본과 일치하는지 확인합니다.
+GitHub 자동 배포 설정은 상위 퀴즈나라 폴더의 배포안내.md를 참고하세요.

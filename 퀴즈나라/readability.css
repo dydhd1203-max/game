@@ -1,0 +1,130 @@
+/* Small labels use the reading face. The carved logo and large play signs
+   keep their illustrated lettering; decoration belongs around the text. */
+:root {
+  --reading-font: "NanumSquareRound", "Malgun Gothic", sans-serif;
+  --reading-ink: #263b29;
+  --reading-muted: #555d45;
+}
+body :is(.btn, .btn.sm, .btn.big, .btn.sm.y, .btn.sm.g, .btn.sm.p,
+  .btn.sm.gray, .tab, .tab.on, .lgGoBtn, .lgWide, .lgWide.ex,
+  .lgPad button, .qp-demo-toolbar button) {
+  --candy-label: var(--reading-ink);
+  color: var(--reading-ink);
+  font-family: var(--reading-font);
+  font-weight: 800;
+  letter-spacing: 0;
+  line-height: 1.3;
+  -webkit-text-fill-color: currentColor;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+body .btn.sm { font-size: 14px; }
+body .btn:not(.sm):not(.big) { font-size: 16px; }
+body .btn.big { font-size: 20px; }
+body .qp-demo-toolbar.qp-demo-toolbar.qp-demo-toolbar button {
+  font-size: 14px;
+  color: var(--reading-ink);
+  font-family: var(--reading-font);
+  font-weight: 800;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+body .tab > :is(span, .candy-label),
+body .btn > .candy-label {
+  color: inherit;
+  font-family: inherit;
+  font-weight: inherit;
+  -webkit-text-fill-color: currentColor;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+body :is(.hint, .qp-demo-toolbar small) {
+  color: var(--reading-muted);
+  font-family: var(--reading-font);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+body :is(.inp, .tarea) {
+  font-family: var(--reading-font);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+  letter-spacing: 0;
+}
+body :is(.inp, .tarea)::placeholder { color: #68715a; }
+body .gold {
+  color: #624218;
+  font-family: var(--reading-font);
+  font-weight: 700;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+body .gold b { color: #624218; font-weight: 800; }
+/* Headings outside the tailor's shop have a dark wood face for plain cream
+   letters. The shop supplies its own quiet material and heading palette. */
+body :is(.pnl-h):not(.shopwrap .pnl-h) {
+  color: #fffbea;
+  background: repeating-linear-gradient(2deg, #fff3b90b 0 6px, #2f201b0a 7px 9px),
+    linear-gradient(#775b38, #634729);
+  font-family: var(--reading-font);
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+/* The teacher operates one quiz library and one list of published sessions. */
+body .teacher-top > .nm {
+  color: #fffbea;
+  font-family: var(--reading-font);
+  font-size: 19px;
+  font-weight: 800;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+body .teacher-top .tab { font-size: 15px; }
+.teacher-library { max-width: 1420px; margin: 0 auto; padding: 25px 28px; }
+body .class-picker-grid.class-picker-new { grid-template-columns: 180px minmax(280px,1fr); max-width: 1050px; margin: 0 auto; }
+.teacher-library-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin: 20px 0; color: var(--reading-muted); }
+.teacher-library-toolbar label { display: flex; align-items: center; gap: 12px; font-weight: 800; }
+.teacher-library-toolbar .inp { width: 300px; }
+.teacher-quiz-list { display: grid; gap: 14px; }
+.teacher-quiz-card { display: flex; align-items: center; gap: 22px; padding: 20px; background: #fffdf3; border: 2px solid #d6ceac; border-radius: 15px; color: var(--reading-ink); }
+.teacher-quiz-details { flex: 1; min-width: 0; }
+.teacher-quiz-details h3 { margin: 0 0 8px; font-size: 20px; overflow-wrap: anywhere; }
+.teacher-quiz-details p { margin: 0; font-size: 15px; color: var(--reading-muted); }
+.teacher-quiz-mode { display: grid; gap: 5px; font-size: 14px; font-weight: 700; }
+.teacher-quiz-mode select { min-width: 125px; padding: 8px; color: var(--reading-ink); background: #fffdf3; border: 1px solid #a9b18f; border-radius: 8px; font-family: var(--reading-font); font-size: 15px; font-weight: 700; }
+.teacher-quiz-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+@media (min-width: 661px) and (max-width: 1100px) {
+  body .teacher-top > .nm { font-size: 16px; }
+  body .teacher-top .tab { font-size: 14px; padding: 7px 9px; }
+  .teacher-quiz-card { gap: 14px; flex-wrap: wrap; }
+  .teacher-quiz-details { flex-basis: 45%; }
+  .teacher-quiz-actions { flex-basis: 100%; }
+}
+/* Movement instructions stay readable over the painted forest scenery. */
+body .qp-motion-heading {
+  padding: 10px 14px;
+  border: 1px solid #bfaa77;
+  border-radius: 12px;
+  background: #fff9e9f5;
+}
+body .qp-motion-heading p {
+  color: #33482c;
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: none;
+}
+body .qp-motion-help {
+  color: #33482c;
+  background: #fff9e9ed;
+  border-radius: 8px;
+  font-weight: 700;
+}
+@media (max-height: 690px) {
+  body .qp-motion-heading { padding-block: 2px; }
+}

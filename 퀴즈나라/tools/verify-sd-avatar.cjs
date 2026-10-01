@@ -3,6 +3,7 @@ const {chromium}=require('playwright');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const out=path.resolve(__dirname,'../검증');
 const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/';
+const expectedHair={f:['bob','long','twin','pony','curly','bun','hime','braid'],m:['short','spiky','part','messy','crop','bowl','fade','undercut','slick','curlm','comma','wolf']};
 
 (async()=>{
   fs.mkdirSync(out,{recursive:true});
@@ -16,6 +17,7 @@ const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/';
     await page.waitForFunction(()=>[QPAvatar.atlas,QPClothes.atlas,QPShoes.atlas,QPPets.atlas,QPEffects.atlas].every(a=>a.ready||a.error||a.normalizationError));
     const health=await page.evaluate(()=>({head:QPAvatar.atlas,clothes:QPClothes.atlas,shoes:QPShoes.atlas,pets:QPPets.atlas,angel:QPEffects.atlas}));
     for(const [name,a] of Object.entries(health))assert(a.ready&&!a.error&&!a.normalizationError,name+': '+JSON.stringify(a));
+    assert.deepEqual(health.head.styleOrder.m,expectedHair.m,'Male atlas must address the twelve original male styles in their published order');
     assert(health.head.hairUrl.includes('sd-heads-female.png')&&health.head.maleUrl.includes('sd-heads-male.png'),'Actual avatar must use newly drawn illustrated heads');
     assert(health.clothes.categories.top.url.includes('sd-tops.png')&&health.clothes.categories.bottom.url.includes('sd-bottoms.png'),'Actual wardrobe must use the new illustrated outfits');
     assert(health.shoes.url.includes('sd-shoes.png'),'Actual avatar must use newly drawn illustrated shoes');
@@ -27,10 +29,11 @@ const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/';
     await page.screenshot({path:path.join(out,'SD-실제-로비.png')});
     await page.evaluate(()=>QPGame.go('shop'));await page.waitForSelector('#pvStage > svg');await smooth('#pvStage > svg');
     const shop=[];
-    for(const [sex,hairs] of [['f',8],['m',4]]){
+    for(const [sex,hairs] of [['f',8],['m',12]]){
       if(await page.evaluate(()=>QPGame.getMe().av.sex)!==sex){await page.locator('#btnGender').click();await page.locator('#avatarSexChoices [data-sex="'+sex+'"]').click();}
       for(const [cat,count] of [['hair',hairs],['top',14],['bottom',11],['shoes',9],['expression',8]]){
         await page.locator('#shTabs [data-c="'+cat+'"]').click();const products=page.locator('#shGrid [data-id]');assert.equal(await products.count(),count,sex+'/'+cat+' catalog');
+        if(cat==='hair')assert.deepEqual(await products.evaluateAll(nodes=>nodes.map(n=>n.dataset.id.split(':')[1])),expectedHair[sex],'Actual shop must expose the expected gender styles without aliases or repeats');
         await smooth('#shGrid [data-id] > .thumb > svg');
         const items=await products.evaluateAll(async nodes=>{
           const results=[];
@@ -56,7 +59,7 @@ const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/';
       const decode=async source=>{const img=new Image();img.src=source;await img.decode();const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;const ctx=c.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0);return{width:c.width,height:c.height,data:ctx.getImageData(0,0,c.width,c.height).data};};
       const mainSource=markup=>{const box=document.createElement('div');box.innerHTML=markup;return (box.querySelector('image[data-qpx-hair-color]:not([data-qpx-tail="true"])')||box.querySelector('image:not([data-qpx-tail="true"])'))?.getAttribute('href');};
       const stat=s=>{let opaque=0,partial=0,leftEdgeOpaque=0,rightEdgeOpaque=0;for(let i=3;i<s.data.length;i+=4){if(s.data[i]>80){opaque++;const x=(i-3)/4%s.width;if(x===0)leftEdgeOpaque++;if(x===s.width-1)rightEdgeOpaque++;}if(s.data[i]>0&&s.data[i]<255)partial++;}return {width:s.width,height:s.height,opaque,partial,leftEdgeOpaque,rightEdgeOpaque,alphaHash:fnv(s.data,true),pixelHash:fnv(s.data)};};
-      const hair={f:['bob','long','twin','pony','curly','bun','hime','braid'],m:['short','part','messy','spiky']};
+      const hair={f:['bob','long','twin','pony','curly','bun','hime','braid'],m:['short','spiky','part','messy','crop','bowl','fade','undercut','slick','curlm','comma','wolf']};
       const dye=[];
       for(const sex of ['f','m'])for(const shape of hair[sex]){
         const colors=catalog.PAL[cats.hair.pal],rows=[];
@@ -68,9 +71,10 @@ const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/';
         for(let color=0;color<colors.length;color++)rows.push({color,...stat(await decode(mainSource(QPAvatar.thumb(category,shape,color,80,'f'))))});
         dye.push({category,shape,colors:rows});
       }
-      const anchors=QPAvatar.atlas.eyeAnchors||{},hairOrder=['short','bob','long','twin','pony','curly','bun','hime','part','messy','spiky','braid'];
+      const anchors=QPAvatar.atlas.eyeAnchors||{},hairOrder=QPAvatar.atlas.styleOrder;
       function eyesMask(source,sex,shape){
-        const tile=hairOrder.indexOf(shape),sexAnchors=anchors[sex],point=sexAnchors?.[tile]||[11.5,20.5,23.7];
+        const tile=hairOrder[sex].indexOf(shape),point=anchors[sex]?.[tile];
+        if(tile<0||!point)throw new Error('Missing measured eye anchors for '+sex+'/'+shape);
         const [left,right,cy]=point,mask=[],edgeMask=[];
         const type=(r,g,b)=>(r<90&&g<90&&b<100)?1:(r>245&&g>245&&b>245)?2:0;
         for(let y=0;y<source.height;y++)for(let x=0;x<source.width;x++){
@@ -166,9 +170,10 @@ const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/';
       for(const color of row.colors){assert(color.opaque>1500&&color.partial>20,'Native illustrated painting incomplete: '+JSON.stringify({shape:row.shape,...color}));}
       if(row.category==='hair')for(const color of row.colors)assert.equal(color.leftEdgeOpaque+color.rightEdgeOpaque,0,'Normalized hairstyle must retain its complete silhouette inside the canvas: '+JSON.stringify({shape:row.shape,...color}));
     }
-    for(const [sex,count] of [['f',8],['m',4]]){
+    for(const [sex,count] of [['f',8],['m',12]]){
       const styles=raster.dye.filter(d=>d.category==='hair'&&d.sex===sex);
       assert.equal(new Set(styles.map(d=>d.colors[1].pixelHash)).size,count,'Each '+sex+' hairstyle must retain distinct painted artwork');
+      if(sex==='m')assert.equal(new Set(styles.map(d=>d.colors[1].alphaHash)).size,count,'The twelve male hairstyles must also have distinct actual silhouettes');
     }
     for(const d of raster.details){
       assert(d.referenceFeaturePixels>40,'Eye/glint sampling needs real face detail: '+JSON.stringify(d));
@@ -207,7 +212,7 @@ const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/';
     assert(motion.some(m=>m.after>m.first+50&&m.iterations===Infinity),'Continuous breathing animation must remain active');
     for(const m of motion)assert(!m.easing.includes('steps'),'Illustrated motion should move smoothly');
     assert.deepEqual(errors,[]);
-    const summary={health,shop,colorCases:raster.dye.reduce((n,r)=>n+r.colors.length,0),hairShapes:12,outfitShapes:34,skins:raster.skins,protectedEyeChecks:raster.details.length,alignment:raster.alignment,blinkPixels:raster.blinkPixels,expression:raster.expression,blink,motion,errors};
+    const summary={health,shop,colorCases:raster.dye.reduce((n,r)=>n+r.colors.length,0),hairShapes:20,outfitShapes:34,skins:raster.skins,protectedEyeChecks:raster.details.length,alignment:raster.alignment,blinkPixels:raster.blinkPixels,expression:raster.expression,blink,motion,errors};
     fs.writeFileSync(path.join(out,'SD-아바타-검증.json'),JSON.stringify({summary,raster},null,2));console.log(JSON.stringify(summary,null,2));
   }finally{await browser.close();}
 })().catch(error=>{console.error(error);process.exitCode=1;});

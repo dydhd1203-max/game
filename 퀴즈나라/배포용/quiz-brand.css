@@ -1,0 +1,194 @@
+/* Original forest-game wordmark. The live class caption stays ordinary HTML. */
+body .logo.lgLogo {
+  color: inherit;
+  font-size: 0;
+  line-height: 1;
+  letter-spacing: 0;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  margin: 0 0 8px;
+}
+body .top .nm.quiz-brand-host {
+  display: flex;
+  align-items: center;
+  flex: none;
+  font-size: 0;
+  line-height: 1;
+  letter-spacing: 0;
+  color: inherit;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+.quiz-brand {
+  --brand-width: 272px;
+  --brand-height: 96px;
+  --brand-letter-size: 60px;
+  --brand-title-bottom: 9px;
+  --brand-caption-size: 14px;
+  --brand-caption-height: 23px;
+  --brand-outline: 2.8px;
+  --brand-rim: 8px;
+  --brand-depth: 5px;
+  position: relative;
+  display: inline-block;
+  width: var(--brand-width);
+  max-width: 100%;
+  height: var(--brand-height);
+  isolation: isolate;
+  vertical-align: middle;
+  text-align: center;
+  font-family: var(--candy-font, "Jua", "NanumSquareRound", sans-serif);
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: 0;
+  line-height: 1;
+  color: #fff;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+.quiz-brand::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url("./assets/quiz-brand-trim.svg") center / 100% 100% no-repeat;
+  pointer-events: none;
+  z-index: -2;
+}
+.quiz-brand-class {
+  position: absolute;
+  top: 1px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  height: var(--brand-caption-height);
+  min-width: 104px;
+  padding: 1px 13px 0;
+  border: 2px solid #f1ce86;
+  border-radius: 9px;
+  background: linear-gradient(#c98b47, #ab652e 49%, #8b4a23 51%, #a7652d);
+  box-shadow: inset 0 1px 0 #ffe9b79e, 0 2px 0 #633615;
+  font-family: inherit;
+  font-size: var(--brand-caption-size);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: .035em;
+  color: #fff8d7;
+  -webkit-text-stroke: 0;
+  text-shadow: 0 1px 0 #68401b;
+  z-index: 3;
+}
+.quiz-brand-title {
+  position: absolute;
+  left: 50%;
+  bottom: var(--brand-title-bottom);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  font-size: var(--brand-letter-size);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -.015em;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  z-index: 1;
+}
+.quiz-brand-title > span {
+  position: relative;
+  display: block;
+  width: .99em;
+  flex: none;
+  isolation: isolate;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+.quiz-brand-face {
+  /* A real foreground glyph keeps the orange extrusion below the gold face. */
+  position: relative;
+  display: block;
+  color: #ffe252;
+  -webkit-text-fill-color: #ffe252;
+  -webkit-text-stroke: var(--brand-outline) #e98410;
+  paint-order: stroke fill;
+  text-shadow: 0 -1px 0 #fff2a2;
+  z-index: 1;
+}
+.quiz-brand-title > span:nth-child(1) { --brand-glyph: "퀴"; transform: translateY(1px) rotate(-7deg); }
+.quiz-brand-title > span:nth-child(2) { --brand-glyph: "즈"; transform: translateY(-3px) rotate(3deg); }
+.quiz-brand-title > span:nth-child(3) { --brand-glyph: "나"; transform: translateY(-1px) rotate(-4deg); }
+.quiz-brand-title > span:nth-child(4) { --brand-glyph: "라"; transform: translateY(2px) rotate(6deg); }
+.quiz-brand-title > span::before,
+.quiz-brand-title > span::after {
+  /* Empty alternate content keeps the decorative extra layers out of the spoken name. */
+  content: var(--brand-glyph) / "";
+  position: absolute;
+  inset: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  background: none;
+  pointer-events: none;
+  paint-order: stroke fill;
+}
+.quiz-brand-title > span::before {
+  color: #e89010;
+  -webkit-text-fill-color: #e89010;
+  -webkit-text-stroke: calc(var(--brand-outline) + 1px) #9a481a;
+  text-shadow: 0 2px 0 #b45a13, 0 var(--brand-depth) 0 #713a19;
+  z-index: 0;
+}
+.quiz-brand-title > span::after {
+  color: #fff7da;
+  -webkit-text-fill-color: #fff7da;
+  -webkit-text-stroke: var(--brand-rim) #fff7da;
+  text-shadow: 0 calc(var(--brand-depth) + 1px) 0 #fff7da;
+  z-index: -1;
+}
+.quiz-brand-compact {
+  --brand-width: 188px;
+  --brand-height: 52px;
+  --brand-letter-size: 33px;
+  --brand-title-bottom: 4px;
+  --brand-caption-size: 10px;
+  --brand-caption-height: 16px;
+  --brand-outline: 1.5px;
+  --brand-rim: 5px;
+  --brand-depth: 3px;
+  margin-top: 0;
+}
+.quiz-brand-compact .quiz-brand-class { top: 0; min-width: 80px; padding-inline: 9px; border-width: 1px; border-radius: 6px; }
+
+@media (min-width: 661px) and (max-height: 690px) {
+  .quiz-brand:not(.quiz-brand-compact) {
+    --brand-height: 84px;
+    --brand-letter-size: 52px;
+    --brand-width: 252px;
+    --brand-title-bottom: 6px;
+  }
+  #login:has(.lgSex:not(.hide)) .quiz-brand {
+    --brand-height: 70px;
+    --brand-letter-size: 44px;
+    --brand-width: 230px;
+    --brand-caption-height: 20px;
+    --brand-caption-size: 12px;
+    --brand-outline: 2.3px;
+    --brand-rim: 7px;
+    --brand-title-bottom: 4px;
+  }
+}
+@media (max-width: 660px) {
+  .quiz-brand:not(.quiz-brand-compact) { --brand-width: 260px; --brand-letter-size: 57px; }
+  .quiz-brand-compact {
+    --brand-width: 164px;
+    --brand-height: 48px;
+    --brand-letter-size: 29px;
+    --brand-title-bottom: 5px;
+    --brand-caption-height: 15px;
+    --brand-caption-size: 9px;
+  }
+}

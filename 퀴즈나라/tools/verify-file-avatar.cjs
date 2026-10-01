@@ -8,9 +8,10 @@ const modules=['avatar-image.js','avatar-clothes.js','avatar-effects.js','avatar
 
 async function ready(frame){
   await frame.waitForFunction(()=>window.QPAvatar&&window.QPClothes&&window.QPPets&&window.QPShoes&&window.QPEffects);
-  await frame.waitForFunction(()=>[QPAvatar.atlas,QPClothes.atlas,QPPets.atlas,QPShoes.atlas,QPEffects.atlas].every(a=>a.ready||a.error||a.normalizationError));
+  await frame.waitForFunction(()=>[QPAvatar.atlas,QPClothes.atlas,QPPets.atlas,QPShoes.atlas,QPEffects.atlas].every(a=>a.ready||a.error||a.normalizationError)&&(QPShoes.atlas.partsReady||QPShoes.atlas.error));
   const state=await frame.evaluate(()=>Object.fromEntries([['head',QPAvatar],['clothes',QPClothes],['pets',QPPets],['shoes',QPShoes],['angel',QPEffects]].map(([name,api])=>[name,{ready:api.atlas.ready,error:api.atlas.error||api.atlas.normalizationError||null}])));
   for(const [name,value] of Object.entries(state))assert(value.ready&&!value.error,name+': '+JSON.stringify(value));
+  assert.equal(await frame.evaluate(()=>QPShoes.atlas.partsCount),18,'All eighteen independent feet must load in hosted and opaque-origin modes');
   return state;
 }
 async function rasterReport(frame,selector){
@@ -70,7 +71,7 @@ async function renderCards(frame,avatars){
     await page.locator('#btnGender').click();
     await page.locator('#avatarSexChoices [data-sex="m"]').click();
     await page.waitForFunction(()=>QPGame.getMe().av.sex==='m');
-    await page.locator('#shTabs [data-c="hair"]').click();assert.equal(await page.locator('#shGrid [data-id]').count(),4);
+    await page.locator('#shTabs [data-c="hair"]').click();assert.equal(await page.locator('#shGrid [data-id]').count(),12);
     assert.equal(await page.locator('#pvStage .qp-pixel-avatar').getAttribute('data-qpx-sex'),'m');
     await page.locator('#btnGender').click();await page.locator('#avatarSexChoices [data-sex="f"]').click();
     await page.waitForFunction(()=>QPGame.getMe().av.sex==='f');assert.equal(await page.locator('#shGrid [data-id]').count(),8);

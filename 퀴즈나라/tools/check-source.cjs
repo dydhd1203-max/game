@@ -7,6 +7,17 @@ require('./build-map-library.cjs').build(true);
 for(const file of files){
   assert(fs.statSync(path.join(root,file)).isFile(),'Required quiz file is missing: '+file);
 }
+// A stylesheet can load correctly while its local artwork is absent from the
+// release folder. Include every concrete local url() dependency in the list.
+const runtimeFiles=new Set(files.map(file=>file.split(path.sep).join('/')));
+for(const file of files.filter(file=>file.endsWith('.css'))){
+  const css=fs.readFileSync(path.join(root,file),'utf8').replace(/\/\*[\s\S]*?\*\//g,'');
+  for(const match of css.matchAll(/url\(\s*['"]?([^'"()\s]+)['"]?\s*\)/gi)){
+    const url=match[1];if(/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(url))continue;
+    const dependency=path.posix.normalize(path.posix.join(path.posix.dirname(file),decodeURIComponent(url.split(/[?#]/)[0])));
+    assert(runtimeFiles.has(dependency),'Stylesheet artwork missing from deployment-files.cjs: '+file+' → '+dependency);
+  }
+}
 const libraries=require('./build-map-library.cjs').definitions.map(([id])=>'assets/'+id+'-library');
 for(const entry of ['index.html','assets/library/index.html',...libraries.map(folder=>folder+'/index.html')]){
   const html=fs.readFileSync(path.join(root,entry),'utf8');

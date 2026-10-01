@@ -1,0 +1,699 @@
+{
+  "version": 1,
+  "image": "sd-shoes-parts.png",
+  "width": 1024,
+  "height": 1536,
+  "format": "RGBA",
+  "sha256": "60a639ce1ec5a90f2d03f704eabc28228b1364ed9bb74909a2e2a0327b58e62d",
+  "created": "2026-10-01",
+  "source": {
+    "tool": "image_gen.imagegen",
+    "generatedFile": "exec-cb93cc13-be0d-4d04-9338-8b2553158ff1.png",
+    "layoutDraft": "exec-43e0a843-b6f3-4a87-aeb9-decd74bd0e63.png",
+    "reference": "sd-shoes.png",
+    "referencePreserved": true,
+    "copiedUnchanged": true,
+    "referenceSha256": "130027125f189d7bc2e9673bc45c5ad9a42144d84395c16778df554bd8cce402"
+  },
+  "layout": {
+    "columns": 3,
+    "rows": 6,
+    "uniformCellClipping": false,
+    "order": "row-major consecutive left/right for each shoeNames entry; explicit per-foot sourceRect is authoritative"
+  },
+  "shoeNames": [
+    "sneaker",
+    "loafer",
+    "boots",
+    "sandal",
+    "hitop",
+    "ballet",
+    "rain",
+    "slipper",
+    "wing_shoes"
+  ],
+  "alpha": {
+    "transparentPixelPercent": 52.367655,
+    "connectedComponentThreshold": 25,
+    "mainConnectedComponents": 18
+  },
+  "shoes": {
+    "sneaker": {
+      "left": {
+        "opaquePixels": 37456,
+        "alpha25Bounds": [
+          64,
+          42,
+          313,
+          265
+        ],
+        "index": 0,
+        "sourceRect": [
+          60,
+          38,
+          257,
+          231
+        ],
+        "ankleOpening": [
+          224,
+          82
+        ],
+        "ankleOpeningCrop": [
+          164,
+          44
+        ],
+        "soleContact": [
+          145,
+          264
+        ],
+        "soleContactCrop": [
+          85,
+          226
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 226
+      },
+      "right": {
+        "opaquePixels": 39157,
+        "alpha25Bounds": [
+          378,
+          40,
+          650,
+          258
+        ],
+        "index": 1,
+        "sourceRect": [
+          374,
+          36,
+          280,
+          226
+        ],
+        "ankleOpening": [
+          457,
+          77
+        ],
+        "ankleOpeningCrop": [
+          83,
+          41
+        ],
+        "soleContact": [
+          560,
+          257
+        ],
+        "soleContactCrop": [
+          186,
+          221
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 221
+      }
+    },
+    "loafer": {
+      "left": {
+        "opaquePixels": 34684,
+        "alpha25Bounds": [
+          726,
+          47,
+          963,
+          269
+        ],
+        "index": 2,
+        "sourceRect": [
+          722,
+          43,
+          245,
+          230
+        ],
+        "ankleOpening": [
+          875,
+          90
+        ],
+        "ankleOpeningCrop": [
+          153,
+          47
+        ],
+        "soleContact": [
+          807,
+          268
+        ],
+        "soleContactCrop": [
+          85,
+          225
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 225
+      },
+      "right": {
+        "opaquePixels": 38423,
+        "alpha25Bounds": [
+          66,
+          286,
+          335,
+          507
+        ],
+        "index": 3,
+        "sourceRect": [
+          62,
+          282,
+          277,
+          229
+        ],
+        "ankleOpening": [
+          139,
+          339
+        ],
+        "ankleOpeningCrop": [
+          77,
+          57
+        ],
+        "soleContact": [
+          238,
+          506
+        ],
+        "soleContactCrop": [
+          176,
+          224
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 224
+      }
+    },
+    "boots": {
+      "left": {
+        "opaquePixels": 38374,
+        "alpha25Bounds": [
+          416,
+          291,
+          653,
+          520
+        ],
+        "index": 4,
+        "sourceRect": [
+          412,
+          287,
+          245,
+          237
+        ],
+        "ankleOpening": [
+          558,
+          317
+        ],
+        "ankleOpeningCrop": [
+          146,
+          30
+        ],
+        "soleContact": [
+          500,
+          519
+        ],
+        "soleContactCrop": [
+          88,
+          232
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 232
+      },
+      "right": {
+        "opaquePixels": 36506,
+        "alpha25Bounds": [
+          756,
+          291,
+          982,
+          519
+        ],
+        "index": 5,
+        "sourceRect": [
+          752,
+          287,
+          234,
+          236
+        ],
+        "ankleOpening": [
+          842,
+          317
+        ],
+        "ankleOpeningCrop": [
+          90,
+          30
+        ],
+        "soleContact": [
+          902,
+          518
+        ],
+        "soleContactCrop": [
+          150,
+          231
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 231
+      }
+    },
+    "sandal": {
+      "left": {
+        "opaquePixels": 35250,
+        "alpha25Bounds": [
+          65,
+          518,
+          297,
+          745
+        ],
+        "index": 6,
+        "sourceRect": [
+          61,
+          514,
+          240,
+          235
+        ],
+        "ankleOpening": [
+          211,
+          559
+        ],
+        "ankleOpeningCrop": [
+          150,
+          45
+        ],
+        "soleContact": [
+          153,
+          744
+        ],
+        "soleContactCrop": [
+          92,
+          230
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 230
+      },
+      "right": {
+        "opaquePixels": 33341,
+        "alpha25Bounds": [
+          428,
+          531,
+          658,
+          745
+        ],
+        "index": 7,
+        "sourceRect": [
+          424,
+          527,
+          238,
+          222
+        ],
+        "ankleOpening": [
+          503,
+          565
+        ],
+        "ankleOpeningCrop": [
+          79,
+          38
+        ],
+        "soleContact": [
+          575,
+          744
+        ],
+        "soleContactCrop": [
+          151,
+          217
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 217
+      }
+    },
+    "hitop": {
+      "left": {
+        "opaquePixels": 37625,
+        "alpha25Bounds": [
+          744,
+          528,
+          979,
+          753
+        ],
+        "index": 8,
+        "sourceRect": [
+          740,
+          524,
+          243,
+          233
+        ],
+        "ankleOpening": [
+          899,
+          556
+        ],
+        "ankleOpeningCrop": [
+          159,
+          32
+        ],
+        "soleContact": [
+          818,
+          752
+        ],
+        "soleContactCrop": [
+          78,
+          228
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 228
+      },
+      "right": {
+        "opaquePixels": 41099,
+        "alpha25Bounds": [
+          69,
+          753,
+          315,
+          991
+        ],
+        "index": 9,
+        "sourceRect": [
+          65,
+          749,
+          254,
+          246
+        ],
+        "ankleOpening": [
+          151,
+          780
+        ],
+        "ankleOpeningCrop": [
+          86,
+          31
+        ],
+        "soleContact": [
+          228,
+          990
+        ],
+        "soleContactCrop": [
+          163,
+          241
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 241
+      }
+    },
+    "ballet": {
+      "left": {
+        "opaquePixels": 34162,
+        "alpha25Bounds": [
+          405,
+          763,
+          644,
+          992
+        ],
+        "index": 10,
+        "sourceRect": [
+          401,
+          759,
+          247,
+          237
+        ],
+        "ankleOpening": [
+          572,
+          827
+        ],
+        "ankleOpeningCrop": [
+          171,
+          68
+        ],
+        "soleContact": [
+          487,
+          991
+        ],
+        "soleContactCrop": [
+          86,
+          232
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 232
+      },
+      "right": {
+        "opaquePixels": 33280,
+        "alpha25Bounds": [
+          744,
+          765,
+          990,
+          987
+        ],
+        "index": 11,
+        "sourceRect": [
+          740,
+          761,
+          254,
+          230
+        ],
+        "ankleOpening": [
+          819,
+          825
+        ],
+        "ankleOpeningCrop": [
+          79,
+          64
+        ],
+        "soleContact": [
+          912,
+          986
+        ],
+        "soleContactCrop": [
+          172,
+          225
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 225
+      }
+    },
+    "rain": {
+      "left": {
+        "opaquePixels": 40069,
+        "alpha25Bounds": [
+          61,
+          1001,
+          291,
+          1250
+        ],
+        "index": 12,
+        "sourceRect": [
+          57,
+          997,
+          238,
+          257
+        ],
+        "ankleOpening": [
+          211,
+          1031
+        ],
+        "ankleOpeningCrop": [
+          154,
+          34
+        ],
+        "soleContact": [
+          141,
+          1249
+        ],
+        "soleContactCrop": [
+          84,
+          252
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 252
+      },
+      "right": {
+        "opaquePixels": 40070,
+        "alpha25Bounds": [
+          438,
+          1001,
+          668,
+          1247
+        ],
+        "index": 13,
+        "sourceRect": [
+          434,
+          997,
+          238,
+          254
+        ],
+        "ankleOpening": [
+          524,
+          1029
+        ],
+        "ankleOpeningCrop": [
+          90,
+          32
+        ],
+        "soleContact": [
+          586,
+          1246
+        ],
+        "soleContactCrop": [
+          152,
+          249
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 249
+      }
+    },
+    "slipper": {
+      "left": {
+        "opaquePixels": 44644,
+        "alpha25Bounds": [
+          728,
+          1017,
+          984,
+          1252
+        ],
+        "index": 14,
+        "sourceRect": [
+          724,
+          1013,
+          264,
+          243
+        ],
+        "ankleOpening": [
+          894,
+          1075
+        ],
+        "ankleOpeningCrop": [
+          170,
+          62
+        ],
+        "soleContact": [
+          834,
+          1251
+        ],
+        "soleContactCrop": [
+          110,
+          238
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 238
+      },
+      "right": {
+        "opaquePixels": 45465,
+        "alpha25Bounds": [
+          63,
+          1267,
+          336,
+          1499
+        ],
+        "index": 15,
+        "sourceRect": [
+          59,
+          1263,
+          281,
+          240
+        ],
+        "ankleOpening": [
+          148,
+          1320
+        ],
+        "ankleOpeningCrop": [
+          89,
+          57
+        ],
+        "soleContact": [
+          232,
+          1498
+        ],
+        "soleContactCrop": [
+          173,
+          235
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 235
+      }
+    },
+    "wing_shoes": {
+      "left": {
+        "opaquePixels": 40067,
+        "alpha25Bounds": [
+          410,
+          1260,
+          653,
+          1485
+        ],
+        "index": 16,
+        "sourceRect": [
+          406,
+          1256,
+          251,
+          233
+        ],
+        "ankleOpening": [
+          580,
+          1296
+        ],
+        "ankleOpeningCrop": [
+          174,
+          40
+        ],
+        "soleContact": [
+          497,
+          1484
+        ],
+        "soleContactCrop": [
+          91,
+          228
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 228
+      },
+      "right": {
+        "opaquePixels": 40958,
+        "alpha25Bounds": [
+          739,
+          1260,
+          991,
+          1486
+        ],
+        "index": 17,
+        "sourceRect": [
+          735,
+          1256,
+          260,
+          234
+        ],
+        "ankleOpening": [
+          812,
+          1296
+        ],
+        "ankleOpeningCrop": [
+          77,
+          40
+        ],
+        "soleContact": [
+          900,
+          1485
+        ],
+        "soleContactCrop": [
+          165,
+          229
+        ],
+        "outlineComplete": true,
+        "leftRightVisuallyChecked": true,
+        "soleFloorCrop": 229
+      }
+    }
+  },
+  "notes": {
+    "sourceRect": "[x,y,width,height], pixels in the original PNG, dominant alpha>=25 bounds with 4px padding. Do not derive clipping from equal rows.",
+    "alpha25Bounds": "[left,top,right,bottom], pixels in original PNG; right and bottom exclusive. Each footprint is one connected dominant alpha component.",
+    "ankleOpening": "Visually measured center of the ankle mouth/insole opening in original PNG absolute pixels. Same point supplied relative to sourceRect as ankleOpeningCrop. Proposed rig anchor: validate in actual worn motion.",
+    "soleContact": "Visually lowest dominant-alpha contact line; x is a real alpha>=25 pixel nearest the mean x of that lowest line. Atlas absolute pixels. soleContactCrop is the same point relative to sourceRect; soleFloorCrop is its y alone.",
+    "side": "Screen-left foot points subtly left; screen-right foot points subtly right. Both remain separate complete paintings.",
+    "dye": "Blue textile/leather region follows existing hue 195–270 dye selection; cream sole/lining, skin-colored insole, flowers, green leaves and gold hardware retain original colors.",
+    "runtime": "Only original art and measured anchors are prepared here. Runtime composition, foot transform and natural worn-motion verification are separate."
+  }
+}

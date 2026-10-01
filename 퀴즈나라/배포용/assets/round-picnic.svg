@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" preserveAspectRatio="none">
+  <!-- Original picnic clearing. Tall scenery remains outside the student seating. -->
+  <defs>
+    <radialGradient id="picnic-lawn" cx=".48" cy=".38" r=".76"><stop stop-color="#daeb92"/><stop offset=".47" stop-color="#b8d978"/><stop offset=".83" stop-color="#94bc60"/><stop offset="1" stop-color="#688f4c"/></radialGradient>
+    <linearGradient id="picnic-earth" x1=".15" y1="0" x2=".8" y2="1"><stop stop-color="#d1bd7f"/><stop offset=".55" stop-color="#b8a36e"/><stop offset="1" stop-color="#937f59"/></linearGradient>
+    <linearGradient id="picnic-water" x1="0" x2="1" y2=".7"><stop stop-color="#3a9495"/><stop offset=".42" stop-color="#6fc5bd"/><stop offset=".76" stop-color="#a7e2cf"/><stop offset="1" stop-color="#55aba6"/></linearGradient>
+    <linearGradient id="picnic-stone" x1=".15" y1="0" x2=".8" y2="1"><stop stop-color="#d9dac2"/><stop offset=".42" stop-color="#b3baa3"/><stop offset="1" stop-color="#78897c"/></linearGradient>
+    <linearGradient id="picnic-bark" x1="0" x2="1"><stop stop-color="#675747"/><stop offset=".34" stop-color="#ab8759"/><stop offset=".68" stop-color="#8a6949"/><stop offset="1" stop-color="#5f5143"/></linearGradient>
+    <linearGradient id="picnic-plank" x1="0" y1="0" x2=".2" y2="1"><stop stop-color="#d7ad72"/><stop offset=".25" stop-color="#c99459"/><stop offset="1" stop-color="#946441"/></linearGradient>
+    <radialGradient id="picnic-leaf" cx=".26" cy=".17" r=".91"><stop stop-color="#b5d875"/><stop offset=".35" stop-color="#8dbc5d"/><stop offset=".75" stop-color="#5f984d"/><stop offset="1" stop-color="#376f43"/></radialGradient>
+    <radialGradient id="picnic-bush" cx=".24" cy=".18" r=".93"><stop stop-color="#c0de7c"/><stop offset=".37" stop-color="#8fbe5d"/><stop offset=".76" stop-color="#6b9f4d"/><stop offset="1" stop-color="#497c42"/></radialGradient>
+    <linearGradient id="picnic-leaf-light" x1="0" x2=".75" y2="1"><stop stop-color="#d8e994"/><stop offset=".57" stop-color="#9bcb64"/><stop offset="1" stop-color="#75a551"/></linearGradient>
+    <linearGradient id="picnic-basket" x1="0" x2=".18" y2="1"><stop stop-color="#e4b870"/><stop offset=".42" stop-color="#c69551"/><stop offset="1" stop-color="#96703f"/></linearGradient>
+    <radialGradient id="picnic-glow" cx=".46" cy=".33" r=".68"><stop stop-color="#fffcd2" stop-opacity=".23"/><stop offset="1" stop-color="#fffcd2" stop-opacity="0"/></radialGradient>
+    <pattern id="picnic-grass-texture" width="173" height="119" patternUnits="userSpaceOnUse">
+      <path d="m11 23 2-6 2 5m55 52 2-5 2 4m56-47 2-4 1 4M44 102l3-5 2 5m96-13 1-4 3 4" fill="none" stroke="#76a44e" stroke-width="1.4" stroke-linecap="round" opacity=".17"/>
+      <path d="m29 53 9-2m89 30 8-2m-34 25 6-1m47-94 7-1" fill="none" stroke="#eaf0b3" stroke-width="1.8" stroke-linecap="round" opacity=".35"/>
+      <path d="m88 34 3-1 3 2-4 1Z" fill="#d5e397" opacity=".45"/><ellipse cx="40" cy="17" rx="1.1" ry=".7" fill="#f5f6c9" opacity=".48"/><ellipse cx="102" cy="86" rx="1.8" ry="1" fill="#789d54" opacity=".14"/><ellipse cx="159" cy="46" rx="1.5" ry="1" fill="#f3f7c4" opacity=".36"/>
+    </pattern>
+    <pattern id="picnic-weave" width="8" height="8" patternUnits="userSpaceOnUse"><path d="M0 3H8M3 0V8" stroke="#8b6338" stroke-width="1" opacity=".42"/><path d="M0 5H8M5 0V8" stroke="#efcc88" stroke-width="1" opacity=".46"/></pattern>
+    <g id="picnic-tuft">
+      <ellipse cy="8" rx="13" ry="3.5" fill="#537d43" opacity=".13"/>
+      <path d="M-11 8C-9 2-15-3-15-6C-6-4-4 2-3 7C-4-3-1-10 2-13C4-5 3 2 2 8C6 0 10-5 15-4C12 1 10 6 7 9Z" fill="#7cac51"/>
+      <path d="M-8 5-13-3M0 5 1-6M6 6 11-1" fill="none" stroke="#b8d67a" stroke-width="1.4" stroke-linecap="round"/>
+    </g>
+    <g id="picnic-daisy">
+      <path d="M0 5C0 9 1 14-1 18M0 13C-7 15-7 8 0 11M0 14C6 14 7 8 1 11" fill="#679c49" stroke="#588541" stroke-width="1.1"/>
+      <path d="M-1-1C-7-10-10-5-5 1C-15-2-14 5-5 5C-12 10-5 13-1 7C0 16 7 12 5 6C13 12 15 4 7 3C17 1 13-5 6-1C9-11 2-12 2-3Z" fill="#fff7d5" stroke="#d9e5a6" stroke-width=".7"/>
+      <ellipse cx="1" cy="3" rx="3.4" ry="3.1" fill="#e7ba52"/><path d="m0 1 2 0" stroke="#fff1a3" stroke-width="1.2" stroke-linecap="round"/>
+    </g>
+    <g id="picnic-pink-flower">
+      <path d="M0 4 1 17M0 11C-8 9-6 5-1 8M1 14C8 10 6 6 1 11" fill="#68a052" stroke="#548645" stroke-width="1.1"/>
+      <path d="M0-1C-6-9-10-6-7 0C-17 0-13 8-6 6C-9 15-1 13 1 7C6 15 11 10 7 5C15 2 11-5 5-1C5-9 0-10 0-1Z" fill="#e99daf" stroke="#c77a96" stroke-width=".7"/>
+      <path d="M-5 0-3 2M3-2 3 0M5 6 3 5" stroke="#ffd7db" stroke-width="1.3" stroke-linecap="round"/><circle cy="3" r="2.5" fill="#fff1a5"/>
+    </g>
+    <g id="picnic-blue-flower">
+      <path d="M0 4-1 18M0 12C-7 13-8 7-1 9M0 15C6 16 7 8 0 12" fill="#6d9d4b" stroke="#538044" stroke-width="1.2"/>
+      <path d="M0 1C-7-5-10-1-6 3C-14 6-10 11-4 8C-5 16 3 14 3 8C9 14 14 8 7 5C15 1 10-5 5 1C7-8-1-8 0 1Z" fill="#b4cddd" stroke="#799cb2" stroke-width=".8"/><circle cx="1" cy="5" r="2.4" fill="#f7e19d"/>
+    </g>
+    <g id="picnic-flowerbed">
+      <path d="M-40 20C-45 8-27 0-18 3C-17-9 2-12 14-3C32-7 41 5 38 14C54 16 40 27 20 27H-17C-34 31-43 27-40 20Z" fill="#5f954a" opacity=".84"/>
+      <use href="#picnic-tuft" transform="translate(-27 11) scale(.75)"/><use href="#picnic-tuft" transform="translate(23 15) scale(.86)"/>
+      <use href="#picnic-daisy" transform="translate(-29 5) rotate(-14) scale(.74)"/><use href="#picnic-pink-flower" transform="translate(-13-1) rotate(12) scale(.83)"/>
+      <use href="#picnic-daisy" transform="translate(4 2) scale(.76)"/><use href="#picnic-blue-flower" transform="translate(22 1) rotate(10) scale(.72)"/>
+      <use href="#picnic-pink-flower" transform="translate(-5 16) rotate(-8) scale(.82)"/><use href="#picnic-pink-flower" transform="translate(31 15) scale(.73)"/>
+      <use href="#picnic-daisy" transform="translate(-24 22) rotate(13) scale(.69)"/><use href="#picnic-daisy" transform="translate(15 24) scale(.7)"/>
+      <path d="m-39 13 5-2m38-13 5-1m19 10 6-2m-24 23 6-2" stroke="#b2cf70" stroke-width="2.5" stroke-linecap="round"/>
+    </g>
+    <g id="picnic-rock">
+      <ellipse cx="7" cy="18" rx="30" ry="11" fill="#4b6f46" opacity=".2"/>
+      <path d="M-27 9-20-13-1-22 21-14 31 4 24 20 0 25-23 19Z" fill="url(#picnic-stone)" stroke="#728d79" stroke-width="1.2"/>
+      <path d="M-20-13-1-22 21-14 12-2-9 2-27 9Z" fill="#dde0c7"/><path d="M-9 2 12-2 24 20 0 25Z" fill="#97a893"/><path d="M12-2 21-14 31 4 24 20Z" fill="#788f82"/>
+      <path d="m-18-10 14-6 10 2m-25 20 10 3m10 10 12-2" fill="none" stroke="#edf0d9" stroke-width="2" stroke-linecap="round" opacity=".6"/><path d="m3-9-6 12 6 8M20 3l-5 5 3 7" fill="none" stroke="#687f73" stroke-width="1" opacity=".57"/>
+      <path d="M-25-3C-27-8-22-12-18-11C-17-18-7-19-5-13C4-18 15-13 14-7C9-4 5-3 0-5C-7 3-16-2-18 1Z" fill="#7ba95b"/><path d="M-21-9-15-10M-5-13 0-11M7-9l5 1" stroke="#b9d583" stroke-width="2.7" stroke-linecap="round"/>
+    </g>
+    <g id="picnic-leaf-spray">
+      <path d="M0 21C3 7 4-10-1-28M2 5l-12-12M3-5l15-15M1 14 16 6" fill="none" stroke="#427a43" stroke-width="1.8"/>
+      <path d="M1-8C-9-8-15-17-11-24C-2-26 4-18 1-8ZM3-17C2-30 9-35 17-34C20-25 12-18 3-17ZM-4-3C-16 0-24-6-22-13C-12-17-6-11-4-3ZM4 2C10-12 19-12 26-8C23 1 15 4 4 2ZM1 14C9 0 20 3 24 9C19 17 11 19 1 14Z" fill="url(#picnic-leaf-light)" stroke="#6fa04a" stroke-width=".7"/>
+      <path d="M0-11-8-21M6-20 14-29M-7-6-17-10M9 0l11-5M6 12l13-2" stroke="#d7e8a2" stroke-width="1.2" stroke-linecap="round" opacity=".64"/>
+    </g>
+    <g id="picnic-shrub">
+      <ellipse cx="7" cy="19" rx="48" ry="15" fill="#476c42" opacity=".2"/>
+      <path d="M-42 7C-52-2-43-20-28-18C-26-34-9-34 1-25C10-38 28-32 28-19C43-22 54-6 42 4C51 14 39 26 24 24C9 36-8 22-15 26C-31 31-49 21-42 7Z" fill="url(#picnic-bush)" stroke="#4f8244" stroke-width="1.3"/>
+      <path d="M-38-6-30-13-22-8-16-17-5-16-2-26 7-19 13-25 24-19 23-11 35-10 39 0 25-3 16 3 5-1-5 7-15 1-27 5-28-3Z" fill="#b0d575" opacity=".52"/>
+      <path d="m-38 11 10 4 11-4m12 11 11-3 7 4m6-14 10-3" fill="none" stroke="#3d723e" stroke-width="2" stroke-linecap="round" opacity=".42"/>
+      <path d="m-24-13 6 1m15-10 5 1m13 4 6 2m-24 20 5-1m26 1 4-2" stroke="#d5e698" stroke-width="2.2" stroke-linecap="round" opacity=".75"/>
+      <g fill="#e5b26c"><circle cx="-24" cy="8" r="2"/><circle cx="24" cy="2" r="2.3"/><circle cx="9" cy="12" r="1.8"/></g>
+    </g>
+    <g id="picnic-tree">
+      <path d="M-18 78C13 67 45 62 76 75C67 84 47 93 10 99C-25 95-32 87-18 78Z" fill="#406d3c" opacity=".18"/>
+      <path d="M-12-6C-9 19-13 48-21 80L-10 87 3 82 18 90 29 84C15 55 14 28 15-8Z" fill="url(#picnic-bark)" stroke="#59654a" stroke-width="2"/>
+      <path d="M-1 51C-3 34-1 18 0 5M-10 80-4 61M16 81 9 55M7 50 5 25" fill="none" stroke="#d0aa6b" stroke-width="2.3" stroke-linecap="round" opacity=".58"/>
+      <path d="M3 18C15 4 29-1 35-13M-4 26C-23 16-27 4-29-8" fill="none" stroke="#735b43" stroke-width="5"/>
+      <path d="M-66 4C-88 2-98-17-87-34C-103-46-92-73-72-75C-80-95-55-113-36-107C-39-129-7-138 8-121C27-138 53-125 55-108C76-110 88-92 81-75C105-72 112-46 98-34C113-12 92 8 73 8C64 34 31 30 18 21C-2 42-29 32-35 19C-51 28-65 22-66 4Z" fill="url(#picnic-leaf)" stroke="#3f7541" stroke-width="2"/>
+      <path d="M-77-66-72-85-51-90-45-101-28-100-23-117-7-118 4-104 14-113 33-105 37-91 55-99 67-85 62-68 79-67 85-51 67-47 62-33 43-38 31-24 14-36-2-27-15-35-30-26-40-39-58-35-65-49-79-50Z" fill="#a5cd6c" opacity=".53"/>
+      <path d="m-79-33 16 4 9-7m-9 34 18-1 10-10m7 22 14-8 13 3m23-2 8-13 14 1m12-26 15-7" fill="none" stroke="#396e3f" stroke-width="3.4" stroke-linecap="round" opacity=".48"/>
+      <path d="m-61-73 12-5 8 2m13-24 11-3 10 5m23-10 10 6m18 28 13 4M-33-52l11-5 8 2m32 6 11-5m-11 35 7 1" fill="none" stroke="#d0e18f" stroke-width="4" stroke-linecap="round" opacity=".63"/>
+      <g fill="#c1dc85" opacity=".63"><path d="m-71-50 8-4 6 4-8 4Z"/><path d="m-21-82 7-4 6 4-6 3Z"/><path d="m32-78 9-3 5 5-8 2Z"/><path d="m50-17 7-4 7 2-4 4Z"/></g>
+      <use href="#picnic-leaf-spray" transform="translate(-58-11) rotate(-30) scale(.52)"/><use href="#picnic-leaf-spray" transform="translate(65-58) rotate(49) scale(.46)"/>
+    </g>
+    <g id="picnic-bench">
+      <ellipse cx="3" cy="48" rx="43" ry="12" fill="#456d3e" opacity=".2"/>
+      <path d="m-35 10-2 36 8 3 4-34M25 13l4 34 8-2-3-36" fill="#6d6248" stroke="#545c43" stroke-width="1.4"/>
+      <path d="m-37-9 74 0-2 17-75 0Z" fill="url(#picnic-plank)" stroke="#876342" stroke-width="1.6"/><path d="m-39 8 74 0 9 18-88 0Z" fill="url(#picnic-plank)" stroke="#886344" stroke-width="1.6"/><path d="m-44 26 88 0-1 7-86 0Z" fill="#92633f" stroke="#76563c" stroke-width="1.3"/>
+      <path d="m-36-6 69 0m-69 7 66 0m-65 12 72 0m-75 7 80 0" stroke="#e6bf7e" stroke-width="1.7" opacity=".7"/>
+      <path d="m-29-2 13-1 9 2m12-3 12 2m-32 20 13-1m6 5 22-2" fill="none" stroke="#91633e" stroke-width=".9"/>
+      <g fill="#685c44"><circle cx="-29" cy="-2" r="1.5"/><circle cx="29" cy="-2" r="1.5"/><circle cx="-33" cy="19" r="1.4"/><circle cx="34" cy="19" r="1.4"/></g>
+    </g>
+    <g id="picnic-basket-prop">
+      <ellipse cx="4" cy="31" rx="28" ry="9" fill="#3e6d3d" opacity=".19"/>
+      <path d="M-17-3C-17-33 17-33 17-3" fill="none" stroke="#8b653c" stroke-width="6"/><path d="M-16-3C-16-28 16-28 16-3" fill="none" stroke="#e2b773" stroke-width="3"/>
+      <path d="M-27 0-21 27C-7 33 12 32 24 26L29 0Z" fill="url(#picnic-basket)" stroke="#8d6b41" stroke-width="1.4"/><path d="M-27 0-21 27C-7 33 12 32 24 26L29 0Z" fill="url(#picnic-weave)"/>
+      <path d="M-26-2C-10-10 14-9 29-2L26 6C10 11-12 10-25 5Z" fill="#dcac63" stroke="#926e41" stroke-width="1.5"/><path d="M-23-1C-9-6 9-6 24-2" fill="none" stroke="#f2d494" stroke-width="2"/>
+      <path d="M-14-4C-10 4-10 12-2 15L11 7 7-8Z" fill="#fbedd3" stroke="#d9c6a3" stroke-width="1"/><path d="m-11-1 4 0m-1-6 0 17m7-15 0 15m-7-9 12 1m-8 5 9 1" fill="none" stroke="#e69c95" stroke-width="2" opacity=".73"/>
+      <path d="M9-5C7-12 20-19 25-10L27-5Z" fill="#dc9b59" stroke="#a8713e" stroke-width="1"/><path d="m16-10 2 4m3-7 2 4" stroke="#f8d99a" stroke-width="1.6" stroke-linecap="round"/>
+    </g>
+    <g id="picnic-mushroom">
+      <ellipse cy="15" rx="13" ry="4" fill="#46713e" opacity=".18"/><path d="M-4-3-6 13C-4 18 5 18 7 12L4-3Z" fill="#eadbb2" stroke="#a59b7d" stroke-width="1"/>
+      <path d="M-16-2C-15-14-5-23 4-20C15-17 20-8 17-1C9 4-7 4-16-2Z" fill="#d87965" stroke="#9c6154" stroke-width="1"/><path d="M-13-3C-2-8 8-7 15-2" fill="none" stroke="#e7aaa0" stroke-width="1.3"/>
+      <g fill="#ffebce"><ellipse cx="-5" cy="-13" rx="3.2" ry="2.5" transform="rotate(-15)"/><ellipse cx="7" cy="-9" rx="2.8" ry="2.2"/><ellipse cx="-10" cy="-5" rx="1.8" ry="1.5"/></g>
+    </g>
+  </defs>
+  <rect width="1200" height="600" fill="url(#picnic-lawn)"/>
+  <path d="M82 115C196 66 330 117 448 91C614 54 719 111 838 96C951 83 1027 75 1135 119L1121 500C1005 518 877 483 777 525C642 564 514 512 385 538C237 560 179 514 83 520Z" fill="#c6de87" opacity=".23"/>
+  <path d="M115 168C222 127 282 171 351 159M643 224C738 197 827 219 931 194M287 369C386 342 471 377 549 365M713 463C820 434 935 467 1014 443" fill="none" stroke="#e5edab" stroke-width="30" stroke-linecap="round" opacity=".11"/>
+  <rect width="1200" height="600" fill="url(#picnic-grass-texture)"/><rect width="1200" height="600" fill="url(#picnic-glow)"/>
+  <!-- Narrow creek on the outer bank, outside all checkered seats. -->
+  <path d="M0 88C52 103 61 142 43 186C23 231 61 255 54 298C47 345 12 368 36 415C53 457 56 496 26 526L0 554Z" fill="#5c8352"/>
+  <path d="M0 101C39 112 48 145 31 183C12 228 51 258 40 297C30 338 0 372 22 418C36 451 42 489 16 522L0 539Z" fill="url(#picnic-earth)"/>
+  <path d="M0 114C29 125 32 146 19 181C0 229 34 258 29 291C23 335-8 370 8 415C26 465 24 485 4 509L0 520Z" fill="url(#picnic-water)"/>
+  <path d="M1 144C17 155 11 173 7 186M0 227C12 238 23 258 20 277M2 339C-3 356-2 370 4 383M1 418C9 440 18 463 10 479" fill="none" stroke="#d8f4df" stroke-width="2" stroke-linecap="round" opacity=".8"/>
+  <path d="m7 157 7 1-4 12m-5 78 7 6-2 9m5 197 7 7-2 8" fill="none" stroke="#dff5e4" stroke-width="1.3" stroke-linecap="round" opacity=".8"/>
+  <path d="M0 306C27 298 54 300 73 317L76 335C49 322 24 321 0 331Z" fill="#516d52" opacity=".3"/>
+  <path d="M-4 286C26 273 55 278 77 296L76 314C48 299 22 297-4 307Z" fill="#829786" stroke="#687e70" stroke-width="1.6"/>
+  <path d="M-4 281C26 268 57 276 78 292L77 300C48 284 22 282-4 295Z" fill="#dddcc0" stroke="#8c9e86" stroke-width="1.3"/>
+  <path d="m13 277 3 12m20-10-1 11m19-4-3 9m19-2-3 7M12 292l-1 11m27-15-1 13m23-6-2 11" fill="none" stroke="#95a48e" stroke-width="1.3"/>
+  <path d="M4 303C16 296 25 296 35 300L36 315 30 321C22 309 17 305 4 313Z" fill="#457972"/>
+  <path d="m1 278 14-3m8-1 12 0m7 2 12 3m5 2 12 5" fill="none" stroke="#f1edd1" stroke-width="2" stroke-linecap="round"/>
+  <!-- Diverse canopy, bough shadows and mossy banks frame the open lawn. -->
+  <path d="M0 0H1200V65C1167 55 1147 83 1117 69C1087 51 1070 61 1046 57C1015 49 985 22 952 28C919 40 900 21 867 26C825 30 792 5 757 15C718 25 684 8 658 12C618 5 578 10 553 11C504 18 471 6 437 13C411 5 367 36 335 26C302 17 264 48 239 42C206 55 183 49 157 69C126 86 110 56 84 69C55 51 28 72 0 63Z" fill="#496f40" opacity=".24"/>
+  <use href="#picnic-tree" transform="translate(-8-14) scale(.81)"/><use href="#picnic-tree" transform="translate(104-45) scale(.65)"/><use href="#picnic-tree" transform="translate(193-91) scale(.48)"/>
+  <use href="#picnic-tree" transform="translate(1046-87) scale(.52)"/><use href="#picnic-tree" transform="translate(1123-40) scale(.68)"/><use href="#picnic-tree" transform="translate(1227-6) scale(.88)"/>
+  <use href="#picnic-tree" transform="translate(-40 198) scale(.65)"/><use href="#picnic-tree" transform="translate(1243 212) scale(.71)"/>
+  <use href="#picnic-tree" transform="translate(-30 519) scale(.82)"/><use href="#picnic-tree" transform="translate(1234 527) scale(.79)"/>
+  <use href="#picnic-shrub" transform="translate(14 89) scale(.69)"/><use href="#picnic-shrub" transform="translate(3 242) scale(.67)"/><use href="#picnic-shrub" transform="translate(11 412) scale(.73)"/>
+  <use href="#picnic-shrub" transform="translate(1184 103) scale(.91)"/><use href="#picnic-shrub" transform="translate(1202 284) scale(.74)"/><use href="#picnic-shrub" transform="translate(1199 430) scale(.82)"/>
+  <use href="#picnic-shrub" transform="translate(64 610) scale(.86)"/><use href="#picnic-shrub" transform="translate(1136 610) scale(.8)"/>
+  <use href="#picnic-rock" transform="translate(56 172) scale(.54) rotate(-9)"/><use href="#picnic-rock" transform="translate(35 348) scale(.42) rotate(13)"/><use href="#picnic-rock" transform="translate(58 377) scale(.58)"/>
+  <use href="#picnic-rock" transform="translate(34 559) scale(.79)"/><use href="#picnic-rock" transform="translate(73 583) scale(.4)"/><use href="#picnic-rock" transform="translate(1150 188) scale(.54) rotate(10)"/>
+  <use href="#picnic-rock" transform="translate(1177 339) scale(.57) rotate(-7)"/><use href="#picnic-rock" transform="translate(1144 570) scale(.59)"/><use href="#picnic-rock" transform="translate(1176 588) scale(.9) rotate(7)"/>
+  <!-- Timber grain, woven baskets and folded cloth distinguish the picnic props. -->
+  <use href="#picnic-bench" transform="translate(45 216) scale(.59) rotate(3)"/><use href="#picnic-basket-prop" transform="translate(58 265) scale(.43) rotate(-5)"/>
+  <use href="#picnic-bench" transform="translate(1159 363) scale(.59) rotate(-4)"/><use href="#picnic-basket-prop" transform="translate(1147 413) scale(.45)"/>
+  <use href="#picnic-basket-prop" transform="translate(104 575) scale(.49) rotate(5)"/><use href="#picnic-basket-prop" transform="translate(1094 578) scale(.5) rotate(-5)"/>
+  <use href="#picnic-flowerbed" transform="translate(52 93) scale(.61)"/><use href="#picnic-flowerbed" transform="translate(61 412) scale(.58)"/><use href="#picnic-flowerbed" transform="translate(91 550) scale(.72)"/>
+  <use href="#picnic-flowerbed" transform="translate(169 592) scale(.74)"/><use href="#picnic-flowerbed" transform="translate(321 607) scale(.65)"/><use href="#picnic-flowerbed" transform="translate(857 606) scale(.69)"/>
+  <use href="#picnic-flowerbed" transform="translate(1030 598) scale(.75)"/><use href="#picnic-flowerbed" transform="translate(1147 497) scale(.58)"/><use href="#picnic-flowerbed" transform="translate(1155 148) scale(.66)"/>
+  <use href="#picnic-leaf-spray" transform="translate(57 315) rotate(18) scale(.74)"/><use href="#picnic-leaf-spray" transform="translate(24 480) rotate(-30) scale(.8)"/><use href="#picnic-leaf-spray" transform="translate(15 565) rotate(-17) scale(.9)"/>
+  <use href="#picnic-leaf-spray" transform="translate(1136 236) rotate(25) scale(.72)"/><use href="#picnic-leaf-spray" transform="translate(1176 472) rotate(29) scale(.81)"/><use href="#picnic-leaf-spray" transform="translate(1194 555) rotate(27) scale(.81)"/>
+  <use href="#picnic-mushroom" transform="translate(20 353) scale(.58)"/><use href="#picnic-mushroom" transform="translate(8 344) scale(.39)"/><use href="#picnic-mushroom" transform="translate(1130 558) scale(.6)"/><use href="#picnic-mushroom" transform="translate(1115 566) scale(.36)"/>
+  <g opacity=".64"><use href="#picnic-tuft" transform="translate(85 147) scale(.54)"/><use href="#picnic-tuft" transform="translate(77 197) scale(.4)"/><use href="#picnic-tuft" transform="translate(61 459) scale(.55)"/>
+    <use href="#picnic-tuft" transform="translate(142 578) scale(.49)"/><use href="#picnic-tuft" transform="translate(381 589) scale(.54)"/><use href="#picnic-tuft" transform="translate(829 581) scale(.45)"/><use href="#picnic-tuft" transform="translate(987 581) scale(.5)"/>
+    <use href="#picnic-tuft" transform="translate(1114 93) scale(.42)"/><use href="#picnic-tuft" transform="translate(1136 309) scale(.53)"/><use href="#picnic-tuft" transform="translate(1148 458) scale(.55)"/>
+  </g>
+  <!-- Fine overhead garland keeps the round gathering festive without extra mats. -->
+  <path d="M222 0C426 38 781 34 1000 0" fill="none" stroke="#557c45" stroke-width="2"/><path d="M222 1C426 39 781 35 1000 1" fill="none" stroke="#c5d898" stroke-width=".7"/>
+  <g stroke="#fff7df" stroke-width="1.1"><path d="m288 11 21 3-12 28Z" fill="#eab0b9"/><path d="m388 21 21 2-11 28Z" fill="#ead389"/><path d="m491 26 21 0-10 29Z" fill="#a6d9dc"/>
+    <path d="m596 28 21-1-9 29Z" fill="#c9b4db"/><path d="m700 25 21-1-8 29Z" fill="#edb48e"/><path d="m802 19 21-2-7 29Z" fill="#b8d87d"/><path d="m903 10 21-3-6 29Z" fill="#eab0b9"/>
+  </g>
+  <g fill="#fff7d7" opacity=".63"><circle cx="287" cy="11" r="1.7"/><circle cx="389" cy="21" r="1.7"/><circle cx="491" cy="26" r="1.7"/><circle cx="596" cy="28" r="1.7"/><circle cx="700" cy="25" r="1.7"/><circle cx="802" cy="19" r="1.7"/><circle cx="903" cy="10" r="1.7"/></g>
+</svg>

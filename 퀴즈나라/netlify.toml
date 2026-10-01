@@ -1,0 +1,4 @@
+# In a Git-connected Netlify site, set Base directory to 퀴즈나라.
+[build]
+  command = "node tools/build-deployment.cjs"
+  publish = "배포용"

@@ -1,0 +1,331 @@
+{
+  "version": 1,
+  "image": "forest-shop-props.png",
+  "width": 1774,
+  "height": 887,
+  "format": "RGBA",
+  "sha256": "17cf130b71ed502336e00c2b998c2b73a488f652dddad6de1ff801faf5d48fe0",
+  "grid": {
+    "columns": 2,
+    "rows": 2,
+    "cellWidth": 887,
+    "rowHeights": [
+      443,
+      444
+    ]
+  },
+  "created": "2026-10-01",
+  "source": {
+    "tool": "image_gen.imagegen",
+    "generatedFile": "exec-4f86dab1-9bbf-4906-a577-66e33ff0741c.png",
+    "layoutDraft": "exec-267a23b3-ed02-4434-85a8-b81e3296f4d2.png",
+    "copiedUnchanged": true
+  },
+  "referenceMaterials": [
+    {
+      "catalogId": "frame-library/frame-2ff1ad2045333b73",
+      "imagePath": "frame-library/originals/frame-2ff1ad2045333b73.jpg",
+      "originalName": "86131411615997906.jpg",
+      "sha256": "2ff1ad2045333b73dbaee1839f0ac5ae13336767f7d45b8b4e39603d020961e1",
+      "role": "wood-sign-material",
+      "candidateReferenceRegion": [
+        171,
+        210,
+        276,
+        201
+      ],
+      "referenceRegionMeasuredForRuntime": false
+    },
+    {
+      "catalogId": "frame-library/frame-6b99379d3662c645",
+      "imagePath": "frame-library/originals/frame-6b99379d3662c645.jpg",
+      "originalName": "2111131068175679.jpg",
+      "sha256": "6b99379d3662c645c14e9bcc2b69e9d8a02f7a303e9475dea6b4a7625534c1d9",
+      "role": "wood-cream-material",
+      "candidateReferenceRegion": [
+        106,
+        171,
+        521,
+        87
+      ],
+      "referenceRegionMeasuredForRuntime": false
+    },
+    {
+      "catalogId": "icon-library/icon-reference-04",
+      "imagePath": "icon-library/originals/icon-reference-04.jpg",
+      "originalName": "149181806399086073.jpg",
+      "sha256": "e567a9eae66d3a7137c7c9b3bb8088b63a592cf689e4aacecc61a12d397838e7",
+      "role": "tailoring-materials",
+      "candidateReferenceRegion": [
+        248,
+        128,
+        109,
+        43
+      ],
+      "referenceRegionMeasuredForRuntime": false
+    },
+    {
+      "catalogId": "house-library/house-0c0b1bd03495c453",
+      "imagePath": "house-library/originals/house-0c0b1bd03495c453.jpg",
+      "originalName": "다운로드 (8).jpg",
+      "sha256": "0c0b1bd03495c453311103c2f4961373a3eac14ab6bb173b7e77c8b00a8e30eb",
+      "role": "shop-display-life",
+      "candidateReferenceRegion": [
+        365,
+        602,
+        365,
+        301
+      ],
+      "referenceRegionMeasuredForRuntime": false
+    }
+  ],
+  "props": {
+    "sign": {
+      "label": "빈 목재 옷 가게 간판",
+      "source": [
+        0,
+        0,
+        887,
+        443
+      ],
+      "sourceRect": [
+        125,
+        41,
+        667,
+        361
+      ],
+      "alpha8Bounds": [
+        137,
+        53,
+        780,
+        390
+      ],
+      "opaqueBounds": [
+        137,
+        55,
+        779,
+        390
+      ],
+      "anchor": [
+        458,
+        390
+      ],
+      "cropAnchor": [
+        333,
+        349
+      ],
+      "cellEdgesContainAlpha8": false,
+      "blankWritingAreaAtlas": [
+        245,
+        250,
+        410,
+        78
+      ],
+      "cssCrop": {
+        "aspectRatio": 1.847645,
+        "backgroundSizePercent": [
+          265.967016,
+          245.706371
+        ],
+        "backgroundPositionPercent": [
+          11.29178,
+          7.794677
+        ]
+      }
+    },
+    "platform": {
+      "label": "타원 목재 피팅 받침",
+      "source": [
+        887,
+        0,
+        887,
+        443
+      ],
+      "sourceRect": [
+        935,
+        127,
+        803,
+        286
+      ],
+      "alpha8Bounds": [
+        947,
+        139,
+        1726,
+        401
+      ],
+      "opaqueBounds": [
+        948,
+        140,
+        1726,
+        400
+      ],
+      "anchor": [
+        450,
+        400
+      ],
+      "cropAnchor": [
+        402,
+        273
+      ],
+      "cellEdgesContainAlpha8": false,
+      "standingAnchor": [
+        443,
+        236
+      ],
+      "cropStandingAnchor": [
+        395,
+        109
+      ],
+      "standingAnchorAtlas": [
+        1330,
+        236
+      ],
+      "cssCrop": {
+        "aspectRatio": 2.807692,
+        "backgroundSizePercent": [
+          220.921544,
+          310.13986
+        ],
+        "backgroundPositionPercent": [
+          96.292482,
+          21.131448
+        ]
+      }
+    },
+    "rack": {
+      "label": "옷걸이와 꽃 화분",
+      "source": [
+        0,
+        443,
+        887,
+        444
+      ],
+      "sourceRect": [
+        125,
+        481,
+        611,
+        380
+      ],
+      "alpha8Bounds": [
+        137,
+        493,
+        724,
+        849
+      ],
+      "opaqueBounds": [
+        138,
+        493,
+        724,
+        848
+      ],
+      "anchor": [
+        431,
+        405
+      ],
+      "cropAnchor": [
+        306,
+        367
+      ],
+      "cellEdgesContainAlpha8": false,
+      "cssCrop": {
+        "aspectRatio": 1.607895,
+        "backgroundSizePercent": [
+          290.343699,
+          233.421053
+        ],
+        "backgroundPositionPercent": [
+          10.748065,
+          94.871795
+        ]
+      }
+    },
+    "tailoring": {
+      "label": "재봉 작업 소품",
+      "source": [
+        887,
+        443,
+        887,
+        444
+      ],
+      "sourceRect": [
+        956,
+        537,
+        734,
+        328
+      ],
+      "alpha8Bounds": [
+        968,
+        549,
+        1678,
+        853
+      ],
+      "opaqueBounds": [
+        969,
+        550,
+        1677,
+        852
+      ],
+      "anchor": [
+        436,
+        409
+      ],
+      "cropAnchor": [
+        367,
+        315
+      ],
+      "cellEdgesContainAlpha8": false,
+      "cssCrop": {
+        "aspectRatio": 2.237805,
+        "backgroundSizePercent": [
+          241.689373,
+          270.426829
+        ],
+        "backgroundPositionPercent": [
+          91.923077,
+          96.064401
+        ]
+      }
+    }
+  },
+  "notes": {
+    "source": "[x,y,width,height] for equal quadrant clipping in the original PNG",
+    "sourceRect": "Tighter alpha>=8 bounds with 12px transparent padding, also [x,y,width,height]",
+    "alpha8Bounds": "Original-atlas [left,top,right,bottom], right and bottom exclusive",
+    "opaqueBounds": "Original-atlas bounds at alpha>=64, right and bottom exclusive",
+    "anchor": "Suggested ground point [x,y] relative to equal source quadrant, derived from alpha>=64 bounds bottom center",
+    "cropAnchor": "Same suggested ground point relative to the tighter sourceRect",
+    "standingAnchor": "Visually verified point on the platform clear wood top, relative to equal source quadrant; separate from ground anchor",
+    "style": "Warm matte forest-village wood, cream, muted pink/blue fabric, gold scissors, jade leaves; upper-left light",
+    "runtime": "Artwork prepared; actual shop controls, avatar placement and app integration are separate"
+  },
+  "gutters": {
+    "vertical": {
+      "bounds": [
+        863,
+        0,
+        911,
+        887
+      ],
+      "alpha8Pixels": 0,
+      "alpha64Pixels": 0,
+      "alphaRange": [
+        0,
+        1
+      ]
+    },
+    "horizontal": {
+      "bounds": [
+        0,
+        419,
+        1774,
+        467
+      ],
+      "alpha8Pixels": 0,
+      "alpha64Pixels": 0,
+      "alphaRange": [
+        0,
+        1
+      ]
+    }
+  }
+}

@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="90" viewBox="0 0 240 90" role="img" aria-label="나이테와 작은 잎이 있는 따뜻한 나무 받침대">
+  <defs>
+    <linearGradient id="bark" x1="0" y1="0" x2="1" y2="0">
+      <stop stop-color="#654027"/>
+      <stop offset=".17" stop-color="#996334"/>
+      <stop offset=".45" stop-color="#bb8846"/>
+      <stop offset=".67" stop-color="#a06b36"/>
+      <stop offset="1" stop-color="#5c3926"/>
+    </linearGradient>
+    <radialGradient id="wood" cx="45%" cy="24%" r="83%">
+      <stop stop-color="#ffeaa3"/>
+      <stop offset=".48" stop-color="#f8d780"/>
+      <stop offset="1" stop-color="#dba94c"/>
+    </radialGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#adcf56"/>
+      <stop offset="1" stop-color="#578638"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="120" cy="82" rx="107" ry="6" fill="#463520" opacity=".2"/>
+  <path d="M23 23C44 10 197 10 217 23L216 50L220 66L230 79L205 81L198 77C162 87 79 87 40 77L15 81L23 63L22 44Z" fill="url(#bark)" stroke="#4b3023" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M39 38C43 49 39 59 42 69L35 77M63 44C66 57 63 67 60 78M88 47C91 61 87 73 90 81M119 49L123 65L120 82M153 47L151 63L157 80M181 42C176 54 183 66 181 78M205 35C201 45 208 57 205 68L216 79" fill="none" stroke="#603d25" stroke-width="3" stroke-linecap="round"/>
+  <path d="M49 41L51 51L46 58M75 46L76 61M104 49L105 56L102 64M138 49L136 60L140 70M169 45L169 55M193 39L190 49L194 59M33 45L31 55M69 69L67 76M107 73L108 81M165 65L166 75M199 64L199 75" fill="none" stroke="#6c482b" stroke-width="1.7" stroke-linecap="round"/>
+  <path d="M46 41C50 52 47 61 49 69M80 46L82 73M113 48L115 76M144 47L144 78M176 43C172 53 178 64 176 71M201 38L200 56" fill="none" stroke="#e3b166" stroke-width="2.2" opacity=".58" stroke-linecap="round"/>
+  <path d="M29 31C36 42 36 64 30 72M212 31C208 46 218 64 214 72" fill="none" stroke="#4b3023" stroke-width="2" opacity=".6"/>
+  <path d="M21 22C22 10 69 2 119 2C172 2 215 10 219 22C222 35 174 44 120 44C66 44 18 36 21 22Z" fill="url(#wood)" stroke="#674223" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M27 21C37 10 79 6 118 6C160 6 200 12 210 21" fill="none" stroke="#fff2c2" stroke-width="2.8" stroke-linecap="round" opacity=".9"/>
+  <g fill="none" stroke="#b88738" stroke-width="1.7" stroke-linecap="round">
+    <path d="M38 23C38 15 79 9 118 9C164 9 204 16 204 24C205 33 164 38 120 38C76 38 37 33 38 23Z"/>
+    <path d="M59 24C61 18 88 13 120 14C150 13 183 17 184 23C184 29 155 33 122 33C91 34 61 30 59 24Z"/>
+    <path d="M82 23C82 19 102 17 120 18C141 17 160 19 161 24C158 28 142 29 122 28C102 29 84 27 82 23Z"/>
+    <path d="M106 23C107 21 131 20 136 23C139 26 111 27 107 24C105 23 116 22 122 23C127 24 117 25 115 24"/>
+  </g>
+  <path d="M31 31L56 28L67 29M187 10L174 16L161 18M213 29L196 27L184 28" fill="none" stroke="#a47230" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M46 33L58 31M180 12L168 16" fill="none" stroke="#fbedb6" stroke-width="1.5" stroke-linecap="round"/>
+  <g fill="url(#leaf)" stroke="#456330" stroke-width="1.5" stroke-linejoin="round">
+    <path d="M209 81C206 71 201 69 200 66C210 65 215 72 215 81Z"/>
+    <path d="M215 82C216 70 222 66 229 66C229 75 224 80 215 82Z"/>
+  </g>
+  <path d="M207 71L215 81L224 71" fill="none" stroke="#bfd973" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M218 84L221 76L223 82L227 74L227 84L231 79L230 85Z" fill="#67983c" stroke="#456330" stroke-width="1.2" stroke-linejoin="round"/>
+</svg>

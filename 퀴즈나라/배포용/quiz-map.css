@@ -1,0 +1,98 @@
+/* The forest's art and controls are scoped to the question map. */
+.qp-quiz-map {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  height: 100%;
+  min-height: 340px;
+  overflow: hidden;
+  border: 4px solid #776342;
+  border-radius: 19px;
+  background: #7aac60;
+  box-shadow: inset 0 0 0 2px #f2dca1, 0 4px 0 #544932;
+  color: #4a512c;
+  font-family: 'NanumSquareRound', sans-serif;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+.qp-map-viewport { position: absolute; inset: 0; overflow: hidden; outline: none; }
+.qp-map-viewport:focus-visible { box-shadow: inset 0 0 0 3px #fff0aa; }
+.qp-map-world { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+.qp-map-scenery { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.qp-map-object-layer, .qp-map-actor-layer { position: absolute; inset: 0; pointer-events: none; }
+.qp-map-object { position: absolute; width: 0; height: 0; pointer-events: none; }
+.qp-map-pot { position: absolute; width: 86px; height: 100px; bottom: -8px; left: -43px; transform-origin: 50% 92%; filter: drop-shadow(0 2px 1px #42502e33); }
+.qp-map-pot svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.qp-map-pot-lid { transform-origin: 64px 25px; }
+.qp-map-pot-spark { opacity: 0; transform-origin: 43px 38px; }
+.qp-map-quest-arrow { animation: qp-map-quest-arrow 1.6s ease-in-out infinite; }
+.qp-map-npc { bottom: -7px; }
+.qp-map-barrier { position: absolute; width: 140px; height: 32px; left: -70px; top: -16px; transform-origin: center; transition: opacity .2s, scale .4s; }
+.qp-map-barrier svg { width: 100%; height: 100%; overflow: visible; }
+.qp-map-object-number { position: absolute; left: 18px; top: -89px; display: grid; place-items: center; min-width: 30px; height: 30px; padding: 1px 5px; border: 2px solid #846236; border-radius: 50%; background: #fff1ba; box-shadow: inset 0 2px 0 #fffbe6, 0 2px 0 #6c542738; color: #79532a; font-family: 'Jua', sans-serif; font-size: 18px; line-height: 1; }
+.qp-map-object.is-near .qp-map-object-number { background: #fff9d9; border-color: #aa7931; box-shadow: 0 0 0 5px #fff4ad55, 0 2px 0 #6c542738; }
+.qp-map-object.is-near .qp-map-pot { filter: drop-shadow(0 0 7px #fff3ab); }
+.qp-map-object.is-near:not(.is-complete) .qp-map-pot-lid { animation: qp-map-lid-wiggle 1.1s ease-in-out infinite; }
+.qp-map-object.is-complete .qp-map-barrier { opacity: 0; scale: .3; }
+.qp-map-object.is-complete .qp-map-object-number { opacity: 0; transition: opacity .3s; }
+.qp-map-object.is-complete .qp-map-pot { opacity: 0; transition: opacity .55s .18s; }
+.qp-map-object.is-opening .qp-map-pot { animation: qp-map-open .65s ease-out; }
+.qp-map-object.is-opening .qp-map-pot-lid { animation: qp-map-fly-lid .65s ease-out forwards; }
+.qp-map-object.is-opening .qp-map-pot-spark { animation: qp-map-spark .65s ease-out; }
+.qp-map-object.is-resumed .qp-map-pot { opacity: 0; transition: none; }
+.qp-map-avatar { position: absolute; left: 0; top: 0; width: 0; height: 0; --qp-map-team-color: #467e62; }
+.qp-map-avatar-shadow { position: absolute; left: -25px; top: -6px; width: 50px; height: 15px; border-radius: 50%; background: #294d3c40; }
+.qp-map-avatar-figure { position: absolute; width: 112px; height: 128px; left: -56px; bottom: -8px; overflow: visible; }
+.qp-map-avatar-figure > svg { display: block; width: 112px !important; height: 128px !important; max-width: none !important; max-height: none !important; overflow: visible; background: none; border: 0; }
+.qp-map-avatar-name { position: absolute; left: 0; top: 13px; transform: translateX(-50%); max-width: 134px; padding: 5px 10px 5px 13px; color: #4b4a32; background: linear-gradient(#fffff9,#fff1c9); border: 2px solid var(--qp-map-team-color); border-left-width: 7px; border-radius: 12px; font-size: 13px; line-height: 1; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; box-shadow: inset 0 2px 0 #fff,0 2px 0 #54643f88,0 4px 5px #264c3326; }
+.qp-map-me .qp-map-avatar-name { background: #fff9e8; }
+.qp-map-sign { position: absolute; left: 14px; top: 13px; min-width: 145px; padding: 8px 17px; border: 3px solid #88603a; border-radius: 9px; background: repeating-linear-gradient(2deg,#fff6d614 0 6px,#8f64280d 7px 9px),linear-gradient(#e4bc79,#cc9c59); box-shadow: inset 0 2px 0 #ffe9b3,0 3px 0 #5b603044,0 5px 8px #31573229; pointer-events: none; }
+.qp-map-sign strong { display: block; color: #fff7d7; font-family: 'Jua',sans-serif; font-size: 23px; line-height: 1.15; font-weight: 400; text-shadow: 0 2px 0 #916032; }
+.qp-map-count { display: block; margin-top: 3px; text-align: center; font-size: 12px; line-height: 1.25; font-weight: 800; color: #71552e; }
+.qp-map-hint { position: absolute; top: 17px; left: 50%; transform: translateX(-50%); max-width: calc(100% - 420px); padding: 7px 13px; border: 1px solid #cbd5a266; border-radius: 17px; background: #fff9dcdf; color: #58643e; font-size: 13px; line-height: 1.4; font-weight: 800; text-align: center; pointer-events: none; }
+.qp-map-controls { position: absolute; inset: auto 15px 15px; height: 142px; pointer-events: none; }
+.qp-map-dpad { position: absolute; left: 0; bottom: 0; width: 140px; height: 140px; display: grid; grid-template-columns: repeat(3,44px); grid-template-rows: repeat(3,44px); gap: 3px; padding: 1px; pointer-events: auto; touch-action: none; }
+.qp-quiz-map .qp-map-step { min-width: 0; min-height: 0; margin: 0; padding: 0; border: 3px solid #fff; border-radius: 13px; background: linear-gradient(#b9edf3 0,#76cbd9 48%,#4bb6cb 49%,#329aaa 100%); box-shadow: inset 0 3px 0 #e7fcff,0 4px 0 #247486,0 7px 8px #28523635; color: #fff; text-shadow: 0 2px 0 #2e8d9f; font-family: sans-serif; font-size: 28px; line-height: 1; font-weight: 800; cursor: pointer; touch-action: none; -webkit-tap-highlight-color: transparent; }
+.qp-map-step-up { grid-column: 2; grid-row: 1; }
+.qp-map-step-left { grid-column: 1; grid-row: 2; }
+.qp-map-step-down { grid-column: 2; grid-row: 3; }
+.qp-map-step-right { grid-column: 3; grid-row: 2; }
+.qp-quiz-map .qp-map-step:is(:active,.is-held) { background: linear-gradient(#a9eec9,#51b77f); box-shadow: inset 0 2px 0 #e5ffec,0 1px 0 #387b59; transform: translateY(3px); }
+.qp-map-key-hint { position: absolute; bottom: -7px; left: 145px; padding: 3px 6px; border-radius: 6px; background: #fff9ddbf; color: #556841; font-size: 11px; line-height: 1.3; font-weight: 800; }
+.qp-quiz-map .qp-map-interact { position: absolute; right: 0; bottom: 4px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 4px; width: 211px; min-height: 67px; padding: 9px 14px; border: 4px solid #fff; border-radius: 18px; background: linear-gradient(#fff3a5 0,#ffd46b 47%,#f2b639 48%,#eea934 100%); box-shadow: inset 0 3px 0 #fff7d0,0 5px 0 #b47c26,0 8px 12px #34543333; color: #73542c; font-family: 'Jua',sans-serif; font-size: 20px; line-height: 1.1; font-weight: 400; pointer-events: auto; touch-action: manipulation; cursor: pointer; }
+.qp-quiz-map .qp-map-interact:disabled { opacity: .83; background: linear-gradient(#f5edcf,#d7d4b2); box-shadow: inset 0 2px 0 #fff9df,0 3px 0 #8c916a; color: #71805b; font-size: 17px; cursor: default; }
+.qp-map-interact kbd { padding: 0; background: transparent; border: 0; color: inherit; font-family: 'NanumSquareRound',sans-serif; font-size: 11px; line-height: 1.2; font-weight: 800; opacity: .8; }
+.qp-quiz-map .qp-map-exit { position: absolute; right: 15px; top: 15px; padding: 8px 12px; border: 2px solid #fff3ce; border-radius: 12px; background: #806349dd; color: #fff7da; font-family: 'Jua',sans-serif; font-size: 17px; line-height: 1.2; cursor: pointer; }
+.qp-map-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.qp-map-overview { position: absolute; top: 15px; right: 15px; width: 128px; height: 100px; padding: 4px; overflow: hidden; border: 3px solid #fff3d3; border-radius: 13px; background: #bc9b68; box-shadow: inset 0 2px 0 #efd6a7,0 3px 0 #725b3e99,0 5px 8px #2e563e30; pointer-events: none; }
+.qp-map-overview svg { display: block; width: 100%; height: 100%; border-radius: 7px; }
+.qp-map-overview.has-exit { top: 64px; }
+@keyframes qp-map-lid-wiggle { 0%,65%,100% { transform: rotate(0); } 73% { transform: rotate(-6deg); } 82% { transform: rotate(4deg); } 91% { transform: rotate(-3deg); } }
+@keyframes qp-map-open { 0% { opacity: 1; transform: scale(1); } 25% { opacity: 1; transform: scale(1.12,.94); } 55% { opacity: 1; transform: scale(.98,1.05); } 100% { opacity: 0; transform: scale(.6); } }
+@keyframes qp-map-fly-lid { 0% { transform: rotate(0); } 100% { transform: translate(24px,-53px) rotate(70deg); } }
+@keyframes qp-map-spark { 0% { opacity: 0; transform: scale(.2); } 35% { opacity: 1; transform: scale(1.3); } 100% { opacity: 0; transform: translateY(-20px) scale(1.8); } }
+@keyframes qp-map-quest-arrow { 0%,100% { transform: translateY(-3px); } 50% { transform: translateY(3px); } }
+@media (max-width: 640px) {
+  .qp-quiz-map { min-height: 380px; border-width: 3px; border-radius: 15px; }
+  .qp-map-sign { left: 9px; top: 9px; min-width: 127px; padding: 7px 10px; border-width: 2px; }
+  .qp-map-sign strong { font-size: 20px; }
+  .qp-map-count { font-size: 11px; }
+  .qp-map-hint { top: 84px; max-width: calc(100% - 34px); width: max-content; font-size: 11px; padding: 5px 9px; }
+  .qp-map-controls { left: 10px; right: 10px; bottom: 14px; }
+  .qp-map-dpad { width: 140px; height: 140px; grid-template-columns: repeat(3,44px); grid-template-rows: repeat(3,44px); gap: 2px; }
+  .qp-quiz-map .qp-map-step { border-radius: 11px; font-size: 26px; }
+  .qp-map-key-hint { display: none; }
+  .qp-quiz-map .qp-map-interact { width: min(190px,calc(100% - 141px)); min-height: 68px; padding: 8px; font-size: 19px; }
+  .qp-quiz-map .qp-map-interact:disabled { font-size: 15px; }
+  .qp-map-interact kbd { display: none; }
+  .qp-quiz-map .qp-map-exit { top: 12px; right: 12px; padding: 7px 10px; font-size: 15px; }
+  .qp-map-overview { top: 11px; right: 11px; width: 104px; height: 76px; border-width: 2px; padding: 3px; }
+  .qp-map-overview.has-exit { top: 126px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qp-map-object.is-near .qp-map-pot-lid { animation: none; }
+  .qp-map-quest-arrow { animation: none; }
+  .qp-map-object.is-opening .qp-map-pot, .qp-map-object.is-opening .qp-map-pot-lid, .qp-map-object.is-opening .qp-map-pot-spark { animation-duration: .01s; }
+  .qp-map-object.is-complete .qp-map-pot { transition: none; }
+}

@@ -1,0 +1,188 @@
+/* The home avatar lives on one painted wooden board, with a hanging name sign.
+   Everything here is scoped to the existing home character card. */
+body .homewrap .mecard {
+  --wood-figure-height: 280px;
+  --wood-figure-bottom: 32px;
+  position: relative;
+  padding: 7px;
+  color: #fff1c7;
+  border: 7px solid #234f51;
+  border-radius: 13px;
+  background:
+    radial-gradient(circle at 5px 5px, #d1ebd2 0 1px, #88b8ae 2px 3px, #284d4e 4px 5px, transparent 6px),
+    radial-gradient(circle at calc(100% - 5px) 5px, #d1ebd2 0 1px, #88b8ae 2px 3px, #284d4e 4px 5px, transparent 6px),
+    radial-gradient(circle at 5px calc(100% - 5px), #d1ebd2 0 1px, #88b8ae 2px 3px, #284d4e 4px 5px, transparent 6px),
+    radial-gradient(circle at calc(100% - 5px) calc(100% - 5px), #d1ebd2 0 1px, #88b8ae 2px 3px, #284d4e 4px 5px, transparent 6px),
+    repeating-linear-gradient(2deg, #ffffff04 0 8px, #214e4929 8px 9px, transparent 9px 22px),
+    repeating-linear-gradient(90deg, #4fa99a 0 43px, #2e837a 43px 46px, #6ab8a3 46px 88px, #397e75 88px 91px);
+  box-shadow: inset 0 0 0 3px #83c4ad, inset 0 5px 0 #b8e9c534, 0 5px 0 #1d3e3e, 0 10px 17px #17342c38;
+  overflow: hidden;
+}
+body .homewrap .mecard > .pnl-h {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  height: 58px;
+  min-height: 58px;
+  padding: 14px 5px 1px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  text-shadow: none;
+  overflow: visible;
+  flex: 0 0 58px;
+  z-index: 4;
+}
+body .homewrap .mecard > .pnl-h::before,
+body .homewrap .mecard > .pnl-h::after {
+  content: '';
+  display: block;
+  position: absolute;
+  top: -5px;
+  width: 8px;
+  height: 25px;
+  border: 0;
+  border-radius: 0;
+  background: radial-gradient(ellipse at center, #c9e1d5 0 19%, #5c8681 22% 35%, #204548 38% 49%, transparent 52%) center / 8px 8px repeat-y;
+  box-shadow: none;
+  transform: none;
+  pointer-events: none;
+  z-index: 2;
+}
+body .homewrap .mecard > .pnl-h::before { left: calc(50% - 72px); }
+body .homewrap .mecard > .pnl-h::after { right: calc(50% - 72px); }
+body .homewrap .wood-name {
+  display: block;
+  width: calc(100% - 17px);
+  max-width: 220px;
+  min-height: 42px;
+  padding: 7px 13px 6px;
+  color: #fffbea;
+  background: repeating-linear-gradient(3deg, #fff7cd0b 0 6px, #884a1726 6px 7px, transparent 7px 14px), linear-gradient(#e6a954, #cb8438);
+  border: 3px solid #905523;
+  border-radius: 8px;
+  box-shadow: inset 0 2px 0 #ffe5a26b, inset 0 -2px 0 #a767283b, 0 3px 0 #2c65564f;
+  text-align: center;
+  font-family: var(--candy-font);
+  font-size: 23px;
+  font-weight: 400;
+  line-height: 1.12;
+  letter-spacing: .02em;
+  -webkit-text-stroke: 0;
+  text-shadow: 0 1px 0 #9a5d2c;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+body .homewrap .mecard > #meStage {
+  position: relative;
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  background: repeating-linear-gradient(1deg, #183e3321 0 1px, transparent 1px 16px), linear-gradient(#75c6ab66, #61b29c3d);
+  border: 0;
+  border-radius: 0;
+  isolation: isolate;
+  overflow: hidden;
+}
+body .homewrap .mecard > #meStage::before,
+body .homewrap .mecard > #meStage::after { display: none; content: none; }
+body .homewrap #meStage .wood-backdrop { position: absolute; inset: 0; width: 100%; height: 100%; overflow: hidden; border: 0; border-radius: 0; opacity: .6; z-index: 0; pointer-events: none; }
+body .homewrap #meStage .wood-backdrop > svg.qp-profile-backdrop { position: absolute; inset: 0; display: block; width: 100%; height: 100%; max-width: none; max-height: none; border: 0; border-radius: 0; overflow: hidden; }
+body .homewrap #meStage > .wood-stump {
+  position: absolute;
+  left: 50%;
+  bottom: 6px;
+  width: 170px;
+  height: 64px;
+  transform: translateX(-50%);
+  background: url('./assets/wood-stump.svg') center / contain no-repeat;
+  pointer-events: none;
+  z-index: 1;
+}
+body .homewrap #meStage > svg.wood-avatar {
+  position: absolute;
+  left: 50%;
+  bottom: var(--wood-figure-bottom);
+  width: auto;
+  height: var(--wood-figure-height);
+  max-width: none;
+  max-height: none;
+  border: 0;
+  border-radius: 0;
+  transform: translateX(-50%);
+  overflow: visible;
+  z-index: 2;
+}
+body .homewrap .mecard > .wood-records {
+  flex: 0 0 78px;
+  min-width: 0;
+  padding: 4px 6px 3px !important;
+  color: #f5edce;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none;
+  text-align: center;
+  z-index: 3;
+}
+body .homewrap .mecard > .wood-records > .wood-caption {
+  margin: 0 0 5px;
+  color: #f6f1d6 !important;
+  font-family: var(--candy-font);
+  font-size: 15px !important;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: .035em;
+  text-shadow: none;
+}
+body .homewrap .wood-progress { display: flex; align-items: stretch; gap: 6px; width: 100%; margin: 0; }
+body .homewrap .wood-progress > * {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0;
+  min-width: 0;
+  gap: 5px;
+  padding: 5px 4px;
+  color: #6e522b;
+  background: repeating-linear-gradient(2deg, #fff1ae0c 0 7px, #8c6d2830 7px 8px, transparent 8px 15px), linear-gradient(#f1dfab, #d8c18a);
+  border: 2px solid #56785c;
+  border-radius: 5px;
+  box-shadow: inset 0 1px 0 #fff3cf8f, 0 2px 0 #215c4c4d;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+body .homewrap .wood-progress :is(b, strong) { color: #65502b; font-size: 15px; font-weight: 800; }
+body .homewrap .mecard .wood-records .hint,
+body .homewrap .mecard .wood-records .hint b { margin-top: 6px; color: #eaf3d9; font-size: 11px; line-height: 1.25; }
+html:is(.qp-avatar-loading, .qp-avatar-error) body .homewrap .mecard > #meStage::before { display: grid; place-items: center; position: absolute; inset: 0; width: auto; height: auto; background: #397d6fd9; color: #fffbe3; font-size: 14px; line-height: 1.5; padding: 15px; border: 0; border-radius: 0; z-index: 4; }
+html.qp-avatar-loading body .homewrap .mecard > #meStage::before { content: '아바타 그림을 불러오는 중…'; }
+html.qp-avatar-error body .homewrap .mecard > #meStage::before { content: '그림을 불러오지 못했어요. 새로고침해 주세요.'; }
+
+@media (min-width: 661px) and (max-width: 1150px) {
+  body .homewrap .mecard { padding: 6px; border-width: 6px; }
+  body .homewrap .wood-name { font-size: 21px; }
+  body .homewrap .wood-progress > * { gap: 3px; padding-inline: 3px; font-size: 11px; }
+}
+@media (min-width: 661px) and (max-height: 690px) {
+  body .homewrap .mecard { --wood-figure-height: 260px; --wood-figure-bottom: 36px; }
+  body .homewrap .mecard > .pnl-h { height: 54px; min-height: 54px; flex-basis: 54px; padding-top: 12px; }
+  body .homewrap .wood-name { min-height: 39px; padding-block: 6px; font-size: 21px; }
+  body .homewrap .mecard > .wood-records { flex-basis: 75px; }
+}
+@media (max-width: 660px) {
+  body .homewrap .mecard { --wood-figure-height: 252px; --wood-figure-bottom: 29px; display: flex; flex-direction: column; width: min(320px, 100%); height: 450px; min-height: 450px; flex: 0 0 450px; padding: 6px; border-width: 6px; }
+  body .homewrap .mecard > .pnl-h { height: 55px; min-height: 55px; flex-basis: 55px; padding: 12px 5px 0; }
+  body .homewrap .mecard > #meStage { display: block; padding: 0; margin: 0; }
+  body .homewrap .wood-name { font-size: 23px; }
+  body .homewrap .mecard > .wood-records { flex-basis: 76px; padding: 4px 6px 3px !important; border: 0 !important; }
+  body .homewrap .mecard > .wood-records > .wood-caption { font-size: 15px !important; }
+  body .homewrap .wood-progress > * { font-size: 12px; }
+  body .homewrap #meStage > .wood-stump { width: 165px; height: 62px; bottom: 5px; }
+}

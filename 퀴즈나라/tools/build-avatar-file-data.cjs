@@ -4,7 +4,7 @@ const root = path.resolve(__dirname, '..');
 const sources = [
   'assets/sd-heads-female.png', 'assets/sd-heads-male.png',
   'assets/sd-tops.png', 'assets/sd-bottoms.png', 'assets/sd-hood.png',
-  'assets/pixel-pets-v2.png', 'assets/sd-shoes.png', 'assets/angel-effect.png'
+  'assets/pixel-pets-v2.png', 'assets/sd-shoes.png', 'assets/sd-shoes-parts.png', 'assets/angel-effect.png'
 ];
 function build(check = false) {
   const data = Object.fromEntries(sources.map(file => [file, 'data:image/png;base64,' + fs.readFileSync(path.join(root, file)).toString('base64')]));

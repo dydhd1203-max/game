@@ -1,0 +1,352 @@
+/* A forest tailor's shop. The accepted SD renderer and purchase state stay in
+   index.html; this layer owns the readable shelves and quiet fitting room. */
+body .qp-village-shop {
+  --shop-ink: #3f4c34;
+  --shop-muted: #6b745d;
+  --shop-paper: #fffae9;
+  --shop-line: #d4c39b;
+  grid-template-columns: 250px minmax(0, 1fr) 260px;
+  gap: 20px;
+  padding: 22px 24px 27px;
+}
+body .qp-village-shop > .pnl {
+  isolation: isolate;
+  border: 4px solid #94713f;
+  border-radius: 16px;
+  background: #f8efd9;
+  box-shadow: inset 0 0 0 2px #f0d898, 0 5px 0 #5f4b31, 0 10px 20px #203e343b;
+}
+body .qp-village-shop > .pnl::after { display: none; }
+body .qp-village-shop :is(.pnl-h, .tab, .tab > span, .btn, .hint, .nm2, .pr, .badge) {
+  font-family: "NanumSquareRound", "Malgun Gothic", sans-serif;
+  font-synthesis: none;
+  letter-spacing: 0;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: none !important;
+}
+body .qp-village-shop :is(.pnl-h, .tab, .btn, .nm2, .pr) { font-weight: 800; }
+body .qp-village-shop .hint { font-size: 14px; font-weight: 700; line-height: 1.65; color: var(--shop-muted); }
+body .qp-village-shop .pnl-h {
+  justify-content: center;
+  min-height: 47px;
+  padding: 12px 14px;
+  color: #fff8df;
+  font-size: 18px;
+  line-height: 1.3;
+  border-radius: 10px 10px 0 0;
+  background: linear-gradient(#a57f4b, #876037);
+  border-bottom-color: #765432;
+}
+body .qp-village-shop .pnl-h::before { display: none; }
+body .qp-village-shop > .pnl:first-child .pnl-h {
+  position: relative;
+  min-height: 116px;
+  height: 116px;
+  flex: 0 0 116px;
+  align-items: flex-end;
+  padding: 0 12px 24px;
+  background: #e1e7c6;
+  border: 0;
+  color: #574326;
+  box-shadow: none;
+  z-index: 1;
+}
+body .qp-village-shop > .pnl:first-child .pnl-h::after {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 50%;
+  width: 200px;
+  height: 108.25px;
+  transform: translateX(-50%);
+  background: url('./assets/forest-shop-props.png') -37.48px -12.29px / 531.93px 265.97px no-repeat;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  z-index: -1;
+  pointer-events: none;
+}
+body .qp-village-shop > .pnl:last-child .pnl-h {
+  background: linear-gradient(#c9b27b, #b59a62);
+  border-bottom-color: #947842;
+  color: #514226;
+}
+
+/* The plain arched wall puts the face and garment silhouette first. */
+body .qp-village-shop .shop-fitting .mestage {
+  display: grid;
+  position: relative;
+  place-items: center;
+  padding: 8px 10px 18px;
+  background: radial-gradient(ellipse at 50% 25%, #fff9db, #e5ead0 66%, #c8d4b1);
+  overflow: hidden;
+  isolation: isolate;
+}
+body .qp-village-shop .shop-fitting .mestage::before {
+  content: '';
+  position: absolute;
+  inset: 14px 13px 19px;
+  width: auto;
+  height: auto;
+  border: 3px solid #f9edc7;
+  border-bottom-width: 8px;
+  border-radius: 48% 48% 11px 11px;
+  background: radial-gradient(ellipse at 50% 36%, #fffdf050, #e7edd540 70%), linear-gradient(90deg, #9ea97415, #ffffff34 45%, #8d9b6815);
+  box-shadow: inset 0 0 0 1px #b8bb8d, 0 3px 0 #929f6d45;
+  z-index: -1;
+}
+body .qp-village-shop .shop-fitting .mestage::after {
+  content: '';
+  position: absolute;
+  top: calc(50% + 94px);
+  bottom: auto;
+  left: 50%;
+  width: 180px;
+  height: 64.11px;
+  border-radius: 0;
+  transform: translateX(-50%);
+  background: url('./assets/forest-shop-props.png') -209.59px -28.47px / 397.66px 198.83px no-repeat;
+  border: 0;
+  box-shadow: none;
+  z-index: 0;
+}
+body .qp-village-shop #pvStage > svg {
+  position: relative;
+  height: 280px;
+  width: auto;
+  max-width: 100%;
+  max-height: 100%;
+  z-index: 1;
+  overflow: visible;
+  border-radius: 0;
+}
+body .qp-village-shop .shop-fitting > .shop-fitting-controls {
+  padding: 13px 11px !important;
+  background: linear-gradient(#e6d6ad, #d3ba89) !important;
+  border-top: 3px solid #ad915b !important;
+  box-shadow: inset 0 2px 0 #f6e8bc;
+}
+body .qp-village-shop .shop-fitting-controls .btn {
+  min-height: 38px;
+  padding: 8px 7px;
+  color: #4e4d36;
+  font-size: 14px;
+  border: 2px solid #faedc8;
+  border-radius: 10px;
+  background: linear-gradient(#fff8df, #eddbad);
+  box-shadow: inset 0 2px 0 #fff, 0 3px 0 #9f8351;
+}
+body .qp-village-shop .shop-fitting-controls .btn.p { background: linear-gradient(#eee9e7, #d9cbd6); color: #655461; }
+body .qp-village-shop .shop-fitting-controls .btn::before,
+body .qp-village-shop .shop-fitting-controls .btn::after { display: none; }
+
+/* Fifteen equal cells make the category bar three tidy rows at every laptop
+   width. They never hide categories or leave a single button on its own row. */
+body .qp-village-shop .qp-shop-switch {
+  position: relative;
+  padding: 12px 14px;
+  gap: 12px;
+  border-bottom: 3px solid #88653b;
+  background: repeating-linear-gradient(2deg, #e7c89112 0 8px, #63472c10 9px 10px), linear-gradient(#b18c53, #977443);
+  box-shadow: inset 0 2px 0 #e5ca8e;
+  z-index: 2;
+}
+body .qp-village-shop .qp-shop-switch .tab.tab {
+  min-height: 43px;
+  padding: 10px 13px;
+  border: 2px solid #e2ce98;
+  border-radius: 10px;
+  color: #594f35;
+  background: linear-gradient(#fff8de, #ead8aa);
+  box-shadow: inset 0 2px 0 #fffbea, 0 3px 0 #785b35;
+  font-size: 17px;
+  line-height: 1.25;
+}
+body .qp-village-shop .qp-shop-switch .tab.on { color: #365839; background: linear-gradient(#e3edc7, #b9d294); border-color: #8aa265; }
+body .qp-village-shop #shTabs {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 7px;
+  padding: 12px 14px;
+  background: linear-gradient(#fbf6e7, #eee7cf);
+  border-bottom: 1px solid var(--shop-line);
+  overflow: visible;
+  flex-shrink: 0;
+  z-index: 2;
+}
+body .qp-village-shop #shTabs .tab {
+  min-width: 0;
+  min-height: 36px;
+  padding: 7px 5px;
+  gap: 5px;
+  color: #586044;
+  background: #fffbee;
+  border: 1px solid #c6bf98;
+  border-radius: 8px;
+  box-shadow: inset 0 1px 0 #fff, 0 2px 0 #d4c59c;
+  font-size: 14px;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+body .qp-village-shop #shTabs .tab > span { color: inherit; font: inherit; }
+body .qp-village-shop #shTabs .tab.on { color: #3c5c36; background: #dcebc5; border-color: #8aa36f; box-shadow: inset 0 1px 0 #eff9d9, 0 2px 0 #adbf8c; }
+body .qp-village-shop #shTabs .tab :is(.rich-icon, .candy-icon) { width: 18px; height: 18px; filter: none; }
+body .qp-village-shop .qp-shop-switch .tab::before,
+body .qp-village-shop .qp-shop-switch .tab::after,
+body .qp-village-shop #shTabs .tab::before,
+body .qp-village-shop #shTabs .tab::after { display: none; }
+body .qp-village-shop .shop-colour-strip {
+  position: relative;
+  padding: 10px 14px;
+  background: #fffaf0 !important;
+  border-bottom: 1px solid var(--shop-line) !important;
+  z-index: 2;
+}
+body .qp-village-shop #shPal { gap: 8px; }
+body .qp-village-shop #shPal button { width: 28px !important; height: 28px !important; border: 2px solid #d8c9a9 !important; box-shadow: 0 2px 0 #b9a57d; }
+body .qp-village-shop #shPal button[aria-pressed="true"] { outline: 2px solid #536f40; outline-offset: 2px; }
+body .qp-village-shop #shPal .hint { font-size: 14px; }
+
+/* Independent garment artwork rests on small wood shelves. The cards use
+   a quiet fabric backing rather than an ornamental frame around every item. */
+body .qp-village-shop .shop-shelves {
+  background: repeating-linear-gradient(0deg, #997b4810 0 1px, transparent 1px 6px), repeating-linear-gradient(90deg, #fffdf52b 0 1px, transparent 1px 6px), linear-gradient(#f3ebd5, #e5d5b0);
+}
+body .qp-village-shop #shGrid {
+  position: relative;
+  z-index: 2;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 21px 18px;
+  padding: 17px 18px 24px;
+  background: transparent;
+  align-content: start;
+}
+body .qp-village-shop #shGrid .itm {
+  position: relative;
+  min-width: 0;
+  min-height: 202px;
+  padding: 11px 9px 12px;
+  border: 1px solid #ceb98c;
+  border-radius: 9px;
+  color: var(--shop-ink);
+  background: linear-gradient(#fffcf1, #f9efd6);
+  box-shadow: inset 0 1px 0 #fff, 0 2px 2px #745c3026;
+}
+body .qp-village-shop #shGrid .itm::after {
+  content: '';
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  bottom: -8px;
+  height: 7px;
+  border: 1px solid #9b7746;
+  border-radius: 2px;
+  background: #ba9559 url('./assets/frame-library/originals/frame-6b99379d3662c645.jpg') -228px -450px / 1472px 1272px no-repeat;
+  box-shadow: inset 0 1px 0 #ecd6a0, 0 3px 0 #947346, 0 5px 5px #6e56292b;
+  pointer-events: none;
+}
+body .qp-village-shop #shGrid .itm .thumb {
+  height: 116px;
+  min-height: 116px;
+  border: 0;
+  border-radius: 6px;
+  background: radial-gradient(ellipse at 50% 40%, #fffdf7, #ece9d2);
+  box-shadow: inset 0 -1px 0 #d9d0b0;
+}
+body .qp-village-shop #shGrid .itm .thumb > svg { height: 110px; width: auto; max-width: 100%; }
+body .qp-village-shop #shGrid .itm .shop-none { color: #839076; font-size: 36px; }
+body .qp-village-shop #shGrid .itm .nm2 { height: auto; min-height: 38px; margin-top: 8px; color: #495c38; font-size: 14px; line-height: 1.4; overflow-wrap: anywhere; }
+body .qp-village-shop #shGrid .itm .pr { padding-top: 2px; color: #936826; font-size: 15px; line-height: 1.4; }
+body .qp-village-shop #shGrid .itm .pr.free { color: #518149; }
+body .qp-village-shop #shGrid .itm.own { border-color: #a2b280; box-shadow: inset 0 1px 0 #fff, 0 2px 2px #6b814329; }
+body .qp-village-shop #shGrid .itm.r2 { background: linear-gradient(#fffaf3, #f0e7ec); border-color: #baa6b7; }
+body .qp-village-shop #shGrid .itm.r3 { background: linear-gradient(#fffaf0, #f6e5b4); border-color: #c8a856; }
+body .qp-village-shop #shGrid .itm.on { background: linear-gradient(#f4f9e5, #e5edc6); border: 2px solid #759054; padding: 10px 8px 11px; box-shadow: inset 0 1px 0 #fff, 0 0 0 2px #fdf8de; }
+body .qp-village-shop #shGrid .itm.on .nm2 { color: #3e5b32; }
+body .qp-village-shop #shGrid .itm .badge { top: 5px; right: 5px; padding: 3px 6px; color: #416643; border: 1px solid #9bb080; border-radius: 6px; background: #e4efcf; box-shadow: none; font-size: 14px; line-height: 1.3; font-weight: 800; }
+body .qp-village-shop #shGrid .itm .badge.eq { color: #7d5c22; border-color: #c7a665; background: #f6e3a8; }
+.shop-workshop-scenery { position: absolute; z-index: 1; pointer-events: none; inset: auto 24px 21px; height: 148px; }
+.shop-prop { display: block; position: absolute; pointer-events: none; background-repeat: no-repeat; }
+.shop-prop-rack { bottom: 0; right: 0; width: 174px; height: 108.22px; background-image: url('./assets/forest-shop-props.png'); background-size: 505.21px 252.61px; background-position: -35.6px -136.99px; }
+.shop-prop-sewing { bottom: 0; left: 50%; width: 180px; height: 80.44px; transform: translateX(-50%); background-image: url('./assets/forest-shop-props.png'); background-size: 435.04px 217.52px; background-position: -234.44px -131.69px; }
+
+/* The right-hand parchment gives the selected garment enough room and puts
+   purchase, ownership and the currently worn pieces in plain reading text. */
+body .qp-village-shop #shInfo {
+  padding: 18px 17px !important;
+  color: var(--shop-ink);
+  background: radial-gradient(ellipse at 45% 20%, #fffef2, #f5e8c8 92%);
+  font-size: 14px;
+  line-height: 1.55;
+}
+body .qp-village-shop #shInfo .shop-detail-picture {
+  display: grid;
+  place-items: center;
+  min-height: 165px;
+  padding: 10px 8px;
+  margin-bottom: 15px;
+  border: 0;
+  border-bottom: 2px solid #d6c39a;
+  border-radius: 0;
+  background: radial-gradient(ellipse, #fffdf380, #f4ecd250) !important;
+  box-shadow: none;
+}
+body .qp-village-shop .shop-detail-picture > svg { height: 138px; max-width: 100%; width: auto; }
+body .qp-village-shop .shop-info-title { color: #4c5e39; font-size: 19px; font-weight: 800; line-height: 1.45; }
+body .qp-village-shop .shop-info-title .tag { display: inline-block; margin-top: 5px; font-size: 14px; line-height: 1.6; }
+body .qp-village-shop #shInfo .shop-detail-price { font-size: 15px; }
+body .qp-village-shop #shInfo .btn {
+  min-height: 45px;
+  padding: 11px 12px;
+  color: #465d36;
+  font-size: 16px;
+  background: linear-gradient(#eaf4cf, #b9d093);
+  border: 2px solid #93a970;
+  border-radius: 10px;
+  box-shadow: inset 0 2px 0 #fcffe9, 0 3px 0 #667e44;
+}
+body .qp-village-shop #shInfo .btn.y { color: #735326; background: linear-gradient(#fff0bb, #e4c478); border-color: #c29c54; box-shadow: inset 0 2px 0 #fff9e1, 0 3px 0 #a38245; }
+body .qp-village-shop #shInfo .btn.gray { color: #767759; background: #e9e7d1; border-color: #babc97; box-shadow: 0 2px 0 #a4a27e; }
+body .qp-village-shop #shInfo .btn::before,
+body .qp-village-shop #shInfo .btn::after { display: none; }
+.shop-fitting-note { padding-bottom: 16px; }
+.shop-worn-list { padding-top: 13px; border-top: 1px dashed #c4b28c; }
+.shop-info-subtitle { margin-bottom: 10px; color: #576e40; font-weight: 800; font-size: 16px; }
+.shop-worn-row { align-items: start; gap: 8px; padding: 4px 0; font-size: 14px; line-height: 1.45; color: #6c7857; }
+.shop-worn-category { flex: 0 0 53px; color: #526941; font-weight: 800; }
+.shop-worn-row > :last-child { min-width: 0; overflow-wrap: anywhere; }
+
+@media (min-width: 1650px) and (min-height: 850px) {
+  body .qp-village-shop { grid-template-columns: 285px minmax(0, 1fr) 290px; padding: 29px; gap: 25px; }
+  body .qp-village-shop #shGrid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  body .qp-village-shop #shGrid .itm { min-height: 216px; }
+  body .qp-village-shop #shGrid .itm .thumb { height: 126px; min-height: 126px; }
+  body .qp-village-shop #shGrid .itm .thumb > svg { height: 120px; }
+}
+@media (min-width: 901px) and (max-width: 1150px) {
+  body .qp-village-shop { grid-template-columns: 200px minmax(0, 1fr) 215px; gap: 13px; padding: 16px 14px 22px; }
+  body .qp-village-shop #shTabs { padding-inline: 10px; gap: 6px; }
+  body .qp-village-shop #shTabs .tab { padding-inline: 3px; gap: 3px; font-size: 14px; }
+  body .qp-village-shop #shTabs .tab :is(.rich-icon, .candy-icon) { width: 16px; height: 16px; }
+  body .qp-village-shop #shGrid { padding-inline: 13px; grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); gap: 20px 13px; }
+  body .qp-village-shop #shInfo { padding-inline: 13px !important; }
+  body .qp-village-shop .shop-fitting-controls .btn { font-size: 14px; padding-inline: 3px; }
+  body .qp-village-shop > .pnl:first-child .pnl-h::after { width: 180px; height: 97.42px; background-size: 478.74px 239.37px; background-position: -33.73px -11.06px; top: 9px; }
+  body .qp-village-shop .shop-info-title { font-size: 18px; }
+}
+@media (min-width: 661px) and (max-height: 690px) {
+  body .qp-village-shop { padding-top: 14px; padding-bottom: 21px; }
+  body .qp-village-shop #shTabs { padding-block: 9px; }
+  body .qp-village-shop .qp-shop-switch { padding-block: 10px; }
+  body .qp-village-shop #shGrid { padding-top: 14px; }
+}
+/* Existing phone order and scrolling remain; this change is verified on PCs. */
+@media (max-width: 900px) {
+  body .qp-village-shop { grid-template-columns: 200px minmax(0, 1fr); }
+}
+@media (max-width: 660px) {
+  body .qp-village-shop { grid-template-columns: minmax(0, 1fr); padding: 16px 15px 28px; }
+  body .qp-village-shop #shTabs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  body .qp-village-shop #shGrid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
+  body .qp-village-shop .shop-workshop-scenery { display: none; }
+}

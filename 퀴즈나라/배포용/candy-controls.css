@@ -1,0 +1,343 @@
+/* Original candy-game controls: plump shapes, a white rim and a glossy face.
+   Loaded after the room skins. Avatar art, game placement and press feedback stay separate. */
+@font-face {
+  font-family: "Jua";
+  src: url("./assets/fonts/Jua-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+:root {
+  --candy-font: "Jua", "NanumSquareRound", "Malgun Gothic", sans-serif;
+  --candy-top: #78efff;
+  --candy-mid: #22d8ee;
+  --candy-bottom: #00aacd;
+  --candy-edge: #0086ab;
+  --candy-base: #007791;
+  --candy-label: #fff;
+  --candy-depth: 5px;
+}
+body {
+  background: #73eef0 url("./assets/candy-sky.svg") center bottom / cover no-repeat;
+  color: #234b66;
+  font-family: "NanumSquareRound", "Malgun Gothic", "Apple SD Gothic Neo", sans-serif;
+  font-weight: 400;
+}
+button, .pnl-h, .logo, .lgTitle, .top .nm, .mtile h3,
+.qp-result-heading h1, .qp-result-heading h2, .winword, .qp-welcome {
+  font-family: var(--candy-font);
+  font-weight: 400;
+  font-synthesis: none;
+}
+input, textarea, select { font-family: "NanumSquareRound", "Malgun Gothic", sans-serif; }
+button:focus-visible, [tabindex]:focus-visible {
+  outline: 3px solid #7a36b8;
+  outline-offset: 4px;
+}
+::selection { color: #4b236a; background: #ffe974; }
+::-webkit-scrollbar-thumb { background: #41c4d9; border-color: #dcfbfa; border-radius: 10px; }
+::-webkit-scrollbar-track { background: #e3fafa; }
+#deco i { background: #ffffff4d; border-color: #ffffff80; }
+#deco b { color: #ffffffa8; }
+
+/* One material for both large play buttons and the compact school controls.
+   The colors are variables so room and state skins can change the candy flavor. */
+body :is(.btn, .btn.sm, .btn.big, .btn.sm.y, .btn.sm.g, .btn.sm.p, .btn.sm.gray,
+  .icb, .icb.y, .tab, .tab.on,
+  .mtile, .lgGoBtn, .lgWide, .lgWide.ex, .lgPad button, .qp-demo-toolbar button),
+body :is(#mPractice, #mLive, #mShop, #mRank) {
+  position: relative;
+  isolation: isolate;
+  border: 3px solid #ffffffee;
+  border-radius: 999px;
+  background: linear-gradient(180deg,
+    var(--candy-top) 0%, var(--candy-mid) 42%, var(--candy-mid) 55%, var(--candy-bottom) 100%);
+  box-shadow:
+    inset 0 0 0 2px var(--candy-edge),
+    inset 0 4px 2px #ffffff7d,
+    inset 0 -6px 0 #00000012,
+    0 var(--candy-depth) 0 var(--candy-base),
+    0 calc(var(--candy-depth) + 2px) 0 #ffffffcf,
+    0 calc(var(--candy-depth) + 4px) 4px #15546c20;
+  color: var(--candy-label);
+  font-family: var(--candy-font);
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: -.01em;
+  line-height: 1.2;
+  text-shadow: 0 2px 0 var(--candy-edge);
+  -webkit-text-stroke: .35px var(--candy-edge);
+  paint-order: stroke fill;
+}
+body :is(.btn, .btn.sm, .btn.big, .btn.sm.y, .btn.sm.g, .btn.sm.p, .btn.sm.gray,
+  .icb, .icb.y, .tab, .tab.on,
+  .lgGoBtn, .lgWide, .lgWide.ex, .lgPad button, .qp-demo-toolbar button)::before {
+  content: "";
+  position: absolute;
+  inset: 4px 8px auto;
+  height: 36%;
+  max-height: 24px;
+  border-radius: 100px 100px 70% 70%;
+  background: linear-gradient(#ffffff78, #ffffff08);
+  pointer-events: none;
+  z-index: -1;
+}
+body :is(.btn, .btn.sm, .btn.big, .icb, .icb.y, .tab, .tab.on,
+  .lgGoBtn, .lgWide, .lgWide.ex, .lgPad button, .qp-demo-toolbar button)::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 12px;
+  width: 10%;
+  min-width: 5px;
+  max-width: 22px;
+  height: 3px;
+  border-radius: 999px;
+  background: #ffffffe0;
+  pointer-events: none;
+  z-index: -1;
+}
+body .btn { padding: 10px 18px; font-size: 16px; gap: 7px; }
+body .btn.sm { padding: 6px 11px; font-size: 14px; --candy-depth: 3px; }
+body .btn.big { padding: 12px 24px; font-size: 21px; }
+body :is(.btn.y, .icb.y), body #tbRank, body #mRank {
+  --candy-top: #fff38b; --candy-mid: #ffcb2d; --candy-bottom: #ff9e0d;
+  --candy-edge: #e09209; --candy-base: #c97905; --candy-label: #fff;
+}
+body :is(.btn.g, .lgGoBtn, .lgWide), body #mPractice {
+  --candy-top: #caff62; --candy-mid: #82e427; --candy-bottom: #41bd12;
+  --candy-edge: #3da011; --candy-base: #27890f; --candy-label: #fff;
+}
+body .btn.p, body #tbSnd, body #mShop {
+  --candy-top: #f0a5ff; --candy-mid: #d874e9; --candy-bottom: #b844cb;
+  --candy-edge: #9d36b8; --candy-base: #8a2b9e; --candy-label: #fff;
+}
+body :is(.btn.red, .btn.danger, .qp-demo-toolbar [data-exit]) {
+  --candy-top: #ffb0a1; --candy-mid: #ff6b65; --candy-bottom: #e93548;
+  --candy-edge: #d53040; --candy-base: #b62436; --candy-label: #fff;
+}
+body :is(.btn.gray, .lgWide.ex, .lgPad button, .tab) {
+  --candy-top: #9be8fc; --candy-mid: #57bee4; --candy-bottom: #279fc9;
+  --candy-edge: #2387b2; --candy-base: #197496; --candy-label: #fff;
+}
+body :is(.tab.on, .qp-demo-toolbar button.on) {
+  --candy-top: #d1ff80; --candy-mid: #98e53c; --candy-bottom: #58bf20;
+  --candy-edge: #4ba01e; --candy-base: #3a8a14; --candy-label: #fff;
+}
+body :is(.btn, .btn.sm, .btn.big, .icb, .icb.y, .tab, .tab.on,
+  .lgGoBtn, .lgWide, .lgWide.ex, .lgPad button, .qp-demo-toolbar button):hover {
+  background: linear-gradient(180deg,
+    var(--candy-top) 0%, var(--candy-mid) 42%, var(--candy-mid) 55%, var(--candy-bottom) 100%);
+}
+@media (hover: hover) and (pointer: fine) {
+  body :is(.btn, .icb, .tab, .lgGoBtn, .lgWide, .lgPad button):not(:disabled):hover {
+    box-shadow: inset 0 0 0 2px var(--candy-edge), inset 0 5px 2px #ffffffa0,
+      inset 0 -6px 0 #00000012, 0 var(--candy-depth) 0 var(--candy-base),
+      0 calc(var(--candy-depth) + 2px) 0 #fff, 0 calc(var(--candy-depth) + 4px) 4px #15546c20;
+  }
+}
+body :is(.btn, .icb, .tab, .lgGoBtn, .lgWide, .lgPad button, .mtile,
+  .qp-demo-toolbar button):not(:disabled):not(.lock):is(:active, .qp-pressed),
+body :is(#mPractice, #mLive, #mShop, #mRank):not(:disabled):not(.lock):is(:active, .qp-pressed) {
+  /* button-feedback.css owns translate/scale, including keyboard presses. */
+  transform: none;
+  box-shadow: inset 0 0 0 2px var(--candy-edge), inset 0 2px 3px #00000014,
+    inset 0 2px 0 #ffffff65, 0 1px 0 var(--candy-base), 0 3px 0 #ffffffcf;
+}
+body :is(.btn, .icb, .tab, .lgGoBtn, .lgWide, .lgPad button):disabled {
+  opacity: .62;
+  cursor: default;
+}
+
+/* Icons are original inline SVGs: they follow the label color and never catch clicks. */
+.candy-icon {
+  display: inline-block;
+  width: 1.25em;
+  height: 1.25em;
+  flex: none;
+  color: inherit;
+  vertical-align: -.18em;
+  overflow: visible;
+  pointer-events: none;
+}
+.candy-label { position: relative; display: inline; pointer-events: none; }
+.icb .candy-icon { width: 22px; height: 22px; }
+/* Three class weights deliberately match the shared .btn.sm.gray material rule. */
+body .icb.icb.icb { border-radius: 13px; --candy-depth: 3px; }
+body .icb.icb.icb::before { left: 4px; right: 4px; top: 3px; height: 45%; }
+body .icb.icb.icb::after { left: 7px; top: 6px; width: 5px; height: 3px; }
+body .tab.tab.tab { border-radius: 13px; --candy-depth: 3px; }
+body .lgGoBtn.lgGoBtn.lgGoBtn { border-radius: 21px; font-size: 20px; padding: 8px 4px; }
+body .lgGoBtn .candy-icon { width: 1em; height: 1em; }
+body .lgWide { font-size: 16px; }
+body .lgWide.ex { font-size: 15px; }
+body .lgPad.lgPad.lgPad button { border-radius: 13px; font-size: 19px; --candy-depth: 3px; }
+body .lgPad.lgPad.lgPad button.w { font-size: 13px; }
+
+/* Large menu candies keep an unmistakable play/shop/trophy silhouette. */
+body .mtile.mtile.mtile,
+body :is(#mPractice, #mLive, #mShop, #mRank) {
+  border-radius: 30px;
+  --candy-depth: 7px;
+}
+body .mtile::before {
+  content: "";
+  position: absolute;
+  inset: 6px 10px auto;
+  height: 43%;
+  border-radius: 24px 24px 50% 50%;
+  background: linear-gradient(#ffffff55, #ffffff04);
+  transform: none;
+  pointer-events: none;
+  z-index: -1;
+}
+body .mtile::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  top: 14px;
+  width: 48px;
+  height: 6px;
+  border-radius: 999px;
+  background: #ffffffb5;
+  transform: none;
+  pointer-events: none;
+  z-index: -1;
+}
+body .mtile h3, body :is(#mPractice, #mLive, #mShop, #mRank) h3 {
+  margin: 12px 0 7px;
+  color: #fff;
+  font-size: var(--tile-title-size, 28px);
+  font-family: var(--candy-font);
+  font-weight: 400;
+  letter-spacing: -.01em;
+  line-height: 1.18;
+  -webkit-text-stroke: 1px var(--candy-edge);
+  paint-order: stroke fill;
+  text-shadow: 0 3px 0 var(--candy-edge);
+}
+body .mtile p, body .mtile p b,
+body :is(#mLive, #mShop, #mRank) p {
+  color: #fff;
+  font-family: "NanumSquareRound", "Malgun Gothic", sans-serif;
+  font-size: var(--tile-copy-size, 14px);
+  font-weight: 700;
+  line-height: 1.5;
+  -webkit-text-stroke: 0;
+  text-shadow: 0 1px 0 var(--candy-edge);
+}
+body .mtile .ic, body :is(#mPractice, #mLive, #mShop, #mRank) .ic {
+  width: var(--tile-icon-size, 58px);
+  height: var(--tile-icon-size, 58px);
+  border: 2px solid #ffffffaa;
+  border-radius: 19px;
+  background: #ffffff21;
+  color: #fff;
+  box-shadow: inset 0 2px 0 #ffffff57, 0 3px 0 #00000010;
+  font-size: calc(var(--tile-icon-size, 58px) * .63);
+  position: relative;
+  z-index: 1;
+}
+body .mtile .ic .candy-icon { width: 1em; height: 1em; }
+body .mtile.lock { opacity: .68; }
+body .mtile.on {
+  outline: 3px solid #fff18b;
+  outline-offset: 3px;
+}
+
+/* A golden logo with a thick orange silhouette, like a cheerful game title. */
+body .logo {
+  color: #ffe46a;
+  font-size: var(--candy-logo-size, 66px);
+  font-family: var(--candy-font);
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: -.025em;
+  line-height: 1.13;
+  -webkit-text-stroke: 5px #bf570e;
+  paint-order: stroke fill;
+  text-shadow: 0 5px 0 #ef990d, 0 8px 0 #a8430b,
+    -5px -4px 0 #fff9d0, 5px -4px 0 #fff9d0, -5px 5px 0 #fff9d0, 5px 5px 0 #fff9d0;
+}
+body .logo small {
+  margin-top: 12px;
+  color: #fff;
+  font-family: "NanumSquareRound", "Malgun Gothic", sans-serif;
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: .04em;
+  -webkit-text-stroke: 0;
+  text-shadow: 0 2px 0 #19a5b6;
+}
+body .top {
+  background: linear-gradient(#72eff1 0%, #37d4df 47%, #17bccb 53%, #12aabb 100%);
+  border-bottom: 3px solid #fffffff0;
+  box-shadow: inset 0 2px 0 #ffffffba, inset 0 -3px 0 #059aae, 0 3px 0 #008eac33;
+  color: #fff;
+}
+body .top .nm {
+  color: #ffed78;
+  font-family: var(--candy-font);
+  font-size: 25px;
+  font-weight: 400;
+  letter-spacing: -.01em;
+  -webkit-text-stroke: 2px #bb7314;
+  paint-order: stroke fill;
+  text-shadow: 0 2px 0 #b6770c;
+}
+body .gold {
+  background: linear-gradient(#fff8b5, #ffdf68);
+  border: 2px solid #fff;
+  border-radius: 999px;
+  color: #935808;
+  box-shadow: inset 0 0 0 1px #eab52d, 0 3px 0 #e5a12b;
+}
+body .gold b { color: #824609; }
+body .coin {
+  background: radial-gradient(circle at 35% 28%, #fffcd3, #ffd84b 50%, #fba51b);
+  border-color: #d9920e;
+  box-shadow: inset 0 0 0 2px #fff1a5;
+}
+body .ticker {
+  background: linear-gradient(#f8ffff, #d7f9f6);
+  color: #267d89;
+  border: 2px solid #fff;
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 1px #76d8d3, 0 3px 0 #56c1bd;
+}
+body .ticker em { color: #ac6311; }
+
+/* The demo menu uses the same controls while remaining compact and collapsible. */
+body .qp-demo-toolbar {
+  color: #217b8a;
+  background: #f8fffef5;
+  border: 2px solid #fff;
+  border-radius: 18px;
+  box-shadow: inset 0 0 0 1px #7ad6d4, 0 3px 0 #2fa5b485;
+}
+body .qp-demo-toolbar.qp-demo-toolbar.qp-demo-toolbar button { font-size: 13px; border-radius: 13px; --candy-depth: 3px; }
+body .qp-demo-toolbar small { color: #437887; }
+
+@media (max-height: 690px) {
+  body .logo { --candy-logo-size: 53px; }
+  body .lgPad.lgPad.lgPad button { font-size: 17px; }
+  body .lgWide { font-size: 15px; }
+  body .lgWide.ex { font-size: 14px; }
+}
+@media (max-width: 767px) {
+  body .logo { --candy-logo-size: 54px; }
+  body .top .nm { font-size: 21px; }
+  body .lgGoBtn.lgGoBtn.lgGoBtn { font-size: 18px; }
+  body .btn.big { padding: 10px 17px; font-size: 18px; }
+  body .btn.sm { font-size: 12px; padding: 6px 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body :is(.btn, .icb, .tab, .lgGoBtn, .lgWide, .lgPad button, .mtile,
+    .qp-demo-toolbar button) { transition: none !important; }
+  body :is(.btn, .icb, .tab, .lgGoBtn, .lgWide, .lgPad button, .mtile,
+    .qp-demo-toolbar button):is(:active, .qp-pressed) {
+    transform: none;
+    translate: none !important;
+    scale: none !important;
+  }
+}
