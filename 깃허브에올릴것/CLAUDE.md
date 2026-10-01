@@ -63,7 +63,7 @@
 `GAME_VER`가 다른 방은 입장을 막는다. 선생님과 학생 모두 최신 파일로 새로고침하고 새 방을 만들어야 한다.
 `purchaseRequest` → `hostPurchase` → `acceptPurchase`가 상점·강화·교환·농장의 결제 경로다. 손님이 자원을 먼저 차감하거나 승인 전에 장비를 주지 않는다.
 `queueHit`/`hostHits`/`acceptCombat`은 개별 명중 번호와 호스트 처치 확인을 사용한다. `packSim` v2 좀비는 실제 HP·최대 HP를 포함한 8칸이다.
-`checkpointSave`/`checkpointRestore`는 같은 브라우저·방·sid의 학생 진행만 복구한다. 새 수업·다른 모둠의 저장값을 섞지 않는다.
+`checkpointSave`/`checkpointRestore`는 같은 브라우저·방·sid의 학생 진행만 복구한다. 새 수업의 저장값은 섞지 않는다. 82차: 다시 들어올 때는 첫 화면에서 고른 모둠이 이긴다(`bJoin`은 옛 `pc/<uid>.g`로 되돌리지 않는다). 다른 모둠으로 들어오면 레벨·직업·장비·탄약은 아이를 따라가고 모둠 자원 장부(pc의 w·s·o…)만 새 모둠에서 0부터 센다. 옛 모둠 몫은 호스트 `pcLedgerMove82`가 옛 모둠 `base`로 옮겨 어느 모둠도 자원을 잃거나 공짜로 얻지 않는다(`t82-rejoin-group-network`).
 `camSpiral`은 나선 계단 내부의 1인칭 판정을 층 이음새에서도 유지한다. 카메라 yaw·pitch를 자동으로 돌리지 않는다.
 `gunGlowRect`/`gunGlowCompose`는 빛 테두리를 포함하는 보수적 범위만 합성한다. 그림자 갱신 주기와 화질 프리셋은 그대로 유지한다.
 

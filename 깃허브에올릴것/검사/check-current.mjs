@@ -16,7 +16,7 @@ const names=['chk','input52-static','t53-static','t54-avatar-static','t53-shop-s
   't65-weapons-static',
   't66-hud-static','t66-fx2-static','t66-spec-static','t66-wing-static','t66-sound-static','t66-ctrl-static',
   't67-castle-static','t69-enh-static','t68-reload-static','t68-motion-static','t73-network-static','t76-race-network-static','t76-wall-orientation-static',
-  't77-grass-static','t77-job-fx-static','t77-wing-motion-static','t77-race-toys-static','t77-candy-static','t77-race-continuity-static','t77-race-camera-static','t77-tower-static','t77-zombie-balance-static','t78-zombie-art-static','t78-lobby-reset-static','t82-race-chute-static',
+  't77-grass-static','t77-job-fx-static','t77-wing-motion-static','t77-race-toys-static','t77-candy-static','t77-race-continuity-static','t77-race-camera-static','t77-tower-static','t77-zombie-balance-static','t78-zombie-art-static','t78-lobby-reset-static','t82-race-chute-static','t82-race-jump-audio-static',
   't79-build-idle-static','t79-donut-art-static','t79-market-art-static','t79-merchant-static','t79-race-physics-static','t79-tower-audio-static','t79-reload-audio-static','t79-bgm-static','t79-build-audio-static','t79-zombie-stairs-static','t79-hit-feedback-static','t79-shoulder-static','t79-shoulder-fx-static','t79-controls-static'];
 let failed=0;
 async function check(name){
@@ -36,6 +36,7 @@ if(args.includes('--browser-smoke') || args.includes('--render')){
   await check('t76-wall-view'); // All five gates: preview, plan, completion, upgrade and move.
   await check('t78-lobby-view'); // Waiting clock, shared dressing, teacher start and five-second story.
   await check('t78-lobby-network'); // Real room listeners with a local Firebase mock, no production writes.
+  await check('t82-rejoin-group-network'); // 82차: reload/rejoin enters the team picked on the entry screen (lobby, mid-game, new lesson); old team keeps its resources.
   await check('t79-entry-view'); // Entry fields, front-facing wardrobe and renderer reuse on desktop/mobile.
   await check('t79-cosmetic-view'); // Shared geometry for nine new cosmetics and all six job outfits.
   await check('t79-build-unstick-view'); // Actual movement after building over the player, including walls and ice towers.

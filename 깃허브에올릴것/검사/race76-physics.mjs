@@ -2,7 +2,7 @@
 // the full routes below use normal input from the real start to the finish.
 export function race76Physics(){
   const W=window,A=W.__race74,P=W.__PL,G=W.__G,KEY=W.__KEY,Y=W.__MINI().Y;
-  const flights=[],manual=[],carries=[],ramps=[],slides=[],slideExits=[],routes=[],checkpoints=[],knocks=[],clocks=[],crowdPush=[],centerLandings=[];
+  const flights=[],manual=[],carries=[],ramps=[],slides=[],slideExits=[],routes=[],checkpoints=[],knocks=[],clocks=[],crowdPush=[],centerLandings=[],lastDonut=[];
   G.players.clear();W.__pcMap.clear();G.phase='mini';G.mini.st='run';G.paused=false;
   const clear=()=>{for(const k of Object.keys(KEY))delete KEY[k];};
   const reset=(x,z,y,cp=0)=>{clear();A.reset();const S=W.__RACE();
@@ -52,6 +52,15 @@ export function race76Physics(){
       step(1/fps);centerLaunched ||= A.state.flightKind==='manual';centerAir=(i+1)/fps;
       if(W.__RACE().hitCd>0){centerHit=true;break;}if(centerLaunched&&P.ground)break;}
     centerLandings.push({seed,fps,launched:centerLaunched,hit:centerHit,time:centerAir,x:P.x,z:P.z,y:P.y-Y});
+    // 82차b — the last donut launched from its far side while W stays held flies past the former deck end (z 476).
+    // The longer flag deck must catch it, and the flag registers already while flying high over the deck.
+    {const last=donuts.at(-1),deck=W.__RACE_P().find(p=>p.cp===4);reset(last.x,last.z+10,Y+last.y,3);press();
+      let launched=false,regH=null,land=null;
+      for(let i=0;i<fps*4&&!land;i++){if(launched){steer(deck.x,true);KEY[' ']=true;}
+        step(1/fps,()=>{launched ||= A.state.flightKind==='manual';if(regH===null&&W.__MINE.cp===4)regH=P.y-Y-deck.y;
+          if(launched&&P.ground&&!land)land={z:P.z,x:P.x,on:A.under()?.cp??A.under()?.kind??null};});
+        if(W.__RACE().fallT>0)break;}
+      lastDonut.push({seed,fps,launched,regH,land,checkpoint:W.__MINE.cp,deckEnd:deck.z+deck.d/2});}
     for(const moving of W.__RACE_P().filter(p=>p.mv)){const pose=A.pose(moving,0),offset=1.2;
     reset(pose.x+offset,pose.z,Y+moving.y);let ground=true;
     for(let i=0;i<fps*2;i++){step(1/fps);ground&&=P.ground;}
@@ -114,7 +123,12 @@ export function race76Physics(){
   // Checkpoint fixtures test ordering and recovery. These placements are NOT
   // used in the continuous route below.
   const cps=W.__RACE_P().filter(p=>p.cp).sort((a,b)=>a.cp-b.cp);
+  // 82차b — the flag counter keeps the farthest deck reached: a deck missed beside/over it never blocks later flags or the finish.
   reset(cps[3].x,cps[3].z,Y+cps[3].y);step(1/60);const skipped=W.__MINE.cp;
+  reset(cps[1].x,cps[1].z,Y+cps[1].y,6);step(1/60);const backwards=W.__MINE.cp;
+  // A body inside a deck's footprint but below its top (falling past its side) never registers it.
+  const below=[];for(const cp of cps){reset(cp.x+2,cp.z,Y+cp.y-1.5,cp.cp-1);P.ground=false;P.vy=-3;let r=0;
+    for(let i=0;i<20;i++){step(1/60);r=Math.max(r,W.__MINE.cp);}below.push({cp:cp.cp,registered:r});}
   for(const cp of cps){reset(cp.x,cp.z,Y+cp.y,cp.cp-1);step(1/60);const registered=W.__MINE.cp,expected={...W.__RACE().cp};
     P.x=1000;P.y=Y-8;P.ground=false;P.vy=-5;for(let i=0;i<75;i++)step(1/60);
     checkpoints.push({cp:cp.cp,registered,expected,yWorld:Y+expected.y,x:P.x,z:P.z,y:P.y,ground:P.ground,fall:W.__RACE().fallT});}
@@ -207,7 +221,7 @@ export function race76Physics(){
   A.state.flight=1;A.state.rate=2.36;A.state.boostT=.7;A.state.pending={p:pad,t:.05};A.state.pulse.set(1,.8);
   Object.assign(P,{vx:3,vz:5,vy:8});clear();G.phase='day';G.mini=null;W.__miniLeave();
   const leftRace={on:S.on,slip:S.slipT,hit:S.hitCd,fall:S.fallT,knock:S.knock,velocity:[P.vx,P.vy,P.vz],flight:A.state.flight,rate:A.state.rate,boost:A.state.boostT,pending:A.state.pending,pulses:A.state.pulse.size};
-  return {limit:W.__MINI().RACE,flights,manual,freshPress,carries,ramps,slides,slideExits,knocks,crowdPush,centerLandings,checkpoints,skipped,skippedFinish,belowDeck,routes,clocks,leftRace};
+  return {limit:W.__MINI().RACE,flights,manual,freshPress,carries,ramps,slides,slideExits,knocks,crowdPush,centerLandings,lastDonut,checkpoints,skipped,backwards,below,skippedFinish,belowDeck,routes,clocks,leftRace};
 }
 
 export function validateRace76(p){
@@ -237,7 +251,11 @@ export function validateRace76(p){
     'The roller-coaster kicker must throw every rider across the gap onto the next checkpoint without requiring a jump');
   check(p.knocks.length>0&&p.knocks.every(q=>Math.abs(q.actual.impulse-40)<1e-8&&Math.abs(q.ratio-5)<.04),
     'Punch contact must cause five times the measured travel of the former impulse');
-  check(p.skipped===0&&p.skippedFinish<0&&p.checkpoints.length===7&&p.checkpoints.every(q=>q.registered===q.cp&&q.ground&&!q.fall&&
+  check(p.lastDonut.length===9&&p.lastDonut.every(q=>q.launched&&q.land&&q.land.on===4&&q.land.z>476&&q.land.z<q.deckEnd-2&&q.checkpoint===4&&q.regH>4),
+    'A held-W launch from the far side of the last donut lands on the lengthened flag deck past the former end and registers the flag while flying over it');
+  check(p.skipped===4&&p.backwards===6&&p.below.length===7&&p.below.every(q=>q.registered===q.cp-1),
+    'The flag counter keeps the farthest deck reached, never goes back, and a body below a deck never registers it');
+  check(p.skippedFinish<0&&p.checkpoints.length===7&&p.checkpoints.every(q=>q.registered===q.cp&&q.ground&&!q.fall&&
     Math.hypot(q.x-q.expected.x,q.z-q.expected.z)<.03&&Math.abs(q.y-q.yWorld)<.03),
     'Checkpoints must register sequentially and falling must return to the registered section entrance');
   check(!p.belowDeck.ground&&p.belowDeck.after<p.belowDeck.before,'A descending player below a platform must not snap up through its surface');

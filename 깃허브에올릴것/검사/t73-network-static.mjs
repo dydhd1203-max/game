@@ -39,7 +39,7 @@ const tick=()=>new Promise(r=>setImmediate(r));
 const block=source.slice(source.indexOf('let checkpointWait='),source.indexOf('function netMeta(){'));
 const decls=['WEAPONS','wpnLv','wpnLvOk','ARMORS','POT_SEC','POTIONS','AMMO_PER_GOLD','FARM_ANIMALS','FARM_CAP','farmCount','FARM_FEED',
  'ENH_MAX','ENH_ODDS','ENH_SAFE','ENH_DROP','ENH_COST','enhOf','RES_KEYS','RES_IC','RES_PC','RES_SPC','TRADE_MULS','TRADE_PACK','TRADE_VAL','TRADE_KEEP','tradeGive','tradeGet','KIT','XP','MY','netIdleT','netT'];
-const funcs=['zombieHit79','recomputeRes','canPay','enhCost','buyAmmo','buyPotion','buyWeapon','buyArmor','craftable','craftWeapon','hostStoneHit','buildCanPay','buildPay','farmFeed','farmClean','buyAnimal','packPlayer','packSim','netTick'];
+const funcs=['zombieHit79','recomputeRes','canPay','enhCost','buyAmmo','buyPotion','buyWeapon','buyArmor','craftable','craftWeapon','hostStoneHit','buildCanPay','buildPay','farmFeed','farmClean','buyAnimal','packPlayer','packSim','netTick','pcLedgerMove82'];
 function client(id,host=false){
  const ls=stores.get(id)||new Map();stores.set(id,ls);
  const ctx=vm.createContext({console,performance:{now:()=>0},net:bus.ref(),store:ls,setTimeout:f=>f(),addEventListener:()=>{},document:{addEventListener(){}}});
@@ -48,7 +48,7 @@ function client(id,host=false){
  const G={started:true,host:${host},room:'TEST',sid:7300,day:1,phase:'day',paused:false,me:{g:0,name:uid},res:[],farm:Array.from({length:5},()=>({hen:0,pig:0,cow:0})),players:new Map(),wolves:[]};
  const base=Array.from({length:5},()=>({w:500,s:500,o:10,eg:2,mk:0,pk:0})),pcMap=new Map();let myPC={g:0,w:0,s:0,o:0};
  let netPCDirty=false,farmDirty=false,enhBusy=false,shopUiSig='';const PL={x:0,y:9,z:0,yaw:0,hp:100,down:false},hudPrev={},window={},credits=[],messages=[];
- const DBG={slowNet:false},SPEC={helpT:0},treExplorer=()=>false,netPC=()=>{netPCDirty=false;};
+ const DBG={slowNet:false},SPEC={helpT:0},treExplorer=()=>false,netPC=()=>{netPCDirty=false;},netBase=()=>net.child('base').set(base);
  let thrown=0,thTgt=0,thDmg=0,thF=null,thX=[],thXs=0;const myRef=net.child('p/'+uid);G.soldiers=[];G.crystal=100;
  const LS={get:(k,d)=>store.get(k)??d,set:(k,v)=>store.set(k,v)},maxHP=()=>100,syncMyPC=()=>{},shopUiResync=()=>{},myRes=()=>G.res[G.me.g];
  const toast=(...x)=>messages.push(x),xpGain=n=>{XP.xp+=n;credits.push(n);},hitMark=()=>{},isBoss=()=>false,zStep=()=>{},stoneDmg=()=>10;
@@ -62,7 +62,7 @@ function client(id,host=false){
    net.child('base').on('value',s=>{const b=s.val();if(b){for(let i=0;i<5;i++)base[i]=b[i];recomputeRes();}});
    bindPurchaseNetwork();
    globalThis.A={G,KIT,XP,MY,PL,base,pcMap,credits,messages,purchaseRequest,hostPurchase,acceptPurchase,purchaseOffer,checkpointSave,checkpointRestore,
-    queueHit,hostHits,acceptCombat,buildPay,buildCanPay,netTick,retryPurchase,
+    queueHit,hostHits,acceptCombat,buildPay,buildCanPay,netTick,retryPurchase,pcLedgerMove82,recomputeRes,
     state:()=>({marketPending,marketApplied,marketReceipts,hitQueue,combatXPSeen}),
     setPC:p=>{myPC=p;pcMap.set(uid,p);},getPC:()=>myPC,resetPurse:(gold=10)=>{for(const b of base)Object.assign(b,{w:500,s:500,o:gold,eg:2,mk:0,pk:0});recomputeRes();}};
  `].join('\n'),ctx);
@@ -125,3 +125,18 @@ bus.writes.length=0;for(let i=0;i<1200;i++){N.PL.x+=0.1;N.netTick(1/60);}
 const moving=bus.writes.filter(p=>p==='p/child10').length;
 assert.ok(idle>=9&&idle<=11);assert.ok(moving>=108&&moving<=121);
 console.log('PASS: same moving update rate, fewer idle writes over 20s: '+JSON.stringify({idle,moving}));
+// 82차: rejoining the same lesson in another team keeps personal progress, but the team ledger stays with the old team.
+const M=clients[5];M.XP.lv=9;M.KIT.ammo=33;M.setPC({g:0,w:12,s:3,o:2,sid:7300,n:'child5'});M.checkpointSave();
+const moved=client('child5');await tick();moved.G.me.g=3;assert.equal(moved.checkpointRestore(),true);
+assert.equal(moved.XP.lv,9);assert.equal(moved.KIT.ammo,33);assert.equal(moved.getPC().g,3);
+assert.ok(['w','s','o','sw','ss','so'].every(k=>(moved.getPC()[k]|0)===0),'new team ledger starts at zero');
+moved.G.me.g=0;assert.equal(moved.checkpointRestore(),true);assert.equal(moved.getPC().w,12,'same team restores the ledger');
+H.resetPurse(10);const prev={g:0,w:12,s:3,o:2,sid:7300,n:'child5'},now={g:3,w:0,s:0,o:0,sid:7300,n:'child5'};
+H.pcMap.set('child5',prev);H.recomputeRes();const totals=clone(H.G.res),base0=clone(H.base[0]);
+assert.equal(clients[0].pcLedgerMove82(prev,now),false,'guests never write the shared base');
+assert.equal(H.pcLedgerMove82(prev,{...now,g:0}),false);assert.equal(H.pcLedgerMove82({...prev,sid:7299},now),false);assert.equal(H.pcLedgerMove82({g:0,w:12},now),false);
+assert.equal(H.pcLedgerMove82(prev,now),true);H.pcMap.set('child5',now);H.recomputeRes();
+assert.deepEqual(clone(H.G.res),totals,'no team loses or gains resources when a pupil changes team');
+assert.deepEqual([H.base[0].w-base0.w,H.base[0].s-base0.s,H.base[0].o-base0.o],[12,3,2]);
+assert.deepEqual(clone(bus.value('base')),clone(H.base),'host publishes the moved share');
+console.log('PASS: rejoin in another team keeps level/kit, zeroes only the new ledger, host keeps the old share in the old team base');
