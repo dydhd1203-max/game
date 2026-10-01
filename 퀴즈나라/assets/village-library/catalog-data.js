@@ -38,13 +38,16 @@ window.QPVillageLibraryCatalog = {
     "runtimePlacementApplied": false,
     "projectArtworkFiles": 3,
     "projectSpritesPrepared": 14,
-    "projectPlacementImplemented": true,
-    "projectFinalArtReview": "pending",
+    "projectPlacementImplemented": false,
+    "projectFinalArtReview": "historical-only-retired",
     "originalRegionsRuntimeIntegrated": 0,
-    "runtimeFinalArtReview": "pending",
-    "runtimePlacementStatusMeaning": "No original village-library image region remains active in current floor renderer; existing project homes and life objects have separate project placement status.",
+    "runtimeFinalArtReview": "retired-after-metaverse-reset",
+    "runtimePlacementStatusMeaning": "retired-after-metaverse-reset",
     "projectRetiredMaterials": 1,
-    "projectArtworkFilesInCurrentVillage": 2
+    "projectArtworkFilesInCurrentVillage": 2,
+    "currentMetaverseRuntimeImages": 0,
+    "metaverseReset": "2026-10-02-user-request",
+    "currentMetaverseRuntimePlacementApplied": false
   },
   "classificationSummary": {
     "styles": {
@@ -647,9 +650,10 @@ window.QPVillageLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "backgroundTreatment": "Crop inside source material only; preserve JPEG bytes; reflected copies soften repetition edges",
-          "placementStatus": "removed-from-current-village-ground",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-final-game-review",
-          "retirementReason": "Replaced by quieter provided map3 paving source crop from QPVillageScene.groundSources.paving."
+          "retirementReason": "Replaced by quieter provided map3 paving source crop from QPVillageScene.groundSources.paving.",
+          "retiredAt": "2026-10-02"
         }
       ]
     }
@@ -691,7 +695,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -736,7 +740,8 @@ window.QPVillageLibraryCatalog = {
         "집 옆 텃밭·통·천막·분수",
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-life",
@@ -780,7 +785,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -855,7 +860,8 @@ window.QPVillageLibraryCatalog = {
         "호박·건초·통·수확 소품의 장소별 묶음",
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-painted-grass-ground",
@@ -967,7 +973,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -1029,7 +1035,8 @@ window.QPVillageLibraryCatalog = {
         "집 옆 텃밭·통·천막·분수",
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-homes-blueHome",
@@ -1067,7 +1074,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -1129,7 +1136,8 @@ window.QPVillageLibraryCatalog = {
         "집 옆 텃밭·통·천막·분수",
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-homes-herbHome",
@@ -1167,7 +1175,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -1229,7 +1237,8 @@ window.QPVillageLibraryCatalog = {
         "집 옆 텃밭·통·천막·분수",
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-homes-watermill",
@@ -1267,7 +1276,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -1329,7 +1338,8 @@ window.QPVillageLibraryCatalog = {
         "집 옆 텃밭·통·천막·분수",
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-homes-farmHome",
@@ -1367,7 +1377,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -1429,7 +1439,8 @@ window.QPVillageLibraryCatalog = {
         "집 옆 텃밭·통·천막·분수",
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-homes-postOffice",
@@ -1467,7 +1478,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -1529,7 +1540,8 @@ window.QPVillageLibraryCatalog = {
         "집 옆 텃밭·통·천막·분수",
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-life-fountain",
@@ -1573,7 +1585,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -1665,7 +1677,8 @@ window.QPVillageLibraryCatalog = {
         "호박·건초·통·수확 소품의 장소별 묶음",
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-life-market",
@@ -1709,7 +1722,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -1801,7 +1814,8 @@ window.QPVillageLibraryCatalog = {
         "호박·건초·통·수확 소품의 장소별 묶음",
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-life-bench",
@@ -1845,7 +1859,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -1937,7 +1951,8 @@ window.QPVillageLibraryCatalog = {
         "호박·건초·통·수확 소품의 장소별 묶음",
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-life-garden",
@@ -1981,7 +1996,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -2043,7 +2058,8 @@ window.QPVillageLibraryCatalog = {
         "집 옆 텃밭·통·천막·분수",
         "소형 주택과 텃밭",
         "호박·건초·통·수확 소품의 장소별 묶음"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-life-fence",
@@ -2087,7 +2103,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -2179,7 +2195,8 @@ window.QPVillageLibraryCatalog = {
         "호박·건초·통·수확 소품의 장소별 묶음",
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-life-cart",
@@ -2223,7 +2240,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -2285,7 +2302,8 @@ window.QPVillageLibraryCatalog = {
         "집 옆 텃밭·통·천막·분수",
         "소형 주택과 텃밭",
         "호박·건초·통·수확 소품의 장소별 묶음"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-life-lantern",
@@ -2329,7 +2347,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -2421,7 +2439,8 @@ window.QPVillageLibraryCatalog = {
         "호박·건초·통·수확 소품의 장소별 묶음",
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     },
     {
       "id": "project-forest-village-life-beehive",
@@ -2465,7 +2484,7 @@ window.QPVillageLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -2557,7 +2576,8 @@ window.QPVillageLibraryCatalog = {
         "호박·건초·통·수확 소품의 장소별 묶음",
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     }
   ],
   "referenceUsage": {
@@ -2572,6 +2592,11 @@ window.QPVillageLibraryCatalog = {
       "../../village-neighborhood.js",
       "../../village-scene.js"
     ],
-    "finalGameArtReview": "pending"
-  }
+    "finalGameArtReview": "pending",
+    "status": "retired-after-metaverse-reset",
+    "currentRuntimeIntegrated": false,
+    "retiredAt": "2026-10-02",
+    "historicalOnly": true
+  },
+  "updatedAt": "2026-10-02"
 };

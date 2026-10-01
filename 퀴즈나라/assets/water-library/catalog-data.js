@@ -34,12 +34,15 @@ window.QPWaterLibraryCatalog = {
     "deduplicatedAliases": 0,
     "originalsVisuallyReviewed": 4,
     "transparentUserOriginals": 0,
-    "runtimePlacementApplied": true,
-    "runtimeFinalArtReview": "verified-original-crop-and-clipping-in-game",
-    "originalRegionsRuntimeIntegrated": 2,
-    "runtimePlacementRegionsIntegrated": 2,
+    "runtimePlacementApplied": false,
+    "runtimeFinalArtReview": "retired-after-metaverse-reset",
+    "originalRegionsRuntimeIntegrated": 0,
+    "runtimePlacementRegionsIntegrated": 0,
     "bankRockInstancesDisplayed": 0,
-    "originalImagesRuntimeIntegrated": 1
+    "originalImagesRuntimeIntegrated": 0,
+    "currentMetaverseRuntimeImages": 0,
+    "metaverseReset": "2026-10-02-user-request",
+    "currentMetaverseRuntimePlacementApplied": false
   },
   "classificationSummary": {
     "styles": {
@@ -277,7 +280,7 @@ window.QPWaterLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-current-game-flow-review",
           "id": "retired-composite-original-small-waterfall",
           "sourceRect": [
@@ -307,7 +310,8 @@ window.QPWaterLibraryCatalog = {
             "containsBrook"
           ],
           "physicsNotes": "Exported original waterfall water contour is mapped into upper +72-height and lower raw connectors; rendered stone shore remains separate.",
-          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte."
+          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte.",
+          "retiredAt": "2026-10-02"
         }
       ]
     },
@@ -337,7 +341,7 @@ window.QPWaterLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "partial-region-integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "classificationStatus": "visually-reviewed",
       "sourceRect": null,
       "anchor": null,
@@ -413,84 +417,8 @@ window.QPWaterLibraryCatalog = {
           "finalArtReview": "pending"
         }
       ],
-      "usageStatus": "direct-original-standalone-pond-in-runtime",
-      "runtimeStatusMeaning": "Only the documented original shallow pond and quiet water material crop are displayed. Long canal, brook, attached waterfall, canal cap, stone bank and extra bank sprites are removed. Entire opaque sheet is not integrated; latest actual standalone pond clipping, water motion and sampled boundaries were verified.",
-      "runtimeRegions": [
-        {
-          "rendererPath": "../../village-water-assets.js",
-          "stylesheetPath": "../../village-water-assets.css",
-          "scenePath": "../../village-scene.js",
-          "sourceAPI": "QPVillageWaterAssets.sources[0]",
-          "coordinateSpace": "original source pixels; placement uses raw village-scene space before WORLD_SCALE=1.5",
-          "worldScale": 1.5,
-          "directPixelReuse": true,
-          "sourceBytesModified": false,
-          "hasAlpha": false,
-          "placementStatus": "implemented-in-source",
-          "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
-          "id": "original-pond",
-          "sourceRect": [
-            0,
-            331,
-            476,
-            323
-          ],
-          "rawPlacement": {
-            "x": 1210,
-            "y": 868,
-            "width": 330,
-            "height": 225
-          },
-          "clipPath": "M29 346L31 341L40 340L41 335L49 336L53 334L57 339L66 338L68 343L73 345L71 350L74 352L70 357L63 358L61 363L57 369L58 374L68 371L74 374L80 370L88 372L97 376L110 376L117 367L121 366L127 369L133 367L137 373L146 371L154 375L164 374L173 377L183 377L193 382L202 383L204 376L211 374L226 378L234 381L235 389L232 397L225 400L226 407L232 413L236 416L240 414L257 416L266 411L268 405L283 404L296 400L311 392L319 395L327 404L338 411L343 416L342 424L348 423L350 418L358 420L365 416L372 420L373 425L379 425L385 430L394 426L401 433L408 434L408 440L420 441L432 445L445 445L450 449L451 454L448 457L455 463L458 464L457 471L464 477L468 476L472 481L468 487L471 491L470 505L466 508L468 516L463 523L461 534L455 542L446 550L442 554L435 559L427 561L421 568L412 570L405 575L397 575L391 580L382 581L375 585L365 585L358 583L350 584L342 587L335 589L326 587L319 591L310 594L301 594L292 597L282 596L274 594L266 596L259 593L251 591L244 593L235 589L226 588L220 587L214 584L206 587L197 586L188 584L181 582L174 581L168 584L159 581L150 579L143 579L136 576L129 575L123 576L115 573L106 574L99 572L93 575L85 572L78 571L72 568L66 563L60 565L52 565L46 565L39 568L32 568L29 563L28 558L31 555L38 551L44 548L44 545L40 541L37 536L37 527L33 526L32 521L27 516L24 509L21 506L17 493L14 491L13 486L10 489L6 486L1 487L0 484L0 385L4 384L4 381L8 380L7 375L13 373L18 375L21 368L26 369L27 365L33 365L34 361L29 359L31 356L29 352Z",
-          "waterMaskPath": "M41 522C67 510 95 503 126 493C152 486 178 486 201 480C228 474 252 465 275 455L299 442L319 437L340 427L361 428L371 436L378 439L394 439L412 441L435 445L447 451L443 459L452 463L453 472L461 478L465 487L461 495L467 502L459 511L457 520L443 524L432 531L419 534L414 542L399 545L382 550L366 550L349 557L339 556L326 564L312 564L299 559L283 556L265 557L249 551L236 553L223 550L208 553L192 550L178 552L164 555L148 557L130 560L116 565L103 563L88 562L74 558L62 551L50 543L41 537Z M303 461L320 459L331 451L353 450L365 445L384 445L393 451L389 459L391 467L381 476L361 480L339 480L323 475L310 475Z",
-          "waterMaskRule": "evenodd",
-          "animatedRegions": [
-            "original pond water surface only"
-          ],
-          "backgroundTreatment": "Original shallow stone shore/front face through source y597 is fixed. Excludes opaque gray and deep pointed floating underside by original contour clipping.",
-          "sourceCropReview": "Original JPEG and shallow original shore contour inspected separately from the latest standalone pond game verification.",
-          "physicsFunction": "containsPond",
-          "physicsNotes": "Only original pond water polygons and center rock island remain. Removed old rectangular bridge exceptions; no canal or brook collision exists.",
-          "verificationScope": "Verification applies only to the documented original shallow pond crop, fixed stones, subtle source-water motion, tested pause/reduced settings and sampled boundaries. Entire original sheet, retired composite river/bridges, perfect style match and complete physical height of every painted cliff are not claimed.",
-          "knownLimitation": "Original JPEG module is already cut at its left edge, leaving part of the original left rock boundary straight. No added fragment or generated repaint was introduced."
-        },
-        {
-          "rendererPath": "../../village-water-assets.js",
-          "stylesheetPath": "../../village-water-assets.css",
-          "scenePath": "../../village-scene.js",
-          "sourceAPI": "QPVillageWaterAssets.sources[0]",
-          "coordinateSpace": "original source pixels; placement uses raw village-scene space before WORLD_SCALE=1.5",
-          "worldScale": 1.5,
-          "directPixelReuse": true,
-          "sourceBytesModified": false,
-          "hasAlpha": false,
-          "placementStatus": "implemented-in-source",
-          "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
-          "id": "original-pond-water-texture",
-          "sourceRect": [
-            240,
-            508,
-            120,
-            23
-          ],
-          "rawDisplayTileSize": [
-            120,
-            46
-          ],
-          "mirrorPatternSize": [
-            240,
-            92
-          ],
-          "patternEdgeOverlapPixels": 0.6,
-          "animatedRegions": [
-            "original pond water surface only"
-          ],
-          "backgroundTreatment": "Original quiet water pixels mirrored into pattern and displaced only inside the fixed original pond-water mask; original rock island remains excluded.",
-          "sourceCropReview": "Quiet original water crop directly inspected; no generated water raster or drawn wave.",
-          "verificationScope": "Verification applies only to the documented original shallow pond crop, fixed stones, subtle source-water motion, tested pause/reduced settings and sampled boundaries. Entire original sheet, retired composite river/bridges, perfect style match and complete physical height of every painted cliff are not claimed.",
-          "knownLimitation": "Original JPEG module is already cut at its left edge, leaving part of the original left rock boundary straight. No added fragment or generated repaint was introduced."
-        }
-      ],
+      "usageStatus": "archived-reference",
+      "runtimeStatusMeaning": "Old source/crop records below are historical only. Current metaverse use is 0 after user reset on 2026-10-02.",
       "retiredRuntimeRegions": [
         {
           "rendererPath": "../../village-water-assets.js",
@@ -500,7 +428,7 @@ window.QPWaterLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-from-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-final-game-review",
           "id": "original-waterfall",
           "sourceRect": [
@@ -516,7 +444,8 @@ window.QPWaterLibraryCatalog = {
             "height": 151
           },
           "backgroundTreatment": "Source waterfall and rocks clipped to painted contour.",
-          "retirementReason": "Narrow crop [64,405,156,113] cut natural context and exposed a rectangular-looking water section; replaced by the complete original top-left forest shore and waterfall module."
+          "retirementReason": "Narrow crop [64,405,156,113] cut natural context and exposed a rectangular-looking water section; replaced by the complete original top-left forest shore and waterfall module.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -526,7 +455,7 @@ window.QPWaterLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-from-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-final-game-review",
           "id": "deprecated-beige-bank-strip",
           "sourceRect": [
@@ -544,7 +473,8 @@ window.QPWaterLibraryCatalog = {
             40
           ],
           "backgroundTreatment": "Original bank/shore texture pixels cropped and mirrored along stream corridor.",
-          "retirementReason": "Shallow [138,558,60,10] crop showed a flat beige band in the actual game; replaced by the larger original cracked stone face and clipped rock-island silhouettes."
+          "retirementReason": "Shallow [138,558,60,10] crop showed a flat beige band in the actual game; replaced by the larger original cracked stone face and clipped rock-island silhouettes.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -554,7 +484,7 @@ window.QPWaterLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-or-replaced-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
           "id": "previous-original-pond",
           "sourceRect": [
@@ -577,7 +507,8 @@ window.QPWaterLibraryCatalog = {
           "physicsFunction": "containsPond",
           "physicsNotes": "Painted lower/upper water surfaces and central rock island traced into raw village geometry; existing bridge remains traversable.",
           "verificationScope": "Original crop and silhouette display verified in actual village views; complete physical geometry of all painted cliffs is not implied.",
-          "retirementReason": "Deep pointed underside replaced by shallower original shore outline and smaller current pond frame."
+          "retirementReason": "Deep pointed underside replaced by shallower original shore outline and smaller current pond frame.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -587,7 +518,7 @@ window.QPWaterLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-or-replaced-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
           "id": "previous-original-whole-upper-waterfall",
           "sourceRect": [
@@ -608,7 +539,8 @@ window.QPWaterLibraryCatalog = {
           "physicsFunction": "containsCanal",
           "physicsNotes": "Painted module water area mapped into canalPolygons alongside head cap and existing stream corridor.",
           "verificationScope": "Original crop and silhouette display verified in actual village views; complete physical geometry of all painted cliffs is not implied.",
-          "retirementReason": "Floating upper island waterfall replaced by the smaller original 0af waterfall and fixed shore."
+          "retirementReason": "Floating upper island waterfall replaced by the smaller original 0af waterfall and fixed shore.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -618,7 +550,7 @@ window.QPWaterLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-or-replaced-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
           "id": "previous-original-canal-start-cap",
           "sourceRect": [
@@ -638,7 +570,8 @@ window.QPWaterLibraryCatalog = {
           "physicsModule": "../../village-water-assets.js",
           "physicsFunction": "containsCanal",
           "verificationScope": "Original crop and silhouette display verified in actual village views; complete physical geometry of all painted cliffs is not implied.",
-          "retirementReason": "Same original head crop retained but clipped to forest/lake cap; deep island underside removed."
+          "retirementReason": "Same original head crop retained but clipped to forest/lake cap; deep island underside removed.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -648,7 +581,7 @@ window.QPWaterLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-or-replaced-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
           "id": "previous-original-bank-rocks",
           "sourceRect": [
@@ -904,7 +837,8 @@ window.QPWaterLibraryCatalog = {
           "backgroundTreatment": "Original center rock-island outline clipped to remove surrounding painted water; positioned on both canal banks with small rotation/scale/placement variation.",
           "geometryEffect": "Decorative shore artwork; existing containsPond/containsBrook/containsCanal geometry is unchanged.",
           "verificationScope": "Original crop and silhouette display verified in actual village views; complete physical geometry of all painted cliffs is not implied.",
-          "retirementReason": "Sixteen placements replaced by ten original rock sprites on the current canal banks."
+          "retirementReason": "Sixteen placements replaced by ten original rock sprites on the current canal banks.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -916,7 +850,7 @@ window.QPWaterLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-current-game-flow-review",
           "id": "retired-composite-original-stone-bank",
           "sourceRect": [
@@ -936,7 +870,8 @@ window.QPWaterLibraryCatalog = {
           "animatedRegions": [],
           "backgroundTreatment": "Native original stone top, dark side and cracks are mirrored. Gray background and deprecated shallow flat beige bank strip are excluded.",
           "sourceCropReview": "Original cracked stone crop reviewed; fixed shore artwork.",
-          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte."
+          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -948,7 +883,7 @@ window.QPWaterLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-current-game-flow-review",
           "id": "retired-composite-original-canal-start-cap",
           "sourceRect": [
@@ -966,7 +901,8 @@ window.QPWaterLibraryCatalog = {
           "clipPath": "M0 66L3 64L10 65L13 62L16 62L17 58L24 58L24 54L34 53L36 50L41 50L46 50L52 51L52 56L49 59L48 64L55 62L61 58L70 56L76 60L82 61L85 65L88 69L90 74L94 72L94 63L99 57L105 54L104 50L109 46L116 43L115 37L122 33L118 31L121 27L125 25L123 23L128 21L136 23L142 24L146 23L153 25L161 24L164 24L167 30L171 33L169 37L175 43L180 39L187 38L189 34L193 32L191 27L194 22L200 18L204 19L209 17L214 17L215 22L219 18L224 17L226 20L232 19L235 17L242 22L247 16L252 15L252 11L259 12L263 8L268 9L271 14L276 13L277 18L274 23L280 23L279 31L285 32L290 38L297 41L301 38L305 42L311 40L313 44L317 46L315 53L321 60L323 67L321 70L328 72L331 78L333 81L340 84L340 89L345 92L342 98L346 99L342 105L344 107L339 113L330 115L320 115L316 121L309 127L311 130L325 132L332 130L342 134L346 139L345 144L350 149L347 154L340 154L339 159L329 158L328 162L334 167L338 166L343 170L340 174L344 177L341 183L335 184L337 189L333 193L326 191L324 186L319 188L318 199L314 209L308 219L303 227L297 234L290 240L281 244L270 249L258 251L251 258L236 262L228 263L223 258L213 260L201 258L190 260L178 258L162 261L148 260L134 262L121 260L108 261L96 259L84 255L73 254L66 250L58 250L50 244L45 240L40 236L34 233L31 227L26 224L24 219L18 216L10 217L9 212L6 209L4 204L2 188L0 187Z",
           "animatedRegions": [],
           "backgroundTreatment": "Keep original forest/lake cap only. Remove deep floating-island underside with exact headShoreMask; no full screenshot or newly drawn forest module.",
-          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte."
+          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -978,7 +914,7 @@ window.QPWaterLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-current-game-flow-review",
           "id": "retired-composite-original-bank-rocks",
           "sourceRect": [
@@ -1144,7 +1080,84 @@ window.QPWaterLibraryCatalog = {
           "animatedRegions": [],
           "backgroundTreatment": "Clip the original center rock island contour to remove surrounding water; display ten fixed sprites on the two canal banks with small placement/rotation/scale variations.",
           "geometryEffect": "Decorative original rock shore imagery; water collision is governed by the separate exported geometry API.",
-          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte."
+          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte.",
+          "retiredAt": "2026-10-02"
+        },
+        {
+          "rendererPath": "../../village-water-assets.js",
+          "stylesheetPath": "../../village-water-assets.css",
+          "scenePath": "../../village-scene.js",
+          "sourceAPI": "QPVillageWaterAssets.sources[0]",
+          "coordinateSpace": "original source pixels; placement uses raw village-scene space before WORLD_SCALE=1.5",
+          "worldScale": 1.5,
+          "directPixelReuse": true,
+          "sourceBytesModified": false,
+          "hasAlpha": false,
+          "placementStatus": "removed-from-current-metaverse",
+          "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
+          "id": "original-pond",
+          "sourceRect": [
+            0,
+            331,
+            476,
+            323
+          ],
+          "rawPlacement": {
+            "x": 1210,
+            "y": 868,
+            "width": 330,
+            "height": 225
+          },
+          "clipPath": "M29 346L31 341L40 340L41 335L49 336L53 334L57 339L66 338L68 343L73 345L71 350L74 352L70 357L63 358L61 363L57 369L58 374L68 371L74 374L80 370L88 372L97 376L110 376L117 367L121 366L127 369L133 367L137 373L146 371L154 375L164 374L173 377L183 377L193 382L202 383L204 376L211 374L226 378L234 381L235 389L232 397L225 400L226 407L232 413L236 416L240 414L257 416L266 411L268 405L283 404L296 400L311 392L319 395L327 404L338 411L343 416L342 424L348 423L350 418L358 420L365 416L372 420L373 425L379 425L385 430L394 426L401 433L408 434L408 440L420 441L432 445L445 445L450 449L451 454L448 457L455 463L458 464L457 471L464 477L468 476L472 481L468 487L471 491L470 505L466 508L468 516L463 523L461 534L455 542L446 550L442 554L435 559L427 561L421 568L412 570L405 575L397 575L391 580L382 581L375 585L365 585L358 583L350 584L342 587L335 589L326 587L319 591L310 594L301 594L292 597L282 596L274 594L266 596L259 593L251 591L244 593L235 589L226 588L220 587L214 584L206 587L197 586L188 584L181 582L174 581L168 584L159 581L150 579L143 579L136 576L129 575L123 576L115 573L106 574L99 572L93 575L85 572L78 571L72 568L66 563L60 565L52 565L46 565L39 568L32 568L29 563L28 558L31 555L38 551L44 548L44 545L40 541L37 536L37 527L33 526L32 521L27 516L24 509L21 506L17 493L14 491L13 486L10 489L6 486L1 487L0 484L0 385L4 384L4 381L8 380L7 375L13 373L18 375L21 368L26 369L27 365L33 365L34 361L29 359L31 356L29 352Z",
+          "waterMaskPath": "M41 522C67 510 95 503 126 493C152 486 178 486 201 480C228 474 252 465 275 455L299 442L319 437L340 427L361 428L371 436L378 439L394 439L412 441L435 445L447 451L443 459L452 463L453 472L461 478L465 487L461 495L467 502L459 511L457 520L443 524L432 531L419 534L414 542L399 545L382 550L366 550L349 557L339 556L326 564L312 564L299 559L283 556L265 557L249 551L236 553L223 550L208 553L192 550L178 552L164 555L148 557L130 560L116 565L103 563L88 562L74 558L62 551L50 543L41 537Z M303 461L320 459L331 451L353 450L365 445L384 445L393 451L389 459L391 467L381 476L361 480L339 480L323 475L310 475Z",
+          "waterMaskRule": "evenodd",
+          "animatedRegions": [
+            "original pond water surface only"
+          ],
+          "backgroundTreatment": "Original shallow stone shore/front face through source y597 is fixed. Excludes opaque gray and deep pointed floating underside by original contour clipping.",
+          "sourceCropReview": "Original JPEG and shallow original shore contour inspected separately from the latest standalone pond game verification.",
+          "physicsFunction": "containsPond",
+          "physicsNotes": "Only original pond water polygons and center rock island remain. Removed old rectangular bridge exceptions; no canal or brook collision exists.",
+          "verificationScope": "Verification applies only to the documented original shallow pond crop, fixed stones, subtle source-water motion, tested pause/reduced settings and sampled boundaries. Entire original sheet, retired composite river/bridges, perfect style match and complete physical height of every painted cliff are not claimed.",
+          "knownLimitation": "Original JPEG module is already cut at its left edge, leaving part of the original left rock boundary straight. No added fragment or generated repaint was introduced.",
+          "retiredAt": "2026-10-02"
+        },
+        {
+          "rendererPath": "../../village-water-assets.js",
+          "stylesheetPath": "../../village-water-assets.css",
+          "scenePath": "../../village-scene.js",
+          "sourceAPI": "QPVillageWaterAssets.sources[0]",
+          "coordinateSpace": "original source pixels; placement uses raw village-scene space before WORLD_SCALE=1.5",
+          "worldScale": 1.5,
+          "directPixelReuse": true,
+          "sourceBytesModified": false,
+          "hasAlpha": false,
+          "placementStatus": "removed-from-current-metaverse",
+          "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
+          "id": "original-pond-water-texture",
+          "sourceRect": [
+            240,
+            508,
+            120,
+            23
+          ],
+          "rawDisplayTileSize": [
+            120,
+            46
+          ],
+          "mirrorPatternSize": [
+            240,
+            92
+          ],
+          "patternEdgeOverlapPixels": 0.6,
+          "animatedRegions": [
+            "original pond water surface only"
+          ],
+          "backgroundTreatment": "Original quiet water pixels mirrored into pattern and displaced only inside the fixed original pond-water mask; original rock island remains excluded.",
+          "sourceCropReview": "Quiet original water crop directly inspected; no generated water raster or drawn wave.",
+          "verificationScope": "Verification applies only to the documented original shallow pond crop, fixed stones, subtle source-water motion, tested pause/reduced settings and sampled boundaries. Entire original sheet, retired composite river/bridges, perfect style match and complete physical height of every painted cliff are not claimed.",
+          "knownLimitation": "Original JPEG module is already cut at its left edge, leaving part of the original left rock boundary straight. No added fragment or generated repaint was introduced.",
+          "retiredAt": "2026-10-02"
         }
       ],
       "runtimeVisualVerificationStatus": "verified-original-crop-and-clipping-in-game",
@@ -1696,6 +1709,11 @@ window.QPWaterLibraryCatalog = {
         },
         "retirementReason": "User selected removal of the composite long river, both bridges, canal cap, external attached waterfall and constructed banks. Current standalone original pond remains."
       }
-    ]
-  }
+    ],
+    "status": "retired-after-metaverse-reset",
+    "currentRuntimeIntegrated": false,
+    "retiredAt": "2026-10-02",
+    "historicalOnly": true
+  },
+  "updatedAt": "2026-10-02"
 };

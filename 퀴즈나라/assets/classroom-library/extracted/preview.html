@@ -1,0 +1,34 @@
+<!doctype html><html lang="ko"><meta charset="utf-8"><title>학생 책상·의자 원본 픽셀 추출 비교</title>
+<style>*{box-sizing:border-box}body{margin:0;padding:24px;background:#f7f7f5;color:#24352d;font:16px/1.5 system-ui,sans-serif}h1{font-size:24px;margin:0 0 8px}p{margin:6px 0 16px}.row{display:flex;gap:24px;align-items:flex-start;margin:20px 0}.sample{padding:12px;border:1px solid #b8c5be;background:white;width:280px;flex:none}.sample:has(.lectern-four){width:404px}.sample h2{font-size:15px;line-height:24px;margin:0 0 10px}.sample small{display:block;font-size:13px;line-height:20px;max-width:270px;margin-top:8px}.surface{position:relative;display:block;width:fit-content;vertical-align:top;background-color:#fff;background-image:linear-gradient(45deg,#dce3df 25%,transparent 25%),linear-gradient(-45deg,#dce3df 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#dce3df 75%),linear-gradient(-45deg,transparent 75%,#dce3df 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0}.source{width:62px;height:90px;overflow:hidden}.source img{position:absolute;width:1296px;height:901px;max-width:none;left:-109px;top:-506px}.surface>svg{display:block}.four>svg{width:248px;height:360px}.lectern-source{width:95px;height:68px;overflow:hidden}.lectern-source img{position:absolute;width:1296px;height:901px;max-width:none;left:-510px;top:-431px}.lectern-four>svg{width:380px;height:272px}.bad{color:#ad3434}.note{max-width:1100px;padding:12px 16px;background:#eef2ef;border-left:4px solid #759d87}</style>
+<h1>학생 책상·의자: 스크린샷 그대로 분리한 시안</h1><p>바닥을 제외하는 윤곽만 지정했고, 표시되는 가구 픽셀은 원본과 같습니다.</p>
+<div class="row">
+ <section class="sample"><h2>원본 1배</h2><div class="surface source"><img src="../originals/classroom-4dcb960dde3f19d2.png"></div><small>목재 바닥까지 포함된 원본 영역<br>62 × 90 픽셀</small></section>
+ <section class="sample"><h2>책상＋의자 1배</h2><div class="surface clip" data-file="student-desk-chair.svg" id="combo-native"></div><small>가구 외곽과 다리 사이 바닥 제외</small></section>
+ <section class="sample"><h2>책상만 1배</h2><div class="surface clip" data-file="student-desk.svg" id="desk-native"></div><small>상판＋보이는 양측 다리</small></section>
+ <section class="sample"><h2>의자만 1배</h2><div class="surface clip" data-file="student-chair.svg" id="chair-native"></div><small>책상에 가려진 부분은 없음</small></section>
+</div>
+<div class="row">
+ <section class="sample"><h2>책상＋의자 4배</h2><div class="surface clip four" data-file="student-desk-chair.svg"></div></section>
+ <section class="sample"><h2>책상 4배</h2><div class="surface clip four" data-file="student-desk.svg"></div></section>
+ <section class="sample"><h2>의자 4배</h2><div class="surface clip four" data-file="student-chair.svg"></div></section>
+</div>
+<p class="note">의자는 원본에서 일부가 책상에 가려져 있습니다. 보이는 위·아래 레이어로 분리했으며, 숨은 등받이나 다리를 새로 복원하지 않았습니다. 작은 원본을 확대하면 해상도와 가장자리의 원래 색 혼합이 드러납니다. 실제 아바타 착석의 앞뒤 겹침은 후속 검수가 필요합니다.</p>
+<div class="row">
+ <section class="sample"><h2>교탁 원본 1배</h2><div class="surface lectern-source"><img src="../originals/classroom-4dcb960dde3f19d2.png"></div></section>
+ <section class="sample"><h2>교탁 추출 1배</h2><div class="surface clip" data-file="lectern.svg" id="lectern-native"></div></section>
+ <section class="sample"><h2>교탁 추출 4배</h2><div class="surface clip lectern-four" data-file="lectern.svg"></div></section>
+</div>
+<script>
+Promise.all([...document.querySelectorAll('.clip')].map(async(box,i)=>{
+ const url=new URL('./'+box.dataset.file,location.href);
+ const result=await fetch(url); if(!result.ok)throw Error('Missing clip '+box.dataset.file);
+ const doc=new DOMParser().parseFromString(await result.text(),'image/svg+xml');
+ const svg=doc.documentElement;
+ // Keep every id unique when the same source-backed SVG appears at two scales.
+ const prefix='sample'+i+'-';
+ svg.querySelectorAll('[id]').forEach(node=>node.id=prefix+node.id);
+ svg.querySelectorAll('[clip-path]').forEach(node=>node.setAttribute('clip-path',node.getAttribute('clip-path').replace('url(#','url(#'+prefix)));
+ svg.querySelectorAll('image').forEach(node=>node.setAttribute('href',new URL(node.getAttribute('href'),url).href));
+ box.append(document.importNode(svg,true));
+})).then(()=>document.documentElement.dataset.ready='yes').catch(e=>{document.body.insertAdjacentHTML('beforeend','<p class="bad">'+e.message+'</p>');throw e;});
+</script></html>

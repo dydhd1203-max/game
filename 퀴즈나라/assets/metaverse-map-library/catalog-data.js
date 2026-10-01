@@ -35,13 +35,16 @@ window.QPMetaverseMapLibraryCatalog = {
     "originalsVisuallyReviewed": 10,
     "transparentUserOriginals": 0,
     "runtimeSpritesPrepared": 0,
-    "runtimePlacementApplied": true,
+    "runtimePlacementApplied": false,
     "projectArtworkFiles": 1,
     "projectSceneryPrepared": 1,
-    "projectPlacementImplemented": true,
-    "projectFinalArtReview": "pending",
-    "originalRegionsRuntimeIntegrated": 2,
-    "runtimeFinalArtReview": "pending-current-ground-review"
+    "projectPlacementImplemented": false,
+    "projectFinalArtReview": "historical-only-retired",
+    "originalRegionsRuntimeIntegrated": 0,
+    "runtimeFinalArtReview": "retired-after-metaverse-reset",
+    "currentMetaverseRuntimeImages": 0,
+    "metaverseReset": "2026-10-02-user-request",
+    "currentMetaverseRuntimePlacementApplied": false
   },
   "classificationSummary": {
     "styles": {
@@ -140,7 +143,7 @@ window.QPMetaverseMapLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "partial-region-integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "classificationStatus": "visually-reviewed",
       "sourceRect": null,
       "anchor": null,
@@ -179,7 +182,7 @@ window.QPMetaverseMapLibraryCatalog = {
       ],
       "preparationNotes": "두 브라우저 화면이 겹친 캡처다. 하단 활동 광장의 목적지 안내·큰 볼거리·말풍선 상호작용과 넓은 보행 길을 참고한다. 브랜드·게임 문구·미니맵·메뉴를 그대로 복제하지 않는다.",
       "assetType": "game-screen-reference",
-      "usageStatus": "reference-and-direct-ground-crop-in-runtime",
+      "usageStatus": "archived-reference",
       "referenceUse": {
         "mode": "historical-style-color-layout-reference",
         "features": [
@@ -194,7 +197,8 @@ window.QPMetaverseMapLibraryCatalog = {
         "finalGameArtReview": "pending"
       },
       "runtimeVisualVerificationStatus": "pending-current-ground-review",
-      "runtimeRegions": [
+      "runtimeStatusMeaning": "Old source/crop records below are historical only. Current metaverse use is 0 after user reset on 2026-10-02.",
+      "retiredRuntimeRegions": [
         {
           "id": "quiet-ground-paving",
           "purpose": "차분한 포장길로 중앙 광장·연결 보행 길을 표시",
@@ -226,12 +230,12 @@ window.QPMetaverseMapLibraryCatalog = {
           "hasAlpha": false,
           "backgroundTreatment": "Display only inspected UI-free ground pixels. Mirror existing pixels to join pattern edges; no whole map screenshot, logos, UI, characters, text or generated replacement is pasted.",
           "sourceCropReview": "Original screenshot and exact sourceRect browser crop directly viewed; crop contains only grass or pale paving material.",
-          "placementStatus": "implemented-in-source",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-current-game-review",
-          "geometryEffect": "Visual floor texture only; existing terrain elevation, paths and collision remain explicit scene geometry."
+          "geometryEffect": "Visual floor texture only; existing terrain elevation, paths and collision remain explicit scene geometry.",
+          "retiredAt": "2026-10-02"
         }
-      ],
-      "runtimeStatusMeaning": "A documented UI-free ground material region of this opaque screenshot is rendered directly in village-scene.js. The entire map, browser, UI and NPC scene are not pasted. Final current ground visual review remains pending."
+      ]
     },
     {
       "id": "metaverse-map-6672fd99f8b1a9dd",
@@ -493,7 +497,7 @@ window.QPMetaverseMapLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "partial-region-integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "classificationStatus": "visually-reviewed",
       "sourceRect": null,
       "anchor": null,
@@ -539,7 +543,7 @@ window.QPMetaverseMapLibraryCatalog = {
       ],
       "preparationNotes": "숲 경계와 넓은 가운데 잔디, 나이테 책상/의자 접지, 꽃·버섯·랜턴·해먹을 이어 장소가 읽히는 미술 기준으로 삼는다. 향후 교실·앉기 참고이며 현재 퀴즈나라에 좌석·교실 내부를 구현했다고 표시하지 않는다.",
       "assetType": "game-screen-reference",
-      "usageStatus": "reference-and-direct-ground-crop-in-runtime",
+      "usageStatus": "archived-reference",
       "referenceUse": {
         "mode": "historical-style-color-layout-reference",
         "features": [
@@ -554,7 +558,8 @@ window.QPMetaverseMapLibraryCatalog = {
         "finalGameArtReview": "pending"
       },
       "runtimeVisualVerificationStatus": "pending-current-ground-review",
-      "runtimeRegions": [
+      "runtimeStatusMeaning": "Old source/crop records below are historical only. Current metaverse use is 0 after user reset on 2026-10-02.",
+      "retiredRuntimeRegions": [
         {
           "id": "quiet-ground-grass",
           "purpose": "차분한 잔디 바닥으로 낮은 땅·높은 땅·숲 정원 표면을 연결",
@@ -586,12 +591,12 @@ window.QPMetaverseMapLibraryCatalog = {
           "hasAlpha": false,
           "backgroundTreatment": "Display only inspected UI-free ground pixels. Mirror existing pixels to join pattern edges; no whole map screenshot, logos, UI, characters, text or generated replacement is pasted.",
           "sourceCropReview": "Original screenshot and exact sourceRect browser crop directly viewed; crop contains only grass or pale paving material.",
-          "placementStatus": "implemented-in-source",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-current-game-review",
-          "geometryEffect": "Visual floor texture only; existing terrain elevation, paths and collision remain explicit scene geometry."
+          "geometryEffect": "Visual floor texture only; existing terrain elevation, paths and collision remain explicit scene geometry.",
+          "retiredAt": "2026-10-02"
         }
-      ],
-      "runtimeStatusMeaning": "A documented UI-free ground material region of this opaque screenshot is rendered directly in village-scene.js. The entire map, browser, UI and NPC scene are not pasted. Final current ground visual review remains pending."
+      ]
     },
     {
       "id": "metaverse-map-71ade0b5af1aec17",
@@ -903,7 +908,7 @@ window.QPMetaverseMapLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -943,7 +948,8 @@ window.QPMetaverseMapLibraryCatalog = {
       "components": [
         "나이테 책상·그루터기 의자",
         "버섯·꽃·랜턴·책이 연결된 숲 쉼터"
-      ]
+      ],
+      "currentMetaversePlacementApplied": false
     }
   ],
   "groundIntegration": {
@@ -980,6 +986,11 @@ window.QPMetaverseMapLibraryCatalog = {
     },
     "wholeScreenshotReuse": false,
     "generatedRasterReplacement": false,
-    "verificationStatus": "source-crop-verified-placement-implemented-final-game-review-pending"
-  }
+    "verificationStatus": "source-crop-verified-placement-implemented-final-game-review-pending",
+    "status": "retired-after-metaverse-reset",
+    "currentRuntimeIntegrated": false,
+    "retiredAt": "2026-10-02",
+    "historicalOnly": true
+  },
+  "updatedAt": "2026-10-02"
 };

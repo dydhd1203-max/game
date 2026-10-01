@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "method": "Original screenshot pixel display through SVG source-region and silhouette clips; no artwork redrawn and no occluded pixels reconstructed.",
+  "source": {
+    "path": "../originals/classroom-4dcb960dde3f19d2.png",
+    "originalName": "교실 공간2.png",
+    "sha256": "4dcb960dde3f19d247c83ba996164162a5fe6423ba96b1bfb7c448d03b850972",
+    "width": 1296,
+    "height": 901,
+    "opaque": true
+  },
+  "assets": [
+    {
+      "id": "student-desk",
+      "path": "student-desk.svg",
+      "region": [
+        109,
+        506,
+        62,
+        90
+      ],
+      "layers": [
+        "desktop",
+        "desk-left-leg",
+        "desk-right-leg"
+      ],
+      "anchor": [
+        31,
+        60
+      ],
+      "limitations": [
+        "Only tabletop and visible side legs; hidden desk parts not reconstructed."
+      ]
+    },
+    {
+      "id": "student-chair",
+      "path": "student-chair.svg",
+      "region": [
+        109,
+        506,
+        62,
+        90
+      ],
+      "layers": [
+        "chair-visible-upper",
+        "chair-visible-lower"
+      ],
+      "layerSplitY": 55,
+      "anchor": [
+        32,
+        85
+      ],
+      "limitations": [
+        "Chair upper outline and rear parts are occluded by the tabletop in the source.",
+        "Seating front/back ordering must be tested with the actual avatar; these are visible upper/lower bands, not recovered full chair sprites."
+      ]
+    },
+    {
+      "id": "student-desk-chair",
+      "path": "student-desk-chair.svg",
+      "region": [
+        109,
+        506,
+        62,
+        90
+      ],
+      "layers": [
+        "desktop",
+        "desk-left-leg",
+        "desk-right-leg",
+        "chair-visible-upper",
+        "chair-visible-lower"
+      ],
+      "anchor": [
+        31,
+        85
+      ],
+      "floorGapExcluded": [
+        25,
+        76,
+        14,
+        9
+      ],
+      "limitations": [
+        "Original source antialiasing and baked object shading remain."
+      ]
+    },
+    {
+      "id": "lectern",
+      "path": "lectern.svg",
+      "region": [
+        510,
+        431,
+        95,
+        68
+      ],
+      "layers": [
+        "lectern-visible"
+      ],
+      "anchor": [
+        47.5,
+        65
+      ],
+      "limitations": [
+        "Original opaque pixel edges and object shading retained."
+      ]
+    }
+  ],
+  "rendering": {
+    "usage": "Inline the SVG into the page and resolve the image href relative to the SVG file URL, or use an object document. External image href inside SVG loaded with img is browser-restricted.",
+    "nativeSizeRecommended": true,
+    "largeScaleWarning": "62×90 student furniture is screenshot resolution; enlargement cannot restore detail."
+  },
+  "verification": {
+    "date": "2026-10-02",
+    "actualBrowser": "Chromium native 1x and 4x source-versus-clipped checker preview directly viewed.",
+    "foregroundSourcePixelChecks": 18,
+    "browserExceptions": 0,
+    "gameIntegrated": false,
+    "seatedAvatarVerified": false,
+    "preview": "preview.html"
+  }
+}

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="95" height="68" viewBox="0 0 95 68" role="img" aria-label="lectern: original screenshot pixels clipped to the visible silhouette">
+  <title>lectern: source-backed classroom screenshot extraction</title>
+  <metadata>Source classroom-4dcb960dde3f19d2.png SHA256 4dcb960dde3f19d247c83ba996164162a5fe6423ba96b1bfb7c448d03b850972. Region [510,431,95,68]. No hidden pixels reconstructed. Inline SVG or object document required for external source image.</metadata>
+  <defs><clipPath id="lectern-lectern-visible" clipPathUnits="userSpaceOnUse"><path d="M1 1H94V65H1Z"/></clipPath></defs>
+  <g data-source-layer="lectern-visible" clip-path="url(#lectern-lectern-visible)"><image href="../originals/classroom-4dcb960dde3f19d2.png" x="-510" y="-431" width="1296" height="901"/></g>
+</svg>

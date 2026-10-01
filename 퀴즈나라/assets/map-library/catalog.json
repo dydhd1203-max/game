@@ -14,9 +14,12 @@
     "completeScenesOrScreenshots": 5,
     "transparentUserOriginals": 0,
     "isolatedRuntimeSpritesPrepared": 0,
-    "originalRegionsRuntimeIntegrated": 1,
-    "runtimePlacementApplied": true,
-    "runtimeFinalArtReview": "pending"
+    "originalRegionsRuntimeIntegrated": 0,
+    "runtimePlacementApplied": false,
+    "runtimeFinalArtReview": "retired-after-metaverse-reset",
+    "currentMetaverseRuntimeImages": 0,
+    "metaverseReset": "2026-10-02-user-request",
+    "currentMetaverseRuntimePlacementApplied": false
   },
   "pathBase": "catalog-directory",
   "referenceSheets": [
@@ -1428,7 +1431,7 @@
       "frames": [],
       "sourceCredit": null,
       "usageMetadata": "사용자가 제공한 맵 기본 에셋 원본. 출처 표기는 시각 검토 후 기록.",
-      "runtimeStatus": "partial-region-integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "sourceStatus": "original-stored",
       "classificationStatus": "visually-reviewed",
       "imagePath": "originals/reference-download-07.jpg",
@@ -1458,8 +1461,34 @@
       ],
       "preparationNotes": "숲 유적의 색감과 재질에 잘 맞지만 시점은 옆 시점이다. 발판별 영역·알파·앵커·상단 충돌 면과 반복 연결부를 별도 준비한다. 별도 점프 퀴즈 게임의 기본 지형 후보이며 큰 JPEG를 통째로 소품 배경처럼 붙이지 않는다.",
       "contentType": "sprite-sheet",
-      "usageStatus": "direct-source-crop-in-runtime",
-      "runtimeRegions": [
+      "usageStatus": "archived-reference",
+      "runtimeStatusMeaning": "Old source/crop records below are historical only. Current metaverse use is 0 after user reset on 2026-10-02.",
+      "retiredRuntimeRegions": [
+        {
+          "id": "cliff-stone-face-pattern",
+          "sourceRect": [
+            484,
+            139,
+            50,
+            23
+          ],
+          "rendererPath": "../../village-scene.js",
+          "displayTileSize": [
+            86,
+            40
+          ],
+          "mirrorPatternSize": [
+            172,
+            80
+          ],
+          "directPixelReuse": true,
+          "sourceBytesModified": false,
+          "backgroundTreatment": "Crop inside source material only; preserve JPEG bytes; reflected copies soften repetition edges",
+          "placementStatus": "removed-from-current-metaverse",
+          "visualVerificationStatus": "pending-final-game-review",
+          "retirementReason": "Tiny 50x23 wall texture and its unused SVG pattern definition were removed; visible retaining faces use the larger original cliff module.",
+          "retiredAt": "2026-10-02"
+        },
         {
           "id": "natural-cliff-strip",
           "purpose": "큰 불규칙 돌·잔디 윗면을 함께 살린 실제 원본 절벽",
@@ -1501,35 +1530,9 @@
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "backgroundTreatment": "Original image clipped to traced irregular cliff silhouette, excluding the opaque dark background; successive modules overlap and alternate reflection.",
-          "placementStatus": "implemented-in-source",
-          "visualVerificationStatus": "pending-final-game-review"
-        }
-      ],
-      "runtimeStatusMeaning": "The documented original cliff module is rendered on two retaining faces in village-scene.js. The complete JPEG is not integrated as a map or intrinsically transparent sprite. The old tiny face pattern and unused definition were removed. Final visual review is pending.",
-      "retiredRuntimeRegions": [
-        {
-          "id": "cliff-stone-face-pattern",
-          "sourceRect": [
-            484,
-            139,
-            50,
-            23
-          ],
-          "rendererPath": "../../village-scene.js",
-          "displayTileSize": [
-            86,
-            40
-          ],
-          "mirrorPatternSize": [
-            172,
-            80
-          ],
-          "directPixelReuse": true,
-          "sourceBytesModified": false,
-          "backgroundTreatment": "Crop inside source material only; preserve JPEG bytes; reflected copies soften repetition edges",
-          "placementStatus": "removed-from-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-final-game-review",
-          "retirementReason": "Tiny 50x23 wall texture and its unused SVG pattern definition were removed; visible retaining faces use the larger original cliff module."
+          "retiredAt": "2026-10-02"
         }
       ]
     },
@@ -1973,7 +1976,7 @@
     "avatarStyle": "smooth illustrated SD; pixel map reference does not change avatar style",
     "assetType": "reference-sheet, detailed-background, or modular-scene; describes source content, not runtime integration"
   },
-  "updatedAt": "2026-10-01",
+  "updatedAt": "2026-10-02",
   "archive": {
     "originalName": "spread sheet design.zip",
     "imagePath": "source.zip",

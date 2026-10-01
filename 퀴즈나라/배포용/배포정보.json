@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-01T13:34:03.099Z",
+  "builtAt": "2026-10-01T23:47:16.849Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -11,8 +11,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 307762,
-      "sha256": "713b5781ba93611c0cb3d63697ba49a267c3c2b54ce3108749b50ce8f456884a"
+      "bytes": 303990,
+      "sha256": "b3e91567a7b593febb7fd43e21da2c25bae4ccc1a6a5010849ec0392afa1495d"
     },
     {
       "path": "avatar-image.js",
@@ -103,171 +103,6 @@
       "path": "readability.css",
       "bytes": 4803,
       "sha256": "6e931b8ada0c444043ff811262a4c24e928138751e319afcc57ed45a9a34ca67"
-    },
-    {
-      "path": "village-world.css",
-      "bytes": 8561,
-      "sha256": "97ce96a221a62a4e483b58360783fefe000c38ab71f4360317bbdc33d944f855"
-    },
-    {
-      "path": "village-presence.js",
-      "bytes": 15835,
-      "sha256": "a2caf18887c1e4ec0a596281e1279cb7bd7ec5251bbc9cc3a6a6e3d8632c11f4"
-    },
-    {
-      "path": "village-neighborhood.js",
-      "bytes": 6582,
-      "sha256": "14cbb71bbba5ccf6cc672fad4b750d84c084f4216727b12684bb5df13a69b7a3"
-    },
-    {
-      "path": "village-scene.js",
-      "bytes": 25251,
-      "sha256": "aa2f07424049923c5db7d7755c11a538cc0197e7de26c820922c1f58b22a5809"
-    },
-    {
-      "path": "village-shop-scene.js",
-      "bytes": 12741,
-      "sha256": "b296a5df231336797de0a90eb3d87b163324e8caedf8a2db9d4fcde9e8b44fc5"
-    },
-    {
-      "path": "village-world.js",
-      "bytes": 30174,
-      "sha256": "4e6105bd17eff30b51bfcedb0b9d68a20f84d339f5f86a7cf0e5ac8ecbfe0787"
-    },
-    {
-      "path": "village-ambience.js",
-      "bytes": 7425,
-      "sha256": "ab4a03fd0fd6c272ac3e5f30a8498315b70afb1d1233a39b86593d79dd63d063"
-    },
-    {
-      "path": "village-ambience.css",
-      "bytes": 1634,
-      "sha256": "9d1fc1ce0f079be2c3ce876e1a370753f44a812b918ec7c50bb7d9c6a744f413"
-    },
-    {
-      "path": "village-water-assets.css",
-      "bytes": 513,
-      "sha256": "f68eee4e5c9d759cdf0bcb7f4a59a39e8dda99443c3d3edf8103ca068867efb5"
-    },
-    {
-      "path": "assets/metaverse-map-library/originals/metaverse-map-5bd9ae915fa48051.png",
-      "bytes": 3016405,
-      "sha256": "5bd9ae915fa48051878cad9a012796be5717bf75f6a2256e9a5d7f3e190ccafd"
-    },
-    {
-      "path": "assets/metaverse-map-library/originals/metaverse-map-f204dcd40c0ac9a2.png",
-      "bytes": 1974228,
-      "sha256": "f204dcd40c0ac9a24b5a5a8265865543759a6019120693dcd42f610394f92621"
-    },
-    {
-      "path": "assets/forest-village-homes.png",
-      "bytes": 3073681,
-      "sha256": "e9c27b18a0e20a31ad796a7e8ee08e4e08301889c0c5229fef2c272439d49e50"
-    },
-    {
-      "path": "assets/forest-village-homes.json",
-      "bytes": 2914,
-      "sha256": "57093dff0c9d67d79c8f12393a8ed22c9559f889148ede1f000563683d2f0195"
-    },
-    {
-      "path": "assets/forest-village-life.png",
-      "bytes": 2411263,
-      "sha256": "7b427ce909059f72df9dc855a6e4ebdb9c37d0ec49987ab1d23878b8e5ff6644"
-    },
-    {
-      "path": "assets/forest-village-life.json",
-      "bytes": 2833,
-      "sha256": "9a08c9635d02d6e6907905c77a7287c82b12f16ace52a99caa74ab3c451aeebe"
-    },
-    {
-      "path": "assets/forest-village-grove.png",
-      "bytes": 2244499,
-      "sha256": "a5f139f86c0da91ee74ebf9bd0da27d01df70dbae645b2e7f4c4db6be2d9666a"
-    },
-    {
-      "path": "assets/forest-village-grove.json",
-      "bytes": 800,
-      "sha256": "fe7cdccbb416513043883c6cf045777f25300acb622c15d03e8454d5511e9b4a"
-    },
-    {
-      "path": "assets/painted-grass-ground.png",
-      "bytes": 2849831,
-      "sha256": "2405a20c23daee634240e12f8f5fee54b0e5bdd3ea2cc31c66088da806a6f95b"
-    },
-    {
-      "path": "assets/painted-grass-ground.json",
-      "bytes": 609,
-      "sha256": "49e5d2e98e9e2966b9bceee9e88458ab8465549763e6a9463316b30cef96574d"
-    },
-    {
-      "path": "assets/village-library/originals/village-841cd8ade4d81085.jpg",
-      "bytes": 271497,
-      "sha256": "841cd8ade4d810859ad4d0879045e1c35e06c5a59ba17e227c616723cdb27f39"
-    },
-    {
-      "path": "assets/map-library/originals/reference-download-07.jpg",
-      "bytes": 51398,
-      "sha256": "51bc2e65c881e124808ddf48436e703daae1f6c7fc18513489a481b823246e58"
-    },
-    {
-      "path": "village-water-assets.js",
-      "bytes": 7197,
-      "sha256": "997a2137f6a596112434e2a743ec2ccddf1272ee83edd3168bbfba1bf65002a6"
-    },
-    {
-      "path": "assets/water-library/originals/water-0e50bcc49b81bd14.jpg",
-      "bytes": 169275,
-      "sha256": "0e50bcc49b81bd1431849ea7943e72fbc9e4019724f1a65fa2c75ad8133124fb"
-    },
-    {
-      "path": "assets/forest-town-landmarks.png",
-      "bytes": 3137495,
-      "sha256": "4b1ee6e3c21b7e0acd1bc32f2b33dad6ccaa35edc183ab3edd3b4464e00ebb4b"
-    },
-    {
-      "path": "assets/forest-town-landmarks.json",
-      "bytes": 3909,
-      "sha256": "1546c8afb0712b58026e2993b5aba0f206c2fbffdfed115dc20eced7f59f9faa"
-    },
-    {
-      "path": "assets/forest-town-tailor-room.png",
-      "bytes": 2799155,
-      "sha256": "7d52651b94912cae5ac46be0f205b07475af06541ba4b1ff65f7e504be41cbe6"
-    },
-    {
-      "path": "assets/forest-town-tailor-room.json",
-      "bytes": 1879,
-      "sha256": "8df7c92db3f8e1aed6ac5dfe348e8644052dbb77b4f31e8e8489bc1c6f9b1563"
-    },
-    {
-      "path": "assets/forest-town-foliage.png",
-      "bytes": 2596790,
-      "sha256": "3fe92528e4c9f56e5b39860f751dffc81f32dd4e7c889b0c528c814cce057356"
-    },
-    {
-      "path": "assets/forest-town-foliage.json",
-      "bytes": 4220,
-      "sha256": "ae545bd506fdbdbba412519207b2fc132d3cc85da36541928f2b2362c763590b"
-    },
-    {
-      "path": "assets/forest-town-exploration.png",
-      "bytes": 2134257,
-      "sha256": "34a717ac0730e475d6b4c45fee2ab5868dbe428aca6298b192e800dee3466d38"
-    },
-    {
-      "path": "assets/forest-town-exploration.json",
-      "bytes": 4448,
-      "sha256": "039e58d480f26d01f417cccbdf637cedfb276cb5697f92764b06509b32fc10c0"
-    },
-    {
-      "path": "assets/forest-town-tailor-details.png",
-      "bytes": 2332856,
-      "sha256": "cd929b47345d5fbdd013f1823db6924f4d6ef9ff2a7c190c40cdc93b026268ed"
-    },
-    {
-      "path": "assets/forest-town-tailor-details.json",
-      "bytes": 2666,
-      "sha256": "fb081cec7b080de69f98f1c6b50f70db466e2d6574f173544dfff8c661d077dc"
     },
     {
       "path": "assets/forest-village-frame.png",

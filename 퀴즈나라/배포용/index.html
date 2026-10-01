@@ -811,9 +811,6 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <link rel="stylesheet" href="./forest-village-theme.css">
 <link rel="stylesheet" href="./shop-village.css">
 <link rel="stylesheet" href="./readability.css">
-<link rel="stylesheet" href="./village-world.css">
-<link rel="stylesheet" href="./village-water-assets.css">
-<link rel="stylesheet" href="./village-ambience.css">
 <script src="./ui-icons.js"></script>
 <script src="./avatar-image.js"></script>
 <script src="./avatar-clothes.js"></script>
@@ -833,13 +830,6 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <script src="./quiz-map.js"></script>
 <script src="./round-scene.js"></script>
 <script src="./classroom-flow.js"></script>
-<script src="./village-presence.js"></script>
-<script src="./village-neighborhood.js"></script>
-<script src="./village-water-assets.js"></script>
-<script src="./village-scene.js"></script>
-<script src="./village-shop-scene.js"></script>
-<script src="./village-ambience.js"></script>
-<script src="./village-world.js"></script>
 <script src="./demo.js"></script>
 <script>
 "use strict";
@@ -883,7 +873,6 @@ function modal(title, html, onOpen){
 function closeModal(){
   el('modal').classList.remove('on');
   if(curScr==='classroom')$('.qp-map-viewport')?.focus({preventScroll:true});
-  if(curScr==='village'||curScr==='tailor')activeVillage?.focus();
 }
 el('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('modal').classList.contains('on'))closeModal();});
@@ -2674,36 +2663,14 @@ async function recordPracticeAnswer(correct, claimId, accountKey){
    ═══════════════════════════════════════════════════════════════════ */
 const SCREENS = {};
 let leaveFn = null, curScr = '';
-let activeMotion = null, activeClassroom = null, activeClassroomView = null, activeVillage = null;
-let villagePresence=null,villagePresenceUid='',villagePlayers=[],villageStatus={mode:'connecting'};
-const villageCheckpoints=new Map();
-const villageBaseAv={f:newAvatar('f'),m:newAvatar('m')};
-function safeVillageAvatar(value){
-  const incoming=value||{},av=Object.assign({},villageBaseAv[incoming.sex==='m'?'m':'f']);
-  av.sex=incoming.sex==='m'?'m':'f';av.sk=clamp(Number(incoming.sk)||0,0,4);av.ec=clamp(Number(incoming.ec)||0,0,5);
-  for(const category of CATS){const v=incoming[category.k];if(typeof v==='string'&&(v===''&&category.off||Object.prototype.hasOwnProperty.call(ITEMS,category.k+':'+v)))av[category.k]=v;}
-  av.bg='';av.frame='';return avatarForSex(av,av.sex);
-}
-function ensureVillagePresence(){
-  if(!ME||IS_TEACHER){if(villagePresence)villagePresence.disconnect();villagePresence=null;villagePresenceUid='';villagePlayers=[];return null;}
-  if(villagePresence&&villagePresenceUid===ME.k){villagePresence.setProfile({name:ME.name,avatar:ME.av});return villagePresence;}
-  if(villagePresence)villagePresence.disconnect();
-  villagePresenceUid=ME.k;villagePlayers=[];villageStatus={mode:'connecting'};
-  villagePresence=window.QPVillagePresence.connect({db:FB.db,base:DBR,classId:window.CLASS_NAME||'우리 반',uid:ME.k,name:ME.name,avatar:ME.av,
-    onPlayers:players=>{villagePlayers=players;activeVillage?.setPlayers(players);},
-    onStatus:value=>{villageStatus=value;activeVillage?.setStatus(value);}});
-  return villagePresence;
-}
+let activeMotion = null, activeClassroom = null, activeClassroomView = null;
 const linkedClassroom = new URLSearchParams(location.search).get('classroom');
-const entryScreen = ()=>linkedClassroom && /^[a-zA-Z0-9_-]{1,80}$/.test(linkedClassroom)?go('classroom',linkedClassroom):go('village');
+const entryScreen = ()=>linkedClassroom && /^[a-zA-Z0-9_-]{1,80}$/.test(linkedClassroom)?go('classroom',linkedClassroom):go('school');
 function go(name, arg){
   if(name==='live'&&curScr==='live'&&!arg)return;
   if(leaveFn){ try{ leaveFn(); }catch(e){} leaveFn = null; }
   curScr = name; closeModal();
   document.body.classList.toggle('qp-woodland', name==='home');
-  document.body.classList.toggle('qp-in-village', name==='village'||name==='tailor');
-  const presence=ensureVillagePresence();
-  if(presence&&name!=='village'&&name!=='tailor')presence.update({zone:name==='shop'?'catalog':name,moving:false,pose:'idle',gesture:null});
   el('stage').innerHTML = '';
   SCREENS[name](el('stage'), arg);
 }
@@ -2718,7 +2685,8 @@ function topbar(title, back, brand){
     ${brand&&ME?`<div class="quiz-daily"><span class="daily-label">오늘의 연습</span><span class="daily-track" role="progressbar" aria-label="오늘 연습으로 모은 골드" aria-valuemin="0" aria-valuemax="${R.practiceCap}" aria-valuenow="${dailyGold}"><i style="width:${clamp(dailyGold/Math.max(1,R.practiceCap)*100,0,100)}%"></i><b>${dailyGold} / ${R.practiceCap} 골드</b></span></div>`:''}
     <div class="f1"></div>
     <button class="icb" id="tbSnd" title="소리 설정" aria-label="소리 설정">${uiIcon((SND.on&&SND.fxVolume)||(SND.bgm&&SND.musicVolume)?'sound':'mute')}</button>
-    ${ME&&!IS_TEACHER? `<button class="icb" id="tbHome" title="홈" aria-label="홈">${uiIcon('home')}</button>
+    ${ME&&!IS_TEACHER? `<button class="icb" id="tbHome" title="수업·퀴즈" aria-label="수업·퀴즈">${uiIcon('home')}</button>
+       <button class="icb" id="tbProfile" title="내 정보" aria-label="내 정보">${uiIcon('expression')}</button>
        <button class="icb y" id="tbShop" title="옷 가게" aria-label="옷 가게">${uiIcon('shop')}</button>
        <button class="icb" id="tbRank" title="순위" aria-label="순위">${uiIcon('trophy')}</button>`:''}
     ${ME? `<div class="gold"><span class="coin">${uiIcon('coin')}</span>골드 <b id="goldNum">${(ME.gold||0).toLocaleString()}</b></div>`:''}
@@ -2745,9 +2713,10 @@ function showSoundSettings(){
   });
 }
 function wireTop(backTo){
-  const b = el('tbBack'); if(b) b.onclick = ()=> go(backTo||'village');
+  const b = el('tbBack'); if(b) b.onclick = ()=> go(backTo||'school');
   const sd = el('tbSnd'); if(sd) sd.onclick = showSoundSettings;
-  const h2 = el('tbHome'); if(h2) {h2.title='숲속 마을';h2.setAttribute('aria-label','숲속 마을');h2.onclick = ()=> go('village');}
+  const h2 = el('tbHome'); if(h2) h2.onclick = ()=> go('school');
+  const profile = el('tbProfile'); if(profile) profile.onclick = ()=> go('home');
   const s2 = el('tbShop'); if(s2) s2.onclick = ()=> go('shop');
   const r2 = el('tbRank'); if(r2) r2.onclick = showRank;
   const o = el('tbOut');  if(o) o.onclick = ()=>{
@@ -3031,34 +3000,10 @@ SCREENS.home = function(st){
   }
 };
 
-/* The town is the normal student entrance. A direct lesson link still opens
-   that lesson, and the old personal lobby remains available as 내 정보. */
-function mountVillage(st,zone,arg){
-  if(!ME||IS_TEACHER){go(IS_TEACHER?'teacher':'login');return;}
-  const scene=zone==='tailor'?window.QPVillageShopScene:window.QPVillageScene;
-  st.innerHTML=topbar(zone==='tailor'?'새잎 옷 가게':'햇살숲 마을',zone==='tailor',zone!=='tailor')+'<div id="villageWorld"></div>';
-  wireTop('village');
-  const key=ME.k+':'+zone;
-  const presence=ensureVillagePresence();
-  activeVillage=window.QPForestVillage.mount(el('villageWorld'),{scene,zone,user:ME,db:FB.db,presence,players:villagePlayers,status:villageStatus,
-    checkpoint:arg?.checkpoint||villageCheckpoints.get(key),renderAvatar:avatarSVG,validateAvatar:safeVillageAvatar,
-    onMenu:name=>go(name),
-    discovered:LS.get('villageFound_'+ME.k,[]),
-    onCheckpoint:state=>villageCheckpoints.set(key,state),
-    onDiscover:(place,all)=>LS.set('villageFound_'+ME.k,all),
-    onPortal:portal=>{
-      if(portal.action==='shop'){go('tailor');return;}
-      if(portal.action==='village'){go('village');return;}
-      if(portal.action==='catalog'||portal.action==='wardrobe'||portal.action==='fitting'){go('shop',{from:'tailor',owned:portal.action==='wardrobe',fitting:portal.action==='fitting'});return;}
-      if(portal.action==='rank'){showRank();return;}
-      go(portal.action==='quiz'?'school':portal.action);
-    }});
-  activeVillage.setPlayers(villagePlayers);activeVillage.setStatus(villageStatus);
-  const current=activeVillage;
-  leaveFn=()=>{current.destroy();if(activeVillage===current)activeVillage=null;};
-}
-SCREENS.village=(st,arg)=>mountVillage(st,'village',arg);
-SCREENS.tailor=(st,arg)=>mountVillage(st,'tailor',arg);
+/* The old metaverse scenes have been retired. Keep their screen names as
+   compatibility redirects while the supplied classroom artwork is prepared. */
+SCREENS.village=()=>go(ME?(IS_TEACHER?'teacher':'school'):'login');
+SCREENS.tailor=()=>go(ME?(IS_TEACHER?'teacher':'school'):'login');
 
 SCREENS.motion = function(st){
   st.innerHTML=topbar('움직임 연습',true)+`<section class="qp-motion-page">
@@ -3163,11 +3108,10 @@ SCREENS.shop = function(st,arg){
       <div id="shInfo" class="f1 scroll"></div>
     </div>
   </div>`;
-  wireTop(arg?.from==='tailor'?'tailor':'village');
+  wireTop('school');
 
   const paintPv = ()=>{
     S.pv=avatarForSex(S.pv,ME.av.sex,ME.owned);
-    villagePresence?.setProfile({name:ME.name,avatar:ME.av});
     const preview=Object.assign({},S.pv,{bg:S.cat==='bg'?S.pv.bg:'',frame:S.cat==='frame'?S.pv.frame:''});
     el('pvStage').innerHTML = avatarSVG(preview, 280, 3);
     el('pvStage').classList.toggle('shop-preview-background',S.cat==='bg');
@@ -4831,7 +4775,7 @@ window.QPGame = {
   newAvatar, avatarForSex, itemForSex, initFB, go,
   getMe:()=>ME, getBank:()=>BANK, setBank:value=>{BANK=value||{};},
   getFB:()=>FB, getHost:()=>HOST,
-  getMotion:()=>activeMotion, getVillage:()=>activeVillage, getVillagePresence:()=>villagePresence,
+  getMotion:()=>activeMotion, getVillage:()=>null, getVillagePresence:()=>null,
   getClassroom:()=>activeClassroom, getMap:()=>activeClassroomView?.getMap(),
   getSound:()=>SND,
   getCatalog:()=>({CATS,ITEMS,PAL,STARTER}),

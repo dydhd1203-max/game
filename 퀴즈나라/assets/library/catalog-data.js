@@ -3,10 +3,10 @@ window.QPAssetLibraryCatalog = {
   "schemaVersion": 1,
   "title": "퀴즈나라 전체 소재 보관함",
   "status": {
-    "archives": 11,
-    "originalEntries": 299,
-    "storedImages": 225,
-    "uniqueOriginalImages": 224
+    "archives": 12,
+    "originalEntries": 302,
+    "storedImages": 228,
+    "uniqueOriginalImages": 227
   },
   "libraries": [
     {
@@ -48,6 +48,14 @@ window.QPAssetLibraryCatalog = {
       "originalName": "map.zip",
       "sourceCount": 10,
       "storedCount": 10
+    },
+    {
+      "id": "classroom",
+      "label": "교실 공간",
+      "indexPath": "../classroom-library/index.html",
+      "originalName": "교실 공간.zip",
+      "sourceCount": 3,
+      "storedCount": 3
     },
     {
       "id": "motion",
@@ -1607,7 +1615,7 @@ window.QPAssetLibraryCatalog = {
       "frames": [],
       "sourceCredit": null,
       "usageMetadata": "사용자가 제공한 맵 기본 에셋 원본. 출처 표기는 시각 검토 후 기록.",
-      "runtimeStatus": "partial-region-integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "sourceStatus": "original-stored",
       "classificationStatus": "visually-reviewed",
       "imagePath": "../map-library/originals/reference-download-07.jpg",
@@ -1637,8 +1645,34 @@ window.QPAssetLibraryCatalog = {
       ],
       "preparationNotes": "숲 유적의 색감과 재질에 잘 맞지만 시점은 옆 시점이다. 발판별 영역·알파·앵커·상단 충돌 면과 반복 연결부를 별도 준비한다. 별도 점프 퀴즈 게임의 기본 지형 후보이며 큰 JPEG를 통째로 소품 배경처럼 붙이지 않는다.",
       "contentType": "sprite-sheet",
-      "usageStatus": "direct-source-crop-in-runtime",
-      "runtimeRegions": [
+      "usageStatus": "archived-reference",
+      "runtimeStatusMeaning": "Old source/crop records below are historical only. Current metaverse use is 0 after user reset on 2026-10-02.",
+      "retiredRuntimeRegions": [
+        {
+          "id": "cliff-stone-face-pattern",
+          "sourceRect": [
+            484,
+            139,
+            50,
+            23
+          ],
+          "rendererPath": "../../village-scene.js",
+          "displayTileSize": [
+            86,
+            40
+          ],
+          "mirrorPatternSize": [
+            172,
+            80
+          ],
+          "directPixelReuse": true,
+          "sourceBytesModified": false,
+          "backgroundTreatment": "Crop inside source material only; preserve JPEG bytes; reflected copies soften repetition edges",
+          "placementStatus": "removed-from-current-metaverse",
+          "visualVerificationStatus": "pending-final-game-review",
+          "retirementReason": "Tiny 50x23 wall texture and its unused SVG pattern definition were removed; visible retaining faces use the larger original cliff module.",
+          "retiredAt": "2026-10-02"
+        },
         {
           "id": "natural-cliff-strip",
           "purpose": "큰 불규칙 돌·잔디 윗면을 함께 살린 실제 원본 절벽",
@@ -1680,35 +1714,9 @@ window.QPAssetLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "backgroundTreatment": "Original image clipped to traced irregular cliff silhouette, excluding the opaque dark background; successive modules overlap and alternate reflection.",
-          "placementStatus": "implemented-in-source",
-          "visualVerificationStatus": "pending-final-game-review"
-        }
-      ],
-      "runtimeStatusMeaning": "The documented original cliff module is rendered on two retaining faces in village-scene.js. The complete JPEG is not integrated as a map or intrinsically transparent sprite. The old tiny face pattern and unused definition were removed. Final visual review is pending.",
-      "retiredRuntimeRegions": [
-        {
-          "id": "cliff-stone-face-pattern",
-          "sourceRect": [
-            484,
-            139,
-            50,
-            23
-          ],
-          "rendererPath": "../../village-scene.js",
-          "displayTileSize": [
-            86,
-            40
-          ],
-          "mirrorPatternSize": [
-            172,
-            80
-          ],
-          "directPixelReuse": true,
-          "sourceBytesModified": false,
-          "backgroundTreatment": "Crop inside source material only; preserve JPEG bytes; reflected copies soften repetition edges",
-          "placementStatus": "removed-from-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-final-game-review",
-          "retirementReason": "Tiny 50x23 wall texture and its unused SVG pattern definition were removed; visible retaining faces use the larger original cliff module."
+          "retiredAt": "2026-10-02"
         }
       ],
       "library": "map",
@@ -10263,9 +10271,10 @@ window.QPAssetLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "backgroundTreatment": "Crop inside source material only; preserve JPEG bytes; reflected copies soften repetition edges",
-          "placementStatus": "removed-from-current-village-ground",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-final-game-review",
-          "retirementReason": "Replaced by quieter provided map3 paving source crop from QPVillageScene.groundSources.paving."
+          "retirementReason": "Replaced by quieter provided map3 paving source crop from QPVillageScene.groundSources.paving.",
+          "retiredAt": "2026-10-02"
         }
       ],
       "library": "village",
@@ -10309,7 +10318,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -10355,6 +10364,7 @@ window.QPAssetLibraryCatalog = {
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -10402,7 +10412,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -10478,6 +10488,7 @@ window.QPAssetLibraryCatalog = {
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -10597,7 +10608,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -10660,6 +10671,7 @@ window.QPAssetLibraryCatalog = {
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -10701,7 +10713,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -10764,6 +10776,7 @@ window.QPAssetLibraryCatalog = {
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -10805,7 +10818,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -10868,6 +10881,7 @@ window.QPAssetLibraryCatalog = {
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -10909,7 +10923,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -10972,6 +10986,7 @@ window.QPAssetLibraryCatalog = {
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -11013,7 +11028,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -11076,6 +11091,7 @@ window.QPAssetLibraryCatalog = {
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -11117,7 +11133,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -11180,6 +11196,7 @@ window.QPAssetLibraryCatalog = {
         "서로 다른 기와·따뜻한 창빛",
         "크림 석재 광장·청록 분수·꽃 화분"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -11227,7 +11244,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -11320,6 +11337,7 @@ window.QPAssetLibraryCatalog = {
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -11367,7 +11385,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -11460,6 +11478,7 @@ window.QPAssetLibraryCatalog = {
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -11507,7 +11526,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -11600,6 +11619,7 @@ window.QPAssetLibraryCatalog = {
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -11647,7 +11667,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -11710,6 +11730,7 @@ window.QPAssetLibraryCatalog = {
         "소형 주택과 텃밭",
         "호박·건초·통·수확 소품의 장소별 묶음"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -11757,7 +11778,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -11850,6 +11871,7 @@ window.QPAssetLibraryCatalog = {
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -11897,7 +11919,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -11960,6 +11982,7 @@ window.QPAssetLibraryCatalog = {
         "소형 주택과 텃밭",
         "호박·건초·통·수확 소품의 장소별 묶음"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -12007,7 +12030,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -12100,6 +12123,7 @@ window.QPAssetLibraryCatalog = {
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -12147,7 +12171,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -12240,6 +12264,7 @@ window.QPAssetLibraryCatalog = {
         "큰 볼거리와 생활 사물",
         "활동 광장과 넓은 보행 길"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "village",
       "libraryLabel": "마을·생활 풍경",
       "origin": "project",
@@ -12337,7 +12362,7 @@ window.QPAssetLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "partial-region-integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "classificationStatus": "visually-reviewed",
       "sourceRect": null,
       "anchor": null,
@@ -12376,7 +12401,7 @@ window.QPAssetLibraryCatalog = {
       ],
       "preparationNotes": "두 브라우저 화면이 겹친 캡처다. 하단 활동 광장의 목적지 안내·큰 볼거리·말풍선 상호작용과 넓은 보행 길을 참고한다. 브랜드·게임 문구·미니맵·메뉴를 그대로 복제하지 않는다.",
       "assetType": "game-screen-reference",
-      "usageStatus": "reference-and-direct-ground-crop-in-runtime",
+      "usageStatus": "archived-reference",
       "referenceUse": {
         "mode": "historical-style-color-layout-reference",
         "features": [
@@ -12391,7 +12416,8 @@ window.QPAssetLibraryCatalog = {
         "finalGameArtReview": "pending"
       },
       "runtimeVisualVerificationStatus": "pending-current-ground-review",
-      "runtimeRegions": [
+      "runtimeStatusMeaning": "Old source/crop records below are historical only. Current metaverse use is 0 after user reset on 2026-10-02.",
+      "retiredRuntimeRegions": [
         {
           "id": "quiet-ground-paving",
           "purpose": "차분한 포장길로 중앙 광장·연결 보행 길을 표시",
@@ -12423,12 +12449,12 @@ window.QPAssetLibraryCatalog = {
           "hasAlpha": false,
           "backgroundTreatment": "Display only inspected UI-free ground pixels. Mirror existing pixels to join pattern edges; no whole map screenshot, logos, UI, characters, text or generated replacement is pasted.",
           "sourceCropReview": "Original screenshot and exact sourceRect browser crop directly viewed; crop contains only grass or pale paving material.",
-          "placementStatus": "implemented-in-source",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-current-game-review",
-          "geometryEffect": "Visual floor texture only; existing terrain elevation, paths and collision remain explicit scene geometry."
+          "geometryEffect": "Visual floor texture only; existing terrain elevation, paths and collision remain explicit scene geometry.",
+          "retiredAt": "2026-10-02"
         }
       ],
-      "runtimeStatusMeaning": "A documented UI-free ground material region of this opaque screenshot is rendered directly in village-scene.js. The entire map, browser, UI and NPC scene are not pasted. Final current ground visual review remains pending.",
       "library": "metaverse-map",
       "libraryLabel": "메타버스 공간",
       "origin": "user",
@@ -12706,7 +12732,7 @@ window.QPAssetLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "partial-region-integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "classificationStatus": "visually-reviewed",
       "sourceRect": null,
       "anchor": null,
@@ -12752,7 +12778,7 @@ window.QPAssetLibraryCatalog = {
       ],
       "preparationNotes": "숲 경계와 넓은 가운데 잔디, 나이테 책상/의자 접지, 꽃·버섯·랜턴·해먹을 이어 장소가 읽히는 미술 기준으로 삼는다. 향후 교실·앉기 참고이며 현재 퀴즈나라에 좌석·교실 내부를 구현했다고 표시하지 않는다.",
       "assetType": "game-screen-reference",
-      "usageStatus": "reference-and-direct-ground-crop-in-runtime",
+      "usageStatus": "archived-reference",
       "referenceUse": {
         "mode": "historical-style-color-layout-reference",
         "features": [
@@ -12767,7 +12793,8 @@ window.QPAssetLibraryCatalog = {
         "finalGameArtReview": "pending"
       },
       "runtimeVisualVerificationStatus": "pending-current-ground-review",
-      "runtimeRegions": [
+      "runtimeStatusMeaning": "Old source/crop records below are historical only. Current metaverse use is 0 after user reset on 2026-10-02.",
+      "retiredRuntimeRegions": [
         {
           "id": "quiet-ground-grass",
           "purpose": "차분한 잔디 바닥으로 낮은 땅·높은 땅·숲 정원 표면을 연결",
@@ -12799,12 +12826,12 @@ window.QPAssetLibraryCatalog = {
           "hasAlpha": false,
           "backgroundTreatment": "Display only inspected UI-free ground pixels. Mirror existing pixels to join pattern edges; no whole map screenshot, logos, UI, characters, text or generated replacement is pasted.",
           "sourceCropReview": "Original screenshot and exact sourceRect browser crop directly viewed; crop contains only grass or pale paving material.",
-          "placementStatus": "implemented-in-source",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-current-game-review",
-          "geometryEffect": "Visual floor texture only; existing terrain elevation, paths and collision remain explicit scene geometry."
+          "geometryEffect": "Visual floor texture only; existing terrain elevation, paths and collision remain explicit scene geometry.",
+          "retiredAt": "2026-10-02"
         }
       ],
-      "runtimeStatusMeaning": "A documented UI-free ground material region of this opaque screenshot is rendered directly in village-scene.js. The entire map, browser, UI and NPC scene are not pasted. Final current ground visual review remains pending.",
       "library": "metaverse-map",
       "libraryLabel": "메타버스 공간",
       "origin": "user",
@@ -13134,7 +13161,7 @@ window.QPAssetLibraryCatalog = {
       "transparency": "generated-alpha-original",
       "sourceStatus": "present",
       "sourceOrigin": "image_gen-original-output",
-      "runtimeStatus": "integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "runtimeStatusMeaning": "Referenced and placed by current source modules; final game art and movement review is pending",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-01",
@@ -13175,10 +13202,208 @@ window.QPAssetLibraryCatalog = {
         "나이테 책상·그루터기 의자",
         "버섯·꽃·랜턴·책이 연결된 숲 쉼터"
       ],
+      "currentMetaversePlacementApplied": false,
       "library": "metaverse-map",
       "libraryLabel": "메타버스 공간",
       "origin": "project",
       "archivePath": "../metaverse-map-library/source.zip"
+    },
+    {
+      "id": "classroom/classroom-e41eb583796fc7b8",
+      "reviewIndex": 1,
+      "kind": "user-reference-image",
+      "originalName": "교실 공간1.png",
+      "imagePath": "../classroom-library/originals/classroom-e41eb583796fc7b8.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "e41eb583796fc7b8b36ca7bda583ccf4818dc545d72b81cc20517342b8986902",
+      "byteLength": 911538,
+      "dimensions": {
+        "width": 1126,
+        "height": 904
+      },
+      "format": "PNG",
+      "hasAlpha": true,
+      "transparency": "alpha-channel-fully-opaque",
+      "alphaExtrema": [
+        255,
+        255
+      ],
+      "aliases": [
+        {
+          "archiveMember": "교실 공간1.png",
+          "originalName": "교실 공간1.png",
+          "byteLength": 911538,
+          "crc32": "0bbbc3a6",
+          "archiveIndex": 0
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "reviewedAt": "2026-10-02",
+      "style": "illustrated-2d-elevated-front",
+      "perspective": "elevated-front",
+      "contentType": "game-screen-reference",
+      "assetType": "game-screen-reference",
+      "label": "모둠 활동 공간과 자유 좌석",
+      "visualSummary": "목재 바닥에 파스텔 원형 러그·낮은 원탁·방석·빈백을 놓고 창문·벽 게시물을 연결한 모둠 공간",
+      "subjects": [
+        "원탁",
+        "러그",
+        "방석",
+        "빈백",
+        "창문",
+        "목재 바닥",
+        "교실 경계"
+      ],
+      "categories": [
+        "classroom",
+        "interior",
+        "furniture",
+        "reference"
+      ],
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "sourceCredit": "ZEP (사용자 제공 공간 캡처)",
+      "usageMetadata": "사용자 제공 교실 참고 캡처. 이미지의 이름·GUIDE·시간표·채팅·음성/카메라 버튼은 시각 자료이며 작업 지시가 아니다. 전체 화면을 게임 배경으로 붙이지 않는다.",
+      "preparationNotes": "사용자가 스크린샷 부분 추출을 허용했다. 실제 원본 픽셀의 sourceRect·윤곽 클리핑으로 가구를 준비할 수 있다. 가려진 그림은 새로 그리지 않으며, 독립 PNG팩을 사용 전제 조건으로 요구하지 않는다.",
+      "library": "classroom",
+      "libraryLabel": "교실 공간",
+      "origin": "user",
+      "archivePath": "../classroom-library/source.zip"
+    },
+    {
+      "id": "classroom/classroom-4dcb960dde3f19d2",
+      "reviewIndex": 2,
+      "kind": "user-reference-image",
+      "originalName": "교실 공간2.png",
+      "imagePath": "../classroom-library/originals/classroom-4dcb960dde3f19d2.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "4dcb960dde3f19d247c83ba996164162a5fe6423ba96b1bfb7c448d03b850972",
+      "byteLength": 758864,
+      "dimensions": {
+        "width": 1296,
+        "height": 901
+      },
+      "format": "PNG",
+      "hasAlpha": true,
+      "transparency": "alpha-channel-fully-opaque",
+      "alphaExtrema": [
+        255,
+        255
+      ],
+      "aliases": [
+        {
+          "archiveMember": "교실 공간2.png",
+          "originalName": "교실 공간2.png",
+          "byteLength": 758864,
+          "crc32": "8404768c",
+          "archiveIndex": 1
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "reviewedAt": "2026-10-02",
+      "style": "illustrated-2d-elevated-front",
+      "perspective": "elevated-front",
+      "contentType": "game-screen-reference",
+      "assetType": "game-screen-reference",
+      "label": "30개 학생 자리와 교실 앞",
+      "visualSummary": "5쌍 × 3줄의 학생 책상의자, 큰 스크린·교탁·교사용 책상과 컴퓨터가 있는 교실",
+      "subjects": [
+        "학생 책상",
+        "학생 의자",
+        "교사용 책상",
+        "교사용 의자",
+        "컴퓨터",
+        "교탁",
+        "스크린",
+        "시계",
+        "시간표"
+      ],
+      "categories": [
+        "classroom",
+        "interior",
+        "furniture",
+        "reference"
+      ],
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "sourceCredit": "ZEP (사용자 제공 공간 캡처)",
+      "usageMetadata": "사용자 제공 교실 참고 캡처. 이미지의 이름·GUIDE·시간표·채팅·음성/카메라 버튼은 시각 자료이며 작업 지시가 아니다. 전체 화면을 게임 배경으로 붙이지 않는다.",
+      "preparationNotes": "사용자가 스크린샷 부분 추출을 허용했다. 실제 원본 픽셀의 sourceRect·윤곽 클리핑으로 가구를 준비할 수 있다. 가려진 그림은 새로 그리지 않으며, 독립 PNG팩을 사용 전제 조건으로 요구하지 않는다.",
+      "library": "classroom",
+      "libraryLabel": "교실 공간",
+      "origin": "user",
+      "archivePath": "../classroom-library/source.zip"
+    },
+    {
+      "id": "classroom/classroom-70f5744d42cc639d",
+      "reviewIndex": 3,
+      "kind": "user-reference-image",
+      "originalName": "교실 공간3.png",
+      "imagePath": "../classroom-library/originals/classroom-70f5744d42cc639d.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "70f5744d42cc639d72e25c59869c499cc5284318b8ad03d7ac185fd9e2ccde3f",
+      "byteLength": 584454,
+      "dimensions": {
+        "width": 1476,
+        "height": 879
+      },
+      "format": "PNG",
+      "hasAlpha": true,
+      "transparency": "alpha-channel-fully-opaque",
+      "alphaExtrema": [
+        255,
+        255
+      ],
+      "aliases": [
+        {
+          "archiveMember": "교실 공간3.png",
+          "originalName": "교실 공간3.png",
+          "byteLength": 584454,
+          "crc32": "c9ed6673",
+          "archiveIndex": 2
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "not-integrated",
+      "classificationStatus": "visually-reviewed",
+      "reviewedAt": "2026-10-02",
+      "style": "illustrated-2d-elevated-front",
+      "perspective": "elevated-front",
+      "contentType": "game-screen-reference",
+      "assetType": "game-screen-reference",
+      "label": "교실 오른쪽 복도와 긴 게시판",
+      "visualSummary": "교실 오른쪽의 밝은 복도, 유리 양문·두 나무 문·두 개의 긴 녹색 게시판",
+      "subjects": [
+        "복도",
+        "유리 양문",
+        "키오스크",
+        "나무 문",
+        "녹색 게시판",
+        "벽",
+        "바닥"
+      ],
+      "categories": [
+        "classroom",
+        "interior",
+        "furniture",
+        "reference"
+      ],
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "sourceCredit": "ZEP (사용자 제공 공간 캡처)",
+      "usageMetadata": "사용자 제공 교실 참고 캡처. 이미지의 이름·GUIDE·시간표·채팅·음성/카메라 버튼은 시각 자료이며 작업 지시가 아니다. 전체 화면을 게임 배경으로 붙이지 않는다.",
+      "preparationNotes": "사용자가 스크린샷 부분 추출을 허용했다. 실제 원본 픽셀의 sourceRect·윤곽 클리핑으로 가구를 준비할 수 있다. 가려진 그림은 새로 그리지 않으며, 독립 PNG팩을 사용 전제 조건으로 요구하지 않는다.",
+      "library": "classroom",
+      "libraryLabel": "교실 공간",
+      "origin": "user",
+      "archivePath": "../classroom-library/source.zip"
     },
     {
       "id": "motion/motion-89cb17ecfbb23270",
@@ -13631,7 +13856,7 @@ window.QPAssetLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-current-game-flow-review",
           "id": "retired-composite-original-small-waterfall",
           "sourceRect": [
@@ -13661,7 +13886,8 @@ window.QPAssetLibraryCatalog = {
             "containsBrook"
           ],
           "physicsNotes": "Exported original waterfall water contour is mapped into upper +72-height and lower raw connectors; rendered stone shore remains separate.",
-          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte."
+          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte.",
+          "retiredAt": "2026-10-02"
         }
       ],
       "library": "water",
@@ -13695,7 +13921,7 @@ window.QPAssetLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "partial-region-integrated",
+      "runtimeStatus": "retired-after-metaverse-reset",
       "classificationStatus": "visually-reviewed",
       "sourceRect": null,
       "anchor": null,
@@ -13771,84 +13997,8 @@ window.QPAssetLibraryCatalog = {
           "finalArtReview": "pending"
         }
       ],
-      "usageStatus": "direct-original-standalone-pond-in-runtime",
-      "runtimeStatusMeaning": "Only the documented original shallow pond and quiet water material crop are displayed. Long canal, brook, attached waterfall, canal cap, stone bank and extra bank sprites are removed. Entire opaque sheet is not integrated; latest actual standalone pond clipping, water motion and sampled boundaries were verified.",
-      "runtimeRegions": [
-        {
-          "rendererPath": "../../village-water-assets.js",
-          "stylesheetPath": "../../village-water-assets.css",
-          "scenePath": "../../village-scene.js",
-          "sourceAPI": "QPVillageWaterAssets.sources[0]",
-          "coordinateSpace": "original source pixels; placement uses raw village-scene space before WORLD_SCALE=1.5",
-          "worldScale": 1.5,
-          "directPixelReuse": true,
-          "sourceBytesModified": false,
-          "hasAlpha": false,
-          "placementStatus": "implemented-in-source",
-          "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
-          "id": "original-pond",
-          "sourceRect": [
-            0,
-            331,
-            476,
-            323
-          ],
-          "rawPlacement": {
-            "x": 1210,
-            "y": 868,
-            "width": 330,
-            "height": 225
-          },
-          "clipPath": "M29 346L31 341L40 340L41 335L49 336L53 334L57 339L66 338L68 343L73 345L71 350L74 352L70 357L63 358L61 363L57 369L58 374L68 371L74 374L80 370L88 372L97 376L110 376L117 367L121 366L127 369L133 367L137 373L146 371L154 375L164 374L173 377L183 377L193 382L202 383L204 376L211 374L226 378L234 381L235 389L232 397L225 400L226 407L232 413L236 416L240 414L257 416L266 411L268 405L283 404L296 400L311 392L319 395L327 404L338 411L343 416L342 424L348 423L350 418L358 420L365 416L372 420L373 425L379 425L385 430L394 426L401 433L408 434L408 440L420 441L432 445L445 445L450 449L451 454L448 457L455 463L458 464L457 471L464 477L468 476L472 481L468 487L471 491L470 505L466 508L468 516L463 523L461 534L455 542L446 550L442 554L435 559L427 561L421 568L412 570L405 575L397 575L391 580L382 581L375 585L365 585L358 583L350 584L342 587L335 589L326 587L319 591L310 594L301 594L292 597L282 596L274 594L266 596L259 593L251 591L244 593L235 589L226 588L220 587L214 584L206 587L197 586L188 584L181 582L174 581L168 584L159 581L150 579L143 579L136 576L129 575L123 576L115 573L106 574L99 572L93 575L85 572L78 571L72 568L66 563L60 565L52 565L46 565L39 568L32 568L29 563L28 558L31 555L38 551L44 548L44 545L40 541L37 536L37 527L33 526L32 521L27 516L24 509L21 506L17 493L14 491L13 486L10 489L6 486L1 487L0 484L0 385L4 384L4 381L8 380L7 375L13 373L18 375L21 368L26 369L27 365L33 365L34 361L29 359L31 356L29 352Z",
-          "waterMaskPath": "M41 522C67 510 95 503 126 493C152 486 178 486 201 480C228 474 252 465 275 455L299 442L319 437L340 427L361 428L371 436L378 439L394 439L412 441L435 445L447 451L443 459L452 463L453 472L461 478L465 487L461 495L467 502L459 511L457 520L443 524L432 531L419 534L414 542L399 545L382 550L366 550L349 557L339 556L326 564L312 564L299 559L283 556L265 557L249 551L236 553L223 550L208 553L192 550L178 552L164 555L148 557L130 560L116 565L103 563L88 562L74 558L62 551L50 543L41 537Z M303 461L320 459L331 451L353 450L365 445L384 445L393 451L389 459L391 467L381 476L361 480L339 480L323 475L310 475Z",
-          "waterMaskRule": "evenodd",
-          "animatedRegions": [
-            "original pond water surface only"
-          ],
-          "backgroundTreatment": "Original shallow stone shore/front face through source y597 is fixed. Excludes opaque gray and deep pointed floating underside by original contour clipping.",
-          "sourceCropReview": "Original JPEG and shallow original shore contour inspected separately from the latest standalone pond game verification.",
-          "physicsFunction": "containsPond",
-          "physicsNotes": "Only original pond water polygons and center rock island remain. Removed old rectangular bridge exceptions; no canal or brook collision exists.",
-          "verificationScope": "Verification applies only to the documented original shallow pond crop, fixed stones, subtle source-water motion, tested pause/reduced settings and sampled boundaries. Entire original sheet, retired composite river/bridges, perfect style match and complete physical height of every painted cliff are not claimed.",
-          "knownLimitation": "Original JPEG module is already cut at its left edge, leaving part of the original left rock boundary straight. No added fragment or generated repaint was introduced."
-        },
-        {
-          "rendererPath": "../../village-water-assets.js",
-          "stylesheetPath": "../../village-water-assets.css",
-          "scenePath": "../../village-scene.js",
-          "sourceAPI": "QPVillageWaterAssets.sources[0]",
-          "coordinateSpace": "original source pixels; placement uses raw village-scene space before WORLD_SCALE=1.5",
-          "worldScale": 1.5,
-          "directPixelReuse": true,
-          "sourceBytesModified": false,
-          "hasAlpha": false,
-          "placementStatus": "implemented-in-source",
-          "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
-          "id": "original-pond-water-texture",
-          "sourceRect": [
-            240,
-            508,
-            120,
-            23
-          ],
-          "rawDisplayTileSize": [
-            120,
-            46
-          ],
-          "mirrorPatternSize": [
-            240,
-            92
-          ],
-          "patternEdgeOverlapPixels": 0.6,
-          "animatedRegions": [
-            "original pond water surface only"
-          ],
-          "backgroundTreatment": "Original quiet water pixels mirrored into pattern and displaced only inside the fixed original pond-water mask; original rock island remains excluded.",
-          "sourceCropReview": "Quiet original water crop directly inspected; no generated water raster or drawn wave.",
-          "verificationScope": "Verification applies only to the documented original shallow pond crop, fixed stones, subtle source-water motion, tested pause/reduced settings and sampled boundaries. Entire original sheet, retired composite river/bridges, perfect style match and complete physical height of every painted cliff are not claimed.",
-          "knownLimitation": "Original JPEG module is already cut at its left edge, leaving part of the original left rock boundary straight. No added fragment or generated repaint was introduced."
-        }
-      ],
+      "usageStatus": "archived-reference",
+      "runtimeStatusMeaning": "Old source/crop records below are historical only. Current metaverse use is 0 after user reset on 2026-10-02.",
       "retiredRuntimeRegions": [
         {
           "rendererPath": "../../village-water-assets.js",
@@ -13858,7 +14008,7 @@ window.QPAssetLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-from-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-final-game-review",
           "id": "original-waterfall",
           "sourceRect": [
@@ -13874,7 +14024,8 @@ window.QPAssetLibraryCatalog = {
             "height": 151
           },
           "backgroundTreatment": "Source waterfall and rocks clipped to painted contour.",
-          "retirementReason": "Narrow crop [64,405,156,113] cut natural context and exposed a rectangular-looking water section; replaced by the complete original top-left forest shore and waterfall module."
+          "retirementReason": "Narrow crop [64,405,156,113] cut natural context and exposed a rectangular-looking water section; replaced by the complete original top-left forest shore and waterfall module.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -13884,7 +14035,7 @@ window.QPAssetLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-from-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-final-game-review",
           "id": "deprecated-beige-bank-strip",
           "sourceRect": [
@@ -13902,7 +14053,8 @@ window.QPAssetLibraryCatalog = {
             40
           ],
           "backgroundTreatment": "Original bank/shore texture pixels cropped and mirrored along stream corridor.",
-          "retirementReason": "Shallow [138,558,60,10] crop showed a flat beige band in the actual game; replaced by the larger original cracked stone face and clipped rock-island silhouettes."
+          "retirementReason": "Shallow [138,558,60,10] crop showed a flat beige band in the actual game; replaced by the larger original cracked stone face and clipped rock-island silhouettes.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -13912,7 +14064,7 @@ window.QPAssetLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-or-replaced-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
           "id": "previous-original-pond",
           "sourceRect": [
@@ -13935,7 +14087,8 @@ window.QPAssetLibraryCatalog = {
           "physicsFunction": "containsPond",
           "physicsNotes": "Painted lower/upper water surfaces and central rock island traced into raw village geometry; existing bridge remains traversable.",
           "verificationScope": "Original crop and silhouette display verified in actual village views; complete physical geometry of all painted cliffs is not implied.",
-          "retirementReason": "Deep pointed underside replaced by shallower original shore outline and smaller current pond frame."
+          "retirementReason": "Deep pointed underside replaced by shallower original shore outline and smaller current pond frame.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -13945,7 +14098,7 @@ window.QPAssetLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-or-replaced-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
           "id": "previous-original-whole-upper-waterfall",
           "sourceRect": [
@@ -13966,7 +14119,8 @@ window.QPAssetLibraryCatalog = {
           "physicsFunction": "containsCanal",
           "physicsNotes": "Painted module water area mapped into canalPolygons alongside head cap and existing stream corridor.",
           "verificationScope": "Original crop and silhouette display verified in actual village views; complete physical geometry of all painted cliffs is not implied.",
-          "retirementReason": "Floating upper island waterfall replaced by the smaller original 0af waterfall and fixed shore."
+          "retirementReason": "Floating upper island waterfall replaced by the smaller original 0af waterfall and fixed shore.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -13976,7 +14130,7 @@ window.QPAssetLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-or-replaced-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
           "id": "previous-original-canal-start-cap",
           "sourceRect": [
@@ -13996,7 +14150,8 @@ window.QPAssetLibraryCatalog = {
           "physicsModule": "../../village-water-assets.js",
           "physicsFunction": "containsCanal",
           "verificationScope": "Original crop and silhouette display verified in actual village views; complete physical geometry of all painted cliffs is not implied.",
-          "retirementReason": "Same original head crop retained but clipped to forest/lake cap; deep island underside removed."
+          "retirementReason": "Same original head crop retained but clipped to forest/lake cap; deep island underside removed.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -14006,7 +14161,7 @@ window.QPAssetLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-or-replaced-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
           "id": "previous-original-bank-rocks",
           "sourceRect": [
@@ -14262,7 +14417,8 @@ window.QPAssetLibraryCatalog = {
           "backgroundTreatment": "Original center rock-island outline clipped to remove surrounding painted water; positioned on both canal banks with small rotation/scale/placement variation.",
           "geometryEffect": "Decorative shore artwork; existing containsPond/containsBrook/containsCanal geometry is unchanged.",
           "verificationScope": "Original crop and silhouette display verified in actual village views; complete physical geometry of all painted cliffs is not implied.",
-          "retirementReason": "Sixteen placements replaced by ten original rock sprites on the current canal banks."
+          "retirementReason": "Sixteen placements replaced by ten original rock sprites on the current canal banks.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -14274,7 +14430,7 @@ window.QPAssetLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-current-game-flow-review",
           "id": "retired-composite-original-stone-bank",
           "sourceRect": [
@@ -14294,7 +14450,8 @@ window.QPAssetLibraryCatalog = {
           "animatedRegions": [],
           "backgroundTreatment": "Native original stone top, dark side and cracks are mirrored. Gray background and deprecated shallow flat beige bank strip are excluded.",
           "sourceCropReview": "Original cracked stone crop reviewed; fixed shore artwork.",
-          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte."
+          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -14306,7 +14463,7 @@ window.QPAssetLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-current-game-flow-review",
           "id": "retired-composite-original-canal-start-cap",
           "sourceRect": [
@@ -14324,7 +14481,8 @@ window.QPAssetLibraryCatalog = {
           "clipPath": "M0 66L3 64L10 65L13 62L16 62L17 58L24 58L24 54L34 53L36 50L41 50L46 50L52 51L52 56L49 59L48 64L55 62L61 58L70 56L76 60L82 61L85 65L88 69L90 74L94 72L94 63L99 57L105 54L104 50L109 46L116 43L115 37L122 33L118 31L121 27L125 25L123 23L128 21L136 23L142 24L146 23L153 25L161 24L164 24L167 30L171 33L169 37L175 43L180 39L187 38L189 34L193 32L191 27L194 22L200 18L204 19L209 17L214 17L215 22L219 18L224 17L226 20L232 19L235 17L242 22L247 16L252 15L252 11L259 12L263 8L268 9L271 14L276 13L277 18L274 23L280 23L279 31L285 32L290 38L297 41L301 38L305 42L311 40L313 44L317 46L315 53L321 60L323 67L321 70L328 72L331 78L333 81L340 84L340 89L345 92L342 98L346 99L342 105L344 107L339 113L330 115L320 115L316 121L309 127L311 130L325 132L332 130L342 134L346 139L345 144L350 149L347 154L340 154L339 159L329 158L328 162L334 167L338 166L343 170L340 174L344 177L341 183L335 184L337 189L333 193L326 191L324 186L319 188L318 199L314 209L308 219L303 227L297 234L290 240L281 244L270 249L258 251L251 258L236 262L228 263L223 258L213 260L201 258L190 260L178 258L162 261L148 260L134 262L121 260L108 261L96 259L84 255L73 254L66 250L58 250L50 244L45 240L40 236L34 233L31 227L26 224L24 219L18 216L10 217L9 212L6 209L4 204L2 188L0 187Z",
           "animatedRegions": [],
           "backgroundTreatment": "Keep original forest/lake cap only. Remove deep floating-island underside with exact headShoreMask; no full screenshot or newly drawn forest module.",
-          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte."
+          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte.",
+          "retiredAt": "2026-10-02"
         },
         {
           "rendererPath": "../../village-water-assets.js",
@@ -14336,7 +14494,7 @@ window.QPAssetLibraryCatalog = {
           "directPixelReuse": true,
           "sourceBytesModified": false,
           "hasAlpha": false,
-          "placementStatus": "removed-from-current-runtime",
+          "placementStatus": "removed-from-current-metaverse",
           "visualVerificationStatus": "pending-current-game-flow-review",
           "id": "retired-composite-original-bank-rocks",
           "sourceRect": [
@@ -14502,7 +14660,84 @@ window.QPAssetLibraryCatalog = {
           "animatedRegions": [],
           "backgroundTreatment": "Clip the original center rock island contour to remove surrounding water; display ten fixed sprites on the two canal banks with small placement/rotation/scale variations.",
           "geometryEffect": "Decorative original rock shore imagery; water collision is governed by the separate exported geometry API.",
-          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte."
+          "retirementReason": "Composite river and attached waterfall removed by final user choice; original source file remains archived byte-for-byte.",
+          "retiredAt": "2026-10-02"
+        },
+        {
+          "rendererPath": "../../village-water-assets.js",
+          "stylesheetPath": "../../village-water-assets.css",
+          "scenePath": "../../village-scene.js",
+          "sourceAPI": "QPVillageWaterAssets.sources[0]",
+          "coordinateSpace": "original source pixels; placement uses raw village-scene space before WORLD_SCALE=1.5",
+          "worldScale": 1.5,
+          "directPixelReuse": true,
+          "sourceBytesModified": false,
+          "hasAlpha": false,
+          "placementStatus": "removed-from-current-metaverse",
+          "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
+          "id": "original-pond",
+          "sourceRect": [
+            0,
+            331,
+            476,
+            323
+          ],
+          "rawPlacement": {
+            "x": 1210,
+            "y": 868,
+            "width": 330,
+            "height": 225
+          },
+          "clipPath": "M29 346L31 341L40 340L41 335L49 336L53 334L57 339L66 338L68 343L73 345L71 350L74 352L70 357L63 358L61 363L57 369L58 374L68 371L74 374L80 370L88 372L97 376L110 376L117 367L121 366L127 369L133 367L137 373L146 371L154 375L164 374L173 377L183 377L193 382L202 383L204 376L211 374L226 378L234 381L235 389L232 397L225 400L226 407L232 413L236 416L240 414L257 416L266 411L268 405L283 404L296 400L311 392L319 395L327 404L338 411L343 416L342 424L348 423L350 418L358 420L365 416L372 420L373 425L379 425L385 430L394 426L401 433L408 434L408 440L420 441L432 445L445 445L450 449L451 454L448 457L455 463L458 464L457 471L464 477L468 476L472 481L468 487L471 491L470 505L466 508L468 516L463 523L461 534L455 542L446 550L442 554L435 559L427 561L421 568L412 570L405 575L397 575L391 580L382 581L375 585L365 585L358 583L350 584L342 587L335 589L326 587L319 591L310 594L301 594L292 597L282 596L274 594L266 596L259 593L251 591L244 593L235 589L226 588L220 587L214 584L206 587L197 586L188 584L181 582L174 581L168 584L159 581L150 579L143 579L136 576L129 575L123 576L115 573L106 574L99 572L93 575L85 572L78 571L72 568L66 563L60 565L52 565L46 565L39 568L32 568L29 563L28 558L31 555L38 551L44 548L44 545L40 541L37 536L37 527L33 526L32 521L27 516L24 509L21 506L17 493L14 491L13 486L10 489L6 486L1 487L0 484L0 385L4 384L4 381L8 380L7 375L13 373L18 375L21 368L26 369L27 365L33 365L34 361L29 359L31 356L29 352Z",
+          "waterMaskPath": "M41 522C67 510 95 503 126 493C152 486 178 486 201 480C228 474 252 465 275 455L299 442L319 437L340 427L361 428L371 436L378 439L394 439L412 441L435 445L447 451L443 459L452 463L453 472L461 478L465 487L461 495L467 502L459 511L457 520L443 524L432 531L419 534L414 542L399 545L382 550L366 550L349 557L339 556L326 564L312 564L299 559L283 556L265 557L249 551L236 553L223 550L208 553L192 550L178 552L164 555L148 557L130 560L116 565L103 563L88 562L74 558L62 551L50 543L41 537Z M303 461L320 459L331 451L353 450L365 445L384 445L393 451L389 459L391 467L381 476L361 480L339 480L323 475L310 475Z",
+          "waterMaskRule": "evenodd",
+          "animatedRegions": [
+            "original pond water surface only"
+          ],
+          "backgroundTreatment": "Original shallow stone shore/front face through source y597 is fixed. Excludes opaque gray and deep pointed floating underside by original contour clipping.",
+          "sourceCropReview": "Original JPEG and shallow original shore contour inspected separately from the latest standalone pond game verification.",
+          "physicsFunction": "containsPond",
+          "physicsNotes": "Only original pond water polygons and center rock island remain. Removed old rectangular bridge exceptions; no canal or brook collision exists.",
+          "verificationScope": "Verification applies only to the documented original shallow pond crop, fixed stones, subtle source-water motion, tested pause/reduced settings and sampled boundaries. Entire original sheet, retired composite river/bridges, perfect style match and complete physical height of every painted cliff are not claimed.",
+          "knownLimitation": "Original JPEG module is already cut at its left edge, leaving part of the original left rock boundary straight. No added fragment or generated repaint was introduced.",
+          "retiredAt": "2026-10-02"
+        },
+        {
+          "rendererPath": "../../village-water-assets.js",
+          "stylesheetPath": "../../village-water-assets.css",
+          "scenePath": "../../village-scene.js",
+          "sourceAPI": "QPVillageWaterAssets.sources[0]",
+          "coordinateSpace": "original source pixels; placement uses raw village-scene space before WORLD_SCALE=1.5",
+          "worldScale": 1.5,
+          "directPixelReuse": true,
+          "sourceBytesModified": false,
+          "hasAlpha": false,
+          "placementStatus": "removed-from-current-metaverse",
+          "visualVerificationStatus": "verified-original-crop-and-clipping-in-game",
+          "id": "original-pond-water-texture",
+          "sourceRect": [
+            240,
+            508,
+            120,
+            23
+          ],
+          "rawDisplayTileSize": [
+            120,
+            46
+          ],
+          "mirrorPatternSize": [
+            240,
+            92
+          ],
+          "patternEdgeOverlapPixels": 0.6,
+          "animatedRegions": [
+            "original pond water surface only"
+          ],
+          "backgroundTreatment": "Original quiet water pixels mirrored into pattern and displaced only inside the fixed original pond-water mask; original rock island remains excluded.",
+          "sourceCropReview": "Quiet original water crop directly inspected; no generated water raster or drawn wave.",
+          "verificationScope": "Verification applies only to the documented original shallow pond crop, fixed stones, subtle source-water motion, tested pause/reduced settings and sampled boundaries. Entire original sheet, retired composite river/bridges, perfect style match and complete physical height of every painted cliff are not claimed.",
+          "knownLimitation": "Original JPEG module is already cut at its left edge, leaving part of the original left rock boundary straight. No added fragment or generated repaint was introduced.",
+          "retiredAt": "2026-10-02"
         }
       ],
       "runtimeVisualVerificationStatus": "verified-original-crop-and-clipping-in-game",
