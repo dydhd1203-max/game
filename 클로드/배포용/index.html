@@ -4394,7 +4394,7 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
    같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '89차 · 진단 손질·수정 무적';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '90차 · 투명 그리기 손질';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -6523,6 +6523,7 @@ function gunGlowRect(){
   return [l,b,Math.max(0,r-l),Math.max(0,t-b)];
 }
 function gunGlowPass(){
+  if(DBG.noGG) return;                                  // 90차 — 진단 '든 총 빛번짐 끔'
   if(GG.k <= 0 || !held.visible) return;
   gunGlowInit();
   /* 조명도 층 1 에 — 없으면 광원 수가 0 ↔ N 으로 바뀌어 셰이더 변종이 따로 컴파일된다(불러올 때 한 번 · 수정 조명은 만들 때 붙인다) */
@@ -10289,7 +10290,7 @@ function buildCrystal(){
   /* 하늘로 뻗는 빛기둥 — 멀리서도 우리 수정이 보인다 */
   beam = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 2.4, 80, 10, 1, true),
     new THREE.MeshBasicMaterial({color:0x7fe6ff, transparent:true, opacity:.13,
-      depthWrite:false, side:THREE.DoubleSide, fog:false}));
+      depthWrite:false, side:THREE.BackSide, fog:false}));   // 90차 — 한 겹(뒷벽만) · opacity 는 매 프레임 1−(1−a)² 로
   beam.position.y = 42; crystalGroup.add(beam);
 
   /* 받침 없음 (63차)
@@ -10366,9 +10367,12 @@ function updCrystal(dt, t, cp, lastLight, skyK){
   beam.rotation.y -= dt*0.22;
   // The village beam reaches four metres through the race deck. It belongs to
   // the village and must not appear as a translucent rectangle in the course.
-  beam.visible = !miniOn();
-  beam.material.opacity = (lastLight ? 0.22 + Math.sin(t*9)*0.09
+  beam.visible = !miniOn() && !DBG.noBeam;   // 90차 — 진단 '수정 빛기둥 끔'
+  /* 90차 — 벽 두 겹(DoubleSide)을 한 겹(BackSide)으로. 같은 색 α 를 두 번 섞은 결과 α+α(1−α) 는 한 번에 1−(1−α)² 로 섞은 것과 같아
+     밖에서 보는 색은 그대로이고 화면 10~15% 의 섞기 한 겹이 사라진다. BackSide 라 1인칭으로 빛기둥 속(수정 2.4칸 안)에 서도 기둥이 보인다(그땐 전보다 한 겹 진하다). */
+  const bA = (lastLight ? 0.22 + Math.sin(t*9)*0.09
     : 0.06 + cp*0.10 + Math.sin(t*1.7)*0.02) * (0.5 + skyK*0.9);
+  beam.material.opacity = 1 - (1 - bA)*(1 - bA);
   beam.scale.setScalar(lastLight ? 1.25 + Math.sin(t*7)*0.12 : 1);
   beam.material.color.setHSL(hue, 0.9, 0.64);
 }
@@ -17981,8 +17985,10 @@ function drawFarm(t){
    ★ 카메라 쪽으로만 돌린다(가로 회전). 위아래로도 돌리면 위에서 볼 때 얇아져서 안 보인다.
    ★ 깊이 검사는 켜 둔다 — 벽 뒤 좀비의 체력이 벽을 뚫고 보이면 안 된다. */
 const hbGeo = new THREE.PlaneGeometry(1, 1);
-const hbMat = new THREE.MeshBasicMaterial({color:0xffffff, transparent:true, opacity:0.95,
-  depthWrite:false, fog:false, side:THREE.DoubleSide});
+/* 90차 — 불투명으로(선생님 선택). 투명 0.95 는 막대 뒤가 5% 비치는 대신 57마리 × 2판이 섞기 패스에 들어갔다.
+   불투명이면 깊이를 쓰므로 바탕·채움 순서는 깊이 검사가 정하고(채움이 0.05 앞), 막대 뒤 좀비 화소는 early-Z 로 걸러진다. */
+const hbMat = new THREE.MeshBasicMaterial({color:0xffffff, transparent:false, opacity:1,
+  fog:false, side:THREE.DoubleSide});
 const HB_BG = imesh(hbGeo, hbMat, MAXW, 1), HB_FG = imesh(hbGeo, hbMat, MAXW, 1);
 /* 좀비가 한 마리도 없으면 통째로 숨긴다 — 켜 두면 개수가 0이어도 그리기가 두 번 돈다 */
 HB_BG.visible = HB_FG.visible = false;
@@ -18007,6 +18013,7 @@ function drawWolfHP(){
     if(dx*dx + dz*dz > HB_R2) continue;
     const T0 = WOLF_T[w.k] || WOLF_T[0];
     const boss = w.bi >= 0 || isBoss(w.k);
+    if(!boss && w.hp >= w.mx) continue;             // 90차 — 멀쩡한 좀비는 막대 없음(맞으면 나타난다) · 보스는 늘 (선생님 선택)
     const wd = HB_W * (boss ? 1.75 : 1) * (0.7 + T0.sc*0.45);
     const y = (w.y||GY) + T0.sc*1.55 + 0.62;
     const f = Math.max(0, Math.min(1, w.mx ? w.hp/w.mx : 0));
@@ -35203,7 +35210,9 @@ const BLOB83 = (()=>{
   const tex = new THREE.CanvasTexture(c);
   const mat = new THREE.MeshBasicMaterial({map:tex, color:0x000000, transparent:true, opacity:.34, depthWrite:false,
     polygonOffset:true, polygonOffsetFactor:-2, polygonOffsetUnits:-2});
-  const geo = new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2);
+  /* 90차 — 네모판 → 24각형. 그라데이션은 r>0.55 부터 선형으로 r=1 에서 0 이라 네모 귀퉁이(넓이의 21.5%)는 알파 0 인데도 전부 섞이고 있었다.
+     CircleGeometry 의 uv 는 (x/r+1)/2 라 r=0.5 면 PlaneGeometry(1,1) 과 똑같이 x+0.5 — 같은 텍스처 자리를 읽는다. 24각형 변 가운데서 알파 0.005(1/255 아래). */
+  const geo = new THREE.CircleGeometry(0.5, 24).rotateX(-Math.PI/2);
   const m = new THREE.InstancedMesh(geo, mat, 160); m.count = 0; m.frustumCulled = false; m.renderOrder = 2;
   m.castShadow = false; m.receiveShadow = false; m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   scene.add(m); return {m, mat:new THREE.Matrix4(), n:0};
@@ -35392,7 +35401,7 @@ function loop(){
         shList.push(meSheep);
       }
       drawSheep(shList, tAcc, MAXP, s=>GHEX[s.g|0], SHEEP_S, true);   // 81차 — 본 루프만 거른다
-      if(DBG.noBlob) BLOB83.count = 0; else blob83Draw(shList);       // 83차 — 발밑 동그란 연한 그림자(사람·좀비·병정) · 85차 진단 '발밑 그림자 끔'
+      if(DBG.noBlob) BLOB83.m.count = 0; else blob83Draw(shList);   // 90차 — BLOB83 은 {m,mat,n} 래퍼라 .count 는 죽은 속성이었다(85·89차 '발밑 그림자 끔' 줄은 무동작)       // 83차 — 발밑 동그란 연한 그림자(사람·좀비·병정) · 85차 진단 '발밑 그림자 끔'
       wingFxPeople(shList, dt, tAcc);                               // 66차 — 날개 꼬리·친구 전직 마법진(굽힌 날개 끝에서)
     }
     if(PROF_ON) pE('사람');
@@ -35474,6 +35483,7 @@ const DBG = { noRender:false, noLogic:false, noZombie:false, zlodOff:false, zlod
               noHUD:false, noInst:false, noSim:false, noTags:false,
               noHPBar:false, noNum:false,     // 좀비 체력 막대 / 뜨는 숫자 끄기 — 짝비교용
               noTransp:false, noBlob:false, hudHide:false, noVoice:false,   // 85차 — 투명한 것 안 그림 · 발밑 그림자 끔 · HUD 화면에서 숨김 · 좀비 소리 끔
+              noBeam:false, noGG:false,       // 90차 — 수정 빛기둥 끔 · 든 총 빛번짐(gunGlowPass) 끔 — 투명 7.7ms 가 어디 것인지 가르는 줄
               slowNet:false,    // 전송 횟수를 초당 13회 -> 6회로 줄이기 — 짝비교용
               shFreeze:false }; // 81차 — 진단 '그림자 다시그리기 멈춤': 그림자 지도를 한 장도 새로 안 그린다(SH_HZ 가 있어도)
 let sweep = null, sweepOut = null;        // 자동 측정 상태 / 결과표
@@ -35597,6 +35607,8 @@ if(new URLSearchParams(location.search).has('diag')){
     /* 85차 — 좀비가 나오면 같이 늘어나는 것들을 하나씩: 투명·반투명 전부 · 발밑 그림자 · HUD 화면(DOM)을 숨김 · 좀비 체력 막대 · 뜨는 숫자 · 좀비 소리 */
     C('투명한 것 안 그림',  ()=>{DBG.noTransp=true;}),
     C('발밑 그림자 끔',     ()=>{DBG.noBlob=true;}),
+    C('수정 빛기둥 끔',     ()=>{DBG.noBeam=true;}),      // 90차
+    C('든 총 빛번짐 끔',    ()=>{DBG.noGG=true;}),        // 90차
     C_HUD(),
     C('좀비 체력막대 끔',   ()=>{DBG.noHPBar=true;}),
     C('뜨는 숫자 끔',       ()=>{DBG.noNum=true;}),
@@ -35616,12 +35628,14 @@ if(new URLSearchParams(location.search).has('diag')){
       C('빛번짐 끔',     ()=>{DBG.noBloom=true;}),
       C('그래픽 둘 다 끔',()=>{setShadow(true); DBG.noBloom=true;}) ] : []),
   ] : [
+    /* 90차 — 89차 표가 답한 줄(해상도 한단 더 = 0 · 좀비 안 그림 = 0)은 빼고, 투명 7.7ms 를 가르는 줄 넷을 넣는다: 9줄·19창·약 56초 */
     C('화면그리기 끔', ()=>{DBG.noRender=true;}),
     C_HUD(),
-    C_PR(),
     C('투명한 것 안 그림',  ()=>{DBG.noTransp=true;}),
     C('발밑 그림자 끔',     ()=>{DBG.noBlob=true;}),
-    C('좀비 안 그림',       ()=>{DBG.noZombie=true;}),
+    C('수정 빛기둥 끔',     ()=>{DBG.noBeam=true;}),
+    C('좀비 체력막대 끔',   ()=>{DBG.noHPBar=true;}),
+    C('든 총 빛번짐 끔',    ()=>{DBG.noGG=true;}),
     C('게임로직 통째로 끔', ()=>{DBG.noLogic=true;}),
     C_HUD(),                                        // 두 번 재서 둘이 다르면 잡음임을 바로 보이게
   ];
@@ -35652,7 +35666,7 @@ if(new URLSearchParams(location.search).has('diag')){
      좀비가 한꺼번에 사라져 뒤쪽 항목은 "한가한 낮"을 재게 되므로, 그런 줄은 버린다. */
   const WINS = CASES.length * 2 + 1;                  // 기준·항목 번갈아 + 마지막 기준
   const SETTLE0 = 3.0;                                // 89차 — 첫 창은 워밍업·셰이더 컴파일 여파가 걷히게 3초 쉰다(그 뒤로는 0.8초)
-  const SWEEP_SEC = WINS * (0.8 + 2.0) + (SETTLE0 - 0.8);   // 기본 8줄 ≈ 50초 · 전부(&sweep=all) ≈ 128초
+  const SWEEP_SEC = WINS * (0.8 + 2.0) + (SETTLE0 - 0.8);   // 기본 9줄 ≈ 56초 · 전부(&sweep=all) ≈ 140초
   /* 창 하나를 재는 내내 상황을 지켜본다.
      끝날 때만 보면 창 한가운데서 낮이 되는 경우를 놓친다(실제로 놓쳤다). */
   const newWin = ()=>{ sweep.ph0 = G.phase; sweep.phBad = false; sweep.hitch = 0;
@@ -35667,7 +35681,9 @@ if(new URLSearchParams(location.search).has('diag')){
     else if(G.t < SWEEP_SEC + 5) warn = '밤이 ' + Math.round(G.t) + '초 남음 — 재는 중에 낮이 된다';
     else if(G.set.nightSec - G.t < 20) warn = '밤 시작 ' + Math.round(G.set.nightSec - G.t) + '초 — 좀비가 아직 나오는 중(20초 뒤에 누르면 더 정확)';   // 89차
     sweep = { t:0, f:0, settling:true, first:true, wins:[], warn:warn,
-              ph0:'', phBad:false, wMin:0, wMax:0, hitch:0 };
+              ph0:'', phBad:false, wMin:0, wMax:0, hitch:0, bat:'전원 모름' };
+    /* 90차 — 전원·배터리를 표 머리에 남긴다(배터리로 재면 GPU 클럭이 내려가 같은 장면도 느리다 — 가운데 24fps 구간의 해석에 필요) */
+    if(navigator.getBattery){ const sw = sweep; navigator.getBattery().then(b=>{ sw.bat = (b.charging ? '전원 꽂음' : '배터리') + ' ' + Math.round(b.level*100) + '%'; }).catch(()=>{}); }
     newWin();
   };
   window.__sweepTick = dt=>{
@@ -35683,7 +35699,8 @@ if(new URLSearchParams(location.search).has('diag')){
     sweep.f++; if(dt > 0.1) sweep.hitch++;           // 89차 — 0.1초 넘게 멈춘 프레임 수(끊김)
     if(sweep.t < 2.0) return;
     sweep.wins.push({fps:Math.round(sweep.f/sweep.t),
-                     wMin:sweep.wMin, wMax:sweep.wMax, bad:sweep.phBad, hitch:sweep.hitch, gpu:gpuMs});   // 89차 — 끊김 수 · GPU 시간(EXT_disjoint_timer_query, 15프레임마다 질의한 지수평균)
+                     wMin:sweep.wMin, wMax:sweep.wMax, bad:sweep.phBad, hitch:sweep.hitch, gpu:gpuMs,   // 89차 — 끊김 수 · GPU 시간(EXT_disjoint_timer_query, 15프레임마다 질의한 지수평균)
+                     calls:renderer.info.render.calls, tris:renderer.info.render.triangles, blobs:BLOB83.m.count});   // 90차 — 마지막 프레임의 드로우콜·삼각형·발밑 원판 수(줄이 실제로 뭘 뺐는지 보인다)
 
     /* 창 번호: 짝수=기준, 홀수=항목. 0기준 1항목0 2기준 3항목1 ... 마지막은 기준 */
     const idx = sweep.wins.length - 1;
@@ -35699,7 +35716,8 @@ if(new URLSearchParams(location.search).has('diag')){
                    Math.max(b0.wMax, c.wMax, b1.wMax),
                    b0.bad || c.bad || b1.bad,
                    Math.round(base),                   // 34차 — 줄마다 기준도 남긴다
-                   b0.fps, b1.fps, c.hitch, c.gpu]);  // 89차 — 앞·뒤 기준 따로(둘이 3 넘게 다르면 그 줄은 흔들린 것) · 끊김 수 · GPU ms
+                   b0.fps, b1.fps, c.hitch, c.gpu,
+                   b0.gpu, c.calls, c.tris, c.blobs]);  // 89차 — 앞·뒤 기준 따로 · 끊김 수 · GPU ms · 90차 — 앞 기준의 GPU · 콜 · 삼각형 · 원판 수
       }
       /* ★ 34차 — 34차 뒤 교실 표가 첫 줄들은 기준 51 이다가 중간부터 30 으로 주저앉았고, 그 뒤론 '화면 그리기 끔' 이 +0.5,
          '로직 통째로 끔' 이 0.0 이었다. 그리기도 로직도 꺼서 안 빨라지면 게임 밖 상한이다(발열·절전·탭 가림·30Hz 화면).
@@ -35712,7 +35730,8 @@ if(new URLSearchParams(location.search).has('diag')){
       const bases = sweep.wins.filter((_,k)=>k%2===0).map(w=>w.fps), bm = bases.reduce((a,b)=>a+b,0)/bases.length;
       const bsd = Math.sqrt(bases.reduce((a,b)=>a+(b-bm)*(b-bm),0)/bases.length);
       sweepOut = {rows:rows, spoiled:rows.some(r=>r[5]), warn:sweep.warn, drift, capped, bases, bsd:Math.round(bsd*10)/10,
-                  gpu:gpuExt === null ? null : gpuMs};
+                  gpu:gpuExt === null ? null : gpuMs,
+                  bat:sweep.bat, dpr:devicePixelRatio, pr:renderer.getPixelRatio()};   // 90차 — 전원 · 화면배율
       sweep = null; return;
     }
     if(idx % 2 === 0) CASES[idx>>1][1]();          // 기준 창이 끝났으면 다음 항목을 켠다
@@ -35784,7 +35803,8 @@ function updDiag(dt){
       + (r[7] !== undefined && Math.abs(r[7]-r[8]) >= 3 ? '  ⚠기준흔들림' : '')   // 89차 — 앞뒤 기준이 3fps 넘게 다르면 그 줄 차이는 못 믿는다
       + (!r[5] && r[4]-r[3] > 3 ? '  ⚠좀비수바뀜' : '')
       + (r[9] ? '  끊김' + r[9] : '')
-      + (r[10] ? '  GPU' + r[10].toFixed(1) : '');
+      + (r[10] ? '  GPU' + (r[11] ? r[11].toFixed(1) + '→' : '') + r[10].toFixed(1) : '')   // 90차 — 앞 기준→항목
+      + (r[12] !== undefined ? '  콜' + r[12] + '·△' + (r[13]/1e6).toFixed(2) + 'M' + '·원판' + r[14] : '');   // 90차 — 그 줄이 실제로 뺀 것
   if(st && st.sweep){
     const s = st.sweep;
     diagEl.textContent = '자동 측정 중… ' + s.wins.length + '/' + st.WINS + '창'
@@ -35799,10 +35819,12 @@ function updDiag(dt){
     const o = st.sweepOut;
     diagEl.textContent = '측정 끝 — 이 표를 알려주세요\n'
       + '(오른쪽 숫자 = 바로 직전 기준과의 차이)\n'
-      + '81차 최적화 ' + P81_NOTE + ' · ' + autoResNote() + '\n\n'                        // 81차 — 켠 판·끈 판(&p81off=all) 표를 섞지 않게
+      + '81차 최적화 ' + P81_NOTE + ' · ' + autoResNote() + '\n'                          // 81차 — 켠 판·끈 판(&p81off=all) 표를 섞지 않게
+      + (o.dpr ? '화면배율 ' + o.dpr.toFixed(2) + ' → 그리기 ' + o.pr.toFixed(2) + ' · ' + o.bat + '\n' : '') + '\n'   // 90차
       + o.rows.map(fmt).join('\n')
       + (o.bases ? '\n\n기준 창 ' + o.bases.join(' ') + '  (흔들림 ±' + o.bsd + ' → ±' + (o.bsd*2).toFixed(0) + 'fps 아래 차이는 못 가림)' : '')   // 89차
       + (o.gpu !== undefined ? '\n★GPU실제 ' + (o.gpu === null ? '못잼(이 브라우저는 GPU 시간 질의가 없음)' : !o.gpu ? '값 없음(질의가 한 번도 안 돌아옴)' : o.gpu.toFixed(1) + 'ms — 그리기 중 GPU 가 실제로 일한 시간') : '')
+      + '\n60Hz 화면은 한 프레임이 16.7ms 를 넘기면 33ms(30fps)로 떨어진다 — GPU 15ms 아래가 목표'   // 90차
       + (o.warn ? '\n\n⚠ 시작할 때: ' + o.warn : '')
       + (o.drift ? '\n\n⚠ ' + o.drift : '')
       + (o.capped ? '\n\n⚠ ' + o.capped : '')
@@ -35865,7 +35887,7 @@ function updDiag(dt){
     '───────────────\n' +
     'Shift+7 시뮬·통신 ' + (DBG.noSim ? '끔' : '켬') + '\n' +
     'Shift+8 전송횟수 ' + (DBG.slowNet ? '초당 6회' : '초당 13회') + '\n' +
-    '★ Shift+9 = 자동으로 측정(8줄·약 50초)\n' +
+    '★ Shift+9 = 자동으로 측정(9줄·약 56초)\n' +
     '   밤 시작 20초 뒤에 · 전원 꽂고 · 가만히 서서 (&sweep=all 이면 전부 22줄)\n' +
     '81차 켬/끔 견주기: 주소 끝 &p81off=all 로 새로 열어\n' +
     '   Shift+9 한 번 더(판 도중엔 못 바꿈 · 창 하나만·전원 꽂고)\n' +
