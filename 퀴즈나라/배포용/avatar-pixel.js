@@ -6,10 +6,10 @@
   const maleHairNames=['short','spiky','part','messy','crop','bowl','fade','undercut','slick','curlm','comma','wolf'];
   const aliases={crop:'short',buzz:'short',longm:'long',wave:'long',afro:'curly',mohawk:'spiky'};
   const atlas={hairUrl:'assets/sd-heads-female.png',maleUrl:'assets/sd-heads-male.png',headRect:[0,0,32,40],enabled:true,style:'illustrated',columns:4,rows:3};
-  const HEAD_GRID=384,HEAD_HEIGHT=480,VIEW_H=56;
+  const HEAD_GRID=384,HEAD_HEIGHT=480,RIG_H=56,VIEW_H=62;
   // Enlarge the connected body at its neck anchor; preserve the painted head
   // and the original shoe aspect ratio. Pose offsets share these proportions.
-  const BODY_PROPORTIONS=Object.freeze({scale:1.08,verticalScale:1.35*1.08});
+  const BODY_PROPORTIONS=Object.freeze({scale:1.18,verticalScale:1.35*1.18});
   atlas.styleOrder={f:hairNames.slice(),m:maleHairNames.slice()};atlas.headPixels=HEAD_GRID;atlas.normalizedSheetPixels=[HEAD_GRID*4,HEAD_GRID*3];
   const cache=new Map(),sourceHeads=new Map(),normalizedHeads=new Map(),eyeAnchors=new Map();
   const rgb=hex=>hex.match(/[a-f0-9]{2}/gi).map(x=>parseInt(x,16));
@@ -187,6 +187,146 @@
   function garment(category,val,fallback){if(!val)return '';const {shape,col}=item(category,val),raster=window.QPClothes&&window.QPClothes.render(category,shape,col,ACTIVE_SEX,SKIN);return `<g data-qpx-clothes="${category}" data-cloth-shape="${shape}" data-cloth-color="${col}" data-cloth-sex="${ACTIVE_SEX}" data-cloth-skin="${SKIN}">${raster||fallback(val)}</g>`;}
   function top(val){return garment('top',val,topVector);}
   function bottom(val){return garment('bottom',val,bottomVector);}
+  // Separate side paintings share the existing neck/hip/ankle coordinates.
+  // Frontal raster clothes remain mounted and are restored when facing front.
+  let profileSerial=0;
+  function profileMaterial(color,skin){
+    const id='qpx-side-'+(++profileSerial),edge=shade(color,-.35),light=shade(color,.28),dark=shade(color,-.18);
+    return {id,color,skin,edge,light,dark,fill:'url(#'+id+'-cloth)',skinFill:'url(#'+id+'-skin)',defs:`<defs><linearGradient id="${id}-cloth" x1="12" y1="31" x2="21" y2="34" gradientUnits="userSpaceOnUse"><stop stop-color="${shade(color,-.26)}"/><stop offset=".24" stop-color="${dark}"/><stop offset=".46" stop-color="${color}"/><stop offset=".74" stop-color="${light}"/><stop offset="1" stop-color="${shade(color,-.08)}"/></linearGradient><linearGradient id="${id}-skin" x1="12" y1="29" x2="21" y2="37" gradientUnits="userSpaceOnUse"><stop stop-color="${shade(skin,-.14)}"/><stop offset=".6" stop-color="${skin}"/><stop offset="1" stop-color="${shade(skin,.08)}"/></linearGradient></defs>`};
+  }
+  function renderProfileTorso({skin='#ffe2cc',sex='f'}={}){
+    const m=profileMaterial('#e6a6c5',skin),front=sex==='m'?19.75:19.45;
+    return m.defs+`<g class="qpx-skin-torso" data-qpx-profile-body="torso">${shapePath(`M14.7 26.6Q16 26.35 17.3 26.6L17.25 28.45Q${front} 29.1 ${front} 31.2Q${front-.25} 33.1 18.8 34.55L19.15 37.15Q16.5 37.8 13.5 37.25L13.65 33.35Q13.3 30.05 14.65 28.55Z`,m.skinFill,shade(skin,-.25),.13)}${shapePath('M14.75 27.3Q16 27.8 17.2 27.3L17.25 28.4Q16.1 28.8 14.65 28.5Z',shade(skin,-.1),'none')}</g>`;
+  }
+  function renderProfileLeg(side,skin='#ffe2cc'){
+    const m=profileMaterial('#e6a6c5',skin),x=side==='left'?13.85:18.15;
+    return m.defs+`<g class="qpx-leg-${side}" data-qpx-profile-body="leg">${shapePath(`M${x-1.2} 36.45Q${x} 36.15 ${x+1.25} 36.55L${x+.92} 40.3Q${x+1.2} 41.55 ${x+.6} 43.3L${x+.63} 44.5Q${x+.95} 45.15 ${x+.2} 45.25Q${x-1.4} 45.4 ${x-1.38} 44.3L${x-.93} 41.65Q${x-1.17} 39.1 ${x-1.2} 36.45Z`,m.skinFill,shade(skin,-.25),.13)}${line(`M${x-.72} 38.3Q${x-.6} 40.3 ${x-.74} 41.9L${x-.95} 43.9`,shade(skin,-.13),.13)}</g>`;
+  }
+  function profileSkirt(m,shape,end=42.5){
+    const wide=['hanbok','tutu','robe'].includes(shape),back=wide?11.2:12,front=wide?22:20.65,edge=end-.25;
+    let s=shapePath(`M13.6 36Q16 35.75 18.65 36.15C18.9 38 ${front-1.35} ${end-2} ${front} ${edge}Q${front-.3} ${end+.65} 16.65 ${end+.25}Q13.6 ${end+.6} ${back} ${edge}C${back+.6} ${end-1.75} 13.1 38.1 13.6 36Z`,m.fill,m.edge,.17);
+    s+=shapePath(`M13.9 36.5Q14.5 38.8 ${back+1.6} ${end-.35}L${back+.4} ${edge}Q12.7 39.8 13.6 36.4Z`,m.dark,'none')+line('M13.7 36.35Q16 36.8 18.65 36.35',m.edge,.2)+line(`M${back+.35} ${edge}Q16.4 ${end+.35} ${front-.15} ${edge-.05}`,m.light,.27);
+    for(const [x,finish]of [[14.8,14.25],[16.35,17],[18,front-1.2]])s+=line(`M${x} 37Q${x-.3} 39 ${finish} ${end-.45}`,shade(m.color,-.2),shape==='pleat'||shape==='hanbok'?.23:.13)+line(`M${x+.25} 37.2Q${x+.2} 39.2 ${finish+.3} ${end-.55}`,m.light,.18);
+    if(['skirt','hanbok','star_skirt'].includes(shape))s+=flower(front-1.7,end-1.6,'#fff0c6',.42)+flower(front-2.5,end-1.1,shade(m.color,.48),.27);
+    if(shape==='star_skirt')s+=star(17.1,end-2,'#fff0c6',.45);
+    if(shape==='jean_skirt')s+=line(`M18.55 37.1Q18.7 39.5 ${front-.7} ${end-.45}`,m.edge,.16)+shapePath('M16.6 37.6Q17.7 37.45 18.15 37.7L18.05 39Q17.1 39.4 16.55 38.9Z',shade(m.color,-.08),m.edge,.12);
+    if(shape==='tutu')for(let y=end-2;y<end;y+=.6)s+=line(`M${back+1} ${y}Q16.1 ${y+.6} ${front-1} ${y+.15}`,shade(m.color,.37),.32);
+    return s;
+  }
+  function renderProfileGarment(category,shape,color='#e6a6c5',sex='f',skin='#ffe2cc'){
+    const m=profileMaterial(color,skin);let s=m.defs;
+    if(category==='bottom'){
+      if(['skirt','pleat','jean_skirt','star_skirt','tutu','hanbok'].includes(shape))return s+profileSkirt(m,shape);
+      const end=shape==='shorts'?41:44.55,width=shape==='legging'?1.15:1.45;
+      s+=shapePath('M13.4 36.1Q16.4 35.75 19 36.2C19.6 37 19.65 38.3 19.25 39.3Q18.25 39.8 17 39.5Q16.2 39.9 15.05 39.45Q13.3 39.2 13.25 38.2Q13.2 37 13.4 36.1Z',m.fill,m.edge,.15);
+      for(const x of [13.85,18.15]){
+        s+=shapePath(`M${x-width} 38.1Q${x} 37.8 ${x+width} 38.2L${x+width-.1} 40.25Q${x+width+.05} 41.25 ${x+width-.25} ${end-.35}Q${x} ${end+.02} ${x-width+.2} ${end-.3}L${x-width+.22} 40.8Z`,m.fill,m.edge,.14)+line(`M${x-width+.5} 39.1Q${x-.65} 41.6 ${x-width+.48} ${end-.55}`,m.light,.2)+line(`M${x+.45} ${end-.5}l.85 -.12`,m.edge,.15);
+        if(shape==='shorts')s+=flower(x+.45,40,'#fff0d6',.22)+line(`M${x-width+.4} ${end-.6}Q${x} ${end-.3} ${x+width-.3} ${end-.6}`,shade(color,-.25),.14);
+        if(shape==='track')s+=line(`M${x+width-.25} 39L${x+width-.38} ${end-.7}`,'#fff2d9',.28);
+        if(shape==='cargo')s+=shapePath(`M${x-.65} 40.1Q${x} 39.95 ${x+.65} 40.1L${x+.62} 41.4Q${x} 41.7 ${x-.65} 41.4Z`,shade(color,-.07),m.edge,.12)+line(`M${x-.6} 40.25H${x+.6}`,m.light,.18);
+        if(shape==='jeans')s+=line(`M${x-.8} ${end-.55}Q${x} ${end-.32} ${x+.85} ${end-.55}`,shade(color,.39),.25)+line(`M${x-.15} 41.5l.75 -.18`,shade(color,.25),.13);
+      }
+      return s+line('M13.3 36.65Q16 37 19.15 36.65',m.edge,.18)+shapePath('M17 37L18.5 36.95L18.45 38.5Q17.5 38.9 16.85 38.35Z',shade(color,-.05),m.edge,.12)+line('M17.05 37.3Q17.7 37.15 18.35 37.3',m.light,.14);
+    }
+    const body='M14.75 28.45Q13.5 28.65 13.25 30.1L13.5 34.4Q13.25 36.2 13.1 37.55Q16.1 38.4 19.45 37.65L19 35.1Q19.25 33.7 19.85 32.3Q20.3 30.35 17.4 28.6L17.3 29.1Q15.75 29.7 14.75 28.45Z';
+    const base=['vest','overall'].includes(shape)?'#fff1d7':color,b=profileMaterial(base,skin);s+=b.defs;
+    s+=shape==='tank'?shapePath('M14.25 28.8L15.1 29.05L15.65 31.05Q17.25 32.05 18.45 30.5L18.7 29.55L19.15 29.9L18.9 33.75L19.25 37.65Q16.1 38.3 13.3 37.7L13.55 33.15Z',m.fill,m.edge,.16)+line('M15.1 29.1L15.65 31.05Q17.25 32.05 18.45 30.5',m.light,.25):shapePath(body,b.fill,b.edge,.16);
+    s+=shapePath('M13.5 30.15Q13.9 32.7 13.65 35.3L13.35 37.35Q14.25 37.8 14.9 37.9L14.65 35.3Q14.25 32.8 14.35 30.15Z',shade(base,-.15),'none')+line('M14.75 33.5Q14.45 35.25 14.9 36.6',shade(base,.28),.19)+line('M17.25 36.2q1.1 -.45 1.6 -.2',shade(base,-.2),.12)+line('M13.4 37.35Q16.3 38 19.1 37.4',shade(base,-.22),.16);
+    s+=shapePath('M14.7 30.4Q15.55 32.4 15.1 34.7Q15.6 36.7 16.9 37.6L17.3 37.6Q16 35.35 16 33.5Q15.75 31.3 14.7 30.4Z',shade(base,.13),'none')+shapePath('M18.9 32.6Q18.3 34.4 18.6 36.15L19.1 37.6Q18.3 37 18.15 35.5Q17.95 33.8 18.9 32.6Z',shade(base,-.13),'none');
+    if(shape==='tee')s+=line('M14.8 28.7Q16.3 29.8 17.5 29.2','#fff3d9',.26)+flower(18.4,33.4,'#fff3bd',.46)+flower(17.8,35.9,shade(color,.46),.34);
+    if(shape==='hood')s+=shapePath('M15.4 28.7Q12.2 27.1 12.3 29.8Q12.8 31 15.1 30.8Q14.1 29.6 15.4 28.7Z',m.fill,m.edge,.19)+line('M12.7 29.6Q13.55 30.3 14.9 30.1',m.light,.2)+line('M18.65 30Q19.3 33.2 18.85 37.4','#fff0c7',.15)+shapePath('M17.1 34Q18.05 33.65 19 34L18.85 36.5Q17.8 36.9 16.9 36.5Z',shade(color,.07),m.edge,.13)+line('M17.25 34.3Q18 34 18.7 34.25',m.light,.19)+line('M17.9 30l.3 1.6','#fff4d8',.16);
+    if(['shirt','cardi','jacket','vest'].includes(shape)){
+      if(shape==='vest')s+=shapePath('M14.6 29.8L16 30.15L18 32.5L19.1 30.7L19.6 32L19.1 37.6Q16 38.3 13.45 37.6L13.8 31.4Z',m.fill,m.edge,.17);
+      s+=shapePath('M16.95 28.75L18.6 30L18 31.3L16.6 29.55Z','#fff3df',m.edge,.12)+line('M18.65 31.05Q19.3 34.3 18.95 37.35',m.edge,.2);
+      for(let y=32;y<37;y+=1.4)s+=oval(18.82,y,.14,.16,'#fff0bb',m.edge,.06);
+      if(shape!=='shirt')s+=shapePath('M15.25 34.35L16.85 34.3L16.9 35.75Q16 36.15 15.2 35.8Z',shade(color,-.08),m.edge,.1)+line('M15.3 34.6H16.8',m.light,.14);
+      if(shape==='jacket')s+=shapePath('M17.25 29.2L18.9 30.65L17.95 32.2L16.9 30.25Z',shade(color,.16),m.edge,.13)+oval(17.5,33.1,.35,.42,'#fff0c0',m.edge,.08);
+    }
+    if(shape==='sailor')s+=shapePath('M14.25 28.65L16.95 28.7L18.4 30.35L18.95 32.1L17.75 31.65L15.1 30Z','#fff6e7',m.edge,.12)+line('M14.65 29L16.85 29.1L18.1 30.8',m.dark,.18)+shapePath('M18.25 31.1Q20 30.6 19.8 32L18.6 32.5L18.75 34.4L18.05 34L17.9 32.1Z','#de7999','#9f4f6b',.12);
+    if(shape==='knit'){s+=line('M14.9 28.6Q16 29.3 17.45 29',m.edge,.28);for(let x=14.6;x<18.6;x+=.7)s+=line(`M${x} 30.4q-.35 .4 0 .8t0 .8t0 .8t0 .8t0 .8t0 .8`,shade(color,x<16?-.12:.25),.12);s+=line('M13.5 37.1Q16.1 37.7 19.1 37.2',m.light,.33);}
+    if(shape==='hanbok')s+=shapePath('M14.75 28.65Q15.9 29.25 17.45 28.85L19.5 31.45L18.8 32.2L16.2 29.65Z','#fff4df',m.edge,.15)+shapePath('M17 29L19.05 31.5L19.4 36.9L18.75 37.1L18.3 32L16.5 29.7Z',shade(color,.19),m.edge,.13)+line('M13.6 32.8Q16.2 33.8 18.8 32.9',shade(color,-.18),.23)+shapePath('M18.8 32.55Q20.1 31.9 20.15 33L19.35 33.4L19.7 36.5L18.95 36.1L18.85 33.7Q17.9 33.2 18.8 32.55Z','#d16a98','#964464',.12)+line('M19.05 33.7L19.35 35.8','#f2acc8',.19)+flower(17.5,35.7,'#fff0c3',.3);
+    if(shape==='overall')s+=shapePath('M14.1 32.2L18.95 31.55L19.25 35.9L19.4 39.8Q17.85 40.15 16.8 39.8Q15 40.15 13.45 39.75L13.2 36.8Z',m.fill,m.edge,.17)+shapePath('M15.8 28.9Q16.15 28.5 16.6 28.65L19.1 32L18.45 32.5Z',m.fill,m.edge,.14)+line('M16.25 29L18.65 32',m.light,.18)+shapePath('M13.6 29.25L14.25 29.3L14.75 33L14.05 33.2Z',m.dark,m.edge,.12)+oval(18.65,32.25,.22,.24,'#f7d485',m.edge,.08)+shapePath('M16.65 33.2Q17.75 32.9 18.55 33.15L18.4 35.1Q17.5 35.55 16.6 35.2Z',shade(color,.15),m.edge,.13)+line('M16.8 33.45Q17.6 33.2 18.35 33.4',m.light,.17)+line('M13.65 36.4Q16.2 36.9 19.25 36.35',m.edge,.18)+line('M16.4 37L16.8 39.4',m.edge,.14)+line('M13.75 39.3Q15 39.8 16.4 39.3M17.15 39.35Q18.15 39.65 19.1 39.3',m.light,.24)+flower(17.8,34.6,'#fff1bd',.27);
+    if(['dress','robe'].includes(shape)){s+=profileSkirt(m,shape,shape==='robe'?40.4:39.5)+line('M13.6 35.85Q16.4 36.5 18.7 36.1','#f1d4a7',.35);if(shape==='dress')s+=shapePath('M17.5 35.7Q19.4 34.6 19.9 35.7L18.8 36.3L19.5 38.1L18.5 37.8L18.1 36.35Z','#fff0c4',m.edge,.12)+flower(18.25,37.85,'#fff4e0',.35);else s+=shapePath('M14.3 28.7Q12.15 29.8 12.7 35L11.5 39.9Q14 40.5 15.25 40.25L14.9 33.4L15.7 29.6Z',m.fill,m.edge,.18)+line('M13.7 30.2Q13.2 35.9 12.3 39.9','#f5d692',.24)+star(14.2,36.4,'#ffe9a3',.44);}
+    if(shape==='space')s+=shapePath('M14.5 28.6L17.5 28.6L17.65 29.6L14.3 29.5Z','#f8eadb',m.edge,.15)+shapePath('M17.3 31Q18.4 30.7 19.1 31.4L18.9 33.7Q18 34.1 17.2 33.7Z','#f8eee1',m.edge,.15)+shapePath('M17.6 31.5L18.7 31.5L18.65 33.1L17.5 33.05Z','#75bbd1','#43728f',.1)+line('M13.6 36.7Q16 37.3 19.2 36.8','#f2e7d3',.35)+oval(18.1,35,.3,.3,'#efb66f',m.edge,.08);
+    // Embroidery follows the curved side panel and leaves the front edge clear.
+    // Broad highlight/shadow folds retain the softness of the painted wardrobe.
+    const outline=m.id+'-panel';s+=`<defs><clipPath id="${outline}"><path d="${body}"/></clipPath></defs><g clip-path="url(#${outline})">`;
+    if(['tee','hood','dress','tank'].includes(shape))for(const [x,y,r]of [[14.3,32,.27],[15.1,34.3,.37],[17.55,32.8,.36],[18.4,36.4,.33],[14.25,36.2,.22]])s+=flower(x,y,'#fff1d6',r)+line(`M${x-.35} ${y+.45}q-.55 .15 -.25 .6`,shade(color,-.17),.1);
+    if(shape==='hanbok')s+=flower(14.7,34.7,'#fff2d5',.35)+flower(17.2,36.4,'#fbe5bb',.28)+line('M14.4 35.3q-.2 .55 .55 .6',shade(color,-.23),.1);
+    if(['hood','cardi','jacket','overall'].includes(shape))s+=line('M13.7 35.6Q14.3 35.9 14.65 35.8',shade(color,-.22),.11)+line('M13.85 35.8l.65 .14',shade(color,.4),.1);
+    if(shape==='tank')s+=shapePath('M18.25 30.4Q19.45 29.85 19.55 30.8L18.75 31.1L19.2 32.3L18.7 32.1L18.45 31.1Q17.6 30.7 18.25 30.4Z','#fff0d0',m.edge,.1);
+    s+='</g>';if(shape==='hood')s+=oval(18.86,32.25,.12,.19,'#e8bd70',m.edge,.07);return s;
+  }
+  function renderProfileArm({shape='tank',color='#e6a6c5',skin='#ffe2cc',side='right',pivot=[19.1,29.15],wrist=[21.05,36.45],fit={}}={}){
+    const armColor=side==='left'?shade(color,-.08):color,armSkin=side==='left'?shade(skin,-.045):skin,m=profileMaterial(armColor,armSkin),[px,py]=pivot,[wx,wy]=wrist,dx=wx-px,dy=wy-py,len=Math.hypot(dx,dy)||1,nx=dy/len,ny=-dx/len;
+    const sleeveless=shape==='tank'||shape==='robe'||fit.sleeveless,wide=shape==='hanbok',short=fit.short&&!sleeveless,target=window.QPClothes?.targets?.top?.[shape]||[8.5,28,15,9.5],cuffY=target[1]+target[3]*(fit.cuffs?.[side==='right'?1:0]?.[1]||.66),t=sleeveless?0:Math.max(short?.36:.62,Math.min(.94,(cuffY-py)/(dy||1))),cx=px+dx*t,cy=py+dy*t,half=wide?1.65:shape==='space'?1:.8;
+    const sm=profileMaterial(['vest','sailor','overall'].includes(shape)?(side==='left'?'#ecdac1':'#fff2dd'):armColor,armSkin),startX=sleeveless?px:cx,startY=sleeveless?py:cy-.22;let s=m.defs+sm.defs;
+    s+=`<g class="qpx-arm-${side}" data-qpx-arm-side="${side}" data-qpx-cuff="${cx},${cy}">${shapePath(`M${startX-nx*.65} ${startY-ny*.65}Q${px+dx*.62-nx*.66} ${py+dy*.62-ny*.66} ${wx-nx*.46} ${wy-ny*.46}Q${wx} ${wy+.55} ${wx+nx*.46} ${wy+ny*.46}Q${px+dx*.62+nx*.67} ${py+dy*.62+ny*.67} ${startX+nx*.65} ${startY+ny*.65}Z`,m.skinFill,shade(skin,-.26),.11)}${line(`M${startX-nx*.34} ${startY-ny*.34}Q${px+dx*.75-nx*.35} ${py+dy*.75-ny*.35} ${wx-nx*.24} ${wy}`,shade(skin,-.12),.12)}<g class="qpx-hand-${side}" data-qpx-wrist="${wx},${wy}" data-qpx-wrist-x="${wx}" data-qpx-wrist-y="${wy}">${shapePath(`M${wx-.47} ${wy-.22}Q${wx} ${wy-.45} ${wx+.44} ${wy-.2}L${wx+.58} ${wy+.6}Q${wx+.5} ${wy+1.15} ${wx-.05} ${wy+1.15}Q${wx-.62} ${wy+1.06} ${wx-.58} ${wy+.45}Z`,shape==='space'?'#fff2df':m.skinFill,shade(skin,-.26),.11)}${line(`M${wx-.25} ${wy+.33}L${wx-.2} ${wy+.83}`,shade(skin,-.15),.11)}</g></g>`;
+    if(!sleeveless)s+=`<g data-qpx-wave-sleeve="${shape}" data-qpx-clothes="top" data-qpx-profile-sleeve="${side}">${shapePath(`M${px-nx*1.05} ${py-ny*1.05}Q${px-dx*.07} ${py-1.1} ${px+nx*1.08} ${py+ny*1.08}Q${px+dx*.6+nx*(wide?1.9:1)} ${py+dy*.6+ny*(wide?1.9:1)} ${cx+nx*half} ${cy+ny*half}Q${cx} ${cy+.5} ${cx-nx*half} ${cy-ny*half}Q${px+dx*.6-nx*(wide?2:.87)} ${py+dy*.6-ny*(wide?2:.87)} ${px-nx*1.05} ${py-ny*1.05}Z`,sm.fill,sm.edge,.15)}${line(`M${px-nx*.5} ${py+.2}Q${px+dx*.7-nx*.65} ${py+dy*.7} ${cx-nx*.35} ${cy-.3}`,sm.light,.2)}${line(`M${cx-nx*half} ${cy-ny*half}Q${cx} ${cy+.45} ${cx+nx*half} ${cy+ny*half}`,wide?'#fff0d4':sm.edge,.18)}${wide?line(`M${cx-nx*half} ${cy-ny*half-.35}Q${cx} ${cy+.12} ${cx+nx*half} ${cy+ny*half-.35}`,'#fff2df',.28):''}</g>`;
+    if(!sleeveless){
+      s+=line(`M${px+nx*.6} ${py+.35}Q${px+dx*.52+nx*.55} ${py+dy*.52} ${cx+nx*.32} ${cy-.5}`,shade(armColor,-.16),.12)+line(`M${px+dx*.5-nx*.15} ${py+dy*.5}q${nx*.5} ${ny*.5} ${nx*.75} ${ny*.75}`,sm.light,.16);
+      if(['tee','hood','hanbok'].includes(shape))s+=flower(px+dx*.65-nx*.27,py+dy*.65,'#fff0d2',wide?.26:.22);
+    }
+    return s;
+  }
+  function backMaterial(color,skin){
+    const m=profileMaterial(color,skin);m.fill='url(#'+m.id+'-back)';
+    m.defs+=`<defs><radialGradient id="${m.id}-back" cx="15.15" cy="31.1" r="9" gradientTransform="translate(0 -10) scale(1 1.32)" gradientUnits="userSpaceOnUse"><stop stop-color="${shade(color,.28)}"/><stop offset=".58" stop-color="${color}"/><stop offset="1" stop-color="${shade(color,-.23)}"/></radialGradient></defs>`;return m;
+  }
+  function renderBackTorso({skin='#ffe2cc',sex='f'}={}){
+    const m=backMaterial('#e6a6c5',skin),back=sex==='m'?11.6:11.9;
+    return m.defs+`<g class="qpx-skin-torso" data-qpx-back-body="torso">${shapePath(`M14.65 26.65Q16 26.4 17.35 26.65L17.55 28.55Q19.6 28.9 ${32-back} 30.1Q20.1 32.3 19.2 34.55L19.55 37.45Q16 38.4 12.45 37.45L12.8 34.55Q11.9 32.3 ${back} 30.1Q12.4 28.9 14.45 28.55Z`,m.skinFill,shade(skin,-.23),.13)}${line('M14.7 28.35Q16 28.85 17.3 28.35',shade(skin,-.17),.18)}${line('M14.1 30.8Q15.25 31.9 15.25 33M17.9 30.8Q16.75 31.9 16.75 33',shade(skin,-.1),.12)}</g>`;
+  }
+  function backSkirt(m,shape,end=42.5){
+    const wide=['hanbok','tutu','robe'].includes(shape),x=wide?9.5:11.2,left=wide?8.5:10.35;
+    let s=shapePath(`M12.6 36.1Q16 35.6 19.4 36.1C19.85 38.5 ${32-x} ${end-1.25} ${32-left} ${end-.25}Q16 ${end+.9} ${left} ${end-.25}C${x} ${end-1.25} 12.15 38.5 12.6 36.1Z`,m.fill,m.edge,.16);
+    s+=line('M12.8 36.55Q16 37.05 19.2 36.55',m.edge,.2)+shapePath(`M12.9 37Q12.65 39.4 ${left+.85} ${end-.35}Q${left+1.5} ${end} ${left+2} ${end-.1}Q14.5 39.5 14 37.1Z`,shade(m.color,-.14),'none');
+    for(const [start,finish]of [[14,12.35],[15.15,14.25],[16,16],[16.85,17.75],[18,19.65]])s+=line(`M${start} 37Q${start} 39 ${finish} ${end-.5}`,shade(m.color,-.19),shape==='pleat'||shape==='hanbok'?.2:.12)+line(`M${start+.25} 37.2Q${start+.25} 39.1 ${finish+.25} ${end-.6}`,m.light,.2);
+    s+=line(`M${left+.25} ${end-.35}Q16 ${end+.45} ${32-left-.25} ${end-.35}`,m.light,.28);
+    if(shape==='tutu')for(let y=end-2;y<end;y+=.6)s+=line(`M${left+.7} ${y}Q16 ${y+.7} ${32-left-.7} ${y}`,shade(m.color,.4),.34);
+    if(shape==='jean_skirt')for(const cx of[13.25,18.75])s+=`<g data-qpx-back-detail="rear-pocket">${shapePath(`M${cx-.85} 37.3Q${cx} 37.55 ${cx+.85} 37.3L${cx+.7} 39Q${cx} 39.65 ${cx-.7} 39Z`,shade(m.color,-.07),m.edge,.1)}${line(`M${cx-.6} 38q.6 .4 1.2 0`,m.light,.12)}</g>`;
+    if(['skirt','star_skirt','hanbok'].includes(shape))for(const cx of[left+1.45,32-left-1.45])s+=shape==='star_skirt'?star(cx,end-1.05,'#fff0c1',.32):flower(cx,end-1.05,'#fff0d2',.3);
+    return `<g data-qpx-back-detail="rear-pleats">${s}</g>`;
+  }
+  function renderBackGarment(category,shape,color='#e6a6c5',sex='f',skin='#ffe2cc'){
+    const m=backMaterial(color,skin);let s=m.defs;
+    if(category==='bottom'){
+      if(['skirt','pleat','hanbok','tutu','jean_skirt','star_skirt'].includes(shape))return s+backSkirt(m,shape);
+      const short=shape==='shorts',end=short?41.05:44.6,width=shape==='legging'?1.25:1.65;
+      s+=shapePath('M12.2 36.1Q16 35.7 19.8 36.1Q20.5 37.75 20 39.4Q18.8 40.1 17 39.65Q16 39.25 15 39.65Q13.2 40.1 12 39.4Q11.5 37.75 12.2 36.1Z',m.fill,m.edge,.15);
+      for(const cx of[13.85,18.15]){
+        s+=shapePath(`M${cx-width} 38.3Q${cx} 37.95 ${cx+width} 38.3L${cx+width-.12} 41Q${cx+width-.1} 43 ${cx+width-.35} ${end-.2}Q${cx} ${end+.18} ${cx-width+.35} ${end-.2}Q${cx-width+.1} 43 ${cx-width+.12} 41Z`,m.fill,m.edge,.14)+line(`M${cx-.2} 39.7Q${cx-.5} 41.1 ${cx-.15} ${end-.6}`,shade(color,.28),.22)+line(`M${cx-width+.4} ${end-.55}Q${cx} ${end-.35} ${cx+width-.4} ${end-.55}`,m.edge,.14);
+        if(shape==='track')s+=line(`M${cx+(cx<16?-1:1)*(width-.3)} 39L${cx+(cx<16?-1:1)*(width-.4)} ${end-.7}`,'#fff0d1',.27);
+        if(shape==='cargo')s+=shapePath(`M${cx-.8} 40.1H${cx+.8}L${cx+.7} 41.4Q${cx} 41.7 ${cx-.7} 41.4Z`,shade(color,-.08),m.edge,.12)+line(`M${cx-.65} 40.35H${cx+.65}`,m.light,.2);
+      }
+      s+=line('M12.2 36.65Q16 37.15 19.8 36.65',m.edge,.18)+line('M16 37.1Q15.65 38.7 16 39.5',shade(color,-.22),.16);
+      if(['jeans','shorts','cargo'].includes(shape))for(const cx of[13.4,18.6])s+=`<g data-qpx-back-detail="rear-pocket">${shapePath(`M${cx-.85} 37.15Q${cx} 37.35 ${cx+.85} 37.15L${cx+.7} 38.75Q${cx} 39.3 ${cx-.7} 38.75Z`,shade(color,-.05),m.edge,.12)}${line(`M${cx-.6} 37.8q.6 .42 1.2 0`,shade(color,.32),.13)}</g>`;
+      return s;
+    }
+    const hem=['dress','overall'].includes(shape)?39.5:shape==='robe'?40.5:shape==='knit'?36.6:['hood','cardi'].includes(shape)?37:37.65;
+    const base=['vest','overall'].includes(shape)?'#fff1da':color,b=backMaterial(base,skin);s+=b.defs;
+    const silhouette=`M14.55 28.35Q16 28.65 17.45 28.35Q20.2 28.7 20.8 30.35L20 33.35Q19.6 35.1 20.15 ${hem-.2}Q16 ${hem+.65} 11.85 ${hem-.2}Q12.4 35.1 12 33.35L11.2 30.35Q11.8 28.7 14.55 28.35Z`;
+    s+=shape==='tank'?shapePath(`M13 28.6L14.1 28.65L14.4 30.1Q16 30.5 17.6 30.1L17.9 28.65L19 28.6L19.75 32.3L19.55 37.5Q16 38 12.45 37.5L12.25 32.3Z`,m.fill,m.edge,.15):shapePath(silhouette,b.fill,b.edge,.16);
+    s+=shapePath(`M12.1 31Q13.1 33.1 12.8 35.3L12.25 ${hem-.45}L13.8 ${hem-.05}Q13.4 34.85 13.65 32.15Z`,shade(base,-.16),'none')+shapePath(`M18.35 31.1Q18.9 33 18.7 35.35L19.55 ${hem-.35}Q18.65 ${hem-.25} 18.1 ${hem-.1}Q17.7 34.5 18.35 31.1Z`,shade(base,-.09),'none')+line(`M15.55 31.45Q15 33.4 15.45 ${hem-1}`,shade(base,.22),.2)+line(`M16.65 32Q17.1 34 16.8 ${hem-1}`,shade(base,-.12),.13)+line(`M12.15 ${hem-.4}Q16 ${hem+.15} 19.85 ${hem-.4}`,shade(base,-.24),.17);
+    if(['tee','shirt','cardi','jacket','vest','knit','space'].includes(shape))s+=`<g data-qpx-back-detail="back-collar">${line('M14.45 28.5Q16 29.25 17.55 28.5',shape==='space'?'#f5ecdf':shade(base,-.12),shape==='knit'?.38:.24)}</g>`;
+    if(['shirt','jacket','vest'].includes(shape))s+=`<g data-qpx-back-detail="back-yoke">${line('M12.15 30.4Q16 31.2 19.85 30.4',m.edge,.15)}${line('M16 30.95L16 32.3',shade(base,-.15),.15)}</g>`;
+    if(shape==='hood')s+=`<g data-qpx-back-detail="hood">${shapePath('M13.1 28.45Q16 27.85 18.9 28.45Q19.55 30.55 18.6 32Q16 33.25 13.4 32Q12.45 30.55 13.1 28.45Z',m.fill,m.edge,.2)}${shapePath('M13.25 29.1Q13.3 31.65 16 32.4Q13.2 32.4 13.15 30.4Z',m.dark,'none')}${line('M16 28.65Q15.65 30.4 16 32.4',m.edge,.14)}${line('M13.7 31.5Q16 32.7 18.3 31.5',m.light,.2)}</g>`;
+    if(shape==='vest')s+=shapePath(`M13.8 29.1Q16 29.85 18.2 29.1L19.15 30.5L19.6 ${hem-.2}Q16 ${hem+.4} 12.4 ${hem-.2}L12.85 30.5Z`,m.fill,m.edge,.15)+line('M16 30.2L16 36.8',m.edge,.13)+line('M13.2 35.9Q16 36.45 18.8 35.9',m.light,.18);
+    if(shape==='sailor')s+=`<g data-qpx-back-detail="back-collar">${shapePath('M12.45 28.65Q16 28.9 19.55 28.65L19.35 32Q16 32.35 12.65 32Z','#fff3e1',m.edge,.16)}${line('M13.1 29.25L13.25 31.45Q16 31.75 18.75 31.45L18.9 29.25',m.dark,.19)}</g>`;
+    if(shape==='knit')for(let cx=13;cx<20;cx+=.65)s+=line(`M${cx} 30q-.25 .4 0 .8t0 .8t0 .8t0 .8t0 .8t0 .8t0 .8`,shade(color,cx<16?-.12:.23),.12);
+    if(shape==='hanbok')s+=`<g data-qpx-back-detail="back-collar">${shapePath('M14.05 28.4Q16 29.15 17.95 28.4L18.45 29.25Q16 30.2 13.55 29.25Z','#fff3df',m.edge,.14)}</g>`+line('M12.3 32.95Q16 33.7 19.7 32.95',m.edge,.22)+line('M16 29.85Q15.7 32.3 16 36.95',shade(color,-.15),.13)+flower(12.9,35.7,'#fff0d0',.3)+flower(19.1,35.7,'#fff0d0',.3);
+    if(shape==='overall')s+=`<g data-qpx-back-detail="rear-straps">${shapePath('M13.75 28.8L14.55 28.7L18.1 35.5L17.15 35.75Z',m.fill,m.edge,.15)}${shapePath('M18.25 28.8L17.45 28.7L13.9 35.5L14.85 35.75Z',m.fill,m.edge,.15)}${line('M14.15 29.1L17.6 35.2M17.85 29.1L14.4 35.2',m.light,.18)}</g>`+shapePath('M12.6 35.4Q16 36 19.4 35.4L19.85 39.15Q18.25 39.9 16.45 39.4L16 38.1L15.55 39.4Q13.75 39.9 12.15 39.15Z',m.fill,m.edge,.17)+line('M12.65 36.1Q16 36.6 19.35 36.1',m.edge,.17)+`<g data-qpx-back-detail="rear-pocket">${[13.65,18.35].map(cx=>shapePath(`M${cx-.7} 36.9Q${cx} 37.1 ${cx+.7} 36.9L${cx+.6} 38.25Q${cx} 38.8 ${cx-.6} 38.25Z`,shade(color,.12),m.edge,.11)+line(`M${cx-.45} 37.55q.45 .28 .9 0`,m.light,.12)).join('')}</g>`;
+    if(['dress','robe'].includes(shape))s+=backSkirt(m,shape,hem)+line('M12.3 35.8Q16 36.4 19.7 35.8','#ead4ad',.35);
+    if(shape==='robe')s+=`<g data-qpx-back-detail="cape">${shapePath('M13.55 28.6Q16 29.1 18.45 28.6L20.05 32.8L21.1 39.95Q16 41.1 10.9 39.95L11.95 32.8Z',m.fill,m.edge,.19)}${line('M13.65 29.7Q13.1 34.6 12 39.8M18.35 29.7Q18.9 34.6 20 39.8','#f1d393',.25)}${line('M16 30.2Q15.5 34.7 16 39.95',m.light,.24)}${star(16,37.9,'#ffe9ad',.42)}</g>`;
+    if(shape==='space')s+=`<g data-qpx-back-detail="back-panel">${shapePath('M13.9 30.5Q16 30.1 18.1 30.5L18.35 34.9Q16 35.4 13.65 34.9Z','#ede3d5',m.edge,.15)}${line('M14.2 31.2H17.8M14.1 32.4H17.9M14.1 33.6H17.9','#b6b0ac',.18)}${line('M12.4 36.5Q16 37.1 19.6 36.5','#f2e8d8',.32)}</g>`;
+    return s;
+  }
+  function renderBackArm({shape='tank',color='#e6a6c5',skin='#ffe2cc',side='right',pivot=[19.1,29.15],wrist=[21.05,36.45],fit={}}={}){
+    const m=backMaterial(color,skin),[px,py]=pivot,[wx,wy]=wrist,dx=wx-px,dy=wy-py,length=Math.hypot(dx,dy)||1,nx=dy/length,ny=-dx/length,sleeveless=shape==='tank'||shape==='robe'||fit.sleeveless,wide=shape==='hanbok',short=fit.short&&!sleeveless,target=window.QPClothes?.targets?.top?.[shape]||[8.5,28,15,9.5],cuffY=target[1]+target[3]*(fit.cuffs?.[side==='right'?1:0]?.[1]||.66),t=sleeveless?0:Math.max(short?.36:.62,Math.min(.94,(cuffY-py)/(dy||1))),cx=px+dx*t,cy=py+dy*t,half=wide?1.65:shape==='space'?1:.8,sm=backMaterial(['vest','sailor','overall'].includes(shape)?'#fff1da':color,skin),sx=sleeveless?px:cx,sy=sleeveless?py:cy-.22;let s=m.defs+sm.defs;
+    s+=`<g class="qpx-arm-${side}" data-qpx-arm-side="${side}" data-qpx-cuff="${cx},${cy}">${shapePath(`M${sx-nx*.65} ${sy-ny*.65}Q${px+dx*.65-nx*.7} ${py+dy*.65-ny*.7} ${wx-nx*.45} ${wy-ny*.45}Q${wx} ${wy+.5} ${wx+nx*.45} ${wy+ny*.45}Q${px+dx*.65+nx*.7} ${py+dy*.65+ny*.7} ${sx+nx*.65} ${sy+ny*.65}Z`,m.skinFill,shade(skin,-.24),.11)}<g class="qpx-hand-${side}" data-qpx-wrist="${wx},${wy}" data-qpx-wrist-x="${wx}" data-qpx-wrist-y="${wy}">${shapePath(`M${wx-.48} ${wy-.2}Q${wx} ${wy-.48} ${wx+.46} ${wy-.2}L${wx+.55} ${wy+.6}Q${wx+.45} ${wy+1.15} ${wx-.1} ${wy+1.15}Q${wx-.62} ${wy+1.02} ${wx-.55} ${wy+.4}Z`,shape==='space'?'#fff1df':m.skinFill,shade(skin,-.25),.11)}${line(`M${wx-.17} ${wy+.4}v.35M${wx+.12} ${wy+.42}v.3`,shade(skin,-.15),.08)}</g></g>`;
+    if(!sleeveless)s+=`<g data-qpx-wave-sleeve="${shape}" data-qpx-clothes="top" data-qpx-back-sleeve="${side}">${shapePath(`M${px-nx*1.05} ${py-ny*1.05}Q${px} ${py-1.1} ${px+nx*1.08} ${py+ny*1.08}Q${px+dx*.6+nx*(wide?1.9:1)} ${py+dy*.6+ny*(wide?1.9:1)} ${cx+nx*half} ${cy+ny*half}Q${cx} ${cy+.5} ${cx-nx*half} ${cy-ny*half}Q${px+dx*.6-nx*(wide?2:.87)} ${py+dy*.6-ny*(wide?2:.87)} ${px-nx*1.05} ${py-ny*1.05}Z`,sm.fill,sm.edge,.15)}${line(`M${px-nx*.48} ${py+.3}Q${px+dx*.7-nx*.6} ${py+dy*.7} ${cx-nx*.3} ${cy-.3}`,sm.light,.2)}${line(`M${px+dx*.5+nx*.35} ${py+dy*.5}q${-nx*.5} ${-ny*.5} ${-nx*.8} ${-ny*.8}`,sm.dark,.13)}${line(`M${cx-nx*half} ${cy-ny*half}Q${cx} ${cy+.45} ${cx+nx*half} ${cy+ny*half}`,wide?'#fff1d8':sm.edge,.18)}</g>`;
+    return s;
+  }
   function effect(val){if(!val)return '';return `<g data-qpx-effect="${String(val).replace(/[^a-z0-9:]/gi,'')}">${window.QPEffects?window.QPEffects.render(val):''}</g>`;}
   function topVector(val){if(!val)return '';const {shape:s,col:c,d,l}=item('top',val);const long=!['tee','tank','dress','overall'].includes(s);let a='';
     if(!['tank','overall'].includes(s)){const sc=['vest','sailor','jacket'].includes(s)?WHITE:c;a+=sleeve(sc,shade(sc,-.2),shade(sc,.18),long,false,['robe','hanbok'].includes(s))+sleeve(sc,shade(sc,-.2),shade(sc,.18),long,true,['robe','hanbok'].includes(s));}
@@ -323,14 +463,20 @@
   function facePreview(av){return head(av);}
   function fullHead(av){return head(av)+`<g data-qpx-head-accessory="face" transform="translate(0 6)">${faceAccessory(av.face)}</g><g data-qpx-head-accessory="glass">${glasses(av.glass,hairTile(av))}</g><g data-qpx-head-accessory="ear" transform="translate(0 4)">${ears(av.ear)}</g><g data-qpx-head-accessory="hat" transform="translate(0 4)">${hat(av.hat)}</g>`;}
   function defs(){return '<defs><clipPath id="qpx-head-front" clipPathUnits="userSpaceOnUse"><rect x="-1" y="-8" width="34" height="36.45"/></clipPath><clipPath id="qpx-hair-behind" clipPathUnits="userSpaceOnUse"><rect x="-1" y="28.2" width="34" height="20"/></clipPath><clipPath id="qpx-torso-dressed" clipPathUnits="userSpaceOnUse"><rect x="13" y="28" width="6" height="11"/></clipPath><clipPath id="qpx-arms-short" clipPathUnits="userSpaceOnUse"><rect x="0" y="32.75" width="32" height="7"/></clipPath><clipPath id="qpx-arms-long" clipPathUnits="userSpaceOnUse"><rect x="0" y="36.75" width="32" height="3"/></clipPath><clipPath id="qpx-face-preview-area" clipPathUnits="userSpaceOnUse"><path d="M8 21H24V26H23V28H22V29H20V30H12V29H10V28H9V26H8Z"/></clipPath></defs>';}
-  function composition(av,lod){
+  function groundY(av,verticalScale=BODY_PROPORTIONS.verticalScale){
     const shoeShape=String(av.shoes||'').split(':')[0],shoeTarget=window.QPShoes?.targets?.[shoeShape==='dress'?'loafer':shoeShape],footFloor=shoeShape?(shoeTarget?shoeTarget[1]+shoeTarget[3]:46.05):45.15;
-    const contactY=28+(footFloor-28)*BODY_PROPORTIONS.verticalScale;
+    return 28+(footFloor-28)*verticalScale;
+  }
+  function composition(av,lod){
+    const contactY=groundY(av);
     let s=defs()+`<g transform="scale(1 ${VIEW_H/48})">${background(av.bg,lod)}</g><ellipse class="qpx-contact-shadow" cx="16" cy="${contactY}" rx="${6.4*BODY_PROPORTIONS.scale}" ry=".7" fill="#635d6f" opacity=".22"/>`;
-    s+=`<g class="qpx-idle">${headBitmap(hairTile(av),item('hair',av.hair).col,String(av.expression||'bright:0').split(':')[0],true)}<g transform="translate(16 28) scale(${BODY_PROPORTIONS.scale} ${BODY_PROPORTIONS.verticalScale}) translate(-16 -28)">${back(av.back)}<g transform="${ACTIVE_SEX==='m'?'translate(-.64 0) scale(1.04 1)':''}"><g class="qpx-body">${fittedArms(av.top)}${bareBody(av.top)}${bottom(av.bottom)}${shoes(av.shoes)}${top(av.top)}${fittedArms(av.top,true)}${neck(av.neck)}</g></g></g><g class="qpx-head" data-qpx-head="${encodeURIComponent(JSON.stringify(av))}" data-qpx-head-sex="${ACTIVE_SEX}" data-qpx-head-skin="${SKIN}">${fullHead(av)}</g></g><g transform="translate(0 ${VIEW_H-48})">${pet(av.pet)}</g>`;
+    s+=`<g class="qpx-idle">${headBitmap(hairTile(av),item('hair',av.hair).col,String(av.expression||'bright:0').split(':')[0],true)}<g transform="translate(16 28) scale(${BODY_PROPORTIONS.scale} ${BODY_PROPORTIONS.verticalScale}) translate(-16 -28)"><g data-qpx-body-accessory="back">${back(av.back)}</g><g transform="${ACTIVE_SEX==='m'?'translate(-.64 0) scale(1.04 1)':''}"><g class="qpx-body">${fittedArms(av.top)}${bareBody(av.top)}${bottom(av.bottom)}${shoes(av.shoes)}${top(av.top)}${fittedArms(av.top,true)}<g data-qpx-body-accessory="neck">${neck(av.neck)}</g></g></g></g><g class="qpx-head" data-qpx-head="${encodeURIComponent(JSON.stringify(av))}" data-qpx-head-sex="${ACTIVE_SEX}" data-qpx-head-skin="${SKIN}">${fullHead(av)}</g></g><g transform="translate(0 ${RIG_H-48})">${pet(av.pet)}</g>`;
     if(av.frame){const {shape,col,d,l}=item('frame',av.frame);s+=`<g transform="scale(1 ${VIEW_H/48})">${frame(shape,col,d,l)}</g>`;}return s+effect(av.effect);
   }
-  function render(av,h=180,lod=2){av=av||newAvatar();SKIN=skinFor(av.sk||0);SKIN_SHADE=shade(SKIN,-.14);ACTIVE_SEX=av.sex==='m'?'m':'f';const key=JSON.stringify(av)+'/'+h+'/'+lod+JSON.stringify(atlas);if(cache.has(key))return cache.get(key);let seed=0;const str=JSON.stringify(av);for(let i=0;i<str.length;i++)seed=(seed*31+str.charCodeAt(i))>>>0;const out=`<svg xmlns="http://www.w3.org/2000/svg" class="qp-pixel-avatar qp-illustrated-avatar" data-qpx-seed="${seed%5000}" data-qpx-sex="${ACTIVE_SEX}" viewBox="0 0 32 ${VIEW_H}" width="${h*32/VIEW_H}" height="${h}" role="img" aria-label="일러스트 퀴즈 아바타" shape-rendering="geometricPrecision" style="display:block;image-rendering:auto;overflow:visible;--qpx-blink-cycle:${4.1+seed%2900/1000}s">${composition(av,lod)}</svg>`;if(cache.size>280)cache.clear();cache.set(key,out);return out;}
+  // Extra viewport room protects the enlarged soles in floor-sitting poses.
+  // Keep pixels per rig unit unchanged so the painted head keeps its size.
+  // Legacy fixed-height actors use the ground shift from their 1.08 body rig.
+  function render(av,h=180,lod=2){av=av||newAvatar();SKIN=skinFor(av.sk||0);SKIN_SHADE=shade(SKIN,-.14);ACTIVE_SEX=av.sex==='m'?'m':'f';const key=JSON.stringify(av)+'/'+h+'/'+lod+JSON.stringify(atlas);if(cache.has(key))return cache.get(key);let seed=0;const str=JSON.stringify(av);for(let i=0;i<str.length;i++)seed=(seed*31+str.charCodeAt(i))>>>0;const groundShift=groundY(av)-groundY(av,1.35*1.08);const out=`<svg xmlns="http://www.w3.org/2000/svg" class="qp-pixel-avatar qp-illustrated-avatar" data-qpx-seed="${seed%5000}" data-qpx-sex="${ACTIVE_SEX}" viewBox="0 0 32 ${VIEW_H}" width="${h*32/RIG_H}" height="${h*VIEW_H/RIG_H}" role="img" aria-label="일러스트 퀴즈 아바타" shape-rendering="geometricPrecision" style="display:block;image-rendering:auto;overflow:visible;--qpx-viewport-scale:${VIEW_H/RIG_H};--qpx-ground-shift:${groundShift};--qpx-blink-cycle:${4.1+seed%2900/1000}s">${composition(av,lod)}</svg>`;if(cache.size>280)cache.clear();cache.set(key,out);return out;}
   function thumb(cat,shape,ci,h=75,sex){if(cat==='effect'&&window.QPEffects)return window.QPEffects.thumb(shape,ci,h);SKIN=skinFor(0);SKIN_SHADE=shade(SKIN,-.14);ACTIVE_SEX=sex==='m'||sex===undefined&&typeof ME!=='undefined'&&ME&&ME.av&&ME.av.sex==='m'?'m':'f';const val=shape+':'+ci,a={sk:0,hair:ACTIVE_SEX==='m'?'short:1':'bob:1',expression:'bright:0',top:'',bottom:'',shoes:'',ear:'',neck:'',hat:'',glass:'',face:'',back:'',pet:'',bg:'',frame:''};a[cat]=val;let s=defs(),crop='0 0 32 48';if(cat==='expression'){crop='4 8 24 24';s+=facePreview(a);}else if(cat==='hair'){crop='0 1 32 38';s+=headBitmap(hairTile(a),item('hair',a.hair).col,'bright',true)+head(a);}else if(['hat','glass','face','ear'].includes(cat)){crop=cat==='hat'?'2 0 28 16':cat==='ear'?'3 22 26 12':'5 18 22 15';s+=head(a)+`<g transform="translate(0 ${cat==='hat'||cat==='ear'?4:cat==='glass'?0:6})">${({hat,glass:glasses,face:faceAccessory,ear:ears}[cat])(val)}</g>`;}else if(cat==='pet'){s+=pet(val);crop='23 35 10 13';}else if(cat==='bg')s+=background(val,2);else if(cat==='frame'){const {col,d,l}=item(cat,val);s+=frame(shape,col,d,l);}else if(cat==='back'){s+=back(val);crop='0 26 32 18';}else{s+=fittedArms(cat==='top'?val:'')+bareBody(cat==='top'?val:'')+({top,bottom,shoes,neck}[cat]||(()=>''))(val)+fittedArms(cat==='top'?val:'',true);crop=cat==='top'?'7 27 18 16':cat==='bottom'?'9 35 14 11':cat==='shoes'?'9 40 14 7':'10 26 12 11';}const [x,y,w,hh]=crop.split(' ').map(Number);return `<svg xmlns="http://www.w3.org/2000/svg" class="qp-pixel-avatar qp-illustrated-avatar" viewBox="${crop}" width="${h*w/hh}" height="${h}" shape-rendering="geometricPrecision" style="display:block;image-rendering:auto;--qpx-blink-cycle:5.4s">${s}</svg>`;}
   const expressions={bright:['반짝 미소',0,()=>expressionStencil('bright')],soft:['수줍은 미소',180,()=>expressionStencil('soft')],sparkle:['푸른 눈 웃음',240,()=>expressionStencil('sparkle')],happy:['활짝 웃음',220,()=>expressionStencil('happy')],wink:['장난스런 윙크',260,()=>expressionStencil('wink')],chic:['도도한 표정',240,()=>expressionStencil('chic')],cat:['금빛 고양이 눈',320,()=>expressionStencil('cat')],freckle:['수줍은 주근깨',220,()=>expressionStencil('freckle')]};
   const frames={garden:['꽃빛 정원 액자',720,(c,d,l)=>frame('garden',c,d,l)],moon:['달빛 별자리 액자',980,(c,d,l)=>frame('moon',c,d,l)],royal:['로열 리본 액자',1250,(c,d,l)=>frame('royal',c,d,l)],dream:['꿈방울 액자',860,(c,d,l)=>frame('dream',c,d,l)]};
@@ -381,10 +527,10 @@
     ACTIVE_SEX=previousSex;SKIN=previousSkin;SKIN_SHADE=previousShade;
     window.dispatchEvent(new CustomEvent('qp-avatar-ready'));
   }).catch(error=>{atlas.normalizationError=String(error&&error.message||error);window.dispatchEvent(new CustomEvent('qp-avatar-error'));});
-  window.addEventListener('qp-clothes-ready',()=>{cache.clear();document.querySelectorAll('[data-qpx-clothes]').forEach(node=>{const d=node.dataset;node.innerHTML=window.QPClothes.render(d.qpxClothes,d.clothShape,d.clothColor,d.clothSex,d.clothSkin);});});
+  window.addEventListener('qp-clothes-ready',()=>{cache.clear();document.querySelectorAll('[data-qpx-clothes]').forEach(node=>{const d=node.dataset;if(d.qpxProfileClothes||d.qpxProfileSleeve||d.qpxBackClothes||d.qpxBackSleeve||node.closest('[data-qpx-gesture-art="profile"],[data-qpx-gesture-art="back"]'))return;node.innerHTML=window.QPClothes.render(d.qpxClothes,d.clothShape,d.clothColor,d.clothSex,d.clothSkin);});});
   window.addEventListener('qp-effect-ready',()=>{cache.clear();document.querySelectorAll('[data-qpx-effect]').forEach(node=>node.innerHTML=window.QPEffects.render(node.dataset.qpxEffect));});
   window.addEventListener('qp-pets-ready',()=>cache.clear());
   window.addEventListener('qp-shoes-ready',()=>cache.clear());
   function backdrop(value){if(!value)return '';return `<svg xmlns="http://www.w3.org/2000/svg" class="qp-profile-backdrop" viewBox="0 0 32 48" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="--qpx-phase:${-performance.now()/1000}s">${background(value,3)}</svg>`;}
-  window.QPAvatar={render,thumb,backdrop,frames,expressions,atlas,proportions:BODY_PROPORTIONS,syncArtwork:sync,clearCache:()=>cache.clear()};
+  window.QPAvatar={render,thumb,backdrop,frames,expressions,atlas,proportions:BODY_PROPORTIONS,renderProfileTorso,renderProfileLeg,renderProfileGarment,renderProfileArm,renderBackTorso,renderBackGarment,renderBackArm,syncArtwork:sync,clearCache:()=>cache.clear()};
 })();

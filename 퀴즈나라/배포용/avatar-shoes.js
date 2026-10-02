@@ -51,8 +51,17 @@
     for(let index=0;index<18;index++){const hint=footHints[index],sprite=extract(img,index,3,6,hint?.rect),side=index%2?'right':'left';if(hint?.ankle)sprite.hint={ankle:[hint.ankle[0]-sprite.sourceRect[0],hint.ankle[1]-sprite.sourceRect[1]],ground:hint.ground?[hint.ground[0]-sprite.sourceRect[0],hint.ground[1]-sprite.sourceRect[1]]:null};feet.set(names[Math.floor(index/2)]+'/'+side,sprite);}
     atlas.partsReady=true;atlas.partsPixels=[img.naturalWidth,img.naturalHeight];atlas.partsCount=feet.size;window.QPAvatar?.clearCache();
     document.querySelectorAll('[data-qpx-shoes]').forEach(node=>{if(!node.closest('[data-qps-foot-host]'))node.innerHTML=render(node.dataset.qpxShoes,node.dataset.qpxShoeColor);});
-    document.querySelectorAll('[data-qps-foot-host]').forEach(node=>{const d=node.dataset;node.innerHTML=renderFoot(d.qpsShape,d.qpsFootColor,d.qpsFootHost);});
-    document.querySelectorAll('.qps-foot[data-qps-foot-side]').forEach(node=>{const d=node.dataset;node.outerHTML=renderFoot(d.qpsShape,d.qpsFootColor,d.qpsFootSide);});
+    document.querySelectorAll('[data-qps-foot-host]').forEach(node=>{
+      const d=node.dataset;
+      // Directional shoes are sibling paintings. Refresh only the original
+      // front painting when its atlas finishes loading, keeping those layers.
+      const profile=[...node.children].filter(child=>child.matches('[data-qpx-profile-shoe],[data-qpx-back-shoe],[data-qps-profile-foot],[data-qps-back-foot]'));
+      node.innerHTML=renderFoot(d.qpsShape,d.qpsFootColor,d.qpsFootHost);node.append(...profile);
+    });
+    document.querySelectorAll('.qps-foot[data-qps-foot-side]:not([data-qps-profile-foot]):not([data-qps-back-foot])').forEach(node=>{
+      if(node.closest('[data-qpx-profile-shoe],[data-qpx-back-shoe]'))return;
+      const d=node.dataset;node.outerHTML=renderFoot(d.qpsShape,d.qpsFootColor,d.qpsFootSide);
+    });
     window.dispatchEvent(new CustomEvent('qp-shoes-ready'));return true;
   }
   function load(){

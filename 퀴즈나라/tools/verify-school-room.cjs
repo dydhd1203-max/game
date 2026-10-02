@@ -128,7 +128,7 @@ async function coverage(page) {
 }
 async function availableChair(page, id) {
   // The local stand pose precedes the shared release write. Observe the real
-  // available interaction and released owner lease before one genuine E input.
+  // available interaction and released owner lease before one genuine C input.
   await page.waitForFunction(id => {
     const interaction = QPGame.getCampus().getState();
     const chair = document.querySelector('[data-sr-seat="' + CSS.escape(id) + '"]');
@@ -320,7 +320,7 @@ async function run() {
   phase = 'all 30 genuine seat approaches';
   for (const seat of scene.seats) {
     const reached = await walkTo(a, seat.approach);
-    await focusWorld(a); await a.keyboard.press('KeyE');
+    await focusWorld(a); await a.keyboard.press('KeyC');
     await a.waitForFunction(id => QPGame.getCampus().getState().seatId === id, seat.id);
     await a.waitForFunction(() => document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxPose === 'sit');
     const seated = await state(a);
@@ -344,7 +344,7 @@ async function run() {
         clip: { x: Math.max(0, actor.x - 64), y: Math.max(60, actor.y - 110), width: 128, height: 154 } });
       screenshots.push('04-책상과뒷모습-원래크기.png');
     }
-    await a.keyboard.press('KeyE');
+    await a.keyboard.press('KeyC');
     await a.waitForFunction(() => !QPGame.getCampus().getState().seatId);
     const standing = await state(a);
     assert.equal(standing.pose, 'idle');
@@ -357,33 +357,38 @@ async function run() {
   const shared = scene.seats[0];
   await walkTo(a, shared.approach); await walkTo(b, shared.approach);
   await availableChair(a, shared.id); await availableChair(b, shared.id);
-  await focusWorld(a); await focusWorld(b);
-  await Promise.all([a.keyboard.press('KeyE'), b.keyboard.press('KeyE')]);
-  await sleep(500);
+  // These two tabs share one browser keyboard. Wait for the first real
+  // lease before focusing the second tab; switching focus during a pending
+  // claim correctly cancels it and does not model two physical keyboards.
+  // Simultaneous transaction races are covered by verify-village-presence.
+  await focusWorld(a); await a.keyboard.press('KeyC');
+  await a.waitForFunction(id => QPGame.getCampus().getState().seatId === id, shared.id);
+  await focusWorld(b); await b.keyboard.press('KeyC');
+  await b.waitForFunction(() => !QPGame.getCampus().getState().seatPending);
   const race = [await state(a), await state(b)];
   assert.equal(race.filter(value => value.seatId === shared.id).length, 1);
   const winner = race[0].seatId ? a : b, loser = race[0].seatId ? b : a;
   await focusWorld(winner);
-  await winner.keyboard.press('KeyE');
+  await winner.keyboard.press('KeyC');
   await winner.waitForFunction(() => !QPGame.getCampus().getState().seatId);
   await availableChair(loser, shared.id);
-  await focusWorld(loser); await loser.keyboard.press('KeyE');
+  await focusWorld(loser); await loser.keyboard.press('KeyC');
   await loser.waitForFunction(id => QPGame.getCampus().getState().seatId === id, shared.id);
-  await loser.keyboard.press('KeyE');
+  await loser.keyboard.press('KeyC');
   pass('Two separately logged-in students cannot own one chair; releasing it admits the other');
 
   phase = 'floor sitting and planted feet';
   await walkTo(a, { x: 560, y: 570 });
-  for (const [direction, key, via] of [['front', 'ArrowDown', 'G'], ['left', 'ArrowLeft', 'G'],
-    ['right', 'ArrowRight', 'button'], ['back', 'ArrowUp', 'G']]) {
+  for (const [direction, key, via] of [['front', 'ArrowDown', 'C'], ['left', 'ArrowLeft', 'C'],
+    ['right', 'ArrowRight', 'button'], ['back', 'ArrowUp', 'C']]) {
     await hold(a, key, 100);
     await a.waitForFunction(() => QPGame.getCampus().getState().pose === 'idle'
       && document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxPose === 'idle');
     const floorBefore = await state(a);
     const standingSoles = await soles(a);
     assert.equal(floorBefore.direction, direction);
-    if (via === 'button') await a.locator('[data-tool="floor-sit"]').click();
-    else { await focusWorld(a); await a.keyboard.press('KeyG'); }
+    if (via === 'button') await a.locator('[data-tool="sit"]').click();
+    else { await focusWorld(a); await a.keyboard.press('KeyC'); }
     await a.waitForFunction(() => QPGame.getCampus().getState().pose === 'sit-floor');
     await a.waitForFunction(() => document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxPose === 'floor-sit');
     assert.equal((await state(a)).seatId, null, 'Sitting on the floor must not acquire a student chair');
@@ -401,21 +406,21 @@ async function run() {
     await a.screenshot({ path: path.join(output, '05-바닥앉기-' + direction + '-원래크기.png'),
       clip: { x: Math.max(0, actor.x - 54), y: Math.max(60, actor.y - 100), width: 108, height: 130 } });
     screenshots.push('05-바닥앉기-' + direction + '-원래크기.png');
-    if (via === 'button') await a.locator('[data-tool="floor-sit"]').click();
-    else await a.keyboard.press('KeyE');
+    if (via === 'button') await a.locator('[data-tool="sit"]').click();
+    else await a.keyboard.press('KeyC');
     await a.waitForFunction(() => QPGame.getCampus().getState().pose === 'idle');
     const floorAfter = await state(a);
     assert.equal(floorAfter.x, floorBefore.x); assert.equal(floorAfter.y, floorBefore.y);
   }
   const beforeFloorWalk = await state(a);
-  await focusWorld(a); await a.keyboard.press('KeyG');
+  await focusWorld(a); await a.keyboard.press('KeyC');
   await hold(a, 'ArrowRight', 150);
   await a.waitForFunction(() => QPGame.getCampus().getState().pose === 'idle'
     && document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxPose === 'idle');
   assert.equal((await state(a)).pose, 'idle', 'Walking must stand up from the floor first');
   assert((await state(a)).x > beforeFloorWalk.x + 3, 'Standing up must permit actual walking');
   assert.equal((await state(a)).seatId, null);
-  pass('Front, left, right and back floor poses use actual G/button inputs; E, button and walking stand up naturally');
+  pass('Front, left, right and back floor poses use actual C/button inputs; C, button and walking stand up naturally');
 
   phase = 'all rooms and camera follow';
   await walkTo(a, { x: 560, y: 570 });
@@ -541,10 +546,10 @@ async function run() {
   assert(await wide.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
   assert(await wide.evaluate(() => document.documentElement.scrollHeight <= innerHeight + 1));
   await walkTo(wide, scene.seats[14].approach);
-  await focusWorld(wide); await wide.keyboard.press('KeyE');
+  await focusWorld(wide); await wide.keyboard.press('KeyC');
   await wide.waitForFunction(id => QPGame.getCampus().getState().seatId === id, scene.seats[14].id);
   await screenshot(wide, '11-실제로앉기-1920');
-  await wide.keyboard.press('KeyE');
+  await wide.keyboard.press('KeyC');
   await openBoard(wide); await screenshot(wide, '12-칠판-1920');
   await wide.locator('#campusBoardClose').click();
   await wide.locator('#tbProfile').click();

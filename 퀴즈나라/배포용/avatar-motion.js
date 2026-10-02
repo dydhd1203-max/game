@@ -3,7 +3,7 @@
 (function () {
   'use strict';
   const KEYS = { ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right',
-    Space: 'jump', ArrowUp: 'jump', KeyW: 'jump', ArrowDown: 'sit', KeyS: 'sit' };
+    Space: 'jump', ArrowUp: 'jump', KeyW: 'jump', KeyC: 'sit', ArrowDown: 'sit', KeyS: 'sit' };
   const ACTIONS = ['left', 'right', 'jump', 'sit'];
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   const number = (value, fallback) => Number.isFinite(value) ? value : fallback;

@@ -44,13 +44,16 @@ function build(check=false){
     for(const entry of originals){verifyOriginal(folder,entry);if(entry.sha256)hashes.add(entry.sha256);}
     for(const entry of catalog.projectAssets||[])verifyOriginal(folder,entry);
     if(catalog.archive?.imagePath)verifyOriginal(folder,catalog.archive);
-    const count=catalog.archive?.regularImageFiles??originals.length;
+    for(const archive of catalog.supplementalArchives||[])verifyOriginal(folder,archive);
+    const count=catalog.archive?.regularImageFiles!==undefined
+      ?catalog.archive.regularImageFiles+(catalog.supplementalArchives||[]).reduce((sum,archive)=>sum+(archive.regularImageFiles||0),0)
+      :originals.length;
     originalEntries+=count;storedImages+=originals.length;
     libraries.push({id,label,indexPath:'../'+id+'-library/index.html',originalName:catalog.archive?.originalName||label,sourceCount:count,storedCount:originals.length});
     for(const [origin,items] of [['user',originals],['project',catalog.projectAssets||[]]])for(const entry of items){
       entries.push({...entry,id:id+'/'+entry.id,library:id,libraryLabel:label,origin,
         imagePath:entry.imagePath?path.relative(hub,path.resolve(folder,entry.imagePath)).split(path.sep).join('/'):null,
-        archivePath:catalog.archive?.imagePath?'../'+id+'-library/'+catalog.archive.imagePath:null});
+        archivePath:entry.sourceArchive?'../'+id+'-library/'+entry.sourceArchive:catalog.archive?.imagePath?'../'+id+'-library/'+catalog.archive.imagePath:null});
     }
   }
   const catalog={schemaVersion:1,title:'퀴즈나라 전체 소재 보관함',status:{archives:libraries.length,originalEntries,storedImages,uniqueOriginalImages:hashes.size},libraries,entries};

@@ -174,8 +174,10 @@
 }
 .qp-round-avatar > svg {
   display: block;
+  position: relative;
+  top: calc(var(--round-avatar-height) / -56 * var(--qpx-ground-shift, 0));
   width: 72px;
-  height: var(--round-avatar-height);
+  height: calc(var(--round-avatar-height) * var(--qpx-viewport-scale, 1));
   max-width: none;
   max-height: none;
   border: 0;

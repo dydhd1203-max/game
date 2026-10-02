@@ -123,7 +123,8 @@
     if(!atlas.ready||r.painted)return;
     const m=metadata(r.svg),art=painting(m.sex,m.tile,m.color,m.skin,m.expression);if(!art)return;
     const image=()=>node('image',{href:art.open,x:0,y:0,width:32,height:40,preserveAspectRatio:'none'});
-    r.front.append(image());r.back.append(image());
+    r.front.append(image());r.back.append(image());r.anchors={eye:art.eye};
+    r.front.dataset.qpxProfileEyeX=art.eye[0];r.front.dataset.qpxProfileEyeY=art.eye[1];
     for(const part of['half','closed']){const blink=node('g',{class:'qpx-blink-'+part,'data-qpx-profile-eye':part});
       const cover=node('g');cover.append(node('image',{href:art.patch,x:0,y:0,width:32,height:40,preserveAspectRatio:'none'}));
       if(part==='half'){const id=r.uid+'-half',clip=node('clipPath',{id,clipPathUnits:'userSpaceOnUse'});clip.append(node('rect',{x:0,y:0,width:32,height:art.eye[1]+.3}));r.defs.append(clip);cover.setAttribute('clip-path','url(#'+id+')');}
@@ -137,8 +138,8 @@
     if(m.expression==='freckle')for(const [dx,dy]of[[.7,2.5],[1.6,2.2],[2.5,2.6]])r.front.append(node('circle',{cx:ex+dx,cy:ey+dy,r:.15,fill:'#af765b'}));
     // One visible lens and an arm to the near ear; frontal double lenses would
     // cover the profile nose and place an extra eye on the back of the skull.
-    if(m.av.glass){const [x,y]=art.eye,w=Math.max(1.8,art.width*1.2),color=typeof PAL!=='undefined'?PAL[CAT.glass.pal]?.[+String(m.av.glass).split(':')[1]]?.[0]:'#795841';r.front.append(node('ellipse',{cx:x,cy:y,rx:w,ry:2.1,fill:'none',stroke:color||'#795841','stroke-width':'.25'}));r.front.append(node('path',{d:'M'+(x-w)+' '+y+'l-4 -1.5',fill:'none',stroke:color||'#795841','stroke-width':'.24'}));}
-    for(const el of r.frontOriginals){
+    if(!window.QPAvatarAccessoryDirection&&m.av.glass){const [x,y]=art.eye,w=Math.max(1.8,art.width*1.2),color=typeof PAL!=='undefined'?PAL[CAT.glass.pal]?.[+String(m.av.glass).split(':')[1]]?.[0]:'#795841';r.front.append(node('ellipse',{cx:x,cy:y,rx:w,ry:2.1,fill:'none',stroke:color||'#795841','stroke-width':'.25'}));r.front.append(node('path',{d:'M'+(x-w)+' '+y+'l-4 -1.5',fill:'none',stroke:color||'#795841','stroke-width':'.24'}));}
+    if(!window.QPAvatarAccessoryDirection)for(const el of r.frontOriginals){
       const category=el.dataset.qpxHeadAccessory;if(!category||category==='glass')continue;
       const copy=el.cloneNode(true),transform=category==='hat'?'translate(16 0) scale(.82 1) translate(-16 0)':category==='ear'?'translate(9.2 -1.3)':'translate(21.4 0) scale(.62 1) translate(-16 0)';
       const near=node('g',{transform,'data-qpx-profile-accessory':category});
@@ -153,8 +154,89 @@
     r.rear.append(node('image',{href:art,x:0,y:0,width:32,height:40,preserveAspectRatio:'none','data-qpx-back-hair':hair[m.sex][m.tile]}));
     // A back view has no frontal facial jewelry, lenses or eye expressions.
     // Keep the wearer's hat and ear jewelry on the original attachment axes.
-    for(const el of r.frontOriginals){const category=el.dataset.qpxHeadAccessory;if(!['hat','ear'].includes(category))continue;const copy=el.cloneNode(true);copy.dataset.qpxBackAccessory=category;r.rear.append(copy);}
+    if(!window.QPAvatarAccessoryDirection)for(const el of r.frontOriginals){const category=el.dataset.qpxHeadAccessory;if(!['hat','ear'].includes(category))continue;const copy=el.cloneNode(true);copy.dataset.qpxBackAccessory=category;r.rear.append(copy);}
     r.rearPainted=true;r.svg.dataset.qpxBackHair=hair[m.sex][m.tile];r.svg.dataset.qpxBackEyeCount='0';window.QPAvatar.syncArtwork?.(r.svg);
+  }
+  function prepareProfileWear(r){
+    if(r.profileWear)return;
+    const m=metadata(r.svg),art=window.QPAvatar;r.profileWear=[];
+    if(!art?.renderProfileGarment)return;
+    const add=(original,painting)=>{
+      const layer=node('g',{'data-qpx-profile-painting':'true',style:'display:none'});layer.innerHTML=painting;
+      original.parentNode.insertBefore(layer,original.nextSibling);
+      r.profileWear.push({original,layer,visibility:original.getAttribute('visibility'),seatedClip:null});return layer;
+    };
+    // Each articulated thigh, shin and cloth hem owns its own cached painting.
+    // The enclosing joint/cloth clips stay shared with the frontal artwork.
+    const garments=[...r.pose.body.querySelectorAll('[data-qpx-clothes]')];
+    for(const original of garments){
+      const d=original.dataset;if(d.qpxProfileClothes||d.qpxProfileSleeve)continue;
+      const layer=add(original,art.renderProfileGarment(d.qpxClothes,d.clothShape,d.clothColor,d.clothSex,d.clothSkin));
+      for(const key of ['qpxClothes','clothShape','clothColor','clothSex','clothSkin'])if(d[key])layer.dataset[key]=d[key];
+      layer.dataset.qpxProfileClothes='true';
+      const side=r.pose.left.contains(original)?'left':r.pose.right.contains(original)?'right':null;
+      if(d.qpxClothes==='bottom'&&side&&!original.closest('[data-qpx-pose-part$="-shin"]')){
+        const id=r.uid+'-side-seated-'+side,hip=side==='left'?13.75:18.25,w=r.pose.waist,k=r.pose.knee;
+        if(!r.defs.querySelector('#'+id)){
+          const clip=node('clipPath',{id,clipPathUnits:'userSpaceOnUse'});
+          // Only the thigh painting folds at the hip. The rigid waistband is
+          // already on the torso; rotating its duplicate makes a rear flap.
+          clip.append(node('path',{d:`M${hip-1.55} ${w-.5}Q${hip} ${w-1} ${hip+1.55} ${w-.5}L${hip+1.7} ${k-.25}Q${hip+1.75} ${k+1.35} ${hip} ${k+1.45}Q${hip-1.75} ${k+1.35} ${hip-1.7} ${k-.25}Z`}));r.defs.append(clip);
+        }
+        r.profileWear.at(-1).seatedClip='url(#'+id+')';layer.dataset.qpxProfileThigh=side;
+      }
+    }
+    const skin=[...r.pose.body.querySelectorAll('.qpx-skin-torso,.qpx-leg-left,.qpx-leg-right')].filter(el=>!el.closest('[data-qpx-profile-painting]'));
+    for(const original of skin){
+      const painting=original.classList.contains('qpx-skin-torso')?art.renderProfileTorso(m):art.renderProfileLeg(original.classList.contains('qpx-leg-left')?'left':'right',m.skin);
+      add(original,painting);
+    }
+  }
+  function profileWear(r,profile,floor=false){
+    for(const {original,layer,visibility,seatedClip}of r.profileWear||[]){value(original,'visibility',profile?'hidden':visibility);layer.style.display=profile?'':'none';if(seatedClip)value(layer,'clip-path',profile&&floor?seatedClip:null);}
+  }
+  function prepareBackWear(r){
+    if(r.backWear)return;const art=window.QPAvatar,m=metadata(r.svg);r.backWear=[];
+    if(!art?.renderBackGarment)return;
+    for(const entry of r.profileWear||[]){
+      const original=entry.original,d=original.dataset,category=d.qpxClothes;
+      if(!category&&!original.classList.contains('qpx-skin-torso'))continue;
+      const layer=node('g',{'data-qpx-back-painting':'true',style:'display:none'});
+      layer.innerHTML=category?art.renderBackGarment(category,d.clothShape,d.clothColor,d.clothSex,d.clothSkin):art.renderBackTorso(m);
+      original.parentNode.insertBefore(layer,original.nextSibling);
+      if(category){for(const key of ['qpxClothes','clothShape','clothColor','clothSex','clothSkin'])if(d[key])layer.dataset[key]=d[key];layer.dataset.qpxBackClothes='true';layer.dataset.qpxDirectionPart=category+'-back';}
+      r.backWear.push({original,layer,visibility:entry.visibility});
+    }
+  }
+  function backWear(r,backView){
+    for(const {original,layer,visibility}of r.backWear||[]){value(original,'visibility',backView?'hidden':visibility);layer.style.display=backView?'':'none';}
+  }
+  function prepareProfileFeet(r){
+    if(!window.QPProfileShoes?.renderFoot)return;
+    const m=metadata(r.svg),shape=String(m.av.shoes||'sneaker:0').split(':')[0];
+    const shoeSource=r.svg.querySelector('[data-qpx-shoe-color]'),color=r.pose.rightFoot?.dataset.qpsFootColor||shoeSource?.dataset.qpxShoeColor||'#fff0da';
+    r.profileFeet ||= [];
+    for(const [side,foot]of[['left',r.pose.leftFoot],['right',r.pose.rightFoot]]){
+      if(!foot)continue;const cached=r.profileFeet.find(item=>item.side===side);
+      if(cached?.layer.parentNode===foot&&cached.original.parentNode)continue;
+      if(cached){cached.layer.remove();cached.backLayer?.remove();r.profileFeet.splice(r.profileFeet.indexOf(cached),1);}
+      const original=side==='left'?r.farShoe:foot.firstElementChild;if(!original)continue;
+      const layer=node('g',{'data-qpx-profile-shoe':side,style:'display:none'});layer.innerHTML=window.QPProfileShoes.renderFoot(shape,color,side);foot.append(layer);
+      const item={side,original,layer,visibility:original.getAttribute('visibility')};r.profileFeet.push(item);
+      value(original,'visibility',r.profile?'hidden':item.visibility);layer.style.display=r.profile?'':'none';
+    }
+  }
+  function prepareBackFeet(r){
+    if(!window.QPProfileShoes?.renderBackFoot)return;
+    for(const item of r.profileFeet||[]){
+      const foot=item.side==='left'?r.pose.leftFoot:r.pose.rightFoot;if(item.backLayer?.parentNode===foot)continue;
+      item.backLayer?.remove();const layer=node('g',{'data-qpx-back-shoe':item.side,style:'display:none'});
+      layer.innerHTML=window.QPProfileShoes.renderBackFoot(foot.dataset.qpsShape,foot.dataset.qpsFootColor,item.side);foot.append(layer);item.backLayer=layer;
+      value(item.original,'visibility',r.profile||r.backView?'hidden':item.visibility);layer.style.display=r.backView?'':'none';
+    }
+  }
+  function profileFeet(r,profile,backView=false){
+    for(const {original,layer,backLayer,visibility}of r.profileFeet||[]){value(original,'visibility',profile||backView&&backLayer?'hidden':visibility);layer.style.display=profile?'':'none';if(backLayer)backLayer.style.display=backView?'':'none';}
   }
   function prepare(svg,pose){
     if(rigs.has(svg)){
@@ -167,9 +249,9 @@
       }
       if(r.pose.leftFoot&&r.farShoe?.parentNode!==r.pose.leftFoot){
         r.farShoe=r.pose.leftFoot.firstElementChild?wrap(r.pose.leftFoot.firstElementChild,'far-shoe-toe'):null;
-        if(r.farShoe&&r.profile)value(r.farShoe,'transform','translate(27.5 0) scale(-1 1)');
+        if(r.farShoe&&r.profile&&!window.QPProfileShoes)value(r.farShoe,'transform','translate(27.5 0) scale(-1 1)');
       }
-      return r;
+      prepareProfileFeet(r);prepareBackFeet(r);window.QPAvatarAccessoryDirection?.prepare(svg,pose);return r;
     }if(!pose)return null;
     const uid='qpdir-'+(++serial),defs=node('defs'),front=node('g',{'data-qpx-profile-head':'front',style:'display:none'}),back=node('g',{'data-qpx-profile-head':'back',class:'qpx-back-hair',style:'display:none'}),rear=node('g',{'data-qpx-back-head':'true',style:'display:none'});
     for(const[name,group,y,height]of[['front',front,-8,36.45],['back',back,28.2,27.8]]){const id=uid+'-'+name,clip=node('clipPath',{id,clipPathUnits:'userSpaceOnUse'});clip.append(node('rect',{x:-8,y,width:48,height}));defs.append(clip);group.setAttribute('clip-path','url(#'+id+')');}
@@ -179,21 +261,21 @@
     // The entire original shoe is mirrored around its ankle, never cut apart.
     const farShoe=pose.leftFoot?.firstElementChild?wrap(pose.leftFoot.firstElementChild,'far-shoe-toe'):null;
     const r={svg,pose,uid,defs,front,back,rear,frontOriginals,originalVisibility,originalBackVisibility:pose.backHairPose?.getAttribute('visibility')??null,body,left,right,leftFoot,rightFoot,farShoe,originalBodyChildren:[...pose.body.children],profile:false,backView:false,turned:false,lastFacing:'right',painted:false,rearPainted:false};
-    rigs.set(svg,r);if(!atlas.ready&&!atlas.error||!atlas.backReady&&!atlas.backError)mounted.add(r);headParts(r);rearParts(r);return r;
+    rigs.set(svg,r);if(!atlas.ready&&!atlas.error||!atlas.backReady&&!atlas.backError)mounted.add(r);headParts(r);rearParts(r);prepareProfileWear(r);prepareBackWear(r);prepareProfileFeet(r);prepareBackFeet(r);window.QPAvatarAccessoryDirection?.prepare(svg,pose);return r;
   }
   function orient(r,profile){
     if(r.profile===profile)return;r.profile=profile;
     r.frontOriginals.forEach((n,i)=>value(n,'visibility',profile?'hidden':r.originalVisibility[i]));r.front.style.display=profile?'':'none';r.back.style.display=profile?'':'none';
     if(r.pose.backHairPose)value(r.pose.backHairPose,'visibility',profile?'hidden':r.originalBackVisibility);
-    value(r.body,'transform',profile?'translate(16 0) scale(.78 1) translate(-16 0)':null);
+    value(r.body,'transform',null);profileWear(r,profile);profileFeet(r,profile);
     value(r.left,'transform',profile?'translate(2.1 0)':null);value(r.right,'transform',profile?'translate(-1.5 0)':null);
     if(r.leftFoot)value(r.leftFoot,'transform',profile?'translate(2.1 0)':null);if(r.rightFoot)value(r.rightFoot,'transform',profile?'translate(-1.5 0)':null);
-    if(r.farShoe)value(r.farShoe,'transform',profile?'translate(27.5 0) scale(-1 1)':null);
+    if(r.farShoe)value(r.farShoe,'transform',profile&&!window.QPProfileShoes?'translate(27.5 0) scale(-1 1)':null);
     if(profile)r.pose.body.replaceChildren(...[r.left,r.leftFoot,r.pose.upper,r.right,r.pose.hem,r.rightFoot].filter(Boolean));else r.pose.body.replaceChildren(...r.originalBodyChildren);
     r.svg.dataset.qpxView=profile?'profile':'front';
   }
   function orientBack(r,backView){
-    if(r.backView===backView)return;r.backView=backView;
+    if(r.backView===backView)return;r.backView=backView;backWear(r,backView);profileFeet(r,false,backView);
     r.frontOriginals.forEach((n,i)=>value(n,'visibility',backView?'hidden':r.originalVisibility[i]));
     r.rear.style.display=backView?'':'none';
     if(r.pose.backHairPose)value(r.pose.backHairPose,'visibility',backView?'hidden':r.originalBackVisibility);
@@ -204,17 +286,25 @@
   function apply(svg,state,pose){
     const r=prepare(svg,pose);if(!r)return false;headParts(r);rearParts(r);
     const wantsBack=state.direction==='back'&&!state.gesture;
-    if(wantsBack){orient(r,false);orientBack(r,true);r.turned=false;r.svg.dataset.qpxBackLoading=atlas.backReady?'false':'true';return false;}
+    if(wantsBack){
+      const ready=atlas.backReady&&r.rearPainted;orient(r,false);orientBack(r,ready);r.turned=false;
+      r.svg.dataset.qpxViewFacing=ready?'back':'front';r.svg.dataset.qpxBackLoading=!ready&&!atlas.backError?'true':'false';
+      window.QPAvatarAccessoryDirection?.apply(svg,{profile:false,facing:ready?'back':'front',backView:ready,state,anchors:r.anchors},pose);return false;
+    }
     orientBack(r,false);
     const facing=['left','right'].includes(state.direction)?state.direction:['left','right'].includes(state.facing)?state.facing:r.lastFacing;
     const horizontal=state.action==='walk'||state.action==='jump'&&Math.abs(Number(state.vx)||0)>.001;
     if(['left','right'].includes(state.direction)||horizontal&&state.direction!=='front'&&['left','right'].includes(state.facing)){r.turned=true;r.lastFacing=facing;}if(state.direction==='front')r.turned=false;
     const profile=atlas.ready&&r.painted&&r.turned&&!state.gesture&&state.action!=='climb'&&state.direction!=='front';orient(r,profile);
-    if(profile){value(r.back,'transform',pose.headPose.getAttribute('transform'));r.svg.dataset.qpxViewFacing=facing;}
-    else r.svg.dataset.qpxViewFacing='front';return profile;
+    profileWear(r,profile,state.seatMode==='floor');
+    if(profile){
+      const near=state.seatMode==='floor'?-.4:-1.5;value(r.right,'transform','translate('+near+' 0)');if(r.rightFoot)value(r.rightFoot,'transform','translate('+near+' 0)');
+      value(r.back,'transform',pose.headPose.getAttribute('transform'));r.svg.dataset.qpxViewFacing=facing;
+    }else r.svg.dataset.qpxViewFacing='front';
+    window.QPAvatarAccessoryDirection?.apply(svg,{profile,facing,backView:r.backView,state,anchors:r.anchors},pose);return profile;
   }
-  function reset(svg){const r=rigs.get(svg);if(!r)return false;orientBack(r,false);orient(r,false);r.turned=false;r.lastFacing='right';value(r.back,'transform',null);return true;}
-  function destroy(svg){const r=rigs.get(svg);if(!r)return false;reset(svg);for(const n of[r.left,r.right,r.leftFoot,r.rightFoot,r.farShoe,r.body])unwrap(n);r.front.remove();r.back.remove();r.rear.remove();r.defs.remove();for(const attr of['data-qpx-view','data-qpx-view-facing','data-qpx-profile-hair','data-qpx-profile-eye-count','data-qpx-back-hair','data-qpx-back-eye-count','data-qpx-back-loading'])svg.removeAttribute(attr);mounted.delete(r);rigs.delete(svg);return true;}
+  function reset(svg){const r=rigs.get(svg);if(!r)return false;orientBack(r,false);orient(r,false);r.turned=false;r.lastFacing='right';value(r.back,'transform',null);window.QPAvatarAccessoryDirection?.reset(svg);return true;}
+  function destroy(svg){const r=rigs.get(svg);if(!r)return false;reset(svg);window.QPAvatarAccessoryDirection?.destroy(svg);for(const {layer}of r.profileWear||[])layer.remove();for(const {layer}of r.backWear||[])layer.remove();for(const {layer,backLayer}of r.profileFeet||[]){layer.remove();backLayer?.remove();}for(const n of[r.left,r.right,r.leftFoot,r.rightFoot,r.farShoe,r.body])unwrap(n);r.front.remove();r.back.remove();r.rear.remove();r.defs.remove();for(const attr of['data-qpx-view','data-qpx-view-facing','data-qpx-profile-hair','data-qpx-profile-eye-count','data-qpx-back-hair','data-qpx-back-eye-count','data-qpx-back-loading'])svg.removeAttribute(attr);mounted.delete(r);rigs.delete(svg);return true;}
   window.QPAvatarDirection=Object.freeze({atlas,prepare,apply,reset,destroy});
   Promise.all([load('f'),load('m')]).then(()=>{atlas.ready=true;for(const r of mounted)if(r.svg.isConnected)headParts(r);if(atlas.backReady||atlas.backError)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-direction-ready'));}).catch(error=>{atlas.error=String(error?.message||error);if(atlas.backReady||atlas.backError)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-direction-error'));console.warn('옆모습 원화가 아직 준비되지 않아 정면 아바타를 유지합니다.',error);});
   Promise.all([loadBack('f'),loadBack('m')]).then(()=>{atlas.backReady=true;for(const r of mounted)if(r.svg.isConnected){rearParts(r);r.svg.dataset.qpxBackLoading='false';}if(atlas.ready||atlas.error)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-back-ready'));}).catch(error=>{atlas.backError=String(error?.message||error);if(atlas.ready||atlas.error)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-back-error'));console.warn('뒷모습 원화를 불러오지 못했어요.',error);});

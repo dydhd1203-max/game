@@ -63,6 +63,32 @@
       90
     ],
     "deskX": [
+      99,
+      189,
+      299,
+      389,
+      499,
+      589,
+      699,
+      789,
+      899,
+      989
+    ],
+    "deskY": [
+      518,
+      630,
+      742
+    ],
+    "cameraHome": {
+      "x": 1430,
+      "y": 450,
+      "zoom": 0.84
+    },
+    "spawn": [
+      1430,
+      790
+    ],
+    "sourceDeskX": [
       109,
       173,
       301,
@@ -74,20 +100,42 @@
       878,
       942
     ],
-    "deskY": [
+    "sourceDeskY": [
       506,
       602,
       698
     ],
-    "cameraHome": {
-      "x": 1430,
-      "y": 450,
-      "zoom": 0.84
+    "deskWorldX": [
+      959,
+      1049,
+      1159,
+      1249,
+      1359,
+      1449,
+      1559,
+      1649,
+      1759,
+      1849
+    ],
+    "walkingAisles": {
+      "insidePair": 28,
+      "betweenPairs": 48,
+      "betweenRows": 27,
+      "westSide": 70,
+      "eastSide": 66,
+      "southSide": 88,
+      "avatarRadius": 7,
+      "pathGrid": 12,
+      "method": "Reposition the native source furniture only. Preserve five pairs per row, all 30 seats, classroom bounds and group/teacher/corridor artwork. Every adjacent column and row has a continuous walking aisle."
     },
-    "spawn": [
-      1430,
-      790
-    ]
+    "seatAnchors": {
+      "sitX": "deskWorldX +31",
+      "sitY": "deskY +73",
+      "approachExitX": "sitX -43 for the left desk in a pair; sitX +43 for the right desk",
+      "approachExitY": "sitY",
+      "hitRect": "[deskWorldX, deskY, 62, 90]",
+      "solids": "desktop [0,0,62,35], left leg [5,35,9,26], right leg [49,35,10,26], chair [15,35,34,50] relative to desk placement; all original visible furniture portions"
+    }
   },
   "materials": [
     {
@@ -364,7 +412,21 @@
     "nativeCentralScreenshot": "../../../검증/교실-추출-2026-10-02/교실-중앙-배치.png",
     "sourceArtDirectlyViewed": true,
     "browserErrors": 0,
-    "playableAvatarSeating": "verified separately by game runtime QA; this file records art only"
+    "playableAvatarSeating": "verified separately by game runtime QA; this file records art only",
+    "walkingAisles": {
+      "date": "2026-10-02",
+      "scope": "isolated local demo, actual student keyboard and desk pointer input; not simultaneous 30-user Firebase or school-device performance",
+      "keyboardVerticalAisles": 9,
+      "keyboardHorizontalAisles": 2,
+      "deskClicksSitsAndLegalStandUps": 30,
+      "avatarRadius": 7,
+      "pathGrid": 12,
+      "movementSpeed": 225,
+      "allSeatApproachesAndExitsLegal": true,
+      "corridorDoorApproachAndArrivalLegal": true,
+      "nativeSourceAndStudentScreensDirectlyViewed": true,
+      "browserErrors": 0
+    }
   },
   "limitations": [
     "All screenshot originals are opaque and screenshot resolution. Source objects are used at native scale.",
@@ -382,6 +444,26 @@
       1513,
       470
     ],
-    "method": "Screen pixel hit area routes the avatar to the legal board approach before opening lessons; no new art is drawn."
+    "method": "Screen pixel hit area routes the avatar to the legal board approach before opening lessons; no new art is drawn.",
+    "corridorExit": {
+      "id": "corridor-exit",
+      "target": "playground",
+      "hitRect": [
+        2009,
+        94,
+        227,
+        166
+      ],
+      "legalApproach": [
+        2122,
+        298
+      ],
+      "classroomArrival": [
+        2122,
+        298
+      ],
+      "radius": 75,
+      "method": "Use the existing original green door artwork; route to the legal corridor-side approach and let the room controller handle the space transition."
+    }
   }
 }

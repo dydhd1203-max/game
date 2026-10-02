@@ -3,15 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>운동장 원본 확보 구간 시안</title>
+<title>운동장 원본 비교</title>
 <style>
 *{box-sizing:border-box}body{margin:0;color:#344936;background:#faf7ed;font:15px/1.5 "Malgun Gothic",sans-serif;height:100vh;display:flex;flex-direction:column}header{padding:12px 18px;border-bottom:1px solid #cab78d;display:flex;align-items:center;gap:18px;flex-wrap:wrap}h1{font-size:20px;line-height:1.35;margin:0}p{margin:3px 0;font-size:13px}nav{display:flex;gap:8px;margin-left:auto}button,a{font:inherit;color:#344936}button{border:1px solid #baa579;border-radius:8px;background:#fffced;padding:7px 12px;cursor:pointer}button:disabled{opacity:.55;cursor:wait}a{align-self:center}iframe{flex:1;width:100%;border:0;min-height:560px}#status{padding:5px 18px;font-size:13px;border-bottom:1px solid #dccfac}
 </style>
 </head>
 <body>
 <header>
-  <div><h1>운동장 · 원본 확보 구간 시안</h1><p>오른쪽 아래 트랙·흙 운동장 경계·울타리 캡처 대기 중. 일반 학생 화면에는 연결하지 않았습니다.</p></div>
-  <nav><button id="school" disabled>학교 앞</button><button id="soccer" disabled>축구장</button><a href="index.html">원본 보관함</a></nav>
+  <div><h1>운동장 · 원본 비교</h1><p>원본 7장으로 배치·축척·코트·트랙·울타리를 비교합니다. 보완에 쓴 전체 조망은 원래 50% 배율입니다.</p></div>
+  <nav><button id="school" disabled>학교 앞</button><button id="soccer" disabled>축구장</button><button id="track" disabled>트랙</button><button id="fence" disabled>울타리 길</button><a href="index.html">원본 보관함</a></nav>
 </header>
 <div id="status" role="status">원본 그림과 기존 아바타를 준비하고 있습니다.</div>
 <iframe id="frame" title="운동장 개발용 시안"></iframe>
@@ -27,20 +27,22 @@ function showView(name){
   if(!app?.QPPlaygroundScene||!student)return;
   world?.destroy();
   const original=app.QPPlaygroundScene.get();
-  const view=name==='soccer'?{x:2520,y:860,zoom:1.05}:{x:1840,y:740,zoom:1.05};
-  const source={get:()=>({...original,cameraHome:view,...(name==='soccer'?{spawn:{x:2520,y:1010}}:{})}),render:()=>app.QPPlaygroundScene.render()};
+  const view=original.previewViews.find(v=>v.id===(name==='school'?'school-front':name==='fence'?'south-fence':name));
+  const source={get:()=>({...original,cameraHome:view.camera,spawn:view.spawn}),render:()=>app.QPPlaygroundScene.render()};
   world=app.QPSchoolRoomWorld.mount(app.document.getElementById('previewRoot'),{
     scene:source,user:{uid:'preview-local',name:'미리보기',avatar:student},
     renderAvatar:(av,height,lod)=>app.avatarSVG(av,height||76,lod==null?3:lod),
     exitLabel:'원본 보관함',
-    onPortal:()=>{status.textContent='문 접근 동작을 확인했습니다. 교실 연결은 운동장 전체 검수 후 적용합니다.';},
+    onPortal:()=>{status.textContent='문까지 걸어간 뒤 교실 입장 동작을 확인했습니다.';},
     onExit:()=>{location.href='index.html';}
   });
   app.playgroundPreview=world;
-  world.setStatus({mode:'local',message:'원본 확보 구간 제작 시안'});
-  status.textContent='원본 확보 구간을 확인하는 개발용 시안입니다. 빠진 트랙과 맵 경계는 추가 자료가 필요합니다.';
+  world.setStatus({mode:'local',message:'격리된 원본 비교 화면'});
+  status.textContent='벤치는 원본 배경 그림입니다. 원하는 위치로 걸어가 C를 누르면 기본 자세로 앉습니다.';
   document.getElementById('school').setAttribute('aria-pressed',String(name!=='soccer'));
   document.getElementById('soccer').setAttribute('aria-pressed',String(name==='soccer'));
+  document.getElementById('track').setAttribute('aria-pressed',String(name==='track'));
+  document.getElementById('fence').setAttribute('aria-pressed',String(name==='fence'));
 }
 frame.addEventListener('load',async()=>{
   try{
@@ -49,21 +51,25 @@ frame.addEventListener('load',async()=>{
       &&app.QPShoes?.atlas.partsReady&&app.QPAvatarDirection?.atlas.ready&&app.QPAvatarDirection?.atlas.backReady);
     student=app.QPGame.newAvatar('f');
     app.QPGame.go('login');
-    // Reuse the real application's renderer and controller without connecting
-    // the unfinished space to student navigation or a real database.
+    // Reuse the real renderer and controller for an isolated art comparison
+    // without connecting this preview to a real database.
     app.document.body.classList.add('qp-campus');
     for(const stylesheet of app.document.body.querySelectorAll('link[rel="stylesheet"]'))app.document.head.append(stylesheet);
+    const modal=app.document.getElementById('modal');
+    modal?.classList.remove('on');
     const host=app.document.createElement('div');host.id='previewRoot';
     host.style.cssText='position:fixed;inset:0;height:100%;min-height:0';
-    app.document.body.replaceChildren(host);
+    app.document.body.replaceChildren(host,...(modal?[modal]:[]));
     const script=app.document.createElement('script');script.src='./playground-scene.js';
     await new Promise((resolve,reject)=>{script.onload=resolve;script.onerror=()=>reject(new Error('playground-scene.js가 없습니다.'));app.document.head.append(script);});
-    document.getElementById('school').disabled=false;document.getElementById('soccer').disabled=false;
+    for(const id of ['school','soccer','track','fence'])document.getElementById(id).disabled=false;
     showView('school');
   }catch(error){status.textContent=error.message;console.error(error);}
 });
 document.getElementById('school').addEventListener('click',()=>showView('school'));
 document.getElementById('soccer').addEventListener('click',()=>showView('soccer'));
+document.getElementById('track').addEventListener('click',()=>showView('track'));
+document.getElementById('fence').addEventListener('click',()=>showView('fence'));
 window.addEventListener('pagehide',()=>world?.destroy());
 </script>
 </body>

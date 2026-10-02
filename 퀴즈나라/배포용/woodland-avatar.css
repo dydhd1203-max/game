@@ -110,7 +110,7 @@ body .homewrap #meStage > svg.wood-avatar {
   left: 50%;
   bottom: var(--wood-figure-bottom);
   width: auto;
-  height: var(--wood-figure-height);
+  height: calc(var(--wood-figure-height) * var(--qpx-viewport-scale, 1));
   max-width: none;
   max-height: none;
   border: 0;

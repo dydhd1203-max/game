@@ -108,13 +108,19 @@
     { id: 'hall-noticeboard-top', x: 2077, y: 462, width: 791, height: 164 },
     { id: 'hall-noticeboard-bottom', x: 2077, y: 693, width: 791, height: 164 }
   ];
-  const deskXs = [109, 173, 301, 365, 494, 558, 686, 750, 878, 942];
-  const deskYs = [506, 602, 698];
+  // Keep the source's five desk pairs and native furniture size, but leave an
+  // actual walking aisle inside every pair, between pairs and between rows.
+  // The narrowest 27px aisle contains a legal 12px path-grid node for radius 7.
+  const deskXs = [99, 189, 299, 389, 499, 589, 699, 789, 899, 989];
+  const deskYs = [518, 630, 742];
   deskYs.forEach((top, row) => deskXs.forEach((left, col) => {
     const x = left + 860, id = 'seat-' + (row * 10 + col + 1), side = col % 2 === 0 ? -1 : 1;
     const sx = x + 31, sy = top + 73;
-    seats.push({ id, label: (row * 10 + col + 1) + '번 자리', x: sx, y: sy, sitX: sx, sitY: sy, sitDepth: top + 63, sitVisualYOffset: 0, approach: { x: sx + side * 43, y: sy }, exit: { x: sx + side * 43, y: sy }, rect: { x, y: top, width: 62, height: 90 }, row: row + 1, col: col + 1 });
+    const hitRect = { x, y: top, width: 62, height: 90 };
+    seats.push({ id, label: (row * 10 + col + 1) + '번 자리', x: sx, y: sy, sitX: sx, sitY: sy, sitDepth: top + 63, sitVisualYOffset: 0, approach: { x: sx + side * 43, y: sy }, exit: { x: sx + side * 43, y: sy }, rect: hitRect, hitRect, row: row + 1, col: col + 1 });
     solids.push({ id: id + '-desk', seatId: id, x, y: top, width: 62, height: 35 });
+    solids.push({ id: id + '-desk-left-leg', seatId: id, x: x + 5, y: top + 35, width: 9, height: 26 });
+    solids.push({ id: id + '-desk-right-leg', seatId: id, x: x + 49, y: top + 35, width: 10, height: 26 });
     solids.push({ id: id + '-chair', seatId: id, x: x + 15, y: top + 35, width: 34, height: 50 });
   }));
   function classroomFurniture() {
@@ -192,7 +198,7 @@
     interactables: [
       { id: 'class-board', type: 'board', x: 1513, y: 470, radius: 135, approach: { x: 1513, y: 470 }, hitRect: { x: 1157, y: 78, width: 522, height: 317 }, label: '칠판 · 수업과 퀴즈' },
       { id: 'group-space', type: 'group', x: 570, y: 570, radius: 95, label: '모둠 활동 공간' },
-      { id: 'corridor-exit', type: 'door', x: 2122, y: 298, radius: 75, label: '복도 문' }
+      { id: 'corridor-exit', type: 'door', target: 'playground', x: 2122, y: 298, radius: 75, approach: { x: 2122, y: 298 }, arrival: { x: 2122, y: 298 }, hitRect: { x: 2009, y: 94, width: 227, height: 166 }, label: '운동장으로 나가기' }
     ],
     areas: [{ id: 'groups', label: '모둠 활동 공간', x: 25, y: 185, width: 801, height: 745 }, { id: 'classroom', label: '우리 반 교실 · 30자리', x: 889, y: 317, width: 1088, height: 613 }, { id: 'corridor', label: '교실 복도', x: 1977, y: 253, width: 951, height: 677 }],
     sourceScale: 'native source pixels', sourcePolicy: 'visible screenshot components and texture tiling only; no invented artwork or screenshot UI',

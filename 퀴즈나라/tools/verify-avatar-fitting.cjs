@@ -13,7 +13,7 @@ const out=path.resolve(__dirname,'../검증'),base=process.env.QUIZ_PREVIEW_URL|
     await page.goto(new URL('?demo=1&session=fitting-'+Date.now(),base).href);
     await page.waitForFunction(()=>window.QPGame&&QPGame.getMe()&&QPAvatar.atlas.ready&&QPAvatarDirection.atlas.ready&&QPAvatarDirection.atlas.backReady&&QPClothes.atlas.ready&&QPShoes.atlas.ready&&QPShoes.atlas.partsReady&&QPShoes.atlas.partsCount===18);
     const report=await page.evaluate(async()=>{
-      QPGame.go('school');
+      QPGame.go('home');
       const catalog=QPGame.getCatalog(),cats=Object.fromEntries(catalog.CATS.map(c=>[c.k,c]));
       const clean={...QPGame.getMe().av,sex:'f',sk:0,hair:'bob:1',top:'hood:7',bottom:'skirt:7',shoes:'sneaker:8',expression:'bright:0',pet:'',effect:'',bg:'',frame:'',hat:'',glass:'',face:'',ear:'',neck:'',back:''};
       const skins=catalog.PAL.skin.length,make=(top,bottom,sex='f',sk=0)=>({...clean,top:top+':7',bottom:bottom+':4',sex,sk,hair:sex==='m'?'short:1':'bob:1'});
@@ -31,23 +31,23 @@ const out=path.resolve(__dirname,'../검증'),base=process.env.QUIZ_PREVIEW_URL|
         const css=document.createElementNS(NS,'style');css.textContent='*{animation:none!important}.qpx-blink-half,.qpx-blink-closed{opacity:0!important}';clone.insertBefore(css,clone.firstChild);
         const image=new Image();image.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(new XMLSerializer().serializeToString(clone));await image.decode();
         const canvas=document.createElement('canvas');canvas.width=image.naturalWidth;canvas.height=image.naturalHeight;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(image,0,0);
-        return{width:canvas.width,height:canvas.height,data:ctx.getImageData(0,0,canvas.width,canvas.height).data};
+        return{width:canvas.width,height:canvas.height,viewHeight:svg.viewBox.baseVal.height,data:ctx.getImageData(0,0,canvas.width,canvas.height).data};
       }
       const points=(image,box)=>{
-        const out=[];for(let y=Math.max(0,Math.floor(box[1]*image.height/56));y<Math.min(image.height,Math.ceil(box[3]*image.height/56));y++)for(let x=Math.max(0,Math.floor(box[0]*image.width/32));x<Math.min(image.width,Math.ceil(box[2]*image.width/32));x++)if(image.data[(y*image.width+x)*4+3]>100)out.push([x*32/image.width,y*56/image.height]);return out;
+        const out=[];for(let y=Math.max(0,Math.floor(box[1]*image.height/image.viewHeight));y<Math.min(image.height,Math.ceil(box[3]*image.height/image.viewHeight));y++)for(let x=Math.max(0,Math.floor(box[0]*image.width/32));x<Math.min(image.width,Math.ceil(box[2]*image.width/32));x++)if(image.data[(y*image.width+x)*4+3]>100)out.push([x*32/image.width,y*image.viewHeight/image.height]);return out;
       };
       function contact(a,b,box){
         const aa=points(a,box),bb=points(b,box);let nearest=2.0001,overlap=0;
-        const key=(x,y)=>Math.round(y*a.height/56)*a.width+Math.round(x*a.width/32);
+        const key=(x,y)=>Math.round(y*a.height/a.viewHeight)*a.width+Math.round(x*a.width/32);
         const bset=new Set(bb.map(([x,y])=>key(x,y)));
         for(const [x,y]of aa)if(bset.has(key(x,y)))overlap++;
         if(overlap)nearest=0;
         else{
           // Exact nearest pixel within two avatar units, using sorted pixel
           // rows. Larger gaps need only a lower bound to establish failure.
-          const rows=new Map();for(const [x,y]of bb){const yy=Math.round(y*a.height/56);if(!rows.has(yy))rows.set(yy,[]);rows.get(yy).push(x);}
-          for(const [x,y]of aa)for(let yy=Math.floor((y-nearest)*a.height/56);yy<=Math.ceil((y+nearest)*a.height/56);yy++){
-            const row=rows.get(yy);if(!row)continue;const dy=yy*56/a.height-y;if(Math.abs(dy)>=nearest)continue;
+          const rows=new Map();for(const [x,y]of bb){const yy=Math.round(y*a.height/a.viewHeight);if(!rows.has(yy))rows.set(yy,[]);rows.get(yy).push(x);}
+          for(const [x,y]of aa)for(let yy=Math.floor((y-nearest)*a.height/a.viewHeight);yy<=Math.ceil((y+nearest)*a.height/a.viewHeight);yy++){
+            const row=rows.get(yy);if(!row)continue;const dy=yy*a.viewHeight/a.height-y;if(Math.abs(dy)>=nearest)continue;
             let lo=0,hi=row.length;while(lo<hi){const mid=(lo+hi)>>1;if(row[mid]<x)lo=mid+1;else hi=mid;}
             for(const at of [lo-1,lo])if(at>=0&&at<row.length)nearest=Math.min(nearest,Math.hypot(row[at]-x,dy));
           }
@@ -67,7 +67,7 @@ const out=path.resolve(__dirname,'../검증'),base=process.env.QUIZ_PREVIEW_URL|
         }
       }
       async function evaluate(av,label,state){
-        host.innerHTML=QPAvatar.render(av,560,3);const svg=host.firstElementChild;tagSkin(svg);
+        host.innerHTML=QPAvatar.render(av,560,3);const svg=host.firstElementChild,viewHeight=svg.viewBox.baseVal.height;tagSkin(svg);
         if(state){QPAvatarPose.apply(svg,state);tagSkin(svg);}
         const [all,top,bottom,neck,arms,legs,shoes,head]=await Promise.all([
           pixels(svg),pixels(svg,'[data-qpx-clothes="top"]'),pixels(svg,'[data-qpx-clothes="bottom"]'),pixels(svg,'.qpx-skin-torso'),pixels(svg,'.qpx-arms,[data-qpx-gesture-arm] [data-qpx-arm-side]'),pixels(svg,'[data-fitting-skin="leg"]'),pixels(svg,'.qps-foot[data-qps-foot-side]'),pixels(svg,'.qpx-head')
@@ -75,34 +75,46 @@ const out=path.resolve(__dirname,'../검증'),base=process.env.QUIZ_PREVIEW_URL|
         const row={label,sex:av.sex,top:av.top,bottom:av.bottom,action:state?.action||'idle',direction:state?.direction||'front',seatMode:state?.seatMode||null,view:svg.dataset.qpxView||'front',phase:state?.phase,contacts:{
           // The squat moves the joints substantially; inspect their complete
           // rendered silhouettes rather than assuming idle screen positions.
-          collar:contact(top,neck,[0,0,32,56]),
-          leftSleeve:contact(top,arms,[0,0,16,56]),rightSleeve:contact(top,arms,[16,0,32,56]),
-          waist:contact(top,bottom,[10,0,22,56]),
-          leftAnkle:contact(legs,shoes,[0,0,16,56]),rightAnkle:contact(legs,shoes,[16,0,32,56]),
-          headNeck:contact(head,neck,[13,0,19,56])
+          collar:contact(top,neck,[0,0,32,viewHeight]),
+          leftSleeve:contact(top,arms,[0,0,16,viewHeight]),rightSleeve:contact(top,arms,[16,0,32,viewHeight]),
+          waist:contact(top,bottom,[10,0,22,viewHeight]),
+          leftAnkle:contact(legs,shoes,[0,0,16,viewHeight]),rightAnkle:contact(legs,shoes,[16,0,32,viewHeight]),
+          headNeck:contact(head,neck,[13,0,19,viewHeight])
         },sourceTop:QPClothes.inspect('top',av.top.split(':')[0]),sourceBottom:QPClothes.inspect('bottom',av.bottom.split(':')[0])};
+        if(svg.dataset.qpxView==='profile')for(const side of ['left','right']){
+          // A seated near/far pair can both occupy the same screen half.
+          // Isolate each wearer's sleeve and its own arm at full width.
+          const carrier='[data-qpx-gesture-arm="'+side+'"]',sleeve=carrier+' [data-qpx-wave-sleeve]';
+          const arm=await pixels(svg,carrier+' [data-qpx-arm-side="'+side+'"]');
+          const clothing=['tank','robe'].includes(av.top.split(':')[0])?top:await pixels(svg,sleeve);
+          row.contacts[side+'Sleeve']=contact(clothing,arm,[0,0,32,viewHeight]);
+        }
         if(av.top.startsWith('tank:')){
-          const body=points(neck,[0,0,32,56]),ys=body.map(p=>p[1]),y0=Math.min(...ys),y1=y0+(Math.max(...ys)-y0)*.38;
+          const body=points(neck,[0,0,32,viewHeight]),ys=body.map(p=>p[1]),y0=Math.min(...ys),y1=y0+(Math.max(...ys)-y0)*.38;
           const [leftArm,rightArm]=await Promise.all([pixels(svg,'.qpx-arm-left'),pixels(svg,'.qpx-arm-right')]);
-          row.contacts.leftShoulder=contact(neck,leftArm,[0,y0,16,y1]);
-          row.contacts.rightShoulder=contact(neck,rightArm,[16,y0,32,y1]);
+          // A mirrored profile places the wearer's right shoulder on the
+          // screen's left. Follow the painted arm instead of a screen half.
+          const profile=svg.dataset.qpxView==='profile';
+          row.contacts.leftShoulder=contact(neck,leftArm,[0,y0,profile?32:16,y1]);
+          row.contacts.rightShoulder=contact(neck,rightArm,[profile?0:16,y0,32,y1]);
         }
         const footImages=await Promise.all(['left','right'].map(side=>pixels(svg,'.qps-foot[data-qps-foot-side="'+side+'"]')));
         row.feet=footImages.map((image,index)=>({side:index?'right':'left',...connectedFoot(image)}));
         const longPants=['jeans','legging','track','cargo'].includes(av.bottom.split(':')[0]);
         for(const[index,image]of footImages.entries()){
           const side=index?'right':'left',leg=await pixels(svg,'.qpx-leg-'+side);
-          row.contacts[side+'NativeFootAnkle']=contact(leg,image,[0,0,32,56]);
-          if(longPants){const pant=await pixels(svg,'[data-qpx-clothes="bottom"]');row.contacts[side+'TrouserAnkle']=contact(pant,image,[0,0,32,56]);}
+          row.contacts[side+'NativeFootAnkle']=contact(leg,image,[0,0,32,viewHeight]);
+          if(longPants){const pant=await pixels(svg,'[data-qpx-clothes="bottom"]');row.contacts[side+'TrouserAnkle']=contact(pant,image,[0,0,32,viewHeight]);}
         }
         let painted=0;for(let i=3;i<all.data.length;i+=4)if(all.data[i]>100)painted++;row.paintedPixels=painted;
+        row.bottomEdgePainted=0;for(let x=0;x<all.width;x++)if(all.data[((all.height-1)*all.width+x)*4+3]>100)row.bottomEdgePainted++;
         if(state)QPAvatarPose.destroy(svg);return row;
       }
       const catalogFits=[];
       for(const [index,top]of Object.keys(cats.top.src).entries())catalogFits.push(await evaluate(make(top,index%2?'jeans':'skirt',index%2?'m':'f'),top));
       for(const [index,bottom]of Object.keys(cats.bottom.src).entries())catalogFits.push(await evaluate(make('shirt',bottom,index%2?'m':'f'),bottom));
       for(const shoes of QPShoes.names)catalogFits.push(await evaluate({...make('tank','jeans','m',skins-1),shoes:shoes+':8'},'신발 '+shoes));
-      const outfits=[['hood','pleat'],['shirt','jeans'],['sailor','star_skirt'],['knit','cargo'],['cardi','skirt'],['tank','shorts'],['dress','legging'],['robe','hanbok'],['overall','jeans'],['space','track'],['jacket','jean_skirt'],['vest','tutu']];
+      const outfits=[['hood','pleat'],['shirt','jeans'],['sailor','star_skirt'],['knit','cargo'],['cardi','skirt'],['tank','shorts'],['dress','legging'],['robe','hanbok'],['overall','jeans'],['space','track'],['jacket','jean_skirt'],['vest','tutu'],['hanbok','hanbok']];
       const states=[{action:'idle'},{action:'walk',phase:.25,grounded:true},{action:'walk',phase:.75,grounded:true},{action:'jump',vy:4,grounded:false},{action:'sit',grounded:true}];
       const poseFits=[];
       for(const [index,[top,bottom]]of outfits.entries())for(const state of states)poseFits.push(await evaluate(make(top,bottom,index%2?'m':'f',index===3?skins-1:0),top+'/'+bottom,state));
@@ -112,7 +124,7 @@ const out=path.resolve(__dirname,'../검증'),base=process.env.QUIZ_PREVIEW_URL|
       for(const [index,[top,bottom]]of outfits.entries())for(const state of [
         {action:'sit',seatMode:'desk',direction:'front',facing:'right',grounded:true},
         {action:'sit',seatMode:'desk',direction:'back',facing:'right',grounded:true},
-        {action:'floor-sit',seatMode:'floor',direction:'front',facing:'right',grounded:true}
+        ...['front','left','right','back'].map(direction=>({action:'floor-sit',seatMode:'floor',direction,facing:direction==='left'?'left':'right',grounded:true}))
       ])seatedFits.push(await evaluate(make(top,bottom,index%2?'m':'f',index===3?skins-1:0),top+'/'+bottom,state));
       for(const top of ['hood','tee'])for(const direction of ['left','right'])for(const state of [
         {action:'sit',seatMode:'desk',direction,facing:direction,grounded:true},
@@ -123,7 +135,7 @@ const out=path.resolve(__dirname,'../검증'),base=process.env.QUIZ_PREVIEW_URL|
       return{catalogFits,poseFits,seatedFits,skins,gallery:outfits.map(([top,bottom],index)=>({label:top+' · '+bottom,av:make(top,bottom,index%2?'m':'f',index===3?skins-1:0)}))};
     });
     fs.writeFileSync(path.join(out,'SD-착용연결-검증.json'),JSON.stringify(report,null,2));
-    await page.screenshot({path:path.join(out,'SD-12조합-착용연결.png'),fullPage:true});
+    await page.screenshot({path:path.join(out,'SD-'+report.gallery.length+'조합-착용연결.png'),fullPage:true});
     for(const state of [{action:'walk',phase:.25,grounded:true},{action:'walk',phase:.75,grounded:true},{action:'jump',vy:4,grounded:false},{action:'sit',grounded:true}]){
       await page.evaluate(({state,gallery})=>{
         document.body.innerHTML='<main style="padding:24px;color:#3c5040"><h1>실제 의상과 몸 연결 · '+state.action+(state.phase===undefined?'':' '+state.phase)+'</h1><section style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px">'+gallery.map(({label,av})=>'<article style="background:white;border:1px solid #cfdbc6;padding:8px;display:flex;align-items:center;flex-direction:column">'+QPAvatar.render(av,280,3)+'<p>'+label+'</p></article>').join('')+'</section></main>';
@@ -147,6 +159,7 @@ const out=path.resolve(__dirname,'../검증'),base=process.env.QUIZ_PREVIEW_URL|
       for(const foot of row.feet)if(foot.paintedPixels<150||foot.largestFraction<.985)failures.push({label:row.label,action:row.action,direction:row.direction,seatMode:row.seatMode,part:foot.side+'ShoeFragment',...foot});
       for(const side of ['left','right'])for(const suffix of ['NativeFootAnkle','TrouserAnkle']){const part=side+suffix;if(c[part]&&(c[part].gap===null||c[part].gap>.35))failures.push({label:row.label,action:row.action,direction:row.direction,seatMode:row.seatMode,part,...c[part]});}
       assert(row.paintedPixels>20000,'Actual clothed avatar must have substantial painted pixels');
+      assert.equal(row.bottomEdgePainted,0,'The complete dressed pose must fit above the SVG bottom edge: '+row.label+'/'+row.action+'/'+row.direction);
     }
     fs.writeFileSync(path.join(out,'SD-착용연결-실패.json'),JSON.stringify(failures,null,2));
     console.log(JSON.stringify({catalogCases:report.catalogFits.length,poseCases:report.poseFits.length,seatedCases:report.seatedFits.length,failures,errors},null,2));

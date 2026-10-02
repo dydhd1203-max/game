@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-02T01:52:57.166Z",
+  "builtAt": "2026-10-02T06:01:43.929Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -11,8 +11,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 308965,
-      "sha256": "3a1c9ae758108a018f9e3ec4818802589f030332c130882dc8d444523ca0bb5b"
+      "bytes": 311042,
+      "sha256": "b0e3b8369be486321d8f2685ddbb2220a1177e160ddea27e2536f7b78985c038"
     },
     {
       "path": "avatar-image.js",
@@ -26,8 +26,8 @@
     },
     {
       "path": "avatar-pixel.js",
-      "bytes": 64783,
-      "sha256": "60339555a9d5c515cc0c4c0b03011748c4906e25d4d017f9249a61d56311a314"
+      "bytes": 91294,
+      "sha256": "ebb39db4c346fc80b99ddb34def475fc0df5dc6b990cc2ed4fe8647965993163"
     },
     {
       "path": "avatar-clothes.js",
@@ -46,13 +46,13 @@
     },
     {
       "path": "avatar-shoes.js",
-      "bytes": 10132,
-      "sha256": "7ff24680ef218c405189856eb47402fcb1591a931cdde1997a9b3baae7e6fd20"
+      "bytes": 10637,
+      "sha256": "bdcff0c35c9dbe750922411475317a8dd3efccf35dc7a286824d90f376fb8372"
     },
     {
       "path": "qplay.css",
-      "bytes": 99428,
-      "sha256": "f2232c8682ad28f30379f9f8a8ba5dfb3432b455771174d06aa67c4dcae1ee9f"
+      "bytes": 101056,
+      "sha256": "9c5c3451c30fe190a84ccf0df95cfdd7db7fcc8d0ab9f033ad9b3fe4d64aa596"
     },
     {
       "path": "button-feedback.css",
@@ -96,8 +96,8 @@
     },
     {
       "path": "shop-village.css",
-      "bytes": 15217,
-      "sha256": "7850061405d4555f4e8dcc09beaa92300f07fc3d65373d9de50abb9bff65c6ff"
+      "bytes": 15254,
+      "sha256": "af0031d5b4fbd7a1b02c1842431b7238bcc91f5f6d284659eb7e0261ca7eab71"
     },
     {
       "path": "readability.css",
@@ -106,18 +106,23 @@
     },
     {
       "path": "school-room-scene.js",
-      "bytes": 15906,
-      "sha256": "971d1d9d45f08641741e534726f9346c0f514cddf2b2f247ebfb38c38f49822e"
+      "bytes": 16545,
+      "sha256": "111269d0603e7fc241eb68867344b977d41b0a1709d96eed8fb0f17ebbb248fc"
     },
     {
       "path": "school-room-world.js",
-      "bytes": 32597,
-      "sha256": "2b66beb16556d97eef893e77ad9ea95731c01be910397a95c062d27ffcb35148"
+      "bytes": 36202,
+      "sha256": "a0d240de534c020ac2dd2da30be4117fabae43479fe1627215a80af94e563d4f"
     },
     {
       "path": "school-room-world.css",
-      "bytes": 4672,
-      "sha256": "84c2889f16cd22fe2cc034e8cefa8ff6697d5b006b899a2d246e98cc1e739135"
+      "bytes": 4710,
+      "sha256": "7b4074433196c6abdb46e9ab2274c58e86eaff1afea9115cf2dd73dcdb4f53c5"
+    },
+    {
+      "path": "playground-scene.js",
+      "bytes": 14950,
+      "sha256": "71916329828d053d17c9caa6fbe7ff1d68c4b45d31fa5280c4c94830c7b7a302"
     },
     {
       "path": "village-presence.js",
@@ -140,6 +145,41 @@
       "sha256": "70f5744d42cc639d72e25c59869c499cc5284318b8ad03d7ac185fd9e2ccde3f"
     },
     {
+      "path": "assets/playground-library/originals/playground-ef89d10d0fd0dff5.png",
+      "bytes": 2461582,
+      "sha256": "ef89d10d0fd0dff5cbb6a3e50d132a69fd4cba278fddd742e8215cd238b14295"
+    },
+    {
+      "path": "assets/playground-library/originals/playground-dec2cc886f1575ad.png",
+      "bytes": 2421578,
+      "sha256": "dec2cc886f1575adb28e239b1b18cace5f902466adcf731490a859c7a9e602a0"
+    },
+    {
+      "path": "assets/playground-library/originals/playground-c010a0dc816a9cbf.png",
+      "bytes": 2351038,
+      "sha256": "c010a0dc816a9cbf5c9e79fa59029ad51038fdc5245ebd98dfd1528240690b56"
+    },
+    {
+      "path": "assets/playground-library/originals/playground-b2a51612a290eeea.png",
+      "bytes": 2453012,
+      "sha256": "b2a51612a290eeea07406eb8f64e3eb1fe10ec70ffb6fd0447219b2ac8451426"
+    },
+    {
+      "path": "assets/playground-library/originals/playground-664d4d7c187e5a6d.png",
+      "bytes": 2814698,
+      "sha256": "664d4d7c187e5a6d8d63ba67f3c0157695b87ac379e10376f7e20d65cadb68e1"
+    },
+    {
+      "path": "assets/playground-library/originals/playground-81e65dc5a2f422ef.png",
+      "bytes": 2141277,
+      "sha256": "81e65dc5a2f422efa2644a36c006dc05ccf31585d2dc32892d1b3cf1f5ee875c"
+    },
+    {
+      "path": "assets/playground-library/originals/playground-ccfc75db92f8db32.png",
+      "bytes": 3884747,
+      "sha256": "ccfc75db92f8db32899f64d0055ddeb01fc361c70d618d4328487401f306e78e"
+    },
+    {
       "path": "assets/forest-village-frame.png",
       "bytes": 1673167,
       "sha256": "b72a5b4381514a1fcd01bcb54acfe252bea33432839e0335dcf8857a8d597272"
@@ -156,8 +196,8 @@
     },
     {
       "path": "woodland-home.css",
-      "bytes": 11237,
-      "sha256": "06bf7a53006ff065877d5c708a7cff08319e15c66d43f1dfce5de1e1c0edb615"
+      "bytes": 11311,
+      "sha256": "dfa560472c5ca7264c92cb4fdce27e1e6ca9d0ed53be3cf5e8d1b2a418a655bf"
     },
     {
       "path": "assets/woodland-forest.svg",
@@ -181,8 +221,8 @@
     },
     {
       "path": "woodland-avatar.css",
-      "bytes": 7693,
-      "sha256": "eddc262308330776ead94365a6450e7fc3023dcd74568a033d53cc87f4bd520c"
+      "bytes": 7730,
+      "sha256": "a9d909a9907a72052c9843373e574a61669d3a766a3ec1573631029d9d016f19"
     },
     {
       "path": "assets/wood-stump.svg",
@@ -205,24 +245,34 @@
       "sha256": "12383c8c4009a6c701f2362997d57298592fa3fff07268dedf8ca1a359613636"
     },
     {
+      "path": "avatar-accessory-direction.js",
+      "bytes": 30565,
+      "sha256": "6a8aaffa7888177ef3d52405f50a89c08ff01f6580f72d34fa19dabc2048eb0d"
+    },
+    {
+      "path": "avatar-shoes-profile.js",
+      "bytes": 22204,
+      "sha256": "9c239f777b406de7e5139d8c62462d187f58fbb43304f9ab9d836c6960c24f8f"
+    },
+    {
       "path": "avatar-direction.js",
-      "bytes": 25436,
-      "sha256": "c0fd7c37457927f8d97e894298426b10094879bce301e61460c7281885e47697"
+      "bytes": 32930,
+      "sha256": "82bac1979d70216e695f25e06929a70a0dba1067558f0d0dcaa6a384f0dcba99"
     },
     {
       "path": "avatar-poses.js",
-      "bytes": 32485,
-      "sha256": "9b1a3efddb9d252c93c1e6c2cff784c150f46c7661cd75d03f582002fd9db562"
+      "bytes": 37849,
+      "sha256": "76e157db0aa556062874ac025487ae999c8c5c98661f5e6ccc6c72787cbbadca"
     },
     {
       "path": "avatar-motion.js",
-      "bytes": 12392,
-      "sha256": "eb2c6aeb071c3473139dae5ed3f2db9c831aedaa45e8d8a4dbba7aa04d09b30a"
+      "bytes": 12405,
+      "sha256": "8f125930424789a906b167901638a7413315b5caa5ab4f67211ea4dde69e6126"
     },
     {
       "path": "avatar-motion.css",
-      "bytes": 7426,
-      "sha256": "46ef33f4b02dc906a81921772367072653a16fac0b4026d68cc03406c1cb5885"
+      "bytes": 7533,
+      "sha256": "fb2b627854440c60db2785dd66f3c0c85bf852683985ad0f536256e1d4f7cb81"
     },
     {
       "path": "assets/sd-heads-profile-female.png",
@@ -286,8 +336,8 @@
     },
     {
       "path": "quiz-map.css",
-      "bytes": 10603,
-      "sha256": "8225d2ac966c9ae0db246328138f1c7bcc99a3e0c18b4d7550ce19e9d20f61e5"
+      "bytes": 10713,
+      "sha256": "0035cf9a0c8892a9d9b0bf952f7644488ce7f001905cf301484444a7f68fa429"
     },
     {
       "path": "map-painted-props.js",
@@ -331,8 +381,8 @@
     },
     {
       "path": "round-scene.css",
-      "bytes": 7208,
-      "sha256": "ba6fbd47bef8ecb5c3b82723e3043ad63ed06f2dbad5e019e811641ea4cb9737"
+      "bytes": 7343,
+      "sha256": "56743bec1e16f2f43460544f5f20ccfa45eabdb715371f09d4827c272f839fd6"
     },
     {
       "path": "assets/round-picnic.svg",

@@ -1,167 +1,789 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "date": "2026-10-02",
   "runtime": "playground-scene.js",
-  "status": "draft-missing-southeast-source",
-  "publicEntryReady": false,
-  "method": "Native user PNG source regions registered as building, terrace, original sports-line and landscape components. No terrain, court chalk, road or track artwork newly drawn. Source screenshot UI and players are excluded through clean original components.",
+  "status": "source-complete",
+  "publicEntryReady": true,
+  "method": "Only user original pixels displayed/cropped/masked as building, terrace, sports-line, soil, track, garden, fence and grass-material components. No new terrain, chalk, road, fence or reflected track illustration.",
   "world": {
-    "width": 3246,
-    "height": 1896,
-    "normalizationShift": [
-      603,
-      155
-    ]
+    "width": 3714,
+    "height": 1808,
+    "coordinateRebase": {
+      "x": 269,
+      "y": -244
+    },
+    "referenceTransform": "Overview source pixel=(worldX/2,worldY/2). Previous normalized world transforms to final world by x+269,y-244."
   },
+  "archives": [
+    {
+      "originalName": "운동장.zip",
+      "path": "../source.zip",
+      "sha256": "3b474467dabf147ddaa29d1ec3a13d4d296d19dcc4d0cd7c98fbcb0eaf6e28f6",
+      "byteLength": 12505319,
+      "regularImageFiles": 5
+    },
+    {
+      "originalName": "운동장추가.zip",
+      "path": "../supplemental-source.zip",
+      "sha256": "21ad9d1ad56fda8841c14c592c97e53883c7ef17cda7c03959f2f0594bb6f44b",
+      "byteLength": 6028138,
+      "regularImageFiles": 2
+    }
+  ],
   "sources": [
     {
+      "key": "north",
       "name": "운동장1.png",
       "path": "../originals/playground-ef89d10d0fd0dff5.png",
-      "offsetRelativeReference": [
-        0,
-        0
-      ],
-      "offsetNormalized": [
-        603,
-        155
-      ],
+      "sha256": "ef89d10d0fd0dff5cbb6a3e50d132a69fd4cba278fddd742e8215cd238b14295",
+      "byteLength": 2461582,
       "size": [
         1637,
         798
       ],
-      "boundsRelativeReference": [
-        0,
-        0,
-        1637,
-        798
-      ]
+      "offsetWorld": [
+        872,
+        -89
+      ],
+      "displayScale": 1,
+      "captureZoom": 1,
+      "previousNormalizedOrigin": [
+        603,
+        155
+      ],
+      "transparent": false
     },
     {
+      "key": "gym",
       "name": "운동장2.png",
       "path": "../originals/playground-dec2cc886f1575ad.png",
-      "offsetRelativeReference": [
-        807,
-        -155
-      ],
-      "offsetNormalized": [
-        1410,
-        0
-      ],
+      "sha256": "dec2cc886f1575adb28e239b1b18cace5f902466adcf731490a859c7a9e602a0",
+      "byteLength": 2421578,
       "size": [
         1672,
         798
       ],
-      "boundsRelativeReference": [
-        807,
-        -155,
-        2479,
-        643
-      ]
+      "offsetWorld": [
+        1679,
+        -244
+      ],
+      "displayScale": 1,
+      "captureZoom": 1,
+      "previousNormalizedOrigin": [
+        1410,
+        0
+      ],
+      "transparent": false
     },
     {
+      "key": "court",
       "name": "운동장3.png",
       "path": "../originals/playground-c010a0dc816a9cbf.png",
-      "offsetRelativeReference": [
-        1005,
-        295
-      ],
-      "offsetNormalized": [
-        1608,
-        450
-      ],
+      "sha256": "c010a0dc816a9cbf5c9e79fa59029ad51038fdc5245ebd98dfd1528240690b56",
+      "byteLength": 2351038,
       "size": [
         1638,
         791
       ],
-      "boundsRelativeReference": [
-        1005,
-        295,
-        2643,
-        1086
-      ]
+      "offsetWorld": [
+        1877,
+        206
+      ],
+      "displayScale": 1,
+      "captureZoom": 1,
+      "previousNormalizedOrigin": [
+        1608,
+        450
+      ],
+      "transparent": false
     },
     {
+      "key": "terrace",
       "name": "운동장4.png",
       "path": "../originals/playground-b2a51612a290eeea.png",
-      "offsetRelativeReference": [
-        -55,
-        486
-      ],
-      "offsetNormalized": [
-        548,
-        641
-      ],
+      "sha256": "b2a51612a290eeea07406eb8f64e3eb1fe10ec70ffb6fd0447219b2ac8451426",
+      "byteLength": 2453012,
       "size": [
         1668,
         787
       ],
-      "boundsRelativeReference": [
-        -55,
-        486,
-        1613,
-        1273
-      ]
+      "offsetWorld": [
+        817,
+        397
+      ],
+      "displayScale": 1,
+      "captureZoom": 1,
+      "previousNormalizedOrigin": [
+        548,
+        641
+      ],
+      "transparent": false
     },
     {
+      "key": "west",
       "name": "운동장5.png",
       "path": "../originals/playground-664d4d7c187e5a6d.png",
-      "offsetRelativeReference": [
-        -603,
-        836
-      ],
-      "offsetNormalized": [
-        0,
-        991
-      ],
+      "sha256": "664d4d7c187e5a6d8d63ba67f3c0157695b87ac379e10376f7e20d65cadb68e1",
+      "byteLength": 2814698,
       "size": [
         1634,
         905
       ],
-      "boundsRelativeReference": [
-        -603,
-        836,
-        1031,
-        1741
-      ]
+      "offsetWorld": [
+        269,
+        747
+      ],
+      "displayScale": 1,
+      "captureZoom": 1,
+      "previousNormalizedOrigin": [
+        0,
+        991
+      ],
+      "transparent": false
+    },
+    {
+      "key": "south",
+      "name": "1.png",
+      "path": "../originals/playground-81e65dc5a2f422ef.png",
+      "sha256": "81e65dc5a2f422efa2644a36c006dc05ccf31585d2dc32892d1b3cf1f5ee875c",
+      "byteLength": 2141277,
+      "size": [
+        1623,
+        768
+      ],
+      "offsetWorld": [
+        1847,
+        500
+      ],
+      "displayScale": 1,
+      "captureZoom": 1,
+      "previousNormalizedOrigin": [
+        1578,
+        744
+      ],
+      "transparent": false
+    },
+    {
+      "key": "overview",
+      "name": "2.png",
+      "path": "../originals/playground-ccfc75db92f8db32.png",
+      "sha256": "ccfc75db92f8db32899f64d0055ddeb01fc361c70d618d4328487401f306e78e",
+      "byteLength": 3884747,
+      "size": [
+        1857,
+        904
+      ],
+      "offsetWorld": [
+        0,
+        0
+      ],
+      "displayScale": 2,
+      "captureZoom": 0.5,
+      "previousNormalizedOrigin": [
+        -269,
+        244
+      ],
+      "transparent": false
     }
   ],
-  "registrationVerification": {
-    "nativeScale": true,
-    "strongestExactRGBOverlap": "source1–source3 overlap 632×503, 100% RGB-identical",
-    "otherOverlap": "97.8–99.8% RGB-identical except source UI and players",
-    "registrationReport": "../../../검증/운동장-원본등록-2026-10-02/원본-범위-등록.html"
-  },
-  "preparedAreas": [
-    "main orange-roof school frontage",
-    "gym frontage",
-    "original long stairs and benches",
-    "right soccer court with original field lines",
-    "left and right flowerbeds and perimeter fence"
-  ],
-  "missingSource": {
-    "request": "A screenshot showing the track lower-right curve, lower soil-field boundary and external fence together.",
-    "bounds": [
-      {
-        "x": 1634,
-        "y": 1428,
-        "width": 1612,
-        "height": 468
+  "registrationEvidence": {
+    "source6": {
+      "file": "../originals/playground-81e65dc5a2f422ef.png",
+      "dimensions": [
+        1623,
+        768
+      ],
+      "scale": 1,
+      "offset": [
+        1578,
+        744
+      ],
+      "bounds": [
+        1578,
+        744,
+        3201,
+        1512
+      ],
+      "checks": [
+        {
+          "existing": "north",
+          "source6OffsetRelativeExisting": [
+            975,
+            589
+          ],
+          "overlap": [
+            662,
+            209
+          ],
+          "exactRGBFraction": 0.999805,
+          "within2RGBFraction": 1,
+          "meanAbsoluteRGBError": 0.000111
+        },
+        {
+          "existing": "gym",
+          "source6OffsetRelativeExisting": [
+            168,
+            744
+          ],
+          "overlap": [
+            1504,
+            54
+          ],
+          "exactRGBFraction": 0.988057,
+          "within2RGBFraction": 0.997193,
+          "meanAbsoluteRGBError": 0.017456
+        },
+        {
+          "existing": "court",
+          "source6OffsetRelativeExisting": [
+            -30,
+            294
+          ],
+          "overlap": [
+            1593,
+            497
+          ],
+          "exactRGBFraction": 0.97115,
+          "within2RGBFraction": 0.971302,
+          "meanAbsoluteRGBError": 1.034894
+        },
+        {
+          "existing": "terrace",
+          "source6OffsetRelativeExisting": [
+            1030,
+            103
+          ],
+          "overlap": [
+            638,
+            684
+          ],
+          "exactRGBFraction": 0.815414,
+          "within2RGBFraction": 0.816147,
+          "meanAbsoluteRGBError": 2.25284
+        },
+        {
+          "existing": "west",
+          "source6OffsetRelativeExisting": [
+            1578,
+            -247
+          ],
+          "overlap": [
+            56,
+            521
+          ],
+          "exactRGBFraction": 0.394331,
+          "within2RGBFraction": 0.403345,
+          "meanAbsoluteRGBError": 4.731252
+        }
+      ],
+      "cleanFeatures": [
+        "complete original court central ellipse and midline",
+        "right/bottom orange track and dirt field",
+        "east fence portions"
+      ],
+      "UIRegionsApproximate": {
+        "floatingImageToolbar": [
+          176,
+          440,
+          139,
+          40
+        ],
+        "avatarAndName": [
+          885,
+          389,
+          66,
+          85
+        ]
       },
-      {
-        "x": 2216,
-        "y": 1241,
-        "width": 1030,
-        "height": 187
-      }
-    ],
-    "policy": "Do not infer, paint, reflect or invent the missing global track. Areas are not accessible and the draft is not linked to ordinary student navigation."
+      "UIReplacement": "Toolbar lies within existing terrace original coverage; avatar/name lie within existing court original coverage. Use exact same world position source pixels."
+    },
+    "overview": {
+      "file": "../originals/playground-ccfc75db92f8db32.png",
+      "dimensions": [
+        1857,
+        904
+      ],
+      "scale": 2,
+      "offset": [
+        -269,
+        244
+      ],
+      "transform": "worldX=2*sourceX-269; worldY=2*sourceY+244",
+      "bounds": [
+        -269,
+        244,
+        3445,
+        2052
+      ],
+      "independentChecks": {
+        "northRelative": [
+          -872,
+          89
+        ],
+        "courtRelative": [
+          -1877,
+          -206
+        ],
+        "terraceRelative": [
+          -817,
+          -397
+        ],
+        "westRelative": [
+          -269,
+          -747
+        ]
+      },
+      "limitations": "50-percent screenshot contains UI and exterior source avatars; 2x has less detail than native source images. Same geometric alignment verified on all four native views."
+    }
   },
-  "cleanComponentReuse": [
+  "components": [
     {
-      "id": "main-entry-source-avatar",
-      "method": "same-world original overlap",
-      "cleanSource": "운동장2.png",
-      "targetWorldRect": [
+      "id": "overview-west-school-wing",
+      "source": "overview",
+      "sourceRect": [
+        0,
+        0,
+        855,
+        480
+      ],
+      "worldRect": [
+        0,
+        0,
+        1710,
+        960
+      ],
+      "displayScale": 2
+    },
+    {
+      "id": "overview-east-school-perimeter",
+      "source": "overview",
+      "sourceRect": [
+        855,
+        0,
+        1002,
+        355
+      ],
+      "worldRect": [
+        1710,
+        0,
+        2004,
+        710
+      ],
+      "displayScale": 2
+    },
+    {
+      "id": "overview-west-sidewalk-garden",
+      "source": "overview",
+      "sourceRect": [
+        0,
+        480,
+        760,
+        325
+      ],
+      "worldRect": [
+        0,
+        960,
+        1520,
+        650
+      ],
+      "displayScale": 2
+    },
+    {
+      "id": "overview-lawn-track-south-perimeter",
+      "source": "overview",
+      "sourceRect": [
+        760,
+        355,
+        1097,
+        549
+      ],
+      "worldRect": [
+        1520,
+        710,
+        2194,
+        1098
+      ],
+      "displayScale": 2
+    },
+    {
+      "id": "main-school-roofs",
+      "source": "north",
+      "sourceRect": [
+        0,
+        0,
+        1637,
+        420
+      ],
+      "worldRect": [
+        872,
+        -89,
+        1637,
+        420
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "main-school-front-facades",
+      "source": "north",
+      "sourceRect": [
+        0,
+        420,
+        1200,
+        378
+      ],
+      "worldRect": [
+        872,
+        331,
+        1200,
+        378
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "north-entry-terrace",
+      "source": "north",
+      "sourceRect": [
+        1200,
+        420,
+        437,
+        378
+      ],
+      "worldRect": [
+        2072,
+        331,
+        437,
+        378
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "gym-building-and-front",
+      "source": "gym",
+      "sourceRect": [
+        0,
+        0,
+        1074,
+        630
+      ],
+      "worldRect": [
+        1679,
+        -244,
+        1074,
+        630
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "east-perimeter-garden",
+      "source": "gym",
+      "sourceRect": [
+        1074,
+        0,
+        598,
+        630
+      ],
+      "worldRect": [
+        2753,
+        -244,
+        598,
+        630
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "gym-native-stair-terrace",
+      "source": "gym",
+      "sourceRect": [
+        0,
+        630,
+        1672,
+        168
+      ],
+      "worldRect": [
+        1679,
+        386,
+        1672,
+        168
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "native-front-steps",
+      "source": "court",
+      "sourceRect": [
+        0,
+        0,
+        848,
+        467
+      ],
+      "worldRect": [
+        1877,
+        206,
+        848,
+        467
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "soccer-original-court",
+      "source": "court",
+      "sourceRect": [
+        628,
+        280,
+        710,
+        461
+      ],
+      "worldRect": [
+        2505,
+        486,
+        710,
+        461
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "east-flowerbed-and-fence",
+      "source": "court",
+      "sourceRect": [
+        848,
+        0,
+        790,
+        791
+      ],
+      "worldRect": [
+        2725,
+        206,
+        790,
+        791
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "stadium-upper-grass",
+      "source": "court",
+      "sourceRect": [
+        0,
+        467,
+        848,
+        324
+      ],
+      "worldRect": [
+        1877,
+        673,
+        848,
+        324
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "south-main-front-and-entry",
+      "source": "terrace",
+      "sourceRect": [
+        0,
+        0,
+        1250,
+        366
+      ],
+      "worldRect": [
+        817,
+        397,
+        1250,
+        366
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "long-front-steps-and-benches",
+      "source": "terrace",
+      "sourceRect": [
+        0,
+        366,
+        1100,
+        421
+      ],
+      "worldRect": [
+        817,
+        763,
+        1100,
+        421
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "original-visible-track-and-soil",
+      "source": "terrace",
+      "sourceRect": [
+        710,
+        270,
+        958,
+        517
+      ],
+      "worldRect": [
+        1527,
+        667,
+        958,
+        517
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "west-auditorium-and-terrace",
+      "source": "west",
+      "sourceRect": [
+        0,
+        0,
+        850,
+        375
+      ],
+      "worldRect": [
+        269,
+        747,
+        850,
+        375
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "west-visible-track-edge",
+      "source": "west",
+      "sourceRect": [
+        850,
+        0,
+        784,
+        540
+      ],
+      "worldRect": [
+        1119,
+        747,
+        784,
+        540
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "west-native-flowerbed",
+      "source": "west",
+      "sourceRect": [
+        0,
+        375,
+        1634,
+        428
+      ],
+      "worldRect": [
+        269,
+        1122,
+        1634,
+        428
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "west-fence-exterior-lawn",
+      "source": "west",
+      "sourceRect": [
+        0,
+        803,
+        1634,
+        102
+      ],
+      "worldRect": [
+        269,
+        1550,
+        1634,
+        102
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "south-native-court-track-top",
+      "source": "south",
+      "sourceRect": [
+        324,
+        0,
+        1299,
+        390
+      ],
+      "worldRect": [
+        2171,
+        500,
+        1299,
+        390
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "south-native-infield-curve-bottom",
+      "source": "south",
+      "sourceRect": [
+        324,
+        390,
+        726,
+        378
+      ],
+      "worldRect": [
+        2171,
+        890,
+        726,
+        378
+      ],
+      "displayScale": 1
+    },
+    {
+      "id": "south-native-fence-and-exterior-lawn",
+      "source": "south",
+      "sourceRect": [
+        1050,
+        390,
+        573,
+        378
+      ],
+      "worldRect": [
+        2897,
+        890,
+        573,
+        378
+      ],
+      "displayScale": 1
+    }
+  ],
+  "nativeArtBoundary": {
+    "method": "Source clipping around the original campus perimeter; exterior native grass regions are excluded to avoid mismatched screenshot rectangles.",
+    "overviewPixelOutline": [
+      [
+        0,
+        0
+      ],
+      [
+        1857,
+        0
+      ],
+      [
+        1857,
+        344
+      ],
+      [
+        842,
+        850
+      ],
+      [
+        277,
+        559
+      ],
+      [
+        194,
+        602
+      ],
+      [
+        0,
+        492
+      ]
+    ]
+  },
+  "overlayCleanup": [
+    {
+      "id": "main-teacher",
+      "method": "clean same world gym capture",
+      "previousWorldRect": [
         1504,
         550,
         82,
@@ -169,10 +791,9 @@
       ]
     },
     {
-      "id": "terrace-source-avatar",
-      "method": "same-world original overlap",
-      "cleanSource": "운동장5.png",
-      "targetWorldRect": [
+      "id": "terrace-teacher",
+      "method": "clean same world west capture",
+      "previousWorldRect": [
         1428,
         1033,
         86,
@@ -180,10 +801,9 @@
       ]
     },
     {
-      "id": "west-source-label",
-      "method": "same-world original overlap",
-      "cleanSource": "운동장4.png",
-      "targetWorldRect": [
+      "id": "west-tree-label",
+      "method": "clean same world terrace capture",
+      "previousWorldRect": [
         897,
         1380,
         93,
@@ -191,144 +811,902 @@
       ]
     },
     {
-      "id": "gym-name-window",
-      "source": "운동장2.png",
-      "method": "corresponding unoccluded repeated window fragment and clean original wall-material pixels, not recovered hidden pixels",
-      "windowRegion": [
-        897,
-        330,
-        26,
-        28
+      "id": "gym-covered-window",
+      "source": "overview",
+      "sourceRect": [
+        1285,
+        74,
+        50,
+        50
       ],
-      "wallMaterialRegion": [
-        924,
-        382,
-        12,
-        6
+      "method": "Actual same-world clean window/wall at documented50% source; replaces prior neighboring material patch."
+    },
+    {
+      "id": "west-covered-foliage",
+      "source": "overview",
+      "sourceRect": [
+        592,
+        592,
+        14,
+        24
+      ],
+      "method": "Actual same-world clean foliage at documented50% source; replaces prior neighboring branch reuse."
+    },
+    {
+      "id": "south-teacher",
+      "method": "clean same-world court capture",
+      "previousWorldRect": [
+        2460,
+        1130,
+        75,
+        92
       ]
     },
     {
-      "id": "soccer-name-arc",
-      "source": "운동장3.png",
-      "sourceRegion": [
-        923,
-        468,
-        101,
-        31
+      "id": "south-capture-left-strip-exclusion",
+      "source": "south",
+      "excludedSourceRect": [
+        0,
+        0,
+        324,
+        768
       ],
-      "targetNative": [
-        915,
-        394
-      ],
-      "method": "Clean lower arc pixels from the same original circle are outlined and rotated180° about969.5,446.5; only the actual arc strip is visible, no entire rectangle imported."
+      "method": "Exclude screenshot color-shifted left strip, toolbar and pointer from selected native components. Clean older same-world terrace/west captures and exact2x overview remain below; no invented pixels or hidden UI content."
+    }
+  ],
+  "overviewUIExclusions": [
+    [
+      842,
+      10,
+      142,
+      43
+    ],
+    [
+      1648,
+      0,
+      209,
+      56
+    ],
+    [
+      1677,
+      60,
+      180,
+      140
+    ],
+    [
+      1368,
+      421,
+      73,
+      59
+    ],
+    [
+      18,
+      805,
+      320,
+      90
+    ],
+    [
+      803,
+      846,
+      218,
+      50
+    ],
+    [
+      1770,
+      845,
+      87,
+      59
+    ]
+  ],
+  "exteriorGrassCleanup": {
+    "scope": "Only service UI covers outside the walkable original campus fence.",
+    "method": "Clean provided original grass material is tiled/scaled with25world-pixel edge opacity masks. These are source-pixel material replacements, not recovered hidden pixels.",
+    "sourceSamples": [
+      {
+        "source": "overview",
+        "sourceRect": [
+          1600,
+          15,
+          40,
+          105
+        ],
+        "textureDisplayStretch": [
+          6,
+          2
+        ]
+      },
+      {
+        "source": "overview",
+        "sourceRect": [
+          345,
+          805,
+          360,
+          99
+        ]
+      },
+      {
+        "source": "overview",
+        "sourceRect": [
+          1040,
+          805,
+          150,
+          99
+        ]
+      },
+      {
+        "source": "overview",
+        "sourceRect": [
+          1620,
+          805,
+          130,
+          99
+        ]
+      }
+    ]
+  },
+  "resolvedPreviousLimits": {
+    "court": "The supplemental native source contains complete clean ellipse and midline; previous reflected arc and copied line segments removed.",
+    "track": "Complete original orange track and dirt infield connected from clean native source components and a documented exact2x same-world overview region. Color-shifted supplemental left strip excluded; no reflection or new line drawing.",
+    "gym": "Clean actual overview pixels replace the visibly repeated wall tile patch."
+  },
+  "nativeResolutionLimits": [
+    {
+      "description": "Small lower sports lawn wedge",
+      "previousWorldRegion": {
+        "x": 1635,
+        "y": 1512,
+        "width": 314,
+        "height": 142
+      },
+      "source": "overview",
+      "displayScale": 2
     },
     {
-      "id": "soccer-avatar-line",
-      "source": "운동장3.png",
-      "cleanGrassRegion": [
-        1092,
-        420,
-        45,
-        60
-      ],
-      "lineEquation": "x+2y=1856.5",
-      "cleanLineRegion": [
-        1040,
-        388,
-        38,
-        31
-      ],
-      "translation": [
-        -108,
-        54
-      ],
-      "method": "Original chalk pixels outline-clipped and translated along their actual line. Clipping polygons are masks, not painted court lines."
+      "description": "Southeast perimeter sidewalk/fence",
+      "previousWorldRegion": {
+        "x": 1650,
+        "y": 1564,
+        "width": 680,
+        "height": 240
+      },
+      "source": "overview",
+      "displayScale": 2
     },
     {
-      "id": "west-occluded-player",
-      "source": "운동장5.png",
-      "sourceRegion": [
-        1071,
-        496,
-        27,
-        48
-      ],
-      "targetWorld": [
-        915,
-        1428
-      ],
-      "method": "Explicit clean neighboring foliage-component replacement; no claim that unseen original tree pixels were recovered."
+      "description": "Covered gym window and west foliage, uncaptured blue auditorium roof parts",
+      "source": "overview",
+      "displayScale": 2
+    },
+    {
+      "description": "Small lower track/infield segment after excluding the supplemental native capture color band",
+      "previousWorldRegion": {
+        "x": 1634,
+        "y": 1428,
+        "width": 268,
+        "height": 84
+      },
+      "source": "overview",
+      "displayScale": 2
+    }
+  ],
+  "missingSourceBounds": [],
+  "seats": [],
+  "walkAreas": [
+    {
+      "id": "inside-campus-fence",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          2686,
+          0
+        ],
+        [
+          3626,
+          486
+        ],
+        [
+          3626,
+          622
+        ],
+        [
+          1676,
+          1628
+        ],
+        [
+          556,
+          1060
+        ],
+        [
+          404,
+          1146
+        ],
+        [
+          0,
+          914
+        ]
+      ]
+    }
+  ],
+  "solids": [
+    {
+      "id": "main-building",
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          1808,
+          0
+        ],
+        [
+          1808,
+          380
+        ],
+        [
+          1582,
+          528
+        ],
+        [
+          1416,
+          624
+        ],
+        [
+          1332,
+          582
+        ],
+        [
+          1082,
+          684
+        ],
+        [
+          838,
+          792
+        ],
+        [
+          824,
+          564
+        ],
+        [
+          218,
+          320
+        ],
+        [
+          218,
+          224
+        ],
+        [
+          0,
+          348
+        ]
+      ]
+    },
+    {
+      "id": "gym-building",
+      "points": [
+        [
+          1806,
+          0
+        ],
+        [
+          2696,
+          0
+        ],
+        [
+          2696,
+          166
+        ],
+        [
+          2570,
+          240
+        ],
+        [
+          2570,
+          340
+        ],
+        [
+          2288,
+          448
+        ],
+        [
+          2270,
+          368
+        ],
+        [
+          2072,
+          468
+        ],
+        [
+          1808,
+          342
+        ]
+      ]
+    },
+    {
+      "id": "auditorium-building",
+      "points": [
+        [
+          0,
+          348
+        ],
+        [
+          212,
+          362
+        ],
+        [
+          824,
+          656
+        ],
+        [
+          788,
+          768
+        ],
+        [
+          424,
+          976
+        ],
+        [
+          0,
+          736
+        ]
+      ]
+    },
+    {
+      "id": "west-flowerbed",
+      "points": [
+        [
+          812,
+          1118
+        ],
+        [
+          934,
+          1054
+        ],
+        [
+          1814,
+          1472
+        ],
+        [
+          1672,
+          1546
+        ]
+      ]
+    },
+    {
+      "id": "east-flowerbed",
+      "points": [
+        [
+          2724,
+          332
+        ],
+        [
+          2856,
+          212
+        ],
+        [
+          3572,
+          582
+        ],
+        [
+          3434,
+          694
+        ]
+      ]
+    }
+  ],
+  "interactables": [
+    {
+      "id": "school-main-door",
+      "type": "portal",
+      "target": "campus",
+      "x": 1559,
+      "y": 676,
+      "radius": 75,
+      "approach": {
+        "x": 1559,
+        "y": 676
+      },
+      "hitRect": {
+        "x": 1462,
+        "y": 489,
+        "width": 100,
+        "height": 128
+      },
+      "label": "교실로 들어가기"
     }
   ],
   "previewViews": [
     {
       "id": "school-front",
-      "camera": {
-        "x": 1840,
-        "y": 740,
-        "zoom": 1.05
-      },
+      "label": "학교 앞과 계단",
       "spawn": {
-        "x": 1690,
-        "y": 900
+        "x": 1559,
+        "y": 676
+      },
+      "camera": {
+        "x": 1750,
+        "y": 770,
+        "zoom": 0.92
       }
     },
     {
       "id": "soccer",
-      "camera": {
-        "x": 2520,
-        "y": 860,
-        "zoom": 1.05
-      },
+      "label": "축구장",
       "spawn": {
-        "x": 2490,
-        "y": 960
+        "x": 2789,
+        "y": 796
+      },
+      "camera": {
+        "x": 2789,
+        "y": 750,
+        "zoom": 1.05
+      }
+    },
+    {
+      "id": "track",
+      "label": "운동장과 트랙",
+      "spawn": {
+        "x": 2119,
+        "y": 986
+      },
+      "camera": {
+        "x": 2119,
+        "y": 1000,
+        "zoom": 0.92
+      }
+    },
+    {
+      "id": "south-fence",
+      "label": "아래 울타리 길",
+      "spawn": {
+        "x": 2009,
+        "y": 1456
+      },
+      "camera": {
+        "x": 2009,
+        "y": 1430,
+        "zoom": 1.05
       }
     }
   ],
-  "benchPreparation": {
-    "count": 3,
-    "direction": "front",
-    "pose": "existing desk sitting pose reused in bench context",
-    "stage": "Native seat surfaces and pelvis contact calibrated in the real shared avatar renderer; all three clicked bench poses reviewed. Full field navigation review awaits missing southeast source.",
-    "sitVisualYOffset": 0,
-    "anchors": [
-      {
-        "id": "bench-front-1",
-        "sitX": 913,
-        "sitY": 1265,
-        "pelvisY": 1252
-      },
-      {
-        "id": "bench-front-2",
-        "sitX": 1277,
-        "sitY": 1075,
-        "pelvisY": 1062
-      },
-      {
-        "id": "bench-front-3",
-        "sitX": 1591,
-        "sitY": 920,
-        "pelvisY": 907
-      }
+  "verification": {
+    "realRenderer": "existing SD avatar + QPSchoolRoomWorld",
+    "sourceOriginalsDirectlyViewed": 7,
+    "viewport": [
+      1366,
+      768
+    ],
+    "cameraAreas": [
+      "school-front",
+      "soccer",
+      "track",
+      "south-fence"
+    ],
+    "backgroundBenchWalkingTargets": 15,
+    "automaticBenchSeatCount": 0,
+    "activeBenchColliderCount": 0,
+    "basicSittingKey": "C",
+    "verificationStatus": "passed",
+    "fullUserApprovalClaimed": false,
+    "unverified": [
+      "Real30-student Firebase simultaneous load and school device performance are not claimed."
+    ],
+    "benchBackgroundPointerClicks": 15,
+    "basicSittingRealCChecks": 15,
+    "basicSittingStandRealCChecks": 15,
+    "buildingFlowerbedAndFenceBoundariesRetained": true,
+    "errors": [],
+    "missingRequests": [],
+    "completedAt": "2026-10-02T04:31:43.686Z",
+    "directVisualArtifacts": "../../../검증/운동장-배경벤치-2026-10-02/",
+    "directlyViewedBasicSittingScreenshots": [
+      "기본앉기-01.png",
+      "기본앉기-04.png",
+      "기본앉기-10.png",
+      "기본앉기-15.png"
     ]
   },
-  "verification": {
-    "sourceOriginalsDirectlyViewed": 5,
-    "sceneSyntax": "passed",
-    "artPreview": "assets/playground-library/preview.html",
-    "stage": "Native source draft rendered in real shared world at1366×768 and1366×900; not completed full map.",
-    "knownDraftLimits": [
-      "Gym window and wall component material reuse is visible at small patch boundaries; a clean source camera would improve exact fidelity.",
-      "Incomplete southeast source remains blocked and draft is not linked to students.",
-      "Soccer center circle and diagonal use clean opposite arc/straight original components; fine junction seams remain pending full art review. No new chalk lines painted."
+  "sourcePolicy": "All furniture and bench pixels are static background art; C uses the shared basic sitting pose at the current legal position, with no bench-specific animation or automatic seating. Only user original pixels. Six native captures plus exact 2x display of the supplemental 50% overview for uncaptured perimeter and covered window/foliage. No invented terrain, reflected track, or painted chalk.",
+  "behaviorPolicy": {
+    "backgroundArt": true,
+    "interactiveBenchSeats": 0,
+    "benchColliders": 0,
+    "basicSittingKey": "C",
+    "basicSittingPose": "sit-floor",
+    "automaticBenchSeating": false,
+    "seatSpecificAnimation": false,
+    "preservedBoundaries": [
+      "main-building",
+      "gym-building",
+      "auditorium-building",
+      "west-flowerbed",
+      "east-flowerbed",
+      "inside-campus-fence"
     ],
-    "benchContact": "VisualYOffset -24 placed shoes on wooden seat and pelvis above it; 0 lowers the existing unchanged avatar pose so pelvis meets the native wooden seat.",
-    "benchContactArtifacts": [
-      "검증/운동장-원본등록-2026-10-02/벤치-1-좌판접지.png",
-      "검증/운동장-원본등록-2026-10-02/벤치-2-좌판접지.png",
-      "검증/운동장-원본등록-2026-10-02/벤치-3-좌판접지.png"
-    ],
-    "directVisualReviewAt": "2026-10-02T02:16:42Z"
-  }
+    "preservedPortal": "school-main-door",
+    "wallClearance": "Existing basic sitting requires18px free floor around the current position. The gym-door bench center needs10px below for clearance; no bench snapping is applied."
+  },
+  "backgroundBenches": [
+    {
+      "id": "bench-auditorium-west",
+      "source": "west",
+      "sourceRect": [
+        287,
+        244,
+        79,
+        53
+      ],
+      "rect": {
+        "x": 556,
+        "y": 991,
+        "width": 79,
+        "height": 53
+      },
+      "bank": "terrace",
+      "label": "1번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 595.5,
+        "y": 1036
+      }
+    },
+    {
+      "id": "bench-auditorium-main",
+      "source": "west",
+      "sourceRect": [
+        576,
+        103,
+        79,
+        53
+      ],
+      "rect": {
+        "x": 845,
+        "y": 850,
+        "width": 79,
+        "height": 53
+      },
+      "bank": "terrace",
+      "label": "2번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 884.5,
+        "y": 895
+      }
+    },
+    {
+      "id": "bench-front-1",
+      "source": "west",
+      "sourceRect": [
+        872,
+        229,
+        81,
+        53
+      ],
+      "rect": {
+        "x": 1141,
+        "y": 976,
+        "width": 81,
+        "height": 53
+      },
+      "bank": "terrace",
+      "label": "3번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 1181.5,
+        "y": 1021
+      }
+    },
+    {
+      "id": "bench-front-2",
+      "source": "terrace",
+      "sourceRect": [
+        688,
+        389,
+        81,
+        53
+      ],
+      "rect": {
+        "x": 1505,
+        "y": 786,
+        "width": 81,
+        "height": 53
+      },
+      "bank": "terrace",
+      "label": "4번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 1545.5,
+        "y": 831
+      }
+    },
+    {
+      "id": "bench-front-3",
+      "source": "terrace",
+      "sourceRect": [
+        1001,
+        234,
+        83,
+        53
+      ],
+      "rect": {
+        "x": 1818,
+        "y": 631,
+        "width": 83,
+        "height": 53
+      },
+      "bank": "terrace",
+      "label": "5번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 1859.5,
+        "y": 676
+      }
+    },
+    {
+      "id": "bench-front-4",
+      "source": "gym",
+      "sourceRect": [
+        430,
+        725,
+        81,
+        53
+      ],
+      "rect": {
+        "x": 2109,
+        "y": 481,
+        "width": 81,
+        "height": 53
+      },
+      "bank": "terrace",
+      "label": "6번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 2149.5,
+        "y": 526
+      }
+    },
+    {
+      "id": "bench-front-5",
+      "source": "gym",
+      "sourceRect": [
+        727,
+        672,
+        81,
+        53
+      ],
+      "rect": {
+        "x": 2406,
+        "y": 428,
+        "width": 81,
+        "height": 53
+      },
+      "bank": "terrace",
+      "label": "7번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 2446.5,
+        "y": 473
+      }
+    },
+    {
+      "id": "bench-front-6",
+      "source": "gym",
+      "sourceRect": [
+        914,
+        576,
+        81,
+        53
+      ],
+      "rect": {
+        "x": 2593,
+        "y": 332,
+        "width": 81,
+        "height": 53
+      },
+      "bank": "terrace",
+      "label": "8번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 2633.5,
+        "y": 377
+      }
+    },
+    {
+      "id": "bench-gym-door",
+      "source": "gym",
+      "sourceRect": [
+        968,
+        382,
+        81,
+        53
+      ],
+      "rect": {
+        "x": 2647,
+        "y": 138,
+        "width": 81,
+        "height": 53
+      },
+      "bank": "terrace",
+      "label": "9번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 2687.5,
+        "y": 183
+      }
+    },
+    {
+      "id": "bench-east-1",
+      "source": "gym",
+      "sourceRect": [
+        1117,
+        624,
+        81,
+        53
+      ],
+      "rect": {
+        "x": 2796,
+        "y": 380,
+        "width": 81,
+        "height": 53
+      },
+      "bank": "east",
+      "label": "10번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 2836.5,
+        "y": 425
+      }
+    },
+    {
+      "id": "bench-east-2",
+      "source": "gym",
+      "sourceRect": [
+        1357,
+        743,
+        81,
+        53
+      ],
+      "rect": {
+        "x": 3036,
+        "y": 499,
+        "width": 81,
+        "height": 53
+      },
+      "bank": "east",
+      "label": "11번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 3076.5,
+        "y": 544
+      }
+    },
+    {
+      "id": "bench-east-3",
+      "source": "south",
+      "sourceRect": [
+        1462,
+        136,
+        81,
+        53
+      ],
+      "rect": {
+        "x": 3309,
+        "y": 636,
+        "width": 81,
+        "height": 53
+      },
+      "bank": "east",
+      "label": "12번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 3349.5,
+        "y": 681
+      }
+    },
+    {
+      "id": "bench-west-1",
+      "source": "west",
+      "sourceRect": [
+        985,
+        343,
+        81,
+        53
+      ],
+      "rect": {
+        "x": 1254,
+        "y": 1090,
+        "width": 81,
+        "height": 53
+      },
+      "bank": "west",
+      "label": "13번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 1294.5,
+        "y": 1135
+      }
+    },
+    {
+      "id": "bench-west-2",
+      "source": "west",
+      "sourceRect": [
+        1257,
+        479,
+        81,
+        53
+      ],
+      "rect": {
+        "x": 1526,
+        "y": 1226,
+        "width": 81,
+        "height": 53
+      },
+      "bank": "west",
+      "label": "14번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 1566.5,
+        "y": 1271
+      }
+    },
+    {
+      "id": "bench-west-3",
+      "source": "west",
+      "sourceRect": [
+        1549,
+        628,
+        81,
+        53
+      ],
+      "rect": {
+        "x": 1818,
+        "y": 1375,
+        "width": 81,
+        "height": 53
+      },
+      "bank": "west",
+      "label": "15번 벤치",
+      "backgroundOnly": true,
+      "walkTarget": {
+        "x": 1858.5,
+        "y": 1420
+      }
+    }
+  ],
+  "verificationHistory": [
+    {
+      "superseded": true,
+      "reason": "User correction: bench art is background and uses basic sitting. Previous15 special bench contacts are no longer active behavior.",
+      "record": {
+        "realRenderer": "existing SD avatar + QPSchoolRoomWorld",
+        "sourceOriginalsDirectlyViewed": 7,
+        "viewport": [
+          1366,
+          768
+        ],
+        "benchActualPointerContacts": 15,
+        "benchApproachesAndExits": 15,
+        "routeFromDoorPassed": 15,
+        "cameraAreas": [
+          "school-front",
+          "soccer",
+          "track",
+          "south-fence"
+        ],
+        "keyboardWalk": true,
+        "floorSitKey": "C",
+        "errors": [],
+        "missingRequests": [],
+        "completedAt": "2026-10-02T04:12:51.338Z",
+        "directVisualArtifacts": "../../../검증/운동장-추가원본-2026-10-02/",
+        "fullUserApprovalClaimed": false,
+        "unverified": [
+          "Real30-student Firebase simultaneous load and school device performance are not claimed."
+        ]
+      }
+    }
+  ]
 }

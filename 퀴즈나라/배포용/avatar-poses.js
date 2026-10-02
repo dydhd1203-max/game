@@ -76,6 +76,9 @@
     const cloneTop=()=>{
       const copy=top.cloneNode(true),original=rig.gestureCloth?rig.gestureCloth.originalMask:top.getAttribute('mask');
       if(rig.gestureCloth){if(original===null)copy.removeAttribute('mask');else copy.setAttribute('mask',original);}
+      // Direction visibility belongs to the mounted torso, not this cached
+      // frontal sleeve, which must also be ready for a later wave or climb.
+      copy.removeAttribute('visibility');copy.style.removeProperty('visibility');
       return copy;
     };
     let maskSlot=null;
@@ -94,13 +97,21 @@
       rig.gestureCloth.mask.appendChild(node('circle',{cx:pivot[0],cy:pivot[1],r:.65,fill:'white'}));
     }
     for(const [at,source]of skinSources.entries())arm.appendChild(cloneArtwork([...source.childNodes],rig.defs.dataset.qpxPoseDefs+'-'+side+'-gesture-skin-'+at));
+    const armOptions={shape,color:top?.dataset.clothColor,skin:rig.head.dataset.qpxHeadSkin,sex:top?.dataset.clothSex||rig.svg.dataset.qpxSex,side,pivot,wrist,fit};
+    const profilePainting=window.QPAvatar?.renderProfileArm?.(armOptions),backPainting=window.QPAvatar?.renderBackArm?.(armOptions);
+    if(profilePainting||backPainting){
+      const front=node('g',{'data-qpx-gesture-art':'front'});front.append(...arm.childNodes);arm.appendChild(front);
+      for(const [view,painting]of[['profile',profilePainting],['back',backPainting]])if(painting){
+        const artwork=node('g',{'data-qpx-gesture-art':view,style:'display:none'});artwork.innerHTML=painting;arm.appendChild(artwork);
+      }
+    }
     const elbow=[pivot[0]+(wrist[0]-pivot[0])*.60,pivot[1]+(wrist[1]-pivot[1])*.60];
     const original=[...arm.childNodes],jointId=rig.defs.dataset.qpxPoseDefs+'-'+side+'-gesture-elbow';
     const forearm=node('g',{'data-qpx-pose-part':side+'-gesture-forearm'});
     for(const [name,y,height,parent]of[['upper',-32,elbow[1]+32,arm],['lower',elbow[1],64-elbow[1],forearm]]){
       const clip=node('clipPath',{id:jointId+'-'+name,clipPathUnits:'userSpaceOnUse'});
       clip.appendChild(node('rect',{x:-32,y,width:96,height}));
-      clip.appendChild(node('circle',{cx:elbow[0],cy:elbow[1],r:shape==='space'?1.4:1.05}));rig.defs.appendChild(clip);
+      clip.appendChild(node('circle',{cx:elbow[0],cy:elbow[1],r:shape==='hanbok'?1.7:shape==='space'?1.4:1.05}));rig.defs.appendChild(clip);
       const window=node('g',{'clip-path':'url(#'+clip.id+')'});window.appendChild(cloneArtwork(original,jointId+'-'+name+'-art'));
       if(name==='upper')arm.replaceChildren(window);else parent.appendChild(window);
     }
@@ -110,7 +121,7 @@
     if(cloak&&top){
       const id=rig.defs.dataset.qpxPoseDefs+'-'+side+'-cloak-overlap',clip=node('clipPath',{id,clipPathUnits:'userSpaceOnUse'});
       clip.appendChild(node('circle',{cx:pivot[0],cy:pivot[1],r:1.0}));rig.defs.appendChild(clip);
-      const cap=node('g',{'clip-path':'url(#'+id+')'});cap.appendChild(cloneArtwork([cloneTop()],id+'-art'));carrier.appendChild(cap);
+      const cap=node('g',{'clip-path':'url(#'+id+')',...(profilePainting||backPainting?{'data-qpx-gesture-art':'front'}:{})});cap.appendChild(cloneArtwork([cloneTop()],id+'-art'));carrier.appendChild(cap);
     }
     rig.idle.appendChild(carrier);
     const artwork={carrier,arm,forearm,hands,elbow,pivot,wrist,maskSlot,originals,visible:false};rig.gestureArms.set(side,artwork);return artwork;
@@ -130,6 +141,9 @@
     }
   }
   function positionArm(rig,arm,upperTransform,shoulder,forearm,wrist=0,offset=0) {
+    const variants=[...arm.carrier.querySelectorAll('[data-qpx-gesture-art]')],view=rig.svg.dataset.qpxView||'front';
+    const availableView=variants.some(artwork=>artwork.dataset.qpxGestureArt===view)?view:'front';
+    for(const artwork of variants)artwork.style.display=artwork.dataset.qpxGestureArt===availableView?'':'none';
     const bodyMatrix=rig.body.getCTM(),idleMatrix=rig.idle.getCTM();
     if(bodyMatrix&&idleMatrix){const m=idleMatrix.inverse().multiply(bodyMatrix);setTransform(arm.carrier,'matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].map(number).join(' ')+')');}
     setTransform(arm.arm,upperTransform+' '+translated(offset,0)+' '+rotated(shoulder,...arm.pivot));
@@ -173,6 +187,10 @@
       return movement;
     }
     const upper = clipped('upper', -32, -32, 96, waist + 32 + .45);
+    // The seated pelvis keeps a round painted silhouette below the hips;
+    // a full-width rectangular crop leaves a square trouser edge behind it.
+    const upperSeatClip=node('ellipse',{cx:16,cy:waist-.25,rx:5.8,ry:1.7,style:'display:none'});
+    defs.querySelector('#'+uid+'-upper').appendChild(upperSeatClip);
     const left = clipped('left-leg', -32, waist-.45, 48, 64-waist+.45);
     const right = clipped('right-leg', 16, waist-.45, 48, 64-waist+.45);
     // Shoes retain their painted proportions while knees bend and legs shorten.
@@ -183,6 +201,7 @@
     });
     [left, right].forEach(part => {
       part.querySelectorAll('[data-qpx-clothes="top"]').forEach(cloth => cloth.remove());
+      part.querySelectorAll('.qpx-arms,.qpx-skin-torso').forEach(skin => skin.remove());
     });
     const knee=42;
     function kneeJoint(leg,side){
@@ -199,6 +218,16 @@
       const shin=node('g',{'data-qpx-pose-part':side+'-shin'}),skin=node('g',{'clip-path':'url(#'+lowerId+')'});skin.appendChild(original);shin.appendChild(skin);leg.replaceChildren(thigh,shin);return shin;
     }
     const leftShin=kneeJoint(left,'left'),rightShin=kneeJoint(right,'right');
+    const thighs=[left.firstElementChild,right.firstElementChild].map((thigh,index)=>{
+      const hip=index?18.25:13.75,id=uid+'-'+(index?'right':'left')+'-seated-thigh';
+      const clip=node('clipPath',{id,clipPathUnits:'userSpaceOnUse'});
+      // Fold the painted thigh around a rounded hip and knee. The standing
+      // pants' straight waist crop must not become a dangling rear shin.
+      clip.appendChild(node('rect',{x:hip-2.35,y:waist,width:4.7,height:knee-waist}));
+      clip.appendChild(node('circle',{cx:hip,cy:waist,r:2.35}));
+      clip.appendChild(node('circle',{cx:hip,cy:knee,r:1.9}));defs.appendChild(clip);
+      return{thigh,original:thigh.getAttribute('clip-path'),seated:'url(#'+id+')'};
+    });
     function clothingClip(name, x, y, width, height, artwork) {
       const id = uid + '-' + name + '-clip';
       const clip = node('clipPath', { id, clipPathUnits: 'userSpaceOnUse' });
@@ -260,7 +289,7 @@
     const facing = wrap(idle, 'facing');
     const rig = { svg, body, head, idle, children, defs, upper, left, right, hands, wrists,arms,cuffs,armSides,
       headPose, backHairPose, facing, waist, skirtWaist, foot, skirt, longTop, hem, leftFoot, rightFoot,
-      leftShin,rightShin,knee,upperClip:defs.querySelector('#'+uid+'-upper rect'),lastAction: 'idle', landingAt: 0,gesture:'',gestureStartedAt:0,previousGesture:svg.getAttribute('data-qpx-gesture'), previousPose: svg.getAttribute('data-qpx-pose') };
+      leftShin,rightShin,knee,thighs,legClips:['left','right'].map(side=>defs.querySelector('#'+uid+'-'+side+'-leg rect')),upperClip:defs.querySelector('#'+uid+'-upper rect'),upperSeatClip,lastAction: 'idle', landingAt: 0,gesture:'',gestureStartedAt:0,previousGesture:svg.getAttribute('data-qpx-gesture'), previousPose: svg.getAttribute('data-qpx-pose') };
     rigs.set(svg, rig);
     reset(svg);
     return rig;
@@ -336,23 +365,25 @@
       shinLeft=rotated(-5-7*reach,13.75,rig.knee);shinRight=rotated(5+7*(1-reach),18.25,rig.knee);
       footLeft=left+' '+shinLeft;footRight=right+' '+shinRight;
     } else if (action === 'sit') {
-      // Desk knees stay close together. On the floor, bend both joints while
-      // preserving the complete shoes and their original contact height.
+      // Basic sitting gathers the knees under the torso instead of opening
+      // them into a wide squat. The feet keep their complete painting and
+      // original contact height while both leg joints fold comfortably.
       // The older motion preview keeps its existing crouch unless a seat mode
       // is requested by the classroom controller.
       const sideFloor = floorSit && ['left', 'right'].includes(state.direction);
-      const bend = floorSit ? sideFloor ? 65 : 75 : deskSit ? 24 : 60;
+      const bend = floorSit ? sideFloor ? 105 : 100 : deskSit ? 24 : 60;
       const leftBend = sideFloor ? -bend : bend, rightBend = -bend;
-      const leftShinBend = floorSit ? sideFloor ? 125 : -150 : -bend;
-      const rightShinBend = floorSit ? sideFloor ? 125 : 150 : bend;
+      const leftShinBend = floorSit ? sideFloor ? 150 : -150 : -bend;
+      const rightShinBend = floorSit ? sideFloor ? 150 : 150 : bend;
       const radians = degrees => degrees * Math.PI / 180;
       const drop = qy(floorSit ? span - (rig.knee-rig.waist)*Math.cos(radians(leftBend)) -
         (rig.foot-rig.knee)*Math.cos(radians(leftBend+leftShinBend)) :
         (rig.knee-rig.waist)*(1-Math.cos(radians(bend))));
       torsoY = drop;
       headOffset = headY(drop * bodyVerticalScale);
-      left=translated(0,drop)+' '+rotated(leftBend,13.75,rig.waist);
-      right=translated(0,drop)+' '+rotated(rightBend,18.25,rig.waist);
+      const gather=floorSit&&!sideFloor ? 1.1 : 0;
+      left=translated(gather,drop)+' '+rotated(leftBend,13.75,rig.waist);
+      right=translated(-gather,drop)+' '+rotated(rightBend,18.25,rig.waist);
       shinLeft=rotated(leftShinBend,13.75,rig.knee);shinRight=rotated(rightShinBend,18.25,rig.knee);
       footLeft=left+' '+shinLeft;footRight=right+' '+shinRight;
       if (floorSit) {
@@ -366,6 +397,16 @@
       }
       handAngleLeft = -5; handAngleRight = 5;
       armAngleLeft=-4;armAngleRight=4;
+      if(floorSit){
+        armAngleLeft=-10;armAngleRight=10;
+        handAngleLeft=6;handAngleRight=-6;
+        if(sideFloor){
+          lean=4;
+          headX=headY(Math.sin(lean*Math.PI/180)*(rig.waist-28)*bodyScale);
+          headOffset+=headY((1-Math.cos(lean*Math.PI/180))*(rig.waist-28)*bodyVerticalScale);
+          headLean=lean*.35;
+        }
+      }
     }
     const now = typeof performance !== 'undefined' ? performance.now() : Date.now();
     if(gesture!==rig.gesture){rig.gesture=gesture;rig.gestureStartedAt=now;}
@@ -397,7 +438,13 @@
     rig.lastAction = action;
     // Preserve the continuous painted seat/crotch above the two hip bones.
     // The round knees articulate below it without exposing the center cut.
-    rig.upperClip.setAttribute('height',rig.waist+32+(action==='sit'?1.45:.45));
+    rig.upperClip.setAttribute('height',rig.waist+32+(floorSit?-.55:action==='sit'?1.45:.45));
+    rig.upperSeatClip.style.display=floorSit?'':'none';
+    for(const part of rig.thighs)part.thigh.setAttribute('clip-path',floorSit?part.seated:part.original);
+    for(const clip of rig.legClips){
+      clip.setAttribute('y',rig.waist-(floorSit?2.35:.45));
+      clip.setAttribute('height',64-rig.waist+(floorSit?2.35:.45));
+    }
     const upperTransform = torsoY || lean ? translated(0, torsoY) + ' ' + rotated(lean, 16, rig.waist) : '';
     const headTransform = headOffset || headX || headLean ? translated(headX, headOffset) + ' ' + rotated(headLean, 16, 28) : '';
     if (walkPose) {
@@ -425,19 +472,42 @@
       if (hand) setTransform(hand, translated(...(index ? handRight : handLeft)) + ' ' +
         rotated(index ? handAngleRight : handAngleLeft, ...rig.wrists[index]));
     });
-    const profile=window.QPAvatarDirection?.apply(svg,{...state,action,gesture:activeGesture},rig)||false;
-    showArm(rig,'right',activeGesture==='wave'||action==='climb'||profile);
-    showArm(rig,'left',action==='climb'||profile);
+    const profile=window.QPAvatarDirection?.apply(svg,{...state,action,seatMode:floorSit?'floor':state.seatMode,gesture:activeGesture},rig)||false;
+    const backView=rig.svg.dataset.qpxView==='back'&&typeof window.QPAvatar?.renderBackArm==='function';
+    showArm(rig,'right',activeGesture==='wave'||action==='climb'||profile||backView);
+    showArm(rig,'left',action==='climb'||profile||backView);
     if(profile){
       const stride=walkPose?.stride||0;
       for(const [side,angle]of[['left',action==='jump'?14:stride*22],['right',action==='jump'?-16:-stride*22]]){
         const arm=rig.gestureArms.get(side),near=side==='right';
-        positionArm(rig,arm,upperTransform,angle,action==='jump'?(near?14:-14):near?Math.max(0,stride)*9:-Math.max(0,-stride)*9,0,(near?16.6:15.6)-arm.pivot[0]);
+        // Both side arms drop from the shoulder, then fold forward toward
+        // the lap. Their native left/right slopes differ; normalize those
+        // slopes before bending, and let the whole pose mirror for left.
+        const nativeAngle=Math.atan2(arm.elbow[1]-arm.pivot[1],arm.elbow[0]-arm.pivot[0])*180/Math.PI;
+        const shoulder=floorSit?85-nativeAngle:angle;
+        const elbow=floorSit?-55:action==='jump'?(near?14:-14):near?Math.max(0,stride)*9:-Math.max(0,-stride)*9;
+        const wrist=floorSit?nativeAngle-90:0;
+        positionArm(rig,arm,upperTransform,shoulder,elbow,wrist,(near?16.6:15.6)-arm.pivot[0]);
         arm.carrier.style.opacity=near?'':'0.78';
         // The far arm is behind the complete dressed torso; the near sleeve
         // and wrist move together in front, matching the direction reference.
         if(near)rig.idle.appendChild(arm.carrier);
         else {let bodyRoot=rig.body.closest('[data-qpx-direction-part="body-profile"]');if(bodyRoot){while(bodyRoot.parentNode&&bodyRoot.parentNode!==rig.idle)bodyRoot=bodyRoot.parentNode;rig.idle.insertBefore(arm.carrier,bodyRoot);}}
+      }
+    }else if(backView){
+      for(const [side,shoulder,wrist]of[['left',armAngleLeft,handAngleLeft],['right',armAngleRight,handAngleRight]]){
+        const arm=rig.gestureArms.get(side),right=side==='right';
+        const nativeAngle=Math.atan2(arm.elbow[1]-arm.pivot[1],arm.elbow[0]-arm.pivot[0])*180/Math.PI;
+        positionArm(rig,arm,upperTransform,floorSit?(right?75:105)-nativeAngle:shoulder,
+          floorSit?(right?35:-35):0,floorSit?nativeAngle-90:wrist);
+        arm.carrier.style.opacity='';
+        if(floorSit){
+          // From behind, the arms remain visible beside the torso while the
+          // forearms and hands rest on the lap in front of the dressed body.
+          let bodyRoot=rig.body.closest('[data-qpx-direction-part="body-profile"]');
+          if(bodyRoot){while(bodyRoot.parentNode&&bodyRoot.parentNode!==rig.idle)bodyRoot=bodyRoot.parentNode;rig.idle.insertBefore(arm.carrier,bodyRoot);}
+          else rig.idle.appendChild(arm.carrier);
+        }else rig.idle.appendChild(arm.carrier);
       }
     }else if(rig.gestureArms)for(const arm of rig.gestureArms.values())arm.carrier.style.opacity='';
     if(activeGesture==='wave'){
@@ -474,6 +544,9 @@
     const shadow=svg.querySelector('.qpx-contact-shadow');if(shadow)shadow.style.visibility='';
     svg.removeAttribute('data-qpx-gesture');rig.gesture='';rig.gestureStartedAt=0;
     rig.upperClip.setAttribute('height',rig.waist+32+.45);
+    rig.upperSeatClip.style.display='none';
+    for(const part of rig.thighs)part.thigh.setAttribute('clip-path',part.original);
+    for(const clip of rig.legClips){clip.setAttribute('y',rig.waist-.45);clip.setAttribute('height',64-rig.waist+.45);}
     rig.lastAction = 'idle'; rig.landingAt = 0;
     return true;
   }

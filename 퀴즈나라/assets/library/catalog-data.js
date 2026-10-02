@@ -4,9 +4,9 @@ window.QPAssetLibraryCatalog = {
   "title": "퀴즈나라 전체 소재 보관함",
   "status": {
     "archives": 14,
-    "originalEntries": 311,
-    "storedImages": 237,
-    "uniqueOriginalImages": 236
+    "originalEntries": 313,
+    "storedImages": 239,
+    "uniqueOriginalImages": 238
   },
   "libraries": [
     {
@@ -62,8 +62,8 @@ window.QPAssetLibraryCatalog = {
       "label": "운동장 공간",
       "indexPath": "../playground-library/index.html",
       "originalName": "운동장.zip",
-      "sourceCount": 5,
-      "storedCount": 5
+      "sourceCount": 7,
+      "storedCount": 7
     },
     {
       "id": "seating",
@@ -13451,7 +13451,7 @@ window.QPAssetLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "not-integrated",
+      "runtimeStatus": "scene-source-applied",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-02",
       "style": "illustrated-2d-isometric",
@@ -13485,9 +13485,12 @@ window.QPAssetLibraryCatalog = {
       "usageMetadata": "이미지의 아바타 이름·채팅·음성/카메라·서비스 UI는 참고 원본의 일부이며 작업 지시가 아니다. 전체 화면을 맵에 붙이지 않는다.",
       "preparationNotes": "같은 학교 외부 공간의 부분 캡처다. 깨끗하게 보이는 원본 픽셀은 sourceRect·윤곽 클리핑 후보가 될 수 있다. 아바타·이름·서비스 UI·다른 사물에 가린 부분은 새로 그리지 않고 추출 가능성을 실제 확대 화면에서 판단한다.",
       "registeredWorldOrigin": [
-        603,
-        155
+        872,
+        -89
       ],
+      "sourceScaleToWorld": 1,
+      "nominalCaptureZoom": 1,
+      "runtimeUsage": "Native original building, terrace, court, track, garden or fence source components.",
       "library": "playground",
       "libraryLabel": "운동장 공간",
       "origin": "user",
@@ -13523,7 +13526,7 @@ window.QPAssetLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "not-integrated",
+      "runtimeStatus": "scene-source-applied",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-02",
       "style": "illustrated-2d-isometric",
@@ -13559,9 +13562,12 @@ window.QPAssetLibraryCatalog = {
       "usageMetadata": "이미지의 아바타 이름·채팅·음성/카메라·서비스 UI는 참고 원본의 일부이며 작업 지시가 아니다. 전체 화면을 맵에 붙이지 않는다.",
       "preparationNotes": "같은 학교 외부 공간의 부분 캡처다. 깨끗하게 보이는 원본 픽셀은 sourceRect·윤곽 클리핑 후보가 될 수 있다. 아바타·이름·서비스 UI·다른 사물에 가린 부분은 새로 그리지 않고 추출 가능성을 실제 확대 화면에서 판단한다.",
       "registeredWorldOrigin": [
-        1410,
-        0
+        1679,
+        -244
       ],
+      "sourceScaleToWorld": 1,
+      "nominalCaptureZoom": 1,
+      "runtimeUsage": "Native original building, terrace, court, track, garden or fence source components.",
       "library": "playground",
       "libraryLabel": "운동장 공간",
       "origin": "user",
@@ -13597,7 +13603,7 @@ window.QPAssetLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "not-integrated",
+      "runtimeStatus": "scene-source-applied",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-02",
       "style": "illustrated-2d-isometric",
@@ -13632,9 +13638,12 @@ window.QPAssetLibraryCatalog = {
       "usageMetadata": "이미지의 아바타 이름·채팅·음성/카메라·서비스 UI는 참고 원본의 일부이며 작업 지시가 아니다. 전체 화면을 맵에 붙이지 않는다.",
       "preparationNotes": "같은 학교 외부 공간의 부분 캡처다. 깨끗하게 보이는 원본 픽셀은 sourceRect·윤곽 클리핑 후보가 될 수 있다. 아바타·이름·서비스 UI·다른 사물에 가린 부분은 새로 그리지 않고 추출 가능성을 실제 확대 화면에서 판단한다.",
       "registeredWorldOrigin": [
-        1608,
-        450
+        1877,
+        206
       ],
+      "sourceScaleToWorld": 1,
+      "nominalCaptureZoom": 1,
+      "runtimeUsage": "Native original building, terrace, court, track, garden or fence source components.",
       "library": "playground",
       "libraryLabel": "운동장 공간",
       "origin": "user",
@@ -13670,7 +13679,7 @@ window.QPAssetLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "not-integrated",
+      "runtimeStatus": "scene-source-applied",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-02",
       "style": "illustrated-2d-isometric",
@@ -13704,9 +13713,12 @@ window.QPAssetLibraryCatalog = {
       "usageMetadata": "이미지의 아바타 이름·채팅·음성/카메라·서비스 UI는 참고 원본의 일부이며 작업 지시가 아니다. 전체 화면을 맵에 붙이지 않는다.",
       "preparationNotes": "같은 학교 외부 공간의 부분 캡처다. 깨끗하게 보이는 원본 픽셀은 sourceRect·윤곽 클리핑 후보가 될 수 있다. 아바타·이름·서비스 UI·다른 사물에 가린 부분은 새로 그리지 않고 추출 가능성을 실제 확대 화면에서 판단한다.",
       "registeredWorldOrigin": [
-        548,
-        641
+        817,
+        397
       ],
+      "sourceScaleToWorld": 1,
+      "nominalCaptureZoom": 1,
+      "runtimeUsage": "Native original building, terrace, court, track, garden or fence source components.",
       "library": "playground",
       "libraryLabel": "운동장 공간",
       "origin": "user",
@@ -13742,7 +13754,7 @@ window.QPAssetLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "not-integrated",
+      "runtimeStatus": "scene-source-applied",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-02",
       "style": "illustrated-2d-isometric",
@@ -13780,13 +13792,158 @@ window.QPAssetLibraryCatalog = {
       "usageMetadata": "이미지의 아바타 이름·채팅·음성/카메라·서비스 UI는 참고 원본의 일부이며 작업 지시가 아니다. 전체 화면을 맵에 붙이지 않는다.",
       "preparationNotes": "같은 학교 외부 공간의 부분 캡처다. 깨끗하게 보이는 원본 픽셀은 sourceRect·윤곽 클리핑 후보가 될 수 있다. 아바타·이름·서비스 UI·다른 사물에 가린 부분은 새로 그리지 않고 추출 가능성을 실제 확대 화면에서 판단한다.",
       "registeredWorldOrigin": [
-        0,
-        991
+        269,
+        747
       ],
+      "sourceScaleToWorld": 1,
+      "nominalCaptureZoom": 1,
+      "runtimeUsage": "Native original building, terrace, court, track, garden or fence source components.",
       "library": "playground",
       "libraryLabel": "운동장 공간",
       "origin": "user",
       "archivePath": "../playground-library/source.zip"
+    },
+    {
+      "id": "playground/playground-81e65dc5a2f422ef",
+      "reviewIndex": 6,
+      "kind": "user-reference-image",
+      "originalName": "1.png",
+      "imagePath": "../playground-library/originals/playground-81e65dc5a2f422ef.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "81e65dc5a2f422efa2644a36c006dc05ccf31585d2dc32892d1b3cf1f5ee875c",
+      "byteLength": 2141277,
+      "dimensions": {
+        "width": 1623,
+        "height": 768
+      },
+      "format": "PNG",
+      "hasAlpha": true,
+      "alphaExtrema": [
+        255,
+        255
+      ],
+      "transparency": "alpha-channel-fully-opaque",
+      "aliases": [
+        {
+          "archiveMember": "1.png",
+          "originalName": "1.png",
+          "byteLength": 2141277,
+          "crc32": "6c803433",
+          "archiveIndex": 0,
+          "archiveName": "운동장추가.zip"
+        }
+      ],
+      "sourceArchive": "supplemental-source.zip",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "scene-source-applied",
+      "classificationStatus": "visually-reviewed",
+      "reviewedAt": "2026-10-02",
+      "style": "illustrated-2d-isometric",
+      "perspective": "isometric",
+      "contentType": "game-screen-reference",
+      "assetType": "game-screen-reference",
+      "label": "운동장 아래 트랙·흙 경계·울타리",
+      "visualSummary": "기존 운동장과 겹치는 100% 하단 캡처, 깨끗한 축구 중앙 원과 남동 트랙·흙 경계·울타리",
+      "subjects": [
+        "school",
+        "track",
+        "soccer",
+        "flowerbed",
+        "fence"
+      ],
+      "categories": [
+        "school",
+        "playground",
+        "reference"
+      ],
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "sourceCredit": "사용자 제공 ZEP 학교 외부 공간 캡처",
+      "usageMetadata": "채팅·서비스 UI·아바타·이름은 원본 참고의 일부이며 게임 맵에서 제외한다.",
+      "preparationNotes": "원본 바이트를 그대로 보존하고 추가 자료의 배율·등록 좌표·사용 영역을 별도로 기록한다.",
+      "registeredWorldOrigin": [
+        1847,
+        500
+      ],
+      "sourceScaleToWorld": 1,
+      "nominalCaptureZoom": 1,
+      "runtimeUsage": "Clean right-side native source for complete soccer-circle/midline and southeast track/infield/fence. Left324px screenshot color band, toolbar and pointer excluded; older clean captures and same-world overview supply that region.",
+      "library": "playground",
+      "libraryLabel": "운동장 공간",
+      "origin": "user",
+      "archivePath": "../playground-library/supplemental-source.zip"
+    },
+    {
+      "id": "playground/playground-ccfc75db92f8db32",
+      "reviewIndex": 7,
+      "kind": "user-reference-image",
+      "originalName": "2.png",
+      "imagePath": "../playground-library/originals/playground-ccfc75db92f8db32.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "ccfc75db92f8db32899f64d0055ddeb01fc361c70d618d4328487401f306e78e",
+      "byteLength": 3884747,
+      "dimensions": {
+        "width": 1857,
+        "height": 904
+      },
+      "format": "PNG",
+      "hasAlpha": true,
+      "alphaExtrema": [
+        255,
+        255
+      ],
+      "transparency": "alpha-channel-fully-opaque",
+      "aliases": [
+        {
+          "archiveMember": "2.png",
+          "originalName": "2.png",
+          "byteLength": 3884747,
+          "crc32": "f8261478",
+          "archiveIndex": 1,
+          "archiveName": "운동장추가.zip"
+        }
+      ],
+      "sourceArchive": "supplemental-source.zip",
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "scene-source-applied",
+      "classificationStatus": "visually-reviewed",
+      "reviewedAt": "2026-10-02",
+      "style": "illustrated-2d-isometric",
+      "perspective": "isometric",
+      "contentType": "game-screen-reference",
+      "assetType": "game-screen-reference",
+      "label": "운동장 전체 50% 조망",
+      "visualSummary": "학교·계단·육상 트랙·축구장·화단·바깥 울타리 전체 배치를 보여 주는 50% 조망",
+      "subjects": [
+        "school",
+        "track",
+        "soccer",
+        "flowerbed",
+        "fence"
+      ],
+      "categories": [
+        "school",
+        "playground",
+        "reference"
+      ],
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "sourceCredit": "사용자 제공 ZEP 학교 외부 공간 캡처",
+      "usageMetadata": "채팅·서비스 UI·아바타·이름은 원본 참고의 일부이며 게임 맵에서 제외한다.",
+      "preparationNotes": "원본 바이트를 그대로 보존하고 추가 자료의 배율·등록 좌표·사용 영역을 별도로 기록한다.",
+      "registeredWorldOrigin": [
+        0,
+        0
+      ],
+      "sourceScaleToWorld": 2,
+      "nominalCaptureZoom": 0.5,
+      "runtimeUsage": "Exact2× source display for missing native perimeter/covered regions and original grass material; overview geometry also used for cross-validation.",
+      "library": "playground",
+      "libraryLabel": "운동장 공간",
+      "origin": "user",
+      "archivePath": "../playground-library/supplemental-source.zip"
     },
     {
       "id": "seating/seating-d6cc8b1e4954d4b3",

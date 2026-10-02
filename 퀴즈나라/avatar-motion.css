@@ -97,8 +97,10 @@ body .qp-motion-page .qp-motion-heading button {
 }
 .qp-motion-actor > svg {
   display: block;
+  position: relative;
+  top: calc(-4px * var(--qpx-ground-shift, 0));
   width: 160px;
-  height: 224px;
+  height: calc(224px * var(--qpx-viewport-scale, 1));
   max-width: none;
   max-height: none;
   border: 0;

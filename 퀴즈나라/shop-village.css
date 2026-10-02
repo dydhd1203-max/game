@@ -112,7 +112,7 @@ body .qp-village-shop .shop-fitting .mestage::after {
 }
 body .qp-village-shop #pvStage > svg {
   position: relative;
-  height: 280px;
+  height: calc(280px * var(--qpx-viewport-scale, 1));
   width: auto;
   max-width: 100%;
   max-height: 100%;

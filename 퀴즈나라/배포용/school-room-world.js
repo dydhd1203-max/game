@@ -3,7 +3,8 @@
 (() => {
   'use strict';
   const KEYS={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down'};
-  const SPEED=150, AVATAR_HEIGHT=76, RADIUS=7;
+  const SPEED=225, AVATAR_HEIGHT=76, RADIUS=7;
+  let portalReadyAt=0;
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const finite=(v,f=0)=>Number.isFinite(Number(v))?Number(v):f;
   const distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
@@ -86,7 +87,7 @@
     const source=options.scene||window.QPSchoolRoomScene;if(!source)throw new Error('교실 에셋을 준비하지 못했어요.');
     const scene=typeof source.get==='function'?source.get():source,nav=createNavigation(scene),floorNav=createNavigation(scene,{radius:18}),seats=scene.seats||[],interactions=scene.interactables||scene.interactions||[];
     const zone=options.zone||scene.zone||'campus',playground=zone==='playground',title=options.title||scene.title||(playground?'우리 반 운동장':'우리 반 교실');
-    const idleInteractionText=playground?'벤치 · 학교 문 앞에서 E':'의자 · 칠판 앞에서 E';
+    const idleInteractionText=playground?'학교 문 앞에서 F':'문 앞 F · 칠판 앞 E';
     const isPortal=item=>item.type==='portal'||item.type==='door'&&Boolean(item.target);
     const portalLabel=item=>item.label||(item.target==='campus'?'교실로 들어가기':'운동장 나가기');
     const seatMap=new Map(seats.map(s=>[s.id,s])),user=options.user||{},uid=String(user.uid||user.k||'local'),avatar=user.avatar||user.av||{};
@@ -94,29 +95,30 @@
     let state={x:spawn.x,y:spawn.y,direction:'front',facing:'right',pose:'idle',moving:false,seatId:null,zone,height:0};
     if(saved&&nav.canStand(saved.x,saved.y))state.x=saved.x,state.y=saved.y;
     else if(saved){const previous=seats.find(s=>distance({x:finite(saved.x,-1000),y:finite(saved.y,-1000)},{x:finite(s.sitX??s.x),y:finite(s.sitY??s.y)})<12),exit=previous?.exit||previous?.approach;if(exit&&nav.canStand(exit.x,exit.y))state.x=exit.x,state.y=exit.y;}
-    const keys=new Set(),actors=new Map();let dead=false,paused=false,raf=0,last=0,path=[],pending=null,gesture=null,phase=0,lastPublish=0,lastCheckpoint=0,claimToken=0,seating=false,presence=options.presence||null,status={mode:'local'},nearest=null;
+    const keys=new Set(),heldMovement=new Set(),suppressedMovement=new Set(),heldActions=new Set(),actors=new Map();let dead=false,paused=false,raf=0,last=0,path=[],pending=null,gesture=null,phase=0,lastPublish=0,lastCheckpoint=0,claimToken=0,seating=false,seatPendingId=null,seatedExit=null,seatClaimQueue=Promise.resolve(),transitioning=false,presence=options.presence||null,status={mode:'local'},nearest=null;
     let preferredScale=finite(scene.cameraHome?.zoom,.84),scale=preferredScale,minimumScale=0,camera={x:0,y:0},cameraReady=false,autoFollow=Boolean(saved),noticeTimer=0;
     const clockNow=()=>{const time=presence?.getTime?.();return Number.isFinite(time)?time:Date.now();};
     container.classList.add('school-room-host');container.dataset.zone=zone;container.replaceChildren();
-    const viewport=element('div','school-room-world');viewport.tabIndex=0;viewport.setAttribute('role','region');viewport.setAttribute('aria-label',title+'. 방향키나 WASD로 걷기, 바닥 클릭으로 이동, '+(playground?'빈 벤치 앞에서 E로 앉기, G로 바닥에 앉기, 학교 문 앞에서 E로 교실 들어가기.':'빈 의자 앞에서 E로 앉기, G로 바닥에 앉기, 칠판 앞에서 E로 수업 열기.'));
+    const viewport=element('div','school-room-world');viewport.tabIndex=0;viewport.setAttribute('role','region');viewport.setAttribute('aria-label',title+'. 방향키나 WASD로 걷기, 바닥 클릭으로 이동, C로 '+(playground?'원하는 위치':'의자나 바닥')+'에 앉기와 일어나기, 문 앞에서 F로 공간 이동, 문 밖 F로 손 흔들기'+(playground?'.':', 칠판 앞 E로 수업 열기.'));
     const world=element('div','sr-world');world.style.width=scene.width+'px';world.style.height=scene.height+'px';world.innerHTML=source.render?source.render():scene.markup||'';viewport.append(world);container.append(viewport);
     const destination=element('span','sr-destination');destination.hidden=true;world.append(destination);
     const hud=element('div','sr-hud');hud.innerHTML='<div class="sr-room-title"><strong></strong><span class="sr-network"></span></div><span class="sr-friend-count">함께 있는 친구 <b>1</b></span>';hud.querySelector('strong').textContent=title;container.append(hud);
     const tools=element('div','sr-tools');tools.innerHTML='<button data-tool="help">조작 안내</button><button data-tool="zoom-out">−</button><button data-tool="zoom-in">＋</button><button data-tool="center"></button><button data-tool="exit"></button>';tools.querySelector('[data-tool="zoom-out"]').setAttribute('aria-label',title+' 축소');tools.querySelector('[data-tool="zoom-in"]').setAttribute('aria-label',title+' 확대');tools.querySelector('[data-tool="center"]').textContent=options.centerLabel||scene.centerLabel||(playground?'운동장 보기':'교실 보기');tools.querySelector('[data-tool="exit"]').textContent=options.exitLabel||scene.exitLabel||(playground?'교실로 돌아가기':'수업 목록');container.append(tools);
-    const help=element('div','sr-help');help.hidden=true;help.innerHTML='<b>방향키 · WASD</b> 걷기　<b>바닥 클릭</b> 길 찾아 걷기<br><b>'+(playground?'벤치':'의자')+' 클릭 · E</b> 빈자리 앉기 / 일어서기　<b>G</b> 바닥 앉기<br><b>'+(playground?'학교 문 앞 E</b> 교실 들어가기':'칠판 앞 E</b> 선생님 수업 열기')+'　<b>F</b> 손 흔들기';container.append(help);
-    const controls=element('div','sr-controls');controls.innerHTML='<button data-gesture="wave">👋 손 흔들기 <small>F</small></button><button data-gesture="hello">인사</button><button data-gesture="happy">✨ 신나!</button><button data-tool="floor-sit">바닥에 앉기 <small>G</small></button><button class="sr-interact" disabled>의자 · 칠판 앞에서 E</button>';container.append(controls);
+    const help=element('div','sr-help');help.hidden=true;help.innerHTML='<b>방향키 · WASD</b> 걷기　<b>바닥 클릭</b> 길 찾아 걷기<br>'+ (playground?'<b>C</b> 원하는 곳에 앉기 / 일어나기<br>벤치가 있는 곳도 자유롭게 걸어요.':'<b>C</b> 의자 가까이서 앉기 / 넓은 바닥에서 앉기 / 일어나기<br><b>의자 클릭</b> 빈자리로 걸어가 앉기')+'<br><b>문 클릭</b> 문 앞으로 걷기　<b>문 앞 F</b> '+(playground?'교실로 들어가기':'운동장으로 나가기')+'<br><b>문 밖 F</b> 손 흔들기'+(playground?'':'　<b>칠판 앞 E</b> 선생님 수업 열기');container.append(help);
+    const controls=element('div','sr-controls');controls.innerHTML='<button data-gesture="wave">👋 손 흔들기 <small>F</small></button><button data-gesture="hello">인사</button><button data-gesture="happy">✨ 신나!</button><button data-tool="sit" class="sr-sit">앉기 <small>C</small></button><button class="sr-interact" disabled></button>';container.append(controls);
     const actionButton=controls.querySelector('.sr-interact'),notice=element('div','sr-notice');actionButton.textContent=idleInteractionText;notice.setAttribute('role','status');notice.setAttribute('aria-live','polite');container.append(notice);
     const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
     function announce(message){notice.textContent=message;notice.classList.add('is-visible');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>notice.classList.remove('is-visible'),2900);}
     const focus=()=>{if(!dead)viewport.focus({preventScroll:true});};
-    function blocked(){return paused||document.hidden||options.isPaused?.()||!viewport.isConnected||!viewport.getClientRects().length||Boolean(document.querySelector('#modal.on,[aria-modal="true"]:not([hidden])'));}
+    function blocked(){return paused||transitioning||document.hidden||options.isPaused?.()||!viewport.isConnected||!viewport.getClientRects().length||Boolean(document.querySelector('#modal.on,[aria-modal="true"]:not([hidden])'));}
     function cleanAvatar(av){const result={...avatar,...av,bg:'',frame:''};return options.validateAvatar?options.validateAvatar(result):result;}
     function updateArt(actor,av){
       const clean=cleanAvatar(av),key=JSON.stringify(clean);if(actor.avatarKey===key)return;
       if(actor.svg)window.QPAvatarPose?.destroy(actor.svg);
       actor.avatarKey=key;actor.art.innerHTML=options.renderAvatar(clean,AVATAR_HEIGHT,3);actor.svg=actor.art.querySelector('svg');
       const view=actor.svg?.viewBox.baseVal,vh=view?.height||56,vw=view?.width||32,foot=Number(actor.svg?.querySelector('.qpx-contact-shadow')?.getAttribute('cy'))||52.37;
-      actor.art.style.left=-(AVATAR_HEIGHT*vw/vh)/2+'px';actor.art.style.top=-(AVATAR_HEIGHT*foot/vh)+'px';actor.name.style.top=-(AVATAR_HEIGHT*foot/vh+17)+'px';actor.bubble.style.top=-(AVATAR_HEIGHT*foot/vh+43)+'px';
+      const paintedHeight=actor.svg?.height.baseVal.value||AVATAR_HEIGHT,paintedWidth=actor.svg?.width.baseVal.value||paintedHeight*vw/vh,footHeight=paintedHeight*foot/vh;
+      actor.art.style.left=-paintedWidth/2+'px';actor.art.style.top=-footHeight+'px';actor.name.style.top=-(footHeight+17)+'px';actor.bubble.style.top=-(footHeight+43)+'px';
       window.QPAvatarPose?.prepare(actor.svg);
     }
     function makeActor(player,self){
@@ -129,6 +131,9 @@
     function occupied(id){for(const actor of actors.values())if(!actor.self&&actor.target.seatId===id&&actor.target.pose==='sit')return true;return false;}
     const seatPoint=seat=>({x:finite(seat.sitX??seat.x),y:finite(seat.sitY??seat.y)});
     const approach=seat=>seat.approach||seat.exit||seatPoint(seat);
+    function seatApproaches(seat){const p=seatPoint(seat),list=[seat.approach,seat.exit,...(seat.approaches||[]),{x:p.x-43,y:p.y},{x:p.x+43,y:p.y}].filter(Boolean);return list.filter((p,i)=>nav.canStand(p.x,p.y)&&list.findIndex(q=>q.x===p.x&&q.y===p.y)===i);}
+    function nearbySeat(){let nearestSeat=null,score=Infinity;for(const seat of seats){const d=Math.min(distance(state,seatPoint(seat)),distance(state,approach(seat))+16);if(d<72&&d<score){score=d;nearestSeat=seat;}}return nearestSeat;}
+    function stopForAction(){for(const code of heldMovement)suppressedMovement.add(code);keys.clear();cancelWalk();gesture=null;}
     function publish(force=false){
       const now=performance.now();if(!force&&now-lastPublish<150)return;lastPublish=now;
       const data={...state,gesture:gesture?{type:gesture.type,at:gesture.at,duration:1500}:null};presence?.update?.(data);options.onState?.({...data});
@@ -136,61 +141,82 @@
     }
     function cancelWalk(){path=[];pending=null;destination.hidden=true;state.moving=false;state.pose=state.seatId?'sit':state.pose==='sit-floor'?'sit-floor':'idle';}
     async function sit(id){
-      const seat=seatMap.get(id);if(!seat||dead||blocked()||state.seatId||seating)return false;
+      const seat=seatMap.get(id);if(!seat||dead||blocked()||state.seatId)return false;
+      if(seating){if(seatPendingId===id)return false;stand();}
       if(state.pose==='sit-floor'&&!stand())return false;
       if(occupied(id)){announce('친구가 앉아 있어요. 다른 빈자리를 골라 주세요.');return false;}
-      const point=approach(seat);
+      const point=seatApproaches(seat).sort((a,b)=>distance(state,a)-distance(state,b)).find(p=>nav.route(state,p));
+      if(!point){announce('그 자리 옆 통로로 갈 수 없어요. 다른 빈자리를 골라 주세요.');return false;}
+      stopForAction();
       if(distance(state,point)>22)return moveTo(point.x,point.y,{type:'seat',id});
-      cancelWalk();gesture=null;seating=true;const token=++claimToken;
-      let granted=true;try{if(presence?.claimSeat)granted=await presence.claimSeat(id);}catch(_){granted=false;}
-      seating=false;if(dead||token!==claimToken||blocked()){if(granted)presence?.releaseSeat?.(id);return false;}
-      if(!granted||occupied(id)){if(granted)presence?.releaseSeat?.(id);announce('친구가 먼저 앉았어요. 다른 빈자리를 골라 주세요.');return false;}
-      const anchor=seatPoint(seat);state={...state,...anchor,seatId:id,pose:'sit',moving:false,direction:seat.direction||'back',facing:'right'};publish(true);updateNearby();announce((seat.label||'빈자리')+'에 앉았어요. E나 방향키로 일어나요.');return true;
+      seating=true;seatPendingId=id;const token=++claimToken;
+      // Keep stale cleanup ahead of the next claim, including retrying the same
+      // seat. An old response must never clear or release a newer request.
+      const claim=seatClaimQueue.catch(()=>{}).then(async()=>{
+        if(dead||token!==claimToken||blocked())return {cancelled:true};
+        let granted=true;try{if(presence?.claimSeat)granted=await presence.claimSeat(id);}catch(_){return {failed:true};}
+        const cancelled=dead||token!==claimToken||blocked(),taken=occupied(id);
+        if(granted&&(cancelled||taken)){try{await presence?.releaseSeat?.(id);}catch(_){}}
+        return {granted:granted&&!cancelled&&!taken,cancelled,taken};
+      });seatClaimQueue=claim.then(()=>{});
+      const result=await claim;if(dead||token!==claimToken)return false;
+      seating=false;seatPendingId=null;
+      if(result.cancelled){updateNearby();return false;}
+      if(!result.granted){announce(result.failed?'자리를 확인하지 못했어요. C로 다시 시도해 주세요.':'친구가 먼저 앉았어요. 다른 빈자리를 골라 주세요.');updateNearby();return false;}
+      const anchor=seatPoint(seat);seatedExit={x:state.x,y:state.y};state={...state,...anchor,seatId:id,pose:'sit',moving:false,direction:seat.direction||'back',facing:'right'};publish(true);updateNearby();announce((seat.label||'빈자리')+'에 앉았어요. C나 방향키로 일어나요.');return true;
     }
     function stand(){
       if(state.pose==='sit-floor'){state.pose='idle';state.moving=false;publish(true);updateNearby();return true;}
-      if(!state.seatId){if(seating){++claimToken;seating=false;presence?.releaseSeat?.();}return true;}
-      const seat=seatMap.get(state.seatId),candidates=[seat?.exit,seat?.approach,seat&&{x:seatPoint(seat).x-43,y:seatPoint(seat).y},seat&&{x:seatPoint(seat).x+43,y:seatPoint(seat).y}].filter(Boolean),exit=candidates.find(p=>nav.canStand(p.x,p.y));
+      if(!state.seatId){if(seating){++claimToken;seating=false;seatPendingId=null;updateNearby();}return true;}
+      const seat=seatMap.get(state.seatId),candidates=[seatedExit,...(seat?seatApproaches(seat):[])].filter(Boolean),exit=candidates.find(p=>nav.canStand(p.x,p.y));
       if(!exit){announce('자리 옆 통로를 확인하고 있어요.');return false;}
-      state={...state,x:exit.x,y:exit.y,seatId:null,pose:'idle',moving:false,direction:'front'};presence?.releaseSeat?.();++claimToken;publish(true);return true;
+      const previous=state.seatId;state={...state,x:exit.x,y:exit.y,seatId:null,pose:'idle',moving:false,direction:'front'};seatedExit=null;presence?.releaseSeat?.(previous);++claimToken;publish(true);updateNearby();return true;
     }
     function floorSit(){
       if(dead||blocked()||seating)return false;if(state.pose==='sit-floor')return stand();
       if(state.seatId&&!stand())return false;
       if(!floorNav.canStand(state.x,state.y)){announce((playground?'사물':'책상과 벽')+'에서 조금 떨어진 넓은 바닥에 앉아 주세요.');return false;}
-      cancelWalk();keys.clear();gesture=null;++claimToken;state.pose='sit-floor';state.seatId=null;state.moving=false;publish(true);updateNearby();announce('바닥에 앉았어요. E나 방향키로 일어나요.');focus();return true;
+      stopForAction();++claimToken;state.pose='sit-floor';state.seatId=null;state.moving=false;publish(true);updateNearby();announce((playground?'앉았어요.':'바닥에 앉았어요.')+' C나 방향키로 일어나요.');focus();return true;
     }
+    function toggleSit(){if(dead||blocked())return false;const cancelling=seating||pending?.type==='seat';stopForAction();if(state.seatId||state.pose==='sit-floor'||cancelling)return stand();const seat=nearbySeat();return seat?sit(seat.id):floorSit();}
     function moveTo(x,y,goal=null){
-      if(dead||blocked())return false;if(!stand())return false;++claimToken;seating=false;gesture=null;cancelWalk();const end={x:finite(x,NaN),y:finite(y,NaN)};
-      const route=nav.route(state,end);if(!route){announce((playground?'사물을 피해 바닥이나 빈 벤치를':'책상과 벽을 피해 바닥이나 빈 의자를')+' 눌러 주세요.');return false;}
+      if(dead||blocked())return false;if(!stand())return false;++claimToken;seating=false;seatPendingId=null;stopForAction();const end={x:finite(x,NaN),y:finite(y,NaN)};
+      const route=nav.route(state,end);if(!route){announce((playground?'사물을 피해 이동할 바닥을':'책상과 벽을 피해 바닥이나 빈 의자를')+' 눌러 주세요.');return false;}
       path=route;pending=goal;autoFollow=true;destination.style.left=end.x+'px';destination.style.top=end.y+'px';destination.hidden=false;focus();return true;
     }
     function boardNear(board){return distance(state,board)<=finite(board.radius,115);}
+    function closestInteraction(test){return interactions.filter(item=>test(item)&&boardNear(item)).sort((a,b)=>distance(state,a)-distance(state,b))[0]||null;}
     function useBoard(board){
       if(!boardNear(board)){const target=board.approach||board;return moveTo(target.x,target.y,{type:'board',id:board.id});}
-      cancelWalk();if(!stand())return false;gesture=null;keys.clear();publish(true);options.onBoard?.(board);return true;
+      if(!stand())return false;stopForAction();publish(true);options.onBoard?.(board);return true;
     }
     function usePortal(portal){
+      if(dead||blocked()||!boardNear(portal))return false;
+      if(performance.now()<portalReadyAt){announce('잠깐 기다린 뒤 F로 다시 이동할 수 있어요.');return false;}
       if(!stand())return false;
-      if(!boardNear(portal)){const target=portal.approach||portal;return moveTo(target.x,target.y,{type:'portal',id:portal.id});}
-      cancelWalk();gesture=null;keys.clear();publish(true);options.onPortal?.(portal);return true;
+      if(!boardNear(portal))return false;
+      stopForAction();publish(true);
+      if(typeof options.onPortal!=='function'){announce('아직 이 문으로 이동할 수 없어요.');return false;}
+      transitioning=true;portalReadyAt=performance.now()+650;
+      try{Promise.resolve(options.onPortal(portal)).catch(()=>{if(!dead)announce('문으로 이동하지 못했어요. F로 다시 시도해 주세요.');}).finally(()=>{if(!dead)transitioning=false;});}
+      catch(_){transitioning=false;announce('문으로 이동하지 못했어요. F로 다시 시도해 주세요.');return false;}
+      return true;
     }
+    function walkToPortal(portal){const point=portal.approach||portal;if(boardNear(portal)){stopForAction();announce(portalLabel(portal)+' · F');focus();return true;}return moveTo(point.x,point.y,{type:'portal-approach',id:portal.id});}
+    function doorOrWave(){if(dead||blocked())return false;const portal=closestInteraction(isPortal);return portal?usePortal(portal):greet('wave');}
     function interact(){
-      if(dead||blocked())return false;if(state.seatId||state.pose==='sit-floor')return stand();
-      if(nearest?.type==='seat')return sit(nearest.id);if(nearest?.type==='board')return useBoard(nearest.value);if(nearest?.type==='portal')return usePortal(nearest.value);announce(playground?'빈 벤치 옆이나 학교 문 앞에서 E를 눌러 주세요.':'빈 의자 옆이나 칠판 앞에서 E를 눌러 주세요.');return false;
+      if(dead||blocked())return false;const board=closestInteraction(item=>(item.type||item.action)==='board');if(board)return useBoard(board);announce('칠판 가까이에서 E를 눌러 주세요. 앉기는 C, 문 이동은 F예요.');return false;
     }
     function updateNearby(){
-      controls.querySelector('[data-tool="floor-sit"]').textContent=state.pose==='sit-floor'?'바닥에서 일어나기 · G':'바닥에 앉기 · G';
-      if(state.pose==='sit-floor'){nearest={type:'stand-floor'};actionButton.disabled=false;actionButton.textContent='일어서기 · E';return;}
-      if(state.seatId){nearest={type:'stand'};actionButton.disabled=false;actionButton.textContent='일어서기 · E';return;}
-      nearest=null;let score=Infinity;
-      for(const seat of seats){const d=distance(state,approach(seat));if(d<46&&d<score&&!occupied(seat.id)){score=d;nearest={type:'seat',id:seat.id,value:seat};}}
-      for(const item of interactions){if(((item.type||item.action)==='board'||isPortal(item))&&boardNear(item)&&(!nearest||distance(state,item)<score)){score=distance(state,item);nearest={type:isPortal(item)?'portal':'board',id:item.id,value:item};}}
-      actionButton.disabled=!nearest;actionButton.textContent=nearest?.type==='seat'?(nearest.value.kind==='bench'?'벤치에 앉기 · E':'빈자리 앉기 · E'):nearest?.type==='board'?'선생님 수업 열기 · E':nearest?.type==='portal'?portalLabel(nearest.value)+' · E':idleInteractionText;
+      const seat=nearbySeat(),portal=closestInteraction(isPortal),board=closestInteraction(item=>(item.type||item.action)==='board'),cancelling=seating||pending?.type==='seat';
+      controls.querySelector('[data-tool="sit"]').textContent=state.seatId||state.pose==='sit-floor'?'일어서기 · C':cancelling?'앉기 취소 · C':playground?'앉기 · C':seat?(seat.kind==='bench'?'벤치에 앉기 · C':'의자에 앉기 · C'):'바닥에 앉기 · C';
+      controls.querySelector('[data-gesture="wave"] small').hidden=Boolean(portal);
+      nearest=state.seatId?{type:'stand'}:state.pose==='sit-floor'?{type:'stand-floor'}:portal?{type:'portal',id:portal.id,value:portal}:board?{type:'board',id:board.id,value:board}:seat?{type:'seat',id:seat.id,value:seat}:null;
+      actionButton.disabled=!portal&&!board;actionButton.textContent=portal?portalLabel(portal)+' · F':board?'선생님 수업 열기 · E':idleInteractionText;
       viewport.dataset.nearby=nearest?.type||'';
     }
     function greet(type){
-      if(dead||blocked())return false;if((state.seatId||state.pose==='sit-floor')&&!stand())return false;cancelWalk();keys.clear();state.direction='front';gesture={type:['wave','hello','happy'].includes(type)?type:'wave',at:clockNow(),started:performance.now()};publish(true);focus();return true;
+      if(dead||blocked())return false;if((state.seatId||state.pose==='sit-floor'||seating)&&!stand())return false;stopForAction();gesture={type:['wave','hello','happy'].includes(type)?type:'wave',at:clockNow(),started:performance.now()};publish(true);focus();return true;
     }
     function setPlayers(players){
       if(dead)return;const newest=new Map();for(const p of Array.isArray(players)?players:[]){if(!p||!p.uid||p.uid===uid||p.self||(p.zone&&p.zone!==zone)||!Number.isFinite(p.x)||!Number.isFinite(p.y))continue;const old=newest.get(String(p.uid));if(!old||finite(p.updatedAt)>=finite(old.updatedAt))newest.set(String(p.uid),p);}
@@ -239,30 +265,30 @@
       if(keys.size){if(stand()){dx=Number(keys.has('right'))-Number(keys.has('left'));dy=Number(keys.has('down'))-Number(keys.has('up'));if(dx||dy){cancelWalk();gesture=null;const len=Math.hypot(dx,dy);dx=dx/len*SPEED*dt;dy=dy/len*SPEED*dt;autoFollow=true;}}}
       else if(path.length){const target=path[0],d=distance(state,target),reach=SPEED*dt;if(d<=reach){dx=target.x-state.x;dy=target.y-state.y;path.shift();}else{dx=(target.x-state.x)/d*reach;dy=(target.y-state.y)/d*reach;}}
       const moved=(dx||dy)?step(dx,dy):0;state.moving=moved>.005;state.pose=state.seatId?'sit':state.pose==='sit-floor'?'sit-floor':state.moving?'walk':'idle';
-      if(!path.length&&pending){const goal=pending;pending=null;destination.hidden=true;if(goal.type==='seat')void sit(goal.id);else if(goal.type==='board'||goal.type==='portal'){const item=interactions.find(i=>i.id===goal.id);if(item){if(goal.type==='portal')usePortal(item);else useBoard(item);}}}
+      if(!path.length&&pending){const goal=pending;pending=null;destination.hidden=true;if(goal.type==='seat')void sit(goal.id);else if(goal.type==='board'||goal.type==='portal-approach'){const item=interactions.find(i=>i.id===goal.id);if(item){if(goal.type==='portal-approach')announce(portalLabel(item)+' · F');else useBoard(item);}}}
       if(dead)return;
       if(!path.length)destination.hidden=true;if(gesture&&now-gesture.started>1500)gesture=null;
       updateNearby();for(const actor of actors.values())placeActor(actor,dt,now);updateCamera(dt);publish();raf=requestAnimationFrame(tick);
     }
-    function onDown(e){if(!viewport.contains(e.target)&&!container.contains(document.activeElement))return;if(blocked()||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.target.isContentEditable)return;if(KEYS[e.code]){e.preventDefault();keys.add(KEYS[e.code]);++claimToken;}else if(e.code==='KeyE'&&!e.repeat){e.preventDefault();void interact();}else if(e.code==='KeyG'&&!e.repeat){e.preventDefault();floorSit();}else if(e.code==='KeyF'&&!e.repeat){e.preventDefault();greet('wave');}}
-    function onUp(e){if(KEYS[e.code])keys.delete(KEYS[e.code]);}
+    function onDown(e){if(!viewport.contains(e.target)&&!container.contains(document.activeElement))return;if(blocked()||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.target.isContentEditable)return;if(KEYS[e.code]){e.preventDefault();heldMovement.add(e.code);if(e.repeat&&suppressedMovement.has(e.code))return;suppressedMovement.delete(e.code);keys.add(KEYS[e.code]);++claimToken;}else if(['KeyC','KeyE','KeyF'].includes(e.code)){e.preventDefault();if(e.repeat||heldActions.has(e.code))return;heldActions.add(e.code);if(e.code==='KeyC')void toggleSit();else if(e.code==='KeyE')void interact();else doorOrWave();}}
+    function onUp(e){heldActions.delete(e.code);heldMovement.delete(e.code);suppressedMovement.delete(e.code);if(KEYS[e.code])keys.delete(KEYS[e.code]);}
     function onPointer(e){
       if(e.button!==0||blocked()||e.target.closest('.sr-actor,button,a,input'))return;
       const seat=e.target.closest('[data-sr-seat]');if(seat){void sit(seat.dataset.srSeat);focus();return;}
-      const interaction=e.target.closest('[data-sr-interaction]');if(interaction){const item=interactions.find(i=>i.id===interaction.dataset.srInteraction);if(item){if(isPortal(item))usePortal(item);else if((item.type||item.action)==='board')useBoard(item);}focus();return;}
+      const interaction=e.target.closest('[data-sr-interaction]');if(interaction){const item=interactions.find(i=>i.id===interaction.dataset.srInteraction);if(item){if(isPortal(item))walkToPortal(item);else if((item.type||item.action)==='board')useBoard(item);}focus();return;}
       const bounds=viewport.getBoundingClientRect(),x=(e.clientX-bounds.left)/scale+camera.x,y=(e.clientY-bounds.top)/scale+camera.y;
       const interactionHit=interactions.find(item=>{if((item.type||item.action)!=='board'&&!isPortal(item))return false;const box=item.hitRect||item.rect;if(!box)return false;const r=rect(box);return x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h;});
-      if(interactionHit){if(isPortal(interactionHit))usePortal(interactionHit);else useBoard(interactionHit);focus();return;}
+      if(interactionHit){if(isPortal(interactionHit))walkToPortal(interactionHit);else useBoard(interactionHit);focus();return;}
       const hit=seats.find(s=>{const r=s.rect||s.hitRect;if(!r)return false;const q=rect(r);return x>=q.x&&x<=q.x+q.w&&y>=q.y&&y<=q.y+q.h;});if(hit)void sit(hit.id);else moveTo(x,y);focus();
     }
-    function onBlur(){keys.clear();cancelWalk();publish(true);}
+    function onBlur(){keys.clear();heldActions.clear();heldMovement.clear();suppressedMovement.clear();cancelWalk();if(seating)stand();publish(true);}
     const observer=typeof ResizeObserver!=='undefined'?new ResizeObserver(resize):null;observer?.observe(viewport);
     document.addEventListener('keydown',onDown);document.addEventListener('keyup',onUp);document.addEventListener('visibilitychange',onBlur);window.addEventListener('blur',onBlur);viewport.addEventListener('pointerdown',onPointer);
-    tools.querySelector('[data-tool="help"]').onclick=()=>{help.hidden=!help.hidden;focus();};tools.querySelector('[data-tool="zoom-out"]').onclick=()=>zoom(-.08);tools.querySelector('[data-tool="zoom-in"]').onclick=()=>zoom(.08);tools.querySelector('[data-tool="center"]').onclick=center;tools.querySelector('[data-tool="exit"]').onclick=()=>{cancelWalk();stand();options.onExit?.();};actionButton.onclick=()=>{void interact();focus();};controls.querySelector('[data-tool="floor-sit"]').onclick=floorSit;controls.querySelectorAll('[data-gesture]').forEach(b=>b.onclick=()=>greet(b.dataset.gesture));
+    tools.querySelector('[data-tool="help"]').onclick=()=>{help.hidden=!help.hidden;focus();};tools.querySelector('[data-tool="zoom-out"]').onclick=()=>zoom(-.08);tools.querySelector('[data-tool="zoom-in"]').onclick=()=>zoom(.08);tools.querySelector('[data-tool="center"]').onclick=center;tools.querySelector('[data-tool="exit"]').onclick=()=>{stopForAction();stand();options.onExit?.();};actionButton.onclick=()=>{const portal=closestInteraction(isPortal);if(portal)usePortal(portal);else void interact();focus();};controls.querySelector('[data-tool="sit"]').onclick=()=>{void toggleSit();focus();};controls.querySelectorAll('[data-gesture]').forEach(b=>b.onclick=()=>greet(b.dataset.gesture));
     setStatus(options.status||{mode:'local'});setPlayers(options.players||[]);publish(true);updateNearby();updateCamera(0);placeActor(local,0,performance.now());raf=requestAnimationFrame(tick);
-    function getCheckpoint(){const seat=state.seatId&&seatMap.get(state.seatId),point=seat&&(seat.exit||seat.approach);return {...state,...(point||{}),seatId:null,pose:'idle',moving:false};}
+    function getCheckpoint(){const seat=state.seatId&&seatMap.get(state.seatId),point=seat&&(seatedExit||seat.exit||seat.approach);return {...state,...(point||{}),seatId:null,pose:'idle',moving:false};}
     function destroy(){if(dead)return;stand();dead=true;++claimToken;cancelAnimationFrame(raf);clearTimeout(noticeTimer);keys.clear();observer?.disconnect();document.removeEventListener('keydown',onDown);document.removeEventListener('keyup',onUp);document.removeEventListener('visibilitychange',onBlur);window.removeEventListener('blur',onBlur);viewport.removeEventListener('pointerdown',onPointer);for(const actor of actors.values())window.QPAvatarPose?.destroy(actor.svg);actors.clear();container.classList.remove('school-room-host');delete container.dataset.zone;container.replaceChildren();}
-    return Object.freeze({destroy,getState:()=>({...state,camera:{...camera,scale,preferredScale,minimumScale},path:path.map(p=>({...p})),paused:blocked(),status:{...status},nearest:nearest?{type:nearest.type,id:nearest.id}:null,seatPending:seating}),getCheckpoint,moveTo,canStand:nav.canStand,sit,floorSit,stand,interact,setPlayers,setStatus,setPresence,focus,setPaused(value){paused=Boolean(value);if(paused){onBlur();++claimToken;}},setAvatar(av){updateArt(local,av);const profile={avatar:cleanAvatar(av)};if(presence?.setProfile)presence.setProfile(profile);else presence?.update?.(profile);},gesture:greet,center,zoom,scene,nav});
+    return Object.freeze({destroy,getState:()=>({...state,camera:{...camera,scale,preferredScale,minimumScale},path:path.map(p=>({...p})),paused:blocked(),status:{...status},nearest:nearest?{type:nearest.type,id:nearest.id}:null,seatPending:seating,seatPendingId,transitioning,portalCooldownRemaining:Math.max(0,portalReadyAt-performance.now())}),getCheckpoint,moveTo,canStand:nav.canStand,sit,floorSit,toggleSit,stand,interact,setPlayers,setStatus,setPresence,focus,setPaused(value){paused=Boolean(value);if(paused){onBlur();++claimToken;}},setAvatar(av){updateArt(local,av);const profile={avatar:cleanAvatar(av)};if(presence?.setProfile)presence.setProfile(profile);else presence?.update?.(profile);},gesture:greet,center,zoom,scene,nav});
   }
   window.QPSchoolRoomWorld=Object.freeze({mount,createNavigation});
 })();
