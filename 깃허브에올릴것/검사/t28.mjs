@@ -168,7 +168,7 @@ ok('?bloom=1 — 빛 번짐이 이번 한 판만 켜진다 (프리셋엔 없다)
     return o; });
   await pg.close();                                  // 무거운 high 페이지를 먼저 닫아야 다음 페이지가 60초 안에 뜬다
   /* 진단 항목 넷은 ?diag=1 로 연 페이지에만 있다 */
-  const p3 = await open('?gfx=low&diag=1');
+  const p3 = await open('?gfx=low&diag=1&sweep=all');   // 89차 — 기본 스윕은 8줄, 전부는 &sweep=all
   r.cases = await p3.evaluate(   // 81차 — '그림자 매 프레임' → '그림자 다시그리기 멈춤'(63차부터 매 프레임이 기본이라 꺼 보는 줄로)
     ()=>(window.CASE_NAMES||[]).filter(n => /그림자 다시그리기 멈춤|손 조명 켬|결 끔|작은 것 그림자 켬/.test(n)).length);
   r.lowLambert = await p3.evaluate(()=>window.__flatMat(0xffffff).type === 'MeshLambertMaterial');
