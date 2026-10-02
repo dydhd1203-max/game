@@ -58,7 +58,7 @@ window.DEFAULTS = {
          · '보통' 의 그림자 지도 1024 → **2048** (26차 교실 실측에서 그림자를 통째로 꺼도 **+2.5fps** 뿐이었다.
            2048 에서 잰 값이므로 이 올림은 그 2.5 안에 있다.)
        '선명' 은 시작 화면 그래픽 단추로 고른다(기기마다 저장된다). 선생님이 교실에서 견줄 땐 아래 순서로:
-         ?gfx=high  →  ?gfx=high&pr=0.85  →  ?gfx=high&aa=2   (셋의 fps 차이가 픽셀 vs MSAA 를 가른다)
+         ?gfx=high  →  ?gfx=high&pr=0.85  →  ?gfx=high&aa=0   (셋의 fps 차이가 픽셀 vs MSAA 를 가른다 — aa 는 켬/끔만 뜻이 있다, aa=2 는 4 와 같다)
        어느 것이 얼마나 무거운지는 주소 끝에 ?diag=1 을 붙이고 Shift+9 를 누르면 항목별로 나온다. */
   gfx: 'mid'
 };
@@ -2048,7 +2048,8 @@ label.f{font-size:14px} .hint{font-size:13px} #hint{font-size:13px} #feed{font-s
 #cnt.go{font-size:clamp(90px,12vw,190px);background:linear-gradient(180deg,#d6ffcf 0%,#7dff7a 45%,#1fc25a 100%);-webkit-text-stroke:5px #0d3a1a;filter:drop-shadow(0 8px 0 rgba(0,40,10,.5)) drop-shadow(0 0 26px rgba(120,255,120,.55))}
 #cnt.cntOn{display:block;animation:cntPop .9s cubic-bezier(.2,1.5,.4,1) forwards}
 @keyframes cntPop{0%{opacity:0;transform:translate(-50%,-50%) scale(3) rotate(-14deg)}16%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-5deg)}70%{opacity:1;transform:translate(-50%,-50%) scale(1.06) rotate(-5deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(.8) rotate(-5deg)}}
-#fearVig{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center, rgba(0,0,0,0) 42%, rgba(30,0,8,.55) 75%, rgba(12,0,4,.92) 100%);z-index:3}
+#fearVig{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center, rgba(0,0,0,0) 42%, rgba(30,0,8,.55) 75%, rgba(12,0,4,.92) 100%);z-index:3;
+  will-change:opacity}   /* 89차 — JS 가 매 프레임 opacity 를 쓰므로 합성기 층으로 올린다(안 그러면 전면 그라디언트가 매 프레임 다시 그려진다) · 그림 동일 */
 @media (max-width:820px){ #feed{font-size:12px} }
 /* ══════════════════ 밝은 모험 UI · 2026-09 ══════════════════
    크림 판·하늘색 단추·민트 선택색과 남색 글자. 기존 HUD 위치·핫바 치수는 보존한다.
@@ -4305,6 +4306,7 @@ body.waiting78 #hud,body.story78 #hud{visibility:hidden!important}body.waiting78
     <button class="btn sm" id="tPause">⏸️ 잠깐 멈춤</button>
     <button class="btn sm" id="tSkip">⏭️ 다음 단계로</button>
     <button class="btn sm" id="tHeal">💎 수정 회복</button>
+    <button class="btn sm" id="tInv">🛡️ 수정 무적 켜기</button>
     <button class="btn sm" id="tClear">🧟 좀비 없애기</button>
     <button class="btn sm" id="tGift">🎁 전 모둠 자원 +30 · 🥚🥛🍖 +10</button>
     <button class="btn sm" id="tLv5">⭐ 내 레벨 +5</button>
@@ -4392,7 +4394,7 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
    같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '88차 · 출발 숲 정리·구름다리 넓게';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '89차 · 진단 손질·수정 무적';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -20770,7 +20772,7 @@ const D = window.DEFAULTS;
 const G = {
   phase:'title', day:1, t:0, crystal:D.crystalMax, sub:0,
   set:{daySec:D.daySec, nightSec:D.nightSec, goalDay:D.goalDay,
-       crystalMax:D.crystalMax, wolfPower:D.wolfPower},
+       crystalMax:D.crystalMax, wolfPower:D.wolfPower, cInv:0},   // 89차 cInv — 선생님 탭 '수정 무적'(좀비가 물어도 수정이 안 깎인다 · meta 로 손님에게도 간다)
   res:[], me:{name:'', g:0, uid:'', hat:0, gls:0, clo:0, skin:0}, host:false, solo:false, room:'', focus:0,
   wolves:[], soldiers:[], players:new Map(), stats:new Map(), started:false, paused:false,
   bossTier:-1, bossId:0, chests:[], chT:0, drops:[], danger:-1, nk:-1, nkPrev:-1,
@@ -25844,10 +25846,10 @@ function paintHUD(){
   setSty('cFill', 'background', G.healing ? 'linear-gradient(90deg,#8dff8d,#3ddb6a)'
     : pct>50 ? 'linear-gradient(90deg,#66e0ff,#37c6ff)'
     : pct>25 ? 'linear-gradient(90deg,#ffd66b,#ffa726)' : 'linear-gradient(90deg,#ff8a8a,#ff3b3b)');
-  setTxt('cNum', Math.max(0,Math.ceil(G.crystal)) + ' / ' + G.set.crystalMax);
+  setTxt('cNum', Math.max(0,Math.ceil(G.crystal)) + ' / ' + G.set.crystalMax + (G.set.cInv ? ' 🛡️' : ''));   // 89차 — 수정 무적이면 방패
   setSty('cNum', 'color', G.healing ? '#0e2a14' : '#fff');
 
-  const cDang = pct <= 25 && !G.healing;
+  const cDang = pct <= 25 && !G.healing && !G.set.cInv;
   if(hudPrev.cDang !== cDang){ hudPrev.cDang = cDang;
     el('crystalWrap').classList.toggle('danger', cDang); }
   /* 내 체력 */
@@ -28364,15 +28366,15 @@ function hostSim(dt){
       w.mv = false;
       w.ry = Math.atan2(-w.x, -w.z);
       if(w.atkT <= 0){ w.atkT = 0.9;
-        G.crystal = Math.max(0, G.crystal - w.cd); G.regenT = 0;
+        if(!G.set.cInv){ G.crystal = Math.max(0, G.crystal - w.cd); G.regenT = 0; }   // 89차 — 수정 무적이면 조각·소리만, 체력은 그대로
         /* 수정이 깨진 자리 — 좀비가 문 쪽(수정 겉면)에서 조각이 튄다 */
         const dn = Math.max(0.001, Math.hypot(w.x, w.z)), bx = w.x/dn*1.1, bz = w.z/dn*1.1;
         burst(bx, GY+2.0, bz, 0x9beeff, 14, 1.7);      // 수정 조각
         burst(bx, GY+2.0, bz, 0xffffff, 6, 2.1);       // 흰 불티
         burst(w.x, GY+1.2, w.z, 0xb6d6be, 4, 1.2);     // 입가의 마른 먼지, 유혈 없음
         if(window.__sfxAt) window.__sfxAt('crystalHit', 0, 0, 60, 700);   // 66차 — 유리 '팅' + 둔한 쿵(아프다). 여럿이 물어도 0.7초에 한 번
-        cryHurtT = 0.28;                               // 수정이 붉게 번쩍한다
-        onCrystalHit();
+        if(!G.set.cInv){ cryHurtT = 0.28;              // 수정이 붉게 번쩍한다
+          onCrystalHit(); }
       }
     } else {
       /* ── 목표 지점 정하기 ──
@@ -33435,7 +33437,7 @@ el('bTeach').onclick = ()=>{
       G.set.daySec=+el('sDay').value; G.set.nightSec=+el('sNight').value;
       G.set.goalDay=+el('sGoal').value; G.set.wolfPower=+el('sPow').value; netMeta(); };
   }
-  paintTeach(); openPop('popTeach');
+  paintInv(); paintTeach(); openPop('popTeach');
 };
 function paintTeach(){
   let h='';
@@ -33474,6 +33476,12 @@ el('tSkip').onclick = ()=>{ if(!G.host) return;
   if(G.phase==='day') goNight(); else { G.wolves.length=0; spawnQ=[];
     if(G.day>=G.set.goalDay){ G.phase='win'; netMeta(); showEnd(); } else { G.day++; goDay(); } } };
 el('tHeal').onclick = ()=>{ G.crystal = G.set.crystalMax; netMeta(); toast('💎 수정 회복!',1.6,'#c8ffb0'); };
+/* 89차 — 선생님: "선생님 탭에 수정 무적 기능도 넣어줘". 켜 두면 좀비가 수정을 물어도(조각·소리는 그대로) 체력이 안 깎인다.
+   G.set 에 들어 있어 meta 로 손님 화면에도 가고(수정 칸에 🛡️), 처음부터 다시 해도 선생님 설정처럼 남는다. 수업 설명·연습용. */
+function paintInv(){ el('tInv').textContent = G.set.cInv ? '🛡️ 수정 무적 끄기 (지금 켜짐)' : '🛡️ 수정 무적 켜기'; el('tInv').classList.toggle('warn', !!G.set.cInv); }
+el('tInv').onclick = ()=>{ if(!G.host){ toast('방을 만든 선생님만 바꿀 수 있어요', 1.6, '#ffd9d9'); return; }
+  G.set.cInv = G.set.cInv ? 0 : 1; netMeta(); paintInv();
+  say(G.set.cInv ? '🛡️ 선생님이 <b>수정 무적</b>을 켰어요 — 좀비가 물어도 수정이 안 깎여요' : '💎 선생님이 수정 무적을 껐어요'); };
 /* 미니게임 — 바로 열기 · 끝내기 (37차: 경주 0 · 서바이벌 1) */
 for(let k=0;k<2;k++) el('tMini'+k).onclick = ()=>{ if(!G.host) return;
   if(miniOn()){ toast('지금 하는 미니게임을 먼저 끝내세요', 1.6, '#ffbdbd'); return; }
@@ -33545,7 +33553,7 @@ function updDanger(){
   if(miniOn() && M && M.k === 0 && M.st === 'run' && G.t <= MINI_WARN && MINE.fin < 0){
     dangerSet(d, '1', true, true); return;
   }
-  if(G.phase==='night' && p < 0.3) dangerSet(d, '1', true, false);
+  if(G.phase==='night' && p < 0.3 && !G.set.cInv) dangerSet(d, '1', true, false);
   else dangerSet(d, '0', false, false);
 }
 /* 81차 — 초당 8번: 투명도·on·urgent 를 지금 값과 다를 때만 쓴다(최종 상태는 예전과 같다) */
@@ -35441,7 +35449,7 @@ function loop(){
     else drawFrame(); }
   else renderer.clear();          // 화면이 얼어붙은 걸로 안 보이게 (거의 공짜다)
   if(PROF_ON){ gpuEnd(); pE('★그리기'); }
-  if(window.__sweepTick) window.__sweepTick(dt);
+  if(window.__sweepTick) window.__sweepTick(elapsed);   // 89차 — 깎이지 않은 경과 시간(0.05 상한을 받으면 느린 창이 빠르게 찍힌다)
   autoResTick(elapsed);                                                   // 85차 — 자동 해상도
   if(diagEl) updDiag(dt);
   if(PROF_ON){
@@ -35565,7 +35573,16 @@ if(new URLSearchParams(location.search).has('diag')){
   /* 85차 — HUD 를 갱신만 멈추는 것(HUD 끔)과 달리 화면에서 통째로 숨겨 합성(겹친 DOM 층) 값을 잰다 */
   const hudHide85 = on=>{ for(const id of ['hud','miniWrap','combatHud79','dmgLayer','magHud','crosshair']){ const e = document.getElementById(id); if(e) e.style.visibility = on ? 'hidden' : ''; } };
   const C = (name, on)=>{ let s = null; return [name, ()=>{ s = snapNow(); on(); }, ()=>{ if(s){ snapBack(s); s = null; } }]; };
-  const CASES = [
+  /* ★ 89차 — 선생님 표(88차, 좀비 33·기준 30~41fps)를 뜯어보니 22줄(126초)은 밤 130초를 다 써서 처음 세 줄이 늘 좀비 스폰 중에 재지고,
+     같은 장면에서도 기준이 ±5fps 흔들려 ±5 아래 줄(17개)은 가릴 수 없었다. 'HUD 끔 +14.5' 는 워밍업(한 프레임 22번 그리기)·밤 시작 연출의
+     여파가 걷히는 것이 찍힌 허수였고(같은 HUD 끔을 품은 '넷다 끔' 은 −1.5), 그림자 세 줄은 그림자가 꺼진 화질에서 무동작이었다.
+     그래서 기본은 **8줄(17창 · 약 50초)** 만 잰다 — 믿을 수 있던 큰 신호와 가려야 할 것만. 전부 재려면 주소에 &sweep=all.
+     '해상도 한단 더' 는 지금 배율에서 15% 더 내려 본다(자동 해상도가 바닥 0.82 에 붙어 있을 때 더 내리면 얼마나 얻나). */
+  const SWEEP_ALL = new URLSearchParams(location.search).get('sweep') === 'all';
+  const C_HUD = ()=>C('HUD 화면 숨김', ()=>{DBG.hudHide=true; hudHide85(true);});
+  const C_PR  = ()=>C('해상도 한단 더', ()=>{ const r = renderer.getPixelRatio()*0.85; renderer.setPixelRatio(r); renderer.setSize(innerWidth, innerHeight); bloomResize(); gunGlowResize(); });
+  const SHN = n => GFX.shadow ? n : n + '(무동작)';   // 그림자 없는 화질에선 토글해도 아무 일이 없다 — 표에서 잡음 크기를 보는 줄로 쓴다
+  const CASES = SWEEP_ALL ? [
     C('HUD 끔',        ()=>{DBG.noHUD=true;}),
     C('캐릭터갱신 끔', ()=>{DBG.noInst=true;}),
     C('이름표 끔',     ()=>{DBG.noTags=true;}),
@@ -35574,13 +35591,13 @@ if(new URLSearchParams(location.search).has('diag')){
     C('게임로직 통째로 끔', ()=>{DBG.noLogic=true;}),
     C('화면그리기 끔', ()=>{DBG.noRender=true;}),
 
-    C('그림자 끔',     ()=>setShadow(true)),
+    C(SHN('그림자 끔'), ()=>setShadow(true)),
     /* 84차 — 좀비: 안 그리면 얼마나 빨라지나(= 좀비 그리는 값) · 먼 좀비 단순화를 끄면 얼마나 느려지나 · 문턱을 1픽셀로 올리면 */
     C('좀비 안 그림',       ()=>{DBG.noZombie=true;}),
     /* 85차 — 좀비가 나오면 같이 늘어나는 것들을 하나씩: 투명·반투명 전부 · 발밑 그림자 · HUD 화면(DOM)을 숨김 · 좀비 체력 막대 · 뜨는 숫자 · 좀비 소리 */
     C('투명한 것 안 그림',  ()=>{DBG.noTransp=true;}),
     C('발밑 그림자 끔',     ()=>{DBG.noBlob=true;}),
-    C('HUD 화면 숨김',      ()=>{DBG.hudHide=true; hudHide85(true);}),
+    C_HUD(),
     C('좀비 체력막대 끔',   ()=>{DBG.noHPBar=true;}),
     C('뜨는 숫자 끔',       ()=>{DBG.noNum=true;}),
     C('좀비 소리 끔',       ()=>{DBG.noVoice=true;}),
@@ -35591,13 +35608,22 @@ if(new URLSearchParams(location.search).has('diag')){
        81차 — '그림자 매 프레임'(켜 보기) → '그림자 다시그리기 멈춤'(꺼 보기). 63차부터 매 프레임이 기본이라 켜 보는 줄은 늘 0 이었다.
        이제 그림자 지도를 한 장도 새로 안 그렸을 때 얼마나 빨라지나(+)를 잰다 = 그림자 지도를 다시 그리는 값 그 자체.
        (그리는 동안 움직이는 것의 그림자가 멈춰 보이는 건 그 창 2.8초뿐이고, 되돌리면 바로 새로 그린다.) */
-    C('그림자 다시그리기 멈춤', ()=>{ DBG.shFreeze = true; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = false; }),
+    C(SHN('그림자 다시그리기 멈춤'), ()=>{ DBG.shFreeze = true; renderer.shadowMap.autoUpdate = false; renderer.shadowMap.needsUpdate = false; }),
     C('손 조명 켬',       ()=>{ camera.add(heldLight); }),
     C('결 끔',            ()=>setGrain(0)),
-    C('작은 것 그림자 켬', ()=>setSmallCast(true)),
+    C(SHN('작은 것 그림자 켬'), ()=>setSmallCast(true)),
     ...(GFX.bloom ? [
       C('빛번짐 끔',     ()=>{DBG.noBloom=true;}),
       C('그래픽 둘 다 끔',()=>{setShadow(true); DBG.noBloom=true;}) ] : []),
+  ] : [
+    C('화면그리기 끔', ()=>{DBG.noRender=true;}),
+    C_HUD(),
+    C_PR(),
+    C('투명한 것 안 그림',  ()=>{DBG.noTransp=true;}),
+    C('발밑 그림자 끔',     ()=>{DBG.noBlob=true;}),
+    C('좀비 안 그림',       ()=>{DBG.noZombie=true;}),
+    C('게임로직 통째로 끔', ()=>{DBG.noLogic=true;}),
+    C_HUD(),                                        // 두 번 재서 둘이 다르면 잡음임을 바로 보이게
   ];
   /* ★ 항목마다 바로 직전에 기준을 다시 잰다.
      예전엔 처음에 한 번만 재고 쭉 갔는데, 재는 30초 동안 밤이 흘러 좀비가 계속 늘었다.
@@ -35625,10 +35651,11 @@ if(new URLSearchParams(location.search).has('diag')){
      밤 130초인데 스윕이 42초라, 밤이 얼마 안 남았을 때 시작하면 도중에 낮이 된다.
      좀비가 한꺼번에 사라져 뒤쪽 항목은 "한가한 낮"을 재게 되므로, 그런 줄은 버린다. */
   const WINS = CASES.length * 2 + 1;                  // 기준·항목 번갈아 + 마지막 기준
-  const SWEEP_SEC = WINS * (0.8 + 2.0);               // 약 42초
+  const SETTLE0 = 3.0;                                // 89차 — 첫 창은 워밍업·셰이더 컴파일 여파가 걷히게 3초 쉰다(그 뒤로는 0.8초)
+  const SWEEP_SEC = WINS * (0.8 + 2.0) + (SETTLE0 - 0.8);   // 기본 8줄 ≈ 50초 · 전부(&sweep=all) ≈ 128초
   /* 창 하나를 재는 내내 상황을 지켜본다.
      끝날 때만 보면 창 한가운데서 낮이 되는 경우를 놓친다(실제로 놓쳤다). */
-  const newWin = ()=>{ sweep.ph0 = G.phase; sweep.phBad = false;
+  const newWin = ()=>{ sweep.ph0 = G.phase; sweep.phBad = false; sweep.hitch = 0;
                        sweep.wMin = G.wolves.length; sweep.wMax = G.wolves.length; };
 
   window.__startSweep = ()=>{
@@ -35638,8 +35665,9 @@ if(new URLSearchParams(location.search).has('diag')){
     let warn = '';
     if(G.phase !== 'night') warn = '지금 밤이 아니다 — 좀비가 없어 로직이 거의 안 돈다';
     else if(G.t < SWEEP_SEC + 5) warn = '밤이 ' + Math.round(G.t) + '초 남음 — 재는 중에 낮이 된다';
-    sweep = { t:0, f:0, settling:true, wins:[], warn:warn,
-              ph0:'', phBad:false, wMin:0, wMax:0 };
+    else if(G.set.nightSec - G.t < 20) warn = '밤 시작 ' + Math.round(G.set.nightSec - G.t) + '초 — 좀비가 아직 나오는 중(20초 뒤에 누르면 더 정확)';   // 89차
+    sweep = { t:0, f:0, settling:true, first:true, wins:[], warn:warn,
+              ph0:'', phBad:false, wMin:0, wMax:0, hitch:0 };
     newWin();
   };
   window.__sweepTick = dt=>{
@@ -35650,12 +35678,12 @@ if(new URLSearchParams(location.search).has('diag')){
     if(nw < sweep.wMin) sweep.wMin = nw;
     if(nw > sweep.wMax) sweep.wMax = nw;
 
-    sweep.t += dt;
-    if(sweep.settling){ if(sweep.t > 0.8){ sweep.settling=false; sweep.t=0; sweep.f=0; } return; }
-    sweep.f++;
+    sweep.t += dt;                                   // 89차 — dt 는 깎지 않은 실제 경과(루프의 elapsed). 0.05 로 깎인 값을 쓰면 느린 창의 fps 가 부풀려졌다
+    if(sweep.settling){ if(sweep.t > (sweep.first ? SETTLE0 : 0.8)){ sweep.settling=false; sweep.first=false; sweep.t=0; sweep.f=0; } return; }
+    sweep.f++; if(dt > 0.1) sweep.hitch++;           // 89차 — 0.1초 넘게 멈춘 프레임 수(끊김)
     if(sweep.t < 2.0) return;
     sweep.wins.push({fps:Math.round(sweep.f/sweep.t),
-                     wMin:sweep.wMin, wMax:sweep.wMax, bad:sweep.phBad});
+                     wMin:sweep.wMin, wMax:sweep.wMax, bad:sweep.phBad, hitch:sweep.hitch, gpu:gpuMs});   // 89차 — 끊김 수 · GPU 시간(EXT_disjoint_timer_query, 15프레임마다 질의한 지수평균)
 
     /* 창 번호: 짝수=기준, 홀수=항목. 0기준 1항목0 2기준 3항목1 ... 마지막은 기준 */
     const idx = sweep.wins.length - 1;
@@ -35670,7 +35698,8 @@ if(new URLSearchParams(location.search).has('diag')){
                    Math.min(b0.wMin, c.wMin, b1.wMin),
                    Math.max(b0.wMax, c.wMax, b1.wMax),
                    b0.bad || c.bad || b1.bad,
-                   Math.round(base)]);                 // 34차 — 줄마다 기준도 남긴다
+                   Math.round(base),                   // 34차 — 줄마다 기준도 남긴다
+                   b0.fps, b1.fps, c.hitch, c.gpu]);  // 89차 — 앞·뒤 기준 따로(둘이 3 넘게 다르면 그 줄은 흔들린 것) · 끊김 수 · GPU ms
       }
       /* ★ 34차 — 34차 뒤 교실 표가 첫 줄들은 기준 51 이다가 중간부터 30 으로 주저앉았고, 그 뒤론 '화면 그리기 끔' 이 +0.5,
          '로직 통째로 끔' 이 0.0 이었다. 그리기도 로직도 꺼서 안 빨라지면 게임 밖 상한이다(발열·절전·탭 가림·30Hz 화면).
@@ -35679,7 +35708,11 @@ if(new URLSearchParams(location.search).has('diag')){
       const drift = fN < f0*0.75 ? '기준이 ' + f0 + ' → ' + fN + ' fps 로 무너졌습니다 — 기계가 느려진 것(발열·절전·탭 가림)이라 뒤쪽 줄은 못 씁니다.' : '';
       const dr = rows.find(r => r[0] === '화면그리기 끔');
       const capped = dr && dr[1] < Math.max(36, dr[6]*1.15) ? '그리기를 꺼도 ' + dr[1] + ' fps — 게임 밖 상한입니다(발열·절전·탭 가림·30Hz 화면). 전원을 꽂고 식힌 뒤 창을 앞에 두고 다시 재세요.' : '';
-      sweepOut = {rows:rows, spoiled:rows.some(r=>r[5]), warn:sweep.warn, drift, capped};
+      /* 89차 — 기준 창 원본과 흔들림(표준편차)을 표 밑에 남긴다. ±2σ 아래 차이는 가릴 수 없다는 뜻이다 */
+      const bases = sweep.wins.filter((_,k)=>k%2===0).map(w=>w.fps), bm = bases.reduce((a,b)=>a+b,0)/bases.length;
+      const bsd = Math.sqrt(bases.reduce((a,b)=>a+(b-bm)*(b-bm),0)/bases.length);
+      sweepOut = {rows:rows, spoiled:rows.some(r=>r[5]), warn:sweep.warn, drift, capped, bases, bsd:Math.round(bsd*10)/10,
+                  gpu:gpuExt === null ? null : gpuMs};
       sweep = null; return;
     }
     if(idx % 2 === 0) CASES[idx>>1][1]();          // 기준 창이 끝났으면 다음 항목을 켠다
@@ -35742,11 +35775,16 @@ function updDiag(dt){
   const st = window.__sweepState && window.__sweepState();
   /* 줄 끝에 좀비 수를 같이 찍는다. 기준 잴 때와 항목 잴 때가 크게 다르면
      그 줄은 상황이 변한 것이라 차이값을 믿으면 안 된다. */
-  const fmt = r => r[0].padEnd(14,' ') + String(r[1]).padStart(3,' ') + 'fps '
+  const fmt = r => r[0].padEnd(20,' ') + String(r[1]).padStart(3,' ') + 'fps '
       + ((r[2] > 0 ? '+' : '') + r[2].toFixed(1)).padStart(5,' ')
-      + (r[6] !== undefined ? '  기준' + r[6] : '')                  // 34차 — 기준이 무너지는지 줄마다 보인다
+      + (r[7] !== undefined ? '  기준' + r[7] + '·' + r[8]            // 89차 — 앞·뒤 기준 따로
+         : r[6] !== undefined ? '  기준' + r[6] : '')                // 34차 — 기준이 무너지는지 줄마다 보인다
       + (r[5] ? '  ⚠낮밤바뀜'
-              : '  좀비' + (r[3]===r[4] ? r[3] : r[3] + '~' + r[4]));
+              : '  좀비' + (r[3]===r[4] ? r[3] : r[3] + '~' + r[4]))
+      + (r[7] !== undefined && Math.abs(r[7]-r[8]) >= 3 ? '  ⚠기준흔들림' : '')   // 89차 — 앞뒤 기준이 3fps 넘게 다르면 그 줄 차이는 못 믿는다
+      + (!r[5] && r[4]-r[3] > 3 ? '  ⚠좀비수바뀜' : '')
+      + (r[9] ? '  끊김' + r[9] : '')
+      + (r[10] ? '  GPU' + r[10].toFixed(1) : '');
   if(st && st.sweep){
     const s = st.sweep;
     diagEl.textContent = '자동 측정 중… ' + s.wins.length + '/' + st.WINS + '창'
@@ -35763,6 +35801,8 @@ function updDiag(dt){
       + '(오른쪽 숫자 = 바로 직전 기준과의 차이)\n'
       + '81차 최적화 ' + P81_NOTE + ' · ' + autoResNote() + '\n\n'                        // 81차 — 켠 판·끈 판(&p81off=all) 표를 섞지 않게
       + o.rows.map(fmt).join('\n')
+      + (o.bases ? '\n\n기준 창 ' + o.bases.join(' ') + '  (흔들림 ±' + o.bsd + ' → ±' + (o.bsd*2).toFixed(0) + 'fps 아래 차이는 못 가림)' : '')   // 89차
+      + (o.gpu !== undefined ? '\n★GPU실제 ' + (o.gpu === null ? '못잼(이 브라우저는 GPU 시간 질의가 없음)' : !o.gpu ? '값 없음(질의가 한 번도 안 돌아옴)' : o.gpu.toFixed(1) + 'ms — 그리기 중 GPU 가 실제로 일한 시간') : '')
       + (o.warn ? '\n\n⚠ 시작할 때: ' + o.warn : '')
       + (o.drift ? '\n\n⚠ ' + o.drift : '')
       + (o.capped ? '\n\n⚠ ' + o.capped : '')
@@ -35825,8 +35865,8 @@ function updDiag(dt){
     '───────────────\n' +
     'Shift+7 시뮬·통신 ' + (DBG.noSim ? '끔' : '켬') + '\n' +
     'Shift+8 전송횟수 ' + (DBG.slowNet ? '초당 6회' : '초당 13회') + '\n' +
-    '★ Shift+9 = 자동으로 전부 측정\n' +
-    '   (30초, 밤에 하세요)\n' +
+    '★ Shift+9 = 자동으로 측정(8줄·약 50초)\n' +
+    '   밤 시작 20초 뒤에 · 전원 꽂고 · 가만히 서서 (&sweep=all 이면 전부 22줄)\n' +
     '81차 켬/끔 견주기: 주소 끝 &p81off=all 로 새로 열어\n' +
     '   Shift+9 한 번 더(판 도중엔 못 바꿈 · 창 하나만·전원 꽂고)\n' +
     '손으로: 0그리기 ' + (DBG.noRender?'끔':'켬') +
