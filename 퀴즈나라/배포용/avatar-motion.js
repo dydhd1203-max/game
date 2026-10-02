@@ -73,9 +73,12 @@
     function updateAction() {
       const direction = Number(held('right')) - Number(held('left'));
       const sitting = held('sit') && state.grounded;
-      state.vx = enabled && !sitting ? direction * speed : 0;
+      const atEdge=direction<0&&state.x<=minX||direction>0&&state.x>=maxX;
+      state.vx = enabled && !sitting && !atEdge ? direction * speed : 0;
       if (state.vx) state.facing = state.vx < 0 ? 'left' : 'right';
-      state.action = !state.grounded ? 'jump' : sitting ? 'sit' : state.vx ? 'walk' : 'idle';
+      const action=!state.grounded?'jump':sitting?'sit':state.vx?'walk':'idle';
+      if(action==='walk'&&state.action!=='walk')state.phase=0;
+      state.action=action;
       state.step = Math.floor(state.phase * 8) % 8;
     }
 
@@ -107,13 +110,14 @@
       if (enabled && !document.hidden) {
         if (blocked() && ACTIONS.some(held)) clearInputs();
         updateAction();
+        const oldX=state.x;
         state.x = clamp(state.x + state.vx * dt, minX, maxX);
         if (!state.grounded) {
           state.y += state.vy * dt - gravity * dt * dt / 2;
           state.vy -= gravity * dt;
           if (state.y <= 0 && state.vy <= 0) { state.y = 0; state.vy = 0; state.grounded = true; }
         }
-        if (state.action === 'walk') state.phase = (state.phase + speed * dt / stride) % 1;
+        if (state.action === 'walk') state.phase = (state.phase + Math.abs(state.x-oldX) / stride) % 1;
         updateAction();
         paint();
       }

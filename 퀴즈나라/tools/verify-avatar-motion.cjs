@@ -1,13 +1,17 @@
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict'),path=require('node:path'),fs=require('node:fs');
 (async()=>{
-  const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});
+  const browser=await chromium.launch({headless:true,executablePath:process.env.QUIZ_BROWSER_EXECUTABLE||(process.platform==='win32'?'C:/Program Files/Google/Chrome/Application/chrome.exe':'/usr/bin/chromium')});
   const context=await browser.newContext({viewport:{width:1440,height:1000}});
   await context.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({body:'/* isolated avatar review */',contentType:'text/javascript'}));
-  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:4173/?demo=1&session=blink-'+Date.now());
+  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.stack||e.message));
+  const target=new URL(process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/');target.searchParams.set('demo','1');target.searchParams.set('session','blink-'+Date.now());
+  await page.goto(target.href);
   await page.waitForFunction(()=>QPAvatar?.atlas.ready===true&&QPClothes?.atlas.ready===true);
   const gender=await page.evaluate(()=>{
+    // Leave the live school controller before replacing this page with a
+    // static art fixture, so its animation frame cannot read removed UI.
+    QPGame.go('home');
     const av=Object.assign(QPGame.newAvatar('f'),{hair:'bob:1',sk:0,expression:'bright:0',hat:'',glass:'',face:'',ear:'',neck:'',back:'',pet:'',bg:'',frame:''});
     const female=QPAvatar.render(av,360,3),male=QPAvatar.render({...av,sex:'m'},360,3);
     const temp=document.createElement('div');temp.innerHTML=female;const f=temp.querySelector('[data-qpx-hair-color]').getAttribute('href');
@@ -24,7 +28,8 @@ const assert=require('node:assert/strict'),path=require('node:path'),fs=require(
   }));
   for(const p of poses){assert.equal(p.half,p.pose==='half'?1:0);assert.equal(p.closed,p.pose==='closed'?1:0);assert.equal(p.transform,'none');}
   assert.deepEqual(errors,[]);
-  await page.screenshot({path:path.resolve(__dirname,'../검증/남녀-눈깜빡임.png')});
-  fs.writeFileSync(path.resolve(__dirname,'../검증/아바타-모션검증.json'),JSON.stringify({gender,poses,errors},null,2));
+  const output=path.resolve(process.env.QUIZ_VERIFICATION_OUTPUT||path.join(__dirname,'../검증'));fs.mkdirSync(output,{recursive:true});
+  await page.screenshot({path:path.join(output,'남녀-눈깜빡임.png')});
+  fs.writeFileSync(path.join(output,'아바타-모션검증.json'),JSON.stringify({target:target.href,gender,poses,errors},null,2));
   console.log(JSON.stringify({gender,poses,errors},null,2));await browser.close();
 })().catch(e=>{console.error(e);process.exit(1);});

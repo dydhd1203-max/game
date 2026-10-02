@@ -171,9 +171,11 @@
     const garments=[...r.pose.body.querySelectorAll('[data-qpx-clothes]')];
     for(const original of garments){
       const d=original.dataset;if(d.qpxProfileClothes||d.qpxProfileSleeve)continue;
-      const layer=add(original,art.renderProfileGarment(d.qpxClothes,d.clothShape,d.clothColor,d.clothSex,d.clothSkin));
+      const part=r.pose.upper.contains(original)?'upper':r.pose.hem.contains(original)?'hem':r.pose.left.contains(original)?'left-leg':r.pose.right.contains(original)?'right-leg':'full';
+      const layer=add(original,art.renderProfileGarment(d.qpxClothes,d.clothShape,d.clothColor,d.clothSex,d.clothSkin,{part}));
       for(const key of ['qpxClothes','clothShape','clothColor','clothSex','clothSkin'])if(d[key])layer.dataset[key]=d[key];
       layer.dataset.qpxProfileClothes='true';
+      layer.dataset.qpxGarmentPart=part;
       const side=r.pose.left.contains(original)?'left':r.pose.right.contains(original)?'right':null;
       if(d.qpxClothes==='bottom'&&side&&!original.closest('[data-qpx-pose-part$="-shin"]')){
         const id=r.uid+'-side-seated-'+side,hip=side==='left'?13.75:18.25,w=r.pose.waist,k=r.pose.knee;
@@ -186,9 +188,17 @@
         r.profileWear.at(-1).seatedClip='url(#'+id+')';layer.dataset.qpxProfileThigh=side;
       }
     }
+    const coveredLegs=['jeans','track','legging','cargo'].includes(String(m.av.bottom||'').split(':')[0]);
     const skin=[...r.pose.body.querySelectorAll('.qpx-skin-torso,.qpx-leg-left,.qpx-leg-right')].filter(el=>!el.closest('[data-qpx-profile-painting]'));
     for(const original of skin){
-      const painting=original.classList.contains('qpx-skin-torso')?art.renderProfileTorso(m):art.renderProfileLeg(original.classList.contains('qpx-leg-left')?'left':'right',m.skin);
+      // The clothed pelvis belongs to the torso; its thighs belong to the leg
+      // joints. A duplicate static skin thigh in the upper crop protrudes from
+      // fitted trousers as a rectangular strip behind the profile waist.
+      // Long trousers own the entire dressed leg silhouette. Repainting bare
+      // skin under their narrower side view leaks angular skin panels when
+      // knees fold. Shorts, skirts and an unselected bottom keep bare legs.
+      const redundantLeg=!original.classList.contains('qpx-skin-torso')&&(coveredLegs||r.pose.upper.contains(original)&&Boolean(m.av.bottom));
+      const painting=redundantLeg?'':original.classList.contains('qpx-skin-torso')?art.renderProfileTorso(m):art.renderProfileLeg(original.classList.contains('qpx-leg-left')?'left':'right',m.skin);
       add(original,painting);
     }
   }
@@ -202,9 +212,10 @@
       const original=entry.original,d=original.dataset,category=d.qpxClothes;
       if(!category&&!original.classList.contains('qpx-skin-torso'))continue;
       const layer=node('g',{'data-qpx-back-painting':'true',style:'display:none'});
-      layer.innerHTML=category?art.renderBackGarment(category,d.clothShape,d.clothColor,d.clothSex,d.clothSkin):art.renderBackTorso(m);
+      const part=r.pose.upper.contains(original)?'upper':r.pose.hem.contains(original)?'hem':r.pose.left.contains(original)?'left-leg':r.pose.right.contains(original)?'right-leg':'full';
+      layer.innerHTML=category?art.renderBackGarment(category,d.clothShape,d.clothColor,d.clothSex,d.clothSkin,{part}):art.renderBackTorso(m);
       original.parentNode.insertBefore(layer,original.nextSibling);
-      if(category){for(const key of ['qpxClothes','clothShape','clothColor','clothSex','clothSkin'])if(d[key])layer.dataset[key]=d[key];layer.dataset.qpxBackClothes='true';layer.dataset.qpxDirectionPart=category+'-back';}
+      if(category){for(const key of ['qpxClothes','clothShape','clothColor','clothSex','clothSkin'])if(d[key])layer.dataset[key]=d[key];layer.dataset.qpxBackClothes='true';layer.dataset.qpxDirectionPart=category+'-back';layer.dataset.qpxGarmentPart=part;}
       r.backWear.push({original,layer,visibility:entry.visibility});
     }
   }

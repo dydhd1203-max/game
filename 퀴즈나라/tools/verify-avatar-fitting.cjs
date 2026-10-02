@@ -69,10 +69,12 @@ const out=path.resolve(__dirname,'../검증'),base=process.env.QUIZ_PREVIEW_URL|
       async function evaluate(av,label,state){
         host.innerHTML=QPAvatar.render(av,560,3);const svg=host.firstElementChild,viewHeight=svg.viewBox.baseVal.height;tagSkin(svg);
         if(state){QPAvatarPose.apply(svg,state);tagSkin(svg);}
+        const longPants=['jeans','legging','track','cargo'].includes(av.bottom.split(':')[0]);
+        const coveredProfile=svg.dataset.qpxView==='profile'&&longPants;
         const [all,top,bottom,neck,arms,legs,shoes,head]=await Promise.all([
-          pixels(svg),pixels(svg,'[data-qpx-clothes="top"]'),pixels(svg,'[data-qpx-clothes="bottom"]'),pixels(svg,'.qpx-skin-torso'),pixels(svg,'.qpx-arms,[data-qpx-gesture-arm] [data-qpx-arm-side]'),pixels(svg,'[data-fitting-skin="leg"]'),pixels(svg,'.qps-foot[data-qps-foot-side]'),pixels(svg,'.qpx-head')
+          pixels(svg),pixels(svg,'[data-qpx-clothes="top"]'),pixels(svg,'[data-qpx-clothes="bottom"]'),pixels(svg,'.qpx-skin-torso'),pixels(svg,'.qpx-arms,[data-qpx-gesture-arm] [data-qpx-arm-side]'),pixels(svg,coveredProfile?'[data-qpx-clothes="bottom"]':'[data-fitting-skin="leg"]'),pixels(svg,'.qps-foot[data-qps-foot-side]'),pixels(svg,'.qpx-head')
         ]);
-        const row={label,sex:av.sex,top:av.top,bottom:av.bottom,action:state?.action||'idle',direction:state?.direction||'front',seatMode:state?.seatMode||null,view:svg.dataset.qpxView||'front',phase:state?.phase,contacts:{
+        const row={label,sex:av.sex,top:av.top,bottom:av.bottom,action:state?.action||'idle',direction:state?.direction||'front',seatMode:state?.seatMode||null,view:svg.dataset.qpxView||'front',phase:state?.phase,footAnkleSurface:coveredProfile?'profile-trousers':'skin',contacts:{
           // The squat moves the joints substantially; inspect their complete
           // rendered silhouettes rather than assuming idle screen positions.
           collar:contact(top,neck,[0,0,32,viewHeight]),
@@ -100,9 +102,11 @@ const out=path.resolve(__dirname,'../검증'),base=process.env.QUIZ_PREVIEW_URL|
         }
         const footImages=await Promise.all(['left','right'].map(side=>pixels(svg,'.qps-foot[data-qps-foot-side="'+side+'"]')));
         row.feet=footImages.map((image,index)=>({side:index?'right':'left',...connectedFoot(image)}));
-        const longPants=['jeans','legging','track','cargo'].includes(av.bottom.split(':')[0]);
         for(const[index,image]of footImages.entries()){
-          const side=index?'right':'left',leg=await pixels(svg,'.qpx-leg-'+side);
+          // Probe the joint's visible dressed silhouette. Fully covered side
+          // trousers have no bare skin painting; absence is not an ankle gap.
+          // Each leg is still isolated and the original .35 limit is retained.
+          const side=index?'right':'left',leg=await pixels(svg,coveredProfile?'[data-qpx-pose-part="'+side+'-leg"] [data-qpx-clothes="bottom"]':'.qpx-leg-'+side);
           row.contacts[side+'NativeFootAnkle']=contact(leg,image,[0,0,32,viewHeight]);
           if(longPants){const pant=await pixels(svg,'[data-qpx-clothes="bottom"]');row.contacts[side+'TrouserAnkle']=contact(pant,image,[0,0,32,viewHeight]);}
         }

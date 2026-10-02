@@ -302,14 +302,22 @@
   }
   function number(value) { return String(Math.round(value * 100000) / 100000); }
   function translated(x, y) { return 'translate(' + number(x) + ' ' + number(y) + ')'; }
-  function legTransform(hip, waist, scaleY, shear, dx, dy) {
-    // Shear rotates the stride in screen space while the hip remains attached.
-    return translated(dx, dy) + ' translate(' + hip + ' ' + waist + ') matrix(1 0 ' +
-      number(shear) + ' ' + number(scaleY) + ' 0 0) translate(' + (-hip) + ' ' + (-waist) + ')';
-  }
   function rotated(angle, x, y) { return 'rotate(' + number(angle) + ' ' + number(x) + ' ' + number(y) + ')'; }
-  function footTransform(hip, foot, dx, dy, angle) {
-    return translated(dx, dy) + ' ' + rotated(angle, hip, foot);
+  function connectedLeg(rig,hip,dx,lift,torsoY,lean,bend=1,shoeAngle=0) {
+    // Solve two fixed-length bones in the dressed torso's local coordinates.
+    // The ankle target stays on the ground for the supporting leg; the whole
+    // shoe follows that ankle instead of stretching either painted leg.
+    const radians=lean*Math.PI/180,c=Math.cos(radians),s=Math.sin(radians);
+    const px=hip+dx-16,py=rig.foot-lift-rig.waist-torsoY;
+    const x=16+c*px+s*py-hip,y=-s*px+c*py;
+    const upper=rig.knee-rig.waist,lower=rig.foot-rig.knee;
+    const distance=clamp(Math.hypot(x,y),Math.abs(upper-lower)+.00001,upper+lower-.00001);
+    const elbow=bend*Math.acos(clamp((distance*distance-upper*upper-lower*lower)/(2*upper*lower),-1,1));
+    const shoulder=Math.atan2(-x,y)-Math.atan2(lower*Math.sin(elbow),upper+lower*Math.cos(elbow));
+    const a=shoulder*180/Math.PI,b=elbow*180/Math.PI;
+    const torso=torsoY||lean?translated(0,torsoY)+' '+rotated(lean,16,rig.waist):'';
+    const leg=torso+' '+rotated(a,hip,rig.waist),shin=rotated(b,hip,rig.knee);
+    return{leg,shin,foot:leg+' '+shin+' '+rotated(shoeAngle-lean-a-b,hip,rig.foot)};
   }
   function apply(svg, state) {
     const rig = prepare(svg); if (!rig) return false;
@@ -327,38 +335,34 @@
     const bodyVerticalScale=finite(window.QPAvatar?.proportions?.verticalScale,1.35);
     let left = '', right = '', torsoY = 0, lean = 0, headOffset = 0, headX = 0, headLean = 0;
     let hemTransform = '', footLeft = '', footRight = '', handLeft = [0, 0], handRight = [0, 0];
-    let handAngleLeft = 0, handAngleRight = 0, walkPose = null;
+    let handAngleLeft = 0, handAngleRight = 0, walkPose = null,jumpPose=null;
     let armAngleLeft=0,armAngleRight=0;
     let shinLeft='',shinRight='';
     const span = rig.foot - rig.waist;
+    const sideView=window.QPAvatarDirection?.atlas.ready&&(['left','right'].includes(state.direction)||
+      !['front','back'].includes(state.direction)&&['left','right'].includes(state.facing));
     if (action === 'walk') {
       const phase = illustrated && Number.isFinite(state.phase) ? ((state.phase % 1) + 1) % 1 : Number.isFinite(state.step) ? ((state.step % 8) + 8) % 8 / 8 :
         ((finite(state.phase) % 1) + 1) % 1;
       const stride = illustrated ? Math.sin(phase * Math.PI * 2) : [0, .7, 1, .7, 0, -.7, -1, -.7][Math.floor(phase * 8) % 8];
-      const reach = qx(stride * 2.05), liftL = qy(Math.max(0, stride) * 1.15);
-      const liftR = qy(Math.max(0, -stride) * 1.15);
+      const reach = qx(stride * (sideView?2.35:.80)), liftL = qy(Math.max(0, stride) * .95);
+      const liftR = qy(Math.max(0, -stride) * .95);
       walkPose = { reach, liftL, liftR, stride };
-      torsoY = qy(-.1 * (1 - Math.cos(phase * Math.PI * 4)));
-      lean = illustrated ? stride * 1.15 : 0;
-      headX = qx(Math.sin(lean * Math.PI / 180) * (rig.waist - 28) * bodyScale);
-      headOffset = headY(torsoY * bodyVerticalScale);
+      lean = illustrated ? stride * .65 : 0;
+      const clearance=Math.abs(reach)+Math.abs(lean*Math.PI/180*span)+.03;
+      torsoY=qy(span-Math.sqrt(Math.max(0,span*span-clearance*clearance))+.025*(1-Math.cos(phase*Math.PI*4)));
       headLean = lean * .35;
-      handAngleLeft = -stride * 6; handAngleRight = stride * 6;
-      armAngleLeft=-stride*8;armAngleRight=stride*8;
+      armAngleLeft=-stride*6;armAngleRight=stride*6;
     } else if (action === 'jump') {
-      // World movement belongs to the physics engine; this only gathers the legs.
-      const airborne = state.grounded === true ? .25 : 1;
-      const ascending = finite(state.vy) >= 0;
-      const gather = qx((ascending ? .85 : .25) * airborne);
-      const lift = qy((ascending ? 2.1 : .55) * airborne);
-      left = legTransform(13.75, rig.waist, Math.max(.35, 1 - lift / span), gather / span, 0, 0);
-      right = legTransform(18.25, rig.waist, Math.max(.35, 1 - lift / span), -gather / span, 0, 0);
-      footLeft = footTransform(13.75, rig.foot, gather, -lift, ascending ? -9 : -2);
-      footRight = footTransform(18.25, rig.foot, -gather, -lift, ascending ? 9 : 2);
-      handAngleLeft = (ascending ? -12 : -4) * airborne;
-      handAngleRight = (ascending ? 12 : 4) * airborne;
-      armAngleLeft=(ascending?-10:-3)*airborne;armAngleRight=(ascending?10:3)*airborne;
-      headOffset = headY((ascending ? -.12 : .08) * airborne);
+      // Physics raises the entire actor. The knees gather continuously through
+      // the apex, retaining the clothes' lengths and the native ankle overlap.
+      const airborne=state.grounded===true?.25:1,t=clamp((finite(state.vy)+240)/720,0,1);
+      const launch=t*t*(3-2*t);jumpPose={launch,airborne};
+      const gather=qx((.15+.55*launch)*airborne),lift=qy((.08+1.77*launch)*airborne);
+      const l=connectedLeg(rig,13.75,gather,lift,0,0,sideView?1:-1);
+      const r=connectedLeg(rig,18.25,sideView?gather:-gather,lift,0,0,1);
+      left=l.leg;right=r.leg;shinLeft=l.shin;shinRight=r.shin;footLeft=l.foot;footRight=r.foot;
+      armAngleLeft=-(3+7*launch)*airborne;armAngleRight=(3+7*launch)*airborne;
     } else if(action==='climb'){
       const reach=(1+Math.sin(clamp(finite(state.phase),0,1)*Math.PI*6))/2;
       left=rotated(-6-9*reach,13.75,rig.waist);right=rotated(6+9*(1-reach),18.25,rig.waist);
@@ -402,8 +406,6 @@
         handAngleLeft=6;handAngleRight=-6;
         if(sideFloor){
           lean=4;
-          headX=headY(Math.sin(lean*Math.PI/180)*(rig.waist-28)*bodyScale);
-          headOffset+=headY((1-Math.cos(lean*Math.PI/180))*(rig.waist-28)*bodyVerticalScale);
           headLean=lean*.35;
         }
       }
@@ -415,47 +417,49 @@
     const envelope=ease(clamp(progress/.18,0,1))*ease(clamp((1-progress)/.20,0,1));
     const activeGesture=action==='idle'&&envelope>0?gesture:'';
     if(action==='idle'){
-      const breath=(1-Math.cos(now/6400*Math.PI*2))*.75;
+      const breath=(1-Math.cos(now/6400*Math.PI*2))*.2;
       armAngleLeft=-breath;armAngleRight=breath;
+      torsoY+=(1-Math.cos(now/6400*Math.PI*2))*.035;
     }
     if(activeGesture==='nod'){
-      headOffset+=headY(.55*Math.pow(Math.sin(progress*Math.PI*2),2)*envelope);
-      headLean+=Math.sin(progress*Math.PI*2)*.6*envelope;
+      headLean+=Math.sin(progress*Math.PI*2)*1.6*envelope;
     }
     if(activeGesture==='happy'){
       headLean+=Math.sin(progress*Math.PI*4)*1.8*envelope;
       armAngleLeft-=Math.sin(progress*Math.PI*4)*5*envelope;
       armAngleRight+=Math.sin(progress*Math.PI*4)*5*envelope;
-      torsoY-=.12*Math.pow(Math.sin(progress*Math.PI*3),2)*envelope;
-      headOffset=headY(torsoY*bodyVerticalScale);
+      torsoY+=.08*Math.pow(Math.sin(progress*Math.PI*3),2)*envelope;
     }
     if (rig.lastAction === 'jump' && action !== 'jump' && state.grounded === true) rig.landingAt = now;
     if (action === 'jump' || action === 'sit') rig.landingAt = 0;
     if (rig.landingAt && now - rig.landingAt < 170) {
       const settle = Math.sin((now - rig.landingAt) / 170 * Math.PI) * .42;
-      torsoY += settle; headOffset += headY(settle * bodyVerticalScale);
+      torsoY += settle;
     }
+    headX=qx(Math.sin(lean*Math.PI/180)*(rig.waist-28)*bodyScale);
+    headOffset=headY((torsoY+(1-Math.cos(lean*Math.PI/180))*(rig.waist-28))*bodyVerticalScale);
     rig.lastAction = action;
     // Preserve the continuous painted seat/crotch above the two hip bones.
     // The round knees articulate below it without exposing the center cut.
     rig.upperClip.setAttribute('height',rig.waist+32+(floorSit?-.55:action==='sit'?1.45:.45));
     rig.upperSeatClip.style.display=floorSit?'':'none';
-    for(const part of rig.thighs)part.thigh.setAttribute('clip-path',floorSit?part.seated:part.original);
+    for(const part of rig.thighs)part.thigh.setAttribute('clip-path',floorSit||action==='walk'||action==='jump'?part.seated:part.original);
     for(const clip of rig.legClips){
       clip.setAttribute('y',rig.waist-(floorSit?2.35:.45));
       clip.setAttribute('height',64-rig.waist+(floorSit?2.35:.45));
     }
     const upperTransform = torsoY || lean ? translated(0, torsoY) + ' ' + rotated(lean, 16, rig.waist) : '';
-    const headTransform = headOffset || headX || headLean ? translated(headX, headOffset) + ' ' + rotated(headLean, 16, 28) : '';
+    let headTransform = headOffset || headX || headLean ? translated(headX, headOffset) + ' ' + rotated(headLean, 16, 28) : '';
     if (walkPose) {
-      // The thigh turns at the hip and the shin bends at the knee. Each
-      // complete shoe follows its shin, preserving the native ankle overlap.
-      const sideView=window.QPAvatarDirection?.atlas.ready&&state.direction!=='front'&&(['left','right'].includes(state.direction)||['left','right'].includes(state.facing));
-      const leftBend=Math.max(0,walkPose.stride)*(sideView?22:10),rightBend=-Math.max(0,-walkPose.stride)*(sideView?22:10);
-      shinLeft=rotated(leftBend,13.75,rig.knee);shinRight=rotated(rightBend,18.25,rig.knee);
-      left=upperTransform+' '+rotated(-walkPose.stride*(sideView?22:8),13.75,rig.waist);
-      right=upperTransform+' '+rotated(walkPose.stride*(sideView?22:8),18.25,rig.waist);
-      footLeft=left+' '+shinLeft;footRight=right+' '+shinRight;
+      const l=connectedLeg(rig,13.75,walkPose.reach,walkPose.liftL,torsoY,lean,sideView?1:-1);
+      const r=connectedLeg(rig,18.25,-walkPose.reach,walkPose.liftR,torsoY,lean,1);
+      left=l.leg;right=r.leg;shinLeft=l.shin;shinRight=r.shin;footLeft=l.foot;footRight=r.foot;
+    }else if(action==='idle'&&torsoY){
+      // Breathing and landing lower the connected pelvis while both soles
+      // retain their ground contact, instead of sliding the shirt over legs.
+      const l=connectedLeg(rig,13.75,0,0,torsoY,lean,sideView?1:-1);
+      const r=connectedLeg(rig,18.25,0,0,torsoY,lean,1);
+      left=l.leg;right=r.leg;shinLeft=l.shin;shinRight=r.shin;footLeft=l.foot;footRight=r.foot;
     }
     setTransform(rig.left, left); setTransform(rig.right, right);
     setTransform(rig.leftShin,shinLeft);setTransform(rig.rightShin,shinRight);
@@ -463,6 +467,13 @@
     setTransform(rig.hem, hemTransform || upperTransform);
     if (rig.leftFoot) setTransform(rig.leftFoot, footLeft);
     if (rig.rightFoot) setTransform(rig.rightFoot, footRight);
+    // Match the real dressed neck, including the male torso's horizontal
+    // proportion, without scaling the original head painting.
+    const upperMatrix=rig.upper.getCTM(),headParentMatrix=rig.headPose.parentNode?.getCTM();
+    if(upperMatrix&&headParentMatrix){
+      const neck=headParentMatrix.inverse().multiply(upperMatrix),x=neck.a*16+neck.c*28+neck.e-16,y=neck.b*16+neck.d*28+neck.f-28;
+      headTransform=translated(x,y)+' '+rotated(headLean,16,28);
+    }
     setTransform(rig.headPose, headTransform);
     if (rig.backHairPose) setTransform(rig.backHairPose, headTransform);
     rig.arms.forEach((arm,index)=>{
@@ -474,18 +485,20 @@
     });
     const profile=window.QPAvatarDirection?.apply(svg,{...state,action,seatMode:floorSit?'floor':state.seatMode,gesture:activeGesture},rig)||false;
     const backView=rig.svg.dataset.qpxView==='back'&&typeof window.QPAvatar?.renderBackArm==='function';
-    showArm(rig,'right',activeGesture==='wave'||action==='climb'||profile||backView);
-    showArm(rig,'left',action==='climb'||profile||backView);
+    const frontArms=!profile&&!backView&&['walk','jump','idle'].includes(action);
+    showArm(rig,'right',activeGesture==='wave'||action==='climb'||profile||backView||frontArms);
+    showArm(rig,'left',action==='climb'||profile||backView||frontArms);
     if(profile){
       const stride=walkPose?.stride||0;
-      for(const [side,angle]of[['left',action==='jump'?14:stride*22],['right',action==='jump'?-16:-stride*22]]){
+      const jumpSwing=jumpPose?(4+8*jumpPose.launch)*jumpPose.airborne:0;
+      for(const [side,angle]of[['left',action==='jump'?jumpSwing:stride*12],['right',action==='jump'?-jumpSwing:-stride*12]]){
         const arm=rig.gestureArms.get(side),near=side==='right';
         // Both side arms drop from the shoulder, then fold forward toward
         // the lap. Their native left/right slopes differ; normalize those
         // slopes before bending, and let the whole pose mirror for left.
         const nativeAngle=Math.atan2(arm.elbow[1]-arm.pivot[1],arm.elbow[0]-arm.pivot[0])*180/Math.PI;
         const shoulder=floorSit?85-nativeAngle:angle;
-        const elbow=floorSit?-55:action==='jump'?(near?14:-14):near?Math.max(0,stride)*9:-Math.max(0,-stride)*9;
+        const elbow=floorSit?-55:action==='jump'?(near?7:-7)*(jumpPose?.launch||.25):near?Math.max(0,stride)*5:-Math.max(0,-stride)*5;
         const wrist=floorSit?nativeAngle-90:0;
         positionArm(rig,arm,upperTransform,shoulder,elbow,wrist,(near?16.6:15.6)-arm.pivot[0]);
         arm.carrier.style.opacity=near?'':'0.78';
@@ -508,6 +521,13 @@
           if(bodyRoot){while(bodyRoot.parentNode&&bodyRoot.parentNode!==rig.idle)bodyRoot=bodyRoot.parentNode;rig.idle.insertBefore(arm.carrier,bodyRoot);}
           else rig.idle.appendChild(arm.carrier);
         }else rig.idle.appendChild(arm.carrier);
+      }
+    }else if(frontArms){
+      const stride=walkPose?.stride||0;
+      for(const [side,shoulder]of[['left',armAngleLeft],['right',armAngleRight]]){
+        const arm=rig.gestureArms.get(side),right=side==='right';
+        const elbow=action==='jump'?(right?8:-8)*(jumpPose?.launch||.25):right?Math.max(0,stride)*4:-Math.max(0,-stride)*4;
+        positionArm(rig,arm,upperTransform,shoulder,elbow,0);arm.carrier.style.opacity='';rig.idle.appendChild(arm.carrier);
       }
     }else if(rig.gestureArms)for(const arm of rig.gestureArms.values())arm.carrier.style.opacity='';
     if(activeGesture==='wave'){
