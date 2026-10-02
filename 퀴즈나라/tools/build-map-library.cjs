@@ -8,6 +8,7 @@ const definitions=[
   ['village','마을·생활 풍경','QPVillageLibraryCatalog'],
   ['metaverse-map','메타버스 공간','QPMetaverseMapLibraryCatalog'],
   ['classroom','교실 공간','QPClassroomLibraryCatalog'],
+  ['playground','운동장 공간','QPPlaygroundLibraryCatalog'],
   ['seating','책상·바닥 앉기','QPSeatingLibraryCatalog'],
   ['motion','모션·보행','QPMotionLibraryCatalog'],
   ['water','물·연못·폭포','QPWaterLibraryCatalog'],

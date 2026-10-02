@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-02",
+  "runtime": "playground-scene.js",
+  "status": "draft-missing-southeast-source",
+  "publicEntryReady": false,
+  "method": "Native user PNG source regions registered as building, terrace, original sports-line and landscape components. No terrain, court chalk, road or track artwork newly drawn. Source screenshot UI and players are excluded through clean original components.",
+  "world": {
+    "width": 3246,
+    "height": 1896,
+    "normalizationShift": [
+      603,
+      155
+    ]
+  },
+  "sources": [
+    {
+      "name": "운동장1.png",
+      "path": "../originals/playground-ef89d10d0fd0dff5.png",
+      "offsetRelativeReference": [
+        0,
+        0
+      ],
+      "offsetNormalized": [
+        603,
+        155
+      ],
+      "size": [
+        1637,
+        798
+      ],
+      "boundsRelativeReference": [
+        0,
+        0,
+        1637,
+        798
+      ]
+    },
+    {
+      "name": "운동장2.png",
+      "path": "../originals/playground-dec2cc886f1575ad.png",
+      "offsetRelativeReference": [
+        807,
+        -155
+      ],
+      "offsetNormalized": [
+        1410,
+        0
+      ],
+      "size": [
+        1672,
+        798
+      ],
+      "boundsRelativeReference": [
+        807,
+        -155,
+        2479,
+        643
+      ]
+    },
+    {
+      "name": "운동장3.png",
+      "path": "../originals/playground-c010a0dc816a9cbf.png",
+      "offsetRelativeReference": [
+        1005,
+        295
+      ],
+      "offsetNormalized": [
+        1608,
+        450
+      ],
+      "size": [
+        1638,
+        791
+      ],
+      "boundsRelativeReference": [
+        1005,
+        295,
+        2643,
+        1086
+      ]
+    },
+    {
+      "name": "운동장4.png",
+      "path": "../originals/playground-b2a51612a290eeea.png",
+      "offsetRelativeReference": [
+        -55,
+        486
+      ],
+      "offsetNormalized": [
+        548,
+        641
+      ],
+      "size": [
+        1668,
+        787
+      ],
+      "boundsRelativeReference": [
+        -55,
+        486,
+        1613,
+        1273
+      ]
+    },
+    {
+      "name": "운동장5.png",
+      "path": "../originals/playground-664d4d7c187e5a6d.png",
+      "offsetRelativeReference": [
+        -603,
+        836
+      ],
+      "offsetNormalized": [
+        0,
+        991
+      ],
+      "size": [
+        1634,
+        905
+      ],
+      "boundsRelativeReference": [
+        -603,
+        836,
+        1031,
+        1741
+      ]
+    }
+  ],
+  "registrationVerification": {
+    "nativeScale": true,
+    "strongestExactRGBOverlap": "source1–source3 overlap 632×503, 100% RGB-identical",
+    "otherOverlap": "97.8–99.8% RGB-identical except source UI and players",
+    "registrationReport": "../../../검증/운동장-원본등록-2026-10-02/원본-범위-등록.html"
+  },
+  "preparedAreas": [
+    "main orange-roof school frontage",
+    "gym frontage",
+    "original long stairs and benches",
+    "right soccer court with original field lines",
+    "left and right flowerbeds and perimeter fence"
+  ],
+  "missingSource": {
+    "request": "A screenshot showing the track lower-right curve, lower soil-field boundary and external fence together.",
+    "bounds": [
+      {
+        "x": 1634,
+        "y": 1428,
+        "width": 1612,
+        "height": 468
+      },
+      {
+        "x": 2216,
+        "y": 1241,
+        "width": 1030,
+        "height": 187
+      }
+    ],
+    "policy": "Do not infer, paint, reflect or invent the missing global track. Areas are not accessible and the draft is not linked to ordinary student navigation."
+  },
+  "cleanComponentReuse": [
+    {
+      "id": "main-entry-source-avatar",
+      "method": "same-world original overlap",
+      "cleanSource": "운동장2.png",
+      "targetWorldRect": [
+        1504,
+        550,
+        82,
+        95
+      ]
+    },
+    {
+      "id": "terrace-source-avatar",
+      "method": "same-world original overlap",
+      "cleanSource": "운동장5.png",
+      "targetWorldRect": [
+        1428,
+        1033,
+        86,
+        95
+      ]
+    },
+    {
+      "id": "west-source-label",
+      "method": "same-world original overlap",
+      "cleanSource": "운동장4.png",
+      "targetWorldRect": [
+        897,
+        1380,
+        93,
+        45
+      ]
+    },
+    {
+      "id": "gym-name-window",
+      "source": "운동장2.png",
+      "method": "corresponding unoccluded repeated window fragment and clean original wall-material pixels, not recovered hidden pixels",
+      "windowRegion": [
+        897,
+        330,
+        26,
+        28
+      ],
+      "wallMaterialRegion": [
+        924,
+        382,
+        12,
+        6
+      ]
+    },
+    {
+      "id": "soccer-name-arc",
+      "source": "운동장3.png",
+      "sourceRegion": [
+        923,
+        468,
+        101,
+        31
+      ],
+      "targetNative": [
+        915,
+        394
+      ],
+      "method": "Clean lower arc pixels from the same original circle are outlined and rotated180° about969.5,446.5; only the actual arc strip is visible, no entire rectangle imported."
+    },
+    {
+      "id": "soccer-avatar-line",
+      "source": "운동장3.png",
+      "cleanGrassRegion": [
+        1092,
+        420,
+        45,
+        60
+      ],
+      "lineEquation": "x+2y=1856.5",
+      "cleanLineRegion": [
+        1040,
+        388,
+        38,
+        31
+      ],
+      "translation": [
+        -108,
+        54
+      ],
+      "method": "Original chalk pixels outline-clipped and translated along their actual line. Clipping polygons are masks, not painted court lines."
+    },
+    {
+      "id": "west-occluded-player",
+      "source": "운동장5.png",
+      "sourceRegion": [
+        1071,
+        496,
+        27,
+        48
+      ],
+      "targetWorld": [
+        915,
+        1428
+      ],
+      "method": "Explicit clean neighboring foliage-component replacement; no claim that unseen original tree pixels were recovered."
+    }
+  ],
+  "previewViews": [
+    {
+      "id": "school-front",
+      "camera": {
+        "x": 1840,
+        "y": 740,
+        "zoom": 1.05
+      },
+      "spawn": {
+        "x": 1690,
+        "y": 900
+      }
+    },
+    {
+      "id": "soccer",
+      "camera": {
+        "x": 2520,
+        "y": 860,
+        "zoom": 1.05
+      },
+      "spawn": {
+        "x": 2490,
+        "y": 960
+      }
+    }
+  ],
+  "benchPreparation": {
+    "count": 3,
+    "direction": "front",
+    "pose": "existing desk sitting pose reused in bench context",
+    "stage": "Native seat surfaces and pelvis contact calibrated in the real shared avatar renderer; all three clicked bench poses reviewed. Full field navigation review awaits missing southeast source.",
+    "sitVisualYOffset": 0,
+    "anchors": [
+      {
+        "id": "bench-front-1",
+        "sitX": 913,
+        "sitY": 1265,
+        "pelvisY": 1252
+      },
+      {
+        "id": "bench-front-2",
+        "sitX": 1277,
+        "sitY": 1075,
+        "pelvisY": 1062
+      },
+      {
+        "id": "bench-front-3",
+        "sitX": 1591,
+        "sitY": 920,
+        "pelvisY": 907
+      }
+    ]
+  },
+  "verification": {
+    "sourceOriginalsDirectlyViewed": 5,
+    "sceneSyntax": "passed",
+    "artPreview": "assets/playground-library/preview.html",
+    "stage": "Native source draft rendered in real shared world at1366×768 and1366×900; not completed full map.",
+    "knownDraftLimits": [
+      "Gym window and wall component material reuse is visible at small patch boundaries; a clean source camera would improve exact fidelity.",
+      "Incomplete southeast source remains blocked and draft is not linked to students.",
+      "Soccer center circle and diagonal use clean opposite arc/straight original components; fine junction seams remain pending full art review. No new chalk lines painted."
+    ],
+    "benchContact": "VisualYOffset -24 placed shoes on wooden seat and pelvis above it; 0 lowers the existing unchanged avatar pose so pelvis meets the native wooden seat.",
+    "benchContactArtifacts": [
+      "검증/운동장-원본등록-2026-10-02/벤치-1-좌판접지.png",
+      "검증/운동장-원본등록-2026-10-02/벤치-2-좌판접지.png",
+      "검증/운동장-원본등록-2026-10-02/벤치-3-좌판접지.png"
+    ],
+    "directVisualReviewAt": "2026-10-02T02:16:42Z"
+  }
+}

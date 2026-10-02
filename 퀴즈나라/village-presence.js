@@ -6,6 +6,7 @@
   const GESTURES = new Set(['wave', 'hello', 'happy', 'heart', 'clap', 'surprise', 'sad', 'laugh', 'cheer']);
   const POSES = new Set(['idle', 'walk', 'wave', 'climb', 'jump', 'sit', 'sit-floor', 'land']);
   const DIRECTIONS = new Set(['front', 'left', 'right', 'back']);
+  const SHARED_SPACES = new Set(['campus', 'playground']);
   const ZONE = /^[a-z][a-z0-9_-]{0,47}$/;
   const SEAT = /^[a-zA-Z0-9_-]{1,64}$/;
   const text = (value, length) => String(value == null ? '' : value).replace(/[\u0000-\u001f\u007f]/g, '').slice(0, length);
@@ -34,13 +35,15 @@
     const connectionId = key(uid).slice(0, 120) + '_' + random;
     const base = text(options.base || 'quiz', 100).replace(/^\/+|\/+$/g, '');
     if (!base || /[.#$\[\]]/.test(base)) throw new Error('마을 저장 경로가 올바르지 않아요.');
-    const campus = options.space === 'campus';
-    const spacePath = campus ? base + '/spaces/' + key(options.classId || '3-3') + '/campus' : base + '/village/' + key(options.classId || '3-3');
+    const space = options.space == null ? 'village' : options.space;
+    if (space !== 'village' && !SHARED_SPACES.has(space)) throw new Error('공유 공간 이름이 올바르지 않아요.');
+    const sharedSpace = SHARED_SPACES.has(space);
+    const spacePath = sharedSpace ? base + '/spaces/' + key(options.classId || '3-3') + '/' + space : base + '/village/' + key(options.classId || '3-3');
     const path = spacePath + '/connections';
-    let state = { uid, name: text(options.name || uid, 32), avatar: avatar(options.avatar), x: 0, y: 0, height: 0, zone: campus ? 'campus' : 'village', facing: 1, direction: 'front', moving: false, pose: 'idle', gesture: null, seatId: null };
+    let state = { uid, name: text(options.name || uid, 32), avatar: avatar(options.avatar), x: 0, y: 0, height: 0, zone: space, facing: 1, direction: 'front', moving: false, pose: 'idle', gesture: null, seatId: null };
     let destroyed = false, collectionRef = null, ownRef = null, connectedRef = null, offsetRef = null;
     let seatsRef = null, claimedSeat = null, seatShared = false, seatExpiresAt = 0, seatHook = null, seatQueue = Promise.resolve(), seatGeneration = 0;
-    let readable = !campus, readBlocked = false, sharedBlocked = false;
+    let readable = !sharedSpace, readBlocked = false, sharedBlocked = false;
     let observed = {}, offset = 0, network = null, registered = false, sequence = 0, statusSignature = '', rosterSignature = '', currentMode = 'local';
     let scheduleTimer = null, heartbeatTimer = null, expiryTimer = null, localGestureStamp = null;
     let writePending = false, writing = false, forcePending = false, lastWrite = -Infinity, generation = 0, disconnectHook = null, published = null;
@@ -59,7 +62,7 @@
         if (Object.prototype.hasOwnProperty.call(patch, field) && Number.isFinite(Number(patch[field]))) next[field] = Math.round(finite(patch[field], previous[field], 0, max) * 100) / 100;
       }
       if (Object.prototype.hasOwnProperty.call(patch, 'height') && Number.isFinite(Number(patch.height))) next.height = Math.round(finite(patch.height, previous.height, -128, 1024) * 100) / 100;
-      if (typeof patch.zone === 'string' && ZONE.test(patch.zone)) next.zone = patch.zone;
+      if (typeof patch.zone === 'string' && ZONE.test(patch.zone) && (!sharedSpace || patch.zone === space)) next.zone = patch.zone;
       if (patch.facing === -1 || patch.facing === 1) next.facing = patch.facing;
       if (patch.facing === 'left' || patch.facing === 'right') next.facing = patch.facing === 'left' ? -1 : 1;
       if (typeof patch.direction === 'string' && DIRECTIONS.has(patch.direction)) next.direction = patch.direction;
@@ -102,7 +105,7 @@
       return gesture;
     }
     function validRecord(record, id) {
-      if (!record || typeof record !== 'object' || record.version !== VERSION || typeof record.uid !== 'string' || !record.uid || typeof record.zone !== 'string' || !ZONE.test(record.zone)) return null;
+      if (!record || typeof record !== 'object' || record.version !== VERSION || typeof record.uid !== 'string' || !record.uid || typeof record.zone !== 'string' || !ZONE.test(record.zone) || (sharedSpace && record.zone !== space)) return null;
       const at = now(), updatedAt = Number(record.updatedAt);
       if (!Number.isFinite(updatedAt) || updatedAt < at - TTL || updatedAt > at + 60000) return null;
       if (![record.x, record.y, record.height].every(v => typeof v === 'number' && Number.isFinite(v))) return null;
@@ -112,7 +115,7 @@
       let direction = 'front';
       if (record.moving === true && (record.facing === -1 || record.facing === 'left')) direction = 'left';
       else if (record.moving === true && (record.facing === 1 || record.facing === 'right')) direction = 'right';
-      return { ...sanitizePosition(record, { x: 0, y: 0, height: 0, zone: campus ? 'campus' : 'village', facing: 1, direction, moving: false, pose: 'idle', seatId: null }), uid: text(record.uid, 120), name: text(record.name || record.uid, 32), avatar: avatar(record.avatar), gesture: cleanGesture(record.gesture, at, true), updatedAt, sequence: finite(record.sequence, 0, 0, Number.MAX_SAFE_INTEGER), connectionId: id, self: record.uid === uid };
+      return { ...sanitizePosition(record, { x: 0, y: 0, height: 0, zone: space, facing: 1, direction, moving: false, pose: 'idle', seatId: null }), uid: text(record.uid, 120), name: text(record.name || record.uid, 32), avatar: avatar(record.avatar), gesture: cleanGesture(record.gesture, at, true), updatedAt, sequence: finite(record.sequence, 0, 0, Number.MAX_SAFE_INTEGER), connectionId: id, self: record.uid === uid };
     }
     function emitPlayers() {
       if (destroyed) return;
@@ -140,7 +143,7 @@
       const updatedAt = now();
       const writeGeneration = generation;
       const record = { ...clone(state), version: VERSION, updatedAt, sequence: ++sequence };
-      if (campus && !seatShared) { record.seatId = null; if (record.pose === 'sit') record.pose = 'idle'; }
+      if (sharedSpace && !seatShared) { record.seatId = null; if (record.pose === 'sit') record.pose = 'idle'; }
       lastWrite = updatedAt;
       try {
         if (!published) await ownRef.set(record);
@@ -154,7 +157,7 @@
         published = writeGeneration === generation && network === true && readable && !sharedBlocked ? record : null;
         if (!destroyed && writeGeneration === generation && network === true && readable && !sharedBlocked) report('connected', '우리 반 친구들과 함께 있어요.');
       } catch (error) {
-        if (campus) { sharedBlocked = true; registered = false; }
+        if (sharedSpace) { sharedBlocked = true; registered = false; }
         report(network === false ? 'offline' : 'local', '연결을 기다리는 동안 혼자 둘러볼 수 있어요.', error);
       } finally {
         writing = false;
@@ -205,7 +208,7 @@
       const next = snapshot.val() !== false;
       if (next === network) return;
       network = next; registered = false; published = null;
-      if (campus && claimedSeat) loseSeat(network ? 'reconnect' : 'offline');
+      if (sharedSpace && claimedSeat) loseSeat(network ? 'reconnect' : 'offline');
       if (network) sharedBlocked = false;
       if (network) { report(readBlocked ? 'local' : 'connecting', readBlocked ? '친구 연결을 기다리고 있어요. 공간은 둘러볼 수 있어요.' : '우리 반 친구들을 만나고 있어요.'); if (!readBlocked) void registerConnection(); }
       else { ++generation; report('offline', '연결이 잠시 끊겼어요. 다시 연결되면 친구를 만나요.'); }
@@ -256,7 +259,7 @@
       return true;
     }
     async function claimSeatInternal(id) {
-      if (destroyed || !campus || typeof id !== 'string' || !SEAT.test(id)) return false;
+      if (destroyed || !sharedSpace || typeof id !== 'string' || !SEAT.test(id)) return false;
       if (claimedSeat === id) return true;
       await releaseSeatInternal();
       if (destroyed) return false;
@@ -297,25 +300,25 @@
         else seatExpiresAt = activeClaim(result.snapshot.val())?.expiresAt || 0;
       } catch (_) { if (!destroyed && current === seatGeneration && netGeneration === generation) loseSeat('lease-error'); }
     }
-    const refresh = () => { if (!destroyed && (!globalThis.document || !document.hidden)) { schedule(true); emitPlayers(); if (campus) void queueSeat(renewSeat); } };
+    const refresh = () => { if (!destroyed && (!globalThis.document || !document.hidden)) { schedule(true); emitPlayers(); if (sharedSpace) void queueSeat(renewSeat); } };
     try {
       if (!options.db || typeof options.db.ref !== 'function') throw new Error('마을 연결을 사용할 수 없어요.');
       collectionRef = options.db.ref(path);
       ownRef = collectionRef.child(connectionId);
-      if (campus) seatsRef = options.db.ref(spacePath + '/seats');
+      if (sharedSpace) seatsRef = options.db.ref(spacePath + '/seats');
       connectedRef = options.db.ref('.info/connected');
       offsetRef = options.db.ref('.info/serverTimeOffset');
       collectionRef.on('value', onRecords, onReadError);
       offsetRef.on('value', onOffset);
       connectedRef.on('value', onConnected, onReadError);
       report('connecting', '우리 반 친구들을 만나고 있어요.');
-      heartbeatTimer = setInterval(() => { if (network === true && !registered && readable && !sharedBlocked) void registerConnection(); else schedule(true); if (campus) void queueSeat(renewSeat); }, HEARTBEAT);
+      heartbeatTimer = setInterval(() => { if (network === true && !registered && readable && !sharedBlocked) void registerConnection(); else schedule(true); if (sharedSpace) void queueSeat(renewSeat); }, HEARTBEAT);
     } catch (error) {
       collectionRef?.off?.('value', onRecords); offsetRef?.off?.('value', onOffset); connectedRef?.off?.('value', onConnected);
       collectionRef = ownRef = connectedRef = offsetRef = null;
       report('local', '지금은 혼자 마을을 둘러볼 수 있어요.', error);
     }
-    expiryTimer = setInterval(() => { if (campus && seatShared && seatExpiresAt <= now()) loseSeat('expired'); else emitPlayers(); }, 1000);
+    expiryTimer = setInterval(() => { if (sharedSpace && seatShared && seatExpiresAt <= now()) loseSeat('expired'); else emitPlayers(); }, 1000);
     globalThis.addEventListener?.('pageshow', refresh);
     globalThis.document?.addEventListener('visibilitychange', refresh);
     emitPlayers();
@@ -324,8 +327,8 @@
         if (destroyed || !patch || typeof patch !== 'object') return;
         const before = JSON.stringify(state);
         const next = sanitizePosition(patch);
-        if (campus && next.seatId !== claimedSeat) next.seatId = claimedSeat;
-        if (campus && next.pose === 'sit' && !claimedSeat) next.pose = 'idle';
+        if (sharedSpace && next.seatId !== claimedSeat) next.seatId = claimedSeat;
+        if (sharedSpace && next.pose === 'sit' && !claimedSeat) next.pose = 'idle';
         const hasGesture = Object.prototype.hasOwnProperty.call(patch, 'gesture');
         if (hasGesture) next.gesture = cleanGesture(patch.gesture, now());
         state = next;

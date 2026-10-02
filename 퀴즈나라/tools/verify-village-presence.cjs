@@ -383,5 +383,50 @@ const passed = [];
     await a.disconnect(); await b.disconnect();
     passed.push('Repeated campus gesture publications keep one advancing timeline and expire naturally; another same-type greeting restarts once, null clears it, and slow/fast device clocks normalize without resetting friends.');
   }
+  {
+    const e = environment(), classAlice = e.runtime(), classBob = e.runtime(), yardAlice = e.runtime(), yardBob = e.runtime();
+    const a = classAlice.join('alice', { space: 'campus', initialState: { x: 210, y: 400 } }), b = classBob.join('bob', { space: 'campus' });
+    const p = yardAlice.join('alice', { space: 'playground', initialState: { x: 1720, y: 900 } }), q = yardBob.join('bob', { space: 'playground' }); await settle();
+    assert.equal(p.getState().path, 'quiz/spaces/3-3/playground/connections'); assert.equal(p.getState().zone, 'playground'); assert.equal(p.getState().x, 1720);
+    a.update({ x: 280, y: 430, moving: true, direction: 'left' }); a.setProfile({ avatar: { sex: 'f', hair: 'long:7', top: 'shirt:2' } });
+    p.update({ x: 1860, y: 940, moving: true, direction: 'right', zone: 'campus' }); p.setProfile({ avatar: { sex: 'm', hair: 'wolf:3', top: 'hood:5' } }); await e.clock.advance(160);
+    const classroomFriend = classBob.latest().find(x => x.uid === 'alice'), playgroundFriend = yardBob.latest().find(x => x.uid === 'alice');
+    assert.equal(classAlice.latest().length, 2); assert.equal(yardAlice.latest().length, 2);
+    assert.equal(classroomFriend.x, 280); assert.equal(classroomFriend.avatar.hair, 'long:7'); assert.equal(classroomFriend.zone, 'campus');
+    assert.equal(playgroundFriend.x, 1860); assert.equal(playgroundFriend.avatar.hair, 'wolf:3'); assert.equal(playgroundFriend.zone, 'playground', 'A zone patch cannot cross the selected shared namespace');
+    assert.equal(await a.claimSeat('bench-1'), true); assert.equal(await p.claimSeat('bench-1'), true, 'The same seat ID belongs to its own space');
+    assert.equal(await b.claimSeat('bench-1'), false); assert.equal(await q.claimSeat('bench-1'), false);
+    a.update({ direction: 'back', pose: 'sit' }); p.update({ direction: 'back', pose: 'sit' }); await e.clock.advance(160);
+    const classSeat = 'quiz/spaces/3-3/campus/seats/bench-1', yardSeat = 'quiz/spaces/3-3/playground/seats/bench-1';
+    const classDeadline = e.get(classSeat).claims[a.getState().connectionId].expiresAt, yardDeadline = e.get(yardSeat).claims[p.getState().connectionId].expiresAt;
+    await e.clock.advance(12000);
+    assert(e.get(classSeat).claims[a.getState().connectionId].expiresAt > classDeadline); assert(e.get(yardSeat).claims[p.getState().connectionId].expiresAt > yardDeadline);
+    classAlice.sdk.client.drop(); await settle();
+    assert.equal(e.get(classSeat + '/claims/' + a.getState().connectionId), null); assert.equal(classBob.latest().length, 1);
+    assert(e.get(yardSeat + '/claims/' + p.getState().connectionId), 'A classroom connection drop may not delete a playground lease'); assert.equal(yardBob.latest().length, 2);
+    await b.disconnect(); await a.disconnect(); await settle(); assert.equal(yardBob.latest().length, 2); assert(e.get(p.getState().path + '/' + p.getState().connectionId));
+    yardAlice.sdk.client.drop(); await settle(); assert.equal(e.get(yardSeat + '/claims/' + p.getState().connectionId), null); assert.equal(yardBob.latest().length, 1);
+    await p.disconnect(); await q.disconnect(); assert.equal(e.listeners.size, 0);
+    passed.push('Two classroom and two playground connections isolate same-account movement/outfits, same-ID seat leases and room zones; disconnects and cleanup affect only their own shared space.');
+  }
+  {
+    const e = environment(), invalid = e.runtime();
+    for (const space of ['../users', 'campus/connections', 'playground/../../accounts', '<svg>', 'unknown', {}, []]) assert.throws(() => invalid.join('invalid_space', { space }), /공유 공간 이름/);
+    assert.equal(e.writes.length, 0); assert.equal(e.listeners.size, 0, 'Invalid space inputs cannot allocate database listeners or writes');
+    const legacy = invalid.join('explicit_village', { space: 'village' }); await settle(); assert.equal(legacy.getState().path, 'quiz/village/3-3/connections'); await legacy.disconnect();
+    const deniedSDK = e.sdk(); deniedSDK.client.deny = true; const denied = e.runtime(deniedSDK), local = denied.join('denied_yard', { space: 'playground', initialState: { x: 2100, y: 800 } }); await settle();
+    assert.equal(local.getState().zone, 'playground'); assert.equal(denied.mode(), 'local'); assert.equal(local.getState().connected, false);
+    local.update({ x: 2150, pose: 'sit-floor', seatId: null }); assert.equal(local.getState().pose, 'sit-floor'); assert.equal(await local.claimSeat('bench-1'), true); assert.equal(local.getState().seatShared, false);
+    assert.equal(e.writes.filter(w => w.client === deniedSDK.client).length, 0); await local.disconnect();
+    const readSDK = e.sdk(); readSDK.client.denyRead = true; const unreadable = e.runtime(readSDK), readLocal = unreadable.join('unreadable_yard', { space: 'playground' }); await settle();
+    assert.equal(unreadable.mode(), 'local'); assert.equal(await readLocal.claimSeat('bench-1'), true); assert.equal(readLocal.getState().seatShared, false); await readLocal.disconnect();
+    const slowSDK = e.sdk(), fastSDK = e.sdk(); slowSDK.client.offset = 60000; fastSDK.client.offset = -60000;
+    const slow = e.runtime(slowSDK, -60000), fast = e.runtime(fastSDK, 60000), a = slow.join('yard_wave', { space: 'playground' }), b = fast.join('yard_friend', { space: 'playground' }); await settle();
+    const at = a.getTime(), wave = { type: 'wave', at, duration: 1500 }; a.update({ gesture: wave }); await settle();
+    for (let tick = 1; tick <= 9; tick++) { await e.clock.advance(150); a.update({ x: tick, gesture: wave }); await settle(); const remote = fast.latest().find(p => p.uid === 'yard_wave').gesture; assert.equal(remote.at, at); assert.equal((b.getTime() - remote.at) / remote.duration, tick / 10); }
+    await e.clock.advance(200); a.update({ gesture: wave }); await settle(); assert.equal(fast.latest().find(p => p.uid === 'yard_wave').gesture, null);
+    await a.disconnect(); await b.disconnect(); assert.equal(e.listeners.size, 0);
+    passed.push('Only campus/playground enter modern namespaces while legacy village remains compatible; denied playground access stays explicitly local and ±60-second devices share one advancing, expiring wave timeline.');
+  }
   console.log(JSON.stringify({ passed: passed.length, checks: passed }, null, 2));
 })().catch(error => { console.error(error); process.exitCode = 1; });
