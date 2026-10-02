@@ -7,6 +7,9 @@
   const aliases={crop:'short',buzz:'short',longm:'long',wave:'long',afro:'curly',mohawk:'spiky'};
   const atlas={hairUrl:'assets/sd-heads-female.png',maleUrl:'assets/sd-heads-male.png',headRect:[0,0,32,40],enabled:true,style:'illustrated',columns:4,rows:3};
   const HEAD_GRID=384,HEAD_HEIGHT=480,VIEW_H=56;
+  // Enlarge the connected body at its neck anchor; preserve the painted head
+  // and the original shoe aspect ratio. Pose offsets share these proportions.
+  const BODY_PROPORTIONS=Object.freeze({scale:1.08,verticalScale:1.35*1.08});
   atlas.styleOrder={f:hairNames.slice(),m:maleHairNames.slice()};atlas.headPixels=HEAD_GRID;atlas.normalizedSheetPixels=[HEAD_GRID*4,HEAD_GRID*3];
   const cache=new Map(),sourceHeads=new Map(),normalizedHeads=new Map(),eyeAnchors=new Map();
   const rgb=hex=>hex.match(/[a-f0-9]{2}/gi).map(x=>parseInt(x,16));
@@ -322,9 +325,9 @@
   function defs(){return '<defs><clipPath id="qpx-head-front" clipPathUnits="userSpaceOnUse"><rect x="-1" y="-8" width="34" height="36.45"/></clipPath><clipPath id="qpx-hair-behind" clipPathUnits="userSpaceOnUse"><rect x="-1" y="28.2" width="34" height="20"/></clipPath><clipPath id="qpx-torso-dressed" clipPathUnits="userSpaceOnUse"><rect x="13" y="28" width="6" height="11"/></clipPath><clipPath id="qpx-arms-short" clipPathUnits="userSpaceOnUse"><rect x="0" y="32.75" width="32" height="7"/></clipPath><clipPath id="qpx-arms-long" clipPathUnits="userSpaceOnUse"><rect x="0" y="36.75" width="32" height="3"/></clipPath><clipPath id="qpx-face-preview-area" clipPathUnits="userSpaceOnUse"><path d="M8 21H24V26H23V28H22V29H20V30H12V29H10V28H9V26H8Z"/></clipPath></defs>';}
   function composition(av,lod){
     const shoeShape=String(av.shoes||'').split(':')[0],shoeTarget=window.QPShoes?.targets?.[shoeShape==='dress'?'loafer':shoeShape],footFloor=shoeShape?(shoeTarget?shoeTarget[1]+shoeTarget[3]:46.05):45.15;
-    const contactY=28+(footFloor-28)*1.35;
-    let s=defs()+`<g transform="scale(1 ${VIEW_H/48})">${background(av.bg,lod)}</g><ellipse class="qpx-contact-shadow" cx="16" cy="${contactY}" rx="6.4" ry=".7" fill="#635d6f" opacity=".22"/>`;
-    s+=`<g class="qpx-idle">${headBitmap(hairTile(av),item('hair',av.hair).col,String(av.expression||'bright:0').split(':')[0],true)}<g transform="translate(0 28) scale(1 1.35) translate(0 -28)">${back(av.back)}<g transform="${ACTIVE_SEX==='m'?'translate(-.64 0) scale(1.04 1)':''}"><g class="qpx-body">${fittedArms(av.top)}${bareBody(av.top)}${bottom(av.bottom)}${shoes(av.shoes)}${top(av.top)}${fittedArms(av.top,true)}${neck(av.neck)}</g></g></g><g class="qpx-head" data-qpx-head="${encodeURIComponent(JSON.stringify(av))}" data-qpx-head-sex="${ACTIVE_SEX}" data-qpx-head-skin="${SKIN}">${fullHead(av)}</g></g><g transform="translate(0 ${VIEW_H-48})">${pet(av.pet)}</g>`;
+    const contactY=28+(footFloor-28)*BODY_PROPORTIONS.verticalScale;
+    let s=defs()+`<g transform="scale(1 ${VIEW_H/48})">${background(av.bg,lod)}</g><ellipse class="qpx-contact-shadow" cx="16" cy="${contactY}" rx="${6.4*BODY_PROPORTIONS.scale}" ry=".7" fill="#635d6f" opacity=".22"/>`;
+    s+=`<g class="qpx-idle">${headBitmap(hairTile(av),item('hair',av.hair).col,String(av.expression||'bright:0').split(':')[0],true)}<g transform="translate(16 28) scale(${BODY_PROPORTIONS.scale} ${BODY_PROPORTIONS.verticalScale}) translate(-16 -28)">${back(av.back)}<g transform="${ACTIVE_SEX==='m'?'translate(-.64 0) scale(1.04 1)':''}"><g class="qpx-body">${fittedArms(av.top)}${bareBody(av.top)}${bottom(av.bottom)}${shoes(av.shoes)}${top(av.top)}${fittedArms(av.top,true)}${neck(av.neck)}</g></g></g><g class="qpx-head" data-qpx-head="${encodeURIComponent(JSON.stringify(av))}" data-qpx-head-sex="${ACTIVE_SEX}" data-qpx-head-skin="${SKIN}">${fullHead(av)}</g></g><g transform="translate(0 ${VIEW_H-48})">${pet(av.pet)}</g>`;
     if(av.frame){const {shape,col,d,l}=item('frame',av.frame);s+=`<g transform="scale(1 ${VIEW_H/48})">${frame(shape,col,d,l)}</g>`;}return s+effect(av.effect);
   }
   function render(av,h=180,lod=2){av=av||newAvatar();SKIN=skinFor(av.sk||0);SKIN_SHADE=shade(SKIN,-.14);ACTIVE_SEX=av.sex==='m'?'m':'f';const key=JSON.stringify(av)+'/'+h+'/'+lod+JSON.stringify(atlas);if(cache.has(key))return cache.get(key);let seed=0;const str=JSON.stringify(av);for(let i=0;i<str.length;i++)seed=(seed*31+str.charCodeAt(i))>>>0;const out=`<svg xmlns="http://www.w3.org/2000/svg" class="qp-pixel-avatar qp-illustrated-avatar" data-qpx-seed="${seed%5000}" data-qpx-sex="${ACTIVE_SEX}" viewBox="0 0 32 ${VIEW_H}" width="${h*32/VIEW_H}" height="${h}" role="img" aria-label="일러스트 퀴즈 아바타" shape-rendering="geometricPrecision" style="display:block;image-rendering:auto;overflow:visible;--qpx-blink-cycle:${4.1+seed%2900/1000}s">${composition(av,lod)}</svg>`;if(cache.size>280)cache.clear();cache.set(key,out);return out;}
@@ -383,5 +386,5 @@
   window.addEventListener('qp-pets-ready',()=>cache.clear());
   window.addEventListener('qp-shoes-ready',()=>cache.clear());
   function backdrop(value){if(!value)return '';return `<svg xmlns="http://www.w3.org/2000/svg" class="qp-profile-backdrop" viewBox="0 0 32 48" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="--qpx-phase:${-performance.now()/1000}s">${background(value,3)}</svg>`;}
-  window.QPAvatar={render,thumb,backdrop,frames,expressions,atlas,syncArtwork:sync,clearCache:()=>cache.clear()};
+  window.QPAvatar={render,thumb,backdrop,frames,expressions,atlas,proportions:BODY_PROPORTIONS,syncArtwork:sync,clearCache:()=>cache.clear()};
 })();

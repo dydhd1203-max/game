@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-01T23:47:16.849Z",
+  "builtAt": "2026-10-02T01:13:49.089Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -11,23 +11,23 @@
     },
     {
       "path": "index.html",
-      "bytes": 303990,
-      "sha256": "b3e91567a7b593febb7fd43e21da2c25bae4ccc1a6a5010849ec0392afa1495d"
+      "bytes": 308965,
+      "sha256": "3a1c9ae758108a018f9e3ec4818802589f030332c130882dc8d444523ca0bb5b"
     },
     {
       "path": "avatar-image.js",
-      "bytes": 2955,
-      "sha256": "0b348846dc869ee5cbdc1c9808f29f988ce9d12beceeb5c8ddbdb0fdd5561510"
+      "bytes": 3027,
+      "sha256": "3b722466f34367112e5d37c50876ee9201034004d2e266c907ebbc4c22331929"
     },
     {
       "path": "assets/avatar-file-data.js",
-      "bytes": 21136608,
-      "sha256": "af64d5b6361d8c585267025a05fc80a923b9d511cc35adc2872cc9a1be850cd2"
+      "bytes": 25301948,
+      "sha256": "1fd05586d82ef7afcf6360182109247946ee569fc5ad73493d540b619117b024"
     },
     {
       "path": "avatar-pixel.js",
-      "bytes": 64411,
-      "sha256": "7e915ff31d09d8fa006bcd3ffdfd7b8ac14e362fbe2776738eb6d882179829a4"
+      "bytes": 64783,
+      "sha256": "60339555a9d5c515cc0c4c0b03011748c4906e25d4d017f9249a61d56311a314"
     },
     {
       "path": "avatar-clothes.js",
@@ -105,6 +105,41 @@
       "sha256": "6e931b8ada0c444043ff811262a4c24e928138751e319afcc57ed45a9a34ca67"
     },
     {
+      "path": "school-room-scene.js",
+      "bytes": 15906,
+      "sha256": "971d1d9d45f08641741e534726f9346c0f514cddf2b2f247ebfb38c38f49822e"
+    },
+    {
+      "path": "school-room-world.js",
+      "bytes": 30400,
+      "sha256": "d286303da431e5c2c81248365cefed43d69f9c8677be6abacc8339bae8a18ab7"
+    },
+    {
+      "path": "school-room-world.css",
+      "bytes": 4672,
+      "sha256": "84c2889f16cd22fe2cc034e8cefa8ff6697d5b006b899a2d246e98cc1e739135"
+    },
+    {
+      "path": "village-presence.js",
+      "bytes": 24922,
+      "sha256": "74aabb87fd7e86a4eb642b862d1df75974ebd74ddce5a36dbd1d59453958798c"
+    },
+    {
+      "path": "assets/classroom-library/originals/classroom-e41eb583796fc7b8.png",
+      "bytes": 911538,
+      "sha256": "e41eb583796fc7b8b36ca7bda583ccf4818dc545d72b81cc20517342b8986902"
+    },
+    {
+      "path": "assets/classroom-library/originals/classroom-4dcb960dde3f19d2.png",
+      "bytes": 758864,
+      "sha256": "4dcb960dde3f19d247c83ba996164162a5fe6423ba96b1bfb7c448d03b850972"
+    },
+    {
+      "path": "assets/classroom-library/originals/classroom-70f5744d42cc639d.png",
+      "bytes": 584454,
+      "sha256": "70f5744d42cc639d72e25c59869c499cc5284318b8ad03d7ac185fd9e2ccde3f"
+    },
+    {
       "path": "assets/forest-village-frame.png",
       "bytes": 1673167,
       "sha256": "b72a5b4381514a1fcd01bcb54acfe252bea33432839e0335dcf8857a8d597272"
@@ -171,13 +206,13 @@
     },
     {
       "path": "avatar-direction.js",
-      "bytes": 19647,
-      "sha256": "0072abf9dd8b984f5c73672e0a322aace0239f265631570fead748345a6f3eab"
+      "bytes": 25436,
+      "sha256": "c0fd7c37457927f8d97e894298426b10094879bce301e61460c7281885e47697"
     },
     {
       "path": "avatar-poses.js",
-      "bytes": 30794,
-      "sha256": "6deadaf8bfb13207f98d2033085886067e4c846227d4f08e2f867ca024feeda8"
+      "bytes": 32485,
+      "sha256": "9b1a3efddb9d252c93c1e6c2cff784c150f46c7661cd75d03f582002fd9db562"
     },
     {
       "path": "avatar-motion.js",
@@ -203,6 +238,21 @@
       "path": "assets/sd-heads-profile.json",
       "bytes": 3638,
       "sha256": "d7070abe385829727ef74c08fec21d6b9f5ac2c6277d6a33975fc59d57f3e717"
+    },
+    {
+      "path": "assets/sd-heads-back-female.png",
+      "bytes": 1584223,
+      "sha256": "a940ca8eb4e28e34b087b3821fbf944e5ed9422587739fe577095b6163d287e7"
+    },
+    {
+      "path": "assets/sd-heads-back-male.png",
+      "bytes": 1539692,
+      "sha256": "97daa3683cb7b3972f82b398fcef2eb7e0fb4bdac47c1a7a1e8d0033babd6ab3"
+    },
+    {
+      "path": "assets/sd-heads-back.json",
+      "bytes": 1745,
+      "sha256": "e879897b488d3d50788db5d4b6377a8bd71c5a80c9031684755e141acaaec3e4"
     },
     {
       "path": "quiz-questions.js",

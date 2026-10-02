@@ -27,15 +27,37 @@ function environment() {
   const snap = (p, client) => ({ val: () => copy(p === '.info/connected' ? client.connected : p === '.info/serverTimeOffset' ? client.offset : get(p)) });
   const notify = () => { for (const l of listeners) queueMicrotask(() => { if (listeners.has(l)) l.cb(snap(l.path, l.client)); }); };
   function sdk(connected = true) {
-    const client = { connected, offset: 0, registrations: 0, deny: false }; clients.push(client); disconnects.set(client, new Set());
+    const client = { connected, offset: 0, registrations: 0, deny: false, denyRead: false, coldTransactions: true, coldStarts: 0, transactionRetries: 0 }; clients.push(client); disconnects.set(client, new Set());
     class Ref {
       constructor(p) { this.path = p; }
       child(p) { return new Ref(this.path + '/' + p); }
-      on(event, cb) { assert.equal(event, 'value'); const listener = { path: this.path, cb, client }; listeners.add(listener); queueMicrotask(() => { if (listeners.has(listener)) cb(snap(this.path, client)); }); return cb; }
+      on(event, cb, error) {
+        assert.equal(event, 'value');
+        if (client.denyRead && !this.path.startsWith('.info/')) { queueMicrotask(() => error?.(Object.assign(new Error('Read not permitted'), { code: 'PERMISSION_DENIED' }))); return cb; }
+        const listener = { path: this.path, cb, client, loaded: false }; listeners.add(listener);
+        queueMicrotask(() => { if (listeners.has(listener)) { listener.loaded = true; cb(snap(this.path, client)); } }); return cb;
+      }
       off(event, cb) { for (const l of listeners) if (l.client === client && l.path === this.path && (!cb || l.cb === cb)) listeners.delete(l); }
       async set(value) { if (client.deny) throw Object.assign(new Error('Not permitted'), { code: 'PERMISSION_DENIED' }); assert.notEqual(client.connected, false, 'Do not publish movement while offline'); writes.push({ client, path: this.path, value: copy(value), at: clock.time }); set(this.path, value); notify(); }
       async update(patch) { if (client.deny) throw Object.assign(new Error('Not permitted'), { code: 'PERMISSION_DENIED' }); assert.notEqual(client.connected, false, 'Do not publish movement while offline'); writes.push({ client, path: this.path, value: copy(patch), at: clock.time, patch: true }); set(this.path, { ...(get(this.path) || {}), ...copy(patch) }); notify(); }
       async remove() { set(this.path, null); notify(); }
+      async transaction(updater) {
+        if (client.deny) throw Object.assign(new Error('Not permitted'), { code: 'PERMISSION_DENIED' });
+        assert.notEqual(client.connected, false, 'Do not claim a chair while offline');
+        const loaded = [...listeners].some(l => l.client === client && l.loaded && (this.path === l.path || this.path.startsWith(l.path + '/')));
+        let current = copy(get(this.path));
+        if (client.coldTransactions && !loaded) { current = null; ++client.coldStarts; }
+        for (let attempt = 0; attempt < 100; attempt++) {
+          const before = JSON.stringify(current), proposed = updater(copy(current));
+          if (proposed === undefined) return { committed: false, snapshot: snap(this.path, client) };
+          await Promise.resolve();
+          if (client.beforeCommit) { const hook = client.beforeCommit; client.beforeCommit = null; hook(this.path); }
+          if (JSON.stringify(get(this.path)) !== before) { current = copy(get(this.path)); ++client.transactionRetries; continue; }
+          writes.push({ client, path: this.path, value: copy(proposed), at: clock.time, transaction: true }); set(this.path, proposed); notify();
+          return { committed: true, snapshot: snap(this.path, client) };
+        }
+        throw new Error('Transaction retries exhausted');
+      }
       onDisconnect() { return { remove: async () => { ++client.registrations; disconnects.get(client).add(this.path); }, cancel: async () => disconnects.get(client).delete(this.path) }; }
     }
     const db = { ref: p => new Ref(p) };
@@ -138,7 +160,7 @@ const passed = [];
     const e = environment(), sender = e.runtime(), receiver = e.runtime();
     const a = sender.join('direction_sender'), b = receiver.join('direction_receiver'); await settle();
     assert.equal(a.getState().direction, 'front'); assert.equal(receiver.latest().find(p => p.uid === 'direction_sender').direction, 'front');
-    for (const direction of ['left', 'front', 'right']) {
+    for (const direction of ['left', 'front', 'back', 'right']) {
       a.update({ x: 200, direction, moving: true, facing: -1 }); await e.clock.advance(160);
       const remote = receiver.latest().find(p => p.uid === 'direction_sender');
       assert.equal(remote.direction, direction); assert.equal(remote.facing, -1, 'New profile direction must not rewrite the legacy facing');
@@ -146,10 +168,10 @@ const passed = [];
     a.update({ moving: false }); await e.clock.advance(160);
     assert.equal(receiver.latest().find(p => p.uid === 'direction_sender').direction, 'right', 'Stopping preserves the last chosen frame');
     let x = 210;
-    for (const direction of ['back', 'left\" onclick=\"injected', '<svg>', null, 1, {}, []]) a.update({ x: x++, direction });
+    for (const direction of ['upside-down', 'left\" onclick=\"injected', '<svg>', null, 1, {}, []]) a.update({ x: x++, direction });
     await e.clock.advance(160);
     assert.equal(a.getState().direction, 'right'); assert.equal(receiver.latest().find(p => p.uid === 'direction_sender').direction, 'right');
-    assert(e.writes.every(w => !Object.prototype.hasOwnProperty.call(w.value, 'direction') || ['front', 'left', 'right'].includes(w.value.direction)), 'Only the three safe direction values may be broadcast');
+    assert(e.writes.every(w => !Object.prototype.hasOwnProperty.call(w.value, 'direction') || ['front', 'left', 'right', 'back'].includes(w.value.direction)), 'Only safe direction values may be broadcast');
     sender.sdk.client.drop(); await settle(); a.update({ direction: 'left', x: 777 }); sender.sdk.client.reconnect(); await settle();
     assert.equal(receiver.latest().find(p => p.uid === 'direction_sender').direction, 'left'); assert.equal(receiver.latest().find(p => p.uid === 'direction_sender').x, 777);
     const legacy = { name: 'legacy', avatar: {}, version: 1, x: 20, y: 30, height: 0, zone: 'village', updatedAt: e.clock.time, pose: 'idle' };
@@ -158,7 +180,7 @@ const passed = [];
     for (const [id, direction] of Object.entries({ legacy_left: 'left', legacy_right: 'right', legacy_idle: 'front', malformed_direction: 'front' })) assert.equal(receiver.latest().find(p => p.uid === id)?.direction, direction, 'Old or malformed direction records remain safely readable');
     assert.equal(e.get(a.getState().path + '/' + a.getState().connectionId).version, 1);
     await a.disconnect(); await b.disconnect();
-    passed.push('Front/left/right frames synchronize independently of legacy facing, survive stop and reconnect, reject injected enums, and preserve safe version-1 legacy records.');
+    passed.push('Front/left/right/back frames synchronize independently of legacy facing, survive stop and reconnect, reject injected enums, and preserve safe version-1 legacy records.');
   }
   {
     const e = environment(), earlySDK = e.sdk(), lateSDK = e.sdk();
@@ -188,6 +210,178 @@ const passed = [];
     const blockedSdk = e.sdk(), blocked = e.runtime(blockedSdk); blockedSdk.client.deny = true;
     const denied = blocked.join('denied'); await settle(); assert.equal(blocked.mode(), 'local'); assert.equal(denied.getState().connected, false); await denied.disconnect();
     passed.push('Missing database and denied writes report local fallback without losing movement; the isolated demo adapter remains compatible.');
+  }
+  {
+    const e = environment(), r = e.runtime(), a = r.join('campus_start', { space: 'campus', classId: '우리 반/3.3', bounds: { width: 1900, height: 1200 }, initialState: { x: 1120, y: 680, zone: 'campus', direction: 'left', pose: 'sit', seatId: 'seat-1' } });
+    await settle();
+    assert.equal(a.getState().path, 'quiz/spaces/%EC%9A%B0%EB%A6%AC%20%EB%B0%98%2F3%2E3/campus/connections');
+    assert.equal(a.getState().x, 1120); assert.equal(a.getState().y, 680); assert.equal(a.getState().zone, 'campus'); assert.equal(a.getState().direction, 'left');
+    assert.equal(a.getState().seatId, null); assert.equal(a.getState().pose, 'idle', 'Restoring a checkpoint must not acquire a seat');
+    a.update({ seatId: 'seat-1', pose: 'sit' }); await e.clock.advance(160);
+    assert.equal(a.getState().seatId, null); assert.equal(a.getState().pose, 'idle', 'An update cannot bypass atomic seat ownership');
+    assert.equal(await a.claimSeat('../users'), false); assert.equal(await a.claimSeat('<img>'), false);
+    assert(e.writes.every(w => w.path.startsWith('quiz/spaces/'))); await a.disconnect();
+    passed.push('Campus presence has a separate encoded class path, starts at its actual spawn, and checkpoint/state updates cannot impersonate a shared seat claim.');
+  }
+  {
+    const e = environment(), first = e.runtime(), second = e.runtime();
+    const a = first.join('same_account', { space: 'campus' }), b = second.join('same_account', { space: 'campus' }); await settle();
+    const claimed = await Promise.all([a.claimSeat('seat-1'), b.claimSeat('seat-1')]); await settle();
+    assert.equal(claimed.filter(Boolean).length, 1, 'Only one concurrent transaction may acquire a chair');
+    const winner = claimed[0] ? a : b, loser = claimed[0] ? b : a;
+    const seatPath = winner.getState().path.replace('/connections', '/seats/seat-1');
+    assert.equal(e.get(seatPath).owner, winner.getState().connectionId); assert.equal(winner.getState().seatShared, true);
+    assert.equal(await loser.claimSeat('seat-1'), false);
+    await loser.releaseSeat(); await loser.disconnect();
+    assert.equal(e.get(seatPath).owner, winner.getState().connectionId, 'Another tab for the same account must not release the owner');
+    const lease = e.get(seatPath).claims[winner.getState().connectionId];
+    await e.clock.advance(24000);
+    assert(e.get(seatPath).claims[winner.getState().connectionId].expiresAt > lease.expiresAt, 'Heartbeat must renew a seated student');
+    await winner.releaseSeat(); assert.equal(e.get(seatPath + '/claims/' + winner.getState().connectionId), null);
+    await winner.disconnect(); assert.equal(e.listeners.size, 0);
+    assert.equal(first.sdk.client.coldStarts + second.sdk.client.coldStarts, 0, 'Atomic seat decisions keep a loaded Firebase value view');
+    passed.push('Simultaneous claims grant one seat, another tab cannot steal/release it, idle heartbeats renew the lease, and release/disconnect clean up only the unique owner claim.');
+  }
+  {
+    const e = environment(), runtimes = Array.from({ length: 30 }, () => e.runtime());
+    const pupils = runtimes.map((r, i) => r.join('pupil-' + i, { space: 'campus', initialState: { x: 200 + i, y: 500, zone: 'campus' } })); await settle();
+    const results = await Promise.all(pupils.map((p, i) => p.claimSeat('seat-' + (i + 1)))); await settle();
+    pupils.forEach(p => p.update({ direction: 'back', pose: 'sit' })); await e.clock.advance(160);
+    assert(results.every(Boolean)); assert.equal(runtimes[0].latest().length, 30);
+    assert.equal(new Set(runtimes[0].latest().map(p => p.seatId)).size, 30);
+    assert(runtimes[0].latest().every(p => p.pose === 'sit' && p.seatId && p.direction === 'back'), 'Every seated classmate faces the board with its shared back direction');
+    const seats = e.get('quiz/spaces/3-3/campus/seats'); assert.equal(Object.keys(seats).length, 30);
+    assert.equal(new Set(Object.values(seats).map(s => s.owner)).size, 30);
+    assert(e.writes.every(w => /^quiz\/spaces\/3-3\/campus\/(connections|seats)\//.test(w.path)), 'Seats and presence may never write accounts, answers or rewards');
+    await Promise.all(pupils.map(p => p.disconnect())); assert.equal(e.listeners.size, 0);
+    assert(Object.values(e.get('quiz/spaces/3-3/campus/seats')).every(s => Object.keys(s.claims || {}).length === 0));
+    passed.push('Thirty isolated student connections share thirty unique seats and sitting poses while all storage writes stay outside accounts, quizzes and scores.');
+  }
+  {
+    const e = environment(), first = e.runtime(), next = e.runtime();
+    const a = first.join('old_owner', { space: 'campus' }), b = next.join('next_owner', { space: 'campus' }); await settle();
+    assert.equal(await a.claimSeat('seat-1'), true);
+    const seatPath = 'quiz/spaces/3-3/campus/seats/seat-1', old = e.get(seatPath);
+    old.claims[old.owner].expiresAt = e.clock.time - 1; e.set(seatPath, old);
+    assert.equal(await b.claimSeat('seat-1'), true, 'An expired abandoned lease must be reclaimable');
+    await a.disconnect(); assert.equal(e.get(seatPath).owner, b.getState().connectionId);
+    assert(e.get(seatPath + '/claims/' + b.getState().connectionId), 'Late disconnect cleanup cannot remove the replacement owner');
+    next.sdk.client.drop(); await settle();
+    assert.equal(e.get(seatPath + '/claims/' + b.getState().connectionId), null, 'Server disconnect removes the unique claim');
+    assert.equal(b.getState().seatId, null); assert.equal(b.getState().pose, 'idle');
+    await b.disconnect();
+    passed.push('Expired leases can be reclaimed, an old tab cannot remove a replacement owner, and server disconnect clears the unique seat claim and local sitting pose.');
+  }
+  {
+    const e = environment(), r = e.runtime(), a = r.join('retry', { space: 'campus' }); await settle();
+    const other = { version: 1, owner: 'other_connection', claims: { other_connection: { uid: 'other', connectionId: 'other_connection', updatedAt: e.clock.time, expiresAt: e.clock.time + 35000 } } };
+    r.sdk.client.beforeCommit = path => e.set(path, other);
+    assert.equal(await a.claimSeat('seat-1'), false, 'A Firebase updater retry must respect the new server owner');
+    assert(r.sdk.client.transactionRetries > 0); assert.equal(e.get('quiz/spaces/3-3/campus/seats/seat-1').owner, 'other_connection');
+    assert.equal(r.sdk.client.coldStarts, 0); await a.disconnect();
+    passed.push('A Firebase-style updater retry after another server claim rejects the occupied seat instead of overwriting it, with no cold-cache null decisions.');
+  }
+  {
+    const e = environment(), local = e.runtime(null), a = local.join('offline', { space: 'campus', initialState: { x: 700, y: 500 } });
+    assert.equal(await a.claimSeat('seat-1'), true); assert.equal(a.getState().seatShared, false); assert.equal(a.getState().mode, 'local');
+    await a.releaseSeat(); assert.equal(a.getState().seatId, null); await a.disconnect();
+    const r = e.runtime(), lost = [], b = r.join('reconnect', { space: 'campus', onSeatLost: x => lost.push(x) }); await settle();
+    r.sdk.client.drop(); await settle(); assert.equal(await b.claimSeat('seat-2'), true); assert.equal(b.getState().seatShared, false);
+    r.sdk.client.reconnect(); await settle();
+    assert.equal(b.getState().seatId, null); assert.equal(b.getState().pose, 'idle'); assert.equal(lost.at(-1).reason, 'reconnect');
+    assert.equal(e.get(b.getState().path + '/' + b.getState().connectionId).seatId, null);
+    assert.equal(e.get('quiz/spaces/3-3/campus/seats/seat-2'), null, 'Offline sitting must not invent a server claim on reconnect'); await b.disconnect();
+    const blockedSDK = e.sdk(); blockedSDK.client.denyRead = true;
+    const blocked = e.runtime(blockedSDK), c = blocked.join('blocked', { space: 'campus' }); await settle();
+    assert.equal(blocked.mode(), 'local'); assert.equal(await c.claimSeat('seat-3'), true); assert.equal(c.getState().seatShared, false);
+    assert.equal(e.get(c.getState().path + '/' + c.getState().connectionId), null, 'Read-denied presence must not report shared membership');
+    await c.disconnect();
+    passed.push('Local or read-denied classrooms keep walking/sitting usable, label claims as local, and clear offline seats before reconnect rather than publishing fictitious ownership.');
+  }
+  {
+    const e = environment(), r = e.runtime(), lost = [], a = r.join('expired_local', { space: 'campus', onSeatLost: x => lost.push(x) }); await settle();
+    assert.equal(await a.claimSeat('seat-1'), true);
+    // Simulate a suspended tab: no presence/seat heartbeats run, while the
+    // next timer/event notices that its server-adjusted lease has expired.
+    for (const [id, timer] of e.clock.timers) if (timer.interval === 10000) e.clock.timers.delete(id);
+    await e.clock.advance(36000);
+    assert.equal(a.getState().seatShared, false); assert.equal(a.getState().seatId, null); assert.equal(lost.at(-1).reason, 'expired');
+    const bRuntime = e.runtime(), b = bRuntime.join('replacement', { space: 'campus' }); await settle();
+    assert.equal(await b.claimSeat('seat-1'), true);
+    r.sdk.client.drop(); await settle();
+    assert(e.get('quiz/spaces/3-3/campus/seats/seat-1/claims/' + b.getState().connectionId));
+    await a.disconnect(); await b.disconnect();
+    const deniedSDK = e.sdk(), deniedRuntime = e.runtime(deniedSDK), c = deniedRuntime.join('seat_write_denied', { space: 'campus' }); await settle();
+    deniedSDK.client.deny = true; assert.equal(await c.claimSeat('seat-2'), true);
+    assert.equal(c.getState().seatShared, false); assert.equal(c.getState().mode, 'local');
+    const before = e.writes.filter(w => w.client === deniedSDK.client).length;
+    await e.clock.advance(12000); assert.equal(c.getState().mode, 'local');
+    assert.equal(e.writes.filter(w => w.client === deniedSDK.client).length, before, 'Denied shared writes must not later report a fictitious connected seat');
+    await c.disconnect();
+    passed.push('A suspended tab gives up its expired local sitting pose before a replacement claims the chair, and seat-write permission failures stay explicitly local without invented shared writes.');
+  }
+  {
+    const e = environment(), first = e.runtime(), friend = e.runtime();
+    const a = first.join('floor_sitter', { space: 'campus' }), b = friend.join('floor_friend', { space: 'campus' }); await settle();
+    a.update({ x: 730, y: 610, moving: false, direction: 'front', pose: 'sit-floor', seatId: null }); await e.clock.advance(160);
+    const remote = friend.latest().find(p => p.uid === 'floor_sitter');
+    assert.equal(a.getState().pose, 'sit-floor'); assert.equal(remote.pose, 'sit-floor'); assert.equal(remote.seatId, null);
+    assert.equal(remote.x, 730); assert.equal(remote.y, 610); assert.equal(remote.direction, 'front');
+    assert.equal(e.get('quiz/spaces/3-3/campus/seats'), null, 'Floor sitting must not reserve any chair');
+    const ownRecord = e.get(a.getState().path + '/' + a.getState().connectionId); assert.equal(ownRecord.pose, 'sit-floor'); assert.equal(ownRecord.seatId, null);
+    a.update({ pose: 'sit', seatId: 'seat-1' }); await e.clock.advance(160);
+    assert.equal(a.getState().pose, 'idle'); assert.equal(friend.latest().find(p => p.uid === 'floor_sitter').seatId, null, 'Chair sitting still requires an atomic claim');
+    a.update({ pose: 'sit-floor\" onclick=\"injected' }); await e.clock.advance(160);
+    assert.equal(a.getState().pose, 'idle'); assert.equal(friend.latest().find(p => p.uid === 'floor_sitter').pose, 'idle', 'Malformed pose values cannot be broadcast');
+    assert.equal(await a.claimSeat('seat-1'), true); a.update({ direction: 'back', pose: 'sit' }); await e.clock.advance(160);
+    assert.equal(friend.latest().find(p => p.uid === 'floor_sitter').pose, 'sit'); assert.equal(friend.latest().find(p => p.uid === 'floor_sitter').seatId, 'seat-1');
+    await a.releaseSeat(); a.update({ pose: 'sit-floor', seatId: null }); await e.clock.advance(160);
+    assert.equal(friend.latest().find(p => p.uid === 'floor_sitter').pose, 'sit-floor'); assert.equal(friend.latest().find(p => p.uid === 'floor_sitter').seatId, null);
+    await a.disconnect(); await b.disconnect();
+    passed.push('Floor sitting shares its pose and floor position without reserving a chair, rejects injected poses, and remains separate from atomically claimed chair sitting.');
+  }
+  {
+    const e = environment(), r = e.runtime(), a = r.join('quick_seat_change', { space: 'campus' }); await settle();
+    const first = a.claimSeat('seat-A'), second = a.claimSeat('seat-B');
+    const staleCleanup = first.then(() => a.releaseSeat('seat-A'));
+    assert.equal(await first, true); assert.equal(await second, true); assert.equal(await staleCleanup, false);
+    assert.equal(a.getState().seatId, 'seat-B'); assert.equal(a.getState().seatShared, true);
+    const seatsPath = 'quiz/spaces/3-3/campus/seats';
+    assert.equal(e.get(seatsPath + '/seat-A/claims/' + a.getState().connectionId), null);
+    assert(e.get(seatsPath + '/seat-B/claims/' + a.getState().connectionId), 'Late cleanup from chair A must preserve the newer chair B claim');
+    await a.releaseSeat('seat-B'); assert.equal(a.getState().seatId, null);
+    assert.equal(e.get(seatsPath + '/seat-B/claims/' + a.getState().connectionId), null);
+    assert.equal(await a.claimSeat('seat-C'), true); await a.releaseSeat(); assert.equal(a.getState().seatId, null, 'No-argument release retains ordinary stand cleanup');
+    await a.disconnect();
+    passed.push('Queued chair A/B claims and a late canceled-A cleanup preserve chair B; expected-seat release affects only its matching chair and normal stand cleanup remains compatible.');
+  }
+  {
+    const e = environment(), slowSDK = e.sdk(), fastSDK = e.sdk();
+    slowSDK.client.offset = 60000; fastSDK.client.offset = -60000;
+    const slow = e.runtime(slowSDK, -60000), fast = e.runtime(fastSDK, 60000);
+    const a = slow.join('steady_wave', { space: 'campus' }), b = fast.join('wave_friend', { space: 'campus' }); await settle();
+    const firstAt = a.getTime(), wave = { type: 'wave', at: firstAt, duration: 1500 };
+    a.update({ gesture: wave }); await settle();
+    for (let tick = 1; tick <= 9; tick++) {
+      await e.clock.advance(150); a.update({ x: 500 + tick, gesture: wave }); await settle();
+      const remote = fast.latest().find(p => p.uid === 'steady_wave').gesture;
+      assert.equal(remote.at, firstAt, 'Repeated production motion publications must preserve the gesture start');
+      assert.equal(remote.duration, 1500); assert.equal((b.getTime() - remote.at) / remote.duration, tick / 10, 'The friend gesture must progress instead of restarting each frame');
+    }
+    await e.clock.advance(200); a.update({ x: 520, gesture: wave }); await settle();
+    assert.equal(fast.latest().find(p => p.uid === 'steady_wave').gesture, null, 'An expired repeated event must not restart');
+    const secondAt = a.getTime(); a.update({ gesture: { ...wave, at: secondAt } }); await settle();
+    assert.equal(fast.latest().find(p => p.uid === 'steady_wave').gesture.at, secondAt); assert(secondAt > firstAt, 'A second same-type greeting gets its own timeline');
+    a.update({ gesture: null }); await settle(); assert.equal(fast.latest().find(p => p.uid === 'steady_wave').gesture, null, 'Explicit clear stops the friend gesture');
+    a.update({ gesture: { type: 'hello', at: a.getTime() - 60000, duration: 1500 } }); await settle();
+    assert.equal(fast.latest().find(p => p.uid === 'steady_wave').gesture.at, a.getTime(), 'A known slow-device timestamp is translated to the server clock');
+    b.update({ gesture: { type: 'hello', at: b.getTime() + 60000, duration: 1500 } }); await settle();
+    assert.equal(slow.latest().find(p => p.uid === 'wave_friend').gesture.at, b.getTime(), 'A known fast-device timestamp is translated to the server clock');
+    a.update({ gesture: { type: 'happy', duration: 1500 } }); await settle(); assert.equal(fast.latest().find(p => p.uid === 'steady_wave').gesture.at, a.getTime(), 'Legacy callers without at use the current server clock');
+    a.update({ gesture: { type: 'happy', at: a.getTime() - 8000, duration: 1500 } }); await settle();
+    assert.equal(fast.latest().find(p => p.uid === 'steady_wave').gesture, null, 'A stale server timeline is cleared rather than replayed');
+    await a.disconnect(); await b.disconnect();
+    passed.push('Repeated campus gesture publications keep one advancing timeline and expire naturally; another same-type greeting restarts once, null clears it, and slow/fast device clocks normalize without resetting friends.');
   }
   console.log(JSON.stringify({ passed: passed.length, checks: passed }, null, 2));
 })().catch(error => { console.error(error); process.exitCode = 1; });

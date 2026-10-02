@@ -1,0 +1,74 @@
+{
+  "created": "2026-10-02",
+  "type": "original-transparent-illustrated-back-head-atlas",
+  "runtime": "avatar-direction.js",
+  "columns": 4,
+  "rows": 3,
+  "style": "existing illustrated SD avatar",
+  "directions": [
+    "front",
+    "left",
+    "right",
+    "back"
+  ],
+  "seatReference": {
+    "archive": "앉기.zip",
+    "referenceFiles": [
+      "앉기(정면).png",
+      "앉기(왼쪽).png",
+      "앉기(오른쪽).png",
+      "앉기(뒤).png"
+    ],
+    "usage": "Four seated directions and furniture layering only; preserve existing illustrated SD style."
+  },
+  "frameOrders": {
+    "m": [
+      "short",
+      "spiky",
+      "part",
+      "messy",
+      "crop",
+      "bowl",
+      "fade",
+      "undercut",
+      "slick",
+      "curlm",
+      "comma",
+      "wolf"
+    ],
+    "f": [
+      "short",
+      "bob",
+      "long",
+      "twin",
+      "pony",
+      "curly",
+      "bun",
+      "hime",
+      "part",
+      "messy",
+      "spiky",
+      "braid"
+    ]
+  },
+  "atlases": {
+    "m": {
+      "file": "sd-heads-back-male.png",
+      "width": 1448,
+      "height": 1086,
+      "sha256": "97daa3683cb7b3972f82b398fcef2eb7e0fb4bdac47c1a7a1e8d0033babd6ab3",
+      "frames": 12,
+      "sourceReference": "sd-heads-male.png",
+      "production": "Image-generation edit of existing hairstyle atlas, facing away; no eyes, mouth or frontal face."
+    },
+    "f": {
+      "file": "sd-heads-back-female.png",
+      "width": 1448,
+      "height": 1086,
+      "sha256": "a940ca8eb4e28e34b087b3821fbf944e5ed9422587739fe577095b6163d287e7",
+      "frames": 12,
+      "sourceReference": "sd-heads-female.png",
+      "production": "Image-generation edit of existing hairstyle atlas, facing away; no eyes, mouth or frontal face."
+    }
+  }
+}

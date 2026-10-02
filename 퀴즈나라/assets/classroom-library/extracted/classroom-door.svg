@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="104" height="132" viewBox="0 0 104 132" role="img" aria-label="classroom-door: visible original screenshot pixels">
+  <title>classroom-door: source-backed classroom screenshot extraction</title>
+  <metadata>Source 교실 공간3.png SHA256 70f5744d42cc639d72e25c59869c499cc5284318b8ad03d7ac185fd9e2ccde3f. Region [950, 99, 104, 132]. No hidden pixels reconstructed. Inline SVG or object document required for external source image.</metadata>
+  <defs><clipPath id="classroom-door-visible" clipPathUnits="userSpaceOnUse"><path d="M1 1H103V131H1Z"/></clipPath></defs>
+  <g data-source-layer="classroom-door-visible" clip-path="url(#classroom-door-visible)"><image href="../originals/classroom-70f5744d42cc639d.png" x="-950" y="-99" width="1476" height="879"/></g>
+</svg>

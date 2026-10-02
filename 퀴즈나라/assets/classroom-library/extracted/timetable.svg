@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="109" height="86" viewBox="0 0 109 86" role="img" aria-label="timetable: visible original screenshot pixels">
+  <title>timetable: source-backed classroom screenshot extraction</title>
+  <metadata>Source 교실 공간2.png SHA256 4dcb960dde3f19d247c83ba996164162a5fe6423ba96b1bfb7c448d03b850972. Region [919, 219, 109, 86]. No hidden pixels reconstructed. Inline SVG or object document required for external source image.</metadata>
+  <defs><clipPath id="timetable-visible" clipPathUnits="userSpaceOnUse"><path d="M1 1H108V85H1Z"/></clipPath></defs>
+  <g data-source-layer="timetable-visible" clip-path="url(#timetable-visible)"><image href="../originals/classroom-4dcb960dde3f19d2.png" x="-919" y="-219" width="1296" height="901"/></g>
+</svg>

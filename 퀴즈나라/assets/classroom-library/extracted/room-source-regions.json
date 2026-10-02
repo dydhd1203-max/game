@@ -1,0 +1,387 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-02",
+  "scene": "school-room-scene.js",
+  "method": "Visible original screenshot regions, silhouette masks, native placement and original-material texture tiling. No new artwork, no whole screenshot pasted, no hidden pixels reconstructed.",
+  "sources": [
+    {
+      "id": "group",
+      "path": "../originals/classroom-e41eb583796fc7b8.png",
+      "originalName": "교실 공간1.png",
+      "offset": [
+        0,
+        0
+      ],
+      "dimensions": [
+        1126,
+        904
+      ]
+    },
+    {
+      "id": "classroom",
+      "path": "../originals/classroom-4dcb960dde3f19d2.png",
+      "originalName": "교실 공간2.png",
+      "offset": [
+        860,
+        0
+      ],
+      "dimensions": [
+        1296,
+        901
+      ]
+    },
+    {
+      "id": "corridor",
+      "path": "../originals/classroom-70f5744d42cc639d.png",
+      "originalName": "교실 공간3.png",
+      "offset": [
+        1451,
+        26
+      ],
+      "dimensions": [
+        1476,
+        879
+      ]
+    }
+  ],
+  "layout": {
+    "world": [
+      2928,
+      930
+    ],
+    "classroomCapacity": 30,
+    "deskRows": 3,
+    "pairsPerRow": 5,
+    "deskCell": [
+      62,
+      90
+    ],
+    "deskNativeSourceRect": [
+      109,
+      506,
+      62,
+      90
+    ],
+    "deskX": [
+      109,
+      173,
+      301,
+      365,
+      494,
+      558,
+      686,
+      750,
+      878,
+      942
+    ],
+    "deskY": [
+      506,
+      602,
+      698
+    ],
+    "cameraHome": {
+      "x": 1430,
+      "y": 450,
+      "zoom": 0.84
+    },
+    "spawn": [
+      1430,
+      790
+    ]
+  },
+  "materials": [
+    {
+      "id": "wood-floor",
+      "source": "classroom",
+      "region": [
+        30,
+        508,
+        64,
+        192
+      ],
+      "method": "clean aisle pixels tiled across room floors"
+    },
+    {
+      "id": "cream-upper-wall",
+      "source": "classroom",
+      "region": [
+        340,
+        29,
+        200,
+        48
+      ],
+      "method": "unobscured source wall pixels tiled"
+    },
+    {
+      "id": "blue-lower-wall",
+      "source": "classroom",
+      "region": [
+        822,
+        189,
+        94,
+        127
+      ],
+      "method": "unobscured source wall pixels tiled"
+    },
+    {
+      "id": "group-blue-wall",
+      "source": "group",
+      "region": [
+        350,
+        122,
+        280,
+        62
+      ],
+      "method": "source wall pixels tiled"
+    },
+    {
+      "id": "hall-floor",
+      "source": "corridor",
+      "region": [
+        1130,
+        242,
+        230,
+        100
+      ],
+      "method": "clean source floor pixels tiled"
+    },
+    {
+      "id": "room-dividing-wall",
+      "source": "group",
+      "region": [
+        827,
+        52,
+        62,
+        100
+      ],
+      "method": "visible separator strip reused vertically"
+    },
+    {
+      "id": "return-wall",
+      "source": "group",
+      "region": [
+        826,
+        345,
+        63,
+        160
+      ],
+      "method": "single native region"
+    }
+  ],
+  "composedSourceComponents": [
+    {
+      "id": "projection-screen",
+      "source": "classroom",
+      "region": [
+        297,
+        78,
+        522,
+        317
+      ],
+      "exclude": [
+        "teacher name",
+        "teacher hair tip",
+        "GUIDE overlapping lower right"
+      ],
+      "reuse": [
+        {
+          "source": "corridor",
+          "region": [
+            0,
+            331,
+            182,
+            24
+          ],
+          "usage": "clean lower blank panel gradient repeated across covered label band"
+        },
+        {
+          "source": "corridor",
+          "region": [
+            0,
+            357,
+            182,
+            13
+          ],
+          "usage": "clean lower metallic rail repeated horizontally"
+        },
+        {
+          "source": "classroom",
+          "region": [
+            297,
+            382,
+            10,
+            13
+          ],
+          "usage": "rounded lower left cap also reflected for lower right cap"
+        }
+      ]
+    },
+    {
+      "id": "stage",
+      "source": "classroom",
+      "region": [
+        282,
+        390,
+        574,
+        119
+      ],
+      "exclude": [
+        "teacher avatar",
+        "lightbulb",
+        "GUIDE"
+      ],
+      "cleanReplacementRegions": [
+        {
+          "source": [
+            497,
+            390,
+            40,
+            44
+          ],
+          "targetLocal": [
+            256,
+            0
+          ]
+        },
+        {
+          "source": [
+            646,
+            438,
+            42,
+            49
+          ],
+          "targetLocal": [
+            320,
+            48
+          ]
+        },
+        {
+          "source": [
+            720,
+            390,
+            50,
+            56
+          ],
+          "targetLocal": [
+            490,
+            0
+          ]
+        }
+      ],
+      "method": "adjacent same-height clean stage wood source components under excluded overlays; original curved source outline retained"
+    },
+    {
+      "id": "green-double-door",
+      "source": "corridor",
+      "region": [
+        671.5,
+        68,
+        113.5,
+        166
+      ],
+      "method": "clean right leaf reused twice, left leaf reflected horizontally; no kiosk or hidden-pixel restoration"
+    },
+    {
+      "id": "second-noticeboard",
+      "source": "corridor",
+      "region": [
+        626,
+        436,
+        791,
+        164
+      ],
+      "method": "clean first noticeboard reused at second source layout location to omit microphone controls"
+    }
+  ],
+  "groupAssets": {
+    "rugs": [
+      [
+        360,
+        343,
+        166,
+        141
+      ],
+      [
+        135,
+        440,
+        166,
+        141
+      ],
+      [
+        583,
+        438,
+        166,
+        141
+      ],
+      [
+        134,
+        631,
+        166,
+        141
+      ],
+      [
+        582,
+        629,
+        166,
+        141
+      ],
+      [
+        357,
+        728,
+        171,
+        141
+      ]
+    ],
+    "beanbags": [
+      "orange [49,181,54,55]",
+      "green [51,248,51,52]",
+      "green [243,215,52,54]"
+    ],
+    "cushion": [
+      116,
+      191,
+      45,
+      39
+    ],
+    "microphoneTable": [
+      381,
+      567,
+      124,
+      93
+    ]
+  },
+  "depth": {
+    "rugs": "floor layer 1",
+    "roundTables": "independent original visible source table clip",
+    "studentChair": "deskTop +55",
+    "studentDeskFront": "deskTop +61 (actual visible desk foot anchor)",
+    "seatedDepth": "deskTop +63; seated head and torso are on the south chair, in front of the north desk",
+    "logicalSeatFoot": "deskTop +73",
+    "nativeSeatedVisualOffset": 0
+  },
+  "verification": {
+    "nativeBrowserArtPreview": "../../../검증/교실-추출-2026-10-02/교실-배치-미술검수.html",
+    "nativeCentralScreenshot": "../../../검증/교실-추출-2026-10-02/교실-중앙-배치.png",
+    "sourceArtDirectlyViewed": true,
+    "browserErrors": 0,
+    "playableAvatarSeating": "verified separately by game runtime QA; this file records art only"
+  },
+  "limitations": [
+    "All screenshot originals are opaque and screenshot resolution. Source objects are used at native scale.",
+    "Reused clean screen, stage, glass door and board components are original artwork pixels; the unseen original screenshot portions are not recovered.",
+    "Chair sprites contain only visible source parts; actual seated overlap and back facing are game runtime responsibilities."
+  ],
+  "interaction": {
+    "boardHitRect": [
+      1157,
+      78,
+      522,
+      317
+    ],
+    "boardLegalApproach": [
+      1513,
+      470
+    ],
+    "method": "Screen pixel hit area routes the avatar to the legal board approach before opening lessons; no new art is drawn."
+  }
+}

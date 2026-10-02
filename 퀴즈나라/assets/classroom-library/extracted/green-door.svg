@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="226" height="166" viewBox="0 0 226 166" role="img" aria-label="green double doors: clean original right door leaf reused and mirrored">
+  <title>green double doors: original clean right leaf reused symmetrically</title>
+  <metadata>Source 교실 공간3.png classroom-70f5744d42cc639d.png. Each visible door leaf displays region [671,68,113,166]. The left leaf is the same original right-leaf pixels mirrored horizontally. No hidden source pixels reconstructed and no artwork redrawn.</metadata>
+  <defs><clipPath id="green-door-clean-leaf" clipPathUnits="userSpaceOnUse"><path d="M0 1H113V165H0Z"/></clipPath></defs>
+  <g data-source-layer="right-leaf-reused-as-left" transform="translate(113 0) scale(-1 1)"><g clip-path="url(#green-door-clean-leaf)"><image href="../originals/classroom-70f5744d42cc639d.png" x="-671" y="-68" width="1476" height="879"/></g></g>
+  <g data-source-layer="right-leaf" transform="translate(113 0)"><g clip-path="url(#green-door-clean-leaf)"><image href="../originals/classroom-70f5744d42cc639d.png" x="-671" y="-68" width="1476" height="879"/></g></g>
+</svg>

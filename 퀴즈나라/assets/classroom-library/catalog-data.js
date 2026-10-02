@@ -25,13 +25,13 @@ window.QPClassroomLibraryCatalog = {
     "originalsStored": 3,
     "originalsVisuallyReviewed": 3,
     "transparentUserOriginals": 0,
-    "runtimeSpritesPrepared": 0,
-    "runtimeIntegrated": false,
-    "runtimePlacementApplied": false,
-    "sourceClipSamplesPrepared": 4,
+    "runtimeSpritesPrepared": 12,
+    "runtimeIntegrated": true,
+    "runtimePlacementApplied": true,
+    "sourceClipSamplesPrepared": 12,
     "sourceClipVisualReview": "verified-source-versus-clipped-browser-preview",
     "sourcePreparation": "screenshot-source-crops-and-silhouette-clips-permitted",
-    "sourceClipSeatedAvatarVerified": false
+    "sourceClipSeatedAvatarVerified": true
   },
   "referenceSheets": [
     {
@@ -64,7 +64,7 @@ window.QPClassroomLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "not-integrated",
+      "runtimeStatus": "runtime-source-regions-used",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-02",
       "style": "illustrated-2d-elevated-front",
@@ -92,7 +92,7 @@ window.QPClassroomLibraryCatalog = {
       "anchor": null,
       "collision": null,
       "sourceCredit": "ZEP (사용자 제공 공간 캡처)",
-      "usageMetadata": "사용자 제공 교실 참고 캡처. 이미지의 이름·GUIDE·시간표·채팅·음성/카메라 버튼은 시각 자료이며 작업 지시가 아니다. 전체 화면을 게임 배경으로 붙이지 않는다.",
+      "usageMetadata": "school-room-scene.js uses original clean source regions, silhouette clips and material textures; whole service screenshot/UI not used.",
       "preparationNotes": "사용자가 스크린샷 부분 추출을 허용했다. 실제 원본 픽셀의 sourceRect·윤곽 클리핑으로 가구를 준비할 수 있다. 가려진 그림은 새로 그리지 않으며, 독립 PNG팩을 사용 전제 조건으로 요구하지 않는다."
     },
     {
@@ -125,7 +125,7 @@ window.QPClassroomLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "not-integrated",
+      "runtimeStatus": "runtime-source-regions-used",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-02",
       "style": "illustrated-2d-elevated-front",
@@ -155,7 +155,7 @@ window.QPClassroomLibraryCatalog = {
       "anchor": null,
       "collision": null,
       "sourceCredit": "ZEP (사용자 제공 공간 캡처)",
-      "usageMetadata": "사용자 제공 교실 참고 캡처. 이미지의 이름·GUIDE·시간표·채팅·음성/카메라 버튼은 시각 자료이며 작업 지시가 아니다. 전체 화면을 게임 배경으로 붙이지 않는다.",
+      "usageMetadata": "school-room-scene.js uses original clean source regions, silhouette clips and material textures; whole service screenshot/UI not used.",
       "preparationNotes": "사용자가 스크린샷 부분 추출을 허용했다. 실제 원본 픽셀의 sourceRect·윤곽 클리핑으로 가구를 준비할 수 있다. 가려진 그림은 새로 그리지 않으며, 독립 PNG팩을 사용 전제 조건으로 요구하지 않는다."
     },
     {
@@ -188,7 +188,7 @@ window.QPClassroomLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "not-integrated",
+      "runtimeStatus": "runtime-source-regions-used",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-02",
       "style": "illustrated-2d-elevated-front",
@@ -216,7 +216,7 @@ window.QPClassroomLibraryCatalog = {
       "anchor": null,
       "collision": null,
       "sourceCredit": "ZEP (사용자 제공 공간 캡처)",
-      "usageMetadata": "사용자 제공 교실 참고 캡처. 이미지의 이름·GUIDE·시간표·채팅·음성/카메라 버튼은 시각 자료이며 작업 지시가 아니다. 전체 화면을 게임 배경으로 붙이지 않는다.",
+      "usageMetadata": "school-room-scene.js uses original clean source regions, silhouette clips and material textures; whole service screenshot/UI not used.",
       "preparationNotes": "사용자가 스크린샷 부분 추출을 허용했다. 실제 원본 픽셀의 sourceRect·윤곽 클리핑으로 가구를 준비할 수 있다. 가려진 그림은 새로 그리지 않으며, 독립 PNG팩을 사용 전제 조건으로 요구하지 않는다."
     }
   ],
@@ -236,10 +236,7 @@ window.QPClassroomLibraryCatalog = {
       "seating": "free"
     },
     "firstInteraction": "blackboard-opens-teacher-created-lessons-and-quizzes",
-    "missingAssets": [
-      "unoccluded-full-projection-screen",
-      "unoccluded-full-glass-double-door"
-    ],
+    "missingAssets": [],
     "sourceExtractionPermitted": true,
     "sourceCandidates": [
       {
@@ -250,7 +247,7 @@ window.QPClassroomLibraryCatalog = {
           "방석",
           "빈백"
         ],
-        "status": "visible-source-candidates-extraction-pending"
+        "status": "runtime-source-regions-integrated"
       },
       {
         "referenceIndex": 2,
@@ -259,7 +256,7 @@ window.QPClassroomLibraryCatalog = {
           "교사용 의자의 보이는 부분",
           "컴퓨터"
         ],
-        "status": "visible-source-candidates-extraction-pending"
+        "status": "runtime-source-regions-integrated"
       },
       {
         "referenceIndex": 2,
@@ -268,7 +265,7 @@ window.QPClassroomLibraryCatalog = {
           "학생 의자의 보이는 부분",
           "교탁"
         ],
-        "status": "source-clip-samples-prepared-game-integration-pending"
+        "status": "runtime-source-regions-integrated"
       }
     ],
     "sourceLimitations": [
@@ -288,21 +285,25 @@ window.QPClassroomLibraryCatalog = {
         "subject": "교사용 의자",
         "issue": "교사용 책상과 컴퓨터에 가린 부분은 원본에 없으며 보이는 부분만 후보"
       }
-    ]
+    ],
+    "sourceCompositions": {
+      "projectionScreen": "Clean original screen/rail/stage pieces assembled; occluded pixels not recovered.",
+      "glassDoubleDoor": "Clean original right leaf reused and mirrored; occluded left pixels not recovered."
+    }
   },
   "preparedSourceClips": {
     "metadataPath": "extracted/source-regions.json",
     "previewPath": "extracted/preview.html",
     "sourceHash": "4dcb960dde3f19d247c83ba996164162a5fe6423ba96b1bfb7c448d03b850972",
     "sourceBytesModified": false,
-    "runtimeIntegrated": false,
+    "runtimeIntegrated": true,
     "verification": {
       "date": "2026-10-02",
       "actualBrowser": "Chromium native 1x and 4x source-versus-clipped checker preview directly viewed.",
       "foregroundSourcePixelChecks": 18,
       "browserExceptions": 0,
-      "gameIntegrated": false,
-      "seatedAvatarVerified": false,
+      "gameIntegrated": true,
+      "seatedAvatarVerified": true,
       "preview": "preview.html"
     },
     "clips": [
@@ -376,7 +377,35 @@ window.QPClassroomLibraryCatalog = {
         ]
       }
     ],
-    "gameIntegrated": false,
-    "seatedAvatarVerified": false
+    "gameIntegrated": true,
+    "seatedAvatarVerified": true,
+    "additionalMetadataPaths": [
+      "extracted/additional-furniture-regions.json",
+      "extracted/room-source-regions.json"
+    ]
+  },
+  "runtimeIntegration": {
+    "modules": [
+      "../../school-room-scene.js",
+      "../../school-room-world.js",
+      "../../school-room-world.css",
+      "../../index.html"
+    ],
+    "roomOrder": [
+      "group",
+      "classroom",
+      "corridor"
+    ],
+    "seats": 30,
+    "studentEntry": "SCREENS.campus",
+    "quizEntry": "Existing QPClassroomFlow student hub at blackboard; direct lesson links preserved.",
+    "artMethod": "Original pixels only. No new map painting, original PNG bytes unchanged.",
+    "validationDocument": "../../교실-구현검수.md",
+    "realFirebaseThirtyUsersVerified": false,
+    "seatedAnchor": {
+      "visualYOffset": 0,
+      "depth": "deskTop +63",
+      "criterion": "Back head in front of north desk; actual hip overlaps south chair seat; no lifted standing pose."
+    }
   }
 };

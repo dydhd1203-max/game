@@ -7,6 +7,7 @@ const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/',out=path.resol
   const p=await b.newPage({viewport:{width:1760,height:1050}}),errors=[];p.on('pageerror',e=>errors.push(e.message));await p.route('**/www.gstatic.com/firebasejs/**',r=>r.fulfill({body:'/* isolated profile QA */',contentType:'text/javascript'}));
   await p.goto(new URL('?demo=1&session=profile-'+Date.now(),base).href);await p.waitForFunction(()=>QPAvatar.atlas.ready&&QPAvatarDirection.atlas.ready&&QPClothes.atlas.ready&&QPShoes.atlas.partsReady);
   const report=await p.evaluate(async()=>{
+   QPGame.go('school');
    document.head.insertAdjacentHTML('beforeend','<style>body{height:auto!important;overflow:visible!important;display:block!important;background:#f9f0df!important;color:#57432e}.qp-illustrated-avatar *{animation:none!important}.qpx-blink-half,.qpx-blink-closed{opacity:0!important}</style>');const host=document.createElement('main');document.body.replaceChildren(host);
    const clean={...QPGame.getMe().av,sex:'m',hair:'messy:1',sk:4,top:'tank:7',bottom:'jeans:5',shoes:'sneaker:8',pet:'',hat:'',glass:'',face:'',ear:'',neck:'',back:'',effect:'',bg:'',frame:''};
    const make=(av,size=224)=>{host.innerHTML=QPAvatar.render({...clean,...av},size,3);return host.firstElementChild;};

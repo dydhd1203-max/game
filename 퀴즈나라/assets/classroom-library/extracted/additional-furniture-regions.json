@@ -1,0 +1,239 @@
+{
+  "schemaVersion": 1,
+  "method": "Original screenshot pixel display through SVG source-region and silhouette clips; no artwork redrawn and no occluded pixels reconstructed.",
+  "sources": {
+    "classroom2": {
+      "path": "../originals/classroom-4dcb960dde3f19d2.png",
+      "originalName": "교실 공간2.png",
+      "sha256": "4dcb960dde3f19d247c83ba996164162a5fe6423ba96b1bfb7c448d03b850972",
+      "width": 1296,
+      "height": 901
+    },
+    "classroom3": {
+      "path": "../originals/classroom-70f5744d42cc639d.png",
+      "originalName": "교실 공간3.png",
+      "sha256": "70f5744d42cc639d72e25c59869c499cc5284318b8ad03d7ac185fd9e2ccde3f",
+      "width": 1476,
+      "height": 879
+    }
+  },
+  "assets": [
+    {
+      "id": "teacher-desk",
+      "source": "classroom2",
+      "region": [
+        124,
+        288,
+        162,
+        152
+      ],
+      "anchor": [
+        81,
+        150
+      ],
+      "clipPaths": [
+        "M1 60H36V56H44V49H53V43H62V25L63 22V12L65 7L70 4H84L91 7L94 13V23L98 28V42H106V51H115V60H124V57L125 55H134L137 58V65H160V132H157V149H147V132H17V150H7V132H1Z"
+      ],
+      "limitations": [
+        "Desk, monitor, purple chair and cup are a single composite silhouette of visible original pixels.",
+        "Teacher chair and monitor obscure each other; hidden parts are not reconstructed."
+      ],
+      "path": "teacher-desk.svg"
+    },
+    {
+      "id": "window",
+      "source": "classroom2",
+      "region": [
+        61,
+        154,
+        128,
+        130
+      ],
+      "anchor": [
+        64,
+        130
+      ],
+      "clipPaths": [
+        "M1 1H127V129H1Z"
+      ],
+      "limitations": [
+        "The outdoor view behind the window remains part of the original source artwork."
+      ],
+      "path": "window.svg"
+    },
+    {
+      "id": "wall-clock",
+      "source": "classroom2",
+      "region": [
+        219,
+        126,
+        44,
+        43
+      ],
+      "anchor": [
+        22,
+        43
+      ],
+      "clipPaths": [
+        "M42 21.5A20.5 20.5 0 1 1 1 21.5A20.5 20.5 0 1 1 42 21.5Z"
+      ],
+      "limitations": [
+        "Original clock hands are static screenshot pixels."
+      ],
+      "path": "wall-clock.svg"
+    },
+    {
+      "id": "timetable",
+      "source": "classroom2",
+      "region": [
+        919,
+        219,
+        109,
+        86
+      ],
+      "anchor": [
+        54.5,
+        86
+      ],
+      "clipPaths": [
+        "M1 1H108V85H1Z"
+      ],
+      "limitations": [
+        "Original Timetable text remains visible."
+      ],
+      "path": "timetable.svg"
+    },
+    {
+      "id": "motto",
+      "source": "classroom2",
+      "region": [
+        53,
+        64,
+        214,
+        46
+      ],
+      "anchor": [
+        107,
+        46
+      ],
+      "clipPaths": [
+        "M1 1H213V45H1Z"
+      ],
+      "limitations": [
+        "Original Korean classroom motto remains visible."
+      ],
+      "path": "motto.svg"
+    },
+    {
+      "id": "green-door",
+      "source": "classroom3",
+      "region": [
+        558,
+        68,
+        227,
+        166
+      ],
+      "anchor": [
+        113,
+        165
+      ],
+      "clipPaths": [
+        "M0 1H113V165H0Z"
+      ],
+      "limitations": [
+        "The screenshot kiosk obscures the original lower left door. The complete clean right leaf is reused and mirrored as the left leaf.",
+        "Both leaves are original visible pixels; no hidden pixels are reconstructed. The left leaf is symmetric source reuse, not an exact recovery of the occluded original leaf."
+      ],
+      "path": "green-door.svg",
+      "displaySize": [
+        226,
+        166
+      ],
+      "layers": [
+        {
+          "id": "right-leaf-reused-as-left",
+          "source": "classroom3",
+          "region": [
+            671,
+            68,
+            113,
+            166
+          ],
+          "transform": "translate(113 0) scale(-1 1)",
+          "clipPaths": [
+            "M0 1H113V165H0Z"
+          ]
+        },
+        {
+          "id": "right-leaf",
+          "source": "classroom3",
+          "region": [
+            671,
+            68,
+            113,
+            166
+          ],
+          "transform": "translate(113 0)",
+          "clipPaths": [
+            "M0 1H113V165H0Z"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "classroom-door",
+      "source": "classroom3",
+      "region": [
+        950,
+        99,
+        104,
+        132
+      ],
+      "anchor": [
+        52,
+        131
+      ],
+      "clipPaths": [
+        "M1 1H103V131H1Z"
+      ],
+      "limitations": [
+        "Original door only; the separate name plaque is not in this region."
+      ],
+      "path": "classroom-door.svg"
+    },
+    {
+      "id": "noticeboard",
+      "source": "classroom3",
+      "region": [
+        626,
+        436,
+        791,
+        164
+      ],
+      "anchor": [
+        395.5,
+        163
+      ],
+      "clipPaths": [
+        "M1 1H790V163H1Z"
+      ],
+      "limitations": [
+        "Uses the first clean noticeboard. The second one is partially obscured by microphone controls and is not copied."
+      ],
+      "path": "noticeboard.svg"
+    }
+  ],
+  "rendering": {
+    "usage": "Inline SVG and resolve image href against this file URL, or use an object document. External image href inside SVG loaded with img is browser-restricted.",
+    "nativeSizeRecommended": true
+  },
+  "verification": {
+    "date": "2026-10-02",
+    "gameIntegrated": false,
+    "sourcePixelsPreserved": true,
+    "actualBrowser": "Chromium preview at native 1x noticeboard and 2x furniture; rendered screenshot directly inspected.",
+    "browserExceptions": 0,
+    "preview": "../../../검증/교실-추출-2026-10-02/추가가구-교차검증.html",
+    "previewScreenshot": "../../../검증/교실-추출-2026-10-02/추가가구-교차검증.png"
+  }
+}

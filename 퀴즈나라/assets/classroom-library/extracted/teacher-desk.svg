@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="162" height="152" viewBox="0 0 162 152" role="img" aria-label="teacher-desk: visible original screenshot pixels">
+  <title>teacher-desk: source-backed classroom screenshot extraction</title>
+  <metadata>Source 교실 공간2.png SHA256 4dcb960dde3f19d247c83ba996164162a5fe6423ba96b1bfb7c448d03b850972. Region [124, 288, 162, 152]. No hidden pixels reconstructed. Inline SVG or object document required for external source image.</metadata>
+  <defs><clipPath id="teacher-desk-visible" clipPathUnits="userSpaceOnUse"><path d="M1 60H36V56H44V49H53V43H62V25L63 22V12L65 7L70 4H84L91 7L94 13V23L98 28V42H106V51H115V60H124V57L125 55H134L137 58V65H160V132H157V149H147V132H17V150H7V132H1Z"/></clipPath></defs>
+  <g data-source-layer="teacher-desk-visible" clip-path="url(#teacher-desk-visible)"><image href="../originals/classroom-4dcb960dde3f19d2.png" x="-124" y="-288" width="1296" height="901"/></g>
+</svg>

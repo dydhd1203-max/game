@@ -5,7 +5,12 @@
   const NS='http://www.w3.org/2000/svg',SIZE=384,HEIGHT=480,rigs=new WeakMap(),mounted=new Set(),frames=new Map(),cache=new Map();
   const hair={f:['short','bob','long','twin','pony','curly','bun','hime','part','messy','spiky','braid'],m:['short','spiky','part','messy','crop','bowl','fade','undercut','slick','curlm','comma','wolf']};
   const sheets={f:{url:'assets/sd-heads-profile-female.png',rects:[[58,88,278,248],[418,92,272,244],[727,83,306,300],[1098,90,308,302],[48,398,319,328],[418,431,290,247],[775,418,278,291],[1109,423,294,292],[54,750,282,257],[430,755,291,253],[771,745,288,261],[1151,755,251,300]],necks:[[169.8,245],[162.8,241],[183,241],[207,240],[203.4,277],[177.1,244],[157.1,256],[194,231],[172.7,254],[170.8,250],[155.4,258],[144.6,255]]},m:{url:'assets/sd-heads-profile-male.png',rects:[[46,75,295,291],[397,40,309,326],[742,79,315,291],[1098,56,328,313],[56,413,275,283],[394,413,317,284],[759,396,291,303],[1106,396,308,302],[51,720,280,290],[395,712,323,304],[758,722,309,295],[1095,707,339,330]],necks:[[167.6,287],[174.9,322],[171.1,287],[183.2,309],[151.4,279],[176.6,280],[158.3,299],[179.7,298],[152.8,286],[177,300],[160.3,291],[196.3,309]]}};
-  const atlas={ready:false,columns:4,rows:3,style:'illustrated-profile',sourceDimensions:{},normalizationCount:0,cacheHits:0};
+  const backSheets={
+    m:{url:'assets/sd-heads-back-male.png',rects:[[50,78,274,285],[396,52,299,313],[762,85,289,282],[1108,69,318,297],[58,423,262,277],[401,432,296,272],[776,404,272,300],[1118,404,296,301],[50,732,265,290],[387,725,315,299],[761,731,288,293],[1109,723,317,310]]},
+    f:{url:'assets/sd-heads-back-female.png',rects:[[45,95,269,229],[406,97,279,231],[742,76,326,295],[1101,86,326,290],[50,407,289,310],[400,442,304,236],[759,432,302,260],[1108,423,316,285],[45,757,284,238],[406,745,301,257],[773,746,265,252],[1142,740,241,303]],anchors:[[179,317],[548,320],[906,295],[1252,285],[179,644],[548,669],[908,670],[1265,642],[182,983],[552,990],[905,986],[1267,963]]}
+  };
+  const backFrames=new Map(),backCache=new Map();
+  const atlas={ready:false,backReady:false,columns:4,rows:3,style:'illustrated-profile',sourceDimensions:{},backSourceDimensions:{},normalizationCount:0,backNormalizationCount:0,cacheHits:0};
   let serial=0;
   const clamp=(v,a=0,b=255)=>Math.max(a,Math.min(b,v));
   const rgb=s=>String(s).match(/[a-f0-9]{2}/gi).map(x=>parseInt(x,16));
@@ -38,6 +43,37 @@
       out.push({...stats,data,w:w+6,h:h+6,geometry:{scale,x:ox,y:oy},neck});
     }
     frames.set(sex,out);
+  }
+  async function loadBack(sex){
+    const sheet=backSheets[sex],img=await window.QPAvatarImage.load(sheet.url),out=[];
+    atlas.backSourceDimensions[sex]=[img.naturalWidth,img.naturalHeight];
+    for(let tile=0;tile<12;tile++){
+      const [sx,sy,w,h]=sheet.rects[tile],canvas=document.createElement('canvas');canvas.width=w+6;canvas.height=h+6;
+      const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,sx-3,sy-3,w+6,h+6,0,0,w+6,h+6);
+      const data=ctx.getImageData(0,0,w+6,h+6).data;
+      const anchor=sheet.anchors?sheet.anchors[tile].map((v,i)=>v-(i?sy:sx)+3):[(w+6)/2,h+1];
+      const scale=Math.min(28.6/(w+6),24/Math.max(1,anchor[1]-3));
+      out.push({data,w:w+6,h:h+6,anchor,geometry:{scale,x:16-anchor[0]*scale,y:28.75-anchor[1]*scale}});
+    }
+    backFrames.set(sex,out);
+  }
+  function backPainting(sex,tile,color,skin){
+    const key=[sex,tile,color,skin].join('/');if(backCache.has(key))return backCache.get(key);
+    const frame=backFrames.get(sex)?.[tile];if(!frame)return null;
+    const canvas=document.createElement('canvas');canvas.width=frame.w;canvas.height=frame.h;
+    const ctx=canvas.getContext('2d'),out=ctx.createImageData(frame.w,frame.h),d=out.data,dye=rgb(color),base=rgb(skin);
+    for(let i=0;i<d.length;i+=4){const source=frame.data,r=source[i],g=source[i+1],b=source[i+2];if(!source[i+3])continue;
+      let col=[r,g,b];
+      // Actual painted ears/nape retain this wearer's skin. The fade's painted
+      // short stubble is a skin-and-hair mixture, never an empty face aperture.
+      const skinPixel=r>185&&g>113&&b>95&&g/r>.54&&b/g>.67;
+      if(skinPixel){const shade=(r*.22+g*.59+b*.19)/219,warmth=Math.max(0,(r-g-34)/78);col=base.map((v,k)=>clamp(Math.round(v*shade+(k===0?10:k===1?-15:-5)*warmth)));}
+      else if(r>g*1.025&&g>b*.98&&r>24){const lum=r*.25+g*.59+b*.16,gain=lum/102,shine=Math.max(0,lum-160)*.38;col=dye.map(v=>clamp(Math.round(v*gain+shine)));}
+      d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=source[i+3];
+    }
+    ctx.putImageData(out,0,0);const target=document.createElement('canvas');target.width=SIZE;target.height=HEIGHT;
+    const paint=target.getContext('2d'),m=frame.geometry;paint.imageSmoothingEnabled=true;paint.imageSmoothingQuality='high';paint.drawImage(canvas,m.x*12,m.y*12,frame.w*m.scale*12,frame.h*m.scale*12);
+    const result=target.toDataURL('image/png');atlas.backNormalizationCount++;if(backCache.size>=160)backCache.delete(backCache.keys().next().value);backCache.set(key,result);return result;
   }
   function preparePatch(frame,recolored){
     const {eye,w,h,faceMask,data}=frame,cx=(eye.left+eye.right)/2,cy=(eye.top+eye.bottom)/2;
@@ -111,14 +147,23 @@
     }
     r.painted=true;r.svg.dataset.qpxProfileHair=hair[m.sex][m.tile];r.svg.dataset.qpxProfileEyeCount='1';window.QPAvatar.syncArtwork?.(r.svg);
   }
+  function rearParts(r){
+    if(!atlas.backReady||r.rearPainted)return;
+    const m=metadata(r.svg),art=backPainting(m.sex,m.tile,m.color,m.skin);if(!art)return;
+    r.rear.append(node('image',{href:art,x:0,y:0,width:32,height:40,preserveAspectRatio:'none','data-qpx-back-hair':hair[m.sex][m.tile]}));
+    // A back view has no frontal facial jewelry, lenses or eye expressions.
+    // Keep the wearer's hat and ear jewelry on the original attachment axes.
+    for(const el of r.frontOriginals){const category=el.dataset.qpxHeadAccessory;if(!['hat','ear'].includes(category))continue;const copy=el.cloneNode(true);copy.dataset.qpxBackAccessory=category;r.rear.append(copy);}
+    r.rearPainted=true;r.svg.dataset.qpxBackHair=hair[m.sex][m.tile];r.svg.dataset.qpxBackEyeCount='0';window.QPAvatar.syncArtwork?.(r.svg);
+  }
   function prepare(svg,pose){
     if(rigs.has(svg)){
       const r=rigs.get(svg);
       // The original head/shoe modules may finish loading after the world was
       // mounted. Reattach just our layers after their in-place artwork refresh.
       if(r.front.parentNode!==r.pose.head){
-        r.frontOriginals=[...r.pose.head.children];r.originalVisibility=r.frontOriginals.map(n=>n.getAttribute('visibility'));r.pose.head.append(r.front);
-        if(r.profile)for(const n of r.frontOriginals)value(n,'visibility','hidden');
+        r.frontOriginals=[...r.pose.head.children];r.originalVisibility=r.frontOriginals.map(n=>n.getAttribute('visibility'));r.pose.head.append(r.front,r.rear);
+        if(r.profile||r.backView)for(const n of r.frontOriginals)value(n,'visibility','hidden');
       }
       if(r.pose.leftFoot&&r.farShoe?.parentNode!==r.pose.leftFoot){
         r.farShoe=r.pose.leftFoot.firstElementChild?wrap(r.pose.leftFoot.firstElementChild,'far-shoe-toe'):null;
@@ -126,15 +171,15 @@
       }
       return r;
     }if(!pose)return null;
-    const uid='qpdir-'+(++serial),defs=node('defs'),front=node('g',{'data-qpx-profile-head':'front',style:'display:none'}),back=node('g',{'data-qpx-profile-head':'back',class:'qpx-back-hair',style:'display:none'});
+    const uid='qpdir-'+(++serial),defs=node('defs'),front=node('g',{'data-qpx-profile-head':'front',style:'display:none'}),back=node('g',{'data-qpx-profile-head':'back',class:'qpx-back-hair',style:'display:none'}),rear=node('g',{'data-qpx-back-head':'true',style:'display:none'});
     for(const[name,group,y,height]of[['front',front,-8,36.45],['back',back,28.2,27.8]]){const id=uid+'-'+name,clip=node('clipPath',{id,clipPathUnits:'userSpaceOnUse'});clip.append(node('rect',{x:-8,y,width:48,height}));defs.append(clip);group.setAttribute('clip-path','url(#'+id+')');}
     const frontOriginals=[...pose.head.children],originalVisibility=frontOriginals.map(n=>n.getAttribute('visibility'));
-    pose.head.append(front);pose.idle.insertBefore(back,pose.idle.firstChild);svg.insertBefore(defs,svg.firstChild);
+    pose.head.append(front,rear);pose.idle.insertBefore(back,pose.idle.firstChild);svg.insertBefore(defs,svg.firstChild);
     const body=wrap(pose.body,'body-profile'),left=wrap(pose.left,'far-leg'),right=wrap(pose.right,'near-leg'),leftFoot=pose.leftFoot?wrap(pose.leftFoot,'far-foot'):null,rightFoot=pose.rightFoot?wrap(pose.rightFoot,'near-foot'):null;
     // The entire original shoe is mirrored around its ankle, never cut apart.
     const farShoe=pose.leftFoot?.firstElementChild?wrap(pose.leftFoot.firstElementChild,'far-shoe-toe'):null;
-    const r={svg,pose,uid,defs,front,back,frontOriginals,originalVisibility,originalBackVisibility:pose.backHairPose?.getAttribute('visibility')??null,body,left,right,leftFoot,rightFoot,farShoe,originalBodyChildren:[...pose.body.children],profile:false,turned:false,lastFacing:'right',painted:false};
-    rigs.set(svg,r);if(!atlas.ready&&!atlas.error)mounted.add(r);headParts(r);return r;
+    const r={svg,pose,uid,defs,front,back,rear,frontOriginals,originalVisibility,originalBackVisibility:pose.backHairPose?.getAttribute('visibility')??null,body,left,right,leftFoot,rightFoot,farShoe,originalBodyChildren:[...pose.body.children],profile:false,backView:false,turned:false,lastFacing:'right',painted:false,rearPainted:false};
+    rigs.set(svg,r);if(!atlas.ready&&!atlas.error||!atlas.backReady&&!atlas.backError)mounted.add(r);headParts(r);rearParts(r);return r;
   }
   function orient(r,profile){
     if(r.profile===profile)return;r.profile=profile;
@@ -147,8 +192,20 @@
     if(profile)r.pose.body.replaceChildren(...[r.left,r.leftFoot,r.pose.upper,r.right,r.pose.hem,r.rightFoot].filter(Boolean));else r.pose.body.replaceChildren(...r.originalBodyChildren);
     r.svg.dataset.qpxView=profile?'profile':'front';
   }
+  function orientBack(r,backView){
+    if(r.backView===backView)return;r.backView=backView;
+    r.frontOriginals.forEach((n,i)=>value(n,'visibility',backView?'hidden':r.originalVisibility[i]));
+    r.rear.style.display=backView?'':'none';
+    if(r.pose.backHairPose)value(r.pose.backHairPose,'visibility',backView?'hidden':r.originalBackVisibility);
+    r.svg.dataset.qpxView=backView?'back':r.profile?'profile':'front';
+    r.svg.dataset.qpxViewFacing=backView?'back':'front';
+    r.svg.dataset.qpxBackEyeCount='0';
+  }
   function apply(svg,state,pose){
-    const r=prepare(svg,pose);if(!r)return false;headParts(r);
+    const r=prepare(svg,pose);if(!r)return false;headParts(r);rearParts(r);
+    const wantsBack=state.direction==='back'&&!state.gesture;
+    if(wantsBack){orient(r,false);orientBack(r,true);r.turned=false;r.svg.dataset.qpxBackLoading=atlas.backReady?'false':'true';return false;}
+    orientBack(r,false);
     const facing=['left','right'].includes(state.direction)?state.direction:['left','right'].includes(state.facing)?state.facing:r.lastFacing;
     const horizontal=state.action==='walk'||state.action==='jump'&&Math.abs(Number(state.vx)||0)>.001;
     if(['left','right'].includes(state.direction)||horizontal&&state.direction!=='front'&&['left','right'].includes(state.facing)){r.turned=true;r.lastFacing=facing;}if(state.direction==='front')r.turned=false;
@@ -156,8 +213,9 @@
     if(profile){value(r.back,'transform',pose.headPose.getAttribute('transform'));r.svg.dataset.qpxViewFacing=facing;}
     else r.svg.dataset.qpxViewFacing='front';return profile;
   }
-  function reset(svg){const r=rigs.get(svg);if(!r)return false;orient(r,false);r.turned=false;r.lastFacing='right';value(r.back,'transform',null);return true;}
-  function destroy(svg){const r=rigs.get(svg);if(!r)return false;reset(svg);for(const n of[r.left,r.right,r.leftFoot,r.rightFoot,r.farShoe,r.body])unwrap(n);r.front.remove();r.back.remove();r.defs.remove();for(const attr of['data-qpx-view','data-qpx-view-facing','data-qpx-profile-hair','data-qpx-profile-eye-count'])svg.removeAttribute(attr);mounted.delete(r);rigs.delete(svg);return true;}
+  function reset(svg){const r=rigs.get(svg);if(!r)return false;orientBack(r,false);orient(r,false);r.turned=false;r.lastFacing='right';value(r.back,'transform',null);return true;}
+  function destroy(svg){const r=rigs.get(svg);if(!r)return false;reset(svg);for(const n of[r.left,r.right,r.leftFoot,r.rightFoot,r.farShoe,r.body])unwrap(n);r.front.remove();r.back.remove();r.rear.remove();r.defs.remove();for(const attr of['data-qpx-view','data-qpx-view-facing','data-qpx-profile-hair','data-qpx-profile-eye-count','data-qpx-back-hair','data-qpx-back-eye-count','data-qpx-back-loading'])svg.removeAttribute(attr);mounted.delete(r);rigs.delete(svg);return true;}
   window.QPAvatarDirection=Object.freeze({atlas,prepare,apply,reset,destroy});
-  Promise.all([load('f'),load('m')]).then(()=>{atlas.ready=true;for(const r of mounted)if(r.svg.isConnected)headParts(r);mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-direction-ready'));}).catch(error=>{atlas.error=String(error?.message||error);mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-direction-error'));console.warn('옆모습 원화가 아직 준비되지 않아 정면 아바타를 유지합니다.',error);});
+  Promise.all([load('f'),load('m')]).then(()=>{atlas.ready=true;for(const r of mounted)if(r.svg.isConnected)headParts(r);if(atlas.backReady||atlas.backError)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-direction-ready'));}).catch(error=>{atlas.error=String(error?.message||error);if(atlas.backReady||atlas.backError)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-direction-error'));console.warn('옆모습 원화가 아직 준비되지 않아 정면 아바타를 유지합니다.',error);});
+  Promise.all([loadBack('f'),loadBack('m')]).then(()=>{atlas.backReady=true;for(const r of mounted)if(r.svg.isConnected){rearParts(r);r.svg.dataset.qpxBackLoading='false';}if(atlas.ready||atlas.error)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-back-ready'));}).catch(error=>{atlas.backError=String(error?.message||error);if(atlas.ready||atlas.error)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-back-error'));console.warn('뒷모습 원화를 불러오지 못했어요.',error);});
 })();

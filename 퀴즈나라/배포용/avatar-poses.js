@@ -285,13 +285,17 @@
   function apply(svg, state) {
     const rig = prepare(svg); if (!rig) return false;
     state = state || {};
-    const action = ['walk', 'jump', 'sit', 'climb'].includes(state.action) ? state.action : 'idle';
+    const floorSit = state.action === 'floor-sit' || state.action === 'sit' && state.seatMode === 'floor';
+    const deskSit = state.action === 'sit' && state.seatMode === 'desk';
+    const action = floorSit ? 'sit' : ['walk', 'jump', 'sit', 'climb'].includes(state.action) ? state.action : 'idle';
     const gesture=['wave','nod','happy'].includes(state.gesture)?state.gesture:'';
     const [sx, sy] = pixelUnits(rig.body), [, headSy] = pixelUnits(rig.headPose);
     const illustrated = svg.classList.contains('qp-illustrated-avatar');
     const qx = value => illustrated ? value : Math.round(value * sx) / sx;
     const qy = value => illustrated ? value : Math.round(value * sy) / sy;
     const headY = value => illustrated ? value : Math.round(value * headSy) / headSy;
+    const bodyScale=finite(window.QPAvatar?.proportions?.scale,1);
+    const bodyVerticalScale=finite(window.QPAvatar?.proportions?.verticalScale,1.35);
     let left = '', right = '', torsoY = 0, lean = 0, headOffset = 0, headX = 0, headLean = 0;
     let hemTransform = '', footLeft = '', footRight = '', handLeft = [0, 0], handRight = [0, 0];
     let handAngleLeft = 0, handAngleRight = 0, walkPose = null;
@@ -307,8 +311,8 @@
       walkPose = { reach, liftL, liftR, stride };
       torsoY = qy(-.1 * (1 - Math.cos(phase * Math.PI * 4)));
       lean = illustrated ? stride * 1.15 : 0;
-      headX = qx(Math.sin(lean * Math.PI / 180) * (rig.waist - 28));
-      headOffset = headY(torsoY * 1.35);
+      headX = qx(Math.sin(lean * Math.PI / 180) * (rig.waist - 28) * bodyScale);
+      headOffset = headY(torsoY * bodyVerticalScale);
       headLean = lean * .35;
       handAngleLeft = -stride * 6; handAngleRight = stride * 6;
       armAngleLeft=-stride*8;armAngleRight=stride*8;
@@ -332,18 +336,33 @@
       shinLeft=rotated(-5-7*reach,13.75,rig.knee);shinRight=rotated(5+7*(1-reach),18.25,rig.knee);
       footLeft=left+' '+shinLeft;footRight=right+' '+shinRight;
     } else if (action === 'sit') {
-      // Crouch at the hip and knee while the shins stay upright. The trousers
-      // retain their painted proportions instead of becoming short stumps.
-      const bend=60,drop=qy((rig.knee-rig.waist)*(1-Math.cos(bend*Math.PI/180)));
+      // Desk knees stay close together. On the floor, bend both joints while
+      // preserving the complete shoes and their original contact height.
+      // The older motion preview keeps its existing crouch unless a seat mode
+      // is requested by the classroom controller.
+      const sideFloor = floorSit && ['left', 'right'].includes(state.direction);
+      const bend = floorSit ? sideFloor ? 65 : 75 : deskSit ? 24 : 60;
+      const leftBend = sideFloor ? -bend : bend, rightBend = -bend;
+      const leftShinBend = floorSit ? sideFloor ? 125 : -150 : -bend;
+      const rightShinBend = floorSit ? sideFloor ? 125 : 150 : bend;
+      const radians = degrees => degrees * Math.PI / 180;
+      const drop = qy(floorSit ? span - (rig.knee-rig.waist)*Math.cos(radians(leftBend)) -
+        (rig.foot-rig.knee)*Math.cos(radians(leftBend+leftShinBend)) :
+        (rig.knee-rig.waist)*(1-Math.cos(radians(bend))));
       torsoY = drop;
-      headOffset = headY(drop * 1.35);
-      left=translated(0,drop)+' '+rotated(bend,13.75,rig.waist);
-      right=translated(0,drop)+' '+rotated(-bend,18.25,rig.waist);
-      shinLeft=rotated(-bend,13.75,rig.knee);shinRight=rotated(bend,18.25,rig.knee);
+      headOffset = headY(drop * bodyVerticalScale);
+      left=translated(0,drop)+' '+rotated(leftBend,13.75,rig.waist);
+      right=translated(0,drop)+' '+rotated(rightBend,18.25,rig.waist);
+      shinLeft=rotated(leftShinBend,13.75,rig.knee);shinRight=rotated(rightShinBend,18.25,rig.knee);
       footLeft=left+' '+shinLeft;footRight=right+' '+shinRight;
+      if (floorSit) {
+        footLeft += ' ' + rotated(-(leftBend+leftShinBend),13.75,rig.foot);
+        footRight += ' ' + rotated(-(rightBend+rightShinBend),18.25,rig.foot);
+      }
       if (rig.skirt || rig.longTop) {
         const anchor = rig.longTop ? 37.75 : rig.skirtWaist;
-        hemTransform = translated(0, drop) + ' translate(16 ' + anchor + ') scale(1.075 .63) translate(-16 ' + (-anchor) + ')';
+        hemTransform = translated(0, drop) + ' translate(16 ' + anchor + ') scale(' +
+          (deskSit ? '1 .88' : floorSit ? '1.06 .55' : '1.075 .63') + ') translate(-16 ' + (-anchor) + ')';
       }
       handAngleLeft = -5; handAngleRight = 5;
       armAngleLeft=-4;armAngleRight=4;
@@ -367,13 +386,13 @@
       armAngleLeft-=Math.sin(progress*Math.PI*4)*5*envelope;
       armAngleRight+=Math.sin(progress*Math.PI*4)*5*envelope;
       torsoY-=.12*Math.pow(Math.sin(progress*Math.PI*3),2)*envelope;
-      headOffset=headY(torsoY*1.35);
+      headOffset=headY(torsoY*bodyVerticalScale);
     }
     if (rig.lastAction === 'jump' && action !== 'jump' && state.grounded === true) rig.landingAt = now;
     if (action === 'jump' || action === 'sit') rig.landingAt = 0;
     if (rig.landingAt && now - rig.landingAt < 170) {
       const settle = Math.sin((now - rig.landingAt) / 170 * Math.PI) * .42;
-      torsoY += settle; headOffset += headY(settle * 1.35);
+      torsoY += settle; headOffset += headY(settle * bodyVerticalScale);
     }
     rig.lastAction = action;
     // Preserve the continuous painted seat/crotch above the two hip bones.
@@ -436,7 +455,10 @@
     const mirror=profile?svg.dataset.qpxViewFacing==='left':state.direction!=='front'&&!activeGesture&&state.facing==='left';
     setTransform(rig.facing, mirror ? 'translate(32 0) scale(-1 1)' : '');
     if(activeGesture)svg.setAttribute('data-qpx-gesture',activeGesture);else svg.removeAttribute('data-qpx-gesture');
-    if (svg.getAttribute('data-qpx-pose') !== action) svg.setAttribute('data-qpx-pose', action);
+    const displayAction = floorSit ? 'floor-sit' : action;
+    if (svg.getAttribute('data-qpx-pose') !== displayAction) svg.setAttribute('data-qpx-pose', displayAction);
+    if (floorSit || deskSit) svg.setAttribute('data-qpx-seat-mode', floorSit ? 'floor' : 'desk');
+    else svg.removeAttribute('data-qpx-seat-mode');
     return true;
   }
   function reset(svg) {
@@ -447,6 +469,7 @@
       if (group) group.removeAttribute('transform');
     });
     svg.setAttribute('data-qpx-pose', 'idle');
+    svg.removeAttribute('data-qpx-seat-mode');
     showArm(rig,'right',false);showArm(rig,'left',false);
     const shadow=svg.querySelector('.qpx-contact-shadow');if(shadow)shadow.style.visibility='';
     svg.removeAttribute('data-qpx-gesture');rig.gesture='';rig.gestureStartedAt=0;
@@ -464,6 +487,7 @@
     unwrap(rig.headPose); unwrap(rig.backHairPose); unwrap(rig.facing); rig.defs.remove();
     if (rig.previousPose === null) svg.removeAttribute('data-qpx-pose');
     else svg.setAttribute('data-qpx-pose', rig.previousPose);
+    svg.removeAttribute('data-qpx-seat-mode');
     if(rig.previousGesture===null)svg.removeAttribute('data-qpx-gesture');else svg.setAttribute('data-qpx-gesture',rig.previousGesture);
     rigs.delete(svg);
     return true;

@@ -3,10 +3,10 @@ window.QPAssetLibraryCatalog = {
   "schemaVersion": 1,
   "title": "퀴즈나라 전체 소재 보관함",
   "status": {
-    "archives": 12,
-    "originalEntries": 302,
-    "storedImages": 228,
-    "uniqueOriginalImages": 227
+    "archives": 13,
+    "originalEntries": 306,
+    "storedImages": 232,
+    "uniqueOriginalImages": 231
   },
   "libraries": [
     {
@@ -56,6 +56,14 @@ window.QPAssetLibraryCatalog = {
       "originalName": "교실 공간.zip",
       "sourceCount": 3,
       "storedCount": 3
+    },
+    {
+      "id": "seating",
+      "label": "책상·바닥 앉기",
+      "indexPath": "../seating-library/index.html",
+      "originalName": "앉기.zip",
+      "sourceCount": 4,
+      "storedCount": 4
     },
     {
       "id": "motion",
@@ -13238,7 +13246,7 @@ window.QPAssetLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "not-integrated",
+      "runtimeStatus": "runtime-source-regions-used",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-02",
       "style": "illustrated-2d-elevated-front",
@@ -13266,7 +13274,7 @@ window.QPAssetLibraryCatalog = {
       "anchor": null,
       "collision": null,
       "sourceCredit": "ZEP (사용자 제공 공간 캡처)",
-      "usageMetadata": "사용자 제공 교실 참고 캡처. 이미지의 이름·GUIDE·시간표·채팅·음성/카메라 버튼은 시각 자료이며 작업 지시가 아니다. 전체 화면을 게임 배경으로 붙이지 않는다.",
+      "usageMetadata": "school-room-scene.js uses original clean source regions, silhouette clips and material textures; whole service screenshot/UI not used.",
       "preparationNotes": "사용자가 스크린샷 부분 추출을 허용했다. 실제 원본 픽셀의 sourceRect·윤곽 클리핑으로 가구를 준비할 수 있다. 가려진 그림은 새로 그리지 않으며, 독립 PNG팩을 사용 전제 조건으로 요구하지 않는다.",
       "library": "classroom",
       "libraryLabel": "교실 공간",
@@ -13303,7 +13311,7 @@ window.QPAssetLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "not-integrated",
+      "runtimeStatus": "runtime-source-regions-used",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-02",
       "style": "illustrated-2d-elevated-front",
@@ -13333,7 +13341,7 @@ window.QPAssetLibraryCatalog = {
       "anchor": null,
       "collision": null,
       "sourceCredit": "ZEP (사용자 제공 공간 캡처)",
-      "usageMetadata": "사용자 제공 교실 참고 캡처. 이미지의 이름·GUIDE·시간표·채팅·음성/카메라 버튼은 시각 자료이며 작업 지시가 아니다. 전체 화면을 게임 배경으로 붙이지 않는다.",
+      "usageMetadata": "school-room-scene.js uses original clean source regions, silhouette clips and material textures; whole service screenshot/UI not used.",
       "preparationNotes": "사용자가 스크린샷 부분 추출을 허용했다. 실제 원본 픽셀의 sourceRect·윤곽 클리핑으로 가구를 준비할 수 있다. 가려진 그림은 새로 그리지 않으며, 독립 PNG팩을 사용 전제 조건으로 요구하지 않는다.",
       "library": "classroom",
       "libraryLabel": "교실 공간",
@@ -13370,7 +13378,7 @@ window.QPAssetLibraryCatalog = {
         }
       ],
       "sourceStatus": "original-stored",
-      "runtimeStatus": "not-integrated",
+      "runtimeStatus": "runtime-source-regions-used",
       "classificationStatus": "visually-reviewed",
       "reviewedAt": "2026-10-02",
       "style": "illustrated-2d-elevated-front",
@@ -13398,12 +13406,300 @@ window.QPAssetLibraryCatalog = {
       "anchor": null,
       "collision": null,
       "sourceCredit": "ZEP (사용자 제공 공간 캡처)",
-      "usageMetadata": "사용자 제공 교실 참고 캡처. 이미지의 이름·GUIDE·시간표·채팅·음성/카메라 버튼은 시각 자료이며 작업 지시가 아니다. 전체 화면을 게임 배경으로 붙이지 않는다.",
+      "usageMetadata": "school-room-scene.js uses original clean source regions, silhouette clips and material textures; whole service screenshot/UI not used.",
       "preparationNotes": "사용자가 스크린샷 부분 추출을 허용했다. 실제 원본 픽셀의 sourceRect·윤곽 클리핑으로 가구를 준비할 수 있다. 가려진 그림은 새로 그리지 않으며, 독립 PNG팩을 사용 전제 조건으로 요구하지 않는다.",
       "library": "classroom",
       "libraryLabel": "교실 공간",
       "origin": "user",
       "archivePath": "../classroom-library/source.zip"
+    },
+    {
+      "id": "seating/seating-d6cc8b1e4954d4b3",
+      "reviewIndex": 1,
+      "kind": "user-pose-reference",
+      "originalName": "앉기(정면).png",
+      "imagePath": "../seating-library/originals/seating-d6cc8b1e4954d4b3.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "d6cc8b1e4954d4b350dc506d0ada90bb36dfff29efc666dc925bc759ee99c2b7",
+      "byteLength": 4767,
+      "dimensions": {
+        "width": 52,
+        "height": 61
+      },
+      "format": "PNG",
+      "hasAlpha": true,
+      "alphaExtrema": [
+        255,
+        255
+      ],
+      "transparency": "alpha-channel-fully-opaque",
+      "aliases": [
+        {
+          "archiveMember": "앉기(정면).png",
+          "originalName": "앉기(정면).png",
+          "byteLength": 4767,
+          "crc32": "ced152a7",
+          "archiveIndex": 0
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "runtime-reference-used",
+      "classificationStatus": "visually-reviewed",
+      "reviewedAt": "2026-10-02",
+      "style": "pixel-character-screenshot",
+      "perspective": "elevated-front",
+      "contentType": "pose-study-reference",
+      "assetType": "pose-reference",
+      "direction": "front",
+      "actionCategories": [
+        "desk-sit",
+        "floor-sit"
+      ],
+      "label": "앉기 앞모습",
+      "visualSummary": "양 무릎과 발을 모아 몸 가까이 둔 자세을 확인하는 작은 캐릭터 자세 캡처. 바닥과 주변 배경이 포함된다.",
+      "subjects": [
+        "앉기",
+        "앞모습",
+        "책상에 앉기",
+        "바닥에 앉기",
+        "무릎",
+        "발",
+        "자세",
+        "원본 참고"
+      ],
+      "categories": [
+        "characters",
+        "motion",
+        "desk-sit",
+        "floor-sit",
+        "reference"
+      ],
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "sourceCredit": "사용자가 제공한 앉기 방향별 캡처",
+      "usageMetadata": "스크린샷 자세를 현재 일러스트 SD 아바타의 모션 참고로 사용한다. 이 캐릭터 픽셀이나 바닥을 게임 아바타로 붙이지 않는다. 별도의 책상용·바닥용 원본 팩 두 개를 받은 것으로 표시하지 않는다.",
+      "preparationNotes": "자세를 부위별 연결·방향·겹침 기준으로 적용하고 실제 SD 아바타 착석과 발 접지를 검수한다. 알파는 전부 255이므로 투명 스프라이트가 아니다.",
+      "library": "seating",
+      "libraryLabel": "책상·바닥 앉기",
+      "origin": "user",
+      "archivePath": "../seating-library/source.zip"
+    },
+    {
+      "id": "seating/seating-224693ce190acead",
+      "reviewIndex": 2,
+      "kind": "user-pose-reference",
+      "originalName": "앉기(왼쪽).png",
+      "imagePath": "../seating-library/originals/seating-224693ce190acead.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "224693ce190aceadfcaa1dd955a130bbe85f15fe546d4226d135845f62227e3a",
+      "byteLength": 4203,
+      "dimensions": {
+        "width": 49,
+        "height": 62
+      },
+      "format": "PNG",
+      "hasAlpha": true,
+      "alphaExtrema": [
+        255,
+        255
+      ],
+      "transparency": "alpha-channel-fully-opaque",
+      "aliases": [
+        {
+          "archiveMember": "앉기(왼쪽).png",
+          "originalName": "앉기(왼쪽).png",
+          "byteLength": 4203,
+          "crc32": "4ecfa97d",
+          "archiveIndex": 1
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "runtime-reference-used",
+      "classificationStatus": "visually-reviewed",
+      "reviewedAt": "2026-10-02",
+      "style": "pixel-character-screenshot",
+      "perspective": "elevated-front",
+      "contentType": "pose-study-reference",
+      "assetType": "pose-reference",
+      "direction": "left",
+      "actionCategories": [
+        "desk-sit",
+        "floor-sit"
+      ],
+      "label": "앉기 왼쪽 옆모습",
+      "visualSummary": "몸통과 허벅지·무릎·발이 이어지는 옆모습을 확인하는 작은 캐릭터 자세 캡처. 바닥과 주변 배경이 포함된다.",
+      "subjects": [
+        "앉기",
+        "왼쪽 옆모습",
+        "책상에 앉기",
+        "바닥에 앉기",
+        "무릎",
+        "발",
+        "자세",
+        "원본 참고"
+      ],
+      "categories": [
+        "characters",
+        "motion",
+        "desk-sit",
+        "floor-sit",
+        "reference"
+      ],
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "sourceCredit": "사용자가 제공한 앉기 방향별 캡처",
+      "usageMetadata": "스크린샷 자세를 현재 일러스트 SD 아바타의 모션 참고로 사용한다. 이 캐릭터 픽셀이나 바닥을 게임 아바타로 붙이지 않는다. 별도의 책상용·바닥용 원본 팩 두 개를 받은 것으로 표시하지 않는다.",
+      "preparationNotes": "자세를 부위별 연결·방향·겹침 기준으로 적용하고 실제 SD 아바타 착석과 발 접지를 검수한다. 알파는 전부 255이므로 투명 스프라이트가 아니다.",
+      "library": "seating",
+      "libraryLabel": "책상·바닥 앉기",
+      "origin": "user",
+      "archivePath": "../seating-library/source.zip"
+    },
+    {
+      "id": "seating/seating-a5e403f17471099c",
+      "reviewIndex": 3,
+      "kind": "user-pose-reference",
+      "originalName": "앉기(오른쪽).png",
+      "imagePath": "../seating-library/originals/seating-a5e403f17471099c.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "a5e403f17471099cb5980bf91c3b63ea425f410230ab4735956c2ed495760217",
+      "byteLength": 4227,
+      "dimensions": {
+        "width": 46,
+        "height": 61
+      },
+      "format": "PNG",
+      "hasAlpha": true,
+      "alphaExtrema": [
+        255,
+        255
+      ],
+      "transparency": "alpha-channel-fully-opaque",
+      "aliases": [
+        {
+          "archiveMember": "앉기(오른쪽).png",
+          "originalName": "앉기(오른쪽).png",
+          "byteLength": 4227,
+          "crc32": "d26a2129",
+          "archiveIndex": 2
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "runtime-reference-used",
+      "classificationStatus": "visually-reviewed",
+      "reviewedAt": "2026-10-02",
+      "style": "pixel-character-screenshot",
+      "perspective": "elevated-front",
+      "contentType": "pose-study-reference",
+      "assetType": "pose-reference",
+      "direction": "right",
+      "actionCategories": [
+        "desk-sit",
+        "floor-sit"
+      ],
+      "label": "앉기 오른쪽 옆모습",
+      "visualSummary": "반대쪽 옆 얼굴·몸통·다리의 겹침을 확인하는 작은 캐릭터 자세 캡처. 바닥과 주변 배경이 포함된다.",
+      "subjects": [
+        "앉기",
+        "오른쪽 옆모습",
+        "책상에 앉기",
+        "바닥에 앉기",
+        "무릎",
+        "발",
+        "자세",
+        "원본 참고"
+      ],
+      "categories": [
+        "characters",
+        "motion",
+        "desk-sit",
+        "floor-sit",
+        "reference"
+      ],
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "sourceCredit": "사용자가 제공한 앉기 방향별 캡처",
+      "usageMetadata": "스크린샷 자세를 현재 일러스트 SD 아바타의 모션 참고로 사용한다. 이 캐릭터 픽셀이나 바닥을 게임 아바타로 붙이지 않는다. 별도의 책상용·바닥용 원본 팩 두 개를 받은 것으로 표시하지 않는다.",
+      "preparationNotes": "자세를 부위별 연결·방향·겹침 기준으로 적용하고 실제 SD 아바타 착석과 발 접지를 검수한다. 알파는 전부 255이므로 투명 스프라이트가 아니다.",
+      "library": "seating",
+      "libraryLabel": "책상·바닥 앉기",
+      "origin": "user",
+      "archivePath": "../seating-library/source.zip"
+    },
+    {
+      "id": "seating/seating-932b2f4c719e97ad",
+      "reviewIndex": 4,
+      "kind": "user-pose-reference",
+      "originalName": "앉기(뒤).png",
+      "imagePath": "../seating-library/originals/seating-932b2f4c719e97ad.png",
+      "imagePathScope": "catalog-directory",
+      "sha256": "932b2f4c719e97ad9b0c9b443ecc3a2edaa45e61fa88d724f48bb6c8819f878d",
+      "byteLength": 3769,
+      "dimensions": {
+        "width": 41,
+        "height": 59
+      },
+      "format": "PNG",
+      "hasAlpha": true,
+      "alphaExtrema": [
+        255,
+        255
+      ],
+      "transparency": "alpha-channel-fully-opaque",
+      "aliases": [
+        {
+          "archiveMember": "앉기(뒤).png",
+          "originalName": "앉기(뒤).png",
+          "byteLength": 3769,
+          "crc32": "f9908ce4",
+          "archiveIndex": 3
+        }
+      ],
+      "sourceStatus": "original-stored",
+      "runtimeStatus": "runtime-reference-used",
+      "classificationStatus": "visually-reviewed",
+      "reviewedAt": "2026-10-02",
+      "style": "pixel-character-screenshot",
+      "perspective": "elevated-front",
+      "contentType": "pose-study-reference",
+      "assetType": "pose-reference",
+      "direction": "back",
+      "actionCategories": [
+        "desk-sit",
+        "floor-sit"
+      ],
+      "label": "앉기 뒷모습",
+      "visualSummary": "뒤통수와 등·옷·앉은 엉덩이·발의 겹침을 확인하는 작은 캐릭터 자세 캡처. 바닥과 주변 배경이 포함된다.",
+      "subjects": [
+        "앉기",
+        "뒷모습",
+        "책상에 앉기",
+        "바닥에 앉기",
+        "무릎",
+        "발",
+        "자세",
+        "원본 참고"
+      ],
+      "categories": [
+        "characters",
+        "motion",
+        "desk-sit",
+        "floor-sit",
+        "reference"
+      ],
+      "sourceRect": null,
+      "anchor": null,
+      "collision": null,
+      "sourceCredit": "사용자가 제공한 앉기 방향별 캡처",
+      "usageMetadata": "스크린샷 자세를 현재 일러스트 SD 아바타의 모션 참고로 사용한다. 이 캐릭터 픽셀이나 바닥을 게임 아바타로 붙이지 않는다. 별도의 책상용·바닥용 원본 팩 두 개를 받은 것으로 표시하지 않는다.",
+      "preparationNotes": "자세를 부위별 연결·방향·겹침 기준으로 적용하고 실제 SD 아바타 착석과 발 접지를 검수한다. 알파는 전부 255이므로 투명 스프라이트가 아니다.",
+      "library": "seating",
+      "libraryLabel": "책상·바닥 앉기",
+      "origin": "user",
+      "archivePath": "../seating-library/source.zip"
     },
     {
       "id": "motion/motion-89cb17ecfbb23270",

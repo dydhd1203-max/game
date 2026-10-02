@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="44" height="43" viewBox="0 0 44 43" role="img" aria-label="wall-clock: visible original screenshot pixels">
+  <title>wall-clock: source-backed classroom screenshot extraction</title>
+  <metadata>Source 교실 공간2.png SHA256 4dcb960dde3f19d247c83ba996164162a5fe6423ba96b1bfb7c448d03b850972. Region [219, 126, 44, 43]. No hidden pixels reconstructed. Inline SVG or object document required for external source image.</metadata>
+  <defs><clipPath id="wall-clock-visible" clipPathUnits="userSpaceOnUse"><path d="M42 21.5A20.5 20.5 0 1 1 1 21.5A20.5 20.5 0 1 1 42 21.5Z"/></clipPath></defs>
+  <g data-source-layer="wall-clock-visible" clip-path="url(#wall-clock-visible)"><image href="../originals/classroom-4dcb960dde3f19d2.png" x="-219" y="-126" width="1296" height="901"/></g>
+</svg>
