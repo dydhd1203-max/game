@@ -2,6 +2,7 @@
  * artwork remains mounted. Colors/crops are cached only when the wearer changes. */
 (function () {
   'use strict';
+  const data=(node,key,value)=>{value=String(value);if(node.dataset[key]!==value)node.dataset[key]=value;};
   const NS='http://www.w3.org/2000/svg',SIZE=384,HEIGHT=480,rigs=new WeakMap(),mounted=new Set(),frames=new Map(),cache=new Map();
   const hair={f:['short','bob','long','twin','pony','curly','bun','hime','part','messy','spiky','braid'],m:['short','spiky','part','messy','crop','bowl','fade','undercut','slick','curlm','comma','wolf']};
   const sheets={f:{url:'assets/sd-heads-profile-female.png',rects:[[58,88,278,248],[418,92,272,244],[727,83,306,300],[1098,90,308,302],[48,398,319,328],[418,431,290,247],[775,418,278,291],[1109,423,294,292],[54,750,282,257],[430,755,291,253],[771,745,288,261],[1151,755,251,300]],necks:[[169.8,245],[162.8,241],[183,241],[207,240],[203.4,277],[177.1,244],[157.1,256],[194,231],[172.7,254],[170.8,250],[155.4,258],[144.6,255]]},m:{url:'assets/sd-heads-profile-male.png',rects:[[46,75,295,291],[397,40,309,326],[742,79,315,291],[1098,56,328,313],[56,413,275,283],[394,413,317,284],[759,396,291,303],[1106,396,308,302],[51,720,280,290],[395,712,323,304],[758,722,309,295],[1095,707,339,330]],necks:[[167.6,287],[174.9,322],[171.1,287],[183.2,309],[151.4,279],[176.6,280],[158.3,299],[179.7,298],[152.8,286],[177,300],[160.3,291],[196.3,309]]}};
@@ -124,7 +125,7 @@
     const m=metadata(r.svg),art=painting(m.sex,m.tile,m.color,m.skin,m.expression);if(!art)return;
     const image=()=>node('image',{href:art.open,x:0,y:0,width:32,height:40,preserveAspectRatio:'none'});
     r.front.append(image());r.back.append(image());r.anchors={eye:art.eye};
-    r.front.dataset.qpxProfileEyeX=art.eye[0];r.front.dataset.qpxProfileEyeY=art.eye[1];
+    data(r.front,'qpxProfileEyeX',art.eye[0]);data(r.front,'qpxProfileEyeY',art.eye[1]);
     for(const part of['half','closed']){const blink=node('g',{class:'qpx-blink-'+part,'data-qpx-profile-eye':part});
       const cover=node('g');cover.append(node('image',{href:art.patch,x:0,y:0,width:32,height:40,preserveAspectRatio:'none'}));
       if(part==='half'){const id=r.uid+'-half',clip=node('clipPath',{id,clipPathUnits:'userSpaceOnUse'});clip.append(node('rect',{x:0,y:0,width:32,height:art.eye[1]+.3}));r.defs.append(clip);cover.setAttribute('clip-path','url(#'+id+')');}
@@ -146,7 +147,7 @@
       if(category==='ear'){const id=r.uid+'-near-ear',clip=node('clipPath',{id,clipPathUnits:'userSpaceOnUse'});clip.append(node('rect',{x:0,y:-8,width:16,height:56}));r.defs.append(clip);copy.setAttribute('clip-path','url(#'+id+')');}
       near.append(copy);r.front.append(near);
     }
-    r.painted=true;r.svg.dataset.qpxProfileHair=hair[m.sex][m.tile];r.svg.dataset.qpxProfileEyeCount='1';window.QPAvatar.syncArtwork?.(r.svg);
+    r.painted=true;data(r.svg,'qpxProfileHair',hair[m.sex][m.tile]);data(r.svg,'qpxProfileEyeCount','1');window.QPAvatar.syncArtwork?.(r.svg);
   }
   function rearParts(r){
     if(!atlas.backReady||r.rearPainted)return;
@@ -154,8 +155,8 @@
     r.rear.append(node('image',{href:art,x:0,y:0,width:32,height:40,preserveAspectRatio:'none','data-qpx-back-hair':hair[m.sex][m.tile]}));
     // A back view has no frontal facial jewelry, lenses or eye expressions.
     // Keep the wearer's hat and ear jewelry on the original attachment axes.
-    if(!window.QPAvatarAccessoryDirection)for(const el of r.frontOriginals){const category=el.dataset.qpxHeadAccessory;if(!['hat','ear'].includes(category))continue;const copy=el.cloneNode(true);copy.dataset.qpxBackAccessory=category;r.rear.append(copy);}
-    r.rearPainted=true;r.svg.dataset.qpxBackHair=hair[m.sex][m.tile];r.svg.dataset.qpxBackEyeCount='0';window.QPAvatar.syncArtwork?.(r.svg);
+    if(!window.QPAvatarAccessoryDirection)for(const el of r.frontOriginals){const category=el.dataset.qpxHeadAccessory;if(!['hat','ear'].includes(category))continue;const copy=el.cloneNode(true);data(copy,'qpxBackAccessory',category);r.rear.append(copy);}
+    r.rearPainted=true;data(r.svg,'qpxBackHair',hair[m.sex][m.tile]);data(r.svg,'qpxBackEyeCount','0');window.QPAvatar.syncArtwork?.(r.svg);
   }
   function prepareProfileWear(r){
     if(r.profileWear)return;
@@ -174,8 +175,8 @@
       const part=r.pose.upper.contains(original)?'upper':r.pose.hem.contains(original)?'hem':r.pose.left.contains(original)?'left-leg':r.pose.right.contains(original)?'right-leg':'full';
       const layer=add(original,art.renderProfileGarment(d.qpxClothes,d.clothShape,d.clothColor,d.clothSex,d.clothSkin,{part}));
       for(const key of ['qpxClothes','clothShape','clothColor','clothSex','clothSkin'])if(d[key])layer.dataset[key]=d[key];
-      layer.dataset.qpxProfileClothes='true';
-      layer.dataset.qpxGarmentPart=part;
+      data(layer,'qpxProfileClothes','true');
+      data(layer,'qpxGarmentPart',part);
       const side=r.pose.left.contains(original)?'left':r.pose.right.contains(original)?'right':null;
       if(d.qpxClothes==='bottom'&&side&&!original.closest('[data-qpx-pose-part$="-shin"]')){
         const id=r.uid+'-side-seated-'+side,hip=side==='left'?13.75:18.25,w=r.pose.waist,k=r.pose.knee;
@@ -185,7 +186,7 @@
           // already on the torso; rotating its duplicate makes a rear flap.
           clip.append(node('path',{d:`M${hip-1.55} ${w-.5}Q${hip} ${w-1} ${hip+1.55} ${w-.5}L${hip+1.7} ${k-.25}Q${hip+1.75} ${k+1.35} ${hip} ${k+1.45}Q${hip-1.75} ${k+1.35} ${hip-1.7} ${k-.25}Z`}));r.defs.append(clip);
         }
-        r.profileWear.at(-1).seatedClip='url(#'+id+')';layer.dataset.qpxProfileThigh=side;
+        r.profileWear.at(-1).seatedClip='url(#'+id+')';data(layer,'qpxProfileThigh',side);
       }
     }
     const coveredLegs=['jeans','track','legging','cargo'].includes(String(m.av.bottom||'').split(':')[0]);
@@ -219,7 +220,7 @@
       const part=r.pose.upper.contains(original)?'upper':r.pose.hem.contains(original)?'hem':r.pose.left.contains(original)?'left-leg':r.pose.right.contains(original)?'right-leg':'full';
       layer.innerHTML=frontalNeck||redundantUpperLeg?'':category?art.renderBackGarment(category,d.clothShape,d.clothColor,d.clothSex,d.clothSkin,{part}):art.renderBackTorso(m);
       original.parentNode.insertBefore(layer,original.nextSibling);
-      if(category){for(const key of ['qpxClothes','clothShape','clothColor','clothSex','clothSkin'])if(d[key])layer.dataset[key]=d[key];layer.dataset.qpxBackClothes='true';layer.dataset.qpxDirectionPart=category+'-back';layer.dataset.qpxGarmentPart=part;}
+      if(category){for(const key of ['qpxClothes','clothShape','clothColor','clothSex','clothSkin'])if(d[key])layer.dataset[key]=d[key];data(layer,'qpxBackClothes','true');data(layer,'qpxDirectionPart',category+'-back');data(layer,'qpxGarmentPart',part);}
       r.backWear.push({original,layer,visibility:entry.visibility});
     }
   }
@@ -287,24 +288,24 @@
     if(r.leftFoot)value(r.leftFoot,'transform',profile?'translate(2.1 0)':null);if(r.rightFoot)value(r.rightFoot,'transform',profile?'translate(-1.5 0)':null);
     if(r.farShoe)value(r.farShoe,'transform',profile&&!window.QPProfileShoes?'translate(27.5 0) scale(-1 1)':null);
     if(profile)r.pose.body.replaceChildren(...[r.pose.skinLegs?.[0].group,r.left,r.leftFoot,r.pose.upper,r.pose.skinLegs?.[1].group,r.right,r.pose.hem,r.rightFoot].filter(Boolean));else r.pose.body.replaceChildren(...r.originalBodyChildren);
-    r.svg.dataset.qpxView=profile?'profile':'front';
+    data(r.svg,'qpxView',profile?'profile':'front');
   }
   function orientBack(r,backView){
     if(r.backView===backView)return;r.backView=backView;backWear(r,backView);profileFeet(r,false,backView);
     r.frontOriginals.forEach((n,i)=>value(n,'visibility',backView?'hidden':r.originalVisibility[i]));
     r.rear.style.display=backView?'':'none';
     if(r.pose.backHairPose)value(r.pose.backHairPose,'visibility',backView?'hidden':r.originalBackVisibility);
-    r.svg.dataset.qpxView=backView?'back':r.profile?'profile':'front';
-    r.svg.dataset.qpxViewFacing=backView?'back':'front';
-    r.svg.dataset.qpxBackEyeCount='0';
+    data(r.svg,'qpxView',backView?'back':r.profile?'profile':'front');
+    data(r.svg,'qpxViewFacing',backView?'back':'front');
+    data(r.svg,'qpxBackEyeCount','0');
   }
   function apply(svg,state,pose){
     const r=prepare(svg,pose);if(!r)return false;headParts(r);rearParts(r);
-    svg.dataset.qpxView=r.backView?'back':r.profile?'profile':'front';
+    data(svg,'qpxView',r.backView?'back':r.profile?'profile':'front');
     const wantsBack=state.direction==='back'&&!state.gesture;
     if(wantsBack){
       const ready=atlas.backReady&&r.rearPainted;orient(r,false);orientBack(r,ready);r.turned=false;
-      r.svg.dataset.qpxViewFacing=ready?'back':'front';r.svg.dataset.qpxBackLoading=!ready&&!atlas.backError?'true':'false';
+      data(r.svg,'qpxViewFacing',ready?'back':'front');data(r.svg,'qpxBackLoading',!ready&&!atlas.backError?'true':'false');
       window.QPAvatarAccessoryDirection?.apply(svg,{profile:false,facing:ready?'back':'front',backView:ready,state,anchors:r.anchors},pose);return false;
     }
     orientBack(r,false);
@@ -315,8 +316,8 @@
     profileWear(r,profile,state.seatMode==='floor');
     if(profile){
       const near=state.seatMode==='floor'?-.4:-1.5;value(r.right,'transform','translate('+near+' 0)');if(r.rightFoot)value(r.rightFoot,'transform','translate('+near+' 0)');
-      value(r.back,'transform',pose.headPose.getAttribute('transform'));r.svg.dataset.qpxViewFacing=facing;
-    }else r.svg.dataset.qpxViewFacing='front';
+      value(r.back,'transform',pose.headPose.getAttribute('transform'));data(r.svg,'qpxViewFacing',facing);
+    }else data(r.svg,'qpxViewFacing','front');
     window.QPAvatarAccessoryDirection?.apply(svg,{profile,facing,backView:r.backView,state,anchors:r.anchors},pose);return profile;
   }
   function reset(svg){const r=rigs.get(svg);if(!r)return false;orientBack(r,false);orient(r,false);r.turned=false;r.lastFacing='right';value(r.back,'transform',null);window.QPAvatarAccessoryDirection?.reset(svg);return true;}
@@ -335,5 +336,5 @@
   }
   window.QPAvatarDirection=Object.freeze({atlas,prepare,apply,reset,destroy,headMarkup});
   Promise.all([load('f'),load('m')]).then(()=>{atlas.ready=true;for(const r of mounted)if(r.svg.isConnected)headParts(r);if(atlas.backReady||atlas.backError)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-direction-ready'));}).catch(error=>{atlas.error=String(error?.message||error);if(atlas.backReady||atlas.backError)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-direction-error'));console.warn('옆모습 원화가 아직 준비되지 않아 정면 아바타를 유지합니다.',error);});
-  Promise.all([loadBack('f'),loadBack('m')]).then(()=>{atlas.backReady=true;for(const r of mounted)if(r.svg.isConnected){rearParts(r);r.svg.dataset.qpxBackLoading='false';}if(atlas.ready||atlas.error)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-back-ready'));}).catch(error=>{atlas.backError=String(error?.message||error);if(atlas.ready||atlas.error)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-back-error'));console.warn('뒷모습 원화를 불러오지 못했어요.',error);});
+  Promise.all([loadBack('f'),loadBack('m')]).then(()=>{atlas.backReady=true;for(const r of mounted)if(r.svg.isConnected){rearParts(r);data(r.svg,'qpxBackLoading','false');}if(atlas.ready||atlas.error)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-back-ready'));}).catch(error=>{atlas.backError=String(error?.message||error);if(atlas.ready||atlas.error)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-back-error'));console.warn('뒷모습 원화를 불러오지 못했어요.',error);});
 })();

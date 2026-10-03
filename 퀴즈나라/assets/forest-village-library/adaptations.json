@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "authorization": "2026-10-03 user requested adapting provided assets to the current map style without awkwardness. Originals remain unchanged.",
   "assets": [
     {
@@ -32,6 +32,98 @@
         }
       ],
       "instructions": "One complete low ivory daisy clump derived from the middle-right original. Preserve flower identity and arrangement; soften thick outlines, flat cel shading and sharp leaves to native warm shaded miniature 2.5D map style. Elevated view, small contact shadow, transparent background, no new props or text. Review beside native flowers at about 64x46 screen pixels."
+    },
+    {
+      "id": "flower-home",
+      "file": "adapted/flower-home.png",
+      "sha256": "9af73f3e2b48467d8ebe2b140a1c644f533be03d887d6c847fc3e593cd2135cd",
+      "width": 314,
+      "height": 223,
+      "significantAlphaBounds": [
+        5,
+        5,
+        311,
+        218
+      ],
+      "ground": [
+        157,
+        218
+      ],
+      "origin": "image_gen edit of supplied houses using native map reference; cropped/resized derivative, not pixel extraction",
+      "references": [
+        {
+          "file": "assets/house-library/originals/house-0c0b1bd03495c453.jpg",
+          "sha256": "0c0b1bd03495c453311103c2f4961373a3eac14ab6bb173b7e77c8b00a8e30eb",
+          "role": "provided house identities, entrances, stairs and terrace"
+        },
+        {
+          "file": "assets/forest-village-library/originals/picnic-garden.png",
+          "sha256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+          "role": "map palette, soft shading and elevated viewpoint"
+        }
+      ],
+      "generatedSheet": {
+        "file": "adapted/sources/courtyard-houses.png",
+        "sha256": "6921e489d2353689cd35eb0ae0a7e387397d86f9fdbaddc08f7ba60303d6ee1c",
+        "sourceRect": [
+          64,
+          20,
+          999,
+          708
+        ],
+        "resize": [
+          314,
+          223
+        ],
+        "resampling": "LANCZOS"
+      },
+      "instructions": "Keep each provided house identity and entrance/stair/terrace arrangement. Simplify dense detail and dark edges into warm native map shading. Complete roof, walls, steps, paving and contact shadow; transparent background; no new buildings or props."
+    },
+    {
+      "id": "bakery-home",
+      "file": "adapted/bakery-home.png",
+      "sha256": "eac1fd95e5f327e97b93ea687f2cd6cb41d59ed6dbbdd7e1bf044919b4518f71",
+      "width": 286,
+      "height": 219,
+      "significantAlphaBounds": [
+        5,
+        5,
+        281,
+        215
+      ],
+      "ground": [
+        143,
+        214
+      ],
+      "origin": "image_gen edit of supplied houses using native map reference; cropped/resized derivative, not pixel extraction",
+      "references": [
+        {
+          "file": "assets/house-library/originals/house-0c0b1bd03495c453.jpg",
+          "sha256": "0c0b1bd03495c453311103c2f4961373a3eac14ab6bb173b7e77c8b00a8e30eb",
+          "role": "provided house identities, entrances, stairs and terrace"
+        },
+        {
+          "file": "assets/forest-village-library/originals/picnic-garden.png",
+          "sha256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+          "role": "map palette, soft shading and elevated viewpoint"
+        }
+      ],
+      "generatedSheet": {
+        "file": "adapted/sources/courtyard-houses.png",
+        "sha256": "6921e489d2353689cd35eb0ae0a7e387397d86f9fdbaddc08f7ba60303d6ee1c",
+        "sourceRect": [
+          1138,
+          14,
+          934,
+          716
+        ],
+        "resize": [
+          286,
+          219
+        ],
+        "resampling": "LANCZOS"
+      },
+      "instructions": "Keep each provided house identity and entrance/stair/terrace arrangement. Simplify dense detail and dark edges into warm native map shading. Complete roof, walls, steps, paving and contact shadow; transparent background; no new buildings or props."
     }
   ]
 }

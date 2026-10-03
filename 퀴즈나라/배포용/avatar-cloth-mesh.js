@@ -4,7 +4,15 @@
  * Original wardrobe PNGs are never edited. */
 (function(){
   'use strict';
+  const setAttributeIfChanged=(node,key,value)=>{value=String(value);if(node.getAttribute(key)!==value)node.setAttribute(key,value);};
   const NS='http://www.w3.org/2000/svg',cache=new Map();
+  function relative(from,to){
+    if(window.QPAvatarLocalTransform)return window.QPAvatarLocalTransform.relative(from,to);
+    const a=from.getCTM(),b=to.getCTM();return a&&b?b.inverse().multiply(a):null;
+  }
+  function placeSequence(parent,nodes,before=null){
+    for(let i=nodes.length-1;i>=0;i--){const node=nodes[i];if(node.parentNode!==parent||node.nextSibling!==before)parent.insertBefore(node,before);before=node;}
+  }
   const smooth=x=>{x=Math.max(0,Math.min(1,x));return x*x*(3-2*x);};
   const rotate=(p,a,c)=>{a*=Math.PI/180;const x=p[0]-c[0],y=p[1]-c[1];return[c[0]+x*Math.cos(a)-y*Math.sin(a),c[1]+x*Math.sin(a)+y*Math.cos(a)];};
   function triangle(ctx,img,a,b,c){
@@ -33,8 +41,8 @@
   function prepare(rig){
     if(rig.clothMesh)return rig.clothMesh;
     const top=rig.upper.querySelector('[data-qpx-clothes="top"]');if(!supports(top))return null;
-    const image=document.createElementNS(NS,'image');for(const[k,v]of Object.entries({x:0,y:18,width:32,height:26,preserveAspectRatio:'none','data-qpx-continuous-cloth':top.dataset.clothShape}))image.setAttribute(k,v);
-    const carrier=document.createElementNS(NS,'g');carrier.setAttribute('data-qpx-cloth-carrier','continuous');carrier.style.display='none';carrier.append(image);rig.idle.append(carrier);
+    const image=document.createElementNS(NS,'image');for(const[k,v]of Object.entries({x:0,y:18,width:32,height:26,preserveAspectRatio:'none','data-qpx-continuous-cloth':top.dataset.clothShape}))setAttributeIfChanged(image,k,v);
+    const carrier=document.createElementNS(NS,'g');setAttributeIfChanged(carrier,'data-qpx-cloth-carrier','continuous');carrier.style.display='none';carrier.append(image);rig.idle.append(carrier);
     return rig.clothMesh={top,image,carrier,original:top.querySelector('.qpc-garment'),angles:{}};
   }
   function draw(rig){
@@ -114,15 +122,15 @@
       }
       url=c.toDataURL();cache.set(key,url);if(cache.size>160)cache.delete(cache.keys().next().value);
     }
-    if(m.image.getAttribute('href')!==url)m.image.setAttribute('href',url);
-    const body=rig.upper.getCTM(),idle=rig.idle.getCTM();if(body&&idle){const t=idle.inverse().multiply(body);m.carrier.setAttribute('transform','matrix('+[t.a,t.b,t.c,t.d,t.e,t.f].join(' ')+')');}
-    for(const arm of arms)if(arm)rig.idle.insertBefore(arm.carrier,rig.headPose);
-    rig.idle.insertBefore(m.carrier,rig.headPose);
+    if(m.image.getAttribute('href')!==url)setAttributeIfChanged(m.image,'href',url);
+    const t=relative(rig.upper,rig.idle);if(t)setAttributeIfChanged(m.carrier,'transform','matrix('+[t.a,t.b,t.c,t.d,t.e,t.f].join(' ')+')');
+    placeSequence(rig.idle,[...arms.filter(Boolean).map(arm=>arm.carrier),m.carrier],rig.headPose);
     if(!m.hands.length)for(const arm of arms)if(arm)for(const frame of arm.hands){
       if(!frame.closest('[data-qpx-pose-part$="gesture-forearm"]')||frame.closest('[data-qpx-gesture-art]')?.dataset.qpxGestureArt!=='front')continue;
       const hand=frame.firstElementChild;if(!hand)continue;const owner=document.createElementNS(NS,'g');owner.dataset.qpxClothHand=arm===arms[1]?'right':'left';owner.append(hand);rig.idle.append(owner);m.hands.push({hand,frame,owner});
     }
-    for(const{frame,owner}of m.hands){const a=frame.getCTM(),b=rig.idle.getCTM();if(a&&b){const t=b.inverse().multiply(a);owner.setAttribute('transform','matrix('+[t.a,t.b,t.c,t.d,t.e,t.f].join(' ')+')');}rig.idle.append(owner);}
+    for(const{frame,owner}of m.hands){const t=relative(frame,rig.idle);if(t)setAttributeIfChanged(owner,'transform','matrix('+[t.a,t.b,t.c,t.d,t.e,t.f].join(' ')+')');}
+    placeSequence(rig.idle,m.hands.map(h=>h.owner));
     // Move the single original neck overlay above the fabric; never duplicate
     // the body or paint a rectangle over the head.
     const neck=rig.upper.querySelector('.qpx-neck-surface');if(neck&&!m.neck){m.neck=neck;m.neckParent=neck.parentNode;m.neckNext=neck.nextSibling;m.carrier.append(neck);}

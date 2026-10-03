@@ -32,6 +32,20 @@ async function walk(p,goal){
  });}));
  assert(flowerReview.length>0&&flowerReview.every(f=>f.clear),'Flower bed covers an entrance or arrival area');
  pass('Source flower beds leave spawn, F approaches and return landings clear.',flowerReview);
+ const foregroundReview=await a.evaluate(()=>QPForestVillageScene.zones.flatMap(z=>{
+  const scene=QPForestVillageScene.get(z),host=document.createElement('div');host.innerHTML=scene.markup;
+  return scene.parts.filter(p=>p.role==='foreground').map(p=>{
+   const node=host.querySelector('[data-art="'+p.id+'"]'),image=node.querySelector('image'),[x,y,w,h]=p.sourceRect;
+   const registered=()=>Math.abs(parseFloat(node.style.left)-x*p.scale)<.001&&Math.abs(parseFloat(node.style.top)-y*p.scale)<.001&&Math.abs(parseFloat(node.style.width)-w*p.scale)<.001&&Math.abs(parseFloat(node.style.height)-h*p.scale)<.001&&Number(image.getAttribute('x'))===-x&&Number(image.getAttribute('y'))===-y&&Number(node.style.zIndex)===p.depth;
+   const matches=registered(),original=node.style.left;node.style.left=(parseFloat(original)+2)+'px';const rejectsOffset=!registered();node.style.left=original;
+   return {zone:z,id:p.id,matches,rejectsOffset};
+  });
+ }));
+ assert(foregroundReview.length>=11&&foregroundReview.every(r=>r.matches&&r.rejectsOffset),'Foreground moved away from original source painting');
+ const obstacleReview=await a.evaluate(()=>{const s=QPForestVillageScene.get('skyisland'),n=QPSchoolRoomWorld.createNavigation(s);return s.solids.filter(x=>x.id.startsWith('sky-gift-base-')).map(b=>({id:b.id,blocked:!n.canStand(b.x+b.width/2,b.y+b.height/2)}));});
+ assert.equal(obstacleReview.length,6);assert(obstacleReview.every(r=>r.blocked));
+ pass('Eleven source-aligned foregrounds reject a 2px shift; six gift-box ground faces block passage.',{foregroundReview,obstacleReview});
+
  const scenes=await a.evaluate(()=>QPForestVillageScene.zones.map(z=>{const s=QPForestVillageScene.get(z),nav=QPSchoolRoomWorld.createNavigation(s);const routes=s.reviewRoutes.map(r=>{const pts=nav.route(r.from,r.to);let prev=r.from;const legal=Boolean(pts)&&pts.every(p=>{const ok=nav.lineClear(prev,p);prev=p;return ok;});return {id:r.id,legal};});const portals=s.interactables.map(i=>({id:i.id,legal:nav.canStand(i.x,i.y)&&nav.canStand(i.arrival.x,i.arrival.y)}));return {zone:z,spawn:s.spawn,views:s.previewViews,routes,portals};}));
  assert(scenes.every(s=>s.routes.every(r=>r.legal)&&s.portals.every(p=>p.legal)));
  for(const scene of scenes){

@@ -1,10 +1,10 @@
 /* Keep supplied map compositions. Source extractions and the user-requested
-   flower style edit have separate provenance manifests. */
+   asset style edits have separate provenance manifests. */
 (() => {
   'use strict';
   const ROOT=new URL('assets/forest-village-library/extracted/',document.currentScript.src).href;
   const ADAPTED=new URL('../adapted/',ROOT).href;
-  const sizes={'village-composition':[1115,736],'garden-composition':[962,541],'flower-home':[352,295],'bakery-home':[354,289],'pink-tree':[145,128],'treehouse-composition':[946,740],'sky-composition':[956,553],'flowers-purple':[45,31],'flowers-ivory':[30,23],'flowers-gold':[32,31],'flowers-meadow':[33,24]};
+  const sizes={'village-composition':[1115,736],'garden-composition':[962,541],'flower-home':[314,223],'bakery-home':[286,219],'pink-tree':[145,128],'treehouse-composition':[946,740],'sky-composition':[956,553],'flowers-purple':[45,31],'flowers-ivory':[30,23],'flowers-gold':[32,31],'flowers-meadow':[33,24]};
   sizes['flowers-daisy']=[1484,1060];
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function builder(id,zone,title,width,height,spawn){
@@ -12,12 +12,13 @@
     const scene={id,zone,title,width,height,spawn,cameraHome:{...spawn,zoom:1},bounds:{width,height},publicEntryReady:true,seats:[],parts,solids,walkAreas,interactables,previewViews:views,reviewRoutes:routes,groups,centerLabel:'내 위치',exitLabel:'학생 메뉴'};
     function image(id,asset,x,y,scale=1,depth=0,options={}){
       const [w,h]=sizes[asset],item={id,asset,x,y,width:w*scale,height:h*scale,scale,depth,...options};parts.push(item);
-      const url=(asset==='flowers-daisy'?ADAPTED:ROOT)+asset+'.png';
+      const url=(['flowers-daisy','flower-home','bakery-home'].includes(asset)?ADAPTED:ROOT)+asset+'.png';
       html.push('<img class="sr-art fv-art '+(options.className||'')+'" data-art="'+id+'" data-source="'+asset+'" data-floor-y="'+depth+'" src="'+url+'" alt="" draggable="false" width="'+w+'" height="'+h+'" style="left:'+x+'px;top:'+y+'px;width:'+item.width+'px;height:'+item.height+'px;z-index:'+depth+';'+(options.style||'')+'">');return item;
     }
     // A foreground crop references the same source pixels and placement as
     // its background. It never erases the base silhouette at a mask edge.
     function foreground(id,asset,rect,polygon,scale,depth){
+      depth=Math.round(depth); // CSS z-index accepts integers, including on 2.1× maps.
       const [sx,sy,w,h]=rect,[sw,sh]=sizes[asset],clip='fv-'+id;
       parts.push({id,asset,x:sx*scale,y:sy*scale,width:w*scale,height:h*scale,scale,depth,role:'foreground',sourceRect:rect,polygon});
       html.push('<svg class="sr-art fv-art" data-art="'+id+'" data-source="'+asset+'" data-floor-y="'+depth+'" viewBox="0 0 '+w+' '+h+'" style="left:'+sx*scale+'px;top:'+sy*scale+'px;width:'+w*scale+'px;height:'+h*scale+'px;z-index:'+depth+'" aria-hidden="true"><defs><clipPath id="'+clip+'"><polygon points="'+polygon.map(([x,y])=>(x-sx)+','+(y-sy)).join(' ')+'"/></clipPath></defs><image href="'+ROOT+asset+'.png" x="'+(-sx)+'" y="'+(-sy)+'" width="'+sw+'" height="'+sh+'" clip-path="url(#'+clip+')"/></svg>');
@@ -33,7 +34,7 @@
     const X=x=>x*2,Y=y=>(y-64)*2;
     const b=builder('forest-village-source-composition','village','햇살 숲속 마을',2230,1472,{x:X(581),y:Y(337)}),{scene:s,image,solid,poly,portal}=b;
     image('native-water-path-gardens','village-composition',0,0,2,0,{role:'composition'});
-    const homes=[['flower-home',235,75,157,207,[256,156,106,43]],['bakery-home',231,455,143,572,[254,532,100,35]]];
+    const homes=[['flower-home',235,96,157,207,[256,156,106,43]],['bakery-home',231,462,143,572,[254,532,100,35]]];
     homes.forEach(([asset,x,y,width,floor,box])=>{const scale=width*2/sizes[asset][0],id='courtyard-'+asset;image(id,asset,X(x),Y(y),scale,Y(floor),{role:'house',ground:{x:X(x+width/2),y:Y(floor)},footprint:id+'-base'});solid(id+'-base',X(box[0]),Y(box[1]),X(box[2]),X(box[3]));});
     // Small planted groups belong to courtyard/shore lawns, never the path.
     // Their low foliage sorts by its own root, not by the flower's top edge.
@@ -81,6 +82,12 @@
     solid('grove-west-fence',476,1006,331,40);solid('grove-east-fence',1057,1006,438,40);
     portal('garden-village-path','햇살 마을로','village',942,1002,{arrival:{x:942,y:938},targetDoor:'village-garden-path',radius:48});
     portal('grove-treehouse-door','큰 나무집','treehouse',656,326,{arrival:{x:697,y:325},targetDoor:'treehouse-village-door',radius:47});
+    // Same source registration: the original painting remains intact below.
+    // Tree crowns occlude a visitor behind the trunk, then release in front.
+    b.foreground('garden-treehouse-canopy','garden-composition',[246,15,145,133],[[262,25],[280,23],[287,17],[311,15],[333,19],[349,26],[370,39],[381,55],[390,80],[378,98],[351,103],[348,126],[337,144],[310,146],[288,134],[287,109],[277,104],[257,102],[246,88],[249,66],[252,43]],2,288);
+    b.foreground('garden-swing-tree','garden-composition',[529,34,123,111],[[548,46],[565,36],[584,34],[605,39],[615,51],[636,57],[649,77],[651,95],[638,108],[602,111],[599,133],[605,141],[581,144],[567,136],[575,112],[551,111],[535,99],[529,80],[535,60]],2,281);
+    b.foreground('garden-west-pine','garden-composition',[93,248,67,84],[[127,248],[134,262],[140,275],[148,287],[155,301],[159,309],[149,318],[133,322],[133,330],[122,332],[119,324],[103,319],[93,310],[102,291],[111,277],[120,261]],2,652);
+    b.foreground('garden-east-oak','garden-composition',[845,131,74,87],[[868,131],[892,131],[911,146],[918,166],[913,182],[896,196],[887,198],[889,213],[873,217],[870,209],[873,194],[856,191],[845,172],[849,150]],2,430);
     s.cameraHome={x:955,y:628,zoom:1};s.centerOnPlayer=true;s.exitLabel='마을로 돌아가기';
     s.previewViews=[{id:'garden-entry',label:'숲의 모임 마당',spawn:s.spawn},{id:'treehouse-gate',label:'큰 나무집으로 가는 계단',spawn:{x:697,y:325}}];
     s.reviewRoutes=[{id:'treehouse',from:s.spawn,to:{x:656,y:326}},{id:'village-return',from:s.spawn,to:{x:942,y:1002}}];
@@ -119,7 +126,12 @@
     area('east-ladder',[[574,122],[591,122],[591,225],[574,225]]);
     area('east-lookout',[[516,83],[547,73],[585,80],[613,99],[608,116],[575,126],[534,116],[512,102]]);
     area('return-ladder',[[715,415],[738,415],[738,501],[715,501]]);
-    [[538,378,14],[645,281,16],[195,120,17],[499,398,10],[824,359,20],[805,244,15],[288,165,15],[107,220,15]].forEach(([x,y,r],i)=>s.solids.push({id:'sky-native-object-'+i,x:X(x),y:Y(y),radius:r*2.1}));
+    [[538,378,14],[645,281,16],[195,120,17],[499,398,10],[835,374,10],[803,209,10],[851,261,10],[291,149,7],[99,213,9],[130,238,8],[212,403,10],[160,89,11],[128,95,10]].forEach(([x,y,r],i)=>s.solids.push({id:'sky-native-object-'+i,x:X(x),y:Y(y),radius:r*2.1}));
+    // Supplied gift boxes occupy their ground faces, not their entire roofs.
+    [[453,218,65,24],[422,250,46,23],[471,264,40,19],[630,202,51,18],[703,202,65,25],[676,230,39,18]].forEach(([x,y,w,h],i)=>s.solids.push({id:'sky-gift-base-'+i,x:X(x),y:Y(y),width:X(w),height:Y(h)}));
+    b.foreground('sky-west-tree','sky-composition',[69,140,64,81],[[99,140],[111,146],[116,163],[127,175],[133,188],[126,200],[111,208],[110,219],[97,221],[91,215],[92,206],[77,203],[69,191],[72,178],[84,167],[85,151]],2.1,Y(218));
+    b.foreground('sky-east-tree','sky-composition',[821,186,62,82],[[850,186],[862,192],[866,209],[878,222],[883,239],[875,251],[861,256],[861,265],[849,268],[843,262],[843,255],[829,250],[821,240],[825,221],[834,215],[836,197]],2.1,Y(265));
+    b.foreground('sky-lower-tree','sky-composition',[813,322,47,60],[[835,322],[844,328],[846,340],[856,349],[860,359],[853,370],[844,374],[842,380],[832,382],[827,378],[828,371],[818,368],[813,359],[817,347],[825,339],[826,329]],2.1,Y(379));
     portal('sky-treehouse-path','나무집으로 내려가기','treehouse',X(727),Y(474),{arrival:{x:X(727),y:Y(446)},targetDoor:'treehouse-sky-path',radius:53});
     s.cameraHome={x:X(490),y:Y(292),zoom:.95};s.centerOnPlayer=true;s.exitLabel='마을로 돌아가기';
     s.previewViews=[{id:'sky-entry',label:'하늘섬 아래 마당',spawn:s.spawn},{id:'mushrooms',label:'큰 버섯 전망대',spawn:{x:X(232),y:Y(117)}},{id:'high-lookout',label:'높은 구름 전망대',spawn:{x:X(565),y:Y(97)}}];

@@ -3,7 +3,7 @@
 Output stays outside the repo when QUIZ_VERIFICATION_OUTPUT is supplied.
 """
 from pathlib import Path
-from PIL import Image, ImageDraw, ImageChops
+from PIL import Image, ImageDraw, ImageChops, ImageFilter
 import hashlib, json, os
 ROOT=Path(__file__).resolve().parents[1]
 LIB=ROOT/'assets/forest-village-library'
@@ -38,7 +38,11 @@ for rec in records:
     if rec['id'] not in fixtures:continue
     mask=Image.new('L',original.size);draw=ImageDraw.Draw(mask)
     for patch in rec.get('patches',[]):
-        if 'maskPolygon' in patch:draw.polygon(patch['maskPolygon'],fill=255)
+        if 'maskPolygon' in patch:
+            piece=Image.new('L',original.size);ImageDraw.Draw(piece).polygon(patch['maskPolygon'],fill=255)
+            padding=patch.get('groundOutsideTransition',0)*2
+            if padding:piece=piece.filter(ImageFilter.MaxFilter(padding*2+1))
+            mask=ImageChops.lighter(mask,piece);draw=ImageDraw.Draw(mask)
         elif 'polygon' in patch:
             tx,ty=patch['target'];draw.polygon([(x+tx,y+ty) for x,y in patch['polygon']],fill=255)
         else:
@@ -72,10 +76,14 @@ for rec in adaptations:
     p=LIB/rec['file'];im=Image.open(p)
     assert digest(p)==rec['sha256'] and im.size==(rec['width'],rec['height'])
     for ref in rec['references']:assert digest(ROOT/ref['file'])==ref['sha256'],('modified adaptation source',ref['file'])
+    if recipe:=rec.get('generatedSheet'):
+        raw=LIB/recipe['file'];assert digest(raw)==recipe['sha256']
+        x,y,w,h=recipe['sourceRect'];expected=Image.open(raw).crop((x,y,x+w,y+h)).resize(tuple(recipe['resize']),Image.Resampling.LANCZOS)
+        assert not differences(im,expected),('unrecorded crop or resize',rec['id'])
     assert im.mode=='RGBA'
     bounds=im.getchannel('A').point(lambda a:255 if a>8 else 0).getbbox()
     assert list(bounds)==rec['significantAlphaBounds']
-    assert bounds[0]>0 and bounds[1]>0 and bounds[2]<im.width and bounds[3]<im.height,('clipped edited flower',rec['id'])
+    assert bounds[0]>0 and bounds[1]>0 and bounds[2]<im.width and bounds[3]<im.height,('clipped edited asset',rec['id'])
 report={'passed':True,'checks':checks,'adaptedAssets':len(adaptations),'protectedObjects':sum(len(v) for v in fixtures.values()),'negativeControls':6,'reviewPanels':review,'visualReview':'These panels require human inspection; unknown objects and viewpoint-dependent occlusion are not automatically passed.'}
 (OUT/'silhouettes.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 print(json.dumps({k:v for k,v in report.items() if k!='reviewPanels'},ensure_ascii=False,indent=2))

@@ -38,7 +38,7 @@ def crop(name, source, rect, polygon=None, background=False):
     return im
 # Patches are object-sized polygons, never lawn rectangles across tree groups.
 # Every source pixel outside these explicit masks remains byte-for-byte intact.
-def patch_ground(im, source, donor, polygon, reason, patches, ground_transition=0):
+def patch_ground(im, source, donor, polygon, reason, patches, ground_transition=0, outside_transition=0):
     mask=Image.new('L',im.size);ImageDraw.Draw(mask).polygon(polygon,fill=255)
     x,y,w,h=donor; tile=images[source].crop((x,y,x+w,y+h));layer=Image.new('RGBA',im.size)
     for yy in range(0,im.height,h):
@@ -47,8 +47,14 @@ def patch_ground(im, source, donor, polygon, reason, patches, ground_transition=
         # Blend only the ground pixels inside the recorded perimeter. This
         # filters the alpha mask, never the tree/flower artwork or source RGB.
         mask=ImageChops.multiply(mask,mask.filter(ImageFilter.GaussianBlur(ground_transition)))
+    if outside_transition:
+        # The object removal stays fully opaque. Only a narrow surrounding
+        # grass ring blends source samples, so no old furniture bleeds back.
+        ring=mask.filter(ImageFilter.GaussianBlur(outside_transition))
+        ring=ImageChops.multiply(ring,mask.filter(ImageFilter.MaxFilter(outside_transition*4+1)))
+        mask=ImageChops.lighter(mask,ring)
     im.paste(layer,(0,0),mask)
-    patches.append(dict(donorRect=donor,maskPolygon=polygon,reason=reason,groundTransition=ground_transition))
+    patches.append(dict(donorRect=donor,maskPolygon=polygon,reason=reason,groundTransition=ground_transition,groundOutsideTransition=outside_transition))
 
 def source_sprite(im, source, rect, poly, target, patches, reason='whole native tree with crown, trunk and ground shadow', flip=False):
     x,y,w,h=rect;piece=images[source].crop((x,y,x+w,y+h))
@@ -66,7 +72,7 @@ for poly,reason in [
  ([(360,158),(388,158),(389,218),(381,227),(361,224)],'entire rug-side bench'),
  ([(282,465),(307,465),(310,487),(328,487),(340,494),(340,539),(324,547),(324,562),(311,575),(281,575),(277,544),(249,542),(248,492),(272,489),(281,488)],'entire white dining table and four chairs'),
  ([(338,424),(365,424),(386,439),(395,461),(392,486),(371,500),(372,511),(341,514),(337,500),(321,484),(319,456),(327,439)],'entire courtyard tree including crown, trunk and shadow')
-]:patch_ground(im,'picnic-garden',[558,702,32,24],poly,reason,patches)
+]:patch_ground(im,'picnic-garden',[558,702,32,24],poly,reason,patches,outside_transition=2 if 'rug' in reason else 0)
 # The name and avatar sit on clean path. Narrow masks retain neighboring
 # bushes, yellow flower, lamp and pine: no rectangular terrain overpainting.
 for poly in [[(562,397),(581,397),(581,398),(621,398),(621,414),(581,414),(581,416),(562,416)],[(589,417),(608,417),(608,450),(587,450)]]:

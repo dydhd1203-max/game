@@ -2,18 +2,26 @@
  * 1500ms; climbing uses action:'climb' with the controller's 0..1 phase. */
 (function () {
   'use strict';
+  const setAttributeIfChanged=(node,key,value)=>{value=String(value);if(node.getAttribute(key)!==value)node.setAttribute(key,value);};
   const NS = 'http://www.w3.org/2000/svg', rigs = new WeakMap();
   const SKIRTS = new Set(['skirt', 'pleat', 'jean_skirt', 'star_skirt', 'tutu', 'hanbok']);
   let serial = 0;
+  function relative(from,to){
+    if(window.QPAvatarLocalTransform)return window.QPAvatarLocalTransform.relative(from,to);
+    const a=from?.getCTM?.(),b=to?.getCTM?.();return a&&b?b.inverse().multiply(a):null;
+  }
   const finite = (value, fallback = 0) => Number.isFinite(Number(value)) ? Number(value) : fallback;
   const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
   function node(name, attrs) {
     const out = document.createElementNS(NS, name);
-    Object.entries(attrs || {}).forEach(([key, value]) => out.setAttribute(key, value));
+    Object.entries(attrs || {}).forEach(([key, value]) => setAttributeIfChanged(out,key, value));
     return out;
   }
   function setTransform(group, value) {
-    if (group.getAttribute('transform') !== value) group.setAttribute('transform', value);
+    if (group.getAttribute('transform') !== value) setAttributeIfChanged(group,'transform', value);
+  }
+  function placeSequence(parent,nodes,before=null){
+    for(let i=nodes.length-1;i>=0;i--){const node=nodes[i];if(node.parentNode!==parent||node.nextSibling!==before)parent.insertBefore(node,before);before=node;}
   }
   function wrap(element, name) {
     const group = node('g', { 'data-qpx-pose-part': name });
@@ -40,7 +48,7 @@
           value = value.split('url(#' + original + ')').join('url(#' + replacement + ')');
           if (value === '#' + original) value = '#' + replacement;
         });
-        if (value !== attribute.value) element.setAttribute(attribute.name, value);
+        if (value !== attribute.value) setAttributeIfChanged(element,attribute.name, value);
       });
     });
     return group;
@@ -75,7 +83,7 @@
     }else if(shape==='space')wrist=point([.91,.68]);
     const cloneTop=()=>{
       const copy=top.cloneNode(true),original=rig.gestureCloth?rig.gestureCloth.originalMask:top.getAttribute('mask');
-      if(rig.gestureCloth){if(original===null)copy.removeAttribute('mask');else copy.setAttribute('mask',original);}
+      if(rig.gestureCloth){if(original===null)copy.removeAttribute('mask');else setAttributeIfChanged(copy,'mask',original);}
       // Direction visibility belongs to the mounted torso, not this cached
       // frontal sleeve, which must also be ready for a later wave or climb.
       copy.removeAttribute('visibility');copy.style.removeProperty('visibility');
@@ -108,9 +116,9 @@
     const frontHands=[];
     for(const [at,source]of skinSources.entries()){
       const copy=cloneArtwork([...source.childNodes],rig.defs.dataset.qpxPoseDefs+'-'+side+'-gesture-skin-'+at);
-      if(sleeveSkinClip)copy.setAttribute('clip-path',sleeveSkinClip);
+      if(sleeveSkinClip)setAttributeIfChanged(copy,'clip-path',sleeveSkinClip);
       const hands=copy.querySelectorAll('.qpx-hand-'+side).length>0;
-      copy.setAttribute(hands?'data-qpx-gesture-hand':'data-qpx-gesture-skin',side);
+      setAttributeIfChanged(copy,hands?'data-qpx-gesture-hand':'data-qpx-gesture-skin',side);
       if(hands)frontHands.push(copy);else arm.appendChild(copy);
     }
     if(sleeveArtwork)arm.appendChild(sleeveArtwork);
@@ -151,13 +159,13 @@
     if(!visible&&artwork.rearFore){artwork.arm.appendChild(artwork.forearm);artwork.rearFore.remove();artwork.rearFore=null;}
     artwork.visible=visible;artwork.carrier.style.display=visible?'':'none';
     for(const {group,visibility}of artwork.originals){
-      if(visible)group.setAttribute('visibility','hidden');else if(visibility===null)group.removeAttribute('visibility');else group.setAttribute('visibility',visibility);
+      if(visible)setAttributeIfChanged(group,'visibility','hidden');else if(visibility===null)group.removeAttribute('visibility');else setAttributeIfChanged(group,'visibility',visibility);
     }
-    if(artwork.maskSlot)artwork.maskSlot.setAttribute('fill',visible?'black':'white');
+    if(artwork.maskSlot)setAttributeIfChanged(artwork.maskSlot,'fill',visible?'black':'white');
     if(rig.gestureCloth){
       const {top,mask,originalMask}=rig.gestureCloth;
-      if([...rig.gestureArms.values()].some(arm=>arm.visible&&arm.maskSlot))top.setAttribute('mask','url(#'+mask.id+')');
-      else if(originalMask===null)top.removeAttribute('mask');else top.setAttribute('mask',originalMask);
+      if([...rig.gestureArms.values()].some(arm=>arm.visible&&arm.maskSlot))setAttributeIfChanged(top,'mask','url(#'+mask.id+')');
+      else if(originalMask===null)top.removeAttribute('mask');else setAttributeIfChanged(top,'mask',originalMask);
     }
   }
   function positionArm(rig,arm,upperTransform,shoulder,forearm,wrist=0,offset=0) {
@@ -167,8 +175,8 @@
     const variants=[...arm.carrier.querySelectorAll('[data-qpx-gesture-art]')],view=rig.svg.dataset.qpxView||'front';
     const availableView=variants.some(artwork=>artwork.dataset.qpxGestureArt===view)?view:'front';
     for(const artwork of variants)artwork.style.display=artwork.dataset.qpxGestureArt===availableView?'':'none';
-    const bodyMatrix=rig.body.getCTM(),idleMatrix=rig.idle.getCTM();
-    if(bodyMatrix&&idleMatrix){const m=idleMatrix.inverse().multiply(bodyMatrix);setTransform(arm.carrier,'matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].map(number).join(' ')+')');}
+    const m=relative(rig.body,rig.idle);
+    if(m)setTransform(arm.carrier,'matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].map(number).join(' ')+')');
     setTransform(arm.arm,upperTransform+' '+translated(offset,0)+' '+rotated(shoulder,...arm.pivot));
     setTransform(arm.forearm,rotated(forearm,...arm.elbow));
     for(const hand of arm.hands)setTransform(hand,rotated(wrist,...arm.wrist));
@@ -278,7 +286,7 @@
       coreClip.appendChild(node('rect', { x: -32, y: -32, width: 96, height: hemStart + 32 }));
       defs.appendChild(coreClip);
       upper.querySelectorAll('[data-qpx-clothes="top"]').forEach(cloth => {
-        const core = wrap(cloth, 'coat-core'); core.setAttribute('clip-path', 'url(#' + coreClipId + ')');
+        const core = wrap(cloth, 'coat-core'); setAttributeIfChanged(core,'clip-path', 'url(#' + coreClipId + ')');
       });
     }
     if(leggedTop){
@@ -368,9 +376,8 @@
     return{leg,shin,foot:leg+' '+shin+' '+rotated(shoeAngle-lean-a-b,hip,rig.foot)};
   }
   function continuousLegs(rig){
-    const inverse=rig.body.getCTM()?.inverse();if(!inverse)return;
-    const locate=(element,x,y)=>{const p=new DOMPoint(x,y).matrixTransform(inverse.multiply(element.getCTM()));return[p.x,p.y];};
-    rig.rearFeet.forEach((group,i)=>{const foot=i?rig.rightFoot:rig.leftFoot;group.style.display=rig.svg.dataset.qpxView==='front'?'':'none';if(foot){const m=inverse.multiply(foot.getCTM());group.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].map(number).join(' ')+')');}});
+    const locate=(element,x,y)=>{const p=new DOMPoint(x,y).matrixTransform(relative(element,rig.body));return[p.x,p.y];};
+    rig.rearFeet.forEach((group,i)=>{const foot=i?rig.rightFoot:rig.leftFoot;group.style.display=rig.svg.dataset.qpxView==='front'?'':'none';if(foot){const m=relative(foot,rig.body);setTransform(group,'matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].map(number).join(' ')+')');}});
     for(const {group,outline,paint,index}of rig.skinLegs){
       group.style.display='';
       const hip=index?18.25:13.75,leg=index?rig.right:rig.left,shin=index?rig.rightShin:rig.leftShin;
@@ -383,7 +390,7 @@
       const r=rig.coveredLegs?.51:1.05,tip=.45,d=rig.coveredLegs?
         'M'+offset(a,n,r)+'L'+offset(c,n,tip)+'Q'+point(c)+' '+offset(c,n,-tip)+'L'+offset(a,n,-r)+'Z':
         'M'+offset(a,u,r)+'Q'+offset(b,u,1.12)+' '+offset(b,n,.98)+'Q'+offset(mid(b,c),n,.84)+' '+offset(c,n,tip)+'Q'+point(c)+' '+offset(c,n,-tip)+'Q'+offset(mid(b,c),n,-.84)+' '+offset(b,n,-.98)+'Q'+offset(b,u,-1.12)+' '+offset(a,u,-r)+'Z';
-      outline.setAttribute('d',d);paint.setAttribute('d',d);
+      setAttributeIfChanged(outline,'d',d);setAttributeIfChanged(paint,'d',d);
     }
   }
   function apply(svg, state) {
@@ -396,8 +403,9 @@
     const deskSit = state.action === 'sit' && state.seatMode === 'desk';
     const action = floorSit ? 'sit' : ['walk', 'jump', 'sit', 'climb'].includes(state.action) ? state.action : 'idle';
     const gesture=['wave','nod','happy'].includes(state.gesture)?state.gesture:'';
-    const [sx, sy] = pixelUnits(rig.body), [, headSy] = pixelUnits(rig.headPose);
     const illustrated = svg.classList.contains('qp-illustrated-avatar');
+    // Illustrated poses are continuous and never use screen-pixel rounding.
+    const [sx, sy] = illustrated?[1,1]:pixelUnits(rig.body), [, headSy] = illustrated?[1,1]:pixelUnits(rig.headPose);
     const qx = value => illustrated ? value : Math.round(value * sx) / sx;
     const qy = value => illustrated ? value : Math.round(value * sy) / sy;
     const headY = value => illustrated ? value : Math.round(value * headSy) / headSy;
@@ -511,13 +519,13 @@
     rig.lastAction = action;
     // Preserve the continuous painted seat/crotch above the two hip bones.
     // The round knees articulate below it without exposing the center cut.
-    rig.upperClip.setAttribute('height',rig.waist+32+(floorSit?-.55:action==='sit'?1.45:.45));
+    setAttributeIfChanged(rig.upperClip,'height',rig.waist+32+(floorSit?-.55:action==='sit'?1.45:.45));
     rig.upperSeatClip.style.display=floorSit?'':'none';
-    for(const part of rig.thighs)part.thigh.setAttribute('clip-path',floorSit?part.seated:part.original);
+    for(const part of rig.thighs)setAttributeIfChanged(part.thigh,'clip-path',floorSit?part.seated:part.original);
     for(const clip of rig.legClips){
       const overlap=floorSit?2.35:rig.leggedTop?1.5:.45;
-      clip.setAttribute('y',rig.waist-overlap);
-      clip.setAttribute('height',64-rig.waist+overlap);
+      setAttributeIfChanged(clip,'y',rig.waist-overlap);
+      setAttributeIfChanged(clip,'height',64-rig.waist+overlap);
     }
     const upperTransform = torsoY || lean ? translated(0, torsoY) + ' ' + rotated(lean, 16, rig.waist) : '';
     let headTransform = headOffset || headX || headLean ? translated(headX, headOffset) + ' ' + rotated(headLean, 16, 28) : '';
@@ -540,9 +548,9 @@
     if (rig.rightFoot) setTransform(rig.rightFoot, footRight);
     // Match the real dressed neck, including the male torso's horizontal
     // proportion, without scaling the original head painting.
-    const upperMatrix=rig.upper.getCTM(),headParentMatrix=rig.headPose.parentNode?.getCTM();
-    if(upperMatrix&&headParentMatrix){
-      const neck=headParentMatrix.inverse().multiply(upperMatrix),x=neck.a*16+neck.c*28+neck.e-16,y=neck.b*16+neck.d*28+neck.f-28;
+    const neck=relative(rig.upper,rig.headPose.parentNode);
+    if(neck){
+      const x=neck.a*16+neck.c*28+neck.e-16,y=neck.b*16+neck.d*28+neck.f-28;
       headTransform=translated(x,y)+' '+rotated(headLean,16,28);
     }
     setTransform(rig.headPose, headTransform);
@@ -577,8 +585,8 @@
         arm.carrier.style.opacity=near?'':'0.78';
         // The far arm is behind the complete dressed torso; the near sleeve
         // and wrist move together in front, matching the direction reference.
-        if(near)rig.idle.appendChild(arm.carrier);
-        else {let bodyRoot=rig.body.closest('[data-qpx-direction-part="body-profile"]');if(bodyRoot){while(bodyRoot.parentNode&&bodyRoot.parentNode!==rig.idle)bodyRoot=bodyRoot.parentNode;rig.idle.insertBefore(arm.carrier,bodyRoot);}}
+        if(near)placeSequence(rig.idle,[arm.carrier]);
+        else {let bodyRoot=rig.body.closest('[data-qpx-direction-part="body-profile"]');if(bodyRoot){while(bodyRoot.parentNode&&bodyRoot.parentNode!==rig.idle)bodyRoot=bodyRoot.parentNode;placeSequence(rig.idle,[arm.carrier],bodyRoot);}}
       }
     }else if(backView){
       for(const [side,shoulder,wrist]of[['left',armAngleLeft,handAngleLeft],['right',armAngleRight,handAngleRight]]){
@@ -599,7 +607,7 @@
         // deltoid on top of the shoulder when depth changes mid-stride.
         rig.idle.insertBefore(arm.carrier,bodyRoot);
         if(near){
-          const m=rig.idle.getCTM().inverse().multiply(arm.arm.getCTM()),g=node('g',{'data-qpx-rear-forearm':side,'transform':'matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].map(number).join(' ')+')'});
+          const m=relative(arm.arm,rig.idle),g=node('g',{'data-qpx-rear-forearm':side,'transform':'matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].map(number).join(' ')+')'});
           g.appendChild(arm.forearm);rig.idle.appendChild(g);arm.rearFore=g;
         }
       }
@@ -608,8 +616,9 @@
       for(const [side,shoulder]of[['left',armAngleLeft],['right',armAngleRight]]){
         const arm=rig.gestureArms.get(side),right=side==='right';
         const elbow=action==='jump'?(right?8:-8)*(jumpPose?.launch||.25):right?Math.max(0,stride)*4:-Math.max(0,-stride)*4;
-        positionArm(rig,arm,upperTransform,shoulder,elbow,0);arm.carrier.style.opacity='';rig.idle.appendChild(arm.carrier);
+        positionArm(rig,arm,upperTransform,shoulder,elbow,0);arm.carrier.style.opacity='';
       }
+      if(!window.QPClothMesh?.supports(rig.upper.querySelector('[data-qpx-clothes="top"]'))||!window.QPClothMesh?.atlas.ready)placeSequence(rig.idle,['left','right'].map(side=>rig.gestureArms.get(side).carrier));
     }else if(rig.gestureArms)for(const arm of rig.gestureArms.values())arm.carrier.style.opacity='';
     if(activeGesture==='wave'){
       const arm=rig.gestureArms.get('right'),swing=Math.sin(progress*Math.PI*8);
@@ -627,10 +636,10 @@
     const shadow=svg.querySelector('.qpx-contact-shadow');if(shadow)shadow.style.visibility=action==='climb'?'hidden':'';
     const mirror=profile?svg.dataset.qpxViewFacing==='left':state.direction!=='front'&&!activeGesture&&state.facing==='left';
     setTransform(rig.facing, mirror ? 'translate(32 0) scale(-1 1)' : '');
-    if(activeGesture)svg.setAttribute('data-qpx-gesture',activeGesture);else svg.removeAttribute('data-qpx-gesture');
+    if(activeGesture)setAttributeIfChanged(svg,'data-qpx-gesture',activeGesture);else svg.removeAttribute('data-qpx-gesture');
     const displayAction = floorSit ? 'floor-sit' : running?'run':action;
-    if (svg.getAttribute('data-qpx-pose') !== displayAction) svg.setAttribute('data-qpx-pose', displayAction);
-    if (floorSit || deskSit) svg.setAttribute('data-qpx-seat-mode', floorSit ? 'floor' : 'desk');
+    if (svg.getAttribute('data-qpx-pose') !== displayAction) setAttributeIfChanged(svg,'data-qpx-pose', displayAction);
+    if (floorSit || deskSit) setAttributeIfChanged(svg,'data-qpx-seat-mode', floorSit ? 'floor' : 'desk');
     else svg.removeAttribute('data-qpx-seat-mode');
     return true;
   }
@@ -643,15 +652,15 @@
       rig.headPose, rig.backHairPose, rig.facing, ...rig.arms, ...rig.hands].forEach(group => {
       if (group) group.removeAttribute('transform');
     });
-    svg.setAttribute('data-qpx-pose', 'idle');
+    setAttributeIfChanged(svg,'data-qpx-pose', 'idle');
     svg.removeAttribute('data-qpx-seat-mode');
     showArm(rig,'right',false);showArm(rig,'left',false);
     const shadow=svg.querySelector('.qpx-contact-shadow');if(shadow)shadow.style.visibility='';
     svg.removeAttribute('data-qpx-gesture');rig.gesture='';rig.gestureStartedAt=0;
-    rig.upperClip.setAttribute('height',rig.waist+32+.45);
+    setAttributeIfChanged(rig.upperClip,'height',rig.waist+32+.45);
     rig.upperSeatClip.style.display='none';
-    for(const part of rig.thighs)part.thigh.setAttribute('clip-path',part.original);
-    for(const clip of rig.legClips){const overlap=rig.leggedTop?1.5:.45;clip.setAttribute('y',rig.waist-overlap);clip.setAttribute('height',64-rig.waist+overlap);}
+    for(const part of rig.thighs)setAttributeIfChanged(part.thigh,'clip-path',part.original);
+    for(const clip of rig.legClips){const overlap=rig.leggedTop?1.5:.45;setAttributeIfChanged(clip,'y',rig.waist-overlap);setAttributeIfChanged(clip,'height',64-rig.waist+overlap);}
     continuousLegs(rig);
     rig.lastAction = 'idle'; rig.landingAt = 0;
     return true;
@@ -667,9 +676,9 @@
     rig.body.replaceChildren(...rig.children);
     unwrap(rig.headPose); unwrap(rig.backHairPose); unwrap(rig.facing); rig.defs.remove();
     if (rig.previousPose === null) svg.removeAttribute('data-qpx-pose');
-    else svg.setAttribute('data-qpx-pose', rig.previousPose);
+    else setAttributeIfChanged(svg,'data-qpx-pose', rig.previousPose);
     svg.removeAttribute('data-qpx-seat-mode');
-    if(rig.previousGesture===null)svg.removeAttribute('data-qpx-gesture');else svg.setAttribute('data-qpx-gesture',rig.previousGesture);
+    if(rig.previousGesture===null)svg.removeAttribute('data-qpx-gesture');else setAttributeIfChanged(svg,'data-qpx-gesture',rig.previousGesture);
     rigs.delete(svg);
     return true;
   }

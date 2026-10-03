@@ -15,7 +15,7 @@
       ],
       "width": 1115,
       "height": 736,
-      "sha256": "4270f01907a6dcd1cc01a4a7c683927edc9a1b621a7f2874ae6e9e4d12f37521",
+      "sha256": "b547d8436db815f4a418be1a6e7e8cc00939ba0f1beac8cc984c0be1d82be52e",
       "patches": [
         {
           "donorRect": [
@@ -43,7 +43,8 @@
             ]
           ],
           "reason": "entire upper picnic rug",
-          "groundTransition": 0
+          "groundTransition": 0,
+          "groundOutsideTransition": 2
         },
         {
           "donorRect": [
@@ -71,7 +72,8 @@
             ]
           ],
           "reason": "entire lower picnic rug",
-          "groundTransition": 0
+          "groundTransition": 0,
+          "groundOutsideTransition": 2
         },
         {
           "donorRect": [
@@ -103,7 +105,8 @@
             ]
           ],
           "reason": "entire rug-side bench",
-          "groundTransition": 0
+          "groundTransition": 0,
+          "groundOutsideTransition": 2
         },
         {
           "donorRect": [
@@ -175,7 +178,8 @@
             ]
           ],
           "reason": "entire white dining table and four chairs",
-          "groundTransition": 0
+          "groundTransition": 0,
+          "groundOutsideTransition": 0
         },
         {
           "donorRect": [
@@ -235,7 +239,8 @@
             ]
           ],
           "reason": "entire courtyard tree including crown, trunk and shadow",
-          "groundTransition": 0
+          "groundTransition": 0,
+          "groundOutsideTransition": 0
         },
         {
           "donorRect": [
@@ -279,7 +284,8 @@
             ]
           ],
           "reason": "captured name/avatar only",
-          "groundTransition": 0
+          "groundTransition": 0,
+          "groundOutsideTransition": 0
         },
         {
           "donorRect": [
@@ -307,7 +313,8 @@
             ]
           ],
           "reason": "captured name/avatar only",
-          "groundTransition": 0
+          "groundTransition": 0,
+          "groundOutsideTransition": 0
         },
         {
           "donorRect": [
@@ -375,7 +382,8 @@
             ]
           ],
           "reason": "complete UI-occluded lower flower shrub and tiny flower; parent bush stays intact",
-          "groundTransition": 0
+          "groundTransition": 0,
+          "groundOutsideTransition": 0
         },
         {
           "sourceRect": [
@@ -620,7 +628,8 @@
             ]
           ],
           "reason": "captured name/avatar and complete obscured hanging garland; keep both posts",
-          "groundTransition": 0
+          "groundTransition": 0,
+          "groundOutsideTransition": 0
         },
         {
           "donorRect": [
@@ -648,7 +657,8 @@
             ]
           ],
           "reason": "captured name/avatar and complete obscured hanging garland; keep both posts",
-          "groundTransition": 0
+          "groundTransition": 0,
+          "groundOutsideTransition": 0
         },
         {
           "donorRect": [
@@ -704,7 +714,8 @@
             ]
           ],
           "reason": "entire UI-occluded border tree group; replace whole silhouettes",
-          "groundTransition": 3
+          "groundTransition": 3,
+          "groundOutsideTransition": 0
         },
         {
           "donorRect": [
@@ -752,7 +763,8 @@
             ]
           ],
           "reason": "entire UI-occluded border tree group; replace whole silhouettes",
-          "groundTransition": 3
+          "groundTransition": 3,
+          "groundOutsideTransition": 0
         },
         {
           "sourceRect": [
@@ -1898,7 +1910,8 @@
             ]
           ],
           "reason": "complete captured UI/avatar and UI-obscured stepping stones",
-          "groundTransition": 0
+          "groundTransition": 0,
+          "groundOutsideTransition": 0
         },
         {
           "sourceRect": [

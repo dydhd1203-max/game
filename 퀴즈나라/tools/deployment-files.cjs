@@ -1,4 +1,5 @@
 module.exports=[
+  'avatar-local-transform.js',
   '_headers',
   'index.html','avatar-image.js','assets/avatar-file-data.js','avatar-pixel.js','avatar-clothes.js','avatar-effects.js','avatar-pets.js','avatar-shoes.js','qplay.css','button-feedback.css','demo.js',
   'candy-controls.css','candy-panels.css','candy-game.css','ui-icons.js',
@@ -6,8 +7,8 @@ module.exports=[
   'forest-village-scene.js','forest-village-world.css',
   'assets/forest-village-library/extracted/village-composition.png',
   'assets/forest-village-library/extracted/garden-composition.png',
-  'assets/forest-village-library/extracted/flower-home.png',
-  'assets/forest-village-library/extracted/bakery-home.png',
+  'assets/forest-village-library/adapted/flower-home.png',
+  'assets/forest-village-library/adapted/bakery-home.png',
   'assets/forest-village-library/extracted/pink-tree.png',
   'assets/forest-village-library/extracted/flowers-purple.png',
   'assets/forest-village-library/extracted/flowers-ivory.png',

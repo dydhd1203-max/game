@@ -1,9 +1,14 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-03T09:11:43.087Z",
+  "builtAt": "2026-10-03T10:05:06.433Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
+    {
+      "path": "avatar-local-transform.js",
+      "bytes": 1747,
+      "sha256": "3fb51cb330ff11d5e4b1d267b998fe3c728e997c9d3a3ad06e5ffdad788c1a68"
+    },
     {
       "path": "_headers",
       "bytes": 155,
@@ -11,8 +16,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 322771,
-      "sha256": "60e0e83e97b078c2a305441d9ef0c2840f8c82628b242913c86bb8003df90131"
+      "bytes": 322823,
+      "sha256": "bfc50419e1f6f9481def57a298aab447d1a25aa2d7c2460e533557eb57c1bdf5"
     },
     {
       "path": "avatar-image.js",
@@ -106,8 +111,8 @@
     },
     {
       "path": "forest-village-scene.js",
-      "bytes": 15223,
-      "sha256": "978ab3c32a807948ebb4d2c72dd428b66ba49a22f963716170b461e2ede65a3e"
+      "bytes": 17577,
+      "sha256": "8b6b819cfde69c46fe8b4bda1100b8f064df8ec1ced46d3f9b344ac22ffedc5e"
     },
     {
       "path": "forest-village-world.css",
@@ -116,8 +121,8 @@
     },
     {
       "path": "assets/forest-village-library/extracted/village-composition.png",
-      "bytes": 1527605,
-      "sha256": "4270f01907a6dcd1cc01a4a7c683927edc9a1b621a7f2874ae6e9e4d12f37521"
+      "bytes": 1527969,
+      "sha256": "b547d8436db815f4a418be1a6e7e8cc00939ba0f1beac8cc984c0be1d82be52e"
     },
     {
       "path": "assets/forest-village-library/extracted/garden-composition.png",
@@ -125,14 +130,14 @@
       "sha256": "fa06dd4675857d0c5c3ecf1f9e502ca6789d06453dfa6ce2d9ae81bb2ce79638"
     },
     {
-      "path": "assets/forest-village-library/extracted/flower-home.png",
-      "bytes": 197233,
-      "sha256": "47817bcaef548e0a41c0fb09330a1c12ac5ffd1a60a7fe554e06e2bdcd4f7bbf"
+      "path": "assets/forest-village-library/adapted/flower-home.png",
+      "bytes": 125926,
+      "sha256": "9af73f3e2b48467d8ebe2b140a1c644f533be03d887d6c847fc3e593cd2135cd"
     },
     {
-      "path": "assets/forest-village-library/extracted/bakery-home.png",
-      "bytes": 190693,
-      "sha256": "442c1fdc9f6c2b7e7a7cdfd166282ae3511f41bffaa4d278a9f1191be629242f"
+      "path": "assets/forest-village-library/adapted/bakery-home.png",
+      "bytes": 111763,
+      "sha256": "eac1fd95e5f327e97b93ea687f2cd6cb41d59ed6dbbdd7e1bf044919b4518f71"
     },
     {
       "path": "assets/forest-village-library/extracted/pink-tree.png",
@@ -186,13 +191,13 @@
     },
     {
       "path": "school-room-world.js",
-      "bytes": 37495,
-      "sha256": "be2aff53f6f26df56bc910bf6e084eb173bd676d3f3b825dcd8015903282af58"
+      "bytes": 38589,
+      "sha256": "349b041824e7e8ded82f2e0e7f73f1efca659660b41582cb5f33f3430f5f84ae"
     },
     {
       "path": "school-room-world.css",
-      "bytes": 4905,
-      "sha256": "e4c971dde907a47ca492d4b44a2e451e1716d86c2d710241a6fbc0723eed41e8"
+      "bytes": 4886,
+      "sha256": "380cc6ab63c7f8259549ea740008e0983cd234f86a1f877c57e9b34f7e0ba104"
     },
     {
       "path": "playground-scene.js",
@@ -331,18 +336,18 @@
     },
     {
       "path": "avatar-direction.js",
-      "bytes": 35741,
-      "sha256": "2b3562c41fc012954399279f0a9b38ae1eb9340220e62ea286261a8588b4098a"
+      "bytes": 35849,
+      "sha256": "82d05970f3586b216be096e32fca50cb3feb811eb184695a9b0dd052892ac1b0"
     },
     {
       "path": "avatar-poses.js",
-      "bytes": 47468,
-      "sha256": "eac429c065ffc0c883183ec92cb43f29fe9838c1a16afe20aa660da30a69f046"
+      "bytes": 48250,
+      "sha256": "142c3ced250fdd1f0a8345b1db076d291642e83e3f423b03d017af54bfa7ac94"
     },
     {
       "path": "avatar-cloth-mesh.js",
-      "bytes": 13116,
-      "sha256": "a875aac726045401b8694be204e02b2957086152a16da94aae5f1bb21ee81d36"
+      "bytes": 13607,
+      "sha256": "1a8b00e3c91bf41856cea9929f8d86d1f01ad265b70fb7ee5e6045ec08e4b6ec"
     },
     {
       "path": "assets/sd-wardrobe-wave.png",
