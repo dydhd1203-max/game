@@ -20,7 +20,7 @@ module.exports=[
   'assets/woodland-home-painted.png','assets/woodland-home-painted-mobile.png',
   'woodland-avatar.css','assets/wood-stump.svg','quiz-brand.css','assets/quiz-brand-trim.svg',
   'quiz-hud.css',
-  'avatar-accessory-direction.js','avatar-shoes-profile.js','avatar-direction.js','avatar-poses.js','avatar-foundation.js','avatar-foundation.css','avatar-standard.html','avatar-standard.js','avatar-standard.css','avatar-motion.js','avatar-motion.css',
+  'avatar-accessory-direction.js','avatar-shoes-profile.js','avatar-direction.js','avatar-poses.js','avatar-cloth-mesh.js','assets/sd-wardrobe-wave.png','assets/avatar-file-data-wardrobe.js','avatar-foundation-outfit.js','assets/sd-foundation-basic.png','assets/sd-foundation-shirt-profile.png', 'assets/sd-foundation-sleeves.png', 'assets/sd-foundation-torso.png', 'assets/sd-foundation-sleeves-raised.png','assets/avatar-file-data-foundation.js','avatar-foundation.js','avatar-foundation.css','avatar-standard.html','avatar-standard.js','avatar-standard.css','avatar-motion.js','avatar-motion.css',
   'assets/sd-heads-profile-female.png','assets/sd-heads-profile-male.png','assets/sd-heads-profile.json',
   'assets/sd-heads-back-female.png','assets/sd-heads-back-male.png','assets/sd-heads-back.json',
   'quiz-questions.js','teacher-builder.js','teacher-builder.css',

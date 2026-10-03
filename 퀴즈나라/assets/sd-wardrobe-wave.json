@@ -1,0 +1,30 @@
+{
+  "purpose": "Existing male/female tee and hood raised sleeves; original bodices, faces and inventory IDs remain unchanged.",
+  "generatedSource": "exec-42604a11-d933-46f8-9066-a86c3370c273.png",
+  "parentGeneration": "exec-29d6d4a6-de08-4e5b-8fde-c74384793d77.png",
+  "dimensions": [
+    1536,
+    1024
+  ],
+  "sha256": "ca2b70e14566277f0a56e8eabff7d5c41b34b12085dafdd0ce51de34116864ac",
+  "references": {
+    "assets/sd-clothes-male.png": "8532abf862b870ae497c9a8589d00a43700e7e7730708915bea66b84eaa3ef2c",
+    "assets/sd-tops.png": "5af7a340ce1a0b6f4faaf444ed1254da15b0f638a31169c635f5fa925617e40e",
+    "assets/sd-hood.png": "1b831d9cf572d1e5668697f68b71214e0d84e30464914ab5bbb574e60c181b81"
+  },
+  "layout": [
+    [
+      "m/tee",
+      "m/hood"
+    ],
+    [
+      "f/tee",
+      "f/hood"
+    ]
+  ],
+  "runtime": "avatar-cloth-mesh.js: source masks, root and mouth anchors, cuff mapping, raised armpit panels, shoulder seam alpha composition. Only raised right sleeve/underarm is used.",
+  "alpha": "True transparent background and openings. Runtime normalizes near-opaque (>240) alpha on the selected garment pixels; keeps semitransparent exterior.",
+  "generationInstruction": "Edit the four existing garment designs into front wave clothing sprites. Preserve green acorn tee, gold zip hoodie, lime daisy polo, pink daisy jacket with bunny zipper. Left sleeve relaxed; right tee sleeve raised, right hood elbow bent with wrist up. Sewn shoulder and underarm folds, no skin/mannequin, same painted style. Cut out background and collar/cuff interiors, preserve cream rims.",
+  "originalsEdited": false,
+  "limitations": "Front raised sleeve correction for four catalog items, not a complete shared-rig or directional wardrobe migration."
+}

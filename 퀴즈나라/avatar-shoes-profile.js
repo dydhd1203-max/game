@@ -4,11 +4,11 @@
   const names = ['sneaker','loafer','boots','sandal','hitop','ballet','rain','slipper','wing_shoes'];
   const cache = new Map();
   const hints = {
-    sneaker: {width:3.85,mouth:27,ankle:44.12}, loafer:{width:3.7,mouth:52,ankle:44.06},
-    boots:{width:3.75,mouth:8,ankle:43.8}, sandal:{width:3.75,mouth:12,ankle:43.82},
-    hitop:{width:3.85,mouth:20,ankle:43.73}, ballet:{width:3.7,mouth:19,ankle:43.98},
-    rain:{width:3.7,mouth:7,ankle:43.68}, slipper:{width:3.95,mouth:26,ankle:44.04},
-    wing_shoes:{width:4.2,mouth:18,ankle:44.03}
+    sneaker: {width:3.85,mouth:28,ankle:44.12}, loafer:{width:3.7,mouth:53,ankle:44.06},
+    boots:{width:3.75,mouth:9.5,ankle:43.8}, sandal:{width:3.75,mouth:31,ankle:43.82},
+    hitop:{width:3.85,mouth:13,ankle:43.73}, ballet:{width:3.7,mouth:47,ankle:43.98},
+    rain:{width:3.7,mouth:9.5,ankle:43.68}, slipper:{width:3.95,mouth:42,ankle:44.04},
+    wing_shoes:{width:4.2,mouth:29,ankle:44.03}
   };
   const stats = {renders:0,cacheHits:0};
   const shapeName = value => value === 'dress' ? 'loafer' : String(value || '');
@@ -38,9 +38,9 @@
     // The lower crescent is the collar in front of the ankle, rather than a
     // flat oval pasted over it. Its top edge catches light; the interior falls
     // into the shoe. Both parts use the unchanged, source-derived ankle fit.
-    return ellipse(cx,cy,rx,ry,'url(#'+id+'-lining)','stroke="'+edge+'" stroke-width="1.15"')+
+    return '<g data-qps-opening="'+[cx,cy,rx,ry].join(',')+'">'+ellipse(cx,cy,rx,ry,'url(#'+id+'-skin)','stroke="'+edge+'" stroke-width="1.15"')+
       path('M'+(cx-rx)+' '+cy+'Q'+cx+' '+(cy+ry*2.05)+' '+(cx+rx)+' '+cy+'Q'+cx+' '+(cy+ry*.63)+' '+(cx-rx)+' '+cy+'Z','url(#'+id+'-lip)','stroke="'+edge+'" stroke-width=".65"')+
-      line('M'+(cx-rx*.81)+' '+(cy+ry*.57)+'Q'+cx+' '+(cy+ry*1.31)+' '+(cx+rx*.81)+' '+(cy+ry*.57),'#fff9e9',.9);
+      line('M'+(cx-rx*.81)+' '+(cy+ry*.57)+'Q'+cx+' '+(cy+ry*1.31)+' '+(cx+rx*.81)+' '+(cy+ry*.57),'#fff9e9',.9)+'</g>';
   }
   function flower(x,y,s) {
     return '<g transform="translate('+x+' '+y+') scale('+s+')">'+
@@ -111,13 +111,13 @@
       art+=ellipse(88,68,12,3.2,pale,'opacity=".65"');
     } else if(shape==='sandal') {
       art+=path(lowSole,sole,'stroke="#ac7f56" stroke-width="2"');
-      art+=path('M18 76L21 55Q23 29 38 27Q48 31 50 52L70 58Q95 59 108 72L111 79Q73 86 19 79Z',base,outline);
+      art+=path('M18 76L21 55Q23 29 38 27Q48 31 50 52L70 58Q95 59 108 72L111 79Q73 86 19 79Z','url(#'+id+'-skin)',outline);
       art+=path('M18 29Q31 20 49 28L52 39Q35 41 18 35Z',cream,'stroke="#b78651" stroke-width="1.7"')+ellipse(42,34,5.3,5.3,gold,'stroke="#b68131" stroke-width="1.5"');
       art+=path('M34 37L46 38L62 75L53 78Z',cream,'stroke="#c39461" stroke-width="1.5"')+path('M57 60L66 57L88 76L81 82Z',cream,'stroke="#c39461" stroke-width="1.5"')+path('M77 57L83 61L67 81L59 79Z',cream,'stroke="#c39461" stroke-width="1.5"');
       art+=flower(67,65,.52)+line('M19 88Q62 93 106 85','#fff5df',1.6)+line('M20 35Q35 41 49 35','#8c654a',1.2,'opacity=".38"')+line('M23 37Q35 42 46 37','#fffaf0',.9);
     } else if(shape==='ballet') {
       art+=path('M16 80Q16 72 19 69Q22 40 38 35L49 62Q65 74 83 65Q108 65 113 81Q113 92 95 94L32 93Q16 89 16 80Z',base,outline);
-      art+=path('M23 66Q24 44 38 35L49 61Q59 70 66 73Q46 79 26 76Z',cream,'stroke="#c28b57" stroke-width="1.4"');
+      art+=path('M23 66Q24 44 38 35L49 61Q59 70 66 73Q46 79 26 76Z','url(#'+id+'-skin)','stroke="#c28b57" stroke-width="1.4"');
       art+=opening(37,47,7.5,12,id)+line('M29 46L45 62M29 61L43 46','#fff1d5',3);
       art+=line('M19 86Q64 97 107 88',dark,2.2)+line('M20 69Q42 79 77 72',pale,1.8);
       art+=flower(84,71,.58)+ellipse(86,74,3.7,3.7,gold)+line('M71 65Q81 62 88 66',pale,2);
@@ -150,20 +150,31 @@
     const original=window.QPShoes?.inspect?.(shape)?.feet?.[side];
     const ankleY=Number.isFinite(original?.ankle?.[1])?original.ankle[1]:hint.ankle;
     const width=hint.width,height=(46.05-ankleY)/((98-hint.mouth)/100),ankleX=side==='left'?13.85:18.15;
-    const x=ankleX-width*32/120,y=46.05-height*.98;
-    return {target:[x,y,width,height],ankle:[ankleX,ankleY],ground:[ankleX,46.05],toeDirection:'right',artworkFloor:98,mouth:[32,hint.mouth],shape,side};
+    const mouthX={loafer:33,boots:36,rain:36,ballet:37,wing_shoes:35}[shape]||32;
+    const x=ankleX-width*mouthX/120,y=46.05-height*.98;
+    return {target:[x,y,width,height],ankle:[ankleX,ankleY],ground:[ankleX,46.05],toeDirection:'right',artworkFloor:98,mouth:[mouthX,hint.mouth],shape,side};
   }
-  function renderFoot(shape,color,side) {
+  function wearing(art,shape,color,side,skin,back){
+    skin=colorName(skin||'#ffe2cc');const sourceId=(back?'qpsback-':'qpsprofile-')+shape+'-'+side+'-'+color.slice(1),id=sourceId+'-'+skin.slice(1),mask=id+'-worn';art=art.replaceAll(sourceId,id);
+    const matches=[...art.matchAll(/data-qps-opening="([^"]+)"/g)],p=matches.length?matches.at(-1)[1].split(',').map(Number):back?[50,shape==='ballet'?58:28,17,5]:[32,31,13,5];
+    const [cx,cy,rx,ry]=p,r=rx*.9;
+    // Only the rear collar's centre is behind the continuous calf. Its sides,
+    // the front lip and all fastening straps remain in front of the foot.
+    const slot='M'+(cx-r)+' -20H'+(cx+r)+'V'+(cy-ry*.35)+'Q'+cx+' '+(cy+ry*.5)+' '+(cx-r)+' '+(cy-ry*.35)+'Z';
+    const defs='<defs><linearGradient id="'+id+'-skin"><stop stop-color="'+blend(skin,'#58341f',.22)+'"/><stop offset=".45" stop-color="'+skin+'"/><stop offset=".72" stop-color="'+blend(skin,'#fff6e5',.10)+'"/><stop offset="1" stop-color="'+blend(skin,'#58341f',.12)+'"/></linearGradient><mask id="'+mask+'" maskUnits="userSpaceOnUse" x="-20" y="-20" width="180" height="160"><rect x="-20" y="-20" width="180" height="160" fill="white"/><path d="'+slot+'" fill="black"/></mask></defs>';
+    return defs+'<g data-qps-worn="true" mask="url(#'+mask+')">'+art+'</g>';
+  }
+  function renderFoot(shape,color,side,skin='#ffe2cc') {
     shape=shapeName(shape);color=colorName(color);side=side==='right'?'right':'left';const fit=placement(shape,side);if(!fit)return '';
-    const key=[shape,color,side,fit.ankle[1].toFixed(5)].join('/');if(cache.has(key)){stats.cacheHits++;return cache.get(key);}
+    const key=[shape,color,side,skin,fit.ankle[1].toFixed(5)].join('/');if(cache.has(key)){stats.cacheHits++;return cache.get(key);}
     const [x,y,w,h]=fit.target;
-    const markup='<g class="qps-foot qps-profile-foot" data-qps-profile-foot="true" data-qps-contact-rim="true" data-qps-material="'+materialName(shape)+'" data-qps-foot-side="'+side+'" data-qps-shape="'+shape+'" data-qps-foot-color="'+color+'" data-qps-ankle="'+fit.ankle.join(',')+'" data-qps-ground="46.05" data-qps-toe-direction="right"><svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="0 0 120 100" preserveAspectRatio="none" overflow="visible">'+drawing(shape,color,side)+'</svg></g>';
+    const markup='<g class="qps-foot qps-profile-foot" data-qps-profile-foot="true" data-qps-contact-rim="true" data-qps-material="'+materialName(shape)+'" data-qps-foot-side="'+side+'" data-qps-shape="'+shape+'" data-qps-foot-color="'+color+'" data-qps-ankle="'+fit.ankle.join(',')+'" data-qps-ground="46.05" data-qps-toe-direction="right"><svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="0 0 120 100" preserveAspectRatio="none" overflow="visible">'+wearing(drawing(shape,color,side),shape,color,side,skin,false)+'</svg></g>';
     stats.renders++;cache.set(key,markup);return markup;
   }
   const backHints = {
-    sneaker:{width:3.5,mouth:25},loafer:{width:3.3,mouth:40},boots:{width:3.45,mouth:10},
-    sandal:{width:3.4,mouth:20},hitop:{width:3.5,mouth:14},ballet:{width:3.3,mouth:27},
-    rain:{width:3.4,mouth:9},slipper:{width:3.5,mouth:28},wing_shoes:{width:3.6,mouth:25}
+    sneaker:{width:3.5,mouth:27},loafer:{width:3.3,mouth:45},boots:{width:3.45,mouth:11},
+    sandal:{width:3.4,mouth:28},hitop:{width:3.5,mouth:15},ballet:{width:3.3,mouth:55},
+    rain:{width:3.4,mouth:12},slipper:{width:3.5,mouth:34},wing_shoes:{width:3.6,mouth:28}
   };
   function backDrawing(shape,color,side) {
     const id='qpsback-'+shape+'-'+side+'-'+color.slice(1),ink=blend(color,'#654635',.76);
@@ -175,6 +186,7 @@
       '<linearGradient id="'+id+'-sole" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fff9e9"/><stop offset=".5" stop-color="#ffe8c9"/><stop offset="1" stop-color="#d6a576"/></linearGradient>'+
       '<linearGradient id="'+id+'-cream" x1="0" y1="0" x2=".45" y2="1"><stop stop-color="#fffdf1"/><stop offset="1" stop-color="#f2d1aa"/></linearGradient>'+
       '<linearGradient id="'+id+'-gold" x1="0" y1="0" x2=".5" y2="1"><stop stop-color="#fff29b"/><stop offset=".5" stop-color="#ffca39"/><stop offset="1" stop-color="#d28726"/></linearGradient>'+wearDefs(id,shape,color)+'</defs>';
+    if(shape==='sandal'||shape==='ballet')art+=path('M38 23Q50 20 62 23L63 77Q63 85 51 87Q38 86 37 77Z','url(#'+id+'-skin)');
     const heelSole='M22 80Q17 88 23 93Q49 99 77 93Q83 88 79 80Z';
     const trim=(y,tall=false)=>path('M'+(tall?'25':'27')+' '+y+'Q50 '+(y-12)+' '+(tall?'75':'73')+' '+y+'L'+(tall?'73':'71')+' '+(y+10)+'Q50 '+(y+17)+' '+(tall?'27':'29')+' '+(y+10)+'Z',cream,'stroke="#bb8d64" stroke-width="1.5"');
     if(shape==='sneaker'||shape==='hitop') {
@@ -246,11 +258,11 @@
     const width=hint.width,height=(46.05-ankleY)/((98-hint.mouth)/100),ankleX=side==='left'?13.85:18.15;
     return {target:[ankleX-width*.5,46.05-height*.98,width,height],ankle:[ankleX,ankleY],ground:[ankleX,46.05],toeDirection:'back',artworkFloor:98,mouth:[50,hint.mouth],shape,side};
   }
-  function renderBackFoot(shape,color,side) {
+  function renderBackFoot(shape,color,side,skin='#ffe2cc') {
     shape=shapeName(shape);color=colorName(color);side=side==='right'?'right':'left';const fit=backPlacement(shape,side);if(!fit)return '';
-    const key=['back',shape,color,side,fit.ankle[1].toFixed(5)].join('/');if(cache.has(key)){stats.cacheHits++;return cache.get(key);}
+    const key=['back',shape,color,side,skin,fit.ankle[1].toFixed(5)].join('/');if(cache.has(key)){stats.cacheHits++;return cache.get(key);}
     const [x,y,w,h]=fit.target;
-    const markup='<g class="qps-foot qps-back-foot" data-qps-back-foot="true" data-qps-contact-rim="true" data-qps-material="'+materialName(shape)+'" data-qps-foot-side="'+side+'" data-qps-shape="'+shape+'" data-qps-foot-color="'+color+'" data-qps-ankle="'+fit.ankle.join(',')+'" data-qps-ground="46.05" data-qps-toe-direction="back"><svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible">'+backDrawing(shape,color,side)+'</svg></g>';
+    const markup='<g class="qps-foot qps-back-foot" data-qps-back-foot="true" data-qps-contact-rim="true" data-qps-material="'+materialName(shape)+'" data-qps-foot-side="'+side+'" data-qps-shape="'+shape+'" data-qps-foot-color="'+color+'" data-qps-ankle="'+fit.ankle.join(',')+'" data-qps-ground="46.05" data-qps-toe-direction="back"><svg x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" viewBox="0 0 100 100" preserveAspectRatio="none" overflow="visible">'+wearing(backDrawing(shape,color,side),shape,color,side,skin,true)+'</svg></g>';
     stats.renders++;cache.set(key,markup);return markup;
   }
   window.QPProfileShoes={renderFoot,renderBackFoot,inspect:placement,inspectBack:backPlacement,names:names.slice(),atlas:{ready:true,count:names.length,style:'illustrated-side-shoe',backReady:true,backCount:names.length},stats,clearCache(){cache.clear();},cacheSize:()=>cache.size};

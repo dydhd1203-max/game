@@ -17,7 +17,7 @@ const focus = process.env.QUIZ_SLEEVE_FOCUS;
 const screenshots = process.argv.includes('--screenshots');
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
 const fingerprints = ['index.html', 'avatar-pixel.js', 'avatar-clothes.js', 'avatar-poses.js',
-  'avatar-direction.js', 'assets/sd-tops.png', 'assets/sd-hood.png', 'assets/sd-clothes-male.png'];
+  'avatar-direction.js','avatar-cloth-mesh.js','assets/sd-wardrobe-wave.png', 'assets/sd-tops.png', 'assets/sd-hood.png', 'assets/sd-clothes-male.png'];
 const states = [
   { id: 'native', pose: null },
   { id: 'breath', pose: { action: 'idle', direction: 'front', facing: 'right', phase: .2, grounded: true } },
@@ -134,7 +134,8 @@ async function probeFixture({ entry, geometry, states, thresholds }) {
     return { checked, overpainted, maxDelta, pass: checked > 0 && overpainted === 0 };
   }
   function cloneLayers(svg) {
-    const records = [];
+    const records = [], mesh=svg.querySelector('[data-qpx-continuous-cloth]'), active=mesh&&getComputedStyle(mesh.parentNode).display!=='none';
+    if(active){const skins=[...svg.querySelectorAll('[data-qpx-gesture-skin]')],hands=[...svg.querySelectorAll('[data-qpx-cloth-hand]')];records.push({pipeline:'continuous-cloth',skinBeforeSleeve:skins.length>0&&skins.every(s=>follows(s,mesh)),sleeveBeforeHands:hands.length===2&&hands.every(h=>follows(mesh,h))});return{records,pass:records.every(r=>r.skinBeforeSleeve&&r.sleeveBeforeHands)};}
     for (const carrier of svg.querySelectorAll('[data-qpx-gesture-arm]')) {
       if (getComputedStyle(carrier).display === 'none') continue;
       for (const art of carrier.querySelectorAll('[data-qpx-gesture-art="front"]')) {
@@ -154,10 +155,12 @@ async function probeFixture({ entry, geometry, states, thresholds }) {
     const svg = host.firstElementChild;
     if (state.pose) QPAvatarPose.apply(svg, { ...state.pose, now: 2000 });
     const [cloth, skinLeft, skinRight, full] = await Promise.all([
-      pixels(svg, '[data-qpx-clothes="top"],[data-qpx-wave-sleeve]'),
+      pixels(svg, '[data-qpx-clothes="top"],[data-qpx-wave-sleeve],[data-qpx-continuous-cloth]'),
       pixels(svg, '.qpx-arm-left,.qpx-arm-front-left,[data-qpx-gesture-skin="left"]', true),
       pixels(svg, '.qpx-arm-right,.qpx-arm-front-right,[data-qpx-gesture-skin="right"]', true), pixels(svg)
     ]);
+    const mesh=svg.querySelector('[data-qpx-continuous-cloth]'), continuous=Boolean(mesh&&getComputedStyle(mesh.parentNode).display!=='none');
+    const composite=continuous?await pixels(svg,'[data-qpx-continuous-cloth],[data-qpx-gesture-skin],[data-qpx-gesture-hand],[data-qpx-cloth-hand]'):full;
     const layer = cloneLayers(svg), row = { id: geometry.id, sk, state: state.id,
       pose: svg.dataset.qpxPose || 'native', view: svg.dataset.qpxView || 'front', layer, sides: [] };
     for (const sleeve of geometry.sleeves) {
@@ -166,14 +169,18 @@ async function probeFixture({ entry, geometry, states, thresholds }) {
       const moving = carrier && getComputedStyle(carrier).display !== 'none';
       let nodes = moving ? [...carrier.querySelectorAll('[data-qpx-gesture-art="front"] [data-qpx-clothes="top"] > .qpc-garment > svg')] : [];
       if (!nodes.length) nodes = [...svg.querySelectorAll('.qpx-body [data-qpx-clothes="top"] > .qpc-garment > svg')];
+      // The authored tee cuff belongs to the upper arm; the hood cuff is on
+      // the forearm. Old cloned art contained both, but the new owned texture
+      // has one aperture. Never choose a phantom lower tee cuff by alpha score.
+      if(continuous&&moving)nodes=nodes.filter(n=>Boolean(n.closest('[data-qpx-pose-part$="gesture-forearm"]'))===geometry.id.endsWith('/hood'));
       const candidates = nodes.map(nested => {
         const edge = opening(nested, sleeve, svg);
         return { edge, clothScore: line(cloth, edge, -.4).coverage,
           inner035: line(skin, edge, -.35), inner070: line(skin, edge, -.7), outer035: line(skin, edge, .35),
-          occlusion: occlusion(cloth, skin, full, edge) };
+          occlusion: occlusion(cloth, skin, composite, edge) };
       }).sort((a, b) => b.clothScore - a.clothScore || b.inner035.coverage - a.inner035.coverage);
       const best = candidates[0];
-      if (moving) {
+      if (moving && !continuous) {
         // A bent forearm can legitimately pass in front of its own upper
         // sleeve, and a raised hand can pass in front of the head. Compare
         // skin/clothes paint inside each real articulated copy instead of
@@ -222,7 +229,7 @@ async function probeFixture({ entry, geometry, states, thresholds }) {
     page.on('response', r => { if (r.status() >= 400 && new URL(r.url()).origin === new URL(base).origin) report.missingResources.push({ url: r.url(), status: r.status() }); });
     const url = new URL(base); url.searchParams.set('demo', '1'); url.searchParams.set('session', 'sleeve-insertion-' + Date.now());
     await page.goto(url.href);
-    await page.waitForFunction(() => window.QPGame?.getMe() && QPAvatar.atlas.ready && QPClothes.atlas.ready && QPAvatarDirection.atlas.ready && QPShoes.atlas.partsReady);
+    await page.waitForFunction(() => window.QPGame?.getMe() && QPAvatar.atlas.ready && QPClothes.atlas.ready && QPAvatarDirection.atlas.ready && QPShoes.atlas.partsReady && (!window.QPClothMesh||QPClothMesh.atlas.ready));
     report.phase = 'fingerprint';
     for (const file of fingerprints) {
       const response = await context.request.get(new URL(file, url).href); assert(response.ok(), 'Missing ' + file);

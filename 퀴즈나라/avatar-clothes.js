@@ -60,7 +60,7 @@
   const targetFor=(category,shape,sex='f')=>sex==='m'&&maleTargets[category]?.[shape]||targets[category]?.[shape]||targets[category]?.default;
   const colorFor=(category,shape,sex='f',fallback)=>sex==='m'&&maleColors[category]?.[shape]||fallback;
   const atlas={ready:false,revision:0,error:null,categories:{top:{ready:false},bottom:{ready:false}}};
-  const sprites=new Map(),tinted=new Map(),markup=new Map();let generation=0,loading=Promise.resolve(false);
+  const sprites=new Map(),tinted=new Map(),markup=new Map(),surfaces=new Map();let generation=0,loading=Promise.resolve(false);
   let config={top:{...defaults.top},bottom:{...defaults.bottom}};
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const esc=v=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -204,7 +204,7 @@
       }
       for(const p of queue)data[p*4+3]=0;
     }
-    return {category,shape,w,h,data:new Uint8ClampedArray(source.data),url:crop.toDataURL('image/png'),sourceUrl:options.url,sourceCell:[sx,sy,sw,sh],sourceRect:[sx+x0,sy+y0,w,h],target:target.slice(),opaque,tint:dominantTint(source.data,perShape),options:perShape};
+    return {canvas:crop,category,shape,w,h,data:new Uint8ClampedArray(source.data),url:crop.toDataURL('image/png'),sourceUrl:options.url,sourceCell:[sx,sy,sw,sh],sourceRect:[sx+x0,sy+y0,w,h],target:target.slice(),opaque,tint:dominantTint(source.data,perShape),options:perShape};
   }
   function colorize(sprite,color,skin){
     const rgbColor=rgb(color),skinColor=rgb(skin),key=sprite.category+'/'+sprite.shape+'/'+rgbColor.join(',')+'/'+(sprite.options.skinColors?skinColor.join(','):'');
@@ -222,7 +222,7 @@
       data[i]=out[0];data[i+1]=out[1];data[i+2]=out[2];
     }
     const c=canvas(sprite.w,sprite.h),ctx=c.getContext('2d');ctx.putImageData(new ImageData(data,sprite.w,sprite.h),0,0);
-    const url=c.toDataURL('image/png');if(tinted.size>300)tinted.clear();tinted.set(key,url);return url;
+    const url=c.toDataURL('image/png');surfaces.set(url,c);if(tinted.size>300){tinted.clear();surfaces.clear();surfaces.set(url,c);}tinted.set(key,url);return url;
   }
   function render(category,shape,color,sex='f',skin='#f7d1b5'){
     const sprite=sprites.get((sex==='m'?'m/':'')+category+'/'+shape)||sprites.get(category+'/'+shape);if(!sprite)return '';
@@ -230,6 +230,10 @@
     const [x,y,w,h]=sprite.target,url=colorize(sprite,color,skin);
     const out=`<g class="qpc-garment qpc-${esc(category)}" data-qpc-category="${esc(category)}" data-qpc-shape="${esc(shape)}" data-qpc-sex="${sex==='m'?'m':'f'}"><svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${sprite.w} ${sprite.h}" preserveAspectRatio="none" overflow="hidden"><image href="${url}" width="${sprite.w}" height="${sprite.h}" style="image-rendering:auto"/></svg></g>`;
     if(markup.size>500)markup.clear();markup.set(key,out);return out;
+  }
+  function surface(category,shape,color,sex='f',skin='#f7d1b5'){
+    const sprite=sprites.get((sex==='m'?'m/':'')+category+'/'+shape)||sprites.get(category+'/'+shape);if(!sprite)return null;
+    const url=colorize(sprite,color,skin);return{canvas:surfaces.get(url)||sprite.canvas,target:sprite.target.slice(),revision:atlas.revision};
   }
   function inspect(category,shape,sex='f'){const s=sprites.get((sex==='m'?'m/':'')+category+'/'+shape)||sprites.get(category+'/'+shape);return s?{width:s.w,height:s.h,opaquePixels:s.opaque,sourceUrl:s.sourceUrl,sourceCell:s.sourceCell.slice(),sourceRect:s.sourceRect.slice(),target:s.target.slice(),tint:{...s.tint}}:null;}
   function load(next){
@@ -266,6 +270,6 @@
       window.dispatchEvent(new CustomEvent(atlas.ready?'qp-clothes-ready':'qp-clothes-error',{detail:{revision:atlas.revision,error:atlas.error}}));return atlas.ready;
     })();return loading;
   }
-  window.QPClothes={render,inspect,atlas,names,targets,fits,maleColors,maleFits,maleTargets,fitFor,targetFor,colorFor,load,configure:load,clearCache:()=>{tinted.clear();markup.clear();},whenReady:()=>loading};
+  window.QPClothes={render,surface,inspect,atlas,names,targets,fits,maleColors,maleFits,maleTargets,fitFor,targetFor,colorFor,load,configure:load,clearCache:()=>{tinted.clear();markup.clear();},whenReady:()=>loading};
   load(window.QP_CLOTHES_ATLAS||undefined);
 })();

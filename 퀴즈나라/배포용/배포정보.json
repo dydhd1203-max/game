@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-03T02:00:33.917Z",
+  "builtAt": "2026-10-03T05:41:54.783Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -11,13 +11,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 321776,
-      "sha256": "38f66c5a2cf626369e675ac505f476f50f03da26d21155e7796d2e354e5d5eb8"
+      "bytes": 321919,
+      "sha256": "1d2dba59b11b24815b72f99bfba7313ec5efecfb079cef2ed27a3ed37f76a33c"
     },
     {
       "path": "avatar-image.js",
-      "bytes": 3383,
-      "sha256": "59865197acf2ddf3b751cd1b252f07fa7b5eec879b8f3e0b48fb4bbbfd5ff323"
+      "bytes": 3997,
+      "sha256": "277e0de2a65f3e2ff8d6d6aafef99c159a4d103c73155765fbf22a79d8779543"
     },
     {
       "path": "assets/avatar-file-data.js",
@@ -26,13 +26,13 @@
     },
     {
       "path": "avatar-pixel.js",
-      "bytes": 106650,
-      "sha256": "69138af64ce523225909213cdf8281a8c7aea0909adcc1177d422e09be44bb13"
+      "bytes": 107540,
+      "sha256": "1008c29049957e0325e0b505196b77887542ef7623926ed12990b7bcbf93d550"
     },
     {
       "path": "avatar-clothes.js",
-      "bytes": 33360,
-      "sha256": "4532017c9eb2224d7b2ab14a0cd9edda89d21ec8f5b43e4474e1339f3eccd346"
+      "bytes": 33797,
+      "sha256": "6d6829fd0594e009df8be54466f690cd8121b843923fbc5af6bce114b5d87b33"
     },
     {
       "path": "avatar-effects.js",
@@ -46,8 +46,8 @@
     },
     {
       "path": "avatar-shoes.js",
-      "bytes": 10637,
-      "sha256": "bdcff0c35c9dbe750922411475317a8dd3efccf35dc7a286824d90f376fb8372"
+      "bytes": 16229,
+      "sha256": "15d510915a30a28f9e3448dc024837d8f2137d3bc0d85a9cc5507208e91dfa2a"
     },
     {
       "path": "qplay.css",
@@ -61,8 +61,8 @@
     },
     {
       "path": "demo.js",
-      "bytes": 13625,
-      "sha256": "de04957c5006e9498738e6c4f4016b14b4a16e2c83f9ca775556ce0a75de9ac4"
+      "bytes": 13665,
+      "sha256": "94300a01698dd551d85ba1af50ef2af04dabcf43d934a0400c700b41b0f71574"
     },
     {
       "path": "candy-controls.css",
@@ -256,23 +256,73 @@
     },
     {
       "path": "avatar-shoes-profile.js",
-      "bytes": 24736,
-      "sha256": "ddeeda666a4c0b1797c8a0f83fa691590ffe5d1041737bb2471a04f87032b842"
+      "bytes": 26450,
+      "sha256": "4806848a341b389cebb0e892a27e22fe5acb0ce435b8ea47950f1755ecfb850c"
     },
     {
       "path": "avatar-direction.js",
-      "bytes": 35571,
-      "sha256": "fbc426098e49217de7e788245c610a36fe96417386706ce12f3c85a6cc3cbb16"
+      "bytes": 35741,
+      "sha256": "2b3562c41fc012954399279f0a9b38ae1eb9340220e62ea286261a8588b4098a"
     },
     {
       "path": "avatar-poses.js",
-      "bytes": 44406,
-      "sha256": "dbfa3359863d674d04228de5f8b4d745918765220a63d1f6443aec39d7414820"
+      "bytes": 47468,
+      "sha256": "eac429c065ffc0c883183ec92cb43f29fe9838c1a16afe20aa660da30a69f046"
+    },
+    {
+      "path": "avatar-cloth-mesh.js",
+      "bytes": 13116,
+      "sha256": "a875aac726045401b8694be204e02b2957086152a16da94aae5f1bb21ee81d36"
+    },
+    {
+      "path": "assets/sd-wardrobe-wave.png",
+      "bytes": 2150443,
+      "sha256": "ca2b70e14566277f0a56e8eabff7d5c41b34b12085dafdd0ce51de34116864ac"
+    },
+    {
+      "path": "assets/avatar-file-data-wardrobe.js",
+      "bytes": 2867515,
+      "sha256": "4509391c5846294bc526310a92c20c6fa21de35c91f0bde935c66a36e8b7a3c3"
+    },
+    {
+      "path": "avatar-foundation-outfit.js",
+      "bytes": 20117,
+      "sha256": "d463eba78e8782139afe5e65cc1ea289b8f1b767a17e54beffce0aed5a6c1eb2"
+    },
+    {
+      "path": "assets/sd-foundation-basic.png",
+      "bytes": 1523789,
+      "sha256": "b227bb3337eba5d0958757643ceb1416c39400130401d9d51ca13036c2dff044"
+    },
+    {
+      "path": "assets/sd-foundation-shirt-profile.png",
+      "bytes": 996967,
+      "sha256": "c6d06ac37511528e0895ed17b28fdc66b16bff8c077101e8c64358e7e37bfb07"
+    },
+    {
+      "path": "assets/sd-foundation-sleeves.png",
+      "bytes": 662699,
+      "sha256": "c3a0464166e3c61d95a18454c1ff868ab26f7f3a26851f1fee78838286a2673c"
+    },
+    {
+      "path": "assets/sd-foundation-torso.png",
+      "bytes": 1200955,
+      "sha256": "76a153bd9c5b83072b8c46a381f407e645504cc62ac98b197955e9d5fabffc20"
+    },
+    {
+      "path": "assets/sd-foundation-sleeves-raised.png",
+      "bytes": 1194837,
+      "sha256": "e52cd6711dc8ad685f247c571369457127e46adcfdb2e98ba4137a293a3c5f2f"
+    },
+    {
+      "path": "assets/avatar-file-data-foundation.js",
+      "bytes": 7439515,
+      "sha256": "a37124bff8e9992dde15404fac9a0ed42817b7d6edca6f3e734803a1b0d1c0bc"
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 20023,
-      "sha256": "b7745909a1854f9eddc5e985d105f435c4b432836a0d01c9dcce065621a9b3fd"
+      "bytes": 24532,
+      "sha256": "ee060e399e7331c61b5c7defd4815e429ac3347b2f20aa9dafcb4f15be178624"
     },
     {
       "path": "avatar-foundation.css",
@@ -281,13 +331,13 @@
     },
     {
       "path": "avatar-standard.html",
-      "bytes": 2658,
-      "sha256": "700d6b564b25e9160b0bd167d9c67e98767773225b6636ad3e8e72e72c40f4a3"
+      "bytes": 2738,
+      "sha256": "37bf5c9b9a48f2172da7bc9f4c335c0c970155412185608528f50c36641b8085"
     },
     {
       "path": "avatar-standard.js",
-      "bytes": 4861,
-      "sha256": "f236c56eaf82e14452a2f626479347b116cf8043e0643eb5ee2a3ebac06e615c"
+      "bytes": 5022,
+      "sha256": "d8f17e0c55d15028d22e694cba91ab438f8a9e275d4f8f541e308c8c9ebc6f4f"
     },
     {
       "path": "avatar-standard.css",

@@ -19,7 +19,9 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
    for(const direction of ['front','left','right','back'])for(const action of ['idle','walk','run','floor-sit','sit','jump','wave'])for(let frame=0;frame<12;frame++){
     api.apply(svg,{direction,action:action==='wave'?'idle':action,gesture:action==='wave'?'wave':'',gestureProgress:frame/11,phase:frame/12,time:frame/30,grounded:action!=='jump',showBones:frame===5});
     check(svg.querySelectorAll('*').length===count,'motion must not duplicate body nodes');
-    check(!/NaN|Infinity/.test(svg.querySelector('[data-foundation-body]').outerHTML),'nonfinite skeleton');
+    // Encoded artwork can contain the letters "NaN"; inspect geometry only.
+    const geometryAttrs=['d','transform','x','y','cx','cy','r','rx','ry','width','height'];
+    check([...svg.querySelector('[data-foundation-body]').querySelectorAll('*')].every(e=>geometryAttrs.every(k=>!/NaN|Infinity/.test(e.getAttribute(k)||''))),'nonfinite skeleton');
     check(svg.querySelectorAll('[data-foundation-part]').length===6,'one owner per body part');
     for(const node of svg.querySelectorAll('[clip-path]')){const id=node.getAttribute('clip-path').match(/url\(#([^)]*)\)/)?.[1];if(id)check(Boolean(svg.querySelector('[id="'+id+'"]')),'head clip must be self-contained');}
     if(action==='floor-sit'){check(svg.dataset.qpxSeatMode==='floor','floor seat mode');const pose=api.inspect(svg);check(pose.floor&&!pose.desk,'floor and desk distinct');}

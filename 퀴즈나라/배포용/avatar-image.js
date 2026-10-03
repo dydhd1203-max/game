@@ -5,6 +5,8 @@
   const base = new URL('.', document.currentScript.src);
   const bundles = {
     original: { url: new URL('assets/avatar-file-data.js', base).href, global: 'QPAvatarFileData', pending: null },
+    wardrobe: { url: new URL('assets/avatar-file-data-wardrobe.js', base).href, global: 'QPAvatarWardrobeFileData', pending: null },
+    foundation: { url: new URL('assets/avatar-file-data-foundation.js', base).href, global: 'QPAvatarFoundationFileData', pending: null },
     male: { url: new URL('assets/avatar-file-data-male.js', base).href, global: 'QPAvatarMaleFileData', pending: null }
   };
   const maleSources = new Set(['assets/sd-clothes-male.png']);
@@ -14,11 +16,11 @@
     'assets/sd-heads-back-female.png', 'assets/sd-heads-back-male.png',
     'assets/sd-tops.png', 'assets/sd-bottoms.png', 'assets/sd-hood.png',
     'assets/pixel-pets-v2.png', 'assets/sd-shoes.png', 'assets/sd-shoes-parts.png', 'assets/angel-effect.png',
-    ...maleSources
+    'assets/sd-wardrobe-wave.png', 'assets/sd-foundation-basic.png', 'assets/sd-foundation-shirt-profile.png', 'assets/sd-foundation-sleeves.png', 'assets/sd-foundation-torso.png', 'assets/sd-foundation-sleeves-raised.png', ...maleSources
   ]);
 
   function fileSources(key) {
-    const bundle = maleSources.has(key) ? bundles.male : bundles.original;
+    const bundle = key === 'assets/sd-wardrobe-wave.png' ? bundles.wardrobe : key.startsWith('assets/sd-foundation-') ? bundles.foundation : maleSources.has(key) ? bundles.male : bundles.original;
     if (window[bundle.global]) return Promise.resolve(window[bundle.global]);
     if (!bundle.pending) bundle.pending = new Promise((resolve, reject) => {
       const script = document.createElement('script');

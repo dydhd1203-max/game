@@ -172,7 +172,7 @@
       const started=performance.now();
       try{
         await new Promise((resolve,reject)=>{const timer=setInterval(()=>{
-          if(window.QPClothes?.atlas.ready&&window.QPShoes?.atlas.ready&&window.QPAvatar?.atlas.ready&&window.QPAvatarDirection?.atlas.ready&&window.QPAvatarDirection.atlas.backReady){clearInterval(timer);resolve();}
+          if(window.QPFoundationOutfit?.atlas.ready&&window.QPClothes?.atlas.ready&&window.QPShoes?.atlas.ready&&window.QPAvatar?.atlas.ready&&window.QPAvatarDirection?.atlas.ready&&window.QPAvatarDirection.atlas.backReady){clearInterval(timer);resolve();}
           else if(performance.now()-started>60000){clearInterval(timer);reject(new Error('기준 몸 원화를 불러오지 못했어요. 새로고침해 주세요.'));}
         },50);});
         game.go(params.get('screen'));

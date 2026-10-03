@@ -198,7 +198,7 @@
       // Long trousers own the entire dressed leg silhouette. Repainting bare
       // skin under their narrower side view leaks angular skin panels when
       // knees fold. Shorts, skirts and an unselected bottom keep bare legs.
-      const redundantLeg=!original.classList.contains('qpx-skin-torso')&&(coveredLegs||r.pose.upper.contains(original)&&clothedHip);
+      const redundantLeg=!original.classList.contains('qpx-skin-torso')&&(r.pose.skinLegs||coveredLegs||r.pose.upper.contains(original)&&clothedHip);
       const painting=original.classList.contains('qpx-neck-surface')||redundantLeg?'':original.classList.contains('qpx-skin-torso')?art.renderProfileTorso(m):art.renderProfileLeg(original.classList.contains('qpx-leg-left')?'left':'right',m.skin);
       add(original,painting);
     }
@@ -236,7 +236,7 @@
       if(cached?.layer.parentNode===foot&&cached.original.parentNode)continue;
       if(cached){cached.layer.remove();cached.backLayer?.remove();r.profileFeet.splice(r.profileFeet.indexOf(cached),1);}
       const original=side==='left'?r.farShoe:foot.firstElementChild;if(!original)continue;
-      const layer=node('g',{'data-qpx-profile-shoe':side,style:'display:none'});layer.innerHTML=window.QPProfileShoes.renderFoot(shape,color,side);foot.append(layer);
+      const layer=node('g',{'data-qpx-profile-shoe':side,style:'display:none'});layer.innerHTML=window.QPProfileShoes.renderFoot(shape,color,side,m.skin);foot.append(layer);
       const item={side,original,layer,visibility:original.getAttribute('visibility')};r.profileFeet.push(item);
       value(original,'visibility',r.profile?'hidden':item.visibility);layer.style.display=r.profile?'':'none';
     }
@@ -246,7 +246,7 @@
     for(const item of r.profileFeet||[]){
       const foot=item.side==='left'?r.pose.leftFoot:r.pose.rightFoot;if(item.backLayer?.parentNode===foot)continue;
       item.backLayer?.remove();const layer=node('g',{'data-qpx-back-shoe':item.side,style:'display:none'});
-      layer.innerHTML=window.QPProfileShoes.renderBackFoot(foot.dataset.qpsShape,foot.dataset.qpsFootColor,item.side);foot.append(layer);item.backLayer=layer;
+      layer.innerHTML=window.QPProfileShoes.renderBackFoot(foot.dataset.qpsShape,foot.dataset.qpsFootColor,item.side,foot.dataset.qpsSkin);foot.append(layer);item.backLayer=layer;
       value(item.original,'visibility',r.profile||r.backView?'hidden':item.visibility);layer.style.display=r.backView?'':'none';
     }
   }
@@ -286,7 +286,7 @@
     value(r.left,'transform',profile?'translate(2.1 0)':null);value(r.right,'transform',profile?'translate(-1.5 0)':null);
     if(r.leftFoot)value(r.leftFoot,'transform',profile?'translate(2.1 0)':null);if(r.rightFoot)value(r.rightFoot,'transform',profile?'translate(-1.5 0)':null);
     if(r.farShoe)value(r.farShoe,'transform',profile&&!window.QPProfileShoes?'translate(27.5 0) scale(-1 1)':null);
-    if(profile)r.pose.body.replaceChildren(...[r.left,r.leftFoot,r.pose.upper,r.right,r.pose.hem,r.rightFoot].filter(Boolean));else r.pose.body.replaceChildren(...r.originalBodyChildren);
+    if(profile)r.pose.body.replaceChildren(...[r.pose.skinLegs?.[0].group,r.left,r.leftFoot,r.pose.upper,r.pose.skinLegs?.[1].group,r.right,r.pose.hem,r.rightFoot].filter(Boolean));else r.pose.body.replaceChildren(...r.originalBodyChildren);
     r.svg.dataset.qpxView=profile?'profile':'front';
   }
   function orientBack(r,backView){
@@ -300,6 +300,7 @@
   }
   function apply(svg,state,pose){
     const r=prepare(svg,pose);if(!r)return false;headParts(r);rearParts(r);
+    svg.dataset.qpxView=r.backView?'back':r.profile?'profile':'front';
     const wantsBack=state.direction==='back'&&!state.gesture;
     if(wantsBack){
       const ready=atlas.backReady&&r.rearPainted;orient(r,false);orientBack(r,ready);r.turned=false;

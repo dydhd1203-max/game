@@ -28,9 +28,57 @@
     let total=0,light=0;for(let i=0;i<d.length;i+=4){if(d[i+3]<80)continue;const [hue,sat,l]=hsl(d[i],d[i+1],d[i+2]);if(blue(d[i],d[i+1],d[i+2],hue,sat)){total++;light+=l;}}
     return {w:cw,h:ch,data:new Uint8ClampedArray(d),light:total?light/total:.55,opaque,sourceRect:[sx+x0,sy+y0,cw,ch]};
   }
-  function colorize(shape,color,side){
-    const key=shape+'/'+color+'/'+(side||'pair');if(tints.has(key))return tints.get(key);const sprite=side?feet.get(shape+'/'+side):sprites.get(shape);if(!sprite)return '';
-    const [hue,sat,light]=hsl(...rgb(color)),data=new Uint8ClampedArray(sprite.data);
+  // Original-sheet coordinates, measured per foot. These are interiors, not
+  // generic rectangles: cream collars, laces, buckles and crossed straps stay.
+  const mouths=[
+    'M193 75Q229 45 251 53Q271 59 261 98Q253 109 238 104Q219 84 193 75Z',
+    'M435 56Q456 43 500 79Q477 83 462 103Q432 116 430 88Q425 67 435 56Z',
+    'M834 94Q878 53 899 58Q938 59 911 122L892 146Q876 111 834 104Z',
+    'M115 304Q144 290 192 340L207 355Q171 348 152 386Q108 356 115 304Z',
+    'M516 315Q558 299 597 313Q589 330 552 329Q530 328 516 315Z',
+    'M802 311Q840 297 880 313Q865 332 829 327Q812 324 802 311Z',
+    'M171 553Q217 522 260 537Q276 550 254 568Q208 590 178 574Z',
+    'M466 554Q486 532 545 559L559 576Q537 598 485 578Q466 571 466 554Z',
+    'M844 545Q885 532 932 544Q928 559 887 560Q857 557 844 545Z',
+    'M114 774Q153 760 198 774Q195 788 155 787Q124 786 114 774Z',
+    'M481 866Q522 818 570 781Q602 761 606 794Q611 832 569 887Q527 915 481 886Z',
+    'M791 782Q813 769 856 814L914 866L909 891Q857 904 820 863Q790 828 791 782Z',
+    'M142 1027Q198 1007 258 1023Q255 1042 199 1045Q156 1045 142 1027Z',
+    'M470 1023Q530 1007 586 1026Q578 1046 524 1043Q482 1042 470 1023Z',
+    'M852 1065Q904 1037 942 1070Q960 1092 937 1110Q923 1083 901 1084Q879 1085 866 1107Q846 1090 852 1065Z',
+    'M106 1311Q129 1286 178 1303L207 1322Q186 1313 173 1323L153 1356Q138 1334 118 1339Q108 1326 106 1311Z',
+    'M515 1326Q538 1288 576 1277Q617 1264 605 1307Q601 1326 584 1349Q552 1333 515 1326Z',
+    'M792 1278Q816 1268 846 1291L883 1324Q861 1338 846 1352Q812 1342 796 1320Q784 1297 792 1278Z'
+  ];
+  function wearPixels(sprite,index){
+    const c=canvas(sprite.w,sprite.h),ctx=c.getContext('2d');ctx.putImageData(new ImageData(sprite.data,sprite.w,sprite.h),0,0);
+    const [sx,sy]=sprite.sourceRect,mask=canvas(sprite.w,sprite.h),mc=mask.getContext('2d');mc.translate(-sx,-sy);mc.fill(new Path2D(mouths[index]));
+    const coverage=mc.getImageData(0,0,sprite.w,sprite.h).data,skinMask=canvas(sprite.w,sprite.h),sm=skinMask.getContext('2d'),alpha=new Uint8ClampedArray(sprite.data.length);
+    // Ballet ribbons cross the opening; preserve their bright paint. Sandal
+    // straps are separate from the exposed footbed, which has its own region.
+    for(let i=0;i<alpha.length;i+=4){const d=sprite.data;let a=coverage[i+3];if(index===10||index===11){if(!(d[i]-d[i+1]>26&&d[i+1]-d[i+2]>20))a=0;}alpha[i]=alpha[i+1]=alpha[i+2]=255;alpha[i+3]=a;}
+    sm.putImageData(new ImageData(alpha,sprite.w,sprite.h),0,0);
+    if(index===6||index===7){
+      const box=index===6?[89,571,271,714]:[452,580,642,714];
+      for(let y=0;y<sprite.h;y++)for(let x=0;x<sprite.w;x++){const i=(y*sprite.w+x)*4,d=sprite.data;if(x+sx<box[0]||x+sx>box[2]||y+sy<box[1]||y+sy>box[3])continue;if(d[i+2]>d[i]*1.3&&d[i+2]>d[i+1]*1.1&&d[i+3]>80){alpha[i]=alpha[i+1]=alpha[i+2]=255;alpha[i+3]=255;}}
+      sm.putImageData(new ImageData(alpha,sprite.w,sprite.h),0,0);
+    }
+    // Keep the foot artwork genuinely open; skin is a separate, owned layer.
+    ctx.globalCompositeOperation='destination-out';ctx.drawImage(skinMask,0,0);
+    sprite.skinMask=skinMask.toDataURL();sprite.openData=new Uint8ClampedArray(ctx.getImageData(0,0,c.width,c.height).data);
+    // The rear collar passes BEHIND the leg. Only the calf's actual channel
+    // is removed from the foreground copy; the full rear image is retained.
+    const cx=sprite.hint.ankle[0],cy=sprite.hint.ankle[1],radius=sprite.w*.13;
+    ctx.beginPath();ctx.moveTo(cx-radius,-10);ctx.lineTo(cx+radius,-10);ctx.lineTo(cx+radius,cy-2);ctx.quadraticCurveTo(cx,cy+sprite.h*.075,cx-radius,cy-2);ctx.closePath();ctx.fill();
+    sprite.data=new Uint8ClampedArray(ctx.getImageData(0,0,c.width,c.height).data);
+    // The rear layer contains ONLY the collar pixels removed from the front.
+    // Duplicating the complete shoe would double its antialiased outer edge.
+    sprite.rearData=new Uint8ClampedArray(sprite.openData);
+    for(let i=3;i<sprite.data.length;i+=4){const front=sprite.data[i],original=sprite.openData[i];sprite.rearData[i]=front===255?0:Math.round((original-front)/(1-front/255));}
+  }
+  function colorize(shape,color,side,rear=false){
+    const key=shape+'/'+color+'/'+(side||'pair')+'/'+rear;if(tints.has(key))return tints.get(key);const sprite=side?feet.get(shape+'/'+side):sprites.get(shape);if(!sprite)return '';
+    const [hue,sat,light]=hsl(...rgb(color)),data=new Uint8ClampedArray(rear&&sprite.rearData||sprite.data);
     for(let i=0;i<data.length;i+=4){if(data[i+3]<25)continue;const [h,s,l]=hsl(data[i],data[i+1],data[i+2]);if(!blue(data[i],data[i+1],data[i+2],h,s))continue;const delta=l-sprite.light,out=fromHsl(hue,clamp(sat*(.78+.25*s),0,1),clamp(light+delta*(light<.25?.52:light>.82?.66:.85),.025,.985));data[i]=out[0];data[i+1]=out[1];data[i+2]=out[2];}
     const c=canvas(sprite.w,sprite.h);c.getContext('2d').putImageData(new ImageData(data,sprite.w,sprite.h),0,0);const url=c.toDataURL('image/png');if(tints.size>150)tints.clear();tints.set(key,url);return url;
   }
@@ -40,27 +88,36 @@
     const floor=46.05,ankleX=side==='left'?13.85:18.15,x=ankleX-mouth[0]/sprite.w*width,y=floor-height*(sprite.h-1)/sprite.h;
     return {target:[x,y,width,height],ankle:[ankleX,y+mouth[1]/sprite.h*height],ground:[x+width*.5,floor],sourceRect:sprite.sourceRect.slice(),width:sprite.w,height:sprite.h,opaquePixels:sprite.opaque};
   }
-  function renderFoot(shape,color,side){
+  function renderFoot(shape,color,side,skin='#ffe2cc'){
     shape=shape==='dress'?'loafer':shape;side=side==='right'?'right':'left';const sprite=feet.get(shape+'/'+side),fit=footPlacement(shape,side);if(!sprite||!fit)return '';
-    const [x,y,w,h]=fit.target;return `<g class="qps-foot" data-qps-foot-side="${side}" data-qps-shape="${shape}" data-qps-foot-color="${color}" data-qps-ankle="${fit.ankle.join(',')}"><svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${sprite.w} ${sprite.h}" preserveAspectRatio="none" overflow="visible"><image href="${colorize(shape,color,side)}" width="${sprite.w}" height="${sprite.h}" style="image-rendering:auto"/></svg></g>`;
+    const [x,y,w,h]=fit.target,id='qps-skin-'+shape+'-'+side+'-'+skin.replace('#',''),tone=f=>'#'+rgb(skin).map(v=>Math.round(clamp(v*f,0,255)).toString(16).padStart(2,'0')).join('');
+    // The anatomical ankle stays fixed at 44.55. The garment mouth may be
+    // higher (boots) and is not used as a different bone for every item.
+    return `<g class="qps-foot" data-qps-foot-side="${side}" data-qps-shape="${shape}" data-qps-foot-color="${color}" data-qps-skin="${skin}" data-qps-ankle="${fit.ankle.join(',')}" data-qps-joint="${side==='left'?13.75:18.25},44.55"><svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${sprite.w} ${sprite.h}" preserveAspectRatio="none" overflow="visible"><defs><mask id="${id}" mask-type="alpha"><image href="${sprite.skinMask}" width="${sprite.w}" height="${sprite.h}"/></mask><linearGradient id="${id}-tone"><stop stop-color="${tone(.80)}"/><stop offset=".45" stop-color="${skin}"/><stop offset=".72" stop-color="${tone(1.07)}"/><stop offset="1" stop-color="${tone(.9)}"/></linearGradient></defs><rect data-qps-instep="true" width="${sprite.w}" height="${sprite.h}" fill="url(#${id}-tone)" mask="url(#${id})"/><image data-qps-front-rim="true" href="${colorize(shape,color,side)}" width="${sprite.w}" height="${sprite.h}" style="image-rendering:auto"/></svg></g>`;
   }
-  function render(shape,color){shape=shape==='dress'?'loafer':shape;if(atlas.partsReady)return `<g class="qps-shoes" data-qps-shape="${shape}">${renderFoot(shape,color,'left')}${renderFoot(shape,color,'right')}</g>`;const sprite=sprites.get(shape);if(!sprite)return '';const [x,y,w,h]=targets[shape];return `<g class="qps-shoes" data-qps-shape="${shape}"><svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${sprite.w} ${sprite.h}" preserveAspectRatio="none" overflow="hidden"><image href="${colorize(shape,color)}" width="${sprite.w}" height="${sprite.h}" style="image-rendering:auto"/></svg></g>`;}
+
+  function renderRearFoot(shape,color,side){
+    const sprite=feet.get(shape+'/'+side),fit=footPlacement(shape,side);if(!sprite||!fit)return '';
+    const [x,y,w,h]=fit.target;
+    return `<svg data-qps-rear-rim="true" x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${sprite.w} ${sprite.h}" preserveAspectRatio="none" overflow="visible"><image href="${colorize(shape,color,side,true)}" width="${sprite.w}" height="${sprite.h}"/></svg>`;
+  }
+  function render(shape,color,skin){shape=shape==='dress'?'loafer':shape;if(atlas.partsReady)return `<g class="qps-shoes" data-qps-shape="${shape}">${renderFoot(shape,color,'left',skin)}${renderFoot(shape,color,'right',skin)}</g>`;const sprite=sprites.get(shape);if(!sprite)return '';const [x,y,w,h]=targets[shape];return `<g class="qps-shoes" data-qps-shape="${shape}"><svg x="${x}" y="${y}" width="${w}" height="${h}" viewBox="0 0 ${sprite.w} ${sprite.h}" preserveAspectRatio="none" overflow="hidden"><image href="${colorize(shape,color)}" width="${sprite.w}" height="${sprite.h}" style="image-rendering:auto"/></svg></g>`;}
   function inspect(shape){shape=shape==='dress'?'loafer':shape;const s=sprites.get(shape);return s?{width:s.w,height:s.h,opaquePixels:s.opaque,sourceRect:s.sourceRect.slice(),target:targets[shape].slice(),feet:atlas.partsReady?{left:footPlacement(shape,'left'),right:footPlacement(shape,'right')}:null}:null;}
   async function loadParts(){
     const img=await window.QPAvatarImage.load(atlas.partsUrl);feet.clear();tints.clear();
-    for(let index=0;index<18;index++){const hint=footHints[index],sprite=extract(img,index,3,6,hint?.rect),side=index%2?'right':'left';if(hint?.ankle)sprite.hint={ankle:[hint.ankle[0]-sprite.sourceRect[0],hint.ankle[1]-sprite.sourceRect[1]],ground:hint.ground?[hint.ground[0]-sprite.sourceRect[0],hint.ground[1]-sprite.sourceRect[1]]:null};feet.set(names[Math.floor(index/2)]+'/'+side,sprite);}
+    for(let index=0;index<18;index++){const hint=footHints[index],sprite=extract(img,index,3,6,hint?.rect),side=index%2?'right':'left';if(hint?.ankle)sprite.hint={ankle:[hint.ankle[0]-sprite.sourceRect[0],hint.ankle[1]-sprite.sourceRect[1]],ground:hint.ground?[hint.ground[0]-sprite.sourceRect[0],hint.ground[1]-sprite.sourceRect[1]]:null};wearPixels(sprite,index);feet.set(names[Math.floor(index/2)]+'/'+side,sprite);}
     atlas.partsReady=true;atlas.partsPixels=[img.naturalWidth,img.naturalHeight];atlas.partsCount=feet.size;window.QPAvatar?.clearCache();
-    document.querySelectorAll('[data-qpx-shoes]').forEach(node=>{if(!node.closest('[data-qps-foot-host]'))node.innerHTML=render(node.dataset.qpxShoes,node.dataset.qpxShoeColor);});
+    document.querySelectorAll('[data-qpx-shoes]').forEach(node=>{if(!node.closest('[data-qps-foot-host]'))node.innerHTML=render(node.dataset.qpxShoes,node.dataset.qpxShoeColor,node.dataset.qpsSkin);});
     document.querySelectorAll('[data-qps-foot-host]').forEach(node=>{
       const d=node.dataset;
       // Directional shoes are sibling paintings. Refresh only the original
       // front painting when its atlas finishes loading, keeping those layers.
       const profile=[...node.children].filter(child=>child.matches('[data-qpx-profile-shoe],[data-qpx-back-shoe],[data-qps-profile-foot],[data-qps-back-foot]'));
-      node.innerHTML=renderFoot(d.qpsShape,d.qpsFootColor,d.qpsFootHost);node.append(...profile);
+      node.innerHTML=renderFoot(d.qpsShape,d.qpsFootColor,d.qpsFootHost,d.qpsSkin);node.append(...profile);
     });
     document.querySelectorAll('.qps-foot[data-qps-foot-side]:not([data-qps-profile-foot]):not([data-qps-back-foot])').forEach(node=>{
       if(node.closest('[data-qpx-profile-shoe],[data-qpx-back-shoe]'))return;
-      const d=node.dataset;node.outerHTML=renderFoot(d.qpsShape,d.qpsFootColor,d.qpsFootSide);
+      const d=node.dataset;node.outerHTML=renderFoot(d.qpsShape,d.qpsFootColor,d.qpsFootSide,d.qpsSkin);
     });
     window.dispatchEvent(new CustomEvent('qp-shoes-ready'));return true;
   }
@@ -70,10 +127,10 @@
       const img=await window.QPAvatarImage.load(atlas.url);
       sprites.clear();tints.clear();names.forEach((shape,index)=>sprites.set(shape,extract(img,index)));
       atlas.width=img.naturalWidth;atlas.height=img.naturalHeight;atlas.count=sprites.size;await loadParts();atlas.ready=true;
-      window.QPAvatar?.clearCache();document.querySelectorAll('[data-qpx-shoes]').forEach(node=>{if(!node.closest('[data-qps-foot-host]'))node.innerHTML=render(node.dataset.qpxShoes,node.dataset.qpxShoeColor);});
+      window.QPAvatar?.clearCache();document.querySelectorAll('[data-qpx-shoes]').forEach(node=>{if(!node.closest('[data-qps-foot-host]'))node.innerHTML=render(node.dataset.qpxShoes,node.dataset.qpxShoeColor,node.dataset.qpsSkin);});
       window.dispatchEvent(new CustomEvent('qp-shoes-ready'));return true;
     }catch(error){failed(error);return false;}})();return loading;
   }
   function failed(error){atlas.error=String(error.message||error);window.dispatchEvent(new CustomEvent('qp-shoes-error'));}
-  window.QPShoes={render,renderFoot,inspect,atlas,names,targets,load,loadParts,setFootHints:value=>{footHints=value||[];},whenReady:()=>loading};load();
+  window.QPShoes={render,renderFoot,renderRearFoot,inspect,atlas,names,targets,load,loadParts,setFootHints:value=>{footHints=value||[];},whenReady:()=>loading};load();
 })();
