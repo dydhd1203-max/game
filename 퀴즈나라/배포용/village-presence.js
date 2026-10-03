@@ -4,7 +4,7 @@
   const VERSION = 1, TTL = 35000, HEARTBEAT = 10000, MOVE_INTERVAL = 150, SEAT_TTL = 35000;
   const AVATAR_KEYS = ['sk', 'ec', 'sex', 'eyes', 'hair', 'top', 'bottom', 'shoes', 'hat', 'glass', 'ear', 'neck', 'back', 'pet', 'bg', 'face', 'frame', 'effect', 'expression'];
   const GESTURES = new Set(['wave', 'hello', 'happy', 'heart', 'clap', 'surprise', 'sad', 'laugh', 'cheer']);
-  const POSES = new Set(['idle', 'walk', 'wave', 'climb', 'jump', 'sit', 'sit-floor', 'land']);
+  const POSES = new Set(['idle', 'walk', 'run', 'wave', 'climb', 'jump', 'sit', 'sit-floor', 'land']);
   const DIRECTIONS = new Set(['front', 'left', 'right', 'back']);
   const SHARED_SPACES = new Set(['campus', 'playground']);
   const ZONE = /^[a-z][a-z0-9_-]{0,47}$/;

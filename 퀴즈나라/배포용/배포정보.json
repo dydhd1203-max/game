@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-02T07:35:58.678Z",
+  "builtAt": "2026-10-03T02:00:33.917Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -11,13 +11,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 311042,
-      "sha256": "b0e3b8369be486321d8f2685ddbb2220a1177e160ddea27e2536f7b78985c038"
+      "bytes": 321776,
+      "sha256": "38f66c5a2cf626369e675ac505f476f50f03da26d21155e7796d2e354e5d5eb8"
     },
     {
       "path": "avatar-image.js",
-      "bytes": 3027,
-      "sha256": "3b722466f34367112e5d37c50876ee9201034004d2e266c907ebbc4c22331929"
+      "bytes": 3383,
+      "sha256": "59865197acf2ddf3b751cd1b252f07fa7b5eec879b8f3e0b48fb4bbbfd5ff323"
     },
     {
       "path": "assets/avatar-file-data.js",
@@ -26,13 +26,13 @@
     },
     {
       "path": "avatar-pixel.js",
-      "bytes": 99346,
-      "sha256": "f5cfb902c20fd288523f852ebd694defb6a774b5f4fd3b9125a327044ba09a6f"
+      "bytes": 106650,
+      "sha256": "69138af64ce523225909213cdf8281a8c7aea0909adcc1177d422e09be44bb13"
     },
     {
       "path": "avatar-clothes.js",
-      "bytes": 14332,
-      "sha256": "eb9adf339bd6ea28d996772e649cfe7964cd3ec26bced8b2f5a92a101217c171"
+      "bytes": 33360,
+      "sha256": "4532017c9eb2224d7b2ab14a0cd9edda89d21ec8f5b43e4474e1339f3eccd346"
     },
     {
       "path": "avatar-effects.js",
@@ -61,8 +61,8 @@
     },
     {
       "path": "demo.js",
-      "bytes": 12870,
-      "sha256": "76c9c027e2ab73244ea351870e8ea16a6f274afe1e2fa805918a023e0d27fa99"
+      "bytes": 13625,
+      "sha256": "de04957c5006e9498738e6c4f4016b14b4a16e2c83f9ca775556ce0a75de9ac4"
     },
     {
       "path": "candy-controls.css",
@@ -96,8 +96,8 @@
     },
     {
       "path": "shop-village.css",
-      "bytes": 15254,
-      "sha256": "af0031d5b4fbd7a1b02c1842431b7238bcc91f5f6d284659eb7e0261ca7eab71"
+      "bytes": 15798,
+      "sha256": "d100b9c7baa3b03aaefe97142fa7a74cbfc610bfb1e3ea5b1c03d654b8c025b9"
     },
     {
       "path": "readability.css",
@@ -110,24 +110,29 @@
       "sha256": "111269d0603e7fc241eb68867344b977d41b0a1709d96eed8fb0f17ebbb248fc"
     },
     {
+      "path": "avatar-run-input.js",
+      "bytes": 1621,
+      "sha256": "3d978e5e6e1243333aaeb8d6fe6c194ac0f07d56390b7afb31ed3db09b19ac46"
+    },
+    {
       "path": "school-room-world.js",
-      "bytes": 36202,
-      "sha256": "a0d240de534c020ac2dd2da30be4117fabae43479fe1627215a80af94e563d4f"
+      "bytes": 37263,
+      "sha256": "ea7a43430f4a164b04607e15265e3da8beaa05dcd31e57b9cfe4a74b910f78f5"
     },
     {
       "path": "school-room-world.css",
-      "bytes": 4710,
-      "sha256": "7b4074433196c6abdb46e9ab2274c58e86eaff1afea9115cf2dd73dcdb4f53c5"
+      "bytes": 4905,
+      "sha256": "e4c971dde907a47ca492d4b44a2e451e1716d86c2d710241a6fbc0723eed41e8"
     },
     {
       "path": "playground-scene.js",
-      "bytes": 14950,
-      "sha256": "71916329828d053d17c9caa6fbe7ff1d68c4b45d31fa5280c4c94830c7b7a302"
+      "bytes": 15548,
+      "sha256": "cb31d747866c659d5307ef8a00fc6fb46c26ebd506c3ca7f278a1c816f8e1c31"
     },
     {
       "path": "village-presence.js",
-      "bytes": 25277,
-      "sha256": "d61b5ac2d8425df638b7d3a38daa4543780896e11fe79788a9a003036a9220b6"
+      "bytes": 25284,
+      "sha256": "7ae9bf1033921cf0138ecf814377e9ac3c99429aa532f5e27b9dc5efc88cd075"
     },
     {
       "path": "assets/classroom-library/originals/classroom-e41eb583796fc7b8.png",
@@ -256,13 +261,38 @@
     },
     {
       "path": "avatar-direction.js",
-      "bytes": 34123,
-      "sha256": "95c5933e47c52fbbe6f752522f5b826a6e2f6954e1de495f71d93320736c6805"
+      "bytes": 35571,
+      "sha256": "fbc426098e49217de7e788245c610a36fe96417386706ce12f3c85a6cc3cbb16"
     },
     {
       "path": "avatar-poses.js",
-      "bytes": 39422,
-      "sha256": "78aed0fdcf54739358c0cd3bc31a323dbbc69c0db00bdc05a0955fcbbef5bce6"
+      "bytes": 44406,
+      "sha256": "dbfa3359863d674d04228de5f8b4d745918765220a63d1f6443aec39d7414820"
+    },
+    {
+      "path": "avatar-foundation.js",
+      "bytes": 20023,
+      "sha256": "b7745909a1854f9eddc5e985d105f435c4b432836a0d01c9dcce065621a9b3fd"
+    },
+    {
+      "path": "avatar-foundation.css",
+      "bytes": 315,
+      "sha256": "4101eaf23cd86621bf5d00278580f32130d6320e3b011772df77f0521cfeb492"
+    },
+    {
+      "path": "avatar-standard.html",
+      "bytes": 2658,
+      "sha256": "700d6b564b25e9160b0bd167d9c67e98767773225b6636ad3e8e72e72c40f4a3"
+    },
+    {
+      "path": "avatar-standard.js",
+      "bytes": 4861,
+      "sha256": "f236c56eaf82e14452a2f626479347b116cf8043e0643eb5ee2a3ebac06e615c"
+    },
+    {
+      "path": "avatar-standard.css",
+      "bytes": 2819,
+      "sha256": "d7702627c7fe08804e31dd0547e0fc2da404fe0f591c9d07fc31e76557bd04db"
     },
     {
       "path": "avatar-motion.js",
@@ -428,6 +458,16 @@
       "path": "assets/sd-hood.png",
       "bytes": 1680573,
       "sha256": "1b831d9cf572d1e5668697f68b71214e0d84e30464914ab5bbb574e60c181b81"
+    },
+    {
+      "path": "assets/sd-clothes-male.png",
+      "bytes": 1732037,
+      "sha256": "8532abf862b870ae497c9a8589d00a43700e7e7730708915bea66b84eaa3ef2c"
+    },
+    {
+      "path": "assets/avatar-file-data-male.js",
+      "bytes": 2309634,
+      "sha256": "e319ff3eb7736d1af6a99b8b37a62d3b35d1cb006f145febde9c496c765ee80e"
     },
     {
       "path": "assets/angel-effect.png",

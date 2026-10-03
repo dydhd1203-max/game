@@ -50,13 +50,15 @@ const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
         world.focus();
       }, offset);
 
-      // A real F key publishes the shared-clock timestamp, rather than the
+      // A real greeting button publishes the shared-clock timestamp, rather than the
       // device wall time. Local animation retains its monotonic pose clock.
       await page.locator('.school-room-world').focus();
       await page.keyboard.press('KeyF');
+      assert.equal(await page.evaluate(() => __schoolClockCheck.published.some(record => record.patch.gesture)), false, 'F away from a door must not publish a greeting');
+      await page.locator('[data-gesture="wave"]').click();
       await page.waitForFunction(() => document.querySelector('.sr-actor.is-me svg')?.dataset.qpxGesture === 'wave', null, { timeout: 3000 });
       const sent = await page.evaluate(() => __schoolClockCheck.published.find(record => record.patch.gesture?.type === 'wave'));
-      assert(sent, 'The F key must publish an actual wave');
+      assert(sent, 'The greeting button must publish an actual wave');
       assert(Math.abs(sent.patch.gesture.at - sent.clientTime - offset) <= 30, 'Published wave must use the server-adjusted clock');
 
       // The same received record is valid with either clock offset. Raw device

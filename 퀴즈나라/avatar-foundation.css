@@ -1,0 +1,3 @@
+/* The reference body owns its motion clock; preserve only facial blinking. */
+.qp-foundation-avatar .qpx-head,.qp-foundation-avatar .qpx-back-hair{animation:none!important;transform:none!important}
+.qp-foundation-avatar [data-foundation-part],.qp-foundation-avatar [data-foundation-head]{animation:none!important}

@@ -2,6 +2,8 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm'),asse
 const html=fs.readFileSync(path.resolve(__dirname,'../index.html'),'utf8');
 function between(start,end){const a=html.indexOf(start),b=html.indexOf(end,a);assert(a>=0&&b>a,'Account function markers must exist');return html.slice(a,b);}
 const accountSource=between('const saveQueues = new Map();','/* ═══════════════════════════════════════════════════════════════════\n   5) 화면');
+const catalogueSource=between('const AVATAR_HAIR = {','\nconst ITEMS = {}');
+const outfitSource=between('const OUTFIT_PARTS = {','const CATS = [');
 const liveRewardSource=between('  function deliverRewards(room){','  async function openRoom(');
 const buyStart='const result=await uref(buyerKey).transaction(user=>{';
 const buyBody=between(buyStart,'},undefined,false);').slice(buyStart.length);
@@ -25,8 +27,9 @@ function runtime(initialGold=300,dayGold=0){
     setTimeout(fn){const id=++nextTimer;timers.set(id,fn);return id;},clearTimeout(id){timers.delete(id);},
     players:r=>Object.keys(r.p||{}).map(k=>({k,...r.p[k]})),paying:new Set(),
     tx:async fn=>{const next=fn(copy(room));if(next)Object.assign(room,next);return{committed:!!next,snapshot:snapshot(room)};},
+    PAL:{skin:[['#ffe2cc'],['#ffd0ac'],['#efb68d'],['#c78a5e'],['#a4693f']]},STARTER:[],ITEMS:{},CAT:{},CATS:[],clamp:(n,min,max)=>Math.max(min,Math.min(max,n)),
     newAvatar:()=>({hair:'short:0'}),it:{id:'expression:happy:0',price:220,cat:'expression',shape:'happy',ci:0}};
-  vm.createContext(ctx);vm.runInContext(accountSource+'\n'+liveRewardSource+'\nconst purchaseCallback=user=>{'+buyBody+'};',ctx);
+  vm.createContext(ctx);vm.runInContext(outfitSource+'\n'+catalogueSource+'\n'+accountSource+'\n'+liveRewardSource+'\nconst purchaseCallback=user=>{'+buyBody+'};',ctx);
   const evaluate=source=>vm.runInContext(source,ctx);
   async function microtasks(){for(let i=0;i<20;i++)await Promise.resolve();}
   async function drain(){for(let i=0;i<100;i++){await microtasks();if(!jobs.length)return;jobs.shift()();}throw new Error('Unexpected non-draining operation queue');}
@@ -85,6 +88,69 @@ const passed=[];
     assert.equal(r.users.alice.owned['expression:happy:0'],1);assert.equal(r.users.alice.av.expression,'happy:0');
     const duplicate=r.evaluate('uref("alice").transaction(purchaseCallback)');await r.drain();await duplicate;assert.equal(r.users.alice.gold,115);
     passed.push('Actual purchase callback, live payout and practice overlap without lost money; repeated purchase is charged once');
+  }
+  {
+    const r=runtime(300);r.users.alice.owned={'top:dress:0':1,'top:shirt:11':1};
+    r.ctx.it={id:'outfit:dress:7',price:260,cat:'outfit',shape:'dress',ci:7};
+    const converted=r.evaluate('uref("alice").transaction(purchaseCallback)');await r.drain();await converted;
+    assert.equal(r.users.alice.gold,300);assert.equal(r.users.alice.av.outfit,'dress:7');assert.equal(r.users.alice.av.bottom,'');
+    assert.deepEqual(r.users.alice.owned,{'top:dress:0':1,'top:shirt:11':1});
+    r.ctx.it={id:'top:shirt:10',price:120,cat:'top',shape:'shirt',ci:10};
+    const separate=r.evaluate('uref("alice").transaction(purchaseCallback)');await r.drain();await separate;
+    assert.equal(r.users.alice.gold,300);assert.equal(r.users.alice.av.outfit,'');assert.equal(r.users.alice.av.top,'shirt:10');assert.equal(r.users.alice.av.bottom,'shorts:5');
+    assert.deepEqual(r.users.alice.owned,{'top:dress:0':1,'top:shirt:11':1});
+    passed.push('Actual purchase callback recognizes old-colour ownership and old top-only one-piece ownership without charging or rewriting owned IDs; separate wear removes the full suit');
+  }
+  {
+    const r=runtime(50);r.users.alice.owned={'bottom:hanbok:9':1};
+    r.ctx.it={id:'outfit:hanbok:7',price:660,cat:'outfit',shape:'hanbok',ci:7};
+    const converted=r.evaluate('uref("alice").transaction(purchaseCallback)');await r.drain();assert.equal((await converted).committed,true);
+    assert.equal(r.users.alice.gold,50);assert.equal(r.users.alice.av.outfit,'hanbok:7');assert.equal(r.users.alice.av.top,'hanbok:7');assert.equal(r.users.alice.av.bottom,'hanbok:0');
+    assert.deepEqual(r.users.alice.owned,{'bottom:hanbok:9':1});
+    passed.push('A legacy hanbok-skirt-only owner receives the new complete hanbok without repurchasing, losing balance or rewriting ownership');
+  }
+  {
+    const r=runtime(500),practice=r.evaluate('recordPracticeAnswer(true,"skin_overlap","alice")');
+    const skin=r.evaluate('uref("alice").transaction(user=>skinPurchaseUser(user,2))');
+    const clothing=r.evaluate('uref("alice").transaction(purchaseCallback)');r.ctx.deliverRewards(r.room);
+    await r.drain();await Promise.all([practice,skin,clothing]);
+    assert.equal(r.users.alice.gold,215);assert.equal(r.users.alice.av.sk,2);assert.equal(r.users.alice.av.expression,'happy:0');
+    assert.equal(r.users.alice.skinOwned[0],1);assert.equal(r.users.alice.skinOwned[2],1);assert.equal(r.users.alice.skinSetup,true);
+    const repeat=r.evaluate('uref("alice").transaction(user=>skinPurchaseUser(user,2))');await r.drain();await repeat;
+    assert.equal(r.users.alice.gold,215);
+    passed.push('Actual skin purchase, clothing purchase, practice and live award share one atomic user record; an owned skin never charges again');
+  }
+  {
+    const r=runtime(500);r.users.alice.av={sex:'m',sk:0,hair:'short:1',top:'tee:5',bottom:'jeans:5'};
+    r.users.alice.skinSetup=true;r.users.alice.skinOwned={'0':1};r.ctx.ME={k:'alice',...copy(r.users.alice)};
+    const skin=r.evaluate('acquireSkin("alice",4)');await r.microtasks();assert.equal(r.jobs.length,1);
+    assert.equal(r.evaluate('canChangeAvatar()'),false);
+    r.evaluate('if(canChangeAvatar())save({av:{...ME.av,top:"shirt:10"}});');
+    r.fireTimers();await r.drain();assert.equal(await skin,true);
+    assert.equal(r.users.alice.gold,400);assert.equal(r.users.alice.av.sk,4);assert.equal(r.users.alice.av.top,'tee:5');
+    assert.deepEqual(r.users.alice.skinOwned,{'0':1,'4':1});assert.equal(r.evaluate('canChangeAvatar()'),true);
+    r.evaluate('if(canChangeAvatar())save({av:{...ME.av,top:"shirt:10"}});');r.fireTimers();await r.drain();
+    assert.equal(r.users.alice.av.sk,4);assert.equal(r.users.alice.av.top,'shirt:10');assert.equal(r.users.alice.gold,400);
+    passed.push('Delayed skin purchase blocks a stale whole-avatar free wear save; purchase keeps the new tone and ordinary wearing unlocks afterward without losing the skin');
+  }
+  {
+    const r=runtime(99),skin=r.evaluate('acquireSkin("alice",3)');await r.microtasks();assert.equal(r.evaluate('canChangeAvatar()'),false);
+    await r.drain();assert.equal(await skin,false);assert.equal(r.evaluate('canChangeAvatar()'),true);assert.equal(r.users.alice.gold,99);
+    passed.push('An unsuccessful skin transaction releases the account appearance lock without spending gold');
+  }
+  {
+    const r=runtime(99),low=r.evaluate('uref("alice").transaction(user=>skinPurchaseUser(user,3))');await r.drain();
+    assert.equal((await low).committed,false);assert.equal(r.users.alice.gold,99);assert.equal(r.users.alice.av.sk,undefined);
+    const invalid=r.evaluate('uref("alice").transaction(user=>skinPurchaseUser(user,99))');await r.drain();assert.equal((await invalid).committed,false);
+    passed.push('Skin purchase rejects insufficient funds and invalid tones without changing money or appearance');
+  }
+  {
+    const r=runtime(0);r.users.alice.skinSetup=false;
+    const initial=r.evaluate('uref("alice").transaction(user=>skinPurchaseUser(user,4))');await r.drain();await initial;
+    assert.equal(r.users.alice.gold,0);assert.equal(r.users.alice.av.sk,4);assert.deepEqual(r.users.alice.skinOwned,{'4':1});
+    const again=r.evaluate('uref("alice").transaction(user=>skinPurchaseUser(user,2))');await r.drain();assert.equal((await again).committed,false);
+    assert.equal(r.users.alice.gold,0);assert.equal(r.users.alice.av.sk,4);
+    passed.push('An interrupted first setup grants exactly one free chosen tone and locks out a second free choice');
   }
   console.log(JSON.stringify({passed,errors:[]},null,2));
 })().catch(error=>{console.error(error);process.exitCode=1;});

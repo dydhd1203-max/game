@@ -140,8 +140,7 @@ body .qp-village-shop .shop-fitting-controls .btn.p { background: linear-gradien
 body .qp-village-shop .shop-fitting-controls .btn::before,
 body .qp-village-shop .shop-fitting-controls .btn::after { display: none; }
 
-/* Fifteen equal cells make the category bar three tidy rows at every laptop
-   width. They never hide categories or leave a single button on its own row. */
+/* Sixteen categories stay in four equal rows, including the whole-outfit shelf. */
 body .qp-village-shop .qp-shop-switch {
   position: relative;
   padding: 12px 14px;
@@ -165,7 +164,7 @@ body .qp-village-shop .qp-shop-switch .tab.tab {
 body .qp-village-shop .qp-shop-switch .tab.on { color: #365839; background: linear-gradient(#e3edc7, #b9d294); border-color: #8aa265; }
 body .qp-village-shop #shTabs {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 7px;
   padding: 12px 14px;
   background: linear-gradient(#fbf6e7, #eee7cf);
@@ -202,10 +201,15 @@ body .qp-village-shop .shop-colour-strip {
   border-bottom: 1px solid var(--shop-line) !important;
   z-index: 2;
 }
-body .qp-village-shop #shPal { gap: 8px; }
-body .qp-village-shop #shPal button { width: 28px !important; height: 28px !important; border: 2px solid #d8c9a9 !important; box-shadow: 0 2px 0 #b9a57d; }
-body .qp-village-shop #shPal button[aria-pressed="true"] { outline: 2px solid #536f40; outline-offset: 2px; }
-body .qp-village-shop #shPal .hint { font-size: 14px; }
+body .qp-village-shop .shop-catalog-note { padding: 9px 14px; border-bottom: 1px solid var(--shop-line); background: #fffaf0; }
+.skin-options { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.skin-option { display: grid; place-items: center; gap: 7px; padding: 10px 4px; border: 2px solid #d4c39b; border-radius: 10px; background: #fffaf0; color: #4c5e39; font: 800 14px/1.4 "NanumSquareRound", "Malgun Gothic", sans-serif; }
+.skin-option[aria-pressed="true"] { border-color: #6d884b; background: #eaf1d8; outline: 2px solid #6d884b; outline-offset: 2px; }
+.skin-swatch { width: 32px; height: 32px; border: 2px solid #a88e68; border-radius: 50%; }
+.skin-option small { font-size: 14px; }
+#lgSkin { display: flex; gap: 7px; justify-content: center; padding: 5px 0 10px; }
+#lgSkin button { width: 30px; height: 30px; border: 2px solid #aa956f; border-radius: 50%; }
+#lgSkin button[aria-pressed="true"] { outline: 3px solid #6d884b; outline-offset: 2px; }
 
 /* Independent garment artwork rests on small wood shelves. The cards use
    a quiet fabric backing rather than an ornamental frame around every item. */

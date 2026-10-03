@@ -3,34 +3,39 @@
 (function () {
   'use strict';
   const base = new URL('.', document.currentScript.src);
-  const bundleURL = new URL('assets/avatar-file-data.js', base).href;
-  let bundle;
+  const bundles = {
+    original: { url: new URL('assets/avatar-file-data.js', base).href, global: 'QPAvatarFileData', pending: null },
+    male: { url: new URL('assets/avatar-file-data-male.js', base).href, global: 'QPAvatarMaleFileData', pending: null }
+  };
+  const maleSources = new Set(['assets/sd-clothes-male.png']);
   const originals = new Set([
     'assets/sd-heads-female.png', 'assets/sd-heads-male.png',
     'assets/sd-heads-profile-female.png', 'assets/sd-heads-profile-male.png',
     'assets/sd-heads-back-female.png', 'assets/sd-heads-back-male.png',
     'assets/sd-tops.png', 'assets/sd-bottoms.png', 'assets/sd-hood.png',
-    'assets/pixel-pets-v2.png', 'assets/sd-shoes.png', 'assets/sd-shoes-parts.png', 'assets/angel-effect.png'
+    'assets/pixel-pets-v2.png', 'assets/sd-shoes.png', 'assets/sd-shoes-parts.png', 'assets/angel-effect.png',
+    ...maleSources
   ]);
 
-  function fileSources() {
-    if (window.QPAvatarFileData) return Promise.resolve(window.QPAvatarFileData);
-    if (!bundle) bundle = new Promise((resolve, reject) => {
+  function fileSources(key) {
+    const bundle = maleSources.has(key) ? bundles.male : bundles.original;
+    if (window[bundle.global]) return Promise.resolve(window[bundle.global]);
+    if (!bundle.pending) bundle.pending = new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = bundleURL;
+      script.src = bundle.url;
       script.onload = () => {
         script.remove();
-        if (window.QPAvatarFileData) resolve(window.QPAvatarFileData);
-        else reject(new Error('아바타 원화 파일을 확인해 주세요: assets/avatar-file-data.js'));
+        if (window[bundle.global]) resolve(window[bundle.global]);
+        else reject(new Error('아바타 원화 파일을 확인해 주세요: ' + bundle.url));
       };
       script.onerror = () => {
         script.remove();
-        bundle = null;
+        bundle.pending = null;
         reject(new Error('퀴즈나라 폴더 전체를 압축 해제해 주세요. 아바타 원화 파일이 없어요.'));
       };
       document.head.appendChild(script);
     });
-    return bundle;
+    return bundle.pending;
   }
 
   function image(source, label) {
@@ -48,7 +53,7 @@
     const original = originals.has(key) && absolute.origin === expected.origin && absolute.pathname === expected.pathname;
     // Only substitute bundled originals; custom atlases retain their source.
     if (location.protocol === 'file:' && original) {
-      const data = await fileSources();
+      const data = await fileSources(key);
       return image(data[key], url);
     }
     const img = await image(url, url);
@@ -62,7 +67,7 @@
         ctx.getImageData(0, 0, 1, 1);
       } catch (error) {
         if (error.name !== 'SecurityError') throw error;
-        const data = await fileSources();
+        const data = await fileSources(key);
         return image(data[key], url);
       }
     }

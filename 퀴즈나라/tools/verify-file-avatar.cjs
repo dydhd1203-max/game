@@ -2,7 +2,7 @@
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const {pathToFileURL}=require('node:url');
-const root=path.resolve(__dirname,'..'),out=path.join(root,'검증');
+const root=path.resolve(__dirname,'..'),out=path.resolve(process.env.QUIZ_VERIFICATION_OUTPUT||path.join(root,'검증'));
 const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/';
 const modules=['avatar-image.js','avatar-clothes.js','avatar-effects.js','avatar-pets.js','avatar-shoes.js','avatar-pixel.js','avatar-poses.js','avatar-direction.js'];
 
@@ -15,6 +15,11 @@ async function ready(frame){
   }));
   for(const [name,value] of Object.entries(state))assert(value.ready&&!value.error,name+': '+JSON.stringify(value));
   assert.equal(await frame.evaluate(()=>QPShoes.atlas.partsCount),18,'All eighteen independent feet must load in hosted and opaque-origin modes');
+  const male=await frame.evaluate(()=>({ready:QPClothes.atlas.male?.ready,count:QPClothes.atlas.male?.count,shirt:QPClothes.inspect('top','shirt','m'),female:QPClothes.inspect('top','shirt','f')}));
+  assert(male.ready&&male.count===10,'The separate male wardrobe must load all ten native cells');
+  assert.equal(male.shirt.sourceUrl,'assets/sd-clothes-male.png');
+  assert.equal(male.female.sourceUrl,'assets/sd-tops.png');
+  state.maleWardrobe=male;
   return state;
 }
 async function rasterReport(frame,selector){
@@ -73,6 +78,7 @@ async function renderCards(frame,avatars){
     await page.waitForSelector('#meStage');
     assert.equal(await page.locator('#meStage .qp-pixel-avatar').evaluate(e=>getComputedStyle(e).visibility),'visible');
     assert.equal(await page.evaluate(()=>!!window.QPAvatarFileData),false,'Hosted page should keep original normal PNG loading');
+    assert.equal(await page.evaluate(()=>!!window.QPAvatarMaleFileData),false,'Hosted male wardrobe should keep normal PNG loading');
     await page.evaluate(()=>QPGame.go('shop'));await page.waitForSelector('#pvStage');
     const previews=[];
     for(const cat of ['hair','top','bottom','shoes','pet']){
@@ -100,7 +106,9 @@ async function renderCards(frame,avatars){
     const referenceAtlases=await ready(reference),opaqueAtlases=await ready(opaque);
     assert.equal(await opaque.evaluate(()=>window.origin),'null','Iframe must retain real opaque origin security');
     assert.equal(await opaque.evaluate(()=>!!window.QPAvatarFileData),true,'Opaque origin must use original byte bundle');
+    assert.equal(await opaque.evaluate(()=>!!window.QPAvatarMaleFileData),true,'Opaque male art must use its separate byte bundle');
     assert.equal(await reference.evaluate(()=>!!window.QPAvatarFileData),false,'Normal origin must avoid additional bundle');
+    assert.equal(await reference.evaluate(()=>!!window.QPAvatarMaleFileData),false,'Normal male art must avoid the extra bundle');
     const referenceRaster=await renderCards(reference,globals.avatars),opaqueRaster=await renderCards(opaque,globals.avatars);
     assert.deepEqual(opaqueRaster,referenceRaster,'Safe fallback must preserve exact native sprite pixels and transparent boundaries');
     assert.deepEqual(opaqueRaster.back,referenceRaster.back,'Opaque-origin fallback must preserve exact native painted back PNG pixels');

@@ -55,11 +55,18 @@ async function focus(page){await page.bringToFront();await page.locator('.school
  assert.equal(await a.locator('.sr-actor').count(),2);
  assert.equal(await a.evaluate(()=>QPGame.getPlayground()),null);
  assert.equal(await a.evaluate(()=>QPSchoolRoomScene.seats.length),30);
- await focus(a);await a.keyboard.press('KeyF');
- await a.waitForFunction(()=>!document.querySelector('.sr-actor.is-me .sr-bubble').hidden);
+ await focus(a);const awayBefore=await state(a);await a.keyboard.press('KeyF');await sleep(180);
+ assert.equal(await a.evaluate(()=>document.querySelector('.sr-actor.is-me .sr-bubble').hidden),true);
+ assert.equal(await a.evaluate(()=>document.querySelector('.sr-actor.is-me svg').dataset.qpxGesture||''),'');
  assert.equal((await state(a)).zone,'campus');
- await shot(a,'01-교실-문밖-손흔들기');
- pass('Default login remains the 30-seat classroom; F away from a door waves.');
+ assert(Math.hypot((await state(a)).x-awayBefore.x,(await state(a)).y-awayBefore.y)<.1);
+ assert.equal(await a.locator('[data-gesture="wave"] small').count(),0,'Greeting button must not advertise F');
+ assert(!(await a.locator('.school-room-world').getAttribute('aria-label')).includes('F로 손'));
+ await shot(a,'01-교실-문밖-F-아무행동없음');
+ await a.locator('[data-gesture="wave"]').click();
+ await a.waitForFunction(()=>document.querySelector('.sr-actor.is-me svg')?.dataset.qpxGesture==='wave');
+ await a.waitForFunction(()=>!document.querySelector('.sr-actor.is-me svg')?.dataset.qpxGesture);
+ pass('Default login remains the 30-seat classroom; F away from doors does nothing, while the greeting button still waves.');
  phase='classroom door approach';
  const schoolDoor=await a.evaluate(()=>QPSchoolRoomScene.interactables.find(i=>i.target==='playground'));
  assert(schoolDoor);await walk(a,schoolDoor.approach);
@@ -115,6 +122,10 @@ async function focus(page){await page.bringToFront();await page.locator('.school
  // frame deltas, rather than confuse dropped frames with a 150px/s controller.
  await a.evaluate(()=>{window.__speedFrames=[];window.__speedProbe=true;function collect(time){if(!window.__speedProbe)return;window.__speedFrames.push({time,x:QPGame.getPlayground().getState().x});requestAnimationFrame(collect);}requestAnimationFrame(collect);});
  await a.keyboard.down('ArrowRight');
+ await a.waitForFunction(()=>window.__speedFrames.filter((f,i,a)=>i&&f.x>a[i-1].x+.01).length>=4);
+ const whileMoving=await state(a);await a.keyboard.press('KeyF');
+ assert.equal(await a.evaluate(()=>document.querySelector('.sr-actor.is-me svg')?.dataset.qpxGesture||''),'','F in the field must not wave or interrupt movement');
+ await a.waitForFunction(x=>QPGame.getPlayground().getState().moving&&QPGame.getPlayground().getState().x>x+25,whileMoving.x);
  await a.waitForFunction(()=>window.__speedFrames.filter((f,i,a)=>i&&f.x>a[i-1].x+.01).length>=20);
  await a.keyboard.up('ArrowRight');
  const speedFrames=await a.evaluate(()=>{window.__speedProbe=false;return window.__speedFrames;});
@@ -126,7 +137,11 @@ async function focus(page){await page.bringToFront();await page.locator('.school
  assert(await a.evaluate(p=>QPGame.getPlayground().canStand(p.x,p.y),after));
  await shot(a,'07-운동장-축구장-실제보행');
  pass('The completed original-source map uses the same basic C pose on background benches and open ground, and faster keyboard movement without crossing collision bounds.',{measuredSpeed,simulatedSeconds,movementDistance:distance,advancingFrames:movingFrames.length});
- phase='return';await walk(a,outdoorDoor.approach,55);await focus(a);await a.keyboard.press('KeyF');await room(a,'campus');
+ phase='return';await walk(a,outdoorDoor.approach);await focus(a);
+ await a.keyboard.down('ArrowUp');await a.waitForFunction(()=>QPGame.getPlayground().getState().y<596);await a.keyboard.up('ArrowUp');
+ const threshold=await state(a);assert(await a.evaluate(s=>QPGame.getPlayground().canStand(s.x,s.y),threshold));
+ assert.equal(threshold.nearest?.id,'school-main-door','Walking right up to the visible school threshold must retain its portal');
+ await shot(a,'08-운동장-정문-문턱-F');await a.keyboard.press('KeyF');await room(a,'campus');
  const insideArrival=schoolDoor.arrival||schoolDoor.approach;
  assert(Math.hypot((await state(a)).x-insideArrival.x,(await state(a)).y-insideArrival.y)<1);
  assert.equal(await a.evaluate(()=>QPGame.getPlayground()),null);assert.equal(await a.evaluate(()=>QPGame.getPlaygroundPresence()),null);
@@ -134,6 +149,23 @@ async function focus(page){await page.bringToFront();await page.locator('.school
  assert.deepEqual(await a.evaluate(()=>JSON.parse(JSON.stringify(QPGame.getMe()))),identity);
  assert.equal((await state(a)).seatId,null);
  await shot(a,'08-교실-왕복도착');
+ phase='visible east entrance';await sleep(750);await focus(a);await a.keyboard.press('KeyF');await room(a,'playground');
+ const eastDoor=scene.interactables.find(i=>i.id==='school-east-door');assert(eastDoor,'The visible orange-canopy school entrance needs a portal too');
+ assert(await a.evaluate(p=>QPGame.getPlayground().canStand(p.x,p.y),eastDoor.approach));
+ // Start outside this doorway's interaction range so clicking its actual
+ // source pixels must navigate, rather than merely announce the nearby F key.
+ await walk(a,{x:2240,y:540});
+ const doorClick=await a.evaluate(r=>{const w=document.querySelector('.sr-world').getBoundingClientRect(),scale=new DOMMatrix(getComputedStyle(document.querySelector('.sr-world')).transform).a;return {x:w.left+(r.x+r.width/2)*scale,y:w.top+(r.y+r.height*.8)*scale};},eastDoor.hitRect);
+ await a.mouse.click(doorClick.x,doorClick.y);
+ await a.waitForFunction(p=>{const s=QPGame.getPlayground().getState();return !s.moving&&Math.hypot(s.x-p.x,s.y-p.y)<1;},eastDoor.approach);
+ assert.equal((await state(a)).nearest?.id,eastDoor.id,'Clicking the source doorway must walk to its legal front pavement');
+ await focus(a);await a.keyboard.down('ArrowUp');await a.waitForFunction(()=>QPGame.getPlayground().getState().y<396);await a.keyboard.up('ArrowUp');
+ assert.equal((await state(a)).nearest?.id,eastDoor.id,'The visible east threshold must keep its F action');
+ assert.equal(await a.locator('[data-sr-door-hint]').count(),2);
+ await shot(a,'10-운동장-동쪽학교문-F');await a.keyboard.press('KeyF');await room(a,'campus');
+ assert(Math.hypot((await state(a)).x-insideArrival.x,(await state(a)).y-insideArrival.y)<1);
+ assert.deepEqual(await a.evaluate(()=>JSON.parse(JSON.stringify(QPGame.getMe()))),identity);
+ pass('Both visible school doorways return with F from their legal thresholds; the east source door click approaches its own entrance and the account stays unchanged.');
  await a.reload();await ready(a);assert.equal((await state(a)).zone,'campus');
  assert.equal(await a.evaluate(()=>QPGame.getMe().k),aid);
  pass('F returns to the classroom door with an idle pose; reload keeps the default classroom and account.');

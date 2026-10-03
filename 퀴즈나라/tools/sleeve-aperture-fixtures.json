@@ -1,0 +1,895 @@
+{
+  "provenance": {
+    "method": "Direct original-resolution visual inspection of every runtime tight-cropped native garment PNG; opening endpoint measurement independent of current runtime fits. Ellipse faces have a projected major-axis chord, not a straight silhouette segment.",
+    "precision": "Visually located painted soft edges; endpoint precision roughly +/-2 tight pixels (female hood +/-6). Six decimal normalized numbers express conversion only, not additional measurement accuracy.",
+    "measuredAt": "2026-10-03T00:13:41.414Z",
+    "oracle": "Frozen source-pixel endpoints from a separate original-art measurement. Runtime fit/opening metadata is not used as a correctness oracle.",
+    "sourceHashes": {
+      "assets/sd-clothes-male.png": "8532abf862b870ae497c9a8589d00a43700e7e7730708915bea66b84eaa3ef2c",
+      "assets/sd-tops.png": "5af7a340ce1a0b6f4faaf444ed1254da15b0f638a31169c635f5fa925617e40e",
+      "assets/sd-hood.png": "1b831d9cf572d1e5668697f68b71214e0d84e30464914ab5bbb574e60c181b81"
+    }
+  },
+  "rows": [
+    {
+      "id": "m/tee",
+      "source": "assets/sd-clothes-male.png",
+      "sourceRect": [
+        29,
+        109,
+        357,
+        264
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              40,
+              221
+            ],
+            [
+              85,
+              269
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              332,
+              269
+            ],
+            [
+              376,
+              221
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m/hood",
+      "source": "assets/sd-clothes-male.png",
+      "sourceRect": [
+        408,
+        71,
+        391,
+        315
+      ],
+      "target": [
+        8.5,
+        27.2,
+        15,
+        10.2
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              421,
+              298
+            ],
+            [
+              462,
+              333
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              748,
+              334
+            ],
+            [
+              788,
+              301
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m/shirt",
+      "source": "assets/sd-clothes-male.png",
+      "sourceRect": [
+        817,
+        109,
+        353,
+        266
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              827,
+              218
+            ],
+            [
+              869,
+              276
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              1108,
+              276
+            ],
+            [
+              1160,
+              221
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m/vest",
+      "source": "assets/sd-clothes-male.png",
+      "sourceRect": [
+        1204,
+        102,
+        358,
+        281
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              1216,
+              214
+            ],
+            [
+              1260,
+              268
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              1508,
+              268
+            ],
+            [
+              1552,
+              212
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m/cardi",
+      "source": "assets/sd-clothes-male.png",
+      "sourceRect": [
+        1581,
+        109,
+        391,
+        270
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              1591,
+              296
+            ],
+            [
+              1637,
+              324
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              1906,
+              324
+            ],
+            [
+              1956,
+              296
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m/jacket",
+      "source": "assets/sd-clothes-male.png",
+      "sourceRect": [
+        21,
+        429,
+        397,
+        281
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              31,
+              606
+            ],
+            [
+              68,
+              641
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              363,
+              642
+            ],
+            [
+              405,
+              606
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m/knit",
+      "source": "assets/sd-clothes-male.png",
+      "sourceRect": [
+        420,
+        436,
+        387,
+        269
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9.1
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              431,
+              636
+            ],
+            [
+              471,
+              662
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              751,
+              663
+            ],
+            [
+              793,
+              637
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m/hanbok",
+      "source": "assets/sd-clothes-male.png",
+      "sourceRect": [
+        816,
+        443,
+        384,
+        268
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              825,
+              607
+            ],
+            [
+              869,
+              659
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              1147,
+              660
+            ],
+            [
+              1193,
+              607
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "m/overall",
+      "source": "assets/sd-clothes-male.png",
+      "sourceRect": [
+        1209,
+        416,
+        348,
+        320
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        11.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              1215,
+              503
+            ],
+            [
+              1255,
+              548
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              1508,
+              548
+            ],
+            [
+              1553,
+              500
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f/tee",
+      "source": "assets/sd-tops.png",
+      "sourceRect": [
+        42,
+        105,
+        244,
+        186
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              43,
+              194
+            ],
+            [
+              74,
+              225
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              245,
+              227
+            ],
+            [
+              283,
+              194
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f/hood",
+      "source": "assets/sd-hood.png",
+      "sourceRect": [
+        163,
+        114,
+        1210,
+        803
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              188,
+              649
+            ],
+            [
+              312,
+              741
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              1226,
+              741
+            ],
+            [
+              1350,
+              649
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f/shirt",
+      "source": "assets/sd-tops.png",
+      "sourceRect": [
+        665,
+        112,
+        231,
+        181
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              666,
+              240
+            ],
+            [
+              697,
+              258
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              867,
+              258
+            ],
+            [
+              895,
+              237
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f/dress",
+      "source": "assets/sd-tops.png",
+      "sourceRect": [
+        968,
+        97,
+        254,
+        216
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        11.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              984,
+              183
+            ],
+            [
+              1012,
+              196
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              1179,
+              198
+            ],
+            [
+              1205,
+              179
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f/vest",
+      "source": "assets/sd-tops.png",
+      "sourceRect": [
+        45,
+        395,
+        244,
+        209
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              46,
+              483
+            ],
+            [
+              77,
+              516
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              254,
+              519
+            ],
+            [
+              287,
+              482
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f/cardi",
+      "source": "assets/sd-tops.png",
+      "sourceRect": [
+        334,
+        408,
+        278,
+        189
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              340,
+              566
+            ],
+            [
+              374,
+              582
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              571,
+              586
+            ],
+            [
+              606,
+              570
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f/sailor",
+      "source": "assets/sd-tops.png",
+      "sourceRect": [
+        662,
+        401,
+        251,
+        195
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              663,
+              524
+            ],
+            [
+              697,
+              548
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              879,
+              550
+            ],
+            [
+              910,
+              526
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f/jacket",
+      "source": "assets/sd-tops.png",
+      "sourceRect": [
+        963,
+        387,
+        261,
+        216
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              967,
+              538
+            ],
+            [
+              1006,
+              561
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              1183,
+              560
+            ],
+            [
+              1220,
+              538
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f/knit",
+      "source": "assets/sd-tops.png",
+      "sourceRect": [
+        28,
+        697,
+        275,
+        191
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        8.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              30,
+              839
+            ],
+            [
+              63,
+              859
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              273,
+              871
+            ],
+            [
+              300,
+              849
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f/hanbok",
+      "source": "assets/sd-tops.png",
+      "sourceRect": [
+        650,
+        673,
+        266,
+        229
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        9.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              652,
+              823
+            ],
+            [
+              684,
+              872
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              882,
+              877
+            ],
+            [
+              913,
+              820
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f/overall",
+      "source": "assets/sd-tops.png",
+      "sourceRect": [
+        53,
+        983,
+        221,
+        214
+      ],
+      "target": [
+        8.5,
+        28,
+        15,
+        11.5
+      ],
+      "sleeves": [
+        {
+          "side": "left",
+          "endpointsSourcePixels": [
+            [
+              54,
+              1049
+            ],
+            [
+              78,
+              1077
+            ]
+          ]
+        },
+        {
+          "side": "right",
+          "endpointsSourcePixels": [
+            [
+              247,
+              1074
+            ],
+            [
+              272,
+              1041
+            ]
+          ]
+        }
+      ]
+    }
+  ]
+}

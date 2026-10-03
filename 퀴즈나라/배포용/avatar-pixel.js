@@ -116,6 +116,17 @@
       d[i]=c[0];d[i+1]=c[1];d[i+2]=c[2];d[i+3]=alpha;
     }
     paint.putImageData(out,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';const m=original.geometry;ctx.drawImage(recolored,m.x,m.y,HEAD_GRID*m.scale,HEAD_GRID*m.scale);
+    // Each native head includes a little old neck and its red/dark seam.
+    // Remove that stub only inside the measured jaw attachment channel so
+    // the shared body skin continues into the chin. The jaw outside this
+    // channel, face, hair and every original PNG pixel remain untouched.
+    const hint=HEAD_HINTS[sex][tile],jawX=hint.chin[0]*HEAD_GRID/362*m.scale+m.x,jawY=hint.chin[1]*HEAD_GRID/362*m.scale+m.y,u=HEAD_GRID/32;
+    const half=sex==='m'?1.94:1.48,edgeY=sex==='m'?.30:.25;
+    ctx.save();ctx.globalCompositeOperation='destination-out';ctx.beginPath();
+    ctx.moveTo(jawX-half*u,jawY-edgeY*u);ctx.quadraticCurveTo(jawX,jawY-.10*u,jawX+half*u,jawY-edgeY*u);
+    ctx.lineTo(jawX+(half+.20)*u,jawY+.5*u);ctx.quadraticCurveTo(jawX+2.15*u,jawY+1.6*u,jawX+3.5*u,jawY+2.8*u);
+    ctx.lineTo(jawX+3.5*u,jawY+4.6*u);ctx.lineTo(jawX-3.5*u,jawY+4.6*u);ctx.lineTo(jawX-3.5*u,jawY+2.8*u);
+    ctx.quadraticCurveTo(jawX-2.15*u,jawY+1.6*u,jawX-(half+.20)*u,jawY+.5*u);ctx.closePath();ctx.fill();ctx.restore();
     const url=canvas.toDataURL('image/png');if(normalizedHeads.size>=280)normalizedHeads.delete(normalizedHeads.keys().next().value);normalizedHeads.set(key,url);return url;
   }
   async function loadSheet(sex,url){
@@ -141,29 +152,82 @@
   const contour=(pts,c,w=.125,edge=INK)=>`<path d="M${fineCorners(pts).map(p=>p.join(' ')).join('L')}Z" fill="${c}" stroke="${edge}" stroke-width="${w*2}" stroke-linejoin="round" paint-order="stroke fill"/>`;
   const thread=(x,y,w,h,c)=>rect(x,y,w,h,c);
   const shade=(c,n)=>sh(c,n);
-  function item(cat,val){const [shape,i]=String(val||'').split(':');const c=CAT[cat];const col=c?(PAL[c.pal][+i]||PAL[c.pal][0])[0]:'#e6a6c5';return {shape,col,d:shade(col,-.25),l:shade(col,.33)};}
+  function item(cat,val){const [shape,i]=String(val||'').split(':');const c=CAT[cat],chosen=c?(PAL[c.pal][+i]||PAL[c.pal][0])[0]:'#e6a6c5';const col=window.QPClothes?.colorFor?.(cat,shape,ACTIVE_SEX,chosen)||chosen;return {shape,col,d:shade(col,-.25),l:shade(col,.33)};}
   function bitmap(rows,pal,x=0,y=0){let s='';rows.forEach((row,j)=>{let i=0;while(i<row.length){const ch=row[i],start=i;while(i<row.length&&row[i]===ch)i++;if(pal[ch])s+=rect(x+start,y+j,i-start,1,pal[ch]);}});return s;}
   const steppedOval=(x,y,w,h,c)=>`<ellipse cx="${x+w/2}" cy="${y+h/2}" rx="${w/2}" ry="${h/2}" fill="${c}"/>`;
   const star=(x,y,c,size=1.2)=>`<path d="M${x} ${y-size}Q${x+size*.2} ${y-size*.2} ${x+size} ${y}Q${x+size*.2} ${y+size*.2} ${x} ${y+size}Q${x-size*.2} ${y+size*.2} ${x-size} ${y}Q${x-size*.2} ${y-size*.2} ${x} ${y-size}Z" fill="${c}"/>`;
+  // The neck continues behind the painted chin; only its side contour is
+  // outlined. A faded contact shadow avoids a separate horizontal skin band.
+  function torsoSurface(skin,orientation='front'){
+    const id='qpx-torso-'+orientation+'-'+skin.replace('#','');
+    return {fill:'url(#'+id+')',shadow:'url(#'+id+'-chin)',defs:`<defs><linearGradient id="${id}" x1="12.8" y1="28" x2="19.5" y2="32.4" gradientUnits="userSpaceOnUse"><stop stop-color="${shade(skin,-.13)}"/><stop offset=".34" stop-color="${skin}"/><stop offset=".68" stop-color="${shade(skin,.075)}"/><stop offset="1" stop-color="${shade(skin,-.025)}"/></linearGradient><linearGradient id="${id}-chin" x1="0" y1="26.75" x2="0" y2="29.45" gradientUnits="userSpaceOnUse"><stop stop-color="${shade(skin,-.28)}" stop-opacity=".38"/><stop offset=".25" stop-color="${shade(skin,-.28)}" stop-opacity=".25"/><stop offset=".65" stop-color="${shade(skin,-.28)}" stop-opacity=".07"/><stop offset="1" stop-color="${shade(skin,-.28)}" stop-opacity="0"/></linearGradient></defs>`};
+  }
   function bareBody(topValue){
     const shape=String(topValue||'').split(':')[0],tank=shape==='tank',edge=shade(SKIN,-.23),light=shade(SKIN,.09),shadow=shade(SKIN,-.1);
-    const shoulder=tank?12.55:12.85;
-    let s=`<g class="qpx-skin-torso"><path d="M14.65 26.6Q16 26.3 17.35 26.6L17.45 28.2Q19.15 28.65 ${32-shoulder} 29.75L19.05 33.2L19.1 36.8Q16 37.35 12.9 36.8L12.95 33.2L${shoulder} 29.75Q12.85 28.65 14.55 28.2Z" fill="${SKIN}" stroke="${edge}" stroke-width=".12"/><path d="M14.65 27.2Q16 27.8 17.35 27.2L17.45 28.2Q16 28.7 14.55 28.2Z" fill="${shadow}" opacity=".65"/><path d="M15.25 29Q17.1 28.8 17.85 30.05L17.75 35.8Q16.4 36.4 15.2 36Z" fill="${light}" opacity=".48"/></g>`;
+    const shoulder=tank?12.55:12.85,m=torsoSurface(SKIN);
+    const torso=`M14.6 24.9Q16 24.5 17.4 24.9L17.4 27.35Q17.35 28.3 18.05 28.58Q19.15 28.85 ${32-shoulder} 29.75L19.05 33.2L19.1 36.8Q16 37.35 12.9 36.8L12.95 33.2L${shoulder} 29.75Q12.85 28.85 13.95 28.58Q14.65 28.3 14.6 27.35Z`;
+    let s=m.defs+`<g class="qpx-skin-torso"><path d="${torso}" fill="${m.fill}"/><path d="M14.6 26.7Q16 26.9 17.4 26.7L17.4 28.1Q17.55 28.85 18.05 29.15Q16 29.75 13.95 29.15Q14.45 28.85 14.6 28.1Z" fill="${m.shadow}"/><path d="M17.4 27.5Q17.4 28.3 18.05 28.58Q19.15 28.85 ${32-shoulder} 29.75L19.05 33.2L19.1 36.8Q16 37.35 12.9 36.8L12.95 33.2L${shoulder} 29.75Q12.85 28.85 13.95 28.58Q14.6 28.3 14.6 27.5" fill="none" stroke="${edge}" stroke-width=".1" stroke-linecap="round"/></g>`;
     const leg=right=>`<g class="qpx-leg-${right?'right':'left'}"${right?' transform="translate(32 0) scale(-1 1)"':''}><path d="M12.8 36.5Q14.05 36.15 15.3 36.6L15.05 43.35Q15.85 44.9 14.55 45.15Q12.45 45.5 12.4 44L12.65 41.1Z" fill="${SKIN}" stroke="${edge}" stroke-width=".13"/><path d="M13.15 37.2Q12.85 41.3 13.05 43.85Q13.3 44.6 14.15 44.75Q12.65 45.2 12.7 44L12.9 41.1Z" fill="${shadow}"/><path d="M13.85 37.3Q14.75 37.1 14.7 39.1L14.45 43.8Q14.1 44.15 13.85 43.8Z" fill="${light}" opacity=".5"/></g>`;
     return s+leg(false)+leg(true);
   }
+  function frontNeck(topValue){
+    const shape=String(topValue||'').split(':')[0];
+    // The authored male garments show the inside back of the collar. The
+    // wearer's neck sits in front of that rim while the front collar remains
+    // visible below and to either side. This is the same torso pigment and
+    // body carrier, not a separate head attachment or a second whole torso.
+    if(ACTIVE_SEX!=='m'||!['tee','hood','shirt','vest','cardi','jacket','knit','hanbok','overall'].includes(shape))return '';
+    const rim=shape==='hood'?29.36:shape==='jacket'?29.44:shape==='hanbok'?29.11:29.1;
+    const end=shape==='knit'?29.36:rim+.55,m=torsoSurface(SKIN);
+    // The occlusion narrows into the existing neck opening. Its lower edge
+    // meets the same skin behind the transparent art, never a square patch
+    // painted across the front of a V collar.
+    const outline=`M14.6 24.9Q16 24.5 17.4 24.9L17.4 27.4Q17.35 28.55 17.45 ${rim}Q17.35 ${rim+.18} 16.65 ${end}Q16 ${end+.12} 15.35 ${end}Q14.65 ${rim+.18} 14.55 ${rim}Q14.65 28.55 14.6 27.4Z`;
+    return `<g class="qpx-neck-surface" data-qpx-neck-surface="front"><path d="${outline}" fill="${m.fill}"/><path d="${outline}" fill="${m.shadow}"/></g>`;
+  }
   function fittedArms(topValue,front=false){
-    const shape=String(topValue||'').split(':')[0],fit=window.QPClothes?.fits?.[shape]||{cuffs:[[.2,.14],[.8,.14]],short:true,sleeveless:true};if(fit.covered)return '';
-    const target=window.QPClothes?.targets?.top?.[shape]||window.QPClothes?.targets?.top?.default||[8.5,28,15,9.5],edge=shade(SKIN,-.24),shadow=shade(SKIN,-.1),light=shade(SKIN,.08);
+    const shape=String(topValue||'').split(':')[0],fit=window.QPClothes?.fitFor?.(shape,ACTIVE_SEX)||window.QPClothes?.fits?.[shape]||{cuffs:[[.2,.14],[.8,.14]],short:true,sleeveless:true};if(fit.covered)return '';
+    const target=window.QPClothes?.targetFor?.('top',shape,ACTIVE_SEX)||window.QPClothes?.targets?.top?.[shape]||window.QPClothes?.targets?.top?.default||[8.5,28,15,9.5],edge=shade(SKIN,-.21),shadow=shade(SKIN,-.12),light=shade(SKIN,.1);
     const side=right=>{
-      const point=fit.cuffs[right?1:0],cx=target[0]+target[2]*point[0],cy=target[1]+target[3]*point[1];
-      const localX=right?32-cx:cx,sleeveless=fit.sleeveless,rootX=sleeveless?12.7:localX,rootY=sleeveless?29.25:cy-.55;
-      const wristX=sleeveless?10.95:fit.short?localX+.35:localX,wristY=sleeveless?36.45:fit.short?Math.max(cy+.9,36.45):cy+.4;
-      const upper=sleeveless?`<path d="M13.2 28.8Q11.9 29.1 11.55 30.85Q11.2 33 11.05 34.5L${wristX-.47} ${wristY+.1}Q${wristX} ${wristY+.3} ${wristX+.48} ${wristY+.05}L12.35 32.3Q12.65 30.1 13.65 29.5Z" fill="${SKIN}" stroke="${edge}" stroke-width=".12"/><path d="M12.05 30.1Q11.65 31.9 11.4 34.1L${wristX-.22} ${wristY}" fill="none" stroke="${shadow}" stroke-width=".18" stroke-linecap="round"/>`:fit.short?`<path d="M${rootX-.58} ${rootY}Q${rootX-.5} ${cy+1.2} ${wristX-.43} ${wristY+.1}Q${wristX} ${wristY+.35} ${wristX+.47} ${wristY+.1}Q${rootX+.58} ${cy+1.1} ${rootX+.58} ${rootY}Z" fill="${SKIN}" stroke="${edge}" stroke-width=".11"/><path d="M${rootX-.4} ${cy}Q${rootX-.34} ${cy+1.2} ${wristX-.2} ${wristY+.05}" stroke="${shadow}" stroke-width=".16" fill="none" stroke-linecap="round"/>`:'';
-      const hand=`<path d="M${wristX-.44} ${wristY-.3}Q${wristX} ${wristY-.48} ${wristX+.42} ${wristY-.3}L${wristX+.48} ${wristY+.42}Q${wristX+.53} ${wristY+.94} ${wristX+.1} ${wristY+1.06}Q${wristX-.49} ${wristY+1.12} ${wristX-.52} ${wristY+.58}Z" fill="${SKIN}" stroke="${edge}" stroke-width=".1"/><path d="M${wristX-.35} ${wristY+.13}Q${wristX-.4} ${wristY+.85} ${wristX+.06} ${wristY+.95}" stroke="${shadow}" stroke-width=".15" fill="none" stroke-linecap="round"/><path d="M${wristX+.08} ${wristY+.2}L${wristX+.17} ${wristY+.58}" stroke="${light}" stroke-width=".16" stroke-linecap="round"/>`;
+      const point=(fit.wristCuffs||fit.cuffs)[right?1:0],oldCx=target[0]+target[2]*point[0],oldCy=target[1]+target[3]*point[1];
+      const opening=fit.openings?.[right?1:0],actual=opening?.map(([x,y])=>[target[0]+target[2]*x,target[1]+target[3]*y]);
+      const cx=actual?(actual[0][0]+actual[1][0])/2:oldCx,cy=actual?(actual[0][1]+actual[1][1])/2:oldCy;
+      // Work in the left-hand local space. The opening is a painted plane,
+      // not a point: the arm must travel out through its normal before it
+      // bends down toward the wrist (prior short-sleeve anchor or a long-sleeve
+      // wrist placed below the newly measured opening).
+      const localX=right?32-cx:cx,sleeveless=fit.sleeveless,rootX=sleeveless?12.7:localX;
+      let wristX=sleeveless?10.95:fit.short?(right?32-oldCx:oldCx)+.32:(right?32-oldCx:oldCx),wristY=sleeveless?36.45:fit.short?Math.max(oldCy+1.1,36.45):oldCy+.48;
+      const id='qpx-front-arm-'+shape+'-'+SKIN.replace('#','')+'-'+(right?'r':'l')+'-'+(front?'front':'rear');
+      const pigment=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2=".18"><stop stop-color="${shadow}"/><stop offset=".38" stop-color="${SKIN}"/><stop offset=".68" stop-color="${light}"/><stop offset="1" stop-color="${shade(SKIN,-.05)}"/></linearGradient></defs>`;
+      let upper,emergence='';
+      if(sleeveless){
+        upper=`<path d="M13.18 28.82Q11.96 29.13 11.5 30.86Q11.18 32.75 10.65 34.8L${wristX-.5} ${wristY+.1}Q${wristX} ${wristY+.36} ${wristX+.49} ${wristY+.05}Q11.86 33.08 12.3 31.72Q12.74 30.03 13.64 29.54Z" fill="url(#${id})" stroke="${edge}" stroke-width=".105"/>`;
+      }else{
+        const ps=actual?actual.map(([x,y])=>[right?32-x:x,y]).sort((a,b)=>a[0]-b[0]):[[localX-.82,cy-.25],[localX+.82,cy+.25]];
+        const dx=ps[1][0]-ps[0][0],dy=ps[1][1]-ps[0][1],length=Math.hypot(dx,dy)||1,tx=dx/length,ty=dy/length,nx=-ty,ny=tx;
+        const half=Math.min(fit.short?1.3:1.18,length*.43),depth=1.15,exit=fit.short?.92:.44;
+        if(!fit.short){wristX=localX+nx*.55;wristY=cy+Math.max(.72,ny*.8);}
+        const at=(along,across)=>[localX+nx*along+tx*across,cy+ny*along+ty*across];
+        const rootA=at(-depth,-half),rootB=at(-depth,half),edgeA=at(0,-half),edgeB=at(0,half),leftWrist=[wristX-.43,wristY+.12],rightWrist=[wristX+.47,wristY+.08];
+        const emergenceId=id+'-emergence',frontEdge=[at(.02,-4),at(.02,4),at(12,4),at(12,-4)];
+        emergence=`<clipPath id="${emergenceId}"><path d="M${frontEdge.map(p=>p.join(' ')).join('L')}Z"/></clipPath>`;
+        // One cubic per exposed edge lets the upper arm follow the opening
+        // normal, then round smoothly into the wrist. A forced intermediate
+        // point used to produce a sharp concave notch below diagonal cuffs.
+        const followY=Math.max(cy+.3,wristY-.86);
+        const d=`M${rootA.join(' ')}L${edgeA.join(' ')}C${at(exit,-half).join(' ')} ${wristX-.46} ${followY} ${leftWrist.join(' ')}Q${wristX} ${wristY+.38} ${rightWrist.join(' ')}C${wristX+.49} ${followY} ${at(exit,half).join(' ')} ${edgeB.join(' ')}L${rootB.join(' ')}Z`;
+        // This whole, rounded skin silhouette starts well INSIDE the sleeve.
+        // Only the portion beyond the native lip is visible. A small recess
+        // shadow lies underneath the lip rather than across the arm surface.
+        upper=`<path data-qpx-inserted-arm="${right?'right':'left'}" data-qpx-insertion-depth="${depth}" data-qpx-aperture-width="${length}" d="${d}" fill="url(#${id})" stroke="${edge}" stroke-width=".105"/><path d="M${at(.04,-half*.72).join(' ')}Q${at(.13,0).join(' ')} ${at(.04,half*.72).join(' ')}" stroke="${shade(SKIN,-.24)}" stroke-width=".15" opacity=".28" fill="none" stroke-linecap="round"/>`;
+      }
+      const hand=`<path d="M${wristX-.4} ${wristY-.28}Q${wristX} ${wristY-.44} ${wristX+.4} ${wristY-.22}Q${wristX+.47} ${wristY+.07} ${wristX+.55} ${wristY+.27}Q${wristX+.73} ${wristY+.61} ${wristX+.49} ${wristY+.69}L${wristX+.3} ${wristY+.56}Q${wristX+.4} ${wristY+1.06} ${wristX+.06} ${wristY+1.11}Q${wristX-.46} ${wristY+1.12} ${wristX-.49} ${wristY+.67}L${wristX-.48} ${wristY+.14}Z" fill="url(#${id})" stroke="${edge}" stroke-width=".095"/><path d="M${wristX+.24} ${wristY+.2}Q${wristX+.33} ${wristY+.32} ${wristX+.3} ${wristY+.56}M${wristX-.19} ${wristY+.81}q.08 .16 .2 .18" stroke="${shadow}" stroke-width=".085" opacity=".65" fill="none" stroke-linecap="round"/>`;
+      const emerging=emergence?`<g data-qpx-emerging-arm="${right?'right':'left'}" clip-path="url(#${id}-emergence)">${upper}</g>`:'';
       const actualX=right?32-wristX:wristX,mirror=right?' transform="translate(32 0) scale(-1 1)"':'';
-      const cut=sleeveless?32.2:shape==='dress'?35:cy+.22;
-      const paint=front?`<svg x="0" y="${cut}" width="32" height="${56-cut}" viewBox="0 ${cut} 32 ${56-cut}" overflow="hidden"><g${mirror}>${upper}</g></svg><g class="qpx-hand-${right?'right':'left'}" data-qpx-wrist="${actualX},${wristY}" data-qpx-wrist-x="${actualX}" data-qpx-wrist-y="${wristY}" style="transform-box:view-box;transform-origin:${actualX}px ${wristY}px"><g${mirror}>${hand}</g></g>`:`<g${mirror}>${upper}</g>`;
+      // A single forearm silhouette avoids the horizontal cut where the old
+      // second skin strip was painted over the source cuff.
+      const paint=front?`${pigment}<defs>${emergence}</defs><g${mirror}>${emerging}</g><g class="qpx-hand-${right?'right':'left'}" data-qpx-wrist="${actualX},${wristY}" data-qpx-wrist-x="${actualX}" data-qpx-wrist-y="${wristY}" style="transform-box:view-box;transform-origin:${actualX}px ${wristY}px"><g${mirror}>${hand}</g></g>`:`${pigment}<g${mirror}>${upper}</g>`;
       return `<g class="qpx-arm-${front?'front-':''}${right?'right':'left'}" data-qpx-arm-side="${right?'right':'left'}" data-qpx-cuff="${cx},${cy}" style="transform-box:view-box;transform-origin:${cx}px ${cy}px;--qpx-arm-direction:${right?1:-1}">${paint}</g>`;
     };
     return `<g class="qpx-arms${front?' qpx-arms-front':''}">${side(false)}${side(true)}</g>`;
@@ -217,8 +281,8 @@
     m.defs+=`<defs><linearGradient id="${id}" x1="${px-nx*1.65}" y1="${py-ny*1.65}" x2="${px+nx*1.65}" y2="${py+ny*1.65}" gradientUnits="userSpaceOnUse"><stop stop-color="${m.dark}"/><stop offset=".28" stop-color="${m.color}"/><stop offset=".52" stop-color="${m.light}"/><stop offset=".75" stop-color="${m.color}"/><stop offset="1" stop-color="${shade(m.color,-.25)}"/></linearGradient></defs>`;
   }
   function renderProfileTorso({skin='#ffe2cc',sex='f'}={}){
-    const m=profileMaterial('#e6a6c5',skin),front=sex==='m'?19.75:19.45;
-    return m.defs+`<g class="qpx-skin-torso" data-qpx-profile-body="torso">${shapePath(`M14.7 26.6Q16 26.35 17.3 26.6L17.25 28.45Q${front} 29.1 ${front} 31.2Q${front-.25} 33.1 18.8 34.55L19.15 37.15Q16.5 37.8 13.5 37.25L13.65 33.35Q13.3 30.05 14.65 28.55Z`,m.skinFill,shade(skin,-.25),.13)}${shapePath('M14.75 27.3Q16 27.8 17.2 27.3L17.25 28.4Q16.1 28.8 14.65 28.5Z',shade(skin,-.1),'none')}</g>`;
+    const m=torsoSurface(skin,'profile'),front=sex==='m'?19.75:19.45;
+    return m.defs+`<g class="qpx-skin-torso" data-qpx-profile-body="torso">${shapePath(`M14.6 24.95Q16 24.55 17.4 24.95L17.35 27.45Q17.3 28.4 18.1 28.7Q${front} 29.1 ${front} 31.2Q${front-.25} 33.1 18.8 34.55L19.15 37.15Q16.5 37.8 13.5 37.25L13.65 33.35Q13.3 30.05 14.65 28.55Z`,m.fill,'none')}${shapePath('M14.6 26.8Q16 27.05 17.4 26.8L17.35 28.1Q17.4 28.8 18 29.25Q16 29.5 14.6 29.1Z',m.shadow,'none')}</g>`;
   }
   function renderProfileLeg(side,skin='#ffe2cc'){
     const m=profileMaterial('#e6a6c5',skin),x=side==='left'?13.85:18.15;
@@ -238,7 +302,7 @@
     return s;
   }
   function renderProfileGarment(category,shape,color='#e6a6c5',sex='f',skin='#ffe2cc',ctx={}){
-    const part=ctx.part||'full',m=profileMaterial(color,skin,shape,part);let s=m.defs;
+    color=window.QPClothes?.colorFor?.(category,shape,sex,color)||color;const part=ctx.part||'full',m=profileMaterial(color,skin,shape,part);let s=m.defs;
     if(category==='bottom'){
       if(['skirt','pleat','jean_skirt','star_skirt','tutu','hanbok'].includes(shape))return s+profileSkirt(m,shape);
       const end=shape==='shorts'?41:44.55,width=shape==='legging'?1.15:1.45;
@@ -248,7 +312,7 @@
         s+=shapePath(`M${x-width} 38.1Q${x} 37.8 ${x+width} 38.2L${x+width-.1} 40.25Q${x+width+.05} 41.25 ${x+width-.25} ${end-.35}Q${x} ${end+.02} ${x-width+.2} ${end-.3}L${x-width+.22} 40.8Z`,m.fill,m.edge,.14)+line(`M${x-width+.5} 39.1Q${x-.65} 41.6 ${x-width+.48} ${end-.55}`,m.light,.2)+line(`M${x+.45} ${end-.5}l.85 -.12`,m.edge,.15);
         const legOutline=`M${x-width} 38.1Q${x} 37.8 ${x+width} 38.2L${x+width-.1} 40.25Q${x+width+.05} 41.25 ${x+width-.25} ${end-.35}Q${x} ${end+.02} ${x-width+.2} ${end-.3}L${x-width+.22} 40.8Z`;
         s+=clothRelief(m,legOutline,[`M${x-.65} 39.25q.65 .4 1.25 .1`,`M${x-.7} 41.7q.75 -.3 1.3 -.05`],[`M${x-width+.3} ${end-.48}Q${x} ${end-.2} ${x+width-.2} ${end-.48}`]);
-        if(shape==='shorts')s+=flower(x+.45,40,'#fff0d6',.22)+line(`M${x-width+.4} ${end-.6}Q${x} ${end-.3} ${x+width-.3} ${end-.6}`,shade(color,-.25),.14);
+        if(shape==='shorts')s+=(sex==='m'?'':flower(x+.45,40,'#fff0d6',.22))+line(`M${x-width+.4} ${end-.6}Q${x} ${end-.3} ${x+width-.3} ${end-.6}`,shade(color,-.25),.14);
         if(shape==='track')s+=line(`M${x+width-.25} 39L${x+width-.38} ${end-.7}`,'#fff2d9',.28);
         if(shape==='cargo')s+=shapePath(`M${x-.65} 40.1Q${x} 39.95 ${x+.65} 40.1L${x+.62} 41.4Q${x} 41.7 ${x-.65} 41.4Z`,shade(color,-.07),m.edge,.12)+line(`M${x-.6} 40.25H${x+.6}`,m.light,.18);
         if(shape==='jeans')s+=line(`M${x-.8} ${end-.55}Q${x} ${end-.32} ${x+.85} ${end-.55}`,shade(color,.39),.25)+line(`M${x-.15} 41.5l.75 -.18`,shade(color,.25),.13);
@@ -262,7 +326,7 @@
     s+=shapePath('M13.5 30.15Q13.9 32.7 13.65 35.3L13.35 37.35Q14.25 37.8 14.9 37.9L14.65 35.3Q14.25 32.8 14.35 30.15Z',b.softShadow,'none')+line('M14.75 33.5Q14.45 35.25 14.9 36.6',shade(base,.28),.14)+line('M17.25 36.2q1.1 -.45 1.6 -.2',shade(base,-.2),.09)+line('M13.4 37.35Q16.3 38 19.1 37.4',shade(base,-.22),.13);
     s+=shapePath('M14.7 30.4Q15.55 32.4 15.1 34.7Q15.6 36.7 16.9 37.6L17.3 37.6Q16 35.35 16 33.5Q15.75 31.3 14.7 30.4Z',b.softLight,'none')+shapePath('M18.9 32.6Q18.3 34.4 18.6 36.15L19.1 37.6Q18.3 37 18.15 35.5Q17.95 33.8 18.9 32.6Z',b.softShadow,'none');
     s+=clothRelief(b,clothOutline,['M14.8 31.1Q15.5 32.1 15.2 33.4','M14.3 34.8Q14.15 36.15 15.2 37.3','M17.25 35.7Q18.1 35.2 18.85 35.65'],[shape==='tank'?'M15.1 29.1L15.65 31.05Q17.25 32.05 18.45 30.5':'M14.75 28.7Q16.1 29.65 17.45 29.1','M13.8 30.1Q15.15 31.15 15.05 32.05','M13.4 37.25Q16.3 37.95 19.1 37.3']);
-    if(shape==='tee')s+=line('M14.8 28.7Q16.3 29.8 17.5 29.2','#fff3d9',.26)+flower(18.4,33.4,'#fff3bd',.46)+flower(17.8,35.9,shade(color,.46),.34);
+    if(shape==='tee')s+=line('M14.8 28.7Q16.3 29.8 17.5 29.2','#fff3d9',.26)+(sex==='m'?shapePath('M18.15 33Q18.65 32.65 18.95 33.25L18.8 33.95Q18.45 34.25 18.1 33.9Z','#e4b66c','#9b6e36',.09):flower(18.4,33.4,'#fff3bd',.46)+flower(17.8,35.9,shade(color,.46),.34));
     if(shape==='hood')s+=shapePath('M15.4 28.7Q12.2 27.1 12.3 29.8Q12.8 31 15.1 30.8Q14.1 29.6 15.4 28.7Z',m.fill,m.edge,.19)+line('M12.7 29.6Q13.55 30.3 14.9 30.1',m.light,.2)+line('M18.65 30Q19.3 33.2 18.85 37.4','#fff0c7',.15)+shapePath('M17.1 34Q18.05 33.65 19 34L18.85 36.5Q17.8 36.9 16.9 36.5Z',shade(color,.07),m.edge,.13)+line('M17.25 34.3Q18 34 18.7 34.25',m.light,.19)+line('M17.9 30l.3 1.6','#fff4d8',.16);
     if(['shirt','cardi','jacket','vest'].includes(shape)){
       if(shape==='vest')s+=shapePath('M14.6 29.8L16 30.15L18 32.5L19.1 30.7L19.6 32L19.1 37.6Q16 38.3 13.45 37.6L13.8 31.4Z',m.fill,m.edge,.17);
@@ -273,29 +337,29 @@
     }
     if(shape==='sailor')s+=shapePath('M14.25 28.65L16.95 28.7L18.4 30.35L18.95 32.1L17.75 31.65L15.1 30Z','#fff6e7',m.edge,.12)+line('M14.65 29L16.85 29.1L18.1 30.8',m.dark,.18)+shapePath('M18.25 31.1Q20 30.6 19.8 32L18.6 32.5L18.75 34.4L18.05 34L17.9 32.1Z','#de7999','#9f4f6b',.12);
     if(shape==='knit'){s+=line('M14.9 28.6Q16 29.3 17.45 29',m.edge,.28);for(let x=14.6;x<18.6;x+=.7)s+=line(`M${x} 30.4q-.35 .4 0 .8t0 .8t0 .8t0 .8t0 .8t0 .8`,shade(color,x<16?-.08:.15),.095);s+=line('M13.5 37.1Q16.1 37.7 19.1 37.2',m.light,.33);}
-    if(shape==='hanbok')s+=clothRelief(m,body,['M14.1 32.4Q15.4 33.15 16.8 32.95'],['M16.4 29.8L18.9 32.2','M13.6 33.15Q16.2 34 18.8 33.2'])+shapePath('M14.75 28.65Q15.9 29.25 17.45 28.85L19.5 31.45L18.8 32.2L16.2 29.65Z','#fff4df',m.edge,.13)+line('M15.1 28.95Q16.4 29.6 17.35 29.2L19.1 31.45','#fffdf1',.21)+shapePath('M17 29L19.05 31.5L19.4 36.9L18.75 37.1L18.3 32L16.5 29.7Z',m.softLight,m.edge,.13)+line('M13.6 32.8Q16.2 33.8 18.8 32.9',shade(color,-.18),.18)+shapePath('M18.8 32.55Q20.1 31.9 20.15 33L19.35 33.4L19.7 36.5L18.95 36.1L18.85 33.7Q17.9 33.2 18.8 32.55Z','#d16a98','#964464',.12)+line('M19.05 33.7L19.35 35.8','#f2acc8',.19)+flower(17.5,35.7,'#fff0c3',.3);
-    if(shape==='overall')s+=shapePath('M14.1 32.2L18.95 31.55L19.15 35.9Q19.45 37.8 19.15 39.65Q17.85 40.05 16.8 39.65Q15 40.05 13.7 39.6Q13.35 38.15 13.4 36.8Z',m.fill,m.edge,.17)+shapePath('M15.8 28.9Q16.15 28.5 16.6 28.65L19.1 32L18.45 32.5Z',m.fill,m.edge,.14)+line('M16.25 29L18.65 32',m.light,.18)+shapePath('M13.6 29.25L14.25 29.3L14.75 33L14.05 33.2Z',m.dark,m.edge,.12)+oval(18.65,32.25,.22,.24,'#f7d485',m.edge,.08)+shapePath('M16.65 33.2Q17.75 32.9 18.55 33.15L18.4 35.1Q17.5 35.55 16.6 35.2Z',shade(color,.15),m.edge,.13)+line('M16.8 33.45Q17.6 33.2 18.35 33.4',m.light,.17)+line('M13.65 36.4Q16.2 36.9 19.25 36.35',m.edge,.18)+line('M16.4 37L16.8 39.4',m.edge,.14)+line('M13.75 39.3Q15 39.8 16.4 39.3M17.15 39.35Q18.15 39.65 19.1 39.3',m.light,.24)+flower(17.8,34.6,'#fff1bd',.27);
+    if(shape==='hanbok')s+=clothRelief(m,body,['M14.1 32.4Q15.4 33.15 16.8 32.95'],['M16.4 29.8L18.9 32.2','M13.6 33.15Q16.2 34 18.8 33.2'])+shapePath('M14.75 28.65Q15.9 29.25 17.45 28.85L19.5 31.45L18.8 32.2L16.2 29.65Z','#fff4df',m.edge,.13)+line('M15.1 28.95Q16.4 29.6 17.35 29.2L19.1 31.45','#fffdf1',.21)+shapePath('M17 29L19.05 31.5L19.4 36.9L18.75 37.1L18.3 32L16.5 29.7Z',m.softLight,m.edge,.13)+line('M13.6 32.8Q16.2 33.8 18.8 32.9',shade(color,-.18),.18)+shapePath('M18.8 32.55Q20.1 31.9 20.15 33L19.35 33.4L19.7 36.5L18.95 36.1L18.85 33.7Q17.9 33.2 18.8 32.55Z',sex==='m'?'#dab151':'#d16a98',sex==='m'?'#956b35':'#964464',.12)+line('M19.05 33.7L19.35 35.8',sex==='m'?'#f6d785':'#f2acc8',.19)+(sex==='m'?'':flower(17.5,35.7,'#fff0c3',.3));
+    if(shape==='overall')s+=shapePath('M14.1 32.2L18.95 31.55L19.15 35.9Q19.45 37.8 19.15 39.65Q17.85 40.05 16.8 39.65Q15 40.05 13.7 39.6Q13.35 38.15 13.4 36.8Z',m.fill,m.edge,.17)+shapePath('M15.8 28.9Q16.15 28.5 16.6 28.65L19.1 32L18.45 32.5Z',m.fill,m.edge,.14)+line('M16.25 29L18.65 32',m.light,.18)+shapePath('M13.6 29.25L14.25 29.3L14.75 33L14.05 33.2Z',m.dark,m.edge,.12)+oval(18.65,32.25,.22,.24,'#f7d485',m.edge,.08)+shapePath('M16.65 33.2Q17.75 32.9 18.55 33.15L18.4 35.1Q17.5 35.55 16.6 35.2Z',shade(color,.15),m.edge,.13)+line('M16.8 33.45Q17.6 33.2 18.35 33.4',m.light,.17)+line('M13.65 36.4Q16.2 36.9 19.25 36.35',m.edge,.18)+line('M16.4 37L16.8 39.4',m.edge,.14)+line('M13.75 39.3Q15 39.8 16.4 39.3M17.15 39.35Q18.15 39.65 19.1 39.3',m.light,.24)+(sex==='m'?'':flower(17.8,34.6,'#fff1bd',.27));
     if(['dress','robe'].includes(shape)){s+=profileSkirt(m,shape,shape==='robe'?40.4:39.5)+line('M13.6 35.85Q16.4 36.5 18.7 36.1','#f1d4a7',.35);if(shape==='dress')s+=shapePath('M17.5 35.7Q19.4 34.6 19.9 35.7L18.8 36.3L19.5 38.1L18.5 37.8L18.1 36.35Z','#fff0c4',m.edge,.12)+flower(18.25,37.85,'#fff4e0',.35);else s+=shapePath('M14.3 28.7Q12.15 29.8 12.7 35L11.5 39.9Q14 40.5 15.25 40.25L14.9 33.4L15.7 29.6Z',m.fill,m.edge,.18)+line('M13.7 30.2Q13.2 35.9 12.3 39.9','#f5d692',.24)+star(14.2,36.4,'#ffe9a3',.44);}
     if(shape==='space')s+=shapePath('M14.5 28.6L17.5 28.6L17.65 29.6L14.3 29.5Z','#f8eadb',m.edge,.15)+shapePath('M17.3 31Q18.4 30.7 19.1 31.4L18.9 33.7Q18 34.1 17.2 33.7Z','#f8eee1',m.edge,.15)+shapePath('M17.6 31.5L18.7 31.5L18.65 33.1L17.5 33.05Z','#75bbd1','#43728f',.1)+line('M13.6 36.7Q16 37.3 19.2 36.8','#f2e7d3',.35)+oval(18.1,35,.3,.3,'#efb66f',m.edge,.08);
     // Embroidery follows the curved side panel and leaves the front edge clear.
     // Broad highlight/shadow folds retain the softness of the painted wardrobe.
     const outline=m.id+'-panel';s+=`<defs><clipPath id="${outline}"><path d="${clothOutline}"/></clipPath></defs><g clip-path="url(#${outline})">`;
-    if(['tee','hood','dress','tank'].includes(shape))for(const [x,y,r]of [[14.3,32,.27],[15.1,34.3,.37],[17.55,32.8,.36],[18.4,36.4,.33],[14.25,36.2,.22]])s+=flower(x,y,'#fff1d6',r)+line(`M${x-.35} ${y+.45}q-.55 .15 -.25 .6`,shade(color,-.17),.1);
-    if(shape==='hanbok')s+=flower(14.7,34.7,'#fff2d5',.35)+flower(17.2,36.4,'#fbe5bb',.28)+line('M14.4 35.3q-.2 .55 .55 .6',shade(color,-.23),.1);
+    if(sex!=='m'&&['tee','hood','dress','tank'].includes(shape))for(const [x,y,r]of [[14.3,32,.27],[15.1,34.3,.37],[17.55,32.8,.36],[18.4,36.4,.33],[14.25,36.2,.22]])s+=flower(x,y,'#fff1d6',r)+line(`M${x-.35} ${y+.45}q-.55 .15 -.25 .6`,shade(color,-.17),.1);
+    if(sex!=='m'&&shape==='hanbok')s+=flower(14.7,34.7,'#fff2d5',.35)+flower(17.2,36.4,'#fbe5bb',.28)+line('M14.4 35.3q-.2 .55 .55 .6',shade(color,-.23),.1);
     if(['hood','cardi','jacket','overall'].includes(shape))s+=line('M13.7 35.6Q14.3 35.9 14.65 35.8',shade(color,-.22),.11)+line('M13.85 35.8l.65 .14',shade(color,.4),.1);
     if(shape==='tank')s+=shapePath('M18.25 30.4Q19.45 29.85 19.55 30.8L18.75 31.1L19.2 32.3L18.7 32.1L18.45 31.1Q17.6 30.7 18.25 30.4Z','#fff0d0',m.edge,.1);
     s+='</g>';if(shape==='hood')s+=oval(18.86,32.25,.12,.19,'#e8bd70',m.edge,.07);return s;
   }
-  function renderProfileArm({shape='tank',color='#e6a6c5',skin='#ffe2cc',side='right',pivot=[19.1,29.15],wrist=[21.05,36.45],fit={}}={}){
-    const armColor=side==='left'?shade(color,-.08):color,armSkin=side==='left'?shade(skin,-.045):skin,m=profileMaterial(armColor,armSkin,shape),[px,py]=pivot,[wx,wy]=wrist,dx=wx-px,dy=wy-py,len=Math.hypot(dx,dy)||1,nx=dy/len,ny=-dx/len;
-    const sleeveless=shape==='tank'||shape==='robe'||fit.sleeveless,wide=shape==='hanbok',short=fit.short&&!sleeveless,target=window.QPClothes?.targets?.top?.[shape]||[8.5,28,15,9.5],cuffY=target[1]+target[3]*(fit.cuffs?.[side==='right'?1:0]?.[1]||.66),t=sleeveless?0:Math.max(short?.36:.62,Math.min(.94,(cuffY-py)/(dy||1))),cx=px+dx*t,cy=py+dy*t,half=wide?1.65:shape==='space'?1:.8;
-    const sm=profileMaterial(['vest','sailor','overall'].includes(shape)?(side==='left'?'#ecdac1':'#fff2dd'):armColor,armSkin,shape),startX=sleeveless?px:cx,startY=sleeveless?py:cy-.22;sleeveMaterial(sm,px,py,nx,ny);let s=m.defs+sm.defs;
-    s+=`<g class="qpx-arm-${side}" data-qpx-arm-side="${side}" data-qpx-cuff="${cx},${cy}">${shapePath(`M${startX-nx*.65} ${startY-ny*.65}Q${px+dx*.62-nx*.66} ${py+dy*.62-ny*.66} ${wx-nx*.46} ${wy-ny*.46}Q${wx} ${wy+.55} ${wx+nx*.46} ${wy+ny*.46}Q${px+dx*.62+nx*.67} ${py+dy*.62+ny*.67} ${startX+nx*.65} ${startY+ny*.65}Z`,m.skinFill,shade(skin,-.26),.11)}${line(`M${startX-nx*.34} ${startY-ny*.34}Q${px+dx*.75-nx*.35} ${py+dy*.75-ny*.35} ${wx-nx*.24} ${wy}`,shade(skin,-.12),.12)}<g class="qpx-hand-${side}" data-qpx-wrist="${wx},${wy}" data-qpx-wrist-x="${wx}" data-qpx-wrist-y="${wy}">${shapePath(`M${wx-.47} ${wy-.22}Q${wx} ${wy-.45} ${wx+.44} ${wy-.2}L${wx+.58} ${wy+.6}Q${wx+.5} ${wy+1.15} ${wx-.05} ${wy+1.15}Q${wx-.62} ${wy+1.06} ${wx-.58} ${wy+.45}Z`,shape==='space'?'#fff2df':m.skinFill,shade(skin,-.26),.11)}${line(`M${wx-.25} ${wy+.33}L${wx-.2} ${wy+.83}`,shade(skin,-.15),.11)}</g></g>`;
+  function renderProfileArm({shape='tank',color='#e6a6c5',skin='#ffe2cc',sex='f',side='right',pivot=[19.1,29.15],wrist=[21.05,36.45],fit={}}={}){
+    color=window.QPClothes?.colorFor?.('top',shape,sex,color)||color;const armColor=side==='left'?shade(color,-.08):color,armSkin=side==='left'?shade(skin,-.045):skin,m=profileMaterial(armColor,armSkin,shape),[px,py]=pivot,[wx,wy]=wrist,dx=wx-px,dy=wy-py,len=Math.hypot(dx,dy)||1,nx=dy/len,ny=-dx/len;
+    const sleeveless=shape==='tank'||shape==='robe'||fit.sleeveless,wide=shape==='hanbok',short=fit.short&&!sleeveless,target=window.QPClothes?.targetFor?.('top',shape,sex)||window.QPClothes?.targets?.top?.[shape]||[8.5,28,15,9.5],cuffY=target[1]+target[3]*(fit.cuffs?.[side==='right'?1:0]?.[1]||.66),t=sleeveless?0:Math.max(short?.36:.62,Math.min(.94,(cuffY-py)/(dy||1))),cx=px+dx*t,cy=py+dy*t,half=wide?1.65:shape==='space'?1:.8;
+    const sm=profileMaterial(['vest','sailor','overall'].includes(shape)?(side==='left'?'#ecdac1':'#fff2dd'):armColor,armSkin,shape),startX=sleeveless?px:cx-dx/len*.95,startY=sleeveless?py:cy-dy/len*.95,skinHalf=sleeveless?.65:Math.min(1.42,half*.87);sleeveMaterial(sm,px,py,nx,ny);let s=m.defs+sm.defs;
+    s+=`<g class="qpx-arm-${side}" data-qpx-arm-side="${side}" data-qpx-cuff="${cx},${cy}">${shapePath(`M${startX-nx*skinHalf} ${startY-ny*skinHalf}Q${px+dx*.62-nx*.66} ${py+dy*.62-ny*.66} ${wx-nx*.46} ${wy-ny*.46}Q${wx} ${wy+.55} ${wx+nx*.46} ${wy+ny*.46}Q${px+dx*.62+nx*.67} ${py+dy*.62+ny*.67} ${startX+nx*skinHalf} ${startY+ny*skinHalf}Z`,m.skinFill,shade(skin,-.26),.11)}${line(`M${startX-nx*.34} ${startY-ny*.34}Q${px+dx*.75-nx*.35} ${py+dy*.75-ny*.35} ${wx-nx*.24} ${wy}`,shade(skin,-.12),.12)}<g class="qpx-hand-${side}" data-qpx-wrist="${wx},${wy}" data-qpx-wrist-x="${wx}" data-qpx-wrist-y="${wy}">${shapePath(`M${wx-.47} ${wy-.22}Q${wx} ${wy-.45} ${wx+.44} ${wy-.2}L${wx+.58} ${wy+.6}Q${wx+.5} ${wy+1.15} ${wx-.05} ${wy+1.15}Q${wx-.62} ${wy+1.06} ${wx-.58} ${wy+.45}Z`,shape==='space'?'#fff2df':m.skinFill,shade(skin,-.26),.11)}${line(`M${wx-.25} ${wy+.33}L${wx-.2} ${wy+.83}`,shade(skin,-.15),.11)}</g></g>`;
     const sleeveOutline=`M${px-nx*1.14} ${py-ny*1.14}Q${px-dx*.07} ${py-1.1} ${px+nx*1.14} ${py+ny*1.14}Q${px+dx*.6+nx*(wide?1.9:1)} ${py+dy*.6+ny*(wide?1.9:1)} ${cx+nx*half} ${cy+ny*half}Q${cx} ${cy+.5} ${cx-nx*half} ${cy-ny*half}Q${px+dx*.6-nx*(wide?2:.87)} ${py+dy*.6-ny*(wide?2:.87)} ${px-nx*1.14} ${py-ny*1.14}Z`;
     if(!sleeveless)s+=`<g data-qpx-wave-sleeve="${shape}" data-qpx-clothes="top" data-qpx-profile-sleeve="${side}">${shapePath(sleeveOutline,sm.fill,sm.edge,.13)}${clothRelief(sm,sleeveOutline,[`M${px+dx*.45-nx*.6} ${py+dy*.45}Q${px+dx*.56} ${py+dy*.56-.15} ${px+dx*.63+nx*.55} ${py+dy*.63-.2}`],[`M${px+nx*.6} ${py+ny*.6+.25}Q${px+dx*.25+nx*.65} ${py+dy*.25+ny*.65} ${px+dx*.42+nx*.55} ${py+dy*.42+ny*.55}`,`M${cx-nx*half} ${cy-ny*half}Q${cx} ${cy+.4} ${cx+nx*half} ${cy+ny*half}`])}${line(`M${px-nx*.5} ${py+.2}Q${px+dx*.7-nx*.65} ${py+dy*.7} ${cx-nx*.35} ${cy-.3}`,sm.light,.2)}${line(`M${cx-nx*half} ${cy-ny*half}Q${cx} ${cy+.45} ${cx+nx*half} ${cy+ny*half}`,wide?'#fff0d4':sm.edge,.18)}${wide?line(`M${cx-nx*half} ${cy-ny*half-.35}Q${cx} ${cy+.12} ${cx+nx*half} ${cy+ny*half-.35}`,'#fff2df',.28):''}</g>`;
     if(!sleeveless){
       s+=line(`M${px+nx*.6} ${py+.35}Q${px+dx*.52+nx*.55} ${py+dy*.52} ${cx+nx*.32} ${cy-.5}`,shade(armColor,-.16),.12)+line(`M${px+dx*.5-nx*.15} ${py+dy*.5}q${nx*.5} ${ny*.5} ${nx*.75} ${ny*.75}`,sm.light,.16);
-      if(['tee','hood','hanbok'].includes(shape))s+=flower(px+dx*.65-nx*.27,py+dy*.65,'#fff0d2',wide?.26:.22);
+      if(sex!=='m'&&['tee','hood','hanbok'].includes(shape))s+=flower(px+dx*.65-nx*.27,py+dy*.65,'#fff0d2',wide?.26:.22);
     }
     return s;
   }
@@ -304,8 +368,8 @@
     m.defs+=`<defs><radialGradient id="${m.id}-back" cx="15.15" cy="31.1" r="9" gradientTransform="translate(0 -10) scale(1 1.32)" gradientUnits="userSpaceOnUse"><stop stop-color="${shade(color,m.material==='silk'?.32:.24)}"/><stop offset=".4" stop-color="${shade(color,.08)}"/><stop offset=".68" stop-color="${color}"/><stop offset="1" stop-color="${shade(color,-.23)}"/></radialGradient></defs>`;return m;
   }
   function renderBackTorso({skin='#ffe2cc',sex='f'}={}){
-    const m=backMaterial('#e6a6c5',skin),back=sex==='m'?11.6:11.9;
-    return m.defs+`<g class="qpx-skin-torso" data-qpx-back-body="torso">${shapePath(`M14.65 26.65Q16 26.4 17.35 26.65L17.55 28.55Q19.6 28.9 ${32-back} 30.1Q20.1 32.3 19.2 34.55L19.55 37.45Q16 38.4 12.45 37.45L12.8 34.55Q11.9 32.3 ${back} 30.1Q12.4 28.9 14.45 28.55Z`,m.skinFill,shade(skin,-.23),.13)}${line('M14.7 28.35Q16 28.85 17.3 28.35',shade(skin,-.17),.18)}${line('M14.1 30.8Q15.25 31.9 15.25 33M17.9 30.8Q16.75 31.9 16.75 33',shade(skin,-.1),.12)}</g>`;
+    const m=torsoSurface(skin,'back'),back=sex==='m'?11.6:11.9;
+    return m.defs+`<g class="qpx-skin-torso" data-qpx-back-body="torso">${shapePath(`M14.6 24.95Q16 24.55 17.4 24.95L17.4 27.55Q17.5 28.35 18.15 28.7Q19.6 28.9 ${32-back} 30.1Q20.1 32.3 19.2 34.55L19.55 37.45Q16 38.4 12.45 37.45L12.8 34.55Q11.9 32.3 ${back} 30.1Q12.4 28.9 13.85 28.7Q14.5 28.35 14.6 27.55Z`,m.fill,'none')}${line('M14.1 30.8Q15.25 31.9 15.25 33M17.9 30.8Q16.75 31.9 16.75 33',shade(skin,-.1),.1)}</g>`;
   }
   function backSkirt(m,shape,end=42.5){
     const wide=['hanbok','tutu','robe'].includes(shape),x=wide?9.5:11.2,left=wide?8.5:10.35;
@@ -321,7 +385,7 @@
     return `<g data-qpx-back-detail="rear-pleats">${s}</g>`;
   }
   function renderBackGarment(category,shape,color='#e6a6c5',sex='f',skin='#ffe2cc',ctx={}){
-    const part=ctx.part||'full',m=backMaterial(color,skin,shape,part);let s=m.defs;
+    color=window.QPClothes?.colorFor?.(category,shape,sex,color)||color;const part=ctx.part||'full',m=backMaterial(color,skin,shape,part);let s=m.defs;
     if(category==='bottom'){
       if(['skirt','pleat','hanbok','tutu','jean_skirt','star_skirt'].includes(shape))return s+backSkirt(m,shape);
       const short=shape==='shorts',end=short?41.05:44.6,width=shape==='legging'?1.25:1.65;
@@ -350,16 +414,16 @@
     if(shape==='vest')s+=shapePath(`M13.8 29.1Q16 29.85 18.2 29.1L19.15 30.5L19.6 ${hem-.2}Q16 ${hem+.4} 12.4 ${hem-.2}L12.85 30.5Z`,m.fill,m.edge,.15)+line('M16 30.2L16 36.8',m.edge,.13)+line('M13.2 35.9Q16 36.45 18.8 35.9',m.light,.18);
     if(shape==='sailor')s+=`<g data-qpx-back-detail="back-collar">${shapePath('M12.45 28.65Q16 28.9 19.55 28.65L19.35 32Q16 32.35 12.65 32Z','#fff3e1',m.edge,.16)}${line('M13.1 29.25L13.25 31.45Q16 31.75 18.75 31.45L18.9 29.25',m.dark,.19)}</g>`;
     if(shape==='knit')for(let cx=13;cx<20;cx+=.65)s+=line(`M${cx} 30q-.25 .4 0 .8t0 .8t0 .8t0 .8t0 .8t0 .8t0 .8`,shade(color,cx<16?-.08:.15),.095);
-    if(shape==='hanbok')s+=clothRelief(m,silhouette,['M13.1 32.3Q14.65 32.85 15.25 32.7','M18.9 32.3Q17.35 32.85 16.75 32.7'],['M13.55 29.45Q16 30.35 18.45 29.45','M12.3 33.2Q16 33.95 19.7 33.2'])+`<g data-qpx-back-detail="back-collar">${shapePath('M14.05 28.4Q16 29.15 17.95 28.4L18.45 29.25Q16 30.2 13.55 29.25Z','#fff3df',m.edge,.12)}${line('M14.1 28.7Q16 29.45 17.9 28.7','#fffdf0',.2)}</g>`+line('M12.3 32.95Q16 33.7 19.7 32.95',m.edge,.17)+line('M16 29.85Q15.7 32.3 16 36.95',shade(color,-.15),.1)+flower(12.9,35.7,'#fff0d0',.3)+flower(19.1,35.7,'#fff0d0',.3);
+    if(shape==='hanbok')s+=clothRelief(m,silhouette,['M13.1 32.3Q14.65 32.85 15.25 32.7','M18.9 32.3Q17.35 32.85 16.75 32.7'],['M13.55 29.45Q16 30.35 18.45 29.45','M12.3 33.2Q16 33.95 19.7 33.2'])+`<g data-qpx-back-detail="back-collar">${shapePath('M14.05 28.4Q16 29.15 17.95 28.4L18.45 29.25Q16 30.2 13.55 29.25Z','#fff3df',m.edge,.12)}${line('M14.1 28.7Q16 29.45 17.9 28.7','#fffdf0',.2)}</g>`+line('M12.3 32.95Q16 33.7 19.7 32.95',m.edge,.17)+line('M16 29.85Q15.7 32.3 16 36.95',shade(color,-.15),.1)+(sex==='m'?'':flower(12.9,35.7,'#fff0d0',.3)+flower(19.1,35.7,'#fff0d0',.3));
     if(shape==='overall')s+=`<g data-qpx-back-detail="rear-straps">${shapePath('M13.75 28.8L14.55 28.7L18.1 35.5L17.15 35.75Z',m.fill,m.edge,.15)}${shapePath('M18.25 28.8L17.45 28.7L13.9 35.5L14.85 35.75Z',m.fill,m.edge,.15)}${line('M14.15 29.1L17.6 35.2M17.85 29.1L14.4 35.2',m.light,.18)}</g>`+shapePath('M12.6 35.4Q16 36 19.4 35.4L19.85 39.15Q18.25 39.9 16.45 39.4L16 38.1L15.55 39.4Q13.75 39.9 12.15 39.15Z',m.fill,m.edge,.17)+line('M12.65 36.1Q16 36.6 19.35 36.1',m.edge,.17)+`<g data-qpx-back-detail="rear-pocket">${[13.65,18.35].map(cx=>shapePath(`M${cx-.7} 36.9Q${cx} 37.1 ${cx+.7} 36.9L${cx+.6} 38.25Q${cx} 38.8 ${cx-.6} 38.25Z`,shade(color,.12),m.edge,.11)+line(`M${cx-.45} 37.55q.45 .28 .9 0`,m.light,.12)).join('')}</g>`;
     if(['dress','robe'].includes(shape))s+=backSkirt(m,shape,hem)+line('M12.3 35.8Q16 36.4 19.7 35.8','#ead4ad',.35);
     if(shape==='robe')s+=`<g data-qpx-back-detail="cape">${shapePath('M13.55 28.6Q16 29.1 18.45 28.6L20.05 32.8L21.1 39.95Q16 41.1 10.9 39.95L11.95 32.8Z',m.fill,m.edge,.19)}${line('M13.65 29.7Q13.1 34.6 12 39.8M18.35 29.7Q18.9 34.6 20 39.8','#f1d393',.25)}${line('M16 30.2Q15.5 34.7 16 39.95',m.light,.24)}${star(16,37.9,'#ffe9ad',.42)}</g>`;
     if(shape==='space')s+=`<g data-qpx-back-detail="back-panel">${shapePath('M13.9 30.5Q16 30.1 18.1 30.5L18.35 34.9Q16 35.4 13.65 34.9Z','#ede3d5',m.edge,.15)}${line('M14.2 31.2H17.8M14.1 32.4H17.9M14.1 33.6H17.9','#b6b0ac',.18)}${line('M12.4 36.5Q16 37.1 19.6 36.5','#f2e8d8',.32)}</g>`;
     return s;
   }
-  function renderBackArm({shape='tank',color='#e6a6c5',skin='#ffe2cc',side='right',pivot=[19.1,29.15],wrist=[21.05,36.45],fit={}}={}){
-    const m=backMaterial(color,skin,shape),[px,py]=pivot,[wx,wy]=wrist,dx=wx-px,dy=wy-py,length=Math.hypot(dx,dy)||1,nx=dy/length,ny=-dx/length,sleeveless=shape==='tank'||shape==='robe'||fit.sleeveless,wide=shape==='hanbok',short=fit.short&&!sleeveless,target=window.QPClothes?.targets?.top?.[shape]||[8.5,28,15,9.5],cuffY=target[1]+target[3]*(fit.cuffs?.[side==='right'?1:0]?.[1]||.66),t=sleeveless?0:Math.max(short?.36:.62,Math.min(.94,(cuffY-py)/(dy||1))),cx=px+dx*t,cy=py+dy*t,half=wide?1.65:shape==='space'?1:.8,sm=backMaterial(['vest','sailor','overall'].includes(shape)?'#fff1da':color,skin,shape),sx=sleeveless?px:cx,sy=sleeveless?py:cy-.22;sleeveMaterial(sm,px,py,nx,ny);let s=m.defs+sm.defs;
-    s+=`<g class="qpx-arm-${side}" data-qpx-arm-side="${side}" data-qpx-cuff="${cx},${cy}">${shapePath(`M${sx-nx*.65} ${sy-ny*.65}Q${px+dx*.65-nx*.7} ${py+dy*.65-ny*.7} ${wx-nx*.45} ${wy-ny*.45}Q${wx} ${wy+.5} ${wx+nx*.45} ${wy+ny*.45}Q${px+dx*.65+nx*.7} ${py+dy*.65+ny*.7} ${sx+nx*.65} ${sy+ny*.65}Z`,m.skinFill,shade(skin,-.24),.11)}<g class="qpx-hand-${side}" data-qpx-wrist="${wx},${wy}" data-qpx-wrist-x="${wx}" data-qpx-wrist-y="${wy}">${shapePath(`M${wx-.48} ${wy-.2}Q${wx} ${wy-.48} ${wx+.46} ${wy-.2}L${wx+.55} ${wy+.6}Q${wx+.45} ${wy+1.15} ${wx-.1} ${wy+1.15}Q${wx-.62} ${wy+1.02} ${wx-.55} ${wy+.4}Z`,shape==='space'?'#fff1df':m.skinFill,shade(skin,-.25),.11)}${line(`M${wx-.17} ${wy+.4}v.35M${wx+.12} ${wy+.42}v.3`,shade(skin,-.15),.08)}</g></g>`;
+  function renderBackArm({shape='tank',color='#e6a6c5',skin='#ffe2cc',sex='f',side='right',pivot=[19.1,29.15],wrist=[21.05,36.45],fit={}}={}){
+    color=window.QPClothes?.colorFor?.('top',shape,sex,color)||color;const m=backMaterial(color,skin,shape),[px,py]=pivot,[wx,wy]=wrist,dx=wx-px,dy=wy-py,length=Math.hypot(dx,dy)||1,nx=dy/length,ny=-dx/length,sleeveless=shape==='tank'||shape==='robe'||fit.sleeveless,wide=shape==='hanbok',short=fit.short&&!sleeveless,target=window.QPClothes?.targetFor?.('top',shape,sex)||window.QPClothes?.targets?.top?.[shape]||[8.5,28,15,9.5],cuffY=target[1]+target[3]*(fit.cuffs?.[side==='right'?1:0]?.[1]||.66),t=sleeveless?0:Math.max(short?.36:.62,Math.min(.94,(cuffY-py)/(dy||1))),cx=px+dx*t,cy=py+dy*t,half=wide?1.65:shape==='space'?1:.8,sm=backMaterial(['vest','sailor','overall'].includes(shape)?'#fff1da':color,skin,shape),sx=sleeveless?px:cx-dx/length*.95,sy=sleeveless?py:cy-dy/length*.95,skinHalf=sleeveless?.65:Math.min(1.42,half*.87);sleeveMaterial(sm,px,py,nx,ny);let s=m.defs+sm.defs;
+    s+=`<g class="qpx-arm-${side}" data-qpx-arm-side="${side}" data-qpx-cuff="${cx},${cy}">${shapePath(`M${sx-nx*skinHalf} ${sy-ny*skinHalf}Q${px+dx*.65-nx*.7} ${py+dy*.65-ny*.7} ${wx-nx*.45} ${wy-ny*.45}Q${wx} ${wy+.5} ${wx+nx*.45} ${wy+ny*.45}Q${px+dx*.65+nx*.7} ${py+dy*.65+ny*.7} ${sx+nx*skinHalf} ${sy+ny*skinHalf}Z`,m.skinFill,shade(skin,-.24),.11)}<g class="qpx-hand-${side}" data-qpx-wrist="${wx},${wy}" data-qpx-wrist-x="${wx}" data-qpx-wrist-y="${wy}">${shapePath(`M${wx-.48} ${wy-.2}Q${wx} ${wy-.48} ${wx+.46} ${wy-.2}L${wx+.55} ${wy+.6}Q${wx+.45} ${wy+1.15} ${wx-.1} ${wy+1.15}Q${wx-.62} ${wy+1.02} ${wx-.55} ${wy+.4}Z`,shape==='space'?'#fff1df':m.skinFill,shade(skin,-.25),.11)}${line(`M${wx-.17} ${wy+.4}v.35M${wx+.12} ${wy+.42}v.3`,shade(skin,-.15),.08)}</g></g>`;
     const sleeveOutline=`M${px-nx*1.14} ${py-ny*1.14}Q${px} ${py-1.1} ${px+nx*1.14} ${py+ny*1.14}Q${px+dx*.6+nx*(wide?1.9:1)} ${py+dy*.6+ny*(wide?1.9:1)} ${cx+nx*half} ${cy+ny*half}Q${cx} ${cy+.5} ${cx-nx*half} ${cy-ny*half}Q${px+dx*.6-nx*(wide?2:.87)} ${py+dy*.6-ny*(wide?2:.87)} ${px-nx*1.14} ${py-ny*1.14}Z`;
     if(!sleeveless)s+=`<g data-qpx-wave-sleeve="${shape}" data-qpx-clothes="top" data-qpx-back-sleeve="${side}">${shapePath(sleeveOutline,sm.fill,sm.edge,.13)}${clothRelief(sm,sleeveOutline,[`M${px+dx*.45-nx*.6} ${py+dy*.45}Q${px+dx*.56} ${py+dy*.56-.15} ${px+dx*.63+nx*.55} ${py+dy*.63-.2}`],[`M${px+nx*.6} ${py+ny*.6+.25}Q${px+dx*.25+nx*.65} ${py+dy*.25+ny*.65} ${px+dx*.42+nx*.55} ${py+dy*.42+ny*.55}`,`M${cx-nx*half} ${cy-ny*half}Q${cx} ${cy+.4} ${cx+nx*half} ${cy+ny*half}`])}${line(`M${px-nx*.48} ${py+.3}Q${px+dx*.7-nx*.6} ${py+dy*.7} ${cx-nx*.3} ${cy-.3}`,sm.light,.2)}${line(`M${px+dx*.5+nx*.35} ${py+dy*.5}q${-nx*.5} ${-ny*.5} ${-nx*.8} ${-ny*.8}`,sm.dark,.13)}${line(`M${cx-nx*half} ${cy-ny*half}Q${cx} ${cy+.45} ${cx+nx*half} ${cy+ny*half}`,wide?'#fff1d8':sm.edge,.18)}</g>`;
     return s;
@@ -512,7 +576,7 @@
   function composition(av,lod){
     const contactY=groundY(av);
     let s=defs()+`<g transform="scale(1 ${VIEW_H/48})">${background(av.bg,lod)}</g><ellipse class="qpx-contact-shadow" cx="16" cy="${contactY}" rx="${6.4*BODY_PROPORTIONS.scale}" ry=".7" fill="#635d6f" opacity=".22"/>`;
-    s+=`<g class="qpx-idle">${headBitmap(hairTile(av),item('hair',av.hair).col,String(av.expression||'bright:0').split(':')[0],true)}<g transform="translate(16 28) scale(${BODY_PROPORTIONS.scale} ${BODY_PROPORTIONS.verticalScale}) translate(-16 -28)"><g data-qpx-body-accessory="back">${back(av.back)}</g><g transform="${ACTIVE_SEX==='m'?'translate(-.64 0) scale(1.04 1)':''}"><g class="qpx-body">${fittedArms(av.top)}${bareBody(av.top)}${bottom(av.bottom)}${shoes(av.shoes)}${top(av.top)}${fittedArms(av.top,true)}<g data-qpx-body-accessory="neck">${neck(av.neck)}</g></g></g></g><g class="qpx-head" data-qpx-head="${encodeURIComponent(JSON.stringify(av))}" data-qpx-head-sex="${ACTIVE_SEX}" data-qpx-head-skin="${SKIN}">${fullHead(av)}</g></g><g transform="translate(0 ${RIG_H-48})">${pet(av.pet)}</g>`;
+    s+=`<g class="qpx-idle">${headBitmap(hairTile(av),item('hair',av.hair).col,String(av.expression||'bright:0').split(':')[0],true)}<g transform="translate(16 28) scale(${BODY_PROPORTIONS.scale} ${BODY_PROPORTIONS.verticalScale}) translate(-16 -28)"><g data-qpx-body-accessory="back">${back(av.back)}</g><g transform="${ACTIVE_SEX==='m'?'translate(-.64 0) scale(1.04 1)':''}"><g class="qpx-body">${fittedArms(av.top)}${bareBody(av.top)}${bottom(av.bottom)}${shoes(av.shoes)}${top(av.top)}${frontNeck(av.top)}${fittedArms(av.top,true)}<g data-qpx-body-accessory="neck">${neck(av.neck)}</g></g></g></g><g class="qpx-head" data-qpx-head="${encodeURIComponent(JSON.stringify(av))}" data-qpx-head-sex="${ACTIVE_SEX}" data-qpx-head-skin="${SKIN}">${fullHead(av)}</g></g><g transform="translate(0 ${RIG_H-48})">${pet(av.pet)}</g>`;
     if(av.frame){const {shape,col,d,l}=item('frame',av.frame);s+=`<g transform="scale(1 ${VIEW_H/48})">${frame(shape,col,d,l)}</g>`;}return s+effect(av.effect);
   }
   // Extra viewport room protects the enlarged soles in floor-sitting poses.

@@ -823,6 +823,8 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <script src="./avatar-shoes-profile.js"></script>
 <script src="./avatar-direction.js"></script>
 <script src="./avatar-poses.js"></script>
+<script src="./avatar-foundation.js"></script>
+<link rel="stylesheet" href="./avatar-foundation.css">
 <script src="./avatar-motion.js"></script>
 <script src="./quiz-questions.js"></script>
 <script src="./teacher-builder.js"></script>
@@ -836,6 +838,7 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <script src="./village-presence.js"></script>
 <script src="./school-room-scene.js"></script>
 <script src="./playground-scene.js"></script>
+<script src="./avatar-run-input.js"></script>
 <script src="./school-room-world.js"></script>
 <script src="./demo.js"></script>
 <script>
@@ -2157,11 +2160,25 @@ Object.assign(HAIR, {
   comma:['쉼표머리',210,()=>({b:'',f:''})],
   wolf:['울프컷',240,()=>({b:'',f:''})]
 });
+// A one-piece owns the upper and lower layers as one inseparable product.
+// These are existing renderer shapes; the catalogue marker never draws a third layer.
+const OUTFITS = {
+  dress:['원피스',260], robe:['마법사 로브',400], overall:['멜빵 한벌',240],
+  space:['우주복',420], hanbok:['한복 한벌',660]
+};
+const OUTFIT_PARTS = {
+  dress:{f:{top:'dress:7',bottom:''}},
+  robe:{f:{top:'robe:6',bottom:''}},
+  overall:{m:{top:'overall:5',bottom:''},f:{top:'overall:5',bottom:''}},
+  space:{m:{top:'space:8',bottom:'track:8'},f:{top:'space:8',bottom:'track:8'}},
+  hanbok:{m:{top:'hanbok:5',bottom:'track:9'},f:{top:'hanbok:7',bottom:'hanbok:0'}}
+};
 const CATS = [
   {k:'expression', n:'얼굴', src:(window.QPAvatar && window.QPAvatar.expressions)||{}, pal:'portrait', crop:'0 0 200 300', off:false},
   {k:'hair',   n:'머리',   src:HAIR,    pal:'hair',  crop:'18 4 164 168',  off:false},
   {k:'top',    n:'상의',   src:TOPS,    pal:'basic', crop:'30 126 140 134',off:false},
   {k:'bottom', n:'하의',   src:BOTS,    pal:'basic', crop:'44 204 112 82', off:false},
+  {k:'outfit', n:'한벌옷', src:OUTFITS, pal:'basic', crop:'32 126 136 160', off:true},
   {k:'shoes',  n:'신발',   src:SHOES,   pal:'basic', crop:'48 226 104 62', off:false},
   {k:'hat',    n:'모자',   src:HATS,    pal:'basic', crop:'6 0 188 104',   off:true},
   {k:'glass',  n:'안경',   src:GLASSES, pal:'basic', crop:'28 74 144 62',  off:true},
@@ -2190,19 +2207,93 @@ const AVATAR_HAIR = {
 const HAIR_ALIAS = {buzz:'short',longm:'long',wave:'long',afro:'curly',mohawk:'spiky'};
 const avatarSex = sex=>sex==='m'?'m':'f';
 const avatarSexName = sex=>avatarSex(sex)==='m'?'남자':'여자';
+const AVATAR_CLOTHES = {
+  m:{top:['tee','hood','shirt','vest','cardi','jacket','knit'],bottom:['shorts','jeans','track','cargo']},
+  f:{top:['tee','hood','shirt','vest','cardi','sailor','jacket','knit','tank'],
+    bottom:['shorts','jeans','skirt','pleat','track','legging','tutu','cargo','jean_skirt','star_skirt']}
+};
+const CURATED_COLOURS = {
+  m:{top:{tee:5,hood:5,shirt:10,vest:9,cardi:3,jacket:11,knit:10},bottom:{shorts:9,jeans:5,track:9,cargo:11}},
+  f:{top:{tee:3,hood:7,shirt:10,vest:7,cardi:7,sailor:5,jacket:11,knit:10,tank:7},
+    bottom:{shorts:5,jeans:5,skirt:7,pleat:5,track:9,legging:9,tutu:7,cargo:11,jean_skirt:5,star_skirt:6}},
+  shoes:{sneaker:8,dress:9,boots:11,sandal:10,hitop:5,ballet:7,rain:2,slipper:3,wing_shoes:8},
+  hat:{cap:3,straw:10,beanie:5,crown:2,witch:6,ribbon:7,cat_ears:9,santa:0,grad:9,flower:7,halo_hat:2,cowboy:11,pirate:9,army:3,chef:8,police:5,capback:5,headphone:5,hairband:7,horn:0},
+  glass:{round:11,square:9,sun:9,heart:7,star_g:2,goggle:5,thick:9,mono:2,pince:11,sport:5,half:11,eyepatch:9},
+  face:{band:3,mask:10,tear:8,paint:5,whisker:0,glow:6},
+  back:{angel:8,fairy:5,bat:9,bag:11,cape:0},
+  pet:{dog:11,cat:8,chick:2,rabbit:8,bear:11,penguin:9,dino:3,ghost:8,fish:5,hamster:10,panda:8,fox:1,unicorn:7,frog:3,bee:2,star:2},
+  bg:{garden:3,night:9,rainbow:5,sea:5,sakura:7,space:6,classroom:10,party:2,snow:8,cloud:5,heart:7,stage:6}
+};
 function itemForSex(it, sex){
-  return !!it && (it.cat!=='hair'||AVATAR_HAIR[avatarSex(sex)].includes(HAIR_ALIAS[it.shape]||it.shape));
+  if(!it)return false;
+  sex=avatarSex(sex);
+  if(it.cat==='hair')return AVATAR_HAIR[sex].includes(HAIR_ALIAS[it.shape]||it.shape);
+  if(it.cat==='top'||it.cat==='bottom')return AVATAR_CLOTHES[sex][it.cat].includes(it.shape);
+  if(it.cat==='outfit')return !!OUTFIT_PARTS[it.shape]?.[sex];
+  return !(it.cat==='shoes'&&sex==='m'&&it.shape==='ballet');
+}
+function fixedColour(cat,shape,sex){
+  sex=avatarSex(sex);
+  if(cat==='hair')return 1;
+  if(cat==='expression'||cat==='effect')return 0;
+  if(cat==='outfit')return shape==='hanbok'?(sex==='m'?5:7):({dress:7,robe:6,overall:5,space:8}[shape]??0);
+  if(cat==='top'||cat==='bottom')return CURATED_COLOURS[sex][cat][shape]??0;
+  if(cat==='ear'||cat==='neck'||cat==='frame')return 0;
+  if(cat==='face')return CURATED_COLOURS.face[shape]??1;
+  return CURATED_COLOURS[cat]?.[shape]??5;
+}
+function hasStyle(id,owned,includeStarter=true){
+  const [cat,shape]=String(id||'').split(':'),prefix=cat+':'+shape+':';
+  const keys=Object.keys(owned||{}).filter(key=>owned[key]);
+  if(includeStarter)keys.push(...STARTER);
+  if(keys.some(key=>key.startsWith(prefix)))return true;
+  // Previously purchased top-only dresses/overalls become the whole product
+  // without deleting ownership or charging for its new catalogue category.
+  return cat==='outfit'&&keys.some(key=>key.startsWith('top:'+shape+':')||shape==='hanbok'&&key.startsWith('bottom:hanbok:'));
+}
+function curatedItem(cat,shape,sex){
+  const source=ITEMS[cat+':'+shape+':'+fixedColour(cat,shape,sex)];
+  if(!itemForSex(source,sex))return null;
+  const names=avatarSex(sex)==='m'?{top:{tee:'도토리 반팔',hood:'후드 집업',shirt:'단정한 셔츠',vest:'클래식 조끼',knit:'포근한 니트'},bottom:{shorts:'편한 반바지'}}:{};
+  const name=names[cat]?.[shape]||source.short;
+  return {...source,name,short:name,price:hasStyle(source.id,{},true)?0:source.price};
+}
+function publicItems(cat,sex){
+  const shapes=cat==='hair'?AVATAR_HAIR[avatarSex(sex)]:Object.keys(CAT[cat].src);
+  return shapes.map(shape=>curatedItem(cat,shape,sex)).filter(Boolean);
+}
+function applyCatalogItem(value,it){
+  const av=Object.assign({},value);
+  if(it.cat==='outfit'){
+    av.outfit=it.shape+':'+it.ci;
+    Object.assign(av,OUTFIT_PARTS[it.shape][avatarSex(av.sex)]);
+  }else{
+    if((it.cat==='top'||it.cat==='bottom')&&av.outfit){
+      const sex=avatarSex(av.sex);
+      // A separated garment replaces the whole suit; no hidden dress remains.
+      av.outfit='';av.top=sex==='m'?'tee:5':'tee:3';av.bottom=sex==='m'?'jeans:5':'shorts:5';
+    }
+    av[it.cat]=it.shape+':'+it.ci;
+  }
+  return av;
 }
 function avatarForSex(value, wantSex, owned){
   const av=Object.assign({},value||{}), sex=avatarSex(wantSex==null?av.sex:wantSex);
-  av.sex=sex;
-  if(itemForSex(ITEMS['hair:'+av.hair],sex)) return av;
-  const color=String(av.hair||'').split(':')[1];
-  const available=Object.values(ITEMS).filter(it=>it.cat==='hair'&&!it.legacy&&itemForSex(it,sex)
-    &&(STARTER_SET.has(it.id)||owned&&owned[it.id]));
-  const match=available.find(it=>String(it.ci)===color)||available.find(it=>it.id===(sex==='m'?'hair:short:1':'hair:bob:1'))||available[0];
-  av.hair=match?match.shape+':'+match.ci:(sex==='m'?'short:1':'bob:1');
-  return av;
+  av.sex=sex;av.ec=0;av.sk=Number.isFinite(Number(av.sk))?Math.round(clamp(Number(av.sk),0,PAL.skin.length-1)):0;
+  const previousTop=String(av.top||'').split(':')[0];
+  let whole=String(av.outfit||'').split(':')[0];
+  if(!whole&&OUTFIT_PARTS[previousTop]?.[sex])whole=previousTop;
+  for(const c of CATS){
+    if(c.k==='outfit')continue;
+    const raw=String(av[c.k]||''),shape=c.k==='hair'?(HAIR_ALIAS[raw.split(':')[0]]||raw.split(':')[0]):raw.split(':')[0];
+    const current=curatedItem(c.k,shape,sex);
+    if(current){av[c.k]=current.shape+':'+current.ci;continue;}
+    if(c.off){av[c.k]='';continue;}
+    const fallback=publicItems(c.k,sex).find(it=>hasStyle(it.id,owned))||publicItems(c.k,sex)[0];
+    av[c.k]=fallback?fallback.shape+':'+fallback.ci:'';
+  }
+  if(OUTFIT_PARTS[whole]?.[sex])return applyCatalogItem(av,curatedItem('outfit',whole,sex));
+  av.outfit='';return av;
 }
 
 const ITEMS = {};      // id -> {id,cat,shape,ci,name,price,color}
@@ -2216,13 +2307,13 @@ const ITEMS = {};      // id -> {id,cat,shape,ci,name,price,color}
         ITEMS[id] = { id, cat:c.k, shape:sk, ci:i, color:pal[i][0],
           name: sname + ' ('+pal[i][1]+')', short: sname,
           price: STARTER_SET.has(id) ? 0 : sprice,
-          sexes:c.k==='hair'?['m','f'].filter(sex=>AVATAR_HAIR[sex].includes(HAIR_ALIAS[sk]||sk)):['m','f'],
+          sexes:['m','f'].filter(sex=>itemForSex({cat:c.k,shape:sk},sex)),
           legacy: c.k==='hair' && !AVATAR_HAIR.m.concat(AVATAR_HAIR.f).includes(sk) };
       }
     }
   }
 })();
-const ITEM_COUNT = Object.values(ITEMS).filter(it=>!it.legacy).length;
+const ITEM_COUNT = new Set(CATS.flatMap(c=>['m','f'].flatMap(sex=>publicItems(c.k,sex).map(it=>it.id)))).size;
 
 /* 한 파츠를 그린다. val 은 "모양:색번호". 없으면 빈 문자열 */
 function part(catKey, val, want){
@@ -2263,6 +2354,7 @@ function avKey(a){
    lod 2 = 크게 + 정지 (패션왕처럼 21명이 한꺼번에 뜨는 곳)
    lod 1 = 작게 (명단·OX). 배경·등장식·펫을 아예 안 그린다 */
 function avatarSVG(av, size, lod){
+  if(window.QPDemo && new URLSearchParams(location.search).get('avatar')==='foundation' && window.QPAvatarFoundation && window.QPAvatarDirection?.atlas.ready && window.QPAvatarDirection?.atlas.backReady && window.QPClothes?.atlas.ready && window.QPShoes?.atlas.ready) return QPAvatarFoundation.render(av,size);
   av=avatarForSex(av||newAvatar());
   if(window.QPAvatar && window.QPAvatar.render) return window.QPAvatar.render(av||newAvatar(), size, lod==null?2:lod);
   av = av || newAvatar(); lod = lod==null?2:lod;
@@ -2307,6 +2399,12 @@ function avatarSVG(av, size, lod){
 /* 상점 미리보기 — 그 파츠가 잘 보이도록 잘라서 보여 준다 */
 function partThumb(catKey, shape, ci, h, sex){
   sex=avatarSex(sex==null?ME&&ME.av&&ME.av.sex:sex);
+  if(catKey==='outfit'){
+    const av=applyCatalogItem({sex,sk:1,ec:0,eyes:'round',expression:'bright:0',hair:'',shoes:'',hat:'',glass:'',ear:'',neck:'',back:'',pet:'',bg:'',face:'',frame:'',effect:''},curatedItem(catKey,shape,sex));
+    const holder=document.createElement('div');holder.innerHTML=window.QPAvatar.render(av,h,1);
+    const svg=holder.querySelector('svg'),body=svg.querySelector('.qpx-body').parentElement.parentElement;
+    return `<svg xmlns="http://www.w3.org/2000/svg" class="qp-illustrated-avatar" data-shop-outfit="${shape}" data-qpx-sex="${sex}" viewBox="3 27 26 31" width="${h*26/31}" height="${h}" style="display:block;overflow:hidden" aria-label="${esc(OUTFITS[shape][0])}">${svg.querySelector('defs').outerHTML}${body.outerHTML}</svg>`;
+  }
   if(window.QPAvatar && window.QPAvatar.thumb) return window.QPAvatar.thumb(catKey, shape, ci, h, sex);
   const c = CAT[catKey];
   const base = { sk:1, ec:0, eyes:'round', sex, hair:'', top:'', bottom:'', shoes:'',
@@ -2343,19 +2441,11 @@ function partThumb(catKey, shape, ci, h, sex){
 }
 
 function newAvatar(wantSex){
-  const pick = a => a[(Math.random()*a.length)|0];
-  const eyeKeys = Object.keys(EYES);
-  const boy = wantSex ? wantSex==='m' : Math.random() < 0.5;
+  const boy=wantSex?wantSex==='m':Math.random()<.5;
   return {
-    sk: (Math.random()*PAL.skin.length)|0,
-    ec: (Math.random()*PAL.eye.length)|0,
-    sex: boy ? 'm' : 'f',
-    eyes: pick(boy? ['round','smile','sharp','dot','sleepy'] : eyeKeys),
-    hair:   boy ? pick(['short:0','short:1']) : pick(['bob:1','bob:5']),
-    top:    pick(['tee:5','tee:7','tee:3']),
-    bottom: boy ? pick(['shorts:5','jeans:5']) : pick(['shorts:5','jeans:5','skirt:7']),
-    shoes:  pick(['sneaker:9','sneaker:8']),
-    hat:'', glass:'', ear:'', neck:'', back:'', pet:'', bg:'', face:'', frame:'', effect:'', expression:'bright:0'
+    sk:0,ec:0,sex:boy?'m':'f',eyes:'round',
+    hair:boy?'short:1':'bob:1',top:boy?'tee:5':'tee:3',bottom:boy?'jeans:5':'shorts:5',shoes:'sneaker:8',outfit:'',
+    hat:'',glass:'',ear:'',neck:'',back:'',pet:'',bg:'',face:'',frame:'',effect:'',expression:'bright:0'
   };
 }
 
@@ -2642,13 +2732,66 @@ function watchMe(){
       ME.gold = u.gold; paintGold();
       if(diff > 0){ toast('선물 도착! +' + diff + '골드 🎁', 2600); SND.coin(); }
     }
+      if(pending.av===undefined&&u.av)ME.av=avatarForSex(u.av,null,u.owned);
+      if(pending.skinOwned===undefined)Object.assign(ME,skinAccount(u));
       if(u.stat) ME.stat=Object.assign({},u.stat);
       if(u.day && pending.day===undefined) ME.day=Object.assign({},u.day);
       if((u.crown||0) !== (ME.crown||0)) ME.crown = u.crown||0;
   });
   meWatch = ()=> r.off('value', cb);
 }
-function owns(id){ return !!(ME && ME.owned && ME.owned[id]) || STARTER_SET.has(id); }
+function owns(id){return hasStyle(id,ME&&ME.owned);}
+const SKIN_PRICE=100;
+const skinPurchaseLocks=new Set();
+function canChangeAvatar(){
+  if(!ME||!skinPurchaseLocks.has(ME.k))return true;
+  toast('피부색을 저장하는 중이에요. 잠시 기다려 주세요.');return false;
+}
+function skinAccount(user){
+  const setup=user.skinSetup!==false,owned=Object.assign({},user.skinOwned||{});
+  const tone=Number.isFinite(Number(user.av?.sk))?Math.round(clamp(Number(user.av.sk),0,PAL.skin.length-1)):0;
+  if(setup)owned[tone]=1; // Existing accounts keep the skin they already chose.
+  return {skinSetup:setup,skinOwned:owned};
+}
+function skinPurchaseUser(user,tone){
+  if(!user||!Number.isInteger(tone)||!PAL.skin[tone])return;
+  const skin=skinAccount(user);
+  if(!skin.skinSetup){skin.skinSetup=true;skin.skinOwned[tone]=1;}
+  else if(!skin.skinOwned[tone]){
+    if((Number(user.gold)||0)<SKIN_PRICE)return;
+    user.gold=(Number(user.gold)||0)-SKIN_PRICE;skin.skinOwned[tone]=1;
+  }
+  Object.assign(user,skin);user.av=Object.assign({},user.av,{sk:tone});return user;
+}
+async function acquireSkin(accountKey,tone){
+  if(!ME||ME.k!==accountKey||!canChangeAvatar())return false;
+  skinPurchaseLocks.add(accountKey);
+  try{
+    await save({},true);
+    const result=await uref(accountKey).transaction(user=>skinPurchaseUser(user,tone),undefined,false);
+    if(!result.committed)return false;
+    if(!ME||ME.k!==accountKey)return false;
+    const user=result.snapshot.val();ME.gold=user.gold;Object.assign(ME,skinAccount(user));
+    ME.av=avatarForSex(user.av,null,user.owned);paintGold();return true;
+  }finally{skinPurchaseLocks.delete(accountKey);}
+}
+function showInitialSkin(){
+  const accountKey=ME.k;let selected=ME.av.sk;
+  modal('처음 피부색 고르기',`<div class="hint">첫 피부색은 무료예요. 다른 피부색은 나중에 상점에서 살 수 있어요.</div>
+    <div class="skin-options mt12" id="initialSkin"></div>
+    <button class="btn g mt12" id="skinSetupDone" style="width:100%">이 피부색으로 시작하기</button>`,()=>{
+    const paint=()=>{
+      el('initialSkin').innerHTML=PAL.skin.map(([colour,name],i)=>`<button class="skin-option" data-skin="${i}" aria-pressed="${i===selected}"><span class="skin-swatch" style="background:${colour}"></span><span>${name}</span></button>`).join('');
+      $$('#initialSkin [data-skin]').forEach(button=>button.onclick=()=>{selected=+button.dataset.skin;paint();});
+    };paint();
+    el('skinSetupDone').onclick=async()=>{
+      const button=el('skinSetupDone');button.disabled=true;
+      try{if(await acquireSkin(accountKey,selected)){closeModal();entryScreen();}}
+      catch(error){toast('피부색을 저장하지 못했어요. 다시 눌러 주세요.');}
+      finally{if(button.isConnected)button.disabled=false;}
+    };
+  });
+}
 function paintGold(){ const g = el('goldNum'); if(g && ME) g.textContent = (ME.gold||0).toLocaleString(); }
 
 /* Practice rewards merge with live awards and purchases on the current account. */
@@ -2683,7 +2826,7 @@ let activeCampus = null, activeCampusPresence = null;
 let activePlayground = null, activePlaygroundPresence = null;
 const campusCheckpoints = new Map();
 const linkedClassroom = new URLSearchParams(location.search).get('classroom');
-const entryScreen = ()=>linkedClassroom && /^[a-zA-Z0-9_-]{1,80}$/.test(linkedClassroom)?go('classroom',linkedClassroom):go('campus');
+const entryScreen = ()=>{if(ME&&!IS_TEACHER&&ME.skinSetup===false){go('home');showInitialSkin();return;}return linkedClassroom&&/^[a-zA-Z0-9_-]{1,80}$/.test(linkedClassroom)?go('classroom',linkedClassroom):go('campus');};
 function go(name, arg){
   if(name==='live'&&curScr==='live'&&!arg)return;
   if(leaveFn){ try{ leaveFn(); }catch(e){} leaveFn = null; }
@@ -2754,7 +2897,7 @@ function wireTop(backTo){
    ═══════════════════════════════════════════════════════════════════ */
 SCREENS.login = function(st){
   let pin = '', mode = 'in';       // in = 들어가기, up = 처음 가입
-  let pin2 = '', step = 1, sex = 'f';
+  let pin2 = '', step = 1, sex = 'f', firstSkin = 0;
   /* 로고 옆에 캐릭터를 세워 둔다 — 큐플레이 로그인 화면처럼 */
   const guestA = newAvatar('f'), guestB = newAvatar('m');
   guestA.hat = 'ribbon:7'; guestA.pet = 'cat:9'; guestA.top = 'dress:7';
@@ -2787,6 +2930,8 @@ SCREENS.login = function(st){
           <div class="row gap4">
             <button class="btn sm p f1" id="lgF">여자</button>
             <button class="btn sm gray f1" id="lgM">남자</button></div>
+          <label>첫 피부색 · 무료</label>
+          <div id="lgSkin" aria-label="처음 피부색 고르기"></div>
         </div>
         <div class="lgForm">
           <label for="lgId">아이디</label>
@@ -2851,6 +2996,10 @@ SCREENS.login = function(st){
   el('lgF').onclick = ()=>{ sex='f'; paintSex(); };
   el('lgM').onclick = ()=>{ sex='m'; paintSex(); };
   paintSex();
+  const paintFirstSkin=()=>{
+    el('lgSkin').innerHTML=PAL.skin.map(([colour,name],i)=>`<button data-skin="${i}" title="${name}" aria-label="${name}" aria-pressed="${i===firstSkin}" style="background:${colour}"></button>`).join('');
+    $$('#lgSkin [data-skin]').forEach(button=>button.onclick=()=>{firstSkin=+button.dataset.skin;paintFirstSkin();});
+  };paintFirstSkin();
 
   el('lgT').onclick = ()=>{
     const pw = prompt('선생님 암호');
@@ -2879,9 +3028,9 @@ SCREENS.login = function(st){
         if(pinHash(k,pin) !== pinHash(k,pin2)){ pin=''; pin2=''; step=1; dots();
           el('lgLab').textContent='쓸 비밀번호';
           msg('<b style="color:#c0392b">두 번이 서로 달라요. 처음부터 다시.</b>'); password.focus({preventScroll:true}); return; }
-        const fresh = { name:raw, pin:pinHash(k,pin), gold:R.startGold, av:newAvatar(sex),
+        const fresh = { name:raw, pin:pinHash(k,pin), gold:R.startGold, av:Object.assign(newAvatar(sex),{sk:firstSkin}),skinSetup:true,skinOwned:{[firstSkin]:1},
           owned:{}, stat:{solved:0,correct:0}, day:{d:today(),g:0}, made:now() };
-        uref(k).set(fresh).then(()=>{ enter(k, fresh); })
+        uref(k).transaction(user=>user?undefined:fresh,undefined,false).then(result=>{if(!result.committed){msg('그 아이디는 이미 있어요. 다른 이름으로 해 보세요.');return;}enter(k,result.snapshot.val());})
           .catch(e=> msg('<b style="color:#c0392b">만들기 실패: '+esc(e.message)+'</b>'));
         return;
       }
@@ -2895,10 +3044,12 @@ SCREENS.login = function(st){
     ME = { k, name:u.name||k, gold:u.gold||0, av:avatarForSex(Object.assign(newAvatar(u.av&&u.av.sex), u.av||{}),null,u.owned),
            owned:u.owned||{}, stat:u.stat||{solved:0,correct:0}, crown:u.crown||0,
            day:(u.day && u.day.d===today()) ? u.day : {d:today(), g:0} };
+    Object.assign(ME,skinAccount(u));
+    if(JSON.stringify(u.skinOwned||{})!==JSON.stringify(ME.skinOwned)||u.skinSetup!==ME.skinSetup)save({skinOwned:ME.skinOwned,skinSetup:ME.skinSetup});
     IS_TEACHER = false;
     LS.set('login', {k, h:u.pin});
     watchMe();
-    if(u.av&&u.av.hair!==ME.av.hair) save({av:ME.av});
+    if(JSON.stringify(u.av||{})!==JSON.stringify(ME.av))save({av:ME.av});
     if(!ME.day || ME.day.d!==today()) save({day:{d:today(),g:0}});
     entryScreen();
   }
@@ -3037,7 +3188,7 @@ function campusAvatar(value){
     if(typeof val==='string'&&ITEMS[cat.k+':'+val]&&itemForSex(ITEMS[cat.k+':'+val],sex))av[cat.k]=val;
   }
   av.bg='';av.frame='';
-  return av;
+  return avatarForSex(av,sex);
 }
 function campusCheckpoint(uid,space='campus'){
   let saved=campusCheckpoints.get(space+':'+uid);
@@ -3179,7 +3330,7 @@ function showRank(){
    8) 옷 가게 (상점 + 꾸미기)
    ═══════════════════════════════════════════════════════════════════ */
 SCREENS.shop = function(st,arg){
-  const S = { cat:arg?.fitting?'top':'hair', ci:0, sel:null, pv:avatarForSex(ME.av,null,ME.owned) };
+  const S = { cat:arg?.fitting?'top':'hair', sel:null, pv:avatarForSex(ME.av,null,ME.owned) };
 
   st.innerHTML = topbar(arg?.fitting?'피팅룸 · 입어 보기':'옷 가게', true) + `
   <div class="shopwrap qp-village-shop">
@@ -3201,9 +3352,7 @@ SCREENS.shop = function(st,arg){
     <div class="pnl col shop-shelves" style="overflow:hidden">
       <div class="qp-shop-switch"><button class="tab on" id="shopAll" aria-pressed="true">아이템 상점</button><button class="tab" id="shopOwned" aria-pressed="false">내 옷장</button></div>
       <div class="tabs" id="shTabs" aria-label="꾸미기 부위"></div>
-      <div class="shop-colour-strip">
-        <div class="row gap4" id="shPal" style="flex-wrap:wrap"></div>
-      </div>
+      <div class="shop-catalog-note hint" id="shopCatalogNote"></div>
       <div class="grid f1" id="shGrid"></div>
       <div class="shop-workshop-scenery" aria-hidden="true"><span class="shop-prop shop-prop-rack"></span><span class="shop-prop shop-prop-sewing"></span></div>
     </div>
@@ -3232,7 +3381,7 @@ SCREENS.shop = function(st,arg){
     S.onlyOwned=owned;S.sel=null;
     el('shopAll').classList.toggle('on',!owned);el('shopOwned').classList.toggle('on',owned);
     el('shopAll').setAttribute('aria-pressed',String(!owned));el('shopOwned').setAttribute('aria-pressed',String(owned));
-    paintPal();paintGrid();paintInfo();
+    paintGrid();paintInfo();
   }
   el('shopAll').onclick=()=>switchWardrobe(false);
   el('shopOwned').onclick=()=>switchWardrobe(true);
@@ -3240,48 +3389,35 @@ SCREENS.shop = function(st,arg){
   function paintTabs(){
     el('shTabs').innerHTML = CATS.map(c=>
       `<button class="tab ${c.k===S.cat?'on':''}" data-c="${c.k}" aria-pressed="${c.k===S.cat}">${uiIcon(c.k)}<span>${c.n}</span></button>`).join('');
-    $$('#shTabs .tab').forEach(b=> b.onclick = ()=>{ S.cat=b.dataset.c; S.ci=0; S.sel=null;
-      paintPv(); paintTabs(); paintPal(); paintGrid(); paintInfo(); });
-  }
-  function paintPal(){
-    if(S.onlyOwned){
-      el('shPal').innerHTML = '<span class="hint">가지고 있는 모든 색을 보여줘요.</span>';
-      return;
-    }
-    const pal = PAL[CAT[S.cat].pal];
-    el('shPal').innerHTML = pal.map((p,i)=>
-      `<button data-i="${i}" title="${p[1]}" aria-label="${p[1]}" aria-pressed="${i===S.ci}" style="width:26px;height:26px;border-radius:50%;
-        background:${p[0]};border:3px solid ${i===S.ci?'#ff9a24':'#b8d8f0'};box-shadow:0 2px 0 #9dbcd6"></button>`
-    ).join('') + `<span class="hint" style="margin-left:6px">색 ${pal.length}가지</span>`;
-    $$('#shPal button').forEach(b=> b.onclick = ()=>{ S.ci = +b.dataset.i;
-      if(S.sel&&ITEMS[S.sel]){ const it=ITEMS[S.sel]; S.sel = it.cat+':'+it.shape+':'+S.ci; S.pv[S.cat] = it.shape+':'+S.ci; paintPv(); }
-      paintPal(); paintGrid(); paintInfo(); });
+    $$('#shTabs .tab').forEach(b=> b.onclick = ()=>{ S.cat=b.dataset.c; S.sel=null;
+      paintPv(); paintTabs(); paintGrid(); paintInfo(); });
   }
   function paintGrid(){
     const c = CAT[S.cat]; let h = '';
     if(c.off) h += `<button class="itm" data-none="1" aria-pressed="${S.sel==='__none'}" style="grid-column:span 1">
       <div class="thumb shop-none" aria-hidden="true">✕</div>
       <div class="nm2">안 쓰기</div><div class="pr free">공짜</div></button>`;
-    const shapes=S.cat==='hair'?AVATAR_HAIR[avatarSex(S.pv.sex)].concat(Object.keys(c.src).filter(sk=>!AVATAR_HAIR[avatarSex(S.pv.sex)].includes(sk))):Object.keys(c.src);
-    for(const sk of shapes){
-      for(const ci of (S.onlyOwned?PAL[c.pal].map((_,i)=>i):[S.ci])){
-      const id = S.cat+':'+sk+':'+ci, it = ITEMS[id];
-      if(!itemForSex(it,S.pv.sex))continue;
-      const own = owns(id), eq = ME.av[S.cat] === sk+':'+ci;
-      if(!S.onlyOwned&&it.legacy)continue;
+    el('shopCatalogNote').textContent=S.cat==='outfit'?'상의와 하의를 함께 입는 한벌옷이에요.':avatarSexName(S.pv.sex)+' 아바타에게 맞는 '+(S.onlyOwned?'보유 아이템을':'아이템을')+' 골라요.';
+    for(const it of publicItems(S.cat,S.pv.sex)){
+      const {id,shape:sk,ci}=it,own=owns(id),eq=ME.av[S.cat]===sk+':'+ci;
       if(S.onlyOwned&&!own)continue;
-      const rare = it.price>=600?' r3':it.price>=300?' r2':'';
-      h += `<button class="itm${rare} ${own?'own':''} ${S.sel===id?'on':''}" data-id="${id}" aria-pressed="${S.sel===id}">
+      const rare=it.price>=600?' r3':it.price>=300?' r2':'';
+      h+=`<button class="itm${rare} ${own?'own':''} ${S.sel===id?'on':''}" data-id="${id}" aria-pressed="${S.sel===id}">
         ${eq?'<span class="badge eq">입음</span>':(own?'<span class="badge">보유</span>':'')}
-        <div class="thumb">${partThumb(S.cat, sk, ci, 100, S.pv.sex)}</div>
-        <div class="nm2">${esc(S.onlyOwned?it.name:it.short)}</div>
+        <div class="thumb">${partThumb(S.cat,sk,ci,100,S.pv.sex)}</div>
+        <div class="nm2">${esc(it.short)}</div>
         <div class="pr ${own?'free':''}">${own?'가지고 있음':it.price.toLocaleString()+'골드'}</div></button>`;
-      }
     }
     el('shGrid').innerHTML = h||'<div class="hint" style="grid-column:1/-1;padding:20px">이 부위에 가진 아이템이 없어요. 상점에서 마음에 드는 아이템을 골라 보세요.</div>';
     $$('#shGrid .itm').forEach(b=> b.onclick = ()=>{
-      if(b.dataset.none){ S.sel='__none'; S.pv[S.cat]=''; }
-      else { S.sel = b.dataset.id; S.pv[S.cat] = ITEMS[S.sel].shape+':'+ITEMS[S.sel].ci; }
+      if(b.dataset.none){
+        S.sel='__none';
+        if(S.cat==='outfit'&&S.pv.outfit)S.pv=applyCatalogItem(S.pv,curatedItem('top','tee',S.pv.sex));
+        else S.pv[S.cat]='';
+      }else{
+        S.sel=b.dataset.id;const chosen=ITEMS[S.sel];
+        S.pv=applyCatalogItem(S.pv,curatedItem(chosen.cat,chosen.shape,S.pv.sex));
+      }
       paintPv(); paintGrid(); paintInfo();
     });
   }
@@ -3289,10 +3425,10 @@ SCREENS.shop = function(st,arg){
     const box = el('shInfo');
     if(!S.sel){ box.innerHTML = `<div class="hint shop-fitting-note">가운데에서 옷을 눌러 보세요.<br>
       바로 <b>입어 볼 수 있어요.</b> ${S.onlyOwned?'가진 옷은 골드 없이 갈아입어요.':'마음에 들면 사면 돼요.'}<br><br>
-      ${S.onlyOwned?'가지고 있는 모든 색이 함께 나와요.': '위쪽 동그란 색을 누르면 <b>같은 옷이 색깔별로</b> 바뀌어요.'}</div>
+      한벌옷은 <b>상의와 하의를 함께</b> 갈아입어요.</div>
       <div class="mt12 shop-worn-list">
       <div class="shop-info-subtitle">지금 입고 있는 것</div>
-      ${CATS.map(c=>{ const v=ME.av[c.k]; const it = v? ITEMS[c.k+':'+v] : null;
+      ${CATS.filter(c=>!ME.av.outfit||!['top','bottom'].includes(c.k)).map(c=>{const v=ME.av[c.k];const it=v?curatedItem(c.k,v.split(':')[0],ME.av.sex):null;
         return `<div class="row shop-worn-row">
           <span class="shop-worn-category">${c.n}</span>
           <span>${it?esc(it.name):'없음'}</span></div>`; }).join('')}</div>`;
@@ -3302,11 +3438,11 @@ SCREENS.shop = function(st,arg){
       box.innerHTML = `<div class="shop-info-title">안 쓰기</div>
         <div class="hint mt8">${CAT[S.cat].n}를 빼고 다닐 수 있어요.</div>
         <button class="btn g mt12" style="width:100%" id="btnWear">벗기</button>`;
-      el('btnWear').onclick = ()=>{ const av=Object.assign({},ME.av); av[S.cat]='';
+      el('btnWear').onclick = ()=>{if(!canChangeAvatar())return;const av=S.cat==='outfit'?(ME.av.outfit?applyCatalogItem(ME.av,curatedItem('top','tee',ME.av.sex)):Object.assign({},ME.av)):Object.assign({},ME.av,{[S.cat]:''});
         save({av}); ME.av=av; S.pv=Object.assign({},av); paintPv(); paintGrid(); paintInfo(); toast('벗었어요'); };
       return;
     }
-    const it = ITEMS[S.sel], own = owns(it.id), eq = ME.av[it.cat]===it.shape+':'+it.ci;
+    const selected=ITEMS[S.sel],it=curatedItem(selected.cat,selected.shape,S.pv.sex),own=owns(it.id),eq=ME.av[it.cat]===it.shape+':'+it.ci;
     const rare = it.price>=600?'<span class="tag" style="background:#ffe6c8;color:#a35f00">희귀</span>'
                : it.price>=300?'<span class="tag" style="background:#eee2ff;color:#5b3ba8">고급</span>':'';
     box.innerHTML = `
@@ -3322,30 +3458,31 @@ SCREENS.shop = function(st,arg){
              ${(ME.gold||0)<it.price?'골드가 모자라요':'사기 · '+it.price.toLocaleString()+'골드'}</button>`}</div>
       ${(!own && (ME.gold||0)<it.price)? `<div class="hint mt8" style="color:#c0392b">
         ${(it.price-(ME.gold||0)).toLocaleString()}골드가 더 있어야 해요. 퀴즈를 더 풀어 보세요!</div>`:''}`;
-    const wear = ()=>{ const av=Object.assign({},ME.av); av[it.cat]=it.shape+':'+it.ci;
-      ME.av=av; save({av}); S.pv=Object.assign({},av); paintPv(); paintGrid(); paintInfo(); };
-    const bw = el('btnWear'); if(bw) bw.onclick = ()=>{ wear(); toast('입었어요!'); };
+    const wear = ()=>{if(!canChangeAvatar())return false;const av=applyCatalogItem(ME.av,it);
+      ME.av=av; save({av}); S.pv=Object.assign({},av); paintPv(); paintGrid(); paintInfo();return true; };
+    const bw = el('btnWear'); if(bw) bw.onclick = ()=>{ if(wear())toast('입었어요!'); };
     const bb = el('btnBuy');  if(bb) bb.onclick = async()=>{
+      if(!canChangeAvatar())return;
       if((ME.gold||0) < it.price){ toast('골드가 모자라요'); return; }
       const buyerKey=ME.k;
       bb.disabled=true;
       try{
         await save({},true);
         const result=await uref(buyerKey).transaction(user=>{
-          if(!user)return;
+          if(!user||!itemForSex(it,user.av?.sex))return;
           user.owned=user.owned||{};
-          if(!user.owned[it.id]){
+          if(!hasStyle(it.id,user.owned)){
             if((Number(user.gold)||0)<it.price)return;
             user.gold=(Number(user.gold)||0)-it.price;
             user.owned[it.id]=1;
           }
-          user.av=user.av||newAvatar();user.av[it.cat]=it.shape+':'+it.ci;
+          user.av=applyCatalogItem(user.av||newAvatar(),it);
           return user;
         },undefined,false);
         if(!result.committed){toast('골드가 모자라요');return;}
         if(!ME || ME.k!==buyerKey) return;
         const user=result.snapshot.val();ME.gold=user.gold;ME.owned=user.owned;
-        ME.av=Object.assign(newAvatar(),user.av);S.pv=Object.assign({},ME.av);
+        ME.av=avatarForSex(Object.assign(newAvatar(),user.av),null,user.owned);S.pv=Object.assign({},ME.av);
         paintGold();paintPv();paintGrid();paintInfo();SND.buy();toast('샀어요! '+it.name,2200);
       }catch(e){toast('구매를 저장하지 못했어요. 다시 눌러 주세요.',2600);}
       finally{if(bb.isConnected)bb.disabled=false;}
@@ -3353,19 +3490,22 @@ SCREENS.shop = function(st,arg){
   }
 
   el('btnRand').onclick = ()=>{
-    /* 가지고 있는 것 중에서만 아무렇게나 입혀 본다 */
-    const av = Object.assign({}, ME.av);
-    for(const c of CATS){
-      const mine = Object.keys(ITEMS).filter(id=> ITEMS[id].cat===c.k && itemForSex(ITEMS[id],av.sex) && owns(id));
-      if(!mine.length){ continue; }
-      if(c.off && Math.random()<0.3){ av[c.k]=''; continue; }
-      const it = ITEMS[mine[(Math.random()*mine.length)|0]];
-      av[c.k] = it.shape+':'+it.ci;
+    if(!canChangeAvatar())return;
+    // Styles may change, but every displayed style uses its designed colour.
+    let av=Object.assign({},ME.av,{outfit:''});
+    for(const c of CATS.filter(c=>c.k!=='outfit')){
+      const mine=publicItems(c.k,av.sex).filter(it=>owns(it.id));
+      if(!mine.length)continue;
+      if(c.off&&Math.random()<.3){av[c.k]='';continue;}
+      av=applyCatalogItem(av,mine[(Math.random()*mine.length)|0]);
     }
+    const suits=publicItems('outfit',av.sex).filter(it=>owns(it.id));
+    if(suits.length&&Math.random()<.3)av=applyCatalogItem(av,suits[(Math.random()*suits.length)|0]);
     ME.av = av; save({av}); S.pv = Object.assign({},av); paintPv(); paintGrid(); paintInfo();
   };
   el('btnReset').onclick = ()=>{ S.pv = Object.assign({}, ME.av); S.sel=null; paintPv(); paintGrid(); paintInfo(); };
   el('btnGender').onclick = ()=>{
+    if(!canChangeAvatar())return;
     const accountKey=ME.k, previewAv=Object.assign({},S.pv);
     modal('남자 / 여자 아바타 고르기', `
       <div class="row gap" id="avatarSexChoices" style="align-items:stretch">
@@ -3374,10 +3514,10 @@ SCREENS.shop = function(st,arg){
           <button class="btn sm ${ME.av.sex===sex?'p':'gray'}" data-sex="${sex}" aria-pressed="${ME.av.sex===sex}" style="width:100%;margin-top:8px">${name} 아바타</button>
         </div>`).join('')}
       </div>
-      <div class="hint mt12">무료로 바꿀 수 있어요. 얼굴·옷·피부색과 보유 아이템은 유지하고, 머리는 고른 아바타의 보유 헤어에 맞춰요.</div>
+      <div class="hint mt12">무료로 바꿀 수 있어요. 머리와 옷은 고른 아바타에 맞게 입어요. 피부색·골드·보유 아이템은 그대로예요.</div>
       <button class="btn gray mt12" style="width:100%" id="avatarSexClose">닫기</button>`, ()=>{
       $$('#avatarSexChoices [data-sex]').forEach(b=>b.onclick=()=>{
-        if(!ME || ME.k!==accountKey || curScr!=='shop')return;
+        if(!ME || ME.k!==accountKey || curScr!=='shop'||!canChangeAvatar())return;
         const av=avatarForSex(ME.av,b.dataset.sex,ME.owned);
         ME.av=av;save({av});S.pv=Object.assign({},av);S.sel=null;
         paintPv();paintGrid();paintInfo();closeModal();toast((av.sex==='m'?'남자':'여자')+' 아바타로 바꿨어요');
@@ -3385,23 +3525,35 @@ SCREENS.shop = function(st,arg){
       el('avatarSexClose').onclick=closeModal;
     });
   };
-  el('btnFace').onclick = ()=>{
-    modal('피부색 고르기', `
-      <div style="font-weight:800;color:#12467e;margin-bottom:6px">피부색</div>
-      <div class="row gap4" id="fSk" style="flex-wrap:wrap;margin-bottom:12px"></div>
-      <div class="hint">얼굴·손·다리가 함께 바뀌어요. 눈과 표정은 상점의 ‘얼굴’에서 골라 보세요.</div>`, ()=>{
-      const rowBtn = (arr, cur)=> arr.map((p,i)=>
-        `<button data-i="${i}" title="${esc(p[1])}" aria-label="${esc(p[1])}" style="width:38px;height:38px;border-radius:50%;background:${p[0]};
-          border:3px solid ${i===cur?'#ff9a24':'#b8d8f0'};box-shadow:0 2px 0 #9dbcd6"></button>`).join('');
-      const redraw = ()=>{
-        el('fSk').innerHTML = rowBtn(PAL.skin, ME.av.sk);
-        $$('#fSk button').forEach(b=> b.onclick=()=>{ ME.av.sk=+b.dataset.i; save({av:ME.av}); S.pv=Object.assign({},ME.av); paintPv(); redraw(); });
-      };
-      redraw();
+  el('btnFace').onclick=()=>{
+    if(!canChangeAvatar())return;
+    const accountKey=ME.k;let selected=ME.av.sk;
+    modal('피부색 상점',`<div class="hint">처음 고른 피부색은 무료예요. 다른 피부색은 각각 ${SKIN_PRICE}골드에 한 번 사면 계속 사용할 수 있어요.</div>
+      <div class="skin-options mt12" id="fSk"></div><div id="skinInfo" class="mt12"></div>`,()=>{
+      const paint=()=>{
+        el('fSk').innerHTML=PAL.skin.map(([colour,name],i)=>`<button class="skin-option" data-skin="${i}" aria-pressed="${i===selected}"><span class="skin-swatch" style="background:${colour}"></span><span>${name}</span><small>${ME.skinOwned?.[i]?'보유':SKIN_PRICE+'골드'}</small></button>`).join('');
+        $$('#fSk [data-skin]').forEach(button=>button.onclick=()=>{selected=+button.dataset.skin;S.pv.sk=selected;paintPv();paint();});
+        const own=!!ME.skinOwned?.[selected],same=ME.av.sk===selected,poor=!own&&(ME.gold||0)<SKIN_PRICE;
+        el('skinInfo').innerHTML=`<button class="btn ${own?'g':'y'}" id="skinAction" style="width:100%" ${same||poor?'disabled':''}>${same?'지금 사용하고 있어요':own?'이 피부색 쓰기':poor?'골드가 모자라요':'사기 · '+SKIN_PRICE+'골드'}</button>`;
+        el('skinAction').onclick=async()=>{
+          const button=el('skinAction');button.disabled=true;
+          try{
+            const applied=await acquireSkin(accountKey,selected);
+            if(!ME||ME.k!==accountKey)return;
+            if(!applied){toast('골드가 모자라요');return;}
+            if(curScr==='shop'&&el('pvStage')){
+              S.pv=Object.assign({},ME.av);paintPv();
+              if(el('modal').classList.contains('on')&&el('fSk')&&el('skinInfo'))paint();
+            }
+            toast(own?'피부색을 바꿨어요':'새 피부색을 샀어요!');
+          }catch(error){toast('피부색을 저장하지 못했어요. 다시 눌러 주세요.');}
+          finally{if(button.isConnected)button.disabled=false;}
+        };
+      };paint();
     });
   };
 
-  paintTabs(); paintPal(); paintGrid(); paintInfo(); paintPv();
+  paintTabs(); paintGrid(); paintInfo(); paintPv();
   if(arg?.owned)switchWardrobe(true);
 };
 
@@ -4885,12 +5037,14 @@ window.QPGame = {
   getPlayground:()=>activePlayground, getPlaygroundPresence:()=>activePlaygroundPresence,
   getClassroom:()=>activeClassroom, getMap:()=>activeClassroomView?.getMap(),
   getSound:()=>SND,
-  getCatalog:()=>({CATS,ITEMS,PAL,STARTER}),
+  getCatalog:()=>({CATS,ITEMS,PAL,STARTER,OUTFIT_PARTS,publicItems,curatedItem,hasStyle,SKIN_PRICE}),
   enterUser(k,u){
     if(!initFB()) return false;
     ME={k,name:u.name||k,gold:u.gold||0,av:avatarForSex(Object.assign(newAvatar(u.av&&u.av.sex),u.av||{}),null,u.owned),owned:u.owned||{},
       stat:u.stat||{solved:0,correct:0},crown:u.crown||0,day:u.day||{d:today(),g:0}};
-    IS_TEACHER=false; watchMe(); if(u.av&&u.av.hair!==ME.av.hair)save({av:ME.av}); entryScreen(); return true;
+    Object.assign(ME,skinAccount(u));
+    if(JSON.stringify(u.skinOwned||{})!==JSON.stringify(ME.skinOwned)||u.skinSetup!==ME.skinSetup)save({skinOwned:ME.skinOwned,skinSetup:ME.skinSetup});
+    IS_TEACHER=false; watchMe(); if(JSON.stringify(u.av||{})!==JSON.stringify(ME.av))save({av:ME.av}); entryScreen(); return true;
   },
   enterTeacher(){
     if(!initFB()) return false;

@@ -128,7 +128,13 @@
     seats: [], backgroundBenches, walkAreas,
     missingSourceBounds: [],
     solids,
-    interactables: [{ id: 'school-main-door', type: 'portal', target: 'campus', x: 1559, y: 676, radius: 75, approach: { x: 1559, y: 676 }, hitRect: { x: 1462, y: 489, width: 100, height: 128 }, label: '교실로 들어가기' }],
+    // Door proximity uses the walkable pavement immediately outside the
+    // original threshold, rather than the lower terrace arrival point. The
+    // orange-canopy east entrance is also a visible door into the same school.
+    interactables: [
+      { id: 'school-main-door', type: 'portal', target: 'campus', x: 1515, y: 620, radius: 85, approach: { x: 1515, y: 620 }, arrival: { x: 1559, y: 676 }, hitRect: { x: 1442, y: 450, width: 132, height: 148 }, hint: { x: 1515, y: 436 }, label: '교실로 들어가기', doorName: '학교 정문' },
+      { id: 'school-east-door', type: 'portal', target: 'campus', x: 2258, y: 410, radius: 75, approach: { x: 2258, y: 410 }, hitRect: { x: 2245, y: 255, width: 65, height: 125 }, hint: { x: 2330, y: 370 }, label: '교실로 들어가기', doorName: '학교 동쪽 문' }
+    ],
     sourcePolicy: 'All furniture and bench pixels are static background art; C uses the shared basic sitting pose at the current legal position, with no bench-specific animation or automatic seating. Only user original pixels. Six native captures plus exact 2x display of the supplemental 50% overview for uncaptured perimeter and covered window/foliage. No invented terrain, reflected track, or painted chalk.',
     components, overviewComponents, originalCoordinateRebase: REBASE, sources: Object.fromEntries(Object.entries(SOURCES).map(([id,s])=>[id,{...s,originalOrigin:[s.x,s.y],x:s.x+REBASE.x,y:s.y+REBASE.y}])) ,
     get() { return this; }, render() { return art; }
