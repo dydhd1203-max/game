@@ -47,7 +47,7 @@ async function focus(page){await page.bringToFront();await page.locator('.school
  browser=await chromium.launch({headless:true,executablePath:process.env.QUIZ_BROWSER_EXECUTABLE||'/usr/bin/chromium'});
  const context=await browser.newContext({viewport:{width:1366,height:768}});context.setDefaultTimeout(18000);
  await context.route('**/www.gstatic.com/firebasejs/**',r=>r.fulfill({body:'/* isolated school spaces */',contentType:'text/javascript'}));
- async function open(user){const p=await context.newPage();p.on('pageerror',e=>errors.push(e.stack||e.message));p.on('response',r=>{if(r.status()>=400)missing.push(r.url());});const url=new URL(base);url.searchParams.set('demo','1');url.searchParams.set('session',session);url.searchParams.set('user',user);await p.goto(url.href);await ready(p);return p;}
+ async function open(user){const p=await context.newPage();p.on('pageerror',e=>errors.push(e.stack||e.message));p.on('response',r=>{if(r.status()>=400)missing.push(r.url());});const url=new URL(base);url.searchParams.set('demo','1');url.searchParams.set('session',session);url.searchParams.set('user',user);url.searchParams.set('screen','campus');await p.goto(url.href);await ready(p);return p;}
  const a=await open('텔레포트하늘'),b=await open('텔레포트민트');
  const identity=await a.evaluate(()=>JSON.parse(JSON.stringify(QPGame.getMe())));
  const aid=identity.k,bid=await b.evaluate(()=>QPGame.getMe().k);
@@ -66,7 +66,7 @@ async function focus(page){await page.bringToFront();await page.locator('.school
  await a.locator('[data-gesture="wave"]').click();
  await a.waitForFunction(()=>document.querySelector('.sr-actor.is-me svg')?.dataset.qpxGesture==='wave');
  await a.waitForFunction(()=>!document.querySelector('.sr-actor.is-me svg')?.dataset.qpxGesture);
- pass('Default login remains the 30-seat classroom; F away from doors does nothing, while the greeting button still waves.');
+ pass('Explicit classroom entry retains the 30-seat classroom; F away from doors does nothing, while the greeting button still waves.');
  phase='classroom door approach';
  const schoolDoor=await a.evaluate(()=>QPSchoolRoomScene.interactables.find(i=>i.target==='playground'));
  assert(schoolDoor);await walk(a,schoolDoor.approach);
@@ -161,14 +161,14 @@ async function focus(page){await page.bringToFront();await page.locator('.school
  assert.equal((await state(a)).nearest?.id,eastDoor.id,'Clicking the source doorway must walk to its legal front pavement');
  await focus(a);await a.keyboard.down('ArrowUp');await a.waitForFunction(()=>QPGame.getPlayground().getState().y<396);await a.keyboard.up('ArrowUp');
  assert.equal((await state(a)).nearest?.id,eastDoor.id,'The visible east threshold must keep its F action');
- assert.equal(await a.locator('[data-sr-door-hint]').count(),2);
+ assert.equal(await a.locator('[data-sr-door-hint]').count(),3);
  await shot(a,'10-운동장-동쪽학교문-F');await a.keyboard.press('KeyF');await room(a,'campus');
  assert(Math.hypot((await state(a)).x-insideArrival.x,(await state(a)).y-insideArrival.y)<1);
  assert.deepEqual(await a.evaluate(()=>JSON.parse(JSON.stringify(QPGame.getMe()))),identity);
  pass('Both visible school doorways return with F from their legal thresholds; the east source door click approaches its own entrance and the account stays unchanged.');
  await a.reload();await ready(a);assert.equal((await state(a)).zone,'campus');
  assert.equal(await a.evaluate(()=>QPGame.getMe().k),aid);
- pass('F returns to the classroom door with an idle pose; reload keeps the default classroom and account.');
+ pass('F returns to the classroom door with an idle pose; explicit classroom reload preserves the account.');
  phase='wide desktop';await b.setViewportSize({width:1920,height:1080});await sleep(150);await shot(b,'09-운동장-1920');
  assert(await b.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1&&document.documentElement.scrollHeight<=innerHeight+1));
  assert.deepEqual(errors,[]);assert.deepEqual(missing,[]);pass('Both PC sizes have no page errors, missing assets or page overflow.');

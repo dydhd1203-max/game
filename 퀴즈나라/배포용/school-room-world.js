@@ -86,8 +86,8 @@
     if(!container||typeof options.renderAvatar!=='function')throw new Error('교실과 아바타 렌더러가 필요해요.');
     const source=options.scene||window.QPSchoolRoomScene;if(!source)throw new Error('교실 에셋을 준비하지 못했어요.');
     const scene=typeof source.get==='function'?source.get():source,nav=createNavigation(scene),floorNav=createNavigation(scene,{radius:18}),seats=scene.seats||[],interactions=scene.interactables||scene.interactions||[];
-    const zone=options.zone||scene.zone||'campus',playground=zone==='playground',title=options.title||scene.title||(playground?'우리 반 운동장':'우리 반 교실');
-    const idleInteractionText=playground?'학교 문 앞에서 F':'문 앞 F · 칠판 앞 E';
+    const zone=options.zone||scene.zone||'campus',playground=zone==='playground',outdoors=zone!=='campus',forest=['village','forestgarden','treehouse','skyisland'].includes(zone),title=options.title||scene.title||(outdoors?'우리 반 운동장':'우리 반 교실');
+    const idleInteractionText=forest?'입구 가까이에서 F':playground?'학교 문 앞에서 F':'문 앞 F · 칠판 앞 E';
     const isPortal=item=>item.type==='portal'||item.type==='door'&&Boolean(item.target);
     const portalLabel=item=>item.label||(item.target==='campus'?'교실로 들어가기':'운동장 나가기');
     const seatMap=new Map(seats.map(s=>[s.id,s])),user=options.user||{},uid=String(user.uid||user.k||'local'),avatar=user.avatar||user.av||{};
@@ -97,15 +97,15 @@
     else if(saved){const previous=seats.find(s=>distance({x:finite(saved.x,-1000),y:finite(saved.y,-1000)},{x:finite(s.sitX??s.x),y:finite(s.sitY??s.y)})<12),exit=previous?.exit||previous?.approach;if(exit&&nav.canStand(exit.x,exit.y))state.x=exit.x,state.y=exit.y;}
     const runInput=window.QPRunInput.create();
     const keys=new Set(),heldMovement=new Set(),suppressedMovement=new Set(),heldActions=new Set(),actors=new Map();let dead=false,paused=false,raf=0,last=0,path=[],pending=null,gesture=null,phase=0,lastPublish=0,lastCheckpoint=0,claimToken=0,seating=false,seatPendingId=null,seatedExit=null,seatClaimQueue=Promise.resolve(),transitioning=false,presence=options.presence||null,status={mode:'local'},nearest=null;
-    let preferredScale=finite(scene.cameraHome?.zoom,.84),scale=preferredScale,minimumScale=0,camera={x:0,y:0},cameraReady=false,autoFollow=Boolean(saved),noticeTimer=0;
+    let preferredScale=finite(scene.cameraHome?.zoom,.84),scale=preferredScale,minimumScale=0,camera={x:0,y:0},cameraReady=false,autoFollow=Boolean(saved)||Boolean(scene.centerOnPlayer),noticeTimer=0;
     const clockNow=()=>{const time=presence?.getTime?.();return Number.isFinite(time)?time:Date.now();};
     container.classList.add('school-room-host');container.dataset.zone=zone;container.replaceChildren();
-    const viewport=element('div','school-room-world');viewport.tabIndex=0;viewport.setAttribute('role','region');viewport.setAttribute('aria-label',title+'. 방향키나 WASD로 걷기, 같은 방향키 두 번 누른 채 유지하면 달리기, 바닥 클릭으로 이동, C로 '+(playground?'원하는 위치':'의자나 바닥')+'에 앉기와 일어나기, 문 앞에서 F로 공간 이동'+(playground?'.':', 칠판 앞 E로 수업 열기.'));
+    const viewport=element('div','school-room-world');viewport.tabIndex=0;viewport.setAttribute('role','region');viewport.setAttribute('aria-label',title+'. 방향키나 WASD로 걷기, 같은 방향키 두 번 누른 채 유지하면 달리기, 바닥 클릭으로 이동, C로 '+(outdoors?'원하는 위치':'의자나 바닥')+'에 앉기와 일어나기, 문 앞에서 F로 공간 이동'+(outdoors?'.':', 칠판 앞 E로 수업 열기.'));
     const world=element('div','sr-world');world.style.width=scene.width+'px';world.style.height=scene.height+'px';world.innerHTML=source.render?source.render():scene.markup||'';viewport.append(world);container.append(viewport);
     const destination=element('span','sr-destination');destination.hidden=true;world.append(destination);
     const hud=element('div','sr-hud');hud.innerHTML='<div class="sr-room-title"><strong></strong><span class="sr-network"></span></div><span class="sr-friend-count">함께 있는 친구 <b>1</b></span>';hud.querySelector('strong').textContent=title;container.append(hud);
-    const tools=element('div','sr-tools');tools.innerHTML='<button data-tool="help">조작 안내</button><button data-tool="zoom-out">−</button><button data-tool="zoom-in">＋</button><button data-tool="center"></button><button data-tool="exit"></button>';tools.querySelector('[data-tool="zoom-out"]').setAttribute('aria-label',title+' 축소');tools.querySelector('[data-tool="zoom-in"]').setAttribute('aria-label',title+' 확대');tools.querySelector('[data-tool="center"]').textContent=options.centerLabel||scene.centerLabel||(playground?'운동장 보기':'교실 보기');tools.querySelector('[data-tool="exit"]').textContent=options.exitLabel||scene.exitLabel||(playground?'교실로 돌아가기':'수업 목록');container.append(tools);
-    const help=element('div','sr-help');help.hidden=true;help.innerHTML='<b>방향키 · WASD</b> 걷기　<b>같은 방향키 두 번</b> 달리기　<b>바닥 클릭</b> 길 찾아 걷기<br>'+ (playground?'<b>C</b> 원하는 곳에 앉기 / 일어나기<br>벤치가 있는 곳도 자유롭게 걸어요.':'<b>C</b> 의자 가까이서 앉기 / 넓은 바닥에서 앉기 / 일어나기<br><b>의자 클릭</b> 빈자리로 걸어가 앉기')+'<br><b>문 클릭</b> 문 앞으로 걷기　<b>문 앞 F</b> '+(playground?'교실로 들어가기':'운동장으로 나가기')+'<br><b>손 흔들기 · 인사 버튼</b> 친구에게 인사'+(playground?'':'　<b>칠판 앞 E</b> 선생님 수업 열기');container.append(help);
+    const tools=element('div','sr-tools');tools.innerHTML='<button data-tool="help">조작 안내</button><button data-tool="zoom-out">−</button><button data-tool="zoom-in">＋</button><button data-tool="center"></button><button data-tool="exit"></button>';tools.querySelector('[data-tool="zoom-out"]').setAttribute('aria-label',title+' 축소');tools.querySelector('[data-tool="zoom-in"]').setAttribute('aria-label',title+' 확대');tools.querySelector('[data-tool="center"]').textContent=options.centerLabel||scene.centerLabel||(outdoors?'운동장 보기':'교실 보기');tools.querySelector('[data-tool="exit"]').textContent=options.exitLabel||scene.exitLabel||(outdoors?'교실로 돌아가기':'수업 목록');container.append(tools);
+    const help=element('div','sr-help');help.hidden=true;help.innerHTML='<b>방향키 · WASD</b> 걷기　<b>같은 방향키 두 번</b> 달리기　<b>바닥 클릭</b> 길 찾아 걷기<br>'+ (outdoors?'<b>C</b> 원하는 곳에 앉기 / 일어나기'+(forest?'':'<br>벤치가 있는 곳도 자유롭게 걸어요.'):'<b>C</b> 의자 가까이서 앉기 / 넓은 바닥에서 앉기 / 일어나기<br><b>의자 클릭</b> 빈자리로 걸어가 앉기')+'<br><b>문 클릭</b> 문 앞으로 걷기　<b>문 앞 F</b> '+(forest?'표시된 장소로 이동':outdoors?'교실로 들어가기':'운동장으로 나가기')+'<br><b>손 흔들기 · 인사 버튼</b> 친구에게 인사'+(outdoors?'':'　<b>칠판 앞 E</b> 선생님 수업 열기');container.append(help);
     const controls=element('div','sr-controls');controls.innerHTML='<button data-gesture="wave">👋 손 흔들기</button><button data-gesture="hello">인사</button><button data-gesture="happy">✨ 신나!</button><button data-tool="sit" class="sr-sit">앉기 <small>C</small></button><button class="sr-interact" disabled></button>';container.append(controls);
     const actionButton=controls.querySelector('.sr-interact'),notice=element('div','sr-notice');actionButton.textContent=idleInteractionText;notice.setAttribute('role','status');notice.setAttribute('aria-live','polite');container.append(notice);
     const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
@@ -176,13 +176,13 @@
     function floorSit(){
       if(dead||blocked()||seating)return false;if(state.pose==='sit-floor')return stand();
       if(state.seatId&&!stand())return false;
-      if(!floorNav.canStand(state.x,state.y)){announce((playground?'사물':'책상과 벽')+'에서 조금 떨어진 넓은 바닥에 앉아 주세요.');return false;}
-      stopForAction();++claimToken;state.pose='sit-floor';state.seatId=null;state.moving=false;publish(true);updateNearby();announce((playground?'앉았어요.':'바닥에 앉았어요.')+' C나 방향키로 일어나요.');focus();return true;
+      if(!floorNav.canStand(state.x,state.y)){announce((outdoors?'사물':'책상과 벽')+'에서 조금 떨어진 넓은 바닥에 앉아 주세요.');return false;}
+      stopForAction();++claimToken;state.pose='sit-floor';state.seatId=null;state.moving=false;publish(true);updateNearby();announce((outdoors?'앉았어요.':'바닥에 앉았어요.')+' C나 방향키로 일어나요.');focus();return true;
     }
     function toggleSit(){if(dead||blocked())return false;const cancelling=seating||pending?.type==='seat';stopForAction();if(state.seatId||state.pose==='sit-floor'||cancelling)return stand();const seat=nearbySeat();return seat?sit(seat.id):floorSit();}
     function moveTo(x,y,goal=null){
       if(dead||blocked())return false;if(!stand())return false;++claimToken;seating=false;seatPendingId=null;stopForAction();const end={x:finite(x,NaN),y:finite(y,NaN)};
-      const route=nav.route(state,end);if(!route){announce((playground?'사물을 피해 이동할 바닥을':'책상과 벽을 피해 바닥이나 빈 의자를')+' 눌러 주세요.');return false;}
+      const route=nav.route(state,end);if(!route){announce((outdoors?'사물을 피해 이동할 바닥을':'책상과 벽을 피해 바닥이나 빈 의자를')+' 눌러 주세요.');return false;}
       path=route;pending=goal;autoFollow=true;destination.style.left=end.x+'px';destination.style.top=end.y+'px';destination.hidden=false;focus();return true;
     }
     function boardNear(board){return distance(state,board)<=finite(board.radius,115);}
@@ -205,7 +205,7 @@
     }
     function walkToPortal(portal){const point=portal.approach||portal;if(boardNear(portal)){stopForAction();announce(portalLabel(portal)+' · F');focus();return true;}return moveTo(point.x,point.y,{type:'portal-approach',id:portal.id});}
     for(const portal of interactions.filter(item=>isPortal(item)&&item.hint)){
-      const hint=element('button','sr-door-hint','교실로 · F');hint.type='button';hint.dataset.srDoorHint=portal.id;
+      const hint=element('button','sr-door-hint',portal.hintLabel||'교실로 · F');hint.type='button';hint.dataset.srDoorHint=portal.id;
       hint.style.left=portal.hint.x+'px';hint.style.top=portal.hint.y+'px';
       hint.setAttribute('aria-label',(portal.doorName||'학교 문')+' 앞으로 가기. 문 앞에서 F로 '+portalLabel(portal));
       hint.onclick=()=>{walkToPortal(portal);focus();};world.append(hint);
@@ -216,7 +216,7 @@
     }
     function updateNearby(){
       const seat=nearbySeat(),portal=closestInteraction(isPortal),board=closestInteraction(item=>(item.type||item.action)==='board'),cancelling=seating||pending?.type==='seat';
-      controls.querySelector('[data-tool="sit"]').textContent=state.seatId||state.pose==='sit-floor'?'일어서기 · C':cancelling?'앉기 취소 · C':playground?'앉기 · C':seat?(seat.kind==='bench'?'벤치에 앉기 · C':'의자에 앉기 · C'):'바닥에 앉기 · C';
+      controls.querySelector('[data-tool="sit"]').textContent=state.seatId||state.pose==='sit-floor'?'일어서기 · C':cancelling?'앉기 취소 · C':outdoors?'앉기 · C':seat?(seat.kind==='bench'?'벤치에 앉기 · C':'의자에 앉기 · C'):'바닥에 앉기 · C';
       nearest=state.seatId?{type:'stand'}:state.pose==='sit-floor'?{type:'stand-floor'}:portal?{type:'portal',id:portal.id,value:portal}:board?{type:'board',id:board.id,value:board}:seat?{type:'seat',id:seat.id,value:seat}:null;
       actionButton.disabled=!portal&&!board;actionButton.textContent=portal?portalLabel(portal)+' · F':board?'선생님 수업 열기 · E':idleInteractionText;
       viewport.dataset.nearby=nearest?.type||'';
@@ -238,7 +238,7 @@
     function setStatus(next={}){status={...next};hud.querySelector('.sr-network').textContent=next.mode==='connected'?'우리 반 친구들과 함께':next.mode==='connecting'?'친구 연결 중':next.mode==='offline'?'연결을 기다리며 둘러보기':'혼자 둘러보기';hud.querySelector('.sr-room-title').dataset.mode=next.mode||'local';}
     function setPresence(value){presence=value||null;publish(true);}
     function zoom(delta){preferredScale=clamp(scale+finite(delta),.68,Math.max(1.12,minimumScale+.4));cameraReady=false;autoFollow=true;updateCamera(0);focus();}
-    function center(){cameraReady=false;autoFollow=false;focus();}
+    function center(){cameraReady=false;autoFollow=Boolean(scene.centerOnPlayer);focus();}
     function resize(){cameraReady=false;updateCamera(0);}
     function updateCamera(dt){
       minimumScale=Math.max(viewport.clientWidth/scene.width,viewport.clientHeight/scene.height);

@@ -1,0 +1,5 @@
+/* Supplied maps plus the requested flower style edit; bounds match originals. */
+.fv-art{position:absolute;pointer-events:none;user-select:none;max-width:none}
+.fv-night-ground{position:absolute;inset:0;background:#132829;z-index:-5}
+.fv-sky-ground{position:absolute;inset:0;background:#6ac4ed;z-index:-5}
+.school-room-host[data-zone="village"] .sr-door-hint,.school-room-host[data-zone="forestgarden"] .sr-door-hint,.school-room-host[data-zone="treehouse"] .sr-door-hint,.school-room-host[data-zone="skyisland"] .sr-door-hint{z-index:9100}

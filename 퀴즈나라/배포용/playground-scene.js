@@ -132,6 +132,7 @@
     // original threshold, rather than the lower terrace arrival point. The
     // orange-canopy east entrance is also a visible door into the same school.
     interactables: [
+      { id: 'playground-village-path', type: 'portal', target: 'village', targetDoor: 'village-school-path', x: 600, y: 1060, radius: 58, approach: { x: 600, y: 1060 }, arrival: { x: 640, y: 1050 }, hint: { x: 600, y: 1040 }, hintLabel: '숲속 마을 · F', label: '숲속 마을로', doorName: '마을로 가는 서쪽 길', hitRect: { x: 555, y: 1025, width: 90, height: 65 } },
       { id: 'school-main-door', type: 'portal', target: 'campus', x: 1515, y: 620, radius: 85, approach: { x: 1515, y: 620 }, arrival: { x: 1559, y: 676 }, hitRect: { x: 1442, y: 450, width: 132, height: 148 }, hint: { x: 1515, y: 436 }, label: '교실로 들어가기', doorName: '학교 정문' },
       { id: 'school-east-door', type: 'portal', target: 'campus', x: 2258, y: 410, radius: 75, approach: { x: 2258, y: 410 }, hitRect: { x: 2245, y: 255, width: 65, height: 125 }, hint: { x: 2330, y: 370 }, label: '교실로 들어가기', doorName: '학교 동쪽 문' }
     ],

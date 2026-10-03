@@ -1,0 +1,53 @@
+{
+  "archive": "숲속마을 컨셉.zip",
+  "files": [
+    {
+      "originalName": "가을피크닉.png",
+      "file": "originals/autumn-picnic.png",
+      "sha256": "e67022a6b8d0e28797333bf05d3e52c831c3d0389ad0a9c0aebe440f622575b6",
+      "role": "source-map"
+    },
+    {
+      "originalName": "나무집.png",
+      "file": "originals/treehouse.png",
+      "sha256": "670493665de255e2c1fb81d31be40dc34718221e2253302698bb4de1323df3ab",
+      "role": "source-map"
+    },
+    {
+      "originalName": "숲속 교실.png",
+      "file": "originals/forest-classroom.png",
+      "sha256": "53324009ee1a911566ae6df410f5a3473a8b928e981165dbc7673a1f7659b870",
+      "role": "source-map"
+    },
+    {
+      "originalName": "숲속 마을 컨셉.jpg",
+      "file": "originals/concept-sunlit.jpg",
+      "sha256": "facb0736ef7c7a603c3860f184ad983001e5eb64fd542489e605ee4b7a210465",
+      "role": "mood-reference"
+    },
+    {
+      "originalName": "숲속 마을 컨셉2.jpg",
+      "file": "originals/concept-lakeside.jpg",
+      "sha256": "97d1bcceda8385ed076888c301acfd02cadf8b366882df0fe956c1132ec70245",
+      "role": "mood-reference"
+    },
+    {
+      "originalName": "캠피장소.png",
+      "file": "originals/camp.png",
+      "sha256": "a20395444e215ef1c6ab63e3c6c85069d5f008368a4ee5ba27c5d3a2809a6815",
+      "role": "source-map"
+    },
+    {
+      "originalName": "퀴즈마을.png",
+      "file": "originals/quiz-island.png",
+      "sha256": "7e5ef6b7070d0951d331c1cb9b72dc916f3ee0a2d510fac21b9a9cefbb7c7751",
+      "role": "source-map"
+    },
+    {
+      "originalName": "피크닉동산.png",
+      "file": "originals/picnic-garden.png",
+      "sha256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+      "role": "source-map"
+    }
+  ]
+}

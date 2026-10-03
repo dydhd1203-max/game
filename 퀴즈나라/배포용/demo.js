@@ -168,7 +168,7 @@
       host.contentWindow.postMessage({type:'qp-demo-start',mode:b.dataset.mode},location.origin);
       setTimeout(()=>{b.disabled=false;},1200);
     };
-    if(params.get('avatar')==='foundation'&&['campus','playground'].includes(params.get('screen'))){
+    if(params.get('avatar')==='foundation'&&['campus','playground','village','forestgarden','treehouse','skyisland'].includes(params.get('screen'))){
       const started=performance.now();
       try{
         await new Promise((resolve,reject)=>{const timer=setInterval(()=>{
@@ -178,6 +178,7 @@
         game.go(params.get('screen'));
       }catch(error){console.warn(error);window.QPGame.toast?.(error.message);}
     }
+    if(params.get('avatar')!=='foundation'&&['campus','playground','village','forestgarden','treehouse','skyisland'].includes(params.get('screen')))game.go(params.get('screen'));
     const requestedScene=params.get('scene');
     if(['quiz','ox','cross'].includes(requestedScene))await toolbar.querySelector('[data-mode="'+requestedScene+'"]').onclick();
     window.addEventListener('beforeunload',()=>{channel?.close();});

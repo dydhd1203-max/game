@@ -6,7 +6,7 @@
   const GESTURES = new Set(['wave', 'hello', 'happy', 'heart', 'clap', 'surprise', 'sad', 'laugh', 'cheer']);
   const POSES = new Set(['idle', 'walk', 'run', 'wave', 'climb', 'jump', 'sit', 'sit-floor', 'land']);
   const DIRECTIONS = new Set(['front', 'left', 'right', 'back']);
-  const SHARED_SPACES = new Set(['campus', 'playground']);
+  const SHARED_SPACES = new Set(['campus', 'playground', 'village', 'forestgarden', 'treehouse', 'skyisland']);
   const ZONE = /^[a-z][a-z0-9_-]{0,47}$/;
   const SEAT = /^[a-zA-Z0-9_-]{1,64}$/;
   const text = (value, length) => String(value == null ? '' : value).replace(/[\u0000-\u001f\u007f]/g, '').slice(0, length);
@@ -37,7 +37,9 @@
     if (!base || /[.#$\[\]]/.test(base)) throw new Error('마을 저장 경로가 올바르지 않아요.');
     const space = options.space == null ? 'village' : options.space;
     if (space !== 'village' && !SHARED_SPACES.has(space)) throw new Error('공유 공간 이름이 올바르지 않아요.');
-    const sharedSpace = SHARED_SPACES.has(space);
+    // Explicit scene IDs use isolated room rosters. Omitted space keeps the
+    // earlier standalone presence API and its storage contract compatible.
+    const sharedSpace = options.space != null && SHARED_SPACES.has(space);
     const spacePath = sharedSpace ? base + '/spaces/' + key(options.classId || '3-3') + '/' + space : base + '/village/' + key(options.classId || '3-3');
     const path = spacePath + '/connections';
     let state = { uid, name: text(options.name || uid, 32), avatar: avatar(options.avatar), x: 0, y: 0, height: 0, zone: space, facing: 1, direction: 'front', moving: false, pose: 'idle', gesture: null, seatId: null };

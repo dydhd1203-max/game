@@ -1,0 +1,237 @@
+{
+  "version": 1,
+  "coordinateSystem": "original source pixels, before crop/scale",
+  "protected": {
+    "village-composition": [
+      {
+        "id": "lake-oak",
+        "rect": [
+          177,
+          101,
+          72,
+          89
+        ]
+      },
+      {
+        "id": "central-grove",
+        "rect": [
+          431,
+          141,
+          125,
+          142
+        ]
+      },
+      {
+        "id": "flowering-tree",
+        "rect": [
+          708,
+          258,
+          149,
+          134
+        ]
+      },
+      {
+        "id": "autumn-tree",
+        "rect": [
+          141,
+          347,
+          141,
+          115
+        ]
+      },
+      {
+        "id": "lower-grove",
+        "rect": [
+          490,
+          451,
+          107,
+          142
+        ]
+      },
+      {
+        "id": "eastern-trees",
+        "rect": [
+          970,
+          171,
+          145,
+          211
+        ]
+      },
+      {
+        "id": "southern-oak",
+        "rect": [
+          282,
+          591,
+          106,
+          103
+        ]
+      },
+      {
+        "id": "west-fence",
+        "rect": [
+          369,
+          621,
+          187,
+          40
+        ]
+      },
+      {
+        "id": "east-fence",
+        "rect": [
+          622,
+          618,
+          236,
+          44
+        ]
+      },
+      {
+        "id": "name-neighbor-lamp",
+        "rect": [
+          543,
+          394,
+          18,
+          74
+        ]
+      },
+      {
+        "id": "lower-grove-crown-tip",
+        "rect": [
+          536,
+          441,
+          48,
+          12
+        ]
+      },
+      {
+        "id": "clock-post-and-base",
+        "rect": [
+          586,
+          308,
+          22,
+          71
+        ]
+      },
+      {
+        "id": "flower-bed-parent-crown",
+        "rect": [
+          610,
+          368,
+          20,
+          15
+        ]
+      },
+      {
+        "id": "flower-bed-parent-lower-curve",
+        "rect": [
+          603,
+          383,
+          5,
+          7
+        ]
+      }
+    ],
+    "garden-composition": [
+      {
+        "id": "left-forest-and-hammocks",
+        "rect": [
+          0,
+          145,
+          236,
+          390
+        ]
+      },
+      {
+        "id": "right-forest",
+        "rect": [
+          816,
+          138,
+          146,
+          395
+        ]
+      },
+      {
+        "id": "treehouse-roof-root",
+        "rect": [
+          246,
+          18,
+          141,
+          130
+        ]
+      },
+      {
+        "id": "gate-left-post",
+        "rect": [
+          402,
+          446,
+          17,
+          81
+        ]
+      },
+      {
+        "id": "gate-right-post",
+        "rect": [
+          509,
+          446,
+          20,
+          81
+        ]
+      },
+      {
+        "id": "west-fence",
+        "rect": [
+          239,
+          504,
+          161,
+          22
+        ]
+      },
+      {
+        "id": "east-fence",
+        "rect": [
+          531,
+          503,
+          212,
+          22
+        ]
+      }
+    ],
+    "sky-composition": [
+      {
+        "id": "mushroom-crown-and-stem",
+        "rect": [
+          105,
+          37,
+          154,
+          116
+        ]
+      },
+      {
+        "id": "west-native-trees",
+        "rect": [
+          67,
+          136,
+          90,
+          124
+        ]
+      },
+      {
+        "id": "east-native-trees",
+        "rect": [
+          777,
+          158,
+          110,
+          115
+        ]
+      },
+      {
+        "id": "root-ladder-and-fence",
+        "rect": [
+          599,
+          391,
+          173,
+          122
+        ]
+      }
+    ]
+  }
+}

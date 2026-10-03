@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "authorization": "2026-10-03 user requested adapting provided assets to the current map style without awkwardness. Originals remain unchanged.",
+  "assets": [
+    {
+      "id": "flowers-daisy",
+      "file": "adapted/flowers-daisy.png",
+      "sha256": "ca7b5e65dafa7408345fc0a90f13eaa1d9f11dbc519730f455eded822d5ffed1",
+      "width": 1484,
+      "height": 1060,
+      "significantAlphaBounds": [
+        233,
+        242,
+        1282,
+        858
+      ],
+      "ground": [
+        758,
+        858
+      ],
+      "origin": "image_gen edit of user-provided flower asset with native map style reference; not a pixel extraction",
+      "references": [
+        {
+          "file": "assets/grass-library/originals/grass-01f0410a594bffdb.jpg",
+          "sha256": "01f0410a594bffdb8c30feb9cdfb9cee97caa7725094ac5aec5fa9a27c385a04",
+          "role": "plant design"
+        },
+        {
+          "file": "assets/forest-village-library/originals/picnic-garden.png",
+          "sha256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+          "role": "native map rendering, light, viewpoint and palette"
+        }
+      ],
+      "instructions": "One complete low ivory daisy clump derived from the middle-right original. Preserve flower identity and arrangement; soften thick outlines, flat cel shading and sharp leaves to native warm shaded miniature 2.5D map style. Elevated view, small contact shadow, transparent background, no new props or text. Review beside native flowers at about 64x46 screen pixels."
+    }
+  ]
+}

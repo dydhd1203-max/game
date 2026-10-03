@@ -1,0 +1,2007 @@
+{
+  "version": 2,
+  "policy": "User-provided pixels; full-object masks and protected surrounding silhouettes. Original files remain unchanged.",
+  "assets": [
+    {
+      "id": "village-composition",
+      "file": "extracted/village-composition.png",
+      "source": "assets/forest-village-library/originals/picnic-garden.png",
+      "sourceSHA256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+      "sourceRect": [
+        0,
+        64,
+        1115,
+        736
+      ],
+      "width": 1115,
+      "height": 736,
+      "sha256": "4270f01907a6dcd1cc01a4a7c683927edc9a1b621a7f2874ae6e9e4d12f37521",
+      "patches": [
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              278,
+              68
+            ],
+            [
+              350,
+              65
+            ],
+            [
+              362,
+              132
+            ],
+            [
+              283,
+              135
+            ]
+          ],
+          "reason": "entire upper picnic rug",
+          "groundTransition": 0
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              259,
+              161
+            ],
+            [
+              333,
+              163
+            ],
+            [
+              337,
+              231
+            ],
+            [
+              256,
+              230
+            ]
+          ],
+          "reason": "entire lower picnic rug",
+          "groundTransition": 0
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              360,
+              158
+            ],
+            [
+              388,
+              158
+            ],
+            [
+              389,
+              218
+            ],
+            [
+              381,
+              227
+            ],
+            [
+              361,
+              224
+            ]
+          ],
+          "reason": "entire rug-side bench",
+          "groundTransition": 0
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              282,
+              465
+            ],
+            [
+              307,
+              465
+            ],
+            [
+              310,
+              487
+            ],
+            [
+              328,
+              487
+            ],
+            [
+              340,
+              494
+            ],
+            [
+              340,
+              539
+            ],
+            [
+              324,
+              547
+            ],
+            [
+              324,
+              562
+            ],
+            [
+              311,
+              575
+            ],
+            [
+              281,
+              575
+            ],
+            [
+              277,
+              544
+            ],
+            [
+              249,
+              542
+            ],
+            [
+              248,
+              492
+            ],
+            [
+              272,
+              489
+            ],
+            [
+              281,
+              488
+            ]
+          ],
+          "reason": "entire white dining table and four chairs",
+          "groundTransition": 0
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              338,
+              424
+            ],
+            [
+              365,
+              424
+            ],
+            [
+              386,
+              439
+            ],
+            [
+              395,
+              461
+            ],
+            [
+              392,
+              486
+            ],
+            [
+              371,
+              500
+            ],
+            [
+              372,
+              511
+            ],
+            [
+              341,
+              514
+            ],
+            [
+              337,
+              500
+            ],
+            [
+              321,
+              484
+            ],
+            [
+              319,
+              456
+            ],
+            [
+              327,
+              439
+            ]
+          ],
+          "reason": "entire courtyard tree including crown, trunk and shadow",
+          "groundTransition": 0
+        },
+        {
+          "donorRect": [
+            599,
+            480,
+            20,
+            22
+          ],
+          "maskPolygon": [
+            [
+              562,
+              397
+            ],
+            [
+              581,
+              397
+            ],
+            [
+              581,
+              398
+            ],
+            [
+              621,
+              398
+            ],
+            [
+              621,
+              414
+            ],
+            [
+              581,
+              414
+            ],
+            [
+              581,
+              416
+            ],
+            [
+              562,
+              416
+            ]
+          ],
+          "reason": "captured name/avatar only",
+          "groundTransition": 0
+        },
+        {
+          "donorRect": [
+            599,
+            480,
+            20,
+            22
+          ],
+          "maskPolygon": [
+            [
+              589,
+              417
+            ],
+            [
+              608,
+              417
+            ],
+            [
+              608,
+              450
+            ],
+            [
+              587,
+              450
+            ]
+          ],
+          "reason": "captured name/avatar only",
+          "groundTransition": 0
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              611,
+              383
+            ],
+            [
+              635,
+              384
+            ],
+            [
+              643,
+              392
+            ],
+            [
+              642,
+              402
+            ],
+            [
+              634,
+              407
+            ],
+            [
+              627,
+              410
+            ],
+            [
+              627,
+              416
+            ],
+            [
+              621,
+              422
+            ],
+            [
+              614,
+              422
+            ],
+            [
+              609,
+              418
+            ],
+            [
+              610,
+              410
+            ],
+            [
+              604,
+              403
+            ],
+            [
+              603,
+              397
+            ],
+            [
+              607,
+              390
+            ]
+          ],
+          "reason": "complete UI-occluded lower flower shrub and tiny flower; parent bush stays intact",
+          "groundTransition": 0
+        },
+        {
+          "sourceRect": [
+            599,
+            366,
+            36,
+            30
+          ],
+          "polygon": [
+            [
+              11,
+              1
+            ],
+            [
+              23,
+              0
+            ],
+            [
+              32,
+              5
+            ],
+            [
+              35,
+              13
+            ],
+            [
+              34,
+              18
+            ],
+            [
+              21,
+              23
+            ],
+            [
+              15,
+              28
+            ],
+            [
+              8,
+              26
+            ],
+            [
+              3,
+              22
+            ],
+            [
+              1,
+              13
+            ],
+            [
+              2,
+              8
+            ]
+          ],
+          "target": [
+            599,
+            366
+          ],
+          "flipX": false,
+          "reason": "unchanged parent shrub and curved lower silhouette at original registration"
+        },
+        {
+          "sourceRect": [
+            415,
+            233,
+            45,
+            31
+          ],
+          "polygon": [
+            [
+              27,
+              6
+            ],
+            [
+              24,
+              5
+            ],
+            [
+              21,
+              5
+            ],
+            [
+              19,
+              6
+            ],
+            [
+              15,
+              6
+            ],
+            [
+              14,
+              8
+            ],
+            [
+              13,
+              10
+            ],
+            [
+              10,
+              11
+            ],
+            [
+              8,
+              14
+            ],
+            [
+              7,
+              17
+            ],
+            [
+              8,
+              21
+            ],
+            [
+              10,
+              24
+            ],
+            [
+              16,
+              25
+            ],
+            [
+              17,
+              27
+            ],
+            [
+              19,
+              27
+            ],
+            [
+              21,
+              26
+            ],
+            [
+              24,
+              26
+            ],
+            [
+              25,
+              27
+            ],
+            [
+              28,
+              27
+            ],
+            [
+              29,
+              25
+            ],
+            [
+              33,
+              24
+            ],
+            [
+              35,
+              22
+            ],
+            [
+              36,
+              21
+            ],
+            [
+              39,
+              21
+            ],
+            [
+              39,
+              19
+            ],
+            [
+              37,
+              18
+            ],
+            [
+              36,
+              15
+            ],
+            [
+              35,
+              12
+            ],
+            [
+              34,
+              10
+            ],
+            [
+              32,
+              7
+            ],
+            [
+              29,
+              7
+            ]
+          ],
+          "target": [
+            599,
+            380
+          ],
+          "flipX": true,
+          "reason": "complete flowering shrub; reflected to match the source bed orientation"
+        }
+      ]
+    },
+    {
+      "id": "garden-composition",
+      "file": "extracted/garden-composition.png",
+      "source": "assets/forest-village-library/originals/forest-classroom.png",
+      "sourceSHA256": "53324009ee1a911566ae6df410f5a3473a8b928e981165dbc7673a1f7659b870",
+      "sourceRect": [
+        0,
+        0,
+        962,
+        541
+      ],
+      "width": 962,
+      "height": 541,
+      "sha256": "fa06dd4675857d0c5c3ecf1f9e502ca6789d06453dfa6ce2d9ae81bb2ce79638",
+      "patches": [
+        {
+          "donorRect": [
+            490,
+            490,
+            12,
+            12
+          ],
+          "maskPolygon": [
+            [
+              419,
+              452
+            ],
+            [
+              508,
+              452
+            ],
+            [
+              508,
+              478
+            ],
+            [
+              419,
+              478
+            ]
+          ],
+          "reason": "captured name/avatar and complete obscured hanging garland; keep both posts",
+          "groundTransition": 0
+        },
+        {
+          "donorRect": [
+            490,
+            490,
+            12,
+            12
+          ],
+          "maskPolygon": [
+            [
+              461,
+              479
+            ],
+            [
+              483,
+              479
+            ],
+            [
+              483,
+              509
+            ],
+            [
+              461,
+              509
+            ]
+          ],
+          "reason": "captured name/avatar and complete obscured hanging garland; keep both posts",
+          "groundTransition": 0
+        },
+        {
+          "donorRect": [
+            260,
+            155,
+            12,
+            12
+          ],
+          "maskPolygon": [
+            [
+              104,
+              0
+            ],
+            [
+              234,
+              0
+            ],
+            [
+              239,
+              68
+            ],
+            [
+              218,
+              83
+            ],
+            [
+              211,
+              105
+            ],
+            [
+              197,
+              123
+            ],
+            [
+              162,
+              135
+            ],
+            [
+              126,
+              127
+            ],
+            [
+              123,
+              105
+            ],
+            [
+              120,
+              85
+            ],
+            [
+              103,
+              70
+            ]
+          ],
+          "reason": "entire UI-occluded border tree group; replace whole silhouettes",
+          "groundTransition": 3
+        },
+        {
+          "donorRect": [
+            904,
+            62,
+            12,
+            12
+          ],
+          "maskPolygon": [
+            [
+              780,
+              0
+            ],
+            [
+              962,
+              0
+            ],
+            [
+              962,
+              78
+            ],
+            [
+              911,
+              74
+            ],
+            [
+              885,
+              71
+            ],
+            [
+              840,
+              71
+            ],
+            [
+              819,
+              64
+            ],
+            [
+              794,
+              56
+            ],
+            [
+              782,
+              25
+            ]
+          ],
+          "reason": "entire UI-occluded border tree group; replace whole silhouettes",
+          "groundTransition": 3
+        },
+        {
+          "sourceRect": [
+            35,
+            46,
+            83,
+            88
+          ],
+          "polygon": [
+            [
+              30,
+              0
+            ],
+            [
+              60,
+              5
+            ],
+            [
+              79,
+              22
+            ],
+            [
+              82,
+              44
+            ],
+            [
+              66,
+              59
+            ],
+            [
+              43,
+              66
+            ],
+            [
+              43,
+              84
+            ],
+            [
+              29,
+              87
+            ],
+            [
+              24,
+              82
+            ],
+            [
+              27,
+              66
+            ],
+            [
+              8,
+              57
+            ],
+            [
+              0,
+              40
+            ],
+            [
+              4,
+              20
+            ]
+          ],
+          "target": [
+            88,
+            -9
+          ],
+          "flipX": false,
+          "reason": "whole native tree with crown, trunk and ground shadow"
+        },
+        {
+          "sourceRect": [
+            845,
+            131,
+            74,
+            87
+          ],
+          "polygon": [
+            [
+              23,
+              0
+            ],
+            [
+              47,
+              0
+            ],
+            [
+              66,
+              15
+            ],
+            [
+              73,
+              35
+            ],
+            [
+              68,
+              51
+            ],
+            [
+              51,
+              65
+            ],
+            [
+              42,
+              67
+            ],
+            [
+              44,
+              82
+            ],
+            [
+              28,
+              86
+            ],
+            [
+              25,
+              78
+            ],
+            [
+              28,
+              63
+            ],
+            [
+              11,
+              60
+            ],
+            [
+              0,
+              41
+            ],
+            [
+              4,
+              19
+            ]
+          ],
+          "target": [
+            163,
+            15
+          ],
+          "flipX": false,
+          "reason": "whole native tree with crown, trunk and ground shadow"
+        },
+        {
+          "sourceRect": [
+            35,
+            46,
+            83,
+            88
+          ],
+          "polygon": [
+            [
+              30,
+              0
+            ],
+            [
+              60,
+              5
+            ],
+            [
+              79,
+              22
+            ],
+            [
+              82,
+              44
+            ],
+            [
+              66,
+              59
+            ],
+            [
+              43,
+              66
+            ],
+            [
+              43,
+              84
+            ],
+            [
+              29,
+              87
+            ],
+            [
+              24,
+              82
+            ],
+            [
+              27,
+              66
+            ],
+            [
+              8,
+              57
+            ],
+            [
+              0,
+              40
+            ],
+            [
+              4,
+              20
+            ]
+          ],
+          "target": [
+            35,
+            46
+          ],
+          "flipX": false,
+          "reason": "whole native tree with crown, trunk and ground shadow"
+        },
+        {
+          "sourceRect": [
+            93,
+            248,
+            67,
+            84
+          ],
+          "polygon": [
+            [
+              34,
+              0
+            ],
+            [
+              41,
+              14
+            ],
+            [
+              47,
+              27
+            ],
+            [
+              55,
+              39
+            ],
+            [
+              62,
+              53
+            ],
+            [
+              66,
+              61
+            ],
+            [
+              56,
+              70
+            ],
+            [
+              40,
+              74
+            ],
+            [
+              40,
+              82
+            ],
+            [
+              29,
+              84
+            ],
+            [
+              26,
+              76
+            ],
+            [
+              10,
+              71
+            ],
+            [
+              0,
+              62
+            ],
+            [
+              9,
+              43
+            ],
+            [
+              18,
+              29
+            ],
+            [
+              27,
+              13
+            ]
+          ],
+          "target": [
+            125,
+            45
+          ],
+          "flipX": false,
+          "reason": "whole native tree with crown, trunk and ground shadow"
+        },
+        {
+          "sourceRect": [
+            35,
+            46,
+            83,
+            88
+          ],
+          "polygon": [
+            [
+              30,
+              0
+            ],
+            [
+              60,
+              5
+            ],
+            [
+              79,
+              22
+            ],
+            [
+              82,
+              44
+            ],
+            [
+              66,
+              59
+            ],
+            [
+              43,
+              66
+            ],
+            [
+              43,
+              84
+            ],
+            [
+              29,
+              87
+            ],
+            [
+              24,
+              82
+            ],
+            [
+              27,
+              66
+            ],
+            [
+              8,
+              57
+            ],
+            [
+              0,
+              40
+            ],
+            [
+              4,
+              20
+            ]
+          ],
+          "target": [
+            771,
+            -39
+          ],
+          "flipX": false,
+          "reason": "whole native tree with crown, trunk and ground shadow"
+        },
+        {
+          "sourceRect": [
+            35,
+            46,
+            83,
+            88
+          ],
+          "polygon": [
+            [
+              30,
+              0
+            ],
+            [
+              60,
+              5
+            ],
+            [
+              79,
+              22
+            ],
+            [
+              82,
+              44
+            ],
+            [
+              66,
+              59
+            ],
+            [
+              43,
+              66
+            ],
+            [
+              43,
+              84
+            ],
+            [
+              29,
+              87
+            ],
+            [
+              24,
+              82
+            ],
+            [
+              27,
+              66
+            ],
+            [
+              8,
+              57
+            ],
+            [
+              0,
+              40
+            ],
+            [
+              4,
+              20
+            ]
+          ],
+          "target": [
+            835,
+            -21
+          ],
+          "flipX": false,
+          "reason": "whole native tree with crown, trunk and ground shadow"
+        },
+        {
+          "sourceRect": [
+            845,
+            131,
+            74,
+            87
+          ],
+          "polygon": [
+            [
+              23,
+              0
+            ],
+            [
+              47,
+              0
+            ],
+            [
+              66,
+              15
+            ],
+            [
+              73,
+              35
+            ],
+            [
+              68,
+              51
+            ],
+            [
+              51,
+              65
+            ],
+            [
+              42,
+              67
+            ],
+            [
+              44,
+              82
+            ],
+            [
+              28,
+              86
+            ],
+            [
+              25,
+              78
+            ],
+            [
+              28,
+              63
+            ],
+            [
+              11,
+              60
+            ],
+            [
+              0,
+              41
+            ],
+            [
+              4,
+              19
+            ]
+          ],
+          "target": [
+            902,
+            -15
+          ],
+          "flipX": false,
+          "reason": "whole native tree with crown, trunk and ground shadow"
+        }
+      ]
+    },
+    {
+      "id": "flower-home",
+      "file": "extracted/flower-home.png",
+      "source": "assets/house-library/originals/house-0c0b1bd03495c453.jpg",
+      "sourceSHA256": "0c0b1bd03495c453311103c2f4961373a3eac14ab6bb173b7e77c8b00a8e30eb",
+      "sourceRect": [
+        11,
+        5,
+        352,
+        295
+      ],
+      "width": 352,
+      "height": 295,
+      "sha256": "47817bcaef548e0a41c0fb09330a1c12ac5ffd1a60a7fe554e06e2bdcd4f7bbf",
+      "polygon": null,
+      "edgeConnectedBackground": true
+    },
+    {
+      "id": "bakery-home",
+      "file": "extracted/bakery-home.png",
+      "source": "assets/house-library/originals/house-0c0b1bd03495c453.jpg",
+      "sourceSHA256": "0c0b1bd03495c453311103c2f4961373a3eac14ab6bb173b7e77c8b00a8e30eb",
+      "sourceRect": [
+        9,
+        308,
+        354,
+        289
+      ],
+      "width": 354,
+      "height": 289,
+      "sha256": "442c1fdc9f6c2b7e7a7cdfd166282ae3511f41bffaa4d278a9f1191be629242f",
+      "polygon": null,
+      "edgeConnectedBackground": true
+    },
+    {
+      "id": "pink-tree",
+      "file": "extracted/pink-tree.png",
+      "source": "assets/forest-village-library/originals/picnic-garden.png",
+      "sourceSHA256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+      "sourceRect": [
+        710,
+        260,
+        145,
+        128
+      ],
+      "width": 145,
+      "height": 128,
+      "sha256": "a78d59a9e2721ee6f42721a21f43698500c2ebd484a0c4a919c3fe0493bdac37",
+      "polygon": [
+        [
+          52,
+          0
+        ],
+        [
+          97,
+          1
+        ],
+        [
+          121,
+          16
+        ],
+        [
+          144,
+          48
+        ],
+        [
+          137,
+          71
+        ],
+        [
+          104,
+          95
+        ],
+        [
+          97,
+          126
+        ],
+        [
+          70,
+          127
+        ],
+        [
+          69,
+          98
+        ],
+        [
+          32,
+          92
+        ],
+        [
+          7,
+          68
+        ],
+        [
+          0,
+          41
+        ],
+        [
+          18,
+          15
+        ]
+      ],
+      "edgeConnectedBackground": false
+    },
+    {
+      "id": "flowers-purple",
+      "file": "extracted/flowers-purple.png",
+      "source": "assets/forest-village-library/originals/picnic-garden.png",
+      "sourceSHA256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+      "sourceRect": [
+        415,
+        233,
+        45,
+        31
+      ],
+      "width": 45,
+      "height": 31,
+      "sha256": "e5d6b9c6a3e471aaf1e129344419b49e8d0c5f00672d0664371cff1aa0af263d",
+      "polygon": [
+        [
+          17,
+          6
+        ],
+        [
+          20,
+          5
+        ],
+        [
+          23,
+          5
+        ],
+        [
+          25,
+          6
+        ],
+        [
+          29,
+          6
+        ],
+        [
+          30,
+          8
+        ],
+        [
+          31,
+          10
+        ],
+        [
+          34,
+          11
+        ],
+        [
+          36,
+          14
+        ],
+        [
+          37,
+          17
+        ],
+        [
+          36,
+          21
+        ],
+        [
+          34,
+          24
+        ],
+        [
+          28,
+          25
+        ],
+        [
+          27,
+          27
+        ],
+        [
+          25,
+          27
+        ],
+        [
+          23,
+          26
+        ],
+        [
+          20,
+          26
+        ],
+        [
+          19,
+          27
+        ],
+        [
+          16,
+          27
+        ],
+        [
+          15,
+          25
+        ],
+        [
+          11,
+          24
+        ],
+        [
+          9,
+          22
+        ],
+        [
+          8,
+          21
+        ],
+        [
+          5,
+          21
+        ],
+        [
+          5,
+          19
+        ],
+        [
+          7,
+          18
+        ],
+        [
+          8,
+          15
+        ],
+        [
+          9,
+          12
+        ],
+        [
+          10,
+          10
+        ],
+        [
+          12,
+          7
+        ],
+        [
+          15,
+          7
+        ]
+      ],
+      "edgeConnectedBackground": false
+    },
+    {
+      "id": "flowers-ivory",
+      "file": "extracted/flowers-ivory.png",
+      "source": "assets/forest-village-library/originals/picnic-garden.png",
+      "sourceSHA256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+      "sourceRect": [
+        647,
+        347,
+        30,
+        23
+      ],
+      "width": 30,
+      "height": 23,
+      "sha256": "e1efd6bd53337a213700e8d9b1b22d04606c56feb31a2e54cbc446f03172a877",
+      "polygon": [
+        [
+          13,
+          0
+        ],
+        [
+          19,
+          0
+        ],
+        [
+          20,
+          3
+        ],
+        [
+          25,
+          4
+        ],
+        [
+          28,
+          8
+        ],
+        [
+          26,
+          11
+        ],
+        [
+          29,
+          14
+        ],
+        [
+          27,
+          18
+        ],
+        [
+          23,
+          18
+        ],
+        [
+          23,
+          21
+        ],
+        [
+          17,
+          22
+        ],
+        [
+          14,
+          21
+        ],
+        [
+          9,
+          22
+        ],
+        [
+          7,
+          20
+        ],
+        [
+          3,
+          19
+        ],
+        [
+          3,
+          16
+        ],
+        [
+          0,
+          15
+        ],
+        [
+          1,
+          11
+        ],
+        [
+          2,
+          9
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          3,
+          5
+        ],
+        [
+          6,
+          3
+        ],
+        [
+          10,
+          3
+        ]
+      ],
+      "edgeConnectedBackground": false
+    },
+    {
+      "id": "flowers-gold",
+      "file": "extracted/flowers-gold.png",
+      "source": "assets/forest-village-library/originals/forest-classroom.png",
+      "sourceSHA256": "53324009ee1a911566ae6df410f5a3473a8b928e981165dbc7673a1f7659b870",
+      "sourceRect": [
+        208,
+        477,
+        32,
+        31
+      ],
+      "width": 32,
+      "height": 31,
+      "sha256": "0c61d134d5b5c9f68389827a9797ac9daaf43204da9cb7cdbbb21999d2873757",
+      "polygon": [
+        [
+          10,
+          1
+        ],
+        [
+          18,
+          1
+        ],
+        [
+          19,
+          3
+        ],
+        [
+          24,
+          3
+        ],
+        [
+          25,
+          6
+        ],
+        [
+          29,
+          7
+        ],
+        [
+          31,
+          11
+        ],
+        [
+          28,
+          14
+        ],
+        [
+          31,
+          18
+        ],
+        [
+          29,
+          22
+        ],
+        [
+          26,
+          23
+        ],
+        [
+          26,
+          26
+        ],
+        [
+          22,
+          28
+        ],
+        [
+          16,
+          29
+        ],
+        [
+          12,
+          28
+        ],
+        [
+          7,
+          29
+        ],
+        [
+          3,
+          27
+        ],
+        [
+          1,
+          23
+        ],
+        [
+          1,
+          18
+        ],
+        [
+          0,
+          15
+        ],
+        [
+          2,
+          10
+        ],
+        [
+          4,
+          7
+        ],
+        [
+          7,
+          6
+        ]
+      ],
+      "edgeConnectedBackground": false
+    },
+    {
+      "id": "flowers-meadow",
+      "file": "extracted/flowers-meadow.png",
+      "source": "assets/forest-village-library/originals/forest-classroom.png",
+      "sourceSHA256": "53324009ee1a911566ae6df410f5a3473a8b928e981165dbc7673a1f7659b870",
+      "sourceRect": [
+        367,
+        393,
+        33,
+        24
+      ],
+      "width": 33,
+      "height": 24,
+      "sha256": "d8934613571da0a7c773c0ac1dd55a686845986ee8cb52d4c250bdf680f28a12",
+      "polygon": [
+        [
+          19,
+          3
+        ],
+        [
+          25,
+          3
+        ],
+        [
+          28,
+          6
+        ],
+        [
+          28,
+          11
+        ],
+        [
+          31,
+          13
+        ],
+        [
+          30,
+          18
+        ],
+        [
+          26,
+          21
+        ],
+        [
+          22,
+          21
+        ],
+        [
+          19,
+          18
+        ],
+        [
+          16,
+          17
+        ],
+        [
+          14,
+          21
+        ],
+        [
+          9,
+          23
+        ],
+        [
+          5,
+          21
+        ],
+        [
+          4,
+          17
+        ],
+        [
+          1,
+          13
+        ],
+        [
+          3,
+          10
+        ],
+        [
+          5,
+          8
+        ],
+        [
+          11,
+          8
+        ],
+        [
+          14,
+          10
+        ],
+        [
+          16,
+          7
+        ]
+      ],
+      "edgeConnectedBackground": false
+    },
+    {
+      "id": "treehouse-composition",
+      "file": "extracted/treehouse-composition.png",
+      "source": "assets/forest-village-library/originals/treehouse.png",
+      "sourceSHA256": "670493665de255e2c1fb81d31be40dc34718221e2253302698bb4de1323df3ab",
+      "sourceRect": [
+        0,
+        64,
+        946,
+        740
+      ],
+      "width": 946,
+      "height": 740,
+      "sha256": "e0ca46038378f1b07977d1e0e1fcf8c041786dcb33288b53814af231cc94877e",
+      "polygon": null,
+      "edgeConnectedBackground": false
+    },
+    {
+      "id": "sky-composition",
+      "file": "extracted/sky-composition.png",
+      "source": "assets/forest-village-library/originals/quiz-island.png",
+      "sourceSHA256": "7e5ef6b7070d0951d331c1cb9b72dc916f3ee0a2d510fac21b9a9cefbb7c7751",
+      "sourceRect": [
+        0,
+        0,
+        956,
+        553
+      ],
+      "width": 956,
+      "height": 553,
+      "sha256": "ddf6e8e635761ebf409cf4b91a45cc8e2b319dfc3ef75a8ab889a1661dce6ad6",
+      "patches": [
+        {
+          "donorRect": [
+            615,
+            260,
+            12,
+            12
+          ],
+          "maskPolygon": [
+            [
+              558,
+              232
+            ],
+            [
+              624,
+              232
+            ],
+            [
+              624,
+              253
+            ],
+            [
+              609,
+              253
+            ],
+            [
+              609,
+              288
+            ],
+            [
+              585,
+              288
+            ],
+            [
+              585,
+              267
+            ],
+            [
+              566,
+              267
+            ],
+            [
+              563,
+              257
+            ],
+            [
+              558,
+              253
+            ]
+          ],
+          "reason": "complete captured UI/avatar and UI-obscured stepping stones",
+          "groundTransition": 0
+        },
+        {
+          "sourceRect": [
+            570,
+            299,
+            24,
+            12
+          ],
+          "polygon": [
+            [
+              5,
+              0
+            ],
+            [
+              18,
+              0
+            ],
+            [
+              23,
+              4
+            ],
+            [
+              22,
+              9
+            ],
+            [
+              16,
+              11
+            ],
+            [
+              5,
+              11
+            ],
+            [
+              0,
+              7
+            ],
+            [
+              1,
+              3
+            ]
+          ],
+          "target": [
+            566,
+            249
+          ],
+          "flipX": false,
+          "reason": "complete native stepping stone"
+        },
+        {
+          "sourceRect": [
+            573,
+            273,
+            12,
+            7
+          ],
+          "polygon": [
+            [
+              3,
+              0
+            ],
+            [
+              10,
+              0
+            ],
+            [
+              11,
+              4
+            ],
+            [
+              8,
+              6
+            ],
+            [
+              0,
+              6
+            ],
+            [
+              0,
+              2
+            ]
+          ],
+          "target": [
+            571,
+            233
+          ],
+          "flipX": false,
+          "reason": "complete native stepping stone"
+        },
+        {
+          "sourceRect": [
+            395,
+            0,
+            117,
+            84
+          ],
+          "target": [
+            839,
+            0
+          ],
+          "reason": "service toolbar on empty sky"
+        }
+      ]
+    }
+  ]
+}

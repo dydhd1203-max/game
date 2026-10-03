@@ -413,7 +413,7 @@ const passed = [];
     const e = environment(), invalid = e.runtime();
     for (const space of ['../users', 'campus/connections', 'playground/../../accounts', '<svg>', 'unknown', {}, []]) assert.throws(() => invalid.join('invalid_space', { space }), /공유 공간 이름/);
     assert.equal(e.writes.length, 0); assert.equal(e.listeners.size, 0, 'Invalid space inputs cannot allocate database listeners or writes');
-    const legacy = invalid.join('explicit_village', { space: 'village' }); await settle(); assert.equal(legacy.getState().path, 'quiz/village/3-3/connections'); await legacy.disconnect();
+    const legacy = invalid.join('explicit_village', { space: 'village' }); await settle(); assert.equal(legacy.getState().path, 'quiz/spaces/3-3/village/connections'); await legacy.disconnect();
     const deniedSDK = e.sdk(); deniedSDK.client.deny = true; const denied = e.runtime(deniedSDK), local = denied.join('denied_yard', { space: 'playground', initialState: { x: 2100, y: 800 } }); await settle();
     assert.equal(local.getState().zone, 'playground'); assert.equal(denied.mode(), 'local'); assert.equal(local.getState().connected, false);
     local.update({ x: 2150, pose: 'sit-floor', seatId: null }); assert.equal(local.getState().pose, 'sit-floor'); assert.equal(await local.claimSeat('bench-1'), true); assert.equal(local.getState().seatShared, false);
@@ -426,7 +426,29 @@ const passed = [];
     for (let tick = 1; tick <= 9; tick++) { await e.clock.advance(150); a.update({ x: tick, gesture: wave }); await settle(); const remote = fast.latest().find(p => p.uid === 'yard_wave').gesture; assert.equal(remote.at, at); assert.equal((b.getTime() - remote.at) / remote.duration, tick / 10); }
     await e.clock.advance(200); a.update({ gesture: wave }); await settle(); assert.equal(fast.latest().find(p => p.uid === 'yard_wave').gesture, null);
     await a.disconnect(); await b.disconnect(); assert.equal(e.listeners.size, 0);
-    passed.push('Only campus/playground enter modern namespaces while legacy village remains compatible; denied playground access stays explicitly local and ±60-second devices share one advancing, expiring wave timeline.');
+    passed.push('Explicit village and school rooms use modern namespaces; the omitted-space legacy API remains compatible; denied playground access stays explicitly local and ±60-second devices share one advancing, expiring wave timeline.');
+  }
+  {
+    const e=environment(), rooms=[];
+    for (const space of ['village','forestgarden','treehouse','skyisland']) {
+      const first=e.runtime(), second=e.runtime();
+      const a=first.join('same-student',{space}),b=second.join('friend-'+space,{space});
+      rooms.push({space,first,second,a,b});
+    }
+    await settle();
+    for (const r of rooms) {
+      assert.equal(r.a.getState().path,'quiz/spaces/3-3/'+r.space+'/connections');
+      assert.equal(r.first.latest().length,2,'Each new scene has its own two-person roster');
+      r.a.update({x:600,y:500,zone:'campus',pose:'run'});
+    }
+    await e.clock.advance(160);
+    for (const r of rooms) assert.equal(r.second.latest().find(p=>p.uid==='same-student').zone,r.space);
+    await rooms[0].a.disconnect();await settle();
+    assert.equal(rooms[0].second.latest().length,1);
+    for (const r of rooms.slice(1)) assert.equal(r.second.latest().length,2);
+    for (const r of rooms) {await r.a.disconnect();await r.b.disconnect();}
+    assert.equal(e.listeners.size,0);
+    passed.push('All four new forest rooms isolate same-account rosters, reject cross-room zone patches and clean up only their own connection.');
   }
   console.log(JSON.stringify({ passed: passed.length, checks: passed }, null, 2));
 })().catch(error => { console.error(error); process.exitCode = 1; });

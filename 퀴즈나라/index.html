@@ -840,6 +840,8 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <script src="./village-presence.js"></script>
 <script src="./school-room-scene.js"></script>
 <script src="./playground-scene.js"></script>
+<script src="./forest-village-scene.js"></script>
+<link rel="stylesheet" href="./forest-village-world.css">
 <script src="./avatar-run-input.js"></script>
 <script src="./school-room-world.js"></script>
 <script src="./demo.js"></script>
@@ -892,7 +894,7 @@ function closeModal(){
   clearModalView();
   el('modal').classList.remove('on');
   if(curScr==='classroom')$('.qp-map-viewport')?.focus({preventScroll:true});
-  if(curScr==='campus'||curScr==='playground')(activeCampus||activePlayground)?.focus();
+  if(['campus','playground','village','forestgarden','treehouse','skyisland'].includes(curScr))(activeCampus||activePlayground||activeVillage)?.focus();
 }
 el('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('modal').classList.contains('on'))closeModal();});
@@ -2826,15 +2828,16 @@ let leaveFn = null, curScr = '';
 let activeMotion = null, activeClassroom = null, activeClassroomView = null;
 let activeCampus = null, activeCampusPresence = null;
 let activePlayground = null, activePlaygroundPresence = null;
+let activeVillage = null, activeVillagePresence = null;
 const campusCheckpoints = new Map();
 const linkedClassroom = new URLSearchParams(location.search).get('classroom');
-const entryScreen = ()=>{if(ME&&!IS_TEACHER&&ME.skinSetup===false){go('home');showInitialSkin();return;}return linkedClassroom&&/^[a-zA-Z0-9_-]{1,80}$/.test(linkedClassroom)?go('classroom',linkedClassroom):go('campus');};
+const entryScreen = ()=>{if(ME&&!IS_TEACHER&&ME.skinSetup===false){go('home');showInitialSkin();return;}return linkedClassroom&&/^[a-zA-Z0-9_-]{1,80}$/.test(linkedClassroom)?go('classroom',linkedClassroom):go('village');};
 function go(name, arg){
   if(name==='live'&&curScr==='live'&&!arg)return;
   if(leaveFn){ try{ leaveFn(); }catch(e){} leaveFn = null; }
   curScr = name; closeModal();
   document.body.classList.toggle('qp-woodland', name==='home');
-  document.body.classList.toggle('qp-campus', name==='campus'||name==='playground');
+  document.body.classList.toggle('qp-campus', ['campus','playground','village','forestgarden','treehouse','skyisland'].includes(name));
   el('stage').innerHTML = '';
   SCREENS[name](el('stage'), arg);
 }
@@ -2849,7 +2852,7 @@ function topbar(title, back, brand){
     ${brand&&ME?`<div class="quiz-daily"><span class="daily-label">오늘의 연습</span><span class="daily-track" role="progressbar" aria-label="오늘 연습으로 모은 골드" aria-valuemin="0" aria-valuemax="${R.practiceCap}" aria-valuenow="${dailyGold}"><i style="width:${clamp(dailyGold/Math.max(1,R.practiceCap)*100,0,100)}%"></i><b>${dailyGold} / ${R.practiceCap} 골드</b></span></div>`:''}
     <div class="f1"></div>
     <button class="icb" id="tbSnd" title="소리 설정" aria-label="소리 설정">${uiIcon((SND.on&&SND.fxVolume)||(SND.bgm&&SND.musicVolume)?'sound':'mute')}</button>
-    ${ME&&!IS_TEACHER? `<button class="icb" id="tbHome" title="우리 반 교실" aria-label="우리 반 교실">${uiIcon('home')}</button>
+    ${ME&&!IS_TEACHER? `<button class="icb" id="tbHome" title="숲속 마을" aria-label="숲속 마을">${uiIcon('home')}</button>
        <button class="icb" id="tbProfile" title="내 정보" aria-label="내 정보">${uiIcon('expression')}</button>
        <button class="icb y" id="tbShop" title="옷 가게" aria-label="옷 가게">${uiIcon('shop')}</button>
        <button class="icb" id="tbRank" title="순위" aria-label="순위">${uiIcon('trophy')}</button>`:''}
@@ -2879,7 +2882,7 @@ function showSoundSettings(){
 function wireTop(backTo){
   const b = el('tbBack'); if(b) b.onclick = ()=> go(backTo||'campus');
   const sd = el('tbSnd'); if(sd) sd.onclick = showSoundSettings;
-  const h2 = el('tbHome'); if(h2) h2.onclick = ()=> go('campus');
+  const h2 = el('tbHome'); if(h2) h2.onclick = ()=> go('village');
   const profile = el('tbProfile'); if(profile) profile.onclick = ()=> go('home');
   const s2 = el('tbShop'); if(s2) s2.onclick = ()=> go('shop');
   const r2 = el('tbRank'); if(r2) r2.onclick = showRank;
@@ -3208,12 +3211,13 @@ function rememberCampus(uid,state,space='campus'){
 function mountSchoolSpace(st,space,arrival){
   if(!ME){go('login');return;}
   if(IS_TEACHER){go('teacher');return;}
-  const scene=space==='playground'?window.QPPlaygroundScene?.get():window.QPSchoolRoomScene.get();
+  const getScene=zone=>zone==='campus'?window.QPSchoolRoomScene.get():zone==='playground'?window.QPPlaygroundScene?.get():window.QPForestVillageScene?.get(zone);
+  const scene=getScene(space);
   if(!scene||(space==='playground'&&!scene.publicEntryReady)){toast('운동장을 준비하고 있어요.');go('campus');return;}
   const uid=ME.k,requested=arrival&&Number.isFinite(arrival.x)&&Number.isFinite(arrival.y)?{x:arrival.x,y:arrival.y}:campusCheckpoint(uid,space);
   const checkpoint=requested&&window.QPSchoolRoomWorld.createNavigation(scene).canStand(requested.x,requested.y)?requested:null;
   const initial=checkpoint||scene.spawn;
-  st.innerHTML=topbar((window.CLASS_NAME||'우리 반')+(space==='playground'?' 운동장':' 교실'),false,true)+'<div class="school-room-host" id="campusRoot"></div>';
+  st.innerHTML=topbar(scene.title,false,true)+'<div class="school-room-host" id="campusRoot"></div>';
   wireTop();
   let world=null,roster=[],status={mode:'connecting',message:'우리 반 친구들을 만나고 있어요.'},stopped=false;
   function openBoard(){
@@ -3227,10 +3231,10 @@ function mountSchoolSpace(st,space,arrival){
     });
   }
   function teleport(item){
-    if(stopped||item.target!==(space==='campus'?'playground':'campus'))return;
-    const next=item.target,nextScene=next==='playground'?window.QPPlaygroundScene?.get():window.QPSchoolRoomScene.get();
+    if(stopped||!scene.interactables.includes(item))return;
+    const next=item.target,nextScene=getScene(next);
     if(!nextScene||(next==='playground'&&!nextScene.publicEntryReady)){toast('운동장을 준비하고 있어요.');return;}
-    const door=nextScene.interactables?.find(value=>value.target===space),point=door?.arrival||door?.approach;
+    const door=nextScene.interactables?.find(value=>item.targetDoor?value.id===item.targetDoor:value.target===space),point=door?.arrival||door?.approach;
     if(!point||!window.QPSchoolRoomWorld.createNavigation(nextScene).canStand(point.x,point.y)){toast('출입구 위치를 확인하고 있어요.');return;}
     go(next,{x:point.x,y:point.y});
   }
@@ -3239,12 +3243,12 @@ function mountSchoolSpace(st,space,arrival){
     initialState:{x:initial.x,y:initial.y,zone:space},
     onPlayers:players=>{roster=players;if(world)world.setPlayers(players);},
     onStatus:value=>{status=value;if(world)world.setStatus(value);},onSeatLost:()=>world?.stand()});
-  if(space==='campus')activeCampusPresence=presence;else activePlaygroundPresence=presence;
+  if(space==='campus')activeCampusPresence=presence;else if(space==='playground')activePlaygroundPresence=presence;else activeVillagePresence=presence;
   world=window.QPSchoolRoomWorld.mount(el('campusRoot'),{scene,user:{uid,name:ME.name,avatar:campusAvatar(ME.av)},
     renderAvatar:(av,height,lod)=>avatarSVG(campusAvatar(av),height||72,lod==null?3:lod),validateAvatar:campusAvatar,
     presence,checkpoint,zone:space,onCheckpoint:state=>rememberCampus(uid,world?.getCheckpoint?.()||state,space),onBoard:space==='campus'?openBoard:null,onPortal:teleport,
-    onExit:()=>go(space==='campus'?'school':'campus'),exitLabel:space==='playground'?'교실로 돌아가기':'학생 메뉴',isPaused:()=>el('modal').classList.contains('on')});
-  if(space==='campus')activeCampus=world;else activePlayground=world;
+    onExit:()=>go(space==='campus'||space==='village'?'school':space==='playground'?'campus':'village'),exitLabel:space==='playground'?'교실로 돌아가기':space==='campus'||space==='village'?'학생 메뉴':'마을로 돌아가기',isPaused:()=>el('modal').classList.contains('on')});
+  if(space==='campus')activeCampus=world;else if(space==='playground')activePlayground=world;else activeVillage=world;
   world.setPlayers(roster);world.setStatus(status);world.focus();
   leaveFn=()=>{
     stopped=true;rememberCampus(uid,world.getCheckpoint?.()||world.getState(),space);
@@ -3253,13 +3257,18 @@ function mountSchoolSpace(st,space,arrival){
     if(activeCampusPresence===presence)activeCampusPresence=null;
     if(activePlayground===world)activePlayground=null;
     if(activePlaygroundPresence===presence)activePlaygroundPresence=null;
+    if(activeVillage===world)activeVillage=null;
+    if(activeVillagePresence===presence)activeVillagePresence=null;
   };
 }
 SCREENS.campus=(st,arrival)=>mountSchoolSpace(st,'campus',arrival);
 SCREENS.playground=(st,arrival)=>mountSchoolSpace(st,'playground',arrival);
 
-/* Old map names remain safe entry redirects; their scenes stay retired. */
-SCREENS.village=()=>go(ME?(IS_TEACHER?'teacher':'campus'):'login');
+/* New source-composed village; the earlier retired village is not restored. */
+SCREENS.village=(st,arrival)=>mountSchoolSpace(st,'village',arrival);
+SCREENS.forestgarden=(st,arrival)=>mountSchoolSpace(st,'forestgarden',arrival);
+SCREENS.treehouse=(st,arrival)=>mountSchoolSpace(st,'treehouse',arrival);
+SCREENS.skyisland=(st,arrival)=>mountSchoolSpace(st,'skyisland',arrival);
 SCREENS.tailor=()=>go(ME?(IS_TEACHER?'teacher':'campus'):'login');
 
 SCREENS.motion = function(st){
@@ -5034,7 +5043,7 @@ window.QPGame = {
   newAvatar, avatarForSex, itemForSex, initFB, go,
   getMe:()=>ME, getBank:()=>BANK, setBank:value=>{BANK=value||{};},
   getFB:()=>FB, getHost:()=>HOST,
-  getMotion:()=>activeMotion, getVillage:()=>null, getVillagePresence:()=>null,
+  getMotion:()=>activeMotion, getVillage:()=>activeVillage, getVillagePresence:()=>activeVillagePresence,
   getCampus:()=>activeCampus, getCampusPresence:()=>activeCampusPresence,
   getPlayground:()=>activePlayground, getPlaygroundPresence:()=>activePlaygroundPresence,
   getClassroom:()=>activeClassroom, getMap:()=>activeClassroomView?.getMap(),
