@@ -304,6 +304,25 @@
     if(shape==='tutu')for(let y=end-2;y<end;y+=.6)s+=line(`M${back+1} ${y}Q16.1 ${y+.6} ${front-1} ${y+.15}`,shade(m.color,.37),.32);
     return s;
   }
+  function renderProfileFloorHem(category,shape,color,sex,skin){
+    color=window.QPClothes?.colorFor?.(category,shape,sex,color)||color;
+    const m=profileMaterial(color,skin,shape,'floor-lap'),wide=['hanbok','tutu','robe'].includes(shape),front=wide?23.35:22.65;
+    // Authored folded silhouette: waist -> raised near knee -> cloth resting
+    // over the crossed calves. This is not the standing bell squeezed flat.
+    const outline=`M13.6 36Q16 35.85 18.65 36.2C18.8 37.05 ${front-1.1} 37.25 ${front} 38.65Q${front+.4} 39.3 ${front-.4} 39.85Q19.3 40.45 15.2 40.15Q12.2 40.05 12.25 39.1Q12.45 37.45 13.6 36Z`;
+    let s=m.defs+shapePath(outline,m.fill,m.edge,.15);
+    s+=shapePath(`M13.8 36.6Q13.4 38 13.25 39.25Q16.2 40.15 ${front-.4} 39.4L${front-.4} 39.85Q18 40.5 13.6 39.95Q11.85 39.55 12.65 38.1Z`,m.softShadow,'none');
+    const folds=['M14.4 36.65Q14.55 38.15 16.25 39.75','M16.3 36.75Q17.1 38.1 20.15 39.55',`M18.35 36.8Q19 37.85 ${front-.45} 38.95`];
+    s+=clothRelief(m,outline,folds,['M13.7 36.35Q16 36.9 18.65 36.5',`M12.8 39.45Q17.1 40.25 ${front-.25} 39.55`]);
+    for(const d of folds)s+=line(d,shade(color,-.2),shape==='pleat'||shape==='hanbok'?.18:.12);
+    s+=line(`M13 39.6Q17.5 40.3 ${front-.3} 39.6`,m.light,.22);
+    if(['skirt','hanbok','dress','star_skirt'].includes(shape))s+=flower(front-1.45,38.65,'#fff0c6',.38)+flower(front-2.5,39.3,shade(color,.48),.24);
+    if(shape==='star_skirt'||shape==='robe')s+=star(16.1,38.55,'#ffe9a3',.36);
+    if(shape==='dress')s+=line('M13.6 36.25Q16 36.8 18.7 36.5','#f1d4a7',.28)+shapePath('M18.05 36.4q1.5 -.7 1.65 .2l-1.15 .45 .7 1.1-.65-.1-.65-.95Z','#fff0c4',m.edge,.1);
+    if(shape==='jean_skirt')s+=shapePath('M15.1 37.2Q16 37.4 16.8 37.7L16.3 38.7Q15.25 38.8 14.8 38Z',shade(color,-.08),m.edge,.12);
+    if(shape==='tutu')for(const y of[38.6,39.1,39.6])s+=line(`M13.1 ${y}Q17.5 ${y+.65} ${front-.5} ${y-.1}`,shade(color,.37),.28);
+    return s;
+  }
   function renderProfileGarment(category,shape,color='#e6a6c5',sex='f',skin='#ffe2cc',ctx={}){
     color=window.QPClothes?.colorFor?.(category,shape,sex,color)||color;const part=ctx.part||'full',m=profileMaterial(color,skin,shape,part);let s=m.defs;
     if(category==='bottom'){
@@ -642,5 +661,5 @@
   window.addEventListener('qp-pets-ready',()=>cache.clear());
   window.addEventListener('qp-shoes-ready',()=>cache.clear());
   function backdrop(value){if(!value)return '';return `<svg xmlns="http://www.w3.org/2000/svg" class="qp-profile-backdrop" viewBox="0 0 32 48" preserveAspectRatio="xMidYMid slice" aria-hidden="true" style="--qpx-phase:${-performance.now()/1000}s">${background(value,3)}</svg>`;}
-  window.QPAvatar={render,thumb,backdrop,frames,expressions,atlas,proportions:BODY_PROPORTIONS,renderProfileTorso,renderProfileLeg,renderProfileGarment,renderProfileArm,renderBackTorso,renderBackGarment,renderBackArm,syncArtwork:sync,clearCache:()=>cache.clear()};
+  window.QPAvatar={render,thumb,backdrop,frames,expressions,atlas,proportions:BODY_PROPORTIONS,renderProfileTorso,renderProfileLeg,renderProfileGarment,renderProfileFloorHem,renderProfileArm,renderBackTorso,renderBackGarment,renderBackArm,syncArtwork:sync,clearCache:()=>cache.clear()};
 })();

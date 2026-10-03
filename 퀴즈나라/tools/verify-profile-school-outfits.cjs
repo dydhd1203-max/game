@@ -13,7 +13,7 @@ async function shot(page,name){
   await page.evaluate(async()=>{await document.fonts.ready;await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));});
   const filename=name+'.png';await page.screenshot({path:path.join(output,filename)});screenshots.push(filename);
   // The actor container is a ground anchor; measure the actual artwork box.
-  const actor=await page.locator('.sr-actor.is-me .sr-avatar>svg').boundingBox();
+  const actor=await page.locator('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)').boundingBox();
   if(actor){const size=page.viewportSize(),x=Math.max(0,actor.x-35),y=Math.max(0,actor.y-30);
     const clip={x,y,width:Math.min(size.width,actor.x+actor.width+35)-x,height:Math.min(size.height,actor.y+actor.height+35)-y};
     const close=name+'-실제크기.png';await page.screenshot({path:path.join(output,close),clip});screenshots.push(close);}
@@ -27,7 +27,7 @@ async function walkingShot(page,name,key){
   finally{await page.evaluate(()=>QPGame.getPlayground().setPaused(false));}
 }
 async function visual(page){return page.evaluate(()=>{
-  const svg=document.querySelector('.sr-actor.is-me .sr-avatar>svg'),world=QPGame.getPlayground();
+  const svg=document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)'),world=QPGame.getPlayground();
   return {state:world.getState(),nominalSize:Number(svg.getAttribute('height'))*56/Number(svg.getAttribute('viewBox').split(/\s+/)[3]),view:svg.dataset.qpxView,facing:svg.dataset.qpxViewFacing,
     pose:svg.dataset.qpxPose,eyes:Number(svg.dataset.qpxProfileEyeCount),
     profileImage:!!svg.querySelector('[data-qpx-profile-head="front"]>image'),
@@ -35,11 +35,11 @@ async function visual(page){return page.evaluate(()=>{
     accessoryView:svg.dataset.qpxAccessoryView,
     backGarments:[...svg.querySelectorAll('[data-qpx-back-clothes="true"]')].map(el=>({
       category:el.dataset.qpxClothes,shape:el.dataset.clothShape,
-      painted:el.querySelectorAll('path,ellipse,rect,circle').length,
+      painted:el.querySelectorAll('path,ellipse,rect,circle,image[data-qpx-static-art]:not([visibility])').length,
       visible:getComputedStyle(el).visibility!=='hidden'&&getComputedStyle(el).display!=='none'})),
     accessories:[...svg.querySelectorAll('[data-qpx-accessory-category]')].filter(el=>el.dataset.qpxAccessoryShape).map(el=>({
       category:el.dataset.qpxAccessoryCategory,shape:el.dataset.qpxAccessoryShape,
-      painted:el.querySelectorAll('path,ellipse,rect,circle').length,
+      painted:el.querySelectorAll('path,ellipse,rect,circle,image[data-qpx-static-art]:not([visibility])').length,
       visible:getComputedStyle(el).visibility!=='hidden'&&getComputedStyle(el.closest('[data-qpx-accessory-profile]')).display!=='none'}))};
 });}
 (async()=>{
@@ -49,7 +49,7 @@ async function visual(page){return page.evaluate(()=>{
   page=await context.newPage();page.setDefaultTimeout(18000);
   page.on('pageerror',error=>errors.push(error.stack||error.message));page.on('response',response=>{if(response.status()>=400)missing.push(response.url());});
   const url=new URL(base);url.searchParams.set('demo','1');url.searchParams.set('session','school-profile-'+Date.now()+'-'+process.pid);url.searchParams.set('user','측면착장검수');
-  await page.goto(url.href);await page.waitForFunction(()=>QPGame.getCampus()&&QPAvatar.atlas.ready&&QPAvatarDirection.atlas.ready&&QPAvatarDirection.atlas.backReady&&QPClothes.atlas.ready&&QPShoes.atlas.partsReady);
+  await page.goto(url.href);await page.waitForFunction(()=>QPGame.getVillage()&&QPAvatar.atlas.ready&&QPAvatarDirection.atlas.ready&&QPAvatarDirection.atlas.backReady&&QPClothes.atlas.ready&&QPShoes.atlas.partsReady);
   const cases=await page.evaluate(()=>{
     const catalog=QPGame.getCatalog(),first=category=>Object.keys(catalog.CATS.find(c=>c.k===category).src)[0];
     const item=(category,shape,index=0)=>category+':'+shape+':'+index;
@@ -65,28 +65,28 @@ async function visual(page){return page.evaluate(()=>{
   for(const entry of cases)for(const direction of ['right','left']){
     phase=entry.id+'/'+direction;
     await page.evaluate(av=>{Object.assign(QPGame.getMe().av,av);QPGame.go('playground',{x:2789,y:796});},entry.av);
-    await page.waitForFunction(()=>QPGame.getPlayground()&&document.querySelector('.sr-actor.is-me .sr-avatar>svg'));
+    await page.waitForFunction(()=>QPGame.getPlayground()&&document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)'));
     await page.locator('.school-room-world').focus();
     const before=await page.evaluate(()=>QPGame.getPlayground().getState());
     const key=direction==='right'?'ArrowRight':'ArrowLeft';
     await page.keyboard.down(key);await page.waitForFunction(({x,d})=>{const s=QPGame.getPlayground().getState();return s.moving&&s.direction===d&&Math.abs(s.x-x)>25;},{x:before.x,d:direction});
-    await page.waitForFunction(()=>document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxView==='profile');
+    await page.waitForFunction(()=>document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxView==='profile');
     await walkingShot(page,entry.id+'-'+direction+'-걷기',key);
     await page.keyboard.up(key);await page.waitForFunction(()=>!QPGame.getPlayground().getState().moving);
     const standing=await visual(page);assert(Math.abs(standing.nominalSize-96)<.01,'School outfits must use the current 96px size');assert.equal(standing.view,'profile');assert.equal(standing.facing,direction);assert.equal(standing.eyes,1);assert.equal(standing.profileImage,true);assert.equal(standing.accessoryAPI,true);assert.equal(standing.accessoryView,'profile');
     for(const category of ['hat','glass','ear','neck','back']){const accessory=standing.accessories.find(a=>a.category===category);assert(accessory&&accessory.painted>0&&accessory.visible,'The selected '+category+' must use visible, drawn profile artwork');}
     await shot(page,entry.id+'-'+direction+'-서기');
-    await page.keyboard.press('KeyC');await page.waitForFunction(()=>QPGame.getPlayground().getState().pose==='sit-floor'&&document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxPose==='floor-sit');
+    await page.keyboard.press('KeyC');await page.waitForFunction(()=>QPGame.getPlayground().getState().pose==='sit-floor'&&document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxPose==='floor-sit');
     const sitting=await visual(page);assert.equal(sitting.view,'profile');assert.equal(sitting.facing,direction);assert.equal(sitting.state.seatId,null);
     assert(Math.hypot(sitting.state.x-standing.state.x,sitting.state.y-standing.state.y)<.1,'C must preserve the walking position');
     await shot(page,entry.id+'-'+direction+'-앉기');
-    await page.keyboard.press('KeyC');await page.waitForFunction(()=>QPGame.getPlayground().getState().pose==='idle'&&document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxPose==='idle');
+    await page.keyboard.press('KeyC');await page.waitForFunction(()=>QPGame.getPlayground().getState().pose==='idle'&&document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxPose==='idle');
     const returned=await visual(page);assert.equal(returned.view,'profile');assert.equal(returned.facing,direction);
     await page.keyboard.press('KeyF');
-    assert.equal(await page.evaluate(()=>document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxGesture||''),'','F away from a door must preserve the resting outfit without greeting');
-    await page.locator('[data-gesture="wave"]').click();await page.waitForFunction(()=>document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxGesture==='wave');
+    assert.equal(await page.evaluate(()=>document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxGesture||''),'','F away from a door must preserve the resting outfit without greeting');
+    await page.locator('[data-gesture="wave"]').click();await page.waitForFunction(()=>document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxGesture==='wave');
     assert.equal((await visual(page)).view,'front','The established greeting intentionally faces friends');
-    await page.waitForFunction(()=>!document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxGesture);
+    await page.waitForFunction(()=>!document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxGesture);
     assert.equal((await visual(page)).view,'profile','The original side outfit must return after greeting');
     const at=await page.evaluate(()=>QPGame.getPlayground().getState());
     await page.keyboard.down('ArrowUp');await page.waitForFunction(y=>{const s=QPGame.getPlayground().getState();return s.moving&&s.direction==='back'&&s.y<y-20;},at.y);

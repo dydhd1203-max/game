@@ -121,12 +121,22 @@
     const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
     function announce(message){notice.textContent=message;notice.classList.add('is-visible');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>notice.classList.remove('is-visible'),2900);}
     const focus=()=>{if(!dead)viewport.focus({preventScroll:true});};
-    function blocked(){return paused||transitioning||document.hidden||options.isPaused?.()||!viewport.isConnected||!viewportWidth||!viewportHeight||Boolean(document.querySelector('#modal.on,[aria-modal="true"]:not([hidden])'));}
+    // The host owns its modal state. Scanning every SVG descendant for a
+    // dialog twice per frame becomes expensive in a full classroom.
+    function blocked(){return paused||transitioning||document.hidden||!viewport.isConnected||!viewportWidth||!viewportHeight||Boolean(options.isPaused?options.isPaused():document.getElementById('modal')?.classList.contains('on')||document.querySelector('[aria-modal="true"]:not([hidden])'));}
     function cleanAvatar(av){const result={...avatar,...av,bg:'',frame:''};return options.validateAvatar?options.validateAvatar(result):result;}
     function updateArt(actor,av){
       const clean=cleanAvatar(av),key=JSON.stringify(clean);if(actor.avatarKey===key)return;
       if(actor.svg)window.QPAvatarPose?.destroy(actor.svg);
       actor.avatarKey=key;actor.poseKey='';actor.art.innerHTML=options.renderAvatar(clean,AVATAR_HEIGHT,3);actor.svg=actor.art.querySelector('svg');
+      // Pets and orbiting effects animate independently of the dressed body.
+      // Give them a separate paint surface so a wing flap cannot invalidate
+      // every clipped sleeve/leg in a resting avatar. Keep the same viewBox,
+      // coordinates, source nodes and animation clock.
+      if(actor.svg){
+        const ambient=[...actor.svg.children].filter(child=>child.hasAttribute('data-qpx-effect')||child.querySelector('.qpx-pet'));
+        if(ambient.length){const overlay=actor.svg.cloneNode(false);overlay.classList.add('sr-avatar-ambient');overlay.setAttribute('aria-hidden','true');overlay.removeAttribute('role');overlay.removeAttribute('aria-label');overlay.append(...ambient);actor.art.append(overlay);}
+      }
       const view=actor.svg?.viewBox.baseVal,vh=view?.height||56,vw=view?.width||32,foot=Number(actor.svg?.querySelector('.qpx-contact-shadow')?.getAttribute('cy'))||52.37;
       const paintedHeight=actor.svg?.height.baseVal.value||AVATAR_HEIGHT,paintedWidth=actor.svg?.width.baseVal.value||paintedHeight*vw/vh,footHeight=paintedHeight*foot/vh;
       actor.art.style.left=-paintedWidth/2+'px';actor.art.style.top=-footHeight+'px';actor.name.style.top=-(footHeight+17)+'px';actor.bubble.style.top=-(footHeight+43)+'px';
@@ -288,11 +298,14 @@
       if(world.style.transform!==transform)world.style.transform=transform;
       const disabled=scale<=minimumScale+.0001;if(zoomOutButton.disabled!==disabled)zoomOutButton.disabled=disabled;
     }
-    function placeActor(actor,dt,now){
+    function placeActor(actor,dt,now,sharedTime=clockNow()){
       const p=actor.self?state:actor.target,seat=p.seatId&&p.pose==='sit'&&seatMap.get(p.seatId),target=seat?seatPoint(seat):p;
       if(actor.self||seat||distance(actor.current,target)>250)actor.current={x:target.x,y:target.y};else{const amount=Math.min(1,dt*12);actor.current.x+=(target.x-actor.current.x)*amount;actor.current.y+=(target.y-actor.current.y)*amount;}
       actor.node.style.transform='translate('+actor.current.x.toFixed(2)+'px,'+(actor.current.y+(seat?finite(seat.sitVisualYOffset,0):0)).toFixed(2)+'px)';actor.node.style.zIndex=String(Math.round(seat?(seat.depth??seat.sitDepth??seatPoint(seat).y-3):actor.current.y+(finite(p.height)>0?finite(scene.elevatedDepth,4000):0)));actor.node.dataset.height=String(finite(p.height));actor.node.classList.toggle('is-seated',Boolean(seat));actor.node.classList.toggle('is-floor-seated',p.pose==='sit-floor');if(actor.node.dataset.seatId!==(seat?.id||''))actor.node.dataset.seatId=seat?.id||'';
-      const g=actor.self?gesture:p.gesture;let progress=g?(actor.self?(now-g.started)/1500:(clockNow()-finite(g.at))/finite(g.duration,1500)):1;
+      const margin=200,visible=actor.self||actor.current.x>=camera.x-margin&&actor.current.x<=camera.x+viewportWidth/scale+margin&&actor.current.y>=camera.y-margin&&actor.current.y<=camera.y+viewportHeight/scale+margin;
+      if(actor.offscreen!==!visible){actor.offscreen=!visible;actor.node.hidden=!visible;actor.art.classList.toggle('sr-motion-paused',!visible);}
+      if(!visible){actor.poseKey='';return;}
+      const g=actor.self?gesture:p.gesture;let progress=g?(actor.self?(now-g.started)/1500:(sharedTime-finite(g.at))/finite(g.duration,1500)):1;
       const active=g&&progress>=0&&progress<1,pose=seat?'sit':p.pose==='climb'?(scene.climbs?.some(c=>c.motion==='walk'&&finite(p.height)>c.points[0].height&&finite(p.height)<c.points[c.points.length-1].height)?'walk':'climb'):p.pose==='sit-floor'?'floor-sit':p.moving?(p.pose==='run'?'run':'walk'):'idle',kind=active?(g.type==='hello'?'nod':g.type==='happy'?'happy':'wave'):'';
       // Breathing is slow; stagger resting friends over six frames. Input, motion and
       // gestures update immediately, and the local player keeps every frame.
@@ -311,9 +324,9 @@
     }
     function tick(now){
       if(dead)return;const dt=Math.min(.035,last?(now-last)/1000:0);last=now;
-      world.classList.toggle('sr-effects-paused',blocked());
-      if(blocked()){runInput.reset();keys.clear();state.moving=false;if(state.pose==='run'||state.pose==='walk')state.pose='idle';cancelWalk();for(const actor of actors.values())actor.svg?.classList.add('sr-motion-paused');last=0;raf=requestAnimationFrame(tick);return;}
-      for(const actor of actors.values())if(actor.svg?.classList.contains('sr-motion-paused'))actor.svg.classList.remove('sr-motion-paused');let dx=0,dy=0;
+      const suspended=blocked();world.classList.toggle('sr-effects-paused',suspended);
+      if(suspended){runInput.reset();keys.clear();state.moving=false;if(state.pose==='run'||state.pose==='walk')state.pose='idle';cancelWalk();for(const actor of actors.values())actor.art.classList.add('sr-motion-paused');last=0;raf=requestAnimationFrame(tick);return;}
+      for(const actor of actors.values())if(!actor.offscreen&&actor.art.classList.contains('sr-motion-paused'))actor.art.classList.remove('sr-motion-paused');let dx=0,dy=0;
       if(climbing){advanceClimb(dt);}
       else {
       if(keys.size){if(stand()){dx=Number(keys.has('right'))-Number(keys.has('left'));dy=Number(keys.has('down'))-Number(keys.has('up'));if(dx||dy){cancelWalk();gesture=null;const len=Math.hypot(dx,dy),speed=runInput.isRunning()?RUN_SPEED:SPEED;dx=dx/len*speed*dt;dy=dy/len*speed*dt;autoFollow=true;}}}
@@ -323,7 +336,7 @@
       }
       if(dead)return;
       if(!path.length)destination.hidden=true;if(gesture&&now-gesture.started>1500)gesture=null;
-      updateNearby();poseTurn=(poseTurn+1)%6;for(const actor of actors.values())placeActor(actor,dt,now);updateCamera(dt);publish();raf=requestAnimationFrame(tick);
+      updateNearby();poseTurn=(poseTurn+1)%6;const sharedTime=clockNow();for(const actor of actors.values())placeActor(actor,dt,now,sharedTime);updateCamera(dt);publish();raf=requestAnimationFrame(tick);
     }
     function onDown(e){if(!viewport.contains(e.target)&&!container.contains(document.activeElement))return;if(blocked()||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.target.isContentEditable)return;if(KEYS[e.code]){e.preventDefault();if(climbing)return;heldMovement.add(e.code);if(e.repeat&&suppressedMovement.has(e.code))return;runInput.down(e.code,performance.now(),e.repeat);suppressedMovement.delete(e.code);keys.add(KEYS[e.code]);++claimToken;}else if(['KeyC','KeyE','KeyF'].includes(e.code)){e.preventDefault();if(e.repeat||heldActions.has(e.code))return;heldActions.add(e.code);if(e.code==='KeyC')void toggleSit();else if(e.code==='KeyE')void interact();else enterDoor();}}
     function onUp(e){runInput.up(e.code,performance.now());heldActions.delete(e.code);heldMovement.delete(e.code);suppressedMovement.delete(e.code);if(KEYS[e.code]&&![...heldMovement].some(code=>KEYS[code]===KEYS[e.code]))keys.delete(KEYS[e.code]);}

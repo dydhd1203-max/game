@@ -87,8 +87,19 @@
       ['bluebell',1925,870,.58,'well-garden'],['buttercup',2093,962,.6,'well-garden'],
       ['poppy',882,488,.62,'home-front'],['bluebell',1051,450,.62,'home-front'],
       ['buttercup',738,1587,.72,'bakery-corner'],['poppy',1088,1580,.68,'bakery-corner'],
-      ['bluebell',1940,613,.56,'brook-bank'],['buttercup',2155,703,.6,'brook-bank']];
+      ['bluebell',1940,613,.56,'brook-bank'],['buttercup',2155,703,.6,'brook-bank'],
+      // A planted corner gives the surviving garden stool a purpose. Taller
+      // bluebells sit behind low cream/gold flowers, leaving its front clear.
+      ['bluebell',2280,116,.8,'stool-garden'],['buttercup',2245,183,.68,'stool-garden'],
+      ['poppy',2467,200,.64,'stool-garden'],
+      // The spring has a small asymmetric meadow, not a repeated flower ring.
+      ['bluebell',1958,192,.66,'spring-meadow'],['buttercup',2028,191,.62,'spring-meadow']];
     newBeds.forEach(([kind,x,y,scale,bed],i)=>{const asset='flowers-'+kind,[w,h]=sizes[asset],ground={x:x+w*scale/2,y:y+(h-4)*scale};image('plaza-bed-'+i,asset,x,y,scale,Math.round(ground.y),{role:'flower',bed,ground});});
+    [['ivory',2315,211,1.8,'stool-garden'],['meadow',1950,284,1.8,'spring-meadow']].forEach(([kind,x,y,scale,bed],i)=>{
+      const asset='flowers-'+kind,[w,h]=sizes[asset],ground={x:x+w*scale/2,y:y+(h-2)*scale};
+      image('north-meadow-'+i,asset,x,y,scale,Math.round(ground.y),{role:'flower',bed,ground});
+    });
+    native('northern-stool',798,128,20,12);
     const crown=(id,rect,points,floor)=>b.foreground(id,'village-composition',[rect[0],rect[1]-64,rect[2],rect[3]],points.map(([x,y])=>[x,y-64]),3,Y(floor));
     crown('lake-oak',[177,101,73,91],[[212,101],[234,107],[248,127],[246,151],[230,168],[218,174],[221,186],[208,191],[200,184],[201,173],[181,162],[177,139],[181,118]],181);
     crown('central-grove',[429,140,137,145],[[480,140],[515,149],[533,165],[528,184],[552,185],[565,218],[559,250],[542,263],[539,279],[527,281],[522,265],[512,255],[490,255],[486,269],[473,267],[469,253],[442,247],[429,223],[434,198],[451,180],[450,157]],266);
@@ -101,6 +112,7 @@
     s.previewViews=[{id:'alley',label:'꽃집과 굽은 골목',spawn:{x:X(565),y:Y(282)}},{id:'lake',label:'물가와 작은 집',spawn:{x:X(284),y:Y(597)}},{id:'flower-courtyard',label:'꽃이 있는 집 앞',spawn:{x:X(374),y:Y(245)}},{id:'picnic',label:'신비로운 큰 나무 광장',spawn:{x:2400,y:1210}},{id:'school-path',label:'학교로 가는 문',spawn:{x:X(586),y:Y(682)}}];
     s.groups=[{id:'village-composition',rect:[0,0,3345,2208],purpose:'native winding paths and lake, two distinct courtyard homes, original picnic garden'}];
     s.reviewRoutes=[{id:'school',from:s.spawn,to:{x:X(586),y:Y(654)}},{id:'garden',from:s.spawn,to:{x:X(427),y:Y(88)}},...s.previewViews.slice(1,4).map(v=>({id:v.id,from:s.spawn,to:v.spawn}))];
+    s.reviewRoutes.push({id:'spring-garden',from:{x:2128,y:439},to:{x:2415,y:275}});
     return b.end();
   }
   function forestgarden(){

@@ -54,7 +54,7 @@ async function walk(p,goal){
   for(const route of routes){await a.evaluate(({zone,point})=>QPGame.go(zone,point),{zone:scene.zone,point:route.from});await focus(a);await walk(a,route.to);await shot(a,scene.zone+'-walk-'+route.id);}
   for(const v of scene.views){await a.evaluate(({zone,point})=>QPGame.go(zone,point),{zone:scene.zone,point:v.spawn});await shot(a,scene.zone+'-'+v.id);}
  }
- pass('All 12 required source-terrain routes animate through the production controller, with collision-checked segments and legal portal approaches.',scenes.map(s=>({zone:s.zone,routes:s.routes.length})));
+ pass('All '+scenes.reduce((n,s)=>n+s.routes.length,0)+' required source-terrain routes animate through the production controller, with collision-checked segments and legal portal approaches.',scenes.map(s=>({zone:s.zone,routes:s.routes.length})));
  phase='portal round trips';
  for(const zone of ['village','forestgarden','treehouse','skyisland']){
   const portals=await a.evaluate(z=>QPForestVillageScene.get(z).interactables,zone);

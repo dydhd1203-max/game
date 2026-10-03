@@ -1,13 +1,13 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-03T11:20:07.050Z",
+  "builtAt": "2026-10-03T12:51:53.351Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
       "path": "avatar-local-transform.js",
-      "bytes": 1747,
-      "sha256": "3fb51cb330ff11d5e4b1d267b998fe3c728e997c9d3a3ad06e5ffdad788c1a68"
+      "bytes": 2298,
+      "sha256": "284fbd305c37c99265a2a1b1ddc9927c3d944f38a7c79b833df5108341443328"
     },
     {
       "path": "_headers",
@@ -31,8 +31,8 @@
     },
     {
       "path": "avatar-pixel.js",
-      "bytes": 107540,
-      "sha256": "1008c29049957e0325e0b505196b77887542ef7623926ed12990b7bcbf93d550"
+      "bytes": 109489,
+      "sha256": "3efe3c8e6cfaffec9627f95b6db0a3b2cc6224f4f5f9721f7b48f319b4a0ec61"
     },
     {
       "path": "avatar-clothes.js",
@@ -111,8 +111,8 @@
     },
     {
       "path": "forest-village-scene.js",
-      "bytes": 22931,
-      "sha256": "d1ad676cd97a06593ecd6b4b0429a3b7005bb80324a8e602964df819d683d05c"
+      "bytes": 23838,
+      "sha256": "0c4eebfeb256fec4c2de2cc696d5fcc8a057a39cb270bf7bbdc28d7298747dcd"
     },
     {
       "path": "forest-village-world.css",
@@ -226,13 +226,13 @@
     },
     {
       "path": "school-room-world.js",
-      "bytes": 43271,
-      "sha256": "0d0679a3f181a997ab553bc2b593f1cca153f280f3c8ce9a0fd9f9210716ed34"
+      "bytes": 44723,
+      "sha256": "527ae5bfa08205926a1421a159e3117fcdc193c30b3da6fc537122cd29d7e70a"
     },
     {
       "path": "school-room-world.css",
-      "bytes": 4886,
-      "sha256": "380cc6ab63c7f8259549ea740008e0983cd234f86a1f877c57e9b34f7e0ba104"
+      "bytes": 4993,
+      "sha256": "4091e2245df801a2bf449ba7045f01950a0f5e52a73e0c1009543f89af09b0ab"
     },
     {
       "path": "playground-scene.js",
@@ -371,18 +371,18 @@
     },
     {
       "path": "avatar-direction.js",
-      "bytes": 35849,
-      "sha256": "82d05970f3586b216be096e32fca50cb3feb811eb184695a9b0dd052892ac1b0"
+      "bytes": 38538,
+      "sha256": "931d5a23981ed8a2914fffefda5bd01c1e2ca5fc7906f3868a8f16e12bbe4177"
     },
     {
       "path": "avatar-poses.js",
-      "bytes": 48250,
-      "sha256": "142c3ced250fdd1f0a8345b1db076d291642e83e3f423b03d017af54bfa7ac94"
+      "bytes": 49454,
+      "sha256": "0e571511a9e076436d7b021add723dadbe0df20866bf3c44c4d2aa6528fa539b"
     },
     {
       "path": "avatar-cloth-mesh.js",
-      "bytes": 13607,
-      "sha256": "1a8b00e3c91bf41856cea9929f8d86d1f01ad265b70fb7ee5e6045ec08e4b6ec"
+      "bytes": 14555,
+      "sha256": "71e465f9912698ddfd55602f95e0b9fb6140863f1799944dfed839669846b563"
     },
     {
       "path": "assets/sd-wardrobe-wave.png",

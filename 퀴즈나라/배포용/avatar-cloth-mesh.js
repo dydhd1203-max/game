@@ -5,7 +5,7 @@
 (function(){
   'use strict';
   const setAttributeIfChanged=(node,key,value)=>{value=String(value);if(node.getAttribute(key)!==value)node.setAttribute(key,value);};
-  const NS='http://www.w3.org/2000/svg',cache=new Map();
+  const NS='http://www.w3.org/2000/svg',cache=new Map(),clippedSources=new WeakMap();
   function relative(from,to){
     if(window.QPAvatarLocalTransform)return window.QPAvatarLocalTransform.relative(from,to);
     const a=from.getCTM(),b=to.getCTM();return a&&b?b.inverse().multiply(a):null;
@@ -40,7 +40,7 @@
   function supports(top){return ['tee','hood'].includes(top?.dataset.clothShape);}
   function prepare(rig){
     if(rig.clothMesh)return rig.clothMesh;
-    const top=rig.upper.querySelector('[data-qpx-clothes="top"]');if(!supports(top))return null;
+    const top=rig.top;if(!supports(top))return null;
     const image=document.createElementNS(NS,'image');for(const[k,v]of Object.entries({x:0,y:18,width:32,height:26,preserveAspectRatio:'none','data-qpx-continuous-cloth':top.dataset.clothShape}))setAttributeIfChanged(image,k,v);
     const carrier=document.createElementNS(NS,'g');setAttributeIfChanged(carrier,'data-qpx-cloth-carrier','continuous');carrier.style.display='none';carrier.append(image);rig.idle.append(carrier);
     return rig.clothMesh={top,image,carrier,original:top.querySelector('.qpc-garment'),angles:{}};
@@ -49,7 +49,7 @@
     const m=prepare(rig);if(!m)return;
     const front=(rig.svg.dataset.qpxView||'front')==='front',active=atlas.ready&&front&&[...rig.gestureArms?.values()||[]].some(a=>a.visible);
     m.carrier.style.display=active?'':'none';if(m.original)m.original.style.display=active?'none':'';
-    for(const arm of rig.gestureArms?.values()||[])for(const s of arm.carrier.querySelectorAll('[data-qpx-wave-sleeve]'))s.style.display=active?'none':'';
+    for(const arm of rig.gestureArms?.values()||[])for(const s of arm.sleeves||(arm.sleeves=[...arm.carrier.querySelectorAll('[data-qpx-wave-sleeve]')]))s.style.display=active?'none':'';
     if(!active){reset(rig);return;}
     if(!m.hands)m.hands=[];
     const sex=m.top.dataset.clothSex||rig.svg.dataset.qpxSex,shape=m.top.dataset.clothShape;
@@ -77,11 +77,21 @@
         const a=arms[side];if(!a)continue;const[shoulder,elbow]=angles[side],lift=side?Math.max(0,-shoulder):0,t=side?smooth((lift-30)/20):0;
         // Small motion retains the exact original sleeve; its sewn cap is
         // pinned rather than rotated away with the cuff.
-        const part=document.createElement('canvas');part.width=512;part.height=416;const pc=part.getContext('2d');pc.scale(16,16);pc.translate(0,-18);pc.clip(seamPath(side));pc.drawImage(art.canvas,tx,ty,tw,th);
+        let clips=clippedSources.get(art.canvas);
+        if(!clips||clips.revision!==art.revision){clips={revision:art.revision,parts:[]};clippedSources.set(art.canvas,clips);}
+        if(!clips.parts[side]){
+          const part=document.createElement('canvas');part.width=512;part.height=416;const pc=part.getContext('2d');pc.scale(16,16);pc.translate(0,-18);pc.clip(seamPath(side));pc.drawImage(art.canvas,tx,ty,tw,th);
+          const pixels=pc.getImageData(0,0,512,416).data;let x0=512,y0=416,x1=0,y1=0;
+          for(let y=0;y<416;y++)for(let x=0;x<512;x++)if(pixels[(y*512+x)*4+3]){x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);}
+          // Keep the identical 1 × .65 rig-unit mesh and a full-cell fringe.
+          // Only triangles whose source is entirely transparent are omitted.
+          clips.parts[side]={part,minCol:Math.max(0,Math.floor(x0/16)-1),maxCol:Math.min(32,Math.ceil((x1+1)/16)+1),minRow:Math.max(0,Math.floor(y0/10.4)-1),maxRow:Math.min(40,Math.ceil((y1+1)/10.4)+1)};
+        }
+        const {part,minCol,maxCol,minRow,maxRow}=clips.parts[side];
         if(t<1){
-          const vs=[],cols=32,rows=40;
+          const vs=[],cols=maxCol-minCol,rows=maxRow-minRow;
           for(let row=0;row<=rows;row++)for(let col=0;col<=cols;col++){
-            const p=[col,18+row*26/rows],inward=side?a.pivot[0]-p[0]:p[0]-a.pivot[0];
+            const p=[col+minCol,18+(row+minRow)*26/40],inward=side?a.pivot[0]-p[0]:p[0]-a.pivot[0];
             const pin=smooth((inward+.3)/1.0)*(1-smooth((p[1]-a.pivot[1])/2.1));
             const ew=shape==='tee'?0:smooth((p[1]-a.elbow[1]+.5)/1),b=rotate(p,elbow,a.elbow),bend=[p[0]+(b[0]-p[0])*ew,p[1]+(b[1]-p[1])*ew],q=rotate(bend,shoulder,a.pivot);
             vs.push({s:canvasPoint(p),d:canvasPoint([q[0]+(p[0]-q[0])*pin,q[1]+(p[1]-q[1])*pin])});
@@ -133,7 +143,7 @@
     placeSequence(rig.idle,m.hands.map(h=>h.owner));
     // Move the single original neck overlay above the fabric; never duplicate
     // the body or paint a rectangle over the head.
-    const neck=rig.upper.querySelector('.qpx-neck-surface');if(neck&&!m.neck){m.neck=neck;m.neckParent=neck.parentNode;m.neckNext=neck.nextSibling;m.carrier.append(neck);}
+    if(!m.neck){const neck=rig.upper.querySelector('.qpx-neck-surface');if(neck){m.neck=neck;m.neckParent=neck.parentNode;m.neckNext=neck.nextSibling;m.carrier.append(neck);}}
   }
   function reset(rig){const m=rig.clothMesh;if(!m)return;m.carrier.style.display='none';for(const h of m.hands||[]){h.frame.append(h.hand);h.owner.remove();}m.hands=[];if(m.original)m.original.style.display='';if(m.neck){m.neckParent.insertBefore(m.neck,m.neckNext?.parentNode===m.neckParent?m.neckNext:null);m.neck=null;}for(const arm of rig.gestureArms?.values()||[])for(const s of arm.carrier.querySelectorAll('[data-qpx-wave-sleeve]'))s.style.display='';}
   function destroy(rig){reset(rig);rig.clothMesh?.carrier.remove();delete rig.clothMesh;}

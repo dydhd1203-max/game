@@ -151,6 +151,7 @@
       const cap=node('g',{'clip-path':'url(#'+id+')',...(profilePainting||backPainting?{'data-qpx-gesture-art':'front'}:{})});cap.appendChild(cloneArtwork([cloneTop()],id+'-art'));carrier.appendChild(cap);
     }
     rig.idle.appendChild(carrier);
+    window.QPAvatarDirection?.compactArm?.(rig.svg,carrier);
     const artwork={carrier,arm,forearm,hands,elbow,pivot,wrist,maskSlot,originals,visible:false};rig.gestureArms.set(side,artwork);return artwork;
   }
   function showArm(rig,side,visible) {
@@ -172,7 +173,7 @@
     if(arm.rearFore){arm.arm.appendChild(arm.forearm);arm.rearFore.remove();arm.rearFore=null;}
     arm.meshAngles=[shoulder,forearm];
     delete arm.carrier.dataset.qpxArmDepth;delete arm.carrier.dataset.qpxArmView;
-    const variants=[...arm.carrier.querySelectorAll('[data-qpx-gesture-art]')],view=rig.svg.dataset.qpxView||'front';
+    const variants=arm.variants||(arm.variants=[...arm.carrier.querySelectorAll('[data-qpx-gesture-art]')]),view=rig.svg.dataset.qpxView||'front';
     const availableView=variants.some(artwork=>artwork.dataset.qpxGestureArt===view)?view:'front';
     for(const artwork of variants)artwork.style.display=artwork.dataset.qpxGestureArt===availableView?'':'none';
     const m=relative(rig.body,rig.idle);
@@ -296,6 +297,13 @@
       clip.appendChild(node('path',{d:'M-32 -32H64V37.25H18.25Q17 37.3 16 38.3Q15 37.3 13.75 37.25H-32Z'}));defs.appendChild(clip);
       upper.querySelectorAll('[data-qpx-clothes="top"]').forEach(cloth=>wrap(cloth,'overall-core').setAttribute('clip-path','url(#'+id+')'));
     }
+    let standingHem=null,floorHem=null;
+    if((skirt||longTop)&&window.QPAvatar?.renderProfileFloorHem){
+      standingHem=node('g',{'data-qpx-standing-hem':'true'});standingHem.append(...hem.childNodes);hem.append(standingHem);
+      floorHem=node('g',{'data-qpx-floor-lap':'profile',style:'display:none'});
+      const d=(longTop?top:bottom).dataset;
+      floorHem.innerHTML=QPAvatar.renderProfileFloorHem(d.qpxClothes,d.clothShape,d.clothColor,d.clothSex,d.clothSkin);hem.append(floorHem);
+    }
     function footArtwork(side){
       if(!shoeArtwork)return null;
       const group=node('g',{'data-qpx-pose-part':side+'-foot','data-qps-foot-host':side,'data-qps-shape':shoeArtwork.dataset.qpxShoes,'data-qps-foot-color':shoeArtwork.dataset.qpxShoeColor,'data-qps-skin':head.dataset.qpxHeadSkin});
@@ -344,6 +352,8 @@
     const backHairPose = backHair ? wrap(backHair, 'back-hair') : null;
     const facing = wrap(idle, 'facing');
     const rig = { svg, body, head, idle, children, defs, upper, left, right, hands, wrists,arms,cuffs,armSides,
+      top:upper.querySelector('[data-qpx-clothes="top"]'),shadow:svg.querySelector('.qpx-contact-shadow'),
+      standingHem,floorHem,coatCore:longTop?defs.querySelector('#'+uid+'-coat-core rect'):null,hemStart,
       headPose, backHairPose, facing, waist, skirtWaist, foot, skirt, longTop, leggedTop, hem, leftFoot, rightFoot,skinLegs,coveredLegs,rearFeet,
       leftShin,rightShin,knee,thighs,legClips:['left','right'].map(side=>defs.querySelector('#'+uid+'-'+side+'-leg rect')),upperClip:defs.querySelector('#'+uid+'-upper rect'),upperSeatClip,lastAction: 'idle', landingAt: 0,gesture:'',gestureStartedAt:0,previousGesture:svg.getAttribute('data-qpx-gesture'), previousPose: svg.getAttribute('data-qpx-pose') };
     rigs.set(svg, rig);
@@ -543,7 +553,10 @@
     setTransform(rig.left, left); setTransform(rig.right, right);
     setTransform(rig.leftShin,shinLeft);setTransform(rig.rightShin,shinRight);
     setTransform(rig.upper, upperTransform);
-    setTransform(rig.hem, hemTransform || upperTransform);
+    const floorLap=Boolean(floorSit&&sideView&&rig.floorHem);
+    if(rig.floorHem){rig.floorHem.style.display=floorLap?'':'none';rig.standingHem.style.display=floorLap?'none':'';}
+    if(rig.coatCore)setAttributeIfChanged(rig.coatCore,'height',32+(floorLap?36.35:rig.hemStart));
+    setTransform(rig.hem, floorLap?upperTransform:hemTransform || upperTransform);
     if (rig.leftFoot) setTransform(rig.leftFoot, footLeft);
     if (rig.rightFoot) setTransform(rig.rightFoot, footRight);
     // Match the real dressed neck, including the male torso's horizontal
@@ -618,7 +631,7 @@
         const elbow=action==='jump'?(right?8:-8)*(jumpPose?.launch||.25):right?Math.max(0,stride)*4:-Math.max(0,-stride)*4;
         positionArm(rig,arm,upperTransform,shoulder,elbow,0);arm.carrier.style.opacity='';
       }
-      if(!window.QPClothMesh?.supports(rig.upper.querySelector('[data-qpx-clothes="top"]'))||!window.QPClothMesh?.atlas.ready)placeSequence(rig.idle,['left','right'].map(side=>rig.gestureArms.get(side).carrier));
+      if(!window.QPClothMesh?.supports(rig.top)||!window.QPClothMesh?.atlas.ready)placeSequence(rig.idle,['left','right'].map(side=>rig.gestureArms.get(side).carrier));
     }else if(rig.gestureArms)for(const arm of rig.gestureArms.values())arm.carrier.style.opacity='';
     if(activeGesture==='wave'){
       const arm=rig.gestureArms.get('right'),swing=Math.sin(progress*Math.PI*8);
@@ -633,7 +646,7 @@
     }
     window.QPClothMesh?.draw(rig);
     continuousLegs(rig);
-    const shadow=svg.querySelector('.qpx-contact-shadow');if(shadow)shadow.style.visibility=action==='climb'?'hidden':'';
+    const shadow=rig.shadow;if(shadow)shadow.style.visibility=action==='climb'?'hidden':'';
     const mirror=profile?svg.dataset.qpxViewFacing==='left':state.direction!=='front'&&!activeGesture&&state.facing==='left';
     setTransform(rig.facing, mirror ? 'translate(32 0) scale(-1 1)' : '');
     if(activeGesture)setAttributeIfChanged(svg,'data-qpx-gesture',activeGesture);else svg.removeAttribute('data-qpx-gesture');
@@ -648,6 +661,8 @@
     const rig = rigs.get(svg); if (!rig) return false;
     window.QPClothMesh?.reset(rig);
     window.QPAvatarDirection?.reset(svg);
+    if(rig.floorHem){rig.floorHem.style.display='none';rig.standingHem.style.display='';}
+    if(rig.coatCore)setAttributeIfChanged(rig.coatCore,'height',32+rig.hemStart);
     [rig.upper, rig.left, rig.right, rig.leftShin,rig.rightShin,rig.hem, rig.leftFoot, rig.rightFoot,
       rig.headPose, rig.backHairPose, rig.facing, ...rig.arms, ...rig.hands].forEach(group => {
       if (group) group.removeAttribute('transform');

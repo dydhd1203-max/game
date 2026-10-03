@@ -19,6 +19,37 @@
   const value=(el,key,v)=>{if(v===null)el.removeAttribute(key);else if(el.getAttribute(key)!==String(v))el.setAttribute(key,v);};
   const wrap=(el,name)=>{const n=node('g',{'data-qpx-direction-part':name});el.parentNode.insertBefore(n,el);n.append(el);return n;};
   const unwrap=el=>{if(!el?.parentNode)return;while(el.firstChild)el.parentNode.insertBefore(el.firstChild,el);el.remove();};
+  const staticPaintings=new Map();
+  function staticPainting(r,layer,painting){
+    layer.innerHTML=painting;
+    // Map-scale static artwork is still the exact vector painting. One SVG
+    // image replaces hundreds of inactive gradient/path DOM nodes; joints,
+    // masks, live hands, faces and blinking remain in the articulated rig.
+    if(!painting||!r.svg.closest('.sr-avatar'))return;
+    const ids=new Map();let index=0;
+    painting=painting.replace(/id="([^"]+)"/g,(_,id)=>{const next='p'+index++;ids.set(id,next);return 'id="'+next+'"';});
+    painting=painting.replace(/url\(#([^)]+)\)/g,(_,id)=>'url(#'+(ids.get(id)||id)+')');
+    let source=staticPaintings.get(painting);
+    if(!source){source='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<svg xmlns="'+NS+'" viewBox="-32 -32 96 96">'+painting+'</svg>');staticPaintings.set(painting,source);if(staticPaintings.size>256)staticPaintings.delete(staticPaintings.keys().next().value);}
+    const image=node('image',{href:source,x:-32,y:-32,width:96,height:96,'data-qpx-static-art':'true',visibility:'hidden'});
+    image.addEventListener('load',()=>{layer.replaceChildren(image);image.removeAttribute('visibility');},{once:true});
+    image.addEventListener('error',()=>image.remove(),{once:true});layer.append(image);
+  }
+  function compactArm(svg,carrier){
+    if(!svg.closest('.sr-avatar'))return;
+    for(const art of carrier.querySelectorAll('[data-qpx-gesture-art="profile"],[data-qpx-gesture-art="back"]')){
+      const hands=[...art.querySelectorAll('[data-qpx-pose-part$="gesture-hand"]')];
+      const handDefs=node('defs');
+      // Hands stay live at their wrist. Retain only their referenced pigments
+      // in the outer SVG; cloth/arm gradients belong to the cached image.
+      const pigments=new Set(hands.flatMap(hand=>[...hand.outerHTML.matchAll(/url\(#([^)]+)\)/g)].map(m=>m[1])));
+      for(const id of pigments){const source=art.querySelector('[id="'+id+'"]');if(source)handDefs.append(source.cloneNode(true));}
+      const placements=hands.map(hand=>({hand,m:window.QPAvatarLocalTransform.relative(hand.parentNode,art)}));
+      hands.forEach(hand=>hand.remove());
+      const layer=node('g');staticPainting({svg},layer,art.innerHTML);art.replaceChildren(layer,handDefs);
+      for(const {hand,m}of placements){const carrier=node('g');if(m)carrier.setAttribute('transform','matrix('+[m.a,m.b,m.c,m.d,m.e,m.f].join(' ')+')');carrier.append(hand);art.append(carrier);}
+    }
+  }
   function inspect(data,w,h){
     const warm=p=>{const i=p*4,r=data[i],g=data[i+1],b=data[i+2];return data[i+3]>24&&r>186&&g>122&&b>91&&r>g*1.025&&g>b*.94&&r-g<100&&g-b<81;};
     let lx=w,rx=0,ty=h,by=0,count=0,sx=0,sy=0;
@@ -163,7 +194,7 @@
     const m=metadata(r.svg),art=window.QPAvatar;r.profileWear=[];
     if(!art?.renderProfileGarment)return;
     const add=(original,painting)=>{
-      const layer=node('g',{'data-qpx-profile-painting':'true',style:'display:none'});layer.innerHTML=painting;
+      const layer=node('g',{'data-qpx-profile-painting':'true',style:'display:none'});staticPainting(r,layer,painting);
       original.parentNode.insertBefore(layer,original.nextSibling);
       r.profileWear.push({original,layer,visibility:original.getAttribute('visibility'),seatedClip:null});return layer;
     };
@@ -218,7 +249,7 @@
       if(!category&&!original.classList.contains('qpx-skin-torso')&&!frontalNeck&&!redundantUpperLeg)continue;
       const layer=node('g',{'data-qpx-back-painting':'true',style:'display:none'});
       const part=r.pose.upper.contains(original)?'upper':r.pose.hem.contains(original)?'hem':r.pose.left.contains(original)?'left-leg':r.pose.right.contains(original)?'right-leg':'full';
-      layer.innerHTML=frontalNeck||redundantUpperLeg?'':category?art.renderBackGarment(category,d.clothShape,d.clothColor,d.clothSex,d.clothSkin,{part}):art.renderBackTorso(m);
+      staticPainting(r,layer,frontalNeck||redundantUpperLeg?'':category?art.renderBackGarment(category,d.clothShape,d.clothColor,d.clothSex,d.clothSkin,{part}):art.renderBackTorso(m));
       original.parentNode.insertBefore(layer,original.nextSibling);
       if(category){for(const key of ['qpxClothes','clothShape','clothColor','clothSex','clothSkin'])if(d[key])layer.dataset[key]=d[key];data(layer,'qpxBackClothes','true');data(layer,'qpxDirectionPart',category+'-back');data(layer,'qpxGarmentPart',part);}
       r.backWear.push({original,layer,visibility:entry.visibility});
@@ -229,6 +260,7 @@
   }
   function prepareProfileFeet(r){
     if(!window.QPProfileShoes?.renderFoot)return;
+    if(r.profileFeet?.length===2&&r.profileFeet.every(item=>item.layer.parentNode===(item.side==='left'?r.pose.leftFoot:r.pose.rightFoot)&&item.original.parentNode))return;
     const m=metadata(r.svg),shape=String(m.av.shoes||'sneaker:0').split(':')[0];
     const shoeSource=r.svg.querySelector('[data-qpx-shoe-color]'),color=r.pose.rightFoot?.dataset.qpsFootColor||shoeSource?.dataset.qpxShoeColor||'#fff0da';
     r.profileFeet ||= [];
@@ -237,7 +269,7 @@
       if(cached?.layer.parentNode===foot&&cached.original.parentNode)continue;
       if(cached){cached.layer.remove();cached.backLayer?.remove();r.profileFeet.splice(r.profileFeet.indexOf(cached),1);}
       const original=side==='left'?r.farShoe:foot.firstElementChild;if(!original)continue;
-      const layer=node('g',{'data-qpx-profile-shoe':side,style:'display:none'});layer.innerHTML=window.QPProfileShoes.renderFoot(shape,color,side,m.skin);foot.append(layer);
+      const layer=node('g',{'data-qpx-profile-shoe':side,style:'display:none'});staticPainting(r,layer,window.QPProfileShoes.renderFoot(shape,color,side,m.skin));foot.append(layer);
       const item={side,original,layer,visibility:original.getAttribute('visibility')};r.profileFeet.push(item);
       value(original,'visibility',r.profile?'hidden':item.visibility);layer.style.display=r.profile?'':'none';
     }
@@ -247,7 +279,7 @@
     for(const item of r.profileFeet||[]){
       const foot=item.side==='left'?r.pose.leftFoot:r.pose.rightFoot;if(item.backLayer?.parentNode===foot)continue;
       item.backLayer?.remove();const layer=node('g',{'data-qpx-back-shoe':item.side,style:'display:none'});
-      layer.innerHTML=window.QPProfileShoes.renderBackFoot(foot.dataset.qpsShape,foot.dataset.qpsFootColor,item.side,foot.dataset.qpsSkin);foot.append(layer);item.backLayer=layer;
+      staticPainting(r,layer,window.QPProfileShoes.renderBackFoot(foot.dataset.qpsShape,foot.dataset.qpsFootColor,item.side,foot.dataset.qpsSkin));foot.append(layer);item.backLayer=layer;
       value(item.original,'visibility',r.profile||r.backView?'hidden':item.visibility);layer.style.display=r.backView?'':'none';
     }
   }
@@ -334,7 +366,7 @@
     return '<image href="'+art.open+'" x="0" y="0" width="32" height="40"/>'+
       '<g class="qpx-blink-closed"><image href="'+art.patch+'" x="0" y="0" width="32" height="40"/><path d="M'+(x-w)+' '+(y+.45)+'Q'+x+' '+(y+1.5)+' '+(x+w)+' '+(y+.45)+'" fill="none" stroke="#493638" stroke-width=".28" stroke-linecap="round"/></g>';
   }
-  window.QPAvatarDirection=Object.freeze({atlas,prepare,apply,reset,destroy,headMarkup});
+  window.QPAvatarDirection=Object.freeze({atlas,prepare,apply,reset,destroy,headMarkup,compactArm});
   Promise.all([load('f'),load('m')]).then(()=>{atlas.ready=true;for(const r of mounted)if(r.svg.isConnected)headParts(r);if(atlas.backReady||atlas.backError)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-direction-ready'));}).catch(error=>{atlas.error=String(error?.message||error);if(atlas.backReady||atlas.backError)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-direction-error'));console.warn('옆모습 원화가 아직 준비되지 않아 정면 아바타를 유지합니다.',error);});
   Promise.all([loadBack('f'),loadBack('m')]).then(()=>{atlas.backReady=true;for(const r of mounted)if(r.svg.isConnected){rearParts(r);data(r.svg,'qpxBackLoading','false');}if(atlas.ready||atlas.error)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-back-ready'));}).catch(error=>{atlas.backError=String(error?.message||error);if(atlas.ready||atlas.error)mounted.clear();window.dispatchEvent(new CustomEvent('qp-avatar-back-error'));console.warn('뒷모습 원화를 불러오지 못했어요.',error);});
 })();
