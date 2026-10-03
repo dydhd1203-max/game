@@ -29,10 +29,13 @@ for rec in records:
     assert digest(src)==rec['sourceSHA256'],('modified original',src)
     assert digest(p)==rec['sha256'],('stale extraction',p)
     assert im.size==(rec['width'],rec['height'])
-    if rec['id'].startswith('flowers-'):
+    if rec['id'].startswith('flowers-') or rec['id']=='pink-tree':
         # Transparent extraction may only change alpha, never recolor petals
         # or paint a replacement ground patch into a flower sprite.
         assert not differences(im.convert('RGB'),original.crop(box(rec['sourceRect'])).convert('RGB')),(rec['id'],'flower RGB differs from original')
+    if rec['id']=='pink-tree':
+        alpha=im.getchannel('A'); bounds=alpha.getbbox(); assert bounds[0]>0 and bounds[1]>0 and bounds[2]<im.width and bounds[3]<im.height, 'relocated tree is clipped'
+        assert alpha.getpixel((0,0))==0 and alpha.getpixel((80,3))==0, 'old lawn/fence remains above relocated tree'
     assert not protected_failures(im,original,rec),(rec['id'],protected_failures(im,original,rec))
     checks.append({'asset':rec['id'],'protectedObjects':len(fixtures.get(rec['id'],[]))})
     if rec['id'] not in fixtures:continue
@@ -84,6 +87,6 @@ for rec in adaptations:
     bounds=im.getchannel('A').point(lambda a:255 if a>8 else 0).getbbox()
     assert list(bounds)==rec['significantAlphaBounds']
     assert bounds[0]>0 and bounds[1]>0 and bounds[2]<im.width and bounds[3]<im.height,('clipped edited asset',rec['id'])
-report={'passed':True,'checks':checks,'adaptedAssets':len(adaptations),'protectedObjects':sum(len(v) for v in fixtures.values()),'negativeControls':6,'reviewPanels':review,'visualReview':'These panels require human inspection; unknown objects and viewpoint-dependent occlusion are not automatically passed.'}
+report={'passed':True,'checks':checks,'adaptedAssets':len(adaptations),'protectedObjects':sum(len(v) for v in fixtures.values()),'negativeControls':2*sum(rec['id'] in fixtures for rec in records),'reviewPanels':review,'visualReview':'These panels require human inspection; unknown objects and viewpoint-dependent occlusion are not automatically passed.'}
 (OUT/'silhouettes.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
 print(json.dumps({k:v for k,v in report.items() if k!='reviewPanels'},ensure_ascii=False,indent=2))

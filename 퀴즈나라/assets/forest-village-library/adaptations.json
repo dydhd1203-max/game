@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "authorization": "2026-10-03 user requested adapting provided assets to the current map style without awkwardness. Originals remain unchanged.",
+  "version": 3,
+  "authorization": "2026-10-03 user requested adapting provided assets to the current map style without awkwardness. Originals remain unchanged. Later same-day user requested richer placement, a fairy-village central plaza, animated brook and climbable mysterious great tree.",
   "assets": [
     {
       "id": "flowers-daisy",
@@ -124,6 +124,297 @@
         "resampling": "LANCZOS"
       },
       "instructions": "Keep each provided house identity and entrance/stair/terrace arrangement. Simplify dense detail and dark edges into warm native map shading. Complete roof, walls, steps, paving and contact shadow; transparent background; no new buildings or props."
+    },
+    {
+      "id": "flowers-bluebell",
+      "file": "adapted/flowers-bluebell.png",
+      "sha256": "7b7ed33c461517b8498dcb37e5f7dffc26a4ee10d5ba9e0fa2eb84b518bcc510",
+      "width": 100,
+      "height": 91,
+      "significantAlphaBounds": [
+        3,
+        3,
+        97,
+        87
+      ],
+      "ground": [
+        50,
+        86
+      ],
+      "origin": "image_gen edit of provided object(s); cropped/resized derivative, not a pixel extraction",
+      "references": [
+        {
+          "file": "assets/grass-library/originals/grass-222b40d73f077265.jpg",
+          "sha256": "222b40d73f077265d0ede608a6e39f218cb700935e1d2b1d9cf42d300a3b877c",
+          "role": "bottom-left bluebell and mossy low rock"
+        },
+        {
+          "file": "assets/forest-village-library/originals/picnic-garden.png",
+          "sha256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+          "role": "native game camera, palette and shading"
+        }
+      ],
+      "generatedSheet": {
+        "file": "adapted/sources/garden-details.png",
+        "sha256": "a416257b6de096e048005f4bb9c18eae374e172cc0c1eb55e392f546bd549343",
+        "sourceRect": [
+          153,
+          39,
+          557,
+          508
+        ],
+        "resize": [
+          100,
+          91
+        ],
+        "resampling": "LANCZOS"
+      },
+      "instructions": "bottom-left bluebell and mossy low rock; preserve complete silhouette and source identity; adapt shading, edge weight and palette to the native map. Preserve transparent background. Verify actual placement and collision separately."
+    },
+    {
+      "id": "flowers-poppy",
+      "file": "adapted/flowers-poppy.png",
+      "sha256": "919049d345da890dbc0db332abd10be7044d3cdb706632040a6f81146c56c69b",
+      "width": 104,
+      "height": 77,
+      "significantAlphaBounds": [
+        3,
+        3,
+        101,
+        74
+      ],
+      "ground": [
+        52,
+        73
+      ],
+      "origin": "image_gen edit of provided object(s); cropped/resized derivative, not a pixel extraction",
+      "references": [
+        {
+          "file": "assets/grass-library/originals/grass-35b4bd69298c03e5.jpg",
+          "sha256": "35b4bd69298c03e558ba2eeffc7d13e853e87110f3488edd8d3bf53aacccd837",
+          "role": "second-row left poppy clump"
+        },
+        {
+          "file": "assets/forest-village-library/originals/picnic-garden.png",
+          "sha256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+          "role": "native game camera, palette and shading"
+        }
+      ],
+      "generatedSheet": {
+        "file": "adapted/sources/garden-details.png",
+        "sha256": "a416257b6de096e048005f4bb9c18eae374e172cc0c1eb55e392f546bd549343",
+        "sourceRect": [
+          831,
+          95,
+          577,
+          428
+        ],
+        "resize": [
+          104,
+          77
+        ],
+        "resampling": "LANCZOS"
+      },
+      "instructions": "second-row left poppy clump; preserve complete silhouette and source identity; adapt shading, edge weight and palette to the native map. Preserve transparent background. Verify actual placement and collision separately."
+    },
+    {
+      "id": "flowers-buttercup",
+      "file": "adapted/flowers-buttercup.png",
+      "sha256": "75c13f59d83d3f830626eea0d7c07f031c2fa10a8b4a0cc769d014fb38ec2375",
+      "width": 94,
+      "height": 67,
+      "significantAlphaBounds": [
+        4,
+        3,
+        91,
+        63
+      ],
+      "ground": [
+        47,
+        63
+      ],
+      "origin": "image_gen edit of provided object(s); cropped/resized derivative, not a pixel extraction",
+      "references": [
+        {
+          "file": "assets/grass-library/originals/grass-f2c32b677d82780f.jpg",
+          "sha256": "f2c32b677d82780f3669fc43a346a4327d54bdc059614f50694e648b116980b6",
+          "role": "bottom-left buttercup clump"
+        },
+        {
+          "file": "assets/forest-village-library/originals/picnic-garden.png",
+          "sha256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+          "role": "native game camera, palette and shading"
+        }
+      ],
+      "generatedSheet": {
+        "file": "adapted/sources/garden-details.png",
+        "sha256": "a416257b6de096e048005f4bb9c18eae374e172cc0c1eb55e392f546bd549343",
+        "sourceRect": [
+          185,
+          590,
+          520,
+          372
+        ],
+        "resize": [
+          94,
+          67
+        ],
+        "resampling": "LANCZOS"
+      },
+      "instructions": "bottom-left buttercup clump; preserve complete silhouette and source identity; adapt shading, edge weight and palette to the native map. Preserve transparent background. Verify actual placement and collision separately."
+    },
+    {
+      "id": "garden-well",
+      "file": "adapted/garden-well.png",
+      "sha256": "06febea11df603c0268dbd173881a5032bb76b7e0382ecc52d99a99187c68a8f",
+      "width": 150,
+      "height": 153,
+      "significantAlphaBounds": [
+        7,
+        3,
+        143,
+        146
+      ],
+      "ground": [
+        75,
+        147
+      ],
+      "origin": "image_gen edit of provided object(s); cropped/resized derivative, not a pixel extraction",
+      "references": [
+        {
+          "file": "assets/map-library/originals/reference-farm-village-sheet.jpg",
+          "sha256": "ee8b9b96f948a43f46064a19dfe8e03046ea8772db28228db89d7148a0c3731e",
+          "role": "provided circular stone well, wood uprights and pitched tile roof"
+        },
+        {
+          "file": "assets/forest-village-library/originals/picnic-garden.png",
+          "sha256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+          "role": "native game camera, palette and shading"
+        }
+      ],
+      "generatedSheet": {
+        "file": "adapted/sources/garden-details.png",
+        "sha256": "a416257b6de096e048005f4bb9c18eae374e172cc0c1eb55e392f546bd549343",
+        "sourceRect": [
+          900,
+          533,
+          435,
+          444
+        ],
+        "resize": [
+          150,
+          153
+        ],
+        "resampling": "LANCZOS"
+      },
+      "instructions": "provided circular stone well, wood uprights and pitched tile roof; preserve complete silhouette and source identity; adapt shading, edge weight and palette to the native map. Preserve transparent background. Verify actual placement and collision separately."
+    },
+    {
+      "id": "plaza-tree",
+      "file": "adapted/plaza-tree.png",
+      "sha256": "afa72654d471e017b1bdb41535e36466e2752742edb85171740917e11d4106bd",
+      "width": 612,
+      "height": 642,
+      "significantAlphaBounds": [
+        2,
+        9,
+        611,
+        635
+      ],
+      "ground": [
+        375,
+        604
+      ],
+      "origin": "image_gen edit of provided object(s); cropped/resized derivative, not a pixel extraction",
+      "references": [
+        {
+          "file": "assets/forest-village-library/originals/treehouse.png",
+          "sha256": "670493665de255e2c1fb81d31be40dc34718221e2253302698bb4de1323df3ab",
+          "role": "existing giant tree, root door/window, lower deck and right ladder, upper stair and two tree rooms"
+        },
+        {
+          "file": "assets/forest-village-library/originals/picnic-garden.png",
+          "sha256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+          "role": "native game camera, palette and shading"
+        },
+        {
+          "file": "assets/water-library/originals/water-73dbad95a5ece375.jpg",
+          "sha256": "73dbad95a5ece37575dad21aa0c76369104c91c698aca824f83d2ff31529b2c9",
+          "role": "user-confirmed fairy-village mood, warm windows, teal details and lush planting"
+        }
+      ],
+      "generatedSheet": {
+        "file": "adapted/sources/plaza-tree.png",
+        "sha256": "14dace32b22ead3006e1c4e1737a396dad86ab679d9ba3aa19194b5717c60d05",
+        "sourceRect": [
+          0,
+          0,
+          1225,
+          1284
+        ],
+        "resize": [
+          612,
+          642
+        ],
+        "resampling": "LANCZOS"
+      },
+      "instructions": "existing giant tree, root door/window, lower deck and right ladder, upper stair and two tree rooms; preserve complete silhouette and source identity; adapt shading, edge weight and palette to the native map. Preserve transparent background. Verify actual placement and collision separately."
+    },
+    {
+      "id": "plaza-brook",
+      "file": "adapted/plaza-brook.png",
+      "sha256": "4c362ab73ec40786e1d18e54855c91d8b876c54e804c8edfacda46c29082ba59",
+      "width": 260,
+      "height": 504,
+      "significantAlphaBounds": [
+        7,
+        7,
+        253,
+        497
+      ],
+      "ground": [
+        130,
+        489
+      ],
+      "origin": "image_gen edit of provided object(s); cropped/resized derivative, not a pixel extraction",
+      "references": [
+        {
+          "file": "assets/water-library/originals/water-0af185e50a8b9862.jpg",
+          "sha256": "0af185e50a8b9862ff5e87bd58ffbe59c1f975ae7c4f09752046e34be6461622",
+          "role": "provided meandering turquoise river and low adapted rock cascades"
+        },
+        {
+          "file": "assets/forest-village-library/originals/picnic-garden.png",
+          "sha256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+          "role": "native game camera, palette and shading"
+        },
+        {
+          "file": "assets/water-library/originals/water-73dbad95a5ece375.jpg",
+          "sha256": "73dbad95a5ece37575dad21aa0c76369104c91c698aca824f83d2ff31529b2c9",
+          "role": "user-confirmed fairy-village mood, warm windows, teal details and lush planting"
+        },
+        {
+          "file": "assets/water-library/originals/water-0e50bcc49b81bd14.jpg",
+          "sha256": "0e50bcc49b81bd1431849ea7943e72fbc9e4019724f1a65fa2c75ad8133124fb",
+          "role": "small river/pool bank forms; bridge reuses picnic-map wood dock design"
+        }
+      ],
+      "generatedSheet": {
+        "file": "adapted/sources/plaza-brook.png",
+        "sha256": "37d5c5d7b7917e296320e46a42eea76118a61e57986e899d84442e798478eb36",
+        "sourceRect": [
+          165,
+          38,
+          747,
+          1447
+        ],
+        "resize": [
+          260,
+          504
+        ],
+        "resampling": "LANCZOS"
+      },
+      "instructions": "provided meandering turquoise river and low adapted rock cascades; preserve complete silhouette and source identity; adapt shading, edge weight and palette to the native map. Preserve transparent background. Verify actual placement and collision separately."
     }
   ]
 }

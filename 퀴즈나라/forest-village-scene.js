@@ -4,15 +4,18 @@
   'use strict';
   const ROOT=new URL('assets/forest-village-library/extracted/',document.currentScript.src).href;
   const ADAPTED=new URL('../adapted/',ROOT).href;
-  const sizes={'village-composition':[1115,736],'garden-composition':[962,541],'flower-home':[314,223],'bakery-home':[286,219],'pink-tree':[145,128],'treehouse-composition':[946,740],'sky-composition':[956,553],'flowers-purple':[45,31],'flowers-ivory':[30,23],'flowers-gold':[32,31],'flowers-meadow':[33,24]};
+  const sizes={'village-composition':[1115,736],'garden-composition':[962,541],'flower-home':[314,223],'bakery-home':[286,219],'pink-tree':[181,153],'treehouse-composition':[946,740],'sky-composition':[956,553],'flowers-purple':[45,31],'flowers-ivory':[30,23],'flowers-gold':[32,31],'flowers-meadow':[33,24]};
   sizes['flowers-daisy']=[1484,1060];
+  Object.assign(sizes,{'plaza-composition':[1115,736],'flowers-bluebell':[100,91],'flowers-poppy':[104,77],'flowers-buttercup':[94,67],'garden-well':[150,153],'plaza-tree':[612,642],'plaza-brook':[260,504]});
+  const adapted=new Set(['flowers-daisy','flower-home','bakery-home','flowers-bluebell','flowers-poppy','flowers-buttercup','garden-well','plaza-tree','plaza-brook']);
+  const assetURL=asset=>(adapted.has(asset)?ADAPTED:ROOT)+asset+'.png';
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function builder(id,zone,title,width,height,spawn){
     const parts=[],solids=[],walkAreas=[],interactables=[],views=[],routes=[],groups=[],html=[];
     const scene={id,zone,title,width,height,spawn,cameraHome:{...spawn,zoom:1},bounds:{width,height},publicEntryReady:true,seats:[],parts,solids,walkAreas,interactables,previewViews:views,reviewRoutes:routes,groups,centerLabel:'내 위치',exitLabel:'학생 메뉴'};
     function image(id,asset,x,y,scale=1,depth=0,options={}){
       const [w,h]=sizes[asset],item={id,asset,x,y,width:w*scale,height:h*scale,scale,depth,...options};parts.push(item);
-      const url=(['flowers-daisy','flower-home','bakery-home'].includes(asset)?ADAPTED:ROOT)+asset+'.png';
+      const url=assetURL(asset);
       html.push('<img class="sr-art fv-art '+(options.className||'')+'" data-art="'+id+'" data-source="'+asset+'" data-floor-y="'+depth+'" src="'+url+'" alt="" draggable="false" width="'+w+'" height="'+h+'" style="left:'+x+'px;top:'+y+'px;width:'+item.width+'px;height:'+item.height+'px;z-index:'+depth+';'+(options.style||'')+'">');return item;
     }
     // A foreground crop references the same source pixels and placement as
@@ -21,7 +24,7 @@
       depth=Math.round(depth); // CSS z-index accepts integers, including on 2.1× maps.
       const [sx,sy,w,h]=rect,[sw,sh]=sizes[asset],clip='fv-'+id;
       parts.push({id,asset,x:sx*scale,y:sy*scale,width:w*scale,height:h*scale,scale,depth,role:'foreground',sourceRect:rect,polygon});
-      html.push('<svg class="sr-art fv-art" data-art="'+id+'" data-source="'+asset+'" data-floor-y="'+depth+'" viewBox="0 0 '+w+' '+h+'" style="left:'+sx*scale+'px;top:'+sy*scale+'px;width:'+w*scale+'px;height:'+h*scale+'px;z-index:'+depth+'" aria-hidden="true"><defs><clipPath id="'+clip+'"><polygon points="'+polygon.map(([x,y])=>(x-sx)+','+(y-sy)).join(' ')+'"/></clipPath></defs><image href="'+ROOT+asset+'.png" x="'+(-sx)+'" y="'+(-sy)+'" width="'+sw+'" height="'+sh+'" clip-path="url(#'+clip+')"/></svg>');
+      html.push('<svg class="sr-art fv-art" data-art="'+id+'" data-source="'+asset+'" data-floor-y="'+depth+'" viewBox="0 0 '+w+' '+h+'" style="left:'+sx*scale+'px;top:'+sy*scale+'px;width:'+w*scale+'px;height:'+h*scale+'px;z-index:'+depth+'" aria-hidden="true"><defs><clipPath id="'+clip+'"><polygon points="'+polygon.map(([x,y])=>(x-sx)+','+(y-sy)).join(' ')+'"/></clipPath></defs><image href="'+assetURL(asset)+'" x="'+(-sx)+'" y="'+(-sy)+'" width="'+sw+'" height="'+sh+'" clip-path="url(#'+clip+')"/></svg>');
     }
     function solid(id,x,y,w,h){const s={id,x,y,width:w,height:h};solids.push(s);return s;}
     function poly(id,points,solid=false){(solid?solids:walkAreas).push({id,points});}
@@ -31,11 +34,11 @@
     return {scene,html,image,foreground,solid,poly,portal,label,end};
   }
   function village(){
-    const X=x=>x*2,Y=y=>(y-64)*2;
-    const b=builder('forest-village-source-composition','village','햇살 숲속 마을',2230,1472,{x:X(581),y:Y(337)}),{scene:s,image,solid,poly,portal}=b;
-    image('native-water-path-gardens','village-composition',0,0,2,0,{role:'composition'});
+    const X=x=>x*3,Y=y=>(y-64)*3;
+    const b=builder('forest-village-source-composition','village','햇살 숲속 마을',3345,2208,{x:2400,y:1210}),{scene:s,image,solid,poly,portal}=b;
+    image('native-water-path-gardens','plaza-composition',0,0,3,0,{role:'composition'});
     const homes=[['flower-home',235,96,157,207,[256,156,106,43]],['bakery-home',231,462,143,572,[254,532,100,35]]];
-    homes.forEach(([asset,x,y,width,floor,box])=>{const scale=width*2/sizes[asset][0],id='courtyard-'+asset;image(id,asset,X(x),Y(y),scale,Y(floor),{role:'house',ground:{x:X(x+width/2),y:Y(floor)},footprint:id+'-base'});solid(id+'-base',X(box[0]),Y(box[1]),X(box[2]),X(box[3]));});
+    homes.forEach(([asset,x,y,width,floor,box])=>{const scale=width*3/sizes[asset][0],id='courtyard-'+asset;image(id,asset,X(x),Y(y),scale,Y(floor),{role:'house',ground:{x:X(x+width/2),y:Y(floor)},footprint:id+'-base'});solid(id+'-base',X(box[0]),Y(box[1]),X(box[2]),X(box[3]));});
     // Small planted groups belong to courtyard/shore lawns, never the path.
     // Their low foliage sorts by its own root, not by the flower's top edge.
     [['purple',243,218,1.8,'upper-courtyard'],['daisy',270,218,.066,'upper-courtyard'],['meadow',312,224,1.8,'upper-courtyard'],
@@ -45,12 +48,48 @@
       image('village-flower-'+i,asset,X(x),Y(y),scale,Math.round(ground.y),{role:'flower',bed,ground});
     });
     const native=(id,x,y,w,h)=>solid('picnic-'+id,X(x),Y(y),X(w),X(h));
-    native('pond',597,61,173,79);native('coffee',654,520,64,64);
-    [[212,168],[473,139],[487,230],[532,258],[152,296],[112,396],[218,427],[499,424],[549,565],[670,483],[803,369],[861,471],[1008,281],[1060,148],[929,122],[895,97],[325,675],[697,757],[828,786],[990,734]].forEach(([x,y],i)=>s.solids.push({id:'picnic-tree-'+i,x:X(x),y:Y(y),radius:i===10?36:23}));
-    [[227,276,68,18],[309,353,68,22],[693,469,70,21],[823,597,63,36],[889,534,80,22],[972,481,26,39],[727,247,69,19],[818,245,67,19],[589,276,56,40],[399,401,86,107],[378,519,88,77]].forEach((r,i)=>native('furniture-'+i,...r));
+
+    [[212,168],[473,139],[487,230],[532,258],[152,296],[112,396],[218,427],[499,424],[549,565],[670,483],[1008,281],[1060,148],[929,122],[895,97],[325,675],[697,757],[828,786],[990,734]].forEach(([x,y],i)=>s.solids.push({id:'picnic-tree-'+i,x:X(x),y:Y(y),radius:34.5}));
+    [[227,276,68,18],[309,353,68,22],[693,469,70,21],[823,597,63,36],[889,534,80,22],[972,481,26,39],[589,276,56,40],[399,401,86,107],[378,519,88,77]].forEach((r,i)=>native('furniture-'+i,...r));
     native('fence-west',370,626,180,20);native('fence-east',628,626,220,20);
-    image('native-flowering-canopy','pink-tree',X(710),Y(260),2,Y(365),{role:'canopy',ground:{x:X(790),y:Y(365)}});
-    const crown=(id,rect,points,floor)=>b.foreground(id,'village-composition',[rect[0],rect[1]-64,rect[2],rect[3]],points.map(([x,y])=>[x,y-64]),2,Y(floor));
+    image('central-great-tree','plaza-tree',2150,480,1,1115,{role:'landmark',ground:{x:2525,y:1084}});
+    image('central-brook','plaza-brook',1970,210,1,0,{role:'brook',ground:{x:2100,y:699}});
+    image('plaza-stone-well','garden-well',1960,824,1.05,978,{role:'well',ground:{x:2039,y:978}});
+    solid('plaza-well-base',1984,954,110,25);
+    native('coffee-kiosk',654,557,61,29);
+    // Root foot only; the canopy remains passable/occluding at ground level.
+    s.solids.push({id:'great-tree-root-left',points:[[2330,982],[2507,982],[2507,1060],[2468,1125],[2332,1088],[2250,1080]]},
+      {id:'great-tree-root-right',points:[[2554,982],[2630,982],[2670,1094],[2583,1130],[2554,1100]]},
+      {id:'ladder-ground-stop',x:2507,y:965,width:47,height:102});
+    s.elevatedDepth=4000;
+    s.levels=[
+      {id:'lower-deck',height:212,allowSit:false,walkAreas:[{points:[[2400,866],[2536,866],[2536,890],[2400,890]]}],solids:[]},
+      {id:'upper-deck',height:310,walkAreas:[{points:[[2508,732],[2660,732],[2675,765],[2668,785],[2508,785]]}],solids:[]}
+    ];
+    s.climbs=[
+      {id:'great-tree-ladder',label:'나무 데크로 오르기',downLabel:'광장으로 내려가기',radius:31,speed:76,points:[{x:2530,y:1090,height:0},{x:2530,y:888,height:212}]},
+      {id:'great-tree-stairs',motion:'walk',label:'나무 위 방으로 오르기',downLabel:'아래 데크로 내려가기',radius:19,speed:65,points:[{x:2515,y:869,height:212},{x:2515,y:830,height:255},{x:2522,y:780,height:310}]}
+    ];
+    // Foreground copies use exactly the landmark pixels and world registration.
+    const treeOverlay=(id,points,depth)=>{const clip='fv-'+id;s.parts.push({id,asset:'plaza-tree',role:'level-foreground',sourceRect:[0,0,612,642],x:2150,y:480,scale:1,depth,polygon:points});b.html.push('<svg class="fv-art" data-art="'+id+'" viewBox="0 0 612 642" style="left:2150px;top:480px;width:612px;height:642px;z-index:'+depth+'" aria-hidden="true"><defs><clipPath id="'+clip+'"><polygon points="'+points.map(p=>p.join(',')).join(' ')+'"/></clipPath></defs><image href="'+assetURL('plaza-tree')+'" width="612" height="642" clip-path="url(#'+clip+')"/></svg>');};
+    treeOverlay('lower-deck-railing',[[237,355],[340,352],[344,382],[356,386],[355,407],[333,410],[329,396],[245,392],[236,377]],4901);
+    // The right upper room is reachable; the left balcony is ornamental until
+    // a visible, unobstructed connecting walkway is supplied.
+    const waterMasks=[[[77,41],[117,45],[127,62],[119,91],[135,105],[163,118],[169,145],[153,165],[123,181],[107,182],[87,180],[99,169],[143,148],[146,131],[121,122],[104,109],[85,93]],[[82,235],[111,243],[134,259],[165,270],[183,292],[179,310],[153,323],[120,329],[84,349],[57,368],[62,383],[103,393],[158,383],[186,365],[203,360],[210,379],[220,403],[216,422],[199,442],[164,456],[119,451],[80,438],[67,424],[57,410],[45,399],[37,380],[44,364],[70,347],[107,318],[146,302],[149,288],[123,276],[95,272],[79,254]]];
+    b.html.push('<svg class="fv-art fv-brook-flow" data-art="brook-water-motion" viewBox="0 0 260 504" style="left:1970px;top:210px;width:260px;height:504px;z-index:1" aria-hidden="true"><defs><clipPath id="fv-brook-water">'+waterMasks.map(p=>'<polygon points="'+p.map(p=>p.join(',')).join(' ')+'"/>').join('')+'</clipPath></defs><g clip-path="url(#fv-brook-water)">'+[0,1,2].map(i=>'<image class="fv-flow-texture" href="'+assetURL('plaza-brook')+'" width="260" height="504" style="animation-delay:-'+i+'s"/>').join('')+'</g></svg>');
+    const waterSolid=(id,points)=>s.solids.push({id,points:points.map(([x,y])=>[1970+x,210+y])});
+    waterSolid('brook-upper-water',[[69,20],[126,24],[164,57],[151,100],[186,123],[193,149],[175,178],[153,194],[145,202],[74,185],[84,166],[127,144],[120,127],[65,115],[49,94],[47,56]]);
+    waterSolid('brook-lower-water',[[65,227],[145,243],[178,253],[201,278],[205,309],[184,333],[176,342],[211,341],[238,381],[242,418],[219,453],[181,477],[114,479],[62,455],[43,426],[18,408],[17,368],[50,335],[92,312],[139,297],[125,286],[87,284],[64,267]]);
+    s.effects=[{id:'brook-water-motion',x:1970,y:210,width:260,height:504}];
+    s.brookReview={bridge:[{x:2026,y:411},{x:2128,y:439}],water:[{x:2084,y:289},{x:2096,y:632}],still:[{x:2051,y:413},{x:2193,y:630}]};
+    // Each border has a distinct mix; entrances, ladder foot and meeting lawn stay open.
+    const newBeds=[['bluebell',2087,1010,.65,'tree-west'],['buttercup',2600,1137,.63,'tree-east'],['poppy',2720,975,.62,'tree-east'],
+      ['bluebell',1925,870,.58,'well-garden'],['buttercup',2093,962,.6,'well-garden'],
+      ['poppy',882,488,.62,'home-front'],['bluebell',1051,450,.62,'home-front'],
+      ['buttercup',738,1587,.72,'bakery-corner'],['poppy',1088,1580,.68,'bakery-corner'],
+      ['bluebell',1940,613,.56,'brook-bank'],['buttercup',2155,703,.6,'brook-bank']];
+    newBeds.forEach(([kind,x,y,scale,bed],i)=>{const asset='flowers-'+kind,[w,h]=sizes[asset],ground={x:x+w*scale/2,y:y+(h-4)*scale};image('plaza-bed-'+i,asset,x,y,scale,Math.round(ground.y),{role:'flower',bed,ground});});
+    const crown=(id,rect,points,floor)=>b.foreground(id,'village-composition',[rect[0],rect[1]-64,rect[2],rect[3]],points.map(([x,y])=>[x,y-64]),3,Y(floor));
     crown('lake-oak',[177,101,73,91],[[212,101],[234,107],[248,127],[246,151],[230,168],[218,174],[221,186],[208,191],[200,184],[201,173],[181,162],[177,139],[181,118]],181);
     crown('central-grove',[429,140,137,145],[[480,140],[515,149],[533,165],[528,184],[552,185],[565,218],[559,250],[542,263],[539,279],[527,281],[522,265],[512,255],[490,255],[486,269],[473,267],[469,253],[442,247],[429,223],[434,198],[451,180],[450,157]],266);
     crown('autumn-tree',[140,345,146,123],[[209,345],[255,355],[270,377],[271,393],[285,416],[272,439],[229,450],[217,464],[198,468],[192,447],[157,439],[140,421],[148,393],[156,365]],445);
@@ -58,9 +97,9 @@
     poly('village-land',[[159,64],[1105,64],[1105,780],[860,780],[730,760],[635,725],[535,710],[410,690],[330,699],[260,669],[168,610],[110,515],[112,392],[117,330],[131,235],[153,166],[158,87]].map(([x,y])=>[X(x),Y(y)]));
     portal('village-school-path','학교로 가는 길','playground',X(586),Y(654),{arrival:{x:X(586),y:Y(682)},targetDoor:'playground-village-path',radius:58});
     portal('village-garden-path','비밀정원 숲길','forestgarden',X(427),Y(88),{arrival:{x:X(426),y:Y(117)},targetDoor:'garden-village-path',radius:52});
-    s.cameraHome={x:X(550),y:Y(285),zoom:.96};s.centerOnPlayer=true;s.exitLabel='수업 목록';
-    s.previewViews=[{id:'alley',label:'꽃집과 굽은 골목',spawn:{x:X(565),y:Y(282)}},{id:'lake',label:'물가와 작은 집',spawn:{x:X(284),y:Y(597)}},{id:'flower-courtyard',label:'꽃이 있는 집 앞',spawn:{x:X(374),y:Y(245)}},{id:'picnic',label:'벚나무 소풍 마당',spawn:{x:X(841),y:Y(390)}},{id:'school-path',label:'학교로 가는 문',spawn:{x:X(586),y:Y(682)}}];
-    s.groups=[{id:'village-composition',rect:[0,0,2230,1472],purpose:'native winding paths and lake, two distinct courtyard homes, original picnic garden'}];
+    s.cameraHome={x:s.spawn.x,y:s.spawn.y,zoom:.76};s.cameraAnchorY=.81;s.centerOnPlayer=true;s.exitLabel='수업 목록';
+    s.previewViews=[{id:'alley',label:'꽃집과 굽은 골목',spawn:{x:X(565),y:Y(282)}},{id:'lake',label:'물가와 작은 집',spawn:{x:X(284),y:Y(597)}},{id:'flower-courtyard',label:'꽃이 있는 집 앞',spawn:{x:X(374),y:Y(245)}},{id:'picnic',label:'신비로운 큰 나무 광장',spawn:{x:2400,y:1210}},{id:'school-path',label:'학교로 가는 문',spawn:{x:X(586),y:Y(682)}}];
+    s.groups=[{id:'village-composition',rect:[0,0,3345,2208],purpose:'native winding paths and lake, two distinct courtyard homes, original picnic garden'}];
     s.reviewRoutes=[{id:'school',from:s.spawn,to:{x:X(586),y:Y(654)}},{id:'garden',from:s.spawn,to:{x:X(427),y:Y(88)}},...s.previewViews.slice(1,4).map(v=>({id:v.id,from:s.spawn,to:v.spawn}))];
     return b.end();
   }
@@ -88,6 +127,8 @@
     b.foreground('garden-swing-tree','garden-composition',[529,34,123,111],[[548,46],[565,36],[584,34],[605,39],[615,51],[636,57],[649,77],[651,95],[638,108],[602,111],[599,133],[605,141],[581,144],[567,136],[575,112],[551,111],[535,99],[529,80],[535,60]],2,281);
     b.foreground('garden-west-pine','garden-composition',[93,248,67,84],[[127,248],[134,262],[140,275],[148,287],[155,301],[159,309],[149,318],[133,322],[133,330],[122,332],[119,324],[103,319],[93,310],[102,291],[111,277],[120,261]],2,652);
     b.foreground('garden-east-oak','garden-composition',[845,131,74,87],[[868,131],[892,131],[911,146],[918,166],[913,182],[896,196],[887,198],[889,213],[873,217],[870,209],[873,194],[856,191],[845,172],[849,150]],2,430);
+    image('relocated-cherry-tree','pink-tree',500,700,1.5,891,{role:'canopy',ground:{x:662,y:884}});
+    s.solids.push({id:'relocated-cherry-root',x:662,y:881,radius:19});
     s.cameraHome={x:955,y:628,zoom:1};s.centerOnPlayer=true;s.exitLabel='마을로 돌아가기';
     s.previewViews=[{id:'garden-entry',label:'숲의 모임 마당',spawn:s.spawn},{id:'treehouse-gate',label:'큰 나무집으로 가는 계단',spawn:{x:697,y:325}}];
     s.reviewRoutes=[{id:'treehouse',from:s.spawn,to:{x:656,y:326}},{id:'village-return',from:s.spawn,to:{x:942,y:1002}}];

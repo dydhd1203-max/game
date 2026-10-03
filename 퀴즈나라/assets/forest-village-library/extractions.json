@@ -588,6 +588,1445 @@
       ]
     },
     {
+      "id": "plaza-composition",
+      "file": "extracted/plaza-composition.png",
+      "source": "assets/forest-village-library/originals/picnic-garden.png",
+      "sourceSHA256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+      "sourceRect": [
+        0,
+        64,
+        1115,
+        736
+      ],
+      "width": 1115,
+      "height": 736,
+      "sha256": "e49c070b2a879f773936a2e0ccf45adbf58e782579e342a66e14ecd6893b44f8",
+      "patches": [
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              278,
+              68
+            ],
+            [
+              350,
+              65
+            ],
+            [
+              362,
+              132
+            ],
+            [
+              283,
+              135
+            ]
+          ],
+          "reason": "entire upper picnic rug",
+          "groundTransition": 0,
+          "groundOutsideTransition": 2
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              259,
+              161
+            ],
+            [
+              333,
+              163
+            ],
+            [
+              337,
+              231
+            ],
+            [
+              256,
+              230
+            ]
+          ],
+          "reason": "entire lower picnic rug",
+          "groundTransition": 0,
+          "groundOutsideTransition": 2
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              360,
+              158
+            ],
+            [
+              388,
+              158
+            ],
+            [
+              389,
+              218
+            ],
+            [
+              381,
+              227
+            ],
+            [
+              361,
+              224
+            ]
+          ],
+          "reason": "entire rug-side bench",
+          "groundTransition": 0,
+          "groundOutsideTransition": 2
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              282,
+              465
+            ],
+            [
+              307,
+              465
+            ],
+            [
+              310,
+              487
+            ],
+            [
+              328,
+              487
+            ],
+            [
+              340,
+              494
+            ],
+            [
+              340,
+              539
+            ],
+            [
+              324,
+              547
+            ],
+            [
+              324,
+              562
+            ],
+            [
+              311,
+              575
+            ],
+            [
+              281,
+              575
+            ],
+            [
+              277,
+              544
+            ],
+            [
+              249,
+              542
+            ],
+            [
+              248,
+              492
+            ],
+            [
+              272,
+              489
+            ],
+            [
+              281,
+              488
+            ]
+          ],
+          "reason": "entire white dining table and four chairs",
+          "groundTransition": 0,
+          "groundOutsideTransition": 0
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              338,
+              424
+            ],
+            [
+              365,
+              424
+            ],
+            [
+              386,
+              439
+            ],
+            [
+              395,
+              461
+            ],
+            [
+              392,
+              486
+            ],
+            [
+              371,
+              500
+            ],
+            [
+              372,
+              511
+            ],
+            [
+              341,
+              514
+            ],
+            [
+              337,
+              500
+            ],
+            [
+              321,
+              484
+            ],
+            [
+              319,
+              456
+            ],
+            [
+              327,
+              439
+            ]
+          ],
+          "reason": "entire courtyard tree including crown, trunk and shadow",
+          "groundTransition": 0,
+          "groundOutsideTransition": 0
+        },
+        {
+          "donorRect": [
+            599,
+            480,
+            20,
+            22
+          ],
+          "maskPolygon": [
+            [
+              562,
+              397
+            ],
+            [
+              581,
+              397
+            ],
+            [
+              581,
+              398
+            ],
+            [
+              621,
+              398
+            ],
+            [
+              621,
+              414
+            ],
+            [
+              581,
+              414
+            ],
+            [
+              581,
+              416
+            ],
+            [
+              562,
+              416
+            ]
+          ],
+          "reason": "captured name/avatar only",
+          "groundTransition": 0,
+          "groundOutsideTransition": 0
+        },
+        {
+          "donorRect": [
+            599,
+            480,
+            20,
+            22
+          ],
+          "maskPolygon": [
+            [
+              589,
+              417
+            ],
+            [
+              608,
+              417
+            ],
+            [
+              608,
+              450
+            ],
+            [
+              587,
+              450
+            ]
+          ],
+          "reason": "captured name/avatar only",
+          "groundTransition": 0,
+          "groundOutsideTransition": 0
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              611,
+              383
+            ],
+            [
+              635,
+              384
+            ],
+            [
+              643,
+              392
+            ],
+            [
+              642,
+              402
+            ],
+            [
+              634,
+              407
+            ],
+            [
+              627,
+              410
+            ],
+            [
+              627,
+              416
+            ],
+            [
+              621,
+              422
+            ],
+            [
+              614,
+              422
+            ],
+            [
+              609,
+              418
+            ],
+            [
+              610,
+              410
+            ],
+            [
+              604,
+              403
+            ],
+            [
+              603,
+              397
+            ],
+            [
+              607,
+              390
+            ]
+          ],
+          "reason": "complete UI-occluded lower flower shrub and tiny flower; parent bush stays intact",
+          "groundTransition": 0,
+          "groundOutsideTransition": 0
+        },
+        {
+          "sourceRect": [
+            599,
+            366,
+            36,
+            30
+          ],
+          "polygon": [
+            [
+              11,
+              1
+            ],
+            [
+              23,
+              0
+            ],
+            [
+              32,
+              5
+            ],
+            [
+              35,
+              13
+            ],
+            [
+              34,
+              18
+            ],
+            [
+              21,
+              23
+            ],
+            [
+              15,
+              28
+            ],
+            [
+              8,
+              26
+            ],
+            [
+              3,
+              22
+            ],
+            [
+              1,
+              13
+            ],
+            [
+              2,
+              8
+            ]
+          ],
+          "target": [
+            599,
+            366
+          ],
+          "flipX": false,
+          "reason": "unchanged parent shrub and curved lower silhouette at original registration"
+        },
+        {
+          "sourceRect": [
+            415,
+            233,
+            45,
+            31
+          ],
+          "polygon": [
+            [
+              27,
+              6
+            ],
+            [
+              24,
+              5
+            ],
+            [
+              21,
+              5
+            ],
+            [
+              19,
+              6
+            ],
+            [
+              15,
+              6
+            ],
+            [
+              14,
+              8
+            ],
+            [
+              13,
+              10
+            ],
+            [
+              10,
+              11
+            ],
+            [
+              8,
+              14
+            ],
+            [
+              7,
+              17
+            ],
+            [
+              8,
+              21
+            ],
+            [
+              10,
+              24
+            ],
+            [
+              16,
+              25
+            ],
+            [
+              17,
+              27
+            ],
+            [
+              19,
+              27
+            ],
+            [
+              21,
+              26
+            ],
+            [
+              24,
+              26
+            ],
+            [
+              25,
+              27
+            ],
+            [
+              28,
+              27
+            ],
+            [
+              29,
+              25
+            ],
+            [
+              33,
+              24
+            ],
+            [
+              35,
+              22
+            ],
+            [
+              36,
+              21
+            ],
+            [
+              39,
+              21
+            ],
+            [
+              39,
+              19
+            ],
+            [
+              37,
+              18
+            ],
+            [
+              36,
+              15
+            ],
+            [
+              35,
+              12
+            ],
+            [
+              34,
+              10
+            ],
+            [
+              32,
+              7
+            ],
+            [
+              29,
+              7
+            ]
+          ],
+          "target": [
+            599,
+            380
+          ],
+          "flipX": true,
+          "reason": "complete flowering shrub; reflected to match the source bed orientation"
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              566,
+              32
+            ],
+            [
+              704,
+              30
+            ],
+            [
+              761,
+              43
+            ],
+            [
+              796,
+              77
+            ],
+            [
+              803,
+              124
+            ],
+            [
+              794,
+              164
+            ],
+            [
+              737,
+              184
+            ],
+            [
+              708,
+              200
+            ],
+            [
+              675,
+              226
+            ],
+            [
+              636,
+              220
+            ],
+            [
+              597,
+              196
+            ],
+            [
+              581,
+              163
+            ],
+            [
+              578,
+              121
+            ],
+            [
+              565,
+              86
+            ]
+          ],
+          "reason": "complete original pond with its overlapping front pine, shore props and small chair; replace with brook",
+          "groundTransition": 0,
+          "groundOutsideTransition": 1
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              638,
+              235
+            ],
+            [
+              656,
+              226
+            ],
+            [
+              682,
+              226
+            ],
+            [
+              715,
+              218
+            ],
+            [
+              774,
+              218
+            ],
+            [
+              789,
+              228
+            ],
+            [
+              813,
+              218
+            ],
+            [
+              868,
+              217
+            ],
+            [
+              880,
+              202
+            ],
+            [
+              894,
+              202
+            ],
+            [
+              900,
+              243
+            ],
+            [
+              907,
+              262
+            ],
+            [
+              900,
+              279
+            ],
+            [
+              883,
+              279
+            ],
+            [
+              877,
+              269
+            ],
+            [
+              674,
+              272
+            ],
+            [
+              647,
+              266
+            ],
+            [
+              638,
+              254
+            ]
+          ],
+          "reason": "complete north bench, stool, fence, flowers and lamp group for the great-tree crown",
+          "groundTransition": 0,
+          "groundOutsideTransition": 1
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              708,
+              276
+            ],
+            [
+              729,
+              258
+            ],
+            [
+              808,
+              258
+            ],
+            [
+              832,
+              274
+            ],
+            [
+              858,
+              307
+            ],
+            [
+              860,
+              334
+            ],
+            [
+              838,
+              352
+            ],
+            [
+              823,
+              374
+            ],
+            [
+              823,
+              399
+            ],
+            [
+              742,
+              402
+            ],
+            [
+              742,
+              374
+            ],
+            [
+              710,
+              365
+            ],
+            [
+              694,
+              337
+            ],
+            [
+              704,
+              301
+            ]
+          ],
+          "reason": "complete pink tree and fallen petals; original tree is relocated intact to the secret garden",
+          "groundTransition": 0,
+          "groundOutsideTransition": 1
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              813,
+              328
+            ],
+            [
+              852,
+              326
+            ],
+            [
+              921,
+              352
+            ],
+            [
+              926,
+              374
+            ],
+            [
+              885,
+              396
+            ],
+            [
+              863,
+              401
+            ],
+            [
+              817,
+              381
+            ],
+            [
+              807,
+              359
+            ]
+          ],
+          "reason": "complete blue picnic blanket, cup and tea pot",
+          "groundTransition": 0,
+          "groundOutsideTransition": 1
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              681,
+              350
+            ],
+            [
+              718,
+              348
+            ],
+            [
+              749,
+              365
+            ],
+            [
+              764,
+              374
+            ],
+            [
+              796,
+              392
+            ],
+            [
+              802,
+              417
+            ],
+            [
+              775,
+              440
+            ],
+            [
+              715,
+              440
+            ],
+            [
+              679,
+              415
+            ],
+            [
+              672,
+              386
+            ]
+          ],
+          "reason": "complete umbrella, basket and pink picnic blanket",
+          "groundTransition": 0,
+          "groundOutsideTransition": 1
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              818,
+              410
+            ],
+            [
+              858,
+              376
+            ],
+            [
+              878,
+              370
+            ],
+            [
+              922,
+              373
+            ],
+            [
+              941,
+              394
+            ],
+            [
+              952,
+              431
+            ],
+            [
+              939,
+              461
+            ],
+            [
+              915,
+              491
+            ],
+            [
+              896,
+              501
+            ],
+            [
+              872,
+              499
+            ],
+            [
+              819,
+              482
+            ]
+          ],
+          "reason": "complete two eastern courtyard trees and attached root shrubs; not a cut crown",
+          "groundTransition": 0,
+          "groundOutsideTransition": 1
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              633,
+              233
+            ],
+            [
+              697,
+              233
+            ],
+            [
+              705,
+              253
+            ],
+            [
+              698,
+              279
+            ],
+            [
+              674,
+              285
+            ],
+            [
+              635,
+              284
+            ]
+          ],
+          "reason": "whole west signpost, fence and flowers; preserve both neighboring vertical benches",
+          "groundTransition": 0,
+          "groundOutsideTransition": 2
+        },
+        {
+          "donorRect": [
+            558,
+            702,
+            32,
+            24
+          ],
+          "maskPolygon": [
+            [
+              728,
+              151
+            ],
+            [
+              749,
+              151
+            ],
+            [
+              754,
+              160
+            ],
+            [
+              754,
+              184
+            ],
+            [
+              743,
+              190
+            ],
+            [
+              727,
+              181
+            ]
+          ],
+          "reason": "entire remaining pond shrub at fence foot; no rectangular dark green stump",
+          "groundTransition": 0,
+          "groundOutsideTransition": 1
+        },
+        {
+          "donorRect": [
+            599,
+            480,
+            20,
+            22
+          ],
+          "maskPolygon": [
+            [
+              580,
+              202
+            ],
+            [
+              610,
+              203
+            ],
+            [
+              646,
+              204
+            ],
+            [
+              667,
+              199
+            ],
+            [
+              699,
+              183
+            ],
+            [
+              737,
+              177
+            ],
+            [
+              780,
+              179
+            ],
+            [
+              823,
+              179
+            ],
+            [
+              858,
+              179
+            ],
+            [
+              889,
+              185
+            ],
+            [
+              914,
+              219
+            ],
+            [
+              928,
+              249
+            ],
+            [
+              922,
+              268
+            ],
+            [
+              901,
+              252
+            ],
+            [
+              877,
+              237
+            ],
+            [
+              846,
+              232
+            ],
+            [
+              804,
+              232
+            ],
+            [
+              766,
+              232
+            ],
+            [
+              730,
+              231
+            ],
+            [
+              700,
+              239
+            ],
+            [
+              667,
+              252
+            ],
+            [
+              637,
+              258
+            ],
+            [
+              609,
+              248
+            ],
+            [
+              580,
+              230
+            ]
+          ],
+          "reason": "continuous curved path meeting the brook bridge; remove straight grass patch cuts",
+          "groundTransition": 0,
+          "groundOutsideTransition": 2
+        },
+        {
+          "sourceRect": [
+            744,
+            151,
+            151,
+            29
+          ],
+          "polygon": [
+            [
+              6,
+              9
+            ],
+            [
+              8,
+              9
+            ],
+            [
+              8,
+              0
+            ],
+            [
+              15,
+              0
+            ],
+            [
+              20,
+              9
+            ],
+            [
+              35,
+              9
+            ],
+            [
+              41,
+              0
+            ],
+            [
+              48,
+              0
+            ],
+            [
+              52,
+              10
+            ],
+            [
+              150,
+              8
+            ],
+            [
+              150,
+              28
+            ],
+            [
+              15,
+              28
+            ],
+            [
+              12,
+              25
+            ],
+            [
+              12,
+              21
+            ],
+            [
+              6,
+              21
+            ]
+          ],
+          "target": [
+            744,
+            151
+          ],
+          "flipX": false,
+          "reason": "restore the complete northern fence at original registration; never leave a half fence under a terrain patch"
+        },
+        {
+          "sourceRect": [
+            795,
+            115,
+            25,
+            28
+          ],
+          "polygon": [
+            [
+              1,
+              0
+            ],
+            [
+              24,
+              0
+            ],
+            [
+              24,
+              18
+            ],
+            [
+              22,
+              28
+            ],
+            [
+              4,
+              28
+            ],
+            [
+              1,
+              19
+            ]
+          ],
+          "target": [
+            795,
+            115
+          ],
+          "flipX": false,
+          "reason": "complete original northern stool, all four legs and shadow; pond removal must not crop it"
+        },
+        {
+          "donorRect": [
+            599,
+            480,
+            20,
+            22
+          ],
+          "maskPolygon": [
+            [
+              949,
+              367
+            ],
+            [
+              963,
+              367
+            ],
+            [
+              963,
+              464
+            ],
+            [
+              929,
+              494
+            ],
+            [
+              905,
+              507
+            ],
+            [
+              877,
+              507
+            ],
+            [
+              877,
+              499
+            ],
+            [
+              902,
+              489
+            ],
+            [
+              920,
+              466
+            ],
+            [
+              934,
+              440
+            ],
+            [
+              942,
+              410
+            ]
+          ],
+          "reason": "curved east path after whole grove removal; no angular lawn over paving",
+          "groundTransition": 0,
+          "groundOutsideTransition": 2
+        },
+        {
+          "sourceRect": [
+            802,
+            465,
+            89,
+            33
+          ],
+          "polygon": [
+            [
+              0,
+              0
+            ],
+            [
+              71,
+              0
+            ],
+            [
+              71,
+              7
+            ],
+            [
+              85,
+              8
+            ],
+            [
+              89,
+              15
+            ],
+            [
+              87,
+              25
+            ],
+            [
+              80,
+              31
+            ],
+            [
+              69,
+              32
+            ],
+            [
+              66,
+              27
+            ],
+            [
+              5,
+              26
+            ],
+            [
+              0,
+              20
+            ]
+          ],
+          "target": [
+            802,
+            465
+          ],
+          "flipX": false,
+          "reason": "complete southern bench, legs, shadow and small right flower bed restored after grove removal"
+        },
+        {
+          "sourceRect": [
+            871,
+            456,
+            41,
+            39
+          ],
+          "polygon": [
+            [
+              17,
+              0
+            ],
+            [
+              29,
+              2
+            ],
+            [
+              36,
+              7
+            ],
+            [
+              40,
+              16
+            ],
+            [
+              37,
+              29
+            ],
+            [
+              28,
+              36
+            ],
+            [
+              16,
+              38
+            ],
+            [
+              6,
+              33
+            ],
+            [
+              0,
+              23
+            ],
+            [
+              2,
+              12
+            ],
+            [
+              9,
+              4
+            ]
+          ],
+          "target": [
+            871,
+            456
+          ],
+          "flipX": false,
+          "reason": "whole bench-side flowering shrub and shadow; no chopped old tree remnant"
+        }
+      ]
+    },
+    {
       "id": "garden-composition",
       "file": "extracted/garden-composition.png",
       "source": "assets/forest-village-library/originals/forest-classroom.png",
@@ -1304,69 +2743,199 @@
       "source": "assets/forest-village-library/originals/picnic-garden.png",
       "sourceSHA256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
       "sourceRect": [
-        710,
-        260,
-        145,
-        128
+        690,
+        250,
+        181,
+        153
       ],
-      "width": 145,
-      "height": 128,
-      "sha256": "a78d59a9e2721ee6f42721a21f43698500c2ebd484a0c4a919c3fe0493bdac37",
+      "width": 181,
+      "height": 153,
+      "sha256": "bda43cca3803fdc59938b7c4ed908c7c62e680738e1994e0fcd4f1721380f287",
       "polygon": [
         [
-          52,
-          0
+          65,
+          17
         ],
         [
-          97,
-          1
+          86,
+          15
         ],
         [
-          121,
-          16
+          107,
+          19
         ],
         [
-          144,
-          48
+          126,
+          19
         ],
         [
           137,
-          71
+          27
         ],
         [
-          104,
-          95
+          144,
+          30
         ],
         [
-          97,
-          126
+          144,
+          37
         ],
         [
-          70,
-          127
+          151,
+          39
         ],
         [
-          69,
-          98
+          152,
+          49
         ],
         [
-          32,
-          92
+          156,
+          55
         ],
         [
-          7,
+          155,
           68
         ],
         [
-          0,
-          41
+          162,
+          75
         ],
         [
-          18,
-          15
+          164,
+          81
+        ],
+        [
+          158,
+          89
+        ],
+        [
+          145,
+          92
+        ],
+        [
+          130,
+          104
+        ],
+        [
+          117,
+          109
+        ],
+        [
+          118,
+          121
+        ],
+        [
+          113,
+          124
+        ],
+        [
+          105,
+          124
+        ],
+        [
+          98,
+          120
+        ],
+        [
+          97,
+          109
+        ],
+        [
+          72,
+          103
+        ],
+        [
+          58,
+          106
+        ],
+        [
+          45,
+          108
+        ],
+        [
+          26,
+          102
+        ],
+        [
+          15,
+          95
+        ],
+        [
+          17,
+          84
+        ],
+        [
+          25,
+          75
+        ],
+        [
+          23,
+          68
+        ],
+        [
+          31,
+          57
+        ],
+        [
+          40,
+          55
+        ],
+        [
+          41,
+          47
+        ],
+        [
+          47,
+          39
+        ],
+        [
+          47,
+          32
+        ],
+        [
+          61,
+          26
         ]
       ],
-      "edgeConnectedBackground": false
+      "petalsPolygon": [
+        [
+          53,
+          104
+        ],
+        [
+          147,
+          104
+        ],
+        [
+          153,
+          132
+        ],
+        [
+          116,
+          143
+        ],
+        [
+          97,
+          139
+        ],
+        [
+          83,
+          134
+        ],
+        [
+          69,
+          124
+        ],
+        [
+          53,
+          120
+        ]
+      ],
+      "alphaExtraction": {
+        "greenBackground": "G > R*1.015 and G > B*1.03",
+        "fallenPetals": "R > G*1.15 and B > G*.85",
+        "RGB": "unchanged original pixels"
+      }
     },
     {
       "id": "flowers-purple",

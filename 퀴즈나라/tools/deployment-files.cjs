@@ -6,6 +6,8 @@ module.exports=[
   'game-typography.css','forest-village-theme.css','shop-village.css','readability.css',
   'forest-village-scene.js','forest-village-world.css',
   'assets/forest-village-library/extracted/village-composition.png',
+  'assets/forest-village-library/extracted/plaza-composition.png',
+  'assets/forest-village-library/adapted/flowers-bluebell.png','assets/forest-village-library/adapted/flowers-poppy.png','assets/forest-village-library/adapted/flowers-buttercup.png','assets/forest-village-library/adapted/garden-well.png','assets/forest-village-library/adapted/plaza-tree.png','assets/forest-village-library/adapted/plaza-brook.png',
   'assets/forest-village-library/extracted/garden-composition.png',
   'assets/forest-village-library/adapted/flower-home.png',
   'assets/forest-village-library/adapted/bakery-home.png',

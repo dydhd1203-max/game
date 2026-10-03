@@ -232,6 +232,189 @@
           122
         ]
       }
+    ],
+    "plaza-composition": [
+      {
+        "id": "lake-oak",
+        "rect": [
+          177,
+          101,
+          72,
+          89
+        ]
+      },
+      {
+        "id": "central-grove",
+        "rect": [
+          431,
+          141,
+          125,
+          142
+        ]
+      },
+      {
+        "id": "autumn-tree",
+        "rect": [
+          141,
+          347,
+          141,
+          115
+        ]
+      },
+      {
+        "id": "lower-grove",
+        "rect": [
+          490,
+          451,
+          107,
+          142
+        ]
+      },
+      {
+        "id": "eastern-trees",
+        "rect": [
+          970,
+          171,
+          145,
+          211
+        ]
+      },
+      {
+        "id": "southern-oak",
+        "rect": [
+          282,
+          591,
+          106,
+          103
+        ]
+      },
+      {
+        "id": "west-fence",
+        "rect": [
+          369,
+          621,
+          187,
+          40
+        ]
+      },
+      {
+        "id": "east-fence",
+        "rect": [
+          622,
+          618,
+          236,
+          44
+        ]
+      },
+      {
+        "id": "name-neighbor-lamp",
+        "rect": [
+          543,
+          394,
+          18,
+          74
+        ]
+      },
+      {
+        "id": "lower-grove-crown-tip",
+        "rect": [
+          536,
+          441,
+          48,
+          12
+        ]
+      },
+      {
+        "id": "clock-post-and-base",
+        "rect": [
+          586,
+          308,
+          22,
+          71
+        ]
+      },
+      {
+        "id": "flower-bed-parent-crown",
+        "rect": [
+          610,
+          368,
+          20,
+          15
+        ]
+      },
+      {
+        "id": "flower-bed-parent-lower-curve",
+        "rect": [
+          603,
+          383,
+          5,
+          7
+        ]
+      },
+      {
+        "id": "south-bench-seat-and-legs",
+        "rect": [
+          808,
+          469,
+          63,
+          20
+        ]
+      },
+      {
+        "id": "north-stool-seat-and-legs",
+        "rect": [
+          798,
+          117,
+          17,
+          22
+        ]
+      },
+      {
+        "id": "south-bench-flower-core",
+        "rect": [
+          887,
+          464,
+          13,
+          17
+        ]
+      }
+    ],
+    "pink-tree": [
+      {
+        "id": "whole-left-flowering-branch",
+        "rect": [
+          715,
+          336,
+          9,
+          6
+        ]
+      },
+      {
+        "id": "upper-flowering-crown",
+        "rect": [
+          769,
+          274,
+          12,
+          6
+        ]
+      },
+      {
+        "id": "original-trunk-core",
+        "rect": [
+          793,
+          360,
+          5,
+          7
+        ]
+      }
     ]
+  },
+  "intentionalRelocations": {
+    "flowering-tree": {
+      "source": "picnic-garden.png",
+      "retainedAsset": "extracted/pink-tree.png",
+      "destination": "forestgarden",
+      "reason": "User-requested central climbable great tree; retain complete original pink tree in the garden."
+    }
   }
 }

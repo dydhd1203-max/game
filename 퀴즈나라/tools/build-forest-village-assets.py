@@ -89,6 +89,34 @@ source_sprite(im,'picnic-garden',[415,233,45,31],purple_polygon,(599,380),patche
 # The toolbar occupies trees at the outer top edge. Use the clean map below
 # that edge, rather than invent the hidden crowns. Coordinates record the crop.
 save('village-composition',im.crop((0,64,1115,800)),'picnic-garden',[0,64,1115,736],patches=patches)
+# Central-plaza redesign is a separate derivative; the first composition and
+# the original pink tree remain available. Each affected object is removed in
+# full, then replaced/relocated in the scene rather than hidden by a crop.
+plaza=im.copy();plaza_patches=list(patches)
+plaza_removals=[
+ ([(566,32),(704,30),(761,43),(796,77),(803,124),(794,164),(737,184),(708,200),(675,226),(636,220),(597,196),(581,163),(578,121),(565,86)],'complete original pond with its overlapping front pine, shore props and small chair; replace with brook'),
+ ([(638,235),(656,226),(682,226),(715,218),(774,218),(789,228),(813,218),(868,217),(880,202),(894,202),(900,243),(907,262),(900,279),(883,279),(877,269),(674,272),(647,266),(638,254)],'complete north bench, stool, fence, flowers and lamp group for the great-tree crown'),
+ ([(708,276),(729,258),(808,258),(832,274),(858,307),(860,334),(838,352),(823,374),(823,399),(742,402),(742,374),(710,365),(694,337),(704,301)],'complete pink tree and fallen petals; original tree is relocated intact to the secret garden'),
+ ([(813,328),(852,326),(921,352),(926,374),(885,396),(863,401),(817,381),(807,359)],'complete blue picnic blanket, cup and tea pot'),
+ ([(681,350),(718,348),(749,365),(764,374),(796,392),(802,417),(775,440),(715,440),(679,415),(672,386)],'complete umbrella, basket and pink picnic blanket'),
+ ([(818,410),(858,376),(878,370),(922,373),(941,394),(952,431),(939,461),(915,491),(896,501),(872,499),(819,482)],'complete two eastern courtyard trees and attached root shrubs; not a cut crown'),
+]
+for polygon,reason in plaza_removals:patch_ground(plaza,'picnic-garden',[558,702,32,24],polygon,reason,plaza_patches,outside_transition=1)
+# Remove the entire small west post/fence assembly (including its foot).
+patch_ground(plaza,'picnic-garden',[558,702,32,24],[(633,233),(697,233),(705,253),(698,279),(674,285),(635,284)],'whole west signpost, fence and flowers; preserve both neighboring vertical benches',plaza_patches,outside_transition=2)
+patch_ground(plaza,'picnic-garden',[558,702,32,24],[(728,151),(749,151),(754,160),(754,184),(743,190),(727,181)],'entire remaining pond shrub at fence foot; no rectangular dark green stump',plaza_patches,outside_transition=1)
+# Reconnect the original east-west path to the actual brook bridge. The ground
+# samples are from the same path; the shore itself is the adapted brook sprite.
+patch_ground(plaza,'picnic-garden',[599,480,20,22],[(580,202),(610,203),(646,204),(667,199),(699,183),(737,177),(780,179),(823,179),(858,179),(889,185),(914,219),(928,249),(922,268),(901,252),(877,237),(846,232),(804,232),(766,232),(730,231),(700,239),(667,252),(637,258),(609,248),(580,230)],'continuous curved path meeting the brook bridge; remove straight grass patch cuts',plaza_patches,outside_transition=2)
+source_sprite(plaza,'picnic-garden',[744,151,151,29],[(6,9),(8,9),(8,0),(15,0),(20,9),(35,9),(41,0),(48,0),(52,10),(150,8),(150,28),(15,28),(12,25),(12,21),(6,21)],(744,151),plaza_patches,'restore the complete northern fence at original registration; never leave a half fence under a terrain patch')
+source_sprite(plaza,'picnic-garden',[795,115,25,28],[(1,0),(24,0),(24,18),(22,28),(4,28),(1,19)],(795,115),plaza_patches,'complete original northern stool, all four legs and shadow; pond removal must not crop it')
+# Recover the curved path beside the removed grove using original path pixels.
+patch_ground(plaza,'picnic-garden',[599,480,20,22],[(949,367),(963,367),(963,464),(929,494),(905,507),(877,507),(877,499),(902,489),(920,466),(934,440),(942,410)],'curved east path after whole grove removal; no angular lawn over paving',plaza_patches,outside_transition=2)
+# The full southern bench and its own flower bed stay at original registration.
+source_sprite(plaza,'picnic-garden',[802,465,89,33],[(0,0),(71,0),(71,7),(85,8),(89,15),(87,25),(80,31),(69,32),(66,27),(5,26),(0,20)],(802,465),plaza_patches,'complete southern bench, legs, shadow and small right flower bed restored after grove removal')
+source_sprite(plaza,'picnic-garden',[871,456,41,39],[(17,0),(29,2),(36,7),(40,16),(37,29),(28,36),(16,38),(6,33),(0,23),(2,12),(9,4)],(871,456),plaza_patches,'whole bench-side flowering shrub and shadow; no chopped old tree remnant')
+save('plaza-composition',plaza.crop((0,64,1115,800)),'picnic-garden',[0,64,1115,736],patches=plaza_patches)
+
 
 # Garden: preserve the entire gate/fence and all surrounding trees. UI is
 # removed locally; four whole source trees restore the affected border grove.
@@ -118,7 +146,20 @@ save('garden-composition',im,'forest-classroom',[0,0,962,541],patches=patches)
 
 for name,rect in [('flower-home',[11,5,352,295]),('bakery-home',[9,308,354,289])]:crop(name,'houses',rect,background=True)
 # Exact source registration: foreground sits on the same original pixels.
-crop('pink-tree','picnic-garden',[710,260,145,128],[(52,0),(97,1),(121,16),(144,48),(137,71),(104,95),(97,126),(70,127),(69,98),(32,92),(7,68),(0,41),(18,15)])
+# Standalone relocation needs alpha around the WHOLE tree, unlike a foreground
+# crop that still shares its old ground. Preserve RGB; remove only green lawn.
+pink_rect=[690,250,181,153]
+pink_poly=[(65,17),(86,15),(107,19),(126,19),(137,27),(144,30),(144,37),(151,39),(152,49),(156,55),(155,68),(162,75),(164,81),(158,89),(145,92),(130,104),(117,109),(118,121),(113,124),(105,124),(98,120),(97,109),(72,103),(58,106),(45,108),(26,102),(15,95),(17,84),(25,75),(23,68),(31,57),(40,55),(41,47),(47,39),(47,32),(61,26)]
+pink=images['picnic-garden'].crop((690,250,871,403));alpha=Image.new('L',pink.size);ImageDraw.Draw(alpha).polygon(pink_poly,fill=255)
+petals_poly=[(53,104),(147,104),(153,132),(116,143),(97,139),(83,134),(69,124),(53,120)]
+petals=Image.new('L',pink.size);ImageDraw.Draw(petals).polygon(petals_poly,fill=255)
+for yy in range(pink.height):
+    for xx in range(pink.width):
+        r,g,bb,_=pink.getpixel((xx,yy))
+        if g>r*1.015 and g>bb*1.03:alpha.putpixel((xx,yy),0)
+        elif petals.getpixel((xx,yy)) and r>g*1.15 and bb>g*.85:alpha.putpixel((xx,yy),255)
+pink.putalpha(alpha)
+save('pink-tree',pink,'picnic-garden',pink_rect,polygon=pink_poly,petalsPolygon=petals_poly,alphaExtraction={'greenBackground':'G > R*1.015 and G > B*1.03','fallenPetals':'R > G*1.15 and B > G*.85','RGB':'unchanged original pixels'})
 # Low flower units use the same native map palette. Keep petals, leaves and
 # ground shadows together, excluding adjacent stepping stones and other props.
 crop('flowers-purple','picnic-garden',[415,233,45,31],purple_polygon)
