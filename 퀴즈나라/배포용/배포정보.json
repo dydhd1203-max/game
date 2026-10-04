@@ -1,9 +1,99 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-04T14:16:48.317Z",
+  "builtAt": "2026-10-04T23:19:16.946Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
+    {
+      "path": "world-map.js",
+      "bytes": 8559,
+      "sha256": "e1e0d9d80328b7297507e0184fc2bbcc1ac45ed1c7ea1bb039f8d2ad2725807a"
+    },
+    {
+      "path": "world-life-school.js",
+      "bytes": 1556,
+      "sha256": "771ce594be3a7e5e15255096f8632f2b26513c51478c0908dbb7ede5244631de"
+    },
+    {
+      "path": "assets/world-life/school-foliage.webp",
+      "bytes": 397874,
+      "sha256": "3076a8c6898505d9b557c3325299dd88b72e9c44442466cff841d76faaec0446"
+    },
+    {
+      "path": "world-life.js",
+      "bytes": 8780,
+      "sha256": "b933d70d4bc92f0ae4dfef088cad5aea2db8afb4444fd114c9b797be39a5c308"
+    },
+    {
+      "path": "world-explorer.css",
+      "bytes": 11034,
+      "sha256": "f0c49dbd7cf01e3fd0576cdf94c19d0a694e75c990b7d6340189935d836402d9"
+    },
+    {
+      "path": "assets/world-life/leaf-panel.png",
+      "bytes": 31266,
+      "sha256": "f3cb23f8c3d0195853b730227a8515c219af40ce5d7c3eef9a43c9914710f5c2"
+    },
+    {
+      "path": "assets/world-life/map-scroll.png",
+      "bytes": 7302,
+      "sha256": "30f2a3f72f6018812c160332cc69daf7cf28e9d6eaae667084d4cef08d272f03"
+    },
+    {
+      "path": "assets/world-life/mole.webp",
+      "bytes": 13890,
+      "sha256": "b0b84c71ec9453af5e424d2ea5b13fbfd1bdc6540968309e63c5b43906aa26bf"
+    },
+    {
+      "path": "assets/world-life/parchment-frame.png",
+      "bytes": 39967,
+      "sha256": "3d86be7d1d9442dffb89bee0764d83bc1fd777adeb6ed41be41dd6d5ec2dedae"
+    },
+    {
+      "path": "assets/world-life/thumbnails/adventure.webp",
+      "bytes": 165222,
+      "sha256": "8fbf4878ad6746b66d3ff9d345db4aa4b01eabc29df64ec1cc8044889214df20"
+    },
+    {
+      "path": "assets/world-life/thumbnails/autumnpark.webp",
+      "bytes": 87928,
+      "sha256": "fec1dbf8d50ad47a2ae3f45fe7566c301a23b21e18299987411bc92b555b236e"
+    },
+    {
+      "path": "assets/world-life/thumbnails/camp.webp",
+      "bytes": 40464,
+      "sha256": "25dc0239af34c67769792d1e6d8789fccc3fb8dc40618e564c80f9c9836693e5"
+    },
+    {
+      "path": "assets/world-life/thumbnails/campus.webp",
+      "bytes": 23526,
+      "sha256": "d873a3419f9716f75003c04dfe0c94a9e293833f4a08badc27acf8c3ce904e03"
+    },
+    {
+      "path": "assets/world-life/thumbnails/forestgarden.webp",
+      "bytes": 87030,
+      "sha256": "84f5f55265d87ec763d518fbd2338eb54fa81712ae2d011f00ef25db3dcd60f5"
+    },
+    {
+      "path": "assets/world-life/thumbnails/playground.webp",
+      "bytes": 59170,
+      "sha256": "e883b5ed2cf3cfddf16412c098902c74db34251703fac567037fbe1c733d6bfa"
+    },
+    {
+      "path": "assets/world-life/thumbnails/skyisland.webp",
+      "bytes": 50464,
+      "sha256": "a35757061e182da0fd28312c55ac811e2f03cc9991e23d53765172e9d5e470ed"
+    },
+    {
+      "path": "assets/world-life/thumbnails/treehouse.webp",
+      "bytes": 57984,
+      "sha256": "7549581c0ca996104e768efea7157140ddc942194c9cf2284d0c30a29946d900"
+    },
+    {
+      "path": "assets/world-life/thumbnails/village.webp",
+      "bytes": 106666,
+      "sha256": "7e99dbc774dfc133810c9d2169432aac5fce9f7383f275d837655e3e101fd416"
+    },
     {
       "path": "avatar-local-transform.js",
       "bytes": 2298,
@@ -16,8 +106,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 323394,
-      "sha256": "1335d27d9bcda6d8a982fd860af69c57359bbc9b36ce90a7ce5de62e91aa6761"
+      "bytes": 323937,
+      "sha256": "5ab1608db28f360485762f84635be5fda1472f2a3ea853af84b1a49e88ef2ca2"
     },
     {
       "path": "avatar-image.js",
@@ -181,8 +271,8 @@
     },
     {
       "path": "school-room-world.js",
-      "bytes": 48773,
-      "sha256": "a3e92953b7dfd696022a721c52fbc61d32a4721a998ced2fe578a788dbc6b5a1"
+      "bytes": 49704,
+      "sha256": "a11a640286891e520652fd9bf259cd47ab46865f24b9e06ff5fd3decdb20e97f"
     },
     {
       "path": "school-room-world.css",

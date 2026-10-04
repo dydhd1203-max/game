@@ -847,6 +847,10 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <link rel="stylesheet" href="./forest-village-world.css">
 <script src="./avatar-run-input.js"></script>
 <script src="./map-avatar-display.js"></script>
+<script src="./world-map.js"></script>
+<script src="./world-life-school.js"></script>
+<script src="./world-life.js"></script>
+<link rel="stylesheet" href="./world-explorer.css">
 <script src="./school-room-world.js"></script>
 <script src="./demo.js"></script>
 <script>
@@ -2624,7 +2628,7 @@ const SND = {
     this.paintControls();
   },
   paintControls(){
-    const icon=el('tbSnd');if(icon){icon.innerHTML=uiIcon((this.on&&this.fxVolume)||(this.bgm&&this.musicVolume)?'sound':'mute');icon.setAttribute('aria-label','소리 설정');}
+    const icon=el('tbSnd');if(icon){icon.innerHTML=uiIcon((this.on&&this.fxVolume)||(this.bgm&&this.musicVolume)?'sound':'mute')+'<span class="qp-tool-label">소리</span>';icon.setAttribute('aria-label','소리 설정');}
     [['sndFX',this.on],['sndMusic',this.bgm]].forEach(([id,on])=>{const b=el(id);if(b){b.textContent=on?'켜짐':'꺼짐';b.setAttribute('aria-pressed',String(on));b.classList.toggle('p',on);b.classList.toggle('gray',!on);}});
     [['sndFXVolume','sndFXValue',this.fxVolume],['sndMusicVolume','sndMusicValue',this.musicVolume]].forEach(([id,out,v])=>{if(el(id))el(id).value=v;if(el(out))el(out).textContent=v+'%';});
     if(el('sndState'))el('sndState').textContent=this.ctx&&this.ctx.state==='running'?'설정은 다음에도 그대로예요.':'화면을 누르거나 키보드를 사용하면 소리가 준비돼요.';
@@ -2855,11 +2859,11 @@ function topbar(title, back, brand){
     <div class="nm${brand?' quiz-brand-host':' qp-game-title-host'}">${brand?quizBrand(true):gameTitle(title)}</div>
     ${brand&&ME?`<div class="quiz-daily"><span class="daily-label">오늘의 연습</span><span class="daily-track" role="progressbar" aria-label="오늘 연습으로 모은 골드" aria-valuemin="0" aria-valuemax="${R.practiceCap}" aria-valuenow="${dailyGold}"><i style="width:${clamp(dailyGold/Math.max(1,R.practiceCap)*100,0,100)}%"></i><b>${dailyGold} / ${R.practiceCap} 골드</b></span></div>`:''}
     <div class="f1"></div>
-    <button class="icb" id="tbSnd" title="소리 설정" aria-label="소리 설정">${uiIcon((SND.on&&SND.fxVolume)||(SND.bgm&&SND.musicVolume)?'sound':'mute')}</button>
-    ${ME&&!IS_TEACHER? `<button class="icb" id="tbHome" title="숲속 마을" aria-label="숲속 마을">${uiIcon('home')}</button>
-       <button class="icb" id="tbProfile" title="내 정보" aria-label="내 정보">${uiIcon('expression')}</button>
-       <button class="icb y" id="tbShop" title="옷 가게" aria-label="옷 가게">${uiIcon('shop')}</button>
-       <button class="icb" id="tbRank" title="순위" aria-label="순위">${uiIcon('trophy')}</button>`:''}
+    <button class="icb" id="tbSnd" data-label="소리" title="소리 설정" aria-label="소리 설정">${uiIcon((SND.on&&SND.fxVolume)||(SND.bgm&&SND.musicVolume)?'sound':'mute')}<span class="qp-tool-label">소리</span></button>
+    ${ME&&!IS_TEACHER? `<button class="icb" id="tbHome" data-label="마을" title="숲속 마을" aria-label="숲속 마을">${uiIcon('home')}<span class="qp-tool-label">마을</span></button>
+       <button class="icb" id="tbProfile" data-label="내 정보" title="내 정보" aria-label="내 정보">${uiIcon('expression')}<span class="qp-tool-label">내 정보</span></button>
+       <button class="icb y" id="tbShop" data-label="옷 가게" title="옷 가게" aria-label="옷 가게">${uiIcon('shop')}<span class="qp-tool-label">옷 가게</span></button>
+       <button class="icb" id="tbRank" data-label="순위" title="순위" aria-label="순위">${uiIcon('trophy')}<span class="qp-tool-label">순위</span></button>`:''}
     ${ME? `<div class="gold"><span class="coin">${uiIcon('coin')}</span>골드 <b id="goldNum">${(ME.gold||0).toLocaleString()}</b></div>`:''}
     ${ME? `<button class="btn sm gray" id="tbOut">나가기</button>`:''}
   </div>`;

@@ -1,0 +1,361 @@
+[
+  {
+    "file": "assets/world-life/parchment-frame.png",
+    "source": "assets/interface-library/originals/interface-reference-01.jpg",
+    "sourceRect": [
+      381,
+      701,
+      613,
+      829
+    ],
+    "sha256": "49f03b1e447400373ee85aeb2d75e980232cd34784c255c44a702c24d0b6845a",
+    "operation": "source crop; only connected neutral gray sheet background removed; RGB and illustration preserved; CSS nine-slice border"
+  },
+  {
+    "file": "assets/world-life/leaf-panel.png",
+    "source": "assets/interface-library/originals/interface-reference-01.jpg",
+    "sourceRect": [
+      491,
+      306,
+      727,
+      443
+    ],
+    "sha256": "49f03b1e447400373ee85aeb2d75e980232cd34784c255c44a702c24d0b6845a",
+    "operation": "source crop; only connected neutral gray sheet background removed; RGB and illustration preserved; CSS nine-slice border"
+  },
+  {
+    "file": "assets/world-life/map-scroll.png",
+    "source": "assets/interface-library/originals/interface-reference-01.jpg",
+    "sourceRect": [
+      10,
+      621,
+      64,
+      677
+    ],
+    "sha256": "49f03b1e447400373ee85aeb2d75e980232cd34784c255c44a702c24d0b6845a",
+    "operation": "source crop; only connected neutral gray sheet background removed; RGB and illustration preserved; CSS nine-slice border"
+  },
+  {
+    "file": "thumbnails/village.webp",
+    "source": "assets/forest-village-library/original-resolution/maps/plaza.png",
+    "operation": "proportional thumbnail of current scene artwork",
+    "sha256": "818630cf856c9d7990ea1831e50e529ae9c61e01f1cd956acdeaacc25b467284"
+  },
+  {
+    "file": "thumbnails/forestgarden.webp",
+    "source": "assets/forest-village-library/original-resolution/maps/garden.png",
+    "operation": "proportional thumbnail of current scene artwork",
+    "sha256": "8b92e712f5ecb0cd2748ab3800481cd9f984923617fe934e3ab7015f2beaab12"
+  },
+  {
+    "file": "thumbnails/treehouse.webp",
+    "source": "assets/forest-village-library/original-resolution/maps/treehouse.png",
+    "operation": "proportional thumbnail of current scene artwork",
+    "sha256": "60e2aa8e00f650d608e67c366c1c8511b1c94940446069b9b0a07950c214a9dc"
+  },
+  {
+    "file": "thumbnails/skyisland.webp",
+    "source": "assets/forest-village-library/original-resolution/maps/sky.png",
+    "operation": "proportional thumbnail of current scene artwork",
+    "sha256": "a8833ac33b51b689e80ae79983693566c07b5f0f619857033173036e186856d2"
+  },
+  {
+    "file": "thumbnails/autumnpark.webp",
+    "source": "assets/forest-village-library/original-resolution/maps/autumn.png",
+    "operation": "proportional thumbnail of current scene artwork",
+    "sha256": "75bd10d47e0e84cf7ae02ba22ee63026aa0b31babcebe800ae4f80bc8445cd6d"
+  },
+  {
+    "file": "thumbnails/camp.webp",
+    "source": "assets/forest-village-library/original-resolution/maps/camp.png",
+    "operation": "proportional thumbnail of current scene artwork",
+    "sha256": "d5855bcbff397b6e4502ba1e7fe5719736ffdbcd01fe4c3907ab899badb300d8"
+  },
+  {
+    "file": "thumbnails/adventure.webp",
+    "source": "assets/forest-village-library/adventure/firefly-glade.png",
+    "operation": "proportional thumbnail of current scene artwork",
+    "sha256": "e72814fc7a12b4fee859e34a9a14b41e3b84afc6542681b6e2d57e0e5ea07f01"
+  },
+  {
+    "file": "thumbnails/campus.webp",
+    "source": "campus scene.render() screenshot, 800px wide, no avatars/HUD",
+    "operation": "render of supplied artwork with current gate/chairs"
+  },
+  {
+    "file": "thumbnails/playground.webp",
+    "source": "playground scene.render() screenshot, 800px wide, no avatars/HUD",
+    "operation": "render of supplied artwork with current gate/chairs"
+  },
+  {
+    "file": "school-foliage.webp",
+    "source": "QPPlaygroundScene.render() + QPMapAvatarDisplay registered crowns",
+    "operation": "exact native render crops; no repainting",
+    "frames": [
+      {
+        "r": {
+          "x": 866,
+          "y": 133,
+          "w": 92,
+          "h": 81
+        },
+        "source": {
+          "x": 0,
+          "y": 0,
+          "w": 92,
+          "h": 81
+        }
+      },
+      {
+        "r": {
+          "x": 1004,
+          "y": 75,
+          "w": 95,
+          "h": 78
+        },
+        "source": {
+          "x": 92,
+          "y": 0,
+          "w": 95,
+          "h": 78
+        }
+      },
+      {
+        "r": {
+          "x": 2827,
+          "y": 142,
+          "w": 102,
+          "h": 87
+        },
+        "source": {
+          "x": 187,
+          "y": 0,
+          "w": 102,
+          "h": 87
+        }
+      },
+      {
+        "r": {
+          "x": 2776,
+          "y": 205,
+          "w": 148,
+          "h": 107
+        },
+        "source": {
+          "x": 289,
+          "y": 0,
+          "w": 148,
+          "h": 107
+        }
+      },
+      {
+        "r": {
+          "x": 2916,
+          "y": 275,
+          "w": 148,
+          "h": 108
+        },
+        "source": {
+          "x": 437,
+          "y": 0,
+          "w": 148,
+          "h": 108
+        }
+      },
+      {
+        "r": {
+          "x": 3018,
+          "y": 243,
+          "w": 105,
+          "h": 82
+        },
+        "source": {
+          "x": 585,
+          "y": 0,
+          "w": 105,
+          "h": 82
+        }
+      },
+      {
+        "r": {
+          "x": 3069,
+          "y": 329,
+          "w": 134,
+          "h": 102
+        },
+        "source": {
+          "x": 690,
+          "y": 0,
+          "w": 134,
+          "h": 102
+        }
+      },
+      {
+        "r": {
+          "x": 3189,
+          "y": 303,
+          "w": 98,
+          "h": 79
+        },
+        "source": {
+          "x": 824,
+          "y": 0,
+          "w": 98,
+          "h": 79
+        }
+      },
+      {
+        "r": {
+          "x": 3203,
+          "y": 387,
+          "w": 141,
+          "h": 115
+        },
+        "source": {
+          "x": 922,
+          "y": 0,
+          "w": 141,
+          "h": 115
+        }
+      },
+      {
+        "r": {
+          "x": 3346,
+          "y": 414,
+          "w": 128,
+          "h": 90
+        },
+        "source": {
+          "x": 1063,
+          "y": 0,
+          "w": 128,
+          "h": 90
+        }
+      },
+      {
+        "r": {
+          "x": 877,
+          "y": 944,
+          "w": 102,
+          "h": 85
+        },
+        "source": {
+          "x": 1191,
+          "y": 0,
+          "w": 102,
+          "h": 85
+        }
+      },
+      {
+        "r": {
+          "x": 905,
+          "y": 1001,
+          "w": 138,
+          "h": 110
+        },
+        "source": {
+          "x": 1293,
+          "y": 0,
+          "w": 138,
+          "h": 110
+        }
+      },
+      {
+        "r": {
+          "x": 1100,
+          "y": 1027,
+          "w": 125,
+          "h": 104
+        },
+        "source": {
+          "x": 1431,
+          "y": 0,
+          "w": 125,
+          "h": 104
+        }
+      },
+      {
+        "r": {
+          "x": 1055,
+          "y": 1111,
+          "w": 118,
+          "h": 82
+        },
+        "source": {
+          "x": 1556,
+          "y": 0,
+          "w": 118,
+          "h": 82
+        }
+      },
+      {
+        "r": {
+          "x": 1163,
+          "y": 1162,
+          "w": 141,
+          "h": 90
+        },
+        "source": {
+          "x": 1674,
+          "y": 0,
+          "w": 141,
+          "h": 90
+        }
+      },
+      {
+        "r": {
+          "x": 1296,
+          "y": 1128,
+          "w": 144,
+          "h": 132
+        },
+        "source": {
+          "x": 1815,
+          "y": 0,
+          "w": 144,
+          "h": 132
+        }
+      },
+      {
+        "r": {
+          "x": 1449,
+          "y": 1229,
+          "w": 134,
+          "h": 102
+        },
+        "source": {
+          "x": 0,
+          "y": 132,
+          "w": 134,
+          "h": 102
+        }
+      },
+      {
+        "r": {
+          "x": 1578,
+          "y": 1307,
+          "w": 144,
+          "h": 113
+        },
+        "source": {
+          "x": 134,
+          "y": 132,
+          "w": 144,
+          "h": 113
+        }
+      }
+    ]
+  },
+  {
+    "file": "mole.webp",
+    "source": "assets/world-life/sources/mole-original.png",
+    "operation": "revised smooth sky-map-style mole; transparent margin trim and proportional thumbnail only; previous furry candidate retired",
+    "trim": [
+      312,
+      236,
+      1053,
+      905
+    ],
+    "sha256": "8db519f3a6f2287d29c54ad50073268676148a386b4b179105ceaa46f1fb81c8"
+  }
+]

@@ -1,0 +1,80 @@
+/* The supplied illustrated parchment is nine-sliced; text is always live text. */
+body.qp-campus{--qp-top-height:78px}
+body.qp-campus .top{height:var(--qp-top-height);padding:5px 22px;gap:12px;border-bottom:4px solid #d6b675;background:linear-gradient(#254f39df,#356447d9),url('./assets/wood-planks.svg') center/480px;box-shadow:0 2px 8px #243e4438}
+body.qp-campus .top .nm{flex-shrink:0}
+body.qp-campus .top .icb{width:65px!important;height:60px!important;display:flex;flex-direction:column;gap:2px;justify-content:center;align-items:center;border:2px solid #fff4cf!important;border-radius:16px!important;background:linear-gradient(#fffdee,#e6edcb)!important;color:#314e3c!important;box-shadow:0 3px 0 #223e2d,inset 0 0 0 1px #b7c394!important;padding:3px!important}
+.qp-tool-label{display:none}
+body.qp-campus .top .icb .qp-tool-label{display:block;font:800 12px "NanumSquareRound",sans-serif;line-height:1.2;color:#304d39;text-shadow:none;white-space:nowrap}
+body.qp-campus .top .icb::after{display:none!important}
+body.qp-campus .top .icb :is(.rich-icon,.candy-icon){width:28px;height:28px}
+body.qp-campus .top .icb .ui-icon{width:28px;height:28px}
+body.qp-campus .top #tbShop{background:linear-gradient(#fff5d7,#f7dcab)!important}
+body.qp-campus .top .icb:hover{transform:translateY(-2px);filter:brightness(1.04)}
+body.qp-campus .top .icb:focus-visible{outline:3px solid #fff6ac;outline-offset:3px}
+body.qp-campus .top .quiz-daily{width:192px;height:51px;padding:4px 10px;background:#fffae7;border:2px solid #e6cd90;border-radius:14px;box-shadow:0 3px 0 #28452d}
+body.qp-campus .quiz-daily .daily-label{font-size:12px;line-height:17px;color:#435734}
+body.qp-campus .quiz-daily .daily-track{height:21px}
+body.qp-campus .quiz-daily .daily-track b{font-size:12px;line-height:19px}
+body.qp-campus .top .gold{height:44px;min-width:145px;font-size:12px;box-shadow:0 3px 0 #28452d,inset 0 0 0 2px #dfb864}
+body.qp-campus .top .gold b{font-size:23px}
+body.qp-campus #tbOut{height:40px;min-width:70px;background:#e8f0d7;color:#304d39;border:2px solid #d3e1ad;border-radius:12px;box-shadow:0 3px 0 #25452c;text-shadow:none;font-size:13px}
+body.qp-campus .sr-hud{left:18px;top:15px;gap:8px;align-items:center}
+body.qp-campus .sr-room-title{border:18px solid transparent;border-image:url('./assets/world-life/leaf-panel.png') 26 / 18px stretch;padding:0 7px 1px;box-shadow:0 3px 6px #3b472622;border-radius:8px;min-width:180px;background:#fff9de}
+body.qp-campus .sr-room-title strong{font-size:20px;color:#3c5439}
+body.qp-campus .sr-network{font-size:12px;color:#535f42}
+body.qp-campus .sr-friend-count{background:#fffdf0;border:2px solid #dfcf9d;padding:10px 12px;border-radius:18px;color:#536846}
+body.qp-campus .sr-friend-count b{font-size:17px}
+body.qp-campus .sr-tools{top:17px;right:18px;gap:7px;align-items:center;padding:7px;border:1px solid #d9d8ad;background:#ffffeee8;border-radius:17px;box-shadow:0 3px 6px #32472c24}
+body.qp-campus .sr-tools button{border:1px solid #c1c99e;background:#fffef1;min-height:37px;color:#455b3a;border-radius:10px;box-shadow:0 2px 0 #a8b587}
+body.qp-campus .sr-tools .wm-open{background:#426d4b;color:#fffbea;border-color:#2c5237;padding:8px 13px;box-shadow:0 2px 0 #294e34;font-size:15px}
+.wm-open img{width:25px;height:28px;object-fit:contain;vertical-align:middle;margin:-5px 2px -3px -3px}.wm-open kbd,.wm-close kbd{font:700 11px inherit;border:1px solid currentColor;border-radius:4px;padding:1px 4px;opacity:.8;margin-left:4px}
+body.qp-campus .sr-help{top:81px}
+.wm-mini{position:absolute;z-index:1201;right:18px;bottom:17px;width:226px;background:#fffbea;border:12px solid transparent;border-image:url('./assets/world-life/parchment-frame.png') 23 / 12px stretch;border-radius:10px;box-shadow:0 3px 12px #253f3433;color:#3f573c}
+.wm-mini-head{display:flex;align-items:center;justify-content:space-between;margin:-3px 0 5px}
+.school-room-host .wm-mini-head button{box-shadow:none;border:0;background:transparent;padding:1px 4px;min-height:23px;font-size:12px;color:#4b5839}
+.school-room-host .wm-mini-head .wm-fold{font-size:18px;width:26px}
+.wm-board{position:relative;width:100%;overflow:hidden;border-radius:9px;background:#e2eacb;isolation:isolate}
+.wm-terrain{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none}
+.wm-dots{position:absolute;inset:0;pointer-events:none}
+.wm-person{position:absolute;transform:translate(-50%,-50%);width:11px;height:11px;border:2px solid white;border-radius:50%;box-shadow:0 0 0 1px #233d3899;z-index:3}
+.wm-person.wm-self{width:14px;height:14px;z-index:4}
+.wm-self{background:#287741}.wm-friend{background:#438ad4}.wm-door{background:#ba712d;transform:rotate(45deg)}
+.wm-view{position:absolute;border:1px solid #fffbee;background:#fffdd812;box-shadow:0 0 0 1px #39534866;border-radius:3px}
+.school-room-host .wm-portal{position:absolute;z-index:2;transform:translate(-50%,-50%);width:25px;height:25px;min-height:0;padding:0;border:2px solid #fff9df;background:#895520;color:#fff;border-radius:50%;font-size:12px;line-height:21px;text-align:center;box-shadow:0 1px 3px #28392880}
+.wm-mini .wm-portal{width:15px;height:15px;border-width:1px;font-size:10px;line-height:13px}
+.wm-mini .wm-person{width:8px;height:8px;border-width:1px}.wm-mini .wm-person.wm-self{width:10px;height:10px}
+.wm-legend{display:flex;gap:14px;justify-content:center;padding-top:8px;font-size:11px;font-weight:700}.wm-legend span{display:flex;align-items:center;gap:5px}.wm-legend i{width:8px;height:8px;border-radius:50%}
+.wm-mini.is-folded .wm-board,.wm-mini.is-folded .wm-legend{display:none}.wm-mini.is-folded{width:152px}.wm-mini.is-folded .wm-mini-head{margin-bottom:0}
+.school-room-host .wm-dialog{width:min(1120px,calc(100vw - 64px));max-width:none;height:min(730px,calc(100vh - 52px));max-height:none;padding:0;border:3px solid #d6be83;border-radius:24px;background:#fffbed;color:#3c5138;box-shadow:0 15px 60px #172f4359;overflow:hidden;font-family:inherit}
+.wm-dialog::backdrop{background:#173b398c;backdrop-filter:blur(3px)}
+.wm-header{height:87px;display:flex;align-items:center;justify-content:space-between;padding:16px 27px;border-bottom:1px solid #dbdabc;background:linear-gradient(90deg,#e3edd2,#f6f4dc)}
+.wm-header small{display:block;font-size:12px;color:#587149;margin-bottom:5px;font-weight:800;letter-spacing:1px}
+.wm-header h2{margin:0;font:800 26px 'NanumSquareRound',sans-serif;color:#334e33;text-shadow:none;-webkit-text-stroke:0}
+.school-room-host .wm-close{background:#fffef3;border-color:#bdcca4;box-shadow:0 2px 0 #afbd93;padding:9px 14px}
+.wm-body{display:grid;grid-template-columns:243px 1fr;height:calc(100% - 136px);min-height:0}
+.wm-places{overflow:auto;padding:15px 12px;background:#f1f2df;border-right:1px solid #dce0c5;display:flex;flex-direction:column;gap:8px}
+.school-room-host .wm-place{display:flex;gap:10px;align-items:center;text-align:left;padding:8px;min-height:62px;border:1px solid transparent;border-radius:12px;background:transparent;box-shadow:none;white-space:normal;flex-shrink:0}
+.wm-place img{width:59px;height:44px;object-fit:cover;border-radius:8px;border:1px solid #c3cda8}
+.wm-place b{display:block;font-size:14px;color:#385036}.wm-place small{display:block;margin-top:4px;font-size:10px;color:#5b6c51;line-height:1.45}
+.school-room-host .wm-place[aria-pressed="true"]{background:#fffbee;border-color:#86a06f;box-shadow:0 2px 4px #6c804922}
+.wm-detail{padding:18px 23px;min-height:0;display:flex;flex-direction:column;gap:12px;overflow:auto}
+.wm-detail-head{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}.wm-detail-head h3{font-size:21px;margin:0;color:#3b5537}.wm-detail-head p{font-size:12px;margin:5px 0 0;color:#68715a}
+.wm-map-area{flex:1;min-height:120px;display:flex;align-items:center;justify-content:center;border:1px solid #d7dec2;border-radius:14px;background:#edf2df;overflow:hidden}
+.wm-map-area .wm-board{width:auto;height:100%;max-width:100%;max-height:100%;border-radius:5px}
+.wm-connections{display:flex;gap:6px;flex-wrap:wrap}.school-room-host .wm-connections button{font-size:12px;min-height:28px;padding:4px 8px;box-shadow:none;background:#f7f3de;border-color:#d1c99f}
+.wm-route{padding:11px 13px;background:#eaf0da;border-radius:10px;font-size:12px;line-height:1.65;flex-shrink:0}.wm-route b,.wm-route span{display:block}.wm-route b{font-size:13px;color:#385936}
+.wm-footer{height:49px;border-top:1px solid #e1dec6;padding:10px 22px;display:flex;align-items:center;justify-content:space-between;gap:15px;font-size:11px;color:#58654c}.wm-footer-legend{white-space:nowrap}
+@media(max-width:1150px){body.qp-campus .top{padding:5px 12px;gap:8px}body.qp-campus .top .icb{width:57px!important}body.qp-campus .top .quiz-daily{width:160px}body.qp-campus .top .gold{min-width:118px}body.qp-campus .sr-friend-count{display:none}.wm-body{grid-template-columns:218px 1fr}.wm-mini{width:195px}.wm-detail{padding:15px}}
+@media(max-width:800px){body.qp-campus .top .quiz-daily{display:none}body.qp-campus .top .icb{width:43px!important}body.qp-campus .top .gold{min-width:94px;padding:4px}body.qp-campus .top .gold b{font-size:17px}body.qp-campus .top{gap:6px}body.qp-campus .sr-tools{top:auto;bottom:82px;left:12px;right:auto}.wm-mini{width:160px;right:10px;bottom:82px}.wm-body{grid-template-columns:160px 1fr}.wm-place img{display:none}.wm-footer{font-size:10px}.wm-footer-legend{display:none}body.qp-campus .sr-controls{max-width:calc(100vw - 24px);gap:4px}.school-room-host .wm-dialog{width:calc(100vw - 20px);height:calc(100vh - 24px)}.wm-header{padding:12px 16px}.wm-header h2{font-size:21px}}
+@media(prefers-reduced-motion:reduce){body.qp-campus .top .icb:hover{transform:none}.wm-dialog::backdrop{backdrop-filter:none}}
+/* Small environmental effects are decorative and never receive pointer input. */
+.wl-patch{contain:strict}.wl-mole svg{display:block;overflow:hidden}.wl-window-light{background:linear-gradient(120deg,transparent 15%,#fffad1 40%,transparent 64%);clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}
+.wl-canopy-light{background:radial-gradient(ellipse,#f6ffc1,transparent 66%);border-radius:50%;mix-blend-mode:screen}
+.wl-embers i{position:absolute;left:49%;bottom:22%;width:3px;height:4px;border-radius:50%;background:#ffe491;box-shadow:0 0 5px #ef8439;animation:wl-ember 1.8s ease-out infinite;opacity:0}.wl-embers i:nth-child(2){left:65%;animation-delay:-.67s;animation-duration:2.3s}.wl-embers i:nth-child(3){left:31%;animation-delay:-1.3s;animation-duration:2.6s}
+@keyframes wl-ember{0%{transform:translate(0,0) scale(.7);opacity:0}20%{opacity:.8}80%{opacity:.4}100%{transform:translate(7px,-40px) scale(.15);opacity:0}}
+.wl-paused .wl-embers i,.sr-effects-paused .wl-embers i{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.wl-embers i{animation:none;opacity:0}}
+.wl-window-light{opacity:.045}
+/* The low classroom entry needs a real control shelf, not buttons over its feet. */
+.school-room-host[data-zone="campus"]{background:#f3eddb}
+.school-room-host[data-zone="campus"] .school-room-world{bottom:66px}
