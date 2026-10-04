@@ -1,0 +1,1624 @@
+{
+  "version": 1,
+  "policy": "Original screenshots registered to the same map; integer pixel copies except documented 0.218% camp-4 affine. No AI redraw/sharpening. Uncovered pixels use explicitly recorded legacy fallback.",
+  "sets": {
+    "plaza": {
+      "archive": "archives/중앙광장.zip",
+      "archiveSHA256": "c0f1e025ac19840b36d043300e958a53674f4e096d30fc54920f7a0f2747049a",
+      "status": "active",
+      "sources": [
+        {
+          "file": "originals/plaza-1.png",
+          "originalName": "중앙광장1.png",
+          "sha256": "dbf663e9d616bbf5797659eea73336e166965ca9f9013e1dc446dc5f65db67f7",
+          "size": [
+            1843,
+            913
+          ],
+          "translation": [
+            370,
+            873
+          ],
+          "excludeRects": [
+            [
+              1631,
+              0,
+              1843,
+              203
+            ],
+            [
+              0,
+              803,
+              343,
+              913
+            ],
+            [
+              780,
+              838,
+              1040,
+              913
+            ],
+            [
+              1428,
+              801,
+              1843,
+              913
+            ],
+            [
+              1395,
+              601,
+              1480,
+              700
+            ],
+            [
+              0,
+              0,
+              1843,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              913
+            ],
+            [
+              1841,
+              0,
+              1843,
+              913
+            ],
+            [
+              0,
+              911,
+              1843,
+              913
+            ]
+          ],
+          "registrationInliers": 916,
+          "medianRegistrationErrorAtHalfScale": 0.09330537915229797
+        },
+        {
+          "file": "originals/plaza-2.png",
+          "originalName": "중앙광장2.png",
+          "sha256": "bcd74522a47e039f0edb25b963a014ad7f64d6cc8f3f17c362d98357345c36e6",
+          "size": [
+            1836,
+            911
+          ],
+          "translation": [
+            370,
+            150
+          ],
+          "excludeRects": [
+            [
+              1624,
+              0,
+              1836,
+              203
+            ],
+            [
+              0,
+              801,
+              343,
+              911
+            ],
+            [
+              780,
+              836,
+              1040,
+              911
+            ],
+            [
+              1421,
+              799,
+              1836,
+              911
+            ],
+            [
+              1517,
+              396,
+              1608,
+              496
+            ],
+            [
+              0,
+              0,
+              1836,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              911
+            ],
+            [
+              1834,
+              0,
+              1836,
+              911
+            ],
+            [
+              0,
+              909,
+              1836,
+              911
+            ]
+          ],
+          "registrationInliers": 870,
+          "medianRegistrationErrorAtHalfScale": 0.07408037036657333
+        },
+        {
+          "file": "originals/plaza-3.png",
+          "originalName": "중앙광장3.png",
+          "sha256": "ca2204100eb3ab9d75b65bf0ceea69ad92fc0c0d23e08f2f2713edc9376f8b8e",
+          "size": [
+            1843,
+            916
+          ],
+          "translation": [
+            37,
+            -1
+          ],
+          "excludeRects": [
+            [
+              1631,
+              0,
+              1843,
+              203
+            ],
+            [
+              0,
+              806,
+              343,
+              916
+            ],
+            [
+              780,
+              841,
+              1040,
+              916
+            ],
+            [
+              1428,
+              804,
+              1843,
+              916
+            ],
+            [
+              897,
+              7,
+              980,
+              103
+            ],
+            [
+              0,
+              0,
+              1843,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              916
+            ],
+            [
+              1841,
+              0,
+              1843,
+              916
+            ],
+            [
+              0,
+              914,
+              1843,
+              916
+            ]
+          ],
+          "registrationInliers": 885,
+          "medianRegistrationErrorAtHalfScale": 0.0816565677523613
+        },
+        {
+          "file": "originals/plaza-4.png",
+          "originalName": "중앙광장4.png",
+          "sha256": "169d9e9e1c0d39f9a2dcf4ab32f6ca08cd9a83079d82dacaad420655556274d4",
+          "size": [
+            1835,
+            910
+          ],
+          "translation": [
+            3,
+            374
+          ],
+          "excludeRects": [
+            [
+              1623,
+              0,
+              1835,
+              203
+            ],
+            [
+              0,
+              800,
+              343,
+              910
+            ],
+            [
+              780,
+              835,
+              1040,
+              910
+            ],
+            [
+              1420,
+              798,
+              1835,
+              910
+            ],
+            [
+              326,
+              399,
+              400,
+              498
+            ],
+            [
+              0,
+              0,
+              1835,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              910
+            ],
+            [
+              1833,
+              0,
+              1835,
+              910
+            ],
+            [
+              0,
+              908,
+              1835,
+              910
+            ]
+          ],
+          "registrationInliers": 820,
+          "medianRegistrationErrorAtHalfScale": 0.08635780215263367
+        },
+        {
+          "file": "originals/plaza-5.png",
+          "originalName": "중앙광장5.png",
+          "sha256": "23eba0de1d00d7ec2bb9adde194b7bbedd0ccbcdebadc507b9cbab9c04f2575c",
+          "size": [
+            1824,
+            910
+          ],
+          "translation": [
+            8,
+            824
+          ],
+          "excludeRects": [
+            [
+              1612,
+              0,
+              1824,
+              203
+            ],
+            [
+              0,
+              800,
+              343,
+              910
+            ],
+            [
+              780,
+              835,
+              1040,
+              910
+            ],
+            [
+              1409,
+              798,
+              1824,
+              910
+            ],
+            [
+              95,
+              397,
+              165,
+              493
+            ],
+            [
+              0,
+              0,
+              1824,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              910
+            ],
+            [
+              1822,
+              0,
+              1824,
+              910
+            ],
+            [
+              0,
+              908,
+              1824,
+              910
+            ]
+          ],
+          "registrationInliers": 1024,
+          "medianRegistrationErrorAtHalfScale": 0.07789881527423859
+        }
+      ],
+      "crop": [
+        0,
+        64,
+        1115,
+        736
+      ],
+      "fallback": "originals/picnic-garden.png",
+      "output": "maps/plaza.png"
+    },
+    "treehouse": {
+      "archive": "archives/나무집.zip",
+      "archiveSHA256": "afda23c87a14ea427e3e2ffc8241612aea6cf3319b23a27f95597d67227652f4",
+      "status": "active",
+      "sources": [
+        {
+          "file": "originals/treehouse-1.png",
+          "originalName": "나무집1.png",
+          "sha256": "5fbe9386f59df2b7940a8fcde7266626e5b05ef0186d613749cb6dba225e5394",
+          "size": [
+            1830,
+            914
+          ],
+          "translation": [
+            6,
+            919
+          ],
+          "excludeRects": [
+            [
+              1618,
+              0,
+              1830,
+              203
+            ],
+            [
+              0,
+              804,
+              343,
+              914
+            ],
+            [
+              780,
+              839,
+              1040,
+              914
+            ],
+            [
+              1415,
+              802,
+              1830,
+              914
+            ],
+            [
+              798,
+              730,
+              883,
+              825
+            ],
+            [
+              0,
+              0,
+              1830,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              914
+            ],
+            [
+              1828,
+              0,
+              1830,
+              914
+            ],
+            [
+              0,
+              912,
+              1830,
+              914
+            ]
+          ],
+          "registrationInliers": 770,
+          "medianRegistrationErrorAtHalfScale": 0.05433324724435806
+        },
+        {
+          "file": "originals/treehouse-2.png",
+          "originalName": "나무집2.png",
+          "sha256": "10d7032ff2d9c5d1b0f93e7ed6e64cef04e73fc91471df0f95c0050dcb9226e6",
+          "size": [
+            1826,
+            906
+          ],
+          "translation": [
+            57,
+            552
+          ],
+          "excludeRects": [
+            [
+              1614,
+              0,
+              1826,
+              203
+            ],
+            [
+              0,
+              796,
+              343,
+              906
+            ],
+            [
+              780,
+              831,
+              1040,
+              906
+            ],
+            [
+              1411,
+              794,
+              1826,
+              906
+            ],
+            [
+              972,
+              397,
+              1050,
+              490
+            ],
+            [
+              0,
+              0,
+              1826,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              906
+            ],
+            [
+              1824,
+              0,
+              1826,
+              906
+            ],
+            [
+              0,
+              904,
+              1826,
+              906
+            ]
+          ],
+          "registrationInliers": 997,
+          "medianRegistrationErrorAtHalfScale": 0.05695091187953949
+        },
+        {
+          "file": "originals/treehouse-3.png",
+          "originalName": "나무집3.png",
+          "sha256": "872d2910383360bc85167622fcb043db5c3f741f3c34c803360296e4a60a3033",
+          "size": [
+            1835,
+            909
+          ],
+          "translation": [
+            3,
+            8
+          ],
+          "excludeRects": [
+            [
+              1623,
+              0,
+              1835,
+              203
+            ],
+            [
+              0,
+              799,
+              343,
+              909
+            ],
+            [
+              780,
+              834,
+              1040,
+              909
+            ],
+            [
+              1420,
+              797,
+              1835,
+              909
+            ],
+            [
+              800,
+              390,
+              880,
+              490
+            ],
+            [
+              0,
+              0,
+              1835,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              909
+            ],
+            [
+              1833,
+              0,
+              1835,
+              909
+            ],
+            [
+              0,
+              907,
+              1835,
+              909
+            ]
+          ],
+          "registrationInliers": 962,
+          "medianRegistrationErrorAtHalfScale": 0.06293544918298721
+        }
+      ],
+      "crop": [
+        0,
+        64,
+        946,
+        740
+      ],
+      "fallback": "originals/treehouse.png",
+      "output": "maps/treehouse.png"
+    },
+    "sky": {
+      "archive": "archives/퀴즈공원.zip",
+      "archiveSHA256": "24e52256d5a5a17ba7f8d4594982109e0c3c3583809c45ae572ddbf3d7a2991d",
+      "status": "active",
+      "sources": [
+        {
+          "file": "originals/sky-1.png",
+          "originalName": "퀴즈공원1.png",
+          "sha256": "d6b8d9c8dcac6b7db82b522603d1a5680fa9276d0b6143135df07f505abbd524",
+          "size": [
+            1836,
+            913
+          ],
+          "translation": [
+            6,
+            201
+          ],
+          "excludeRects": [
+            [
+              1624,
+              0,
+              1836,
+              203
+            ],
+            [
+              0,
+              803,
+              343,
+              913
+            ],
+            [
+              780,
+              838,
+              1040,
+              913
+            ],
+            [
+              1421,
+              801,
+              1836,
+              913
+            ],
+            [
+              892,
+              537,
+              975,
+              630
+            ],
+            [
+              0,
+              0,
+              1836,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              913
+            ],
+            [
+              1834,
+              0,
+              1836,
+              913
+            ],
+            [
+              0,
+              911,
+              1836,
+              913
+            ]
+          ],
+          "registrationInliers": 979,
+          "medianRegistrationErrorAtHalfScale": 0.08673519641160965
+        },
+        {
+          "file": "originals/sky-2.png",
+          "originalName": "퀴즈공원2.png",
+          "sha256": "7b2fc3b480d3c33093410855830095b48f08bdc18d37a16479e82d45e1ad09a9",
+          "size": [
+            1843,
+            719
+          ],
+          "translation": [
+            42,
+            -3
+          ],
+          "excludeRects": [
+            [
+              1631,
+              0,
+              1843,
+              203
+            ],
+            [
+              983,
+              99,
+              1070,
+              196
+            ],
+            [
+              0,
+              0,
+              1843,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              719
+            ],
+            [
+              1841,
+              0,
+              1843,
+              719
+            ],
+            [
+              0,
+              717,
+              1843,
+              719
+            ]
+          ],
+          "registrationInliers": 608,
+          "medianRegistrationErrorAtHalfScale": 0.09401989728212357
+        }
+      ],
+      "crop": [
+        0,
+        0,
+        956,
+        553
+      ],
+      "fallback": "extracted/sky-composition.png",
+      "output": "maps/sky.png",
+      "sourcePatches": [
+        {
+          "source": 2,
+          "rect": [
+            1510,
+            50,
+            1572,
+            200
+          ],
+          "at": [
+            1850,
+            47
+          ],
+          "reason": "Clean sky pixels replace a stray flag tip from the older cleaned fallback sky. No island objects are touched."
+        }
+      ]
+    },
+    "garden": {
+      "archive": "archives/교실숲.zip",
+      "archiveSHA256": "684298060b5ba04d75d69b1425b19701ad67ac0f96ac2bde3f67a323e8263354",
+      "status": "active",
+      "sources": [
+        {
+          "file": "originals/garden-1.png",
+          "originalName": "교실숲1.png",
+          "sha256": "d42264fb767da7dbe2d3a1cbf2fd223bf5c7137a973b50ef8ae7c84fd2155cb9",
+          "size": [
+            1837,
+            920
+          ],
+          "translation": [
+            15,
+            162
+          ],
+          "excludeRects": [
+            [
+              1625,
+              0,
+              1837,
+              203
+            ],
+            [
+              0,
+              810,
+              343,
+              920
+            ],
+            [
+              780,
+              845,
+              1040,
+              920
+            ],
+            [
+              1422,
+              808,
+              1837,
+              920
+            ],
+            [
+              878,
+              798,
+              994,
+              907
+            ],
+            [
+              98,
+              15,
+              226,
+              77
+            ],
+            [
+              0,
+              0,
+              1837,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              920
+            ],
+            [
+              1835,
+              0,
+              1837,
+              920
+            ],
+            [
+              0,
+              918,
+              1837,
+              920
+            ]
+          ],
+          "registrationInliers": 599,
+          "medianRegistrationErrorAtHalfScale": 0.09179416298866272
+        },
+        {
+          "file": "originals/garden-2.png",
+          "originalName": "교실숲2.png",
+          "sha256": "5955d2e253aba060ffb4d034cffca2afc45bc194055072fbd4f850be5764d79a",
+          "size": [
+            1837,
+            910
+          ],
+          "translation": [
+            58,
+            0
+          ],
+          "excludeRects": [
+            [
+              1625,
+              0,
+              1837,
+              203
+            ],
+            [
+              0,
+              800,
+              343,
+              910
+            ],
+            [
+              780,
+              835,
+              1040,
+              910
+            ],
+            [
+              1422,
+              798,
+              1837,
+              910
+            ],
+            [
+              974,
+              193,
+              1059,
+              288
+            ],
+            [
+              98,
+              15,
+              226,
+              77
+            ],
+            [
+              0,
+              0,
+              1837,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              910
+            ],
+            [
+              1835,
+              0,
+              1837,
+              910
+            ],
+            [
+              0,
+              908,
+              1837,
+              910
+            ]
+          ],
+          "registrationInliers": 837,
+          "medianRegistrationErrorAtHalfScale": 0.06651327013969421
+        }
+      ],
+      "crop": [
+        0,
+        0,
+        962,
+        541
+      ],
+      "fallback": "extracted/garden-composition.png",
+      "output": "maps/garden.png",
+      "legacyWholeObjectPolygons": [
+        [
+          [
+            0,
+            0
+          ],
+          [
+            475,
+            0
+          ],
+          [
+            476,
+            200
+          ],
+          [
+            455,
+            267
+          ],
+          [
+            386,
+            281
+          ],
+          [
+            362,
+            257
+          ],
+          [
+            240,
+            280
+          ],
+          [
+            228,
+            256
+          ],
+          [
+            30,
+            275
+          ],
+          [
+            0,
+            237
+          ]
+        ],
+        [
+          [
+            1510,
+            0
+          ],
+          [
+            1924,
+            0
+          ],
+          [
+            1924,
+            267
+          ],
+          [
+            1880,
+            242
+          ],
+          [
+            1770,
+            215
+          ],
+          [
+            1704,
+            206
+          ],
+          [
+            1670,
+            171
+          ],
+          [
+            1580,
+            135
+          ],
+          [
+            1510,
+            110
+          ]
+        ]
+      ],
+      "fallbackReason": "The two 100% captures do not reveal the upper UI-covered corners. Preserve complete existing clean legacy tree groups instead of mixing differently placed partial crowns."
+    },
+    "autumn": {
+      "archive": "archives/가을공원.zip",
+      "archiveSHA256": "47c26cbf0813e9bc8964b097d545092152c9550a2407c726d00316a57063fdc2",
+      "status": "active",
+      "sources": [
+        {
+          "file": "originals/autumn-1.png",
+          "originalName": "가을공원1.png",
+          "sha256": "210678464061212628d2b1870b35d9a36b17a0c201b9785ad0122c3cb343a3c9",
+          "size": [
+            1836,
+            912
+          ],
+          "translation": [
+            4,
+            584
+          ],
+          "excludeRects": [
+            [
+              1624,
+              0,
+              1836,
+              203
+            ],
+            [
+              0,
+              802,
+              343,
+              912
+            ],
+            [
+              780,
+              837,
+              1040,
+              912
+            ],
+            [
+              1421,
+              800,
+              1836,
+              912
+            ],
+            [
+              0,
+              0,
+              1836,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              912
+            ],
+            [
+              1834,
+              0,
+              1836,
+              912
+            ],
+            [
+              0,
+              910,
+              1836,
+              912
+            ],
+            [
+              807,
+              730,
+              883,
+              820
+            ]
+          ],
+          "registrationInliers": 952,
+          "medianRegistrationErrorAtHalfScale": 0.07169237732887268
+        },
+        {
+          "file": "originals/autumn-2.png",
+          "originalName": "가을공원2.png",
+          "sha256": "4894d815e75408f9c3deb3a7611fb8e519301b7d2f1f75695aba11e46aa90956",
+          "size": [
+            1834,
+            911
+          ],
+          "translation": [
+            376,
+            562
+          ],
+          "excludeRects": [
+            [
+              1622,
+              0,
+              1834,
+              203
+            ],
+            [
+              0,
+              801,
+              343,
+              911
+            ],
+            [
+              780,
+              836,
+              1040,
+              911
+            ],
+            [
+              1419,
+              799,
+              1834,
+              911
+            ],
+            [
+              0,
+              0,
+              1834,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              911
+            ],
+            [
+              1832,
+              0,
+              1834,
+              911
+            ],
+            [
+              0,
+              909,
+              1834,
+              911
+            ],
+            [
+              1713,
+              397,
+              1790,
+              489
+            ]
+          ],
+          "registrationInliers": 924,
+          "medianRegistrationErrorAtHalfScale": 0.0848388671875
+        },
+        {
+          "file": "originals/autumn-3.png",
+          "originalName": "가을공원3.png",
+          "sha256": "29f30185b69910b69862e76c1a039fc3cf2739960e9535bff3ea2ce09f3ad53a",
+          "size": [
+            1840,
+            916
+          ],
+          "translation": [
+            375,
+            -2
+          ],
+          "excludeRects": [
+            [
+              1628,
+              0,
+              1840,
+              203
+            ],
+            [
+              0,
+              806,
+              343,
+              916
+            ],
+            [
+              780,
+              841,
+              1040,
+              916
+            ],
+            [
+              1425,
+              804,
+              1840,
+              916
+            ],
+            [
+              0,
+              0,
+              1840,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              916
+            ],
+            [
+              1838,
+              0,
+              1840,
+              916
+            ],
+            [
+              0,
+              914,
+              1840,
+              916
+            ],
+            [
+              1140,
+              166,
+              1210,
+              254
+            ]
+          ],
+          "registrationInliers": 868,
+          "medianRegistrationErrorAtHalfScale": 0.12335121631622314
+        },
+        {
+          "file": "originals/autumn-4.png",
+          "originalName": "가을공원4.png",
+          "sha256": "e172bd2ccd0236b4c3ba8f9f7272006427751161c0446edd9c3e46e44d169158",
+          "size": [
+            1841,
+            914
+          ],
+          "translation": [
+            2,
+            -5
+          ],
+          "excludeRects": [
+            [
+              1629,
+              0,
+              1841,
+              203
+            ],
+            [
+              0,
+              804,
+              343,
+              914
+            ],
+            [
+              780,
+              839,
+              1040,
+              914
+            ],
+            [
+              1426,
+              802,
+              1841,
+              914
+            ],
+            [
+              0,
+              0,
+              1841,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              914
+            ],
+            [
+              1839,
+              0,
+              1841,
+              914
+            ],
+            [
+              0,
+              912,
+              1841,
+              914
+            ],
+            [
+              553,
+              232,
+              620,
+              322
+            ]
+          ],
+          "registrationInliers": 876,
+          "medianRegistrationErrorAtHalfScale": 0.12009759992361069
+        }
+      ],
+      "crop": [
+        0,
+        0,
+        1122,
+        752
+      ],
+      "fallback": "originals/autumn-picnic.png",
+      "output": "maps/autumn.png"
+    },
+    "camp": {
+      "archive": "archives/캠핑장.zip",
+      "archiveSHA256": "537769fe45d4a89412946d199d0f663f030a597d196bb49681d0439e8d6bf2a7",
+      "status": "active",
+      "sources": [
+        {
+          "file": "originals/camp-1.png",
+          "originalName": "캠핑장1.png",
+          "sha256": "0ad524706ce393c07ab4452744cb310cd46be4223fa9dbf63995d198a561e363",
+          "size": [
+            1808,
+            899
+          ],
+          "translation": [
+            2,
+            -2
+          ],
+          "excludeRects": [
+            [
+              1596,
+              0,
+              1808,
+              203
+            ],
+            [
+              0,
+              789,
+              343,
+              899
+            ],
+            [
+              780,
+              824,
+              1040,
+              899
+            ],
+            [
+              1393,
+              787,
+              1808,
+              899
+            ],
+            [
+              0,
+              0,
+              1808,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              899
+            ],
+            [
+              1806,
+              0,
+              1808,
+              899
+            ],
+            [
+              0,
+              897,
+              1808,
+              899
+            ],
+            [
+              482,
+              349,
+              552,
+              445
+            ],
+            [
+              831,
+              0,
+              978,
+              49
+            ]
+          ],
+          "registrationInliers": 755,
+          "medianRegistrationErrorAtHalfScale": 0.8203681707382202
+        },
+        {
+          "file": "originals/camp-2.png",
+          "originalName": "캠핑장2.png",
+          "sha256": "9176f2704781966273a8e3fc7ea6ae628fb4614a9080458ef060d6c635fa7bb1",
+          "size": [
+            1838,
+            913
+          ],
+          "translation": [
+            802,
+            -7
+          ],
+          "excludeRects": [
+            [
+              1626,
+              0,
+              1838,
+              203
+            ],
+            [
+              0,
+              803,
+              343,
+              913
+            ],
+            [
+              780,
+              838,
+              1040,
+              913
+            ],
+            [
+              1423,
+              801,
+              1838,
+              913
+            ],
+            [
+              0,
+              0,
+              1838,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              913
+            ],
+            [
+              1836,
+              0,
+              1838,
+              913
+            ],
+            [
+              0,
+              911,
+              1838,
+              913
+            ],
+            [
+              898,
+              328,
+              973,
+              419
+            ]
+          ],
+          "registrationInliers": 714,
+          "medianRegistrationErrorAtHalfScale": 0.7646110653877258
+        },
+        {
+          "file": "originals/camp-3.png",
+          "originalName": "캠핑장3.png",
+          "sha256": "beee4312d477eebd89a18ab58c2221a1d64100c3df8e18b19cb63c14382c6336",
+          "size": [
+            1833,
+            909
+          ],
+          "translation": [
+            679,
+            558
+          ],
+          "excludeRects": [
+            [
+              1621,
+              0,
+              1833,
+              203
+            ],
+            [
+              0,
+              799,
+              343,
+              909
+            ],
+            [
+              780,
+              834,
+              1040,
+              909
+            ],
+            [
+              1418,
+              797,
+              1833,
+              909
+            ],
+            [
+              0,
+              0,
+              1833,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              909
+            ],
+            [
+              1831,
+              0,
+              1833,
+              909
+            ],
+            [
+              0,
+              907,
+              1833,
+              909
+            ],
+            [
+              895,
+              397,
+              971,
+              491
+            ]
+          ],
+          "registrationInliers": 752,
+          "medianRegistrationErrorAtHalfScale": 0.2596622705459595
+        },
+        {
+          "file": "originals/camp-4.png",
+          "originalName": "캠핑장4.png",
+          "sha256": "179bd05a1a7ad6baca39f25e0cb3675b04a20f3b1cebf1148fb9859bd3aab792",
+          "size": [
+            1828,
+            877
+          ],
+          "translation": [
+            -4,
+            622
+          ],
+          "excludeRects": [
+            [
+              1616,
+              0,
+              1828,
+              203
+            ],
+            [
+              0,
+              767,
+              343,
+              877
+            ],
+            [
+              780,
+              802,
+              1040,
+              877
+            ],
+            [
+              1413,
+              765,
+              1828,
+              877
+            ],
+            [
+              0,
+              0,
+              1828,
+              2
+            ],
+            [
+              0,
+              0,
+              2,
+              877
+            ],
+            [
+              1826,
+              0,
+              1828,
+              877
+            ],
+            [
+              0,
+              875,
+              1828,
+              877
+            ],
+            [
+              457,
+              402,
+              532,
+              493
+            ]
+          ],
+          "registrationInliers": 521,
+          "medianRegistrationErrorAtHalfScale": 1.2030220031738281,
+          "outputToSourceAffine": [
+            1.00218,
+            0.00013,
+            3.83744,
+            -0.00013,
+            1.00218,
+            -623.00715
+          ],
+          "resamplingNote": "Measured capture 4 zoom differs by 0.218%; bicubic registration to native captures 1–3. Other 19 captures use integer pixel copies."
+        }
+      ],
+      "crop": [
+        0,
+        0,
+        1339,
+        750
+      ],
+      "fallback": "originals/camp.png",
+      "output": "maps/camp.png"
+    }
+  }
+}

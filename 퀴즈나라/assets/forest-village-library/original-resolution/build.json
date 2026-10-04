@@ -1,0 +1,133 @@
+{
+  "policy": "Original screenshots registered to the same map; integer pixel copies except documented 0.218% camp-4 affine. No AI redraw/sharpening. Uncovered pixels use explicitly recorded legacy fallback.",
+  "maps": [
+    {
+      "id": "plaza",
+      "file": "maps/plaza.png",
+      "size": [
+        2230,
+        1472
+      ],
+      "logicalSize": [
+        1115,
+        736
+      ],
+      "sha256": "818630cf856c9d7990ea1831e50e529ae9c61e01f1cd956acdeaacc25b467284",
+      "originalPixelCoverage": 0.952817,
+      "fallbackPixels": 154880,
+      "sourcePixels": [
+        217713,
+        224802,
+        504920,
+        823255,
+        1356990
+      ],
+      "repositionedSourcePixels": 0
+    },
+    {
+      "id": "treehouse",
+      "file": "maps/treehouse.png",
+      "size": [
+        1892,
+        1480
+      ],
+      "logicalSize": [
+        946,
+        740
+      ],
+      "sha256": "60e2aa8e00f650d608e67c366c1c8511b1c94940446069b9b0a07950c214a9dc",
+      "originalPixelCoverage": 0.964351,
+      "fallbackPixels": 99823,
+      "sourcePixels": [
+        408201,
+        979058,
+        1313078
+      ],
+      "repositionedSourcePixels": 0
+    },
+    {
+      "id": "sky",
+      "file": "maps/sky.png",
+      "size": [
+        1912,
+        1106
+      ],
+      "logicalSize": [
+        956,
+        553
+      ],
+      "sha256": "a8833ac33b51b689e80ae79983693566c07b5f0f619857033173036e186856d2",
+      "originalPixelCoverage": 0.900278,
+      "fallbackPixels": 210879,
+      "sourcePixels": [
+        632995,
+        1261498
+      ],
+      "repositionedSourcePixels": 9300
+    },
+    {
+      "id": "garden",
+      "file": "maps/garden.png",
+      "size": [
+        1924,
+        1082
+      ],
+      "logicalSize": [
+        962,
+        541
+      ],
+      "sha256": "8b92e712f5ecb0cd2748ab3800481cd9f984923617fe934e3ab7015f2beaab12",
+      "originalPixelCoverage": 0.821017,
+      "fallbackPixels": 372601,
+      "sourcePixels": [
+        340463,
+        1368704
+      ],
+      "repositionedSourcePixels": 0
+    },
+    {
+      "id": "autumn",
+      "file": "maps/autumn.png",
+      "size": [
+        2244,
+        1504
+      ],
+      "logicalSize": [
+        1122,
+        752
+      ],
+      "sha256": "75bd10d47e0e84cf7ae02ba22ee63026aa0b31babcebe800ae4f80bc8445cd6d",
+      "originalPixelCoverage": 0.929955,
+      "fallbackPixels": 236401,
+      "sourcePixels": [
+        293073,
+        961731,
+        367808,
+        1515963
+      ],
+      "repositionedSourcePixels": 0
+    },
+    {
+      "id": "camp",
+      "file": "maps/camp.png",
+      "size": [
+        2678,
+        1500
+      ],
+      "logicalSize": [
+        1339,
+        750
+      ],
+      "sha256": "d5855bcbff397b6e4502ba1e7fe5719736ffdbcd01fe4c3907ab899badb300d8",
+      "originalPixelCoverage": 0.906686,
+      "fallbackPixels": 374844,
+      "sourcePixels": [
+        491433,
+        1051985,
+        666855,
+        1431883
+      ],
+      "repositionedSourcePixels": 0
+    }
+  ]
+}

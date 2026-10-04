@@ -1,0 +1,16 @@
+{
+  "purpose": "User-requested new mysterious playable forest to the right of the plaza. Separate from the six restored supplied maps.",
+  "method": "Built-in image generation; original map captures were not AI redrawn.",
+  "assets": [
+    {
+      "file": "firefly-glade.png",
+      "sha256": "e72814fc7a12b4fee859e34a9a14b41e3b84afc6542681b6e2d57e0e5ea07f01",
+      "use": "new adventure scene"
+    },
+    {
+      "file": "wood-sign.png",
+      "sha256": "7ad2034fbac5faab8a48f12941a229937c2ff63ea1fc7b8a6fe8dc6425e449e8",
+      "use": "requested physical school-way sign"
+    }
+  ]
+}

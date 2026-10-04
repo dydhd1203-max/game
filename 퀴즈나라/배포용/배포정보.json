@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-04T02:13:08.001Z",
+  "builtAt": "2026-10-04T13:27:35.919Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -16,8 +16,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 323022,
-      "sha256": "87897fafa7b6329aafe62919b757fabfe84d5327228aca072039520d9de2a972"
+      "bytes": 323346,
+      "sha256": "c6cdd295a9fae8ba706f3991cf6432c7b3a8f215a55909ed6d9100ff42a0107e"
     },
     {
       "path": "avatar-image.js",
@@ -110,124 +110,59 @@
       "sha256": "6e931b8ada0c444043ff811262a4c24e928138751e319afcc57ed45a9a34ca67"
     },
     {
-      "path": "assets/forest-village-library/adapted/sources/plaza-tree.png",
-      "bytes": 2629169,
-      "sha256": "14dace32b22ead3006e1c4e1737a396dad86ab679d9ba3aa19194b5717c60d05"
+      "path": "assets/forest-village-library/original-resolution/maps/plaza.png",
+      "bytes": 4829212,
+      "sha256": "818630cf856c9d7990ea1831e50e529ae9c61e01f1cd956acdeaacc25b467284"
     },
     {
-      "path": "assets/forest-village-library/adapted/sources/courtyard-houses.png",
-      "bytes": 1910288,
-      "sha256": "6921e489d2353689cd35eb0ae0a7e387397d86f9fdbaddc08f7ba60303d6ee1c"
+      "path": "assets/forest-village-library/original-resolution/maps/garden.png",
+      "bytes": 2584992,
+      "sha256": "8b92e712f5ecb0cd2748ab3800481cd9f984923617fe934e3ab7015f2beaab12"
     },
     {
-      "path": "assets/forest-village-library/adapted/sources/forest-nature.png",
-      "bytes": 2471325,
-      "sha256": "092c2e09ec0f9edff070450205348285de6e459f06ba571059328a088bb240f2"
+      "path": "assets/forest-village-library/original-resolution/maps/treehouse.png",
+      "bytes": 2293044,
+      "sha256": "60e2aa8e00f650d608e67c366c1c8511b1c94940446069b9b0a07950c214a9dc"
+    },
+    {
+      "path": "assets/forest-village-library/original-resolution/maps/sky.png",
+      "bytes": 1362381,
+      "sha256": "a8833ac33b51b689e80ae79983693566c07b5f0f619857033173036e186856d2"
+    },
+    {
+      "path": "assets/forest-village-library/original-resolution/maps/autumn.png",
+      "bytes": 3815241,
+      "sha256": "75bd10d47e0e84cf7ae02ba22ee63026aa0b31babcebe800ae4f80bc8445cd6d"
+    },
+    {
+      "path": "assets/forest-village-library/original-resolution/maps/camp.png",
+      "bytes": 2761293,
+      "sha256": "d5855bcbff397b6e4502ba1e7fe5719736ffdbcd01fe4c3907ab899badb300d8"
+    },
+    {
+      "path": "forest-adventure.js",
+      "bytes": 9712,
+      "sha256": "c999f67f483e042d7ac3ce866e511f07a2d66b0dbdcbeee8f58dd61fc52b64cc"
     },
     {
       "path": "forest-village-scene.js",
-      "bytes": 28147,
-      "sha256": "d6c617e0546db9763e2685323598083220f80d2b642fddf69924e409212bd80b"
+      "bytes": 23575,
+      "sha256": "da8ae74a7835dbed0e8e923abf1c018ea0c461c2c66c2569ed9fd5e89eeb4e80"
     },
     {
       "path": "forest-village-world.css",
-      "bytes": 1047,
-      "sha256": "cabce9c9821ab188b1677ecfb4083723cee69dcb06f4f06046b56b8cb01de15f"
+      "bytes": 2112,
+      "sha256": "cd4bf0fdac29e4a953667e3dd81b9051eb5e4e721f5e715fa8ebacb17dbe6f64"
     },
     {
-      "path": "assets/forest-village-library/extracted/village-composition.png",
-      "bytes": 1527969,
-      "sha256": "b547d8436db815f4a418be1a6e7e8cc00939ba0f1beac8cc984c0be1d82be52e"
+      "path": "assets/forest-village-library/adventure/firefly-glade.png",
+      "bytes": 3170355,
+      "sha256": "e72814fc7a12b4fee859e34a9a14b41e3b84afc6542681b6e2d57e0e5ea07f01"
     },
     {
-      "path": "assets/forest-village-library/extracted/plaza-composition.png",
-      "bytes": 1299420,
-      "sha256": "791a9f216db4641163d0c9eca34bf20ea82f813321f377e30a316c5face78a28"
-    },
-    {
-      "path": "assets/forest-village-library/adapted/flowers-bluebell.png",
-      "bytes": 18539,
-      "sha256": "7b7ed33c461517b8498dcb37e5f7dffc26a4ee10d5ba9e0fa2eb84b518bcc510"
-    },
-    {
-      "path": "assets/forest-village-library/adapted/flowers-poppy.png",
-      "bytes": 16226,
-      "sha256": "919049d345da890dbc0db332abd10be7044d3cdb706632040a6f81146c56c69b"
-    },
-    {
-      "path": "assets/forest-village-library/adapted/flowers-buttercup.png",
-      "bytes": 12957,
-      "sha256": "75c13f59d83d3f830626eea0d7c07f031c2fa10a8b4a0cc769d014fb38ec2375"
-    },
-    {
-      "path": "assets/forest-village-library/adapted/garden-well.png",
-      "bytes": 39011,
-      "sha256": "06febea11df603c0268dbd173881a5032bb76b7e0382ecc52d99a99187c68a8f"
-    },
-    {
-      "path": "assets/forest-village-library/adapted/plaza-tree.png",
-      "bytes": 737156,
-      "sha256": "afa72654d471e017b1bdb41535e36466e2752742edb85171740917e11d4106bd"
-    },
-    {
-      "path": "assets/forest-village-library/adapted/plaza-brook.png",
-      "bytes": 221685,
-      "sha256": "4c362ab73ec40786e1d18e54855c91d8b876c54e804c8edfacda46c29082ba59"
-    },
-    {
-      "path": "assets/forest-village-library/extracted/garden-composition.png",
-      "bytes": 907126,
-      "sha256": "fa06dd4675857d0c5c3ecf1f9e502ca6789d06453dfa6ce2d9ae81bb2ce79638"
-    },
-    {
-      "path": "assets/forest-village-library/adapted/flower-home.png",
-      "bytes": 125926,
-      "sha256": "9af73f3e2b48467d8ebe2b140a1c644f533be03d887d6c847fc3e593cd2135cd"
-    },
-    {
-      "path": "assets/forest-village-library/adapted/bakery-home.png",
-      "bytes": 111763,
-      "sha256": "eac1fd95e5f327e97b93ea687f2cd6cb41d59ed6dbbdd7e1bf044919b4518f71"
-    },
-    {
-      "path": "assets/forest-village-library/extracted/pink-tree.png",
-      "bytes": 63253,
-      "sha256": "bda43cca3803fdc59938b7c4ed908c7c62e680738e1994e0fcd4f1721380f287"
-    },
-    {
-      "path": "assets/forest-village-library/extracted/flowers-purple.png",
-      "bytes": 4282,
-      "sha256": "e5d6b9c6a3e471aaf1e129344419b49e8d0c5f00672d0664371cff1aa0af263d"
-    },
-    {
-      "path": "assets/forest-village-library/extracted/flowers-ivory.png",
-      "bytes": 2220,
-      "sha256": "e1efd6bd53337a213700e8d9b1b22d04606c56feb31a2e54cbc446f03172a877"
-    },
-    {
-      "path": "assets/forest-village-library/extracted/flowers-gold.png",
-      "bytes": 2611,
-      "sha256": "0c61d134d5b5c9f68389827a9797ac9daaf43204da9cb7cdbbb21999d2873757"
-    },
-    {
-      "path": "assets/forest-village-library/extracted/flowers-meadow.png",
-      "bytes": 1496,
-      "sha256": "d8934613571da0a7c773c0ac1dd55a686845986ee8cb52d4c250bdf680f28a12"
-    },
-    {
-      "path": "assets/forest-village-library/adapted/flowers-daisy.png",
-      "bytes": 846413,
-      "sha256": "ca7b5e65dafa7408345fc0a90f13eaa1d9f11dbc519730f455eded822d5ffed1"
-    },
-    {
-      "path": "assets/forest-village-library/extracted/treehouse-composition.png",
-      "bytes": 912914,
-      "sha256": "e0ca46038378f1b07977d1e0e1fcf8c041786dcb33288b53814af231cc94877e"
-    },
-    {
-      "path": "assets/forest-village-library/extracted/sky-composition.png",
-      "bytes": 545233,
-      "sha256": "ddf6e8e635761ebf409cf4b91a45cc8e2b319dfc3ef75a8ab889a1661dce6ad6"
+      "path": "assets/forest-village-library/adventure/wood-sign.png",
+      "bytes": 1585604,
+      "sha256": "7ad2034fbac5faab8a48f12941a229937c2ff63ea1fc7b8a6fe8dc6425e449e8"
     },
     {
       "path": "school-room-scene.js",
@@ -241,8 +176,8 @@
     },
     {
       "path": "school-room-world.js",
-      "bytes": 46428,
-      "sha256": "afc773df51885c719ef87540ff3df0a7305d1862e4c9ede4f4f18394dfa48b74"
+      "bytes": 46804,
+      "sha256": "6a211ee5a1afaeb74f37afe37f1469bed35d1591bcb08574c5e4c649267d88e7"
     },
     {
       "path": "school-room-world.css",
@@ -256,8 +191,8 @@
     },
     {
       "path": "village-presence.js",
-      "bytes": 25515,
-      "sha256": "41fd84e64559bd54c20b675be2a5a0bd00146c7dfd3a5ef39800df266144d0eb"
+      "bytes": 25550,
+      "sha256": "33ade16585fc52efafecf4dfcc6b0953cedcec9829e4b60d7296cc430b4eaaca"
     },
     {
       "path": "assets/classroom-library/originals/classroom-e41eb583796fc7b8.png",

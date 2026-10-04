@@ -842,6 +842,7 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <script src="./village-presence.js"></script>
 <script src="./school-room-scene.js"></script>
 <script src="./playground-scene.js"></script>
+<script src="./forest-adventure.js"></script>
 <script src="./forest-village-scene.js"></script>
 <link rel="stylesheet" href="./forest-village-world.css">
 <script src="./avatar-run-input.js"></script>
@@ -896,7 +897,7 @@ function closeModal(){
   clearModalView();
   el('modal').classList.remove('on');
   if(curScr==='classroom')$('.qp-map-viewport')?.focus({preventScroll:true});
-  if(['campus','playground','village','forestgarden','treehouse','skyisland'].includes(curScr))(activeCampus||activePlayground||activeVillage)?.focus();
+  if(['campus','playground','village','forestgarden','treehouse','skyisland','adventure','autumnpark','camp'].includes(curScr))(activeCampus||activePlayground||activeVillage)?.focus();
 }
 el('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('modal').classList.contains('on'))closeModal();});
@@ -2839,7 +2840,7 @@ function go(name, arg){
   if(leaveFn){ try{ leaveFn(); }catch(e){} leaveFn = null; }
   curScr = name; closeModal();
   document.body.classList.toggle('qp-woodland', name==='home');
-  document.body.classList.toggle('qp-campus', ['campus','playground','village','forestgarden','treehouse','skyisland'].includes(name));
+  document.body.classList.toggle('qp-campus', ['campus','playground','village','forestgarden','treehouse','skyisland','adventure','autumnpark','camp'].includes(name));
   el('stage').innerHTML = '';
   SCREENS[name](el('stage'), arg);
 }
@@ -3271,6 +3272,9 @@ SCREENS.village=(st,arrival)=>mountSchoolSpace(st,'village',arrival);
 SCREENS.forestgarden=(st,arrival)=>mountSchoolSpace(st,'forestgarden',arrival);
 SCREENS.treehouse=(st,arrival)=>mountSchoolSpace(st,'treehouse',arrival);
 SCREENS.skyisland=(st,arrival)=>mountSchoolSpace(st,'skyisland',arrival);
+SCREENS.adventure=(st,arrival)=>mountSchoolSpace(st,'adventure',arrival);
+SCREENS.autumnpark=(st,arrival)=>mountSchoolSpace(st,'autumnpark',arrival);
+SCREENS.camp=(st,arrival)=>mountSchoolSpace(st,'camp',arrival);
 SCREENS.tailor=()=>go(ME?(IS_TEACHER?'teacher':'campus'):'login');
 
 SCREENS.motion = function(st){
