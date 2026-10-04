@@ -18,9 +18,12 @@
   const matrix=m=>'matrix('+m.map(n).join(' ')+')';
   function ik(a,b,l1,l2,bend){const d=sub(b,a),length=clamp(Math.hypot(...d),Math.abs(l1-l2)+.001,l1+l2-.001),angle=Math.atan2(d[1],d[0]),offset=Math.acos(clamp((l1*l1+length*length-l2*l2)/(2*l1*length),-1,1))*bend;return add(a,[Math.cos(angle+offset)*l1,Math.sin(angle+offset)*l1]);}
   function solve(input={}){
-    const direction=['front','back','left','right'].includes(input.direction)?input.direction:input.facing||'front',profile=['left','right'].includes(direction),back=direction==='back';
-    const action=input.action||'idle',run=action==='run',walk=run||action==='walk',floor=action==='floor-sit'||action==='sit'&&input.seatMode==='floor',desk=action==='sit'&&!floor,jump=action==='jump';
-    const phase=((Number(input.phase)||0)%1+1)%1,time=Number.isFinite(input.time)?input.time:0;
+    const direction=input.action==='climb'?'back':['front','back','left','right'].includes(input.direction)?input.direction:input.facing||'front',profile=['left','right'].includes(direction),back=direction==='back';
+    const action=input.action||'idle',run=action==='run',walk=run||action==='walk',floor=action==='floor-sit'||action==='sit'&&input.seatMode==='floor',desk=action==='sit'&&!floor,jump=action==='jump',climb=action==='climb';
+    const rawPhase=((Number(input.phase)||0)%1+1)%1;
+    // A cycle has 24 shared painted poses (walk ~33fps, run ~52fps).
+    // Quantize drawing only: world position and input timing remain continuous.
+    const phase=walk||climb?Math.round(rawPhase*24)%24/24:rawPhase,time=Number.isFinite(input.time)?input.time:0;
     const stride=Math.sin(phase*Math.PI*2),drop=floor?5.6:desk?1.55:walk?(run?.56+.10*Math.cos(phase*Math.PI*4):.16+.09*Math.cos(phase*Math.PI*4)):jump?.15:.06*(1-Math.cos(time*2));
     const lean=profile?(run?5:walk?1.5:floor?2:0):0,torso=transform([16,SPEC.waist],[16,SPEC.waist+drop],rad(lean));
     const legs=SPEC.hip.map((hip,i)=>{
@@ -31,19 +34,20 @@
         if(run){const flight=Math.max(0,Math.sin((phase*.0+p-stance)*Math.PI/(1-stance)))*.10;ankle[1]-=flight;}
       }
       if(jump){const gather=input.grounded?0.1:.65;ankle=[x+(profile?-1.1:(i?-.35:.35))*gather,SPEC.ankle-1.7*gather];contact=false;shoeAngle=profile?rad(-10):0;}
+      if(climb){const reach=(1+Math.sin((phase+i*.5)*Math.PI*2))/2;ankle=[x,SPEC.ankle-.65-reach*1.7];contact=false;}
       if(floor){
         // User's four-view seating reference: knees open to the sides, calves
         // return inwards, feet cross in front. Profile/back have their own
         // depth projection; no standing foot hangs below the seated pelvis.
-        knee=profile?[i?19.15:17.7,i?44.9:44.25]:[i?20.55:11.45,44.45];
-        ankle=profile?[i?16.6:16.1,i?45.43:44.8]:[i?17.85:14.15,back?44.8:i?45.43:44.95];
+        knee=profile?[i?19.15:17.7,i?44.9:44.25]:[i?20.55:11.45,back?45.1:44.45];
+        ankle=profile?[i?16.6:16.1,i?45.43:44.8]:[i?17.85:14.15,back?45.35:i?45.43:44.95];
         contact=false;
       }else if(desk){knee=profile?[x+2.4,root[1]+1.8]:[x+(i?.2:-.2),root[1]+3.05];ankle=profile?[x+2.0,44.15]:[x,SPEC.ankle];}
       else if(profile)knee=ik(root,ankle,3.2,2.9,-1);
       else{
         // Sagittal bending projects into depth in a front/back view. Solving
         // it as sideways screen motion made a lifted knee splay outwards.
-        const depth=walk?(run?1.55:1.0)*Math.cos(p*Math.PI*2):jump?-.8:0;
+        const depth=climb?1.15:walk?(run?1.55:1.0)*Math.cos(p*Math.PI*2):jump?-.8:0;
         const sagittal=ik([0,root[1]],[depth,ankle[1]],3.2,2.9,-1);
         knee=[mix(root[0],ankle[0],.5),sagittal[1]];
         ankle.depth=depth;knee.depth=sagittal[0];
@@ -67,7 +71,14 @@
       else if(desk){upper=profile?[1.2,4.0]:[side*.5,4.1];lower=profile?[.65,2.55]:[-side*.55,2.59];swing=0;bend=0;}
       if(jump){swing=rad(side*-12);bend=rad(side*-12);}
       if(wave&&i===1){swing=rad((-108+Math.sin(progress*Math.PI*8)*7)*envelope);bend=rad(-40*envelope);}
-      const elbow=add(shoulder,rotate(upper,swing+rad(lean))),wrist=add(elbow,rotate(lower,swing+bend+rad(lean)));
+      let elbow=add(shoulder,rotate(upper,swing+rad(lean))),wrist=add(elbow,rotate(lower,swing+bend+rad(lean)));
+      if(run&&!profile){
+        // The forearm points toward the viewer in front, away in back. Its
+        // foreshortened screen length is recovered in boneSpace below.
+        const forward=(1+stride*(i?-1:1))/2;
+        wrist=[elbow[0]-side*(.65+.25*forward),elbow[1]-.65-.85*forward];
+      }
+      if(climb){const reach=(1+Math.sin((phase+(i?0:.5))*Math.PI*2))/2;wrist=[i?23.5:8.5,26.8+(1-reach)*3.0];elbow=ik(shoulder,wrist,Math.hypot(...sub(SPEC.elbow[i],rest)),Math.hypot(...sub(SPEC.wrist[i],SPEC.elbow[i])),i?1:-1);}
       const base=sub(SPEC.elbow[i],rest),angle=Math.atan2(elbow[1]-shoulder[1],elbow[0]-shoulder[0])-Math.atan2(base[1],base[0]);
       const upperLength=Math.hypot(...sub(SPEC.elbow[i],rest)),lowerLength=Math.hypot(...sub(SPEC.wrist[i],SPEC.elbow[i]));
       const elbowDepth=Math.sqrt(Math.max(0,upperLength**2-Math.hypot(...sub(elbow,shoulder))**2));
@@ -89,6 +100,7 @@
     const result={skin,headClip:raw.querySelector('#qpx-head-front').outerHTML,front:front.outerHTML,profile:QPAvatarDirection.headMarkup(raw,'profile'),back:QPAvatarDirection.headMarkup(raw,'back')};headCache.set(key,result);return result;
   }
   function render(av={},size=280){
+    root.QPFoundationSkin?.load();
     if(av.foundationOutfit!=='body')root.QPFoundationOutfit?.load();
     const sex=av.sex==='m'?'m':'f',base={...av,sex,hair:av.hair|| (sex==='m'?'short:1':'bob:1'),expression:av.expression||'bright:0'},heads=headViews(base),id='qpf-'+(++serial);
     const svg=el('svg',{xmlns:NS,class:'qp-pixel-avatar qp-illustrated-avatar qp-foundation-avatar','data-qp-foundation':'1','data-foundation-outfit':av.foundationOutfit==='body'?'body':'basic','data-qpx-sex':sex,'data-foundation-id':id,'data-foundation-skin':heads.skin,viewBox:'0 0 32 62',width:size*32/56,height:size*62/56,role:'img','aria-label':(sex==='m'?'남자':'여자')+' 기준 캐릭터',style:'display:block;overflow:visible;--qpx-viewport-scale:1.107142857;--qpx-ground-shift:2.4'});
@@ -188,24 +200,26 @@
       const angle=Math.atan2(arm.wrist[1]-arm.elbow[1],arm.wrist[0]-arm.elbow[0])-Math.PI/2;set(part.hand,'transform','translate('+pt(arm.wrist)+') rotate('+n(angle*180/Math.PI)+')');
       part.parent.style.opacity=pose.profile&&!i?'.85':'';
     });
-    const seated=pose.floor||pose.desk,order=pose.floor&&!pose.back?['far-arm','pelvis','far-leg','near-leg','torso','near-arm']:pose.profile?['far-arm','far-leg','near-leg','pelvis','torso','near-arm']:pose.back?['far-arm','near-arm','far-leg','near-leg','pelvis','torso']:['far-leg','near-leg','far-arm','near-arm','pelvis','torso'];
+    const seated=pose.floor||pose.desk,order=pose.floor&&!pose.back?['far-arm','far-leg','near-leg','pelvis','torso','near-arm']:pose.profile?['far-arm','far-leg','near-leg','pelvis','torso','near-arm']:pose.back?['far-arm','near-arm','far-leg','near-leg','pelvis','torso']:['far-leg','near-leg','far-arm','near-arm','pelvis','torso'];
     // Bent running forearms cross in front of the belly. Hiding the entire
     // arm behind the torso erased both hands in the front-facing run cycle.
     if(seated&&!pose.back||pose.action==='run'&&!pose.profile&&!pose.back){order.splice(order.indexOf('far-arm'),1);order.splice(order.indexOf('near-arm'),1);order.push('far-arm','near-arm');}
     const orderKey=order.join()+seated;if(r.orderKey!==orderKey){r.body.append(...order.map(k=>r.parts[k]));r.orderKey=orderKey;}
     // A greeting hand crosses in front of the hair, with the same arm geometry.
     const raised=state.gesture==='wave'&&state.gestureProgress>.05&&state.gestureProgress<.95;
-    if(raised){r.frontHands.append(r.parts['near-arm']);r.raised=true;}else if(r.raised){r.body.append(r.parts['near-arm']);r.orderKey='';r.raised=false;}
+    if(raised){r.frontHands.append(r.parts['near-arm']);r.raised=true;}else if(r.raised){r.body.append(...order.map(k=>r.parts[k]));r.orderKey=orderKey;r.raised=false;}
     const points=[mapped(pose.torso,[16,28]),mapped(pose.torso,[16,32.8]),mapped(pose.torso,[16,SPEC.waist]),...pose.arms.flatMap(a=>[a.shoulder,a.elbow,a.wrist]),...pose.legs.flatMap(l=>[l.root,l.knee,l.ankle])];
     const lines=[[0,1,2],[0,3,4,5],[0,6,7,8],[2,9,10,11],[2,12,13,14]];set(r.boneLines,'d',lines.map(line=>'M'+line.map(i=>pt(points[i])).join('L')).join(''));
     points.forEach((p,i)=>{set(r.joints[i],'cx',n(p[0]));set(r.joints[i],'cy',n(p[1]));});r.bones.style.display=state.showBones?'':'none';
     svg.dataset.qpxView=view;svg.dataset.qpxViewFacing=pose.direction;svg.dataset.qpxPose=pose.action;svg.dataset.qpxSeatMode=pose.floor?'floor':pose.desk?'desk':'';
+    r.svg.querySelector('.qpx-contact-shadow').style.visibility=pose.action==='climb'?'hidden':'';
     if(svg.dataset.foundationOutfit==='basic')root.QPFoundationOutfit?.apply(r,pose);
+    root.QPFoundationSkin?.apply(r,pose);
     return true;
   }
   function destroy(svg){
     const r=mounted.get(svg);if(!r)return false;
-    root.QPFoundationOutfit?.destroy(svg);
+    root.QPFoundationSkin?.destroy(r);root.QPFoundationOutfit?.destroy(svg);
     for(const part of Object.values(r.parts)){r.body.append(part);part.replaceChildren();part.removeAttribute('transform');}
     r.bones.replaceChildren();r.bones.style.display='none';r.frontHands.replaceChildren();for(const g of r.armGradients)g.remove();svg.querySelector('[id$="-neck-skin"]')?.remove();
     return mounted.delete(svg);

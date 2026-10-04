@@ -33,12 +33,12 @@ fs.mkdirSync(out,{recursive:true});let browser;const report={success:false,error
  report.joints=await p.evaluate(()=>{
   const api=QPFoundationStudio.api,host=document.createElement('div');document.body.append(host);const check=(v,m)=>{if(!v)throw Error(m);};let samples=0,anchors=0;
   const point=(group,p)=>new DOMPoint(...p).matrixTransform(group.getCTM()),distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
-  for(const sex of ['m','f'])for(const sk of [0,1,2,3,4])for(const size of [280,96]){
+  for(const sex of ['m','f'])for(const sk of [0,1,2,3,4])for(const size of [280,120]){
    host.innerHTML=api.render({sex,sk},size)+api.render({sex,sk,foundationOutfit:'body'},size);const[dressed,bare]=host.children;
-   for(const direction of ['front','left','right','back'])for(const action of ['idle','walk','run','floor-sit','sit','jump','wave'])for(let frame=0;frame<12;frame++){
+   for(const direction of ['front','left','right','back'])for(const action of ['idle','walk','run','floor-sit','sit','jump','wave','climb'])for(let frame=0;frame<12;frame++){
     const state={direction,action:action==='wave'?'idle':action,gesture:action==='wave'?'wave':'',gestureProgress:frame/11,phase:frame/12,time:0};api.apply(dressed,state);api.apply(bare,state);
     check(JSON.stringify(api.inspect(dressed))===JSON.stringify(api.inspect(bare)),'clothing changed the fixed body pose');
-    check(dressed.querySelectorAll('[data-outfit-part]').length===8,'torso + hip + two sleeves + two cuffs + two shoes, each once');
+    check(dressed.querySelectorAll('[data-outfit-part]').length===6,'torso + one continuous shorts mesh + two sleeves + two shoes, each once');
     check(bare.querySelectorAll('[data-outfit-part]').length===0,'body comparison must be unclothed');
     const rig=api.prepare(dressed),pose=api.inspect(dressed);for(let arm=0;arm<2;arm++){const expected=pose.profile?'sleeve':'sleeve'+(pose.back?'Back':'Front')+(arm?'Right':'Left');check(dressed.querySelector('[data-outfit-part="sleeve-'+arm+'"]').dataset.outfitSource===expected,'wrong deltoid/cuff painting for '+direction);}check(rig.pelvis.contour.style.display==='none'&&rig.underlay.style.display==='none','covered pelvis leaked in front of pants');
     for(let i=0;i<2;i++){
@@ -49,7 +49,7 @@ fs.mkdirSync(out,{recursive:true});let browser;const report={success:false,error
     }
     samples++;
    }api.destroy(dressed);api.destroy(bare);
-  }host.remove();return{samples,anchors,unchangedBody:true,uniqueParts:8};
+  }host.remove();return{samples,anchors,unchangedBody:true,uniqueParts:6};
  });
  report.apertures=await p.evaluate(async()=>{
   const api=QPFoundationStudio.api,host=document.createElement('div');document.body.append(host);let samples=0,worst=0;const readings=[];
@@ -65,7 +65,7 @@ fs.mkdirSync(out,{recursive:true});let browser;const report={success:false,error
   let shoeSamples=0;
   for(const sk of [1,4]){
    host.innerHTML=api.render({sex:sk===1?'m':'f',sk},280);const svg=host.firstElementChild;
-   for(const direction of ['front','right','back','left'])for(const[action,wavePhase]of [...['idle','walk','run','floor-sit','jump','wave'].map(a=>[a,.5]),...[.1,.2,.35,.65,.8,.9].map(t=>['wave',t])]){
+   for(const direction of ['front','right','back','left'])for(const[action,wavePhase]of [...['idle','walk','run','floor-sit','jump','wave','climb'].map(a=>[a,.5]),...[.1,.2,.35,.65,.8,.9].map(t=>['wave',t])]){
     api.apply(svg,{direction,action:action==='wave'?'idle':action,phase:.2,time:0,gesture:action==='wave'?'wave':'',gestureProgress:wavePhase});
     for(let arm=0;arm<2;arm++){
      const g=svg.querySelector('[data-outfit-owner="arm-'+arm+'"]'),matrix=svg.getCTM().inverse().multiply(g.getCTM()),expectedAlpha=255*Number(api.prepare(svg).arms[arm].parent.style.opacity||1);
@@ -85,7 +85,7 @@ fs.mkdirSync(out,{recursive:true});let browser;const report={success:false,error
    }api.destroy(svg);
   }host.remove();return{renderedArmSamples:samples,worstChannelDifference:worst,shoeOpeningSamples:shoeSamples,opaqueOpeningNegativeControls:readings};
  });
- await p.locator('#outfit').uncheck();assert.equal(await p.locator('.studio [data-outfit-part]').count(),0);await p.locator('#outfit').check();assert.equal(await p.locator('.studio [data-outfit-part]').count(),32);
+ await p.locator('#outfit').uncheck();assert.equal(await p.locator('.studio [data-outfit-part]').count(),0);await p.locator('#outfit').check();assert.equal(await p.locator('.studio [data-outfit-part]').count(),24);
  await p.evaluate(()=>QPFoundationStudio.setState({action:'idle',direction:'front',phase:0}));await p.screenshot({path:path.join(out,'studio-front.png')});
  await p.evaluate(()=>QPFoundationStudio.setState({action:'floor-sit',direction:'front',phase:0}));await p.screenshot({path:path.join(out,'studio-crossleg.png')});
  assert.deepEqual(report.errors,[]);report.success=true;fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');console.log(JSON.stringify(report,null,2));await browser.close();

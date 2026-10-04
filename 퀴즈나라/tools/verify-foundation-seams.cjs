@@ -12,7 +12,7 @@ fs.mkdirSync(out,{recursive:true});let browser;const report={success:false,error
   const api=QPFoundationStudio.api,w=document.getElementById('runtime').contentWindow,atlas=w.QPFoundationOutfit.atlas,host=document.createElement('div');document.body.append(host);
   let samples=0,attachmentPixels=0,clothPixels=0;const controls=[];
   async function raster(svg,mode='sleeve',bad=false){
-   const clone=svg.cloneNode(true);for(const e of clone.querySelectorAll('[data-foundation-head],.qpx-contact-shadow,[data-foundation-bones]'))e.remove();
+   const clone=svg.cloneNode(true);for(const e of clone.querySelectorAll('[data-foundation-head],.qpx-contact-shadow,[data-foundation-bones],[data-foundation-skin-paint]'))e.remove();
    for(const e of clone.querySelectorAll('path'))if(!e.closest('defs'))e.remove();
    for(const e of clone.querySelectorAll('[data-outfit-part]'))if(e.dataset.outfitPart!=='sleeve-1'&&!(mode==='cloth'&&e.dataset.outfitPart==='shirt-torso'))e.remove();
    if(bad){const image=clone.querySelector('[data-outfit-part="sleeve-1"]'),profile=api.inspect(svg).profile;image.setAttribute('href',atlas.parts[image.dataset.outfitSource].url);for(const[k,v]of Object.entries({x:profile?-1.43:-1.3,y:profile?-.42:-.7,width:profile?2.7:3.1,height:profile?2.98:3.4,transform:profile?'':'matrix(1 0 -.32 1 0 0)'}))image.setAttribute(k,v);}

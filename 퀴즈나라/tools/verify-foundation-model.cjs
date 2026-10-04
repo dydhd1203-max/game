@@ -1,7 +1,7 @@
 'use strict';
 const assert=require('node:assert/strict'),{solve,spec}=require('../avatar-foundation.js'),run=require('../avatar-run-input.js');
 let samples=0;
-for(const direction of ['front','back','left','right'])for(const action of ['idle','walk','run','jump','floor-sit','sit'])for(let frame=0;frame<120;frame++){
+for(const direction of ['front','back','left','right'])for(const action of ['idle','walk','run','jump','floor-sit','sit','climb'])for(let frame=0;frame<120;frame++){
   const pose=solve({direction,action,phase:frame/120,grounded:false,time:0});
   for(const leg of pose.legs){const[a,b,c]=leg.boneSpace;assert(Math.abs(Math.hypot(...b.map((x,i)=>x-a[i]))-3.2)<.002,JSON.stringify({direction,action,frame,leg}));assert(Math.abs(Math.hypot(...c.map((x,i)=>x-b[i]))-2.9)<.002);if(leg.contact&&!pose.desk)assert(Math.abs(leg.ankle[1]-spec.ankle)<.001);}
   for(const [i,arm] of pose.arms.entries()){for(const point of [arm.shoulder,arm.elbow,arm.wrist])assert(point.every(Number.isFinite));const [a,b,c]=arm.boneSpace;const length=(p,q)=>Math.hypot(...p.map((x,i)=>x-q[i]));assert(Math.abs(length(a,b)-length(spec.shoulder[i],spec.elbow[i]))<.002);assert(Math.abs(length(b,c)-length(spec.elbow[i],spec.wrist[i]))<.002);}samples++;
@@ -24,3 +24,7 @@ for(const direction of ['left','right']){
 }
 const keys=run.create();keys.down('ArrowRight',0);keys.down('ArrowRight',20,true);assert(!keys.isRunning());keys.up('ArrowRight',50);keys.down('ArrowRight',120);assert(keys.isRunning());keys.up('ArrowRight',300);assert(!keys.isRunning());keys.down('ArrowRight',340);assert(!keys.isRunning(),'run release must not prime another double tap');keys.reset();keys.down('KeyD',0);keys.up('KeyD',40);keys.down('ArrowRight',100);assert(keys.isRunning(),'WASD and arrows share directions');keys.reset();assert(!keys.isRunning());keys.down('ArrowLeft',0);keys.up('ArrowLeft',500);keys.down('ArrowLeft',530);assert(!keys.isRunning(),'long hold is not a tap');keys.reset();keys.down('ArrowRight',0);keys.up('ArrowRight',30);keys.down('ArrowLeft',50);assert(!keys.isRunning(),'opposite direction is not double tap');keys.reset();keys.down('ArrowUp',0);keys.up('ArrowUp',30);keys.down('ArrowUp',100);keys.down('ArrowRight',150);assert(keys.isRunning(),'perpendicular key keeps run');keys.down('ArrowDown',200);assert(!keys.isRunning(),'opposite cancels run');
 console.log('PASS: '+samples+' skeletal samples; fixed sagittal bone lengths, planted ankles, relaxed idle arms, double-tap/repeat/release/alias/focus-reset contracts.');
+
+for(const phase of [.25,.75]){const p=solve({action:'climb',direction:'front',phase});assert.equal(p.direction,'back');assert(p.arms.every(a=>a.elbow[1]>a.wrist[1]),'Climbing elbows must stay below hands');assert((p.arms[0].wrist[1]-p.arms[1].wrist[1])*(p.legs[0].ankle[1]-p.legs[1].ankle[1])<0,'Opposite hand and foot climb together');assert(p.legs.every(l=>!l.contact&&Math.abs(l.knee[0]-l.root[0])<.01));}
+
+for(const phase of [.25,.75])for(const direction of ['front','back']){const pose=solve({action:'run',direction,phase});assert(pose.arms.every(a=>a.wrist[1]<a.elbow[1]),'Running forearms stay folded');}

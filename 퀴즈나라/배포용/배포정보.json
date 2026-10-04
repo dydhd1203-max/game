@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-04T01:14:01.229Z",
+  "builtAt": "2026-10-04T02:13:08.001Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -16,13 +16,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 322970,
-      "sha256": "7ccf7df798273aa3eae1458e4d389aad5ec4029da8ed8370e600aa05765635fa"
+      "bytes": 323022,
+      "sha256": "87897fafa7b6329aafe62919b757fabfe84d5327228aca072039520d9de2a972"
     },
     {
       "path": "avatar-image.js",
-      "bytes": 3997,
-      "sha256": "277e0de2a65f3e2ff8d6d6aafef99c159a4d103c73155765fbf22a79d8779543"
+      "bytes": 4062,
+      "sha256": "86ae529c278e55ed35281ec83f9d8b75db8863220435f92bb82e3a5de04f9617"
     },
     {
       "path": "assets/avatar-file-data.js",
@@ -416,8 +416,8 @@
     },
     {
       "path": "avatar-foundation-outfit.js",
-      "bytes": 20117,
-      "sha256": "d463eba78e8782139afe5e65cc1ea289b8f1b767a17e54beffce0aed5a6c1eb2"
+      "bytes": 22863,
+      "sha256": "fa86848bf2130d183ce547ac8d965b67623e006f92e3139b44140fa5a40d5cb4"
     },
     {
       "path": "assets/sd-foundation-basic.png",
@@ -446,13 +446,28 @@
     },
     {
       "path": "assets/avatar-file-data-foundation.js",
-      "bytes": 7439515,
-      "sha256": "a37124bff8e9992dde15404fac9a0ed42817b7d6edca6f3e734803a1b0d1c0bc"
+      "bytes": 10433137,
+      "sha256": "64d1f37b11d700d325958899f79b9a34ccc5aaf4b67898706167c02eaa4820b7"
+    },
+    {
+      "path": "avatar-foundation-skin.js",
+      "bytes": 10009,
+      "sha256": "d2fc97438a2cecde05d4d809f6016dbcd737f123068e5fba808ea078d4ea023a"
+    },
+    {
+      "path": "assets/sd-foundation-neck.png",
+      "bytes": 803455,
+      "sha256": "ecc57f0f5ecd41951e8d12e71c5c8ca8b0dbd60ee7cbce96094e9129b2114110"
+    },
+    {
+      "path": "assets/sd-foundation-skin.png",
+      "bytes": 1441672,
+      "sha256": "7651803bb889846e4c2f7904293a6a77f1adc5c768ecf0a96a0914625a5ed42e"
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 24532,
-      "sha256": "ee060e399e7331c61b5c7defd4815e429ac3347b2f20aa9dafcb4f15be178624"
+      "bytes": 25699,
+      "sha256": "63cbcc80b3ec8bdce33d74f2c56da434aa69976618e2406f830cdd372c07ae51"
     },
     {
       "path": "avatar-foundation.css",
@@ -461,13 +476,13 @@
     },
     {
       "path": "avatar-standard.html",
-      "bytes": 2941,
-      "sha256": "f00435e5779e007dc849b1b0cd94c8c6e1c25957ef1a948f0f6a0373ae3506ba"
+      "bytes": 2987,
+      "sha256": "acbf36a76c1b7d265b3c607507897f0673c4c7b96ed94678ded2d7cdc6e996f7"
     },
     {
       "path": "avatar-standard.js",
-      "bytes": 5023,
-      "sha256": "1c31f1095194295a07534bccb58d3a345dd240c922fb2d91cf57c1e0276bab7e"
+      "bytes": 5075,
+      "sha256": "52ac5902e726feaa8c5c2396dac0b40a247d5dc6f41464021868247acf87a103"
     },
     {
       "path": "avatar-standard.css",

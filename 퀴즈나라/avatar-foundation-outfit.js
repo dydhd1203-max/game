@@ -20,10 +20,9 @@
     sleeveRaisedFront:{source:'assets/sd-foundation-sleeves-raised.png',rect:[35,60,770,600],rig:{root:[500,300],mouth:[741,154],reach:2.4},hole:'M696 94Q744 124 778 209Q784 223 772 214Q726 183 702 125Q696 111 696 94Z'},
     sleeveRaisedBack:{source:'assets/sd-foundation-sleeves-raised.png',rect:[742,67,772,590],rig:{root:[1220,310],mouth:[1453,157],reach:2.4},hole:'M1410 100Q1447 130 1487 209Q1495 219 1489 215Q1443 180 1415 132Q1408 108 1410 100Z'},
     sleeveRaisedProfile:{source:'assets/sd-foundation-sleeves-raised.png',rect:[1485,68,673,599],rig:{root:[1840,315],mouth:[2081,170],reach:2.17},hole:'M2036 100Q2080 117 2127 225Q2134 239 2120 231Q2078 200 2048 143Q2036 114 2036 100Z'},
-    // The waist panel stops ABOVE both illustrated leg ends. A cuff belongs
-    // only to its separate leg tube, never to the waist panel as well.
-    hipFront:{rect:[30,469,363,182]},hipBack:{rect:[413,471,363,182]},hipProfile:{rect:[822,468,244,182]},
-    leg:{rect:[1172,511,229,215]},
+    // Full shorts artwork: one surface weighted to pelvis and both thighs.
+    // Its own cuffs are the only hems; no independent tube is overlaid.
+    hipFront:{rect:[30,469,363,259]},hipBack:{rect:[413,471,363,259]},hipProfile:{rect:[822,468,244,259]},
     shoeLeft:{rect:[28,764,323,280],anchor:[237,829],ground:1037,hole:'M184 808Q199 777 242 784Q278 789 277 821L263 843Q231 827 204 825Z'},
     shoeRight:{rect:[430,764,315,280],anchor:[526,829],ground:1037,hole:'M489 820Q480 790 513 781Q552 776 574 809L568 827Q537 827 505 844Z'},
     shoeProfile:{rect:[771,796,394,228],anchor:[877,861],ground:1018,hole:'M824 832Q850 858 879 851L908 836L913 855Q874 883 838 864Z'},
@@ -50,8 +49,8 @@
   }
   // A sleeve is a small cloth mesh, not a rigid cutout. Its proximal cap is
   // pinned to the torso seam; its cuff follows the upper arm. Cached raster
-  // textures keep the same eight owned garment images in the SVG scene.
-  const sleeveSources=new Map(),torsoSources=new Map(),sleeveCache=new Map();
+  // textures keep the same six owned garment images in the SVG scene.
+  const sleeveSources=new Map(),torsoSources=new Map(),sleeveCache=new Map(),shortsSources=new Map(),shortsCache=new Map();
   function seamTexture(key,source){
     // Only the sewn-in edge blends into the torso fabric. The free silhouette
     // and cream cuff retain the original contour and alpha. A black outline
@@ -95,8 +94,28 @@
     const weight=Math.round(t*15)/15,cacheKey='blend:'+key+':'+Math.round((angle-lean)*180/Math.PI/2)+':'+weight;if(sleeveCache.has(cacheKey))return sleeveCache.get(cacheKey).url;
     const a=sleeveTexture(key,side,profile,angle,lean),b=sleeveTexture(raised,side,profile,angle,lean),c=document.createElement('canvas');c.width=c.height=256;const ctx=c.getContext('2d');ctx.globalAlpha=1-weight;ctx.drawImage(a.canvas,0,0);ctx.globalCompositeOperation='lighter';ctx.globalAlpha=weight;ctx.drawImage(b.canvas,0,0);const result={url:c.toDataURL(),canvas:c};sleeveCache.set(cacheKey,result);if(sleeveCache.size>160)sleeveCache.delete(sleeveCache.keys().next().value);return result.url;
   }
+  // One continuous original shorts drawing, weighted to pelvis and both
+  // thighs. The waist and each cuff occur once; no unrelated tube is stacked
+  // over the original pockets. The skinning regions share their seam vertices.
+  function shortsTexture(pose,view){
+    const key=[view,pose.floor,pose.lean,...pose.legs.flatMap(l=>[...l.root,...l.knee])].map(v=>typeof v==='number'?Math.round(v*24)/24:v).join(':');if(shortsCache.has(key))return shortsCache.get(key);
+    const texture=shortsSources.get('hip'+view),profile=pose.profile,origin=[profile?13.3:12.05,36.65],size=[profile?5.4:7.9,4.15],cols=10,rows=10,vertices=[];
+    const [a,b,c,d,tx,ty]=pose.torso,det=a*d-b*c,unmap=p=>[(d*(p[0]-tx)-c*(p[1]-ty))/det,(-b*(p[0]-tx)+a*(p[1]-ty))/det];
+    const projected=pose.legs.map(l=>({root:unmap(l.root),knee:unmap(l.knee)}));
+    for(let row=0;row<=rows;row++)for(let col=0;col<=cols;col++){
+      const u=col/cols,v=row/rows,x=origin[0]+u*size[0],y=origin[1]+v*size[1],t=Math.max(0,Math.min(1,(y-37.6)/1.6)),weight=t*t*(3-2*t);
+      // View projection alters the visible length, never the body's joints.
+      const targets=projected.map((leg,i)=>{const hip=profile?(i?16.7:15.3):i?18.35:13.65,dx=leg.knee[0]-leg.root[0],dy=leg.knee[1]-leg.root[1],length=Math.hypot(dx,dy),nx=dy/(length||1),ny=-dx/(length||1),along=(y-38.1)/3.2;return[leg.root[0]+nx*(x-hip)*(pose.floor?.5:1)+dx*along,leg.root[1]+ny*(x-hip)*(pose.floor?.5:1)+dy*along];});
+      const side=Math.max(0,Math.min(1,(u-.42)/.16)),target=targets[0].map((z,i)=>z+(targets[1][i]-z)*side);if(pose.floor&&!profile){const centerPin=Math.max(0,1-Math.abs(u-.5)/.24);target[1]=target[1]*(1-centerPin)+(37.6+(y-37.6)*.44)*centerPin;}
+      vertices.push({s:[u*texture.width,v*texture.height],d:[x+(target[0]-x)*weight,y+(target[1]-y)*weight]});
+    }
+    const xs=vertices.map(p=>p.d[0]),ys=vertices.map(p=>p.d[1]),x=Math.min(...xs)-.05,y=Math.min(...ys)-.05,w=Math.max(...xs)-x+.05,h=Math.max(...ys)-y+.05,scale=16,canvas=document.createElement('canvas');canvas.width=Math.ceil(w*scale);canvas.height=Math.ceil(h*scale);const ctx=canvas.getContext('2d');vertices.forEach(p=>p.d=[(p.d[0]-x)*scale,(p.d[1]-y)*scale]);
+    function draw(a,b,c){const [x0,y0]=a.s,[x1,y1]=b.s,[x2,y2]=c.s,[u0,v0]=a.d,[u1,v1]=b.d,[u2,v2]=c.d,den=(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0),aa=((u1-u0)*(y2-y0)-(u2-u0)*(y1-y0))/den,cc=((u2-u0)*(x1-x0)-(u1-u0)*(x2-x0))/den,bb=((v1-v0)*(y2-y0)-(v2-v0)*(y1-y0))/den,dd=((v2-v0)*(x1-x0)-(v1-v0)*(x2-x0))/den;ctx.save();ctx.beginPath();const center=[(u0+u1+u2)/3,(v0+v1+v2)/3];for(const[p,i]of[a.d,b.d,c.d].map((p,i)=>[p,i])){const dx=p[0]-center[0],dy=p[1]-center[1],l=Math.hypot(dx,dy)||1,q=[p[0]+dx/l*.2,p[1]+dy/l*.2];i?ctx.lineTo(...q):ctx.moveTo(...q);}ctx.closePath();ctx.clip();ctx.setTransform(aa,bb,cc,dd,u0-aa*x0-cc*y0,v0-bb*x0-dd*y0);ctx.drawImage(texture,0,0);ctx.restore();}
+    for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){const i=row*(cols+1)+col;draw(vertices[i],vertices[i+1],vertices[i+cols+2]);draw(vertices[i],vertices[i+cols+2],vertices[i+cols+1]);}
+    const result={url:canvas.toDataURL(),x,y,w:canvas.width/scale,h:canvas.height/scale};shortsCache.set(key,result);if(shortsCache.size>160)shortsCache.delete(shortsCache.keys().next().value);return result;
+  }
   let loading;
-  function load(){return loading||(loading=Promise.all([...new Set([source,...Object.values(definitions).map(d=>d.source).filter(Boolean)])].map(async file=>[file,await QPAvatarImage.load(new URL(file,base).href)])).then(entries=>{const images=Object.fromEntries(entries);for(const[k,d]of Object.entries(definitions))atlas.parts[k]=preparePart(images[d.source||source],d);atlas.parts.shoeFloor=floorShoe(atlas.parts.shoeProfile);for(const[key,part]of Object.entries(atlas.parts)){if(key.startsWith('sleeve')){const sewn=seamTexture(key,part.canvas);sleeveSources.set(key,{raw:definitions[key].rig?sewn:part.canvas,sewn});}if(key.startsWith('shirt'))torsoSources.set(key,part.canvas);delete part.canvas;}atlas.ready=true;return atlas;}).catch(error=>{atlas.error=error.message;console.error(error);return atlas;}));}
+  function load(){root.QPFoundationSkin?.load();return loading||(loading=Promise.all([...new Set([source,...Object.values(definitions).map(d=>d.source).filter(Boolean)])].map(async file=>[file,await QPAvatarImage.load(new URL(file,base).href)])).then(entries=>{const images=Object.fromEntries(entries);for(const[k,d]of Object.entries(definitions))atlas.parts[k]=preparePart(images[d.source||source],d);atlas.parts.shoeFloor=floorShoe(atlas.parts.shoeProfile);for(const[key,part]of Object.entries(atlas.parts)){if(key.startsWith('sleeve')){const sewn=seamTexture(key,part.canvas);sleeveSources.set(key,{raw:definitions[key].rig?sewn:part.canvas,sewn});}if(key.startsWith('shirt'))torsoSources.set(key,part.canvas);if(key.startsWith('hip'))shortsSources.set(key,part.canvas);delete part.canvas;}atlas.ready=true;return atlas;}).catch(error=>{atlas.error=error.message;console.error(error);return atlas;}));}
   const params=new URLSearchParams(location.search);
   if(params.get('avatar')==='foundation'||params.get('session')==='foundation-studio')load();
   function sprite(parent,owner){const e=el('image',{'data-outfit-part':owner,preserveAspectRatio:'none'});parent.append(e);return e;}
@@ -105,15 +124,14 @@
   function prepare(body){
     if(mounted.has(body.svg))return mounted.get(body.svg);const {svg,parts}=body,id=svg.dataset.foundationId+'-outfit',defs=el('g',{'data-outfit-defs':'true'});svg.querySelector('defs').append(defs);
     const r={body,defs,shirt:sprite(parts.torso,'shirt-torso'),hip:sprite(parts.pelvis,'shorts-hip'),sleeves:[],legs:[],shoes:[],fit:null};
-    r.hipClip=clip(defs,id+'-hip');r.hip.setAttribute('clip-path','url(#'+id+'-hip)');
+    r.hip.dataset.outfitDeformation='pelvis-left-thigh-right-thigh';
     // The body owns a direction-specific neck surface, not a rectangular fill.
     for(let i=0;i<2;i++){
       const arm=body.arms[i],leg=body.legs[i],sleeve=el('g',{'data-outfit-owner':'arm-'+i}),tube=el('g',{'data-outfit-owner':'leg-'+i}),shoe=el('g',{'data-outfit-owner':'foot-'+i});
       arm.parent.insertBefore(sleeve,arm.hand);leg.parent.append(tube,shoe);
       const skinClip=clip(defs,id+'-arm-skin-'+i);arm.contour.setAttribute('clip-path','url(#'+id+'-arm-skin-'+i+')');arm.shade.setAttribute('clip-path','url(#'+id+'-arm-skin-'+i+')');
       r.sleeves.push({group:sleeve,image:sprite(sleeve,'sleeve-'+i),skinClip});
-      r.legs.push({group:tube,image:sprite(tube,'shorts-leg-'+i),clip:clip(defs,id+'-leg-'+i)});
-      r.legs[i].image.setAttribute('clip-path','url(#'+id+'-leg-'+i+')');
+      tube.dataset.outfitSkinRegion='shorts-thigh-'+i;r.legs.push({group:tube});
       r.shoes.push({group:shoe,image:sprite(shoe,'shoe-'+i)});
     }
     mounted.set(svg,r);return r;
@@ -125,10 +143,9 @@
     body.pelvis.contour.style.display='none';body.pelvis.shade.style.display='none';body.torso.contour.style.display='none';body.torso.shade.style.display='none';
     // Front sleeve caps overlap their torso armholes; the actual same arm is
     // still reparented above the hair during a greeting (never a cloned arm).
-    if(!profile){const arms=body.arms.map(a=>a.parent).filter(e=>e.parentNode===body.body),tail=[...body.body.children].slice(-arms.length);if(arms.some((a,i)=>a!==tail[i]))body.body.append(...arms);}
+    if(!profile&&!back){const arms=body.arms.map(a=>a.parent).filter(e=>e.parentNode===body.body),tail=[...body.body.children].slice(-arms.length);if(arms.some((a,i)=>a!==tail[i]))body.body.append(...arms);}
     paint(r.shirt,'shirt'+view,profile?13.15:11.55,28.55,profile?5.7:8.9,8.65);
-    paint(r.hip,'hip'+view,profile?13.3:12.05,36.65,profile?5.4:7.9,3.2);
-    set(r.hipClip,'d',profile?'M13.3 36.3H18.7L18.5 37.8Q18.3 38.2 18 38.5L16 38.8L14 38.5Q13.7 38.2 13.5 37.8Z':floor&&back?'M12 36.3H20L20.4 39.2Q20.4 40.5 16 40.5Q11.6 40.5 11.6 39.2Z':'M12 36.3H20L19.7 38.45Q19.1 39 17.45 38.8L16 38.4L14.55 38.8Q12.9 39 12.3 38.45Z');
+    const shorts=shortsTexture(pose,view);for(const[k,v]of Object.entries({href:shorts.url,x:shorts.x,y:shorts.y,width:shorts.w,height:shorts.h}))set(r.hip,k,v);r.hip.dataset.outfitSource='hip'+view;
     const fit={view,coveredFeet:2,sleeves:[],legs:[],shoes:[]};
     pose.arms.forEach((arm,i)=>{
       const s=r.sleeves[i],angle=Math.atan2(arm.elbow[1]-arm.shoulder[1],arm.elbow[0]-arm.shoulder[0])-Math.PI/2;
@@ -144,13 +161,9 @@
       fit.sleeves.push({shoulder:arm.shoulder,opening:center,armPoint:mix(arm.shoulder,arm.elbow,.52),width:1.8});
     });
     pose.legs.forEach((leg,i)=>{
-      const p=r.legs[i],s=r.shoes[i],length=Math.hypot(leg.knee[0]-leg.root[0],leg.knee[1]-leg.root[1]),angle=Math.atan2(leg.knee[1]-leg.root[1],leg.knee[0]-leg.root[0])-Math.PI/2;
-      const end=Math.max(.85,length*.81),width=floor?2.25:profile?2.65:3.1;
+      const p=r.legs[i],s=r.shoes[i],angle=Math.atan2(leg.knee[1]-leg.root[1],leg.knee[0]-leg.root[0])-Math.PI/2;
       set(p.group,'transform','translate('+pt(leg.root)+') rotate('+n(angle*180/Math.PI)+')');
-      paint(p.image,'leg',-width/2,-.95,width,end+.95);
-      // Authored bent-pose contour: rounded outer thigh and a scooped inner
-      // fold. Only this isolated thigh panel bends; pelvis/other leg do not.
-      set(p.clip,'d',floor?'M'+(-width/2)+' -1Q'+(-width*.63)+' '+(end*.45)+' '+(-width*.42)+' '+end+'Q0 '+(end+.25)+' '+(width*.44)+' '+end+'Q'+(width*.58)+' '+(end*.4)+' '+(width/2)+' -1Z':'M'+(-width/2)+' -1H'+(width/2)+'V'+(end+.15)+'H'+(-width/2)+'Z');
+      // The cuff is part of the shared shorts mesh weighted to this thigh.
       body.legs[i].foot.style.display='none';
       const key=floor?'shoeFloor':profile?'shoeProfile':back?'shoeBack':i?'shoeRight':'shoeLeft',art=atlas.parts[key];
       const sx=(profile||floor?3.7:back?2.5:3.1)/art.width,soleHeight=floor?.6:1.9,sy=soleHeight/(art.ground-art.anchor[1]);
@@ -161,6 +174,7 @@
       set(s.group,'transform','translate('+pt(leg.ankle)+') rotate('+n(shoeAngle)+') scale('+flip+' 1)');
       paint(s.image,key,(art.rect[0]-art.anchor[0])*sx,(art.rect[1]-art.anchor[1])*sy,art.width*sx,art.height*sy);
       s.group.style.display=floor&&back?'none':'';
+      const parent=floor&&!back?body.body:body.legs[i].parent;if(s.group.parentNode!==parent)parent.append(s.group);if(floor&&!back)body.body.append(s.group);
       fit.legs.push({root:leg.root,cuff:mix(leg.root,leg.knee,.81),owner:i});
       fit.shoes.push({ankle:leg.ankle,contact:leg.contact,soleHeight,soleY:leg.ankle[1]+soleHeight*Math.cos(shoeAngle*Math.PI/180),owner:i,view:key});
     });
