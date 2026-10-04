@@ -135,9 +135,15 @@ async function probeFixture({ entry, geometry, states, thresholds }) {
   }
   function cloneLayers(svg) {
     const records = [], mesh=svg.querySelector('[data-qpx-continuous-cloth]'), active=mesh&&getComputedStyle(mesh.parentNode).display!=='none';
-    if(active){const skins=[...svg.querySelectorAll('[data-qpx-gesture-skin]')],hands=[...svg.querySelectorAll('[data-qpx-cloth-hand]')];records.push({pipeline:'continuous-cloth',skinBeforeSleeve:skins.length>0&&skins.every(s=>follows(s,mesh)),sleeveBeforeHands:hands.length===2&&hands.every(h=>follows(mesh,h))});return{records,pass:records.every(r=>r.skinBeforeSleeve&&r.sleeveBeforeHands)};}
+    const visible=n=>{for(let p=n;p&&p!==svg;p=p.parentElement)if(getComputedStyle(p).display==='none'||getComputedStyle(p).visibility==='hidden')return false;return true;};
+    if(active){const skins=[...svg.querySelectorAll('[data-qpx-gesture-skin],[data-qpx-continuous-arm="front"]')].filter(visible),hands=[...svg.querySelectorAll('[data-qpx-cloth-hand]')];records.push({pipeline:'continuous-cloth',skinBeforeSleeve:skins.length>0&&skins.every(s=>follows(s,mesh)),sleeveBeforeHands:hands.length===2&&hands.every(h=>follows(mesh,h))});return{records,pass:records.every(r=>r.skinBeforeSleeve&&r.sleeveBeforeHands)};}
     for (const carrier of svg.querySelectorAll('[data-qpx-gesture-arm]')) {
       if (getComputedStyle(carrier).display === 'none') continue;
+      const connected=carrier.querySelector('[data-qpx-continuous-arm="front"]');
+      if(connected&&visible(connected)){
+        const sleeves=[...carrier.querySelectorAll('[data-qpx-gesture-art="front"] [data-qpx-wave-sleeve]')].filter(visible),hands=[...carrier.querySelectorAll('[data-qpx-gesture-art="front"] .qpx-hand-left,[data-qpx-gesture-art="front"] .qpx-hand-right')].filter(visible);
+        records.push({side:carrier.dataset.qpxGestureArm,pipeline:'articulated-short-sleeve',sleeves:sleeves.length,skinBeforeSleeve:sleeves.length===1&&follows(connected,sleeves[0]),sleeveBeforeHands:hands.length>0&&sleeves.every(s=>hands.every(h=>follows(s,h)))});continue;
+      }
       for (const art of carrier.querySelectorAll('[data-qpx-gesture-art="front"]')) {
         const skins = [...art.querySelectorAll('[data-qpx-gesture-skin]')];
         const sleeve = art.querySelector('[data-qpx-wave-sleeve]');
@@ -156,11 +162,11 @@ async function probeFixture({ entry, geometry, states, thresholds }) {
     if (state.pose) QPAvatarPose.apply(svg, { ...state.pose, now: 2000 });
     const [cloth, skinLeft, skinRight, full] = await Promise.all([
       pixels(svg, '[data-qpx-clothes="top"],[data-qpx-wave-sleeve],[data-qpx-continuous-cloth]'),
-      pixels(svg, '.qpx-arm-left,.qpx-arm-front-left,[data-qpx-gesture-skin="left"]', true),
-      pixels(svg, '.qpx-arm-right,.qpx-arm-front-right,[data-qpx-gesture-skin="right"]', true), pixels(svg)
+      pixels(svg, '.qpx-arm-left,.qpx-arm-front-left,[data-qpx-gesture-skin="left"],[data-qpx-continuous-arm-side="left"]', true),
+      pixels(svg, '.qpx-arm-right,.qpx-arm-front-right,[data-qpx-gesture-skin="right"],[data-qpx-continuous-arm-side="right"]', true), pixels(svg)
     ]);
     const mesh=svg.querySelector('[data-qpx-continuous-cloth]'), continuous=Boolean(mesh&&getComputedStyle(mesh.parentNode).display!=='none');
-    const composite=continuous?await pixels(svg,'[data-qpx-continuous-cloth],[data-qpx-gesture-skin],[data-qpx-gesture-hand],[data-qpx-cloth-hand]'):full;
+    const composite=continuous?await pixels(svg,'[data-qpx-continuous-cloth],[data-qpx-gesture-skin],[data-qpx-continuous-arm],[data-qpx-gesture-hand],[data-qpx-cloth-hand]'):full;
     const layer = cloneLayers(svg), row = { id: geometry.id, sk, state: state.id,
       pose: svg.dataset.qpxPose || 'native', view: svg.dataset.qpxView || 'front', layer, sides: [] };
     for (const sleeve of geometry.sleeves) {
@@ -191,9 +197,10 @@ async function probeFixture({ entry, geometry, states, thresholds }) {
           if (!art) continue;
           const marker = sleeve.side + '-' + at; art.dataset.qaSleevePart = marker;
           const selector = '[data-qa-sleeve-part="' + marker + '"]';
+          const connectedSkin='[data-qpx-continuous-arm="front"][data-qpx-continuous-arm-side="'+sleeve.side+'"]';
           const [pieceCloth, pieceSkin, pieceFull] = await Promise.all([
             pixels(svg, selector + ' [data-qpx-wave-sleeve]'),
-            pixels(svg, selector + ' [data-qpx-gesture-skin]', true), pixels(svg, selector)
+            pixels(svg, selector + ' [data-qpx-gesture-skin],'+connectedSkin, true), pixels(svg, selector+','+connectedSkin)
           ]);
           pieces.push({ piece: marker, ...occlusion(pieceCloth, pieceSkin, pieceFull, opening(nested, sleeve, svg)) });
         }

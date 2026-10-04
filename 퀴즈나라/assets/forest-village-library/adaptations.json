@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "authorization": "2026-10-03 user requested adapting provided assets to the current map style without awkwardness. Originals remain unchanged. Later same-day user requested richer placement, a fairy-village central plaza, animated brook and climbable mysterious great tree.",
   "assets": [
     {
@@ -415,6 +415,31 @@
         "resampling": "LANCZOS"
       },
       "instructions": "provided meandering turquoise river and low adapted rock cascades; preserve complete silhouette and source identity; adapt shading, edge weight and palette to the native map. Preserve transparent background. Verify actual placement and collision separately."
+    },
+    {
+      "id": "forest-nature",
+      "file": "adapted/sources/forest-nature.png",
+      "sha256": "092c2e09ec0f9edff070450205348285de6e459f06ba571059328a088bb240f2",
+      "width": 1536,
+      "height": 1024,
+      "origin": "Generated style adaptation for the user-requested richer forest placement; not an original pixel extraction.",
+      "references": [
+        {
+          "file": "originals/picnic-garden.png",
+          "sha256": "29c8d3512c2d64dd37c25f23db2804f3235fcaa4a5c0b8d944eade6c95c28dff",
+          "role": "existing map palette and elevated viewpoint"
+        }
+      ],
+      "parts": [
+        "forest-oak",
+        "forest-pine",
+        "forest-birch",
+        "forest-rock",
+        "forest-leaves",
+        "forest-berries"
+      ],
+      "partDefinitions": "../../forest-village-scene.js: HD_ASSETS source rectangles",
+      "placement": "26 placements with shared ground/depth anchors; walking routes and treehouse access preserved"
     }
   ]
 }

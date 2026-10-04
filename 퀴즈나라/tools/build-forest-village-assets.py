@@ -5,7 +5,7 @@ Requires Pillow only for this reproducible authoring step, not for deployment.
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFilter, ImageChops
 from collections import deque
-import json, hashlib
+import json, hashlib, math
 ROOT = Path(__file__).resolve().parents[1]
 LIB = ROOT / 'assets/forest-village-library'
 OUT = LIB / 'extracted'
@@ -115,6 +115,37 @@ patch_ground(plaza,'picnic-garden',[599,480,20,22],[(949,367),(963,367),(963,464
 # The full southern bench and its own flower bed stay at original registration.
 source_sprite(plaza,'picnic-garden',[802,465,89,33],[(0,0),(71,0),(71,7),(85,8),(89,15),(87,25),(80,31),(69,32),(66,27),(5,26),(0,20)],(802,465),plaza_patches,'complete southern bench, legs, shadow and small right flower bed restored after grove removal')
 source_sprite(plaza,'picnic-garden',[871,456,41,39],[(17,0),(29,2),(36,7),(40,16),(37,29),(28,36),(16,38),(6,33),(0,23),(2,12),(9,4)],(871,456),plaza_patches,'whole bench-side flowering shrub and shadow; no chopped old tree remnant')
+# The enlarged landmark needs the complete former bench footprints, not
+# benches whose backs disappear under roots while their legs remain visible.
+patch_ground(plaza,'picnic-garden',[558,702,32,24],[(691,463),(764,463),(767,477),(766,493),(757,499),(691,497),(687,489),(687,474)],'entire west meeting bench including all legs and shadow; enlarged tree root plot',plaza_patches,outside_transition=1)
+patch_ground(plaza,'picnic-garden',[558,702,32,24],[(802,463),(873,463),(873,472),(887,473),(893,481),(892,493),(882,500),(870,501),(865,496),(807,495),(800,489)],'entire east meeting bench, legs, shadow and attached low flower bed; enlarged tree root plot',plaza_patches,outside_transition=1)
+source_sprite(plaza,'picnic-garden',[871,456,41,39],[(17,0),(29,2),(36,7),(40,16),(37,29),(28,36),(16,38),(6,33),(0,23),(2,12),(9,4)],(871,456),plaza_patches,'keep the whole neighboring flowering shrub after moving the tree-root plot')
+# Clear complete objects within the enlarged root/crown plot. Leave the west
+# route open and move the meeting focus to the surviving southern benches.
+patch_ground(plaza,'picnic-garden',[558,702,32,24],[(640,377),(701,377),(713,454),(713,499),(615,499),(613,423),(626,402)],'complete western pine, attached root shrub and shadow inside the enlarged great-tree plot; no pine tip or white-flower remnant',plaza_patches,outside_transition=1)
+patch_ground(plaza,'picnic-garden',[558,702,32,24],[(581,256),(647,256),(647,352),(650,381),(652,424),(610,428),(578,389),(577,307)],'complete west pair of benches, clock post, feet and neighboring low flower cluster under the expanded canopy; preserve the outer walking lane',plaza_patches,outside_transition=1)
+patch_ground(plaza,'picnic-garden',[558,702,32,24],[(878,454),(902,454),(914,468),(914,488),(901,499),(883,499),(869,485),(869,469)],'whole former bench-side flowering shrub and shadow inside the revised root lawn; not a flower stump at the path edge',plaza_patches,outside_transition=1)
+# The tree base extends down into the former inner path edge. Widen the grass
+# plot as one curved border; the existing outer path remains a continuous lane.
+patch_ground(plaza,'picnic-garden',[558,702,32,24],[(655,482),(725,492),(821,489),(887,483),(912,497),(898,514),(866,522),(807,519),(745,518),(690,514),(660,505)],'enlarged root lawn with a curved southern path edge; no roots painted over the remaining path',plaza_patches,outside_transition=2)
+# Restore a continuous narrow lane after removing the whole western furniture
+# group. Catmull-Rom samples only define the mask; every visible path pixel is
+# from the supplied original path material, with no new painted terrain.
+# End inside the existing southern lane, before the complete coffee kiosk.
+# Continuing this mask across (654,520) would erase its roof and sign.
+route=[(574,224),(586,270),(589,322),(588,371),(601,421),(614,452),(623,484),(632,500)]
+curve=[]
+controls=[route[0]]+route+[route[-1]]
+for i in range(1,len(controls)-2):
+    a,b,c,d=controls[i-1:i+3]
+    for sample in range(12):
+        t=sample/12
+        curve.append(tuple(.5*((2*b[k])+(-a[k]+c[k])*t+(2*a[k]-5*b[k]+4*c[k]-d[k])*t*t+(-a[k]+3*b[k]-3*c[k]+d[k])*t*t*t) for k in (0,1)))
+curve.append(route[-1]);left=[];right=[]
+for i,(x,y) in enumerate(curve):
+    a=curve[max(0,i-1)];b=curve[min(len(curve)-1,i+1)];dx=b[0]-a[0];dy=b[1]-a[1];n=math.hypot(dx,dy) or 1
+    left.append((round(x+dy/n*12,2),round(y-dx/n*12,2)));right.append((round(x-dy/n*12,2),round(y+dx/n*12,2)))
+patch_ground(plaza,'picnic-garden',[599,480,20,22],left+right[::-1],'smooth continuous western lane around enlarged roots after complete furniture removal; protect original grove and lamp silhouettes',plaza_patches,outside_transition=2)
 save('plaza-composition',plaza.crop((0,64,1115,800)),'picnic-garden',[0,64,1115,736],patches=plaza_patches)
 
 

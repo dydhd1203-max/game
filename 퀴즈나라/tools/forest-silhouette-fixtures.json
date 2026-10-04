@@ -325,42 +325,6 @@
         ]
       },
       {
-        "id": "clock-post-and-base",
-        "rect": [
-          586,
-          308,
-          22,
-          71
-        ]
-      },
-      {
-        "id": "flower-bed-parent-crown",
-        "rect": [
-          610,
-          368,
-          20,
-          15
-        ]
-      },
-      {
-        "id": "flower-bed-parent-lower-curve",
-        "rect": [
-          603,
-          383,
-          5,
-          7
-        ]
-      },
-      {
-        "id": "south-bench-seat-and-legs",
-        "rect": [
-          808,
-          469,
-          63,
-          20
-        ]
-      },
-      {
         "id": "north-stool-seat-and-legs",
         "rect": [
           798,
@@ -370,12 +334,12 @@
         ]
       },
       {
-        "id": "south-bench-flower-core",
+        "id": "coffee-kiosk-roof-sign-body-and-foot",
         "rect": [
-          887,
-          464,
-          13,
-          17
+          654,
+          521,
+          66,
+          67
         ]
       }
     ],
@@ -416,5 +380,47 @@
       "destination": "forestgarden",
       "reason": "User-requested central climbable great tree; retain complete original pink tree in the garden."
     }
-  }
+  },
+  "retiredPlazaObjects": [
+    {
+      "id": "clock-post-and-base",
+      "rect": [
+        586,
+        308,
+        22,
+        71
+      ],
+      "reason": "Complete removal for enlarged great-tree plot; original village composition retains the original object."
+    },
+    {
+      "id": "flower-bed-parent-crown",
+      "rect": [
+        610,
+        368,
+        20,
+        15
+      ],
+      "reason": "Complete removal for enlarged great-tree plot; original village composition retains the original object."
+    },
+    {
+      "id": "flower-bed-parent-lower-curve",
+      "rect": [
+        603,
+        383,
+        5,
+        7
+      ],
+      "reason": "Complete removal for enlarged great-tree plot; original village composition retains the original object."
+    },
+    {
+      "id": "south-bench-flower-core",
+      "rect": [
+        887,
+        464,
+        13,
+        17
+      ],
+      "reason": "Complete removal for enlarged great-tree plot; original village composition retains the original object."
+    }
+  ]
 }

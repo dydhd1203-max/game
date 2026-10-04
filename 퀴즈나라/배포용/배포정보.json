@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-03T12:51:53.351Z",
+  "builtAt": "2026-10-04T01:14:01.229Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -31,8 +31,8 @@
     },
     {
       "path": "avatar-pixel.js",
-      "bytes": 109489,
-      "sha256": "3efe3c8e6cfaffec9627f95b6db0a3b2cc6224f4f5f9721f7b48f319b4a0ec61"
+      "bytes": 109932,
+      "sha256": "d9a35aebe3b95a72647c6437acf68f370f46a0d2b64c9db34acea7d976cf2e2a"
     },
     {
       "path": "avatar-clothes.js",
@@ -110,9 +110,24 @@
       "sha256": "6e931b8ada0c444043ff811262a4c24e928138751e319afcc57ed45a9a34ca67"
     },
     {
+      "path": "assets/forest-village-library/adapted/sources/plaza-tree.png",
+      "bytes": 2629169,
+      "sha256": "14dace32b22ead3006e1c4e1737a396dad86ab679d9ba3aa19194b5717c60d05"
+    },
+    {
+      "path": "assets/forest-village-library/adapted/sources/courtyard-houses.png",
+      "bytes": 1910288,
+      "sha256": "6921e489d2353689cd35eb0ae0a7e387397d86f9fdbaddc08f7ba60303d6ee1c"
+    },
+    {
+      "path": "assets/forest-village-library/adapted/sources/forest-nature.png",
+      "bytes": 2471325,
+      "sha256": "092c2e09ec0f9edff070450205348285de6e459f06ba571059328a088bb240f2"
+    },
+    {
       "path": "forest-village-scene.js",
-      "bytes": 23838,
-      "sha256": "0c4eebfeb256fec4c2de2cc696d5fcc8a057a39cb270bf7bbdc28d7298747dcd"
+      "bytes": 28147,
+      "sha256": "d6c617e0546db9763e2685323598083220f80d2b642fddf69924e409212bd80b"
     },
     {
       "path": "forest-village-world.css",
@@ -126,8 +141,8 @@
     },
     {
       "path": "assets/forest-village-library/extracted/plaza-composition.png",
-      "bytes": 1351833,
-      "sha256": "e49c070b2a879f773936a2e0ccf45adbf58e782579e342a66e14ecd6893b44f8"
+      "bytes": 1299420,
+      "sha256": "791a9f216db4641163d0c9eca34bf20ea82f813321f377e30a316c5face78a28"
     },
     {
       "path": "assets/forest-village-library/adapted/flowers-bluebell.png",
@@ -226,18 +241,18 @@
     },
     {
       "path": "school-room-world.js",
-      "bytes": 44723,
-      "sha256": "527ae5bfa08205926a1421a159e3117fcdc193c30b3da6fc537122cd29d7e70a"
+      "bytes": 46428,
+      "sha256": "afc773df51885c719ef87540ff3df0a7305d1862e4c9ede4f4f18394dfa48b74"
     },
     {
       "path": "school-room-world.css",
-      "bytes": 4993,
-      "sha256": "4091e2245df801a2bf449ba7045f01950a0f5e52a73e0c1009543f89af09b0ab"
+      "bytes": 5399,
+      "sha256": "0ec3c0a9e6cd414121362311511a0264722b7fb5321adafc94b2efd4de101b89"
     },
     {
       "path": "playground-scene.js",
-      "bytes": 15930,
-      "sha256": "d9e97c74a33328531614b21f8d0200c590bec9df5a024822b03c4a2be91460db"
+      "bytes": 18772,
+      "sha256": "e9c47033e7c6f402674db9de6fa0646aeb8459ec053b075a26a1049a07a6fd11"
     },
     {
       "path": "village-presence.js",
@@ -258,6 +273,11 @@
       "path": "assets/classroom-library/originals/classroom-70f5744d42cc639d.png",
       "bytes": 584454,
       "sha256": "70f5744d42cc639d72e25c59869c499cc5284318b8ad03d7ac185fd9e2ccde3f"
+    },
+    {
+      "path": "assets/playground-library/adapted/school-gate.png",
+      "bytes": 647962,
+      "sha256": "c101995616ac077207c0a65f5b9261e2f072b22d1cda9cc3b57365b7e0902dd0"
     },
     {
       "path": "assets/playground-library/originals/playground-ef89d10d0fd0dff5.png",
@@ -361,8 +381,8 @@
     },
     {
       "path": "avatar-accessory-direction.js",
-      "bytes": 38489,
-      "sha256": "aabc18c5ca54eaa3232637cfeeb96748108903fc671dfb3e2fd2a1ada0673a9e"
+      "bytes": 38528,
+      "sha256": "ef0717b6520ad2280dc7da9e8a609664842cc0f5861be677ef2a9bde720ba866"
     },
     {
       "path": "avatar-shoes-profile.js",
@@ -371,13 +391,13 @@
     },
     {
       "path": "avatar-direction.js",
-      "bytes": 38538,
-      "sha256": "931d5a23981ed8a2914fffefda5bd01c1e2ca5fc7906f3868a8f16e12bbe4177"
+      "bytes": 40117,
+      "sha256": "21182a9fb8e3c8a50541c8f6fe5ebd1a04b285eda6775bcc2d0fa701b2f4aa35"
     },
     {
       "path": "avatar-poses.js",
-      "bytes": 49454,
-      "sha256": "0e571511a9e076436d7b021add723dadbe0df20866bf3c44c4d2aa6528fa539b"
+      "bytes": 55654,
+      "sha256": "8e2b01571f3ed1dc3f6ce95e6045f01440f6d3e5865dfb0f71cbcbf5177e6f27"
     },
     {
       "path": "avatar-cloth-mesh.js",
@@ -441,13 +461,13 @@
     },
     {
       "path": "avatar-standard.html",
-      "bytes": 2738,
-      "sha256": "37bf5c9b9a48f2172da7bc9f4c335c0c970155412185608528f50c36641b8085"
+      "bytes": 2941,
+      "sha256": "f00435e5779e007dc849b1b0cd94c8c6e1c25957ef1a948f0f6a0373ae3506ba"
     },
     {
       "path": "avatar-standard.js",
-      "bytes": 5022,
-      "sha256": "d8f17e0c55d15028d22e694cba91ab438f8a9e275d4f8f541e308c8c9ebc6f4f"
+      "bytes": 5023,
+      "sha256": "1c31f1095194295a07534bccb58d3a345dd240c922fb2d91cf57c1e0276bab7e"
     },
     {
       "path": "avatar-standard.css",

@@ -113,7 +113,25 @@
     materialPatch('exterior-chat-grass', 'overview', [345,805,360,99], [-299,1804,760,300], -4, 25) +
     materialPatch('exterior-voice-grass', 'overview', [1040,805,150,99], [1286,1884,560,212], -4, 25) +
     materialPatch('exterior-message-grass', 'overview', [1620,805,130,99], [3261,1874,234,230], -4, 25);
-  const art = materialPatch('provided-exterior-grass-material', 'overview', [1040,760,360,80], [-269,244,3714,1808], -100) + registeredComponents() + exteriorCleanup;
+  // Preserve the native rails on BOTH sides at their exact original pixels.
+  // Only clear between the new main pillars. Removing the wider image bounds
+  // severed the right rail; adapted side rails also had a different height.
+  const gateFloor='<svg data-art="school-gate-cleared-fence" aria-hidden="true" width="592" height="350" viewBox="0 0 592 350" style="position:absolute;left:592px;top:1096px;z-index:3;pointer-events:none"><defs><clipPath id="school-gate-old-fence"><path d="M156 78L414 207V261L156 132Z"/></clipPath></defs><g clip-path="url(#school-gate-old-fence)"><image href="'+ROOT+SOURCES.west.file+'" width="1634" height="905" transform="matrix(1 -.5 0 2 -323 -479)"/></g></svg>';
+  // Native fence foot: y=.5*x+845.5. This source registration keeps the main
+  // pillars/door leaves upright. Its auxiliary side fences are excluded below;
+  // the original campus fence continues underneath the opaque main pillars.
+  const gateShear=.5-(931-301)/(1500-70),gateTop=.5*(570+70*.4)+845.5-.4*(301+gateShear*70);
+  const gateURL=new URL('assets/playground-library/adapted/school-gate.png',document.currentScript.src).href;
+  const gateArt='<svg class="sr-art" data-art="school-village-gate" data-school-name="삼은초등학교" aria-label="삼은초등학교 열린 교문" width="632.8" height="397.6" viewBox="0 0 1582 994" style="position:absolute;left:570px;top:'+gateTop+'px;z-index:1275;pointer-events:none;overflow:visible">'+
+    '<defs><clipPath id="school-gate-core"><path d="M420 220H790V565H420V495H438V295H420Z M940 350H1140V570H1116V748L1048 780H940Z"/></clipPath><clipPath id="school-gate-pillar-face"><path d="M1048 566L1116 532V748L1048 780Z"/></clipPath></defs>'+
+    '<g transform="matrix(1 '+gateShear+' 0 1 0 0)"><image href="'+gateURL+'" width="1582" height="994" clip-path="url(#school-gate-core)"/>'+
+    // The supplied gate has a taller side rail attached to this pillar. Reuse
+    // its clean left-pillar stone face to remove that rail's stub as a whole;
+    // the untouched native school fence then meets the main pillar directly.
+    '<g data-art="school-gate-clean-pillar" clip-path="url(#school-gate-pillar-face)"><image href="'+gateURL+'" width="1582" height="994" transform="matrix(2.26666667 -.640375587 0 .985915493 -108 572.169014)"/></g>'+
+    '<text fill="#34453d" font-family="Noto Sans KR,Malgun Gothic,sans-serif" font-size="23" font-weight="700" text-anchor="middle" transform="translate(477 348) skewY(25)" aria-hidden="true">'+
+    [...'삼은초등학교'].map((letter,i)=>'<tspan x="0" y="'+(i*24)+'">'+letter+'</tspan>').join('')+'</text></g></svg>';
+  const art = materialPatch('provided-exterior-grass-material', 'overview', [1040,760,360,80], [-269,244,3714,1808], -100) + registeredComponents() + exteriorCleanup + gateFloor + gateArt;
   const scene = {
     id: 'playground-user-source-school', zone: 'playground', title: '우리 학교 운동장',
     width: 3714, height: 1808, bounds: { width: 3714, height: 1808 },
@@ -125,14 +143,14 @@
       { id: 'track', label: '운동장과 트랙', spawn: { x: 2119, y: 986 }, camera: { x: 2119, y: 1000, zoom: .92 } },
       { id: 'south-fence', label: '아래 울타리 길', spawn: { x: 2009, y: 1456 }, camera: { x: 2009, y: 1430, zoom: 1.05 } }
     ],
-    seats: [], backgroundBenches, walkAreas,
+    seats: [], backgroundBenches, walkAreas: [...walkAreas,{id:"open-school-gate-passage",points:[[790,1165],[985,1262],[950,1335],[755,1238]]}],
     missingSourceBounds: [],
-    solids,
+    solids: [...solids,{id:"school-gate-west-post",x:770,y:1231,radius:14},{id:"school-gate-east-post",x:987,y:1324,radius:14}],
     // Door proximity uses the walkable pavement immediately outside the
     // original threshold, rather than the lower terrace arrival point. The
     // orange-canopy east entrance is also a visible door into the same school.
     interactables: [
-      { id: 'playground-village-path', type: 'portal', target: 'village', targetDoor: 'village-school-path', x: 600, y: 1060, radius: 58, approach: { x: 600, y: 1060 }, arrival: { x: 640, y: 1050 }, hint: { x: 600, y: 1040 }, hintLabel: '숲속 마을 · F', label: '숲속 마을로', doorName: '마을로 가는 서쪽 길', hitRect: { x: 555, y: 1025, width: 90, height: 65 } },
+      { id: 'playground-village-path', type: 'portal', target: 'village', targetDoor: 'village-school-path', x: 880, y: 1260, radius: 70, approach: { x: 880, y: 1260 }, arrival: { x: 925, y: 1210 }, hint: { x: 880, y: 1240 }, exitAngle: -153, label: '숲속 마을로', doorName: '삼은초등학교 교문', hitRect: { x: 760, y: 1170, width: 250, height: 195 } },
       { id: 'school-main-door', type: 'portal', target: 'campus', x: 1515, y: 620, radius: 85, approach: { x: 1515, y: 620 }, arrival: { x: 1559, y: 676 }, hitRect: { x: 1442, y: 450, width: 132, height: 148 }, hint: { x: 1515, y: 436 }, label: '교실로 들어가기', doorName: '학교 정문' },
       { id: 'school-east-door', type: 'portal', target: 'campus', x: 2258, y: 410, radius: 75, approach: { x: 2258, y: 410 }, hitRect: { x: 2245, y: 255, width: 65, height: 125 }, hint: { x: 2330, y: 370 }, label: '교실로 들어가기', doorName: '학교 동쪽 문' }
     ],

@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "type": "provided-art-style-adaptation",
+  "file": "assets/playground-library/adapted/school-gate.png",
+  "sha256": "c101995616ac077207c0a65f5b9261e2f072b22d1cda9cc3b57365b7e0902dd0",
+  "source": "assets/playground-library/originals/playground-664d4d7c187e5a6d.png",
+  "sourceSHA256": "664d4d7c187e5a6d8d63ba67f3c0157695b87ac379e10376f7e20d65cadb68e1",
+  "instruction": "Transform the supplied ivory school perimeter fence into an open gate, preserving material, rail design, lighting and camera; user approved gate. Preserve original PNG.",
+  "schoolName": "삼은초등학교",
+  "nameRendering": "Six live SVG tspan characters vertically in the left pillar panel; no generated or misspelled raster text.",
+  "dimensions": [
+    1582,
+    994
+  ],
+  "scale": 0.4,
+  "x": 570,
+  "registration": {
+    "sourceFeet": [
+      [
+        70,
+        301
+      ],
+      [
+        1500,
+        931
+      ]
+    ],
+    "nativeFenceFootLine": [
+      0.5,
+      845.5
+    ],
+    "preserveVerticalPosts": true
+  },
+  "cleanup": "Clear only between the main gate pillars, including the complete old rail and shadow. Existing native rails extend under each opaque pillar. Reuse native asphalt along the original 1:2 diagonal. Never use the image bounding box as a cleanup mask.",
+  "assembly": "Use main pillars and the two open door leaves only; retain both original campus fence wings at their native coordinates. Adapted auxiliary rails are excluded because their height/spacing differs.",
+  "coreClipPolygons": [
+    "M420 220H790V565H420V495H438V295H420Z",
+    "M940 350H1140V570H1116V748L1048 780H940Z"
+  ],
+  "clearedWorldSpan": [
+    748,
+    1006
+  ],
+  "pillarFaceRepair": {
+    "source": "assets/playground-library/adapted/school-gate.png",
+    "sourceQuad": [
+      [
+        510,
+        325
+      ],
+      [
+        540,
+        310
+      ],
+      [
+        540,
+        523
+      ],
+      [
+        510,
+        538
+      ]
+    ],
+    "targetQuad": [
+      [
+        1048.0,
+        566.0
+      ],
+      [
+        1116.0,
+        532.0
+      ],
+      [
+        1116.0,
+        742.0
+      ],
+      [
+        1048.0,
+        776.0
+      ]
+    ],
+    "clip": "M1048 566L1116 532V748L1048 780Z",
+    "matrix": [
+      2.26666667,
+      -0.640375587,
+      0,
+      0.985915493,
+      -108,
+      572.169014
+    ],
+    "reason": "Reuse the clean stone face from the same gate artwork to replace the right auxiliary post and taller rail stubs; keep original PNG unchanged."
+  }
+}

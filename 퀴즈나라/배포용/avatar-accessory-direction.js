@@ -246,7 +246,7 @@
     if(view!=='front')for(const [el]of r.originals)attr(el,'visibility','hidden');
     if(profile){placeHead(r,options.anchors);attr(r.back,'transform',pose.upper.getAttribute('transform'));}
     if(backView)attr(r.rearAmbient,'transform',pose.upper.getAttribute('transform'));
-    svg.dataset.qpxAccessoryView=view;return profile;
+    if(svg.dataset.qpxAccessoryView!==view)svg.dataset.qpxAccessoryView=view;return profile;
   }
   function reset(svg){const r=rigs.get(svg);if(!r)return false;r.profile=false;r.view='front';for(const el of[r.head,r.neck,r.back,r.backStrap,r.rearHead,r.rearBody,r.rearAmbient])el.style.display='none';restore(r);svg.removeAttribute('data-qpx-accessory-view');return true;}
   function destroy(svg){const r=rigs.get(svg);if(!r)return false;reset(svg);for(const el of[r.head,r.neck,r.back,r.backStrap,r.rearHead,r.rearBody,r.rearAmbient])el.remove();rigs.delete(svg);return true;}

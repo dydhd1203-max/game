@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "date": "2026-10-04",
+  "status": "candidate-not-runtime-approved",
+  "generator": "OpenAI image_gen",
+  "file": "body-study-2026-10-04.png",
+  "sha256": "07bc847cbb833d0e32e0877233e33156b30bc8609abc59b799006144271e3abb",
+  "dimensions": [
+    1448,
+    1086
+  ],
+  "layout": {
+    "columns": [
+      "front",
+      "right",
+      "back"
+    ],
+    "rows": [
+      "male",
+      "female"
+    ]
+  },
+  "purpose": "Existing character references used to study relaxed shoulders, neck/collar continuity, connected sleeves and shoes. Candidate only. Keep original runtime faces/hair and fixed joints. Do not replace the dress-up rig with flattened full-body frames.",
+  "review": {
+    "improvements": [
+      "organic shoulder-to-sleeve contour",
+      "neck/collar continuity",
+      "shoe opening and calf shape"
+    ],
+    "unresolved": [
+      "face and proportions drift from original; original heads must be retained",
+      "transparent edge color speckles",
+      "no motion frames or independent garment layers yet",
+      "female print and male emblem are not symmetric; do not mirror as left-view original"
+    ]
+  },
+  "higgsfield": {
+    "imageRequest": "rejected: Requires basic plan or higher",
+    "autospriteRequest": "rejected: Job set type not supported: autosprite",
+    "generationStarted": false,
+    "runReferenceMediaId": "48c309c1-a949-47de-97ea-dacb2b1ce10b"
+  },
+  "runtimeIncluded": false
+}

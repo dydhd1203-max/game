@@ -11,6 +11,14 @@
     f:{url:'assets/sd-heads-back-female.png',rects:[[45,95,269,229],[406,97,279,231],[742,76,326,295],[1101,86,326,290],[50,407,289,310],[400,442,304,236],[759,432,302,260],[1108,423,316,285],[45,757,284,238],[406,745,301,257],[773,746,265,252],[1142,740,241,303]],anchors:[[179,317],[548,320],[906,295],[1252,285],[179,644],[548,669],[908,670],[1265,642],[182,983],[552,990],[905,986],[1267,963]]}
   };
   const backFrames=new Map(),backCache=new Map();
+  // Neck-only contours traced on the short/bob source portraits. The torso
+  // owns this skin; the old head-neck stump must not remain as a second rim.
+  // These are per hairstyle: never erase a long hairstyle with a generic box.
+  const neckCuts={
+    m:{0:{profile:'M14.25 25.7Q15.6 26.4 18.55 26.67Q18.2 27.6 18.5 28.3L18.7 29.4H12.55V28Q13.45 27.6 13.75 26.65Z',back:'M14.35 26.75Q15.4 26.45 16.1 26.62Q17 26.42 17.5 26.73Q17.7 27.55 18.5 28.15L18.6 29.4H12.7V28.05Q13.9 27.35 14.35 26.75Z'}},
+    f:{1:{profile:'M15.85 25.55Q16.3 25.85 17.12 26.02Q16.9 26.8 17.25 27.45Q17.7 27.9 18.3 28.05L18.45 29.4H12.65V27.85Q14.85 27.25 15.4 26.8Q15.9 26.2 15.85 25.55Z'}}
+  };
+  function trimNeck(ctx,sex,tile,view){const cut=neckCuts[sex]?.[tile]?.[view];if(!cut)return;ctx.save();ctx.scale(12,12);ctx.globalCompositeOperation='destination-out';ctx.fill(new Path2D(cut));ctx.restore();}
   const atlas={ready:false,backReady:false,columns:4,rows:3,style:'illustrated-profile',sourceDimensions:{},backSourceDimensions:{},normalizationCount:0,backNormalizationCount:0,cacheHits:0};
   let serial=0;
   const clamp=(v,a=0,b=255)=>Math.max(a,Math.min(b,v));
@@ -105,6 +113,7 @@
     }
     ctx.putImageData(out,0,0);const target=document.createElement('canvas');target.width=SIZE;target.height=HEIGHT;
     const paint=target.getContext('2d'),m=frame.geometry;paint.imageSmoothingEnabled=true;paint.imageSmoothingQuality='high';paint.drawImage(canvas,m.x*12,m.y*12,frame.w*m.scale*12,frame.h*m.scale*12);
+    trimNeck(paint,sex,tile,'back');
     const result=target.toDataURL('image/png');atlas.backNormalizationCount++;if(backCache.size>=160)backCache.delete(backCache.keys().next().value);backCache.set(key,result);return result;
   }
   function preparePatch(frame,recolored){
@@ -135,13 +144,21 @@
     const frame=frames.get(sex)?.[tile];if(!frame)return null;
     const base=rgb(skin),dye=rgb(color),source=frame.data,c=document.createElement('canvas');c.width=frame.w;c.height=frame.h;const ctx=c.getContext('2d'),out=ctx.createImageData(frame.w,frame.h),d=out.data,eye=frame.eye;
     for(let i=0;i<source.length;i+=4){if(!source[i+3])continue;const p=i/4,r=source[i],g=source[i+1],b=source[i+2],x=p%frame.w,y=Math.floor(p/frame.w);let col=[r,g,b];const inEye=x>eye.left-8&&x<eye.right+8&&y>eye.top-12&&y<eye.bottom+8;
-      if(frame.faceMask[p]||frame.nearFace[p]&&r>140&&g>80&&b>90&&r>g+15&&g<b*1.08){const shade=(r*.22+g*.59+b*.19)/219,warmth=Math.max(0,(r-g-34)/78);col=base.map((v,k)=>clamp(Math.round(v*shade+(k===0?10:k===1?-15:-5)*warmth)));}
+      const wx=frame.geometry.x+x*frame.geometry.scale,wy=frame.geometry.y+y*frame.geometry.scale;
+      const neckSkin=wx>13.5&&wx<18.5&&wy>25.3&&wy<29&&r>150&&g>90&&b>80&&g/r>.53&&b/g>.72;
+      if(neckSkin||frame.faceMask[p]||frame.nearFace[p]&&r>140&&g>80&&b>90&&r>g+15&&g<b*1.08){const shade=(r*.22+g*.59+b*.19)/219,warmth=Math.max(0,(r-g-34)/78);col=base.map((v,k)=>clamp(Math.round(v*shade+(k===0?10:k===1?-15:-5)*warmth)));}
       else if(!inEye&&r>g*1.025&&g>b*.98&&r-g<117&&g-b<83&&r>24){const lum=r*.25+g*.59+b*.16,gain=lum/102,shine=Math.max(0,lum-160)*.38;col=dye.map(v=>clamp(Math.round(v*gain+shine)));}
       if(inEye&&(expression==='sparkle'||expression==='cat')&&(g>r+7||b>r+9)&&r<184&&g<190&&b<190){const iris=rgb(expression==='cat'?'#e2b654':'#73b9d4'),tone=clamp((r*.24+g*.61+b*.15)/120,.25,1.4);col=iris.map(v=>clamp(Math.round(v*tone)));}
       d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=source[i+3];
     }
     ctx.putImageData(out,0,0);const patch=preparePatch(frame,d),m=frame.geometry;
-    const normal=source=>{const canvas=document.createElement('canvas');canvas.width=SIZE;canvas.height=HEIGHT;const paint=canvas.getContext('2d');paint.imageSmoothingEnabled=true;paint.imageSmoothingQuality='high';paint.drawImage(source,m.x*12,m.y*12,frame.w*m.scale*12,frame.h*m.scale*12);return canvas.toDataURL('image/png');};
+    const normal=source=>{const canvas=document.createElement('canvas');canvas.width=SIZE;canvas.height=HEIGHT;const paint=canvas.getContext('2d');paint.imageSmoothingEnabled=true;paint.imageSmoothingQuality='high';paint.drawImage(source,m.x*12,m.y*12,frame.w*m.scale*12,frame.h*m.scale*12);
+      // The source portrait includes an outlined neck stump. The articulated
+      // body owns the lower neck/collar; retaining both creates a second rim.
+      // Only this measured lower-neck aperture is removed, after normalization.
+      // Jaw, ears, hair and head geometry are not shifted or scaled to hide it.
+      trimNeck(paint,sex,tile,'profile');
+      return canvas.toDataURL('image/png');};
     const result={open:normal(c),patch:normal(patch),eye:[m.x+(eye.left+eye.right)/2*m.scale,m.y+(eye.top+eye.bottom)/2*m.scale],width:(eye.right-eye.left)*m.scale*.57};
     atlas.normalizationCount++;if(cache.size>=160)cache.delete(cache.keys().next().value);cache.set(key,result);return result;
   }
@@ -236,6 +253,7 @@
     }
   }
   function profileWear(r,profile,floor=false){
+    const key=profile+':'+floor;if(r.profileWearKey===key)return;r.profileWearKey=key;
     for(const {original,layer,visibility,seatedClip}of r.profileWear||[]){value(original,'visibility',profile?'hidden':visibility);layer.style.display=profile?'':'none';if(seatedClip)value(layer,'clip-path',profile&&floor?seatedClip:null);}
   }
   function prepareBackWear(r){
