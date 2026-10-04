@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-04T13:27:35.919Z",
+  "builtAt": "2026-10-04T14:16:48.317Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -16,8 +16,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 323346,
-      "sha256": "c6cdd295a9fae8ba706f3991cf6432c7b3a8f215a55909ed6d9100ff42a0107e"
+      "bytes": 323394,
+      "sha256": "1335d27d9bcda6d8a982fd860af69c57359bbc9b36ce90a7ce5de62e91aa6761"
     },
     {
       "path": "avatar-image.js",
@@ -141,13 +141,13 @@
     },
     {
       "path": "forest-adventure.js",
-      "bytes": 9712,
-      "sha256": "c999f67f483e042d7ac3ce866e511f07a2d66b0dbdcbeee8f58dd61fc52b64cc"
+      "bytes": 7595,
+      "sha256": "040586acbc9dc97d4e27842c8c81e607890c117d78b1023da7292ef23b43c43f"
     },
     {
       "path": "forest-village-scene.js",
-      "bytes": 23575,
-      "sha256": "da8ae74a7835dbed0e8e923abf1c018ea0c461c2c66c2569ed9fd5e89eeb4e80"
+      "bytes": 19489,
+      "sha256": "b8323fa1786ea0110ed4cb875e9da942513d584696cdd48e30605b083384f083"
     },
     {
       "path": "forest-village-world.css",
@@ -166,23 +166,28 @@
     },
     {
       "path": "school-room-scene.js",
-      "bytes": 16545,
-      "sha256": "111269d0603e7fc241eb68867344b977d41b0a1709d96eed8fb0f17ebbb248fc"
+      "bytes": 16732,
+      "sha256": "9fe85e4d52202eced3cc74cd3e046427c516edd437df317c599e8a245ae34c8d"
     },
     {
       "path": "avatar-run-input.js",
-      "bytes": 1621,
-      "sha256": "3d978e5e6e1243333aaeb8d6fe6c194ac0f07d56390b7afb31ed3db09b19ac46"
+      "bytes": 1659,
+      "sha256": "82216a640b278fda67cab4e51ba306318b33728d27deb499cc82d0b87f427376"
+    },
+    {
+      "path": "map-avatar-display.js",
+      "bytes": 11584,
+      "sha256": "20db0f4e4f19c1dd5ebbd5f8545e085e572bfb060067f276b09162848b3b8ecc"
     },
     {
       "path": "school-room-world.js",
-      "bytes": 46804,
-      "sha256": "6a211ee5a1afaeb74f37afe37f1469bed35d1591bcb08574c5e4c649267d88e7"
+      "bytes": 48773,
+      "sha256": "a3e92953b7dfd696022a721c52fbc61d32a4721a998ced2fe578a788dbc6b5a1"
     },
     {
       "path": "school-room-world.css",
-      "bytes": 5399,
-      "sha256": "0ec3c0a9e6cd414121362311511a0264722b7fb5321adafc94b2efd4de101b89"
+      "bytes": 5469,
+      "sha256": "986ed21968fed1d7484af810aea57d41d4b18f822a09192d7529bef87153b6b6"
     },
     {
       "path": "playground-scene.js",
@@ -401,8 +406,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 25699,
-      "sha256": "63cbcc80b3ec8bdce33d74f2c56da434aa69976618e2406f830cdd372c07ae51"
+      "bytes": 25702,
+      "sha256": "a937538891379ceff61a337352a33f9e9547e46a568cbaa871bb714ef7d9ca3d"
     },
     {
       "path": "avatar-foundation.css",

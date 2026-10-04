@@ -7,6 +7,7 @@ body.qp-campus .qp-demo-toolbar{display:none}
 .sr-art{display:block}
 .sr-ground{position:absolute;inset:0;z-index:0;pointer-events:none}
 .sr-actor{position:absolute;left:0;top:0;width:1px;height:1px;will-change:transform;cursor:pointer}
+.sr-actor-visual{position:absolute;left:0;top:0;transform-origin:0 0}
 .sr-actor.is-me{cursor:default}
 .sr-avatar{position:absolute;pointer-events:none;contain:layout style}
 .sr-avatar>svg{display:block;overflow:visible;will-change:transform}

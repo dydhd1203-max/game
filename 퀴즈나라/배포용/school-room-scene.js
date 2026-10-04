@@ -92,6 +92,7 @@
     return art('source-stage', 1142, 390, 574, 119, svg, 1);
   }
   const DESK_PATHS = ['M5 2H57Q61 2 61 7V29Q61 35 57 35H5Q1 35 1 30V7Q1 2 5 2Z', 'M5 35H14V61H5Z', 'M49 35H59V61H49Z'];
+  const CHAIR_BACK_PATHS = ['M15 35H49V56H44V67H39V56H25V67H20V56H15Z'];
   const CHAIR_PATHS = ['M15 35H49V66L48 69V85H39V76H25V85H16V69L15 66Z'];
   const seats = [];
   const solids = [
@@ -108,16 +109,16 @@
     { id: 'hall-noticeboard-top', x: 2077, y: 462, width: 791, height: 164 },
     { id: 'hall-noticeboard-bottom', x: 2077, y: 693, width: 791, height: 164 }
   ];
-  // Keep the source's five desk pairs and native furniture size, but leave an
-  // actual walking aisle inside every pair, between pairs and between rows.
-  // The narrowest 27px aisle contains a legal 12px path-grid node for radius 7.
-  const deskXs = [99, 189, 299, 389, 499, 589, 699, 789, 899, 989];
-  const deskYs = [518, 630, 742];
+  // Uniform 45px column aisles and 50px row aisles, measured between
+  // furniture footprints. Thirty seats and the native artwork remain intact.
+  const deskXs = Array.from({length:10},(_,i)=>61+i*107);
+  const deskYs = [520,655,790];
   deskYs.forEach((top, row) => deskXs.forEach((left, col) => {
     const x = left + 860, id = 'seat-' + (row * 10 + col + 1), side = col % 2 === 0 ? -1 : 1;
     const sx = x + 31, sy = top + 73;
-    const hitRect = { x, y: top, width: 62, height: 90 };
-    seats.push({ id, label: (row * 10 + col + 1) + '번 자리', x: sx, y: sy, sitX: sx, sitY: sy, sitDepth: top + 63, sitVisualYOffset: 0, approach: { x: sx + side * 43, y: sy }, exit: { x: sx + side * 43, y: sy }, rect: hitRect, hitRect, row: row + 1, col: col + 1 });
+    const rect = { x, y: top, width: 62, height: 90 };
+    const hitRect = {x:x+15,y:top+35,width:34,height:35};
+    seats.push({ id, label: (row * 10 + col + 1) + '번 자리', x: sx, y: sy, sitX: sx, sitY: sy, sitDepth: top + 63, sitVisualYOffset: 0, seatSurfaceY: top+60, approach: { x: sx + side * 43, y: sy }, exit: { x: sx + side * 43, y: sy }, rect, hitRect, row: row + 1, col: col + 1 });
     solids.push({ id: id + '-desk', seatId: id, x, y: top, width: 62, height: 35 });
     solids.push({ id: id + '-desk-left-leg', seatId: id, x: x + 5, y: top + 35, width: 9, height: 26 });
     solids.push({ id: id + '-desk-right-leg', seatId: id, x: x + 49, y: top + 35, width: 10, height: 26 });
@@ -135,6 +136,7 @@
     for (const seat of seats) {
       const x = seat.rect.x, y = seat.rect.y;
       html += crop(seat.id + '-chair', 'classroom', [109, 506, 62, 90], x, y, y + 55, CHAIR_PATHS, ' data-seat-art="' + seat.id + '"');
+      html += crop(seat.id + '-chair-back', 'classroom', [109, 506, 62, 90], x, y, y + 86, CHAIR_BACK_PATHS, ' data-seat-back="' + seat.id + '"');
       html += crop(seat.id + '-desk', 'classroom', [109, 506, 62, 90], x, y, y + 61, DESK_PATHS, ' data-seat-art="' + seat.id + '" data-sr-seat="' + seat.id + '"');
     }
     return html;
@@ -193,7 +195,7 @@
   const scene = {
     id: 'school-room', width: WIDTH, height: HEIGHT,
     bounds: { width: WIDTH, height: HEIGHT },
-    spawn: { x: 1430, y: 790 }, cameraHome: { x: 1430, y: 450, zoom: 0.84 },
+    spawn: { x: 1430, y: 891 }, cameraHome: { x: 1430, y: 450, zoom: 0.84 },
     seats, solids,
     interactables: [
       { id: 'class-board', type: 'board', x: 1513, y: 470, radius: 135, approach: { x: 1513, y: 470 }, hitRect: { x: 1157, y: 78, width: 522, height: 317 }, label: '칠판 · 수업과 퀴즈' },

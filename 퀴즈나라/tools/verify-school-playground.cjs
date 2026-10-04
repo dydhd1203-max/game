@@ -132,7 +132,7 @@ async function focus(page){await page.bringToFront();await page.locator('.school
  const movingFrames=speedFrames.slice(1).map((f,i)=>({distance:f.x-speedFrames[i].x,dt:Math.min(.035,(f.time-speedFrames[i].time)/1000)})).filter(f=>f.distance>.01);
  assert(movingFrames.length>=20,'Real movement must paint at least twenty advancing frames');
  const simulatedSeconds=movingFrames.reduce((n,f)=>n+f.dt,0),distance=movingFrames.reduce((n,f)=>n+f.distance,0),measuredSpeed=distance/simulatedSeconds;
- assert(Math.abs(measuredSpeed-225)<2,'Actual keyboard displacement must match 225px/s; measured '+measuredSpeed);
+ assert(Math.abs(measuredSpeed-337.5)<2,'Actual keyboard displacement must match 337.5px/s; measured '+measuredSpeed);
  const after=await state(a);assert(after.x>before.x+50,'Actual right key must advance the avatar through the source field');
  assert(await a.evaluate(p=>QPGame.getPlayground().canStand(p.x,p.y),after));
  await shot(a,'07-운동장-축구장-실제보행');

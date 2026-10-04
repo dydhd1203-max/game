@@ -19,5 +19,5 @@
     function reset(){held.clear();tap=null;runCode=null;}
     return Object.freeze({down,up,reset,isRunning:()=>Boolean(runCode&&held.has(runCode)),has:direction=>[...held.values()].some(value=>value.direction===direction)});
   }
-  const api=Object.freeze({create,directions,walkSpeed:225,runSpeed:337.5,windowMs:250});root.QPRunInput=api;if(typeof module!=='undefined')module.exports=api;
+  const api=Object.freeze({create,directions,walkSpeed:337.5,runSpeed:506.25,walkCycleMs:480,runCycleMs:460/1.5,windowMs:250});root.QPRunInput=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window==='undefined'?globalThis:window);

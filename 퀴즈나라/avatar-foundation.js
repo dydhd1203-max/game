@@ -2,7 +2,7 @@
 (function(root){
   'use strict';
   const NS='http://www.w3.org/2000/svg',mounted=new WeakMap(),headCache=new Map();let serial=0;
-  const SPEC=Object.freeze({version:1,waist:38.1,knee:41.3,ankle:44.15,floor:46.05,hip:[13.65,18.35],shoulder:[[12.7,29.9],[19.3,29.9]],profileShoulder:[[15.6,29.9],[15.85,29.9]],elbow:[[12.15,34.05],[19.85,34.05]],wrist:[[12.2,36.7],[19.8,36.7]],walkSpeed:225,runSpeed:337.5});
+  const SPEC=Object.freeze({version:1,waist:38.1,knee:41.3,ankle:44.15,floor:46.05,hip:[13.65,18.35],shoulder:[[12.7,29.9],[19.3,29.9]],profileShoulder:[[15.6,29.9],[15.85,29.9]],elbow:[[12.15,34.05],[19.85,34.05]],wrist:[[12.2,36.7],[19.8,36.7]],walkSpeed:337.5,runSpeed:506.25});
   // Independently traced neck-only boundaries on the original short/bob
   // directional paintings. Curves preserve the hair that overlaps the nape;
   // a rectangular head crop would cut notches into that hair.

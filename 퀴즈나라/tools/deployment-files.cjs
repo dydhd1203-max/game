@@ -12,7 +12,7 @@ module.exports=[
   'assets/forest-village-library/original-resolution/maps/camp.png',
   'forest-adventure.js','forest-village-scene.js','forest-village-world.css',
   'assets/forest-village-library/adventure/firefly-glade.png','assets/forest-village-library/adventure/wood-sign.png',
-  'school-room-scene.js','avatar-run-input.js','school-room-world.js','school-room-world.css','playground-scene.js','village-presence.js',
+  'school-room-scene.js','avatar-run-input.js','map-avatar-display.js','school-room-world.js','school-room-world.css','playground-scene.js','village-presence.js',
   'assets/classroom-library/originals/classroom-e41eb583796fc7b8.png',
   'assets/classroom-library/originals/classroom-4dcb960dde3f19d2.png',
   'assets/classroom-library/originals/classroom-70f5744d42cc639d.png',

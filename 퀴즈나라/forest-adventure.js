@@ -7,7 +7,6 @@
   const origin={x:0,y:0},scale=2208/1202,deckHeight=360;
   const point=(x,y,height=0)=>({x:origin.x+x*scale,y:origin.y+y*scale,height});
   const points=list=>list.map(([x,y])=>{const p=point(x,y);return[p.x,p.y];});
-  const cachedCutouts=new Map();
 
   function sign(b,id,text,x,y,size){
     const depth=Math.round(y+size*.86);
@@ -50,30 +49,9 @@
     s.reviewRoutes.push({id:'adventure-entry',from:s.spawn,to:s.adventure.entry},{id:'mushroom-trail',from:s.adventure.entry,to:mushrooms[5]},{id:'moon-garden',from:mushrooms[5],to:s.adventure.ring},{id:'reading-hollow',from:s.adventure.ring,to:s.adventure.reading});
   }
 
-  // The autumn canopy was an opaque rectangle of ground inside a loose polygon.
-  // Remove only green background pixels; orange leaves and brown bark are kept
-  // byte-for-byte. The registered polygon still bounds unrelated objects.
-  function autumnAlpha(data){
-    for(let i=0;i<data.length;i+=4){const r=data[i],g=data[i+1],b=data[i+2];if(g>r*1.015&&g>b*1.12)data[i+3]=0;}
-    return data;
-  }
-  function makeCutout(node,part){
-    const source=node.querySelector('image'),url=source.getAttribute('href'),key=url+':'+part.cutout+':'+part.sourceRect.join(':')+':'+part.polygon.flat().join(':');
-    if(!cachedCutouts.has(key))cachedCutouts.set(key,(async()=>{
-      const im=new Image();im.src=url;await im.decode();
-      const [x,y,w,h]=part.sourceRect,sw=+source.getAttribute('width'),sh=+source.getAttribute('height');
-      const sx=im.naturalWidth/sw,sy=im.naturalHeight/sh,c=document.createElement('canvas');c.width=Math.ceil(w*sx);c.height=Math.ceil(h*sy);const cx=c.getContext('2d',{willReadFrequently:true});
-      cx.save();cx.scale(sx,sy);cx.beginPath();part.polygon.forEach(([px,py],i)=>i?cx.lineTo(px-x,py-y):cx.moveTo(px-x,py-y));cx.closePath();cx.clip();cx.drawImage(im,-x,-y,sw,sh);cx.restore();
-      const pixels=cx.getImageData(0,0,c.width,c.height);autumnAlpha(pixels.data);cx.putImageData(pixels,0,0);return c;
-    })());
-    return cachedCutouts.get(key);
-  }
   function mount(world,scene,announce){
     let dead=false;const a=scene.adventure,actors=new Map(),found=new Set(),stepped=new Set();
     const lights=new Map(a?[...a.mushrooms,...a.runes].map(p=>[p.id,world.querySelector('[data-play="'+p.id+'"]')]):[]);
-    for(const part of scene.parts||[]){if(!['autumn','pink'].includes(part.cutout))continue;const node=world.querySelector('[data-art="'+part.id+'"]');if(!node)continue;
-      node.style.visibility='hidden';makeCutout(node,part).then(c=>{if(dead||!node.isConnected)return;const copy=document.createElement('canvas');copy.width=c.width;copy.height=c.height;copy.getContext('2d').drawImage(c,0,0);copy.className=node.getAttribute('class');copy.style.cssText=node.style.cssText;copy.style.visibility='';copy.dataset.art=part.id;copy.dataset.cutout=part.cutout;copy.dataset.floorY=String(part.depth);node.replaceWith(copy);}).catch(()=>{if(!dead)node.dataset.cutoutError='true';});
-    }
     function actorFrame(id,p,dt,self){
       if(!a)return null;
       let q=actors.get(id);if(!q){q={contact:null,elapsed:1,seen:false};actors.set(id,q);}
@@ -89,5 +67,5 @@
     }
     return {actorFrame,forget:id=>actors.delete(id),destroy(){dead=true;actors.clear();lights.clear();},inspect:()=>({mushrooms:stepped.size,moonStones:found.size,actors:actors.size})};
   }
-  window.QPForestAdventure=Object.freeze({build,sign,mount,autumnAlpha});
+  window.QPForestAdventure=Object.freeze({build,sign,mount});
 })();

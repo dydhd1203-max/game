@@ -96,8 +96,8 @@ const {chromium}=require('playwright');
   const speed=await page.evaluate(async()=>{const w=__inputFixture.world,start=w.getState();w.focus();let seconds=0,last=performance.now();const sampling=new Promise(resolve=>{function frame(now){seconds+=Math.min(.035,(now-last)/1000);last=now;if(seconds>=.5)resolve();else requestAnimationFrame(frame);}requestAnimationFrame(frame);});window.__speedSample={start,sampling,getSeconds:()=>seconds};return true;});
   assert.ok(speed);await page.keyboard.down('ArrowRight');await page.evaluate(()=>__speedSample.sampling);await page.keyboard.up('ArrowRight');await waitIdle();
   const measurement=await page.evaluate(()=>{const end=__inputFixture.world.getState(),s=__speedSample;return{distance:Math.hypot(end.x-s.start.x,end.y-s.start.y),seconds:s.getSeconds(),allLegal:__inputFixture.publications.every(p=>p.seatId||__inputFixture.world.canStand(p.x,p.y))};});
-  assert.ok(measurement.distance/measurement.seconds>205&&measurement.distance/measurement.seconds<245,JSON.stringify(measurement));assert.ok(measurement.allLegal);
-  pass('Actual keyboard speed is 225 units/s with legal collision subdivision',measurement);
+  assert.ok(measurement.distance/measurement.seconds>307.5&&measurement.distance/measurement.seconds<367.5,JSON.stringify(measurement));assert.ok(measurement.allLegal);
+  pass('Actual keyboard speed is 337.5 units/s with legal collision subdivision',measurement);
 
   // Click a real chair again, then cancel by leaving before the controlled grant.
   const click=await page.evaluate(()=>{const f=__inputFixture,s=f.scene.seats[0],v=f.host.querySelector('.school-room-world').getBoundingClientRect(),c=f.world.getState().camera;return{x:v.x+(s.rect.x+31-c.x)*c.scale,y:v.y+(s.rect.y+50-c.y)*c.scale};});

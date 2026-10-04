@@ -3,7 +3,8 @@
 (() => {
   'use strict';
   const KEYS={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down'};
-  const SPEED=225, RUN_SPEED=337.5, AVATAR_HEIGHT=120, RADIUS=7;
+  const SPEED=window.QPRunInput.walkSpeed, RUN_SPEED=window.QPRunInput.runSpeed, AVATAR_HEIGHT=120, RADIUS=7;
+  const WALK_CYCLE=window.QPRunInput.walkCycleMs, RUN_CYCLE=window.QPRunInput.runCycleMs;
   let portalReadyAt=0;
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const finite=(v,f=0)=>Number.isFinite(Number(v))?Number(v):f;
@@ -125,6 +126,8 @@
     const sitButton=controls.querySelector('[data-tool="sit"]'),zoomOutButton=tools.querySelector('[data-tool="zoom-out"]');
     const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)');
     function announce(message){notice.textContent=message;notice.classList.add('is-visible');clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>notice.classList.remove('is-visible'),2900);}
+    const display=window.QPMapAvatarDisplay;
+    const treeVisibility=display?.forScene(scene);
     const forestPlay=forest?window.QPForestAdventure?.mount(world,scene,announce):null;
     const focus=()=>{if(!dead)viewport.focus({preventScroll:true});};
     // The host owns its modal state. Scanning every SVG descendant for a
@@ -134,7 +137,7 @@
     function updateArt(actor,av){
       const clean=cleanAvatar(av),key=JSON.stringify(clean);if(actor.avatarKey===key)return;
       if(actor.svg)window.QPAvatarPose?.destroy(actor.svg);
-      actor.avatarKey=key;actor.poseKey='';actor.art.innerHTML=options.renderAvatar(clean,AVATAR_HEIGHT,3);actor.svg=actor.art.querySelector('svg');
+      actor.avatarKey=key;actor.seatFitKey='';actor.poseKey='';actor.art.innerHTML=options.renderAvatar(clean,AVATAR_HEIGHT,3);actor.svg=actor.art.querySelector('svg');
       // Pets and orbiting effects animate independently of the dressed body.
       // Give them a separate paint surface so a wing flap cannot invalidate
       // every clipped sleeve/leg in a resting avatar. Keep the same viewBox,
@@ -146,11 +149,12 @@
       const view=actor.svg?.viewBox.baseVal,vh=view?.height||56,vw=view?.width||32,foot=Number(actor.svg?.querySelector('.qpx-contact-shadow')?.getAttribute('cy'))||52.37;
       const paintedHeight=actor.svg?.height.baseVal.value||AVATAR_HEIGHT,paintedWidth=actor.svg?.width.baseVal.value||paintedHeight*vw/vh,footHeight=paintedHeight*foot/vh;
       actor.art.style.left=-paintedWidth/2+'px';actor.art.style.top=-footHeight+'px';actor.name.style.top=-(footHeight+17)+'px';actor.bubble.style.top=-(footHeight+43)+'px';
+      actor.footHeight=footHeight;actor.paintScale=paintedHeight/vh;actor.paintWidth=paintedWidth;
       window.QPAvatarPose?.prepare(actor.svg);
     }
     function makeActor(player,self){
-      const node=element('div','sr-actor'+(self?' is-me':''));node.dataset.uid=String(player.uid);const art=element('div','sr-avatar'),name=element('span','sr-player-name',String(player.name||'친구')+(self?' · 나':'')),bubble=element('span','sr-bubble');bubble.hidden=true;node.append(art,name,bubble);world.append(node);
-      const actor={node,art,name,bubble,svg:null,poseKey:'',poseSlot:actors.size%6,avatarKey:'',current:{x:player.x,y:player.y},target:player,self};updateArt(actor,player.avatar||avatar);
+      const node=element('div','sr-actor'+(self?' is-me':''));node.dataset.uid=String(player.uid);const art=element('div','sr-avatar'),name=element('span','sr-player-name',String(player.name||'친구')+(self?' · 나':'')),bubble=element('span','sr-bubble');bubble.hidden=true;const visual=element('div','sr-actor-visual');visual.append(art,name,bubble);node.append(visual);world.append(node);
+      const actor={node,visual,art,name,bubble,svg:null,poseKey:'',poseSlot:actors.size%6,avatarKey:'',current:{x:player.x,y:player.y},target:player,self};updateArt(actor,player.avatar||avatar);
       if(!self){node.setAttribute('role','button');node.tabIndex=0;node.setAttribute('aria-label',String(player.name||'친구')+'에게 인사하기');node.addEventListener('click',e=>{e.stopPropagation();if(distance(state,actor.current)<110)greet('wave');else moveTo(actor.current.x,actor.current.y);focus();});node.addEventListener('keydown',e=>{if(e.code==='Enter'){e.preventDefault();node.click();}});}
       return actor;
     }
@@ -323,7 +327,21 @@
       const p=actor.self?state:actor.target,seat=p.seatId&&p.pose==='sit'&&seatMap.get(p.seatId),target=seat?seatPoint(seat):p;
       const hop=forestPlay?.actorFrame(actor.uid||actor.node.dataset.uid,p,dt,actor.self);
       if(actor.self||seat||distance(actor.current,target)>250)actor.current={x:target.x,y:target.y};else{const amount=Math.min(1,dt*12);actor.current.x+=(target.x-actor.current.x)*amount;actor.current.y+=(target.y-actor.current.y)*amount;}
-      actor.node.style.transform='translate('+actor.current.x.toFixed(2)+'px,'+(actor.current.y-(reduced?.matches?0:hop?.lift||0)+(seat?finite(seat.sitVisualYOffset,0)+(AVATAR_HEIGHT-96)*.185:0)).toFixed(2)+'px)';actor.node.style.zIndex=String(Math.round(seat?(seat.depth??seat.sitDepth??seatPoint(seat).y-3):actor.current.y+(finite(p.height)>0?finite(scene.elevatedDepth,4000):0)));actor.node.dataset.height=String(finite(p.height));actor.node.classList.toggle('is-seated',Boolean(seat));actor.node.classList.toggle('is-floor-seated',p.pose==='sit-floor');if(actor.node.dataset.seatId!==(seat?.id||''))actor.node.dataset.seatId=seat?.id||'';
+      // Camera zoom changes terrain only. Art and labels keep one screen size
+      // in every shared space; position/collision continue in world units.
+      const visualScale=(display?.screenScale??.76)/scale;
+      actor.visual.style.transform='scale('+visualScale+')';
+      const placeAtFeet=()=>{
+        const seatedOffset=seat?finite(seat.seatSurfaceY,seatPoint(seat).y-13)-actor.current.y+(actor.footHeight-actor.paintScale*(actor.seatedHipY??39.25))*visualScale:0;
+        actor.node.style.transform='translate('+actor.current.x.toFixed(2)+'px,'+(actor.current.y-(reduced?.matches?0:hop?.lift||0)+seatedOffset).toFixed(2)+'px)';
+      };
+      placeAtFeet();
+      const trees=!seat&&p.pose!=='climb'?(treeVisibility?.overlaps({...actor.current,height:finite(p.height)},actor.paintWidth*visualScale,actor.footHeight*visualScale)||[]):[];
+      actor.node.classList.toggle('is-behind-tree',trees.length>0);
+      actor.node.dataset.tree=trees.map(t=>t.id).join(',');
+      const lift=reduced?.matches?0:hop?.lift||0;
+      for(const svg of actor.art.children)display?.maskAvatar(svg,trees,actor.current.x-actor.paintWidth/2*visualScale,actor.current.y-lift-actor.footHeight*visualScale,visualScale);
+      actor.node.style.zIndex=String(Math.round(seat?(seat.depth??seat.sitDepth??seatPoint(seat).y-3):actor.current.y+(finite(p.height)>0?finite(scene.elevatedDepth,4000):0)));actor.node.dataset.height=String(finite(p.height));actor.node.classList.toggle('is-seated',Boolean(seat));actor.node.classList.toggle('is-floor-seated',p.pose==='sit-floor');if(actor.node.dataset.seatId!==(seat?.id||''))actor.node.dataset.seatId=seat?.id||'';
       const margin=200,visible=actor.self||actor.current.x>=camera.x-margin&&actor.current.x<=camera.x+viewportWidth/scale+margin&&actor.current.y>=camera.y-margin&&actor.current.y<=camera.y+viewportHeight/scale+margin;
       if(actor.offscreen!==!visible){actor.offscreen=!visible;actor.node.hidden=!visible;actor.art.classList.toggle('sr-motion-paused',!visible);}
       if(!visible){actor.poseKey='';return;}
@@ -333,15 +351,21 @@
       // gestures update immediately, and the local player keeps every frame.
       const poseKey=[pose,seat?.id,active,kind,p.direction,p.facing].join(':');
       if(actor.self||p.moving||active||actor.poseKey!==poseKey||actor.poseSlot===poseTurn){
-      window.QPAvatarPose?.apply(actor.svg,{action:pose,seatMode:seat?'desk':p.pose==='sit-floor'?'floor':undefined,direction:seat?(seat.direction||'back'):active?'front':p.direction||'front',facing:p.facing===-1?'left':p.facing===1?'right':p.facing||'right',phase:p.pose==='climb'?((finite(p.height)/84)%1+1)%1:actor.self?phase:now/(p.pose==='run'?460:720),grounded:!hop||reduced?.matches,vy:hop?.vy,gesture:kind,gestureProgress:progress});
+      window.QPAvatarPose?.apply(actor.svg,{action:pose,seatMode:seat?'desk':p.pose==='sit-floor'?'floor':undefined,direction:seat?(seat.direction||'back'):active?'front':p.direction||'front',facing:p.facing===-1?'left':p.facing===1?'right':p.facing||'right',phase:p.pose==='climb'?((finite(p.height)/84)%1+1)%1:actor.self?phase:now/(p.pose==='run'?RUN_CYCLE:WALK_CYCLE),grounded:!hop||reduced?.matches,vy:hop?.vy,gesture:kind,gestureProgress:progress});
       actor.poseKey=poseKey;
+      }
+      // Measure the actual dressed/posed pelvis once per artwork, including
+      // its body-proportion transform. A raw SVG Y ignores that transform.
+      if(seat&&actor.seatFitKey!==actor.avatarKey){
+        const upper=actor.svg?.querySelector('[data-qpx-pose-part="upper"]'),root=actor.svg?.getCTM(),matrix=upper?.getCTM();
+        if(root&&matrix){actor.seatedHipY=new DOMPoint(16,39.25).matrixTransform(root.inverse().multiply(matrix)).y;actor.seatFitKey=actor.avatarKey;placeAtFeet();}
       }
       actor.bubble.hidden=!active;if(active)textIfChanged(actor.bubble,g.type==='hello'?'반가워!':g.type==='happy'?'신난다! ✨':'안녕! 👋');
     }
     function step(dx,dy){
       const length=Math.hypot(dx,dy),count=Math.max(1,Math.ceil(length/3));let moved=0;
       for(let i=0;i<count;i++){const sx=dx/count,sy=dy/count,oldX=state.x,oldY=state.y;if(nav.canStand(state.x+sx,state.y+sy)){state.x+=sx;state.y+=sy;}else if(nav.canStand(state.x+sx,state.y))state.x+=sx;else if(nav.canStand(state.x,state.y+sy))state.y+=sy;moved+=Math.hypot(state.x-oldX,state.y-oldY);}
-      if(moved>.001){phase=(phase+moved/(runInput.isRunning()?RUN_SPEED*.46:SPEED*.72))%1;state.direction=Math.abs(dx)>Math.abs(dy)*.6?(dx<0?'left':'right'):dy<0?'back':'front';if(['left','right'].includes(state.direction))state.facing=state.direction;}
+      if(moved>.001){phase=(phase+moved/(runInput.isRunning()?RUN_SPEED*RUN_CYCLE/1000:SPEED*WALK_CYCLE/1000))%1;state.direction=Math.abs(dx)>Math.abs(dy)*.6?(dx<0?'left':'right'):dy<0?'back':'front';if(['left','right'].includes(state.direction))state.facing=state.direction;}
       return moved;
     }
     function tick(now){
@@ -360,7 +384,7 @@
       updatePortals();
       if(dead)return;
       if(!path.length)destination.hidden=true;if(gesture&&now-gesture.started>1500)gesture=null;
-      updateNearby();poseTurn=(poseTurn+1)%6;const sharedTime=clockNow();for(const actor of actors.values())placeActor(actor,dt,now,sharedTime);updateCamera(dt);publish();raf=requestAnimationFrame(tick);
+      updateNearby();updateCamera(dt);poseTurn=(poseTurn+1)%6;const sharedTime=clockNow();for(const actor of actors.values())placeActor(actor,dt,now,sharedTime);publish();raf=requestAnimationFrame(tick);
     }
     function onDown(e){if(!viewport.contains(e.target)&&!container.contains(document.activeElement))return;if(blocked()||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||e.target.isContentEditable)return;if(KEYS[e.code]){e.preventDefault();if(climbing&&!['up','down'].includes(KEYS[e.code]))return;heldMovement.add(e.code);if(e.repeat&&suppressedMovement.has(e.code))return;runInput.down(e.code,performance.now(),e.repeat);suppressedMovement.delete(e.code);keys.add(KEYS[e.code]);++claimToken;}else if(['KeyC','KeyE','KeyF'].includes(e.code)){e.preventDefault();if(e.repeat||heldActions.has(e.code))return;heldActions.add(e.code);if(e.code==='KeyC')void toggleSit();else if(e.code==='KeyE')void interact();else enterDoor();}}
     function onUp(e){runInput.up(e.code,performance.now());heldActions.delete(e.code);heldMovement.delete(e.code);suppressedMovement.delete(e.code);if(KEYS[e.code]&&![...heldMovement].some(code=>KEYS[code]===KEYS[e.code]))keys.delete(KEYS[e.code]);}
@@ -371,7 +395,7 @@
       const bounds=viewport.getBoundingClientRect(),x=(e.clientX-bounds.left)/scale+camera.x,y=(e.clientY-bounds.top)/scale+camera.y;
       const interactionHit=interactions.find(item=>{if((item.type||item.action)!=='board'&&!isPortal(item))return false;const box=item.hitRect||item.rect;if(!box)return false;const r=rect(box);return x>=r.x&&x<=r.x+r.w&&y>=r.y&&y<=r.y+r.h;});
       if(interactionHit){if(isPortal(interactionHit))walkToPortal(interactionHit);else useBoard(interactionHit);focus();return;}
-      const hit=seats.find(s=>{const r=s.rect||s.hitRect;if(!r)return false;const q=rect(r);return x>=q.x&&x<=q.x+q.w&&y>=q.y&&y<=q.y+q.h;});if(hit)void sit(hit.id);else moveTo(x,y);focus();
+      const hit=seats.find(s=>{const r=s.hitRect||s.rect;if(!r)return false;const q=rect(r);return x>=q.x&&x<=q.x+q.w&&y>=q.y&&y<=q.y+q.h;});if(hit)void sit(hit.id);else moveTo(x,y);focus();
     }
     function onBlur(){runInput.reset();keys.clear();state.moving=false;if(state.pose==='run'||state.pose==='walk')state.pose='idle';heldActions.clear();heldMovement.clear();suppressedMovement.clear();cancelWalk();if(seating)stand();publish(true);}
     const observer=typeof ResizeObserver!=='undefined'?new ResizeObserver(resize):null;observer?.observe(viewport);
