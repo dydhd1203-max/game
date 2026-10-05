@@ -199,8 +199,12 @@
       // not a point: the arm must travel out through its normal before it
       // bends down toward the wrist (prior short-sleeve anchor or a long-sleeve
       // wrist placed below the newly measured opening).
-      const localX=right?32-cx:cx,sleeveless=fit.sleeveless,rootX=sleeveless?12.7:localX;
-      let wristX=sleeveless?10.95:fit.short?(right?32-oldCx:oldCx)+.32:(right?32-oldCx:oldCx),wristY=sleeveless?36.45:fit.short?Math.max(oldCy+1.1,36.45):oldCy+.48;
+      const localX=right?32-cx:cx,sleeveless=fit.sleeveless;
+      // Resting hands hang below the current sleeve opening. The old cuff
+      // coordinates described a different cut of the garment; reusing them
+      // as wrists pulled the forearm inward and made a bowed elbow at rest.
+      // Keep one common wrist height, allowing only clearance for a low cuff.
+      let wristX=sleeveless?10.95:localX,wristY=Math.max(36.45,cy+.85);
       const id='qpx-front-arm-'+shape+'-'+SKIN.replace('#','')+'-'+(right?'r':'l')+'-'+(front?'front':'rear');
       const pigment=`<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2=".18"><stop stop-color="${shadow}"/><stop offset=".38" stop-color="${SKIN}"/><stop offset=".68" stop-color="${light}"/><stop offset="1" stop-color="${shade(SKIN,-.05)}"/></linearGradient></defs>`;
       let upper,emergence='';
@@ -209,7 +213,7 @@
       }else{
         const ps=actual?actual.map(([x,y])=>[right?32-x:x,y]).sort((a,b)=>a[0]-b[0]):[[localX-.82,cy-.25],[localX+.82,cy+.25]];
         const dx=ps[1][0]-ps[0][0],dy=ps[1][1]-ps[0][1],length=Math.hypot(dx,dy)||1,tx=dx/length,ty=dy/length,nx=-ty,ny=tx;
-        const half=Math.min(fit.short?1.3:1.18,length*.43),depth=1.15,exit=fit.short?.92:.44;
+        const half=Math.min(fit.short?1.3:1.18,length*.43),depth=1.15,exit=fit.short?.32:.44;
         if(!fit.short){wristX=localX+nx*.55;wristY=cy+Math.max(.72,ny*.8);}
         const at=(along,across)=>[localX+nx*along+tx*across,cy+ny*along+ty*across];
         const rootA=at(-depth,-half),rootB=at(-depth,half),edgeA=at(0,-half),edgeB=at(0,half),leftWrist=[wristX-.43,wristY+.12],rightWrist=[wristX+.47,wristY+.08];
