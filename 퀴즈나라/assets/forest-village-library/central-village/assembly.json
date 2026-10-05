@@ -1,0 +1,299 @@
+{
+  "size": [
+    2713,
+    1555
+  ],
+  "sourcePanels": [
+    {
+      "file": "panels/panel-1.png",
+      "sha256": "402909cfd71b17a3fded63486e32da27714ba090d15f89fffb75c7a4a7b07dfc",
+      "offset": [
+        0,
+        0
+      ],
+      "scale": 1,
+      "selection": [
+        [
+          0,
+          0
+        ],
+        [
+          1672,
+          0
+        ],
+        [
+          1672,
+          941
+        ],
+        [
+          0,
+          941
+        ]
+      ]
+    },
+    {
+      "file": "panels/panel-2.png",
+      "sha256": "66cf207e3248c49c7a956917c61fa46f694d53ea259da1a26c73e4813ddbe001",
+      "offset": [
+        982,
+        0
+      ],
+      "scale": 1.16,
+      "selection": [
+        [
+          1310,
+          0
+        ],
+        [
+          2713,
+          0
+        ],
+        [
+          2713,
+          1100
+        ],
+        [
+          1510,
+          1100
+        ],
+        [
+          1510,
+          880
+        ],
+        [
+          1590,
+          805
+        ],
+        [
+          1590,
+          445
+        ],
+        [
+          1320,
+          390
+        ]
+      ]
+    },
+    {
+      "file": "panels/panel-3.png",
+      "sha256": "f1770f8a404d20f39638ff523b4eaf5b6e12aaaa61f8127a964b77fb8efc0ae4",
+      "offset": [
+        -50,
+        614
+      ],
+      "scale": 1,
+      "selection": [
+        [
+          0,
+          614
+        ],
+        [
+          490,
+          675
+        ],
+        [
+          775,
+          825
+        ],
+        [
+          1050,
+          833
+        ],
+        [
+          1080,
+          965
+        ],
+        [
+          1622,
+          965
+        ],
+        [
+          1622,
+          1555
+        ],
+        [
+          0,
+          1555
+        ]
+      ]
+    },
+    {
+      "file": "panels/panel-4.png",
+      "sha256": "b709c43b36aaecdc3da9b923dc02276f78491531c195a1584c2570a413d8803a",
+      "offset": [
+        1041,
+        614
+      ],
+      "scale": 1,
+      "selection": [
+        [
+          1600,
+          955
+        ],
+        [
+          1850,
+          1000
+        ],
+        [
+          2713,
+          1000
+        ],
+        [
+          2713,
+          1555
+        ],
+        [
+          1041,
+          1555
+        ],
+        [
+          1041,
+          1025
+        ]
+      ]
+    }
+  ],
+  "sourcePixelArea": 6292467,
+  "nativeInteriorPixels": 3309991,
+  "nativeInteriorFraction": 0.7845969685081832,
+  "ownerPixels": {
+    "1": 940134,
+    "2": 986095,
+    "3": 635442,
+    "4": 748320
+  },
+  "repair": "image_gen seam edit only in joining bands, duplicate-object removals and missing overlap; its1656x950 output is NOT the full runtime map",
+  "repairSHA256": "0010691befe2bc8477a0196f841eef5ee6598a76067cafb10c0c2918152f27d0",
+  "nativeCompositeSHA256": "5ac15aa734ac7919f7f8155df5c94ad157ba9be706df6c1dc85290c2ea6268e2",
+  "textureSize": [
+    5426,
+    3110
+  ],
+  "density": 2,
+  "detailRepairs": [
+    {
+      "id": "plaza-fences",
+      "file": "detail-repairs/plaza-fences.png",
+      "size": [
+        1715,
+        917
+      ],
+      "matches": 1068,
+      "inliers": 980,
+      "matrix": [
+        [
+          0.9996656023734236,
+          -0.00013954104065863428,
+          -0.013044389354583895
+        ],
+        [
+          0.00013954104065863428,
+          0.9996656023734236,
+          -0.013940075251881694
+        ]
+      ],
+      "rect": [
+        980,
+        650,
+        1820,
+        1100
+      ],
+      "sha256": "dbe4e6017c6539a76cfba7127ab4d8f92ccb87b02bf54e7a9e157e58cdd52b07",
+      "operation": "image_gen local silhouette restoration and high-detail redraw, registered to existing crop; map scale unchanged"
+    },
+    {
+      "id": "west-join",
+      "file": "detail-repairs/west-join.png",
+      "size": [
+        1849,
+        851
+      ],
+      "matches": 1575,
+      "inliers": 1477,
+      "matrix": [
+        [
+          1.0001936826027868,
+          4.572476170310373e-05,
+          -0.2359707180253014
+        ],
+        [
+          -4.572476170310373e-05,
+          1.0001936826027868,
+          -0.12008694579454832
+        ]
+      ],
+      "rect": [
+        0,
+        550,
+        1000,
+        1010
+      ],
+      "sha256": "2a6b081eef40ceea2602e71be2a9c5bca0950845bd453dfa0f06b62c729d121d",
+      "operation": "image_gen local silhouette restoration and high-detail redraw, registered to existing crop; map scale unchanged"
+    },
+    {
+      "id": "east-join",
+      "file": "detail-repairs/east-join.png",
+      "size": [
+        2100,
+        749
+      ],
+      "matches": 682,
+      "inliers": 545,
+      "matrix": [
+        [
+          1.0002905962196518,
+          0.0002603047372389284,
+          -0.38544319055385573
+        ],
+        [
+          -0.0002603047372389284,
+          1.0002905962196518,
+          0.4259604932174333
+        ]
+      ],
+      "rect": [
+        1690,
+        810,
+        2713,
+        1175
+      ],
+      "sha256": "74ffa8adb9c3f4c134d5b638bd3c2db337f6758f3a4ff062ccf1c27098f26c18",
+      "operation": "image_gen local silhouette restoration and high-detail redraw, registered to existing crop; map scale unchanged"
+    },
+    {
+      "id": "north-bridge",
+      "file": "detail-repairs/north-bridge.png",
+      "size": [
+        1345,
+        1169
+      ],
+      "matches": 561,
+      "inliers": 520,
+      "matrix": [
+        [
+          1.000421719237796,
+          -0.0003588456859763387,
+          0.027748246451165328
+        ],
+        [
+          0.0003588456859763387,
+          1.000421719237796,
+          -0.23309329404907594
+        ]
+      ],
+      "rect": [
+        1480,
+        355,
+        1940,
+        755
+      ],
+      "sha256": "45cb9b8322078f7dce6c6e38d88c4b130207af4bcf5b123a0c4eae739c7f3679",
+      "operation": "image_gen local silhouette restoration and high-detail redraw, registered to existing crop; map scale unchanged"
+    }
+  ],
+  "detailRepairFootprintFraction": 0.3116576967157061,
+  "finalUnrepaintedPanelFraction": 0.6677511991210594,
+  "sha256": "e8a6c2a98df793b18e26cc896e27b0f5ef1f3a23e20b9181a8d02f99ed94f8d2",
+  "resolutionNote": "Four-panel native assembly plus local detailed redraws; untouched areas are2x resampled, not recovered original detail."
+}

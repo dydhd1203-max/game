@@ -2,9 +2,9 @@
 (() => {
   'use strict';
   const root=new URL('assets/world-life/',document.currentScript.src).href;
-  const order=['village','forestgarden','treehouse','skyisland','adventure','autumnpark','camp','playground','campus'];
-  const names={village:'중앙광장',forestgarden:'비밀정원',treehouse:'달빛 나무집',skyisland:'구름 위 버섯섬',adventure:'반딧불 모험숲',autumnpark:'단풍 소풍공원',camp:'별빛 캠핑장',playground:'학교 운동장',campus:'우리 반 교실'};
-  const descriptions={village:'벚나무 아래에서 만나요',forestgarden:'숲속에 숨은 작은 쉼터',treehouse:'사다리를 타고 달빛 데크로',skyisland:'구름 사이 두더지 친구들',adventure:'빛나는 버섯과 비밀 다리',autumnpark:'단풍 아래 소풍 가는 날',camp:'모닥불 옆에서 별 이야기',playground:'삼은초등학교로 가요',campus:'친구들과 함께하는 교실'};
+  const order=['village','forestgarden','treehouse','skyisland','picnicpark','autumnpark','camp','playground','campus'];
+  const names={village:'숲속 중앙 마을',forestgarden:'비밀정원',treehouse:'달빛 나무집',skyisland:'구름 위 버섯섬',picnicpark:'벚꽃 소풍공원',autumnpark:'단풍 소풍공원',camp:'별빛 캠핑장',playground:'학교 운동장',campus:'우리 반 교실'};
+  const descriptions={village:'등불과 다리를 따라 만나는 이웃',forestgarden:'숲속에 숨은 작은 쉼터',treehouse:'사다리를 타고 달빛 데크로',skyisland:'구름 사이 두더지 친구들',picnicpark:'벚나무 아래에서 쉬어 가요',autumnpark:'단풍 아래 소풍 가는 날',camp:'모닥불 옆에서 별 이야기',playground:'삼은초등학교로 가요',campus:'친구들과 함께하는 교실'};
   const getScene=z=>z==='campus'?window.QPSchoolRoomScene.get():z==='playground'?window.QPPlaygroundScene.get():window.QPForestVillageScene.get(z);
   const portals=s=>(s.interactables||[]).filter(p=>order.includes(p.target));
   function route(from,to){const queue=[[from]],seen=new Set([from]);while(queue.length){const path=queue.shift(),z=path.at(-1);if(z===to)return path;for(const p of portals(getScene(z)))if(!seen.has(p.target)){seen.add(p.target);queue.push([...path,p.target]);}}return [];}

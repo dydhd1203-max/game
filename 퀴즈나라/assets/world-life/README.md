@@ -1,7 +1,7 @@
 # 지도와 환경 움직임 에셋
 
 - `leaf-panel.png`, `parchment-frame.png`, `map-scroll.png`: 제공 `interface-reference-01.jpg`의 UI 영역이다. `tools/build-world-ui-assets.py`는 원본 RGB를 유지하고 테두리와 연결된 회색 시트 바탕의 alpha만 제거한다. 실제 글자는 HTML이다.
-- `thumbnails/*.webp`: 현재6개 원본 합성 지도와 기존 별도 모험숲 그림을 비례 축소했다. 학교·교실은 `tools/build-world-map-previews.cjs`의 실제 조립 장면 캡처를 쓴다. 촬영 UI·인물은 없다.
+- `thumbnails/*.webp`: 현재6개 원본 합성 지도와 새 중앙 마을의 화풍 편집본을 비례 축소했다. 학교·교실은 `tools/build-world-map-previews.cjs`의 실제 조립 장면 캡처를 쓴다. 촬영 UI·인물은 없다.
 - `school-foliage.webp`와 `world-life-school.js`: 현재 운동장 조립 그림의 나무 내부 부분만 정확한 원래 좌표로 crop했다. 움직이는 overlay는 같은 자리에서만 사용하며 다른 곳에 새 나무로 배치하지 않는다.
 - `sources/mole-original.png`: 이번 사용자의 세 구멍 두더지 애니메이션 요청에 맞춘 새 투명 원화. 기존 제공 원본으로 표시하지 않는다. image generation으로 제작했고 `mole.webp`는 비율을 지킨240px급 실행용 축소본이다. 원본 맵이나 구멍을 편집하지 않았다. 사용자의 후속 요청으로 사실적인 털 원화를 폐기하고 맵과 같은 매끈한 면 채색으로 다시 편집했다. 실행 머리 폭은 원본 구멍30px보다 작은24px 이하이며 투명 여백은 비례 축소 전에 정리한다.
 

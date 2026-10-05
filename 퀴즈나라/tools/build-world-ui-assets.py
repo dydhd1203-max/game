@@ -19,8 +19,8 @@ for name,box in [('parchment-frame',(381,701,613,829)),('leaf-panel',(491,306,72
    px[x,y]=(r,g,b,0);q.extend([(x+1,y),(x-1,y),(x,y+1),(x,y-1)])
  crop.save(target)
  items.append(dict(file=str(target.relative_to(ROOT)),source=str(source.relative_to(ROOT)),sourceRect=list(box),sha256=hashlib.sha256(source.read_bytes()).hexdigest(),operation='source crop; only connected neutral gray sheet background removed; RGB and illustration preserved; CSS nine-slice border'))
-for zone,source_name in [('village','plaza'),('forestgarden','garden'),('treehouse','treehouse'),('skyisland','sky'),('autumnpark','autumn'),('camp','camp'),('adventure',None)]:
- src=ROOT/('assets/forest-village-library/original-resolution/maps/'+source_name+'.png' if source_name else 'assets/forest-village-library/adventure/firefly-glade.png')
+for zone,source_name in [('picnicpark','plaza'),('forestgarden','garden'),('treehouse','treehouse'),('skyisland','sky'),('autumnpark','autumn'),('camp','camp'),('village',None)]:
+ src=ROOT/('assets/forest-village-library/original-resolution/maps/'+source_name+'.png' if source_name else 'assets/forest-village-library/central-village/village.webp')
  thumb=Image.open(src);thumb.thumbnail((800,600),Image.Resampling.LANCZOS);thumb.save(out/'thumbnails'/(zone+'.webp'),quality=85)
  items.append(dict(file='thumbnails/'+zone+'.webp',source=str(src.relative_to(ROOT)),operation='proportional thumbnail of current scene artwork',sha256=hashlib.sha256(src.read_bytes()).hexdigest()))
 for zone in ['campus','playground']:

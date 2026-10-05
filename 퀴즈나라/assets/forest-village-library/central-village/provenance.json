@@ -1,0 +1,67 @@
+{
+  "uploadedName": "마을파일·마을파일2·마을파일3·마을파일4",
+  "sourceSize": [
+    2713,
+    1555
+  ],
+  "operation": "Four individually restyled provided panels assembled natively, then4 local high-detail redraws repair fence ghosts/soft joins. Runtime5426x3110 texture; gameplay footprint4476.45x2565.75, camera.76; avatar unchanged.",
+  "worldSize": [
+    4476.45,
+    2565.75
+  ],
+  "originalSHA256": "90cd9b531a99be9fc88cd5c32a2ff83323c886cbb969c77a7f3f0ae802abf084",
+  "sha256": "e8a6c2a98df793b18e26cc896e27b0f5ef1f3a23e20b9181a8d02f99ed94f8d2",
+  "references": [
+    "../original-resolution/maps/plaza.png",
+    "../original-resolution/maps/garden.png"
+  ],
+  "originals": [
+    {
+      "file": "originals/detail-1.png",
+      "sha256": "c4013294039418f31bdf77683fa9c93b1ddbae6c4cb4b7dc5286933ecbfb5ead",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "file": "originals/detail-2.png",
+      "sha256": "4430866cad4f7322de9a5ef9df65d0b33130339ddf39ff50583881ed1577573d",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "file": "originals/detail-3.png",
+      "sha256": "c8079c8b5d5295b4b187549b2007c45baa237ab4bb2503957d9181d452834131",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "file": "originals/detail-4.png",
+      "sha256": "c9c83d88f89e261abbc84c2c837e27455c4d2ab9f14be59ce6498d04a0ae41c0",
+      "size": [
+        1672,
+        941
+      ]
+    },
+    {
+      "file": "originals/village-overview.png",
+      "sha256": "90cd9b531a99be9fc88cd5c32a2ff83323c886cbb969c77a7f3f0ae802abf084",
+      "size": [
+        1672,
+        941
+      ]
+    }
+  ],
+  "detailRegistration": "Four overlapping redraws manually registered: NW/SW/SE native1x, NE1.16x. See assembly.json for selections, hashes and source contribution.",
+  "resolutionLimit": "Four-panel native assembly plus local detailed redraws; untouched areas are2x resampled, not recovered original detail.",
+  "textureSize": [
+    5426,
+    3110
+  ],
+  "detailRepairs": "detail-repairs.json"
+}

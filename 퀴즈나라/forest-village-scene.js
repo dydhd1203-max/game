@@ -3,9 +3,9 @@
 (() => {
   'use strict';
   const ROOT=new URL('assets/forest-village-library/original-resolution/maps/',document.currentScript.src).href;
-  const sizes={'plaza-composition':[1115,736],'garden-composition':[962,541],'treehouse-composition':[946,740],'sky-composition':[956,553],'autumn-composition':[1122,752],'camp-composition':[1339,750]};
+  const sizes={'village-composition':[2713,1555],'plaza-composition':[1115,736],'garden-composition':[962,541],'treehouse-composition':[946,740],'sky-composition':[956,553],'autumn-composition':[1122,752],'camp-composition':[1339,750]};
   const nativeMaps={'plaza-composition':'plaza','garden-composition':'garden','treehouse-composition':'treehouse','sky-composition':'sky','autumn-composition':'autumn','camp-composition':'camp'};
-  const assetURL=asset=>ROOT+nativeMaps[asset]+'.png';
+  const assetURL=asset=>asset==='village-composition'?new URL('../../central-village/village.webp',ROOT).href:ROOT+nativeMaps[asset]+'.png';
   const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function builder(id,zone,title,width,height,spawn){
     const parts=[],solids=[],walkAreas=[],interactables=[],views=[],routes=[],groups=[],html=[];
@@ -31,8 +31,13 @@
     return {scene,html,image,foreground,solid,poly,portal,label,end};
   }
   function village(){
+    const {scale,sourceSize,spawn}=window.QPCentralVillage;
+    const b=builder('central-village-supplied','village','숲속 중앙 마을',sourceSize[0]*scale,sourceSize[1]*scale,spawn);
+    window.QPCentralVillage.build(b);return b.end();
+  }
+  function picnicpark(){
     const X=x=>x*3,Y=y=>(y-64)*3;
-    const b=builder('forest-village-original-100','village','햇살 숲속 마을',3345,2208,{x:2310,y:1330}),{scene:s,image,solid,poly,portal}=b;
+    const b=builder('forest-picnic-original-100','picnicpark','벚꽃 소풍공원',3345,2208,{x:2310,y:1330}),{scene:s,image,solid,poly,portal}=b;
     image('native-water-path-gardens','plaza-composition',0,0,3,0,{role:'composition'});
     // Restored picnic park: furniture, pond and trees are in the user's original
     // positions. No generated homes, great-tree, brook, well or planted overlays.
@@ -46,15 +51,11 @@
     poly('village-land',[[159,64],[1105,64],[1105,780],[860,780],[730,760],[635,725],[535,710],[410,690],[330,699],[260,669],[168,610],[110,515],[112,392],[117,330],[131,235],[153,166],[158,87]].map(([x,y])=>[X(x),Y(y)]));
     // The native pier is part of the original map and has a real reachable end.
     poly('native-pier',[[58,609],[133,558],[174,576],[102,639]].map(([x,y])=>[X(x),Y(y)]));
-    portal('village-school-path','학교로 가는 길','playground',X(586),Y(654),{arrival:{x:X(586),y:Y(682)},targetDoor:'playground-village-path',radius:58});
-    portal('village-garden-path','비밀정원 숲길','forestgarden',X(427),Y(88),{arrival:{x:X(426),y:Y(117)},targetDoor:'garden-village-path',radius:52});
-    portal('village-adventure-path','반딧불 모험숲','adventure',3165,1395,{exitAngle:90,arrival:{x:3070,y:1455},targetDoor:'adventure-village-path',radius:48});
-    portal('village-autumn-path','가을 소풍길','autumnpark',2860,560,{exitAngle:90,arrival:{x:2820,y:660},targetDoor:'autumn-village-path',radius:48});
-    window.QPForestAdventure.sign(b,'school-way-sign','학교가는 길',1518,1660,220);
+    portal('picnic-village-path','숲속 중앙 마을로','village',X(586),Y(654),{exitAngle:180,arrival:{x:X(586),y:Y(682)},targetDoor:'village-picnic-path',radius:58});
     s.cameraHome={x:s.spawn.x,y:s.spawn.y,zoom:.76};s.cameraAnchorY=.74;s.centerOnPlayer=true;s.exitLabel='수업 목록';
-    s.previewViews=[{id:'picnic',label:'원본 벚나무 소풍 광장',spawn:s.spawn},{id:'lake',label:'선착장',spawn:{x:X(108),y:Y(604)}},{id:'autumn',label:'주황 나무 옆',spawn:{x:455,y:1130}},{id:'school-path',label:'학교가는 길',spawn:{x:X(586),y:Y(682)}},{id:'east-path',label:'오른쪽 모험숲 입구',spawn:{x:3070,y:1455}}];
+    s.previewViews=[{id:'picnic',label:'원본 벚나무 소풍 광장',spawn:s.spawn},{id:'lake',label:'선착장',spawn:{x:X(108),y:Y(604)}},{id:'autumn',label:'주황 나무 옆',spawn:{x:455,y:1130}},{id:'village-path',label:'중앙 마을로 돌아가는 길',spawn:{x:X(586),y:Y(682)}},{id:'east-path',label:'공원 동쪽 산책길',spawn:{x:3070,y:1455}}];
     s.groups=[{id:'original-plaza-1-to-5',rect:[0,0,3345,2208],purpose:'five registered 100% captures of one original picnic park'}];
-    s.reviewRoutes=[{id:'school',from:s.spawn,to:{x:X(586),y:Y(654)}},{id:'garden',from:s.spawn,to:{x:X(427),y:Y(88)}},...s.previewViews.slice(1).map(v=>({id:v.id,from:s.spawn,to:v.spawn}))];
+    s.reviewRoutes=[{id:'village',from:s.spawn,to:{x:X(586),y:Y(654)}},{id:'garden',from:s.spawn,to:{x:X(427),y:Y(88)}},...s.previewViews.slice(1).map(v=>({id:v.id,from:s.spawn,to:v.spawn}))];
     s.originalReview={pond:{x:X(705),y:Y(100)},pinkTree:{x:X(792),y:Y(375)},autumn:{edge:{x:455,y:1130},front:{x:640,y:1170}},coffee:{x:X(685),y:Y(570)}};
     return b.end();
   }
@@ -68,7 +69,7 @@
     [[141,190,58,23],[162,337,77,27],[136,369,69,30],[202,402,72,27],[153,435,85,23],[710,398,72,27],[653,434,85,25],[698,466,73,22]].forEach(([x,y,w,h],i)=>solid('grove-furniture-'+i,x*2,y*2,w*2,h*2));
     solid('grove-meeting-stump',852,306,154,77);
     solid('grove-west-fence',476,1006,331,40);solid('grove-east-fence',1057,1006,438,40);
-    portal('garden-village-path','햇살 마을로','village',942,1002,{exitAngle:180,arrival:{x:942,y:938},targetDoor:'village-garden-path',radius:48});
+    portal('garden-village-path','숲속 중앙 마을로','village',942,1002,{exitAngle:180,arrival:{x:942,y:938},targetDoor:'village-garden-path',radius:48});
     portal('grove-treehouse-door','큰 나무집','treehouse',656,326,{exitAngle:-90,arrival:{x:697,y:325},targetDoor:'treehouse-village-door',radius:47});
     // Same source registration: the original painting remains intact below.
     // Tree crowns occlude a visitor behind the trunk, then release in front.
@@ -133,7 +134,7 @@
     ].forEach((r,i)=>box('autumn-footprint-'+i,...r));
     [[336,453,23],[578,257,27],[817,384,25],[757,506,15],[430,540,17],[433,360,12],[148,339,12],[81,316,13],[714,230,18],[685,269,14],[555,75,17],[161,159,15],[335,93,15],[990,571,13],[881,435,12],[1037,374,13],[78,406,17]].forEach(([x,y,r],i)=>s.solids.push({id:'autumn-base-'+i,x:X(x),y:X(y),radius:X(r)}));
     // Tree visibility metadata lives in map-avatar-display.js; original pixels stay intact.
-    portal('autumn-village-path','중앙광장으로','village',X(588),X(712),{exitAngle:180,arrival:{x:X(588),y:X(653)},targetDoor:'village-autumn-path',radius:46});
+    portal('autumn-village-path','숲속 중앙 마을로','village',X(588),X(712),{exitAngle:180,arrival:{x:X(588),y:X(653)},targetDoor:'village-autumn-path',radius:46});
     portal('autumn-camp-path','호숫가 캠핑길','camp',X(1040),X(394),{exitAngle:90,arrival:{x:X(1000),y:X(402)},targetDoor:'camp-autumn-path',radius:46});
     s.cameraHome={...s.spawn,zoom:.85};s.centerOnPlayer=true;s.exitLabel='학생 메뉴';
     s.previewViews=[{id:'entry',label:'단풍 울타리 입구',spawn:s.spawn},{id:'picnic',label:'그네와 모닥불 쉼터',spawn:{x:X(390),y:X(312)}},{id:'lanterns',label:'전구 텐트 산책길',spawn:{x:X(675),y:X(410)}}];
@@ -158,14 +159,6 @@
     s.reviewRoutes=[...s.previewViews.slice(1).map(v=>({id:v.id,from:s.spawn,to:v.spawn})),...s.interactables.map(p=>({id:p.id,from:s.spawn,to:{x:p.x,y:p.y}}))];
     return b.end();
   }
-  function adventure(){
-    const b=builder('firefly-adventure','adventure','반딧불 모험숲',2403,2208,{x:166,y:1376});
-    b.scene.levels=[];b.scene.climbs=[];b.scene.effects=[];b.scene.elevatedDepth=4000;
-    window.QPForestAdventure.build(b);
-    b.portal('adventure-village-path','중앙광장으로','village',70,1321,{exitAngle:-90,arrival:{x:166,y:1376},targetDoor:'village-adventure-path',radius:46});
-    b.scene.cameraHome={...b.scene.spawn,zoom:.76};b.scene.centerOnPlayer=true;
-    return b.end();
-  }
-  const scenes={village:village(),forestgarden:forestgarden(),treehouse:treehouse(),skyisland:skyisland(),adventure:adventure(),autumnpark:autumnpark(),camp:camp()};
+  const scenes={village:village(),forestgarden:forestgarden(),treehouse:treehouse(),skyisland:skyisland(),picnicpark:picnicpark(),autumnpark:autumnpark(),camp:camp()};
   window.QPForestVillageScene=Object.freeze({get:(zone='village')=>scenes[zone]||null,zones:Object.keys(scenes),assets:sizes});
 })();

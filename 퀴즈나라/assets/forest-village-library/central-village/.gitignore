@@ -1,0 +1,5 @@
+# Reproducible inspection intermediates; run tools/build-central-village.py.
+native-composite.png
+village.png
+native-panel-mask.png
+panel-owners.png

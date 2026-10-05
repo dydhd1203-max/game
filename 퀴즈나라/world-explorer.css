@@ -78,3 +78,9 @@ body.qp-campus .sr-help{top:81px}
 /* The low classroom entry needs a real control shelf, not buttons over its feet. */
 .school-room-host[data-zone="campus"]{background:#f3eddb}
 .school-room-host[data-zone="campus"] .school-room-world{bottom:66px}
+/* Light is registered to each painted lamp/window, below visitors and HUD.
+   No full-map darkness filter, repainting, flashing or physics changes. */
+.wl-lamplight{mix-blend-mode:screen;contain:layout style;pointer-events:none}
+.wl-lamplight i{position:absolute;display:block;left:0;width:100%;pointer-events:none}
+.wl-light-halo{top:0;background:radial-gradient(ellipse,rgba(255,247,182,.74) 0%,rgba(255,202,81,.30) 14%,rgba(255,174,62,.14) 37%,rgba(255,188,65,0) 72%)}
+.wl-light-pool{height:24%;background:radial-gradient(ellipse,rgba(255,218,136,.23),rgba(255,196,99,.11) 38%,rgba(255,211,134,0) 72%)}

@@ -36,7 +36,7 @@
     "operation": "source crop; only connected neutral gray sheet background removed; RGB and illustration preserved; CSS nine-slice border"
   },
   {
-    "file": "thumbnails/village.webp",
+    "file": "thumbnails/picnicpark.webp",
     "source": "assets/forest-village-library/original-resolution/maps/plaza.png",
     "operation": "proportional thumbnail of current scene artwork",
     "sha256": "818630cf856c9d7990ea1831e50e529ae9c61e01f1cd956acdeaacc25b467284"
@@ -70,12 +70,6 @@
     "source": "assets/forest-village-library/original-resolution/maps/camp.png",
     "operation": "proportional thumbnail of current scene artwork",
     "sha256": "d5855bcbff397b6e4502ba1e7fe5719736ffdbcd01fe4c3907ab899badb300d8"
-  },
-  {
-    "file": "thumbnails/adventure.webp",
-    "source": "assets/forest-village-library/adventure/firefly-glade.png",
-    "operation": "proportional thumbnail of current scene artwork",
-    "sha256": "e72814fc7a12b4fee859e34a9a14b41e3b84afc6542681b6e2d57e0e5ea07f01"
   },
   {
     "file": "thumbnails/campus.webp",
@@ -357,5 +351,11 @@
       905
     ],
     "sha256": "8db519f3a6f2287d29c54ad50073268676148a386b4b179105ceaa46f1fb81c8"
+  },
+  {
+    "file": "thumbnails/village.webp",
+    "source": "assets/forest-village-library/central-village/village.webp",
+    "operation": "Current four-panel composite with local silhouette/detail repairs; proportional thumbnail",
+    "sha256": "e8a6c2a98df793b18e26cc896e27b0f5ef1f3a23e20b9181a8d02f99ed94f8d2"
   }
 ]

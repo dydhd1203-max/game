@@ -842,7 +842,8 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <script src="./village-presence.js"></script>
 <script src="./school-room-scene.js"></script>
 <script src="./playground-scene.js"></script>
-<script src="./forest-adventure.js"></script>
+<script src="./forest-sign.js"></script>
+<script src="./central-village.js"></script>
 <script src="./forest-village-scene.js"></script>
 <link rel="stylesheet" href="./forest-village-world.css">
 <script src="./avatar-run-input.js"></script>
@@ -902,7 +903,7 @@ function closeModal(){
   clearModalView();
   el('modal').classList.remove('on');
   if(curScr==='classroom')$('.qp-map-viewport')?.focus({preventScroll:true});
-  if(['campus','playground','village','forestgarden','treehouse','skyisland','adventure','autumnpark','camp'].includes(curScr))(activeCampus||activePlayground||activeVillage)?.focus();
+  if(['campus','playground','village','forestgarden','treehouse','skyisland','picnicpark','autumnpark','camp'].includes(curScr))(activeCampus||activePlayground||activeVillage)?.focus();
 }
 el('modal').addEventListener('click', e=>{ if(e.target.id==='modal') closeModal(); });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&el('modal').classList.contains('on'))closeModal();});
@@ -2845,7 +2846,7 @@ function go(name, arg){
   if(leaveFn){ try{ leaveFn(); }catch(e){} leaveFn = null; }
   curScr = name; closeModal();
   document.body.classList.toggle('qp-woodland', name==='home');
-  document.body.classList.toggle('qp-campus', ['campus','playground','village','forestgarden','treehouse','skyisland','adventure','autumnpark','camp'].includes(name));
+  document.body.classList.toggle('qp-campus', ['campus','playground','village','forestgarden','treehouse','skyisland','picnicpark','autumnpark','camp'].includes(name));
   el('stage').innerHTML = '';
   SCREENS[name](el('stage'), arg);
 }
@@ -3208,11 +3209,14 @@ function campusCheckpoint(uid,space='campus'){
   if(!saved)try{saved=JSON.parse(sessionStorage.getItem('qp_'+space+'_'+DBR+'_'+uid)||'null');}catch{}
   // Leaving the scene releases a shared chair. Return to its safe walking
   // position; taking the chair again must go through the current lease.
+  const revision=window.QPForestVillageScene?.get(space)?.checkpointRevision;
+  if(revision&&saved?.revision!==revision)return null;
   return saved&&Number.isFinite(saved.x)&&Number.isFinite(saved.y)?{x:saved.x,y:saved.y,height:Number(saved.height)||0}:null;
 }
 function rememberCampus(uid,state,space='campus'){
   if(!state||!Number.isFinite(state.x)||!Number.isFinite(state.y))return;
   const checkpoint={x:state.x,y:state.y,height:Number(state.height)||0};
+  const revision=window.QPForestVillageScene?.get(space)?.checkpointRevision;if(revision)checkpoint.revision=revision;
   campusCheckpoints.set(space+':'+uid,checkpoint);
   try{sessionStorage.setItem('qp_'+space+'_'+DBR+'_'+uid,JSON.stringify(checkpoint));}catch{}
 }
@@ -3277,7 +3281,9 @@ SCREENS.village=(st,arrival)=>mountSchoolSpace(st,'village',arrival);
 SCREENS.forestgarden=(st,arrival)=>mountSchoolSpace(st,'forestgarden',arrival);
 SCREENS.treehouse=(st,arrival)=>mountSchoolSpace(st,'treehouse',arrival);
 SCREENS.skyisland=(st,arrival)=>mountSchoolSpace(st,'skyisland',arrival);
-SCREENS.adventure=(st,arrival)=>mountSchoolSpace(st,'adventure',arrival);
+SCREENS.picnicpark=(st,arrival)=>mountSchoolSpace(st,'picnicpark',arrival);
+// Old saved links must never reopen the removed forest.
+SCREENS.adventure=()=>go('village');
 SCREENS.autumnpark=(st,arrival)=>mountSchoolSpace(st,'autumnpark',arrival);
 SCREENS.camp=(st,arrival)=>mountSchoolSpace(st,'camp',arrival);
 SCREENS.tailor=()=>go(ME?(IS_TEACHER?'teacher':'campus'):'login');

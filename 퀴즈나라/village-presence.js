@@ -6,7 +6,7 @@
   const GESTURES = new Set(['wave', 'hello', 'happy', 'heart', 'clap', 'surprise', 'sad', 'laugh', 'cheer']);
   const POSES = new Set(['idle', 'walk', 'run', 'wave', 'climb', 'jump', 'sit', 'sit-floor', 'land']);
   const DIRECTIONS = new Set(['front', 'left', 'right', 'back']);
-  const SHARED_SPACES = new Set(['campus', 'playground', 'village', 'forestgarden', 'treehouse', 'skyisland', 'adventure', 'autumnpark', 'camp']);
+  const SHARED_SPACES = new Set(['campus', 'playground', 'village', 'forestgarden', 'treehouse', 'skyisland', 'picnicpark', 'autumnpark', 'camp']);
   const ZONE = /^[a-z][a-z0-9_-]{0,47}$/;
   const SEAT = /^[a-zA-Z0-9_-]{1,64}$/;
   const text = (value, length) => String(value == null ? '' : value).replace(/[\u0000-\u001f\u007f]/g, '').slice(0, length);

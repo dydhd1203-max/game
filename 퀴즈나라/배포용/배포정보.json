@@ -1,13 +1,13 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-04T23:19:16.946Z",
+  "builtAt": "2026-10-05T00:47:27.490Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
       "path": "world-map.js",
-      "bytes": 8559,
-      "sha256": "e1e0d9d80328b7297507e0184fc2bbcc1ac45ed1c7ea1bb039f8d2ad2725807a"
+      "bytes": 8584,
+      "sha256": "43d3e4d76feef4edb8595052cd35641ffce2d9b4c26280a42b0140515323acdb"
     },
     {
       "path": "world-life-school.js",
@@ -21,13 +21,13 @@
     },
     {
       "path": "world-life.js",
-      "bytes": 8780,
-      "sha256": "b933d70d4bc92f0ae4dfef088cad5aea2db8afb4444fd114c9b797be39a5c308"
+      "bytes": 11438,
+      "sha256": "3ae0424703acf7808b0269a24a7acaaa3a9e9393b546672f3ab484fbb7033656"
     },
     {
       "path": "world-explorer.css",
-      "bytes": 11034,
-      "sha256": "f0c49dbd7cf01e3fd0576cdf94c19d0a694e75c990b7d6340189935d836402d9"
+      "bytes": 11641,
+      "sha256": "bfc9b4c72870328f3e48c78826baac8773900e1294f162e183dc46bf90fa64c0"
     },
     {
       "path": "assets/world-life/leaf-panel.png",
@@ -50,9 +50,9 @@
       "sha256": "3d86be7d1d9442dffb89bee0764d83bc1fd777adeb6ed41be41dd6d5ec2dedae"
     },
     {
-      "path": "assets/world-life/thumbnails/adventure.webp",
-      "bytes": 165222,
-      "sha256": "8fbf4878ad6746b66d3ff9d345db4aa4b01eabc29df64ec1cc8044889214df20"
+      "path": "assets/world-life/thumbnails/picnicpark.webp",
+      "bytes": 106666,
+      "sha256": "7e99dbc774dfc133810c9d2169432aac5fce9f7383f275d837655e3e101fd416"
     },
     {
       "path": "assets/world-life/thumbnails/autumnpark.webp",
@@ -91,8 +91,8 @@
     },
     {
       "path": "assets/world-life/thumbnails/village.webp",
-      "bytes": 106666,
-      "sha256": "7e99dbc774dfc133810c9d2169432aac5fce9f7383f275d837655e3e101fd416"
+      "bytes": 166712,
+      "sha256": "b7dee02019b0e904b545648ed610592bbc9a7500de720aecb07978fd8c84f8c8"
     },
     {
       "path": "avatar-local-transform.js",
@@ -106,8 +106,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 323937,
-      "sha256": "5ab1608db28f360485762f84635be5fda1472f2a3ea853af84b1a49e88ef2ca2"
+      "bytes": 324327,
+      "sha256": "a8cae56382752644b096121b481ccb7fa01e749a974c5b5fa843f89f6fa2f68d"
     },
     {
       "path": "avatar-image.js",
@@ -156,8 +156,8 @@
     },
     {
       "path": "demo.js",
-      "bytes": 13893,
-      "sha256": "74c78c19c964f4347871034db037517f6b88c753ba87fb8357e75e2d9462dc42"
+      "bytes": 13983,
+      "sha256": "ed051981e85086157cf66a80dbe960dbf4fc90fede4362e50f83f86fb05c5378"
     },
     {
       "path": "candy-controls.css",
@@ -230,24 +230,29 @@
       "sha256": "d5855bcbff397b6e4502ba1e7fe5719736ffdbcd01fe4c3907ab899badb300d8"
     },
     {
-      "path": "forest-adventure.js",
-      "bytes": 7595,
-      "sha256": "040586acbc9dc97d4e27842c8c81e607890c117d78b1023da7292ef23b43c43f"
+      "path": "forest-sign.js",
+      "bytes": 672,
+      "sha256": "81ecf818633652a9c81c29bf07d5a527f19646e4df9353b063d2bc4afc3754be"
+    },
+    {
+      "path": "central-village.js",
+      "bytes": 7308,
+      "sha256": "45b0638cbad780ccc00b5336c750637716ef2841d7398dc8f422888c78f5be0f"
     },
     {
       "path": "forest-village-scene.js",
-      "bytes": 19489,
-      "sha256": "b8323fa1786ea0110ed4cb875e9da942513d584696cdd48e30605b083384f083"
+      "bytes": 18830,
+      "sha256": "63c77e4d4f3e5d6fbcbd44d62de0894072d3c0946c7b8986a31cccea6bd6c4ff"
     },
     {
       "path": "forest-village-world.css",
-      "bytes": 2112,
-      "sha256": "cd4bf0fdac29e4a953667e3dd81b9051eb5e4e721f5e715fa8ebacb17dbe6f64"
+      "bytes": 997,
+      "sha256": "d71ea66397e93cc77f5b8f5b1fe6f16e46f558739ac3b8cce7bf27a364c614f4"
     },
     {
-      "path": "assets/forest-village-library/adventure/firefly-glade.png",
-      "bytes": 3170355,
-      "sha256": "e72814fc7a12b4fee859e34a9a14b41e3b84afc6542681b6e2d57e0e5ea07f01"
+      "path": "assets/forest-village-library/central-village/village.webp",
+      "bytes": 5861470,
+      "sha256": "e8a6c2a98df793b18e26cc896e27b0f5ef1f3a23e20b9181a8d02f99ed94f8d2"
     },
     {
       "path": "assets/forest-village-library/adventure/wood-sign.png",
@@ -266,13 +271,13 @@
     },
     {
       "path": "map-avatar-display.js",
-      "bytes": 11584,
-      "sha256": "20db0f4e4f19c1dd5ebbd5f8545e085e572bfb060067f276b09162848b3b8ecc"
+      "bytes": 12083,
+      "sha256": "99b4ba2507fbeb101c0c63d437a5d9f9f5d371dbacdaad599bfb4db6aebaf4bb"
     },
     {
       "path": "school-room-world.js",
-      "bytes": 49704,
-      "sha256": "a11a640286891e520652fd9bf259cd47ab46865f24b9e06ff5fd3decdb20e97f"
+      "bytes": 50556,
+      "sha256": "763f426f6ce22f2033bf90129f3327d9ff72d2fda1d6b72ddbdbb969e5c1b5d9"
     },
     {
       "path": "school-room-world.css",
@@ -286,8 +291,8 @@
     },
     {
       "path": "village-presence.js",
-      "bytes": 25550,
-      "sha256": "33ade16585fc52efafecf4dfcc6b0953cedcec9829e4b60d7296cc430b4eaaca"
+      "bytes": 25551,
+      "sha256": "9639fb2aaab20c56d8a5f0885a5d9e36c24dec34b8cd1df3a12b1540f12b15a6"
     },
     {
       "path": "assets/classroom-library/originals/classroom-e41eb583796fc7b8.png",
