@@ -351,7 +351,7 @@ check('O', 'aimWolf 가 성곽 가림(castleAimY — 가슴·머리)을 조준 �
   const r = {lane:at(47, 0, T.GY), wall:at(50, 20, T.GY + 8), corr:at(51, 22, T.GY), secret:at(47, -9, T.GY), hidden:at(-32, -55, T.GY + 10/3), room:at(-32, -55, T.GY)};
   check('S', 'STEP_G — 둘레길 흙(1) · 성벽 길·복도 돌(2) · 비밀 방 나무 바닥(3) · 탑 1층 판석 돌(2)', r.lane === 1 && r.wall === 2 && r.corr === 2 && r.secret === 3 && r.hidden === 3 && r.room === 2, r);
   T.CASTLE.fill(0); T.CROOF.fill(0); }
-check('S', "사람 칸 ex(🗝️) · 받는 쪽 p.ex · 이름표 앞 '🗝️'", /ex:treExplorer\(\)\?1:0/.test(code) && /p\.ex = d\.ex\|0;/.test(code) && /p\.ex \? \(bi >= 0 \? '🗝️' \+ BADGES\[bi\]\.ic : '🗝️'\)/.test(code), {});
+check('S', "사람 칸 ex(🗝️) · 받는 쪽 p.ex · 이름표 앞 '🗝️'", /ex:treExplorer\(\)\?1:0/.test(code) && /p\.ex = d\.ex\|0;/.test(code) && /p\.ex \? '🗝️' : ''/.test(code), {});
 check('S', '미니맵 — 성벽 위 좀비(ly) 흰 테두리 · treMini(✦·반짝 다섯)', /if\(w\.ly\)\{ mg\.strokeStyle = '#fff'/.test(code) && /\n\s*treMini\(mg\);/.test(code), {});
 { fresh(); T.TRE.found = 5; T.TRE.opened = 1; T.G.room = 'R'; T.G.day = 3; T.G.t = 10; tick(1, 1/60); T.mg.n = 0; T.treMini(T.mg);
   check('S', 'treMini — 찾은 문 둘 ✦ + 오늘 나타난 반짝 다섯', T.mg.n === 2 + 5, {n:T.mg.n}); }

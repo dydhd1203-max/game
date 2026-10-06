@@ -37,7 +37,7 @@ try{
     const rgb=s=>(s.match(/[\d.]+/g)||[]).map(Number);
     const bg=e=>{for(let n=e;n;n=n.parentElement){const c=rgb(getComputedStyle(n).backgroundColor);if(c.length&&(c.length<4||c[3]>.9))return c.slice(0,3);}return [255,253,247];};
     const out=[];
-    for(const [name,fn] of [['스텟','__openStat'],['가방','__openKit'],['칭호','__openBadge'],['상점','__openShop'],['대장간','__openForge'],['농장','__openFarm'],['도움말','help']]){
+    for(const [name,fn] of [['스텟','__openStat'],['가방','__openKit'],['상점','__openShop'],['대장간','__openForge'],['농장','__openFarm'],['도움말','help']]){
       document.querySelectorAll('.pop.on').forEach(p=>p.classList.remove('on'));
       if(fn==='help')document.getElementById('bBook').click();else window[fn]();
       const pop=document.querySelector('.pop.on .popC');if(!pop){out.push({name,missing:true});continue;}

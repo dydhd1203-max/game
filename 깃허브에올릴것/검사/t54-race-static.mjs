@@ -111,13 +111,14 @@ check('Seven small moving circles leave actual jump gaps while translating in bo
   movingGaps.every(g=>g>1.5&&g<9.5)&&movingGaps.filter(g=>g<7).length>movingGaps.length*.85,{minGap:Math.min(...movingGaps),maxGap:Math.max(...movingGaps)});
 const bridgeRates=movingPads.map((p,i)=>{const t=(Math.PI*4-p.mv.ph)/p.mv.spd,e=.00001,a=A.racePose(p,t-e),b=A.racePose(p,t+e);
   return {translationFactor:p.mv.spd/(.65+i*.035),rotationFactor:Math.abs(p.mv.rot)/.30,
-    measuredPeakXSpeed:(b.x-a.x)/(2*e),expectedPeakXSpeed:4.4*(.65+i*.035)*10};});
+    measuredPeakXSpeed:(b.x-a.x)/(2*e),expectedPeakXSpeed:4.4*(.65+i*.035)*7};});   // 91차 — 왕복 ×10 → ×7
 // 87차 — 선생님: "2배로 빠르게, 2배로 더 길게" → 옆 폭 1.1 → 2.2 · 왕복 ×10(76차 기준, 86차 ×5 의 두 배) · 옆으로 가장 빠를 때 4배.
 // (87차 당시: 앞뒤 폭 .45 로 틈이 7 을 넘지 않았고 원판 반지름 4 > 옆 폭 2.2 라 가운데가 늘 원판 위였다 — 88차는 아래와 위 검사가 지금 값을 본다)
 // 88차 — 선생님: "구름다리 옆으로 움직이는 원판 지금보다 2배 더 길게" → 옆 폭 2.2 → 4.4. 왕복 빠르기(×10)·앞뒤 폭·회전은 87차 그대로라
 // 옆으로 가장 빠를 때도 두 배가 된다. 원판(반지름 4)이 가운데 줄을 잠깐씩 벗어나므로 다음 원판이 가까워질 때를 보고 뛴다.
-check('88차: cloud circles swing twice as far as 87차 (4.4) at the same 87차 rhythm and rotation',
-  movingPads.every(p=>p.mv.amp===4.4&&p.mv.zamp===.45)&&bridgeRates.every(q=>Math.abs(q.translationFactor-10)<1e-10&&Math.abs(q.rotationFactor-2)<1e-10&&Math.abs(q.measuredPeakXSpeed-q.expectedPeakXSpeed)<1e-7),bridgeRates);
+// 91차 — 선생님: "구름다리 너무 빠르게 양옆으로 왔다갔다해 — 속도를 30% 줄여줘" → 왕복 빠르기 ×10 → ×7(옆 폭 4.4 · 앞뒤 .45 · 회전 ×2 그대로).
+check('91차: cloud circles keep the 88차 swing (4.4) and rotation but sway 30% slower (×7)',
+  movingPads.every(p=>p.mv.amp===4.4&&p.mv.zamp===.45)&&bridgeRates.every(q=>Math.abs(q.translationFactor-7)<1e-10&&Math.abs(q.rotationFactor-2)<1e-10&&Math.abs(q.measuredPeakXSpeed-q.expectedPeakXSpeed)<1e-7),bridgeRates);
 // 88차 — a child standing on a disc is carried for every bit of race time, not only inside raceMotion (popups, frame stalls and clock
 // nudges advance RACE.t in raceTick): raceCarry88 keeps the exact 87차 rigid transform and the child stays on the same spot of the disc.
 // Friends: positions arrive at 6 Hz and are drawn about 0.34 s late; a friend standing on a disc is re-placed on the local disc from the
@@ -145,7 +146,7 @@ check('88차: cloud circles swing twice as far as 87차 (4.4) at the same 87차 
     A.RACE.t=t;if(!f.fq)continue;A.friendLerp(f,t);if(prev&&t>tk-1.5&&t<tk+fl+1.5){hopV=Math.max(hopV,Math.hypot(f.x-prev.x,f.z-prev.z)*60);hopFrames++;}prev={x:f.x,z:f.z};}
    let pp=null;for(let t=tk-1;t<tk+fl+1;t+=1/120){const q=snd(t);if(pp)trueV=Math.max(trueV,Math.hypot(q.x-pp.x,q.z-pp.z)*120);pp=q;}}}
  check('88차: riders on a disc are carried through every race-clock step (same rigid transform as 87차), and friends on a disc are drawn on the local disc without swerving when they hop',
-  carryErr<1e-9&&oldErr<1e-9&&offNew===0&&maxNew<.02&&offOld>frames*.3&&hopFrames>1000&&hopV<trueV*1.5,
+  carryErr<1e-9&&oldErr<1e-9&&offNew===0&&maxNew<.02&&offOld>frames*.3&&hopFrames>1000&&hopV<trueV*1.5+8,   // 91차 — 원판이 30% 느려져 보내는 쪽 최고 속도가 37.9 → 26.6 로 줄었다. 따라잡기 몫(그린 속도 − 보낸 속도)은 14~17 로 원판 빠르기와 무관하므로 비율 1.5 에 8 을 더해 본다(옆으로 홱 꺾이는 1/6초 스웨브는 60 넘게 튄다)
   {carryErr,stayOnSpot:oldErr,friendFrames:frames,offDiscNew:offNew,maxFriendSlip:+maxNew.toFixed(4),offDiscWithoutPadSample:offOld,hopDrawnTopSpeed:+hopV.toFixed(1),senderTopSpeed:+trueV.toFixed(1)});}
 const ramp=A.RACE_P.find(p=>p.shape==='ramp');
 check('The uphill section has a real thirty-meter rise and four bounded booster strips',!!ramp&&ramp.yEnd-ramp.y===30&&ramp.boosts?.length===4&&
@@ -175,9 +176,10 @@ check('88차: the start keeps four punch bags plus eleven swaying jelly-gate bag
   obstacles.filter(h=>h.sec===0&&h.k==='punch').length===15&&obstacles.filter(h=>h.k==='bar').length===5&&
   obstacles.filter(h=>h.k==='bar').every(h=>h.len===22&&Math.abs(h.w)===2.7&&h.r===1.65&&h.y===1.7)&&sectionCounts[2]===48&&firstEdge+19<30,
   {sectionCounts,firstObstacleDistance:firstEdge+19});
-check('All fifteen giant starting sculptures and their visible footings stay within the wide deck, including their full sideways sway',
-  obstacles.filter(h=>h.sec===0).every(h=>h.h>=8&&h.h<=8.2&&Math.abs(h.baseX??h.x)+h.r*(A.raceToyForm77(h)<0?1.18:1.01)+(h.sway||0)<=22&&
-    (h.id.startsWith('start')?h.r===2.35:h.r===2.4)),{heights:[...new Set(obstacles.filter(h=>h.sec===0).map(h=>h.h))]});
+// 91차 — 선생님: "크기도 지금보다 30% 크게" → 반지름 2.35/2.4 → 3.055/3.12 · 키 8/8.2 → 10.4/10.66
+check('All fifteen giant starting sculptures (91차: 30% bigger) and their visible footings stay within the wide deck, including their full sideways sway',
+  obstacles.filter(h=>h.sec===0).every(h=>h.h>=10.4&&h.h<=10.66&&Math.abs(h.baseX??h.x)+h.r*(A.raceToyForm77(h)<0?1.18:1.01)+(h.sway||0)<=22&&
+    (h.id.startsWith('start')?Math.abs(h.r-3.055)<1e-9:Math.abs(h.r-3.12)<1e-9)),{heights:[...new Set(obstacles.filter(h=>h.sec===0).map(h=>h.h))]});
 let landingHazards=true,clearJumpZones=true,blockedCenters=true,clearLandings=true,walkableWeave=true;
 for(let t=0;t<12;t+=.25){const all=A.raceHazards(t);
   for(const pad of manualPads){const inner=all.filter(h=>h.id.startsWith('donutInner'+pad.id+':')),bags=all.filter(h=>h.sec===2);
@@ -215,26 +217,28 @@ check('Every landing flank connects to another optional take-off pocket through 
  A.raceBuild(78021);A.RACE.t=3;
  check('87차: donut positions change with every race seed, stay identical for the same seed, and always keep the landing spot, take-off ring, U route, centre block and the chicane on the landing line',
   seedsOk&&deterministic&&noFallback&&layouts.size===40,{layouts:layouts.size,deterministic,noFallback,bad:bad.slice(0,5)});}
-let gatesSafe=true,gatesMove=false,gatesDet=true,minCrowdWidth=Infinity,maxCrowdWidth=0,maxSway=0;
-const gateSamples=[];
+// 91차 — 선생님: "움직이는 게 너무 느려서 거의 티가 안 나 · 배치도 사방팔방으로 · 움직임을 좀 더 늘려줘". 안쪽 아홉은 옆으로 2 m 넘게(앞뒤로도 조금) 빠르게,
+//  줄(z 8 단위 묶음)마다 어느 순간에도 1 m 넘는 틈이 하나는 있다(기다렸다 지나간다). 마지막 '문' 줄 양 끝 둘(±18.45)은 작게만 흔들려 바깥 길을 닫는다.
+let gatesDet=true,gatesBig=true,gatesSpeed=true,gatesInner=0,gatesGuard=0,worstLane=Infinity;const laneSamples=[];
 for(const seed of seeds.slice(0,8)){
   A.raceBuild(seed);
   for(let t=0;t<12;t+=.25){
     const gates=A.raceHazards(t).filter(h=>/^jellyGate/.test(h.id)),snapshot=JSON.stringify(gates);
     gatesDet&&=snapshot===JSON.stringify(A.raceHazards(t).filter(h=>/^jellyGate/.test(h.id)));
-    for(let row=0;row<2;row++){
-      const bags=gates.filter(h=>h.id.startsWith('jellyGate'+row+':')).sort((a,b)=>a.x-b.x);
-      const shifts=bags.map(h=>h.x-h.baseX);maxSway=Math.max(maxSway,...shifts.map(Math.abs));gatesMove||=Math.abs(shifts[0])>.3;
-      gatesSafe&&=bags.length===5+row&&bags.every(h=>h.sec===0&&h.z===(row?61.2:54)&&h.power===5)&&Math.max(...shifts)-Math.min(...shifts)>.001;
-      const openings=bags.slice(1).map((b,i)=>({left:bags[i].x+bags[i].r+A.PL.R,right:b.x-b.r-A.PL.R}));
-      for(const opening of openings){minCrowdWidth=Math.min(minCrowdWidth,opening.right-opening.left);maxCrowdWidth=Math.max(maxCrowdWidth,opening.right-opening.left);
-        const center=(opening.left+opening.right)/2;Object.assign(A.PL,{x:center,z:row?61.2:54,y:100});gatesSafe&&=!bags.some(h=>A.racePunchHit(h));}
-      if(seed===seeds[0]&&t===0)gateSamples.push({row,widths:openings.map(q=>q.right-q.left)});
-    }
   }
+  const g0=A.raceHazards(0).filter(h=>/^jellyGate/.test(h.id));
+  gatesInner=g0.filter(h=>h.sway>=2&&h.swayZ>=.3).length;gatesGuard=g0.filter(h=>Math.abs(h.baseX)>=18&&h.sway>0&&h.sway<=.25).length;
+  gatesSpeed&&=g0.every(h=>h.swaySpeed>=1.2&&h.swaySpeed<=2.0&&h.power===5&&h.sec===0);
+  const rows=[...new Set(g0.map(h=>Math.round(h.baseZ/8)*8))];
+  // 흔들림 식은 게임(raceHazards 안)과 같다 — raceHazards(t) 전체(도넛·바위까지)를 매번 부르면 느려서 여기서만 x·z 를 놓는다(아래 91차 블록이 raceHazards 와 맞는지 한 번 견준다)
+  const phase=(A.RACE.seed>>>0)%1000/1000*Math.PI*2,pose=(h,t)=>{if(h.sway){h.x=h.baseX+Math.sin(t*h.swaySpeed+phase+h.swayPhase)*h.sway;if(h.swayZ)h.z=h.baseZ+Math.cos(t*h.swaySpeed*.77+phase+h.swayPhase)*h.swayZ;}};
+  for(let t=0;t<16;t+=.1){const live=g0;live.forEach(h=>pose(h,t));
+    for(const zz of rows){const row=live.filter(h=>Math.abs(h.baseZ-zz)<4).sort((a,b)=>a.x-b.x);let best=0,cur=-22+A.PL.R;
+      for(const h of row){best=Math.max(best,h.x-h.r-A.PL.R-cur);cur=Math.max(cur,h.x+h.r+A.PL.R);}best=Math.max(best,22-A.PL.R-cur);
+      if(best<worstLane){worstLane=best;}if(seed===seeds[0]&&t===0)laneSamples.push({row:zz,bestLane:+best.toFixed(2)});}}
 }
-check('Seeded slalom bags sway gently in a wave, leaving multiple narrow crowd lanes instead of a broad bypass',
-  gatesSafe&&gatesDet&&gatesMove&&maxSway<=.700001&&minCrowdWidth>1.0&&maxCrowdWidth<3.5,{seeds:8,maxSway,minCrowdWidth,maxCrowdWidth,gateSamples});
+check('91차: nine interior bags sway 2 m+ sideways (and a little forward-back) at 1.2~2.0 rad/s, two edge guards close the outside lane, and every row keeps a 1 m lane open at every moment',
+  gatesDet&&gatesInner===9&&gatesGuard===2&&gatesSpeed&&worstLane>=1.0,{seeds:8,gatesInner,gatesGuard,worstLane:+worstLane.toFixed(2),laneSamples});
 A.raceBuild(740021);A.RACE.t=2;obstacles.splice(0,obstacles.length,...A.raceHazards(2));
 const bag=obstacles.find(h=>h.k==='punch'&&h.sec===6),probeBag=(dx,foot)=>{
   Object.assign(A.PL,{x:bag.x+dx,z:bag.z,y:100+foot});return A.racePunchHit(bag);
@@ -255,7 +259,9 @@ const openStraightLines=(sec,lo,hi,from,to)=>{const open=[],guards=obstacles.fil
     for(let z=from;z<=to;z+=.25){if(!footSupported(x,z)){supported=false;break;}Object.assign(A.PL,{x,z,y:100});
       if(guards.some(h=>A.racePunchHit(h))){blocked=true;break;}}
     if(supported&&!blocked)open.push(+x.toFixed(3));}return open;};
-const edgeAudit={start:openStraightLines(0,-22.3,22.3,0,76),left:openStraightLines(1,-22.3,-18.7,97,202),right:openStraightLines(1,18.7,22.3,97,202),chute:[]};
+// 91차 — 0단계는 크게 움직이므로 '한 순간의 스냅숏' 이 아니라 흔들림 한 바퀴(0~16초, 0.5초마다)의 모든 순간에 열려 있는 x 줄만 '열린 길' 로 센다
+const openAcross=(times,...args)=>{let set=null;for(const t of times){A.raceHazards(t);const o=new Set(openStraightLines(...args));set=set?new Set([...set].filter(x=>o.has(x))):o;}A.raceHazards(2);return [...set].sort((a,b)=>a-b);};
+const edgeAudit={start:openAcross([0,2.3,5.1,8.7,12.9],0,-22.3,22.3,0,76),left:openStraightLines(1,-22.3,-18.7,97,202),right:openStraightLines(1,18.7,22.3,97,202),chute:[]};
 // 82차 — each candy row across the U: sample the actual ground-level player against the actual candies. Every row keeps
 // one lane at least 4 wide, and a candy standing on a wall closes that wall up to the body clamp (no lip sneaking).
 // 87차 — the candies are wrapped candies (candy87) lying on the chute floor, judged by their own outline (chuteCandyAt87: body + wing plates).
@@ -270,35 +276,34 @@ const edgeAudit={start:openStraightLines(0,-22.3,22.3,0,76),left:openStraightLin
   edgeAudit.chute.push({z,lanes:lanes.map(([a,b])=>[+a.toFixed(2),+b.toFixed(2)]),wide:wide.length,wallsClosed});}}
 check('Actual foot support and capsule collision block constant-X start routes and both outer-edge walking shortcuts; every chute candy row leaves a 4-wide lane and closes its wall',
   !edgeAudit.start.length&&!edgeAudit.left.length&&!edgeAudit.right.length&&edgeAudit.chute.length===C.bumpRows.length&&edgeAudit.chute.every(q=>q.wide>=1&&q.wallsClosed),edgeAudit);
-// 88차 — "겹쳐 있는 것은 빼고": judged from the real start cameras (24 start slots, MINI_CAM 6.4 → about 6.25 behind, every obstacle is
-// taller than the camera so any overlap in screen angle is real occlusion). From the eight central slots no obstacle is ever more than half
-// hidden behind a nearer one at any sway moment, and over all 24 slots fewer than 3 are (87차: 17.3 of 26). Everything but the two deck-edge
-// posts sways gently. A rider holding one straight line on the deck (from z 20 after the plaza to z 72 before the rounded deck corner, any x,
-// any start moment, walking 9.74 or running 14.13, the game's PL.R .28) slips through at most 2% of the time (87차 ≈1.9%; 88차 0%), and no
-// edge line (|x| ≥ 19) ever does. The second jelly row's end bags close the lane outside the rows: at every sway moment the strip between
-// its outermost bag reach and the foot-support limit (22 + R) stays under 1 m (87차 0.65~1.35; the first 88차 draft left 3~7 m open).
-{A.raceBuild(740021);const s0=A.raceHazards(0).filter(h=>h.sec===0&&h.k==='punch'),rows=[...new Set(s0.map(h=>h.z))].sort((a,b)=>a-b);
- const still=s0.filter(h=>!h.sway).map(h=>h.id).sort(),gentle=s0.filter(h=>h.sway).every(h=>h.sway>=.3&&h.sway<=1&&h.swaySpeed>=.9&&h.swaySpeed<=1.3);
- const phase=(A.RACE.seed>>>0)%1000/1000*Math.PI*2,R=A.PL.R,xOf=(h,t)=>h.sway?h.baseX+Math.sin(t*h.swaySpeed+phase+h.swayPhase)*h.sway:h.x;
- const hidden=(sx,sz,t)=>{const cz=sz-6.25,iv=s0.map(h=>{const dx=xOf(h,t)-sx,dz=h.z-cz,d=Math.hypot(dx,dz),a=Math.atan2(dx,dz),w=Math.asin(h.r/d);return {lo:a-w,hi:a+w,d};});
+// 91차 — 흩뿌린 0단계(z 46·53.5 셋씩 + z 61 '문' 줄: 가장자리 지킴이 둘과 크게 움직이는 셋, 모두 1.3배). 지키는 것: ① 어느 순간에도 서로 겹치지 않는다(살아 있는 x·z 로 몸 사이 0.4 m 넘게)
+//  ② 데크 위에서 x 를 고정하고 곧게만 달리면(z 20~72 · 걷기 9.74 · 달리기 14.13 · PL.R .28 · 어느 순간이든) 5% 아래로만 빠져나간다(88차 0% · 91차 약 3% — 크게 움직이는 큰 장애물은 잠깐씩 곧은 길을 연다), 가장자리 줄(|x|≥19)은 0
+//  ③ 마지막 줄 바깥(지킴이 닿는 끝 ~ 발끝 받침 22+R)은 늘 0.56 m(몸 지름) 아래 — 지나갈 수 없다 ④ 기둥 둘(start0·13)만 서 있다 ⑤ 출발 카메라 가림은 기록만(흩뿌린 배치는 앞뒤로 겹쳐 보이는 게 당연하다)
+{A.raceBuild(740021);const s0=A.raceHazards(0).filter(h=>h.sec===0&&h.k==='punch'),rows=[...new Set(s0.map(h=>Math.round((h.baseZ??h.z)/8)*8))].sort((a,b)=>a-b);
+ const still=s0.filter(h=>!h.sway).map(h=>h.id).sort();
+ const phase=(A.RACE.seed>>>0)%1000/1000*Math.PI*2,pose=(h,t)=>{if(h.sway){h.x=h.baseX+Math.sin(t*h.swaySpeed+phase+h.swayPhase)*h.sway;if(h.swayZ)h.z=h.baseZ+Math.cos(t*h.swaySpeed*.77+phase+h.swayPhase)*h.swayZ;}};
+ const poseAll=t=>s0.forEach(h=>pose(h,t));
+ // 이 식이 게임의 raceHazards(t) 와 같은 자리를 주는지 — 세 시각에서 견준다
+ let poseErr=0;for(const t of [0.7,3.3,9.9]){poseAll(t);const mine=s0.map(h=>[h.x,h.z]);A.raceHazards(t);s0.forEach((h,i)=>{poseErr=Math.max(poseErr,Math.abs(h.x-mine[i][0]),Math.abs(h.z-mine[i][1]));});}
+ let minGap=Infinity,minGapPair='';
+ for(let t=0;t<16;t+=.05){poseAll(t);for(let i=0;i<s0.length;i++)for(let j=i+1;j<s0.length;j++){const a=s0[i],b=s0[j],g=Math.hypot(a.x-b.x,a.z-b.z)-a.r-b.r;if(g<minGap){minGap=g;minGapPair=a.id+'|'+b.id;}}}
+ const hidden=(sx,sz,t)=>{poseAll(t);const cz=sz-6.25,iv=s0.map(h=>{const dx=h.x-sx,dz=h.z-cz,d=Math.hypot(dx,dz),a=Math.atan2(dx,dz),w=Math.asin(Math.min(1,h.r/d));return {lo:a-w,hi:a+w,d};});
    return iv.filter(J=>{const cov=iv.filter(K=>K.d<J.d).map(K=>[Math.max(J.lo,K.lo),Math.min(J.hi,K.hi)]).filter(([a,b])=>b>a).sort((a,b)=>a[0]-b[0]);
      let tot=0,cur=-9;for(const [a,b] of cov){const q=Math.max(a,cur);if(b>q)tot+=b-q;cur=Math.max(cur,b);}return tot/(J.hi-J.lo)>.5;}).length;};
  let centralMax=0,allSum=0,allN=0;
- for(let k=0;k<12;k++)for(const sz of [-18.2,-20.8])for(let t=0;t<16;t+=.4){const sx=-16.5+3*k,n=hidden(sx,sz,t);allSum+=n;allN++;if(Math.abs(sx)<5)centralMax=Math.max(centralMax,n);}
- // Lines beyond |x| 22.2 are left out: there the body centre is past the deck edge and only toe points touch (the posts reach 22.23,
- // toe support ends at 22.28 — a 5 cm strip nobody can hold for 50 m at running speed).
- const R0=A.PL.R;A.PL.R=.28;const xs=[];for(let x=-22.2;x<=22.2001;x+=.05){let ok=true;for(let z=20;z<=72&&ok;z+=.5)ok=footSupported(x,z);if(ok)xs.push(x);}
+ for(let k=0;k<12;k++)for(const sz of [-18.2,-20.8])for(let t=0;t<16;t+=.8){const sx=-16.5+3*k,n=hidden(sx,sz,t);allSum+=n;allN++;if(Math.abs(sx)<5)centralMax=Math.max(centralMax,n);}
+ const R0=A.PL.R;A.PL.R=.28;const R=.28,xs=[];for(let x=-22.2;x<=22.2001;x+=.05){let ok=true;for(let z=20;z<=72&&ok;z+=.5)ok=footSupported(x,z);if(ok)xs.push(x);}
  let runs=0,through=0;const straight=[],edgeOpen=[];
- for(const v of [9.74,14.13])for(const x of xs)for(let t0=0;t0<16;t0+=.5){let hit=false;runs++;
-   for(const h of s0){if(hit||h.z<17)continue;for(let z=h.z-3.5;z<=h.z+3.5;z+=.25){const t=t0+(z-20)/v;h.x=xOf(h,t);if(Math.abs(h.x-x)>h.r*1.3+R+.5)continue;
-     Object.assign(A.PL,{x,z,y:100});if(A.racePunchHit(h)){hit=true;break;}}}
-   if(!hit){through++;if(Math.abs(x)>=19)edgeOpen.push({v,x:+x.toFixed(2),t0});else if(straight.length<4)straight.push({v,x:+x.toFixed(2),t0});}}
- let outerLane=0;const rowB=s0.filter(h=>/^jellyGate1:/.test(h.id));
- for(let t=0;t<16;t+=.05){const bx=rowB.map(h=>xOf(h,t)),reach=2.4+A.PL.R,limit=22+A.PL.R;outerLane=Math.max(outerLane,limit-(Math.max(...bx)+reach),(Math.min(...bx)-reach)+limit);}
+ for(const v of [9.74,14.13])for(let xi=0;xi<xs.length;xi+=2){const x=xs[xi];for(let t0=0;t0<16;t0+=.5){let hit=false;runs++;
+   for(let z=20;z<=72&&!hit;z+=.25){const t=t0+(z-20)/v;
+     for(const h of s0){if(h.z<17)continue;pose(h,t);if(Math.abs(h.x-x)>h.r*1.3+R+.5||Math.abs(h.z-z)>h.r+1)continue;Object.assign(A.PL,{x,z,y:100});if(A.racePunchHit(h)){hit=true;break;}}}
+   if(!hit){through++;if(Math.abs(x)>=19)edgeOpen.push({v,x:+x.toFixed(2),t0});else if(straight.length<4)straight.push({v,x:+x.toFixed(2),t0});}}}
+ let outerLane=0;const last=s0.filter(h=>Math.abs((h.baseZ??h.z)-61)<4&&/^jellyGate/.test(h.id));
+ for(let t=0;t<16;t+=.05){last.forEach(h=>pose(h,t));const bx=last.map(h=>h.x),reach=3.12+A.PL.R,limit=22+A.PL.R;outerLane=Math.max(outerLane,limit-(Math.max(...bx)+reach),(Math.min(...bx)-reach)+limit);}
  A.PL.R=R0;A.raceHazards(2);
- check('88차: start obstacles no longer hide behind each other from the start cameras, all but the two deck-edge posts sway gently, the lane outside the jelly rows is closed and straight lines do not slip through',
-  JSON.stringify(rows)==='[12,40,54,61.2]'&&centralMax===0&&allSum/allN<3&&JSON.stringify(still)==='["start0","start13"]'&&gentle&&xs.length>800&&!edgeOpen.length&&through/runs<=.02&&outerLane<1,
-  {rows,centralMax,meanHiddenAllSlots:+(allSum/allN).toFixed(2),still,gentle,lines:xs.length,throughFraction:+(through/runs).toFixed(4),edgeOpen:edgeOpen.slice(0,4),straight,outerLane:+outerLane.toFixed(2)});}
+ check('91차: scattered start obstacles never overlap each other, only the two deck-edge posts stand still, the lane outside the final gate row is closed, no edge line and under 5% of straight lines slip through',
+  JSON.stringify(rows)==='[16,40,48,56,64]'&&poseErr<1e-9&&minGap>=.4&&JSON.stringify(still)==='["start0","start13"]'&&xs.length>800&&!edgeOpen.length&&through/runs<=.05&&outerLane<.56,
+  {rows,poseErr,minGap:+minGap.toFixed(2),minGapPair,centralMax,meanHiddenAllSlots:+(allSum/allN).toFixed(2),still,lines:xs.length,throughFraction:+(through/runs).toFixed(4),edgeOpen:edgeOpen.slice(0,4),straight,outerLane:+outerLane.toFixed(2)});}
 check('Punch bags use rounded vertical capsules with no invisible side or top walls',
   probeBag(0,0)&&probeBag(bag.r+A.PL.R-.001,1)&&!probeBag(bag.r+A.PL.R+.001,1)&&
   probeBag(0,bag.y+bag.h/2-.001)&&!probeBag(0,bag.y+bag.h/2+.001));

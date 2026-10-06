@@ -1363,25 +1363,6 @@ body.touch #topRight2 .kk{display:none}
 .stDeriv .dVal{margin-left:auto;font:600 13px/1 var(--num);color:#ffe9b0;white-space:nowrap}
 .stDeriv .dFrom{font-weight:600;font-size:10px;opacity:.45;white-space:nowrap}
 
-/* ── 🎖️ 칭호 칸 (22차) — 받은 것과 아직 못 받은 것을 한 판에 같이 둔다.
-   ★ 못 받은 것을 숨기면 '다음에 뭘 하지' 가 안 보인다. 흐리게 두되 조건은 읽히게 한다.
-   ★ 칸 너비를 숫자로 잡지 않는다 — auto-fill 로 화면 폭에 맡긴다(좁으면 한 줄에 하나). */
-#bgTop{font-weight:600;font-size:13px;color:#ffe08a;margin-bottom:2px}
-#bgNext{font-weight:600;font-size:12px;opacity:.85;margin:3px 0 8px}
-/* ★ 23차 — 스탯 창에 '나오는 능력치' 판이 붙으면서 창이 길어졌다. 재 보니 교실 크롬북
-   (1024×600)에서 641px 이 스크롤 뒤로 숨었다. 스크롤 막대가 잘 안 보여서 '아래에 더 있다' 를
-   아무도 모르는 건 이 파일이 이미 겪은 함정이다. 칭호 칸에 제 높이를 줘서 창 자체를 묶는다. */
-.bgGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:7px;
-  max-height:min(420px,56vh);overflow:auto;padding:2px}
-#popBadge .popC{width:min(760px,94vw)}
-.bgIt{display:flex;gap:8px;align-items:center;padding:7px 9px;border-radius:11px;
-  border:1.5px solid rgba(255,255,255,.13);background:rgba(255,255,255,.04);opacity:.45}
-.bgIt.on{opacity:1;background:rgba(255,255,255,.07)}
-.bgIt .bi{font-size:21px;line-height:1;flex:0 0 auto;width:26px;text-align:center;filter:grayscale(1)}
-.bgIt.on .bi{filter:none}
-.bgIt .bb{flex:1 1 auto;min-width:0}
-.bgIt .bn{font-weight:600;font-size:12.5px;line-height:1.2}
-.bgIt .bd{font-weight:700;font-size:10.5px;line-height:1.3;opacity:.75;margin-top:1px}
 
 #statRow{display:flex;gap:8px;align-items:center;margin-top:5px;
   font:600 12px/1 var(--num)}
@@ -1969,11 +1950,6 @@ table.rank th,table.rank td{border-bottom:1px solid var(--pk-line);color:var(--p
 .stIt{background:#fff;border-color:var(--pk-line)} .stIt .si{filter:none} .stIt .sd{opacity:.85}
 .stPips i{background:rgba(120,104,170,.16)} .stPips i.on{background:linear-gradient(90deg,#ffe89a,#ffb347)}
 .stIt button{background:linear-gradient(180deg,#fff6cf,#ffe28a);border:2px solid #fff;color:#4a3c00;box-shadow:0 3px 0 #e0b040}
-/* 칭호 */
-#bgTop{color:#a07a00} #bgNext{color:var(--pk-ink);opacity:1}
-.bgIt{background:#fff;border:1.5px solid var(--pk-line);opacity:.55} .bgIt.on{opacity:1;background:#fff;box-shadow:0 3px 0 var(--pk-lav)}
-.bgIt .bi{filter:grayscale(1) opacity(.6)} .bgIt.on .bi{filter:none} .bgIt .bi img.ic{height:30px}
-.bgIt .bn{color:var(--pk-ink)!important} .bgIt.on .bn{color:inherit!important} .bgIt .bd{color:var(--pk-ink2);opacity:1}
 
 /* ── 시작 화면 ── */
 .card{background:linear-gradient(180deg,#fffdf9,#fbf7ff);border:3px solid #fff;color:var(--pk-ink);box-shadow:0 24px 60px -20px rgba(50,30,100,.45), 0 6px 0 var(--pk-lav)}
@@ -1997,7 +1973,7 @@ input.f:focus,select.f:focus{border-color:#ffd257;box-shadow:0 0 0 3px rgba(255,
 #load{color:#3b3550} #load .bar{background:rgba(255,255,255,.5)} #load .bar i{background:#5fcf9a}
 #tQ{background:#fff;border-color:var(--pk-line2);color:var(--pk-ink)}
 /* 작은 화면 — 그림이 글자보다 커서 위쪽 판이 조금씩 길어진다(t13 760×420 에서 겹쳤다). 같이 줄인다.
-   칭호 단추는 Y 로도 열리니 낮은 화면에서는 접는다. */
+   (91차 — 칭호 단추는 없어졌다) */
 @media (max-height:700px){  }
 @media (max-height:560px){
   .gcell .gs img.ic{height:13px} #misIc img.ic,#bossIc img.ic{height:12px} #crystalWrap .lb img.ic{height:11px}
@@ -2215,7 +2191,7 @@ body:not(.touch) #hint{left:14px;right:auto;bottom:14px;transform:none;max-width
 
 /* 창 안의 카드·탭·입력칸도 같은 밝기로. */
 .popC .res,.popC .hrow,.popC .sItem,.popC .stIt,.popC .stDeriv,.popC .kCell,.popC .kSlot,
-.popC .bgIt,.popC .jobCard,.popC .gcell,.popC .chip,.popC .card,.popC .tag,
+.popC .jobCard,.popC .gcell,.popC .chip,.popC .card,.popC .tag,
 #kitStat,#shopRes,#tQ,#kitFoot,#endCard,.ec-i{
  background:#f3f8fc!important;border-color:var(--rb-line)!important;box-shadow:none!important;color:var(--rb-ink)}
 .popC input.f,.popC select.f,#giveWrap button,#potRow button,#kitTabs button,.popC .grp button,.popC .sItem button{
@@ -2227,7 +2203,7 @@ body:not(.touch) #hint{left:14px;right:auto;bottom:14px;transform:none;max-width
 .sItem .sn,.popC .sNm,.popC .jName{color:var(--rb-ink)}
 .popC .sd,.popC .kd,.popC .kTag,.popC .jDesc,.popC .gline,.popC .gv,.popC .bn,.popC .mb,.popC .kitNone,
 .popC .sl b,.popC .hrow b,#stPts,#kitFoot{color:var(--rb-ink2)}
-.popC .jStat,.popC .sc,.popC .gv b,.enhLv,#kitCount,#bgTop,#stPts b,.ifBar .vl,.stDeriv .dVal{color:var(--rb-gold)}
+.popC .jStat,.popC .sc,.popC .gv b,.enhLv,#kitCount,#stPts b,.ifBar .vl,.stDeriv .dVal{color:var(--rb-gold)}
 .sItem button{border-radius:8px;font-weight:600}.popC .sItem button.buy{background:#b4e7cd!important;border-color:#71ad91!important;color:#214f3c}
 .enhOdds,.ifBar .tk,.ec-b .tr{background:#dae7ee}
 .jobCard .jFig{background:linear-gradient(155deg,#e1f1fc,#e5f4eb);border-color:var(--rb-line)}
@@ -2241,7 +2217,7 @@ body:not(.touch) #hint{left:14px;right:auto;bottom:14px;transform:none;max-width
 .jobCard{background:#f3f8fc;border:1px solid var(--rb-line);box-shadow:none;color:var(--rb-ink)}
 .jobCard .jGo{background:#d0eafa;border-color:#548bac;color:#234f6c;box-shadow:none}
 .shopHint b,.hrow b{background:none!important;padding:0!important;border-radius:0!important;color:var(--rb-ink);font-weight:600}
-.bgIt .bn,.bgIt.on .bn{color:var(--rb-ink)!important}.bgIt .bd{color:var(--rb-ink2)}
+
 .ec-t,.ec-note b{color:var(--rb-gold)}.ec-t2{color:var(--rb-ink2)}
 table.rank th{color:var(--rb-ink2)}table.rank td{color:var(--rb-ink)}
 .hrow,.sl,.gline,.shopHint,.hint{color:var(--rb-ink2)}
@@ -3942,7 +3918,6 @@ body.waiting78 #hud,body.story78 #hud{visibility:hidden!important}body.waiting78
          글자 없이 그림 하나 + 열쇠 글자 하나(kk). 이름은 title 로(마우스를 올리면 뜬다). -->
     <button class="btn rb" id="bStat" title="스텟 창 (C)">🐑<span class="kk">C</span></button>
     <button class="btn rb" id="bKit" title="가방 (I)">🎒<span class="kk">I</span></button>
-    <button class="btn rb" id="bBadge" title="칭호 (Y)">🎖️<span class="kk">Y</span></button>
     <button class="btn rb" id="bGive" title="자원 보내기">📦</button>
     <button class="btn rb" id="bInfo" title="건물 수치 (U)">📊<span class="kk">U</span></button>
     <button class="btn rb" id="bBook" title="도움말">📖</button>
@@ -4073,17 +4048,6 @@ body.waiting78 #hud,body.story78 #hud{visibility:hidden!important}body.waiting78
   <h3>📊 지금 내 능력치</h3>
   <div id="stDeriv" class="stDeriv"></div>
   <div class="row"><button class="btn pri" data-close="popStat">닫기</button></div>
-</div></div>
-
-<!-- 칭호 (28차 — 스텟 창에서 떼어 Y 로. "C 눌렀을 때 너무 길어") -->
-<div class="pop" id="popBadge"><div class="popC">
-  <h2>🎖️ 내 칭호</h2>
-  <p class="shopHint">남과 겨루는 것이 아닙니다. <b>조건만 넘으면 누구나</b> 받아요.
-    받은 칭호 중 <b>제일 어려운 것</b>이 머리 위 이름표에 뜹니다.</p>
-  <div id="bgTop"></div>
-  <div id="bgNext"></div>
-  <div id="bgList" class="bgGrid"></div>
-  <div class="row"><button class="btn pri" data-close="popBadge">닫기</button></div>
 </div></div>
 
 <!-- 전직 -->
@@ -4394,7 +4358,7 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
    같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '90차 · 투명 그리기 손질';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '91차 · 칭호 삭제·출발 숲 손질';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -24146,8 +24110,6 @@ function buyPotion(i, approved=false){
      바꿔 쓸 수가 없었다(망루에 올라갈 땐 저격총, 문 앞에선 연발총). */
 /* ═══════ 스텟 창 (C) ═══════ */
 function openStat(){ buildStatUI(); openPop('popStat'); }
-/* 28차 — 칭호 창(Y). 스텟 창이 너무 길어서 뗐다 */
-function openBadge(){ buildBadgeUI(); openPop('popBadge'); }
 
 /* ═══════════ 전직 고르기 ═══════════
    ★ 1차에서 고른 길로만 2차를 간다 — 길을 갈아탈 수 있으면
@@ -24297,24 +24259,6 @@ function buildDerivUI(){
     `<div class="dRow"><span class="dNm">${n}</span>`
     + `<span class="dFrom">${from}</span><span class="dVal">${v}</span></div>`).join('');
 }
-/* ═══════ 🎖️ 칭호 칸 (22차) ═══════
-   ★ 창을 열 때만 그린다 — 매 프레임 도는 자리가 아니다. */
-function buildBadgeUI(){
-  const bw = el('bgList'); if(!bw) return;
-  syncMyPC();                              // 방금 캔 것까지 세어서 보여 준다
-  const got = new Set(badgeList(myPC));
-  el('bgTop').innerHTML = `🎖️ 받은 칭호 <b>${got.size}</b> / ${BADGES.length}`;
-  const nx = badgeNext(myPC);
-  el('bgNext').innerHTML = nx
-    ? `다음 — <b style="color:${BG_COL[nx.B.t-1]}">${nx.B.ic} ${nx.B.nm}</b> `
-      + `(${nx.left}${nx.B.u}만 더!)`
-    : `🏆 <b>${BADGES.length}개를 다 모았어요!</b>`;
-  bw.innerHTML = BADGES.map((B,i)=>
-    `<div class="bgIt${got.has(i)?' on':''}"><div class="bi">${B.ic}</div><div class="bb">`
-    + `<div class="bn" style="color:${got.has(i)?BG_COL[B.t-1]:'#fff'}">${B.nm}</div>`
-    + `<div class="bd">${got.has(i)?'✔ 받음':esc(B.d)}</div></div></div>`).join('');
-}
-
 /* ═══════════════════════ 🎒 가방 — 전투 장비와 물약 ═══════════════════════
    꾸미기는 시작 화면에서만 고른다. 진행 중에는 가진 무기·방어구·물약과 현재 장비만 보여 준다. */
 const KIT_TABS = [['all','전체'], ['wpn','🔫 무기'], ['arm','🛡️ 방어구'], ['pot','🧪 물약']];
@@ -24898,10 +24842,6 @@ addEventListener('keydown', e=>{
   if(k==='c'){ if(popOpen()) { if(el('popStat').classList.contains('on')){
                                  el('popStat').classList.remove('on'); sfx('close'); } }
                else if(G.started) openStat(); }
-  /* ★ Y — 칭호 창. C 와 같은 버릇(한 번 더 누르면 닫힌다) */
-  if(k==='y'){ if(popOpen()) { if(el('popBadge').classList.contains('on')){
-                                 el('popBadge').classList.remove('on'); sfx('close'); } }
-               else if(G.started) openBadge(); }
 
   if(k==='tab'){ e.preventDefault(); document.exitPointerLock(); }
   if(k==='escape') document.exitPointerLock();
@@ -25311,125 +25251,7 @@ function paintXP(){
      프레임을 갉아먹는다(도구줄·이름표에서 이미 겪었다). 그래서 순위가 실제로
      바뀌었을 때만 다시 만든다 — 열쇠 한 줄로 먼저 본다. */
 const RANK_SHOW = 8;                    // 몇 등까지 보여 주나
-/* ═══════════════════════ 🎖️ 칭호 (22차) ═══════════════════════ */
-const BG_COL = ['#e0a878', '#dbe4ec', '#ffd257'];    // 1단계 동 · 2단계 은 · 3단계 금
-const BG_NUDGE = 0.7;        // 다음 칭호에 이만큼 왔으면 "조금만 더" 를 한 번 띄운다
-const BADGES = [
-  /* ── 1단계 · 1일차에 닿는다 — 오늘 무언가 한 아이는 다 하나씩 받는다 ── */
-  {k:'mined',  need:40,   t:1, ic:'🪨', nm:'첫 곡괭이',      u:'개',   d:'자원 40개 캐기'},
-  {k:'built',  need:3,    t:1, ic:'🧱', nm:'첫 벽',          u:'채',   d:'3채 짓기'},
-  {k:'lv',     need:5,    t:1, ic:'⭐', nm:'새싹',           u:'레벨', d:'레벨 5'},
-  {k:'hits',   need:10,   t:1, ic:'🎯', nm:'명중',           u:'번',   d:'좀비 10번 맞히기'},
-  {k:'fixed',  need:3,    t:1, ic:'🩹', nm:'땜장이',         u:'번',   d:'3번 고치기'},
-  {k:'helped', need:2,    t:1, ic:'🤝', nm:'이웃사촌',       u:'번',   d:'다른 모둠 2번 돕기'},
-  /* ── 2단계 · 3~7일차 — 하루로는 안 되고 며칠 이어서 해야 닿는다 ── */
-  {k:'mined',  need:400,  t:2, ic:'⛏️', nm:'광부',           u:'개',   d:'자원 400개 캐기'},
-  {k:'built',  need:25,   t:2, ic:'🔨', nm:'목수',           u:'채',   d:'25채 짓기'},
-  {k:'lv',     need:15,   t:2, ic:'🌟', nm:'베테랑',         u:'레벨', d:'레벨 15'},
-  {k:'hits',   need:60,   t:2, ic:'🏹', nm:'명사수',         u:'번',   d:'좀비 60번 맞히기'},
-  {k:'fixed',  need:20,   t:2, ic:'🔧', nm:'수리공',         u:'번',   d:'20번 고치기'},
-  {k:'farmed', need:3,    t:2, ic:'🥚', nm:'첫 수확',        u:'개',   d:'농장 산물 3개 줍기'},
-  {k:'saved',  need:1,    t:2, ic:'💚', nm:'손 내밀기',      u:'명',   d:'쓰러진 친구 1명 일으키기'},
-  {k:'helped', need:8,    t:2, ic:'💞', nm:'옆모둠 지킴이',  u:'번',   d:'다른 모둠 8번 돕기'},
-  /* ── 3단계 · 8~18일차 — 하루를 통째로 그 일에 쓴 아이의 자리 ── */
-  {k:'mined',  need:1200, t:3, ic:'💎', nm:'광산왕',         u:'개',   d:'자원 1200개 캐기'},
-  {k:'built',  need:90,   t:3, ic:'🏰', nm:'성 짓는 사람',     u:'채',   d:'90채 짓기'},
-  {k:'lv',     need:30,   t:3, ic:'👑', nm:'전설',           u:'레벨', d:'레벨 30'},
-  {k:'hits',   need:180,  t:3, ic:'🔥', nm:'백발백중',       u:'번',   d:'좀비 180번 맞히기'},
-  {k:'fixed',  need:60,   t:3, ic:'🛠️', nm:'수리왕',         u:'번',   d:'60번 고치기'},
-  {k:'farmed', need:12,   t:3, ic:'🧺', nm:'농부',           u:'개',   d:'농장 산물 12개 줍기'},
-  {k:'saved',  need:3,    t:3, ic:'🚑', nm:'구조대',         u:'명',   d:'쓰러진 친구 3명 일으키기'},
-  {k:'helped', need:20,   t:3, ic:'🤗', nm:'우리 반 기둥',   u:'번',   d:'다른 모둠 20번 돕기'},
-  {k:'saved',  need:8,    t:3, ic:'😇', nm:'천사',           u:'명',   d:'쓰러진 친구 8명 일으키기'},
-  {k:'farmed', need:30,   t:3, ic:'🚜', nm:'대농',           u:'개',   d:'농장 산물 30개 줍기'}
-];
-/* pc 한 칸(나든 친구든)에서 그 사람이 가진 칭호 번호들 */
-function badgeList(p){
-  const out = [];
-  if(!p) return out;
-  for(let i=0;i<BADGES.length;i++) if((p[BADGES[i].k]|0) >= BADGES[i].need) out.push(i);
-  return out;
-}
-/* 머리 위에 뜨는 것 — 표에서 제일 뒤에 있는 것. 하나도 없으면 -1 */
-function badgeTop(p){
-  if(!p) return -1;
-  for(let i=BADGES.length-1;i>=0;i--) if((p[BADGES[i].k]|0) >= BADGES[i].need) return i;
-  return -1;
-}
-/* 다음 칭호 — 아직 못 받은 것 중 **제일 가까운** 것. 얼마나 남았는지까지 준다.
-   ★ 표 순서로 고르지 않는다. 그 아이가 지금 실제로 하고 있는 일에서 가장 가까운 것이라야
-     "조금만 더" 가 거짓말이 안 된다 (꽃을 안 심는 아이에게 '꽃 1송이' 를 들이밀지 않는다). */
-function badgeNext(p){
-  let best = null;
-  for(let i=0;i<BADGES.length;i++){
-    const B = BADGES[i], v = p ? (p[B.k]|0) : 0;
-    if(v >= B.need) continue;
-    const r = v / B.need;
-    if(!best || r > best.r) best = {i, B, r, left:B.need - v};
-  }
-  return best;
-}
-/* 이미 받은 칭호 번호 — 숫자에서 다시 계산할 수 있지만, '방금 받았다'를 알려면 기억이 필요하다.
-   저장하거나 보내지 않는다. 화면에 한 번 띄우려고 들고 있는 것뿐이다. */
-const bgGot = new Set(), bgNudged = new Set();
-/* uid -> 머리 위에 뜰 칭호 번호. **0.5초마다 한 번만 센다.**
-   ★ 처음엔 이름표를 그릴 때마다(매 프레임) 그 자리에서 셌다. 재 보니 스물한 명이 곁에 있을 때
-     updTags 가 0.019ms → 0.034ms 로 늘었다(제일 나쁜 경우 0.044ms). 예산 16.7ms 에 견주면
-     0.1%도 안 되지만, **같은 답을 초당 예순 번 다시 셀 이유가 없다** — 이 값은 문턱을 넘는
-     순간에만 바뀌고, 그 순간을 이미 badgeCheck 가 0.5초마다 보고 있다.
-   ★ 친구가 새 칭호를 받았는지도 이 칸의 전후를 견줘서 안다 — 표를 두 번 훑지 않는다. */
-const bgTop = new Map();
-/* ★ 한 번에 여러 개가 걸리면 **줄을 세워 하나씩** 내보낸다.
-   첫날에는 한 번의 곡괭이질로 문턱 두세 개를 동시에 넘는다. 그때 축하를 한꺼번에 쏟으면
-   가운데 큰 그림이 서로를 덮어써서 **마지막 하나만 보이고 나머지는 없던 일이 된다**
-   (화면에 찍어 보고 알았다 — 다섯 개를 한꺼번에 줬더니 알림 줄만 다섯이고 그림은 하나였다). */
-const bgQueue = [];
-const BG_TICK = 0.5;             // badgeCheck 가 불리는 간격(초) — 아래 misT 시계와 같아야 한다
-const BG_GAP  = 2.0;             // 칭호와 칭호 사이 (앞의 축하가 끝나고 다음이 온다)
-let bgWait = 0;                  // 남은 대기 횟수
-function bgReset(){ bgGot.clear(); bgNudged.clear(); bgTop.clear(); bgQueue.length = 0; bgWait = 0; }
-function bgEarn(i){
-  const B = BADGES[i], col = BG_COL[B.t-1];
-  /* 66차 — 가운데 큰 판정(verdict) 대신 축하 배너. 3단계(금)는 큰 축하, 1·2단계는 작은 축하. 종+화음 팡파르 */
-  fx2Cel({k:'badge', ic:B.ic, rib:['동','은','금'][B.t-1] + ' 칭호', tt:`「${B.nm}」`, sub:B.d + ' — 머리 위 이름표에 떠요',
-          big:B.t === 3, col, col2:['#9a5a24','#6f86a0','#ff9f1c'][B.t-1], snd:B.t === 3 ? 'fx2Big' : 'fx2Badge'});
-  const g = Math.max(0, Math.min(NG-1, G.me.g|0));
-  say(`🎖️ <b style="color:${GCOL[g]}">${esc(G.me.name)}</b>${josa(G.me.name,'이','가')} `
-    + `<b style="color:${col}">${B.ic} ${B.nm}</b> 칭호를 얻었어요! `
-    + `<span style="opacity:.72">(${esc(B.d)})</span>`);
-  if(popOpen() && el('popStat').classList.contains('on')) buildStatUI();
-}
-/* 0.5초마다 — 오늘의 임무와 같은 시계에 얹는다. 통신도 계산도 거의 없다.
-   ★ myPC 를 읽는다(MY 가 아니라). 그래야 친구를 보는 코드와 **같은 함수**로 볼 수 있다. */
-function badgeCheck(){
-  if(!G.started || G.phase === 'title') return;
-  for(const i of badgeList(myPC)) if(!bgGot.has(i)){ bgGot.add(i); bgQueue.push(i); }
-  if(bgWait > 0) bgWait--;
-  else if(bgQueue.length){ bgWait = Math.round(BG_GAP / BG_TICK); bgEarn(bgQueue.shift()); }
-  /* 다음 칭호에 거의 다 왔을 때 한 번만 등을 민다. 이게 "한 판만 더" 를 만든다.
-     ★ 축하가 아직 줄 서 있는 동안에는 안 민다 — 받은 것과 남은 것이 겹쳐 뜨면 둘 다 안 읽힌다. */
-  const nx = (bgQueue.length || bgWait) ? null : badgeNext(myPC);
-  if(nx && nx.r >= BG_NUDGE && !bgNudged.has(nx.i)){
-    bgNudged.add(nx.i);
-    toast(`${nx.B.ic} ${nx.left}${nx.B.u}만 더 하면 「${nx.B.nm}」!`, 2.8, '#ffe066');
-  }
-  /* ★ 친구가 3단계 칭호를 받으면 내 화면에도 뜬다 — 통신 한 칸 없이, 이미 오는 숫자로.
-     1·2단계까지 다 띄우면 첫날에만 백 줄이 넘어가 정작 귀한 것이 안 읽힌다. */
-  for(const [k,p] of pcMap){
-    if(!p || !p.n) continue;
-    const top = badgeTop(p), first = !bgTop.has(k), was = first ? -1 : bgTop.get(k);
-    bgTop.set(k, top);                       // 이름표가 매 프레임 읽어 갈 값이다
-    /* 처음 본 친구는 적어만 두고 넘어간다 — 늦게 들어온 아이가 남의 지난 칭호를
-       한꺼번에 받아 보면 그건 소식이 아니라 도배다 */
-    if(k === uid || first || top <= was) continue;
-    if(BADGES[top].t === 3){
-      feed(`🎖️ <b style="color:${GCOL[Math.max(0,Math.min(NG-1,p.g|0))]}">${esc(p.n)}</b>`
-         + `${josa(p.n,'이','가')} <b style="color:${BG_COL[2]}">${BADGES[top].ic} `
-         + `${BADGES[top].nm}</b> 칭호를 얻었어요!`);
-      fx2Chip(`🎖️ ${p.n}${josa(p.n,'이','가')} '${BADGES[top].nm}' 칭호를 받았어요!`);   // 66차 — 친구 화면에 작은 한 줄
-    }
-  }
-}
+/* 91차 — 🎖️ 칭호 시스템(22차)은 통째로 뺐다. 선생님: "칭호 알림 뜨는 것도 은근 끊겨". 숫자(MY.mined …)는 그대로 세고 보낸다(순위판·마무리 표가 쓴다). */
 
 /* ═══════ 순위판 — 레벨만 (38차) ═══════ */
 const _rkArr = [];                      // 매 프레임 새 배열을 안 만들려고 재사용
@@ -26114,7 +25936,6 @@ document.querySelectorAll('#shopTabs .btn').forEach(b=>
 el('bKit').onclick = ()=>{ if(G.started) openKit(); };
 el('bInfo').onclick = ()=>{ if(G.started) openInfo(); };
 el('bStat').onclick = ()=>{ if(G.started) openStat(); };
-el('bBadge').onclick = ()=>{ if(G.started) openBadge(); };
 /* 체력줄 밑 레벨 막대를 눌러도 스텟 창이 열린다 — 터치 기기는 C 키가 없다 */
 el('lvRow').onclick = ()=>{ if(G.started && !popOpen()) openStat(); };
 el('shopTip').addEventListener('click', ()=>{ if(shopOpenable()) openShop(); });
@@ -26690,10 +26511,7 @@ const RESCUE_MARK = 0.35;
 const MY = { mined:0, built:0, hits:0, saved:0, helped:0, fixed:0, rescue:0, farmed:0 };
 /* 처음부터 다시 시작할 때 여섯 칸을 한 번에 지운다 — 예전엔 mined·built 만 지워서
    '으뜸' 판에 지난 판 숫자가 남았다. */
-/* ★ 숫자를 0 으로 되돌리면 칭호도 같이 되돌린다.
-   여기를 빼먹으면 '이미 받았다' 는 기억만 남아서, 다시 시작한 아이는
-   첫 곡괭이를 다시 캐도 아무 일도 안 일어난다 (오류는 안 난다 — 조용히 안 뜬다). */
-function myReset(){ for(const k in MY) MY[k] = 0; bgReset(); }
+function myReset(){ for(const k in MY) MY[k] = 0; }
 let _aimEl = null, _chEl = null, _chOn = null;
 /* 81차 — 조준판 글은 바뀔 때만 넣는다. 예전엔 돌·나무를 바라보는 동안 매 프레임 innerHTML 을 새로 만들어서
    글자·막대가 통째로 다시 배치되고, 이모지 관찰자가 🪨 를 매번 새 <img> 로 바꿨다(낮 내내 초당 60번).
@@ -30046,7 +29864,7 @@ function raceBuild(seed){
   // 87차 — 선생님: "구름다리 원판이 양옆으로 너무 느리게 움직여 — 2배로 빠르게, 2배로 더 길게". 옆 폭 1.1 → 2.2 · 왕복 빠르기 ×5 → ×10(76차 기준) · 앞뒤 폭 .65 → .45(원판 사이 틈이 7 을 넘지 않게 — 한 번 점프로 건넌다).
   // 88차 — 선생님: "구름다리 옆으로 움직이는 원판 지금보다 2배 더 길게". 옆 폭 2.2 → 4.4(왕복 빠르기·앞뒤 폭·회전은 87차 그대로).
   //  이제 원판이 가운데 줄을 잠깐씩 완전히 벗어나므로, 다음 원판이 가까이 올 때를 보고 뛴다(가장 멀 때 틈 9.2 — 달려 뛰면 닿는다).
-  for(let i=0;i<7;i++)P({x:i%2?1.3:-1.3,z:594+i*12,y:30+(i%2?.2:0),w:8,d:8,h:2.2,shape:'round',sec:4,kind:'moving',col:i%2?0x6edab4:0x6bcff0,mv:{ax:'xz',amp:4.4,zamp:.45,spd:(.65+i*.035)*10,ph:rng()*Math.PI*2,rot:(i%2?-.60:.60)}});
+  for(let i=0;i<7;i++)P({x:i%2?1.3:-1.3,z:594+i*12,y:30+(i%2?.2:0),w:8,d:8,h:2.2,shape:'round',sec:4,kind:'moving',col:i%2?0x6edab4:0x6bcff0,mv:{ax:'xz',amp:4.4,zamp:.45,spd:(.65+i*.035)*7,ph:rng()*Math.PI*2,rot:(i%2?-.60:.60)}});   // 91차 — 선생님: "너무 빠르게 왔다갔다" → 왕복 빠르기 ×10 → ×7(30% 느리게). 옆 폭·앞뒤 폭·회전은 88차 그대로
   // 82차 — 곧은 미끄럼(z 722 · 폭 26 · 길이 64) 대신 구불구불 롤러코스터 한 판. 모양·판정은 chute82(CH82) 가 맡는다(w·d 는 겉 테두리 — 경치 자리·카메라 범위용)
   P({x:0,z:CH82.z0+CH82.lz/2,y:CH82.knots[0][1],yEnd:CH82.knots[CH82.knots.length-1][1],w:2*(CH82.hw+CH82.lip),d:CH82.lz,h:3,shape:'slide',chute:1,round:0,sec:5,kind:'slide',col:0x61d7c1});
   P({z:790+CH82_SHIFT,y:0,w:34,d:28,h:3,shape:'round',sec:6,kind:'final',col:0xffc759,bounce:{v:22.5,forward:25}});
@@ -30227,20 +30045,31 @@ function raceDonutLayout87(p){
 function raceHazards(t){
   if(!RACE._haz){
     const a=[];const punch=(x,z,floor,sec,id,r=1.65,h=5.6)=>a.push({k:'punch',x,z,y:floor+h/2,h,r,sec,id,power:5});
-    // 88차 — 선생님: "0단계 장애물은 겹쳐 있는 것은 빼고, 옆으로 살짝살짝 움직이게". 26 → 15. 자리는 실제 출발 카메라(출발 자리 24곳,
-    //  뒤 6.25)에서 서로 가리지 않게 골랐다 — 가운데 출발 자리에서 절반 넘게 가려지는 장애물 0(87차 16.8), 모든 자리 평균 2.4(87차 17.3).
-    //  [이름, x, z, 반지름, 키, 옆 흔들림, 빠르기, 박자] — 이름은 예전 것을 다시 쓴다(인형 모양 raceToyForm77 과 검사가 이름으로 고른다).
-    //  · 출발 광장 양옆(z 12) 둘: 처음 30 m 안의 첫 장애물. 서로 반대로 1.0 흔들린다.
-    //  · 갑판 가장자리 기둥(z 40, x ±19.6) 둘은 서 있다: 갑판 끝을 따라 곧게 달리는 길을 막는다(닿는 끝 22.23 · 발끝 받침 22.28 — 5 cm 남는다).
-    //  · 젤리 문 두 줄(z 54 다섯 · z 61.2 여섯)은 지그재그로 서서 앞에서 겹쳐 보이지 않고, 물결처럼 함께 0.5~0.7 흔들린다.
-    //    둘째 줄 양 끝(±19.25, 0.3)이 젤리 문 바깥 빈 길을 닫는다 — 바깥 길 0.6 m 이하(87차 0.65~1.35, 첫 배치는 3~7 m 로 돌아가는 길이 열려 있었다).
-    //    틈 너비 1.6~2.8, 갑판 위에서 곧게만 달리면(어느 x·어느 순간, 걷기 9.74·달리기 14.13) 부딪힌다 — 87차는 약 2% 가 빠져나갔다.
+    // 88차 — 선생님: "0단계 장애물은 겹쳐 있는 것은 빼고, 옆으로 살짝살짝 움직이게". 26 → 15. 이름은 예전 것을 다시 쓴다(인형 모양 raceToyForm77 과 검사가 이름으로 고른다).
+    // 91차 — 선생님: "캡슐·별 장애물 움직이는 게 너무 느려서 거의 티가 안 나. 배치도 사방팔방으로, 움직임을 좀 더 늘려 주고, 크기도 30% 크게(개수가 준 만큼 크기로 채운다)".
+    //  [이름, x, z, 반지름, 키, 옆 흔들림, 빠르기(rad/s), 박자, 앞뒤 흔들림] — 반지름 2.35/2.4 → 3.055/3.12 · 키 8/8.2 → 10.4/10.66 (1.3배).
+    //  · 광장 둘(z 12, ±15.6): 서로 반대로 2.4 흔들린다(앞뒤 0.6).  · 데크 가장자리 기둥 둘(z 40, ±18.9)은 서 있다: 닿는 끝 22.24 · 발끝 받침 22.28 — 가장자리 곧은 길을 막는다.
+    //  · 안쪽 아홉: 흩뿌린 두 줄(z 46·53.6, 셋씩)과 마지막 '문' 줄(z 61.3, 셋)이 옆으로 2.2~2.7, 앞뒤로 0.3~0.35 를 1.45~1.96 rad/s(한 번 왕복 3~4.5초)로 움직인다 — 이웃은 박자를 엇갈려 틈이 열렸다 닫힌다.
+    //  · 문 줄 양 끝 둘(z 61.3, ±18.62)은 가장자리 지킴이: 0.2 만 흔들려 바깥 길(지킴이 끝 ~ 발끝 받침 22.28)이 늘 0.5 m 아래 — 몸(지름 0.56)이 못 지난다. 앞의 두 줄은 가장자리로 돌 수 있지만 문 줄은 반드시 움직이는 틈을 타야 한다.
+    //    문 줄을 z 68 에 뒀던 첫 안은 거기서 튕기면(5배 밀침, ~20 m) 데크 끝(82)을 넘어 깃발 판 옆으로 떨어졌다 — z 61 이면 데크 위에 내린다.
+    //  자리는 scratch 탐색기(평가: 어느 순간에도 서로 안 겹침 ≥0.4 m · 곧게만 달리면 3% 안팎만 빠져나감(88차 0% — 크게 움직이는 큰 장애물은 잠깐씩 곧은 길을 연다) · 줄마다 늘 1 m 넘는 틈 · 데크 안)로 골랐다. 출발 카메라에서 앞뒤로 겹쳐 보이는 건 흩뿌린 배치의 성질이라 그대로 둔다.
     const STAGE0_88=[
-      ['start4',-18,12,2.35,8,1,1.25,0],['start8',18,12,2.35,8,1,1.25,Math.PI],['start0',-19.6,40,2.35,8,0,0,0],['start13',19.6,40,2.35,8,0,0,0],
-      ...[-14.5,-7.15,0,7.15,14.5].map((x,i)=>['jellyGate0:'+i,x,54,2.4,8.2,i===0||i===4?.5:.6,.95,i*.15]),
-      // 둘째 줄 이름: 양 끝은 인형(:0·:4 — 발판 무늬가 갑판 안에 든다), 밑이 둥근 발사 주머니(:2·:5)는 안쪽에
-      ...[[0,-19.25],[1,-11.85],[2,-4.05],[3,4.05],[5,11.85],[4,19.25]].map(([k,x],i)=>['jellyGate1:'+k,x,61.2,2.4,8.2,i===0||i===5?.3:.7,.95,-.13+i*.13])];
-    for(const [id,x,z,r,h,sway,swaySpeed,swayPhase] of STAGE0_88){punch(x,z,0,0,id,r,h);if(sway)Object.assign(a[a.length-1],{baseX:x,sway,swaySpeed,swayPhase});}
+      ['start4',-15.6,12,3.055,10.4,1.87,1.5,0,0.6],
+      ['start8',15.6,12,3.055,10.4,1.87,1.5,3.14,0.6],
+      ['start0',-18.9,40,3.055,10.4,0,0,0,0],
+      ['start13',18.9,40,3.055,10.4,0,0,0,0],
+      ['jellyGate0:0',-13.12,46,3.12,10.66,2.33,1.49,0.04,0.35],
+      ['jellyGate0:2',-3.57,45.8,3.12,10.66,2.33,1.49,0.59,0.35],
+      ['jellyGate0:1',5.98,46,3.12,10.66,2.33,1.49,0.2,0.35],
+      ['jellyGate0:3',-6.3,53.6,3.12,10.66,2.67,1.96,0.14,0.3],
+      ['jellyGate1:2',3.16,53.7,3.12,10.66,2.67,1.96,0.68,0.3],
+      ['jellyGate0:4',12.62,53.5,3.12,10.66,2.67,1.96,0.3,0.3],
+      ['jellyGate1:1',-8.84,61.3,3.12,10.66,2.19,1.45,3.71,0.3],
+      ['jellyGate1:5',-0.45,61.4,3.12,10.66,2.19,1.45,4.27,0.3],
+      ['jellyGate1:3',7.94,61.2,3.12,10.66,2.19,1.45,3.87,0.3],
+      ['jellyGate1:0',-18.62,61.3,3.12,10.66,0.2,1.2,3.74,0.2],
+      ['jellyGate1:4',18.62,61.3,3.12,10.66,0.2,1.2,0.6,0.2]];
+    for(const [id,x,z,r,h,sway,swaySpeed,swayPhase,swayZ] of STAGE0_88){punch(x,z,0,0,id,r,h);if(sway)Object.assign(a[a.length-1],{baseX:x,baseZ:z,sway,swaySpeed,swayPhase,swayZ});}
     const candyCenters=[[-9,108],[8,122],[0,151],[-8,181],[9,196]];
     for(let i=0;i<candyCenters.length;i++){
       const [x,z]=candyCenters[i],w=i%2?-2.7:2.7;a.push({k:'bar',x,z,y:1.7,len:22,r:1.65,ang:0,w,phase:i*1.1,sec:1,id:'candy'+i});
@@ -30274,7 +30103,8 @@ function raceHazards(t){
   const phase=(RACE.seed>>>0)%1000/1000*Math.PI*2,out=RACE._hazAll;out.length=0;
   for(const h of RACE._haz){
     if(h.k==='bar')h.ang=t*h.w+phase+h.phase;
-    if(h.sway)h.x=h.baseX+Math.sin(t*h.swaySpeed+phase+h.swayPhase)*h.sway;
+    if(h.sway){h.x=h.baseX+Math.sin(t*h.swaySpeed+phase+h.swayPhase)*h.sway;
+      if(h.swayZ)h.z=h.baseZ+Math.cos(t*h.swaySpeed*.77+phase+h.swayPhase)*h.swayZ;}   // 91차 — 앞뒤로도(빠르기 0.77배 → 8자 비슷한 길)
     out.push(h);
   }
   for(const h of raceRocks(t))out.push(h);return out;
@@ -33299,21 +33129,12 @@ function paintEndCard(){
     mined += p.mined|0; built += p.built|0; hits += p.hits|0;
     saved += p.saved|0; fixed += p.fixed|0; helped += p.helped|0;
   }
-  /* 🎖️ 22차 — 반 전체가 모은 칭호. 숫자는 이미 다 pc 통로에 있으므로 세기만 하면 된다 */
-  let medals = 0, mBest = null, mBestN = 0;
-  for(const p of pcMap.values()){
-    if(!p.n) continue;
-    const n = badgeList(p).length;
-    medals += n;
-    if(n > mBestN){ mBestN = n; mBest = p; }
-  }
   const items = [
     ['🪵', mined,  '캔 자원'],
     ['🧱', built,  '지은 건물'],
     ['🪨', hits,   '돌로 맞힘'],
     ['💚', saved,  '친구 일으킴'],
     ['🔧', fixed,  '고친 건물'],
-    ['🎖️', medals, '모은 칭호'],
     ['🌙', Math.max(0, G.day - (G.phase==='win'?0:1)), '버틴 밤']
   ];
   el('ecGrid').innerHTML = items.map(([ic,v,lb])=>
@@ -33340,13 +33161,6 @@ function paintEndCard(){
   if(hero && ((hero.saved|0)+(hero.fixed|0)) > 0)
     bits.push(`친구를 가장 많이 도운 사람은 <b>${esc(hero.n)}</b> — `
       + `${hero.saved|0}번 일으키고 ${hero.fixed|0}번 고쳐 줬어요. 💚`);
-  /* ★ 칭호를 제일 많이 모은 아이 — 캐기도 짓기도 아니고 '여러 가지를 골고루 한' 아이의 자리다.
-     순위표(캔 자원·지은 것)에는 이런 아이가 안 걸린다. */
-  if(mBest && mBestN > 0){
-    const bi = badgeTop(mBest);
-    bits.push(`칭호를 가장 많이 모은 사람은 <b>${esc(mBest.n)}</b> — <b>${mBestN}개</b>`
-      + (bi >= 0 ? ` (제일 어려운 것은 ${BADGES[bi].ic} <b>${BADGES[bi].nm}</b>)` : '') + ' 🎖️');
-  }
   bits.push(`오늘 <b>${people}명</b>이 함께했습니다.`);
   el('ecNote').innerHTML = bits.join('<br>');
 }
@@ -35091,13 +34905,10 @@ function updTags(){
     const idx = tagOwner.get(uid); if(idx === undefined) continue;
     const p = G.players.get(uid), t = tagPool[idx];
     /* 레벨은 pc 통로로 이미 오고 있다(선생님 표에 쓰던 값). 자리 통로에는 한 칸도 안 더한다.
-       ★ 칭호도 같은 칸에서 **계산해서** 얻는다 — 보내는 값이 아니라 읽는 방법이다.
-         다만 여기서 세지는 않는다. badgeCheck 가 0.5초마다 세어 둔 것을 읽기만 한다
-         (아직 안 센 사람만 그 자리에서 센다 — 들어온 직후 한 번뿐이다). */
+       91차 — 칭호 아이콘은 없어졌다(칭호 시스템 제거). 🗝️ 성곽 탐험가만 남는다. */
     const pc = pcMap.get(uid);
-    const bi = bgTop.has(uid) ? bgTop.get(uid) : badgeTop(pc);
     setTag(t, p.n||'?', GCOL[p.g|0], pc && pc.lv ? pc.lv : 0,
-           p.ex ? (bi >= 0 ? '🗝️' + BADGES[bi].ic : '🗝️') : (bi >= 0 ? BADGES[bi].ic : ''),   // 그대로면 아무 일도 안 한다 · 67차 🗝️ 성곽 탐험가
+           p.ex ? '🗝️' : '',                                                                     // 그대로면 아무 일도 안 한다 · 67차 🗝️ 성곽 탐험가
            pc && pc.wp && (pc.we|0) >= 4 ? pc.we|0 : 0);                                         // 69차 — 강화 ◆
     t.sp.position.set(p.x, (p.y||GY)+2.15, p.z);
     const sc = Math.max(1, Math.sqrt(_tagD2.get(uid))*0.075) * (castleInSpiral(p.x, p.z) ? 0.7 : 1);   // 67차 — 나선 우리 안 이름표는 0.7배
@@ -35335,7 +35146,7 @@ function loop(){
     /* 오늘의 임무 — 호스트가 0.5초마다 세고, 모두가 완료를 한 번 본다.
        통신이 없어도(혼자 하기) 돌아야 하므로 metaTick 밖에 둔다. */
     misT -= dt;
-    if(misT <= 0){misT=.5;syncMyPC();if(!pregame78()){if(G.host)misTally();badgeCheck();}lobbyPaint78();}
+    if(misT <= 0){misT=.5;syncMyPC();if(!pregame78()){if(G.host)misTally();}lobbyPaint78();}
     misWatch();
     bgmLoop(dt);
     if(PROF_ON) pE('통신');
@@ -35819,7 +35630,7 @@ function updDiag(dt){
     const o = st.sweepOut;
     diagEl.textContent = '측정 끝 — 이 표를 알려주세요\n'
       + '(오른쪽 숫자 = 바로 직전 기준과의 차이)\n'
-      + '81차 최적화 ' + P81_NOTE + ' · ' + autoResNote() + '\n'                          // 81차 — 켠 판·끈 판(&p81off=all) 표를 섞지 않게
+      + '판 ' + GAME_VER + ' · 81차 최적화 ' + P81_NOTE + ' · ' + autoResNote() + '\n'   // 91차 — 판 번호를 표에도(선생님이 '81차 최적화' 를 판 번호로 읽었다) · 81차 — 켠 판·끈 판(&p81off=all) 표를 섞지 않게
       + (o.dpr ? '화면배율 ' + o.dpr.toFixed(2) + ' → 그리기 ' + o.pr.toFixed(2) + ' · ' + o.bat + '\n' : '') + '\n'   // 90차
       + o.rows.map(fmt).join('\n')
       + (o.bases ? '\n\n기준 창 ' + o.bases.join(' ') + '  (흔들림 ±' + o.bsd + ' → ±' + (o.bsd*2).toFixed(0) + 'fps 아래 차이는 못 가림)' : '')   // 89차
@@ -35849,6 +35660,7 @@ function updDiag(dt){
       + (DBG.noRender ? ' · 그리기끔' : '')
       + (DBG.noLogic ? ' · 로직끔' : '')
       + ' · 81차 최적화 ' + P81_NOTE + ']\n' +                   // 81차 — 켠/끈 판을 한눈에(끄는 법은 아래 Shift+9 밑 줄)
+    '판 ' + GAME_VER + '\n' +                                   // 91차 — 판 번호(콘솔 말고 여기서도)
     'FPS      ' + fpsVal + '\n' +
     'GPU      ' + diagGpu + '\n' +
     '화면배율  ' + devicePixelRatio + ' → ' + renderer.getPixelRatio().toFixed(2) + '\n' +
@@ -35974,7 +35786,7 @@ Object.assign(window, {
   __tagOwner:()=>tagOwner, __MY:MY,
   __XPC:{mine:XP_MINE, build:XP_BUILD, up:XP_UP, fix:XP_FIX, dmg:XP_DMG, kill:XP_KILL},
   __repair:repairStru, __struCX:struCX, __struCZ:struCZ, __nearStru:nearStruId,
-  __LV_MAX:LV_MAX, __openStat:openStat, __openBadge:openBadge, __maxHP:maxHP, __mineTime:mineTime,
+  __LV_MAX:LV_MAX, __openStat:openStat, __maxHP:maxHP, __mineTime:mineTime,
   __workSec:workSec, __upSec:upSec, __fixSec:fixSec, __mineBonus:mineBonus,
   __atkMul:atkMul, __defNow:defNow, __xpReset:xpReset,
   __drawWolves:drawWolves, __ZLOD:ZLOD, __ZLOD_PAIRS:ZLOD_PAIRS, __AUTORES:AUTORES, __autoResTick:autoResTick, __ZLOD_ERR:ZLOD_ERR, __ZLOD_ALL:ZLOD_ALL, __ACT81:ACT81, __hit79:{hit:zombieHit79,pose:zombieHitPose79,stones,upd:updOrbs}, __drawSoldiers:drawSoldiers, __wolfMeshes:()=>({sleeve:W_sleeve, digit:W_digit, body:W_body, belly:W_belly, brow:W_brow, rib:W_rib, plate:W_plate, gem:W_gem, heal:W_heal, beam:W_beam, eyeW:W_eyeW, fang:W_fang, dread:W_dread, legs:W_legs, paw:W_paw, wrap:W_wrap}),
@@ -36171,11 +35983,6 @@ Object.assign(window, {
 
   /* 🎖️ 22차 칭호 — 검사가 값을 베끼지 않게 표와 함수를 그대로 내준다.
      (__MY · __pcMap · __syncMyPC · __setTag · __tagPool 은 위에 이미 있다 — 또 쓰면 모양이 바뀐다) */
-  __BADGES:BADGES, __BG_COL:BG_COL, __BG_NUDGE:BG_NUDGE,
-  __badgeList:badgeList, __badgeTop:badgeTop, __badgeNext:badgeNext,
-  __badgeCheck:badgeCheck, __bgReset:bgReset, __bgGot:()=>bgGot, __bgTop:()=>bgTop,
-  __bgQueue:()=>bgQueue, __BG_GAP:BG_GAP, __BG_TICK:BG_TICK,
-  __buildBadgeUI:buildBadgeUI,
   /* 67차 성곽 — 검사 API 는 갈래 0 이 한 번에 연다(이름 중복 금지). 몸통을 뒤 갈래가 채워도 같은 함수를 가리킨다.
      바뀌는 값(CL_ALL·camAutoK·CPIECES)은 함수로 내준다 — 값을 복사해 두면 옛 값이 나간다 */
   __HW:HW, __CW:CW, __CK:CK, __GK:GK, __CR:CR, __CPLAN:CPLAN, __CASTLE:CASTLE, __CROOF:CROOF, __ZONE:ZONE,
