@@ -97,7 +97,8 @@ export function race76Physics(){
   // applies an impulse: actual sheepBump inside updPlayer must cause the contact.
   for(const seed of [13,7919,740021])for(const fps of [30,60,120]){
     G.mini.seed=seed;W.__raceBuild(seed);
-    const bag=W.__raceHazards(1).find(h=>h.id==='jellyGate0:2'),startX=bag.x+bag.r+P.R+.35,startZ=bag.z;
+    // 91차 — 젤리 문은 옆으로 2.8 을 1.7 rad/s 로 움직여(최고 4.7 m/s) 0.4초 안에 제 발로 다가오거나 달아난다. 서 있는 데크 기둥(start0, 가장자리 좁은 길의 범퍼)으로 잰다.
+    const bag=W.__raceHazards(1).find(h=>h.id==='start0'),startX=bag.x+bag.r+P.R+.35,startZ=bag.z;
     const probe=crowded=>{G.players.clear();reset(startX,startZ,Y);W.__RACE().t=1;W.__kbReset();
       if(crowded)for(let i=0;i<20;i++)G.players.set('push'+i,{uid:'push'+i,x:startX+.95+(i%5)*.95,z:startZ+(Math.floor(i/5)-1.5)*.85,y:Y,down:false});
       let hit=false,maxPush=0,maxSpeed=0,minBeforeContact=Infinity;
@@ -143,17 +144,36 @@ export function race76Physics(){
   for(const seed of [13,7919,740021])for(const fps of [30,60,120]){
     G.mini.seed=seed;W.__raceBuild(seed);reset(0,-19,Y);
     let elapsed=0,falls=0,hits=0,lastFall=false,lastHit=0,jumps=0,manualLaunches=0,airAge=0,doubleUsed=false,maxViewChange=0;
-    const trail=[],gatePasses=[],events=[];let previousCp=0,lastRecorded=-10,bridgeGoal=null,donutWalk=null;
+    const trail=[],gatePasses=[],events=[];let previousCp=0,lastRecorded=-10,bridgeGoal=null,donutWalk=null;const stage0={commit:null,avoid:null};   // 91차 — 0단계 '마음 정한 틈' · 방금 부딪힌 틈
     for(let f=0;f<fps*180&&W.__MINE.fin<0;f++){
       const S=W.__RACE(),z=P.z,under=P.ground?A.under():null;
       let target=0,go=true,sprint=false,jump=false,reverse=false;
       if(z<78){
-        // 88차 — two zig-zag jelly rows (z 54 five bags · z 61.2 six): read the first row's seam right of centre, cross it,
-        // then line up with the second row's centre seam (its bags stand behind the first row's gaps) before crossing that.
-        const hz=W.__raceHazards(S.t),g0=hz.filter(h=>h.id.startsWith('jellyGate0:')).sort((a,b)=>a.x-b.x),g1=hz.filter(h=>h.id.startsWith('jellyGate1:')).sort((a,b)=>a.x-b.x);
-        const seamA=(g0[2].x+g0[3].x)/2,seamB=(g1[2].x+g1[3].x)/2;
-        target=z<57?seamA:z<72?seamB:0;
-        if((z>=48&&z<50.6||z>=57&&z<58.5)&&Math.abs(P.x-target)> .45)go=false;
+        // 91차 — 흩뿌린 0단계(줄마다 z 가 다르고 크게·빠르게 흔들린다). 아이가 하듯이: 줄 앞 5.5 m 에서 기다리다가, 지금 출발하면 닿을 때(와 지나는 0.45초 뒤)에
+        // 2 m 넘게 열려 있을 틈을 보면 그 틈(양옆 장애물 쌍)에 '마음을 정하고' 살아 있는 가운데를 따라 뛰어든다. 틈이 닫히면(줄 3.8 m 앞에서 1.2 m 아래) 포기하고 다시 기다린다.
+        // 장애물은 줄 가운데에서 앞으로 r+앞뒤 흔들림(≈3.5 m)까지 오므로 기다리는 자리는 zr−5.5 밖, 그 안이면 뒤로 물러난다. 방금 부딪혀 튕기는 동안은 밀지 않는다.
+        const hz0=W.__raceHazards(S.t).filter(h=>h.k==='punch'&&h.sec===0&&(h.baseZ??h.z)>z+1.5);
+        if(hz0.length){const zr=Math.min(...hz0.map(h=>h.baseZ??h.z)),row=hz0.filter(h=>Math.abs((h.baseZ??h.z)-zr)<4);
+          const edgesAt=t=>{const iv=W.__raceHazards(t).filter(h=>row.includes(h)).map(h=>({h,lo:h.x-h.r-P.R-.2,hi:h.x+h.r+P.R+.2})).sort((a,b)=>a.lo-b.lo);
+            const gaps=[];let cur=-22+P.R,L=null;for(const g of iv){if(g.lo-cur>=.6)gaps.push({L,R:g.h,lo:cur,hi:g.lo});if(g.hi>cur){cur=g.hi;L=g.h;}}if(22-P.R-cur>=.6)gaps.push({L,R:null,lo:cur,hi:22-P.R});return gaps;};
+          const center=g=>(g.lo+g.hi)/2,width=g=>g.hi-g.lo,same=(gaps,c)=>gaps.find(g=>g.L===c.L&&g.R===c.R);
+          if(stage0.commit&&(z>stage0.commit.zr+1||stage0.commit.zr!==zr))stage0.commit=null;
+          const dist=zr-z;
+          // 닿을 때(eta)·지나는 중(+0.5)·빠져나올 때(+1.0) 모두 열려 있을 틈만 고른다. 방금 부딪힌 틈은 3초 동안 피한다.
+          if(!stage0.commit){const eta=Math.max(0,dist/9.74),g1=edgesAt(S.t+eta),g2=edgesAt(S.t+eta+.5),g3=edgesAt(S.t+eta+1.0);let best=null,bd=1e9;
+            for(const g of g1){const gg=same(g2,g),g33=same(g3,g);if(!gg||!g33||width(g)<2.0||width(gg)<2.0||width(g33)<1.4)continue;const c=center(g);if(Math.abs(c)>19)continue;
+              if(stage0.avoid&&S.t<stage0.avoid.until&&stage0.avoid.L===g.L&&stage0.avoid.R===g.R)continue;
+              const d=Math.abs(c-P.x);if(d<=Math.max(2.5,dist*.6)&&d<bd){bd=d;best=g;}}
+            if(best&&dist<9)stage0.commit={zr,L:best.L,R:best.R};
+            else {const live=edgesAt(S.t),w=live.filter(g=>Math.abs(center(g))<19).sort((a,b)=>width(b)-width(a))[0];target=w?center(w):P.x;if(dist<5.5){go=false;if(dist<4.8)reverse=true;}}}
+          // 마음을 정한 뒤에도 매 프레임 '지금 속도로 닿을 때' 의 틈을 다시 본다 — 1.4 m 아래로 닫히면(줄 2.5 m 앞까지는) 포기하고 물러난다
+          if(stage0.commit){const eta2=Math.max(0,dist/9.74),gp=same(edgesAt(S.t+eta2),stage0.commit),gl=same(edgesAt(S.t),stage0.commit);
+            if(!gp||!gl){stage0.commit=null;}
+            else if(width(gp)<1.4&&dist>2.5){stage0.commit=null;go=false;reverse=dist<4.8;}
+            else target=center(gp);}
+          W.__raceHazards(S.t);
+          if(S.hitCd>0){go=false;if(stage0.commit)stage0.avoid={L:stage0.commit.L,R:stage0.commit.R,until:S.t+3};stage0.commit=null;}}
+        else target=0;
       }
       else if(z<210){
         const bar=W.__raceHazards(S.t).filter(h=>h.k==='bar').find(h=>h.z>z-2);
@@ -208,9 +228,12 @@ export function race76Physics(){
       else target=0;
       steer(target,go);if(reverse&&!go)KEY.s=true;if(sprint)KEY.shift=true;if(jump){press();jumps++;}
       const oldGround=P.ground,oldFlight=A.state.flight;step(1/fps);elapsed=(f+1)/fps;
-      for(const gate of [54,61.2])if(z<gate&&P.z>=gate){const row=W.__raceHazards(S.t).filter(h=>h.id.startsWith('jellyGate'+(gate===54?0:1)+':')).sort((a,b)=>a.x-b.x);
+      // 91차 — 줄은 z 묶음(8 단위 열쇠)이고, 지나는 순간은 그 줄의 평균 z 를 넘을 때 잰다(열쇠 z 로 재면 줄을 2~3 m 지난 뒤라 틈이 뜻이 없다)
+      const jg=W.__raceHazards(S.t).filter(h=>/^jellyGate/.test(h.id));
+      for(const key of [...new Set(jg.map(h=>Math.round((h.baseZ??h.z)/8)*8))]){const rowAll=jg.filter(h=>Math.round((h.baseZ??h.z)/8)*8===key),gate=rowAll.reduce((a,h)=>a+(h.baseZ??h.z),0)/rowAll.length;
+        if(z<gate&&P.z>=gate){const row=rowAll.slice().sort((a,b)=>a.x-b.x);
         const left=row.filter(h=>h.x<P.x).at(-1),right=row.find(h=>h.x>P.x),lo=left?left.x+left.r+P.R:Infinity,hi=right?right.x-right.r-P.R:-Infinity;
-        gatePasses.push({gate,x:P.x,t:elapsed,lo,hi,clear:P.x>lo&&P.x<hi,width:hi-lo});}
+        gatePasses.push({gate:key,x:P.x,t:elapsed,lo,hi,clear:P.x>lo&&P.x<hi,width:hi-lo,hit:S.hitCd>0});}}   // width 는 반지름 기준(인형 실루엣은 그보다 홀쭉해 clear 가 아니어도 안 맞고 지난다) · hit 는 그 순간 튕기는 중인가
       if(oldFlight===0&&A.state.flight>0&&A.state.flightKind==='manual')manualLaunches++;
       if(events.length<24&&((oldFlight===0&&A.state.flight>0)||S.hitCd>lastHit+.05||S.fallT>0&&!lastFall))events.push({time:elapsed,x:P.x,z:P.z,y:P.y-Y,flight:A.state.flightKind,vx:P.vx,vz:P.vz,vy:P.vy,lastPad:A.state.lastPad,hit:S.hitCd,fall:S.fallT});
       if(P.ground){airAge=0;doubleUsed=false;}else airAge+=1/fps;
@@ -270,8 +293,11 @@ export function validateRace76(p){
   check(!p.belowDeck.ground&&p.belowDeck.after<p.belowDeck.before,'A descending player below a platform must not snap up through its surface');
   check(p.routes.length===9&&p.routes.every(q=>q.finished&&q.seconds<180&&q.checkpoint===7&&q.manualLaunches>=4&&q.jumps>=10&&q.maxViewChange<1e-8),
     'All three seeds must complete the connected 180-second course using real jumps and manual launches at 30/60/120 Hz');
-  check(p.routes.every(q=>[54,61.2].every(gate=>q.gatePasses.some(g=>g.gate===gate&&g.clear&&g.width>1&&g.width<3.5))),
-    'Every continuous route must cross real narrow gaps between both rows of independently swaying crowd bumpers');
+  // 91차 — 줄이 다섯(z 가 다른 묶음)이고 틈은 크게 흔들려 넓이가 1~12 m 를 오간다: 모든 줄을 실제 틈으로(부딪히지 않고) 지나야 한다
+  // 91차 — 앞의 흩뿌린 줄은 가장자리로 돌 수도 있지만, 마지막 '문' 줄(지킴이 둘 + 움직이는 셋)은 반드시 실제 틈(1 m 넘고 12 m 아래)으로 지나야 한다
+  // hitCd(1.1초)는 두 줄(7.7 m, 0.8초)을 덮으므로 '지나는 순간 튕기는 중' 은 못 가른다 — 틈 폭과 경로당 부딪힘 수(≤15)로 본다
+  check(p.routes.every(q=>{const last=Math.max(...q.gatePasses.map(g=>g.gate));return q.gatePasses.length>=2&&q.hits<=15&&q.gatePasses.some(g=>g.gate===last&&g.width>.5&&g.width<12);}),
+    'Every continuous route must cross the final gate row through a real gap between independently swaying crowd bumpers, with few knocks');
   check(p.clocks.every(q=>Math.abs(q.elapsed-q.expected)<.02),'The race clock must count elapsed time once and pause correctly');
   check(JSON.stringify(p.leftRace)===JSON.stringify({on:false,slip:0,hit:0,fall:0,knock:null,velocity:[0,0,0],flight:0,rate:1,boost:0,pending:null,pulses:0}),
     'Leaving the course must clear every race-only impulse, gravity, booster and movement lock');

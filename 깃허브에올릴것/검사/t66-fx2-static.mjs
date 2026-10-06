@@ -221,8 +221,8 @@ check('Rewards use only existing paths: dropGold (drop), chest list + netChests 
 // ⑦ 배선
 { const has=(f,re)=>re.test(fn(f));
   check('xpGain celebrates with fx2Cel (no separate toast/burst/up sound)',has('xpGain',/fx2Cel\(\{k:'lv'/)&&!has('xpGain',/toast\(|burst\(|__sfx\('up'\)/));
-  check('Badge earn uses the banner (3단계 = big) instead of the center verdict',has('bgEarn',/fx2Cel\(\{k:'badge'[\s\S]*big:B\.t === 3/)&&!has('bgEarn',/verdict\(/));
-  check('Friends\' tier-3 badge shows a small chip',has('badgeCheck',/fx2Chip\(/));
+  // 91차 — 칭호 시스템 제거(선생님: "칭호 알림 뜨는 것도 은근 끊겨"): bgEarn·badgeCheck·BADGES·popBadge·bBadge 가 없어야 한다
+  check('91차: the badge system is gone (no bgEarn/badgeCheck/BADGES table, no Y window or button)',!/function bgEarn\(|function badgeCheck\(|const BADGES = \[|id="popBadge"|id="bBadge"|__openBadge/.test(source));
   check('Job change, mission, new gun (buy/craft) and race podium call the celebration',has('takeJob',/fx2Cel\(\{k:'job'/)&&has('misWatch',/fx2Cel\(\{k:'mis'/)&&
     has('buyWeapon',/fx2Cel\(\{k:'gun'/)&&has('craftWeapon',/fx2Cel\(\{k:'gun'/)&&has('raceDone',/fx2Cel\(\{k:'race'/));
   check('Job change keeps its floor effect block for the wing lane (FX2 adds no 3D there)',has('takeJob',/no3d:true/)&&has('takeJob',/jobUpFx\(|JOB_AURA/));   // 66차 WING 이 옛 JOB_AURA 공 기둥을 jobUpFx 마법진으로 바꿨다
