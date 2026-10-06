@@ -59,14 +59,14 @@ try{
   DBG.zlodOff=true;W.__drawWolves(G.wolves,200,0,true);const off=snap();DBG.zlodOff=false;
   DBG.zlodPx=1;W.__drawWolves(G.wolves,200,0,true);const px1=snap();DBG.zlodPx=0;
   const sum=(s,k)=>s.reduce((a,x)=>a+x[k],0);
-  return {shapes,plain,lod,off,px1,worstLo,nearLo,nearN:near.length,hidden,lodLo:sum(lod,1),px1Lo:sum(px1,1),wolves:G.wolves.length,ERR};});
+  return {shapes,plain,lod,off,px1,worstLo,nearLo,nearN:near.length,hidden,lodLo:sum(lod,1),px1Lo:sum(px1,1),wolves:G.wolves.length,ERR,px:W.__ZLOD.px};});   // 96차 — 문턱(px)을 게임에서 읽는다(0.5 → 1)
  const bad=res.shapes.map((s,i)=>({i,...s})).filter(s=>!(s.H<=s.e&&s.loTri<s.hiTri&&s.zwk&&s.sameMat&&s.cap&&s.color));
  console.log(JSON.stringify({bad,shapes:res.shapes.map(s=>`${s.hiTri}/${s.loTri} H${s.H.toFixed(3)}≤${s.e}`),wolves:res.wolves,lodLo:res.lodLo,px1Lo:res.px1Lo,worstLo:+res.worstLo.toFixed(3),nearLo:res.nearLo,nearN:res.nearN,errors}));
  assert.deepEqual(errors,[]);
  assert.equal(bad.length,0,'Every coarse twin stays within its measured outline error, has fewer triangles, keeps zwk/material/capacity/colour');
  assert.ok(res.plain.every(([,lo])=>lo===0),'drawWolves without the game-loop cull flag draws no coarse twins (tests and intro actors unchanged)');
  assert.ok(res.lod.every(([hi,lo],i)=>hi+lo===res.plain[i][0]),'Game-loop LOD keeps every zombie piece (original + twin = previous count)');
- assert.ok(res.lodLo>0&&res.worstLo<=.5+1e-6,'Pieces moved to coarse twins move their outline by at most 0.5 px at their screen depth');
+ assert.ok(res.lodLo>0&&res.worstLo<=res.px+1e-6,'Pieces moved to coarse twins move their outline by at most ZLOD.px ('+res.px+' px, 96차: 1) at their screen depth');
  assert.ok(res.nearN>0&&res.nearLo===0,'Zombies close to the camera keep full-detail head and torso');
  assert.ok(res.hidden,'Diagnostic "좀비 안 그림" hides every zombie piece');
  assert.ok(res.off.every(([,lo],i)=>lo===0&&res.off[i][0]===res.plain[i][0]),'Diagnostic "좀비 단순화 끔" restores the full-detail draw');
