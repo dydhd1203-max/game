@@ -4345,7 +4345,7 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
    같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '96차 · 자동 해상도 끔·단순화 더 가까이·좀비 0.75px';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '97차 · 픽셀 비용 측정줄(결·투명·안개·하늘)';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -6055,7 +6055,9 @@ scene.onBeforeRender = (r, sc, cam)=>{ if((!P81_GGSCULL || r.shadowMap.autoUpdat
   if(cam.layers.mask & 1) bankLOD(cam);   // 92차 — 먼 구역은 성긴 짝 기하로
   skyDome.renderOrder = SCULL.on ? 1e6 : -1000; SKY_U.uSkyFar.value = SCULL.on ? 1 : 0;              // 68차 — 하늘은 맨 나중·먼 면(위 SKY_U 주석)   // 68차 — 해가 보이는 그리기면 그림자 판 전에 거른다(총 빛 패스는 층 1 이라 건너뜀)
   if(!sc.fog) return; skyDome.position.copy(cam.position);
-  const hC = Math.max(0, cam.position.y - GY - 8); sc.fog.near = fogNear0 + hC; sc.fog.far = fogFar0 + hC*1.3; };
+  const hC = Math.max(0, cam.position.y - GY - 8); sc.fog.near = fogNear0 + hC; sc.fog.far = fogFar0 + hC*1.3;
+  if(DBG.noFog){ sc.fog.near = 1e5; sc.fog.far = 1e6; }   // 97차 — 진단 '안개 끔'
+  skyDome.visible = !DBG.noSky; };                       // 97차 — 진단 '하늘 돔 안 그림'
 
 scene.fog = FOG_REF;
 
@@ -35066,6 +35068,7 @@ const DBG = { noRender:false, noLogic:false, noZombie:false, zlodOff:false, zlod
               noTransp:false, noBlob:false, hudHide:false, noVoice:false,   // 85차 — 투명한 것 안 그림 · 발밑 그림자 끔 · HUD 화면에서 숨김 · 좀비 소리 끔
               noBeam:false, noGG:false,       // 90차 — 수정 빛기둥 끔 · 든 총 빛번짐(gunGlowPass) 끔 — 투명 7.7ms 가 어디 것인지 가르는 줄
               lodOff:false, hideCat:null, noDisp:false,   // 92차 — 먼 조각 단순화 끔 · 갈래(Set) 안 그림 · 진열 총 안 그림
+              noFog:false, noSky:false,       // 97차 — 안개 끔(near·far 를 멀리) · 하늘 돔 안 그림 — 화면 전체를 덮는 면의 픽셀 몫
               slowNet:false,    // 전송 횟수를 초당 13회 -> 6회로 줄이기 — 짝비교용
               shFreeze:false }; // 81차 — 진단 '그림자 다시그리기 멈춤': 그림자 지도를 한 장도 새로 안 그린다(SH_HZ 가 있어도)
 let sweep = null, sweepOut = null;        // 자동 측정 상태 / 결과표
@@ -35220,16 +35223,17 @@ if(new URLSearchParams(location.search).has('diag')){
   ] : [
     /* 92차 — 91차 배터리 표가 '화소가 아니라 삼각형·콜' 이라 답해서, 세계를 갈래별로 빼 보는 줄로 바꿨다(90차 투명 줄 넷은 &sweep=all 에 그대로): 10줄·21창·약 62초.
        '… 안 그림' 은 정적 뱅크를 32칸 구역 단위로 숨긴다(갈래는 구역에서 가장 많은 것 — 경계 구역은 섞일 수 있다). 좀비는 다시 넣었다(92차 LOD 뒤 몫이 달라진다). */
-    /* 95차 — 93차 배터리 표: 기준 창이 30↔50fps 두 단계(같은 그림인데 GPU 9.3ms↔17ms — 배터리 GPU 속도 두 단계)라 HUD 줄은 전부 잡음이었다(HUD 숨김 −1·+4.5).
-       CPU그리기 2.7ms. 믿을 줄은 GPU 가 같은 단계 안에서 크게 준 '성곽·성문 안 그림'(16.9→11.2ms)뿐 → 줄은 GPU 가 바뀌는 것만 남기고 fps 대신 GPU ms 로 읽는다. 9줄·약 56초 */
+    /* 97차 — 96차 표(그리기 1.00): 95차(0.82)보다 기준 GPU +4ms(빠른 단계 8→12 · 느린 15→18~21), 삼각형·콜은 줄었는데 — 화소당 일이 값이 든다.
+       선생님: "해상도는 건들지 말고, 계단 없애기도 그대로" → 화소당 일을 가르는 줄: 결 셰이더 · 투명한 것 · 발밑 그림자 · 빛기둥 · 빛번짐 · 안개 · 하늘 돔. 10줄·약 62초 */
     C('화면그리기 끔', ()=>{DBG.noRender=true;}),
-    C('먼 조각 단순화 끔', ()=>{DBG.lodOff=true;}),
+    C('결 끔',            ()=>setGrain(0)),
+    C('투명한 것 안 그림',  ()=>{DBG.noTransp=true;}),
+    C('발밑 그림자 끔',     ()=>{DBG.noBlob=true;}),
+    C('수정 빛기둥 끔',     ()=>{DBG.noBeam=true;}),
+    C('든 총 빛번짐 끔',    ()=>{DBG.noGG=true;}),
+    C('안개 끔',            ()=>{DBG.noFog=true;}),
+    C('하늘 돔 안 그림',    ()=>{DBG.noSky=true;}),
     C('성곽·성문 안 그림',   ()=>{DBG.hideCat=new Set(['castle','gate','castleIn']);}),
-    C('탑 안 소품 안 그림',  ()=>{DBG.hideCat=new Set(['castleIn']);}),
-    C('나무·바위·숲 안 그림', ()=>{DBG.hideCat=new Set(['node']);}),
-    C('농장·상점·대장간 안 그림', ()=>{DBG.hideCat=new Set(['farm','shop','forge']); DBG.noDisp=true;}),
-    C('좀비 안 그림',        ()=>{DBG.noZombie=true;}),
-    C_PR(),                                         // 해상도 한단 더(화소 몫)
     C_HUD(),                                        // 두 번 재서 둘이 다르면 잡음임을 바로 보이게
   ];
   /* ★ 항목마다 바로 직전에 기준을 다시 잰다.
