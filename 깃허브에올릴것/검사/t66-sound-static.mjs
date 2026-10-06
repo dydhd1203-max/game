@@ -159,7 +159,7 @@ function envMax(src,buses){ // 버스 바로 앞 게인(봉투)의 봉우리 —
 /* ③ 배경음 장면 전환표 */
 { const A=makeGame(),G=A.G;
   const S=A.BGM_SC,names=Object.keys(S);
-  check('Twelve BGM scenes: lobby·dawn·day1·day2·day3·dusk·night·boss·victory·race·surv',['lobby','dawn','day1','day2','day3','dusk','night','boss','victory','race','surv'].every(k=>names.includes(k)),names);
+  check('Ten BGM scenes: lobby·dawn·day1·day2·day3·dusk·night·boss·victory·race (92차 — surv 삭제)',['lobby','dawn','day1','day2','day3','dusk','night','boss','victory','race'].every(k=>names.includes(k))&&!names.includes('surv'),names);
   const melOk=names.every(k=>S[k].mel.every(m=>m===null||(m.length===32&&m.every(v=>v===-1||(v>=-12&&v<=21)))));
   const chOk=names.every(k=>S[k].ch.every(c=>c===null||(c.length===4&&c.every(x=>A.BGM_CH[x]))));
   const stepOk=names.every(k=>[0,0.5,1].every(h=>{const s=S[k].step(0,h);return s>=0.17&&s<=0.45;}));
@@ -178,7 +178,7 @@ function envMax(src,buses){ // 버스 바로 앞 게인(봉투)의 봉우리 —
   T.push(['morning after a night → victory dawn',A.bgmSceneNow()==='victory']);
   G.phase='mini';G.mini={k:0,st:'intro'};A.bgmLoop(0);G.phase='day';G.day=6;G.t=137;A.bgmLoop(0);
   T.push(['morning after a mini game → dawn (not victory)',A.bgmSceneNow()==='dawn']);
-  T.push(['race running → race · survival running → surv · mini intro → lobby',at({phase:'mini',mini:{k:0,st:'run'}})==='race'&&at({mini:{k:1,st:'run'}})==='surv'&&at({mini:{k:0,st:'intro'}})==='lobby']);
+  T.push(['race running → race · mini intro → lobby (92차 — 서바이벌 없음)',at({phase:'mini',mini:{k:0,st:'run'}})==='race'&&at({mini:{k:0,st:'intro'}})==='lobby']);
   T.push(['paused → silent · lose → silent · win → victory',at({phase:'day',t:100,paused:true})===null&&at({paused:false,phase:'lose'})===null&&at({phase:'win'})==='victory']);
   A.sndOn=false;T.push(['sound off → silent',at({phase:'day'})===null]);A.sndOn=true;
   const bad=T.filter(x=>!x[1]).map(x=>x[0]);
