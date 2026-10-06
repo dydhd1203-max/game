@@ -4345,7 +4345,7 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
    같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '94차 · 농장·상점·대장간은 멀어도 그대로';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '95차 · 성곽 14칸 단순화·탑 안 소품 숨김';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -6775,6 +6775,8 @@ const BSPLIT = 300;   // 이보다 인스턴스가 적은 뱅크는 안 쪼갠�
    진단(Shift+9) '먼 조각 단순화 끔' 줄이 효과를 잰다 · 진단 창 '먼 조각' 줄이 지금 성긴 짝으로 그리는 칸 수다. */
 const LOD_D = (()=>{ const v = new URLSearchParams(location.search).get('lod'); return v === null ? 22 : Math.max(0, +v || 0); })();   // 0 이면 끔 · 헤드리스 재기: 30칸 −41~55% · 22칸 −47~58% · 16칸 −50~64%(콜은 비슷) — 22 로
 const LOD_MIN_TRIS = 20, LOD_HYST = 1.5;              // 이보다 성긴 기하는 짝이 없다(그대로) · 멀어질 때 LOD_D+1.5 · 가까워질 때 LOD_D−1.5(깜빡임 방지)
+const LOD_CAT_D = {castle:14, gate:14, castleIn:20};   // 95차 — 갈래별 단순화 거리(없으면 LOD_D). 93차 배터리 표: 성곽·성문이 GPU 의 1/3(16.9→11.2ms) — 돌 둥근 모서리는 14칸에서 2~3픽셀
+const LOD_HIDE_CAT = new Set(['castleIn']);            // 95차 — 이 갈래는 멀면 짝 메시도 없이 아예 안 그린다(탑 안 방·소품 11만 삼각 — 밖에서는 안 보인다)
 const LOD_EXEMPT = new Set(['shop', 'forge', 'farm']); // 94차 — 이 갈래(BCAT)가 다수인 뱅크는 멀어도 그대로(선생님: "농장·상점·대장간만 단순화 대상에서 제외" — 굽은 천막·목재·헛간이 상자로 바뀌면 어색하다). 성곽·성문·나무·바위·풀꽃·산은 단순화
 const LOD_ROUND = /^(leaf|cone|nodeRock|nodeMoss|peb|bush|bushS|petal|pist|apple|rock|cleaf|cvine|mtK|crown|farmHay|hay)/;   // 공 꼴은 20면체로
 const _lodFar = new Map();                              // 기하 → 성긴 짝(같은 기하를 쓰는 뱅크끼리 같은 짝)
@@ -6797,26 +6799,86 @@ function farGeoFor(geo, key){
     g.userData.lodOf = key; g.computeBoundingSphere(); }
   _lodFar.set(geo, g); return g;
 }
+/* ═══ 95차 — 성긴 짝 합치기(pool) ═══
+   93차 배터리 표: 콜 하나가 GPU ≈20µs(성곽·성문 125콜 ≈ 2.7ms, 삼각형 0.33M ≈ 3ms). 헤드리스 농장 시점에서 92차 짝 메시 콜이 150(성곽만 68)이었다 —
+   뱅크(기하)마다 짝 메시를 두어서다. 무늬(map)가 없는 재질의 뱅크는 짝 기하가 어차피 단위 상자/20면체라, (재질·공꼴·32칸 구역·갈래)마다 하나인
+   '합친 짝 메시' 에 담는다(처음엔 32칸 구역마다 뒀더니 단일 구역 뱅크가 쪼개져 콜이 오히려 늘어, 재질·공꼴·갈래마다 하나로 — 칸은 keep 이 절두체로 거른다):
+   뱅크 기하의 상자(가운데·크기)는 인스턴스 행렬에 곱하고(b.farInfo.M), 꼭짓점 색 평균은 인스턴스 색에 곱한다(b.farInfo.col).
+   bankPack 이 먼 칸을 만나면 어디에도 안 담고 그 칸이 속한 pool 을 dirty 로 두며, bankLOD 끝에서 lodPoolsFlush 가 dirty pool 만 다시 채운다.
+   무늬 있는 재질(MAT·EMITC — 섬 바닥·횃불 빛)은 92차 그대로 뱅크마다 짝 메시(cr.mf). 마름돌 표시(인스턴스 색 r > 1.5)는 r 을 안 곱한다. */
+const POOL_GEO = (round)=>{ const g = (round ? new THREE.IcosahedronGeometry(0.5, 0) : new THREE.BoxGeometry(1, 1, 1)).toNonIndexed(), n = g.attributes.position.count;
+  g.setAttribute('color', new THREE.BufferAttribute(new Float32Array(n*3).fill(1), 3)); g.setAttribute('aMt', new THREE.BufferAttribute(new Float32Array(n), 1)); g.computeBoundingSphere(); return g; };
+const POOL_BOX = POOL_GEO(false), POOL_ICO = POOL_GEO(true);
+const LOD_POOLS = new Map(), _farInfo = new Map(), _pm = new THREE.Matrix4(), _pv = new THREE.Vector3();
+function farInfoFor(geo, key){ let f = _farInfo.get(geo); if(f) return f;
+  if(!geo.boundingBox) geo.computeBoundingBox(); const bb = geo.boundingBox;
+  const M = new THREE.Matrix4().compose(new THREE.Vector3((bb.min.x + bb.max.x)/2, (bb.min.y + bb.max.y)/2, (bb.min.z + bb.max.z)/2), new THREE.Quaternion(),
+                                       new THREE.Vector3(Math.max(1e-3, bb.max.x - bb.min.x), Math.max(1e-3, bb.max.y - bb.min.y), Math.max(1e-3, bb.max.z - bb.min.z)));
+  const col = [1, 1, 1], ca = geo.attributes.color;
+  if(ca){ let r = 0, g = 0, b = 0; for(let i=0;i<ca.count;i++){ r += ca.getX(i); g += ca.getY(i); b += ca.getZ(i); } col[0] = r/ca.count; col[1] = g/ca.count; col[2] = b/ca.count; }
+  f = {M, col, round: LOD_ROUND.test(key)}; _farInfo.set(geo, f); return f; }
+function poolFor(mat, round){ const key = mat.uuid + (round ? '|r' : '|b'); let p = LOD_POOLS.get(key);   // 재질·공꼴마다 하나(갈래·구역은 flush 가 거른다)
+  if(!p){ p = {key, mat, round, crs:[], ks:[], m:null, dirty:true, box:new THREE.Box3()}; LOD_POOLS.set(key, p); } return p; }
+function lodPoolsBuild(){                               // bbuild 끝 — 칸 수가 정해진 뒤 메시를 만든다
+  for(const p of LOD_POOLS.values()){ const n = p.crs.length; if(!n || p.m) continue;
+    const m = new THREE.InstancedMesh(p.round ? POOL_ICO : POOL_BOX, p.mat, n); m.count = 0;
+    m.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(n*3), 3);
+    p.box.expandByScalar(4); m.boundingSphere = p.box.getBoundingSphere(new THREE.Sphere());
+    m.updateMatrix(); m.matrixAutoUpdate = false; m.castShadow = false; m.receiveShadow = !!GFX.shadow;
+    m.userData.cat = '~pool'; m.userData.lodFar = true; m.userData.bkey = '~pool'; SCULL_BOX.set(m, p.box);   // 68차 상자 거르기 · count 0 이면 안 그림
+    p.m = m; scene.add(m); } }
+function lodPoolsDispose(){ for(const p of LOD_POOLS.values()) if(p.m){ scene.remove(p.m); p.m.dispose(); } LOD_POOLS.clear(); }
+const _lodF = new THREE.Frustum(), _lodPM = new THREE.Matrix4(), _lodDir = new THREE.Vector3(), _lodDirLast = new THREE.Vector3(0, 0, 0); let _lodStamp = 0;
+function lodPoolsFrustum(cam){                          // 살짝 넓은 절두체(시야 ×1.18 · 면 2칸 밖) — 4° 돌거나 1칸 움직일 때 다시 센다(시야 2배·8칸이면 화면 밖 먼 칸이 +12만 삼각형 — 콜 하나 아끼려고 2배를 둘 수는 없다)
+  const w = _lodPM.copy(cam.projectionMatrix).elements;
+  w[0] *= 0.85; w[4] *= 0.85; w[8] *= 0.85; w[12] *= 0.85; w[1] *= 0.85; w[5] *= 0.85; w[9] *= 0.85; w[13] *= 0.85;
+  _lodF.setFromProjectionMatrix(_lodPM.multiply(cam.matrixWorldInverse));
+  for(let i=0;i<6;i++) _lodF.planes[i].constant += 2;
+}
+const _lodPl = new Float32Array(24);
+function lodPoolsFlush(){
+  const hide = DBG.hideCat, PL = _bkPl(_lodF.planes, _lodPl); _lodStamp++;
+  for(const p of LOD_POOLS.values()){ if(!p.dirty || !p.m) continue; p.dirty = false;
+    const m = p.m, A = m.instanceMatrix.array, C = m.instanceColor.array, crs = p.crs, ks = p.ks; let j = 0;
+    for(let i=0; i<crs.length; i++){ const cr = crs[i], k = ks[i]; if(!cr.keep[k] || !cr.lod[k]) continue;
+      if(cr.pvS !== _lodStamp){ cr.pvS = _lodStamp;      // 조각(32칸 구역)마다 한 번: 절두체 밖이면 그 조각의 먼 칸은 안 담는다 · 진단 갈래 숨김
+        cr.pv = !(hide && hide.has(cr.m.userData.cat)) && (!cr.sc || _lodF.intersectsBox(cr.sc.box)); }
+      if(!cr.pv) continue;
+      if(cr.box !== null){ const B = cr.box, o = k*6; if(!boxIn(PL, B[o], B[o+1], B[o+2], B[o+3], B[o+4], B[o+5])) continue; }   // 칸마다 상자가 있는 조각은 칸마다(81차 넓은 보임 keep 보다 딱 맞게 — 92차 짝 메시는 조각 상자로 통째 걸러졌었다)
+      const b = cr.b, gi = cr.idxs[k], f = b.farInfo;
+      _pm.fromArray(b.cur, gi*16).multiply(f.M).toArray(A, j*16);
+      const C0 = b.col0, c = f.col, o = j*3; let r = 1, g = 1, bl = 1; if(C0){ r = C0[gi*3]; g = C0[gi*3+1]; bl = C0[gi*3+2]; }
+      C[o] = r > 1.5 ? r : r*c[0]; C[o+1] = g*c[1]; C[o+2] = bl*c[2];
+      j++; }
+    m.count = j; BANK_BUMP = true;
+    if(j){ const a = m.instanceMatrix; a.clearUpdateRanges(); a.addUpdateRange(0, j*16); a.needsUpdate = true;
+           const c = m.instanceColor; c.clearUpdateRanges(); c.addUpdateRange(0, j*3); c.needsUpdate = true; } }
+}
 let BCAT = '';                                          // 92차 — 지금 짓는 세계 갈래(bpush 가 조각마다 적고, 진단 '… 안 그림' 줄이 구역 단위로 숨긴다)
 let _lodX = 1e9, _lodY = 0, _lodZ = 0, _lodOffWas = false, _hideWas = null;
 function bankLOD(cam){                                  // 92차 — 본판 카메라가 1칸 넘게 움직였을 때 칸마다 멀고 가까움을 다시 가른다
   if(DBG.hideCat !== _hideWas){ _hideWas = DBG.hideCat;   // 진단 '… 안 그림': 갈래가 맞는 구역(본 메시·짝 메시)을 숨긴다
     for(const b of banks.values()){ if(!b.chunks) continue;
       for(const m of b.chunks){ const v = !_hideWas || !_hideWas.has(m.userData.cat); if(m.visible !== v) m.visible = v; }
-      if(b.chunksF) for(const m of b.chunksF){ const v = !_hideWas || !_hideWas.has(m.userData.cat); if(m.visible !== v) m.visible = v; } } }
-  if(!BANK_PACK || !LOD_D) return;
-  const p = cam.position, off = !!DBG.lodOff, dx0 = p.x - _lodX, dy0 = p.y - _lodY, dz0 = p.z - _lodZ;
-  if(off === _lodOffWas && dx0*dx0 + dy0*dy0 + dz0*dz0 < 1) return;
+      if(b.chunksF) for(const m of b.chunksF){ const v = !_hideWas || !_hideWas.has(m.userData.cat); if(m.visible !== v) m.visible = v; } }
+    for(const p of LOD_POOLS.values()) p.dirty = true; }   // 95차 — 합친 짝 메시는 flush 가 갈래를 거른다
+  if(!BANK_PACK || !LOD_D){ lodPoolsFlush(); return; }
+  const p = cam.position, off = !!DBG.lodOff, dx0 = p.x - _lodX, dy0 = p.y - _lodY, dz0 = p.z - _lodZ, moved = dx0*dx0 + dy0*dy0 + dz0*dz0 >= 1 || off !== _lodOffWas;
+  cam.getWorldDirection(_lodDir); const turned = _lodDir.dot(_lodDirLast) < 0.9976;   // 4° 넘게 돌았다(다시 채우기 ≈ 0.5~1ms JS)
+  if(moved || turned){ _lodDirLast.copy(_lodDir); lodPoolsFrustum(cam); for(const q of LOD_POOLS.values()) q.dirty = true; }   // 95차 — 넓은 절두체 다시 · pool 전부 다시 채움
+  if(!moved){ lodPoolsFlush(); if(BANK_BUMP){ renderer.info.render.frame++; BANK_BUMP = false; } return; }   // 95차 — 켬끔·걸러내기·돌기로 바뀐 pool 만 채운다
   _lodX = p.x; _lodY = p.y; _lodZ = p.z; _lodOffWas = off;
-  const d2f = (LOD_D + LOD_HYST)*(LOD_D + LOD_HYST), d2n = (LOD_D - LOD_HYST)*(LOD_D - LOD_HYST);
   for(let c=0; c<BANK_CR.length; c++){ const cr = BANK_CR[c], lod = cr.lod; if(!lod) continue;
+    const D = cr.b.lodD || LOD_D, d2f = (D + LOD_HYST)*(D + LOD_HYST), d2n = (D - LOD_HYST)*(D - LOD_HYST);   // 95차 — 갈래별 거리
     const P = cr.pos, keep = cr.keep; let ch = false;
     for(let k=0; k<lod.length; k++){ const o = k*3, dx = P[o] - p.x, dy = P[o+1] - p.y, dz = P[o+2] - p.z, d2 = dx*dx + dy*dy + dz*dz;
       const v = off ? 0 : (d2 > d2f ? 1 : d2 < d2n ? 0 : lod[k]);
       if(v !== lod[k]){ lod[k] = v; if(keep[k]) ch = true; } }
     if(ch) bankPack(cr); }
+  lodPoolsFlush();   // 95차
+  if(BANK_BUMP){ renderer.info.render.frame++; BANK_BUMP = false; }   // 95차 — bankLOD 가 bankTick 뒤에 돌므로 여기서도 번호를 올린다(bankTick 주석)
 }
-function lodStat(){ let near = 0, far = 0; for(let c=0; c<BANK_CR.length; c++){ const cr = BANK_CR[c]; near += cr.m.count; if(cr.mf) far += cr.mf.count; } return {near, far}; }   // 진단 창
+function lodStat(){ let near = 0, far = 0; for(let c=0; c<BANK_CR.length; c++){ const cr = BANK_CR[c]; near += cr.m.count; if(cr.mf) far += cr.mf.count; } for(const p of LOD_POOLS.values()) if(p.m) far += p.m.count; return {near, far}; }   // 진단 창
 /* 81차 성능 — 칸 뺐다 채우기(뱅크 칸 몰아 담기). 켠 칸만 원래 순서 그대로 조각 버퍼 앞쪽 0..j-1 에 담고 count = j.
    ① 숨긴 칸(bset false — 농장 안 쓰는 단계 2/3, 캔 자원, 닫힌 상자 뚜껑…)을 크기 0 행렬(ZEROM)로 두면 GPU 가 본판·그림자 판에서
      그 꼭짓점을 전부 셰이더로 돌린 뒤에야 버린다(농장만 한 판에 약 31만 삼각형 × 두 판). 빼 버리면 그 일이 없다.
@@ -6839,6 +6901,7 @@ const BANK_CULL_TRI = 5000;          // 81차 — 안 쪼갠 뱅크 중 삼각�
 const BANK_CR = [], BANK_CULLS = [], BANK_DIRTY = [];
 function bbuild(){
   SCULL.list.length = 0; BANK_CR.length = 0; BANK_CULLS.length = 0; BANK_DIRTY.length = 0;
+  lodPoolsDispose();   // 95차
   for(const [k,b] of banks){
     if(b.chunks) for(const m of b.chunks){ scene.remove(m); m.dispose(); }
     if(b.chunksF) for(const m of b.chunksF){ scene.remove(m); m.dispose(); }   // 92차 — 성긴 짝 메시도
@@ -6853,6 +6916,8 @@ function bbuild(){
     let bankCat = '';                                  // 94차 — 뱅크의 다수 갈래(상점 뱅크는 LOD 제외)
     if(b.cats){ const cnt = new Map(); for(const t of b.cats) cnt.set(t, (cnt.get(t) || 0) + 1); let bn = -1; for(const [t, q] of cnt) if(q > bn){ bn = q; bankCat = t; } }
     b.geoFar = LOD_EXEMPT.has(bankCat) ? null : farGeoFor(b.geo, k);   // 92차 — 성긴 짝 기하(없으면 null)
+    b.farInfo = b.geoFar ? farInfoFor(b.geo, k) : null; b.poolOK = !!(b.geoFar && !b.mat.map);   // 95차 — 합친 짝 메시(무늬 없는 재질만)
+    b.lodD = LOD_CAT_D[bankCat] || LOD_D; b.lodHide = LOD_HIDE_CAT.has(bankCat);   // 95차 — 갈래별 거리 · 멀면 안 그림
     const single = n < BSPLIT;
     if(single){ const all=[]; for(let i=0;i<n;i++) all.push(i); buck.set(0, all); }
     else for(let i=0;i<n;i++){
@@ -6884,6 +6949,7 @@ function bbuild(){
       b.chunks.push(im); scene.add(im);
     }
   }
+  lodPoolsBuild();   // 95차 — 합친 짝 메시
 }
 /* 81차 — 조각 기록 하나: 담을 칸 목록(원래 순서)·지금 담긴 칸 표시·(거르는 조각이면) 칸마다 상자 */
 function bankCR(b, im, idxs, sc, single){
@@ -6905,7 +6971,15 @@ function bankCR(b, im, idxs, sc, single){
     cr.wideAll = !single;                                          // 81차 검토 고침 — 32칸 조각: 넓은 보임은 늘 전부(움직일 땐 안 빼고 서 있을 때만 줄인다 — ③ 주석)
     BANK_CULLS.push(cr);   // full — 보임이 전부 1 인 채로 담겨 있음
   }
-  if(b.geoFar){                                      // 92차 — 성긴 짝 메시: 같은 재질·같은 칸 수. 먼 칸은 bankPack 이 여기에 담는다(처음엔 0칸)
+  if(b.lodHide && !b.geoFar){ cr.mf = null; cr.lod = new Uint8Array(len); cr.pos = new Float32Array(len*3);   // 95차 — 멀면 안 그리는 갈래(짝 메시 없이 칸만 뺀다)
+    for(let j=0;j<len;j++){ const e = b.ms[idxs[j]].elements, o = j*3; cr.pos[o] = e[12]; cr.pos[o+1] = e[13]; cr.pos[o+2] = e[14]; } }
+  else if(b.geoFar && b.poolOK){                     // 95차 — 합친 짝 메시(pool)에 칸을 등록한다(메시는 bbuild 끝 lodPoolsBuild 가 만든다)
+    cr.mf = null; cr.lod = new Uint8Array(len); cr.pos = new Float32Array(len*3); cr.pools = [];
+    const cat = im.userData.cat || '', f = b.farInfo;
+    for(let j=0;j<len;j++){ const e = b.ms[idxs[j]].elements, o = j*3, x = e[12], y = e[13], z = e[14]; cr.pos[o] = x; cr.pos[o+1] = y; cr.pos[o+2] = z;
+      const p = poolFor(b.mat, f.round);   // 구역·갈래로 안 쪼갠다(쪼개면 콜이 도로 는다 — 헤드리스 220→254). 칸은 flush 가 켬·넓은 절두체·갈래로 거른다
+      p.crs.push(cr); p.ks.push(j); p.box.expandByPoint(_pv.set(x, y, z)); if(cr.pools.indexOf(p) < 0) cr.pools.push(p); } }
+  else if(b.geoFar){                                 // 92차 — 성긴 짝 메시: 같은 재질·같은 칸 수. 먼 칸은 bankPack 이 여기에 담는다(처음엔 0칸)
     const mf = new THREE.InstancedMesh(b.geoFar, b.mat, len); mf.count = 0;
     if(b.col0) mf.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(len*3), 3);
     mf.boundingSphere = im.boundingSphere.clone(); mf.updateMatrix(); mf.matrixAutoUpdate = false;
@@ -6915,6 +6989,7 @@ function bankCR(b, im, idxs, sc, single){
     for(let j=0;j<len;j++){ const e = b.ms[idxs[j]].elements, o = j*3; cr.pos[o] = e[12]; cr.pos[o+1] = e[13]; cr.pos[o+2] = e[14]; }
     (b.chunksF || (b.chunksF = [])).push(mf); scene.add(mf); }
   else { cr.mf = null; cr.lod = null; cr.pos = null; }
+  if(!cr.pools) cr.pools = null;
   BANK_CR.push(cr); b.crs[b.chunks.length] = cr;
 }
 /* 81차 — 조각 하나 다시 담기: 남길 칸만 원래 순서로 앞에서부터. 행렬은 b.cur(흔들린 불꽃은 흔들린 값), 색은 처음 색(마름돌 표시 포함) */
@@ -6925,6 +7000,7 @@ function bankPack(cr){
   for(let k=0; k<idxs.length; k++){ const gi = idxs[k];
     if(!keep[k]){ map[gi*2+1] = -1; continue; }
     const s = gi*16;
+    if(lod !== null && lod[k] && (b.lodHide || cr.pools !== null)){ map[gi*2+1] = -1; continue; }   // 95차 — 멀면 안 그림(탑 안 소품) · 합친 짝 메시에 담는 칸(아래 dirty)
     if(Af !== null && lod[k]){ const d = jf*16; for(let q=0; q<16; q++) Af[d+q] = cur[s+q];
       if(Cf){ const s3 = gi*3, d3 = jf*3; Cf[d3] = C0[s3]; Cf[d3+1] = C0[s3+1]; Cf[d3+2] = C0[s3+2]; }
       map[gi*2+1] = -(jf + 2); jf++; continue; }                                     // 짝 메시 자리는 −(자리+2) (−1 은 '안 담김')
@@ -6932,6 +7008,7 @@ function bankPack(cr){
     if(C){ const s3 = gi*3, d3 = j*3; C[d3] = C0[s3]; C[d3+1] = C0[s3+1]; C[d3+2] = C0[s3+2]; }
     map[gi*2+1] = j; j++; }
   m.count = j; BANK_BUMP = true;
+  if(cr.pools !== null) for(let i=0; i<cr.pools.length; i++) cr.pools[i].dirty = true;   // 95차 — 이 조각의 먼 칸이 든 pool 을 다시 채운다
   if(mf !== null){ mf.count = jf;
     if(jf){ const a = mf.instanceMatrix; a.clearUpdateRanges(); a.addUpdateRange(0, jf*16); a.needsUpdate = true;
             if(Cf){ const c = mf.instanceColor; c.clearUpdateRanges(); c.addUpdateRange(0, jf*3); c.needsUpdate = true; } } }
@@ -9511,7 +9588,7 @@ function buildCastle(){
 
   /* ── 탑 안 — 1층 방(종류마다 다른 소품) · 초소 · 망루 · 숨은 방. 모두 탑 로컬(T1) 좌표 → R·M ── */
   function towerRooms(T, F, P2){
-    litIn = true; try { towerRooms0(T, F, P2); } finally { litIn = false; }
+    litIn = true; const cat0 = BCAT; BCAT = 'castleIn'; try { towerRooms0(T, F, P2); } finally { litIn = false; BCAT = cat0; }   // 95차 — 탑 안 소품 갈래(멀면 안 그림)
   }
   function towerRooms0(T, F, P2){
     const i = T.i, room = T.room, HC = !!T.doors.corr;
@@ -35036,7 +35113,8 @@ if(new URLSearchParams(location.search).has('diag')){
          side:m.userData.lit.side});
       m.material = on ? m.userData.flat : m.userData.lit; } };
   const setTerr = off=>{ DBG.noTerrain = off;
-    for(const b of banks.values()) if(b.chunks){ for(const m of b.chunks) m.visible = !off; if(b.chunksF) for(const m of b.chunksF) m.visible = !off; } };
+    for(const b of banks.values()) if(b.chunks){ for(const m of b.chunks) m.visible = !off; if(b.chunksF) for(const m of b.chunksF) m.visible = !off; }
+    for(const p of LOD_POOLS.values()) if(p.m) p.m.visible = !off; };   // 95차
   /* ★ 25차 — 그림자와 빛 번짐은 **여기서 재는 수밖에 없다.**
      이 둘은 값이 전부 GPU 라, 검사기(소프트웨어 렌더링)로는 셀 수도 잴 수도 없다.
      드로우콜은 세어서 알 수 있었지만 채움률은 아니다. 교실 노트북에서 눌러 봐야 안다. */
@@ -35142,17 +35220,16 @@ if(new URLSearchParams(location.search).has('diag')){
   ] : [
     /* 92차 — 91차 배터리 표가 '화소가 아니라 삼각형·콜' 이라 답해서, 세계를 갈래별로 빼 보는 줄로 바꿨다(90차 투명 줄 넷은 &sweep=all 에 그대로): 10줄·21창·약 62초.
        '… 안 그림' 은 정적 뱅크를 32칸 구역 단위로 숨긴다(갈래는 구역에서 가장 많은 것 — 경계 구역은 섞일 수 있다). 좀비는 다시 넣었다(92차 LOD 뒤 몫이 달라진다). */
-    /* 93차 — 92차 배터리 표: GPU 12.3ms(한 칸 안)인데 34fps · 'HUD 화면 숨김' 두 번 다 +16(54·59fps) · 로직 끔 +2 · LOD 끔 −6.5 · 성곽·성문 +14.
-       그래서 HUD 의 어느 조각이 비싼지(판 합성 · 깜빡임 애니메이션 · 글·알림 · 미니맵) 가르는 줄로 바꿨다. 92차 세계 갈래 줄은 &sweep=all 에 그대로. 10줄·약 62초 */
+    /* 95차 — 93차 배터리 표: 기준 창이 30↔50fps 두 단계(같은 그림인데 GPU 9.3ms↔17ms — 배터리 GPU 속도 두 단계)라 HUD 줄은 전부 잡음이었다(HUD 숨김 −1·+4.5).
+       CPU그리기 2.7ms. 믿을 줄은 GPU 가 같은 단계 안에서 크게 준 '성곽·성문 안 그림'(16.9→11.2ms)뿐 → 줄은 GPU 가 바뀌는 것만 남기고 fps 대신 GPU ms 로 읽는다. 9줄·약 56초 */
     C('화면그리기 끔', ()=>{DBG.noRender=true;}),
-    C_HUD(),
-    C('HUD 숨김·조준선만 남김', ()=>{DBG.hudHide=true; hudHide85(true); const e = document.getElementById('crosshair'); if(e) e.style.visibility = '';}),   // 전부 숨길 때만 빨라지면 '겹친 층' 자체가 값
-    C('왼쪽·가운데 판 숨김',     ()=>hidePart(['topLeft','topMid'])),
-    C('오른쪽 판·미니맵 숨김',   ()=>hidePart(['topRight','miniWrap'])),
-    C('아래 줄(도구·체력·탄창) 숨김', ()=>hidePart(['dock','combatHud79','magHud'])),
-    C('글·알림·조준선 숨김',     ()=>hidePart(['feed','hint','toast','stageTitle','dmgLayer','aimInfo','look','shopTip','forgeTip','farmTip','crosshair'])),
-    C('CSS 애니메이션 끔',       ()=>{ document.body.classList.add('noAnim93'); }),
-    C('성곽·성문 안 그림',       ()=>{DBG.hideCat=new Set(['castle','gate']);}),
+    C('먼 조각 단순화 끔', ()=>{DBG.lodOff=true;}),
+    C('성곽·성문 안 그림',   ()=>{DBG.hideCat=new Set(['castle','gate','castleIn']);}),
+    C('탑 안 소품 안 그림',  ()=>{DBG.hideCat=new Set(['castleIn']);}),
+    C('나무·바위·숲 안 그림', ()=>{DBG.hideCat=new Set(['node']);}),
+    C('농장·상점·대장간 안 그림', ()=>{DBG.hideCat=new Set(['farm','shop','forge']); DBG.noDisp=true;}),
+    C('좀비 안 그림',        ()=>{DBG.noZombie=true;}),
+    C_PR(),                                         // 해상도 한단 더(화소 몫)
     C_HUD(),                                        // 두 번 재서 둘이 다르면 잡음임을 바로 보이게
   ];
   /* ★ 항목마다 바로 직전에 기준을 다시 잰다.
@@ -35245,7 +35322,9 @@ if(new URLSearchParams(location.search).has('diag')){
       /* 89차 — 기준 창 원본과 흔들림(표준편차)을 표 밑에 남긴다. ±2σ 아래 차이는 가릴 수 없다는 뜻이다 */
       const bases = sweep.wins.filter((_,k)=>k%2===0).map(w=>w.fps), bm = bases.reduce((a,b)=>a+b,0)/bases.length;
       const bsd = Math.sqrt(bases.reduce((a,b)=>a+(b-bm)*(b-bm),0)/bases.length);
-      sweepOut = {rows:rows, spoiled:rows.some(r=>r[5]), warn:sweep.warn, drift, capped, bases, bsd:Math.round(bsd*10)/10,
+      const bg = sweep.wins.filter((_,k)=>k%2===0).map(w=>w.gpu||0).filter(v=>v>0), bgMin = Math.min(...bg), bgMax = Math.max(...bg);   // 95차 — 기준 GPU 두 단계(배터리 GPU 속도) 감지
+      const gpuSplit = bg.length >= 3 && bgMax > bgMin*1.5 ? '기준 GPU 가 ' + bgMin.toFixed(1) + '~' + bgMax.toFixed(1) + 'ms 로 두 단계입니다(같은 그림인데 GPU 속도가 바뀜 — 배터리). fps 차이는 못 쓰고, 줄마다 GPU a→b 가 같은 단계 안에서 바뀐 것만 보세요.' : '';
+      sweepOut = {rows:rows, spoiled:rows.some(r=>r[5]), warn:sweep.warn, drift, capped, bases, bsd:Math.round(bsd*10)/10, bgpu:bg.map(v=>v.toFixed(1)), gpuSplit,
                   gpu:gpuExt === null ? null : gpuMs, cpu:cpuDrawMs,   // 93차
                   bat:sweep.bat, dpr:devicePixelRatio, pr:renderer.getPixelRatio()};   // 90차 — 전원 · 화면배율
       sweep = null; return;
@@ -35340,6 +35419,8 @@ function updDiag(dt){
       + (o.dpr ? '화면배율 ' + o.dpr.toFixed(2) + ' → 그리기 ' + o.pr.toFixed(2) + ' · ' + o.bat + '\n' : '') + '\n'   // 90차
       + o.rows.map(fmt).join('\n')
       + (o.bases ? '\n\n기준 창 ' + o.bases.join(' ') + '  (흔들림 ±' + o.bsd + ' → ±' + (o.bsd*2).toFixed(0) + 'fps 아래 차이는 못 가림)' : '')   // 89차
+      + (o.bgpu && o.bgpu.length ? '\n기준 GPU ' + o.bgpu.join(' ') + 'ms' : '')   // 95차
+      + (o.gpuSplit ? '\n⚠ ' + o.gpuSplit : '')
       + (o.gpu !== undefined ? '\n★GPU실제 ' + (o.gpu === null ? '못잼(이 브라우저는 GPU 시간 질의가 없음)' : !o.gpu ? '값 없음(질의가 한 번도 안 돌아옴)' : o.gpu.toFixed(1) + 'ms — 그리기 중 GPU 가 실제로 일한 시간') : '')
       + (o.cpu !== undefined ? '\n★CPU그리기 ' + o.cpu.toFixed(1) + 'ms — 그리기 호출이 JS 에서 걸린 시간(콜 제출)' : '')   // 93차
       + '\n60Hz 화면은 한 프레임이 16.7ms 를 넘기면 33ms(30fps)로 떨어진다 — GPU 15ms 아래가 목표'   // 90차
