@@ -678,6 +678,7 @@ body{color:var(--cream)}
 
 .pnl{background:var(--panel3); border:1.5px solid var(--ui-edge); border-radius:16px;
   box-shadow:var(--soft)}
+body.noAnim93 *{animation:none!important;transition:none!important}   /* 93차 — 진단 'CSS 애니메이션 끔' 줄(깜빡임·전환이 합성기를 매 프레임 깨우는지 가른다) */
 /* ★ backdrop-filter(뒤 배경 흐리기)는 안 쓴다. 예뻐 보이지만 합성기가 매 프레임
    프레임버퍼를 읽어다 흐려야 해서, 교실 크롬북의 타일 GPU 에서는 값이 아주 비싸다.
    패널이 이미 90% 불투명이라 흐림이 보이지도 않는다. */
@@ -4344,7 +4345,7 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
    같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '92차 · 먼 조각 단순화·서바이벌 삭제';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '93차 · HUD 가름 측정줄·CPU 그리기 시간';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -34675,6 +34676,7 @@ const qE = k=>{ if(PROF_ON) PROF['·'+k] = (PROF['·'+k]||0)*0.9 + (performance.
    그 시간(★그리기)에는 GPU 가 일하는 시간이 안 들어간다.
    15프레임에 한 번만 질의하고, 결과는 몇 프레임 뒤에 읽는다(바로 읽으면 GPU 를 세운다). */
 let gpuExt, gpuQuery = null, gpuOpen = false, gpuMs = 0, gpuN = 0;
+let cpuDrawMs = 0;   // 93차 — drawFrame() 호출이 JS(주 스레드)에서 걸린 시간(지수평균 0.9/0.1): 드로우콜 제출·three 의 CPU 몫. GPU 12ms 인데 34fps 라 CPU 쪽을 가른다
 function gpuBegin(){
   if(!PROF_ON) return;
   if(gpuExt === undefined){ const gl = renderer.getContext();
@@ -34954,7 +34956,7 @@ function loop(){
   if(SH_HZ && !DBG.shFreeze){ shAcc += dt; if(shAcc >= 1/SH_HZ){ renderer.shadowMap.needsUpdate = true; shAcc = 0; } }   // SH_HZ 0 이면 autoUpdate 가 매 프레임 그린다 · 81차 — 진단 '그림자 다시그리기 멈춤' 동안은 안 그린다
   if(!DBG.noRender){
     if(titleSkip81(dt)) scene.updateMatrixWorld();   // 81차 titleSkip — 불투명한 시작 화면 뒤: 그리지 않고 세계 행렬만(그리기가 하던 일 — 다음 프레임 계산이 읽는다)
-    else drawFrame(); }
+    else { const t0 = performance.now(); drawFrame(); const ms = performance.now() - t0; cpuDrawMs = cpuDrawMs ? cpuDrawMs*0.9 + ms*0.1 : ms; } }   // 93차 — CPU 그리기 시간
   else renderer.clear();          // 화면이 얼어붙은 걸로 안 보이게 (거의 공짜다)
   if(PROF_ON){ gpuEnd(); pE('★그리기'); }
   if(window.__sweepTick) window.__sweepTick(elapsed);   // 89차 — 깎이지 않은 경과 시간(0.05 상한을 받으면 느린 창이 빠르게 찍힌다)
@@ -35070,8 +35072,10 @@ if(new URLSearchParams(location.search).has('diag')){
     for(const [k,b] of banks) if(b.chunks && NO_CAST.has(k)) for(const m of b.chunks) s.cast.set(m, m.castShadow);
     for(const c of SCULL.list) if(NO_CAST.has(c.key)) s.lcast.set(c, c.cast);
     return s; };
+  const _hid93 = [];   // 93차 — 숨긴 HUD 조각
   const snapBack = s=>{
     Object.assign(DBG, s.dbg); if(!DBG.hudHide) hudHide85(false);
+    for(const e of _hid93) e.style.visibility = ''; _hid93.length = 0; document.body.classList.remove('noAnim93');   // 93차
     renderer.shadowMap.enabled = s.shOn; renderer.shadowMap.autoUpdate = s.shAuto; SHO.on = s.sho;
     renderer.shadowMap.needsUpdate = true;                     // 멈춰 있던 동안의 그림자를 바로 새로 그린다
     if(renderer.getPixelRatio() !== s.pr){ renderer.setPixelRatio(s.pr); renderer.setSize(innerWidth, innerHeight); bloomResize(); gunGlowResize(); }
@@ -35083,6 +35087,7 @@ if(new URLSearchParams(location.search).has('diag')){
   /* 85차 — HUD 를 갱신만 멈추는 것(HUD 끔)과 달리 화면에서 통째로 숨겨 합성(겹친 DOM 층) 값을 잰다 */
   const hudHide85 = on=>{ for(const id of ['hud','miniWrap','combatHud79','dmgLayer','magHud','crosshair']){ const e = document.getElementById(id); if(e) e.style.visibility = on ? 'hidden' : ''; } };
   const C = (name, on)=>{ let s = null; return [name, ()=>{ s = snapNow(); on(); }, ()=>{ if(s){ snapBack(s); s = null; } }]; };
+  const hidePart = ids=>{ for(const id of ids){ const e = document.getElementById(id); if(e){ e.style.visibility = 'hidden'; _hid93.push(e); } } };   // 93차 — HUD 조각 숨김(snapBack 이 되돌린다)
   /* ★ 89차 — 선생님 표(88차, 좀비 33·기준 30~41fps)를 뜯어보니 22줄(126초)은 밤 130초를 다 써서 처음 세 줄이 늘 좀비 스폰 중에 재지고,
      같은 장면에서도 기준이 ±5fps 흔들려 ±5 아래 줄(17개)은 가릴 수 없었다. 'HUD 끔 +14.5' 는 워밍업(한 프레임 22번 그리기)·밤 시작 연출의
      여파가 걷히는 것이 찍힌 허수였고(같은 HUD 끔을 품은 '넷다 끔' 은 −1.5), 그림자 세 줄은 그림자가 꺼진 화질에서 무동작이었다.
@@ -35115,6 +35120,10 @@ if(new URLSearchParams(location.search).has('diag')){
     C('좀비 소리 끔',       ()=>{DBG.noVoice=true;}),
     C('좀비 단순화 끔',     ()=>{DBG.zlodOff=true;}),
     C('좀비 단순화 1px',    ()=>{DBG.zlodPx=1;}),
+    C('먼 조각 단순화 끔(92차)', ()=>{DBG.lodOff=true;}),
+    C('나무·바위·숲 안 그림',  ()=>{DBG.hideCat=new Set(['node']);}),
+    C('농장·상점·대장간 안 그림', ()=>{DBG.hideCat=new Set(['farm','shop']); DBG.noDisp=true;}),
+    C('풀꽃·산·마을 안 그림',  ()=>{DBG.hideCat=new Set(['deco','terrain','village','isle']);}),
     C('해상도 원본',   ()=>setNative(true)),
     /* 34차 — 성능 3차에서 바꾼 것을 '되돌리면 얼마나 달라지나' 로 잰다.
        81차 — '그림자 매 프레임'(켜 보기) → '그림자 다시그리기 멈춤'(꺼 보기). 63차부터 매 프레임이 기본이라 켜 보는 줄은 늘 0 이었다.
@@ -35130,15 +35139,17 @@ if(new URLSearchParams(location.search).has('diag')){
   ] : [
     /* 92차 — 91차 배터리 표가 '화소가 아니라 삼각형·콜' 이라 답해서, 세계를 갈래별로 빼 보는 줄로 바꿨다(90차 투명 줄 넷은 &sweep=all 에 그대로): 10줄·21창·약 62초.
        '… 안 그림' 은 정적 뱅크를 32칸 구역 단위로 숨긴다(갈래는 구역에서 가장 많은 것 — 경계 구역은 섞일 수 있다). 좀비는 다시 넣었다(92차 LOD 뒤 몫이 달라진다). */
+    /* 93차 — 92차 배터리 표: GPU 12.3ms(한 칸 안)인데 34fps · 'HUD 화면 숨김' 두 번 다 +16(54·59fps) · 로직 끔 +2 · LOD 끔 −6.5 · 성곽·성문 +14.
+       그래서 HUD 의 어느 조각이 비싼지(판 합성 · 깜빡임 애니메이션 · 글·알림 · 미니맵) 가르는 줄로 바꿨다. 92차 세계 갈래 줄은 &sweep=all 에 그대로. 10줄·약 62초 */
     C('화면그리기 끔', ()=>{DBG.noRender=true;}),
     C_HUD(),
-    C('먼 조각 단순화 끔(92차)', ()=>{DBG.lodOff=true;}),
-    C('성곽·성문 안 그림',     ()=>{DBG.hideCat=new Set(['castle','gate']);}),
-    C('나무·바위·숲 안 그림',  ()=>{DBG.hideCat=new Set(['node']);}),
-    C('농장·상점·대장간 안 그림', ()=>{DBG.hideCat=new Set(['farm','shop']); DBG.noDisp=true;}),
-    C('풀꽃·산·마을 안 그림',  ()=>{DBG.hideCat=new Set(['deco','terrain','village','isle']);}),
-    C('좀비 안 그림',          ()=>{DBG.noZombie=true;}),
-    C('게임로직 통째로 끔', ()=>{DBG.noLogic=true;}),
+    C('HUD 숨김·조준선만 남김', ()=>{DBG.hudHide=true; hudHide85(true); const e = document.getElementById('crosshair'); if(e) e.style.visibility = '';}),   // 전부 숨길 때만 빨라지면 '겹친 층' 자체가 값
+    C('왼쪽·가운데 판 숨김',     ()=>hidePart(['topLeft','topMid'])),
+    C('오른쪽 판·미니맵 숨김',   ()=>hidePart(['topRight','miniWrap'])),
+    C('아래 줄(도구·체력·탄창) 숨김', ()=>hidePart(['dock','combatHud79','magHud'])),
+    C('글·알림·조준선 숨김',     ()=>hidePart(['feed','hint','toast','stageTitle','dmgLayer','aimInfo','look','shopTip','forgeTip','farmTip','crosshair'])),
+    C('CSS 애니메이션 끔',       ()=>{ document.body.classList.add('noAnim93'); }),
+    C('성곽·성문 안 그림',       ()=>{DBG.hideCat=new Set(['castle','gate']);}),
     C_HUD(),                                        // 두 번 재서 둘이 다르면 잡음임을 바로 보이게
   ];
   /* ★ 항목마다 바로 직전에 기준을 다시 잰다.
@@ -35201,7 +35212,7 @@ if(new URLSearchParams(location.search).has('diag')){
     sweep.f++; if(dt > 0.1) sweep.hitch++;           // 89차 — 0.1초 넘게 멈춘 프레임 수(끊김)
     if(sweep.t < 2.0) return;
     sweep.wins.push({fps:Math.round(sweep.f/sweep.t),
-                     wMin:sweep.wMin, wMax:sweep.wMax, bad:sweep.phBad, hitch:sweep.hitch, gpu:gpuMs,   // 89차 — 끊김 수 · GPU 시간(EXT_disjoint_timer_query, 15프레임마다 질의한 지수평균)
+                     wMin:sweep.wMin, wMax:sweep.wMax, bad:sweep.phBad, hitch:sweep.hitch, gpu:gpuMs, cpu:cpuDrawMs,   // 93차 — CPU 그리기 시간   // 89차 — 끊김 수 · GPU 시간(EXT_disjoint_timer_query, 15프레임마다 질의한 지수평균)
                      calls:renderer.info.render.calls, tris:renderer.info.render.triangles, blobs:BLOB83.m.count});   // 90차 — 마지막 프레임의 드로우콜·삼각형·발밑 원판 수(줄이 실제로 뭘 뺐는지 보인다)
 
     /* 창 번호: 짝수=기준, 홀수=항목. 0기준 1항목0 2기준 3항목1 ... 마지막은 기준 */
@@ -35219,7 +35230,7 @@ if(new URLSearchParams(location.search).has('diag')){
                    b0.bad || c.bad || b1.bad,
                    Math.round(base),                   // 34차 — 줄마다 기준도 남긴다
                    b0.fps, b1.fps, c.hitch, c.gpu,
-                   b0.gpu, c.calls, c.tris, c.blobs]);  // 89차 — 앞·뒤 기준 따로 · 끊김 수 · GPU ms · 90차 — 앞 기준의 GPU · 콜 · 삼각형 · 원판 수
+                   b0.gpu, c.calls, c.tris, c.blobs, c.cpu, b0.cpu]);  // 89차 — 앞·뒤 기준 따로 · 끊김 수 · GPU ms · 90차 — 앞 기준의 GPU · 콜 · 삼각형 · 원판 수 · 93차 — CPU 그리기(항목 · 앞 기준)
       }
       /* ★ 34차 — 34차 뒤 교실 표가 첫 줄들은 기준 51 이다가 중간부터 30 으로 주저앉았고, 그 뒤론 '화면 그리기 끔' 이 +0.5,
          '로직 통째로 끔' 이 0.0 이었다. 그리기도 로직도 꺼서 안 빨라지면 게임 밖 상한이다(발열·절전·탭 가림·30Hz 화면).
@@ -35232,7 +35243,7 @@ if(new URLSearchParams(location.search).has('diag')){
       const bases = sweep.wins.filter((_,k)=>k%2===0).map(w=>w.fps), bm = bases.reduce((a,b)=>a+b,0)/bases.length;
       const bsd = Math.sqrt(bases.reduce((a,b)=>a+(b-bm)*(b-bm),0)/bases.length);
       sweepOut = {rows:rows, spoiled:rows.some(r=>r[5]), warn:sweep.warn, drift, capped, bases, bsd:Math.round(bsd*10)/10,
-                  gpu:gpuExt === null ? null : gpuMs,
+                  gpu:gpuExt === null ? null : gpuMs, cpu:cpuDrawMs,   // 93차
                   bat:sweep.bat, dpr:devicePixelRatio, pr:renderer.getPixelRatio()};   // 90차 — 전원 · 화면배율
       sweep = null; return;
     }
@@ -35305,6 +35316,7 @@ function updDiag(dt){
       + (r[7] !== undefined && Math.abs(r[7]-r[8]) >= 3 ? '  ⚠기준흔들림' : '')   // 89차 — 앞뒤 기준이 3fps 넘게 다르면 그 줄 차이는 못 믿는다
       + (!r[5] && r[4]-r[3] > 3 ? '  ⚠좀비수바뀜' : '')
       + (r[9] ? '  끊김' + r[9] : '')
+      + (r[15] !== undefined ? '  CPU그리기' + r[16].toFixed(1) + '→' + r[15].toFixed(1) : '')   // 93차 — 그리기 호출의 JS 시간(ms)
       + (r[10] ? '  GPU' + (r[11] ? r[11].toFixed(1) + '→' : '') + r[10].toFixed(1) : '')   // 90차 — 앞 기준→항목
       + (r[12] !== undefined ? '  콜' + r[12] + '·△' + (r[13]/1e6).toFixed(2) + 'M' + '·원판' + r[14] : '');   // 90차 — 그 줄이 실제로 뺀 것
   if(st && st.sweep){
@@ -35326,6 +35338,7 @@ function updDiag(dt){
       + o.rows.map(fmt).join('\n')
       + (o.bases ? '\n\n기준 창 ' + o.bases.join(' ') + '  (흔들림 ±' + o.bsd + ' → ±' + (o.bsd*2).toFixed(0) + 'fps 아래 차이는 못 가림)' : '')   // 89차
       + (o.gpu !== undefined ? '\n★GPU실제 ' + (o.gpu === null ? '못잼(이 브라우저는 GPU 시간 질의가 없음)' : !o.gpu ? '값 없음(질의가 한 번도 안 돌아옴)' : o.gpu.toFixed(1) + 'ms — 그리기 중 GPU 가 실제로 일한 시간') : '')
+      + (o.cpu !== undefined ? '\n★CPU그리기 ' + o.cpu.toFixed(1) + 'ms — 그리기 호출이 JS 에서 걸린 시간(콜 제출)' : '')   // 93차
       + '\n60Hz 화면은 한 프레임이 16.7ms 를 넘기면 33ms(30fps)로 떨어진다 — GPU 15ms 아래가 목표'   // 90차
       + (o.warn ? '\n\n⚠ 시작할 때: ' + o.warn : '')
       + (o.drift ? '\n\n⚠ ' + o.drift : '')
@@ -35382,6 +35395,7 @@ function updDiag(dt){
       return '★프레임분포 빠름' + pc(0) + ' 한박자놓침' + pc(1) + ' 더놓침' + pc(2)
            + '  최악 ' + fbWorst.toFixed(0) + 'ms\n'; })() +
     '★GPU실제   ' + (gpuExt === null ? '못잼' : gpuMs ? gpuMs.toFixed(1)+'ms' : '재는중') + '\n' +
+    '★CPU그리기 ' + cpuDrawMs.toFixed(1) + 'ms — 그리기 호출의 JS 시간(드로우콜 제출)\n' +   // 93차
     '★안잡힌시간 ' + Math.max(0, frameMs -
         Object.keys(PROF).filter(k=>k[0]!=='·')
           .reduce((s,k)=>s+PROF[k],0)).toFixed(1) + 'ms\n' +
