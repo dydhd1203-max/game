@@ -68,7 +68,7 @@ vm.runInContext([
   declaration('wpnNow'),declaration('wpnEff'),
   ...['RL','wpnMag','wpnShotCd','rlOn'].map(declaration),...['magNow','rlStart','rlCancel'].map(fn),   // 70차 — 탄창 규칙(실제 함수)
   declaration('_shotOrigin'),declaration('_shotRay'),
-  ...['waiting78','pregame78','combatRay','combatTargetInRange','shotEndpoint','survBlocked','aimWolf','aimPlayer','cameraClearance','fireWeapon'].map(fn),
+  ...['waiting78','pregame78','combatRay','combatTargetInRange','shotEndpoint','aimWolf','cameraClearance','fireWeapon'].map(fn),
 ].join('\n'),context,{timeout:10000});
 const run=code=>vm.runInContext(code,context,{timeout:1000});
 const results=[];
@@ -78,27 +78,17 @@ function check(name,code,accept){
 }
 check('Enemies between the camera and the player are excluded',`
   setup();G.wolves=[{id:'rear',hp:10,x:0,y:GY,z:1}];const rearWolf=aimWolf()?.id??null;
-  setup(MINI_Y);G.players.set('rear',{uid:'rear',g:1,x:0,y:MINI_Y,z:1});
-  ({wolf:rearWolf,player:aimPlayer()?.uid??null});`,d=>d.wolf===null&&d.player===null);
+  ({wolf:rearWolf});`,d=>d.wolf===null);   // 92차 — 서바이벌(aimPlayer) 삭제
 check('Very close front targets remain selectable',`
   setup();G.wolves=[{id:'near',hp:10,x:0,y:GY,z:-.12}];const nearWolf=aimWolf()?.id??null;
-  setup(MINI_Y);G.players.set('near',{uid:'near',g:1,x:0,y:MINI_Y,z:-.12});
-  ({wolf:nearWolf,player:aimPlayer()?.uid??null});`,d=>d.wolf==='near'&&d.player==='near');
-check('PvP cover blocks the player-to-target segment',`
-  setup(MINI_Y);G.players.set('target',{uid:'target',g:1,x:0,y:MINI_Y,z:-4});
-  const openTarget=aimPlayer()?.uid??null;cover=true;
-  ({open:openTarget,covered:aimPlayer()?.uid??null});`,d=>d.open==='target'&&d.covered===null);
-check('PvP teammates and eliminated players are excluded',`
-  setup(MINI_Y);G.players.set('ally',{uid:'ally',g:0,x:0,y:MINI_Y,z:-3});
-  G.players.set('out',{uid:'out',g:1,x:0,y:MINI_Y,z:-4});miniPl.set('out',{o:1});aimPlayer()?.uid??null;`,d=>d===null);
+  ({wolf:nearWolf});`,d=>d.wolf==='near');
 check('Targets beyond player range are excluded even with a rear camera',`
   setup();G.wolves=[{id:'far',hp:10,x:0,y:GY,z:-WEAPONS[0].rng-.1}];aimWolf()?.id??null;`,d=>d===null);
 check('Explicit fallback stone range overrides the selected rifle; the bare default still reads the equipped gun',`
   setup();KIT.wpn=5;G.wolves=[{id:'far',hp:10,x:0,y:GY,z:-20}];
   const defaultWolf=aimWolf()?.id??null,stoneWolf=aimWolf(WEAPONS[0])?.id??null;
-  setup(MINI_Y);KIT.wpn=5;G.players.set('far',{uid:'far',g:1,x:0,y:MINI_Y,z:-20});
-  ({defaultWolf,stoneWolf,defaultPlayer:aimPlayer()?.uid??null,stonePlayer:aimPlayer(WEAPONS[0])?.uid??null});`,
-  d=>d.defaultWolf==='far'&&d.defaultPlayer==='far'&&d.stoneWolf===null&&d.stonePlayer===null);
+  ({defaultWolf,stoneWolf});`,
+  d=>d.defaultWolf==='far'&&d.stoneWolf===null);
 // The crosshair lock and the shot must agree on the weapon. Locking with the rifle range
 // while the stone actually flies makes a locked target at 20 tiles miss every time.
 check('The effective weapon drives the crosshair lock, not the equipped one, when ammo runs out',`
@@ -111,17 +101,15 @@ check('The effective weapon drives the crosshair lock, not the equipped one, whe
   d=>d.noAmmo.eff===0&&d.noAmmo.lock===false&&d.withAmmo.eff===5&&d.withAmmo.lock===true);
 // Stop only after the actual fireWeapon has selected and forwarded its weapon.
 // Rendering, hit effects and network delivery are outside this isolated harness.
-check('Actual fireWeapon forwards its no-ammo fallback to both target selectors',`
-  const savedWolf=aimWolf,savedPlayer=aimPlayer,dispatched=[],stopDispatch={};
+check('Actual fireWeapon forwards its no-ammo fallback to the zombie target selector',`
+  const savedWolf=aimWolf,dispatched=[],stopDispatch={};
   const captureDispatch=W=>{dispatched.push(WEAPONS.indexOf(W));throw stopDispatch;};
   G.started=true;G.paused=false;G.day=1;
   try {
     setup();KIT.wpn=5;throwCd=0;aimWolf=captureDispatch;
     try{fireWeapon();}catch(e){if(e!==stopDispatch)throw e;}
-    setup(MINI_Y);G.mini={k:1,st:'run'};KIT.wpn=5;throwCd=0;aimPlayer=captureDispatch;
-    try{fireWeapon();}catch(e){if(e!==stopDispatch)throw e;}
-  } finally {aimWolf=savedWolf;aimPlayer=savedPlayer;G.mini=null;}
-  dispatched;`,d=>d.length===2&&d.every(i=>i===0));
+  } finally {aimWolf=savedWolf;G.mini=null;}
+  dispatched;`,d=>d.length===1&&d.every(i=>i===0));
 check('Miss endpoints respect the player-eye range sphere at different camera positions',`
   setup();[[.68,2.1,2.65,.35],[0,PL.EYE,0,0],[.12,.8,.4,-.1]].map(([x,y,z,p])=>{
     camera.position.set(x,GY+y,z);camera.rotation.set(p,0,0);

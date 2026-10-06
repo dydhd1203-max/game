@@ -172,9 +172,9 @@ try{
   console.log('  G7 모델 ↔ 돌 조각 광선(세 선 모두 트임 = 보임 · 모두 막힘 = 가림 · 섞임 = 모서리·틈 스침) — ' + Object.entries(G7).map(([k, F])=> `${k} ${F.n}: 보이는데 막힘 ${F.visBlocked}/${F.vis} · 가렸는데 통과 ${F.hidPassed}/${F.hid} · 스침 ${F.graze}(막음 ${F.grazeBlocked})`).join(' | '));
   put({id:'G7', name:'모델 ↔ 실제 돌 조각 광선(성곽·성문 돌 뱅크) — 장면 다섯(마당→성 밖·마당→성벽 길·성벽 길→성 밖·성문 위→통로·협곡·K 윗마당→협곡·들판·성문 망루 · 과녁은 좀비가 다니는 땅) 확실히 보이는데 막힘 ≤ max(1, 3%) · 확실히 가렸는데 통과 ≤ max(1, 3%) · 장면마다 보이는 선·가린 선 ≥ 5(모서리·틈 3cm 스침은 따로 셈)', pass:!g7bad.length, detail:g7bad.map(([k, F])=> [k, F])});
   put({id:'G8', name:'비용 — castleOccluded 한 번(µs · 소프트웨어 브라우저 · 기록): 마당 안끼리 · 벽 걸침 · 성벽 길 → 밖 · 성 밖 들판', pass:true, detail:R.G8});
-  { const ta = fnSrc('towerAttack') + fnSrc('tickBuildingGuns') + fnSrc('towerFxShot'), fw = fnSrc('fireWeapon'), surv = fw.slice(fw.indexOf('if(miniOn() && G.mini && G.mini.k === 1){'), fw.indexOf('const w = aimWolf(W);')), hit = fnSrc('castleHitT');
-    const ok = ta.length > 200 && !/castleHitT|castleOccluded|castleAimY/.test(ta) && surv.length > 100 && !/castleHitT|castleOccluded|wallShot/.test(surv) && !/castleOccluded/.test(fnSrc('aimPlayer')) && hit.length > 500 && !/G\.host|net|send/.test(hit);
-    put({id:'G9', name:'그대로인 것 — 아이들이 지은 탑 사격(towerAttack·tickBuildingGuns)·서바이벌 미니게임 사격(aimPlayer)은 성곽 가림을 안 부름 · castleHitT 는 호스트·통신 무관(손님 화면도 같은 칸·상자로 제 총알만)', pass:ok, detail:{ta:ta.length, surv:surv.length, hit:hit.length}}); }
+  { const ta = fnSrc('towerAttack') + fnSrc('tickBuildingGuns') + fnSrc('towerFxShot'), fw = fnSrc('fireWeapon'), hit = fnSrc('castleHitT');   // 92차 — 서바이벌 사격 가지(aimPlayer) 삭제
+    const ok = ta.length > 200 && !/castleHitT|castleOccluded|castleAimY/.test(ta) && !/aimPlayer|survAimPart/.test(fw) && hit.length > 500 && !/G\.host|net|send/.test(hit);
+    put({id:'G9', name:'그대로인 것 — 아이들이 지은 탑 사격(towerAttack·tickBuildingGuns)은 성곽 가림을 안 부름 · 서바이벌 사격은 92차에 삭제 · castleHitT 는 호스트·통신 무관(손님 화면도 같은 칸·상자로 제 총알만)', pass:ok, detail:{ta:ta.length, hit:hit.length}}); }
   if(errors.length) put({id:'E', name:'페이지 오류 0', pass:false, detail:errors.slice(0, 5)});
 }catch(e){ put({id:'X', name:'실행', pass:false, detail:String(e && e.stack || e).slice(0, 800)}); }
 finally{ if(browser) await browser.close(); server.close(); }

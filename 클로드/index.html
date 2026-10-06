@@ -4286,25 +4286,11 @@ body.waiting78 #hud,body.story78 #hud{visibility:hidden!important}body.waiting78
     <div class="hrow"><i>🏆</i><div><b>1등 유니크 총 · 2~3등 레어 총 · 4~5등 제일 좋은 방어구 · 6~10등 자원</b>, 180초 안에 들어온 사람은 모두 자원 조금. 이미 가진 건 그만큼 자원으로.</div></div>
   </div>
 
-  <h3>🎯 모둠 서바이벌 — 목숨은 하나</h3>
-  <div class="hgrid">
-    <div class="hrow"><i>💀</i><div><b>한 번 쓰러지면 그 판은 끝이에요.</b> 아침에 쓰러졌을 때처럼
-      그 자리에 눕고, 남은 시간은 구경하며 응원합니다. <b>다시 살아나지 않아요.</b></div></div>
-    <div class="hrow"><i>🧱</i><div>모두 <b>같은 총</b>이고 체력은 100입니다 —
-      몸통 <b>일곱 방</b>, 머리 <b>네 방</b>이면 쓰러져요.
-      <span style="color:#ffc94a">엄폐물 뒤에 숨어서 먼저 쏘는 쪽이 이깁니다.</span></div></div>
-    <div class="hrow"><i>📊</i><div>화면 아래 <b>전광판</b>에 <b>피해를 많이 넣은 사람</b>이 뜹니다.
-      일찍 쓰러져도 내가 몇 등이었는지는 남아요.</div></div>
-    <div class="hrow"><i>🏆</i><div><b>마지막까지 살아남은 사람의 모둠만</b> 자원 상을 받아요.
-      (시간이 다 됐는데 여럿 남아 있으면 그중 <b>피해를 제일 많이 넣은 사람</b>의 모둠이 이깁니다.)</div></div>
-  </div>
-
-  <h3>🎪 미니게임 — 5·10·15일차 밤이 끝나면 저절로 열립니다 (경주 · 서바이벌 · 경주)</h3>
+  <h3>🎪 미니게임 — 5·10·15일차 밤이 끝나면 저절로 열립니다 (구름 운동회)</h3>
   <div id="tMiniBox">
     <div id="tMiniSt" style="opacity:.8;margin-bottom:4px">지금은 미니게임이 아닙니다. 연습해 보려면 아래에서 바로 열 수 있어요.</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
       <button class="btn sm" id="tMini0">☁️ 구름 운동회 열기</button>
-      <button class="btn sm" id="tMini1">🎯 서바이벌 열기</button>
       <button class="btn sm warn" id="tMiniEnd">⏹️ 미니게임 끝내고 아침으로</button>
     </div>
   </div>
@@ -4358,7 +4344,7 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
    같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '91차 · 칭호 삭제·출발 숲 손질';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '92차 · 먼 조각 단순화·서바이벌 삭제';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -6065,6 +6051,7 @@ let fogNear0 = FOG_D.near, fogFar0 = FOG_D.far;
 const P81_GGSCULL = P81.ggScull;
 scene.onBeforeRender = (r, sc, cam)=>{ if((!P81_GGSCULL || r.shadowMap.autoUpdate || r.shadowMap.needsUpdate || (cam.layers.mask & 1)) && cam.layers.test(sun.layers)) scullShadow(cam);
   bankTick(cam);   // 81차 — 칸 뺐다 채우기(bankTick) · 81차 검증: scullShadow 가 먼저(조각의 이번 castShadow 를 칸 거르기가 읽는다)
+  if(cam.layers.mask & 1) bankLOD(cam);   // 92차 — 먼 구역은 성긴 짝 기하로
   skyDome.renderOrder = SCULL.on ? 1e6 : -1000; SKY_U.uSkyFar.value = SCULL.on ? 1 : 0;              // 68차 — 하늘은 맨 나중·먼 면(위 SKY_U 주석)   // 68차 — 해가 보이는 그리기면 그림자 판 전에 거른다(총 빛 패스는 층 1 이라 건너뜀)
   if(!sc.fog) return; skyDome.position.copy(cam.position);
   const hC = Math.max(0, cam.position.y - GY - 8); sc.fog.near = fogNear0 + hC; sc.fog.far = fogFar0 + hC*1.3; };
@@ -6748,6 +6735,7 @@ function bpush(key, geo, mat, x,y,z, ry=0, sx=1,sy=1,sz=1, rz=0, col=0){
   else _q.setFromAxisAngle(UPV, ry);
   _s.set(sx,sy,sz);
   b.ms.push(new THREE.Matrix4().compose(_v,_q,_s));
+  if(BCAT || b.cats) (b.cats || (b.cats = new Array(b.ms.length-1).fill(''))).push(BCAT);   // 92차 — 갈래(진단)
   return [key, b.ms.length-1];
 }
 /* 69차 — 조각 하나에 결 셰이더 무늬 표시(1 평면 마름돌 · 2 원통 마름돌). 색이 있는 뱅크만(인스턴스 색 빨강에 +2t 를 bbuild 가 얹는다) */
@@ -6772,6 +6760,61 @@ const NO_CAST = new Set(['petal','pist','stem','bushS','peb','apple','nug','farm
 
 const BCHUNK = 32;
 const BSPLIT = 300;   // 이보다 인스턴스가 적은 뱅크는 안 쪼갠다 (쪼개 봤자 드로우콜만 는다)
+/* ═══ 92차 — 먼 조각은 성긴 짝으로(정적 뱅크 LOD · 칸 단위) ═══
+   선생님: "최대한 필요없는 것들 쳐내서 fps 60 목표로 가자". 92차 측정(헤드리스 · 마을 시점 다섯)에서 한 프레임 삼각형 1.5~1.7M 중
+   67차 성곽 24~35% · 66차 성문 17~22% · 자원 나무·바위 17~19% · 농장 8~14% · 상점 총 진열 8~10% — 거의 다 둥근 상자(WGEO 44삼각)·
+   잎 공(324)·바위(160) 를 수천 개 늘어놓은 것이라 '없앨 것' 보다 '멀리 있는 것을 성기게' 가 먼저다.
+   조각(칸) 하나하나를 카메라까지의 거리로 가른다: LOD_D 칸 밖이면 같은 상자 크기의 각진 상자(12삼각) · 20면체(20삼각) 로 그린다.
+   구역(32칸)마다 '성긴 짝 메시'(cr.mf — 같은 재질·같은 인스턴스 색) 를 하나 더 두고, 81차 '칸 뺐다 채우기'(bankPack) 가 칸을 담을 때
+   먼 칸은 짝 메시에, 가까운 칸은 본 메시에 담는다(한 칸은 한쪽에만 — 이중 그리기 없음). 그림·충돌·켬끔(bset)·불꽃 흔들기(bmatSet)·
+   걸러내기(68차)는 그대로다(b.map 의 칸 자리가 음수 ≤ −2 면 짝 메시의 자리). 22칸 밖 돌 하나는 화면에서 15픽셀 남짓이라 둥근 모서리는 1~2픽셀이다.
+   거리는 카메라가 1칸 넘게 움직였을 때만 다시 재고(±1.5칸 여유 띠), 바뀐 칸이 있는 구역만 다시 담는다.
+   첫 구현은 구역 단위(구역 상자까지 30칸)였는데 마을 한가운데 서면 둘레 32칸 구역이 다 '가까움' 이라 삼각형이 25~55% 밖에 안 줄고
+   삼각형 많은 뱅크를 쪼개느라 콜이 50% 늘었다 — 그래서 칸 단위로 바꿨다. ?lod=0 으로 끈다(?lod=50 처럼 거리도 바꿔 본다) ·
+   진단(Shift+9) '먼 조각 단순화 끔' 줄이 효과를 잰다 · 진단 창 '먼 조각' 줄이 지금 성긴 짝으로 그리는 칸 수다. */
+const LOD_D = (()=>{ const v = new URLSearchParams(location.search).get('lod'); return v === null ? 22 : Math.max(0, +v || 0); })();   // 0 이면 끔 · 헤드리스 재기: 30칸 −41~55% · 22칸 −47~58% · 16칸 −50~64%(콜은 비슷) — 22 로
+const LOD_MIN_TRIS = 20, LOD_HYST = 1.5;              // 이보다 성긴 기하는 짝이 없다(그대로) · 멀어질 때 LOD_D+1.5 · 가까워질 때 LOD_D−1.5(깜빡임 방지)
+const LOD_ROUND = /^(leaf|cone|nodeRock|nodeMoss|peb|bush|bushS|petal|pist|apple|rock|cleaf|cvine|mtK|crown|farmHay|hay)/;   // 공 꼴은 20면체로
+const _lodFar = new Map();                              // 기하 → 성긴 짝(같은 기하를 쓰는 뱅크끼리 같은 짝)
+function farGeoFor(geo, key){
+  if(!LOD_D) return null;
+  if(_lodFar.has(geo)) return _lodFar.get(geo);
+  const tris = (geo.index ? geo.index.count : geo.attributes.position.count)/3;
+  let g = null;
+  if(tris > LOD_MIN_TRIS){
+    if(!geo.boundingBox) geo.computeBoundingBox();
+    const bb = geo.boundingBox, sx = Math.max(1e-3, bb.max.x - bb.min.x), sy = Math.max(1e-3, bb.max.y - bb.min.y), sz = Math.max(1e-3, bb.max.z - bb.min.z);
+    g = (LOD_ROUND.test(key) ? new THREE.IcosahedronGeometry(0.5, 0) : new THREE.BoxGeometry(1, 1, 1)).toNonIndexed();
+    g.scale(sx, sy, sz); g.translate((bb.min.x + bb.max.x)/2, (bb.min.y + bb.max.y)/2, (bb.min.z + bb.max.z)/2); g.computeVertexNormals();
+    const n = g.attributes.position.count;
+    for(const name in geo.attributes){ if(name === 'position' || name === 'normal') continue;   // 색·aMt·uv 는 원래 기하의 평균 한 값(멀리서 한 색으로 보인다)
+      const src = geo.attributes[name], it = src.itemSize, mean = new Float32Array(it);
+      for(let i=0;i<src.count;i++) for(let j=0;j<it;j++) mean[j] += src.array[i*it + j]/src.count;
+      const arr = new Float32Array(n*it); for(let i=0;i<n;i++) arr.set(mean, i*it);
+      g.setAttribute(name, new THREE.BufferAttribute(arr, it)); }
+    g.userData.lodOf = key; g.computeBoundingSphere(); }
+  _lodFar.set(geo, g); return g;
+}
+let BCAT = '';                                          // 92차 — 지금 짓는 세계 갈래(bpush 가 조각마다 적고, 진단 '… 안 그림' 줄이 구역 단위로 숨긴다)
+let _lodX = 1e9, _lodY = 0, _lodZ = 0, _lodOffWas = false, _hideWas = null;
+function bankLOD(cam){                                  // 92차 — 본판 카메라가 1칸 넘게 움직였을 때 칸마다 멀고 가까움을 다시 가른다
+  if(DBG.hideCat !== _hideWas){ _hideWas = DBG.hideCat;   // 진단 '… 안 그림': 갈래가 맞는 구역(본 메시·짝 메시)을 숨긴다
+    for(const b of banks.values()){ if(!b.chunks) continue;
+      for(const m of b.chunks){ const v = !_hideWas || !_hideWas.has(m.userData.cat); if(m.visible !== v) m.visible = v; }
+      if(b.chunksF) for(const m of b.chunksF){ const v = !_hideWas || !_hideWas.has(m.userData.cat); if(m.visible !== v) m.visible = v; } } }
+  if(!BANK_PACK || !LOD_D) return;
+  const p = cam.position, off = !!DBG.lodOff, dx0 = p.x - _lodX, dy0 = p.y - _lodY, dz0 = p.z - _lodZ;
+  if(off === _lodOffWas && dx0*dx0 + dy0*dy0 + dz0*dz0 < 1) return;
+  _lodX = p.x; _lodY = p.y; _lodZ = p.z; _lodOffWas = off;
+  const d2f = (LOD_D + LOD_HYST)*(LOD_D + LOD_HYST), d2n = (LOD_D - LOD_HYST)*(LOD_D - LOD_HYST);
+  for(let c=0; c<BANK_CR.length; c++){ const cr = BANK_CR[c], lod = cr.lod; if(!lod) continue;
+    const P = cr.pos, keep = cr.keep; let ch = false;
+    for(let k=0; k<lod.length; k++){ const o = k*3, dx = P[o] - p.x, dy = P[o+1] - p.y, dz = P[o+2] - p.z, d2 = dx*dx + dy*dy + dz*dz;
+      const v = off ? 0 : (d2 > d2f ? 1 : d2 < d2n ? 0 : lod[k]);
+      if(v !== lod[k]){ lod[k] = v; if(keep[k]) ch = true; } }
+    if(ch) bankPack(cr); }
+}
+function lodStat(){ let near = 0, far = 0; for(let c=0; c<BANK_CR.length; c++){ const cr = BANK_CR[c]; near += cr.m.count; if(cr.mf) far += cr.mf.count; } return {near, far}; }   // 진단 창
 /* 81차 성능 — 칸 뺐다 채우기(뱅크 칸 몰아 담기). 켠 칸만 원래 순서 그대로 조각 버퍼 앞쪽 0..j-1 에 담고 count = j.
    ① 숨긴 칸(bset false — 농장 안 쓰는 단계 2/3, 캔 자원, 닫힌 상자 뚜껑…)을 크기 0 행렬(ZEROM)로 두면 GPU 가 본판·그림자 판에서
      그 꼭짓점을 전부 셰이더로 돌린 뒤에야 버린다(농장만 한 판에 약 31만 삼각형 × 두 판). 빼 버리면 그 일이 없다.
@@ -6796,6 +6839,8 @@ function bbuild(){
   SCULL.list.length = 0; BANK_CR.length = 0; BANK_CULLS.length = 0; BANK_DIRTY.length = 0;
   for(const [k,b] of banks){
     if(b.chunks) for(const m of b.chunks){ scene.remove(m); m.dispose(); }
+    if(b.chunksF) for(const m of b.chunksF){ scene.remove(m); m.dispose(); }   // 92차 — 성긴 짝 메시도
+    b.chunksF = null;
     const n = b.ms.length;
     b.chunks = []; b.map = new Int32Array(n*2);
     if(BANK_PACK){ b.crs = []; b.on = new Uint8Array(n).fill(1); b.cur = new Float32Array(n*16); b.col0 = b.cols ? new Float32Array(n*3) : null;
@@ -6803,7 +6848,9 @@ function bbuild(){
     if(!n) continue;
     // 구역별로 인스턴스 번호를 모은다
     const buck = new Map();
-    if(n < BSPLIT){ const all=[]; for(let i=0;i<n;i++) all.push(i); buck.set(0, all); }
+    b.geoFar = farGeoFor(b.geo, k);                   // 92차 — 성긴 짝 기하(없으면 null)
+    const single = n < BSPLIT;
+    if(single){ const all=[]; for(let i=0;i<n;i++) all.push(i); buck.set(0, all); }
     else for(let i=0;i<n;i++){
       const e = b.ms[i].elements;
       const kk = Math.floor(e[12]/BCHUNK)*1000 + Math.floor(e[14]/BCHUNK);
@@ -6823,10 +6870,13 @@ function bbuild(){
       // 지금 재 둬야 한다. 나중에(블록이 캐여서 사라진 뒤에) 재면 원점으로 눌린
       // 인스턴스까지 품어서 구가 쓸데없이 커지고, 그러면 컬링이 안 먹는다.
       im.computeBoundingSphere();
-      im.updateMatrix(); im.matrixAutoUpdate = false; // 정적 뱅크: 인스턴스만 변하고 메시의 변환은 항등행렬이다
+      im.updateMatrix(); im.matrixAutoUpdate = false;
+      im.userData.bkey = k;                            // 92차 — 진단·검사가 뱅크 이름을 읽는다 // 정적 뱅크: 인스턴스만 변하고 메시의 변환은 항등행렬이다
       if(GFX.shadow){ im.castShadow = !NO_CAST.has(k); im.receiveShadow = true; }   // 25차 — 산·나무·바위가 그늘을 만든다 · 34차 — 잔 꾸밈은 안 드리운다
       const sc = scullAdd(im, b, idxs);                                                 // 68차 성능 — 조각 상자(걸러내기)
-      if(BANK_PACK) bankCR(b, im, idxs, sc, n < BSPLIT);                               // 81차 — 칸 뺐다 채우기 기록
+      if(b.cats){ const cnt = new Map(); for(let j=0;j<idxs.length;j++){ const t = b.cats[idxs[j]] || ''; cnt.set(t, (cnt.get(t) || 0) + 1); }
+                  let best = '', bn = -1; for(const [t, q] of cnt) if(q > bn){ bn = q; best = t; } im.userData.cat = best; }   // 92차 — 구역의 갈래(가장 많은 것)
+      if(BANK_PACK) bankCR(b, im, idxs, sc, single);                                   // 81차 — 칸 뺐다 채우기 기록
       b.chunks.push(im); scene.add(im);
     }
   }
@@ -6851,18 +6901,36 @@ function bankCR(b, im, idxs, sc, single){
     cr.wideAll = !single;                                          // 81차 검토 고침 — 32칸 조각: 넓은 보임은 늘 전부(움직일 땐 안 빼고 서 있을 때만 줄인다 — ③ 주석)
     BANK_CULLS.push(cr);   // full — 보임이 전부 1 인 채로 담겨 있음
   }
+  if(b.geoFar){                                      // 92차 — 성긴 짝 메시: 같은 재질·같은 칸 수. 먼 칸은 bankPack 이 여기에 담는다(처음엔 0칸)
+    const mf = new THREE.InstancedMesh(b.geoFar, b.mat, len); mf.count = 0;
+    if(b.col0) mf.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(len*3), 3);
+    mf.boundingSphere = im.boundingSphere.clone(); mf.updateMatrix(); mf.matrixAutoUpdate = false;
+    mf.castShadow = im.castShadow; mf.receiveShadow = im.receiveShadow; mf.userData.cat = im.userData.cat; mf.userData.lodFar = true; mf.userData.bkey = b.key;
+    if(sc) SCULL_BOX.set(mf, sc.box);                // 68차 상자 거르기 · count 0 이면 안 그림(같은 규칙)
+    cr.mf = mf; cr.lod = new Uint8Array(len); cr.pos = new Float32Array(len*3);
+    for(let j=0;j<len;j++){ const e = b.ms[idxs[j]].elements, o = j*3; cr.pos[o] = e[12]; cr.pos[o+1] = e[13]; cr.pos[o+2] = e[14]; }
+    (b.chunksF || (b.chunksF = [])).push(mf); scene.add(mf); }
+  else { cr.mf = null; cr.lod = null; cr.pos = null; }
   BANK_CR.push(cr); b.crs[b.chunks.length] = cr;
 }
 /* 81차 — 조각 하나 다시 담기: 남길 칸만 원래 순서로 앞에서부터. 행렬은 b.cur(흔들린 불꽃은 흔들린 값), 색은 처음 색(마름돌 표시 포함) */
 function bankPack(cr){
-  const b = cr.b, m = cr.m, idxs = cr.idxs, keep = cr.keep, map = b.map, cur = b.cur, A = m.instanceMatrix.array, C0 = b.col0, C = C0 ? m.instanceColor.array : null;
-  let j = 0;
+  const b = cr.b, m = cr.m, idxs = cr.idxs, keep = cr.keep, map = b.map, cur = b.cur, A = m.instanceMatrix.array, C0 = b.col0, C = C0 ? m.instanceColor.array : null,
+        mf = cr.mf, lod = cr.lod, Af = mf ? mf.instanceMatrix.array : null, Cf = (mf && C0) ? mf.instanceColor.array : null;   // 92차 — 먼 칸은 성긴 짝 메시로
+  let j = 0, jf = 0;
   for(let k=0; k<idxs.length; k++){ const gi = idxs[k];
     if(!keep[k]){ map[gi*2+1] = -1; continue; }
-    const s = gi*16, d = j*16; for(let q=0; q<16; q++) A[d+q] = cur[s+q];
+    const s = gi*16;
+    if(Af !== null && lod[k]){ const d = jf*16; for(let q=0; q<16; q++) Af[d+q] = cur[s+q];
+      if(Cf){ const s3 = gi*3, d3 = jf*3; Cf[d3] = C0[s3]; Cf[d3+1] = C0[s3+1]; Cf[d3+2] = C0[s3+2]; }
+      map[gi*2+1] = -(jf + 2); jf++; continue; }                                     // 짝 메시 자리는 −(자리+2) (−1 은 '안 담김')
+    const d = j*16; for(let q=0; q<16; q++) A[d+q] = cur[s+q];
     if(C){ const s3 = gi*3, d3 = j*3; C[d3] = C0[s3]; C[d3+1] = C0[s3+1]; C[d3+2] = C0[s3+2]; }
     map[gi*2+1] = j; j++; }
   m.count = j; BANK_BUMP = true;
+  if(mf !== null){ mf.count = jf;
+    if(jf){ const a = mf.instanceMatrix; a.clearUpdateRanges(); a.addUpdateRange(0, jf*16); a.needsUpdate = true;
+            if(Cf){ const c = mf.instanceColor; c.clearUpdateRanges(); c.addUpdateRange(0, jf*3); c.needsUpdate = true; } } }
   if(!j) return;                                     // 0 칸 — 안 그린다(상자 거르기가 count 0 조각을 뺀다) · 올릴 것도 없다
   const a = m.instanceMatrix; a.clearUpdateRanges(); a.addUpdateRange(0, j*16); a.needsUpdate = true;
   if(C){ const c = m.instanceColor; c.clearUpdateRanges(); c.addUpdateRange(0, j*3); c.needsUpdate = true; }
@@ -7111,7 +7179,8 @@ function bset(h, on){
     if(!b.crs) return;
     const cr = b.crs[b.map[gx*2]]; if(!cr) return;
     if(on){ b.ms[gx].toArray(b.cur, gx*16);         // 켤 때는 처음 자리(예전 bset 과 같다)
-      const li = b.map[gx*2+1]; if(li >= 0){ cr.m.setMatrixAt(li, b.ms[gx]); bankRange(cr.m.instanceMatrix, li); } }
+      const li = b.map[gx*2+1]; if(li >= 0){ cr.m.setMatrixAt(li, b.ms[gx]); bankRange(cr.m.instanceMatrix, li); }
+      else if(li <= -2 && cr.mf){ const lf = -li - 2; cr.mf.setMatrixAt(lf, b.ms[gx]); bankRange(cr.mf.instanceMatrix, lf); } }   // 92차 — 성긴 짝 메시에 담긴 칸
     if(b.on[gx] !== (on ? 1 : 0)){ b.on[gx] = on ? 1 : 0; if(!cr.dirty){ cr.dirty = true; BANK_DIRTY.push(cr); } }
     return;
   }
@@ -7946,8 +8015,9 @@ function castSconce(x, y, z, ry){
 }
 function bmatSet(key, gx, m){                          // 뱅크 인스턴스 하나의 행렬을 바꾼다(m 이 없으면 처음 자리)
   const b = banks.get(key); if(!b || !b.chunks) return;
-  const im = b.chunks[b.map[gx*2]], li = b.map[gx*2+1]; if(!im) return;
-  if(BANK_PACK){ (m || b.ms[gx]).toArray(b.cur, gx*16); if(li < 0) return; }   // 81차 — 지금 값은 b.cur 에 · 빠진 칸이면 다시 담길 때 이 값이 들어간다
+  let im = b.chunks[b.map[gx*2]], li = b.map[gx*2+1]; if(!im) return;
+  if(BANK_PACK){ (m || b.ms[gx]).toArray(b.cur, gx*16); if(li === -1) return;   // 81차 — 지금 값은 b.cur 에 · 빠진 칸이면 다시 담길 때 이 값이 들어간다
+    if(li <= -2){ const cr = b.crs && b.crs[b.map[gx*2]]; if(!cr || !cr.mf) return; im = cr.mf; li = -li - 2; } }   // 92차 — 성긴 짝 메시에 담긴 칸
   im.setMatrixAt(li, m || b.ms[gx]);
   bankRange(im.instanceMatrix, li);
 }
@@ -10343,7 +10413,7 @@ function updCrystal(dt, t, cp, lastLight, skyK){
 
 /* ═══════════════════════ 구름 ═══════════════════════ */
 /* 31차 — 네모 상자 뭉치 → 납작한 공 뭉치(인스턴스 메시 하나). 열여섯 덩이가 흘러가므로 행렬은 매 프레임 다시 쓴다(백 개 남짓, 값이 안 든다). */
-const CLOUD_N = 18, CIRRUS_N = 5, CLOUDG = new THREE.SphereGeometry(0.5, 12, 8);   // ← 옛 'const CLOUD_N = 16, CLOUDG = …' 줄을 바꿔 쓴다
+const CLOUD_N = 18, CIRRUS_N = 5, CLOUDG = new THREE.SphereGeometry(0.5, 8, 5);   // 92차 — 12×8(168삼각) → 8×5(64삼각): 158 뭉치 26.5K → 10K. 구름 셰이더가 법선으로 매끈하게 칠해 각은 안 보인다   // ← 옛 'const CLOUD_N = 16, CLOUDG = …' 줄을 바꿔 쓴다
 const clouds = [];
 let cloudMesh, cloudMat;
 const CLOUD_U = { uCSun:{value:new THREE.Vector3(0.57, 0.64, 0.51)}, uCLit:{value:new THREE.Color(1.04, 1.02, 0.98)}, uCShade:{value:new THREE.Color(0.64, 0.70, 0.82)},
@@ -11652,81 +11722,21 @@ const STAMP_DZ = [3.6, 15.3, 27.0];
    · up 5.2 는 3인칭 카메라가 오르는 높이(4.5칸)보다 위 — 쉬는 도장이 화면을 안 가린다. */
 const RACE_STAMP = {per:2.4, fall:.22, dn:.68, rise:.55, up:5.2, h:3.8, dz:1.1};
 const RACE_ROWZ = [MINI_PADZ + 0.8, MINI_PADZ - 1.8], RACE_COLS = 12, RACE_COLW = 3.0;
-const SURV_SPAWN_R = 26;          // 서바이벌은 다섯 모둠이 고리로 흩어져 시작한다
-const survSpawnA = g => g*Math.PI*2/NG + Math.PI;      // 0모둠이 출발선 쪽
-/* ═══════ 서바이벌 지형 (18차b) ═══════ */
-const SURV_BOX = [];              // {x,z,w,d,h,a}  a=회전(로컬 +Z 가 바깥쪽)
-const SURV_CYL = [];              // {x,z,r,h}
-(function survShapes(){
-  /* ① 가운데 두 단 대 — 위로 갈수록 좁다. 뛰어서 오른다(점프 1.36칸) */
-  SURV_CYL.push({x:0, z:0, r:10.5, h:0.9}, {x:0, z:0, r:5.2, h:1.9});
-
-  for(const [R, BW] of [[17.0, 8.0], [27.0, 7.0]])
-    for(let k=0;k<NG;k++){
-      const a = survSpawnA(k) + Math.PI/NG;
-      const cx = Math.sin(a)*R, cz = Math.cos(a)*R;
-      const ux = Math.cos(a), uz = -Math.sin(a);       // 로컬 +X (접선)
-      const fx = Math.sin(a), fz = Math.cos(a);        // 로컬 +Z (바깥)
-      const wg = BW/2 - 0.55;                          // 날개가 붙는 자리
-      SURV_BOX.push({x:cx, z:cz, w:BW, d:1.1, h:2.4, a});
-      SURV_BOX.push({x:cx + ux*wg + fx*1.65, z:cz + uz*wg + fz*1.65, w:1.1, d:3.2, h:2.4, a});
-    }
-  /* ③ 낮은 상자 열여덟 — 반지름 셋을 섞어 흩는다.
-     ★ 스폰 발판에 겹치는 것은 버린다. 시작하자마자 상자 속에 끼면 그 아이는 판을 통째로 놓친다. */
-  for(let k=0;k<18;k++){
-    const a = k*Math.PI*2/18 + 0.31, R = 13.5 + (k%3)*5.4;      // 13.5 · 18.9 · 24.3
-    const bx = Math.sin(a)*R, bz = Math.cos(a)*R;
-    let bad = false;
-    for(let g=0; g<NG; g++){
-      const sa = survSpawnA(g);
-      if(Math.hypot(bx - Math.sin(sa)*SURV_SPAWN_R, bz - Math.cos(sa)*SURV_SPAWN_R) < 5.2) bad = true;
-    }
-    if(!bad) SURV_BOX.push({x:bx, z:bz, w:2.6, d:2.6, h:1.2, a:0});
-  }
-})();
-const survOn = ()=> !!(G.mini && G.mini.k === 1);   // 37차 — 서바이벌은 k=1 (0 은 장애물 경주)
-/* 이 자리의 바닥 높이 — 서바이벌일 때만 지형이 있다 */
-function survTopAt(x, z){
-  let h = 0;
-  for(const c of SURV_CYL){ const dx=x-c.x, dz=z-c.z;
-    if(dx*dx+dz*dz < c.r*c.r && c.h > h) h = c.h; }
-  for(const b of SURV_BOX){
-    if(b.h <= h) continue;
-    const dx = x-b.x, dz = z-b.z;
-    const ca = Math.cos(b.a), sa = Math.sin(b.a);
-    const lx = dx*ca - dz*sa, lz = dx*sa + dz*ca;
-    if(Math.abs(lx) <= b.w/2 && Math.abs(lz) <= b.d/2) h = b.h;
-  }
-  return h;
-}
-/* 총알이 지형에 막히나 — 눈에서 상대까지를 열두 토막으로 잘라 본다.
-   ★ 슬래브 계산으로 정확히 풀 수도 있지만, 모양이 스무 개뿐이라 이쪽이 짧고 안 틀린다. */
-function survBlocked(ax, ay, az, bx, by, bz){
-  for(let i=1;i<12;i++){
-    const t = i/12, x = ax+(bx-ax)*t, y = ay+(by-ay)*t, z = az+(bz-az)*t;
-    if(y - MINI_Y < survTopAt(x, z) - 0.05) return true;
-  }
-  return false;
-}
+/* 92차 — 서바이벌 미니게임(지형 표 SURV_BOX·SURV_CYL·survTopAt·survBlocked·고리 스폰)은 선생님 요청으로 통째로 뺐다: "별로 재미도 없고 병목 생길까 봐". 섬은 경주 얼굴만 남는다. */
 /* 섬의 두 얼굴 — 퀴즈·줄넘기용(O·X 우리, 한 줄 출발선)과 서바이벌용(고리 스폰, 엄폐물).
    농장 우리가 커질 때 쓴 것과 같은 방법이다: 둘 다 구워 두고 bset 으로 켜고 끈다. */
-const miParts = {quiz:[], surv:[], race:[]};   // 37차 — race: 출발·골인 아치, 구간 표지, 깃발대
+const miParts = {quiz:[], race:[]};   // 37차 — race: 출발·골인 아치, 구간 표지, 깃발대
 let miVis = 'quiz';
 function miniShow(k){
   document.body.classList.toggle('tpv',k===0);
-  const want=k===1?'surv':'race';
+  const want='race';
   if(miVis===want)return;
   for(const h of miParts.quiz)bset(h,false);
-  for(const h of miParts.surv)bset(h,want==='surv');
   for(const h of miParts.race)bset(h,false);
   miVis=want;
 }
 /* 이 판에서 우리 모둠이 시작하는 자리 */
 function miniSpawnXZ(g){
-  if(G.mini && G.mini.k === 1){
-    const a = survSpawnA(g);
-    return [Math.sin(a)*SURV_SPAWN_R, Math.cos(a)*SURV_SPAWN_R];
-  }
   return [miniPadX(g), MINI_PADZ];
 }
 function buildMiniIsle(){
@@ -11739,7 +11749,6 @@ function buildMiniIsle(){
   const M = (x,y,z, sx,sy,sz, col, ry)=> bpush('miMark', gMark, MAT, x, MINI_Y+y, z,
                                                ry||0, sx, sy, sz, 0, col);
   const Q = h => (miParts.quiz.push(h), h);        // 퀴즈·줄넘기 때만 보이는 것
-  const S = h => (miParts.surv.push(h), h);        // 서바이벌 때만 보이는 것
   /* ── 바닥 — 두 가지 밝기로 번갈아 깐다. 칸이 커야 뱅크가 안 쪼개진다 ── */
   /* ★ 섬이 2.4배가 되었다 — 칸을 2.0 그대로 두면 바닥 타일만 900장이다.
      타일을 2.6 으로 키워 개수를 잡는다(체크무늬는 오히려 멀리서 잘 읽힌다). */
@@ -11776,41 +11785,6 @@ function buildMiniIsle(){
   Q(M(0, 0.03, MINI_PADZ + 2.4, 25.0, 0.10, 0.5, 0xffffff));
   for(let k=0;k<25;k++) Q(M(-12 + k*1.0, 0.035, MINI_PADZ + 2.4, 1.0, 0.11, 0.5, k%2 ? 0x1e1e26 : 0xf4f1ea));
   for(let r=0;r<2;r++) for(let c=0;c<RACE_COLS;c++) Q(M(-(RACE_COLS-1)*RACE_COLW/2+c*RACE_COLW,0.025,RACE_ROWZ[r],2.2,0.10,1.5,r?0xdfe6ee:0xf4f1ea));
-  /* ══ 서바이벌 지형 ══ 표(SURV_BOX·SURV_CYL)를 그대로 쌓는다.
-     ★ 눈에 보이는 것과 발·총알이 보는 것이 같은 표에서 나와야 한다. */
-  for(const c of SURV_CYL){
-    /* 테두리 — 단의 옆면. 폭을 간격에서 뽑아 겹치게 한다.
-       (개수만 늘리고 폭을 1.4 로 두면 구슬을 꿴 것처럼 사이가 벌어진다) */
-    const nr = Math.max(10, Math.round(c.r*3.2)), rw = (Math.PI*2*(c.r-0.55)/nr)*1.3;
-    for(let i=0;i<nr;i++){ const a = i/nr*Math.PI*2;
-      S(bpush('miFloor', gFloor, MAT, c.x+Math.sin(a)*(c.r-0.55), MINI_Y+c.h/2,
-              c.z+Math.cos(a)*(c.r-0.55), a, rw, c.h, 1.2, 0, 0xc3cedb)); }
-    const TQ2 = 1.9, n3 = Math.ceil(c.r/TQ2);           // 윗면
-    for(let a=-n3;a<=n3;a++) for(let b=-n3;b<=n3;b++){
-      const x = c.x+a*TQ2, z = c.z+b*TQ2;
-      if(Math.hypot(x-c.x, z-c.z) > c.r-1.0) continue;
-      S(bpush('miFloor', gFloor, MAT, x, MINI_Y+c.h-0.14, z, 0, TQ2, 0.30, TQ2, 0,
-              ((a+b)%2) ? 0xd8e4ee : 0xeaf2f8));
-    }
-  }
-  for(const b of SURV_BOX){
-    const n4 = Math.max(1, Math.round(b.w/1.6)), n5 = Math.max(1, Math.round(b.d/1.6));
-    const ca = Math.cos(b.a), sa = Math.sin(b.a);
-    for(let i=0;i<n4;i++) for(let j=0;j<n5;j++){
-      const lx = (i+0.5-n4/2)*(b.w/n4), lz = (j+0.5-n5/2)*(b.d/n5);
-      S(bpush('miFloor', gFloor, MAT, b.x + lx*ca + lz*sa, MINI_Y+b.h/2, b.z - lx*sa + lz*ca,
-              b.a, b.w/n4, b.h, b.d/n5, 0, b.h > 2 ? 0xb9c6d4 : 0xd2dde8));
-    }
-  }
-  /* 서바이벌 스폰 — 다섯 모둠이 고리로 흩어진다. 색 바닥 + 높은 깃대 */
-  for(let g=0; g<NG; g++){
-    const a = survSpawnA(g), px = Math.sin(a)*SURV_SPAWN_R, pz = Math.cos(a)*SURV_SPAWN_R;
-    for(let u=-2;u<=2;u++) for(let v=-2;v<=2;v++)
-      S(M(px+u*1.45, 0.02, pz+v*1.45, 1.45, 0.10, 1.45, GHEX[g]));
-    S(bpush('miEdge', gEdge, MAT, px, MINI_Y+1.9, pz, 0, 0.20, 3.8, 0.20, 0, 0xb98b58));
-    S(bpush('miMark', gMark, MAT, px+0.6, MINI_Y+3.4, pz, 0, 1.1, 0.7, 0.10, 0, GHEX[g]));
-    S(bpush('miGlow', gGlow, EMITC, px, MINI_Y+3.9, pz, 0, 0.5,0.5,0.5));
-  }
   /* 네 귀퉁이 등불 */
   for(let i=0;i<12;i++){
     const a = i/12*Math.PI*2, px = Math.sin(a)*(MINI_R-1.2), pz = Math.cos(a)*(MINI_R-1.2);
@@ -11820,10 +11794,10 @@ function buildMiniIsle(){
 }
 /* ★ 성문을 자원보다 먼저 세운다 — 망루 계단 자리를 먼저 잡아 놔야
    나무·바위가 계단 위에 박히지 않는다. */
-buildSky(); gateLayout(); castleLayout(); buildWorldMesh(); buildGates(); buildCastle(); buildShop(); buildForge(); buildFarms();   // 67차 — 성곽 몸은 산 기둥 앞, 그림은 bbuild 앞
-placeNodes(); scatterDecor();
-buildVillage();   // 65차 — 살아있는 느낌(참새·풀·나비·오리·연기)만 얹는다. 농장·자원이 다 선 뒤에
-buildMiniIsle();
+buildSky(); gateLayout(); castleLayout(); BCAT = 'terrain'; buildWorldMesh(); BCAT = 'gate'; buildGates(); BCAT = 'castle'; buildCastle(); BCAT = 'shop'; buildShop(); buildForge(); BCAT = 'farm'; buildFarms();   // 92차 — BCAT: 진단 '… 안 그림' 갈래   // 67차 — 성곽 몸은 산 기둥 앞, 그림은 bbuild 앞
+BCAT = 'node'; placeNodes(); BCAT = 'deco'; scatterDecor();
+BCAT = 'village'; buildVillage();   // 65차 — 살아있는 느낌(참새·풀·나비·오리·연기)만 얹는다. 농장·자원이 다 선 뒤에
+BCAT = 'isle'; buildMiniIsle(); BCAT = '';
 buildCrystal(); buildClouds(); bbuild();
 /* 처음엔 다섯 우리가 다 비어 있다 — 제일 작은 단계만 남기고 나머지는 감춘다.
    (여기선 아직 G 가 없다. 마리수를 보는 applyFarmStage 는 게임이 돌면서 부른다.) */
@@ -11832,8 +11806,6 @@ for(const S of farmParts) for(let s=1;s<S.length;s++){
   for(const h of S[s].gnd) bset(h, false);
 }
 castleArtInit();   // 67차 — 성곽: 열린 상자 뚜껑·반짝 주머니는 처음엔 숨김(보이게 하는 것은 보물 갈래)
-/* 하늘 섬도 마찬가지 — 처음엔 퀴즈·줄넘기 얼굴로 둔다(서바이벌 지형은 감춘다) */
-for(const h of miParts.surv) bset(h, false);
 
 /* ═══════════════════════ 건물 정의 ═══════════════════════ */
 /* 건물은 7단계까지 성장한다. 화살·얼음탑은 Lv3에서 역할을 고른다. */
@@ -17628,6 +17600,7 @@ function npcOut81(N, sh){
           ③ fit — 자리마다 '이 길이 안' 을 준다. 긴 총은 그만큼 줄고 짧은 총은 제 크기(최대 1.05배)다. 활은 높이로 잰다.
           ④ yb — 총 밑면 높이. 선반·걸이·받침 윗면에 총이 얹힌다(가운데 높이를 손으로 맞추지 않는다). */
 const DISP = [], _dbb = new THREE.Box3(), _dsz = new THREE.Vector3(), _dct = new THREE.Vector3();
+const DISP_D = 24;   // 92차 — 진열 총(66 조각 · 삼각형 12만 · 콜 66)은 상점 둘레 24칸 안에서만 그린다(92차 측정: 마을 어디서나 8~10%)
 function dispClone(i, x, yb, z, ry, fit, spin){
   const g = gunModels[i]; if(!g) return null;
   const gun = g.clone();
@@ -17690,7 +17663,9 @@ function drawNPCs(t){
   for(const mesh of npcBanks79){mesh.visible=showNPC79;mesh.count=0;}
   if(!showNPC79){smithBeat=Math.floor(t*2.4/Math.PI);return;}
   if(!dispMade && gunModels.length) makeDisplays();
-  for(const d of DISP){ if(!d.spin) continue; d.m.rotation.y = t*0.7 + d.ph; d.m.position.y = d.y + Math.sin(t*1.6 + d.ph)*0.06; }
+  for(const d of DISP){ const dx = d.m.position.x - camera.position.x, dz = d.m.position.z - camera.position.z;   // 92차 — 멀면 안 그린다
+    const vis = !DBG.noDisp && dx*dx + dz*dz < DISP_D*DISP_D; if(d.m.visible !== vis) d.m.visible = vis;
+    if(!d.spin || !vis) continue; d.m.rotation.y = t*0.7 + d.ph; d.m.position.y = d.y + Math.sin(t*1.6 + d.ph)*0.06; }
   /* 대장장이 망치가 모루에 닿는 박자(swA 가 바닥일 때)마다 불티 — 1.3초에 한 번 */
   { const beat = Math.floor(t*2.4/Math.PI);
     if(beat !== smithBeat){ smithBeat = beat;
@@ -20846,17 +20821,12 @@ function blockedAt(x, z, r){
 }
 function groundUnder(x,z,R,y,mv){
   /* ★ 하늘 섬은 격자에 없다 — 미니게임 동안은 섬 바닥이 곧 땅이다.
-     서바이벌은 그 위에 대·벽·상자가 있다(SURV 표). 몸통 네 귀퉁이를 다 본다 —
-     가운데 한 점만 보면 벽 모서리에 반쯤 걸친 채로 지나간다. */
+     (92차 — 서바이벌 지형(SURV 표)은 뺐다. 경주는 발판 높이만 땅이다.) */
   if(miniOn()){
     if(raceOn() && RACE_P.length){ let m = -999;                       // 37차 — 경주: 발판 높이만 땅이다
       for(const [ox,oz] of [[-R,-R],[R,-R],[-R,R],[R,R],[0,0]]) m = Math.max(m, raceTopAt(x+ox, z+oz));
       return m; }
-    if(!survOn()) return MINI_Y;
-    let m = 0;
-    for(const [ox,oz] of [[-R,-R],[R,-R],[-R,R],[R,R],[0,0]])
-      m = Math.max(m, survTopAt(x+ox, z+oz));
-    return MINI_Y + m;
+    return MINI_Y;
   }
   let m = -999;
   for(const [ox,oz] of [[-R,-R],[R,-R],[-R,R],[R,R],[0,0]]){
@@ -21385,7 +21355,7 @@ function cameraClearance(x,y,z,ox,oy,oz,skip){
     if(skip && f*length < skip) continue;                                 // 70차 — 몸 곁은 건너뜀(뒤처진 계단 보간 선 — updPlayer 가 눈높이 선과 견준다)
     for(let j=0;j<5;j++){
       const xx=px+(j===1?-r:j===2?r:0), zz=pz+(j===3?-r:j===4?r:0);
-      const top=survOn() ? MINI_Y+survTopAt(xx,zz) : solidTop(Math.floor(xx),Math.floor(zz));
+      const top=miniOn() ? MINI_Y : solidTop(Math.floor(xx),Math.floor(zz));
       if(py-r<top || (!miniOn() && solidHit(xx,zz,py-r,true))){ res = Math.max(0,length*(k-1)/steps); break scan; }
     }
   }
@@ -22553,37 +22523,6 @@ function fireWeapon(){
     /* 65차 — 어깨 너머(3인칭)면 **내 사람이 든 총의 총구**에서 나간다(drawSheep 이 지난 그림에서 적어 둔 자리). 예전엔 몸 앞 1.7칸 허공에서 화염이 터졌다 */
     else if(isGun && meSheep.mzT !== undefined && tAcc - meSheep.mzT < 0.1 && Math.hypot(meSheep.mzX - PL.x, meSheep.mzZ - PL.z) < 2.5){ hx = meSheep.mzX; hy = meSheep.mzY; hz = meSheep.mzZ; } }
 
-  /* ── 서바이벌 미니게임: 좀비가 없다. 조준선에 걸린 다른 모둠 친구를 맞힌다 ──
-     ★ 맞았는지는 '쏜 쪽' 이 정하고 맞은 쪽에 알린다(mini/hit/<맞은 아이>).
-       좀비처럼 호스트가 체력을 들고 있으면 스물한 명의 피해를 호스트가 다 중계해야 한다.
-       교실 놀이라 속이는 아이는 없다고 본다. */
-  if(miniOn() && G.mini && G.mini.k === 1){
-    if(G.mini.st !== 'run' || MINE.out || MINE.rs > 0){ throwCd = 0.25; return; }
-    const q = aimPlayer(W);
-    if(q){
-      /* 머리를 맞혔나 — 맞은 자리로 예광탄·불티·숫자를 다 맞춘다.
-         숫자가 뜨는 자리와 총알이 닿는 자리가 다르면 "내가 어디를 맞혔지" 를 알 수가 없다. */
-      const A = survAimPart(q, f);
-      const dmg = A.head ? SURV_HEAD : SURV_DMG;
-      /* 70차 — 조준점 X·고리·숫자·맞힌 소리는 예광탄 머리가 닿는 순간(shootBullet 의 on). 판정·전송(survSend)은 지금 */
-      gunShot(hx, hy, hz, A.x, A.y, A.z, true, W, f, A.head ? 1 : 0, ()=>{
-        hitMark(A.head);                              // 헤드샷은 조준점이 크게 번쩍인다
-        ring(A.x, A.y, A.z, A.head ? 0xffd54a : (W.tr || 0xfff2c0), A.head ? 1.5 : 1.0, A.head ? 0.26 : 0.20);   // 33차
-        popDmg(A.x, A.y + 0.75, A.z, dmg, A.head ? 1 : 0);   // 좀비와 같은 숫자 — 헤드샷은 노란 '20!'
-        burst(A.x, A.y, A.z, A.head ? 0xffd45a : 0xff7a7a, A.head ? 10 : 6, A.head ? 1.15 : 0.7);
-        if(window.__sfx) window.__sfx(A.head ? 'phead' : 'phit'); });
-      MINE.k++; MINE.dm = (MINE.dm|0) + dmg;    // 전광판이 읽는 칸 (21차)
-      survSend(q.uid, dmg, A.head);
-      /* ★ 총소리(musket)는 이제 진짜로 난다 — 표에 없는 이름이라 여태 조용했다.
-         맞힌 소리도 좀비용 'hit'(작은 삑) 대신 두꺼운 것으로 바꾼다(70차 — 맞힌 소리는 닿는 순간, 위 on). */
-      if(window.__sfx) window.__sfx(gunVoice(W), W.kick);
-    } else {
-      const end = shotEndpoint(W.rng, MINI_Y+0.2), tx=end.x, ty=end.y, tz=end.z;
-      gunShot(hx, hy, hz, tx, Math.max(MINI_Y+0.2, ty), tz, false, W, f);
-      if(window.__sfx) window.__sfx(gunVoice(W), W.kick);
-    }
-    hudPrev.kit = ''; return;
-  }
   const w = aimWolf(W);
   if(w){
     const crit = rollCrit(W.trait === 'crit' ? 3 : 1);          // 29차 — 목장 장총은 치명타가 세 배 자주
@@ -28987,12 +28926,12 @@ function farmMorning(){
 }
 /* ═══════════════════════ 미니게임 (18차) ═══════════════════════ */
 const MINI_DAYS  = [5, 10, 15];                 // 이 날 밤이 끝나면 미니게임
-const MINI_NAME  = ['☁️ 구름 운동회', '🎯 모둠 서바이벌'];     // 37차 — OX 퀴즈·줄넘기를 빼고 장애물 경주를 넣었다
-const MINI_KIND  = [0, 1, 0];                    // 5일차 경주 · 10일차 서바이벌 · 15일차 경주
+const MINI_NAME  = ['☁️ 구름 운동회'];     // 37차 — OX 퀴즈·줄넘기를 빼고 장애물 경주를 넣었다 · 92차 — 서바이벌(k=1)을 뺐다
+const MINI_KIND  = [0, 0, 0];                    // 5·10·15일차 모두 경주(92차 — 서바이벌 삭제)
 const MINI_INTRO = 7, MINI_DONE = 10;           // 설명 · 순위 보여 주는 시간
 /* ★ 서바이벌 2분은 짧았다 — 스물한 명이 서로 찾아다니고 4초 부활까지 있으면
    막 붙을 만할 때 끝난다. 3분. 그래도 길면 선생님이 ⏹️ 로 끊는다. */
-const RACE_SEC = 180, SURV_SEC = 180;            // 76차 — 장애물·착지 도전 7구간, 선생님이 고른 3분.
+const RACE_SEC = 180;            // 76차 — 장애물·착지 도전 7구간, 선생님이 고른 3분.
 const MINI_WARN = 5;                            // 경주 마지막 5초 — 아직 못 들어온 아이 화면이 빨갛게 깜빡인다
 /* ═══ 순위 상 ═══
    ★ 처음엔 나무·돌을 넉넉히 주고 금은 2~8만 줬다. 선생님: "미니게임 우승 보상이
@@ -29003,27 +28942,19 @@ const MINI_WARN = 5;                            // 경주 마지막 5초 — 아
      미니게임을 잘한 모둠은 무기 한 자루가 하루쯤 앞당겨진다.
    ★ 꼴찌도 받는다 — 아무것도 못 받으면 다음엔 안 하려 든다. */
 const MINI_PRIZE = [{w:48,s:36,g:14},{w:38,s:29,g:11},{w:30,s:22,g:7},{w:24,s:18,g:5},{w:19,s:14,g:4}];
-/* ═══ 참가상 — 서바이벌에서 진 모둠 (21차b) ═══ */
-const MINI_CONSOL = {w:16, s:12, g:4};
-
-const SURV_HP = 100, SURV_DMG = 15, SURV_HEAD = 30;
-/* 머리 판정 — 겨눈 줄이 머리 점에 이만큼 안쪽으로 지나가고, 몸통 점보다 머리 점에
-   더 가까울 때만 헤드샷이다. 반지름만 보면 가까이서 배를 쏴도 머리로 잡힌다
-   (사람은 키가 1칸인데 머리와 몸통 사이가 0.35칸밖에 안 된다). */
-const SURV_HEAD_R = 0.45;
 const miniDayIdx = d => MINI_DAYS.indexOf(d);
 const miniOn = ()=> G.phase === 'mini';
 G.mini = null;
 const miniPl = new Map();                       // uid -> {g,n,j,l,k}  (내 것도 여기 있다)
 let miniBack = null, miniRepT = 0, miniWasOn = false, miniSeenSt = '';
 /* 내 미니게임 값 — 서바이벌 hp·k(넘어뜨림)·dm(준 피해 합계, 21차)·out(쓰러졌나) · 경주 fin(골인 초, -1 이면 아직)·cp(깃발)·prog(진행도) */
-const MINE = {hp:SURV_HP, k:0, dm:0, out:false, rs:0, fin:-1, cp:0, prog:0};
+const MINE = {k:0, rs:0, fin:-1, cp:0, prog:0};   // 92차 — 서바이벌 칸(hp·dm·out) 삭제
 function netMini(){ if(net && G.host && G.mini) net.child('mini').set(G.mini); }
 function miniReport(force){
   if(!miniOn()) return;
-  const d = {g:G.me.g, n:G.me.name, k:MINE.k, hp:MINE.hp,
-             /* 21차 — o: 쓰러졌나 · dm: 이 판에 내가 준 피해 합계(전광판이 읽는 칸) · 37차 — fin/cp/prog: 경주 */
-             o:MINE.out?1:0, dm:MINE.dm|0, fin:MINE.fin, cp:MINE.cp|0, prog:+(MINE.prog||0).toFixed(2)};
+  const d = {g:G.me.g, n:G.me.name, k:MINE.k,
+             /* 37차 — fin/cp/prog: 경주 (92차 — 서바이벌 칸 hp·o·dm 삭제) */
+             fin:MINE.fin, cp:MINE.cp|0, prog:+(MINE.prog||0).toFixed(2)};
   miniPl.set(uid, d);
   if(net && (force || true)) net.child('mini/pl/'+uid).set(d);
 }
@@ -29042,17 +28973,13 @@ function miniEnter(){
   PL.x = px; PL.z = pz; PL.y = MINI_Y; PL.vy = 0; PL.ground = true;
   PL.down = false; PL.hp = maxHP(); PL.biteT = 0;
   /* 퀴즈면 O·X 쪽, 서바이벌이면 섬 한가운데를 보게 세운다 */
-  PL.yaw = (G.mini && G.mini.k === 1) ? Math.atan2(px, pz) : Math.PI;      // 서바이벌은 섬 한가운데를, 경주는 코스(+Z)를 보게
+  PL.yaw = Math.PI;      // 경주는 코스(+Z)를 보게
   /* 3인칭인 판(경주)은 조금 더 내려다본다 — 내 사람과 발밑이 같이 들어와야 한다 */
   PL.pitch = (G.mini && G.mini.k === 0) ? -0.22 : -0.12;
   setAimMode(false, true); workStop(); mineHold = null;
-  MINE.hp = SURV_HP; MINE.k = 0; MINE.dm = 0; MINE.out = false; MINE.rs = 0; MINE.fin = -1; MINE.cp = 0; MINE.prog = 0;
+  MINE.k = 0; MINE.rs = 0; MINE.fin = -1; MINE.cp = 0; MINE.prog = 0;
   PL.landT = 0; stamina = 1;
   miniPl.clear(); miniSeenSt = '';
-  /* ★ 맞은 기록은 판마다 비운다. 안 지우면 지난 판에 쌓인 합계가 새 판 첫 발에
-     한꺼번에 들어와서 시작하자마자 쓰러진다. 쏜 쪽·맞은 쪽 둘 다 비운다. */
-  survDealt.clear(); hitTot.clear(); hitSeen.clear();
-  if(net) net.child('mini/hit/'+uid).remove();
   miniShow(G.mini ? G.mini.k : 0);
   document.body.classList.add('mini');
   document.body.classList.toggle('tpv', !!G.mini && G.mini.k === 0);
@@ -29083,7 +29010,7 @@ function goMini(k){
   G.mini = {k, st:'intro', sc:[0,0,0,0,0], rank:null, seed:(Math.random()*1e9)|0};   // 37차 — seed: 경주 코스 변형을 전원이 같게 뽑는다
   /* 지난 판에 쌓인 것을 통째로 지운다 — 안 지우면 한 판씩 계속 쌓인다.
      (아이들도 miniEnter 에서 제 칸을 지우지만, 그때 접속이 끊겨 있던 아이 몫이 남는다) */
-  if(net){ net.child('mini/pl').remove(); net.child('mini/hit').remove(); }
+  if(net){ net.child('mini/pl').remove(); }
   if(k === 0) raceBuild(G.mini.seed);
   miniEnter();
   miniSet('intro', MINI_INTRO);
@@ -29108,12 +29035,6 @@ function miniFinish(){
   miniReport(true);
   if(M.k === 0){
     raceFinish(M);                        // 37차 — 사람별 순위와 보상표(③)
-  } else if(M.k === 1){
-
-    M.sc = survScores();                 // 모둠별 피해 합계 (보여 주기용)
-    M.win = survWinner();
-    M.top = survTop().slice(0, SURV_BOARD).map(p=>({n:p.n, g:p.g, dm:p.dm, out:p.out?1:0}));
-    M.rank = null;
   }
   miniSet('done', MINI_DONE);
 }
@@ -29124,172 +29045,21 @@ function miniOnState(){
   if(miniSeenSt === key) return; miniSeenSt = key;
   if(M.st === 'intro'){
     /* 42차 — 경주 준비 중엔 토스트를 안 띄운다(선생님: "3,2,1 할 때 배경 네모 있지 그거 없애고"). 서바이벌 규칙 안내만 남긴다 */
-    if(M.k !== 0) toast('모두 같은 총이에요. 목숨은 하나! 한 번 맞고 쓰러지면 끝이니 엄폐물 뒤에 숨어서 노리세요', 6, '#ffe9a0');
   } else if(M.st === 'run' && M.k === 0){
     raceStart();                                      // 37차 — 출발! (②)
-  } else if(M.st === 'run' && M.k === 1){
-    KIT.wpn = MINI_GUN; KIT.ammo = 9999; setAimMode(true, true); hudPrev.kit = '';
-    toast('🎯 시작! 왼쪽 클릭으로 쏘세요', 2.2, '#ffd0a0');
   } else if(M.st === 'done'){
-    if(M.k === 1) setAimMode(false, true);
     if(M.k === 0){ raceDone(M); }                       // 37차 — 순위·보상 화면(③)
-    else if(M.k === 1){
-      /* ★ 21차 — 1등 상은 이긴 모둠 하나만. 나머지는 참가상(21차b). */
-      const won = (M.win|0) === (G.me.g|0), P = MINI_PRIZE[0];
-      /* ★ 21차b — 내가 넣은 피해는 MINE.dm 에서 바로 읽는다.
-         전에는 전광판(M.top)에서 내 이름을 찾았는데, 전광판은 넷까지라
-         **스물한 명 중 열일곱 명은 이 줄이 통째로 안 떴다.** 정작 필요한 아이들이다.
-         이름으로 찾는 것도 위험했다 — 한 반에 같은 이름이 둘이면 남의 숫자가 뜬다. */
-      const mine2 = ` (내가 넣은 피해 ${MINE.dm|0})`;
-      if(won){
-        gain('w', P.w); gain('s', P.s); gain('g', P.g);
-        verdict(true, '🏆', '우리 모둠 우승!');
-        goodFlash(320);
-        burst(PL.x, PL.y + 2.1, PL.z, GHEX[G.me.g|0], 20, 1.8);
-        burst(PL.x, PL.y + 1.8, PL.z, 0xffe066, 16, 1.5);
-        toast(`🏆 마지막까지 살아남았어요! 🪵${P.w} 🪨${P.s} ✨${P.g}`, 5, '#ffe066');
-        if(window.__sfx) window.__sfx('win');
-      } else {
-        /* ★ 21차b — 진 모둠도 참가상. 소리도 '해 질 녘'(dusk) 이 아니라 '받았다'(get) 로 바꿨다 */
-        const C = MINI_CONSOL;
-        gain('w', C.w); gain('s', C.s); gain('g', C.g);
-        toast(`🏆 ${(M.win|0)+1}모둠이 이겼어요 — 참가상 🪵${C.w} 🪨${C.s} ✨${C.g}${mine2}`, 5, '#ffe9a0');
-        if(window.__sfx) window.__sfx('get');
-      }
-    }
   }
-}
-/* ═══ 서바이벌 전광판 — 피해를 많이 넣은 사람 넷 (21차) ═══ */
-const SURV_BOARD = 4;
-function survPodium(list){
-  const L = (list || []).filter(p=> (p.dm|0) > 0).slice(0, SURV_BOARD);
-  if(!L.length) return '';   // 42차 — 빈 칩(흰 바탕에 흰 글씨라 '가운데 하얀 줄' 로 보였다)은 안 그린다
-  const medal = ['🥇','🥈','🥉','4️⃣'];
-  return L.map((p,i)=> `<span style="color:${GCOL[p.g|0]}">`
-    + `${medal[i]||''} ${p.out ? '💀' : ''}${esc(p.n||'')} ${p.dm|0}</span>`).join('');
 }
 
 /* 호스트의 미니게임 시계 — 시간이 다 되면 다음 단계로 */
 function hostMini(dt){
   const M = G.mini; if(!M) return;
-  if(M.k === 1) survHostTick(dt);
   if(M.k === 0) raceHostTick(dt);          // 37차 — 위험 사건(꺼지는 발판·바위)과 '전원 골인' 조기 마감
   if(G.t > 0) return;
-  if(M.st === 'intro') miniSet('run', M.k === 1 ? SURV_SEC : RACE_SEC);
+  if(M.st === 'intro') miniSet('run', RACE_SEC);
   else if(M.st === 'run') miniFinish();
   else if(M.st === 'done') miniExit();
-}
-/* ── ③ 서바이벌 (21차에 다시 짰다) ── */
-/* 이 판에서 아직 안 쓰러진 사람들 */
-function survAlive(){
-  const out = [];
-  for(const [k,d] of miniPl){
-    const dead = k === uid ? MINE.out : !!(d.o|0);
-    if(!dead) out.push({uid:k, g:Math.max(0,Math.min(NG-1,d.g|0)), n:d.n||'', dm:d.dm|0});
-  }
-  return out;
-}
-/* 전광판 — 피해 많이 넣은 순서. 내 값만 실시간이고 친구 값은 1초에 한 번 온다 */
-function survTop(){
-  const out = [];
-  for(const [k,d] of miniPl){
-    out.push({uid:k, n:d.n||'', g:Math.max(0,Math.min(NG-1,d.g|0)),
-              dm: k === uid ? (MINE.dm|0) : (d.dm|0),
-              out: k === uid ? MINE.out : !!(d.o|0)});
-  }
-  out.sort((a,b)=> (b.dm-a.dm) || (a.n < b.n ? -1 : a.n > b.n ? 1 : 0));
-  return out;
-}
-/* 이긴 모둠 하나 — 마지막까지 살아남은 사람의 모둠.
-   ★ 시간이 다 됐는데 여럿이 살아 있으면 그중 **피해를 제일 많이 넣은 사람**의 모둠이다.
-     '살아 있기만 하고 아무것도 안 한 아이' 가 이기면 숨어만 있는 판이 된다.
-   ★ 아무도 안 남았으면(다 같이 쓰러졌으면) 그 판에서 제일 많이 넣은 사람의 모둠이다. */
-function survWinner(){
-  const alive = survAlive();
-  if(alive.length){
-    alive.sort((a,b)=> (b.dm-a.dm) || (a.n < b.n ? -1 : a.n > b.n ? 1 : 0));
-    return alive[0].g;
-  }
-  const top = survTop();
-  return top.length ? top[0].g : 0;
-}
-/* 모둠별 피해 합계 — 전광판 아래 줄에 쓴다 */
-function survScores(){
-  const s = [0,0,0,0,0];
-  for(const [k,d] of miniPl){
-    const g = Math.max(0, Math.min(NG-1, d.g|0));
-    s[g] += (k === uid ? (MINE.dm|0) : (d.dm|0));
-  }
-  return s;
-}
-function survHostTick(dt){
-  const M = G.mini; if(M.st !== 'run') return;
-  /* 한 사람만 남으면(또는 한 모둠만 남으면) 일찍 끝낸다 */
-  const alive = survAlive();
-  if(miniPl.size >= 2 && (alive.length <= 1 || new Set(alive.map(a=>a.g)).size <= 1)) miniFinish();
-}
-function survHit(byUid, byName, byG, dmg, head){
-  if(!miniOn() || !G.mini || G.mini.k !== 1 || G.mini.st !== 'run' || MINE.out || MINE.rs > 0) return;
-  const d = Math.max(1, (dmg|0) || SURV_DMG);
-  MINE.hp -= d;
-  /* ★ 좀비에게 물릴 때와 같은 연출로 맞춘다(8200줄 참고) — 화면 빨갛게 · 살짝 흔들림 ·
-     내 앞에 깎인 숫자 · 피 튀듯 불티. 이게 없으면 체력만 조용히 줄어서
-     아이는 자기가 맞고 있다는 걸 모른다. 흔들림은 머리에 맞았을 때만 크게 준다. */
-  flash();
-  if(window.__shake) window.__shake(head ? 0.42 : 0.24, head ? 0.20 : 0.13);
-  { const f2 = forward();
-    popDmg(PL.x + f2.x*2.6, PL.y + 1.5, PL.z + f2.z*2.6, d, 2); }
-  burst(PL.x, PL.y + 0.7, PL.z, 0xff6b6b, head ? 9 : 6, head ? 1.3 : 0.9);
-  PL.hurtFx = 0.4;
-  /* 총알이 박히는 소리 + 아파하는 소리 — 둘이 겹쳐야 '총에 맞았다' 로 들린다 */
-  if(window.__sfx){ window.__sfx('phit'); window.__sfx('hurt'); }
-  if(MINE.hp > 0){
-    toast(`💥 ${esc(byName)}${head ? '에게 머리를' : '에게'} 맞았어요! (체력 ${MINE.hp})`, 1.3, '#ffbdbd');
-    miniReport(true); return;
-  }
-
-  MINE.hp = 0; MINE.out = true; MINE.rs = 0;
-  PL.down = true; PL.downT = 0; PL.hp = 0; PL.vy = 0;
-  setAimMode(false, true);
-  verdict(false, '💀', '쓰러졌다!', {ms:1600});
-  toast(`💀 ${esc(byName)}에게 당했어요 — 이제 구경하며 응원해요!`, 4.5, '#ffbdbd');
-  if(window.__sfx) window.__sfx('lose');
-  miniReport(true);
-}
-let survHitN = 0;
-const survDealt = new Map();            // 이번 판에 내가 이 아이에게 준 피해 합계
-const hitTot = new Map();               // 이번 판에 이 아이에게서 이미 받은 피해 합계
-const hitSeen = new Map();              // 이 아이에게서 마지막으로 받은 번호
-/* 내 칸에 쌓인 것을 전부 훑어 하나씩 다 맞는다 — 여럿이 동시에 쏴도 한 발도 안 샌다 */
-function applyHitNode(v){
-  if(!v) return 0;
-  let n = 0;
-  for(const k in v){
-    const e = v[k]; if(!e) continue;
-    if(hitSeen.get(k) === e.n) continue;
-    hitSeen.set(k, e.n);
-    const tot = e.t|0, had = hitTot.get(k) || 0;
-    /* ★ 이 아이에게 처음 맞는 것이면 합계를 못 믿는다 — 내가 판 도중에 들어왔거나
-       새로 고쳤으면 저쪽 합계만 잔뜩 쌓여 있어서, 차이로 재면 한 번에 왕창 깎인다.
-       첫 발은 '이번 한 방(d)' 만 깎고 합계를 그때 맞춰 둔다.
-       그 뒤로는 차이로 재므로 뭉쳐 온 발도 안 샌다. */
-    let d = hitTot.has(k) ? tot - had : (e.d|0);
-    if(d <= 0 || d > SURV_HP*2) d = e.d|0;
-    hitTot.set(k, tot);
-    survHit(k, e.bn||'친구', e.bg|0, d, !!e.h);
-    n++;
-  }
-  return n;
-}
-
-function survSend(victim, dmg, head){
-  if(!net || !victim) return;
-  const tot = (survDealt.get(victim) || 0) + (dmg|0);
-  survDealt.set(victim, tot);
-  /* ★ 피해량은 쏜 쪽이 정해서 보낸다. 맞은 쪽이 다시 굴리면
-     쏜 아이 화면에 뜬 '30' 과 맞은 아이가 깎인 값이 달라진다. */
-  net.child('mini/hit/'+victim+'/'+uid).set({n:++survHitN, t:tot, d:dmg|0,
-                                             bn:G.me.name, bg:G.me.g, h:head ? 1 : 0});
 }
 /* 내 화면에서 매 프레임 — 호스트도 손님도 */
 function miniTick(dt){
@@ -29298,62 +29068,6 @@ function miniTick(dt){
   if(G.mini.k === 0) raceTick(dt);      // 37차 — 경주(②)
   if(MINE.rs > 0) MINE.rs -= dt;        /* 미끄러진 시간(바나나) */
   miniRepT -= dt; if(miniRepT <= 0){ miniRepT = 1; miniReport(); }
-}
-/* 사람의 머리 점 · 몸통 점 — 그리는 자리(drawSheep)와 같은 식이라야 눈과 판정이 안 어긋난다.
-   51차 — R6 머리는 몸 한가운데 위(앞 0 · 높이 R6_HU)에 있다. 46차까지의 사람 머리는 앞으로 0.68 이었다. */
-function survSheepSc(q){ return SHEEP_S; }
-function survHeadPos(q, out){
-  const sc = survSheepSc(q), ry = (q.ry||0) + Math.PI;
-  out[0] = q.x + Math.sin(ry)*R6_HF*sc;
-  out[1] = (q.y||MINI_Y) + R6_HU*sc;
-  out[2] = q.z + Math.cos(ry)*R6_HF*sc;
-  return out;
-}
-function survBodyPos(q, out){
-  out[0] = q.x; out[1] = (q.y||MINI_Y) + R6_TU*survSheepSc(q); out[2] = q.z;
-  return out;
-}
-/* 겨눈 줄에서 한 점까지의 수직 거리 (뒤쪽이면 크게 쳐서 안 걸리게) */
-function survPerp(f, ex, ey, ez, px, py, pz){
-  const dx = px-ex, dy = py-ey, dz = pz-ez;
-  const along = dx*f.x + dy*f.y + dz*f.z;
-  if(along <= 0.2) return 1e9;
-  return Math.hypot(dx - f.x*along, dy - f.y*along, dz - f.z*along);
-}
-const _shA = [0,0,0], _shB = [0,0,0];
-/* 머리를 맞혔나 — 맞다면 그 자리를, 아니면 몸통 자리를 돌려준다 */
-function survAimPart(q){
-  const {origin:o,direction:f} = combatRay();
-  const ex = o.x, ey = o.y, ez = o.z;
-  survHeadPos(q, _shA); survBodyPos(q, _shB);
-  const dh = survPerp(f, ex, ey, ez, _shA[0], _shA[1], _shA[2]);
-  const db = survPerp(f, ex, ey, ez, _shB[0], _shB[1], _shB[2]);
-  const head = dh <= SURV_HEAD_R && dh < db;
-  const p = head ? _shA : _shB;
-  return {head, x:p[0], y:p[1], z:p[2]};
-}
-/* 조준선에 걸린 친구 — 좀비 조준(aimWolf)과 같은 식. 같은 모둠은 안 맞는다 */
-function aimPlayer(W = wpnNow()){
-  const {origin:o,direction:f} = combatRay(), R = W.rng, AR = W.aimR || 1.6;
-  const ex = o.x, ey = o.y, ez = o.z;
-  let best = null, bs = 1e9;
-  for(const q of G.players.values()){
-    if((q.g|0) === G.me.g) continue;
-    const d = miniPl.get(q.uid); if(d && (d.o|0)) continue;    // 이미 쓰러진 아이는 안 맞는다 (21차)
-    if(!combatTargetInRange(q.x,(q.y??MINI_Y)+0.9,q.z,R,f)) continue;
-    const dx = q.x-ex, dy = (q.y||MINI_Y)+0.9-ey, dz = q.z-ez;
-    const along = dx*f.x + dy*f.y + dz*f.z;
-    if(along <= 0.4) continue;
-    const px = dx - f.x*along, py = dy - f.y*along, pz = dz - f.z*along;
-    const perp = Math.hypot(px, py, pz);
-    if(perp > AR + along*0.05) continue;
-    /* ★ 지형에 막히면 안 맞는다. 이게 없으면 벽 뒤에 숨어도 총알이 그냥 뚫고 가서
-       엄폐물이 '보기 좋은 상자' 로 전락한다 — 그러면 지형을 넣은 뜻이 없다. */
-    if(survBlocked(PL.x, PL.y+PL.EYE, PL.z, q.x, (q.y||MINI_Y)+0.9, q.z)) continue;
-    const score = perp/Math.max(1,along)*100 + along*0.012;
-    if(score < bs){ bs = score; best = q; }
-  }
-  return best;
 }
 /* ═══════════════════════ 37차 — 🏁 장애물 경주 (로블록스 오비 식) ═══════════════════════
    선생님: "OX 퀴즈랑 줄넘기 없애고 로블록스에 있는 게임처럼 장애물 지형을 넘어 골인하는 경주대회. 달리기(Shift)·2단 점프로
@@ -31424,7 +31138,7 @@ function landShow(on){}
 function raceDraw(t){
   const on=raceOn();
   if(on!==raceIslandVis74){
-    for(const k of ['miFloor','miBase','miMark','miEdge','miGlow']){const b=banks.get(k);if(b&&b.chunks)for(const m of b.chunks)m.visible=!on;}
+    for(const k of ['miFloor','miBase','miMark','miEdge','miGlow']){const b=banks.get(k);if(b&&b.chunks)for(const m of b.chunks)m.visible=!on;if(b&&b.chunksF)for(const m of b.chunksF)m.visible=!on;}
     raceIslandVis74=on;
   }
   raceArtDraw(RACE.t);R_plat.count=on?RACE_P.length:0;
@@ -31528,23 +31242,8 @@ function paintMini(){
     /* 37차 — 경주: 내 등수·구간·남은 시간. 골인했으면 시간과 등수 */
     const R = boardRace||racePaint(); q = R.q; hearts = R.hearts; chips = R.chips; tm = t+'';
   }
-  else if(M.st === 'run' && M.k === 1){
-    /* ★ 21차 — 목숨이 하나다. 하트 셋 대신 **남은 사람 수**를 크게 둔다.
-       "몇 명 남았지" 가 이 판에서 아이들이 제일 궁금해하는 숫자다. */
-    tm = t+'';
-    const al = survAlive().length;
-    hearts = MINE.out ? `💀 쓰러짐 · ${al}명 남음`
-           : `❤️ 체력 ${Math.max(0, MINE.hp)} · 내가 넣은 피해 ${MINE.dm|0} · ${al}명 남음`;
-    q = '';   // 42차 — 흰 안내 띠 제거(선생님: "서바이벌에도 위에 하얀색 안내 띠가 나오네 저거 없애고"). 남은 사람 수는 아래 줄(hearts)에
-    chips = survPodium(survTop());
-  }
   else if(M.st === 'done'){
-    if(M.k === 1){
-      /* 이긴 모둠 하나 + 피해를 많이 넣은 사람들 */
-      const w = M.win|0;
-      q = `🏆 ${w+1}모둠이 마지막까지 살아남았어요!`;
-      chips = survPodium(M.top);
-    } else { const R = boardRace||racePaint(); q = R.q; hearts = R.hearts; chips = R.chips; }
+    { const R = boardRace||racePaint(); q = R.q; hearts = R.hearts; chips = R.chips; }
     tm = t+'';
   }
   setTxt('mbN', nm); setTxt('mbQ', q); setTxt('mbT', tm); setTxt('mbH', hearts);
@@ -32027,13 +31726,6 @@ function joinRoom(code, asHost){
   net.child('mini').on('value', s=>{ if(G.host) return; const v = s.val();
     if(v && !v.pl) G.mini = v; else if(v){ const {pl, ...rest} = v; G.mini = rest; }
     if(G.phase==='mini' && G.mini && !miniBack)miniEnter(); });
-  /* 내가 맞았다 — 쏜 아이마다 제 칸(mini/hit/<나>/<쏜아이>)에 적는다.
-     ★ 예전엔 칸이 하나여서 두 명이 동시에 쏘면 한 발만 들어갔다. 이제 칸이 따로라
-       한 번에 여러 명이 쏴도 여기서 전부 훑어 하나씩 다 맞는다.
-     ★ 같은 것을 두 번 받지 않게 쏜 아이별로 번호(n)를 기억하고,
-       깎을 값은 '보내온 누적 합계 − 내가 이미 받은 합계' 로 잡는다.
-       중간 한 발이 통신에서 뭉쳐도 값이 안 샌다. */
-  net.child('mini/hit/'+uid).on('value', s=> applyHitNode(s.val()));
   net.child('mini/pl').on('value', s=>{ const v = s.val()||{};
     for(const k in v){ if(k===uid) continue; miniPl.set(k, v[k]); }
     for(const k of [...miniPl.keys()]) if(k!==uid && !v[k]) miniPl.delete(k); });
@@ -33303,8 +32995,8 @@ function paintInv(){ el('tInv').textContent = G.set.cInv ? '🛡️ 수정 무�
 el('tInv').onclick = ()=>{ if(!G.host){ toast('방을 만든 선생님만 바꿀 수 있어요', 1.6, '#ffd9d9'); return; }
   G.set.cInv = G.set.cInv ? 0 : 1; netMeta(); paintInv();
   say(G.set.cInv ? '🛡️ 선생님이 <b>수정 무적</b>을 켰어요 — 좀비가 물어도 수정이 안 깎여요' : '💎 선생님이 수정 무적을 껐어요'); };
-/* 미니게임 — 바로 열기 · 끝내기 (37차: 경주 0 · 서바이벌 1) */
-for(let k=0;k<2;k++) el('tMini'+k).onclick = ()=>{ if(!G.host) return;
+/* 미니게임 — 바로 열기 · 끝내기 (37차: 경주 0 · 92차: 서바이벌 삭제) */
+for(let k=0;k<1;k++) el('tMini'+k).onclick = ()=>{ if(!G.host) return;
   if(miniOn()){ toast('지금 하는 미니게임을 먼저 끝내세요', 1.6, '#ffbdbd'); return; }
   G.wolves.length = 0; spawnQ = []; goMini(k); paintTeach(); };
 el('tMiniEnd').onclick = ()=>{ if(!G.host || !miniOn()) return; miniExit(); paintTeach(); };
@@ -34212,7 +33904,7 @@ function bgmHeatNow(){
      79차 낮 day1(C장조 120bpm 둥근 목관) · day2(E장조 118bpm 마림바) · day3(D장조 125bpm 목관 응답) — 8마디 모험곡을 날마다 번갈아
      해질녘 dusk(A단조, 밤 22초 전부터 시계 소리가 차츰 커진다) · 79차 밤 night(D단조 94~115bpm 낮은 현 반복·여백 있는 선율·작은 맥박)
      79차 보스 밤 boss(D단조 109~128bpm 당김 맥박·낮은 주제 확장) · 승리 새벽 victory(밤을 버틴 아침 — FX2 팡파르 자리를 비워 두고 잔잔한 오르골)
-     경주 race(원래 곡을 부드럽게) · 서바이벌 surv(같은 곡을 D로 낮춰 조금 느리게)
+     경주 race(원래 곡을 부드럽게) — 92차: 서바이벌 곡(surv)은 서바이벌과 함께 뺐다
    곡이 바뀌면 판(BGMP) 둘이 1.5초 겹쳐 넘어간다. 떠났던 곡으로 돌아오면 그 마디부터 이어 간다(bgmMem).
    같은 곡은 64걸음(한 바퀴)마다 변주가 바뀐다 — 0 그대로 · 1 종소리 한 겹 · 2 멜로디를 덜고 패드를 키움(숨 돌리기) · 3 다 함께.
    악기는 전부 부드러운 사인·삼각파 + 거른 톱니(현 저음 — 480Hz 위를 걸러 날카로움이 없다). 사각파는 쓰지 않는다. */
@@ -34317,10 +34009,6 @@ const BGM_SC = {
       if(beat === 2 || beat === 6) puff(0.05, 0.030, 1900, 0.8, t);
       puff(0.018, 0.010, 5200, 1.4, t);
       if(va === 1 && beat === 0) iBell(mt(329.63*2, 7), t, 0.012); } },
-  surv:{ root:293.66, step:()=>0.20, leadV:0.046, pad:0, lead:iSoft, vary:true,
-    mel:[BGM_RACE_A, BGM_RACE_B], ch:[['I','I','I','I'],['I','I','I','I']],
-    bass:(t,beat,b,r,h,va,bar)=>{ if(beat % 2 === 0) iBass(r/4 * Math.pow(2, BGM_RACE_BASS[bar]/12), t, 0.055, 0.28); },
-    perc:(t,beat,bar)=>{ if(beat === 0 || beat === 3 || beat === 4) dTaiko(t, 0.035); if(beat === 2 || beat === 6) dSnare(t, 0.024); } }
 };
 const BGM_DAYS = ['day1', 'day2', 'day3'];
 /* 한 걸음(8분음표)을 판 p 의 i 번째로 t 에 건다 */
@@ -34366,7 +34054,7 @@ function bgmSceneNow(){
   if(!G.started) return G.phase === 'title' ? 'lobby' : null;
   if(G.paused || G.phase === 'lose') return null;
   if(G.phase === 'win') return 'victory';
-  if(G.phase === 'mini'){ const M = G.mini; return M && M.st === 'run' ? (M.k === 0 ? 'race' : 'surv') : 'lobby'; }
+  if(G.phase === 'mini'){ const M = G.mini; return M && M.st === 'run' ? 'race' : 'lobby'; }
   if(G.phase === 'night') return bossIndex(G.day) >= 0 ? 'boss' : 'night';
   if(G.phase === 'day'){
     if(G.t <= BGM_DUSK) return 'dusk';
@@ -35295,6 +34983,7 @@ const DBG = { noRender:false, noLogic:false, noZombie:false, zlodOff:false, zlod
               noHPBar:false, noNum:false,     // 좀비 체력 막대 / 뜨는 숫자 끄기 — 짝비교용
               noTransp:false, noBlob:false, hudHide:false, noVoice:false,   // 85차 — 투명한 것 안 그림 · 발밑 그림자 끔 · HUD 화면에서 숨김 · 좀비 소리 끔
               noBeam:false, noGG:false,       // 90차 — 수정 빛기둥 끔 · 든 총 빛번짐(gunGlowPass) 끔 — 투명 7.7ms 가 어디 것인지 가르는 줄
+              lodOff:false, hideCat:null, noDisp:false,   // 92차 — 먼 조각 단순화 끔 · 갈래(Set) 안 그림 · 진열 총 안 그림
               slowNet:false,    // 전송 횟수를 초당 13회 -> 6회로 줄이기 — 짝비교용
               shFreeze:false }; // 81차 — 진단 '그림자 다시그리기 멈춤': 그림자 지도를 한 장도 새로 안 그린다(SH_HZ 가 있어도)
 let sweep = null, sweepOut = null;        // 자동 측정 상태 / 결과표
@@ -35342,7 +35031,7 @@ if(new URLSearchParams(location.search).has('diag')){
          side:m.userData.lit.side});
       m.material = on ? m.userData.flat : m.userData.lit; } };
   const setTerr = off=>{ DBG.noTerrain = off;
-    for(const b of banks.values()) if(b.chunks) for(const m of b.chunks) m.visible = !off; };
+    for(const b of banks.values()) if(b.chunks){ for(const m of b.chunks) m.visible = !off; if(b.chunksF) for(const m of b.chunksF) m.visible = !off; } };
   /* ★ 25차 — 그림자와 빛 번짐은 **여기서 재는 수밖에 없다.**
      이 둘은 값이 전부 GPU 라, 검사기(소프트웨어 렌더링)로는 셀 수도 잴 수도 없다.
      드로우콜은 세어서 알 수 있었지만 채움률은 아니다. 교실 노트북에서 눌러 봐야 안다. */
@@ -35439,14 +35128,16 @@ if(new URLSearchParams(location.search).has('diag')){
       C('빛번짐 끔',     ()=>{DBG.noBloom=true;}),
       C('그래픽 둘 다 끔',()=>{setShadow(true); DBG.noBloom=true;}) ] : []),
   ] : [
-    /* 90차 — 89차 표가 답한 줄(해상도 한단 더 = 0 · 좀비 안 그림 = 0)은 빼고, 투명 7.7ms 를 가르는 줄 넷을 넣는다: 9줄·19창·약 56초 */
+    /* 92차 — 91차 배터리 표가 '화소가 아니라 삼각형·콜' 이라 답해서, 세계를 갈래별로 빼 보는 줄로 바꿨다(90차 투명 줄 넷은 &sweep=all 에 그대로): 10줄·21창·약 62초.
+       '… 안 그림' 은 정적 뱅크를 32칸 구역 단위로 숨긴다(갈래는 구역에서 가장 많은 것 — 경계 구역은 섞일 수 있다). 좀비는 다시 넣었다(92차 LOD 뒤 몫이 달라진다). */
     C('화면그리기 끔', ()=>{DBG.noRender=true;}),
     C_HUD(),
-    C('투명한 것 안 그림',  ()=>{DBG.noTransp=true;}),
-    C('발밑 그림자 끔',     ()=>{DBG.noBlob=true;}),
-    C('수정 빛기둥 끔',     ()=>{DBG.noBeam=true;}),
-    C('좀비 체력막대 끔',   ()=>{DBG.noHPBar=true;}),
-    C('든 총 빛번짐 끔',    ()=>{DBG.noGG=true;}),
+    C('먼 조각 단순화 끔(92차)', ()=>{DBG.lodOff=true;}),
+    C('성곽·성문 안 그림',     ()=>{DBG.hideCat=new Set(['castle','gate']);}),
+    C('나무·바위·숲 안 그림',  ()=>{DBG.hideCat=new Set(['node']);}),
+    C('농장·상점·대장간 안 그림', ()=>{DBG.hideCat=new Set(['farm','shop']); DBG.noDisp=true;}),
+    C('풀꽃·산·마을 안 그림',  ()=>{DBG.hideCat=new Set(['deco','terrain','village','isle']);}),
+    C('좀비 안 그림',          ()=>{DBG.noZombie=true;}),
     C('게임로직 통째로 끔', ()=>{DBG.noLogic=true;}),
     C_HUD(),                                        // 두 번 재서 둘이 다르면 잡음임을 바로 보이게
   ];
@@ -35477,7 +35168,7 @@ if(new URLSearchParams(location.search).has('diag')){
      좀비가 한꺼번에 사라져 뒤쪽 항목은 "한가한 낮"을 재게 되므로, 그런 줄은 버린다. */
   const WINS = CASES.length * 2 + 1;                  // 기준·항목 번갈아 + 마지막 기준
   const SETTLE0 = 3.0;                                // 89차 — 첫 창은 워밍업·셰이더 컴파일 여파가 걷히게 3초 쉰다(그 뒤로는 0.8초)
-  const SWEEP_SEC = WINS * (0.8 + 2.0) + (SETTLE0 - 0.8);   // 기본 9줄 ≈ 56초 · 전부(&sweep=all) ≈ 140초
+  const SWEEP_SEC = WINS * (0.8 + 2.0) + (SETTLE0 - 0.8);   // 기본 10줄 ≈ 62초(92차) · 전부(&sweep=all) ≈ 140초
   /* 창 하나를 재는 내내 상황을 지켜본다.
      끝날 때만 보면 창 한가운데서 낮이 되는 경우를 놓친다(실제로 놓쳤다). */
   const newWin = ()=>{ sweep.ph0 = G.phase; sweep.phBad = false; sweep.hitch = 0;
@@ -35667,6 +35358,7 @@ function updDiag(dt){
     '그리는칸 ' + c.width + '×' + c.height + '  (' + (c.width*c.height/1e6).toFixed(2) + '백만)\n' +
     '보이는칸 ' + c.clientWidth + '×' + c.clientHeight + '\n' +
     '드로우콜  ' + i.calls + '   삼각형 ' + Math.round(i.triangles/1000) + 'K\n' +
+    (()=>{ const l = lodStat(); return '먼 조각   ' + l.far + ' 성긴 짝 · 가까운 ' + l.near + (LOD_D && !DBG.lodOff ? ' (LOD ' + LOD_D + '칸)' : ' (LOD 끔)') + '\n'; })() +   // 92차
     /* 좀비 수가 그대로인데 프레임이 반 토막 나는 일이 있었다(53.5 -> 27.5fps).
        무엇이 늘어나는지 보려고 병사·스폰대기까지 같이 센다. */
     '친구 ' + G.players.size + '  좀비 ' + G.wolves.length + '  건물 ' + STRU.size
@@ -35699,7 +35391,7 @@ function updDiag(dt){
     '───────────────\n' +
     'Shift+7 시뮬·통신 ' + (DBG.noSim ? '끔' : '켬') + '\n' +
     'Shift+8 전송횟수 ' + (DBG.slowNet ? '초당 6회' : '초당 13회') + '\n' +
-    '★ Shift+9 = 자동으로 측정(9줄·약 56초)\n' +
+    '★ Shift+9 = 자동으로 측정(10줄·약 62초)\n' +
     '   밤 시작 20초 뒤에 · 전원 꽂고 · 가만히 서서 (&sweep=all 이면 전부 22줄)\n' +
     '81차 켬/끔 견주기: 주소 끝 &p81off=all 로 새로 열어\n' +
     '   Shift+9 한 번 더(판 도중엔 못 바꿈 · 창 하나만·전원 꽂고)\n' +
@@ -35898,19 +35590,15 @@ Object.assign(window, {
   /* 18차 — 미니게임 */
   __goMini:goMini, __miniExit:miniExit, __MINE:MINE,
   __miniOn:miniOn, __hostMini:hostMini, __miniPl:miniPl, __miniTick:miniTick,
-  __miniFinish:miniFinish, __miniSet:miniSet, __survHit:survHit, __aimPlayer:aimPlayer,
-  __survScores:survScores,
-  __survAlive:survAlive, __survTop:survTop, __survWinner:survWinner, __survPodium:survPodium,
+  __miniFinish:miniFinish, __miniSet:miniSet,
   __miniReport:miniReport, __miniOnState:miniOnState, __COST_MUL:()=>COST_MUL,
   __MINI:()=>({Y:MINI_Y, R:MINI_R, PADZ:MINI_PADZ, padX:miniPadX,
                DAYS:MINI_DAYS, KIND:MINI_KIND, INTRO:MINI_INTRO, DONE:MINI_DONE,
-               RACE:RACE_SEC, SURV:SURV_SEC, PRIZE:MINI_PRIZE, CONSOL:MINI_CONSOL,
-               GUN:MINI_GUN, BOARD:SURV_BOARD,
-               DMG:SURV_DMG, HEAD:SURV_HEAD, HEAD_R:SURV_HEAD_R, HP:SURV_HP,
-               SPAWN_R:SURV_SPAWN_R}),
+               RACE:RACE_SEC, PRIZE:MINI_PRIZE,
+               GUN:MINI_GUN}),
   __SPRINT:SPRINT, __stamina:()=>stamina, __sprinting:()=>sprinting, __setStamina:(v)=>{ stamina = v; },
   __CH82:CH82, __CH82_Z1:CH82_Z1, __chute82:chute82, __chuteQ82:chuteQ82, __chuteProf82:chuteProf82, __chuteSurf82:chuteSurf82, __race74:{state:RACE74,candyAt:chuteCandyAt87,candySpan:chuteCandySpan87,pose:racePose,jumpPose:raceJumpPose,landingPose:raceLandingPose,tryJump:raceTryJump,contains:raceContains,surface:raceSurface,under:raceUnder,before:raceMotion,after:racePhysicsAfter,tick:raceTick,reset:race74Reset,draw:raceArtDraw,art:()=>RACE_ART74}, __raceSlotXZ:raceSlotXZ, __RACE_ROWZ:RACE_ROWZ, __FADE_T:FADE_T, __RACE_SPD:RACE_SPD, __raceHold:raceHold, __flipSet:flipSet, __gaitMe:()=>gaitMe, __camAnc:()=>camAnc, __ACC:{up:ACC_UP, down:ACC_DOWN}, __SPD:SPD, __sheepGait:sheepGait, __STRIDE:{walk:STRIDE_WALK, run:STRIDE_RUN}, __cntShow:cntShow,
-  __MINI_NAME:MINI_NAME, __survOn:survOn, __RACE:()=>RACE, __raceRocks:raceRocks, __ROCK:ROCK, __raceGiveWeapon:raceGiveWeapon, __raceGiveArmor:raceGiveArmor, __RACE_RES:RACE_RES, __RACE_FIN:RACE_FIN, __raceHazards:raceHazards, __HAZ:HAZ, __camGY:()=>camGY, __bgmRace:bgmRace, __rockU:rockU, __fovRun:()=>fovRun, __sheepBump:sheepBump, __SHEEP_R2:SHEEP_R2, __kb:()=>({x:kbx, z:kbz}), __kbReset:()=>{ kbx = kbz = 0; }, __RACE_P:()=>RACE_P, __RACE_S:RACE_S, __raceTopAt:raceTopAt, __raceBuild:raceBuild, __raceOn:raceOn, __raceRespawn:raceRespawn, __R_plat:()=>R_plat, __RACE_Z_FIN:RACE_Z_FIN,
+  __MINI_NAME:MINI_NAME, __RACE:()=>RACE, __raceRocks:raceRocks, __ROCK:ROCK, __raceGiveWeapon:raceGiveWeapon, __raceGiveArmor:raceGiveArmor, __RACE_RES:RACE_RES, __RACE_FIN:RACE_FIN, __raceHazards:raceHazards, __HAZ:HAZ, __camGY:()=>camGY, __bgmRace:bgmRace, __rockU:rockU, __fovRun:()=>fovRun, __sheepBump:sheepBump, __SHEEP_R2:SHEEP_R2, __kb:()=>({x:kbx, z:kbz}), __kbReset:()=>{ kbx = kbz = 0; }, __RACE_P:()=>RACE_P, __RACE_S:RACE_S, __raceTopAt:raceTopAt, __raceBuild:raceBuild, __raceOn:raceOn, __raceRespawn:raceRespawn, __R_plat:()=>R_plat, __RACE_Z_FIN:RACE_Z_FIN,
   __tpvOn:tpvOn, __tpvKind:tpvKind, __MINI_CAM:()=>MINI_CAM, __DOWN_CAM:()=>DOWN_CAM,
   __camPos:()=>({x:camera.position.x, y:camera.position.y, z:camera.position.z}),
   __camRig:()=>({zoom:camZoom, distance:camDistance, shoulder:camShoulder, hidden:camBodyHidden, aimBlend:camAimBlend}),
@@ -35921,14 +35609,10 @@ Object.assign(window, {
   __raceCameraFloorBlocked:raceCameraFloorBlocked, __raceCameraLift:raceCameraLift,
   __meSheep:()=>meSheep,
   __updDanger:updDanger, __paintMini:paintMini,
-  __applyHitNode:applyHitNode, __survSend:survSend,
-  __hitState:()=>({dealt:[...survDealt], tot:[...hitTot], seen:[...hitSeen]}),
-  __survAimPart:survAimPart, __survHeadPos:(q)=>survHeadPos(q,[0,0,0]),
-  __survBodyPos:(q)=>survBodyPos(q,[0,0,0]),
   __miniEnter:miniEnter, __miniLeave:miniLeave,
-  __SURV_BOX:()=>SURV_BOX, __SURV_CYL:()=>SURV_CYL, __survTopAt:survTopAt, __groundUnder:groundUnder,
-  __survBlocked:survBlocked, __miniSpawnXZ:miniSpawnXZ, __miParts:()=>miParts,
-  __miVis:()=>miVis, __SURV_SPAWN_R:()=>SURV_SPAWN_R,
+  __groundUnder:groundUnder,
+  __miniSpawnXZ:miniSpawnXZ, __miParts:()=>miParts,
+  __miVis:()=>miVis,
   /* 17차d — 농장. 검사가 값을 베끼지 않고 게임에 물어보게 내보낸다. */
   __FARM_X:()=>FARM_X, __FARM_Z:()=>FARM_Z, __FARM_ANIMALS:FARM_ANIMALS,
   __FARM_CAP:()=>FARM_CAP, __FARM_FEED:()=>FARM_FEED, __FARM_LEAVE:()=>FARM_LEAVE,
