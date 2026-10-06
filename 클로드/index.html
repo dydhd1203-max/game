@@ -4345,7 +4345,7 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
    같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '95차 · 성곽 14칸 단순화·탑 안 소품 숨김';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '96차 · 자동 해상도 끔·단순화 더 가까이·좀비 0.75px';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -6773,9 +6773,9 @@ const BSPLIT = 300;   // 이보다 인스턴스가 적은 뱅크는 안 쪼갠�
    첫 구현은 구역 단위(구역 상자까지 30칸)였는데 마을 한가운데 서면 둘레 32칸 구역이 다 '가까움' 이라 삼각형이 25~55% 밖에 안 줄고
    삼각형 많은 뱅크를 쪼개느라 콜이 50% 늘었다 — 그래서 칸 단위로 바꿨다. ?lod=0 으로 끈다(?lod=50 처럼 거리도 바꿔 본다) ·
    진단(Shift+9) '먼 조각 단순화 끔' 줄이 효과를 잰다 · 진단 창 '먼 조각' 줄이 지금 성긴 짝으로 그리는 칸 수다. */
-const LOD_D = (()=>{ const v = new URLSearchParams(location.search).get('lod'); return v === null ? 22 : Math.max(0, +v || 0); })();   // 0 이면 끔 · 헤드리스 재기: 30칸 −41~55% · 22칸 −47~58% · 16칸 −50~64%(콜은 비슷) — 22 로
+const LOD_D = (()=>{ const v = new URLSearchParams(location.search).get('lod'); return v === null ? 16 : Math.max(0, +v || 0); })();   // 0 이면 끔 · 헤드리스 재기: 30칸 −41~55% · 22칸 −47~58% · 16칸 −50~64%(콜은 비슷) — 92차 22 · 96차 16(95차 표: 느린 단계 GPU 14.6ms, LOD 끔이 +5ms 라 가장 큰 손잡이)
 const LOD_MIN_TRIS = 20, LOD_HYST = 1.5;              // 이보다 성긴 기하는 짝이 없다(그대로) · 멀어질 때 LOD_D+1.5 · 가까워질 때 LOD_D−1.5(깜빡임 방지)
-const LOD_CAT_D = {castle:14, gate:14, castleIn:20};   // 95차 — 갈래별 단순화 거리(없으면 LOD_D). 93차 배터리 표: 성곽·성문이 GPU 의 1/3(16.9→11.2ms) — 돌 둥근 모서리는 14칸에서 2~3픽셀
+const LOD_CAT_D = {castle:10, gate:10, castleIn:16};   // 96차 — 14 → 10(돌 둥근 모서리가 10칸에서 3~4픽셀)   // 95차 — 갈래별 단순화 거리(없으면 LOD_D). 93차 배터리 표: 성곽·성문이 GPU 의 1/3(16.9→11.2ms) — 돌 둥근 모서리는 14칸에서 2~3픽셀
 const LOD_HIDE_CAT = new Set(['castleIn']);            // 95차 — 이 갈래는 멀면 짝 메시도 없이 아예 안 그린다(탑 안 방·소품 11만 삼각 — 밖에서는 안 보인다)
 const LOD_EXEMPT = new Set(['shop', 'forge', 'farm']); // 94차 — 이 갈래(BCAT)가 다수인 뱅크는 멀어도 그대로(선생님: "농장·상점·대장간만 단순화 대상에서 제외" — 굽은 천막·목재·헛간이 상자로 바뀌면 어색하다). 성곽·성문·나무·바위·풀꽃·산은 단순화
 const LOD_ROUND = /^(leaf|cone|nodeRock|nodeMoss|peb|bush|bushS|petal|pist|apple|rock|cleaf|cvine|mtK|crown|farmHay|hay)/;   // 공 꼴은 20면체로
@@ -17496,7 +17496,7 @@ const ZLOD_PAIRS = [
   zlodTwin(W_digit, ZOMBIE_GEO_LO.digit, 'digit', 1), zlodTwin(W_wrap, zombieWrapGeo(12), 'wrap')];
 const ZLOD_ALL = [W_body,W_chest,W_head,W_snout,W_tail,W_legs,W_paw,W_eyes,W_ears,W_horn,W_nose,W_ruff,
   W_belly,W_brow,W_cheek,W_rib,W_plate,W_gem,W_eyeW,W_eyeR,W_pupil,W_fang,W_costume,W_wrap,W_sleeve,W_digit];
-const ZLOD = {px:(typeof location === 'object' && +new URLSearchParams(location.search).get('zlod')) || .5, hi:0, lo:0};   // ?zlod=픽셀 — 교실에서 문턱을 견줘 볼 때
+const ZLOD = {px:(typeof location === 'object' && +new URLSearchParams(location.search).get('zlod')) || .75, hi:0, lo:0};   // 96차 — 0.5 → 0.75픽셀(좀비 0.1M·콜 22 · 1픽셀은 6.5칸 안 좀비의 머리·몸통까지 성긴 짝이 되어 t84 가 막는다)   // ?zlod=픽셀 — 교실에서 문턱을 견줘 볼 때
 const P84_ZLOD = typeof P81 === 'object' && P81.zombieLod;   // 검사가 떼어 돌리는 조각에는 P81 이 없다
 /* 원래 메시에 다 그린 뒤(같은 순서·같은 칸) 조각마다 잰다 — 멀어서 0.5px 안이면 짝 메시 뒤로 옮기고 원래 메시는 앞으로 당겨 채운다 */
 function zombieLod84(on){
@@ -35074,7 +35074,7 @@ let sweep = null, sweepOut = null;        // 자동 측정 상태 / 결과표
    그래서 2초 평균이 45fps 아래면 그리는 해상도를 한 단 내린다(배율 × 1 → .91 → .82, '보통' 0.85 → 0.77 → 0.70). 58 이상이 8초 이어지면 한 단 올린다.
    올렸더니 4초 안에 다시 떨어지면 60초 동안은 안 올린다(오르내림 깜빡 방지). 화면 크기·UI·조작은 그대로, 그리는 픽셀 수만 바뀐다.
    ?autores=0 이면 끈다(검사기 브라우저는 기본 끔 · ?autores=1 로 켬) · 진단 측정(Shift+9) 중·손으로 해상도를 바꾼 동안(1 키)은 쉰다. */
-const AUTORES = {on:(()=>{ const q = new URLSearchParams(location.search).get('autores'); return q === '1' || (q !== '0' && !navigator.webdriver); })(),   // 검사기(자동 조종 브라우저)는 ?autores=1 일 때만
+const AUTORES = {on:(()=>{ const q = new URLSearchParams(location.search).get('autores'); return q === '1'; })(),   // 96차 — 기본 끔(?autores=1 로만 켬). 91차 '해상도 한단 더' −1.8ms · 95차 0ms — 화소는 병목이 아니라 내릴 이유가 없다(선생님: "해상도 자동 줄이기 없애면 안 돼?")
                  base:renderer.getPixelRatio(), steps:[1, .91, .82], lv:0,
                  t:0, n:0, good:0, upAt:-1, lock:0, clock:0, changes:0};
 function autoResApply(){ renderer.setPixelRatio(AUTORES.base*AUTORES.steps[AUTORES.lv]); renderer.setSize(innerWidth, innerHeight); bloomResize(); gunGlowResize(); AUTORES.changes++; }
