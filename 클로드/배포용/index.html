@@ -507,8 +507,8 @@ table.rank td.n{text-align:right;font-variant-numeric:tabular-nums}
 #hpRow .hpIc{font-size:14px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.5))}
 #hpBar{flex:1;height:10px;border-radius:5px;background:rgba(0,0,0,.58);
   border:1px solid rgba(255,255,255,.14);overflow:hidden}
-#hpFill{display:block;height:100%;width:100%;border-radius:4px;transform-origin:0 50%;
-  background:linear-gradient(90deg,#8dff8d,#3ddb6a)}   /* 100차 — scaleX */
+#hpFill{display:block;height:100%;width:100%;border-radius:4px;
+  background:linear-gradient(90deg,#8dff8d,#3ddb6a)}
 #hpNum{font-weight:600;font-size:12px;min-width:30px;text-align:right;opacity:.95}
 /* 37차 — 달리기 스태미나 줄: 체력 줄 아래, 달리는 동안과 덜 찼을 때만 */
 #stRow{display:none;align-items:center;gap:6px;padding:2px 0 0}
@@ -25775,7 +25775,7 @@ function paintHUD(){
   /* 내 체력 */
   const hpMx = maxHP();
   const hpPct = Math.max(0, Math.min(100, PL.hp / hpMx * 100));
-  setSty('hpFill', 'transform', 'scaleX(' + (Math.round(hpPct*10)/1000) + ')');   // 100차
+  setSty('hpFill', 'width', (Math.round(hpPct*10)/10) + '%');   // 102차 — 100차에 scaleX 로 바꿨다가 되돌림: 내 체력 막대는 원래 전환(transition)이 없어 바뀔 때만 칠하고, 검사 t79-combat-hud-view 가 width 를 읽는다
   setSty('hpFill', 'background', PL.down ? 'linear-gradient(90deg,#8a8a8a,#5a5a5a)'
     : hpPct > 55 ? 'linear-gradient(90deg,#8dff8d,#3ddb6a)'
     : hpPct > 25 ? 'linear-gradient(90deg,#ffd66b,#ffa726)'
