@@ -214,7 +214,7 @@ const snd = await ev(()=>{
   o.짧은판정 = v.classList.contains('quick');
   /* 초록 번쩍이 실제로 켜진다 */
   W.__goodFlash(60);
-  o.초록번쩍 = +document.getElementById('goodFlash').style.opacity;
+  o.초록번쩍 = W.__vig99().ghold > 0 ? 1 : 0;   // 101차 — DOM #goodFlash 를 지웠다. WebGL 덮개(VIG) 의 유지 시간으로 본다
   return o;
 });
 ok('★ 무기가 부르는 소리가 전부 소리 표에 있다 (없는 이름은 조용히 아무것도 안 한다)',

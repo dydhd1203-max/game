@@ -1,6 +1,6 @@
 /* 36차 검사 — 좀비들의 밤: 좀비 다섯(규칙·외형) · 밤 구성표 · 뛰는 좀비 없음
    ★ 규칙은 실제로 밤을 돌려서 본다(호스트 스텝 __step). 외형은 그리기 뒤 부위 메시의 개수(count)로 본다 — 종류별 조각이 실제로 그려졌나.
-   ★ 소리·화면 비네트는 값(fearK · #fearVig opacity)으로 본다. */
+   ★ 소리·화면 비네트는 값(fearK · VIG.fear — 101차: DOM #fearVig 를 지워 WebGL 덮개 값으로)으로 본다. */
 import { chromium } from './pw.mjs';
 import { serve } from './serve2.mjs';
 import { GAME } from './gamefile.mjs';
@@ -103,10 +103,10 @@ const rule = await pg.evaluate(()=>{ const W=window, G=W.__G, PL=W.__PL, o={};
   PL.x = gX(26,0); PL.z = gZ(26,0);
   const f = W.__spawnWolf(W.__K_LOOK('fear'), 0, gX(29,0), gZ(29,0)); f.mv = false;
   for(let i=0;i<20;i++){ W.__fearTick(0.2); f.x = gX(29,0); f.z = gZ(29,0); }
-  o.fearNear = +W.__fearK().toFixed(2); o.vig = +getComputedStyle(document.getElementById('fearVig')).opacity; o.growled = !!f.growled;
+  o.fearNear = +W.__fearK().toFixed(2); o.vig = +W.__vig99().fear.toFixed(3); o.growled = !!f.growled;
   f.x = gX(60,0); f.z = gZ(60,0);
   for(let i=0;i<40;i++) W.__fearTick(0.2);
-  o.fearFar = +W.__fearK().toFixed(2); o.vigFar = +getComputedStyle(document.getElementById('fearVig')).opacity;
+  o.fearFar = +W.__fearK().toFixed(2); o.vigFar = +W.__vig99().fear.toFixed(3);
   o.sfx = ['heart','growl'].every(k=> W.__SFXKEYS().includes(k));
   G.wolves.length = 0; G.phase = 'day'; G.t = 60; return o; });
 ok('★ 치유 좀비 옆의 다친 좀비는 2초에 체력이 는다 (5%/초 × 2초 ≈ 10%)', rule.healGain >= 0.08 && rule.healGain <= 0.13, (rule.healGain*100).toFixed(1)+'%');
