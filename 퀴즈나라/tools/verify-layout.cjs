@@ -1,11 +1,11 @@
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 (async()=>{
-  const out=path.resolve(__dirname,'../검증'),browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});
+  const out=path.resolve(process.env.QUIZ_VERIFICATION_OUTPUT||path.join(__dirname,'../검증'));fs.mkdirSync(out,{recursive:true});const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/',shopOnly=process.argv.includes('--shop-only'),browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});
   const context=await browser.newContext();
   await context.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({body:'/* isolated layout review */',contentType:'text/javascript'}));
   const page=await context.newPage(),errors=[],checks=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto('http://127.0.0.1:4173/?demo=1&session=layout-'+Date.now());
+  await page.goto(base+'?demo=1&session=layout-'+Date.now());
   await page.waitForFunction(()=>QPAvatar?.atlas.ready===true&&QPClothes?.atlas.ready===true);await page.evaluate(()=>document.fonts.ready);
   const choose=async mode=>{
     const toolbar=page.locator('.qp-demo-toolbar');
@@ -16,7 +16,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   };
   for(const viewport of [{width:1920,height:1080},{width:1440,height:900},{width:1366,height:768},{width:1280,height:632},{width:1024,height:632}]){
     await page.setViewportSize(viewport);await page.evaluate(()=>QPGame.go('shop'));
-    await page.waitForSelector('#shTabs');assert.equal(await page.locator('#shTabs [data-c]').count(),15);
+    await page.waitForSelector('#shTabs');assert.equal(await page.locator('#shGroups [data-group]').count(),7);assert.deepEqual(await page.locator('#shTabs [data-c]').evaluateAll(bs=>bs.map(b=>b.dataset.c)),['expression','hair']);
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Shop horizontal overflow');
     await page.locator('#btnGender').scrollIntoViewIfNeeded();await page.locator('#btnGender').click();
     assert.equal(await page.locator('#avatarSexChoices .qp-pixel-avatar').count(),2);
@@ -24,6 +24,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
     await page.locator('#avatarSexChoices button[data-sex="f"]').click();
     await page.waitForFunction(()=>!document.querySelector('#toast .tt'));
     await page.screenshot({path:path.join(out,'상점-'+viewport.width+'.png')});
+    if(shopOnly){checks.push({viewport,groups:7,genderChoices:2,horizontalOverflow:false});continue;}
     await choose('quiz');await page.waitForSelector('#ansIn');
     assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'Quiz horizontal overflow');
     await page.locator('#ansIn').scrollIntoViewIfNeeded();assert(await page.locator('#ansIn').isEnabled());
@@ -46,8 +47,9 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
     });
     assert(Object.values(portrait).every(Boolean),'Portrait scenery must fill and stay inside its panel, with one centered avatar: '+JSON.stringify(portrait));
     await page.screenshot({path:path.join(out,'무대-'+viewport.width+'.png')});
-    checks.push({viewport,categories:15,genderChoices:2,questionInput:true,enterSubmitRetry:true,submitButtonVisible:true,horizontalOverflow:false,approvedBackground:true,portrait});
+    checks.push({viewport,groups:7,genderChoices:2,questionInput:true,enterSubmitRetry:true,submitButtonVisible:true,horizontalOverflow:false,approvedBackground:true,portrait});
   }
+  if(shopOnly){assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'화면검증.json'),JSON.stringify({scope:'shop only',checks,errors},null,2));console.log(JSON.stringify({scope:'shop only',checks,errors}));await browser.close();return;}
   await page.setViewportSize({width:1366,height:768});await choose('quiz');
   await page.evaluate(async()=>{
     const room=(await QPDemo.db.ref('quiz/room').once()).val(),base=Object.values(room.p),extra={},feed={};

@@ -3360,9 +3360,11 @@ function showRank(){
    ═══════════════════════════════════════════════════════════════════ */
 SCREENS.shop = function(st,arg){
   const S = { cat:arg?.fitting?'top':'hair', sel:null, pv:avatarForSex(ME.av,null,ME.owned) };
+  const groups=[{name:'머리 · 얼굴',icon:'hair',cats:['hair','expression']},{name:'한벌옷',icon:'outfit',cats:['outfit']},{name:'상의',icon:'top',cats:['top']},{name:'하의',icon:'bottom',cats:['bottom']},{name:'신발',icon:'shoes',cats:['shoes']},{name:'장신구',icon:'glass',cats:['hat','glass','face','ear','neck','frame']},{name:'날개 · 펫 · 효과',icon:'pet',cats:['back','pet','effect','bg']}];
 
-  st.innerHTML = topbar(arg?.fitting?'피팅룸 · 입어 보기':'옷 가게', true) + `
-  <div class="shopwrap qp-village-shop">
+  st.innerHTML = `<section class="starlight-shop" aria-label="별빛 아바타 상점">
+    <header class="starlight-header"><button class="btn" id="tbBack">← 뒤로</button><h1>별빛 아바타 상점</h1><div class="f1"></div><button class="icb" id="tbSnd" aria-label="소리 설정">${uiIcon('sound')}</button><div class="gold">${uiIcon('coin')}<span class="sr-only">보유 골드</span><b id="goldNum">${(ME.gold||0).toLocaleString()}</b></div><button class="btn starlight-close" id="shopClose" aria-label="상점 닫고 마을로">×</button></header>
+  <div class="shopwrap qp-village-shop qp-starlight-shop">
     <div class="pnl col shop-fitting">
       <div class="pnl-h" id="pvTitle">입어 보기</div>
       <div class="mestage f1" id="pvStage"></div>
@@ -3380,18 +3382,18 @@ SCREENS.shop = function(st,arg){
 
     <div class="pnl col shop-shelves" style="overflow:hidden">
       <div class="qp-shop-switch"><button class="tab on" id="shopAll" aria-pressed="true">아이템 상점</button><button class="tab" id="shopOwned" aria-pressed="false">내 옷장</button></div>
+      <div id="shGroups" aria-label="상품 분류"></div>
       <div class="tabs" id="shTabs" aria-label="꾸미기 부위"></div>
       <div class="shop-catalog-note hint" id="shopCatalogNote"></div>
-      <div class="grid f1" id="shGrid"></div>
-      <div class="shop-workshop-scenery" aria-hidden="true"><span class="shop-prop shop-prop-rack"></span><span class="shop-prop shop-prop-sewing"></span></div>
+      <div class="shop-stock f1 scroll"><div id="shopFeatured"></div><div class="grid" id="shGrid"></div></div>
     </div>
 
     <div class="pnl col shop-selection">
-      <div class="pnl-h">고른 것</div>
+      <div class="pnl-h">나의 스타일</div>
       <div id="shInfo" class="f1 scroll"></div>
     </div>
-  </div>`;
-  wireTop('campus');
+  </div></section>`;
+  wireTop('village');el('shopClose').onclick=()=>go('village');
 
   const paintPv = ()=>{
     S.pv=avatarForSex(S.pv,ME.av.sex,ME.owned);
@@ -3416,13 +3418,20 @@ SCREENS.shop = function(st,arg){
   el('shopOwned').onclick=()=>switchWardrobe(true);
 
   function paintTabs(){
-    el('shTabs').innerHTML = CATS.map(c=>
+    const group=groups.find(g=>g.cats.includes(S.cat));
+    el('shGroups').innerHTML=groups.map(g=>`<button class="tab ${g===group?'on':''}" data-group="${g.cats[0]}" aria-pressed="${g===group}">${uiIcon(g.icon)}<span>${g.name}</span></button>`).join('');
+    el('shGroups').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.cat=b.dataset.group;S.sel=null;paintPv();paintTabs();paintGrid();paintInfo();});
+    el('shTabs').innerHTML = CATS.filter(c=>group.cats.includes(c.k)).map(c=>
       `<button class="tab ${c.k===S.cat?'on':''}" data-c="${c.k}" aria-pressed="${c.k===S.cat}">${uiIcon(c.k)}<span>${c.n}</span></button>`).join('');
     $$('#shTabs .tab').forEach(b=> b.onclick = ()=>{ S.cat=b.dataset.c; S.sel=null;
       paintPv(); paintTabs(); paintGrid(); paintInfo(); });
   }
   function paintGrid(){
     const c = CAT[S.cat]; let h = '';
+    const picks=publicItems(S.cat,S.pv.sex).filter(it=>!S.onlyOwned||owns(it.id)),featured=picks[0];
+    el('shopFeatured').innerHTML=featured?`<div class="shop-featured"><div class="shop-feature-art">${partThumb(S.cat,featured.shape,featured.ci,110,S.pv.sex)}</div><div class="shop-feature-copy"><span class="shop-feature-kicker">오늘의 스타일</span><h2>${esc(featured.short)}</h2><p>반짝이는 나만의 모습을 찾아봐요!</p><button class="btn" id="shopFeatureTry">입어 보기 <span aria-hidden="true">→</span></button></div><div class="shop-feature-picks">${picks.slice(1,4).map(it=>`<button data-pick="${it.id}" aria-label="${esc(it.short)} 입어 보기">${partThumb(S.cat,it.shape,it.ci,65,S.pv.sex)}</button>`).join('')}</div><span class="shop-feature-star" aria-hidden="true">✦</span></div>`:'';
+    if(featured)el('shopFeatureTry').onclick=()=>{S.sel=featured.id;S.pv=applyCatalogItem(S.pv,featured);paintPv();paintGrid();paintInfo();};
+    el('shopFeatured').querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{const it=picks.find(p=>p.id===b.dataset.pick);S.sel=it.id;S.pv=applyCatalogItem(S.pv,it);paintPv();paintGrid();paintInfo();});
     if(c.off) h += `<button class="itm" data-none="1" aria-pressed="${S.sel==='__none'}" style="grid-column:span 1">
       <div class="thumb shop-none" aria-hidden="true">✕</div>
       <div class="nm2">안 쓰기</div><div class="pr free">공짜</div></button>`;
@@ -3435,7 +3444,7 @@ SCREENS.shop = function(st,arg){
         ${eq?'<span class="badge eq">입음</span>':(own?'<span class="badge">보유</span>':'')}
         <div class="thumb">${partThumb(S.cat,sk,ci,100,S.pv.sex)}</div>
         <div class="nm2">${esc(it.short)}</div>
-        <div class="pr ${own?'free':''}">${own?'가지고 있음':it.price.toLocaleString()+'골드'}</div></button>`;
+        <div class="pr ${own?'free':''}">${own?'가지고 있음':it.price.toLocaleString()+' 골드'}</div><span class="shop-card-action">${eq?'착용 중':'입어 보기'}</span></button>`;
     }
     el('shGrid').innerHTML = h||'<div class="hint" style="grid-column:1/-1;padding:20px">이 부위에 가진 아이템이 없어요. 상점에서 마음에 드는 아이템을 골라 보세요.</div>';
     $$('#shGrid .itm').forEach(b=> b.onclick = ()=>{
@@ -3452,15 +3461,8 @@ SCREENS.shop = function(st,arg){
   }
   function paintInfo(){
     const box = el('shInfo');
-    if(!S.sel){ box.innerHTML = `<div class="hint shop-fitting-note">가운데에서 옷을 눌러 보세요.<br>
-      바로 <b>입어 볼 수 있어요.</b> ${S.onlyOwned?'가진 옷은 골드 없이 갈아입어요.':'마음에 들면 사면 돼요.'}<br><br>
-      한벌옷은 <b>상의와 하의를 함께</b> 갈아입어요.</div>
-      <div class="mt12 shop-worn-list">
-      <div class="shop-info-subtitle">지금 입고 있는 것</div>
-      ${CATS.filter(c=>!ME.av.outfit||!['top','bottom'].includes(c.k)).map(c=>{const v=ME.av[c.k];const it=v?curatedItem(c.k,v.split(':')[0],ME.av.sex):null;
-        return `<div class="row shop-worn-row">
-          <span class="shop-worn-category">${c.n}</span>
-          <span>${it?esc(it.name):'없음'}</span></div>`; }).join('')}</div>`;
+    const worn=()=>`<div class="shop-worn-list"><div class="shop-info-subtitle">지금 입고 있는 것</div>${CATS.filter(c=>ME.av[c.k]&&(!ME.av.outfit||!['top','bottom'].includes(c.k))).map(c=>{const it=curatedItem(c.k,ME.av[c.k].split(':')[0],ME.av.sex);return it?`<div class="shop-worn-row"><span class="shop-worn-thumb" aria-hidden="true">${partThumb(c.k,it.shape,it.ci,64,ME.av.sex)}</span><span><small>${c.n}</small><b>${esc(it.name)}</b></span><span class="shop-worn-check" aria-label="착용 중">✓</span></div>`:'';}).join('')}</div>`;
+    if(!S.sel){ box.innerHTML = worn()+`<p class="hint shop-fitting-note">옷을 누르면 바로 입어 볼 수 있어요.<br>마음에 들면 구매하거나 갈아입어요.</p>`;
       return;
     }
     if(S.sel==='__none'){
@@ -3486,7 +3488,7 @@ SCREENS.shop = function(st,arg){
         : `<button class="btn y" style="width:100%" id="btnBuy" ${(ME.gold||0)<it.price?'disabled':''}>
              ${(ME.gold||0)<it.price?'골드가 모자라요':'사기 · '+it.price.toLocaleString()+'골드'}</button>`}</div>
       ${(!own && (ME.gold||0)<it.price)? `<div class="hint mt8" style="color:#c0392b">
-        ${(it.price-(ME.gold||0)).toLocaleString()}골드가 더 있어야 해요. 퀴즈를 더 풀어 보세요!</div>`:''}`;
+        ${(it.price-(ME.gold||0)).toLocaleString()}골드가 더 있어야 해요. 퀴즈를 더 풀어 보세요!</div>`:''}${worn()}`;
     const wear = ()=>{if(!canChangeAvatar())return false;const av=applyCatalogItem(ME.av,it);
       ME.av=av; save({av}); S.pv=Object.assign({},av); paintPv(); paintGrid(); paintInfo();return true; };
     const bw = el('btnWear'); if(bw) bw.onclick = ()=>{ if(wear())toast('입었어요!'); };

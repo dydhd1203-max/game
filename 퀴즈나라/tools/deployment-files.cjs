@@ -19,7 +19,7 @@ module.exports=[
   '_headers',
   'index.html','avatar-image.js','assets/avatar-file-data.js','avatar-pixel.js','avatar-clothes.js','avatar-effects.js','avatar-pets.js','avatar-shoes.js','qplay.css','button-feedback.css','demo.js',
   'candy-controls.css','candy-panels.css','candy-game.css','ui-icons.js',
-  'game-typography.css','forest-village-theme.css','shop-village.css','readability.css',
+  'game-typography.css','forest-village-theme.css','shop-village.css','assets/starlight-shop.png','assets/starlight-shop-buttons.png','readability.css',
   'assets/forest-village-library/original-resolution/maps/plaza.png',
   'assets/forest-village-library/original-resolution/maps/garden.png',
   'assets/forest-village-library/original-resolution/maps/treehouse.png',

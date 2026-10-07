@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-07T05:52:05.346Z",
+  "builtAt": "2026-10-07T11:00:42.250Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -106,8 +106,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 324447,
-      "sha256": "f0c0f5dd02e1a531032335637a47dec0501ada344b5694c6e83c35e85ed69267"
+      "bytes": 327021,
+      "sha256": "12f1a58a67cee08f5c360428ec80c7ac04bd90b0355e478cfca3f2d3f60cfaf7"
     },
     {
       "path": "avatar-image.js",
@@ -121,8 +121,8 @@
     },
     {
       "path": "avatar-pixel.js",
-      "bytes": 110117,
-      "sha256": "9acfdff3b2827e94539c80dee18dd5e781b7a4b461c6966df909f264a3440ad9"
+      "bytes": 110172,
+      "sha256": "fc03d4db0fdb40ff5d969eeac3b3b33b3497057aada0b6c9c1edc6be542085a5"
     },
     {
       "path": "avatar-clothes.js",
@@ -191,8 +191,18 @@
     },
     {
       "path": "shop-village.css",
-      "bytes": 15798,
-      "sha256": "d100b9c7baa3b03aaefe97142fa7a74cbfc610bfb1e3ea5b1c03d654b8c025b9"
+      "bytes": 27754,
+      "sha256": "dc682853d69e4511cc25b15948ade57f9d9864afab0d8a9a96d0a44dc2dfc5ef"
+    },
+    {
+      "path": "assets/starlight-shop.png",
+      "bytes": 1961104,
+      "sha256": "adc840f1acf0c64cb29c64ebeb84247562dea1768aee94026272ddb311a81193"
+    },
+    {
+      "path": "assets/starlight-shop-buttons.png",
+      "bytes": 1539930,
+      "sha256": "8077435b352416c34c05669418b1b32cb09ac737cc082e606c1eae91019c76d9"
     },
     {
       "path": "readability.css",
