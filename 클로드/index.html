@@ -2027,6 +2027,10 @@ label.f{font-size:14px} .hint{font-size:13px} #hint{font-size:13px} #feed{font-s
 @keyframes cntPop{0%{opacity:0;transform:translate(-50%,-50%) scale(3) rotate(-14deg)}16%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(-5deg)}70%{opacity:1;transform:translate(-50%,-50%) scale(1.06) rotate(-5deg)}100%{opacity:0;transform:translate(-50%,-50%) scale(.8) rotate(-5deg)}}
 #fearVig{position:absolute;inset:0;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center, rgba(0,0,0,0) 42%, rgba(30,0,8,.55) 75%, rgba(12,0,4,.92) 100%);z-index:3;
   will-change:opacity}   /* 89차 — JS 가 매 프레임 opacity 를 쓰므로 합성기 층으로 올린다(안 그러면 전면 그라디언트가 매 프레임 다시 그려진다) · 그림 동일 */
+/* 99차 — 전체 화면 DOM 덮개(맞음 번쩍·잘함 번쩍·무서움 비네트·수정 위험)는 더 이상 DOM 으로 안 그린다. 98차 배터리 표: 수정을 맞을 때마다 0.5초마다 켜지던
+   #dmgFlash 층을 끄자 GPU 19.2→10.2ms(프레임 38.6→17.1), HUD 를 숨기자 15.3→12.3 — 캔버스 위에 겹친 DOM 층이 합성 값을 키운다. 네 덮개는 vigPass 가
+   WebGL 덮개 한 장(삼각형 2개)으로 같은 모양을 그린다. 요소·클래스·opacity 쓰기는 그대로 둔다(검사 t22·t36 이 값으로 본다) — display:none 이라 합성 값은 0 */
+#dmgFlash,#goodFlash,#fearVig,#danger{display:none!important}
 @media (max-width:820px){ #feed{font-size:12px} }
 /* ══════════════════ 밝은 모험 UI · 2026-09 ══════════════════
    크림 판·하늘색 단추·민트 선택색과 남색 글자. 기존 HUD 위치·핫바 치수는 보존한다.
@@ -4345,7 +4349,7 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
    같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '98차 · 몰림 측정줄(수정 칠 때 — CPU 전체·번쩍·숫자·막대)';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '99차 · 화면 덮개를 WebGL 로(번쩍·무서움·위험) + HUD 줄';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -6526,6 +6530,64 @@ function gunGlowCompose(){
   renderer.setScissor(glowScissorOld);renderer.setScissorTest(st);
   renderer.autoClear = ac;
 }
+/* ═══ 99차 — 화면 덮개(비네트) 패스 ═══
+   맞음 번쩍(빨강·가장자리 안쪽 100px)·잘함 번쩍(초록 110px·색 인자)·무서움 비네트(가운데 투명 → 가장자리 검붉음)·수정 위험(130px 붉음, 맥박)을
+   WebGL 덮개 한 장으로 그린다. 예전 DOM 덮개(#dmgFlash 등)는 전체 화면 box-shadow 층이라 켜질 때마다 합성기가 전면 층을 새로 올렸고,
+   98차 배터리 표에서 그것만 꺼도 GPU 가 9ms 줄었다. 여기선 텍스처 없이 거리 계산만 하는 조각 셰이더 — 덮개가 다 0 이면 그리지도 않는다.
+   값은 DOM 과 같게: 안쪽 그림자(blur B)는 가장자리에서 0.5 → B 안쪽에서 0 · 무서움은 CSS radial-gradient 의 세 색 구간 · 위험은 pulseD(.32~.72, 1.5초)/pulseU(.16~.94, .46초). */
+const VIG = {a:0, hold:0, up:.2, down:.35, col:new THREE.Color(1,0,0), str:.7,          // 맞음 번쩍
+             ga:0, ghold:0, gcol:new THREE.Color(60/255,230/255,120/255), gstr:.75,      // 잘함 번쩍
+             fear:0, dOn:false, dUr:false, dA:0, dT:0,                                   // 무서움 · 위험
+             mat:null, scene:null, cam:null, drew:false};
+function vigInit(){
+  if(VIG.mat) return;
+  VIG.mat = new THREE.RawShaderMaterial({
+    uniforms:{uRes:{value:new THREE.Vector2(1,1)}, uFC:{value:VIG.col}, uFA:{value:0}, uGC:{value:VIG.gcol}, uGA:{value:0},
+              uDA:{value:0}, uDB:{value:130}, uFear:{value:0}},
+    vertexShader: 'precision highp float;\nattribute vec3 position;\nattribute vec2 uv;\n' + FS_VERT,
+    fragmentShader:`precision highp float;
+      uniform vec2 uRes; uniform vec3 uFC; uniform float uFA; uniform vec3 uGC; uniform float uGA; uniform float uDA, uDB, uFear; varying vec2 vUv;
+      float inset(float B){ vec2 p = vUv*uRes; float e = min(min(p.x, uRes.x-p.x), min(p.y, uRes.y-p.y)); return 0.5*(1.0 - smoothstep(0.0, 1.0, e/B)); }
+      void main(){
+        vec4 acc = vec4(0.0);
+        /* 무서움 — ellipse at center, farthest-corner: 모서리가 t=1 */
+        float t = length((vUv - 0.5)*2.0)/1.41421356;
+        vec4 fc = t < 0.42 ? vec4(0.0) : t < 0.75 ? mix(vec4(0.0), vec4(30.0/255.0, 0.0, 8.0/255.0, 0.55), (t-0.42)/0.33)
+                                                   : mix(vec4(30.0/255.0, 0.0, 8.0/255.0, 0.55), vec4(12.0/255.0, 0.0, 4.0/255.0, 0.92), clamp((t-0.75)/0.25, 0.0, 1.0));
+        float fa = fc.a*uFear; acc = vec4(fc.rgb*fa, fa);
+        /* 수정 위험 — inset 130px(비상 175px) rgba(200,0,0,.75) × 맥박 */
+        float da = inset(uDB)*0.75*uDA; acc = vec4(200.0/255.0, 0.0, 0.0, 1.0)*da + acc*(1.0-da);
+        /* 맞음 번쩍 — inset 100px */
+        float ra = inset(100.0)*uFA;    acc = vec4(uFC, 1.0)*ra + acc*(1.0-ra);
+        /* 잘함 번쩍 — inset 110px */
+        float ga = inset(110.0)*uGA;    acc = vec4(uGC, 1.0)*ga + acc*(1.0-ga);
+        gl_FragColor = acc;   /* 미리 곱한 알파 */
+      }`,
+    transparent:true, depthTest:false, depthWrite:false, premultipliedAlpha:true});
+  const q = new THREE.Mesh(new THREE.PlaneGeometry(2,2), VIG.mat); q.frustumCulled = false;
+  VIG.scene = new THREE.Scene(); VIG.scene.add(q); VIG.cam = new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+}
+function vigTick(dt){
+  if(VIG.hold > 0){ VIG.hold -= dt; VIG.a = Math.min(1, VIG.a + dt/VIG.up); } else if(VIG.a > 0) VIG.a = Math.max(0, VIG.a - dt/VIG.down);
+  if(VIG.ghold > 0){ VIG.ghold -= dt; VIG.ga = Math.min(1, VIG.ga + dt/.3); } else if(VIG.ga > 0) VIG.ga = Math.max(0, VIG.ga - dt/.3);
+  if(VIG.dOn){ VIG.dT += dt; const per = VIG.dUr ? .46 : 1.5, k = .5 - .5*Math.cos(VIG.dT/per*Math.PI*2);
+               VIG.dA = VIG.dUr ? .16 + .78*k : .32 + .40*k; }
+  else if(VIG.dA > 0){ VIG.dA = Math.max(0, VIG.dA - dt/.6); VIG.dT = 0; }   // .on 이 풀리면 transition .6s 로 사라진다
+}
+function vigPass(){
+  VIG.drew = false;
+  if(DBG.noVig) return;                                                     // 99차 진단 '화면 덮개 안 그림'
+  const fa = VIG.a*VIG.str, ga = VIG.ga*VIG.gstr;
+  if(fa <= 0.002 && ga <= 0.002 && VIG.fear <= 0.002 && VIG.dA <= 0.002) return;
+  vigInit();
+  const u = VIG.mat.uniforms;
+  u.uRes.value.set(innerWidth, innerHeight); u.uFA.value = fa; u.uGA.value = ga; u.uFear.value = VIG.fear;
+  u.uDA.value = VIG.dA; u.uDB.value = VIG.dUr ? 175 : 130;
+  renderer.setRenderTarget(null);
+  const ac = renderer.autoClear; renderer.autoClear = false;
+  renderer.render(VIG.scene, VIG.cam);
+  renderer.autoClear = ac; VIG.drew = true;
+}
 /* 한 프레임을 화면에 내놓는 유일한 자리. 빛 번짐이 꺼져 있으면 예전처럼 곧장 그린다. */
 /* 69차 — ?diag=1 이면 renderer.info 를 프레임 단위로 센다(autoReset 끔 · drawFrame 머리에서 reset). 예전엔 render() 마다 지워져
    진단 화면의 드로우콜이 마지막 합성 패스(1~2)만 보였다. 검사 ⑩ 도 이 값을 읽는다 */
@@ -6536,7 +6598,7 @@ function drawFrame(){
     scene.traverseVisible(o=>{ const m = o.material; if(m && !Array.isArray(m) && m.transparent) hid.push(o); });
     for(const o of hid) o.visible = false; DBG.noTransp = false; drawFrame(); DBG.noTransp = true; for(const o of hid) o.visible = true; return; }
   if(INFO_FRAME) renderer.info.reset();
-  if(!GFX.bloom || DBG.noBloom){ renderer.setRenderTarget(null); renderer.render(scene, camera); gunGlowPass(); return; }
+  if(!GFX.bloom || DBG.noBloom){ renderer.setRenderTarget(null); renderer.render(scene, camera); gunGlowPass(); vigPass(); return; }   // 99차 — 화면 덮개
   bloomInit();
   renderer.setRenderTarget(rtScene); renderer.render(scene, camera);
   mBright.uniforms.tD.value = rtScene.texture;                       fsPass(mBright, rtA);
@@ -6548,6 +6610,7 @@ function drawFrame(){
      그게 두 길(빛번짐 켬/끔)의 색이 어긋나던 원인이었다. */
   fsPass(mComp, null);
   gunGlowPass();
+  vigPass();   // 99차 — 화면 덮개(맨 위)
 }
 
 /* ═══════════════════════ 인스턴스 뱅크 (정적 월드) ═══════════════════════ */
@@ -25072,7 +25135,8 @@ function fearTick(dt){
   if(!_fvEl) _fvEl = document.getElementById('fearVig');
   if(_fvEl){ const pulse = 1 + Math.max(0, Math.sin(heartT*Math.PI*2/1.0))*0.18;
     const op = fearK > 0 ? (fearK*0.62*pulse).toFixed(3) : '0';
-    if(op !== _fvOp){ _fvOp = op; _fvEl.style.opacity = op; } }
+    if(op !== _fvOp){ _fvOp = op; _fvEl.style.opacity = op; }
+    VIG.fear = +op; }   // 99차 — WebGL 덮개가 그린다(DOM 은 display:none)
   heartT -= dt;
   if(fearK > 0.15 && heartT <= 0 && nw){ heartT = 1.15 - fearK*0.5; sfxFrom('heart', nw.x, nw.z, 0.5 + fearK*0.7); }
 }
@@ -25136,11 +25200,16 @@ function say(msg){
   if(net && G.host) net.child('say').set({n:++sayN, m:msg});
 }
 function flash(){ const f = el('dmgFlash'); f.style.opacity = 1;
-  setTimeout(()=> f.style.opacity = 0, 90); }
+  setTimeout(()=> f.style.opacity = 0, 90);
+  VIG.hold = .09; VIG.up = .2; VIG.down = .35; VIG.col.set(1,0,0); VIG.str = .7; }   // 99차 — WebGL 덮개(DOM 은 display:none)
 /* 잘했을 때의 초록 번쩍 */
 function goodFlash(ms, css){ const f = el('goodFlash'); if(!f) return; f.style.opacity = 1;
   f.style.boxShadow = css ? `inset 0 0 110px ${css}` : '';          // 69차 — 색 인자(강화 성공은 단계 색). 없으면 지금 초록
-  setTimeout(()=> f.style.opacity = 0, ms || 110); }
+  setTimeout(()=> f.style.opacity = 0, ms || 110);
+  /* 99차 — WebGL 덮개. css 는 '#rrggbb' 또는 '#rrggbbaa'(강화 단계 색 + 'bf') */
+  VIG.ghold = (ms || 110)/1000;
+  if(css && /^#[0-9a-f]{6}([0-9a-f]{2})?$/i.test(css)){ VIG.gcol.set(css.slice(0,7)); VIG.gstr = css.length > 7 ? parseInt(css.slice(7,9),16)/255 : .75; }
+  else { VIG.gcol.setRGB(60/255, 230/255, 120/255); VIG.gstr = .75; } }
 
 let verdictN = 0;
 function verdict(good, ico, tx, opt){
@@ -33155,6 +33224,7 @@ function updDanger(){
 }
 /* 81차 — 초당 8번: 투명도·on·urgent 를 지금 값과 다를 때만 쓴다(최종 상태는 예전과 같다) */
 function dangerSet(d, op, on, ur){
+  VIG.dOn = on; VIG.dUr = ur;   // 99차 — WebGL 덮개(맥박은 vigTick)
   if(d.style.opacity !== op) d.style.opacity = op;
   if(d.classList.contains('urgent') !== ur) d.classList.toggle('urgent', ur);
   if(d.classList.contains('on') !== on) d.classList.toggle('on', on);
@@ -35033,7 +35103,7 @@ function loop(){
   }
   if(G.phase==='intro')storyTick78(elapsed);
   if(pregame78())held.visible=false;
-  updClouds(dt);
+  updClouds(dt); vigTick(dt);   // 99차 — 화면 덮개 값
   if(PROF_ON){ pS(); gpuBegin(); }
   /* ★ 상인·대장장이는 시작 화면에서도 서 있어야 한다 — G.started 밖에서 그린다.
      조각이 마흔여덟 개뿐이라 값은 거의 안 든다(뱅크 하나, 그리기 한 번). */
@@ -35072,7 +35142,8 @@ const DBG = { noRender:false, noLogic:false, noZombie:false, zlodOff:false, zlod
               noTransp:false, noBlob:false, hudHide:false, noVoice:false,   // 85차 — 투명한 것 안 그림 · 발밑 그림자 끔 · HUD 화면에서 숨김 · 좀비 소리 끔
               noBeam:false, noGG:false,       // 90차 — 수정 빛기둥 끔 · 든 총 빛번짐(gunGlowPass) 끔 — 투명 7.7ms 가 어디 것인지 가르는 줄
               lodOff:false, hideCat:null, noDisp:false,   // 92차 — 먼 조각 단순화 끔 · 갈래(Set) 안 그림 · 진열 총 안 그림
-              noHit:false,                    // 98차 — 수정 맞을 때 번쩍(dmgFlash 화면 전체 층)·카메라 흔들림·수정 HUD 흔들림 끔(몰려서 칠 때 0.5초마다 돈다)
+              noHit:false,                    // 98차
+              noVig:false,                    // 99차 — 화면 덮개(WebGL 비네트) 안 그림 — 수정 맞을 때 번쩍(dmgFlash 화면 전체 층)·카메라 흔들림·수정 HUD 흔들림 끔(몰려서 칠 때 0.5초마다 돈다)
               noFog:false, noSky:false,       // 97차 — 안개 끔(near·far 를 멀리) · 하늘 돔 안 그림 — 화면 전체를 덮는 면의 픽셀 몫
               slowNet:false,    // 전송 횟수를 초당 13회 -> 6회로 줄이기 — 짝비교용
               shFreeze:false }; // 81차 — 진단 '그림자 다시그리기 멈춤': 그림자 지도를 한 장도 새로 안 그린다(SH_HZ 가 있어도)
@@ -35235,15 +35306,17 @@ if(new URLSearchParams(location.search).has('diag')){
        가르려고 줄마다 JS전체·프레임 간격·브라우저 시간을 같이 찍고, 줄은 CPU 쪽으로 바꿨다(화소 줄은 &sweep=all 에 그대로). 9줄·19창·약 56초 */
     /* 98차 — 선생님: "좀비가 나올 때는 안 떨어지고, 다 몰려서 수정 칠 때 크게 떨어진다" → 몰려서 칠 때 도는 것을 줄로: 수정 맞을 때 번쩍(화면 전체 DOM 층 0.35초 전환이 0.5초마다)·
        카메라 흔들림 · 뜨는 숫자(탑이 몰린 좀비를 때림) · 체력막대 · 좀비 안 그림(가까운 33마리 전부 고해상) · 시뮬(밀어내기·길찾기). 창마다 근접·수정치기 수를 남긴다. 10줄·21창·약 62초 */
+    /* 99차 — 98차 표(몰린 상태·수정치기 33): JS전체 4~5ms 라 CPU 줄은 다 잡음, 좀비·성곽을 빼도 GPU 가 안 줄었다. 빨라진 창은 '수정 번쩍·흔들림 끔'(GPU 19.2→10.2)과
+       'HUD 숨김'(15.3→12.3) 뒤뿐 — 캔버스 위 DOM 층. 번쩍·무서움·위험 덮개를 WebGL 로 옮겼으니 이번엔 DOM 쪽을 조각내 본다. 10줄·21창·약 62초 */
     C('화면그리기 끔', ()=>{DBG.noRender=true;}),
     C('게임로직 통째로 끔', ()=>{DBG.noLogic=true;}),
-    C('시뮬·통신 끔',  ()=>{DBG.noSim=true;}),
-    C('캐릭터갱신 끔', ()=>{DBG.noInst=true;}),
-    C('좀비 안 그림',       ()=>{DBG.noZombie=true;}),
     C('수정 번쩍·흔들림 끔', ()=>{DBG.noHit=true;}),
+    C('화면 덮개 안 그림',   ()=>{DBG.noVig=true;}),
     C('뜨는 숫자 끔',       ()=>{DBG.noNum=true;}),
-    C('좀비 체력막대 끔',   ()=>{DBG.noHPBar=true;}),
-    C('성곽·성문 안 그림',   ()=>{DBG.hideCat=new Set(['castle','gate','castleIn']);}),
+    C('CSS 애니 멈춤',      ()=>{ document.body.classList.add('noAnim93'); }),
+    C('위쪽 HUD 숨김',      ()=>hidePart(['topLeft','topMid','topRight','topRight2','nightCard','feed'])),
+    C('전투 HUD 숨김',      ()=>hidePart(['combatHud79','crosshair','aimInfo','look','dmgLayer'])),
+    C('아래 HUD 숨김',      ()=>hidePart(['dock','toast'])),
     C_HUD(),                                        // 두 번 재서 둘이 다르면 잡음임을 바로 보이게
   ];
   /* ★ 항목마다 바로 직전에 기준을 다시 잰다.
@@ -35681,7 +35754,7 @@ Object.assign(window, {
     병사:[S_body,S_bodyA,S_head,S_legs,S_spear,S_helm,S_tip,S_face,S_crest,S_shield,S_hat,S_orb],
     상인:Object.values(NPC_BANK79)}),
   __KIT:KIT, __WEAPONS:WEAPONS, __ARMORS:ARMORS, __POTIONS:POTIONS,
-  __SFX_KEYS:()=>Object.keys(SFX), __verdict:verdict, __goodFlash:goodFlash,
+  __SFX_KEYS:()=>Object.keys(SFX), __verdict:verdict, __goodFlash:goodFlash, __vig99:()=>VIG,
   __buyWeapon:buyWeapon, __buyArmor:buyArmor, __buyAmmo:buyAmmo,
   __buyPotion:buyPotion, __usePotion:usePotion, __openShop:openShop,
   __shopXZ:()=>[SHOP_X, SHOP_Z], __shopOpenable:shopOpenable,
