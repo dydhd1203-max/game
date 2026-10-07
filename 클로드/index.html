@@ -4262,6 +4262,8 @@ body.waiting78 #hud,body.story78 #hud{visibility:hidden!important}body.waiting78
     <button class="btn sm" id="tLvJob">✨ 전직 레벨로 (15 → 30)</button>
     <button class="btn sm warn" id="tReset">🔄 처음부터</button>
   </div>
+  <h3>📈 지난 밤 성능 — 저절로 기록됩니다 (캡처해서 보내 주세요)</h3>
+  <pre id="tPerf" style="font:12px/1.45 ui-monospace,Consolas,monospace;white-space:pre-wrap;max-height:240px;overflow:auto;background:rgba(0,0,0,.22);padding:8px 10px;border-radius:8px;margin:0 0 10px"></pre>
   <h3>☁️ 통통! 구름 운동회</h3>
   <div class="hgrid">
     <div class="hrow"><i>🏃</i><div><b>Shift 를 누르면 달립니다.</b> 3초 달리면 숨이 차고 4초 쉬면 다시 찹니다 — 마을에서도 똑같이 달릴 수 있어요.</div></div>
@@ -4329,7 +4331,7 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
    같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '101차 · 정리(안 쓰는 코드·자동 해상도·DOM 덮개 잔재 제거)';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '102차 · 밤 성능 자동 기록(선생님 패널) + 시간은 늘 잰다';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -6567,6 +6569,50 @@ function vigPass(){
   renderer.render(VIG.scene, VIG.cam);
   renderer.autoClear = ac; VIG.drew = true;
 }
+/* ═══ 102차 — 밤 성능 자동 기록 ═══
+   선생님: "교실에서 해봤는데 재지는 못했어". 측정 모드(?diag=1·Shift+9)를 안 켜도 밤마다 5초에 한 번
+   fps·JS·브라우저·GPU·좀비·근접·수정치기·친구·CSS 애니·콜·삼각형을 조용히 적어 두고, 선생님 패널에서 '지난 밤 성능' 으로 본다.
+   세 밤까지 localStorage 에 남긴다(수업 끝나고 캡처해도 된다). 값: 5초마다 숫자 열두 개 — 느끼지 못한다. */
+let recCalls = 0, recTris = 0;
+const REC = {cur:null, nights:[], acc:0};
+try{ const v = JSON.parse(localStorage.getItem('nightRec102') || 'null'); if(Array.isArray(v)) REC.nights = v.slice(-3); }catch(e){}
+function recTick(dt){
+  const night = G.started && G.phase === 'night';
+  if(night && !REC.cur){ const d = new Date();
+    REC.cur = {day:G.day, at:String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'), ver:GAME_VER.split(' ')[0],
+               pr:+renderer.getPixelRatio().toFixed(2), aa:GFX.aa, bat:'', s:[]};
+    REC.acc = 4.5;
+    try{ if(navigator.getBattery) navigator.getBattery().then(b=>{ if(REC.cur) REC.cur.bat = (b.charging ? '전원 ' : '배터리 ') + Math.round(b.level*100) + '%'; }); }catch(e){} }
+  if(!REC.cur) return;
+  REC.acc += dt;
+  if(night && REC.acc >= 5){ REC.acc = 0;
+    let near = 0, atk = 0;
+    for(const w of G.wolves){ if(Math.hypot(w.x - camera.position.x, w.z - camera.position.z) < 12) near++; if(Math.hypot(w.x, w.z) < 4.6) atk++; }
+    let an = 0; try{ an = document.getAnimations().length; }catch(e){}
+    REC.cur.s.push([Math.round(G.set.nightSec - G.t), fpsVal, +cpuLoopMs.toFixed(1), +brMs.toFixed(1), +gpuMs.toFixed(1),
+                    G.wolves.length, near, atk, pcMap.size, an, recCalls, Math.round(recTris/1000)]); }
+  if(!night){
+    if(REC.cur.s.length){ REC.nights.push(REC.cur); while(REC.nights.length > 3) REC.nights.shift();
+      try{ localStorage.setItem('nightRec102', JSON.stringify(REC.nights)); }catch(e){} }
+    REC.cur = null; }
+}
+function recText(){
+  const list = REC.cur && REC.cur.s.length ? [REC.cur, ...REC.nights.slice().reverse()] : REC.nights.slice().reverse();
+  if(!list.length) return '아직 기록된 밤이 없어요. 밤이 지나면 여기 저절로 적힙니다(측정 모드 없이도).';
+  let out = '열: +초 · fps · JS · 브라우저 · GPU(ms) · 좀비 · 근접 · 수정치기 · 친구 · 애니 · 콜 · 삼각형K\n'
+          + '읽는 법: fps 낮은 줄에서 브라우저가 크면 HUD·합성, GPU 가 크면 그리기, JS 가 크면 로직·통신\n';
+  for(const n of list){
+    const S = n.s, fps = S.map(r=>r[1]), avg = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0;
+    const p60 = Math.round(100*fps.filter(f=>f>=55).length/fps.length);
+    out += '\n■ ' + n.day + '일차 밤 ' + n.at + (n === REC.cur ? '(지금)' : '') + ' · ' + n.ver + ' · 그리기 ' + n.pr + ' · AA x' + n.aa + (n.bat ? ' · ' + n.bat : '') + ' · ' + Math.round(S[S.length-1][0]) + '초 · 친구 최대 ' + Math.max(...S.map(r=>r[8])) + '\n'
+         + '  fps 최저 ' + Math.min(...fps) + ' · 평균 ' + Math.round(avg(fps)) + ' · 55 넘는 비율 ' + p60 + '%'
+         + ' | 평균 JS ' + avg(S.map(r=>r[2])).toFixed(1) + ' · 브라우저 ' + avg(S.map(r=>r[3])).toFixed(1) + ' · GPU ' + avg(S.map(r=>r[4])).toFixed(1) + 'ms'
+         + ' | 좀비 최대 ' + Math.max(...S.map(r=>r[5])) + ' · 수정치기 최대 ' + Math.max(...S.map(r=>r[7])) + ' · 애니 최대 ' + Math.max(...S.map(r=>r[9])) + '\n';
+    const worst = S.slice().sort((a,b)=>a[1]-b[1]).slice(0,5).sort((a,b)=>a[0]-b[0]);
+    for(const r of worst) out += '  +' + String(r[0]).padStart(3,' ') + '초  fps' + String(r[1]).padStart(3,' ') + '  JS' + r[2] + ' 브' + r[3] + ' GPU' + r[4] + '  좀비' + r[5] + ' 근접' + r[6] + ' 치기' + r[7] + ' 친구' + r[8] + ' 애니' + r[9] + ' 콜' + r[10] + ' △' + r[11] + 'K\n';
+  }
+  return out;
+}
 /* 한 프레임을 화면에 내놓는 유일한 자리. 빛 번짐이 꺼져 있으면 예전처럼 곧장 그린다. */
 /* 69차 — ?diag=1 이면 renderer.info 를 프레임 단위로 센다(autoReset 끔 · drawFrame 머리에서 reset). 예전엔 render() 마다 지워져
    진단 화면의 드로우콜이 마지막 합성 패스(1~2)만 보였다. 검사 ⑩ 도 이 값을 읽는다 */
@@ -6577,9 +6623,9 @@ function drawFrame(){
     scene.traverseVisible(o=>{ const m = o.material; if(m && !Array.isArray(m) && m.transparent) hid.push(o); });
     for(const o of hid) o.visible = false; DBG.noTransp = false; drawFrame(); DBG.noTransp = true; for(const o of hid) o.visible = true; return; }
   if(INFO_FRAME) renderer.info.reset();
-  if(!GFX.bloom || DBG.noBloom){ renderer.setRenderTarget(null); renderer.render(scene, camera); gunGlowPass(); vigPass(); return; }   // 99차 — 화면 덮개
+  if(!GFX.bloom || DBG.noBloom){ renderer.setRenderTarget(null); renderer.render(scene, camera); recCalls = renderer.info.render.calls; recTris = renderer.info.render.triangles; gunGlowPass(); vigPass(); return; }   // 99차 — 화면 덮개 · 102차 — 본 그리기의 콜·삼각형
   bloomInit();
-  renderer.setRenderTarget(rtScene); renderer.render(scene, camera);
+  renderer.setRenderTarget(rtScene); renderer.render(scene, camera); recCalls = renderer.info.render.calls; recTris = renderer.info.render.triangles;   // 102차
   mBright.uniforms.tD.value = rtScene.texture;                       fsPass(mBright, rtA);
   const px = BLOOM.radius / rtA.width, py = BLOOM.radius / rtA.height;
   mBlur.uniforms.tD.value = rtA.texture; mBlur.uniforms.dir.value.set(px, 0); fsPass(mBlur, rtB);
@@ -33056,6 +33102,7 @@ function paintTeach(){
       ${i+1}모둠 <span style="opacity:.6">(${ppl}명·건물 ${cnt})</span>
       <span class="v gv"><span>🪵${r.w}</span><span>🪨${r.s}</span><span>✨${r.g}</span></span></div>`; }
   el('tGroups').innerHTML = h;
+  { const e = el('tPerf'); if(e) e.textContent = recText(); }   // 102차 — 지난 밤 성능
   let t = '<tr><th>이름</th><th>모둠</th><th style="text-align:right">레벨</th>'
         + '<th style="text-align:right">캔 자원</th><th style="text-align:right">지은 것</th></tr>';
   for(const p of [...pcMap.values()].filter(p=>p.n).sort((a,b)=>(b.mined|0)-(a.mined|0)))
@@ -34761,9 +34808,9 @@ const qE = k=>{ if(PROF_ON) PROF['·'+k] = (PROF['·'+k]||0)*0.9 + (performance.
    15프레임에 한 번만 질의하고, 결과는 몇 프레임 뒤에 읽는다(바로 읽으면 GPU 를 세운다). */
 let gpuExt, gpuQuery = null, gpuOpen = false, gpuMs = 0, gpuN = 0;
 let cpuLoopMs = 0;   // 98차 — rAF 콜백 한 번의 JS 전체 시간(로직·시뮬·HUD·그리기 제출 다 포함). 97차 표: GPU 10ms 인 창도 27fps 라 GPU 말고 어디서 새는지 재야 했다
+let brMs = 0;        // 102차 — rAF 밖 브라우저 시간(합성·GPU 대기 · 지수평균) — 늘 잰다
 let cpuDrawMs = 0;   // 93차 — drawFrame() 호출이 JS(주 스레드)에서 걸린 시간(지수평균 0.9/0.1): 드로우콜 제출·three 의 CPU 몫. GPU 12ms 인데 34fps 라 CPU 쪽을 가른다
 function gpuBegin(){
-  if(!PROF_ON) return;
   if(gpuExt === undefined){ const gl = renderer.getContext();
     gpuExt = gl.getExtension('EXT_disjoint_timer_query_webgl2') || null; }
   if(!gpuExt || gpuQuery) return;
@@ -34773,7 +34820,7 @@ function gpuBegin(){
   gl.beginQuery(gpuExt.TIME_ELAPSED_EXT, gpuQuery); gpuOpen = true;
 }
 function gpuEnd(){
-  if(!PROF_ON || !gpuExt) return;
+  if(!gpuExt) return;
   const gl = renderer.getContext();
   if(gpuOpen){ gl.endQuery(gpuExt.TIME_ELAPSED_EXT); gpuOpen = false; return; }
   if(gpuQuery && gl.getQueryParameter(gpuQuery, gl.QUERY_RESULT_AVAILABLE)){
@@ -34847,14 +34894,11 @@ function loop(){
   const elapsed = Math.max(0, now - last); last = now;
   const dt = Math.min(0.05, elapsed), motionDt = Math.min(0.25, elapsed); tAcc += motionDt;
   fpsN++; fpsT += elapsed; if(fpsT>0.5){ fpsVal = Math.round(fpsN/fpsT); fpsN=0; fpsT=0; }
-  if(PROF_ON){
-    frameMs = frameMs*0.9 + elapsed*1000*0.1;
-    frameTally(elapsed*1000);
-    /* ★ rAF 콜백 밖에서 브라우저가 쓰는 시간. 여기에 HUD 의 DOM 레이아웃·그리기,
-       화면 합성, GPU 대기, 쓰레기 수거가 다 들어간다. 이걸 안 재면 어디로 샜는지 모른다. */
-    if(loopEnd) PROF['브라우저작업'] = (PROF['브라우저작업']||0)*0.9
-                                     + (performance.now()-loopEnd)*0.1;
-  }
+  frameMs = frameMs*0.9 + elapsed*1000*0.1;   // 102차 — 진단 모드가 아니어도 늘 잰다(밤 성능 기록용 · performance.now 둘뿐이라 값은 없다)
+  /* ★ rAF 콜백 밖에서 브라우저가 쓰는 시간. 여기에 HUD 의 DOM 레이아웃·그리기,
+     화면 합성, GPU 대기, 쓰레기 수거가 다 들어간다. 이걸 안 재면 어디로 샜는지 모른다. */
+  if(loopEnd) brMs = brMs*0.9 + (_l0 - loopEnd)*0.1;
+  if(PROF_ON){ frameTally(elapsed*1000); PROF['브라우저작업'] = brMs; }
 
   if(pvw) pvwTick(dt);          // Only an open waiting-room wardrobe draws the reused front preview.
   if(!G.started) bgmLoop(dt);   // 66차 — 대기실 배경음(게임 전)
@@ -35035,7 +35079,7 @@ function loop(){
   if(G.phase==='intro')storyTick78(elapsed);
   if(pregame78())held.visible=false;
   updClouds(dt); vigTick(dt);   // 99차 — 화면 덮개 값
-  if(PROF_ON){ pS(); gpuBegin(); }
+  if(PROF_ON) pS(); gpuBegin();   // 102차 — GPU 시간은 진단 모드가 아니어도 잰다(15프레임에 한 번 질의)
   /* ★ 상인·대장장이는 시작 화면에서도 서 있어야 한다 — G.started 밖에서 그린다.
      조각이 마흔여덟 개뿐이라 값은 거의 안 든다(뱅크 하나, 그리기 한 번). */
   if(!DBG.noInst){ drawNPCs(tAcc); raceDraw(tAcc); }   // 37차 — 경주 코스는 raceDraw 가 움직이는 발판을 그린다
@@ -35044,12 +35088,13 @@ function loop(){
     if(titleSkip81(dt)) scene.updateMatrixWorld();   // 81차 titleSkip — 불투명한 시작 화면 뒤: 그리지 않고 세계 행렬만(그리기가 하던 일 — 다음 프레임 계산이 읽는다)
     else { const t0 = performance.now(); drawFrame(); const ms = performance.now() - t0; cpuDrawMs = cpuDrawMs ? cpuDrawMs*0.9 + ms*0.1 : ms; } }   // 93차 — CPU 그리기 시간
   else renderer.clear();          // 화면이 얼어붙은 걸로 안 보이게 (거의 공짜다)
-  if(PROF_ON){ gpuEnd(); pE('★그리기'); }
+  gpuEnd(); if(PROF_ON) pE('★그리기');
   if(window.__sweepTick) window.__sweepTick(elapsed);   // 89차 — 깎이지 않은 경과 시간(0.05 상한을 받으면 느린 창이 빠르게 찍힌다)
   if(diagEl) updDiag(dt);
+  loopEnd = performance.now();
+  cpuLoopMs = cpuLoopMs ? cpuLoopMs*0.9 + (loopEnd - _l0)*0.1 : loopEnd - _l0;   // 98차 — rAF 한 번의 JS 전체(지수평균) · 102차 — 늘 잰다
+  recTick(elapsed);   // 102차 — 밤 성능 기록(깎지 않은 실제 경과 — 느린 기기에서도 5초마다)
   if(PROF_ON){
-    loopEnd = performance.now();
-    cpuLoopMs = cpuLoopMs ? cpuLoopMs*0.9 + (loopEnd - _l0)*0.1 : loopEnd - _l0;   // 98차 — rAF 한 번의 JS 전체(지수평균)
     // 쓰레기 수거 압박 보기 — 초당 몇 MB 를 새로 만들고 있나
     if(performance.memory){
       const mb = performance.memory.usedJSHeapSize/1048576;
@@ -35670,7 +35715,7 @@ Object.assign(window, {
     병사:[S_body,S_bodyA,S_head,S_legs,S_spear,S_helm,S_tip,S_face,S_crest,S_shield,S_hat,S_orb],
     상인:Object.values(NPC_BANK79)}),
   __KIT:KIT, __WEAPONS:WEAPONS, __ARMORS:ARMORS, __POTIONS:POTIONS,
-  __SFX_KEYS:()=>Object.keys(SFX), __verdict:verdict, __goodFlash:goodFlash, __vig99:()=>VIG,
+  __SFX_KEYS:()=>Object.keys(SFX), __verdict:verdict, __goodFlash:goodFlash, __vig99:()=>VIG, __rec102:()=>REC, __recText:recText,
   __buyWeapon:buyWeapon, __buyArmor:buyArmor, __buyAmmo:buyAmmo,
   __buyPotion:buyPotion, __usePotion:usePotion, __openShop:openShop,
   __shopXZ:()=>[SHOP_X, SHOP_Z], __shopOpenable:shopOpenable,
