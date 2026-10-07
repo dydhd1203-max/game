@@ -84,17 +84,18 @@
     html.push('<div class="fv-night-ground"></div>');image('great-treehouse-original','treehouse-composition',0,0,1.8,0);
     const area=(id,p)=>poly(id,p.map(([x,y])=>[X(x),Y(y)]));
     area('tree-root-entry',[[351,741],[594,741],[639,800],[342,800]]);
-    area('native-trunk-ladder',[[554,604],[581,604],[585,801],[554,801]]);
-    area('lower-deck',[[394,554],[583,554],[583,611],[394,611]]);
-    area('deck-stairs',[[530,448],[569,448],[569,567],[530,567]]);
-    area('upper-deck',[[223,390],[434,390],[434,381],[519,381],[520,367],[739,367],[752,450],[614,505],[578,485],[569,457],[296,460],[223,426]]);
-    area('left-reading-room',[[248,298],[430,298],[430,397],[248,397]]);
+    // The painted trunk ladder is a real ladder, not a ground corridor: the
+    // decks, stairs and rooms are one raised level reached by climbing it.
+    const DECK=Math.round((792-598)*1.8),deck=p=>({points:p.map(([x,y])=>[X(x),Y(y)])});
+    s.groundLabel='나무 밑동';s.levels=[{id:'moon-decks',label:'달빛 데크',height:DECK,walkAreas:[deck([[394,554],[583,554],[583,611],[394,611]]),deck([[530,448],[569,448],[569,567],[530,567]]),deck([[223,390],[434,390],[434,381],[519,381],[520,367],[739,367],[752,450],[614,505],[578,485],[569,457],[296,460],[223,426]]),deck([[248,298],[430,298],[430,397],[248,397]])],solids:[]}];
+    s.climbs=[{id:'treehouse-trunk-ladder',label:'달빛 데크로 오르기',downLabel:'나무 밑동으로 내려가기',radius:44,speed:118,points:[{x:X(569),y:Y(792),height:0},{x:X(569),y:Y(598),height:DECK}]}];
+    s.elevatedDepth=0;
     portal('treehouse-village-door','비밀정원으로','forestgarden',X(422),Y(769),{exitAngle:-90,arrival:{x:X(510),y:Y(781)},targetDoor:'grove-treehouse-door'});
-    portal('treehouse-sky-path','하늘섬으로','skyisland',X(677),Y(433),{exitAngle:90,arrival:{x:X(638),y:Y(437)},targetDoor:'sky-treehouse-path',radius:60});
+    portal('treehouse-sky-path','하늘섬으로','skyisland',X(677),Y(433),{exitAngle:90,height:DECK,arrival:{x:X(638),y:Y(437),height:DECK},targetDoor:'sky-treehouse-path',radius:60});
     portal('treehouse-camp-path','별빛 캠핑장','camp',X(612),Y(780),{exitAngle:90,arrival:{x:X(548),y:Y(780)},targetDoor:'camp-treehouse-path',radius:45});
     s.cameraHome={x:X(488),y:Y(529),zoom:.95};s.centerOnPlayer=true;s.exitLabel='마을로 돌아가기';
-    s.previewViews=[{id:'root',label:'큰 나무집 밑동',spawn:s.spawn},{id:'deck',label:'달빛 데크',spawn:{x:X(486),y:Y(425)}},{id:'room',label:'나무 위 방',spawn:{x:X(344),y:Y(350)}}];
-    s.reviewRoutes=[{id:'ladder-and-stairs',from:s.spawn,to:{x:X(677),y:Y(433)}},{id:'reading-room',from:s.spawn,to:{x:X(344),y:Y(350)}}];
+    s.previewViews=[{id:'root',label:'큰 나무집 밑동',spawn:s.spawn},{id:'deck',label:'달빛 데크',spawn:{x:X(486),y:Y(425),height:DECK}},{id:'room',label:'나무 위 방',spawn:{x:X(344),y:Y(350),height:DECK}}];
+    s.reviewRoutes=[{id:'trunk-ladder',from:s.spawn,to:{x:X(569),y:Y(792)}},{id:'deck-stairs',from:{x:X(569),y:Y(598),height:DECK},to:{x:X(677),y:Y(433),height:DECK}},{id:'reading-room',from:{x:X(569),y:Y(598),height:DECK},to:{x:X(344),y:Y(350),height:DECK}}];
     return b.end();
   }
   function skyisland(){
@@ -105,20 +106,31 @@
     area('main-island',[[448,265],[500,243],[579,215],[623,229],[673,248],[769,255],[839,260],[855,285],[898,331],[887,386],[842,423],[755,440],[671,431],[560,444],[464,423],[425,404],[431,339],[421,290]]);
     area('lower-west-island',[[211,354],[265,348],[312,354],[342,337],[389,351],[424,377],[420,416],[380,442],[302,448],[224,430],[202,397]]);
     area('lower-west-connection',[[401,373],[446,373],[446,409],[401,409]]);
-    area('middle-ladder',[[332,281],[351,281],[351,374],[332,374]]);
-    area('upper-west-island',[[92,176],[129,153],[168,173],[198,182],[223,164],[268,153],[297,142],[333,163],[383,178],[414,216],[392,261],[342,283],[263,284],[178,276],[108,254],[90,219]]);
-    area('mushroom-ladder',[[204,140],[222,140],[222,203],[204,203]]);
-    area('mushroom-lookout',[[131,99],[161,83],[206,84],[239,95],[254,122],[239,146],[185,153],[136,137],[121,119]]);
-    area('east-ladder',[[574,122],[591,122],[591,225],[574,225]]);
-    area('east-lookout',[[516,83],[547,73],[585,80],[613,99],[608,116],[575,126],[534,116],[512,102]]);
-    area('return-ladder',[[715,415],[738,415],[738,501],[715,501]]);
-    [[538,378,14],[645,281,16],[195,120,17],[499,398,10],[835,374,10],[803,209,10],[851,261,10],[291,149,7],[99,213,9],[130,238,8],[212,403,10],[160,89,11],[128,95,10]].forEach(([x,y,r],i)=>s.solids.push({id:'sky-native-object-'+i,x:X(x),y:Y(y),radius:r*2.1}));
+    // Each painted ladder climbs a cliff to its own raised place; the return
+    // ladder hangs below the island to the path down to the treehouse.
+    const rise=(bottom,top)=>Math.round((bottom-top)*2.1),UPPER=rise(372,278),MUSHROOM=UPPER+rise(200,143),EAST=rise(222,118),FOOT=-rise(478,428);
+    const place=(id,label,height,p,objects=[])=>({id,label,height,walkAreas:[{id,points:p.map(([x,y])=>[X(x),Y(y)])}],solids:objects.map(([x,y,r],i)=>({id:id+'-object-'+i,x:X(x),y:Y(y),radius:r*2.1}))});
+    s.groundLabel='섬 마당';s.levels=[
+      place('upper-west-island','위쪽 섬',UPPER,[[92,176],[129,153],[168,173],[198,182],[223,164],[268,153],[297,142],[333,163],[383,178],[414,216],[392,261],[342,283],[263,284],[178,276],[108,254],[90,219]],[[291,149,7],[99,213,9],[130,238,8]]),
+      place('mushroom-lookout','버섯 전망대',MUSHROOM,[[131,99],[161,83],[206,84],[239,95],[254,122],[239,146],[185,153],[136,137],[121,119]],[[195,120,17],[160,89,11],[128,95,10]]),
+      place('east-lookout','구름 전망대',EAST,[[516,83],[547,73],[585,80],[613,99],[608,116],[575,126],[534,116],[512,102]]),
+      {...place('return-ladder-foot','나무집으로 가는 길',FOOT,[[713,468],[741,468],[741,492],[713,492]]),allowSit:false}
+    ];
+    const ladder=(id,label,downLabel,x,bottom,top,from,to)=>({id,label,downLabel,radius:42,speed:112,points:[{x:X(x),y:Y(bottom),height:from},{x:X(x),y:Y(top),height:to}]});
+    s.climbs=[
+      ladder('sky-middle-ladder','위쪽 섬으로 오르기','아래 섬으로 내려가기',341.5,372,278,0,UPPER),
+      ladder('sky-mushroom-ladder','버섯 전망대로 오르기','위쪽 섬으로 내려가기',213,200,143,UPPER,MUSHROOM),
+      ladder('sky-east-ladder','구름 전망대로 오르기','큰 섬으로 내려가기',582.5,222,118,0,EAST),
+      {...ladder('sky-return-ladder','나무집 길로 내려가기','큰 섬으로 올라가기',726.5,428,478,0,FOOT),speed:96}
+    ];
+    s.elevatedDepth=0;
+    [[538,378,14],[645,281,16],[499,398,10],[835,374,10],[803,209,10],[851,261,10],[212,403,10]].forEach(([x,y,r],i)=>s.solids.push({id:'sky-native-object-'+i,x:X(x),y:Y(y),radius:r*2.1}));
     // Supplied gift boxes occupy their ground faces, not their entire roofs.
     [[453,218,65,24],[422,250,46,23],[471,264,40,19],[630,202,51,18],[703,202,65,25],[676,230,39,18]].forEach(([x,y,w,h],i)=>s.solids.push({id:'sky-gift-base-'+i,x:X(x),y:Y(y),width:X(w),height:Y(h)}));
-    portal('sky-treehouse-path','나무집으로 내려가기','treehouse',X(727),Y(474),{arrival:{x:X(727),y:Y(446)},targetDoor:'treehouse-sky-path',radius:53});
+    portal('sky-treehouse-path','나무집으로 내려가기','treehouse',X(727),Y(474),{height:FOOT,arrival:{x:X(726.5),y:Y(426)},targetDoor:'treehouse-sky-path',radius:53});
     s.cameraHome={x:X(490),y:Y(292),zoom:.95};s.centerOnPlayer=true;s.exitLabel='마을로 돌아가기';
-    s.previewViews=[{id:'sky-entry',label:'하늘섬 아래 마당',spawn:s.spawn},{id:'mushrooms',label:'큰 버섯 전망대',spawn:{x:X(232),y:Y(117)}},{id:'high-lookout',label:'높은 구름 전망대',spawn:{x:X(565),y:Y(97)}}];
-    s.reviewRoutes=[{id:'large-mushroom',from:s.spawn,to:{x:X(232),y:Y(117)}},{id:'high-lookout',from:s.spawn,to:{x:X(565),y:Y(97)}},{id:'return-ladder',from:s.spawn,to:{x:X(727),y:Y(474)}}];
+    s.previewViews=[{id:'sky-entry',label:'하늘섬 아래 마당',spawn:s.spawn},{id:'mushrooms',label:'큰 버섯 전망대',spawn:{x:X(232),y:Y(117),height:MUSHROOM}},{id:'high-lookout',label:'높은 구름 전망대',spawn:{x:X(565),y:Y(97),height:EAST}}];
+    s.reviewRoutes=[{id:'middle-ladder',from:s.spawn,to:{x:X(341.5),y:Y(372)}},{id:'mushroom-ladder',from:{x:X(341.5),y:Y(278),height:UPPER},to:{x:X(213),y:Y(200),height:UPPER}},{id:'large-mushroom',from:{x:X(213),y:Y(143),height:MUSHROOM},to:{x:X(232),y:Y(117),height:MUSHROOM}},{id:'east-ladder',from:s.spawn,to:{x:X(582.5),y:Y(222)}},{id:'high-lookout',from:{x:X(582.5),y:Y(118),height:EAST},to:{x:X(565),y:Y(97),height:EAST}},{id:'return-ladder',from:s.spawn,to:{x:X(726.5),y:Y(428)}}];
     return b.end();
   }
   function autumnpark(){

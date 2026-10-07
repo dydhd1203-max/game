@@ -28,3 +28,42 @@ console.log('PASS: '+samples+' skeletal samples; fixed sagittal bone lengths, pl
 for(const phase of [.25,.75]){const p=solve({action:'climb',direction:'front',phase});assert.equal(p.direction,'back');assert(p.arms.every(a=>a.elbow[1]>a.wrist[1]),'Climbing elbows must stay below hands');assert((p.arms[0].wrist[1]-p.arms[1].wrist[1])*(p.legs[0].ankle[1]-p.legs[1].ankle[1])<0,'Opposite hand and foot climb together');assert(p.legs.every(l=>!l.contact&&Math.abs(l.knee[0]-l.root[0])<.01));}
 
 for(const phase of [.25,.75])for(const direction of ['front','back']){const pose=solve({action:'run',direction,phase});assert(pose.arms.every(a=>a.wrist[1]<a.elbow[1]),'Running forearms stay folded');}
+
+// Natural motion contracts (2026-10-07). Numbers are pose geometry only; the
+// art itself is reviewed on rendered frames.
+{
+ const at=(action,direction,phase,extra={})=>solve({action,direction,phase,time:0,...extra});
+ // Walk: planted stance for most of the cycle, a lifted swing foot, a real
+ // stride, and the opposite arm swinging forward with the forward leg.
+ const walk=Array.from({length:24},(_,k)=>at('walk','right',k/24));
+ const planted=walk.filter(p=>p.legs[0].contact).length/24;assert(planted>=.45&&planted<=.7,'walk stance share '+planted);
+ assert(Math.max(...walk.map(p=>spec.ankle-p.legs[0].ankle[1]))>=1.1,'walking swing foot clears the ground');
+ assert(walk[0].legs[0].ankle[0]-walk[0].legs[0].root[0]>=1.3,'heel strike lands ahead of the hip');
+ assert(walk[0].arms[1].wrist[0]>walk[0].arms[1].shoulder[0]+.8&&walk[0].arms[0].wrist[0]<walk[0].arms[0].shoulder[0],'arm swings opposite the leading leg');
+ // `contact` means a flat planted foot; rolling onto the toes before toe-off
+ // lifts the ankle slightly but the foot is still on the ground.
+ assert(walk.every(p=>p.legs.some(l=>spec.ankle-l.ankle[1]<=.36)),'a walk always keeps one foot on the ground (planted or rolling off its toes)');
+ // Run: a flight phase with both feet up, a bigger stride and bent elbows.
+ const run=Array.from({length:24},(_,k)=>at('run','right',k/24));
+ assert(run.some(p=>p.legs.every(l=>!l.contact)),'running has a flight phase');
+ assert(Math.max(...run.map(p=>spec.ankle-p.legs[0].ankle[1]))>Math.max(...walk.map(p=>spec.ankle-p.legs[0].ankle[1]))+.6,'running kicks the heel higher than walking');
+ const elbowAngle=a=>{const u=a.boneSpace[1].map((v,i)=>v-a.boneSpace[0][i]),f=a.boneSpace[2].map((v,i)=>v-a.boneSpace[1][i]);return Math.acos(u.reduce((s,v,i)=>s+v*f[i],0)/Math.hypot(...u)/Math.hypot(...f))*180/Math.PI;};
+ for(const direction of ['front','right','back'])for(const p of [0,.25,.5,.75])for(const arm of at('run',direction,p).arms)assert(elbowAngle(arm)>=60,'running elbows stay bent '+direction+' '+p);
+ assert(Math.max(...run.map(p=>p.drop))-Math.min(...run.map(p=>p.drop))>Math.max(...walk.map(p=>p.drop))-Math.min(...walk.map(p=>p.drop)),'running bounces more than walking');
+ // Back and front idle: arms hang beside the torso, hands near the hips.
+ for(const direction of ['front','back']){const p=at('idle',direction,0);for(const [i,a] of p.arms.entries()){assert(Math.abs(a.wrist[0]-16)>3.2,'hanging hand beside the body '+direction);assert(a.wrist[1]>36&&a.wrist[1]<37.6,'hand rests at hip height '+direction);assert(Math.abs(a.depth)<.6,'resting arm in the body plane '+direction+i);}}
+ // Jump: crouch on the ground, tucked feet at the top, reaching down to land.
+ const crouch=solve({action:'jump',direction:'right',grounded:true,time:0}),apex=solve({action:'jump',direction:'right',grounded:false,vy:0,time:0}),landing=solve({action:'jump',direction:'right',grounded:false,vy:-480,time:0});
+ assert(crouch.drop>.5,'take-off crouch');assert(Math.min(...apex.legs.map(l=>spec.ankle-l.ankle[1]))>=1.8,'tucked feet at the apex');assert(Math.max(...landing.legs.map(l=>spec.ankle-l.ankle[1]))<1.2,'feet reach down before landing');
+ // Wave in four views: the hand is raised above the shoulder and the
+ // forearm waves while the upper arm stays up.
+ for(const direction of ['front','right','left','back']){
+  const frames=[.35,.45,.55,.65].map(g=>solve({action:'idle',direction,gesture:'wave',gestureProgress:g,time:0}).arms[1]);
+  for(const a of frames)assert(a.wrist[1]<a.shoulder[1]-2.5,'waving hand above the shoulder '+direction);
+  const spread=k=>Math.max(...frames.map(a=>a[k][0]))-Math.min(...frames.map(a=>a[k][0]))+Math.max(...frames.map(a=>a[k][1]))-Math.min(...frames.map(a=>a[k][1]));
+  assert(spread('wrist')>spread('elbow')*1.5&&spread('wrist')>.6,'the forearm does the waving '+direction);
+ }
+ // Climb: hands alternate above the head, never splaying to the sides.
+ for(const p of [.25,.75]){const c=solve({action:'climb',phase:p,time:0});assert(Math.min(...c.arms.map(a=>a.wrist[1]))<27,'a hand grips above the head');assert(c.arms.every(a=>Math.abs(a.wrist[0]-16)<6),'hands stay on the ladder rails');}
+ console.log('PASS: natural walk/run/idle/jump/wave/climb motion contracts.');
+}
