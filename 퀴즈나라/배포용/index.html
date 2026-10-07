@@ -3247,8 +3247,9 @@ function mountSchoolSpace(st,space,arrival){
     const next=item.target,nextScene=getScene(next);
     if(!nextScene||(next==='playground'&&!nextScene.publicEntryReady)){toast('운동장을 준비하고 있어요.');return;}
     const door=nextScene.interactables?.find(value=>item.targetDoor?value.id===item.targetDoor:value.target===space),point=door?.arrival||door?.approach;
-    if(!point||!window.QPSchoolRoomWorld.createNavigation(nextScene).canStand(point.x,point.y)){toast('출입구 위치를 확인하고 있어요.');return;}
-    go(next,{x:point.x,y:point.y});
+    // A door on a raised deck/lookout arrives on that same level.
+    if(!point||!window.QPSchoolRoomWorld.createNavigation(nextScene,{height:point.height}).canStand(point.x,point.y)){toast('출입구 위치를 확인하고 있어요.');return;}
+    go(next,{x:point.x,y:point.y,height:Number(point.height)||0});
   }
   const presence=window.QPVillagePresence.connect({db:FB.db,base:DBR,classId:window.CLASS_NAME||'3-3',space,
     uid,name:ME.name,avatar:campusAvatar(ME.av),bounds:{width:scene.width,height:scene.height},

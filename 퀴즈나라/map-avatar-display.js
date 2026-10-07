@@ -53,16 +53,18 @@
       [1327,388,59,142,553],[1238,513,72,145,681],[1192,611,77,140,768],[1125,644,67,133,796],
       [13,510,72,111,647],[65,607,65,130,755],[195,672,91,131,817]
     ]},
+    // An optional sixth value is the raised level (scene height) a tree stands on.
     skyisland:{scale:2.1,trees:[
-      [99,143,31,68,220],[131,196,23,49,254],[292,100,23,48,155],[212,335,32,66,413],
+      [99,143,31,68,220,197],[131,196,23,49,254,197],[292,100,23,48,155,197],[212,335,32,66,413],
       [804,165,23,49,225],[851,189,32,68,270],[835,324,23,51,385]
     ]},
     treehouse:{scale:1.8,offsetY:-64,trees:[
-      // Crown lobes surround the rooms; open floors and ladder are not foliage.
-      [474,111,240,123,267],[185,178,55,45,257],[174,263,41,98,383],[124,350,65,89,467],
-      [729,220,114,78,333],[844,363,60,89,476],[777,496,105,117,629],
-      [237,447,91,119,581],[363,472,93,42,530],[487,448,48,64,534],
-      [638,502,36,46,568],[298,565,71,65,652],[682,604,98,113,736]
+      // Crown lobes surround the rooms on the raised deck level; open floors
+      // and the ladder are not foliage.
+      [474,111,240,123,267,349],[185,178,55,45,257,349],[174,263,41,98,383,349],[124,350,65,89,467,349],
+      [729,220,114,78,333,349],[844,363,60,89,476,349],[777,496,105,117,629,349],
+      [237,447,91,119,581,349],[363,472,93,42,530,349],[487,448,48,64,534,349],
+      [638,502,36,46,568,349],[298,565,71,65,652,349],[682,604,98,113,736,349]
     ]},
     village:{scale:1.65,trees:[
       [1307,458,225,259,840],[1294,264,44,86,364],[2085,261,45,111,378],
@@ -89,19 +91,20 @@
   function forScene(scene){
     if(cache.has(scene))return cache.get(scene);
     const data=catalog[scene.zone]||{scale:1,trees:[]},k=data.scale,oy=data.offsetY||0;
-    const trees=data.trees.map(([x,top,rx,h,floor],i)=>{
+    const trees=data.trees.map(([x,top,rx,h,floor,level=0],i)=>{
       const points=outlines[scene.zone]?.[i]?.map(([px,py])=>[px*k,(py+oy)*k]);
-      return {id:scene.zone+'-tree-'+i,cx:x*k,cy:(top+h/2+oy)*k,rx:rx*k,ry:h/2*k,floor:(floor+oy)*k,height:0,points,
+      return {id:scene.zone+'-tree-'+i,cx:x*k,cy:(top+h/2+oy)*k,rx:rx*k,ry:h/2*k,floor:(floor+oy)*k,height:level,points,
         bounds:points?{left:Math.min(...points.map(p=>p[0])),right:Math.max(...points.map(p=>p[0])),top:Math.min(...points.map(p=>p[1])),bottom:Math.max(...points.map(p=>p[1]))}:{left:(x-rx)*k,right:(x+rx)*k,top:(top+oy)*k,bottom:(top+h+oy)*k}};
     });
     const buckets=new Map(),cell=256;
     for(const t of trees)for(let y=Math.floor(t.bounds.top/cell);y<=Math.floor(Math.max(t.floor,t.bounds.bottom)/cell);y++)for(let x=Math.floor(t.bounds.left/cell);x<=Math.floor(t.bounds.right/cell);x++){const id=x+','+y;if(!buckets.has(id))buckets.set(id,[]);buckets.get(id).push(t);}
     function overlaps(p,width,height){
-      if(p.height)return [];
+      // A tree only hides visitors on the same ground or raised level.
+      const level=Number(p.height)||0;
       const left=p.x-width/2,right=p.x+width/2,top=p.y-height,bottom=p.y;
       const seen=new Set(),result=[];
       for(let y=Math.floor(top/cell);y<=Math.floor(bottom/cell);y++)for(let x=Math.floor(left/cell);x<=Math.floor(right/cell);x++)for(const t of buckets.get(x+','+y)||[]){
-        if(seen.has(t.id)||p.y>=t.floor)continue;seen.add(t.id);
+        if(seen.has(t.id)||t.height!==level||p.y>=t.floor)continue;seen.add(t.id);
         const qx=Math.max(left,Math.min(t.cx,right)),qy=Math.max(top,Math.min(t.cy,bottom));
         if(t.points?right>t.bounds.left&&left<t.bounds.right&&bottom>t.bounds.top&&top<t.bounds.bottom:((qx-t.cx)/t.rx)**2+((qy-t.cy)/t.ry)**2<1)result.push(t);
       }

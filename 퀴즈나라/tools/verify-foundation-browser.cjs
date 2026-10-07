@@ -25,8 +25,13 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     check(svg.querySelectorAll('[data-foundation-part]').length===6,'one owner per body part');
     check(svg.querySelectorAll('[data-foundation-skin-paint]').length===5,'one painted neck, two arms and two legs');
     const rig=api.prepare(svg);check(rig.arms.every(a=>a.hand.style.display==='none'),'no duplicate procedural hands');
-    const pose=api.inspect(svg);if(pose.back&&!rig.raised){
-      const children=[...rig.body.children];check(rig.arms.every(a=>children.indexOf(a.parent)<children.indexOf(rig.parts.torso)),'rear arms must stay behind shirt');
+    const pose=api.inspect(svg);if(!pose.profile&&!rig.raised){
+      // Hanging arms beside the torso stay visible from the front and from
+      // behind. Only arms beyond the body plane pass behind the shirt:
+      // seated/climbing hands seen from behind, and an arm swinging away
+      // from the viewer while walking or running.
+      const children=[...rig.body.children],torso=children.indexOf(rig.parts.torso),seated=pose.floor||pose.desk;
+      rig.arms.forEach((a,i)=>{const behind=pose.back&&(seated||pose.action==='climb')||!seated&&['walk','run'].includes(pose.action)&&pose.arms[i].depth<-.9;check(behind===children.indexOf(a.parent)<torso,'arm/shirt depth order '+JSON.stringify({direction,action,frame,arm:i,behind}));});
     }
     for(const node of svg.querySelectorAll('[clip-path]')){const id=node.getAttribute('clip-path').match(/url\(#([^)]*)\)/)?.[1];if(id)check(Boolean(svg.querySelector('[id="'+id+'"]')),'head clip must be self-contained');}
     if(action==='floor-sit'){check(svg.dataset.qpxSeatMode==='floor','floor seat mode');const pose=api.inspect(svg);check(pose.floor&&!pose.desk,'floor and desk distinct');}

@@ -261,7 +261,14 @@
         if(usePortal(portal))break;
       }
     }
-    function walkToPortal(portal){const point=portal.approach||portal;return moveTo(point.x,point.y);}
+    function walkToPortal(portal){
+      const point=portal.approach||portal,level=finite(portal.height);
+      // A door on another level is reached by its ladder: walk to the foot or
+      // top of the nearest ladder that leads toward that level.
+      if(level!==state.height){const ladder=(scene.climbs||[]).flatMap(c=>[c.points,[...c.points].reverse()]).map(points=>({from:points[0],to:points[points.length-1]})).filter(v=>v.from.height===state.height&&Math.abs(v.to.height-level)<Math.abs(state.height-level)).sort((a,b)=>Math.abs(a.to.height-level)-Math.abs(b.to.height-level)||distance(state,a.from)-distance(state,b.from))[0];
+        if(ladder){const moved=moveTo(ladder.from.x,ladder.from.y);if(moved)announce('사다리까지 걸어간 뒤 '+(ladder.to.height>state.height?'↑':'↓')+' 키로 '+(ladder.to.height>state.height?'올라가요.':'내려가요.'));return moved;}}
+      return moveTo(point.x,point.y);
+    }
     for(const portal of portals){
       const point=portal.approach||portal,angle=finite(portal.exitAngle),radians=angle*Math.PI/180;
       const hint=element('button','sr-door-hint');hint.type='button';hint.dataset.srDoorHint=portal.id;
@@ -295,7 +302,7 @@
       while(index<c.lengths.length-1&&remaining>=c.lengths[index])remaining-=c.lengths[index++];
       const a=c.points[index],b=c.points[index+1],t=c.lengths[index]?remaining/c.lengths[index]:1;
       state.x=a.x+(b.x-a.x)*t;state.y=a.y+(b.y-a.y)*t;state.height=a.height+(b.height-a.height)*t;state.moving=Math.abs(c.travel-before)>.001;state.pose='climb';state.direction=c.motion==='walk'?(axis<0?'front':'back'):'back';phase=((state.height/84)%1+1)%1;
-      if(c.progress===1||c.progress===0&&along<0){Object.assign(state,c.progress===1?c.to:c.from,{pose:'idle',moving:false,direction:'back'});nav=navAt(state.height);floorNav=navAt(state.height,true);climbing=null;publish(true);announce(state.height?'나무 데크에 도착했어요. 사다리·계단에서는 ↑↓로 오르내려요.':'광장에 도착했어요.');}
+      if(c.progress===1||c.progress===0&&along<0){Object.assign(state,c.progress===1?c.to:c.from,{pose:'idle',moving:false,direction:'back'});nav=navAt(state.height);floorNav=navAt(state.height,true);climbing=null;publish(true);const place=state.height?scene.levels?.find(l=>l.height===state.height)?.label||'높은 곳':scene.groundLabel||'광장';announce(place+'에 도착했어요. 사다리·계단에서는 ↑↓로 오르내려요.');}
     }
     function enterDoor(){if(dead||blocked()||climbing)return false;const climb=nearbyClimb();return climb?startClimb(climb):false;}
     function interact(){

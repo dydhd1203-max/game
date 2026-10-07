@@ -70,7 +70,23 @@
     components.sort((a,b)=>a.dist-b.dist);
     const faceMask=new Uint8Array(w*h);for(const part of components)if(part===components[0]||part.queue.length<components[0].queue.length*.36&&part.dist<2000)for(const p of part.queue)faceMask[p]=1;
     const nearFace=new Uint8Array(w*h);for(let p=0;p<faceMask.length;p++)if(faceMask[p]){const x=p%w,y=Math.floor(p/w);for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){const xx=x+dx,yy=y+dy;if(xx>=0&&xx<w&&yy>=0&&yy<h)nearFace[yy*w+xx]=1;}}
-    return {eye,faceMask,nearFace};
+    // The ear sits behind the cheek, often cut off from it by a lock of hair.
+    // As a separate skin island it was dyed with the hair colour (an orange
+    // ear), and its pink inner fold or the jaw's warm shadow kept a raw
+    // orange. Inside the ear zone behind the eye, skin islands (with the
+    // strokes they enclose) and bright pink/salmon shading are skin. Hair
+    // there is darker; light hair highlights lie far above the eye.
+    const earMask=new Uint8Array(w*h),earZone=(x,y)=>x-eye.x>-135&&x-eye.x<-35&&y-eye.y>-30&&y-eye.y<85;
+    for(let p=0;p<earMask.length;p++){const x=p%w,y=Math.floor(p/w),i=p*4,r=data[i],g=data[i+1],b=data[i+2];if(data[i+3]>24&&earZone(x,y)&&r>215&&r-g>45)earMask[p]=1;}
+    for(const part of components){if(faceMask[part.queue[0]]||part.queue.length>=components[0].queue.length)continue;let cx=0,cy=0,x0=w,x1=0,y0=h,y1=0;for(const p of part.queue){const x=p%w,y=Math.floor(p/w);cx+=x;cy+=y;x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y);}
+      if(!earZone(cx/part.queue.length,cy/part.queue.length))continue;
+      const island=new Uint8Array(w*h);for(const p of part.queue)island[p]=earMask[p]=1;
+      x0=Math.max(0,x0-2);x1=Math.min(w-1,x1+2);y0=Math.max(0,y0-2);y1=Math.min(h-1,y1+2);const bw=x1-x0+1,outside=new Uint8Array(bw*(y1-y0+1)),queue=[];
+      for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if((x===x0||x===x1||y===y0||y===y1)&&!island[y*w+x]){outside[(y-y0)*bw+x-x0]=1;queue.push([x,y]);}
+      for(let n=0;n<queue.length;n++){const[x,y]=queue[n];for(const[ax,ay]of[[x-1,y],[x+1,y],[x,y-1],[x,y+1]]){if(ax<x0||ax>x1||ay<y0||ay>y1)continue;const k=(ay-y0)*bw+ax-x0;if(outside[k]||island[ay*w+ax])continue;outside[k]=1;queue.push([ax,ay]);}}
+      for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(!outside[(y-y0)*bw+x-x0]&&data[(y*w+x)*4+3]>24)earMask[y*w+x]=1;
+    }
+    return {eye,faceMask,nearFace,earMask};
   }
   async function load(sex){
     const sheet=sheets[sex],img=await window.QPAvatarImage.load(sheet.url),out=[];
@@ -146,7 +162,7 @@
     for(let i=0;i<source.length;i+=4){if(!source[i+3])continue;const p=i/4,r=source[i],g=source[i+1],b=source[i+2],x=p%frame.w,y=Math.floor(p/frame.w);let col=[r,g,b];const inEye=x>eye.left-8&&x<eye.right+8&&y>eye.top-12&&y<eye.bottom+8;
       const wx=frame.geometry.x+x*frame.geometry.scale,wy=frame.geometry.y+y*frame.geometry.scale;
       const neckSkin=wx>13.5&&wx<18.5&&wy>25.3&&wy<29&&r>150&&g>90&&b>80&&g/r>.53&&b/g>.72;
-      if(neckSkin||frame.faceMask[p]||frame.nearFace[p]&&r>140&&g>80&&b>90&&r>g+15&&g<b*1.08){const shade=(r*.22+g*.59+b*.19)/219,warmth=Math.max(0,(r-g-34)/78);col=base.map((v,k)=>clamp(Math.round(v*shade+(k===0?10:k===1?-15:-5)*warmth)));}
+      if(neckSkin||frame.faceMask[p]||frame.earMask?.[p]||frame.nearFace[p]&&r>140&&g>80&&b>90&&r>g+15&&g<b*1.08){const shade=(r*.22+g*.59+b*.19)/219,warmth=Math.max(0,(r-g-34)/78);col=base.map((v,k)=>clamp(Math.round(v*shade+(k===0?10:k===1?-15:-5)*warmth)));}
       else if(!inEye&&r>g*1.025&&g>b*.98&&r-g<117&&g-b<83&&r>24){const lum=r*.25+g*.59+b*.16,gain=lum/102,shine=Math.max(0,lum-160)*.38;col=dye.map(v=>clamp(Math.round(v*gain+shine)));}
       if(inEye&&(expression==='sparkle'||expression==='cat')&&(g>r+7||b>r+9)&&r<184&&g<190&&b<190){const iris=rgb(expression==='cat'?'#e2b654':'#73b9d4'),tone=clamp((r*.24+g*.61+b*.15)/120,.25,1.4);col=iris.map(v=>clamp(Math.round(v*tone)));}
       d[i]=col[0];d[i+1]=col[1];d[i+2]=col[2];d[i+3]=source[i+3];
