@@ -19,7 +19,7 @@
   const definitions={
     shirtFront:{source:'assets/sd-foundation-torso.png',rect:[176,122,610,699],hole:'M355 110H603L600 140Q596 226 482 229Q370 226 357 143Z'},
     shirtBack:{source:'assets/sd-foundation-torso.png',rect:[992,122,610,699]},
-    shirtProfile:{source:'assets/sd-foundation-shirt-profile.png',rect:[380,62,671,1070],hole:'M583 79Q735 113 865 228Q720 184 583 79Z'},
+    shirtProfile:{source:'assets/sd-foundation-shirt-profile-rounded.png',rect:[380,62,671,1070],hole:'M543 93Q715 92 913 149Q744 161 543 108Z'},
     sleeve:{rect:[1180,92,195,269],hole:'M1237 330Q1281 305 1345 312Q1348 330 1306 338Q1262 348 1237 330Z'},
     sleeveFrontLeft:{source:'assets/sd-foundation-sleeves.png',rect:[296,66,307,402]},
     sleeveFrontRight:{source:'assets/sd-foundation-sleeves.png',rect:[846,66,307,402]},

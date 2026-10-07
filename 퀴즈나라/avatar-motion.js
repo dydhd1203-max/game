@@ -26,7 +26,11 @@
     let enabled = opts.enabled !== false, destroyed = false, raf = 0, lastTime = 0, controlId = 0;
     let minX = 0, maxX = 0, firstMeasure = true, poseSVG = null;
     const state = { action: 'idle', facing: opts.facing === 'left' ? 'left' : 'right',
-      x: 0, y: 0, vx: 0, vy: 0, grounded: true, phase: 0, step: 0 };
+      x: 0, y: 0, vx: 0, vy: 0, grounded: true, phase: 0, step: 0,
+      jumpStage: '', jumpCompression: 0 };
+    let jumpTime = 0;
+    const TAKEOFF = .075, LANDING = .14;
+    const ease = t => t * t * (3 - 2 * t);
     let lastNotification = '';
     element.style.position = 'absolute';
     element.style.left = '0px';
@@ -47,7 +51,7 @@
         poseSVG = element.matches('.qp-pixel-avatar') ? element : element.querySelector('.qp-pixel-avatar');
       const applyPose = opts.pose || window.QPAvatarPose?.apply;
       if (applyPose && poseSVG) applyPose(poseSVG, state);
-      const key = `${state.action}/${state.facing}/${pixel(state.x)}/${pixel(state.y)}/${state.grounded}`;
+      const key = `${state.action}/${state.facing}/${pixel(state.x)}/${pixel(state.y)}/${state.grounded}/${state.jumpStage}/${state.jumpCompression.toFixed(2)}`;
       if (key !== lastNotification) {
         lastNotification = key;
         if (typeof opts.onState === 'function') opts.onState(snapshot());
@@ -73,10 +77,11 @@
     function updateAction() {
       const direction = Number(held('right')) - Number(held('left'));
       const sitting = held('sit') && state.grounded;
+      if (sitting) { state.jumpStage = ''; state.jumpCompression = 0; }
       const atEdge=direction<0&&state.x<=minX||direction>0&&state.x>=maxX;
       state.vx = enabled && !sitting && !atEdge ? direction * speed : 0;
       if (state.vx) state.facing = state.vx < 0 ? 'left' : 'right';
-      const action=!state.grounded?'jump':sitting?'sit':state.vx?'walk':'idle';
+      const action=!state.grounded||state.jumpStage?'jump':sitting?'sit':state.vx?'walk':'idle';
       if(action==='walk'&&state.action!=='walk')state.phase=0;
       state.action=action;
       state.step = Math.floor(state.phase * 8) % 8;
@@ -87,9 +92,9 @@
       const wasHeld = held(action), wasSourceHeld = inputs[action].has(source);
       if (pressed) inputs[action].add(source); else inputs[action].delete(source);
       if (action === 'jump' && pressed && !wasSourceHeld && !wasHeld
-          && state.grounded && !held('sit')) {
-        state.vy = jumpSpeed;
-        state.grounded = false;
+          && state.grounded && !held('sit') && state.jumpStage !== 'takeoff') {
+        state.jumpStage = 'takeoff'; jumpTime = 0;
+        state.jumpCompression = 0;
       }
       updateAction();
       paint();
@@ -99,6 +104,9 @@
     function clearInputs(prefix) {
       for (const action of ACTIONS) for (const source of inputs[action])
         if (!prefix || source.startsWith(prefix)) inputs[action].delete(source);
+      if (!prefix && state.jumpStage === 'takeoff') {
+        state.jumpStage = ''; state.jumpCompression = 0;
+      }
       updateAction();
       paint();
     }
@@ -108,14 +116,30 @@
       const dt = lastTime ? clamp((time - lastTime) / 1000, 0, .04) : 0;
       lastTime = time;
       if (enabled && !document.hidden) {
-        if (blocked() && ACTIONS.some(held)) clearInputs();
+        if (blocked() && (ACTIONS.some(held) || state.jumpStage === 'takeoff')) clearInputs();
         updateAction();
+        if (state.jumpStage === 'takeoff') {
+          jumpTime += dt;
+          state.jumpCompression = ease(Math.min(1, jumpTime / TAKEOFF));
+          if (jumpTime >= TAKEOFF) {
+            state.jumpStage = 'air'; state.jumpCompression = 0;
+            state.vy = jumpSpeed; state.grounded = false;
+          }
+        } else if (state.jumpStage === 'landing') {
+          jumpTime += dt;
+          const p = Math.min(1, jumpTime / LANDING);
+          state.jumpCompression = p < .3 ? ease(p / .3) : 1 - ease((p - .3) / .7);
+          if (p === 1) { state.jumpStage = ''; state.jumpCompression = 0; }
+        }
         const oldX=state.x;
         state.x = clamp(state.x + state.vx * dt, minX, maxX);
         if (!state.grounded) {
           state.y += state.vy * dt - gravity * dt * dt / 2;
           state.vy -= gravity * dt;
-          if (state.y <= 0 && state.vy <= 0) { state.y = 0; state.vy = 0; state.grounded = true; }
+          if (state.y <= 0 && state.vy <= 0) {
+            state.y = 0; state.vy = 0; state.grounded = true;
+            state.jumpStage = 'landing'; jumpTime = 0; state.jumpCompression = 0;
+          }
         }
         if (state.action === 'walk') state.phase = (state.phase + Math.abs(state.x-oldX) / stride) % 1;
         updateAction();
@@ -216,6 +240,7 @@
       state.x = clamp(number(position?.x, minX + (maxX - minX) / 2), minX, maxX);
       state.y = 0; state.vx = 0; state.vy = 0; state.grounded = true;
       state.phase = 0; state.step = 0; state.action = 'idle'; lastTime = 0;
+      state.jumpStage = ''; state.jumpCompression = 0; jumpTime = 0;
       if (position?.facing === 'left' || position?.facing === 'right') state.facing = position.facing;
       paint();
     }

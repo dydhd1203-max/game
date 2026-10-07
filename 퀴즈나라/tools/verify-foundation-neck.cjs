@@ -53,7 +53,10 @@ fs.mkdirSync(out,{recursive:true});let browser;const report={success:false,error
     if(view==='profile'){for(const q of sex==='f'?[[16.2,26.05],[16.6,26.2],[16.7,26.4]]:[[15.5,26.4],[16,26.6],[16.5,26.75]]){const a=pixel(full,svg,rig.head,q);check(a[3]>240,'Gap directly below jaw',{...detail,q,a});jawJunction++;}}
     // Three continuous columns from the underside of the head to the collar.
     for(const x of [15.7,16,16.3])for(let y=27.75;y<=29.8;y+=.2){const a=pixel(full,svg,rig.parts.torso,[x,y]);check(a[3]>245,'Chin/collar gap',{...detail,x,y,a});continuity++;}
-    const probes=view==='front'?[[15.6,29.62],[16,29.62],[16.4,29.62]]:view==='profile'?[[15.697,28.954],[16.208,29.221],[16.718,29.544]]:sex==='m'?[[15.4,28.3],[16,28.3],[16.6,28.3]]:[];
+    // Independently traced inside the new shallow profile collar: source
+    // (631,116), (720,128), (807,139), before crop/scale. Old points now
+    // lie on the cream collar itself and must not be classified as skin.
+    const probes=view==='front'?[[15.6,29.62],[16,29.62],[16.4,29.62]]:view==='profile'?[[15.28,28.986],[16.038,29.084],[16.777,29.17]]:sex==='m'?[[15.4,28.3],[16,28.3],[16.6,28.3]]:[];
     for(const q of probes){const a=pixel(full,svg,rig.parts.torso,q),b=pixel(body,svg,rig.parts.torso,q),error=diff(a,b);check(b[3]>245&&error<=20,'Collar must expose the same neck skin',{...detail,q,a,b,error});collar++;worst=Math.max(worst,error);}
     for(const q of alphaRim[sex][view]||[]){const a=pixel(head,svg,rig.head,q);check(a[3]<12,'Old painted neck rim survives',{...detail,q,a});oldRim++;}
     for(const q of protectedPoints[sex][view]){const a=pixel(head,svg,rig.head,q),b=pixel(original,svg,rig.head,q);check(b[3]>200&&diff(a,b)<=2,'Face/hair clipped outside neck',{...detail,q,a,b});protectedPixels++;}

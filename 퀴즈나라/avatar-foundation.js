@@ -13,6 +13,9 @@
   // The thigh top is covered by the shorts; a wider root poked out beside
   // the shorts' curved hip as a pale skin tab.
   const THIGH=1.04;
+  // Reference study (2026-10-07): a wider, soft SD body beneath the same
+  // original head. One presentation scale and limb volume for every outfit.
+  const BODY_SCALE={x:1.55,y:1.593},ARM_RADII=Object.freeze([.96,.82,.59]);
   // Old painted neck-stump strokes under every front portrait, by sex.
   const BACK_HAIR_NECK_CUT={
     f:'M14.45 28.7L14.2 29.1L13.95 29.45L13.7 29.8L13.4 30.3L12.95 30.35L12.6 29.95L12.65 29.5L13.1 29.2L13.5 28.95L13.8 28.7ZM17.55 28.7L17.9 28.7L18.4 28.95L18.95 29.2L19.4 29.5L19.4 29.95L19.05 30.35L18.6 30.3L18.3 29.8L18.05 29.45L17.8 29.1Z',
@@ -55,12 +58,13 @@
     const phase=walk||climb?Math.round(rawPhase*24)%24/24:rawPhase,time=Number.isFinite(input.time)?input.time:0;
     const gait=run?GAIT.run:GAIT.walk,gesture=['wave','nod','happy'].includes(input.gesture)?input.gesture:'',progress=clamp(Number(input.gestureProgress)||0,0,1),envelope=gesture?gestureEnvelope(progress):0;
     const air=jump&&!input.grounded,rise=air?clamp((Number(input.vy)||0)/480,-1,1):0,tuck=air?1-Math.abs(rise)*.72:0,crouch=jump&&!air;
+    const compression=crouch?(Number.isFinite(input.jumpCompression)?clamp(input.jumpCompression,0,1):1):0;
     // Idle breathing: slow, small, and shared by chest, shoulders and arms.
     const breath=(1-Math.cos(time*1.9))/2;
     const hop=gesture==='happy'?Math.abs(Math.sin(progress*Math.PI*3))*envelope:0,nod=gesture==='nod'?Math.max(0,Math.sin(progress*Math.PI*4))*envelope:0;
-    const drop=floor?5.6:desk?1.55:walk?gait.bob[0]+gait.bob[1]*Math.cos(2*TAU*(phase-gait.bob[2])):crouch?.85:air?.05:.03+.07*breath+.12*nod-.03*hop;
+    const drop=floor?5.6:desk?1.55:walk?gait.bob[0]+gait.bob[1]*Math.cos(2*TAU*(phase-gait.bob[2])):crouch?.03+.82*compression:air?.05:.03+.07*breath+.12*nod-.03*hop;
     const sway=walk&&!profile?-gait.sway*Math.sin(TAU*(phase-gait.support+.25)):0,roll=walk&&!profile?gait.roll*sway/gait.sway:0;
-    const lean=profile?(run?gait.lean:walk?gait.lean+.8*Math.cos(2*TAU*phase):floor?2:crouch?7:air?3-2*rise:4*nod):0;
+    const lean=profile?(run?gait.lean:walk?gait.lean+.8*Math.cos(2*TAU*phase):floor?2:crouch?7*compression:air?3-2*rise:4*nod):0;
     const torso=transform([16,SPEC.waist],[16+sway,SPEC.waist+drop],rad(profile?lean:roll));
     const legs=SPEC.hip.map((hip,i)=>{
       const x=profile?SPEC.profileHip[i]:hip,root=mapped(torso,[x,SPEC.waist]),p=(phase+i*.5)%1;
@@ -120,7 +124,7 @@
         }else if(air){
           // Arms open upward for balance and come down again for landing.
           if(profile){swing=rad(30+18*Math.max(0,rise)-10*Math.max(0,-rise));flex=rad(22);}else{abduct+=rad(30+10*rise);swing=rad(10);flex=rad(24);forearm=rad(8);}
-        }else if(crouch){swing=rad(-24);flex=rad(12);abduct+=rad(4);}
+        }else if(crouch){swing=mix(swing,rad(-24),compression);flex=mix(flex,rad(12),compression);abduct+=rad(4)*compression;}
         else{swing+=rad(1.2*breath-.6);flex+=rad(3*breath);}
         if(gesture==='happy'){
           // Both arms cheer while the body hops.
@@ -129,7 +133,9 @@
         if(gesture==='wave'&&i===1){
           // The upper arm stays raised; the forearm and hand do the waving.
           const wag=Math.sin(progress*TAU*3.5)*envelope;
-          if(profile){swing=mix(swing,rad(174),envelope);flex=mix(flex,rad(4+18*wag),envelope);abduct=mix(abduct,rad(12),envelope);}
+          // With the rounder hand, a vertical profile wave covered the eye.
+          // Lift forward beside the cheek, retaining the same bone lengths.
+          if(profile){swing=mix(swing,rad(130),envelope);flex=mix(flex,rad(4+18*wag),envelope);abduct=mix(abduct,rad(12),envelope);}
           else{abduct=mix(abduct,rad(back?104:112),envelope);forearm=mix(forearm,rad((back?148:158)+22*wag),envelope);flex=mix(flex,0,envelope);swing=mix(swing,rad(back?4:8),envelope);}
         }
         if(profile)swing-=rad(lean);
@@ -163,7 +169,7 @@
     const headClip=el('g');headClip.innerHTML=heads.headClip.replaceAll('qpx-head-front',id+'-head-front');defs.append(...headClip.children);
     const skinGradient=defs.querySelector('#'+id+'-skin');skinGradient.setAttribute('gradientUnits','userSpaceOnUse');skinGradient.setAttribute('x1','10');skinGradient.setAttribute('x2','22');
     svg.append(el('ellipse',{class:'qpx-contact-shadow',cx:16,cy:56.75365,rx:6.2,ry:.60,fill:'#596654',opacity:.20}));
-    const mirror=el('g',{'data-foundation-mirror':'true'}),head=el('g',{'data-foundation-head':'true'}),body=el('g',{'data-foundation-body':'true',transform:'translate(16 28) scale(1.18 1.593) translate(-16 -28)'}),backHair=el('g',{'data-foundation-back-hair':'true'});mirror.append(backHair,body,head);svg.append(mirror);
+    const mirror=el('g',{'data-foundation-mirror':'true'}),head=el('g',{'data-foundation-head':'true'}),body=el('g',{'data-foundation-body':'true',transform:`translate(16 28) scale(${BODY_SCALE.x} ${BODY_SCALE.y}) translate(-16 -28)`}),backHair=el('g',{'data-foundation-back-hair':'true'});mirror.append(backHair,body,head);svg.append(mirror);
     // Hair below the chin hangs behind the body, as in the regular avatar.
     // The front portraits also carry an old outlined neck stump down there;
     // only those traced strokes are cut, never the hanging hair itself.
@@ -228,7 +234,7 @@
   function apply(svg,state={}){
     const r=prepare(svg);if(!r)return false;const pose=solve({...state,time:Number.isFinite(state.time)?state.time:performance.now()/1000}),view=pose.profile?'profile':pose.back?'back':'front';r.pose=pose;
     set(r.mirror,'transform',(pose.direction==='left'?'translate(32 0) scale(-1 1)':'')+(pose.hop?' translate(0 '+n(-pose.hop*1.7)+')':''));
-    const neck=mapped(pose.torso,[16,28]);set(r.head,'transform','translate('+pt([(neck[0]-16)*1.18+(pose.profile?.35:0)*pose.nod,(neck[1]-28)*1.593+.42*pose.nod])+')');if(r.backHair){set(r.backHair,'transform',r.head.getAttribute('transform'));r.backHair.style.display=view==='front'?'':'none';}
+    const neck=mapped(pose.torso,[16,28]);set(r.head,'transform','translate('+pt([(neck[0]-16)*BODY_SCALE.x+(pose.profile?.35:0)*pose.nod,(neck[1]-28)*BODY_SCALE.y+.42*pose.nod])+')');if(r.backHair){set(r.backHair,'transform',r.head.getAttribute('transform'));r.backHair.style.display=view==='front'?'':'none';}
     for(const h of r.head.children)h.style.display=h.dataset.foundationHeadView===view?'':'none';
     set(r.parts.torso,'transform',matrix(pose.torso));set(r.parts.pelvis,'transform',matrix(pose.torso));
     const narrow=pose.profile?.8:1;
@@ -253,7 +259,7 @@
       part.foot.style.display=pose.floor&&pose.back?'none':'';
     });
     pose.arms.forEach((arm,i)=>{
-      const part=r.arms[i];set(part.contour,'d',limb(arm.shoulder,arm.elbow,arm.wrist,[.88,.65,.42]));
+      const part=r.arms[i];set(part.contour,'d',limb(arm.shoulder,arm.elbow,arm.wrist,ARM_RADII));
       // Skin volume follows the arm, instead of a scene-wide horizontal
       // gradient or a drawn line running down the middle of the forearm.
       const v=sub(arm.wrist,arm.shoulder),length=Math.hypot(...v)||1,normal=[v[1]/length,-v[0]/length],middle=lerp(arm.shoulder,arm.wrist,.45),g=r.armGradients[i];
@@ -279,7 +285,7 @@
     // A greeting hand crosses in front of the hair, with the same arm geometry.
     // From behind, the raised hand is beyond the head and stays under it.
     const lifting=state.gestureProgress>.05&&state.gestureProgress<.95&&!pose.back,raised=lifting&&state.gesture==='wave'?['near-arm']:lifting&&state.gesture==='happy'?(pose.profile?['near-arm']:armKeys):[];
-    if(raised.length){if(r.raisedKey!==raised.join()){if(r.raised)r.body.append(...order.map(k=>r.parts[k]));r.frontHands.append(...raised.map(k=>r.parts[k]));r.raisedKey=raised.join();}r.raised=true;}else if(r.raised){r.body.append(...order.map(k=>r.parts[k]));r.orderKey=orderKey;r.raised=false;r.raisedKey='';}
+    if(raised.length){if(r.raisedKey!==raised.join()||raised.some(k=>r.parts[k].parentNode!==r.frontHands)){if(r.raised)r.body.append(...order.map(k=>r.parts[k]));r.frontHands.append(...raised.map(k=>r.parts[k]));r.raisedKey=raised.join();}r.raised=true;}else if(r.raised){r.body.append(...order.map(k=>r.parts[k]));r.orderKey=orderKey;r.raised=false;r.raisedKey='';}
     const points=[mapped(pose.torso,[16,28]),mapped(pose.torso,[16,32.8]),mapped(pose.torso,[16,SPEC.waist]),...pose.arms.flatMap(a=>[a.shoulder,a.elbow,a.wrist]),...pose.legs.flatMap(l=>[l.root,l.knee,l.ankle])];
     const lines=[[0,1,2],[0,3,4,5],[0,6,7,8],[2,9,10,11],[2,12,13,14]];set(r.boneLines,'d',lines.map(line=>'M'+line.map(i=>pt(points[i])).join('L')).join(''));
     points.forEach((p,i)=>{set(r.joints[i],'cx',n(p[0]));set(r.joints[i],'cy',n(p[1]));});r.bones.style.display=state.showBones?'':'none';
@@ -296,6 +302,6 @@
     r.bones.replaceChildren();r.bones.style.display='none';r.frontHands.replaceChildren();for(const g of r.armGradients)g.remove();svg.querySelector('[id$="-neck-skin"]')?.remove();
     return mounted.delete(svg);
   }
-  const api=Object.freeze({spec:SPEC,thigh:THIGH,solve,render,prepare,apply,reset:svg=>apply(svg,{action:'idle',direction:'front',time:0}),destroy,inspect:svg=>mounted.get(svg)?.pose||null});
+  const api=Object.freeze({spec:SPEC,thigh:THIGH,armRadii:ARM_RADII,bodyScale:Object.freeze(BODY_SCALE),solve,render,prepare,apply,reset:svg=>apply(svg,{action:'idle',direction:'front',time:0}),destroy,inspect:svg=>mounted.get(svg)?.pose||null});
   root.QPAvatarFoundation=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window==='undefined'?globalThis:window);
