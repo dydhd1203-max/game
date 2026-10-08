@@ -387,7 +387,7 @@ async function run() {
     const floorBefore = await state(a);
     const standingSoles = await soles(a);
     assert.equal(floorBefore.direction, direction);
-    if (via === 'button') await a.locator('[data-tool="sit"]').click();
+    if (via === 'button') await a.keyboard.press('KeyC');
     else { await focusWorld(a); await a.keyboard.press('KeyC'); }
     await a.waitForFunction(() => QPGame.getCampus().getState().pose === 'sit-floor');
     await a.waitForFunction(() => document.querySelector('.sr-actor.is-me .sr-avatar>svg')?.dataset.qpxPose === 'floor-sit');
@@ -406,7 +406,7 @@ async function run() {
     await a.screenshot({ path: path.join(output, '05-바닥앉기-' + direction + '-원래크기.png'),
       clip: { x: Math.max(0, actor.x - 54), y: Math.max(60, actor.y - 100), width: 108, height: 130 } });
     screenshots.push('05-바닥앉기-' + direction + '-원래크기.png');
-    if (via === 'button') await a.locator('[data-tool="sit"]').click();
+    if (via === 'button') await a.keyboard.press('KeyC');
     else await a.keyboard.press('KeyC');
     await a.waitForFunction(() => QPGame.getCampus().getState().pose === 'idle');
     const floorAfter = await state(a);

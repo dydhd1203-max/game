@@ -1,0 +1,117 @@
+/* Candy lettering for big titles (see candy-title.js). Jua gives the round
+   Korean shapes and Fredoka the round Latin ones (QUIZ); NanumSquareRound stays
+   the reading and button face. */
+@font-face {
+  font-family: "QuizLatin";
+  src: url("./assets/fonts/Fredoka-Variable.ttf") format("truetype");
+  font-weight: 300 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "QuizRound";
+  src: url("./assets/fonts/Jua-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+.qp-candy {
+  --ct-top: #fffdf2; --ct-hi: #fff3b0; --ct-mid: #ffd84a; --ct-low: #ec8f1c;
+  --ct-edge: #5b3511; --ct-drop: #2f1b08; --ct-line: .17em;
+  position: relative;
+  display: inline-block;
+  isolation: isolate;
+  max-width: 100%;
+  vertical-align: middle;
+  white-space: nowrap;
+  font-family: "QuizRound", "QuizDisplay", "NanumSquareRound", sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-synthesis: none;
+  line-height: 1.2;
+  letter-spacing: .03em;
+  color: var(--ct-mid);
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+.qp-candy .ct-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.qp-candy .ct-w { display: inline-flex; align-items: baseline; padding: .06em .1em .14em; }
+.qp-candy .ct-sp { display: inline-block; width: .3em; }
+.qp-candy .ct-l {
+  position: relative;
+  display: inline-block;
+  transform: translateY(var(--ct-y, 0)) rotate(var(--ct-r, 0deg));
+}
+/* Outline and drop: all outlines paint before any fill, so neighbours never cover a face. */
+.qp-candy .ct-l::before {
+  content: attr(data-c);
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  color: var(--ct-edge);
+  -webkit-text-fill-color: var(--ct-edge);
+  -webkit-text-stroke: var(--ct-line) var(--ct-edge);
+  text-shadow: 0 .06em 0 var(--ct-edge), 0 .1em 0 var(--ct-drop), 0 .15em .06em #0006;
+}
+.qp-candy .ct-l > i {
+  display: inline-block;
+  font-style: normal;
+  background-image: linear-gradient(var(--ct-top) 0%, var(--ct-hi) 44%, var(--ct-mid) 45%, var(--ct-mid) 62%, var(--ct-low) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0;
+}
+.qp-candy .ct-l::after {
+  content: attr(data-c);
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(ellipse 18% 11% at 32% 24%, #fff 0 58%, #fff0 62%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-text-stroke: 0;
+  animation: ct-twinkle 3.6s steps(3, end) infinite;
+}
+.qp-candy .ct-l:nth-child(3n+2)::after { animation-delay: -1.2s; }
+.qp-candy .ct-l:nth-child(3n)::after { animation-delay: -2.4s; }
+@keyframes ct-twinkle { 0%, 70% { opacity: 1; } 80% { opacity: .35; } 90% { opacity: .75; } }
+
+/* Colour families. Sky is the QPlay "PLAY" blue, used for the word QUIZ. */
+.qp-candy :is(.ct-sky), .qp-candy.ct-sky .ct-l {
+  --ct-top: #f6fdff; --ct-hi: #d8f6ff; --ct-mid: #7fdcff; --ct-low: #2aa6ea; --ct-edge: #0d4777; --ct-drop: #082a47;
+}
+.qp-candy :is(.ct-mint), .qp-candy.ct-mint .ct-l {
+  --ct-top: #f7ffec; --ct-hi: #e4ffc4; --ct-mid: #9be35f; --ct-low: #3fa52f; --ct-edge: #1d4a14; --ct-drop: #0f2a0a;
+}
+.qp-candy .ct-latin { font-family: "QuizLatin", "QuizRound", sans-serif; font-weight: 650; letter-spacing: .015em; }
+/* Thinner rim for small signs. */
+.qp-candy.ct-small { --ct-line: .14em; }
+.qp-candy.ct-small .ct-l::before { text-shadow: 0 .05em 0 var(--ct-edge), 0 .09em 0 var(--ct-drop); }
+@media (prefers-reduced-motion: reduce) {
+  .qp-candy .ct-l::after { animation: none; }
+}
+
+/* Screen titles in the top bar. */
+body .top .nm.qp-game-title-host {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0 4px;
+  color: inherit;
+  font-size: 34px;
+  line-height: 1;
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+}
+@media (max-width: 1150px) { body .top .nm.qp-game-title-host { font-size: 30px; } }
+@media (max-width: 660px) { body .top .nm.qp-game-title-host { flex: 1; min-width: 140px; font-size: 26px; } }
+/* Login panel heading. */
+body #login .lgTitle { font-size: 26px; letter-spacing: 0; line-height: 1; color: inherit; -webkit-text-stroke: 0; text-shadow: none; }

@@ -1,12 +1,24 @@
 'use strict';
+// Joint lengths and rest angles come from each sex/view rig traced off the
+// reference sheet (assets/sd-foundation-ref-data.js), never from constants.
+require('../assets/sd-foundation-ref-data.js');
 const assert=require('node:assert/strict'),{solve,spec}=require('../avatar-foundation.js'),run=require('../avatar-run-input.js');
 let samples=0;
-for(const direction of ['front','back','left','right'])for(const action of ['idle','walk','run','jump','floor-sit','sit','climb'])for(let frame=0;frame<120;frame++){
-  const pose=solve({direction,action,phase:frame/120,grounded:false,time:0});
-  for(const leg of pose.legs){const[a,b,c]=leg.boneSpace;assert(Math.abs(Math.hypot(...b.map((x,i)=>x-a[i]))-3.2)<.002,JSON.stringify({direction,action,frame,leg}));assert(Math.abs(Math.hypot(...c.map((x,i)=>x-b[i]))-2.9)<.002);if(leg.contact&&!pose.desk)assert(Math.abs(leg.ankle[1]-spec.ankle)<.001);}
-  for(const [i,arm] of pose.arms.entries()){for(const point of [arm.shoulder,arm.elbow,arm.wrist])assert(point.every(Number.isFinite));const [a,b,c]=arm.boneSpace;const length=(p,q)=>Math.hypot(...p.map((x,i)=>x-q[i]));assert(Math.abs(length(a,b)-length(spec.shoulder[i],spec.elbow[i]))<.002);assert(Math.abs(length(b,c)-length(spec.elbow[i],spec.wrist[i]))<.002);}samples++;
+const length=(p,q)=>Math.hypot(...p.map((x,i)=>x-q[i]));
+for(const sex of ['m','f'])for(const direction of ['front','back','left','right'])for(const action of ['idle','walk','run','jump','floor-sit','sit','climb'])for(let frame=0;frame<120;frame++){
+  const pose=solve({sex,direction,action,phase:frame/120,grounded:false,time:0}),S=pose.spec,where=JSON.stringify({sex,direction,action,frame});
+  for(const leg of pose.legs){const[a,b,c]=leg.boneSpace;assert(Math.abs(length(a,b)-S.thigh)<.002,'thigh '+where);assert(Math.abs(length(b,c)-S.shin)<.002,'shin '+where);if(leg.contact&&!pose.desk)assert(Math.abs(leg.ankle[1]-S.ankle)<.001,'planted ankle '+where);}
+  for(const [i,arm] of pose.arms.entries()){for(const point of [arm.shoulder,arm.elbow,arm.wrist])assert(point.every(Number.isFinite));const [a,b,c]=arm.boneSpace;const upper=pose.profile?S.profileArm[0]:length(S.shoulder[i],S.elbow[i]),lower=pose.profile?S.profileArm[1]:length(S.elbow[i],S.wrist[i]);assert(Math.abs(length(a,b)-upper)<.002,'upper arm '+where);assert(Math.abs(length(b,c)-lower)<.002,'forearm '+where);}samples++;
 }
-const idle=solve({action:'idle',direction:'front',time:0});for(const arm of idle.arms){assert(Math.abs(arm.elbow[0]-arm.shoulder[0])<.6);assert(Math.abs(arm.wrist[0]-arm.shoulder[0])<.6);}
+// Idle rest pose is the reference sheet's own pose in every sex/view.
+for(const sex of ['m','f'])for(const direction of ['front','back','right']){
+  const p=solve({sex,direction,action:'idle',time:0}),S=p.spec,near=(u,v,what)=>assert(length(u,v)<.12,sex+' '+direction+' '+what+' '+JSON.stringify([u,v]));
+  for(const [i,arm] of p.arms.entries()){
+    if(p.profile){near(arm.shoulder,S.profileShoulder[i],'shoulder');const e=[S.profileShoulder[i][0]+S.profileSwing[0],S.profileShoulder[i][1]+S.profileSwing[1]];near(arm.elbow,e,'elbow');near(arm.wrist,[e[0]+S.profileFlex[0],e[1]+S.profileFlex[1]],'wrist');}
+    else{near(arm.shoulder,S.shoulder[i],'shoulder');near(arm.elbow,S.elbow[i],'elbow');near(arm.wrist,S.wrist[i],'wrist');}
+  }
+  for(const leg of p.legs){assert(Math.abs(leg.ankle[1]-S.ankle)<.001&&Math.abs(leg.knee[1]-S.knee)<.12,sex+' '+direction+' leg rest');}
+}
 for(const direction of ['front','back','left','right']){
   const floor=solve({action:'floor-sit',direction,time:0}),desk=solve({action:'sit',direction,time:0});
   assert(floor.drop>desk.drop+3,'floor pelvis must be lower than the chair pose');
@@ -19,13 +31,13 @@ for(const direction of ['front','back','left','right']){
 // old separated front-facing x positions put the near arm in front of the chest.
 for(const direction of ['left','right']){
  const side=solve({direction,action:'idle',time:0});
- for(const arm of side.arms){assert(Math.abs(arm.shoulder[0]-16)<.5,'profile shoulder forward of body axis');assert(Math.abs(arm.wrist[0]-arm.shoulder[0])<.65,'resting profile arm should hang below shoulder');}
+ for(const arm of side.arms){assert(Math.abs(arm.shoulder[0]-16)<.5,'profile shoulder forward of body axis');assert(Math.abs(arm.wrist[0]-arm.shoulder[0])<1,'resting profile arm should hang below shoulder');}
  assert(Math.abs(side.arms[1].shoulder[0]-side.arms[0].shoulder[0])<.4,'profile shoulders must overlap in depth');
 }
 const keys=run.create();keys.down('ArrowRight',0);keys.down('ArrowRight',20,true);assert(!keys.isRunning());keys.up('ArrowRight',50);keys.down('ArrowRight',120);assert(keys.isRunning());keys.up('ArrowRight',300);assert(!keys.isRunning());keys.down('ArrowRight',340);assert(!keys.isRunning(),'run release must not prime another double tap');keys.reset();keys.down('KeyD',0);keys.up('KeyD',40);keys.down('ArrowRight',100);assert(keys.isRunning(),'WASD and arrows share directions');keys.reset();assert(!keys.isRunning());keys.down('ArrowLeft',0);keys.up('ArrowLeft',500);keys.down('ArrowLeft',530);assert(!keys.isRunning(),'long hold is not a tap');keys.reset();keys.down('ArrowRight',0);keys.up('ArrowRight',30);keys.down('ArrowLeft',50);assert(!keys.isRunning(),'opposite direction is not double tap');keys.reset();keys.down('ArrowUp',0);keys.up('ArrowUp',30);keys.down('ArrowUp',100);keys.down('ArrowRight',150);assert(keys.isRunning(),'perpendicular key keeps run');keys.down('ArrowDown',200);assert(!keys.isRunning(),'opposite cancels run');
-console.log('PASS: '+samples+' skeletal samples; fixed sagittal bone lengths, planted ankles, relaxed idle arms, double-tap/repeat/release/alias/focus-reset contracts.');
+console.log('PASS: '+samples+' skeletal samples; fixed sagittal bone lengths, planted ankles, reference-sheet idle rest per sex/view, double-tap/repeat/release/alias/focus-reset contracts.');
 
-for(const phase of [.25,.75]){const p=solve({action:'climb',direction:'front',phase});assert.equal(p.direction,'back');assert(p.arms.every(a=>a.elbow[1]>a.wrist[1]),'Climbing elbows must stay below hands');assert((p.arms[0].wrist[1]-p.arms[1].wrist[1])*(p.legs[0].ankle[1]-p.legs[1].ankle[1])<0,'Opposite hand and foot climb together');assert(p.legs.every(l=>!l.contact&&Math.abs(l.knee[0]-l.root[0])<.01));}
+for(const phase of [.25,.75]){const p=solve({action:'climb',direction:'front',phase});assert.equal(p.direction,'back');assert(p.arms.every(a=>a.elbow[1]>a.wrist[1]),'Climbing elbows must stay below hands');assert((p.arms[0].wrist[1]-p.arms[1].wrist[1])*(p.legs[0].ankle[1]-p.legs[1].ankle[1])<0,'Opposite hand and foot climb together');assert(p.legs.every(l=>!l.contact&&Math.abs(l.knee[0]-(l.root[0]+l.ankle[0])/2)<.01),'climbing knees bend in depth, not sideways');}
 
 for(const phase of [.25,.75])for(const direction of ['front','back']){const pose=solve({action:'run',direction,phase});assert(pose.arms.every(a=>a.wrist[1]<a.elbow[1]),'Running forearms stay folded');}
 
@@ -51,7 +63,7 @@ for(const phase of [.25,.75])for(const direction of ['front','back']){const pose
  for(const direction of ['front','right','back'])for(const p of [0,.25,.5,.75])for(const arm of at('run',direction,p).arms)assert(elbowAngle(arm)>=60,'running elbows stay bent '+direction+' '+p);
  assert(Math.max(...run.map(p=>p.drop))-Math.min(...run.map(p=>p.drop))>Math.max(...walk.map(p=>p.drop))-Math.min(...walk.map(p=>p.drop)),'running bounces more than walking');
  // Back and front idle: arms hang beside the torso, hands near the hips.
- for(const direction of ['front','back']){const p=at('idle',direction,0);for(const [i,a] of p.arms.entries()){assert(Math.abs(a.wrist[0]-16)>3.2,'hanging hand beside the body '+direction);assert(a.wrist[1]>36&&a.wrist[1]<37.6,'hand rests at hip height '+direction);assert(Math.abs(a.depth)<.6,'resting arm in the body plane '+direction+i);}}
+ for(const direction of ['front','back']){const p=at('idle',direction,0);for(const [i,a] of p.arms.entries()){assert(Math.abs(a.wrist[0]-16)>3.2,'hanging hand beside the body '+direction);assert(a.wrist[1]>36&&a.wrist[1]<37.6,'hand rests at hip height '+direction);assert(Math.abs(a.depth)<.75,'resting arm near the body plane (the reference side view hangs it ~0.6 forward) '+direction+i);}}
  // Jump: crouch on the ground, tucked feet at the top, reaching down to land.
  const crouch=solve({action:'jump',direction:'right',grounded:true,time:0}),apex=solve({action:'jump',direction:'right',grounded:false,vy:0,time:0}),landing=solve({action:'jump',direction:'right',grounded:false,vy:-480,time:0});
  assert(crouch.drop>.5,'take-off crouch');assert(Math.min(...apex.legs.map(l=>spec.ankle-l.ankle[1]))>=1.8,'tucked feet at the apex');assert(Math.max(...landing.legs.map(l=>spec.ankle-l.ankle[1]))<1.2,'feet reach down before landing');

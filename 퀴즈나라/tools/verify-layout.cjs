@@ -1,7 +1,7 @@
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 (async()=>{
-  const out=path.resolve(process.env.QUIZ_VERIFICATION_OUTPUT||path.join(__dirname,'../검증'));fs.mkdirSync(out,{recursive:true});const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/',shopOnly=process.argv.includes('--shop-only'),browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});
+  const out=path.resolve(process.env.QUIZ_VERIFICATION_OUTPUT||path.join(__dirname,'../검증'));fs.mkdirSync(out,{recursive:true});const base=process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/',shopOnly=process.argv.includes('--shop-only'),browser=await chromium.launch({headless:true,executablePath:process.env.QUIZ_BROWSER_EXECUTABLE||'C:/Program Files/Google/Chrome/Application/chrome.exe'});
   const context=await browser.newContext();
   await context.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({body:'/* isolated layout review */',contentType:'text/javascript'}));
   const page=await context.newPage(),errors=[],checks=[];page.on('pageerror',e=>errors.push(e.message));

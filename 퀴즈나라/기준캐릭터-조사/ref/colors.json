@@ -1,0 +1,166 @@
+{
+ "skin": {
+  "n": 75426,
+  "shade": "#dca78f",
+  "base": "#f9d2bb",
+  "highlight": "#fbe0cd",
+  "outline": {
+   "n": 389,
+   "darkest25pct": "#240704"
+  },
+  "cheekBlush": {
+   "n": 351,
+   "shade": "#dc9886",
+   "base": "#ebaf9f",
+   "highlight": "#f2c1b3"
+  }
+ },
+ "hairMale": {
+  "n": 98029,
+  "shade": "#45291a",
+  "base": "#5d3925",
+  "highlight": "#935a3a",
+  "outline": {
+   "n": 2672,
+   "darkest25pct": "#210f08"
+  }
+ },
+ "hairFemale": {
+  "n": 112694,
+  "shade": "#472b1b",
+  "base": "#5f3b26",
+  "highlight": "#9a5f3e",
+  "outline": {
+   "n": 3196,
+   "darkest25pct": "#1e0d06"
+  }
+ },
+ "shirtMale": {
+  "n": 38265,
+  "shade": "#30523b",
+  "base": "#426b4d",
+  "highlight": "#4b7858",
+  "outline": {
+   "n": 1422,
+   "darkest25pct": "#0c190f"
+  }
+ },
+ "shirtFemale": {
+  "n": 33594,
+  "shade": "#5e9f2c",
+  "base": "#8dd243",
+  "highlight": "#a4e158",
+  "outline": {
+   "n": 1253,
+   "darkest25pct": "#234615"
+  }
+ },
+ "cuffCollarMale": {
+  "n": 4220,
+  "shade": "#f5ddbe",
+  "base": "#fcf2da",
+  "highlight": "#fefbe9",
+  "outline": {
+   "n": 215,
+   "darkest25pct": "#322a19"
+  }
+ },
+ "cuffCollarFemale": {
+  "n": 4742,
+  "shade": "#f6debd",
+  "base": "#fcf3d9",
+  "highlight": "#fdfbea",
+  "outline": {
+   "n": 392,
+   "darkest25pct": "#3e3a13"
+  }
+ },
+ "shortsMale": {
+  "n": 12746,
+  "shade": "#242c45",
+  "base": "#333f60",
+  "highlight": "#3e4a6e",
+  "outline": {
+   "n": 1088,
+   "darkest25pct": "#0c0b16"
+  }
+ },
+ "shortsMaleCuff": {
+  "n": 4194,
+  "shade": "#41465c",
+  "base": "#7f829a",
+  "highlight": "#999cb0"
+ },
+ "shortsFemale": {
+  "n": 10549,
+  "shade": "#2b69ba",
+  "base": "#62aef1",
+  "highlight": "#8ccbf9",
+  "outline": {
+   "n": 717,
+   "darkest25pct": "#28273f"
+  }
+ },
+ "shortsFemaleCuff": {
+  "n": 2719,
+  "shade": "#f8dfc0",
+  "base": "#fbf1d7",
+  "highlight": "#fefae6"
+ },
+ "shoesMale": {
+  "n": 3289,
+  "shade": "#e7b979",
+  "base": "#f6dcb1",
+  "highlight": "#fdfbf4",
+  "outline": {
+   "n": 1175,
+   "darkest25pct": "#734927"
+  }
+ },
+ "shoesFemale": {
+  "n": 3299,
+  "shade": "#eaba7a",
+  "base": "#f8ddaf",
+  "highlight": "#fdfcf4",
+  "outline": {
+   "n": 1135,
+   "darkest25pct": "#855633"
+  }
+ },
+ "shoeAccents": {
+  "n": 34,
+  "shade": "#368326",
+  "base": "#609524",
+  "highlight": "#b7d763"
+ },
+ "shoeAccentsYellow": {
+  "n": 1095,
+  "shade": "#f3b43d",
+  "base": "#f5cc7e",
+  "highlight": "#fbde91"
+ },
+ "eyesIris": {
+  "n": 1610,
+  "shade": "#0e191d",
+  "base": "#213c41",
+  "highlight": "#589c91"
+ },
+ "femaleShirtFlowers": {
+  "n": 3752,
+  "shade": "#fcdbc5",
+  "base": "#faecda",
+  "highlight": "#fdfdf9"
+ },
+ "flowerCenters": {
+  "n": 558,
+  "shade": "#f19a13",
+  "base": "#f8b520",
+  "highlight": "#fcd433"
+ },
+ "acorn": {
+  "n": 367,
+  "shade": "#955022",
+  "base": "#d38a37",
+  "highlight": "#f6c461"
+ }
+}

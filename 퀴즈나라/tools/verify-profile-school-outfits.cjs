@@ -84,7 +84,7 @@ async function visual(page){return page.evaluate(()=>{
     const returned=await visual(page);assert.equal(returned.view,'profile');assert.equal(returned.facing,direction);
     await page.keyboard.press('KeyF');
     assert.equal(await page.evaluate(()=>document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxGesture||''),'','F away from a door must preserve the resting outfit without greeting');
-    await page.locator('[data-gesture="wave"]').click();await page.waitForFunction(()=>document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxGesture==='wave');
+    await page.keyboard.press('Digit1');await page.waitForFunction(()=>document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxGesture==='wave');
     assert.equal((await visual(page)).view,'front','The established greeting intentionally faces friends');
     await page.waitForFunction(()=>!document.querySelector('.sr-actor.is-me .sr-avatar>svg:not(.sr-avatar-ambient)')?.dataset.qpxGesture);
     assert.equal((await visual(page)).view,'profile','The original side outfit must return after greeting');

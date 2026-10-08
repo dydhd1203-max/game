@@ -1,0 +1,115 @@
+/* QPlay buttons: glossy pills with a hard light/dark split, a thin dark rim and
+   white lettering with a crisp navy outline (references 21~25). Blue is the
+   default, orange marks the main action, red leaves, white is secondary, sky
+   marks a selection. Round chrome buttons carry the toolbar icons. Loaded last. */
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qp-demo-toolbar button, .qpc-button),
+html body :is(.sr-tools button, .sr-controls button, .wm-open, .wm-current, .wm-close) {
+  --qb-a: #9ddcff; --qb-b: #52b4f7; --qb-c: #2a83de; --qb-d: #1c66c8; --qb-rim: #0c3784; --qb-ink-o: #0b2f74; --qb-text: #fff;
+  border: 1px solid var(--qb-rim) !important;
+  border-radius: 9px !important;
+  background: linear-gradient(var(--qb-a) 0%, var(--qb-b) 46%, var(--qb-c) 52%, var(--qb-d) 100%) !important;
+  box-shadow: inset 0 1px 0 #ffffffd0, inset 0 -1px 0 #00000026, 0 2px 0 #0b1f5a, 0 3px 5px #0b144044 !important;
+  color: var(--qb-text) !important;
+  font-family: "QuizDisplay", "NanumSquareRound", "Malgun Gothic", sans-serif !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: 1px 0 var(--qb-ink-o), -1px 0 var(--qb-ink-o), 0 1px var(--qb-ink-o), 0 -1px var(--qb-ink-o),
+    1px 1px var(--qb-ink-o), -1px -1px var(--qb-ink-o), 1px -1px var(--qb-ink-o), -1px 1px var(--qb-ink-o) !important;
+}
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qp-demo-toolbar button, .qpc-button, .icb)::before,
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qp-demo-toolbar button, .qpc-button, .icb)::after {
+  content: none !important;
+  display: none !important;
+}
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qp-demo-toolbar button, .qpc-button) :is(span, b, small, .candy-label) {
+  color: inherit !important; -webkit-text-stroke: 0 !important; text-shadow: inherit !important;
+}
+/* Orange: the main thing to do on a screen. */
+html body :is(.btn.y, .lgGoBtn) {
+  --qb-a: #ffd99a; --qb-b: #ffaa4a; --qb-c: #f37c16; --qb-d: #d95c08; --qb-rim: #8a3204; --qb-ink-o: #7a2a03;
+}
+/* Sky: a chosen tab or option. */
+html body :is(.btn.p, .tab.on, .qp-demo-toolbar button.on) {
+  --qb-a: #e2f7ff; --qb-b: #9fe0ff; --qb-c: #4fbdf6; --qb-d: #2a9de8; --qb-rim: #0c4a94; --qb-ink-o: #0b3a7a;
+}
+/* White: secondary actions and unselected tabs, navy lettering without outline. */
+html body :is(.btn.gray, .lgWide.ex, .tab:not(.on)) {
+  --qb-a: #ffffff; --qb-b: #f0f8ff; --qb-c: #d8ecfb; --qb-d: #c2def6; --qb-rim: #5a86c4; --qb-text: #1b2f68;
+  text-shadow: none !important;
+}
+/* Red: leave or remove. */
+html body :is(.btn.red, .btn.danger, .qp-demo-toolbar [data-exit], #tbOut) {
+  --qb-a: #ffb3a4; --qb-b: #fb6a55; --qb-c: #e43c27; --qb-d: #c52714; --qb-rim: #7a1408; --qb-ink-o: #6e1206;
+}
+/* Number keys on the login pad stay white like QPlay's soft keys. */
+html body .lgPad button { --qb-a: #ffffff; --qb-b: #f0f8ff; --qb-c: #d8ecfb; --qb-d: #c2def6; --qb-rim: #5a86c4; --qb-text: #1b2f68; text-shadow: none !important; }
+
+/* Round chrome buttons for the toolbar icons. */
+html body .icb {
+  border: 2px solid #ffffff !important;
+  border-radius: 50% !important;
+  background: radial-gradient(circle at 50% 28%, #c4ecff 0%, #5ab9f6 42%, #2c84df 62%, #1c5fc4 100%) !important;
+  box-shadow: 0 0 0 1px #0c3784, inset 0 -3px 4px #0c378466, 0 3px 0 #0b1f5a, 0 4px 6px #0b144055 !important;
+  -webkit-text-stroke: 0 !important;
+}
+html body .icb :is(.rich-icon, .candy-icon) { filter: drop-shadow(0 1px 0 #0b2f74); }
+html body .top .icb .qp-tool-label { color: #e8f4ff !important; text-shadow: 0 1px 0 #0b2f74 !important; }
+
+/* Press: one pixel down, gloss dims. */
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qp-demo-toolbar button, .qpc-button, .sr-tools button, .sr-controls button, .wm-open, .wm-current, .wm-close):not(:disabled):is(:active, .qp-pressed) {
+  box-shadow: inset 0 2px 3px #0b1f5a66, inset 0 -1px 0 #ffffff40 !important;
+  translate: 0 1px !important;
+  scale: none !important;
+}
+html body .icb:not(:disabled):is(:active, .qp-pressed) { box-shadow: 0 0 0 1px #0c3784, inset 0 2px 4px #0b1f5a88 !important; translate: 0 1px !important; scale: none !important; }
+@media (hover: hover) and (pointer: fine) {
+  html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qpc-button, .icb, .sr-tools button, .wm-open):not(:disabled):hover { filter: brightness(1.08) saturate(1.05); }
+}
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qpc-button):disabled {
+  --qb-a: #e4eaf2; --qb-b: #ccd6e3; --qb-c: #b4c1d2; --qb-d: #a2b0c3; --qb-rim: #6c7c94; --qb-ink-o: #5d6a80;
+  filter: none; opacity: .9; cursor: default;
+}
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qpc-button, .icb):focus-visible { outline: 3px solid #ffd84a !important; outline-offset: 2px !important; }
+
+/* Map tools and the map atlas share the material; the atlas toggle is sky. */
+html body .wm-open { --qb-a: #e2f7ff; --qb-b: #9fe0ff; --qb-c: #4fbdf6; --qb-d: #2a9de8; --qb-rim: #0c4a94; --qb-ink-o: #0b3a7a; }
+html body .sr-controls .sr-interact:not(:disabled) { --qb-a: #ffd99a; --qb-b: #ffaa4a; --qb-c: #f37c16; --qb-d: #d95c08; --qb-rim: #8a3204; --qb-ink-o: #7a2a03; }
+html body .wm-close { --qb-a: #ffb3a4; --qb-b: #fb6a55; --qb-c: #e43c27; --qb-d: #c52714; --qb-rim: #7a1408; --qb-ink-o: #6e1206; }
+html body :is(.sr-tools button, .wm-open, .wm-current, .wm-close) kbd { color: #1b2a5c; text-shadow: none; background: #fff; border: 1px solid #5a86c4; border-radius: 3px; }
+html body .sr-controls button:disabled { opacity: .7; filter: saturate(.4); }
+
+
+/* Map screens: the map art stays; only the UI on top turns QPlay blue (after world-explorer.css). */
+html body.qp-campus .top { border-bottom: 2px solid #7cc0f6; background: linear-gradient(#3a63c4 0%, #2446a0 48%, #1b347f 52%, #172b6a 100%); box-shadow: inset 0 1px 0 #8cc4f4, 0 3px 0 #0b1a4888; }
+html body.qp-campus .top .icb, html body.qp-campus .top #tbShop { width: 54px !important; height: 54px !important; border-radius: 50% !important; padding: 2px !important; border: 2px solid #fff !important; color: #fff !important; background: radial-gradient(circle at 50% 28%, #c4ecff 0%, #5ab9f6 42%, #2c84df 62%, #1c5fc4 100%) !important; box-shadow: 0 0 0 1px #0c3784, inset 0 -3px 4px #0c378466, 0 3px 0 #0b1f5a !important; }
+html body.qp-campus .top .icb .qp-tool-label { position: absolute; bottom: -15px; left: 50%; translate: -50% 0; font-size: 11px; color: #e8f4ff !important; text-shadow: 0 1px 0 #0b2f74 !important; }
+html body.qp-campus .top .quiz-daily { background: linear-gradient(#22357f, #16245e); border: 2px solid #8fc8f5; box-shadow: 0 2px 0 #0b1a48; }
+html body.qp-campus .quiz-daily .daily-label { color: #dceeff; }
+html body.qp-campus .top .gold { box-shadow: inset 0 1px 0 #4f74c8, 0 2px 0 #0b1a48; }
+html body.qp-campus .sr-room-title { border: 2px solid #13307a; border-image: none; padding: 7px 14px; border-radius: 10px; background: linear-gradient(#eef8ff, #d4eafb); box-shadow: inset 0 0 0 2px #fff, 0 3px 0 #0f2460; }
+html body.qp-campus .sr-network { color: #4a6290; }
+html body.qp-campus .sr-friend-count { color: #fff; background: linear-gradient(#2c4c9e, #1f3a86); border: 2px solid #8fc8f5; box-shadow: 0 2px 0 #0b1a48; }
+html body.qp-campus .sr-friend-count b { color: #ffd84a; }
+html body.qp-campus .sr-tools { border: 2px solid #13307a; background: linear-gradient(#2c4c9ee8, #1f3a86e8); box-shadow: inset 0 1px 0 #6d9be0, 0 3px 0 #0f2460; }
+html body .sr-help { color: #1b2a5c; background: #eef8fff5; border: 2px solid #13307a; box-shadow: inset 0 0 0 2px #fff, 0 4px 0 #0f2460; }
+html body .wm-mini { background: linear-gradient(#eef8ff, #d4eafb); border: 2px solid #13307a; border-image: none; padding: 8px; box-shadow: inset 0 0 0 2px #fff, 0 3px 0 #0f2460; color: #1b2a5c; }
+html body .school-room-host .wm-mini-head button { color: #1b2a5c; }
+html body .school-room-host .wm-dialog { border: 3px solid #13307a; border-radius: 14px; background: #eef8ff; color: #1b2a5c; box-shadow: inset 0 0 0 2px #fff, 0 6px 0 #0f2460, 0 20px 60px #0b1440aa; }
+html body .wm-dialog::backdrop { background: #0b1640b0; }
+html body .wm-header { background: linear-gradient(#86d6ff, #45b0f2 50%, #2a8ce0 52%, #2378d0); border-bottom: 2px solid #1b5fb4; }
+html body .wm-header small { color: #e8f4ff; }
+html body .wm-header h2 { color: #fff; text-shadow: var(--qb-outline); }
+html body .wm-places { background: #dcecfb; border-right-color: #9fcaf0; }
+html body .wm-place b, .wm-detail-head h3 { color: #1b2a5c; } html body .wm-place small, .wm-detail-head p { color: #4a6290; }
+html body .school-room-host .wm-place[aria-pressed="true"] { background: #fff; border-color: #2f80dd; }
+html body .wm-map-area { background: #dcecfb; border-color: #9fcaf0; }
+html body .wm-route { background: #e3f1fd; } html body .wm-route b { color: #1f4fb0; }
+html body .wm-footer { color: #4a6290; border-top-color: #9fcaf0; }
+html body .wm-self { background: #ff8a1c; } html body .wm-friend { background: #2f80dd; }
+
+/* Top bar: icon-only round chrome buttons (labels stay for screen readers). */
+html body .top .icb .qp-tool-label { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+html body .top .icb, html body.qp-campus .top .icb, html body.qp-campus .top #tbShop { width: 44px !important; height: 44px !important; padding: 0 !important; display: grid !important; place-items: center; }
+html body .top .icb :is(.rich-icon, .candy-icon, .ui-icon), html body.qp-campus .top .icb :is(.rich-icon, .candy-icon, .ui-icon) { width: 26px !important; height: 26px !important; }
+html body .top .icb.qq-entry .qp-candy { font-size: 24px; }

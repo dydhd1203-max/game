@@ -1,21 +1,40 @@
-/* Reference body v1. Shared fixed joints and authored projected seated poses. */
+/* Reference body v2. Joints, proportions and garments traced from the approved
+   reference sheet (assets/avatar-reference-candidates/body-study-2026-10-04.png,
+   tools/build-reference-body.py). Shared fixed joints, authored seated poses. */
 (function(root){
   'use strict';
   const NS='http://www.w3.org/2000/svg',mounted=new WeakMap(),headCache=new Map();let serial=0;
-  const SPEC=Object.freeze({version:1,waist:38.1,knee:41.3,ankle:44.15,floor:46.05,hip:[13.65,18.35],shoulder:[[12.7,29.9],[19.3,29.9]],profileShoulder:[[15.6,29.9],[15.85,29.9]],profileHip:[15.65,16.35],elbow:[[12.15,34.05],[19.85,34.05]],wrist:[[12.2,36.7],[19.8,36.7]],walkSpeed:337.5,runSpeed:506.25});
+  // Body-local units: reference sheet pixels × 17.5/286 from the collar row
+  // (16, 28.55). Values are the male front joints that tools/build-reference-
+  // body.py derives from 기준캐릭터-조사/ref/measure-raw.json, made symmetric.
+  const SPEC=Object.freeze({version:2,waist:38.16,knee:42,ankle:44.21,floor:46.05,collar:28.55,hip:[13.95,18.05],shoulder:[[12.02,30.26],[19.98,30.26]],profileShoulder:[[15.77,30.26],[15.8,30.26]],profileHip:[16,16],elbow:[[11.54,34.18],[20.46,34.18]],wrist:[[11.27,36.41],[20.73,36.41]],thigh:3.84,shin:2.21,profileArm:[4,2.77],profileSwing:[.41,3.98],profileFlex:[.31,2.75],walkSpeed:337.5,runSpeed:506.25});
+  // The female sheet has its own joints (same derivation, female figures);
+  // one shared rig made her limbs and garments slip against each other.
+  const SPEC_F=Object.freeze({...SPEC,waist:37.75,knee:41.73,ankle:44.23,hip:[14.06,17.94],shoulder:[[12.09,30.25],[19.91,30.25]],profileShoulder:[[15.78,30.25],[15.81,30.25]],elbow:[[11.56,34.06],[20.44,34.06]],wrist:[[11.26,36.18],[20.74,36.18]],thigh:3.98,shin:2.5,profileArm:[3.9,2.44],profileSwing:[.395,3.876],profileFlex:[.253,2.42]});
+  const specFor=sex=>sex==='f'?SPEC_F:SPEC;
   // Independently traced neck-only boundaries on the original short/bob
-  // directional paintings. Curves preserve the hair that overlaps the nape;
-  // a rectangular head crop would cut notches into that hair.
+  // directional paintings: the sheet supplies the neck, so the paintings'
+  // own neck stubs and their outlines go. Curves keep hair over the nape;
+  // where a cut crosses hair it is shaped as strand tips (male back), never
+  // a smooth or straight line. Rules: 아바타-제작기준.md 머리–목 연결 규칙.
   const HEAD_NECK_CUT={
-    m:{front:'M12.8 28.65Q13.45 28.45 13.6 27.98Q13.9 27.78 14.3 27.9V31H12.8ZM19.2 28.65Q18.55 28.45 18.4 27.98Q18.1 27.78 17.7 27.9V31H19.2Z',profile:'M14.25 25.7Q15.6 26.4 18.55 26.67Q18.2 27.6 18.5 28.3L18.7 29.4H12.55V28Q13.45 27.6 13.75 26.65Z',back:'M14.35 26.75Q15.4 26.45 16.1 26.62Q17 26.42 17.5 26.73Q17.7 27.55 18.5 28.15L18.6 29.4H12.7V28.05Q13.9 27.35 14.35 26.75Z'},
-    f:{profile:'M15.85 25.55Q16.3 25.85 17.12 26.02Q16.9 26.8 17.25 27.45Q17.7 27.9 18.3 28.05L18.45 29.4H12.65V27.85Q14.85 27.25 15.4 26.8Q15.9 26.2 15.85 25.55Z'}
+    m:{front:'M12.8 28.65Q13.45 28.45 13.6 27.98Q13.9 27.78 14.3 27.9V31H12.8ZM19.2 28.65Q18.55 28.45 18.4 27.98Q18.1 27.78 17.7 27.9V31H19.2Z',profile:'M14.25 25.7Q15.6 26.4 18.55 26.67Q18.2 27.6 18.5 28.3L18.7 29.4H12.55V28Q13.45 27.6 13.75 26.65Z',back:'M11.5 27.6H13.06Q15.9 27.95 18.56 27.56H20.5V30H11.5Z'},
+    f:{profile:'M15.85 25.55Q16.05 25.3 16.4 25.28H17.4Q17.45 25.75 17.12 26.02Q16.9 26.8 17.25 27.45Q17.7 27.9 18.3 28.05L18.45 29.4H12.65V27.85Q14.85 27.25 15.4 26.8Q15.9 26.2 15.85 25.55Z'}
   };
   // The thigh top is covered by the shorts; a wider root poked out beside
   // the shorts' curved hip as a pale skin tab.
-  const THIGH=1.04;
-  // Reference study (2026-10-07): a wider, soft SD body beneath the same
-  // original head. One presentation scale and limb volume for every outfit.
-  const BODY_SCALE={x:1.55,y:1.593},ARM_RADII=Object.freeze([.96,.82,.59]);
+  const THIGH=1.05,LEG_RADII=Object.freeze([THIGH,1.04,.7]);
+  // One uniform presentation scale for the body. The original painted head is
+  // larger than the reference sheet's head relative to the body; it is drawn
+  // at HEAD_SCALE about the neck and the whole figure at STAGE_SCALE about the
+  // floor, so the reference proportions hold at the previous overall height.
+  // The original side/back head paintings are normalised smaller than the
+  // front one. Reference head widths (기준캐릭터-조사): male side 0.98 and
+  // back 0.945 of the front, female side 0.83 and back 0.98. [scale, drop].
+  // Drops seat each chin over the sheet neck's cast shadow (its flat chin
+  // sits a little above the sheet's pointed one).
+  const VIEW_HEAD={m:{front:[1,.22],profile:[1.146,.75],back:[1.21,1.05]},f:{front:[1,.4],profile:[1,1.04],back:[1.074,0]}},VIEW_HEAD_PIVOT=26.7;
+  const BODY_SCALE={x:1.593,y:1.593},ARM_RADII=Object.freeze([.8,.8,.7]),HEAD_SCALE=.88,STAGE_SCALE=1.0627,FLOOR_Y=56.75;
   // Old painted neck-stump strokes under every front portrait, by sex.
   const BACK_HAIR_NECK_CUT={
     f:'M14.45 28.7L14.2 29.1L13.95 29.45L13.7 29.8L13.4 30.3L12.95 30.35L12.6 29.95L12.65 29.5L13.1 29.2L13.5 28.95L13.8 28.7ZM17.55 28.7L17.9 28.7L18.4 28.95L18.95 29.2L19.4 29.5L19.4 29.95L19.05 30.35L18.6 30.3L18.3 29.8L18.05 29.45L17.8 29.1Z',
@@ -27,6 +46,9 @@
   const transform=(a,b,angle)=>{const c=Math.cos(angle),s=Math.sin(angle);return[c,s,-s,c,b[0]-c*a[0]+s*a[1],b[1]-s*a[0]-c*a[1]];};
   const mapped=(m,p)=>[m[0]*p[0]+m[2]*p[1]+m[4],m[1]*p[0]+m[3]*p[1]+m[5]];
   const matrix=m=>'matrix('+m.map(n).join(' ')+')';
+  // Authored seated/climb targets are screen positions; the missing length goes
+  // into depth, and a target past the bone is pulled back onto it.
+  const reach=(a,b,l)=>{const d=sub(b,a),h=Math.hypot(...d);return h>l*.999?add(a,d.map(v=>v*l*.999/h)):b;};
   function ik(a,b,l1,l2,bend){const d=sub(b,a),length=clamp(Math.hypot(...d),Math.abs(l1-l2)+.001,l1+l2-.001),angle=Math.atan2(d[1],d[0]),offset=Math.acos(clamp((l1*l1+length*length-l2*l2)/(2*l1*length),-1,1))*bend;return add(a,[Math.cos(angle+offset)*l1,Math.sin(angle+offset)*l1]);}
   const TAU=Math.PI*2,smooth=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);};
   // Gait per leg phase p; 0 is heel strike with the foot ahead. The planted
@@ -45,12 +67,32 @@
   // Arms use one body-frame model in every view: swing (forward +),
   // abduction (outward +) and elbow flexion (forward +). The screen keeps
   // x/y and depth carries the foreshortening, so bone lengths never change.
-  const REST_ABDUCTION=Math.atan2(.55,4.15),REST_FOREARM=-Math.atan2(.05,2.65),REST_SWING=Math.atan2(.1,4.15),REST_FLEX=Math.atan2(.25,2.63)-Math.atan2(.1,4.15);
+  // Rest arm angles of a spec: front abduction and forearm from the joints,
+  // profile swing and elbow flex from the side-view sheet.
+  const restOf=S=>Object.freeze({abduction:Math.atan2(S.shoulder[0][0]-S.elbow[0][0],S.elbow[0][1]-S.shoulder[0][1]),forearm:Math.atan2(S.elbow[0][0]-S.wrist[0][0],S.wrist[0][1]-S.elbow[0][1]),swing:Math.atan2(...S.profileSwing),flex:Math.atan2(...S.profileFlex)-Math.atan2(...S.profileSwing)});
+  const RESTS={m:restOf(SPEC),f:restOf(SPEC_F)},restFor=sex=>RESTS[sex==='f'?'f':'m'];
+  // Rest joints of one view. Front and back paintings differ by a few pixels
+  // (the back is narrower at the shoulders), so each view's garments and
+  // limbs sit on that view's own sheet joints; profile uses the spec.
+  const rigs=new Map();
+  function rigFor(sex,view){
+    const key=(sex==='f'?'f':'m')+view;if(rigs.has(key))return rigs.get(key);
+    let S=specFor(sex);const F=root.QPFoundationReferenceData?.figures[key[0]+'-'+(view==='profile'?'right':view)];
+    if(F){
+      const L=p=>[16+(p[0]-F.neck[0])*F.k,S.collar+(p[1]-F.neck[1])*F.k],J=F.joints,y=k=>(L(J[k][0])[1]+L(J[k][1])[1])/2,waist=y('hip'),knee=y('knee'),ankle=y('ankle'),sub2=(a,b)=>[a[0]-b[0],a[1]-b[1]];
+      const legs={hip:J.hip.map(p=>L(p)[0]),ankleX:J.ankle.map(p=>L(p)[0]),waist,knee,ankle,thigh:knee-waist,shin:ankle-knee};
+      if(view==='profile'){const sh=L(J.shoulder[0]),el=L(J.elbow[0]),wr=L(J.wrist[0]),up=sub2(el,sh),lo=sub2(wr,el);
+        S=Object.freeze({...S,...legs,profileHip:legs.hip,profileShoulder:[sh,[sh[0]+.03,sh[1]]],profileArm:[Math.hypot(...up),Math.hypot(...lo)],profileSwing:up,profileFlex:lo});}
+      else S=Object.freeze({...S,...legs,shoulder:J.shoulder.map(L),elbow:J.elbow.map(L),wrist:J.wrist.map(L)});
+    }
+    rigs.set(key,S);return S;
+  }
   const bodyVector=(swing,abduct)=>[Math.sin(abduct),Math.cos(abduct)*Math.cos(swing),Math.cos(abduct)*Math.sin(swing)];
   function view3d(v,side,view,near){return view==='profile'?[v[2],v[1],(near?1:-1)*v[0]]:view==='back'?[side*v[0],v[1],-v[2]]:[side*v[0],v[1],v[2]];}
   function gestureEnvelope(progress){return smooth(0,.18,progress)*(1-smooth(.82,1,progress));}
   function solve(input={}){
     const direction=input.action==='climb'?'back':['front','back','left','right'].includes(input.direction)?input.direction:input.facing||'front',profile=['left','right'].includes(direction),back=direction==='back',view=profile?'profile':back?'back':'front';
+    const SPEC=rigFor(input.sex,view),REST_SWING=Math.atan2(...SPEC.profileSwing),REST_FLEX=Math.atan2(...SPEC.profileFlex)-REST_SWING;
     const action=input.action||'idle',run=action==='run',walk=run||action==='walk',floor=action==='floor-sit'||action==='sit'&&input.seatMode==='floor',desk=action==='sit'&&!floor,jump=action==='jump',climb=action==='climb';
     const rawPhase=((Number(input.phase)||0)%1+1)%1;
     // A cycle has 24 shared painted poses (walk ~50fps, run ~78fps in maps).
@@ -67,27 +109,27 @@
     const lean=profile?(run?gait.lean:walk?gait.lean+.8*Math.cos(2*TAU*phase):floor?2:crouch?7*compression:air?3-2*rise:4*nod):0;
     const torso=transform([16,SPEC.waist],[16+sway,SPEC.waist+drop],rad(profile?lean:roll));
     const legs=SPEC.hip.map((hip,i)=>{
-      const x=profile?SPEC.profileHip[i]:hip,root=mapped(torso,[x,SPEC.waist]),p=(phase+i*.5)%1;
-      let ankle=[x+(profile&&!walk&&!jump&&!climb?(i?.32:-.32):0),SPEC.ankle],knee,shoeAngle=0,contact=true,forward=0;
-      if(walk){const s=step(gait,p);forward=s.forward;ankle=[x+(profile?forward:0),SPEC.ankle-s.lift];contact=s.contact;shoeAngle=profile?rad(s.toe):0;}
+      const x=profile?SPEC.profileHip[i]:hip,root=mapped(torso,[x,SPEC.waist]),p=(phase+i*.5)%1,ax=x+(SPEC.ankleX?SPEC.ankleX[i]-SPEC.hip[i]:0);
+      let ankle=[ax,SPEC.ankle],knee,shoeAngle=0,contact=true,forward=0;
+      if(walk){const s=step(gait,p);forward=s.forward;ankle=[ax+(profile?forward:0),SPEC.ankle-s.lift];contact=s.contact;shoeAngle=profile?rad(s.toe):0;}
       if(air){
         // Tucked at the top, reaching down again before the landing.
-        forward=profile?-.55*tuck:-.35*tuck;ankle=[x+(profile?forward:(i?.2:-.2)*tuck),SPEC.ankle-.35-2.05*tuck];contact=false;shoeAngle=profile?rad(14*tuck-6):0;
+        forward=profile?-.55*tuck:-.35*tuck;ankle=[ax+(profile?forward:(i?.2:-.2)*tuck),SPEC.ankle-.35-2.05*tuck];contact=false;shoeAngle=profile?rad(14*tuck-6):0;
       }
-      if(climb){const reach=(1+Math.sin((phase+i*.5)*TAU))/2;forward=1.0;ankle=[x,SPEC.ankle-.65-reach*1.9];contact=false;}
+      if(climb){const reach=(1+Math.sin((phase+i*.5)*TAU))/2;forward=1.0;ankle=[ax,SPEC.ankle-.65-reach*1.9];contact=false;}
       if(floor){
         // User's four-view seating reference: knees open to the sides, calves
         // return inwards, feet cross in front. Profile/back have their own
         // depth projection; no standing foot hangs below the seated pelvis.
         knee=profile?[i?19.15:17.7,i?44.9:44.25]:[i?20.55:11.45,back?45.1:44.45];
         ankle=profile?[i?16.6:16.1,i?45.43:44.8]:[i?17.85:14.15,back?45.35:i?45.43:44.95];
-        contact=false;
-      }else if(desk){knee=profile?[x+2.4,root[1]+1.8]:[x+(i?.2:-.2),root[1]+3.05];ankle=profile?[x+2.0,44.15]:[x,SPEC.ankle];}
-      else if(profile)knee=ik(root,ankle,3.2,2.9,-1);
+        contact=false;knee=reach(root,knee,SPEC.thigh);ankle=reach(knee,ankle,SPEC.shin);
+      }else if(desk){knee=reach(root,profile?[x+2.7,root[1]+1.9]:[x+(i?.2:-.2),root[1]+3.3],SPEC.thigh);ankle=reach(knee,profile?[x+2.2,SPEC.ankle]:[x,SPEC.ankle],SPEC.shin);}
+      else if(profile)knee=ik(root,ankle,SPEC.thigh,SPEC.shin,-1);
       else{
         // Sagittal bending projects into depth in a front/back view. Solving
         // it as sideways screen motion made a lifted knee splay outwards.
-        const sagittal=ik([0,root[1]],[forward,ankle[1]],3.2,2.9,-1);
+        const sagittal=ik([0,root[1]],[forward,ankle[1]],SPEC.thigh,SPEC.shin,-1);
         knee=[mix(root[0],ankle[0],.5),sagittal[1]];
         ankle.depth=forward;knee.depth=sagittal[0];
       }
@@ -95,28 +137,33 @@
       let boneSpace=profile?[root,knee,ankle]:[[0,root[1]],[knee.depth||0,knee[1]],[ankle.depth||0,ankle[1]]];
       if(floor||desk){
         // Foreshortening changes the visible length, never the joint lengths.
-        const kneeDepth=Math.sqrt(Math.max(0,3.2**2-Math.hypot(...sub(knee,root))**2));
-        const ankleDepth=kneeDepth-Math.sqrt(Math.max(0,2.9**2-Math.hypot(...sub(ankle,knee))**2));
+        const kneeDepth=Math.sqrt(Math.max(0,SPEC.thigh**2-Math.hypot(...sub(knee,root))**2));
+        const ankleDepth=kneeDepth-Math.sqrt(Math.max(0,SPEC.shin**2-Math.hypot(...sub(ankle,knee))**2));
         boneSpace=[[...root,0],[...knee,kneeDepth],[...ankle,ankleDepth]];
       }
       return{root,knee,ankle,contact,shoeAngle,boneSpace,thigh:transform([hip,SPEC.waist],root,thighAngle),shin:transform([hip,SPEC.knee],knee,shinAngle)};
     });
     const arms=SPEC.shoulder.map((rest,i)=>{
-      const side=i?1:-1,shoulder=mapped(torso,profile?SPEC.profileShoulder[i]:rest),upperLength=Math.hypot(...sub(SPEC.elbow[i],rest)),lowerLength=Math.hypot(...sub(SPEC.wrist[i],SPEC.elbow[i]));
+      const side=i?1:-1,shoulder=mapped(torso,profile?SPEC.profileShoulder[i]:rest),upperLength=profile?SPEC.profileArm[0]:Math.hypot(...sub(SPEC.elbow[i],rest)),lowerLength=profile?SPEC.profileArm[1]:Math.hypot(...sub(SPEC.wrist[i],SPEC.elbow[i]));
       let elbow,wrist,depth=[0,0];
       if(floor||desk){
         // Authored seated arms: hands rest toward the knees or the desk.
-        const upper=floor?(profile?[.95,4.04]:[side*.2,4.1]):(profile?[1.2,4.0]:[side*.5,4.1]),lower=floor?(profile?[.85,2.45]:[-side*.55,2.59]):(profile?[.65,2.55]:[-side*.55,2.59]);
-        elbow=add(shoulder,rotate(upper,rad(lean)));wrist=add(elbow,rotate(lower,rad(lean)));
+        const upper=floor?(profile?[1.05,4.45]:[side*.22,4.5]):(profile?[1.32,4.4]:[side*.55,4.5]),lower=floor?(profile?[.7,2.0]:[-side*.45,2.12]):(profile?[.53,2.09]:[-side*.45,2.12]);
+        elbow=reach(shoulder,add(shoulder,rotate(upper,rad(lean))),upperLength);wrist=reach(elbow,add(elbow,rotate(lower,rad(lean))),lowerLength);
         depth[0]=Math.sqrt(Math.max(0,upperLength**2-Math.hypot(...sub(elbow,shoulder))**2));depth[1]=depth[0]+Math.sqrt(Math.max(0,lowerLength**2-Math.hypot(...sub(wrist,elbow))**2));
       }else if(climb){
         // Hand over hand: the high hand grips above and behind the big head,
         // the low hand pulls at chest height with its elbow tucked below it.
-        const reach=(1+Math.sin((phase+(i?0:.5))*TAU))/2;wrist=[16+side*mix(4.9,5.6,reach),mix(30.5,25.9,reach)];
+        const up=(1+Math.sin((phase+(i?0:.5))*TAU))/2;wrist=[16+side*mix(4.9,5.6,up),mix(30.5,25.9,up)];
+        // Keep the hand inside the arm's reach so ik lands the wrist on it.
+        const d=sub(wrist,shoulder),h=Math.hypot(...d),lo=Math.abs(upperLength-lowerLength)+.02,hi=upperLength+lowerLength-.02;
+        if(h<lo||h>hi)wrist=add(shoulder,d.map(v=>v*clamp(h,lo,hi)/(h||1)));
         elbow=ik(shoulder,wrist,upperLength,lowerLength,i?1:-1);
         depth[0]=Math.sqrt(Math.max(0,upperLength**2-Math.hypot(...sub(elbow,shoulder))**2));depth[1]=depth[0]+Math.sqrt(Math.max(0,lowerLength**2-Math.hypot(...sub(wrist,elbow))**2));
       }else{
-        let swing=REST_SWING,abduct=REST_ABDUCTION,flex=REST_FLEX,forearm=REST_FOREARM;
+        // Rest angles of this arm in this view's sheet (outward +).
+        const elbowRest=SPEC.elbow[i],wristRest=SPEC.wrist[i];
+        let swing=REST_SWING,abduct=Math.atan2(side*(elbowRest[0]-rest[0]),elbowRest[1]-rest[1]),flex=REST_FLEX,forearm=Math.atan2(side*(wristRest[0]-elbowRest[0]),wristRest[1]-elbowRest[1]);
         if(walk){
           const c=(i?1:-1)*Math.cos(TAU*(phase-gait.lag));swing+=rad(gait.swing)*c;flex=rad(gait.flex+gait.fold*c);
           // A running forearm crosses toward the chest on the forward swing.
@@ -145,7 +192,7 @@
       const base=sub(SPEC.elbow[i],rest),angle=Math.atan2(elbow[1]-shoulder[1],elbow[0]-shoulder[0])-Math.atan2(base[1],base[0]);
       return{shoulder,elbow,wrist,depth:depth[1],boneSpace:[[...shoulder,0],[...elbow,depth[0]],[...wrist,depth[1]]],sleeve:transform(rest,shoulder,angle),angle};
     });
-    return{direction,profile,back,action,phase,torso,legs,arms,floor,desk,drop,lean,gesture,hop,nod};
+    return{direction,profile,back,action,phase,torso,legs,arms,floor,desk,drop,lean,gesture,hop,nod,spec:SPEC};
   }
   const el=(tag,attrs={})=>{const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);return e;};
   const set=(e,key,value)=>{if(e.getAttribute(key)!==String(value))e.setAttribute(key,value);};
@@ -169,13 +216,14 @@
     const headClip=el('g');headClip.innerHTML=heads.headClip.replaceAll('qpx-head-front',id+'-head-front');defs.append(...headClip.children);
     const skinGradient=defs.querySelector('#'+id+'-skin');skinGradient.setAttribute('gradientUnits','userSpaceOnUse');skinGradient.setAttribute('x1','10');skinGradient.setAttribute('x2','22');
     svg.append(el('ellipse',{class:'qpx-contact-shadow',cx:16,cy:56.75365,rx:6.2,ry:.60,fill:'#596654',opacity:.20}));
-    const mirror=el('g',{'data-foundation-mirror':'true'}),head=el('g',{'data-foundation-head':'true'}),body=el('g',{'data-foundation-body':'true',transform:`translate(16 28) scale(${BODY_SCALE.x} ${BODY_SCALE.y}) translate(-16 -28)`}),backHair=el('g',{'data-foundation-back-hair':'true'});mirror.append(backHair,body,head);svg.append(mirror);
+    const mirror=el('g',{'data-foundation-mirror':'true'}),head=el('g',{'data-foundation-head':'true'}),body=el('g',{'data-foundation-body':'true',transform:`translate(16 28) scale(${BODY_SCALE.x} ${BODY_SCALE.y}) translate(-16 -28)`}),backHair=el('g',{'data-foundation-back-hair':'true'});mirror.append(backHair,body,head);const stage=el('g',{'data-foundation-stage':'true',transform:`translate(16 ${FLOOR_Y}) scale(${STAGE_SCALE}) translate(-16 ${-FLOOR_Y})`});stage.append(mirror);svg.append(stage);
     // Hair below the chin hangs behind the body, as in the regular avatar.
     // The front portraits also carry an old outlined neck stump down there;
     // only those traced strokes are cut, never the hanging hair itself.
-    if(heads.backHair){const clip=el('clipPath',{id:id+'-hair-behind',clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:'M-1 28.2H33V48.2H-1Z'+BACK_HAIR_NECK_CUT[sex],'clip-rule':'evenodd'}));defs.append(clip);backHair.innerHTML=heads.backHair.replaceAll('url(#qpx-hair-behind)','url(#'+id+'-hair-behind)');}
+    if(heads.backHair){const clip=el('clipPath',{id:id+'-hair-behind',clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:'M-1 28.2H33V48.2H-1Z'+BACK_HAIR_NECK_CUT[sex],'clip-rule':'evenodd'}));defs.append(clip);const fit=VIEW_HEAD[sex].front,hair=el('g',fit?{transform:`translate(0 ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`}:{});hair.innerHTML=heads.backHair.replaceAll('url(#qpx-hair-behind)','url(#'+id+'-hair-behind)');backHair.append(hair);}
     for(const view of ['front','profile','back']){
-      const v=el('g',{'data-foundation-head-view':view});v.innerHTML=heads[view].replaceAll('url(#qpx-head-front)','url(#'+id+'-head-front)');
+      const v=el('g',{'data-foundation-head-view':view}),fit=VIEW_HEAD[sex][view];
+      if(fit)v.setAttribute('transform',`translate(0 ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`);v.innerHTML=heads[view].replaceAll('url(#qpx-head-front)','url(#'+id+'-head-front)');
       // The directional paintings include a flared standalone neck with a
       // dark bottom rim. A body that owns its neck must not show that second
       // neck above the shirt. Cut only the reference heads' neck attachment;
@@ -232,9 +280,9 @@
     return'M'+t(a,-.75,-.7)+'Q'+t(a,.65,-1.05)+' '+t(b,.55,-.8)+'Q'+t(b,1.12,-.35)+' '+t(b,.82,.46)+'Q'+t(b,.62,.95)+' '+t(b,-.2,.95)+'L'+t(c,0,.52)+'Q'+t(c,-.42,0)+' '+t(c,0,-.5)+'L'+t(b,-.68,-.05)+'Q'+t(a,.12,.8)+' '+t(a,-.75,.7)+'Z';
   }
   function apply(svg,state={}){
-    const r=prepare(svg);if(!r)return false;const pose=solve({...state,time:Number.isFinite(state.time)?state.time:performance.now()/1000}),view=pose.profile?'profile':pose.back?'back':'front';r.pose=pose;
+    const r=prepare(svg);if(!r)return false;const pose=solve({...state,sex:svg.dataset.qpxSex,time:Number.isFinite(state.time)?state.time:performance.now()/1000}),view=pose.profile?'profile':pose.back?'back':'front';r.pose=pose;
     set(r.mirror,'transform',(pose.direction==='left'?'translate(32 0) scale(-1 1)':'')+(pose.hop?' translate(0 '+n(-pose.hop*1.7)+')':''));
-    const neck=mapped(pose.torso,[16,28]);set(r.head,'transform','translate('+pt([(neck[0]-16)*BODY_SCALE.x+(pose.profile?.35:0)*pose.nod,(neck[1]-28)*BODY_SCALE.y+.42*pose.nod])+')');if(r.backHair){set(r.backHair,'transform',r.head.getAttribute('transform'));r.backHair.style.display=view==='front'?'':'none';}
+    const neck=mapped(pose.torso,[16,28]);set(r.head,'transform','translate('+pt([(neck[0]-16)*BODY_SCALE.x+(pose.profile?.35:0)*pose.nod,(neck[1]-28)*BODY_SCALE.y+.42*pose.nod])+') translate(16 28) scale('+HEAD_SCALE+') translate(-16 -28)');if(r.backHair){set(r.backHair,'transform',r.head.getAttribute('transform'));r.backHair.style.display=view==='front'?'':'none';}
     for(const h of r.head.children)h.style.display=h.dataset.foundationHeadView===view?'':'none';
     set(r.parts.torso,'transform',matrix(pose.torso));set(r.parts.pelvis,'transform',matrix(pose.torso));
     const narrow=pose.profile?.8:1;
@@ -251,7 +299,7 @@
     set(r.underlay,'d',pose.floor&&pose.back?'M12.9 35.75Q16 36.45 19.1 35.75L19.75 38.65Q20.3 40.45 16 40.45Q11.7 40.45 12.25 38.65Z':'M12.9 35.75Q16 36.45 19.1 35.75L19.4 38.8Q18.35 39.45 17.25 39.05L16 38.45L14.75 39.05Q13.65 39.45 12.6 38.8Z');
     pose.legs.forEach((leg,i)=>{
       const part=r.legs[i],end=pose.floor?leg.ankle:add(leg.ankle,[0,.36]);
-      set(part.contour,'d',pose.floor?seatedLeg(leg,pose.profile,i):limb(leg.root,leg.knee,end,[THIGH*narrow,.89,.49]));
+      set(part.contour,'d',pose.floor?seatedLeg(leg,pose.profile,i):limb(leg.root,leg.knee,end,[THIGH*narrow,LEG_RADII[1],LEG_RADII[2]]));
       set(part.shade,'d',pose.floor?'':'M'+pt(add(lerp(leg.root,leg.knee,.75),[-.35,0]))+'Q'+pt(add(leg.knee,[-.35,0]))+' '+pt(add(leg.ankle,[-.26,.12])));
       if(!part.foot){part.foot=el('path',{fill:svg.dataset.foundationSkinFill,stroke:tone(svg.dataset.foundationSkin,.78),'stroke-width':.10,'stroke-linejoin':'round'});part.parent.append(part.foot);}
       // The foot's upper contour stays open under the ankle surface.
@@ -286,7 +334,7 @@
     // From behind, the raised hand is beyond the head and stays under it.
     const lifting=state.gestureProgress>.05&&state.gestureProgress<.95&&!pose.back,raised=lifting&&state.gesture==='wave'?['near-arm']:lifting&&state.gesture==='happy'?(pose.profile?['near-arm']:armKeys):[];
     if(raised.length){if(r.raisedKey!==raised.join()||raised.some(k=>r.parts[k].parentNode!==r.frontHands)){if(r.raised)r.body.append(...order.map(k=>r.parts[k]));r.frontHands.append(...raised.map(k=>r.parts[k]));r.raisedKey=raised.join();}r.raised=true;}else if(r.raised){r.body.append(...order.map(k=>r.parts[k]));r.orderKey=orderKey;r.raised=false;r.raisedKey='';}
-    const points=[mapped(pose.torso,[16,28]),mapped(pose.torso,[16,32.8]),mapped(pose.torso,[16,SPEC.waist]),...pose.arms.flatMap(a=>[a.shoulder,a.elbow,a.wrist]),...pose.legs.flatMap(l=>[l.root,l.knee,l.ankle])];
+    const points=[mapped(pose.torso,[16,28]),mapped(pose.torso,[16,32.8]),mapped(pose.torso,[16,pose.spec.waist]),...pose.arms.flatMap(a=>[a.shoulder,a.elbow,a.wrist]),...pose.legs.flatMap(l=>[l.root,l.knee,l.ankle])];
     const lines=[[0,1,2],[0,3,4,5],[0,6,7,8],[2,9,10,11],[2,12,13,14]];set(r.boneLines,'d',lines.map(line=>'M'+line.map(i=>pt(points[i])).join('L')).join(''));
     points.forEach((p,i)=>{set(r.joints[i],'cx',n(p[0]));set(r.joints[i],'cy',n(p[1]));});r.bones.style.display=state.showBones?'':'none';
     svg.dataset.qpxView=view;svg.dataset.qpxViewFacing=pose.direction;svg.dataset.qpxPose=pose.action;svg.dataset.qpxSeatMode=pose.floor?'floor':pose.desk?'desk':'';
@@ -302,6 +350,6 @@
     r.bones.replaceChildren();r.bones.style.display='none';r.frontHands.replaceChildren();for(const g of r.armGradients)g.remove();svg.querySelector('[id$="-neck-skin"]')?.remove();
     return mounted.delete(svg);
   }
-  const api=Object.freeze({spec:SPEC,thigh:THIGH,armRadii:ARM_RADII,bodyScale:Object.freeze(BODY_SCALE),solve,render,prepare,apply,reset:svg=>apply(svg,{action:'idle',direction:'front',time:0}),destroy,inspect:svg=>mounted.get(svg)?.pose||null});
+  const api=Object.freeze({spec:SPEC,specFor,restFor,rigFor,thigh:THIGH,armRadii:ARM_RADII,legRadii:LEG_RADII,rest:RESTS.m,headScale:HEAD_SCALE,stageScale:STAGE_SCALE,bodyScale:Object.freeze(BODY_SCALE),solve,render,prepare,apply,reset:svg=>apply(svg,{action:'idle',direction:'front',time:0}),destroy,inspect:svg=>mounted.get(svg)?.pose||null});
   root.QPAvatarFoundation=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window==='undefined'?globalThis:window);

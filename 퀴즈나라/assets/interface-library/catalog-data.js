@@ -170,7 +170,7 @@ window.QPInterfaceLibraryCatalog = {
   "application": {
     "theme": "forest-village",
     "scope": "login, home, shop, wardrobe, quiz, teacher, results",
-    "themeFile": "../../forest-village-theme.css",
+    "themeFile": "../../qplay-theme.css",
     "role": "Design foundation; original JPEGs are retained unchanged, not substituted for live interface controls"
   },
   "contracts": {
