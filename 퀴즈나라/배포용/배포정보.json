@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-08T01:56:52.257Z",
+  "builtAt": "2026-10-08T06:27:04.034Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -31,8 +31,8 @@
     },
     {
       "path": "qplay-buttons.css",
-      "bytes": 7624,
-      "sha256": "e3e6b7cb2c480600b6203247c8d5fa35cd7694317146d670807a8109d5ed0d8d"
+      "bytes": 9695,
+      "sha256": "f8e36613ebeb6dcf3faa7f43116430284bfbd0624808442aea10c1950ada4750"
     },
     {
       "path": "assets/world-life/leaf-panel.png",
@@ -111,13 +111,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 330256,
-      "sha256": "82d43cb34ac6fa1bb7701d93c1ffc857277642911dd85c7a5a19bdf23ad77ea9"
+      "bytes": 330021,
+      "sha256": "af6cff484b25085451d8140e49af7253fd721e9b40f7e54cf34ebee81b33c908"
     },
     {
       "path": "avatar-image.js",
-      "bytes": 4078,
-      "sha256": "98bfe7538569841349359fa1976a91010deb67fd609a221bef77142238e7bb5c"
+      "bytes": 4074,
+      "sha256": "9cc6a2ae79ab5d45422df61caf285601e8c82b15cb69797efe64acbd53b5e360"
     },
     {
       "path": "assets/avatar-file-data.js",
@@ -196,18 +196,33 @@
     },
     {
       "path": "quizquiz.js",
-      "bytes": 63978,
-      "sha256": "206a1556725dba4dab33b92de5eaa164643e6bc984ea1365fef8de6c7abb08e1"
+      "bytes": 69319,
+      "sha256": "717d353b294a030040d400d58e312d376929ec7a80c79b71d4e83bac4cf8ad10"
     },
     {
       "path": "quizquiz.css",
-      "bytes": 39469,
-      "sha256": "3b436804047d6d0adc447af2cb0120a765592674f2b1d29c64ae379f3719e2c6"
+      "bytes": 44018,
+      "sha256": "ab9fff8ca48e018fb1149c89c3e971e26f99db896e72b2fc36f879719160841d"
     },
     {
-      "path": "forest-village-theme.css",
-      "bytes": 23350,
-      "sha256": "17681879b0302482cbf128a1efae6821b6726b0c17bb4d894a22d5391cd7754f"
+      "path": "assets/painted-grass-ground.png",
+      "bytes": 2849831,
+      "sha256": "2405a20c23daee634240e12f8f5fee54b0e5bdd3ea2cc31c66088da806a6f95b"
+    },
+    {
+      "path": "ox-arena-props.js",
+      "bytes": 1821,
+      "sha256": "8388fa61dd25dbab2cfce7231c9cfb5dfe58bcd6f0dd8b41248e6434b4052b5b"
+    },
+    {
+      "path": "assets/ox-arena/props.webp",
+      "bytes": 646796,
+      "sha256": "904d0ff8e1b67623e91229011d7b973fbab4b83e881205940439806154ef60c0"
+    },
+    {
+      "path": "qplay-theme.css",
+      "bytes": 18699,
+      "sha256": "e34af04fb5a77632217c9264382bd7517f98b64497495ae36de20262cc51f19d"
     },
     {
       "path": "shop-village.css",
@@ -316,8 +331,8 @@
     },
     {
       "path": "village-presence.js",
-      "bytes": 25691,
-      "sha256": "8940c0030a821df5e41b371d6ed70b7fb5535200d663c31d5780352d0c40da1f"
+      "bytes": 25551,
+      "sha256": "9639fb2aaab20c56d8a5f0885a5d9e36c24dec34b8cd1df3a12b1540f12b15a6"
     },
     {
       "path": "assets/classroom-library/originals/classroom-e41eb583796fc7b8.png",
@@ -471,58 +486,63 @@
     },
     {
       "path": "avatar-foundation-outfit.js",
-      "bytes": 24567,
-      "sha256": "fadcee5ca2f104271d5a9052381340226b786c21ed5fbe7fb8ccdf2b40f28dbb"
-    },
-    {
-      "path": "assets/sd-foundation-basic.png",
-      "bytes": 1523789,
-      "sha256": "b227bb3337eba5d0958757643ceb1416c39400130401d9d51ca13036c2dff044"
-    },
-    {
-      "path": "assets/sd-foundation-shirt-profile-rounded.png",
-      "bytes": 986151,
-      "sha256": "fefa84e77a11090cf9b323844787a90543646bf5fb1a0be89b97a6182b1a2b33"
-    },
-    {
-      "path": "assets/sd-foundation-sleeves.png",
-      "bytes": 662699,
-      "sha256": "c3a0464166e3c61d95a18454c1ff868ab26f7f3a26851f1fee78838286a2673c"
-    },
-    {
-      "path": "assets/sd-foundation-torso.png",
-      "bytes": 1200955,
-      "sha256": "76a153bd9c5b83072b8c46a381f407e645504cc62ac98b197955e9d5fabffc20"
-    },
-    {
-      "path": "assets/sd-foundation-sleeves-raised.png",
-      "bytes": 1194837,
-      "sha256": "e52cd6711dc8ad685f247c571369457127e46adcfdb2e98ba4137a293a3c5f2f"
+      "bytes": 14792,
+      "sha256": "065528959cd984f843486e3151a293a448fb831aaf3d9f62484402cb5f99d4a9"
     },
     {
       "path": "assets/avatar-file-data-foundation.js",
-      "bytes": 10276681,
-      "sha256": "0001e524dead0cf3b0793897b396ab7ac515cbd6ef523c88329df663015f73db"
+      "bytes": 840352,
+      "sha256": "de7ed77a18c76dbf6f2a5c29caaaefc69414ca9bac8498c3af70150b5a3729cb"
+    },
+    {
+      "path": "assets/sd-foundation-ref-data.js",
+      "bytes": 4668,
+      "sha256": "c0e17a7d255af454ff82e6bd3b86d2f40c2745ffaa2b20195fedd34b94a69426"
+    },
+    {
+      "path": "assets/sd-foundation-ref-shirt.png",
+      "bytes": 201336,
+      "sha256": "b034e0b1862387be7dc3a9fc23eea5fcf2f418fcf90ce392eadc784b731f96c9"
+    },
+    {
+      "path": "assets/sd-foundation-ref-sleeves.png",
+      "bytes": 88291,
+      "sha256": "243275d754c7bdc5a207c2997a1b5f175012a34805b49e208b15e8646add5f7e"
+    },
+    {
+      "path": "assets/sd-foundation-ref-shorts.png",
+      "bytes": 129540,
+      "sha256": "57b56fafb08ae10f65910cdfeb0689fa042bc6fe771b8aa4fd52092281a6ef87"
+    },
+    {
+      "path": "assets/sd-foundation-ref-shoes.png",
+      "bytes": 79544,
+      "sha256": "6c2714fe91cab7f6074bfd8b721125343751b825a024449112c5bfaa220b3ff0"
+    },
+    {
+      "path": "assets/sd-foundation-ref-arms.png",
+      "bytes": 61804,
+      "sha256": "c5da4a20c2a1176866609d1cd62863f71d12e2d05ab054b4da67072823c28714"
+    },
+    {
+      "path": "assets/sd-foundation-ref-legs.png",
+      "bytes": 50975,
+      "sha256": "e3aef2f0ad68f50c9b1da00bae00d1e8b09427687e5129e4cb59ab8db3514678"
     },
     {
       "path": "avatar-foundation-skin.js",
-      "bytes": 13484,
-      "sha256": "342aa8fbe085d19bc8349232109b3dbe684bd3ff1085a5ff604a2aa9ba61dd82"
+      "bytes": 13235,
+      "sha256": "bbf84278e79876741ca250e1e4bb7a2d34ee523e6f005fec54f87ef7cfab2bd4"
     },
     {
-      "path": "assets/sd-foundation-neck.png",
-      "bytes": 803455,
-      "sha256": "ecc57f0f5ecd41951e8d12e71c5c8ca8b0dbd60ee7cbce96094e9129b2114110"
-    },
-    {
-      "path": "assets/sd-foundation-skin-rounded.png",
-      "bytes": 1335138,
-      "sha256": "ad99e576ba30f9012fe21d7c8b196942b09e3b960ac3a51a38675df573553ae9"
+      "path": "assets/sd-foundation-ref-neck.png",
+      "bytes": 18291,
+      "sha256": "8b5cc6919d5472de4a71e2b96ec936da76a43b64faf07dfc25781ed21a12f2ac"
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 33343,
-      "sha256": "3975dd1070876dcd086d73afb9376ec1c8068ee3a88913c4671f61d070f214ff"
+      "bytes": 38820,
+      "sha256": "e3911caf1e84c9119028374bd76d2d0463c99781f0ad5229e74c0793f0ada768"
     },
     {
       "path": "avatar-foundation.css",

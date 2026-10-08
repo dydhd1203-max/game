@@ -13,7 +13,9 @@ const runtimeFiles=new Set(files.map(file=>file.split(path.sep).join('/')));
 for(const file of files.filter(file=>file.endsWith('.css'))){
   const css=fs.readFileSync(path.join(root,file),'utf8').replace(/\/\*[\s\S]*?\*\//g,'');
   for(const match of css.matchAll(/url\(\s*['"]?([^'"()\s]+)['"]?\s*\)/gi)){
-    const url=match[1];if(/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(url))continue;
+    // Decode first: an encoded fragment such as url(%23n) inside a data URI
+    // is an SVG reference, not a file.
+    const url=decodeURIComponent(match[1]);if(/^(?:[a-z][a-z0-9+.-]*:|\/\/|#)/i.test(url))continue;
     const dependency=path.posix.normalize(path.posix.join(path.posix.dirname(file),decodeURIComponent(url.split(/[?#]/)[0])));
     assert(runtimeFiles.has(dependency),'Stylesheet artwork missing from deployment-files.cjs: '+file+' → '+dependency);
   }

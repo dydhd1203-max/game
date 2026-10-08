@@ -53,50 +53,42 @@
   }
   const onlinePlayers = room => playersOf(room).filter(p => p.online !== false);
 
-  /* ───────────────────────────── Lobby ───────────────────────────── */
-  const ICON = {
-    stage: '<svg viewBox="0 0 48 48" aria-hidden="true"><g stroke="#4a2c10" stroke-width="2.4" stroke-linejoin="round"><path d="M10 40h28l-3-15H13z" fill="#c08546"/><path d="M13 25h22v-4H13z" fill="#e2b37d"/><path d="M16 40v4M32 40v4" stroke-linecap="round"/><path d="M24 4l3 6 6.5 1-4.7 4.6 1.1 6.4L24 19l-5.9 3 1.1-6.4-4.7-4.6 6.5-1z" fill="#ffd84a"/></g><path d="M16 30h16" stroke="#fff4" stroke-width="2"/></svg>',
-    ox: '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="15" cy="24" r="9" fill="none" stroke="#0b4740" stroke-width="7"/><circle cx="15" cy="24" r="9" fill="none" stroke="#2fb8a8" stroke-width="4"/><g stroke-linecap="round"><path d="M29 16l12 16M41 16L29 32" stroke="#6b1d12" stroke-width="7"/><path d="M29 16l12 16M41 16L29 32" stroke="#e8584a" stroke-width="4"/></g></svg>',
-    post: '<svg viewBox="0 0 160 120" aria-hidden="true"><g stroke="#4a2c10" stroke-width="3" stroke-linejoin="round"><path d="M74 22h12v92H74z" fill="#9a6431"/><path d="M28 30h96l14 13-14 13H28z" fill="#e2b37d"/><path d="M34 64h86l-12 12 12 12H34z" fill="#c08546"/></g><path d="M58 108c8-10 36-10 44 0" fill="#7cc23e" stroke="#2f5e22" stroke-width="2.5"/><circle cx="46" cy="104" r="5" fill="#ffd84a" stroke="#8a5a10" stroke-width="2"/><text x="78" y="49" text-anchor="middle" font-family="QuizLatin,QuizRound,sans-serif" font-weight="700" font-size="17" fill="#3b2a1a">QUIZ</text><text x="76" y="82" text-anchor="middle" font-family="QuizRound,sans-serif" font-size="14" fill="#fff">광장</text></svg>'
-  };
-  /* A string of fairy lights sagging across the plaza; bulbs twinkle one by one. */
-  function fairyLights(count) {
-    let bulbs = '';
-    for (let i = 0; i < count; i++) {
-      const u = i / (count - 1), x = 4 + u * 92, y = 10 + Math.sin(u * Math.PI) * 26;
-      bulbs += '<i class="qq-bulb b' + (i % 3) + '" style="left:' + x.toFixed(1) + '%;top:' + y.toFixed(1) + 'px;animation-delay:-' + ((i * 0.53) % 3).toFixed(2) + 's"></i>';
-    }
-    return '<div class="qq-lights" aria-hidden="true"><svg viewBox="0 0 100 40" preserveAspectRatio="none"><path d="M0 6 Q50 66 100 6" fill="none" stroke="#3b2510" stroke-width=".6" vector-effect="non-scaling-stroke"/></svg>' + bulbs + '</div>';
-  }
+  /* ───────────────────────────── Lobby ─────────────────────────────
+     QPlay channel lobby (디자인기준/27): room cards in two columns with their
+     buttons underneath, the user list top right, my card bottom right and the
+     channel chat along the bottom. */
   const head = (ctx, av) => '<i class="qq-head" aria-hidden="true">' + ctx.avatarSVG(av || {}, 70, 1) + '</i>';
 
   function mountLobby(container, ctx) {
     const R = refs(ctx), me = ctx.me, subs = [];
-    const S = { list: {}, chat: {}, online: {}, filter: 'all' };
+    const S = { list: {}, chat: {}, online: {}, filter: 'all', page: 0 };
     let destroyed = false;
-    const daily = Math.max(0, me.daily || 0), cap = Math.max(1, me.cap || 300);
-    const plates = ctx.isTeacher
-      ? '<span class="qq-num teacher">수업 방을 만들어 학생을 불러요</span>'
-      : '<span class="qq-num"><i class="qq-coin-ico"></i><b>' + (me.gold || 0).toLocaleString() + '</b>골드</span>'
-        + '<span class="qq-cap" title="오늘 연습으로 모은 골드"><i style="width:' + Math.min(100, daily / cap * 100) + '%"></i><b>오늘의 연습 ' + daily + ' / ' + cap + '</b></span>';
-    const filters = [['all', '전체'], ['stage', '무대 QUIZ'], ['ox', '서바이벌 OX']]
-      .map(([k, t]) => '<button class="qq-chip' + (k === 'all' ? ' on' : '') + '" data-filter="' + k + '" aria-pressed="' + (k === 'all') + '">' + t + '</button>').join('');
-    container.innerHTML = `<div class="qq-lobby">${ambient(16)}
-      <section class="qq-plaza" aria-label="친구 광장">${fairyLights(17)}
-        <div class="qq-sign" aria-hidden="true"><i class="qq-rope l"></i><i class="qq-rope r"></i><div class="qq-sign-board">${ctx.candy([{ text: 'QUIZ', variant: 'sky' }, ' 광장'], { label: '퀴즈 광장' })}<small>친구들이 모이는 곳</small></div></div>
-        <div class="qq-plaza-row" id="qqPlaza"></div><p class="qq-plaza-empty" id="qqPlazaEmpty">친구들이 들어오면 여기 모여요</p>
-        <div class="qq-me"><div class="qq-me-stage"><div class="qq-hang"><i></i><i></i><b>${esc(me.name)}</b></div><div class="qq-me-avatar">${ctx.avatarSVG(me.av, 140, 3)}</div><i class="qq-stump" aria-hidden="true"></i></div>
-          <div class="qq-me-plates">${plates}</div></div>
-      </section>
-      <section class="qq-wall" aria-labelledby="qqRoomsTitle">
-        <header class="qq-wall-h"><h2 id="qqRoomsTitle">${ctx.candy('방 게시판', { className: 'ct-small' })}</h2><div class="qq-filter" role="group" aria-label="게임 종류">${filters}</div><span class="qq-count" id="qqRoomCount"></span></header>
+    const PER = 8;
+    container.innerHTML = `<div class="qq-lobby">${ambient(8)}
+      <section class="qq-rooms" aria-labelledby="qqRoomsTitle"><span class="qq-channel">${ctx.isTeacher ? '선생님' : '3학년 3반'} 채널</span>
+        <h2 class="sr-only" id="qqRoomsTitle">대기실 목록</h2>
         <div class="qq-room-grid" id="qqRoomGrid"></div>
-        <div class="qq-room-actions"><p class="qq-room-tip">선생님 방은 맨 앞에 금별을 달고 붙어요</p><button class="btn g" id="qqCreate">방 만들기</button><button class="btn y" id="qqQuick">바로 시작</button></div>
+        <div class="qq-pager"><button class="qq-arrow" id="qqPrev" aria-label="이전 방 목록">▲</button><span id="qqPage"></span><button class="qq-arrow" id="qqNext" aria-label="다음 방 목록">▼</button></div>
+        <div class="qq-room-actions">
+          <button class="btn qq-make" id="qqCreate"><svg class="qq-bico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21V4l9-2v19z" fill="#ffe08a" stroke="#0b2f74" stroke-width="1.6" stroke-linejoin="round"/><path d="M14 4h5v17h-5" fill="#9ddcff" stroke="#0b2f74" stroke-width="1.6" stroke-linejoin="round"/><circle cx="11" cy="12.5" r="1.3" fill="#0b2f74"/></svg>방만들기</button><button class="btn y" id="qqQuick"><svg class="qq-bico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h9V4l9 8-9 8v-5H3z" fill="#fff6c8" stroke="#7a2a03" stroke-width="1.6" stroke-linejoin="round"/></svg>바로시작</button>
+          <div class="qq-filter" role="group" aria-label="게임 종류">${[['all', '전체보기'], ['stage', '무대 QUIZ'], ['ox', '서바이벌 OX']].map(([k, t]) => '<button class="qq-chip' + (k === 'all' ? ' on' : '') + '" data-filter="' + k + '" aria-pressed="' + (k === 'all') + '">' + t + '</button>').join('')}</div>
+        </div>
       </section>
-      <section class="qq-win qq-online"><header class="qq-win-h"><h2>출석부</h2><span class="qq-count" id="qqOnlineCount"></span></header><ul class="qq-online-list" id="qqOnline"></ul></section>
-      <section class="qq-chatbar" aria-label="로비 채팅">
+      <section class="qq-users" aria-labelledby="qqUsersTitle">
+        <div class="qq-utabs"><span class="qq-utab">우리 반</span><span class="qq-utab on" id="qqUsersTitle">대기실 <b id="qqOnlineCount"></b></span></div>
+        <div class="qq-uhead"><span>상태</span><span>아이디</span><span>점수</span></div>
+        <ul class="qq-online-list" id="qqOnline"></ul>
+        <div class="qq-banner" aria-hidden="true"><svg viewBox="23 35.4 10.6 12">${ctx.pet ? ctx.pet('dino', '#5fbf3f') : ''}</svg><b>${ctx.candy([{ text: 'QUIZ', variant: 'sky' }, ' 한 판?'], { className: 'ct-small', label: '퀴즈 한 판?' })}</b><svg viewBox="23 35.4 10.6 12">${ctx.pet ? ctx.pet('rabbit', '#f28ac0') : ''}</svg></div>
+      </section>
+      <section class="qq-mecard" aria-label="내 정보">
+        <div class="qq-me-pic">${ctx.avatarSVG(me.av, 132, 3)}</div>
+        <div class="qq-me-info"><b class="qq-me-name">${esc(me.name)}</b>
+          <dl><dt>${ctx.isTeacher ? '역할' : '골드'}</dt><dd>${ctx.isTeacher ? '선생님' : (me.gold || 0).toLocaleString()}</dd>
+          <dt>오늘 연습</dt><dd>${ctx.isTeacher ? '-' : Math.max(0, me.daily || 0) + ' / ' + (me.cap || 300)}</dd></dl></div>
+      </section>
+      <section class="qq-chatbox" aria-label="로비 채팅">
         <div class="qq-chat-log" id="qqChatLog" role="log" aria-live="polite"></div>
-        <form class="qq-chat-form" id="qqChatForm"><input class="inp" id="qqChatIn" maxlength="60" autocomplete="off" placeholder="친구들에게 한마디" aria-label="로비 채팅"><button class="btn sm">보내기</button></form>
+        <form class="qq-chat-form" id="qqChatForm"><span class="qq-to">모두에게</span><input class="inp" id="qqChatIn" maxlength="60" autocomplete="off" placeholder="친구들에게 한마디" aria-label="로비 채팅"><button class="btn sm">보내기</button></form>
       </section></div>`;
     const el = id => container.querySelector('#' + id);
 
@@ -107,82 +99,50 @@
     }
     function card(r, no) {
       const full = (r.n || 0) >= (r.max || MAX), playing = r.phase && r.phase !== 'lobby';
-      const heads = (Array.isArray(r.heads) ? r.heads : Object.values(r.heads || {})).slice(0, 5);
-      const more = (r.n || 0) > heads.length ? '<em>+' + ((r.n || 0) - heads.length) + '</em>' : '';
-      const state = full ? '가득 찼어요' : playing ? '게임 중' : '모집 중';
-      return `<button class="qq-room mode-${esc(r.mode)} ${full ? 'full' : playing ? 'playing' : 'waiting'} ${r.teacher ? 'teacher' : ''}" data-room="${esc(r.id)}" ${full ? 'disabled' : ''} aria-label="${esc(r.title)}, ${esc(MODES[r.mode]?.name || '')}, ${r.n || 0}명, ${state}">
-        <i class="qq-pin" aria-hidden="true"></i>${r.teacher ? '<span class="qq-ribbon">선생님 방</span>' : ''}
-        <span class="qq-room-icon">${ICON[r.mode] || ICON.stage}</span>
-        <span class="qq-room-no">${pad3(no)}</span><b class="qq-room-title">${esc(r.title)}</b>
-        <span class="qq-room-sub">${esc(MODES[r.mode]?.name || '')} · ${esc(r.hostName || '')}</span>
-        <span class="qq-room-heads">${heads.map(av => head(ctx, av)).join('')}${more}</span>
-        <span class="qq-room-state">${state}</span><span class="qq-room-n">${r.n || 0}<small>/${r.max || MAX}</small></span></button>`;
+      return `<button class="qq-room mode-${esc(r.mode)} ${playing ? 'playing' : 'waiting'} ${r.teacher ? 'teacher' : ''}" data-room="${esc(r.id)}" ${full ? 'disabled' : ''} aria-label="${esc(r.title)}, ${esc(MODES[r.mode]?.name || '')}, ${r.n || 0}명, ${playing ? '게임 중' : '기다리는 중'}">
+        <span class="qq-room-no">${pad3(no)}</span><span class="qq-room-mode">${esc(MODES[r.mode]?.short || '')}</span>
+        <span class="qq-room-state">${playing ? 'PLAYING' : 'WAITING'}</span><span class="qq-room-n">${r.n || 0}/${r.max || MAX}</span>
+        <b class="qq-room-title">${r.teacher ? '<i class="qq-tstar" aria-hidden="true">★</i>' : ''}${esc(r.title)}</b></button>`;
     }
     function paintRooms() {
       const all = rooms(), list = all.filter(r => S.filter === 'all' || r.mode === S.filter), grid = el('qqRoomGrid');
-      el('qqRoomCount').textContent = all.length + '개';
-      grid.innerHTML = list.length ? list.map(r => card(r, all.indexOf(r) + 1)).join('')
-        : `<div class="qq-empty">${ICON.post}<b>${all.length ? '이 종류의 방이 없어요' : '아직 붙은 방이 없어요'}</b><p>방 만들기를 눌러 첫 방을 붙여 보세요.</p></div>`;
+      const pages = Math.max(1, Math.ceil(list.length / PER)); S.page = Math.min(S.page, pages - 1);
+      const shown = list.slice(S.page * PER, S.page * PER + PER);
+      let html = shown.map(r => card(r, all.indexOf(r) + 1)).join('');
+      for (let i = shown.length; i < PER; i++) html += '<div class="qq-room empty" aria-hidden="true"><span class="qq-room-no">---</span></div>';
+      grid.innerHTML = html;
+      el('qqPage').textContent = (S.page + 1) + '/' + pages;
+      el('qqPrev').disabled = S.page === 0; el('qqNext').disabled = S.page >= pages - 1;
       grid.querySelectorAll('[data-room]').forEach(b => b.onclick = () => { ctx.sound?.click?.(); ctx.go('qqroom', b.dataset.room); });
     }
+    el('qqPrev').onclick = () => { S.page = Math.max(0, S.page - 1); paintRooms(); };
+    el('qqNext').onclick = () => { S.page++; paintRooms(); };
     container.querySelectorAll('[data-filter]').forEach(b => b.onclick = () => {
-      S.filter = b.dataset.filter;
+      S.filter = b.dataset.filter; S.page = 0;
       container.querySelectorAll('[data-filter]').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', String(x === b)); });
       paintRooms();
     });
-    const plazaNodes = new Map();
-    function paintPlaza(people) {
-      const row = el('qqPlaza'), shown = people.filter(p => p.k !== me.k).slice(0, 9), keep = new Set(shown.map(p => p.k)), now = ctx.svNow();
-      for (const [k, node] of plazaNodes) if (!keep.has(k)) { node.remove(); plazaNodes.delete(k); }
-      const said = {};
-      Object.keys(S.chat).map(k => S.chat[k]).filter(m => m && now - (m.t || 0) < 6000).sort((a, b) => a.t - b.t).forEach(m => { said[m.k] = m.text; });
-      shown.forEach((p, i) => {
-        let node = plazaNodes.get(p.k);
-        const avKey = JSON.stringify(p.av || {});
-        if (!node) {
-          node = document.createElement('div'); node.className = 'qq-pal'; node.style.setProperty('--i', i);
-          node.innerHTML = '<span class="qq-say"></span><div class="qq-pal-avatar"></div><b></b>';
-          plazaNodes.set(p.k, node);
-        }
-        if (node.dataset.av !== avKey) { node.querySelector('.qq-pal-avatar').innerHTML = ctx.avatarSVG(p.av || {}, 108, 3); node.dataset.av = avKey; }
-        node.classList.toggle('away', !!(p.where && p.where !== 'lobby'));
-        node.querySelector('b').textContent = p.name || '';
-        const say = node.querySelector('.qq-say'); say.textContent = said[p.k] || ''; say.classList.toggle('on', !!said[p.k]);
-        node.style.order = i;
-        if (!node.isConnected) row.appendChild(node);
-      });
-      el('qqPlazaEmpty').hidden = shown.length > 0;
-      const mine = container.querySelector('.qq-me .qq-say');
-      if (said[me.k]) {
-        let bubble = mine;
-        if (!bubble) { bubble = document.createElement('span'); bubble.className = 'qq-say'; container.querySelector('.qq-me-stage').appendChild(bubble); }
-        bubble.textContent = said[me.k]; bubble.classList.add('on');
-      } else if (mine) mine.classList.remove('on');
-    }
     function paintOnline() {
       const now = ctx.svNow(), people = Object.keys(S.online).map(k => Object.assign({ k }, S.online[k])).filter(p => p && now - (p.t || 0) < ONLINE_TTL)
         .sort((a, b) => (b.teacher ? 1 : 0) - (a.teacher ? 1 : 0) || String(a.name).localeCompare(String(b.name), 'ko'));
       el('qqOnlineCount').textContent = people.length + '명';
-      paintPlaza(people);
-      const html = people.map(p => '<li class="' + (p.k === me.k ? 'me' : '') + '">' + head(ctx, p.av) + '<b>' + esc(p.name) + '</b>'
-        + (p.teacher ? '<span class="qq-tag teacher">선생님</span>' : '')
-        + '<small class="' + (p.where && p.where !== 'lobby' ? 'busy' : '') + '"><i class="qq-dot"></i>' + (p.where && p.where !== 'lobby' ? '게임 중' : '광장') + '</small></li>').join('');
+      const html = people.map(p => '<li class="' + (p.k === me.k ? 'me' : '') + '"><i class="qq-dot ' + (p.where && p.where !== 'lobby' ? 'busy' : '') + '" title="' + (p.where && p.where !== 'lobby' ? '게임 중' : '대기실') + '"></i>' + head(ctx, p.av) + '<b>' + esc(p.name) + '</b>' + (p.teacher ? '<span class="qq-tag teacher">선생님</span>' : '<span>' + (p.where && p.where !== 'lobby' ? '게임 중' : '대기') + '</span>') + '</li>').join('');
       const list = el('qqOnline'); if (list.dataset.html !== html) { list.innerHTML = html; list.dataset.html = html; }
     }
     function paintChat() {
       const log = el('qqChatLog'), lines = Object.keys(S.chat).map(k => S.chat[k]).filter(Boolean).sort((a, b) => (a.t || 0) - (b.t || 0)).slice(-40);
-      log.innerHTML = '<p class="qq-chat-hint">[알림] QUIZ 광장에 오신 것을 환영해요! 게시판의 방을 누르거나 방을 만들어요.</p>'
-        + lines.map(m => '<p class="' + (m.k === me.k ? 'me' : '') + '"><b class="qq-name-chip">' + esc(m.name) + '</b>' + esc(m.text) + '</p>').join('');
+      log.innerHTML = '<p class="qq-chat-hint">[알림] QUIZQUIZ 대기실에 오신 것을 환영해요! 방을 고르거나 방만들기를 눌러요.</p>'
+        + Object.keys(S.online).filter(k => k !== me.k).slice(0, 3).map(k => '<p class="qq-chat-hint">[알림] ' + esc(S.online[k].name) + '님 입장</p>').join('')
+        + lines.map(m => '<p class="' + (m.k === me.k ? 'me' : '') + '"><b>[' + esc(m.name) + ']</b> ' + esc(m.text) + '</p>').join('');
       log.scrollTop = log.scrollHeight;
     }
     const sub = (ref, fn) => { const h = ref.on('value', snap => { if (!destroyed) fn(snap.val() || {}); }); subs.push(() => ref.off('value', h)); };
     sub(R.list, v => { S.list = v; paintRooms(); });
-    sub(R.chat, v => { S.chat = v; paintChat(); paintOnline(); });
-    sub(R.online, v => { S.online = v; paintOnline(); });
+    sub(R.chat, v => { S.chat = v; paintChat(); });
+    sub(R.online, v => { S.online = v; paintOnline(); paintChat(); });
     const here = () => R.online.child(me.k).set({ name: me.name, av: ctx.publicAvatar(me.av), t: ctx.svNow(), where: 'lobby', teacher: !!ctx.isTeacher }).catch(() => {});
     here(); R.online.child(me.k).onDisconnect().remove();
-    const beat = setInterval(() => { here(); paintRooms(); cleanupStale(); }, 15000);
-    const bubbleTimer = setInterval(paintOnline, 2000);
+    const beat = setInterval(() => { here(); paintRooms(); paintOnline(); cleanupStale(); }, 15000);
     function cleanupStale() {
       const now = ctx.svNow();
       Object.keys(S.list).forEach(id => { const r = S.list[id]; if (r && now - (r.t || 0) > LIST_STALE * 2) { R.list.child(id).remove(); R.rooms.child(id).remove(); } });
@@ -200,7 +160,7 @@
       const open = rooms().find(r => r.phase === 'lobby' && (r.n || 0) < (r.max || MAX));
       if (open) ctx.go('qqroom', open.id); else openCreate(ctx, R);
     };
-    return { destroy() { destroyed = true; subs.forEach(f => f()); clearInterval(beat); clearInterval(bubbleTimer); R.online.child(me.k).remove().catch(() => {}); } };
+    return { destroy() { destroyed = true; subs.forEach(f => f()); clearInterval(beat); R.online.child(me.k).remove().catch(() => {}); } };
   }
 
   /* Room settings: title, game, question set, count and seconds. */
@@ -612,73 +572,93 @@
   }
 
   /* ───────────────────────────── Survival OX ─────────────────────────────
-     On the school playground: a chalk O on the dirt infield, a chalk X on the
-     soccer pitch, spectator steps for those who are out. Everyone walks with
-     their own avatar (the shared map engine); positions sync per room. */
-  const OX = {
-    o: [[1760, 985], [2195, 778], [2470, 893], [2035, 1118]],
-    x: [[2555, 612], [2748, 520], [3150, 707], [2958, 800]],
-    stands: { x: 1530, y: 930 },
-    spawn: { x: 1680, y: 868 },
-    camera: { x: 2330, y: 700, zoom: .56 }
+     A one-screen forest arena after QPlay's Survival OX: an O stump on the left,
+     a ? clearing in the middle, an X stump on the right and log benches for
+     those who are out. Click or use the arrow keys to walk; when time is up,
+     a wooden lid slams onto the wrong stump. Positions sync through the room. */
+  const ARENA = { w: 1000, h: 600, field: { x0: 40, x1: 960, y0: 70, y1: 450 }, bench: { x0: 120, x1: 880, y0: 520, y1: 566 },
+    o: { x: 215, y: 270, r: 132 }, x: { x: 785, y: 270, r: 132 }, mid: { x: 500, y: 280 }, speed: 300 };
+  const zoneAt = pt => {
+    const d = (c) => Math.hypot(pt.x - c.x, (pt.y - c.y) * 1.25);
+    return d(ARENA.o) <= ARENA.o.r ? 'o' : d(ARENA.x) <= ARENA.x.r ? 'x' : null;
   };
-  function inside(pt, poly) {
-    let hit = false;
-    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-      const [xi, yi] = poly[i], [xj, yj] = poly[j];
-      if ((yi > pt.y) !== (yj > pt.y) && pt.x < (xj - xi) * (pt.y - yi) / (yj - yi) + xi) hit = !hit;
-    }
-    return hit;
-  }
-  const zoneAt = pt => inside(pt, OX.o) ? 'o' : inside(pt, OX.x) ? 'x' : null;
   const answerOX = a => /^(o|ㅇ|맞)/i.test(String(a == null ? '' : a).trim()) ? 'o' : 'x';
-  function oxChalk() {
-    const pts = p => p.map(q => q.join(',')).join(' ');
-    const cx = p => p.reduce((s, q) => s + q[0], 0) / 4, cy = p => p.reduce((s, q) => s + q[1], 0) / 4;
-    const ox = cx(OX.o), oy = cy(OX.o), xx = cx(OX.x), xy = cy(OX.x);
-    const ring = `<ellipse cx="${ox}" cy="${oy}" rx="190" ry="96"/>`;
-    const cross = `<path d="M${xx - 150} ${xy - 34} L${xx + 150} ${xy + 34} M${xx + 64} ${xy - 78} L${xx - 64} ${xy + 78}"/>`;
-    return `<svg class="qq-ox-chalk" viewBox="0 0 3714 1808" width="3714" height="1808" aria-hidden="true">
-      <polygon class="qq-zone z-o" points="${pts(OX.o)}"/><polygon class="qq-zone z-x" points="${pts(OX.x)}"/>
-      <g class="qq-chalk o">${ring}</g><g class="qq-chalk x">${cross}</g>
-      <g class="qq-puffs z-o">${[0, 1, 2, 3, 4].map(i => `<circle cx="${ox - 160 + i * 80}" cy="${oy + (i % 2 ? -30 : 26)}" r="46" style="--i:${i}"/>`).join('')}</g>
-      <g class="qq-puffs z-x">${[0, 1, 2, 3, 4].map(i => `<circle cx="${xx - 160 + i * 80}" cy="${xy + (i % 2 ? -26 : 22)}" r="44" style="--i:${i}"/>`).join('')}</g>
-      <text class="qq-stands-label" x="${OX.stands.x}" y="${OX.stands.y - 70}">관중석</text></svg>`;
+  const STUMP = mark => `<svg viewBox="0 0 300 260" aria-hidden="true">
+    <ellipse cx="150" cy="162" rx="148" ry="96" fill="#2c1a08" opacity=".3"/>
+    <path d="M6 128v24c0 56 64 96 144 96s144-40 144-96v-24z" fill="#7a4a22" stroke="#3b2510" stroke-width="5"/>
+    <g stroke="#4a2c10" stroke-width="4" stroke-linecap="round" fill="none" opacity=".75"><path d="M30 150q4 34 8 58M62 160q2 36 4 66M100 166q0 34-2 70M150 168v76M196 166q2 36 0 70M238 160q-2 34-6 64M270 150q-4 30-10 54"/></g>
+    <g stroke="#a8703a" stroke-width="3" stroke-linecap="round" fill="none" opacity=".7"><path d="M46 156q2 30 6 52M128 166q2 32 0 66M216 164q0 30-4 60"/></g>
+    <path d="M18 150q20 30 40 34q-6 22 -26 8z" fill="#5aa02a" stroke="#2f5e22" stroke-width="3"/>
+    <path d="M236 182q24-6 40-34q8 26-12 40z" fill="#7cc23e" stroke="#2f5e22" stroke-width="3"/>
+    <ellipse cx="150" cy="128" rx="146" ry="102" fill="#9a6431" stroke="#3b2510" stroke-width="5"/>
+    <path d="M150 34c70 0 128 38 128 92s-56 94-128 94S22 180 22 126 80 34 150 34z" fill="#e8bd84" stroke="#8a5a2b" stroke-width="4"/>
+    <g fill="none" stroke="#c08546" stroke-width="3" opacity=".85"><path d="M150 56c56 0 104 30 104 70s-46 74-104 74-104-32-104-74 48-70 104-70z"/><path d="M150 78c42 2 78 22 78 50s-34 52-78 52-80-22-80-52 38-50 80-50z"/><path d="M152 100c26 0 50 12 50 28s-22 32-50 32-52-14-52-32 24-28 52-28z"/></g>
+    <path d="M150 128l-48 58M150 128l64 34" stroke="#8a5a2b" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M44 94q36-38 100-46" stroke="#fff6e2" stroke-width="6" fill="none" stroke-linecap="round" opacity=".55"/>
+    <path d="M226 46q30 6 42 30q-26 6-42-30z" fill="#7cc23e" stroke="#2f5e22" stroke-width="3"/><circle cx="254" cy="60" r="5" fill="#ffd84a" stroke="#8a5a10" stroke-width="2"/>
+    ${mark.replace('<svg ', '<svg x="88" y="78" width="124" height="96" preserveAspectRatio="none" ')}</svg>`;
+  const LID = `<svg viewBox="0 0 300 260" aria-hidden="true"><ellipse cx="150" cy="150" rx="150" ry="110" fill="#2c1a08" opacity=".35"/>
+    <ellipse cx="150" cy="130" rx="148" ry="104" fill="#c98e4f" stroke="#3b2510" stroke-width="6"/>
+    <g stroke="#7a4a22" stroke-width="4"><path d="M64 44v172M106 30v200M150 26v208M194 30v200M236 44v172"/></g>
+    <g stroke="#a8703a" stroke-width="2.5" fill="none" opacity=".8"><path d="M78 70q8 30 0 60t4 60M122 52q-8 40 2 80t-4 70M170 50q10 36 0 76t6 78M214 66q-8 34 2 64t-4 60"/><ellipse cx="88" cy="150" rx="6" ry="10"/><ellipse cx="206" cy="96" rx="5" ry="8"/></g>
+    <ellipse cx="150" cy="130" rx="148" ry="104" fill="none" stroke="#5f5c58" stroke-width="13"/><ellipse cx="150" cy="130" rx="148" ry="104" fill="none" stroke="#b5b0a6" stroke-width="4"/>
+    <g fill="#3b3936"><circle cx="20" cy="130" r="5"/><circle cx="280" cy="130" r="5"/><circle cx="150" cy="28" r="5"/><circle cx="150" cy="232" r="5"/></g>
+    <path d="M56 80q40-44 110-48" stroke="#fff3d6" stroke-width="7" fill="none" stroke-linecap="round" opacity=".5"/><rect x="124" y="114" width="52" height="20" rx="7" fill="#5f5c58" stroke="#2c1a08" stroke-width="3"/></svg>`;
+  /* Painted flowers, grass and stones from the supplied grass sheets ring the pit
+     (assets/ox-arena, cut by tools/build-ox-arena-props.cjs). [id, x, y, scale, sway] */
+  // The question board covers the top middle, so the rim is dressed at the corners, sides and front.
+  const RIM = [['tuft-13', 50, 86, .38, 1], ['daisy-2', 130, 66, .36, 1], ['redflower-6', 900, 70, .36, 1], ['daisy-1', 960, 104, .36, 1],
+    ['rock-8', 6, 236, .36, 0], ['bush-14', 22, 392, .36, 1], ['flower-0', -6, 300, .3, 1], ['rock-11', 994, 250, .36, 0], ['tuft-12', 982, 404, .38, 1], ['clover-17', 1004, 330, .3, 0],
+    ['rock-7', 70, 512, .34, 0], ['clover-18', 168, 490, .34, 0], ['bush-16', 300, 508, .26, 0], ['daisy-2', 700, 506, .28, 1], ['bush-15', 846, 490, .34, 1], ['rock-10', 950, 512, .34, 0]];
+  function rimProps() {
+    const atlas = window.QPOxProps; if (!atlas) return '';
+    const byId = Object.fromEntries(atlas.props.map(p => [p.id, p.r]));
+    return RIM.map(([id, x, y, k, sway], i) => {
+      const r = byId[id]; if (!r) return '';
+      const w = r[2] * k, h = r[3] * k;
+      return '<i class="qq-prop' + (sway ? ' sway' : '') + '" style="left:' + (x - w / 2).toFixed(1) + 'px;top:' + (y - h).toFixed(1) + 'px;width:' + w.toFixed(1) + 'px;height:' + h.toFixed(1) + 'px;z-index:' + y + ';'
+        + 'background-size:' + (atlas.size[0] * k).toFixed(1) + 'px ' + (atlas.size[1] * k).toFixed(1) + 'px;background-position:' + (-r[0] * k).toFixed(1) + 'px ' + (-r[1] * k).toFixed(1) + 'px;animation-delay:-' + (i * .7 % 4).toFixed(1) + 's"></i>';
+    }).join('');
   }
+  const BUTTERFLY = '<svg viewBox="0 0 40 30" aria-hidden="true"><g class="w"><path d="M20 15C12 2 2 4 4 12s10 6 16 3z" fill="#ffd84a" stroke="#8a5a10" stroke-width="2"/><path d="M20 15c-6 4-14 6-12 12s10 0 12-12z" fill="#ffb15c" stroke="#8a5a10" stroke-width="2"/></g><g class="w r"><path d="M20 15c8-13 18-11 16-3s-10 6-16 3z" fill="#ffd84a" stroke="#8a5a10" stroke-width="2"/><path d="M20 15c6 4 14 6 12 12s-10 0-12-12z" fill="#ffb15c" stroke="#8a5a10" stroke-width="2"/></g><path d="M20 8v16" stroke="#4a2c10" stroke-width="2.5" stroke-linecap="round"/></svg>';
 
   function mountOxRoom(container, ctx, roomId) {
-    const me = ctx.me, S = { lastPhaseKey: '', lastHurry: '', selfPaid: new Set(), zone: undefined, zoneQi: null, roster: [], sentOff: '' };
-    container.innerHTML = `<div class="qq-ox" data-phase="lobby">
-      <div class="qq-ox-world" data-world></div>
-      <div class="qq-ox-marks" data-marks aria-hidden="true"></div>
+    const me = ctx.me;
+    const S = { lastPhaseKey: '', lastHurry: '', selfPaid: new Set(), pos: { x: ARENA.mid.x + (Math.random() - .5) * 160, y: ARENA.mid.y + 80 + (Math.random() - .5) * 60 },
+      target: null, keys: new Set(), facing: 1, moving: false, lastSent: 0, sentPos: '', nodes: new Map(), sentOff: '', zone: undefined, zoneQi: null };
+    container.innerHTML = `<div class="qq-ox" data-phase="lobby">${ambient(10)}
       <section class="qq-board qq-ox-board" data-board aria-live="polite"></section>
-      <div class="qq-ox-tally" data-tally hidden><span class="o">O <b>0</b></span><span class="vs">:</span><span class="x"><b>0</b> X</span></div>
+      <div class="qq-ox-tally" data-tally><span class="o">O</span><b data-o>00</b><i>vs</i><b data-x>00</b><span class="x">X</span></div>
       ${hudClock}
+      <div class="qq-arena-wrap" data-wrap><div class="qq-arena" data-arena tabindex="0" aria-label="OX 경기장. 방향키나 마우스로 걸어가요">
+        <div class="qq-pit"></div>
+        <div class="qq-stump o" data-stump="o">${STUMP(ART.o)}<div class="qq-lid">${LID}</div><div class="qq-dust">${'<i></i>'.repeat(6)}</div></div>
+        <div class="qq-stump x" data-stump="x">${STUMP(ART.x)}<div class="qq-lid">${LID}</div><div class="qq-dust">${'<i></i>'.repeat(6)}</div></div>
+        <div class="qq-qmark">${ctx.candy('?', { label: '고민 구역' })}</div>
+        <div class="qq-bench"><span class="qq-bench-sign">${ctx.candy('관중석', { className: 'ct-small' })}</span><span class="qq-bench-guess o">O 찍기</span><span class="qq-bench-guess x">X 찍기</span></div>
+        <div class="qq-actors" data-actors>${rimProps()}</div><span class="qq-fly-b b1">${BUTTERFLY}</span><span class="qq-fly-b b2">${BUTTERFLY}</span></div></div>
       <aside class="qq-win qq-rank qq-ox-rank"><header class="qq-win-h"><h2>살아남은 친구</h2><span class="qq-count" data-alive></span></header><ol data-rank></ol></aside>
       ${hudChat}<div class="qq-stamp" data-stamp aria-hidden="true"></div><div class="qq-splash" data-splash aria-hidden="true"></div></div>`;
-    const root = container.querySelector('.qq-ox'), q$ = s => container.querySelector(s);
-    // The roster carries the room space name; the map engine plays it as the playground.
-    // Everyone starts near the spectator steps, a little apart so friends do not stack.
-    const spawn = { x: OX.spawn.x + Math.round((Math.random() - .5) * 220), y: OX.spawn.y + Math.round((Math.random() - .5) * 70) };
-    const scene = ctx.oxScene(Object.assign({}, OX, { spawn }));
-    let world = null;
-    const presence = ctx.oxPresence(roomId, scene, spawn, players => { S.roster = players.map(p => Object.assign({}, p, { zone: 'playground' })); if (world) world.setPlayers(S.roster); }, status => { S.status = status; if (world) world.setStatus(status); });
-    world = ctx.mountWorld(q$('[data-world]'), { scene, presence, onExit: () => ctx.go('quizquiz') });
-    world.setPlayers(S.roster); if (S.status) world.setStatus(S.status);
-    window.QPQuizQuiz.active = { world, presence, roster: () => S.roster, zone: () => zoneAt(world.getState() || {}) };
-    const layer = q$('[data-world]').querySelector('.sr-world');
-    if (layer) layer.insertAdjacentHTML('afterbegin', oxChalk());
-    const chalk = q$('.qq-ox-chalk');
+    const root = container.querySelector('.qq-ox'), q$ = s => container.querySelector(s), arena = q$('[data-arena]'), wrap = q$('[data-wrap]');
     const session = roomSession(ctx, roomId, { onRoom: render, onHostTick: hostTick });
     const { tx, setPhase, reward, questions, isHost } = session;
+    const mine = () => session.room && session.room.p && session.room.p[me.k];
+    const out = () => { const p = mine(), m = session.meta(); return !!(p && p.alive === false && m && m.phase !== 'lobby'); };
 
+    /* Fit the 1000×600 arena into the space left under the board. */
+    function fit() {
+      const r = wrap.getBoundingClientRect(), k = Math.min(r.width / ARENA.w, r.height / ARENA.h);
+      arena.style.transform = `translate(${((r.width - ARENA.w * k) / 2).toFixed(1)}px, ${((r.height - ARENA.h * k) / 2).toFixed(1)}px) scale(${k.toFixed(4)})`;
+      S.scale = k;
+    }
+    const ro = new ResizeObserver(fit); ro.observe(wrap); fit();
+
+    /* Host: phases and judging. */
     function startGame() {
       tx(room => {
         if (!room || room.meta.host !== me.k || room.meta.phase !== 'lobby') return;
         const now = ctx.svNow();
-        Object.assign(room.meta, { session: 's' + now.toString(36), seed: (now & 0x7fffffff) || 1 });
-        const online = onlinePlayers(room);
-        room.meta.started = online.length;
+        Object.assign(room.meta, { session: 's' + now.toString(36), seed: (now & 0x7fffffff) || 1, started: onlinePlayers(room).length });
         Object.keys(room.p || {}).forEach(k => Object.assign(room.p[k], { sc: 0, ok: 0, last: null, bonus: 0, alive: room.p[k].online !== false, zone: null, out: null }));
         delete room.q; delete room.reveal;
         return setPhase(room, 'intro', { qi: -1 });
@@ -691,7 +671,7 @@
         if (!q) return setPhase(room, 'end');
         room.q = { t: String(q.q || ''), n: index + 1, tot: set.list.length };
         delete room.reveal;
-        Object.keys(room.p || {}).forEach(k => { room.p[k].zone = null; room.p[k].last = null; });
+        Object.keys(room.p || {}).forEach(k => { room.p[k].last = null; });
         const now = ctx.svNow();
         return setPhase(room, 'ask', { qi: index, startedAt: now, tEnd: now + m.sec * 1000 });
       });
@@ -711,7 +691,7 @@
             if (m.teacher) reward(rec, m.session + '_q' + m.qi, ctx.rules.livePerQ || 25, 1, 1);
           } else if (!revived) { rec.alive = false; rec.out = m.qi; if (m.teacher) reward(rec, m.session + '_q' + m.qi, 0, 1, 0); }
         });
-        const answered = players.filter(p => p.zone).length, right = players.filter(p => p.zone === correct).length;
+        const answered = alive.filter(p => p.zone).length, right = alive.filter(p => p.zone === correct).length;
         room.reveal = { a: correct, qi: m.qi, out: revived ? 0 : wrong.length, revived, rate: answered ? Math.round(right / answered * 100) : 0 };
         return setPhase(room, 'reveal');
       });
@@ -735,62 +715,135 @@
       const m = room.meta, now = ctx.svNow();
       if (m.phase === 'intro' && now - m.phaseAt > INTRO_MS + 800) ask(0);
       else if (m.phase === 'ask' && now >= m.tEnd) reveal();
-      else if (m.phase === 'reveal' && now - m.phaseAt > REVEAL_MS + 600) {
+      else if (m.phase === 'reveal' && now - m.phaseAt > REVEAL_MS + 1200) {
         const alive = onlinePlayers(room).filter(p => p.alive !== false).length;
         const over = (m.started || 0) >= 2 ? alive <= 1 : alive === 0;
         if (over || m.qi + 1 >= (room.q && room.q.tot || m.count)) finish(); else ask(m.qi + 1);
       } else if (m.phase === 'end' && now - m.phaseAt > END_MS) backToLobby();
     }
 
-    /* My zone follows where I stand while the question is open. */
-    function trackZone() {
-      const room = session.room, m = room && room.meta; if (!m) return;
-      const st = world.getState(); if (!st) return;
-      const z = zoneAt(st);
-      chalk && chalk.classList.toggle('mine-o', z === 'o' && m.phase !== 'reveal');
-      chalk && chalk.classList.toggle('mine-x', z === 'x' && m.phase !== 'reveal');
-      if (m.phase !== 'ask' || ctx.svNow() > m.tEnd) return;
-      if (S.zoneQi !== m.qi) { S.zoneQi = m.qi; S.zone = undefined; }
-      if (z !== S.zone) { S.zone = z; session.ref.child('p/' + me.k).update({ zone: z, zt: ctx.svNow() }); }
+    /* Walking: click a spot or hold the arrow keys. Spectators stay on the benches. */
+    const clampTo = (p, box) => ({ x: Math.max(box.x0, Math.min(box.x1, p.x)), y: Math.max(box.y0, Math.min(box.y1, p.y)) });
+    const area = () => out() ? ARENA.bench : ARENA.field;
+    function toArena(e) { const r = arena.getBoundingClientRect(); return { x: (e.clientX - r.left) / S.scale, y: (e.clientY - r.top) / S.scale }; }
+    arena.addEventListener('pointerdown', e => { if (e.button) return; S.target = clampTo(toArena(e), area()); arena.focus({ preventScroll: true }); });
+    const KEYS = { ArrowLeft: [-1, 0], KeyA: [-1, 0], ArrowRight: [1, 0], KeyD: [1, 0], ArrowUp: [0, -1], KeyW: [0, -1], ArrowDown: [0, 1], KeyS: [0, 1] };
+    function onKeyDown(e) {
+      if (/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return;
+      if (KEYS[e.code]) { e.preventDefault(); S.keys.add(e.code); S.target = null; }
     }
+    function onKeyUp(e) { S.keys.delete(e.code); }
+    const onBlur = () => S.keys.clear();
+    document.addEventListener('keydown', onKeyDown); document.addEventListener('keyup', onKeyUp); window.addEventListener('blur', onBlur);
     q$('[data-board]').addEventListener('click', e => { if (e.target.closest('[data-start]')) startGame(); });
-    q$('[data-chat-form]').onsubmit = e => { e.preventDefault(); const input = e.target.querySelector('input'); session.say(input.value); input.value = ''; world.focus && world.focus(); };
+    q$('[data-chat-form]').onsubmit = e => { e.preventDefault(); const input = e.target.querySelector('input'); session.say(input.value); input.value = ''; arena.focus({ preventScroll: true }); };
+
+    function step(dt) {
+      let dx = 0, dy = 0;
+      for (const k of S.keys) { dx += KEYS[k][0]; dy += KEYS[k][1]; }
+      if (!dx && !dy && S.target) {
+        const vx = S.target.x - S.pos.x, vy = S.target.y - S.pos.y, d = Math.hypot(vx, vy);
+        if (d < 3) S.target = null; else { dx = vx / d; dy = vy / d; }
+      }
+      const len = Math.hypot(dx, dy);
+      S.moving = len > 0;
+      if (len) {
+        const v = ARENA.speed * dt / len;
+        S.pos = clampTo({ x: S.pos.x + dx * v, y: S.pos.y + dy * v }, area());
+        if (Math.abs(dx) > .1) S.facing = dx < 0 ? -1 : 1;
+      } else S.pos = clampTo(S.pos, area());
+      const now = performance.now(), key = Math.round(S.pos.x) + ',' + Math.round(S.pos.y) + ',' + (S.moving ? 1 : 0) + ',' + S.facing;
+      if (key !== S.sentPos && now - S.lastSent > 150) {
+        S.sentPos = key; S.lastSent = now;
+        const m = session.meta(), z = out() ? (S.pos.x < 500 ? 'o' : 'x') : zoneAt(S.pos);
+        const patch = { x: Math.round(S.pos.x), y: Math.round(S.pos.y), mv: S.moving ? 1 : 0, f: S.facing };
+        if (m && m.phase === 'ask' && ctx.svNow() <= m.tEnd) { patch.zone = z; patch.zt = ctx.svNow(); }
+        session.ref.child('p/' + me.k).update(patch);
+      }
+    }
+    /* Make sure the last spot before the bell is what gets judged. */
+    function sendZoneNow() {
+      const m = session.meta(); if (!m || m.phase !== 'ask') return;
+      if (S.zoneQi !== m.qi) { S.zoneQi = m.qi; S.zone = undefined; }
+      const z = out() ? (S.pos.x < 500 ? 'o' : 'x') : zoneAt(S.pos);
+      if (z !== S.zone && ctx.svNow() <= m.tEnd) { S.zone = z; session.ref.child('p/' + me.k).update({ zone: z, zt: ctx.svNow() }); }
+    }
+
+    /* Actors: everyone in the room, with name plates, chat bubbles and marks. */
+    function paintActors(dt) {
+      const room = session.room; if (!room || !room.meta) return;
+      const m = room.meta, players = onlinePlayers(room), box = q$('[data-actors]'), seen = new Set();
+      players.forEach(p => {
+        seen.add(p.k);
+        let n = S.nodes.get(p.k);
+        if (!n) {
+          const el = document.createElement('div'); el.className = 'qq-actor';
+          el.innerHTML = '<span class="qq-say"></span><span class="qq-mark"></span><div class="qq-actor-body"></div><b class="qq-actor-name"></b>';
+          box.appendChild(el);
+          n = { el, x: Number.isFinite(p.x) ? p.x : ARENA.mid.x, y: Number.isFinite(p.y) ? p.y : ARENA.mid.y + 80, av: '' };
+          S.nodes.set(p.k, n);
+        }
+        const self = p.k === me.k, avKey = JSON.stringify(p.av || {});
+        if (n.av !== avKey) { n.el.querySelector('.qq-actor-body').innerHTML = ctx.avatarSVG(p.av || {}, 72, 3); n.av = avKey; }
+        const tx2 = self ? S.pos.x : Number.isFinite(p.x) ? p.x : n.x, ty2 = self ? S.pos.y : Number.isFinite(p.y) ? p.y : n.y;
+        const ease = self ? 1 : Math.min(1, dt * 10);
+        n.x += (tx2 - n.x) * ease; n.y += (ty2 - n.y) * ease;
+        const moving = self ? S.moving : !!p.mv && Math.hypot(tx2 - n.x, ty2 - n.y) > .5 || !!p.mv;
+        const facing = self ? S.facing : (p.f || 1);
+        n.el.style.transform = `translate(${n.x.toFixed(1)}px, ${n.y.toFixed(1)}px)`;
+        n.el.style.zIndex = Math.round(n.y);
+        n.el.classList.toggle('me', self);
+        n.el.classList.toggle('walking', moving);
+        n.el.classList.toggle('left', facing < 0);
+        n.el.classList.toggle('spectator', p.alive === false && m.phase !== 'lobby');
+        // Only while still standing on the losing stump; once on the benches they show again.
+        const fall = m.phase === 'reveal' && room.reveal && !room.reveal.revived && p.out === m.qi && zoneAt(n) === (room.reveal.a === 'o' ? 'x' : 'o');
+        n.el.classList.toggle('falling', !!fall);
+        n.el.querySelector('.qq-actor-name').textContent = p.name || '';
+        const state = m.phase === 'reveal' && (p.last === 'o' || p.last === 'x') ? p.last : '';
+        if (n.el.dataset.mark !== state) { n.el.dataset.mark = state; n.el.querySelector('.qq-mark').innerHTML = state === 'o' ? ART.o : state === 'x' ? ART.x : ''; }
+        const fresh = p.say && ctx.svNow() - (p.sayAt || 0) < 5000, b = n.el.querySelector('.qq-say');
+        if (b.textContent !== (fresh ? p.say : '')) b.textContent = fresh ? p.say : '';
+        b.classList.toggle('on', !!fresh);
+      });
+      for (const [k, n] of S.nodes) if (!seen.has(k)) { n.el.remove(); S.nodes.delete(k); }
+    }
 
     function paintBoard(room) {
-      const m = room.meta, players = onlinePlayers(room), mineRec = room.p && room.p[me.k], out = mineRec && mineRec.alive === false && m.phase !== 'lobby';
-      const where = zoneAt(world.getState() || {});
+      const m = room.meta, players = onlinePlayers(room), rec = mine(), isOut = out(), where = zoneAt(S.pos);
       let html = '';
       if (m.phase === 'lobby') {
-        html = `<p class="qq-board-kicker">[대기 중] 운동장에 ${players.length}명이 모였어요</p><h3>방향키로 걸어 다니며 기다려요.</h3>
-          <p class="qq-board-note">${esc(ctx.setTitle(m.setId))} · ${m.count}문제 · ${m.sec}초 안에 O 또는 X 구역으로</p>
+        html = `<p class="qq-board-kicker">[대기 중] 현재 ${players.length}명이 모였어요</p><h3>마우스로 누르거나 방향키로 걸어 다녀요.</h3>
+          <p class="qq-board-note">${esc(ctx.setTitle(m.setId))} · ${m.count}문제 · ${m.sec}초 안에 O 또는 X 그루터기로</p>
           ${isHost() ? '<button class="btn y big" data-start>시작하기</button>' : '<p class="qq-board-wait">' + esc(m.hostName) + '님이 시작하면 시작해요…</p>'}`;
       } else if (m.phase === 'intro') {
-        html = '<p class="qq-board-kicker">서바이벌 OX에 오신 것을 환영해요!</p><h3>맞으면 흙마당의 O, 틀리면 축구장의 X로 걸어가요.</h3><p class="qq-board-note">틀리면 관중석으로! 끝까지 살아남으면 우승이에요</p>';
+        html = '<p class="qq-board-kicker">서바이벌 OX에 오신 것을 환영해요!</p><h3>맞으면 왼쪽 O, 틀리면 오른쪽 X 그루터기에 올라가요.</h3><p class="qq-board-note">틀리면 뚜껑이 쾅! 관중석으로 가요. 끝까지 살아남으면 우승이에요</p>';
       } else if (m.phase === 'ask' && room.q) {
-        const status = out ? '관중석에서도 계속 맞혀 볼 수 있어요' : where === 'o' ? 'O 구역에 서 있어요' : where === 'x' ? 'X 구역에 서 있어요' : '아직 구역 밖이에요!';
+        const status = isOut ? (S.pos.x < 500 ? '관중석에서 O를 찍었어요' : '관중석에서 X를 찍었어요') : where === 'o' ? 'O 그루터기에 올라섰어요' : where === 'x' ? 'X 그루터기에 올라섰어요' : '아직 고민 중이에요!';
         html = `<p class="qq-board-kicker">[문제 ${room.q.n}] <span>${room.q.n} / ${room.q.tot}</span></p><h3 class="qq-question">${esc(room.q.t)}</h3>
-          <p class="qq-ox-rule">맞으면 <b class="o">O</b> · 틀리면 <b class="x">X</b></p><p class="qq-ox-status ${out ? 'out' : where || 'none'}">${status}</p>`;
+          <p class="qq-ox-rule">맞으면 <b class="o">O</b>, 틀리면 <b class="x">X</b>. <span class="qq-ox-status ${isOut ? 'out' : where || 'none'}">${status}</span></p>`;
       } else if (m.phase === 'reveal' && room.q && room.reveal) {
         const r = room.reveal;
-        html = `<p class="qq-board-kicker">[문제 ${room.q.n}] ${esc(room.q.t)}</p><p class="qq-board-result">[정답] <b class="qq-ox-answer ${r.a}">${r.a === 'o' ? 'O' : 'X'}</b> <small>우리 방 정답률 ${r.rate}%</small></p>
-          <p class="qq-board-note">${r.revived ? '모두 틀려서 모두 살아남았어요! 다시 도전!' : r.out ? r.out + '명이 관중석으로 가요' : '모두 살아남았어요!'}</p>`;
+        html = `<p class="qq-board-kicker">[문제 ${room.q.n}] ${esc(room.q.t)}</p><p class="qq-board-result">[정답] 정답은 <b class="qq-ox-answer ${r.a}">${r.a === 'o' ? 'O' : 'X'}</b> <small>정답률 ${r.rate}%</small></p>
+          <p class="qq-board-note">${r.revived ? '모두 틀려서 모두 살아남았어요! 다시 도전!' : r.out ? r.out + '명이 관중석으로 가요' : '모두 살아남았어요!'}${rec && rec.out === m.qi && !r.revived ? ' · 관중석에서도 O·X를 계속 찍어 볼 수 있어요' : ''}</p>`;
       } else if (m.phase === 'end') {
         const winners = players.filter(p => p.alive !== false).slice(0, 5);
-        html = `<p class="qq-board-kicker">끝까지 살아남은 친구</p><div class="qq-podium">${winners.map((p, i) => `<div class="qq-podium-${Math.min(3, i + 1)}"><div class="qq-avatar">${ctx.avatarSVG(p.av || {}, 70, 3)}</div><b>${esc(p.name)}</b><small>${p.sc || 0}점</small></div>`).join('') || '<p class="qq-board-note">이번에는 모두 관중석에서 응원했어요</p>'}</div>
-          <p class="qq-board-note">잠시 뒤 다시 모여요${m.teacher && mineRec && mineRec.bonus ? ' · 우승 보너스 ' + mineRec.bonus + '골드' : ''}</p>`;
+        html = `<p class="qq-board-kicker">끝까지 살아남은 친구</p><div class="qq-podium">${winners.map((p, i) => `<div class="qq-podium-${Math.min(3, i + 1)}"><div class="qq-avatar">${ctx.avatarSVG(p.av || {}, 62, 3)}</div><b>${esc(p.name)}</b><small>${p.sc || 0}점</small></div>`).join('') || '<p class="qq-board-note">이번에는 모두 관중석에서 응원했어요</p>'}</div>
+          <p class="qq-board-note">잠시 뒤 다시 모여요${m.teacher && rec && rec.bonus ? ' · 우승 보너스 ' + rec.bonus + '골드' : ''}</p>`;
       }
       const board = q$('[data-board]'); if (board.dataset.html !== html) { board.innerHTML = html; board.dataset.html = html; }
     }
     function paintTally(room) {
-      const m = room.meta, alive = onlinePlayers(room).filter(p => p.alive !== false), tally = q$('[data-tally]');
-      tally.hidden = !(m.phase === 'ask' || m.phase === 'reveal');
-      tally.querySelector('.o b').textContent = alive.filter(p => p.zone === 'o').length;
-      tally.querySelector('.x b').textContent = alive.filter(p => p.zone === 'x').length;
+      const alive = onlinePlayers(room).filter(p => p.alive !== false || room.meta.phase === 'lobby');
+      const ask = room.meta.phase === 'ask' || room.meta.phase === 'reveal';
+      const count = z => ask ? alive.filter(p => p.zone === z).length : 0;
+      q$('[data-o]').textContent = String(count('o')).padStart(2, '0');
+      q$('[data-x]').textContent = String(count('x')).padStart(2, '0');
     }
     function paintRank(room) {
       const rows = onlinePlayers(room).sort((a, b) => (b.alive !== false) - (a.alive !== false) || (b.sc || 0) - (a.sc || 0));
       q$('[data-alive]').textContent = rows.filter(p => p.alive !== false).length + '명';
-      const html = rows.map(p => `<li class="${p.k === me.k ? 'me' : ''} ${p.alive === false ? 'out' : ''}"><i>${p.alive === false ? '관' : '♥'}</i><b>${esc(p.name)}</b><span>${p.sc || 0}</span></li>`).join('');
+      const html = rows.map(p => `<li class="${p.k === me.k ? 'me' : ''} ${p.alive === false && room.meta.phase !== 'lobby' ? 'out' : ''}"><i>${p.alive === false && room.meta.phase !== 'lobby' ? '관' : '♥'}</i><b>${esc(p.name)}</b><span>${p.sc || 0}</span></li>`).join('');
       const list = q$('[data-rank]'); if (list.dataset.html !== html) { list.innerHTML = html; list.dataset.html = html; }
     }
     function phaseEffects(room) {
@@ -798,14 +851,16 @@
       if (key === S.lastPhaseKey) return;
       S.lastPhaseKey = key;
       root.dataset.phase = m.phase;
-      if (chalk) { chalk.classList.remove('win-o', 'win-x', 'fail-o', 'fail-x'); }
       ctx.sound?.gameState?.({ phase: m.phase === 'intro' ? 'ask' : m.phase, qi: 0, session: m.session, mode: 'ox' });
+      arena.classList.remove('lid-o', 'lid-x', 'win-o', 'win-x');
       if (m.phase === 'intro') replay(q$('[data-splash]'), 'qq-splash', ctx.candy([{ text: '서바이벌 ' }, { text: 'OX', variant: 'sky' }], { label: '서바이벌 OX' }));
       if (m.phase === 'end') replay(q$('[data-splash]'), 'qq-splash', ctx.candy('생존 성공!'));
+      if (m.phase === 'lobby') { S.pos = clampTo(S.pos, ARENA.field); }
       if (m.phase === 'reveal' && room.reveal) {
-        const a = room.reveal.a, wrongZone = a === 'o' ? 'x' : 'o';
-        if (chalk) { chalk.classList.add('win-' + a); if (!room.reveal.revived) chalk.classList.add('fail-' + wrongZone); }
-        const p = room.p && room.p[me.k];
+        const a = room.reveal.a;
+        arena.classList.add('win-' + a);
+        if (!room.reveal.revived) setTimeout(() => arena.classList.add('lid-' + (a === 'o' ? 'x' : 'o')), 450);
+        const p = mine();
         if (p && (p.last === 'o' || p.last === 'x')) {
           replay(q$('[data-stamp]'), 'qq-stamp ' + p.last, p.last === 'o' ? ART.o : ART.x);
           if (p.last === 'o') ctx.sound?.ok?.(); else ctx.sound?.no?.();
@@ -816,53 +871,46 @@
         }
         if (p && p.alive === false && p.out === m.qi && S.sentOff !== m.session + '_' + m.qi) {
           S.sentOff = m.session + '_' + m.qi;
-          setTimeout(() => { world.moveTo && world.moveTo(OX.stands.x + (Math.random() - .5) * 160, OX.stands.y + (Math.random() - .5) * 60); ctx.toast('관중석에서 계속 맞혀 봐요!'); }, 1600);
+          setTimeout(() => {
+            S.target = null;
+            S.pos = { x: ARENA.bench.x0 + 40 + Math.random() * (ARENA.bench.x1 - ARENA.bench.x0 - 80), y: (ARENA.bench.y0 + ARENA.bench.y1) / 2 };
+          }, 1700);
         }
       }
     }
-    /* Marks above heads (O/X at the reveal, a 관중 tag for spectators). */
-    function paintMarks() {
-      const room = session.room, m = room && room.meta, layer = q$('[data-marks]');
-      if (!m) return;
-      const st = world.getState(); if (!st || !st.camera) return;
-      const cam = st.camera, scale = cam.scale || OX.camera.zoom;
-      const spots = [{ uid: me.k, x: st.x, y: st.y }].concat(S.roster.filter(p => p.uid !== me.k).map(p => ({ uid: p.uid, x: p.x, y: p.y })));
-      let html = '';
-      spots.forEach(s => {
-        const rec = room.p && room.p[s.uid]; if (!rec || !Number.isFinite(s.x)) return;
-        const left = (s.x - cam.x) * scale, top = (s.y - cam.y) * scale - 112;
-        if (m.phase === 'reveal' && (rec.last === 'o' || rec.last === 'x')) html += `<span class="qq-ox-mark" style="left:${left.toFixed(0)}px;top:${top.toFixed(0)}px">${rec.last === 'o' ? ART.o : ART.x}</span>`;
-        else if (rec.alive === false && m.phase !== 'lobby') html += `<span class="qq-ox-tag" style="left:${left.toFixed(0)}px;top:${(top + 18).toFixed(0)}px">관중</span>`;
-      });
-      if (layer.dataset.html !== html) { layer.innerHTML = html; layer.dataset.html = html; }
-    }
-    function render(room) {
-      paintBoard(room); paintTally(room); paintRank(room); roomChat(q$('[data-chat]'), room, me); tickClock(root, room.meta, ctx, S); phaseEffects(room);
-    }
-    let raf = 0, last = 0;
+    function render(room) { paintBoard(room); paintTally(room); paintRank(room); roomChat(q$('[data-chat]'), room, me); tickClock(root, room.meta, ctx, S); phaseEffects(room); }
+
+    let raf = 0, last = performance.now(), slow = 0;
     const loop = now => {
       raf = requestAnimationFrame(loop);
-      if (now - last < 120) return; last = now;
-      trackZone(); paintMarks();
-      const room = session.room; if (room && room.meta) { tickClock(root, room.meta, ctx, S); if (room.meta.phase === 'ask') paintBoard(room); }
+      const dt = Math.min(.05, (now - last) / 1000); last = now;
+      step(dt); paintActors(dt); sendZoneNow();
+      if ((slow += dt) > .2) { slow = 0; const room = session.room; if (room && room.meta) { tickClock(root, room.meta, ctx, S); paintTally(room); if (room.meta.phase === 'ask') paintBoard(room); } }
     };
     raf = requestAnimationFrame(loop);
+    setTimeout(() => arena.focus({ preventScroll: true }), 50);
+    window.QPQuizQuiz.active = { pos: () => ({ ...S.pos }), walkTo: (x, y) => { S.target = clampTo({ x, y }, area()); }, zone: () => zoneAt(S.pos) };
     return {
-      destroy() { cancelAnimationFrame(raf); if (window.QPQuizQuiz.active && window.QPQuizQuiz.active.world === world) window.QPQuizQuiz.active = null; session.destroy(); try { world.destroy(); } catch (e) {} presence.disconnect && presence.disconnect(); }
+      destroy() {
+        cancelAnimationFrame(raf); ro.disconnect();
+        document.removeEventListener('keydown', onKeyDown); document.removeEventListener('keyup', onKeyUp); window.removeEventListener('blur', onBlur);
+        window.QPQuizQuiz.active = null;
+        session.destroy();
+      }
     };
   }
 
-  /* Opens the stage or the OX playground depending on the room. */
+  /* Opens the stage or the OX arena depending on the room. */
   function mountAnyRoom(container, ctx, roomId) {
     let view = null, gone = false;
     refs(ctx).rooms.child(roomId).child('meta').once('value').then(snap => {
       if (gone) return;
       const m = snap && snap.val();
       if (!m) { ctx.toast('방이 닫혔어요. 로비로 돌아가요.'); ctx.go('quizquiz'); return; }
-      view = m.mode === 'ox' && ctx.oxScene ? mountOxRoom(container, ctx, roomId) : mountRoom(container, ctx, roomId);
+      view = m.mode === 'ox' ? mountOxRoom(container, ctx, roomId) : mountRoom(container, ctx, roomId);
     }).catch(e => { console.error('QUIZQUIZ room failed to open', e); if (!gone) { ctx.toast('방을 열지 못했어요. 로비로 돌아가요.'); ctx.go('quizquiz'); } });
     return { destroy() { gone = true; view && view.destroy(); } };
   }
 
-  window.QPQuizQuiz = { mountLobby, mountRoom: mountAnyRoom, stageChoices, MODES, zoneAt, answerOX };
+  window.QPQuizQuiz = { mountLobby, mountRoom: mountAnyRoom, stageChoices, MODES, zoneAt, answerOX, ARENA };
 })();

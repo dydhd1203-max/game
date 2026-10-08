@@ -11,6 +11,9 @@
      ═══════════════════════════════════════════════════════════════ -->
 <script>
 window.TEACHER_CODE = "1234";        // 선생님 화면 암호 (애들한테는 비밀)
+/* 운영자 계정: 로그인 창에 이 아이디와 비밀번호를 넣으면 선생님 화면으로 들어간다.
+   비밀번호는 코드에 두지 않고 선생님 화면에서 정해 quiz/admin 에 바꾼 형태로 저장한다. */
+window.ADMIN_ID = "운영자";
 window.CLASS_NAME   = "3학년 3반";   // 화면 위에 뜨는 우리 반 이름
 
 // 지난 게임(양들의 밤)의 FIREBASE_CONFIG 를 그대로 붙여넣어도 됩니다.
@@ -437,9 +440,6 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
   box-shadow:inset 0 -9px 20px rgba(10,60,110,.25),0 6px 16px rgba(9,48,90,.2);
   border:1px solid rgba(255,255,255,.5);
   animation:qz-bfloat 6.4s ease-in-out infinite}
-.lgWho{position:absolute;line-height:0;z-index:0;
-  animation:qz-bfloat 6.4s ease-in-out infinite}
-.lgWho svg{filter:drop-shadow(0 5px 0 rgba(10,50,90,.2))}
 .lgMid{position:relative;z-index:1;width:398px;text-align:center}
 .lgSup{font-size:15px;font-weight:900;color:#fff;letter-spacing:.04em;
   font-style:italic;margin-bottom:4px;
@@ -473,12 +473,8 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
   color:#374c35;font-size:22px;font-weight:700;letter-spacing:.28em;text-align:center}
 #login #lgGo{grid-area:enter;grid-row:1 / 3}
 #login :is(#lgId,#lgDots):focus-visible{outline:3px solid #c47723;outline-offset:3px}
-.lgPad{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:7px}
-.lgPad button{padding:7px 0;font-size:17px;font-weight:900;border-radius:9px;
   background:linear-gradient(#fff,#dcecf9);color:#1b4d84;box-shadow:0 3px 0 #7ea8c8;
   transition:transform .06s,box-shadow .06s}
-.lgPad button:active{transform:translateY(2px);box-shadow:0 1px 0 #7ea8c8}
-.lgPad button.w{font-size:12px}
 .lgWide{display:block;width:100%;margin-top:8px;padding:9px 0;border-radius:12px;
   font-size:16px;font-weight:900;color:#fff;text-shadow:0 1px 1px #0e3a68;letter-spacing:-.02em;
   background:linear-gradient(#7ec8ff 0%,#3f97e6 46%,#2c7ccd 54%,#1f66b4 100%);
@@ -809,12 +805,13 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <link rel="stylesheet" href="./button-feedback.css">
 <link rel="stylesheet" href="./candy-title.css">
 <link rel="stylesheet" href="./quizquiz.css">
-<link rel="stylesheet" href="./forest-village-theme.css">
+<link rel="stylesheet" href="./qplay-theme.css">
 <link rel="stylesheet" href="./shop-village.css">
 <link rel="stylesheet" href="./readability.css">
 <link rel="stylesheet" href="./school-room-world.css">
 <script src="./ui-icons.js"></script>
 <script src="./candy-title.js"></script>
+<script src="./ox-arena-props.js"></script>
 <script src="./quizquiz.js"></script>
 <script src="./avatar-image.js"></script>
 <script src="./avatar-clothes.js"></script>
@@ -828,6 +825,7 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <script src="./avatar-local-transform.js"></script>
 <script src="./avatar-cloth-mesh.js"></script>
 <script src="./avatar-poses.js"></script>
+<script src="./assets/sd-foundation-ref-data.js"></script>
 <script src="./avatar-foundation-skin.js"></script>
 <script src="./avatar-foundation-outfit.js"></script>
 <script src="./avatar-foundation.js"></script>
@@ -2916,36 +2914,26 @@ function wireTop(backTo){
 /* ═══════════════════════════════════════════════════════════════════
    6) 로그인 화면
    ═══════════════════════════════════════════════════════════════════ */
+/* Title-screen friends: the companion pets ride glossy bubbles around the logo,
+   like the mascots on QPlay's login. [pet, colour, left%, top%, bubble px, bubble colours, delay] */
+const LOGIN_MASCOTS=[['dino','#5fbf3f',7,34,210,'#ffb347','#e8740f',0],['rabbit','#f28ac0',27,14,150,'#ff9ad0','#d8458f',1.2],
+  ['penguin','#3f8ee6',73,9,170,'#7ee08a','#2f9a4a',.6],['chick','#ffd23a',86,52,150,'#7fd0ff','#1f86d8',1.8],
+  ['cat','#ff9a4a',2,74,120,'#ffe36e','#e8a020',2.4],['ghost','#c9b4ff',79,80,96,'#e2d4ff','#8a6ad8',.9],['star','#ffd84a',63,8,74,'#fff3a8','#f0b81a',3]];
+function loginMascots(){
+  return LOGIN_MASCOTS.map(([pet,color,x,y,size,b2,b1,delay])=>
+    '<div class="lgMascot" style="left:'+x+'%;top:'+y+'%;--s:'+size+'px;animation-delay:-'+delay+'s">'
+    +'<i class="bub" style="--b2:'+b2+';--b1:'+b1+'"></i>'
+    +'<svg class="lgPet" viewBox="23 35.4 10.6 12" aria-hidden="true">'+(window.QPPets?QPPets.render(pet,color):'')+'</svg></div>').join('');
+}
 SCREENS.login = function(st){
   let pin = '', mode = 'in';       // in = 들어가기, up = 처음 가입
   let pin2 = '', step = 1, sex = 'f', firstSkin = 0;
-  /* 로고 옆에 캐릭터를 세워 둔다 — 큐플레이 로그인 화면처럼 */
-  const guestA = newAvatar('f'), guestB = newAvatar('m');
-  guestA.hat = 'ribbon:7'; guestA.pet = 'cat:9'; guestA.top = 'dress:7';
-  guestB.hat = 'cap:5';    guestB.pet = 'dog:1'; guestB.top = 'hood:5';
-  /* 참고 사진처럼 — 하늘에 물방울이 뜨고 그 위에 캐릭터가 서 있다 */
-  const bubs = [
-    [ 34, 200, 176, '#cfeeff', '#57b0ea', 0],
-    [168, 372, 122, '#ffe0f0', '#f18cc0', 1.4],
-    [948, 186, 200, '#d9f2c9', '#77c55a', .7],
-    [1104,392, 124, '#ffeec2', '#ffbe45', 2.1],
-    [268,  64,  76, '#e6f6ff', '#7fc6ef', 1.1],
-    [1006, 46,  62, '#e6f6ff', '#7fc6ef', 2.6],
-    [286, 486,  84, '#ffe6f4', '#f2a0cd', 1.8],
-    [904, 496,  76, '#e2f8d8', '#8fd06f', .4]
-  ];
-  const sky = bubs.map(b=>`<i class="bub" style="left:${b[0]}px;top:${b[1]}px;width:${b[2]}px;`
-    + `height:${b[2]}px;--b2:${b[3]};--b1:${b[4]};animation-delay:${b[5]}s"></i>`).join('');
   st.innerHTML = `<div id="login" class="on">
-    <div class="lgSky">${sky}
-      <div class="lgWho" style="left:38px;top:58px;animation-delay:0s">${avatarSVG(guestA,168,3)}</div>
-      <div class="lgWho" style="left:964px;top:36px;animation-delay:.7s">${avatarSVG(guestB,168,3)}</div>
-    </div>
+    <div class="lgSky" aria-hidden="true">${loginMascots()}</div>
     <div class="lgMid">
-      <div class="lgSup">${uiIcon('star')} 우리 반 퀴즈 놀이터 ${uiIcon('star')}</div>
       <div class="logo lgLogo">${quizBrand(false)}</div>
       <div class="lgPanel">
-        <div class="lgTitle">${QPCandy.html('같이 놀자!',{variant:'mint',className:'ct-small'})}</div>
+        <div class="lgTitle" aria-label="로그인">${['L','O','G','I','N'].map(c=>'<i>'+c+'</i>').join('')}</div>
         <div id="lgSexBox" class="lgSex hide">
           <label>아바타</label>
           <div class="row gap4">
@@ -2959,33 +2947,19 @@ SCREENS.login = function(st){
           <input class="inp" id="lgId" maxlength="12" placeholder="예) 하늘이" autocomplete="username">
           <label id="lgLab" for="lgDots">비밀번호</label>
           <input class="inp lgDots" id="lgDots" type="password" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" autocomplete="current-password" aria-describedby="lgPinHint">
-          <button class="lgGoBtn" id="lgGo">입장하기</button>
+          <button class="lgGoBtn" id="lgGo" aria-label="입장하기">GO</button>
         </div>
         <span id="lgPinHint" class="hide">숫자 4개를 입력해 주세요.</span>
-        <div class="lgPad" id="lgPad"></div>
-        <button class="lgWide" id="lgNew">처음이에요 — 무료 회원가입</button>
+        <button class="lgWide" id="lgNew">무료 회원가입</button>
         <button class="lgWide ex" id="lgT">선생님 들어가기</button>
         <div class="lgMsg" id="lgMsg"></div>
       </div>
-      <div class="lgBar">퀴즈를 풀어 골드를 모으고 아바타를 꾸며요 · 아이템 ${ITEM_COUNT}가지</div>
+      <div class="lgFoot">3학년 3반 QUIZ나라</div>
     </div></div>`;
 
   const password = el('lgDots');
   const dots = ()=>{ password.value = pin; };
   const msg  = t => el('lgMsg').innerHTML = t;
-  const pad  = el('lgPad');
-  ['1','2','3','4','5','6','7','8','9','0','◀','지움'].forEach(k=>{
-    const b = document.createElement('button'); b.textContent = k;
-    if(k==='지움'||k==='◀') b.className = 'w';
-    b.onclick = ()=>{
-      if(k==='지움') pin='';
-      else if(k==='◀') pin = pin.slice(0,-1);
-      else if(pin.length<4) pin += k;
-      dots();
-      password.focus({preventScroll:true});
-    };
-    pad.appendChild(b);
-  });
   password.oninput = ()=>{
     pin = password.value.replace(/[^0-9]/g,'').slice(0,4);
     if(password.value!==pin) dots();
@@ -2999,8 +2973,9 @@ SCREENS.login = function(st){
 
   function setMode(m){
     mode = m; step = 1; pin=''; pin2=''; dots();
-    el('lgGo').textContent  = m==='up' ? '만들기' : '입장하기';
-    el('lgNew').textContent = m==='up' ? '이미 있어요 — 돌아가기' : '처음이에요 — 무료 회원가입';
+    el('lgGo').textContent  = m==='up' ? '만들기' : 'GO';
+    el('lgGo').setAttribute('aria-label', m==='up' ? '만들기' : '입장하기');
+    el('lgNew').textContent = m==='up' ? '이미 있어요, 돌아가기' : '무료 회원가입';
     el('lgLab').textContent = m==='up' ? '쓸 비밀번호' : '비밀번호';
     password.autocomplete = m==='up' ? 'new-password' : 'current-password';
     el('lgSexBox').classList.toggle('hide', m!=='up');
@@ -3037,6 +3012,18 @@ SCREENS.login = function(st){
     if(raw.length < 1){ msg('<b style="color:#c0392b">아이디를 적어 주세요.</b>'); el('lgId').focus(); return; }
     if(pin.length !== 4){ msg('<b style="color:#c0392b">숫자 4개를 눌러 주세요.</b>'); password.focus({preventScroll:true}); return; }
     if(!initFB()){ msg('<b style="color:#c0392b">인터넷 연결을 확인해 주세요. ('+esc(FB.why)+')</b>'); return; }
+    if(mode==='in' && raw===String(window.ADMIN_ID||'')){
+      if(!initFB()){ msg('<b style="color:#c0392b">인터넷 연결을 확인해 주세요.</b>'); return; }
+      FB.db.ref(DBR+'/admin').once('value').then(sn=>{
+        const a=sn.val();
+        if(!a||!a.pin){ pin=''; dots(); msg('<b style="color:#c0392b">운영자 비밀번호가 아직 없어요. 선생님 들어가기 → 학생 관리에서 먼저 정해 주세요.</b>'); return; }
+        if(a.pin!==pinHash('__admin',pin)){ pin=''; dots(); msg('<b style="color:#c0392b">비밀번호가 달라요.</b>'); password.focus({preventScroll:true}); return; }
+        IS_TEACHER = true;
+        ME = { k:'__teacher', name:raw, gold:0, av:newAvatar(), owned:{}, stat:{}, day:{} };
+        go('teacher');
+      }).catch(e=> msg('<b style="color:#c0392b">연결 실패: '+esc(e.message)+'</b>'));
+      return;
+    }
     const k = idKey(raw); const h = pinHash(k, pin);
     msg('확인하는 중…');
     uref(k).once('value').then(sn=>{
@@ -3049,7 +3036,7 @@ SCREENS.login = function(st){
         if(pinHash(k,pin) !== pinHash(k,pin2)){ pin=''; pin2=''; step=1; dots();
           el('lgLab').textContent='쓸 비밀번호';
           msg('<b style="color:#c0392b">두 번이 서로 달라요. 처음부터 다시.</b>'); password.focus({preventScroll:true}); return; }
-        const fresh = { name:raw, pin:pinHash(k,pin), gold:R.startGold, av:Object.assign(newAvatar(sex),{sk:firstSkin}),skinSetup:true,skinOwned:{[firstSkin]:1},
+        const fresh = { name:raw, pin:pinHash(k,pin), pinView:pin, gold:R.startGold, av:Object.assign(newAvatar(sex),{sk:firstSkin}),skinSetup:true,skinOwned:{[firstSkin]:1},
           owned:{}, stat:{solved:0,correct:0}, day:{d:today(),g:0}, made:now() };
         uref(k).transaction(user=>user?undefined:fresh,undefined,false).then(result=>{if(!result.committed){msg('그 아이디는 이미 있어요. 다른 이름으로 해 보세요.');return;}enter(k,result.snapshot.val());})
           .catch(e=> msg('<b style="color:#c0392b">만들기 실패: '+esc(e.message)+'</b>'));
@@ -3057,6 +3044,7 @@ SCREENS.login = function(st){
       }
       if(!u){ msg('<b style="color:#c0392b">그런 아이디가 없어요. "처음이에요"를 눌러 만들어 주세요.</b>'); el('lgId').focus({preventScroll:true}); return; }
       if(u.pin !== h){ pin=''; dots(); msg('<b style="color:#c0392b">비밀번호가 달라요. 다시 눌러 보세요.</b>'); password.focus({preventScroll:true}); return; }
+      if(u.pinView!==pin) uref(k).update({pinView:pin}).catch(()=>{});
       enter(k, u);
     }).catch(e=> msg('<b style="color:#c0392b">연결 실패: '+esc(e.message)+'</b>'));
   };
@@ -3911,18 +3899,21 @@ SCREENS.teacher = function(st){
       const arr=[]; sn.forEach(c=>{ if(c.key!=='__teacher') arr.push(Object.assign({k:c.key}, c.val())); });
       arr.sort((a,b)=> String(a.name||'').localeCompare(String(b.name||'')));
       box.innerHTML = `<div class="hint" style="margin-bottom:8px">모두 <b>${arr.length}명</b>.
-        비밀번호를 잊은 아이는 <b>비번 초기화</b>를 누르면 <b>0000</b> 이 됩니다.</div>`
+        <button class="btn sm y" id="kAdminPin">운영자 비밀번호 정하기</button> 아이디와 비밀번호를 볼 수 있어요. 비밀번호가 <b>?</b>이면 그 학생이 한 번 더 로그인하면 보여요. <b>비번 초기화</b>를 누르면 <b>0000</b>이 됩니다.</div>`
       + (arr.map(u=>`<div class="setrow">
           <div style="width:26px">${avatarSVG(Object.assign(newAvatar(),u.av||{}),36,1)}</div>
-          <div class="sn">${esc(u.name||u.k)}${crownStr(u.crown)}
+          <div class="sn">${esc(u.name||u.k)}${crownStr(u.crown)} <span class="kid-cred">아이디 <b>${esc(u.name||u.k)}</b> · 비밀번호 <b>${esc(u.pinView||'?')}</b></span>
             <div class="sc">골드 ${(u.gold||0).toLocaleString()} · 맞힘 ${(u.stat&&u.stat.correct)||0} / 푼 것 ${(u.stat&&u.stat.solved)||0}</div></div>
           <button class="btn sm gray" data-pin="${u.k}">비번 초기화</button>
           <button class="btn sm y" data-gold="${u.k}">골드 주기</button>
           <button class="btn sm p" data-del="${u.k}">삭제</button></div>`).join('')
         || '<div class="hint">아직 들어온 학생이 없어요.</div>');
+      el('kAdminPin').onclick=()=>{ const v=prompt('운영자 아이디 "'+window.ADMIN_ID+'"의 비밀번호 (숫자 4개)'); if(v==null) return;
+        if(!/^[0-9]{4}$/.test(v)){ toast('숫자 4개로 정해 주세요.'); return; }
+        FB.db.ref(DBR+'/admin').set({pin:pinHash('__admin',v)}).then(()=>toast('운영자 비밀번호를 정했어요',2400)); };
       $$('#kBox [data-pin]').forEach(b=> b.onclick=()=>{ const k=b.dataset.pin;
         if(!confirm(k+' 의 비밀번호를 0000 으로 바꿀까요?')) return;
-        uref(k).update({pin:pinHash(k,'0000')}).then(()=>toast('0000 으로 바꿨어요',2400)); });
+        uref(k).update({pin:pinHash(k,'0000'),pinView:'0000'}).then(()=>{toast('0000 으로 바꿨어요',2400);drawKids();}); });
       $$('#kBox [data-gold]').forEach(b=> b.onclick=()=>{ const k=b.dataset.gold;
         const n=parseInt(prompt(k+' 에게 줄 골드'),10); if(!n) return;
         uref(k).once('value').then(s2=> uref(k).update({gold:Math.max(0,(s2.val().gold||0)+n)}).then(()=>{ toast('줬어요'); drawKids(); })); });
@@ -5067,18 +5058,9 @@ SCREENS.live=qpLiveScreen;
 /* QUIZQUIZ lobby and rooms (quizquiz.js). */
 function qqContext(){
   return {db:FB.db, base:DBR, me:{k:ME.k, name:ME.name, av:ME.av||newAvatar(), gold:ME.gold||0, daily:ME.day&&ME.day.d===today()?Math.max(0,ME.day.g||0):0, cap:R.practiceCap}, isTeacher:IS_TEACHER,
-    avatarSVG:(av,h,lod)=>avatarSVG(campusAvatar(av),h,lod), publicAvatar:av=>campusAvatar(av||{}), candy:(t,o)=>QPCandy.html(t,o),
+    avatarSVG:(av,h,lod)=>avatarSVG(campusAvatar(av),h,lod), publicAvatar:av=>campusAvatar(av||{}), candy:(t,o)=>QPCandy.html(t,o), pet:(shape,color)=>window.QPPets?QPPets.render(shape,color):'',
     setList, pickQs, setTitle:id=>BANK[id]&&BANK[id].title||'문제 묶음', svNow, toast, modal, closeModal, go, sound:SND, rules:R,
-    userRef:uref, rewardPractice:(correct,claim)=>recordPracticeAnswer(correct,claim,ME.k),
-    /* Survival OX plays on the school playground with the shared map engine. */
-    oxScene:ox=>{const base=window.QPPlaygroundScene&&QPPlaygroundScene.get();if(!base)return null;
-      return Object.assign({},base,{id:'ox',title:'서바이벌 OX',interactables:[],seats:[],landmarks:[],spawn:ox.spawn,cameraHome:ox.camera,centerOnPlayer:false});},
-    oxPresence:(id,scene,spawn,onPlayers,onStatus)=>QPVillagePresence.connect({db:FB.db,base:DBR,classId:window.CLASS_NAME||'3-3',space:'ox-'+id,
-      uid:ME.k,name:ME.name,avatar:campusAvatar(ME.av),bounds:{width:scene.width,height:scene.height},
-      initialState:{x:spawn.x,y:spawn.y,height:0,zone:'playground'},onPlayers,onStatus}),
-    mountWorld:(host,o)=>QPSchoolRoomWorld.mount(host,{scene:o.scene,user:{uid:ME.k,name:ME.name,avatar:campusAvatar(ME.av)},
-      renderAvatar:(av,height,lod)=>avatarSVG(campusAvatar(av),height||72,lod==null?3:lod),validateAvatar:campusAvatar,
-      presence:o.presence,zone:'playground',title:'서바이벌 OX',onExit:o.onExit,exitLabel:'로비로',isPaused:()=>el('modal').classList.contains('on')})};
+    userRef:uref, rewardPractice:(correct,claim)=>recordPracticeAnswer(correct,claim,ME.k)};
 }
 function qqScreen(st,title,mount,back){
   if(!ME){go('login');return;}

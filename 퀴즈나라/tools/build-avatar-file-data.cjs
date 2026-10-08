@@ -12,7 +12,7 @@ const bundles = [
   { sources, target: 'assets/avatar-file-data.js', global: 'QPAvatarFileData' },
   // Keep each static file below the Pages 25MiB limit. The old original
   // bundle stays byte-for-byte unchanged when new wardrobe art is added.
-  { sources: ['assets/sd-foundation-neck.png','assets/sd-foundation-skin-rounded.png', 'assets/sd-foundation-basic.png', 'assets/sd-foundation-shirt-profile-rounded.png', 'assets/sd-foundation-sleeves.png', 'assets/sd-foundation-torso.png', 'assets/sd-foundation-sleeves-raised.png'], target: 'assets/avatar-file-data-foundation.js', global: 'QPAvatarFoundationFileData' },
+  { sources: ['assets/sd-foundation-ref-neck.png', 'assets/sd-foundation-ref-shirt.png', 'assets/sd-foundation-ref-sleeves.png', 'assets/sd-foundation-ref-shorts.png', 'assets/sd-foundation-ref-shoes.png', 'assets/sd-foundation-ref-arms.png', 'assets/sd-foundation-ref-legs.png'], target: 'assets/avatar-file-data-foundation.js', global: 'QPAvatarFoundationFileData' },
   { sources: ['assets/sd-wardrobe-wave.png'], target: 'assets/avatar-file-data-wardrobe.js', global: 'QPAvatarWardrobeFileData' },
   { sources: ['assets/sd-clothes-male.png'], target: 'assets/avatar-file-data-male.js', global: 'QPAvatarMaleFileData' }
 ];
