@@ -1,14 +1,15 @@
 /* Original candy-game controls: plump shapes, a white rim and a glossy face.
    Loaded after the room skins. Avatar art, game placement and press feedback stay separate. */
+/* Titles and buttons use the same rounded face as the in-game speech bubbles:
+   NanumSquareRound ExtraBold under one display name, so every weight renders bold. */
 @font-face {
-  font-family: "Jua";
-  src: url("./assets/fonts/Jua-Regular.ttf") format("truetype");
+  font-family: "QuizDisplay";
+  src: url("./assets/fonts/NanumSquareRoundEB.ttf") format("truetype");
   font-style: normal;
-  font-weight: 400;
   font-display: swap;
 }
 :root {
-  --candy-font: "Jua", "NanumSquareRound", "Malgun Gothic", sans-serif;
+  --candy-font: "QuizDisplay","NanumSquareRound", "Malgun Gothic", sans-serif;
   --candy-top: #78efff;
   --candy-mid: #22d8ee;
   --candy-bottom: #00aacd;

@@ -29,7 +29,7 @@ body .top .nm.qp-game-title-host {
   max-width: 100%;
   isolation: isolate;
   vertical-align: middle;
-  font-family: var(--candy-font, "Jua", "NanumSquareRound", sans-serif);
+  font-family: var(--candy-font, "QuizDisplay","NanumSquareRound", sans-serif);
   font-size: inherit;
   font-style: normal;
   font-weight: 400;

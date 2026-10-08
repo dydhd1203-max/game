@@ -3362,8 +3362,8 @@ SCREENS.shop = function(st,arg){
   const S = { cat:arg?.fitting?'top':'hair', sel:null, pv:avatarForSex(ME.av,null,ME.owned) };
   const groups=[{name:'머리 · 얼굴',icon:'hair',cats:['hair','expression']},{name:'한벌옷',icon:'outfit',cats:['outfit']},{name:'상의',icon:'top',cats:['top']},{name:'하의',icon:'bottom',cats:['bottom']},{name:'신발',icon:'shoes',cats:['shoes']},{name:'장신구',icon:'glass',cats:['hat','glass','face','ear','neck','frame']},{name:'날개 · 펫 · 효과',icon:'pet',cats:['back','pet','effect','bg']}];
 
-  st.innerHTML = `<section class="starlight-shop" aria-label="별빛 아바타 상점">
-    <header class="starlight-header"><button class="btn" id="tbBack">← 뒤로</button><h1>별빛 아바타 상점</h1><div class="f1"></div><button class="icb" id="tbSnd" aria-label="소리 설정">${uiIcon('sound')}</button><div class="gold">${uiIcon('coin')}<span class="sr-only">보유 골드</span><b id="goldNum">${(ME.gold||0).toLocaleString()}</b></div><button class="btn starlight-close" id="shopClose" aria-label="상점 닫고 마을로">×</button></header>
+  st.innerHTML = `<section class="starlight-shop" aria-label="숲속 옷 가게">
+    <header class="starlight-header"><button class="btn" id="tbBack">← 뒤로</button><h1>숲속 옷 가게</h1><div class="f1"></div><button class="icb" id="tbSnd" aria-label="소리 설정">${uiIcon('sound')}</button><div class="gold">${uiIcon('coin')}<span class="sr-only">보유 골드</span><b id="goldNum">${(ME.gold||0).toLocaleString()}</b></div><button class="btn starlight-close" id="shopClose" aria-label="상점 닫고 마을로">×</button></header>
   <div class="shopwrap qp-village-shop qp-starlight-shop">
     <div class="pnl col shop-fitting">
       <div class="pnl-h" id="pvTitle">입어 보기</div>

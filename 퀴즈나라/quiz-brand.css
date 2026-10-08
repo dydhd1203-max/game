@@ -37,7 +37,7 @@ body .top .nm.quiz-brand-host {
   isolation: isolate;
   vertical-align: middle;
   text-align: center;
-  font-family: var(--candy-font, "Jua", "NanumSquareRound", sans-serif);
+  font-family: var(--candy-font, "QuizDisplay","NanumSquareRound", sans-serif);
   font-weight: 400;
   font-style: normal;
   letter-spacing: 0;

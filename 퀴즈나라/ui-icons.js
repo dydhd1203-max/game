@@ -32,10 +32,10 @@
   /* Original toy-like navigation objects. Each highlight is a small solid shape,
      so repeated icons have no shared SVG IDs, filters or remote assets. */
   const speaker =
-    '<path d="M2.5 12.5h6L20 5v23L8.5 21h-6z" fill="#754ca8" stroke="#fff4cf" stroke-width="1.3" stroke-linejoin="round"/>' +
-    '<path d="M3.5 12.7h6v8.2h-6z" fill="#9064ca"/>' +
-    '<path d="M3.5 13h6v2.1h-6z" fill="#c4a3ec"/>' +
-    '<path d="M8.4 21.3h5l1.5 6.6c.2.7-.4 1.2-1.1 1.2h-3.2c-.5 0-.9-.3-1-.8z" fill="#70459e"/>' +
+    '<path d="M2.5 12.5h6L20 5v23L8.5 21h-6z" fill="#7a4a22" stroke="#fff4cf" stroke-width="1.3" stroke-linejoin="round"/>' +
+    '<path d="M3.5 12.7h6v8.2h-6z" fill="#9a6431"/>' +
+    '<path d="M3.5 13h6v2.1h-6z" fill="#d9b07a"/>' +
+    '<path d="M8.4 21.3h5l1.5 6.6c.2.7-.4 1.2-1.1 1.2h-3.2c-.5 0-.9-.3-1-.8z" fill="#6b3f1c"/>' +
     '<path d="M9.5 12.3 18.6 6v21.5l-9.1-6.6z" fill="#29bfd3"/>' +
     '<path d="m10.4 12.7 6.8-4.8v2.8l-6.8 4.4z" fill="#8bf1ee"/>' +
     '<path d="m10.4 18.5 8.2 4.8v4.2l-9.1-6.6z" fill="#169db8"/>' +

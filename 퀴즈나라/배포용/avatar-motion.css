@@ -23,7 +23,7 @@
 .qp-motion-heading :is(h1, h2, h3) {
   margin: 0 0 3px;
   color: #416b39;
-  font-family: var(--candy-font, "Jua", sans-serif);
+  font-family: var(--candy-font, "QuizDisplay","NanumSquareRound", sans-serif);
   font-size: 29px;
   font-weight: 400;
   line-height: 1.12;
@@ -133,7 +133,7 @@ body .qp-motion-page .qp-motion-controls button[data-motion] {
   border: 3px solid #fffbea;
   background: linear-gradient(var(--candy-top), var(--candy-mid) 45%, var(--candy-mid) 55%, var(--candy-bottom));
   box-shadow: inset 0 0 0 1px var(--candy-edge), inset 0 3px 0 #ffffff57, inset 0 -4px 0 #0000000d, 0 4px 0 var(--candy-base), 0 6px 0 #ffffffe0;
-  font-family: var(--candy-font, "Jua", sans-serif);
+  font-family: var(--candy-font, "QuizDisplay","NanumSquareRound", sans-serif);
   font-size: 19px;
   font-weight: 400;
   line-height: 1.15;
@@ -217,7 +217,7 @@ body .homewrap .wood-caption .wood-motion-trigger {
   border: 1px solid #426a2e;
   border-radius: 6px;
   box-shadow: inset 0 1px 0 #c7e79b80, 0 2px 0 #31562e;
-  font-family: var(--candy-font, "Jua", sans-serif);
+  font-family: var(--candy-font, "QuizDisplay","NanumSquareRound", sans-serif);
   font-size: 11px;
   font-weight: 400;
   line-height: 1;

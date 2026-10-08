@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-07T11:00:42.250Z",
+  "builtAt": "2026-10-08T00:21:07.444Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -106,8 +106,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 327021,
-      "sha256": "12f1a58a67cee08f5c360428ec80c7ac04bd90b0355e478cfca3f2d3f60cfaf7"
+      "bytes": 327009,
+      "sha256": "9f1379c837600dfefffb9c2032482709e06efdc07bb5673292533ccad28bcc44"
     },
     {
       "path": "avatar-image.js",
@@ -161,8 +161,8 @@
     },
     {
       "path": "candy-controls.css",
-      "bytes": 12166,
-      "sha256": "f8cb1139e9e908c03e30fb581a002e7fec424ec127554fcc1bc5d4de0398cb66"
+      "bytes": 12334,
+      "sha256": "0f713cadb111ee6fc32584cc3d42e4bc6c392bbe23bbf973f2606e13611603c8"
     },
     {
       "path": "candy-panels.css",
@@ -177,12 +177,12 @@
     {
       "path": "ui-icons.js",
       "bytes": 9412,
-      "sha256": "a83ca9ad11ca3aa9717cbe6be3c23db3be12762bad662466a1dbd43717b4a060"
+      "sha256": "638078d0768e38803a34cc905f4597eb077c3dda01f4daefd7d617996e19cd5a"
     },
     {
       "path": "game-typography.css",
-      "bytes": 5074,
-      "sha256": "651245952d9e0acc587e40ad6c6198554ea5cc4ebeee5273d47e9f78ed27d5e5"
+      "bytes": 5081,
+      "sha256": "68d3e36e2b3d3f05b2ef6921e215a3313c3c7bbc27b792a06a4a36d4868283c9"
     },
     {
       "path": "forest-village-theme.css",
@@ -191,18 +191,18 @@
     },
     {
       "path": "shop-village.css",
-      "bytes": 27754,
-      "sha256": "dc682853d69e4511cc25b15948ade57f9d9864afab0d8a9a96d0a44dc2dfc5ef"
+      "bytes": 28112,
+      "sha256": "893aa86d0d59284351dd9eff0c6b477d91a6927d84473a419fc4f70d53360e21"
     },
     {
-      "path": "assets/starlight-shop.png",
-      "bytes": 1961104,
-      "sha256": "adc840f1acf0c64cb29c64ebeb84247562dea1768aee94026272ddb311a81193"
+      "path": "assets/forest-shop.png",
+      "bytes": 3105766,
+      "sha256": "4d40419034e6b680cd68da6b97601a5e9421f9367877b1ac15981843fe987e90"
     },
     {
-      "path": "assets/starlight-shop-buttons.png",
-      "bytes": 1539930,
-      "sha256": "8077435b352416c34c05669418b1b32cb09ac737cc082e606c1eae91019c76d9"
+      "path": "assets/forest-shop-buttons.png",
+      "bytes": 2301329,
+      "sha256": "eb045871e75320bebedddd85aacffdaff86cff3c2a769f5facc3ef70eeb63f32"
     },
     {
       "path": "readability.css",
@@ -411,8 +411,8 @@
     },
     {
       "path": "quiz-brand.css",
-      "bytes": 5369,
-      "sha256": "c80c05333f9fe04b9cfc646254d987c515e8333ab572ef8e933508fea4717f52"
+      "bytes": 5376,
+      "sha256": "0c92249e10efa33e4b8647079acd4d571c4cbdbdf50c8a6b7f5d18c7b5ddada2"
     },
     {
       "path": "assets/quiz-brand-trim.svg",
@@ -541,8 +541,8 @@
     },
     {
       "path": "avatar-motion.css",
-      "bytes": 7533,
-      "sha256": "fb2b627854440c60db2785dd66f3c0c85bf852683985ad0f536256e1d4f7cb81"
+      "bytes": 7614,
+      "sha256": "ea5c731f37a183131418271a1d45da94478047122b647c788730b165148fa1ef"
     },
     {
       "path": "assets/sd-heads-profile-female.png",
@@ -586,8 +586,8 @@
     },
     {
       "path": "teacher-builder.css",
-      "bytes": 39307,
-      "sha256": "62594e977d30ba4bbb316d52a2c0bf616b6ef198b244ff08aa9ad6a889db6055"
+      "bytes": 39396,
+      "sha256": "8d175583588b2739eebefcf3b593c02a17fd46fa6fc0ce730d227f87de7434b0"
     },
     {
       "path": "quiz-classroom.js",
@@ -596,8 +596,8 @@
     },
     {
       "path": "quiz-classroom.css",
-      "bytes": 13275,
-      "sha256": "307ea93b155a3b71fa555d5cc4ff0ee5853eee544b41c0ad61e225f9d68b479c"
+      "bytes": 13491,
+      "sha256": "eacc955d95c4f188672625f27fd9a871accbf9bf4687c176eea0cb0edc97f8e9"
     },
     {
       "path": "quiz-map.js",
@@ -606,8 +606,8 @@
     },
     {
       "path": "quiz-map.css",
-      "bytes": 10713,
-      "sha256": "0035cf9a0c8892a9d9b0bf952f7644488ce7f001905cf301484444a7f68fa429"
+      "bytes": 10821,
+      "sha256": "c1ff6c80dac24f1be8eb4ece080772ba8288c3b5792f81d98da917884dab36cc"
     },
     {
       "path": "map-painted-props.js",
@@ -651,8 +651,8 @@
     },
     {
       "path": "round-scene.css",
-      "bytes": 7343,
-      "sha256": "56743bec1e16f2f43460544f5f20ccfa45eabdb715371f09d4827c272f839fd6"
+      "bytes": 7370,
+      "sha256": "469b609d245d362abe91b8b00509bc00351294414bd7e6b953f7b269776743ff"
     },
     {
       "path": "assets/round-picnic.svg",
@@ -663,16 +663,6 @@
       "path": "assets/candy-sky.svg",
       "bytes": 5079,
       "sha256": "57d9f0d60c29d7d8697a7ef6ee6ba4cb2f03f1f6826e7589a7cc52761e69d747"
-    },
-    {
-      "path": "assets/fonts/Jua-Regular.ttf",
-      "bytes": 2119352,
-      "sha256": "769677aef240bfc3b9965f2b50748075bff885e6c6992fc591a3fb268279f898"
-    },
-    {
-      "path": "assets/fonts/Jua-OFL.txt",
-      "bytes": 4342,
-      "sha256": "44a7c6e4c5572392ae122d3b1d8c6ba6fd640a7797e675384585d947f2773e3c"
     },
     {
       "path": "assets/sd-heads-female.png",
