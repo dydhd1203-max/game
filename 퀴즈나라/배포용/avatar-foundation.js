@@ -19,13 +19,13 @@
   // smooth or straight line. Male back keeps the strokes framing the nape
   // and cuts only below the collar. Male side has no painted neck: its cut
   // only trims the soft fringe under the jaw and stays right of the nape
-  // hair (x>=14.3), so no strand tip is clipped. Female side removes only
-  // the painting's grey under-jaw patch (strand tips, curl and back hair
-  // stay). Rules:
+  // hair (x>=14.3), so no strand tip is clipped. Female side needs no cut:
+  // its grey under-jaw 'patch' was hair repainted as skin by the profile
+  // neck-skin rule (avatar-direction.js), now fixed at the source. Rules:
   // 아바타-제작기준.md 머리–목 연결 규칙.
   const HEAD_NECK_CUT={
     m:{front:'M12.8 28.65Q13.45 28.45 13.6 27.98Q13.9 27.78 14.3 27.9V31H12.8ZM19.2 28.65Q18.55 28.45 18.4 27.98Q18.1 27.78 17.7 27.9V31H19.2Z',profile:'M14.42 25.783Q15.779 26.416 18.55 26.67Q18.2 27.6 18.5 28.3L18.7 29.4H14.3V26.3Z',back:'M11.5 27.6H13.06Q15.9 27.95 18.56 27.56H20.5V30H11.5Z'},
-    f:{profile:'M15.87 26.05L15.87 25.65L16.03 25.62L16.13 25.6L16.28 25.59L16.33 25.53L16.28 25.48L16.3 25.44L16.36 25.4L16.41 25.36L16.44 25.34L16.47 25.28Q16.76 25.33 16.98 25.33Q17.03 25.24 17.08 25.2Q17.18 25.28 17.37 25.34L17.44 25.4L17.49 25.46L17.51 25.51L17.53 25.54L17.46 25.57L17.4 25.6L17.4 25.67Q17.23 25.81 17.06 26.04L16.53 26.06Z'}
+    f:{}
   };
   // The thigh top is covered by the shorts; a wider root poked out beside
   // the shorts' curved hip as a pale skin tab.

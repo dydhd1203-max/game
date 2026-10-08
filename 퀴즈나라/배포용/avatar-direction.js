@@ -161,7 +161,10 @@
     const base=rgb(skin),dye=rgb(color),source=frame.data,c=document.createElement('canvas');c.width=frame.w;c.height=frame.h;const ctx=c.getContext('2d'),out=ctx.createImageData(frame.w,frame.h),d=out.data,eye=frame.eye;
     for(let i=0;i<source.length;i+=4){if(!source[i+3])continue;const p=i/4,r=source[i],g=source[i+1],b=source[i+2],x=p%frame.w,y=Math.floor(p/frame.w);let col=[r,g,b];const inEye=x>eye.left-8&&x<eye.right+8&&y>eye.top-12&&y<eye.bottom+8;
       const wx=frame.geometry.x+x*frame.geometry.scale,wy=frame.geometry.y+y*frame.geometry.scale;
-      const neckSkin=wx>13.5&&wx<18.5&&wy>25.3&&wy<29&&r>150&&g>90&&b>80&&g/r>.53&&b/g>.72;
+      // Old neck-stub skin only: light-brown hair in this box (g/r ~.62,
+      // b/g ~.79 against skin ~.85/.91) was repainted as skin and became the
+      // grey flat-topped patch under the side jaw.
+      const neckSkin=wx>13.5&&wx<18.5&&wy>25.3&&wy<29&&r>150&&g>90&&b>80&&g/r>.70&&b/g>.80;
       if(neckSkin||frame.faceMask[p]||frame.earMask?.[p]||frame.nearFace[p]&&r>140&&g>80&&b>90&&r>g+15&&g<b*1.08){const shade=(r*.22+g*.59+b*.19)/219,warmth=Math.max(0,(r-g-34)/78);col=base.map((v,k)=>clamp(Math.round(v*shade+(k===0?10:k===1?-15:-5)*warmth)));}
       else if(!inEye&&r>g*1.025&&g>b*.98&&r-g<117&&g-b<83&&r>24){const lum=r*.25+g*.59+b*.16,gain=lum/102,shine=Math.max(0,lum-160)*.38;col=dye.map(v=>clamp(Math.round(v*gain+shine)));}
       if(inEye&&(expression==='sparkle'||expression==='cat')&&(g>r+7||b>r+9)&&r<184&&g<190&&b<190){const iris=rgb(expression==='cat'?'#e2b654':'#73b9d4'),tone=clamp((r*.24+g*.61+b*.15)/120,.25,1.4);col=iris.map(v=>clamp(Math.round(v*tone)));}
