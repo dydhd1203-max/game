@@ -27,7 +27,10 @@ const report={success:false,productionFirebase:false,errors:[]};
     api.reset(fresh);api.apply(fresh,{...state,direction:to});
     const a=await pixels(moving),b=await pixels(fresh),error=difference(a,b);worst=Math.max(worst,error);
     if(error)throw Error('Direction switch differs from fresh pose '+JSON.stringify({sex,sk,gesture,progress,from,to,error}));
-    if(!negative&&gesture==='wave'&&progress===.5&&from==='front'&&to==='right'){
+    // The side-view wave hand is now held in front of the chin, clear of the
+    // head (2026-10-08 gestures), so it cannot reveal a hidden arm; the
+    // side-view cheer raises the near arm across the head's side and does.
+    if(!negative&&gesture==='happy'&&progress===.5&&from==='front'&&to==='right'){
      const r=api.prepare(moving);r.body.append(r.parts['near-arm']);negative=difference(await pixels(moving),b);
      if(negative<50)throw Error('Hidden greeting-hand negative control not detected');
     }

@@ -72,8 +72,10 @@
   if(!r.neckPainting){r.neckPainting=document.createElementNS(NS,'image');r.neckPainting.setAttribute('filter',tint);r.neckPainting.setAttribute('preserveAspectRatio','none');r.neckPainting.setAttribute('data-foundation-skin-paint','neck');r.parts.torso.insertBefore(r.neckPainting,r.neckEdge);}
   for(const e of [r.neckSurface,r.neckEdge,r.neckShade])e.style.display='none';
   {const F=neckFigure(sex,view),rect=F.rects.neck,collar=root.QPAvatarFoundation.specFor(sex).collar,key=rect.join();if(r.neckPainting.dataset.source!==key){r.neckPainting.setAttribute('href',neckTexture(F));r.neckPainting.dataset.source=key;}
-   for(const[k,v]of Object.entries({x:16+(rect[0]-F.neck[0])*F.k,y:collar+(rect[1]-F.neck[1])*F.k,width:rect[2]*F.k,height:rect[3]*F.k}))if(r.neckPainting.getAttribute(k)!==String(v))r.neckPainting.setAttribute(k,v);}
-  for(const type of ['arm','leg']){const parts=type==='arm'?r.arms:r.legs;parts.forEach((part,i)=>{const p=type==='arm'?pose.arms[i]:pose.legs[i],points=type==='arm'?[p.shoulder,p.elbow,p.wrist]:[p.root,p.knee,p.ankle],art=painting(limbDef(type,sex,view,i),points);
+   for(const[k,v]of Object.entries({x:16+(rect[0]-F.neck[0])*F.k,y:collar+(rect[1]-F.neck[1])*F.k,width:rect[2]*F.k,height:rect[3]*F.k}))if(r.neckPainting.getAttribute(k)!==String(v))r.neckPainting.setAttribute(k,v);
+   // A leaning walk/run bends the neck at the collar (pose.neckTilt).
+   const tilt=pose.neckTilt?'rotate('+(-pose.neckTilt).toFixed(3)+' 16 '+collar+')':'';if((r.neckPainting.getAttribute('transform')||'')!==tilt){if(tilt)r.neckPainting.setAttribute('transform',tilt);else r.neckPainting.removeAttribute('transform');}}
+  for(const type of ['arm','leg']){const parts=type==='arm'?r.arms:r.legs;parts.forEach((part,i)=>{const p=type==='arm'?pose.arms[i]:pose.legs[i],points=type==='arm'?[p.shoulder,p.elbow,p.wrist]:p.paint||[p.root,p.knee,p.ankle],def=limbDef(type,sex,view,i),art=painting(def,points);
    if(!part.painting){part.painting=document.createElementNS(NS,'image');part.painting.setAttribute('data-foundation-skin-paint',type);part.painting.setAttribute('filter',tint);part.painting.setAttribute('preserveAspectRatio','none');
     // An arm's sleeve-opening clip sits on a frame, so the forearm overlay can
     // reuse the bare painting above the sleeve with only its own clip.
@@ -82,21 +84,56 @@
     if(type==='leg'){const g=document.createElementNS(NS,'clipPath');g.id=r.svg.dataset.foundationId+'-leg-skin-paint-'+i;part.paintClip=document.createElementNS(NS,'path');g.append(part.paintClip);r.svg.querySelector('defs').append(g);}}
    const image=part.painting;for(const[k,val]of Object.entries({href:art.url,x:points[0][0]+art.x,y:points[0][1]+art.y,width:art.w,height:art.h}))if(image.getAttribute(k)!==String(val))image.setAttribute(k,val);
    // Clothing owns the sleeve opening clip; the painted hand follows the wrist.
-   // Crossed seated legs keep the body's rounded seated contour as their edge.
-   let clip=part.contour.getAttribute('clip-path');if(type==='leg'){clip=null;if(pose.floor){part.paintClip.setAttribute('d',part.contour.getAttribute('d'));clip='url(#'+part.paintClip.parentNode.id+')';}}
+   // Crossed seated legs are painted straight from the knee (leg.paint) and
+   // clipped to the body's knee-and-shin contour; the thigh is under the shorts.
+   // A desk sit seen from the front shows only the knee and shin, which lie
+   // over the shorts cuffs.
+   let clip=part.contour.getAttribute('clip-path');if(type==='leg'){clip=null;const lap=pose.desk&&!pose.profile&&!pose.back;if(pose.floor||lap){part.paintClip.setAttribute('d',pose.floor?part.contour.getAttribute('d'):'M'+(p.knee[0]-1.15).toFixed(3)+' '+p.knee[1].toFixed(3)+'A1.15 1.15 0 0 1 '+(p.knee[0]+1.15).toFixed(3)+' '+p.knee[1].toFixed(3)+'L'+(p.knee[0]+2).toFixed(3)+' 70H'+(p.knee[0]-2).toFixed(3)+'Z');clip='url(#'+part.paintClip.parentNode.id+')';}}
    if(clip)part.paintFrame.setAttribute('clip-path',clip);else part.paintFrame.removeAttribute('clip-path');
-   part.contour.style.visibility='hidden';part.shade.style.display='none';if(type==='arm'){part.hand.style.display='none';forearmOverlay(r,part,p,i);}
+   part.contour.style.visibility='hidden';part.shade.style.display=type==='leg'&&pose.floor?'':'none';if(type==='arm'){part.hand.style.display='none';forearmOverlay(r,part,p,i,[def.radii[1]*def.k,def.radii[2]*def.k],(def.end-def.joints[2][1])*def.k);openHand(r,part,p,i,tint);}
   });}r.svg.dataset.foundationSkinArt='reference-sheet-v1';}
  // A forearm folded toward the viewer (front/back running, cheering) lies in
  // front of its own sleeve. The same painted arm is shown again, clipped to
  // the forearm and hand, above the sleeve; nothing is redrawn or cloned.
- function forearmOverlay(r,part,arm,i){
+ // Desk forearms reach forward below the sleeve and need no overlay (its clip
+ // box showed the upper arm over the sleeve).
+ function forearmOverlay(r,part,arm,i,radii,end){
   const id=r.svg.dataset.foundationId+'-arm-paint-'+i;if(part.painting.id!==id)part.painting.id=id;
   if(!part.forearm){const clip=document.createElementNS(NS,'clipPath');clip.id=id+'-forearm';part.forearmClip=document.createElementNS(NS,'path');clip.append(part.forearmClip);r.svg.querySelector('defs').append(clip);part.forearm=document.createElementNS(NS,'use');part.forearm.setAttribute('href','#'+id);part.forearm.setAttribute('clip-path','url(#'+clip.id+')');part.forearm.dataset.foundationForearm=String(i);part.parent.append(part.forearm);}
-  const [,e,w]=arm.boneSpace,toward=w[2]-e[2]>.6&&!r.pose?.profile;part.forearm.style.display=toward?'':'none';if(!toward)return;
-  const d=sub(arm.wrist,arm.elbow),l=Math.hypot(...d)||1,u=[d[0]/l,d[1]/l],nrm=[-u[1],u[0]],a=[arm.elbow[0]+u[0]*.25,arm.elbow[1]+u[1]*.25],b=[arm.wrist[0]+u[0]*1.6,arm.wrist[1]+u[1]*1.6],q=(p,s)=>(p[0]+nrm[0]*s).toFixed(3)+' '+(p[1]+nrm[1]*s).toFixed(3);
-  part.forearmClip.setAttribute('d','M'+q(a,1.1)+'L'+q(b,1.1)+'L'+q(b,-1.1)+'L'+q(a,-1.1)+'Z');
+  // Only a forearm that folds back across its sleeve on screen needs it; a
+  // walking forearm continues below the cuff and the copy only hid the cuff.
+  const [,e,w]=arm.boneSpace,up=sub(arm.shoulder,arm.elbow),down=sub(arm.wrist,arm.elbow),folded=(up[0]*down[0]+up[1]*down[1])/((Math.hypot(...up)*Math.hypot(...down))||1)>Math.cos(125*Math.PI/180),toward=w[2]-e[2]>.6&&folded&&!r.pose?.profile&&!r.pose?.desk;part.forearm.style.display=toward?'':'none';if(!toward)return;
+  // The clip is the forearm's own outline: rounded at the elbow, widening
+  // over the hand. A wide rectangle cut the painting with straight edges
+  // and pasted the hidden upper-arm skin over the sleeve as a pale torn
+  // patch (D5, front/back running and cheering).
+  const d=sub(arm.wrist,arm.elbow),l=Math.hypot(...d)||1,u=[d[0]/l,d[1]/l],nrm=[-u[1],u[0]],[re,rw]=radii,hand=end,q=(p,s,t=0)=>(p[0]+nrm[0]*s+u[0]*t).toFixed(3)+' '+(p[1]+nrm[1]*s+u[1]*t).toFixed(3),E=arm.elbow,W=arm.wrist;
+  part.forearmClip.setAttribute('d','M'+q(E,re)+'L'+q(W,rw+.08)+'L'+q(W,rw+.12,hand*.55)+'Q'+q(W,rw+.12,hand+.15)+' '+q(W,0,hand+.15)+'Q'+q(W,-rw-.12,hand+.15)+' '+q(W,-rw-.12,hand*.55)+'L'+q(W,-rw-.08)+'L'+q(E,-re)+'Q'+q(E,-re,-re)+' '+q(E,0,-re)+'Q'+q(E,re,-re)+' '+q(E,re)+'Z');
  }
- function destroy(r){r.skinPaintFilter?.remove();r.neckPainting?.remove();for(const e of [r.neckSurface,r.neckEdge,r.neckShade])e.style.display='';for(const part of [...r.arms,...r.legs]){part.contour.style.visibility='';part.paintFrame?.remove();part.painting?.remove();part.paintClip?.parentNode.remove();part.forearm?.remove();part.forearmClip?.parentNode.remove();delete part.forearm;delete part.forearmClip;}}
+ // An open hand for a gesture-raised arm (wave, cheer). The sheet only has a
+ // relaxed hanging hand, which pointed upwards read as a mitten or a fist.
+ // Drawn in the sheet's own skin and outline colours under the same tone
+ // filter as the painting, so it matches every skin tone; the painted hand
+ // past the wrist is clipped away while it shows. Hand-local units: +y runs
+ // from the wrist to the fingertips, the thumb on -x (turned to the body).
+ const HAND={skin:'#fcd7c0',line:'#bd8370',crease:'#e9b9a3',palm:'M-.62 -.16L-.63 .5Q-.62 .88-.3 .9L.34 .88Q.63 .84 .62 .5L.62 -.16Z',palmLine:'M-.62 -.05L-.63 .5Q-.62 .88-.3 .9L.34 .88Q.63 .84 .62 .5L.62 -.05',fingers:'M-.34 .8L-.46 1.4M-.1 .84L-.12 1.55M.14 .82L.2 1.47M.38 .74L.53 1.18M-.48 .32L-.92 .74',crease:'M-.28 .42Q0 .58 .3 .46'};
+ function openHand(r,part,arm,i,tint){
+  if(!part.openHand){const g=document.createElementNS(NS,'g'),mk=(d,attrs)=>{const e=document.createElementNS(NS,'path');e.setAttribute('d',d);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);g.append(e);return e;};
+   g.setAttribute('filter',tint);g.dataset.foundationOpenHand=String(i);
+   mk(HAND.fingers,{fill:'none',stroke:HAND.line,'stroke-width':.46,'stroke-linecap':'round'});mk(HAND.palm,{fill:HAND.skin});mk(HAND.palmLine,{fill:'none',stroke:HAND.line,'stroke-width':.08,'stroke-linejoin':'round'});
+   mk(HAND.fingers,{fill:'none',stroke:HAND.skin,'stroke-width':.3,'stroke-linecap':'round'});mk(HAND.crease,{fill:'none',stroke:HAND.crease,'stroke-width':.05,'stroke-linecap':'round'});
+   part.parent.append(g);part.openHand=g;
+   const clip=document.createElementNS(NS,'clipPath');clip.id=r.svg.dataset.foundationId+'-hand-cut-'+i;part.handCut=document.createElementNS(NS,'path');clip.append(part.handCut);r.svg.querySelector('defs').append(clip);}
+  const open=(arm.lift||0)>.35;part.openHand.style.display=open?'':'none';
+  if(!open){part.painting.removeAttribute('clip-path');part.openHand.removeAttribute('transform');return;}
+  if(part.openHand.parentNode!==part.parent||part.openHand.nextSibling)part.parent.append(part.openHand);
+  const d=sub(arm.wrist,arm.elbow),l=Math.hypot(...d)||1,u=[d[0]/l,d[1]/l],nrm=[-u[1],u[0]],angle=Math.atan2(u[1],u[0])*180/Math.PI-90+(arm.handTurn||0)*180/Math.PI;
+  // Thumb toward the body's centre line (palm or back of the hand to the camera).
+  const thumb=[-Math.cos(angle*Math.PI/180),-Math.sin(angle*Math.PI/180)],flip=thumb[0]*(arm.wrist[0]-16)>0?-1:1;
+  part.openHand.setAttribute('transform','translate('+arm.wrist.map(v=>v.toFixed(4)).join(' ')+') rotate('+angle.toFixed(3)+') scale('+flip+' 1)');
+  const c=[arm.wrist[0]+u[0]*.12,arm.wrist[1]+u[1]*.12],q=(p,a,b)=>(p[0]+u[0]*a+nrm[0]*b).toFixed(3)+' '+(p[1]+u[1]*a+nrm[1]*b).toFixed(3);
+  part.handCut.setAttribute('d','M'+q(c,0,12)+'L'+q(c,-30,12)+'L'+q(c,-30,-12)+'L'+q(c,0,-12)+'Z');part.painting.setAttribute('clip-path','url(#'+part.handCut.parentNode.id+')');
+ }
+ function destroy(r){r.skinPaintFilter?.remove();r.neckPainting?.remove();for(const e of [r.neckSurface,r.neckEdge,r.neckShade])e.style.display='';for(const part of [...r.arms,...r.legs]){part.contour.style.visibility='';part.paintFrame?.remove();part.painting?.remove();part.paintClip?.parentNode.remove();part.forearm?.remove();part.forearmClip?.parentNode.remove();part.openHand?.remove();part.handCut?.parentNode.remove();delete part.forearm;delete part.forearmClip;delete part.openHand;delete part.handCut;}}
  root.QPFoundationSkin=Object.freeze({atlas,files,load,apply,destroy,limbDef});
 })(window);

@@ -67,23 +67,104 @@
   const transform=(a,b,angle)=>{const c=Math.cos(angle),s=Math.sin(angle);return[c,s,-s,c,b[0]-c*a[0]+s*a[1],b[1]-s*a[0]-c*a[1]];};
   const mapped=(m,p)=>[m[0]*p[0]+m[2]*p[1]+m[4],m[1]*p[0]+m[3]*p[1]+m[5]];
   const matrix=m=>'matrix('+m.map(n).join(' ')+')';
-  // Authored seated/climb targets are screen positions; the missing length goes
-  // into depth, and a target past the bone is pulled back onto it.
-  const reach=(a,b,l)=>{const d=sub(b,a),h=Math.hypot(...d);return h>l*.999?add(a,d.map(v=>v*l*.999/h)):b;};
   function ik(a,b,l1,l2,bend){const d=sub(b,a),length=clamp(Math.hypot(...d),Math.abs(l1-l2)+.001,l1+l2-.001),angle=Math.atan2(d[1],d[0]),offset=Math.acos(clamp((l1*l1+length*length-l2*l2)/(2*l1*length),-1,1))*bend;return add(a,[Math.cos(angle+offset)*l1,Math.sin(angle+offset)*l1]);}
   const TAU=Math.PI*2,smooth=(a,b,x)=>{const t=clamp((x-a)/(b-a),0,1);return t*t*(3-2*t);};
-  // Gait per leg phase p; 0 is heel strike with the foot ahead. The planted
-  // foot passes under the hip, the heel peels off before toe-off, then the
-  // swing lifts the knee and brings the foot through. Running has a short
-  // stance, a flight phase and a high heel kick instead of a faster walk.
+  // The pose render() draws by itself (shop preview, profile, lists, results:
+  // screens with no motion controller). reset() returns to the same pose.
+  const STATIC_POSE=Object.freeze({action:'idle',direction:'front',time:0}),PART_NAMES=Object.freeze(['far-arm','far-leg','near-leg','pelvis','torso','near-arm']);
+  // prefers-reduced-motion, read live on every apply(); a caller may pass
+  // state.reducedMotion instead. CALM_HOP scales the happy hop under it.
+  const REDUCED=root.matchMedia?.('(prefers-reduced-motion: reduce)')||null,CALM_HOP=.35;
+  // Gait per leg phase p; 0 is heel strike with the foot ahead (D4/D5,
+  // 기준캐릭터-조사 motion). Stance: heel strike -> foot flat -> heel off ->
+  // toe off, the planted foot travelling back under the hip at one constant
+  // speed. Swing is authored as thigh/knee angles (degrees from vertical,
+  // forward +; knee flexion +), so the lifted knee and heel kick are drawn
+  // rather than left to the solver; its ends are the stance's own toe-off and
+  // heel-strike angles, so nothing pops. reach = [ahead at strike, behind at
+  // toe-off] in body units. bob = hip drop keys [leg phase, drop] over one
+  // step (repeats twice per cycle); the hips never stay higher than the
+  // planted legs reach. Walking is highest as the legs pass (straight
+  // support leg) and lowest at heel strike. Running has a short stance, a
+  // flight phase (drop below zero = above the standing height), a high heel
+  // kick and knee drive, and a 12 degree forward lean: it lands, sinks to
+  // mid-stance, pushes off extended and rises in the air.
+  // Arms: swing about the hanging rest (forward +), elbow flexion, upper-arm
+  // and forearm abduction (outward +), each [mean, amplitude with the
+  // opposite leg]; facing adds to the front/back views, where the swing is
+  // seen end-on and is read from the bending elbow and the hand coming in.
   const GAIT={
-    walk:{duty:.6,reach:1.75,heel:.72,heelLift:.34,toe:14,lift:1.35,arc:.8,travel:[.04,.92],bob:[.28,.17,.04],lean:3,sway:.11,roll:1.4,support:.3,swing:24,flex:14,fold:10,lag:.03},
-    run:{duty:.36,reach:2.25,heel:.5,heelLift:.52,toe:20,lift:2.45,arc:.62,travel:[.12,.95],bob:[.78,.32,.18],lean:9,sway:.06,roll:.8,support:.18,swing:44,flex:102,fold:10,lag:.02}
+    walk:{duty:.6,reach:[2.5,2.7],flat:.12,heel:.55,heelLift:.5,strike:-16,toe:28,swing:[[.22,-6,60],[.5,15,68],[.78,28,16]],bob:[[0,.56],[.06,.41],[.12,.25],[.2,.1],[.29,.025],[.4,.2]],lean:3,sway:.13,roll:1.7,support:.3,
+      arm:{swing:[0,22],flex:[14,10],abduct:[2,-3],forearm:[-2,-7],facing:{flex:[10,15],abduct:[0,-2]}},lag:.03,neck:.7,frontRaise:1.9},
+    run:{duty:.34,reach:[1.8,2.8],flat:.1,heel:.5,heelLift:.62,strike:-8,toe:34,swing:[[.3,-10,112],[.6,50,100],[.86,36,30]],bob:[[0,.33],[.12,.45],[.34,.18],[.42,-.1]],lean:12,sway:.06,roll:.9,support:.17,
+      arm:{swing:[-4,42],flex:[86,8],abduct:[2,-2],forearm:[-27,-19],facing:{swing:[0,-8],flex:[-24,-10]}},lag:.02,neck:.7,frontRaise:1.5}
   };
-  function step(g,p){
-    if(p<g.duty){const u=p/g.duty,heel=smooth(g.heel,1,u);return{forward:g.reach*(1-2*u),lift:g.heelLift*heel,toe:-10*(1-smooth(0,.12,u))+g.toe*heel,contact:heel<=0};}
-    const s=(p-g.duty)/(1-g.duty);
-    return{forward:g.reach*(2*smooth(g.travel[0],g.travel[1],s)-1),lift:g.heelLift*(1-s)*(1-s)+g.lift*Math.sin(Math.PI*Math.pow(s,g.arc)),toe:g.toe*(1-smooth(0,.35,s))-10*smooth(.6,1,s),contact:false};
+  // Screen drop per body unit of walking depth in front/back views.
+  const GROUND_TILT=.3;
+  // Cubic through authored keys [s, ...values] (Catmull-Rom tangents).
+  function keyed(keys,s,k){
+    let j=0;while(j<keys.length-2&&s>keys[j+1][0])j++;
+    const a=keys[j],b=keys[j+1],h=b[0]-a[0]||1,t=clamp((s-a[0])/h,0,1),slope=(i)=>{const p=keys[Math.max(0,i-1)],q=keys[Math.min(keys.length-1,i+1)];return(q[k]-p[k])/(q[0]-p[0]||1)*h;};
+    const m0=slope(j),m1=slope(j+1),t2=t*t,t3=t2*t;
+    return(2*t3-3*t2+1)*a[k]+(t3-2*t2+t)*m0+(-2*t3+3*t2)*b[k]+(t3-t2)*m1;
+  }
+  const legAngles=(d,lt,ls)=>{const l=clamp(Math.hypot(...d),Math.abs(lt-ls)+.002,lt+ls-.002),knee=Math.acos(clamp((lt*lt+ls*ls-l*l)/(2*lt*ls),-1,1)),inner=Math.acos(clamp((lt*lt+l*l-ls*ls)/(2*lt*l),-1,1));return[(Math.atan2(d[0],d[1])+inner)*180/Math.PI,180-knee*180/Math.PI];};
+  // Hip drop: the bob keys repeat every half cycle (each leg's step).
+  const hipDrop=(g,p)=>{const k=g.bob,P=.5,x0=k[0][0],x=x0+(((p-x0)%P)+P)%P,shift=(d)=>([t,v])=>[t+d,v];return keyed([...k.slice(-2).map(shift(-P)),...k,...k.slice(0,2).map(shift(P))],x,1);};
+  // One leg at leg phase p, relative to its hip: [forward, height of the
+  // ankle above its planted height], the shoe angle, heel contact and whether
+  // the foot is on the ground at all. lt/ls are this view's bones; height is
+  // the hip-to-planted-ankle distance. reach is in body units: the stride is
+  // one ground distance for every view and sex.
+  function step(g,p,lt,ls,height){
+    const reach=g.reach,stance=u=>{const heel=smooth(g.heel,1,u);return{forward:mix(reach[0],-reach[1],u),lift:g.heelLift*heel,toe:mix(g.strike,0,smooth(0,g.flat,u))+g.toe*heel,contact:heel<=0,stance:true};};
+    if(p<g.duty)return stance(p/g.duty);
+    const s=(p-g.duty)/(1-g.duty),end=u=>{const st=stance(u);return legAngles([st.forward,height-hipDrop(g,u?g.duty:0)-st.lift],lt,ls);};
+    const [t0,k0]=end(1),[t1,k1]=end(0),keys=[[0,t0,k0],...g.swing,[1,t1,k1]],thigh=rad(keyed(keys,s,1)),knee=rad(Math.max(0,keyed(keys,s,2))),shin=thigh-knee;
+    const down=height-hipDrop(g,p),forward=lt*Math.sin(thigh)+ls*Math.sin(shin),lift=Math.max(0,down-lt*Math.cos(thigh)-ls*Math.cos(shin));
+    // The foot follows the shin part of the way (the big shoes read as a
+    // flip when held square to it), toes relaxing down after toe-off and
+    // turning up again just before the heel lands.
+    const hang=Math.min(80,-shin*180/Math.PI*.6+4),toe=mix(mix(g.toe,hang,smooth(0,.3,s)),g.strike,smooth(.78,1,s));
+    return{forward,lift,toe,contact:false,stance:false};
+  }
+  // Jump (D8), pose to pose. The game sends grounded+jumpCompression for the
+  // take-off crouch and the landing (jumpStage tells them apart; the studio
+  // and contact sheets omit it, so the first half of a cycle is take-off)
+  // and vy in the air (+480 launch, 0 apex, -480 touchdown) as flight 0..1.
+  // Degrees. leg: thigh angle from vertical (forward +) and knee flex for the
+  // near then the far leg; splay turns front/back knees out about the hip so
+  // a bend reads head-on. profile: screen swing and elbow flex of the near
+  // then the far arm. front (also back): swing, abduction, forearm, flex as
+  // in the rest model.
+  const JUMP={
+    // Take-off: knees forward, hips back, chest over the knees, arms behind.
+    takeoff:{drop:1.45,lean:13,hips:-.55,splay:16,profile:[-50,20,-58,26],front:[-34,22,18,16]},
+    // Landing: a deeper give; the arms come down in front for balance.
+    landing:{drop:1.6,lean:11,hips:-.45,splay:18,profile:[30,42,12,40],front:[24,30,44,24]},
+    // Launch: legs straighten, toes point and the arms finish their upswing;
+    // side arms stop at the chin (never over the face), head-on the fists
+    // come up beside the chest with the sleeves still seam-pinned (arms
+    // flung out to the sides read as a stiff T and turn a raised sleeve
+    // into a flap). Apex: knees tucked up, elbows bent in front of the
+    // chest. Fall: legs reach down; side arms split forward/back for
+    // balance; head-on the fists lower by unbending the elbow with the
+    // forearm kept near the body (opening them sideways while still bent
+    // forward showed a flat sideways stub) and the arms ease open.
+    air:[
+      {f:0,leg:[-6,8,-3,6],toe:32,lean:3,splay:2,profile:[96,18,82,22],front:[42,22,16,86]},
+      {f:.16,leg:[30,64,22,52],toe:24,lean:4,splay:8,profile:[100,26,88,30],front:[55,20,14,95]},
+      {f:.46,leg:[58,112,50,102],toe:16,lean:7,splay:12,profile:[42,82,20,70],front:[50,24,20,95]},
+      {f:.74,leg:[30,54,24,44],toe:6,lean:4,splay:6,profile:[16,30,-36,30],front:[22,30,18,34]},
+      {f:1,leg:[12,18,8,14],toe:-3,lean:4,splay:4,profile:[30,28,-14,28],front:[20,26,24,18]}
+    ]
+  };
+  // Catmull-Rom through the flight keys: continuous speed, no hold at a key.
+  function jumpAir(f){
+    const K=JUMP.air,i=clamp(K.findIndex(k=>k.f>=f)-1,0,K.length-2),u=clamp((f-K[i].f)/(K[i+1].f-K[i].f),0,1),[a,b,c,d]=[K[Math.max(0,i-1)],K[i],K[i+1],K[Math.min(K.length-1,i+2)]];
+    const cr=(p0,p1,p2,p3)=>p1+.5*u*(p2-p0+u*(2*p0-5*p1+4*p2-p3+u*(3*(p1-p2)+p3-p0)));
+    const each=(x,y,z,w)=>typeof y==='number'?cr(x,y,z,w):y.map((_,k)=>each(x[k],y[k],z[k],w[k]));
+    return Object.fromEntries(Object.keys(b).map(k=>[k,each(a[k],b[k],c[k],d[k])]));
   }
   // Arms use one body-frame model in every view: swing (forward +),
   // abduction (outward +) and elbow flexion (forward +). The screen keeps
@@ -110,42 +191,237 @@
   }
   const bodyVector=(swing,abduct)=>[Math.sin(abduct),Math.cos(abduct)*Math.cos(swing),Math.cos(abduct)*Math.sin(swing)];
   function view3d(v,side,view,near){return view==='profile'?[v[2],v[1],(near?1:-1)*v[0]]:view==='back'?[side*v[0],v[1],-v[2]]:[side*v[0],v[1],v[2]];}
-  function gestureEnvelope(progress){return smooth(0,.18,progress)*(1-smooth(.82,1,progress));}
+  // Seated poses are each ONE 3D pose in body space (outward from the body
+  // midline on that limb's side, down, forward), seen from every view, so
+  // the four views agree. Angles in degrees; lengths in body units.
+  // floor (아빠다리, user's four-view seating reference): pelvis on the floor,
+  //   thighs open forward and out to the sides with the knees a little raised,
+  //   shins folded back inward in front of the pelvis. Each ankle stays at
+  //   standing height, so its shoe lies on the floor with the toe pointing
+  //   across to the other side and the two feet cross in front. The far
+  //   (screen-left) shin folds further back and its foot sits a little higher,
+  //   so the near foot crosses in front. Hands rest on the knees with a small
+  //   forward lean (drawn only in profile).
+  // desk: pelvis on a chair seat, thighs level and forward (foreshortened in
+  //   front and back views), knees a little apart, shins down to flat feet
+  //   set slightly in and back under the knees; forearms forward and in on
+  //   the desk at elbow height.
+  const SEATED=Object.freeze({
+    // The side view is drawn for reading, as in the user's side reference: the
+    // near knee points almost straight ahead and its shin folds back under it
+    // with the foot showing forward on the floor (side override below).
+    floor:Object.freeze({seat:1.6,out:42,rise:22,fold:[30,14],lift:[.24,0],lean:3,toe:7,hand:[.85,1.4,-.3],side:Object.freeze({out:18,fold:[48,48]})}),
+    desk:Object.freeze({drop:3.55,out:12,shinTilt:8,shinIn:14,lean:3,swing:24,abduct:8,reach:88,inward:40})
+  });
+  // Two-bone reach in 3D; the elbow bends toward the pole. Target beyond the
+  // arm is pulled back onto it, so bone lengths never change.
+  function ik3(target,a,b,pole){
+    const d=clamp(Math.hypot(...target),Math.abs(a-b)+.001,(a+b)*.999),u=target.map(v=>v/(Math.hypot(...target)||1)),x=(a*a-b*b+d*d)/(2*d),r=Math.sqrt(Math.max(0,a*a-x*x));
+    const dot=pole.reduce((s,v,k)=>s+v*u[k],0),perp=pole.map((v,k)=>v-dot*u[k]),pl=Math.hypot(...perp)||1;
+    return{elbow:u.map((v,k)=>v*x+perp[k]/pl*r),wrist:u.map(v=>v*d)};
+  }
+  // Two bones in 3D (x, y, z toward the camera): both lengths stay exact and
+  // the joint bends toward `pole`; foreshortening goes into depth.
+  function ik3at(a,b,l1,l2,pole){
+    const d=b.map((v,i)=>v-a[i]),h=Math.hypot(...d)||1e-6,L=clamp(h,Math.abs(l1-l2)+.001,l1+l2-.001),u=d.map(v=>v/h),along=pole.reduce((s,v,i)=>s+v*u[i],0);
+    let q=pole.map((v,i)=>v-along*u[i]);const ql=Math.hypot(...q)||1;q=q.map(v=>v/ql);
+    const ca=clamp((l1*l1+L*L-l2*l2)/(2*l1*L),-1,1),sa=Math.sqrt(1-ca*ca);
+    return[a.map((v,i)=>v+l1*(ca*u[i]+sa*q[i])),a.map((v,i)=>v+L*u[i])];
+  }
+  // Ladder climbing (D12; the climber always shows its back). One virtual
+  // ladder: hands hold the rails at 16±5.7 (the painted map ladders' rails are
+  // 16±6.0–6.6 at the default camera, so the hands sit on their inner half)
+  // and the feet stand on rungs. A hand and the opposite foot move together
+  // while the other pair holds. A holding limb slides down the body frame at
+  // the climbing rate (`rise` per cycle), so it stays on its rung while the
+  // body goes up; played backwards (phase falls while descending) the same
+  // cycle reaches down and holds while the body sinks. Bone lengths are
+  // fixed, so the arms cannot reach over the big head: the top grip is the
+  // arm at 97% reach beside the ear, with the hand behind the head; the
+  // lowest grip keeps the forearm upright beside the head (a lower grip folds
+  // the short forearm under its own sleeve and leaves the elbow sticking out
+  // like a hand). Knees open a little (ladder knees) so the bend reads from
+  // behind instead of disappearing into depth.
+  const CLIMB=Object.freeze({rail:5.7,handZ:-1.2,footZ:-1,palm:.7,reach:.97,low:-2.3,step:2.4,handDuty:.72,poleHigh:[1,.5,.2],poleLow:[.8,1,.2],knee:[.7,0,-1],roll:2.5,sway:.15});
+  // One limb over a cycle: hold (sliding down, pos 0→1), then lift off and
+  // reach up again (pos 1→0, lift 0→1→0 away from the ladder).
+  function climbStep(u,duty){if(u<duty)return{pos:u/duty,lift:0};const s=(u-duty)/(1-duty);return{pos:1-smooth(0,1,s),lift:Math.sin(Math.PI*s)};}
+  // Grip heights, rise and timing of one sex's back-view rig. Each limb moves
+  // two rungs per cycle, so rungs are rise/2 apart. The rise is the n-rung
+  // distance between a landing foot's sole and its partner hand's palm, picked
+  // so a foot holds at least half the cycle (one foot is always on a rung)
+  // and the hands hold ~72% of it.
+  function climbRig(S){
+    const C=CLIMB,shoulder=S.shoulder[1],hand=Math.hypot(...sub(S.elbow[1],shoulder))+Math.hypot(...sub(S.wrist[1],S.elbow[1])),dx=16+C.rail-shoulder[0];
+    const handHigh=shoulder[1]-Math.sqrt(Math.max(0,(C.reach*hand)**2-dx*dx-C.handZ**2)),handLow=shoulder[1]+C.low,travel=handLow-handHigh;
+    // The hand's shorter move is centred in its partner foot's move, so the
+    // hand has slid (travel−step)/2 below its top grip when the foot lands.
+    const footLow=S.waist+Math.sqrt((C.reach*(S.thigh+S.shin))**2-C.footZ**2),span=footLow+S.floor-S.ankle-(handHigh-C.palm)-C.step-(travel-C.step)/2;
+    let rise=0;for(let n=3;n<=14;n++){const d=2*span/n;if(C.step/d>=.5&&travel/d<=.88&&(!rise||Math.abs(travel/d-C.handDuty)<Math.abs(travel/rise-C.handDuty)))rise=d;}
+    rise||=2*C.step;
+    return{handHigh,handLow,footLow,step:C.step,rise,rung:rise/2,handDuty:travel/rise,footDuty:C.step/rise,lead:(travel-C.step)/rise/2};
+  }
+  // Gestures run over progress 0..1 (1.5 s in the maps).
+  // Wave: the forearm leads the raise and trails the lowering, so the arm
+  // never passes through a straight horizontal line; the upper arm then
+  // stays put and only the forearm and hand wave.
+  function waveTimeline(p){
+    const up=smooth(0,.2,p)*(1-smooth(.8,.97,p));
+    // The hand follows the forearm's wag a little late (a loose wrist).
+    const hold=smooth(.12,.26,p)*(1-smooth(.74,.86,p));
+    return{up,wag:Math.sin(TAU*3*(p-.2))*hold,turn:Math.sin(TAU*3*(p-.2)-1.1)*hold};
+  }
+  // Bow (고개 인사), twice: a quick dip, a short hold, a slower rise.
+  function bowTimeline(p){let b=0;for(const a of [.03,.51]){const u=(p-a)/.46;if(u>0&&u<1)b=Math.max(b,smooth(0,.32,u)*(1-smooth(.56,1,u)));}return b;}
+  // Happy: an anticipation crouch, two hops (air [start, end, height]) and
+  // a squash on each landing ([start, end, deepest point, depth]).
+  const HAPPY_HOPS=[[.1,.4,1],[.52,.8,.86]],HAPPY_SQUASH=[[0,.1,.7,.8],[.4,.52,.35,1],[.8,.95,.3,.85]],HAPPY_HEIGHT=3.4;
+  // Bow: upper-body lean and head pitch on top of it (deg), the pivot at the
+  // nape (the hair over the back of the neck stays on it; a pivot at the
+  // neck centre lifted the female side lock off the jaw) and the front/back
+  // jaw line (stage units).
+  const BOW_LEAN=6,BOW_PITCH=13,BOW_PIVOT=[14.7,27.5],BOW_JAW=27.6;
+  function happyTimeline(p){
+    let lift=0,tuck=0,squash=0;
+    for(const[a,b,k]of HAPPY_HOPS)if(p>a&&p<b){const u=(p-a)/(b-a);lift=k*4*u*(1-u);tuck=k*Math.sin(Math.PI*u);}
+    for(const[a,b,peak,k]of HAPPY_SQUASH)if(p>=a&&p<=b){const u=(p-a)/(b-a);squash=k*(u<peak?smooth(0,peak,u):1-smooth(peak,1,u));}
+    return{lift,tuck,squash,arms:smooth(.03,.16,p)*(1-smooth(.84,1,p))};
+  }
+  // Raised gesture arms in degrees (outward/forward +). Front and back keep
+  // the hands outside the large head (silhouettes of the reference heads);
+  // the female bob is wider, so her arms open a little more. Profile never
+  // brings a hand over the face: the wave hand is held in front of the chin,
+  // and the cheering near arm rises sideways (toward the camera) over the ear.
+  // Front/back hands reach about 2 units past the 32-unit stage (the old wave
+  // reached 3.7); map avatars draw overflow, 32-wide contact sheets clip it.
+  const GESTURE_ARMS={
+    wave:{front:{abduct:[106,106],forearm:[154,150],wag:15,swing:8},back:{abduct:[104,107],forearm:[152,150],wag:15,swing:4},profile:{swing:[86,88],forearm:[134,142],abduct:14,wag:9}},
+    // Profile happy swing [sex][far, near]: arms tipped back off the face (the
+    // far arm is hidden behind the head; the female face sits further back).
+    // Profile wave forearm: absolute sagittal angle.
+    happy:{front:{abduct:[128,119],forearm:[140,131],swing:6},back:{abduct:[127,119],forearm:[139,131],swing:0},profile:{abduct:[160,160],forearm:[166,166],swing:[[24,14],[26,20]]}}
+  };
   function solve(input={}){
     const direction=input.action==='climb'?'back':['front','back','left','right'].includes(input.direction)?input.direction:input.facing||'front',profile=['left','right'].includes(direction),back=direction==='back',view=profile?'profile':back?'back':'front';
     const SPEC=rigFor(input.sex,view),REST_SWING=Math.atan2(...SPEC.profileSwing),REST_FLEX=Math.atan2(...SPEC.profileFlex)-REST_SWING;
-    const action=input.action||'idle',run=action==='run',walk=run||action==='walk',floor=action==='floor-sit'||action==='sit'&&input.seatMode==='floor',desk=action==='sit'&&!floor,jump=action==='jump',climb=action==='climb';
+    const action=input.action||'idle',run=action==='run',walk=run||action==='walk',floor=action==='floor-sit'||action==='sit'&&input.seatMode==='floor',desk=action==='sit'&&!floor,jump=action==='jump',climb=action==='climb',CR=climb?climbRig(SPEC):null;
     const rawPhase=((Number(input.phase)||0)%1+1)%1;
     // A cycle has 24 shared painted poses (walk ~50fps, run ~78fps in maps).
     // Quantize drawing only: world position and input timing remain continuous.
     const phase=walk||climb?Math.round(rawPhase*24)%24/24:rawPhase,time=Number.isFinite(input.time)?input.time:0;
-    const gait=run?GAIT.run:GAIT.walk,gesture=['wave','nod','happy'].includes(input.gesture)?input.gesture:'',progress=clamp(Number(input.gestureProgress)||0,0,1),envelope=gesture?gestureEnvelope(progress):0;
-    const air=jump&&!input.grounded,rise=air?clamp((Number(input.vy)||0)/480,-1,1):0,tuck=air?1-Math.abs(rise)*.72:0,crouch=jump&&!air;
-    const compression=crouch?(Number.isFinite(input.jumpCompression)?clamp(input.jumpCompression,0,1):1):0;
+    // Gestures also snap to drawn poses (36 over the 1.5 s gesture, 24 fps),
+    // in the stepped style of the walk; the painted limbs, sleeves and
+    // shorts are then reused from their caches by every avatar.
+    const gait=run?GAIT.run:GAIT.walk,gesture=['wave','nod','happy'].includes(input.gesture)?input.gesture:'',progress=Math.round(clamp(Number(input.gestureProgress)||0,0,1)*36)/36;
+    const air=jump&&!input.grounded,crouch=jump&&!air;
+    // One jump pose: the stage key blended in by compression on the ground,
+    // or the flight keys sampled by vy in the air. Like the walk, the drawn
+    // pose steps (20 flight poses, 6 crouch depths) so painted limbs, shorts
+    // and sleeves are reused between frames and avatars; continuous poses
+    // re-warped every limb each frame (30 jumpers: 2.3x the old update time).
+    const compression=crouch?Math.round((Number.isFinite(input.jumpCompression)?clamp(input.jumpCompression,0,1):1)*6)/6:0;
+    const jumpKey=air?jumpAir(Math.round(clamp((1-(Number(input.vy)||0)/480)/2,0,1)*20)/20):crouch?JUMP[(input.jumpStage?input.jumpStage==='landing':rawPhase>=.5)?'landing':'takeoff']:null;
     // Idle breathing: slow, small, and shared by chest, shoulders and arms.
-    const breath=(1-Math.cos(time*1.9))/2;
-    const hop=gesture==='happy'?Math.abs(Math.sin(progress*Math.PI*3))*envelope:0,nod=gesture==='nod'?Math.max(0,Math.sin(progress*Math.PI*4))*envelope:0;
-    const drop=floor?5.6:desk?1.55:walk?gait.bob[0]+gait.bob[1]*Math.cos(2*TAU*(phase-gait.bob[2])):crouch?.03+.82*compression:air?.05:.03+.07*breath+.12*nod-.03*hop;
-    const sway=walk&&!profile?-gait.sway*Math.sin(TAU*(phase-gait.support+.25)):0,roll=walk&&!profile?gait.roll*sway/gait.sway:0;
-    const lean=profile?(run?gait.lean:walk?gait.lean+.8*Math.cos(2*TAU*phase):floor?2:crouch?7*compression:air?3-2*rise:4*nod):0;
-    const torso=transform([16,SPEC.waist],[16+sway,SPEC.waist+drop],rad(profile?lean:roll));
+    // With reduced motion the rig's own clock stops: idle holds its time-0
+    // pose (the static render), and a requested gesture still plays but its
+    // whole-body hop is damped.
+    const calm=Boolean(input.reducedMotion),breath=calm?0:(1-Math.cos(time*1.9))/2;
+    const wave=gesture==='wave'?waveTimeline(progress):null,happy=gesture==='happy'?happyTimeline(progress):null,nod=gesture==='nod'?bowTimeline(progress):0;
+    // Hop height in stage units; the landing squash bends the knees.
+    const hop=happy?HAPPY_HEIGHT*happy.lift*(calm?CALM_HOP:1):0,squash=happy?happy.squash:0,hopTuck=happy?happy.tuck:0;
+    // Walk/run legs first: a planted foot stays on the floor, so the hips sit
+    // no higher than the planted legs reach (front/back keep room for roll).
+    const legSpan=SPEC.thigh+SPEC.shin-.004-(profile?0:2.1*Math.sin(rad(gait.roll))),steps=walk?[0,1].map(i=>step(gait,(phase+i*.5)%1,SPEC.thigh,SPEC.shin,SPEC.ankle-SPEC.waist)):null;
+    const toeIn=i=>profile&&SPEC.ankleX?SPEC.ankleX[i]-SPEC.hip[i]:0,planted=walk?Math.max(...steps.map((s,i)=>s.stance?SPEC.ankle-SPEC.waist-s.lift-Math.sqrt(Math.max(0,legSpan**2-(s.forward+toeIn(i))**2)):-9)):0;
+    // Seated body space: lateral is measured from the midline with the front
+    // rig's hip spacing, so every view shares one 3D pose. The cross-legged
+    // hip joint sits `seat` above the floor (front rig, so turning keeps the
+    // head height).
+    const FRONT=rigFor(input.sex,'front'),HIP_L=(FRONT.hip[1]-FRONT.hip[0])/2;
+    const drop=floor?SPEC.floor-SEATED.floor.seat-FRONT.waist:desk?SEATED.desk.drop:climb?.05:walk?Math.max(hipDrop(gait,phase),planted):crouch?.03+jumpKey.drop*compression:air?.05:.03+.07*breath+.1*nod+.62*squash;
+    // Climbing: phase 0 (the foot of the ladder) starts with one foot just
+    // leaving the ground. The reaching arm's shoulder rises and the hips shift
+    // over the standing (lower) foot, the lower hand's diagonal partner.
+    const cphase=climb?((phase+CR.footDuty-.5)%1+1)%1:0,grips=climb?[0,1].map(i=>climbStep((cphase+CR.lead+(i?0:.5)+1)%1,CR.handDuty)):null,reachSide=climb?grips[0].pos-grips[1].pos:0;
+    const sway=climb?CLIMB.sway*reachSide:walk&&!profile?-gait.sway*Math.sin(TAU*(phase-gait.support+.25)):0,roll=climb?-CLIMB.roll*reachSide:walk&&!profile?gait.roll*sway/gait.sway:0;
+    const lean=profile?(run?gait.lean:walk?gait.lean+.8*Math.cos(2*TAU*phase):floor?SEATED.floor.lean:desk?SEATED.desk.lean:crouch?jumpKey.lean*compression:air?jumpKey.lean:BOW_LEAN*nod+4*squash-2*hopTuck):0;
+    // A side crouch sits the hips back over the heels as the knees go forward.
+    const hips=profile&&crouch?jumpKey.hips*compression:0;
+    const torso=transform([16,SPEC.waist],[16+sway+hips-(profile?.8*nod:0),SPEC.waist+drop],rad(profile?lean:roll));
+    // A leaning walk/run keeps the neck nearer upright (it bends at the
+    // collar) and the head tips forward by the rest, so the nape stays under
+    // the hair; with the whole neck leaning, the female side view showed the
+    // background between the hair below the ear and the back of the neck.
+    const neckTilt=walk&&profile?lean*gait.neck:0,headTilt=walk&&profile?lean-neckTilt:0;
     const legs=SPEC.hip.map((hip,i)=>{
       const x=profile?SPEC.profileHip[i]:hip,root=mapped(torso,[x,SPEC.waist]),p=(phase+i*.5)%1,ax=x+(SPEC.ankleX?SPEC.ankleX[i]-SPEC.hip[i]:0);
-      let ankle=[ax,SPEC.ankle],knee,shoeAngle=0,contact=true,forward=0;
-      if(walk){const s=step(gait,p);forward=s.forward;ankle=[ax+(profile?forward:0),SPEC.ankle-s.lift];contact=s.contact;shoeAngle=profile?rad(s.toe):0;}
-      if(air){
-        // Tucked at the top, reaching down again before the landing.
-        forward=profile?-.55*tuck:-.35*tuck;ankle=[ax+(profile?forward:(i?.2:-.2)*tuck),SPEC.ankle-.35-2.05*tuck];contact=false;shoeAngle=profile?rad(14*tuck-6):0;
+      let ankle=[ax,SPEC.ankle],knee,shoeAngle=0,contact=true,forward=0,stance=true,space=null,climbBones=null,seatSpace=null,seatShoe=null,paint=null,knee3=null;
+      if(walk){const s=steps[i];forward=s.forward;let lift=s.lift;contact=s.contact;stance=s.stance;shoeAngle=profile?rad(s.toe):0;
+        // A swinging foot authored for the mean hip height lifts a little
+        // when the hip is lower or rolled away, never stretching the leg.
+        // Seen from the front, a foot swinging behind rises no higher on
+        // screen than mid-shin: the high heel kick is hidden behind the leg
+        // there (drawn, it floated under the shorts). The back view keeps it.
+        if(!profile&&!back&&!stance)lift=Math.min(lift,Math.max(0,gait.frontRaise+GROUND_TILT*forward));
+        const span=SPEC.thigh+SPEC.shin-.004,down=SPEC.ankle-root[1],dx=profile?ax+forward-root[0]:forward;if(!stance&&dx**2+(down-lift)**2>span**2)lift=down-Math.sqrt(Math.max(0,span**2-dx**2));
+        ankle=[ax+(profile?forward:0),SPEC.ankle-lift];}
+      if(jumpKey){
+        // Front/back knees turn out about the hip-ankle line (a squat or tuck
+        // seen head-on); the turn is part of the 3D bone, not a screen nudge.
+        const side=i?1:-1,turn=rad(jumpKey.splay)*(air?1:compression),out=Math.sin(turn),fwd=Math.cos(turn),column=d=>root[0]+(ax-x)*d/(SPEC.thigh+SPEC.shin);
+        if(air){
+          // Flight: thigh angle and knee flex; legs[1] is the near/leading leg.
+          const [t,k]=(i?jumpKey.leg.slice(0,2):jumpKey.leg.slice(2)).map(rad),kz=SPEC.thigh*Math.sin(t),ky=SPEC.thigh*Math.cos(t),az=kz+SPEC.shin*Math.sin(t-k),ay=ky+SPEC.shin*Math.cos(t-k);
+          contact=false;shoeAngle=profile?rad(jumpKey.toe):0;
+          if(profile){knee=[root[0]+kz,root[1]+ky];ankle=[root[0]+az,root[1]+ay];}
+          else{knee=[column(ky)+side*kz*out,root[1]+ky];ankle=[column(ay)+side*az*out,root[1]+ay];space=[[0,root[1],0],[side*kz*out,knee[1],kz*fwd],[side*az*out,ankle[1],az*fwd]];}
+        }else if(profile)knee=ik(root,ankle,SPEC.thigh,SPEC.shin,-1);
+        else{
+          // Planted crouch: the sagittal knee, turned out over the toes.
+          const sagittal=ik([0,root[1]],[0,ankle[1]],SPEC.thigh,SPEC.shin,-1);
+          knee=[mix(root[0],ankle[0],.5)+side*sagittal[0]*out,sagittal[1]];space=[[0,root[1],0],[side*sagittal[0]*out,knee[1],sagittal[0]*fwd],[0,ankle[1],0]];
+        }
       }
-      if(climb){const reach=(1+Math.sin((phase+i*.5)*TAU))/2;forward=1.0;ankle=[ax,SPEC.ankle-.65-reach*1.9];contact=false;}
-      if(floor){
-        // User's four-view seating reference: knees open to the sides, calves
-        // return inwards, feet cross in front. Profile/back have their own
-        // depth projection; no standing foot hangs below the seated pelvis.
-        knee=profile?[i?19.15:17.7,i?44.9:44.25]:[i?20.55:11.45,back?45.1:44.45];
-        ankle=profile?[i?16.6:16.1,i?45.43:44.8]:[i?17.85:14.15,back?45.35:i?45.43:44.95];
-        contact=false;knee=reach(root,knee,SPEC.thigh);ankle=reach(knee,ankle,SPEC.shin);
-      }else if(desk){knee=reach(root,profile?[x+2.7,root[1]+1.9]:[x+(i?.2:-.2),root[1]+3.3],SPEC.thigh);ankle=reach(knee,profile?[x+2.2,SPEC.ankle]:[x,SPEC.ankle],SPEC.shin);}
+      if(hop>0){
+        // Cheering hop: feet leave the floor and tuck a little at the top.
+        forward=profile?-.45*hopTuck:-.3*hopTuck;ankle=[ax+(profile?forward:0),SPEC.ankle-1.15*hopTuck];contact=false;shoeAngle=profile?rad(12*hopTuck):0;
+      }
+      if(floor||desk){
+        const side=i?1:-1,r3=[HIP_L,root[1],0];let k3,a3;
+        if(floor){
+          const C=SEATED.floor,V=profile?{...C,...C.side}:C,out=rad(V.out),rise=rad(C.rise),fold=rad(V.fold[i]);
+          k3=[HIP_L+SPEC.thigh*Math.sin(out)*Math.cos(rise),root[1]-SPEC.thigh*Math.sin(rise),SPEC.thigh*Math.cos(out)*Math.cos(rise)];
+          const ay=SPEC.ankle-C.lift[i],dy=clamp(ay-k3[1],-SPEC.shin,SPEC.shin),h=Math.sqrt(SPEC.shin**2-dy**2);
+          a3=[k3[0]-h*Math.cos(fold),k3[1]+dy,k3[2]-h*Math.sin(fold)];contact=false;
+        }else{
+          // Knees a little apart over flat feet that sit slightly in and back
+          // under them (a child's chair sit); the thigh takes what is left.
+          const C=SEATED.desk,tilt=rad(C.shinTilt),inward=rad(C.shinIn),down=Math.cos(tilt)*Math.cos(inward),ky=SPEC.ankle-SPEC.shin*down,dy=clamp(ky-root[1],-SPEC.thigh,SPEC.thigh),h=Math.sqrt(SPEC.thigh**2-dy**2),out=rad(C.out);
+          k3=[HIP_L+h*Math.sin(out),root[1]+dy,h*Math.cos(out)];a3=[k3[0]-SPEC.shin*Math.sin(inward),k3[1]+SPEC.shin*down,k3[2]-SPEC.shin*Math.sin(tilt)*Math.cos(inward)];
+        }
+        const P=q=>profile?[x+q[2],q[1]]:[x+side*(q[0]-HIP_L),q[1]],D=q=>profile?side*q[0]:back?-q[2]:q[2];
+        knee=P(k3);ankle=P(a3);knee3=k3;seatSpace=[[...root,D(r3)],[...knee,D(k3)],[...ankle,D(a3)]];
+        // The thigh lies under the shorts; the visible leg is the knee and the
+        // shin, painted as one straight piece from the knee (a desk thigh
+        // seen from the front or back is nearly end-on, and painting it bent
+        // left a kink at the knee). The side view keeps the bent painting.
+        if(floor||!profile){const u=sub(knee,ankle),l=Math.hypot(...u);paint=[l>.05?add(knee,u.map(v=>v*SPEC.thigh/l)):add(knee,[0,-SPEC.thigh]),knee,ankle];}
+        if(floor){
+          // Each foot points across to the other side, so from the front it is
+          // a side-on shoe, toe tipped up a little. Side view (reference): the
+          // near foot shows side-on under its knee, the far one is behind the
+          // seat. From behind both feet are in front of the body, hidden.
+          const C=SEATED.floor;
+          seatShoe=back||profile&&!i?{hidden:true}:profile?{view:'Profile',index:0,flip:1,angle:-C.toe}:{view:'Profile',index:0,flip:i?-1:1,angle:i?C.toe:-C.toe};
+        }
+      }
+      else if(jumpKey){/* posed above */}
+      else if(climb){
+        // The stepping foot backs off its rung, rises with the knee forward
+        // and a little outward (ladder knees), and lands on the next rung.
+        const c=climbStep((cphase+(i?.5:0))%1,CR.footDuty),side=i?1:-1,target=[ax,mix(CR.footLow-CR.step,CR.footLow,c.pos)-.25*c.lift,CLIMB.footZ+.8*c.lift];
+        const [k,a]=ik3at([...root,0],target,SPEC.thigh,SPEC.shin,CLIMB.knee.map((v,j)=>j?v:side*v));knee=[k[0],k[1]];ankle=[a[0],a[1]];contact=false;climbBones=[[...root,0],k,a];
+      }
       else if(profile)knee=ik(root,ankle,SPEC.thigh,SPEC.shin,-1);
       else{
         // Sagittal bending projects into depth in a front/back view. Solving
@@ -153,67 +429,95 @@
         const sagittal=ik([0,root[1]],[forward,ankle[1]],SPEC.thigh,SPEC.shin,-1);
         knee=[mix(root[0],ankle[0],.5),sagittal[1]];
         ankle.depth=forward;knee.depth=sagittal[0];
+        // The maps are seen from above, so ground nearer the camera is lower
+        // on screen: a walking foot stepping toward the viewer lands a little
+        // lower and the one behind a little higher. A front/back stride then
+        // reads as steps, not marching in place. Bones stay unprojected.
+        if(walk){const k=(back?-1:1)*GROUND_TILT;ankle.trueY=ankle[1];knee.trueY=knee[1];ankle[1]+=k*forward;knee[1]+=k*knee.depth;}
       }
       const thighAngle=Math.atan2(knee[1]-root[1],knee[0]-root[0])-Math.PI/2,shinAngle=Math.atan2(ankle[1]-knee[1],ankle[0]-knee[0])-Math.PI/2;
-      let boneSpace=profile?[root,knee,ankle]:[[0,root[1]],[knee.depth||0,knee[1]],[ankle.depth||0,ankle[1]]];
-      if(floor||desk){
-        // Foreshortening changes the visible length, never the joint lengths.
-        const kneeDepth=Math.sqrt(Math.max(0,SPEC.thigh**2-Math.hypot(...sub(knee,root))**2));
-        const ankleDepth=kneeDepth-Math.sqrt(Math.max(0,SPEC.shin**2-Math.hypot(...sub(ankle,knee))**2));
-        boneSpace=[[...root,0],[...knee,kneeDepth],[...ankle,ankleDepth]];
-      }
-      return{root,knee,ankle,contact,shoeAngle,boneSpace,thigh:transform([hip,SPEC.waist],root,thighAngle),shin:transform([hip,SPEC.knee],knee,shinAngle)};
+      // Seated foreshortening changes the visible length, never the joint lengths.
+      const boneSpace=seatSpace||space||climbBones||(profile?[root,knee,ankle]:[[0,root[1]],[knee.depth||0,knee.trueY??knee[1]],[ankle.depth||0,ankle.trueY??ankle[1]]]);
+      return{root,knee,ankle,contact,stance:stance&&!air&&!climb&&!floor,shoeAngle,boneSpace,seatShoe,paint,knee3,thigh:transform([hip,SPEC.waist],root,thighAngle),shin:transform([hip,SPEC.knee],knee,shinAngle)};
     });
     const arms=SPEC.shoulder.map((rest,i)=>{
       const side=i?1:-1,shoulder=mapped(torso,profile?SPEC.profileShoulder[i]:rest),upperLength=profile?SPEC.profileArm[0]:Math.hypot(...sub(SPEC.elbow[i],rest)),lowerLength=profile?SPEC.profileArm[1]:Math.hypot(...sub(SPEC.wrist[i],SPEC.elbow[i]));
-      let elbow,wrist,depth=[0,0];
+      // lift: how far a gesture has raised this arm (0..1), read by the
+      // garments (raised sleeve and underarm cloth) and the layer order.
+      let elbow,wrist,depth=[0,0],lift=0,handTurn=0;
       if(floor||desk){
-        // Authored seated arms: hands rest toward the knees or the desk.
-        const upper=floor?(profile?[1.05,4.45]:[side*.22,4.5]):(profile?[1.32,4.4]:[side*.55,4.5]),lower=floor?(profile?[.7,2.0]:[-side*.45,2.12]):(profile?[.53,2.09]:[-side*.45,2.12]);
-        elbow=reach(shoulder,add(shoulder,rotate(upper,rad(lean))),upperLength);wrist=reach(elbow,add(elbow,rotate(lower,rad(lean))),lowerLength);
-        depth[0]=Math.sqrt(Math.max(0,upperLength**2-Math.hypot(...sub(elbow,shoulder))**2));depth[1]=depth[0]+Math.sqrt(Math.max(0,lowerLength**2-Math.hypot(...sub(wrist,elbow))**2));
+        // Seated arms live in the same body space as the seated legs and are
+        // projected by view3d, so all four views show one pose.
+        let E,W;
+        if(floor){
+          // The hand rests on top of its own knee, a little inside it
+          // (hand: inward, wrist height above the knee centre, back).
+          const C=SEATED.floor,k=legs[i].knee3,out=profile?Math.abs(FRONT.shoulder[i][0]-16):side*(shoulder[0]-16),z=profile?shoulder[0]-SPEC.profileHip[i]:Math.sin(rad(C.lean))*(SPEC.waist-rest[1]);
+          ({elbow:E,wrist:W}=ik3([k[0]-C.hand[0]-out,k[1]-C.hand[1]-shoulder[1],k[2]+C.hand[2]-z],upperLength,lowerLength,[1,0,-.6]));
+        }else{
+          // Upper arm a little forward, forearm forward and in along the desk.
+          const C=SEATED.desk;E=bodyVector(rad(C.swing),rad(C.abduct)).map(v=>v*upperLength);W=bodyVector(rad(C.reach),-rad(C.inward)).map((v,k)=>E[k]+v*lowerLength);
+        }
+        const e=view3d(E,side,view,i===1),w=view3d(W,side,view,i===1);elbow=[shoulder[0]+e[0],shoulder[1]+e[1]];wrist=[shoulder[0]+w[0],shoulder[1]+w[1]];depth=[e[2],w[2]];
       }else if(climb){
-        // Hand over hand: the high hand grips above and behind the big head,
-        // the low hand pulls at chest height with its elbow tucked below it.
-        const up=(1+Math.sin((phase+(i?0:.5))*TAU))/2;wrist=[16+side*mix(4.9,5.6,up),mix(30.5,25.9,up)];
-        // Keep the hand inside the arm's reach so ik lands the wrist on it.
-        const d=sub(wrist,shoulder),h=Math.hypot(...d),lo=Math.abs(upperLength-lowerLength)+.02,hi=upperLength+lowerLength-.02;
-        if(h<lo||h>hi)wrist=add(shoulder,d.map(v=>v*clamp(h,lo,hi)/(h||1)));
-        elbow=ik(shoulder,wrist,upperLength,lowerLength,i?1:-1);
-        depth[0]=Math.sqrt(Math.max(0,upperLength**2-Math.hypot(...sub(elbow,shoulder))**2));depth[1]=depth[0]+Math.sqrt(Math.max(0,lowerLength**2-Math.hypot(...sub(wrist,elbow))**2));
+        // Hand over hand on the rail: the top grip is a nearly straight arm
+        // with the elbow turned out; pulling down, the elbow bends out and
+        // drops until the forearm stands upright beside the head. The
+        // released hand comes back off the rail and reaches up again.
+        const c=grips[i],target=[16+side*(CLIMB.rail+.2*c.lift),mix(CR.handHigh,CR.handLow,c.pos),CLIMB.handZ+.9*c.lift];
+        const [e,w]=ik3at([...shoulder,0],target,upperLength,lowerLength,lerp(CLIMB.poleHigh.map((v,j)=>j?v:side*v),CLIMB.poleLow.map((v,j)=>j?v:side*v),c.pos));
+        elbow=[e[0],e[1]];wrist=[w[0],w[1]];depth=[e[2],w[2]];
       }else{
         // Rest angles of this arm in this view's sheet (outward +).
         const elbowRest=SPEC.elbow[i],wristRest=SPEC.wrist[i];
         let swing=REST_SWING,abduct=Math.atan2(side*(elbowRest[0]-rest[0]),elbowRest[1]-rest[1]),flex=REST_FLEX,forearm=Math.atan2(side*(wristRest[0]-elbowRest[0]),wristRest[1]-elbowRest[1]);
         if(walk){
-          const c=(i?1:-1)*Math.cos(TAU*(phase-gait.lag));swing+=rad(gait.swing)*c;flex=rad(gait.flex+gait.fold*c);
-          // A running forearm crosses toward the chest on the forward swing.
-          if(run){abduct+=rad(9);forearm-=rad(26*Math.max(0,c)+4);}else abduct+=rad(2*Math.max(0,-c));
-        }else if(air){
-          // Arms open upward for balance and come down again for landing.
-          if(profile){swing=rad(30+18*Math.max(0,rise)-10*Math.max(0,-rise));flex=rad(22);}else{abduct+=rad(30+10*rise);swing=rad(10);flex=rad(24);forearm=rad(8);}
-        }else if(crouch){swing=mix(swing,rad(-24),compression);flex=mix(flex,rad(12),compression);abduct+=rad(4)*compression;}
-        else{swing+=rad(1.2*breath-.6);flex+=rad(3*breath);}
-        if(gesture==='happy'){
-          // Both arms cheer while the body hops.
-          const shake=Math.sin(progress*TAU*5);if(profile){swing=mix(swing,rad(172+4*shake),envelope);flex=mix(flex,rad(6),envelope);}else{abduct=mix(abduct,rad(142+5*shake),envelope);forearm=mix(forearm,rad(150+6*shake),envelope);flex=mix(flex,0,envelope);swing=mix(swing,rad(6),envelope);}
+          // c = +1 when this arm is fully forward, with the opposite leg. A
+          // forward arm bends and its hand comes in toward the body; a back
+          // arm straightens and opens a little, so the swing reads from the
+          // front and back too. Running arms keep the elbow near 90 degrees
+          // and pump; the forward fist crosses toward the chest.
+          const A=gait.arm,F=profile?{}:A.facing,c=(i?1:-1)*Math.cos(TAU*(phase-gait.lag)),at=k=>rad(A[k][0]+A[k][1]*c+(F[k]?F[k][0]+F[k][1]*c:0));
+          swing+=at('swing');flex=at('flex');abduct+=at('abduct');forearm+=at('forearm');
+        }else if(jumpKey){
+          // Take-off swings the arms behind, the launch carries them forward
+          // and up (never over the face), the apex bends the elbows in front
+          // of the chest, and the fall and landing reach forward for balance.
+          // Profile keys are screen angles: +lean cancels the shared -lean below.
+          const c=air?1:compression;
+          if(profile){const[s,f]=jumpKey.profile.slice(i?0:2);swing=mix(swing,rad(s),c)+rad(lean);flex=mix(flex,rad(f),c);}
+          // Seen from behind, fists raised in front fold under the sleeve and
+          // the arms look cut off; the back view opens them a little sideways.
+          else{let[s,a,f,k]=jumpKey.front;if(back&&air){s*=.45;f+=14;}swing=mix(swing,rad(s),c);abduct=mix(abduct,rad(a),c);forearm=mix(forearm,rad(f),c);flex=mix(flex,rad(k),c);}
         }
-        if(gesture==='wave'&&i===1){
-          // The upper arm stays raised; the forearm and hand do the waving.
-          const wag=Math.sin(progress*TAU*3.5)*envelope;
-          // With the rounder hand, a vertical profile wave covered the eye.
-          // Lift forward beside the cheek, retaining the same bone lengths.
-          if(profile){swing=mix(swing,rad(130),envelope);flex=mix(flex,rad(4+18*wag),envelope);abduct=mix(abduct,rad(12),envelope);}
-          else{abduct=mix(abduct,rad(back?104:112),envelope);forearm=mix(forearm,rad((back?148:158)+22*wag),envelope);flex=mix(flex,0,envelope);swing=mix(swing,rad(back?4:8),envelope);}
+        else{swing+=rad(1.2*breath-.6);flex+=rad(3*breath);}
+        // The forearm leads a raise (the hand comes up close to the shoulder
+        // first, the elbow follows) and trails the lowering.
+        const sx=input.sex==='f'?1:0,lead=e=>1-Math.pow(1-e,3),late=e=>Math.pow(e,1.5),restForearm=swing+flex;
+        if(happy){
+          // Both arms open up into a V and rise a little more in the air;
+          // they give with the knees on each landing. Seen from the side the
+          // V rises toward the camera, so the near arm goes up beside the
+          // head with its open hand above the ear, tipped back off the face.
+          // (Hands pumped in front of the chest read as praying; in front of
+          // the chin, as covering the mouth.)
+          const e=happy.arms,G=GESTURE_ARMS.happy[view],pump=rad(5*happy.tuck-9*happy.squash)*e;lift=e;handTurn=rad(8)*Math.sin(TAU*5*progress+i*Math.PI)*e;
+          abduct=mix(abduct,rad(G.abduct[sx]),e)+pump;forearm=mix(forearm,rad(G.forearm[sx]),lead(e))+pump;flex=mix(flex,0,e);swing=mix(swing,rad(profile?G.swing[sx][i]:G.swing),profile?e*e:e);
+        }
+        if(wave&&i===1){
+          // The upper arm settles; the forearm and hand do the waving.
+          const G=GESTURE_ARMS.wave[view],wag=rad(G.wag)*wave.wag;lift=wave.up;handTurn=rad(-14)*wave.turn;
+          if(profile){swing=mix(swing,rad(G.swing[sx]),late(wave.up));flex=mix(restForearm,rad(G.forearm[sx]),lead(wave.up))+wag-swing;abduct=mix(abduct,rad(G.abduct),wave.up);}
+          else{abduct=mix(abduct,rad(G.abduct[sx]),late(wave.up));forearm=mix(forearm,rad(G.forearm[sx]),lead(wave.up))+wag;flex=mix(flex,0,wave.up);swing=mix(swing,rad(G.swing),wave.up);}
         }
         if(profile)swing-=rad(lean);
         const U=view3d(bodyVector(swing,abduct),side,view,i===1),F=view3d(bodyVector(swing+flex,forearm),side,view,i===1);
         elbow=[shoulder[0]+U[0]*upperLength,shoulder[1]+U[1]*upperLength];wrist=[elbow[0]+F[0]*lowerLength,elbow[1]+F[1]*lowerLength];depth=[U[2]*upperLength,U[2]*upperLength+F[2]*lowerLength];
       }
       const base=sub(SPEC.elbow[i],rest),angle=Math.atan2(elbow[1]-shoulder[1],elbow[0]-shoulder[0])-Math.atan2(base[1],base[0]);
-      return{shoulder,elbow,wrist,depth:depth[1],boneSpace:[[...shoulder,0],[...elbow,depth[0]],[...wrist,depth[1]]],sleeve:transform(rest,shoulder,angle),angle};
+      return{shoulder,elbow,wrist,depth:depth[1],boneSpace:[[...shoulder,0],[...elbow,depth[0]],[...wrist,depth[1]]],sleeve:transform(rest,shoulder,angle),angle,lift,handTurn};
     });
-    return{direction,profile,back,action,phase,torso,legs,arms,floor,desk,drop,lean,gesture,hop,nod,spec:SPEC};
+    return{direction,profile,back,action,phase,torso,legs,arms,floor,desk,drop,lean,neckTilt,headTilt,gesture,hop,nod,headPitch:profile?(BOW_LEAN+BOW_PITCH)*nod:0,spec:SPEC,ladder:CR};
   }
   const el=(tag,attrs={})=>{const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);return e;};
   const set=(e,key,value)=>{if(e.getAttribute(key)!==String(value))e.setAttribute(key,value);};
@@ -225,13 +529,34 @@
     const key=JSON.stringify(base);if(headCache.has(key))return headCache.get(key);
     const raw=new DOMParser().parseFromString(QPAvatar.render(base,280,3),'image/svg+xml').documentElement;
     const front=raw.querySelector('.qpx-head'),skin=front.dataset.qpxHeadSkin;
-    const result={skin,headClip:raw.querySelector('#qpx-head-front').outerHTML,backHair:raw.querySelector('.qpx-back-hair')?.outerHTML||'',front:front.outerHTML,profile:QPAvatarDirection.headMarkup(raw,'profile'),back:QPAvatarDirection.headMarkup(raw,'back')};headCache.set(key,result);return result;
+    const result={key,skin,headClip:raw.querySelector('#qpx-head-front').outerHTML,backHair:raw.querySelector('.qpx-back-hair')?.outerHTML||'',front:front.outerHTML,profile:QPAvatarDirection.headMarkup(raw,'profile'),back:QPAvatarDirection.headMarkup(raw,'back')};headCache.set(key,result);return result;
+  }
+  // render() output is assembled from a template per head and outfit: the
+  // posed skeleton serialized once with its id and size left as slots, and
+  // the head paintings (nine tenths of the string) spliced in by reference
+  // rather than parsed and serialized again on every call. A repeat render is
+  // a string join; 30 list avatars stay cheap even with the posed body. The
+  // key is the head plus the outfit mode: garments chosen per item (stage 3)
+  // must join the key.
+  const TEMPLATE_ID='qpf-template',TEMPLATE_W='qpfW-template',TEMPLATE_H='qpfH-template',SLOT={[TEMPLATE_ID]:0,[TEMPLATE_W]:1,[TEMPLATE_H]:2},templates=new Map();
+  function headChunks(heads,view){
+    // The paintings' own clip ids become this render's ids.
+    const [text,from,to]=view==='backHair'?[heads.backHair,'url(#qpx-hair-behind)','-hair-behind)']:[heads[view],'url(#qpx-head-front)','-head-front)'];
+    heads.chunks??={};if(heads.chunks[view])return heads.chunks[view];
+    const out=[];text.split(from).forEach((s,i)=>{if(i)out.push('url(#',SLOT[TEMPLATE_ID],to);out.push(s);});return heads.chunks[view]=out;
   }
   function render(av={},size=280){
     root.QPFoundationSkin?.load();
     if(av.foundationOutfit!=='body')root.QPFoundationOutfit?.load();
-    const sex=av.sex==='m'?'m':'f',base={...av,sex,hair:av.hair|| (sex==='m'?'short:1':'bob:1'),expression:av.expression||'bright:0'},heads=headViews(base),id='qpf-'+(++serial);
-    const svg=el('svg',{xmlns:NS,class:'qp-pixel-avatar qp-illustrated-avatar qp-foundation-avatar','data-qp-foundation':'1','data-foundation-outfit':av.foundationOutfit==='body'?'body':'basic','data-qpx-sex':sex,'data-foundation-id':id,'data-foundation-skin':heads.skin,viewBox:'0 0 32 62',width:size*32/56,height:size*62/56,role:'img','aria-label':(sex==='m'?'남자':'여자')+' 기준 캐릭터',style:'display:block;overflow:visible;--qpx-viewport-scale:1.107142857;--qpx-ground-shift:2.4'});
+    const sex=av.sex==='m'?'m':'f',base={...av,sex,hair:av.hair|| (sex==='m'?'short:1':'bob:1'),expression:av.expression||'bright:0'},heads=headViews(base),outfit=av.foundationOutfit==='body'?'body':'basic',key=heads.key+'\n'+outfit;
+    let t=templates.get(key);if(t){templates.delete(key);templates.set(key,t);}
+    else{t=template(base,heads,sex,outfit);if(!t.pending){templates.set(key,t);if(templates.size>48)templates.delete(templates.keys().next().value);}}
+    if(t.pending)repaintWhenReady();
+    const values=['qpf-'+(++serial),String(size*32/56),String(size*62/56)];let html='';for(const c of t.chunks)html+=typeof c==='string'?c:values[c];return html;
+  }
+  function template(base,heads,sex,outfit){
+    const id=TEMPLATE_ID;
+    const svg=el('svg',{xmlns:NS,class:'qp-pixel-avatar qp-illustrated-avatar qp-foundation-avatar','data-qp-foundation':'1','data-foundation-outfit':outfit,'data-qpx-sex':sex,'data-foundation-id':id,'data-foundation-skin':heads.skin,viewBox:'0 0 32 62',width:TEMPLATE_W,height:TEMPLATE_H,role:'img','aria-label':(sex==='m'?'남자':'여자')+' 기준 캐릭터',style:'display:block;overflow:visible;--qpx-viewport-scale:1.107142857;--qpx-ground-shift:2.4'});
     const defs=el('defs');svg.append(defs);const skin=pigment(defs,id+'-skin',heads.skin),underlay=pigment(defs,id+'-underlay','#d9e0d1');
     const neckGradient=el('linearGradient',{id:id+'-neck-shadow',gradientUnits:'userSpaceOnUse',x1:16,x2:16,y1:27.8,y2:28.5});neckGradient.append(el('stop',{offset:0,'stop-color':tone(heads.skin,.74),'stop-opacity':.62}),el('stop',{offset:.42,'stop-color':tone(heads.skin,.82),'stop-opacity':.26}),el('stop',{offset:1,'stop-color':tone(heads.skin,.88),'stop-opacity':0}));defs.append(neckGradient);
     const headClip=el('g');headClip.innerHTML=heads.headClip.replaceAll('qpx-head-front',id+'-head-front');defs.append(...headClip.children);
@@ -243,10 +568,11 @@
     // Hair below the chin hangs behind the body, as in the regular avatar.
     // The front portraits also carry an old outlined neck stump down there;
     // only those traced strokes are cut, never the hanging hair itself.
-    if(heads.backHair){const clip=el('clipPath',{id:id+'-hair-behind',clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:(BACK_HAIR_CLIP[sex]||'M-1 28.2H33V48.2H-1Z')+BACK_HAIR_NECK_CUT[sex],'clip-rule':'evenodd'}));defs.append(clip);const fit=VIEW_HEAD[sex].front,hair=el('g',fit?{transform:`translate(0 ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`}:{});hair.innerHTML=heads.backHair.replaceAll('url(#qpx-hair-behind)','url(#'+id+'-hair-behind)');backHair.append(hair);}
+    if(heads.backHair){const clip=el('clipPath',{id:id+'-hair-behind',clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:(BACK_HAIR_CLIP[sex]||'M-1 28.2H33V48.2H-1Z')+BACK_HAIR_NECK_CUT[sex],'clip-rule':'evenodd'}));defs.append(clip);const fit=VIEW_HEAD[sex].front,hair=el('g',fit?{transform:`translate(0 ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`}:{});hair.append(document.createComment('qpf-head:backHair'));backHair.append(hair);}
     for(const view of ['front','profile','back']){
       const v=el('g',{'data-foundation-head-view':view}),fit=VIEW_HEAD[sex][view];
-      if(fit)v.setAttribute('transform',`translate(${fit[2]||0} ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`);v.innerHTML=heads[view].replaceAll('url(#qpx-head-front)','url(#'+id+'-head-front)');
+      // The painting goes in at the comment when the template is assembled.
+      if(fit)v.setAttribute('transform',`translate(${fit[2]||0} ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`);v.append(document.createComment('qpf-head:'+view));
       // The directional paintings include a flared standalone neck with a
       // dark bottom rim. A body that owns its neck must not show that second
       // neck above the shirt. Cut only the reference heads' neck attachment;
@@ -259,10 +585,51 @@
     for(const name of ['far-arm','far-leg','near-leg','pelvis','torso','near-arm'])body.append(el('g',{'data-foundation-part':name}));
     const frontHands=el('g',{'data-foundation-front-hand':'true',transform:body.getAttribute('transform')}),bones=el('g',{'data-foundation-bones':'true',transform:body.getAttribute('transform'),'pointer-events':'none',style:'display:none'});mirror.append(frontHands,bones);
     svg.dataset.foundationSkinFill=skin;svg.dataset.foundationUnderlay=underlay;
-    return svg.outerHTML;
+    // D13: about twenty screens (shop preview, home portrait, lists, results)
+    // show this string without ever calling apply(). It therefore carries
+    // the posed idle front body, drawn by apply(STATIC_POSE) itself, so it is
+    // that pose by construction. The defs count marks which definitions the
+    // pose added; a controller that mounts the string rebuilds exactly those
+    // (unpose), so every later apply() keeps one node set. A static avatar
+    // gets no clock and no per-frame work.
+    svg.dataset.foundationStaticDefs=defs.children.length;apply(svg,STATIC_POSE);
+    // Art still loading (not cached; posed again once it arrives): vector
+    // limbs stand in for the painted skin, but a body without its garments
+    // would read as undressed, so the avatar stays hidden like every avatar
+    // during loading (.qp-avatar-loading).
+    const ready=module=>!module||module.atlas.ready||Boolean(module.atlas.error),undressed=outfit==='basic'&&!ready(root.QPFoundationOutfit),pending=undressed||!ready(root.QPFoundationSkin);
+    svg.dataset.foundationStatic=pending?'pending':'idle-front';if(undressed)svg.setAttribute('visibility','hidden');
+    const chunks=[];
+    svg.outerHTML.split(/<!--qpf-head:(\w+)-->/).forEach((part,i)=>{if(i%2)chunks.push(...headChunks(heads,part));else part.split(/(qpf-template|qpfW-template|qpfH-template)/).forEach((s,k)=>chunks.push(k%2?SLOT[s]:s));});
+    return{chunks,pending};
   }
-  function prepare(svg){
+  // Pending strings already on screen are posed once the art arrives; ones
+  // mounted during the next ten seconds as they appear (a one-off watch).
+  let repainting=null;
+  function repaintWhenReady(){
+    if(repainting||typeof document==='undefined')return;
+    repainting=Promise.all([root.QPFoundationSkin?.load(),root.QPFoundationOutfit?.load()]).then(()=>{
+      const sweep=()=>{for(const svg of document.querySelectorAll('svg[data-foundation-static="pending"]'))prepare(svg);},watch=new MutationObserver(sweep);
+      sweep();watch.observe(document.documentElement,{childList:true,subtree:true});setTimeout(()=>{watch.disconnect();repainting=null;},10000);
+    });
+  }
+  // The posed nodes of a render() string belong to no rig. Remove them, and
+  // the definitions they added, before a rig builds its own.
+  function unpose(svg){
+    const defs=svg.querySelector('defs'),keep=Number(svg.dataset.foundationStaticDefs),body=svg.querySelector('[data-foundation-body]');
+    if(defs&&Number.isInteger(keep))while(defs.children.length>keep)defs.lastElementChild.remove();
+    for(const name of PART_NAMES){const part=svg.querySelector('[data-foundation-part="'+name+'"]');part.replaceChildren();part.removeAttribute('transform');body.append(part);}
+    for(const node of [...body.children])if(!node.dataset.foundationPart)node.remove();
+    svg.querySelector('[data-foundation-front-hand]').replaceChildren();svg.querySelector('[data-foundation-bones]').replaceChildren();
+    delete svg.dataset.foundationStatic;delete svg.dataset.foundationStaticDefs;svg.removeAttribute('visibility');
+  }
+  // A mounted render() string is re-posed at once, so nothing flashes between
+  // prepare() and the caller's first apply() (maps prepare on mount and pose
+  // on their next unblocked frame).
+  function prepare(svg){return mount(svg,true);}
+  function mount(svg,repose){
     if(!svg?.dataset.qpFoundation)return null;if(mounted.has(svg))return mounted.get(svg);
+    const posed=Boolean(svg.dataset.foundationStatic);if(posed)unpose(svg);
     const skin=svg.dataset.foundationSkin,fill=svg.dataset.foundationSkinFill,parts=Object.fromEntries([...svg.querySelectorAll('[data-foundation-part]')].map(e=>[e.dataset.foundationPart,e]));
     const r={svg,parts,head:svg.querySelector('[data-foundation-head]'),backHair:svg.querySelector('[data-foundation-back-hair]'),mirror:svg.querySelector('[data-foundation-mirror]'),body:svg.querySelector('[data-foundation-body]'),frontHands:svg.querySelector('[data-foundation-front-hand]'),bones:svg.querySelector('[data-foundation-bones]'),pose:null};
     const surface=parent=>{const contour=el('path',{fill,stroke:tone(skin,.78),'stroke-width':.10,'stroke-linejoin':'round'}),shade=el('path',{fill:'none',stroke:tone(skin,.88),'stroke-width':.10,'stroke-linecap':'round'});parent.append(contour,shade);return{parent,contour,shade};};
@@ -278,7 +645,7 @@
     r.neckShade=el('path',{fill:'url(#'+svg.dataset.foundationId+'-neck-shadow)'});parts.torso.append(r.neckShade);
     r.boneLines=el('path',{fill:'none',stroke:'#256b78','stroke-width':.16,'stroke-dasharray':'.28 .17'});r.bones.append(r.boneLines);
     r.joints=Array.from({length:15},()=>{const dot=el('circle',{r:.28,fill:'#fffaf0',stroke:'#256b78','stroke-width':.15});r.bones.append(dot);return dot;});
-    mounted.set(svg,r);return r;
+    mounted.set(svg,r);if(posed&&repose)apply(svg,STATIC_POSE);return r;
   }
   function limb(a,b,c,widths){
     // Cross sections belong to the joints. Rounded corners pass through the
@@ -296,16 +663,34 @@
     const length=profile?1.6:2.45;
     return'M'+t(-.24,-.44)+'Q'+t(.5,-.5)+' '+t(length-.55,-.28)+'Q'+t(length,-.25)+' '+t(length,.12)+'Q'+t(length-.15,.57)+' '+t(.95,.62)+'L'+t(-.24,.49)+'Z';
   }
-  function seatedLeg(leg,profile,side){
-    // A strongly bent knee has a rounded pose contour, not the sharp inside
-    // corner of a stretched standing limb. It remains one owned leg surface.
-    const outward=profile?1:side?1:-1,a=leg.root,b=leg.knee,c=leg.ankle,t=(p,x,y)=>pt([p[0]+outward*x,p[1]+y]);
-    return'M'+t(a,-.75,-.7)+'Q'+t(a,.65,-1.05)+' '+t(b,.55,-.8)+'Q'+t(b,1.12,-.35)+' '+t(b,.82,.46)+'Q'+t(b,.62,.95)+' '+t(b,-.2,.95)+'L'+t(c,0,.52)+'Q'+t(c,-.42,0)+' '+t(c,0,-.5)+'L'+t(b,-.68,-.05)+'Q'+t(a,.12,.8)+' '+t(a,-.75,.7)+'Z';
+  function seatedLeg(leg,cap){
+    // The cross-legged leg seen past the shorts cuff: a round knee and the
+    // folded shin as one capsule (the thigh is under the shorts). The skin
+    // painting is clipped to it, so no thigh stub shows beside the knee;
+    // `cap` returns just the knee's rim, outlined like the painted limbs.
+    const k=leg.knee,a=leg.ankle,d=sub(a,k),l=Math.hypot(...d),u=l>.01?d.map(v=>v/l):[1,0],nrm=[-u[1],u[0]],rk=1.06,ra=.74,q=(p,s,b=0)=>pt([p[0]+nrm[0]*s+u[0]*b,p[1]+nrm[1]*s+u[1]*b]);
+    if(cap)return'M'+q(k,-rk*.98,.2)+'A'+n(rk)+' '+n(rk)+' 0 1 0 '+q(k,rk*.98,.2);
+    return'M'+q(k,rk)+'L'+q(a,ra)+'A'+n(ra)+' '+n(ra)+' 0 0 0 '+q(a,-ra)+'L'+q(k,-rk)+'A'+n(rk)+' '+n(rk)+' 0 1 0 '+q(k,rk)+'Z';
   }
   function apply(svg,state={}){
-    const r=prepare(svg);if(!r)return false;const pose=solve({...state,sex:svg.dataset.qpxSex,time:Number.isFinite(state.time)?state.time:performance.now()/1000}),view=pose.profile?'profile':pose.back?'back':'front';r.pose=pose;
-    set(r.mirror,'transform',(pose.direction==='left'?'translate(32 0) scale(-1 1)':'')+(pose.hop?' translate(0 '+n(-pose.hop*1.7)+')':''));
-    const neck=mapped(pose.torso,[16,28]);set(r.head,'transform','translate('+pt([(neck[0]-16)*BODY_SCALE.x+(pose.profile?.35:0)*pose.nod,(neck[1]-28)*BODY_SCALE.y+.42*pose.nod])+') translate(16 28) scale('+HEAD_SCALE+') translate(-16 -28)');if(r.backHair){set(r.backHair,'transform',r.head.getAttribute('transform'));r.backHair.style.display=view==='front'?'':'none';}
+    const r=mount(svg,false);if(!r)return false;const pose=solve({...state,sex:svg.dataset.qpxSex,time:Number.isFinite(state.time)?state.time:performance.now()/1000,reducedMotion:state.reducedMotion??Boolean(REDUCED?.matches)}),view=pose.profile?'profile':pose.back?'back':'front';r.pose=pose;
+    set(r.mirror,'transform',(pose.direction==='left'?'translate(32 0) scale(-1 1)':'')+(pose.hop?' translate(0 '+n(-pose.hop)+')':''));
+    // The floor shadow shrinks while a cheering hop is in the air.
+    set(r.svg.querySelector('.qpx-contact-shadow'),'transform',pose.hop?'translate(16 56.75) scale('+n(1-.28*pose.hop/HAPPY_HEIGHT)+') translate(-16 -56.75)':'');
+    // The head sits on the (possibly straightened) neck and takes the rest
+    // of a walk/run lean (neckTilt/headTilt, solve()).
+    const collar=pose.spec.collar,neck=mapped(pose.torso,add([16,collar],rotate([0,28-collar],-rad(pose.neckTilt||0))));let headPose='translate('+pt([(neck[0]-16)*BODY_SCALE.x,(neck[1]-28)*BODY_SCALE.y])+')'+(pose.headTilt?' rotate('+n(pose.headTilt)+' 16 28)':'');
+    if(pose.nod){
+      // Bow: in profile the head turns with the bending upper body and
+      // pitches further about the nape (the chin tucks, the back of the neck
+      // shows over the neck painting). Front/back cannot show a turn, so the
+      // head dips and the face foreshortens about the jaw. The dip stays at
+      // .42 so the female front bob keeps its FRONT_HAIR_CLIP margin.
+      const outer=p=>[(p[0]-16)*BODY_SCALE.x+16,(p[1]-28)*BODY_SCALE.y+28];
+      if(pose.profile){const at=outer(BOW_PIVOT),to=outer(mapped(pose.torso,BOW_PIVOT));headPose='translate('+pt(to)+') rotate('+n(pose.headPitch)+') translate('+pt(at.map(v=>-v))+')';}
+      else headPose='translate('+pt([(neck[0]-16)*BODY_SCALE.x,(neck[1]-28)*BODY_SCALE.y+.42*pose.nod])+') translate(0 '+BOW_JAW+') scale(1 '+n(1-.08*pose.nod)+') translate(0 '+(-BOW_JAW)+')';
+    }
+    set(r.head,'transform',headPose+' translate(16 28) scale('+HEAD_SCALE+') translate(-16 -28)');if(r.backHair){set(r.backHair,'transform',r.head.getAttribute('transform'));r.backHair.style.display=view==='front'?'':'none';}
     for(const h of r.head.children)h.style.display=h.dataset.foundationHeadView===view?'':'none';
     set(r.parts.torso,'transform',matrix(pose.torso));set(r.parts.pelvis,'transform',matrix(pose.torso));
     const narrow=pose.profile?.8:1;
@@ -322,8 +707,8 @@
     set(r.underlay,'d',pose.floor&&pose.back?'M12.9 35.75Q16 36.45 19.1 35.75L19.75 38.65Q20.3 40.45 16 40.45Q11.7 40.45 12.25 38.65Z':'M12.9 35.75Q16 36.45 19.1 35.75L19.4 38.8Q18.35 39.45 17.25 39.05L16 38.45L14.75 39.05Q13.65 39.45 12.6 38.8Z');
     pose.legs.forEach((leg,i)=>{
       const part=r.legs[i],end=pose.floor?leg.ankle:add(leg.ankle,[0,.36]);
-      set(part.contour,'d',pose.floor?seatedLeg(leg,pose.profile,i):limb(leg.root,leg.knee,end,[THIGH*narrow,LEG_RADII[1],LEG_RADII[2]]));
-      set(part.shade,'d',pose.floor?'':'M'+pt(add(lerp(leg.root,leg.knee,.75),[-.35,0]))+'Q'+pt(add(leg.knee,[-.35,0]))+' '+pt(add(leg.ankle,[-.26,.12])));
+      set(part.contour,'d',pose.floor?seatedLeg(leg):limb(leg.root,leg.knee,end,[THIGH*narrow,LEG_RADII[1],LEG_RADII[2]]));
+      set(part.shade,'d',pose.floor?seatedLeg(leg,true):'M'+pt(add(lerp(leg.root,leg.knee,.75),[-.35,0]))+'Q'+pt(add(leg.knee,[-.35,0]))+' '+pt(add(leg.ankle,[-.26,.12])));set(part.shade,'stroke',tone(svg.dataset.foundationSkin,pose.floor?.7:.88));
       if(!part.foot){part.foot=el('path',{fill:svg.dataset.foundationSkinFill,stroke:tone(svg.dataset.foundationSkin,.78),'stroke-width':.10,'stroke-linejoin':'round'});part.parent.append(part.foot);}
       // The foot's upper contour stays open under the ankle surface.
       set(part.foot,'d',pose.floor?tuckedFoot(leg.ankle,pose.profile,i):footPath(leg.ankle,leg.shoeAngle,pose.profile,i));part.parent.insertBefore(part.foot,part.contour);
@@ -339,10 +724,19 @@
       part.parent.style.opacity='';
     });
     const seated=pose.floor||pose.desk,armKeys=['far-arm','near-arm'];let order;
-    // Seated hands rest on the knees in front; seen from behind they and the
-    // climbing hands are beyond the back panel.
-    if(pose.back&&(seated||pose.action==='climb'))order=['far-arm','near-arm','far-leg','near-leg','pelvis','torso'];
-    else if(seated)order=['far-leg','near-leg','pelvis','torso',...armKeys];
+    // Cross-legged: the knees and folded shins are in front of the shorts and
+    // shirt hem, and the hands rest on the knees. From behind, the knees show
+    // beside the seat and the arms (hands on the knees) stay behind the back
+    // panel. Desk: from the front the knees come out over the shorts cuffs
+    // (the skin is clipped below the cuffs) and the forearms lie in front of
+    // the shirt; from the side the thigh is under the shorts; from behind the
+    // forearms are beyond the back panel. Climbing arms rise from the shoulders
+    // over the back (their hands go behind the head, drawn above the body).
+    if(pose.floor)order=pose.back?['far-leg','near-leg','pelvis',...armKeys,'torso']:pose.profile?['far-arm','far-leg','pelvis','torso','near-leg','near-arm']:['pelvis','torso','far-leg','near-leg',...armKeys];
+    else if(pose.back&&seated)order=['far-arm','near-arm','far-leg','near-leg','pelvis','torso'];
+    else if(pose.action==='climb')order=['far-leg','near-leg','pelvis','torso',...armKeys];
+    else if(seated&&pose.profile)order=['far-arm','far-leg','near-leg','pelvis','torso','near-arm'];
+    else if(seated)order=['pelvis','far-leg','near-leg','torso',...armKeys];
     else if(pose.profile)order=['far-arm','far-leg','near-leg','pelvis','torso','near-arm'];
     else{
       // Hanging arms are beside the torso in front and back views, so they
@@ -355,7 +749,8 @@
     const orderKey=order.join()+seated;if(r.orderKey!==orderKey){r.body.append(...order.map(k=>r.parts[k]));r.orderKey=orderKey;}
     // A greeting hand crosses in front of the hair, with the same arm geometry.
     // From behind, the raised hand is beyond the head and stays under it.
-    const lifting=state.gestureProgress>.05&&state.gestureProgress<.95&&!pose.back,raised=lifting&&state.gesture==='wave'?['near-arm']:lifting&&state.gesture==='happy'?(pose.profile?['near-arm']:armKeys):[];
+    // Profile: only the near arm is in front of the head.
+    const raised=pose.back?[]:armKeys.filter((k,i)=>pose.arms[i].lift>.12&&(!pose.profile||i===1));
     if(raised.length){if(r.raisedKey!==raised.join()||raised.some(k=>r.parts[k].parentNode!==r.frontHands)){if(r.raised)r.body.append(...order.map(k=>r.parts[k]));r.frontHands.append(...raised.map(k=>r.parts[k]));r.raisedKey=raised.join();}r.raised=true;}else if(r.raised){r.body.append(...order.map(k=>r.parts[k]));r.orderKey=orderKey;r.raised=false;r.raisedKey='';}
     const points=[mapped(pose.torso,[16,28]),mapped(pose.torso,[16,32.8]),mapped(pose.torso,[16,pose.spec.waist]),...pose.arms.flatMap(a=>[a.shoulder,a.elbow,a.wrist]),...pose.legs.flatMap(l=>[l.root,l.knee,l.ankle])];
     const lines=[[0,1,2],[0,3,4,5],[0,6,7,8],[2,9,10,11],[2,12,13,14]];set(r.boneLines,'d',lines.map(line=>'M'+line.map(i=>pt(points[i])).join('L')).join(''));
@@ -373,6 +768,6 @@
     r.bones.replaceChildren();r.bones.style.display='none';r.frontHands.replaceChildren();for(const g of r.armGradients)g.remove();svg.querySelector('[id$="-neck-skin"]')?.remove();
     return mounted.delete(svg);
   }
-  const api=Object.freeze({spec:SPEC,specFor,restFor,rigFor,thigh:THIGH,armRadii:ARM_RADII,legRadii:LEG_RADII,rest:RESTS.m,headScale:HEAD_SCALE,stageScale:STAGE_SCALE,bodyScale:Object.freeze(BODY_SCALE),solve,render,prepare,apply,reset:svg=>apply(svg,{action:'idle',direction:'front',time:0}),destroy,inspect:svg=>mounted.get(svg)?.pose||null});
+  const api=Object.freeze({spec:SPEC,specFor,restFor,rigFor,thigh:THIGH,armRadii:ARM_RADII,legRadii:LEG_RADII,rest:RESTS.m,headScale:HEAD_SCALE,stageScale:STAGE_SCALE,bodyScale:Object.freeze(BODY_SCALE),solve,render,prepare,apply,reset:svg=>apply(svg,STATIC_POSE),staticPose:STATIC_POSE,destroy,inspect:svg=>mounted.get(svg)?.pose||null});
   root.QPAvatarFoundation=api;if(typeof module!=='undefined')module.exports=api;
 })(typeof window==='undefined'?globalThis:window);

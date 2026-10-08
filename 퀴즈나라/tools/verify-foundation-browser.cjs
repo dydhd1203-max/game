@@ -28,10 +28,12 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
     const pose=api.inspect(svg);if(!pose.profile&&!rig.raised){
       // Hanging arms beside the torso stay visible from the front and from
       // behind. Only arms beyond the body plane pass behind the shirt:
-      // seated/climbing hands seen from behind, and an arm swinging away
-      // from the viewer while walking or running.
+      // seated hands seen from behind, and an arm swinging away from the
+      // viewer while walking or running. Climbing arms (changed 2026-10-08,
+      // D12): they rise from the shoulders over the back; hidden behind the
+      // shirt the upper arms vanished and only stub hands poked out.
       const children=[...rig.body.children],torso=children.indexOf(rig.parts.torso),seated=pose.floor||pose.desk;
-      rig.arms.forEach((a,i)=>{const behind=pose.back&&(seated||pose.action==='climb')||!seated&&['walk','run'].includes(pose.action)&&pose.arms[i].depth<-.9;check(behind===children.indexOf(a.parent)<torso,'arm/shirt depth order '+JSON.stringify({direction,action,frame,arm:i,behind}));});
+      rig.arms.forEach((a,i)=>{const behind=pose.back&&seated||!seated&&['walk','run'].includes(pose.action)&&pose.arms[i].depth<-.9;check(behind===children.indexOf(a.parent)<torso,'arm/shirt depth order '+JSON.stringify({direction,action,frame,arm:i,behind}));});
     }
     for(const node of svg.querySelectorAll('[clip-path]')){const id=node.getAttribute('clip-path').match(/url\(#([^)]*)\)/)?.[1];if(id)check(Boolean(svg.querySelector('[id="'+id+'"]')),'head clip must be self-contained');}
     if(action==='floor-sit'){check(svg.dataset.qpxSeatMode==='floor','floor seat mode');const pose=api.inspect(svg);check(pose.floor&&!pose.desk,'floor and desk distinct');}
@@ -42,6 +44,61 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   }
   host.remove();return{samples,sexes:2,skinTones:5,sizes:[280,120],directions:4,actions:8};
  });report.checks.push('7680 rendered motion samples; owned parts, original head clips, reset/remount');
+ // D13 static render: shop preview, profile, lists and results never call
+ // apply(). The render() string alone must show the posed idle front body,
+ // be the same DOM as apply(idle, front, time 0), keep the node set later
+ // applies use, cost nothing per frame, and repaint once late art arrives.
+ report.staticRender=await p.evaluate(async()=>{
+  const api=QPFoundationStudio.api,w=document.getElementById('runtime').contentWindow,host=w.document.createElement('div');w.document.body.append(host);
+  const check=(v,message)=>{if(!v)throw Error(message);},frame=()=>new Promise(r=>requestAnimationFrame(r));
+  const norm=svg=>{const c=svg.cloneNode(true);c.removeAttribute('data-foundation-static');c.removeAttribute('data-foundation-static-defs');return c.outerHTML.split(svg.dataset.foundationId).join('qpf-X');};
+  async function differ(a,b){const draw=async svg=>{const c=svg.cloneNode(true);c.setAttribute('width',192);c.setAttribute('height',372);const im=new Image(),u=URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(c)],{type:'image/svg+xml'}));im.src=u;await im.decode();const canvas=document.createElement('canvas');canvas.width=192;canvas.height=372;const x=canvas.getContext('2d');x.drawImage(im,0,0);URL.revokeObjectURL(u);return x.getImageData(0,0,192,372).data;};const p=await draw(a),q=await draw(b);let n=0;for(let i=0;i<p.length;i+=4)if(Math.max(...[0,1,2,3].map(k=>Math.abs(p[i+k]-q[i+k])))>12)n++;return n;}
+  const shown=svg=>[...svg.querySelectorAll('[data-foundation-head-view]')].filter(h=>h.style.display!=='none').map(h=>h.dataset.foundationHeadView);
+  let cases=0;
+  for(const sex of ['m','f'])for(const sk of [0,4])for(const size of [280,46])for(const outfit of ['basic','body']){
+   const av={sex,sk,foundationOutfit:outfit};host.innerHTML=api.render(av,size)+api.render(av,size);const [still,live]=host.children,where=JSON.stringify({sex,sk,size,outfit});
+   check(still.dataset.foundationStatic==='idle-front','static marker '+where);
+   check(shown(still).join()==='front','static render shows only the front head '+where);
+   check(still.querySelectorAll('[data-foundation-skin-paint]').length===5,'static painted neck, arms and legs '+where);
+   check(still.querySelectorAll('[data-outfit-part]:not([data-outfit-part^="underarm"])').length===(outfit==='basic'?6:0),'static garments '+where);
+   check(still.dataset.qpxPose==='idle'&&still.dataset.qpxView==='front','static pose data '+where);
+   const nodes=still.querySelectorAll('*').length;api.apply(live,api.staticPose);
+   check(norm(still)===norm(live),'static render differs from apply(idle, front, 0) '+where);
+   check(live.querySelectorAll('*').length===nodes,'mounting a static render changes the node set '+where);
+   // A controller that only prepares keeps the static pose visible.
+   api.prepare(still);check(norm(still)===norm(live),'prepare() alone changes the static pose '+where);
+   for(const state of [{action:'walk',direction:'left',phase:.3},{action:'idle',direction:'back',gesture:'wave',gestureProgress:.5},{action:'floor-sit',direction:'right'}]){api.apply(still,{...state,time:0});check(still.querySelectorAll('*').length===nodes,'motion after a static mount changes nodes '+where);}
+   // History leaves unused clip data and empty style attributes, so the
+   // return to the static pose is judged on pixels.
+   api.reset(still);check(await differ(still,live)===0,'reset returns to the static pose '+where);
+   if(!cases){api.apply(live,{action:'walk',direction:'front',phase:.25,time:0});check(await differ(still,live)>50,'pixel comparison control: a walking pose must differ');}
+   api.destroy(still);api.destroy(live);cases++;
+  }
+  // Thirty list avatars: render, mount, then no DOM work on later frames.
+  const avs=Array.from({length:30},(_,i)=>({sex:i%2?'m':'f',sk:i%5}));let t=performance.now(),html='';for(const av of avs)html+=api.render(av,46);const renderMs=performance.now()-t;
+  t=performance.now();host.innerHTML=html;host.getBoundingClientRect();const mountMs=performance.now()-t;await frame();await frame();
+  // The shared avatar observer sets two CSS variables on the root once per mount.
+  let mutations=0;const watch=new w.MutationObserver(r=>{mutations+=r.filter(m=>!(m.type==='attributes'&&m.attributeName==='style'&&m.target.parentNode===host)).length;});watch.observe(host,{subtree:true,childList:true,attributes:true});for(let f=0;f<20;f++)await frame();watch.disconnect();
+  check(mutations===0,'static avatars change on their own: '+mutations);check([...host.children].every(s=>shown(s).join()==='front'&&s.querySelectorAll('[data-outfit-part]:not([data-outfit-part^="underarm"])').length===6),'every list avatar is a posed body');
+  // Garments still loading (an avatar not rendered yet, so no cached
+  // template): hidden rather than undressed, then repainted once.
+  const atlas=w.QPFoundationOutfit.atlas;atlas.ready=false;let pending;try{host.innerHTML=api.render({sex:'f',sk:2,hair:'long:3'},120);pending=host.firstElementChild;}finally{atlas.ready=true;}
+  check(pending.dataset.foundationStatic==='pending'&&!pending.querySelector('[data-outfit-part]')&&pending.getAttribute('visibility')==='hidden','an undressed pending render stays hidden');
+  for(let f=0;f<3&&pending.dataset.foundationStatic;f++)await frame();
+  check(!pending.dataset.foundationStatic&&!pending.hasAttribute('visibility')&&shown(pending).join()==='front'&&pending.querySelectorAll('[data-outfit-part]:not([data-outfit-part^="underarm"])').length===6,'pending static render repainted and shown after the art loads');
+  check(!api.render({sex:'f',sk:2,hair:'long:3'},120).includes('data-foundation-static="pending"'),'a pending render is not cached');
+  api.destroy(pending);host.remove();
+  return{cases,crowd:{avatars:30,renderMs:+renderMs.toFixed(1),mountMs:+mountMs.toFixed(1),mutationsIn20Frames:mutations,chars:html.length}};
+ });report.checks.push('static render: posed idle front body without apply, same DOM as apply(idle,front,0), stable nodes, prepare/reset, 30 static avatars without per-frame work, pending art repaint');
+ // Reduced motion: the rig's own clock (time defaults to performance.now())
+ // stops; without it the same calls breathe.
+ for(const reducedMotion of ['reduce','no-preference']){
+  await p.emulateMedia({reducedMotion});
+  const moved=await p.evaluate(async()=>{const api=QPFoundationStudio.api,host=document.createElement('div');document.body.append(host);host.innerHTML=api.render({sex:'m'},120);const svg=host.firstElementChild,geometry=()=>JSON.stringify([...svg.querySelector('[data-foundation-body]').querySelectorAll('*')].map(n=>[n.getAttribute('d'),n.getAttribute('transform'),n.getAttribute('x'),n.getAttribute('y')]));
+   const samples=[];for(let k=0;k<3;k++){if(k)await new Promise(r=>setTimeout(r,600));api.apply(svg,{action:'idle',direction:'front'});samples.push(geometry());}api.apply(svg,api.staticPose);const still=geometry();api.destroy(svg);host.remove();return{changed:new Set(samples).size>1,still:samples.every(g=>g===still)};});
+  if(reducedMotion==='reduce')assert(!moved.changed&&moved.still,'reduced motion must hold the idle pose');else assert(moved.changed,'idle breathing control: the rig clock must move without reduced motion');
+ }
+ await p.emulateMedia({reducedMotion:'no-preference'});report.checks.push('prefers-reduced-motion holds idle breathing; control breathes');
  for(const direction of ['front','left','right','back']){await p.evaluate(d=>QPFoundationStudio.setState({action:'floor-sit',direction:d,phase:0}),direction);await p.screenshot({path:path.join(out,'floor-'+direction+'.png')});report.screenshots.push('floor-'+direction+'.png');}
  await p.locator('[data-action="idle"]').click();await p.keyboard.press('ArrowRight');await p.keyboard.down('ArrowRight');await p.waitForFunction(()=>QPFoundationStudio.getState().action==='run');await p.keyboard.up('ArrowRight');await p.waitForFunction(()=>QPFoundationStudio.getState().action==='idle');await p.keyboard.press('KeyC');assert.equal(await p.evaluate(()=>QPFoundationStudio.getState().action),'floor-sit');await p.keyboard.press('KeyC');assert.equal(await p.evaluate(()=>QPFoundationStudio.getState().action),'idle');report.checks.push('Studio actual direction double tap / release / C');
  report.performance=await p.evaluate(async()=>{
