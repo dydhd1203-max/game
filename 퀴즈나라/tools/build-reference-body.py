@@ -52,6 +52,10 @@ FIGURES = {
         sleeves=[[(699, 302), (712, 292), (732, 288), (750, 296), (758, 314), (758, 345), (754, 358), (728, 360), (702, 358), (697, 345), (697, 320)]],
         arms=[[(713, 353), (750, 353), (749, 400), (752, 410), (750, 429), (741, 435), (725, 435), (719, 429), (718, 405), (715, 380)]],
         arm_overlaps=True,
+        # Back edge of the neck (outer side of its outline) from under the
+        # nape hair down to the collar; see the nape block in build(). Kept
+        # within ~2 px of the sheet's own line: it only smooths the steps.
+        nape=[(710.0, 243), (709.0, 251), (708.0, 254), (707.8, 257)],
         hem=[(560, 403), (730, 407), (900, 403)],
         shorts_bottom=[(560, 467), (900, 467)],
         shoe_top=[(560, 509), (900, 509)],
@@ -507,6 +511,49 @@ def build():
                 fill = fill_colors(np.concatenate([neck_rgb, solid_neck[..., None] * 255.0], -1), solid_neck)
                 neck_rgb = np.where((under & ~solid_neck)[..., None], fill, neck_rgb)
                 neck_a = np.where(under, 1.0, neck_a)
+
+        if f.get('nape') and neck_a.max() > 0:
+            # Side view: the copied rows keep a vertical back edge (x 710)
+            # that met the sheet's thicker painted stroke at 709/708 in two
+            # 1-px stair steps (visible at 8x below the nape hair). From the
+            # top of the extension down to the collar, the back outline is
+            # redrawn on the traced nape curve: every row takes the outline
+            # band of the top (copied) row, resampled at sub-pixel position,
+            # then its own skin. One outline profile on one smooth line, as on
+            # the sheet. Only ever widens. The nape gap itself is closed on the
+            # head side (avatar-foundation.js VIEW_HEAD.m.profile).
+            nx = [p[0] - x0 for p in f['nape']]; ny = [p[1] - y0 for p in f['nape']]
+            lum_n = .3 * neck_rgb[..., 0] + .59 * neck_rgb[..., 1] + .11 * neck_rgb[..., 2]
+            def band(yy):
+                cols = np.nonzero(neck_a[yy] > .5)[0]
+                if not len(cols):
+                    return None
+                inner = cols[lum_n[yy, cols] >= 175]  # first skin past the outline
+                return int(cols.min()), int(inner.min()) if len(inner) else int(cols.min()) + 3
+            top = int(np.nonzero((neck_a > .5).any(1))[0][0])
+            ls, bs = band(top)
+            src_a, src_pm = neck_a[top].copy(), neck_rgb[top] * neck_a[top][:, None]
+            centres = np.arange(w) + .5
+            def sample(a_row, pm_row, pos):
+                pos = pos - .5; i0 = np.clip(np.floor(pos).astype(int), 0, w - 1); i1 = np.clip(i0 + 1, 0, w - 1); t = (pos - np.floor(pos))[:, None]
+                return a_row[i0] * (1 - t[:, 0]) + a_row[i1] * t[:, 0], pm_row[i0] * (1 - t) + pm_row[i1] * t
+            for yy in range(top, min(h, int(max(ny)) + 1)):
+                own = band(yy)
+                if own is None:
+                    continue
+                l, b = own
+                edge = min(float(np.interp(yy, ny, nx)), l)
+                if l - edge < .05 and yy > top + 1 and (b - l) == (bs - ls):
+                    continue
+                a_band, pm_band = sample(src_a, src_pm, ls + (centres - edge))
+                fill_a, fill_pm = neck_a[yy, b], neck_rgb[yy, b] * neck_a[yy, b]
+                in_band = centres - edge < bs - ls
+                in_fill = ~in_band & (centres < b + .5)
+                back = np.arange(w) <= b
+                a_new = np.where(in_band, a_band, np.where(in_fill, fill_a, neck_a[yy]))
+                pm_new = np.where(in_band[:, None], pm_band, np.where(in_fill[:, None], fill_pm[None, :], neck_rgb[yy] * neck_a[yy][:, None]))
+                neck_rgb[yy, back] = np.where(a_new[back, None] > 0, pm_new[back] / np.maximum(a_new[back], 1e-6)[:, None], neck_rgb[yy, back])
+                neck_a[yy, back] = a_new[back]
 
         def put(name, rgb_, a):
             L = layers[name]

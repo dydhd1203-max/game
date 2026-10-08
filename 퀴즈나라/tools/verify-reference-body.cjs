@@ -13,9 +13,9 @@ const ACTIONS=['idle','walk','run','floor-sit','sit','jump','climb'],GESTURES=['
 // Limits from the accepted render (2026-10-08) with margin; see 기준캐릭터-검수.md.
 // Colour difference includes the original painted head's hair where it hangs
 // past the collar (the female bob), so each figure has its own ceiling: the
-// accepted 2026-10-08 render plus 0.03. The male side nape keeps ~15 holes
-// where the original short hair stops above the sheet's.
-const BASE={'m-front':[.9825,.088,0],'m-right':[.9657,.1217,15],'m-back':[.9854,.0736,0],'f-front':[.9783,.1514,0],'f-right':[.964,.1846,0],'f-back':[.9664,.2204,0]};
+// accepted 2026-10-08 render plus 0.03. The male side nape keeps 3 holes
+// where the original short hair's tips taper beside the sheet's neck.
+const BASE={'m-front':[.9825,.088,0],'m-right':[.9657,.1217,3],'m-back':[.9854,.0736,0],'f-front':[.9783,.1514,0],'f-right':[.964,.1846,0],'f-back':[.9664,.2204,0]};
 const LIMIT={iou:k=>BASE[k][0]-.012,colour:k=>BASE[k][1]+.03,neckHoles:k=>BASE[k][2]+6,shoe:1.5,collar:3,headRatio:.05,skinSpread:24,skinStep:6,residue:18};
 (async()=>{
  browser=await chromium.launch({headless:true,executablePath:process.env.QUIZ_BROWSER_EXECUTABLE||'/usr/bin/chromium'});

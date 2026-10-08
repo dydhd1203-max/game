@@ -15,11 +15,17 @@
   // Independently traced neck-only boundaries on the original short/bob
   // directional paintings: the sheet supplies the neck, so the paintings'
   // own neck stubs and their outlines go. Curves keep hair over the nape;
-  // where a cut crosses hair it is shaped as strand tips (male back), never
-  // a smooth or straight line. Rules: 아바타-제작기준.md 머리–목 연결 규칙.
+  // where a cut crosses hair it follows the painted strand edges, never a
+  // smooth or straight line. Male back keeps the strokes framing the nape
+  // and cuts only below the collar. Male side has no painted neck: its cut
+  // only trims the soft fringe under the jaw and stays right of the nape
+  // hair (x>=14.3), so no strand tip is clipped. Female side removes only
+  // the painting's grey under-jaw patch (strand tips, curl and back hair
+  // stay). Rules:
+  // 아바타-제작기준.md 머리–목 연결 규칙.
   const HEAD_NECK_CUT={
-    m:{front:'M12.8 28.65Q13.45 28.45 13.6 27.98Q13.9 27.78 14.3 27.9V31H12.8ZM19.2 28.65Q18.55 28.45 18.4 27.98Q18.1 27.78 17.7 27.9V31H19.2Z',profile:'M14.25 25.7Q15.6 26.4 18.55 26.67Q18.2 27.6 18.5 28.3L18.7 29.4H12.55V28Q13.45 27.6 13.75 26.65Z',back:'M11.5 27.6H13.06Q15.9 27.95 18.56 27.56H20.5V30H11.5Z'},
-    f:{profile:'M15.85 25.55Q16.05 25.3 16.4 25.28H17.4Q17.45 25.75 17.12 26.02Q16.9 26.8 17.25 27.45Q17.7 27.9 18.3 28.05L18.45 29.4H12.65V27.85Q14.85 27.25 15.4 26.8Q15.9 26.2 15.85 25.55Z'}
+    m:{front:'M12.8 28.65Q13.45 28.45 13.6 27.98Q13.9 27.78 14.3 27.9V31H12.8ZM19.2 28.65Q18.55 28.45 18.4 27.98Q18.1 27.78 17.7 27.9V31H19.2Z',profile:'M14.42 25.783Q15.779 26.416 18.55 26.67Q18.2 27.6 18.5 28.3L18.7 29.4H14.3V26.3Z',back:'M11.5 27.6H13.06Q15.9 27.95 18.56 27.56H20.5V30H11.5Z'},
+    f:{profile:'M15.87 26.05L15.87 25.65L16.03 25.62L16.13 25.6L16.28 25.59L16.33 25.53L16.28 25.48L16.3 25.44L16.36 25.4L16.41 25.36L16.44 25.34L16.47 25.28Q16.76 25.33 16.98 25.33Q17.03 25.24 17.08 25.2Q17.18 25.28 17.37 25.34L17.44 25.4L17.49 25.46L17.51 25.51L17.53 25.54L17.46 25.57L17.4 25.6L17.4 25.67Q17.23 25.81 17.06 26.04L16.53 26.06Z'}
   };
   // The thigh top is covered by the shorts; a wider root poked out beside
   // the shorts' curved hip as a pale skin tab.
@@ -32,14 +38,29 @@
   // front one. Reference head widths (기준캐릭터-조사): male side 0.98 and
   // back 0.945 of the front, female side 0.83 and back 0.98. [scale, drop].
   // Drops seat each chin over the sheet neck's cast shadow (its flat chin
-  // sits a little above the sheet's pointed one).
-  const VIEW_HEAD={m:{front:[1,.22],profile:[1.146,.75],back:[1.21,1.05]},f:{front:[1,.4],profile:[1,1.04],back:[1.074,0]}},VIEW_HEAD_PIVOT=26.7;
+  // sits a little above the sheet's pointed one). Female front/side were
+  // raised 1.5-2.3 sheet px (2026-10-08) to the sheet's chin-to-collar
+  // distance; the neck had read slightly short. An optional third value moves
+  // the view forward: the male side head sits .45 (~4 sheet px) forward so its
+  // nape hair meets the sheet neck's back outline as on the sheet; before, a
+  // background notch reached up to the jaw (3-6 px wide in idle/run) and the
+  // head silhouette sat behind the sheet's (IoU .949 -> .955).
+  const VIEW_HEAD={m:{front:[1,.22],profile:[1.146,.75,.45],back:[1.21,1.05]},f:{front:[1,.15],profile:[1,.88],back:[1.074,0]}},VIEW_HEAD_PIVOT=26.7;
   const BODY_SCALE={x:1.593,y:1.593},ARM_RADII=Object.freeze([.8,.8,.7]),HEAD_SCALE=.88,STAGE_SCALE=1.0627,FLOOR_Y=56.75;
   // Old painted neck-stump strokes under every front portrait, by sex.
   const BACK_HAIR_NECK_CUT={
     f:'M14.45 28.7L14.2 29.1L13.95 29.45L13.7 29.8L13.4 30.3L12.95 30.35L12.6 29.95L12.65 29.5L13.1 29.2L13.5 28.95L13.8 28.7ZM17.55 28.7L17.9 28.7L18.4 28.95L18.95 29.2L19.4 29.5L19.4 29.95L19.05 30.35L18.6 30.3L18.3 29.8L18.05 29.45L17.8 29.1Z',
     m:'M14.1 28.2L14.05 28.9L13.85 29.3L13.6 29.85L13.3 30.35L12.75 30.4L12.35 29.9L12.35 29.4L12.85 28.95L13.2 28.6L13.3 28.2ZM17.9 28.2L18.7 28.2L18.8 28.6L19.15 28.95L19.65 29.4L19.65 29.9L19.25 30.4L18.7 30.35L18.4 29.85L18.15 29.3L17.95 28.9Z'
   };
+  // Female front: below the shared jaw, hair near the neck hangs behind the
+  // body, so the neck sides and collar points cover the hair ends as on the
+  // sheet (the old straight cut at y 28.45 left square blocks on the collar).
+  // The front layer keeps the jaw outline, tapering over the neck; elsewhere
+  // the line stays at least .10 above the collar/shoulder outline of every
+  // front pose (nod peak included). The back layer overlaps it by .3.
+  // Head-native units; re-measure if VIEW_HEAD f.front drop, HEAD_SCALE, the
+  // nod amplitude or the collar art change. 아바타-제작기준.md rule 5.
+  const FRONT_HAIR_CLIP={f:'M-1 -8H33V28.45H22.2L21.95 28.4L21.6 28.38L21.3 28.3L21.05 28.12L20.75 28.02L20.45 27.9L20.1 27.82L19.8 27.7L19.55 27.54L19.38 27.5L19.04 27.58L18.79 27.67L18.46 27.75L18.3 27.83L18.08 27.83L18 27.81L17.8 27.78L17.5 27.77L17.42 27.86L14.62 27.86L14.55 27.74L14.36 27.74L14.2 27.76L14 27.8L13.71 27.8L13.38 27.75L13.04 27.67L12.9 27.58L12.62 27.62L12.35 27.74L12.05 27.9L11.75 27.98L11.45 28.08L11.2 28.2L10.95 28.3L10.6 28.4L10.2 28.42L9.85 28.37L9.55 28.45H-1Z'},BACK_HAIR_CLIP={f:'M-1 48.2V28.2H9.55L9.85 28.07L10.2 28.12L10.6 28.1L10.95 28L11.2 27.9L11.45 27.78L11.75 27.68L12.05 27.6L12.35 27.44L12.62 27.32L12.9 27.28L13.04 27.37L13.38 27.45L13.71 27.5L14 27.5L14.2 27.46L14.36 27.44L14.55 27.44L14.62 27.56L17.42 27.56L17.5 27.47L17.8 27.48L18 27.51L18.08 27.53L18.3 27.53L18.46 27.45L18.79 27.37L19.04 27.28L19.38 27.2L19.55 27.24L19.8 27.4L20.1 27.52L20.45 27.6L20.75 27.72L21.05 27.82L21.3 28L21.6 28.08L21.95 28.1L22.2 28.2H33V48.2Z'};
   const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),mix=(a,b,t)=>a+(b-a)*t,n=x=>Math.round(x*10000)/10000,pt=p=>p.map(n).join(' '),rad=x=>x*Math.PI/180;
   const add=(a,b)=>[a[0]+b[0],a[1]+b[1]],sub=(a,b)=>[a[0]-b[0],a[1]-b[1]],lerp=(a,b,t)=>a.map((v,i)=>mix(v,b[i],t));
   const rotate=(v,a)=>[v[0]*Math.cos(a)-v[1]*Math.sin(a),v[0]*Math.sin(a)+v[1]*Math.cos(a)];
@@ -214,16 +235,18 @@
     const defs=el('defs');svg.append(defs);const skin=pigment(defs,id+'-skin',heads.skin),underlay=pigment(defs,id+'-underlay','#d9e0d1');
     const neckGradient=el('linearGradient',{id:id+'-neck-shadow',gradientUnits:'userSpaceOnUse',x1:16,x2:16,y1:27.8,y2:28.5});neckGradient.append(el('stop',{offset:0,'stop-color':tone(heads.skin,.74),'stop-opacity':.62}),el('stop',{offset:.42,'stop-color':tone(heads.skin,.82),'stop-opacity':.26}),el('stop',{offset:1,'stop-color':tone(heads.skin,.88),'stop-opacity':0}));defs.append(neckGradient);
     const headClip=el('g');headClip.innerHTML=heads.headClip.replaceAll('qpx-head-front',id+'-head-front');defs.append(...headClip.children);
+    // Without a back-hair layer, hair below the jaw line would vanish.
+    if(FRONT_HAIR_CLIP[sex]&&heads.backHair)defs.querySelector('#'+id+'-head-front').replaceChildren(el('path',{d:FRONT_HAIR_CLIP[sex]}));
     const skinGradient=defs.querySelector('#'+id+'-skin');skinGradient.setAttribute('gradientUnits','userSpaceOnUse');skinGradient.setAttribute('x1','10');skinGradient.setAttribute('x2','22');
     svg.append(el('ellipse',{class:'qpx-contact-shadow',cx:16,cy:56.75365,rx:6.2,ry:.60,fill:'#596654',opacity:.20}));
     const mirror=el('g',{'data-foundation-mirror':'true'}),head=el('g',{'data-foundation-head':'true'}),body=el('g',{'data-foundation-body':'true',transform:`translate(16 28) scale(${BODY_SCALE.x} ${BODY_SCALE.y}) translate(-16 -28)`}),backHair=el('g',{'data-foundation-back-hair':'true'});mirror.append(backHair,body,head);const stage=el('g',{'data-foundation-stage':'true',transform:`translate(16 ${FLOOR_Y}) scale(${STAGE_SCALE}) translate(-16 ${-FLOOR_Y})`});stage.append(mirror);svg.append(stage);
     // Hair below the chin hangs behind the body, as in the regular avatar.
     // The front portraits also carry an old outlined neck stump down there;
     // only those traced strokes are cut, never the hanging hair itself.
-    if(heads.backHair){const clip=el('clipPath',{id:id+'-hair-behind',clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:'M-1 28.2H33V48.2H-1Z'+BACK_HAIR_NECK_CUT[sex],'clip-rule':'evenodd'}));defs.append(clip);const fit=VIEW_HEAD[sex].front,hair=el('g',fit?{transform:`translate(0 ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`}:{});hair.innerHTML=heads.backHair.replaceAll('url(#qpx-hair-behind)','url(#'+id+'-hair-behind)');backHair.append(hair);}
+    if(heads.backHair){const clip=el('clipPath',{id:id+'-hair-behind',clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:(BACK_HAIR_CLIP[sex]||'M-1 28.2H33V48.2H-1Z')+BACK_HAIR_NECK_CUT[sex],'clip-rule':'evenodd'}));defs.append(clip);const fit=VIEW_HEAD[sex].front,hair=el('g',fit?{transform:`translate(0 ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`}:{});hair.innerHTML=heads.backHair.replaceAll('url(#qpx-hair-behind)','url(#'+id+'-hair-behind)');backHair.append(hair);}
     for(const view of ['front','profile','back']){
       const v=el('g',{'data-foundation-head-view':view}),fit=VIEW_HEAD[sex][view];
-      if(fit)v.setAttribute('transform',`translate(0 ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`);v.innerHTML=heads[view].replaceAll('url(#qpx-head-front)','url(#'+id+'-head-front)');
+      if(fit)v.setAttribute('transform',`translate(${fit[2]||0} ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`);v.innerHTML=heads[view].replaceAll('url(#qpx-head-front)','url(#'+id+'-head-front)');
       // The directional paintings include a flared standalone neck with a
       // dark bottom rim. A body that owns its neck must not show that second
       // neck above the shirt. Cut only the reference heads' neck attachment;
