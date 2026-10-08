@@ -1,0 +1,2376 @@
+{
+ "male-front": {
+  "bbox": {
+   "x0": 184,
+   "y0": 9,
+   "x1": 457,
+   "y1": 550,
+   "w": 274,
+   "h": 542
+  },
+  "head": {
+   "top": 9,
+   "chin": 255,
+   "height": 246,
+   "maxWidth": 273,
+   "maxWidthY": 143,
+   "maxWidthL": 184,
+   "maxWidthR": 456
+  },
+  "neck": {
+   "y": 261,
+   "skinLeft": 303,
+   "skinRight": 340,
+   "skinWidth": 38,
+   "withOutlineWidth": 63,
+   "left": 290,
+   "right": 352,
+   "width": 63
+  },
+  "shoulder": {
+   "y": 318,
+   "left": 232,
+   "right": 408,
+   "width": 177,
+   "note": "outer sleeve edge at cuff top (front/back contour slopes continuously from collar)",
+   "contour": [
+    [
+     268,
+     276,
+     365,
+     90
+    ],
+    [
+     276,
+     263,
+     378,
+     116
+    ],
+    [
+     284,
+     256,
+     384,
+     129
+    ],
+    [
+     292,
+     251,
+     390,
+     140
+    ],
+    [
+     300,
+     245,
+     396,
+     152
+    ],
+    [
+     308,
+     240,
+     401,
+     162
+    ],
+    [
+     316,
+     234,
+     407,
+     174
+    ]
+   ]
+  },
+  "torso": {
+   "top": 268,
+   "collarTop": 268,
+   "collarBottomScan": 298,
+   "shirtGreenTop": 270,
+   "bottom": 405,
+   "height": 137,
+   "hemY": 399,
+   "hemLeft": 262,
+   "hemRight": 378,
+   "hemWidth": 117,
+   "maxWidthWithSleeves": 187,
+   "maxWidthY": 326,
+   "maxL": 227,
+   "maxR": 413,
+   "centerX": 319,
+   "shirtLeft": 237,
+   "shirtRight": 402
+  },
+  "cuffs": {
+   "left": {
+    "x0": 231,
+    "x1": 263,
+    "y0": 318,
+    "y1": 350,
+    "w": 33,
+    "h": 33,
+    "px": 477
+   },
+   "right": {
+    "x0": 376,
+    "x1": 407,
+    "y0": 318,
+    "y1": 350,
+    "w": 32,
+    "h": 33,
+    "px": 473
+   }
+  },
+  "shorts": {
+   "blueTop": 401,
+   "blueBottom": 455,
+   "left": 249,
+   "right": 391,
+   "bottomY": 466,
+   "widthTop": {
+    "y": 407,
+    "l": 260,
+    "r": 380,
+    "w": 121
+   },
+   "widthHem": {
+    "y": 458,
+    "l": 258,
+    "r": 384,
+    "w": 127
+   },
+   "height": 66
+  },
+  "legs": {
+   "left": {
+    "top": 467,
+    "shoeTop": 508,
+    "length": 41,
+    "thigh": {
+     "y": 470,
+     "l": 269,
+     "r": 304,
+     "w": 36
+    },
+    "knee": {
+     "y": 488,
+     "l": 269,
+     "r": 300,
+     "w": 32
+    },
+    "ankle": {
+     "y": 506,
+     "l": 272,
+     "r": 299,
+     "w": 28
+    },
+    "narrowest": {
+     "y": 504,
+     "w": 28
+    }
+   },
+   "right": {
+    "top": 467,
+    "shoeTop": 509,
+    "length": 42,
+    "thigh": {
+     "y": 470,
+     "l": 336,
+     "r": 371,
+     "w": 36
+    },
+    "knee": {
+     "y": 488,
+     "l": 339,
+     "r": 370,
+     "w": 32
+    },
+    "ankle": {
+     "y": 507,
+     "l": 340,
+     "r": 368,
+     "w": 29
+    },
+    "narrowest": {
+     "y": 502,
+     "w": 29
+    }
+   }
+  },
+  "shoes": {
+   "left": {
+    "x0": 250,
+    "x1": 305,
+    "y0": 508,
+    "y1": 550,
+    "length": 56,
+    "height": 43
+   },
+   "right": {
+    "x0": 334,
+    "x1": 389,
+    "y0": 509,
+    "y1": 550,
+    "length": 56,
+    "height": 42
+   }
+  },
+  "legGap": {
+   "atThigh": 31,
+   "atAnkle": 40,
+   "thighY": 470,
+   "ankleY": 506
+  },
+  "feet": {
+   "innerGap": 28,
+   "centerSpacing": 84,
+   "outerWidth": 140
+  },
+  "arms": {
+   "left": {
+    "skinBelowCuffTop": 350,
+    "cuffBottom": 350,
+    "forearm": {
+     "y": 355,
+     "l": 235,
+     "r": 259,
+     "w": 25,
+     "skinW": 19
+    },
+    "wrist": {
+     "y": 393,
+     "l": 233,
+     "r": 252,
+     "w": 20,
+     "skinW": 18
+    },
+    "handBottom": 422,
+    "handHeight": 29,
+    "handMax": {
+     "y": 404,
+     "l": 229,
+     "r": 252,
+     "w": 24,
+     "skinW": 21
+    },
+    "armLenCuffTopToWrist": 75,
+    "armLenCuffTopToHandTip": 104,
+    "armLenTorsoTopToWrist": 125,
+    "armLenTorsoTopToHandTip": 154,
+    "profile": [
+     [
+      350,
+      236,
+      250,
+      15
+     ],
+     [
+      355,
+      235,
+      259,
+      25
+     ],
+     [
+      360,
+      234,
+      262,
+      29
+     ],
+     [
+      365,
+      234,
+      261,
+      28
+     ],
+     [
+      370,
+      234,
+      260,
+      27
+     ],
+     [
+      375,
+      233,
+      258,
+      26
+     ],
+     [
+      380,
+      233,
+      257,
+      25
+     ],
+     [
+      385,
+      233,
+      256,
+      24
+     ],
+     [
+      390,
+      233,
+      254,
+      22
+     ],
+     [
+      395,
+      232,
+      252,
+      21
+     ],
+     [
+      400,
+      230,
+      252,
+      23
+     ],
+     [
+      405,
+      229,
+      252,
+      24
+     ],
+     [
+      410,
+      229,
+      251,
+      23
+     ],
+     [
+      415,
+      230,
+      249,
+      20
+     ],
+     [
+      420,
+      232,
+      246,
+      15
+     ]
+    ]
+   },
+   "right": {
+    "skinBelowCuffTop": 350,
+    "cuffBottom": 350,
+    "forearm": {
+     "y": 355,
+     "l": 380,
+     "r": 405,
+     "w": 26,
+     "skinW": 20
+    },
+    "wrist": {
+     "y": 392,
+     "l": 387,
+     "r": 407,
+     "w": 21,
+     "skinW": 18
+    },
+    "handBottom": 422,
+    "handHeight": 30,
+    "handMax": {
+     "y": 403,
+     "l": 387,
+     "r": 410,
+     "w": 24,
+     "skinW": 20
+    },
+    "armLenCuffTopToWrist": 74,
+    "armLenCuffTopToHandTip": 104,
+    "armLenTorsoTopToWrist": 124,
+    "armLenTorsoTopToHandTip": 154,
+    "profile": [
+     [
+      350,
+      388,
+      404,
+      17
+     ],
+     [
+      355,
+      380,
+      405,
+      26
+     ],
+     [
+      360,
+      377,
+      405,
+      29
+     ],
+     [
+      365,
+      378,
+      406,
+      29
+     ],
+     [
+      370,
+      380,
+      406,
+      27
+     ],
+     [
+      375,
+      382,
+      406,
+      25
+     ],
+     [
+      380,
+      383,
+      407,
+      25
+     ],
+     [
+      385,
+      384,
+      407,
+      24
+     ],
+     [
+      390,
+      386,
+      407,
+      22
+     ],
+     [
+      395,
+      387,
+      407,
+      21
+     ],
+     [
+      400,
+      387,
+      409,
+      23
+     ],
+     [
+      405,
+      387,
+      410,
+      24
+     ],
+     [
+      410,
+      388,
+      410,
+      23
+     ],
+     [
+      415,
+      391,
+      409,
+      19
+     ],
+     [
+      420,
+      394,
+      406,
+      13
+     ]
+    ]
+   }
+  },
+  "headHeightPx": 246,
+  "figureHeightPx": 542,
+  "headsTall": 2.2
+ },
+ "male-right": {
+  "bbox": {
+   "x0": 579,
+   "y0": 13,
+   "x1": 848,
+   "y1": 550,
+   "w": 270,
+   "h": 538
+  },
+  "head": {
+   "top": 13,
+   "chin": 249,
+   "height": 236,
+   "maxWidth": 268,
+   "maxWidthY": 131,
+   "maxWidthL": 580,
+   "maxWidthR": 847
+  },
+  "neck": {
+   "y": 255,
+   "skinLeft": 711,
+   "skinRight": 743,
+   "skinWidth": 33,
+   "withOutlineWidth": 37,
+   "left": 709,
+   "right": 745,
+   "width": 37
+  },
+  "shoulder": {
+   "y": 286,
+   "left": 694,
+   "right": 766,
+   "width": 73
+  },
+  "torso": {
+   "top": 264,
+   "collarTop": 264,
+   "collarBottomScan": 287,
+   "shirtGreenTop": 273,
+   "bottom": 408,
+   "height": 144,
+   "hemY": 402,
+   "hemLeft": null,
+   "hemRight": null,
+   "hemWidth": null,
+   "maxWidthWithSleeves": 105,
+   "maxWidthY": 402,
+   "maxL": 680,
+   "maxR": 784,
+   "centerX": 732,
+   "shirtLeft": 682,
+   "shirtRight": 782,
+   "chestDepth": {
+    "y": 306,
+    "l": 691,
+    "r": 774,
+    "w": 84
+   },
+   "hemDepth": {
+    "y": 402,
+    "l": 680,
+    "r": 784,
+    "w": 105
+   }
+  },
+  "cuffs": {
+   "one": {
+    "x0": 707,
+    "x1": 748,
+    "y0": 330,
+    "y1": 347,
+    "w": 42,
+    "h": 18,
+    "px": 548
+   }
+  },
+  "shorts": {
+   "blueTop": 409,
+   "blueBottom": 451,
+   "left": 691,
+   "right": 774,
+   "bottomY": 466,
+   "widthTop": {
+    "y": 415,
+    "l": 690,
+    "r": 775,
+    "w": 86
+   },
+   "widthHem": {
+    "y": 458,
+    "l": 693,
+    "r": 767,
+    "w": 75
+   },
+   "height": 58
+  },
+  "legs": {
+   "one": {
+    "top": 467,
+    "shoeTop": 512,
+    "length": 45,
+    "thigh": {
+     "y": 470,
+     "l": 707,
+     "r": 745,
+     "w": 39
+    },
+    "knee": {
+     "y": 490,
+     "l": 705,
+     "r": 739,
+     "w": 35
+    },
+    "ankle": {
+     "y": 510,
+     "l": 707,
+     "r": 742,
+     "w": 36
+    },
+    "narrowest": {
+     "y": 506,
+     "w": 31
+    }
+   }
+  },
+  "shoes": {
+   "one": {
+    "x0": 699,
+    "x1": 775,
+    "y0": 512,
+    "y1": 550,
+    "length": 77,
+    "height": 39
+   }
+  },
+  "arms": {
+   "one": {
+    "skinTop": 347,
+    "handBottom": 428,
+    "profile": [
+     [
+      347,
+      722,
+      734,
+      13
+     ],
+     [
+      352,
+      716,
+      742,
+      27
+     ],
+     [
+      357,
+      716,
+      742,
+      27
+     ],
+     [
+      362,
+      717,
+      742,
+      26
+     ],
+     [
+      367,
+      717,
+      742,
+      26
+     ],
+     [
+      372,
+      718,
+      742,
+      25
+     ],
+     [
+      377,
+      719,
+      743,
+      25
+     ],
+     [
+      382,
+      720,
+      743,
+      24
+     ],
+     [
+      387,
+      721,
+      743,
+      23
+     ],
+     [
+      392,
+      722,
+      743,
+      22
+     ],
+     [
+      397,
+      723,
+      743,
+      21
+     ],
+     [
+      402,
+      724,
+      744,
+      21
+     ],
+     [
+      407,
+      723,
+      746,
+      24
+     ],
+     [
+      412,
+      722,
+      747,
+      26
+     ],
+     [
+      417,
+      722,
+      747,
+      26
+     ],
+     [
+      422,
+      723,
+      744,
+      22
+     ],
+     [
+      427,
+      729,
+      742,
+      14
+     ]
+    ]
+   }
+  },
+  "headHeightPx": 236,
+  "figureHeightPx": 538,
+  "headsTall": 2.28
+ },
+ "male-back": {
+  "bbox": {
+   "x0": 973,
+   "y0": 12,
+   "x1": 1234,
+   "y1": 550,
+   "w": 262,
+   "h": 539
+  },
+  "head": {
+   "top": 12,
+   "chin": 255,
+   "height": 243,
+   "maxWidth": 258,
+   "maxWidthY": 127,
+   "maxWidthL": 977,
+   "maxWidthR": 1234
+  },
+  "neck": {
+   "y": 261,
+   "skinLeft": 1083,
+   "skinRight": 1122,
+   "skinWidth": 40,
+   "withOutlineWidth": 58,
+   "left": 1073,
+   "right": 1130,
+   "width": 58
+  },
+  "shoulder": {
+   "y": 320,
+   "left": 1013,
+   "right": 1189,
+   "width": 177,
+   "note": "outer sleeve edge at cuff top (front/back contour slopes continuously from collar)",
+   "contour": [
+    [
+     264,
+     1068,
+     1134,
+     67
+    ],
+    [
+     272,
+     1051,
+     1151,
+     101
+    ],
+    [
+     280,
+     1040,
+     1162,
+     123
+    ],
+    [
+     288,
+     1035,
+     1168,
+     134
+    ],
+    [
+     296,
+     1029,
+     1173,
+     145
+    ],
+    [
+     304,
+     1024,
+     1178,
+     155
+    ],
+    [
+     312,
+     1018,
+     1184,
+     167
+    ],
+    [
+     320,
+     1013,
+     1189,
+     177
+    ]
+   ]
+  },
+  "torso": {
+   "top": 264,
+   "collarTop": 264,
+   "collarBottomScan": 277,
+   "shirtGreenTop": 269,
+   "bottom": 405,
+   "height": 141,
+   "hemY": 399,
+   "hemLeft": 1041,
+   "hemRight": 1161,
+   "hemWidth": 121,
+   "maxWidthWithSleeves": 189,
+   "maxWidthY": 329,
+   "maxL": 1007,
+   "maxR": 1195,
+   "centerX": 1101,
+   "shirtLeft": 1018,
+   "shirtRight": 1183
+  },
+  "cuffs": {
+   "left": {
+    "x0": 1013,
+    "x1": 1042,
+    "y0": 320,
+    "y1": 351,
+    "w": 30,
+    "h": 32,
+    "px": 443
+   },
+   "right": {
+    "x0": 1160,
+    "x1": 1190,
+    "y0": 320,
+    "y1": 352,
+    "w": 31,
+    "h": 33,
+    "px": 446
+   }
+  },
+  "shorts": {
+   "blueTop": 403,
+   "blueBottom": 450,
+   "left": 1033,
+   "right": 1169,
+   "bottomY": 465,
+   "widthTop": {
+    "y": 409,
+    "l": 1040,
+    "r": 1161,
+    "w": 122
+   },
+   "widthHem": {
+    "y": 457,
+    "l": 1034,
+    "r": 1166,
+    "w": 133
+   },
+   "height": 63
+  },
+  "legs": {
+   "left": {
+    "top": 466,
+    "shoeTop": 517,
+    "length": 51,
+    "thigh": {
+     "y": 469,
+     "l": 1052,
+     "r": 1086,
+     "w": 35
+    },
+    "knee": {
+     "y": 492,
+     "l": 1052,
+     "r": 1083,
+     "w": 32
+    },
+    "ankle": {
+     "y": 515,
+     "l": 1052,
+     "r": 1082,
+     "w": 31
+    },
+    "narrowest": {
+     "y": 505,
+     "w": 28
+    }
+   },
+   "right": {
+    "top": 466,
+    "shoeTop": 516,
+    "length": 50,
+    "thigh": {
+     "y": 469,
+     "l": 1115,
+     "r": 1149,
+     "w": 35
+    },
+    "knee": {
+     "y": 491,
+     "l": 1118,
+     "r": 1149,
+     "w": 32
+    },
+    "ankle": {
+     "y": 514,
+     "l": 1119,
+     "r": 1148,
+     "w": 30
+    },
+    "narrowest": {
+     "y": 511,
+     "w": 27
+    }
+   }
+  },
+  "shoes": {
+   "left": {
+    "x0": 1044,
+    "x1": 1086,
+    "y0": 517,
+    "y1": 550,
+    "length": 43,
+    "height": 34
+   },
+   "right": {
+    "x0": 1114,
+    "x1": 1157,
+    "y0": 516,
+    "y1": 550,
+    "length": 44,
+    "height": 35
+   }
+  },
+  "legGap": {
+   "atThigh": 28,
+   "atAnkle": 36,
+   "thighY": 469,
+   "ankleY": 515
+  },
+  "feet": {
+   "innerGap": 27,
+   "centerSpacing": 71,
+   "outerWidth": 114
+  },
+  "arms": {
+   "left": {
+    "skinBelowCuffTop": 351,
+    "cuffBottom": 351,
+    "forearm": {
+     "y": 356,
+     "l": 1015,
+     "r": 1038,
+     "w": 24,
+     "skinW": 18
+    },
+    "wrist": {
+     "y": 394,
+     "l": 1013,
+     "r": 1032,
+     "w": 20,
+     "skinW": 18
+    },
+    "handBottom": 423,
+    "handHeight": 29,
+    "handMax": {
+     "y": 406,
+     "l": 1009,
+     "r": 1032,
+     "w": 24,
+     "skinW": 21
+    },
+    "armLenCuffTopToWrist": 74,
+    "armLenCuffTopToHandTip": 103,
+    "armLenTorsoTopToWrist": 130,
+    "armLenTorsoTopToHandTip": 159,
+    "profile": [
+     [
+      351,
+      1016,
+      1029,
+      14
+     ],
+     [
+      356,
+      1015,
+      1038,
+      24
+     ],
+     [
+      361,
+      1014,
+      1042,
+      29
+     ],
+     [
+      366,
+      1014,
+      1041,
+      28
+     ],
+     [
+      371,
+      1014,
+      1040,
+      27
+     ],
+     [
+      376,
+      1013,
+      1038,
+      26
+     ],
+     [
+      381,
+      1013,
+      1037,
+      25
+     ],
+     [
+      386,
+      1013,
+      1035,
+      23
+     ],
+     [
+      391,
+      1013,
+      1033,
+      21
+     ],
+     [
+      396,
+      1012,
+      1032,
+      21
+     ],
+     [
+      401,
+      1011,
+      1032,
+      22
+     ],
+     [
+      406,
+      1009,
+      1032,
+      24
+     ],
+     [
+      411,
+      1009,
+      1031,
+      23
+     ],
+     [
+      416,
+      1010,
+      1029,
+      20
+     ],
+     [
+      421,
+      1013,
+      1027,
+      15
+     ]
+    ]
+   },
+   "right": {
+    "skinBelowCuffTop": 352,
+    "cuffBottom": 352,
+    "forearm": {
+     "y": 357,
+     "l": 1163,
+     "r": 1187,
+     "w": 25,
+     "skinW": 19
+    },
+    "wrist": {
+     "y": 395,
+     "l": 1170,
+     "r": 1189,
+     "w": 20,
+     "skinW": 18
+    },
+    "handBottom": 423,
+    "handHeight": 28,
+    "handMax": {
+     "y": 404,
+     "l": 1169,
+     "r": 1192,
+     "w": 24,
+     "skinW": 21
+    },
+    "armLenCuffTopToWrist": 75,
+    "armLenCuffTopToHandTip": 103,
+    "armLenTorsoTopToWrist": 131,
+    "armLenTorsoTopToHandTip": 159,
+    "profile": [
+     [
+      352,
+      1171,
+      1186,
+      16
+     ],
+     [
+      357,
+      1163,
+      1187,
+      25
+     ],
+     [
+      362,
+      1160,
+      1187,
+      28
+     ],
+     [
+      367,
+      1161,
+      1188,
+      28
+     ],
+     [
+      372,
+      1163,
+      1188,
+      26
+     ],
+     [
+      377,
+      1164,
+      1189,
+      26
+     ],
+     [
+      382,
+      1166,
+      1189,
+      24
+     ],
+     [
+      387,
+      1167,
+      1189,
+      23
+     ],
+     [
+      392,
+      1169,
+      1189,
+      21
+     ],
+     [
+      397,
+      1170,
+      1190,
+      21
+     ],
+     [
+      402,
+      1169,
+      1191,
+      23
+     ],
+     [
+      407,
+      1169,
+      1192,
+      24
+     ],
+     [
+      412,
+      1171,
+      1192,
+      22
+     ],
+     [
+      417,
+      1173,
+      1191,
+      19
+     ],
+     [
+      422,
+      1176,
+      1188,
+      13
+     ]
+    ]
+   }
+  },
+  "headHeightPx": 243,
+  "figureHeightPx": 539,
+  "headsTall": 2.22
+ },
+ "female-front": {
+  "bbox": {
+   "x0": 173,
+   "y0": 556,
+   "x1": 478,
+   "y1": 1075,
+   "w": 306,
+   "h": 520
+  },
+  "head": {
+   "top": 556,
+   "chin": 780,
+   "height": 224,
+   "maxWidth": 306,
+   "maxWidthY": 724,
+   "maxWidthL": 173,
+   "maxWidthR": 478
+  },
+  "neck": {
+   "y": 786,
+   "skinLeft": 305,
+   "skinRight": 345,
+   "skinWidth": 41,
+   "withOutlineWidth": 191,
+   "left": 225,
+   "right": 415,
+   "width": 191
+  },
+  "shoulder": {
+   "y": 840,
+   "left": 236,
+   "right": 412,
+   "width": 177,
+   "note": "outer sleeve edge at cuff top (front/back contour slopes continuously from collar)",
+   "contour": [
+    [
+     789,
+     233,
+     392,
+     160
+    ],
+    [
+     797,
+     267,
+     382,
+     116
+    ],
+    [
+     805,
+     260,
+     388,
+     129
+    ],
+    [
+     813,
+     254,
+     395,
+     142
+    ],
+    [
+     821,
+     249,
+     400,
+     152
+    ],
+    [
+     829,
+     243,
+     405,
+     163
+    ],
+    [
+     837,
+     239,
+     410,
+     172
+    ]
+   ]
+  },
+  "torso": {
+   "top": 789,
+   "collarTop": 789,
+   "collarBottomScan": 832,
+   "shirtGreenTop": 793,
+   "bottom": 924,
+   "height": 135,
+   "hemY": 918,
+   "hemLeft": 265,
+   "hemRight": 382,
+   "hemWidth": 118,
+   "maxWidthWithSleeves": 189,
+   "maxWidthY": 850,
+   "maxL": 230,
+   "maxR": 418,
+   "centerX": 327,
+   "shirtLeft": 239,
+   "shirtRight": 409
+  },
+  "cuffs": {
+   "left": {
+    "x0": 234,
+    "x1": 268,
+    "y0": 840,
+    "y1": 871,
+    "w": 35,
+    "h": 32,
+    "px": 423
+   },
+   "right": {
+    "x0": 378,
+    "x1": 412,
+    "y0": 841,
+    "y1": 871,
+    "w": 35,
+    "h": 31,
+    "px": 417
+   }
+  },
+  "shorts": {
+   "blueTop": 918,
+   "blueBottom": 970,
+   "left": 258,
+   "right": 390,
+   "bottomY": 984,
+   "widthTop": {
+    "y": 924,
+    "l": 264,
+    "r": 384,
+    "w": 121
+   },
+   "widthHem": {
+    "y": 976,
+    "l": 270,
+    "r": 380,
+    "w": 111
+   },
+   "height": 67
+  },
+  "legs": {
+   "left": {
+    "top": 982,
+    "shoeTop": 1034,
+    "length": 52,
+    "thigh": {
+     "y": 985,
+     "l": 274,
+     "r": 310,
+     "w": 37
+    },
+    "knee": {
+     "y": 1008,
+     "l": 274,
+     "r": 305,
+     "w": 32
+    },
+    "ankle": {
+     "y": 1032,
+     "l": 278,
+     "r": 304,
+     "w": 27
+    },
+    "narrowest": {
+     "y": 1032,
+     "w": 27
+    }
+   },
+   "right": {
+    "top": 985,
+    "shoeTop": 1034,
+    "length": 49,
+    "thigh": {
+     "y": 988,
+     "l": 338,
+     "r": 374,
+     "w": 37
+    },
+    "knee": {
+     "y": 1010,
+     "l": 343,
+     "r": 374,
+     "w": 32
+    },
+    "ankle": {
+     "y": 1032,
+     "l": 345,
+     "r": 371,
+     "w": 27
+    },
+    "narrowest": {
+     "y": 1027,
+     "w": 27
+    }
+   }
+  },
+  "shoes": {
+   "left": {
+    "x0": 257,
+    "x1": 310,
+    "y0": 1034,
+    "y1": 1075,
+    "length": 54,
+    "height": 42
+   },
+   "right": {
+    "x0": 338,
+    "x1": 391,
+    "y0": 1034,
+    "y1": 1075,
+    "length": 54,
+    "height": 42
+   }
+  },
+  "legGap": {
+   "atThigh": 27,
+   "atAnkle": 40,
+   "thighY": 985,
+   "ankleY": 1032
+  },
+  "feet": {
+   "innerGap": 27,
+   "centerSpacing": 81,
+   "outerWidth": 135
+  },
+  "arms": {
+   "left": {
+    "skinBelowCuffTop": 871,
+    "cuffBottom": 871,
+    "forearm": {
+     "y": 876,
+     "l": 239,
+     "r": 263,
+     "w": 25,
+     "skinW": 20
+    },
+    "wrist": {
+     "y": 911,
+     "l": 236,
+     "r": 256,
+     "w": 21,
+     "skinW": 18
+    },
+    "handBottom": 940,
+    "handHeight": 29,
+    "handMax": {
+     "y": 924,
+     "l": 232,
+     "r": 256,
+     "w": 25,
+     "skinW": 21
+    },
+    "armLenCuffTopToWrist": 71,
+    "armLenCuffTopToHandTip": 100,
+    "armLenTorsoTopToWrist": 122,
+    "armLenTorsoTopToHandTip": 151,
+    "profile": [
+     [
+      871,
+      240,
+      253,
+      14
+     ],
+     [
+      876,
+      239,
+      263,
+      25
+     ],
+     [
+      881,
+      238,
+      266,
+      29
+     ],
+     [
+      886,
+      238,
+      265,
+      28
+     ],
+     [
+      891,
+      237,
+      263,
+      27
+     ],
+     [
+      896,
+      237,
+      261,
+      25
+     ],
+     [
+      901,
+      237,
+      260,
+      24
+     ],
+     [
+      906,
+      236,
+      258,
+      23
+     ],
+     [
+      911,
+      236,
+      256,
+      21
+     ],
+     [
+      916,
+      235,
+      255,
+      21
+     ],
+     [
+      921,
+      233,
+      256,
+      24
+     ],
+     [
+      926,
+      232,
+      255,
+      24
+     ],
+     [
+      931,
+      233,
+      254,
+      22
+     ],
+     [
+      936,
+      234,
+      250,
+      17
+     ]
+    ]
+   },
+   "right": {
+    "skinBelowCuffTop": 871,
+    "cuffBottom": 871,
+    "forearm": {
+     "y": 876,
+     "l": 386,
+     "r": 409,
+     "w": 24,
+     "skinW": 18
+    },
+    "wrist": {
+     "y": 913,
+     "l": 393,
+     "r": 412,
+     "w": 20,
+     "skinW": 18
+    },
+    "handBottom": 940,
+    "handHeight": 27,
+    "handMax": {
+     "y": 923,
+     "l": 393,
+     "r": 416,
+     "w": 24,
+     "skinW": 21
+    },
+    "armLenCuffTopToWrist": 73,
+    "armLenCuffTopToHandTip": 100,
+    "armLenTorsoTopToWrist": 124,
+    "armLenTorsoTopToHandTip": 151,
+    "profile": [
+     [
+      871,
+      395,
+      408,
+      14
+     ],
+     [
+      876,
+      386,
+      409,
+      24
+     ],
+     [
+      881,
+      382,
+      410,
+      29
+     ],
+     [
+      886,
+      383,
+      410,
+      28
+     ],
+     [
+      891,
+      385,
+      411,
+      27
+     ],
+     [
+      896,
+      387,
+      411,
+      25
+     ],
+     [
+      901,
+      389,
+      411,
+      23
+     ],
+     [
+      906,
+      390,
+      412,
+      23
+     ],
+     [
+      911,
+      392,
+      412,
+      21
+     ],
+     [
+      916,
+      393,
+      413,
+      21
+     ],
+     [
+      921,
+      393,
+      415,
+      23
+     ],
+     [
+      926,
+      393,
+      416,
+      24
+     ],
+     [
+      931,
+      395,
+      416,
+      22
+     ],
+     [
+      936,
+      397,
+      414,
+      18
+     ]
+    ]
+   }
+  },
+  "headHeightPx": 224,
+  "figureHeightPx": 520,
+  "headsTall": 2.32
+ },
+ "female-right": {
+  "bbox": {
+   "x0": 576,
+   "y0": 559,
+   "x1": 845,
+   "y1": 1075,
+   "w": 270,
+   "h": 517
+  },
+  "head": {
+   "top": 559,
+   "chin": 770,
+   "height": 211,
+   "maxWidth": 255,
+   "maxWidthY": 676,
+   "maxWidthL": 583,
+   "maxWidthR": 837
+  },
+  "neck": {
+   "y": 776,
+   "skinLeft": 719,
+   "skinRight": 747,
+   "skinWidth": 29,
+   "withOutlineWidth": 148,
+   "left": 621,
+   "right": 768,
+   "width": 148
+  },
+  "shoulder": {
+   "y": 802,
+   "left": 703,
+   "right": 771,
+   "width": 69
+  },
+  "torso": {
+   "top": 784,
+   "collarTop": 784,
+   "collarBottomScan": 832,
+   "shirtGreenTop": 793,
+   "bottom": 927,
+   "height": 143,
+   "hemY": 921,
+   "hemLeft": null,
+   "hemRight": null,
+   "hemWidth": null,
+   "maxWidthWithSleeves": 117,
+   "maxWidthY": 784,
+   "maxL": 641,
+   "maxR": 757,
+   "centerX": 739,
+   "shirtLeft": 684,
+   "shirtRight": 793,
+   "chestDepth": {
+    "y": 822,
+    "l": 699,
+    "r": 778,
+    "w": 80
+   },
+   "hemDepth": {
+    "y": 921,
+    "l": 684,
+    "r": 792,
+    "w": 109
+   }
+  },
+  "cuffs": {
+   "one": {
+    "x0": 710,
+    "x1": 756,
+    "y0": 851,
+    "y1": 867,
+    "w": 47,
+    "h": 17,
+    "px": 535
+   }
+  },
+  "shorts": {
+   "blueTop": 927,
+   "blueBottom": 1062,
+   "left": 691,
+   "right": 779,
+   "bottomY": 990,
+   "widthTop": {
+    "y": 933,
+    "l": 691,
+    "r": 778,
+    "w": 88
+   },
+   "widthHem": {
+    "y": 982,
+    "l": 691,
+    "r": 773,
+    "w": 83
+   },
+   "height": 64
+  },
+  "legs": {
+   "one": {
+    "top": 991,
+    "shoeTop": 1036,
+    "length": 45,
+    "thigh": {
+     "y": 994,
+     "l": 711,
+     "r": 750,
+     "w": 40
+    },
+    "knee": {
+     "y": 1014,
+     "l": 709,
+     "r": 744,
+     "w": 36
+    },
+    "ankle": {
+     "y": 1034,
+     "l": 711,
+     "r": 747,
+     "w": 37
+    },
+    "narrowest": {
+     "y": 1026,
+     "w": 32
+    }
+   }
+  },
+  "shoes": {
+   "one": {
+    "x0": 704,
+    "x1": 782,
+    "y0": 1036,
+    "y1": 1075,
+    "length": 79,
+    "height": 40
+   }
+  },
+  "arms": {
+   "one": {
+    "skinTop": 868,
+    "handBottom": 946,
+    "profile": [
+     [
+      868,
+      724,
+      740,
+      17
+     ],
+     [
+      873,
+      720,
+      746,
+      27
+     ],
+     [
+      878,
+      721,
+      746,
+      26
+     ],
+     [
+      883,
+      722,
+      746,
+      25
+     ],
+     [
+      888,
+      722,
+      746,
+      25
+     ],
+     [
+      893,
+      723,
+      746,
+      24
+     ],
+     [
+      898,
+      724,
+      746,
+      23
+     ],
+     [
+      903,
+      725,
+      747,
+      23
+     ],
+     [
+      908,
+      726,
+      747,
+      22
+     ],
+     [
+      913,
+      727,
+      747,
+      21
+     ],
+     [
+      918,
+      728,
+      747,
+      20
+     ],
+     [
+      923,
+      728,
+      749,
+      22
+     ],
+     [
+      928,
+      727,
+      751,
+      25
+     ],
+     [
+      933,
+      726,
+      752,
+      27
+     ],
+     [
+      938,
+      727,
+      748,
+      22
+     ],
+     [
+      943,
+      729,
+      747,
+      19
+     ]
+    ]
+   }
+  },
+  "headHeightPx": 211,
+  "figureHeightPx": 517,
+  "headsTall": 2.45
+ },
+ "female-back": {
+  "bbox": {
+   "x0": 955,
+   "y0": 559,
+   "x1": 1255,
+   "y1": 1074,
+   "w": 301,
+   "h": 516
+  },
+  "head": {
+   "top": 559,
+   "chin": 780,
+   "height": 221,
+   "maxWidth": 301,
+   "maxWidthY": 724,
+   "maxWidthL": 955,
+   "maxWidthR": 1255
+  },
+  "neck": {
+   "y": 786,
+   "skinLeft": 1098,
+   "skinRight": 1098,
+   "skinWidth": 1,
+   "withOutlineWidth": 110,
+   "left": 1038,
+   "right": 1147,
+   "width": 110
+  },
+  "shoulder": {
+   "y": 842,
+   "left": 1016,
+   "right": 1188,
+   "width": 173,
+   "note": "outer sleeve edge at cuff top (front/back contour slopes continuously from collar)",
+   "contour": [
+    [
+     790,
+     1059,
+     1144,
+     86
+    ],
+    [
+     798,
+     1047,
+     1158,
+     112
+    ],
+    [
+     806,
+     1041,
+     1165,
+     125
+    ],
+    [
+     814,
+     1035,
+     1171,
+     137
+    ],
+    [
+     822,
+     1030,
+     1175,
+     146
+    ],
+    [
+     830,
+     1024,
+     1181,
+     158
+    ],
+    [
+     838,
+     1019,
+     1185,
+     167
+    ]
+   ]
+  },
+  "torso": {
+   "top": 790,
+   "collarTop": 790,
+   "collarBottomScan": 831,
+   "shirtGreenTop": 792,
+   "bottom": 921,
+   "height": 131,
+   "hemY": 915,
+   "hemLeft": 1043,
+   "hemRight": 1161,
+   "hemWidth": 119,
+   "maxWidthWithSleeves": 184,
+   "maxWidthY": 852,
+   "maxL": 1011,
+   "maxR": 1194,
+   "centerX": 1103,
+   "shirtLeft": 1019,
+   "shirtRight": 1186
+  },
+  "cuffs": {
+   "left": {
+    "x0": 1014,
+    "x1": 1046,
+    "y0": 847,
+    "y1": 873,
+    "w": 33,
+    "h": 27,
+    "px": 386
+   },
+   "right": {
+    "x0": 1158,
+    "x1": 1188,
+    "y0": 842,
+    "y1": 873,
+    "w": 31,
+    "h": 32,
+    "px": 408
+   }
+  },
+  "shorts": {
+   "blueTop": 917,
+   "blueBottom": 964,
+   "left": 1036,
+   "right": 1169,
+   "bottomY": 979,
+   "widthTop": {
+    "y": 923,
+    "l": 1042,
+    "r": 1163,
+    "w": 122
+   },
+   "widthHem": {
+    "y": 971,
+    "l": 1038,
+    "r": 1166,
+    "w": 129
+   },
+   "height": 63
+  },
+  "legs": {
+   "left": {
+    "top": 980,
+    "shoeTop": 1038,
+    "length": 58,
+    "thigh": {
+     "y": 983,
+     "l": 1053,
+     "r": 1090,
+     "w": 38
+    },
+    "knee": {
+     "y": 1009,
+     "l": 1053,
+     "r": 1084,
+     "w": 32
+    },
+    "ankle": {
+     "y": 1036,
+     "l": 1051,
+     "r": 1084,
+     "w": 34
+    },
+    "narrowest": {
+     "y": 1025,
+     "w": 28
+    }
+   },
+   "right": {
+    "top": 980,
+    "shoeTop": 1036,
+    "length": 56,
+    "thigh": {
+     "y": 983,
+     "l": 1115,
+     "r": 1152,
+     "w": 38
+    },
+    "knee": {
+     "y": 1008,
+     "l": 1120,
+     "r": 1152,
+     "w": 33
+    },
+    "ankle": {
+     "y": 1034,
+     "l": 1122,
+     "r": 1152,
+     "w": 31
+    },
+    "narrowest": {
+     "y": 1031,
+     "w": 27
+    }
+   }
+  },
+  "shoes": {
+   "left": {
+    "x0": 1042,
+    "x1": 1088,
+    "y0": 1038,
+    "y1": 1073,
+    "length": 47,
+    "height": 36
+   },
+   "right": {
+    "x0": 1116,
+    "x1": 1162,
+    "y0": 1036,
+    "y1": 1073,
+    "length": 47,
+    "height": 38
+   }
+  },
+  "legGap": {
+   "atThigh": 24,
+   "atAnkle": 37,
+   "thighY": 983,
+   "ankleY": 1036
+  },
+  "feet": {
+   "innerGap": 27,
+   "centerSpacing": 74,
+   "outerWidth": 121
+  },
+  "arms": {
+   "left": {
+    "skinBelowCuffTop": 873,
+    "cuffBottom": 873,
+    "forearm": {
+     "y": 878,
+     "l": 1019,
+     "r": 1044,
+     "w": 26,
+     "skinW": 21
+    },
+    "wrist": {
+     "y": 913,
+     "l": 1016,
+     "r": 1035,
+     "w": 20,
+     "skinW": 18
+    },
+    "handBottom": 940,
+    "handHeight": 27,
+    "handMax": {
+     "y": 920,
+     "l": 1013,
+     "r": 1036,
+     "w": 24,
+     "skinW": 20
+    },
+    "armLenCuffTopToWrist": 71,
+    "armLenCuffTopToHandTip": 98,
+    "armLenTorsoTopToWrist": 123,
+    "armLenTorsoTopToHandTip": 150,
+    "profile": [
+     [
+      873,
+      1019,
+      1033,
+      15
+     ],
+     [
+      878,
+      1019,
+      1044,
+      26
+     ],
+     [
+      883,
+      1018,
+      1045,
+      28
+     ],
+     [
+      888,
+      1018,
+      1044,
+      27
+     ],
+     [
+      893,
+      1017,
+      1042,
+      26
+     ],
+     [
+      898,
+      1017,
+      1040,
+      24
+     ],
+     [
+      903,
+      1016,
+      1039,
+      24
+     ],
+     [
+      908,
+      1016,
+      1037,
+      22
+     ],
+     [
+      913,
+      1016,
+      1035,
+      20
+     ],
+     [
+      918,
+      1014,
+      1035,
+      22
+     ],
+     [
+      923,
+      1013,
+      1036,
+      24
+     ],
+     [
+      928,
+      1013,
+      1035,
+      23
+     ],
+     [
+      933,
+      1013,
+      1032,
+      20
+     ],
+     [
+      938,
+      1016,
+      1028,
+      13
+     ]
+    ]
+   },
+   "right": {
+    "skinBelowCuffTop": 873,
+    "cuffBottom": 873,
+    "forearm": {
+     "y": 878,
+     "l": 1161,
+     "r": 1186,
+     "w": 26,
+     "skinW": 21
+    },
+    "wrist": {
+     "y": 912,
+     "l": 1170,
+     "r": 1188,
+     "w": 19,
+     "skinW": 17
+    },
+    "handBottom": 940,
+    "handHeight": 28,
+    "handMax": {
+     "y": 921,
+     "l": 1169,
+     "r": 1191,
+     "w": 23,
+     "skinW": 20
+    },
+    "armLenCuffTopToWrist": 70,
+    "armLenCuffTopToHandTip": 98,
+    "armLenTorsoTopToWrist": 122,
+    "armLenTorsoTopToHandTip": 150,
+    "profile": [
+     [
+      873,
+      1172,
+      1185,
+      14
+     ],
+     [
+      878,
+      1161,
+      1186,
+      26
+     ],
+     [
+      883,
+      1160,
+      1187,
+      28
+     ],
+     [
+      888,
+      1161,
+      1187,
+      27
+     ],
+     [
+      893,
+      1163,
+      1188,
+      26
+     ],
+     [
+      898,
+      1165,
+      1188,
+      24
+     ],
+     [
+      903,
+      1166,
+      1188,
+      23
+     ],
+     [
+      908,
+      1168,
+      1188,
+      21
+     ],
+     [
+      913,
+      1170,
+      1189,
+      20
+     ],
+     [
+      918,
+      1170,
+      1191,
+      22
+     ],
+     [
+      923,
+      1170,
+      1192,
+      23
+     ],
+     [
+      928,
+      1171,
+      1192,
+      22
+     ],
+     [
+      933,
+      1173,
+      1191,
+      19
+     ],
+     [
+      938,
+      1176,
+      1189,
+      14
+     ]
+    ]
+   }
+  },
+  "headHeightPx": 221,
+  "figureHeightPx": 516,
+  "headsTall": 2.33
+ }
+}
