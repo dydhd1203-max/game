@@ -63,49 +63,81 @@
   // separately, as one picture:
   //  - floor: the openings turn rigidly to end at the knees and the seat is
   //    laid over them, resting on the floor, so the inner thigh folds away
-  //    under the seat as on a real seated child;
-  //  - desk, front: the openings face the viewer at the knees, laid over a
-  //    seat foreshortened above them (the lap seen from the front);
+  //    under the seat as on a real seated child. Each opening is the thigh's
+  //    own width (the whole half of the drawing stuck up beside the waist
+  //    and its flared cuff showed as a flap by the knee);
+  //  - desk, front: each cuff is bent into a soft curve around the thigh
+  //    end (the thigh comes toward the viewer) and lies over the knee, so
+  //    the round knee comes out from under the hem; a straight cut over
+  //    bare knees read as stumps under a hard edge (2026-10-08 review);
   //  - desk, back: only the seat shows, resting on the chair; the openings
   //    point away under it.
+  // Every seat ends in a soft rounded bottom with its outline following it
+  // (a ruled straight edge with square cuff corners read as a box).
   // Sheet rows per figure: cut = just above the cuffs, apex = bottom of the
   // crotch notch at the centre seam, cuff = the cuff's lower outline (skin
-  // below it is dropped).
-  const SEAT={'m-front':{cut:451,apex:439,cuff:465.5},'m-back':{cut:452,apex:437,cuff:465},'f-front':{cut:964,apex:957,cuff:983},'f-back':{cut:962,apex:956,cuff:980.5}},edgeTones=new Map();
+  // below it is dropped), rise = how far the cuff's upper outline climbs
+  // above the cut at the drawing's outer sides (sheet px, read off the
+  // sheet; the female cream cuff slants up steeply and showed as a cream
+  // wedge in each corner of a seat cut along the straight row).
+  const SEAT={'m-front':{cut:451,apex:439,cuff:465.5,rise:13},'m-back':{cut:452,apex:437,cuff:465,rise:12},'f-front':{cut:964,apex:957,cuff:983,rise:16},'f-back':{cut:962,apex:956,cuff:980.5,rise:16}},edgeTones=new Map();
   function edgeTone(key,canvas){
     // The drawing's own outline colour: first opaque pixel along a middle row.
     if(edgeTones.has(key))return edgeTones.get(key);const y=Math.floor(canvas.height*.4),row=canvas.getContext('2d').getImageData(0,y,canvas.width,1).data;let tone='rgba(40,44,60,.9)';
     for(let i=0;i<canvas.width;i++)if(row[i*4+3]>220){tone='rgba('+row[i*4]+','+row[i*4+1]+','+row[i*4+2]+',.92)';break;}edgeTones.set(key,tone);return tone;
   }
+  // The drawing's opaque span on one sheet row, in body-local x.
+  function rowSpan(art,F,py){
+    const c=art.canvas,y=clamp(Math.round(py-art.rect[1]),0,c.height-1),row=c.getContext('2d').getImageData(0,y,c.width,1).data;let l=0,r=c.width-1;
+    while(l<r&&row[l*4+3]<128)l++;while(r>l&&row[r*4+3]<128)r--;const x=px=>16+(px+art.rect[0]-F.neck[0])*F.k;return[x(l),x(r+1)];
+  }
   function seatedShorts(sex,view,S,F,art,projected,pose){
     const T=SEAT[sex+'-'+VIEW[view]],ly=py=>collar(F)[1]+(py-F.neck[1])*F.k,lx=px=>16+(px-F.neck[0])*F.k;
-    const x0=lx(art.rect[0]),y0=ly(art.rect[1]),w=art.width*F.k,h=art.height*F.k,cut=ly(T.cut),apex=ly(T.apex),cuff=ly(T.cuff),half=i=>i?[16,x0+w]:[x0,16];
+    const x0=lx(art.rect[0]),y0=ly(art.rect[1]),w=art.width*F.k,h=art.height*F.k,cut=ly(T.cut),apex=ly(T.apex),cuff=ly(T.cuff);
+    // A leg opening spans from the centre seam to just past the thigh's
+    // outer side, never the drawing's flared cuff beyond it.
+    const half=(i,reach)=>i?[16,Math.min(x0+w,S.hip[i]+reach)]:[Math.max(x0,S.hip[i]-reach),16];
     // Rows above `top` stay as drawn (they meet the shirt hem); the seat
     // between `top` and the cut is scaled to its seated height.
-    const top=S.waist-.5,back=view==='Back';let bottom,tubes=[],seatOver=true;
+    const top=S.waist-.5,back=view==='Back';let bottom,tubes=[],bands=[],seatOver=true;
     if(pose.floor){
       bottom=S.floor-pose.drop;
-      tubes=projected.map((leg,i)=>{const hip=[S.hip[i],S.waist],v=[leg.knee[0]-hip[0],leg.knee[1]-hip[1]],l=Math.hypot(...v)||1,u=[v[0]/l,v[1]/l],[a,b]=half(i);
-        return{end:[leg.knee[0]-u[0]*.42,leg.knee[1]-u[1]*.42],source:[S.hip[i],cuff],angle:Math.atan2(u[1],u[0])-Math.PI/2,along:.9,across:.8,rect:[a,cuff-1.6,b-a,1.6]};});
+      tubes=projected.map((leg,i)=>{const hip=[S.hip[i],S.waist],v=[leg.knee[0]-hip[0],leg.knee[1]-hip[1]],l=Math.hypot(...v)||1,u=[v[0]/l,v[1]/l],[a,b]=half(i,1.7);
+        return{end:[leg.knee[0]-u[0]*.42,leg.knee[1]-u[1]*.42],source:[S.hip[i],cuff],angle:Math.atan2(u[1],u[0])-Math.PI/2,along:.9,across:.62,rect:[a,cuff-1.6,b-a,1.6]};});
     }else if(back)bottom=cut;
     else{
-      const along=.92,band=(cuff-cut+.2)*along;seatOver=false;
-      tubes=projected.map((leg,i)=>{const[a,b]=i?[16,Math.min(x0+w,S.hip[i]+1.85)]:[Math.max(x0,S.hip[i]-1.85),16];return{end:[mix([S.hip[i]],[leg.knee[0]],.5)[0],leg.knee[1]+.5],source:[S.hip[i],cuff],angle:0,along,across:.84,rect:[a,cut-.2,b-a,cuff-cut+.2]};});
-      bottom=Math.min(...tubes.map(t=>t.end[1]))-band+.18;
+      // The cuff band (with a little denim above it) bent into a smile:
+      // its middle hangs `sag` lower than its ends, its bottom middle just
+      // over the top of the knee, so the round knee shows below the hem.
+      const along=.78,across=.82,sag=.42;seatOver=false;
+      bands=projected.map((leg,i)=>{const hip=S.hip[i],[a,b]=half(i,1.85),cx=mix([hip],[leg.knee[0]],.75)[0],cy=leg.knee[1]-.4-sag;
+        const map=p=>{const t=clamp((p[0]-hip)/(p[0]<hip?hip-a:b-hip),-1,1);return[cx+(p[0]-hip)*across,cy+(p[1]-cuff)*along+sag*(1-t*t)];};
+        return{rect:[a,cut-.2,b-a,cuff-cut+.2],map,topMid:map([hip,cut-.2])[1]};});
+      bottom=Math.min(...bands.map(t=>t.topMid))+.12;
     }
     const k=(bottom-top)/(cut-top),place=(t,p)=>{const q=rotate([(p[0]-t.source[0])*t.across,(p[1]-t.source[1])*t.along],t.angle);return[t.end[0]+q[0],t.end[1]+q[1]];};
+    const grid=(t,cols,rows)=>{const out=[];for(let r=0;r<=rows;r++)for(let c=0;c<=cols;c++)out.push([t.rect[0]+c/cols*t.rect[2],t.rect[1]+r/rows*t.rect[3]]);return out;};
     const pts=[[x0,y0],[x0+w,y0],[x0,bottom],[x0+w,bottom]];
     for(const t of tubes){const[r0,r1,r2,r3]=t.rect;pts.push(...[[r0,r1],[r0+r2,r1],[r0,r1+r3],[r0+r2,r1+r3]].map(p=>place(t,p)));}
+    for(const t of bands)pts.push(...grid(t,8,2).map(t.map));
     const bx=Math.min(...pts.map(p=>p[0]))-.1,by=Math.min(...pts.map(p=>p[1]))-.1,bw=Math.max(...pts.map(p=>p[0]))-bx+.1,bh=Math.max(...pts.map(p=>p[1]))-by+.1,scale=16;
     const layer=()=>{const c=document.createElement('canvas');c.width=Math.ceil(bw*scale);c.height=Math.ceil(bh*scale);const x=c.getContext('2d');x.imageSmoothingQuality='high';x.setTransform(scale,0,0,scale,-bx*scale,-by*scale);return[c,x];};
     const [openings,oc]=layer(),[seat,sc]=layer();
     for(const t of tubes){oc.save();oc.translate(...t.end);oc.rotate(t.angle);oc.scale(t.across,t.along);oc.translate(-t.source[0],-t.source[1]);oc.beginPath();oc.rect(...t.rect);oc.clip();oc.drawImage(art.canvas,x0,y0,w,h);oc.restore();}
+    if(bands.length){oc.setTransform(1,0,0,1,0,0);const cols=8,rows=2;for(const t of bands)meshDraw(oc,art.canvas,grid(t,cols,rows).map(p=>{const q=t.map(p);return{s:[(p[0]-x0)/F.k,(p[1]-y0)/F.k],d:[(q[0]-bx)*scale,(q[1]-by)*scale]};}),cols,rows);}
     // The seat: waistband as drawn, the rest scaled, the crotch notch filled
-    // with the seam just above it, and one outline where it rests.
+    // with the seam just above it. Its bottom follows the cuff's upper
+    // outline (low at the seat, climbing toward each outer side, with a
+    // small lift at the centre seam) instead of the straight cut row, so
+    // it ends in a soft rounded edge, outlined along that curve.
+    const [L,R]=rowSpan(art,F,T.cut-1),reach=(16-L+R-16)/2*.85,edge=[];
+    for(let j=0;j<=28;j++){const x=mix([R],[L],j/28)[0],d=Math.min(x-L,R-x),f=Math.pow(clamp(1-d/reach,0,1),1.6),seam=.12*Math.max(0,1-Math.abs(x-16)/.7),yl=ly(T.cut-T.rise*f)-seam;edge.push([x,top+(yl-top)*k]);}
+    const soft=(c,join)=>edge.forEach((p,j)=>c[j||join?'lineTo':'moveTo'](...p));
+    sc.beginPath();sc.moveTo(x0-1,y0-1);sc.lineTo(x0+w+1,y0-1);sc.lineTo(x0+w+1,edge[0][1]);soft(sc,true);sc.lineTo(x0-1,edge.at(-1)[1]);sc.closePath();sc.clip();
     sc.save();sc.beginPath();sc.rect(x0-.1,y0-.1,w+.2,top-y0+.12);sc.clip();sc.drawImage(art.canvas,x0,y0,w,h);sc.restore();
-    sc.save();sc.beginPath();sc.rect(x0-.1,top,w+.2,bottom-top);sc.clip();sc.translate(0,top);sc.scale(1,k);sc.translate(0,-top);sc.drawImage(art.canvas,x0,y0,w,h);
+    sc.save();sc.beginPath();sc.rect(x0-.1,top,w+.2,bottom-top+.2);sc.clip();sc.translate(0,top);sc.scale(1,k);sc.translate(0,-top);sc.drawImage(art.canvas,x0,y0,w,h);
     sc.globalCompositeOperation='destination-over';sc.beginPath();sc.rect(16-.9,apex-.15,1.8,cut-apex+.15);sc.clip();sc.drawImage(art.canvas,x0,y0+(cut-apex)+.05,w,h);sc.restore();
-    sc.save();sc.globalCompositeOperation='source-atop';sc.strokeStyle=edgeTone(sex+view,art.canvas);sc.lineWidth=.11;sc.beginPath();sc.moveTo(x0-.2,bottom-.05);sc.lineTo(x0+w+.2,bottom-.05);sc.stroke();sc.restore();
+    sc.save();sc.globalCompositeOperation='source-atop';sc.strokeStyle=edgeTone(sex+view,art.canvas);sc.lineWidth=.22;sc.lineCap='round';sc.lineJoin='round';sc.beginPath();soft(sc);sc.stroke();sc.restore();
     const[out,ctx]=layer();ctx.setTransform(1,0,0,1,0,0);for(const c of seatOver?[openings,seat]:[seat,openings])ctx.drawImage(c,0,0);
     return{url:out.toDataURL(),x:bx,y:by,w:out.width/scale,h:out.height/scale};
   }
@@ -157,11 +189,19 @@
     const a=(x,y)=>x<0||y<0||x>=W||y>=H?0:data[(y*W+x)*4+3],rgb=(x,y)=>[0,1,2].map(k=>data[(y*W+x)*4+k]);
     const median=v=>v.slice().sort((p,q)=>p-q)[v.length>>1],edge=(s,y0,y1)=>{const v=[];for(let y=Y(y0);y<=Y(y1);y++){let x=s>0?W-1:0;while(x>=0&&x<W&&a(x,y)<128)x-=s;v.push(bx(x+.5));}return median(v);};
     const hex=c=>'#'+c.map(v=>Math.round(clamp(v,0,255)).toString(16).padStart(2,'0')).join('');
+    // The shirt's plain cloth colour: the median of all its opaque pixels
+    // (prints and outlines are a small share of the picture).
+    const all=[];for(let py=0;py<H;py+=2)for(let px=0;px<W;px+=2)if(a(px,py)>250)all.push(rgb(px,py));const plain=[0,1,2].map(k=>median(all.map(c=>c[k])));
     const sides=[-1,1].map((s,i)=>{
       const top=edge(s,34.4,35),low=edge(s,35.8,36.3),x=X(low-s*.4);let y=H-1;while(y>0&&a(x,y)<128)y--;
-      // Cloth: median of the refilled band inside the side line (robust to
-      // a print reaching it); outline: the darkest hem pixel there.
-      const band=[];for(let py=Y(33.4);py<=Y(36);py++)for(let px=Math.min(X(top),X(top-s*.6));px<=Math.max(X(top),X(top-s*.6));px++)if(a(px,py)>250)band.push(rgb(px,py));
+      // Cloth: median of the band inside the side line, from the pixels near
+      // the shirt's plain cloth colour; outline: the darkest hem pixel there.
+      // (2026-10-08 round 2: the female front's left band is mostly the big
+      // daisy and its leaves, so the plain median gave a yellow-olive
+      // underarm wedge under the raised sleeve.)
+      const near=c=>Math.hypot(c[0]-plain[0],c[1]-plain[1],c[2]-plain[2])<60;
+      let band=[];for(let py=Y(33.4);py<=Y(36);py++)for(let px=Math.min(X(top),X(top-s*.6));px<=Math.max(X(top),X(top-s*.6));px++)if(a(px,py)>250)band.push(rgb(px,py));
+      band=band.filter(near).length>=8?band.filter(near):[plain];
       let line=[255,255,255];for(let py=y;py>y-8;py--)if(a(x,py)>200){const c=rgb(x,py);if(c[0]+c[1]+c[2]<line[0]+line[1]+line[2])line=c;}
       // The sleeve cap's top: there the sheet's shoulder line ends.
       const sleeve=part(sex+view+'Sleeve'+i,'sleeves',F.rects.sleeve[i]),sd=sleeve.canvas.getContext('2d').getImageData(0,0,sleeve.width,sleeve.height).data;let cap=null;
@@ -216,7 +256,12 @@
       // Hide the upper arm owned by the body inside its sleeve: everything
       // above the opaque cuff, measured down the arm from the shoulder.
       const cuff=(F.cuff_top-F.joints.shoulder[i][1])*F.k;
-      set(s.skinClip,'transform',s.group.getAttribute('transform'));set(s.skinClip,'d','M-8 '+n(cuff)+'H8V15H-8Z');
+      // A raised arm's forearm can fold back up beside its own sleeve (the
+      // climbing pull): only the upper arm's own width (painted half widths
+      // reach .88) is hidden above the cuff, so the folded forearm is not cut
+      // off along the cuff line in mid air (a pale spike beside the sleeve).
+      const bare=(arm.lift||0)>0?'M-8 .6H-1V'+n(cuff)+'H-8ZM1 .6H8V'+n(cuff)+'H1Z':'';
+      set(s.skinClip,'transform',s.group.getAttribute('transform'));set(s.skinClip,'d','M-8 '+n(cuff)+'H8V15H-8Z'+bare);
       set(s.image,'href',sleeveTexture(sex,view,i,angle,lean,arm.lift||0).url);for(const[k,v]of Object.entries({x:-4,y:-4,width:8,height:8}))set(s.image,k,v);
       s.image.dataset.sleeveDeformation='seam-pinned';s.image.dataset.sleeveArt=sex+view+i;
       fit.sleeves.push({shoulder:arm.shoulder,opening:[arm.shoulder[0]-Math.sin(angle)*cuff,arm.shoulder[1]+Math.cos(angle)*cuff],armPoint:mix(arm.shoulder,arm.elbow,.52),width:F.rects.sleeve[i][2]*F.k});
@@ -234,7 +279,11 @@
       set(s.group,'transform','translate('+pt(leg.ankle)+') rotate('+n(shoeAngle)+') scale('+flip+' 1)');
       paint(s.image,art,key,(art.rect[0]-anchor[0])*SF.k,(art.rect[1]-anchor[1])*SF.k,art.width*SF.k,art.height*SF.k);
       s.group.style.display=seat?.hidden?'none':'';
-      const parent=body.legs[i].parent;if(s.group.parentNode!==parent||parent.lastChild!==s.group)parent.append(s.group);
+      // Crossed feet seen from the front lie under both shins (each foot is
+      // tucked under the other leg): both shoes go first in the far leg, the
+      // near foot over the far one. Otherwise a shoe is its leg's last layer.
+      if(seat?.under){const host=body.legs[0].parent,at=i?r.shoes[0].group.nextSibling:host.firstChild;if(s.group.parentNode!==host||(i?s.group.previousSibling!==r.shoes[0].group:host.firstChild!==s.group))host.insertBefore(s.group,at);}
+      else{const parent=body.legs[i].parent;if(s.group.parentNode!==parent||parent.lastChild!==s.group)parent.append(s.group);}
       const soleHeight=(SF.floor-anchor[1])*SF.k;
       fit.legs.push({root:leg.root,cuff:mix(leg.root,leg.knee,.81),owner:i});
       fit.shoes.push({ankle:leg.ankle,contact:leg.contact,soleHeight,soleY:leg.ankle[1]+soleHeight*Math.cos(shoeAngle*Math.PI/180),owner:i,view:key});

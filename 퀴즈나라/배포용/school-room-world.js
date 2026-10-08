@@ -350,6 +350,19 @@
       if(world.style.transform!==transform)world.style.transform=transform;
       const disabled=scale<=minimumScale+.0001;if(zoomOutButton.disabled!==disabled)zoomOutButton.disabled=disabled;
     }
+    // Ladder pose (2026-10-08): one climbing cycle lifts the reference body by
+    // its own rise (QPAvatarFoundation.climbRise, body units) as drawn at this
+    // camera, so a holding hand or foot stays put on the painted ladder while
+    // the body climbs past it; the old 84 px cycle slid the limbs about six
+    // times as fast as they climbed. Over the first and last cycle of a ladder
+    // the climber eases from standing onto it and off again (climbIn), so the
+    // start and the arrival are not one-frame snaps. Other avatars keep 84 px.
+    function ladderPose(p,svg,visualScale){
+      const F=window.QPAvatarFoundation,h=finite(p.height);if(!svg?.dataset.qpFoundation||!F?.climbRise)return null;
+      const cycle=F.climbRise(svg.dataset.qpxSex)*F.bodyScale.y*F.stageScale*svg.height.baseVal.value/(svg.viewBox.baseVal.height||62)*visualScale;
+      let ease=1;for(const c of scene.climbs||[]){const a=c.points[0].height,b=c.points[c.points.length-1].height,lo=Math.min(a,b),hi=Math.max(a,b);if(c.motion==='walk'||h<lo-.5||h>hi+.5||Math.min(...c.points.map(q=>Math.abs(q.x-p.x)))>30)continue;ease=clamp(Math.min(h-lo,hi-h)/cycle,0,1);break;}
+      return{phase:((h/cycle)%1+1)%1,ease};
+    }
     function placeActor(actor,dt,now,sharedTime=clockNow()){
       const p=actor.self?state:actor.target,seat=p.seatId&&p.pose==='sit'&&seatMap.get(p.seatId),target=seat?seatPoint(seat):p;
       if(actor.self||seat||distance(actor.current,target)>250)actor.current={x:target.x,y:target.y};else{const amount=Math.min(1,dt*12);actor.current.x+=(target.x-actor.current.x)*amount;actor.current.y+=(target.y-actor.current.y)*amount;}
@@ -376,14 +389,19 @@
       // gestures update immediately, and the local player keeps every frame.
       const poseKey=[pose,seat?.id,active,kind,p.direction,p.facing].join(':');
       if(actor.self||p.moving||active||actor.poseKey!==poseKey||actor.poseSlot===poseTurn){
-      window.QPAvatarPose?.apply(actor.svg,{action:pose,seatMode:seat?'desk':p.pose==='sit-floor'?'floor':undefined,direction:seat?(seat.direction||'back'):active?'front':p.direction||'front',facing:p.facing===-1?'left':p.facing===1?'right':p.facing||'right',phase:p.pose==='climb'?((finite(p.height)/84)%1+1)%1:actor.self?phase:now/(p.pose==='run'?RUN_CYCLE:WALK_CYCLE),grounded:true,gesture:kind,gestureProgress:progress});
+      const ladder=pose==='climb'?ladderPose(p,actor.svg,visualScale):null;
+      window.QPAvatarPose?.apply(actor.svg,{action:pose,seatMode:seat?'desk':p.pose==='sit-floor'?'floor':undefined,direction:seat?(seat.direction||'back'):active?'front':p.direction||'front',facing:p.facing===-1?'left':p.facing===1?'right':p.facing||'right',phase:ladder?ladder.phase:p.pose==='climb'?((finite(p.height)/84)%1+1)%1:actor.self?phase:now/(p.pose==='run'?RUN_CYCLE:WALK_CYCLE),climbIn:ladder?.ease,grounded:true,gesture:kind,gestureProgress:progress});
       actor.poseKey=poseKey;
       }
       // Measure the actual dressed/posed pelvis once per artwork, including
       // its body-proportion transform. A raw SVG Y ignores that transform.
       if(seat&&actor.seatFitKey!==actor.avatarKey){
-        const upper=actor.svg?.querySelector('[data-qpx-pose-part="upper"]'),root=actor.svg?.getCTM(),matrix=upper?.getCTM();
-        if(root&&matrix){actor.seatedHipY=new DOMPoint(16,39.25).matrixTransform(root.inverse().multiply(matrix)).y;actor.seatFitKey=actor.avatarKey;placeAtFeet();}
+        // The reference-body avatar reports its own seated hip (viewBox y);
+        // its desk hips sit lower than the old painted pelvis at 39.25.
+        const hipY=actor.svg?.dataset.qpFoundation?Number(actor.svg.dataset.qpxSeatHipY):NaN;
+        if(Number.isFinite(hipY)&&hipY>0){actor.seatedHipY=hipY;actor.seatFitKey=actor.avatarKey;placeAtFeet();}
+        else{const upper=actor.svg?.querySelector('[data-qpx-pose-part="upper"]'),root=actor.svg?.getCTM(),matrix=upper?.getCTM();
+        if(root&&matrix){actor.seatedHipY=new DOMPoint(16,39.25).matrixTransform(root.inverse().multiply(matrix)).y;actor.seatFitKey=actor.avatarKey;placeAtFeet();}}
       }
       actor.bubble.hidden=!active;if(active)textIfChanged(actor.bubble,g.type==='hello'?'반가워!':g.type==='happy'?'신난다! ✨':'안녕! 👋');
     }

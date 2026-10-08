@@ -5,9 +5,11 @@ Source: assets/avatar-reference-candidates/body-study-2026-10-04.png
 so every part rect and joint below is in original sheet pixels.
 
 Outputs (assets/sd-foundation-ref-*):
-  shirt.png    torso + collar, armhole/arm-covered areas refilled
+  shirt.png    torso + collar; the cloth under the hanging arm and sleeves
+               rebuilt from the cloth around it (see rebuild_cloth), with
+               the torso's own side outline under the sleeves (front/back)
   sleeves.png  sleeves with cuffs
-  shorts.png   shorts, hand-covered areas refilled
+  shorts.png   shorts; the cloth under the hand rebuilt the same way
   shoes.png    shoes and socks
   arms.png     arms; the part hidden in the sleeve extended to the shoulder
   legs.png     legs; the part hidden in the shorts extended to the hip
@@ -241,11 +243,207 @@ def edge_band(mask, width):
     return (mask > .5) & ~eroded
 
 
+# ---------------------------------------------------------------------------
+# Cloth under a hanging arm or sleeve (2026-10-08, stage 2 round 2).
+#
+# The sheet only shows the shirt/shorts around the arm; a swinging arm shows
+# what was under it. The old refill diffused one global median colour into
+# the hole (flat patches, concentric blobs) and kept the arm's outline and
+# cast shadow on the cloth (dark streaks). The hole is now rebuilt from the
+# cloth around it, split in two scales:
+#   shading  the cloth's local plain colour, continued smoothly into the hole
+#            (Laplace equation, boundary = the colour just outside);
+#   detail   weave, seams, hem stitching and hem edge, copied patch by patch
+#            from clean cloth nearby (exemplar inpainting, Criminisi et al.
+#            2004), never from prints: a flower or the acorn is not smeared
+#            into the hole, plain ground continues instead.
+# Patch matching also compares coverage and distance to the garment edge, so
+# a hem edge continues as a hem edge and the interior stays interior.
+# ---------------------------------------------------------------------------
+def local_mean(rgb, weight, radii=(4, 8, 16, 32)):
+    """Mean colour of the weighted pixels around each pixel, widening the
+    radius where none are near (normalized convolution)."""
+    col = rgb * weight[..., None]
+    acc_c = np.zeros_like(rgb, dtype=np.float32); acc_w = np.zeros(weight.shape, np.float32)
+    for radius in radii:
+        bc = np.stack([box_blur(col[..., i], radius) for i in range(3)], -1)
+        bw = box_blur(weight.astype(np.float32), radius)
+        need = acc_w < 1e-3
+        acc_c[need] = bc[need]; acc_w[need] = bw[need]
+    return acc_c / np.maximum(acc_w, 1e-6)[..., None]
+
+
+def lum_of(rgb):
+    return .3 * rgb[..., 0] + .59 * rgb[..., 1] + .11 * rgb[..., 2]
+
+
+def hue_chroma(rgb):
+    a = rgb[..., 0] - (rgb[..., 1] + rgb[..., 2]) / 2
+    b = (rgb[..., 1] - rgb[..., 2]) * .866
+    return np.degrees(np.arctan2(b, a)), np.hypot(a, b)
+
+
+def print_mask(rgb, ground, cloth):
+    """Prints and trims on a cloth (flowers, the acorn, cream collar/cuffs):
+    a clearly coloured hue unlike the cloth's own (`cloth`, the garment's
+    median colour, so a large collar is not taken for ground), much brighter
+    than the local `ground`, or a pale tint on a strongly coloured cloth.
+    Shading (painted shadows are more saturated), lines and the hem
+    stitching are not prints."""
+    hue, chroma = hue_chroma(rgb)
+    ch, cc = hue_chroma(np.asarray(cloth, np.float32))
+    turn = np.abs((hue - ch + 180) % 360 - 180)
+    lift = lum_of(rgb) - lum_of(ground)
+    return ((chroma > 45) & (turn > 40)) | (lift > 70) | ((lift > 30) & (chroma < .5 * cc))
+
+
+def harmonic(values, domain, fixed, iterations=500):
+    """Smooth (Laplace) continuation of `values` into `domain`. `fixed`
+    pixels are the boundary; any other neighbour is left out (zero slope),
+    so the shading also runs smoothly up to a garment edge."""
+    v = values.astype(np.float32).copy()
+    live = np.pad(domain | fixed, 1)
+    nb = [live[:-2, 1:-1], live[2:, 1:-1], live[1:-1, :-2], live[1:-1, 2:]]
+    cnt = np.maximum(sum(n.astype(np.float32) for n in nb), 1)[..., None]
+    nbf = [n[..., None].astype(np.float32) for n in nb]
+    yy, xx = np.mgrid[0:domain.shape[0], 0:domain.shape[1]]
+    halves = [domain & ((yy + xx) % 2 == k) for k in (0, 1)]
+    for _ in range(iterations):
+        for m in halves:  # red-black over-relaxation
+            p = np.pad(v, ((1, 1), (1, 1), (0, 0)))
+            avg = (p[:-2, 1:-1] * nbf[0] + p[2:, 1:-1] * nbf[1] + p[1:-1, :-2] * nbf[2] + p[1:-1, 2:] * nbf[3]) / cnt
+            v[m] += 1.85 * (avg[m] - v[m])
+    return v
+
+
+def inner_distance(mask, cap=10.0):
+    """Distance (px) from each pixel of `mask` to the nearest pixel outside
+    it, capped; exact Euclidean on pixel centres."""
+    h, w = mask.shape
+    out = np.full((h, w), cap, np.float32)
+    edge = ~mask & dilate(mask, 1)
+    oy, ox = np.nonzero(edge)
+    if not len(oy):
+        return out
+    near = mask & dilate(edge, int(cap) + 1)
+    py, px = np.nonzero(near)
+    pts = np.stack([oy, ox], 1).astype(np.float32)
+    for s in range(0, len(py), 2048):
+        q = np.stack([py[s:s + 2048], px[s:s + 2048]], 1).astype(np.float32)
+        d = np.sqrt(((q[:, None, :] - pts[None, :, :]) ** 2).sum(-1)).min(1) - .5
+        out[py[s:s + 2048], px[s:s + 2048]] = np.minimum(d, cap)
+    out[~mask] = 0
+    return out
+
+
+def exemplar(D, A, E, valid, known, todo, patch=4, window=46, w_pos=.03):
+    """Fill the detail image D at `todo` pixels with whole patches copied
+    from centres whose patch lies entirely in `valid` (Criminisi et al.).
+    A (coverage) and E (distance to the garment edge) are known everywhere
+    and must match too. `known` pixels take part in the matching."""
+    from numpy.lib.stride_tricks import sliding_window_view as windows
+    h, w = todo.shape
+    k = 2 * patch + 1
+    D = D.copy(); todo = todo.copy(); filled = known & ~todo
+    conf = filled.astype(np.float32)
+    vsum =np.asarray(Image.fromarray(valid.astype(np.uint8) * 255).filter(ImageFilter.MinFilter(k))) > 127
+    vsum[:patch, :] = vsum[-patch:, :] = False; vsum[:, :patch] = vsum[:, -patch:] = False
+    cy, cx = np.nonzero(vsum)
+    if not len(cy):
+        return D
+    pad = lambda a: np.pad(a, [(patch, patch), (patch, patch)] + [(0, 0)] * (a.ndim - 2))
+    Ap, Ep = pad(A.astype(np.float32)), pad(E.astype(np.float32))
+    srcA = windows(Ap, (k, k))[cy, cx]; srcE = windows(Ep, (k, k))[cy, cx]
+    srcD = windows(pad(D.astype(np.float32)), (k, k), axis=(0, 1))[cy, cx]  # (n,3,k,k)
+    srcIn = srcA > .5
+    while todo.any():
+        Dp, Fp = pad(D), pad(filled)
+        gray = lum_of(D)
+        # Front: to-do pixels touching anything already settled.
+        front = todo & dilate(~todo, 1)
+        fy, fx = np.nonzero(front)
+        if not len(fy):
+            break
+        # Confidence of each front patch.
+        cbar = box_blur(conf, patch)[fy, fx]
+        # Data term: isophote strength across the front (structure first).
+        gp = np.pad(np.where(filled, gray, np.nan), 1)
+        gx = (gp[1:-1, 2:] - gp[1:-1, :-2]) / 2; gy = (gp[2:, 1:-1] - gp[:-2, 1:-1]) / 2
+        gx = np.nan_to_num(gx)[fy, fx]; gy = np.nan_to_num(gy)[fy, fx]
+        m = box_blur(filled.astype(np.float32), 1)
+        mp = np.pad(m, 1, mode='edge')
+        nx = ((mp[1:-1, 2:] - mp[1:-1, :-2]) / 2)[fy, fx]; ny = ((mp[2:, 1:-1] - mp[:-2, 1:-1]) / 2)[fy, fx]
+        nl = np.hypot(nx, ny) + 1e-6
+        data = np.abs(-gy * nx / nl + gx * ny / nl) / 64 + .02
+        pick = int(np.argmax(cbar * data - 1e-9 * (fy * w + fx)))
+        py, px = int(fy[pick]), int(fx[pick])
+        tD = Dp[py:py + k, px:px + k]; tA = Ap[py:py + k, px:px + k]; tE = Ep[py:py + k, px:px + k]
+        tK = Fp[py:py + k, px:px + k]
+        near = (np.abs(cy - py) <= window) & (np.abs(cx - px) <= window)
+        idx = np.nonzero(near)[0]
+        if not len(idx):
+            idx = np.arange(len(cy))
+        sD, sA, sE = srcD[idx], srcA[idx], srcE[idx]
+        nk = max(1, tK.sum())
+        cost = (((sD - tD.transpose(2, 0, 1)[None]) ** 2).sum(1) * tK).sum((1, 2)) / nk
+        cost += ((sA - tA) ** 2).sum((1, 2)) * (255 ** 2) / (k * k)
+        both = srcIn[idx] & (tA > .5)
+        cost += (((sE - tE) * 24) ** 2 * both).sum((1, 2)) / np.maximum(1, both.sum((1, 2)))
+        cost += w_pos * ((cy[idx] - py) ** 2 + (cx[idx] - px) ** 2)
+        best = idx[int(np.argmin(cost))]
+        put = todo[max(0, py - patch):py + patch + 1, max(0, px - patch):px + patch + 1]
+        oy, ox = max(0, py - patch) - (py - patch), max(0, px - patch) - (px - patch)
+        patchD = srcD[best].transpose(1, 2, 0)[oy:oy + put.shape[0], ox:ox + put.shape[1]]
+        region = D[max(0, py - patch):py + patch + 1, max(0, px - patch):px + patch + 1]
+        region[put] = patchD[put]
+        conf[max(0, py - patch):py + patch + 1, max(0, px - patch):px + patch + 1][put] = cbar[pick]
+        filled[max(0, py - patch):py + patch + 1, max(0, px - patch):px + patch + 1][put] = True
+        put[:] = False
+    return D
+
+
+def rebuild_cloth(rgb, painted, target, todo, prints, plain_only=False):
+    """Shading and detail for the `todo` pixels of one garment (their sum is
+    the colour). `painted` is the sheet coverage of the garment, `target`
+    the final coverage (equal to it outside the hole). `plain_only` keeps
+    only the weave in the copied detail (a torso side under the sleeve has
+    no seam or hem to continue; a stray line fragment there read as a mark)."""
+    Lf = np.zeros(rgb.shape, np.float32); Df = np.zeros(rgb.shape, np.float32)
+    ys, xs = np.nonzero(todo)
+    if not len(ys):
+        return Lf, Df
+    m = 64
+    y0, y1 = max(0, ys.min() - m), min(rgb.shape[0], ys.max() + m + 1)
+    x0, x1 = max(0, xs.min() - m), min(rgb.shape[1], xs.max() + m + 1)
+    C = rgb[y0:y1, x0:x1].astype(np.float32); P = painted[y0:y1, x0:x1]; T = target[y0:y1, x0:x1]
+    hole = todo[y0:y1, x0:x1]; pr = prints[y0:y1, x0:x1]
+    source = (P > .95) & ~hole
+    # Plain ground: the cloth without prints, outlines or seams.
+    L1 = local_mean(C, (source & ~pr).astype(np.float32))
+    hue, chroma = hue_chroma(C)
+    ch, cc = hue_chroma(np.median(C[source & ~pr], axis=0).astype(np.float32))
+    own = (np.abs((hue - ch + 180) % 360 - 180) < 35) & (chroma > .25 * cc)
+    plain = source & ~pr & own & (np.abs(C - L1).sum(-1) < 40)
+    L = local_mean(C, plain.astype(np.float32))
+    L = harmonic(L, hole, source & ~hole)
+    Dt = np.where(source[..., None], C - L, 0)
+    near_hole = dilate(hole, 1)
+    valid = ((source & ~dilate(pr, 2)) | ((P < .02) & (T < .02))) & ~near_hole
+    E = inner_distance(T > .5, 12.0)
+    Dt = exemplar(Dt, T, E, valid, source & ~pr, hole & (T > 0))
+    if plain_only:
+        weave = 3 * np.median(np.abs(Dt[plain])) + 1
+        Dt = np.where(hole[..., None], np.clip(Dt, -weave, weave), Dt)
+    Lf[y0:y1, x0:x1] = L; Df[y0:y1, x0:x1] = Dt
+    return Lf, Df
+
+
 def build():
     sheet = np.asarray(Image.open(SRC).convert('RGBA')).astype(np.float32)
     H, W = sheet.shape[:2]
     layers = {k: np.zeros((H, W, 4), np.float32) for k in ('shirt', 'sleeves', 'shorts', 'shoes', 'arms', 'legs', 'neck')}
     labels = np.zeros((H, W), np.int8)  # debug: 1 shirt 2 sleeve 3 arm 4 shorts 5 leg 6 shoe
+    arm_given = np.zeros((H, W), bool)
     meta = {}
     for key, f in FIGURES.items():
         x0, y0, x1, y1 = CELLS[key]
@@ -296,8 +494,15 @@ def build():
         for poly in f['arms']:
             arm_zone = np.maximum(arm_zone, poly_mask((h, w), loc(poly)))
         # Cream well above the cuff is the collar, which a side-view sleeve
-        # zone can touch; it stays with the shirt.
+        # zone can touch; it stays with the shirt. The white petals of a
+        # sleeve's flower passed the same colour test and were left on the
+        # shirt (a pale petal on the torso, a hole in the sleeve's flower once
+        # the arm moved): cream around a flower's yellow centre is a petal
+        # unless it joins the collar under the cut.
         collar_cream = (r_ > 232) & (g_ > 226) & (b_ > 170) & ~skin & (Y < f['cuff_top'] - 25)
+        flower_heart = (r_ > 200) & (g_ > 120) & (g_ < 215) & (b_ < 100) & (r_ - b_ > 120)
+        joined = connected(collar_cream | cream, collar_cream & (Y < cut + 12))
+        collar_cream &= joined | ~dilate(flower_heart, 9)
         for poly in f['sleeves']:
             z = poly_mask((h, w), loc(poly))
             sel = body & (z > 0) & ~assigned & ~dilate(collar_cream, 1)
@@ -346,23 +551,274 @@ def build():
         for n in part:
             part[n] = np.where(total > 1, part[n] / np.maximum(total, 1e-6), part[n]) * alpha
         rgb = cell[..., :3]
-        # Refill torso under the sleeves / arm, then outline the refilled edge.
+        cols_x = np.arange(w)[None, :]
+
+        def garment_prints(painted, hole):
+            """Prints/trims of one garment (see print_mask) from its own local
+            ground colour, grown 1 px over their soft edges."""
+            src = (painted > .95) & ~hole
+            cloth = np.median(rgb[src], axis=0)
+            # Ground from pixels of the cloth's own hue only: a large cream
+            # collar must not lift the ground it is judged against.
+            hue, chroma = hue_chroma(rgb)
+            ch, cc = hue_chroma(cloth.astype(np.float32))
+            own = src & (np.abs((hue - ch + 180) % 360 - 180) < 30) & (chroma > .35 * cc)
+            g1 = local_mean(rgb, own.astype(np.float32), (12, 24, 48))
+            pr = print_mask(rgb, g1, cloth) & (painted > .5)
+            return dilate(pr, 1) & (painted > .2), g1
+
+        def edge_cover(painted, hole, bottom):
+            """Side views: coverage below the garment's bottom edge (or above
+            its top edge) in the columns where the arm hid it, interpolated
+            from the painted edge either side (the hem and waist keep their
+            curve instead of the straight bottom of a traced zone)."""
+            known_x, known_e = [], []
+            for x in range(w):
+                rows = np.nonzero(painted[:, x] > .5)[0]
+                if not len(rows):
+                    continue
+                r = int(rows.max() if bottom else rows.min())
+                lo, hi = max(0, r - 6), min(h, r + 7)
+                if hole[lo:hi, x].any():
+                    continue
+                band = painted[lo:hi, x].sum()
+                known_x.append(x); known_e.append(lo + band if bottom else hi - band)
+            e = np.interp(np.arange(w), known_x, known_e)[None, :]
+            yy = np.arange(h)[:, None].astype(np.float32)
+            return np.clip(e - yy, 0, 1) if bottom else np.clip(yy + 1 - e, 0, 1)
+
+        def side_outline(painted):
+            """Front/back: the torso's own outline under each hanging sleeve.
+
+            On the sheet the sleeve hides the torso side above the armpit, so
+            a swinging or raised arm showed a straight traced edge with a notch
+            where the painted side began, and pale scraps of the cuff. The new
+            outline continues the painted side contour from the armpit, curves
+            out under the sleeve and meets the sheet's shoulder outline at the
+            shoulder point. Where the sleeve's sewn edge is feathered into the
+            shirt (the seam fade below), it keeps CLEAR px outside the seam, so
+            no torso outline shows through at rest."""
+            CLEAR = 9.0
+            c = f['center']
+            sides = []
+            for sp in f['sleeves']:
+                s = -1 if np.mean([p[0] for p in sp]) < c else 1
+                seam = sp[:3] if abs(sp[0][0] - c) < abs(sp[-1][0] - c) else sp[-3:]
+                seam = sorted(seam, key=lambda p: p[1])
+                yc = max(p[1] for p in sp if abs(p[0] - seam[-1][0]) < 10)
+                rows, edges = [], []
+                for yy in range(int(yc) + 2, int(yc) + 26):
+                    ly = yy - y0
+                    cs = np.nonzero(painted[ly] > .5)[0]
+                    cs = cs[(cs + x0 - c) * s > 0]
+                    if not len(cs):
+                        continue
+                    xe = int(cs.max() if s > 0 else cs.min())
+                    frac = painted[ly, xe + s] if 0 <= xe + s < w else 0
+                    edges.append(xe + x0 + .5 + s * (.5 + frac)); rows.append(yy + .5)
+                slope, icpt = np.polyfit(rows, edges, 1)
+                line = lambda yv: slope * yv + icpt
+                A = np.array([line(yc + 1.5), yc + 1.5])
+                xS = seam[0][0] + s * CLEAR
+                col = alpha[:, int(round(xS - x0))]
+                r0 = int(np.nonzero((col > .5) & (np.arange(h) + y0 > cut[0, int(round(xS - x0))]))[0][0])
+                S = np.array([xS, r0 + y0 + 1 - col[r0]])
+                k_ = .45 * (A[1] - S[1])
+                t = np.linspace(0, 1, 64)[:, None]
+                P = [A, A + [0, -k_], S + [s * .15 * k_, k_], S]
+                curve = ((1 - t) ** 3) * P[0] + 3 * ((1 - t) ** 2) * t * P[1] + 3 * (1 - t) * t * t * P[2] + t ** 3 * P[3]
+                # Keep clear of the feathered seam (the fade is off within 14 px
+                # of the cuff end, see the sleeve fade below).
+                sy = [p[1] for p in seam]; sx = [p[0] for p in seam]
+                need = np.clip((seam[-1][1] - 14 - curve[:, 1]) / 8, 0, 1) * CLEAR
+                limit = np.interp(curve[:, 1], sy, sx) + s * need
+                curve[:, 0] = np.minimum(curve[:, 0], limit) if s < 0 else np.maximum(curve[:, 0], limit)
+                for _ in range(3):  # soften any corner the limit made
+                    curve[1:-1, 0] = (curve[:-2, 0] + curve[1:-1, 0] + curve[2:, 0]) / 3
+                low = yc + 70
+                poly = [(c, y0 + 1), (xS, y0 + 1)] + [tuple(p) for p in curve[::-1]] + [(line(low), low), (c, low)]
+                sides.append(dict(s=s, A=A, S=S, line=line, yc=yc, poly=poly))
+            cov = np.zeros((h, w), np.float32)
+            for sd in sides:
+                cov = np.maximum(cov, poly_mask((h, w), loc(sd['poly'])))
+            return cov, sides
+
+        def outline_profile(painted, samples, ground):
+            """A painted side contour, as colour relative to the local cloth by
+            distance from the edge (px). `samples`: (sheet row, side) pairs,
+            side -1 for a contour facing -x."""
+            # Rows are aligned on their darkest line pixel before taking the
+            # median, so the line keeps the painted darkness instead of
+            # being smeared by its sub-pixel wobble.
+            rows = []
+            for yy, s in samples:
+                if True:
+                    ly = yy - y0
+                    cs = np.nonzero(painted[ly] > .5)[0]
+                    cs = cs[(cs + x0 - f['center']) * s > 0]
+                    if not len(cs):
+                        continue
+                    xe = int(cs.max() if s > 0 else cs.min())
+                    e = xe + .5 + s * (.5 + (painted[ly, xe + s] if 0 <= xe + s < w else 0))
+                    inside = [int(np.floor(e - s * (k + .5))) for k in range(4)]
+                    dark = min(inside, key=lambda x: lum_of(rgb[ly, x]))
+                    rows.append((ly, s, e, abs(dark + .5 - e)))
+            line_at = float(np.median([r[3] for r in rows]))
+            prof = []
+            for ly, s, e, at in rows:
+                ref = ground[ly, int(round(e - s * 10))]
+                xs_ = e - s * (np.arange(9) + .5 + (at - line_at))
+                vals = np.stack([np.interp(xs_ - .5, np.arange(w), rgb[ly, :, ch]) for ch in range(3)], -1)
+                prof.append(vals / np.maximum(ref, 1))
+            R = np.median(np.array(prof), 0)
+            R = R / R[-1]
+            # The outermost sample is the sheet's white-mixed fringe (coverage
+            # gives the new edge its own soft rim), and past the line the
+            # painted rim light and form shadow are kept only as a smooth
+            # falloff: a crisp copy read as a second outline along the curve.
+            R[0] = R[1]
+            for _ in range(2):
+                tail = np.pad(R[3:], ((1, 1), (0, 0)), mode='edge')
+                R[3:] = (tail[:-2] + tail[1:-1] + tail[2:]) / 3
+            return R
+
+        def draw_outline(out, L, Dt, todo, R, dist):
+            """Paint profile R (from outline_profile) on the rebuilt pixels
+            within 8 px of a new garment edge (`dist`: px from that edge)."""
+            near = todo & (dist < 8)
+            di = np.clip(dist, 0, 8)
+            ratio = np.stack([np.interp(di, np.arange(9) + .5, R[:, ch]) for ch in range(3)], -1)
+            wgt = np.clip((di - 3) / 4, 0, 1)[..., None]
+            edge_col = np.clip(L * ratio + Dt * wgt * wgt, 0, 255)
+            return np.where(near[..., None], edge_col, out)
+
         def refill(name, polygon, under):
-            sil = poly_mask((h, w), loc(polygon))
-            have = part[name] > .9
-            # Diffuse only the cloth's own ground colour: prints, flowers and
-            # outlines smeared into the hidden area as pale ghosts.
-            ground = np.median(rgb[have], axis=0)
-            plain = have & (np.abs(rgb - ground).sum(-1) < 70)
-            colors = fill_colors(cell, plain)
-            # Only refill where the sheet was painted (under a sleeve, arm or
-            # hand); the outer contour stays the sheet's own outline.
-            hole = (sil > 0) & (part[name] < .9) & (sum(part[u] for u in under) > .05)
-            out_rgb = np.where(hole[..., None], colors, rgb)
-            cover = np.maximum(part[name], np.where(hole, sil, 0))
-            # No drawn outline along the refilled edge: it showed through the
-            # sleeve's feathered seam as a line the reference does not have.
-            return out_rgb, cover
+            """Opaque cloth wherever an arm, hand or sleeve covered this
+            garment on the sheet, continuing the cloth around it."""
+            painted = part[name].copy()
+            others = sum(part[u] for u in under)
+            side = f['view'] == 'right'
+            hue, chroma = hue_chroma(rgb)
+            warm = (hue > -15) & (hue < 65) & (chroma > 12)  # skin, outline browns
+            white = (rgb.min(-1) > 205) & (rgb.max(-1) - rgb.min(-1) < 30)  # petals
+            # Arm/cuff colours; a vivid yellow flower heart is cloth (the arm's
+            # edge is a duller warm colour and can touch a flower's petals).
+            armish = (skin | shade | cream | warm) & (chroma < 90)
+            if side:
+                zone = list(polygon)
+                if name == 'shirt':
+                    # The hem comes from edge_cover; the traced zone stopped at
+                    # a straight row above it (a step under the arm).
+                    low = max(p[1] for p in zone)
+                    zone = [(x, y + 12 if y == low else y) for x, y in zone]
+                sil = poly_mask((h, w), loc(zone))
+                sides = None
+            else:
+                # The side contour is measured on cloth-coloured pixels only:
+                # shaded skin of the arm left on the shirt beside the torso
+                # widened it.
+                clothy = np.where(armish, 0, painted)
+                sil, sides = side_outline(clothy)
+            hole = (sil > 0) & (painted < .9) & (others > .05)
+            prints, ground = garment_prints(painted, hole)
+            covered = dilate(others > .5, 3)
+            # Scraps of the cuff and the skin under it painted on the cloth
+            # next to the cuff (not the white petals of a print). On the new
+            # outline they are cut away (no coverage there). They belong to
+            # the cuff or arm next to them, which takes them over.
+            real_print = prints & ~small_islands(prints, 40)
+            scraps = (painted > .05) & dilate(sil > .5, 2) & covered & (skin | shade | cream | warm) & ~white & ~collar_cream & ~real_print & (Y > f['cuff_top'] - 25)
+            hole |= scraps
+            ring = np.zeros((h, w), bool)
+            if side:
+                # The outline and cast shadow of the arm and sleeve painted on
+                # the cloth around them (the sleeve's back edge, the cap's
+                # arc, the arm's sides): they streaked the cloth once the arm
+                # swung away. The collar keeps its own outline.
+                wide = local_mean(rgb, ((painted > .95) & ~hole & ~prints).astype(np.float32), (12, 24, 48))
+                darker = lum_of(rgb) < lum_of(wide) - 8
+                redder = (rgb[..., 0] - rgb[..., 1]) > (wide[..., 0] - wide[..., 1]) + 12
+                owner = dilate(part['arm'] > .5, 5) | dilate(part['sleeve'] > .5, 4)
+                # A print keeps its pixels; a few print-coloured specks (the
+                # cuff's brown edge) are not a print (real_print above).
+                # The figure's own outer contour stays: where the female sleeve
+                # forms her back on the sheet, the shirt owns that outline and
+                # it is the torso's back line once the arm swings.
+                contour = dilate(alpha < .5, 3)
+                # Every print keeps its outline (the acorn's stem lies 3 px from
+                # the sleeve) except specks touching the arm or sleeve.
+                keep_print = prints & ~connected(prints, prints & dilate(others > .5, 1))
+                ring = owner & (painted >= .9) & (sil > .5) & ~dilate(keep_print, 2) & ~contour & (darker | redder) & ~dilate(collar_cream, 4)
+                if name == 'shorts':
+                    # On the shorts the dark arc under the fist stays: once the
+                    # hand moves it reads as the pocket's opening, and at rest
+                    # it is the fist's shadow. Only the hand's own warm outline
+                    # leaves (handed to the arm below).
+                    ring &= warm
+                hole |= ring
+                cover = np.minimum(sil, alpha)
+                if name == 'shirt':
+                    cover = np.minimum(cover, edge_cover(painted, hole, bottom=True))
+                # The shorts keep the traced zone's top under the shirt hem: it
+                # is never seen, and the shorts picture keeps its size (the
+                # shorts mesh is laid over that rectangle, so a smaller one
+                # redrew the resting shorts a little differently).
+            else:
+                cover = np.minimum(sil, alpha)
+                # Shirt left outside the new outline above the armpit (cuff
+                # ends, petals) is not shirt.
+                above = np.zeros((h, w), bool)
+                for sd in sides:
+                    above |= (Y < sd['A'][1]) & ((cols_x + x0 - f['center']) * sd['s'] > 0)
+                stray = above & (painted > 0) & ~dilate(sil > 0, 1)
+                # Below the armpit, the shaded skin of the hanging arm beside
+                # the torso failed the arm's colour test and was left on the
+                # shirt (a pale block beside the torso once the arm swung).
+                beside = np.zeros((h, w), bool)
+                for sd in sides:
+                    beside |= (Y >= sd['A'][1]) & (Y < sd['yc'] + 26) & ((cols_x + x0 - f['center']) * sd['s'] > 0)
+                arm_bits = beside & (painted > .05) & ~dilate(sil > .5, 1) & armish & ~white
+                scraps |= arm_bits
+                painted = np.where(stray | arm_bits, 0, painted)
+            target = np.where(hole, cover, painted)
+            todo = hole & (target > 0)
+            L, Dt = rebuild_cloth(rgb, painted, target, todo, prints, plain_only=not side)
+            out = np.where(todo[..., None], np.clip(L + Dt, 0, 255), rgb)
+            if DEBUG_DIR:
+                os.makedirs(DEBUG_DIR, exist_ok=True)
+                tag = os.path.join(DEBUG_DIR, key + '-' + name)
+                Image.fromarray(np.clip(np.where(todo[..., None], L, rgb), 0, 255).astype(np.uint8)).save(tag + '-shading.png')
+                Image.fromarray(np.clip(np.where(todo[..., None], 128 + 2 * Dt, 128), 0, 255).astype(np.uint8)).save(tag + '-detail.png')
+                Image.fromarray((np.stack([todo, prints, target > .5], -1) * 255).astype(np.uint8)).save(tag + '-masks.png')
+            if sides:
+                # The new outline takes the painted contour's look.
+                R = outline_profile(clothy, [(yy, sd['s']) for sd in sides for yy in range(int(sd['yc']) + 3, int(sd['yc']) + 26)], ground)
+                out = draw_outline(out, L, Dt, todo, R, inner_distance(target > .5, 8.0))
+            # Hand over what the arm or sleeve itself painted on this cloth, so
+            # the figure at rest keeps the sheet's edges and the moving part
+            # carries them: cuff scraps, the warm outline of the arm or hand
+            # and the dark outline of the sleeve where it lay on the cloth
+            # (opaque, as painted; a translucent copy doubled up where the
+            # limb's warped triangles overlap). Seams and pocket lines of the
+            # cloth next to the hand stay cloth (they are not warm), and the
+            # soft cast shadow is cloth rebuilt without it: it belongs to
+            # neither part once the arm moves.
+            near_sleeve = box_blur((part['sleeve'] > .5).astype(np.float32), 4)
+            near_arm = box_blur((part['arm'] > .5).astype(np.float32), 4)
+            to_arm = near_arm > near_sleeve
+            give = scraps.copy()
+            if side:
+                give |= ring & dilate(part['arm'] > .5, 3) & warm & (lum_of(rgb) < lum_of(wide) - 10)
+                # The sleeve cap's outline and its soft shadow on the shoulder
+                # (green on green, it moves with the cap).
+                give |= ring & dilate(part['sleeve'] > .5, 4) & ~dilate(part['arm'] > .5, 3) & (Y < f['cuff_top'])
+            # Only pixels joined to the part's own paint: a detached speck rode
+            # beside the swinging sleeve as a floating stroke.
+            arm_own, sleeve_own = part['arm'] > .5, part['sleeve'] > .5
+            give = (give & to_arm & connected((give & to_arm) | arm_own, arm_own)) | (give & ~to_arm & connected((give & ~to_arm) | sleeve_own, sleeve_own))
+            handover.append(dict(mask=give, rgb=rgb, a=np.where(give, part[name], 0), arm=to_arm))
+            return out, target
+        handover = []
         shirt_rgb, shirt_a = refill('shirt', f['torso_fill'], ('sleeve', 'arm'))
         shorts_rgb, shorts_a = (refill('shorts', f['shorts_fill'], ('arm',)) if 'shorts_fill' in f else (rgb, part['shorts']))
         # Arms/legs: extend the top painted row upward to the joint (inside
@@ -469,6 +925,14 @@ def build():
             shirt_rgb = np.where(orphan[..., None], rgb, shirt_rgb)
             shirt_a = np.maximum(shirt_a, orphan * alpha)
 
+        # Cloth pixels handed back to the sleeve or arm that painted them (see
+        # refill), before the pin-hole pass: at rest the two shares add up to
+        # the sheet's pixel again. Limb radii are measured without them.
+        for it in handover:
+            arm_given[y0:y1, x0:x1] |= it['mask'] & it['arm']
+            for sel, a_ in ((it['mask'] & it['arm'], limb_a['arm']), (it['mask'] & ~it['arm'], part['sleeve'])):
+                a_[sel] = np.minimum(alpha[sel], a_[sel] + it['a'][sel])
+
         # Close pin-holes: painted pixels that no layer took (left between
         # neighbouring cuts) join the layer that covers most of their
         # surroundings, so no seam shows the background.
@@ -567,6 +1031,9 @@ def build():
         # side-view sleeve cap has its own painted seam.
         sleeve_a = part['sleeve']
         if f['view'] != 'right':
+            # A print on the sleeve (the female sleeve's flower at the shoulder)
+            # stays opaque: it is the sleeve's own and moves with it.
+            sleeve_print, _ = garment_prints(part['sleeve'], np.zeros((h, w), bool))
             yy, xx = np.mgrid[0:h, 0:w] + np.array([y0, x0])[:, None, None] + .5
             for poly in f['sleeves']:
                 # The traced seam is the three points nearest the body centre.
@@ -579,7 +1046,7 @@ def build():
                 end = max(p[1] for p in seam)
                 fade = np.clip(d / 6, 0, 1); fade = fade * fade * (3 - 2 * fade)
                 keep = np.clip((yy - (end - 22)) / 8, 0, 1)  # cuff end stays crisp
-                sleeve_a = sleeve_a * np.maximum(fade, keep)
+                sleeve_a = sleeve_a * np.maximum(np.maximum(fade, keep), sleeve_print)
         put('sleeves', rgb, sleeve_a)
         put('shorts', shorts_rgb, shorts_a)
         put('shoes', rgb, part['shoe'])
@@ -592,11 +1059,17 @@ def build():
     for name, L in layers.items():
         clean_edges(L)
         drop_specks(L)
+    # Limb widths are measured on the painted limbs alone: an outline pixel
+    # handed over in refill must not widen the joints' radii.
+    measure = dict(layers); measure['arms'] = np.where(arm_given[..., None], 0, layers['arms'])
+    radii = {key: radii_for(measure, f) for key, f in FIGURES.items()}
     # Last pin-holes: a painted sheet pixel left in no layer but enclosed by
     # neck/shirt pixels (cleaning can open one at a three-layer junction).
     trio = [layers[n] for n in ('neck', 'shirt', 'sleeves')]
     solid = [L[..., 3] > 200 for L in trio]
-    empty = (sheet[..., 3] > 200) & ~np.logical_or.reduce([L[..., 3] > 30 for L in trio])
+    # A pixel the arm paints is not a hole (it put skin scraps on the shirt
+    # at the armpit, seen once the arm moved).
+    empty = (sheet[..., 3] > 200) & ~np.logical_or.reduce([L[..., 3] > 30 for L in trio + [layers['arms']]])
     counts = [box_blur(m.astype(np.float32), 1) * 9 for m in solid]
     total = sum(counts)
     best = np.argmax(np.stack(counts), 0)
@@ -607,7 +1080,7 @@ def build():
         Image.fromarray(L.astype(np.uint8)).save(os.path.join(OUT, 'sd-foundation-ref-' + name + '.png'), optimize=True)
     for key, f in FIGURES.items():
         meta[key]['rects'] = rects_for(layers, CELLS[key], f)
-        meta[key]['radii'] = radii_for(layers, f)
+        meta[key]['radii'] = radii[key]
     data = {'source': 'assets/avatar-reference-candidates/body-study-2026-10-04.png', 'figures': meta}
     with open(os.path.join(OUT, 'sd-foundation-ref-data.js'), 'w') as fh:
         fh.write('/* Generated by tools/build-reference-body.py. Sheet pixels. Do not edit. */\n'
@@ -759,7 +1232,10 @@ def debug(sheet, labels, directory):
         bg.convert('RGB').save(os.path.join(directory, name + '.png'))
 
 
+DEBUG_DIR = None
 if __name__ == '__main__':
+    if '--debug' in sys.argv:
+        DEBUG_DIR = os.path.join(sys.argv[sys.argv.index('--debug') + 1], 'refill')
     sheet, labels = build()
     if '--debug' in sys.argv:
         debug(sheet, labels, sys.argv[sys.argv.index('--debug') + 1])
