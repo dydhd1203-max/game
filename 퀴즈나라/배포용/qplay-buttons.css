@@ -1,0 +1,131 @@
+/* QPlay-style buttons in the forest palette (2026-10-08 user reference).
+   A flat, slightly rounded plate: 1px dark rim, a thin white top highlight,
+   a darker inner bottom and a hard 1px drop shadow. White NanumSquareRound
+   ExtraBold labels with a crisp 1px outline. Loaded last so it replaces the
+   older candy/sprite button materials everywhere. Colours are variables; the
+   base shop list uses :where() so the colour-by-job rules below always win. */
+:root {
+  --qb-radius: 5px;
+}
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qp-demo-toolbar button, .qpc-button),
+html body .starlight-shop :where(#tbBack, #shopClose, .shop-card-action, .qp-shop-switch .tab, #shGroups .tab, #shTabs .tab, .shop-featured .btn, #shInfo .btn, .shop-fitting-controls .btn) {
+  --qb-top: #a6d77f; --qb-mid: #73b44d; --qb-low: #548f38;
+  --qb-edge: #2f5e22; --qb-ink: #24481a; --qb-drop: #1e3a14;
+  border: 1px solid var(--qb-edge) !important;
+  border-radius: var(--qb-radius) !important;
+  background: linear-gradient(var(--qb-top), var(--qb-mid) 48%, var(--qb-low)) !important;
+  box-shadow: inset 0 1px 0 #ffffffd9, inset 0 -2px 0 #0000001f, 1px 2px 0 var(--qb-drop) !important;
+  color: #fff !important;
+  font-family: "QuizDisplay", "NanumSquareRound", "Malgun Gothic", sans-serif !important;
+  font-weight: 400 !important;
+  letter-spacing: 0 !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: 1px 0 var(--qb-ink), -1px 0 var(--qb-ink), 0 1px var(--qb-ink), 0 -1px var(--qb-ink),
+    1px 1px var(--qb-ink), -1px -1px var(--qb-ink), 1px -1px var(--qb-ink), -1px 1px var(--qb-ink) !important;
+}
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qp-demo-toolbar button, .qpc-button, .icb)::before,
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qp-demo-toolbar button, .qpc-button, .icb)::after {
+  content: none !important;
+  display: none !important;
+}
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qp-demo-toolbar button, .qpc-button) :is(span, b, small, .candy-label) {
+  color: inherit !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: inherit !important;
+}
+
+/* Colour by job. */
+html body :is(.btn.y, .lgGoBtn),
+html body .starlight-shop #shInfo .btn:not(:disabled) {
+  --qb-top: #ffe08a; --qb-mid: #f2b93b; --qb-low: #d8901e; --qb-edge: #8a5a10; --qb-ink: #6b420a; --qb-drop: #4a2e06;
+}
+html body :is(.btn.g, .lgWide:not(.ex)),
+html body .starlight-shop .shop-card-action {
+  --qb-top: #b9e66f; --qb-mid: #7cc23e; --qb-low: #5aa02a; --qb-edge: #336617; --qb-ink: #285214; --qb-drop: #1e3a10;
+}
+html body :is(.btn.p, .tab.on, .qp-demo-toolbar button.on),
+html body .starlight-shop :is(.qp-shop-switch .tab.on, #shGroups .tab.on, #shTabs .tab.on, .shop-featured .btn, .shop-fitting-controls .btn.p) {
+  --qb-top: #6fd6c9; --qb-mid: #24a597; --qb-low: #188a7e; --qb-edge: #0f5a52; --qb-ink: #0b4740; --qb-drop: #083832;
+}
+html body :is(.btn.gray, .lgWide.ex, .tab:not(.on)),
+html body .starlight-shop :is(.qp-shop-switch .tab:not(.on), #shGroups .tab:not(.on), #shTabs .tab:not(.on), .shop-fitting-controls .btn:not(.p)) {
+  --qb-top: #e2b37d; --qb-mid: #c08546; --qb-low: #9f6a31; --qb-edge: #5e3a18; --qb-ink: #4a2c10; --qb-drop: #36200b;
+}
+html body :is(.btn.red, .btn.danger, .qp-demo-toolbar [data-exit], #tbOut),
+html body .starlight-shop :is(#tbBack, #shopClose) {
+  --qb-top: #f49a82; --qb-mid: #e0553c; --qb-low: #c23e28; --qb-edge: #7a2316; --qb-ink: #6b1d12; --qb-drop: #4a130c;
+}
+/* Number keys stay a calm wood so the green 입장 button leads. */
+html body .lgPad button {
+  --qb-top: #f3d6a6; --qb-mid: #dcb070; --qb-low: #c39352; --qb-edge: #7a5426; --qb-ink: #5e3d16; --qb-drop: #3f280d;
+}
+
+/* Icon tiles keep their toy icons on a cream wooden plate of the same build. */
+html body .icb {
+  border: 1px solid #9c7434 !important;
+  border-radius: 6px !important;
+  background: linear-gradient(#fff8e6, #f1ddb0 48%, #dcc08a) !important;
+  box-shadow: inset 0 1px 0 #ffffffe6, inset 0 -2px 0 #0000001a, 1px 2px 0 #6b4a1f !important;
+  -webkit-text-stroke: 0 !important;
+}
+html body .icb .qp-tool-label { color: #4a3418 !important; text-shadow: none !important; }
+
+/* Press: the plate sinks one pixel and loses its drop shadow. */
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qp-demo-toolbar button, .qpc-button, .icb):not(:disabled):is(:active, .qp-pressed),
+html body .starlight-shop :is(#tbBack, #shopClose, .shop-card-action, .qp-shop-switch .tab, #shGroups .tab, #shTabs .tab, .shop-featured .btn, #shInfo .btn, .shop-fitting-controls .btn):not(:disabled):is(:active, .qp-pressed) {
+  box-shadow: inset 0 1px 2px #00000040, inset 0 -1px 0 #ffffff40 !important;
+  translate: 1px 1px !important;
+  scale: none !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qpc-button, .icb):not(:disabled):hover,
+  html body .starlight-shop :is(#tbBack, #shopClose, .shop-card-action, #shGroups .tab, #shTabs .tab, .shop-featured .btn, #shInfo .btn, .shop-fitting-controls .btn):not(:disabled):hover {
+    filter: brightness(1.07);
+  }
+}
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qpc-button, .icb):disabled,
+html body .starlight-shop #shInfo .btn:disabled {
+  --qb-top: #e9e1cf; --qb-mid: #d6cbb3; --qb-low: #c2b496; --qb-edge: #8f826a; --qb-ink: #6e6450; --qb-drop: #5a5242;
+  filter: none;
+  opacity: .85;
+}
+html body :is(.btn, .tab, .lgGoBtn, .lgWide, .lgPad button, .qpc-button, .icb):focus-visible,
+html body .starlight-shop button:focus-visible {
+  outline: 3px solid #f2c14e !important;
+  outline-offset: 2px !important;
+}
+
+/* The shop's close control is a square plate like the rest. */
+html body .starlight-shop .starlight-header #shopClose {
+  width: 44px; height: 44px; min-width: 44px; padding: 0 0 3px;
+  font-size: 30px !important; line-height: 1;
+}
+
+/* Map tools and gesture buttons share the same plate. */
+html body :is(.sr-tools button, .sr-controls button, .wm-open, .wm-current, .wm-close) {
+  --qb-top: #e2b37d; --qb-mid: #c08546; --qb-low: #9f6a31; --qb-edge: #5e3a18; --qb-ink: #4a2c10; --qb-drop: #36200b;
+  border: 1px solid var(--qb-edge) !important;
+  border-radius: var(--qb-radius) !important;
+  background: linear-gradient(var(--qb-top), var(--qb-mid) 48%, var(--qb-low)) !important;
+  box-shadow: inset 0 1px 0 #ffffffd9, inset 0 -2px 0 #0000001f, 1px 2px 0 var(--qb-drop) !important;
+  color: #fff !important;
+  font-family: "QuizDisplay", "NanumSquareRound", "Malgun Gothic", sans-serif !important;
+  font-weight: 400 !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: 1px 0 var(--qb-ink), -1px 0 var(--qb-ink), 0 1px var(--qb-ink), 0 -1px var(--qb-ink),
+    1px 1px var(--qb-ink), -1px -1px var(--qb-ink), 1px -1px var(--qb-ink), -1px 1px var(--qb-ink) !important;
+}
+html body :is(.wm-open, .sr-controls .sr-interact:not(:disabled)) {
+  --qb-top: #6fd6c9; --qb-mid: #24a597; --qb-low: #188a7e; --qb-edge: #0f5a52; --qb-ink: #0b4740; --qb-drop: #083832;
+}
+html body .wm-close {
+  --qb-top: #f49a82; --qb-mid: #e0553c; --qb-low: #c23e28; --qb-edge: #7a2316; --qb-ink: #6b1d12; --qb-drop: #4a130c;
+}
+html body :is(.sr-tools button, .sr-controls button, .wm-open, .wm-current, .wm-close) kbd {
+  color: #3b2a1a; text-shadow: none; background: #fff6df; border: 1px solid #9c7434; border-radius: 3px;
+}
+html body :is(.sr-tools button, .sr-controls button, .wm-open, .wm-current, .wm-close):not(:disabled):active {
+  box-shadow: inset 0 1px 2px #00000040, inset 0 -1px 0 #ffffff40 !important;
+  translate: 1px 1px;
+}
+html body .sr-controls button:disabled { opacity: .7; filter: saturate(.4); }

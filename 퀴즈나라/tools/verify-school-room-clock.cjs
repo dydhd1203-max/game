@@ -55,7 +55,7 @@ const executablePath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
       await page.locator('.school-room-world').focus();
       await page.keyboard.press('KeyF');
       assert.equal(await page.evaluate(() => __schoolClockCheck.published.some(record => record.patch.gesture)), false, 'F away from a door must not publish a greeting');
-      await page.locator('[data-gesture="wave"]').click();
+      await page.keyboard.press('Digit1');
       await page.waitForFunction(() => document.querySelector('.sr-actor.is-me svg')?.dataset.qpxGesture === 'wave', null, { timeout: 3000 });
       const sent = await page.evaluate(() => __schoolClockCheck.published.find(record => record.patch.gesture?.type === 'wave'));
       assert(sent, 'The greeting button must publish an actual wave');

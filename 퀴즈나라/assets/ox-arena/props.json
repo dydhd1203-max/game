@@ -1,0 +1,609 @@
+{
+  "date": "2026-10-08",
+  "purpose": "서바이벌 OX 경기장 테두리 장식. 제공 grass-library 시트의 회색 배경만 투명하게 하고 원본 픽셀을 잘라 묶었다.",
+  "atlas": "assets/ox-arena/props.webp",
+  "size": [
+    1600,
+    1116
+  ],
+  "sha256": "904d0ff8e1b67623e91229011d7b973fbab4b83e881205940439806154ef60c0",
+  "sources": [
+    {
+      "file": "assets/grass-library/originals/grass-04a100cf56f96f38.jpg",
+      "sha256": "04a100cf56f96f383ebfdf2a5626f04273f182cc4a6971ab10acac666b441288"
+    },
+    {
+      "file": "assets/grass-library/originals/grass-3adcd041039e6510.jpg",
+      "sha256": "3adcd041039e651012d0b457b6d185b6b6770958f5ed411091d2c02f0b5ed807"
+    },
+    {
+      "file": "assets/grass-library/originals/grass-35b4bd69298c03e5.jpg",
+      "sha256": "35b4bd69298c03e558ba2eeffc7d13e853e87110f3488edd8d3bf53aacccd837"
+    },
+    {
+      "file": "assets/grass-library/originals/grass-e9e7ca0a7a22c639.jpg",
+      "sha256": "e9e7ca0a7a22c6395d9484c432ea628f82eaf08ec68539ef597996d557be50ae"
+    },
+    {
+      "file": "assets/grass-library/originals/grass-a80d4fcd6bd2cc14.jpg",
+      "sha256": "a80d4fcd6bd2cc1469cc2da19e3ecd4ce7adf91fdd9fc8fe6f31860b363fcc27"
+    },
+    {
+      "file": "assets/grass-library/originals/grass-478a345536ca4289.jpg",
+      "sha256": "478a345536ca4289956f4d90604a5abdca1f6c8c3f73ee691a9fb0aec641f6f8"
+    },
+    {
+      "file": "assets/grass-library/originals/grass-f2c32b677d82780f.jpg",
+      "sha256": "f2c32b677d82780f3669fc43a346a4327d54bdc059614f50694e648b116980b6"
+    },
+    {
+      "file": "assets/grass-library/originals/grass-2cb94b18e258bda9.jpg",
+      "sha256": "2cb94b18e258bda98bad5eb5263fbf0139874bbcc40549d7db80a672e7ceadb6"
+    },
+    {
+      "file": "assets/grass-library/originals/grass-13d83ff525c1d669.jpg",
+      "sha256": "13d83ff525c1d6692bdfddf6af04eca486456f8831a3f9af9696594810a658f4"
+    },
+    {
+      "file": "assets/grass-library/originals/grass-35abc978719c5d23.jpg",
+      "sha256": "35abc978719c5d23104333ab980277792f46a7120d2c6afe14be16864821724f"
+    },
+    {
+      "file": "assets/grass-library/originals/grass-d5818d0c6df4ff4e.jpg",
+      "sha256": "d5818d0c6df4ff4e2f05181140e1bd385546568ec9f21caca6694c3652995e22"
+    }
+  ],
+  "props": [
+    {
+      "id": "flower-0",
+      "kind": "flower",
+      "rect": [
+        0,
+        0,
+        281,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-04a100cf56f96f38.jpg",
+        "rect": [
+          356,
+          310,
+          380,
+          298
+        ]
+      }
+    },
+    {
+      "id": "daisy-1",
+      "kind": "daisy",
+      "rect": [
+        285,
+        0,
+        201,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-3adcd041039e6510.jpg",
+        "rect": [
+          442,
+          916,
+          294,
+          321
+        ]
+      }
+    },
+    {
+      "id": "daisy-2",
+      "kind": "daisy",
+      "rect": [
+        490,
+        0,
+        293,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-3adcd041039e6510.jpg",
+        "rect": [
+          431,
+          605,
+          305,
+          229
+        ]
+      }
+    },
+    {
+      "id": "daisy-3",
+      "kind": "daisy",
+      "rect": [
+        787,
+        0,
+        221,
+        200
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-3adcd041039e6510.jpg",
+        "rect": [
+          515,
+          365,
+          221,
+          200
+        ]
+      }
+    },
+    {
+      "id": "redflower-4",
+      "kind": "redflower",
+      "rect": [
+        1012,
+        0,
+        263,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-35b4bd69298c03e5.jpg",
+        "rect": [
+          0,
+          715,
+          361,
+          302
+        ]
+      }
+    },
+    {
+      "id": "redflower-5",
+      "kind": "redflower",
+      "rect": [
+        1279,
+        0,
+        267,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-35b4bd69298c03e5.jpg",
+        "rect": [
+          398,
+          733,
+          332,
+          274
+        ]
+      }
+    },
+    {
+      "id": "redflower-6",
+      "kind": "redflower",
+      "rect": [
+        0,
+        224,
+        358,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-35b4bd69298c03e5.jpg",
+        "rect": [
+          350,
+          285,
+          386,
+          237
+        ]
+      }
+    },
+    {
+      "id": "rock-7",
+      "kind": "rock",
+      "rect": [
+        362,
+        224,
+        254,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-e9e7ca0a7a22c639.jpg",
+        "rect": [
+          0,
+          37,
+          352,
+          305
+        ]
+      }
+    },
+    {
+      "id": "rock-8",
+      "kind": "rock",
+      "rect": [
+        620,
+        224,
+        260,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-e9e7ca0a7a22c639.jpg",
+        "rect": [
+          401,
+          646,
+          335,
+          284
+        ]
+      }
+    },
+    {
+      "id": "rock-9",
+      "kind": "rock",
+      "rect": [
+        884,
+        224,
+        275,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-e9e7ca0a7a22c639.jpg",
+        "rect": [
+          3,
+          654,
+          346,
+          277
+        ]
+      }
+    },
+    {
+      "id": "rock-10",
+      "kind": "rock",
+      "rect": [
+        1163,
+        224,
+        227,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-a80d4fcd6bd2cc14.jpg",
+        "rect": [
+          493,
+          198,
+          233,
+          226
+        ]
+      }
+    },
+    {
+      "id": "rock-11",
+      "kind": "rock",
+      "rect": [
+        0,
+        448,
+        229,
+        193
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-a80d4fcd6bd2cc14.jpg",
+        "rect": [
+          11,
+          254,
+          229,
+          193
+        ]
+      }
+    },
+    {
+      "id": "tuft-12",
+      "kind": "tuft",
+      "rect": [
+        233,
+        448,
+        295,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-478a345536ca4289.jpg",
+        "rect": [
+          398,
+          318,
+          338,
+          252
+        ]
+      }
+    },
+    {
+      "id": "tuft-13",
+      "kind": "tuft",
+      "rect": [
+        532,
+        448,
+        311,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-478a345536ca4289.jpg",
+        "rect": [
+          363,
+          968,
+          373,
+          264
+        ]
+      }
+    },
+    {
+      "id": "bush-14",
+      "kind": "bush",
+      "rect": [
+        847,
+        448,
+        226,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-f2c32b677d82780f.jpg",
+        "rect": [
+          0,
+          625,
+          400,
+          389
+        ]
+      }
+    },
+    {
+      "id": "bush-15",
+      "kind": "bush",
+      "rect": [
+        1077,
+        448,
+        223,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-f2c32b677d82780f.jpg",
+        "rect": [
+          389,
+          686,
+          341,
+          337
+        ]
+      }
+    },
+    {
+      "id": "bush-16",
+      "kind": "bush",
+      "rect": [
+        1304,
+        448,
+        280,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-f2c32b677d82780f.jpg",
+        "rect": [
+          0,
+          322,
+          334,
+          262
+        ]
+      }
+    },
+    {
+      "id": "clover-17",
+      "kind": "clover",
+      "rect": [
+        0,
+        672,
+        264,
+        204
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-2cb94b18e258bda9.jpg",
+        "rect": [
+          0,
+          1022,
+          264,
+          204
+        ]
+      }
+    },
+    {
+      "id": "clover-18",
+      "kind": "clover",
+      "rect": [
+        268,
+        672,
+        220,
+        162
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-2cb94b18e258bda9.jpg",
+        "rect": [
+          510,
+          158,
+          220,
+          162
+        ]
+      }
+    },
+    {
+      "id": "clover-19",
+      "kind": "clover",
+      "rect": [
+        492,
+        672,
+        208,
+        138
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-2cb94b18e258bda9.jpg",
+        "rect": [
+          513,
+          332,
+          208,
+          138
+        ]
+      }
+    },
+    {
+      "id": "roundbush-20",
+      "kind": "roundbush",
+      "rect": [
+        704,
+        672,
+        233,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-13d83ff525c1d669.jpg",
+        "rect": [
+          0,
+          889,
+          378,
+          357
+        ]
+      }
+    },
+    {
+      "id": "roundbush-21",
+      "kind": "roundbush",
+      "rect": [
+        941,
+        672,
+        438,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-13d83ff525c1d669.jpg",
+        "rect": [
+          0,
+          682,
+          522,
+          262
+        ]
+      }
+    },
+    {
+      "id": "roundbush-22",
+      "kind": "roundbush",
+      "rect": [
+        1383,
+        672,
+        120,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-13d83ff525c1d669.jpg",
+        "rect": [
+          0,
+          230,
+          258,
+          472
+        ]
+      }
+    },
+    {
+      "id": "roundbush-23",
+      "kind": "roundbush",
+      "rect": [
+        0,
+        896,
+        126,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-13d83ff525c1d669.jpg",
+        "rect": [
+          487,
+          258,
+          249,
+          435
+        ]
+      }
+    },
+    {
+      "id": "orangeflower-24",
+      "kind": "orangeflower",
+      "rect": [
+        130,
+        896,
+        242,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-35abc978719c5d23.jpg",
+        "rect": [
+          6,
+          357,
+          428,
+          389
+        ]
+      }
+    },
+    {
+      "id": "orangeflower-25",
+      "kind": "orangeflower",
+      "rect": [
+        376,
+        896,
+        240,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-35abc978719c5d23.jpg",
+        "rect": [
+          26,
+          47,
+          333,
+          305
+        ]
+      }
+    },
+    {
+      "id": "yellowflower-26",
+      "kind": "yellowflower",
+      "rect": [
+        620,
+        896,
+        288,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-d5818d0c6df4ff4e.jpg",
+        "rect": [
+          21,
+          950,
+          357,
+          273
+        ]
+      }
+    },
+    {
+      "id": "yellowflower-27",
+      "kind": "yellowflower",
+      "rect": [
+        912,
+        896,
+        259,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-d5818d0c6df4ff4e.jpg",
+        "rect": [
+          379,
+          945,
+          330,
+          280
+        ]
+      }
+    },
+    {
+      "id": "yellowflower-28",
+      "kind": "yellowflower",
+      "rect": [
+        1175,
+        896,
+        238,
+        220
+      ],
+      "source": {
+        "file": "assets/grass-library/originals/grass-d5818d0c6df4ff4e.jpg",
+        "rect": [
+          11,
+          540,
+          246,
+          227
+        ]
+      }
+    }
+  ]
+}

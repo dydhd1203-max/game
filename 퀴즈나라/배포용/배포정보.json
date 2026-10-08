@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-08T00:21:07.444Z",
+  "builtAt": "2026-10-08T01:56:52.257Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -28,6 +28,11 @@
       "path": "world-explorer.css",
       "bytes": 11641,
       "sha256": "bfc9b4c72870328f3e48c78826baac8773900e1294f162e183dc46bf90fa64c0"
+    },
+    {
+      "path": "qplay-buttons.css",
+      "bytes": 7624,
+      "sha256": "e3e6b7cb2c480600b6203247c8d5fa35cd7694317146d670807a8109d5ed0d8d"
     },
     {
       "path": "assets/world-life/leaf-panel.png",
@@ -106,8 +111,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 327009,
-      "sha256": "9f1379c837600dfefffb9c2032482709e06efdc07bb5673292533ccad28bcc44"
+      "bytes": 330256,
+      "sha256": "82d43cb34ac6fa1bb7701d93c1ffc857277642911dd85c7a5a19bdf23ad77ea9"
     },
     {
       "path": "avatar-image.js",
@@ -180,9 +185,24 @@
       "sha256": "638078d0768e38803a34cc905f4597eb077c3dda01f4daefd7d617996e19cd5a"
     },
     {
-      "path": "game-typography.css",
-      "bytes": 5081,
-      "sha256": "68d3e36e2b3d3f05b2ef6921e215a3313c3c7bbc27b792a06a4a36d4868283c9"
+      "path": "candy-title.js",
+      "bytes": 1923,
+      "sha256": "94d2225561a53475bd1502abedb0e58d3838d24490ebe091ca45369b07de2317"
+    },
+    {
+      "path": "candy-title.css",
+      "bytes": 4235,
+      "sha256": "8d24e55900ff4e443cb218044bec36c8687609a4b0f78039e9b21030c10a617e"
+    },
+    {
+      "path": "quizquiz.js",
+      "bytes": 63978,
+      "sha256": "206a1556725dba4dab33b92de5eaa164643e6bc984ea1365fef8de6c7abb08e1"
+    },
+    {
+      "path": "quizquiz.css",
+      "bytes": 39469,
+      "sha256": "3b436804047d6d0adc447af2cb0120a765592674f2b1d29c64ae379f3719e2c6"
     },
     {
       "path": "forest-village-theme.css",
@@ -191,18 +211,13 @@
     },
     {
       "path": "shop-village.css",
-      "bytes": 28112,
-      "sha256": "893aa86d0d59284351dd9eff0c6b477d91a6927d84473a419fc4f70d53360e21"
+      "bytes": 26287,
+      "sha256": "1a144e83d8430144452490881a1e8c530d07d487b994105d6790dbc6857675c5"
     },
     {
       "path": "assets/forest-shop.png",
-      "bytes": 3105766,
-      "sha256": "4d40419034e6b680cd68da6b97601a5e9421f9367877b1ac15981843fe987e90"
-    },
-    {
-      "path": "assets/forest-shop-buttons.png",
-      "bytes": 2301329,
-      "sha256": "eb045871e75320bebedddd85aacffdaff86cff3c2a769f5facc3ef70eeb63f32"
+      "bytes": 3104627,
+      "sha256": "e86dac5e35156d2273897bd63a5aaeee0b8304f10934e82a032df0c877d98992"
     },
     {
       "path": "readability.css",
@@ -286,13 +301,13 @@
     },
     {
       "path": "school-room-world.js",
-      "bytes": 51460,
-      "sha256": "3a172bf33cb01d683f7d52ae0e60a913fde01c997bca34658eaf449a4445d2cc"
+      "bytes": 51084,
+      "sha256": "a12a0e582df3f820316b6afaa0d9dd6c1a90f2a8949b08a0974ebe50bab149e2"
     },
     {
       "path": "school-room-world.css",
-      "bytes": 5469,
-      "sha256": "986ed21968fed1d7484af810aea57d41d4b18f822a09192d7529bef87153b6b6"
+      "bytes": 5296,
+      "sha256": "62df19b425b4b3b8679ca716318e2ed63225a13ed6cbd83b54b3bad7a91a4791"
     },
     {
       "path": "playground-scene.js",
@@ -301,8 +316,8 @@
     },
     {
       "path": "village-presence.js",
-      "bytes": 25551,
-      "sha256": "9639fb2aaab20c56d8a5f0885a5d9e36c24dec34b8cd1df3a12b1540f12b15a6"
+      "bytes": 25691,
+      "sha256": "8940c0030a821df5e41b371d6ed70b7fb5535200d663c31d5780352d0c40da1f"
     },
     {
       "path": "assets/classroom-library/originals/classroom-e41eb583796fc7b8.png",
@@ -365,11 +380,6 @@
       "sha256": "b72a5b4381514a1fcd01bcb54acfe252bea33432839e0335dcf8857a8d597272"
     },
     {
-      "path": "assets/forest-shop-props.png",
-      "bytes": 1335175,
-      "sha256": "17cf130b71ed502336e00c2b998c2b73a488f652dddad6de1ff801faf5d48fe0"
-    },
-    {
       "path": "assets/frame-library/originals/frame-6b99379d3662c645.jpg",
       "bytes": 66946,
       "sha256": "6b99379d3662c645c14e9bcc2b69e9d8a02f7a303e9475dea6b4a7625534c1d9"
@@ -411,8 +421,8 @@
     },
     {
       "path": "quiz-brand.css",
-      "bytes": 5376,
-      "sha256": "0c92249e10efa33e4b8647079acd4d571c4cbdbdf50c8a6b7f5d18c7b5ddada2"
+      "bytes": 3570,
+      "sha256": "2bb0fde449ada086dd7d7d130cc082c6c0cbe52ce416b63fa6270cb8539632f3"
     },
     {
       "path": "assets/quiz-brand-trim.svg",
@@ -723,6 +733,26 @@
       "path": "assets/quiz-studio.webp",
       "bytes": 316556,
       "sha256": "e0424c0e55c5a2d2b091f85fd500b091174c9d291c891cc4ed02cde2848dd8ca"
+    },
+    {
+      "path": "assets/fonts/Jua-Regular.ttf",
+      "bytes": 2119352,
+      "sha256": "769677aef240bfc3b9965f2b50748075bff885e6c6992fc591a3fb268279f898"
+    },
+    {
+      "path": "assets/fonts/Jua-OFL.txt",
+      "bytes": 4342,
+      "sha256": "44a7c6e4c5572392ae122d3b1d8c6ba6fd640a7797e675384585d947f2773e3c"
+    },
+    {
+      "path": "assets/fonts/Fredoka-Variable.ttf",
+      "bytes": 159184,
+      "sha256": "2ba02e68b152868aef9ba28e24b3648c7d457fe6f25c761f2c2c53fb61a73fc8"
+    },
+    {
+      "path": "assets/fonts/Fredoka-OFL.txt",
+      "bytes": 4388,
+      "sha256": "5c9e7eee5c6b25f4b05b8d53b2e470ea4962f9ced742d044a98f7d95d1375bab"
     },
     {
       "path": "assets/fonts/NanumSquareRoundR.ttf",

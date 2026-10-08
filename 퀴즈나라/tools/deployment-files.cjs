@@ -1,7 +1,7 @@
 module.exports=[
   'world-map.js','world-life-school.js','assets/world-life/school-foliage.webp',
   'world-life.js',
-  'world-explorer.css',
+  'world-explorer.css','qplay-buttons.css',
   'assets/world-life/leaf-panel.png','assets/world-life/map-scroll.png',
   'assets/world-life/mole.webp',
   'assets/world-life/parchment-frame.png',
@@ -18,8 +18,8 @@ module.exports=[
   'avatar-local-transform.js',
   '_headers',
   'index.html','avatar-image.js','assets/avatar-file-data.js','avatar-pixel.js','avatar-clothes.js','avatar-effects.js','avatar-pets.js','avatar-shoes.js','qplay.css','button-feedback.css','demo.js',
-  'candy-controls.css','candy-panels.css','candy-game.css','ui-icons.js',
-  'game-typography.css','forest-village-theme.css','shop-village.css','assets/forest-shop.png','assets/forest-shop-buttons.png','readability.css',
+  'candy-controls.css','candy-panels.css','candy-game.css','ui-icons.js','candy-title.js','candy-title.css','quizquiz.js','quizquiz.css','assets/painted-grass-ground.png','ox-arena-props.js','assets/ox-arena/props.webp',
+  'qplay-theme.css','shop-village.css','assets/forest-shop.png','readability.css',
   'assets/forest-village-library/original-resolution/maps/plaza.png',
   'assets/forest-village-library/original-resolution/maps/garden.png',
   'assets/forest-village-library/original-resolution/maps/treehouse.png',
@@ -40,7 +40,7 @@ module.exports=[
   'assets/playground-library/originals/playground-664d4d7c187e5a6d.png',
   'assets/playground-library/originals/playground-81e65dc5a2f422ef.png',
   'assets/playground-library/originals/playground-ccfc75db92f8db32.png',
-  'assets/forest-village-frame.png','assets/forest-shop-props.png',
+  'assets/forest-village-frame.png',
   'assets/frame-library/originals/frame-6b99379d3662c645.jpg',
   'woodland-home.css','assets/woodland-forest.svg','assets/wood-planks.svg',
   'assets/woodland-home-painted.png','assets/woodland-home-painted-mobile.png',
@@ -62,6 +62,6 @@ module.exports=[
   'assets/pixel-pets-v2.png',
   'assets/sd-shoes.png','assets/sd-shoes-parts.png',
   'assets/quiz-studio.webp',
-  'assets/fonts/NanumSquareRoundR.ttf','assets/fonts/NanumSquareRoundB.ttf','assets/fonts/NanumSquareRoundEB.ttf',
+  'assets/fonts/Jua-Regular.ttf','assets/fonts/Jua-OFL.txt','assets/fonts/Fredoka-Variable.ttf','assets/fonts/Fredoka-OFL.txt','assets/fonts/NanumSquareRoundR.ttf','assets/fonts/NanumSquareRoundB.ttf','assets/fonts/NanumSquareRoundEB.ttf',
   'assets/fonts/NanumSquareRound-OFL.txt','assets/fonts/NanumSquareRound-출처.md'
 ];

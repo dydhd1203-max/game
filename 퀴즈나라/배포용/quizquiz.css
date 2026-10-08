@@ -1,0 +1,391 @@
+/* QUIZQUIZ lobby, waiting room and stage quiz (quizquiz.js).
+   QPlay layout and beats; forest wood, parchment, moss and jade; hand-drawn outlines. */
+.qq-root { position: absolute; inset: var(--qp-top-height, 64px) 0 0; overflow: hidden; }
+
+/* QPlay-style window: dark wood rim, light wood step, title strip, parchment inside. */
+.qq-win {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border: 2px solid #4a2c10;
+  border-radius: 8px;
+  background: #fff4d8;
+  box-shadow: inset 0 0 0 3px #d9a464, inset 0 0 0 5px #8a5a2b, 0 3px 0 #2c1a08, 0 6px 14px #0004;
+  overflow: hidden;
+}
+.qq-win-h {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  margin: 5px 5px 0;
+  padding: 6px 12px 7px;
+  border-radius: 4px 4px 0 0;
+  background: linear-gradient(#a8703a, #8a5a2b 55%, #74491f);
+  box-shadow: inset 0 1px 0 #e9b77e, inset 0 -2px 0 #5a3410;
+}
+.qq-win-h h2 {
+  margin: 0;
+  font: 400 17px/1.2 "QuizDisplay", "NanumSquareRound", sans-serif;
+  color: #fff;
+  text-shadow: 1px 0 #4a2c10, -1px 0 #4a2c10, 0 1px #4a2c10, 0 -1px #4a2c10, 1px 1px #4a2c10, -1px -1px #4a2c10, 1px -1px #4a2c10, -1px 1px #4a2c10;
+}
+.qq-count { margin-left: auto; font: 800 13px "NanumSquareRound", sans-serif; color: #fff1cf; background: #4a2c10aa; border-radius: 10px; padding: 1px 9px; }
+.qq-tag { display: inline-block; margin: 0 4px; padding: 0 6px; border-radius: 6px; font: 800 11px/1.6 "NanumSquareRound", sans-serif; vertical-align: 1px; }
+.qq-tag.teacher { color: #fff; background: #1f8f84; border: 1px solid #0f5a52; }
+
+/* Living forest backdrop shared by lobby and stage. */
+.qq-lobby, .qq-stage { position: absolute; inset: 0; background: #1d3a2e url("./assets/woodland-home-painted.png") center / cover no-repeat; isolation: isolate; }
+.qq-lobby::before { content: ""; position: absolute; inset: 0; background: linear-gradient(#0e241933, #0e2419aa); z-index: -1; }
+.qq-ambient { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 0; }
+.qq-ray { position: absolute; top: -20%; width: 16%; height: 140%; background: linear-gradient(#fff7c855, #fff7c800 70%); transform: rotate(18deg); transform-origin: top; animation: qq-ray 9s ease-in-out infinite; mix-blend-mode: screen; }
+.qq-ray.r1 { left: 34%; } .qq-ray.r2 { left: 50%; width: 9%; animation-delay: -3s; } .qq-ray.r3 { left: 62%; width: 12%; animation-delay: -6s; }
+@keyframes qq-ray { 0%, 100% { opacity: .25; } 50% { opacity: .75; } }
+.qq-fly { position: absolute; width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(#fffbd0, #ffe36e 45%, #ffe36e00 72%); box-shadow: 0 0 10px 3px #ffe36e66;
+  animation: qq-drift 7s ease-in-out infinite alternate, qq-blink 2.6s steps(4, end) infinite; }
+@keyframes qq-drift { from { transform: translate(0, 0); } 50% { transform: translate(22px, -16px); } to { transform: translate(-14px, 10px); } }
+@keyframes qq-blink { 0%, 60% { opacity: 1; } 80% { opacity: .2; } 100% { opacity: .9; } }
+.qq-fall { position: absolute; top: -6%; width: 22px; animation: qq-fall 12s linear infinite; opacity: .9; }
+@keyframes qq-fall { 0% { transform: translate(0, 0) rotate(0); } 25% { transform: translate(30px, 28vh) rotate(90deg); } 50% { transform: translate(-10px, 56vh) rotate(200deg); } 75% { transform: translate(26px, 84vh) rotate(290deg); } 100% { transform: translate(0, 112vh) rotate(380deg); } }
+
+/* ───────── Lobby: the QUIZ plaza and its wooden room notice board ───────── */
+.qq-lobby { display: grid; grid-template-columns: minmax(0, 1fr) 250px; grid-template-rows: 182px minmax(0, 1fr) 112px; gap: 10px 14px; padding: 6px 18px 14px; }
+.qq-lobby::before { content: ""; position: absolute; inset: 0; background: linear-gradient(#0e241900 0%, #0e241955 45%, #0e2419b0 100%); z-index: -1; }
+
+/* Plaza band: swinging sign, friends on the moss, me on my stump. */
+.qq-plaza { grid-row: 1; grid-column: 1 / -1; position: relative; z-index: 1; min-height: 0; }
+.qq-plaza::after { content: ""; position: absolute; left: 20%; right: 24%; bottom: -10px; height: 46px; border-radius: 50%; background: radial-gradient(ellipse at 50% 60%, #7cc23e8c, #4f8a3c55 50%, #0000 70%); filter: blur(3px); z-index: -1; }
+.qq-lights { position: absolute; left: 240px; right: 300px; top: -4px; height: 46px; pointer-events: none; }
+.qq-lights svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.qq-bulb { position: absolute; width: 9px; height: 12px; translate: -50% 0; border-radius: 50% 50% 45% 45%; border: 1px solid #3b2510; animation: qq-bulb 3s steps(3, end) infinite; }
+.qq-bulb::before { content: ""; position: absolute; top: -4px; left: 2px; width: 3px; height: 4px; background: #3b2510; border-radius: 1px; }
+.qq-bulb.b0 { background: #ffe36e; box-shadow: 0 0 10px 3px #ffe36e88; }
+.qq-bulb.b1 { background: #ffb59f; box-shadow: 0 0 10px 3px #ffb59f88; }
+.qq-bulb.b2 { background: #9ff0e2; box-shadow: 0 0 10px 3px #9ff0e288; }
+@keyframes qq-bulb { 0%, 55% { opacity: 1; } 70% { opacity: .35; box-shadow: none; } 85% { opacity: .8; } }
+.qq-plaza-row { position: absolute; left: 250px; right: 310px; top: 0; bottom: 6px; display: flex; align-items: flex-end; justify-content: center; gap: 0; }
+.qq-pal { position: relative; display: grid; justify-items: center; width: 80px; flex: none; animation: qq-hopidle 6.2s steps(4, end) infinite; animation-delay: calc(var(--i) * -1.37s); }
+.qq-pal-avatar { height: 108px; display: grid; place-items: end center; }
+.qq-pal-avatar > svg { height: 108px; width: auto; overflow: visible; }
+.qq-pal b { margin-top: -3px; max-width: 78px; padding: 1px 7px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid #4a2c10; border-radius: 8px; background: #fff4d8; font: 800 11px "NanumSquareRound", sans-serif; color: #3b2a1a; }
+.qq-pal.away .qq-pal-avatar { filter: saturate(.7) brightness(.92); }
+.qq-pal.away b::after { content: " · 게임 중"; color: #c0661e; }
+.qq-pal .qq-say, .qq-me .qq-say { bottom: calc(100% - 6px); }
+.qq-plaza-empty { position: absolute; left: 250px; right: 310px; bottom: 40px; margin: 0; text-align: center; font: 800 15px "NanumSquareRound", sans-serif; color: #fff7de; text-shadow: 0 1px 3px #000a; }
+@keyframes qq-hopidle { 0%, 84%, 100% { transform: translateY(0); } 88% { transform: translateY(-10px); } 92% { transform: translateY(0) scaleY(.96); } 96% { transform: translateY(-3px); } }
+
+.qq-sign { position: absolute; left: 6px; top: -6px; width: 232px; transform-origin: 50% 0; animation: qq-sway 4.8s ease-in-out infinite; }
+.qq-rope { position: absolute; top: 0; width: 4px; height: 28px; border-radius: 2px; background: repeating-linear-gradient(#d9bb86 0 4px, #8a6a3a 4px 7px); }
+.qq-rope.l { left: 28%; } .qq-rope.r { right: 28%; }
+.qq-sign-board { margin-top: 26px; padding: 10px 12px 9px; text-align: center; border: 3px solid #4a2c10; border-radius: 12px;
+  background: repeating-linear-gradient(90deg, #ffffff0a 0 2px, #0000 2px 10px), linear-gradient(#b07440, #8e5a2b 52%, #7a4a22);
+  box-shadow: inset 0 2px 0 #e9b77e, inset 0 -3px 0 #5a3410, 0 4px 0 #2c1a08, 0 10px 18px #0005; }
+.qq-sign-board .qp-candy { font-size: 34px; }
+.qq-sign-board small { display: block; margin-top: 3px; font: 800 12px "NanumSquareRound", sans-serif; color: #fff3d6; text-shadow: 0 1px 0 #4a2c10; }
+@keyframes qq-sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+
+.qq-me { position: absolute; right: 4px; top: 0; bottom: 0; width: 300px; display: grid; grid-template-columns: 150px 1fr; align-items: end; gap: 10px; }
+.qq-me-stage { position: relative; height: 100%; display: grid; place-items: end center; }
+.qq-me-avatar { position: relative; z-index: 2; height: 140px; margin-bottom: 24px; }
+.qq-me-avatar > svg { height: 140px; width: auto; overflow: visible; }
+.qq-stump { position: absolute; left: 50%; bottom: 0; width: 150px; height: 56px; translate: -50% 0; background: url("./assets/wood-stump.svg") center / contain no-repeat; z-index: 1; }
+.qq-hang { position: absolute; top: -6px; left: 50%; z-index: 3; display: grid; justify-items: center; translate: -50% 0; transform-origin: 50% 0; animation: qq-sway 5.6s ease-in-out infinite reverse; }
+.qq-hang i { position: absolute; top: 0; width: 2px; height: 16px; background: #8a6a3a; }
+.qq-hang i:first-child { left: 30%; } .qq-hang i:nth-child(2) { right: 30%; }
+.qq-hang b { margin-top: 14px; padding: 3px 14px 4px; white-space: nowrap; border: 2px solid #6b2f0c; border-radius: 8px; background: linear-gradient(#ffb15c, #f0832d 60%, #d86a1c);
+  font: 400 15px "QuizDisplay", sans-serif; color: #fff; box-shadow: inset 0 1px 0 #ffd9a8, 0 2px 0 #3e1a06;
+  text-shadow: 1px 0 #6b2f0c, -1px 0 #6b2f0c, 0 1px #6b2f0c, 0 -1px #6b2f0c, 1px 1px #6b2f0c, -1px -1px #6b2f0c; }
+.qq-me-plates { display: grid; gap: 8px; margin-bottom: 18px; }
+.qq-num { display: flex; align-items: center; gap: 6px; padding: 4px 12px 4px 6px; border: 2px solid #8a5a10; border-radius: 16px; background: linear-gradient(#fffbe6, #ffe9a6); font: 800 13px "NanumSquareRound", sans-serif; color: #5a3a1e; box-shadow: 0 2px 0 #5a3a10; }
+.qq-num b { font: 700 19px "QuizLatin", "QuizDisplay", sans-serif; color: #3b2a1a; }
+.qq-num.teacher { padding: 6px 10px; font-size: 12px; line-height: 1.4; }
+.qq-coin-ico { width: 22px; height: 22px; flex: none; border-radius: 50%; border: 2px solid #b47208; background: radial-gradient(circle at 35% 30%, #fffcd3, #ffd84b 50%, #e99a16); }
+.qq-cap { position: relative; display: block; height: 26px; border: 2px solid #2f5e22; border-radius: 14px; background: #1f3d24; overflow: hidden; box-shadow: 0 2px 0 #12301a; }
+.qq-cap i { position: absolute; inset: 0 auto 0 0; border-radius: 12px; background: linear-gradient(#b9e66f, #5aa02a); }
+.qq-cap b { position: relative; display: block; text-align: center; font: 800 12px/22px "NanumSquareRound", sans-serif; color: #fff; text-shadow: 0 1px 0 #1d3a14, 0 0 3px #1d3a14; }
+
+/* The board: wooden planks, iron nails, a candy title and paper tags. */
+.qq-wall { grid-row: 2; grid-column: 1; position: relative; z-index: 1; display: flex; flex-direction: column; min-height: 0; padding: 8px 12px 10px; border: 3px solid #4a2c10; border-radius: 14px;
+  background: repeating-linear-gradient(90deg, #ffffff07 0 2px, #0000 2px 11px), repeating-linear-gradient(0deg, #a26b35 0 46px, #8e5a2b 46px 48px);
+  box-shadow: inset 0 0 0 4px #c98e4f, inset 0 0 0 6px #5e3a18, inset 0 10px 18px #0003, 0 4px 0 #2c1a08, 0 12px 26px #0006; }
+.qq-wall::before, .qq-wall::after { content: ""; position: absolute; top: 10px; width: 11px; height: 11px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #f3e1c0, #8d7a62 60%, #4f3e2a); box-shadow: 0 1px 0 #2c1a08; }
+.qq-wall::before { left: 11px; } .qq-wall::after { right: 11px; }
+.qq-wall-h { display: flex; align-items: center; gap: 12px; flex: none; padding: 2px 20px 6px 24px; }
+.qq-wall-h h2 { margin: 0; font-size: 28px; line-height: 1; }
+.qq-filter { display: flex; gap: 7px; margin-left: 6px; }
+.qq-chip { position: relative; padding: 4px 12px 5px 19px; border: 2px solid #7a5426; border-radius: 5px 12px 12px 5px; background: linear-gradient(#fffbea, #f1dfb5); font: 800 13px "NanumSquareRound", sans-serif; color: #4a3418; cursor: pointer; box-shadow: 0 2px 0 #3b2510; }
+.qq-chip::before { content: ""; position: absolute; left: 6px; top: 50%; width: 6px; height: 6px; translate: 0 -50%; border-radius: 50%; background: #7a5426; }
+.qq-chip.on { border-color: #0f5a52; background: linear-gradient(#c8f4ec, #7fd6c9); color: #0b4740; }
+.qq-chip.on::before { background: #0f5a52; }
+.qq-chip:focus-visible { outline: 3px solid #f2c14e; outline-offset: 2px; }
+.qq-wall .qq-count { margin-left: auto; background: #3b2510cc; }
+.qq-room-grid { flex: 1; min-height: 0; overflow: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); align-content: start; gap: 18px 16px; padding: 14px 12px 8px; scrollbar-color: #c98e4f #5e3a18; }
+
+/* Paper notices pinned to the board. */
+.qq-room { --tilt: -1.2deg; position: relative; display: grid; grid-template-columns: 46px minmax(0, 1fr) auto; grid-template-areas: "icon title state" "icon sub n" "heads heads heads";
+  gap: 3px 9px; align-items: center; min-height: 114px; padding: 14px 12px 10px; text-align: left; cursor: pointer;
+  border: 1px solid #c9a46a; border-radius: 3px; background: linear-gradient(#fffdf4, #f6e8c6); box-shadow: 0 2px 0 #00000022, 0 8px 12px #0000003a;
+  transform: rotate(var(--tilt)); transition: transform .15s, box-shadow .15s; font-family: "NanumSquareRound", sans-serif; color: #3b2a1a; }
+.qq-room:nth-child(3n+2) { --tilt: .9deg; } .qq-room:nth-child(3n) { --tilt: 1.6deg; } .qq-room:nth-child(4n+1) { --tilt: -.6deg; }
+.qq-room:hover:not(:disabled), .qq-room:focus-visible { transform: rotate(0) translateY(-3px); box-shadow: 0 3px 0 #00000022, 0 14px 18px #00000045; }
+.qq-room:focus-visible { outline: 3px solid #f2c14e; outline-offset: 3px; }
+.qq-room:active:not(:disabled) { transform: rotate(0); }
+.qq-room:disabled { cursor: default; filter: grayscale(.4); }
+.qq-pin { position: absolute; top: -7px; left: 50%; width: 18px; height: 18px; translate: -50% 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffd2c8, #e0553c 55%, #9a2c1c); box-shadow: 0 3px 2px #0005; }
+.qq-room.mode-ox .qq-pin { background: radial-gradient(circle at 35% 30%, #c9fff6, #2fb8a8 55%, #0f5a52); }
+.qq-room.teacher .qq-pin { background: radial-gradient(circle at 35% 30%, #fff6c8, #f2b93b 55%, #a8700e); }
+.qq-room-icon { grid-area: icon; width: 46px; height: 46px; }
+.qq-room-icon svg { width: 100%; height: 100%; }
+.qq-room-no { position: absolute; left: 12px; bottom: 9px; font: 700 11px "QuizLatin", sans-serif; color: #b39b75; display: none; }
+.qq-room-title { grid-area: title; font: 400 19px/1.25 "QuizDisplay", sans-serif; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qq-room-sub { grid-area: sub; font: 700 12px "NanumSquareRound", sans-serif; color: #7a6646; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qq-room-state { grid-area: state; justify-self: end; padding: 1px 7px 2px; border: 2px solid currentColor; border-radius: 6px; font: 400 14px "QuizDisplay", sans-serif; color: #2e7d32; transform: rotate(-8deg); opacity: .9; }
+.qq-room.waiting .qq-room-state { animation: qq-stamp-breathe 2.8s steps(3, end) infinite; }
+@keyframes qq-stamp-breathe { 0%, 70% { opacity: .9; } 85% { opacity: .55; } }
+.qq-room.playing .qq-room-state { color: #c0661e; }
+.qq-room.full .qq-room-state { color: #8a7254; }
+.qq-room-n { grid-area: n; justify-self: end; font: 700 18px "QuizLatin", sans-serif; color: #3b2a1a; }
+.qq-room-n small { font-size: 12px; color: #8a7254; }
+.qq-room-heads { grid-area: heads; display: flex; align-items: center; min-height: 36px; margin-top: 3px; padding-top: 5px; border-top: 1px dashed #d9bf8c; }
+.qq-room-heads .qq-head { margin-right: -7px; }
+.qq-room-heads em { margin-left: 12px; font: 800 12px "NanumSquareRound", sans-serif; font-style: normal; color: #7a6646; }
+.qq-room.teacher { border-color: #c99a2e; background: linear-gradient(#fffbe8, #fbe7a8); box-shadow: 0 0 0 2px #f2c14e, 0 8px 12px #0000003a; }
+.qq-ribbon { position: absolute; right: 10px; bottom: 11px; padding: 2px 9px 3px; border: 1px solid #0f5a52; border-radius: 9px; background: linear-gradient(#5fd0c3, #1f8f84); color: #fff; font: 400 12px "QuizDisplay", sans-serif; box-shadow: 0 2px 0 #0b4740; }
+.qq-head { position: relative; display: inline-block; flex: none; width: 32px; height: 32px; overflow: hidden; border: 2px solid #fff; border-radius: 50%; background: linear-gradient(#e6f3d6, #bfe3c4); box-shadow: 0 0 0 1px #9c7434; }
+/* The face (about 12–30 of 62 units tall) fills the circle. */
+.qq-head > svg { position: absolute; left: 50%; top: -22px; height: 92px; width: auto; translate: -50% 0; }
+.qq-empty { grid-column: 1 / -1; justify-self: center; display: grid; justify-items: center; gap: 4px; margin-top: 6px; padding: 14px 28px 18px; text-align: center; color: #6f5a40;
+  border: 1px solid #c9a46a; border-radius: 3px; background: linear-gradient(#fffdf4, #f6e8c6); box-shadow: 0 8px 12px #0000003a; transform: rotate(-1deg); position: relative; }
+.qq-empty::before { content: ""; position: absolute; top: -7px; left: 50%; width: 18px; height: 18px; translate: -50% 0; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff6c8, #f2b93b 55%, #a8700e); box-shadow: 0 3px 2px #0005; }
+.qq-empty svg { width: 150px; height: auto; }
+.qq-empty b { font: 400 20px "QuizDisplay", sans-serif; color: #3b2a1a; }
+.qq-empty p { margin: 0; font: 700 13px "NanumSquareRound", sans-serif; }
+.qq-room-actions { display: flex; align-items: center; gap: 10px; justify-content: flex-end; flex: none; padding: 6px 10px 0; }
+.qq-room-tip { margin: 0 auto 0 10px; font: 700 12px "NanumSquareRound", sans-serif; color: #ffe9c0; text-shadow: 0 1px 0 #3b2510; }
+.qq-room-actions .btn { min-width: 140px; font-size: 18px; }
+
+/* Attendance list. */
+.qq-online { grid-row: 2 / 4; grid-column: 2; z-index: 1; }
+.qq-online-list { list-style: none; margin: 0; padding: 6px 10px; overflow: auto; flex: 1; }
+.qq-online-list li { display: flex; align-items: center; gap: 8px; padding: 5px 4px; border-bottom: 1px dashed #d9bf8c; font: 700 14px "NanumSquareRound", sans-serif; color: #3b2a1a; }
+.qq-online-list li.me { background: #e6fbf6; border-radius: 8px; }
+.qq-online-list .qq-head { width: 30px; height: 30px; }
+.qq-online-list small { display: flex; align-items: center; gap: 4px; margin-left: auto; font: 800 11px "NanumSquareRound", sans-serif; color: #2e7d32; white-space: nowrap; }
+.qq-online-list small.busy { color: #c0661e; }
+.qq-online-list small.busy .qq-dot { background: #f2b93b; box-shadow: 0 0 0 1px #8a5a10; }
+.qq-dot { width: 9px; height: 9px; flex: none; border-radius: 50%; background: #5ec04a; box-shadow: 0 0 0 1px #2f5e22; animation: qq-pulse 2.4s steps(3, end) infinite; }
+@keyframes qq-pulse { 0%, 66% { transform: scale(1); } 83% { transform: scale(1.3); } }
+
+/* Chat: generic log, the lobby's wooden bar and the stage's mini panel. */
+.qq-chat-log { flex: 1; min-height: 0; overflow: auto; padding: 8px 12px; font: 400 14px/1.55 "NanumSquareRound", sans-serif; color: #3b2a1a; }
+.qq-chat-log p { margin: 0; overflow-wrap: anywhere; }
+.qq-chat-log b { color: #2e6b45; }
+.qq-chat-log p.me b { color: #8a5a10; }
+.qq-chat-hint { color: #8a5a10; }
+.qq-chat-form { display: flex; gap: 8px; }
+.qq-chat-form .inp { flex: 1; min-width: 0; }
+.qq-chatbar { grid-row: 3; grid-column: 1; z-index: 1; display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 12px; align-items: end; padding: 8px 10px; border: 3px solid #4a2c10; border-radius: 12px; background: linear-gradient(#6a4220ee, #3b2510f2); box-shadow: inset 0 1px 0 #a8703a, 0 4px 0 #2c1a08; }
+.qq-chatbar .qq-chat-log { height: 100%; max-height: 86px; padding: 2px 6px; color: #fff3d6; font-size: 13px; }
+.qq-chatbar .qq-chat-hint { color: #ffd77a; }
+.qq-name-chip { display: inline-block; margin-right: 6px; padding: 0 7px; border-radius: 8px; background: #4f8a3c; font: 800 11px/1.7 "NanumSquareRound", sans-serif; }
+.qq-chat-log b.qq-name-chip, .qq-chat-log p.me b.qq-name-chip { color: #fff; }
+.qq-chat-log p.me .qq-name-chip { background: #1f8f84; }
+
+/* Create-room dialog. */
+.qq-create { display: grid; gap: 12px; min-width: min(460px, 80vw); }
+.qq-create label { display: grid; gap: 5px; font: 800 14px "NanumSquareRound", sans-serif; color: #3b2a1a; }
+.qq-mode-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border: 0; padding: 0; margin: 0; }
+.qq-mode-pick legend { font: 800 14px "NanumSquareRound", sans-serif; color: #3b2a1a; margin-bottom: 5px; }
+.qq-mode { display: grid; gap: 3px; padding: 10px; text-align: left; border: 2px solid #9c7434; border-radius: 6px; background: #fff8e6; cursor: pointer; font-family: "NanumSquareRound", sans-serif; color: #3b2a1a; }
+.qq-mode b { font: 400 17px "QuizDisplay", sans-serif; }
+.qq-mode small { color: #6f5a40; }
+.qq-mode.on { border-color: #0f5a52; background: #dff5ef; box-shadow: 0 0 0 2px #7fd6c9; }
+.qq-create-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.qq-create-actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+/* ───────── Stage ───────── */
+.qq-stage { display: grid; grid-template-columns: minmax(0, 1fr) 212px; grid-template-rows: auto auto minmax(0, 1fr) auto; gap: 8px 12px; padding: 8px 14px 12px; }
+.qq-stage-bg { position: absolute; inset: 0; z-index: -1; background: linear-gradient(#0000 40%, #12301f99); }
+.qq-stage-top { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; z-index: 2; }
+.qq-room-name { font-size: 26px; }
+.qq-room-meta { font: 800 13px "NanumSquareRound", sans-serif; color: #fff7de; background: #2c1a08b3; border: 1px solid #f2c14e66; border-radius: 12px; padding: 3px 11px; }
+.qq-board {
+  grid-column: 1; grid-row: 2; justify-self: center; position: relative; z-index: 2; width: min(860px, 100%); min-height: 150px; padding: 14px 22px 16px; text-align: center;
+  border: 3px solid #4a2c10; border-radius: 10px; background: #fff6dc;
+  box-shadow: inset 0 0 0 4px #d9a464, inset 0 0 0 7px #8a5a2b, inset 0 0 0 9px #fff6dc, 0 4px 0 #2c1a08, 0 10px 20px #0005;
+  color: #3b2a1a; font-family: "NanumSquareRound", sans-serif;
+}
+.qq-board::before, .qq-board::after { content: ""; position: absolute; top: -14px; width: 14px; height: 18px; border: 2px solid #4a2c10; border-radius: 3px; background: linear-gradient(#c08546, #8a5a2b); }
+.qq-board::before { left: 18%; } .qq-board::after { right: 18%; }
+.qq-board-kicker { margin: 4px 0 6px; font: 800 14px "NanumSquareRound", sans-serif; color: #8a5a10; }
+.qq-board-kicker span { margin-left: 6px; color: #6f5a40; }
+.qq-board h3 { margin: 0 0 8px; font: 800 22px/1.4 "NanumSquareRound", sans-serif; color: #3b2a1a; }
+.qq-board .qq-question { font-size: 24px; }
+.qq-board-note, .qq-board-wait { margin: 4px 0 10px; font: 700 14px "NanumSquareRound", sans-serif; color: #6f5a40; }
+.qq-board-wait { animation: qq-blink 2.4s steps(3, end) infinite; }
+.qq-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; margin-top: 6px; text-align: left; }
+.qq-choice { display: flex; align-items: center; gap: 10px; min-height: 42px; padding: 6px 12px; border: 2px solid #c9a46a; border-radius: 8px; background: #fffdf3; cursor: pointer; font: 800 17px "NanumSquareRound", sans-serif; color: #3b2a1a; text-align: left; }
+.qq-choice:disabled { cursor: default; }
+.qq-choice i { display: grid; place-items: center; flex: none; width: 28px; height: 28px; border-radius: 50%; border: 2px solid #0f5a52; background: radial-gradient(circle at 35% 30%, #8ee6da, #24a597 60%, #17756c); color: #fff; font: 400 17px "QuizLatin", sans-serif; font-weight: 700; font-style: normal; text-shadow: 0 1px 0 #0b4740; }
+.qq-choice.picked { border-color: #8a5a10; background: #fff1bf; box-shadow: 0 0 0 2px #f2c14e; }
+.qq-choice.answer { border-color: #0f5a52; background: #d9f6ee; box-shadow: 0 0 0 3px #2fb8a8; animation: qq-pop .5s steps(3, end); }
+.qq-choice.dim { opacity: .5; }
+.qq-board-result { margin: 10px 0 0; font: 800 18px "NanumSquareRound", sans-serif; color: #0f5a52; }
+.qq-board-result small { margin-left: 8px; font-size: 13px; color: #6f5a40; }
+@keyframes qq-pop { 0% { transform: scale(.94); } 50% { transform: scale(1.06); } 100% { transform: scale(1); } }
+.qq-board .btn.big { margin-top: 4px; min-width: 200px; font-size: 22px; }
+
+.qq-clock[hidden], .qq-timebar[hidden] { display: none; }
+.qq-clock { grid-column: 1; grid-row: 2; justify-self: end; align-self: start; position: relative; z-index: 3; display: grid; place-items: center; width: 74px; margin: -6px -4px 0 0; }
+.qq-clock svg { width: 74px; height: 74px; filter: drop-shadow(0 3px 0 #2c1a08aa); }
+.qq-clock b { position: absolute; top: 31px; font: 400 21px "QuizLatin", sans-serif; font-weight: 700; color: #3b2a1a; }
+.qq-hurry { position: absolute; top: -8px; right: 74px; white-space: nowrap; padding: 3px 10px; border: 2px solid #6b1d12; border-radius: 12px; background: #fff; font: 800 15px "NanumSquareRound", sans-serif; color: #c23e28; opacity: 0; }
+.qq-stage.hurry .qq-clock svg { animation: qq-ring .3s steps(2, end) infinite; }
+.qq-stage.hurry .qq-hurry { opacity: 1; animation: qq-pop .6s steps(3, end) infinite; }
+@keyframes qq-ring { 0% { transform: rotate(-9deg); } 100% { transform: rotate(9deg); } }
+.qq-timebar { grid-column: 1; grid-row: 2; align-self: end; justify-self: center; width: min(640px, 80%); height: 14px; margin-bottom: -20px; border: 2px solid #4a2c10; border-radius: 9px; background: #4a2c10; overflow: hidden; z-index: 3; }
+.qq-timebar i { display: block; height: 100%; border-radius: 7px; background: linear-gradient(#8ee6da, #24a597); transition: width .45s linear; }
+.qq-stage.hurry .qq-timebar i { background: linear-gradient(#ffb59f, #e0553c); }
+
+/* Booths: leafy wooden stalls with a name plate, in rows of ten. */
+.qq-booths { grid-column: 1; grid-row: 3; align-self: stretch; align-content: end; container-type: size; display: grid; grid-template-columns: repeat(var(--cols, 10), minmax(0, 1fr)); gap: 4px 6px; z-index: 1; min-height: 0; }
+.qq-booth { position: relative; display: grid; justify-items: center; align-content: end; min-width: 0; height: min(250px, calc((100cqh - 4px * (var(--rows, 1) - 1)) / var(--rows, 1))); min-height: 108px; padding: 18px 2px 0; }
+.qq-booth::before { content: ""; position: absolute; inset: 6px 6% 22px; border: 2px solid #4a2c10; border-bottom: 0; border-radius: 40px 40px 6px 6px; background: linear-gradient(#2f5a32cc, #1f3d24ee); box-shadow: inset 0 0 0 3px #8a5a2b, inset 0 4px 0 6px #3d6e3a; z-index: -1; }
+.qq-booth::after { content: ""; position: absolute; top: 0; left: 50%; width: 56%; height: 18px; translate: -50% 0; background: radial-gradient(circle at 20% 70%, #7cc23e 0 35%, #0000 36%), radial-gradient(circle at 50% 40%, #9be35f 0 38%, #0000 39%), radial-gradient(circle at 80% 70%, #5aa02a 0 35%, #0000 36%); filter: drop-shadow(0 1px 0 #2f5e22); z-index: 0; }
+.qq-booth .qq-avatar { height: clamp(58px, calc(min(250px, 100cqh / var(--rows, 1)) - 64px), 160px); display: grid; place-items: end center; transform-origin: 50% 100%; }
+.qq-booth .qq-avatar > svg { height: 100%; width: auto; overflow: visible; }
+.qq-plate { position: relative; z-index: 1; display: grid; justify-items: center; width: 100%; max-width: 110px; margin-top: -2px; padding: 2px 4px 3px; border: 2px solid #4a2c10; border-radius: 5px; background: linear-gradient(#fff6dc, #ecd2a0); box-shadow: 0 2px 0 #2c1a08; }
+.qq-plate b { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: 800 12px "NanumSquareRound", sans-serif; color: #3b2a1a; }
+.qq-plate small { font: 800 11px "NanumSquareRound", sans-serif; color: #8a5a10; }
+.qq-booth.me .qq-plate { background: linear-gradient(#e6fbf6, #a9e3d8); border-color: #0f5a52; }
+.qq-booth.host .qq-plate b::before { content: "♛ "; color: #d8901e; }
+.qq-booth.empty::before { background: linear-gradient(#2f5a3266, #1f3d2499); }
+.qq-booth.empty .qq-plate { opacity: .55; }
+.qq-booth.empty .qq-plate b { font-weight: 700; color: #8a7254; }
+.qq-mark { position: absolute; top: 2px; left: 50%; translate: -50% 0; z-index: 3; width: 34px; height: 34px; }
+.qq-mark svg { width: 100%; height: 100%; animation: qq-pop .45s steps(3, end); }
+.qq-coin { display: grid; place-items: center; width: 30px; height: 30px; margin: 2px auto; border-radius: 50%; border: 2px solid #8a5a10; background: radial-gradient(circle at 35% 30%, #fff3b0, #f2b93b 60%, #d8901e); font: 400 19px "QuizLatin", sans-serif; font-weight: 700; font-style: normal; color: #fff; text-shadow: 0 1px 0 #6b420a; animation: qq-coin 1.2s steps(4, end) infinite; }
+@keyframes qq-coin { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(.35); } }
+.qq-booth[data-state="right"] .qq-avatar { animation: qq-hop .9s steps(4, end) 2; }
+@keyframes qq-hop { 0%, 100% { transform: translateY(0); } 25% { transform: translateY(-14px) scaleY(1.04); } 50% { transform: translateY(0) scaleY(.94); } 75% { transform: translateY(-6px); } }
+.qq-booth[data-state="wrong"] .qq-avatar { animation: qq-slump 1.4s steps(4, end) forwards; }
+@keyframes qq-slump { 0% { transform: none; } 30% { transform: translateY(3px) rotate(-5deg) scaleY(.95); } 100% { transform: translateY(4px) rotate(-4deg) scaleY(.93); filter: saturate(.75) brightness(.9); } }
+.qq-leaves { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: 2; }
+.qq-leaves i { position: absolute; top: -10px; left: calc(14% + var(--i) * 17%); width: 14px; animation: qq-shower 1.5s steps(6, end) forwards; animation-delay: calc(var(--i) * .12s); }
+@keyframes qq-shower { from { transform: translateY(0) rotate(0); } to { transform: translateY(95px) rotate(220deg); opacity: 0; } }
+.qq-say { position: absolute; bottom: calc(100% - 22px); left: 50%; translate: -50% 0; z-index: 4; max-width: 140px; padding: 3px 8px; border: 2px solid #4a2c10; border-radius: 10px; background: #fff; font: 700 12px/1.35 "NanumSquareRound", sans-serif; color: #3b2a1a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; pointer-events: none; }
+.qq-say.on { opacity: 1; animation: qq-pop .4s steps(3, end); }
+
+.qq-rank { grid-column: 2; grid-row: 2 / 4; align-self: stretch; z-index: 2; }
+.qq-rank ol { list-style: none; margin: 0; padding: 6px 8px; overflow: auto; }
+.qq-rank li { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 6px; padding: 5px 4px; border-bottom: 1px dashed #d9bf8c; font: 800 14px "NanumSquareRound", sans-serif; color: #3b2a1a; }
+.qq-rank li i { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #4f8a3c; color: #fff; font-style: normal; font: 400 14px "QuizLatin", sans-serif; font-weight: 700; }
+.qq-rank li:nth-child(1) i { background: #f2b93b; color: #4a2c10; }
+.qq-rank li.me { background: #e6fbf6; border-radius: 6px; }
+.qq-rank li b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.qq-rank li span { color: #8a5a10; }
+
+/* Answer console: four round keys on a wooden plate, like QPlay's F1–F4. */
+.qq-console { grid-column: 1; grid-row: 4; justify-self: center; display: flex; gap: 14px; padding: 8px 18px 10px; z-index: 2; border: 2px solid #4a2c10; border-radius: 14px; background: linear-gradient(#a8703a, #7a4a22); box-shadow: inset 0 1px 0 #e9b77e, inset 0 -3px 0 #4a2c10, 0 3px 0 #2c1a08; }
+.qq-key { position: relative; width: 62px; height: 62px; border-radius: 50%; border: 2px solid #0b4740; background: radial-gradient(circle at 35% 28%, #a6f0e6, #2fb8a8 52%, #17756c); box-shadow: inset 0 2px 0 #e6fffb, inset 0 -4px 0 #0f5a52, 0 3px 0 #0b3a35; cursor: pointer; }
+.qq-key b { font: 400 30px/1 "QuizLatin", sans-serif; font-weight: 700; color: #fff; text-shadow: 1px 0 #0b4740, -1px 0 #0b4740, 0 1px #0b4740, 0 -1px #0b4740, 0 3px 0 #0b4740; }
+.qq-key::after { content: attr(aria-label); position: absolute; bottom: -2px; right: -6px; display: none; }
+.qq-key:not(:disabled):active { translate: 0 2px; box-shadow: inset 0 2px 3px #0005; }
+.qq-key.picked { border-color: #6b420a; background: radial-gradient(circle at 35% 28%, #fff3b0, #f2b93b 52%, #d8901e); box-shadow: inset 0 2px 0 #fffbe6, inset 0 -4px 0 #8a5a10, 0 3px 0 #4a2e06, 0 0 0 3px #fff3b0; }
+.qq-key.picked b { text-shadow: 1px 0 #6b420a, -1px 0 #6b420a, 0 1px #6b420a, 0 -1px #6b420a, 0 3px 0 #6b420a; }
+.qq-key:disabled { filter: saturate(.35) brightness(.92); cursor: default; }
+.qq-key:focus-visible { outline: 3px solid #f2c14e; outline-offset: 3px; }
+
+.qq-chat-mini { grid-column: 2; grid-row: 4; z-index: 2; display: flex; flex-direction: column; gap: 4px; align-self: end; max-height: 150px; padding: 6px; border: 2px solid #4a2c10; border-radius: 8px; background: #fff4d8ee; box-shadow: 0 3px 0 #2c1a08; }
+.qq-chat-mini .qq-chat-log { max-height: 84px; padding: 2px 4px; font-size: 12px; }
+.qq-chat-mini form { display: flex; gap: 4px; }
+.qq-chat-mini .inp { flex: 1; min-width: 0; padding: 5px 7px; font-size: 13px; }
+.qq-chat-mini .btn { padding: 4px 8px; font-size: 12px; }
+
+/* One big moment per beat: title splash and the personal O/X stamp. */
+.qq-splash, .qq-stamp { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; z-index: 20; opacity: 0; }
+.qq-splash .qp-candy { font-size: clamp(54px, 8vw, 104px); }
+.qq-splash.on { animation: qq-splash 2.4s steps(8, end) forwards; }
+@keyframes qq-splash { 0% { opacity: 0; transform: scale(.4) rotate(-6deg); } 15% { opacity: 1; transform: scale(1.12) rotate(2deg); } 25% { transform: scale(1) rotate(0); } 80% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.08); } }
+.qq-stamp svg { width: min(240px, 32vh); height: auto; filter: drop-shadow(0 6px 0 #0005); }
+.qq-stamp.on { animation: qq-stamp 1.3s steps(6, end) forwards; }
+@keyframes qq-stamp { 0% { opacity: 0; transform: scale(1.8); } 20% { opacity: 1; transform: scale(.92); } 30% { transform: scale(1); } 75% { opacity: 1; } 100% { opacity: 0; } }
+
+.qq-podium { display: flex; justify-content: center; align-items: end; gap: 26px; }
+.qq-podium > div { display: grid; justify-items: center; gap: 2px; font-family: "NanumSquareRound", sans-serif; }
+.qq-podium .qq-avatar > svg { width: auto; }
+.qq-podium-1 .qq-avatar > svg { height: 88px; } .qq-podium-2 .qq-avatar > svg, .qq-podium-3 .qq-avatar > svg { height: 70px; }
+.qq-podium b { font: 400 16px "QuizDisplay", sans-serif; color: #3b2a1a; }
+.qq-podium small { font: 800 13px "NanumSquareRound", sans-serif; color: #8a5a10; }
+.qq-podium-1 { order: 2; } .qq-podium-2 { order: 1; } .qq-podium-3 { order: 3; }
+
+@media (max-width: 1100px) {
+  .qq-lobby { grid-template-columns: minmax(0, 1fr) 220px; }
+  .qq-plaza-row { left: 240px; right: 300px; }
+  .qq-stage { grid-template-columns: minmax(0, 1fr) 180px; }
+  .qq-key { width: 54px; height: 54px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qq-ambient, .qq-fly, .qq-fall, .qq-ray { animation: none !important; }
+  .qq-fall { display: none; }
+  .qq-booth .qq-avatar, .qq-leaves i, .qq-coin, .qq-dot, .qq-board-wait, .qq-pal, .qq-bulb, .qq-sign, .qq-hang, .qq-room-state { animation: none !important; }
+  .qq-splash.on, .qq-stamp.on { animation-duration: .01s; }
+}
+
+/* QUIZQUIZ entry in the top bar: a sky candy Q on the cream plate. */
+html body .icb.qq-entry .qp-candy { font-size: 27px; line-height: 1; }
+html body .icb.qq-entry .qp-candy .ct-w { padding: 0 .06em .08em; }
+.qq-loading { position: absolute; inset: 0; display: grid; place-items: center; margin: 0; font: 800 18px "NanumSquareRound", sans-serif; color: #fff7de; }
+
+/* ───────── Survival OX on the playground ───────── */
+.qq-ox { position: absolute; inset: 0; overflow: hidden; background: #3d6e3a; }
+.qq-ox-world { position: absolute; inset: 0; }
+.qq-ox-chalk { position: absolute; left: 0; top: 0; z-index: 3; overflow: visible; pointer-events: none; }
+.qq-zone { stroke: none; }
+.qq-zone.z-o { fill: #2fb8a8; fill-opacity: .16; }
+.qq-zone.z-x { fill: #e0553c; fill-opacity: .16; }
+.qq-ox-chalk.mine-o .qq-zone.z-o, .qq-ox-chalk.mine-x .qq-zone.z-x { fill-opacity: .34; animation: qq-zonepulse 1.2s steps(3, end) infinite; }
+@keyframes qq-zonepulse { 0%, 66% { fill-opacity: .34; } 83% { fill-opacity: .22; } }
+.qq-chalk { fill: none; stroke-width: 26; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 70 7 34 6 96 8; opacity: .92; }
+.qq-chalk.o { stroke: #f2fffb; }
+.qq-chalk.x { stroke: #fff4ef; }
+.qq-ox-chalk.win-o .qq-zone.z-o, .qq-ox-chalk.win-x .qq-zone.z-x { fill: #ffe36e; fill-opacity: .45; animation: qq-zonewin .5s steps(2, end) 4; }
+@keyframes qq-zonewin { 50% { fill-opacity: .2; } }
+.qq-ox-chalk.fail-o .qq-zone.z-o, .qq-ox-chalk.fail-x .qq-zone.z-x { fill: #4a2c10; fill-opacity: .42; }
+.qq-puffs circle { fill: #efe3c8; stroke: #8a6a3a; stroke-width: 6; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.qq-ox-chalk.fail-o .qq-puffs.z-o circle, .qq-ox-chalk.fail-x .qq-puffs.z-x circle { animation: qq-puff 1.6s steps(6, end) forwards; animation-delay: calc(var(--i) * .09s); }
+@keyframes qq-puff { 0% { opacity: 0; transform: scale(.3); } 30% { opacity: .95; transform: scale(1); } 100% { opacity: 0; transform: translateY(-40px) scale(1.5); } }
+.qq-stands-label { font: 400 64px "QuizRound", sans-serif; fill: #fff; stroke: #4a2c10; stroke-width: 12px; paint-order: stroke; text-anchor: middle; }
+.qq-ox-board { position: absolute; top: 60px; left: 50%; translate: -50% 0; z-index: 30; width: min(600px, 44vw); min-height: 0; padding: 8px 16px 10px; }
+.qq-ox-board h3 { margin-bottom: 4px; font-size: 19px; }
+.qq-ox-board .qq-board-kicker { margin: 2px 0 3px; }
+.qq-ox-board .qq-board-note { margin: 2px 0 4px; }
+.qq-ox .qq-clock { position: absolute; top: 56px; left: calc(50% + min(320px, 23.5vw) + 4px); z-index: 31; margin: 0; }
+.qq-ox-tally { position: absolute; top: 122px; left: 16px; z-index: 30; display: flex; align-items: center; gap: 8px; padding: 6px 14px; border: 3px solid #4a2c10; border-radius: 18px; background: linear-gradient(#fff8e6, #f3dfb0); box-shadow: 0 3px 0 #2c1a08; font: 700 22px "QuizLatin", sans-serif; }
+.qq-ox-tally[hidden] { display: none; }
+.qq-ox-tally .o { color: #17756c; } .qq-ox-tally .x { color: #c23e28; } .qq-ox-tally .vs { color: #8a6a3a; }
+.qq-ox-tally b { font-size: 30px; }
+.qq-ox-tally > span { font-size: 30px; }
+.qq-ox-rank { position: absolute; right: 16px; top: 64px; z-index: 30; width: 200px; max-height: calc(100% - 340px); }
+.qq-ox-rank li.out { opacity: .55; }
+.qq-ox-rank li i { background: #e0553c; font: 800 12px "NanumSquareRound", sans-serif; }
+.qq-ox-rank li.out i { background: #8a7254; }
+.qq-ox .qq-chat-mini { position: absolute; left: 16px; bottom: 16px; z-index: 30; width: 300px; }
+.qq-ox .qq-splash, .qq-ox .qq-stamp { z-index: 40; }
+.qq-ox-marks { position: absolute; inset: 0; z-index: 25; pointer-events: none; }
+.qq-ox-mark { position: absolute; width: 46px; height: 46px; translate: -50% -50%; animation: qq-pop .45s steps(3, end); }
+.qq-ox-mark svg { width: 100%; height: 100%; }
+.qq-ox-tag { position: absolute; translate: -50% -50%; padding: 1px 8px; border: 1px solid #4a2c10; border-radius: 8px; background: #fff4d8; font: 800 11px "NanumSquareRound", sans-serif; color: #8a5a10; white-space: nowrap; }
+.qq-ox-rule { margin: 2px 0 4px; font: 800 15px "NanumSquareRound", sans-serif; color: #5a4326; }
+.qq-ox-rule b.o, .qq-ox-answer.o { color: #17756c; }
+.qq-ox-rule b.x, .qq-ox-answer.x { color: #c23e28; }
+.qq-ox-status { display: inline-block; margin: 2px 0 0; padding: 4px 14px; border-radius: 14px; font: 800 15px "NanumSquareRound", sans-serif; }
+.qq-ox-status.o { background: #d9f6ee; color: #0b4740; }
+.qq-ox-status.x { background: #ffe2dc; color: #8a2416; }
+.qq-ox-status.none { background: #fff1bf; color: #8a5a10; animation: qq-blink 1.2s steps(3, end) infinite; }
+.qq-ox-status.out { background: #efe6d6; color: #6f5a40; }
+.qq-ox-answer { display: inline-grid; place-items: center; width: 42px; height: 42px; margin: 0 4px; border: 3px solid currentColor; border-radius: 50%; background: #fff; font: 700 28px "QuizLatin", sans-serif; vertical-align: middle; }
+@media (prefers-reduced-motion: reduce) {
+  .qq-ox-chalk *, .qq-ox-status.none { animation: none !important; }
+}

@@ -807,12 +807,15 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <link rel="stylesheet" href="./round-scene.css">
 <link rel="stylesheet" href="./classroom-flow.css">
 <link rel="stylesheet" href="./button-feedback.css">
-<link rel="stylesheet" href="./game-typography.css">
+<link rel="stylesheet" href="./candy-title.css">
+<link rel="stylesheet" href="./quizquiz.css">
 <link rel="stylesheet" href="./forest-village-theme.css">
 <link rel="stylesheet" href="./shop-village.css">
 <link rel="stylesheet" href="./readability.css">
 <link rel="stylesheet" href="./school-room-world.css">
 <script src="./ui-icons.js"></script>
+<script src="./candy-title.js"></script>
+<script src="./quizquiz.js"></script>
 <script src="./avatar-image.js"></script>
 <script src="./avatar-clothes.js"></script>
 <script src="./avatar-effects.js"></script>
@@ -852,6 +855,7 @@ input,textarea,select{font-family:inherit;font-size:inherit;color:#123}
 <script src="./world-life-school.js"></script>
 <script src="./world-life.js"></script>
 <link rel="stylesheet" href="./world-explorer.css">
+<link rel="stylesheet" href="./qplay-buttons.css">
 <script src="./school-room-world.js"></script>
 <script src="./demo.js"></script>
 <script>
@@ -868,7 +872,7 @@ const now = ()=> Date.now();
 const today = ()=>{ const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
 const R = window.RULES;
 const uiIcon = name => window.QPCandyIcons?.render(name) || '';
-const quizBrand = compact => `<span class="quiz-brand${compact?' quiz-brand-compact':''}"><span class="quiz-brand-class">${esc(window.CLASS_NAME||'우리 반')}</span><span class="quiz-brand-title">${['퀴','즈','나','라'].map(c=>`<span><span class="quiz-brand-face">${c}</span></span>`).join('')}</span></span>`;
+const quizBrand = compact => `<span class="quiz-brand${compact?' quiz-brand-compact':''}"><span class="quiz-brand-class">${esc(window.CLASS_NAME||'우리 반')}</span><span class="quiz-brand-title">${QPCandy.html([{text:'QUIZ',variant:'sky'},'나라'],{label:'퀴즈나라'})}</span></span>`;
 
 /* 배경에 물방울과 별을 흩어 놓는다. 한 번만 만들고 안 움직인다 */
 (function paintDeco(){
@@ -2850,8 +2854,9 @@ function go(name, arg){
   el('stage').innerHTML = '';
   SCREENS[name](el('stage'), arg);
 }
-function gameTitle(title, paper=false){
-  return `<span class="qp-game-title${paper?' qp-game-title--paper':''}" data-title="${esc(title)}"><span class="qp-game-title-face">${esc(title)}</span></span>`;
+function gameTitle(title){
+  const parts=String(title).split(/(QUIZ)/).filter(Boolean).map(t=>t==='QUIZ'?{text:t,variant:'sky'}:t);
+  return QPCandy.html(parts,{label:String(title).replace(/QUIZ/g,'퀴즈')});
 }
 function topbar(title, back, brand){
   const dailyGold = ME&&ME.day&&ME.day.d===today()?Math.max(0,ME.day.g||0):0;
@@ -2861,7 +2866,8 @@ function topbar(title, back, brand){
     ${brand&&ME?`<div class="quiz-daily"><span class="daily-label">오늘의 연습</span><span class="daily-track" role="progressbar" aria-label="오늘 연습으로 모은 골드" aria-valuemin="0" aria-valuemax="${R.practiceCap}" aria-valuenow="${dailyGold}"><i style="width:${clamp(dailyGold/Math.max(1,R.practiceCap)*100,0,100)}%"></i><b>${dailyGold} / ${R.practiceCap} 골드</b></span></div>`:''}
     <div class="f1"></div>
     <button class="icb" id="tbSnd" data-label="소리" title="소리 설정" aria-label="소리 설정">${uiIcon((SND.on&&SND.fxVolume)||(SND.bgm&&SND.musicVolume)?'sound':'mute')}<span class="qp-tool-label">소리</span></button>
-    ${ME&&!IS_TEACHER? `<button class="icb" id="tbHome" data-label="마을" title="숲속 마을" aria-label="숲속 마을">${uiIcon('home')}<span class="qp-tool-label">마을</span></button>
+    ${ME&&!IS_TEACHER? `<button class="icb qq-entry" id="tbQuiz" data-label="QUIZQUIZ" title="QUIZQUIZ 로비" aria-label="QUIZQUIZ 로비">${QPCandy.html([{text:'Q',variant:'sky'}],{label:'QUIZQUIZ'})}<span class="qp-tool-label">QUIZQUIZ</span></button>
+       <button class="icb" id="tbHome" data-label="마을" title="숲속 마을" aria-label="숲속 마을">${uiIcon('home')}<span class="qp-tool-label">마을</span></button>
        <button class="icb" id="tbProfile" data-label="내 정보" title="내 정보" aria-label="내 정보">${uiIcon('expression')}<span class="qp-tool-label">내 정보</span></button>
        <button class="icb y" id="tbShop" data-label="옷 가게" title="옷 가게" aria-label="옷 가게">${uiIcon('shop')}<span class="qp-tool-label">옷 가게</span></button>
        <button class="icb" id="tbRank" data-label="순위" title="순위" aria-label="순위">${uiIcon('trophy')}<span class="qp-tool-label">순위</span></button>`:''}
@@ -2892,6 +2898,7 @@ function wireTop(backTo){
   const b = el('tbBack'); if(b) b.onclick = ()=> go(backTo||'campus');
   const sd = el('tbSnd'); if(sd) sd.onclick = showSoundSettings;
   const h2 = el('tbHome'); if(h2) h2.onclick = ()=> go('village');
+  const qq = el('tbQuiz'); if(qq) qq.onclick = ()=> go('quizquiz');
   const profile = el('tbProfile'); if(profile) profile.onclick = ()=> go('home');
   const s2 = el('tbShop'); if(s2) s2.onclick = ()=> go('shop');
   const r2 = el('tbRank'); if(r2) r2.onclick = showRank;
@@ -2938,7 +2945,7 @@ SCREENS.login = function(st){
       <div class="lgSup">${uiIcon('star')} 우리 반 퀴즈 놀이터 ${uiIcon('star')}</div>
       <div class="logo lgLogo">${quizBrand(false)}</div>
       <div class="lgPanel">
-        <div class="lgTitle">같이 놀자!</div>
+        <div class="lgTitle">${QPCandy.html('같이 놀자!',{variant:'mint',className:'ct-small'})}</div>
         <div id="lgSexBox" class="lgSex hide">
           <label>아바타</label>
           <div class="row gap4">
@@ -3102,13 +3109,13 @@ SCREENS.home = function(st){
     <div id="fBan"></div>
     <div class="menu f1">
       <button class="mtile" id="mPractice"><span class="ic">${uiIcon('book')}</span>
-        <h3>${gameTitle('혼자 연습하기',true)}</h3><p>문제를 풀면 골드를 벌어요.<br>오늘 더 벌 수 있는 골드 <b id="capLeft"></b></p></button>
+        <h3>${gameTitle('혼자 연습하기')}</h3><p>문제를 풀면 골드를 벌어요.<br>오늘 더 벌 수 있는 골드 <b id="capLeft"></b></p></button>
       <button class="mtile" id="mLive"><span class="ic">${uiIcon('play')}</span>
-        <h3>${gameTitle('수업·퀴즈 참가',true)}</h3><p id="liveHint">실시간 수업이나 혼자 풀 퀴즈를 골라요.</p></button>
+        <h3>${gameTitle('수업·퀴즈 참가')}</h3><p id="liveHint">실시간 수업이나 혼자 풀 퀴즈를 골라요.</p></button>
       <button class="mtile" id="mShop"><span class="ic">${uiIcon('shop')}</span>
-        <h3>${gameTitle('옷 가게',true)}</h3><p>옷·모자·안경·펫이 ${ITEM_COUNT}가지!<br>골드로 사서 꾸며요.</p></button>
+        <h3>${gameTitle('옷 가게')}</h3><p>옷·모자·안경·펫이 ${ITEM_COUNT}가지!<br>골드로 사서 꾸며요.</p></button>
       <button class="mtile" id="mRank"><span class="ic">${uiIcon('trophy')}</span>
-        <h3>${gameTitle('우리 반 순위',true)}</h3><p>누가 제일 많이 맞혔을까?</p></button>
+        <h3>${gameTitle('우리 반 순위')}</h3><p>누가 제일 많이 맞혔을까?</p></button>
     </div>
     <div class="ticker"><span>📢</span><span id="tick"></span></div></div>
   </div>`;
@@ -3362,8 +3369,8 @@ SCREENS.shop = function(st,arg){
   const S = { cat:arg?.fitting?'top':'hair', sel:null, pv:avatarForSex(ME.av,null,ME.owned) };
   const groups=[{name:'머리 · 얼굴',icon:'hair',cats:['hair','expression']},{name:'한벌옷',icon:'outfit',cats:['outfit']},{name:'상의',icon:'top',cats:['top']},{name:'하의',icon:'bottom',cats:['bottom']},{name:'신발',icon:'shoes',cats:['shoes']},{name:'장신구',icon:'glass',cats:['hat','glass','face','ear','neck','frame']},{name:'날개 · 펫 · 효과',icon:'pet',cats:['back','pet','effect','bg']}];
 
-  st.innerHTML = `<section class="starlight-shop" aria-label="숲속 옷 가게">
-    <header class="starlight-header"><button class="btn" id="tbBack">← 뒤로</button><h1>숲속 옷 가게</h1><div class="f1"></div><button class="icb" id="tbSnd" aria-label="소리 설정">${uiIcon('sound')}</button><div class="gold">${uiIcon('coin')}<span class="sr-only">보유 골드</span><b id="goldNum">${(ME.gold||0).toLocaleString()}</b></div><button class="btn starlight-close" id="shopClose" aria-label="상점 닫고 마을로">×</button></header>
+  st.innerHTML = `<section class="starlight-shop forest-shop" aria-label="숲속 옷 가게">
+    <header class="starlight-header"><button class="btn" id="tbBack">← 뒤로</button><h1 class="forest-shop-title">${QPCandy.html('숲속 옷 가게',{arc:.22})}</h1><div class="f1"></div><button class="icb" id="tbSnd" aria-label="소리 설정">${uiIcon('sound')}</button><div class="gold">${uiIcon('coin')}<span class="sr-only">보유 골드</span><b id="goldNum">${(ME.gold||0).toLocaleString()}</b></div><button class="btn starlight-close" id="shopClose" aria-label="상점 닫고 마을로">×</button></header>
   <div class="shopwrap qp-village-shop qp-starlight-shop">
     <div class="pnl col shop-fitting">
       <div class="pnl-h" id="pvTitle">입어 보기</div>
@@ -3389,7 +3396,7 @@ SCREENS.shop = function(st,arg){
     </div>
 
     <div class="pnl col shop-selection">
-      <div class="pnl-h">나의 스타일</div>
+      <div class="pnl-h forest-shop-subtitle">${QPCandy.html('나의 스타일',{arc:.16})}</div>
       <div id="shInfo" class="f1 scroll"></div>
     </div>
   </div></section>`;
@@ -3650,9 +3657,11 @@ SCREENS.teacher = function(st){
         <button class="tab" data-t="kids">학생 관리</button>
       </div>
       <button class="btn sm g" data-t="make">새 퀴즈 만들기</button>
+      <button class="btn sm y" id="tQuizQuiz">QUIZQUIZ 방</button>
       <button class="btn sm gray" id="tbOut">나가기</button>
     </div><div id="tBody" class="tsplit"></div>`;
   el('tbOut').onclick = ()=>{ IS_TEACHER=false; ME=null; go('login'); };
+  el('tQuizQuiz').onclick = ()=> go('quizquiz');
   const setTeacherTab = value=>{
     tab=value;
     $$('.teacher-top [data-t]').forEach(b=>{
@@ -4999,7 +5008,7 @@ function qpLiveScreen(stage){
   function end(){
     const room=S.room,m=room.meta,p=mine(),rows=roster().sort((a,b)=>(b.sc||0)-(a.sc||0)),teams=teamRows();
     const champ=m.mode==='cross'?rows.find(x=>x.team===teams[0].id):rows[0],joint=m.mode==='cross'&&teams.length>1&&teams[0].score===teams[1].score;
-    wrap.innerHTML=`<div class="qp-results"><div class="qp-result-heading"><small>오늘의 퀴즈룸</small><h1>${m.mode==='cross'?(joint?'두 팀 공동 우승!':teams[0].name+' 우승!'):'퀴즈 챔피언!'}</h1><p>퀴즈로 모은 골드로 새로운 모습을 꾸며요.</p></div><div class="qp-result-content"><div class="qp-result-avatar">${champ?avatarSVG(Object.assign(newAvatar(),champ.av||{}),264,3):''}<h3>${m.mode==='cross'?(joint?'별빛 · 달빛 팀':teams[0].name):esc(champ&&champ.name||'')}</h3></div><div class="pnl qp-result-table">${m.mode==='cross'?teams.map((t,i)=>`<div class="rank"><div class="no">${teams.findIndex(x=>x.score===t.score)+1}</div><div class="rn">${t.name} · ${t.done}/${m.total}낱말</div><div class="rs">${t.score}점</div></div>`).join(''):rows.map((x,i)=>`<div class="rank ${x.k===key?'me':''}"><div class="no">${rows.findIndex(a=>a.sc===x.sc)+1}</div><div class="rn">${esc(x.name)} <small>${x.ok||0}개 정답</small></div><div class="rs">${x.sc||0}점</div></div>`).join('')}<p class="qp-result-reward">내 점수 ${p.sc||0}점 · 순위 보너스 +${p.finalBonus||0}골드</p></div></div><div class="row gap" style="justify-content:center"><button class="btn gray" id="resultHome">로비로</button><button class="btn y big" id="resultShop">번 골드로 꾸미기</button></div></div>`;
+    wrap.innerHTML=`<div class="qp-results"><div class="qp-result-heading"><small>오늘의 퀴즈룸</small><h1>${m.mode==='cross'?QPCandy.html(joint?'두 팀 공동 우승!':teams[0].name+' 우승!'):QPCandy.html([{text:'QUIZ',variant:'sky'},' 챔피언!'],{label:'퀴즈 챔피언!'})}</h1><p>퀴즈로 모은 골드로 새로운 모습을 꾸며요.</p></div><div class="qp-result-content"><div class="qp-result-avatar">${champ?avatarSVG(Object.assign(newAvatar(),champ.av||{}),264,3):''}<h3>${m.mode==='cross'?(joint?'별빛 · 달빛 팀':teams[0].name):esc(champ&&champ.name||'')}</h3></div><div class="pnl qp-result-table">${m.mode==='cross'?teams.map((t,i)=>`<div class="rank"><div class="no">${teams.findIndex(x=>x.score===t.score)+1}</div><div class="rn">${t.name} · ${t.done}/${m.total}낱말</div><div class="rs">${t.score}점</div></div>`).join(''):rows.map((x,i)=>`<div class="rank ${x.k===key?'me':''}"><div class="no">${rows.findIndex(a=>a.sc===x.sc)+1}</div><div class="rn">${esc(x.name)} <small>${x.ok||0}개 정답</small></div><div class="rs">${x.sc||0}점</div></div>`).join('')}<p class="qp-result-reward">내 점수 ${p.sc||0}점 · 순위 보너스 +${p.finalBonus||0}골드</p></div></div><div class="row gap" style="justify-content:center"><button class="btn gray" id="resultHome">로비로</button><button class="btn y big" id="resultShop">번 골드로 꾸미기</button></div></div>`;
     el('resultHome').onclick=()=>go('home');el('resultShop').onclick=()=>go('shop');
   }
   function render(){
@@ -5054,6 +5063,37 @@ function qpLiveScreen(stage){
   render();
 }
 SCREENS.live=qpLiveScreen;
+
+/* QUIZQUIZ lobby and rooms (quizquiz.js). */
+function qqContext(){
+  return {db:FB.db, base:DBR, me:{k:ME.k, name:ME.name, av:ME.av||newAvatar(), gold:ME.gold||0, daily:ME.day&&ME.day.d===today()?Math.max(0,ME.day.g||0):0, cap:R.practiceCap}, isTeacher:IS_TEACHER,
+    avatarSVG:(av,h,lod)=>avatarSVG(campusAvatar(av),h,lod), publicAvatar:av=>campusAvatar(av||{}), candy:(t,o)=>QPCandy.html(t,o),
+    setList, pickQs, setTitle:id=>BANK[id]&&BANK[id].title||'문제 묶음', svNow, toast, modal, closeModal, go, sound:SND, rules:R,
+    userRef:uref, rewardPractice:(correct,claim)=>recordPracticeAnswer(correct,claim,ME.k),
+    /* Survival OX plays on the school playground with the shared map engine. */
+    oxScene:ox=>{const base=window.QPPlaygroundScene&&QPPlaygroundScene.get();if(!base)return null;
+      return Object.assign({},base,{id:'ox',title:'서바이벌 OX',interactables:[],seats:[],landmarks:[],spawn:ox.spawn,cameraHome:ox.camera,centerOnPlayer:false});},
+    oxPresence:(id,scene,spawn,onPlayers,onStatus)=>QPVillagePresence.connect({db:FB.db,base:DBR,classId:window.CLASS_NAME||'3-3',space:'ox-'+id,
+      uid:ME.k,name:ME.name,avatar:campusAvatar(ME.av),bounds:{width:scene.width,height:scene.height},
+      initialState:{x:spawn.x,y:spawn.y,height:0,zone:'playground'},onPlayers,onStatus}),
+    mountWorld:(host,o)=>QPSchoolRoomWorld.mount(host,{scene:o.scene,user:{uid:ME.k,name:ME.name,avatar:campusAvatar(ME.av)},
+      renderAvatar:(av,height,lod)=>avatarSVG(campusAvatar(av),height||72,lod==null?3:lod),validateAvatar:campusAvatar,
+      presence:o.presence,zone:'playground',title:'서바이벌 OX',onExit:o.onExit,exitLabel:'로비로',isPaused:()=>el('modal').classList.contains('on')})};
+}
+function qqScreen(st,title,mount,back){
+  if(!ME){go('login');return;}
+  ensureClock();
+  st.innerHTML=topbar(title,true)+'<div class="qq-root" id="qqRoot"><p class="qq-loading">불러오는 중…</p></div>';
+  wireTop(back||(IS_TEACHER?'teacher':'village'));
+  let view=null,gone=false;
+  leaveFn=()=>{gone=true;view&&view.destroy();};
+  loadBank().catch(()=>BANK).then(()=>{if(!gone)view=mount(el('qqRoot'),qqContext());});
+}
+SCREENS.quizquiz=st=>qqScreen(st,'QUIZQUIZ 로비',(root,ctx)=>QPQuizQuiz.mountLobby(root,ctx));
+SCREENS.qqroom=(st,id)=>{
+  if(!/^[a-zA-Z0-9_-]{1,40}$/.test(String(id||''))){go('quizquiz');return;}
+  qqScreen(st,'QUIZQUIZ',(root,ctx)=>QPQuizQuiz.mountRoom(root,ctx,id),'quizquiz');
+};
 
 /* ═══════════════════════════════════════════════════════════════════
    16) 시작

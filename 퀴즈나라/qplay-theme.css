@@ -1,0 +1,245 @@
+/* QPlay blue skin (2026-10-08). References: 디자인기준/21~25-큐플레이UI-*.png.
+   Cobalt windows with a white inner rim and sky frame, navy title strips, sky
+   header bars, navy item slots, glossy blue/orange pills (qplay-buttons.css),
+   round chrome icon buttons and a blue chat bar. Layouts stay in their own files;
+   this file only paints. Candy titles, avatars and map art are kept. */
+:root {
+  --qb-night: #141d52;
+  --qb-deep: #1f2b6e;
+  --qb-cobalt: #2c4c9e;
+  --qb-cobalt-2: #3a63b8;
+  --qb-blue: #2f80dd;
+  --qb-sky: #4ab9f5;
+  --qb-sky-2: #8fd7ff;
+  --qb-ice: #e3f3fe;
+  --qb-ice-2: #c6e3f8;
+  --qb-frame: #a6cff2;
+  --qb-line: #13307a;
+  --qb-ink: #1b2a5c;
+  --qb-ink-2: #4a6290;
+  --qb-yellow: #ffd84a;
+  --qb-orange: #f58a24;
+  --qb-red: #e5432f;
+  --qb-slot: #23479c;
+  --qb-slot-edge: #5786d6;
+  --qb-outline: 1px 0 #0b2f74, -1px 0 #0b2f74, 0 1px #0b2f74, 0 -1px #0b2f74, 1px 1px #0b2f74, -1px -1px #0b2f74, 1px -1px #0b2f74, -1px 1px #0b2f74;
+}
+
+/* Menu screens sit on QPlay's deep blue; map screens paint their own world. */
+body:not(.qp-woodland) {
+  color: var(--qb-ink);
+  background-color: var(--qb-deep);
+  background-image:
+    radial-gradient(ellipse at 50% -10%, #4a7fe0 0%, #2a46a0 38%, #1c2a72 70%, #141d52 100%),
+    repeating-linear-gradient(45deg, #ffffff05 0 14px, #0000 14px 28px);
+  background-blend-mode: normal;
+  background-size: cover;
+  background-attachment: fixed;
+}
+body #deco { display: none; }
+body ::-webkit-scrollbar-thumb { background: linear-gradient(90deg, #8fd0ff, #3a8fe6); border: 2px solid #cfe7fb; border-radius: 10px; }
+body ::-webkit-scrollbar-track { background: #cfe7fb; }
+body * { scrollbar-color: #3a8fe6 #cfe7fb; }
+body button:focus-visible, body [tabindex]:focus-visible { outline-color: #ffd84a; }
+::selection { color: #fff; background: #2f80dd; }
+
+/* Top strip: deep cobalt with a sky rim, logo left and round chrome buttons right. */
+body .top {
+  color: #fff;
+  background: linear-gradient(#3a63c4 0%, #2446a0 48%, #1b347f 52%, #172b6a 100%);
+  border-bottom: 2px solid #7cc0f6;
+  box-shadow: inset 0 1px 0 #8cc4f4, inset 0 -2px 0 #0f2460, 0 3px 0 #0b1a4888;
+}
+body .top .tabs { background: transparent; border-bottom-color: transparent; }
+body .top .qp-tool-label { color: #e8f4ff !important; text-shadow: 0 1px 0 #0b2f74 !important; }
+body .gold {
+  color: #e8f4ff;
+  background: linear-gradient(#22357f, #16245e);
+  border: 2px solid #8fc8f5;
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 #4f74c8, 0 2px 0 #0b1a48;
+}
+body .gold b { color: var(--qb-yellow); }
+body .coin { background: radial-gradient(circle at 35% 30%, #fffcd3, #ffd84b 50%, #e99a16); border-color: #b47208; }
+
+/* Light window: white inner rim inside a cobalt line, sky title strip. */
+body .pnl {
+  color: var(--qb-ink);
+  background: linear-gradient(#eef8ff, #d8edfc);
+  border: 2px solid var(--qb-line);
+  border-radius: 10px;
+  box-shadow: inset 0 0 0 2px #ffffff, inset 0 0 0 4px #9fcaf0, 0 3px 0 #0f2460, 0 8px 18px #0b14404d;
+}
+body .pnl-h {
+  color: #fff;
+  background: linear-gradient(#86d6ff, #45b0f2 50%, #2a8ce0 52%, #2378d0);
+  border-bottom: 2px solid #1b5fb4;
+  box-shadow: inset 0 1px 0 #d4f1ff;
+  text-shadow: var(--qb-outline);
+  -webkit-text-stroke: 0;
+}
+body .pnl-h::before { background: radial-gradient(circle at 35% 30%, #fff, #ffd84a 55%, #e99a16); border-color: #8a5a10; box-shadow: 0 1px 0 #0b2f74; }
+body :is(.inp, .tarea) {
+  color: var(--qb-ink);
+  background: #ffffff;
+  border: 2px solid #7fa9dd;
+  border-radius: 7px;
+  box-shadow: inset 0 2px 0 #d8e8f8;
+}
+body :is(.inp, .tarea):focus { color: #10224f; border-color: #2f86e0; box-shadow: inset 0 2px 0 #e3f0fc, 0 0 0 3px #8fd7ff88; }
+body .hint { color: var(--qb-ink-2); }
+
+/* Modal: QPlay's pale-blue dialog with a white body. */
+body #modal { background: #0b1640b8; }
+body .mbox { border: 3px solid var(--qb-line); background: linear-gradient(#cfe8fb, #b6daf6); box-shadow: inset 0 0 0 2px #fff, 0 4px 0 #0b1a48, 0 14px 30px #0008; }
+body .mbody { color: var(--qb-ink); background: #f7fbff; }
+body .tt { color: var(--qb-ink); background: #f2f9ff; border-color: #7fa9dd; box-shadow: 0 3px 0 #13307a55; }
+body .qp-demo-toolbar { color: var(--qb-ink); background: #eef7fff2; border: 2px solid var(--qb-line); box-shadow: inset 0 0 0 2px #fff, 0 3px 0 #0f2460; }
+body .qp-demo-toolbar small { color: var(--qb-ink-2); }
+
+/* Login: the forest clearing stays; the form is a QPlay window. */
+body .lgSky .bub { display: none; }
+body .lgPanel {
+  color: var(--qb-ink);
+  background: linear-gradient(#eef8ff, #d4eafb);
+  border: 3px solid var(--qb-line);
+  box-shadow: inset 0 0 0 3px #fff, inset 0 0 0 5px #9fcaf0, 0 5px 0 #0f2460, 0 14px 28px #0b144066;
+}
+body .lgPanel::after { content: none; }
+body .lgTitle { color: var(--qb-ink); text-shadow: none; }
+body :is(.lgSup, .lgBar) { color: #e8f4ff; background: linear-gradient(#2c4c9e, #1f3a86); border: 2px solid #8fc8f5; box-shadow: 0 2px 0 #0b1a48; }
+body .lgForm label, body .lgSex label { color: var(--qb-ink); }
+body .lgDots { border: 2px solid #7fa9dd; background: #fff; box-shadow: inset 0 2px 0 #d8e8f8; }
+body .lgDots i { background: #d6e6f6; border-color: #a6c4e6; }
+body .lgDots i.f { background: #2f80dd; border-color: #13307a; box-shadow: inset 0 1px 0 #8fd7ff; }
+body .lgMsg { color: var(--qb-ink-2); }
+body .lgMsg b { color: #1f6fd0; }
+body .lgWho > svg { filter: drop-shadow(0 6px 0 #0b144033); }
+
+/* Classroom flow, teacher studio and answer widgets in the same blue. */
+body .classroom-body, body .classroom-student-body { background: linear-gradient(#eaf6ff, #cfe6fa); }
+body :is(.class-mode-preview, .class-bank-list, .qpc-panel, .qpb-builder, .class-round-question) {
+  color: var(--qb-ink); border-color: var(--qb-line); background: linear-gradient(#f4faff, #dcefff);
+  box-shadow: inset 0 0 0 2px #fff, 0 3px 0 #0f2460, 0 8px 16px #0b14402b;
+}
+body :is(.class-flow-heading h2, .class-hub h2, .qpc-heading h2, .qpc-dash-heading h2, .qpc-roster h3) { color: #1f4fb0; }
+body .class-mode-list { border-color: #8fc8f5; background: linear-gradient(#2c4c9e, #22408a); box-shadow: inset 0 1px 0 #6d9be0, 0 3px 0 #0f2460; }
+body .class-mode.selected { color: #fff; background: linear-gradient(#86d6ff, #2a8ce0); border-color: #fff; box-shadow: inset 0 1px 0 #d4f1ff, 0 3px 0 #13307a; text-shadow: var(--qb-outline); }
+body .class-student-hud { color: #fff; background: linear-gradient(#3a63c4, #1b347f); border-bottom: 2px solid #7cc0f6; box-shadow: inset 0 1px 0 #8cc4f4; text-shadow: 0 1px 0 #0b2f74; }
+body .class-student-hud small { color: #dceeff; }
+body .class-student-hud > .class-player-progress { background: #16245e; border-color: #8fc8f5; box-shadow: inset 0 2px 4px #0b1a48, 0 2px 0 #0b1a48; }
+body .class-student-footer { color: var(--qb-ink-2); background: #e3f1fd; }
+body .class-round-no { color: #fff; border-color: #fff; background: linear-gradient(#ffd18a, #f07a14); box-shadow: 0 3px 0 #8a3204; text-shadow: 0 1px 0 #8a3204; }
+body .qpc-heading p, body .qpc-dash-heading p, body .qpc-field, body .qpc-field small { color: var(--qb-ink-2); }
+body :is(.qpc-form input:not([type=radio]), .qpc-form select, .qpb-builder .inp) { color: var(--qb-ink); background: #fff; border-color: #7fa9dd; }
+body .qpc-button:not([data-action=end]) { color: #fff; background: linear-gradient(#8fd8ff, #4fb2f7 45%, #2d86e0 52%, #1f6cd0); border-color: #0d3a8c; box-shadow: inset 0 1px 0 #ffffffcc, 0 3px 0 #0b2a6a; text-shadow: var(--qb-outline); }
+body .qpc-button[data-action=back], body .qpc-button[data-action=reveal] { color: #fff; background: linear-gradient(#ffd18a, #ffa340 45%, #f07a14 52%, #d85a08); border-color: #8a3204; box-shadow: inset 0 1px 0 #fff3dd, 0 3px 0 #6b2603; text-shadow: 0 1px 0 #8a3204; }
+body .qpb-toolbar, body .qpb-editor { background: #f7fbff; }
+body .qpb-stepbar { background: #d8ebfb; border-bottom-color: #9fcaf0; }
+body .qpb-sidebar, body .qpb-add-types { background: #e6f2fd; border-color: #a6cff2; }
+body .qpb-builder { --qpb-control-top: #8fd8ff; --qpb-control-mid: #4fb2f7; --qpb-control-bottom: #2d86e0; --qpb-control-edge: #1f6cd0; --qpb-control-base: #0b2a6a; }
+body .qpb-stepbar > span { color: var(--qb-ink-2); background: linear-gradient(#fff, #e3f1fd); border-color: #a6cff2; box-shadow: 0 2px 0 #9fcaf0; }
+body .qpb-stepbar .qpb-step-done { color: #1f6fd0; background: linear-gradient(#e9f6ff, #c6e3f8); }
+body .qpb-stepbar .qpb-step-current { color: #fff; background: linear-gradient(#86d6ff, #2a8ce0); text-shadow: 0 1px 0 #0b2f74; box-shadow: 0 2px 0 #13307a; }
+body :is(.qpb-sidebar-title, .qpb-add-types h3, .qpb-title-label) { color: #1f4fb0; }
+body .qpb-sidebar-title > span { color: #fff; background: linear-gradient(#86d6ff, #2a8ce0); border-color: #fff; box-shadow: 0 2px 0 #13307a; }
+body .qpb-builder .qpb-question-card { color: var(--qb-ink); border-color: #fff; background: linear-gradient(#fafdff, #e3f1fd); box-shadow: inset 0 0 0 1px #9fcaf0, 0 3px 0 #9fcaf0; }
+body .qpb-builder .qpb-question-card.is-selected { color: #fff; border-color: #fff; background: linear-gradient(#3a63b8, #2c4c9e); box-shadow: inset 0 1px 0 #6d9be0, 0 3px 0 #0f2460; }
+body .qpb-question-number { color: #fff; background: linear-gradient(#86d6ff, #2a8ce0); border-color: #fff; box-shadow: 0 2px 0 #13307a; text-shadow: 0 1px 0 #0b2f74; }
+body .qpb-builder .is-selected .qpb-question-number { color: #5a3a06; background: linear-gradient(#fff3b0, #ffd84a); text-shadow: none; }
+body .qpb-question-summary small, body .qpb-empty-list, body .qpb-empty-editor p { color: var(--qb-ink-2); }
+body .is-selected .qpb-question-summary small { color: #dceeff; }
+body .qpb-empty-editor h2 { color: #1f4fb0; }
+body .qpb-builder .qpb-type-add[data-add=match] { --qpb-control-top: #ffd18a; --qpb-control-mid: #ffa340; --qpb-control-bottom: #f07a14; --qpb-control-edge: #d85a08; --qpb-control-base: #6b2603; }
+body .qpb-builder :is(.qpb-type-add[data-add=order], .qpb-add-row) { --qpb-control-top: #c9f0ff; --qpb-control-mid: #7fd0f8; --qpb-control-bottom: #3aa6ee; --qpb-control-edge: #1f86d8; --qpb-control-base: #0f4a8a; }
+body .qpb-builder .qpb-mini.is-danger { --qpb-control-top: #ffb0a0; --qpb-control-mid: #f8604c; --qpb-control-bottom: #e23a26; --qpb-control-edge: #c42614; --qpb-control-base: #7a1408; }
+body .qpb-editor-heading { background: linear-gradient(#3a63c4, #1f3a86); border-color: #8fc8f5; box-shadow: inset 0 1px 0 #8cc4f4, 0 3px 0 #0f2460; }
+body .qpb-editor-heading h2 { color: #fff; text-shadow: var(--qb-outline); }
+body .qpb-editor-heading .qpb-step-label { color: #dceeff; }
+body .qpb-field { color: var(--qb-ink); }
+body .qpb-field > span small, body .qpb-field > small, body .qpb-note { color: var(--qb-ink-2); }
+body .qpb-builder .inp:focus { border-color: #2f86e0; box-shadow: 0 0 0 3px #8fd7ff88; }
+body .qpb-builder .inp::placeholder { color: #8aa0c4; }
+body .qpb-answer-fields { border-top-color: #a6cff2; }
+body .qpb-option-badge { color: #1f4fb0; border-color: #fff; background: linear-gradient(#fff, #d8ebfb); box-shadow: 0 2px 0 #9fcaf0; }
+body .qpb-option-row.is-correct .qpb-option-badge { color: #fff; background: linear-gradient(#86d6ff, #2a8ce0); }
+body .qpb-option-row.is-correct .inp { border-color: #2f86e0; background: #f2f9ff; }
+body .qpb-pair-head, body .qpb-row-number, body .qpb-pair-arrow { color: #1f6fd0; }
+body .qpb-preview-panel { background: linear-gradient(145deg, #d8ebfb, #bfe0f7); border-left-color: #fff; }
+body .qpb-preview-heading { color: #fff; background: linear-gradient(#86d6ff, #2a8ce0); border-color: #fff; box-shadow: 0 2px 0 #13307a; text-shadow: 0 1px 0 #0b2f74; }
+body .qpb-preview-content { border-color: #fff; box-shadow: inset 0 0 0 1px #9fcaf0, 0 3px 0 #9fcaf0; }
+body .qpb-preview-question { color: var(--qb-ink); }
+body .qpb-preview-empty { color: var(--qb-ink-2); }
+body .qpb-footer { color: #fff; background: linear-gradient(#2c4c9e, #1b347f); border-top-color: #7cc0f6; }
+body .qpb-footer > span { color: #dceeff; }
+body .qpb-empty-icon { border-color: #fff; background: linear-gradient(#86d6ff, #2a8ce0); box-shadow: 0 3px 0 #13307a; }
+
+body .qpq-help { color: var(--qb-ink-2); }
+body .qpq-answer .qpq-choice { color: var(--qb-ink); border-color: #fff; background: linear-gradient(#fafdff, #e3f1fd); box-shadow: inset 0 0 0 2px #7fa9dd, 0 3px 0 #2c4c9e; }
+body .qpq-answer .qpq-choice .qpq-choice-number { color: #fff; border-color: #fff; background: linear-gradient(#86d6ff, #2a8ce0); box-shadow: 0 2px 0 #13307a; }
+body .qpq-answer .qpq-choice.is-selected { color: #6b3a02; border-color: #fff; background: linear-gradient(#fff6c8, #ffd84a); box-shadow: inset 0 0 0 2px #e99a16, 0 3px 0 #8a5a10; }
+body .qpq-answer .qpq-choice.is-selected .qpq-choice-number { background: linear-gradient(#ffd18a, #f07a14); box-shadow: 0 2px 0 #8a3204; }
+body .qpq-answer .qpq-short-input.inp { color: var(--qb-ink); border-color: #7fa9dd; background: #fff; box-shadow: inset 0 2px 0 #d8e8f8; }
+body .qpq-answer .qpq-short-input.inp:focus { border-color: #2f86e0; box-shadow: 0 0 0 3px #8fd7ff88; }
+body .qpq-match-item { color: var(--qb-ink); border-color: #fff; background: linear-gradient(#fafdff, #e3f1fd); box-shadow: inset 0 0 0 2px #7fa9dd, 0 3px 0 #2c4c9e; }
+body .qpq-match-item.is-connected { color: #0b4740; background: linear-gradient(#e0fbf4, #a8eadb); box-shadow: inset 0 0 0 2px #2fb8a8, 0 3px 0 #0f5a52; }
+body .qpq-match-item.is-selected { color: #6b3a02; border-color: #fff; background: linear-gradient(#fff6c8, #ffd84a); box-shadow: inset 0 0 0 2px #e99a16, 0 3px 0 #8a5a10; }
+body .qpq-match-line { stroke: #2f80dd; }
+body .qpq-match-status, body .qpq-order-status { color: #1f6fd0; }
+body .qpq-order-item { background: linear-gradient(#fafdff, #e3f1fd); border-color: #fff; box-shadow: inset 0 0 0 1px #7fa9dd, 0 3px 0 #9fcaf0; }
+body .qpq-order-grip { color: #7f9cc8; }
+body .qpq-order-text { color: var(--qb-ink); }
+
+body .qp-quiz-map .qp-map-step { color: #fff; background: linear-gradient(#8fd8ff, #4fb2f7 45%, #2d86e0 52%, #1f6cd0); border-color: #fff; box-shadow: inset 0 1px 0 #ffffffcc, 0 4px 0 #0b2a6a, 0 7px 8px #0b144055; text-shadow: var(--qb-outline); }
+body .qp-quiz-map .qp-map-step:is(:active, .is-held) { box-shadow: inset 0 2px 3px #0005, 0 1px 0 #0b2a6a; }
+body .qp-results { background: radial-gradient(ellipse at 50% 0, #4a7fe0, #1c2a72 70%); }
+body .qp-result-table { background: #eef8ff; border: 2px solid var(--qb-line); box-shadow: inset 0 0 0 2px #fff, 0 4px 0 #0f2460; }
+body .rank { border-color: #a6cff2; background: #f7fbff; box-shadow: 0 2px 0 #9fcaf0; }
+body .rank .rn { color: var(--qb-ink); }
+body .rank .rs { color: #1f6fd0; }
+body .setrow, body .qrow { color: var(--qb-ink); border-color: #a6cff2; background: #f7fbff; }
+body .setrow .sn { color: #1f4fb0; }
+body #avatarSexChoices > .f1 { background: #e3f1fd !important; border-color: #7fa9dd !important; }
+
+
+/* Login after the QPlay title screen: bright sky, bubbles and friends around a big
+   QUIZ나라 logo, a cobalt L·O·G·I·N window with a GO button. */
+body #login { background: radial-gradient(ellipse at 50% 30%, #8fe0ff 0%, #45b4f0 38%, #1f86d8 72%, #1565c0 100%); }
+body .lgSky .bub { display: block; opacity: .9; border: 3px solid #ffffffcc; background: radial-gradient(circle at 30% 26%, #ffffffe6 0 14%, #fff0 16%), radial-gradient(circle at 50% 55%, var(--b2), var(--b1)); box-shadow: inset 0 -10px 18px #0002, 0 8px 16px #0b3a7a40; }
+body #login .lgSup { display: none; }
+body #login .lgLogo .quiz-brand::before { display: none; }
+body #login .lgLogo .quiz-brand { --brand-letter-size: 78px; --brand-height: 118px; --brand-width: 400px; }
+body #login .lgLogo .quiz-brand-class { top: -8px; }
+body #login .lgPanel {
+  color: #fff;
+  background: linear-gradient(#3f6fd0 0%, #2a52b0 40%, #1f3f96 100%);
+  border: 3px solid #0e2a72;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 2px #9fd2ff, inset 0 2px 0 4px #5a8ae0, 0 5px 0 #0b1a48, 0 16px 30px #0b144066;
+}
+body #login .lgTitle { display: flex; justify-content: center; gap: 4px; margin-bottom: 12px; }
+body #login .lgTitle i { display: grid; place-items: center; width: 24px; height: 24px; font: 700 15px/1 "QuizLatin", sans-serif; font-style: normal; color: #1b3f9a; background: linear-gradient(#ffffff, #cfe6fb); border: 1px solid #0e2a72; border-radius: 4px; box-shadow: 0 1px 0 #0b1a48; }
+body #login .lgForm label, body #login .lgSex label { color: #fff; text-shadow: 0 1px 0 #0b2f74; }
+body #login .lgMsg { color: #e8f4ff; }
+body #login .lgMsg b { color: #ffd84a; }
+body #login .lgGoBtn { font: 700 26px/1 "QuizLatin", "QuizDisplay", sans-serif !important; letter-spacing: .04em !important;
+  --qb-a: #b6e6ff !important; --qb-b: #5cbcf8 !important; --qb-c: #2a83de !important; --qb-d: #1c66c8 !important; --qb-rim: #0c3784 !important; --qb-ink-o: #0b2f74 !important; }
+body #login .lgBar { background: #0e2a72cc; border-color: #8fc8f5; }
+
+body #login .lgFind { margin: 8px 0 0; padding: 4px; border-radius: 6px; background: #ffffff1f; text-align: center; font: 700 12px "NanumSquareRound", sans-serif; color: #dceeff; }
+body #login .lgFoot { margin-top: 12px; text-align: center; font: 700 12px "NanumSquareRound", sans-serif; color: #e8f4ff; text-shadow: 0 1px 0 #0b3a7a; }
+body #login .lgPanel { width: min(400px, 92vw); }
+.kid-cred{display:inline-block;margin-left:8px;padding:1px 8px;border-radius:8px;background:#e3f1fd;border:1px solid #9fcaf0;font-size:12px;color:#1b2a5c}.kid-cred b{color:#e8590c}
+
+/* Login mascots: pets riding glossy bubbles, bobbing out of step. */
+body #login .lgMascot { position: absolute; width: var(--s); height: var(--s); animation: lg-bob 4.8s ease-in-out infinite; }
+body #login .lgMascot .bub { position: absolute; inset: 0; width: 100%; height: 100%; border-radius: 50%; animation: none; opacity: 1;
+  border: 3px solid #ffffffd9; background: radial-gradient(circle at 30% 24%, #ffffffee 0 12%, #fff0 14%), radial-gradient(circle at 70% 78%, #ffffff55 0 8%, #fff0 10%), radial-gradient(circle at 46% 50%, var(--b2), var(--b1) 78%);
+  box-shadow: inset 0 -12px 20px #0003, 0 10px 18px #0b3a7a40; }
+body #login .lgPet { position: absolute; left: 50%; bottom: 58%; width: 78%; height: auto; translate: -50% 0; overflow: visible; filter: drop-shadow(0 4px 0 #0b3a7a44); }
+@keyframes lg-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+@media (prefers-reduced-motion: reduce) { body #login .lgMascot { animation: none; } }
+@media (max-width: 900px) { body #login .lgMascot { opacity: .55; } }
+body #login .lgPanel > .lgWide { display: block; width: 100%; margin-top: 8px; }
+body #login .lgPanel > .lgWide:not(.ex) { padding: 9px; font-size: 17px; }
+body #login .lgPanel > .lgWide.ex { width: auto; margin: 8px auto 0; padding: 5px 18px; font-size: 13px; }

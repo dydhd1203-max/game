@@ -1,17 +1,16 @@
 {
   "date": "2026-10-08",
   "request": "사용자 요청: 보라색 별빛 상점을 숲 컨셉 색으로 변경",
-  "method": "tools/build-forest-shop-art.cjs가 별빛 원화의 보라·분홍 영역만 구역별 색상 변환. 나무 틀·양피지·잎·꽃·등불·금색 테두리 픽셀은 그대로 둔다. 새 그림을 생성하지 않았다.",
+  "method": "별빛 상점 원화(assets/starlight-shop.png, 커밋 21a6874)의 보라·분홍 영역만 구역별로 숲 색으로 바꾼 그림. 변환 도구 첫 판은 커밋 f04d9e3의 tools/build-forest-shop-art.cjs에 있고, 리본 둘레 하늘을 저녁 숲색으로 남기는 보정(채도 0.6 이상 또는 밝기 0.55 이상만 리본)을 더해 다시 만든 뒤 원본과 도구를 정리했다. 나무 틀·양피지·잎·꽃·등불·금색 테두리 픽셀은 원본 그대로.",
   "palette": {
     "ribbon": "moss 100°",
     "curtain": "forest velvet 138°",
     "wall": "sage 96°",
     "stageTop": "moss 92°",
     "stageSide": "bark 28°",
-    "sky": "forest dusk 140–160°",
-    "back": "toadstool red 6°",
-    "selected": "jade 172°"
+    "sky": "forest dusk 140–160°"
   },
+  "note": "버튼은 그림 대신 qplay-buttons.css의 큐플레이식 판으로 그린다.",
   "regions": {
     "background": {
       "ribbons": [
@@ -60,76 +59,16 @@
           440
         ]
       ]
-    },
-    "buttons": {
-      "pink": [
-        805,
-        65,
-        1493,
-        212
-      ],
-      "purple": [
-        804,
-        274,
-        1492,
-        424
-      ],
-      "close": [
-        271,
-        731,
-        520,
-        980
-      ]
     }
-  },
-  "slices": {
-    "green": [
-      48,
-      65,
-      697,
-      147
-    ],
-    "pink": [
-      805,
-      65,
-      688,
-      147
-    ],
-    "cream": [
-      48,
-      276,
-      697,
-      146
-    ],
-    "purple": [
-      804,
-      274,
-      688,
-      150
-    ],
-    "close": [
-      271,
-      731,
-      249,
-      249
-    ]
   },
   "outputs": [
     {
       "path": "assets/forest-shop.png",
       "from": "assets/starlight-shop.png",
       "sourceSha256": "adc840f1acf0c64cb29c64ebeb84247562dea1768aee94026272ddb311a81193",
-      "sha256": "4d40419034e6b680cd68da6b97601a5e9421f9367877b1ac15981843fe987e90",
-      "changedPixels": 386123,
+      "sha256": "e86dac5e35156d2273897bd63a5aaeee0b8304f10934e82a032df0c877d98992",
+      "changedPixels": 386871,
       "totalPixels": 1572080
-    },
-    {
-      "path": "assets/forest-shop-buttons.png",
-      "from": "assets/starlight-shop-buttons.png",
-      "sourceSha256": "8077435b352416c34c05669418b1b32cb09ac737cc082e606c1eae91019c76d9",
-      "sha256": "eb045871e75320bebedddd85aacffdaff86cff3c2a769f5facc3ef70eeb63f32",
-      "changedPixels": 231796,
-      "totalPixels": 1572864
     }
   ]
 }

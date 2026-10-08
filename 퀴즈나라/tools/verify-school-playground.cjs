@@ -60,10 +60,10 @@ async function focus(page){await page.bringToFront();await page.locator('.school
  assert.equal(await a.evaluate(()=>document.querySelector('.sr-actor.is-me svg').dataset.qpxGesture||''),'');
  assert.equal((await state(a)).zone,'campus');
  assert(Math.hypot((await state(a)).x-awayBefore.x,(await state(a)).y-awayBefore.y)<.1);
- assert.equal(await a.locator('[data-gesture="wave"] small').count(),0,'Greeting button must not advertise F');
+ assert.equal(await a.locator('.sr-controls [data-gesture]').count(),0,'Gestures use keys 1·2·3, not a button bar');
  assert(!(await a.locator('.school-room-world').getAttribute('aria-label')).includes('F로 손'));
  await shot(a,'01-교실-문밖-F-아무행동없음');
- await a.locator('[data-gesture="wave"]').click();
+ await a.keyboard.press('Digit1');
  await a.waitForFunction(()=>document.querySelector('.sr-actor.is-me svg')?.dataset.qpxGesture==='wave');
  await a.waitForFunction(()=>!document.querySelector('.sr-actor.is-me svg')?.dataset.qpxGesture);
  pass('Explicit classroom entry retains the 30-seat classroom; F away from doors does nothing, while the greeting button still waves.');

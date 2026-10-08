@@ -33,7 +33,7 @@ async function walk(p,q){assert(await p.evaluate(q=>QPGame.getVillage().moveTo(q
   await p.evaluate(zone=>QPGame.go(zone,QPForestVillageScene.get(zone).spawn),zone);await p.waitForTimeout(700);
   const points=await p.evaluate(()=>QPGame.getVillage().scene.previewViews.slice(1).map(v=>v.spawn));
   for(const q of points)await walk(p,q);
-  await p.locator('.school-room-world').focus();await p.keyboard.press('KeyC');assert.equal(await p.evaluate(()=>QPGame.getVillage().getState().pose),'sit-floor');await p.keyboard.press('KeyC');await p.locator('[data-gesture="wave"]').click();await p.waitForTimeout(160);await p.screenshot({path:path.join(out,zone+'-walk-sit-wave.png')});
+  await p.locator('.school-room-world').focus();await p.keyboard.press('KeyC');assert.equal(await p.evaluate(()=>QPGame.getVillage().getState().pose),'sit-floor');await p.keyboard.press('KeyC');await p.keyboard.press('Digit1');await p.waitForTimeout(160);await p.screenshot({path:path.join(out,zone+'-walk-sit-wave.png')});
   report.checks.push({name:zone+' real walk/C/wave',views:points.length});
  }
  // Real keyboard on the painted ladders: walk to the foot, hold ↑, stop on

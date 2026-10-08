@@ -1,4 +1,5 @@
-/* Original forest-game wordmark. The live class caption stays ordinary HTML. */
+/* Forest-game wordmark: wooden sign, class caption plate and candy QUIZ나라 letters
+   (candy-title.js). The live class caption stays ordinary HTML. */
 body .logo.lgLogo {
   color: inherit;
   font-size: 0;
@@ -22,13 +23,10 @@ body .top .nm.quiz-brand-host {
 .quiz-brand {
   --brand-width: 272px;
   --brand-height: 96px;
-  --brand-letter-size: 60px;
-  --brand-title-bottom: 9px;
+  --brand-letter-size: 52px;
+  --brand-title-bottom: 1px;
   --brand-caption-size: 14px;
   --brand-caption-height: 23px;
-  --brand-outline: 2.8px;
-  --brand-rim: 8px;
-  --brand-depth: 5px;
   position: relative;
   display: inline-block;
   width: var(--brand-width);
@@ -97,71 +95,17 @@ body .top .nm.quiz-brand-host {
   text-shadow: none;
   z-index: 1;
 }
-.quiz-brand-title > span {
-  position: relative;
-  display: block;
-  width: .99em;
-  flex: none;
-  isolation: isolate;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  -webkit-text-stroke: 0;
-  text-shadow: none;
-}
-.quiz-brand-face {
-  /* A real foreground glyph keeps the orange extrusion below the gold face. */
-  position: relative;
-  display: block;
-  color: #ffe252;
-  -webkit-text-fill-color: #ffe252;
-  -webkit-text-stroke: var(--brand-outline) #e98410;
-  paint-order: stroke fill;
-  text-shadow: 0 -1px 0 #fff2a2;
-  z-index: 1;
-}
-.quiz-brand-title > span:nth-child(1) { --brand-glyph: "퀴"; transform: translateY(1px) rotate(-7deg); }
-.quiz-brand-title > span:nth-child(2) { --brand-glyph: "즈"; transform: translateY(-3px) rotate(3deg); }
-.quiz-brand-title > span:nth-child(3) { --brand-glyph: "나"; transform: translateY(-1px) rotate(-4deg); }
-.quiz-brand-title > span:nth-child(4) { --brand-glyph: "라"; transform: translateY(2px) rotate(6deg); }
-.quiz-brand-title > span::before,
-.quiz-brand-title > span::after {
-  /* Empty alternate content keeps the decorative extra layers out of the spoken name. */
-  content: var(--brand-glyph) / "";
-  position: absolute;
-  inset: 0;
-  font: inherit;
-  letter-spacing: inherit;
-  background: none;
-  pointer-events: none;
-  paint-order: stroke fill;
-}
-.quiz-brand-title > span::before {
-  color: #e89010;
-  -webkit-text-fill-color: #e89010;
-  -webkit-text-stroke: calc(var(--brand-outline) + 1px) #9a481a;
-  text-shadow: 0 2px 0 #b45a13, 0 var(--brand-depth) 0 #713a19;
-  z-index: 0;
-}
-.quiz-brand-title > span::after {
-  color: #fff7da;
-  -webkit-text-fill-color: #fff7da;
-  -webkit-text-stroke: var(--brand-rim) #fff7da;
-  text-shadow: 0 calc(var(--brand-depth) + 1px) 0 #fff7da;
-  z-index: -1;
-}
+.quiz-brand-title .qp-candy { --ct-line: .16em; letter-spacing: .01em; }
 .quiz-brand-compact {
-  --brand-width: 188px;
-  --brand-height: 52px;
-  --brand-letter-size: 33px;
-  --brand-title-bottom: 4px;
+  --brand-width: 206px;
+  --brand-height: 64px;
+  --brand-letter-size: 32px;
+  --brand-title-bottom: 5px;
   --brand-caption-size: 10px;
   --brand-caption-height: 16px;
-  --brand-outline: 1.5px;
-  --brand-rim: 5px;
-  --brand-depth: 3px;
   margin-top: 0;
 }
-.quiz-brand-compact .quiz-brand-class { top: 0; min-width: 80px; padding-inline: 9px; border-width: 1px; border-radius: 6px; }
+.quiz-brand-compact .quiz-brand-class { top: -6px; min-width: 80px; padding-inline: 9px; border-width: 1px; border-radius: 6px; }
 
 @media (min-width: 661px) and (max-height: 690px) {
   .quiz-brand:not(.quiz-brand-compact) {
@@ -176,8 +120,6 @@ body .top .nm.quiz-brand-host {
     --brand-width: 230px;
     --brand-caption-height: 20px;
     --brand-caption-size: 12px;
-    --brand-outline: 2.3px;
-    --brand-rim: 7px;
     --brand-title-bottom: 4px;
   }
 }
@@ -186,7 +128,7 @@ body .top .nm.quiz-brand-host {
   .quiz-brand-compact {
     --brand-width: 164px;
     --brand-height: 48px;
-    --brand-letter-size: 29px;
+    --brand-letter-size: 24px;
     --brand-title-bottom: 5px;
     --brand-caption-height: 15px;
     --brand-caption-size: 9px;
