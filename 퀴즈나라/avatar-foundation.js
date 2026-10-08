@@ -15,11 +15,14 @@
   // Independently traced neck-only boundaries on the original short/bob
   // directional paintings: the sheet supplies the neck, so the paintings'
   // own neck stubs and their outlines go. Curves keep hair over the nape;
-  // where a cut crosses hair it is shaped as strand tips (male back), never
-  // a smooth or straight line. Rules: 아바타-제작기준.md 머리–목 연결 규칙.
+  // where a cut crosses hair it follows the painted strand edges, never a
+  // smooth or straight line. Male back keeps the strokes framing the nape
+  // and cuts only below the collar. Female side removes only the painting's
+  // grey under-jaw patch (strand tips, curl and back hair stay). Rules:
+  // 아바타-제작기준.md 머리–목 연결 규칙.
   const HEAD_NECK_CUT={
     m:{front:'M12.8 28.65Q13.45 28.45 13.6 27.98Q13.9 27.78 14.3 27.9V31H12.8ZM19.2 28.65Q18.55 28.45 18.4 27.98Q18.1 27.78 17.7 27.9V31H19.2Z',profile:'M14.25 25.7Q15.6 26.4 18.55 26.67Q18.2 27.6 18.5 28.3L18.7 29.4H12.55V28Q13.45 27.6 13.75 26.65Z',back:'M11.5 27.6H13.06Q15.9 27.95 18.56 27.56H20.5V30H11.5Z'},
-    f:{profile:'M15.85 25.55Q16.05 25.3 16.4 25.28H17.4Q17.45 25.75 17.12 26.02Q16.9 26.8 17.25 27.45Q17.7 27.9 18.3 28.05L18.45 29.4H12.65V27.85Q14.85 27.25 15.4 26.8Q15.9 26.2 15.85 25.55Z'}
+    f:{profile:'M15.87 26.05L15.87 25.65L16.03 25.62L16.13 25.6L16.28 25.59L16.33 25.53L16.28 25.48L16.3 25.44L16.36 25.4L16.41 25.36L16.44 25.34L16.48 25.22Q16.76 25.32 16.96 25.34Q16.99 25.14 17.05 24.97Q17.14 25.19 17.37 25.34L17.44 25.4L17.49 25.46L17.51 25.51L17.53 25.54L17.46 25.57L17.4 25.6L17.4 25.67Q17.23 25.81 17.06 26.04L16.53 26.06Z'}
   };
   // The thigh top is covered by the shorts; a wider root poked out beside
   // the shorts' curved hip as a pale skin tab.
@@ -32,8 +35,10 @@
   // front one. Reference head widths (기준캐릭터-조사): male side 0.98 and
   // back 0.945 of the front, female side 0.83 and back 0.98. [scale, drop].
   // Drops seat each chin over the sheet neck's cast shadow (its flat chin
-  // sits a little above the sheet's pointed one).
-  const VIEW_HEAD={m:{front:[1,.22],profile:[1.146,.75],back:[1.21,1.05]},f:{front:[1,.4],profile:[1,1.04],back:[1.074,0]}},VIEW_HEAD_PIVOT=26.7;
+  // sits a little above the sheet's pointed one). Female front/side were
+  // raised 1.5-2.3 sheet px (2026-10-08) to the sheet's chin-to-collar
+  // distance; the neck had read slightly short.
+  const VIEW_HEAD={m:{front:[1,.22],profile:[1.146,.75],back:[1.21,1.05]},f:{front:[1,.15],profile:[1,.88],back:[1.074,0]}},VIEW_HEAD_PIVOT=26.7;
   const BODY_SCALE={x:1.593,y:1.593},ARM_RADII=Object.freeze([.8,.8,.7]),HEAD_SCALE=.88,STAGE_SCALE=1.0627,FLOOR_Y=56.75;
   // Old painted neck-stump strokes under every front portrait, by sex.
   const BACK_HAIR_NECK_CUT={

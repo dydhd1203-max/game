@@ -100,18 +100,33 @@
     const url=target.toDataURL('image/png');if(normalizedHeads.size>=280)normalizedHeads.delete(normalizedHeads.keys().next().value);normalizedHeads.set(key,url);return url;
   }
   function tonal(color,luminance){const target=rgb(color),gain=luminance/102,shine=Math.max(0,luminance-160)*.38;return target.map(v=>clamp(Math.round(v*gain+shine)));}
+  const skinZoneAt=(o,p,r,g,b)=>o.faceMask[p]||o.skinFringe[p]||o.nearFace[p]&&r>140&&g>80&&b>90&&r>g+15&&g<b*1.08;
+  const hairColour=(r,g,b)=>r>g*1.025&&g>b*.98&&r-g<117&&g-b<83&&r>24;
+  // Hair strands that reach into the face/fringe masks were recoloured as
+  // skin and turned into grey-mauve blotches along the bangs. A stray is a
+  // mid-dark hair-coloured pixel inside those masks that is connected to the
+  // hair outside them; ears, brows, eye lines and outlines are not.
+  function strayHair(o){
+    if(o.strayHair)return o.strayHair;const n=HEAD_GRID*HEAD_GRID,src=o.data,zone=new Uint8Array(n),hair=new Uint8Array(n),cand=new Uint8Array(n),out=new Uint8Array(n),queue=[];
+    for(let p=0;p<n;p++){const i=p*4;if(src[i+3]<40)continue;const r=src[i],g=src[i+1],b=src[i+2],lum=r*.22+g*.59+b*.19;zone[p]=skinZoneAt(o,p,r,g,b)?1:0;hair[p]=hairColour(r,g,b)?1:0;if(zone[p]&&hair[p]&&lum>55&&lum<150&&g-b>=g*.1&&r-g>=30)cand[p]=1;}
+    for(let p=0;p<n;p++){if(!cand[p])continue;const x=p%HEAD_GRID,y=(p-x)/HEAD_GRID;
+      for(let dy=-1;dy<=1&&!out[p];dy++)for(let dx=-1;dx<=1;dx++){const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=HEAD_GRID||yy>=HEAD_GRID)continue;const q=yy*HEAD_GRID+xx;if(!zone[q]&&hair[q]&&!o.featureMask[q]&&src[q*4+3]>=40){out[p]=1;queue.push(p);break;}}}
+    for(let k=0;k<queue.length;k++){const p=queue[k],x=p%HEAD_GRID,y=(p-x)/HEAD_GRID;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=HEAD_GRID||yy>=HEAD_GRID)continue;const q=yy*HEAD_GRID+xx;if(cand[q]&&!out[q]){out[q]=1;queue.push(q);}}}
+    o.strayHair=out;return out;
+  }
   function normalizedHead(tile,color,skin,expression='bright',sex=ACTIVE_SEX){
     const key=[tile,color,skin,expression,sex].join('/');if(normalizedHeads.has(key))return normalizedHeads.get(key);
     const original=sourceHeads.get(sex)?.[tile]||sourceHeads.get('f')?.[tile];if(!original)return transparent;
     const canvas=document.createElement('canvas');canvas.width=HEAD_GRID;canvas.height=HEAD_HEIGHT;const ctx=canvas.getContext('2d');
     const recolored=document.createElement('canvas');recolored.width=HEAD_GRID;recolored.height=HEAD_GRID;const paint=recolored.getContext('2d'),out=paint.createImageData(HEAD_GRID,HEAD_GRID),d=out.data,source=original.data;
-    const base=rgb(skin),iris=expression==='sparkle'?rgb('#73b9d4'):expression==='cat'?rgb('#e2b654'):null;
+    const base=rgb(skin),iris=expression==='sparkle'?rgb('#73b9d4'):expression==='cat'?rgb('#e2b654'):null,strays=strayHair(original);
     for(let i=0;i<source.length;i+=4){const alpha=source[i+3];if(!alpha)continue;const p=i/4,r=source[i],g=source[i+1],b=source[i+2];let c=[r,g,b];
-      if(original.faceMask[p]||original.skinFringe[p]||original.nearFace[p]&&r>140&&g>80&&b>90&&r>g+15&&g<b*1.08){
+      const skinZone=skinZoneAt(original,p,r,g,b),hairLike=strays[p];
+      if(skinZone&&!hairLike){
         // Multiplicative shading keeps soft brushwork; rose blush keeps its hue.
         const warmth=Math.max(0,(r-g-34)/78),shade=(r*.22+g*.59+b*.19)/219;
         c=base.map((v,k)=>clamp(Math.round(v*shade+(k===0?10:k===1?-15:-5)*warmth)));
-      }else if(!original.featureMask[p]&&r>g*1.025&&g>b*.98&&r-g<117&&g-b<83&&r>24){c=tonal(color,r*.25+g*.59+b*.16);}
+      }else if((hairLike||!original.featureMask[p])&&r>g*1.025&&g>b*.98&&r-g<117&&g-b<83&&r>24){c=tonal(color,r*.25+g*.59+b*.16);}
       if(iris){const x=p%HEAD_GRID,y=Math.floor(p/HEAD_GRID),inside=original.eyes.some(e=>x>e.left+1&&x<e.right-1&&y>e.top+(e.bottom-e.top)*.27&&y<e.bottom-1);if(inside&&(g>r+7||b>r+9)&&r<184&&g<190&&b<190){const tone=clamp((r*.24+g*.61+b*.15)/120,.25,1.4);c=iris.map(v=>clamp(Math.round(v*tone)));}}
       d[i]=c[0];d[i+1]=c[1];d[i+2]=c[2];d[i+3]=alpha;
     }

@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-08T06:27:04.034Z",
+  "builtAt": "2026-10-08T08:48:26.922Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -126,8 +126,8 @@
     },
     {
       "path": "avatar-pixel.js",
-      "bytes": 110172,
-      "sha256": "fc03d4db0fdb40ff5d969eeac3b3b33b3497057aada0b6c9c1edc6be542085a5"
+      "bytes": 111797,
+      "sha256": "8cb88045fc2f8d6f4cd7d84b378590584e66cb66ffe778cfad9dc300baf93719"
     },
     {
       "path": "avatar-clothes.js",
@@ -541,8 +541,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 38820,
-      "sha256": "e3911caf1e84c9119028374bd76d2d0463c99781f0ad5229e74c0793f0ada768"
+      "bytes": 39309,
+      "sha256": "944e6ae27906b842303ce90862627b72478125ae3acd504579428c967ab004db"
     },
     {
       "path": "avatar-foundation.css",
