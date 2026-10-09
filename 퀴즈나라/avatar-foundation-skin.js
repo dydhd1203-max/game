@@ -1,11 +1,20 @@
 /* Painted skin on the reference body's existing joints. No head replacement.
    Arms, legs and neck are the reference sheet's own (sd-foundation-ref-*):
-   limbs warped along the shared joints, the neck fixed to the collar. */
+   limbs warped along the shared joints, the neck fixed to the collar.
+   A top fitted on the clean body art (pipeline records, r.bodyArt 'clean',
+   set by the outfit) shows the rule-cleaned arms and neck
+   (sd-foundation-ref-arms-clean.png / -neck-clean.png, without the basic
+   tee's cuff and collar lines; loaded only when such a top is worn). */
 (function(root){
  'use strict';
  const NS='http://www.w3.org/2000/svg',base=new URL('.',document.currentScript.src),R=root.QPFoundationReferenceData;
  const files={arm:'assets/sd-foundation-ref-arms.png',leg:'assets/sd-foundation-ref-legs.png',neck:'assets/sd-foundation-ref-neck.png'};
- const atlas={ready:false,error:null,source:files.arm},images={};let pending;
+ const cleanFiles={arm:'assets/sd-foundation-ref-arms-clean.png',neck:'assets/sd-foundation-ref-neck-clean.png'};
+ // The clean neck runs 8 px past the legacy rect (room under a V neck):
+ // tools/garment/frozen/zones.json clean.neckRects (check-source compares).
+ // The clean arms fill the legacy arm rects. f-back borrows the male neck.
+ const CLEAN_NECK={'m-front':[290,241,62,60],'m-right':[701,208,54,80],'m-back':[1071,236,63,48],'f-front':[296,763,58,55],'f-right':[708,728,53,80],'f-back':null};
+ const atlas={ready:false,error:null,source:files.arm},images={},clean={ready:false,error:null};let pending,cleanPending;
  // Painted images (canvas PNG data URLs: the limbs here, sleeves and shorts
  // in the outfit) share one pool, least recently used out first, bounded by
  // the bytes it holds (a data URL is one byte per character). Entries are
@@ -48,19 +57,23 @@
  // Every other limb keeps the original warp, pixel for pixel.
  const SHARP=100*Math.PI/180,SHARP_ROWS=10;
  function load(){return pending||(pending=Promise.all(Object.entries(files).map(async([k,f])=>[k,await QPAvatarImage.load(new URL(f,base).href)])).then(entries=>{Object.assign(images,Object.fromEntries(entries));atlas.ready=true;return atlas;}).catch(e=>{atlas.error=e.message;console.error(e);return atlas;}));}
+ function loadClean(){return cleanPending||(cleanPending=Promise.all(Object.entries(cleanFiles).map(async([k,f])=>[k+'Clean',await QPAvatarImage.load(new URL(f,base).href)])).then(entries=>{Object.assign(images,Object.fromEntries(entries));clean.ready=true;return clean;}).catch(e=>{clean.error=e.message;console.error(e);return clean;}));}
  // A limb definition in sheet pixels: the painted strip, its three joints,
  // half widths at those joints and where the hand/foot end lies.
- function limbDef(type,sex,view,i){
-  const F=R.figures[sex+'-'+VIEW[view]],J=F.joints,rect=F.rects[type][i],radii=F.radii[type][i];
+ // art 'clean': the clean arm painting (same rects and joints).
+ function limbDef(type,sex,view,i,art){
+  const F=R.figures[sex+'-'+VIEW[view]],J=F.joints,rect=F.rects[type][i],radii=F.radii[type][i],variant=art==='clean'&&type==='arm'?'clean':'';
   const joints=type==='arm'?[J.shoulder[i],J.elbow[i],J.wrist[i]]:[J.hip[i],J.knee[i],J.ankle[i]];
-  return{rect,joints,radii,end:type==='arm'?J.hand_end:rect[1]+rect[3],k:F.k,image:images[type]};
+  return{rect,joints,radii,end:type==='arm'?J.hand_end:rect[1]+rect[3],k:F.k,image:variant?images.armClean:images[type],variant};
  }
  const textures=new Map();
- function texture(d){const key=d.rect.join();if(textures.has(key))return textures.get(key);const c=document.createElement('canvas');c.width=d.rect[2];c.height=d.rect[3];c.getContext('2d').drawImage(d.image,...d.rect,0,0,c.width,c.height);textures.set(key,c);return c;}
+ function texture(d){const key=(d.variant?d.variant+'/':'')+d.rect.join();if(textures.has(key))return textures.get(key);const c=document.createElement('canvas');c.width=d.rect[2];c.height=d.rect[3];c.getContext('2d').drawImage(d.image,...d.rect,0,0,c.width,c.height);textures.set(key,c);return c;}
  // The bob hides the female back neck on the sheet; the male one stands in
  // for hairstyles that show it.
  function neckFigure(sex,view){const F=R.figures[sex+'-'+VIEW[view]];return F.rects.neck?F:R.figures[(sex==='m'?'f':'m')+'-'+VIEW[view]];}
  function neckTexture(F){const key='neck:'+F.rects.neck.join();if(textures.has(key))return textures.get(key);const r=F.rects.neck,c=document.createElement('canvas');c.width=r[2];c.height=r[3];c.getContext('2d').drawImage(images.neck,...r,0,0,c.width,c.height);const url=c.toDataURL();textures.set(key,url);return url;}
+ const cleanNeckRect=F=>CLEAN_NECK[F.sex+'-'+F.view]||F.rects.neck;
+ function cleanNeckTexture(F){const r=cleanNeckRect(F),key='neck-clean:'+r.join();if(textures.has(key))return textures.get(key);const c=document.createElement('canvas');c.width=r[2];c.height=r[3];c.getContext('2d').drawImage(images.neckClean,...r,0,0,c.width,c.height);const url=c.toDataURL();textures.set(key,url);return url;}
  function triangle(ctx,texture,a,b,c){const[x0,y0]=a.s,[x1,y1]=b.s,[x2,y2]=c.s,[u0,v0]=a.d,[u1,v1]=b.d,[u2,v2]=c.d,den=(x1-x0)*(y2-y0)-(x2-x0)*(y1-y0);if(Math.abs(den)<1e-8)return;
   const aa=((u1-u0)*(y2-y0)-(u2-u0)*(y1-y0))/den,cc=((u2-u0)*(x1-x0)-(u1-u0)*(x2-x0))/den,bb=((v1-v0)*(y2-y0)-(v2-v0)*(y1-y0))/den,dd=((v2-v0)*(x1-x0)-(v1-v0)*(x2-x0))/den;
   // Offset the edges, not vertices away from the centroid: a long narrow
@@ -74,7 +87,7 @@
  // part: '' the whole limb; 'forearm' only the rows from the start of the
  // elbow bend to the hand's end; 'forearm-bare' the same without the hand
  // (an open gesture hand is drawn there instead).
- function painting(d,points,fold=false,part=''){const relative=points.map(p=>sub(p,points[0])),[a,b,c]=relative,u=unit(sub(b,a)),v=unit(sub(c,b)),turn=Math.acos(Math.max(-1,Math.min(1,u[0]*v[0]+u[1]*v[1]))),sharp=fold&&turn>SHARP,cacheKey=[d.rect.join(),...relative.flat().map(x=>Math.round(x*40)),sharp?'s':'',part].join(':'),cached=limbCache.get(cacheKey);if(cached)return cached;
+ function painting(d,points,fold=false,part=''){const relative=points.map(p=>sub(p,points[0])),[a,b,c]=relative,u=unit(sub(b,a)),v=unit(sub(c,b)),turn=Math.acos(Math.max(-1,Math.min(1,u[0]*v[0]+u[1]*v[1]))),sharp=fold&&turn>SHARP,cacheKey=(d.variant?d.variant+'/':'')+[d.rect.join(),...relative.flat().map(x=>Math.round(x*40)),sharp?'s':'',part].join(':'),cached=limbCache.get(cacheKey);if(cached)return cached;
   const nu=[u[1],-u[0]],nv=[v[1],-v[0]],J=d.joints,ys=[d.rect[1],J[0][1],J[1][1],J[2][1],d.end],ext=(d.end-J[2][1])*d.k,top=(J[0][1]-d.rect[1])*d.k,verts=[],cols=2;
   const l1=Math.hypot(...sub(b,a)),l2=Math.hypot(...sub(c,b)),corner=Math.min(.55,l1*.2,l2*.2),lo=ys[2]-corner/l1*(ys[2]-ys[1]),hi=ys[2]+corner/l2*(ys[3]-ys[2]);
   // Source rows of the mesh; a sharp fold adds rows through the bend.
@@ -121,7 +134,7 @@
  function toneMatrix(skin){const s=skin.slice(1).match(/../g).map(x=>parseInt(x,16)/255),median=.22*PAINT_MEDIAN[0]+.59*PAINT_MEDIAN[1]+.19*PAINT_MEDIAN[2],rows=[];
   for(let c=0;c<3;c++){const lum=s[c]*255/FACE_LUMINANCE*(1-WARMTH),own=s[c]*255/PAINT_MEDIAN[c]*median/FACE_LUMINANCE*WARMTH;rows.push([.22,.59,.19].map((w,k)=>Math.round((lum*w+(k===c?own:0))*1e5)/1e5).concat([0,0]).join(' '));}
   return rows.join(' ')+' 0 0 0 1 0';}
- function apply(r,pose){if(!atlas.ready||!R)return;const view=pose.profile?'Profile':pose.back?'Back':'Front',sex=r.svg.dataset.qpxSex==='m'?'m':'f';
+ function apply(r,pose){if(!atlas.ready||!R)return;const view=pose.profile?'Profile':pose.back?'Back':'Front',sex=r.svg.dataset.qpxSex==='m'?'m':'f',art=r.bodyArt==='clean'&&clean.ready?'clean':'';
   // Geometry is shared across skin tones. One sRGB colour matrix tints the
   // neutral painting for the wearer's tone without rebuilding pose meshes.
   if(!r.skinPaintFilter){const f=document.createElementNS(NS,'filter');f.id=r.svg.dataset.foundationId+'-paint-tone';f.setAttribute('color-interpolation-filters','sRGB');const matrix=document.createElementNS(NS,'feColorMatrix');matrix.setAttribute('type','matrix');matrix.setAttribute('values',toneMatrix(r.svg.dataset.foundationSkin));f.append(matrix);r.svg.querySelector('defs').append(f);r.skinPaintFilter=f;}
@@ -130,11 +143,11 @@
   // calibration neck shapes are not drawn.
   if(!r.neckPainting){r.neckPainting=document.createElementNS(NS,'image');r.neckPainting.setAttribute('filter',tint);r.neckPainting.setAttribute('preserveAspectRatio','none');r.neckPainting.setAttribute('data-foundation-skin-paint','neck');r.parts.torso.insertBefore(r.neckPainting,r.neckEdge);}
   for(const e of [r.neckSurface,r.neckEdge,r.neckShade])e.style.display='none';
-  {const F=neckFigure(sex,view),rect=F.rects.neck,collar=root.QPAvatarFoundation.specFor(sex).collar,key=rect.join();if(r.neckPainting.dataset.source!==key){r.neckPainting.setAttribute('href',neckTexture(F));r.neckPainting.dataset.source=key;}
+  {const F=neckFigure(sex,view),rect=art?cleanNeckRect(F):F.rects.neck,collar=root.QPAvatarFoundation.specFor(sex).collar,key=(art?art+':':'')+rect.join();if(r.neckPainting.dataset.source!==key){r.neckPainting.setAttribute('href',art?cleanNeckTexture(F):neckTexture(F));r.neckPainting.dataset.source=key;}
    for(const[k,v]of Object.entries({x:16+(rect[0]-F.neck[0])*F.k,y:collar+(rect[1]-F.neck[1])*F.k,width:rect[2]*F.k,height:rect[3]*F.k}))if(r.neckPainting.getAttribute(k)!==String(v))r.neckPainting.setAttribute(k,v);
    // A leaning walk/run bends the neck at the collar (pose.neckTilt).
    const tilt=pose.neckTilt?'rotate('+(-pose.neckTilt).toFixed(3)+' 16 '+collar+')':'';if((r.neckPainting.getAttribute('transform')||'')!==tilt){if(tilt)r.neckPainting.setAttribute('transform',tilt);else r.neckPainting.removeAttribute('transform');}}
-  for(const type of ['arm','leg']){const parts=type==='arm'?r.arms:r.legs;parts.forEach((part,i)=>{const p=type==='arm'?pose.arms[i]:pose.legs[i],points=type==='arm'?[p.shoulder,p.elbow,p.wrist]:p.paint||[p.root,p.knee,p.ankle],def=limbDef(type,sex,view,i),art=painting(def,points,type==='arm'&&Boolean(p.fold));
+  for(const type of ['arm','leg']){const parts=type==='arm'?r.arms:r.legs;parts.forEach((part,i)=>{const p=type==='arm'?pose.arms[i]:pose.legs[i],points=type==='arm'?[p.shoulder,p.elbow,p.wrist]:p.paint||[p.root,p.knee,p.ankle],def=limbDef(type,sex,view,i,art),drawn=painting(def,points,type==='arm'&&Boolean(p.fold));
    if(!part.painting){part.painting=document.createElementNS(NS,'image');part.painting.setAttribute('data-foundation-skin-paint',type);part.painting.setAttribute('filter',tint);part.painting.setAttribute('preserveAspectRatio','none');
     // An arm's sleeve-opening clip sits on a frame, so the forearm overlay can
     // reuse the bare painting above the sleeve with only its own clip.
@@ -143,7 +156,7 @@
     if(type==='leg'){const g=document.createElementNS(NS,'clipPath');g.id=r.svg.dataset.foundationId+'-leg-skin-paint-'+i;part.paintClip=document.createElementNS(NS,'path');g.append(part.paintClip);r.svg.querySelector('defs').append(g);}}
    // The pooled painting is compared by reference (as the forearm's below):
    // reading the data-URL href back every frame copied the whole string.
-   const image=part.painting;if(image.paintedArt!==art){if(image.getAttribute('href')!==art.url)image.setAttribute('href',art.url);image.paintedArt=art;}for(const[k,val]of Object.entries({x:points[0][0]+art.x,y:points[0][1]+art.y,width:art.w,height:art.h}))if(image.getAttribute(k)!==String(val))image.setAttribute(k,val);
+   const image=part.painting;if(image.paintedArt!==drawn){if(image.getAttribute('href')!==drawn.url)image.setAttribute('href',drawn.url);image.paintedArt=drawn;}for(const[k,val]of Object.entries({x:points[0][0]+drawn.x,y:points[0][1]+drawn.y,width:drawn.w,height:drawn.h}))if(image.getAttribute(k)!==String(val))image.setAttribute(k,val);
    // Clothing owns the sleeve opening clip; the painted hand follows the wrist.
    // Crossed seated legs are painted straight from the knee (leg.paint) and
    // clipped to the body's knee-and-shin contour; the thigh is under the shorts.
@@ -222,5 +235,5 @@
   part.handCut.setAttribute('d','M'+q(c,0,12)+'L'+q(c,-30,12)+'L'+q(c,-30,-12)+'L'+q(c,0,-12)+'Z');part.painting.setAttribute('clip-path','url(#'+part.handCut.parentNode.id+')');
  }
  function destroy(r){r.skinPaintFilter?.remove();r.neckPainting?.remove();for(const e of [r.neckSurface,r.neckEdge,r.neckShade])e.style.display='';for(const part of [...r.arms,...r.legs]){part.contour.style.visibility='';part.paintFrame?.remove();part.painting?.remove();part.paintClip?.parentNode.remove();part.forearm?.remove();part.forearmArt?.remove();part.forearmClip?.parentNode.remove();part.openHand?.remove();part.handCut?.parentNode.remove();r.svg.querySelector('[id="'+r.svg.dataset.foundationId+'-hand-fade-'+r.arms.indexOf(part)+'"]')?.remove();delete part.forearm;delete part.forearmArt;delete part.forearmClip;delete part.openHand;delete part.handCut;}}
- root.QPFoundationSkin=Object.freeze({atlas,files,load,apply,destroy,limbDef,paintCache,paint,paintStats,emptyPaint});
+ root.QPFoundationSkin=Object.freeze({atlas,files,cleanFiles,clean,load,loadClean,apply,destroy,limbDef,paintCache,paint,paintStats,emptyPaint,CLEAN_NECK});
 })(window);

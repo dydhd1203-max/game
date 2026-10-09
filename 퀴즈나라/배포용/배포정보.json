@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-09T01:47:58.038Z",
+  "builtAt": "2026-10-09T10:19:24.341Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -111,13 +111,13 @@
     },
     {
       "path": "index.html",
-      "bytes": 330021,
-      "sha256": "af6cff484b25085451d8140e49af7253fd721e9b40f7e54cf34ebee81b33c908"
+      "bytes": 330111,
+      "sha256": "10bbef86361848ae9480f845a30b0d75690aedf523e3342b34d7ba7cb723e4b3"
     },
     {
       "path": "avatar-image.js",
-      "bytes": 4074,
-      "sha256": "9cc6a2ae79ab5d45422df61caf285601e8c82b15cb69797efe64acbd53b5e360"
+      "bytes": 6477,
+      "sha256": "5ec1b0594c7c705f472b740084629efb1a647fd82e7868e5d8d0f2ee7759d6da"
     },
     {
       "path": "assets/avatar-file-data.js",
@@ -485,39 +485,24 @@
       "sha256": "4509391c5846294bc526310a92c20c6fa21de35c91f0bde935c66a36e8b7a3c3"
     },
     {
+      "path": "avatar-foundation-garments.js",
+      "bytes": 12199,
+      "sha256": "4c8fb5f04870d38431b812be81ded49f36d88abd1e351177bc03124546011a60"
+    },
+    {
       "path": "avatar-foundation-outfit.js",
-      "bytes": 49498,
-      "sha256": "c776e9eb66af95ef344f12948f1d28be840fa042ba802e4ca02769abb2c7da6d"
+      "bytes": 57060,
+      "sha256": "3a6412f943e75bbfa386f04aefdc6ac36f6a6684b28dd1cd71f4d1cba9662e37"
     },
     {
       "path": "assets/avatar-file-data-foundation.js",
-      "bytes": 849448,
-      "sha256": "1798771276b8e01155f280c7394f1c41a1783715ac94880ee4a9299e3b09d788"
+      "bytes": 270351,
+      "sha256": "5c84cebfd74efda188855b52ea9b83cb3115a804f8b595594f5591ecdd1644bb"
     },
     {
       "path": "assets/sd-foundation-ref-data.js",
       "bytes": 4668,
       "sha256": "87dd12eb4223c68545f980639568d61b0556261cbe745981a466d84706a1b3ae"
-    },
-    {
-      "path": "assets/sd-foundation-ref-shirt.png",
-      "bytes": 204188,
-      "sha256": "9b451e7babd4079ae75a64842e1467546f8c2e6b849777a24c2c704d50f7243c"
-    },
-    {
-      "path": "assets/sd-foundation-ref-sleeves.png",
-      "bytes": 89905,
-      "sha256": "9c2c36d65e2a4938a5c63044fe42753719b1841f9c46e7026044bb51f6094207"
-    },
-    {
-      "path": "assets/sd-foundation-ref-shorts.png",
-      "bytes": 130778,
-      "sha256": "71412fc10951a0ed002762c6f92d1606676e5cc0066819188c9f869b1a19c4dd"
-    },
-    {
-      "path": "assets/sd-foundation-ref-shoes.png",
-      "bytes": 79544,
-      "sha256": "6c2714fe91cab7f6074bfd8b721125343751b825a024449112c5bfaa220b3ff0"
     },
     {
       "path": "assets/sd-foundation-ref-arms.png",
@@ -530,9 +515,19 @@
       "sha256": "e3aef2f0ad68f50c9b1da00bae00d1e8b09427687e5129e4cb59ab8db3514678"
     },
     {
+      "path": "assets/sd-foundation-ref-arms-clean.png",
+      "bytes": 51999,
+      "sha256": "95f42f04dcebc2bb82660a6a133c273c1a53c257bc3df4c09ac6f24bd3876cfc"
+    },
+    {
+      "path": "assets/sd-foundation-ref-neck-clean.png",
+      "bytes": 18185,
+      "sha256": "71ff02988d4c4b2e2935765c04bc822453ae6bebc9455c64131449483cc76b7f"
+    },
+    {
       "path": "avatar-foundation-skin.js",
-      "bytes": 26623,
-      "sha256": "73a2a133d6626612b5ab29a3fb4004a37b75600d8c6485ebfb69ae5a52bb6ba4"
+      "bytes": 28564,
+      "sha256": "cad49b6dafa8ea6a3c655420cd1b7306391ed69fb3c326d393ea7c45d0508b97"
     },
     {
       "path": "assets/sd-foundation-ref-neck.png",
@@ -541,8 +536,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 97972,
-      "sha256": "edf3a7fa15bdf8165f7b361460cb80fce51c6360aa02d1f6b4c6740b8e6d9c37"
+      "bytes": 101404,
+      "sha256": "6ecd4a592bd1ea6a3f87bb9b4da59fd7d7350e2b587524d1531c4219a9557807"
     },
     {
       "path": "avatar-foundation.css",
@@ -798,6 +793,71 @@
       "path": "assets/fonts/NanumSquareRound-출처.md",
       "bytes": 1785,
       "sha256": "44b7f12620e5599c5e23ee953be3a6fbaa71a82eaef2b98c767238f43a098abe"
+    },
+    {
+      "path": "assets/sd-garments-index.js",
+      "bytes": 2555,
+      "sha256": "b2e72accb925398a7085059ecadd4f96ffa61d008acae4f8dedf9ebd433681c2"
+    },
+    {
+      "path": "assets/sd-garment-bottom-shorts.js",
+      "bytes": 4816,
+      "sha256": "851a598efade8f53e94e882fec369e5d48735b3a38cb33a313e752cfaa178a6a"
+    },
+    {
+      "path": "assets/sd-garment-bottom-shorts-f.png",
+      "bytes": 63143,
+      "sha256": "c3119901ec62a861a281e5958079f134dbbae5770958057e2e899f1d10db8103"
+    },
+    {
+      "path": "assets/sd-garment-bottom-shorts-m.png",
+      "bytes": 50212,
+      "sha256": "6df765a90d4f60ef1da827e1f3c08de8ae556d246c8fb2e504ce766604eeb10d"
+    },
+    {
+      "path": "assets/avatar-file-data-garment-bottom-shorts.js",
+      "bytes": 151795,
+      "sha256": "b4476d696b37d3c5bae12c76c90fc3e80fb8295727626f93271bfab554577f70"
+    },
+    {
+      "path": "assets/sd-garment-shoes-sneaker.js",
+      "bytes": 4894,
+      "sha256": "d7f42116c2ddd4caa23ad2b5dcc6aa06126f47bb0301ba5c98dbfbdf111ae785"
+    },
+    {
+      "path": "assets/sd-garment-shoes-sneaker-f.png",
+      "bytes": 33108,
+      "sha256": "af49ebca90e8b45fccda1539c361bf68228fa0d25b1dbf24a5464873d2dbf729"
+    },
+    {
+      "path": "assets/sd-garment-shoes-sneaker-m.png",
+      "bytes": 32690,
+      "sha256": "8acbf286b01b3661ff4a7d591201a8d6fc9a6294c818a8c0b294a94a78524a10"
+    },
+    {
+      "path": "assets/avatar-file-data-garment-shoes-sneaker.js",
+      "bytes": 88383,
+      "sha256": "8414785946672556a177f2dced68fe88529da4e3108c005c63b53e2a7eaec276"
+    },
+    {
+      "path": "assets/sd-garment-top-tee.js",
+      "bytes": 6858,
+      "sha256": "81ec148eb3150c3ed2532c39fcdd610a542695b18bb5536b171345551b04c554"
+    },
+    {
+      "path": "assets/sd-garment-top-tee-f.png",
+      "bytes": 132735,
+      "sha256": "f72e592b8e64f07078a642a282f4e9d682b001f4acbfbe2b9cd09904edcd13b9"
+    },
+    {
+      "path": "assets/sd-garment-top-tee-m.png",
+      "bytes": 127294,
+      "sha256": "ad108f2f2ba7bf98e1ecbfad721aa7d0800fe21eba7ee7b6465b07b0823b2a46"
+    },
+    {
+      "path": "assets/avatar-file-data-garment-top-tee.js",
+      "bytes": 347341,
+      "sha256": "f908889c3b80e04e3e34e873c7cc66e81b9c27d806b097021fa0353f703582f5"
     }
   ]
 }

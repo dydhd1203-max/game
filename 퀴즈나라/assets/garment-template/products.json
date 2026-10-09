@@ -1,0 +1,124 @@
+{
+ "note": "Products for the ChatGPT garment kit (stage 3, WP4). The worker fills this from the shop catalogue and the design reference; the user reviews it. Keyed 'cat:shape' like the garment records. Checked against the live shop for both sexes by `node tools/garment/design-ref.cjs --verify-products` (headless ?demo=1). Used by tools/garment/prompt.cjs.",
+ "fields": {
+  "class": "top/short-sleeve | bottom/shorts | shoes/low (stage 3). Other classes exist as schema only.",
+  "sexes": "who the shop sells it to (QPGame.getCatalog().curatedItem(cat, shape, sex) is not null). A single-sex product changes only that child; the prompt says the other child stays as it is.",
+  "ci": "the fixed colour index per sex (index.html CURATED_COLOURS / fixedColour).",
+  "names": "the shop name per sex (curatedItem(...).name).",
+  "colour": "the fixed colour: QPGame.getCatalog().curatedItem(cat, shape, sex).color, the palette colour of the colour index (same field name as the garment records' catalog colour).",
+  "display": "the colour the shop actually paints the garment with: QPClothes.colorFor(cat, shape, sex, colour) || colour, the value avatar-pixel.js writes to data-cloth-color / data-qpx-shoe-color. Equal to colour for girls and shoes; boys' tops and shorts use avatar-clothes.js maleColors (top:shirt m: fixed cream #f2dfbd, painted light blue #82ace1). Compare ChatGPT colours with display: it is what the shop shows and what image 2 carries.",
+  "mirrorSafe": "true when the right-facing side view may be mirrored into the left view without a decoration looking wrong (no lettering, nothing on one side only that the side view shows). false adds the mirror line to the prompt.",
+  "sharedPicture": "true when both sexes wear the same painting in the same colour: image 2 shows it once.",
+  "designRef": "image 2 in assets/garment-template/, made by tools/garment/design-ref.cjs from the shop art (no body).",
+  "notes": "KO/EN design notes for the prompt. item: the garment noun; look: what to take from image 2; m/f (or both): the description per child; back: the back-view line."
+ },
+ "products": {
+  "top:shirt": {
+   "class": "top/short-sleeve",
+   "status": "pilot (stage 4 trial item; first real ChatGPT sheet: assets/garment-sources/top-shirt-10-chatgpt-2026-10-09.webp)",
+   "sexes": ["m", "f"],
+   "ci": {"m": 10, "f": 10},
+   "names": {"m": "단정한 셔츠", "f": "카라 셔츠"},
+   "colour": {"m": "#f2dfbd", "f": "#f2dfbd"},
+   "display": {"m": "#82ace1", "f": "#f2dfbd"},
+   "mirrorSafe": true,
+   "designRef": "ref-shirt-10-design.png",
+   "notes": {
+    "ko": {
+     "item": "셔츠",
+     "look": "색·깃·단추·주머니·리본·소매 끝 모양",
+     "m": "두 번째 그림 왼쪽의 하늘색 반팔 셔츠. 크림색 셔츠 깃, 가운데 크림색 단추 덧단과 금색 단추, 가슴 주머니, 크림색으로 접어 올린 소매 끝.",
+     "f": "두 번째 그림 오른쪽의 크림색 블라우스. 흰 둥근 깃, 크림색 큰 리본, 가운데 금색 단추, 짧은 퍼프 소매와 금색 단추가 달린 소매 밴드.",
+     "back": "뒷모습에는 깃의 뒷부분이 보이게 합니다."
+    },
+    "en": {
+     "item": "shirt",
+     "itemM": "shirt",
+     "itemF": "blouse",
+     "look": "colours, collar, buttons, pocket, ribbon and cuff shapes",
+     "m": "the light-blue short-sleeve shirt from image 2 (cream collar, cream button placket with gold buttons, chest pocket, rolled cream cuffs).",
+     "f": "the cream blouse from image 2 (white rounded collar, large cream bow, gold centre buttons, short puff sleeves with buttoned cuff bands).",
+     "back": "show the back of the collar in the back view."
+    }
+   }
+  },
+  "bottom:cargo": {
+   "class": "bottom/shorts",
+   "status": "example (shorts class)",
+   "sexes": ["m", "f"],
+   "ci": {"m": 11, "f": 11},
+   "names": {"m": "카고 바지", "f": "카고 바지"},
+   "colour": {"m": "#a87352", "f": "#a87352"},
+   "display": {"m": "#a87352", "f": "#a87352"},
+   "mirrorSafe": true,
+   "sharedPicture": true,
+   "designRef": "ref-bottom-cargo-11-design.png",
+   "notes": {
+    "ko": {
+     "item": "카고 반바지",
+     "look": "색·허리 고리·단추·옆 주머니·접어 올린 바짓단 모양",
+     "both": "두 번째 그림의 갈색 카고 반바지. 허리띠 고리가 있는 허리, 가운데 금색 단추, 양옆의 크림색 판을 댄 덮개 주머니와 금색 고리 장식, 크림색으로 접어 올린 바짓단, 회색 바늘땀.",
+     "back": "뒷모습도 같은 갈색과 같은 바짓단으로 그리고, 옆 주머니는 옆에서만 보이게 합니다."
+    },
+    "en": {
+     "item": "cargo shorts",
+     "look": "colour, belt loops, button, side pockets and rolled cuffs",
+     "both": "the brown cargo shorts from image 2 (belt loops, gold centre button, cream-panelled flap pockets with gold toggles on both sides, rolled cream cuffs, grey stitching).",
+     "back": "the back view keeps the same brown and the same cuffs; the side pockets show only from the side."
+    }
+   }
+  },
+  "shoes:dress": {
+   "class": "shoes/low",
+   "status": "example (low shoes class)",
+   "sexes": ["m", "f"],
+   "ci": {"m": 9, "f": 9},
+   "names": {"m": "구두", "f": "구두"},
+   "colour": {"m": "#556074", "f": "#556074"},
+   "display": {"m": "#556074", "f": "#556074"},
+   "mirrorSafe": true,
+   "sharedPicture": true,
+   "designRef": "ref-shoes-dress-9-design.png",
+   "notes": {
+    "ko": {
+     "item": "구두",
+     "look": "색·발등의 금색 장식·밑창 모양",
+     "both": "두 번째 그림의 짙은 남회색 로퍼 구두. 발등을 가로지르는 금색 고리 장식과 금색 줄, 두꺼운 크림색 밑창, 흰 바늘땀.",
+     "back": "뒷모습에는 두 발의 뒤꿈치와 크림색 밑창이 보이게 합니다."
+    },
+    "en": {
+     "item": "loafers",
+     "look": "colour, gold buckle strap and sole",
+     "both": "the dark slate-blue loafers from image 2 (gold horsebit buckle and gold strap across the instep, thick cream sole, white stitching).",
+     "back": "show both heels and the cream soles in the back view."
+    }
+   }
+  },
+  "shoes:ballet": {
+   "class": "shoes/low",
+   "status": "example (single-sex product: girls only)",
+   "sexes": ["f"],
+   "ci": {"f": 7},
+   "names": {"f": "발레슈즈"},
+   "colour": {"f": "#ff8ad4"},
+   "display": {"f": "#ff8ad4"},
+   "mirrorSafe": true,
+   "designRef": "ref-shoes-ballet-7-design.png",
+   "notes": {
+    "ko": {
+     "item": "발레 슈즈",
+     "look": "색·리본·끈 모양",
+     "f": "두 번째 그림의 분홍 발레 슈즈. 발끝 쪽의 크림색 리본과 가운데 금색 꽃 단추, 발등 위로 엇갈린 크림색 끈.",
+     "back": "뒷모습에는 두 발의 뒤꿈치가 보이게 합니다."
+    },
+    "en": {
+     "item": "ballet flats",
+     "itemF": "ballet flats",
+     "look": "colour, bow and straps",
+     "f": "the pink ballet flats from image 2 (cream bow with a gold flower button near the toe, cream criss-cross straps over the instep).",
+     "back": "show both heels in the back view."
+    }
+   }
+  }
+ }
+}
