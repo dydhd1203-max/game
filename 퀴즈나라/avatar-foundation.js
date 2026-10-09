@@ -772,7 +772,7 @@
   const path=(d,fill,stroke='none',width=.12)=>`<path d="${d}" fill="${fill}" stroke="${stroke}" stroke-width="${width}" stroke-linejoin="round" stroke-linecap="round"/>`;
   function pigment(defs,id,color){const g=el('linearGradient',{id,x1:0,y1:0,x2:1,y2:0});for(const [offset,f]of[[0,.80],[.28,1.04],[.62,1.09],[1,.88]])g.append(el('stop',{offset,'stop-color':tone(color,f)}));defs.append(g);return'url(#'+id+')';}
   function headViews(av){
-    const base={...av,rig:undefined,top:'',bottom:'',shoes:'',outfit:'',pet:'',effect:'',bg:'',frame:'',hat:'',glass:'',face:'',ear:'',neck:'',back:''};
+    const base={...av,rig:undefined,foundationGarments:undefined,top:'',bottom:'',shoes:'',outfit:'',pet:'',effect:'',bg:'',frame:'',hat:'',glass:'',face:'',ear:'',neck:'',back:''};
     const key=JSON.stringify(base);if(headCache.has(key))return headCache.get(key);
     const raw=new DOMParser().parseFromString(QPAvatar.render(base,280,3),'image/svg+xml').documentElement;
     const front=raw.querySelector('.qpx-head'),skin=front.dataset.qpxHeadSkin;
@@ -783,8 +783,10 @@
   // the head paintings (nine tenths of the string) spliced in by reference
   // rather than parsed and serialized again on every call. A repeat render is
   // a string join; 30 list avatars stay cheap even with the posed body. The
-  // key is the head plus the outfit mode: garments chosen per item (stage 3)
-  // must join the key.
+  // key is the head, the mode ('body' | 'dressed'), the worn garment ids and
+  // the fallback reasons (QPFoundationGarments.resolve): every item without a
+  // record shares its slot's basic piece, and the reasons attribute stays
+  // right for whichever avatar rendered first.
   const TEMPLATE_ID='qpf-template',TEMPLATE_W='qpfW-template',TEMPLATE_H='qpfH-template',SLOT={[TEMPLATE_ID]:0,[TEMPLATE_W]:1,[TEMPLATE_H]:2},templates=new Map();
   function headChunks(heads,view){
     // The paintings' own clip ids become this render's ids.
@@ -794,16 +796,23 @@
   }
   function render(av={},size=280){
     root.QPFoundationSkin?.load();
-    if(av.foundationOutfit!=='body')root.QPFoundationOutfit?.load();
-    const sex=av.sex==='m'?'m':'f',base={...av,sex,hair:av.hair|| (sex==='m'?'short:1':'bob:1'),expression:av.expression||'bright:0'},heads=headViews(base),outfit=av.foundationOutfit==='body'?'body':'basic',key=heads.key+'\n'+outfit;
+    const sex=av.sex==='m'?'m':'f',G=root.QPFoundationGarments,mode=av.foundationOutfit==='body'||!G?'body':'dressed';
+    // The garments this avatar wears (per slot, or the basic piece with a reason).
+    const dress=mode==='dressed'?G.resolve({...av,sex}):null;
+    const base={...av,sex,hair:av.hair|| (sex==='m'?'short:1':'bob:1'),expression:av.expression||'bright:0'},heads=headViews(base),key=heads.key+'\n'+mode+(dress?'\n'+dress.key+'\n'+dress.fallbackKey:'');
     let t=templates.get(key);if(t){templates.delete(key);templates.set(key,t);}
-    else{t=template(base,heads,sex,outfit);if(!t.pending){templates.set(key,t);if(templates.size>48)templates.delete(templates.keys().next().value);}}
-    if(t.pending)repaintWhenReady();
-    const values=['qpf-'+(++serial),String(size*32/56),String(size*62/56)];let html='';for(const c of t.chunks)html+=typeof c==='string'?c:values[c];return html;
+    else{t=template(base,heads,sex,mode,dress);if(!t.pending){templates.set(key,t);if(templates.size>48)templates.delete(templates.keys().next().value);}}
+    const values=['qpf-'+(++serial),String(size*32/56),String(size*62/56)];
+    if(t.pending){issued.add(values[0]);repaintWhenReady(dress?dress.ids:[],sex);}
+    let html='';for(const c of t.chunks)html+=typeof c==='string'?c:values[c];return html;
   }
-  function template(base,heads,sex,outfit){
+  function template(base,heads,sex,mode,dress){
     const id=TEMPLATE_ID;
-    const svg=el('svg',{xmlns:NS,class:'qp-pixel-avatar qp-illustrated-avatar qp-foundation-avatar','data-qp-foundation':'1','data-foundation-outfit':outfit,'data-qpx-sex':sex,'data-foundation-id':id,'data-foundation-skin':heads.skin,viewBox:'0 0 32 62',width:TEMPLATE_W,height:TEMPLATE_H,role:'img','aria-label':(sex==='m'?'남자':'여자')+' 기준 캐릭터',style:'display:block;overflow:visible;--qpx-viewport-scale:1.107142857;--qpx-ground-shift:2.4'});
+    const svg=el('svg',{xmlns:NS,class:'qp-pixel-avatar qp-illustrated-avatar qp-foundation-avatar','data-qp-foundation':'1','data-foundation-outfit':mode,'data-qpx-sex':sex,'data-foundation-id':id,'data-foundation-skin':heads.skin,viewBox:'0 0 32 62',width:TEMPLATE_W,height:TEMPLATE_H,role:'img','aria-label':(sex==='m'?'남자':'여자')+' 기준 캐릭터',style:'display:block;overflow:visible;--qpx-viewport-scale:1.107142857;--qpx-ground-shift:2.4'});
+    // What it wears: record ids per slot (top|bottom|shoes), the fallback
+    // reasons (slot:reason|…, empty when every item has its record) and the
+    // class signature (tools/foundation-matrix.cjs NODE_TABLE).
+    if(dress){svg.dataset.foundationGarments=dress.key;svg.dataset.foundationFallback=dress.fallbackKey;svg.dataset.foundationClass=dress.cls;}
     const defs=el('defs');svg.append(defs);const skin=pigment(defs,id+'-skin',heads.skin),underlay=pigment(defs,id+'-underlay','#d9e0d1');
     const neckGradient=el('linearGradient',{id:id+'-neck-shadow',gradientUnits:'userSpaceOnUse',x1:16,x2:16,y1:27.8,y2:28.5});neckGradient.append(el('stop',{offset:0,'stop-color':tone(heads.skin,.74),'stop-opacity':.62}),el('stop',{offset:.42,'stop-color':tone(heads.skin,.82),'stop-opacity':.26}),el('stop',{offset:1,'stop-color':tone(heads.skin,.88),'stop-opacity':0}));defs.append(neckGradient);
     const headClip=el('g');headClip.innerHTML=heads.headClip.replaceAll('qpx-head-front',id+'-head-front');defs.append(...headClip.children);
@@ -846,26 +855,54 @@
     // pose added; a controller that mounts the string rebuilds exactly those
     // (unpose), so every later apply() keeps one node set. A static avatar
     // gets no clock and no per-frame work.
-    svg.dataset.foundationStaticDefs=defs.children.length;apply(svg,STATIC_POSE);
+    svg.dataset.foundationStaticDefs=defs.children.length;templating=true;try{apply(svg,STATIC_POSE);}finally{templating=false;}
     // Art still loading (not cached; posed again once it arrives): vector
     // limbs stand in for the painted skin, but a body without its garments
     // would read as undressed, so the avatar stays hidden like every avatar
-    // during loading (.qp-avatar-loading).
-    const ready=module=>!module||module.atlas.ready||Boolean(module.atlas.error),undressed=outfit==='basic'&&!ready(root.QPFoundationOutfit),pending=undressed||!ready(root.QPFoundationSkin);
-    svg.dataset.foundationStatic=pending?'pending':'idle-front';if(undressed)svg.setAttribute('visibility','hidden');
+    // during loading (.qp-avatar-loading). Garments count as arrived once each
+    // worn record is loaded or has failed (then its slot's basic piece shows).
+    const undressed=Boolean(dress)&&!root.QPFoundationGarments.settled(dress.ids,sex),pending=undressed||!skinSettled();
+    svg.dataset.foundationStatic=pending?'pending':'idle-front';if(undressed)svg.setAttribute('visibility','hidden');else svg.removeAttribute('visibility');
     const chunks=[];
     svg.outerHTML.split(/<!--qpf-head:(\w+)-->/).forEach((part,i)=>{if(i%2)chunks.push(...headChunks(heads,part));else part.split(/(qpf-template|qpfW-template|qpfH-template)/).forEach((s,k)=>chunks.push(k%2?SLOT[s]:s));});
     return{chunks,pending};
   }
-  // Pending strings already on screen are posed once the art arrives; ones
-  // mounted during the next ten seconds as they appear (a one-off watch).
-  let repainting=null;
-  function repaintWhenReady(){
-    if(repainting||typeof document==='undefined')return;
-    repainting=Promise.all([root.QPFoundationSkin?.load(),root.QPFoundationOutfit?.load()]).then(()=>{
-      const sweep=()=>{for(const svg of document.querySelectorAll('svg[data-foundation-static="pending"]'))prepare(svg);},watch=new MutationObserver(sweep);
-      sweep();watch.observe(document.documentElement,{childList:true,subtree:true});setTimeout(()=>{watch.disconnect();repainting=null;},10000);
-    });
+  // Pending avatars are posed once THEIR art arrives. Each pending render
+  // names the garments it waits for (data-foundation-garments); one promise
+  // per (sex, garment set) is kept, and a sweep poses only the avatars whose
+  // own garments are all loaded or failed, so two sets arriving in any order
+  // each dress their own avatars (round 3 swept every pending avatar on the
+  // first set and mounted the others undressed). Covered:
+  //  - static strings (data-foundation-static="pending") on screen or
+  //    inserted later: the observer stays while any set or issued pending
+  //    string is open, then 10 s more (60 s for strings never inserted);
+  //  - avatars a controller mounted while their garments load: apply() keeps
+  //    them hidden ('waiting') and the sweep re-applies their last state.
+  const waits=new Map(),issued=new Set(),waiting=new Set();let templating=false,watch=null,quiet=0;
+  const skinSettled=()=>{const S=root.QPFoundationSkin;return !S||S.atlas.ready||Boolean(S.atlas.error);};
+  function settledSvg(svg){
+    if(!skinSettled())return false;const G=root.QPFoundationGarments;if(svg.dataset.foundationOutfit==='body'||!G)return true;
+    const ids=G.idsOf(svg.dataset.foundationGarments);return G.settled(ids.length?ids:'starter',svg.dataset.qpxSex==='m'?'m':'f');
+  }
+  function sweep(){
+    if(typeof document==='undefined')return;
+    for(const svg of document.querySelectorAll('svg[data-foundation-static="pending"]')){issued.delete(svg.dataset.foundationId);if(settledSvg(svg))prepare(svg);}
+    for(const svg of [...waiting]){if(!settledSvg(svg))continue;waiting.delete(svg);const r=mounted.get(svg);if(r)apply(svg,r.state||STATIC_POSE);}
+    idle();
+  }
+  function idle(){
+    if(waits.size||waiting.size){clearTimeout(quiet);quiet=0;return;}
+    if(!watch||quiet)return;
+    quiet=setTimeout(()=>{quiet=0;if(waits.size||waiting.size)return;issued.clear();watch?.disconnect();watch=null;},issued.size?60000:10000);
+  }
+  function watchPending(){
+    if(typeof MutationObserver==='undefined')return;clearTimeout(quiet);quiet=0;
+    if(!watch){watch=new MutationObserver(sweep);watch.observe(document.documentElement,{childList:true,subtree:true});}
+  }
+  function repaintWhenReady(ids,sex){
+    if(typeof document==='undefined')return;watchPending();
+    const G=root.QPFoundationGarments,key=sex+'|'+ids.join('|');if(waits.has(key))return;
+    waits.set(key,Promise.all([root.QPFoundationSkin?.load(),ids.length&&G?G.ensure(ids,sex):null]).catch(()=>{}).then(()=>{waits.delete(key);sweep();}));
   }
   // The posed nodes of a render() string belong to no rig. Remove them, and
   // the definitions they added, before a rig builds its own.
@@ -883,7 +920,7 @@
   function prepare(svg){return mount(svg,true);}
   function mount(svg,repose){
     if(!svg?.dataset.qpFoundation)return null;if(mounted.has(svg))return mounted.get(svg);
-    const posed=Boolean(svg.dataset.foundationStatic);if(posed)unpose(svg);
+    issued.delete(svg.dataset.foundationId);const posed=Boolean(svg.dataset.foundationStatic);if(posed)unpose(svg);
     const skin=svg.dataset.foundationSkin,fill=svg.dataset.foundationSkinFill,parts=Object.fromEntries([...svg.querySelectorAll('[data-foundation-part]')].map(e=>[e.dataset.foundationPart,e]));
     const fid=svg.dataset.foundationId,q=k=>svg.querySelector(k),bow={crown:q('[data-foundation-bow="crown"]'),warp:q('[data-foundation-bow-warp]'),face:q('[data-foundation-bow="face"]'),crownClip:q('[id="'+fid+'-bow-crown"] path'),faceClip:q('[id="'+fid+'-bow-face"] path'),behind:FRONT_HAIR_CLIP[svg.dataset.qpxSex]?q('[id="'+fid+'-hair-behind"] path'):null};
     // The front hair boundary exists only with a back-hair layer (template()).
@@ -958,7 +995,7 @@
   // breathing clock is offset by its own render serial (0-3.3 s).
   const breathOffset=svg=>(Number(String(svg.dataset.foundationId).slice(4))||0)*1.37%3.3;
   function apply(svg,state={}){
-    const r=mount(svg,false);if(!r)return false;const sitting=state.action==='sit'||state.action==='floor-sit',pose=solve({...state,sex:svg.dataset.qpxSex,time:(Number.isFinite(state.time)?state.time:performance.now()/1000)+(sitting?breathOffset(svg):0),reducedMotion:state.reducedMotion??Boolean(REDUCED?.matches)}),view=pose.profile?'profile':pose.back?'back':'front';r.pose=pose;
+    const r=mount(svg,false);if(!r)return false;r.state=state;const sitting=state.action==='sit'||state.action==='floor-sit',pose=solve({...state,sex:svg.dataset.qpxSex,time:(Number.isFinite(state.time)?state.time:performance.now()/1000)+(sitting?breathOffset(svg):0),reducedMotion:state.reducedMotion??Boolean(REDUCED?.matches)}),view=pose.profile?'profile':pose.back?'back':'front';r.pose=pose;
     set(r.mirror,'transform',(pose.direction==='left'?'translate(32 0) scale(-1 1)':'')+(pose.hop?' translate(0 '+n(-pose.hop)+')':''));
     // The floor shadow shrinks while a cheering hop is in the air.
     set(r.svg.querySelector('.qpx-contact-shadow'),'transform',pose.hop?'translate(16 56.75) scale('+n(1-.28*pose.hop/HAPPY_HEIGHT)+') translate(-16 -56.75)':'');
@@ -1049,12 +1086,16 @@
     if(pose.desk){const y=(pose.legs[0].root[1]+pose.legs[1].root[1])/2,hip=n(FLOOR_Y+(28+(y-28)*BODY_SCALE.y-FLOOR_Y)*STAGE_SCALE);if(svg.dataset.qpxSeatHipY!==String(hip))svg.dataset.qpxSeatHipY=hip;}else if(svg.dataset.qpxSeatHipY)delete svg.dataset.qpxSeatHipY;
     svg.dataset.qpxView=view;svg.dataset.qpxViewFacing=pose.direction;svg.dataset.qpxPose=pose.action;svg.dataset.qpxSeatMode=pose.floor?'floor':pose.desk?'desk':'';
     r.svg.querySelector('.qpx-contact-shadow').style.visibility=pose.action==='climb'?'hidden':'';
-    if(svg.dataset.foundationOutfit==='basic')root.QPFoundationOutfit?.apply(r,pose);
+    // Garments still loading: hidden, never undressed (posed again by the
+    // sweep, or by the controller's next apply, once they arrive).
+    if(svg.dataset.foundationOutfit!=='body'&&root.QPFoundationOutfit){const dressed=root.QPFoundationOutfit.apply(r,pose);
+      if(dressed===undefined){if(svg.getAttribute('visibility')!=='hidden')svg.setAttribute('visibility','hidden');if(!templating){r.waiting=true;waiting.add(svg);repaintWhenReady(root.QPFoundationGarments.idsOf(svg.dataset.foundationGarments),svg.dataset.qpxSex==='m'?'m':'f');}}
+      else if(r.waiting){r.waiting=false;waiting.delete(svg);svg.removeAttribute('visibility');}}
     root.QPFoundationSkin?.apply(r,pose);
     return true;
   }
   function destroy(svg){
-    const r=mounted.get(svg);if(!r)return false;
+    const r=mounted.get(svg);if(!r)return false;waiting.delete(svg);
     root.QPFoundationSkin?.destroy(r);root.QPFoundationOutfit?.destroy(svg);
     for(const part of Object.values(r.parts)){r.body.append(part);part.replaceChildren();part.removeAttribute('transform');}
     r.bones.replaceChildren();r.bones.style.display='none';r.frontHands.replaceChildren();for(const g of r.armGradients)g.remove();svg.querySelector('[id$="-neck-skin"]')?.remove();

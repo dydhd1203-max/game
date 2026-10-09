@@ -46,7 +46,7 @@ module.exports=[
   'assets/woodland-home-painted.png','assets/woodland-home-painted-mobile.png',
   'woodland-avatar.css','assets/wood-stump.svg','quiz-brand.css','assets/quiz-brand-trim.svg',
   'quiz-hud.css',
-  'avatar-accessory-direction.js','avatar-shoes-profile.js','avatar-direction.js','avatar-poses.js','avatar-cloth-mesh.js','assets/sd-wardrobe-wave.png','assets/avatar-file-data-wardrobe.js','avatar-foundation-outfit.js','assets/avatar-file-data-foundation.js','assets/sd-foundation-ref-data.js','assets/sd-foundation-ref-shirt.png','assets/sd-foundation-ref-sleeves.png','assets/sd-foundation-ref-shorts.png','assets/sd-foundation-ref-shoes.png','assets/sd-foundation-ref-arms.png','assets/sd-foundation-ref-legs.png','avatar-foundation-skin.js','assets/sd-foundation-ref-neck.png','avatar-foundation.js','avatar-foundation.css','avatar-standard.html','avatar-standard.js','avatar-standard.css','avatar-motion.js','avatar-motion.css',
+  'avatar-accessory-direction.js','avatar-shoes-profile.js','avatar-direction.js','avatar-poses.js','avatar-cloth-mesh.js','assets/sd-wardrobe-wave.png','assets/avatar-file-data-wardrobe.js','avatar-foundation-garments.js','avatar-foundation-outfit.js','assets/avatar-file-data-foundation.js','assets/sd-foundation-ref-data.js','assets/sd-foundation-ref-arms.png','assets/sd-foundation-ref-legs.png','assets/sd-foundation-ref-arms-clean.png','assets/sd-foundation-ref-neck-clean.png','avatar-foundation-skin.js','assets/sd-foundation-ref-neck.png','avatar-foundation.js','avatar-foundation.css','avatar-standard.html','avatar-standard.js','avatar-standard.css','avatar-motion.js','avatar-motion.css',
   'assets/sd-heads-profile-female.png','assets/sd-heads-profile-male.png','assets/sd-heads-profile.json',
   'assets/sd-heads-back-female.png','assets/sd-heads-back-male.png','assets/sd-heads-back.json',
   'quiz-questions.js','teacher-builder.js','teacher-builder.css',
@@ -63,5 +63,7 @@ module.exports=[
   'assets/sd-shoes.png','assets/sd-shoes-parts.png',
   'assets/quiz-studio.webp',
   'assets/fonts/Jua-Regular.ttf','assets/fonts/Jua-OFL.txt','assets/fonts/Fredoka-Variable.ttf','assets/fonts/Fredoka-OFL.txt','assets/fonts/NanumSquareRoundR.ttf','assets/fonts/NanumSquareRoundB.ttf','assets/fonts/NanumSquareRoundEB.ttf',
-  'assets/fonts/NanumSquareRound-OFL.txt','assets/fonts/NanumSquareRound-출처.md'
+  'assets/fonts/NanumSquareRound-OFL.txt','assets/fonts/NanumSquareRound-출처.md',
+  // Garment records (stage 3; generated list: tools/garment-files.cjs).
+  ...require('./garment-files.cjs')
 ];
