@@ -60,13 +60,13 @@ def guard_checks():
             '    print("RAN")\n'
             'except body.BodyModeError:\n'
             '    print("REFUSED")\n') % TOOLS
-    out = subprocess.run([PY, '-c', code], capture_output=True, text=True).stdout.strip()
+    out = subprocess.run([PY, '-B', '-c', code], capture_output=True, text=True).stdout.strip()
     if out != 'REFUSED':
         problems.append('derive() ran outside body mode (%s)' % out)
     # Writes into assets/ without the flag.
     before = {n: sha256_file(os.path.join(freeze.ASSETS, n)) for n in freeze.BUILD_OUTPUTS}
     for args in ([], ['--out', freeze.ASSETS], ['--out', freeze.ASSETS + '/']):
-        r = subprocess.run([PY, os.path.join(TOOLS, 'build-reference-body.py')] + args, capture_output=True, text=True)
+        r = subprocess.run([PY, '-B', os.path.join(TOOLS, 'build-reference-body.py')] + args, capture_output=True, text=True)
         if r.returncode != 2 or 'refused' not in r.stderr:
             problems.append('build-reference-body.py %s was not refused (exit %d)' % (' '.join(args), r.returncode))
     after = {n: sha256_file(os.path.join(freeze.ASSETS, n)) for n in freeze.BUILD_OUTPUTS}
@@ -79,7 +79,7 @@ def rebuild():
     problems = []
     tmp = tempfile.mkdtemp(prefix='body-rebuild-')
     try:
-        r = subprocess.run([PY, os.path.join(TOOLS, 'build-reference-body.py'), '--out', tmp], capture_output=True, text=True)
+        r = subprocess.run([PY, '-B', os.path.join(TOOLS, 'build-reference-body.py'), '--out', tmp], capture_output=True, text=True)
         if r.returncode != 0:
             return ['rebuild failed: ' + r.stderr[-400:]]
         for n in freeze.BUILD_OUTPUTS:
@@ -87,7 +87,7 @@ def rebuild():
             print('  %-32s %s %s' % (n, a[:16], 'identical' if a == b else 'DIFFERS'))
             if a != b:
                 problems.append('rebuild of %s differs' % n)
-        r = subprocess.run([PY, os.path.join(TOOLS, 'garment', 'make-frozen.py'), '--check', '--quiet'], capture_output=True, text=True)
+        r = subprocess.run([PY, '-B', os.path.join(TOOLS, 'garment', 'make-frozen.py'), '--check', '--quiet'], capture_output=True, text=True)
         print('  ' + (r.stdout.strip().splitlines() or ['?'])[-1])
         if r.returncode != 0:
             problems.append('frozen artifacts are not reproduced: ' + r.stdout[-400:] + r.stderr[-400:])
