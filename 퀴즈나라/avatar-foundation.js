@@ -106,17 +106,27 @@
   // straight, and from behind both read as hands on hips). Forward end: the
   // elbow a little out and the fist up toward the chest, folded at the
   // camera (painted as a rounded elbow, arm.fold). Back end: the elbow
-  // swings back and out, the hand passes behind the hip. Through mid-swing
-  // the forearm hangs down-forward and only curls up as the arm comes
-  // forward, so no frame lays it flat across the waist. From behind, the
+  // swings back and out, the hand passes behind the hip. From behind, the
   // forward arm's elbow tucks in so its curling forearm hides behind the
   // back instead of turning in at the waist.
+  // Round 3 (2026-10-08 critic of the round-2 merge: 2-3 of the 8 sheet
+  // phases still laid the forearm flat or diagonally across the belly, and
+  // mid-swing the hands sat on the hips). Through mid-swing (c up to .39) the
+  // upper arm stays a little behind the body and the elbow bends 70-75 deg
+  // toward the camera, so the forearm hangs down-forward and the hand passes
+  // beside the hip; between the drawn poses at c .39 and .61 (24 poses a
+  // cycle: c is cos of the quantized phase) the forearm swings through its
+  // end-on view, and from .61 on the fist is up at the chest at 129-136 deg
+  // from straight down (122-127 from behind, where the back hides it). A
+  // forearm crossing the waist flat (90 deg) or
+  // diagonally (100-120 deg) is never drawn; with more poses per cycle, put
+  // the keys on the new c values so this still holds.
   const GAIT={
     walk:{duty:.6,reach:[2.5,2.7],flat:.12,heel:.55,heelLift:.5,strike:-16,toe:28,swing:[[.22,-6,60],[.5,15,68],[.78,28,16]],bob:[[0,.56],[.06,.41],[.12,.25],[.2,.1],[.29,.025],[.4,.2]],lean:3,sway:.13,roll:1.7,support:.3,
       arm:{swing:[0,22],flex:[14,10],abduct:[2,-3],forearm:[-2,-7],facing:{flex:[10,15],abduct:[0,-2]}},lag:.03,frontRaise:1.9},
     run:{duty:.34,reach:[1.8,2.8],flat:.1,heel:.5,heelLift:.62,strike:-8,toe:34,swing:[[.3,-10,112],[.6,50,100],[.86,36,30]],bob:[[0,.33],[.12,.45],[.34,.18],[.42,-.1]],lean:12,sway:.06,roll:.9,support:.17,
-      arm:{swing:[-4,42],flex:[86,8],abduct:[2,-2],forearm:[-27,-19],facingKeys:[[-1,-62,84,11,-27],[-.5,-36,72,8,-19],[0,-4,60,3,-19],[.25,8,60,4,-30],[.5,18,78,6,-46],[1,34,95,9,-50]],
-        backKeys:[[-1,-56,82,6,-4],[-.5,-32,70,3,-10],[0,-4,60,-3,-19],[.25,8,60,-6,-34],[.5,18,78,-6,-45],[1,34,95,-6,-47]]},lag:.02,frontRaise:1.5}
+      arm:{swing:[-4,42],flex:[86,8],abduct:[2,-2],forearm:[-27,-19],facingKeys:[[-1,-61,85,10,-22],[-.6,-46,78,8,-15],[-.14,-26,70,6,-15],[.14,-20,70,6,-18],[.39,-15,70,6,-19],[.61,14,96,8,-35],[.8,22,96,9,-38],[1,28,94,10,-39]],
+        backKeys:[[-1,-56,82,6,-5],[-.6,-41,75,3,-7],[-.14,-24,68,0,-9],[.14,-18,68,-2,-11],[.39,-12,68,-4,-13],[.61,8,98,-6,-37],[.8,20,99,-6,-45],[1,28,96,-6,-47]]},lag:.02,frontRaise:1.5}
   };
   // Screen drop per body unit of walking depth in front/back views.
   const GROUND_TILT=.3;
@@ -186,13 +196,30 @@
     //    sleeves, underarm cloth, open hands, as the cheer), lowered with the
     //    elbows leading and the hands trailing (no straight T), out and down
     //    for balance on the fall, forward-down to land.
+    // Round 3 (2026-10-08 critic: the near side arm reached up almost straight,
+    // elbow 22-24 deg, stiff; head-on the apex arms were near level, an
+    // 'airplane'):
+    //  - side: the near elbow bends 46-64 deg; the upper arm comes up to about
+    //    level (78-86) and the forearm rises up-forward, so the hand is just
+    //    ahead of and below the chin (no near-arm pixel over the head in any
+    //    flight pose, measured on the render; a higher or straighter hand
+    //    covers the mouth, the bones cannot reach past the big head). The far
+    //    arm swings with it, from behind the hip at the launch to in front of
+    //    the chest by the rise, a little lower and less bent, then back for
+    //    balance on the fall;
+    //  - head-on/back: after the V, the elbows drop first with the hands still
+    //    up (.36-.42, a W rather than a level T), then from .45 the forearms
+    //    point out and down (about 40 deg from straight down at the apex, soft
+    //    elbows) for balance.
     airArms:[
-      {f:0,profile:[98,24,-30,30],front:[10,116,132,10],back:[8,116,132,10]},
-      {f:.12,profile:[104,22,-8,40],front:[8,126,142,8],back:[6,126,142,8]},
-      {f:.25,profile:[82,42,14,58],front:[10,122,140,8],back:[8,122,140,8]},
-      {f:.36,profile:[63,60,17,64],front:[12,92,134,10],back:[10,92,132,10]},
-      {f:.46,profile:[42,82,20,70],front:[18,48,54,16],back:[16,48,54,16]},
-      {f:.74,profile:[16,30,-36,30],front:[20,38,36,14],back:[18,38,36,14]},
+      {f:0,profile:[78,46,-26,34],front:[10,116,132,10],back:[8,116,132,10]},
+      {f:.12,profile:[86,50,2,44],front:[8,126,142,8],back:[6,126,142,8]},
+      {f:.25,profile:[84,52,22,52],front:[10,122,140,8],back:[8,122,140,8]},
+      {f:.36,profile:[74,60,26,54],front:[12,76,140,14],back:[10,76,138,14]},
+      {f:.42,profile:[67,63,21,50],front:[16,50,122,20],back:[14,50,120,20]},
+      {f:.45,profile:[63,64,16,47],front:[18,40,46,28],back:[16,40,46,28]},
+      {f:.5,profile:[58,64,10,44],front:[18,30,30,26],back:[16,30,30,26]},
+      {f:.74,profile:[24,40,-24,32],front:[20,30,26,26],back:[18,30,26,26]},
       {f:1,profile:[30,28,-14,28],front:[24,26,24,20],back:[22,26,24,20]}
     ]
   };
@@ -251,13 +278,20 @@
   const SEATED=Object.freeze({
     // The side view is drawn for reading, as in the user's side reference
     // (round 2: before, the shirt reached the floor, no knee showed and the
-    // hand rested on a shoe, reading as squatting behind it): the thighs
-    // leave the front of the seat (`hip`, body units ahead of the hip joint),
-    // the near knee sits out in front of the shirt near the floor, its shin
-    // folds back under the thigh (the near foot tucked away, hidden), and the
-    // child leans `lean` degrees over the knees with the hand on the knee;
-    // only the far foot's toe peeks out under the near knee.
-    floor:Object.freeze({seat:1.6,out:33,rise:14,fold:[12,4],lift:[.12,0],lean:3,toe:7,hand:[.75,1.15,-.3],side:Object.freeze({out:6,rise:22,fold:[8,70],lift:[0,-.75],lean:10,hip:1.1})}),
+    // hand rested on a shoe, reading as squatting behind it; round 3: the
+    // knee then sat at the shirt's front corner, half hidden, the foot mass
+    // was tiny beside the deep shirt and at 120 px and in the classroom it
+    // still read as kneeling). Per leg [far, near]: the thighs leave the front
+    // of the seat (`hip`, body units ahead of the hip joint) and rise (`rise`)
+    // so the near knee stands up in front of the shirt, clear of its front
+    // edge, with the shorts' turned thigh and cuff leading to it (outfit
+    // sideFloorShorts); the far shin comes across under the near knee to a
+    // foot pointing at the viewer (Front shoe, over the near shin), the near
+    // foot lies tucked in front of the seat pointing back across (Profile
+    // shoe flipped, painted between the seat and the thigh: `lap`), both on
+    // the floor; the child rounds `lean` degrees over the knees with the
+    // hands resting on top of them (hand: inward, above, behind the knee).
+    floor:Object.freeze({seat:1.6,out:33,rise:14,fold:[12,4],lift:[.12,0],lean:3,toe:7,hand:[.75,1.15,-.3],side:Object.freeze({out:[15,6],rise:[36,40],fold:[-10,25],lift:[0,0],lean:13,hip:3.6,hand:[.75,1.2,-.9],shoes:[{view:'Front',index:0,flip:1,angle:0,over:true},{view:'Profile',index:1,flip:-1,angle:0,lap:true}]})}),
     desk:Object.freeze({drop:3.55,out:12,shinTilt:8,shinIn:14,lean:3,swing:14,abduct:8,reach:68,inward:36})
   }),SEATED_BREATH=Object.freeze({rise:.14,steps:3});
   // Two-bone reach in 3D; the elbow bends toward the pole. Target beyond the
@@ -278,41 +312,48 @@
   // Ladder climbing (D12; the climber always shows its back). One virtual
   // ladder: hands hold the rails at 16±6.2 (the painted map ladders' rails are
   // 16±6.0–6.6 at the default camera; at 5.7 the hands floated inside them).
-  // The female bob is 8.0-8.5 wide at grip height, so her upper grips stay
-  // behind the hair within the painted rails; only the lower grip shows.
-  // Each limb climbs one step of `rise` per cycle (2026-10-08, round 2: was
-  // ~4.5, about two thirds of a painted rung; school-room-world turns climbed
-  // world pixels into phase with it, so holds stay put on the map). Big steps
-  // keep the cadence down: at the maps' 112-118 px/s about 6.5 cycles a second.
+  // Each limb climbs one step of `rise` per cycle; school-room-world turns
+  // climbed world pixels into phase with it, so holds stay put on the map.
   // The feet stand on rungs. A hand and the opposite foot move together
   // while the other pair holds. A holding limb slides down the body frame at
   // the climbing rate (`rise` per cycle), so it stays on its rung while the
   // body goes up; played backwards (phase falls while descending) the same
   // cycle reaches down and holds while the body sinks. Bone lengths are
-  // fixed, so the arms cannot reach over the big head: the top grip is the
-  // arm at 97% reach beside the ear, with the hand behind the head; the
-  // lowest grip keeps the forearm upright beside the head (a lower grip folds
-  // the short forearm under its own sleeve and leaves the elbow sticking out
-  // like a hand). Knees open a little (ladder knees) so the bend reads from
+  // fixed, so the arms cannot reach over the big head: the top grip is `top`
+  // above the shoulder (a nearly full reach beside the ear, the hand behind
+  // the head). Knees open a little (ladder knees) so the bend reads from
   // behind instead of disappearing into depth.
-  const CLIMB=Object.freeze({rail:6.2,handZ:-1.2,footZ:-1,palm:.7,reach:.97,low:-1.9,step:3.3,handDuty:.55,poleHigh:[1,.5,.2],poleLow:[.8,1,.2],poleRest:[.25,1,.15],knee:[.7,0,-1],roll:2.5,sway:.15});
+  // 2026-10-08, round 3: a holding hand now pulls down to shoulder height
+  // (low, was 1.9 above it). The female bob (8.0-8.5 wide at grip height, its
+  // lower edge at 27.1-27.7 over the rails) hid both hands in 13 of 24 poses,
+  // and with the pull ending beside the head both forearms stood upright
+  // beside it in the crossing poses: a flexing or surrendering figure without
+  // a ladder behind. Pulling to the shoulder drops the pulling elbow below it
+  // (the forearm rises to the rail), so the pair reads as one arm reaching
+  // while the other pulls, and the lower hand shows under the bob in every
+  // pose (at least half of it). The released hand first comes off the rail
+  // and swings up late in its reach (reachBias: the reach progress is eased
+  // from s^2), so the two hands cross low enough for one to stay visible.
+  // The longer pull needs a longer cycle (rise = travel / handDuty) to leave
+  // the reach six of the 24 drawn poses; at the same climbing speed the map
+  // cadence drops ~13%. step 3.5 keeps a foot on a rung half the cycle.
+  const CLIMB=Object.freeze({rail:6.2,handZ:-1.2,footZ:-1,reach:.97,top:5.1,low:-.05,reachBias:2,step:3.5,handDuty:.73,poleHigh:[1,.5,.2],poleLow:[.4,1,.3],poleRest:[.25,1,.15],knee:[.7,0,-1],roll:2.5,sway:.15});
   // One limb over a cycle: hold (sliding down, pos 0→1), then lift off and
-  // reach up again (pos 1→0, lift 0→1→0 away from the ladder).
-  function climbStep(u,duty){if(u<duty)return{pos:u/duty,lift:0};const s=(u-duty)/(1-duty);return{pos:1-smooth(0,1,s),lift:Math.sin(Math.PI*s)};}
-  // Grip heights, rise and timing of one sex's back-view rig. Each limb moves
-  // two rungs per cycle, so rungs are rise/2 apart. The rise is the n-rung
-  // distance between a landing foot's sole and its partner hand's palm, picked
-  // so a foot holds at least half the cycle (one foot is always on a rung)
-  // and the hands hold ~72% of it.
+  // reach up again (pos 1→0, lift 0→1→0 away from the ladder); bias > 1
+  // starts the reach slowly (off the rail) and finishes it quickly.
+  function climbStep(u,duty,bias=1){if(u<duty)return{pos:u/duty,lift:0};const s=(u-duty)/(1-duty);return{pos:1-smooth(0,1,s**bias),lift:Math.sin(Math.PI*s)};}
+  // Grip heights, rise and timing of one sex's back-view rig. The two feet
+  // stand on rungs rise/2 apart; the hands hold the rails at any height, so
+  // the rise follows the hands' pull (handDuty of the cycle). Both sexes
+  // share the grips relative to the shoulder, hence one rise.
   function climbRig(S){
     const C=CLIMB,shoulder=S.shoulder[1],hand=Math.hypot(...sub(S.elbow[1],shoulder))+Math.hypot(...sub(S.wrist[1],S.elbow[1])),dx=16+C.rail-shoulder[0];
-    const handHigh=shoulder[1]-Math.sqrt(Math.max(0,(C.reach*hand)**2-dx*dx-C.handZ**2)),handLow=shoulder[1]+C.low,travel=handLow-handHigh;
-    // The hand's shorter move is centred in its partner foot's move, so the
-    // hand has slid (travel−step)/2 below its top grip when the foot lands.
-    const footLow=S.waist+Math.sqrt((C.reach*(S.thigh+S.shin))**2-C.footZ**2),span=footLow+S.floor-S.ankle-(handHigh-C.palm)-C.step-(travel-C.step)/2;
-    let rise=0;for(let n=3;n<=14;n++){const d=2*span/n;if(C.step/d>=.5&&travel/d<=.88&&(!rise||Math.abs(travel/d-C.handDuty)<Math.abs(travel/rise-C.handDuty)))rise=d;}
-    rise||=2*C.step;
-    return{handHigh,handLow,footLow,step:C.step,rise,rung:rise/2,handDuty:travel/rise,footDuty:C.step/rise,lead:(travel-C.step)/rise/2};
+    const handHigh=shoulder[1]-Math.min(C.top,Math.sqrt(Math.max(0,(C.reach*hand)**2-dx*dx-C.handZ**2))),handLow=shoulder[1]+C.low,travel=handLow-handHigh,rise=travel/C.handDuty;
+    const footLow=S.waist+Math.sqrt((C.reach*(S.thigh+S.shin))**2-C.footZ**2);
+    // The hand's longer move is centred on its partner foot's move; with the
+    // late reach (reachBias) the hand's halfway point comes (0.5^(1/bias)-.5)
+    // of its reach later, so the hand starts that much earlier.
+    return{handHigh,handLow,footLow,step:C.step,rise,rung:rise/2,handDuty:travel/rise,footDuty:C.step/rise,lead:(travel-C.step)/rise/2+(.5**(1/C.reachBias)-.5)*(1-C.handDuty)};
   }
   // Gestures run over progress 0..1 (1.5 s in the maps).
   // Wave: the forearm leads the raise and trails the lowering, so the arm
@@ -384,17 +425,37 @@
       // the head that the male hands use (the bones cannot reach past it).
       front:{upper:[[6,128],[6,125]],fore:[[6,140],[6,126]],pump:[5,2]},
       back:{upper:[[0,127],[0,125]],fore:[[0,139],[0,126]],pump:[5,2]},
-      // Profile cheer: a fist pump ('아자!'). Both fists punch up ahead of the
-      // chin on each hop and pull back to the chest on each landing, elbows
-      // bent (an arm held out forward read as sleepwalking or offering).
-      // Ahead of the face the hands cannot rise past the chin (the bones
-      // cannot reach around the large head): higher they cover the face,
-      // straight up they sat on the hair and read as patting the head.
-      // [male, female] x [far, near]; the far fist sits a little lower.
-      profile:{mid:{upper:[30,8],fore:[122,4]},sexes:[
-        {down:[{upper:[14,8],fore:[112,4]},{upper:[20,10],fore:[120,6]}],up:[{upper:[74,8],fore:[138,4]},{upper:[84,10],fore:[146,6]}]},
-        {down:[{upper:[14,8],fore:[112,4]},{upper:[20,10],fore:[120,6]}],up:[{upper:[76,8],fore:[142,4]},{upper:[86,10],fore:[152,6]}]}
-      ]}
+      // Profile cheer (2026-10-08, round 3): two styles for the owner to
+      // choose between; `profileStyle` picks one (studio/side views only: the
+      // maps play gestures facing front). Rule for both: in no drawn step does
+      // a hand or forearm cover the eye, nose or mouth. The bones cannot
+      // reach around the large head, so no hand can rise above it (from the
+      // shoulder the straight arm ends level with the eye); straight up it sat
+      // on the hair and read as patting the head (round 1), and the round-2
+      // fist pump punched in front of the mouth at each hop's top.
+      //  - pump ('아자! 화이팅!', the default): both fists punch up to
+      //    shoulder height in front of the chest, forearms nearly upright,
+      //    the fists' tops under the chin, on each hop, and pull back to the
+      //    chest on each landing, elbows bent;
+      //  - raise ('야호!'): the near arm reaches up and forward as high as it
+      //    can without crossing the face (about 20-35 degrees above level,
+      //    elbow a little bent), the open hand ahead of the mouth and chin,
+      //    rising on each hop and dipping on each landing, while the far fist
+      //    pumps at the chest (two arms held forward read as sleepwalking);
+      //    the chin lifts a little (look) toward the raised hand.
+      // [male, female] x [far, near]: upper/fore are [swing, abduction] as
+      // bodyVector takes them (screen angles: the profile lean is taken back).
+      profileStyle:'pump',
+      profile:{
+        pump:{mid:{upper:[24,8],fore:[110,4]},open:[0,0],look:0,sexes:[
+          {down:[{upper:[16,8],fore:[122,4]},{upper:[22,10],fore:[128,6]}],up:[{upper:[40,8],fore:[150,4]},{upper:[48,10],fore:[156,6]}]},
+          {down:[{upper:[16,8],fore:[122,4]},{upper:[22,10],fore:[128,6]}],up:[{upper:[42,8],fore:[150,4]},{upper:[50,10],fore:[156,6]}]}
+        ]},
+        raise:{mid:{upper:[56,10],fore:[118,4]},open:[0,1],look:5,sexes:[
+          {down:[{upper:[16,8],fore:[122,4]},{upper:[100,12],fore:[108,6]}],up:[{upper:[34,8],fore:[146,4]},{upper:[108,12],fore:[116,6]}]},
+          {down:[{upper:[16,8],fore:[122,4]},{upper:[104,12],fore:[114,6]}],up:[{upper:[36,8],fore:[146,4]},{upper:[114,12],fore:[126,6]}]}
+        ]}
+      }
     }
   };
   const slerp=(a,b,t)=>{const d=clamp(a[0]*b[0]+a[1]*b[1]+a[2]*b[2],-1,1),w=Math.acos(d);if(w<1e-5)return lerp(a,b,t);const s=Math.sin(w);return a.map((v,i)=>(Math.sin((1-t)*w)*v+Math.sin(t*w)*b[i])/s);};
@@ -417,7 +478,21 @@
     // in the stepped style of the walk; the painted limbs, sleeves and
     // shorts are then reused from their caches by every avatar.
     const gait=run?GAIT.run:GAIT.walk,gesture=['wave','nod','happy'].includes(input.gesture)?input.gesture:'',progress=Math.round(clamp(Number(input.gestureProgress)||0,0,1)*36)/36;
+    // Walk/run weight (2026-10-08, round 3). The solver keeps no history: a
+    // map may pass runBlend (0 walk .. 1 run) while a walk turns into a run or
+    // back, and the upper body (lean, front/back sway and roll, arms) mixes
+    // the walk's and the run's values by it, so the lean and the arm fold no
+    // longer change in one frame. The legs, stride and bob stay the action's
+    // own: they change every drawn pose anyway, and mixed legs repainted the
+    // legs and shorts too (30 avatars all blending: ~1.7x the update time of
+    // blending the upper body only). Drawn in thirds (two in-between poses,
+    // cache reuse, like the phase); without it the action decides (walk 0,
+    // run 1).
+    const runW=walk?(Number.isFinite(input.runBlend)?Math.round(clamp(input.runBlend,0,1)*3)/3:run?1:0):0,byGait=f=>runW<=0?f(GAIT.walk):runW>=1?f(GAIT.run):mix(f(GAIT.walk),f(GAIT.run),runW);
     const air=jump&&!input.grounded,crouch=jump&&!air;
+    // The side cheer's style (GESTURE_KEYS.happy.profileStyle); a caller may
+    // pick the other one (studio comparisons, contracts) with cheerStyle.
+    const cheerStyle=Object.hasOwn(GESTURE_KEYS.happy.profile,input.cheerStyle)?input.cheerStyle:GESTURE_KEYS.happy.profileStyle;
     // One jump pose: the stage key blended in by compression on the ground,
     // or the flight keys sampled by vy in the air. Like the walk, the drawn
     // pose steps (20 flight poses, 6 crouch depths) so painted limbs, shorts
@@ -438,7 +513,8 @@
     const hop=happy?HAPPY_HEIGHT*happy.lift*(calm?CALM_HOP:1):0,squash=happy?happy.squash:0,hopTuck=happy?happy.tuck:0;
     // Walk/run legs first: a planted foot stays on the floor, so the hips sit
     // no higher than the planted legs reach (front/back keep room for roll).
-    const legSpan=SPEC.thigh+SPEC.shin-.004-(profile?0:2.1*Math.sin(rad(gait.roll))),steps=walk?[0,1].map(i=>step(gait,(phase+i*.5)%1,SPEC.thigh,SPEC.shin,SPEC.ankle-SPEC.waist)):null;
+    // (legSpan leaves room for the mixed roll, so a planted foot stays put.)
+    const legSpan=SPEC.thigh+SPEC.shin-.004-(profile?0:2.1*Math.sin(rad(byGait(g=>g.roll)))),steps=walk?[0,1].map(i=>step(gait,(phase+i*.5)%1,SPEC.thigh,SPEC.shin,SPEC.ankle-SPEC.waist)):null;
     const toeIn=i=>profile&&SPEC.ankleX?SPEC.ankleX[i]-SPEC.hip[i]:0,planted=walk?Math.max(...steps.map((s,i)=>s.stance?SPEC.ankle-SPEC.waist-s.lift-Math.sqrt(Math.max(0,legSpan**2-(s.forward+toeIn(i))**2)):-9)):0;
     // Seated body space: lateral is measured from the midline with the front
     // rig's hip spacing, so every view shares one 3D pose. The cross-legged
@@ -449,13 +525,13 @@
     // Climbing: phase 0 (the foot of the ladder) starts with one foot just
     // leaving the ground. The reaching arm's shoulder rises and the hips shift
     // over the standing (lower) foot, the lower hand's diagonal partner.
-    const cphase=climb?((phase+CR.footDuty-.5)%1+1)%1:0,grips=climb?[0,1].map(i=>climbStep((cphase+CR.lead+(i?0:.5)+1)%1,CR.handDuty)):null;
+    const cphase=climb?((phase+CR.footDuty-.5)%1+1)%1:0,grips=climb?[0,1].map(i=>climbStep((cphase+CR.lead+(i?0:.5)+1)%1,CR.handDuty,CLIMB.reachBias)):null;
     // climbIn eases a climber on and off the ladder (0: standing at its foot
     // or top, 1: climbing); the maps derive it from the climbed height, so
     // the start is not a one-frame snap from idle. Six drawn steps.
     const ease=climb?Math.round(clamp(Number.isFinite(input.climbIn)?input.climbIn:1,0,1)*6)/6:1,reachSide=climb?(grips[0].pos-grips[1].pos)*ease:0;
-    const sway=climb?CLIMB.sway*reachSide:walk&&!profile?-gait.sway*Math.sin(TAU*(phase-gait.support+.25)):0,roll=climb?-CLIMB.roll*reachSide:walk&&!profile?gait.roll*sway/gait.sway:0;
-    const lean=profile?(run?gait.lean:walk?gait.lean+.8*Math.cos(2*TAU*phase):floor?SEATED.floor.side.lean:desk?SEATED.desk.lean:crouch?jumpKey.lean*compression:air?jumpKey.lean:BOW_LEAN*nod+4*squash-2*hopTuck):0;
+    const sway=climb?CLIMB.sway*reachSide:walk&&!profile?byGait(g=>-g.sway*Math.sin(TAU*(phase-g.support+.25))):0,roll=climb?-CLIMB.roll*reachSide:walk&&!profile?byGait(g=>g.roll*(-g.sway*Math.sin(TAU*(phase-g.support+.25)))/g.sway):0;
+    const lean=profile?(walk?byGait(g=>g.lean+(g===GAIT.walk?.8*Math.cos(2*TAU*phase):0)):floor?SEATED.floor.side.lean:desk?SEATED.desk.lean:crouch?jumpKey.lean*compression:air?jumpKey.lean:BOW_LEAN*nod+4*squash-2*hopTuck):0;
     // A side crouch sits the hips back over the heels as the knees go forward.
     const hips=profile&&crouch?jumpKey.hips*compression:0;
     const torso=transform([16,SPEC.waist],[16+sway+hips-(profile?.8*nod:0),SPEC.waist+drop],rad(profile?lean:roll));
@@ -513,7 +589,7 @@
       if(floor||desk){
         const side=i?1:-1,r3=[HIP_L,root[1],0];let k3,a3;
         if(floor){
-          const C=SEATED.floor,V=profile?{...C,...C.side}:C,out=rad(V.out),rise=rad(V.rise),fold=rad(V.fold[i]);
+          const C=SEATED.floor,V=profile?{...C,...SEATED.floor.side}:C,at=v=>Array.isArray(v)?v[i]:v,out=rad(at(V.out)),rise=rad(at(V.rise)),fold=rad(V.fold[i]);
           k3=[HIP_L+SPEC.thigh*Math.sin(out)*Math.cos(rise),root[1]-SPEC.thigh*Math.sin(rise),SPEC.thigh*Math.cos(out)*Math.cos(rise)];
           const ay=SPEC.ankle-V.lift[i],dy=clamp(ay-k3[1],-SPEC.shin,SPEC.shin),h=Math.sqrt(SPEC.shin**2-dy**2);
           a3=[k3[0]-h*Math.cos(fold),k3[1]+dy,k3[2]-h*Math.sin(fold)];contact=false;
@@ -533,11 +609,12 @@
         if(floor){
           // Each foot points across to the other side, so from the front it is
           // a side-on shoe, toe tipped up a little, under both shins. Side view
-          // (reference): the near foot is tucked under the far thigh (hidden);
-          // the far foot points at the viewer, its toe under the near knee.
-          // From behind both feet are in front of the body, hidden.
+          // (reference): the far foot points at the viewer under the near
+          // knee, the near foot lies tucked in front of the seat (SEATED.floor
+          // .side.shoes). From behind both feet are in front of the body,
+          // hidden.
           const C=SEATED.floor;
-          seatShoe=back||profile&&i?{hidden:true}:profile?{view:'Front',index:0,flip:1,angle:0}:{view:'Profile',index:0,flip:i?-1:1,angle:i?C.toe:-C.toe,under:true};
+          seatShoe=back?{hidden:true}:profile?C.side.shoes[i]:{view:'Profile',index:0,flip:i?-1:1,angle:i?C.toe:-C.toe,under:true};
         }
       }
       else if(jumpKey){/* posed above */}
@@ -586,7 +663,7 @@
         if(floor){
           // The hand rests on top of its own knee, a little inside it
           // (hand: inward, wrist height above the knee centre, back).
-          const C=SEATED.floor,k=legs[i].knee3,out=profile?Math.abs(FRONT.shoulder[i][0]-16):side*(shoulder[0]-16),z=profile?shoulder[0]-legs[i].root[0]:Math.sin(rad(C.lean))*(SPEC.waist-rest[1]);
+          const C=profile?{...SEATED.floor,...SEATED.floor.side}:SEATED.floor,k=legs[i].knee3,out=profile?Math.abs(FRONT.shoulder[i][0]-16):side*(shoulder[0]-16),z=profile?shoulder[0]-legs[i].root[0]:Math.sin(rad(C.lean))*(SPEC.waist-rest[1]);
           ({elbow:E,wrist:W}=ik3([k[0]-C.hand[0]-out,k[1]-C.hand[1]-shoulder[1],k[2]+C.hand[2]-z],upperLength,lowerLength,[1,0,-.6]));
         }else{
           // Upper arm a little forward, forearm forward, in and a little down
@@ -616,9 +693,11 @@
           // arm straightens and opens a little, so the swing reads from the
           // front and back too. Running arms keep the elbow bent and pump;
           // front/back running arms follow their authored keys (GAIT notes).
-          const A=gait.arm,F=profile?{}:A.facing,c=(i?1:-1)*Math.cos(TAU*(phase-gait.lag)),at=k=>rad(A[k][0]+A[k][1]*c+(F[k]?F[k][0]+F[k][1]*c:0));
-          if(!profile&&A.facingKeys){const K=back?A.backKeys:A.facingKeys;swing+=rad(keyed(K,c,1));flex=rad(keyed(K,c,2));abduct+=rad(keyed(K,c,3));forearm+=rad(keyed(K,c,4));}
-          else{swing+=at('swing');flex=at('flex');abduct+=at('abduct');forearm+=at('forearm');}
+          // [swing, flex, abduction, forearm] of one gait; runW mixes them.
+          const armOf=g=>{const A=g.arm,F=profile?{}:A.facing,c=(i?1:-1)*Math.cos(TAU*(phase-g.lag)),at=k=>rad(A[k][0]+A[k][1]*c+(F[k]?F[k][0]+F[k][1]*c:0));
+            if(!profile&&A.facingKeys){const K=back?A.backKeys:A.facingKeys;return[1,2,3,4].map(k=>rad(keyed(K,c,k)));}return['swing','flex','abduct','forearm'].map(at);};
+          const q=runW<=0||runW>=1?armOf(gait):((a,b)=>a.map((v,k)=>mix(v,b[k],runW)))(armOf(GAIT.walk),armOf(GAIT.run));
+          swing+=q[0];flex=q[1];abduct+=q[2];forearm+=q[3];
         }else if(jumpKey){
           // Take-off swings the arms behind; the launch throws them up (side:
           // the near arm high-forward, never over the face; head-on and from
@@ -631,8 +710,11 @@
           // underarm cloth, as the wave and the cheer do (the seam-pinned
           // sleeve stretched into flaps). Side arms rise forward, so they stay
           // below the open-hand threshold (.35) and keep the painted hand.
+          // Head-on the rigid sleeve starts from 40 deg of abduction (round 3,
+          // was 50): with the elbows dropping below the shoulders in the
+          // lowering W, a pinned sleeve stayed level as a flap over them.
           if(profile){const[s,f]=jumpKey.profile.slice(i?0:2);swing=mix(swing,rad(s),c)+rad(lean);flex=mix(flex,rad(f),c);lift=Math.min(.35,smooth(60,95,s)*c);}
-          else{const[s,a,f,k]=back?jumpKey.back:jumpKey.front;swing=mix(swing,rad(s),c);abduct=mix(abduct,rad(a),c);forearm=mix(forearm,rad(f),c);flex=mix(flex,rad(k),c);lift=smooth(50,105,a)*c;}
+          else{const[s,a,f,k]=back?jumpKey.back:jumpKey.front;swing=mix(swing,rad(s),c);abduct=mix(abduct,rad(a),c);forearm=mix(forearm,rad(f),c);flex=mix(flex,rad(k),c);lift=smooth(40,95,a)*c;}
         }
         else{swing+=rad(1.2*breath-.6);flex+=rad(3*breath);
           // Bowing from the front or back: the arms hang a little forward;
@@ -645,11 +727,11 @@
         if(happy){
           // Front/back: both arms come up beside the head with bent elbows
           // and open into a V, rising a little more in the air and giving
-          // with the knees on each landing. Profile: fists pumped up ahead of
-          // the chin on each hop, pulled down on each landing.
+          // with the knees on each landing. Profile: the chosen side cheer
+          // (GESTURE_KEYS.happy.profile), up on each hop, down on each landing.
           const e=happy.arms,K=GESTURE_KEYS.happy;lift=e;
-          if(profile){const P=K.profile.sexes[sx],k=clamp(.4+.6*happy.tuck-.6*happy.squash,0,1),down=armKey(P.down[i]),up=armKey(P.up[i]),fist=[slerp(down[0],up[0],k),slerp(down[1],up[1],k)];
-            dirs=armPath([[0,...restDirs()],[.5,...armKey(K.profile.mid)],[1,...fist]],e);open=0;}
+          if(profile){const C=K.profile[cheerStyle],P=C.sexes[sx],k=clamp(.4+.6*happy.tuck-.6*happy.squash,0,1),down=armKey(P.down[i]),up=armKey(P.up[i]),held=[slerp(down[0],up[0],k),slerp(down[1],up[1],k)];
+            dirs=armPath([[0,...restDirs()],[.5,...armKey(C.mid)],[1,...held]],e);open=C.open[i]?smooth(.55,.75,e):0;if(C.open[i])handTurn=rad(6)*Math.sin(TAU*5*progress)*e;}
           else{const G=K[view],pump=rad(G.pump[sx]*happy.tuck-9*happy.squash)*e;handTurn=rad(8)*Math.sin(TAU*5*progress+i*Math.PI)*e;
             dirs=armPath([[0,...restDirs()],[.5,...armKey(K.mid)],[1,...armKey({upper:G.upper[sx],fore:G.fore[sx]})]],e).map(v=>turnOut(v,pump));open=smooth(.55,.75,e);}
         }
@@ -677,9 +759,12 @@
       if(seatBreath){const up=chest[5]-torso[5];for(const p of [shoulder,elbow,wrist])p[1]+=up;}
       // fold: a run/jump forearm may turn back over its own upper arm on
       // screen; the skin paints that bend as a rounded elbow.
-      return{shoulder,elbow,wrist,depth:depth[1],boneSpace:[[...shoulder,0],[...elbow,depth[0]],[...wrist,depth[1]]],sleeve:transform(rest,shoulder,angle),angle,lift,open:open??lift,handTurn,fold:run||jump};
+      return{shoulder,elbow,wrist,depth:depth[1],boneSpace:[[...shoulder,0],[...elbow,depth[0]],[...wrist,depth[1]]],sleeve:transform(rest,shoulder,angle),angle,lift,open:open??lift,handTurn,fold:walk&&runW>0||jump};
     });
-    return{direction,profile,back,action,phase,torso,chest,legs,arms,floor,desk,drop,lean,neckTilt,headTilt,gesture,hop,nod,headPitch:profile?(BOW_LEAN+BOW_PITCH)*nod:0,spec:SPEC,ladder:CR};
+    // The raised side cheer lifts the chin a little toward the hands, on top
+    // of the lean rule (a head pitch like the bow's, not a lean).
+    const headLook=happy&&profile?-(GESTURE_KEYS.happy.profile[cheerStyle].look||0)*happy.arms:0;
+    return{direction,profile,back,action,phase,torso,chest,legs,arms,floor,desk,drop,lean,neckTilt,headTilt,headLook,gesture,hop,nod,headPitch:profile?(BOW_LEAN+BOW_PITCH)*nod:0,spec:SPEC,ladder:CR};
   }
   const el=(tag,attrs={})=>{const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);return e;};
   const set=(e,key,value)=>{if(e.getAttribute(key)!==String(value))e.setAttribute(key,value);};
@@ -879,7 +964,7 @@
     set(r.svg.querySelector('.qpx-contact-shadow'),'transform',pose.hop?'translate(16 56.75) scale('+n(1-.28*pose.hop/HAPPY_HEIGHT)+') translate(-16 -56.75)':'');
     // The head sits on the (possibly straightened) neck and takes the rest
     // of a walk/run lean (neckTilt/headTilt, solve()).
-    const collar=pose.spec.collar,neck=mapped(pose.chest,add([16,collar],rotate([0,28-collar],-rad(pose.neckTilt||0))));let headPose='translate('+pt([(neck[0]-16)*BODY_SCALE.x,(neck[1]-28)*BODY_SCALE.y])+')'+(pose.headTilt?' rotate('+n(pose.headTilt)+' 16 28)':'');
+    const collar=pose.spec.collar,neck=mapped(pose.chest,add([16,collar],rotate([0,28-collar],-rad(pose.neckTilt||0))));let headPose='translate('+pt([(neck[0]-16)*BODY_SCALE.x,(neck[1]-28)*BODY_SCALE.y])+')'+(pose.headTilt||pose.headLook?' rotate('+n((pose.headTilt||0)+(pose.headLook||0))+' 16 28)':'');
     if(pose.nod){
       // Bow: in profile the head turns with the bending upper body and
       // pitches further about the nape (the chin tucks, the back of the neck

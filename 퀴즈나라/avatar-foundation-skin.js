@@ -5,7 +5,39 @@
  'use strict';
  const NS='http://www.w3.org/2000/svg',base=new URL('.',document.currentScript.src),R=root.QPFoundationReferenceData;
  const files={arm:'assets/sd-foundation-ref-arms.png',leg:'assets/sd-foundation-ref-legs.png',neck:'assets/sd-foundation-ref-neck.png'};
- const atlas={ready:false,error:null,source:files.arm},images={},frames=new Map();let pending;
+ const atlas={ready:false,error:null,source:files.arm},images={};let pending;
+ // Painted images (canvas PNG data URLs: the limbs here, sleeves and shorts
+ // in the outfit) share one pool, least recently used out first, bounded by
+ // the bytes it holds (a data URL is one byte per character). Entries are
+ // keyed by the drawn pose only, never by avatar or skin tone (the tone is a
+ // filter), so every avatar in the same drawn pose shares one image. Round 2
+ // kept first-in-first-out lists of 768 limbs, 200 sleeves and 160 shorts
+ // (about 20 MB when full): smaller than a map's mixed working set (walkers,
+ // runners, gestures, sits, climbers, jumpers), so 30 mixed avatars
+ // re-warped and re-encoded about 70 images every frame (~220 ms per update
+ // in software rendering). That crowd's images take about 38 MiB (limbs ~9
+ // KB, sleeves ~46 KB, shorts ~29 KB each; every drawn pose of every motion
+ // ~63 MiB). PAINT_BUDGET holds the crowd; a full pool measured about 41 MiB
+ // of JS heap, meant for a 4 GB school Chromebook, and a browser reporting
+ // under 4 GB keeps 24 MiB. When nothing has asked for an image for a
+ // minute (paint.idleMs: a static screen; the map was left) the pool is
+ // emptied; it refills on the next update (2026-10-09, round 3).
+ const PAINT_BUDGET=((root.navigator?.deviceMemory||4)<4?24:40)*1048576,pool=new Map(),kinds=new Map();
+ const paint={budget:PAINT_BUDGET,idleMs:60000,bytes:0,evicted:0,emptied:0};let lastUse=0,idleTimer=0;
+ function emptyPaint(){pool.clear();paint.bytes=0;for(const k of kinds.values()){k.entries=0;k.bytes=0;}}
+ // The idle check looks again at least every 5 s, so a changed idleMs applies soon.
+ function idleCheck(){idleTimer=0;const wait=lastUse+paint.idleMs-performance.now();if(wait>0){idleTimer=setTimeout(idleCheck,Math.min(wait,5000)+50);return;}if(pool.size)paint.emptied++;emptyPaint();}
+ function drop(k,e){pool.delete(k);paint.bytes-=e.size;e.own.entries--;e.own.bytes-=e.size;}
+ function paintCache(kind){
+  if(kinds.has(kind))return kinds.get(kind).cache;const own={kind,entries:0,bytes:0,hits:0,misses:0},prefix=kind+'|';
+  own.cache={
+   get(key){const k=prefix+key,e=pool.get(k);lastUse=performance.now();if(!idleTimer)idleTimer=setTimeout(idleCheck,Math.min(paint.idleMs,5000)+50);if(!e){own.misses++;return;}own.hits++;pool.delete(k);pool.set(k,e);return e.v;},
+   set(key,v){const k=prefix+key,size=k.length+v.url.length+96,old=pool.get(k);if(old)drop(k,old);
+    for(const[x,e]of pool){if(paint.bytes+size<=paint.budget)break;drop(x,e);paint.evicted++;}
+    pool.set(k,{v,size,own});paint.bytes+=size;own.entries++;own.bytes+=size;return v;}};
+  kinds.set(kind,own);return own.cache;
+ }
+ const paintStats=()=>({budget:paint.budget,bytes:paint.bytes,entries:pool.size,evicted:paint.evicted,emptied:paint.emptied,kinds:[...kinds.values()].map(({cache,...k})=>k)});
  const VIEW={Front:'front',Profile:'right',Back:'back'};
  // Neighbouring warped triangles overlap by about a pixel. A thinner overlap
  // left anti-aliased hairline seams that showed the background through.
@@ -36,12 +68,13 @@
   const vertices=[a.d,b.d,c.d],sign=Math.sign((u1-u0)*(v2-v0)-(v1-v0)*(u2-u0))||1;
   ctx.save();ctx.beginPath();for(const[i,p]of vertices.entries()){const prev=unit(sub(p,vertices[(i+2)%3])),next=unit(sub(vertices[(i+1)%3],p)),na=[prev[1]*sign,-prev[0]*sign],nb=[next[1]*sign,-next[0]*sign],bis=unit(na.map((v,k)=>v+nb[k])),pad=Math.min(6,SEAM/Math.max(.05,bis[0]*na[0]+bis[1]*na[1])),q=p.map((v,k)=>v+bis[k]*pad);i?ctx.lineTo(...q):ctx.moveTo(...q);}ctx.closePath();ctx.clip();ctx.setTransform(aa,bb,cc,dd,u0-aa*x0-cc*y0,v0-bb*x0-dd*y0);ctx.drawImage(texture,0,0);ctx.restore();
  }
+ const limbCache=paintCache('limb');
  // Each source row belongs to a bone by its height between the painted
  // joints; columns keep the painted width scaled by the sheet's pixel size.
  // part: '' the whole limb; 'forearm' only the rows from the start of the
  // elbow bend to the hand's end; 'forearm-bare' the same without the hand
  // (an open gesture hand is drawn there instead).
- function painting(d,points,fold=false,part=''){const relative=points.map(p=>sub(p,points[0])),[a,b,c]=relative,u=unit(sub(b,a)),v=unit(sub(c,b)),turn=Math.acos(Math.max(-1,Math.min(1,u[0]*v[0]+u[1]*v[1]))),sharp=fold&&turn>SHARP,cacheKey=[d.rect.join(),...relative.flat().map(x=>Math.round(x*40)),sharp?'s':'',part].join(':');if(frames.has(cacheKey))return frames.get(cacheKey);
+ function painting(d,points,fold=false,part=''){const relative=points.map(p=>sub(p,points[0])),[a,b,c]=relative,u=unit(sub(b,a)),v=unit(sub(c,b)),turn=Math.acos(Math.max(-1,Math.min(1,u[0]*v[0]+u[1]*v[1]))),sharp=fold&&turn>SHARP,cacheKey=[d.rect.join(),...relative.flat().map(x=>Math.round(x*40)),sharp?'s':'',part].join(':'),cached=limbCache.get(cacheKey);if(cached)return cached;
   const nu=[u[1],-u[0]],nv=[v[1],-v[0]],J=d.joints,ys=[d.rect[1],J[0][1],J[1][1],J[2][1],d.end],ext=(d.end-J[2][1])*d.k,top=(J[0][1]-d.rect[1])*d.k,verts=[],cols=2;
   const l1=Math.hypot(...sub(b,a)),l2=Math.hypot(...sub(c,b)),corner=Math.min(.55,l1*.2,l2*.2),lo=ys[2]-corner/l1*(ys[2]-ys[1]),hi=ys[2]+corner/l2*(ys[3]-ys[2]);
   // Source rows of the mesh; a sharp fold adds rows through the bend.
@@ -78,7 +111,7 @@
   // Almost-opaque triangle interiors must not leave a translucent grid.
   // Keep the actual low-alpha silhouette pixels for smooth outer edges.
   const opaque=ctx.getImageData(0,0,canvas.width,canvas.height);for(let i=3;i<opaque.data.length;i+=4)if(opaque.data[i]>=240)opaque.data[i]=255;ctx.putImageData(opaque,0,0);
-  const result={url:canvas.toDataURL(),x:left,y:topY,w:canvas.width/scale,h:canvas.height/scale};frames.set(cacheKey,result);if(frames.size>768)frames.delete(frames.keys().next().value);return result;
+  return limbCache.set(cacheKey,{url:canvas.toDataURL(),x:left,y:topY,w:canvas.width/scale,h:canvas.height/scale});
  }
  // The face painting is recolored by brush luminance (avatar-pixel.js), which
  // keeps the chosen skin's own hue. The sheet's limbs and neck keep more of
@@ -108,7 +141,9 @@
     part.paintFrame=type==='arm'?document.createElementNS(NS,'g'):part.painting;if(type==='arm')part.paintFrame.append(part.painting);part.parent.insertBefore(part.paintFrame,part.shade);
     // The seated-leg clip exists from the start: motion never adds nodes.
     if(type==='leg'){const g=document.createElementNS(NS,'clipPath');g.id=r.svg.dataset.foundationId+'-leg-skin-paint-'+i;part.paintClip=document.createElementNS(NS,'path');g.append(part.paintClip);r.svg.querySelector('defs').append(g);}}
-   const image=part.painting;for(const[k,val]of Object.entries({href:art.url,x:points[0][0]+art.x,y:points[0][1]+art.y,width:art.w,height:art.h}))if(image.getAttribute(k)!==String(val))image.setAttribute(k,val);
+   // The pooled painting is compared by reference (as the forearm's below):
+   // reading the data-URL href back every frame copied the whole string.
+   const image=part.painting;if(image.paintedArt!==art){if(image.getAttribute('href')!==art.url)image.setAttribute('href',art.url);image.paintedArt=art;}for(const[k,val]of Object.entries({x:points[0][0]+art.x,y:points[0][1]+art.y,width:art.w,height:art.h}))if(image.getAttribute(k)!==String(val))image.setAttribute(k,val);
    // Clothing owns the sleeve opening clip; the painted hand follows the wrist.
    // Crossed seated legs are painted straight from the knee (leg.paint) and
    // clipped to the body's knee-and-shin contour; the thigh is under the shorts.
@@ -187,5 +222,5 @@
   part.handCut.setAttribute('d','M'+q(c,0,12)+'L'+q(c,-30,12)+'L'+q(c,-30,-12)+'L'+q(c,0,-12)+'Z');part.painting.setAttribute('clip-path','url(#'+part.handCut.parentNode.id+')');
  }
  function destroy(r){r.skinPaintFilter?.remove();r.neckPainting?.remove();for(const e of [r.neckSurface,r.neckEdge,r.neckShade])e.style.display='';for(const part of [...r.arms,...r.legs]){part.contour.style.visibility='';part.paintFrame?.remove();part.painting?.remove();part.paintClip?.parentNode.remove();part.forearm?.remove();part.forearmArt?.remove();part.forearmClip?.parentNode.remove();part.openHand?.remove();part.handCut?.parentNode.remove();r.svg.querySelector('[id="'+r.svg.dataset.foundationId+'-hand-fade-'+r.arms.indexOf(part)+'"]')?.remove();delete part.forearm;delete part.forearmArt;delete part.forearmClip;delete part.openHand;delete part.handCut;}}
- root.QPFoundationSkin=Object.freeze({atlas,files,load,apply,destroy,limbDef});
+ root.QPFoundationSkin=Object.freeze({atlas,files,load,apply,destroy,limbDef,paintCache,paint,paintStats,emptyPaint});
 })(window);

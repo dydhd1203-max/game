@@ -5,6 +5,9 @@
   const GESTURE_KEYS={Digit1:'wave',Numpad1:'wave',Digit2:'hello',Numpad2:'hello',Digit3:'happy',Numpad3:'happy'};const KEYS={ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right',ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down'};
   const SPEED=window.QPRunInput.walkSpeed, RUN_SPEED=window.QPRunInput.runSpeed, AVATAR_HEIGHT=120, RADIUS=7;
   const WALK_CYCLE=window.QPRunInput.walkCycleMs, RUN_CYCLE=window.QPRunInput.runCycleMs;
+  // Walk <-> run ease for the local reference-body player (2026-10-08, round
+  // 3): ms over which its walk/run weight (runBlend) follows the gait.
+  const RUN_BLEND_MS=120;
   let portalReadyAt=0;
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const finite=(v,f=0)=>Number.isFinite(Number(v))?Number(v):f;
@@ -357,9 +360,15 @@
     // times as fast as they climbed. Over the first and last cycle of a ladder
     // the climber eases from standing onto it and off again (climbIn), so the
     // start and the arrival are not one-frame snaps. Other avatars keep 84 px.
+    // LADDER_CADENCE: 1 keeps the limbs locked to the painted ladder, which at
+    // the maps' 112-118 px/s is ~5.6-5.9 limb cycles a second; 2 halves the
+    // cadence (~2.8-2.9 a second) and lets a holding hand or foot slide down
+    // the ladder by half the climb. The climbing speed is the same either way.
+    // The user chose 2 on 2026-10-08: a calm cadence, a little slide is fine.
+    const LADDER_CADENCE=2;
     function ladderPose(p,svg,visualScale){
       const F=window.QPAvatarFoundation,h=finite(p.height);if(!svg?.dataset.qpFoundation||!F?.climbRise)return null;
-      const cycle=F.climbRise(svg.dataset.qpxSex)*F.bodyScale.y*F.stageScale*svg.height.baseVal.value/(svg.viewBox.baseVal.height||62)*visualScale;
+      const cycle=LADDER_CADENCE*F.climbRise(svg.dataset.qpxSex)*F.bodyScale.y*F.stageScale*svg.height.baseVal.value/(svg.viewBox.baseVal.height||62)*visualScale;
       let ease=1;for(const c of scene.climbs||[]){const a=c.points[0].height,b=c.points[c.points.length-1].height,lo=Math.min(a,b),hi=Math.max(a,b);if(c.motion==='walk'||h<lo-.5||h>hi+.5||Math.min(...c.points.map(q=>Math.abs(q.x-p.x)))>30)continue;ease=clamp(Math.min(h-lo,hi-h)/cycle,0,1);break;}
       return{phase:((h/cycle)%1+1)%1,ease};
     }
@@ -385,12 +394,24 @@
       if(!visible){actor.poseKey='';return;}
       const g=actor.self?gesture:p.gesture;let progress=g?(actor.self?(now-g.started)/1500:(sharedTime-finite(g.at))/finite(g.duration,1500)):1;
       const active=g&&progress>=0&&progress<1,pose=seat?'sit':p.pose==='climb'?(scene.climbs?.some(c=>c.motion==='walk'&&finite(p.height)>c.points[0].height&&finite(p.height)<c.points[c.points.length-1].height)?'walk':'climb'):p.pose==='sit-floor'?'floor-sit':p.moving?(p.pose==='run'?'run':'walk'):'idle',kind=active?(g.type==='hello'?'nod':g.type==='happy'?'happy':'wave'):'';
+      // Walk <-> run: the reference body mixes its two gaits by runBlend, so
+      // the lean and the arm fold turn over RUN_BLEND_MS instead of in one
+      // frame. The weight is eased here and passed in; the pose solver keeps
+      // no history. It follows every pose (0 unless running), so the usual
+      // double tap - a short walk, a short stop, then the run - also eases
+      // in. Only walk/run poses read it; other avatars never get it. Only the
+      // local player eases: each in-between pose repaints the arms (a cache
+      // miss), and 30 friends switching gait every 2.5 s cost ~1.3x the
+      // update (cloud software render); friends' gait switches also jump in
+      // phase (their cycle is the clock over the gait's cycle length), which
+      // an arm ease would not hide.
+      if(actor.self&&actor.svg?.dataset.qpFoundation){const want=pose==='run'?1:0,stepBy=dt*1000/RUN_BLEND_MS;actor.runMix=actor.runMix==null?want:want>actor.runMix?Math.min(want,actor.runMix+stepBy):Math.max(want,actor.runMix-stepBy);}else actor.runMix=null;
       // Breathing is slow; stagger resting friends over six frames. Input, motion and
       // gestures update immediately, and the local player keeps every frame.
       const poseKey=[pose,seat?.id,active,kind,p.direction,p.facing].join(':');
       if(actor.self||p.moving||active||actor.poseKey!==poseKey||actor.poseSlot===poseTurn){
       const ladder=pose==='climb'?ladderPose(p,actor.svg,visualScale):null;
-      window.QPAvatarPose?.apply(actor.svg,{action:pose,seatMode:seat?'desk':p.pose==='sit-floor'?'floor':undefined,direction:seat?(seat.direction||'back'):active?'front':p.direction||'front',facing:p.facing===-1?'left':p.facing===1?'right':p.facing||'right',phase:ladder?ladder.phase:p.pose==='climb'?((finite(p.height)/84)%1+1)%1:actor.self?phase:now/(p.pose==='run'?RUN_CYCLE:WALK_CYCLE),climbIn:ladder?.ease,grounded:true,gesture:kind,gestureProgress:progress});
+      window.QPAvatarPose?.apply(actor.svg,{action:pose,seatMode:seat?'desk':p.pose==='sit-floor'?'floor':undefined,direction:seat?(seat.direction||'back'):active?'front':p.direction||'front',facing:p.facing===-1?'left':p.facing===1?'right':p.facing||'right',phase:ladder?ladder.phase:p.pose==='climb'?((finite(p.height)/84)%1+1)%1:actor.self?phase:now/(p.pose==='run'?RUN_CYCLE:WALK_CYCLE),climbIn:ladder?.ease,runBlend:pose==='walk'||pose==='run'?actor.runMix??undefined:undefined,grounded:true,gesture:kind,gestureProgress:progress});
       actor.poseKey=poseKey;
       }
       // Measure the actual dressed/posed pelvis once per artwork, including

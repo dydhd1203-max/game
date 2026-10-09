@@ -90,6 +90,66 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   api.destroy(pending);host.remove();
   return{cases,crowd:{avatars:30,renderMs:+renderMs.toFixed(1),mountMs:+mountMs.toFixed(1),mutationsIn20Frames:mutations,chars:html.length}};
  });report.checks.push('static render: posed idle front body without apply, same DOM as apply(idle,front,0), stable nodes, prepare/reset, 30 static avatars without per-frame work, pending art repaint');
+ // Painted-image pool (added 2026-10-09, round 3 performance). Round 2 kept
+ // first-in-first-out lists (768 limbs, 200 sleeves, 160 shorts) smaller
+ // than a mixed map crowd's working set, so 30 mixed avatars re-drew about
+ // 70 images every frame (~220 ms per update in software rendering). One
+ // byte-bounded least-recently-used pool now holds that crowd. Contracts:
+ // the warm pass of the round-2 merger's mixed crowd draws almost nothing
+ // new; the pool never exceeds its budget; a held pose survives a small pool
+ // full of cycling poses; avatars in one drawn pose share images whatever
+ // their skin tone; a raised (unpinned) sleeve is one image at every angle;
+ // an idle pool empties and refills to the same DOM. Pixel identity with
+ // round 2 is checked outside this tool (see the motion review record).
+ report.paintPool=await p.evaluate(async()=>{
+  // The studio's own avatars stop playing: they would keep the pool busy.
+  QPFoundationStudio.setState({action:'idle'});
+  const api=QPFoundationStudio.api,w=document.getElementById('runtime').contentWindow,S=w.QPFoundationSkin,check=(v,message)=>{if(!v)throw Error(message);};
+  check(S.paint.budget>0&&S.paint.budget<=40*1048576,'the painted-image pool has a bounded budget (at most 40 MiB)');
+  const defaultBudget=S.paint.budget,misses=()=>S.paintStats().kinds.reduce((s,k)=>s+k.misses,0),host=document.createElement('div');document.body.append(host);
+  const make=(sex,sk,size=120)=>{const d=document.createElement('div');d.innerHTML=api.render({sex,foundationOutfit:'basic',sk,hair:sex==='f'?'bob:1':'short:1',expression:'bright:0'},size);host.append(d);return d.firstElementChild;};
+  // The round-2 merger's crowd: 6 walk, 6 run, 3 wave, 3 happy, 2 nod, 3 desk, 2 floor, 2 climb, 2 jump, 1 idle.
+  S.paint.budget=40*1048576;S.emptyPaint();
+  const roles=['walk','walk','walk','walk','walk','walk','run','run','run','run','run','run','wave','wave','wave','happy','happy','happy','nod','nod','desk','desk','desk','floor','floor','climb','climb','jump','jump','idle'],dirs=['front','back','left','right'];
+  const state=(i,k)=>{const role=roles[i],t=k/60,d=dirs[i%4];
+   if(role==='walk')return{action:'walk',direction:d,phase:(t/.48+i*.13)%1,time:t};
+   if(role==='run')return{action:'run',direction:d,phase:(t/.36+i*.17)%1,time:t};
+   if(role==='wave'||role==='happy'||role==='nod')return{action:'idle',direction:'front',gesture:role,gestureProgress:((t+i*.3)/1.6)%1,time:t};
+   if(role==='desk')return{action:'sit',direction:'back',time:t};
+   if(role==='floor')return{action:'sit',seatMode:'floor',direction:d,time:t};
+   if(role==='climb')return{action:'climb',phase:((t*118/17)+i*.2)%1,time:t};
+   if(role==='jump'){const s=(k+i*5)%40;return s<4?{action:'jump',direction:d,grounded:true,jumpStage:'takeoff',jumpCompression:s/3,time:t}:s<32?{action:'jump',direction:d,grounded:false,vy:480-(s-4)*34,time:t}:s<36?{action:'jump',direction:d,grounded:true,jumpStage:'landing',jumpCompression:1-(s-32)/4,time:t}:{action:'idle',direction:d,time:t};}
+   return{action:'idle',direction:d,time:t};};
+  const crowd=roles.map((r,i)=>make(i%2?'f':'m',i%5));
+  const start=misses();for(let k=0;k<120;k++)crowd.forEach((svg,i)=>api.apply(svg,state(i,k)));const cold=misses();
+  for(let k=120;k<360;k++)crowd.forEach((svg,i)=>api.apply(svg,state(i,k)));const warm=misses()-cold;
+  check(warm<=240,'mixed crowd warm pass draws at most one new image per frame on average (round 2: ~70 per frame): '+warm+' in 240 frames');
+  check(S.paint.bytes<=S.paint.budget,'pool within its budget');const crowdStats=S.paintStats();crowd.forEach(svg=>api.destroy(svg));
+  // A small pool: never over budget; a held pose (asked every frame) stays.
+  S.paint.budget=2*1048576;S.emptyPaint();const held=make('f',1),walker=make('m',2),evicted=S.paint.evicted;let heldRedraws=0;
+  for(let k=0;k<4*24*2;k++){api.apply(walker,{action:k%48<24?'walk':'run',direction:dirs[(k/48|0)%4],phase:(k%24)/24,time:k/60});const before=misses();api.apply(held,{action:'sit',direction:'back',time:0});if(k)heldRedraws+=misses()-before;check(S.paint.bytes<=S.paint.budget,'small pool exceeded its budget');}
+  check(S.paint.evicted>evicted,'small pool control: cycling poses must evict');check(heldRedraws===0,'a held pose is never redrawn while other poses cycle: '+heldRedraws);
+  api.destroy(held);api.destroy(walker);S.paint.budget=40*1048576;
+  // Shared across avatars and skin tones.
+  const a=make('m',0),b=make('m',4);api.apply(a,{action:'walk',direction:'right',phase:.25,time:0});const m0=misses();api.apply(b,{action:'walk',direction:'right',phase:.25,time:0});check(misses()===m0,'a second avatar in the same drawn pose (another skin tone) draws nothing new');
+  // A raised sleeve (nothing pinned) is one image for every angle.
+  const hrefs=new Map();for(const[g,frac]of [['wave',.35],['wave',.45],['wave',.55],['wave',.65],['happy',.25],['happy',.5]])for(const direction of ['front','back']){api.apply(a,{action:'idle',direction,gesture:g,gestureProgress:frac,time:0});const pose=api.inspect(a);pose.arms.forEach((arm,i)=>{if(Math.round(arm.lift*10)/10>=.4){const key=direction+i,h=a.querySelector('[data-outfit-part="sleeve-'+i+'"]').getAttribute('href');if(!hrefs.has(key))hrefs.set(key,new Set());hrefs.get(key).add(h);}});}
+  check(hrefs.size>=2&&[...hrefs.values()].every(set=>set.size===1),'a raised sleeve uses one image at every angle: '+JSON.stringify([...hrefs].map(([k,v])=>[k,v.size])));
+  // Merge of round 3 (2026-10-09): a raised front/back sleeve draws from its
+  // own cleaned art (raisedSleeve, no inner strip past the cuff), so its
+  // shared resting entry must not be the hanging sleeve's. With one 'rest' key
+  // for both, whichever was drawn first was handed to the other (an idle
+  // friend made a waving arm show the strip again).
+  {const sleeve=()=>a.querySelector('[data-outfit-part="sleeve-1"]').getAttribute('href'),idle={action:'idle',direction:'front',time:0},wave={action:'idle',direction:'front',gesture:'wave',gestureProgress:.5,time:0};
+   S.emptyPaint();api.apply(a,wave);const raisedAlone=sleeve();S.emptyPaint();api.apply(a,idle);const restAlone=sleeve();api.apply(a,wave);const raisedAfterRest=sleeve();S.emptyPaint();api.apply(a,wave);api.apply(a,idle);const restAfterRaised=sleeve();
+   check(raisedAlone!==restAlone&&raisedAfterRest===raisedAlone&&restAfterRaised===restAlone,'a raised sleeve and a resting sleeve keep their own pictures whichever is drawn first');}
+  // Idle: the pool empties, and the next update draws the same DOM.
+  const still={action:'idle',direction:'front',gesture:'wave',gestureProgress:.5,time:0};api.apply(b,still);const shot=b.outerHTML,emptied=S.paint.emptied;S.paint.idleMs=150;
+  await new Promise(r=>setTimeout(r,5600));check(S.paint.emptied>emptied&&S.paintStats().entries===0,'an idle pool empties');S.paint.idleMs=60000;
+  const redraw=misses();api.apply(b,still);check(misses()>redraw&&b.outerHTML===shot,'a refilled pool redraws the same images (same DOM)');
+  api.destroy(a);api.destroy(b);host.remove();S.paint.budget=defaultBudget;
+  return{defaultBudgetMiB:defaultBudget/1048576,crowd:{coldDrawn:cold-start,warmDrawn:warm,pool:{entries:crowdStats.entries,MiB:+(crowdStats.bytes/1048576).toFixed(2),kinds:crowdStats.kinds.map(k=>({kind:k.kind,entries:k.entries,MiB:+(k.bytes/1048576).toFixed(2)}))}},heldRedraws,raisedSleeves:hrefs.size};
+ });report.checks.push('painted-image pool: bounded, mixed crowd warm pass ~no redraws, held pose survives a small pool, shared across skins, one raised-sleeve image, idle empty and identical refill');
  // Reduced motion: the rig's own clock (time defaults to performance.now())
  // stops; without it the same calls breathe.
  for(const reducedMotion of ['reduce','no-preference']){
@@ -99,6 +159,28 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
   if(reducedMotion==='reduce')assert(!moved.changed&&moved.still,'reduced motion must hold the idle pose');else assert(moved.changed,'idle breathing control: the rig clock must move without reduced motion');
  }
  await p.emulateMedia({reducedMotion:'no-preference'});report.checks.push('prefers-reduced-motion holds idle breathing; control breathes');
+ // Raised-arm underarm (2026-10-08, round 3): the new edge line is one
+ // smooth curve from the shirt's painted side through a round armpit along
+ // the sleeve's underside (the old straight side met the curved painted waist
+ // in a small notch and knob), and it ends at the cuff, inside the sleeve
+ // (the old straight wedge ran on past short sleeves). Close-ups judge the
+ // look; this guards the geometry, both sexes, front and back.
+ report.underarm=await p.evaluate(()=>{
+  const api=QPFoundationStudio.api,host=document.createElement('div');document.body.append(host);const rows=[];
+  for(const sex of ['m','f']){host.innerHTML=api.render({sex},280);const svg=host.firstElementChild;
+   for(const state of [{action:'climb',phase:.1},{action:'climb',phase:.35},{action:'climb',phase:.6},{action:'idle',direction:'front',gesture:'wave',gestureProgress:.5},{action:'idle',direction:'back',gesture:'wave',gestureProgress:.5},{action:'idle',direction:'front',gesture:'happy',gestureProgress:.5},{action:'idle',direction:'back',gesture:'happy',gestureProgress:.5}]){
+    api.apply(svg,{time:0,...state});const pose=api.inspect(svg),[a,b,c,d,tx,ty]=pose.torso,det=a*d-b*c,unmap=q=>[(d*(q[0]-tx)-c*(q[1]-ty))/det,(-b*(q[0]-tx)+a*(q[1]-ty))/det];
+    for(const i of [0,1]){const line=svg.querySelector('[data-outfit-part="underarm-line-'+i+'"]');if(line.style.display==='none'||!line.getAttribute('d'))continue;
+     const pts=line.getAttribute('d').replace(/[MQ]/g,'L').split('L').filter(t=>t.trim()).map(t=>t.trim().split(/\s+/).map(Number)),chords=[];let from=pts[0];
+     for(const q of pts.slice(1))if(Math.hypot(q[0]-from[0],q[1]-from[1])>=.04){chords.push([q[0]-from[0],q[1]-from[1]]);from=q;}
+     let turn=0;for(let k=1;k<chords.length;k++){const[u,v]=[chords[k-1],chords[k]];turn=Math.max(turn,Math.abs(Math.atan2(u[0]*v[1]-u[1]*v[0],u[0]*v[0]+u[1]*v[1]))*180/Math.PI);}
+     const arm=pose.arms[i],S=unmap(arm.shoulder),e=unmap(arm.elbow),l=Math.hypot(e[0]-S[0],e[1]-S[1]),end=pts[pts.length-1],along=((end[0]-S[0])*(e[0]-S[0])+(end[1]-S[1])*(e[1]-S[1]))/l;
+     rows.push({sex,state:JSON.stringify(state),i,turn:+turn.toFixed(1),along:+along.toFixed(2)});}}
+   api.destroy(svg);}
+  host.remove();return rows;});
+ assert(report.underarm.length>=20,'raised arms draw their underarm: '+report.underarm.length);
+ for(const r of report.underarm){assert(r.turn<=30,'underarm line turns smoothly (no notch) '+JSON.stringify(r));assert(r.along<=2.6,'underarm line ends at the cuff, inside the sleeve '+JSON.stringify(r));}
+ report.checks.push('raised-arm underarm: one smooth line (largest turn '+Math.max(...report.underarm.map(r=>r.turn))+' deg) ending inside the sleeve (at most '+Math.max(...report.underarm.map(r=>r.along))+' along the arm)');
  for(const direction of ['front','left','right','back']){await p.evaluate(d=>QPFoundationStudio.setState({action:'floor-sit',direction:d,phase:0}),direction);await p.screenshot({path:path.join(out,'floor-'+direction+'.png')});report.screenshots.push('floor-'+direction+'.png');}
  await p.locator('[data-action="idle"]').click();await p.keyboard.press('ArrowRight');await p.keyboard.down('ArrowRight');await p.waitForFunction(()=>QPFoundationStudio.getState().action==='run');await p.keyboard.up('ArrowRight');await p.waitForFunction(()=>QPFoundationStudio.getState().action==='idle');await p.keyboard.press('KeyC');assert.equal(await p.evaluate(()=>QPFoundationStudio.getState().action),'floor-sit');await p.keyboard.press('KeyC');assert.equal(await p.evaluate(()=>QPFoundationStudio.getState().action),'idle');report.checks.push('Studio actual direction double tap / release / C');
  report.performance=await p.evaluate(async()=>{
