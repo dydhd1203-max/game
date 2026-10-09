@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-08T12:49:05.482Z",
+  "builtAt": "2026-10-09T01:47:58.038Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -316,8 +316,8 @@
     },
     {
       "path": "school-room-world.js",
-      "bytes": 51084,
-      "sha256": "a12a0e582df3f820316b6afaa0d9dd6c1a90f2a8949b08a0974ebe50bab149e2"
+      "bytes": 54525,
+      "sha256": "1abe76cb583dc69bbd2f39af96f59313f7c2429ada98ca517b33d3295336ee79"
     },
     {
       "path": "school-room-world.css",
@@ -486,33 +486,33 @@
     },
     {
       "path": "avatar-foundation-outfit.js",
-      "bytes": 14792,
-      "sha256": "065528959cd984f843486e3151a293a448fb831aaf3d9f62484402cb5f99d4a9"
+      "bytes": 49498,
+      "sha256": "c776e9eb66af95ef344f12948f1d28be840fa042ba802e4ca02769abb2c7da6d"
     },
     {
       "path": "assets/avatar-file-data-foundation.js",
-      "bytes": 840480,
-      "sha256": "406fca33643bec1cdf3f048d179ca7da111a7b9d6d5c57321421d3c634cfb102"
+      "bytes": 849448,
+      "sha256": "1798771276b8e01155f280c7394f1c41a1783715ac94880ee4a9299e3b09d788"
     },
     {
       "path": "assets/sd-foundation-ref-data.js",
       "bytes": 4668,
-      "sha256": "c0e17a7d255af454ff82e6bd3b86d2f40c2745ffaa2b20195fedd34b94a69426"
+      "sha256": "87dd12eb4223c68545f980639568d61b0556261cbe745981a466d84706a1b3ae"
     },
     {
       "path": "assets/sd-foundation-ref-shirt.png",
-      "bytes": 201336,
-      "sha256": "b034e0b1862387be7dc3a9fc23eea5fcf2f418fcf90ce392eadc784b731f96c9"
+      "bytes": 204188,
+      "sha256": "9b451e7babd4079ae75a64842e1467546f8c2e6b849777a24c2c704d50f7243c"
     },
     {
       "path": "assets/sd-foundation-ref-sleeves.png",
-      "bytes": 88291,
-      "sha256": "243275d754c7bdc5a207c2997a1b5f175012a34805b49e208b15e8646add5f7e"
+      "bytes": 89905,
+      "sha256": "9c2c36d65e2a4938a5c63044fe42753719b1841f9c46e7026044bb51f6094207"
     },
     {
       "path": "assets/sd-foundation-ref-shorts.png",
-      "bytes": 129540,
-      "sha256": "57b56fafb08ae10f65910cdfeb0689fa042bc6fe771b8aa4fd52092281a6ef87"
+      "bytes": 130778,
+      "sha256": "71412fc10951a0ed002762c6f92d1606676e5cc0066819188c9f869b1a19c4dd"
     },
     {
       "path": "assets/sd-foundation-ref-shoes.png",
@@ -521,8 +521,8 @@
     },
     {
       "path": "assets/sd-foundation-ref-arms.png",
-      "bytes": 61804,
-      "sha256": "c5da4a20c2a1176866609d1cd62863f71d12e2d05ab054b4da67072823c28714"
+      "bytes": 62826,
+      "sha256": "23044fba3d19a949444aa14f64af38b24ffc17eb2df12558e07a4abb3d30f9ac"
     },
     {
       "path": "assets/sd-foundation-ref-legs.png",
@@ -531,8 +531,8 @@
     },
     {
       "path": "avatar-foundation-skin.js",
-      "bytes": 13235,
-      "sha256": "bbf84278e79876741ca250e1e4bb7a2d34ee523e6f005fec54f87ef7cfab2bd4"
+      "bytes": 26623,
+      "sha256": "73a2a133d6626612b5ab29a3fb4004a37b75600d8c6485ebfb69ae5a52bb6ba4"
     },
     {
       "path": "assets/sd-foundation-ref-neck.png",
@@ -541,8 +541,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 41346,
-      "sha256": "db3d538704c163aa227783a49c32e1ae9403c13471aacb82e9df2e4eaf5866d6"
+      "bytes": 97972,
+      "sha256": "edf3a7fa15bdf8165f7b361460cb80fce51c6360aa02d1f6b4c6740b8e6d9c37"
     },
     {
       "path": "avatar-foundation.css",

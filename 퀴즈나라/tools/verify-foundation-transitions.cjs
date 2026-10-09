@@ -27,8 +27,12 @@ const report={success:false,productionFirebase:false,errors:[]};
     api.reset(fresh);api.apply(fresh,{...state,direction:to});
     const a=await pixels(moving),b=await pixels(fresh),error=difference(a,b);worst=Math.max(worst,error);
     if(error)throw Error('Direction switch differs from fresh pose '+JSON.stringify({sex,sk,gesture,progress,from,to,error}));
-    if(!negative&&gesture==='wave'&&progress===.5&&from==='front'&&to==='right'){
-     const r=api.prepare(moving);r.body.append(r.parts['near-arm']);negative=difference(await pixels(moving),b);
+    // Negative control: a greeting arm left hidden must change the pixels.
+    // (2026-10-08, round 2: every greeting hand is now clear of the head - the
+    // side cheer is a fist pump ahead of the chin - so sending the near arm
+    // behind the head no longer hides anything; the arm is hidden instead.)
+    if(!negative&&gesture==='happy'&&progress===.5&&from==='front'&&to==='right'){
+     const r=api.prepare(moving);r.parts['near-arm'].style.display='none';negative=difference(await pixels(moving),b);r.parts['near-arm'].style.display='';
      if(negative<50)throw Error('Hidden greeting-hand negative control not detected');
     }
     api.reset(moving);const r=api.prepare(moving);
