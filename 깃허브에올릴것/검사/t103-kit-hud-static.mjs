@@ -1,5 +1,6 @@
 // Actual paintKit DOM regression: ammunition changes preserve potion controls,
 // while equipment, buffs, purchases and explicit invalidation still refresh.
+// 105: attack/defense use fixed swords/shield icons across equipment changes.
 // Node DOM work counts are not browser/GPU timings or classroom FPS claims.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -60,7 +61,8 @@ globalThis.T={KIT,G,XP,hudPrev,used,WEAPONS,ARMORS,POTIONS,paint:paintKit,setNum
 const F=fixture(source),T=F.T;
 function expected(f){
   const {T,el}=f,W=T.WEAPONS[T.KIT.wpn],A=T.ARMORS[T.KIT.arm],{atk,def}=T.numbers();
-  assert.equal(el('stAtk').firstChild.nodeValue,W.ic);assert.equal(el('stDef').firstChild.nodeValue,A.ic);
+  assert.equal(el('stAtk').firstChild.nodeValue,'⚔️','Attack keeps the fixed swords icon, not the equipped weapon icon');
+  assert.equal(el('stDef').firstChild.nodeValue,'🛡️','Defense keeps the fixed shield icon, not the equipped armor icon');
   assert.equal(el('stAtk').querySelector('b').textContent,String(atk));assert.equal(el('stDef').querySelector('b').textContent,String(def));
   assert.equal(el('stAmmo').querySelector('b').textContent,String(T.KIT.ammo));
   assert.equal(el('stAtk').title,'공격력 — '+W.n+(T.KIT.enh[T.KIT.wpn]?' +'+T.KIT.enh[T.KIT.wpn]:''));
@@ -72,7 +74,7 @@ function expected(f){
   assert.equal(buttons.length,visible.length);
   for(let k=0;k<buttons.length;k++){const {P,i,n}=visible[k],b=buttons[k];assert.equal(b.textContent,P.ic+n+(i+6));assert.equal(b.title,P.n+' — '+P.d);}
 }
-check('Initial equipment, touch action and all potion labels match current game data',()=>{T.paint();expected(F);});
+check('Fixed stat icons, equipment numbers, touch action and potion labels match current game data',()=>{T.paint();expected(F);});
 check('200 ammunition updates create no potion buttons and only write the ammunition number',()=>{
   const buttons=[...F.el('potRow').children],handlers=buttons.map(b=>b.onclick);F.resetCounts();
   for(let n=199;n>=0;n--){T.KIT.ammo=n;T.paint();expected(F);}
@@ -83,7 +85,7 @@ check('200 ammunition updates create no potion buttons and only write the ammuni
 check('Unchanged HUD ticks and unchanged explicit invalidation do no DOM work',()=>{
   F.resetCounts();for(let i=0;i<100;i++)T.paint();T.hudPrev.kit='';T.paint();assert.deepEqual(F.counts,{writes:0,buttons:0});
 });
-check('Weapon, armor, enhancement, stat/buff/day changes retain current display and stable potion controls',()=>{
+check('Weapon, armor, enhancement, stat/buff/day changes retain fixed stat icons, current numbers and stable potion controls',()=>{
   const buttons=[...F.el('potRow').children];
   for(const change of [()=>T.KIT.wpn=0,()=>T.KIT.arm=1,()=>{T.KIT.wpn=5;T.KIT.enh[5]=6;},()=>{T.XP.st[0]++;T.setNumbers(75,3);},()=>{T.KIT.bAtk=8;T.KIT.bDef=7;T.setNumbers(120,28);},()=>{T.KIT.bAtk=T.KIT.bDef=0;T.setNumbers(75,3);},()=>{T.G.day++;T.setNumbers(80,3);}]){change();T.paint();expected(F);assert.deepEqual([...F.el('potRow').children],buttons);}
 });
