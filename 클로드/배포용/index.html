@@ -4397,7 +4397,7 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
    같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '103차 · 작은 전투 UI + 반복 갱신 최적화';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '104차 · 전투·길찾기·채집 성능 최적화';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -4794,6 +4794,7 @@ function flatFor(tile, mat){
 
 /* ═══════════════════════ 지형 데이터 ═══════════════════════ */
 const terrH = new Int16Array(WS*WS).fill(-999);   // 지형 윗면 y (없으면 -999)
+let flowTerrainRev104 = 0;                    // genTerrain/성곽 배치가 바뀌면 흐름장 통행 마스크를 다시 굽는다. 초기 지형 생성보다 먼저 선언한다.
 const bldH  = new Float32Array(WS*WS).fill(-999);   // 구조물 윗면 y
 const blockG= new Int8Array(WS*WS).fill(-1);      // 칸의 모둠 번호
 function topAt(x,z){ if(!inW(x,z)) return 999; const i=gi(x,z);
@@ -5262,6 +5263,7 @@ function castleTerrainAt(x, z, od, hOld, cd){
    상자: 위층 바닥·천장 = FLOOR, 지붕 = ROOF(딛지 않음), 문설·인방·흉벽 = WALL, 바깥 울타리 = FENCE(카메라·천장이 건너뜀) */
 let castleOddN = 0;                                  // 어느 규칙에도 안 걸린 성곽 칸 수(0 이어야 한다 — 검사용)
 function castleLayout(){
+  flowTerrainRev104++;
   const IN = (b, px, pz)=> px > b.x0 && px < b.x1 && pz > b.z0 && pz < b.z1;
   const W8 = GY + CW.WALK, ZG = [0, 1, 2, 2, 3], FL = GK.FLOOR, RF = GK.ROOF, FN = GK.FENCE;
   const put = (i, ck, h, roof, zone)=>{ CASTLE[i] = ck; if(h !== null) terrH[i] = h; CROOF[i] |= roof; if(zone >= 0) ZONE[i] = zone; if(ck !== CK.LANE) GATE_MASK[i] = 1; };
@@ -5857,6 +5859,7 @@ function camStepTick(dt, tgt){
 }
 
 function genTerrain(){
+  flowTerrainRev104++;
   for(let z=-HW; z<=HW; z++) for(let x=-HW; x<=HW; x++){
     const od = oct(x+0.5, z+0.5); const i = gi(x,z);
     /* 세상 끝은 원, 산자락 모양은 네모 — 자르는 것과 높이 매기는 것을 따로 본다 */
@@ -8806,6 +8809,7 @@ function gboxAddW(x0, x1, z0, z1, y0, y1, k = GK.WALL){
 }
 const PARA_LO = 0.85, PARA_HI = 1.05, MERLON = 1.45;     // 흉벽 높이 — 통로 쪽(낮게, 내려다본다) · 바깥 · 성가퀴
 function gateLayout(){
+  flowTerrainRev104++;
   const W = GATE_TOP, N = GH.st1 - GH.st0, r = RAMP_RISE, pw = GH.pw;
   for(let g=0; g<NG; g++){
     const cell = (t,pp)=>{ const cx = Math.floor(gX(g,t,pp)), cz = Math.floor(gZ(g,t,pp)); return inW(cx,cz) ? [cx,cz,gi(cx,cz)] : null; };
@@ -10692,14 +10696,15 @@ function buildClouds(){
 }
 const _cv2=new THREE.Vector3(), _cq2=new THREE.Quaternion(), _cs2=new THREE.Vector3(), _cm3=new THREE.Matrix4();
 function updClouds(dt){
-  let i = 0;
+  let i = 0; const A=cloudMesh.instanceMatrix.array;
   const racing = window.__READY && raceOn();                // 81차 성능 — 구름 조각마다 부르던 raceOn() 을 한 번만(프레임 안에서 안 바뀐다 · 움직임은 그대로 매 프레임)
   for(const c of clouds){
     c.x += dt*(c.sp || 0.55); if(c.x > 160) c.x = -160;
     for(const p of c.puffs){
       const highRace=racing&&c.y>90;
-      _cv2.set(c.x+p.dx, c.y+p.dy+(highRace?32:0), c.z+p.dz); _cs2.set(p.sx, p.sy*(highRace?2.5:1), p.sz);
-      cloudMesh.setMatrixAt(i++, _cm3.compose(_cv2, _cq2, _cs2));
+      // 104차 — 회전 없는 구름: 생성된 단위행렬의 배율·자리만 같은 Float32 값으로 적는다.
+      const o=i++*16; A[o]=p.sx; A[o+5]=p.sy*(highRace?2.5:1); A[o+10]=p.sz;
+      A[o+12]=c.x+p.dx; A[o+13]=c.y+p.dy+(highRace?32:0); A[o+14]=c.z+p.dz;
     }
   }
   cloudMesh.instanceMatrix.needsUpdate = true;
@@ -16869,6 +16874,7 @@ function updArrows(dt){
 const N2 = WS*WS;
 const fCost = new Float32Array(N2), fNext = new Int32Array(N2);
 const fExtra = new Float32Array(N2), fDone = new Uint8Array(N2), fRamp = new Uint8Array(N2);   // fRamp — 67차 균형: 흐름장 막다른 칸(좀비 몸이 못 오르는 계단)
+const fEdges104 = new Uint8Array(N2); let fEdgeRev104 = -1;   // 칸당 8비트: 지형·성곽만의 이웃 통행 여부. 건물 체력 비용은 매번 별도로 계산한다.
 const HCAP = N2*6;
 const heapV = new Float32Array(HCAP), heapI = new Int32Array(HCAP);
 let heapN = 0;
@@ -16899,7 +16905,21 @@ function walkable(x,z){
   const i = gi(x,z), t = terrH[i];
   return t >= GY && t <= GY+1 && CASTLE[i] <= CK.LANE;               // 67차 — 복도·탑 방·문(바닥 GY)은 좀비 흐름장 길이 아니다(둘레길은 길)
 }
+function buildFlowEdges104(){
+  for(let z=-HW;z<=HW;z++) for(let x=-HW;x<=HW;x++){
+    let mask=0;
+    for(let k=0;k<8;k++){
+      const dx=NBX[k], dz=NBZ[k];
+      if(!walkable(x+dx,z+dz)) continue;
+      if(dx&&dz && (!walkable(x+dx,z)||!walkable(x,z+dz))) continue;
+      mask |= 1<<k;
+    }
+    fEdges104[gi(x,z)] = mask;
+  }
+  fEdgeRev104 = flowTerrainRev104;
+}
 function buildFlow(){
+  if(fEdgeRev104 !== flowTerrainRev104) buildFlowEdges104();
   fCost.fill(Infinity); fNext.fill(-1); fExtra.fill(0); fDone.fill(0); heapN = 0;
   for(const o of STRU.values())
     for(const [cx,cz] of footprint(o.t,o.x,o.z))
@@ -16920,12 +16940,10 @@ function buildFlow(){
     if(fDone[i]) continue;
     fDone[i] = 1;
     const c = fCost[i];
-    const x = (i%WS)-HW, z = ((i/WS)|0)-HW;
+    const mask = fEdges104[i];
     for(let k=0;k<8;k++){
-      const dx=NBX[k], dz=NBZ[k], nx=x+dx, nz=z+dz;
-      if(!walkable(nx,nz)) continue;
-      if(dx&&dz && (!walkable(x+dx,z)||!walkable(x,z+dz))) continue;
-      const j = gi(nx,nz);
+      if(!(mask & (1<<k))) continue;
+      const j = i + NBX[k] + NBZ[k]*WS;    // 원래 이웃 순서·double 가중치·heap 동점 순서를 그대로 유지한다.
       if(fDone[j]) continue;
       if(fRamp[i] && !fRamp[j]) continue;   // 67차 균형 — 계단 칸에서 계단 밖으로는 안 뻗는다(위 설명 · 계단끼리는 이어져 모든 계단 칸이 값을 받는다)
       const nc = c + NBW[k] + fExtra[j];
@@ -21036,7 +21054,9 @@ function solidTop(x,z){
    가운데 한 점만 보면 몸의 절반이 벽에 박힌 채로 지나가서 "벽을 뚫었다"고 보인다.
    대각선으로 두 칸 사이를 비집고 나가는 것도 이걸로 막힌다. */
 function blockedAt(x, z, r){
-  for(const [ox,oz] of [[-r,-r],[r,-r],[-r,r],[r,r],[0,0]]){
+  // 104차 — 네 모서리와 중심의 검사 순서를 유지하며 매 호출의 좌표 배열을 없앤다.
+  for(let i=0;i<5;i++){
+    const ox=i===4?0:(i&1?r:-r), oz=i===4?0:(i&2?r:-r);
     const cx = Math.floor(x+ox), cz = Math.floor(z+oz);
     if(solidTop(cx, cz) > GY+1 || (inW(cx, cz) && CASTLE[gi(cx, cz)] >= CK.SOLID)) return true;   // 67차 — 성곽 칸(바닥 GY 인 복도·방·문 포함)은 좀비·병사에게 벽
   }
@@ -21047,12 +21067,13 @@ function groundUnder(x,z,R,y,mv){
      (92차 — 서바이벌 지형(SURV 표)은 뺐다. 경주는 발판 높이만 땅이다.) */
   if(miniOn()){
     if(raceOn() && RACE_P.length){ let m = -999;                       // 37차 — 경주: 발판 높이만 땅이다
-      for(const [ox,oz] of [[-R,-R],[R,-R],[-R,R],[R,R],[0,0]]) m = Math.max(m, raceTopAt(x+ox, z+oz));
+      for(let i=0;i<5;i++) m = Math.max(m, raceTopAt(x+(i===4?0:(i&1?R:-R)), z+(i===4?0:(i&2?R:-R))));
       return m; }
     return MINI_Y;
   }
   let m = -999;
-  for(const [ox,oz] of [[-R,-R],[R,-R],[-R,R],[R,R],[0,0]]){
+  for(let i=0;i<5;i++){
+    const ox=i===4?0:(i&1?R:-R), oz=i===4?0:(i&2?R:-R);
     const px = x+ox, pz = z+oz, cx = Math.floor(px), cz = Math.floor(pz);
     let h = solidTop(cx, cz);
     if(inW(cx,cz)){ const ii = gi(cx,cz), k = stairOf[ii];
@@ -28543,6 +28564,7 @@ function hostSim(dt){
   qE('타워');
   // 병정
   qS();
+  let soldierTargets;             // 이 병사 루프 동안만 배럭별 22칸 후보를 공유한다. 좀비 이동·소환·제거는 이미 끝났다.
   for(let i=G.soldiers.length-1;i>=0;i--){
     const s = G.soldiers[i];
     if(s.atkT>0) s.atkT -= dt;
@@ -28551,7 +28573,17 @@ function hostSim(dt){
     const hx = home? home.x+0.5 : s.x, hz = home? home.z+0.5 : s.z;
     if(!home){ G.soldiers.splice(i,1); continue; }
     const D = SOL_DEF[s.k||0];
-    const t = nearestWolf(hx, hz, 22, s.x, s.z, s.k !== 2 ? s.y : undefined);   // 67차 — 근접 병사는 성벽 위(ly 1)·닿지 않는 높이의 좀비를 안 고른다
+    let candidates;
+    if(G.soldiers.length > 1 && home.sol?.length > 1 && G.wolves.length){
+      if(!soldierTargets) soldierTargets = new Map();
+      candidates = soldierTargets.get(home);
+      if(!candidates){
+        candidates = [];
+        for(const w of G.wolves) if(!(Math.hypot(w.x-hx, w.z-hz) > 22)) candidates.push(w);
+        soldierTargets.set(home, candidates);
+      }
+    }
+    const t = nearestWolf(hx, hz, 22, s.x, s.z, s.k !== 2 ? s.y : undefined, candidates);   // 67차 — 근접 병사는 성벽 위(ly 1)·닿지 않는 높이의 좀비를 안 고른다
     let tx = hx + Math.sin(s.id)*2.4, tz = hz + Math.cos(s.id)*2.4;
     if(t){ tx = t.x; tz = t.z; }
     const dx = tx-s.x, dz = tz-s.z, L = Math.hypot(dx,dz);
@@ -28596,12 +28628,12 @@ function hostSim(dt){
 }
 /* 67차 — melY(근접 병사 발 높이)를 주면 성벽 위(ly 1) 좀비와 |w.y − melY| > SHEEP_REACH_Y 인 좀비는 건너뛴다
    (8칸 밑에서 칼로 때리고 좀비가 밑의 병사를 무는 일 없게). 원거리 병사·탑은 안 준다 — 높은 좀비도 쏜다 */
-function nearestWolf(x,z,range, fx, fz, melY){
+function nearestWolf(x,z,range, fx, fz, melY, candidates){
   let best=null, bd=Infinity;
   const ux = fx!==undefined?fx:x, uz = fz!==undefined?fz:z;
-  for(const w of G.wolves){
+  for(const w of candidates || G.wolves){
     if(melY !== undefined && (w.ly || Math.abs((w.y||GY) - melY) > SHEEP_REACH_Y)) continue;
-    if(Math.hypot(w.x-x, w.z-z) > range) continue;
+    if(!candidates && Math.hypot(w.x-x, w.z-z) > range) continue;
     const d = (w.x-ux)**2 + (w.z-uz)**2;
     if(d < bd){ bd=d; best=w; }
   }
@@ -31985,12 +32017,13 @@ function joinRoom(code, asHost){
   net.child('pc').on('child_removed',s=>{ if(s.key!==uid)pcMap.delete(s.key);recomputeRes(); });
   net.child('nd').on('value', s=>{
     const v = s.val()||{};
+    let occupancyChanged=false;
     for(const k in v){ const n = NODES[+k]; if(!n) continue;
       const hp = v[k];
-      if(hp<=0 && n.alive){ n.alive=false; for(const h of n.hs) bset(h,false); n.shown=0; }
-      else if(hp>0 && !n.alive){ n.alive=true; for(const h of n.hs) bset(h,true); n.shown=n.hs.length; }
+      if(hp<=0 && n.alive){ occupancyChanged=true; n.alive=false; for(const h of n.hs) bset(h,false); n.shown=0; }
+      else if(hp>0 && !n.alive){ occupancyChanged=true; n.alive=true; for(const h of n.hs) bset(h,true); n.shown=n.hs.length; }
       n.hp = hp; }
-    refreshNodeCells(); });
+    if(occupancyChanged)refreshNodeCells(); });
   bindBuildNetwork();
   net.child('b').on('child_added',s=>applyNetworkBuilding(s.key,s.val()));
   net.child('b').on('child_changed',s=>applyNetworkBuilding(s.key,s.val()));
