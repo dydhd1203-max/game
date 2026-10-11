@@ -3705,6 +3705,72 @@ body.waiting78 #hud,body.story78 #hud{visibility:hidden!important}body.waiting78
 @keyframes s78rise{from{transform:translateY(15px);opacity:0}to{transform:translateY(0);opacity:1}}
 @media(max-width:720px){.l78board{left:12px;top:12px;width:215px;padding:12px}.l78board h2{font-size:21px;margin-bottom:8px}#lobbyNames78{max-height:130px}.l78bottom{min-width:0;width:calc(100% - 56px);bottom:15px;padding:12px}.l78bottom .btn{font-size:14px;padding:9px 16px}}
 
+/* 103차 — 작은 전투 띠 + 아이콘 도구함. 정적인 불투명 판, 재장전만 transform 애니메이션. */
+#combatHud79{display:grid;grid-template-columns:minmax(100px,1fr) minmax(155px,1.22fr);align-items:center;gap:16px;width:408px;min-height:55px;padding:9px 14px;border:1px solid #bed2cf;border-radius:16px;background:#f5faf7;color:#244a4c;box-shadow:0 3px 8px #112c3829;font-size:12px}
+#combatHud79::before,#combatHud79::after{display:none}
+#combatHud79 #hpRow{grid-column:1;grid-row:1;display:block;min-width:0;margin:0;padding:0}
+#combatHud79 .hpHead79{display:flex;gap:4px;margin:0 0 5px;color:#44625b;font-size:12px}
+#combatHud79 .hpHead79>span:nth-child(2){display:inline}
+#combatHud79 .hpIc{color:#287a5a;font-size:15px}
+#combatHud79 .hpValues79{margin-left:auto;gap:3px;white-space:nowrap}
+#combatHud79 #hpNum{font-size:15px;line-height:1;color:#205642}
+#combatHud79 #hpMax79{font-size:12px;color:#567069}
+#combatHud79 #hpBar{height:6px;border:0;border-radius:8px;background:#dce9e3;box-shadow:none}
+#combatHud79 #hpFill{border-radius:8px;background:#399b74}
+#combatHud79 #hpBar::after{display:none}
+#combatHud79 #magHud,body.tpv #combatHud79 #magHud{grid-column:2;grid-row:1;display:grid!important;grid-template-columns:minmax(0,1fr) auto;gap:8px;min-height:34px;margin:0;padding-left:14px;border-left:1px solid #cfdfd8}
+#combatHud79 .ammoMeta79 small{display:none}
+#combatHud79 #combatWeapon79{margin:0;font-size:12px;line-height:1.4;color:#3e5860}
+#combatHud79 .ammoNumbers79{gap:7px;align-items:center}
+#combatHud79 #combatAmmo79{font-size:26px;line-height:1;letter-spacing:-1px;color:#29434b;text-shadow:none}
+#combatHud79 .ammoReserve79{gap:3px;padding:0;border:0;align-items:flex-start}
+#combatHud79 #combatReserve79{font-size:13px;color:#49626b}
+#combatHud79 #combatReserveLabel79{font-size:10px;line-height:1.1;color:#61767d}
+#combatHud79 .combatStatusRow79{display:none;position:absolute;right:0;bottom:calc(100% + 6px);min-height:0;margin:0;padding:5px 10px;border:1px solid #c3d5ce;border-radius:9px;background:#f5faf7;font-size:12px;white-space:nowrap}
+#combatHud79.reloading79 .combatStatusRow79,#combatHud79.emptyAmmo79 .combatStatusRow79,#combatHud79.down103 .combatStatusRow79{display:flex}
+#combatHud79 #combatStatus79{color:#3e5860}
+#combatHud79 #combatCapacity79{display:none}
+#combatHud79 .reloadTrack79{left:calc(45% + 13px);right:14px;top:auto;bottom:5px;height:3px;background:#dce9e3;border-radius:3px}
+#combatHud79 .reloadTrack79 i{background:#c0862e}
+#combatHud79.danger79{border-color:#d99a91}
+#combatHud79.danger79 #hpNum,#combatHud79.danger79 .hpIc,#combatHud79 #hpRow.down #hpNum{color:#a63642}
+#combatHud79.danger79 #hpFill{background:#ca5260}
+#combatHud79.lowAmmo79 #combatAmmo79,#combatHud79.emptyAmmo79 #combatStatus79{color:#a75a18}
+#dock,body.touch #dock{gap:10px;padding:0;align-items:center;border:0;border-radius:0;background:none;box-shadow:none;width:max-content;max-width:calc(100vw - 16px);overflow:visible;z-index:13}
+#dock #tools,#dock #bar{display:flex;gap:4px;width:auto;min-width:0;margin:0;padding:5px;border:1px solid #cbdcd9;border-radius:14px;background:#f5faf7;box-shadow:0 3px 8px #112c3826;overflow:visible;box-sizing:border-box}
+#dock #dockLine{display:none}
+#dock .slot,body:not(.touch) #dock .slot.tool,body.touch #dock .slot.tool{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;box-sizing:border-box;flex:0 0 46px;width:46px;min-width:46px;height:48px;margin:0;padding:2px 3px 12px;gap:0;overflow:visible;border:1px solid transparent;border-radius:9px;background:#e8f0ec;box-shadow:none!important;color:#29464a;opacity:1;cursor:pointer;transform:none;transition:background-color .12s}
+#dock .slot:hover,#dock .slot:focus-visible{background:#d8e9e3;border-color:#90b6a8;outline:2px solid #2d8062;outline-offset:1px}
+#dock .slot.on,body.touch #dock .slot.tool.on{background:#c1e8d4;border-color:#428d6d;box-shadow:inset 0 0 0 1px #428d6d!important;transform:none}
+#dock .slot.no{background:#edf0ee;border-style:dashed;border-color:#bbc8c1;opacity:1}
+#dock .slot.no>.ic{opacity:.6}
+#dock .slot>.ic,body:not(.touch) #dock .slot.tool>.ic,body.touch #dock .slot.tool>.ic{display:flex;align-items:center;justify-content:center;width:34px;height:31px;margin:0;font-size:24px;line-height:1;filter:none}
+#dock .slot>.ic>img.ic,body:not(.touch) #dock .slot.tool>.ic>img.ic,body.touch #dock .slot.tool>.ic>img.ic{max-width:34px;width:auto;height:30px;margin:0;filter:none}
+#dock .slot .nm,#dock .slot .cost{display:none}
+#dock .slot .ky,body.touch #dock .slot.tool .ky{display:block;position:absolute;top:auto;right:auto;left:50%;bottom:2px;transform:translateX(-50%);min-width:15px;padding:0 4px;border:0;border-radius:4px;background:#fff;color:#466057;opacity:1;font:600 11px/15px var(--f-body);text-align:center;white-space:nowrap}
+#dock .slot.on .ky{background:#287754;color:#fff}
+#dock .slot.gun .ky{font-size:10px}
+#dock .slot.gun .mg{bottom:0;left:7px;right:7px;height:2px}
+#dock .slot.gun::after{display:none}
+#dock .slot[data-tip]:is(:hover,:focus-visible)::after{content:attr(data-tip);display:block;position:absolute;z-index:25;top:auto;right:auto;left:50%;bottom:calc(100% + 12px);transform:translateX(-50%);width:max-content;max-width:240px;box-sizing:border-box;padding:9px 12px;border:1px solid #536c6c;border-radius:10px;background:#203b42;color:#fff;font:500 12px/1.6 var(--f-body);white-space:pre-line;pointer-events:none;box-shadow:0 3px 8px #112c3829}
+#dock:has(.slot:hover) .slot:focus-visible:not(:hover)::after{display:none}
+@media(max-width:680px){
+  #dock,body.touch #dock{flex-direction:column;gap:5px}
+  #dock #tools,#dock #bar{gap:4px;padding:4px;border-radius:12px}
+  #dock #bar .slot,#dock #tools .slot.tool,body:not(.touch) #dock #tools .slot.tool,body.touch #dock #tools .slot.tool{flex-basis:42px;width:42px;min-width:42px;height:42px;padding:2px 3px 11px;flex-direction:column;gap:0;border-radius:9px}
+  #dock #bar .slot>.ic,#dock #tools .slot.tool>.ic,body:not(.touch) #dock #tools .slot.tool>.ic{width:34px;height:28px;font-size:24px}
+  #dock #bar .slot>.ic>img.ic,#dock #tools .slot.tool>.ic>img.ic{width:auto;max-width:34px;height:27px}
+  #dock #tools .slot.tool .ky{display:block}
+  #combatHud79{width:340px;gap:10px;padding:8px 11px;min-height:51px;grid-template-columns:minmax(105px,1fr) minmax(145px,1.15fr)}
+  #combatHud79 #magHud,body.tpv #combatHud79 #magHud{padding-left:10px;gap:5px;min-height:32px}
+  #combatHud79 #combatAmmo79{font-size:23px}
+  #combatHud79 .ammoNumbers79{gap:5px}
+  #dock .slot[data-tip]:nth-child(-n+2)::after{left:0;transform:none}
+  #dock .slot[data-tip]:nth-last-child(-n+2)::after{left:auto;right:0;transform:none}
+}
+@media(max-height:560px) and (min-width:681px){#combatHud79{min-height:49px;padding-top:7px;padding-bottom:7px}#dock .slot,body:not(.touch) #dock .slot.tool,body.touch #dock .slot.tool{height:44px}}
+@media(max-width:360px){#combatHud79 .hpHead79>span:nth-child(2){display:none}}
+@media(prefers-reduced-motion:reduce){#dock .slot{transition:none}}
 </style>
 </head>
 <body>
@@ -4331,7 +4397,7 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
    같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '102차 · 밤 성능 자동 기록(선생님 패널) + 시간은 늘 잰다';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '103차 · 작은 전투 UI + 반복 갱신 최적화';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -22537,6 +22603,7 @@ function combatHudPaint79(){
   const t=rl?Math.ceil(Math.max(0,RL.t)*10):0,on=G.started&&(G.phase==='day'||G.phase==='night')?1:0,C=COMBAT_HUD79;
   if(C.w===KIT.wpn&&C.ammo===KIT.ammo&&C.m===m&&C.rl===rl&&C.t===t&&C.n===RL.n&&C.down===PL.down&&C.aim===aimMode&&C.on===on)return;
   if(C.on!==on){panel.hidden=!on;C.on=on;combatHudFit79();}
+  if(C.down!==PL.down)panel.classList.toggle('down103',!!PL.down);
   setTxt('combatWeapon79',W.n);
   setTxt('combatAmmo79',m<0?'∞':String(m));
   setTxt('combatReserve79',cost>0?String(Math.max(0,KIT.ammo-Math.max(0,m)*cost)):'—');
@@ -24936,7 +25003,7 @@ addEventListener('keydown', e=>{
                                  el('popStat').classList.remove('on'); sfx('close'); } }
                else if(G.started) openStat(); }
 
-  if(k==='tab'){ e.preventDefault(); document.exitPointerLock(); }
+  if(k==='tab' && document.pointerLockElement){ e.preventDefault(); document.exitPointerLock(); }
   if(k==='escape') document.exitPointerLock();
 });
 addEventListener('keyup', e=>{ KEY[e.key.toLowerCase()] = false; });
@@ -25059,11 +25126,13 @@ function paintBar(){
   const k = curTool + '|' + curBuild + '|' + BKEYS.map(afford).join('') + '|' + aimMode + '|' + KIT.wpn + '|' + enhOf(KIT.wpn);   // 69차 — 강화 단계가 바뀌면 총 칸 테도
   if(k === barKey) return;
   barKey = k;
+  const focused=document.activeElement,focusIndex=focused?.closest?.('#dock .slot')?[...el('dock').querySelectorAll('.slot')].indexOf(focused):-1;
   const tw = el('tools'); tw.innerHTML = '';
   /* 66차 CTRL — 맨 앞 총 칸: 지금 무기 그림·짧은 이름·키 자리엔 '우클릭'. 총을 들면 이 칸만 켜지고 도구·건물 칸은 꺼진다. 누르면 들기/넣기 */
   { const W = wpnNow(), g = document.createElement('div');
     g.className = 'slot tool gun' + (aimMode ? ' on' : '') + (enhOf(KIT.wpn) ? ' e' + enhOf(KIT.wpn) : '');   // 69차 — 단계 색 테
     g.title = (aimMode ? '총 넣기' : '총 들기') + ' (우클릭)';
+    dockSlot103(g, W.n + ' · ' + g.title);
     g.innerHTML = `<div class="ic">${iconImg('wpn'+KIT.wpn, W.ic)}</div><div class="nm">${gunShortName(W)}</div><div class="ky">우클릭</div>` + (wpnMag(W) > 1 ? '<div class="mg"><i></i></div>' : '');   // 70차 — 칸 아래 탄창 막대(총을 안 들어도 남은 탄)
     gunMg = g.querySelector('.mg'); MHD.w = -2;
     g.onclick = toggleGun;
@@ -25072,6 +25141,7 @@ function paintBar(){
     const d = document.createElement('div');
     d.className = 'slot tool' + (!aimMode && curTool===t.id?' on':'');
     d.innerHTML = `<div class="ic">${iconImg('tool_'+t.id, t.icon)}</div><div class="nm">${t.name}</div><div class="ky">${t.key}</div>`;
+    dockSlot103(d, t.name + ' · ' + t.key);
     d.onclick = ()=> pickTool(t.id);
     tw.appendChild(d);
   }
@@ -25084,9 +25154,18 @@ function paintBar(){
       b.cost.g?`<span>✨${b.cost.g}</span>`:''].filter(Boolean).join('');
     d.innerHTML = `<div class="ic">${iconImg('bld_'+k, b.icon)}</div><div class="nm">${b.name}</div>
       <div class="cost">${cs}</div><div class="ky">${i+1}</div>`;
+    dockSlot103(d, b.name + ' · ' + (i+1) + '\n' + [b.cost.w?'나무 '+b.cost.w:'',b.cost.s?'돌 '+b.cost.s:'',b.cost.g?'금 '+b.cost.g:''].filter(Boolean).join(' · ') + (ok?'':'\n재료가 모자라요'));
     d.onclick = ()=> pickBuild(k);
     bw.appendChild(d);
   });
+  if(focusIndex>=0)el('dock').querySelectorAll('.slot')[focusIndex]?.focus({preventScroll:true});
+}
+
+// 아이콘만 남겨도 이름·비용을 마우스와 키보드로 확인할 수 있다. 기존 단축키는 그대로다.
+function dockSlot103(node, label){
+  node.dataset.tip=label;node.setAttribute('aria-label',label);node.setAttribute('role','button');node.tabIndex=0;
+  node.setAttribute('aria-pressed',String(node.classList.contains('on')));
+  node.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();e.stopPropagation();if(!e.repeat)node.click();}};
 }
 
 /* ═══════════════════════ 알림 ═══════════════════════ */
@@ -25590,7 +25669,8 @@ Object.assign(window, {
 });
 
 function paintKit(){
-  const key = KIT.wpn + '|' + KIT.arm + '|' + KIT.ammo + '|' + KIT.pot.join(',')
+  const potKey = KIT.pot.join(',');
+  const key = KIT.wpn + '|' + KIT.arm + '|' + KIT.ammo + '|' + potKey
             + '|' + (KIT.bAtk>0?1:0) + (KIT.bDef>0?1:0) + (KIT.bSpd>0?1:0)
             + '|' + G.day + '|' + XP.st.join('')    // 스텟이 공격력·방어력을 바꾼다
             + '|' + KIT.enh.join(',');              // 강화도 공격력을 바꾼다
@@ -25600,21 +25680,26 @@ function paintKit(){
   /* ★ 칸 앞의 그림은 '지금 든 무기·입은 갑옷' 그 자체다.
      ⚔️ 같은 고정 그림을 쓰면 뭘 들었는지 따로 확인해야 하는데,
      아이 화면에는 확인할 곳이 여기밖에 없다. */
-  el('stAtk').firstChild.nodeValue = W.ic;
-  el('stDef').firstChild.nodeValue = A.ic;
-  el('stAtk').querySelector('b').textContent = wpnDmg();
-  el('stDef').querySelector('b').textContent = defNow();
-  el('stAmmo').querySelector('b').textContent = KIT.ammo;
-  el('stAtk').title = '공격력 — ' + W.n + enhTxt(enhOf(KIT.wpn));
-  el('stDef').title = '방어력 — ' + A.n;
-  /* 태블릿 큰 버튼도 지금 든 무기를 보여 준다 (태블릿엔 우클릭이 없으니 이게 곧 방아쇠다) */
-  const mb = el('mbThrow');
-  mb.querySelector('.ic').textContent = W.ic;
-  mb.lastChild.nodeValue = KIT.wpn ? ' 쏘기' : ' 던지기';
-
-  el('stAmmo').style.display = (KIT.wpn > 0 && W.ammo > 0) || KIT.ammo > 0 ? '' : 'none';
-  el('stAtk').classList.toggle('buffed', KIT.bAtk > 0);
-  el('stDef').classList.toggle('buffed', KIT.bDef > 0);
+  /* 103차 — 사격으로 탄약만 줄 때 장비 글자·물약 단추까지 다시 만들지 않는다.
+     hudPrev.kit='' 는 여전히 수치를 다시 계산한다(전직·보너스 등); DOM 은 계산한 값이 달라질 때만 쓴다. */
+  const atk = wpnDmg(), def = defNow(), atkTitle = '공격력 — ' + W.n + enhTxt(enhOf(KIT.wpn));
+  if(hudPrev.kitW !== KIT.wpn){
+    hudPrev.kitW = KIT.wpn; el('stAtk').firstChild.nodeValue = W.ic;
+    /* 태블릿 큰 버튼도 지금 든 무기를 보여 준다 — 이게 곧 방아쇠다. */
+    const mb = el('mbThrow'); mb.querySelector('.ic').textContent = W.ic;
+    mb.lastChild.nodeValue = KIT.wpn ? ' 쏘기' : ' 던지기';
+  }
+  if(hudPrev.kitA !== KIT.arm){ hudPrev.kitA = KIT.arm; el('stDef').firstChild.nodeValue = A.ic; el('stDef').title = '방어력 — ' + A.n; }
+  if(hudPrev.kitAtk !== atk){ hudPrev.kitAtk = atk; el('stAtk').querySelector('b').textContent = atk; }
+  if(hudPrev.kitDef !== def){ hudPrev.kitDef = def; el('stDef').querySelector('b').textContent = def; }
+  if(hudPrev.kitAmmo !== KIT.ammo){ hudPrev.kitAmmo = KIT.ammo; el('stAmmo').querySelector('b').textContent = KIT.ammo; }
+  if(hudPrev.kitTitle !== atkTitle){ hudPrev.kitTitle = atkTitle; el('stAtk').title = atkTitle; }
+  const showAmmo = (KIT.wpn > 0 && W.ammo > 0) || KIT.ammo > 0, atkBuff = KIT.bAtk > 0, defBuff = KIT.bDef > 0;
+  if(hudPrev.kitAmmoOn !== showAmmo){ hudPrev.kitAmmoOn = showAmmo; el('stAmmo').style.display = showAmmo ? '' : 'none'; }
+  if(hudPrev.kitAtkBuff !== atkBuff){ hudPrev.kitAtkBuff = atkBuff; el('stAtk').classList.toggle('buffed', atkBuff); }
+  if(hudPrev.kitDefBuff !== defBuff){ hudPrev.kitDefBuff = defBuff; el('stDef').classList.toggle('buffed', defBuff); }
+  if(hudPrev.kitPots === potKey) return;
+  hudPrev.kitPots = potKey;
   const pw = el('potRow'); pw.innerHTML = '';
   POTIONS.forEach((P,i)=>{
     if(KIT.pot[i] <= 0) return;
@@ -28424,6 +28509,7 @@ function hostSim(dt){
 
   // 타워 공격 (피해는 호스트만)
   qS();
+  let soldierIds;                 // 배럭이 있을 때만 한 번 모은다. 기존 명단 순서·중복과 즉시 소환 규칙은 유지한다.
   for(const o of STRU.values()){
     const b = BUILD[o.t];
     if(b.dmg){
@@ -28433,7 +28519,8 @@ function hostSim(dt){
        그래서 배럭이 병사를 한 명도 안 내보내고 있었다. 이제 spawn 을 본다. */
     if(b.spawn){
       o.cd -= dt;
-      o.sol = o.sol.filter(id => G.soldiers.some(s=>s.id===id));
+      if(!soldierIds){ soldierIds = new Set(); for(const s of G.soldiers) soldierIds.add(s.id); }
+      o.sol = o.sol.filter(id => soldierIds.has(id));
       const comp = SOL_COMP[(o.lv||1)-1];
       const alive = G.soldiers.filter(s=>s.bid===o.id);
       const need = comp.slice();
@@ -28447,7 +28534,7 @@ function hostSim(dt){
           y:GY, ry:0, hp:shp, mx:shp, atkT:0, hurt:0, mv:false, ph:Math.random()*6,
           dmg:solDmg(k, o.lv||1), g:o.g, lv:o.lv||1 };
 
-        G.soldiers.push(s); o.sol.push(s.id);
+        G.soldiers.push(s); o.sol.push(s.id); soldierIds.add(s.id);
         burst(s.x, GY+1, s.z, k===2?0xc9a0ff:0xffffff, 10, 1.2);
         if(window.__sfxAt) window.__sfxAt('build', s.x, s.z, 22, 120);
       }
