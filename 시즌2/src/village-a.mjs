@@ -3,7 +3,8 @@ import {VILLAGE_SITES} from './content.mjs';
 // Approved A: dawn workshop village. All art is authored once, baked to vertex
 // colours and merged per landmark. No extra light, shadow map, texture fetch,
 // per-frame animation, matrix upload or per-prop draw call is needed.
-// Solid silhouettes stay inside content.mjs's four existing collision circles.
+// Solid silhouettes stay inside the shared village plots in content.mjs.
+// The frontage is packed vertically; the central route remains open for 21 players.
 export function buildVillageA(THREE, scene, resources) {
   const bins = new Map(), source = new Set(), contacts = [];
   const color = new THREE.Color(), point = new THREE.Vector3(), normal = new THREE.Vector3();
@@ -20,6 +21,8 @@ export function buildVillageA(THREE, scene, resources) {
     rod:keep(new THREE.CylinderGeometry(.5,.5,1,6)),
     cone:keep(new THREE.ConeGeometry(.5,1,9)),
     sphere:keep(new THREE.SphereGeometry(.5,9,6)),
+    detailSphere:keep(new THREE.SphereGeometry(.5,6,4)),
+    band:keep(new THREE.TorusGeometry(.5,.065,4,12)),
     rock:keep(new THREE.IcosahedronGeometry(.5,0)),
     ring:keep(new THREE.TorusGeometry(.5,.065,6,24)),
   };
@@ -76,7 +79,9 @@ export function buildVillageA(THREE, scene, resources) {
   }
   const box=(x,y,z,w,h,d,c,ry=0)=>add(shapes.box,x,y,z,w,h,d,c,0,ry);
   const cyl=(x,y,z,w,h,d,c,rx=0,ry=0,rz=0)=>add(shapes.cyl,x,y,z,w,h,d,c,rx,ry,rz);
-  const ball=(x,y,z,w,h,d,c)=>add(shapes.sphere,x,y,z,w,h,d,c);
+  // Small berries, rivets and petals do not need the silhouette resolution of
+  // broad foliage. Their size stays the same; only subpixel tessellation drops.
+  const ball=(x,y,z,w,h,d,c)=>add(Math.max(w,h,d)<.51?shapes.detailSphere:shapes.sphere,x,y,z,w,h,d,c);
   function beam(a,b,r,c=C.wood) {
     const dir=new THREE.Vector3().subVectors(new THREE.Vector3(...b),new THREE.Vector3(...a));
     const q=new THREE.Quaternion().setFromUnitVectors(up,dir.clone().normalize());
@@ -104,7 +109,7 @@ export function buildVillageA(THREE, scene, resources) {
     return geometry(ps,ix);
   }
   function rounded(w,h,d,r=.1){
-    const l=loop(w,d,12,4);
+    const l=loop(w,d,w<1.2&&d<1.2&&h<.65?8:12,4);
     return loft([l.map(([x,z])=>[x*.96,-h/2,z*.96]),l.map(([x,z])=>[x,-h/2+r,z]),
       l.map(([x,z])=>[x,h/2-r,z]),l.map(([x,z])=>[x*.97,h/2,z*.97])]);
   }
@@ -172,6 +177,79 @@ export function buildVillageA(THREE, scene, resources) {
       ball(dx,.68*s,dz,.17*s,.13*s,.17*s,i%2?0xf0d398:0xe9dfbb);
     }
   }
+  // Mid-height silhouettes carry the village density at gameplay distance.
+  // All these objects bake into the existing opaque landmark batches.
+  function foliage(x,z,s=1,h=1.15){
+    for(let i=0;i<5;i++){
+      const a=i*2.4,dx=Math.cos(a)*s*.31,dz=Math.sin(a)*s*.31;
+      ball(x+dx,h*(.35+(i%2)*.14),z+dz,s*(.92+(i%2)*.16),h*(.92-(i%2)*.14),s*.96,[0x597246,0x6a824c,0x819351,0x91a563,0x728647][i]);
+    }
+    for(let i=0;i<7;i++){
+      const a=i*2.4,dx=x+Math.cos(a)*s*.52,dz=z+Math.sin(a)*s*.49;
+      grass(dx,dz,.8);
+      if(i%2===0)ball(dx,h*.65,dz,.19,.14,.19,0xe2cf8d);
+    }
+  }
+  function flowerPot(x,z,s=1,flowers=true){
+    const g=lathe([[0,0],[.33,0],[.42,.15],[.5,.61],[.51,.72],[.57,.74],[.57,.86],[.45,.88],[.42,.77],[0,.73]],12);
+    add(g,x,.13,z,s,s,s,0xa66942);cyl(x,.9*s+.13,z,.86*s,.03,.86*s,0x483d25);
+    for(let i=0;i<7;i++){
+      const a=i*2.4,dx=x+Math.cos(a)*.3*s,dz=z+Math.sin(a)*.3*s,h=.9*s+.32*s*(1+i%3);
+      beam([x,.82*s+.13,z],[dx,h,dz],.035*s,0x62733a);
+      ball(dx,h-.15*s,dz,.31*s,.15*s,.19*s,0x80974a);
+      if(flowers)ball(dx,h+.025*s,dz,.21*s,.14*s,.21*s,i%2?0xe6c577:0xe8d8a0);
+    }
+  }
+  function sack(x,y,z,s=1,c=0xc7ac72){
+    add(shapes.sphere,x,y+s*.43,z,s*.85,s*.91,s*.73,c,0,.12,.07);
+    add(shapes.sphere,x+.03*s,y+s*.9,z,.27*s,.28*s,.25*s,c);
+    add(shapes.band,x+.03*s,y+s*.82,z,.3*s,.3*s,.3*s,C.honey,Math.PI/2);
+  }
+  function basket(x,y,z,s=1,produce=true){
+    add(lathe([[0,0],[.35,0],[.44,.12],[.49,.58],[.51,.64],[.43,.67],[.39,.59],[.34,.17],[0,.14]],12),x,y,z,s,s,s,0xa57942);
+    for(const h of [.14,.3,.46,.62])add(shapes.band,x,y+h*s,z,(.79+h*.28)*s,.75*s,(.79+h*.28)*s,0xc69b57,Math.PI/2);
+    for(let i=0;i<10;i++){const a=i*Math.PI/5;beam([x+Math.sin(a)*.35*s,y+.13*s,z+Math.cos(a)*.35*s],[x+Math.sin(a)*.49*s,y+.62*s,z+Math.cos(a)*.49*s],.035*s,C.honey);}
+    if(produce)for(let i=0;i<7;i++)ball(x+Math.cos(i*2.4)*.24*s,y+(.64+(i%3)*.07)*s,z+Math.sin(i*2.4)*.24*s,.28*s,.25*s,.28*s,[0xc6a253,0xb97837,0x8b9a4b][i%3]);
+  }
+  function jar(x,y,z,s=1,c=0x66887d){
+    add(lathe([[0,0],[.2,0],[.29,.12],[.34,.46],[.26,.67],[.15,.73],[.14,.89],[.18,.92],[.17,.98],[.08,.98],[.08,.9],[0,.84]],8),x,y,z,s,s,s,c);
+    add(shapes.band,x,y+.91*s,z,.33*s,.22*s,.33*s,C.honey,Math.PI/2);
+  }
+  function shelf(x,y,z,w=2.4){
+    for(const side of [-1,1])beam([x+side*w*.45,y,z],[x+side*w*.45,y+2.15,z],.14,C.wood);
+    for(let row=0;row<3;row++){
+      const yy=y+.22+row*.74;softBox(x,yy,z,w,.16,.76,C.honey,.05);
+      for(let i=0;i<4;i++){
+        const xx=x+(i/3-.5)*w*.78;
+        if((i+row)%3===0)sack(xx,yy+.08,z,.5,0xc0a36c);
+        else jar(xx,yy+.08,z,.47+rand()*.17,[0x729689,0xb8804f,0xc09c5e,0x81969b][(row+i)%4]);
+      }
+    }
+  }
+  function splitLogs(x,y,z,n=6,s=.8){
+    for(let i=0;i<n;i++){
+      const row=Math.floor(i/3),xx=x+(i%3-1)*.36*s,yy=y+row*.33*s;
+      cyl(xx,yy,z,.35*s,1.7*s,.35*s,C.wood,Math.PI/2);
+      cyl(xx,yy,z+.86*s,.31*s,.035,.31*s,0xc29153,Math.PI/2);
+      add(shapes.band,xx,yy,z+.882*s,.14*s,.14*s,.14*s,0x936d3c);
+    }
+  }
+  function rail(a,b,h=1.2){
+    beam([a[0],.12,a[1]],[a[0],h+.18,a[1]],.18,C.wood);beam([b[0],.12,b[1]],[b[0],h+.18,b[1]],.18,C.wood);
+    for(const y of [.42,h])beam([a[0],y,a[1]],[b[0],y,b[1]],.13,C.honey);
+    beam([a[0],.44,a[1]],[b[0],h,b[1]],.1,C.wood);
+  }
+  function leanRoof(cx,y,cz,w,d){
+    for(let row=0;row<6;row++)for(let col=0;col<9;col++){
+      const x=cx+(col/9-.5)*w,z=cz+row*d/6,x1=x+w/9,z1=z+d/6;
+      const height=v=>y-.78*v/d+.17*Math.pow(v/d,2);
+      const y0=height(z-cz),y1=height(z1-cz),mid=(x+x1)/2;
+      add(geometry([x,y0,z,x1,y0,z,mid,y0+.075,z,x,y1,z1,x1,y1,z1,mid,y1+.075,z1],[0,3,2,2,3,5,2,5,1,1,5,4,3,4,5]),0,0,0,1,1,1,[C.roof,C.tile,0xd17b45,0xb76037][(col+row)%4]);
+      beam([x,y1-.04,z1],[x1,y1-.04,z1],.06,0x8e472b);
+    }
+    beam([cx-w*.54,y-.66,cz+d],[cx+w*.54,y-.66,cz+d],.18,C.wood);
+    for(const side of [-1,1])beam([cx+side*w*.44,.15,cz+d*.9],[cx+side*w*.44,y-.45,cz+d*.9],.17,C.wood);
+  }
   function paving(poly,y,c){
     const cx=poly.reduce((a,p)=>a+p[0],0)/poly.length,cz=poly.reduce((a,p)=>a+p[1],0)/poly.length;
     const rings=[poly.map(([x,z])=>[cx+(x-cx)*.965,y-.035,cz+(z-cz)*.965]),
@@ -212,13 +290,13 @@ export function buildVillageA(THREE, scene, resources) {
   // Broad irregular flagstones, deliberately sparse joints: no per-stone mesh,
   // noisy texture, raised collision obstacle or hidden geometry under buildings.
   at('plaza-south',0,0);
-  const bed=[];for(let i=0;i<64;i++){const a=i*Math.PI/32,r=.98+Math.sin(i*2.4)*.025;bed.push([Math.cos(a)*9.9*r,15.5+Math.sin(a)*20.5*r]);}
+  const bed=[];for(let i=0;i<64;i++){const a=i*Math.PI/32,r=.98+Math.sin(i*2.4)*.025;bed.push([Math.cos(a)*6.15*r,15.5+Math.sin(a)*20.5*r]);}
   const bedVerts=[0,.016,15.5],bedIx=[];for(const [x,z] of bed)bedVerts.push(x,.016,z);for(let i=0;i<64;i++)bedIx.push(0,1+(i+1)%64,1+i);
   add(geometry(bedVerts,bedIx),0,0,0,1,1,1,0xbaa783);
   const sites=[];
   for(let row=-1;row<27;row++)for(let col=-11;col<=11;col++){
     const x=col*1.48+(row%2)*.74+(rand()-.5)*.85,z=-5+row*1.63+(rand()-.5)*.78;
-    sites.push([x,z,(x*x/91+(z-16)*(z-16)/420<1)||(Math.abs(x)<5&&z<15)]);
+    sites.push([x,z,(x*x/37+(z-18)*(z-18)/380<1)||(Math.abs(x)<3.35&&z<15)]);
   }
   // Voronoi cells turn the regular seed grid into hand laid, non-overlapping
   // stone polygons. Generation is only at load; runtime cost is one static draw.
@@ -248,7 +326,7 @@ export function buildVillageA(THREE, scene, resources) {
     poly=rounded;
     current=site[1]<16?'plaza-north':'plaza-south';
     paving(poly,.061,tint([0xc8ad82,0xb9a27c,0xd8bd92,0xb9a888,0xceba94][Math.floor(rand()*5)],.95+rand()*.09));
-    if(Math.abs(site[0])>8&&rand()<.16)grass(poly[0][0],poly[0][1],.4+rand()*.35);
+    if(Math.abs(site[0])>4.3&&rand()<.30)grass(poly[0][0],poly[0][1],.4+rand()*.35);
   }
   function roof(cx,y,cz,w,d,h){
     const tileSegments=40,base=loop(w,d,tileSegments,3.4),profiles=[[1.1,0],[1.085,.045],[1.055,.12],[1.01,.21],[.95,.33],[.86,.47],[.74,.62],[.60,.77],[.41,.91],[.2,1]],rings=[];
@@ -290,24 +368,17 @@ export function buildVillageA(THREE, scene, resources) {
     beam([cx-w/2,y-.44,cz+d],[cx+w/2,y-.44,cz+d],.09,0xc49a53);
   }
   function footprint(r) {
-    // The whole reserved landmark circle is blocked by the simulator. A low,
-    // continuous raised stone retaining wall marks that exact boundary instead
-    // of presenting an apparently walkable empty gap around tents and benches.
-    const outer=loop(r*2,r*2,48,2),inner=loop((r-.27)*2,(r-.27)*2,48,2);
-    const ps=[],ix=[];
-    for(let i=0;i<48;i++){
-      const j=(i+1)%48,a=outer[i],b=outer[j],c=inner[i],d=inner[j],n=ps.length/3;
-      ps.push(a[0],.025,a[1],b[0],.025,b[1],a[0],.3,a[1],b[0],.3,b[1],c[0],.3,c[1],d[0],.3,d[1]);
-      ix.push(n,n+2,n+1,n+1,n+2,n+3,n+2,n+4,n+3,n+3,n+4,n+5);
-    }
-    add(geometry(ps,ix),0,0,0,1,1,1,0xa9a283);
-    // Sparse timber/rope pickets make the closed decorative plot explicit;
-    // they remain inside the circle and do not block the central route.
-    for(let i=0;i<12;i++){
-      const a=i*Math.PI/6,b=(i+1)*Math.PI/6,r0=r-.12;
-      const x=Math.cos(a)*r0,z=Math.sin(a)*r0;
-      beam([x,.27,z],[x,.77,z],.1,C.honey);
-      beam([x,.7,z],[Math.cos(b)*r0,.7,Math.sin(b)*r0],.044,0x9f8558);
+    // A worn retaining terrace identifies the reserved collision plot. Uneven
+    // stone blocks and planted pockets replace the isolated rope-ring islands.
+    const n=36;
+    for(let i=0;i<n;i++){
+      const a=i*Math.PI*2/n,b=(i+1)*Math.PI*2/n,rr=r-.20-(i%4)*.018;
+      const x=Math.cos(a)*rr,z=Math.sin(a)*rr,yy=.16+(i%3)*.035;
+      softBox(x,yy,z,.69,yy*2,.35,[0xa39874,0xb4a47f,0xc4b491][i%3],.045,-a);
+      if(i%5===0)grass(x*.98,z*.98,.85);
+      // Plant the outside-facing half densely, leave a visibly closed low curb
+      // at the road-facing front, and keep each solid clump inside the plot.
+      if(i%4===0&&Math.sin(a)<.6)foliage(Math.cos(a)*(r-1.03),Math.sin(a)*(r-1.03),.94,.9+(i%3)*.2);
     }
   }
   // Workshop: rounded plaster volume, timber frame, curved tile roof and an
@@ -389,6 +460,37 @@ export function buildVillageA(THREE, scene, resources) {
   // walkable ground at the edge so the visible facade matches collision.
   for(let i=0;i<5;i++)softBox(-1.9+i*.85,.1,4.78,.8,.18,.7,C.lightStone,.06);
 
+  // Side wings, a hanging work apron and stacked workshop goods turn the
+  // plaster cylinder into a working frontage with a deep silhouette.
+  leanRoof(-3.6,3.87,-.55,2.25,3.9);
+  localFrame(-3.6,0,.7,-Math.PI/2,()=>{
+    shelf(0,.28,0,2.6);
+    bench(0,1.23,.75,2.5,.82);
+    anvil(-.72,1.34,.7,.46);hammer(.32,1.59,.74,.57,-.3);
+    jar(.8,1.37,.7,.55,0x7c9990);
+    lantern(-1.15,2.87,.85,.59);
+  });
+  // A short tiled wing steps down towards the market street instead of a
+  // second detached house. Lower additions remain wholly inside radius six.
+  leanRoof(3.43,3.84,-.5,2.0,2.82);
+  shelf(3.9,.35,.2,1.75);
+  barrel(3.85,2.82,.72);sack(4.35,.16,1.85,.86);sack(4.55,.16,.7,.67);
+  flowerPot(-3.93,3.49,.62);flowerPot(3.62,4.01,.65);
+  flowerPot(-4.84,.19,.75);flowerPot(4.67,-.5,.7);
+  basket(-2.85,.16,4.35,.73,false);splitLogs(-2.6,.32,3.7,7,.76);
+  for(let i=0;i<3;i++){hammer(-3.56+i*.37,2.4,3.01,.78,(i-1)*.13);}
+  // Open tool rail and hanging cloth are visible at eye height, not lost among
+  // grass at the feet of the building.
+  beam([-3.8,2.91,2.94],[-2.25,2.91,2.94],.12,C.wood);
+  const apron=geometry([-2.24,3.18,2.94,-1.54,3.18,2.94,-2.30,1.98,3.12,-1.49,1.92,3.12],[0,2,1,1,2,3,0,1,2,1,3,2]);
+  add(apron,0,0,0,1,1,1,C.blue);
+  box(-1.9,2.44,3.13,.57,.14,.045,0x9f884e);
+  // Window flower boxes give the second storey smaller, warmer shapes.
+  for(const side of [-1,1]){
+    softBox(side*2.45,4.14,2.69,1.54,.3,.58,C.honey,.06);
+    for(let i=0;i<5;i++)ball(side*2.45+(i-2)*.23,4.36+(i%2)*.12,2.7,.39,.3,.42,[0x758b48,0x899c51,0xb6af58][i%3]);
+  }
+
   // A parked travelling fortress: four big spoked wheels, curved canvas hood,
   // high luggage deck and iron-banded timber. Its width/depth fit radius six.
   atSite('wagon',-.17);footprint(6);contact(0,0,4.2,4.3,.32);
@@ -452,6 +554,24 @@ export function buildVillageA(THREE, scene, resources) {
   beam([-2.88,4.3,3.09],[-1.92,4.3,3.09],.055,C.brass);
   add(shapes.ring,-2.4,4.3,3.1,.7,.7,.7,C.brass);
 
+  // The wagon is parked in a busy loading bay. Ground-level freight, wagon
+  // repair tools and bundled fabrics connect its huge wheels to village scale.
+  localFrame(-3.66,0,-.38,-Math.PI/2,()=>{
+    shelf(0,.15,0,2.9);sack(-1.03,.16,.82,.87);basket(.92,.18,.81,.72);
+    lantern(-1.25,2.7,.62,.57);
+  });
+  crate(1.65,.16,3.66,.98);crate(2.65,.16,3.54,.68);sack(1.65,1.14,3.66,.73);
+  basket(-1.83,.15,3.61,.83);sack(-2.61,.14,3.62,.82);
+  barrel(3.92,-1.1,.85);barrel(4.15,.2,.66);
+  splitLogs(3.5,.3,-2.5,6,.8);flowerPot(3.64,3.34,.8);
+  for(const side of [-1,1]){
+    const xx=side*2.5;
+    cyl(xx,4.26,-2.64,.42,1.2,.42,[0x849c96,0x9c7249][side===1?1:0],0,0,Math.PI/2);
+    add(shapes.ring,xx,4.26,-2.64,.45,.45,.45,C.honey,0,Math.PI/2);
+  }
+  for(const [x,z,h] of [[-3.6,-3.4,1.3],[2.95,-3.9,1.5],[4.2,1.9,1.1]])foliage(x,z,.85,h);
+  rail([-4.75,-1.65],[-3.7,-3.45],1.05);
+
   // Supply canopy nearest the player: no opaque tall wall to occlude the
   // original Season 1 characters or the route through the broad plaza.
   atSite('market',-.23);footprint(5);contact(0,0,3.55,3.5,.25);
@@ -481,6 +601,37 @@ export function buildVillageA(THREE, scene, resources) {
   lantern(-3.15,1.62,3.55,.55);lantern(2.95,1.45,2.4,.55);
   shrub(-3.35,-1.8,.75);
 
+  // Shelves, rolls of cloth and hanging cookware use the entire open tent,
+  // rather than a single table under a mostly empty canopy.
+  shelf(0,.21,-1.75,4.65);
+  for(let i=0;i<4;i++){
+    const x=-1.65+i*1.08;
+    cyl(x,1.3,-.62,.48,1.5,.48,[C.blue,0xa56d48,0xa6a270,0xc9b389][i],0,0,Math.PI/2);
+    for(const xx of [-.48,.48])add(shapes.ring,x+xx,1.3,-.62,.5,.5,.5,C.honey,0,Math.PI/2);
+  }
+  bench(.2,1.04,-.6,4.85,1.22);
+  localFrame(2.97,0,-.48,Math.PI/2,()=>shelf(0,.18,0,2.05));
+  basket(.33,.25,2.52,.9);basket(1.46,.25,2.68,.76);sack(.85,.25,1.49,.83);
+  sack(2.22,.25,-2.75,1.05);sack(1.24,.25,-2.93,.83);crate(-2.63,.24,-2.46,.77);
+  barrel(-3.59,-.19,.72);barrel(-3.51,.92,.57);
+  flowerPot(2.38,3.59,.74);flowerPot(-3.47,2.3,.7);
+  // Side valances give the tent a cloth silhouette from the initial camera.
+  for(const side of [-1,1]){
+    const x=side*3.08;
+    for(let i=0;i<6;i++){
+      const z=-2.35+i*.8;
+      const cloth=geometry([x,1.96,z,x,1.96,z+.73,x+side*.05,1.5,z+.05,x+side*.12,1.45,z+.68],[0,1,2,1,3,2,0,2,1,1,2,3]);
+      add(cloth,0,0,0,1,1,1,i%2?0xe4bc72:0xce9d51);
+    }
+  }
+  for(let i=0;i<4;i++){
+    const x=-1.3+i*.87;beam([x,2.55,-1.3],[x,2.16,-1.3],.035,C.iron);
+    add(shapes.ring,x,1.99,-1.3,.42,.42,.42,C.iron);
+    cyl(x,1.92,-1.27,.34,.13,.34,0x8d968b,Math.PI/2);
+  }
+  rail([-3.62,-2.17],[-2.03,-3.52],.87);
+  foliage(3.24,-2.42,.95,1.25);foliage(-2.45,-3.16,.81,1.15);
+
   // Low assembly corner: warm stone hearth, split-log seats and noticeboard.
   // Unlike a fourth tall house it keeps the spawn camera open.
   atSite('assembly',.17);footprint(5);contact(0,0,2.5,2.5,.21);contact(0,-3,1.9,.9,.27);
@@ -503,6 +654,62 @@ export function buildVillageA(THREE, scene, resources) {
   roof(0,3.17,-3,3.3,1.1,.62);
   barrel(3.2,-.7,.74);crate(-3.1,.05,.9,.7);
   shrub(2.9,1.8,.8);shrub(-2.9,-1.3,.75);
+
+  // Supplies, log stools and a planted foreground make the assembly area a
+  // lived-in corner; it remains lower than the player's view into the road.
+  for(const [x,z] of [[-2.65,2.2],[2.95,1.05],[-3.7,-.23]]){
+    cyl(x,.32,z,.75,.56,.75,C.wood);cyl(x,.62,z,.77,.065,.77,C.honey);
+  }
+  basket(-2.65,.06,-2.05,.77,false);sack(2.27,.08,-2.71,.91);sack(3.18,.08,-1.9,.74);
+  splitLogs(-2.62,.26,.12,9,.7);flowerPot(-1.65,-3.25,.8);flowerPot(1.83,-3.19,.76);
+  bench(-2.83,1.17,-1.3,1.56,.8);jar(-3.12,1.28,-1.26,.6,0x8ca291);basket(-2.5,1.3,-1.3,.51);
+  foliage(-2.36,3.12,1.18,1.36);foliage(2.0,3.45,1.01,1.13);foliage(-3.55,1.29,.97,1.21);
+  rail([-4.18,1.53],[-3.27,3.19],1.04);rail([2.22,3.67],[3.71,2.17],.9);
+  for(let i=0;i<3;i++){
+    const x=-.83+i*.83;
+    beam([x,3.08,-2.75],[x,2.88,-2.69],.035,C.honey);
+    box(x,2.57,-2.67,.47,.6,.035,[C.blue,0xb67849,0x9a9d67][i]);
+  }
+
+  // Two shared collision plots close the large strips of empty grass between
+  // the four landmarks. They merge into adjacent landmark bins, so there is
+  // no extra material, draw call, texture or per-frame scenery update.
+  const smithYard=VILLAGE_SITES.smithYard;
+  at('workshop',smithYard.x,smithYard.z,.06);footprint(smithYard.r);
+  contact(0,0,2.7,2.6,.19);
+  leanRoof(-.1,3.75,-2.12,4.1,3.52);
+  shelf(-.15,.15,-1.62,4.32);
+  // Back timber and two separate tool panels leave this clearly an open shop.
+  for(const x of [-1.63,1.43]){
+    softBox(x,1.53,-2.22,1.15,1.77,.19,C.dark,.045);
+    for(let i=0;i<3;i++)hammer(x-.36+i*.36,1.6,-2.06,.92,(i-1)*.18);
+  }
+  bench(.6,1.24,.22,2.75,1.12);anvil(.1,1.36,.3,.75);hammer(1.4,1.64,.28,.74,-.2);
+  splitLogs(-1.59,.26,.62,9,.93);sack(1.92,.15,1.35,.88);basket(1.03,.14,2.05,.81,false);
+  barrel(-1.72,1.72,.88);barrel(-2.3,.84,.63);flowerPot(2.43,-.22,.7);
+  lantern(-1.96,2.81,1.45,.71);lantern(1.77,2.64,1.47,.57);
+  rail([-2.64,-1.04],[-1.76,-2.38],1.31);
+  foliage(-2.03,-1.55,.95,1.27);foliage(1.89,-1.65,.96,1.46);foliage(.14,-2.55,.9,1.52);
+  // A worn apron at the near post and a wheel in repair add recognisable craft.
+  const cloth=geometry([-1.95,2.69,1.52,-1.23,2.69,1.52,-2.04,1.22,1.7,-1.18,1.19,1.69],[0,2,1,1,2,3,0,1,2,1,3,2]);
+  add(cloth,0,0,0,1,1,1,0x64848d);
+  add(shapes.ring,2.27,.8,.82,1.46,1.46,1.46,C.honey,0,.2);
+  for(let i=0;i<6;i++){const a=i*Math.PI/3;beam([2.27,.8,.82],[2.27+Math.cos(a)*.65,.8+Math.sin(a)*.65,.82],.09,C.wood);}
+
+  const supplyYard=VILLAGE_SITES.supplyYard;
+  at('market',supplyYard.x,supplyYard.z,-.12);footprint(supplyYard.r);
+  contact(0,0,2.4,2.5,.18);
+  awning(0,3.39,-1.55,4.65,2.85);
+  beam([-2.32,.2,-1.58],[-2.32,3.55,-1.58],.15,C.wood);beam([2.32,.2,-1.58],[2.32,3.55,-1.58],.15,C.wood);
+  shelf(0,.15,-1.51,4.45);
+  bench(-.54,1.02,.44,3.36,1.19);
+  for(let i=0;i<4;i++)basket(-1.78+i*.76,1.16,.39,.59);
+  sack(1.61,.1,.45,1.07);sack(1.83,.1,1.53,.72);barrel(-1.72,1.84,.7);
+  crate(.24,.1,1.77,.93);sack(.21,1.03,1.77,.71);basket(-.73,.1,1.94,.67);
+  flowerPot(2.31,.36,.66);flowerPot(-2.39,-.04,.65);
+  lantern(-2.11,2.55,1.28,.64);lantern(2.0,2.61,1.33,.63);
+  foliage(-1.52,-1.72,.88,1.4);foliage(1.39,-1.78,.86,1.56);
+  rail([-2.56,-.75],[-1.76,-2.18],1.12);
 
   for(const [name,yaw] of [['workshop',.25],['wagon',-.17],['market',-.23],['assembly',.17]]){
     const {x,z,r}=VILLAGE_SITES[name];at(name,x,z,yaw);
@@ -537,18 +744,19 @@ export function buildVillageA(THREE, scene, resources) {
   // These soft plants integrate the formerly isolated circular foundations.
   at('plaza-south',0,0);
   for(let z=-5;z<35;z+=1.55)for(const side of [-1,1]){
-    const ellipse=9.54*Math.sqrt(Math.max(0,1-(z-16)*(z-16)/420));
-    const edge=Math.max(z<15?5:0,ellipse),x=side*(edge+.25+rand()*.5);
+    const ellipse=6.08*Math.sqrt(Math.max(0,1-(z-18)*(z-18)/380));
+    const edge=Math.max(z<15?3.6:0,ellipse),x=side*(edge+.46+rand()*.3);
     current=z<16?'plaza-north':'plaza-south';
-    garden(x,z+rand()*.45,.62+rand()*.32,Math.floor(z)%3===0);
+    garden(x,z+rand()*.45,1.03+rand()*.33,Math.floor(z)%3===0);
+    garden(x+side*.86,z+.56,.83+rand()*.35,true);
     if(Math.floor(z)%4===0)add(shapes.rock,x+side*.35,.095,z+.45,.48,.2,.57,0xa29f78,0,rand()*2);
   }
   // Broad but low plant clusters fill the grassy gaps between landmarks; they
   // do not add collisions or cover the character/tower placement space.
-  const beds=[[-9.6,17.7],[-11,19.4],[-13.2,20.6],[-14.5,18.4],[9.7,13.8],[11.1,13.9],[13.1,14.7],[15.1,14.2],[-9.1,34],[10.3,31.1],[12.1,30.1],[-8.2,.5],[9.4,-1.2]];
+  const beds=[[-6.3,16.2],[-6.8,19.4],[-8.1,22.6],[-12.3,22.6],[7.1,13.8],[8.1,15.1],[8.1,9.3],[10.1,17.0],[-7.1,33.0],[7.9,28.6],[10.1,28.1],[-5.2,.5],[6.3,-1.2]];
   for(const [x,z] of beds){
     current=z<16?'plaza-north':'plaza-south';
-    for(let i=0;i<5;i++)garden(x+(rand()-.5)*1.6,z+(rand()-.5)*1.5,.65+rand()*.25,i%2===0);
+    for(let i=0;i<5;i++)garden(x+(rand()-.5)*1.6,z+(rand()-.5)*1.5,.85+rand()*.35,i%2===0);
   }
   for(const [name,yaw] of [['workshop',.25],['wagon',-.17],['market',-.23],['assembly',.17]]){
     const {x,z,r}=VILLAGE_SITES[name];at(name,x,z,yaw);
@@ -627,5 +835,5 @@ export function buildVillageA(THREE, scene, resources) {
     triangles+=b.positions.length/9;bytes+=g.attributes.position.array.byteLength+g.attributes.color.array.byteLength;
   }
   for(const g of source)g.dispose();
-  return {meshes,stats:Object.freeze({landmarks:4,batches:meshes.length,opaqueBatches:bins.size,contactBatches:contactBins.size,triangles,vertexBytes:bytes,materials:2,textures:1,textureBytes:grainPixels.byteLength,lights:0,perFrameUpdates:0})};
+  return {meshes,stats:Object.freeze({landmarks:6,batches:meshes.length,opaqueBatches:bins.size,contactBatches:contactBins.size,triangles,vertexBytes:bytes,materials:2,textures:1,textureBytes:grainPixels.byteLength,lights:0,perFrameUpdates:0})};
 }

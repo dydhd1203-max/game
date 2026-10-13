@@ -27,7 +27,7 @@ const server = createServer(async (req, res) => {
 
 let browser;
 const report = {
-  build:'s2-002', environment:'hidden Chromium; software WebGL; 1280×800; DPR 1',
+  build:'s2-003', environment:'hidden Chromium; software WebGL; 1280×800; DPR 1',
   scope:'UI entry and movement are real input. Stress/boss images use explicitly synthetic fixtures.',
   notMeasured:['21 physical clients', 'real LG gram FPS', 'sound quality by listening'],
   checks:[], screenshots:[], renderer:{}, errors:[]
@@ -126,20 +126,20 @@ try {
   },savedPlayer);
   check('실제 저장 → 키보드 이동 → 불러오기: 마을 체크포인트 위치 복구');
   // Load a real serialized legacy checkpoint through the public button. The
-  // workshop moved over this formerly clear position; resources/cosmetics stay.
+  // smith yard occupies this formerly clear position; resources/cosmetics stay.
   await page.evaluate(() => {
     const key=Object.keys(localStorage).find(k=>k.startsWith('zns2:checkpoint:'));
     const legacy=JSON.parse(localStorage.getItem(key));
-    legacy.version=legacy.state.version='s2-001';legacy.state.supplies=913;
-    Object.assign(Object.values(legacy.state.players)[0],{x:-8,z:9});
+    legacy.version=legacy.state.version='s2-002';legacy.state.supplies=913;
+    Object.assign(Object.values(legacy.state.players)[0],{x:-11,z:18});
     localStorage.setItem(key,JSON.stringify(legacy));
   });
   await page.locator('#load-button').click();
-  await page.waitForFunction(() => __S2.getState().version==='s2-002'&&__S2.getState().supplies===913);
+  await page.waitForFunction(() => __S2.getState().version==='s2-003'&&__S2.getState().supplies===913);
   const migrated=await page.evaluate(()=>{const s=__S2.getState(),p=Object.values(s.players)[0];return {x:p.x,z:p.z,cosmetics:[p.hat,p.face,p.clothes]};});
   assert.ok(Math.abs(migrated.x)<5&&migrated.z===25,'Legacy building overlap returns to the clear plaza');
   assert.deepEqual(migrated.cosmetics,[9,8,2]);
-  check('s2-001 저장을 불러오기 버튼으로 변환; 새 건물 겹침 해소·보급·꾸미기 보존');
+  check('s2-002 저장을 불러오기 버튼으로 변환; 새 작업마당 겹침 해소·보급·꾸미기 보존');
   const contexts = await page.evaluate(() => window.__audioContexts.map(context => context.state));
   assert.ok(contexts.includes('running'), '입장 클릭 뒤 AudioContext가 재생 가능해야 한다');
   check('사용자 입장 동작 후 실제 Web Audio 잠금 해제');

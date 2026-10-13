@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createState, addPlayer, setOnline, applyAction, placementError, step, restoreVillagePositions} from '../src/sim.mjs';
-import {BEACON, GATE, OBSTACLES, walkable} from '../src/content.mjs';
+import {BEACON, GATE, OBSTACLES, VILLAGE_SITES, VILLAGE_GROVE, walkable} from '../src/content.mjs';
 
 const teacher = {teacher:true};
 function room(n=1) {
@@ -325,4 +325,26 @@ test('older village saves escape moved landmarks without changing valid position
   assert.equal(restoreVillagePositions(s),0,'restoration is idempotent');
   s.phase='boss';s.players.p0.x=-8;s.players.p0.z=9;const combat=structuredClone(s);
   assert.equal(restoreVillagePositions(s),0);assert.deepEqual(s,combat,'combat coordinates are never rewritten');
+});
+
+// Every solid village facade has an approachable, visible inside boundary. The
+// narrower street still admits all 21 starting positions to the north gate.
+test('dense village preserves classroom passage and collides with every solid frontage',()=>{
+  const s=room(21);s.phase='village';
+  const input={};
+  for(const p of Object.values(s.players)){
+    assert.ok(walkable(p.x,p.z,.65),'Each classroom spawn is clear');
+    input[p.id]={mz:-1};
+  }
+  tick(s,6,input);
+  for(const p of Object.values(s.players))assert.ok(p.z<=-8.7&&p.z>=-9,'Every student reaches the village gate');
+  const p=s.players.p0;
+  for(const [name,site] of [...Object.entries(VILLAGE_SITES),...VILLAGE_GROVE.map((site,i)=>['grove-'+i,site])]){
+    const side=Math.sign(site.x);
+    Object.assign(p,{x:site.x-side*(site.r+1.5),z:site.z});
+    assert.ok(walkable(p.x,p.z,.65),name+' has an accessible approach');
+    tick(s,1.2,{p0:{mx:side}});
+    const distance=Math.hypot(p.x-site.x,p.z-site.z);
+    assert.ok(distance>=site.r+.64&&distance<=site.r+.85,name+' blocks at its drawn boundary');
+  }
 });

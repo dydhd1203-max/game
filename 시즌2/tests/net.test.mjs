@@ -97,7 +97,7 @@ test('join rejects absent and incompatible rooms without falling back to solo',a
   const f=fixture(),client=f.make();
   await assert.rejects(connect(client,'join'),/아직 없는 방/);
   assert.equal(client.network.isHost,false);
-  await f.database.set(`${root}/meta`,{version:'s2-001',hostId:'teacher',session:'old'});
+  await f.database.set(`${root}/meta`,{version:'s2-002',hostId:'teacher',session:'old'});
   await assert.rejects(connect(client,'join'),/게임 버전이 달라/);
   assert.ok(client.events.status.at(-1).startsWith('연결 실패:'));
   await f.close();

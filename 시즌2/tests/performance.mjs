@@ -3,6 +3,8 @@
 // This deliberately reports software-renderer work, never laptop FPS/GPU time.
 // S2_PERF_BASE_REPORT=/absolute/prior/performance.json reuses its unchanged S1
 // and old-S2 rows and runs current only. Separate-run timings are NOT A/B data.
+// S2_PERF_PREVIOUS_REF=<commit> also reuses that report's former current rows
+// after verifying every measured runtime file against the immutable commit.
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
@@ -19,12 +21,19 @@ const rounds=Number(process.env.S2_PERF_ROUNDS||3),frameCount=Number(process.env
 const baselinePath=process.env.S2_PERF_BASE_REPORT?path.resolve(process.env.S2_PERF_BASE_REPORT):null;
 const labels=process.env.S2_PERF_VARIANTS?.split(',')||(baselinePath?['current']:['s1','old','current']);
 const scenarios=process.env.S2_PERF_SCENARIOS?.split(',')||['village','combat','boss'];
-const gitRead=file=>execFileSync('git',['show',oldRef+':'+file],{cwd:root,maxBuffer:30e6});
+const gitRead=(file,ref=oldRef)=>execFileSync('git',['show',ref+':'+file],{cwd:root,maxBuffer:30e6});
 const cache=new Map(),sourceHashes={},errors=[];
 const hash=data=>createHash('sha256').update(data).digest('hex');
 const viewport={width:1366,height:768};
 const baselineBytes=baselinePath?await readFile(baselinePath):null;
 const baseline=baselineBytes?JSON.parse(baselineBytes):null;
+const previousRef=process.env.S2_PERF_PREVIOUS_REF?execFileSync('git',['rev-parse','--verify',process.env.S2_PERF_PREVIOUS_REF+'^{commit}'],{cwd:root,encoding:'utf8'}).trim():null;
+if(previousRef){
+ assert.ok(baseline,'S2_PERF_PREVIOUS_REF requires S2_PERF_BASE_REPORT');
+ const previousFiles=Object.entries(baseline.sourceHashes).filter(([key])=>key.startsWith('current/'));
+ assert.ok(previousFiles.length>0,'Prior report must identify its measured runtime files');
+ for(const [key,sha]of previousFiles)assert.equal(sha,hash(gitRead('시즌2/'+key.slice(8),previousRef)),'Previous build matches its measured source: '+key);
+}
 if(baseline){
  assert.notEqual(path.join(out,'performance.json'),baselinePath,'Preserve the original baseline report');
  assert.equal(baseline.result,'passed','Only reuse a completed baseline');
@@ -98,7 +107,9 @@ window.__PERF={
   if(kind==='boss')state.boss={id:'boss',x:0,z:-115,yaw:0,hp:900,maxHp:1200,phase:'warn',timer:1.2,dx:0,dz:1};
   window.__clock=1000;last=1000;view.yaw=0;view.pitch=.62;view.distance=20;keys.clear();pointer.attack=false;
   audio.setVolume('bgm',0);audio.setVolume('sfx',0);ui.hideEntry();uiTimer=1;accumulator=0;window.__skipGPU=false;
-  return {players:21,towers:state.towers.length,enemies:state.enemies.length,boss:!!state.boss,ground:.08};
+  return {players:21,towers:state.towers.length,enemies:state.enemies.length,boss:!!state.boss,ground:.08,
+    blockedFixturePlayers:Object.values(state.players).filter(p=>!walkable(p.x,p.z,.65)).length,
+    placementNote:'Historical stationary comparison grid is preserved exactly; actors can overlap newly placed solid scenery. This is not a real classroom movement or assembly test.'};
  },
  frame(){window.__clock+=1000/60;frame(window.__clock);},
  stats(){const canvas=document.getElementById('game'),gl=canvas.getContext('webgl2')||canvas.getContext('webgl');gl.finish();const e=gl.getExtension('WEBGL_debug_renderer_info');return {...scene.stats(),width:canvas.width,height:canvas.height,aaSamples:gl.getParameter(gl.SAMPLES),antialias:gl.getContextAttributes().antialias,renderer:e?gl.getParameter(e.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER)};},
@@ -145,6 +156,11 @@ if(baseline){
  report.baseline={path:baselinePath,sha256:hash(baselineBytes),timingComparable:false,note:'S1 and original S2 rows were measured in the earlier report, not interleaved with this run. Compare deterministic submission/resource counts only; timing changes cannot be attributed to the artwork.'};
  for(const variant of ['s1','old'])if(!labels.includes(variant))report.sources[variant]=structuredClone(baseline.sources[variant]);
  for(const [key,value]of Object.entries(baseline.sourceHashes))if(key.startsWith('s1/')||key.startsWith('old/'))sourceHashes[key]=value;
+ if(previousRef){
+  report.previousBaseline={ref:previousRef,reportSha256:hash(baselineBytes),timingComparable:false,note:'The previous artwork rows are imported from the prior report after matching every runtime source hash. They were not measured concurrently with this run.'};
+  report.sources.previous={...structuredClone(baseline.sources.current),ref:previousRef};
+  for(const [key,value]of Object.entries(baseline.sourceHashes))if(key.startsWith('current/'))sourceHashes['previous/'+key.slice(8)]=value;
+ }
 }
 const percentile=(a,p)=>[...a].sort((x,y)=>x-y)[Math.min(a.length-1,Math.floor(a.length*p))];
 let browser;
@@ -166,6 +182,10 @@ try{
   if(baseline)for(const variant of ['s1','old'])if(!variants.includes(variant)&&baseline.scenarios[scenario]?.[variant]){
    results[variant]={...structuredClone(baseline.scenarios[scenario][variant]),measurementOrigin:'imported earlier run; timings are not comparable to the current run'};
   }
+  if(previousRef){
+   assert.ok(baseline.scenarios[scenario]?.current,'Previous artwork baseline covers '+scenario);
+   results.previous={...structuredClone(baseline.scenarios[scenario].current),measurementOrigin:'imported previous artwork '+previousRef+'; timings are not comparable to the current run'};
+  }
   for(const variant of variants){
    const page=pages.get(variant),setup=await page.evaluate(k=>__PERF.prepare(k),scenario);
    // Warm shaders/resources before recording. Readbacks wait for completed GL.
@@ -176,7 +196,7 @@ try{
    await page.screenshot({path:path.join(out,`${scenario}-${variant}.png`)});
    await page.evaluate(()=>__PERF.cpu(90));
    results[variant]={setup,stats,cpuRounds:[],submissionRounds:[],measurementOrigin:'measured in this run'};console.log(scenario+' '+variant+' '+JSON.stringify(stats));
-   if(baseline&&variant==='current')for(const reference of ['s1','old'])if(results[reference]){
+   if(baseline&&variant==='current')for(const reference of ['s1','old','previous'])if(results[reference]){
     for(const key of ['width','height','pixelRatio','aaSamples','antialias'])assert.equal(stats[key],results[reference].stats[key],reference+' baseline graphics match: '+key);
     for(const key of ['players','towers','enemies'])assert.equal(setup[key],results[reference].setup[key],reference+' baseline fixture matches: '+key);
    }
@@ -224,6 +244,10 @@ try{
    const original=results.s1.stats,current=results.current.stats;
    results.budgetVsSeason1={matchedCamera:{callsRatio:current.calls/original.calls,trianglesRatio:current.triangles/original.triangles,withinBoth:current.calls<=original.calls&&current.triangles<=original.triangles},note:'Submitted-work comparison of controlled synthetic scenes only. No real laptop performance guarantee.'};
    assert.ok(results.budgetVsSeason1.matchedCamera.withinBoth,'Current S2 must fit both Season 1 draw-call and triangle budgets');
+  }
+  if(results.previous&&results.current){
+   const previous=results.previous.stats,current=results.current.stats;
+   results.changeVsPreviousArtwork={calls:current.calls-previous.calls,triangles:current.triangles-previous.triangles,callsRatio:current.calls/previous.calls,trianglesRatio:current.triangles/previous.triangles,note:'Deterministic submitted-work counts at the same fixture/camera. Separate-run timings are not an A/B performance comparison.'};
   }
   await writeFile(path.join(out,'performance.json'),JSON.stringify(report,null,2)+'\n');
  }

@@ -1,0 +1,745 @@
+{
+  "entry": "시즌2/배포용/index.html",
+  "villageOnly": true,
+  "groveOnly": true,
+  "environment": "hidden Chromium, software WebGL, 1366×768, DPR 1",
+  "scope": "Targeted grove verification using actual entry, spawn, near workshop/caravan views, northern exit and two real-input tree collisions. The six unchanged landmark collision checks, boss fixtures and scene-transition checks are not repeated.",
+  "notMeasured": [
+    "real laptop FPS",
+    "21 physical networked clients",
+    "subjective sound quality"
+  ],
+  "villageSites": {
+    "workshop": {
+      "x": -10.5,
+      "z": 8,
+      "r": 6
+    },
+    "wagon": {
+      "x": 11,
+      "z": 5,
+      "r": 6
+    },
+    "assembly": {
+      "x": -10,
+      "z": 27,
+      "r": 5
+    },
+    "market": {
+      "x": 10,
+      "z": 21,
+      "r": 5
+    },
+    "smithYard": {
+      "x": -11,
+      "z": 18,
+      "r": 3.4
+    },
+    "supplyYard": {
+      "x": 13,
+      "z": 13.5,
+      "r": 3.1
+    }
+  },
+  "villageGrove": [
+    {
+      "x": -19.5,
+      "z": 3,
+      "r": 0.85,
+      "h": 9.3
+    },
+    {
+      "x": 20.5,
+      "z": 4,
+      "r": 0.85,
+      "h": 9
+    },
+    {
+      "x": -20,
+      "z": 12,
+      "r": 0.85,
+      "h": 9.8
+    },
+    {
+      "x": 21,
+      "z": 13,
+      "r": 0.85,
+      "h": 9.5
+    },
+    {
+      "x": -20.5,
+      "z": 22,
+      "r": 0.85,
+      "h": 9.4
+    },
+    {
+      "x": 20,
+      "z": 23,
+      "r": 0.85,
+      "h": 9.8
+    },
+    {
+      "x": -19.5,
+      "z": 32,
+      "r": 0.85,
+      "h": 8.8
+    },
+    {
+      "x": 21,
+      "z": 32,
+      "r": 0.85,
+      "h": 9.2
+    }
+  ],
+  "loadedFiles": {
+    "/%EC%8B%9C%EC%A6%8C2/%EB%B0%B0%ED%8F%AC%EC%9A%A9/index.html": "b5fca914aa8936279956bfda1d63b48ecd5917e0f44551bba70e1ae7600128ee"
+  },
+  "checks": [
+    "대기실에서 실제 시작한 기본 카메라·출발 위치·HUD",
+    "마을 안내는 기본 접힘; 실제 펼치기·접기 후 출격 버튼 유지",
+    "WASD로 광장 좌우 작업장과 중앙 출구에 도달; 사용자 커서 잠금 없음",
+    "좌우 숲 가장자리까지 실제 이동하고 두 나무줄기 충돌 후 마을로 돌아와 복원 화면 확인",
+    "브라우저 실행 오류 없음"
+  ],
+  "screenshots": [
+    {
+      "name": "01-lobby-default",
+      "path": "/tmp/s2-density-art-release/01-lobby-default.png",
+      "kind": "actual-play",
+      "player": {
+        "x": -3.6,
+        "z": 25,
+        "hp": 100
+      },
+      "stats": {
+        "calls": 89,
+        "triangles": 409309,
+        "geometries": 28,
+        "textures": 5,
+        "pixelRatio": 0.85,
+        "aaSamples": 4,
+        "art": {
+          "village": {
+            "landmarks": 6,
+            "batches": 10,
+            "opaqueBatches": 6,
+            "contactBatches": 4,
+            "triangles": 228169,
+            "vertexBytes": 21890400,
+            "materials": 2,
+            "textures": 1,
+            "textureBytes": 65536,
+            "lights": 0,
+            "perFrameUpdates": 0
+          },
+          "boar": {
+            "draws": 8,
+            "triangles": 11508,
+            "geometries": 8,
+            "materials": 2
+          }
+        }
+      }
+    },
+    {
+      "name": "02-village-default-spawn",
+      "path": "/tmp/s2-density-art-release/02-village-default-spawn.png",
+      "kind": "actual-play",
+      "player": {
+        "x": -3.6,
+        "z": 25,
+        "hp": 100
+      },
+      "stats": {
+        "calls": 89,
+        "triangles": 409309,
+        "geometries": 28,
+        "textures": 5,
+        "pixelRatio": 0.85,
+        "aaSamples": 4,
+        "art": {
+          "village": {
+            "landmarks": 6,
+            "batches": 10,
+            "opaqueBatches": 6,
+            "contactBatches": 4,
+            "triangles": 228169,
+            "vertexBytes": 21890400,
+            "materials": 2,
+            "textures": 1,
+            "textureBytes": 65536,
+            "lights": 0,
+            "perFrameUpdates": 0
+          },
+          "boar": {
+            "draws": 8,
+            "triangles": 11508,
+            "geometries": 8,
+            "materials": 2
+          }
+        }
+      }
+    },
+    {
+      "name": "04-workshop-nearby-real-walk",
+      "path": "/tmp/s2-density-art-release/04-workshop-nearby-real-walk.png",
+      "kind": "actual-play",
+      "player": {
+        "x": -5.466666666666667,
+        "z": 15.4333333333333,
+        "hp": 100
+      },
+      "stats": {
+        "calls": 80,
+        "triangles": 370423,
+        "geometries": 28,
+        "textures": 5,
+        "pixelRatio": 0.85,
+        "aaSamples": 4,
+        "art": {
+          "village": {
+            "landmarks": 6,
+            "batches": 10,
+            "opaqueBatches": 6,
+            "contactBatches": 4,
+            "triangles": 228169,
+            "vertexBytes": 21890400,
+            "materials": 2,
+            "textures": 1,
+            "textureBytes": 65536,
+            "lights": 0,
+            "perFrameUpdates": 0
+          },
+          "boar": {
+            "draws": 8,
+            "triangles": 11508,
+            "geometries": 8,
+            "materials": 2
+          }
+        }
+      }
+    },
+    {
+      "name": "05-caravan-nearby-real-walk",
+      "path": "/tmp/s2-density-art-release/05-caravan-nearby-real-walk.png",
+      "kind": "actual-play",
+      "player": {
+        "x": 6.200000000000002,
+        "z": 12.63333333333331,
+        "hp": 100
+      },
+      "stats": {
+        "calls": 79,
+        "triangles": 369959,
+        "geometries": 28,
+        "textures": 5,
+        "pixelRatio": 0.85,
+        "aaSamples": 4,
+        "art": {
+          "village": {
+            "landmarks": 6,
+            "batches": 10,
+            "opaqueBatches": 6,
+            "contactBatches": 4,
+            "triangles": 228169,
+            "vertexBytes": 21890400,
+            "materials": 2,
+            "textures": 1,
+            "textureBytes": 65536,
+            "lights": 0,
+            "perFrameUpdates": 0
+          },
+          "boar": {
+            "draws": 8,
+            "triangles": 11508,
+            "geometries": 8,
+            "materials": 2
+          }
+        }
+      }
+    },
+    {
+      "name": "06-village-north-exit-real-walk",
+      "path": "/tmp/s2-density-art-release/06-village-north-exit-real-walk.png",
+      "kind": "actual-play",
+      "player": {
+        "x": -0.09999999999999948,
+        "z": 1.8999999999999906,
+        "hp": 100
+      },
+      "stats": {
+        "calls": 84,
+        "triangles": 363539,
+        "geometries": 29,
+        "textures": 6,
+        "pixelRatio": 0.85,
+        "aaSamples": 4,
+        "art": {
+          "village": {
+            "landmarks": 6,
+            "batches": 10,
+            "opaqueBatches": 6,
+            "contactBatches": 4,
+            "triangles": 228169,
+            "vertexBytes": 21890400,
+            "materials": 2,
+            "textures": 1,
+            "textureBytes": 65536,
+            "lights": 0,
+            "perFrameUpdates": 0
+          },
+          "boar": {
+            "draws": 8,
+            "triangles": 11508,
+            "geometries": 8,
+            "materials": 2
+          }
+        }
+      }
+    },
+    {
+      "name": "06a-west-grove-trunk-real-walk",
+      "path": "/tmp/s2-density-art-release/06a-west-grove-trunk-real-walk.png",
+      "kind": "actual-play",
+      "player": {
+        "x": -19.93333333333332,
+        "z": 1.4333333333333238,
+        "hp": 100
+      },
+      "stats": {
+        "calls": 84,
+        "triangles": 267671,
+        "geometries": 29,
+        "textures": 6,
+        "pixelRatio": 0.85,
+        "aaSamples": 4,
+        "art": {
+          "village": {
+            "landmarks": 6,
+            "batches": 10,
+            "opaqueBatches": 6,
+            "contactBatches": 4,
+            "triangles": 228169,
+            "vertexBytes": 21890400,
+            "materials": 2,
+            "textures": 1,
+            "textureBytes": 65536,
+            "lights": 0,
+            "perFrameUpdates": 0
+          },
+          "boar": {
+            "draws": 8,
+            "triangles": 11508,
+            "geometries": 8,
+            "materials": 2
+          }
+        }
+      }
+    },
+    {
+      "name": "06b-east-grove-trunk-real-walk",
+      "path": "/tmp/s2-density-art-release/06b-east-grove-trunk-real-walk.png",
+      "kind": "actual-play",
+      "player": {
+        "x": 20.433333333333326,
+        "z": 2.366666666666658,
+        "hp": 100
+      },
+      "stats": {
+        "calls": 85,
+        "triangles": 291498,
+        "geometries": 29,
+        "textures": 6,
+        "pixelRatio": 0.85,
+        "aaSamples": 4,
+        "art": {
+          "village": {
+            "landmarks": 6,
+            "batches": 10,
+            "opaqueBatches": 6,
+            "contactBatches": 4,
+            "triangles": 228169,
+            "vertexBytes": 21890400,
+            "materials": 2,
+            "textures": 1,
+            "textureBytes": 65536,
+            "lights": 0,
+            "perFrameUpdates": 0
+          },
+          "boar": {
+            "draws": 8,
+            "triangles": 11508,
+            "geometries": 8,
+            "materials": 2
+          }
+        }
+      }
+    },
+    {
+      "name": "06c-village-grove-restored-real-walk",
+      "path": "/tmp/s2-density-art-release/06c-village-grove-restored-real-walk.png",
+      "kind": "actual-play",
+      "player": {
+        "x": 0.13333333333333652,
+        "z": 25.233333333333334,
+        "hp": 100
+      },
+      "stats": {
+        "calls": 90,
+        "triangles": 409869,
+        "geometries": 29,
+        "textures": 6,
+        "pixelRatio": 0.85,
+        "aaSamples": 4,
+        "art": {
+          "village": {
+            "landmarks": 6,
+            "batches": 10,
+            "opaqueBatches": 6,
+            "contactBatches": 4,
+            "triangles": 228169,
+            "vertexBytes": 21890400,
+            "materials": 2,
+            "textures": 1,
+            "textureBytes": 65536,
+            "lights": 0,
+            "perFrameUpdates": 0
+          },
+          "boar": {
+            "draws": 8,
+            "triangles": 11508,
+            "geometries": 8,
+            "materials": 2
+          }
+        }
+      }
+    }
+  ],
+  "movement": [
+    {
+      "key": "KeyD",
+      "axis": "x",
+      "target": 0,
+      "before": {
+        "x": -3.6,
+        "z": 25,
+        "hp": 100
+      },
+      "after": {
+        "x": -0.09999999999999931,
+        "z": 25,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyW",
+      "axis": "z",
+      "target": 15.5,
+      "before": {
+        "x": -0.09999999999999931,
+        "z": 25,
+        "hp": 100
+      },
+      "after": {
+        "x": -0.09999999999999931,
+        "z": 15.4333333333333,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyA",
+      "axis": "x",
+      "target": -5.4,
+      "before": {
+        "x": -0.09999999999999931,
+        "z": 15.4333333333333,
+        "hp": 100
+      },
+      "after": {
+        "x": -5.466666666666667,
+        "z": 15.4333333333333,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyD",
+      "axis": "x",
+      "target": 0,
+      "before": {
+        "x": -5.466666666666667,
+        "z": 15.4333333333333,
+        "hp": 100
+      },
+      "after": {
+        "x": -0.09999999999999887,
+        "z": 15.4333333333333,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyW",
+      "axis": "z",
+      "target": 12.5,
+      "before": {
+        "x": -0.09999999999999887,
+        "z": 15.4333333333333,
+        "hp": 100
+      },
+      "after": {
+        "x": -0.09999999999999887,
+        "z": 12.63333333333331,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyD",
+      "axis": "x",
+      "target": 5.9,
+      "before": {
+        "x": -0.09999999999999887,
+        "z": 12.63333333333331,
+        "hp": 100
+      },
+      "after": {
+        "x": 6.200000000000002,
+        "z": 12.63333333333331,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyA",
+      "axis": "x",
+      "target": 0,
+      "before": {
+        "x": 6.200000000000002,
+        "z": 12.63333333333331,
+        "hp": 100
+      },
+      "after": {
+        "x": -0.09999999999999948,
+        "z": 12.63333333333331,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyW",
+      "axis": "z",
+      "target": 2,
+      "before": {
+        "x": -0.09999999999999948,
+        "z": 12.63333333333331,
+        "hp": 100
+      },
+      "after": {
+        "x": -0.09999999999999948,
+        "z": 1.8999999999999906,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyW",
+      "axis": "z",
+      "target": -4,
+      "before": {
+        "x": -0.09999999999999948,
+        "z": 1.8999999999999906,
+        "hp": 100
+      },
+      "after": {
+        "x": -0.09999999999999948,
+        "z": -3.933333333333344,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyA",
+      "axis": "x",
+      "target": -19.5,
+      "before": {
+        "x": -0.09999999999999948,
+        "z": -3.933333333333344,
+        "hp": 100
+      },
+      "after": {
+        "x": -19.93333333333332,
+        "z": -3.933333333333344,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyS",
+      "axis": "z",
+      "target": 0.6499999999999999,
+      "before": {
+        "x": -19.93333333333332,
+        "z": -3.933333333333344,
+        "hp": 100
+      },
+      "after": {
+        "x": -19.93333333333332,
+        "z": 0.966666666666657,
+        "hp": 100
+      }
+    },
+    {
+      "collision": "west-grove",
+      "approach": "north",
+      "site": {
+        "x": -19.5,
+        "z": 3,
+        "r": 0.85,
+        "h": 9.3
+      },
+      "before": {
+        "x": -19.93333333333332,
+        "z": 0.966666666666657,
+        "hp": 100
+      },
+      "after": {
+        "x": -19.93333333333332,
+        "z": 1.4333333333333238,
+        "hp": 100
+      },
+      "distanceFromCenter": 1.62549137869822
+    },
+    {
+      "key": "KeyW",
+      "axis": "z",
+      "target": -4,
+      "before": {
+        "x": -19.93333333333332,
+        "z": 1.4333333333333238,
+        "hp": 100
+      },
+      "after": {
+        "x": -19.93333333333332,
+        "z": -4.166666666666677,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyD",
+      "axis": "x",
+      "target": 0,
+      "before": {
+        "x": -19.93333333333332,
+        "z": -4.166666666666677,
+        "hp": 100
+      },
+      "after": {
+        "x": 0.13333333333333536,
+        "z": -4.166666666666677,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyD",
+      "axis": "x",
+      "target": 20.5,
+      "before": {
+        "x": 0.13333333333333536,
+        "z": -4.166666666666677,
+        "hp": 100
+      },
+      "after": {
+        "x": 20.433333333333326,
+        "z": -4.166666666666677,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyS",
+      "axis": "z",
+      "target": 1.65,
+      "before": {
+        "x": 20.433333333333326,
+        "z": -4.166666666666677,
+        "hp": 100
+      },
+      "after": {
+        "x": 20.433333333333326,
+        "z": 1.899999999999991,
+        "hp": 100
+      }
+    },
+    {
+      "collision": "east-grove",
+      "approach": "north",
+      "site": {
+        "x": 20.5,
+        "z": 4,
+        "r": 0.85,
+        "h": 9
+      },
+      "before": {
+        "x": 20.433333333333326,
+        "z": 1.899999999999991,
+        "hp": 100
+      },
+      "after": {
+        "x": 20.433333333333326,
+        "z": 2.366666666666658,
+        "hp": 100
+      },
+      "distanceFromCenter": 1.6346933113652398
+    },
+    {
+      "key": "KeyW",
+      "axis": "z",
+      "target": -4,
+      "before": {
+        "x": 20.433333333333326,
+        "z": 2.366666666666658,
+        "hp": 100
+      },
+      "after": {
+        "x": 20.433333333333326,
+        "z": -4.166666666666677,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyA",
+      "axis": "x",
+      "target": 0,
+      "before": {
+        "x": 20.433333333333326,
+        "z": -4.166666666666677,
+        "hp": 100
+      },
+      "after": {
+        "x": 0.13333333333333652,
+        "z": -4.166666666666677,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyS",
+      "axis": "z",
+      "target": 25,
+      "before": {
+        "x": 0.13333333333333652,
+        "z": -4.166666666666677,
+        "hp": 100
+      },
+      "after": {
+        "x": 0.13333333333333652,
+        "z": 25.233333333333334,
+        "hp": 100
+      }
+    }
+  ],
+  "errors": [],
+  "result": "passed",
+  "visualReview": {
+    "method": "Direct inspection of actual-play screenshots at the unchanged normal camera",
+    "status": "accepted-for-density-and-occlusion-scope",
+    "findings": [
+      "The default view now reads as two connected village street edges, with work/supply yards and closer grove framing instead of isolated landmark islands.",
+      "The local avatar, main route and six landmark silhouettes remain readable from the initial spawn.",
+      "Both actual northern trunk approaches reveal the avatar head, shoulders and name after canopy/trunk occlusion handling. Low undergrowth can cover the lower body.",
+      "After walking back to the central village street, canopy and trunk silhouettes restore in 06c-village-grove-restored-real-walk.png.",
+      "Compared with concept A, foliage complexity, contact-shadow richness and the organic plaza shape are still simplified; this review does not claim a concept-identical finish."
+    ]
+  }
+}

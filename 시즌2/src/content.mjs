@@ -1,8 +1,8 @@
 // Season 2 test expedition: village → forest beacon → first boss.
 // Changed village collision layout requires matching multiplayer clients.
-// Local s2-001 checkpoints are explicitly migrated when loaded.
-export const BUILD = 's2-002';
-export const RELEASE = 's2-002';
+// Local s2-001/s2-002 checkpoints are explicitly migrated when loaded.
+export const BUILD = 's2-003';
+export const RELEASE = 's2-003';
 export const SEASON = 2;
 // Dedicated reserved subtree of the existing classroom backend. Season 1 room
 // codes are uppercased; they never address this lowercase reserved path.
@@ -21,14 +21,24 @@ export const ZONES = [
 // Art and collision share these positions: the workshop frames the forest road,
 // the wagon sits behind the market, and the middle remains wide enough for 21.
 export const VILLAGE_SITES = {
-  workshop:{x:-12,z:9,r:6}, wagon:{x:15,z:6,r:6},
-  assembly:{x:-13,z:28,r:5}, market:{x:13,z:22,r:5}
+  workshop:{x:-10.5,z:8,r:6}, wagon:{x:11,z:5,r:6},
+  assembly:{x:-10,z:27,r:5}, market:{x:10,z:21,r:5},
+  smithYard:{x:-11,z:18,r:3.4}, supplyYard:{x:13,z:13.5,r:3.1}
 };
-export const OBSTACLES = [
-  ...Object.values(VILLAGE_SITES),
+// The same eight village trees frame the street closer to its buildings.
+// Radius covers the leaning trunk; the canopy is overhead, not a solid wall.
+export const VILLAGE_GROVE = [
+  {x:-19.5,z:3,r:.85,h:9.3},{x:20.5,z:4,r:.85,h:9.0},
+  {x:-20,z:12,r:.85,h:9.8},{x:21,z:13,r:.85,h:9.5},
+  {x:-20.5,z:22,r:.85,h:9.4},{x:20,z:23,r:.85,h:9.8},
+  {x:-19.5,z:32,r:.85,h:8.8},{x:21,z:32,r:.85,h:9.2}
+];
+// Forest geometry must not depend on the number of village plots.
+export const FOREST_OBSTACLES = [
   {x:-12,z:-44,r:3},{x:13,z:-47,r:3},
   {x:-13,z:-76,r:3},{x:13,z:-79,r:3}
 ];
+export const OBSTACLES = [...Object.values(VILLAGE_SITES),...VILLAGE_GROVE,...FOREST_OBSTACLES];
 export const TOWERS = {
   arrow:{name:'화살탑',cost:40,range:18,hp:180,damage:16,interval:.85},
   ice:{name:'얼음탑',cost:55,range:14,hp:160,damage:8,interval:1.2}

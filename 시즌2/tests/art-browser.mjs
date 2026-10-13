@@ -2,6 +2,8 @@
 // Uses the guarded hidden browser; this is not a measurement of laptop FPS.
 // PW_MODULE=/path/to/playwright/index.mjs PW_EXECUTABLE_PATH=/usr/bin/chromium node 시즌2/tests/art-browser.mjs
 // S2_ART_VILLAGE_ONLY=1 rechecks a village refinement without repeating boss fixtures.
+// S2_ART_GROVE_ONLY=1 keeps actual spawn, near views, exit and tree collisions;
+// the six unchanged landmark collision checks are explicitly not repeated.
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {createHash} from 'node:crypto';
@@ -9,12 +11,13 @@ import {readFile, mkdir, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {chromium} from '../../깃허브에올릴것/검사/pw.mjs';
-import {VILLAGE_SITES} from '../src/content.mjs';
+import {VILLAGE_SITES,VILLAGE_GROVE,walkable} from '../src/content.mjs';
 
 const root=path.resolve(fileURLToPath(new URL('../../',import.meta.url)));
 const output=path.resolve(process.env.S2_ART_OUTPUT||'/tmp/season2-art-review');
 const entry=process.env.S2_ART_ENTRY||'시즌2/';
-const villageOnly=process.env.S2_ART_VILLAGE_ONLY==='1';
+const groveOnly=process.env.S2_ART_GROVE_ONLY==='1';
+const villageOnly=groveOnly||process.env.S2_ART_VILLAGE_ONLY==='1';
 const mime={'.html':'text/html; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.png':'image/png','.json':'application/json; charset=utf-8'};
 const server=createServer(async(req,res)=>{
   try{
@@ -27,9 +30,9 @@ const server=createServer(async(req,res)=>{
     res.writeHead(200,{'Content-Type':mime[path.extname(file)]||'application/octet-stream','Cache-Control':'no-store'}).end(data);
   }catch{res.writeHead(404).end('Not found');}
 });
-const report={entry,villageOnly,environment:'hidden Chromium, software WebGL, 1366×768, DPR 1',
-  scope:villageOnly?'Village-only verification using actual entry, spawn, keyboard and wheel input. Boss and scene-transition checks are not repeated.':'Village screenshots use actual entry, spawn, keyboard and wheel input. Boss poses and repeated transitions are supplementary synthetic fixtures.',
-  notMeasured:['real laptop FPS','21 physical networked clients','subjective sound quality'],loadedFiles:{},checks:[],screenshots:[],movement:[],errors:[]};
+const report={entry,villageOnly,groveOnly,environment:'hidden Chromium, software WebGL, 1366×768, DPR 1',
+  scope:groveOnly?'Targeted grove verification using actual entry, spawn, near workshop/caravan views, northern exit and two real-input tree collisions. The six unchanged landmark collision checks, boss fixtures and scene-transition checks are not repeated.':villageOnly?'Village-only verification using actual entry, spawn, keyboard and wheel input. Boss and scene-transition checks are not repeated.':'Village screenshots use actual entry, spawn, keyboard and wheel input. Boss poses and repeated transitions are supplementary synthetic fixtures.',
+  notMeasured:['real laptop FPS','21 physical networked clients','subjective sound quality'],villageSites:VILLAGE_SITES,villageGrove:VILLAGE_GROVE,loadedFiles:{},checks:[],screenshots:[],movement:[],errors:[]};
 let browser;
 const check=name=>{report.checks.push(name);console.log('PASS '+name);};
 
@@ -65,6 +68,7 @@ try{
     }finally{await page.keyboard.up(key);}
     const after=await player();report.movement.push({key,axis,target,before,after});
     assert.ok(Math.hypot(after.x-before.x,after.z-before.z)>.15,'Real movement reached the next view');
+    assert.ok(walkable(after.x,after.z,.65),'Real movement ends outside the scenery collision shapes');
   };
   await page.goto(`http://127.0.0.1:${server.address().port}/`+entry.split('/').map(encodeURIComponent).join('/')+'?test=1',{waitUntil:'networkidle'});
   await page.locator('#player-name').fill('마을 검수');
@@ -84,10 +88,12 @@ try{
   assert.equal(await details.getAttribute('open'),null,'User can collapse the note again');
   assert.ok(await page.locator('#depart-game').isVisible(),'Depart stays accessible');
   check('마을 안내는 기본 접힘; 실제 펼치기·접기 후 출격 버튼 유지');
-  for(const [name,siteKey]of [['assembly','assembly'],['supply-canopy','market']]){
-    const site=VILLAGE_SITES[siteKey],side=Math.sign(site.x);
+  if(!groveOnly){
+  for(const [name,siteKey]of [['assembly','assembly'],['supply-canopy','market'],['smith-yard','smithYard'],['supply-yard','supplyYard'],['workshop','workshop'],['caravan','wagon']]){
+    const site=VILLAGE_SITES[siteKey],side=Math.sign(site.x),approachX=site.x-side*(site.r+1.5);
+    assert.ok(walkable(approachX,site.z,.65),`${name} has a walkable approach from the central lane`);
     await walkAxis('x',0);await walkAxis('z',site.z);
-    await walkAxis('x',site.x-side*(site.r+1.5));
+    await walkAxis('x',approachX);
     // Walk into the visible outer boundary of the scenery; do not teleport to
     // claim a collision test. Art and physics share the same exported sites.
     const before=await player(),until=await page.evaluate(()=>__S2.getState().time+1.2);
@@ -96,16 +102,26 @@ try{
     finally{await page.keyboard.up(key);}
     const after=await player(),distance=Math.hypot(after.x-site.x,after.z-site.z);
     assert.ok(distance>=site.r+.6&&distance<=site.r+1,'Player stops at the visible scenery perimeter');
-    report.movement.push({collision:name,before,after,distanceFromCenter:distance});
+    assert.ok(walkable(after.x,after.z,.65),'Player remains outside the scenery after sustained forward input');
+    report.movement.push({collision:name,approach:'central-lane',site,before,after,distanceFromCenter:distance});
     await capture(`03-${name}-visible-collision-real-walk`);
+    // Retreat before changing lanes so diagonal skirt paths cannot accidentally
+    // pass through neighboring landmarks after an art-layout adjustment.
+    await walkAxis('x',0);
   }
-  check('실제 걸어서 집결지·천막의 보이는 외곽 경계와 충돌 확인');
+  check('실제 걸어서 집결지·천막·작업장·요새 수레와 연결 마당 두 곳의 보이는 외곽 충돌 확인');
+  }
   await walkAxis('x',0);
-  await walkAxis('z',16);await walkAxis('x',-8);
+  const workshop=VILLAGE_SITES.workshop,wagon=VILLAGE_SITES.wagon;
+  const nearPoint=site=>({x:site.x-Math.sign(site.x)*site.r*.85,z:site.z+site.r+1.5});
+  const workshopNear=nearPoint(workshop),wagonNear=nearPoint(wagon);
+  assert.ok(walkable(workshopNear.x,workshopNear.z,.65),'Workshop detail viewpoint remains outside the connecting yard');
+  assert.ok(walkable(wagonNear.x,wagonNear.z,.65),'Caravan detail viewpoint remains outside the connecting yard');
+  await walkAxis('z',workshopNear.z);await walkAxis('x',workshopNear.x);
   await page.mouse.move(683,440);await page.mouse.wheel(0,-550);await frames();
   await capture('04-workshop-nearby-real-walk');
   await page.mouse.wheel(0,550);await frames();
-  await walkAxis('x',8);
+  await walkAxis('x',0);await walkAxis('z',wagonNear.z);await walkAxis('x',wagonNear.x);
   await page.mouse.wheel(0,-550);await frames();
   await capture('05-caravan-nearby-real-walk');
   await page.mouse.wheel(0,550);await frames();
@@ -113,6 +129,29 @@ try{
   await capture('06-village-north-exit-real-walk');
   assert.equal(await page.evaluate(()=>document.pointerLockElement),null);
   check('WASD로 광장 좌우 작업장과 중앙 출구에 도달; 사용자 커서 잠금 없음');
+
+  // Reach one actual trunk on each side through the open northern cross-lane.
+  // This also captures the closer grove from its walkable edge, without an
+  // aerial camera or a test-only teleport hiding canopy/character occlusion.
+  for(const side of [-1,1]){
+    const tree=VILLAGE_GROVE.filter(tree=>Math.sign(tree.x)===side).sort((a,b)=>a.z-b.z)[0];
+    const approachZ=tree.z-tree.r-1.5;
+    assert.ok(walkable(tree.x,approachZ,.65),'The grove has an open northern approach');
+    await walkAxis('z',-4);await walkAxis('x',tree.x);await walkAxis('z',approachZ);
+    const before=await player(),until=await page.evaluate(()=>__S2.getState().time+1.2);
+    await page.locator('#game').focus();await page.keyboard.down('KeyS');
+    try{await page.waitForFunction(until=>__S2.getState().time>=until,until,{timeout:30000});}
+    finally{await page.keyboard.up('KeyS');}
+    const after=await player(),distance=Math.hypot(after.x-tree.x,after.z-tree.z);
+    assert.ok(distance>=tree.r+.6&&distance<=tree.r+1,'Player stops at the actual trunk collision');
+    assert.ok(walkable(after.x,after.z,.65),'Player remains outside the tree trunk');
+    report.movement.push({collision:side<0?'west-grove':'east-grove',approach:'north',site:tree,before,after,distanceFromCenter:distance});
+    await capture(`06${side<0?'a-west':'b-east'}-grove-trunk-real-walk`);
+    await walkAxis('z',-4);await walkAxis('x',0);
+  }
+  await walkAxis('z',25);
+  await capture('06c-village-grove-restored-real-walk');
+  check('좌우 숲 가장자리까지 실제 이동하고 두 나무줄기 충돌 후 마을로 돌아와 복원 화면 확인');
 
   if(!villageOnly){
   await page.locator('#depart-game').click();await phase('forest');

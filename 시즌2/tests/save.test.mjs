@@ -4,12 +4,12 @@ import {createState,addPlayer} from '../src/sim.mjs';
 import {migrateCheckpoint} from '../src/save.mjs';
 import {BUILD,walkable} from '../src/content.mjs';
 
-test('s2-001 local checkpoints migrate safely without mutating saved progress',()=>{
+for(const version of ['s2-001','s2-002'])test(`${version} checkpoints migrate moved village plots without mutating progress`,()=>{
   const state=createState();addPlayer(state,{id:'teacher',name:'선생님',hat:16});
-  state.version='s2-001';state.phase='village';state.supplies=913;
-  Object.assign(state.players.teacher,{x:-8,z:9});
+  state.version=version;state.phase='village';state.supplies=913;
+  Object.assign(state.players.teacher,version==='s2-002'?{x:-11,z:18}:{x:-8,z:9});
   state.towers=[{id:'saved',type:'arrow',hp:83,state:'inventory'}];
-  const saved={season:2,version:'s2-001',state},original=structuredClone(saved);
+  const saved={season:2,version,state},original=structuredClone(saved);
   const next=migrateCheckpoint(saved);
   assert.equal(next.version,BUILD);assert.equal(next.supplies,913);
   assert.deepEqual(next.towers,state.towers);assert.equal(next.players.teacher.hat,16);
