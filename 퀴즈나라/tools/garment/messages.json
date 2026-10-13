@@ -1,0 +1,273 @@
+{
+ "version": 1,
+ "note": "Korean texts of every garment pipeline code (stage 3, WP5). 'message' is shown to the user in 등록-보고.png and 보고.md; 'retry' is ONE copy-ready sentence to paste into the SAME ChatGPT chat that made the sheet. Placeholders: {figures} (e.g. '여자아이 옆모습'), {part} ('화면 왼쪽 팔'), {value}, {product} (the slot being made: 윗옷/반바지/신발), {changed} (another slot that changed), {keep} (the slots that must stay), {child} / {other} (남자아이 / 여자아이), {detail}. A Korean particle after a placeholder is written {name|은}, {name|이}, {name|을}, {name|와}, {name|로} and follows the last syllable. Used by tools/garment/report.py (registration) and by the garment build (class limits); the production guide reproduces this table. level: fail = the sheet cannot be used; warn = recorded, the sheet is still used.",
+ "figures": {
+  "m-front": "남자아이 앞모습",
+  "m-right": "남자아이 옆모습",
+  "m-back": "남자아이 뒷모습",
+  "f-front": "여자아이 앞모습",
+  "f-right": "여자아이 옆모습",
+  "f-back": "여자아이 뒷모습"
+ },
+ "parts": {
+  "arm": "팔",
+  "armL": "화면 왼쪽 팔",
+  "armR": "화면 오른쪽 팔",
+  "leg": "다리",
+  "legL": "화면 왼쪽 다리",
+  "legR": "화면 오른쪽 다리",
+  "shoe": "신발",
+  "shoeL": "화면 왼쪽 신발",
+  "shoeR": "화면 오른쪽 신발",
+  "torso": "몸통",
+  "stable": "옷이 아닌 부분의 색",
+  "silhouette": "몸 윤곽"
+ },
+ "slots": {
+  "top": "윗옷",
+  "bottom": "반바지",
+  "shoes": "신발",
+  "leg": "다리 피부",
+  "arm": "팔 피부"
+ },
+ "children": {
+  "m": "남자아이",
+  "f": "여자아이"
+ },
+ "codes": {
+  "SIZE_SMALL": {
+   "level": "fail", "stage": "registration",
+   "title": "그림이 작아요",
+   "message": "올린 그림의 긴 쪽이 {value}px예요. 1200px 이상인 원본 크기 그림이 필요해요. ChatGPT 그림의 내려받기 버튼으로 원본 크기 파일을 받아 올려 주세요.",
+   "retry": "방금 그림을 내용은 그대로 두고 가로로 긴 원본 크기 그림 한 장으로 다시 주세요."
+  },
+  "BACKGROUND": {
+   "level": "fail", "stage": "registration",
+   "title": "배경이 흰색이 아니에요",
+   "message": "그림 뒤 배경이 아무것도 없는 흰색이 아니에요(회색·체크무늬·무늬). 흰 바탕이어야 몸과 옷을 나눌 수 있어요.",
+   "retry": "배경·그림자·글자 없이 흰 바탕으로 다시 그려 주세요."
+  },
+  "SHADOW": {
+   "level": "fail", "stage": "registration",
+   "title": "그림자가 생겼어요",
+   "message": "{figures} 발밑에 그림자가 생겼어요. 그림자가 있으면 신발과 바닥선을 정확히 잴 수 없어요.",
+   "retry": "배경·그림자·글자 없이 흰 바탕으로 다시 그려 주세요."
+  },
+  "FOREIGN_MARK": {
+   "level": "fail", "stage": "registration",
+   "title": "글자나 표시가 들어갔어요",
+   "message": "여섯 그림 밖에 글자·표시·테두리가 들어갔어요.",
+   "retry": "배경·그림자·글자 없이 흰 바탕으로 다시 그려 주세요."
+  },
+  "LAYOUT_COUNT": {
+   "level": "fail", "stage": "registration",
+   "title": "여섯 그림이 다 보이지 않아요",
+   "message": "여섯 그림이 모두 온전히 보여야 해요.",
+   "messageByKind": {
+    "none": "그림에서 아이를 찾지 못했어요.",
+    "rows": "그림이 두 줄(윗줄 남자아이, 아랫줄 여자아이)로 놓여 있지 않아요.",
+    "perRow": "한 줄에 세 그림(앞·옆·뒤)이 있어야 하는데 빠지거나 더 있어요.",
+    "cut": "{figures|이} 그림 가장자리에서 잘렸어요."
+   },
+   "retry": "여섯 그림이 모두, 잘리지 않고 같은 자리에 보이게 다시 그려 주세요."
+  },
+  "LAYOUT_ORDER": {
+   "level": "fail", "stage": "registration",
+   "title": "그림 순서가 바뀌었어요",
+   "message": "그림 순서가 첫 번째 그림과 달라요({figures}). 윗줄은 남자아이, 아랫줄은 여자아이이고 왼쪽부터 앞모습·오른쪽을 보는 옆모습·뒷모습이어야 해요.",
+   "retry": "첫 번째 그림과 같은 순서(윗줄 남자아이, 아랫줄 여자아이, 왼쪽부터 앞모습·오른쪽을 보는 옆모습·뒷모습)로 여섯 그림을 같은 자리에 다시 그려 주세요."
+  },
+  "LAYOUT_MIRROR": {
+   "level": "fail", "stage": "registration",
+   "title": "옆모습 방향이 바뀌었어요",
+   "message": "{figures|이} 왼쪽을 보고 있어요. 옆모습은 첫 번째 그림처럼 오른쪽을 봐야 해요.",
+   "retry": "옆모습은 첫 번째 그림처럼 오른쪽을 보게 하고 나머지는 그대로 두어 다시 그려 주세요."
+  },
+  "LAYOUT_MOVED": {
+   "level": "fail", "stage": "registration",
+   "title": "그림 자리가 옮겨졌어요",
+   "message": "{figures}의 자리가 다른 그림들보다 {value}px 옮겨졌어요.",
+   "retry": "여섯 그림이 모두, 잘리지 않고 같은 자리에 보이게 다시 그려 주세요."
+  },
+  "SQUASH": {
+   "level": "fail", "stage": "registration",
+   "title": "그림 비율이 바뀌었어요",
+   "message": "그림이 눌리거나 늘어나거나 기울어서 첫 번째 그림과 비율이 달라요.",
+   "retry": "그림 비율을 바꾸지 말고 가로로 긴 그림 그대로 주세요."
+  },
+  "FIGURE_SCALE": {
+   "level": "fail", "stage": "registration",
+   "title": "한 그림만 크기가 달라요",
+   "message": "{figures}만 다른 그림보다 크기가 {value} 달라요.",
+   "retry": "{figures}의 크기와 자리를 첫 번째 그림과 똑같이 맞춰 다시 그려 주세요."
+  },
+  "BODY_DRIFT": {
+   "level": "fail", "stage": "registration",
+   "title": "몸이 달라졌어요",
+   "message": "{figures}의 {part|이} 첫 번째 그림과 달라졌어요.",
+   "retry": "옷 말고는 몸 모양·피부색·팔다리를 첫 번째 그림과 똑같이 두고 다시 그려 주세요."
+  },
+  "POSE_ARM": {
+   "level": "fail", "stage": "registration",
+   "title": "팔 위치가 바뀌었어요",
+   "message": "{figures}의 {part} 위치가 {value}px 바뀌었어요.",
+   "retry": "{figures}의 팔 위치가 바뀌었으니 옷 말고는 첫 번째 그림과 똑같이 두고 다시 그려 주세요."
+  },
+  "POSE_LEG": {
+   "level": "fail", "stage": "registration",
+   "title": "다리 위치가 바뀌었어요",
+   "message": "{figures}의 {part} 위치가 {value}px 바뀌었어요.",
+   "retry": "{figures}의 다리 위치가 바뀌었으니 옷 말고는 첫 번째 그림과 똑같이 두고 다시 그려 주세요."
+  },
+  "HAIR_OVER_GARMENT": {
+   "level": "fail", "stage": "registration",
+   "title": "머리카락이 옷을 덮었어요",
+   "message": "{figures}의 머리카락이 첫 번째 그림보다 길게 내려와 옷을 덮었어요.",
+   "retry": "머리 모양과 길이는 첫 번째 그림 그대로 두고 {product}만 바꿔 다시 그려 주세요."
+  },
+  "OTHER_SLOT_CHANGED": {
+   "level": "fail", "stage": "registration",
+   "title": "다른 옷도 바뀌었어요",
+   "message": "{changed}도 바뀌었어요({figures}). 이번에는 {product}만 바꿔야 해요.",
+   "retry": "{changed}도 바뀌었으니 {keep|은} 첫 번째 그림 그대로 두고 {product}만 바꿔 주세요."
+  },
+  "SINGLE_SEX_CHANGED": {
+   "level": "fail", "stage": "registration",
+   "title": "다른 아이 옷도 바뀌었어요",
+   "message": "{other}의 옷도 바뀌었어요({figures}). 이 상품은 {child} 옷이라 {other|은} 그대로여야 해요.",
+   "retry": "{other|은} 첫 번째 그림 그대로 두고 {child}의 {product}만 바꿔 주세요."
+  },
+  "SLEEVE_LONG": {
+   "level": "fail", "stage": "garment",
+   "title": "소매가 너무 길어요",
+   "message": "{figures}의 소매가 팔꿈치를 덮을 만큼 길어요. 팔을 굽히면 소매가 팔꿈치 밖으로 튀어나와요.",
+   "retry": "소매 끝을 첫 번째 그림의 반팔 소매 끝 높이로 올려 주세요."
+  },
+  "SLEEVE_SHORT": {
+   "level": "fail", "stage": "garment",
+   "title": "소매가 짧아요",
+   "message": "{figures}의 소매가 지금 반팔보다 짧아요. 소매 아래 팔 그림이 이어 붙인 부분이라 드러나면 안 돼요.",
+   "retry": "소매 끝은 첫 번째 그림의 반팔 소매 끝과 같거나 아주 조금 더 길게 그려 주세요."
+  },
+  "GHOST_EDGE": {
+   "level": "fail", "stage": "garment",
+   "title": "옛 옷 선이 비쳐요",
+   "message": "{figures}에서 기본 티셔츠의 소매 끝·옷깃 선이 새 옷 밖으로 비쳐요.",
+   "retry": "소매 끝과 옷깃은 첫 번째 그림의 소매 끝·옷깃 선을 덮도록 같거나 아주 조금 더 길게 그려 주세요."
+  },
+  "CAP_HIGH": {
+   "level": "fail", "stage": "garment",
+   "title": "소매 윗부분이 높아요",
+   "message": "{figures}의 소매 윗부분이 어깨선보다 높이 부풀었어요. 팔을 들면 머리에 닿아요.",
+   "retry": "소매 윗부분이 어깨선보다 높이 부풀지 않게 어깨는 첫 번째 그림과 같은 높이로 그려 주세요."
+  },
+  "COLLAR_HIGH": {
+   "level": "fail", "stage": "garment",
+   "title": "옷깃이 높아요",
+   "message": "{figures}의 옷깃이 첫 번째 그림의 옷깃보다 높아 머리·머리카락에 닿아요.",
+   "retry": "옷깃과 목둘레는 첫 번째 그림의 옷깃보다 높이지 말고 같은 높이로 그려 주세요."
+  },
+  "NECK_OPEN": {
+   "level": "fail", "stage": "garment",
+   "title": "목둘레가 깊어요",
+   "message": "{figures}의 목둘레가 깊게 파여 목 그림이 없는 곳까지 드러나요.",
+   "retry": "목둘레는 첫 번째 그림의 옷깃보다 깊게 파지 말고 같은 깊이로 그려 주세요."
+  },
+  "HEM_HIGH": {
+   "level": "fail", "stage": "garment",
+   "title": "윗옷이 짧아요",
+   "message": "{figures}의 윗옷 밑단이 짧아 앉을 때 배나 반바지 허리가 보여요.",
+   "retry": "윗옷 밑단을 첫 번째 그림의 티셔츠 밑단 높이로 내려 반바지 허리를 덮게 그려 주세요."
+  },
+  "HEM_LOW": {
+   "level": "fail", "stage": "garment",
+   "title": "윗옷이 길어요",
+   "message": "{figures}의 윗옷이 다리까지 내려와 걸을 때 다리와 겹쳐요.",
+   "retry": "윗옷 밑단은 첫 번째 그림의 티셔츠 밑단 높이까지만 오게 그려 주세요."
+  },
+  "SHORTS_SHORT": {
+   "level": "fail", "stage": "garment",
+   "title": "반바지가 짧아요",
+   "message": "{figures}의 반바지가 지금보다 짧아요. 바짓단 위 다리 그림이 이어 붙인 부분이라 드러나면 안 돼요.",
+   "retry": "바짓단은 첫 번째 그림의 반바지 끝과 같거나 아주 조금 더 길게(무릎 위) 그려 주세요."
+  },
+  "SHORTS_LONG": {
+   "level": "fail", "stage": "garment",
+   "title": "반바지가 길어요",
+   "message": "{figures}의 반바지가 무릎까지 내려왔어요. 바닥에 앉는 동작에서 맞지 않아요.",
+   "retry": "바짓단을 무릎 위, 첫 번째 그림의 반바지 끝 높이로 올려 주세요."
+  },
+  "WAIST_VISIBLE": {
+   "level": "fail", "stage": "garment",
+   "title": "반바지 허리가 보여요",
+   "message": "{figures}의 반바지 허리가 윗옷 밑으로 보여요.",
+   "retry": "반바지 허리는 윗옷 밑단 안에 숨기고 윗옷은 지금처럼 밖으로 내어 입혀 주세요."
+  },
+  "SKIRT_LIKE": {
+   "level": "fail", "stage": "garment",
+   "title": "치마처럼 이어졌어요",
+   "message": "{figures}의 반바지가 두 다리로 나뉘지 않고 치마처럼 이어졌어요.",
+   "retry": "반바지는 두 다리가 따로 나뉘게, 치마처럼 잇지 말고 그려 주세요."
+  },
+  "SOLE_OFF_FLOOR": {
+   "level": "fail", "stage": "garment",
+   "title": "신발이 바닥에서 떴어요",
+   "message": "{figures}의 신발 밑창이 바닥선과 맞지 않아요.",
+   "retry": "신발 밑창은 첫 번째 그림의 신발 밑창과 같은 바닥선에 두고 그려 주세요."
+  },
+  "SHOE_LOW_OPENING": {
+   "level": "fail", "stage": "garment",
+   "title": "신발 입구가 낮아요",
+   "message": "{figures}의 신발 입구가 지금보다 낮아 다리 그림 끝이 보여요.",
+   "retry": "신발 입구는 첫 번째 그림의 신발 입구와 같거나 아주 조금 더 높게(복사뼈 아래) 그려 주세요."
+  },
+  "SHOE_HIGH": {
+   "level": "fail", "stage": "garment",
+   "title": "신발이 높아요",
+   "message": "{figures}의 신발이 부츠처럼 복사뼈 위까지 올라왔어요.",
+   "retry": "신발 입구를 복사뼈 아래로 낮춰 부츠처럼 높지 않은 낮은 신발로 그려 주세요."
+  },
+  "SHOE_MISSING": {
+   "level": "fail", "stage": "garment",
+   "title": "신발이 빠졌어요",
+   "message": "{figures}에서 신발 한 짝이 보이지 않아요.",
+   "retry": "앞모습과 뒷모습에서 두 발 모두 신발이 보이게 그려 주세요."
+  },
+  "VIEW_INCONSISTENT": {
+   "level": "fail", "stage": "garment",
+   "title": "모습마다 옷이 달라요",
+   "message": "앞·옆·뒤 모습의 옷 색이나 모양이 서로 달라요({figures}).",
+   "retry": "앞·옆·뒤 세 모습이 같은 색, 같은 옷으로 보이게 다시 그려 주세요."
+  },
+  "UNTINTED_SKIN": {
+   "level": "fail", "stage": "garment",
+   "title": "옷 안에 피부색이 남았어요",
+   "message": "{figures}의 옷 가장자리에 피부색 조각이 남아 피부색을 바꾸면 밝은 띠가 보여요.",
+   "retry": "소매 끝과 옷깃 가장자리는 피부색을 섞지 말고 옷과 피부 사이를 또렷한 외곽선으로 나눠 그려 주세요."
+  },
+  "COLOUR_OFF": {
+   "level": "warn", "stage": "garment",
+   "title": "옷 색이 상점 색과 조금 달라요",
+   "message": "옷 색이 상점 색과 조금 달라요(색 차이 {value}). 비슷하면 그대로 쓰고 기록만 남겨요(사용자 결정 2026-10-09).",
+   "retry": "옷 색을 두 번째 그림의 색과 똑같이 맞춰 다시 그려 주세요."
+  },
+  "W_SCALE": {
+   "level": "warn", "stage": "registration",
+   "title": "한 그림의 크기가 조금 달라요",
+   "message": "{figures}의 크기가 다른 그림과 {value} 달라요. 자동으로 맞췄어요.",
+   "retry": null
+  },
+  "W_POSE": {
+   "level": "warn", "stage": "registration",
+   "title": "팔다리가 조금 옮겨졌어요",
+   "message": "{figures}의 {part|이} {value}px 옮겨졌어요(3px 안이라 그대로 써요).",
+   "retry": null
+  },
+  "W_SPECKS": {
+   "level": "warn", "stage": "registration",
+   "title": "작은 점을 지웠어요",
+   "message": "그림 밖의 작은 점 몇 개를 지웠어요.",
+   "retry": null
+  }
+ }
+}

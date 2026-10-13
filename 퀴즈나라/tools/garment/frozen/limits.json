@@ -1,0 +1,1145 @@
+{
+ "artMode": {
+  "arms": "clean (assets/sd-foundation-ref-arms-clean.png, pending user approval)",
+  "legs": "legacy (contact band 3 checked by GHOST_EDGE)",
+  "neck": "clean (assets/sd-foundation-ref-neck-clean.png, pending user approval)"
+ },
+ "basic": {
+  "f-back": {
+   "bottom/shorts": {
+    "SHORTS_LONG": {
+     "leg0": {
+      "cuff": 986,
+      "limitRow": 996.26,
+      "marginPx": 10.26
+     },
+     "leg1": {
+      "cuff": 986,
+      "limitRow": 995.46,
+      "marginPx": 9.46
+     }
+    },
+    "SHORTS_SHORT": {
+     "leg0": {
+      "cuff": 984,
+      "limitRow": 978,
+      "marginPx": 6
+     },
+     "leg1": {
+      "cuff": 985,
+      "limitRow": 978,
+      "marginPx": 7
+     }
+    },
+    "SKIRT_LIKE": {
+     "crotchEdge": 955,
+     "cuffEdge": 984,
+     "marginPx": 29,
+     "openRows": 29
+    },
+    "WAIST_VISIBLE": {
+     "marginPx": 3,
+     "visibleAboveHemPx": 0
+    }
+   },
+   "shoes/low": {
+    "SHOE_HIGH": {
+     "foot0": {
+      "limitRow": 1023.0,
+      "marginPx": 14.0,
+      "shoeTop": 1037
+     },
+     "foot1": {
+      "limitRow": 1023.0,
+      "marginPx": 14.0,
+      "shoeTop": 1037
+     }
+    },
+    "SHOE_LOW_OPENING": {
+     "foot0": {
+      "atColumn": 1060,
+      "legEnd": 1040,
+      "marginPx": 3,
+      "shoeTop": 1040
+     },
+     "foot1": {
+      "atColumn": 1130,
+      "legEnd": 1038,
+      "marginPx": 3,
+      "shoeTop": 1038
+     }
+    },
+    "SHOE_MISSING": {
+     "foot0": {
+      "missing": false
+     },
+     "foot1": {
+      "missing": false
+     }
+    },
+    "SOLE_OFF_FLOOR": {
+     "foot0": {
+      "floor": 1073,
+      "marginPx": 2.0,
+      "sole": 1074.0
+     },
+     "foot1": {
+      "floor": 1073,
+      "marginPx": 2.0,
+      "sole": 1074.0
+     }
+    }
+   },
+   "top/short-sleeve": {
+    "CAP_HIGH": {
+     "allowPx": 4.36,
+     "atColumn": 1166,
+     "columns": 54,
+     "highestRisePx": 0.0,
+     "minMarginPx": 34.34,
+     "zone": "cap"
+    },
+    "COLLAR_HIGH": {
+     "allowPx": 4.36,
+     "atColumn": 1143,
+     "columns": 44,
+     "highestRisePx": 0.0,
+     "minMarginPx": 13.34,
+     "zone": "shoulder"
+    },
+    "HEM_HIGH": {
+     "atColumn": 1057,
+     "columns": 93,
+     "minMarginPx": 3.0
+    },
+    "HEM_LOW": {
+     "limitRow": 941.13,
+     "lowestHem": 922,
+     "minMarginPx": 19.13
+    },
+    "NECK_OPEN": {
+     "centerDepthPx": null,
+     "exposedPx": 0,
+     "outsideNeckArtPx": 0
+    },
+    "SLEEVE_LONG": {
+     "arm0": {
+      "limitT": 80.45,
+      "marginPx": 23.0,
+      "t": 57.45
+     },
+     "arm1": {
+      "limitT": 80.34,
+      "marginPx": 23.5,
+      "t": 56.84
+     }
+    },
+    "SLEEVE_SHORT": {
+     "arm0": {
+      "limitT": 40.58,
+      "marginPx": 13.21,
+      "t": 54.95
+     },
+     "arm1": {
+      "limitT": 40.52,
+      "marginPx": 12.23,
+      "t": 53.84
+     }
+    }
+   }
+  },
+  "f-front": {
+   "bottom/shorts": {
+    "SHORTS_LONG": {
+     "leg0": {
+      "cuff": 988,
+      "limitRow": 995.86,
+      "marginPx": 7.86
+     },
+     "leg1": {
+      "cuff": 988,
+      "limitRow": 997.66,
+      "marginPx": 9.66
+     }
+    },
+    "SHORTS_SHORT": {
+     "leg0": {
+      "cuff": 985,
+      "limitRow": 980,
+      "marginPx": 5
+     },
+     "leg1": {
+      "cuff": 987,
+      "limitRow": 980,
+      "marginPx": 7
+     }
+    },
+    "SKIRT_LIKE": {
+     "crotchEdge": 958,
+     "cuffEdge": 985,
+     "marginPx": 27,
+     "openRows": 27
+    },
+    "WAIST_VISIBLE": {
+     "marginPx": 3,
+     "visibleAboveHemPx": 0
+    }
+   },
+   "shoes/low": {
+    "SHOE_HIGH": {
+     "foot0": {
+      "limitRow": 1025.0,
+      "marginPx": 8.0,
+      "shoeTop": 1033
+     },
+     "foot1": {
+      "limitRow": 1025.0,
+      "marginPx": 8.0,
+      "shoeTop": 1033
+     }
+    },
+    "SHOE_LOW_OPENING": {
+     "foot0": {
+      "atColumn": 284,
+      "legEnd": 1033,
+      "marginPx": 3,
+      "shoeTop": 1033
+     },
+     "foot1": {
+      "atColumn": 351,
+      "legEnd": 1041,
+      "marginPx": 3,
+      "shoeTop": 1041
+     }
+    },
+    "SHOE_MISSING": {
+     "foot0": {
+      "missing": false
+     },
+     "foot1": {
+      "missing": false
+     }
+    },
+    "SOLE_OFF_FLOOR": {
+     "foot0": {
+      "floor": 1075,
+      "marginPx": 2.0,
+      "sole": 1074.0
+     },
+     "foot1": {
+      "floor": 1075,
+      "marginPx": 2.0,
+      "sole": 1074.0
+     }
+    }
+   },
+   "top/short-sleeve": {
+    "CAP_HIGH": {
+     "allowPx": 4.36,
+     "atColumn": 394,
+     "columns": 46,
+     "highestRisePx": 0.0,
+     "minMarginPx": 40.35,
+     "zone": "cap"
+    },
+    "COLLAR_HIGH": {
+     "allowPx": 4.36,
+     "atColumn": 309,
+     "columns": 57,
+     "highestRisePx": 0.0,
+     "minMarginPx": 4.36,
+     "zone": "collar"
+    },
+    "HEM_HIGH": {
+     "atColumn": 279,
+     "columns": 95,
+     "minMarginPx": 3.0
+    },
+    "HEM_LOW": {
+     "limitRow": 942.13,
+     "lowestHem": 927,
+     "minMarginPx": 15.13
+    },
+    "NECK_OPEN": {
+     "centerDepthPx": 11,
+     "exposedPx": 0,
+     "outsideNeckArtPx": 0
+    },
+    "SLEEVE_LONG": {
+     "arm0": {
+      "limitT": 76.14,
+      "marginPx": 20.0,
+      "t": 56.14
+     },
+     "arm1": {
+      "limitT": 77.57,
+      "marginPx": 22.0,
+      "t": 55.57
+     }
+    },
+    "SLEEVE_SHORT": {
+     "arm0": {
+      "limitT": 38.39,
+      "marginPx": 14.15,
+      "t": 51.64
+     },
+     "arm1": {
+      "limitT": 38.35,
+      "marginPx": 12.78,
+      "t": 52.07
+     }
+    }
+   }
+  },
+  "f-right": {
+   "bottom/shorts": {
+    "SHORTS_LONG": {
+     "leg0": {
+      "cuff": 989,
+      "limitRow": 1002.06,
+      "marginPx": 13.06
+     }
+    },
+    "SHORTS_SHORT": {
+     "leg0": {
+      "cuff": 984,
+      "limitRow": 982,
+      "marginPx": 2
+     }
+    },
+    "WAIST_VISIBLE": {
+     "marginPx": 3,
+     "visibleAboveHemPx": 0
+    }
+   },
+   "shoes/low": {
+    "SHOE_HIGH": {
+     "foot0": {
+      "limitRow": 1025.0,
+      "marginPx": 14.0,
+      "shoeTop": 1039
+     }
+    },
+    "SHOE_LOW_OPENING": {
+     "foot0": {
+      "atColumn": 721,
+      "legEnd": 1043,
+      "marginPx": 3,
+      "shoeTop": 1043
+     }
+    },
+    "SHOE_MISSING": {
+     "foot0": {
+      "missing": false
+     }
+    },
+    "SOLE_OFF_FLOOR": {
+     "foot0": {
+      "floor": 1075,
+      "marginPx": 3.0,
+      "sole": 1075.0
+     }
+    }
+   },
+   "top/short-sleeve": {
+    "COLLAR_HIGH": {
+     "allowPx": 4.36,
+     "atColumn": 716,
+     "columns": 57,
+     "highestRisePx": 0.0,
+     "minMarginPx": 6.0,
+     "zone": "collar"
+    },
+    "HEM_HIGH": {
+     "atColumn": 714,
+     "columns": 10,
+     "minMarginPx": 3.0
+    },
+    "HEM_LOW": {
+     "limitRow": 951.13,
+     "lowestHem": 929,
+     "minMarginPx": 22.13
+    },
+    "NECK_OPEN": {
+     "centerDepthPx": 12,
+     "exposedPx": 0,
+     "outsideNeckArtPx": 0
+    },
+    "SLEEVE_LONG": {
+     "arm0": {
+      "limitT": 77.33,
+      "marginPx": 17.0,
+      "t": 60.33
+     }
+    },
+    "SLEEVE_SHORT": {
+     "arm0": {
+      "limitT": 39.2,
+      "marginPx": 20.12,
+      "t": 58.83
+     }
+    }
+   }
+  },
+  "m-back": {
+   "bottom/shorts": {
+    "SHORTS_LONG": {
+     "leg0": {
+      "cuff": 469,
+      "limitRow": 479.54,
+      "marginPx": 10.54
+     },
+     "leg1": {
+      "cuff": 469,
+      "limitRow": 479.14,
+      "marginPx": 10.14
+     }
+    },
+    "SHORTS_SHORT": {
+     "leg0": {
+      "cuff": 469,
+      "limitRow": 461,
+      "marginPx": 8
+     },
+     "leg1": {
+      "cuff": 469,
+      "limitRow": 461,
+      "marginPx": 8
+     }
+    },
+    "SKIRT_LIKE": {
+     "crotchEdge": 438,
+     "cuffEdge": 469,
+     "marginPx": 31,
+     "openRows": 31
+    },
+    "WAIST_VISIBLE": {
+     "marginPx": 3,
+     "visibleAboveHemPx": 0
+    }
+   },
+   "shoes/low": {
+    "SHOE_HIGH": {
+     "foot0": {
+      "limitRow": 500.0,
+      "marginPx": 17.0,
+      "shoeTop": 517
+     },
+     "foot1": {
+      "limitRow": 500.0,
+      "marginPx": 17.0,
+      "shoeTop": 517
+     }
+    },
+    "SHOE_LOW_OPENING": {
+     "foot0": {
+      "atColumn": 1060,
+      "legEnd": 519,
+      "marginPx": 3,
+      "shoeTop": 519
+     },
+     "foot1": {
+      "atColumn": 1126,
+      "legEnd": 518,
+      "marginPx": 3,
+      "shoeTop": 518
+     }
+    },
+    "SHOE_MISSING": {
+     "foot0": {
+      "missing": false
+     },
+     "foot1": {
+      "missing": false
+     }
+    },
+    "SOLE_OFF_FLOOR": {
+     "foot0": {
+      "floor": 550,
+      "marginPx": 2.0,
+      "sole": 551.0
+     },
+     "foot1": {
+      "floor": 550,
+      "marginPx": 2.0,
+      "sole": 551.0
+     }
+    }
+   },
+   "top/short-sleeve": {
+    "CAP_HIGH": {
+     "allowPx": 4.31,
+     "atColumn": 1165,
+     "columns": 44,
+     "highestRisePx": 0.0,
+     "minMarginPx": 8.03,
+     "zone": "cap"
+    },
+    "COLLAR_HIGH": {
+     "allowPx": 4.31,
+     "atColumn": 1077,
+     "columns": 123,
+     "highestRisePx": 0.0,
+     "minMarginPx": 7.0,
+     "zone": "collar"
+    },
+    "HEM_HIGH": {
+     "atColumn": 1055,
+     "columns": 92,
+     "minMarginPx": 3.0
+    },
+    "HEM_LOW": {
+     "limitRow": 427.09,
+     "lowestHem": 408,
+     "minMarginPx": 19.09
+    },
+    "NECK_OPEN": {
+     "centerDepthPx": 11,
+     "exposedPx": 0,
+     "outsideNeckArtPx": 0
+    },
+    "SLEEVE_LONG": {
+     "arm0": {
+      "limitT": 77.36,
+      "marginPx": 14.5,
+      "t": 62.86
+     },
+     "arm1": {
+      "limitT": 78.46,
+      "marginPx": 14.5,
+      "t": 63.96
+     }
+    },
+    "SLEEVE_SHORT": {
+     "arm0": {
+      "limitT": 40.22,
+      "marginPx": 16.51,
+      "t": 57.36
+     },
+     "arm1": {
+      "limitT": 40.28,
+      "marginPx": 17.47,
+      "t": 58.46
+     }
+    }
+   }
+  },
+  "m-front": {
+   "bottom/shorts": {
+    "SHORTS_LONG": {
+     "leg0": {
+      "cuff": 468,
+      "limitRow": 476.54,
+      "marginPx": 8.54
+     },
+     "leg1": {
+      "cuff": 468,
+      "limitRow": 476.94,
+      "marginPx": 8.94
+     }
+    },
+    "SHORTS_SHORT": {
+     "leg0": {
+      "cuff": 468,
+      "limitRow": 460,
+      "marginPx": 8
+     },
+     "leg1": {
+      "cuff": 468,
+      "limitRow": 460,
+      "marginPx": 8
+     }
+    },
+    "SKIRT_LIKE": {
+     "crotchEdge": 440,
+     "cuffEdge": 468,
+     "marginPx": 28,
+     "openRows": 28
+    },
+    "WAIST_VISIBLE": {
+     "marginPx": 3,
+     "visibleAboveHemPx": 0
+    }
+   },
+   "shoes/low": {
+    "SHOE_HIGH": {
+     "foot0": {
+      "limitRow": 500.0,
+      "marginPx": 8.0,
+      "shoeTop": 508
+     },
+     "foot1": {
+      "limitRow": 500.0,
+      "marginPx": 8.0,
+      "shoeTop": 508
+     }
+    },
+    "SHOE_LOW_OPENING": {
+     "foot0": {
+      "atColumn": 280,
+      "legEnd": 508,
+      "marginPx": 3,
+      "shoeTop": 508
+     },
+     "foot1": {
+      "atColumn": 348,
+      "legEnd": 514,
+      "marginPx": 3,
+      "shoeTop": 514
+     }
+    },
+    "SHOE_MISSING": {
+     "foot0": {
+      "missing": false
+     },
+     "foot1": {
+      "missing": false
+     }
+    },
+    "SOLE_OFF_FLOOR": {
+     "foot0": {
+      "floor": 550,
+      "marginPx": 2.0,
+      "sole": 549.0
+     },
+     "foot1": {
+      "floor": 550,
+      "marginPx": 2.0,
+      "sole": 549.0
+     }
+    }
+   },
+   "top/short-sleeve": {
+    "CAP_HIGH": {
+     "allowPx": 4.31,
+     "atColumn": 249,
+     "columns": 42,
+     "highestRisePx": 0.0,
+     "minMarginPx": 8.02,
+     "zone": "cap"
+    },
+    "COLLAR_HIGH": {
+     "allowPx": 4.31,
+     "atColumn": 349,
+     "columns": 120,
+     "highestRisePx": 0.0,
+     "minMarginPx": 3.0,
+     "zone": "shoulder"
+    },
+    "HEM_HIGH": {
+     "atColumn": 276,
+     "columns": 97,
+     "minMarginPx": 3.0
+    },
+    "HEM_LOW": {
+     "limitRow": 425.09,
+     "lowestHem": 409,
+     "minMarginPx": 16.09
+    },
+    "NECK_OPEN": {
+     "centerDepthPx": 12,
+     "exposedPx": 0,
+     "outsideNeckArtPx": 0
+    },
+    "SLEEVE_LONG": {
+     "arm0": {
+      "limitT": 75.95,
+      "marginPx": 13.5,
+      "t": 62.45
+     },
+     "arm1": {
+      "limitT": 76.97,
+      "marginPx": 15.0,
+      "t": 61.97
+     }
+    },
+    "SLEEVE_SHORT": {
+     "arm0": {
+      "limitT": 38.27,
+      "marginPx": 18.5,
+      "t": 57.45
+     },
+     "arm1": {
+      "limitT": 38.28,
+      "marginPx": 18.17,
+      "t": 56.97
+     }
+    }
+   }
+  },
+  "m-right": {
+   "bottom/shorts": {
+    "SHORTS_LONG": {
+     "leg0": {
+      "cuff": 466,
+      "limitRow": 478.14,
+      "marginPx": 12.14
+     }
+    },
+    "SHORTS_SHORT": {
+     "leg0": {
+      "cuff": 466,
+      "limitRow": 459,
+      "marginPx": 7
+     }
+    },
+    "WAIST_VISIBLE": {
+     "marginPx": 3,
+     "visibleAboveHemPx": 0
+    }
+   },
+   "shoes/low": {
+    "SHOE_HIGH": {
+     "foot0": {
+      "limitRow": 500.0,
+      "marginPx": 13.0,
+      "shoeTop": 513
+     }
+    },
+    "SHOE_LOW_OPENING": {
+     "foot0": {
+      "atColumn": 717,
+      "legEnd": 519,
+      "marginPx": 3,
+      "shoeTop": 519
+     }
+    },
+    "SHOE_MISSING": {
+     "foot0": {
+      "missing": false
+     }
+    },
+    "SOLE_OFF_FLOOR": {
+     "foot0": {
+      "floor": 550,
+      "marginPx": 3.0,
+      "sole": 550.0
+     }
+    }
+   },
+   "top/short-sleeve": {
+    "COLLAR_HIGH": {
+     "allowPx": 4.31,
+     "atColumn": 708,
+     "columns": 65,
+     "highestRisePx": 0.0,
+     "minMarginPx": 7.0,
+     "zone": "collar"
+    },
+    "HEM_HIGH": {
+     "atColumn": 709,
+     "columns": 12,
+     "minMarginPx": 3.0
+    },
+    "HEM_LOW": {
+     "limitRow": 433.09,
+     "lowestHem": 410,
+     "minMarginPx": 23.09
+    },
+    "NECK_OPEN": {
+     "centerDepthPx": 14,
+     "exposedPx": 0,
+     "outsideNeckArtPx": 0
+    },
+    "SLEEVE_LONG": {
+     "arm0": {
+      "limitT": 80.34,
+      "marginPx": 18.0,
+      "t": 62.34
+     }
+    },
+    "SLEEVE_SHORT": {
+     "arm0": {
+      "limitT": 40.21,
+      "marginPx": 21.12,
+      "t": 60.84
+     }
+    }
+   }
+  }
+ },
+ "classes": {
+  "bottom/shorts": {
+   "GHOST_EDGE": {
+    "rule": "every leg contact-band pixel is covered by the bottom",
+    "why": "Legacy leg art carries the basic shorts cuff line (contact band 3); no clean legs yet."
+   },
+   "SHORTS_LONG": {
+    "rule": "cuff edge <= knee - floorSitTubeEndU",
+    "why": "Floor-sit tubes end .42 u before the knee (avatar-foundation-outfit.js seatedShorts)."
+   },
+   "SHORTS_SHORT": {
+    "rule": "cuff edge >= legs hidden row on the leg band",
+    "why": "Leg art above the legs hidden row (shorts_bottom - 8) is copied rows without outline."
+   },
+   "SKIRT_LIKE": {
+    "rule": "the centre column is open between the crotch and the cuff (front/back)",
+    "why": "One shorts mesh with the centre seam at body x=16 splits into two legs."
+   },
+   "WAIST_VISIBLE": {
+    "rule": "bottom pixels visible above the frozen hem - seam tolerance = 0",
+    "why": "Bottoms are drawn under the top and extended up to W; their own waistband must not show below the top hem."
+   }
+  },
+  "shoes/low": {
+   "SHOE_HIGH": {
+    "rule": "shoe top >= ankle - 20 px",
+    "why": "Low shoes (class rule: opening under the ankle bone, never a boot)."
+   },
+   "SHOE_LOW_OPENING": {
+    "rule": "shoe top <= leg art end + seam tolerance",
+    "why": "The leg painting ends at the basic shoe top: a lower opening shows its cut end."
+   },
+   "SHOE_MISSING": {
+    "rule": "a shoe on each foot band",
+    "why": "Both feet are drawn in front/back views."
+   },
+   "SOLE_OFF_FLOOR": {
+    "rule": "|sole edge - floor| <= seam tolerance",
+    "why": "Shoes hang from the ankle joint (floor - 30); the sole must sit on the frozen floor."
+   }
+  },
+  "top/short-sleeve": {
+   "CAP_HIGH": {
+    "rule": "front/back, columns outward of S: top rows >= S.y - collarAllowU - seam tolerance",
+    "why": "A gesture-raised arm carries its whole sleeve (hold 0), so a crown taller than the shoulder swings toward the head and the bob (RT minor finding). Outward of the shoulder point S (armhole S of the build, on the sheet outline: the shoulder line for boys, the bob edge for girls) the top may rise collarAllowU above S, plus the seam tolerance every measured upload edge carries (registration <= .6 px + seam <= 2 px). A row proxy until the WP7 raised-arm probe (no sleeve pixel in the head/neck capsule)."
+   },
+   "COLLAR_HIGH": {
+    "rule": "girls front/back: collar columns >= outline - collarAllowU, shoulder columns >= min(outline, S.y) - collarAllowU; otherwise >= head cut + 1",
+    "why": "Girls, front/back: the shared hair clip (FRONT_HAIR_CLIP/BACK_HAIR_CLIP) keeps >= .10 head units over the collar/shoulder outline; the measured nod-peak margin is .40, so the outline may rise (.40-.10)*HEAD_SCALE u (H1 will replace this with the per-column clip line). Boys and profile views: no hair hangs over the collar; the head is drawn over the body, so the limit is the head cut (the top must not paint into the head)."
+   },
+   "GHOST_EDGE": {
+    "rule": "every contact-band pixel is covered by the top at rest",
+    "why": "Legacy arm/neck art carries the basic cuff/collar edge (contact bands). Only for a top that is drawn on the legacy art; the clean art has no band. The basic itself is exempt: the band is its own cuff/collar outline."
+   },
+   "HEM_HIGH": {
+    "rule": "hem >= W + .24 u on every torso column not covered by the hanging arm",
+    "why": "Seated breathing lifts the chest SEATED_BREATH.rise over the seat. Bottoms are extended up to the waist cover line W (shorts top - .24 u - seam tolerance), so a top must reach W + .24 u (.14 rise + .10)."
+   },
+   "HEM_LOW": {
+    "rule": "hem <= hip row + .25 u",
+    "why": "Short-sleeve tops end above the leg joints: past hip + .25 u the rigid hem lies over the swinging thighs."
+   },
+   "NECK_OPEN": {
+    "rule": "skin of the upload inside the frozen top region, not covered by the new top (and not arm, hair or under the head: head cut + VIEW_HEAD front drop), lies inside the clean neck art (alpha > 200) eroded 1 px; the 1 px rim at the new top edge is the seam",
+    "why": "The torso has no skin art: skin may show only where the neck painting is opaque."
+   },
+   "SLEEVE_LONG": {
+    "rule": "max t of top pixels on the arm band (|c| <= re/2) <= tElbow + re (t along the resting upper arm, px)",
+    "why": "A folded forearm (run, jump, cheer) is pasted over its own sleeve; its clip ends in a round cap of radius re past the elbow (avatar-foundation-skin.js forearmOverlay). Sleeve cloth on the arm band beyond elbow + re would stick out past the folded elbow."
+   },
+   "SLEEVE_SHORT": {
+    "rule": "every arm-band line is covered from the shoulder down to tHidden (the cuff_top row)",
+    "why": "Above the clean-art top row (cuff_top) the arm layer is copied skin without outline (build-reference-body.py limb extension). It must stay under the sleeve."
+   }
+  }
+ },
+ "minMarginPx": 2.0,
+ "note": "Class limits from body coverage and runtime constants (tools/avatar_build/limits.py). Sheet px. The basic outfit must pass each with >= 2 px; pass zones must be non-empty. Sleeve limits assume the clean arm art (pending user approval); with the legacy art GHOST_EDGE applies and the legacy pass zone is reported for information.",
+ "passZones": {
+  "f-back": {
+   "hem": [
+    919.0,
+    941.13,
+    22.13
+   ],
+   "shoe sole foot0": [
+    1070,
+    1076,
+    6
+   ],
+   "shoe sole foot1": [
+    1070,
+    1076,
+    6
+   ],
+   "shorts cuff leg0": [
+    978,
+    996.26,
+    18.26
+   ],
+   "shorts cuff leg1": [
+    978,
+    995.46,
+    17.46
+   ],
+   "sleeve arm0 (clean art)": [
+    40.58,
+    80.45,
+    39.87
+   ],
+   "sleeve arm0 (legacy art: cover band)": [
+    66.95,
+    80.45,
+    13.5
+   ],
+   "sleeve arm1 (clean art)": [
+    40.52,
+    80.34,
+    39.82
+   ],
+   "sleeve arm1 (legacy art: cover band)": [
+    67.34,
+    80.34,
+    13.0
+   ]
+  },
+  "f-front": {
+   "hem": [
+    924.0,
+    942.13,
+    18.13
+   ],
+   "neckline at centre (rise allowance .. neck art depth)": [
+    -4.36,
+    11,
+    15.36
+   ],
+   "shoe sole foot0": [
+    1072,
+    1078,
+    6
+   ],
+   "shoe sole foot1": [
+    1072,
+    1078,
+    6
+   ],
+   "shorts cuff leg0": [
+    980,
+    995.86,
+    15.86
+   ],
+   "shorts cuff leg1": [
+    980,
+    997.66,
+    17.66
+   ],
+   "sleeve arm0 (clean art)": [
+    38.39,
+    76.14,
+    37.75
+   ],
+   "sleeve arm0 (legacy art: cover band)": [
+    64.14,
+    76.14,
+    12.0
+   ],
+   "sleeve arm1 (clean art)": [
+    38.35,
+    77.57,
+    39.22
+   ],
+   "sleeve arm1 (legacy art: cover band)": [
+    65.07,
+    77.57,
+    12.5
+   ]
+  },
+  "f-right": {
+   "hem": [
+    926.0,
+    951.13,
+    25.13
+   ],
+   "neckline at centre (rise allowance .. neck art depth)": [
+    -4.36,
+    12,
+    16.36
+   ],
+   "shoe sole foot0": [
+    1072,
+    1078,
+    6
+   ],
+   "shorts cuff leg0": [
+    982,
+    1002.06,
+    20.06
+   ],
+   "sleeve arm0 (clean art)": [
+    39.2,
+    77.33,
+    38.13
+   ],
+   "sleeve arm0 (legacy art: cover band)": [
+    59.83,
+    77.33,
+    17.5
+   ]
+  },
+  "m-back": {
+   "hem": [
+    405.0,
+    427.09,
+    22.09
+   ],
+   "neckline at centre (rise allowance .. neck art depth)": [
+    -4.31,
+    11,
+    15.31
+   ],
+   "shoe sole foot0": [
+    547,
+    553,
+    6
+   ],
+   "shoe sole foot1": [
+    547,
+    553,
+    6
+   ],
+   "shorts cuff leg0": [
+    461,
+    479.54,
+    18.54
+   ],
+   "shorts cuff leg1": [
+    461,
+    479.14,
+    18.14
+   ],
+   "sleeve arm0 (clean art)": [
+    40.22,
+    77.36,
+    37.14
+   ],
+   "sleeve arm0 (legacy art: cover band)": [
+    66.86,
+    77.36,
+    10.5
+   ],
+   "sleeve arm1 (clean art)": [
+    40.28,
+    78.46,
+    38.18
+   ],
+   "sleeve arm1 (legacy art: cover band)": [
+    67.96,
+    78.46,
+    10.5
+   ]
+  },
+  "m-front": {
+   "hem": [
+    406.0,
+    425.09,
+    19.09
+   ],
+   "neckline at centre (rise allowance .. neck art depth)": [
+    -4.31,
+    12,
+    16.31
+   ],
+   "shoe sole foot0": [
+    547,
+    553,
+    6
+   ],
+   "shoe sole foot1": [
+    547,
+    553,
+    6
+   ],
+   "shorts cuff leg0": [
+    460,
+    476.54,
+    16.54
+   ],
+   "shorts cuff leg1": [
+    460,
+    476.94,
+    16.94
+   ],
+   "sleeve arm0 (clean art)": [
+    38.27,
+    75.95,
+    37.68
+   ],
+   "sleeve arm0 (legacy art: cover band)": [
+    65.45,
+    75.95,
+    10.5
+   ],
+   "sleeve arm1 (clean art)": [
+    38.28,
+    76.97,
+    38.69
+   ],
+   "sleeve arm1 (legacy art: cover band)": [
+    65.97,
+    76.97,
+    11.0
+   ]
+  },
+  "m-right": {
+   "hem": [
+    407.0,
+    433.09,
+    26.09
+   ],
+   "neckline at centre (rise allowance .. neck art depth)": [
+    -4.31,
+    14,
+    18.31
+   ],
+   "shoe sole foot0": [
+    547,
+    553,
+    6
+   ],
+   "shorts cuff leg0": [
+    459,
+    478.14,
+    19.14
+   ],
+   "sleeve arm0 (clean art)": [
+    40.21,
+    80.34,
+    40.13
+   ],
+   "sleeve arm0 (legacy art: cover band)": [
+    61.84,
+    80.34,
+    18.5
+   ]
+  }
+ },
+ "runtime": {
+  "collarAllowU": 0.264,
+  "floorSitTubeEndU": 0.42,
+  "forearmCap": "clip of the folded forearm reaches re = radii.arm[i][1]*k past the elbow (avatar-foundation-skin.js forearmOverlay)",
+  "frontHairClip": {
+   "idleMarginU": 0.68,
+   "needU": 0.1,
+   "nodPeakMarginU": 0.4
+  },
+  "headDropU": {
+   "f": {
+    "back": 0,
+    "front": 0.15,
+    "profile": 0.88
+   },
+   "m": {
+    "back": 1.05,
+    "front": 0.22,
+    "profile": 0.75
+   }
+  },
+  "headScale": 0.88,
+  "seamTolerancePx": 3,
+  "seatedBreathRiseU": 0.14,
+  "sleeveCanvasHalfU": 4,
+  "sleeveCanvasPxPerU": 32,
+  "sources": {
+   "collarAllowU": "(nod-peak margin - required margin) * HEAD_SCALE",
+   "floorSitTubeEndU": "avatar-foundation-outfit.js seatedShorts floor tubes end",
+   "frontHairClip": "avatar-foundation.js FRONT_HAIR_CLIP comment (bob, measured on the render)",
+   "headDropU": "avatar-foundation.js VIEW_HEAD[sex][view][1]: the runtime head (and its hair) sits this far below the sheet head, so it covers the body this much further down",
+   "headScale": "avatar-foundation.js HEAD_SCALE",
+   "seatedBreathRiseU": "avatar-foundation.js SEATED_BREATH.rise",
+   "sleeveCanvas": "avatar-foundation-outfit.js sleeveTexture 256 px canvas, 32 px/u, +-4 u"
+  }
+ },
+ "seamTolerancePx": 3
+}

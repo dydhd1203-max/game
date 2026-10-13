@@ -16,11 +16,54 @@
     'assets/sd-heads-back-female.png', 'assets/sd-heads-back-male.png',
     'assets/sd-tops.png', 'assets/sd-bottoms.png', 'assets/sd-hood.png',
     'assets/pixel-pets-v2.png', 'assets/sd-shoes.png', 'assets/sd-shoes-parts.png', 'assets/angel-effect.png',
-    'assets/sd-wardrobe-wave.png', 'assets/sd-foundation-ref-neck.png', 'assets/sd-foundation-ref-shirt.png', 'assets/sd-foundation-ref-sleeves.png', 'assets/sd-foundation-ref-shorts.png', 'assets/sd-foundation-ref-shoes.png', 'assets/sd-foundation-ref-arms.png', 'assets/sd-foundation-ref-legs.png', ...maleSources
+    'assets/sd-wardrobe-wave.png', 'assets/sd-foundation-ref-neck.png', 'assets/sd-foundation-ref-arms.png', 'assets/sd-foundation-ref-legs.png',
+    'assets/sd-foundation-ref-arms-clean.png', 'assets/sd-foundation-ref-neck-clean.png', ...maleSources
   ]);
+  // Garment atlases (stage 3, reference body only): assets/sd-garment-<cat>-<shape>-<m|f>.png,
+  // shape keys may hold '_' (jean_skirt). Each record has its own bundle
+  // (assets/avatar-file-data-garment-<cat>-<shape>.js, named in the garment
+  // index) that adds its keys to one shared registry, QPAvatarGarmentFileData;
+  // a bundle resolves only once its own key is there.
+  const GARMENT_ATLAS = /^assets\/sd-garment-([a-z]+)-([a-z0-9_]+)-(m|f)\.png$/;
+  const garmentBundles = new Map();
+  function garmentBundle(key) {
+    const index = window.QPFoundationGarmentIndex;
+    if (index) for (const entry of Object.values(index.records || {})) if (entry.files && (entry.files.m === key || entry.files.f === key)) return entry.files.bundle;
+    const m = GARMENT_ATLAS.exec(key);
+    return m ? 'assets/avatar-file-data-garment-' + m[1] + '-' + m[2] + '.js' : null;
+  }
+  const bundleFor = key => key === 'assets/sd-wardrobe-wave.png' ? bundles.wardrobe : key.startsWith('assets/sd-foundation-') ? bundles.foundation : maleSources.has(key) ? bundles.male : bundles.original;
+  // Where a key's bytes come from on a local page: whether it is a bundled
+  // original, the bundle URL and the global it fills (pure; tools/verify-avatar-image-route.cjs).
+  function route(key) {
+    if (GARMENT_ATLAS.test(key)) return { original: true, url: new URL(garmentBundle(key), base).href, global: 'QPAvatarGarmentFileData', garment: true };
+    const bundle = bundleFor(key);
+    return { original: originals.has(key), url: bundle.url, global: bundle.global, garment: false };
+  }
 
+  function garmentSources(key, url) {
+    const data = window.QPAvatarGarmentFileData;
+    if (data && data[key]) return Promise.resolve(data);
+    let pending = garmentBundles.get(url);
+    if (!pending) {
+      pending = new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = url;
+        script.onload = () => { script.remove(); resolve(); };
+        script.onerror = () => { script.remove(); garmentBundles.delete(url); reject(new Error('퀴즈나라 폴더 전체를 압축 해제해 주세요. 옷 원화 파일이 없어요.')); };
+        document.head.appendChild(script);
+      });
+      garmentBundles.set(url, pending);
+    }
+    return pending.then(() => {
+      const loaded = window.QPAvatarGarmentFileData;
+      if (loaded && loaded[key]) return loaded;
+      throw new Error('옷 원화 파일을 확인해 주세요: ' + url);
+    });
+  }
   function fileSources(key) {
-    const bundle = key === 'assets/sd-wardrobe-wave.png' ? bundles.wardrobe : key.startsWith('assets/sd-foundation-') ? bundles.foundation : maleSources.has(key) ? bundles.male : bundles.original;
+    if (GARMENT_ATLAS.test(key)) return garmentSources(key, new URL(garmentBundle(key), base).href);
+    const bundle = bundleFor(key);
     if (window[bundle.global]) return Promise.resolve(window[bundle.global]);
     if (!bundle.pending) bundle.pending = new Promise((resolve, reject) => {
       const script = document.createElement('script');
@@ -52,7 +95,7 @@
     const absolute = new URL(url, document.baseURI);
     const key = 'assets/' + decodeURIComponent(absolute.pathname.split('/').pop());
     const expected = new URL(key, base);
-    const original = originals.has(key) && absolute.origin === expected.origin && absolute.pathname === expected.pathname;
+    const original = (originals.has(key) || GARMENT_ATLAS.test(key)) && absolute.origin === expected.origin && absolute.pathname === expected.pathname;
     // Only substitute bundled originals; custom atlases retain their source.
     if (location.protocol === 'file:' && original) {
       const data = await fileSources(key);
@@ -75,5 +118,5 @@
     }
     return img;
   }
-  window.QPAvatarImage = Object.freeze({load});
+  window.QPAvatarImage = Object.freeze({load, route});
 })();
