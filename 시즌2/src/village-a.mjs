@@ -1,4 +1,5 @@
 import {VILLAGE_SITES} from './content.mjs';
+import {appendWorkshopModel,WORKSHOP_MODEL_INFO} from './workshop-model.mjs';
 
 // Approved A: dawn workshop village. All art is authored once, baked to vertex
 // colours and merged per landmark. No extra light, shadow map, texture fetch,
@@ -381,115 +382,15 @@ export function buildVillageA(THREE, scene, resources) {
       if(i%4===0&&Math.sin(a)<.6)foliage(Math.cos(a)*(r-1.03),Math.sin(a)*(r-1.03),.94,.9+(i%3)*.2);
     }
   }
-  // Workshop: rounded plaster volume, timber frame, curved tile roof and an
-  // exposed glowing forge. Every solid part remains within radius six.
-  atSite('workshop',.25);footprint(6);contact(0,-.15,5.35,4.6,.23);contact(-1,3.5,3.1,1.75,.32);
-  softBox(0,.25,0,8.9,.5,7.9,C.stone,.18);
-  softBox(0,2.1,-.25,7.9,3.5,5.8,C.cream,.2);
-  softBox(0,5.22,-.48,7.2,2.9,5.5,C.pale,.18);
-  softBox(0,3.76,-.35,8.1,.33,6.2,C.honey,.08);
-  softBox(0,6.65,-.48,7.4,.24,5.65,C.wood,.06);
-  for(const x of [-3.25,0,3.25])beam([x,.45,2.48],[x,6.6,2.48],.27,C.wood);
-  for(const side of [-1,1]){
-    beam([side*3.85,.5,-2.1],[side*3.85,3.5,-2.1],.27,C.wood);
-    beam([side*3.65,3.95,1.8],[side*3.65,6.6,-1.9],.16,C.honey);
-  }
-  roof(0,6.75,-.48,8.2,6.85,2.65);
-  for(let row=0;row<3;row++)for(let i=0;i<18;i++){
-    const a=(i+(row%2)*.5)*Math.PI/9,co=Math.cos(a),si=Math.sin(a);
-    const x=Math.sign(co)*Math.pow(Math.abs(co),.5)*4.01,z=-.25+Math.sign(si)*Math.pow(Math.abs(si),.5)*2.98;
-    softBox(x,.37+row*.24,z,.68,.23,.23,[0xa99a7d,0xbaac8b,0xc9b897][(i+row)%3],.04,Math.atan2(-si,co));
-  }
-  for(const side of [-1,1]){
-    beam([side*3.87,1.04,-1.9],[side*3.87,3.45,1.95],.19,C.wood);
-    beam([side*3.50,4.03,-1.8],[side*3.5,6.45,1.8],.16,C.honey);
-    localFrame(side*3.83,0,-.1,side*Math.PI/2,()=>windowArch(0,1.5,0,1.15,1.48));
-    localFrame(side*3.49,0,-.4,side*Math.PI/2,()=>windowArch(0,4.62,0,.94,1.35));
-  }
-  // A darker fascia and timber corbels form contact shade beneath the eaves.
-  softBox(0,6.66,-.48,7.5,.16,5.7,0x5f452b,.04);
-  for(const x of [-3.2,-1.6,1.6,3.2])beam([x,6.13,2.24],[x,6.65,2.64],.15,C.honey);
-  // Small lower lean-to roofs and warm wooden corner brackets give the facade
-  // depth without using another whole stacked cottage.
-  for(const side of [-1,1]){
-    beam([side*3.2,2.8,2.7],[side*3.2,3.6,3.6],.16,C.wood);
-    windowArch(side*2.45,4.3,2.32,1.1,1.55);
-  }
-  door(2.25,.52,2.65,1.3,2.65);
-  // Forge recessed dark arch, thick stone cheeks and a low chimney.
-  add(arch(2.45,3.1,.28),-1.36,.42,2.61,1,1,1,C.lightStone);
-  add(arch(1.83,2.63,.06),-1.36,.45,2.96,1,1,1,0x3c332c);
-  softBox(-1.36,.82,3.03,2.13,.32,1.05,C.stone,.09);
-  for(let i=0;i<5;i++)add(shapes.rock,-1.95+i*.3,1.12,3.17,.35,.19,.35,0xe59837,0,0,0,true);
-  const flame=lathe([[0,0],[.19,.05],[.29,.22],[.17,.55],[.08,.84],[0,1.02]],8);
-  add(flame,-1.38,1.11,3.09,1,1,1,0xffc66a,0,0,0,true);
-  add(flame,-1.67,1.11,3.21,.5,.62,.5,0xffe0a0,0,0,0,true);
-  softBox(-2.45,7.75,-1.8,1.0,3.8,1.0,C.lightStone,.14);
-  for(const y of [6.25,7,7.7,8.4,9.1])softBox(-2.45,y,-1.8,1.07,.13,1.07,0xb1a086,.03);
-  softBox(-2.45,9.69,-1.8,1.4,.27,1.4,C.stone,.08);
-  box(-2.45,9.82,-1.8,.75,.015,.75,C.dark);
-  // Anvil sign, its silhouette readable even without a generated text texture.
-  softBox(.2,3.62,3.18,3.2,1.25,.22,C.honey,.1);
-  grain(.2,3.62,3.307,3.1,1.12);anvil(.14,3.3,3.37,.6);
-  for(const x of [-1.15,1.5])beam([x,4.08,2.65],[x,4.12,3.28],.1,C.iron);
-  anvil(.05,.44,4.3,1.04);
-  bench(-2.9,1.32,3.55,1.65,.75);hammer(-2.6,1.68,3.56,.65,.3);
-  lantern(1.4,2.65,3.38,.63);lantern(-3.1,2.8,3.17,.62);
-  awning(2.5,3.25,2.3,2.2,1.7);
-  barrel(3.25,3.65,.68);crate(2.7,.18,4.2,.68);
-  shrub(-3.7,2.9,.65);
-  for(const [x,z] of [[-4.4,2.2],[-3.4,4.2],[3.8,3.55],[-4.5,-2.5]]){shrub(x,z,.58);grass(x+.2,z+.2,.8);}
-  for(let i=0;i<3;i++)hammer(-3.46+i*.27,1.95,2.8,.47,i*.2);
-  bench(-3.35,1.14,1.2,1.15,.67);crate(-3.45,.15,.1,.56);
-  bench(2.25,1.19,3.55,2.0,.75);
-  for(let i=0;i<3;i++){
-    const jar=lathe([[0,0],[.14,0],[.21,.12],[.19,.3],[.10,.35],[.10,.44],[0,.44]],8);
-    add(jar,1.59+i*.38,1.31,3.5,1,1,1,[0x73968d,0xb19a65,0x8999a4][i]);
-    cyl(1.59+i*.38,1.78,3.5,.23,.08,.23,C.honey);
-  }
-  for(let i=0;i<4;i++){
-    const x=-3.5+(i%2)*.38,y=.42+Math.floor(i/2)*.32;
-    cyl(x,y,2.2,.33,1.1,.33,C.wood,Math.PI/2);
-    cyl(x,y,2.78,.3,.04,.3,C.honey,Math.PI/2);
-    add(shapes.ring,x,y,2.81,.15,.15,.15,0x705034);
-  }
-  for(const [x,y] of [[2.8,2.13],[3.1,2.4]]){hammer(x,y,2.77,.63,.15);ball(x,2.8,2.81,.08,.08,.04,C.iron);}
-  // Layered worn stone terrace, kept wholly inside the reserved shop plot.
-  for(let row=0;row<3;row++)for(let i=0;i<4;i++)softBox(-1.9+i*.79,.29-row*.075,3.9+row*.4,.77,.22, .54,[0xb6a286,0xc8b396,0xd4c09f][(i+row)%3],.055);
-  // Step stones sit inside the circular workshop footprint, level with the
-  // walkable ground at the edge so the visible facade matches collision.
-  for(let i=0;i<5;i++)softBox(-1.9+i*.85,.1,4.78,.8,.18,.7,C.lightStone,.06);
-
-  // Side wings, a hanging work apron and stacked workshop goods turn the
-  // plaster cylinder into a working frontage with a deep silhouette.
-  leanRoof(-3.6,3.87,-.55,2.25,3.9);
-  localFrame(-3.6,0,.7,-Math.PI/2,()=>{
-    shelf(0,.28,0,2.6);
-    bench(0,1.23,.75,2.5,.82);
-    anvil(-.72,1.34,.7,.46);hammer(.32,1.59,.74,.57,-.3);
-    jar(.8,1.37,.7,.55,0x7c9990);
-    lantern(-1.15,2.87,.85,.59);
-  });
-  // A short tiled wing steps down towards the market street instead of a
-  // second detached house. Lower additions remain wholly inside radius six.
-  leanRoof(3.43,3.84,-.5,2.0,2.82);
-  shelf(3.9,.35,.2,1.75);
-  barrel(3.85,2.82,.72);sack(4.35,.16,1.85,.86);sack(4.55,.16,.7,.67);
-  flowerPot(-3.93,3.49,.62);flowerPot(3.62,4.01,.65);
-  flowerPot(-4.84,.19,.75);flowerPot(4.67,-.5,.7);
-  basket(-2.85,.16,4.35,.73,false);splitLogs(-2.6,.32,3.7,7,.76);
-  for(let i=0;i<3;i++){hammer(-3.56+i*.37,2.4,3.01,.78,(i-1)*.13);}
-  // Open tool rail and hanging cloth are visible at eye height, not lost among
-  // grass at the feet of the building.
-  beam([-3.8,2.91,2.94],[-2.25,2.91,2.94],.12,C.wood);
-  const apron=geometry([-2.24,3.18,2.94,-1.54,3.18,2.94,-2.30,1.98,3.12,-1.49,1.92,3.12],[0,2,1,1,2,3,0,1,2,1,3,2]);
-  add(apron,0,0,0,1,1,1,C.blue);
-  box(-1.9,2.44,3.13,.57,.14,.045,0x9f884e);
-  // Window flower boxes give the second storey smaller, warmer shapes.
-  for(const side of [-1,1]){
-    softBox(side*2.45,4.14,2.69,1.54,.3,.58,C.honey,.06);
-    for(let i=0;i<5;i++)ball(side*2.45+(i-2)*.23,4.36+(i%2)*.12,2.7,.39,.3,.42,[0x758b48,0x899c51,0xb6af58][i%3]);
-  }
+  // Authored in Blender/3D Jutsu and packed at build time. The complete
+  // workshop joins the existing opaque batch, retaining the same plot/route.
+  atSite('workshop',.25);
+  bins.set(current,{positions:[],colors:[],uvs:[]});
+  appendWorkshopModel(bins.get(current),origin);
+  footprint(6);contact(0,-.15,5.35,4.6,.23);contact(-1,3.5,3.1,1.75,.32);
+  // Reserve the removed procedural workshop's random sequence. Unrelated
+  // wagon, market, assembly and garden vertices remain exactly as before.
+  for(let i=0;i<804;i++)rand();
 
   // A parked travelling fortress: four big spoked wheels, curved canvas hood,
   // high luggage deck and iron-banded timber. Its width/depth fit radius six.
@@ -835,5 +736,5 @@ export function buildVillageA(THREE, scene, resources) {
     triangles+=b.positions.length/9;bytes+=g.attributes.position.array.byteLength+g.attributes.color.array.byteLength;
   }
   for(const g of source)g.dispose();
-  return {meshes,stats:Object.freeze({landmarks:6,batches:meshes.length,opaqueBatches:bins.size,contactBatches:contactBins.size,triangles,vertexBytes:bytes,materials:2,textures:1,textureBytes:grainPixels.byteLength,lights:0,perFrameUpdates:0})};
+  return {meshes,stats:Object.freeze({landmarks:6,batches:meshes.length,opaqueBatches:bins.size,contactBatches:contactBins.size,triangles,vertexBytes:bytes,materials:2,textures:1,textureBytes:grainPixels.byteLength,lights:0,perFrameUpdates:0,workshop:Object.freeze({...WORKSHOP_MODEL_INFO,landmarkTriangles:bins.get('workshop').positions.length/9,runtimeBatches:0,runtimeLights:0,mergedInto:'village-a:workshop'})})};
 }
