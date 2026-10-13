@@ -1,0 +1,93 @@
+{
+  "build": "s2-001",
+  "environment": "hidden Chromium; software WebGL; 1280×800; DPR 1",
+  "scope": "UI entry and movement are real input. Stress/boss images use explicitly synthetic fixtures.",
+  "notMeasured": [
+    "21 physical clients",
+    "real LG gram FPS",
+    "sound quality by listening"
+  ],
+  "checks": [
+    "시즌1 원본 모자·얼굴·의상 ID의 입장 및 대기실 변경",
+    "실제 입장 양식 → 혼자 연습 대기실",
+    "W 키가 실제 캐릭터 위치를 이동; 운영체제 커서 잠금 없음",
+    "교사 시작 → 안전한 정박 마을",
+    "실제 저장 → 키보드 이동 → 불러오기: 마을 체크포인트 위치 복구",
+    "사용자 입장 동작 후 실제 Web Audio 잠금 해제",
+    "배경음·효과음 개별 슬라이더가 실제 오디오 음량에 반영",
+    "출격 → 숲 입구와 전투 UI",
+    "보조 fixture: 봉화·서로 다른 두 타워·보스 돌진 예고 렌더",
+    "21명·30탑·적 40 synthetic 부하: 실제 렌더 통계, 안정 구간 자산 누적 없음",
+    "마을·숲·보스 장면 전환에서 오디오 트랙·정리 대기열 상한 유지",
+    "시즌1 저장·그래픽 설정 sentinel 보존",
+    "페이지 실행 오류 없음"
+  ],
+  "screenshots": [
+    "03-village-default-camera.png",
+    "06-boss-warning-fixture.png"
+  ],
+  "renderer": {
+    "forestEntry": {
+      "calls": 91,
+      "triangles": 170076,
+      "geometries": 34,
+      "textures": 9,
+      "pixelRatio": 0.85,
+      "aaSamples": 4
+    },
+    "towers": {
+      "calls": 89,
+      "triangles": 130514,
+      "geometries": 35,
+      "textures": 10,
+      "pixelRatio": 0.85,
+      "aaSamples": 4
+    },
+    "boss": {
+      "calls": 60,
+      "triangles": 89422,
+      "geometries": 36,
+      "textures": 10,
+      "pixelRatio": 0.85,
+      "aaSamples": 4
+    },
+    "syntheticStress": {
+      "players": 21,
+      "towers": 30,
+      "enemies": 40,
+      "before": {
+        "calls": 112,
+        "triangles": 410368,
+        "geometries": 37,
+        "textures": 30,
+        "pixelRatio": 0.85,
+        "aaSamples": 4
+      },
+      "after": {
+        "calls": 112,
+        "triangles": 410368,
+        "geometries": 37,
+        "textures": 30,
+        "pixelRatio": 0.85,
+        "aaSamples": 4
+      }
+    }
+  },
+  "errors": [],
+  "entry": "시즌2/배포용/index.html",
+  "audio": {
+    "made": 81,
+    "ended": 76,
+    "dropped": 0,
+    "peakVoices": 12,
+    "effects": 0,
+    "voices": 5,
+    "tracks": 1,
+    "cleanupChains": 0,
+    "graphNodes": 13,
+    "needsGesture": false,
+    "state": "running"
+  },
+  "result": "passed",
+  "fileProtocol": "관리형 Chromium의 정책으로 file:// 이동 차단. HTTP 독립 실행본 검사는 통과."
+}

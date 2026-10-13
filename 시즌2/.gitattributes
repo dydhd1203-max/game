@@ -1,0 +1,4 @@
+# Preserve upstream/generated shader strings without hand-editing whitespace.
+vendor/three.module.js -whitespace linguist-vendored
+배포용/index.html -whitespace linguist-generated
+src/avatar-season1.mjs linguist-generated
