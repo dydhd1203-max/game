@@ -279,6 +279,20 @@ export function applyAction(s, id, action, context = {}) {
   }
 }
 
+// Earlier art builds used different village footprints. Restore saved players
+// to the clear gathering area only if a moved landmark would trap them. Combat
+// locations, inventories, progression and valid village positions stay intact.
+export function restoreVillagePositions(s) {
+  if (!['lobby','village'].includes(s.phase)) return 0;
+  let moved = 0;
+  for (const p of Object.values(s.players)) {
+    if (walkable(p.x,p.z,PLAYER_RADIUS) && p.z >= -9) continue;
+    p.x=SPAWN.x+(moved%7-3)*1.1; p.z=SPAWN.z+Math.floor(moved/7)*1.1;
+    moved++;
+  }
+  return moved;
+}
+
 function allowed(s, x, z, radius, ignoreTowers = false) {
   if (!walkable(x, z, radius)) return false;
   if ((s.phase === 'lobby' || s.phase === 'village') && z < -9) return false;

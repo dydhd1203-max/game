@@ -1,5 +1,7 @@
 import * as THREE from '../vendor/three.module.js';
 import {createSeason1Avatars} from './avatar-season1.mjs';
+import {buildVillageA} from './village-a.mjs';
+import {createBoarBoss} from './boar-boss.mjs';
 import {TEAM_COLORS, ZONES, OBSTACLES, TOWERS, BEACON, GATE} from './content.mjs';
 
 // Season 1 (106): bpush/bbuild's shared geometry, per-instance tint and spatial
@@ -106,12 +108,7 @@ export function createScene(canvas) {
     const mesh=new THREE.Mesh(g,pathMat);scene.add(mesh);
   }
   ribbon(35,-94,5.4,z=>z< -12?Math.sin((z+10)*.092)*3.3:0);
-  part('cylinder',0,-.035,15,26,.1,26,0xd8caa7);
-  part('cylinder',0,.02,15,19,.08,19,0xe1d6b5);
-  part('ring',0,.07,15,21,21,.14,0xf1e5c9,0,-Math.PI/2);
-  // Radial plaza stones have broad smooth borders instead of noisy tiny details.
-  for(let i=0;i<44;i++){const a=i*Math.PI*2/44;part('cylinder',Math.cos(a)*10.8,.02,15+Math.sin(a)*10.8,1.1,.13,.67,0xb5baa6,a);}
-  for(let z=-4;z<34;z+=2.1)for(const x of [-3.3,0,3.3])part('cylinder',x,.045,z,2.4,.1,1.55,z%3?0xddcfaf:0xcabd9d,rand()*.3);
+  const villageArt=buildVillageA(THREE,scene,resources);
   part('cylinder',0,-.02,-115,59,.15,42,0xaab38d);
   part('cylinder',0,.005,-115,49,.08,35,0xc2bfa1);
   part('ring',0,.04,-115,45,34,1,0xded0a8,0,-Math.PI/2);
@@ -126,54 +123,8 @@ export function createScene(canvas) {
     const mesh=new THREE.Mesh(g,mat);mesh.position.set(x,y,z);mesh.rotation.y=yaw;scene.add(mesh);
     if(post)part('cylinder',x,y/2,z,.2,y,.2,palette.wood);
   }
-  function cottage(x,z,r,tint,yaw,label){
-    // Every cottage stays inside its circular collision footprint.
-    const p=(sh,dx,y,dz,sx,sy,sz,c,ry=0,rx=0,rz=0)=>localPart(part,sh,x,z,yaw,dx,y,dz,sx,sy,sz,c,ry,rx,rz);
-    p('cylinder',0,.15,0,r*1.91,.4,r*1.91,0x8b998a);
-    p('cylinder',0,2.08,0,r*1.63,3.85,r*1.63,tint);
-    p('cylinder',0,.45,0,r*1.69,.65,r*1.69,0xb3af95);
-    p('roof',0,3.85,0,r*.93,3.1,r*.93,0x7b9c97);
-    p('roof',0,3.6,0,r*.95,.38,r*.95,0x465f58);
-    p('ball',0,7.6,0,.65,.65,.65,0xe2bb6b);
-    p('cylinder',-1.8,6.2,.4,.75,2.4,.75,0xb8a794);
-    p('cylinder',-1.8,7.42,.4,1,.22,1,0x796f61);
-    p('ball',0,1.25,-r*.79,2.3,2.9,.36,0x745641);
-    p('box',0,.78,-r*.8,2.15,1.55,.3,0x745641);
-    p('ball',.66,1.08,-r*.84,.19,.19,.12,0xfbd889);
-    p('cylinder',0,.15,-r*.83,3.4,.3,2.1,0xb5b5a0);
-    for(const dx of [-2.6,2.6]){
-      p('ball',dx,2.24,-r*.66,1.72,1.72,.3,0x5b6554);
-      p('ball',dx,2.24,-r*.69,1.42,1.42,.3,0xffdb90);
-      p('box',dx,2.24,-r*.73,.12,1.4,.12,0x80694c);
-      p('box',dx,2.24,-r*.73,1.4,.12,.12,0x80694c);
-      p('box',dx,1.29,-r*.66,1.9,.42,.8,0xa17b55);
-      for(let k=0;k<4;k++){p('ball',dx-.6+k*.4,1.6,-r*.71,.65,.48,.7,0x60835b);p('tiny',dx-.6+k*.4,1.84,-r*.76,.28,.28,.28,k%2?0xef9d89:0xf4d18b);}
-    }
-    for(let i=0;i<10;i++){const a=i*Math.PI*2/10;p('cylinder',Math.sin(a)*r*.81,2.02,Math.cos(a)*r*.81,.15,3.5,.15,0xb09b75);}
-    if(label){const dx=-Math.sin(yaw)*r*.92,dz=-Math.cos(yaw)*r*.92;sign(label,x+dx,3.05,z+dz,.67,yaw,false);}
-  }
-  cottage(-17,12,6,0xe6cfab,-Math.PI/2,'타워 작업장');
-  cottage(17,12,6,0xecd7ba,Math.PI/2,'원정 보급소');
-  cottage(-17,27,5,0xd9c9b7,-Math.PI/2,'햇살 여관');
-  cottage(17,27,5,0xe7c7b5,Math.PI/2,'마을 쉼터');
-  // Tool bench and small village gardens lie at the house edges.
-  part('box',-11.8,1.2,8,1.4,.26,3.2,0x9e7651);for(const z of [6.8,9.2])part('cylinder',-11.8,.58,z,.16,1.1,.16,0x6b6558);
-  part('crystal',-11.8,1.92,8,1,1.4,1,0x9ddbe6);part('cylinder',-11.8,1.42,8,1.1,.18,1.1,0x617986);
-  for(const x of [-7,7]){
-    part('cylinder',x,.32,24,2.6,.7,2.6,0xb7af91);part('ball',x,.85,24,2.9,1.3,2.9,0x71986a);
-    for(let k=0;k<8;k++){const a=k*Math.PI/4;part('tiny',x+Math.sin(a),1.28,24+Math.cos(a),.38,.35,.38,k%2?0xffdc84:0xf7b59d);}
-  }
-  // Banners lead out of the plaza into the expedition, never across the road.
-  for(const x of [-7,7]){
-    part('cylinder',x,3,-7,.24,6,.24,0x786b51);
-    part('cone',x,6.22,-7,.64,.75,.64,0xe0c27b);
-    part('box',x,4.52,-7,1.6,2.3,.12,0x739eaf);
-    part('crystal',x,4.6,-7.1,.48,.7,.1,0xf9dfa2);
-  }
-  sign('새벽 숲 원정길',0,5.35,-7,1.15,0,false);
-  part('cylinder',0,5.46,-7,.28,8.4,.28,0x796e53,0,0,Math.PI/2);
-  for(const x of [-4.1,4.1])part('cylinder',x,2.8,-7,.25,5.6,.25,0x796e53);
-
+  // Preserve the forest layout: the old plaza consumed 57 random values.
+  for(let i=0;i<57;i++)rand();
   function tree(x,z,h,tint){
     part('cylinder',x,h*.33,z,h*.12,h*.68,h*.12,palette.bark,rand()*.4,0,(rand()-.5)*.13);
     for(let j=0;j<3;j++){
@@ -216,7 +167,7 @@ export function createScene(canvas) {
     part('ball',side*8,5.75,GATE.z,3.3,1.2,3,0xc0c4a4);
     part('ring',side*8,3.5,GATE.z+.02,1.2,1.2,1.2,0xcce4bd);
   }
-  sign('숲길 파수꾼',0,6.4,GATE.z,1.2,0,false);
+  sign('가시등 멧돼지',0,6.4,GATE.z,1.2,0,false);
   part('cylinder',0,6.3,GATE.z,.45,16,.45,0x839581,0,0,Math.PI/2);
   part('cylinder',BEACON.x,.16,BEACON.z,4.4,.32,4.4,0x9ba89c);
   part('cylinder',BEACON.x,.6,BEACON.z,2.1,.9,2.1,0xc0c5ad);
@@ -251,6 +202,7 @@ export function createScene(canvas) {
   const warning=new THREE.Mesh(warnGeo,warnMat);warning.rotation.x=-Math.PI/2;scene.add(warning);warning.visible=false;
   const localMat=new THREE.MeshBasicMaterial({color:0xffe4a5,transparent:true,opacity:.8,depthWrite:false});resources.add(localMat);
   const localRing=new THREE.Mesh(geo.ring,localMat);localRing.rotation.x=-Math.PI/2;localRing.scale.set(1.8,1.8,1.8);scene.add(localRing);
+  const boar=createBoarBoss(THREE,scene,resources);
   const avatars=createSeason1Avatars(THREE,scene,{scale:.70,groundY:.08,groundAt:()=>.08});
   const frustum=new THREE.Frustum(),projection=new THREE.Matrix4(),sphere=new THREE.Sphere();
   function visible(x,z,r=3){sphere.center.set(x,1.4,z);sphere.radius=r;return frustum.intersectsSphere(sphere);}
@@ -305,26 +257,6 @@ export function createScene(canvas) {
     if(t.hp<t.maxHp){const ratio=Math.max(0,t.hp/t.maxHp);dyn('box',x,3.57,z,2,.12,.08,0x65736b);dyn('box',x-(1-ratio),3.59,z-.05,2*ratio,.13,.08,ratio>.4?0xa7d29d:0xeeac88);}
     if(pack)dyn('ring',x,.09,z,3.1,3.1,3.1,0xffe2a6,0,-Math.PI/2);
   }
-  function guardian(b,time){
-    if(!b||b.hp<=0||!visible(b.x,b.z,10))return;
-    const x=b.x,z=b.z,yaw=(b.yaw||0)+Math.PI,bob=b.phase==='charge'?Math.sin(time*15)*.14:Math.sin(time*1.8)*.06;
-    const pp=(sh,dx,y,dz,sx,sy,sz,c,ry=0,rx=0,rz=0)=>localPart(dyn,sh,x,z,yaw,dx,y+bob,dz,sx,sy,sz,c,ry,rx,rz);
-    shadow(x,z,7.1);pp('ball',0,2.5,.3,4.5,4.7,3.1,0x607d65);pp('ball',0,2.25,-.68,3.4,3.4,1.4,0xaaa68a);
-    pp('ball',0,4.65,-.64,2.9,2.7,2.32,0x7b9374);pp('ball',0,4.16,-1.68,2.23,1.08,.97,0xb0b19a);
-    for(const side of [-1,1]){
-      pp('capsule',side*1.02,.8,.14,1.32,1.35,1.33,0x748a70);pp('ball',side*1.01,.39,-.29,1.64,.8,1.94,0x949e85);
-      pp('ball',side*2.18,3.4,.04,2.05,2.1,2.18,0x85927b);pp('capsule',side*2.39,2.19,-.1,1.24,1.8,1.3,0x809079);pp('ball',side*2.51,1.24,-.52,1.78,1.7,1.92,0xa3ae98);
-      pp('ball',side*.57,4.86,-1.697,.65,.28,.2,b.phase==='recover'?0xdce4ba:0xffd17a);
-      pp('box',side*.6,5.15,-1.63,.93,.22,.23,0x5b725c,0,0,-side*.15);
-      pp('cylinder',side*1.05,6.03,-.15,.32,2.1,.32,0x74664c,0,0,-side*.38);
-      pp('cylinder',side*1.68,6.53,-.12,.24,1.2,.24,0x74664c,0,0,side*.7);
-      pp('ball',side*1.16,6.9,-.22,1.22,.76,1.05,0xa9b27e);
-      pp('ball',side*2.27,4.19,.04,1.59,.55,1.78,0xa1b284);
-      for(let j=0;j<3;j++)pp('tiny',side*(2.1+j*.15),4.5-j*.05,.15,.23,.4,.25,0xebd995);
-    }
-    pp('crystal',0,3.1,-1.53,.76,1.2,.4,b.phase==='recover'?0xeffaca:0xe6b575);
-    pp('box',0,4,-2.15,.75,.12,.05,0x626954);
-  }
   function updateEvents(events,dt){
     // IDs prevent replay when ten-Hz snapshots repeat the same event tail.
     let found=lastEvent==='',fresh=[];
@@ -376,10 +308,14 @@ export function createScene(canvas) {
     const towers=state?.towers||[];for(let i=0;i<Math.min(80,towers.length);i++)tower(towers[i],elapsed);
     for(const t of towers){if(t.state==='carried'){const carrier=players[t.carrier];if(carrier&&visible(carrier.x,carrier.z))localPart(dyn,'capsule',carrier.x,carrier.z,carrier.yaw||0,0,.68,.34,.48,.5,.4,t.type==='ice'?0x9edbe4:0xc19b6b);}}
     const enemies=state?.enemies||[];for(let i=0;i<Math.min(100,enemies.length);i++)zombie(enemies[i],elapsed);
-    guardian(state?.boss,elapsed);
+    const boss=state?.boss;
+    const bossVisible=!!boss&&boss.hp>0&&visible(boss.x,boss.z,10);
+    boar.update(boss,elapsed,bossVisible);
+    if(bossVisible)shadow(boss.x,boss.z,7.1);
     const beaconOn=!!state?.beacon;
-    dyn('crystal',BEACON.x,3.04+Math.sin(elapsed*1.6)*.08,BEACON.z,1.2,1.8,1.2,beaconOn?0xffe6a1:0x9ac6cb,elapsed*.3);
+    if(visible(BEACON.x,BEACON.z,6)){dyn('crystal',BEACON.x,3.04+Math.sin(elapsed*1.6)*.08,BEACON.z,1.2,1.8,1.2,beaconOn?0xffe6a1:0x9ac6cb,elapsed*.3);
     if(beaconOn){dyn('ring',BEACON.x,3,BEACON.z,3,3,3,0xffe4a7,0,-Math.PI/2);dyn('tiny',BEACON.x,4.8,BEACON.z,.36,.36,.36,0xffecc6,0,0,0,false);}
+    }
     for(const {zone,ring} of zoneObjects){ring.visible=!village;ring.material.opacity=zone.stage<=(state?.stage||0)?.45:.13;ring.material.color.setHex(zone.stage<=(state?.stage||0)?0x81c9d8:0x869896);}
     const b=state?.boss;warning.visible=!!b&&(b.phase==='warn'||b.phase==='charge');
     if(warning.visible){const dx=b.dx??Math.sin(b.yaw||0),dz=b.dz??Math.cos(b.yaw||0),len=b.chargeLength||18;warning.position.set(b.x+dx*len/2,.09,b.z+dz*len/2);warning.rotation.set(-Math.PI/2,Math.atan2(-dx,-dz),0,'YXZ');warning.scale.set(b.chargeWidth||5.2,len,1);warnMat.opacity=b.phase==='charge'?.17:.24+Math.sin(elapsed*12)*.1;}
@@ -397,7 +333,7 @@ export function createScene(canvas) {
     renderer.render(scene,camera);
   }
   function pick(clientX,clientY){const bounds=canvas.getBoundingClientRect();if(!bounds.width||!bounds.height)return null;pointer.set((clientX-bounds.left)/bounds.width*2-1,-(clientY-bounds.top)/bounds.height*2+1);raycaster.setFromCamera(pointer,camera);const p=raycaster.ray.intersectPlane(plane,hit);return p?{x:p.x,z:p.z}:null;}
-  function stats(){return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,pixelRatio:renderer.getPixelRatio(),aaSamples};}
-  function dispose(){avatars.dispose();for(const resource of resources)resource.dispose?.();resources.clear();renderer.dispose();sprites.clear();effectPool.length=0;}
+  function stats(){return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,pixelRatio:renderer.getPixelRatio(),aaSamples,art:{village:villageArt.stats,boar:boar.stats}};}
+  function dispose(){avatars.dispose();boar.dispose();for(const resource of resources)resource.dispose?.();resources.clear();renderer.dispose();sprites.clear();effectPool.length=0;}
   return {render,pick,stats,dispose};
 }

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createState, addPlayer, setOnline, applyAction, placementError, step} from '../src/sim.mjs';
-import {BEACON, GATE} from '../src/content.mjs';
+import {createState, addPlayer, setOnline, applyAction, placementError, step, restoreVillagePositions} from '../src/sim.mjs';
+import {BEACON, GATE, OBSTACLES, walkable} from '../src/content.mjs';
 
 const teacher = {teacher:true};
 function room(n=1) {
@@ -88,7 +88,8 @@ test('movement normalizes input, clamps dt, rejects nonfinite values, and respec
   step(s,NaN,{p0:{mx:NaN,mz:Infinity}});assert.equal(s.time,old.time);
   step(s,.1,{p0:{mx:NaN,mz:Infinity,yaw:NaN}});assert.equal(p.x,old.x);assert.equal(p.z,old.z);assert.equal(p.yaw,old.yaw);
   Object.assign(p,{x:0,z:-8.9});tick(s,1,{p0:{mz:-1}});assert.ok(p.z>=-9);
-  Object.assign(p,{x:-10.3,z:12});tick(s,1,{p0:{mx:-1}});assert.ok(p.x>-10.36,'round house collider blocks walk');
+  const workshop=OBSTACLES[0];
+  Object.assign(p,{x:workshop.x+workshop.r+.7,z:workshop.z});tick(s,1,{p0:{mx:-1}});assert.ok(p.x>workshop.x+workshop.r+.64,'visible workshop perimeter blocks walk');
   act(s,'start',{},'p0',teacher);act(s,'depart',{},'p0',teacher);s.enemies=[];
   Object.assign(p,{x:0,z:-68.9});tick(s,1,{p0:{mz:-1}});assert.ok(p.z>=-69);
   Object.assign(p,BEACON);act(s,'interact');s.enemies=[];
@@ -310,4 +311,18 @@ for(const count of [1,21]) test(`${count}-player campaign clears from lobby usin
   assert.equal(s.phase,'victory');assert.ok(phases.has('boss'));
   assert.equal(s.beacon,true);assert.ok(s.events.length<=40);
   assert.equal(act(s,'return',{},'p0',teacher).ok,true);assert.equal(s.phase,'village');
+});
+
+test('older village saves escape moved landmarks without changing valid positions or progress',()=>{
+  const s=room(21);s.phase='village';s.supplies=777;
+  for(let i=0;i<20;i++){s.players['p'+i].x=-8;s.players['p'+i].z=9;}
+  const safe=s.players.p20;safe.x=0;safe.z=16;const before=structuredClone(safe);
+  const appearances=Object.values(s.players).map(p=>[p.id,p.hat,p.face,p.clothes,p.hp]);
+  assert.equal(restoreVillagePositions(s),20);
+  for(const p of Object.values(s.players))assert.ok(walkable(p.x,p.z,.65));
+  assert.deepEqual(safe,before);assert.equal(s.supplies,777);
+  assert.deepEqual(Object.values(s.players).map(p=>[p.id,p.hat,p.face,p.clothes,p.hp]),appearances);
+  assert.equal(restoreVillagePositions(s),0,'restoration is idempotent');
+  s.phase='boss';s.players.p0.x=-8;s.players.p0.z=9;const combat=structuredClone(s);
+  assert.equal(restoreVillagePositions(s),0);assert.deepEqual(s,combat,'combat coordinates are never rewritten');
 });

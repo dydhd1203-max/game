@@ -264,9 +264,15 @@ export function createAudio(options = {}) {
       case 'beacon':
         [62, 69, 74, 78].forEach((n, i) => tone(hz(n), 0.25, 0.08, i * 0.13, {type:'wood', release:0.2})); break;
       case 'warn':
-        tone(294, 0.16, 0.15, 0, {type:'wood', release:0.09}); tone(440, 0.20, 0.14, 0.26, {type:'wood', release:0.09}); break;
+        // Keep the two-note warning readable; the boar snorts and scrapes twice
+        // inside the 1.5-second telegraph. Five bounded voices, no hoof timer.
+        tone(294, 0.16, 0.15, 0, {type:'wood', release:0.09}); tone(440, 0.20, 0.14, 0.26, {type:'wood', release:0.09});
+        puff(0.20, 0.12, 900); puff(0.14, 0.08, 1550, 0.44); puff(0.17, 0.07, 1200, 0.70); break;
       case 'charge':
-        puff(0.38, 0.20, 850); tone(95, 0.30, 0.12, 0, {endFrequency:48, release:0.15}); break;
+        // One charge event owns the rumble and two hoof impacts. Rendering the
+        // running animation never allocates audio nodes or restarts this cue.
+        puff(0.38, 0.20, 850); tone(95, 0.30, 0.12, 0, {endFrequency:48, release:0.15});
+        puff(0.055, 0.10, 1100, 0.07); puff(0.060, 0.085, 900, 0.24); break;
       case 'victory':
         [62, 66, 69, 74, 78].forEach((n, i) => tone(hz(n), 0.34, 0.095, i * 0.15, {type:'wood', release:0.24})); break;
     }

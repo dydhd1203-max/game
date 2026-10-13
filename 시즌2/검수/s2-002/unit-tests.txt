@@ -1,0 +1,95 @@
+
+> zombie-night-season2@0.1.0 test
+> node --test tests/*.test.mjs
+
+{
+  "ok": true,
+  "artifacts": "/tmp/s2-audio-validation",
+  "samples": [
+    {
+      "phase": "village",
+      "peak": 0.07088104635477066,
+      "rms": 0.009639960342964658,
+      "clipped": 0
+    },
+    {
+      "phase": "forest",
+      "peak": 0.06420115381479263,
+      "rms": 0.00908951299138409,
+      "clipped": 0
+    },
+    {
+      "phase": "boss",
+      "peak": 0.0894072949886322,
+      "rms": 0.011769755947939,
+      "clipped": 0
+    }
+  ],
+  "boar": {
+    "warningVoices": 5,
+    "chargeVoices": 4,
+    "peak": 0.0851270854473114,
+    "tailPeak": 0.000003994058715761639
+  },
+  "checks": "native Web Audio rendering, stereo, clipping, volume isolation, event dedup, flood caps, crossfade, pause/resume backlog, disposal, boar cue timing and voice budget"
+}
+✔ tests/audio.test.mjs (1995.08404ms)
+✔ Season 2 uses the exact Season 1 geometry, materials and full cosmetic names (194.010536ms)
+✔ Original idle, moving, turning, jumping, downed and armed matrices match exactly (510.674631ms)
+✔ 21-player snapshots keep animation history, retain source culling and clear removed actors (91.228346ms)
+✔ boar has bounded, finite geometry and no added lights, textures or shadows (85.307903ms)
+✔ all combat poses reuse buffers and preserve simulation state; culling and disposal stop drawing (41.007158ms)
+✔ solo needs no Firebase and dispatches local input/action (5.852422ms)
+✔ host claim is exclusive; only the stored host token can resume (14.455399ms)
+✔ all room writes use the Season 2 namespace and token never enters Firebase (2.803681ms)
+✔ join rejects absent and incompatible rooms without falling back to solo (1.427784ms)
+✔ join receives the latest snapshot, while stale versions and old host sessions are rejected (3.374649ms)
+✔ host reload restores the last state and returns the same canonical teacher id (4.894969ms)
+✔ guest commands dispatch once and stale sessions cannot replay after reconnect (3.502016ms)
+✔ input transport is limited to 20 Hz and snapshots to 10 Hz (2.643166ms)
+✔ presence tracks departure and closing all clients removes every listener and timer (2.931389ms)
+✔ host departure pauses guests and heartbeat silence is detected (1.961867ms)
+✔ permission errors are reported and failed connect leaves no listeners (1.683058ms)
+✔ a previous tab closing cannot remove its replacement session presence (1.706939ms)
+✔ 21 player class joins, room cap is atomic, and inactive players free capacity (55.794732ms)
+✔ slow writes keep only one in flight and the latest queued snapshot/input (2.763092ms)
+✔ offline close detaches immediately while preserving server cleanup until acknowledgement (1.932203ms)
+✔ room names cannot escape the reserved Season 2 subtree (3.783369ms)
+✔ Season 1 cosmetic IDs survive profile, roster and action transport (11.836257ms)
+✔ s2-001 local checkpoints migrate safely without mutating saved progress (3.74305ms)
+✔ checkpoint migration rejects other seasons and unknown or mismatched versions (0.261834ms)
+✔ teacher controls lobby/village/depart and students cannot skip stages (2.499726ms)
+✔ Season 1 cosmetic IDs survive partial changes, snapshots, reconnects, and gameplay lock (1.256814ms)
+✔ new player cosmetic inputs normalize to bounded Season 1 indices (0.167205ms)
+✔ movement normalizes input, clamps dt, rejects nonfinite values, and respects phase gates/rocks (6.246751ms)
+✔ untrusted construction is rejected without spending and shared budgets/caps are enforced (0.959337ms)
+✔ placement preview shares action validation and destroyed tower history stays bounded (0.530027ms)
+✔ packing and deployment keep one module ID, HP, payment, and require ownership (4.699212ms)
+✔ packing cancellation and carrier disconnect safely recover the same tower (1.708235ms)
+✔ ice then arrow consumes frost once and cooldown prevents recursive/repeated shatter (0.963222ms)
+✔ enemy attack damages towers; anyone can repair with finite shared supplies (1.176815ms)
+✔ boss locks direction during warning, each charge hits once, and half health gives two full warnings (1.683689ms)
+✔ irregular simulation tick cannot extend a charge beyond its 18-unit warning (0.399135ms)
+✔ friendly revive takes three uninterrupted seconds and lone downed party fails before auto-respawn (1.328579ms)
+✔ 15-second individual respawn and reconnect preserve health and fixed party scaling (1.244856ms)
+✔ empty room pauses without defeat; reconnect respects teacher pause (0.149629ms)
+✔ retry restores mission start resources/modules and cannot mint stage rewards or duplicate IDs (0.71555ms)
+✔ victory awards once, recovers towers, returns to village, and prevents repeat reward farming (0.279931ms)
+✔ player cap, bounded event history, and JSON snapshot can round-trip simulation (12.931514ms)
+✔ first boss is beatable using only basic attack and telegraph-aware movement (1.819048ms)
+✔ 1-player campaign clears from lobby using only actions/inputs, without state cheats (9.088127ms)
+✔ 21-player campaign clears from lobby using only actions/inputs, without state cheats (16.721052ms)
+✔ older village saves escape moved landmarks without changing valid positions or progress (1.100965ms)
+ℹ tests 47
+ℹ suites 0
+ℹ pass 47
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2004.169244
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

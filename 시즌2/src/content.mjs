@@ -1,5 +1,8 @@
 // Season 2 test expedition: village → forest beacon → first boss.
-export const BUILD = 's2-001';
+// Changed village collision layout requires matching multiplayer clients.
+// Local s2-001 checkpoints are explicitly migrated when loaded.
+export const BUILD = 's2-002';
+export const RELEASE = 's2-002';
 export const SEASON = 2;
 // Dedicated reserved subtree of the existing classroom backend. Season 1 room
 // codes are uppercased; they never address this lowercase reserved path.
@@ -15,9 +18,14 @@ export const ZONES = [
   {id:'boss-left',x:-15,z:-109,r:9,stage:2},
   {id:'boss-right',x:15,z:-109,r:9,stage:2}
 ];
+// Art and collision share these positions: the workshop frames the forest road,
+// the wagon sits behind the market, and the middle remains wide enough for 21.
+export const VILLAGE_SITES = {
+  workshop:{x:-12,z:9,r:6}, wagon:{x:15,z:6,r:6},
+  assembly:{x:-13,z:28,r:5}, market:{x:13,z:22,r:5}
+};
 export const OBSTACLES = [
-  {x:-17,z:12,r:6},{x:17,z:12,r:6},
-  {x:-17,z:27,r:5},{x:17,z:27,r:5},
+  ...Object.values(VILLAGE_SITES),
   {x:-12,z:-44,r:3},{x:13,z:-47,r:3},
   {x:-13,z:-76,r:3},{x:13,z:-79,r:3}
 ];

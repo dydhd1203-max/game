@@ -5,6 +5,7 @@ import {createNetwork} from './net.mjs';
 import {createUI} from './ui.mjs';
 import {BUILD,SPAWN,TOWERS,zoneAt,walkable} from './content.mjs';
 import {PerformanceRecord} from './perf.mjs';
+import {migrateCheckpoint} from './save.mjs';
 
 const canvas=document.getElementById('game');
 const storage={get(k){try{return localStorage.getItem('zns2:'+k);}catch{return null;}},set(k,v){try{localStorage.setItem('zns2:'+k,v);return true;}catch{return false;}}};
@@ -80,7 +81,7 @@ async function enter(values){
     isHost=result.isHost;room=result.room||'';localId=result.localId||profile.id;
     if(isHost&&result.snapshot)state=result.snapshot;
     if(isHost&&!state.players[localId])sim.addPlayer(state,{...profile,id:localId});
-    if(isHost){state.players[localId].online=true;reconcileRoster();}
+    if(isHost){state.players[localId].online=true;reconcileRoster();sim.restoreVillagePositions(state);}
     active=true;ui.hideEntry();savedCheckpoint=null;lastCheckpointPhase=state.phase;perf.reset();
     if(isHost&&!storage.get('checkpoint:'+(room||'solo')))captureCheckpoint();
     audio.setScene(state.phase,state.paused);
@@ -111,10 +112,12 @@ function load(){
   if(!['lobby','village','victory','defeat'].includes(state.phase)){toast('마을이나 결과 화면에서 이어하기를 선택해 주세요.');return;}
   try{
     const saved=JSON.parse(storage.get('checkpoint:'+(room||'solo'))||'null');
-    if(!saved||saved.version!==BUILD||saved.season!==2||!validState(saved.state))throw Error('이 방에서 이어갈 수 있는 시즌2 저장이 없어요.');
-    const next=clone(saved.state),mine=state.players[localId];
+    const next=migrateCheckpoint(saved);
+    if(!validState(next))throw Error('이 방에서 이어갈 수 있는 시즌2 저장이 없어요.');
+    const mine=state.players[localId];
     if(saved.hostId!==localId){delete next.players[saved.hostId];next.players[localId]={...mine,x:SPAWN.x,z:SPAWN.z};}
     for(const p of Object.values(next.players))p.online=p.id===localId;
+    sim.restoreVillagePositions(next);
     state=next;state.paused=false;reconcileRoster();savedCheckpoint=clone(state);seenEvents=new Set((state.events||[]).map(e=>e.id));toast('마지막 확정 지점에서 이어갑니다.');
   }catch(e){toast(e.message);}
 }

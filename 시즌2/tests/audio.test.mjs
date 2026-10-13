@@ -112,9 +112,49 @@ try {
   assert.equal(behavior.disposed.voices, 0); assert.equal(behavior.disposed.graphNodes, 0);
   assert.equal(behavior.disposed.cleanupChains, 0);
   assert.equal(behavior.disposed.made, behavior.beforeDispose, 'disposed engine stays silent');
+
+  const boar = await page.evaluate(async () => {
+    const {createAudio} = await import('/audio.mjs');
+    const ctx = new OfflineAudioContext(2, 44100 * 4, 44100);
+    let clock = 0;
+    const audio = createAudio({context:ctx, now:() => clock, document:null, storage:null});
+    audio.setVolume('bgm', 0); audio.setVolume('sfx', 100);
+    await audio.unlock();
+    clock = 0.2;
+    audio.event({id:'boar-warn', kind:'warn', x:0, z:0});
+    const warning = audio.stats().made;
+    for (let i = 0; i < 21; i++) audio.event({id:'boar-warn', kind:'warn', x:0, z:0});
+    const duplicate = audio.stats().made;
+    clock = 1.7;
+    audio.event({id:'boar-charge', kind:'charge', x:0, z:0});
+    const charge = audio.stats().made - warning;
+    const buffer = await ctx.startRendering();
+    let peak = 0, clipped = 0, tailPeak = 0, warningEnergy = 0, chargeEnergy = 0;
+    for (let channel = 0; channel < buffer.numberOfChannels; channel++) {
+      const data = buffer.getChannelData(channel);
+      for (let i = 0; i < data.length; i++) {
+        const value = Math.abs(data[i]);
+        peak = Math.max(peak, value); if (value >= 0.999) clipped++;
+        if (i >= 44100 * 3) tailPeak = Math.max(tailPeak, value);
+        if (i >= 44100 * 0.2 && i < 44100 * 1.2) warningEnergy += value * value;
+        if (i >= 44100 * 1.7 && i < 44100 * 2.7) chargeEnergy += value * value;
+      }
+    }
+    const rendered = audio.stats();
+    await audio.dispose();
+    return {warning, duplicate, charge, peak, clipped, tailPeak, warningEnergy, chargeEnergy, rendered, disposed:audio.stats()};
+  });
+  assert(boar.warning <= 5 && boar.charge <= 4, 'boar cues stay within their voice budgets');
+  assert.equal(boar.warning, boar.duplicate, '21 copies of a warning do not schedule extra hoof sounds');
+  assert(boar.warningEnergy > 0.1 && boar.chargeEnergy > 0.1, 'both actual cues render audible samples');
+  assert(boar.peak > 0.03 && boar.peak < 0.8, 'full-volume boar cues retain output headroom');
+  assert.equal(boar.clipped, 0, 'full-volume boar cues do not clip');
+  assert(boar.tailPeak < 0.0001, 'charge and room return finish without a looping hoof or rumble');
+  assert.equal(boar.rendered.voices, 0, 'every scheduled boar source releases on end');
+  assert.equal(boar.disposed.cleanupChains, 0); assert.equal(boar.disposed.graphNodes, 0);
   assert.deepEqual(errors, []);
-  await fs.writeFile(path.join(artifact, 'metrics.json'), JSON.stringify({metrics, behavior}, null, 2));
-  console.log(JSON.stringify({ok:true, artifacts:artifact, samples:metrics.map(({phase, peak, rms, clipped}) => ({phase, peak, rms, clipped})), checks:'native Web Audio rendering, stereo, clipping, volume isolation, event dedup, flood caps, crossfade, pause/resume backlog, disposal'}, null, 2));
+  await fs.writeFile(path.join(artifact, 'metrics.json'), JSON.stringify({metrics, behavior, boar}, null, 2));
+  console.log(JSON.stringify({ok:true, artifacts:artifact, samples:metrics.map(({phase, peak, rms, clipped}) => ({phase, peak, rms, clipped})), boar:{warningVoices:boar.warning, chargeVoices:boar.charge, peak:boar.peak, tailPeak:boar.tailPeak}, checks:'native Web Audio rendering, stereo, clipping, volume isolation, event dedup, flood caps, crossfade, pause/resume backlog, disposal, boar cue timing and voice budget'}, null, 2));
 } finally {
   await browser.close();
   await new Promise(resolve => server.close(resolve));

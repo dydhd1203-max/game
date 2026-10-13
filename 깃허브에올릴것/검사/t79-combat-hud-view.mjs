@@ -71,9 +71,11 @@ try{
    const R=__rec102();R.cur=null;R.nights.length=0;R.acc=0;
    const now=performance.now.bind(performance);let t=now();performance.now=()=>t;
    try{for(let day=1;day<=4;day++){G.day=day;G.phase='night';G.t=G.set.nightSec;t+=1000;__loop73();t+=5000;G.t-=5;__loop73();G.phase='day';t+=20;__loop73();}
-     const stored=JSON.parse(localStorage.getItem('nightRec102'));return {players:G.players.size+1,days:stored.map(n=>n.day),samples:stored.map(n=>n.s.length),columns:stored.every(n=>n.s.every(s=>s.length===12)),participants:stored.every(n=>n.s.every(s=>s[8]===21)),summary:__recText().includes('친구 최대 21')};
+     // 106차 appends building and tower/barracks counts; the original twelve columns keep their indices.
+     const structures=[...__STRU.values()],towerCount=structures.filter(o=>['arrow','ice','pulse','barr'].includes(o.t)).length;
+     const stored=JSON.parse(localStorage.getItem('nightRec102'));return {players:G.players.size+1,days:stored.map(n=>n.day),samples:stored.map(n=>n.s.length),columns:stored.every(n=>n.s.every(s=>s.length===14)),participants:stored.every(n=>n.s.every(s=>s[8]===21)),buildingCounts:stored.every(n=>n.s.every(s=>s[12]===structures.length)),towerCounts:stored.every(n=>n.s.every(s=>s[13]===towerCount)),summary:__recText().includes('친구 최대 21')};
    }finally{performance.now=now;}});
- assert.equal(results.recorder.players,21);assert.deepEqual(results.recorder.days,[2,3,4]);assert.ok(results.recorder.samples.every(n=>n>=1));assert.ok(results.recorder.columns&&results.recorder.participants&&results.recorder.summary);
+ assert.equal(results.recorder.players,21);assert.deepEqual(results.recorder.days,[2,3,4]);assert.ok(results.recorder.samples.every(n=>n>=1));assert.ok(results.recorder.columns&&results.recorder.participants&&results.recorder.buildingCounts&&results.recorder.towerCounts&&results.recorder.summary);
  await page.close();page=await browser.newPage({viewport:{width:390,height:844},hasTouch:true});page.on('pageerror',e=>errors.push(e.message));await page.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
  await page.addInitScript(()=>{localStorage.setItem('sndOn','0');const raf=requestAnimationFrame.bind(window),cancel=cancelAnimationFrame.bind(window),pending=new Set();let stop=false;requestAnimationFrame=f=>{if(stop)return 0;const id=raf(t=>{pending.delete(id);f(t);});pending.add(id);return id;};window.__stopHUD79=()=>{stop=true;for(const id of pending)cancel(id);pending.clear();};});
  await page.goto('http://127.0.0.1:20609/?gfx=mid',{timeout:240000,waitUntil:'load'});await page.waitForFunction(()=>__READY===true,null,{timeout:240000});await page.evaluate(prepare);
