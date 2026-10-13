@@ -1,0 +1,4 @@
+node_modules/
+artifacts/*.wav
+artifacts/*.png
+artifacts/*.json
