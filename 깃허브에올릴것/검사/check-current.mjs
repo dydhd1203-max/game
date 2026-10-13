@@ -8,7 +8,10 @@ import {GAME} from './gamefile.mjs';
 const run=promisify(execFile),here=path.dirname(fileURLToPath(import.meta.url));
 const root=path.resolve(here,'../..'),args=process.argv.slice(2);
 const game=path.resolve(args.find(a=>!a.startsWith('--'))||GAME);
-const names=['chk','input52-static','t53-static','t54-avatar-static','t53-shop-static',
+const names=['chk','input52-static','t103-kit-hud-static','t103-soldier-roster-static',
+  't104-soldier-target-static','t104-ground-query-static','t104-node-network-static','t104-flow-static','t104-cloud-transform-static',
+  't105-teacher-ui-static',
+  't53-static','t54-avatar-static','t53-shop-static',
   't55-wardrobe-static','t54-combat-static','t54-race-static','t54-zombie-static',
   't56-buildings-static','t56-building-combat-static','t56-build-assist-static','t56-build-coop-static',
   't57-avatar-geometry-static','t57-motion-static','t57-render-static','t58-job-art-static','t58-motion-static',

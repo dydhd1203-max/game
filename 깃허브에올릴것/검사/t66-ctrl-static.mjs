@@ -74,7 +74,7 @@ const WEAPONS=[{n:'맨손 돌',ic:'🪨'},{n:'나무 새총',ic:'🪃'},{n:'돌 
 const KIT={wpn:2};
 const wpnNow=()=>WEAPONS[KIT.wpn];
 const iconImg=(k,e)=>e;
-const myRes=()=>({w:99,s:99,g:99});
+const resources={w:99,s:99,g:99},myRes=()=>resources;
 let curTool='mine',curBuild=null;
 /* 소리: 합성 함수는 세기(vol)만 기록한다 */
 const SFX={}; const now0=()=>0;
@@ -95,9 +95,9 @@ const parts=[fixture,
   fn('night66Show'),fn('night66Hide'),fn('night66Tick'),fn('night66BossLook'),fn('night66Snd'),
   fn('gunToggleOk'),fn('toggleGun'),fn('gunAway'),fn('pickTool'),fn('pickBuild'),fn('gunShortName'),fn('afford'),
   'const enhOf = i => 0;   // 69차 — 총 칸 강화 테(단계 0)',
-  'let barKey = \'\';',fn('paintBar'),
+  'let barKey = \'\';',fn('dockSlot103'),fn('paintBar'),
   `globalThis.__T={G,PL,SPEC,LOG,KIT,NIGHT_DEF,NIGHT_LOOK,NIGHT_LOOK_BOSS,NIGHT_NOTE_TMR_BOSS,NC_SHOW_MS,N66_MS,SFX,
-    nightPreviewInfo,paintNightPreview,nightCardOpen,night66Tick,night66Show,night66Snd,toggleGun,pickTool,pickBuild,paintBar,gunShortName,WEAPONS,
+    nightPreviewInfo,paintNightPreview,nightCardOpen,night66Tick,night66Show,night66Snd,toggleGun,pickTool,pickBuild,paintBar,gunShortName,WEAPONS,TOOLS,BUILD,resources,
     aim:()=>aimMode, setAim:v=>{aimMode=v;}, tool:()=>[curTool,curBuild],
     set:(k,v)=>{ if(k==='pop')popIsOpen=v; else if(k==='now')NOW=v; },
     st:()=>({n66Until,n66Ph,n66Nt,ncUntil})};`];
@@ -165,7 +165,6 @@ check('The hotbar starts with a gun slot (icon, short name, “우클릭” key 
   first && first.className.includes('gun') && first.querySelector('.ky').textContent==='우클릭' && first.querySelector('.nm').textContent==='화승총'
   && first.querySelector('.ic').textContent==='🔫' && tools.children.length===1+5, first?.outerHTML?.slice(0,200));
 check('Short names: last word; the starting stone reads as an action (던지기), not the stone resource (돌)', T.gunShortName(T.WEAPONS[2])==='화승총' && T.gunShortName(T.WEAPONS[0])==='던지기');
-check('The gun slot carries a fixed weapon badge (readable where the key label is hidden)', /\.slot\.tool\.gun::after\{content:'🎯'/.test(css));
 check('Gun away: the gun slot is off and the picked tool is on', !first.className.includes(' on') && tools.querySelectorAll('.on').length===1);
 T.setAim(true); T.paintBar();
 const onAll=[...document.querySelectorAll('#tools .on,#bar .on')].map(e=>e.className);
@@ -176,6 +175,54 @@ reset(); [...$('tools').children][1].onclick();
 check('Clicking a tool slot while aiming puts the gun away and picks it', T.aim()===false && T.tool()[0]==='mine' && T.LOG.toast.join()==='⛏️ 캐기');
 T.KIT.wpn=1; T.paintBar();
 check('Changing weapon repaints the gun slot', $('tools').firstElementChild.querySelector('.nm').textContent==='새총'); T.KIT.wpn=2;
+
+/* 103차 — 이름을 접은 도구함의 실제 생성 함수·키보드 입력. 모양 대신 동작/읽을 수 있는 이름을 검사한다. */
+T.paintBar();
+const slots103=[...document.querySelectorAll('#tools .slot,#bar .slot')];
+check('103: Every icon control is focusable, named and exposes its current selected state',
+  slots103.every(e=>e.getAttribute('role')==='button'&&e.getAttribute('tabindex')==='0'
+    &&e.getAttribute('aria-label')===e.dataset.tip&&e.dataset.tip.length>0
+    &&e.getAttribute('aria-pressed')===String(e.classList.contains('on'))));
+check('103: Hidden tool names and key labels remain available in the accessible tooltip',
+  T.TOOLS.every((t,i)=>{const label=$('tools').children[i+1].getAttribute('aria-label');return label.includes(t.name)&&label.includes(t.key);})
+  &&$('tools').firstElementChild.getAttribute('aria-label').includes(T.WEAPONS[T.KIT.wpn].n));
+check('103: Hidden building prices retain their resource names and exact amounts',
+  Object.values(T.BUILD).every((b,i)=>{const text=$('bar').children[i].getAttribute('aria-label');return text.includes(b.name)&&text.includes(String(i+1))
+    &&Object.entries({w:'나무',s:'돌',g:'금'}).every(([k,name])=>!b.cost[k]||text.includes(name+' '+b.cost[k]));}));
+const pressSlot103=(e,key,repeat=false)=>{const event={key,repeat,prevented:false,stopped:false,preventDefault(){this.prevented=true;},stopPropagation(){this.stopped=true;}};e.onkeydown(event);return event;};
+T.setAim(false);T.paintBar();reset();
+const enter103=pressSlot103($('tools').firstElementChild,'Enter');
+check('103: Enter activates the existing gun click exactly once and consumes the key',
+  T.aim()&&T.LOG.aim.length===1&&enter103.prevented&&enter103.stopped&&$('tools').firstElementChild.getAttribute('aria-pressed')==='true');
+reset();const repeatEnter103=pressSlot103($('tools').firstElementChild,'Enter',true),repeatSpace103=pressSlot103($('tools').children[2],' ',true);
+check('103: Held Enter/Space is consumed without toggling or selecting repeatedly',
+  T.aim()&&T.LOG.aim.length===0&&T.LOG.tool.length===0&&repeatEnter103.prevented&&repeatEnter103.stopped&&repeatSpace103.prevented&&repeatSpace103.stopped);
+reset();const space103=pressSlot103($('tools').children[2],' ');
+check('103: Space selects repair through the existing click without propagating a jump',
+  !T.aim()&&T.tool()[0]==='repair'&&T.LOG.tool.length===1&&space103.prevented&&space103.stopped&&$('tools').children[2].getAttribute('aria-pressed')==='true');
+reset();const letter103=pressSlot103($('tools').firstElementChild,'q');
+check('103: Other keys remain available to existing game shortcuts',
+  !letter103.prevented&&!letter103.stopped&&T.LOG.aim.length===0&&T.LOG.tool.length===0);
+Object.assign(T.resources,{w:0,s:0,g:0});T.paintBar();
+check('103: Affordability changes refresh the tooltip while preserving building selection',
+  [...$('bar').children].every(e=>e.classList.contains('no')&&e.getAttribute('aria-label').includes('재료가 모자라요')));
+reset();pressSlot103($('bar').firstElementChild,'Enter');
+check('103: Building keyboard activation uses the same selection path as clicking',T.tool().join()==='build,wwall'&&T.LOG.build.length===1);
+Object.assign(T.resources,{w:99,s:99,g:99});T.paintBar();
+// linkedom does not implement focus state. Record only the browser focus API
+// boundary; the game still chooses the replacement control itself.
+{const proto=document.defaultView.HTMLElement.prototype,oldFocus=proto.focus,oldActive=Object.getOwnPropertyDescriptor(document,'activeElement');
+  let active=$('tools').children[3],calls=[];
+  Object.defineProperty(document,'activeElement',{configurable:true,get:()=>active});
+  proto.focus=function(options){active=this;calls.push({node:this,options});};
+  try{
+    const old=active;T.KIT.wpn=T.KIT.wpn===2?1:2;T.paintBar();
+    check('103: Repainting the hotbar restores the same focused slot without scrolling',
+      active!==old&&active===$('tools').children[3]&&calls.length===1&&calls[0].options.preventScroll===true);
+    active=document.body;calls=[];T.KIT.wpn=T.KIT.wpn===2?1:2;T.paintBar();
+    check('103: HUD updates never steal focus from outside the hotbar',active===document.body&&calls.length===0);
+  }finally{proto.focus=oldFocus;if(oldActive)Object.defineProperty(document,'activeElement',oldActive);else delete document.activeElement;}
+}
 
 /* ③ 팁 없음 */
 const TIP=/세요|쌓|탑|벽을|병사|수리|막아|막고|모아|모으|대비|쏘세요|쏴요|먼저 잡|부터 잡|제격/;

@@ -229,20 +229,20 @@ const iconRuns={studios:[],shots:[],slices:[],disposed:0,lost:0},pending=[];
 const iconCtx=vm.createContext({window:{},console,performance:{now:()=>0},
   document:{readyState:'complete',body:{},querySelectorAll:()=>[]},
   requestAnimationFrame:f=>pending.push(f),setTimeout:f=>pending.push(f),
-  ICO_DEF:{wood:{rows:[]},wpn1:{rows:[]},wpn13:{rows:[]}},ICON:{},iconsDone:false,iconWaiters:[],emoScan:()=>{},partsGroup:rows=>rows,
+  ICO_DEF:{wood:{atlas105:true},leaf:{rows:[]},wpn1:{rows:[]},wpn13:{rows:[]}},ICON:{},iconsDone:false,iconWaiters:[],emoScan:()=>{},partsGroup:rows=>rows,
   mkIconStudio:(size,n)=>{iconRuns.studios.push([size,n]);return {size,cols:Math.ceil(Math.sqrt(n)),W:Math.ceil(Math.sqrt(n))*size,r:{setSize:()=>{},dispose:()=>iconRuns.disposed++,forceContextLoss:()=>iconRuns.lost++}};},
   shootIcon:(st,g,p,idx)=>iconRuns.shots.push([st.size,idx]),
   sliceIcons:(st,slots,T)=>iconRuns.slices.push([st.size,slots.map(s=>s[0])])});
 new vm.Script(fn('buildIcons')+';buildIcons();').runInContext(iconCtx);
 while(pending.length)pending.shift()();
-check('Weapon icons bake at 192 pixels while HUD icons remain 96',same(iconRuns.slices,[[96,['wood']],[192,['wpn1','wpn13']]]));
+check('Static atlas skips 3D baking; other HUD icons remain 96 and weapons 192',same(iconRuns.slices,[[96,['leaf']],[192,['wpn1','wpn13']]]));
 check('Mixed resolution baking reuses and disposes one renderer once',iconRuns.studios.length===1&&iconRuns.disposed===1&&iconRuns.lost===1);
 check('Fallback timer cannot bake icons twice or miscount them',iconRuns.shots.length===3&&iconCtx.window.__ICON_MS.n===3&&iconCtx.iconsDone);
 
 // 70차 — 레벨 잠김 단추는 회색(자원 부족 갈색 규칙이 .lock 을 덮지 않는다) · 밝은 창의 살 수 있음/까닭/닫기가 모양으로 다르다
-check('Shortage button rule excludes level-locked cards; lock keeps grey gradient after it (70 CSS)',
-  rulesFor('#popShop #shopList .sItem.no button').every(r=>!/#4a2e1a/.test(r.background||''))&&rulesFor('#popShop #shopList .sItem.no:not(.lock) button').some(r=>/#4a2e1a/.test(r.background||''))&&
-  (()=>{const L=rulesFor('#popShop #shopList .sItem.lock button');const last=L[L.length-1]||{};return /#5d5752/.test(last.background||'')&&/#47423e/.test(last['background-color']||'');})());
+check('Shortage rule excludes level-locked cards; lock keeps distinct muted grey-green surface (105 CSS)',
+  rulesFor('#popShop #shopList .sItem.no button').every(r=>!/#(?:4a2e1a|65432f)/.test(r.background||''))&&rulesFor('#popShop #shopList .sItem.no:not(.lock) button').some(r=>/#65432f/.test(r.background||''))&&
+  (()=>{const L=rulesFor('#popShop #shopList .sItem.lock button');const last=L[L.length-1]||{};return /#4b5c58/.test(last.background||'')&&/#34433f/.test(last.background||'')&&/#dce8dd/.test(last.color||'');})());
 check('Bright forge/vet buy button is solid green with white text, reason box dashed and flat (70 CSS)',
   rulesFor('.popC :is(#forgeList,#vetList) .sItem button.buy').some(r=>/#267a41/.test(r['background-color']||'')&&/#fff/.test(r.color||''))&&
   rulesFor('.popC :is(#forgeList,#vetList) .sItem.no button').some(r=>/dashed/.test(r['border-style']||'')&&/none/.test(r['box-shadow']||'')));
