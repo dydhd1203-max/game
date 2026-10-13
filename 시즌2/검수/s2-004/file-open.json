@@ -1,0 +1,7 @@
+{
+  "result": "environment-blocked",
+  "entry": "시즌2/배포용/index.html",
+  "protocol": "file",
+  "reason": "Managed Chromium navigation rejected with net::ERR_BLOCKED_BY_ADMINISTRATOR",
+  "fallback": "The same bundled HTML was tested over loopback HTTP. No policy settings were modified."
+}

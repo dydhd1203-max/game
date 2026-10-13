@@ -7,7 +7,7 @@ export const SEASON1_AVATAR_SOURCE = Object.freeze({version:106,commit:'89da73be
 export const APPEARANCE_OPTIONS = Object.freeze({"hats":["없음","밀짚모자","왕관","딸기 리본","토끼 귀","마법사 고깔","곰돌이 모자","해적 모자","봄꽃 화관","크림 고양이 귀","우주 헬멧","유니콘 뿔","파스텔 나비핀","베이컨 머리","별빛 베레모","아기 오리 모자","데이지 머리핀"],"faces":["없음","라벤더 안경","선글라스","딸기 안경","물안경","안대","별 안경","무지개 안경","복숭아 볼터치","살금 고양이 수염","반짝 별 볼터치","하트 스티커"],"clothes":["없음","빨간 망토","민트 고양이 파자마","크림 목도리","곰돌이 파자마","복숭아 나비넥타이","라벤더 잠옷","요정 날개","하늘별 잠옷","발레 치마","딸기우유 원피스","구름 세일러 가디건","딸기 크림 후디","오리 멜빵옷"],"skin":["기본","하양","연한 갈색","갈색","진한 갈색"],"available":{"hat":[0,9,4,6,3,8,12,14,15,16],"gls":[0,8,9,10,11],"clo":[0,2,4,8,6,10,3,5,11,12,13],"skin":[0,1,2,3,4]}});
 export function createSeason1Avatars(THREE, scene, options={}) {
 const ownedBefore=new Set(scene.children);
-const GFX={shadow:!!options.shadows,q:options.quality||'mid'},MAXP=40,GY=0,SPD=5.2,RACE_SPD=1.4;
+const GFX={shadow:!!options.shadows,q:options.quality||'mid'},MAXP=40,GY=0,SPD=5.94,RACE_SPD=1.64;
 const raceFixture={on:false},raceOn=()=>false,burst=options.burst||(()=>{}),meSheep={},ENH_MAX=6;
 const groundUnder=options.groundAt||(()=>0),P81_UP=true;
 const UPV=new THREE.Vector3(0,1,0),AX_X=new THREE.Vector3(1,0,0);
@@ -2205,7 +2205,7 @@ function append(p,localId,time){
   const id=String(p.id??renderList.length);
   let actor=actors.get(id);
   if(!actor){let hash=0;for(let i=0;i<id.length;i++)hash=(hash*31+id.charCodeAt(i))|0;
-    actor={id,ph:Math.abs(hash%628)/100,jb:-1,jt:0};actors.set(id,actor);}
+    actor={id,ph:id===localId?1.7:Math.abs(hash%628)/100,jb:-1,jt:0};actors.set(id,actor);}
   const priorX=actor.x,priorZ=actor.z;
   actor.x=Number.isFinite(p.x)?p.x:0;actor.y=Number.isFinite(p.y)?p.y:(options.groundY??0);actor.z=Number.isFinite(p.z)?p.z:0;
   actor.ry=Number.isFinite(p.yaw)?p.yaw:Number.isFinite(p.ry)?p.ry:0;
@@ -2214,21 +2214,28 @@ function append(p,localId,time){
   actor.gls=Math.max(0,Math.min(GLASSES.length-1,(p.face??p.gls)|0));
   actor.clo=Math.max(0,Math.min(CLOTHES.length-1,(p.clothes??p.clo)|0));
   actor.skin=Math.max(0,Math.min(SKINS.length-1,p.skin|0));
-  actor.down=p.hp===0||p.down===true;actor.air=!!p.air;actor.vy=p.vy||0;
-  actor.run=p.run;actor.land=p.land||0;actor.take=p.take||0;actor.flip=p.flip||0;
-  actor.mv=priorX!==undefined&&(Math.abs(actor.x-priorX)+Math.abs(actor.z-priorZ)>.0001);
+  actor.down=p.hp===0||p.down===true;
+  actor.ground=p.ground;actor.air=!actor.down&&(p.air!==undefined?!!p.air:p.ground===false);actor.vy=p.vy||0;
+  actor.run=p.run;actor.land=p.land??p.landT??0;actor.take=p.take??p.takeT??0;
+  actor.flip=p.flip??(!actor.down&&actor.air&&p.flipT>=0&&p.flipT<.6?p.flipT/.6:0);
+  actor.mv=!actor.down&&(p.mv!==undefined?!!p.mv:priorX!==undefined&&(Math.abs(actor.x-priorX)+Math.abs(actor.z-priorZ)>.0001));
+  actor.gp=Number.isFinite(p.gp)?p.gp:undefined;
+  actor.aim=!!p.aim;actor.glide=!!p.glide;actor.stair=Number.isFinite(p.stair)?p.stair:undefined;
   actor.wp=actor.down?0:Math.max(0,Math.min(TPGUN.length-1,(p.wp??p.weapon??weapon)|0));
   actor.we=0;actor.kick=p.kick??Math.max(0,Math.min(1,(p.shotCooldown||0)-.24)/.16);
   actor.act=p.act||'';actor.actP=p.actP||0;actor.tool=p.tool||'';actor.seen=generation;
   renderList.push(actor);
 }
-function render(players,localId,time,dt,frustum=null){
+function render(players,localId,time,dt,frustum=null,renderOptions={}){
   if(disposed)return;
   generation++;renderList.length=0;currentFrustum=frustum;ACT81.on=!!frustum;ACT81.pAll=ACT81.pSkip=0;
   if(Array.isArray(players)){for(const player of players)append(player,localId,time);}
   else if(players instanceof Map){for(const player of players.values())append(player,localId,time);}
   else{for(const key in players)if(Object.hasOwn(players,key))append(players[key],localId,time);}
   for(const [id,actor] of actors)if(actor.seen!==generation)actors.delete(id);
+  // Keep the actor and its gait history while the original first-person camera
+  // hides its body; only this frame's submitted list is filtered.
+  if(renderOptions.hideLocal){let n=0;for(const actor of renderList)if(!actor.me)renderList[n++]=actor;renderList.length=n;}
   drawSheep(renderList,Number.isFinite(time)?time:0,MAXP,s=>teamColors[s.g],scale,!!frustum);
 }
 function dispose(){

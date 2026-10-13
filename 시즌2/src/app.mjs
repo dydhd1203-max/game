@@ -6,13 +6,18 @@ import {createUI} from './ui.mjs';
 import {BUILD,SPAWN,TOWERS,zoneAt,walkable} from './content.mjs';
 import {PerformanceRecord} from './perf.mjs';
 import {migrateCheckpoint} from './save.mjs';
+import {SEASON1_CAMERA,season1Zoom} from './camera-season1.mjs';
+import {createSeason1Presentation} from './presentation-season1.mjs';
+import {createSeason1Prediction} from './prediction-season1.mjs';
 
 const canvas=document.getElementById('game');
 const storage={get(k){try{return localStorage.getItem('zns2:'+k);}catch{return null;}},set(k,v){try{localStorage.setItem('zns2:'+k,v);return true;}catch{return false;}}};
 let state=sim.createState(),network=null,active=false,isHost=false,localId='',room='',mode='solo',connected=true,notice='',selectedTower=null,deployId=null;
 let inputs={},inputReceived={},roster=[],manual=false,entering=false,initialSnapshot=false;
-const view={yaw:0,pitch:.62,distance:20,placement:null};
+const view={yaw:0,pitch:SEASON1_CAMERA.pitch,zoom:SEASON1_CAMERA.zoom,aim:false,placement:null};
 const keys=new Set(),pointer={x:innerWidth/2,y:innerHeight/2,attack:false,drag:false};
+const presentation=createSeason1Presentation(),prediction=createSeason1Prediction();
+let jumpSeq=0;
 const perf=new PerformanceRecord(),audio=createAudio();
 let scene;
 try{scene=createScene(canvas);}catch(e){document.getElementById('ui').textContent='3D 화면을 열지 못했어요. 최신 Chrome에서 다시 열어 주세요. '+e.message;throw e;}
@@ -21,6 +26,11 @@ let seenEvents=new Set(),lastFeedback='',lastCheckpointPhase='',savedCheckpoint=
 
 function id(){let v;try{v=sessionStorage.getItem('zns2:playerId');}catch{}if(!v){v=crypto.randomUUID?.()||'p'+Date.now().toString(36)+Math.random().toString(36).slice(2);try{sessionStorage.setItem('zns2:playerId',v);}catch{}}return v;}
 function clone(v){return JSON.parse(JSON.stringify(v));}
+function resetMovement(){
+  keys.clear();pointer.attack=false;pointer.drag=false;view.aim=false;
+  jumpSeq=state.players[localId]?._jumpSeq||0;
+  presentation.reset();prediction.reset();scene.resetCamera?.();
+}
 function toast(s){ui.toast(s);}
 function teacherAction(type){return ['start','depart','pause','retry','return'].includes(type);}
 function processAction(playerId,action){
@@ -65,7 +75,7 @@ async function enter(values){
     network=createNetwork({
       onSnapshot(next){
         if(!next||next.version!==BUILD)return;
-        if(!isHost || !active){state=next;if(!initialSnapshot){for(const e of next.events||[])seenEvents.add(e.id);initialSnapshot=true;}}
+        if(!isHost || !active){state=next;jumpSeq=Math.max(jumpSeq,next.players[localId]?._jumpSeq||0);if(!initialSnapshot){for(const e of next.events||[])seenEvents.add(e.id);initialSnapshot=true;}}
       },
       onRoster(next){roster=next;reconcileRoster();},
       onInput(pid,input){if(state.players[pid]?.online){inputs[pid]=input;inputReceived[pid]=performance.now();}},
@@ -82,7 +92,7 @@ async function enter(values){
     if(isHost&&result.snapshot)state=result.snapshot;
     if(isHost&&!state.players[localId])sim.addPlayer(state,{...profile,id:localId});
     if(isHost){state.players[localId].online=true;reconcileRoster();sim.restoreVillagePositions(state);}
-    active=true;ui.hideEntry();savedCheckpoint=null;lastCheckpointPhase=state.phase;perf.reset();
+    resetMovement();active=true;ui.hideEntry();savedCheckpoint=null;lastCheckpointPhase=state.phase;perf.reset();
     if(isHost&&!storage.get('checkpoint:'+(room||'solo')))captureCheckpoint();
     audio.setScene(state.phase,state.paused);
     toast(mode==='solo'?'혼자서도 첫 보스까지 테스트할 수 있어요.':'친구들과 원정을 준비해 주세요.');
@@ -116,50 +126,62 @@ function load(){
     if(!validState(next))throw Error('이 방에서 이어갈 수 있는 시즌2 저장이 없어요.');
     const mine=state.players[localId];
     if(saved.hostId!==localId){delete next.players[saved.hostId];next.players[localId]={...mine,x:SPAWN.x,z:SPAWN.z};}
-    for(const p of Object.values(next.players))p.online=p.id===localId;
+    // A checkpoint must not rewind a connected client's consumed jump counter:
+    // its next ordinary input packet would otherwise replay an old jump.
+    for(const p of Object.values(next.players)){
+      p._jumpSeq=Math.max(p._jumpSeq||0,state.players[p.id]?._jumpSeq||0,inputs[p.id]?.jumpSeq||0);
+      p.online=p.id===localId;
+    }
     sim.restoreVillagePositions(next);
-    state=next;state.paused=false;reconcileRoster();savedCheckpoint=clone(state);seenEvents=new Set((state.events||[]).map(e=>e.id));toast('마지막 확정 지점에서 이어갑니다.');
+    state=next;state.paused=false;reconcileRoster();resetMovement();savedCheckpoint=clone(state);seenEvents=new Set((state.events||[]).map(e=>e.id));toast('마지막 확정 지점에서 이어갑니다.');
   }catch(e){toast(e.message);}
 }
-function leave(){network?.close();network=null;active=false;isHost=false;keys.clear();pointer.attack=false;selectedTower=null;deployId=null;audio.setScene('lobby',true);state=sim.createState();sim.addPlayer(state,{id:'preview',name:'원정대',team:0,hat:0});ui.showEntry();}
+function leave(){network?.close();network=null;active=false;isHost=false;document.exitPointerLock?.();selectedTower=null;deployId=null;audio.setScene('lobby',true);state=sim.createState();sim.addPlayer(state,{id:'preview',name:'원정대',team:0,hat:0});resetMovement();ui.showEntry();}
 function record(){
   const graphics=scene.stats();
   const data=perf.report({mode,room,viewport:[innerWidth,innerHeight],devicePixelRatio,pixelRatio:graphics.pixelRatio,aaSamples:graphics.aaSamples,host:isHost});
   const a=document.createElement('a'),url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.href=url;a.download='시즌2-성능-'+Date.now()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('성능 기록을 내려받았어요.');
 }
-const ui=createUI({enter,action:dispatch,selectTower,sound(kind,value){audio.setVolume(kind,value);audio.unlock();},leave,save,load,record,cameraReset(){view.yaw=0;view.pitch=.62;view.distance=20;}});
+const ui=createUI({enter,action:dispatch,selectTower,sound(kind,value){audio.setVolume(kind,value);audio.unlock();},leave,save,load,record,cameraReset(){view.yaw=0;view.pitch=SEASON1_CAMERA.pitch;view.zoom=SEASON1_CAMERA.zoom;view.aim=false;scene.resetCamera?.();}});
 function interactive(target){return !!target?.closest?.('input,textarea,select,button,[contenteditable=true]');}
 window.addEventListener('keydown',e=>{
   if(interactive(e.target)||!active)return;
   if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Tab'].includes(e.code))e.preventDefault();
   keys.add(e.code);if(e.repeat)return;
+  if(e.code==='Space'&&!state.paused&&state.players[localId]?.hp>0&&!['victory','defeat'].includes(state.phase))jumpSeq++;
   if(e.code==='Digit1')selectTower('arrow');if(e.code==='Digit2')selectTower('ice');
-  if(e.code==='Escape'){selectTower(null);pointer.attack=false;}
+  if(e.code==='Escape'){selectTower(null);pointer.attack=false;view.aim=false;}
   if(e.code==='KeyE')dispatch({type:'interact'});
   if(e.code==='KeyT'){const carried=state.towers.find(t=>t.carrier===localId&&t.state==='carried');if(carried)dispatch({type:'deploy',towerId:carried.id});else dispatch({type:'pack'});}
   if(e.code==='KeyR')dispatch({type:'repair'});
 });
 window.addEventListener('keyup',e=>keys.delete(e.code));
-function stopInput(){keys.clear();pointer.attack=false;pointer.drag=false;if(active&&!isHost){network?.sendInput({mx:0,mz:0,yaw:view.yaw,attack:false});}}
+function stopInput(){keys.clear();pointer.attack=false;pointer.drag=false;view.aim=false;if(active&&!isHost){network?.sendInput({mx:0,mz:0,yaw:view.yaw,attack:false,sprint:false,jump:false,jumpSeq,aim:false});}}
 window.addEventListener('blur',stopInput);
+document.addEventListener('pointerlockchange',()=>{if(document.pointerLockElement!==canvas)stopInput();});
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 canvas.addEventListener('pointerdown',e=>{
   if(!active)return;audio.unlock();pointer.x=e.clientX;pointer.y=e.clientY;
-  if(e.button===2){pointer.drag=true;canvas.setPointerCapture?.(e.pointerId);return;}
+  if(e.button===2){view.aim=!view.aim;pointer.drag=document.pointerLockElement!==canvas;canvas.setPointerCapture?.(e.pointerId);return;}
   if(e.button!==0)return;
-  if(selectedTower){const pos=scene.pick(e.clientX,e.clientY);if(pos){dispatch(deployId?{type:'deploy',towerId:deployId,x:pos.x,z:pos.z}:{type:'build',towerType:selectedTower,x:pos.x,z:pos.z});if(deployId){deployId=null;selectedTower=null;}}}
-  else pointer.attack=true;
+  const locked=document.pointerLockElement===canvas;
+  if(selectedTower){const pos=scene.pick(locked?innerWidth/2:e.clientX,locked?innerHeight/2:e.clientY);if(pos){dispatch(deployId?{type:'deploy',towerId:deployId,x:pos.x,z:pos.z}:{type:'build',towerType:selectedTower,x:pos.x,z:pos.z});if(deployId){deployId=null;selectedTower=null;}}}
+  else{
+    pointer.attack=true;
+    // Only an explicit click requests capture. Tests use pw.mjs, which blocks it.
+    if(!locked){try{canvas.requestPointerLock?.()?.catch?.(()=>{});}catch{}}
+  }
 });
 window.addEventListener('pointerup',e=>{if(e.button===0)pointer.attack=false;if(e.button===2)pointer.drag=false;});
-window.addEventListener('pointermove',e=>{pointer.x=e.clientX;pointer.y=e.clientY;if(pointer.drag){view.yaw-=e.movementX*.006;view.pitch=Math.max(.2,Math.min(1.05,view.pitch+e.movementY*.004));}});
-canvas.addEventListener('wheel',e=>{e.preventDefault();view.distance=Math.max(6,Math.min(24,view.distance+e.deltaY*.01));},{passive:false});
+window.addEventListener('pointermove',e=>{const locked=document.pointerLockElement===canvas;pointer.x=locked?innerWidth/2:e.clientX;pointer.y=locked?innerHeight/2:e.clientY;if(locked||pointer.drag){view.yaw-=e.movementX*SEASON1_CAMERA.mouseSensitivity;view.pitch=Math.max(-1.5,Math.min(1.5,view.pitch-e.movementY*SEASON1_CAMERA.mouseSensitivity));}});
+canvas.addEventListener('wheel',e=>{e.preventDefault();view.zoom=season1Zoom(view.zoom,e.deltaY);},{passive:false});
 document.addEventListener('visibilitychange',()=>{stopInput();last=performance.now();if(document.hidden&&active&&isHost){state.paused=true;state._manualPause=true;network?.publish(state);setTimeout(()=>{if(document.hidden&&active&&isHost)network?.publish(state);},150);}});
 function input(){
   const f=(keys.has('KeyW')||keys.has('ArrowUp')?1:0)-(keys.has('KeyS')||keys.has('ArrowDown')?1:0);
   const r=(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0);
   let mx=-Math.sin(view.yaw)*f+Math.cos(view.yaw)*r,mz=-Math.cos(view.yaw)*f-Math.sin(view.yaw)*r;
   const n=Math.hypot(mx,mz);if(n>1){mx/=n;mz/=n;}
-  return {mx,mz,yaw:view.yaw,attack:pointer.attack||keys.has('Space')};
+  return {mx,mz,yaw:view.yaw,attack:pointer.attack,sprint:keys.has('ShiftLeft')||keys.has('ShiftRight'),jump:keys.has('Space'),jumpSeq,aim:view.aim};
 }
 let last=performance.now(),accumulator=0,networkTimer=0,uiTimer=0,inputTimer=0;
 function frame(now){
@@ -170,7 +192,7 @@ function frame(now){
     const current=input();inputs[localId]=current;
     // Lost/hidden guests must not keep moving or firing on their last packet.
     if(isHost)for(const pid of Object.keys(inputs))if(pid!==localId&&now-(inputReceived[pid]||0)>350)inputs[pid]={mx:0,mz:0,yaw:inputs[pid].yaw,attack:false};
-    if(isHost&&!manual&&connected){accumulator=Math.min(accumulator+dt,.2);while(accumulator>=1/30){sim.step(state,1/30,inputs);accumulator-=1/30;}}
+    if(isHost&&!manual&&connected){accumulator=Math.min(accumulator+dt,.2);while(accumulator>=1/60){sim.step(state,1/60,inputs);accumulator-=1/60;}}
     inputTimer+=dt;networkTimer+=dt;
     if(!isHost&&inputTimer>=.05){inputTimer=0;network?.sendInput(current);}
     if(isHost&&networkTimer>=.1){networkTimer=0;network?.publish(state);}
@@ -182,11 +204,14 @@ function frame(now){
   }
   view.placement=null;
   if(active&&selectedTower){const pos=scene.pick(pointer.x,pointer.y),p=state.players[localId];if(pos&&p)view.placement={...pos,type:selectedTower,valid:typeof sim.placementError==='function'?!sim.placementError(state,localId,pos.x,pos.z,deployId):!!zoneAt(pos.x,pos.z,state.stage)&&walkable(pos.x,pos.z,1.5)&&Math.abs(pos.x)>=3.4&&Math.hypot(pos.x-p.x,pos.z-p.z)<=8};}
-  scene.render(state,active?localId:'preview',dt,view);audio.update(dt);
+  const displayId=active?localId:'preview';
+  const predicted=active&&!isHost&&!manual&&connected?prediction.sample(state,localId,dt,input()):null;
+  const displayed=presentation.sample(state,displayId,dt,{interpolate:active&&!isHost,localPlayer:predicted,time:now/1000});
+  scene.render(displayed,displayId,dt,view);audio.update(dt);
   const stats=scene.stats();
   if(active&&!state.paused)perf.frame(elapsed,performance.now()-begin,stats,state);
   uiTimer+=dt;if(uiTimer>=.15){uiTimer=0;ui.update(state,{localId,isHost,room,mode,network:connected,selectedTower,placementHint:view.placement?.valid?'좌클릭으로 설치':'청색 지대 안, 통로 바깥에 설치해 주세요.',fps:perf.fps,stats,volumes:audio.getVolumes(),notice});}
 }
 requestAnimationFrame(frame);
-if(new URLSearchParams(location.search).get('test')==='1')window.__S2={getState:()=>state,sim,act:dispatch,step:(dt,all={})=>sim.step(state,dt,all),scene,audio,perf,setState(next){state=next;},setManual(v){manual=v;}};
+if(new URLSearchParams(location.search).get('test')==='1')window.__S2={getState:()=>state,getInput:input,view,sim,act:dispatch,step:(dt,all={})=>sim.step(state,dt,all),scene,audio,perf,setState(next){state=next;presentation.reset();prediction.reset();},setManual(v){manual=v;}};
 window.addEventListener('beforeunload',()=>network?.close());

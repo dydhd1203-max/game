@@ -6,10 +6,16 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import * as THREE from '../vendor/three.module.js';
 import {createSeason1Avatars,APPEARANCE_OPTIONS} from '../src/avatar-season1.mjs';
+import {createState,addPlayer,advancePlayerMovement} from '../src/sim.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'../..');
 const source=fs.readFileSync(path.join(root,'클로드/index.html'),'utf8');
 const harness=fs.readFileSync(path.join(root,'깃허브에올릴것/검사/t54-avatar-static.mjs'),'utf8');
-const loader=harness.slice(harness.indexOf('function scanEnd('),harness.indexOf('const A=context.API'));
+// The 54차 harness fixtures predate the current game's speed constants. Load
+// the original functions with the actual 106차 constants for motion parity.
+const sourceSpeed=Number(/\bSPD\s*=\s*([\d.]+)/.exec(source)[1]);
+const sourceRaceSpeed=Number(/\bRACE_SPD\s*=\s*([\d.]+)/.exec(source)[1]);
+const loader=harness.slice(harness.indexOf('function scanEnd('),harness.indexOf('const A=context.API'))
+  .replace('SPD=5.2,RACE_SPD=1.4',`SPD=${sourceSpeed},RACE_SPD=${sourceRaceSpeed}`);
 function reference(){return new Function('source','THREE','vm',loader+'\nreturn context.API;')(source,THREE,vm);}
 const actor=extra=>({x:0,y:0,z:0,ry:Math.PI,g:2,ph:0,mv:false,down:false,wp:0,we:0,hat:0,gls:0,clo:0,skin:0,jb:-1,jt:0,...extra});
 const array=value=>value?Array.from(value):undefined;
@@ -70,4 +76,50 @@ test('21-player snapshots keep animation history, retain source culling and clea
   api.render([far,near],'local',3,1/60);assert.equal(a.meshes.body.count,2);
   api.render([],'local',4,1/60);assert.equal(a.actors.size,0);assert.equal(a.meshes.body.count,0);
   api.dispose();assert.equal(scene.children.length,0);api.dispose();
+});
+
+test('Real simulation walking, sprinting, turns, jumping and landing reach the original avatar poses',()=>{
+  const state=createState();addPlayer(state,{id:'p0',name:'모션',team:2});state.phase='village';
+  const p=state.players.p0;p.x=0;p.z=0;
+  const api=createSeason1Avatars(THREE,new THREE.Scene()),a=api.inspect(),b=reference();
+  // The source actor is populated exactly as the original meSheep call site.
+  const referenceActor=actor({id:'p0',me:true,ph:1.7});
+  const phases=new Set();let jumpSeq=0;
+  for(let frame=0;frame<240;frame++){
+    const sprint=frame>=45&&frame<95,jump=frame===110||frame===125;
+    if(jump)jumpSeq++;
+    const input={mx:frame<70?.65:0,mz:frame<100?-.7:0,yaw:frame/110,sprint,jump,jumpSeq,aim:frame>=170};
+    advancePlayerMovement(state,p,1/60,input);
+    api.render(state.players,'p0',frame/60,1/60);
+    const live=a.actors.get('p0');
+    Object.assign(referenceActor,{x:p.x,y:p.y,z:p.z,ry:p.yaw,g:p.team,hat:p.hat,gls:p.face,clo:p.clothes,skin:p.skin,
+      mv:p.mv,run:p.run,air:p.air,vy:p.vy,gp:p.gp,take:p.take,land:p.land,flip:p.flip,aim:p.aim});
+    // Use the source's deterministic actor phase; no adapter state is used to
+    // derive the motion inputs or expected original matrices.
+    referenceActor.ph=1.7;
+    b.drawSheep([referenceActor],frame/60,40,()=>0x51cf66,.70);
+    compareMeshes(a.meshes,b.meshes);
+    for(const key of ['gp','run','mv','air','ground','take','land','flip','aim'])assert.equal(live[key],p[key],key);
+    if(p.mv&&!p.run&&!p.air)phases.add('walk');
+    if(p.run)phases.add('run');
+    if(p.take>0)phases.add('take');
+    if(p.air&&p.vy>0)phases.add('rise');
+    if(p.air&&p.vy<0)phases.add('fall');
+    if(p.flip>0)phases.add('flip');
+    if(p.land>0)phases.add('land');
+    if(p.aim)phases.add('aim');
+  }
+  assert.deepEqual([...phases].sort(),['aim','fall','flip','land','rise','run','take','walk']);
+  api.dispose();
+});
+
+test('Original first-person hiding preserves the local actor while excluding its body and shadow',()=>{
+  const api=createSeason1Avatars(THREE,new THREE.Scene()),a=api.inspect();
+  const players=[{id:'me',x:0,y:.08,z:0,hp:100,gp:1},{id:'friend',x:2,y:.08,z:0,hp:100}];
+  api.render(players,'me',0,1/60);const local=a.actors.get('me');
+  assert.equal(a.meshes.body.count,2);assert.equal(a.contact.count,2);
+  api.render(players,'me',1/60,1/60,null,{hideLocal:true});
+  assert.equal(a.meshes.body.count,1);assert.equal(a.contact.count,1);assert.equal(a.actors.get('me'),local);
+  api.render(players,'me',2/60,1/60);assert.equal(a.meshes.body.count,2);assert.equal(a.actors.get('me'),local);
+  api.dispose();
 });

@@ -1,8 +1,9 @@
 import * as THREE from '../vendor/three.module.js';
 import {createSeason1Avatars} from './avatar-season1.mjs';
+import {createSeason1Camera,SEASON1_CAMERA} from './camera-season1.mjs';
 import {buildVillageA} from './village-a.mjs';
 import {createBoarBoss} from './boar-boss.mjs';
-import {TEAM_COLORS, ZONES, VILLAGE_GROVE, FOREST_OBSTACLES, TOWERS, BEACON, GATE} from './content.mjs';
+import {TEAM_COLORS, ZONES, VILLAGE_SITES, VILLAGE_GROVE, FOREST_OBSTACLES, TOWERS, BEACON, GATE} from './content.mjs';
 
 // Season 1 (106): bpush/bbuild's shared geometry, per-instance tint and spatial
 // buckets. The exact Season 1 avatar module owns its original drawSheep model. This isolated
@@ -18,7 +19,12 @@ export function createScene(canvas) {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xc6dfd6);
   scene.fog = new THREE.Fog(0xc6dfd6, 42, 112);
-  const camera = new THREE.PerspectiveCamera(54, 1, .15, 190);
+  const camera = new THREE.PerspectiveCamera(SEASON1_CAMERA.fov,1,SEASON1_CAMERA.near,SEASON1_CAMERA.far);
+  const structureHeights={workshop:9,wagon:7.5,assembly:4,market:4.5,smithYard:3.4,supplyYard:3.5};
+  // Like Season 1, only solid structures shorten the boom; thin scenery does
+  // not pull the camera into the avatar. Finite heights allow looking over props.
+  const cameraObstacles=Object.entries(VILLAGE_SITES).map(([id,site])=>({...site,top:structureHeights[id]}));
+  const cameraRig=createSeason1Camera(THREE,camera,{obstacles:cameraObstacles,groundY:.08});
   const hemi = new THREE.HemisphereLight(0xfff8dd, 0x657a62, 2.15);
   scene.add(hemi);
   const sun = new THREE.DirectionalLight(0xffebc7, 2.5);
@@ -178,7 +184,7 @@ export function createScene(canvas) {
   groveTrunks.computeBoundingSphere();scene.add(groveTrunks);resources.add(groveTrunks);
   const hiddenLeafMatrix=new THREE.Matrix4().makeScale(0,0,0);
   function updateGroveVisibility(me){
-    const x=me?.x??0,y=1.1,z=me?.z??16;
+    const x=me?.x??0,y=(me?.y??.08)+1.1,z=me?.z??16;
     const dx=camera.position.x-x,dy=camera.position.y-y,dz=camera.position.z-z;
     const lengthSq=dx*dx+dy*dy+dz*dz;
     let dirty=false;
@@ -259,8 +265,6 @@ export function createScene(canvas) {
   const warnMat=new THREE.MeshBasicMaterial({color:0xff704a,transparent:true,opacity:.36,depthWrite:false,side:THREE.DoubleSide});resources.add(warnMat);
   const warnGeo=new THREE.PlaneGeometry(1,1);resources.add(warnGeo);
   const warning=new THREE.Mesh(warnGeo,warnMat);warning.rotation.x=-Math.PI/2;scene.add(warning);warning.visible=false;
-  const localMat=new THREE.MeshBasicMaterial({color:0xffe4a5,transparent:true,opacity:.8,depthWrite:false});resources.add(localMat);
-  const localRing=new THREE.Mesh(geo.ring,localMat);localRing.rotation.x=-Math.PI/2;localRing.scale.set(1.8,1.8,1.8);scene.add(localRing);
   const boar=createBoarBoss(THREE,scene,resources);
   const avatars=createSeason1Avatars(THREE,scene,{scale:.70,groundY:.08,groundAt:()=>.08});
   const frustum=new THREE.Frustum(),projection=new THREE.Matrix4(),sphere=new THREE.Sphere();
@@ -274,9 +278,15 @@ export function createScene(canvas) {
     const mat=new THREE.SpriteMaterial({map:texture,transparent:true,depthWrite:false});resources.add(mat);
     const sprite=new THREE.Sprite(mat);sprite.scale.set(2.15,.54,1);scene.add(sprite);sprites.set(p.id,{sprite,name:p.name,texture});return sprite;
   }
-  function playerLabel(p){
+  function playerLabel(p,hide=false){
+    if(hide){const item=sprites.get(p.id);if(item)item.sprite.visible=false;return;}
     const label=nameSprite(p);
-    if(label){label.visible=p.online!==false&&visible(p.x,p.z,3);label.position.set(p.x,p.hp>0?1.8:.78,p.z);}
+    if(label){
+      label.visible=p.online!==false&&visible(p.x,p.z,3);label.position.set(p.x,(p.y??.08)+(p.hp>0?1.8:.78),p.z);
+      // Near Season 1 camera: keep friends' labels below 26 screen pixels.
+      const size=Math.min(.54,26*2*Math.tan(camera.fov*Math.PI/360)*camera.position.distanceTo(label.position)/Math.max(1,height));
+      label.scale.set(size*2.15/.54,size,1);
+    }
   }
   function zombie(p,t){
     if(!visible(p.x,p.z,4))return;const large=p.kind==='brute',k=large?1.4:1,x=p.x,z=p.z,yaw=(p.yaw||0)+Math.PI;
@@ -342,31 +352,30 @@ export function createScene(canvas) {
       }
     }
   }
-  const target=new THREE.Vector3(0,1.4,16),desired=new THREE.Vector3();
-  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),plane=new THREE.Plane(new THREE.Vector3(0,1,0),0),hit=new THREE.Vector3();
-  let cameraReady=false;
+  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),plane=new THREE.Plane(new THREE.Vector3(0,1,0),-.08),hit=new THREE.Vector3();
+  const cameraView={},avatarRenderOptions={hideLocal:false};
+  const emptyPlayer={x:0,y:.08,z:25,ground:true,mv:false};
   function render(state,localId,dt,options={}){
     dt=Math.min(.1,Math.max(0,dt||0));elapsed+=state?.paused?0:dt;
     const w=canvas.clientWidth||window.innerWidth||800,h=canvas.clientHeight||window.innerHeight||600;
     if(w!==width||h!==height){width=w;height=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
     const players=state?.players||{},me=players[localId]||Object.values(players)[0];
     const phase=state?.phase||'lobby';
-    const yaw=Number.isFinite(options.yaw)?options.yaw:0,pitch=Number.isFinite(options.pitch)?Math.max(.2,Math.min(1.3,options.pitch)):.64,distance=Math.max(6,Math.min(26,options.distance||18));
-    const tx=(me?.x??0)-Math.sin(yaw)*2.8,tz=(me?.z??16)-Math.cos(yaw)*2.8;
-    const leap=Math.hypot(target.x-tx,target.z-tz)>18||phase!==lastPhase;
-    desired.set(tx,2.1,tz);target.lerp(desired,!cameraReady||leap?1:1-Math.exp(-dt*13));
-    camera.position.set(target.x+Math.sin(yaw)*Math.cos(pitch)*distance,target.y+Math.sin(pitch)*distance,target.z+Math.cos(yaw)*Math.cos(pitch)*distance);
-    camera.lookAt(target);camera.updateMatrixWorld();cameraReady=true;lastPhase=phase;
+    if(phase!==lastPhase)cameraRig.reset();lastPhase=phase;
+    cameraView.yaw=options.yaw;cameraView.pitch=options.pitch;cameraView.zoom=options.zoom;
+    cameraView.aim=options.aim;cameraView.phase=phase;
+    const cameraState=cameraRig.update(me||emptyPlayer,dt,cameraView);
+    camera.updateMatrixWorld();avatarRenderOptions.hideLocal=cameraState.bodyHidden;
     updateGroveVisibility(me);
     projection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);frustum.setFromProjectionMatrix(projection);
     const village=phase==='lobby'||phase==='village'||phase==='victory';color.setHex(village?0xcbded0:0xb7d2c7);scene.background.lerp(color,.06);scene.fog.color.copy(scene.background);
     for(const b of dynamic.values())b.count=0;shadows.count=0;
     for(const item of sprites.values())item.sprite.visible=false;
-    let pc=0;for(const p of Object.values(players)){if(p.online===false)continue;if(++pc>30)break;playerLabel(p);}
+    let pc=0;for(const p of Object.values(players)){if(p.online===false)continue;if(++pc>30)break;playerLabel(p,p.id===localId);}
     for(const [id,item] of sprites){if(!players[id]||players[id].online===false){scene.remove(item.sprite);item.texture.dispose();item.sprite.material.dispose();resources.delete(item.texture);resources.delete(item.sprite.material);sprites.delete(id);}}
-    avatars.setWeapon(village?0:3);avatars.render(players,localId,elapsed,dt,frustum);
+    avatars.setWeapon(village?0:3);avatars.render(players,localId,elapsed,dt,frustum,avatarRenderOptions);
     const towers=state?.towers||[];for(let i=0;i<Math.min(80,towers.length);i++)tower(towers[i],elapsed);
-    for(const t of towers){if(t.state==='carried'){const carrier=players[t.carrier];if(carrier&&visible(carrier.x,carrier.z))localPart(dyn,'capsule',carrier.x,carrier.z,carrier.yaw||0,0,.68,.34,.48,.5,.4,t.type==='ice'?0x9edbe4:0xc19b6b);}}
+    for(const t of towers){if(t.state==='carried'){const carrier=players[t.carrier];if(carrier&&!(carrier.id===localId&&cameraState.bodyHidden)&&visible(carrier.x,carrier.z))localPart(dyn,'capsule',carrier.x,carrier.z,carrier.yaw||0,0,(carrier.y??.08)+.68,.34,.48,.5,.4,t.type==='ice'?0x9edbe4:0xc19b6b);}}
     const enemies=state?.enemies||[];for(let i=0;i<Math.min(100,enemies.length);i++)zombie(enemies[i],elapsed);
     const boss=state?.boss;
     const bossVisible=!!boss&&boss.hp>0&&visible(boss.x,boss.z,10);
@@ -381,7 +390,6 @@ export function createScene(canvas) {
     if(warning.visible){const dx=b.dx??Math.sin(b.yaw||0),dz=b.dz??Math.cos(b.yaw||0),len=b.chargeLength||18;warning.position.set(b.x+dx*len/2,.09,b.z+dz*len/2);warning.rotation.set(-Math.PI/2,Math.atan2(-dx,-dz),0,'YXZ');warning.scale.set(b.chargeWidth||5.2,len,1);warnMat.opacity=b.phase==='charge'?.17:.24+Math.sin(elapsed*12)*.1;}
     const placement=options.placement;preview.visible=previewRing.visible=!!placement;
     if(placement){const tint=placement.valid?0xa8e7bd:0xe99f8c;preview.position.set(placement.x,.32,placement.z);preview.scale.set(2.35,.58,2.35);previewMat.color.setHex(tint);previewRing.position.set(placement.x,.11,placement.z);const range=(TOWERS[placement.type]?.range||14)*2;previewRing.scale.set(range,range,1);previewRingMat.color.setHex(tint);}
-    localRing.visible=!!me&&me.hp>0;if(me)localRing.position.set(me.x,.1,me.z);
     updateEvents(state?.events||[],state?.paused?0:dt);
     // Like Season 1's bounded dirty uploads, upload only the packed visible
     // instances, not every slot of the reusable maximum-capacity buffers.
@@ -393,7 +401,7 @@ export function createScene(canvas) {
     renderer.render(scene,camera);
   }
   function pick(clientX,clientY){const bounds=canvas.getBoundingClientRect();if(!bounds.width||!bounds.height)return null;pointer.set((clientX-bounds.left)/bounds.width*2-1,-(clientY-bounds.top)/bounds.height*2+1);raycaster.setFromCamera(pointer,camera);const p=raycaster.ray.intersectPlane(plane,hit);return p?{x:p.x,z:p.z}:null;}
-  function stats(){return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,pixelRatio:renderer.getPixelRatio(),aaSamples,art:{village:villageArt.stats,boar:boar.stats}};}
+  function stats(){return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,pixelRatio:renderer.getPixelRatio(),aaSamples,camera:{...cameraRig.state(),fov:camera.fov,x:camera.position.x,y:camera.position.y,z:camera.position.z,pitch:camera.rotation.x,yaw:camera.rotation.y},art:{village:villageArt.stats,boar:boar.stats}};}
   function dispose(){avatars.dispose();boar.dispose();for(const resource of resources)resource.dispose?.();resources.clear();renderer.dispose();sprites.clear();effectPool.length=0;}
-  return {render,pick,stats,dispose};
+  return {render,pick,stats,dispose,resetCamera:()=>cameraRig.reset()};
 }

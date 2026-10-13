@@ -27,7 +27,7 @@ const server = createServer(async (req, res) => {
 
 let browser;
 const report = {
-  build:'s2-003', environment:'hidden Chromium; software WebGL; 1280×800; DPR 1',
+  build:'s2-004', environment:'hidden Chromium; software WebGL; 1280×800; DPR 1',
   scope:'UI entry and movement are real input. Stress/boss images use explicitly synthetic fixtures.',
   notMeasured:['21 physical clients', 'real LG gram FPS', 'sound quality by listening'],
   checks:[], screenshots:[], renderer:{}, errors:[]
@@ -135,7 +135,7 @@ try {
     localStorage.setItem(key,JSON.stringify(legacy));
   });
   await page.locator('#load-button').click();
-  await page.waitForFunction(() => __S2.getState().version==='s2-003'&&__S2.getState().supplies===913);
+  await page.waitForFunction(() => __S2.getState().version==='s2-004'&&__S2.getState().supplies===913);
   const migrated=await page.evaluate(()=>{const s=__S2.getState(),p=Object.values(s.players)[0];return {x:p.x,z:p.z,cosmetics:[p.hat,p.face,p.clothes]};});
   assert.ok(Math.abs(migrated.x)<5&&migrated.z===25,'Legacy building overlap returns to the clear plaza');
   assert.deepEqual(migrated.cosmetics,[9,8,2]);

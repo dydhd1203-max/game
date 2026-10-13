@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createState, addPlayer, setOnline, applyAction, placementError, step, restoreVillagePositions} from '../src/sim.mjs';
 import {BEACON, GATE, OBSTACLES, VILLAGE_SITES, VILLAGE_GROVE, walkable} from '../src/content.mjs';
+import {SEASON1_MOTION} from '../src/locomotion-season1.mjs';
 
 const teacher = {teacher:true};
 function room(n=1) {
@@ -83,10 +84,13 @@ test('new player cosmetic inputs normalize to bounded Season 1 indices',()=>{
 test('movement normalizes input, clamps dt, rejects nonfinite values, and respects phase gates/rocks',()=>{
   const s=room();const p=s.players.p0;
   Object.assign(p,{x:0,z:0});step(s,100,{p0:{mx:1,mz:1,yaw:Infinity}});
-  assert.ok(Math.abs(Math.hypot(p.x,p.z)-.7)<1e-8);
-  const old={x:p.x,z:p.z,yaw:p.yaw,time:s.time};
+  const decay=Math.exp(-.1*SEASON1_MOTION.lobbyAcceleration);
+  assert.ok(Math.abs(Math.hypot(p.x,p.z)-SEASON1_MOTION.speed*.1*(1-decay))<1e-8);
+  const old={x:p.x,z:p.z,vx:p.vx,vz:p.vz,yaw:p.yaw,time:s.time};
   step(s,NaN,{p0:{mx:NaN,mz:Infinity}});assert.equal(s.time,old.time);
-  step(s,.1,{p0:{mx:NaN,mz:Infinity,yaw:NaN}});assert.equal(p.x,old.x);assert.equal(p.z,old.z);assert.equal(p.yaw,old.yaw);
+  step(s,.1,{p0:{mx:NaN,mz:Infinity,yaw:NaN}});
+  assert.ok(Math.abs(p.x-(old.x+old.vx*decay*.1))<1e-8,'invalid input becomes zero intent and retains Season 1 easing');
+  assert.ok(Math.abs(p.z-(old.z+old.vz*decay*.1))<1e-8);assert.equal(p.yaw,old.yaw);
   Object.assign(p,{x:0,z:-8.9});tick(s,1,{p0:{mz:-1}});assert.ok(p.z>=-9);
   const workshop=OBSTACLES[0];
   Object.assign(p,{x:workshop.x+workshop.r+.7,z:workshop.z});tick(s,1,{p0:{mx:-1}});assert.ok(p.x>workshop.x+workshop.r+.64,'visible workshop perimeter blocks walk');
@@ -336,7 +340,7 @@ test('dense village preserves classroom passage and collides with every solid fr
     assert.ok(walkable(p.x,p.z,.65),'Each classroom spawn is clear');
     input[p.id]={mz:-1};
   }
-  tick(s,6,input);
+  tick(s,7.5,input);
   for(const p of Object.values(s.players))assert.ok(p.z<=-8.7&&p.z>=-9,'Every student reaches the village gate');
   const p=s.players.p0;
   for(const [name,site] of [...Object.entries(VILLAGE_SITES),...VILLAGE_GROVE.map((site,i)=>['grove-'+i,site])]){
