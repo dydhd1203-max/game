@@ -59,7 +59,10 @@ function cleanProfile(value) {
 }
 function cleanInput(value) {
   const finite=(n) => Number.isFinite(n) ? n : 0;
-  return {mx:Math.max(-1,Math.min(1,finite(value?.mx))),mz:Math.max(-1,Math.min(1,finite(value?.mz))),yaw:finite(value?.yaw) % (Math.PI*2),attack:!!value?.attack};
+  return {mx:Math.max(-1,Math.min(1,finite(value?.mx))),mz:Math.max(-1,Math.min(1,finite(value?.mz))),
+    yaw:finite(value?.yaw) % (Math.PI*2),attack:!!value?.attack,
+    sprint:value?.sprint===true,jump:value?.jump===true,aim:value?.aim===true,
+    jumpSeq:Number.isSafeInteger(value?.jumpSeq)&&value.jumpSeq>=0?value.jumpSeq:0};
 }
 function cleanAction(value) {
   if (!value || typeof value.type!=='string' || value.type.length>24) return null;
@@ -251,7 +254,7 @@ export function createNetwork({onSnapshot=()=>{},onRoster=()=>{},onInput=()=>{},
     if (now-lastPublishAt<100) return;
     lastPublishAt=now;
     // Only one Firebase write is in flight, with one newest state waiting behind it.
-    // Snapshot clone freezes the 30 Hz mutable simulation at its publication instant.
+    // Snapshot clone freezes the mutable simulation at its publication instant.
     pendingState=JSON.parse(JSON.stringify(state));
     if (publishing) return;
     publishing=true;const generation=epoch;

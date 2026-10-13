@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {webcrypto} from 'node:crypto';
 import {createNetwork,DB_ROOT,NETWORK_VERSION,NET_STATUS} from '../src/net.mjs';
+import {createState,addPlayer,step} from '../src/sim.mjs';
 if (!globalThis.crypto) globalThis.crypto=webcrypto;
 
 const clone=value=>value===undefined ? null : structuredClone(value);
@@ -150,6 +151,43 @@ test('input transport is limited to 20 Hz and snapshots to 10 Hz',async()=>{
   assert.equal(guest.events.snapshot.at(-1).phase,'boss');await f.close();
 });
 
+test('Season 1 sprint, jump sequence and aim survive guest-to-host movement and snapshot round-trip',async()=>{
+  const f=fixture(),host=f.make(),guest=f.make();
+  await connect(host,'host','teacher');await connect(guest,'join','student');await flush();
+  const game=createState(),player=addPlayer(game,profile('student'));game.phase='village';
+  const input={mx:1,mz:0,yaw:.4,attack:false,sprint:true,jump:true,jumpSeq:1,aim:true};
+  guest.network.sendInput(input);await flush();
+  const received=host.events.input.at(-1);
+  assert.deepEqual(received,['student',input]);
+  step(game,1/60,{student:received[1]});
+  assert.equal(player.air,true);assert.equal(player.run,true);assert.equal(player.aim,true);assert.equal(player._jumpSeq,1);
+  for(let i=0;i<8;i++)step(game,1/60,{student:received[1]});
+  assert.equal(player.jumps,0,'reusing one input packet cannot trigger the second jump');
+  f.advance(50);guest.network.sendInput({...input,jump:false,jumpSeq:2});await flush();
+  step(game,1/60,{student:host.events.input.at(-1)[1]});
+  assert.equal(player.jumps,1,'a released tap survives the send interval by sequence');assert.ok(player.flip>0);
+  host.network.publish(game);await flush();
+  assert.deepEqual(guest.events.snapshot.at(-1).players.student,player);
+  await f.close();
+});
+
+test('outgoing and incoming motion controls accept only booleans and safe nonnegative jump sequence numbers',async()=>{
+  const f=fixture(),host=f.make(),guest=f.make();
+  await connect(host,'host','teacher');await connect(guest,'join','student');await flush();
+  const invalid=[-1,1.5,NaN,Infinity,Number.MAX_SAFE_INTEGER+1,'2',null];
+  for(const jumpSeq of invalid) {
+    f.advance(50);guest.network.sendInput({sprint:'true',jump:1,aim:{on:true},jumpSeq});await flush();
+    const input=host.events.input.at(-1)[1];
+    assert.equal(input.sprint,false);assert.equal(input.jump,false);assert.equal(input.aim,false);assert.equal(input.jumpSeq,0);
+  }
+  f.advance(50);guest.network.sendInput({jump:true,jumpSeq:Number.MAX_SAFE_INTEGER});await flush();
+  assert.equal(host.events.input.at(-1)[1].jumpSeq,Number.MAX_SAFE_INTEGER);
+  const path=`${root}/inputs/student`,packet=f.database.get(path);
+  await f.database.set(path,{...packet,seq:packet.seq+1,input:{mx:NaN,mz:Infinity,sprint:1,jump:'yes',aim:[],jumpSeq:-4}});await flush();
+  assert.deepEqual(host.events.input.at(-1),['student',{mx:0,mz:0,yaw:0,attack:false,sprint:false,jump:false,aim:false,jumpSeq:0}]);
+  await f.close();
+});
+
 test('presence tracks departure and closing all clients removes every listener and timer',async()=>{
   const f=fixture(),host=f.make(),guest=f.make();
   await connect(host,'host','teacher');await connect(guest,'join','student');await flush();
@@ -203,9 +241,12 @@ test('slow writes keep only one in flight and the latest queued snapshot/input',
   const snapshots=f.database.writes.filter(w=>w.path.endsWith('/snapshot'));
   assert.equal(snapshots.length,2);assert.equal(snapshots[0].value.state.time,0);assert.equal(snapshots[1].value.state.time,29);
   f.database.hold('/inputs/');
-  for(let i=0;i<30;i++){guest.network.sendInput({mx:i%2,mz:0,yaw:i});f.advance(50);}
+  for(let i=0;i<30;i++){guest.network.sendInput({mx:i%2,mz:0,yaw:i,jump:i%2===0,jumpSeq:i,sprint:true,aim:true});f.advance(50);}
   assert.equal(f.database.held.length,1);f.database.release();await flush();
-  assert.equal(host.events.input.length,2);assert.equal(host.events.input[1][1].yaw,29%(Math.PI*2));await f.close();
+  assert.equal(host.events.input.length,2);assert.equal(host.events.input[1][1].yaw,29%(Math.PI*2));
+  assert.equal(host.events.input[1][1].jumpSeq,29,'coalescing preserves the newest tap even after key release');
+  assert.equal(host.events.input[1][1].jump,false);assert.equal(host.events.input[1][1].sprint,true);assert.equal(host.events.input[1][1].aim,true);
+  await f.close();
 });
 
 test('offline close detaches immediately while preserving server cleanup until acknowledgement',async()=>{

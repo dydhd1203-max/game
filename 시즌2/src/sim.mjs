@@ -1,9 +1,11 @@
 import {BUILD, SPAWN, BEACON, GATE, BOSS_HOME, TOWERS, walkable, zoneAt} from './content.mjs';
+import {advanceSeason1Motion, resetSeason1Motion, stopSeason1Motion,
+  MOTION_JUMP, MOTION_DOUBLE_JUMP, MOTION_LAND} from './locomotion-season1.mjs';
 
 // Only the room host runs this module. All values crossing the input boundary
 // are checked here as well as in the transport; snapshots contain plain JSON.
 const MAX_PLAYERS = 21, MAX_TOWERS = 30, TEAM_TOWERS = 6;
-const MOVE_SPEED = 7, PLAYER_RADIUS = .65;
+const PLAYER_RADIUS = .65;
 const CHARGE_SPEED = 20, CHARGE_TIME = .9, CHARGE_RADIUS = 2.6;
 const COSMETIC_LIMITS = {hat:16, face:11, clothes:13};
 const TEACHER_ACTIONS = new Set(['start', 'depart', 'pause', 'retry', 'return']);
@@ -62,6 +64,7 @@ export function addPlayer(s, profile) {
     hat:cleanCosmetic(profile.hat, 'hat'), face:cleanCosmetic(profile.face, 'face'),
     clothes:cleanCosmetic(profile.clothes, 'clothes'), ...pos, yaw:0, hp:100, maxHp:100, online:true,
     downUntil:0, ready:false, shotCooldown:0, reviveTarget:null, reviveProgress:0};
+  resetSeason1Motion(p);
   Object.defineProperty(s.players, p.id, {value:p, enumerable:true, configurable:true, writable:true});
   if (s._emptyPause) { s._emptyPause = false; s.paused = !!s._manualPause; }
   return p;
@@ -86,7 +89,7 @@ export function setOnline(s, id, value) {
   const p = s.players[id];
   if (value === true && !p.online && online(s).length >= MAX_PLAYERS) return;
   p.online = value === true;
-  if (!p.online) { recoverCarrier(s, id); p.reviveTarget = null; p.reviveProgress = 0; }
+  if (!p.online) { recoverCarrier(s, id); p.reviveTarget = null; p.reviveProgress = 0; stopSeason1Motion(p); }
   if (!online(s).length) { s._emptyPause = true; s.paused = true; }
   else if (s._emptyPause) { s._emptyPause = false; s.paused = !!s._manualPause; }
 }
@@ -101,6 +104,7 @@ function resetPlayers(s) {
   for (const p of Object.values(s.players)) {
     Object.assign(p, spawnPosition(s, i++), {hp:p.maxHp, downUntil:0, shotCooldown:0,
       reviveTarget:null, reviveProgress:0});
+    resetSeason1Motion(p);
   }
 }
 
@@ -288,6 +292,7 @@ export function restoreVillagePositions(s) {
   for (const p of Object.values(s.players)) {
     if (walkable(p.x,p.z,PLAYER_RADIUS) && p.z >= -9) continue;
     p.x=SPAWN.x+(moved%7-3)*1.1; p.z=SPAWN.z+Math.floor(moved/7)*1.1;
+    resetSeason1Motion(p);
     moved++;
   }
   return moved;
@@ -312,7 +317,7 @@ function hurtPlayer(s, p, amount) {
   if (p.hp <= 0) return;
   p.hp = Math.max(0, p.hp - amount); emit(s, 'hit', p);
   p.reviveTarget = null; p.reviveProgress = 0;
-  if (!p.hp) { p.downUntil = s.time + 15; recoverCarrier(s, p.id); emit(s, 'down', p); }
+  if (!p.hp) { p.downUntil = s.time + 15; recoverCarrier(s, p.id); stopSeason1Motion(p); emit(s, 'down', p); }
 }
 
 function hurtTower(s, t, amount) {
@@ -348,23 +353,32 @@ function nearestEnemy(s, source, range) {
   return best;
 }
 
+// The host and an optional local predicted actor share the same motion and map
+// constraints. Prediction never executes damage, tower work or phase changes.
+export function advancePlayerMovement(s, p, dt, input = {}) {
+  if(!p?.online||p.hp<=0||s.paused||s.phase==='victory'||s.phase==='defeat')return 0;
+  const carrying=s.towers.some(t=>t.carrier===p.id&&t.state==='carried');
+  return advanceSeason1Motion(p,input,Math.min(dt,.1),{phase:s.phase,carrying,
+    move:(body,dx,dz)=>move(s,body,dx,dz)});
+}
+
 function updatePlayers(s, dt, inputs) {
   for (const p of Object.values(s.players)) {
     if (!p.online) continue;
     if (p.hp <= 0) {
       if (s.time >= p.downUntil && active(s)) {
         Object.assign(p, spawnPosition(s, Math.max(0, online(s).indexOf(p))), {hp:p.maxHp, downUntil:0});
+        resetSeason1Motion(p);
         emit(s, 'revive', p);
       }
       continue;
     }
     const input = inputs && Object.hasOwn(inputs, p.id) && inputs[p.id] && typeof inputs[p.id] === 'object' ? inputs[p.id] : {};
-    let mx = finite(input.mx) ? clamp(input.mx, -1, 1) : 0;
-    let mz = finite(input.mz) ? clamp(input.mz, -1, 1) : 0;
-    const len = Math.hypot(mx, mz); if (len > 1) { mx /= len; mz /= len; }
     const carrying = s.towers.some(t => t.carrier === p.id && t.state === 'carried');
-    move(s, p, mx * MOVE_SPEED * (carrying ? .8 : 1) * dt, mz * MOVE_SPEED * (carrying ? .8 : 1) * dt);
-    if (finite(input.yaw)) p.yaw = ((input.yaw % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
+    const motion=advancePlayerMovement(s,p,dt,input);
+    if(motion&MOTION_JUMP)emit(s,'jump',p);
+    if(motion&MOTION_DOUBLE_JUMP)emit(s,'hop',p);
+    if(motion&MOTION_LAND)emit(s,'land',p);
     p.shotCooldown = Math.max(0, p.shotCooldown - dt);
     if (active(s) && input.attack === true && !carrying && p.shotCooldown <= 0) {
       const e = nearestEnemy(s, p, 16);
@@ -372,12 +386,13 @@ function updatePlayers(s, dt, inputs) {
     }
     if (p.reviveTarget) {
       const friend = s.players[p.reviveTarget];
-      if (!friend || !friend.online || friend.hp > 0 || distance(friend,p) > 3 || len > .05 || input.attack === true) {
+      if (!friend || !friend.online || friend.hp > 0 || distance(friend,p) > 3 || p.mv || p.air || input.attack === true) {
         p.reviveTarget = null; p.reviveProgress = 0;
       } else {
         p.reviveProgress += dt;
         if (p.reviveProgress >= 3) {
           friend.hp = Math.ceil(friend.maxHp * .6); friend.downUntil = 0;
+          resetSeason1Motion(friend);
           p.reviveTarget = null; p.reviveProgress = 0; emit(s, 'revive', friend);
         }
       }

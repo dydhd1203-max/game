@@ -1,8 +1,8 @@
 // Season 2 test expedition: village → forest beacon → first boss.
 // Changed village collision layout requires matching multiplayer clients.
-// Local s2-001/s2-002 checkpoints are explicitly migrated when loaded.
-export const BUILD = 's2-003';
-export const RELEASE = 's2-003';
+// Earlier local checkpoints are explicitly migrated when loaded.
+export const BUILD = 's2-004';
+export const RELEASE = 's2-004';
 export const SEASON = 2;
 // Dedicated reserved subtree of the existing classroom backend. Season 1 room
 // codes are uppercased; they never address this lowercase reserved path.
