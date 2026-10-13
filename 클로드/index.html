@@ -4688,7 +4688,7 @@ import * as THREE from 'three';
 /* ★ 판 번호 — 고칠 때마다 여기 한 줄만 올린다. 화면에는 안 쓰고(51차c) 콘솔(F12)에 '좀비의 밤 — N차 · …' 로 찍힌다.
    같은 판끼리만 함께 입장한다 — 수업 중에 새 판이 올라가면 선생님도 새로고침하고 방을 새로 만든다.
    이게 없어서 "새 파일을 올렸는데 화면이 그대로다" 를 확인할 방법이 없었다. */
-const GAME_VER = '105차 · 빛나는 RPG UI와 갱신 최적화';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
+const GAME_VER = '106차 · 후반 건축물 공간 분할 + 성능 기록 보강';   // 꾸미기 ID·도넛 판정·입장 흐름이 같아야 함께 입장한다.
 /* ★ 67차 — 성곽(od 49~53)과 그 바깥 해자·풀 비탈이 들어설 자리를 만들려고 **세상 끝만** 68 → 78 로 넓혔다
    (선생님: "맵 크기를 키워야 된다면 키워"). 마당·산 시작·협곡 끝·성문·좀비 출발(ARENA_R·RING_A·RING_D·GATE_T·SPAWN_R)은 그대로라
    짓는 곳·협곡·계단·좀비 걸음은 안 바뀐다. 격자 반경 HW 는 세상 끝을 5칸 여유로 품는다 — 그래서 FIELD_R 을 HW 보다 먼저 쓴다. */
@@ -6940,7 +6940,7 @@ function recTick(dt){
   const night = G.started && G.phase === 'night';
   if(night && !REC.cur){ const d = new Date();
     REC.cur = {day:G.day, at:String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'), ver:GAME_VER.split(' ')[0],
-               pr:+renderer.getPixelRatio().toFixed(2), aa:GFX.aa, bat:'', s:[]};
+               pr:+renderer.getPixelRatio().toFixed(2), aa:GFX.aa, bat:'', host:!!G.host, s:[]};
     REC.acc = 4.5;
     try{ if(navigator.getBattery) navigator.getBattery().then(b=>{ if(REC.cur) REC.cur.bat = (b.charging ? '전원 ' : '배터리 ') + Math.round(b.level*100) + '%'; }); }catch(e){} }
   if(!REC.cur) return;
@@ -6949,8 +6949,9 @@ function recTick(dt){
     let near = 0, atk = 0;
     for(const w of G.wolves){ if(Math.hypot(w.x - camera.position.x, w.z - camera.position.z) < 12) near++; if(Math.hypot(w.x, w.z) < 4.6) atk++; }
     let an = 0; try{ an = document.getAnimations().length; }catch(e){}
+    let towers = 0; for(const o of STRU.values()) if(o.t==='arrow'||o.t==='ice'||o.t==='pulse'||o.t==='barr') towers++;
     REC.cur.s.push([Math.round(G.set.nightSec - G.t), fpsVal, +cpuLoopMs.toFixed(1), +brMs.toFixed(1), +gpuMs.toFixed(1),
-                    G.wolves.length, near, atk, pcMap.size, an, recCalls, Math.round(recTris/1000)]); }
+                    G.wolves.length, near, atk, pcMap.size, an, recCalls, Math.round(recTris/1000), STRU.size, towers]); }
   if(!night){
     if(REC.cur.s.length){ REC.nights.push(REC.cur); while(REC.nights.length > 3) REC.nights.shift();
       try{ localStorage.setItem('nightRec102', JSON.stringify(REC.nights)); }catch(e){} }
@@ -6959,17 +6960,17 @@ function recTick(dt){
 function recText(){
   const list = REC.cur && REC.cur.s.length ? [REC.cur, ...REC.nights.slice().reverse()] : REC.nights.slice().reverse();
   if(!list.length) return '아직 기록된 밤이 없어요. 밤이 지나면 여기 저절로 적힙니다(측정 모드 없이도).';
-  let out = '열: +초 · fps · JS · 브라우저 · GPU(ms) · 좀비 · 근접 · 수정치기 · 친구 · 애니 · 콜 · 삼각형K\n'
-          + '읽는 법: fps 낮은 줄에서 브라우저가 크면 HUD·합성, GPU 가 크면 그리기, JS 가 크면 로직·통신\n';
+  let out = '열: +초 · fps · JS · 대기 · GPU(ms) · 좀비 · 근접 · 수정치기 · 친구 · 애니 · 콜 · 삼각형K · 건물 · 타워(병영 포함)\n'
+          + '약 5초 간격 표본의 요약과 FPS가 가장 낮은 5줄입니다. 대기 = JS 콜백 밖 시간(화면 주기·GPU·합성 등), HUD 비용만은 아닙니다. JS와 GPU는 겹칠 수 있어 합산하지 않습니다.\n';
   for(const n of list){
     const S = n.s, fps = S.map(r=>r[1]), avg = a => a.length ? a.reduce((x,y)=>x+y,0)/a.length : 0;
     const p60 = Math.round(100*fps.filter(f=>f>=55).length/fps.length);
-    out += '\n■ ' + n.day + '일차 밤 ' + n.at + (n === REC.cur ? '(지금)' : '') + ' · ' + n.ver + ' · 그리기 ' + n.pr + ' · AA x' + n.aa + (n.bat ? ' · ' + n.bat : '') + ' · ' + Math.round(S[S.length-1][0]) + '초 · 친구 최대 ' + Math.max(...S.map(r=>r[8])) + '\n'
-         + '  fps 최저 ' + Math.min(...fps) + ' · 평균 ' + Math.round(avg(fps)) + ' · 55 넘는 비율 ' + p60 + '%'
-         + ' | 평균 JS ' + avg(S.map(r=>r[2])).toFixed(1) + ' · 브라우저 ' + avg(S.map(r=>r[3])).toFixed(1) + ' · GPU ' + avg(S.map(r=>r[4])).toFixed(1) + 'ms'
+    out += '\n■ ' + n.day + '일차 밤 ' + n.at + (n === REC.cur ? '(지금)' : '') + ' · ' + n.ver + ' · 그리기 ' + n.pr + ' · AA x' + n.aa + (n.bat ? ' · ' + n.bat : '') + (typeof n.host==='boolean' ? (n.host ? ' · 호스트' : ' · 손님') : '') + ' · ' + Math.round(S[S.length-1][0]) + '초 · 친구 최대 ' + Math.max(...S.map(r=>r[8])) + '\n'
+         + '  fps 최저 ' + Math.min(...fps) + ' · 평균 ' + Math.round(avg(fps)) + ' · 55 이상 표본 ' + p60 + '%'
+         + ' | 평균 JS ' + avg(S.map(r=>r[2])).toFixed(1) + ' · 대기 ' + avg(S.map(r=>r[3])).toFixed(1) + ' · GPU ' + avg(S.map(r=>r[4])).toFixed(1) + 'ms'
          + ' | 좀비 최대 ' + Math.max(...S.map(r=>r[5])) + ' · 수정치기 최대 ' + Math.max(...S.map(r=>r[7])) + ' · 애니 최대 ' + Math.max(...S.map(r=>r[9])) + '\n';
     const worst = S.slice().sort((a,b)=>a[1]-b[1]).slice(0,5).sort((a,b)=>a[0]-b[0]);
-    for(const r of worst) out += '  +' + String(r[0]).padStart(3,' ') + '초  fps' + String(r[1]).padStart(3,' ') + '  JS' + r[2] + ' 브' + r[3] + ' GPU' + r[4] + '  좀비' + r[5] + ' 근접' + r[6] + ' 치기' + r[7] + ' 친구' + r[8] + ' 애니' + r[9] + ' 콜' + r[10] + ' △' + r[11] + 'K\n';
+    for(const r of worst) out += '  +' + String(r[0]).padStart(3,' ') + '초  fps' + String(r[1]).padStart(3,' ') + '  JS' + r[2] + ' 대기' + r[3] + ' GPU' + r[4] + '  좀비' + r[5] + ' 근접' + r[6] + ' 치기' + r[7] + ' 친구' + r[8] + ' 애니' + r[9] + ' 콜' + r[10] + ' △' + r[11] + 'K' + (r.length>=14 ? ' 건물'+r[12]+' 타워'+r[13] : '') + '\n';
   }
   return out;
 }
@@ -6979,6 +6980,7 @@ function recText(){
 const INFO_FRAME = new URLSearchParams(location.search).has('diag');
 if(INFO_FRAME) renderer.info.autoReset = false;
 function drawFrame(){
+  struRenderSync(camera);
   if(DBG.noTransp){ const hid = drawFrame.hid || (drawFrame.hid = []); hid.length = 0;   // 85차 진단 '투명한 것 안 그림' — 겹쳐 칠하는 투명·반투명(효과·발밑 그림자·고리…)의 값
     scene.traverseVisible(o=>{ const m = o.material; if(m && !Array.isArray(m) && m.transparent) hid.push(o); });
     for(const o of hid) o.visible = false; DBG.noTransp = false; drawFrame(); DBG.noTransp = true; for(const o of hid) o.visible = true; return; }
@@ -12938,7 +12940,11 @@ function delStru(id){
 }
 
 /* 구조물 인스턴스 메시 (변경 시 다시 만듦) */
-const struMeshes = new Map();   // '타일#모둠' -> InstancedMesh  (47차 — 모둠별로 쪼갠다)
+const STRU_CHUNK = 16;          // 106차 — 같은 모둠도 위치별로 나눠 화면 밖 타워를 제출하지 않는다. 모양·재질은 그대로.
+const STRU_CULL = P81.struCull; // ?p81off=struCull 또는 ?nocull=1: 같은 화질로 전체 제출과 비교한다.
+const struMeshes = new Map();   // '타일#모둠모양@구역X,구역Z' -> InstancedMesh
+const struRenderMeshes = new Map(); // GPU에는 원래 타일#모둠모양마다 하나만 제출한다. 위 구역 메시는 CPU 원본이다.
+const _struFrustum = new THREE.Frustum(), _struProjection = new THREE.Matrix4();
 const _c1 = new THREE.Color(), _ec3 = new THREE.Color();   // _ec3 — 69차 3인칭 룬 색
 /* 다칠수록 어두워지고 붉게 물든다 — 통째로 다시 만들 때나 색만 고칠 때나 같은 식을 쓴다 */
 function struColor(dmg, tint){
@@ -13136,6 +13142,7 @@ function rebuildStru(){
   for(const o of STRU.values()){
     const og = o.g|0;
     if(!all && !dg.has(og)) continue;
+    const chunk = '@' + Math.floor(struCX(o)/STRU_CHUNK) + ',' + Math.floor(struCZ(o)/STRU_CHUNK);
     const dmg = o.hp / o.mx;
     const blks = blocksOf(o.t, o.lv, o.branch, fortStyleOf(o.g));
     o._gunParts=[];
@@ -13147,38 +13154,35 @@ function rebuildStru(){
     if(!rk || rk.length !== blks.length){ rk = o._rk = new Array(blks.length);
                                           ri = o._ri = new Int32Array(blks.length); }
     for(let bi=0; bi<blks.length; bi++){
-      const b = blks[bi], rs = STRU_SHAPE.get(b) || struRound(b), key = b[3] + '#' + og + rs;   // 68차 — 둥근 조각은 열쇠 끝에 z·y
+      const b = blks[bi], rs = STRU_SHAPE.get(b) || struRound(b), key = b[3] + '#' + og + rs + chunk;
       let g2 = byTile.get(key);
       if(!g2){ g2 = {tile:b[3], a:[], rs}; byTile.set(key, g2); }
-      if(b[10]==='gun')g2.gun=true;
       rk[bi] = key; ri[bi] = g2.a.length;
       const pose=buildingPartPose(o,b);
       g2.a.push([pose[0],pose[1],pose[2],dmg,
         b[4]===undefined?1:b[4], b[5]===undefined?1:b[5], b[6]===undefined?1:b[6], b[7],
-        pose[3],pose[4]]);
+        pose[3],pose[4], b[10]==='gun' ? [struCX(o),struCZ(o),o.t==='pulse'?.22:o.branch==='sniper'?.18:.10] : null]);
     }
   }
   for(const [key, mesh] of struMeshes){
     if(!all && !dg.has(parseInt(key.slice(key.lastIndexOf('#') + 1)))) continue;   // 이번에 안 건드린 모둠은 그대로 둔다(68차 — 끝의 z·y 는 떼고 읽는다)
-    if(!byTile.has(key) && mesh.count){ mesh.count = 0; mesh.instanceMatrix.needsUpdate = true;
-      mesh.boundingSphere = null; }                                     // 빈 메시는 빈 구 → 늘 걸러진다
+    if(!byTile.has(key)){ mesh.dispose(); struMeshes.delete(key); } // 이동·철거로 빈 구역의 CPU 원본을 놓는다.
   }
-  dg.clear();
   struLastN = 0;
   for(const [key, grp] of byTile){
     const tile = grp.tile, arr = grp.a;
     struLastN += arr.length;
     let mesh = struMeshes.get(key);
     if(!mesh || mesh.instanceMatrix.count < arr.length){
-      if(mesh){ scene.remove(mesh); mesh.dispose(); }
+      if(mesh) mesh.dispose();
       const cap = Math.max(64, Math.ceil(arr.length*1.6));
       /* 30차 — 건물은 둥근 원색 조각(로블록스). 무늬 타일 대신 flatFor(tile)·둥근 상자. 빛(glow)은 발광 원색 */
       const sg = STRU_SHAPE_GEO[grp.rs];
       mesh = new THREE.InstancedMesh(sg || (tile===T.bricks ? BRICKV : grp.rs === 'z' ? STRU_CYLZ : grp.rs === 'y' ? STRU_CYLY : grp.rs === 'x' ? STRU_CYLX : STRU_GEO), sg?.userData.frost ? STRU_ICE_MAT : sg && sg.userData.vc && tile === T.plank ? WMAT_WOODV : struMat(tile), cap);   // 서리 몸체·결정·고드름·창틀은 한 재질을 공유한다.
       mesh.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(cap*3).fill(1),3);
-      mesh.frustumCulled = true;      // 47차 — 모둠별로 쪼갰으니 이제 걸러진다
+      mesh.frustumCulled = true;      // 아래 경계 구를 struRenderSync가 화면 기준으로 검사한다.
       if(GFX.shadow){ mesh.castShadow = true; mesh.receiveShadow = true; }  // 25차 — 아이가 지은 벽이 그늘을 만든다
-      scene.add(mesh); struMeshes.set(key, mesh);
+      struMeshes.set(key, mesh); // 구역별 원본은 장면에 붙이지 않는다(그리기 호출 증가 방지).
     }
     for(let i=0;i<arr.length;i++){
       const [x,y,z,dmg,bw,bh,bd,tint,bry,brz] = arr[i];
@@ -13197,7 +13201,98 @@ function rebuildStru(){
     /* ★ 지금 재 둬야 컬링이 먹는다 — 인스턴스가 바뀌었으니 낡은 구를 버리고 다시 잰다
        (뱅크 쪽 bbuild 와 같은 이유다). InstancedMesh 는 제 boundingSphere 로 걸러진다. */
     mesh.boundingSphere = null; mesh.computeBoundingSphere();
-    if(grp.gun)mesh.boundingSphere.radius+=1;
+    struGunBounds(mesh, arr);
+  }
+  struRenderBuild(all ? null : dg);
+  dg.clear();
+}
+
+// 원래 건물/부품 순서를 유지하는 연속 구간을 만든다. 단순히 구역을 이어 붙이면
+// 맞닿은 면의 그리기 순서까지 바뀐다. 행렬/색 뷰는 건물이 바뀔 때만 만들고 프레임마다 재사용한다.
+function struRenderBuild(groups=null){
+  for(const p of struRenderMeshes.values()){
+    if(groups&&!groups.has(p.group))continue;
+    p.runs.length=0;p.chunks.length=0;p.total=0;
+  }
+  for(const o of STRU.values()){
+    if(groups&&!groups.has(o.g|0))continue;
+    for(let i=0;i<o._rk.length;i++){
+    const key=o._rk[i], base=key.slice(0,key.indexOf('@')), chunk=struMeshes.get(key), index=o._ri[i];
+    let p=struRenderMeshes.get(base);
+    if(!p){ p={group:o.g|0,mesh:null,runs:[],chunks:[],total:0};struRenderMeshes.set(base,p); }
+    if(!p.chunks.includes(chunk))p.chunks.push(chunk);
+    const last=p.runs[p.runs.length-1];
+    if(last&&last.chunk===chunk&&last.start+last.count===index)last.count++;
+    else p.runs.push({chunk,start:index,count:1,offset:-1,mv:-1,cv:-1});
+    p.total++;
+    }
+  }
+  for(const [key,p] of struRenderMeshes){
+    if(groups&&!groups.has(p.group))continue;
+    if(!p.total){if(p.mesh){scene.remove(p.mesh);p.mesh.dispose();}struRenderMeshes.delete(key);continue;}
+    const source=p.chunks[0];
+    if(!p.mesh||p.mesh.instanceMatrix.count<p.total){
+      if(p.mesh){scene.remove(p.mesh);p.mesh.dispose();}
+      const cap=Math.max(64,Math.ceil(p.total*1.6));
+      p.mesh=new THREE.InstancedMesh(source.geometry,source.material,cap);
+      p.mesh.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(cap*3),3);
+      p.mesh.castShadow=source.castShadow;p.mesh.receiveShadow=source.receiveShadow;
+      scene.add(p.mesh);
+    }
+    for(const r of p.runs){
+      r.matrix=r.chunk.instanceMatrix.array.subarray(r.start*16,(r.start+r.count)*16);
+      r.color=r.chunk.instanceColor.array.subarray(r.start*3,(r.start+r.count)*3);
+    }
+  }
+  struRenderSync(null,groups);
+  for(const p of struRenderMeshes.values()){
+    if(groups&&!groups.has(p.group))continue;
+    const m=p.mesh;m.boundingSphere=null;m.computeBoundingSphere();
+    // Three.js는 이 구의 중심으로 불투명 메시를 정렬한다. 원래 전체 부품 순서로 잰 중심을
+    // 그대로 두고 반지름만 넓혀 회전·반동을 담는다(보이는 구역이 바뀌어도 정렬 중심은 고정).
+    for(const c of p.chunks)m.boundingSphere.radius=Math.max(m.boundingSphere.radius,
+      m.boundingSphere.center.distanceTo(c.boundingSphere.center)+c.boundingSphere.radius);
+  }
+}
+
+// 화면에 필요한 구역만 원래 그리기 묶음에 압축한다. 카메라만 움직이고 구성/값이 같으면 업로드 0.
+// 실시간 그림자를 켠 설정에서는 화면 밖의 그림자도 보존하도록 모든 구역을 포함한다.
+function struRenderSync(cam,groups=null){
+  const all=!STRU_CULL||!cam||!!GFX.shadow;
+  if(!all){cam.updateMatrixWorld();_struFrustum.setFromProjectionMatrix(_struProjection.multiplyMatrices(cam.projectionMatrix,cam.matrixWorldInverse));}
+  for(const p of struRenderMeshes.values()){
+    if(groups&&!groups.has(p.group))continue;
+    for(const c of p.chunks)c._show106=all||_struFrustum.intersectsSphere(c.boundingSphere);
+    const m=p.mesh;let count=0,ml=Infinity,mh=-1,cl=Infinity,ch=-1;
+    for(const r of p.runs){
+      const c=r.chunk;if(!c._show106){r.offset=-1;continue;}
+      if(r.offset!==count||r.mv!==c.instanceMatrix.version){
+        m.instanceMatrix.array.set(r.matrix,count*16);ml=Math.min(ml,count);mh=count+r.count-1;r.mv=c.instanceMatrix.version;
+      }
+      if(r.offset!==count||r.cv!==c.instanceColor.version){
+        m.instanceColor.array.set(r.color,count*3);cl=Math.min(cl,count);ch=count+r.count-1;r.cv=c.instanceColor.version;
+      }
+      r.offset=count;count+=r.count;
+    }
+    m.count=count;m.visible=count>0;
+    if(mh>=0)struRange81(m.instanceMatrix,ml,mh,16);
+    if(ch>=0)struRange81(m.instanceColor,cl,ch,3);
+  }
+}
+
+// 포신이 어느 방향으로 돌고 반동해도 구역의 경계에서 잘리지 않도록 전체 회전 범위를 포함한다.
+// 기하·정적 행렬은 그대로 두고 컬링용 구만 넓힌다(건설/강화/이동 때 한 번).
+function struGunBounds(mesh, rows){
+  const geo = mesh.geometry;
+  if(!geo.boundingSphere) geo.computeBoundingSphere();
+  const gs = geo.boundingSphere, sweep = new THREE.Sphere();
+  for(const r of rows){
+    const gun = r[10]; if(!gun) continue;
+    sweep.center.set(gun[0],r[1],gun[1]);
+    sweep.radius = Math.hypot(r[0]-gun[0],r[2]-gun[1]) + gun[2]
+      + gs.radius*Math.max(r[4],r[5],r[6])
+      + Math.hypot(gs.center.x*r[4],gs.center.y*r[5],gs.center.z*r[6]);
+    mesh.boundingSphere.union(sweep);
   }
 }
 

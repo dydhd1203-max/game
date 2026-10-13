@@ -10,7 +10,7 @@ const root=path.resolve(here,'../..'),args=process.argv.slice(2);
 const game=path.resolve(args.find(a=>!a.startsWith('--'))||GAME);
 const names=['chk','input52-static','t103-kit-hud-static','t103-soldier-roster-static',
   't104-soldier-target-static','t104-ground-query-static','t104-node-network-static','t104-flow-static','t104-cloud-transform-static',
-  't105-teacher-ui-static',
+  't105-teacher-ui-static','t106-structure-cull','t106-night-record',
   't53-static','t54-avatar-static','t53-shop-static',
   't55-wardrobe-static','t54-combat-static','t54-race-static','t54-zombie-static',
   't56-buildings-static','t56-building-combat-static','t56-build-assist-static','t56-build-coop-static',
