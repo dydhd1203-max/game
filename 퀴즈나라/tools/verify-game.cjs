@@ -25,7 +25,8 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   assert.equal(await a.locator('#shGrid [data-id]').count(),8);
   await a.locator('#shopOwned').click();
   assert(await a.locator('#shGrid [data-id="hair:bob:1"]').count());
-  assert(await a.locator('#shGrid [data-id="hair:bob:5"]').count());
+  // One fixed colour per style: the starter bob:5 is the same style as bob:1.
+  assert(!(await a.locator('#shGrid [data-id="hair:bob:5"]').count()));
   const priorGender=await a.evaluate(()=>JSON.stringify({av:QPGame.getMe().av,owned:QPGame.getMe().owned,gold:QPGame.getMe().gold}));
   await a.locator('#btnGender').click();
   assert.equal(await a.locator('#avatarSexChoices .qp-pixel-avatar').count(),2);
@@ -34,13 +35,20 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
   await a.locator('#avatarSexChoices button[data-sex="m"]').click();
   await a.waitForFunction(()=>QPGame.getMe().av.sex==='m');
   const afterGender=await a.evaluate(()=>({av:QPGame.getMe().av,owned:QPGame.getMe().owned,gold:QPGame.getMe().gold}));
-  const prior=JSON.parse(priorGender);assert.equal(afterGender.gold,prior.gold);assert.deepEqual(afterGender.owned,prior.owned);assert.deepEqual({...afterGender.av,sex:prior.av.sex,hair:prior.av.hair},prior.av);
+  const prior=JSON.parse(priorGender);assert.equal(afterGender.gold,prior.gold);assert.deepEqual(afterGender.owned,prior.owned);// The shop is per sex with one fixed colour, so clothes move to that sex's own items.
+  const {top,bottom,shoes,outfit,...rest}=afterGender.av,{top:_t,bottom:_b,shoes:_s,outfit:_o,...priorRest}=prior.av;
+  assert.deepEqual({...rest,sex:prior.av.sex,hair:prior.av.hair},priorRest);
+  assert(await a.evaluate(av=>{const c=QPGame.getCatalog();return ['top','bottom','shoes'].every(k=>!av[k]||c.publicItems(k,'m').some(it=>it.id===k+':'+av[k]));},afterGender.av));
   assert(['short','part','messy','spiky'].includes(afterGender.av.hair.split(':')[0]));
-  checks.push('Male and female have different drawn heads; switching is free and preserves clothing, owned items and gold');
-  await a.locator('#btnFace').click();await a.locator('#fSk button[data-i="4"]').click();
-  assert.equal(await a.evaluate(()=>QPGame.getMe().av.sk),4);
-  const skin=await a.locator('#pvStage .qpx-body [fill]').evaluateAll(es=>es.map(e=>e.getAttribute('fill')));
-  assert(skin.includes(await a.evaluate(()=>PAL.skin[4][0])));
+  checks.push('Male and female have different drawn heads; switching is free, keeps owned items and gold, and moves clothes to items of that sex');
+  // Skin tones are bought once (SKIN_PRICE) in the skin shop modal.
+  const skinGold=await gold(a),skinBefore=await a.locator('#pvStage').innerHTML();
+  await a.locator('#btnFace').click();await a.locator('#fSk button[data-skin="4"]').click();await a.locator('#skinAction').click();
+  await a.waitForFunction(()=>QPGame.getMe().av.sk===4);
+  assert.equal(await gold(a),skinGold-await a.evaluate(()=>QPGame.getCatalog().SKIN_PRICE));
+  await a.evaluate(()=>closeModal());
+  // The drawn avatar repaints with the new tone (raster art, so compare the preview).
+  await a.waitForFunction(b=>document.querySelector('#pvStage').innerHTML!==b,skinBefore);
   checks.push('Separate male and female hair shops, owned hair colors together in wardrobe, skin changes body palette');
   assert.deepEqual(errors,[]);
   fs.writeFileSync(path.join(out,'검증결과.json'),JSON.stringify({checks,errors,viewport:'1440x900, one player page',motion:times},null,2));

@@ -195,7 +195,7 @@ body .lgSky .bub { display: block; opacity: .9; border: 3px solid #ffffffcc; bac
 body #login .lgSup { display: none; }
 body #login .lgLogo .quiz-brand::before { display: none; }
 body #login .lgLogo .quiz-brand { --brand-letter-size: 78px; --brand-height: 118px; --brand-width: 400px; }
-body #login .lgLogo .quiz-brand-class { top: -8px; }
+body #login .lgLogo .quiz-brand-class { top: -12px; }
 body #login .lgPanel {
   color: #fff;
   background: linear-gradient(#3f6fd0 0%, #2a52b0 40%, #1f3f96 100%);

@@ -30,14 +30,15 @@ const assert=require('node:assert/strict');
     await page.mouse.move(before.x+before.width/2,before.y+before.height/2);await page.mouse.down();
     await page.waitForTimeout(110);
     const held=await icon.evaluate(e=>{const s=getComputedStyle(e);return{pressed:e.classList.contains('qp-pressed'),scale:parseFloat(s.scale),translate:s.translate,filter:s.filter};});
-    assert(held.pressed&&held.scale<.99);assert.equal(held.translate,'0px 3px');assert.match(held.filter,/brightness\(0\.9\)/);
+    // Round chrome top-bar icons sink 1px and darken without shrinking (quiz-hud.css).
+    assert(held.pressed);assert.equal(held.translate,'0px 1px');assert.match(held.filter,/brightness\(0\.9\)/);
     assert.deepEqual(await page.locator('#tbHome').boundingBox(),neighbor,'Button press must not move its neighboring control');
     await page.mouse.up();await page.waitForFunction(()=>feedbackQA.level()>.004);
     const peak=await page.evaluate(()=>feedbackQA.level());
     await page.waitForTimeout(250);
     assert.equal(await icon.evaluate(e=>e.classList.contains('qp-pressed')),false);
     assert.deepEqual(await icon.boundingBox(),before);
-    checks.push('Held mouse press visibly sinks and compresses, releases cleanly, leaves neighbors fixed, and produces a clear FX waveform');
+    checks.push('Held mouse press visibly sinks and darkens, releases cleanly, leaves neighbors fixed, and produces a clear FX waveform');
     await page.locator('#sndClose').focus();await page.keyboard.down(' ');await page.waitForTimeout(100);
     assert(await page.locator('#sndClose').evaluate(e=>e.classList.contains('qp-pressed')));
     await page.keyboard.up(' ');await page.waitForSelector('#meStage');await page.waitForTimeout(160);

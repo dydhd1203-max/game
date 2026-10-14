@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-14T20:09:10.033Z",
+  "builtAt": "2026-10-14T21:59:27.094Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -31,8 +31,8 @@
     },
     {
       "path": "qplay-buttons.css",
-      "bytes": 9591,
-      "sha256": "37066a6ee53c2862ab4efeedc8ea4b3f05744e9201957ee2aba023abb408fb06"
+      "bytes": 9663,
+      "sha256": "0ab08dc0001ecb5599250b545111b1c68d255df4d73522cc5f5a7802d3e0380c"
     },
     {
       "path": "assets/world-life/leaf-panel.png",
@@ -221,13 +221,13 @@
     },
     {
       "path": "qplay-theme.css",
-      "bytes": 16375,
-      "sha256": "af1f118e31c1418d7ad90efd876d482fc59ca69b17ab9ab4a6f51333f007978c"
+      "bytes": 16376,
+      "sha256": "fdd08204c40552287b4c02e69469ea2ae04febcf83ebec568d1e47f5873c3d7a"
     },
     {
       "path": "shop-village.css",
-      "bytes": 26287,
-      "sha256": "1a144e83d8430144452490881a1e8c530d07d487b994105d6790dbc6857675c5"
+      "bytes": 26470,
+      "sha256": "36d36c994a93743e941a47eb1862fce928a2ea381cbf2b35fa16384cbaee0b4e"
     },
     {
       "path": "assets/forest-shop.png",
