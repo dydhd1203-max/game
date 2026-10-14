@@ -98,9 +98,20 @@ BG = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(BG)
 
 TOL = dict(reg=1.0, regIdentity=.1, scaleIdentity=5e-4, iou=.98, iouSleeve=.97, edge=.05, rgbIdentity=2.0, rgbWebp=4.0,
-           rgbAdded=.5, seamMedian=1.0, seamMax=2.0, seat=1.5, rise=3.0, cuffPx=2.0, underarm=.03, dE=3.0, dEAdded=3.0,
+           rgbAdded=.5, seamMedian=1.0, seamMax=2.0, seat=1.5, rise=3.0, cuffPx=2.0, underarm=.04, dE=3.0, dEAdded=3.0,
            raised=.97,
-           posIoU=.97, creamIoU=.92, skinLeak=.005)
+           posIoU=.97, creamIoU=.92, skinLeak=.005,
+           # 2026-10-14 (user decision: record 1-2 px boundary differences with
+           # their grounds and move on to stage 4). On the ChatGPT path
+           # (webp80: 1629 -> 1536 px and WebP q80) a part's outline differs by
+           # scattered single pixels; on a small part (a sleeve or a shoe,
+           # about 2000 visible px with a 200 px perimeter) that alone costs
+           # .03-.04 IoU (P-sleeve+4: every difference a 1 px fringe), and a
+           # seam's end column (a collar point, a shoe opening's corner) where
+           # the drawing and the drawn layer disagree reads 2.2-3.2 px.
+           # underarm .03 -> .04 u: the identity round trip reads the drawn line's
+           # edge against the legacy layer's fixture, .53-.56 px apart (.032/.034 u).
+           posIoUSmall=.95, seamMaxWebp=3.0, underarmWebp=.05)
 PART_LAYER = {'torso': 'shirt', 'sleeve0': 'sleeves', 'sleeve1': 'sleeves', 'bottom': 'shorts', 'shoe0': 'shoes', 'shoe1': 'shoes'}
 PART_OWN = {'torso': 1, 'sleeve0': 2, 'sleeve1': 2, 'bottom': 4, 'shoe0': 6, 'shoe1': 6}
 LAYER_OWN = {'shirt': 1, 'sleeves': 2, 'arms': 3, 'shorts': 4, 'legs': 5, 'shoes': 6, 'neck': 7, 'head': 8}
@@ -260,7 +271,7 @@ def resampled_alpha(layer):
     return _RESAMPLED[k][1]
 
 
-def part_metrics(b, truth, own_vis, sheet_tag, others=None, kind=None):
+def part_metrics(b, truth, own_vis, sheet_tag, others=None, kind=None, dontcare=None):
     fz = SG.frozen()
     out = {}
     tiles = []
@@ -280,6 +291,12 @@ def part_metrics(b, truth, own_vis, sheet_tag, others=None, kind=None):
             # composed sheet shows another layer: under the arm or a sleeve)
             hid = ((ta > .5) | f['hidden'][name]) & (O != PART_OWN[name])
             amb = np.zeros(ta.shape, bool)
+            if dontcare is not None and PART_LAYER[name] in dontcare:
+                # truth pixels the generated garment carries over from the
+                # basic sleeve's margin of torso cloth (sleeve_margin): a new
+                # sleeve's own outline ends before them, and the pipeline cuts
+                # there; neither side is judged on them
+                amb = dontcare[PART_LAYER[name]][y0:y1, x0:x1] & ~(pa > .5)
             A1 = (ta > .5) & ~hid & ~amb
             A2 = (pa > .5) & ~hid & ~amb
             iou = float((A1 & A2).sum() / max(1, (A1 | A2).sum()))
@@ -508,9 +525,9 @@ def metadata_checks(b, truth=None, kind=None):
                                                        clothFloor=round(fc, 2), lineFloor=round(fl, 2),
                                                        inset=round(a['inset'] - w['inset'], 4), cuff=round(a['cuff'] - w['cuff'], 4))
                 out['%s underarm%d' % (key, i)].update(edgeResampled=round(fr_e, 4), hemResampled=round(fr_hem, 2))
-                if de > TOL['underarm'] + fr_e:
+                if de > (TOL['underarm'] if kind == 'identity' else TOL['underarmWebp']) + fr_e:
                     fails.append('%s underarm%d edge %.3f u (resampled truth %.3f)' % (key, i, de, fr_e))
-                if dhem > TOL['seamMax'] + fr_hem:
+                if dhem > (TOL['seamMax'] if kind == 'identity' else TOL['seamMaxWebp']) + fr_hem:
                     fails.append('%s underarm%d hem %.1f px' % (key, i, dhem))
                 if dc > colour_tol(fc) or dl > colour_tol(fl):
                     fails.append('%s underarm%d cloth dE %.1f (floor %.1f) line dE %.1f (floor %.1f)' % (key, i, dc, fc, dl, fl))
@@ -599,7 +616,7 @@ def truth_rows(truth, slot):
 # Cases
 # ---------------------------------------------------------------------------
 def run_case(name, sheet, slot, truth, own_vis, kind, out_dir, prod_override, product_id, rgb_tol=None, positive=False,
-             cream=False, expect=(), others=None, res_in=None, keys=None, control=False):
+             cream=False, expect=(), others=None, res_in=None, keys=None, control=False, dontcare=None):
     t0 = time.time()
     b = BG.build(sheet, product_id, prod_override=prod_override, kind='synthetic', log=lambda *a: None, res=res_in, keys=keys)
     secs = time.time() - t0
@@ -633,7 +650,7 @@ def run_case(name, sheet, slot, truth, own_vis, kind, out_dir, prod_override, pr
         return res
     if others is None:
         others = others_alpha(slot, {n: truth[n] for n in SG.SLOT[slot]['layers']})
-    parts, tiles = part_metrics(b, truth, own_vis, name, others, kind)
+    parts, tiles = part_metrics(b, truth, own_vis, name, others, kind, dontcare)
     res['parts'] = parts
     # the plan's colour figure: mean |dRGB| over the slot's shared opaque
     # pixels (all parts pooled), next to the per-part means
@@ -646,7 +663,8 @@ def run_case(name, sheet, slot, truth, own_vis, kind, out_dir, prod_override, pr
         if k.endswith(' union'):
             need = TOL['creamIoU'] if cream else (TOL['posIoU'] if positive else TOL['iou'])
         else:
-            need = TOL['creamIoU'] if cream else (TOL['posIoU'] if positive else (TOL['iouSleeve'] if 'sleeve' in k else TOL['iou']))
+            small = 'sleeve' in k or 'shoe' in k
+            need = TOL['creamIoU'] if cream else ((TOL['posIoUSmall'] if small else TOL['posIoU']) if positive else (TOL['iouSleeve'] if 'sleeve' in k else TOL['iou']))
         if v['iou'] < need:
             res['fails'].append('%s IoU %.3f < %.2f' % (k, v['iou'], need))
         if not positive and not cream and not k.endswith(' union'):
@@ -663,7 +681,7 @@ def run_case(name, sheet, slot, truth, own_vis, kind, out_dir, prod_override, pr
     seams = seam_errors(b, truth)
     res['seams'] = seams
     for k, v in seams.items():
-        if v['median'] > TOL['seamMedian'] or v['max'] > TOL['seamMax']:
+        if v['median'] > TOL['seamMedian'] or v['max'] > (TOL['seamMax'] if kind == 'identity' else TOL['seamMaxWebp']):
             res['fails'].append('seam %s median %.2f max %.2f' % (k, v['median'], v['max']))
     if not positive and not cream:
         md, mfails = metadata_checks(b, truth, kind)
@@ -754,6 +772,26 @@ def roundtrip_cases(work):
 EXPECT = {'P-hem-6': ('HEM_HIGH',)}
 
 
+MARGIN_WARP = {'P-sleeve+4': (GS.stretch_sleeves, 4), 'P-puff1.15': (GS.puff_sleeves, 1.15)}
+
+
+def sleeve_margin(fz):
+    """The basic sleeve's margin of torso cloth: drawn sleeve pixels within
+    8 px of its silhouette whose colour is the drawn shirt's under them
+    (|dRGB| < 12, summed). The legacy sleeve carried this strip of torso
+    cloth around its own outline; a generated positive warps it with the
+    sleeve, but a new sleeve's own outline ends before it. As an RGBA layer
+    (alpha 255 on the margin), so the positives' warps move it too."""
+    sl, sh = fz.drawn['sleeves'], fz.drawn['shirt']
+    out = np.zeros(sl.shape, np.uint8)
+    for key in SG.CELLS:
+        x0, y0, x1, y1 = SG.CELLS[key]
+        a = sl[y0:y1, x0:x1, 3] > 127
+        same = a & (sh[y0:y1, x0:x1, 3] > 127) & (np.abs(sl[y0:y1, x0:x1, :3].astype(np.int32) - sh[y0:y1, x0:x1, :3].astype(np.int32)).sum(-1) < 12)
+        out[y0:y1, x0:x1, 3] = np.where(same & ~M.erode(a, 8), 255, 0)
+    return out
+
+
 def positive_cases(work):
     fz = SG.frozen()
     D = fz.drawn
@@ -775,8 +813,12 @@ def positive_cases(work):
         E = GS.compose(slot, prod)
         path = GS.render(E, os.path.join(work, name + '.webp'), 'webp80')
         pid, p = product(slot, 'synth')
+        dc = None
+        if name in MARGIN_WARP:
+            fn, arg = MARGIN_WARP[name]
+            dc = {'sleeves': GS.every_figure(fn, sleeve_margin(fz), arg)[..., 3] > 127}
         cases.append(dict(name=name, sheet=path, slot=slot, truth=truth, own=owner_of(slot, prod), kind='webp80',
-                          prod=p, pid=pid, positive=True, expect=EXPECT.get(name, ())))
+                          prod=p, pid=pid, positive=True, expect=EXPECT.get(name, ()), dontcare=dc))
     return cases
 
 
@@ -790,8 +832,9 @@ def cream_case(work):
     E = GS.compose('top', prod)
     path = GS.render(E, os.path.join(work, 'C-cream.webp'), 'webp80')
     pid, p = product('top', 'cream', '#f2dfbd')
+    dc = {'sleeves': GS.every_figure(GS.stretch_sleeves, sleeve_margin(fz), 6)[..., 3] > 127}
     return [dict(name='C-cream', sheet=path, slot='top', truth=truth, own=owner_of('top', prod), kind='webp80', prod=p,
-                 pid=pid, cream=True)]
+                 pid=pid, cream=True, dontcare=dc)]
 
 
 def control_cases(work):
@@ -848,7 +891,7 @@ def main(argv=None):
     for c in cases:
         r = run_case(c['name'], c['sheet'], c['slot'], c['truth'], c['own'], c['kind'], out, c['prod'], c['pid'],
                      rgb_tol=c.get('rgb'), positive=c.get('positive', False), cream=c.get('cream', False),
-                     expect=c.get('expect', ()), control=c.get('control', False))
+                     expect=c.get('expect', ()), control=c.get('control', False), dontcare=c.get('dontcare'))
         r.pop('build', None)
         results.append(r)
         bad += len(r['fails'])

@@ -202,7 +202,9 @@
     // outline (low at the seat, climbing toward each outer side, with a
     // small lift at the centre seam) instead of the straight cut row, so
     // it ends in a soft rounded edge, outlined along that curve.
-    const [L,R]=rowSpan(art,F,T.cut-1),reach=(16-L+R-16)/2*.85,edge=[];
+    // A pipeline record carries the opaque span of row cut-1 (seat.span,
+    // body-local); the legacy table reads it off the drawing.
+    const [L,R]=g.legacy||!T.span?rowSpan(art,F,T.cut-1):T.span,reach=(16-L+R-16)/2*.85,edge=[];
     for(let j=0;j<=28;j++){const x=mix([R],[L],j/28)[0],d=Math.min(x-L,R-x),f=Math.pow(clamp(1-d/reach,0,1),1.6),seam=.12*Math.max(0,1-Math.abs(x-16)/.7),yl=ly(T.cut-T.rise*f)-seam;edge.push([x,top+(yl-top)*k]);}
     const soft=(c,join)=>edge.forEach((p,j)=>c[j||join?'lineTo':'moveTo'](...p));
     sc.beginPath();sc.moveTo(x0-1,y0-1);sc.lineTo(x0+w+1,y0-1);sc.lineTo(x0+w+1,edge[0][1]);soft(sc,true);sc.lineTo(x0-1,edge.at(-1)[1]);sc.closePath();sc.clip();
