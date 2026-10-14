@@ -511,9 +511,12 @@ def profile_sleeve_lines(fz, key, P, lum, t_end, info=None):
             y, x = at(tv, cv)
             if 0 <= y < h and 0 <= x < w:
                 cs[y, x] = True
-    # the body may not run on below the cuff's top line beside the cuff: there
-    # the torso continues (its outline met the torso's, as on the basic tee)
-    if (body & ~ridge & (t > t_ct + 2) & ((c < cmin - 3) | (c > cmax + 3))).sum() > 6:
+    # the body may not run on below the cuff's top line beside the cuff down
+    # to the seam: there the torso continues (its outline met the torso's, as
+    # on the basic tee). A puffed sleeve's body overhangs the cuff band beside
+    # it too, but its own outline closes it above the seam (P-puff1.15).
+    beside = body & ~ridge & (t > t_ct + 2) & ((c < cmin - 3) | (c > cmax + 3))
+    if (beside & (t >= t_end - 2)).sum() > 6:
         if info is not None:
             info.update(cuffTop=round(float(t_ct), 1), leak=True)
         return None
@@ -1046,7 +1049,8 @@ def hidden_top(ctx, key, g, O, label, parts, hidden, info):
         # the arm and sleeve hole's own 2 px border (not the hair's: the collar): the cloth there mixes the occluder's
         # anti-aliased edge into its shading and reads as a pale or dark
         # copy of the arm's silhouette next to the smooth rebuilt cloth
-        ring |= vis & M.dilate(todo & M.dilate(arm | sleeves, 2), 2) & ~contour & ~(hole & basic)
+        off = np.abs(rgb_.astype(np.float32) - wide).sum(-1) > 24  # only cloth that differs from its own ground
+        ring |= vis & M.dilate(todo & M.dilate(arm | sleeves, 2), 2) & ~contour & ~(hole & basic) & off
         todo |= ring
         info['ringPx'] = int(ring.sum())
         if DEBUG is not None:

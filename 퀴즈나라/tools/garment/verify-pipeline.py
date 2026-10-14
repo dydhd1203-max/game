@@ -31,7 +31,7 @@
     metadata         SEAT cut/apex/cuff +-1.5 and rise +-3, SIDE_SEAT +-1.5
                      (avatar-foundation-outfit.js), sleeve cuff within 2 px of
                      cuff_top, raised drawing IoU >= .97, underarm side edge
-                     +-.03 u above the lower hem (the hem row itself is a seam:
+                     +-.03 u across the edge above the lower hem (the hem row itself is a seam:
                      <= 2 px), against tools/garment/fixtures/
                      runtime-side-raised.json; colour readings (underarm cloth
                      and line, edgeTone) dE <= 3, or the input's own dE at the
@@ -401,7 +401,7 @@ def colour_tol(floor):
     return max(TOL['dE'], floor + TOL['dEAdded'])
 
 
-def metadata_checks(b, truth=None):
+def metadata_checks(b, truth=None, kind=None):
     """The figures' metadata (b['meta'], what the record carries) against
     today's runtime (fixtures, SEAT/SIDE_SEAT, cuff_top).
 
@@ -430,7 +430,7 @@ def metadata_checks(b, truth=None):
             if view == 'right':
                 continue
             ft = fx['sexes'][sex]['top'][view]
-            floor_ua = None
+            floor_ua = resampled_ua = None
             if truth is not None:
                 fr = fx['sexes'][sex]['frames']['views'][view]
                 C = fx['sexes'][sex]['frames']['collar']
@@ -443,17 +443,60 @@ def metadata_checks(b, truth=None):
                     traised.append(MD_bits(r) & (tsl[-1]['rgba'][..., 3] >= 128))
                 floor_ua = MD.underarm(tt, tsl, traised, F, C, dict(shoulder=fr['shoulder'], elbow=fr['elbow']),
                                        [s['cuff'] for s in T['sleeves']])
+                if kind == 'webp80':
+                    # the geometry floor of the ChatGPT path: the same rule on
+                    # the truth's alpha after the resampling alone (as the
+                    # edge-alpha band's edgeInput); a perfect matte of the
+                    # 1536 px upload reads this side edge at best
+                    def rs_crop(layer, rect, side=None, center=None):
+                        q = input_crop(U, layer, rect, side, center)
+                        x, y, w, h = rect
+                        ra = resampled_alpha(layer)[y:y + h, x:x + w]
+                        if side is not None:
+                            xx = np.arange(w)[None, :] + x + .5
+                            ra = ra * ((xx < center) if side == 0 else (xx >= center))
+                        q[..., 3] = np.clip(np.rint(ra * 255), 0, 255).astype(np.uint8)
+                        q[q[..., 3] == 0] = 0
+                        return q
+                    rs_t = dict(rect=trect, rgba=rs_crop(truth['shirt'], trect))
+                    rs_sl = [dict(rect=ft['raised'][i]['rect'], rgba=rs_crop(truth['sleeves'], ft['raised'][i]['rect'], i, fz.zones[key]['center']))
+                             for i in range(2)]
+                    rs_raised = [MD_bits(ft['raised'][i]) & (rs_sl[i]['rgba'][..., 3] >= 128) for i in range(2)]
+                    resampled_ua = MD.underarm(rs_t, rs_sl, rs_raised, F, C, dict(shoulder=fr['shoulder'], elbow=fr['elbow']),
+                                               [s['cuff'] for s in T['sleeves']])
             for i, (a, w) in enumerate(zip(T['underarm'], ft['underarm'])):
                 ya = np.array([p[1] for p in a['edge']]); xa = np.array([p[0] for p in a['edge']])
                 yw = np.array([p[1] for p in w['edge']]); xw = np.array([p[0] for p in w['edge']])
                 lo = max(ya.min(), yw.min())
                 hi = min(ya.max(), yw.max()) - TOL['seamMax'] * F['k']
                 ys = np.linspace(lo, hi, 60)
-                de = float(np.abs(np.interp(ys, ya, xa) - np.interp(ys, yw, xw)).max())
+                # The edge's displacement is measured across the edge (symmetric
+                # point-to-polyline distance, as the seams), not along x per
+                # row: where the side turns into the hem corner the edge runs
+                # nearly level and a sub-pixel matte difference moved x by
+                # 2-3 px (m-front / f-back webp80, edge .08-.12 u).
+                def clipped(yv, xv):
+                    # the polyline cut to [lo, hi], its ends interpolated on
+                    # those rows (both edges then start and end level)
+                    k_ = (yv > lo) & (yv < hi)
+                    ye = np.concatenate([[lo], yv[k_], [hi]])
+                    return np.stack([np.interp(ye, yv, xv), ye], 1)
+
+                def across(yv, xv):
+                    P_, Q_ = clipped(yv, xv), clipped(yw, xw)
+                    if len(P_) < 2 or len(Q_) < 2:
+                        return float(np.abs(np.interp(ys, yv, xv) - np.interp(ys, yw, xw)).max())
+                    return float(np.concatenate([polyline_dist(P_, Q_), polyline_dist(Q_, P_)]).max())
+                de = across(ya, xa)
                 fe = 0.0
                 if floor_ua is not None:
                     yf = np.array([p[1] for p in floor_ua[i]['edge']]); xf = np.array([p[0] for p in floor_ua[i]['edge']])
-                    fe = float(np.abs(np.interp(ys, yf, xf) - np.interp(ys, yw, xw)).max())
+                    fe = across(yf, xf)
+                fr_e, fr_hem = 0.0, 0.0
+                if resampled_ua is not None:
+                    yr = np.array([p[1] for p in resampled_ua[i]['edge']]); xr = np.array([p[0] for p in resampled_ua[i]['edge']])
+                    fr_e = across(yr, xr)
+                    fr_hem = abs(resampled_ua[i]['hem'] - w['hem']) / F['k']
                 dhem = abs(a['hem'] - w['hem']) / F['k']
                 dc = float(np.linalg.norm(hex_lab(a['cloth']) - hex_lab(w['cloth'])))
                 dl = float(np.linalg.norm(hex_lab(a['line']) - hex_lab(w['line'])))
@@ -464,9 +507,10 @@ def metadata_checks(b, truth=None):
                 out['%s underarm%d' % (key, i)] = dict(edge=round(de, 4), edgeFloor=round(fe, 4), hemPx=round(dhem, 2), cloth=round(dc, 2), line=round(dl, 2),
                                                        clothFloor=round(fc, 2), lineFloor=round(fl, 2),
                                                        inset=round(a['inset'] - w['inset'], 4), cuff=round(a['cuff'] - w['cuff'], 4))
-                if de > TOL['underarm']:
-                    fails.append('%s underarm%d edge %.3f u' % (key, i, de))
-                if dhem > TOL['seamMax']:
+                out['%s underarm%d' % (key, i)].update(edgeResampled=round(fr_e, 4), hemResampled=round(fr_hem, 2))
+                if de > TOL['underarm'] + fr_e:
+                    fails.append('%s underarm%d edge %.3f u (resampled truth %.3f)' % (key, i, de, fr_e))
+                if dhem > TOL['seamMax'] + fr_hem:
                     fails.append('%s underarm%d hem %.1f px' % (key, i, dhem))
                 if dc > colour_tol(fc) or dl > colour_tol(fl):
                     fails.append('%s underarm%d cloth dE %.1f (floor %.1f) line dE %.1f (floor %.1f)' % (key, i, dc, fc, dl, fl))
@@ -622,7 +666,7 @@ def run_case(name, sheet, slot, truth, own_vis, kind, out_dir, prod_override, pr
         if v['median'] > TOL['seamMedian'] or v['max'] > TOL['seamMax']:
             res['fails'].append('seam %s median %.2f max %.2f' % (k, v['median'], v['max']))
     if not positive and not cream:
-        md, mfails = metadata_checks(b, truth)
+        md, mfails = metadata_checks(b, truth, kind)
         res['metadata'] = md
         res['fails'] += mfails
     if positive and slot == 'bottom':

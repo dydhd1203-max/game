@@ -110,7 +110,7 @@ DRAWN_PAIRS = (('sleeves', 'arms', 1), ('shirt', 'neck', 2), ('shorts', 'legs', 
 P = dict(
     tauMin=7.0, zoneGrow=20, prodErode=3, prodDeep=4.0,
     growLR=1.5, exposeLR=2.0, exposeNear=24, skinGateLR=3.0, skinGrow=4,
-    lineDark=.5, lineNear=2, hairLR=2.0, hairStrong=10.0, neighbourStrong=20.0,
+    lineDark=.5, lineNear=2, hairLR=2.0, hairStrong=10.0, hairSpeck=60, neighbourStrong=20.0,
     minIsland=20, kSkin=3, kProduct=6, kNeighbour=4, kHair=3, cuffOuter=0.0, cuffInner=0.5, hemBand=12,
 )
 LAB_W = np.array([.7, 1.0, 1.0], np.float32)
@@ -620,16 +620,22 @@ def segment_cell(ctx, key, seams=True):
         # the template's own bob tips past the frozen hair-occlusion mask lie
         # on the shirt (the upload keeps them, so they read unchanged; real
         # top:shirt:10 f-front collar points).
-        strong = (nll['hair'] - nll['product'] < -P['hairStrong']) & (nll['hair'] - nll['skin'] < 0)
+        # Only right beside the head or the hair over the garment (4 px): a
+        # garment's own brown outline is hair-coloured too (a cream blouse's
+        # contour, the placket line under the collar).
+        # Front and back only, and only small specks (a tip, not a contour
+        # running along the bob: in profile the bob lies on the blouse's back
+        # edge).
+        strong = (nll['hair'] - nll['product'] < -P['hairStrong']) & (nll['hair'] - nll['skin'] < 0) & \
+            M.dilate((O == HEAD) | (label == 3), 4) & ~changed & fg & np.isin(label, (0, 1)) & ~head
+        if key.endswith('right'):
+            strong[:] = False
+        strong &= islands(strong, P['hairSpeck'] + 1)
         hairish = (changed | strong) & fg & np.isin(label, (0, 1)) & ~head & (nll['hair'] - nll['product'] < -P['hairLR']) & \
             (nll['hair'] - nll['skin'] < -P['hairLR'])
         hairish &= rows_near_collar(fz, key, O.shape, y0)
         if hairish.any():
-            # joined to the head or the hair over the garment, or a loose tip
-            # lying on the garment's own edge (a bob tip beside the collar
-            # point, cut off from the head by the collar line: real
-            # top:shirt:10 f-front)
-            seeds = hairish & M.dilate((O == HEAD) | (label == 3) | ~fg | np.isin(label, (2, 4)), 1)
+            seeds = (hairish & M.dilate((O == HEAD) | (label == 3), 1)) | (hairish & strong)
             hairish = M.connected_to(hairish, seeds)
             basic = np.zeros(O.shape, bool)
             for n in SLOT[slot]['layers']:
