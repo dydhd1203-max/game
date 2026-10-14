@@ -287,14 +287,14 @@
   //   set slightly in and back under the knees; forearms forward, in and a
   //   little down onto the desk (round 2: a level forearm read as holding a
   //   tray in the side view).
-  // Floor sit drawn whole (user decision 2026-10-14): for a view, sex and
-  // outfit with a cut drawing (tools/seated-cut-body.py from the user's
-  // ChatGPT references in assets/pose-references), only the head is the
-  // runtime avatar's. Below the chin the drawing is shown as two pictures:
-  // `skin` (tinted to the avatar's skin, under) and the outfit's clothes,
-  // shoes and outlines (over). `seat` puts the runtime head where the
-  // drawing's is. Rects in body units. Other outfits keep the built pose.
-  const SEATED_ART=Object.freeze({back:Object.freeze({m:Object.freeze({seat:1.43,skin:Object.freeze({url:'assets/seated/floor-back-m-skin.png',rect:[8.5644, 33.9756, 14.8608, 10.4748]}),outfits:Object.freeze({'top:tee|bottom:shorts|shoes:sneaker':Object.freeze({url:'assets/seated/floor-back-m-outfit-basic.png',rect:[8.5644, 34.2852, 14.8608, 11.7648]})})})}),front:Object.freeze({f:Object.freeze({seat:2.33,skin:Object.freeze({url:'assets/seated/floor-front-f-skin.png',rect:[8.8173, 33.4389, 14.3323, 12.578]}),outfits:Object.freeze({'top:tee|bottom:shorts|shoes:sneaker':Object.freeze({url:'assets/seated/floor-front-f-outfit-basic.png',rect:[8.8173, 33.8361, 14.3323, 12.2139]})})}),m:Object.freeze({seat:3.2,skin:Object.freeze({url:'assets/seated/floor-front-m-skin.png',rect:[8.1187, 32.1774, 15.7248, 13.8726]}),outfits:Object.freeze({'top:tee|bottom:shorts|shoes:sneaker':Object.freeze({url:'assets/seated/floor-front-m-outfit-basic.png',rect:[8.1187, 32.631, 15.7248, 13.419]})})})}),side:Object.freeze({f:Object.freeze({seat:0.9,skin:Object.freeze({url:'assets/seated/floor-side-f-skin.png',rect:[9.9069, 34.2166, 12.1376, 11.7117]}),outfits:Object.freeze({'top:tee|bottom:shorts|shoes:sneaker':Object.freeze({url:'assets/seated/floor-side-f-outfit-basic.png',rect:[9.0247, 34.5817, 13.1719, 11.4683]})})}),m:Object.freeze({seat:0.66,skin:Object.freeze({url:'assets/seated/floor-side-m-skin.png',rect:[13.6195, 33.837, 9.108, 12.1095]}),outfits:Object.freeze({'top:tee|bottom:shorts|shoes:sneaker':Object.freeze({url:'assets/seated/floor-side-m-outfit-basic.png',rect:[11.0665, 34.251, 11.7645, 11.799]})})})})});
+  // Floor sit drawn as layers (user decision 2026-10-14, 옷층-계획.md): the
+  // user's ChatGPT seated base body per sex and view, then the bottom, shoes
+  // and top layers of the worn shop items (tools/seated-layers.py; skin
+  // pixels carry alpha 254 and are tinted to the avatar's skin). Only the
+  // head is the runtime avatar's. `seat` puts the runtime head where the
+  // drawing's is; rects in body units. An item without its seated layer
+  // keeps the built pose.
+  const SEATED_LAYERS=Object.freeze({m:Object.freeze({front:Object.freeze({seat:3.2,frame:[6.0019, 14.109, 20.034, 32.508],unit:0.0378,layers:Object.freeze({'base':Object.freeze({url:'assets/seated/m-front-base.png',rect:[8.0809, 32.1774, 15.8004, 13.8726]}),'bottom:shorts':Object.freeze({url:'assets/seated/m-front-bottom-shorts.png',rect:[8.2699, 40.3422, 15.5358, 4.158]}),'shoes:sneaker':Object.freeze({url:'assets/seated/m-front-shoes-sneaker.png',rect:[9.7819, 37.923, 12.1716, 8.127]}),'top:tee':Object.freeze({url:'assets/seated/m-front-top-tee.png',rect:[9.8197, 32.5554, 12.285, 9.261]}),'top:hood':Object.freeze({url:'assets/seated/m-front-top-hood.png',rect:[7.4005, 31.4592, 16.821, 14.5152]})})}),side:Object.freeze({seat:0.66,frame:[5.65, 17.001, 18.63, 29.67],unit:0.0345,layers:Object.freeze({'base':Object.freeze({url:'assets/seated/m-side-base.png',rect:[11.1355, 33.837, 10.281, 12.213]}),'bottom:shorts':Object.freeze({url:'assets/seated/m-side-bottom-shorts.png',rect:[11.446, 41.5995, 6.21, 4.3815]}),'shoes:sneaker':Object.freeze({url:'assets/seated/m-side-shoes-sneaker.png',rect:[13.8265, 39.84, 9.0045, 6.21]}),'top:tee':Object.freeze({url:'assets/seated/m-side-top-tee.png',rect:[11.0665, 34.734, 7.0725, 8.97]}),'top:hood':Object.freeze({url:'assets/seated/m-side-top-hood.png',rect:[10.5145, 33.147, 12.3165, 12.8685]})})}),back:Object.freeze({seat:1.43,frame:[6.5004, 13.3356, 19.35, 33.54],unit:0.0258,layers:Object.freeze({'base':Object.freeze({url:'assets/seated/m-back-base.png',rect:[8.5386, 33.9756, 14.964, 12.0744]}),'bottom:shorts':Object.freeze({url:'assets/seated/m-back-bottom-shorts.png',rect:[10.3188, 40.5288, 11.5068, 5.3922]}),'shoes:sneaker':null,'top:tee':Object.freeze({url:'assets/seated/m-back-top-tee.png',rect:[8.5644, 34.2594, 14.8092, 9.3654]}),'top:hood':Object.freeze({url:'assets/seated/m-back-top-hood.png',rect:[8.4096, 32.6856, 15.1446, 13.3644]})})})}),f:Object.freeze({front:Object.freeze({seat:2.33,frame:[6.9306, 18.7094, 18.536, 27.804],unit:0.0331,layers:Object.freeze({'base':Object.freeze({url:'assets/seated/f-front-base.png',rect:[8.7842, 33.4389, 14.4316, 12.6111]}),'bottom:shorts':Object.freeze({url:'assets/seated/f-front-bottom-shorts.png',rect:[9.6779, 40.8533, 12.4456, 3.8727]}),'shoes:sneaker':Object.freeze({url:'assets/seated/f-front-shoes-sneaker.png',rect:[8.8835, 40.0589, 12.4125, 5.9911]}),'top:tee':Object.freeze({url:'assets/seated/f-front-top-tee.png',rect:[9.9427, 33.7699, 11.7174, 8.0764]})})}),side:Object.freeze({seat:0.9,frame:[5.9523, 20.9839, 17.6436, 25.5528],unit:0.03042,layers:Object.freeze({'base':Object.freeze({url:'assets/seated/f-side-base.png',rect:[8.2642, 34.2166, 13.2631, 11.8334]}),'bottom:shorts':Object.freeze({url:'assets/seated/f-side-bottom-shorts.png',rect:[12.4013, 41.4262, 5.0802, 4.3804]}),'shoes:sneaker':Object.freeze({url:'assets/seated/f-side-shoes-sneaker.png',rect:[12.1884, 40.4223, 10.0082, 5.5669]}),'top:tee':Object.freeze({url:'assets/seated/f-side-top-tee.png',rect:[12.0059, 35.1292, 6.1144, 7.818]})})}),back:Object.freeze({seat:2.56,frame:[6.0479, 13.2192, 20.08, 33.634],unit:0.0251,layers:Object.freeze({'base':Object.freeze({url:'assets/seated/f-back-base.png',rect:[8.7336, 34.3032, 14.4576, 11.7468]}),'bottom:shorts':Object.freeze({url:'assets/seated/f-back-bottom-shorts.png',rect:[11.369, 42.1344, 9.4126, 3.7148]}),'shoes:sneaker':null,'top:tee':Object.freeze({url:'assets/seated/f-back-top-tee.png',rect:[10.4152, 34.5542, 11.1696, 10.3412]})})})})});
   const SEATED=Object.freeze({
     // The side view is drawn for reading, as in the user's side reference
     // (round 2: before, the shirt reached the floor, no knee showed and the
@@ -489,7 +489,7 @@
   function solve(input={}){
     const direction=input.action==='climb'?'back':['front','back','left','right'].includes(input.direction)?input.direction:input.facing||'front',profile=['left','right'].includes(direction),back=direction==='back',view=profile?'profile':back?'back':'front';
     const SPEC=rigFor(input.sex,view),REST_SWING=Math.atan2(...SPEC.profileSwing),REST_FLEX=Math.atan2(...SPEC.profileFlex)-REST_SWING;
-    const action=input.action||'idle',run=action==='run',walk=run||action==='walk',floor=action==='floor-sit'||action==='sit'&&input.seatMode==='floor',seatArt=floor?seatDrawing(direction,input.sex,input.garments):null,desk=action==='sit'&&!floor,jump=action==='jump',climb=action==='climb',CR=climb?climbRig(SPEC):null;
+    const action=input.action||'idle',run=action==='run',walk=run||action==='walk',floor=action==='floor-sit'||action==='sit'&&input.seatMode==='floor',seatArt=floor?seatLayers(direction,input.sex,input.garments):null,desk=action==='sit'&&!floor,jump=action==='jump',climb=action==='climb',CR=climb?climbRig(SPEC):null;
     const rawPhase=((Number(input.phase)||0)%1+1)%1;
     // A cycle has 24 shared painted poses (walk ~50fps, run ~78fps in maps).
     // Quantize drawing only: world position and input timing remain continuous.
@@ -825,20 +825,28 @@
     const sex=av.sex==='m'?'m':'f',G=root.QPFoundationGarments,mode=av.foundationOutfit==='body'||!G?'body':'dressed';
     // The garments this avatar wears (per slot, or the basic piece with a reason).
     const dress=mode==='dressed'?G.resolve({...av,sex}):null;
-    const base={...av,sex,hair:av.hair|| (sex==='m'?'short:1':'bob:1'),expression:av.expression||'bright:0'},heads=headViews(base),key=heads.key+'\n'+mode+(dress?'\n'+dress.key+'\n'+dress.fallbackKey:'');
+    const base={...av,sex,hair:av.hair|| (sex==='m'?'short:1':'bob:1'),expression:av.expression||'bright:0'},heads=headViews(base),items=shopItems(av),key=heads.key+'\n'+mode+(dress?'\n'+dress.key+'\n'+dress.fallbackKey:'')+'\n'+items;
     let t=templates.get(key);if(t){templates.delete(key);templates.set(key,t);}
-    else{t=template(base,heads,sex,mode,dress);if(!t.pending){templates.set(key,t);if(templates.size>48)templates.delete(templates.keys().next().value);}}
+    else{t=template(base,heads,sex,mode,dress,items);if(!t.pending){templates.set(key,t);if(templates.size>48)templates.delete(templates.keys().next().value);}}
     const values=['qpf-'+(++serial),String(size*32/56),String(size*62/56)];
     if(t.pending){issued.add(values[0]);repaintWhenReady(dress?dress.ids:[],sex);}
     let html='';for(const c of t.chunks)html+=typeof c==='string'?c:values[c];return html;
   }
-  function template(base,heads,sex,mode,dress){
+  // The shop items worn, by shape ('top:hood|bottom:shorts|shoes:sneaker';
+  // a one-piece 'outfit:dress|shoes:…'), the basic piece for an empty slot.
+  // The drawn floor sit (SEATED_ART) is chosen by these: an item without its
+  // garment record still has its own seated drawing.
+  function shopItems(av){
+    const whole=String(av.outfit||'').split(':')[0],shape=(slot,basic)=>String(av[slot]||'').split(':')[0]||basic;
+    return(whole?['outfit:'+whole]:['top:'+shape('top','tee'),'bottom:'+shape('bottom','shorts')]).concat('shoes:'+shape('shoes','sneaker')).join('|');
+  }
+  function template(base,heads,sex,mode,dress,items=''){
     const id=TEMPLATE_ID;
     const svg=el('svg',{xmlns:NS,class:'qp-pixel-avatar qp-illustrated-avatar qp-foundation-avatar','data-qp-foundation':'1','data-foundation-outfit':mode,'data-qpx-sex':sex,'data-foundation-id':id,'data-foundation-skin':heads.skin,viewBox:'0 0 32 62',width:TEMPLATE_W,height:TEMPLATE_H,role:'img','aria-label':(sex==='m'?'남자':'여자')+' 기준 캐릭터',style:'display:block;overflow:visible;--qpx-viewport-scale:1.107142857;--qpx-ground-shift:2.4'});
     // What it wears: record ids per slot (top|bottom|shoes), the fallback
     // reasons (slot:reason|…, empty when every item has its record) and the
     // class signature (tools/foundation-matrix.cjs NODE_TABLE).
-    if(dress){svg.dataset.foundationGarments=dress.key;svg.dataset.foundationFallback=dress.fallbackKey;svg.dataset.foundationClass=dress.cls;}
+    if(dress){svg.dataset.foundationGarments=dress.key;svg.dataset.foundationFallback=dress.fallbackKey;svg.dataset.foundationClass=dress.cls;svg.dataset.foundationItems=items;}
     const defs=el('defs');svg.append(defs);const skin=pigment(defs,id+'-skin',heads.skin),underlay=pigment(defs,id+'-underlay','#d9e0d1');
     const neckGradient=el('linearGradient',{id:id+'-neck-shadow',gradientUnits:'userSpaceOnUse',x1:16,x2:16,y1:27.8,y2:28.5});neckGradient.append(el('stop',{offset:0,'stop-color':tone(heads.skin,.74),'stop-opacity':.62}),el('stop',{offset:.42,'stop-color':tone(heads.skin,.82),'stop-opacity':.26}),el('stop',{offset:1,'stop-color':tone(heads.skin,.88),'stop-opacity':0}));defs.append(neckGradient);
     const headClip=el('g');headClip.innerHTML=heads.headClip.replaceAll('qpx-head-front',id+'-head-front');defs.append(...headClip.children);
@@ -1021,7 +1029,7 @@
   // breathing clock is offset by its own render serial (0-3.3 s).
   const breathOffset=svg=>(Number(String(svg.dataset.foundationId).slice(4))||0)*1.37%3.3;
   function apply(svg,state={}){
-    const r=mount(svg,false);if(!r)return false;r.state=state;const sitting=state.action==='sit'||state.action==='floor-sit',pose=solve({...state,sex:svg.dataset.qpxSex,garments:svg.dataset.foundationGarments,time:(Number.isFinite(state.time)?state.time:performance.now()/1000)+(sitting?breathOffset(svg):0),reducedMotion:state.reducedMotion??Boolean(REDUCED?.matches)}),view=pose.profile?'profile':pose.back?'back':'front';r.pose=pose;
+    const r=mount(svg,false);if(!r)return false;r.state=state;const sitting=state.action==='sit'||state.action==='floor-sit',pose=solve({...state,sex:svg.dataset.qpxSex,garments:svg.dataset.foundationItems,time:(Number.isFinite(state.time)?state.time:performance.now()/1000)+(sitting?breathOffset(svg):0),reducedMotion:state.reducedMotion??Boolean(REDUCED?.matches)}),view=pose.profile?'profile':pose.back?'back':'front';r.pose=pose;
     set(r.mirror,'transform',(pose.direction==='left'?'translate(32 0) scale(-1 1)':'')+(pose.hop?' translate(0 '+n(-pose.hop)+')':''));
     // The floor shadow shrinks while a cheering hop is in the air.
     set(r.svg.querySelector('.qpx-contact-shadow'),'transform',pose.hop?'translate(16 56.75) scale('+n(1-.28*pose.hop/HAPPY_HEIGHT)+') translate(-16 -56.75)':'');
@@ -1121,28 +1129,47 @@
     seatDrawn(r,pose);
     return true;
   }
-  // The drawn floor sit for this view, sex and outfit (SEATED_ART), or null.
-  function seatDrawing(direction,sex,garments){
-    const view=direction==='front'?'front':direction==='back'?'back':'side',rec=SEATED_ART?.[view]?.[sex==='f'?'f':'m'];if(!rec)return null;
-    const ids=String(garments||'').split('|'),key=Object.keys(rec.outfits).find(k=>k.split('|').every(id=>ids.includes(id)));
-    return key?{seat:rec.seat,skin:rec.skin,clothes:rec.outfits[key]}:null;
+  // The drawn floor sit for this view, sex and worn shop items
+  // (shopItems), or null when one of them has no seated layer.
+  function seatLayers(direction,sex,items){
+    const view=direction==='front'?'front':direction==='back'?'back':'side',rec=SEATED_LAYERS?.[sex==='f'?'f':'m']?.[view];if(!rec)return null;
+    const ids=String(items||'').split('|'),slot=s=>ids.find(id=>id.startsWith(s+':')),one=slot('outfit');
+    const order=one?['bottom','shoes','outfit']:['bottom','shoes','top'],layers=[rec.layers.base];
+    for(const s of order){const id=slot(s);if(!id||!(id in rec.layers))return null;if(rec.layers[id])layers.push(rec.layers[id]);}
+    return{seat:rec.seat,frame:rec.frame,unit:rec.unit,layers,key:sex+'|'+view+'|'+order.map(slot).join('|')};
   }
-  // Shows a drawn floor sit (pose.seatArt): the body is hidden and the two
-  // pictures take the legs' paintings (no node is added), shown through the
-  // hidden body; the head stays. Undone for any other pose.
+  // The layers composed into one picture per look and skin tone (skin
+  // pixels tinted with the skin painting's own colour matrix), cached.
+  const seatImages=new Map(),seatPictures=new Map();
+  function seatImage(url){let p=seatImages.get(url);if(!p){p=new Promise((ok,fail)=>{const im=new Image();im.onload=()=>ok(im);im.onerror=fail;im.src=url;});seatImages.set(url,p);}return p;}
+  function seatPicture(A,skin){
+    const key=A.key+'|'+skin;let p=seatPictures.get(key);
+    if(p){seatPictures.delete(key);seatPictures.set(key,p);return p;}
+    p=Promise.all(A.layers.map(l=>seatImage(l.url))).then(images=>{
+      const [fx,fy,fw,fh]=A.frame,k=1/A.unit,c=document.createElement('canvas');c.width=Math.ceil(fw*k);c.height=Math.ceil(fh*k);const x=c.getContext('2d');
+      images.forEach((im,i)=>{const [lx,ly]=A.layers[i].rect;x.drawImage(im,Math.round((lx-fx)*k),Math.round((ly-fy)*k));});
+      const d=x.getImageData(0,0,c.width,c.height),px=d.data,m=(root.QPFoundationSkin?.toneMatrix?.(skin)||'1 0 0 0 0 0 1 0 0 0 0 0 1 0 0').split(' ').map(Number);
+      for(let i=0;i<px.length;i+=4)if(px[i+3]===254){const r=px[i]/255,g=px[i+1]/255,b=px[i+2]/255;for(let c2=0;c2<3;c2++)px[i+c2]=Math.round(255*Math.max(0,Math.min(1,m[c2*5]*r+m[c2*5+1]*g+m[c2*5+2]*b+m[c2*5+4])));px[i+3]=255;}
+      x.putImageData(d,0,0);return{url:c.toDataURL(),rect:A.frame};
+    });
+    seatPictures.set(key,p);while(seatPictures.size>24)seatPictures.delete(seatPictures.keys().next().value);return p;
+  }
+  // Shows a drawn floor sit (pose.seatArt): the body is hidden and the
+  // composed picture takes the near leg's painting (no node is added),
+  // shown through the hidden body; the head stays. Undone for any other pose.
   function seatDrawn(r,pose){
     const A=pose.seatArt,pics=r.legs.map(l=>l.painting).filter(Boolean);
     if(!A){if(r.seatDrawn){for(const e of [r.body,r.frontHands,...pics]){e.style.removeProperty('visibility');if(!e.getAttribute('style'))e.removeAttribute('style');}
-      for(const e of pics)if(e.dataset.seatFilter){e.setAttribute('filter',e.dataset.seatFilter);delete e.dataset.seatFilter;}r.seatDrawn=false;}return;}
+      for(const e of pics)if(e.dataset.seatFilter){e.setAttribute('filter',e.dataset.seatFilter);delete e.dataset.seatFilter;}r.seatDrawn=false;r.seatKey='';}return;}
     if(pics.length<2)return;
     r.body.style.visibility='hidden';r.frontHands.style.visibility='hidden';
-    // The near leg's painting holds the skin (tinted), the far leg's the
-    // clothes over it (untinted): the far leg goes last.
-    const show=(e,a,tinted)=>{e.style.visibility='visible';if(!tinted&&e.hasAttribute('filter')){e.dataset.seatFilter=e.getAttribute('filter');e.removeAttribute('filter');}
-      set(e,'href',a.url);e.paintedArt=null;for(const[k,v]of Object.entries({x:a.rect[0],y:a.rect[1],width:a.rect[2],height:a.rect[3]}))set(e,k,v);
-      if(e.hasAttribute('clip-path'))e.removeAttribute('clip-path');};
-    show(pics[1],A.skin,true);show(pics[0],A.clothes,false);
-    if(r.parts['far-leg'].nextSibling)r.body.append(r.parts['far-leg']);r.seatDrawn=true;r.orderKey=null;
+    const e=pics[1],skin=r.svg.dataset.foundationSkin,key=A.key+'|'+skin;
+    if(e.hasAttribute('filter')){e.dataset.seatFilter=e.getAttribute('filter');e.removeAttribute('filter');}
+    e.style.visibility=r.seatKey===key?'visible':'hidden';pics[0].style.visibility='hidden';
+    if(e.hasAttribute('clip-path'))e.removeAttribute('clip-path');
+    if(r.seatKey!==key){r.seatKey=key;seatPicture(A,skin).then(P=>{if(r.seatKey!==key||!r.pose?.seatArt)return;set(e,'href',P.url);e.paintedArt=null;for(const[k,v]of Object.entries({x:P.rect[0],y:P.rect[1],width:P.rect[2],height:P.rect[3]}))set(e,k,v);e.style.visibility='visible';}).catch(()=>{});}
+    else{const P=e.getAttribute('x');if(!P)e.style.visibility='hidden';}
+    r.seatDrawn=true;
   }
   function destroy(svg){
     const r=mounted.get(svg);if(!r)return false;waiting.delete(svg);

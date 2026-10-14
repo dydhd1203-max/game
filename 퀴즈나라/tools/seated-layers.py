@@ -1,0 +1,236 @@
+"""Seated (floor-sit) body and garment layers (옷층-계획.md, steps 1-2).
+
+The floor sit is drawn: one 'seated base body' per sex and view (the user's
+ChatGPT sheet: white sleeveless top, white undershorts, bare feet) and, per
+shop item, the layer of that item cut from its seated sheet. At runtime the
+base is drawn, then the bottom, shoes and top layers over it; skin pixels
+(alpha 254) are tinted to the avatar's skin.
+
+  python3 tools/seated-layers.py base                      base bodies + basic outfit
+  python3 tools/seated-layers.py item SHEET SEX SLOT ID    one item sheet (SLOT top|bottom|shoes|outfit)
+
+Every sheet (three seated views: front, right profile, back) is placed onto
+the basic reference frame of tools/seated-cut-body.py (register: head width,
+head centre, lowest row). A layer is what that sheet changes against the
+base body (blurred colour distance > CHANGED), below the chin (the runtime
+head covers above it; a hood may rise 60 px). Changed pixels are split into
+slots by growing, inside the changed area, from cores: for the basic outfit
+the colours of its pieces; for an item, its own new pixels (unlike the basic
+reference there) against the basic pieces it kept (like the reference there).
+So hands on the knees, crossed shins and anything else the sheet keeps as
+skin are holes in every garment layer and the base body shows through.
+
+Writes assets/seated/<sex>-<view>-<layer>.png and assets/seated/layers.json:
+{sex: {view: {frame:[x,y,w,h] body units, seat, layers: {name: [x,y,w,h]}}}}.
+"""
+import sys, json, os, importlib.util
+import numpy as np
+from PIL import Image, ImageFilter
+
+HERE = os.path.dirname(os.path.abspath(__file__)); ROOT = os.path.dirname(HERE)
+spec = importlib.util.spec_from_file_location('cutbody', os.path.join(HERE, 'seated-cut-body.py'))
+CB = importlib.util.module_from_spec(spec); sys.argv, argv = ['x'], sys.argv; spec.loader.exec_module(CB); sys.argv = argv
+OUT = os.path.join(ROOT, 'assets/seated'); REF = 'assets/pose-references/'
+BASE = {'m': REF + 'floor-sit-m-base-2026-10-14.webp', 'f': REF + 'floor-sit-f-base-2026-10-14.webp'}
+BASIC = {'top': 'top:tee', 'bottom': 'bottom:shorts', 'shoes': 'shoes:sneaker'}
+SLOTS = ('bottom', 'shoes', 'top')
+CHANGED = 34.0   # colour distance (0-441) after a 1.5 px blur
+HOOD_UP = 60     # px a garment may rise above the chin cut
+
+
+def rgb(img, box):
+    x0, y0, x1, y1 = box; return np.asarray(img.convert('RGB')).astype(float)[y0:y1, x0:x1]
+
+
+def blur(img):
+    return img.convert('RGB').filter(ImageFilter.GaussianBlur(1.5))
+
+
+def figure(a):
+    """The figure: everything but the white background connected to the
+    border (white cloth inside the outline stays)."""
+    mn, mx = a.min(2), a.max(2); white = (mn > 238) & (mx - mn < 14)
+    bg = np.zeros_like(white); bg[0] = white[0]; bg[-1] = white[-1]; bg[:, 0] = white[:, 0]; bg[:, -1] = white[:, -1]
+    while True:
+        d = bg.copy(); d[1:] |= bg[:-1]; d[:-1] |= bg[1:]; d[:, 1:] |= bg[:, :-1]; d[:, :-1] |= bg[:, 1:]; d &= white
+        if (d == bg).all(): return ~bg
+        bg = d
+
+
+def skin_of(a):
+    r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    return (a.min(2) < 240) & (r - b > 25) & (g - b <= 30) & (r - g >= 19)
+
+
+def grow_inside(seeds, area):
+    """Multi-label geodesic growth: each pixel of `area` takes the label of
+    the nearest seed (labels > 0) reachable through `area`."""
+    lab = np.where(area, seeds, 0)
+    while True:
+        new = lab.copy()
+        for dy, dx in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            s = np.roll(np.roll(lab, dy, 0), dx, 1)
+            take = (new == 0) & area & (s > 0)
+            new[take] = s[take]
+        if (new == lab).all(): return lab
+        lab = new
+
+
+def shrinkm(m, k):
+    for _ in range(k):
+        d = m.copy(); d[1:] &= m[:-1]; d[:-1] &= m[1:]; d[:, 1:] &= m[:, :-1]; d[:, :-1] &= m[:, 1:]; m = d
+    return m
+
+
+def near(m, k):
+    for _ in range(k):
+        d = m.copy(); d[1:] |= m[:-1]; d[:-1] |= m[1:]; d[:, 1:] |= m[:, :-1]; d[:, :-1] |= m[:, 1:]; m = d
+    return m
+
+
+def basic_seeds(a, sex, rows, n, view, y0=0):
+    """Colour cores of the basic outfit pieces (1 bottom, 2 shoes, 3 top)."""
+    r, g, b = a[..., 0], a[..., 1], a[..., 2]
+    seeds = np.zeros(a.shape[:2], np.int8)
+    def shrink(m, k):
+        for _ in range(k):
+            d = m.copy(); d[1:] &= m[:-1]; d[:-1] &= m[1:]; d[:, 1:] &= m[:, :-1]; d[:, :-1] &= m[:, 1:]; m = d
+        return m
+    # broad areas only (a print's leaves or petals are not a piece)
+    G = (g > r + 8) & (g > b)
+    green = G & near(shrink(G, 3), 10)  # the shirt and its hem stitching
+    blue = shrink((b > r + 10) & (b >= g), 2)
+    lowest = rows >= int(y0 + (n - y0) * .78)  # the lowest fifth of the figure
+    tan = (r > g) & (g > b) & (r - b > 60) & (a.min(2) < 200) & (a.max(2) > 170)
+    shoe = (tan & lowest & ~blue) if view != 'back' else np.zeros_like(tan)
+    seeds[green & ~near(shoe, 25)] = 3  # a shoe's printed leaves stay the shoe's
+    seeds[blue] = 1
+    seeds[shoe] = 2
+    return seeds
+
+
+def layers_for(sex, view, sheet_img, base_img, slot=None, basic_lab=None, basic_img=None):
+    C = CB.FIGURES[f'{sex}:{view}']; box = C['crop']
+    A = rgb(sheet_img, box); Ab = rgb(blur(sheet_img), box); Bb = rgb(blur(base_img), box)
+    h = A.shape[0]; rows = np.arange(h)[:, None]; top = C['cut'] - box[1]
+    fg = figure(A)
+    dist = np.sqrt(((Ab - Bb) ** 2).sum(2))
+    below = rows >= top
+    B = rgb(base_img, box)
+    # skin over skin (shading) and an outline beside the base's own outline
+    # (a 1-3 px registration offset) are not changes
+    dark = lambda x: x.max(2) < 120
+    changed = fg & (dist > CHANGED) & below & ~(skin_of(A) & skin_of(B)) & ~(dark(A) & near(dark(B), 3))
+    ys = np.where(fg.any(1))[0]; n = ys.max() + 1; y0 = ys.min()
+    if basic_lab is None:
+        seeds = basic_seeds(A, sex, rows, n, view, y0)
+    else:
+        # an item: its own new pixels against the basic pieces it kept
+        Rb = rgb(blur(basic_img), box); new = np.sqrt(((Ab - Rb) ** 2).sum(2))
+        k = SLOTS.index(slot) + 1 if slot != 'outfit' else None
+        seeds = np.zeros(A.shape[:2], np.int8)
+        kept = (new < 22) & (basic_lab > 0)
+        seeds[kept] = basic_lab[kept]
+        mine = new > 60
+        if slot == 'outfit': seeds[mine & ~kept] = 3; seeds[mine & ~kept & (basic_lab == 1)] = 1
+        else: seeds[mine & ~kept] = k
+        # a garment rising above the chin (a hood): new, non-skin, non-hair
+        r, g, b = A[..., 0], A[..., 1], A[..., 2]
+        hair = (r > g) & (g > b) & (r - b > 25) & (A.max(2) < 170)
+        up = fg & (rows < top) & (rows >= top - HOOD_UP) & (new > 60) & ~hair & ~skin_of(A) & (A.max(2) > 110)
+        changed |= up; seeds[up] = k or 3
+    lab = grow_inside(seeds, changed)
+    # Close each piece: small holes (a petal or a cuff as pale as the base's
+    # white undershirt) and its own outline (dropped where it ran beside
+    # the base's outline) belong to it, or the base shows through as pale
+    # streaks along the seams.
+    dark = (A.max(2) < 150) & ~skin_of(A)
+    pieces = {}
+    for i in range(1, 4):
+        m = lab == i
+        if not m.any(): pieces[i] = m; continue
+        m = shrinkm(near(m, 3), 3) & fg & ((lab == i) | (lab == 0))
+        m |= near(m, 2) & dark & fg & (lab == 0)
+        # above the chin only what hangs from the piece below (a hood)
+        if (m & ~below).any():
+            keep = m & below
+            while True:
+                d = near(keep, 1) & m
+                if (d == keep).all(): break
+                keep = d
+            m = keep
+        pieces[i] = m
+    return pieces, A, fg, below
+
+
+def save(name, mask, A, skin, box, U):
+    ys, xs = np.where(mask)
+    if not len(ys):
+        if os.path.exists(os.path.join(OUT, name + '.png')): os.remove(os.path.join(OUT, name + '.png'))
+        return None
+    bx0, by0, bx1, by1 = xs.min(), ys.min(), xs.max() + 1, ys.max() + 1
+    m = mask[by0:by1, bx0:bx1]; o = np.zeros(m.shape + (4,), np.uint8)
+    o[..., :3] = A[by0:by1, bx0:bx1] * m[..., None]
+    # alpha 254 marks skin (tinted at runtime), 255 cloth and lines
+    o[..., 3] = np.where(m, np.where(skin[by0:by1, bx0:bx1], 254, 255), 0)
+    Image.fromarray(o).save(os.path.join(OUT, name + '.png'), optimize=True)
+    p, q = U(box[0] + bx0, box[1] + by0), U(box[0] + bx1, box[1] + by1)
+    return [p[0], p[1], round(q[0] - p[0], 4), round(q[1] - p[1], 4)]
+
+
+def frame(sex, view):
+    C = CB.FIGURES[f'{sex}:{view}']; box = C['crop']
+    ref = np.asarray(Image.open(os.path.join(ROOT, C['src'])).convert('RGB')).astype(int)[box[1]:box[3], box[0]:box[2]]
+    floor = box[1] + int(np.where(figure(ref).any(1))[0].max()) + 1
+    U = lambda px, py: [round(16 + (px - C['cx']) * C['k'], 4), round(46.05 - (floor - py) * C['k'], 4)]
+    return C, box, U
+
+
+def load_json():
+    p = os.path.join(OUT, 'layers.json')
+    return json.load(open(p)) if os.path.exists(p) else {}
+
+
+def build_base():
+    data = {}
+    for sex in 'mf':
+        bases = CB.register(os.path.join(ROOT, BASE[sex]), sex)
+        for view in CB.VIEWS:
+            C, box, U = frame(sex, view)
+            basic = Image.open(os.path.join(ROOT, C['src'])).convert('RGB')
+            lab, A, fg, below = layers_for(sex, view, basic, bases[view])
+            Bfull = rgb(bases[view], box); Bfg = figure(Bfull)
+            # the base: everything of the base sheet below the chin (a 12-row
+            # neck under the runtime head)
+            top = C['cut'] - box[1]; rows = np.arange(Bfull.shape[0])[:, None]
+            base_mask = Bfg & (rows >= top - 12)
+            entry = {'seat': C['seat'], 'unit': C['k'], 'frame': U(*box[:2]) + [round((box[2] - box[0]) * C['k'], 4), round((box[3] - box[1]) * C['k'], 4)], 'layers': {}}
+            entry['layers']['base'] = save(f'{sex}-{view}-base', base_mask, Bfull, skin_of(Bfull), box, U)
+            sk = skin_of(A)
+            for i, slot in enumerate(SLOTS, 1):
+                entry['layers'][BASIC[slot]] = save(f'{sex}-{view}-{BASIC[slot].replace(":", "-")}', lab[i], A, sk, box, U)
+            L = np.zeros(A.shape[:2], np.int8)
+            for i in (1, 2, 3): L[lab[i] & (L == 0)] = i
+            np.save(os.path.join(OUT, f'.{sex}-{view}-basic-lab.npy'), L)
+            data.setdefault(sex, {})[view] = entry
+            print(sex, view, {k: (v and v[2]) for k, v in entry['layers'].items()})
+    json.dump(data, open(os.path.join(OUT, 'layers.json'), 'w'), ensure_ascii=False, indent=1)
+
+
+def build_item(sheet, sex, slot, item):
+    data = load_json(); bases = CB.register(os.path.join(ROOT, BASE[sex]), sex); items = CB.register(sheet, sex)
+    for view in CB.VIEWS:
+        C, box, U = frame(sex, view)
+        basic = Image.open(os.path.join(ROOT, C['src'])).convert('RGB')
+        blab = np.load(os.path.join(OUT, f'.{sex}-{view}-basic-lab.npy'))
+        lab, A, fg, below = layers_for(sex, view, items[view], bases[view], slot, blab, basic)
+        k = 3 if slot == 'outfit' else SLOTS.index(slot) + 1
+        mask = lab[k] | (lab[1] if slot == 'outfit' else False)
+        data[sex][view]['layers'][item] = save(f'{sex}-{view}-{item.replace(":", "-")}', mask, A, skin_of(A), box, U)
+        print(sex, view, item, data[sex][view]['layers'][item])
+    json.dump(data, open(os.path.join(OUT, 'layers.json'), 'w'), ensure_ascii=False, indent=1)
+
+
+if __name__ == '__main__':
+    if sys.argv[1] == 'base': build_base()
+    elif sys.argv[1] == 'item': build_item(*sys.argv[2:6])

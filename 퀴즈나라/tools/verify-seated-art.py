@@ -2,8 +2,8 @@
 
   python3 tools/verify-seated-art.py [m:front m:right ...] [--out DIR]
 
-For each sex:direction with a cut record (assets/seated/floor-<view>-<sex>.json,
-tools/seated-cut-body.py)
+For each sex:direction (assets/seated/layers.json, tools/seated-layers.py; the
+reference frame of tools/seated-cut-body.py)
 it renders the avatar (tools/seated-render.cjs), places the reference at the
 same scale (the record's cx, unit and floorPx), sorts both pictures' pixels
 below the collar into shirt / shorts / skin / shoe by colour and reports each
@@ -13,7 +13,7 @@ be looked at before the pose is called done: a pass here is not approval.
 Introduced 2026-10-14 after a side view was reported as matching when its
 shirt hid the shorts and thigh.
 """
-import sys,json,subprocess,colorsys,numpy as np,os
+import sys,json,subprocess,colorsys,numpy as np,os,importlib.util
 from PIL import Image
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIN_IOU={'shirt':.6,'shorts':.6,'skin':.6,'shoe':.5}
@@ -33,10 +33,13 @@ def main():
     args=[a for a in sys.argv[1:] if not a.startswith('--')];out=sys.argv[sys.argv.index('--out')+1] if '--out' in sys.argv else os.path.join(ROOT,'검증','앉기-원화')
     if '--out' in sys.argv:args.remove(out)
     os.makedirs(out,exist_ok=True)
-    cases=args or [f'{s}:{d}' for s in 'mf' for d in ('front','right','back','left') if os.path.exists(os.path.join(ROOT,'assets/seated',f'floor-{VIEWS[d]}-{s}.json'))]
+    spec=importlib.util.spec_from_file_location('cb',os.path.join(ROOT,'tools/seated-cut-body.py'));cb=importlib.util.module_from_spec(spec);argv=sys.argv;sys.argv=['x'];spec.loader.exec_module(cb);sys.argv=argv
+    cases=args or [f'{s}:{d}' for s in 'mf' for d in ('front','right','back','left')]
     failed=False
     for case in cases:
-        sex,d=case.split(':');meta=json.load(open(os.path.join(ROOT,'assets/seated',f'floor-{VIEWS[d]}-{sex}.json')))
+        sex,d=case.split(':');F=cb.FIGURES[f'{sex}:{VIEWS[d]}'];x0,y0,x1,y1=F['crop']
+        refa=np.asarray(Image.open(os.path.join(ROOT,F['src'])).convert('RGB')).astype(int)[y0:y1,x0:x1]
+        meta={'source':F['src'].split('/')[-1],'cx':F['cx'],'unit':F['k'],'floorPx':y0+int(np.where((refa.min(2)<238).any(1))[0].max())+1}
         png=os.path.join(out,f'{sex}-{d}.png');res=subprocess.run(['node',os.path.join(ROOT,'tools/seated-render.cjs'),sex,d,png],capture_output=True,text=True,cwd=ROOT)
         if res.returncode:print(case,'RENDER FAIL',res.stderr[-400:]);failed=True;continue
         c=json.loads(res.stdout.strip().splitlines()[-1])['ctm'];game=Image.open(png).convert('RGB')
