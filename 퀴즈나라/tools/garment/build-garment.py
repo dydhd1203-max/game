@@ -856,6 +856,9 @@ def main(argv=None):
     ap.add_argument('--sexes', help='m,f | m | f (default: products.json)')
     ap.add_argument('--date', help='record date (default: the date in the sheet file name, else today)')
     ap.add_argument('--no-validate', action='store_true')
+    ap.add_argument('--status', choices=('candidate', 'approved'), default='candidate',
+                    help="record status: candidate (studio session only, default) or approved (every foundation "
+                         "render: the trial URL ?avatar=foundation; stage 4 pilot)")
     a = ap.parse_args(argv)
     cat, shape, _ = parse_product(a.product)
     stem = '%s-%s' % (cat, shape)
@@ -867,6 +870,8 @@ def main(argv=None):
     else:
         out_dir, assets_dir = os.path.abspath(a.out), None
     b = build(os.path.abspath(a.sheet), a.product, sexes=a.sexes.split(',') if a.sexes else None, date=a.date)
+    if b.get('built'):
+        b['record']['status'] = a.status
     written, check = write(b, out_dir, assets_dir, validate=not a.no_validate)
     t = b.get('timing', {})
     print('%s: %s in %.1f s (%s)' % (a.product, 'built' if b.get('built') else 'NOT built', t.get('total', t.get('register', 0)),
