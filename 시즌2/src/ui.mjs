@@ -1,11 +1,14 @@
 import {TEAM_COLORS, BEACON, GATE} from './content.mjs';
 import {APPEARANCE_OPTIONS} from './avatar-season1.mjs';
+import {createMinimap} from './minimap.mjs';
 
 const svg=(body)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 const ICON={
   crate:svg('<path d="m3 7 9-4 9 4v12l-9 3-9-3zM3 7l9 4 9-4M12 11v11M7 5l9 4"/>'),
   settings:svg('<path d="M4 7h16M4 17h16M9 4v6M16 14v6"/><circle cx="9" cy="7" r="2" fill="currentColor"/><circle cx="16" cy="17" r="2" fill="currentColor"/>'),
-  help:svg('<circle cx="12" cy="12" r="9"/><path d="M9.6 8.4a2.5 2.5 0 1 1 4.2 2.5c-1.5.8-1.8 1.4-1.8 2.6M12 17h.01"/>'),
+  help:svg('<path d="M5 3h13l2 3v15H6a3 3 0 0 1-3-3V5a2 2 0 0 1 2-2ZM7 3v15h13M3 18h4M11 7h5M11 11h5"/><path d="m12 14 2-1 2 1v4l-2-1-2 1z" fill="currentColor"/>'),
+  heart:svg('<path d="M12 21 3.5 12.5C-2 6 6 0 12 7c6-7 14-1 8.5 5.5Z" fill="currentColor" stroke="none"/>'),
+  stamina:svg('<path d="M14 2 5 14h6l-1 8 9-13h-6z" fill="currentColor" stroke="none"/>'),
   performance:svg('<path d="M3 18V6M3 18h18M6 14l4-5 4 3 6-7"/>'),
   compass:svg('<circle cx="12" cy="12" r="9"/><path d="m16 8-2 6-6 2 2-6zM12 1v3M12 20v3M1 12h3M20 12h3"/>'),
   hand:svg('<path d="M8 13V5a2 2 0 0 1 4 0v6-7a2 2 0 0 1 4 0v7-4a2 2 0 0 1 4 0v8c0 5-3 7-7 7-3 0-5-2-7-5l-3-4a2 2 0 0 1 3-2l2 2"/>')
@@ -35,18 +38,19 @@ const TEMPLATE=`
   </form>
 </section>
 <div id="game-hud" class="game-hud" hidden>
-  <header class="topbar"><section class="panel phase-panel"><p class="eyebrow muted">좀비의 밤 시즌 2 · 새벽 원정대</p><div class="phase-heading"><span id="phase-number" class="phase-number">01</span><h1 id="phase-name">대기실</h1></div><p id="goal" class="goal"></p><div class="progress-line" aria-hidden="true"><i></i><i></i><i></i><i></i></div></section><div class="panel supplies">${ICON.crate}<div><small>공동 보급</small><strong id="supplies">600</strong></div></div></header>
-  <nav class="top-tools" aria-label="게임 도구"><span class="panel room-label"><i id="network-dot" class="network-dot"></i><span id="room-label">혼자 체험</span></span><button type="button" id="performance-toggle" class="tool-button" aria-label="성능 측정 보기" title="성능 측정" aria-expanded="false">${ICON.performance}</button><button type="button" id="help-toggle" class="tool-button" aria-label="조작 방법 보기" title="조작 방법" aria-expanded="false">${ICON.help}</button><button type="button" id="settings-toggle" class="tool-button" aria-label="소리 설정 보기" title="소리 설정" aria-expanded="false">${ICON.settings}</button></nav>
+  <header class="topbar"><section class="panel phase-panel"><div class="objective-kicker"><span aria-hidden="true">✧</span> 현재 목표 <span id="phase-number" class="phase-number">01</span></div><div class="phase-heading"><h1 id="phase-name">대기실</h1></div><p id="goal" class="goal"></p><div class="objective-footer"><div class="supplies" title="공동 보급">${ICON.crate}<span>보급</span><strong id="supplies">600</strong></div><div class="progress-line" aria-label="원정 진행"><i></i><i></i><i></i><i></i></div></div></section></header>
+  <section id="minimap-panel" class="minimap-panel" aria-label="원정 지도"><button type="button" id="minimap-toggle" class="minimap-toggle" aria-label="전체 원정 지도 보기" aria-expanded="false" title="클릭해서 전체 원정 지도 보기"><span class="map-north" aria-hidden="true">N</span><canvas id="minimap" role="img" aria-label="주변 지도"></canvas><span class="map-corner" aria-hidden="true">⌖</span></button><span id="map-location" class="map-location">정박 마을</span><p id="map-legend" class="map-legend" hidden><span>▲ 나</span><span>● 친구</span><span>✦ 목표</span></p><span class="room-label"><i id="network-dot" class="network-dot"></i><span id="room-label">혼자 체험</span></span></section>
+  <nav class="top-tools" aria-label="게임 도구"><button type="button" id="help-toggle" class="tool-button" aria-label="조작 방법 보기" title="원정 수첩 · 조작 방법" aria-expanded="false" aria-controls="help-panel">${ICON.help}<span>수첩</span></button><button type="button" id="settings-toggle" class="tool-button" aria-label="소리 설정 보기" title="소리와 시점 설정" aria-expanded="false" aria-controls="settings-panel">${ICON.settings}<span>설정</span></button><button type="button" id="performance-toggle" class="tool-button" aria-label="성능 측정 보기" title="성능 측정" aria-expanded="false" aria-controls="performance-panel">${ICON.performance}<span>성능</span></button></nav>
   <section id="lobby-panel" class="panel side-panel"><div class="row"><h2>오늘의 원정대</h2><span class="spacer"></span><span id="lobby-count" class="badge">1명</span></div><p>광장을 자유롭게 걸으며 친구들을 기다려요.</p><div id="roster" class="roster"></div><span class="section-label">내 캐릭터 꾸미기</span>${appearanceChoices('lobby')}<div class="lobby-controls"><button type="button" id="ready-button">준비 완료</button><button type="button" id="start-game" class="primary">마을로 출발</button></div><p id="lobby-wait" class="muted" hidden>선생님이 출발하면 함께 마을로 이동해요.</p></section>
   <section id="village-panel" class="panel side-panel village-prep" hidden><button type="button" id="depart-game" class="primary wide">안개 숲으로 출격</button><p id="village-wait" hidden>선생님의 출격 신호를 기다려요.</p><details><summary>이번 원정 안내</summary><p>작업장과 보급 천막이 있는 안전한 마을이에요. 숲길의 적을 물리치고 봉화를 밝혀요. 가시등 멧돼지의 돌진을 피해 함께 공략하세요.</p></details></section>
   <section id="boss-panel" class="boss-panel" hidden aria-label="보스 상태"><div class="boss-heading"><strong>가시등 멧돼지</strong><span id="boss-hp"></span></div><div class="boss-track"><div id="boss-fill" class="boss-fill"></div></div><p id="boss-phase" class="boss-phase"></p></section>
-  <section id="health-panel" class="panel health-panel"><div class="health-title"><strong id="health-name" class="health-name"></strong><span id="health-value"></span></div><div class="health-track"><div id="health-fill" class="health-fill"></div></div><div id="health-detail" class="health-detail"></div></section>
+  <section id="health-panel" class="health-panel" aria-label="내 상태"><div class="health-title"><strong id="health-name" class="health-name"></strong><span id="health-detail" class="health-detail"></span></div><div class="vital-row"><span class="vital-icon heart-icon" title="체력">${ICON.heart}</span><div id="health-meter" class="health-track" role="meter" aria-label="체력" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="health-fill" class="health-fill"></div><span id="health-value" class="vital-value"></span></div></div><div class="vital-row"><span class="vital-icon stamina-icon" title="달리기 기력">${ICON.stamina}</span><div id="stamina-meter" class="health-track stamina-track" role="meter" aria-label="달리기 기력" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div id="stamina-fill" class="stamina-fill"></div><span id="stamina-value" class="vital-value">100 / 100</span></div></div></section>
   <div id="bottom-help" class="bottom-help"><span class="key">W A S D</span> 이동 · Shift 달리기 · Space 점프<br>좌클릭 공격 · 우클릭 조준 · 휠 확대</div>
   <nav id="interact-dock" class="panel interact-dock" aria-label="상호작용"><button type="button" id="interact-button" class="dock-action" title="E · 상호작용">${ICON.hand}<span id="interact-label">도움 · E</span></button></nav>
   <nav id="teacher-bar" class="panel teacher-bar" aria-label="원정 운영"><button type="button" id="pause-button">일시정지</button><button type="button" id="save-button">저장</button><button type="button" id="load-button">불러오기</button></nav>
-  <section id="settings-panel" class="panel settings-panel" hidden><h2>마을과 원정의 소리</h2><label for="bgm-volume">배경음<div class="slider-line"><input type="range" id="bgm-volume" min="0" max="100" value="35"><output id="bgm-output" for="bgm-volume">35</output></div></label><label for="sfx-volume">효과음<div class="slider-line"><input type="range" id="sfx-volume" min="0" max="100" value="65"><output id="sfx-output" for="sfx-volume">65</output></div></label><div class="row"><button type="button" id="camera-reset" class="small">시점 초기화</button><button type="button" id="leave-button" class="small danger">나가기</button></div></section>
-  <section id="help-panel" class="panel help-panel" hidden><h2>원정 수첩</h2><dl><dt>W A S D · 방향키</dt><dd>이동하기</dd><dt>Shift · Space</dt><dd>마을·원정: Shift 달리기. Space를 떼었다 다시 누르면 2단 점프·공중제비. 대기실은 단일 점프만 가능해요.</dd><dt>좌클릭</dt><dd>공격하기 · 마우스 시점 시작</dd><dt>마우스 · 우클릭</dt><dd>시점 돌리기 · 조준 전환 (시점 잠금이 없으면 우클릭 드래그)</dd><dt>휠 · Esc</dt><dd>확대/1인칭 · 시점 잠금 해제</dd><dt>E</dt><dd>봉화 밝히기 · 친구 돕기</dd></dl><p class="tip">보스가 돌진할 길을 보고 옆으로 피해요. 멈춘 틈에 함께 공격하고, 쓰러진 친구 곁에서 E를 눌러 도와주세요.</p></section>
-  <section id="performance-panel" class="panel performance-panel" hidden><h2>원정 성능 기록</h2><dl><dt>화면 속도</dt><dd id="perf-fps">—</dd><dt>함께하는 친구</dt><dd id="perf-players">—</dd><dt>현장 적</dt><dd id="perf-actors">—</dd><dt>그리기 호출</dt><dd id="perf-calls">—</dd><dt>삼각형</dt><dd id="perf-triangles">—</dd></dl><button type="button" id="record-button" class="small record-button">측정 기록 저장</button></section>
+  <section id="settings-panel" class="panel settings-panel" hidden><div class="panel-heading"><h2>마을과 원정의 소리</h2><button type="button" id="settings-close" class="panel-close" aria-label="설정 닫기">×</button></div><label for="bgm-volume">배경음<div class="slider-line"><input type="range" id="bgm-volume" min="0" max="100" value="35"><output id="bgm-output" for="bgm-volume">35</output></div></label><label for="sfx-volume">효과음<div class="slider-line"><input type="range" id="sfx-volume" min="0" max="100" value="65"><output id="sfx-output" for="sfx-volume">65</output></div></label><div class="row"><button type="button" id="camera-reset" class="small">시점 초기화</button><button type="button" id="leave-button" class="small danger">나가기</button></div></section>
+  <section id="help-panel" class="panel help-panel" hidden><div class="panel-heading"><h2>원정 수첩</h2><button type="button" id="help-close" class="panel-close" aria-label="수첩 닫기">×</button></div><dl><dt>W A S D · 방향키</dt><dd>이동하기</dd><dt>Shift · Space</dt><dd>마을·원정: Shift 달리기. Space를 떼었다 다시 누르면 2단 점프·공중제비. 대기실은 단일 점프만 가능해요.</dd><dt>좌클릭</dt><dd>공격하기 · 마우스 시점 시작</dd><dt>마우스 · 우클릭</dt><dd>시점 돌리기 · 조준 전환 (시점 잠금이 없으면 우클릭 드래그)</dd><dt>휠 · Esc</dt><dd>확대/1인칭 · 시점 잠금 해제</dd><dt>E</dt><dd>봉화 밝히기 · 친구 돕기</dd></dl><p class="tip">보스가 돌진할 길을 보고 옆으로 피해요. 멈춘 틈에 함께 공격하고, 쓰러진 친구 곁에서 E를 눌러 도와주세요.</p></section>
+  <section id="performance-panel" class="panel performance-panel" hidden><div class="panel-heading"><h2>원정 성능 기록</h2><button type="button" id="performance-close" class="panel-close" aria-label="성능 기록 닫기">×</button></div><dl><dt>화면 속도</dt><dd id="perf-fps">—</dd><dt>함께하는 친구</dt><dd id="perf-players">—</dd><dt>현장 적</dt><dd id="perf-actors">—</dd><dt>그리기 호출</dt><dd id="perf-calls">—</dd><dt>삼각형</dt><dd id="perf-triangles">—</dd></dl><button type="button" id="record-button" class="small record-button">측정 기록 저장</button></section>
   <div id="notice" class="notice" role="status" hidden></div>
   <section id="pause-screen" class="screen modal-screen" hidden><div class="modal-card pause-card"><p class="eyebrow muted">TAKE A BREATH</p><h2>잠깐, 숨 고르기</h2><p id="pause-text">선생님이 원정을 잠시 멈췄어요.</p><button type="button" id="resume-button" class="primary">원정 계속하기</button></div></section>
   <section id="endgame-screen" class="screen modal-screen" hidden><div class="modal-card"><div id="endgame-seal" class="victory-seal" aria-hidden="true">✦</div><p id="endgame-eyebrow" class="eyebrow muted">OUR FIRST DAWN</p><h2 id="endgame-title">첫 번째 새벽을 열었어요!</h2><p id="endgame-description">숲길 파수꾼을 물리쳤어요.<br>친구들과 함께 싸워 만든 승리예요.</p><div id="victory-stats" class="victory-stats"><span><strong id="victory-players">1</strong>함께한 원정대</span><span><strong id="victory-supplies">0</strong>공동 보급</span></div><div id="endgame-actions" class="row"><button type="button" id="retry-game">다시 도전</button><button type="button" id="return-game" class="primary">마을로 돌아가기</button></div><p id="endgame-wait" class="endgame-wait" hidden>선생님과 함께 다음 여정을 준비해요.</p></div></section>
@@ -66,6 +70,9 @@ export function createUI(handlers){
   const disabled=(id,yes)=>{if(el(id).disabled!==!!yes)el(id).disabled=!!yes;};
   const fill=(id,ratio)=>{const value=`scaleX(${Math.max(0,Math.min(1,Number(ratio)||0)).toFixed(3)})`;if(cache.get(`fill:${id}`)!==value){el(id).style.transform=value;cache.set(`fill:${id}`,value);}};
   const on=(id,event,fn)=>el(id).addEventListener(event,fn);
+  const attribute=(id,name,value)=>{const text=String(value);if(el(id).getAttribute(name)!==text)el(id).setAttribute(name,text);};
+  const minimap=createMinimap(el('minimap'));
+  let mapExpanded=false;
   let state=null, context={}, entryAppearance={hat:0,face:0,clothes:0}, entryMode='solo', busy=false, activePanel=null, toastTimer=0;
   const call=(name,...args)=>handlers[name]?.(...args);
   const focusGame=()=>document.getElementById('game')?.focus({preventScroll:true});
@@ -97,7 +104,13 @@ export function createUI(handlers){
   on('interact-button','click',()=>action('interact'));
   on('save-button','click',()=>{call('save');focusGame();});on('load-button','click',()=>{call('load');focusGame();});on('record-button','click',()=>{call('record');focusGame();});
   on('leave-button','click',()=>{activePanel=null;visible('settings-panel',false);call('leave');});on('camera-reset','click',()=>{call('cameraReset');focusGame();});
-  for(const name of ['settings','help','performance'])on(`${name}-toggle`,'click',()=>togglePanel(name));
+  for(const name of ['settings','help','performance']){on(`${name}-toggle`,'click',()=>togglePanel(name));on(`${name}-close`,'click',()=>togglePanel(name));}
+  on('minimap-toggle','click',()=>{
+    mapExpanded=!mapExpanded;el('minimap-panel').classList.toggle('expanded',mapExpanded);
+    attribute('minimap-toggle','aria-expanded',mapExpanded);attribute('minimap-toggle','aria-label',mapExpanded?'주변 지도로 돌아가기':'전체 원정 지도 보기');
+    el('minimap-toggle').title=mapExpanded?'클릭해서 주변 지도로 돌아가기':'클릭해서 전체 원정 지도 보기';visible('map-legend',mapExpanded);
+    if(state)minimap.update(state,context.localId,mapExpanded);if(!mapExpanded)focusGame();
+  });
   for(const kind of ['bgm','sfx'])on(`${kind}-volume`,'input',()=>{const value=Number(el(`${kind}-volume`).value);write(`${kind}-output`,value);call('sound',kind,value);});
   function renderRoster(players,localId){
     const key=players.map(p=>[p.id,p.name,p.team,!!p.ready,p.online!==false,p.id===localId].join(':')).join('|');
@@ -118,6 +131,8 @@ export function createUI(handlers){
     const players=Object.values(state.players||{}),me=state.players?.[context.localId],online=players.filter(p=>p.online!==false);
     const phase=state.phase||'lobby',isHost=!!context.isHost,inCombat=phase==='forest'||phase==='boss',isEnd=phase==='victory'||phase==='defeat';
     const phaseName=PHASES[phase]||PHASES.lobby;
+    write('map-location',phase==='lobby'?'정박 마을':phaseName[0]);
+    if(!el('game-hud').hidden)minimap.update(state,context.localId,mapExpanded);
     write('phase-name',phaseName[0]);write('phase-number',String(phase==='lobby'?1:phase==='village'?2:phase==='forest'?3:4).padStart(2,'0'));
     let goal=phaseName[1];if(phase==='forest'){goal=state.beacon?'봉화가 켜졌어요. 북쪽 입구에서 E를 눌러 보스에게 도전하세요.':state.stage>=1?'봉화 곁의 적을 정리하고 E로 불을 밝혀요.':'숲길의 적을 물리치고 봉화로 전진해요.';}
     write('goal',goal);write('supplies',Math.floor(state.supplies||0).toLocaleString('ko-KR'));
@@ -129,6 +144,9 @@ export function createUI(handlers){
     write('lobby-count',`${online.length}명`);write('ready-button',me?.ready?'준비 완료 ✓':'준비 완료');pressed('ready-button',me?.ready);
     if(phase==='lobby'){renderRoster(players,context.localId);for(const [field] of APPEARANCE_FIELDS){const value=String(me?.[field]||0);if(el(`lobby-${field}`).value!==value)el(`lobby-${field}`).value=value;}}
     write('health-name',me?.name||'원정대원');write('health-value',`${Math.max(0,Math.ceil(me?.hp||0))} / ${me?.maxHp||100}`);fill('health-fill',(me?.hp||0)/(me?.maxHp||100));
+    const stamina=Math.max(0,Math.min(1,Number.isFinite(me?.stamina)?me.stamina:1));
+    fill('stamina-fill',stamina);write('stamina-value',`${Math.round(stamina*100)} / 100`);
+    attribute('health-meter','aria-valuemax',me?.maxHp||100);attribute('health-meter','aria-valuenow',Math.max(0,Math.ceil(me?.hp||0)));attribute('stamina-meter','aria-valuenow',Math.round(stamina*100));
     el('health-fill').classList.toggle('low',me?.hp<(me?.maxHp||100)*.3);el('health-panel').classList.toggle('down',!!me&&me.hp<=0);
     write('health-detail',me?.hp<=0?'친구의 도움을 기다리는 중':`${TEAM_NAMES[me?.team||0]} · ${inCombat?'함께 앞으로':'안전한 장소'}`);
     disabled('interact-button',!inCombat||!me||me.hp<=0||state.paused);
@@ -152,5 +170,5 @@ export function createUI(handlers){
   function hideEntry(){visible('entry',false);visible('game-hud',true);visible('entry-error',false);el('teacher-password').value='';document.getElementById('game')?.focus({preventScroll:true});}
   function setBusy(value){busy=!!value;disabled('enter-button',busy);write('enter-button',busy?'원정대 준비 중…':ROLES[entryMode]);el('entry-form').setAttribute('aria-busy',String(busy));}
   updateEntryMode();
-  return {update,toast,showEntry,hideEntry,setBusy};
+  return {update,toast,showEntry,hideEntry,setBusy,mapStats:minimap.stats};
 }

@@ -1,23 +1,32 @@
 import {createNatureGeometries} from './nature-geometry.mjs';
+import {createWoodlandAtlas} from './woodland-atlas.mjs';
 import {mapHalfWidth,VILLAGE_BOUNDS} from './content.mjs';
 
-// Built once into spatial batches. Irregular silhouettes use opaque geometry,
-// with moss in vertex colours rather than a separate disc above each rock.
+// Built once into spatial batches. Branches/rocks use opaque geometry, and
+// crowns share the painted cutout atlas. Moss is integrated into rock colour.
 export function createForestNature(THREE,scene,resources,{material}) {
   const shapes=createNatureGeometries(THREE);
   Object.values(shapes).forEach(g=>resources.add(g));
+  const atlas=createWoodlandAtlas(THREE,resources),crowns=atlas.cardGeometry('crown',{crossed:true,curve:.09});
+  const foliageBins=new Map();
   const bins=new Map(),p=new THREE.Vector3(),s=new THREE.Vector3();
   const q=new THREE.Quaternion(),e=new THREE.Euler(),m=new THREE.Matrix4(),nm=new THREE.Matrix3();
   const v=new THREE.Vector3(),n=new THREE.Vector3(),tintColor=new THREE.Color();
   const up=new THREE.Vector3(0,1,0),direction=new THREE.Vector3();
-  const stats={trees:0,outcrops:0,boundaryClusters:0,parts:0,triangles:0,batches:0,vertexBytes:0,lights:0,textures:0,perFrameUpdates:0};
+  const stats={trees:0,outcrops:0,boundaryClusters:0,parts:0,triangles:0,batches:0,vertexBytes:0,lights:0,textures:0,sharedAtlasTextures:1,perFrameUpdates:0};
   function rng(x,z,salt=0){
     let seed=(Math.imul(Math.round(x*317),73856093)^Math.imul(Math.round(z*419),19349663)^salt)>>>0;
     return ()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
   }
   function emit(shape,matrix,tint){
-    const g=shapes[shape],a=g.attributes.position,norm=g.attributes.normal,c=g.attributes.color,index=g.index;
     const key=`${Math.floor(matrix.elements[12]/32)}:${Math.floor(matrix.elements[14]/32)}`;
+    if(shape==='leaf'){
+      let leaves=foliageBins.get(key);if(!leaves){leaves=[];foliageBins.set(key,leaves);}
+      // Painted, cut-out leaf edges soften the old faceted crown. Instance
+      // matrices are uploaded once and remain in bounded spatial batches.
+      leaves.push({matrix:matrix.clone(),tint});stats.parts++;stats.triangles+=(crowns.index?.count??crowns.attributes.position.count)/3;return;
+    }
+    const g=shapes[shape],a=g.attributes.position,norm=g.attributes.normal,c=g.attributes.color,index=g.index;
     let b=bins.get(key);if(!b){b={position:[],normal:[],color:[]};bins.set(key,b);}
     nm.getNormalMatrix(matrix);tintColor.setHex(tint);
     const count=index?index.count:a.count;
@@ -103,7 +112,13 @@ export function createForestNature(THREE,scene,resources,{material}) {
       g.computeBoundingSphere();resources.add(g);stats.vertexBytes+=g.attributes.position.array.byteLength*3;
       const mesh=new THREE.Mesh(g,mat);mesh.name='forest-nature-'+key;mesh.matrixAutoUpdate=false;mesh.updateMatrix();scene.add(mesh);
     }
-    stats.batches=bins.size;bins.clear();
+    for(const [key,items] of foliageBins){
+      const mesh=new THREE.InstancedMesh(crowns,atlas.material,items.length);
+      items.forEach((item,i)=>{mesh.setMatrixAt(i,item.matrix);mesh.setColorAt(i,tintColor.setHex(0xffffff));});
+      mesh.computeBoundingSphere();mesh.matrixAutoUpdate=false;mesh.updateMatrix();mesh.name='forest-painted-crowns-'+key;scene.add(mesh);resources.add(mesh);
+      stats.vertexBytes+=mesh.instanceMatrix.array.byteLength+(mesh.instanceColor?.array.byteLength||0);
+    }
+    stats.batches=bins.size+foliageBins.size;stats.crownBatches=foliageBins.size;bins.clear();foliageBins.clear();
   }
   return {tree,groundCover,outcrop,boundaries,build,stats};
 }

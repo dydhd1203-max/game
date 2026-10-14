@@ -6,6 +6,7 @@ import {createSeason1MotionFeedback} from './motion-feedback-season1.mjs';
 import {buildVillageA} from './village-a.mjs';
 import {createVillageNature} from './village-nature.mjs';
 import {createForestNature} from './forest-nature.mjs';
+import {createWoodlandGround,createWoodlandBackdrop} from './woodland-ground.mjs';
 import {createBoarBoss} from './boar-boss.mjs';
 import {TEAM_COLORS, SPAWN, VILLAGE_SITES, VILLAGE_GROVE, VILLAGE_BOUNDS, FOREST_OBSTACLES, BEACON, GATE} from './content.mjs';
 
@@ -23,7 +24,9 @@ export function createScene(canvas) {
   renderer.toneMappingExposure = graphics.exposure;
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(graphics.villageSky);
-  scene.fog = new THREE.Fog(graphics.villageSky, 42, 112);
+  // Haze matches the foothills, so distant leaves fade into the landscape
+  // instead of cutting sky-blue silhouettes out of the mountain backdrop.
+  scene.fog = new THREE.Fog(0x849782, 42, 112);
   const camera = new THREE.PerspectiveCamera(SEASON1_CAMERA.fov,1,SEASON1_CAMERA.near,SEASON1_CAMERA.far);
   const structureHeights={workshop:9,wagon:6.4,assembly:4,market:4.9,smithYard:4.1,supplyYard:3.9};
   // Like Season 1, only solid structures shorten the boom; thin scenery does
@@ -111,15 +114,8 @@ export function createScene(canvas) {
   const groundMat=new THREE.MeshLambertMaterial({color:0x93b180,map:groundTexture});resources.add(groundMat);
   const groundGeo=new THREE.PlaneGeometry(340,340);resources.add(groundGeo);
   const ground=new THREE.Mesh(groundGeo,groundMat);ground.rotation.x=-Math.PI/2;ground.position.set(0,-.08,-50);scene.add(ground);
-  // A continuous, readable winding trail, with broad spaces around combat zones.
-  const pathMat=new THREE.MeshLambertMaterial({color:palette.path});resources.add(pathMat);
-  function ribbon(start,end,halfWidth,curve){
-    const positions=[],uv=[],indices=[],n=Math.ceil(Math.abs(end-start)/2);
-    for(let i=0;i<=n;i++){const z=start+(end-start)*i/n,x=curve(z),w=typeof halfWidth==='function'?halfWidth(z):halfWidth;positions.push(x-w,.012,z,x+w,.012,z);uv.push(0,i/n,1,i/n);if(i<n){const a=i*2;indices.push(a,a+1,a+2,a+1,a+3,a+2);}}
-    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);g.computeVertexNormals();resources.add(g);
-    const mesh=new THREE.Mesh(g,pathMat);scene.add(mesh);
-  }
-  ribbon(VILLAGE_BOUNDS.south,-94,z=>z < -12?5.4:z < 0?4.2+1.2*(-z/12):4.3,z=>z< -12?Math.sin((z+10)*.092)*3.3:0);
+  const woodlandGround=createWoodlandGround(THREE,scene,resources);
+  const woodlandBackdrop=createWoodlandBackdrop(THREE,scene,resources);
   const villageArt=buildVillageA(THREE,scene,resources);
   part('cylinder',0,-.02,-115,59,.15,42,0xaab38d);
   part('cylinder',0,.005,-115,49,.08,35,0xc2bfa1);
@@ -141,7 +137,7 @@ export function createScene(canvas) {
   function tree(x,z,h,tint,draw=true){
     // Keep the authored placement RNG independent of decorative branch count.
     for(let j=0;j<5;j++)rand();
-    if(draw)forestNature.tree(x,z,h,tint);
+    if(draw){forestNature.tree(x,z,h,tint);woodlandGround.shadow(x,z,h);}
   }
   // Preserve each old RNG draw even where the village scenery is replaced.
   // Forest tree positions and all gameplay obstacles remain unchanged.
@@ -169,6 +165,7 @@ export function createScene(canvas) {
   }
   // Variable-depth, buried rock clusters and ferns mark the same world bounds.
   forestNature.boundaries();forestNature.build();
+  woodlandGround.finish();
   // Ancient stone entrance and beacon, visually separate from protected objects.
   for(const side of [-1,1]){
     part('cylinder',side*8,2.8,GATE.z,2.3,5.6,2.3,0x99a896);
@@ -295,7 +292,7 @@ export function createScene(canvas) {
     camera.updateMatrixWorld();avatarRenderOptions.hideLocal=cameraState.bodyHidden;
     villageNature.update(me);
     projection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);frustum.setFromProjectionMatrix(projection);
-    const village=phase==='lobby'||phase==='village'||phase==='victory';color.setHex(village?graphics.villageSky:graphics.forestSky);scene.background.lerp(color,1-Math.exp(-dt*3.7));scene.fog.color.copy(scene.background);
+    const village=phase==='lobby'||phase==='village'||phase==='victory';color.setHex(village?graphics.villageSky:graphics.forestSky);scene.background.lerp(color,1-Math.exp(-dt*3.7));
     for(const b of dynamic.values())b.count=0;shadows.count=0;
     for(const item of sprites.values())item.sprite.visible=false;
     let pc=0;for(const p of Object.values(players)){if(p.online===false)continue;if(++pc>30)break;playerLabel(p,p.id===localId);}
@@ -325,7 +322,7 @@ export function createScene(canvas) {
     if(shadows.count){shadows.instanceMatrix.clearUpdateRanges();shadows.instanceMatrix.addUpdateRange(0,shadows.count*16);shadows.instanceMatrix.needsUpdate=true;}
     renderer.render(scene,camera);
   }
-  function stats(){return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,pixelRatio:renderer.getPixelRatio(),aaSamples,graphics:{toneMapping:graphics.toneName,exposure:renderer.toneMappingExposure,antialias:gl.getContextAttributes().antialias,bloom:false,lights:2,hemiIntensity:hemi.intensity,sunIntensity:sun.intensity},motion:motionFeedback.stats(),camera:{...cameraRig.state(),fov:camera.fov,x:camera.position.x,y:camera.position.y,z:camera.position.z,pitch:camera.rotation.x,yaw:camera.rotation.y},art:{village:villageArt.stats,nature:villageNature.stats,forestNature:forestNature.stats,boar:boar.stats}};}
+  function stats(){return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,pixelRatio:renderer.getPixelRatio(),aaSamples,graphics:{toneMapping:graphics.toneName,exposure:renderer.toneMappingExposure,antialias:gl.getContextAttributes().antialias,bloom:false,lights:2,hemiIntensity:hemi.intensity,sunIntensity:sun.intensity},motion:motionFeedback.stats(),camera:{...cameraRig.state(),fov:camera.fov,x:camera.position.x,y:camera.position.y,z:camera.position.z,pitch:camera.rotation.x,yaw:camera.rotation.y},art:{village:villageArt.stats,nature:villageNature.stats,forestNature:forestNature.stats,woodlandGround:woodlandGround.stats,backdrop:woodlandBackdrop,boar:boar.stats}};}
   function dispose(){avatars.dispose();boar.dispose();for(const resource of resources)resource.dispose?.();resources.clear();renderer.dispose();sprites.clear();effectPool.length=0;}
   return {render,stats,dispose,resetCamera:()=>cameraRig.reset()};
 }
