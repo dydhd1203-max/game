@@ -66,6 +66,9 @@ const NODES=Object.fromEntries(Object.entries(M.NODE_TABLE).map(([k,v])=>[k,v.to
  // static render = apply(idle, front, 0), reset/remount.
  report.registered=await L.registerInStudio(p,{});
  assert(Object.values(report.registered).every(s=>typeof s==='object'&&Object.values(s).every(v=>v==='ready')),'alias records registered through the studio: '+JSON.stringify(report.registered));
+ // Records outside the starter set load on demand (their first render is
+ // 'pending' until the atlas is in): every listed record is loaded first.
+ await p.evaluate(()=>{const G=QPFoundationStudio.runtime.QPFoundationGarments;return Promise.all(QPFoundationStudio.garments().flatMap(r=>r.sexes.map(sex=>G.ensure([r.id],sex))));});
  report.records=await p.evaluate(NODES=>{
   const api=QPFoundationStudio.api,G=QPFoundationStudio.runtime.QPFoundationGarments,host=document.createElement('div');document.body.append(host);const rows=[];
   const check=(v,message)=>{if(!v)throw Error(message);},slotOf=part=>/^(shirt|underarm|sleeve)/.test(part)?'top':part==='shorts-hip'?'bottom':/^shoe/.test(part)?'shoes':null;

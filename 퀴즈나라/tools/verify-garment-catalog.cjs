@@ -5,7 +5,7 @@
 
      node tools/verify-garment-catalog.cjs                 own static server on a free port
      node tools/verify-garment-catalog.cjs --url http://127.0.0.1:4193/
-     node tools/verify-garment-catalog.cjs --runtime-loaded   from WP3 on: index.html may load the garment files
+     (--runtime-loaded is the default since WP3 (#105); --before-wp3 restores the old 'no runtime file names a garment file' gate)
      node tools/verify-garment-catalog.cjs --self-test     + negative controls (mutated catalogue inputs, a 1 px
                                                             atlas shift, a page that loads the garment index)
 
@@ -57,10 +57,14 @@ function staticChecks(){
   // Lossless, decoded in node.
   const layers=Object.fromEntries(Object.entries(LAYER).map(([k,f])=>[k,H.png.decode(fs.readFileSync(path.join(root,f)))]));
   let n=0;
+  // Pipeline records (legacy false, built by tools/garment/build-garment.py)
+  // are new paintings: only their chunks are checked here (the builder
+  // decode-checks its atlas; schema ATLAS/ATLAS_FILE above).
   for(const r of Object.values(records)){
     for(const [sex,entry] of Object.entries(r.sexes)){
       const buf=fs.readFileSync(path.join(root,entry.atlas)),info=S.pngInfo(buf);
       assert(S.chunksOk(info),entry.atlas+' chunks '+info?.chunks);
+      if(!r.legacy)continue;
       const atlas=H.png.decode(buf),used=new Uint8Array(atlas.width*atlas.height);
       for(const g of regions(r).filter(g=>g.sex===sex)){
         const a=H.png.crop(atlas,g.at[0],g.at[1],g.rect[2],g.rect[3]).data,b=H.png.crop(layers[g.layer],...g.rect).data;
@@ -73,7 +77,7 @@ function staticChecks(){
   // Not loaded by any runtime file yet.
   const runtime=require('./deployment-files.cjs').filter(f=>/\.(html|js|css)$/.test(f));
   const naming=runtime.filter(f=>/sd-garment|QPFoundationGarment/.test(fs.readFileSync(path.join(root,f),'utf8')));
-  if(argv['runtime-loaded'])ok('runtime files naming garment files (allowed with --runtime-loaded)',naming.join(', ')||'none');
+  if(!argv['before-wp3'])ok('runtime files naming garment files (allowed with --runtime-loaded)',naming.join(', ')||'none');
   else{assert.deepEqual(naming,[],'A runtime file loads garment data before WP3: '+naming.join(', '));
     assert(!runtime.some(f=>/sd-garment/.test(f)),'deployment-files.cjs lists a garment file before WP3');
     ok('index.html and the '+runtime.length+' runtime files do not name sd-garment*/QPFoundationGarment*');}
@@ -162,15 +166,22 @@ async function browserChecks(index,records){
     const requests=[];context.on('request',q=>requests.push(new URL(q.url()).pathname));
     const page=await context.newPage();page.on('pageerror',e=>report.errors.push('pageerror: '+e.message));
     const settle=async()=>{try{await page.waitForLoadState('networkidle',{timeout:15000});}catch{}};
+    let trialRequests=0;
     // 1. The foundation demo page: no garment file yet.
     await page.goto(new URL('index.html?demo=1&avatar=foundation&session=garment-catalog-foundation',base).href);
     await page.waitForFunction(()=>window.QPGame?.getCatalog&&window.QPFoundationOutfit?.atlas.ready,null,{timeout:30000});await settle();
+    trialRequests=requests.length;
     // 2. The normal demo page (students' path).
     await page.goto(new URL('index.html?demo=1&session=garment-catalog',base).href);
     await page.waitForFunction(()=>window.QPGame?.getCatalog&&window.QPClothes?.colorFor,null,{timeout:30000});await settle();
     const garmentRequests=requests.filter(p=>GARMENT_URL.test(p));
     report.requests=requests.length;report.garmentRequests=garmentRequests;
-    if(argv['runtime-loaded'])ok('garment requests on the demo pages (allowed)',garmentRequests.length+'');
+    // From WP3 on the trial page (?avatar=foundation) loads the garment data;
+    // the students' path never does (stage 5 switches it).
+    const studentGarment=requests.slice(trialRequests).filter(p=>GARMENT_URL.test(p));
+    report.studentGarmentRequests=studentGarment;
+    if(!argv['before-wp3']){assert.deepEqual(studentGarment,[],'The students\' demo page requested garment files');
+      ok('?demo=1 (students\' path) requests no garment file; the trial page requested '+requests.slice(0,trialRequests).filter(p=>GARMENT_URL.test(p)).length,requests.length+' requests');}
     else{assert.deepEqual(garmentRequests,[],'The demo pages requested garment files before WP3');ok('?demo=1 and ?demo=1&avatar=foundation request no garment file',requests.length+' requests');}
 
     // 3. Catalogue: shelf, item, colours, starter, coverage.
@@ -198,7 +209,7 @@ async function browserChecks(index,records){
     ok('registry',files.length+' scripts loaded concurrently, again in reverse order, again with a define() hook: one key per record ('+reg.ids.join(', ')+'), frozen, equal to node, define() called once per record');
 
     // 5. Runtime crop path and the rebuilt sheet.
-    const list=Object.values(records).flatMap(r=>regions(r).map(g=>({...g,id:r.id,atlas:r.sexes[g.sex].atlas,layerFile:LAYER[g.layer]})));
+    const list=Object.values(records).filter(r=>r.legacy).flatMap(r=>regions(r).map(g=>({...g,id:r.id,atlas:r.sexes[g.sex].atlas,layerFile:LAYER[g.layer]})));
     const result=await page.evaluate(CROPS,{list,LAYER});
     assert.deepEqual(result.bad,[],'runtime crop path differs');assert.equal(result.sheetDiff,0,'rebuilt sheet differs');
     fs.writeFileSync(path.join(out,'rebuilt-sheet.png'),Buffer.from(result.png.split(',')[1],'base64'));

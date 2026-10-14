@@ -34,6 +34,20 @@ const index={
     "bundle":"assets/avatar-file-data-garment-shoes-sneaker.js"
    }
   },
+  "top:shirt":{
+   "slot":"top",
+   "class":"top/short-sleeve",
+   "status":"approved",
+   "legacy":false,
+   "sexes":["f","m"],
+   "sha256":"c1fc1e1cc6e0316ef7e5e05d380634014200cfab5c84017ab5b14e460928a4fe",
+   "files":{
+    "data":"assets/sd-garment-top-shirt.js",
+    "f":"assets/sd-garment-top-shirt-f.png",
+    "m":"assets/sd-garment-top-shirt-m.png",
+    "bundle":"assets/avatar-file-data-garment-top-shirt.js"
+   }
+  },
   "top:tee":{
    "slot":"top",
    "class":"top/short-sleeve",
@@ -52,9 +66,11 @@ const index={
  "catalogue":{
   "f:bottom:shorts":"bottom:shorts",
   "f:shoes:sneaker":"shoes:sneaker",
+  "f:top:shirt":"top:shirt",
   "f:top:tee":"top:tee",
   "m:bottom:shorts":"bottom:shorts",
   "m:shoes:sneaker":"shoes:sneaker",
+  "m:top:shirt":"top:shirt",
   "m:top:tee":"top:tee"
  },
  "starter":{

@@ -56,7 +56,7 @@ async function run(browser,{report,check,out}){
       for(let i=0;i<40&&svg.dataset.foundationStatic==='pending';i++)await frame();api.apply(svg,{action:'walk',direction:'left',phase:.3,time:0,reducedMotion:true});
       const parts=[...svg.querySelectorAll('[data-outfit-part]')],own=parts.filter(p=>/^(shirt|underarm|sleeve)/.test(p.dataset.outfitPart)?e.slot==='top':p.dataset.outfitPart==='shorts-hip'?e.slot==='bottom':/^shoe/.test(p.dataset.outfitPart)?e.slot==='shoes':false);
       records.push({id,sex,slot:e.slot,static:svg.dataset.foundationStatic||'',fallback:svg.dataset.foundationFallback,own:own.length,ownIds:[...new Set(own.map(p=>p.dataset.outfitGarment))],dataHrefs:[...svg.querySelectorAll('image[data-outfit-part]')].every(im=>!im.getAttribute('href')||im.getAttribute('href').startsWith('data:image/'))});}
-    return{res,records,registry:Object.keys(window.QPAvatarGarmentFileData||{}).sort(),bundles:window.__bundleLog,index:Object.values(QPFoundationGarmentIndex.records).map(e=>e.files.bundle.split('/').pop())};});
+    return{res,records,registry:Object.keys(window.QPAvatarGarmentFileData||{}).sort(),bundles:window.__bundleLog,index:Object.values(QPFoundationGarmentIndex.records).map(e=>e.files.bundle.split('/').pop()),starter:[...new Set(Object.values(QPFoundationGarmentIndex.starter).flatMap(s=>Object.values(s)))].map(id=>QPFoundationGarmentIndex.records[id].files.bundle.split('/').pop())};});
   await page.waitForTimeout(300);fs.mkdirSync(out,{recursive:true});await page.screenshot({path:path.join(out,'file-play.png'),clip:{x:0,y:0,width:1280,height:780}});(report.images||=[]).push(path.join(out,'file-play.png'));
   const http=seen.filter(s=>/^https?:/.test(s)&&!s.startsWith('https://www.gstatic.com/firebasejs/'));
   for(const sex of ['m','f']){const x=r.res[sex],want=M.expectedNodes(x.cls,sex);
@@ -67,8 +67,10 @@ async function run(browser,{report,check,out}){
   check(r.res.m.fallback==='bottom:todo'&&r.res.f.fallback==='','file:// new accounts: the boy\'s jeans:5 falls back to the basic shorts (todo), the girl wears her starter records',r.res.m.fallback+' / '+r.res.f.fallback);
   const badRecords=r.records.filter(x=>x.static||x.fallback||!x.own||x.ownIds.join()!==x.id||!x.dataHrefs);
   check(r.records.length>=6&&!badRecords.length,'file:// every index record renders for each of its sexes ('+r.records.length+' record×sex, own parts carry the id, data-URL hrefs)',JSON.stringify(badRecords.slice(0,4)));
-  const b=r.bundles||[],ends=b.map(x=>x.end).filter(v=>v!=null),concurrent=b.length>=3&&b.every(x=>x.ok)&&Math.max(...b.map(x=>x.start))<Math.min(...ends);
-  check(concurrent,'file:// '+b.length+' garment bundles requested together and loading concurrently (every start before the first load)',JSON.stringify(b.map(x=>[x.src,+x.start.toFixed(1),x.end&&+x.end.toFixed(1)])));
+  // The starter set's bundles load together; another record's bundle loads
+  // on demand when an avatar wears it (the shop pilot top:shirt).
+  const all=r.bundles||[],b=all.filter(x=>r.starter.some(s=>String(x.src).endsWith(s))),ends=b.map(x=>x.end).filter(v=>v!=null),concurrent=b.length>=3&&all.every(x=>x.ok)&&Math.max(...b.map(x=>x.start))<Math.min(...ends);
+  check(concurrent,'file:// '+b.length+' starter garment bundles requested together and loading concurrently (every start before the first load); '+(all.length-b.length)+' more on demand',JSON.stringify(b.map(x=>[x.src,+x.start.toFixed(1),x.end&&+x.end.toFixed(1)])));
   check(r.registry.length===r.index.length*2&&r.index.every(s=>seen.some(p=>p.endsWith('/assets/'+s))),'file:// the garment bundles fill one registry ('+r.registry.length+' atlas keys)',r.registry.join(', '));
   check(http.length===0,'file:// no http request',http.join(', '));
   await context.close();

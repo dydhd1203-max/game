@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-14T10:05:38.241Z",
+  "builtAt": "2026-10-14T10:22:35.920Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -796,8 +796,8 @@
     },
     {
       "path": "assets/sd-garments-index.js",
-      "bytes": 2555,
-      "sha256": "b2e72accb925398a7085059ecadd4f96ffa61d008acae4f8dedf9ebd433681c2"
+      "bytes": 3040,
+      "sha256": "2dab25fb87ce0c4ef33c97c386b184896274991b881c9a035b7bb8ed28ecaa65"
     },
     {
       "path": "assets/sd-garment-bottom-shorts.js",
@@ -838,6 +838,26 @@
       "path": "assets/avatar-file-data-garment-shoes-sneaker.js",
       "bytes": 88383,
       "sha256": "8414785946672556a177f2dced68fe88529da4e3108c005c63b53e2a7eaec276"
+    },
+    {
+      "path": "assets/sd-garment-top-shirt.js",
+      "bytes": 44149,
+      "sha256": "c1fc1e1cc6e0316ef7e5e05d380634014200cfab5c84017ab5b14e460928a4fe"
+    },
+    {
+      "path": "assets/sd-garment-top-shirt-f.png",
+      "bytes": 138675,
+      "sha256": "54850b718697f08648831853ace3a77ce277acd4dfc762c163e81c45edfae5ff"
+    },
+    {
+      "path": "assets/sd-garment-top-shirt-m.png",
+      "bytes": 143803,
+      "sha256": "f46466a3d8fba3dbb2b602548bee4f655ccf7fabc9d31a0ebf96596188f555d6"
+    },
+    {
+      "path": "assets/avatar-file-data-garment-top-shirt.js",
+      "bytes": 377279,
+      "sha256": "c440708e930a15e4635f18aab126cc2fe102f4686213e3d7bb38b01b14bdef46"
     },
     {
       "path": "assets/sd-garment-top-tee.js",
