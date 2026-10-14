@@ -3,7 +3,7 @@
    tools/build-reference-body.py). Shared fixed joints, authored seated poses. */
 (function(root){
   'use strict';
-  const NS='http://www.w3.org/2000/svg',mounted=new WeakMap(),headCache=new Map();let serial=0;
+  const NS='http://www.w3.org/2000/svg',mounted=new WeakMap(),headCache=new Map(),HEAD_CACHE=64;let serial=0;
   // Body-local units: reference sheet pixels × 17.5/286 from the collar row
   // (16, 28.55). Values are the male front joints that tools/build-reference-
   // body.py derives from 기준캐릭터-조사/ref/measure-raw.json, made symmetric.
@@ -796,10 +796,13 @@
   function pigment(defs,id,color){const g=el('linearGradient',{id,x1:0,y1:0,x2:1,y2:0});for(const [offset,f]of[[0,.80],[.28,1.04],[.62,1.09],[1,.88]])g.append(el('stop',{offset,'stop-color':tone(color,f)}));defs.append(g);return'url(#'+id+')';}
   function headViews(av){
     const base={...av,rig:undefined,foundationGarments:undefined,top:'',bottom:'',shoes:'',outfit:'',pet:'',effect:'',bg:'',frame:'',hat:'',glass:'',face:'',ear:'',neck:'',back:''};
-    const key=JSON.stringify(base);if(headCache.has(key))return headCache.get(key);
+    const key=JSON.stringify(base);if(headCache.has(key)){const hit=headCache.get(key);headCache.delete(key);headCache.set(key,hit);return hit;}
     const raw=new DOMParser().parseFromString(QPAvatar.render(base,280,3),'image/svg+xml').documentElement;
     const front=raw.querySelector('.qpx-head'),skin=front.dataset.qpxHeadSkin;
-    const result={key,skin,headClip:raw.querySelector('#qpx-head-front').outerHTML,backHair:raw.querySelector('.qpx-back-hair')?.outerHTML||'',front:front.outerHTML,profile:QPAvatarDirection.headMarkup(raw,'profile'),back:QPAvatarDirection.headMarkup(raw,'back')};headCache.set(key,result);return result;
+    const result={key,skin,headClip:raw.querySelector('#qpx-head-front').outerHTML,backHair:raw.querySelector('.qpx-back-hair')?.outerHTML||'',front:front.outerHTML,profile:QPAvatarDirection.headMarkup(raw,'profile'),back:QPAvatarDirection.headMarkup(raw,'back')};headCache.set(key,result);
+    // Least recently used out past HEAD_CACHE (stage 3 WP9): a class roster
+    // of 30 heads fits; shop previews cycling hair no longer grow it forever.
+    while(headCache.size>HEAD_CACHE)headCache.delete(headCache.keys().next().value);return result;
   }
   // render() output is assembled from a template per head and outfit: the
   // posed skeleton serialized once with its id and size left as slots, and
