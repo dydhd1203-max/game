@@ -28,7 +28,10 @@ for(const sex of ['m','f'])for(const direction of ['front','back','right']){
 // seat with level thighs, so the pelvis is a thigh length lower and the
 // cross-legged pelvis is lower than it by the chair height (old margin 3 ->
 // 2.5). The other old contracts stay; the rest pin what the user asked for.
-const shoeToe=(()=>{const F=globalThis.QPFoundationReferenceData.figures['m-right'];return(F.rects.shoe[0][0]+F.rects.shoe[0][2]-F.joints.ankle[0][0])*F.k;})();
+// The toe's reach past the ankle comes from the boys' starter shoe record (stage 3: the frozen
+// body data's rects.shoe is a legacy garment field), its profile drawing: rect right edge − ankle.
+const shoeToe=(()=>{require('../assets/sd-garments-index.js');const I=globalThis.QPFoundationGarmentIndex,id=I.starter.m.shoes;require('../'+I.records[id].files.data);
+  const F=globalThis.QPFoundationReferenceData.figures['m-right'],s=globalThis.QPFoundationGarmentRecords[id].sexes.m.figures.right.shoes[0];return(s.rect[0]+s.rect[2]-s.ankle[0])*F.k;})();
 for(const sex of ['m','f'])for(const direction of ['front','back','left','right']){
   const floor=solve({sex,action:'floor-sit',direction,time:0}),desk=solve({sex,action:'sit',direction,time:0}),S=floor.spec,where=sex+' '+direction,dist=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[1]);
   assert(floor.drop>desk.drop+2.5,'floor pelvis must be lower than the chair pose');

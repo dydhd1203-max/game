@@ -5,6 +5,8 @@
 // outline), not from line boxes. Writes a JSON report and a 2x zoom sheet of
 // every checked region for a human look.
 //   QUIZ_PREVIEW_URL=http://127.0.0.1:4173/ node tools/verify-visual-polish.cjs
+// Also the studio (avatar-standard.html, hosted): header, wardrobe selectors,
+// fallback badges (an unconverted top worn), action and playback rows.
 const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require('playwright');
@@ -91,7 +93,7 @@ async function measure(page, screen) {
 }
 
 (async () => {
-  const browser = await chromium.launch();
+  const browser = await chromium.launch(process.env.QUIZ_BROWSER_EXECUTABLE ? { executablePath: process.env.QUIZ_BROWSER_EXECUTABLE } : {});
   const report = { base, screens: [], findings: [], errors: [] };
   const crops = [];
   try {
@@ -118,6 +120,42 @@ async function measure(page, screen) {
         if (width === 1366) for (const r of result.regions) crops.push({ shot, name: tag + ' ' + r.name, box: r.box });
       }
       await page.close();
+      // The studio (avatar-standard.html, hosted only): the review host of the garment records.
+      // Shown with an unconverted shop top on both avatars, so the fallback badges are measured too.
+      {
+        const sp = await browser.newPage({ viewport: { width, height }, reducedMotion: 'reduce' });
+        await sp.route('**/*', r => { const u = new URL(r.request().url()); return ['127.0.0.1', 'localhost'].includes(u.hostname) || ['data:', 'blob:'].includes(u.protocol) ? r.continue() : r.fulfill({ body: '' }); });
+        sp.on('pageerror', e => report.errors.push('studio: ' + e.message));
+        await sp.goto(new URL('avatar-standard.html', base).href);
+        await sp.waitForFunction(() => window.QPFoundationStudio, null, { timeout: 90000 });
+        await sp.evaluate(() => { QPFoundationStudio.setOutfit({ top: 'item:hood' }); QPFoundationStudio.setState({ action: 'idle', phase: 0 }); return document.fonts.ready; });
+        await sp.waitForTimeout(500);
+        const tag = 'studio-' + width, result = await measure(sp, tag);
+        const studio = await sp.evaluate(screen => {
+          const rect = e => { const r = e.getBoundingClientRect(); return { x0: r.left, y0: r.top, x1: r.right, y1: r.bottom }; };
+          const overlap = (a, b) => Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0)) * Math.max(0, Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0));
+          const findings = [], regions = [];
+          for (const [name, sel] of [['header', 'main>header'], ['wardrobe', '#wardrobe'], ['badges-m', '#male-badges'], ['badges-f', '#female-badges'], ['actions', '#actions'], ['directions', '#directions'], ['playback', '.playback']]) { const e = document.querySelector(sel); if (e && e.getBoundingClientRect().height) regions.push({ name: 'studio:' + name, box: rect(e) }); }
+          // Badges stay inside their card and apart; the wardrobe's labels and selects do not collide.
+          for (const host of document.querySelectorAll('.badges')) {
+            const card = rect(host.closest('article')), spans = [...host.children];
+            for (const s of spans) { const b = rect(s); if (b.x0 < card.x0 - 1 || b.x1 > card.x1 + 1) findings.push({ screen, type: 'badge-overflow', what: s.textContent.slice(0, 30) }); }
+            for (let i = 0; i < spans.length; i++) for (let j = i + 1; j < spans.length; j++) { const a = overlap(rect(spans[i]), rect(spans[j])); if (a > 2) findings.push({ screen, type: 'badge-overlap', what: [spans[i].textContent.slice(0, 20), spans[j].textContent.slice(0, 20)], area: Math.round(a) }); }
+          }
+          const labels = [...document.querySelectorAll('#wardrobe label')];
+          for (let i = 0; i < labels.length; i++) for (let j = i + 1; j < labels.length; j++) { const a = overlap(rect(labels[i]), rect(labels[j])); if (a > 2) findings.push({ screen, type: 'wardrobe-overlap', what: [labels[i].textContent.trim().slice(0, 8), labels[j].textContent.trim().slice(0, 8)], area: Math.round(a) }); }
+          const fallback = [...document.querySelectorAll('.badges span.fallback')].map(s => s.textContent);
+          if (!fallback.length) findings.push({ screen, type: 'studio-badge', what: 'an unconverted top shows no fallback badge' });
+          if (!document.getElementById('file-note').hidden) findings.push({ screen, type: 'studio-note', what: 'the file:// note shows on the hosted studio' });
+          return { findings, regions, fallback };
+        }, tag);
+        report.screens.push({ screen: tag, buttons: result.buttons, regions: result.regions.length + studio.regions.length, fallbackBadges: studio.fallback });
+        report.findings.push(...result.findings, ...studio.findings);
+        const shot = path.join(out, tag + '.png');
+        await sp.screenshot({ path: shot, fullPage: true });
+        if (width === 1366) for (const r of [...result.regions, ...studio.regions]) crops.push({ shot, name: tag + ' ' + r.name, box: r.box });
+        await sp.close();
+      }
     }
   } finally { await browser.close(); }
   // 2x zoom sheet of every checked region at laptop size.
@@ -134,7 +172,26 @@ async function measure(page, screen) {
     let y = 0; const parts = [];
     for (const t of tiles) { const m = await sharp(t).metadata(); parts.push({ input: t, left: 0, top: y }); y += m.height + 8; }
     if (parts.length) await sharp({ create: { width: 1300, height: y, channels: 3, background: '#222' } }).composite(parts).png().toFile(path.join(out, '확대-모음.png'));
-  } catch (e) { report.errors.push('zoom sheet: ' + e.message); }
+  } catch (e) {
+    // Without sharp (a container without it): the same sheet from the harness PNG codec, nearest-neighbour.
+    if (!/Cannot find module 'sharp'/.test(e.message)) report.errors.push('zoom sheet: ' + e.message);
+    else try {
+      const H = require('./verify-harness.cjs'), shots = new Map(), tiles = [];
+      for (const c of crops) {
+        if (!shots.has(c.shot)) shots.set(c.shot, H.png.decode(fs.readFileSync(c.shot)));
+        const img = shots.get(c.shot), pad = 10, left = Math.max(0, Math.floor(c.box.x0 - pad)), top = Math.max(0, Math.floor(c.box.y0 - pad));
+        const w = Math.min(img.width - left, Math.ceil(c.box.x1 - c.box.x0 + pad * 2)), h = Math.min(img.height - top, Math.ceil(c.box.y1 - c.box.y0 + pad * 2));
+        if (w < 4 || h < 4) continue;
+        const scale = Math.min(2, 1300 / w), W = Math.max(1, Math.round(w * scale)), Hh = Math.max(1, Math.round(h * scale)), data = Buffer.alloc(W * Hh * 4);
+        for (let y = 0; y < Hh; y++) for (let x = 0; x < W; x++) { const s = ((top + Math.min(h - 1, Math.floor(y / scale))) * img.width + left + Math.min(w - 1, Math.floor(x / scale))) * 4; img.data.copy(data, (y * W + x) * 4, s, s + 4); }
+        tiles.push({ width: W, height: Hh, data });
+      }
+      const height = tiles.reduce((s, t) => s + t.height + 8, 0), sheet = { width: 1300, height: Math.max(1, height), data: Buffer.alloc(1300 * Math.max(1, height) * 4) };
+      for (let i = 0; i < sheet.data.length; i += 4) sheet.data.set([0x22, 0x22, 0x22, 255], i);
+      let y = 0; for (const t of tiles) { for (let r = 0; r < t.height; r++) t.data.copy(sheet.data, ((y + r) * 1300) * 4, r * t.width * 4, r * t.width * 4 + Math.min(1300, t.width) * 4); y += t.height + 8; }
+      if (tiles.length) fs.writeFileSync(path.join(out, '확대-모음.png'), H.png.encode(sheet));
+    } catch (e2) { report.errors.push('zoom sheet: ' + e2.message); }
+  }
   report.success = !report.findings.length && !report.errors.length;
   fs.writeFileSync(path.join(out, '화면점검.json'), JSON.stringify(report, null, 2));
   console.log(JSON.stringify({ success: report.success, findings: report.findings, errors: report.errors }, null, 1));

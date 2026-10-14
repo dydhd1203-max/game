@@ -70,6 +70,13 @@ async function renderCards(frame,avatars){
   fs.mkdirSync(out,{recursive:true});
   const browser=await chromium.launch({headless:true,executablePath:process.env.QUIZ_BROWSER_EXECUTABLE||undefined});
   try{
+    // Stage 3: the reference body's garment records from disk (tools/verify-file-foundation.cjs):
+    // index.html?demo=1&avatar=foundation over file://, every record, data-URL garment pictures,
+    // concurrent garment bundles, no network; the students' page; the studio's hosted-only note.
+    const foundation={checks:[],failures:[],errors:[],images:[]};
+    await require('./verify-file-foundation.cjs').run(browser,{report:foundation,check:(cond,name,detail)=>(cond?foundation.checks:foundation.failures).push({name,detail}),out:path.join(out,'옷파일')});
+    fs.writeFileSync(path.join(out,'파일원화-기준옷.json'),JSON.stringify(foundation,null,2));
+    assert(foundation.failures.length===0&&foundation.errors.length===0,'reference-body garments over file://: '+JSON.stringify({failures:foundation.failures,errors:foundation.errors}).slice(0,1500));
     const context=await browser.newContext({viewport:{width:1440,height:900}});
     await context.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({body:'/* isolated avatar QA */',contentType:'text/javascript'}));
     const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));

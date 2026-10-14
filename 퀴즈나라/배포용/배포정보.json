@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-09T10:19:24.341Z",
+  "builtAt": "2026-10-14T05:37:42.432Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -546,18 +546,18 @@
     },
     {
       "path": "avatar-standard.html",
-      "bytes": 3084,
-      "sha256": "1ecc9eab8f7592cb617b724642de805beae83a7b929363fb8eb52a6c6cdc6f0c"
+      "bytes": 4294,
+      "sha256": "c78f1693042739d95fa9123d2f74bc11d54103aaccbbfc3269a1c5eab18adc93"
     },
     {
       "path": "avatar-standard.js",
-      "bytes": 5372,
-      "sha256": "556798073212e9bea70114f55bb9586c5baabaae46a9b3fbeae97938695d4bda"
+      "bytes": 17973,
+      "sha256": "ebbf2b0eb8c18cf8b047ce847bc19de222498be3686f046ad6961b98acad48c4"
     },
     {
       "path": "avatar-standard.css",
-      "bytes": 2819,
-      "sha256": "d7702627c7fe08804e31dd0547e0fc2da404fe0f591c9d07fc31e76557bd04db"
+      "bytes": 4068,
+      "sha256": "0f6ac395dec92f8aefb82132668976b91bf3a470e62d8718b76a80d156997bad"
     },
     {
       "path": "avatar-motion.js",
