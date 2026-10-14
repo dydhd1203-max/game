@@ -173,12 +173,9 @@
     // between `top` and the cut is scaled to its seated height.
     const top=S.waist-.5,back=view==='Back';let bottom,tubes=[],bands=[],seatOver=true;
     if(pose.floor){
-      // A stretched front sit's seat ends behind the crossed shins.
-      bottom=S.floor-pose.drop-(projected.some(l=>l.cuff)?1.9:0);
+      bottom=S.floor-pose.drop;
       tubes=projected.map((leg,i)=>{const hip=[S.hip[i],S.waist],v=[leg.knee[0]-hip[0],leg.knee[1]-hip[1]],l=Math.hypot(...v)||1,u=[v[0]/l,v[1]/l],[a,b]=half(i,1.7);
-        // A stretched front sit (leg.cuff) ends the shorts on the thigh, the
-        // bare thigh running on to the knee; otherwise the cuff hugs the knee.
-        return{end:leg.cuff||[leg.knee[0]-u[0]*.42,leg.knee[1]-u[1]*.42],source:[S.hip[i],cuff],angle:Math.atan2(u[1],u[0])-Math.PI/2,along:leg.cuff?1.2:.9,across:leg.cuff?.7:.62,rect:[a,cuff-1.6,b-a,1.6]};});
+        return{end:[leg.knee[0]-u[0]*.42,leg.knee[1]-u[1]*.42],source:[S.hip[i],cuff],angle:Math.atan2(u[1],u[0])-Math.PI/2,along:.9,across:.62,rect:[a,cuff-1.6,b-a,1.6]};});
     }else if(back)bottom=cut;
     else{
       // The cuff band (with a little denim above it) bent into a smile:
@@ -319,7 +316,7 @@
     const S=rig(sex,view),F=figure(sex,view),profile=pose.profile,lap=pose.legs.some(l=>l.seatShoe?.lap),key=gk(g.id,...(lap?[shoes.id]:[]),...(H?['run']:[]),[sex,view,pose.floor,pose.desk,pose.lean,...pose.legs.flatMap(l=>[...l.root,...l.knee,...(pose.floor?l.ankle:[]),l.seatShoe?.lap?1:0])].map(v=>typeof v==='number'?Math.round(v*24)/24:v).join(':')),cached=shortsCache.get(key);if(cached)return cached;
     const art=shortsArt(g,sex,view),cols=10,rows=10,vertices=[];
     const [a,b,c,d,tx,ty]=pose.torso,det=a*d-b*c,unmap=p=>[(d*(p[0]-tx)-c*(p[1]-ty))/det,(-b*(p[0]-tx)+a*(p[1]-ty))/det];
-    const projected=pose.legs.map(l=>({root:unmap(l.root),knee:unmap(l.knee),ankle:unmap(l.ankle),cuff:l.cuff?unmap(l.cuff):null})),start=S.waist-.6;
+    const projected=pose.legs.map(l=>({root:unmap(l.root),knee:unmap(l.knee),ankle:unmap(l.ankle)})),start=S.waist-.6;
     if(pose.floor&&profile&&sideSeatOf(g,sex))return shortsCache.set(key,sideFloorShorts(g,shoes,sex,S,F,art,pose,projected));
     if((pose.floor||pose.desk)&&!profile)return shortsCache.set(key,seatedShorts(g,sex,view,S,F,art,projected,pose));
     // A running mesh gets a vertex row on the cut, so the cuff band moves as one piece.
@@ -564,8 +561,7 @@
     });
     raisedSides(r,top,pose,sex,view);
     pose.legs.forEach((leg,i)=>{
-      // The stretched front sit's bare thigh shares the foot's path (leg.cuff).
-      const s=r.shoes[i];body.legs[i].foot.style.display=leg.cuff&&!pose.seatArt?'':'none';
+      const s=r.shoes[i];body.legs[i].foot.style.display='none';
       // A seated foot may face another way than the body view (the crossed
       // feet of 아빠다리): it then uses that direction's whole shoe drawing,
       // never a squashed one, anchored at the shoe's own ankle opening.
@@ -582,9 +578,6 @@
       if(seat?.under){const host=body.legs[0].parent,at=i?r.shoes[0].group.nextSibling:host.firstChild;if(s.group.parentNode!==host||(i?s.group.previousSibling!==r.shoes[0].group:host.firstChild!==s.group))host.insertBefore(s.group,at);}
       else if(seat?.over){if(s.group.parentNode!==body.legs[1].parent)body.legs[1].parent.append(s.group);}
       else{const parent=body.legs[i].parent;if(s.group.parentNode!==parent||parent.lastChild!==s.group)parent.append(s.group);}
-      // Drawn seated shoes (SEATED_ART) replace the turned standing shoe.
-      const worn=pose.seatArt?.shoes[shoes.id]?.[i];
-      if(worn){set(s.group,'transform','');paint(s.image,worn,worn.url,...worn.rect);}else if(pose.seatArt?.shoes[shoes.id])s.group.style.display='none';
       const soleHeight=(SF.floor-anchor[1])*SF.k;
       const along=bottom.legacy?null:fig(bottom,view).bottom.cuffAlong;
       fit.legs.push({root:leg.root,cuff:mix(leg.root,leg.knee,along?nth(along,i):.81),owner:i});

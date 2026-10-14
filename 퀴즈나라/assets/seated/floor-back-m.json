@@ -1,0 +1,22 @@
+{
+ "source": "floor-sit-m-back-chatgpt-2026-10-14.webp",
+ "unit": 0.0258,
+ "cx": 468.2,
+ "floorPx": 1268,
+ "cut": 812,
+ "seat": 1.43,
+ "skin": [
+  8.5644,
+  33.9756,
+  14.8608,
+  10.4748
+ ],
+ "outfits": {
+  "top:tee|bottom:shorts|shoes:sneaker": [
+   8.5644,
+   34.2852,
+   14.8608,
+   11.7648
+  ]
+ }
+}

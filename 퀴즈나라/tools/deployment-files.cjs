@@ -64,8 +64,8 @@ module.exports=[
   'assets/quiz-studio.webp',
   'assets/fonts/Jua-Regular.ttf','assets/fonts/Jua-OFL.txt','assets/fonts/Fredoka-Variable.ttf','assets/fonts/Fredoka-OFL.txt','assets/fonts/NanumSquareRoundR.ttf','assets/fonts/NanumSquareRoundB.ttf','assets/fonts/NanumSquareRoundEB.ttf',
   'assets/fonts/NanumSquareRound-OFL.txt','assets/fonts/NanumSquareRound-출처.md',
-  // Drawn front floor-sit layers (tools/seated-cut.py; avatar-foundation.js SEATED_ART).
-  'assets/seated/floor-front-m-legs.png','assets/seated/floor-front-m-hand-0.png','assets/seated/floor-front-m-hand-1.png','assets/seated/floor-front-m-bottom-shorts.png','assets/seated/floor-front-m-shoes-sneaker-0.png','assets/seated/floor-front-m-shoes-sneaker-1.png','assets/seated/floor-front-f-legs.png','assets/seated/floor-front-f-hand-0.png','assets/seated/floor-front-f-hand-1.png','assets/seated/floor-front-f-bottom-shorts.png','assets/seated/floor-front-f-shoes-sneaker-0.png','assets/seated/floor-front-f-shoes-sneaker-1.png','assets/seated/floor-side-m-legs.png','assets/seated/floor-side-m-hand.png','assets/seated/floor-side-m-bottom-shorts.png','assets/seated/floor-side-m-shoes-sneaker.png',
+  // Drawn floor-sit bodies (tools/seated-cut-body.py; avatar-foundation.js SEATED_ART).
+  'assets/seated/floor-front-m-skin.png','assets/seated/floor-front-m-outfit-basic.png','assets/seated/floor-front-f-skin.png','assets/seated/floor-front-f-outfit-basic.png','assets/seated/floor-side-m-skin.png','assets/seated/floor-side-m-outfit-basic.png','assets/seated/floor-back-m-skin.png','assets/seated/floor-back-m-outfit-basic.png',
   // Garment records (stage 3; generated list: tools/garment-files.cjs).
   ...require('./garment-files.cjs')
 ];

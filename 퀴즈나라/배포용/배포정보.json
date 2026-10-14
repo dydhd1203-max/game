@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-14T12:44:15.667Z",
+  "builtAt": "2026-10-14T13:01:33.249Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -491,8 +491,8 @@
     },
     {
       "path": "avatar-foundation-outfit.js",
-      "bytes": 61121,
-      "sha256": "a321f02cbfe596a6679cfc9def3f609c6f70f9f59d9d1ef92332fc798736074f"
+      "bytes": 60404,
+      "sha256": "7d2eaafc72e349a54886af2f110812e3c21d2d413d31e95645bbae95f0effec2"
     },
     {
       "path": "assets/avatar-file-data-foundation.js",
@@ -526,8 +526,8 @@
     },
     {
       "path": "avatar-foundation-skin.js",
-      "bytes": 34595,
-      "sha256": "2a842ab0aef7111ff4e2910ebbd302fac21bd4d296e1397054d87bee9aaca9a2"
+      "bytes": 30173,
+      "sha256": "a1d897517728ab2ae1810dda2bd0269f08ca51bbd8268d52334667e8e27d259a"
     },
     {
       "path": "assets/sd-foundation-ref-neck.png",
@@ -536,8 +536,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 109598,
-      "sha256": "ab2fc65c422bc0d4abdd53f1bc802bd8689f628935a79b750fc302bb9b08d4ec"
+      "bytes": 106766,
+      "sha256": "bb3d5632d2c5582ce6f61dadcf2e5644d2a46633f1908f0ace7d4ced12e9bdc6"
     },
     {
       "path": "avatar-foundation.css",
@@ -795,84 +795,44 @@
       "sha256": "44b7f12620e5599c5e23ee953be3a6fbaa71a82eaef2b98c767238f43a098abe"
     },
     {
-      "path": "assets/seated/floor-front-m-legs.png",
-      "bytes": 40338,
-      "sha256": "b2f83609e00d810eef5e90c2d256afc698b68cba01b9c78456001b7d920f5f28"
+      "path": "assets/seated/floor-front-m-skin.png",
+      "bytes": 81708,
+      "sha256": "20f5b56c29380e739652a9b7fb5a2c83c1911055858d2563e2e68051797d4823"
     },
     {
-      "path": "assets/seated/floor-front-m-hand-0.png",
-      "bytes": 12457,
-      "sha256": "6384e82ac189bff8f988254fbc7bc49c47627366521fae5371e29c5650b73c39"
+      "path": "assets/seated/floor-front-m-outfit-basic.png",
+      "bytes": 128027,
+      "sha256": "d7481dcfaf00879560570adfcbc7b2ac24b3f3ad505a58f17d9a090d72b78821"
     },
     {
-      "path": "assets/seated/floor-front-m-hand-1.png",
-      "bytes": 12263,
-      "sha256": "6dc1463379fb77c92a06c561ed74062dd7b412ba3647f1df0d765338d9a5ad13"
+      "path": "assets/seated/floor-front-f-skin.png",
+      "bytes": 95579,
+      "sha256": "7cf366241a01986e7442e21e8290232ea2023de2c27b6f2f5603f4867627025f"
     },
     {
-      "path": "assets/seated/floor-front-m-bottom-shorts.png",
-      "bytes": 22232,
-      "sha256": "5d4c51f9d5179c429a327676227adb7f02f652df1fecd1a4453699d26e9fef5d"
+      "path": "assets/seated/floor-front-f-outfit-basic.png",
+      "bytes": 158794,
+      "sha256": "e35593559f615d4050cb99e3f68de2fb972ac83582933eec4588f6c4d5a68bc6"
     },
     {
-      "path": "assets/seated/floor-front-m-shoes-sneaker-0.png",
-      "bytes": 20371,
-      "sha256": "eef53fc19df3e0b0107020aadcdda22316d40385cffb187424d42befd47e9b8a"
+      "path": "assets/seated/floor-side-m-skin.png",
+      "bytes": 41931,
+      "sha256": "cf26dc1b6dac8655d6af02622751e65c4b41fc6a970f43c706390f946b48c3fe"
     },
     {
-      "path": "assets/seated/floor-front-m-shoes-sneaker-1.png",
-      "bytes": 23268,
-      "sha256": "7054a092eb7f9d3c2f0086efe6baf372fd68a30cb8bed42a310fb42bdab6d817"
+      "path": "assets/seated/floor-side-m-outfit-basic.png",
+      "bytes": 89519,
+      "sha256": "39c1988f65034e34d42ffb6d670499a42d3630b39161b17d3336e5c772710b82"
     },
     {
-      "path": "assets/seated/floor-front-f-legs.png",
-      "bytes": 46597,
-      "sha256": "960619e102dee72657f08ffacd8d528388f8b5778f43265275f872ae374542b6"
+      "path": "assets/seated/floor-back-m-skin.png",
+      "bytes": 64335,
+      "sha256": "7a9722519bac4a10ec41058ebddad845bc6eb95ce4dbcad4f7dca087fb704e40"
     },
     {
-      "path": "assets/seated/floor-front-f-hand-0.png",
-      "bytes": 14029,
-      "sha256": "ccbf4a963b370a9a3b93565b80605923a3e103d4b346137fc550c20a1f183745"
-    },
-    {
-      "path": "assets/seated/floor-front-f-hand-1.png",
-      "bytes": 14916,
-      "sha256": "a562adfc4e55444236ca3da03f61f85b33e58081201400dc5649f4267442e672"
-    },
-    {
-      "path": "assets/seated/floor-front-f-bottom-shorts.png",
-      "bytes": 25464,
-      "sha256": "54ba10b37aaa6100d1bb4ec08858e4ba00435f03d8eaa83008e6df5868cc482e"
-    },
-    {
-      "path": "assets/seated/floor-front-f-shoes-sneaker-0.png",
-      "bytes": 21404,
-      "sha256": "70c46c0b80eea1aa7935e0d790a50f3444460a90e708f7ea51a3d4965e2269d5"
-    },
-    {
-      "path": "assets/seated/floor-front-f-shoes-sneaker-1.png",
-      "bytes": 23402,
-      "sha256": "0d1bb43165622b8f7f371a7afd70e61c87a9b3f8ab20312a917fbdae4c1be41a"
-    },
-    {
-      "path": "assets/seated/floor-side-m-legs.png",
-      "bytes": 19377,
-      "sha256": "a386a79d2d3102e95e8087dfc3700284f43a025708549b62eaecd79cc162cfbd"
-    },
-    {
-      "path": "assets/seated/floor-side-m-hand.png",
-      "bytes": 9388,
-      "sha256": "0ee2fa004436b4808415a3ddc516eb1cebc3b4b0c44db50ef52fd7b8a43dbceb"
-    },
-    {
-      "path": "assets/seated/floor-side-m-bottom-shorts.png",
-      "bytes": 23197,
-      "sha256": "8c976a3aae93d4f939cb76acb313d6579b37ce92646e2534cf9a2c045105ac8c"
-    },
-    {
-      "path": "assets/seated/floor-side-m-shoes-sneaker.png",
-      "bytes": 21704,
-      "sha256": "a8101e9a77872a66bdcd74e56cbb63d817c1e4047b2296951cf13d427172b64e"
+      "path": "assets/seated/floor-back-m-outfit-basic.png",
+      "bytes": 173346,
+      "sha256": "eac44e6f331551ba486a99923e582401fbd5267e8624568bc9a747f3c1a1adc9"
     },
     {
       "path": "assets/sd-garments-index.js",
