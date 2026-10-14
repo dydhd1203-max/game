@@ -161,9 +161,16 @@
    // Drawn seated legs (pose.seatArt): one picture of both legs in the near
    // leg; the far leg's painting and the drawn shapes are hidden.
    if(!drawn){const A=pose.seatArt.legs,image=part.painting;part.paintFrame.removeAttribute('clip-path');part.contour.style.visibility='hidden';part.shade.style.display='none';
-    if(!i){part.paintFrame.style.display='none';return;}
+    // The far leg shows the reference's own bottom (untinted) under the
+    // skin when the matching basic bottom is worn: the skin picture leaves
+    // its denim, cuffs and prints out.
+    if(!i){const B=pose.seatArt.bottoms[(r.svg.dataset.foundationGarments||'').split('|').find(id=>id.startsWith('bottom:'))];
+     if(!B){part.paintFrame.style.display='none';return;}
+     if(part.paintFrame.style.display){part.paintFrame.style.removeProperty('display');if(!part.paintFrame.getAttribute('style'))part.paintFrame.removeAttribute('style');}
+     if(image.hasAttribute('filter'))image.removeAttribute('filter');if(image.paintedArt!==B){image.setAttribute('href',B.url);image.paintedArt=B;}for(const[k,val]of Object.entries({x:B.rect[0],y:B.rect[1],width:B.rect[2],height:B.rect[3]}))if(image.getAttribute(k)!==String(val))image.setAttribute(k,val);return;}
     if(part.paintFrame.style.display){part.paintFrame.style.removeProperty('display');if(!part.paintFrame.getAttribute('style'))part.paintFrame.removeAttribute('style');}
     if(image.paintedArt!==A){image.setAttribute('href',A.url);image.paintedArt=A;}for(const[k,val]of Object.entries({x:A.rect[0],y:A.rect[1],width:A.rect[2],height:A.rect[3]}))if(image.getAttribute(k)!==String(val))image.setAttribute(k,val);return;}
+   if(!part.painting.hasAttribute('filter'))part.painting.setAttribute('filter',tint);
    // The pooled painting is compared by reference (as the forearm's below):
    // reading the data-URL href back every frame copied the whole string.
    const image=part.painting;if(image.paintedArt!==drawn){if(image.getAttribute('href')!==drawn.url)image.setAttribute('href',drawn.url);image.paintedArt=drawn;}for(const[k,val]of Object.entries({x:points[0][0]+drawn.x,y:points[0][1]+drawn.y,width:drawn.w,height:drawn.h}))if(image.getAttribute(k)!==String(val))image.setAttribute(k,val);
@@ -182,8 +189,12 @@
    const drawnLeg=type==='leg'&&Boolean(p.cuff);if(drawnLeg)part.paintFrame.style.display='none';else if(part.paintFrame.style.display){part.paintFrame.style.removeProperty('display');if(!part.paintFrame.getAttribute('style'))part.paintFrame.removeAttribute('style');}
    part.contour.style.visibility=drawnLeg?'':'hidden';
    if(type==='leg')for(const e of [part.contour,part.foot])if(e){if(drawnLeg){if(!e.dataset.baseFill)e.dataset.baseFill=e.getAttribute('fill');const c=paintedSkin(r.svg.dataset.foundationSkin);if(e.getAttribute('fill')!==c)e.setAttribute('fill',c);}else if(e.dataset.baseFill){e.setAttribute('fill',e.dataset.baseFill);delete e.dataset.baseFill;}}part.shade.style.display=type==='leg'&&pose.floor?'':'none';if(type==='arm'){part.hand.style.display='none';forearmOverlay(r,part,p,i,[def.radii[1]*def.k,def.radii[2]*def.k],(def.end-def.joints[2][1])*def.k,def,points,tint);openHand(r,part,p,i,tint);
+    if(!pose.seatArt&&part.forearmArt&&part.forearmArt.previousSibling!==part.forearm)part.parent.insertBefore(part.forearmArt,part.forearm.nextSibling);
     // Drawn seated hands (pose.seatArt) rest on the knees over the arms.
-    if(pose.seatArt){const A=pose.seatArt.hands[i],e=part.forearmArt;e.style.display='';if(e.paintedArt!==A){e.setAttribute('href',A.url);e.paintedArt=A;}for(const[k,val]of Object.entries({x:A.rect[0],y:A.rect[1],width:A.rect[2],height:A.rect[3]}))if(e.getAttribute(k)!==String(val))e.setAttribute(k,val);}}
+    // The piece holds the forearm from under the sleeve, so it lies below
+    // the sleeve (just over the arm's painting); elsewhere the forearm
+    // painting goes back over everything after the forearm copy.
+    if(pose.seatArt){const A=pose.seatArt.hands[i],e=part.forearmArt;if(e.previousSibling!==part.paintFrame)part.parent.insertBefore(e,part.paintFrame.nextSibling);e.style.display='';if(e.paintedArt!==A){e.setAttribute('href',A.url);e.paintedArt=A;}for(const[k,val]of Object.entries({x:A.rect[0],y:A.rect[1],width:A.rect[2],height:A.rect[3]}))if(e.getAttribute(k)!==String(val))e.setAttribute(k,val);}}
   });}r.svg.dataset.foundationSkinArt='reference-sheet-v1';}
  // A forearm folded toward the viewer (front/back running, jumping, cheering)
  // lies in front of its own sleeve. Run/jump arms (arm.fold) draw their own

@@ -309,7 +309,7 @@
   // `legs` (skin, tinted: thighs, crossed shins, hands on the knees), `hands`
   // (the same hands over the arms, whose wrists reach `wrist`) and per shoe
   // item the worn shoes (untinted). Back and side views keep the drawn shapes.
-  const SEATED_ART=Object.freeze({m:Object.freeze({legs:Object.freeze({url:'assets/seated/floor-front-m-legs.png',rect:[8.1565, 39.246, 15.6492, 6.7662]}),hands:[Object.freeze({url:'assets/seated/floor-front-m-hand-0.png',rect:[8.0809, 39.246, 4.4226, 2.6082]}),Object.freeze({url:'assets/seated/floor-front-m-hand-1.png',rect:[19.5343, 39.246, 4.4604, 2.6082]})],wrist:[[10.9159, 39.4728], [20.8573, 39.4728]],shoes:Object.freeze({'shoes:sneaker':[Object.freeze({url:'assets/seated/floor-front-m-shoes-sneaker-0.png',rect:[17.1529, 42.8748, 4.9896, 3.1752]}),Object.freeze({url:'assets/seated/floor-front-m-shoes-sneaker-1.png',rect:[9.7063, 42.6102, 4.9518, 3.4398]})]})})});
+  const SEATED_ART=Object.freeze({m:Object.freeze({legs:Object.freeze({url:'assets/seated/floor-front-m-legs.png',rect:[8.1565, 39.246, 15.6492, 6.615]}),hands:[Object.freeze({url:'assets/seated/floor-front-m-hand-0.png',rect:[8.0809, 36.9402, 4.4226, 4.914]}),Object.freeze({url:'assets/seated/floor-front-m-hand-1.png',rect:[19.5343, 36.9402, 4.4604, 4.914]})],wrist:[[10.9159, 39.4728], [20.8573, 39.4728]],bottoms:Object.freeze({'bottom:shorts':Object.freeze({url:'assets/seated/floor-front-m-bottom-shorts.png',rect:[8.1187, 39.246, 15.7248, 6.7662]})}),shoes:Object.freeze({'shoes:sneaker':[Object.freeze({url:'assets/seated/floor-front-m-shoes-sneaker-0.png',rect:[17.1529, 42.8748, 4.9896, 3.1752]}),Object.freeze({url:'assets/seated/floor-front-m-shoes-sneaker-1.png',rect:[9.7063, 42.6102, 4.9518, 3.4398]})]})}),f:Object.freeze({legs:Object.freeze({url:'assets/seated/floor-front-f-legs.png',rect:[8.8504, 39.9927, 14.2992, 5.8587]}),hands:[Object.freeze({url:'assets/seated/floor-front-f-hand-0.png',rect:[8.8504, 37.3778, 3.5748, 4.7664]}),Object.freeze({url:'assets/seated/floor-front-f-hand-1.png',rect:[19.1776, 37.3778, 4.0382, 4.7664]})],wrist:[[11.1343, 40.1913], [20.3361, 40.1913]],bottoms:Object.freeze({'bottom:shorts':Object.freeze({url:'assets/seated/floor-front-f-bottom-shorts.png',rect:[8.8173, 39.9927, 14.3323, 6.0573]})}),shoes:Object.freeze({'shoes:sneaker':[Object.freeze({url:'assets/seated/floor-front-f-shoes-sneaker-0.png',rect:[17.0592, 43.2365, 4.4023, 2.8135]}),Object.freeze({url:'assets/seated/floor-front-f-shoes-sneaker-1.png',rect:[10.4723, 43.0379, 4.3692, 2.979]})]})})});
   const SEATED=Object.freeze({
     // The side view is drawn for reading, as in the user's side reference
     // (round 2: before, the shirt reached the floor, no knee showed and the
@@ -709,8 +709,12 @@
             // Drawn hands (SEATED_ART): the reference's short arm hangs nearly
             // straight from the sleeve to the hand on the knee, so the arm
             // shortens to reach it (as the legs stretch) instead of bending
-            // its elbow out; the elbow keeps a slight outward bow.
-            W=[side*(seatArt.wrist[i][0]-shoulder[0]),seatArt.wrist[i][1]-shoulder[1],0];const f=upperLength/(upperLength+lowerLength);E=[W[0]*f+.25,W[1]*f,0];
+            // its elbow out. The upper arm keeps its standing rest angle, so the
+            // sleeve sits against the shirt as when standing (turned out, it
+            // opened a gap under the girl's sleeve; straight down, it left the
+            // drawn forearm's top uncovered); the drawn forearm hides the turn
+            // at the elbow.
+            W=[side*(seatArt.wrist[i][0]-shoulder[0]),seatArt.wrist[i][1]-shoulder[1],0];const up=sub(SPEC.elbow[i],rest),ul=Math.hypot(...up)||1;E=[side*up[0]*upperLength/ul,up[1]*upperLength/ul,0];
           }else({elbow:E,wrist:W}=ik3([k[0]-C.hand[0]-out,k[1]-C.hand[1]-shoulder[1],k[2]+C.hand[2]-z],upperLength,lowerLength,[1,0,-.6]));
         }else{
           // Upper arm a little forward, forearm forward, in and a little down
