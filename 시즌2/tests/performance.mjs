@@ -2,7 +2,8 @@
 // Run with PW_MODULE and PW_EXECUTABLE_PATH as for tests/browser.mjs.
 // This deliberately reports software-renderer work, never laptop FPS/GPU time.
 // Historical overhead-camera reports cannot be used for this fixture profile.
-// Optional S2_PERF_WIDTH / HEIGHT select a viewport for both variants together.
+// Optional S2_PERF_WIDTH / HEIGHT select a viewport for all variants together.
+// Include previous in S2_PERF_VARIANTS with a frozen S2_PERF_PREVIOUS_ROOT.
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
@@ -15,13 +16,15 @@ const root=fileURLToPath(new URL('../../',import.meta.url));
 const out=path.resolve(process.env.S2_PERF_OUTPUT||'/tmp/season2-performance');
 const rounds=Number(process.env.S2_PERF_ROUNDS||3),frameCount=Number(process.env.S2_PERF_FRAMES||120);
 const labels=process.env.S2_PERF_VARIANTS?.split(',')||['s1','current'];
+const previousRoot=process.env.S2_PERF_PREVIOUS_ROOT&&path.resolve(process.env.S2_PERF_PREVIOUS_ROOT);
 const scenarios=process.env.S2_PERF_SCENARIOS?.split(',')||['village','combat','boss'];
 const cache=new Map(),sourceHashes={},errors=[];
 const hash=data=>createHash('sha256').update(data).digest('hex');
 const viewport={width:Number(process.env.S2_PERF_WIDTH||1366),height:Number(process.env.S2_PERF_HEIGHT||768)};
 const fixtureProfile={id:'season1-native-camera-v2',fov:70,near:.08,far:420,yaw:0,pitch:-.22,zoom:3.2,thirdPersonAnchor:.80,seed:81173,players:21,towers:30,enemies:40};
 assert.ok(!process.env.S2_PERF_BASE_REPORT&&!process.env.S2_PERF_PREVIOUS_REF,'Run fresh baselines: historical reports used a different camera and cannot be imported');
-assert.ok(labels.length&&new Set(labels).size===labels.length&&labels.every(v=>['s1','current'].includes(v)),'Only s1,current support the native-camera fixture; original S2 is intentionally omitted');
+assert.ok(labels.length&&new Set(labels).size===labels.length&&labels.every(v=>['s1','previous','current'].includes(v)),'Known native-camera variants required');
+assert.ok(!labels.includes('previous')||previousRoot,'previous requires a frozen S2_PERF_PREVIOUS_ROOT repository snapshot');
 assert.ok(scenarios.length&&scenarios.every(v=>['village','combat','boss'].includes(v)),'Known scenarios required');
 for(const n of [rounds,frameCount,viewport.width,viewport.height])assert.ok(Number.isSafeInteger(n)&&n>0,'Positive integer sample/viewport settings required');
 
@@ -118,7 +121,7 @@ const s2RenderHook=`
 
 async function content(variant,file){
  const key=variant+'/'+file;if(cache.has(key))return cache.get(key);
- let value=await readFile(path.join(root,variant==='s1'?'클로드':'시즌2',file));
+ let value=await readFile(path.join(variant==='previous'?previousRoot:root,variant==='s1'?'클로드':'시즌2',file));
  sourceHashes[key]=hash(value);
  if(variant==='s1'&&file==='index.html'){
   let html=value.toString().replace('https://unpkg.com/three@0.160.0/build/three.module.js','/current/vendor/three.module.js').replace(/https:\/\/www\.gstatic\.com\/firebasejs\/[^"']+/g,'/fb.js');
@@ -138,14 +141,15 @@ const server=createServer(async(req,res)=>{
  try{
   const url=new URL(req.url,'http://localhost');if(url.pathname==='/fb.js'){res.writeHead(200,{'Content-Type':'text/javascript'}).end('');return;}
   const parts=decodeURIComponent(url.pathname).split('/').filter(Boolean),variant=parts.shift(),file=parts.join('/')||'index.html';
-  if(!['s1','current'].includes(variant)||file.includes('..'))throw Error('Invalid path');
+  if((!labels.includes(variant)&&variant!=='current')||file.includes('..'))throw Error('Invalid path');
   const data=await content(variant,file),ext=path.extname(file);
   const mime={'.html':'text/html; charset=utf-8','.css':'text/css; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.js':'text/javascript; charset=utf-8','.glb':'model/gltf-binary','.gltf':'model/gltf+json','.bin':'application/octet-stream','.png':'image/png','.webp':'image/webp','.jpg':'image/jpeg','.jpeg':'image/jpeg','.json':'application/json'};
   res.writeHead(200,{'Content-Type':mime[ext]||'application/octet-stream','Cache-Control':'no-store'}).end(data);
  }catch(error){res.writeHead(404).end(String(error));}
 });
-const report={note:'Synthetic stationary fixtures; software WebGL. CPU samples omit WebGL submission and simulation/network, retain actual app/animation/HUD/world-matrix work. Neither measurement establishes real laptop FPS, 21-client network performance or live combat CPU cost.',comparison:'Both variants measured freshly with the Season 1 native idle third-person camera: FOV70, pitch -.22, yaw0, zoom3.2, foot + .80 anchor and direct YXZ rotation. Same viewport, DPR1, .85 drawing scale, native antialiasing, actor/tower/enemy counts and relative layout. Any asynchronous scene assets are awaited before measuring. Different worlds/materials and ground heights; not pixel-identical scenes. S1 has no matching expedition boss, so its boss row is omitted. S1 calls/triangles include its extra vignette/composite passes: info.autoReset=false, reset once per complete frame. Original S2 and overhead-camera reports are intentionally excluded.',fixtureProfile,viewport,rounds,frameCount,sources:{},sourceHashes,scenarios:{},errors};
+const report={note:'Synthetic stationary fixtures; software WebGL. CPU samples omit WebGL submission and simulation/network, retain actual app/animation/HUD/world-matrix work. Neither measurement establishes real laptop FPS, 21-client network performance or live combat CPU cost.',comparison:'All selected variants measured freshly with the Season 1 native idle third-person camera: FOV70, pitch -.22, yaw0, zoom3.2, foot + .80 anchor and direct YXZ rotation. Same viewport, DPR1, .85 drawing scale, native antialiasing, actor/tower/enemy counts and relative layout. Any asynchronous scene assets are awaited before measuring. Different worlds/materials and ground heights; not pixel-identical scenes. S1 has no matching expedition boss, so its boss row is omitted. S1 calls/triangles include its extra vignette/composite passes: info.autoReset=false, reset once per complete frame. Original S2 and overhead-camera reports are intentionally excluded.',fixtureProfile,viewport,rounds,frameCount,sources:{},sourceHashes,scenarios:{},errors};
 report.measuredAt=new Date().toISOString();
+report.previousRoot=previousRoot||null;
 report.harnessSha256=hash(await readFile(fileURLToPath(import.meta.url)));
 const near=(actual,expected,label)=>assert.ok(Number.isFinite(actual)&&Math.abs(actual-expected)<1e-6,`${label}: expected ${expected}, got ${actual}`);
 function checkCamera(stats,setup){
@@ -167,12 +171,12 @@ try{
  const pages=new Map();
  for(const variant of labels){
   const page=await browser.newPage({viewport,deviceScaleFactor:1});pages.set(variant,page);page.on('pageerror',e=>errors.push(variant+': '+e.message));
-  page.on('response',r=>{if(r.status()>=400&&/\/(s1|current)\//.test(r.url()))errors.push(variant+': HTTP '+r.status()+' '+r.url());});
+  page.on('response',r=>{if(r.status()>=400&&/\/(s1|previous|current)\//.test(r.url()))errors.push(variant+': HTTP '+r.status()+' '+r.url());});
   await page.route(/fonts\.(googleapis|gstatic)\.com/,r=>r.abort());
   await page.addInitScript(()=>{window.__clock=1000;window.__realNow=performance.now.bind(performance);performance.now=()=>window.__clock;requestAnimationFrame=()=>0;localStorage.setItem('sndOn','0');let seed=81173;window.__seedBench=value=>{seed=value;};Math.random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);});
   await page.goto(`http://127.0.0.1:${server.address().port}/${variant}/?gfx=mid&test=1`,{waitUntil:'load',timeout:180000});
   await page.waitForFunction(v=>!!window.__PERF&&(v!=='s1'||window.__READY),variant,{timeout:180000,polling:100});
-  const source=variant==='s1'?'s1/index.html':'current/src/scene.mjs';
+  const source=variant==='s1'?'s1/index.html':variant+'/src/scene.mjs';
   report.sources[variant]={path:source,sha256:sourceHashes[source]};
   console.log('Loaded '+variant);
  }
@@ -229,6 +233,10 @@ try{
   if(results.s1&&results.current){
    const original=results.s1.stats,current=results.current.stats;
    results.budgetVsSeason1={matchedCamera:{callsRatio:current.calls/original.calls,trianglesRatio:current.triangles/original.triangles,withinBoth:current.calls<=original.calls&&current.triangles<=original.triangles},note:'Fresh submitted-work comparison at the verified native S1 camera. Different world/material costs remain. No real laptop performance guarantee.'};
+  }
+  if(results.previous&&results.current){
+   const previous=results.previous.stats,current=results.current.stats;
+   results.workVsPrevious={callsRatio:current.calls/previous.calls,trianglesRatio:current.triangles/previous.triangles,note:'Fresh frozen previous S2 and current S2, identical graphics, fixture and camera; submitted work only.'};
   }
   await writeFile(path.join(out,'performance.json'),JSON.stringify(report,null,2)+'\n');
  }

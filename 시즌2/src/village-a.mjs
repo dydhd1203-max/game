@@ -80,7 +80,6 @@ export function buildVillageA(THREE, scene, resources) {
   const cyl=(x,y,z,w,h,d,c,rx=0,ry=0,rz=0)=>add(shapes.cyl,x,y,z,w,h,d,c,rx,ry,rz);
   // Small berries, rivets and petals do not need the silhouette resolution of
   // broad foliage. Their size stays the same; only subpixel tessellation drops.
-  const ball=(x,y,z,w,h,d,c)=>add(Math.max(w,h,d)<.51?shapes.detailSphere:shapes.sphere,x,y,z,w,h,d,c);
   function beam(a,b,r,c=C.wood) {
     const dir=new THREE.Vector3().subVectors(new THREE.Vector3(...b),new THREE.Vector3(...a));
     const q=new THREE.Quaternion().setFromUnitVectors(up,dir.clone().normalize());
@@ -106,19 +105,6 @@ export function buildVillageA(THREE, scene, resources) {
     add(shapes.cone,x,y+s*.57,z,s*.86,s*.4,s*.86,C.iron);
     cyl(x,y-s*.48,z,s*.78,s*.12,s*.78,C.iron);
     for(let i=0;i<4;i++){const a=i*Math.PI/2;beam([x+Math.sin(a)*s*.26,y-s*.4,z+Math.cos(a)*s*.26],[x+Math.sin(a)*s*.26,y+s*.4,z+Math.cos(a)*s*.26],s*.05,C.iron);}
-  }
-  // Mid-height silhouettes carry the village density at gameplay distance.
-  // All these objects bake into the existing opaque landmark batches.
-  function foliage(x,z,s=1,h=1.15){
-    for(let i=0;i<5;i++){
-      const a=i*2.4,dx=Math.cos(a)*s*.31,dz=Math.sin(a)*s*.31;
-      ball(x+dx,h*(.35+(i%2)*.14),z+dz,s*(.92+(i%2)*.16),h*(.92-(i%2)*.14),s*.96,[0x597246,0x6a824c,0x819351,0x91a563,0x728647][i]);
-    }
-    for(let i=0;i<7;i++){
-      const a=i*2.4,dx=x+Math.cos(a)*s*.52,dz=z+Math.sin(a)*s*.49;
-      grass(dx,dz,.8);
-      if(i%2===0)ball(dx,h*.65,dz,.19,.14,.19,0xe2cf8d);
-    }
   }
   function paving(poly,y,c){
     const cx=poly.reduce((a,p)=>a+p[0],0)/poly.length,cz=poly.reduce((a,p)=>a+p[1],0)/poly.length;
@@ -146,14 +132,6 @@ export function buildVillageA(THREE, scene, resources) {
   const roadEdge=z=>4.15+.65*Math.exp(-Math.pow((z-19)/5.2,2));
   const inPlot=(x,z,margin=0)=>Object.values(VILLAGE_SITES).some(p=>Math.hypot(x-p.x,z-p.z)<p.r+margin);
   at('plaza-south',0,0);
-  const bedVerts=[],bedIx=[];
-  for(let i=0;i<=44;i++){
-    const z=VILLAGE_BOUNDS.north+i*(VILLAGE_BOUNDS.south-VILLAGE_BOUNDS.north)/44;
-    const edge=roadEdge(z)+.25;
-    bedVerts.push(-edge,.016,z,edge,.016,z);
-    if(i<44){const k=i*2;bedIx.push(k,k+2,k+1,k+1,k+2,k+3);}
-  }
-  add(geometry(bedVerts,bedIx),0,0,0,1,1,1,0xbaa783);
   const sites=[];
   for(let row=-1;row<29;row++)for(let col=-7;col<=7;col++){
     const x=col*1.48+(row%2)*.74+(rand()-.5)*.85,z=-13+row*1.63+(rand()-.5)*.78;
@@ -163,6 +141,9 @@ export function buildVillageA(THREE, scene, resources) {
   // stone polygons. Generation is only at load; runtime cost is one static draw.
   for(const site of sites){
     if(!site[2])continue; // Off-path seeds still bound the outer Voronoi cells.
+    // Scattered worn flagstones let the painted earthen trail show through.
+    const patch=Math.sin(site[0]*2.7+site[1]*1.13)*Math.cos(site[1]*.59);
+    if(patch<.58)continue;
     let poly=[[-12,VILLAGE_BOUNDS.north],[12,VILLAGE_BOUNDS.north],[12,VILLAGE_BOUNDS.south],[-12,VILLAGE_BOUNDS.south]];
     for(const other of sites){
       if(other===site)continue;
@@ -184,7 +165,7 @@ export function buildVillageA(THREE, scene, resources) {
       const a=poly[(i+poly.length-1)%poly.length],b=poly[i],c=poly[(i+1)%poly.length];
       rounded.push([b[0]+(a[0]-b[0])*.12,b[1]+(a[1]-b[1])*.12],[b[0]+(c[0]-b[0])*.12,b[1]+(c[1]-b[1])*.12]);
     }
-    poly=rounded;
+    poly=rounded.map(([x,z])=>[site[0]+(x-site[0])*.7,site[1]+(z-site[1])*.7]);
     current=site[1]<16?'plaza-north':'plaza-south';
     paving(poly,.061,tint([0xc8ad82,0xb9a27c,0xd8bd92,0xb9a888,0xceba94][Math.floor(rand()*5)],.95+rand()*.09));
     if(Math.abs(site[0])>4.3&&rand()<.30)grass(poly[0][0],poly[0][1],.4+rand()*.35);
@@ -195,7 +176,6 @@ export function buildVillageA(THREE, scene, resources) {
     for(let i=0;i<36;i++){
       const a=i*Math.PI*2/36,rr=r-.20-(i%4)*.018;
       if(i%5===0)grass(Math.cos(a)*rr*.98,Math.sin(a)*rr*.98,.85);
-      if(i%4===0&&Math.sin(a)<.6)foliage(Math.cos(a)*(r-1.03),Math.sin(a)*(r-1.03),.94,.9+(i%3)*.2);
     }
   }
   // Authored in Blender/3D Jutsu and packed at build time. The complete
@@ -218,15 +198,10 @@ export function buildVillageA(THREE, scene, resources) {
   function garden(x,z,size=1,flowers=false){
     // Low leaves and grass remain pass-through ground cover, below the avatar's
     // knees. Rocks appear only as flush worn edging, never as new solid walls.
-    const ps=[],ix=[];
-    for(let i=0;i<8;i++){
-      const a=i*2.4+rand()*.3,dx=Math.cos(a)*size*.3,dz=Math.sin(a)*size*.3;
-      const h=size*(.16+rand()*.15),tipX=x+Math.cos(a)*size*.68,tipZ=z+Math.sin(a)*size*.68;
-      const midX=x+dx,midZ=z+dz,w=size*.12,n=ps.length/3;
-      ps.push(x,.05,z,midX-Math.sin(a)*w,h,midZ+Math.cos(a)*w,tipX,.08+size*.12,tipZ,midX+Math.sin(a)*w,h,midZ-Math.cos(a)*w,midX,h+.045,midZ);
-      ix.push(n,n+1,n+4,n+1,n+2,n+4,n+2,n+3,n+4,n+3,n,n+4,n,n+4,n+1,n+1,n+4,n+2,n+2,n+4,n+3,n+3,n+4,n);
-    }
-    add(geometry(ps,ix),0,0,0,1,1,1,[0x718846,0x84964f,0x8d9f58][Math.floor(rand()*3)]);
+    // Painted undergrowth owns the broad leaves. Keep the private decoration
+    // RNG steps so unchanged props and small flowers retain their placement.
+    for(let i=0;i<8;i++){rand();rand();}
+    rand();
     grass(x+.15,z-.17,size*.88);
     if(flowers)for(let i=0;i<3;i++){
       const dx=x+(rand()-.5)*size*.65,dz=z+(rand()-.5)*size*.65,y=size*(.28+rand()*.15);
