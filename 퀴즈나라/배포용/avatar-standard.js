@@ -57,10 +57,13 @@
       const key=[svg.dataset.foundationOutfit,svg.dataset.foundationGarments,svg.dataset.foundationFallback,missing.join()].join('/');if(badgeText[sex]===key)continue;badgeText[sex]=key;
       const host=$(name+'-badges');host.replaceChildren();const worn=[];
       if(svg.dataset.foundationOutfit==='body'){const s=document.createElement('span');s.textContent='옷 없이 몸만';host.append(s);header.push((sex==='m'?'남':'여')+' 몸만');continue;}
-      SLOTS.forEach((slot,i)=>{const id=ids[i]||'',record=recordOf(id,sex),reason=reasons[slot],s=document.createElement('span');
-        s.textContent=SLOT_KO[slot]+' '+id+(reason?' · '+(REASON_KO[reason]||reason):'')+(missing.includes(slot)?' · 이 성별 상품 아님':'')+(record?.status==='candidate'&&!reason?' · 후보':'');
-        s.dataset.slot=slot;s.dataset.garment=id;if(reason){s.className='fallback';s.dataset.reason=reason;}else if(record?.status==='candidate')s.className='candidate';host.append(s);
-        worn.push(ownName(id,sex)||id);});
+      // '상의: 단정한 셔츠', or for a stand-in '상의: 기본 반팔로 대신 (아직
+      // 옮기지 않음)'; the record id is in the title (critique 2026-10-12 #20).
+      SLOTS.forEach((slot,i)=>{const id=ids[i]||'',record=recordOf(id,sex),reason=reasons[slot],miss=missing.includes(slot),name=ownName(id,sex)||id,s=document.createElement('span');
+        const why=[reason&&(REASON_KO[reason]||reason),miss&&'이 성별 상품 아님'].filter(Boolean).join(', ');
+        s.textContent=SLOT_KO[slot]+': '+(why?name+'(으)로 대신 ('+why+')':name)+(record?.status==='candidate'&&!why?' · 후보':'');s.title=id;
+        s.dataset.slot=slot;s.dataset.garment=id;if(reason||miss){s.className='fallback';s.dataset.reason=reason||'missing';}else if(record?.status==='candidate')s.className='candidate';host.append(s);
+        worn.push((record?.source==='registered'?'시험 기록 ':'')+name+(why?'(대신)':''));});
       header.push((sex==='m'?'남 ':'여 ')+worn.join(' · '));
     }
     if(header.length===2)$('wearing').textContent=header.join('  |  ');
@@ -73,7 +76,7 @@
     if($('skin').value!=='0')q.set('sk',$('skin').value);if(!$('outfit').checked)q.set('body','1');if($('garment-only').checked)q.set('only','garment');if(state.action!=='idle')q.set('act',state.action);if(state.direction!=='front')q.set('dir',state.direction);
     const url=location.pathname+(q.toString()?'?'+q:'');$('share').href=url;try{history.replaceState(null,'',url);}catch{}
   }
-  const option=(value,label)=>{const o=document.createElement('option');o.value=value;o.textContent=label;return o;};
+  const option=(value,label)=>{const o=document.createElement('option');o.value=value;o.textContent=label;o.title=label;return o;};
   const group=(label,options)=>{const g=document.createElement('optgroup');g.label=label;g.append(...options);return g;};
   // Records of a slot: the index's, then this session's registered ones.
   function recordList(slot){
@@ -87,7 +90,7 @@
     for(const slot of SLOTS){
       const select=$('slot-'+slot),records=recordList(slot),shapes=new Map();
       for(const sex of ['m','f'])for(const it of catalog().publicItems(slot,sex)){const s=shapes.get(it.shape)||{shape:it.shape,names:{}};s.names[sex]=it.name;shapes.set(it.shape,s);}
-      const recLabel=r=>{const copy=copiedFrom(r.id),name=copy?copy+' 복사본':ownName(r.id,'m')||ownName(r.id,'f')||'';return r.id+(name?' · '+name:'')+' ('+(copy?'검수용':STATUS_KO[r.status]||r.status)+(r.legacy&&r.source==='index'?', 기본 옷 원본':'')+(runtimeClasses.length&&!runtimeClasses.includes(r.class)?', 아직 그리지 않는 종류':'')+(r.source==='registered'&&!copy?', 이번 검수에서 등록':'')+(r.sexes.length<2?', '+(r.sexes[0]==='m'?'남자만':'여자만'):'')+')';};
+      const recLabel=r=>{const copy=copiedFrom(r.id),name=copy?copy+' 복사본':ownName(r.id,'m')||ownName(r.id,'f')||'';return (name||r.id)+' ('+(copy?'검수용':STATUS_KO[r.status]||r.status)+(r.legacy&&r.source==='index'?', 기본 옷 원본':'')+(runtimeClasses.length&&!runtimeClasses.includes(r.class)?', 아직 그리지 않는 종류':'')+(r.source==='registered'&&!copy?', 이번 검수에서 등록':'')+(r.sexes.length<2?', '+(r.sexes[0]==='m'?'남자만':'여자만'):'')+')'+(name?' · '+r.id:'');};
       const groups=[option('','기본 옷 (시작 상품)'),group('기준 옷 기록',records.map(r=>option('rec:'+r.id,recLabel(r)))),group('상점 상품',[...shapes.values()].map(s=>option('item:'+s.shape,(s.names.m===s.names.f||!s.names.f||!s.names.m?(s.names.m||s.names.f):s.names.m+' / '+s.names.f)+' ('+slot+':'+s.shape+')'+(s.names.m&&s.names.f?'':s.names.m?' · 남자만':' · 여자만'))))];
       if(slot==='top'){const outfits=new Map();for(const sex of ['m','f'])for(const it of catalog().publicItems('outfit',sex)){const o=outfits.get(it.shape)||{shape:it.shape,name:it.name};outfits.set(it.shape,o);}groups.push(group('한벌옷 (상점)',[...outfits.values()].map(o=>option('outfit:'+o.shape,o.name+' (outfit:'+o.shape+')'))));}
       select.replaceChildren(...groups);if(![...select.options].some(o=>o.value===sel[slot]))sel[slot]='';select.value=sel[slot];
@@ -121,7 +124,8 @@
   for(const slot of SLOTS)$('slot-'+slot).onchange=e=>{sel[slot]=e.target.value;refresh();};
   for(const sex of ['m','f'])$('hair-'+sex).onchange=e=>{sel.hair[sex]=e.target.value;refresh();};
   $('expression').onchange=e=>{sel.expression=e.target.value;refresh();};
-  $('share').onclick=e=>{e.preventDefault();writeAddress();navigator.clipboard?.writeText(location.href).catch(()=>{});$('status').textContent='주소를 복사했어요';};
+  // The note has its own place: draw() rewrites the status every frame.
+  let shareTimer=0;$('share').onclick=e=>{e.preventDefault();writeAddress();const note=$('share-note');Promise.resolve(navigator.clipboard?.writeText(location.href)).then(()=>{note.textContent='주소를 복사했어요';},()=>{note.textContent='복사하지 못했어요. 주소창의 주소를 쓰세요';});clearTimeout(shareTimer);shareTimer=setTimeout(()=>{note.textContent='';},2000);};
   document.addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA/.test(e.target.tagName)||e.target.isContentEditable)return;const d=QPRunInput.directions[e.code];if(d){e.preventDefault();input.down(e.code,performance.now(),e.repeat);state.direction=directionMap[d];state.action=input.isRunning()?'run':'walk';playing=true;}else if(!e.repeat&&['KeyC','Space','KeyH'].includes(e.code)){e.preventDefault();action(e.code==='KeyC'?(state.action==='floor-sit'?'idle':'floor-sit'):e.code==='Space'?'jump':'wave');playing=true;}if(api)draw();});
   document.addEventListener('keyup',e=>{input.up(e.code,performance.now());if(QPRunInput.directions[e.code]){const held=Object.keys(directionMap).find(d=>input.has(d));state.action=held?(input.isRunning()?'run':'walk'):'idle';if(held)state.direction=directionMap[held];if(api)draw();}});
   const stop=()=>{input.reset();if(['walk','run'].includes(state.action))state.action='idle';last=0;if(api)draw();};addEventListener('blur',stop);document.addEventListener('visibilitychange',stop);
