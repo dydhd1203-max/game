@@ -5,6 +5,7 @@
      node tools/garment/schema.cjs                    validate every assets/sd-garment-*.js record and the index
      node tools/garment/schema.cjs <file.js|.json>…   validate these records (data files or plain JSON)
      node tools/garment/schema.cjs --builder <file>   as the stage-3 builder: reserved classes are refused
+     node tools/garment/schema.cjs --builder --atlas-dir DIR <file>   atlases read from DIR (a build in 검증/옷/<stem>/)
      node tools/garment/schema.cjs --self-test        negative controls (each must be caught with its code)
 
    const S=require('./schema.cjs');
@@ -110,7 +111,7 @@ const chunksOk=info=>!!info&&info.chunks[0]==='IHDR'&&info.chunks.at(-1)==='IEND
 // Semantic checks.
 // ---------------------------------------------------------------------------
 function legacyFieldsFor(slot){return(SLOTS[slot]?.parts||[]).flatMap(p=>LEGACY_COMPUTED[p]||[]);}
-function semantic(r,{context,root,builder}={}){
+function semantic(r,{context,root,builder,atlasDir}={}){
   const out=[],add=(code,p,message)=>out.push({code,path:p,message});
   const m=ID_RE.exec(r.id);
   if(!m||r.id!==r.cat+':'+r.shape)add('ID','$.id','id must equal cat:shape ('+r.cat+':'+r.shape+')');
@@ -159,10 +160,13 @@ function semantic(r,{context,root,builder}={}){
         region(tp+'.torso',T.torso.rect,T.torso.at,'at');legacyRect(tp+'.torso',T.torso.rect,ref?.rects.shirt);
         if(T.sleeves.length!==pairs)add('VIEWS',tp+'.sleeves',view+' has '+pairs+' sleeve(s)');
         if(T.underarm&&T.underarm.length!==pairs)add('VIEWS',tp+'.underarm',view+' has '+pairs+' underarm side(s)');
-        field('top.underarm',tp+'.underarm',T.underarm);field('top.hem',tp+'.hem',T.hem);field('top.collar',tp+'.collar',T.collar);
+        // A pipeline record's profile sleeve may leave raisedAt and underarm
+        // null: the runtime never raises a profile sleeve (raisedArt=raise>0&&!profile).
+        const profileFree=pairs===1&&!r.legacy;
+        if(!profileFree||T.underarm!==null)field('top.underarm',tp+'.underarm',T.underarm);field('top.hem',tp+'.hem',T.hem);field('top.collar',tp+'.collar',T.collar);
         T.sleeves.forEach((s,i)=>{const sp=tp+'.sleeves['+i+']';
           region(sp,s.rect,s.at,'at');if(s.raisedAt)region(sp,s.rect,s.raisedAt,'raisedAt');
-          field('sleeves.raisedAt',sp+'.raisedAt',s.raisedAt);field('sleeves.opening',sp+'.opening',s.opening);
+          if(!profileFree||s.raisedAt!==null)field('sleeves.raisedAt',sp+'.raisedAt',s.raisedAt);field('sleeves.opening',sp+'.opening',s.opening);
           if(!(s.box[2]>0&&s.box[3]>0))add('BOX',sp+'.box','box needs a positive size');
           if(!ref)return;legacyRect(sp,s.rect,ref.rects.sleeve[i]);
           if(!eq(s.shoulder,ref.joints.shoulder[i]))add('ANCHOR',sp+'.shoulder','shoulder must be the frozen joint '+JSON.stringify(ref.joints.shoulder[i]));
@@ -176,6 +180,10 @@ function semantic(r,{context,root,builder}={}){
         if(r.class==='bottom/shorts'&&!B[want])add('VIEWS',bp+'.'+want,view+' shorts need '+want);
         if(B[other])add('VIEWS',bp+'.'+other,other+' belongs to the '+(other==='seat'?'front/back':'right')+' view');
         if(B.sideSeat)field('sideSeat.span',bp+'.sideSeat.span',B.sideSeat.span??null);
+        // seat.span (WP6): a pipeline record carries the row span the runtime
+        // would otherwise read from the pixels; a legacy record leaves it out.
+        if(B.seat&&r.legacy&&B.seat.span!=null)add('LEGACY',bp+'.seat.span','seat.span is read at runtime for a legacy record and must be absent or null');
+        if(B.seat&&!r.legacy&&RUNTIME_CLASSES.includes(r.class)&&!Array.isArray(B.seat.span))add('LEGACY',bp+'.seat.span','seat.span is required for a pipeline record');
         if(B.cuffAlong&&B.cuffAlong.length!==pairs)add('VIEWS',bp+'.cuffAlong',view+' has '+pairs+' leg(s)');
         if(r.legacy&&context){const key=sex+'-'+view,constant=want==='seat'?context.seat[key]:context.sideSeat[key];
           const got=B[want]&&(want==='seat'?{cut:B.seat.cut,apex:B.seat.apex,cuff:B.seat.cuff,rise:B.seat.rise}:{cut:B.sideSeat.cut,cuff:B.sideSeat.cuff});
@@ -187,7 +195,7 @@ function semantic(r,{context,root,builder}={}){
         if(pairs===1&&ref&&!eq(ref.joints.ankle[0],ref.joints.ankle[1]))add('VIEWS',sp,'one profile shoe needs equal ankles');}
     }
     // Atlas file: sha256, chunks, size.
-    if(root){const file=path.join(root,S.atlas);
+    if(root){const file=atlasDir?path.join(atlasDir,path.basename(S.atlas)):path.join(root,S.atlas);
       if(!fs.existsSync(file))add('ATLAS_FILE',base+'.atlas',S.atlas+' is missing');
       else{const buf=fs.readFileSync(file),info=pngInfo(buf);
         if(sha256(buf)!==S.sha256)add('ATLAS_FILE',base+'.sha256',S.atlas+' sha256 differs from the record');
@@ -290,6 +298,8 @@ function selfTest(root=ROOT){
   expect('seat cut +1 (m-front)','SEAT',validate(mut(bottom,r=>{r.sexes.m.figures.front.bottom.seat.cut+=1;}),opts));
   expect('side seat cuff −.5 (f-right)','SEAT',validate(mut(bottom,r=>{r.sexes.f.figures.right.bottom.sideSeat.cuff-=.5;}),opts));
   expect('seat in the profile','VIEWS',validate(mut(bottom,r=>{r.sexes.m.figures.right.bottom.seat=thaw(r.sexes.m.figures.front.bottom.seat);}),opts));
+  expect('seat span on a legacy record','LEGACY',validate(mut(bottom,r=>{r.sexes.m.figures.front.bottom.seat.span=[12,20];}),opts));
+  expect('pipeline seat without span','LEGACY',validate(mut(bottom,r=>{r.legacy=false;r.legacyComputed=[];r.source.kind='chatgpt-sheet';}),opts).filter(i=>/seat\.span/.test(i.path)));
   expect('catalogue item of another shape','CATALOG',validate(mut(top,r=>{r.catalog.m.item='top:shirt:5';}),opts));
   expect('catalogue colour not #rrggbb','SCHEMA',validate(mut(top,r=>{r.catalog.f.colour='green';}),opts));
   expect('catalogue for a missing sex','SEXES',validate(mut(shoes,r=>{delete r.sexes.f;}),opts));
@@ -322,10 +332,13 @@ if(require.main===module){
   if(argv.includes('--self-test')){
     const {pass,fail}=selfTest(root);for(const p of pass)console.log('  ok   '+p);for(const f of fail)console.log('  FAIL '+f);
     console.log('schema self-test: '+pass.length+' passed, '+fail.length+' failed');process.exit(fail.length?1:0);}
-  const builder=argv.includes('--builder'),files=argv.filter(a=>!a.startsWith('--'));
+  // --atlas-dir DIR: read the atlases next to a record built outside assets/
+  // (tools/garment/build-garment.py --out 검증 writes them under their assets/ names).
+  const ai=argv.indexOf('--atlas-dir'),atlasDir=ai>=0?path.resolve(argv[ai+1]):null;
+  const builder=argv.includes('--builder'),files=argv.filter((a,i)=>!a.startsWith('--')&&!(ai>=0&&i===ai+1));
   const context=loadContext(root),targets=files.length?files.map(f=>path.resolve(f)):dataFiles(root).map(f=>path.join(root,f));
   let bad=0;const records={};
-  for(const file of targets){const r=readRecord(file),issues=validate(r,{context,root,builder});records[r.id]=r;
+  for(const file of targets){const r=readRecord(file),issues=validate(r,{context,root,builder,atlasDir});records[r.id]=r;
     console.log((issues.length?'FAIL ':'ok   ')+path.relative(root,file)+' ('+r.id+', '+r.class+(r.legacy?', legacy':'')+')');for(const i of issues)console.log('       '+i.code+' '+i.path+': '+i.message);bad+=issues.length;}
   if(!files.length){const issues=validateIndex(readIndex(root),{records});console.log((issues.length?'FAIL ':'ok   ')+'assets/sd-garments-index.js');for(const i of issues)console.log('       '+i.code+' '+i.path+': '+i.message);bad+=issues.length;}
   process.exit(bad?1:0);
