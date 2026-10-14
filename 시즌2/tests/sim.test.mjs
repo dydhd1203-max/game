@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createState, addPlayer, setOnline, applyAction, advancePlayerMovement, step, restoreVillagePositions} from '../src/sim.mjs';
-import {BEACON, GATE, OBSTACLES, VILLAGE_SITES, VILLAGE_GROVE, walkable} from '../src/content.mjs';
+import {BEACON, GATE, OBSTACLES, VILLAGE_SITES, VILLAGE_GROVE, VILLAGE_BOUNDS, walkable} from '../src/content.mjs';
 import {SEASON1_MOTION} from '../src/locomotion-season1.mjs';
 
 const teacher = {teacher:true};
@@ -324,4 +324,27 @@ test('dense village preserves classroom passage and collides with every solid fr
     const distance=Math.hypot(p.x-site.x,p.z-site.z);
     assert.ok(distance>=site.r+.64&&distance<=site.r+.85,name+' blocks at its drawn boundary');
   }
+});
+
+
+test('compact village keeps all spawn columns clear and rejects the old empty lawn',()=>{
+  const s=room(21);s.phase='village';
+  for(const p of Object.values(s.players)){
+    assert.ok(walkable(p.x,p.z,.65));
+    for(let z=p.z;z>=-9;z-=.25)assert.ok(walkable(p.x,z,.65),`spawn column ${p.x} remains open at ${z}`);
+  }
+  const p=s.players.p0;
+  for(const side of [-1,1]){
+    Object.assign(p,{x:side*19.7,z:-9});tick(s,1,{p0:{mx:side}});
+    assert.ok(Math.abs(p.x)<=VILLAGE_BOUNDS.halfWidth-.65,'visible side bed stops outward walking');
+  }
+  Object.assign(p,{x:0,z:28.7});tick(s,1,{p0:{mz:1}});
+  assert.ok(p.z<=VILLAGE_BOUNDS.south-.65,'visible south bed closes unused lawn');
+  // Old saves can lie beyond the new border even when no building overlaps.
+  for(let i=0;i<20;i++)Object.assign(s.players['p'+i],{x:i%2?28:-28,z:32});
+  assert.equal(restoreVillagePositions(s),20);
+  for(const player of Object.values(s.players))assert.ok(walkable(player.x,player.z,.65));
+  assert.ok(walkable(18,-60,.65),'forest corridor width is retained');
+  assert.equal(walkable(19,-60,.65),false);
+  assert.ok(walkable(28,-115,.65),'boss arena width is retained');
 });

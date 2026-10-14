@@ -4,7 +4,7 @@ import {createState,addPlayer,applyAction,step} from '../src/sim.mjs';
 import {migrateCheckpoint} from '../src/save.mjs';
 import {BUILD,walkable} from '../src/content.mjs';
 
-for(const version of ['s2-001','s2-002','s2-003','s2-004'])test(`${version} checkpoints migrate moved village plots without mutating progress`,()=>{
+for(const version of ['s2-001','s2-002','s2-003','s2-004','s2-007'])test(`${version} checkpoints migrate moved village plots without mutating progress`,()=>{
   const state=createState();addPlayer(state,{id:'teacher',name:'선생님',hat:16});
   state.version=version;state.phase='village';state.supplies=913;
   Object.assign(state.players.teacher,version==='s2-002'?{x:-11,z:18}:{x:-8,z:9});
@@ -49,4 +49,22 @@ for(const phase of ['forest','boss','defeat','village'])test(`loading ${phase} c
     step(next,1/30,{teacher:{sprint:true,mz:-1,attack:true}});
     assert.deepEqual(next.towers,[],'retry cannot resurrect old checkpoint towers');
   }
+});
+
+// Old village players can be standing in the reclaimed lawn or inside a moved
+// structure. Recovery must move the entire roster without changing its save.
+test('s2-007 village save recovers 21 players from removed lawn and moved plots',()=>{
+  const state=createState();state.phase='village';state.version='s2-007';state.supplies=913;
+  for(let i=0;i<21;i++){
+    addPlayer(state,{id:`p${i}`,name:`대원${i}`,hat:i%17});
+    Object.assign(state.players[`p${i}`],{x:i%2?28:-9.4,z:i%2?30:24,y:3,vy:4});
+  }
+  const saved={season:2,version:'s2-007',state},original=structuredClone(saved),next=migrateCheckpoint(saved);
+  assert.deepEqual(saved,original);assert.equal(next.supplies,913);
+  const positions=new Set();
+  for(const p of Object.values(next.players)){
+    assert.ok(walkable(p.x,p.z,.65));assert.equal(p.y,.08);assert.equal(p.vy,0);
+    positions.add(`${p.x}:${p.z}`);
+  }
+  assert.equal(positions.size,21,'recovered players retain distinct slots');
 });

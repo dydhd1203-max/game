@@ -3,10 +3,12 @@ import {readFile,writeFile,mkdir,copyFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import path from 'node:path';
 import {importWorkshop} from './tools/import-workshop-glb.mjs';
+import {importVillageModels} from './tools/import-village-glb.mjs';
 const root=fileURLToPath(new URL('.',import.meta.url));
 // Compile the committed Blender source asset into the offline bundle on every
 // build so a changed GLB cannot leave stale generated workshop geometry.
 await importWorkshop(undefined,undefined,{quiet:true});
+await importVillageModels({quiet:true});
 const result=await build({entryPoints:[path.join(root,'src/app.mjs')],bundle:true,write:false,format:'iife',target:['chrome110'],minify:true,legalComments:'inline'});
 const html=await readFile(path.join(root,'index.html'),'utf8'),css=await readFile(path.join(root,'style.css'),'utf8');
 const script=result.outputFiles[0].text.replace(/<\/script/gi,'<\\/script');
