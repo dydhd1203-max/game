@@ -34,6 +34,11 @@ OUT = os.path.join(ROOT, 'assets/seated'); REF = 'assets/pose-references/'
 BASE = {'m': REF + 'floor-sit-m-base-2026-10-14.webp', 'f': REF + 'floor-sit-f-base-2026-10-14.webp'}
 BASIC = {'top': 'top:tee', 'bottom': 'bottom:shorts', 'shoes': 'shoes:sneaker'}
 SLOTS = ('bottom', 'shoes', 'top')
+# Where the basic sneakers are (crop pixels x0, y0, x1, y1). The basic cut
+# reads shoes only here: a shirt's or shorts' orange flower print near the
+# knees otherwise passes for a shoe rim.
+SHOE_ZONE = {'f:front': (90, 725, 450, 840), 'f:side': (370, 725, 580, 840),
+             'm:front': (95, 735, 440, 860), 'm:side': (330, 735, 540, 860)}
 CHANGED = 34.0   # colour distance (0-441) after a 1.5 px blur
 HOOD_UP = 60     # px a garment may rise above the chin cut
 
@@ -140,6 +145,10 @@ def layers_for(sex, view, sheet_img, base_img, slot=None, basic_lab=None, basic_
         up = fg & (rows < top) & (rows >= top - HOOD_UP) & (new > 60) & ~hair & ~skin_of(A) & (A.max(2) > 110)
         changed |= up; seeds[up] = k or 3
     lab = grow_inside(seeds, changed)
+    if basic_lab is None and f'{sex}:{view}' in SHOE_ZONE:
+        x0, y1_, x1, y2_ = SHOE_ZONE[f'{sex}:{view}']; zone = np.zeros(lab.shape, bool); zone[y1_:y2_, x0:x1] = True
+        shoe = (lab == 2) & zone; lab[(lab == 2) & ~zone] = 0
+        lab = grow_inside(np.where(shoe, 0, lab), changed & ~shoe); lab[shoe] = 2
     # Close each piece: small holes (a petal or a cuff as pale as the base's
     # white undershirt) and its own outline (dropped where it ran beside
     # the base's outline) belong to it, or the base shows through as pale
@@ -160,7 +169,49 @@ def layers_for(sex, view, sheet_img, base_img, slot=None, basic_lab=None, basic_
                 keep = d
             m = keep
         pieces[i] = m
+    # Shoes are two solid pieces: bits split off from them (a shirt's print
+    # near the knees) belong to the top, and the shoe's own pale insides
+    # (white canvas the growth did not reach) are filled.
+    s = pieces[2]
+    if s.any():
+        comp = components(s); sizes = np.bincount(comp.ravel())[1:]
+        small = np.isin(comp, 1 + np.where(sizes < .15 * sizes.max())[0]) & s
+        pieces[2] = s = s & ~small
+        if slot is None or slot == 'top': pieces[3] = pieces[3] | small
+        pieces[2] = s | (enclosed(s) & fg & ~pieces[1] & ~pieces[3])
+    # White prints (petals) as pale as the base's undershirt read as unchanged;
+    # a piece owns the non-skin holes it fully encloses.
+    for i in (1, 3):
+        if pieces[i].any():
+            others = np.zeros_like(fg)
+            for j in (1, 2, 3):
+                if j != i: others |= pieces[j]
+            pieces[i] = pieces[i] | (enclosed(pieces[i]) & fg & ~skin_of(A) & ~others)
     return pieces, A, fg, below
+
+
+def components(m):
+    """4-connected component labels of a mask (0 outside)."""
+    lab = np.zeros(m.shape, np.int32); n = 0
+    for y, x in zip(*np.where(m)):
+        if lab[y, x]: continue
+        n += 1; stack = [(y, x)]; lab[y, x] = n
+        while stack:
+            cy, cx = stack.pop()
+            for ny, nx in ((cy + 1, cx), (cy - 1, cx), (cy, cx + 1), (cy, cx - 1)):
+                if 0 <= ny < m.shape[0] and 0 <= nx < m.shape[1] and m[ny, nx] and not lab[ny, nx]:
+                    lab[ny, nx] = n; stack.append((ny, nx))
+    return lab
+
+
+def enclosed(m):
+    """Pixels outside `m` that the border cannot reach without crossing it."""
+    out = np.zeros_like(m); free = ~m
+    out[0] = free[0]; out[-1] = free[-1]; out[:, 0] = free[:, 0]; out[:, -1] = free[:, -1]
+    while True:
+        d = near(out, 1) & free
+        if (d == out).all(): return free & ~out
+        out = d
 
 
 def save(name, mask, A, skin, box, U):
