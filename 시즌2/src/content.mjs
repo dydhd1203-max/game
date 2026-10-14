@@ -2,8 +2,8 @@
 // Changed village collision layout requires matching multiplayer clients.
 // Earlier local checkpoints are explicitly migrated when loaded.
 export const BUILD = 's2-004';
-// Art-only release; collision, simulation and save/network protocol stay s2-004.
-export const RELEASE = 's2-005';
+// Presentation/input follow-through; collision and save/network protocol stay s2-004.
+export const RELEASE = 's2-006';
 export const SEASON = 2;
 // Dedicated reserved subtree of the existing classroom backend. Season 1 room
 // codes are uppercased; they never address this lowercase reserved path.

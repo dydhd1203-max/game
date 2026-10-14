@@ -207,7 +207,8 @@ function frame(now){
   const displayId=active?localId:'preview';
   const predicted=active&&!isHost&&!manual&&connected?prediction.sample(state,localId,dt,input()):null;
   const displayed=presentation.sample(state,displayId,dt,{interpolate:active&&!isHost,localPlayer:predicted,time:now/1000});
-  scene.render(displayed,displayId,dt,view);audio.update(dt);
+  scene.render(displayed,displayId,dt,view);
+  audio.motion(displayed?.players?.[displayId],dt,{phase:state.phase,paused:!active||state.paused});audio.update(dt);
   const stats=scene.stats();
   if(active&&!state.paused)perf.frame(elapsed,performance.now()-begin,stats,state);
   uiTimer+=dt;if(uiTimer>=.15){uiTimer=0;ui.update(state,{localId,isHost,room,mode,network:connected,selectedTower,placementHint:view.placement?.valid?'좌클릭으로 설치':'청색 지대 안, 통로 바깥에 설치해 주세요.',fps:perf.fps,stats,volumes:audio.getVolumes(),notice});}

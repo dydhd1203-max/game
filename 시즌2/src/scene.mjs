@@ -1,6 +1,8 @@
 import * as THREE from '../vendor/three.module.js';
 import {createSeason1Avatars} from './avatar-season1.mjs';
 import {createSeason1Camera,SEASON1_CAMERA} from './camera-season1.mjs';
+import {season1Graphics} from './graphics-season1.mjs';
+import {createSeason1MotionFeedback} from './motion-feedback-season1.mjs';
 import {buildVillageA} from './village-a.mjs';
 import {createBoarBoss} from './boar-boss.mjs';
 import {TEAM_COLORS, ZONES, VILLAGE_SITES, VILLAGE_GROVE, FOREST_OBSTACLES, TOWERS, BEACON, GATE} from './content.mjs';
@@ -13,21 +15,23 @@ export function createScene(canvas) {
   // Same classroom drawing scale as Season 1's default mid preset.
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, .85));
   const gl=renderer.getContext(),aaSamples=gl.getParameter(gl.SAMPLES);
+  const graphics=season1Graphics(THREE);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.22;
+  renderer.toneMapping = graphics.toneMapping;
+  renderer.toneMappingExposure = graphics.exposure;
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xc6dfd6);
-  scene.fog = new THREE.Fog(0xc6dfd6, 42, 112);
+  scene.background = new THREE.Color(graphics.villageSky);
+  scene.fog = new THREE.Fog(graphics.villageSky, 42, 112);
   const camera = new THREE.PerspectiveCamera(SEASON1_CAMERA.fov,1,SEASON1_CAMERA.near,SEASON1_CAMERA.far);
   const structureHeights={workshop:9,wagon:7.5,assembly:4,market:4.5,smithYard:3.4,supplyYard:3.5};
   // Like Season 1, only solid structures shorten the boom; thin scenery does
   // not pull the camera into the avatar. Finite heights allow looking over props.
   const cameraObstacles=Object.entries(VILLAGE_SITES).map(([id,site])=>({...site,top:structureHeights[id]}));
   const cameraRig=createSeason1Camera(THREE,camera,{obstacles:cameraObstacles,groundY:.08});
-  const hemi = new THREE.HemisphereLight(0xfff8dd, 0x657a62, 2.15);
+  const motionFeedback=createSeason1MotionFeedback({punch:amount=>cameraRig.punch(amount)});
+  const hemi = new THREE.HemisphereLight(graphics.hemiSky,graphics.hemiGround,graphics.hemiIntensity);
   scene.add(hemi);
-  const sun = new THREE.DirectionalLight(0xffebc7, 2.5);
+  const sun = new THREE.DirectionalLight(graphics.sunColor,graphics.sunIntensity);
   sun.position.set(-28, 48, 16); scene.add(sun);
   const resources = new Set(), sprites = new Map();
   const geo = {
@@ -266,7 +270,7 @@ export function createScene(canvas) {
   const warnGeo=new THREE.PlaneGeometry(1,1);resources.add(warnGeo);
   const warning=new THREE.Mesh(warnGeo,warnMat);warning.rotation.x=-Math.PI/2;scene.add(warning);warning.visible=false;
   const boar=createBoarBoss(THREE,scene,resources);
-  const avatars=createSeason1Avatars(THREE,scene,{scale:.70,groundY:.08,groundAt:()=>.08});
+  const avatars=createSeason1Avatars(THREE,scene,{scale:.70,groundY:.08,groundAt:()=>.08,burst:motionFeedback.burst});
   const frustum=new THREE.Frustum(),projection=new THREE.Matrix4(),sphere=new THREE.Sphere();
   function visible(x,z,r=3){sphere.center.set(x,1.4,z);sphere.radius=r;return frustum.intersectsSphere(sphere);}
   function nameSprite(p){
@@ -361,14 +365,15 @@ export function createScene(canvas) {
     if(w!==width||h!==height){width=w;height=h;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
     const players=state?.players||{},me=players[localId]||Object.values(players)[0];
     const phase=state?.phase||'lobby';
-    if(phase!==lastPhase)cameraRig.reset();lastPhase=phase;
+    if(phase!==lastPhase){cameraRig.reset();motionFeedback.reset();}lastPhase=phase;
     cameraView.yaw=options.yaw;cameraView.pitch=options.pitch;cameraView.zoom=options.zoom;
     cameraView.aim=options.aim;cameraView.phase=phase;
+    motionFeedback.update(me,dt,{phase,paused:state?.paused});
     const cameraState=cameraRig.update(me||emptyPlayer,dt,cameraView);
     camera.updateMatrixWorld();avatarRenderOptions.hideLocal=cameraState.bodyHidden;
     updateGroveVisibility(me);
     projection.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);frustum.setFromProjectionMatrix(projection);
-    const village=phase==='lobby'||phase==='village'||phase==='victory';color.setHex(village?0xcbded0:0xb7d2c7);scene.background.lerp(color,.06);scene.fog.color.copy(scene.background);
+    const village=phase==='lobby'||phase==='village'||phase==='victory';color.setHex(village?graphics.villageSky:graphics.forestSky);scene.background.lerp(color,1-Math.exp(-dt*3.7));scene.fog.color.copy(scene.background);
     for(const b of dynamic.values())b.count=0;shadows.count=0;
     for(const item of sprites.values())item.sprite.visible=false;
     let pc=0;for(const p of Object.values(players)){if(p.online===false)continue;if(++pc>30)break;playerLabel(p,p.id===localId);}
@@ -391,6 +396,7 @@ export function createScene(canvas) {
     const placement=options.placement;preview.visible=previewRing.visible=!!placement;
     if(placement){const tint=placement.valid?0xa8e7bd:0xe99f8c;preview.position.set(placement.x,.32,placement.z);preview.scale.set(2.35,.58,2.35);previewMat.color.setHex(tint);previewRing.position.set(placement.x,.11,placement.z);const range=(TOWERS[placement.type]?.range||14)*2;previewRing.scale.set(range,range,1);previewRingMat.color.setHex(tint);}
     updateEvents(state?.events||[],state?.paused?0:dt);
+    motionFeedback.render(state?.paused?0:dt,dyn,visible);
     // Like Season 1's bounded dirty uploads, upload only the packed visible
     // instances, not every slot of the reusable maximum-capacity buffers.
     for(const mesh of dynamic.values())if(mesh.count){
@@ -401,7 +407,7 @@ export function createScene(canvas) {
     renderer.render(scene,camera);
   }
   function pick(clientX,clientY){const bounds=canvas.getBoundingClientRect();if(!bounds.width||!bounds.height)return null;pointer.set((clientX-bounds.left)/bounds.width*2-1,-(clientY-bounds.top)/bounds.height*2+1);raycaster.setFromCamera(pointer,camera);const p=raycaster.ray.intersectPlane(plane,hit);return p?{x:p.x,z:p.z}:null;}
-  function stats(){return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,pixelRatio:renderer.getPixelRatio(),aaSamples,camera:{...cameraRig.state(),fov:camera.fov,x:camera.position.x,y:camera.position.y,z:camera.position.z,pitch:camera.rotation.x,yaw:camera.rotation.y},art:{village:villageArt.stats,boar:boar.stats}};}
+  function stats(){return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,pixelRatio:renderer.getPixelRatio(),aaSamples,graphics:{toneMapping:graphics.toneName,exposure:renderer.toneMappingExposure,antialias:gl.getContextAttributes().antialias,bloom:false,lights:2,hemiIntensity:hemi.intensity,sunIntensity:sun.intensity},motion:motionFeedback.stats(),camera:{...cameraRig.state(),fov:camera.fov,x:camera.position.x,y:camera.position.y,z:camera.position.z,pitch:camera.rotation.x,yaw:camera.rotation.y},art:{village:villageArt.stats,boar:boar.stats}};}
   function dispose(){avatars.dispose();boar.dispose();for(const resource of resources)resource.dispose?.();resources.clear();renderer.dispose();sprites.clear();effectPool.length=0;}
   return {render,pick,stats,dispose,resetCamera:()=>cameraRig.reset()};
 }

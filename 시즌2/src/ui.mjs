@@ -50,7 +50,7 @@ const TEMPLATE=`
   <div id="placement-note" class="placement-note" hidden><strong id="placement-label"></strong><span>좌클릭으로 설치 · Esc 취소</span></div>
   <nav id="teacher-bar" class="panel teacher-bar" aria-label="원정 운영"><button type="button" id="pause-button">일시정지</button><button type="button" id="save-button">저장</button><button type="button" id="load-button">불러오기</button></nav>
   <section id="settings-panel" class="panel settings-panel" hidden><h2>마을과 원정의 소리</h2><label for="bgm-volume">배경음<div class="slider-line"><input type="range" id="bgm-volume" min="0" max="100" value="35"><output id="bgm-output" for="bgm-volume">35</output></div></label><label for="sfx-volume">효과음<div class="slider-line"><input type="range" id="sfx-volume" min="0" max="100" value="65"><output id="sfx-output" for="sfx-volume">65</output></div></label><div class="row"><button type="button" id="camera-reset" class="small">시점 초기화</button><button type="button" id="leave-button" class="small danger">나가기</button></div></section>
-  <section id="help-panel" class="panel help-panel" hidden><h2>원정 수첩</h2><dl><dt>W A S D · 방향키</dt><dd>이동하기</dd><dt>Shift · Space</dt><dd>달리기 · 점프 (원정 중 두 번 누르면 공중제비)</dd><dt>좌클릭</dt><dd>공격하기 · 설치하기 · 마우스 시점 시작</dd><dt>마우스 · 우클릭</dt><dd>시점 돌리기 · 조준 전환 (시점 잠금이 없으면 우클릭 드래그)</dd><dt>휠 · Esc</dt><dd>확대/1인칭 · 시점 잠금 해제</dd><dt>1 · 2</dt><dd>화살탑 · 얼음탑 고르기</dd><dt>T · R</dt><dd>가까운 탑 포장 · 수리</dd><dt>E</dt><dd>봉화 밝히기 · 친구 돕기</dd><dt>Esc</dt><dd>타워 배치 취소</dd></dl><p class="tip">얼음탑과 화살탑의 사거리를 겹쳐 보세요. 서리 묻은 적에게 화살이 맞으면 <strong>쇄빙</strong>이 발동해요.<br>청색 설치 지대에서 타워를 옮겨 전진하세요.</p></section>
+  <section id="help-panel" class="panel help-panel" hidden><h2>원정 수첩</h2><dl><dt>W A S D · 방향키</dt><dd>이동하기</dd><dt>Shift · Space</dt><dd>마을·원정: Shift 달리기. Space를 떼었다 다시 누르면 2단 점프·공중제비. 대기실은 단일 점프만 가능해요.</dd><dt>좌클릭</dt><dd>공격하기 · 설치하기 · 마우스 시점 시작</dd><dt>마우스 · 우클릭</dt><dd>시점 돌리기 · 조준 전환 (시점 잠금이 없으면 우클릭 드래그)</dd><dt>휠 · Esc</dt><dd>확대/1인칭 · 시점 잠금 해제</dd><dt>1 · 2</dt><dd>화살탑 · 얼음탑 고르기</dd><dt>T · R</dt><dd>가까운 탑 포장 · 수리</dd><dt>E</dt><dd>봉화 밝히기 · 친구 돕기</dd><dt>Esc</dt><dd>타워 배치 취소</dd></dl><p class="tip">얼음탑과 화살탑의 사거리를 겹쳐 보세요. 서리 묻은 적에게 화살이 맞으면 <strong>쇄빙</strong>이 발동해요.<br>청색 설치 지대에서 타워를 옮겨 전진하세요.</p></section>
   <section id="performance-panel" class="panel performance-panel" hidden><h2>원정 성능 기록</h2><dl><dt>화면 속도</dt><dd id="perf-fps">—</dd><dt>함께하는 친구</dt><dd id="perf-players">—</dd><dt>현장 타워 / 적</dt><dd id="perf-actors">—</dd><dt>그리기 호출</dt><dd id="perf-calls">—</dd><dt>삼각형</dt><dd id="perf-triangles">—</dd></dl><button type="button" id="record-button" class="small record-button">측정 기록 저장</button></section>
   <div id="notice" class="notice" role="status" hidden></div>
   <section id="pause-screen" class="screen modal-screen" hidden><div class="modal-card pause-card"><p class="eyebrow muted">TAKE A BREATH</p><h2>잠깐, 숨 고르기</h2><p id="pause-text">선생님이 원정을 잠시 멈췄어요.</p><button type="button" id="resume-button" class="primary">원정 계속하기</button></div></section>
@@ -75,8 +75,8 @@ export function createUI(handlers){
   const call=(name,...args)=>handlers[name]?.(...args);
   const focusGame=()=>document.getElementById('game')?.focus({preventScroll:true});
   const action=(type,extra={})=>{const result=call('action',{type,...extra});focusGame();return result;};
-  const togglePanel=id=>{activePanel=activePanel===id?null:id;for(const name of ['settings','help','performance']){visible(`${name}-panel`,activePanel===name);el(`${name}-toggle`).setAttribute('aria-expanded',String(activePanel===name));}};
-  const setInventory=(open)=>{inventoryOpen=!!open;visible('inventory-panel',inventoryOpen);el('modules-toggle').setAttribute('aria-expanded',String(inventoryOpen));visible('context-card',!inventoryOpen&&!!nearestTower&&!context.selectedTower);};
+  const togglePanel=id=>{activePanel=activePanel===id?null:id;for(const name of ['settings','help','performance']){visible(`${name}-panel`,activePanel===name);el(`${name}-toggle`).setAttribute('aria-expanded',String(activePanel===name));}if(!activePanel)focusGame();};
+  const setInventory=(open)=>{inventoryOpen=!!open;visible('inventory-panel',inventoryOpen);el('modules-toggle').setAttribute('aria-expanded',String(inventoryOpen));visible('context-card',!inventoryOpen&&!!nearestTower&&!context.selectedTower);if(!inventoryOpen)focusGame();};
   function updateEntryMode(){
     entryMode=root.querySelector('input[name="mode"]:checked')?.value||'solo';
     visible('room-field',entryMode!=='solo');visible('password-field',entryMode==='host');
@@ -106,8 +106,8 @@ export function createUI(handlers){
   on('interact-button','click',()=>action('interact'));
   on('pack-button','click',()=>{if(nearestTower)action('pack',{towerId:nearestTower.id});});
   on('repair-button','click',()=>{if(nearestTower)action('repair',{towerId:nearestTower.id});});
-  on('save-button','click',()=>call('save'));on('load-button','click',()=>call('load'));on('record-button','click',()=>call('record'));
-  on('leave-button','click',()=>{activePanel=null;visible('settings-panel',false);call('leave');});on('camera-reset','click',()=>call('cameraReset'));
+  on('save-button','click',()=>{call('save');focusGame();});on('load-button','click',()=>{call('load');focusGame();});on('record-button','click',()=>{call('record');focusGame();});
+  on('leave-button','click',()=>{activePanel=null;visible('settings-panel',false);call('leave');});on('camera-reset','click',()=>{call('cameraReset');focusGame();});
   for(const name of ['settings','help','performance'])on(`${name}-toggle`,'click',()=>togglePanel(name));
   for(const kind of ['bgm','sfx'])on(`${kind}-volume`,'input',()=>{const value=Number(el(`${kind}-volume`).value);write(`${kind}-output`,value);call('sound',kind,value);});
   function renderRoster(players,localId){

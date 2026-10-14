@@ -1,0 +1,94 @@
+{
+  "scope": "Actual solo entry → village button → Shift+W; compiled HTML loaded on loopback then browser network disabled; no test state changes",
+  "sourceSHA256": "69dc9d7919cc1ca536d33d9db6dd0c5aeb6bc92012ad3cf20c2ef57163bfb932",
+  "errors": [],
+  "before": {
+    "player": {
+      "x": -3.6,
+      "y": 0.08,
+      "z": 25,
+      "gp": 0,
+      "run": false,
+      "vx": 0,
+      "vz": 0,
+      "stamina": 1
+    },
+    "input": {
+      "mx": 0,
+      "mz": 0,
+      "yaw": 0,
+      "attack": false,
+      "sprint": false,
+      "jump": false,
+      "jumpSeq": 0,
+      "aim": false
+    },
+    "motion": {
+      "capacity": 64,
+      "live": 0
+    },
+    "camera": {
+      "firstPerson": false,
+      "bodyHidden": false,
+      "zoom": 3.2,
+      "distance": 3.2,
+      "shoulder": 0,
+      "aimBlend": 0,
+      "fovRun": 0,
+      "footAnchor": 0.08,
+      "fov": 70,
+      "x": -3.6,
+      "y": 1.5783347938587817,
+      "z": 28.122871837857936,
+      "pitch": -0.22,
+      "yaw": 0
+    },
+    "calls": 116,
+    "triangles": 405991
+  },
+  "running": {
+    "player": {
+      "x": -3.6,
+      "y": 0.08,
+      "z": 24.210376543209872,
+      "gp": 1.0336146878975183,
+      "run": true,
+      "vx": 0,
+      "vz": -8.601185185185185,
+      "stamina": 0.9666666666666668
+    },
+    "input": {
+      "mx": 0,
+      "mz": -1,
+      "yaw": 0,
+      "attack": false,
+      "sprint": true,
+      "jump": false,
+      "jumpSeq": 0,
+      "aim": false
+    },
+    "motion": {
+      "capacity": 64,
+      "live": 1
+    },
+    "camera": {
+      "firstPerson": false,
+      "bodyHidden": false,
+      "zoom": 3.2,
+      "distance": 3.2,
+      "shoulder": 0,
+      "aimBlend": 0,
+      "fovRun": 7.000000000000001,
+      "footAnchor": 0.08,
+      "fov": 77,
+      "x": -3.6,
+      "y": 1.5783347938587817,
+      "z": 27.33324838106781,
+      "pitch": -0.22,
+      "yaw": 0
+    },
+    "calls": 117,
+    "triangles": 406071
+  },
+  "result": "passed"
+}

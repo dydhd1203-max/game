@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import {createSeason1Presentation} from '../src/presentation-season1.mjs';
+import {advanceSeason1Motion,resetSeason1Motion} from '../src/locomotion-season1.mjs';
 
 const source=fs.readFileSync(new URL('../../클로드/index.html',import.meta.url),'utf8');
 const harness=fs.readFileSync(new URL('../../깃허브에올릴것/검사/t54-avatar-static.mjs',import.meta.url),'utf8');
@@ -70,4 +71,39 @@ test('A teleported peer snaps instead of crossing buildings and local motion fla
   const later=api.sample(snapshot,'me',1/60,{interpolate:true,time:1});
   assert.equal(later.players.peer.air,true);assert.equal(later.players.peer.y,2);
   assert.equal(later.players.peer.gp,undefined,'source remote gait follows displayed distance');
+});
+
+test('guest-visible sprint, double-jump and landing play on the buffered feet timeline and expire without replay',()=>{
+  const api=createSeason1Presentation(),moving=resetSeason1Motion({...player('peer'),online:true});
+  const evidence=new Set();let snapshot=state(0),jumpSeq=0,lastFlip=0,sawFlip=false;
+  for(let frame=0;frame<220;frame++){
+    if(frame===25||frame===34)jumpSeq++;
+    advanceSeason1Motion(moving,{mx:frame<90?1:0,sprint:frame<90,jumpSeq},1/60);
+    if(frame%6===0){snapshot=state(frame/60);snapshot.players.peer=structuredClone(moving);}
+    const shown=api.sample(snapshot,'me',1/60,{interpolate:true,time:frame/60}).players.peer;
+    if(shown.run&&shown.mv)evidence.add('run');
+    if(shown.take>0)evidence.add('take');
+    if(shown.flip>0){
+      evidence.add('flip');assert.equal(shown.air,true,'flip never precedes displayed airborne feet');
+      if(sawFlip)assert.ok(shown.flip>=lastFlip-1e-7,'somersault does not restart on every snapshot');
+      lastFlip=shown.flip;sawFlip=true;
+    }
+    if(shown.land>0){assert.equal(shown.air,false);evidence.add('land');}
+  }
+  assert.deepEqual([...evidence].sort(),['flip','land','run','take']);
+  for(let frame=220;frame<320;frame++){
+    const shown=api.sample(snapshot,'me',1/60,{interpolate:true,time:frame/60}).players.peer;
+    assert.equal(shown.take,0);assert.equal(shown.flip,0);assert.equal(shown.land,0);
+  }
+  assert.equal(snapshot.players.peer.flip,moving.flip,'buffered presentation never mutates the host state');
+});
+
+test('an idle buffer retimestamp never resurrects a finished landing when the friend moves again',()=>{
+  const api=createSeason1Presentation(),idle=state(0);
+  idle.players.peer.land=.22;
+  assert.equal(api.sample(idle,'me',0,{interpolate:true,time:0}).players.peer.land,.22);
+  for(const time of [.5,1,2])assert.equal(api.sample(idle,'me',.1,{interpolate:true,time}).players.peer.land,0);
+  const resumed=state(2.1,.5);resumed.players.peer.land=0;
+  assert.equal(api.sample(resumed,'me',.1,{interpolate:true,time:2.1}).players.peer.land,0);
+  for(let time=2.2;time<3;time+=.05)assert.equal(api.sample(resumed,'me',.05,{interpolate:true,time}).players.peer.land,0);
 });
