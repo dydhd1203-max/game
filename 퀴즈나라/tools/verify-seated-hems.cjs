@@ -10,7 +10,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
     await p.goto((process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/')+'?demo=1&session=seated-hems');
     await p.waitForFunction(()=>QPGame?.getVillage()&&QPAvatar.atlas.ready&&QPClothes.atlas.ready&&QPAvatarDirection.atlas.ready&&QPAvatarDirection.atlas.backReady);
     const rows=await p.evaluate(()=>{
-      QPGame.go('school');performance.now=()=>4100;
+      QPGame.go('home');performance.now=()=>4100;
       const style=document.createElement('style');style.textContent='*{animation:none!important}';document.head.append(style);
       const host=document.createElement('div');document.body.append(host);const rows=[];
       for(const size of [96,280])for(const sex of ['m','f'])for(const sk of [0,4])for(const shape of ['skirt','pleat','jean_skirt','star_skirt','tutu','hanbok','dress','robe'])for(const direction of ['front','right','left','back']){

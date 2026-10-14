@@ -107,7 +107,7 @@ async function renderCards(frame,avatars){
     const globals=await page.evaluate(()=>({PAL:QPGame.getCatalog().PAL,CAT:Object.fromEntries(QPGame.getCatalog().CATS.map(c=>[c.k,c])),shade:sh.toString(),avatars:[{...QPGame.getMe().av,sex:'f',hair:'long:6',top:'hood:7',bottom:'skirt:7',shoes:'sneaker:8',pet:'cat:8',effect:'angel:0',bg:'',frame:''},{...QPGame.getMe().av,sex:'m',sk:4,hair:'part:1',top:'shirt:10',bottom:'jeans:11',shoes:'dress:0',pet:'dog:10',effect:'angel:0',bg:'',frame:''}]}));
     const prefix='<base href="'+base+'"><script>const PAL='+JSON.stringify(globals.PAL)+';const CAT='+JSON.stringify(globals.CAT)+';const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));'+globals.shade+'</script>';
     const markup=prefix+modules.map(name=>'<script src="'+name+'"></script>').join('')+'<style>body{margin:0;background:#fff8e8;color:#235050;font-family:sans-serif}#avatarQa{padding:28px}h2{text-align:center}.qp-pixel-avatar{flex:none}</style><h2>원화 · 남녀 아바타와 상품</h2><main id="avatarQa"></main>';
-    await page.evaluate(()=>QPGame.go('school'));
+    await page.evaluate(()=>QPGame.go('home'));
     await page.evaluate(markup=>{document.body.innerHTML='<iframe id="avatarReference" style="width:100%;height:720px;border:0"></iframe><iframe id="avatarOpaque" sandbox="allow-scripts" style="width:100%;height:720px;border:0"></iframe>';document.querySelector('#avatarReference').srcdoc=markup;document.querySelector('#avatarOpaque').srcdoc=markup;},markup);
     const reference=await (await page.$('#avatarReference')).contentFrame(),opaque=await (await page.$('#avatarOpaque')).contentFrame();
     const referenceAtlases=await ready(reference),opaqueAtlases=await ready(opaque);

@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-14T14:13:02.590Z",
+  "builtAt": "2026-10-14T14:15:37.697Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -31,8 +31,8 @@
     },
     {
       "path": "qplay-buttons.css",
-      "bytes": 9695,
-      "sha256": "f8e36613ebeb6dcf3faa7f43116430284bfbd0624808442aea10c1950ada4750"
+      "bytes": 9591,
+      "sha256": "37066a6ee53c2862ab4efeedc8ea4b3f05744e9201957ee2aba023abb408fb06"
     },
     {
       "path": "assets/world-life/leaf-panel.png",
@@ -111,8 +111,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 330111,
-      "sha256": "10bbef86361848ae9480f845a30b0d75690aedf523e3342b34d7ba7cb723e4b3"
+      "bytes": 217655,
+      "sha256": "bbcd01c0fc6bde600d23e65af8245d113b7e528d37a487cdb603e8719b45adf1"
     },
     {
       "path": "avatar-image.js",
@@ -161,8 +161,8 @@
     },
     {
       "path": "demo.js",
-      "bytes": 13983,
-      "sha256": "ed051981e85086157cf66a80dbe960dbf4fc90fede4362e50f83f86fb05c5378"
+      "bytes": 9604,
+      "sha256": "06a75a357d0c906376c63bd449e506861250051acd69e103229ec90510d7dc63"
     },
     {
       "path": "candy-controls.css",
@@ -221,8 +221,8 @@
     },
     {
       "path": "qplay-theme.css",
-      "bytes": 18699,
-      "sha256": "e34af04fb5a77632217c9264382bd7517f98b64497495ae36de20262cc51f19d"
+      "bytes": 16375,
+      "sha256": "af1f118e31c1418d7ad90efd876d482fc59ca69b17ab9ab4a6f51333f007978c"
     },
     {
       "path": "shop-village.css",
@@ -236,8 +236,8 @@
     },
     {
       "path": "readability.css",
-      "bytes": 4803,
-      "sha256": "6e931b8ada0c444043ff811262a4c24e928138751e319afcc57ed45a9a34ca67"
+      "bytes": 4494,
+      "sha256": "b57f76122c5b3fb68516e392ae66169602cb6466c94926c2452c29f2ea80c60c"
     },
     {
       "path": "assets/forest-village-library/original-resolution/maps/plaza.png",
@@ -301,8 +301,8 @@
     },
     {
       "path": "school-room-scene.js",
-      "bytes": 16732,
-      "sha256": "9fe85e4d52202eced3cc74cd3e046427c516edd437df317c599e8a245ae34c8d"
+      "bytes": 16724,
+      "sha256": "ae94e33fa23e4a2ef802bd5af6f1bd529ef8ec582dbb65dac89d4699fae81595"
     },
     {
       "path": "avatar-run-input.js",
@@ -316,8 +316,8 @@
     },
     {
       "path": "school-room-world.js",
-      "bytes": 54525,
-      "sha256": "1abe76cb583dc69bbd2f39af96f59313f7c2429ada98ca517b33d3295336ee79"
+      "bytes": 54511,
+      "sha256": "7676cc1bc182f7f8627d3b03f16fc3afd464d34b410815115fba1aceb6cdb9fe"
     },
     {
       "path": "school-room-world.css",
@@ -606,83 +606,13 @@
     },
     {
       "path": "teacher-builder.js",
-      "bytes": 27795,
-      "sha256": "71fecf8e753443b1f272b9330d104538c3638ace871898c112ea6ddb4af90d81"
+      "bytes": 25077,
+      "sha256": "2f846bab2f7fd0d4bf15c3de20727693e6dc2a5124733f5421f294fb12db97ba"
     },
     {
       "path": "teacher-builder.css",
-      "bytes": 39396,
-      "sha256": "8d175583588b2739eebefcf3b593c02a17fd46fa6fc0ce730d227f87de7434b0"
-    },
-    {
-      "path": "quiz-classroom.js",
-      "bytes": 40157,
-      "sha256": "a54a96f267f12526ab044b447314bfec99722262fbe2102a220cbb1c7f3fb73f"
-    },
-    {
-      "path": "quiz-classroom.css",
-      "bytes": 13491,
-      "sha256": "eacc955d95c4f188672625f27fd9a871accbf9bf4687c176eea0cb0edc97f8e9"
-    },
-    {
-      "path": "quiz-map.js",
-      "bytes": 54790,
-      "sha256": "0f7fb65f5c80834980f654ebca4fada799c7b5fc9ae2dbf39b85b8e9b54215ce"
-    },
-    {
-      "path": "quiz-map.css",
-      "bytes": 10821,
-      "sha256": "c1ff6c80dac24f1be8eb4ece080772ba8288c3b5792f81d98da917884dab36cc"
-    },
-    {
-      "path": "map-painted-props.js",
-      "bytes": 2279,
-      "sha256": "065113c9407594974bd7a17a2a8e8fd65868941f519327bdddfbb70a8ddbbdb9"
-    },
-    {
-      "path": "map-art-forest.js",
-      "bytes": 23400,
-      "sha256": "bd5e174545a9689ac5449dd5a4d2265c55ff8507dc0426a9832d6a219975819a"
-    },
-    {
-      "path": "map-art-adventure.js",
-      "bytes": 23861,
-      "sha256": "1665a696b8ab31af3c89d409dc6e21253a864aac214cbbab65b228e2173baa4b"
-    },
-    {
-      "path": "assets/painted-forest-props.png",
-      "bytes": 2041686,
-      "sha256": "c9a0a372a2656f9ca264735fd55e25b6437bc326ccb3753e35e8f796d711b530"
-    },
-    {
-      "path": "assets/painted-forest-props.json",
-      "bytes": 1239,
-      "sha256": "d1b71ee7854b9dcadce0fb2f463bdc0d02814a8fdbd56529b4bf869cf85d84df"
-    },
-    {
-      "path": "classroom-flow.js",
-      "bytes": 27222,
-      "sha256": "97f52f15f9054d11400aa4a2a4f1396d4f3d8bd6e178dfb9e14e4ede4d1052a9"
-    },
-    {
-      "path": "classroom-flow.css",
-      "bytes": 12117,
-      "sha256": "2dd276cba8ae93969c44209cf90f0f5943e9b7194553f480ddc97f2dc6036aed"
-    },
-    {
-      "path": "round-scene.js",
-      "bytes": 11710,
-      "sha256": "9dc3b1aacdae5fdf2fc7a94795057f750d316f4cbcf3689f55fe8efb342bb5d3"
-    },
-    {
-      "path": "round-scene.css",
-      "bytes": 7370,
-      "sha256": "469b609d245d362abe91b8b00509bc00351294414bd7e6b953f7b269776743ff"
-    },
-    {
-      "path": "assets/round-picnic.svg",
-      "bytes": 20988,
-      "sha256": "37b0349f821dd48c0745a73c820b063f6b9395cb8add7a01f1a1879cb29e59ef"
+      "bytes": 33191,
+      "sha256": "68db64cc02b07e82f88107ff21515e29595b30618de86b84b3a06c1bbe06cf4b"
     },
     {
       "path": "assets/candy-sky.svg",

@@ -397,7 +397,7 @@
     ],
     "seats": 30,
     "studentEntry": "SCREENS.campus",
-    "quizEntry": "Existing QPClassroomFlow student hub at blackboard; direct lesson links preserved.",
+    "quizEntry": "Blackboard (E) opens the QUIZQUIZ lobby; the class lesson system was removed on 2026-10-14.",
     "artMethod": "Original pixels only. No new map painting, original PNG bytes unchanged.",
     "validationDocument": "../../교실-구현검수.md",
     "realFirebaseThirtyUsersVerified": false,

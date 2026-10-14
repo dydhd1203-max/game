@@ -96,8 +96,6 @@ body .class-picker-grid.class-picker-new { grid-template-columns: 180px minmax(2
 .teacher-quiz-details { flex: 1; min-width: 0; }
 .teacher-quiz-details h3 { margin: 0 0 8px; font-size: 20px; overflow-wrap: anywhere; }
 .teacher-quiz-details p { margin: 0; font-size: 15px; color: var(--reading-muted); }
-.teacher-quiz-mode { display: grid; gap: 5px; font-size: 14px; font-weight: 700; }
-.teacher-quiz-mode select { min-width: 125px; padding: 8px; color: var(--reading-ink); background: #fffdf3; border: 1px solid #a9b18f; border-radius: 8px; font-family: var(--reading-font); font-size: 15px; font-weight: 700; }
 .teacher-quiz-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 @media (min-width: 661px) and (max-width: 1100px) {
   body .teacher-top > .nm { font-size: 16px; }

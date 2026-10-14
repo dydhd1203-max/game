@@ -10,7 +10,7 @@ const out=path.resolve(process.env.QUIZ_VERIFICATION_OUTPUT||'검증/관절좌�
  const url=new URL(process.env.QUIZ_PREVIEW_URL||'http://127.0.0.1:4173/');url.searchParams.set('demo','1');url.searchParams.set('session','matrix-'+Date.now());await page.goto(url.href);
  await page.waitForFunction(()=>QPGame?.getVillage()&&QPAvatar.atlas.ready&&QPClothes.atlas.ready&&QPAvatarDirection.atlas.ready&&QPAvatarDirection.atlas.backReady&&QPClothMesh.atlas.ready);
  const result=await page.evaluate(()=>{
-  QPGame.go('school');performance.now=()=>4100;
+  QPGame.go('home');performance.now=()=>4100;
   const style=document.createElement('style');style.textContent='*{animation:none!important;transition:none!important}';document.head.append(style);
   const host=document.createElement('div');host.style.cssText='position:fixed;left:0;top:0';document.body.append(host);
   const keys=['a','b','c','d','e','f'],rows=[],base=QPGame.getMe().av,catalog=QPGame.getCatalog();

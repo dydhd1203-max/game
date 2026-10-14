@@ -1,14 +1,15 @@
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
 (async()=>{
-  const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});
+  const browser=await chromium.launch({headless:true,executablePath:process.env.QUIZ_BROWSER_EXECUTABLE||undefined});
   try{
     const context=await browser.newContext({viewport:{width:1366,height:768}});
     await context.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({body:'/* isolated feedback preview */',contentType:'text/javascript'}));
     const page=await context.newPage(),errors=[],checks=[];
     page.on('pageerror',e=>errors.push(e.message));
     await page.goto('http://127.0.0.1:4173/?demo=1&session=feedback-'+Date.now());
-    await page.waitForSelector('#meStage');
+    // Students now enter the village; these checks use the home (내 정보) screen.
+    await page.waitForFunction(()=>window.QPGame?.getMe());await page.evaluate(()=>QPGame.go('home'));await page.waitForSelector('#meStage');
     assert.equal(await page.evaluate(()=>QPGame.getSound().ctx),null);
     await page.locator('#tbSnd').click();
     await page.waitForFunction(()=>QPGame.getSound().ctx?.state==='running');
@@ -50,22 +51,7 @@ const assert=require('node:assert/strict');
     assert.equal(await page.evaluate(()=>feedbackQA.calls.click),callCount);
     checks.push('Disabled real controls have no press state or click sound');
     await disabled.evaluate(e=>e.disabled=false);await page.locator('#sndClose').click();
-    await page.locator('.qp-demo-toolbar [data-mode="ox"]').click();await page.waitForSelector('.oxzone.o');
-    const zone=page.locator('.oxzone.o'),zoneBefore=await zone.boundingBox();
-    const zoneCalls=await page.evaluate(()=>({...feedbackQA.calls}));
-    await page.mouse.move(zoneBefore.x+zoneBefore.width/2,zoneBefore.y+zoneBefore.height/2);await page.mouse.down();await page.waitForTimeout(100);
-    const zoneHeld=await zone.boundingBox();
-    assert(Math.abs((zoneHeld.y+zoneHeld.height/2)-(zoneBefore.y+zoneBefore.height/2))<=3.1,'O/X must retain vertical positioning during press: '+JSON.stringify({zoneBefore,zoneHeld}));
-    await page.mouse.up();await page.waitForTimeout(220);
-    const afterCalls=await page.evaluate(()=>({...feedbackQA.calls}));
-    assert.equal((afterCalls.pick||0)-(zoneCalls.pick||0),1);
-    assert.equal(afterCalls.click,zoneCalls.click,'Selection sound must not stack a generic click');
-    checks.push('O/X keeps its position, plays its selection sound once, and avoids duplicate generic clicks');
-    await page.emulateMedia({reducedMotion:'reduce'});
-    const reducedBox=await zone.boundingBox();await page.mouse.move(reducedBox.x+reducedBox.width/2,reducedBox.y+reducedBox.height/2);await page.mouse.down();await page.waitForTimeout(70);
-    const reduced=await zone.evaluate(e=>{const s=getComputedStyle(e);return{translate:s.translate,scale:s.scale,transition:s.transitionDuration};});
-    assert.equal(reduced.translate,'none');assert.equal(reduced.scale,'none');assert.equal(reduced.transition,'0s');await page.mouse.up();
-    checks.push('Reduced motion disables press movement while keeping a visible color change');
+    // The old live OX zone checks were removed with the teacher-hosted live games (2026-10-14).
     assert.deepEqual(errors,[]);console.log(JSON.stringify({passed:checks,clickPeak:peak,errors},null,2));
   }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exit(1);});

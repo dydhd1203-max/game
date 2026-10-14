@@ -198,7 +198,7 @@
     spawn: { x: 1430, y: 891 }, cameraHome: { x: 1430, y: 450, zoom: 0.84 },
     seats, solids,
     interactables: [
-      { id: 'class-board', type: 'board', x: 1513, y: 470, radius: 135, approach: { x: 1513, y: 470 }, hitRect: { x: 1157, y: 78, width: 522, height: 317 }, label: '칠판 · 수업과 퀴즈' },
+      { id: 'class-board', type: 'board', x: 1513, y: 470, radius: 135, approach: { x: 1513, y: 470 }, hitRect: { x: 1157, y: 78, width: 522, height: 317 }, label: '칠판 · QUIZQUIZ' },
       { id: 'group-space', type: 'group', x: 570, y: 570, radius: 95, label: '모둠 활동 공간' },
       { id: 'corridor-exit', type: 'door', target: 'playground', x: 2122, y: 298, radius: 75, approach: { x: 2122, y: 298 }, arrival: { x: 2122, y: 298 }, hitRect: { x: 2009, y: 94, width: 227, height: 166 }, label: '운동장으로 나가기' }
     ],

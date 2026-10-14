@@ -1,14 +1,15 @@
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 (async()=>{
-  const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe'});
+  const browser=await chromium.launch({headless:true,executablePath:process.env.QUIZ_BROWSER_EXECUTABLE||undefined});
   try{
     const context=await browser.newContext({viewport:{width:1280,height:632}});
     await context.route('https://www.gstatic.com/firebasejs/**',r=>r.fulfill({body:'/* isolated audio preview */',contentType:'text/javascript'}));
     const page=await context.newPage(),errors=[],checks=[];
     page.on('pageerror',e=>errors.push(e.message));
     await page.goto('http://127.0.0.1:4173/?demo=1&session=audio-'+Date.now());
-    await page.waitForSelector('#meStage');
+    // Students now enter the village; these checks use the home (내 정보) screen.
+    await page.waitForFunction(()=>window.QPGame?.getMe());await page.evaluate(()=>QPGame.go('home'));await page.waitForSelector('#meStage');
     assert.equal(await page.evaluate(()=>QPGame.getSound().ctx),null);
     await page.keyboard.press('ArrowRight');
     await page.waitForFunction(()=>QPGame.getSound().ctx?.state==='running'&&!!QPGame.getSound().timer);
@@ -52,27 +53,17 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
         const original=s[name];s[name]=function(...args){audioQA.calls[name]=(audioQA.calls[name]||0)+1;return original.apply(this,args);};
       }
     });
-    await page.locator('.qp-demo-toolbar [data-mode="quiz"]').click();
-    await page.waitForSelector('#ansIn');
-    const correct=await page.evaluate(async()=>{const r=(await QPDemo.db.ref('quiz/room').once()).val();return QPDemo.bank.demo_quiz.qs.find(q=>q.q===r.q.t).a.split('/')[0];});
-    await page.locator('#ansIn').fill('틀린 답');await page.locator('#ansIn').press('Enter');
-    await page.waitForFunction(()=>document.querySelector('.qp-feedback')?.textContent.includes('다시'));
-    await page.locator('#ansIn').fill(correct);await page.locator('#ansIn').press('Enter');
-    await page.waitForFunction(()=>audioQA.calls.ok>0);
-    await page.evaluate(async()=>{const h=document.querySelector('iframe').contentWindow.QPGame.getHost();await h.reveal();await h.end();});
-    await page.waitForSelector('.qp-results');
-    await page.locator('#resultShop').click();await page.locator('#shTabs [data-c="expression"]').click();
+    // The old live quiz (start/ok/no/fanfare through the hidden host) was removed on 2026-10-14.
+    await page.evaluate(()=>QPGame.go('shop'));await page.waitForSelector('#shTabs');
+    await page.locator('#shTabs [data-c="expression"]').click();
     await page.locator('#shGrid [data-id="expression:happy:0"]').click();await page.locator('#btnBuy').click();
     await page.waitForFunction(()=>QPGame.getMe().owned['expression:happy:0']);
     const calls=await page.evaluate(()=>audioQA.calls);
-    for(const name of ['click','start','ok','no','buy','fanfare'])assert(calls[name]>0,'Actual game action must invoke '+name);
-    const celebrations=calls.fanfare;
-    await page.evaluate(()=>{const s=QPGame.getSound();s.gameState({session:QPGame.getSound().gameEvents.values().next().value.split('/')[0],phase:'end'});});
-    assert.equal(await page.evaluate(()=>audioQA.calls.fanfare),celebrations);
-    checks.push('Actual button, game start, wrong retry, correct answer, result and purchase invoke their effects once');
+    for(const name of ['click','buy'])assert(calls[name]>0,'Actual game action must invoke '+name);
+    checks.push('Actual button and purchase invoke their effects');
 
     await page.locator('#tbSnd').click();await page.locator('#sndFX').click();await page.locator('#sndMusic').click();
-    await volume('sndMusicVolume',18);await page.reload();await page.waitForSelector('#meStage');
+    await volume('sndMusicVolume',18);await page.reload();await page.waitForFunction(()=>window.QPGame?.getMe());await page.evaluate(()=>QPGame.go('home'));await page.waitForSelector('#meStage');
     const saved=await page.evaluate(()=>{const s=QPGame.getSound();return {fx:s.on,music:s.bgm,fxVolume:s.fxVolume,musicVolume:s.musicVolume,locked:!s.ctx};});
     assert.deepEqual(saved,{fx:false,music:true,fxVolume:24,musicVolume:18,locked:true});
     await page.keyboard.press('ArrowRight');await page.waitForFunction(()=>QPGame.getSound().ctx?.state==='running'&&!!QPGame.getSound().timer);
@@ -100,7 +91,7 @@ const assert=require('node:assert/strict'),fs=require('node:fs'),path=require('n
     await page.evaluate(()=>{delete document.hidden;document.dispatchEvent(new Event('visibilitychange'));});
     checks.push('Visibility suspension clears notes; rapid return and a stale clock resume without catch-up bursts');
     const pointerPage=await context.newPage();pointerPage.on('pageerror',e=>errors.push(e.message));
-    await pointerPage.goto(page.url());await pointerPage.waitForSelector('#meStage');
+    await pointerPage.goto(page.url());await pointerPage.waitForFunction(()=>window.QPGame?.getMe());await pointerPage.evaluate(()=>QPGame.go('home'));await pointerPage.waitForSelector('#meStage');
     assert.equal(await pointerPage.evaluate(()=>QPGame.getSound().ctx),null);
     await pointerPage.locator('#tbSnd').click();
     await pointerPage.waitForFunction(()=>QPGame.getSound().ctx.state==='running'&&!!QPGame.getSound().timer);

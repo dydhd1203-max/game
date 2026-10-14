@@ -28,7 +28,7 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
   assert.equal(await p.locator('.sr-actor.is-me .qpx-pet').count(),1);
   assert.equal(await p.locator('.sr-actor.is-me [data-qpx-effect]').count(),1);
   assert.equal(await p.evaluate(()=>JSON.stringify(QPGame.getMe())),original);
-  await p.evaluate(()=>QPGame.go('school'));assert.equal(await p.locator('.sr-avatar-ambient').count(),0);assert.deepEqual(errors,[]);
+  await p.evaluate(()=>QPGame.go('home'));assert.equal(await p.locator('.sr-avatar-ambient').count(),0);assert.deepEqual(errors,[]);
   fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({layers,paused,offscreenReturn:true,modalResume:true,wardrobeRebuild:true,accountUnchanged:true,cleanup:true,errors},null,2));
   console.log('PASS independent body/pet/effect layers, pause/resume, offscreen return, changed outfit, account preservation and scene cleanup.');
  }finally{await b.close();}

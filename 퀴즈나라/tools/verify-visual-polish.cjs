@@ -105,13 +105,19 @@ async function measure(page, screen) {
       await page.goto(url.href);
       await page.waitForFunction(() => window.QPGame?.getMe() && window.QPAvatar?.atlas.ready, null, { timeout: 90000 });
       await page.evaluate(() => document.fonts.ready);
-      for (const screen of ['login', 'village', 'shop', 'quizquiz']) {
+      // Student screens, then the operator account (role=admin): the 운영자 tab in the top bar and the operator screen.
+      for (const [role, screen] of [['', 'login'], ['', 'village'], ['', 'shop'], ['', 'quizquiz'], ['admin', 'village'], ['admin', 'teacher']]) {
+        if (role && !(await page.evaluate(() => document.getElementById('tbAdmin') || QPGame.getMe()?.k === '선생님'))) {
+          const adminURL = new URL(url); adminURL.searchParams.set('role', role);
+          await page.goto(adminURL.href);
+          await page.waitForFunction(() => window.QPGame?.getMe()?.k === '선생님' && window.QPAvatar?.atlas.ready, null, { timeout: 90000 });
+        }
         await page.evaluate(s => QPGame.go(s), screen);
         await page.waitForTimeout(1200);
         const hide = page.locator('.qp-demo-toolbar [data-hide]');
         if (await hide.count() && await hide.isVisible()) await hide.click().catch(() => {});
         await page.evaluate(() => document.fonts.ready);
-        const tag = screen + '-' + width;
+        const tag = (role ? role + '-' : '') + screen + '-' + width;
         const result = await measure(page, tag);
         report.screens.push({ screen: tag, buttons: result.buttons, regions: result.regions.length });
         report.findings.push(...result.findings);

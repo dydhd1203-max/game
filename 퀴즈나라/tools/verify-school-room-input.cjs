@@ -34,7 +34,7 @@ const {chromium}=require('playwright');
   // A fresh controller uses exactly the original scene and renderer. Only the
   // lease adapter is controlled so otherwise rare delayed replies are repeatable.
   await page.evaluate(()=>{
-    const me=QPGame.getMe(),scene=QPSchoolRoomScene.get();QPGame.go('school');
+    const me=QPGame.getMe(),scene=QPSchoolRoomScene.get();QPGame.go('home');
     const host=document.createElement('div');host.id='inputFixture';Object.assign(host.style,{position:'fixed',top:'60px',left:0,right:0,bottom:0,height:'calc(100vh - 60px)',zIndex:10000});document.body.append(host);
     const f={host,scene,claims:[],releases:[],events:[],publications:[],mode:'delay',claimed:null,resolvers:[]};
     const presence={getTime:()=>Date.now(),update:s=>f.publications.push({...s}),claimSeat:id=>{
