@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-14T12:28:34.456Z",
+  "builtAt": "2026-10-14T12:44:15.667Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -491,8 +491,8 @@
     },
     {
       "path": "avatar-foundation-outfit.js",
-      "bytes": 61054,
-      "sha256": "6b4a9cfb490c97414fa982b0e690059740c23bd316c3122ee6b3840dd1d0fbb2"
+      "bytes": 61121,
+      "sha256": "a321f02cbfe596a6679cfc9def3f609c6f70f9f59d9d1ef92332fc798736074f"
     },
     {
       "path": "assets/avatar-file-data-foundation.js",
@@ -526,8 +526,8 @@
     },
     {
       "path": "avatar-foundation-skin.js",
-      "bytes": 34081,
-      "sha256": "59a635852356b0c47513fb6627a6028142bc07bb10ea4a6c69ea25050bb89d0c"
+      "bytes": 34595,
+      "sha256": "2a842ab0aef7111ff4e2910ebbd302fac21bd4d296e1397054d87bee9aaca9a2"
     },
     {
       "path": "assets/sd-foundation-ref-neck.png",
@@ -536,8 +536,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 108456,
-      "sha256": "5573a1defcd0bc9ad6042fe9e831ed1d05bee14ca2711d5efce46ef779d0b641"
+      "bytes": 109598,
+      "sha256": "ab2fc65c422bc0d4abdd53f1bc802bd8689f628935a79b750fc302bb9b08d4ec"
     },
     {
       "path": "avatar-foundation.css",
@@ -853,6 +853,26 @@
       "path": "assets/seated/floor-front-f-shoes-sneaker-1.png",
       "bytes": 23402,
       "sha256": "0d1bb43165622b8f7f371a7afd70e61c87a9b3f8ab20312a917fbdae4c1be41a"
+    },
+    {
+      "path": "assets/seated/floor-side-m-legs.png",
+      "bytes": 19377,
+      "sha256": "a386a79d2d3102e95e8087dfc3700284f43a025708549b62eaecd79cc162cfbd"
+    },
+    {
+      "path": "assets/seated/floor-side-m-hand.png",
+      "bytes": 9388,
+      "sha256": "0ee2fa004436b4808415a3ddc516eb1cebc3b4b0c44db50ef52fd7b8a43dbceb"
+    },
+    {
+      "path": "assets/seated/floor-side-m-bottom-shorts.png",
+      "bytes": 23197,
+      "sha256": "8c976a3aae93d4f939cb76acb313d6579b37ce92646e2534cf9a2c045105ac8c"
+    },
+    {
+      "path": "assets/seated/floor-side-m-shoes-sneaker.png",
+      "bytes": 21704,
+      "sha256": "a8101e9a77872a66bdcd74e56cbb63d817c1e4047b2296951cf13d427172b64e"
     },
     {
       "path": "assets/sd-garments-index.js",

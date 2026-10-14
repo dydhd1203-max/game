@@ -309,7 +309,7 @@
   // `legs` (skin, tinted: thighs, crossed shins, hands on the knees), `hands`
   // (the same hands over the arms, whose wrists reach `wrist`) and per shoe
   // item the worn shoes (untinted). Back and side views keep the drawn shapes.
-  const SEATED_ART=Object.freeze({m:Object.freeze({legs:Object.freeze({url:'assets/seated/floor-front-m-legs.png',rect:[8.1565, 39.246, 15.6492, 6.615]}),hands:[Object.freeze({url:'assets/seated/floor-front-m-hand-0.png',rect:[8.0809, 37.4694, 4.4226, 4.3848]}),Object.freeze({url:'assets/seated/floor-front-m-hand-1.png',rect:[19.5343, 37.4694, 4.4604, 4.3848]})],wrist:[[10.9159, 39.4728], [20.8573, 39.4728]],bottoms:Object.freeze({'bottom:shorts':Object.freeze({url:'assets/seated/floor-front-m-bottom-shorts.png',rect:[8.1187, 39.246, 15.7248, 6.7662]})}),shoes:Object.freeze({'shoes:sneaker':[Object.freeze({url:'assets/seated/floor-front-m-shoes-sneaker-0.png',rect:[17.1529, 42.8748, 4.9896, 3.1752]}),Object.freeze({url:'assets/seated/floor-front-m-shoes-sneaker-1.png',rect:[9.7063, 42.6102, 4.9518, 3.4398]})]})}),f:Object.freeze({legs:Object.freeze({url:'assets/seated/floor-front-f-legs.png',rect:[8.8504, 39.9927, 14.2992, 5.8587]}),hands:[Object.freeze({url:'assets/seated/floor-front-f-hand-0.png',rect:[8.8504, 38.106, 3.5748, 4.0382]}),Object.freeze({url:'assets/seated/floor-front-f-hand-1.png',rect:[19.1776, 38.106, 4.0382, 4.0382]})],wrist:[[11.1343, 40.1913], [20.3361, 40.1913]],bottoms:Object.freeze({'bottom:shorts':Object.freeze({url:'assets/seated/floor-front-f-bottom-shorts.png',rect:[8.8173, 39.9927, 14.3323, 6.0573]})}),shoes:Object.freeze({'shoes:sneaker':[Object.freeze({url:'assets/seated/floor-front-f-shoes-sneaker-0.png',rect:[17.0592, 43.2365, 4.4023, 2.8135]}),Object.freeze({url:'assets/seated/floor-front-f-shoes-sneaker-1.png',rect:[10.4723, 43.0379, 4.3692, 2.979]})]})})});
+  const SEATED_ART=Object.freeze({front:Object.freeze({m:Object.freeze({legs:Object.freeze({url:'assets/seated/floor-front-m-legs.png',rect:[8.1565, 39.246, 15.6492, 6.615]}),hands:[Object.freeze({url:'assets/seated/floor-front-m-hand-0.png',rect:[8.0809, 37.4694, 4.4226, 4.3848]}),Object.freeze({url:'assets/seated/floor-front-m-hand-1.png',rect:[19.5343, 37.4694, 4.4604, 4.3848]})],wrist:[[10.9159, 39.4728], [20.8573, 39.4728]],bottoms:Object.freeze({'bottom:shorts':Object.freeze({url:'assets/seated/floor-front-m-bottom-shorts.png',rect:[8.1187, 39.246, 15.7248, 6.7662]})}),shoes:Object.freeze({'shoes:sneaker':[Object.freeze({url:'assets/seated/floor-front-m-shoes-sneaker-0.png',rect:[17.1529, 42.8748, 4.9896, 3.1752]}),Object.freeze({url:'assets/seated/floor-front-m-shoes-sneaker-1.png',rect:[9.7063, 42.6102, 4.9518, 3.4398]})]})}),f:Object.freeze({legs:Object.freeze({url:'assets/seated/floor-front-f-legs.png',rect:[8.8504, 39.9927, 14.2992, 5.8587]}),hands:[Object.freeze({url:'assets/seated/floor-front-f-hand-0.png',rect:[8.8504, 38.106, 3.5748, 4.0382]}),Object.freeze({url:'assets/seated/floor-front-f-hand-1.png',rect:[19.1776, 38.106, 4.0382, 4.0382]})],wrist:[[11.1343, 40.1913], [20.3361, 40.1913]],bottoms:Object.freeze({'bottom:shorts':Object.freeze({url:'assets/seated/floor-front-f-bottom-shorts.png',rect:[8.8173, 39.9927, 14.3323, 6.0573]})}),shoes:Object.freeze({'shoes:sneaker':[Object.freeze({url:'assets/seated/floor-front-f-shoes-sneaker-0.png',rect:[17.0592, 43.2365, 4.4023, 2.8135]}),Object.freeze({url:'assets/seated/floor-front-f-shoes-sneaker-1.png',rect:[10.4723, 43.0379, 4.3692, 2.979]})]})})}),side:Object.freeze({m:Object.freeze({legs:Object.freeze({url:'assets/seated/floor-side-m-legs.png',rect:[15.9655, 39.1155, 5.382, 6.003]}),hands:[null,Object.freeze({url:'assets/seated/floor-side-m-hand.png',rect:[16.207, 39.1155, 5.106, 3.105]})],wrist:[null, [19.6225, 40.806]],bottoms:Object.freeze({'bottom:shorts':Object.freeze({url:'assets/seated/floor-side-m-bottom-shorts.png',rect:[11.308, 41.634, 6.279, 4.347]})}),shoes:Object.freeze({'shoes:sneaker':[Object.freeze({url:'assets/seated/floor-side-m-shoes-sneaker.png',rect:[17.449, 43.221, 5.382, 2.829]}),null]})})})});
   const SEATED=Object.freeze({
     // The side view is drawn for reading, as in the user's side reference
     // (round 2: before, the shirt reached the floor, no knee showed and the
@@ -504,7 +504,7 @@
   function solve(input={}){
     const direction=input.action==='climb'?'back':['front','back','left','right'].includes(input.direction)?input.direction:input.facing||'front',profile=['left','right'].includes(direction),back=direction==='back',view=profile?'profile':back?'back':'front';
     const SPEC=rigFor(input.sex,view),REST_SWING=Math.atan2(...SPEC.profileSwing),REST_FLEX=Math.atan2(...SPEC.profileFlex)-REST_SWING;
-    const action=input.action||'idle',run=action==='run',walk=run||action==='walk',floor=action==='floor-sit'||action==='sit'&&input.seatMode==='floor',desk=action==='sit'&&!floor,seatArt=floor&&direction==='front'?SEATED_ART[input.sex]||null:null,jump=action==='jump',climb=action==='climb',CR=climb?climbRig(SPEC):null;
+    const action=input.action||'idle',run=action==='run',walk=run||action==='walk',floor=action==='floor-sit'||action==='sit'&&input.seatMode==='floor',desk=action==='sit'&&!floor,seatArt=floor&&(direction==='front'||profile)?SEATED_ART[profile?'side':'front'][input.sex]||null:null,jump=action==='jump',climb=action==='climb',CR=climb?climbRig(SPEC):null;
     const rawPhase=((Number(input.phase)||0)%1+1)%1;
     // A cycle has 24 shared painted poses (walk ~50fps, run ~78fps in maps).
     // Quantize drawing only: world position and input timing remain continuous.
@@ -566,7 +566,7 @@
     // the start is not a one-frame snap from idle. Six drawn steps.
     const ease=climb?Math.round(clamp(Number.isFinite(input.climbIn)?input.climbIn:1,0,1)*6)/6:1,reachSide=climb?(grips[0].pos-grips[1].pos)*ease:0;
     const sway=climb?CLIMB.sway*reachSide:walk&&!profile?byGait(g=>-g.sway*Math.sin(TAU*(phase-g.support+.25))):0,roll=climb?-CLIMB.roll*reachSide:walk&&!profile?byGait(g=>g.roll*(-g.sway*Math.sin(TAU*(phase-g.support+.25)))/g.sway):0;
-    const lean=profile?(walk?byGait(g=>g.lean+(g===GAIT.walk?.8*Math.cos(2*TAU*phase):0)):floor?SEATED.floor.side.lean:desk?SEATED.desk.lean:crouch?jumpKey.lean*compression:air?jumpKey.lean:BOW_LEAN*nod+4*squash-2*hopTuck):0;
+    const lean=profile?(walk?byGait(g=>g.lean+(g===GAIT.walk?.8*Math.cos(2*TAU*phase):0)):floor?(seatArt?0:SEATED.floor.side.lean):desk?SEATED.desk.lean:crouch?jumpKey.lean*compression:air?jumpKey.lean:BOW_LEAN*nod+4*squash-2*hopTuck):0;
     // A side crouch sits the hips back over the heels as the knees go forward.
     const hips=profile&&crouch?jumpKey.hips*compression:0;
     const torso=transform([16,SPEC.waist],[16+sway+hips-(profile?.8*nod:0),SPEC.waist+drop],rad(profile?lean:roll));
@@ -653,7 +653,7 @@
           // .side.shoes). From behind both feet are in front of the body,
           // hidden.
           const C=SEATED.floor;
-          seatShoe=back?{hidden:true}:profile?C.side.shoes[i]:{view:'Profile',index:0,flip:i?-1:1,angle:i?C.toe:-C.toe,over:true};
+          seatShoe=back?{hidden:true}:profile?(seatArt?{view:'Profile',index:0,flip:1,angle:0,under:true}:C.side.shoes[i]):{view:'Profile',index:0,flip:i?-1:1,angle:i?C.toe:-C.toe,over:true};
           // The bare thigh starts at the shorts cuff (outfit seatedShorts).
           if(!profile){const u=sub(knee,root),l=Math.hypot(...u)||1;cuff=add(root,u.map(v=>v*FLOOR_FRONT.cuff/l));}
         }
@@ -705,7 +705,11 @@
           // The hand rests on top of its own knee, a little inside it
           // (hand: inward, wrist height above the knee centre, back).
           const C=profile?{...SEATED.floor,...SEATED.floor.side}:SEATED.floor,k=legs[i].knee3,out=profile?Math.abs(FRONT.shoulder[i][0]-16):side*(shoulder[0]-16),z=profile?shoulder[0]-legs[i].root[0]:Math.sin(rad(C.lean))*(SPEC.waist-rest[1]);
-          if(seatArt){
+          if(seatArt&&profile){
+            // Drawn side hand (SEATED_ART.side): the arm reaches it as the
+            // front one does, the elbow a little down and back.
+            const w=seatArt.wrist[i]||seatArt.wrist[1],d=[w[0]-shoulder[0],w[1]-shoulder[1]],f=upperLength/(upperLength+lowerLength);W=[0,d[1],d[0]];E=[0,d[1]*f+.35,d[0]*f-.3];
+          }else if(seatArt){
             // Drawn hands (SEATED_ART): the reference's short arm hangs nearly
             // straight from the sleeve to the hand on the knee, so the arm
             // shortens to reach it (as the legs stretch) instead of bending
@@ -1122,7 +1126,7 @@
     // the shirt; from the side the thigh is under the shorts; from behind the
     // forearms are beyond the back panel. Climbing arms rise from the shoulders
     // over the back (their hands go behind the head, drawn above the body).
-    if(pose.floor)order=pose.back?['far-leg','near-leg','pelvis',...armKeys,'torso']:pose.profile?['far-arm','far-leg','near-leg','pelvis','torso','near-arm']:pose.seatArt?['pelvis','far-leg','torso','near-leg',...armKeys]:['pelvis','torso','far-leg','near-leg',...armKeys];
+    if(pose.floor)order=pose.back?['far-leg','near-leg','pelvis',...armKeys,'torso']:pose.profile?(pose.seatArt?['far-arm','pelvis','far-leg','torso','near-leg','near-arm']:['far-arm','far-leg','near-leg','pelvis','torso','near-arm']):pose.seatArt?['pelvis','far-leg','torso','near-leg',...armKeys]:['pelvis','torso','far-leg','near-leg',...armKeys];
     else if(pose.back&&seated)order=['far-arm','near-arm','far-leg','near-leg','pelvis','torso'];
     else if(pose.action==='climb')order=['far-leg','near-leg','pelvis','torso',...armKeys];
     else if(seated&&pose.profile)order=['far-arm','far-leg','near-leg','pelvis','torso','near-arm'];

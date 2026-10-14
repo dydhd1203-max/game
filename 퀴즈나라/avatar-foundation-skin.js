@@ -189,12 +189,17 @@
    const drawnLeg=type==='leg'&&Boolean(p.cuff);if(drawnLeg)part.paintFrame.style.display='none';else if(part.paintFrame.style.display){part.paintFrame.style.removeProperty('display');if(!part.paintFrame.getAttribute('style'))part.paintFrame.removeAttribute('style');}
    part.contour.style.visibility=drawnLeg?'':'hidden';
    if(type==='leg')for(const e of [part.contour,part.foot])if(e){if(drawnLeg){if(!e.dataset.baseFill)e.dataset.baseFill=e.getAttribute('fill');const c=paintedSkin(r.svg.dataset.foundationSkin);if(e.getAttribute('fill')!==c)e.setAttribute('fill',c);}else if(e.dataset.baseFill){e.setAttribute('fill',e.dataset.baseFill);delete e.dataset.baseFill;}}part.shade.style.display=type==='leg'&&pose.floor?'':'none';if(type==='arm'){part.hand.style.display='none';forearmOverlay(r,part,p,i,[def.radii[1]*def.k,def.radii[2]*def.k],(def.end-def.joints[2][1])*def.k,def,points,tint);openHand(r,part,p,i,tint);
+    if(!(pose.seatArt&&pose.profile)){for(const g of [part.paintFrame,part.parent])if(g.style.visibility){g.style.removeProperty('visibility');if(!g.getAttribute('style'))g.removeAttribute('style');}}
     if(!pose.seatArt&&part.forearmArt&&part.forearmArt.previousSibling!==part.forearm)part.parent.insertBefore(part.forearmArt,part.forearm.nextSibling);
     // Drawn seated hands (pose.seatArt) rest on the knees over the arms.
     // The piece holds the forearm from under the sleeve, so it lies below
     // the sleeve (just over the arm's painting); elsewhere the forearm
     // painting goes back over everything after the forearm copy.
-    if(pose.seatArt){const A=pose.seatArt.hands[i],e=part.forearmArt;if(e.previousSibling!==part.paintFrame)part.parent.insertBefore(e,part.paintFrame.nextSibling);e.style.display='';if(e.paintedArt!==A){e.setAttribute('href',A.url);e.paintedArt=A;}for(const[k,val]of Object.entries({x:A.rect[0],y:A.rect[1],width:A.rect[2],height:A.rect[3]}))if(e.getAttribute(k)!==String(val))e.setAttribute(k,val);}}
+    if(pose.seatArt){const A=pose.seatArt.hands[i],e=part.forearmArt;
+     // Side view: the drawn forearm starts inside the sleeve, so the arm's own
+     // painting (and the far arm, behind the body in the reference) is hidden.
+     if(pose.profile){part.paintFrame.style.visibility='hidden';if(!A)part.parent.style.visibility='hidden';}
+     if(!A){e.style.display='none';}else{if(e.previousSibling!==part.paintFrame)part.parent.insertBefore(e,part.paintFrame.nextSibling);e.style.display='';if(e.paintedArt!==A){e.setAttribute('href',A.url);e.paintedArt=A;}for(const[k,val]of Object.entries({x:A.rect[0],y:A.rect[1],width:A.rect[2],height:A.rect[3]}))if(e.getAttribute(k)!==String(val))e.setAttribute(k,val);}}}
   });}r.svg.dataset.foundationSkinArt='reference-sheet-v1';}
  // A forearm folded toward the viewer (front/back running, jumping, cheering)
  // lies in front of its own sleeve. Run/jump arms (arm.fold) draw their own

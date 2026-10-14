@@ -584,7 +584,7 @@
       else{const parent=body.legs[i].parent;if(s.group.parentNode!==parent||parent.lastChild!==s.group)parent.append(s.group);}
       // Drawn seated shoes (SEATED_ART) replace the turned standing shoe.
       const worn=pose.seatArt?.shoes[shoes.id]?.[i];
-      if(worn){set(s.group,'transform','');paint(s.image,worn,worn.url,...worn.rect);}
+      if(worn){set(s.group,'transform','');paint(s.image,worn,worn.url,...worn.rect);}else if(pose.seatArt?.shoes[shoes.id])s.group.style.display='none';
       const soleHeight=(SF.floor-anchor[1])*SF.k;
       const along=bottom.legacy?null:fig(bottom,view).bottom.cuffAlong;
       fit.legs.push({root:leg.root,cuff:mix(leg.root,leg.knee,along?nth(along,i):.81),owner:i});
