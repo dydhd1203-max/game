@@ -11,7 +11,8 @@ import {chromium} from '../../깃허브에올릴것/검사/pw.mjs';
 import {SEASON1_CAMERA} from '../src/camera-season1.mjs';
 
 const root=path.resolve(process.env.S2_COMFORT_ROOT||fileURLToPath(new URL('../../',import.meta.url)));
-const out=path.resolve(process.env.S2_COMFORT_OUTPUT||'/tmp/s2-006-comfort');
+const out=path.resolve(process.env.S2_COMFORT_OUTPUT||'/tmp/s2-007-comfort');
+const entry=process.env.S2_COMFORT_ENTRY||'시즌2/';
 const baseline=process.env.S2_COMFORT_BASELINE==='1';
 const report={baseline,environment:'Guarded hidden Chromium / SwiftShader / 1366×768 / DPR1',
   scope:'Real lobby entry, village spawn, WASD approach and right-drag workshop view; real forest departure; labelled synthetic boss warning. No HUD hiding or quality reduction.',
@@ -50,7 +51,7 @@ try{
       const canvas=document.createElement('canvas');canvas.width=img.width;canvas.height=img.height;
       const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0);const pixels=ctx.getImageData(0,0,canvas.width,canvas.height).data;
       const visible=el=>{const r=el.getBoundingClientRect(),s=getComputedStyle(el);return r.width>0&&r.height>0&&s.visibility!=='hidden'&&s.display!=='none';};
-      const rects=[...document.querySelectorAll('#ui .panel,#ui .boss-panel,#ui .bottom-help,#ui .toast,#ui .notice,#ui .placement-note,#ui .teacher-bar')].filter(visible).map(el=>{const r=el.getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,h:r.height};});
+      const rects=[...document.querySelectorAll('#ui .panel,#ui .boss-panel,#ui .bottom-help,#ui .toast,#ui .notice,#ui .teacher-bar')].filter(visible).map(el=>{const r=el.getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,h:r.height};});
       const linear=v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;};
       const lut=Array.from({length:256},(_,v)=>linear(v)),luminance=c=>.2126*linear(c[0])+.7152*linear(c[1])+.0722*linear(c[2]);
       const totals={full:{pixels:0,sum:0,bright:0,nearWhite:0},world:{pixels:0,sum:0,bright:0,nearWhite:0},skyBand:{pixels:0,sum:0,bright:0,nearWhite:0}};
@@ -90,7 +91,7 @@ try{
     await page.mouse.move(1050,460);await page.mouse.down({button:'right'});
     try{await page.mouse.move(1050+dx,460,{steps:8});}finally{await page.mouse.up({button:'right'});}await frames();
   };
-  await page.goto(`http://127.0.0.1:${server.address().port}/`+encodeURIComponent('시즌2')+'/?test=1',{waitUntil:'networkidle'});
+  await page.goto(`http://127.0.0.1:${server.address().port}/`+entry.split('/').map(encodeURIComponent).join('/')+'?test=1',{waitUntil:'networkidle'});
   await page.evaluate(async()=>{await __S2.scene.ready;});
   await page.locator('#player-name').fill('화면 검수');await page.locator('input[name="mode"][value="solo"]').check();
   await page.locator('#entry-form button[type="submit"]').click();await page.waitForFunction(()=>__S2.getState().phase==='lobby');await settle();

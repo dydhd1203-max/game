@@ -78,6 +78,7 @@ window.__PERF={
 };
 `;
 const s2Hook=String.raw`
+import {walkable} from './content.mjs';
 window.__PERF={
  async prepare(kind){
   // Synchronous scenes need no promise; future async assets must finish first.

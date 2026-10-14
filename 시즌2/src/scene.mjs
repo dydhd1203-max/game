@@ -5,7 +5,7 @@ import {season1Graphics} from './graphics-season1.mjs';
 import {createSeason1MotionFeedback} from './motion-feedback-season1.mjs';
 import {buildVillageA} from './village-a.mjs';
 import {createBoarBoss} from './boar-boss.mjs';
-import {TEAM_COLORS, ZONES, VILLAGE_SITES, VILLAGE_GROVE, FOREST_OBSTACLES, TOWERS, BEACON, GATE} from './content.mjs';
+import {TEAM_COLORS, VILLAGE_SITES, VILLAGE_GROVE, FOREST_OBSTACLES, BEACON, GATE} from './content.mjs';
 
 // Season 1 (106): bpush/bbuild's shared geometry, per-instance tint and spatial
 // buckets. The exact Season 1 avatar module owns its original drawSheep model. This isolated
@@ -250,22 +250,6 @@ export function createScene(canvas) {
   const shadowGeo=new THREE.PlaneGeometry(1,1);resources.add(shadowGeo);
   const shadows=new THREE.InstancedMesh(shadowGeo,shadowMat,192);shadows.frustumCulled=false;shadows.instanceMatrix.setUsage(THREE.DynamicDrawUsage);scene.add(shadows);resources.add(shadows);
   function shadow(x,z,size){if(shadows.count<192)shadows.setMatrixAt(shadows.count++,matrix(x,.075,z,size,size,1,0,-Math.PI/2));}
-  const zoneObjects=[];
-  for(const zone of ZONES){
-    const mat=new THREE.MeshBasicMaterial({color:0x86cddd,transparent:true,opacity:.45,depthWrite:false});resources.add(mat);
-    const rg=new THREE.RingGeometry(zone.r-.12,zone.r,72);resources.add(rg);
-    const ring=new THREE.Mesh(rg,mat);ring.rotation.x=-Math.PI/2;ring.position.set(zone.x,.06,zone.z);scene.add(ring);zoneObjects.push({zone,ring});
-    for(const side of [-1,1]){
-      const x=zone.x+side*(zone.r-.5);const pole=new THREE.Mesh(geo.cylinder,material);pole.position.set(x,.7,zone.z);pole.scale.set(.12,1.4,.12);scene.add(pole);
-      const flagMat=new THREE.MeshBasicMaterial({color:0x8cbfce});resources.add(flagMat);
-      const flag=new THREE.Mesh(geo.crystal,flagMat);flag.position.set(x,1.5,zone.z);flag.scale.set(.65,.85,.24);scene.add(flag);
-    }
-  }
-  const previewMat=new THREE.MeshBasicMaterial({color:0xa8f3b9,transparent:true,opacity:.6,depthWrite:false});resources.add(previewMat);
-  const preview=new THREE.Mesh(geo.cylinder,previewMat);scene.add(preview);preview.visible=false;
-  const previewRingMat=new THREE.MeshBasicMaterial({color:0xa8f3b9,transparent:true,opacity:.55,depthWrite:false});resources.add(previewRingMat);
-  const previewRingGeo=new THREE.RingGeometry(.496,.5,96);resources.add(previewRingGeo);
-  const previewRing=new THREE.Mesh(previewRingGeo,previewRingMat);previewRing.rotation.x=-Math.PI/2;scene.add(previewRing);previewRing.visible=false;
   const warnMat=new THREE.MeshBasicMaterial({color:0xff704a,transparent:true,opacity:.36,depthWrite:false,side:THREE.DoubleSide});resources.add(warnMat);
   const warnGeo=new THREE.PlaneGeometry(1,1);resources.add(warnGeo);
   const warning=new THREE.Mesh(warnGeo,warnMat);warning.rotation.x=-Math.PI/2;scene.add(warning);warning.visible=false;
@@ -303,7 +287,7 @@ export function createScene(canvas) {
     pp('box',0,1.63,-.648,.42,.055,.03,0x4c5945);
     if(p.frost>0){pp('crystal',-.44,1.3,-.24,.35,.6,.4,0xc4edee);pp('crystal',.43,2.2,.02,.28,.53,.3,0xb4e9ef);}
   }
-  function tower(t,time,previewMode=false){
+  function tower(t,time){
     if(t.state==='destroyed'||t.state==='inventory'||t.state==='carried')return;
     if(!visible(t.x,t.z,5))return;const x=t.x,z=t.z,ice=t.type==='ice',team=TEAM_COLORS[t.team]??TEAM_COLORS[0];
     const pack=t.state==='packing'||t.state==='placing';const lift=pack?Math.sin(time*7)*.07:0;
@@ -356,7 +340,6 @@ export function createScene(canvas) {
       }
     }
   }
-  const raycaster=new THREE.Raycaster(),pointer=new THREE.Vector2(),plane=new THREE.Plane(new THREE.Vector3(0,1,0),-.08),hit=new THREE.Vector3();
   const cameraView={},avatarRenderOptions={hideLocal:false};
   const emptyPlayer={x:0,y:.08,z:25,ground:true,mv:false};
   function render(state,localId,dt,options={}){
@@ -390,11 +373,8 @@ export function createScene(canvas) {
     if(visible(BEACON.x,BEACON.z,6)){dyn('crystal',BEACON.x,3.04+Math.sin(elapsed*1.6)*.08,BEACON.z,1.2,1.8,1.2,beaconOn?0xffe6a1:0x9ac6cb,elapsed*.3);
     if(beaconOn){dyn('ring',BEACON.x,3,BEACON.z,3,3,3,0xffe4a7,0,-Math.PI/2);dyn('tiny',BEACON.x,4.8,BEACON.z,.36,.36,.36,0xffecc6,0,0,0,false);}
     }
-    for(const {zone,ring} of zoneObjects){ring.visible=!village;ring.material.opacity=zone.stage<=(state?.stage||0)?.45:.13;ring.material.color.setHex(zone.stage<=(state?.stage||0)?0x81c9d8:0x869896);}
     const b=state?.boss;warning.visible=!!b&&(b.phase==='warn'||b.phase==='charge');
     if(warning.visible){const dx=b.dx??Math.sin(b.yaw||0),dz=b.dz??Math.cos(b.yaw||0),len=b.chargeLength||18;warning.position.set(b.x+dx*len/2,.09,b.z+dz*len/2);warning.rotation.set(-Math.PI/2,Math.atan2(-dx,-dz),0,'YXZ');warning.scale.set(b.chargeWidth||5.2,len,1);warnMat.opacity=b.phase==='charge'?.17:.24+Math.sin(elapsed*12)*.1;}
-    const placement=options.placement;preview.visible=previewRing.visible=!!placement;
-    if(placement){const tint=placement.valid?0xa8e7bd:0xe99f8c;preview.position.set(placement.x,.32,placement.z);preview.scale.set(2.35,.58,2.35);previewMat.color.setHex(tint);previewRing.position.set(placement.x,.11,placement.z);const range=(TOWERS[placement.type]?.range||14)*2;previewRing.scale.set(range,range,1);previewRingMat.color.setHex(tint);}
     updateEvents(state?.events||[],state?.paused?0:dt);
     motionFeedback.render(state?.paused?0:dt,dyn,visible);
     // Like Season 1's bounded dirty uploads, upload only the packed visible
@@ -406,8 +386,7 @@ export function createScene(canvas) {
     if(shadows.count){shadows.instanceMatrix.clearUpdateRanges();shadows.instanceMatrix.addUpdateRange(0,shadows.count*16);shadows.instanceMatrix.needsUpdate=true;}
     renderer.render(scene,camera);
   }
-  function pick(clientX,clientY){const bounds=canvas.getBoundingClientRect();if(!bounds.width||!bounds.height)return null;pointer.set((clientX-bounds.left)/bounds.width*2-1,-(clientY-bounds.top)/bounds.height*2+1);raycaster.setFromCamera(pointer,camera);const p=raycaster.ray.intersectPlane(plane,hit);return p?{x:p.x,z:p.z}:null;}
   function stats(){return {calls:renderer.info.render.calls,triangles:renderer.info.render.triangles,geometries:renderer.info.memory.geometries,textures:renderer.info.memory.textures,pixelRatio:renderer.getPixelRatio(),aaSamples,graphics:{toneMapping:graphics.toneName,exposure:renderer.toneMappingExposure,antialias:gl.getContextAttributes().antialias,bloom:false,lights:2,hemiIntensity:hemi.intensity,sunIntensity:sun.intensity},motion:motionFeedback.stats(),camera:{...cameraRig.state(),fov:camera.fov,x:camera.position.x,y:camera.position.y,z:camera.position.z,pitch:camera.rotation.x,yaw:camera.rotation.y},art:{village:villageArt.stats,boar:boar.stats}};}
   function dispose(){avatars.dispose();boar.dispose();for(const resource of resources)resource.dispose?.();resources.clear();renderer.dispose();sprites.clear();effectPool.length=0;}
-  return {render,pick,stats,dispose,resetCamera:()=>cameraRig.reset()};
+  return {render,stats,dispose,resetCamera:()=>cameraRig.reset()};
 }

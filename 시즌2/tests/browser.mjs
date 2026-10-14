@@ -2,10 +2,12 @@
 // PW_MODULE=/path/to/playwright/index.mjs PW_EXECUTABLE_PATH=/usr/bin/chromium node 시즌2/tests/browser.mjs
 import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
+import {createHash} from 'node:crypto';
 import {readFile, mkdir, writeFile} from 'node:fs/promises';
 import path from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {chromium} from '../../깃허브에올릴것/검사/pw.mjs';
+import {BUILD,RELEASE} from '../src/content.mjs';
 
 const root = fileURLToPath(new URL('../../', import.meta.url));
 const output = path.resolve(process.env.S2_BROWSER_OUTPUT || '/tmp/season2-browser');
@@ -20,6 +22,7 @@ const server = createServer(async (req, res) => {
     if (!file.startsWith(root)) {res.writeHead(403).end(); return;}
     if (url.pathname.endsWith('/')) file = path.join(file, 'index.html');
     const data = await readFile(file);
+    report.sourceHashes[url.pathname]=createHash('sha256').update(data).digest('hex');
     res.writeHead(200, {'Content-Type':mime[path.extname(file)] || 'application/octet-stream',
       'Cache-Control':'no-store'}).end(data);
   } catch {res.writeHead(404).end('Not found');}
@@ -27,10 +30,10 @@ const server = createServer(async (req, res) => {
 
 let browser;
 const report = {
-  build:'s2-004', environment:'hidden Chromium; software WebGL; 1280×800; DPR 1',
+  build:RELEASE, protocol:BUILD, environment:'hidden Chromium; software WebGL; 1280×800; DPR 1',
   scope:'UI entry and movement are real input. Stress/boss images use explicitly synthetic fixtures.',
   notMeasured:['21 physical clients', 'real LG gram FPS', 'sound quality by listening'],
-  checks:[], screenshots:[], renderer:{}, errors:[]
+  checks:[], screenshots:[], renderer:{}, sourceHashes:{}, errors:[]
 };
 const check = name => {report.checks.push(name); console.log('PASS ' + name);};
 
@@ -103,11 +106,18 @@ try {
   await phase('village');
   await capture('03-village-default-camera');
   check('교사 시작 → 안전한 정박 마을');
+  await page.locator('#help-toggle').click();
+  report.helpText=await page.locator('#help-panel').textContent();
+  assert.match(report.helpText,/2단 점프/);assert.doesNotMatch(report.helpText,/타워|포장|보관함|수리|쇄빙/);
+  await capture('03b-village-help-without-common-towers');
+  await page.locator('#help-toggle').click();
+  assert.equal(await page.evaluate(()=>document.activeElement.id),'game');
+  check('일반 조작 도움말 유지·폐기한 공용 타워 안내 제거·닫은 뒤 게임 포커스');
   await page.locator('#save-button').click();
-  const checkpoint = await page.evaluate(() => {
-    const key=Object.keys(localStorage).find(k=>k.startsWith('zns2:checkpoint:'));
+  const checkpoint = await page.evaluate(build => {
+    const key=`zns2:checkpoint:${build}:solo`;
     return JSON.parse(localStorage.getItem(key));
-  });
+  },BUILD);
   assert.equal(checkpoint.season,2);
   assert.equal(checkpoint.state.phase,'village');
   const savedPlayer = Object.values(checkpoint.state.players)[0];
@@ -127,19 +137,28 @@ try {
   check('실제 저장 → 키보드 이동 → 불러오기: 마을 체크포인트 위치 복구');
   // Load a real serialized legacy checkpoint through the public button. The
   // smith yard occupies this formerly clear position; resources/cosmetics stay.
-  await page.evaluate(() => {
-    const key=Object.keys(localStorage).find(k=>k.startsWith('zns2:checkpoint:'));
+  const legacyStored=await page.evaluate(build => {
+    const key=`zns2:checkpoint:${build}:solo`,oldKey='zns2:checkpoint:solo';
     const legacy=JSON.parse(localStorage.getItem(key));
     legacy.version=legacy.state.version='s2-002';legacy.state.supplies=913;
-    Object.assign(Object.values(legacy.state.players)[0],{x:-11,z:18});
-    localStorage.setItem(key,JSON.stringify(legacy));
-  });
+    const player=Object.values(legacy.state.players)[0];Object.assign(player,{x:-11,z:18});
+    legacy.state.towers=[{id:'old-shared-tower',type:'arrow',team:0,x:0,z:22,hp:180,maxHp:180,state:'carried',carrier:player.id}];
+    legacy.state._checkpoint={...structuredClone(legacy.state),_checkpoint:null};
+    const raw=JSON.stringify(legacy);localStorage.setItem(oldKey,raw);localStorage.removeItem(key);
+    return raw;
+  },BUILD);
   await page.locator('#load-button').click();
-  await page.waitForFunction(() => __S2.getState().version==='s2-004'&&__S2.getState().supplies===913);
-  const migrated=await page.evaluate(()=>{const s=__S2.getState(),p=Object.values(s.players)[0];return {x:p.x,z:p.z,cosmetics:[p.hat,p.face,p.clothes]};});
+  await page.waitForFunction(build => __S2.getState().version===build&&__S2.getState().supplies===913,BUILD);
+  const migrated=await page.evaluate(()=>{const s=__S2.getState(),p=Object.values(s.players)[0];return {x:p.x,z:p.z,cosmetics:[p.hat,p.face,p.clothes],towers:s.towers.length,retryTowers:s._checkpoint.towers.length};});
   assert.ok(Math.abs(migrated.x)<5&&migrated.z===25,'Legacy building overlap returns to the clear plaza');
   assert.deepEqual(migrated.cosmetics,[9,8,2]);
-  check('s2-002 저장을 불러오기 버튼으로 변환; 새 작업마당 겹침 해소·보급·꾸미기 보존');
+  assert.equal(migrated.towers,0);assert.equal(migrated.retryTowers,0);
+  await page.locator('#save-button').click();
+  assert.equal(await page.evaluate(()=>localStorage.getItem('zns2:checkpoint:solo')),legacyStored,'Legacy stored payload stays byte-identical after load and save');
+  const rewritten=await page.evaluate(build=>JSON.parse(localStorage.getItem(`zns2:checkpoint:${build}:solo`)),BUILD);
+  assert.equal(rewritten.version,BUILD);assert.equal(rewritten.state.towers.length,0);
+  report.legacyMigration={from:'s2-002',to:BUILD,oldStoredPayloadUnchanged:true,currentTowers:0,retryTowers:0,supplies:rewritten.state.supplies};
+  check('구 저장키에서 불러오기: 원본 바이트 보존·새 버전 키 저장·보급/꾸미기 유지·공용/운반/재시도 타워 제거');
   const contexts = await page.evaluate(() => window.__audioContexts.map(context => context.state));
   assert.ok(contexts.includes('running'), '입장 클릭 뒤 AudioContext가 재생 가능해야 한다');
   check('사용자 입장 동작 후 실제 Web Audio 잠금 해제');
@@ -160,7 +179,33 @@ try {
   report.renderer.forestEntry = await page.evaluate(() => window.__S2.scene.stats());
   check('출격 → 숲 입구와 전투 UI');
 
+  // Real solo wave and real input: retiring a build hotkey must not hijack the
+  // next click, spend resources or create a device. No enemies are injected.
+  const removedTowerUI='#tower-dock,#tower-arrow,#tower-ice,#modules-toggle,#inventory-panel,#context-card,#pack-button,#repair-button,#placement-note';
+  assert.equal(await page.locator(removedTowerUI).count(),0);
+  const forestStart=await page.evaluate(()=>Object.values(__S2.getState().players)[0].z);
+  await page.keyboard.down('KeyW');
+  try{await page.waitForFunction(z=>Object.values(__S2.getState().players)[0].z<z-5,forestStart);}
+  finally{await page.keyboard.up('KeyW');}
+  await page.waitForFunction(()=>{const s=__S2.getState(),p=Object.values(s.players)[0];return s.enemies.some(e=>e.hp>0&&Math.hypot(e.x-p.x,e.z-p.z)<15);});
+  report.retiredHotkeys=[];
+  await page.mouse.move(640,440);
+  for(const key of ['Digit1','Digit2','KeyT','KeyR']){
+    await page.keyboard.press(key);await frames();
+    const before=await page.evaluate(()=>{const s=__S2.getState();return {sequence:s._eventSeq,supplies:s.supplies};});
+    await page.mouse.down();
+    try{await page.waitForFunction(sequence=>__S2.getState().events.some(e=>e.id>sequence&&e.kind==='shoot'),before.sequence);}
+    finally{await page.mouse.up();}
+    const after=await page.evaluate(()=>{const s=__S2.getState();return {towers:(s.towers||[]).length,supplies:s.supplies,placement:__S2.view.placement??null,shots:s.events.filter(e=>e.kind==='shoot').length};});
+    assert.equal(after.towers,0);assert.equal(after.placement,null);assert.ok(after.supplies>=before.supplies);
+    assert.equal(await page.locator(removedTowerUI).count(),0);
+    report.retiredHotkeys.push({key,before,after});
+  }
+  await capture('04b-forest-retired-hotkeys-basic-attack');
+  check('실제 숲 전투: 1/2/T/R 후 좌클릭이 기본 공격으로 적중하고 공용 타워·배치·보관함이 생기지 않음');
+
   // Synthetic scenery states below are supplementary visual/load fixtures, not a claimed playthrough.
+  if(process.env.S2_BROWSER_SMOKE!=='1'){
   const saved = await page.evaluate(() => {
     window.__S2.setManual(true);
     return structuredClone(window.__S2.getState());
@@ -169,24 +214,20 @@ try {
     const api=window.__S2, s=api.getState(), local=Object.values(s.players)[0];
     s.phase='forest';s.stage=1;s.beacon=true;s.paused=false;s.events=[];
     local.x=0;local.z=-57;local.yaw=0;
-    s.towers=[
-      {id:'visual-arrow',type:'arrow',team:0,x:-5,z:-66,hp:180,maxHp:180,state:'deployed',carrier:null,progress:0},
-      {id:'visual-ice',type:'ice',team:0,x:5,z:-66,hp:160,maxHp:160,state:'deployed',carrier:null,progress:0}
-    ];
+    s.towers=[];
     s.enemies=[{id:'visual-zombie',kind:'zombie',x:0,z:-73,yaw:Math.PI,hp:65,maxHp:65,frost:2}];
   });
-  await capture('05-beacon-towers-fixture');
-  report.renderer.towers = await page.evaluate(() => window.__S2.scene.stats());
+  await capture('05-beacon-fixture');
+  report.renderer.beacon = await page.evaluate(() => window.__S2.scene.stats());
 
   await page.evaluate(() => {
     const s=window.__S2.getState(), local=Object.values(s.players)[0];
     local.x=0;local.z=-103;s.phase='boss';s.stage=2;s.enemies=[];
-    s.towers[0].x=-14;s.towers[0].z=-111;s.towers[1].x=14;s.towers[1].z=-111;
     s.boss={id:'boss',x:0,z:-115,yaw:0,hp:900,maxHp:1200,phase:'warn',timer:1.2,dx:0,dz:1};
   });
   await capture('06-boss-warning-fixture');
   report.renderer.boss = await page.evaluate(() => window.__S2.scene.stats());
-  check('보조 fixture: 봉화·서로 다른 두 타워·보스 돌진 예고 렌더');
+  check('보조 fixture: 봉화·보스 돌진 예고 렌더');
 
   await page.evaluate(() => {
     const api=window.__S2,s=api.getState(),local=Object.values(s.players)[0];
@@ -195,22 +236,21 @@ try {
       api.sim.addPlayer(s,{id:`stress-${i}`,name:`대원 ${i+1}`,team:i%5,hat:i%3});
       const p=s.players[`stress-${i}`];p.x=(i%7-3)*2;p.z=-64-Math.floor(i/7)*2;
     }
-    s.towers=Array.from({length:30},(_,i)=>({id:`stress-tower-${i}`,type:i%2?'ice':'arrow',team:i%5,
-      x:(i%6-2.5)*4,z:-73-Math.floor(i/6)*4,hp:180,maxHp:180,state:'deployed',carrier:null,progress:0}));
+    s.towers=[];
     s.enemies=Array.from({length:40},(_,i)=>({id:`stress-enemy-${i}`,kind:i%6?'zombie':'brute',
       x:(i%8-3.5)*2,z:-75-Math.floor(i/8)*3,yaw:Math.PI,hp:65,maxHp:65,frost:i%3?0:2}));
   });
   await frames(5);
   const stressStart = await page.evaluate(() => window.__S2.scene.stats());
-  await capture('07-stress-21-players-30-towers-40-enemies-fixture');
+  await capture('07-stress-21-players-40-enemies-fixture');
   await frames(20);
   const stressEnd = await page.evaluate(() => window.__S2.scene.stats());
   for(const key of ['calls','triangles','geometries','textures']) assert.ok(Number.isFinite(stressEnd[key]), '유효한 renderer '+key);
   assert.ok(stressEnd.calls>0 && stressEnd.triangles>0, '빈 장면을 성능 검수로 세지 않음');
   assert.equal(stressEnd.geometries,stressStart.geometries,'안정된 부하에서 지오메트리 누적 없음');
   assert.equal(stressEnd.textures,stressStart.textures,'안정된 부하에서 텍스처 누적 없음');
-  report.renderer.syntheticStress={players:21,towers:30,enemies:40,before:stressStart,after:stressEnd};
-  check('21명·30탑·적 40 synthetic 부하: 실제 렌더 통계, 안정 구간 자산 누적 없음');
+  report.renderer.syntheticStress={players:21,towers:0,enemies:40,before:stressStart,after:stressEnd};
+  check('21명·적 40 synthetic 부하: 실제 렌더 통계, 안정 구간 자산 누적 없음');
   await page.evaluate(state => {window.__S2.setState(state);window.__S2.setManual(false);},saved);
   await frames();
   const audioStats = await page.evaluate(() => window.__S2.audio.stats());
@@ -218,6 +258,7 @@ try {
   assert.ok(audioStats.cleanupChains <= 64, '오디오 종료 대기열 제한 유지');
   report.audio=audioStats;
   check('마을·숲·보스 장면 전환에서 오디오 트랙·정리 대기열 상한 유지');
+  }
   assert.deepEqual(await page.evaluate(()=>[localStorage.getItem('nightRec102'),localStorage.getItem('gfxPick')]),
     ['season1-checkpoint-sentinel','season1-graphics-sentinel']);
   check('시즌1 저장·그래픽 설정 sentinel 보존');

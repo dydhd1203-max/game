@@ -168,11 +168,27 @@ try {
 
   assert.equal(await page.evaluate(()=>document.activeElement.id),'game','Closing settings returns keyboard control');
   for(const kind of ['help','performance']){
-    await page.locator(`#${kind}-toggle`).click();await page.locator(`#${kind}-toggle`).click();
+    await page.locator(`#${kind}-toggle`).click();
+    if(kind==='help'){
+      const help=await page.locator('#help-panel').textContent();
+      assert.match(help,/2단 점프/);assert.doesNotMatch(help,/타워|포장|보관함|수리|쇄빙/);
+      await capture('08a-village-help-without-common-towers');
+    }
+    await page.locator(`#${kind}-toggle`).click();
     assert.equal(await page.evaluate(()=>document.activeElement.id),'game',`Closing ${kind} returns keyboard control`);
   }
-  await page.locator('#modules-toggle').click();await page.locator('#inventory-close').click();
-  assert.equal(await page.evaluate(()=>document.activeElement.id),'game','Closing inventory returns keyboard control');
+  const removedTowerUI='#tower-dock,#tower-arrow,#tower-ice,#modules-toggle,#inventory-panel,#context-card,#pack-button,#repair-button,#placement-note';
+  assert.equal(await page.locator(removedTowerUI).count(),0,'Public tower controls are removed from the DOM');
+  await page.mouse.move(683,430);
+  for(const key of ['Digit1','Digit2','KeyT','KeyR']){
+    await page.keyboard.press(key);await frames();
+    assert.equal(await page.evaluate(()=>__S2.view.placement==null),true,'Retired hotkeys never enable a placement preview');
+    await page.mouse.down();await frames();
+    assert.equal(await page.evaluate(()=>__S2.getInput().attack),true,'Left click remains basic attack after '+key);
+    await page.mouse.up();await frames();
+    assert.equal(await page.evaluate(()=>(__S2.getState().towers||[]).length),0);
+  }
+  check('공용 타워 UI 제거·1/2/T/R 이후에도 배치 없이 좌클릭 기본 공격 입력');
   const afterPanels=await mark();
   await page.keyboard.down('KeyW');await page.keyboard.down('ShiftLeft');await page.keyboard.press('Space');
   await page.waitForFunction(()=>{const p=Object.values(__S2.getState().players)[0];return p.air&&p.vy<9;});
@@ -181,7 +197,7 @@ try {
   await page.keyboard.up('KeyW');await page.keyboard.up('ShiftLeft');await settle();
   const resumed=await since(afterPanels);
   assert.ok(resumed.some(s=>s.player.run&&s.player.flip>0),'Actual sprint and double jump work immediately after HUD panels close');
-  check('설정·조작 안내·성능·보관함을 닫은 직후 클릭 없이 Shift 달리기·2단 점프');
+  check('설정·조작 안내·성능을 닫은 직후 클릭 없이 Shift 달리기·2단 점프');
 
   await page.keyboard.down('KeyW');await page.keyboard.down('ShiftLeft');await page.keyboard.down('Space');
   await simTime(.15);

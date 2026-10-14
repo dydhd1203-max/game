@@ -9,7 +9,7 @@ import {createHash} from 'node:crypto';
 import {chromium} from '../../깃허브에올릴것/검사/pw.mjs';
 const base=fileURLToPath(new URL('../',import.meta.url));
 const bundle=path.join(base,'배포용/index.html');
-const output=path.resolve(process.env.S2_SPRINT_OUTPUT||path.join(base,'검수/s2-006/motion'));
+const output=path.resolve(process.env.S2_SPRINT_OUTPUT||path.join(base,'검수/s2-007/motion'));
 const report={scope:'Actual solo entry → village button → Shift+W; compiled HTML loaded on loopback then browser network disabled; no test state changes',
   sourceSHA256:createHash('sha256').update(await readFile(bundle)).digest('hex'),errors:[]};
 let browser;

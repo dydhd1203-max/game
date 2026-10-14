@@ -1,9 +1,9 @@
 // Season 2 test expedition: village → forest beacon → first boss.
-// Changed village collision layout requires matching multiplayer clients.
+// Common tower commands have been removed; all peers must use matching rules.
 // Earlier local checkpoints are explicitly migrated when loaded.
-export const BUILD = 's2-004';
-// Presentation/input follow-through; collision and save/network protocol stay s2-004.
-export const RELEASE = 's2-006';
+export const BUILD = 's2-007';
+// Brightness/motion follow-through plus removal of public tower controls.
+export const RELEASE = 's2-007';
 export const SEASON = 2;
 // Dedicated reserved subtree of the existing classroom backend. Season 1 room
 // codes are uppercased; they never address this lowercase reserved path.
@@ -13,12 +13,6 @@ export const SPAWN = {x:0,z:25};
 export const BEACON = {x:0,z:-64};
 export const GATE = {x:0,z:-91};
 export const BOSS_HOME = {x:0,z:-115};
-export const ZONES = [
-  {id:'trail',x:0,z:-28,r:12,stage:0},
-  {id:'beacon',x:0,z:-65,r:13,stage:1},
-  {id:'boss-left',x:-15,z:-109,r:9,stage:2},
-  {id:'boss-right',x:15,z:-109,r:9,stage:2}
-];
 // Art and collision share these positions: the workshop frames the forest road,
 // the wagon sits behind the market, and the middle remains wide enough for 21.
 export const VILLAGE_SITES = {
@@ -49,4 +43,3 @@ export function walkable(x,z,r=.6){
   if(z < -18 && z > -90 && Math.abs(x)>19-r)return false;
   return !OBSTACLES.some(o=>Math.hypot(x-o.x,z-o.z)<o.r+r);
 }
-export function zoneAt(x,z,stage){return ZONES.find(a=>a.stage<=stage&&Math.hypot(x-a.x,z-a.z)<a.r-1);}
