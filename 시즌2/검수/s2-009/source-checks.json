@@ -1,0 +1,46 @@
+{
+  "baselineCommit": "7174fc7",
+  "unchanged": {
+    "클로드/index.html": {
+      "unchanged": true,
+      "sha256": "91c2c21654161390e37d84b70c96d5736f56f07de0add7fea950a0ab15d1173f"
+    },
+    "클로드/배포용/index.html": {
+      "unchanged": true,
+      "sha256": "91c2c21654161390e37d84b70c96d5736f56f07de0add7fea950a0ab15d1173f"
+    },
+    "시즌2/assets/workshop.glb": {
+      "unchanged": true,
+      "sha256": "04138dea5fb8c9971d91d565689c0eb9b7b30d30132b70732b8c70c8512f50cc"
+    },
+    "시즌2/src/sim.mjs": {
+      "unchanged": true,
+      "sha256": "4b4c67c9468dd53309be62fc7a429c1fc381beabaf777e833ee853c8f4f332cc"
+    },
+    "시즌2/src/camera-season1.mjs": {
+      "unchanged": true,
+      "sha256": "43d7d52cf3d6f786e09aee444036e76e03564a37f52d812ffc3472eed3c1113c"
+    },
+    "시즌2/src/avatar-season1.mjs": {
+      "unchanged": true,
+      "sha256": "ed01da88fe22732f685caf0b930dc7dddfee0f0a64e944bf2e983c59ba992bb3"
+    },
+    "시즌2/src/save.mjs": {
+      "unchanged": true,
+      "sha256": "339ce28218637ec70f5aca336437eda708496ebdd72bc37eb84f1a7a06d44cfd"
+    },
+    "시즌2/src/net.mjs": {
+      "unchanged": true,
+      "sha256": "5513826dbf94e75c6ffc26e856d7dc61e555bc3e4a9dadeda8f877a64960fcfd"
+    }
+  },
+  "checks": [
+    "Simulation, save, network, character and camera sources byte-identical to base",
+    "Release-only version change, BUILD remains s2-008"
+  ],
+  "bundle": {
+    "path": "시즌2/배포용/index.html",
+    "sha256": "e1d7b01281f07cfed090b359e82f15110807dd7bc0e1c4adeb05307ad2163753",
+    "bytes": 4653314
+  }
+}

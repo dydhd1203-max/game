@@ -1,0 +1,58 @@
+{
+  "geometry": {
+    "leaf": {
+      "triangles": 80,
+      "zeroArea": 0,
+      "finite": true,
+      "normalUp": 72,
+      "normalDown": 168
+    },
+    "rock": {
+      "triangles": 38,
+      "zeroArea": 0,
+      "finite": true,
+      "normalUp": 69,
+      "normalDown": 45
+    },
+    "stem": {
+      "triangles": 24,
+      "zeroArea": 0,
+      "finite": true,
+      "normalUp": 27,
+      "normalDown": 13
+    },
+    "fern": {
+      "triangles": 28,
+      "zeroArea": 0,
+      "finite": true,
+      "normalUp": 84,
+      "normalDown": 0
+    }
+  },
+  "contentUnchangedExceptRelease": true,
+  "cameraObstaclesUnchanged": true,
+  "villageCurrent": {
+    "trees": 8,
+    "crownInstances": 56,
+    "branchInstances": 64,
+    "staticChunks": 4,
+    "staticParts": 563,
+    "staticTriangles": 20292,
+    "edgeClusters": 36,
+    "canopyTriangles": 6016,
+    "animatedScenery": 0,
+    "additionalLights": 0
+  },
+  "villagePrevious": {
+    "trees": 8,
+    "crownInstances": 56,
+    "branchInstances": 40,
+    "staticChunks": 4,
+    "staticParts": 465,
+    "staticTriangles": 29316,
+    "canopyTriangles": 5440,
+    "animatedScenery": 0,
+    "additionalLights": 0
+  },
+  "cameraObstacles": 12
+}

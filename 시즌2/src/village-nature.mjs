@@ -1,4 +1,5 @@
 import {VILLAGE_BOUNDS,VILLAGE_GROVE,mapHalfWidth} from './content.mjs';
+import {createNatureGeometries} from './nature-geometry.mjs';
 
 // Village-only scenery: four opaque spatial chunks and the same two instanced
 // canopy/trunk draws as before. No frame animation, light, texture or shadow pass.
@@ -12,28 +13,13 @@ export function createVillageNature(THREE,scene,resources,{material,camera}) {
     p.set(x,y,z);s.set(sx,sy,sz);e.set(rx,ry,rz,'YXZ');q.setFromEuler(e);
     return matrix.compose(p,q,s).clone();
   }
-  function organicGeometry(detail,kind){
-    const g=own(new THREE.IcosahedronGeometry(.5,detail)),positions=g.attributes.position;
-    for(let i=0;i<positions.count;i++){
-      const x=positions.getX(i),y=positions.getY(i),z=positions.getZ(i);
-      const ripple=1+.12*Math.sin(x*14+z*5)*Math.cos(y*11-z*7);
-      if(kind==='leaf')positions.setXYZ(i,x*ripple,y*(.93+.1*Math.sin(z*13+x*7)),z*(1+.12*Math.cos(x*12-y*7)));
-      else positions.setXYZ(i,x*(1+.16*Math.sin(z*9+y*5)),Math.max(-.43,y*(.85+.15*Math.sin(x*7-z*11))),z*ripple);
-    }
-    g.computeVertexNormals();g.computeBoundingSphere();return g;
-  }
-  const leaf=organicGeometry(1,'leaf'),rock=organicGeometry(1,'rock');
-  const stem=own(new THREE.CylinderGeometry(.26,.5,1,6));
+  const shapes=createNatureGeometries(THREE);
+  Object.values(shapes).forEach(own);
+  const {leaf,rock,stem,fern}=shapes;
   const root=own(new THREE.ConeGeometry(.5,1,5));
-  const fern=own(new THREE.BufferGeometry());
-  // Solid, folded fronds: each fan has a raised midrib and pointed leaf tips.
-  const fp=[],fi=[];
-  for(let j=0;j<7;j++){
-    const a=j*Math.PI*2/7,co=Math.cos(a),si=Math.sin(a),base=fp.length/3;
-    fp.push(0,0,0,co*.32-si*.16,.3,si*.32+co*.16,co*.54,.18,si*.54,co*.32+si*.16,.3,si*.32-co*.16,co*.27,.43,si*.27);
-    fi.push(base,base+1,base+4,base+1,base+2,base+4,base+2,base+3,base+4,base+3,base,base+4);
-  }
-  fern.setAttribute('position',new THREE.Float32BufferAttribute(fp,3));fern.setIndex(fi);fern.computeVertexNormals();
+  const triangleCount=g=>(g.index?.count??g.attributes.position.count)/3;
+  let seed=78439;
+  const random=()=>((seed=(Math.imul(seed,1664525)+1013904223)>>>0)/4294967296);
   const staticBins=new Map(),sun=new THREE.Vector3(-.55,.86,.38).normalize();
   let staticParts=0,staticTriangles=0;
   const cameraObstacles=[];
@@ -41,13 +27,13 @@ export function createVillageNature(THREE,scene,resources,{material,camera}) {
     const key=`${x<0?'west':'east'}:${z<12?'north':'south'}`;
     let bin=staticBins.get(key);if(!bin){bin={position:[],color:[],normal:[]};staticBins.set(key,bin);}
     const m=transform(x,y,z,sx,sy,sz,ry,rx,rz);normalMatrix.getNormalMatrix(m);color.setHex(tint);
-    const a=g.attributes.position,n=g.attributes.normal,index=g.index,count=index?index.count:a.count;
+    const a=g.attributes.position,n=g.attributes.normal,c=g.attributes.color,index=g.index,count=index?index.count:a.count;
     for(let i=0;i<count;i++){
       const k=index?index.getX(i):i;point.fromBufferAttribute(a,k).applyMatrix4(m);
       normal.fromBufferAttribute(n,k).applyMatrix3(normalMatrix).normalize();
       const shade=.66+.34*Math.max(0,normal.dot(sun));
       bin.position.push(point.x,point.y,point.z);bin.normal.push(normal.x,normal.y,normal.z);
-      bin.color.push(color.r*shade,color.g*shade,color.b*shade);
+      bin.color.push(color.r*shade*(c?c.getX(k):1),color.g*shade*(c?c.getY(k):1),color.b*shade*(c?c.getZ(k):1));
     }
     staticParts++;staticTriangles+=count/3;
   }
@@ -60,20 +46,24 @@ export function createVillageNature(THREE,scene,resources,{material,camera}) {
       q.setFromUnitVectors(up,direction.normalize());p.set((ax+bx)/2,(ay+by)/2,(az+bz)/2);s.set(width,length,width);
       crown.branches.push({matrix:new THREE.Matrix4().compose(p,q,s),tint:tip?0x827158:0x6b6050});
     }
-    const bend=sign*.22;
-    branch(t.x,0,t.z,t.x+bend,h*.49,t.z+.1,h*.105);
-    // Branch forks are visible between the uneven, offset crown masses.
-    for(let j=0;j<4;j++){
-      const a=i*.77+j*1.81,dx=Math.cos(a)*h*.2,dz=Math.sin(a)*h*.2;
-      branch(t.x+bend,h*(.33+j*.055),t.z+.1,t.x+dx,h*(.65+j*.062),t.z+dz,h*(.044-j*.004),true);
+    const bend=sign*.21;
+    branch(t.x,0,t.z,t.x+bend,h*.43,t.z+.1,h*.105);
+    branch(t.x+bend,h*.40,t.z+.1,t.x+sign*.36,h*.88,t.z-.12,h*.058);
+    function spray(x,y,z,sx,sy,sz,angle,tint,tilt=0){
+      crown.leaves.push({x,y,z,r:Math.max(sx,sz)*.64,matrix:transform(x,y,z,sx,sy,sz,angle,tilt,.06*Math.sin(angle)),tint});
     }
-    for(let j=0;j<7;j++){
-      const a=i*.77+j*2.4,spread=j===6?.035:.19;
-      const x=t.x+Math.cos(a)*h*spread,y=h*(j===6?.92:.65+(j%3)*.075),z=t.z+Math.sin(a)*h*spread;
-      const sx=h*(j===6?.38:.43+(j%2)*.035),sy=h*(j===6?.31:.31+(j%3)*.025),sz=h*(.39+(j%2)*.04);
-      const tint=[0x5c7850,0x708b59,0x8a9c64,0x789157,0x667f4d,0x94a871,0x8ba26b][(j+i%2)%7];
-      crown.leaves.push({x,y,z,r:Math.max(sx,sy,sz)*.55,matrix:transform(x,y,z,sx,sy,sz,a,.05*Math.sin(j)),tint});
+    // Three unequal boughs leave sky gaps between their flattened leaf sprays.
+    // The leader and visible forks give the crown a direction instead of an orb.
+    for(let j=0;j<3;j++){
+      const a=i*.73+j*2.19,reach=h*(.16+j*.025),tipReach=reach+h*.09;
+      const bx=t.x+Math.cos(a)*reach,by=h*(.59+j*.086),bz=t.z+Math.sin(a)*reach;
+      const tx=t.x+Math.cos(a+.15)*tipReach,ty=by+h*.075,tz=t.z+Math.sin(a+.15)*tipReach;
+      branch(t.x+bend,h*(.35+j*.12),t.z+.1,bx,by,bz,h*(.041-j*.007),true);
+      branch(bx,by,bz,tx,ty,tz,h*.018,true);
+      spray(tx,ty+.1,tz,h*(.34-j*.026),h*.24,h*(.30+j*.014),a+.4,[0x72894e,0x82995c,0x637d47][(i+j)%3],-.13+j*.09);
+      spray(bx+Math.sin(a)*.3,by+.23,bz-Math.cos(a)*.3,h*.25,h*.19,h*.22,a-1.1,[0x587242,0x7c9151,0x91a36a][j],.12);
     }
+    spray(t.x+sign*.36,h*.92,t.z-.12,h*.28,h*.24,h*.25,i*.69,0x8a9e61,-.24);
     crown.stump=transform(t.x,.24,t.z,h*.105,.48,h*.105);
     // Visible roots stay within the solid .85m tree footprint.
     for(let j=0;j<5;j++){
@@ -81,48 +71,60 @@ export function createVillageNature(THREE,scene,resources,{material,camera}) {
     }
     for(let j=0;j<5;j++){
       const a=j*2.4+i*.8,x=t.x+Math.cos(a)*1.13,z=t.z+Math.sin(a)*1.13;
-      add(leaf,x,.28,z,1.22,.64,1.01,[0x687e4e,0x819459,0x91a263][j%3],a);
+      add(fern,x,.02,z,1.4,1.05,1.2,[0x687e4e,0x819459,0x91a263][j%3],a);
       add(fern,x+Math.sin(a)*.43,.025,z+Math.cos(a)*.43,.85,.9,.85,0x71884f,a);
     }
   }
-  // Chipped, overlapping boundary stones replace isolated sphere markers. The
-  // inner face tracks the actual movement boundary; planting is low and opaque.
-  let edgeIndex=0;
-  function edgeBed(x,z,normalX,normalZ){
-    const i=edgeIndex++,a=i*1.71,alongX=normalZ,alongZ=-normalX;
-    const width=1.6+(i%3)*.16,height=.68+(i%4)*.19;
-    // Long axis follows the wall; thickness extends outward, not into the street.
-    const ry=Math.atan2(normalX,normalZ);
-    add(rock,x+normalX*1.0,height*.39,z+normalZ*1.0,width,height,1.65,0x8c9580,ry,0,Math.sin(a)*.12);
-    add(leaf,x+normalX*1.62+alongX*.32,.55,z+normalZ*1.62+alongZ*.32,1.55,1.2,1.18,[0x657c4d,0x7b8c55,0x8d9c62][i%3],a);
-    if(i%2===0){
-      add(rock,x+normalX*1.0+alongX*.48,height*.74,z+normalZ*1.0+alongZ*.48,.95,.38,.94,0xa4ad8b,ry+.32);
-      add(fern,x-normalX*.12+alongX*.36,.02,z-normalZ*.12+alongZ*.36,1.1,1.1,1.1,0x6e854f,a);
+  // Irregular buried clusters mark the border. Each has a principal broken
+  // stone, small chips and low plants; unequal gaps avoid a necklace of pebbles.
+  let edgeClusters=0;
+  function edgeCluster(x,z,nx,nz){
+    const tx=nz,tz=-nx,angle=Math.atan2(nx,nz),scale=.8+random()*.6;
+    const along=(random()-.5)*.9,out=1.35+random()*.42;
+    add(rock,x+nx*out+tx*along,.17,z+nz*out+tz*along,2.15*scale,1.22*scale,1.35*scale,0x949880,angle+(random()-.5)*.55,.08,Math.sin(edgeClusters)*.12);
+    for(let j=0;j<2+(edgeClusters%3===0?1:0);j++){
+      const offset=(j-1)*(.65+random()*.3),size=.32+random()*.58;
+      add(rock,x+nx*(.72+random()*.5)+tx*offset,size*.04,z+nz*(.72+random()*.5)+tz*offset,size*1.5,size*.8,size,0xa5a58b,random()*6.28,random()*.2,random()*.15);
     }
+    for(let j=0;j<3;j++){
+      const along=(j-1)*(.85+random()*.6),out=.15+random()*1.6;
+      add(fern,x+nx*out+tx*along,.025,z+nz*out+tz*along,1.15+random()*.8,.85+random()*.4,1.05+random()*.75,[0x71864c,0x82935a,0x647d43][j],random()*6.28);
+    }
+    edgeClusters++;
   }
-  for(let z=VILLAGE_BOUNDS.north;z<=VILLAGE_BOUNDS.south;z+=1.7)for(const side of [-1,1])edgeBed(side*mapHalfWidth(z),z,side,0);
-  for(let x=-VILLAGE_BOUNDS.halfWidth;x<=VILLAGE_BOUNDS.halfWidth;x+=1.7)edgeBed(x,VILLAGE_BOUNDS.south,0,1);
-  // Taller layered outcrops form a backdrop behind the living edge, not a
-  // second wall inside the playable grass. Their silhouettes break the horizon.
+  for(const side of [-1,1])for(let z=VILLAGE_BOUNDS.north+random();z<=VILLAGE_BOUNDS.south;z+=2.35+random()*2.4)edgeCluster(side*mapHalfWidth(z),z,side,0);
+  for(let x=-VILLAGE_BOUNDS.halfWidth+random();x<=VILLAGE_BOUNDS.halfWidth;x+=2.25+random()*2.6)edgeCluster(x,VILLAGE_BOUNDS.south,0,1);
+  // Preserve the existing camera obstacles. Their silhouette is now a fractured
+  // boulder group with moss on stone faces, not a rock wearing a green disc.
   for(const side of [-1,1])for(let i=0;i<6;i++){
     const z=-10+i*7.2,x=side*(VILLAGE_BOUNDS.halfWidth+2.9+(i%2)*.8);
-    add(rock,x,1.35,z,4.8,3.8+(i%3)*.4,4.5,0x8a9583,i*.71,0,side*.11);
+    add(rock,x,1.13,z,4.6,4.5+(i%3)*.22,4.1,0x919481,i*.71,0,side*.11);
     cameraObstacles.push({x,z,r:3.2,top:4.5});
-    add(rock,x-side*.54,2.15,z+.2,3.5,2.1,3.2,0xa0a990,i*.61);
-    add(leaf,x-side*.45,3.08,z+.19,3.8,.7,3.2,0x78915e,i*.3);
+    add(rock,x-side*.38,1.92,z+.32,2.9,2.55,2.8,0xa1a28c,i*.61,.12,-side*.18);
+    for(let j=0;j<3;j++){
+      const a=i*.47+j*2.12,r=1.45+j*.24,size=.7+random()*.58;
+      add(rock,x+Math.cos(a)*r,.15,z+Math.sin(a)*r,size*1.4,size,size*.95,0x929881,a,.2,-.12);
+      add(fern,x+Math.cos(a)*(r+.55),.02,z+Math.sin(a)*(r+.55),1.25,.95,1.35,0x738651,a);
+    }
   }
-  // A wooded ridge closes the south-facing view. Its entire solid footprint
-  // sits beyond the playable boundary, and shares the same static east/west
-  // chunks; turning around must not expose an endless empty green plane.
+  function twig(ax,ay,az,bx,by,bz,width,tint){
+    direction.set(bx-ax,by-ay,bz-az);const length=direction.length();q.setFromUnitVectors(up,direction.normalize());e.setFromQuaternion(q,'YXZ');
+    add(stem,(ax+bx)/2,(ay+by)/2,(az+bz)/2,width,length,width,tint,e.y,e.x,e.z);
+  }
+  // The south ridge stays beyond maximum camera zoom. Its angular ledges and
+  // sparse branching trees replace stacked green plates and ball-shaped trees.
   for(let i=0;i<7;i++){
     const x=-24+i*8,z=VILLAGE_BOUNDS.south+20.5+(i%2)*2.2,h=6.4+(i%3)*1.3;
-    add(rock,x,h*.3,z,14,h,12,0x7d8e70,i*.47,0,.07*Math.sin(i));
-    add(leaf,x-.8,h*.59,z-.8,12,2.5,9.5,0x738653,i*.62);
+    add(rock,x,h*.23,z,14,h,12,0x8b947d,i*.47,0,.07*Math.sin(i));
+    add(rock,x-1.6,h*.41,z+.6,8,h*.7,6.9,0xa0a38a,i*.31,.09,-.12);
     for(let j=0;j<3;j++){
-      const tx=x+(j-1)*2.7,tz=z-1.3+j*.82,ty=h*.49+1.6+(j%2)*.7;
-      add(stem,tx,ty,tz,.55,3.5,.55,0x71654d,j*.4);
-      add(leaf,tx-.4,ty+2.3,tz,4.6,4.6,4.2,[0x657b4d,0x7b8e57,0x89995e][(i+j)%3],j*.9);
-      add(leaf,tx+.8,ty+1.7,tz-.45,3.6,3.2,3.7,0x748854,i*.4+j);
+      const tx=x+(j-1)*2.7,tz=z-1.3+j*.82,base=h*.49,treeH=4.1+(j%2)*.7;
+      twig(tx,base,tz,tx+.19,base+treeH*.92,tz-.14,.54,0x70624b);
+      twig(tx+.12,base+treeH*.38,tz,tx+1.05,base+treeH*.7,tz-.52,.24,0x7e6d50);
+      for(let k=0;k<3;k++){
+        const a=i*.55+j*1.6+k*2.17,reach=k===2?.12:1.12;
+        add(leaf,tx+Math.cos(a)*reach,base+treeH*(.65+k*.14),tz+Math.sin(a)*reach,3.5-k*.43,1.8,3.1-k*.3,[0x647b48,0x7b8e52,0x8d9b5c][(i+j+k)%3],a,-.1+k*.1);
+      }
     }
   }
   const staticMaterial=own(material.clone());staticMaterial.vertexColors=true;
@@ -131,7 +133,7 @@ export function createVillageNature(THREE,scene,resources,{material,camera}) {
     g.setAttribute('position',new THREE.Float32BufferAttribute(bin.position,3));g.setAttribute('normal',new THREE.Float32BufferAttribute(bin.normal,3));g.setAttribute('color',new THREE.Float32BufferAttribute(bin.color,3));
     g.computeBoundingSphere();const mesh=new THREE.Mesh(g,staticMaterial);mesh.name=`village-nature-${id}`;mesh.matrixAutoUpdate=false;mesh.updateMatrix();scene.add(mesh);
   }
-  const leaves=new THREE.InstancedMesh(leaf,material,canopies.length*7),trunks=new THREE.InstancedMesh(stem,material,canopies.length*5);
+  const leaves=new THREE.InstancedMesh(leaf,material,canopies.reduce((n,c)=>n+c.leaves.length,0)),trunks=new THREE.InstancedMesh(stem,material,canopies.reduce((n,c)=>n+c.branches.length,0));
   leaves.instanceMatrix.setUsage(THREE.DynamicDrawUsage);trunks.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
   let leafIndex=0,branchIndex=0;
   for(const crown of canopies){
@@ -157,5 +159,5 @@ export function createVillageNature(THREE,scene,resources,{material,camera}) {
     }
     if(dirty){leaves.instanceMatrix.needsUpdate=true;trunks.instanceMatrix.needsUpdate=true;}
   }
-  return {update,cameraObstacles,stats:{trees:canopies.length,crownInstances:leafIndex,branchInstances:branchIndex,staticChunks:staticBins.size,staticParts,staticTriangles,canopyTriangles:leafIndex*80+branchIndex*24,animatedScenery:0,additionalLights:0}};
+  return {update,cameraObstacles,stats:{trees:canopies.length,crownInstances:leafIndex,branchInstances:branchIndex,staticChunks:staticBins.size,staticParts,staticTriangles,edgeClusters,canopyTriangles:leafIndex*triangleCount(leaf)+branchIndex*triangleCount(stem),animatedScenery:0,additionalLights:0}};
 }

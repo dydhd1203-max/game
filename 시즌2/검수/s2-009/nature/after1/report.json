@@ -1,0 +1,2433 @@
+{
+  "entry": "시즌2/배포용/index.html",
+  "release": "s2-009",
+  "build": "s2-008",
+  "environment": "Guarded hidden Chromium / SwiftShader / 1366×768 / DPR1",
+  "scope": "Actual lobby entry/start, WASD village north approach, actual forest departure, walk to forest left edge and first left rock; real right-drag views. The simulation and combat continue normally. No overhead, teleport, modified actors, hidden HUD or lowered render quality.",
+  "requirements": [
+    "Replace round ball-like tree crowns with readable branching/foliage forms",
+    "Break repeated small pebble/ball lines into natural edge planting",
+    "Remove detached green rock lids and integrate rock surface vegetation"
+  ],
+  "notMeasured": [
+    "physical laptop FPS",
+    "21 real connected devices",
+    "subjective audio quality"
+  ],
+  "sourceHashes": {
+    "/%EC%8B%9C%EC%A6%8C2/%EB%B0%B0%ED%8F%AC%EC%9A%A9/index.html": "c5ccd8ecd8431a58a0da9a978a38de6d9ae5a6351bba22232de3689df6e1d112"
+  },
+  "checks": [
+    {
+      "name": "실제 입장·마을 출발·시즌1 3.2m 카메라와 화질 유지"
+    },
+    {
+      "name": "실제 WASD 북쪽 이동·숲 출격"
+    },
+    {
+      "name": "숲 가장자리·첫 바위 실제 접근과 우클릭 시점; 몸체·화질 유지"
+    },
+    {
+      "name": "커서 잠금 없음"
+    },
+    {
+      "name": "브라우저 실행·자산 오류 없음"
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "01-village-spawn",
+      "kind": "actual-input",
+      "path": "/workspace/game/시즌2/검수/s2-009/nature/after1/01-village-spawn.png",
+      "player": {
+        "x": -3.6,
+        "y": 0.08,
+        "z": 19,
+        "vx": 0,
+        "vz": 0,
+        "hp": 100
+      },
+      "view": {
+        "yaw": 0,
+        "pitch": -0.22,
+        "zoom": 3.2,
+        "aim": false
+      },
+      "stats": {
+        "calls": 61,
+        "triangles": 293796,
+        "geometries": 54,
+        "textures": 6,
+        "pixelRatio": 0.85,
+        "aaSamples": 4,
+        "graphics": {
+          "toneMapping": "AgX",
+          "exposure": 1.28,
+          "antialias": true,
+          "bloom": false,
+          "lights": 2,
+          "hemiIntensity": 1.4705,
+          "sunIntensity": 0.714
+        },
+        "motion": {
+          "capacity": 64,
+          "live": 0
+        },
+        "camera": {
+          "firstPerson": false,
+          "bodyHidden": false,
+          "zoom": 3.2,
+          "distance": 3.2,
+          "shoulder": 0,
+          "aimBlend": 0,
+          "fovRun": 0,
+          "footAnchor": 0.08,
+          "fov": 70,
+          "x": -3.6,
+          "y": 1.5783347938587817,
+          "z": 22.122871837857936,
+          "pitch": -0.22,
+          "yaw": 0
+        },
+        "art": {
+          "village": {
+            "landmarks": 6,
+            "batches": 10,
+            "opaqueBatches": 6,
+            "contactBatches": 4,
+            "triangles": 175066,
+            "vertexBytes": 16794240,
+            "materials": 2,
+            "textures": 1,
+            "textureBytes": 65536,
+            "lights": 0,
+            "perFrameUpdates": 0,
+            "models": {
+              "wagon": {
+                "format": 1,
+                "name": "wagon",
+                "source": "assets/village-wagon.glb",
+                "sourceSha256": "fc990ce8a942b6be3acc002db956204e6b719d2774b371cbb942b06f44206895",
+                "sourceBytes": 1866720,
+                "sourceTriangles": 22588,
+                "triangles": 22588,
+                "vertices": 33084,
+                "indexBytes": 2,
+                "packedBytes": 565620,
+                "materials": 6,
+                "parts": [
+                  {
+                    "name": "HERO_wagon_batch_iron",
+                    "triangles": 6662
+                  },
+                  {
+                    "name": "HERO_wagon_batch_plaster",
+                    "triangles": 3382
+                  },
+                  {
+                    "name": "HERO_wagon_batch_tileLight",
+                    "triangles": 1916
+                  },
+                  {
+                    "name": "HERO_wagon_batch_timber",
+                    "triangles": 8894
+                  },
+                  {
+                    "name": "HERO_wagon_batch_brass",
+                    "triangles": 1114
+                  },
+                  {
+                    "name": "HERO_wagon_batch_canvas",
+                    "triangles": 620
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.22,
+                    -0.015,
+                    -2.405
+                  ],
+                  "max": [
+                    2.22,
+                    4.765,
+                    3.819
+                  ],
+                  "radius": 4.205837966446165
+                },
+                "placementYaw": -0.17
+              },
+              "market": {
+                "format": 1,
+                "name": "market",
+                "source": "assets/village-market.glb",
+                "sourceSha256": "ee312bc2902b44f9e219325ed19b0ae169c0806fd51d2a5b10d9583e0d0ffc3f",
+                "sourceBytes": 1725388,
+                "sourceTriangles": 21222,
+                "triangles": 21222,
+                "vertices": 31540,
+                "indexBytes": 2,
+                "packedBytes": 537352,
+                "materials": 8,
+                "parts": [
+                  {
+                    "name": "HERO_market_batch_timber",
+                    "triangles": 3450
+                  },
+                  {
+                    "name": "HERO_market_batch_plaster",
+                    "triangles": 5980
+                  },
+                  {
+                    "name": "HERO_market_batch_canvas",
+                    "triangles": 3288
+                  },
+                  {
+                    "name": "HERO_market_batch_tileLight",
+                    "triangles": 3128
+                  },
+                  {
+                    "name": "HERO_market_batch_brass",
+                    "triangles": 2596
+                  },
+                  {
+                    "name": "HERO_market_batch_iron",
+                    "triangles": 1710
+                  },
+                  {
+                    "name": "HERO_market_batch_stone.001",
+                    "triangles": 176
+                  },
+                  {
+                    "name": "HERO_market_batch_tile",
+                    "triangles": 894
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -3.222,
+                    0,
+                    -2.155
+                  ],
+                  "max": [
+                    3.222,
+                    3.957,
+                    2.561
+                  ],
+                  "radius": 4.107420114865291
+                },
+                "placementYaw": -0.23
+              },
+              "assembly": {
+                "format": 1,
+                "name": "assembly",
+                "source": "assets/village-assembly.glb",
+                "sourceSha256": "6f5e3eaeda69a07d924e826abcaceb4aeab4dd55a663a846d91c3375cb78e885",
+                "sourceBytes": 805804,
+                "sourceTriangles": 10736,
+                "triangles": 10736,
+                "vertices": 14495,
+                "indexBytes": 2,
+                "packedBytes": 252851,
+                "materials": 8,
+                "parts": [
+                  {
+                    "name": "HERO_assembly_batch_timber",
+                    "triangles": 2124
+                  },
+                  {
+                    "name": "HERO_assembly_batch_stone.001",
+                    "triangles": 1408
+                  },
+                  {
+                    "name": "HERO_assembly_batch_iron",
+                    "triangles": 1000
+                  },
+                  {
+                    "name": "HERO_assembly_batch_tile",
+                    "triangles": 3736
+                  },
+                  {
+                    "name": "HERO_assembly_batch_brass",
+                    "triangles": 566
+                  },
+                  {
+                    "name": "HERO_assembly_batch_tileLight",
+                    "triangles": 768
+                  },
+                  {
+                    "name": "HERO_assembly_batch_plaster",
+                    "triangles": 836
+                  },
+                  {
+                    "name": "HERO_assembly_batch_canvas",
+                    "triangles": 298
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.99,
+                    0,
+                    -3.2
+                  ],
+                  "max": [
+                    2.99,
+                    3.656,
+                    1.55
+                  ],
+                  "radius": 3.5866976454672064
+                },
+                "placementYaw": 0.17
+              },
+              "smithYard": {
+                "format": 1,
+                "name": "smithYard",
+                "source": "assets/village-smithYard.glb",
+                "sourceSha256": "ef7725e76227fec4296652b292908f8f0c98cd28dbaff309b350daa1e8d26fb5",
+                "sourceBytes": 800572,
+                "sourceTriangles": 12548,
+                "triangles": 12548,
+                "vertices": 14665,
+                "indexBytes": 2,
+                "packedBytes": 265933,
+                "materials": 7,
+                "parts": [
+                  {
+                    "name": "HERO_smithYard_batch_iron",
+                    "triangles": 1710
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_timber",
+                    "triangles": 2736
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_stone.001",
+                    "triangles": 220
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_brass",
+                    "triangles": 1534
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_tileLight",
+                    "triangles": 1064
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_tile",
+                    "triangles": 5240
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_plaster",
+                    "triangles": 44
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.45,
+                    0,
+                    -1.985
+                  ],
+                  "max": [
+                    2.45,
+                    3.888,
+                    1.72
+                  ],
+                  "radius": 3.143787524626943
+                },
+                "placementYaw": 0.06
+              },
+              "supplyYard": {
+                "format": 1,
+                "name": "supplyYard",
+                "source": "assets/village-supplyYard.glb",
+                "sourceSha256": "7047fbdafef66b8ea22a6a7f32f7a125f85d164b2bd7c7e5467f4ea17f0ae34b",
+                "sourceBytes": 1450288,
+                "sourceTriangles": 17312,
+                "triangles": 17312,
+                "vertices": 25886,
+                "indexBytes": 2,
+                "packedBytes": 440390,
+                "materials": 7,
+                "parts": [
+                  {
+                    "name": "HERO_supplyYard_batch_timber",
+                    "triangles": 3850
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_plaster",
+                    "triangles": 5820
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_canvas",
+                    "triangles": 2282
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_iron",
+                    "triangles": 1534
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_brass",
+                    "triangles": 2038
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_tile",
+                    "triangles": 894
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_tileLight",
+                    "triangles": 894
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.229,
+                    0,
+                    -1.805
+                  ],
+                  "max": [
+                    2.229,
+                    3.632,
+                    1.95
+                  ],
+                  "radius": 2.8706793621022886
+                },
+                "placementYaw": -0.12
+              }
+            },
+            "workshop": {
+              "format": 1,
+              "source": "assets/workshop.glb",
+              "sourceSha256": "04138dea5fb8c9971d91d565689c0eb9b7b30d30132b70732b8c70c8512f50cc",
+              "sourceBytes": 2379620,
+              "sourceTriangles": 25336,
+              "triangles": 25336,
+              "vertices": 44235,
+              "indexBytes": 2,
+              "packedBytes": 727071,
+              "materials": 8,
+              "parts": [
+                {
+                  "name": "HERO_batch_plaster",
+                  "triangles": 352
+                },
+                {
+                  "name": "HERO_batch_stone.001",
+                  "triangles": 2406
+                },
+                {
+                  "name": "HERO_batch_timber",
+                  "triangles": 3892
+                },
+                {
+                  "name": "HERO_batch_tile",
+                  "triangles": 10400
+                },
+                {
+                  "name": "HERO_batch_tileLight",
+                  "triangles": 3838
+                },
+                {
+                  "name": "HERO_batch_iron",
+                  "triangles": 1708
+                },
+                {
+                  "name": "HERO_batch_brass",
+                  "triangles": 1268
+                },
+                {
+                  "name": "HERO_batch_canvas",
+                  "triangles": 1472
+                }
+              ],
+              "bounds": {
+                "min": [
+                  -4.981,
+                  0,
+                  -2.908
+                ],
+                "max": [
+                  4.54,
+                  8.723,
+                  2.975
+                ],
+                "radius": 5.467667327114919
+              },
+              "placementYaw": 0.25,
+              "landmarkTriangles": 50960,
+              "runtimeBatches": 0,
+              "runtimeLights": 0,
+              "mergedInto": "village-a:workshop"
+            }
+          },
+          "nature": {
+            "trees": 8,
+            "crownInstances": 56,
+            "branchInstances": 64,
+            "staticChunks": 4,
+            "staticParts": 563,
+            "staticTriangles": 20292,
+            "edgeClusters": 36,
+            "canopyTriangles": 6016,
+            "animatedScenery": 0,
+            "additionalLights": 0
+          },
+          "forestNature": {
+            "trees": 82,
+            "outcrops": 4,
+            "boundaryClusters": 50,
+            "parts": 2325,
+            "triangles": 101996,
+            "batches": 20,
+            "vertexBytes": 11015568,
+            "lights": 0,
+            "textures": 0,
+            "perFrameUpdates": 0
+          },
+          "boar": {
+            "draws": 8,
+            "triangles": 11508,
+            "geometries": 8,
+            "materials": 2
+          }
+        }
+      },
+      "phase": "village"
+    },
+    {
+      "name": "02-village-north-trees",
+      "kind": "actual-input",
+      "path": "/workspace/game/시즌2/검수/s2-009/nature/after1/02-village-north-trees.png",
+      "player": {
+        "x": 0.16200000000000073,
+        "y": 0.08,
+        "z": -6.245000000000043,
+        "vx": 3.3123173115164674e-203,
+        "vz": -1.8659589131063455e-62,
+        "hp": 100
+      },
+      "view": {
+        "yaw": 0.5519999999999999,
+        "pitch": -0.22,
+        "zoom": 3.2,
+        "aim": true
+      },
+      "stats": {
+        "calls": 50,
+        "triangles": 135426,
+        "geometries": 55,
+        "textures": 6,
+        "pixelRatio": 0.85,
+        "aaSamples": 4,
+        "graphics": {
+          "toneMapping": "AgX",
+          "exposure": 1.28,
+          "antialias": true,
+          "bloom": false,
+          "lights": 2,
+          "hemiIntensity": 1.4705,
+          "sunIntensity": 0.714
+        },
+        "motion": {
+          "capacity": 64,
+          "live": 0
+        },
+        "camera": {
+          "firstPerson": false,
+          "bodyHidden": false,
+          "zoom": 3.2,
+          "distance": 3.1016123866068246,
+          "shoulder": 1.0999999875004483,
+          "aimBlend": 1,
+          "fovRun": 0,
+          "footAnchor": 0.08,
+          "fov": 68.00090565436577,
+          "x": 2.6084235188979825,
+          "y": 2.007165390749102,
+          "z": -4.370303343364169,
+          "pitch": -0.12,
+          "yaw": 0.5519999999999999
+        },
+        "art": {
+          "village": {
+            "landmarks": 6,
+            "batches": 10,
+            "opaqueBatches": 6,
+            "contactBatches": 4,
+            "triangles": 175066,
+            "vertexBytes": 16794240,
+            "materials": 2,
+            "textures": 1,
+            "textureBytes": 65536,
+            "lights": 0,
+            "perFrameUpdates": 0,
+            "models": {
+              "wagon": {
+                "format": 1,
+                "name": "wagon",
+                "source": "assets/village-wagon.glb",
+                "sourceSha256": "fc990ce8a942b6be3acc002db956204e6b719d2774b371cbb942b06f44206895",
+                "sourceBytes": 1866720,
+                "sourceTriangles": 22588,
+                "triangles": 22588,
+                "vertices": 33084,
+                "indexBytes": 2,
+                "packedBytes": 565620,
+                "materials": 6,
+                "parts": [
+                  {
+                    "name": "HERO_wagon_batch_iron",
+                    "triangles": 6662
+                  },
+                  {
+                    "name": "HERO_wagon_batch_plaster",
+                    "triangles": 3382
+                  },
+                  {
+                    "name": "HERO_wagon_batch_tileLight",
+                    "triangles": 1916
+                  },
+                  {
+                    "name": "HERO_wagon_batch_timber",
+                    "triangles": 8894
+                  },
+                  {
+                    "name": "HERO_wagon_batch_brass",
+                    "triangles": 1114
+                  },
+                  {
+                    "name": "HERO_wagon_batch_canvas",
+                    "triangles": 620
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.22,
+                    -0.015,
+                    -2.405
+                  ],
+                  "max": [
+                    2.22,
+                    4.765,
+                    3.819
+                  ],
+                  "radius": 4.205837966446165
+                },
+                "placementYaw": -0.17
+              },
+              "market": {
+                "format": 1,
+                "name": "market",
+                "source": "assets/village-market.glb",
+                "sourceSha256": "ee312bc2902b44f9e219325ed19b0ae169c0806fd51d2a5b10d9583e0d0ffc3f",
+                "sourceBytes": 1725388,
+                "sourceTriangles": 21222,
+                "triangles": 21222,
+                "vertices": 31540,
+                "indexBytes": 2,
+                "packedBytes": 537352,
+                "materials": 8,
+                "parts": [
+                  {
+                    "name": "HERO_market_batch_timber",
+                    "triangles": 3450
+                  },
+                  {
+                    "name": "HERO_market_batch_plaster",
+                    "triangles": 5980
+                  },
+                  {
+                    "name": "HERO_market_batch_canvas",
+                    "triangles": 3288
+                  },
+                  {
+                    "name": "HERO_market_batch_tileLight",
+                    "triangles": 3128
+                  },
+                  {
+                    "name": "HERO_market_batch_brass",
+                    "triangles": 2596
+                  },
+                  {
+                    "name": "HERO_market_batch_iron",
+                    "triangles": 1710
+                  },
+                  {
+                    "name": "HERO_market_batch_stone.001",
+                    "triangles": 176
+                  },
+                  {
+                    "name": "HERO_market_batch_tile",
+                    "triangles": 894
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -3.222,
+                    0,
+                    -2.155
+                  ],
+                  "max": [
+                    3.222,
+                    3.957,
+                    2.561
+                  ],
+                  "radius": 4.107420114865291
+                },
+                "placementYaw": -0.23
+              },
+              "assembly": {
+                "format": 1,
+                "name": "assembly",
+                "source": "assets/village-assembly.glb",
+                "sourceSha256": "6f5e3eaeda69a07d924e826abcaceb4aeab4dd55a663a846d91c3375cb78e885",
+                "sourceBytes": 805804,
+                "sourceTriangles": 10736,
+                "triangles": 10736,
+                "vertices": 14495,
+                "indexBytes": 2,
+                "packedBytes": 252851,
+                "materials": 8,
+                "parts": [
+                  {
+                    "name": "HERO_assembly_batch_timber",
+                    "triangles": 2124
+                  },
+                  {
+                    "name": "HERO_assembly_batch_stone.001",
+                    "triangles": 1408
+                  },
+                  {
+                    "name": "HERO_assembly_batch_iron",
+                    "triangles": 1000
+                  },
+                  {
+                    "name": "HERO_assembly_batch_tile",
+                    "triangles": 3736
+                  },
+                  {
+                    "name": "HERO_assembly_batch_brass",
+                    "triangles": 566
+                  },
+                  {
+                    "name": "HERO_assembly_batch_tileLight",
+                    "triangles": 768
+                  },
+                  {
+                    "name": "HERO_assembly_batch_plaster",
+                    "triangles": 836
+                  },
+                  {
+                    "name": "HERO_assembly_batch_canvas",
+                    "triangles": 298
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.99,
+                    0,
+                    -3.2
+                  ],
+                  "max": [
+                    2.99,
+                    3.656,
+                    1.55
+                  ],
+                  "radius": 3.5866976454672064
+                },
+                "placementYaw": 0.17
+              },
+              "smithYard": {
+                "format": 1,
+                "name": "smithYard",
+                "source": "assets/village-smithYard.glb",
+                "sourceSha256": "ef7725e76227fec4296652b292908f8f0c98cd28dbaff309b350daa1e8d26fb5",
+                "sourceBytes": 800572,
+                "sourceTriangles": 12548,
+                "triangles": 12548,
+                "vertices": 14665,
+                "indexBytes": 2,
+                "packedBytes": 265933,
+                "materials": 7,
+                "parts": [
+                  {
+                    "name": "HERO_smithYard_batch_iron",
+                    "triangles": 1710
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_timber",
+                    "triangles": 2736
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_stone.001",
+                    "triangles": 220
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_brass",
+                    "triangles": 1534
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_tileLight",
+                    "triangles": 1064
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_tile",
+                    "triangles": 5240
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_plaster",
+                    "triangles": 44
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.45,
+                    0,
+                    -1.985
+                  ],
+                  "max": [
+                    2.45,
+                    3.888,
+                    1.72
+                  ],
+                  "radius": 3.143787524626943
+                },
+                "placementYaw": 0.06
+              },
+              "supplyYard": {
+                "format": 1,
+                "name": "supplyYard",
+                "source": "assets/village-supplyYard.glb",
+                "sourceSha256": "7047fbdafef66b8ea22a6a7f32f7a125f85d164b2bd7c7e5467f4ea17f0ae34b",
+                "sourceBytes": 1450288,
+                "sourceTriangles": 17312,
+                "triangles": 17312,
+                "vertices": 25886,
+                "indexBytes": 2,
+                "packedBytes": 440390,
+                "materials": 7,
+                "parts": [
+                  {
+                    "name": "HERO_supplyYard_batch_timber",
+                    "triangles": 3850
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_plaster",
+                    "triangles": 5820
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_canvas",
+                    "triangles": 2282
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_iron",
+                    "triangles": 1534
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_brass",
+                    "triangles": 2038
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_tile",
+                    "triangles": 894
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_tileLight",
+                    "triangles": 894
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.229,
+                    0,
+                    -1.805
+                  ],
+                  "max": [
+                    2.229,
+                    3.632,
+                    1.95
+                  ],
+                  "radius": 2.8706793621022886
+                },
+                "placementYaw": -0.12
+              }
+            },
+            "workshop": {
+              "format": 1,
+              "source": "assets/workshop.glb",
+              "sourceSha256": "04138dea5fb8c9971d91d565689c0eb9b7b30d30132b70732b8c70c8512f50cc",
+              "sourceBytes": 2379620,
+              "sourceTriangles": 25336,
+              "triangles": 25336,
+              "vertices": 44235,
+              "indexBytes": 2,
+              "packedBytes": 727071,
+              "materials": 8,
+              "parts": [
+                {
+                  "name": "HERO_batch_plaster",
+                  "triangles": 352
+                },
+                {
+                  "name": "HERO_batch_stone.001",
+                  "triangles": 2406
+                },
+                {
+                  "name": "HERO_batch_timber",
+                  "triangles": 3892
+                },
+                {
+                  "name": "HERO_batch_tile",
+                  "triangles": 10400
+                },
+                {
+                  "name": "HERO_batch_tileLight",
+                  "triangles": 3838
+                },
+                {
+                  "name": "HERO_batch_iron",
+                  "triangles": 1708
+                },
+                {
+                  "name": "HERO_batch_brass",
+                  "triangles": 1268
+                },
+                {
+                  "name": "HERO_batch_canvas",
+                  "triangles": 1472
+                }
+              ],
+              "bounds": {
+                "min": [
+                  -4.981,
+                  0,
+                  -2.908
+                ],
+                "max": [
+                  4.54,
+                  8.723,
+                  2.975
+                ],
+                "radius": 5.467667327114919
+              },
+              "placementYaw": 0.25,
+              "landmarkTriangles": 50960,
+              "runtimeBatches": 0,
+              "runtimeLights": 0,
+              "mergedInto": "village-a:workshop"
+            }
+          },
+          "nature": {
+            "trees": 8,
+            "crownInstances": 56,
+            "branchInstances": 64,
+            "staticChunks": 4,
+            "staticParts": 563,
+            "staticTriangles": 20292,
+            "edgeClusters": 36,
+            "canopyTriangles": 6016,
+            "animatedScenery": 0,
+            "additionalLights": 0
+          },
+          "forestNature": {
+            "trees": 82,
+            "outcrops": 4,
+            "boundaryClusters": 50,
+            "parts": 2325,
+            "triangles": 101996,
+            "batches": 20,
+            "vertexBytes": 11015568,
+            "lights": 0,
+            "textures": 0,
+            "perFrameUpdates": 0
+          },
+          "boar": {
+            "draws": 8,
+            "triangles": 11508,
+            "geometries": 8,
+            "materials": 2
+          }
+        }
+      },
+      "phase": "village"
+    },
+    {
+      "name": "03-forest-entry",
+      "kind": "actual-input",
+      "path": "/workspace/game/시즌2/검수/s2-009/nature/after1/03-forest-entry.png",
+      "player": {
+        "x": -3.6,
+        "y": 0.08,
+        "z": -17,
+        "vx": 0,
+        "vz": 0,
+        "hp": 100
+      },
+      "view": {
+        "yaw": 0,
+        "pitch": -0.22,
+        "zoom": 3.2,
+        "aim": false
+      },
+      "stats": {
+        "calls": 54,
+        "triangles": 142150,
+        "geometries": 58,
+        "textures": 6,
+        "pixelRatio": 0.85,
+        "aaSamples": 4,
+        "graphics": {
+          "toneMapping": "AgX",
+          "exposure": 1.28,
+          "antialias": true,
+          "bloom": false,
+          "lights": 2,
+          "hemiIntensity": 1.4705,
+          "sunIntensity": 0.714
+        },
+        "motion": {
+          "capacity": 64,
+          "live": 0
+        },
+        "camera": {
+          "firstPerson": false,
+          "bodyHidden": false,
+          "zoom": 3.2,
+          "distance": 3.2,
+          "shoulder": 0,
+          "aimBlend": 0,
+          "fovRun": 0,
+          "footAnchor": 0.08,
+          "fov": 70,
+          "x": -3.6,
+          "y": 1.5783347938587817,
+          "z": -13.877128162142062,
+          "pitch": -0.22,
+          "yaw": 0
+        },
+        "art": {
+          "village": {
+            "landmarks": 6,
+            "batches": 10,
+            "opaqueBatches": 6,
+            "contactBatches": 4,
+            "triangles": 175066,
+            "vertexBytes": 16794240,
+            "materials": 2,
+            "textures": 1,
+            "textureBytes": 65536,
+            "lights": 0,
+            "perFrameUpdates": 0,
+            "models": {
+              "wagon": {
+                "format": 1,
+                "name": "wagon",
+                "source": "assets/village-wagon.glb",
+                "sourceSha256": "fc990ce8a942b6be3acc002db956204e6b719d2774b371cbb942b06f44206895",
+                "sourceBytes": 1866720,
+                "sourceTriangles": 22588,
+                "triangles": 22588,
+                "vertices": 33084,
+                "indexBytes": 2,
+                "packedBytes": 565620,
+                "materials": 6,
+                "parts": [
+                  {
+                    "name": "HERO_wagon_batch_iron",
+                    "triangles": 6662
+                  },
+                  {
+                    "name": "HERO_wagon_batch_plaster",
+                    "triangles": 3382
+                  },
+                  {
+                    "name": "HERO_wagon_batch_tileLight",
+                    "triangles": 1916
+                  },
+                  {
+                    "name": "HERO_wagon_batch_timber",
+                    "triangles": 8894
+                  },
+                  {
+                    "name": "HERO_wagon_batch_brass",
+                    "triangles": 1114
+                  },
+                  {
+                    "name": "HERO_wagon_batch_canvas",
+                    "triangles": 620
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.22,
+                    -0.015,
+                    -2.405
+                  ],
+                  "max": [
+                    2.22,
+                    4.765,
+                    3.819
+                  ],
+                  "radius": 4.205837966446165
+                },
+                "placementYaw": -0.17
+              },
+              "market": {
+                "format": 1,
+                "name": "market",
+                "source": "assets/village-market.glb",
+                "sourceSha256": "ee312bc2902b44f9e219325ed19b0ae169c0806fd51d2a5b10d9583e0d0ffc3f",
+                "sourceBytes": 1725388,
+                "sourceTriangles": 21222,
+                "triangles": 21222,
+                "vertices": 31540,
+                "indexBytes": 2,
+                "packedBytes": 537352,
+                "materials": 8,
+                "parts": [
+                  {
+                    "name": "HERO_market_batch_timber",
+                    "triangles": 3450
+                  },
+                  {
+                    "name": "HERO_market_batch_plaster",
+                    "triangles": 5980
+                  },
+                  {
+                    "name": "HERO_market_batch_canvas",
+                    "triangles": 3288
+                  },
+                  {
+                    "name": "HERO_market_batch_tileLight",
+                    "triangles": 3128
+                  },
+                  {
+                    "name": "HERO_market_batch_brass",
+                    "triangles": 2596
+                  },
+                  {
+                    "name": "HERO_market_batch_iron",
+                    "triangles": 1710
+                  },
+                  {
+                    "name": "HERO_market_batch_stone.001",
+                    "triangles": 176
+                  },
+                  {
+                    "name": "HERO_market_batch_tile",
+                    "triangles": 894
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -3.222,
+                    0,
+                    -2.155
+                  ],
+                  "max": [
+                    3.222,
+                    3.957,
+                    2.561
+                  ],
+                  "radius": 4.107420114865291
+                },
+                "placementYaw": -0.23
+              },
+              "assembly": {
+                "format": 1,
+                "name": "assembly",
+                "source": "assets/village-assembly.glb",
+                "sourceSha256": "6f5e3eaeda69a07d924e826abcaceb4aeab4dd55a663a846d91c3375cb78e885",
+                "sourceBytes": 805804,
+                "sourceTriangles": 10736,
+                "triangles": 10736,
+                "vertices": 14495,
+                "indexBytes": 2,
+                "packedBytes": 252851,
+                "materials": 8,
+                "parts": [
+                  {
+                    "name": "HERO_assembly_batch_timber",
+                    "triangles": 2124
+                  },
+                  {
+                    "name": "HERO_assembly_batch_stone.001",
+                    "triangles": 1408
+                  },
+                  {
+                    "name": "HERO_assembly_batch_iron",
+                    "triangles": 1000
+                  },
+                  {
+                    "name": "HERO_assembly_batch_tile",
+                    "triangles": 3736
+                  },
+                  {
+                    "name": "HERO_assembly_batch_brass",
+                    "triangles": 566
+                  },
+                  {
+                    "name": "HERO_assembly_batch_tileLight",
+                    "triangles": 768
+                  },
+                  {
+                    "name": "HERO_assembly_batch_plaster",
+                    "triangles": 836
+                  },
+                  {
+                    "name": "HERO_assembly_batch_canvas",
+                    "triangles": 298
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.99,
+                    0,
+                    -3.2
+                  ],
+                  "max": [
+                    2.99,
+                    3.656,
+                    1.55
+                  ],
+                  "radius": 3.5866976454672064
+                },
+                "placementYaw": 0.17
+              },
+              "smithYard": {
+                "format": 1,
+                "name": "smithYard",
+                "source": "assets/village-smithYard.glb",
+                "sourceSha256": "ef7725e76227fec4296652b292908f8f0c98cd28dbaff309b350daa1e8d26fb5",
+                "sourceBytes": 800572,
+                "sourceTriangles": 12548,
+                "triangles": 12548,
+                "vertices": 14665,
+                "indexBytes": 2,
+                "packedBytes": 265933,
+                "materials": 7,
+                "parts": [
+                  {
+                    "name": "HERO_smithYard_batch_iron",
+                    "triangles": 1710
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_timber",
+                    "triangles": 2736
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_stone.001",
+                    "triangles": 220
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_brass",
+                    "triangles": 1534
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_tileLight",
+                    "triangles": 1064
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_tile",
+                    "triangles": 5240
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_plaster",
+                    "triangles": 44
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.45,
+                    0,
+                    -1.985
+                  ],
+                  "max": [
+                    2.45,
+                    3.888,
+                    1.72
+                  ],
+                  "radius": 3.143787524626943
+                },
+                "placementYaw": 0.06
+              },
+              "supplyYard": {
+                "format": 1,
+                "name": "supplyYard",
+                "source": "assets/village-supplyYard.glb",
+                "sourceSha256": "7047fbdafef66b8ea22a6a7f32f7a125f85d164b2bd7c7e5467f4ea17f0ae34b",
+                "sourceBytes": 1450288,
+                "sourceTriangles": 17312,
+                "triangles": 17312,
+                "vertices": 25886,
+                "indexBytes": 2,
+                "packedBytes": 440390,
+                "materials": 7,
+                "parts": [
+                  {
+                    "name": "HERO_supplyYard_batch_timber",
+                    "triangles": 3850
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_plaster",
+                    "triangles": 5820
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_canvas",
+                    "triangles": 2282
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_iron",
+                    "triangles": 1534
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_brass",
+                    "triangles": 2038
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_tile",
+                    "triangles": 894
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_tileLight",
+                    "triangles": 894
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.229,
+                    0,
+                    -1.805
+                  ],
+                  "max": [
+                    2.229,
+                    3.632,
+                    1.95
+                  ],
+                  "radius": 2.8706793621022886
+                },
+                "placementYaw": -0.12
+              }
+            },
+            "workshop": {
+              "format": 1,
+              "source": "assets/workshop.glb",
+              "sourceSha256": "04138dea5fb8c9971d91d565689c0eb9b7b30d30132b70732b8c70c8512f50cc",
+              "sourceBytes": 2379620,
+              "sourceTriangles": 25336,
+              "triangles": 25336,
+              "vertices": 44235,
+              "indexBytes": 2,
+              "packedBytes": 727071,
+              "materials": 8,
+              "parts": [
+                {
+                  "name": "HERO_batch_plaster",
+                  "triangles": 352
+                },
+                {
+                  "name": "HERO_batch_stone.001",
+                  "triangles": 2406
+                },
+                {
+                  "name": "HERO_batch_timber",
+                  "triangles": 3892
+                },
+                {
+                  "name": "HERO_batch_tile",
+                  "triangles": 10400
+                },
+                {
+                  "name": "HERO_batch_tileLight",
+                  "triangles": 3838
+                },
+                {
+                  "name": "HERO_batch_iron",
+                  "triangles": 1708
+                },
+                {
+                  "name": "HERO_batch_brass",
+                  "triangles": 1268
+                },
+                {
+                  "name": "HERO_batch_canvas",
+                  "triangles": 1472
+                }
+              ],
+              "bounds": {
+                "min": [
+                  -4.981,
+                  0,
+                  -2.908
+                ],
+                "max": [
+                  4.54,
+                  8.723,
+                  2.975
+                ],
+                "radius": 5.467667327114919
+              },
+              "placementYaw": 0.25,
+              "landmarkTriangles": 50960,
+              "runtimeBatches": 0,
+              "runtimeLights": 0,
+              "mergedInto": "village-a:workshop"
+            }
+          },
+          "nature": {
+            "trees": 8,
+            "crownInstances": 56,
+            "branchInstances": 64,
+            "staticChunks": 4,
+            "staticParts": 563,
+            "staticTriangles": 20292,
+            "edgeClusters": 36,
+            "canopyTriangles": 6016,
+            "animatedScenery": 0,
+            "additionalLights": 0
+          },
+          "forestNature": {
+            "trees": 82,
+            "outcrops": 4,
+            "boundaryClusters": 50,
+            "parts": 2325,
+            "triangles": 101996,
+            "batches": 20,
+            "vertexBytes": 11015568,
+            "lights": 0,
+            "textures": 0,
+            "perFrameUpdates": 0
+          },
+          "boar": {
+            "draws": 8,
+            "triangles": 11508,
+            "geometries": 8,
+            "materials": 2
+          }
+        }
+      },
+      "phase": "forest"
+    },
+    {
+      "name": "04-forest-left-trees-and-edge",
+      "kind": "actual-input",
+      "path": "/workspace/game/시즌2/검수/s2-009/nature/after1/04-forest-left-trees-and-edge.png",
+      "player": {
+        "x": -16.96500000000002,
+        "y": 0.08,
+        "z": -21.15800000000001,
+        "vx": -5.434277035290335e-93,
+        "vz": -2.9749412122204435e-56,
+        "hp": 100
+      },
+      "view": {
+        "yaw": 1.572,
+        "pitch": -0.22,
+        "zoom": 3.2,
+        "aim": true
+      },
+      "stats": {
+        "calls": 26,
+        "triangles": 48026,
+        "geometries": 58,
+        "textures": 6,
+        "pixelRatio": 0.85,
+        "aaSamples": 4,
+        "graphics": {
+          "toneMapping": "AgX",
+          "exposure": 1.28,
+          "antialias": true,
+          "bloom": false,
+          "lights": 2,
+          "hemiIntensity": 1.4705,
+          "sunIntensity": 0.714
+        },
+        "motion": {
+          "capacity": 64,
+          "live": 0
+        },
+        "camera": {
+          "firstPerson": false,
+          "bodyHidden": false,
+          "zoom": 3.2,
+          "distance": 3.101603220245708,
+          "shoulder": 1.0999970529040726,
+          "aimBlend": 1,
+          "fovRun": 0,
+          "footAnchor": 0.08,
+          "fov": 68.0006278854457,
+          "x": -14.08718870379836,
+          "y": 2.0071644812458898,
+          "z": -22.261458881088892,
+          "pitch": -0.12,
+          "yaw": 1.572
+        },
+        "art": {
+          "village": {
+            "landmarks": 6,
+            "batches": 10,
+            "opaqueBatches": 6,
+            "contactBatches": 4,
+            "triangles": 175066,
+            "vertexBytes": 16794240,
+            "materials": 2,
+            "textures": 1,
+            "textureBytes": 65536,
+            "lights": 0,
+            "perFrameUpdates": 0,
+            "models": {
+              "wagon": {
+                "format": 1,
+                "name": "wagon",
+                "source": "assets/village-wagon.glb",
+                "sourceSha256": "fc990ce8a942b6be3acc002db956204e6b719d2774b371cbb942b06f44206895",
+                "sourceBytes": 1866720,
+                "sourceTriangles": 22588,
+                "triangles": 22588,
+                "vertices": 33084,
+                "indexBytes": 2,
+                "packedBytes": 565620,
+                "materials": 6,
+                "parts": [
+                  {
+                    "name": "HERO_wagon_batch_iron",
+                    "triangles": 6662
+                  },
+                  {
+                    "name": "HERO_wagon_batch_plaster",
+                    "triangles": 3382
+                  },
+                  {
+                    "name": "HERO_wagon_batch_tileLight",
+                    "triangles": 1916
+                  },
+                  {
+                    "name": "HERO_wagon_batch_timber",
+                    "triangles": 8894
+                  },
+                  {
+                    "name": "HERO_wagon_batch_brass",
+                    "triangles": 1114
+                  },
+                  {
+                    "name": "HERO_wagon_batch_canvas",
+                    "triangles": 620
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.22,
+                    -0.015,
+                    -2.405
+                  ],
+                  "max": [
+                    2.22,
+                    4.765,
+                    3.819
+                  ],
+                  "radius": 4.205837966446165
+                },
+                "placementYaw": -0.17
+              },
+              "market": {
+                "format": 1,
+                "name": "market",
+                "source": "assets/village-market.glb",
+                "sourceSha256": "ee312bc2902b44f9e219325ed19b0ae169c0806fd51d2a5b10d9583e0d0ffc3f",
+                "sourceBytes": 1725388,
+                "sourceTriangles": 21222,
+                "triangles": 21222,
+                "vertices": 31540,
+                "indexBytes": 2,
+                "packedBytes": 537352,
+                "materials": 8,
+                "parts": [
+                  {
+                    "name": "HERO_market_batch_timber",
+                    "triangles": 3450
+                  },
+                  {
+                    "name": "HERO_market_batch_plaster",
+                    "triangles": 5980
+                  },
+                  {
+                    "name": "HERO_market_batch_canvas",
+                    "triangles": 3288
+                  },
+                  {
+                    "name": "HERO_market_batch_tileLight",
+                    "triangles": 3128
+                  },
+                  {
+                    "name": "HERO_market_batch_brass",
+                    "triangles": 2596
+                  },
+                  {
+                    "name": "HERO_market_batch_iron",
+                    "triangles": 1710
+                  },
+                  {
+                    "name": "HERO_market_batch_stone.001",
+                    "triangles": 176
+                  },
+                  {
+                    "name": "HERO_market_batch_tile",
+                    "triangles": 894
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -3.222,
+                    0,
+                    -2.155
+                  ],
+                  "max": [
+                    3.222,
+                    3.957,
+                    2.561
+                  ],
+                  "radius": 4.107420114865291
+                },
+                "placementYaw": -0.23
+              },
+              "assembly": {
+                "format": 1,
+                "name": "assembly",
+                "source": "assets/village-assembly.glb",
+                "sourceSha256": "6f5e3eaeda69a07d924e826abcaceb4aeab4dd55a663a846d91c3375cb78e885",
+                "sourceBytes": 805804,
+                "sourceTriangles": 10736,
+                "triangles": 10736,
+                "vertices": 14495,
+                "indexBytes": 2,
+                "packedBytes": 252851,
+                "materials": 8,
+                "parts": [
+                  {
+                    "name": "HERO_assembly_batch_timber",
+                    "triangles": 2124
+                  },
+                  {
+                    "name": "HERO_assembly_batch_stone.001",
+                    "triangles": 1408
+                  },
+                  {
+                    "name": "HERO_assembly_batch_iron",
+                    "triangles": 1000
+                  },
+                  {
+                    "name": "HERO_assembly_batch_tile",
+                    "triangles": 3736
+                  },
+                  {
+                    "name": "HERO_assembly_batch_brass",
+                    "triangles": 566
+                  },
+                  {
+                    "name": "HERO_assembly_batch_tileLight",
+                    "triangles": 768
+                  },
+                  {
+                    "name": "HERO_assembly_batch_plaster",
+                    "triangles": 836
+                  },
+                  {
+                    "name": "HERO_assembly_batch_canvas",
+                    "triangles": 298
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.99,
+                    0,
+                    -3.2
+                  ],
+                  "max": [
+                    2.99,
+                    3.656,
+                    1.55
+                  ],
+                  "radius": 3.5866976454672064
+                },
+                "placementYaw": 0.17
+              },
+              "smithYard": {
+                "format": 1,
+                "name": "smithYard",
+                "source": "assets/village-smithYard.glb",
+                "sourceSha256": "ef7725e76227fec4296652b292908f8f0c98cd28dbaff309b350daa1e8d26fb5",
+                "sourceBytes": 800572,
+                "sourceTriangles": 12548,
+                "triangles": 12548,
+                "vertices": 14665,
+                "indexBytes": 2,
+                "packedBytes": 265933,
+                "materials": 7,
+                "parts": [
+                  {
+                    "name": "HERO_smithYard_batch_iron",
+                    "triangles": 1710
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_timber",
+                    "triangles": 2736
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_stone.001",
+                    "triangles": 220
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_brass",
+                    "triangles": 1534
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_tileLight",
+                    "triangles": 1064
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_tile",
+                    "triangles": 5240
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_plaster",
+                    "triangles": 44
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.45,
+                    0,
+                    -1.985
+                  ],
+                  "max": [
+                    2.45,
+                    3.888,
+                    1.72
+                  ],
+                  "radius": 3.143787524626943
+                },
+                "placementYaw": 0.06
+              },
+              "supplyYard": {
+                "format": 1,
+                "name": "supplyYard",
+                "source": "assets/village-supplyYard.glb",
+                "sourceSha256": "7047fbdafef66b8ea22a6a7f32f7a125f85d164b2bd7c7e5467f4ea17f0ae34b",
+                "sourceBytes": 1450288,
+                "sourceTriangles": 17312,
+                "triangles": 17312,
+                "vertices": 25886,
+                "indexBytes": 2,
+                "packedBytes": 440390,
+                "materials": 7,
+                "parts": [
+                  {
+                    "name": "HERO_supplyYard_batch_timber",
+                    "triangles": 3850
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_plaster",
+                    "triangles": 5820
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_canvas",
+                    "triangles": 2282
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_iron",
+                    "triangles": 1534
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_brass",
+                    "triangles": 2038
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_tile",
+                    "triangles": 894
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_tileLight",
+                    "triangles": 894
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.229,
+                    0,
+                    -1.805
+                  ],
+                  "max": [
+                    2.229,
+                    3.632,
+                    1.95
+                  ],
+                  "radius": 2.8706793621022886
+                },
+                "placementYaw": -0.12
+              }
+            },
+            "workshop": {
+              "format": 1,
+              "source": "assets/workshop.glb",
+              "sourceSha256": "04138dea5fb8c9971d91d565689c0eb9b7b30d30132b70732b8c70c8512f50cc",
+              "sourceBytes": 2379620,
+              "sourceTriangles": 25336,
+              "triangles": 25336,
+              "vertices": 44235,
+              "indexBytes": 2,
+              "packedBytes": 727071,
+              "materials": 8,
+              "parts": [
+                {
+                  "name": "HERO_batch_plaster",
+                  "triangles": 352
+                },
+                {
+                  "name": "HERO_batch_stone.001",
+                  "triangles": 2406
+                },
+                {
+                  "name": "HERO_batch_timber",
+                  "triangles": 3892
+                },
+                {
+                  "name": "HERO_batch_tile",
+                  "triangles": 10400
+                },
+                {
+                  "name": "HERO_batch_tileLight",
+                  "triangles": 3838
+                },
+                {
+                  "name": "HERO_batch_iron",
+                  "triangles": 1708
+                },
+                {
+                  "name": "HERO_batch_brass",
+                  "triangles": 1268
+                },
+                {
+                  "name": "HERO_batch_canvas",
+                  "triangles": 1472
+                }
+              ],
+              "bounds": {
+                "min": [
+                  -4.981,
+                  0,
+                  -2.908
+                ],
+                "max": [
+                  4.54,
+                  8.723,
+                  2.975
+                ],
+                "radius": 5.467667327114919
+              },
+              "placementYaw": 0.25,
+              "landmarkTriangles": 50960,
+              "runtimeBatches": 0,
+              "runtimeLights": 0,
+              "mergedInto": "village-a:workshop"
+            }
+          },
+          "nature": {
+            "trees": 8,
+            "crownInstances": 56,
+            "branchInstances": 64,
+            "staticChunks": 4,
+            "staticParts": 563,
+            "staticTriangles": 20292,
+            "edgeClusters": 36,
+            "canopyTriangles": 6016,
+            "animatedScenery": 0,
+            "additionalLights": 0
+          },
+          "forestNature": {
+            "trees": 82,
+            "outcrops": 4,
+            "boundaryClusters": 50,
+            "parts": 2325,
+            "triangles": 101996,
+            "batches": 20,
+            "vertexBytes": 11015568,
+            "lights": 0,
+            "textures": 0,
+            "perFrameUpdates": 0
+          },
+          "boar": {
+            "draws": 8,
+            "triangles": 11508,
+            "geometries": 8,
+            "materials": 2
+          }
+        }
+      },
+      "phase": "forest"
+    },
+    {
+      "name": "05-first-rock-surface",
+      "kind": "actual-input",
+      "path": "/workspace/game/시즌2/검수/s2-009/nature/after1/05-first-rock-surface.png",
+      "player": {
+        "x": -16.96500000000002,
+        "y": 0.08,
+        "z": -40.85899999999975,
+        "vx": -2.4465542449728976e-73,
+        "vz": -1.1018300786001647e-57,
+        "hp": 67
+      },
+      "view": {
+        "yaw": -0.7991999999999997,
+        "pitch": 0.07999999999999996,
+        "zoom": 3.2,
+        "aim": true
+      },
+      "stats": {
+        "calls": 50,
+        "triangles": 109446,
+        "geometries": 58,
+        "textures": 6,
+        "pixelRatio": 0.85,
+        "aaSamples": 4,
+        "graphics": {
+          "toneMapping": "AgX",
+          "exposure": 1.28,
+          "antialias": true,
+          "bloom": false,
+          "lights": 2,
+          "hemiIntensity": 1.4705,
+          "sunIntensity": 0.714
+        },
+        "motion": {
+          "capacity": 64,
+          "live": 0
+        },
+        "camera": {
+          "firstPerson": false,
+          "bodyHidden": false,
+          "zoom": 3.2,
+          "distance": 3.1016074165317327,
+          "shoulder": 1.0999985642300694,
+          "aimBlend": 1,
+          "fovRun": 0,
+          "footAnchor": 0.08,
+          "fov": 68.00062926831428,
+          "x": -18.243121984519977,
+          "y": 1.140815000059148,
+          "z": -38.08108356950588,
+          "pitch": 0.17999999999999997,
+          "yaw": -0.7991999999999997
+        },
+        "art": {
+          "village": {
+            "landmarks": 6,
+            "batches": 10,
+            "opaqueBatches": 6,
+            "contactBatches": 4,
+            "triangles": 175066,
+            "vertexBytes": 16794240,
+            "materials": 2,
+            "textures": 1,
+            "textureBytes": 65536,
+            "lights": 0,
+            "perFrameUpdates": 0,
+            "models": {
+              "wagon": {
+                "format": 1,
+                "name": "wagon",
+                "source": "assets/village-wagon.glb",
+                "sourceSha256": "fc990ce8a942b6be3acc002db956204e6b719d2774b371cbb942b06f44206895",
+                "sourceBytes": 1866720,
+                "sourceTriangles": 22588,
+                "triangles": 22588,
+                "vertices": 33084,
+                "indexBytes": 2,
+                "packedBytes": 565620,
+                "materials": 6,
+                "parts": [
+                  {
+                    "name": "HERO_wagon_batch_iron",
+                    "triangles": 6662
+                  },
+                  {
+                    "name": "HERO_wagon_batch_plaster",
+                    "triangles": 3382
+                  },
+                  {
+                    "name": "HERO_wagon_batch_tileLight",
+                    "triangles": 1916
+                  },
+                  {
+                    "name": "HERO_wagon_batch_timber",
+                    "triangles": 8894
+                  },
+                  {
+                    "name": "HERO_wagon_batch_brass",
+                    "triangles": 1114
+                  },
+                  {
+                    "name": "HERO_wagon_batch_canvas",
+                    "triangles": 620
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.22,
+                    -0.015,
+                    -2.405
+                  ],
+                  "max": [
+                    2.22,
+                    4.765,
+                    3.819
+                  ],
+                  "radius": 4.205837966446165
+                },
+                "placementYaw": -0.17
+              },
+              "market": {
+                "format": 1,
+                "name": "market",
+                "source": "assets/village-market.glb",
+                "sourceSha256": "ee312bc2902b44f9e219325ed19b0ae169c0806fd51d2a5b10d9583e0d0ffc3f",
+                "sourceBytes": 1725388,
+                "sourceTriangles": 21222,
+                "triangles": 21222,
+                "vertices": 31540,
+                "indexBytes": 2,
+                "packedBytes": 537352,
+                "materials": 8,
+                "parts": [
+                  {
+                    "name": "HERO_market_batch_timber",
+                    "triangles": 3450
+                  },
+                  {
+                    "name": "HERO_market_batch_plaster",
+                    "triangles": 5980
+                  },
+                  {
+                    "name": "HERO_market_batch_canvas",
+                    "triangles": 3288
+                  },
+                  {
+                    "name": "HERO_market_batch_tileLight",
+                    "triangles": 3128
+                  },
+                  {
+                    "name": "HERO_market_batch_brass",
+                    "triangles": 2596
+                  },
+                  {
+                    "name": "HERO_market_batch_iron",
+                    "triangles": 1710
+                  },
+                  {
+                    "name": "HERO_market_batch_stone.001",
+                    "triangles": 176
+                  },
+                  {
+                    "name": "HERO_market_batch_tile",
+                    "triangles": 894
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -3.222,
+                    0,
+                    -2.155
+                  ],
+                  "max": [
+                    3.222,
+                    3.957,
+                    2.561
+                  ],
+                  "radius": 4.107420114865291
+                },
+                "placementYaw": -0.23
+              },
+              "assembly": {
+                "format": 1,
+                "name": "assembly",
+                "source": "assets/village-assembly.glb",
+                "sourceSha256": "6f5e3eaeda69a07d924e826abcaceb4aeab4dd55a663a846d91c3375cb78e885",
+                "sourceBytes": 805804,
+                "sourceTriangles": 10736,
+                "triangles": 10736,
+                "vertices": 14495,
+                "indexBytes": 2,
+                "packedBytes": 252851,
+                "materials": 8,
+                "parts": [
+                  {
+                    "name": "HERO_assembly_batch_timber",
+                    "triangles": 2124
+                  },
+                  {
+                    "name": "HERO_assembly_batch_stone.001",
+                    "triangles": 1408
+                  },
+                  {
+                    "name": "HERO_assembly_batch_iron",
+                    "triangles": 1000
+                  },
+                  {
+                    "name": "HERO_assembly_batch_tile",
+                    "triangles": 3736
+                  },
+                  {
+                    "name": "HERO_assembly_batch_brass",
+                    "triangles": 566
+                  },
+                  {
+                    "name": "HERO_assembly_batch_tileLight",
+                    "triangles": 768
+                  },
+                  {
+                    "name": "HERO_assembly_batch_plaster",
+                    "triangles": 836
+                  },
+                  {
+                    "name": "HERO_assembly_batch_canvas",
+                    "triangles": 298
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.99,
+                    0,
+                    -3.2
+                  ],
+                  "max": [
+                    2.99,
+                    3.656,
+                    1.55
+                  ],
+                  "radius": 3.5866976454672064
+                },
+                "placementYaw": 0.17
+              },
+              "smithYard": {
+                "format": 1,
+                "name": "smithYard",
+                "source": "assets/village-smithYard.glb",
+                "sourceSha256": "ef7725e76227fec4296652b292908f8f0c98cd28dbaff309b350daa1e8d26fb5",
+                "sourceBytes": 800572,
+                "sourceTriangles": 12548,
+                "triangles": 12548,
+                "vertices": 14665,
+                "indexBytes": 2,
+                "packedBytes": 265933,
+                "materials": 7,
+                "parts": [
+                  {
+                    "name": "HERO_smithYard_batch_iron",
+                    "triangles": 1710
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_timber",
+                    "triangles": 2736
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_stone.001",
+                    "triangles": 220
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_brass",
+                    "triangles": 1534
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_tileLight",
+                    "triangles": 1064
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_tile",
+                    "triangles": 5240
+                  },
+                  {
+                    "name": "HERO_smithYard_batch_plaster",
+                    "triangles": 44
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.45,
+                    0,
+                    -1.985
+                  ],
+                  "max": [
+                    2.45,
+                    3.888,
+                    1.72
+                  ],
+                  "radius": 3.143787524626943
+                },
+                "placementYaw": 0.06
+              },
+              "supplyYard": {
+                "format": 1,
+                "name": "supplyYard",
+                "source": "assets/village-supplyYard.glb",
+                "sourceSha256": "7047fbdafef66b8ea22a6a7f32f7a125f85d164b2bd7c7e5467f4ea17f0ae34b",
+                "sourceBytes": 1450288,
+                "sourceTriangles": 17312,
+                "triangles": 17312,
+                "vertices": 25886,
+                "indexBytes": 2,
+                "packedBytes": 440390,
+                "materials": 7,
+                "parts": [
+                  {
+                    "name": "HERO_supplyYard_batch_timber",
+                    "triangles": 3850
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_plaster",
+                    "triangles": 5820
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_canvas",
+                    "triangles": 2282
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_iron",
+                    "triangles": 1534
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_brass",
+                    "triangles": 2038
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_tile",
+                    "triangles": 894
+                  },
+                  {
+                    "name": "HERO_supplyYard_batch_tileLight",
+                    "triangles": 894
+                  }
+                ],
+                "bounds": {
+                  "min": [
+                    -2.229,
+                    0,
+                    -1.805
+                  ],
+                  "max": [
+                    2.229,
+                    3.632,
+                    1.95
+                  ],
+                  "radius": 2.8706793621022886
+                },
+                "placementYaw": -0.12
+              }
+            },
+            "workshop": {
+              "format": 1,
+              "source": "assets/workshop.glb",
+              "sourceSha256": "04138dea5fb8c9971d91d565689c0eb9b7b30d30132b70732b8c70c8512f50cc",
+              "sourceBytes": 2379620,
+              "sourceTriangles": 25336,
+              "triangles": 25336,
+              "vertices": 44235,
+              "indexBytes": 2,
+              "packedBytes": 727071,
+              "materials": 8,
+              "parts": [
+                {
+                  "name": "HERO_batch_plaster",
+                  "triangles": 352
+                },
+                {
+                  "name": "HERO_batch_stone.001",
+                  "triangles": 2406
+                },
+                {
+                  "name": "HERO_batch_timber",
+                  "triangles": 3892
+                },
+                {
+                  "name": "HERO_batch_tile",
+                  "triangles": 10400
+                },
+                {
+                  "name": "HERO_batch_tileLight",
+                  "triangles": 3838
+                },
+                {
+                  "name": "HERO_batch_iron",
+                  "triangles": 1708
+                },
+                {
+                  "name": "HERO_batch_brass",
+                  "triangles": 1268
+                },
+                {
+                  "name": "HERO_batch_canvas",
+                  "triangles": 1472
+                }
+              ],
+              "bounds": {
+                "min": [
+                  -4.981,
+                  0,
+                  -2.908
+                ],
+                "max": [
+                  4.54,
+                  8.723,
+                  2.975
+                ],
+                "radius": 5.467667327114919
+              },
+              "placementYaw": 0.25,
+              "landmarkTriangles": 50960,
+              "runtimeBatches": 0,
+              "runtimeLights": 0,
+              "mergedInto": "village-a:workshop"
+            }
+          },
+          "nature": {
+            "trees": 8,
+            "crownInstances": 56,
+            "branchInstances": 64,
+            "staticChunks": 4,
+            "staticParts": 563,
+            "staticTriangles": 20292,
+            "edgeClusters": 36,
+            "canopyTriangles": 6016,
+            "animatedScenery": 0,
+            "additionalLights": 0
+          },
+          "forestNature": {
+            "trees": 82,
+            "outcrops": 4,
+            "boundaryClusters": 50,
+            "parts": 2325,
+            "triangles": 101996,
+            "batches": 20,
+            "vertexBytes": 11015568,
+            "lights": 0,
+            "textures": 0,
+            "perFrameUpdates": 0
+          },
+          "boar": {
+            "draws": 8,
+            "triangles": 11508,
+            "geometries": 8,
+            "materials": 2
+          }
+        }
+      },
+      "phase": "forest"
+    }
+  ],
+  "movement": [
+    {
+      "key": "KeyD",
+      "axis": "x",
+      "target": 0,
+      "before": {
+        "x": -3.6,
+        "y": 0.08,
+        "z": 19,
+        "vx": 0,
+        "vz": 0,
+        "hp": 100
+      },
+      "after": {
+        "x": 0.16200000000000073,
+        "y": 0.08,
+        "z": 19,
+        "vx": 4.885806423942176e-19,
+        "vz": 0,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyW",
+      "axis": "z",
+      "target": -6,
+      "before": {
+        "x": 0.16200000000000073,
+        "y": 0.08,
+        "z": 19,
+        "vx": 4.885806423942176e-19,
+        "vz": 0,
+        "hp": 100
+      },
+      "after": {
+        "x": 0.16200000000000073,
+        "y": 0.08,
+        "z": -6.245000000000043,
+        "vx": 1.8967709820967338e-156,
+        "vz": -1.0685258649161527e-15,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyA",
+      "axis": "x",
+      "target": -16.5,
+      "before": {
+        "x": -3.6,
+        "y": 0.08,
+        "z": -17,
+        "vx": 0,
+        "vz": 0,
+        "hp": 100
+      },
+      "after": {
+        "x": -16.96500000000002,
+        "y": 0.08,
+        "z": -17,
+        "vx": -1.1872509610179478e-16,
+        "vz": 0,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyW",
+      "axis": "z",
+      "target": -21,
+      "before": {
+        "x": -16.96500000000002,
+        "y": 0.08,
+        "z": -17,
+        "vx": -1.1872509610179478e-16,
+        "vz": 0,
+        "hp": 100
+      },
+      "after": {
+        "x": -16.96500000000002,
+        "y": 0.08,
+        "z": -21.15800000000001,
+        "vx": -9.916470707401479e-57,
+        "vz": -5.428673804380195e-20,
+        "hp": 100
+      }
+    },
+    {
+      "key": "KeyW",
+      "axis": "z",
+      "target": -40.4,
+      "before": {
+        "x": -16.96500000000002,
+        "y": 0.08,
+        "z": -21.15800000000001,
+        "vx": -2.0754276347500957e-136,
+        "vz": -1.1361723304688667e-99,
+        "hp": 78
+      },
+      "after": {
+        "x": -16.96500000000002,
+        "y": 0.08,
+        "z": -40.85899999999975,
+        "vx": -1.2054077301604672e-35,
+        "vz": -5.428673804380195e-20,
+        "hp": 67
+      }
+    }
+  ],
+  "errors": [],
+  "result": "passed"
+}

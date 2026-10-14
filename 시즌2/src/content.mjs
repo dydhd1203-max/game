@@ -2,8 +2,8 @@
 // Compact village plots change collision geometry; peers must use matching maps.
 // Earlier local checkpoints are explicitly migrated when loaded.
 export const BUILD = 's2-008';
-// Detailed village landmarks, organic scenery and compact walking routes.
-export const RELEASE = 's2-008';
+// Nature art revision only; collision, saves and network remain s2-008.
+export const RELEASE = 's2-009';
 export const SEASON = 2;
 // Dedicated reserved subtree of the existing classroom backend. Season 1 room
 // codes are uppercased; they never address this lowercase reserved path.
