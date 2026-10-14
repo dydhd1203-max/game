@@ -25,14 +25,14 @@ FIGURES={
   shoes=[[(528,805),(532,782),(548,771),(580,764),(615,763),(640,770),(652,790),(655,815),(647,835),(618,846),(578,846),(548,838),(532,824)],
          [(331,792),(340,768),(360,757),(392,757),(425,764),(447,772),(458,790),(458,812),(452,830),(425,842),(385,846),(350,840),(334,822)]],
   openings=[[(520,740),(560,740),(560,800),(520,840)],[(430,740),(470,740),(470,830),(430,790)]],
-  wrist=665,forearms=[360,623],hands=[(285,402),(588,706)],handBottom=734,armTop=618,cuffLine=652,lift=14,
+  wrist=665,forearms=[360,623],hands=[(285,402),(588,706)],handBottom=734,armTop=618,cuffLine=652,lift=0,
   sleeves=[[(352,612),(362,616),(376,628),(389,632),(398,620)],[(588,617),(600,635),(614,628),(627,617),(632,612)]]),
  # Girl: 327 px runtime head over the bob's 510 px.
  'f':dict(src='assets/pose-references/floor-sit-f-chatgpt-2026-10-14.webp',cx=474,k=.0331,crop=(205,550,745,835),
   shoes=[[(507,790),(512,770),(530,758),(570,748),(605,742),(625,750),(635,775),(632,800),(615,820),(580,826),(540,822),(515,810)],
          [(310,780),(318,750),(345,737),(380,738),(420,752),(437,762),(440,790),(432,808),(400,820),(355,823),(322,815)]],
   openings=[[(490,735),(532,735),(532,800),(490,820)],[(425,740),(462,740),(462,815),(425,800)]],
-  wrist=643,forearms=[327,605],armTop=586,cuffLine=622,lift=22,
+  wrist=643,forearms=[327,605],armTop=586,cuffLine=622,lift=0,
   sleeves=[[(290,0),(370,0)],[(570,0),(650,0)]],hem=[(205,640),(358,640),(366,676),(420,693),(470,699),(520,693),(578,676),(588,640),(745,640)],hands=[(258,366),(570,692)],handBottom=708),
 }
 sex,out=sys.argv[1],sys.argv[2];C=FIGURES[sex];src=C['src']
@@ -110,6 +110,13 @@ def save(name,mask,box=None,src=None,alpha=None):
 # boy's sleeve).
 ARM=fg&~(mn>232)&skintone&~shirt&~denim&(rows>=C['armTop']-y0)
 ARM&=grow(shrink(ARM),1)
+# Keep only what connects to the hands (stray bits of the cuff's edge outline).
+keep=ARM&(rows>=C['wrist']-y0)
+while True:
+    d=grow(keep,1)&ARM
+    if (d==keep).all():break
+    keep=d
+ARM=keep
 armRGB=a.copy();armM=ARM.copy();L=C['lift']
 for (h0,h1),fx,sl in zip(C['hands'],C['forearms'],C['sleeves']):
     sx,sy=zip(*sl)
@@ -122,6 +129,7 @@ for (h0,h1),fx,sl in zip(C['hands'],C['forearms'],C['sleeves']):
     s=max(np.argmax(ARM[:,j]) for j in js)+7;c=fx-x0;lo=hi=c
     while lo>0 and ARM[s,lo-1]:lo-=1
     while hi<x1-x0-1 and ARM[s,hi+1]:hi+=1
+    if not L:continue
     for j in js:
         top=np.argmax(ARM[:,j])
         if not lo<=j<=hi:armM[:s,j]=False
