@@ -55,7 +55,7 @@
  // An arm the pose marks as folding (arm.fold: run and jump) whose screen
  // turn at the elbow passes SHARP gets the rounded-elbow mesh in painting().
  // Every other limb keeps the original warp, pixel for pixel.
- const SHARP=100*Math.PI/180,SHARP_ROWS=10;
+ const SHARP=100*Math.PI/180,SHARP_ROWS=10,FIST_STUB=.3;
  function load(){return pending||(pending=Promise.all(Object.entries(files).map(async([k,f])=>[k,await QPAvatarImage.load(new URL(f,base).href)])).then(entries=>{Object.assign(images,Object.fromEntries(entries));atlas.ready=true;return atlas;}).catch(e=>{atlas.error=e.message;console.error(e);return atlas;}));}
  function loadClean(){return cleanPending||(cleanPending=Promise.all(Object.entries(cleanFiles).map(async([k,f])=>[k+'Clean',await QPAvatarImage.load(new URL(f,base).href)])).then(entries=>{Object.assign(images,Object.fromEntries(entries));clean.ready=true;return clean;}).catch(e=>{clean.error=e.message;console.error(e);return clean;}));}
  // A limb definition in sheet pixels: the painted strip, its three joints,
@@ -91,9 +91,9 @@
   const nu=[u[1],-u[0]],nv=[v[1],-v[0]],J=d.joints,ys=[d.rect[1],J[0][1],J[1][1],J[2][1],d.end],ext=(d.end-J[2][1])*d.k,top=(J[0][1]-d.rect[1])*d.k,verts=[],cols=2;
   const l1=Math.hypot(...sub(b,a)),l2=Math.hypot(...sub(c,b)),corner=Math.min(.55,l1*.2,l2*.2),lo=ys[2]-corner/l1*(ys[2]-ys[1]),hi=ys[2]+corner/l2*(ys[3]-ys[2]);
   // Source rows of the mesh; a sharp fold adds rows through the bend.
-  const rowsY=Array.from({length:21},(_,row)=>d.rect[1]+row/20*d.rect[3]);if(sharp)for(let j=0;j<=SHARP_ROWS;j++)rowsY.push(lo+(hi-lo)*j/SHARP_ROWS);if(part==='forearm-bare')rowsY.push(ys[3]);if(rowsY.length>21){rowsY.sort((p,q)=>p-q);for(let j=rowsY.length-1;j>0;j--)if(rowsY[j]-rowsY[j-1]<.05)rowsY.splice(j,1);}
+  const rowsY=Array.from({length:21},(_,row)=>d.rect[1]+row/20*d.rect[3]);if(sharp)for(let j=0;j<=SHARP_ROWS;j++)rowsY.push(lo+(hi-lo)*j/SHARP_ROWS);if(part==='forearm-bare')rowsY.push(ys[3]);if(part==='forearm-fist')rowsY.push(ys[3]+FIST_STUB/d.k);if(rowsY.length>21){rowsY.sort((p,q)=>p-q);for(let j=rowsY.length-1;j>0;j--)if(rowsY[j]-rowsY[j-1]<.05)rowsY.splice(j,1);}
   // Rows a part draws: from the last row at or before the bend's start.
-  const first=part?Math.max(0,rowsY.findLastIndex(y=>y<=lo+1e-6)):0,last=part==='forearm-bare'?rowsY.findIndex(y=>y>=ys[3]-1e-6):rowsY.length-1;
+  const first=part?Math.max(0,rowsY.findLastIndex(y=>y<=lo+1e-6)):0,last=part==='forearm-bare'?rowsY.findIndex(y=>y>=ys[3]-1e-6):part==='forearm-fist'?rowsY.findIndex(y=>y>=ys[3]+FIST_STUB/d.k-1e-6):rowsY.length-1;
   // Sharp fold (a running or jumping forearm folded up toward the camera, so
   // on screen it turns back over its own upper arm): the centre line runs on
   // a circular arc tangent to both bones, and the inside of the bend collapses
@@ -188,7 +188,7 @@
   // clip below cut the painting with straight unlined edges over the cuff
   // and still pasted the folded elbow on top (critic, 2026-10-08).
   const own=toward&&Boolean(arm.fold);part.forearm.style.display=toward&&!own?'':'none';part.forearmArt.style.display=own?'':'none';if(!toward)return;
-  if(own){const art=painting(def,points,true,(arm.open??arm.lift??0)>.5?'forearm-bare':'forearm'),e=part.forearmArt;
+  if(own){const art=painting(def,points,true,arm.fist?'forearm-fist':(arm.open??arm.lift??0)>.5?'forearm-bare':'forearm'),e=part.forearmArt;
    // The painting is compared by reference: reading a data-URL href back from
    // the DOM every frame copied the whole string.
    if(e.paintedArt!==art){e.setAttribute('href',art.url);e.paintedArt=art;}for(const[k,val]of Object.entries({x:points[0][0]+art.x,y:points[0][1]+art.y,width:art.w,height:art.h}))if(e.getAttribute(k)!==String(val))e.setAttribute(k,val);return;}
@@ -212,28 +212,41 @@
  // fades in over the painted wrist (fade) instead of starting on a hard
  // straight edge across it.
  const HAND={skin:'#fcd7c0',line:'#b08979',rim:'#cfa593',crease:'#e9b9a3',palm:'M-.62 -.16L-.63 .5Q-.62 .88-.3 .9L.34 .88Q.63 .84 .62 .5L.62 -.16Z',palmLine:'M-.63 .2L-.63 .5Q-.62 .88-.3 .9L.34 .88Q.63 .84 .62 .5L.62 .2',fingers:'M-.34 .8L-.46 1.4M-.1 .84L-.12 1.55M.14 .82L.2 1.47M.38 .74L.53 1.18M-.48 .32L-.92 .74',crease:'M-.28 .42Q0 .58 .3 .46',fade:[-.16,.26],cut:.3};
+ // The closed fist of a running arm seen from the front or behind (arm.fist):
+ // the same seven strokes as the open hand, so a fist never adds nodes; a new
+ // rule-drawn shape in the approved hand's colours, line weights and fade
+ // (2026-10-13, critique: the folded forearm ended in a loose skin blob and
+ // read as a hand laid on the chest). A compact rounded block wider than the
+ // wrist, four curled finger ends as knuckle bumps across its far end (the
+ // finger strokes: outline, rim and skin core, as the open hand's fingers),
+ // the thumb wrapped across the front toward the body, one crease.
+ const FIST={palm:'M-.6 -.16L-.62 .52Q-.6 .9-.22 .96L.26 .95Q.62 .9 .62 .52L.6 -.16Z',palmLine:'M-.62 .18L-.62 .52Q-.6 .9-.22 .96L.26 .95Q.62 .9 .62 .52L.6 .18',fingers:'M-.34 .66L-.34 .78M-.11 .69L-.11 .82M.12 .69L.12 .82M.35 .66L.35 .78M-.56 .2Q-.46 .46-.16 .5',crease:'M-.36 .6Q0 .66 .38 .6',cut:.3};
  function openHand(r,part,arm,i,tint){
   if(!part.openHand){const g=document.createElementNS(NS,'g'),mk=(d,attrs)=>{const e=document.createElementNS(NS,'path');e.setAttribute('d',d);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);g.append(e);return e;};
    g.setAttribute('filter',tint);g.dataset.foundationOpenHand=String(i);
    const fade=document.createElementNS(NS,'linearGradient');fade.id=r.svg.dataset.foundationId+'-hand-fade-'+i;for(const[k,v]of Object.entries({gradientUnits:'userSpaceOnUse',x1:0,x2:0,y1:HAND.fade[0],y2:HAND.fade[1]}))fade.setAttribute(k,v);
    for(const[offset,opacity]of[[0,0],[1,1]]){const stop=document.createElementNS(NS,'stop');stop.setAttribute('offset',offset);stop.setAttribute('stop-color',HAND.skin);stop.setAttribute('stop-opacity',opacity);fade.append(stop);}r.svg.querySelector('defs').append(fade);
-   mk(HAND.fingers,{fill:'none',stroke:HAND.rim,'stroke-width':.56,'stroke-linecap':'round','stroke-opacity':.6});mk(HAND.fingers,{fill:'none',stroke:HAND.line,'stroke-width':.44,'stroke-linecap':'round'});mk(HAND.palm,{fill:'url(#'+fade.id+')'});
-   mk(HAND.palmLine,{fill:'none',stroke:HAND.rim,'stroke-width':.28,'stroke-linejoin':'round','stroke-opacity':.6});mk(HAND.palmLine,{fill:'none',stroke:HAND.line,'stroke-width':.08,'stroke-linejoin':'round'});
-   mk(HAND.fingers,{fill:'none',stroke:HAND.skin,'stroke-width':.3,'stroke-linecap':'round'});mk(HAND.crease,{fill:'none',stroke:HAND.crease,'stroke-width':.05,'stroke-linecap':'round'});
-   part.parent.append(g);part.openHand=g;
+   const strokes={fingers:[],palm:[],palmLine:[],crease:[]};
+   strokes.fingers.push(mk(HAND.fingers,{fill:'none',stroke:HAND.rim,'stroke-width':.56,'stroke-linecap':'round','stroke-opacity':.6}),mk(HAND.fingers,{fill:'none',stroke:HAND.line,'stroke-width':.44,'stroke-linecap':'round'}));strokes.palm.push(mk(HAND.palm,{fill:'url(#'+fade.id+')'}));
+   strokes.palmLine.push(mk(HAND.palmLine,{fill:'none',stroke:HAND.rim,'stroke-width':.28,'stroke-linejoin':'round','stroke-opacity':.6}),mk(HAND.palmLine,{fill:'none',stroke:HAND.line,'stroke-width':.08,'stroke-linejoin':'round'}));
+   strokes.fingers.push(mk(HAND.fingers,{fill:'none',stroke:HAND.skin,'stroke-width':.3,'stroke-linecap':'round'}));strokes.crease.push(mk(HAND.crease,{fill:'none',stroke:HAND.crease,'stroke-width':.05,'stroke-linecap':'round'}));
+   part.parent.append(g);part.openHand=g;part.handStrokes=strokes;
    const clip=document.createElementNS(NS,'clipPath');clip.id=r.svg.dataset.foundationId+'-hand-cut-'+i;part.handCut=document.createElementNS(NS,'path');clip.append(part.handCut);r.svg.querySelector('defs').append(clip);}
   // arm.open (solve): the gesture's own choice; climbing grips and the side
   // cheer's fists keep the painted hand.
-  const open=(arm.open??arm.lift??0)>.5;part.openHand.style.display=open?'':'none';
+  // A running fist uses the same strokes with the FIST shapes; every other
+  // pose keeps (or gets back) the open hand's.
+  const fist=Boolean(arm.fist),open=fist||(arm.open??arm.lift??0)>.5,shape=fist?FIST:HAND;part.openHand.style.display=open?'':'none';
+  for(const[k,list]of Object.entries(part.handStrokes))for(const e of list)if(e.getAttribute('d')!==shape[k])e.setAttribute('d',shape[k]);
   if(!open){part.painting.removeAttribute('clip-path');part.openHand.removeAttribute('transform');return;}
   if(part.openHand.parentNode!==part.parent||part.openHand.nextSibling)part.parent.append(part.openHand);
   const d=sub(arm.wrist,arm.elbow),l=Math.hypot(...d)||1,u=[d[0]/l,d[1]/l],nrm=[-u[1],u[0]],angle=Math.atan2(u[1],u[0])*180/Math.PI-90+(arm.handTurn||0)*180/Math.PI;
   // Thumb toward the body's centre line (palm or back of the hand to the camera).
   const thumb=[-Math.cos(angle*Math.PI/180),-Math.sin(angle*Math.PI/180)],flip=thumb[0]*(arm.wrist[0]-16)>0?-1:1;
   part.openHand.setAttribute('transform','translate('+arm.wrist.map(v=>v.toFixed(4)).join(' ')+') rotate('+angle.toFixed(3)+') scale('+flip+' 1)');
-  const c=[arm.wrist[0]+u[0]*HAND.cut,arm.wrist[1]+u[1]*HAND.cut],q=(p,a,b)=>(p[0]+u[0]*a+nrm[0]*b).toFixed(3)+' '+(p[1]+u[1]*a+nrm[1]*b).toFixed(3);
+  const c=[arm.wrist[0]+u[0]*shape.cut,arm.wrist[1]+u[1]*shape.cut],q=(p,a,b)=>(p[0]+u[0]*a+nrm[0]*b).toFixed(3)+' '+(p[1]+u[1]*a+nrm[1]*b).toFixed(3);
   part.handCut.setAttribute('d','M'+q(c,0,12)+'L'+q(c,-30,12)+'L'+q(c,-30,-12)+'L'+q(c,0,-12)+'Z');part.painting.setAttribute('clip-path','url(#'+part.handCut.parentNode.id+')');
  }
- function destroy(r){r.skinPaintFilter?.remove();r.neckPainting?.remove();for(const e of [r.neckSurface,r.neckEdge,r.neckShade])e.style.display='';for(const part of [...r.arms,...r.legs]){part.contour.style.visibility='';part.paintFrame?.remove();part.painting?.remove();part.paintClip?.parentNode.remove();part.forearm?.remove();part.forearmArt?.remove();part.forearmClip?.parentNode.remove();part.openHand?.remove();part.handCut?.parentNode.remove();r.svg.querySelector('[id="'+r.svg.dataset.foundationId+'-hand-fade-'+r.arms.indexOf(part)+'"]')?.remove();delete part.forearm;delete part.forearmArt;delete part.forearmClip;delete part.openHand;delete part.handCut;}}
+ function destroy(r){r.skinPaintFilter?.remove();r.neckPainting?.remove();for(const e of [r.neckSurface,r.neckEdge,r.neckShade])e.style.display='';for(const part of [...r.arms,...r.legs]){part.contour.style.visibility='';part.paintFrame?.remove();part.painting?.remove();part.paintClip?.parentNode.remove();part.forearm?.remove();part.forearmArt?.remove();part.forearmClip?.parentNode.remove();part.openHand?.remove();part.handCut?.parentNode.remove();r.svg.querySelector('[id="'+r.svg.dataset.foundationId+'-hand-fade-'+r.arms.indexOf(part)+'"]')?.remove();delete part.forearm;delete part.forearmArt;delete part.forearmClip;delete part.openHand;delete part.handStrokes;delete part.handCut;}}
  root.QPFoundationSkin=Object.freeze({atlas,files,cleanFiles,clean,load,loadClean,apply,destroy,limbDef,paintCache,paint,paintStats,emptyPaint,CLEAN_NECK});
 })(window);

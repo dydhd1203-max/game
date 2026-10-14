@@ -290,17 +290,43 @@
   // waist and each cuff occur once; the skinning regions share seam vertices.
   // The key carries the bottom's id and, when a foot is tucked into the side
   // floor seat (seatShoe.lap, painted into this picture), the shoes' id.
+  // Running front/back (2026-10-13, critique 6): a thigh swinging toward or
+  // away from the camera is short on screen (down to 40% of its length), and
+  // the leg rows followed it: the folded cuff band was squeezed to a line,
+  // its flared outer end stood out past the thigh as a flat wing and the
+  // scissoring legs tore a notch at the crotch. Here (RUN_HEM) the leg rows
+  // shorten no further than `min` of the drawn length, the cuff band below
+  // the seat's cut row keeps its drawn thickness and only moves, its outer
+  // end is drawn in to the side seam (the drawing's span on the cut row),
+  // and the seat down to the crotch apex is laid once more behind the legs,
+  // following both thighs' mean, so a tear shows cloth, not the background.
+  const RUN_HEM={min:.72,ease:.3},runHems=new Map();
+  function runHem(g,sex,view,S,F,art){
+    const key=gk(g.id,sex,view);if(runHems.has(key))return runHems.get(key);const T=seatOf(g,sex,view);if(!T)return null;const ly=py=>collar(F)[1]+(py-F.neck[1])*F.k,top=ly(T.cut),seam=rowSpan(art,F,T.cut-1),flare=[9,-9];
+    for(let py=T.cut;py<=Math.ceil(T.cuff);py++){const [l,r]=rowSpan(art,F,py);flare[0]=Math.min(flare[0],l);flare[1]=Math.max(flare[1],r);}
+    // Outward reach of the seam and of the flared cuff from each hip.
+    const squeeze=[0,1].map(i=>{const o=i?1:-1,hip=S.hip[i],a=o*(seam[i]-hip),b=o*(flare[i]-hip);return b>a&&a>0?a/b:1;});
+    const out={top,apex:ly(T.apex),squeeze,v:(T.cut-art.rect[1])/art.height};runHems.set(key,out);return out;
+  }
   function shortsTexture(g,shoes,sex,view,pose){
-    const S=rig(sex,view),F=figure(sex,view),profile=pose.profile,lap=pose.legs.some(l=>l.seatShoe?.lap),key=gk(g.id,...(lap?[shoes.id]:[]),[sex,view,pose.floor,pose.desk,pose.lean,...pose.legs.flatMap(l=>[...l.root,...l.knee,...(pose.floor?l.ankle:[]),l.seatShoe?.lap?1:0])].map(v=>typeof v==='number'?Math.round(v*24)/24:v).join(':')),cached=shortsCache.get(key);if(cached)return cached;
+    // (Measured once per garment, sex and view; a running crowd asks every frame.)
+    const H=pose.action==='run'&&!pose.profile&&!pose.floor&&!pose.desk?runHem(g,sex,view,rig(sex,view),figure(sex,view),shortsArt(g,sex,view)):null;
+    const S=rig(sex,view),F=figure(sex,view),profile=pose.profile,lap=pose.legs.some(l=>l.seatShoe?.lap),key=gk(g.id,...(lap?[shoes.id]:[]),...(H?['run']:[]),[sex,view,pose.floor,pose.desk,pose.lean,...pose.legs.flatMap(l=>[...l.root,...l.knee,...(pose.floor?l.ankle:[]),l.seatShoe?.lap?1:0])].map(v=>typeof v==='number'?Math.round(v*24)/24:v).join(':')),cached=shortsCache.get(key);if(cached)return cached;
     const art=shortsArt(g,sex,view),cols=10,rows=10,vertices=[];
     const [a,b,c,d,tx,ty]=pose.torso,det=a*d-b*c,unmap=p=>[(d*(p[0]-tx)-c*(p[1]-ty))/det,(-b*(p[0]-tx)+a*(p[1]-ty))/det];
     const projected=pose.legs.map(l=>({root:unmap(l.root),knee:unmap(l.knee),ankle:unmap(l.ankle)})),start=S.waist-.6;
     if(pose.floor&&profile&&sideSeatOf(g,sex))return shortsCache.set(key,sideFloorShorts(g,shoes,sex,S,F,art,pose,projected));
     if((pose.floor||pose.desk)&&!profile)return shortsCache.set(key,seatedShorts(g,sex,view,S,F,art,projected,pose));
-    for(let row=0;row<=rows;row++)for(let col=0;col<=cols;col++){
-      const u=col/cols,v=row/rows,[x,y]=local(F,[art.rect[0]+u*art.width,art.rect[1]+v*art.height],F.neck,collar(F)),weight=smooth(clamp((y-start)/1.6,0,1));
+    // A running mesh gets a vertex row on the cut, so the cuff band moves as one piece.
+    const rowV=H?[...new Set([...Array.from({length:rows+1},(_,r)=>r/rows),clamp(H.v,0,1)])].sort((p,q)=>p-q):null,nRows=H?rowV.length-1:rows,means=[];
+    for(let row=0;row<=nRows;row++)for(let col=0;col<=cols;col++){
+      const u=col/cols,v=H?rowV[row]:row/rows,[x,y]=local(F,[art.rect[0]+u*art.width,art.rect[1]+v*art.height],F.neck,collar(F)),weight=smooth(clamp((y-start)/1.6,0,1));
       // View projection alters the visible length, never the body's joints.
-      const targets=projected.map((leg,i)=>{const hip=profile?S.profileHip[i]:S.hip[i],dx=leg.knee[0]-leg.root[0],dy=leg.knee[1]-leg.root[1],length=Math.hypot(dx,dy),nx=dy/(length||1),ny=-dx/(length||1),along=(y-S.waist)/S.thigh,spread=pose.floor?.5:1;return[leg.root[0]+nx*(x-hip)*spread+dx*along,leg.root[1]+ny*(x-hip)*spread+dy*along];});
+      const targets=projected.map((leg,i)=>{const hip=profile?S.profileHip[i]:S.hip[i],dx=leg.knee[0]-leg.root[0],dy=leg.knee[1]-leg.root[1],length=Math.hypot(dx,dy),nx=dy/(length||1),ny=-dx/(length||1),along=(y-S.waist)/S.thigh,spread=pose.floor?.5:1;
+        if(H){const k=Math.max(length/S.thigh,RUN_HEM.min),dist=y<=H.top?(y-S.waist)*k:(H.top-S.waist)*k+(y-H.top),o=i?1:-1,w=x-hip,inBand=smooth(clamp((y-H.top+RUN_HEM.ease)/RUN_HEM.ease,0,1)),wx=o*w>0?w*(1+(H.squeeze[i]-1)*inBand):w,ux=dx/(length||1),uy=dy/(length||1);
+          return[leg.root[0]+nx*wx+ux*dist,leg.root[1]+ny*wx+uy*dist];}
+        return[leg.root[0]+nx*(x-hip)*spread+dx*along,leg.root[1]+ny*(x-hip)*spread+dy*along];});
+      if(H){const m=mix(targets[0],targets[1],.5);means.push({s:[u*art.width,v*art.height],d:[x+(m[0]-x)*weight,y+(m[1]-y)*weight]});}
       // A side view overlaps both leg openings: follow the mean thigh rather than
       // tearing the seat and fly apart when the legs scissor.
       const side=profile?.5:smooth(clamp((x-15.4)/1.2,0,1));let target=mix(targets[0],targets[1],side);
@@ -316,7 +342,13 @@
       vertices.push({s:[u*art.width,v*art.height],d:[x+(target[0]-x)*weight,y+(target[1]-y)*weight]});
     }
     const xs=vertices.map(p=>p.d[0]),ys=vertices.map(p=>p.d[1]),x=Math.min(...xs)-.05,y=Math.min(...ys)-.05,w=Math.max(...xs)-x+.05,h=Math.max(...ys)-y+.05,scale=16,canvas=document.createElement('canvas');canvas.width=Math.ceil(w*scale);canvas.height=Math.ceil(h*scale);vertices.forEach(p=>p.d=[(p.d[0]-x)*scale,(p.d[1]-y)*scale]);
-    meshDraw(canvas.getContext('2d'),art.canvas,vertices,cols,rows);
+    meshDraw(canvas.getContext('2d'),art.canvas,vertices,cols,nRows);
+    if(H){
+      // The seat behind the legs: the drawing down to just below the crotch
+      // apex, on the two thighs' mean, only where the legs left no cloth.
+      const seat=document.createElement('canvas');seat.width=art.width;seat.height=art.height;const sx=seat.getContext('2d'),cutRow=Math.min(art.height,Math.ceil((H.apex+.25-collar(F)[1])/F.k+F.neck[1]-art.rect[1]));sx.drawImage(art.canvas,0,0,art.width,cutRow,0,0,art.width,cutRow);
+      means.forEach(p=>p.d=[(p.d[0]-x)*scale,(p.d[1]-y)*scale]);const ctx=canvas.getContext('2d');ctx.save();ctx.globalCompositeOperation='destination-over';meshDraw(ctx,seat,means,cols,nRows);ctx.restore();
+    }
     return shortsCache.set(key,{url:canvas.toDataURL(),x,y,w:canvas.width/scale,h:canvas.height/scale});
   }
   // Underarm of a gesture-raised arm (front/back). On the sheet the hanging

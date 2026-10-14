@@ -121,11 +121,17 @@
   // forearm crossing the waist flat (90 deg) or
   // diagonally (100-120 deg) is never drawn; with more poses per cycle, put
   // the keys on the new c values so this still holds.
+  // Round 4 (2026-10-13 critique: the forward fist still lay diagonally
+  // across the chest and ended in a loose hand, 'a hand laid on the chest'):
+  // from .61 on the elbow goes further out (abduction 13-16) and the forearm
+  // stands up beside the chest (145-150 deg from straight down, the fist
+  // about .9 nearer the midline than the elbow, still 4.5 outside it), and
+  // every front/back running hand is a closed fist (arm.fist, skin FIST).
   const GAIT={
     walk:{duty:.6,reach:[2.5,2.7],flat:.12,heel:.55,heelLift:.5,strike:-16,toe:28,swing:[[.22,-6,60],[.5,15,68],[.78,28,16]],bob:[[0,.56],[.06,.41],[.12,.25],[.2,.1],[.29,.025],[.4,.2]],lean:3,sway:.13,roll:1.7,support:.3,
       arm:{swing:[0,22],flex:[14,10],abduct:[2,-3],forearm:[-2,-7],facing:{flex:[10,15],abduct:[0,-2]}},lag:.03,frontRaise:1.9},
     run:{duty:.34,reach:[1.8,2.8],flat:.1,heel:.5,heelLift:.62,strike:-8,toe:34,swing:[[.3,-10,112],[.6,50,100],[.86,36,30]],bob:[[0,.33],[.12,.45],[.34,.18],[.42,-.1]],lean:12,sway:.06,roll:.9,support:.17,
-      arm:{swing:[-4,42],flex:[86,8],abduct:[2,-2],forearm:[-27,-19],facingKeys:[[-1,-61,85,10,-22],[-.6,-46,78,8,-15],[-.14,-26,70,6,-15],[.14,-20,70,6,-18],[.39,-15,70,6,-19],[.61,14,96,8,-35],[.8,22,96,9,-38],[1,28,94,10,-39]],
+      arm:{swing:[-4,42],flex:[86,8],abduct:[2,-2],forearm:[-27,-19],facingKeys:[[-1,-61,85,10,-22],[-.6,-46,78,8,-15],[-.14,-26,70,6,-15],[.14,-20,70,6,-18],[.39,-15,70,6,-19],[.61,14,96,13,-24],[.8,22,96,15,-29],[1,28,94,16,-33]],
         backKeys:[[-1,-56,82,6,-5],[-.6,-41,75,3,-7],[-.14,-24,68,0,-9],[.14,-18,68,-2,-11],[.39,-12,68,-4,-13],[.61,8,98,-6,-37],[.8,20,99,-6,-45],[1,28,96,-6,-47]]},lag:.02,frontRaise:1.5}
   };
   // Screen drop per body unit of walking depth in front/back views.
@@ -173,7 +179,7 @@
     // behind.
     takeoff:{drop:1.45,lean:13,hips:-.55,splay:16,profile:[-50,20,-58,26],front:[-34,22,18,16],back:[-34,22,18,16]},
     // Landing: a deeper give; the arms come down in front for balance.
-    landing:{drop:1.6,lean:11,hips:-.45,splay:18,profile:[30,42,12,40],front:[24,30,44,24],back:[24,30,44,24]},
+    landing:{drop:1.6,lean:11,hips:-.45,splay:18,profile:[8,60,12,40],front:[24,30,44,24],back:[24,30,44,24]},
     // Flight legs: launch (legs straight, toes pointed), apex (knees tucked
     // up), fall (legs reach down), touchdown.
     air:[
@@ -211,6 +217,12 @@
     //    up (.36-.42, a W rather than a level T), then from .45 the forearms
     //    point out and down (about 40 deg from straight down at the apex, soft
     //    elbows) for balance.
+    // Round 4 (2026-10-13 critique: at the fast fall and the landing the near
+    // side arm pointed almost straight forward at chest-waist height, a
+    // pointing or sleepwalking arm): from the fall (f .74) through the
+    // landing the near elbow stays bent 60-64 deg with the upper arm hanging
+    // by the body, so the forearm points forward-down (55-70 deg from
+    // straight down) and the hand is in front of the hip.
     airArms:[
       {f:0,profile:[78,46,-26,34],front:[10,116,132,10],back:[8,116,132,10]},
       {f:.12,profile:[86,50,2,44],front:[8,126,142,8],back:[6,126,142,8]},
@@ -219,8 +231,8 @@
       {f:.42,profile:[67,63,21,50],front:[16,50,122,20],back:[14,50,120,20]},
       {f:.45,profile:[63,64,16,47],front:[18,40,46,28],back:[16,40,46,28]},
       {f:.5,profile:[58,64,10,44],front:[18,30,30,26],back:[16,30,30,26]},
-      {f:.74,profile:[24,40,-24,32],front:[20,30,26,26],back:[18,30,26,26]},
-      {f:1,profile:[30,28,-14,28],front:[24,26,24,20],back:[22,26,24,20]}
+      {f:.74,profile:[4,64,-24,32],front:[20,30,26,26],back:[18,30,26,26]},
+      {f:1,profile:[-4,62,-14,28],front:[24,26,24,20],back:[22,26,24,20]}
     ]
   };
   // Catmull-Rom through flight keys: continuous speed, no hold at a key.
@@ -758,8 +770,11 @@
       // its painting and sleeve, shared by every seated avatar) never changes.
       if(seatBreath){const up=chest[5]-torso[5];for(const p of [shoulder,elbow,wrist])p[1]+=up;}
       // fold: a run/jump forearm may turn back over its own upper arm on
-      // screen; the skin paints that bend as a rounded elbow.
-      return{shoulder,elbow,wrist,depth:depth[1],boneSpace:[[...shoulder,0],[...elbow,depth[0]],[...wrist,depth[1]]],sleeve:transform(rest,shoulder,angle),angle,lift,open:open??lift,handTurn,fold:walk&&runW>0||jump};
+      // screen; the skin paints that bend as a rounded elbow. fist: a
+      // running arm seen from the front or behind closes its hand (the
+      // skin's rule-drawn fist, QPFoundationSkin FIST); the side run keeps
+      // the painted hand, which reads as a fist from the side.
+      return{shoulder,elbow,wrist,depth:depth[1],boneSpace:[[...shoulder,0],[...elbow,depth[0]],[...wrist,depth[1]]],sleeve:transform(rest,shoulder,angle),angle,lift,open:open??lift,handTurn,fold:walk&&runW>0||jump,fist:walk&&runW>0&&!profile};
     });
     // The raised side cheer lifts the chin a little toward the hands, on top
     // of the lean rule (a head pitch like the bow's, not a lean).
