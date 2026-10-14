@@ -134,6 +134,10 @@
  function toneMatrix(skin){const s=skin.slice(1).match(/../g).map(x=>parseInt(x,16)/255),median=.22*PAINT_MEDIAN[0]+.59*PAINT_MEDIAN[1]+.19*PAINT_MEDIAN[2],rows=[];
   for(let c=0;c<3;c++){const lum=s[c]*255/FACE_LUMINANCE*(1-WARMTH),own=s[c]*255/PAINT_MEDIAN[c]*median/FACE_LUMINANCE*WARMTH;rows.push([.22,.59,.19].map((w,k)=>Math.round((lum*w+(k===c?own:0))*1e5)/1e5).concat([0,0]).join(' '));}
   return rows.join(' ')+' 0 0 0 1 0';}
+ // The sheet's own skin through that tint: a flat fill that matches the
+ // painted limbs (the stretched floor sit's drawn legs).
+ const paintedSkins=new Map();
+ function paintedSkin(skin){if(!paintedSkins.has(skin)){const m=toneMatrix(skin).split(' ').map(Number);paintedSkins.set(skin,'#'+[0,1,2].map(c=>Math.round(Math.max(0,Math.min(255,m[c*5]*PAINT_MEDIAN[0]+m[c*5+1]*PAINT_MEDIAN[1]+m[c*5+2]*PAINT_MEDIAN[2]))).toString(16).padStart(2,'0')).join(''));}return paintedSkins.get(skin);}
  function apply(r,pose){if(!atlas.ready||!R)return;const view=pose.profile?'Profile':pose.back?'Back':'Front',sex=r.svg.dataset.qpxSex==='m'?'m':'f',art=r.bodyArt==='clean'&&clean.ready?'clean':'';
   // Geometry is shared across skin tones. One sRGB colour matrix tints the
   // neutral painting for the wearer's tone without rebuilding pose meshes.
@@ -147,13 +151,19 @@
    for(const[k,v]of Object.entries({x:16+(rect[0]-F.neck[0])*F.k,y:collar+(rect[1]-F.neck[1])*F.k,width:rect[2]*F.k,height:rect[3]*F.k}))if(r.neckPainting.getAttribute(k)!==String(v))r.neckPainting.setAttribute(k,v);
    // A leaning walk/run bends the neck at the collar (pose.neckTilt).
    const tilt=pose.neckTilt?'rotate('+(-pose.neckTilt).toFixed(3)+' 16 '+collar+')':'';if((r.neckPainting.getAttribute('transform')||'')!==tilt){if(tilt)r.neckPainting.setAttribute('transform',tilt);else r.neckPainting.removeAttribute('transform');}}
-  for(const type of ['arm','leg']){const parts=type==='arm'?r.arms:r.legs;parts.forEach((part,i)=>{const p=type==='arm'?pose.arms[i]:pose.legs[i],points=type==='arm'?[p.shoulder,p.elbow,p.wrist]:p.paint||[p.root,p.knee,p.ankle],def=limbDef(type,sex,view,i,art),drawn=painting(def,points,type==='arm'&&Boolean(p.fold));
+  for(const type of ['arm','leg']){const parts=type==='arm'?r.arms:r.legs;parts.forEach((part,i)=>{const p=type==='arm'?pose.arms[i]:pose.legs[i],points=type==='arm'?[p.shoulder,p.elbow,p.wrist]:p.paint||[p.root,p.knee,p.ankle],def=limbDef(type,sex,view,i,art),drawn=type==='leg'&&pose.seatArt?null:painting(def,points,type==='arm'&&Boolean(p.fold));
    if(!part.painting){part.painting=document.createElementNS(NS,'image');part.painting.setAttribute('data-foundation-skin-paint',type);part.painting.setAttribute('filter',tint);part.painting.setAttribute('preserveAspectRatio','none');
     // An arm's sleeve-opening clip sits on a frame, so the forearm overlay can
     // reuse the bare painting above the sleeve with only its own clip.
     part.paintFrame=type==='arm'?document.createElementNS(NS,'g'):part.painting;if(type==='arm')part.paintFrame.append(part.painting);part.parent.insertBefore(part.paintFrame,part.shade);
     // The seated-leg clip exists from the start: motion never adds nodes.
     if(type==='leg'){const g=document.createElementNS(NS,'clipPath');g.id=r.svg.dataset.foundationId+'-leg-skin-paint-'+i;part.paintClip=document.createElementNS(NS,'path');g.append(part.paintClip);r.svg.querySelector('defs').append(g);}}
+   // Drawn seated legs (pose.seatArt): one picture of both legs in the near
+   // leg; the far leg's painting and the drawn shapes are hidden.
+   if(!drawn){const A=pose.seatArt.legs,image=part.painting;part.paintFrame.removeAttribute('clip-path');part.contour.style.visibility='hidden';part.shade.style.display='none';
+    if(!i){part.paintFrame.style.display='none';return;}
+    if(part.paintFrame.style.display){part.paintFrame.style.removeProperty('display');if(!part.paintFrame.getAttribute('style'))part.paintFrame.removeAttribute('style');}
+    if(image.paintedArt!==A){image.setAttribute('href',A.url);image.paintedArt=A;}for(const[k,val]of Object.entries({x:A.rect[0],y:A.rect[1],width:A.rect[2],height:A.rect[3]}))if(image.getAttribute(k)!==String(val))image.setAttribute(k,val);return;}
    // The pooled painting is compared by reference (as the forearm's below):
    // reading the data-URL href back every frame copied the whole string.
    const image=part.painting;if(image.paintedArt!==drawn){if(image.getAttribute('href')!==drawn.url)image.setAttribute('href',drawn.url);image.paintedArt=drawn;}for(const[k,val]of Object.entries({x:points[0][0]+drawn.x,y:points[0][1]+drawn.y,width:drawn.w,height:drawn.h}))if(image.getAttribute(k)!==String(val))image.setAttribute(k,val);
@@ -166,7 +176,14 @@
    // refill on the sheet) never shows beside the soft seat corners.
    let clip=part.contour.getAttribute('clip-path');if(type==='leg'){clip=null;const lap=pose.desk&&!pose.profile,r=pose.back?1.15:1.02;if(pose.floor||lap){part.paintClip.setAttribute('d',pose.floor?part.contour.getAttribute('d'):'M'+(p.knee[0]-r).toFixed(3)+' '+p.knee[1].toFixed(3)+'A'+r+' '+r+' 0 0 1 '+(p.knee[0]+r).toFixed(3)+' '+p.knee[1].toFixed(3)+'L'+(p.knee[0]+2).toFixed(3)+' 70H'+(p.knee[0]-2).toFixed(3)+'Z');clip='url(#'+part.paintClip.parentNode.id+')';}}
    if(clip)part.paintFrame.setAttribute('clip-path',clip);else part.paintFrame.removeAttribute('clip-path');
-   part.contour.style.visibility='hidden';part.shade.style.display=type==='leg'&&pose.floor?'':'none';if(type==='arm'){part.hand.style.display='none';forearmOverlay(r,part,p,i,[def.radii[1]*def.k,def.radii[2]*def.k],(def.end-def.joints[2][1])*def.k,def,points,tint);openHand(r,part,p,i,tint);}
+   // The stretched front floor sit (leg.cuff) draws its long shin and bare
+   // thigh as outlined skin shapes: the standing leg painting, stretched
+   // to three or four times its shin, broke into steps along its edges.
+   const drawnLeg=type==='leg'&&Boolean(p.cuff);if(drawnLeg)part.paintFrame.style.display='none';else if(part.paintFrame.style.display){part.paintFrame.style.removeProperty('display');if(!part.paintFrame.getAttribute('style'))part.paintFrame.removeAttribute('style');}
+   part.contour.style.visibility=drawnLeg?'':'hidden';
+   if(type==='leg')for(const e of [part.contour,part.foot])if(e){if(drawnLeg){if(!e.dataset.baseFill)e.dataset.baseFill=e.getAttribute('fill');const c=paintedSkin(r.svg.dataset.foundationSkin);if(e.getAttribute('fill')!==c)e.setAttribute('fill',c);}else if(e.dataset.baseFill){e.setAttribute('fill',e.dataset.baseFill);delete e.dataset.baseFill;}}part.shade.style.display=type==='leg'&&pose.floor?'':'none';if(type==='arm'){part.hand.style.display='none';forearmOverlay(r,part,p,i,[def.radii[1]*def.k,def.radii[2]*def.k],(def.end-def.joints[2][1])*def.k,def,points,tint);openHand(r,part,p,i,tint);
+    // Drawn seated hands (pose.seatArt) rest on the knees over the arms.
+    if(pose.seatArt){const A=pose.seatArt.hands[i],e=part.forearmArt;e.style.display='';if(e.paintedArt!==A){e.setAttribute('href',A.url);e.paintedArt=A;}for(const[k,val]of Object.entries({x:A.rect[0],y:A.rect[1],width:A.rect[2],height:A.rect[3]}))if(e.getAttribute(k)!==String(val))e.setAttribute(k,val);}}
   });}r.svg.dataset.foundationSkinArt='reference-sheet-v1';}
  // A forearm folded toward the viewer (front/back running, jumping, cheering)
  // lies in front of its own sleeve. Run/jump arms (arm.fold) draw their own

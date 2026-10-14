@@ -287,6 +287,29 @@
   //   set slightly in and back under the knees; forearms forward, in and a
   //   little down onto the desk (round 2: a level forearm read as holding a
   //   tray in the side view).
+  // Front/back floor sit, stretched to the user's cross-legged reference
+  // (assets/pose-references/floor-sit-m-chatgpt-2026-10-14.webp; user
+  // decision 2026-10-14: only this pose stretches the legs). The chibi's
+  // short bones could not reach it: knees wide at the sides, a long shin
+  // from each knee across the midline to the opposite side, each shoe worn
+  // on its foot there, toe pointing out, and bare thigh between the shorts
+  // cuff and the knee. The body sits `seat` above the floor on the crossed
+  // shins. Knee: `thigh` long, `out` from forward, `rise` up. Ankle: `cross`
+  // past the midline, `lift` above standing ankle height, `z` forward; the
+  // shin takes whatever length that needs. `cuff`: the shorts cuff's
+  // distance along the thigh. `shin`: the shin leaves the knee that far
+  // below its centre, under the thigh's round end, so the thigh shows above
+  // it; `radii`: the shin's at the knee and ankle (the reference's legs are
+  // fuller than the standing chibi's). The side view keeps SEATED.floor.side.
+  const FLOOR_FRONT=Object.freeze({seat:3.55,thigh:4.7,out:72.5,rise:4.4,cross:[2.6,2.7],lift:[-.35,.13],z:[2,2.2],cuff:3,shin:.6,radii:[1.2,.86]});
+  // Drawn front floor-sit layers cut from that reference (tools/seated-cut.py,
+  // assets/seated/floor-front-m.json; rects in body units). The stretched
+  // standing limbs read as tubes, the standing hand hung off the knee and the
+  // side-on standing shoe lay on the floor beside the leg (user, 2026-10-14):
+  // `legs` (skin, tinted: thighs, crossed shins, hands on the knees), `hands`
+  // (the same hands over the arms, whose wrists reach `wrist`) and per shoe
+  // item the worn shoes (untinted). Back and side views keep the drawn shapes.
+  const SEATED_ART=Object.freeze({m:Object.freeze({legs:Object.freeze({url:'assets/seated/floor-front-m-legs.png',rect:[8.1187, 39.246, 15.7248, 6.7662]}),hands:[Object.freeze({url:'assets/seated/floor-front-m-hand-0.png',rect:[8.0809, 39.246, 4.4226, 2.6082]}),Object.freeze({url:'assets/seated/floor-front-m-hand-1.png',rect:[19.5343, 39.246, 4.4604, 2.6082]})],wrist:[[10.9159, 39.4728], [20.8573, 39.4728]],shoes:Object.freeze({'shoes:sneaker':[Object.freeze({url:'assets/seated/floor-front-m-shoes-sneaker-0.png',rect:[17.1529, 42.8748, 4.9896, 3.1752]}),Object.freeze({url:'assets/seated/floor-front-m-shoes-sneaker-1.png',rect:[9.7063, 42.6102, 4.9518, 3.4398]})]})})});
   const SEATED=Object.freeze({
     // The side view is drawn for reading, as in the user's side reference
     // (round 2: before, the shirt reached the floor, no knee showed and the
@@ -303,7 +326,7 @@
     // shoe flipped, painted between the seat and the thigh: `lap`), both on
     // the floor; the child rounds `lean` degrees over the knees with the
     // hands resting on top of them (hand: inward, above, behind the knee).
-    floor:Object.freeze({seat:1.6,out:33,rise:14,fold:[12,4],lift:[.12,0],lean:3,toe:7,hand:[.75,1.15,-.3],side:Object.freeze({out:[15,6],rise:[36,40],fold:[-10,25],lift:[0,0],lean:13,hip:3.6,hand:[.75,1.2,-.9],shoes:[{view:'Front',index:0,flip:1,angle:0,over:true},{view:'Profile',index:1,flip:-1,angle:0,lap:true}]})}),
+    floor:Object.freeze({seat:1.6,out:33,rise:14,fold:[12,4],lift:[.12,0],lean:3,toe:7,hand:[.75,1.15,-.3],front:FLOOR_FRONT,side:Object.freeze({out:[15,6],rise:[36,40],fold:[-10,25],lift:[0,0],lean:13,hip:3.6,hand:[.75,1.2,-.9],shoes:[{view:'Front',index:0,flip:1,angle:0,over:true},{view:'Profile',index:1,flip:-1,angle:0,lap:true}]})}),
     desk:Object.freeze({drop:3.55,out:12,shinTilt:8,shinIn:14,lean:3,swing:14,abduct:8,reach:68,inward:36})
   }),SEATED_BREATH=Object.freeze({rise:.14,steps:3});
   // Two-bone reach in 3D; the elbow bends toward the pole. Target beyond the
@@ -481,7 +504,7 @@
   function solve(input={}){
     const direction=input.action==='climb'?'back':['front','back','left','right'].includes(input.direction)?input.direction:input.facing||'front',profile=['left','right'].includes(direction),back=direction==='back',view=profile?'profile':back?'back':'front';
     const SPEC=rigFor(input.sex,view),REST_SWING=Math.atan2(...SPEC.profileSwing),REST_FLEX=Math.atan2(...SPEC.profileFlex)-REST_SWING;
-    const action=input.action||'idle',run=action==='run',walk=run||action==='walk',floor=action==='floor-sit'||action==='sit'&&input.seatMode==='floor',desk=action==='sit'&&!floor,jump=action==='jump',climb=action==='climb',CR=climb?climbRig(SPEC):null;
+    const action=input.action||'idle',run=action==='run',walk=run||action==='walk',floor=action==='floor-sit'||action==='sit'&&input.seatMode==='floor',desk=action==='sit'&&!floor,seatArt=floor&&direction==='front'?SEATED_ART[input.sex]||null:null,jump=action==='jump',climb=action==='climb',CR=climb?climbRig(SPEC):null;
     const rawPhase=((Number(input.phase)||0)%1+1)%1;
     // A cycle has 24 shared painted poses (walk ~50fps, run ~78fps in maps).
     // Quantize drawing only: world position and input timing remain continuous.
@@ -533,7 +556,7 @@
     // hip joint sits `seat` above the floor (front rig, so turning keeps the
     // head height).
     const FRONT=rigFor(input.sex,'front'),HIP_L=(FRONT.hip[1]-FRONT.hip[0])/2;
-    const drop=floor?SPEC.floor-SEATED.floor.seat-FRONT.waist:desk?SEATED.desk.drop:climb?.05:walk?Math.max(hipDrop(gait,phase),planted):crouch?.03+jumpKey.drop*compression:air?.05:.03+.07*breath+(profile?.1:BOW_DIP)*nod+.62*squash;
+    const drop=floor?SPEC.floor-(profile?SEATED.floor:FLOOR_FRONT).seat-FRONT.waist:desk?SEATED.desk.drop:climb?.05:walk?Math.max(hipDrop(gait,phase),planted):crouch?.03+jumpKey.drop*compression:air?.05:.03+.07*breath+(profile?.1:BOW_DIP)*nod+.62*squash;
     // Climbing: phase 0 (the foot of the ladder) starts with one foot just
     // leaving the ground. The reaching arm's shoulder rises and the hips shift
     // over the standing (lower) foot, the lower hand's diagonal partner.
@@ -567,7 +590,7 @@
       // (the seat itself lies behind the hip joint), so the knee clears the
       // deep chibi shirt instead of hiding behind it.
       const x=profile?SPEC.profileHip[i]:hip,root=add(mapped(torso,[x,SPEC.waist]),[floor&&profile?SEATED.floor.side.hip:0,0]),p=(phase+i*.5)%1,ax=x+(SPEC.ankleX?SPEC.ankleX[i]-SPEC.hip[i]:0);
-      let ankle=[ax,SPEC.ankle],knee,shoeAngle=0,contact=true,forward=0,stance=true,space=null,climbBones=null,seatSpace=null,seatShoe=null,paint=null,knee3=null;
+      let ankle=[ax,SPEC.ankle],knee,shoeAngle=0,contact=true,forward=0,stance=true,space=null,climbBones=null,seatSpace=null,seatShoe=null,paint=null,knee3=null,cuff=null;
       if(walk){const s=steps[i];forward=s.forward;let lift=s.lift;contact=s.contact;stance=s.stance;shoeAngle=profile?rad(s.toe):0;
         // A swinging foot authored for the mean hip height lifts a little
         // when the hip is lower or rolled away, never stretching the leg.
@@ -600,8 +623,12 @@
       }
       if(floor||desk){
         const side=i?1:-1,r3=[HIP_L,root[1],0];let k3,a3;
-        if(floor){
-          const C=SEATED.floor,V=profile?{...C,...SEATED.floor.side}:C,at=v=>Array.isArray(v)?v[i]:v,out=rad(at(V.out)),rise=rad(at(V.rise)),fold=rad(V.fold[i]);
+        if(floor&&!profile){
+          const E=FLOOR_FRONT,out=rad(E.out),rise=rad(E.rise);
+          k3=[HIP_L+E.thigh*Math.sin(out)*Math.cos(rise),root[1]-E.thigh*Math.sin(rise),E.thigh*Math.cos(out)*Math.cos(rise)];
+          a3=[-E.cross[i],SPEC.ankle-E.lift[i],E.z[i]];contact=false;
+        }else if(floor){
+          const C=SEATED.floor,V={...C,...SEATED.floor.side},at=v=>Array.isArray(v)?v[i]:v,out=rad(at(V.out)),rise=rad(at(V.rise)),fold=rad(V.fold[i]);
           k3=[HIP_L+SPEC.thigh*Math.sin(out)*Math.cos(rise),root[1]-SPEC.thigh*Math.sin(rise),SPEC.thigh*Math.cos(out)*Math.cos(rise)];
           const ay=SPEC.ankle-V.lift[i],dy=clamp(ay-k3[1],-SPEC.shin,SPEC.shin),h=Math.sqrt(SPEC.shin**2-dy**2);
           a3=[k3[0]-h*Math.cos(fold),k3[1]+dy,k3[2]-h*Math.sin(fold)];contact=false;
@@ -626,7 +653,9 @@
           // .side.shoes). From behind both feet are in front of the body,
           // hidden.
           const C=SEATED.floor;
-          seatShoe=back?{hidden:true}:profile?C.side.shoes[i]:{view:'Profile',index:0,flip:i?-1:1,angle:i?C.toe:-C.toe,under:true};
+          seatShoe=back?{hidden:true}:profile?C.side.shoes[i]:{view:'Profile',index:0,flip:i?-1:1,angle:i?C.toe:-C.toe,over:true};
+          // The bare thigh starts at the shorts cuff (outfit seatedShorts).
+          if(!profile){const u=sub(knee,root),l=Math.hypot(...u)||1;cuff=add(root,u.map(v=>v*FLOOR_FRONT.cuff/l));}
         }
       }
       else if(jumpKey){/* posed above */}
@@ -660,7 +689,7 @@
       const thighAngle=Math.atan2(knee[1]-root[1],knee[0]-root[0])-Math.PI/2,shinAngle=Math.atan2(ankle[1]-knee[1],ankle[0]-knee[0])-Math.PI/2;
       // Seated foreshortening changes the visible length, never the joint lengths.
       const boneSpace=seatSpace||space||climbBones||(profile?[root,knee,ankle]:[[0,root[1]],[knee.depth||0,knee.trueY??knee[1]],[ankle.depth||0,ankle.trueY??ankle[1]]]);
-      return{root,knee,ankle,contact,stance:stance&&!air&&!climb&&!floor,shoeAngle,boneSpace,seatShoe,paint,knee3,thigh:transform([hip,SPEC.waist],root,thighAngle),shin:transform([hip,SPEC.knee],knee,shinAngle)};
+      return{root,knee,ankle,contact,stance:stance&&!air&&!climb&&!floor,shoeAngle,boneSpace,seatShoe,paint,knee3,cuff,thigh:transform([hip,SPEC.waist],root,thighAngle),shin:transform([hip,SPEC.knee],knee,shinAngle)};
     });
     const arms=SPEC.shoulder.map((rest,i)=>{
       const side=i?1:-1,shoulder=mapped(torso,profile?SPEC.profileShoulder[i]:rest),upperLength=profile?SPEC.profileArm[0]:Math.hypot(...sub(SPEC.elbow[i],rest)),lowerLength=profile?SPEC.profileArm[1]:Math.hypot(...sub(SPEC.wrist[i],SPEC.elbow[i]));
@@ -676,7 +705,13 @@
           // The hand rests on top of its own knee, a little inside it
           // (hand: inward, wrist height above the knee centre, back).
           const C=profile?{...SEATED.floor,...SEATED.floor.side}:SEATED.floor,k=legs[i].knee3,out=profile?Math.abs(FRONT.shoulder[i][0]-16):side*(shoulder[0]-16),z=profile?shoulder[0]-legs[i].root[0]:Math.sin(rad(C.lean))*(SPEC.waist-rest[1]);
-          ({elbow:E,wrist:W}=ik3([k[0]-C.hand[0]-out,k[1]-C.hand[1]-shoulder[1],k[2]+C.hand[2]-z],upperLength,lowerLength,[1,0,-.6]));
+          if(seatArt){
+            // Drawn hands (SEATED_ART): the reference's short arm hangs nearly
+            // straight from the sleeve to the hand on the knee, so the arm
+            // shortens to reach it (as the legs stretch) instead of bending
+            // its elbow out; the elbow keeps a slight outward bow.
+            W=[side*(seatArt.wrist[i][0]-shoulder[0]),seatArt.wrist[i][1]-shoulder[1],0];const f=upperLength/(upperLength+lowerLength);E=[W[0]*f+.25,W[1]*f,0];
+          }else({elbow:E,wrist:W}=ik3([k[0]-C.hand[0]-out,k[1]-C.hand[1]-shoulder[1],k[2]+C.hand[2]-z],upperLength,lowerLength,[1,0,-.6]));
         }else{
           // Upper arm a little forward, forearm forward, in and a little down
           // onto the desk.
@@ -779,7 +814,7 @@
     // The raised side cheer lifts the chin a little toward the hands, on top
     // of the lean rule (a head pitch like the bow's, not a lean).
     const headLook=happy&&profile?-(GESTURE_KEYS.happy.profile[cheerStyle].look||0)*happy.arms:0;
-    return{direction,profile,back,action,phase,torso,chest,legs,arms,floor,desk,drop,lean,neckTilt,headTilt,headLook,gesture,hop,nod,headPitch:profile?(BOW_LEAN+BOW_PITCH)*nod:0,spec:SPEC,ladder:CR};
+    return{direction,profile,back,action,phase,torso,chest,legs,arms,floor,desk,seatArt,drop,lean,neckTilt,headTilt,headLook,gesture,hop,nod,headPitch:profile?(BOW_LEAN+BOW_PITCH)*nod:0,spec:SPEC,ladder:CR};
   }
   const el=(tag,attrs={})=>{const e=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))e.setAttribute(k,v);return e;};
   const set=(e,key,value)=>{if(e.getAttribute(key)!==String(value))e.setAttribute(key,value);};
@@ -972,12 +1007,19 @@
     const length=profile?1.6:2.45;
     return'M'+t(-.24,-.44)+'Q'+t(.5,-.5)+' '+t(length-.55,-.28)+'Q'+t(length,-.25)+' '+t(length,.12)+'Q'+t(length-.15,.57)+' '+t(.95,.62)+'L'+t(-.24,.49)+'Z';
   }
+  // Front/back floor sit (FLOOR_FRONT): the thigh from the hip to the round
+  // knee, under the shorts and the shin; the knee's end matches the shin's.
+  // Drawn inside the pelvis, so in its (torso) space.
+  function seatedThigh(leg,[ma,mb,mc,md,tx,ty]){
+    const det=ma*md-mb*mc,un=p=>[(md*(p[0]-tx)-mc*(p[1]-ty))/det,(-mb*(p[0]-tx)+ma*(p[1]-ty))/det],s=un(leg.root),k=un(leg.knee),d=sub(k,s),l=Math.hypot(...d),u=l>.01?d.map(v=>v/l):[1,0],nrm=[-u[1],u[0]],rs=1.5,rk=1.3,q=(p,w)=>pt([p[0]+nrm[0]*w,p[1]+nrm[1]*w]);
+    return'M'+q(s,rs)+'L'+q(k,rk)+'A'+n(rk)+' '+n(rk)+' 0 0 0 '+q(k,-rk)+'L'+q(s,-rs)+'Z';
+  }
   function seatedLeg(leg,cap){
     // The cross-legged leg seen past the shorts cuff: a round knee and the
     // folded shin as one capsule (the thigh is under the shorts). The skin
     // painting is clipped to it, so no thigh stub shows beside the knee;
     // `cap` returns just the knee's rim, outlined like the painted limbs.
-    const k=leg.knee,a=leg.ankle,d=sub(a,k),l=Math.hypot(...d),u=l>.01?d.map(v=>v/l):[1,0],nrm=[-u[1],u[0]],rk=1.06,ra=.74,q=(p,s,b=0)=>pt([p[0]+nrm[0]*s+u[0]*b,p[1]+nrm[1]*s+u[1]*b]);
+    const k=leg.knee,a=leg.ankle,d=sub(a,k),l=Math.hypot(...d),u=l>.01?d.map(v=>v/l):[1,0],nrm=[-u[1],u[0]],[rk,ra]=leg.radii||[1.06,.74],q=(p,s,b=0)=>pt([p[0]+nrm[0]*s+u[0]*b,p[1]+nrm[1]*s+u[1]*b]);
     if(cap)return'M'+q(k,-rk*.98,.2)+'A'+n(rk)+' '+n(rk)+' 0 1 0 '+q(k,rk*.98,.2);
     return'M'+q(k,rk)+'L'+q(a,ra)+'A'+n(ra)+' '+n(ra)+' 0 0 0 '+q(a,-ra)+'L'+q(k,-rk)+'A'+n(rk)+' '+n(rk)+' 0 1 0 '+q(k,rk)+'Z';
   }
@@ -1045,12 +1087,16 @@
     set(r.underlay,'d',pose.floor&&pose.back?'M12.9 35.75Q16 36.45 19.1 35.75L19.75 38.65Q20.3 40.45 16 40.45Q11.7 40.45 12.25 38.65Z':'M12.9 35.75Q16 36.45 19.1 35.75L19.4 38.8Q18.35 39.45 17.25 39.05L16 38.45L14.75 39.05Q13.65 39.45 12.6 38.8Z');
     pose.legs.forEach((leg,i)=>{
       const part=r.legs[i],end=pose.floor?leg.ankle:add(leg.ankle,[0,.36]);
-      set(part.contour,'d',pose.floor?seatedLeg(leg):limb(leg.root,leg.knee,end,[THIGH*narrow,LEG_RADII[1],LEG_RADII[2]]));
-      set(part.shade,'d',pose.floor?seatedLeg(leg,true):'M'+pt(add(lerp(leg.root,leg.knee,.75),[-.35,0]))+'Q'+pt(add(leg.knee,[-.35,0]))+' '+pt(add(leg.ankle,[-.26,.12])));set(part.shade,'stroke',tone(svg.dataset.foundationSkin,pose.floor?.7:.88));
+      const shin=leg.cuff?{knee:add(leg.knee,[0,FLOOR_FRONT.shin]),ankle:leg.ankle,radii:FLOOR_FRONT.radii}:leg;
+      set(part.contour,'d',pose.floor?seatedLeg(shin):limb(leg.root,leg.knee,end,[THIGH*narrow,LEG_RADII[1],LEG_RADII[2]]));
+      set(part.shade,'d',pose.floor?seatedLeg(shin,true):'M'+pt(add(lerp(leg.root,leg.knee,.75),[-.35,0]))+'Q'+pt(add(leg.knee,[-.35,0]))+' '+pt(add(leg.ankle,[-.26,.12])));set(part.shade,'stroke',tone(svg.dataset.foundationSkin,pose.floor?.7:.88));
       if(!part.foot){part.foot=el('path',{fill:svg.dataset.foundationSkinFill,stroke:tone(svg.dataset.foundationSkin,.78),'stroke-width':.10,'stroke-linejoin':'round'});part.parent.append(part.foot);}
       // The foot's upper contour stays open under the ankle surface.
-      set(part.foot,'d',pose.floor?tuckedFoot(leg.ankle,pose.profile,i):footPath(leg.ankle,leg.shoeAngle,pose.profile,i));part.parent.insertBefore(part.foot,part.contour);
-      part.foot.style.display=pose.floor&&pose.back?'none':'';
+      set(part.foot,'d',leg.cuff?seatedThigh(leg,pose.torso):pose.floor?tuckedFoot(leg.ankle,pose.profile,i):footPath(leg.ankle,leg.shoeAngle,pose.profile,i));
+      // The stretched sit's thigh lies under the shorts (pelvis), so the
+      // shorts leg wraps it and the shin crosses over both.
+      if(leg.cuff){const host=r.parts.pelvis;if(host.firstChild!==part.foot)host.insertBefore(part.foot,host.firstChild);}else part.parent.insertBefore(part.foot,part.contour);
+      part.foot.style.display=pose.floor&&pose.back&&!leg.cuff||pose.seatArt?'none':'';
     });
     pose.arms.forEach((arm,i)=>{
       const part=r.arms[i];set(part.contour,'d',limb(arm.shoulder,arm.elbow,arm.wrist,ARM_RADII));

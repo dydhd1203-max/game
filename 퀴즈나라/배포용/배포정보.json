@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-14T10:22:35.920Z",
+  "builtAt": "2026-10-14T11:57:08.922Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -491,8 +491,8 @@
     },
     {
       "path": "avatar-foundation-outfit.js",
-      "bytes": 60404,
-      "sha256": "7d2eaafc72e349a54886af2f110812e3c21d2d413d31e95645bbae95f0effec2"
+      "bytes": 61054,
+      "sha256": "6b4a9cfb490c97414fa982b0e690059740c23bd316c3122ee6b3840dd1d0fbb2"
     },
     {
       "path": "assets/avatar-file-data-foundation.js",
@@ -526,8 +526,8 @@
     },
     {
       "path": "avatar-foundation-skin.js",
-      "bytes": 30173,
-      "sha256": "a1d897517728ab2ae1810dda2bd0269f08ca51bbd8268d52334667e8e27d259a"
+      "bytes": 32728,
+      "sha256": "9ad396aab36f893e461993e79b1c8c270f9e4a0fb8e8d7ee0384034588f07e87"
     },
     {
       "path": "assets/sd-foundation-ref-neck.png",
@@ -536,8 +536,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 102538,
-      "sha256": "2041c922c3fe5a8cd45bfb871d0e7e6bdf542ffe4891a804ff75f93d44bc4dbb"
+      "bytes": 107132,
+      "sha256": "3c4bf3a2c268c6f7a7e72fb2a9140ee95c0576ee20e6c3f1276e0634b84f6d81"
     },
     {
       "path": "avatar-foundation.css",
@@ -793,6 +793,31 @@
       "path": "assets/fonts/NanumSquareRound-출처.md",
       "bytes": 1785,
       "sha256": "44b7f12620e5599c5e23ee953be3a6fbaa71a82eaef2b98c767238f43a098abe"
+    },
+    {
+      "path": "assets/seated/floor-front-m-legs.png",
+      "bytes": 58969,
+      "sha256": "ec48abc764f9184abd26cec39c1c3155747b9cc3889dd747ecc480041529385d"
+    },
+    {
+      "path": "assets/seated/floor-front-m-hand-0.png",
+      "bytes": 10344,
+      "sha256": "4525f710a9518567c5e21b2cec06952f9093a3165948b4c23f86f8c69d296cca"
+    },
+    {
+      "path": "assets/seated/floor-front-m-hand-1.png",
+      "bytes": 10310,
+      "sha256": "717ca693429adcb10aac0abba97b5d33b2b283446c3c0e4e6bf3273ce7b9a29d"
+    },
+    {
+      "path": "assets/seated/floor-front-m-shoes-sneaker-0.png",
+      "bytes": 20371,
+      "sha256": "eef53fc19df3e0b0107020aadcdda22316d40385cffb187424d42befd47e9b8a"
+    },
+    {
+      "path": "assets/seated/floor-front-m-shoes-sneaker-1.png",
+      "bytes": 23268,
+      "sha256": "7054a092eb7f9d3c2f0086efe6baf372fd68a30cb8bed42a310fb42bdab6d817"
     },
     {
       "path": "assets/sd-garments-index.js",
