@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-14T12:23:26.363Z",
+  "builtAt": "2026-10-14T12:28:34.456Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -537,7 +537,7 @@
     {
       "path": "avatar-foundation.js",
       "bytes": 108456,
-      "sha256": "aad714491d7649b29fa861dfdfa7625b2a40b778a64997e18063f0906fd29cd0"
+      "sha256": "5573a1defcd0bc9ad6042fe9e831ed1d05bee14ca2711d5efce46ef779d0b641"
     },
     {
       "path": "avatar-foundation.css",
@@ -801,13 +801,13 @@
     },
     {
       "path": "assets/seated/floor-front-m-hand-0.png",
-      "bytes": 13725,
-      "sha256": "1f8d638bbd635e972ff80c2a770a15a2be498f1b3ad2ffa6776b26604632fc3b"
+      "bytes": 12457,
+      "sha256": "6384e82ac189bff8f988254fbc7bc49c47627366521fae5371e29c5650b73c39"
     },
     {
       "path": "assets/seated/floor-front-m-hand-1.png",
-      "bytes": 13554,
-      "sha256": "b3d1cbb6307a86cbc141d849a45b94b257dc264c957224e7b97c8f3b85b2d224"
+      "bytes": 12263,
+      "sha256": "6dc1463379fb77c92a06c561ed74062dd7b412ba3647f1df0d765338d9a5ad13"
     },
     {
       "path": "assets/seated/floor-front-m-bottom-shorts.png",
@@ -831,13 +831,13 @@
     },
     {
       "path": "assets/seated/floor-front-f-hand-0.png",
-      "bytes": 14909,
-      "sha256": "1a5a07994adc9d594af7df3b5d3c3351efe1a4b5db55537fbec88e9830adc7f5"
+      "bytes": 14029,
+      "sha256": "ccbf4a963b370a9a3b93565b80605923a3e103d4b346137fc550c20a1f183745"
     },
     {
       "path": "assets/seated/floor-front-f-hand-1.png",
-      "bytes": 16284,
-      "sha256": "d553a7bff6e0d7d7dfaa31d2b6edc663e6240bec9433b9c1915cbf39d6faf75b"
+      "bytes": 14916,
+      "sha256": "a562adfc4e55444236ca3da03f61f85b33e58081201400dc5649f4267442e672"
     },
     {
       "path": "assets/seated/floor-front-f-bottom-shorts.png",

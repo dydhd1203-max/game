@@ -110,6 +110,20 @@ def save(name,mask,box=None,src=None,alpha=None):
 # boy's sleeve).
 ARM=fg&~(mn>232)&skintone&~shirt&~denim&(rows>=C['armTop']-y0)
 ARM&=grow(shrink(ARM),1)
+# Nothing above the reference cuff's lower edge (its dark rim and shadow
+# showed beside the runtime sleeve).
+cuffC=(r>215)&(g>190)&(b>140)&(r-g<22)&(g-b>15)&(g-b<60)
+for h0,h1 in C['hands']:
+    for j in range(h0-x0,h1-x0):
+        cs=np.where(cuffC[C['armTop']-y0-20:C['cuffLine']-y0,j])[0]
+        if len(cs):ARM[:C['armTop']-y0-20+cs.max()+3,j]=False
+# The cuff's dark rim beside the forearm's top: drop dark pixels within a
+# few rows of where the forearm starts (its centre column).
+for (h0,h1),fx in zip(C['hands'],C['forearms']):
+    col=np.where(ARM[:,fx-x0])[0]
+    if not len(col):continue
+    t0=col[0];band=slice(max(0,t0-8),t0+10)
+    ARM[band,h0-x0:h1-x0]&=~(r[band,h0-x0:h1-x0]<190)
 # Keep only what connects to the hands (stray bits of the cuff's edge outline).
 keep=ARM&(rows>=C['wrist']-y0)
 while True:

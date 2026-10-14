@@ -1122,7 +1122,7 @@
     // the shirt; from the side the thigh is under the shorts; from behind the
     // forearms are beyond the back panel. Climbing arms rise from the shoulders
     // over the back (their hands go behind the head, drawn above the body).
-    if(pose.floor)order=pose.back?['far-leg','near-leg','pelvis',...armKeys,'torso']:pose.profile?['far-arm','far-leg','near-leg','pelvis','torso','near-arm']:pose.seatArt?['pelvis','far-leg','near-leg','torso',...armKeys]:['pelvis','torso','far-leg','near-leg',...armKeys];
+    if(pose.floor)order=pose.back?['far-leg','near-leg','pelvis',...armKeys,'torso']:pose.profile?['far-arm','far-leg','near-leg','pelvis','torso','near-arm']:pose.seatArt?['pelvis','far-leg','torso','near-leg',...armKeys]:['pelvis','torso','far-leg','near-leg',...armKeys];
     else if(pose.back&&seated)order=['far-arm','near-arm','far-leg','near-leg','pelvis','torso'];
     else if(pose.action==='climb')order=['far-leg','near-leg','pelvis','torso',...armKeys];
     else if(seated&&pose.profile)order=['far-arm','far-leg','near-leg','pelvis','torso','near-arm'];
