@@ -1,10 +1,10 @@
-import {BUILD, SPAWN, BEACON, GATE, BOSS_HOME, TOWERS, walkable, zoneAt} from './content.mjs';
+import {BUILD, SPAWN, BEACON, GATE, BOSS_HOME, TOWERS, walkable} from './content.mjs';
 import {advanceSeason1Motion, resetSeason1Motion, stopSeason1Motion,
   MOTION_JUMP, MOTION_DOUBLE_JUMP, MOTION_LAND} from './locomotion-season1.mjs';
 
 // Only the room host runs this module. All values crossing the input boundary
 // are checked here as well as in the transport; snapshots contain plain JSON.
-const MAX_PLAYERS = 21, MAX_TOWERS = 30, TEAM_TOWERS = 6;
+const MAX_PLAYERS = 21;
 const PLAYER_RADIUS = .65;
 const CHARGE_SPEED = 20, CHARGE_TIME = .9, CHARGE_RADIUS = 2.6;
 const COSMETIC_LIMITS = {hat:16, face:11, clothes:13};
@@ -13,7 +13,6 @@ const active = s => s.phase === 'forest' || s.phase === 'boss';
 const finite = v => typeof v === 'number' && Number.isFinite(v);
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 const distance = (a, b) => Math.hypot(a.x - b.x, a.z - b.z);
-const clone = v => JSON.parse(JSON.stringify(v));
 const good = () => ({ok:true});
 const fail = error => ({ok:false, error});
 const online = s => Object.values(s.players).filter(p => p.online);
@@ -74,22 +73,12 @@ const cleanName = value => (typeof value === 'string' ? value.trim().slice(0, 18
 const cleanTeam = value => Number.isInteger(value) ? clamp(value, 0, 4) : 0;
 const cleanCosmetic = (value, key) => Number.isInteger(value) ? clamp(value, 0, COSMETIC_LIMITS[key]) : 0;
 
-function recoverCarrier(s, id) {
-  for (const t of s.towers) {
-    if (t.carrier !== id) continue;
-    // Interrupted packing leaves the existing tower where it stood. Once
-    // carried, recovery places that same ID into its team's inventory.
-    t.state = t.state === 'packing' ? 'deployed' : 'inventory';
-    t.carrier = null; t.progress = 0;
-  }
-}
-
 export function setOnline(s, id, value) {
   if (!Object.hasOwn(s.players, id)) return;
   const p = s.players[id];
   if (value === true && !p.online && online(s).length >= MAX_PLAYERS) return;
   p.online = value === true;
-  if (!p.online) { recoverCarrier(s, id); p.reviveTarget = null; p.reviveProgress = 0; stopSeason1Motion(p); }
+  if (!p.online) { p.reviveTarget = null; p.reviveProgress = 0; stopSeason1Motion(p); }
   if (!online(s).length) { s._emptyPause = true; s.paused = true; }
   else if (s._emptyPause) { s._emptyPause = false; s.paused = !!s._manualPause; }
 }
@@ -109,16 +98,13 @@ function resetPlayers(s) {
 }
 
 function beginExpedition(s, retry = false) {
-  if (!retry) s._checkpoint = {supplies:s.supplies, towers:clone(s.towers), partySize:Math.max(1, online(s).length)};
-  else {
-    s.supplies = s._checkpoint.supplies;
-    s.towers = clone(s._checkpoint.towers);
-  }
+  if (!retry) s._checkpoint = {supplies:s.supplies, partySize:Math.max(1, online(s).length)};
+  else s.supplies = s._checkpoint.supplies;
   s._partySize = s._checkpoint.partySize;
   s.stage = 0; s.beacon = false; s.boss = null; s._clearAwarded = false;
   s.paused = false; s._manualPause = false;
   setPhase(s, 'forest', '숲길의 좀비를 정리하고 앞쪽 봉화에 다가가 E를 눌러요.');
-  for (const t of s.towers) { t.state = t.hp > 0 ? 'inventory' : 'destroyed'; t.carrier = null; t.progress = 0; }
+  s.towers = [];
   resetPlayers(s); spawnWave(s, 0);
 }
 
@@ -142,32 +128,6 @@ function startBoss(s) {
     dx:0, dz:1, frost:0, comboCooldown:0, chargeRemaining:0, hitIds:[]};
   setPhase(s, 'boss', '붉은 돌진 길을 피하고, 파수꾼이 지쳤을 때 집중 공격해요!');
   resetPlayers(s);
-}
-
-function buildPositionError(s, p, x, z, ignoredId = null) {
-  if (!finite(x) || !finite(z) || !walkable(x, z, 1.5)) return '설치할 수 없는 위치예요.';
-  if (!zoneAt(x, z, s.stage)) return '확보한 파란 설치 지대 안에 놓아 주세요.';
-  if (s.phase === 'boss' && z > -94) return '보스 전투장 안에 설치해 주세요.';
-  if (Math.abs(x) < 3.4) return '가운데 이동 길은 비워 주세요.';
-  if (Math.hypot(p.x - x, p.z - z) > 8) return '설치할 곳에 조금 더 가까이 가 주세요.';
-  if (s.towers.some(t => t.id !== ignoredId && (t.state === 'deployed' || t.state === 'packing' || t.state === 'placing') && Math.hypot(t.x - x, t.z - z) < 3.3)) return '다른 타워와 조금 떨어뜨려 주세요.';
-  if (Object.values(s.players).some(a => a.online && a.hp > 0 && Math.hypot(a.x-x, a.z-z) < 1.8)) return '친구가 서 있는 자리는 비워 주세요.';
-  if (s.boss && s.boss.hp > 0 && distance(s.boss, {x,z}) < 4) return '보스와 너무 가까워요.';
-  return '';
-}
-
-export function placementError(s, id, x, z, ignoredId = null) {
-  const p = Object.hasOwn(s.players, id) ? s.players[id] : null;
-  if (!p?.online || p.hp <= 0) return '먼저 원정대에 합류해 주세요.';
-  if (!active(s) || s.paused) return '진행 중인 숲 원정에서 설치할 수 있어요.';
-  return buildPositionError(s, p, x, z, ignoredId);
-}
-
-function controlledTower(s, p, action, teacher) {
-  const t = s.towers.find(a => a.id === action.towerId);
-  if (!t) return {error:'타워를 찾지 못했어요.'};
-  if (t.team !== p.team && !teacher) return {error:'우리 모둠의 타워만 옮길 수 있어요.'};
-  return {tower:t};
 }
 
 export function applyAction(s, id, action, context = {}) {
@@ -195,8 +155,8 @@ export function applyAction(s, id, action, context = {}) {
       beginExpedition(s, true); return good();
     case 'return':
       if (s.phase !== 'victory' && s.phase !== 'defeat') return fail('원정을 마친 뒤 마을로 돌아가요.');
-      if (s.phase === 'defeat') { s.supplies = s._checkpoint.supplies; s.towers = clone(s._checkpoint.towers); }
-      for (const t of s.towers) { t.state = t.hp > 0 ? 'inventory' : 'destroyed'; t.carrier = null; t.progress = 0; }
+      if (s.phase === 'defeat') s.supplies = s._checkpoint.supplies;
+      s.towers = [];
       s.enemies = []; s.boss = null;
       setPhase(s, 'village', s.cleared ? '숲길 파수꾼을 쓰러뜨렸어요! 마을로 무사히 돌아왔어요.' : '다시 준비해서 도전해 봐요.');
       resetPlayers(s); return good();
@@ -214,63 +174,16 @@ export function applyAction(s, id, action, context = {}) {
   if (!active(s)) return fail('숲 원정 중에 사용할 수 있어요.');
   if (p.hp <= 0) return fail('친구의 구조나 복귀를 기다려 주세요.');
   switch (action.type) {
-    case 'build': {
-      if (!Object.hasOwn(TOWERS, action.towerType)) return fail('타워 종류를 다시 골라 주세요.');
-      const def = TOWERS[action.towerType];
-      if (action.towerType === 'ice' && !s.beacon) return fail('봉화를 켜면 얼음탑을 사용할 수 있어요.');
-      const err = buildPositionError(s, p, action.x, action.z); if (err) return fail(err);
-      const intact = s.towers.filter(t => t.state !== 'destroyed');
-      if (s.towers.length >= MAX_TOWERS || intact.filter(t => t.team === p.team).length >= TEAM_TOWERS) return fail('새 타워 설치 한도에 도달했어요. 남은 타워를 옮겨 사용해 주세요.');
-      if (s.supplies < def.cost) return fail(`공동 보급이 ${def.cost - s.supplies} 부족해요.`);
-      if (s.towers.some(t => t.carrier === id)) return fail('옮기던 타워를 먼저 설치해 주세요.');
-      s.supplies -= def.cost;
-      const t = {id:newId(s, 't'), type:action.towerType, team:p.team, x:action.x, z:action.z,
-        hp:def.hp, maxHp:def.hp, state:'placing', carrier:id, progress:0, cooldown:0, paid:def.cost};
-      s.towers.push(t); emit(s, 'build', t); return good();
-    }
-    case 'pack': {
-      const {tower:t, error} = controlledTower(s, p, action, teacher); if (error) return fail(error);
-      if (t.carrier === id && (t.state === 'packing' || t.state === 'placing')) {
-        t.state = t.state === 'packing' ? 'deployed' : 'carried'; t.progress = 0;
-        if (t.state === 'deployed') t.carrier = null;
-        return good();
-      }
-      if (t.state !== 'deployed' || t.hp <= 0) return fail('설치된 타워만 포장할 수 있어요.');
-      if (distance(p, t) > 4) return fail('타워 가까이에서 포장해 주세요.');
-      if (s.towers.some(a => a.carrier === id)) return fail('한 번에 타워 하나만 옮길 수 있어요.');
-      t.state = 'packing'; t.carrier = id; t.progress = 0;
-      p.reviveTarget = null; p.reviveProgress = 0;
-      return good();
-    }
-    case 'deploy': {
-      const {tower:t, error} = controlledTower(s, p, action, teacher); if (error) return fail(error);
-      if (t.state !== 'inventory' && !(t.state === 'carried' && t.carrier === id)) return fail('보관하거나 들고 있는 타워를 골라 주세요.');
-      if (t.hp <= 0) return fail('파괴된 타워는 이번 원정에서 사용할 수 없어요.');
-      if (s.towers.some(a => a.id !== t.id && a.carrier === id)) return fail('들고 있는 타워를 먼저 설치해 주세요.');
-      const err = buildPositionError(s, p, action.x, action.z, t.id); if (err) return fail(err);
-      t.state = 'placing'; t.carrier = id; t.progress = 0; t.x = action.x; t.z = action.z;
-      emit(s, 'build', t); return good();
-    }
-    case 'repair': {
-      const t = s.towers.find(a => a.id === action.towerId);
-      if (!t || t.state !== 'deployed' || t.hp <= 0) return fail('설치된 타워를 골라 주세요.');
-      if (distance(p, t) > 4) return fail('타워 가까이에서 수리해 주세요.');
-      if (t.hp >= t.maxHp) return fail('이미 튼튼한 타워예요.');
-      const cost = Math.ceil(Math.min(60, t.maxHp - t.hp) / 6);
-      if (s.supplies < cost) return fail('수리할 보급이 부족해요.');
-      s.supplies -= cost; t.hp = Math.min(t.maxHp, t.hp + 60); emit(s, 'build', t); return good();
-    }
     case 'interact': {
       const friend = online(s).find(a => a.id !== id && a.hp <= 0 && distance(a, p) <= 3);
       if (friend) {
-        if (s.towers.some(t => t.carrier === id && (t.state === 'packing' || t.state === 'placing'))) return fail('타워 작업을 마친 뒤 친구를 구해 주세요.');
         if (p.reviveTarget !== friend.id) { p.reviveTarget = friend.id; p.reviveProgress = 0; }
         return good();
       }
       if (s.phase === 'forest' && s.stage === 0 && distance(p, BEACON) <= 5) {
         if (s.enemies.some(e => e.hp > 0)) return fail('주변 좀비를 모두 정리해야 봉화를 켤 수 있어요.');
         s.stage = 1; s.beacon = true; s.supplies += 160;
-        s.message = '봉화가 켜졌어요! 얼음 + 화살 조합으로 앞길을 정리하고 숲길 입구로 가요.';
+        s.message = '봉화가 켜졌어요! 앞길의 좀비를 정리하고 숲길 입구로 가요.';
         emit(s, 'beacon', BEACON); spawnWave(s, 1); return good();
       }
       if (s.phase === 'forest' && s.stage === 1 && distance(p, GATE) <= 5) {
@@ -285,7 +198,7 @@ export function applyAction(s, id, action, context = {}) {
 
 // Earlier art builds used different village footprints. Restore saved players
 // to the clear gathering area only if a moved landmark would trap them. Combat
-// locations, inventories, progression and valid village positions stay intact.
+// locations, progression and valid village positions stay intact.
 export function restoreVillagePositions(s) {
   if (!['lobby','village'].includes(s.phase)) return 0;
   let moved = 0;
@@ -303,7 +216,7 @@ function allowed(s, x, z, radius, ignoreTowers = false) {
   if ((s.phase === 'lobby' || s.phase === 'village') && z < -9) return false;
   if (s.phase === 'forest' && z < (s.stage === 0 ? -69 : -94)) return false;
   if (s.phase === 'boss' && z > -92) return false;
-  if (!ignoreTowers && s.towers.some(t => (t.state === 'deployed' || t.state === 'packing' || t.state === 'placing') && Math.hypot(x-t.x,z-t.z) < 1.15+radius)) return false;
+  if (!ignoreTowers && s.towers.some(t => t.state === 'deployed' && Math.hypot(x-t.x,z-t.z) < 1.15+radius)) return false;
   return true;
 }
 
@@ -317,7 +230,7 @@ function hurtPlayer(s, p, amount) {
   if (p.hp <= 0) return;
   p.hp = Math.max(0, p.hp - amount); emit(s, 'hit', p);
   p.reviveTarget = null; p.reviveProgress = 0;
-  if (!p.hp) { p.downUntil = s.time + 15; recoverCarrier(s, p.id); stopSeason1Motion(p); emit(s, 'down', p); }
+  if (!p.hp) { p.downUntil = s.time + 15; stopSeason1Motion(p); emit(s, 'down', p); }
 }
 
 function hurtTower(s, t, amount) {
@@ -354,11 +267,10 @@ function nearestEnemy(s, source, range) {
 }
 
 // The host and an optional local predicted actor share the same motion and map
-// constraints. Prediction never executes damage, tower work or phase changes.
+// constraints. Prediction never executes damage or phase changes.
 export function advancePlayerMovement(s, p, dt, input = {}) {
   if(!p?.online||p.hp<=0||s.paused||s.phase==='victory'||s.phase==='defeat')return 0;
-  const carrying=s.towers.some(t=>t.carrier===p.id&&t.state==='carried');
-  return advanceSeason1Motion(p,input,Math.min(dt,.1),{phase:s.phase,carrying,
+  return advanceSeason1Motion(p,input,Math.min(dt,.1),{phase:s.phase,
     move:(body,dx,dz)=>move(s,body,dx,dz)});
 }
 
@@ -374,13 +286,12 @@ function updatePlayers(s, dt, inputs) {
       continue;
     }
     const input = inputs && Object.hasOwn(inputs, p.id) && inputs[p.id] && typeof inputs[p.id] === 'object' ? inputs[p.id] : {};
-    const carrying = s.towers.some(t => t.carrier === p.id && t.state === 'carried');
     const motion=advancePlayerMovement(s,p,dt,input);
     if(motion&MOTION_JUMP)emit(s,'jump',p);
     if(motion&MOTION_DOUBLE_JUMP)emit(s,'hop',p);
     if(motion&MOTION_LAND)emit(s,'land',p);
     p.shotCooldown = Math.max(0, p.shotCooldown - dt);
-    if (active(s) && input.attack === true && !carrying && p.shotCooldown <= 0) {
+    if (active(s) && input.attack === true && p.shotCooldown <= 0) {
       const e = nearestEnemy(s, p, 16);
       if (e) { hurtEnemy(s, e, 19, 'shoot', p); p.shotCooldown = .4; }
     }
@@ -400,26 +311,10 @@ function updatePlayers(s, dt, inputs) {
   }
 }
 
+// Retained for synthetic rendering/performance fixtures. No public action creates
+// towers; the future inventor skill must introduce its own authoritative rules.
 function updateTowers(s, dt) {
   for (const t of s.towers) {
-    if (t.state === 'carried') {
-      const p = s.players[t.carrier];
-      if (p) { t.x = p.x; t.z = p.z; }
-    } else if (t.state === 'packing' || t.state === 'placing') {
-      const p = s.players[t.carrier], packing = t.state === 'packing';
-      if (!p?.online || p.hp <= 0) { recoverCarrier(s, t.carrier); continue; }
-      if (distance(p,t) > (packing ? 4.5 : 8.5)) {
-        t.state = packing ? 'deployed' : 'carried'; t.progress = 0;
-        if (packing) t.carrier = null;
-        continue;
-      }
-      t.progress += dt;
-      if (t.progress + 1e-9 >= (packing ? 3 : 2)) {
-        t.state = packing ? 'carried' : 'deployed'; t.progress = 0;
-        if (!packing) t.carrier = null;
-        emit(s, packing ? 'pack' : 'build', t);
-      }
-    }
     if (t.state !== 'deployed' || t.hp <= 0) continue;
     t.cooldown = Math.max(0, (t.cooldown || 0) - dt);
     if (t.cooldown > 0) continue;
@@ -439,7 +334,7 @@ function updateEnemies(s, dt, players) {
       const d = distance(e, p); if (d < nearest) { nearest = d; target = p; tower = false; }
     }
     for (const t of s.towers) {
-      if (t.hp <= 0 || !['deployed', 'packing', 'placing'].includes(t.state)) continue;
+      if (t.hp <= 0 || t.state !== 'deployed') continue;
       const d = distance(e, t); if (d < nearest) { nearest = d; target = t; tower = true; }
     }
     if (!target) continue;
@@ -505,7 +400,7 @@ function updateBoss(s, dt, players) {
       }
     }
     for (const t of s.towers) {
-      if (t.hp > 0 && ['deployed','packing','placing'].includes(t.state) && !b.hitIds.includes(t.id) && segmentDistance(t.x,t.z,ax,az,b.x,b.z) < CHARGE_RADIUS+1) {
+      if (t.hp > 0 && t.state === 'deployed' && !b.hitIds.includes(t.id) && segmentDistance(t.x,t.z,ax,az,b.x,b.z) < CHARGE_RADIUS+1) {
         b.hitIds.push(t.id); hurtTower(s,t,48);
       }
     }
@@ -522,7 +417,7 @@ function checkOutcome(s) {
     setPhase(s,'victory','숲길 파수꾼을 쓰러뜨렸어요! 모두 함께 마을로 돌아갈 준비를 해요.');
     s.cleared = true;
     if (!s._clearAwarded) { s.supplies += 200; s._clearAwarded = true; emit(s,'victory',s.boss); }
-    for (const t of s.towers) { if (t.hp > 0) t.state='inventory'; t.carrier=null; t.progress=0; }
+    s.towers = [];
     return;
   }
   const connected = online(s);

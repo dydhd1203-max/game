@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {createState, addPlayer, setOnline, applyAction, placementError, step, restoreVillagePositions} from '../src/sim.mjs';
-import {BEACON, GATE, OBSTACLES, VILLAGE_SITES, VILLAGE_GROVE, walkable} from '../src/content.mjs';
+import {createState, addPlayer, setOnline, applyAction, advancePlayerMovement, step, restoreVillagePositions} from '../src/sim.mjs';
+import {BEACON, GATE, OBSTACLES, VILLAGE_SITES, VILLAGE_GROVE, VILLAGE_BOUNDS, walkable} from '../src/content.mjs';
 import {SEASON1_MOTION} from '../src/locomotion-season1.mjs';
 
 const teacher = {teacher:true};
@@ -18,10 +18,12 @@ function expedition(n=1) {
   return s;
 }
 function tick(s,seconds,inputs={}) {for(let i=0;i<Math.ceil(seconds*30);i++)step(s,1/30,inputs);}
-function build(s,type='arrow',x=6,z=-28) {
-  Object.assign(s.players.p0,{x:3,z:-28});
-  const r=act(s,'build',{towerType:type,x,z}); assert.equal(r.ok,true,r.error);
-  tick(s,2.1); return s.towers.at(-1);
+// Synthetic fixtures exercise the retained render/performance combat baseline;
+// they do not represent a player-accessible build action or an inventor skill.
+function towerFixture(s,type='arrow',x=6,z=-28) {
+  const t={id:`fixture-${s.towers.length}`,type,team:0,x,z,hp:180,maxHp:180,
+    state:'deployed',carrier:null,progress:0,cooldown:0};
+  s.towers.push(t);return t;
 }
 function bossRoom(n=1) {
   const s=expedition(n);s.enemies=[];Object.assign(s.players.p0,BEACON);
@@ -100,62 +102,39 @@ test('movement normalizes input, clamps dt, rejects nonfinite values, and respec
   Object.assign(p,{x:0,z:-93.9});tick(s,1,{p0:{mz:-1}});assert.ok(p.z>=-94);
 });
 
-test('untrusted construction is rejected without spending and shared budgets/caps are enforced',()=>{
-  const s=expedition();s.enemies=[];const original=s.supplies;
-  Object.assign(s.players.p0,{x:3,z:-28});
-  for(const request of [{towerType:'arrow',x:NaN,z:-28},{towerType:'arrow',x:6,z:Infinity},
-    {towerType:'__proto__',x:6,z:-28},{towerType:'ice',x:6,z:-28},
-    {towerType:'arrow',x:0,z:-28},{towerType:'arrow',x:15,z:-111}]) {
-    assert.equal(act(s,'build',request).ok,false);
+test('retired shared tower actions are rejected for students and teachers without mutating state',()=>{
+  for(const phase of ['lobby','village','forest','boss']) {
+    const s=phase==='boss'?bossRoom(2):expedition(2);s.phase=phase;
+    towerFixture(s);Object.assign(s.players.p0,{x:3,z:-28});
+    for(const [id,context] of [['p0',{}],['p1',teacher]])for(const type of ['build','pack','deploy','repair']) {
+      const before=structuredClone(s);
+      const result=act(s,type,{towerType:'arrow',towerId:s.towers[0].id,x:6,z:-28},id,context);
+      assert.equal(result.ok,false,`${phase} ${id} ${type}`);
+      assert.deepEqual(s,before,'no spend, creation, progress, repair, or ownership mutation');
+    }
   }
-  assert.equal(s.supplies,original);assert.equal(s.towers.length,0);
-  const t=build(s);assert.equal(s.supplies,original-40);assert.equal(t.state,'deployed');
-  assert.equal(act(s,'build',{towerType:'arrow',x:t.x+.5,z:t.z}).ok,false);
-  s.supplies=0;assert.equal(act(s,'build',{towerType:'arrow',x:7,z:-23}).ok,false);
-  assert.equal(s.towers.length,1);
 });
 
-test('placement preview shares action validation and destroyed tower history stays bounded',()=>{
-  const s=expedition();s.enemies=[];Object.assign(s.players.p0,{x:3,z:-28});
-  for(const [x,z] of [[0,-28],[6,-28],[6,Infinity],[20,-120]]) {
-    const error=placementError(s,'p0',x,z);
-    const copy=JSON.parse(JSON.stringify(s));
-    assert.equal(act(copy,'build',{towerType:'arrow',x,z}).ok,!error);
+test('retired carried and unfinished towers cannot slow movement, stop attacks, or finish building',()=>{
+  const plain=expedition(),old=structuredClone(plain);
+  plain.enemies=[];old.enemies=[];
+  old.towers=[{...towerFixture(plain),state:'carried',carrier:'p0',x:12,z:-28},
+    {id:'unfinished',type:'arrow',x:12,z:-33,hp:180,maxHp:180,state:'placing',carrier:'p0',progress:1.99}];
+  plain.towers=[];
+  for(let frame=0;frame<90;frame++) {
+    advancePlayerMovement(plain,plain.players.p0,1/60,{mz:1,sprint:true});
+    advancePlayerMovement(old,old.players.p0,1/60,{mz:1,sprint:true});
   }
-  s.towers=Array.from({length:30},(_,i)=>({id:`old-${i}`,type:'arrow',team:0,x:6,z:-28,hp:0,maxHp:180,state:'destroyed',carrier:null,progress:0}));
-  assert.equal(act(s,'build',{towerType:'arrow',x:6,z:-28}).ok,false);
-  assert.equal(s.supplies,600);assert.equal(s.towers.length,30);
-});
-
-test('packing and deployment keep one module ID, HP, payment, and require ownership',()=>{
-  const s=expedition(2);s.enemies=[];const t=build(s);t.hp=97;
-  const id=t.id,spent=s.supplies;
-  Object.assign(s.players.p1,{x:3,z:-28});
-  assert.equal(act(s,'pack',{towerId:id},'p1').ok,false);
-  assert.equal(act(s,'pack',{towerId:id}).ok,true);assert.equal(t.state,'packing');
-  tick(s,2.9);assert.equal(t.state,'packing');tick(s,.15);assert.equal(t.state,'carried');
-  assert.equal(act(s,'build',{towerType:'arrow',x:7,z:-23}).ok,false);
-  assert.equal(act(s,'deploy',{towerId:id,x:7,z:-23}).ok,true);tick(s,2.1);
-  assert.equal(t.state,'deployed');assert.equal(t.id,id);assert.equal(t.hp,97);
-  assert.equal(s.towers.length,1);assert.equal(s.supplies,spent);assert.equal(t.paid,40);
-});
-
-test('packing cancellation and carrier disconnect safely recover the same tower',()=>{
-  const s=expedition(2);s.enemies=[];const t=build(s);
-  act(s,'pack',{towerId:t.id});tick(s,1);assert.equal(act(s,'pack',{towerId:t.id}).ok,true);
-  assert.equal(t.state,'deployed');assert.equal(t.carrier,null);
-  act(s,'pack',{towerId:t.id});setOnline(s,'p0',false);
-  assert.equal(t.state,'deployed');setOnline(s,'p0',true);
-  act(s,'pack',{towerId:t.id});tick(s,3.1);assert.equal(t.state,'carried');
-  setOnline(s,'p0',false);assert.equal(t.state,'inventory');assert.equal(t.carrier,null);
-  assert.equal(s.towers.length,1);setOnline(s,'p0',true);
-  assert.equal(act(s,'deploy',{towerId:t.id,x:7,z:-23}).ok,true);
-  setOnline(s,'p0',false);assert.equal(t.state,'inventory');
+  assert.deepEqual(old.players.p0,plain.players.p0,'legacy carrier fields do not change shared movement');
+  old.enemies=[{id:'target',kind:'brute',x:old.players.p0.x,z:old.players.p0.z-5,yaw:0,hp:100,maxHp:100,frost:0,comboCooldown:0,attackCooldown:10}];
+  step(old,1/30,{p0:{attack:true}});
+  assert.equal(old.enemies[0].hp,81,'ordinary attack remains available');
+  assert.equal(old.towers[1].state,'placing');assert.equal(old.towers[1].progress,1.99,'retired construction never ticks to deployed');
 });
 
 test('ice then arrow consumes frost once and cooldown prevents recursive/repeated shatter',()=>{
   const s=expedition();s.enemies=[];s.beacon=true;s.stage=1;
-  const ice=build(s,'ice',6,-28);const arrow={...ice,id:'arrow-fixture',type:'arrow',x:6,z:-23,cooldown:0};
+  const ice=towerFixture(s,'ice',6,-28);const arrow={...ice,id:'arrow-fixture',type:'arrow',x:6,z:-23,cooldown:0};
   s.towers.push(arrow);
   s.enemies=[{id:'target',kind:'brute',x:7,z:-32,yaw:0,hp:1000,maxHp:1000,frost:0,comboCooldown:0,attackCooldown:10}];
   step(s,.01);const e=s.enemies[0];
@@ -167,16 +146,11 @@ test('ice then arrow consumes frost once and cooldown prevents recursive/repeate
   tick(s,2);assert.ok(s.events.filter(e=>e.kind==='shatter').length>=2,'combo can trigger again after cooldown');
 });
 
-test('enemy attack damages towers; anyone can repair with finite shared supplies',()=>{
-  const s=expedition(2);s.enemies=[];const t=build(s);Object.assign(s.players.p0,{x:0,z:-24});
+test('synthetic deployed towers still receive damage for the performance combat fixture',()=>{
+  const s=expedition();s.enemies=[];const t=towerFixture(s);Object.assign(s.players.p0,{x:0,z:-24});
   s.enemies=[{id:'hitter',kind:'brute',x:t.x+1.9,z:t.z,yaw:0,hp:9999,maxHp:9999,frost:0,comboCooldown:0,attackCooldown:0}];
   step(s,.1);assert.equal(t.hp,t.maxHp-23);
-  Object.assign(s.players.p1,{x:t.x+3,z:t.z});const supply=s.supplies;
-  assert.equal(act(s,'repair',{towerId:t.id},'p1').ok,true);
-  assert.equal(t.hp,t.maxHp);assert.equal(s.supplies,supply-4);
-  Object.assign(s.players.p1,{x:t.x-3,z:t.z});
   t.hp=1;tick(s,1.3);assert.equal(t.state,'destroyed');assert.equal(t.hp,0);
-  Object.assign(s.players.p0,{x:t.x-3,z:t.z});assert.equal(act(s,'pack',{towerId:t.id}).ok,false);
 });
 
 test('boss locks direction during warning, each charge hits once, and half health gives two full warnings',()=>{
@@ -224,22 +198,21 @@ test('empty room pauses without defeat; reconnect respects teacher pause',()=>{
   assert.equal(s.paused,true);act(s,'pause',{},'p0',teacher);assert.equal(s.paused,false);
 });
 
-test('retry restores mission start resources/modules and cannot mint stage rewards or duplicate IDs',()=>{
-  const s=expedition();s.enemies=[];const t=build(s);const firstId=t.id;
-  Object.assign(s.players.p0,BEACON);act(s,'interact');assert.equal(s.supplies,720);
+test('retry restores starting supplies without reviving obsolete checkpoint towers or minting rewards',()=>{
+  const s=expedition();s.enemies=[];
+  s._checkpoint.towers=[{id:'obsolete',type:'arrow',hp:180,state:'inventory'}];
+  Object.assign(s.players.p0,BEACON);act(s,'interact');assert.equal(s.supplies,760);
   s.players.p0.hp=0;step(s,.1);assert.equal(s.phase,'defeat');
   assert.equal(act(s,'retry',{},'p0',teacher).ok,true);
   assert.equal(s.supplies,600);assert.equal(s.towers.length,0);assert.equal(s.stage,0);assert.equal(s.beacon,false);
-  s.enemies=[];const second=build(s);assert.notEqual(second.id,firstId);
   assert.equal(act(s,'retry',{},'p0',teacher).ok,false);
 });
 
-test('victory awards once, recovers towers, returns to village, and prevents repeat reward farming',()=>{
-  const s=bossRoom();const supply=s.supplies;
-  s.towers.push({id:'carried',type:'arrow',team:0,x:0,z:-99,hp:70,maxHp:180,state:'carried',carrier:'p0',progress:0});
+test('victory awards once, clears fixture towers, returns to village, and prevents repeat reward farming',()=>{
+  const s=bossRoom();const supply=s.supplies;towerFixture(s);
   s.boss.hp=0;step(s,.1);assert.equal(s.phase,'victory');assert.equal(s.supplies,supply+200);
   tick(s,10);assert.equal(s.supplies,supply+200);assert.equal(s.events.filter(e=>e.kind==='victory').length,1);
-  assert.equal(s.towers[0].state,'inventory');assert.equal(s.towers[0].hp,70);
+  assert.deepEqual(s.towers,[]);
   assert.equal(act(s,'return',{},'p0',teacher).ok,true);assert.equal(s.phase,'village');
   assert.equal(act(s,'depart',{},'p0',teacher).ok,false);assert.equal(s.supplies,supply+200);
 });
@@ -302,7 +275,7 @@ function combatInput(s,p) {
   return {mx,mz,attack:true};
 }
 
-for(const count of [1,21]) test(`${count}-player campaign clears from lobby using only actions/inputs, without state cheats`,()=>{
+for(const count of [1,4,21]) test(`${count}-player campaign clears from lobby using only actions/inputs, without state cheats`,()=>{
   const s=room(count);
   assert.equal(act(s,'start',{},'p0',teacher).ok,true);
   assert.equal(act(s,'depart',{},'p0',teacher).ok,true);
@@ -310,7 +283,7 @@ for(const count of [1,21]) test(`${count}-player campaign clears from lobby usin
   for(let frame=0;frame<18000 && s.phase!=='victory' && s.phase!=='defeat';frame++) {
     const inputs={};
     for(const p of Object.values(s.players))inputs[p.id]=combatInput(s,p);
-    step(s,1/30,inputs);phases.add(s.phase);
+    step(s,1/30,inputs);phases.add(s.phase);assert.equal(s.towers.length,0,'campaign uses no tower assistance');
   }
   assert.equal(s.phase,'victory');assert.ok(phases.has('boss'));
   assert.equal(s.beacon,true);assert.ok(s.events.length<=40);
@@ -351,4 +324,27 @@ test('dense village preserves classroom passage and collides with every solid fr
     const distance=Math.hypot(p.x-site.x,p.z-site.z);
     assert.ok(distance>=site.r+.64&&distance<=site.r+.85,name+' blocks at its drawn boundary');
   }
+});
+
+
+test('compact village keeps all spawn columns clear and rejects the old empty lawn',()=>{
+  const s=room(21);s.phase='village';
+  for(const p of Object.values(s.players)){
+    assert.ok(walkable(p.x,p.z,.65));
+    for(let z=p.z;z>=-9;z-=.25)assert.ok(walkable(p.x,z,.65),`spawn column ${p.x} remains open at ${z}`);
+  }
+  const p=s.players.p0;
+  for(const side of [-1,1]){
+    Object.assign(p,{x:side*19.7,z:-9});tick(s,1,{p0:{mx:side}});
+    assert.ok(Math.abs(p.x)<=VILLAGE_BOUNDS.halfWidth-.65,'visible side bed stops outward walking');
+  }
+  Object.assign(p,{x:0,z:28.7});tick(s,1,{p0:{mz:1}});
+  assert.ok(p.z<=VILLAGE_BOUNDS.south-.65,'visible south bed closes unused lawn');
+  // Old saves can lie beyond the new border even when no building overlaps.
+  for(let i=0;i<20;i++)Object.assign(s.players['p'+i],{x:i%2?28:-28,z:32});
+  assert.equal(restoreVillagePositions(s),20);
+  for(const player of Object.values(s.players))assert.ok(walkable(player.x,player.z,.65));
+  assert.ok(walkable(18,-60,.65),'forest corridor width is retained');
+  assert.equal(walkable(19,-60,.65),false);
+  assert.ok(walkable(28,-115,.65),'boss arena width is retained');
 });

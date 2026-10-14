@@ -78,10 +78,10 @@ try {
     report.screenshots.push({name,path:file,kind:'actual-input',before,after:await sample()});
   };
   const settle=async()=>{await page.waitForFunction(()=>{const p=Object.values(__S2.getState().players)[0];return p.ground&&Math.hypot(p.vx,p.vz)<.001;});await frames();};
-  const canvasFocus=()=>page.locator('#game').focus();
   await frames();await capture('01-lobby-default');
   const lobbyBefore=await sample(),lobbyMark=await mark();
-  await canvasFocus();await page.keyboard.down('KeyW');await simTime(.35);await page.keyboard.up('KeyW');await settle();
+  assert.equal(await page.evaluate(()=>document.activeElement.id),'game','Entry returns actual keyboard focus to the game');
+  await page.keyboard.down('KeyW');await simTime(.35);await page.keyboard.up('KeyW');await settle();
   const lobbyWalk=await since(lobbyMark),lobbyAfter=await sample();
   assert.ok(lobbyAfter.player.z<lobbyBefore.player.z-.5,'W walks forward in the actual lobby');
   assert.ok(lobbyWalk.some(s=>s.input.mz<0&&Math.abs(s.player.vz)>0&&Math.abs(s.player.vz)<SEASON1_MOTION.speed*.97),'Lobby movement accelerates');
@@ -102,7 +102,8 @@ try {
   assert.ok(Math.abs(baseline.camera.distance-SEASON1_CAMERA.zoom)<.03,'Default camera uses the Season 1 3.2m boom');
   check('실제 마을 출발 위치에서 시즌1 기본 3.2m 카메라');
 
-  await canvasFocus();const walkMark=await mark();
+  assert.equal(await page.evaluate(()=>document.activeElement.id),'game','Village start returns keyboard focus without a test-only canvas focus');
+  const walkMark=await mark();
   await page.keyboard.down('KeyW');await simTime(.45);await page.keyboard.up('KeyW');await settle();
   const walk=await since(walkMark),moving=walk.filter(s=>s.input.mz<0&&s.player.mv);
   assert.ok(moving.length>=2);assert.ok(moving.some(s=>Math.abs(s.player.vz)>5.8));
@@ -165,7 +166,40 @@ try {
   const restored=await sample();assert.equal(restored.view.zoom,3.2);assert.equal(restored.view.yaw,0);assert.equal(restored.view.pitch,-.22);assert.equal(restored.camera.firstPerson,false);
   check('휠 3인칭→1인칭·자기 몸 숨김·시점 초기화로 복원');
 
-  await canvasFocus();await page.keyboard.down('KeyW');await page.keyboard.down('ShiftLeft');await page.keyboard.down('Space');
+  assert.equal(await page.evaluate(()=>document.activeElement.id),'game','Closing settings returns keyboard control');
+  for(const kind of ['help','performance']){
+    await page.locator(`#${kind}-toggle`).click();
+    if(kind==='help'){
+      const help=await page.locator('#help-panel').textContent();
+      assert.match(help,/2단 점프/);assert.doesNotMatch(help,/타워|포장|보관함|수리|쇄빙/);
+      await capture('08a-village-help-without-common-towers');
+    }
+    await page.locator(`#${kind}-toggle`).click();
+    assert.equal(await page.evaluate(()=>document.activeElement.id),'game',`Closing ${kind} returns keyboard control`);
+  }
+  const removedTowerUI='#tower-dock,#tower-arrow,#tower-ice,#modules-toggle,#inventory-panel,#context-card,#pack-button,#repair-button,#placement-note';
+  assert.equal(await page.locator(removedTowerUI).count(),0,'Public tower controls are removed from the DOM');
+  await page.mouse.move(683,430);
+  for(const key of ['Digit1','Digit2','KeyT','KeyR']){
+    await page.keyboard.press(key);await frames();
+    assert.equal(await page.evaluate(()=>__S2.view.placement==null),true,'Retired hotkeys never enable a placement preview');
+    await page.mouse.down();await frames();
+    assert.equal(await page.evaluate(()=>__S2.getInput().attack),true,'Left click remains basic attack after '+key);
+    await page.mouse.up();await frames();
+    assert.equal(await page.evaluate(()=>(__S2.getState().towers||[]).length),0);
+  }
+  check('공용 타워 UI 제거·1/2/T/R 이후에도 배치 없이 좌클릭 기본 공격 입력');
+  const afterPanels=await mark();
+  await page.keyboard.down('KeyW');await page.keyboard.down('ShiftLeft');await page.keyboard.press('Space');
+  await page.waitForFunction(()=>{const p=Object.values(__S2.getState().players)[0];return p.air&&p.vy<9;});
+  await page.keyboard.press('Space');
+  await page.waitForFunction(()=>{const p=Object.values(__S2.getState().players)[0];return p.run&&p.air&&p.flip>0;});
+  await page.keyboard.up('KeyW');await page.keyboard.up('ShiftLeft');await settle();
+  const resumed=await since(afterPanels);
+  assert.ok(resumed.some(s=>s.player.run&&s.player.flip>0),'Actual sprint and double jump work immediately after HUD panels close');
+  check('설정·조작 안내·성능을 닫은 직후 클릭 없이 Shift 달리기·2단 점프');
+
+  await page.keyboard.down('KeyW');await page.keyboard.down('ShiftLeft');await page.keyboard.down('Space');
   await simTime(.15);
   // A hidden browser cannot move the user's operating-system focus. Exercise
   // exactly the window event registered by the app; do not clear its state.

@@ -1,0 +1,191 @@
+{
+  "stats": {
+    "landmarks": 6,
+    "batches": 10,
+    "opaqueBatches": 6,
+    "contactBatches": 4,
+    "triangles": 213557,
+    "vertexBytes": 20487648,
+    "materials": 2,
+    "textures": 1,
+    "textureBytes": 65536,
+    "lights": 0,
+    "perFrameUpdates": 0,
+    "workshop": {
+      "format": 1,
+      "source": "assets/workshop.glb",
+      "sourceSha256": "04138dea5fb8c9971d91d565689c0eb9b7b30d30132b70732b8c70c8512f50cc",
+      "sourceBytes": 2379620,
+      "sourceTriangles": 25336,
+      "triangles": 25336,
+      "vertices": 44235,
+      "indexBytes": 2,
+      "packedBytes": 727071,
+      "materials": 8,
+      "parts": [
+        {
+          "name": "HERO_batch_plaster",
+          "triangles": 352
+        },
+        {
+          "name": "HERO_batch_stone.001",
+          "triangles": 2406
+        },
+        {
+          "name": "HERO_batch_timber",
+          "triangles": 3892
+        },
+        {
+          "name": "HERO_batch_tile",
+          "triangles": 10400
+        },
+        {
+          "name": "HERO_batch_tileLight",
+          "triangles": 3838
+        },
+        {
+          "name": "HERO_batch_iron",
+          "triangles": 1708
+        },
+        {
+          "name": "HERO_batch_brass",
+          "triangles": 1268
+        },
+        {
+          "name": "HERO_batch_canvas",
+          "triangles": 1472
+        }
+      ],
+      "bounds": {
+        "min": [
+          -4.981,
+          0,
+          -2.908
+        ],
+        "max": [
+          4.54,
+          8.723,
+          2.975
+        ],
+        "radius": 5.467667327114919
+      },
+      "placementYaw": 0.25,
+      "landmarkTriangles": 55597,
+      "runtimeBatches": 0,
+      "runtimeLights": 0,
+      "mergedInto": "village-a:workshop"
+    }
+  },
+  "model": {
+    "format": 1,
+    "source": "assets/workshop.glb",
+    "sourceSha256": "04138dea5fb8c9971d91d565689c0eb9b7b30d30132b70732b8c70c8512f50cc",
+    "sourceBytes": 2379620,
+    "sourceTriangles": 25336,
+    "triangles": 25336,
+    "vertices": 44235,
+    "indexBytes": 2,
+    "packedBytes": 727071,
+    "materials": 8,
+    "parts": [
+      {
+        "name": "HERO_batch_plaster",
+        "triangles": 352
+      },
+      {
+        "name": "HERO_batch_stone.001",
+        "triangles": 2406
+      },
+      {
+        "name": "HERO_batch_timber",
+        "triangles": 3892
+      },
+      {
+        "name": "HERO_batch_tile",
+        "triangles": 10400
+      },
+      {
+        "name": "HERO_batch_tileLight",
+        "triangles": 3838
+      },
+      {
+        "name": "HERO_batch_iron",
+        "triangles": 1708
+      },
+      {
+        "name": "HERO_batch_brass",
+        "triangles": 1268
+      },
+      {
+        "name": "HERO_batch_canvas",
+        "triangles": 1472
+      }
+    ],
+    "bounds": {
+      "min": [
+        -4.981,
+        0,
+        -2.908
+      ],
+      "max": [
+        4.54,
+        8.723,
+        2.975
+      ],
+      "radius": 5.467667327114919
+    },
+    "placementYaw": 0.25
+  },
+  "meshes": [
+    {
+      "name": "village-a:plaza-south",
+      "triangles": 18126,
+      "vertexBytes": 1740096
+    },
+    {
+      "name": "village-a:plaza-north",
+      "triangles": 17480,
+      "vertexBytes": 1678080
+    },
+    {
+      "name": "village-a:workshop",
+      "triangles": 55597,
+      "vertexBytes": 5337312
+    },
+    {
+      "name": "village-a:wagon",
+      "triangles": 37750,
+      "vertexBytes": 3624000
+    },
+    {
+      "name": "village-a:market",
+      "triangles": 57670,
+      "vertexBytes": 5536320
+    },
+    {
+      "name": "village-a:assembly",
+      "triangles": 25782,
+      "vertexBytes": 2475072
+    },
+    {
+      "name": "village-a-contact:workshop",
+      "triangles": 432,
+      "vertexBytes": 36288
+    },
+    {
+      "name": "village-a-contact:wagon",
+      "triangles": 144,
+      "vertexBytes": 12096
+    },
+    {
+      "name": "village-a-contact:market",
+      "triangles": 288,
+      "vertexBytes": 24192
+    },
+    {
+      "name": "village-a-contact:assembly",
+      "triangles": 288,
+      "vertexBytes": 24192
+    }
+  ]
+}

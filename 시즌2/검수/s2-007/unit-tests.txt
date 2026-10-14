@@ -1,0 +1,153 @@
+
+> zombie-night-season2@0.1.0 test
+> node --test tests/*.test.mjs
+
+{
+  "ok": true,
+  "artifacts": "/tmp/s2-audio-validation",
+  "samples": [
+    {
+      "phase": "village",
+      "peak": 0.07088100165128708,
+      "rms": 0.009639959804132289,
+      "clipped": 0
+    },
+    {
+      "phase": "forest",
+      "peak": 0.06420120596885681,
+      "rms": 0.009089511051068455,
+      "clipped": 0
+    },
+    {
+      "phase": "boss",
+      "peak": 0.0894072875380516,
+      "rms": 0.011769756320570583,
+      "clipped": 0
+    }
+  ],
+  "boar": {
+    "warningVoices": 5,
+    "chargeVoices": 4,
+    "peak": 0.0851270854473114,
+    "tailPeak": 0.000003994058715761639
+  },
+  "movement": {
+    "voices": [
+      4,
+      4,
+      2,
+      2,
+      2
+    ],
+    "peak": 0.03296322748064995,
+    "tailPeak": 5.266409743853728e-7
+  },
+  "checks": "native Web Audio rendering, stereo, clipping, volume isolation, event dedup, flood caps, crossfade, pause/resume backlog, disposal, boar cue timing, S1 movement cues and local gait cadence"
+}
+✔ tests/audio.test.mjs (2527.006469ms)
+✔ Season 2 uses the exact Season 1 geometry, materials and full cosmetic names (224.558875ms)
+✔ Original idle, moving, turning, jumping, downed and armed matrices match exactly (594.559568ms)
+✔ 21-player snapshots keep animation history, retain source culling and clear removed actors (151.864379ms)
+✔ Real simulation walking, sprinting, turns, jumping and landing reach the original avatar poses (530.325403ms)
+✔ Original first-person hiding preserves the local actor while excluding its body and shadow (29.828034ms)
+✔ boar has bounded, finite geometry and no added lights, textures or shadows (67.592055ms)
+✔ all combat poses reuse buffers and preserve simulation state; culling and disposal stop drawing (45.978738ms)
+✔ camera replays original Season 1 walk, jump, sprint, aim, first-person and teleport positions (56.264623ms)
+✔ wheel traverses the original discrete third-person/first-person boundary and limits (0.199592ms)
+✔ swept camera stops before solid sides and ground, passes above low props, and skips thin scenery (0.198151ms)
+✔ collision pulls in immediately, restores smoothly and uses body visibility hysteresis (0.587651ms)
+✔ jump follows within the original .22m vertical lag and a teleport snaps without horizontal lag (0.366036ms)
+✔ lobby uses original fixed 4.4m look-at rig and ignores game zoom until leaving (0.895292ms)
+✔ Season 2 zero HP selects the original downed camera without a separate down flag (1.327475ms)
+✔ walk, stop, turn and sprint match executed Season 1 village physics frame by frame (39.088693ms)
+✔ sprint exhaustion and recovery preserve the original three-second/four-second stamina rule (31.633198ms)
+✔ first jump, double-jump somersault and landing match real Season 1 state transitions (24.096826ms)
+✔ lobby uses original easing and one jump without enabling village sprint/double jump (28.350078ms)
+✔ held keys and repeated network jump sequences do not automatically double-jump (0.508194ms)
+✔ local prediction and authoritative movement share collisions, velocity and jump state (6.494676ms)
+✔ carried modules preserve their existing movement penalty with the restored controls (0.592037ms)
+✔ phase reset, disconnect and down states cannot preserve flying movement or spend combat actions (0.952325ms)
+✔ legacy players initialize motion safely and nonfinite input cannot poison the new fields (0.434747ms)
+✔ actual first/double jump triggers one original FOV kick each; landing, sprint and airborne cues render (8.919979ms)
+✔ particle work is bounded, respects culling/pause and never replays a fresh joined airborne pose (0.537918ms)
+✔ solo needs no Firebase and dispatches local input/action (4.256847ms)
+✔ host claim is exclusive; only the stored host token can resume (11.198412ms)
+✔ all room writes use the Season 2 namespace and token never enters Firebase (1.977322ms)
+✔ join rejects absent and incompatible rooms without falling back to solo (1.018532ms)
+✔ join receives the latest snapshot, while stale versions and old host sessions are rejected (3.402736ms)
+✔ host reload restores the last state and returns the same canonical teacher id (4.657283ms)
+✔ guest commands dispatch once and stale sessions cannot replay after reconnect (3.369467ms)
+✔ input transport is limited to 20 Hz and snapshots to 10 Hz (3.01679ms)
+✔ Season 1 sprint, jump sequence and aim survive guest-to-host movement and snapshot round-trip (4.140231ms)
+✔ outgoing and incoming motion controls accept only booleans and safe nonnegative jump sequence numbers (2.194925ms)
+✔ presence tracks departure and closing all clients removes every listener and timer (2.347339ms)
+✔ host departure pauses guests and heartbeat silence is detected (1.758276ms)
+✔ permission errors are reported and failed connect leaves no listeners (1.886825ms)
+✔ a previous tab closing cannot remove its replacement session presence (2.515015ms)
+✔ 21 player class joins, room cap is atomic, and inactive players free capacity (41.737463ms)
+✔ slow writes keep only one in flight and the latest queued snapshot/input (2.848994ms)
+✔ offline close detaches immediately while preserving server cleanup until acknowledgement (1.83614ms)
+✔ room names cannot escape the reserved Season 2 subtree (1.575229ms)
+✔ Season 1 cosmetic IDs survive profile, roster and action transport (1.679ms)
+✔ Guest input moves immediately with shared collision physics, without modifying host state or executing combat (4.266571ms)
+✔ New snapshots gently reconcile rendered position while collision state follows the authority (2.110262ms)
+✔ Unacknowledged jump survives old packets and repeated jump sequences cannot trigger a second jump (1.8361ms)
+✔ A second jump while the first is unacknowledged remains consumed across delayed snapshots (1.104368ms)
+✔ Teleports, phase/life changes, pause and explicit reset discard stale prediction (0.977512ms)
+✔ In-place time updates reconcile, and collision footprints also constrain guest movement (3.086593ms)
+✔ 15/20/30/60 Hz guest render frames preserve the host jump trajectory, height and landing (3.147001ms)
+✔ High-rate and uneven guest frames retain fractional time instead of accelerating or losing physics ticks (2.043264ms)
+✔ Guest replay positions match actual Season 1 friendSeg/friendLerp under irregular 10 Hz delivery (14.665458ms)
+✔ Presentation keeps stable object identities and never mutates authoritative or predicted players (0.758421ms)
+✔ Host movement has no replay lag; peer removal, mode changes and checkpoint rollback reset presentation (0.355962ms)
+✔ A teleported peer snaps instead of crossing buildings and local motion flags remain authoritative (1.205877ms)
+✔ guest-visible sprint, double-jump and landing play on the buffered feet timeline and expire without replay (6.392696ms)
+✔ an idle buffer retimestamp never resurrects a finished landing when the friend moves again (0.509747ms)
+✔ s2-001 checkpoints migrate moved village plots without mutating progress (3.265845ms)
+✔ s2-002 checkpoints migrate moved village plots without mutating progress (0.471481ms)
+✔ s2-003 checkpoints migrate moved village plots without mutating progress (0.674959ms)
+✔ s2-004 checkpoints migrate moved village plots without mutating progress (0.463019ms)
+✔ checkpoint migration rejects other seasons and unknown or mismatched versions (0.240032ms)
+✔ loading forest checkpoints retires all shared towers without altering the original save (0.560962ms)
+✔ loading boss checkpoints retires all shared towers without altering the original save (0.36183ms)
+✔ loading defeat checkpoints retires all shared towers without altering the original save (2.002063ms)
+✔ loading village checkpoints retires all shared towers without altering the original save (1.318872ms)
+✔ teacher controls lobby/village/depart and students cannot skip stages (11.820138ms)
+✔ Season 1 cosmetic IDs survive partial changes, snapshots, reconnects, and gameplay lock (2.018718ms)
+✔ new player cosmetic inputs normalize to bounded Season 1 indices (0.421988ms)
+✔ movement normalizes input, clamps dt, rejects nonfinite values, and respects phase gates/rocks (5.431719ms)
+✔ retired shared tower actions are rejected for students and teachers without mutating state (2.802216ms)
+✔ retired carried and unfinished towers cannot slow movement, stop attacks, or finish building (2.569946ms)
+✔ ice then arrow consumes frost once and cooldown prevents recursive/repeated shatter (1.410346ms)
+✔ synthetic deployed towers still receive damage for the performance combat fixture (0.9008ms)
+✔ boss locks direction during warning, each charge hits once, and half health gives two full warnings (5.00308ms)
+✔ irregular simulation tick cannot extend a charge beyond its 18-unit warning (0.427416ms)
+✔ friendly revive takes three uninterrupted seconds and lone downed party fails before auto-respawn (1.376096ms)
+✔ 15-second individual respawn and reconnect preserve health and fixed party scaling (7.383148ms)
+✔ empty room pauses without defeat; reconnect respects teacher pause (0.423892ms)
+✔ retry restores starting supplies without reviving obsolete checkpoint towers or minting rewards (0.383421ms)
+✔ victory awards once, clears fixture towers, returns to village, and prevents repeat reward farming (0.313749ms)
+✔ player cap, bounded event history, and JSON snapshot can round-trip simulation (48.600569ms)
+✔ first boss is beatable using only basic attack and telegraph-aware movement (8.021733ms)
+✔ 1-player campaign clears from lobby using only actions/inputs, without state cheats (25.954859ms)
+✔ 4-player campaign clears from lobby using only actions/inputs, without state cheats (17.701455ms)
+✔ 21-player campaign clears from lobby using only actions/inputs, without state cheats (87.06048ms)
+✔ older village saves escape moved landmarks without changing valid positions or progress (5.207511ms)
+✔ dense village preserves classroom passage and collides with every solid frontage (76.721931ms)
+✔ GLB import preserves parent transforms and excludes Blender environment (9.706062ms)
+✔ GLB import rejects corrupt, unsupported and out-of-plot assets (1.281998ms)
+✔ checked-in workshop data matches its complete Blender source (276.821475ms)
+✔ actual village mesh includes every imported triangle in one shared static batch (376.873898ms)
+ℹ tests 94
+ℹ suites 0
+ℹ pass 94
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2539.535837
+npm notice
+npm notice New major version of npm available! 11.9.0 -> 12.2.0
+npm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0
+npm notice To update run: npm install -g npm@12.2.0
+npm notice

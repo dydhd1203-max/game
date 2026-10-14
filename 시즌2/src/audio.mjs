@@ -5,7 +5,8 @@
  * sfxAt: distance filtering + listener-relative stereo pan; sndGc: bounded cleanup.
  * bgmSwitch / bgmLoop: scene crossfade, short lookahead, discard missed notes.
  * sndPct / sndCurve: clamped percentage and perceptual volume curve.
- * Melodies, arrangements, effects and expedition phase selection are new.
+ * Movement cues use S1 jump/hop and the final SND66 step/land overrides.
+ * Melodies, arrangements, combat effects and expedition phase selection are new.
  */
 
 const SAVE_KEY = 'zns2:sound';
@@ -21,7 +22,7 @@ const SCENES = {
   victory: {bpm:88, chords:[[50,57,61],[43,50,54],[45,52,57],[50,57,61]], melody:[74, null, 73, 69, 74, null, 78, null, 76, null, 74, 73, 74, null, null, null], strength:1},
   defeat: {bpm:62, chords:[[47,54,57],[43,50,54],[45,52,57],[47,54,57]], melody:[66, null, null, null, 64, null, 62, null, 61, null, null, null, 59, null, null, null], strength:0.7}
 };
-const EVENT_GAP = {shoot:0.075, arrow:0.075, ice:0.11, shatter:0.10, hit:0.08, down:0.2, revive:0.15, build:0.15, pack:0.15, beacon:0.5, warn:0.15, charge:0.2, victory:1};
+const EVENT_GAP = {step:0.09, jump:0.025, hop:0.025, land:0.025, shoot:0.075, arrow:0.075, ice:0.11, shatter:0.10, hit:0.08, down:0.2, revive:0.15, build:0.15, pack:0.15, beacon:0.5, warn:0.15, charge:0.2, victory:1};
 const PRIORITY = new Set(['warn', 'down', 'revive', 'beacon', 'victory']);
 
 /** Optional dependencies support real OfflineAudioContext validation; normal use needs no arguments. */
@@ -36,7 +37,7 @@ export function createAudio(options = {}) {
   } catch {}
   let ctx = options.context || null, buses = null, noiseBuffer = null, softWave = null;
   let scene = 'lobby', paused = false, disposed = false, needsGesture = true;
-  let tracks = [], serial = 0, suspension = null;
+  let tracks = [], serial = 0, stepSerial = 0, suspension = null, motionSample = null;
   const now = () => options.now ? options.now() : (ctx?.currentTime || 0);
   const voices = new Set(), graph = new Set(), drops = [], lastEvent = new Map(), seen = new Map();
   const slots = {sfx:new Float64Array(24), priority:new Float64Array(8), bgm:new Float64Array(24)};
@@ -118,24 +119,63 @@ export function createAudio(options = {}) {
     ownVoice(source, [gain], lane, end, track, slot); source.start(t); source.stop(end);
   }
 
-  function noise(t, duration, volume, cut, destination, lane = 'sfx', track = null) {
-    const end = t + duration + 0.02;
-    const slot = voxOk(lane, t, end);
-    if (slot < 0) return;
+  function sharedNoise() {
     if (!noiseBuffer) {
       noiseBuffer = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
       const data = noiseBuffer.getChannelData(0);
       let seed = 0x71a52; // Shared deterministic buffer, never allocate noise during combat.
       for (let i = 0; i < data.length; i++) { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; data[i] = seed / 2147483648 - 1; }
     }
+    return noiseBuffer;
+  }
+
+  function noise(t, duration, volume, cut, destination, lane = 'sfx', track = null) {
+    const end = t + duration + 0.02;
+    const slot = voxOk(lane, t, end);
+    if (slot < 0) return;
     const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
-    source.buffer = noiseBuffer; source.loop = true;
+    source.buffer = sharedNoise(); source.loop = true;
     filter.type = 'lowpass'; filter.frequency.value = cut; filter.Q.value = 0.6;
     gain.gain.value = 0.0001; gain.gain.setValueAtTime(0.0001, t);
     gain.gain.linearRampToValueAtTime(volume, t + Math.min(0.007, duration * 0.3));
     gain.gain.exponentialRampToValueAtTime(0.0001, end - 0.005);
     source.connect(filter); filter.connect(gain); gain.connect(destination);
     ownVoice(source, [filter, gain], lane, end, track, slot); source.start(t, (serial++ % 13) * 0.031); source.stop(end);
+  }
+
+  // S1 tone/pluck/puff/nzl envelopes: the short keycap click and jump glide
+  // must not inherit the longer combat/music release envelope above. They use
+  // the same bounded SFX slots, shared noise buffer and node-end ownership.
+  function movementTone(frequency, endFrequency, t, duration, type, volume, destination, plucked = false) {
+    const end = t + duration + (plucked ? 0.02 : 0.03), lane = 'sfx';
+    const slot = voxOk(lane, t, end);
+    if (slot < 0) return;
+    const source = ctx.createOscillator(), gain = ctx.createGain();
+    source.type = type; source.frequency.setValueAtTime(frequency, t);
+    if (endFrequency !== frequency) source.frequency.exponentialRampToValueAtTime(Math.max(24, endFrequency), t + duration);
+    gain.gain.value = 0.0001; gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, volume), t + (plucked ? 0.005 : 0.008));
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+    source.connect(gain); gain.connect(destination);
+    ownVoice(source, [gain], lane, end, null, slot); source.start(t); source.stop(end);
+  }
+
+  function movementNoise(t, duration, volume, frequency, q, destination, linear = false) {
+    const end = t + duration + 0.02, lane = 'sfx', slot = voxOk(lane, t, end);
+    if (slot < 0) return;
+    const source = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
+    source.buffer = sharedNoise(); source.loop = true;
+    filter.type = linear ? 'lowpass' : 'bandpass'; filter.frequency.value = frequency; filter.Q.value = q;
+    gain.gain.value = 0.0001;
+    gain.gain.setValueAtTime(linear ? volume : 0.0001, t);
+    if (linear) gain.gain.linearRampToValueAtTime(0.0001, t + duration);
+    else {
+      gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, volume), t + 0.004);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + duration);
+    }
+    source.connect(filter); filter.connect(gain); gain.connect(destination);
+    ownVoice(source, [filter, gain], lane, end, null, slot);
+    source.start(t, (serial++ % 13) * 0.031); source.stop(end);
   }
 
   function stopVoice(source) { try { source.stop(); } catch {} nodeEnd.call(source); }
@@ -152,6 +192,7 @@ export function createAudio(options = {}) {
     drops.length = 0;
     for (const row of Object.values(slots)) row.fill(0);
     lastEvent.clear();
+    motionSample = null;
     if (buses) { buses.duck.gain.cancelScheduledValues(now()); buses.duck.gain.value = 1; }
   }
 
@@ -245,6 +286,35 @@ export function createAudio(options = {}) {
     const puff = (duration, volume, cut, offset = 0) => noise(t + offset, duration, volume, cut, gain, lane);
     if (prior || kind === 'shoot' || kind === 'shatter' || kind === 'charge') duck(t, prior);
     switch (kind) {
+      case 'jump':
+        movementTone(240, 640, t, 0.16, 'sine', 0.07, gain);
+        movementNoise(t, 0.04, 0.06, 900, 1, gain); break;
+      case 'hop':
+        movementNoise(t, 0.035, 0.05, 2200, 0.7071, gain, true);
+        movementTone(430, 700, t, 0.07, 'sine', 0.045, gain); break;
+      case 'land':
+        // The current S2 map has no swimmable S1 pond/stream collision.
+        movementNoise(t, 0.055, 0.09, 600, 1, gain);
+        movementTone(170, 170, t, 0.08, 'triangle', 0.045, gain, true); break;
+      case 'step': {
+        const g = clamp(Number.isFinite(ev.strength) ? ev.strength : 1, 0, 1) * 0.8;
+        // S1's +/-6% pitch variation, with a repeatable local sequence.
+        const d = 0.94 + (stepSerial++ * 0.61803398875 % 1) * 0.12;
+        movementNoise(t, 0.006, 0.085 * g, 5400 * d, 2.2, gain);
+        movementTone(1150 * d, 760 * d, t, 0.020, 'triangle', 0.038 * g, gain);
+        movementTone(190 * d, 138 * d, t + 0.004, 0.055, 'sine', 0.075 * g, gain);
+        movementNoise(t + 0.004, 0.030, 0.024 * g, 420 * d, 0.8, gain);
+        if (ev.surface === 0) movementNoise(t + 0.006, 0.06, 0.030 * g, 3000 * d, 0.8, gain);
+        else if (ev.surface === 1) movementNoise(t + 0.004, 0.05, 0.045 * g, 520 * d, 0.9, gain);
+        else if (ev.surface === 2) {
+          movementTone(1700 * d, 1700 * d, t + 0.003, 0.03, 'sine', 0.020 * g, gain, true);
+          movementNoise(t + 0.003, 0.012, 0.035 * g, 3600 * d, 3, gain);
+        } else if (ev.surface === 3) {
+          movementTone(330 * d, 330 * d, t + 0.004, 0.07, 'triangle', 0.040 * g, gain, true);
+          movementTone(660 * d, 660 * d, t + 0.004, 0.042, 'sine', 0.008 * g, gain, true);
+        }
+        break;
+      }
       case 'shoot': case 'arrow':
         puff(0.045, 0.12, 1900); tone(310, 0.045, 0.07, 0, {endFrequency:155, type:'triangle', release:0.04}); break;
       case 'ice':
@@ -276,6 +346,25 @@ export function createAudio(options = {}) {
       case 'victory':
         [62, 66, 69, 74, 78].forEach((n, i) => tone(hz(n), 0.34, 0.095, i * 0.15, {type:'wood', release:0.24})); break;
     }
+  }
+
+  /** Local footsteps only: S1 plays once per complete travelled gait cycle.
+   * No event/network traffic, timers, remote-player loops or catch-up bursts.
+   * Surface may be supplied by a map; absent data keeps the original keycap.
+   */
+  function motion(player, dt, {phase = scene, paused: isPaused = paused, surface} = {}) {
+    if (!active() || isPaused || phase === 'lobby' || !player || player.down || player.hp <= 0 ||
+        !player.ground || !Number.isFinite(player.gp) || !Number.isFinite(dt) || dt <= 0 || dt > 0.1) {
+      motionSample = null; return;
+    }
+    const prior = motionSample;
+    if (!prior) { motionSample = {id:player.id, phase, x:player.x, z:player.z, gp:player.gp}; return; }
+    const distance = Math.hypot(player.x - prior.x, player.z - prior.z);
+    const crossed = Math.floor(player.gp / (Math.PI * 2)) !== Math.floor(prior.gp / (Math.PI * 2));
+    const continuous = prior.id === player.id && prior.phase === phase && distance > 0.001 && distance < 1.5 &&
+      player.gp >= prior.gp && player.gp - prior.gp < Math.PI;
+    prior.id = player.id; prior.phase = phase; prior.x = player.x; prior.z = player.z; prior.gp = player.gp;
+    if (continuous && crossed) event({kind:'step', x:player.x, z:player.z, strength:player.run ? 1 : 0.55, surface}, player);
   }
 
   async function unlock() {
@@ -352,7 +441,7 @@ export function createAudio(options = {}) {
     if (ctx && !options.context && ctx.state !== 'closed') { try { await ctx.close(); } catch {} }
   }
 
-  return {unlock, setScene, event, setVolume, getVolumes:() => ({...volumes}), update, dispose,
+  return {unlock, setScene, event, motion, setVolume, getVolumes:() => ({...volumes}), update, dispose,
     stats:() => ({...counts, voices:voices.size, tracks:tracks.length, cleanupChains:drops.length, graphNodes:graph.size, needsGesture, state:ctx?.state || 'locked'})};
 }
 

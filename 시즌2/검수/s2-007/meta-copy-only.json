@@ -1,0 +1,10 @@
+{
+  "scope": "Metadata description only after motion browser loaded; runtime bundle unchanged",
+  "beforeSHA256": "2bf86ea175c74fb0692d848a38df84ba4cc9d31d66a72f38055fcbcf628a22bb",
+  "afterSHA256": "5c218f074c759c1c370d7a814c9c9bff26e4736adf97a2dccd9ecd911568e553",
+  "beforeBytes": 1904444,
+  "afterBytes": 1904437,
+  "beforeCopy": "타워를 전진 배치하고",
+  "afterCopy": "숲길을 탐험하고",
+  "bundleExactReplacement": true
+}
