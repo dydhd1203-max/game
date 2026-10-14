@@ -1,0 +1,309 @@
+{
+  "metrics": [
+    {
+      "phase": "village",
+      "seconds": 8,
+      "sampleRate": 44100,
+      "peak": 0.07088106125593185,
+      "rms": 0.00963996141888552,
+      "clipped": 0,
+      "nonzero": 699565,
+      "stereo": 0.0015274733795380643,
+      "stats": {
+        "made": 47,
+        "ended": 42,
+        "dropped": 0,
+        "peakVoices": 47,
+        "effects": 4,
+        "voices": 5,
+        "tracks": 1,
+        "cleanupChains": 4,
+        "graphNodes": 13,
+        "needsGesture": false,
+        "state": "closed"
+      }
+    },
+    {
+      "phase": "forest",
+      "seconds": 8,
+      "sampleRate": 44100,
+      "peak": 0.0642012283205986,
+      "rms": 0.00908951054180201,
+      "clipped": 0,
+      "nonzero": 699162,
+      "stereo": 0.001524429349644075,
+      "stats": {
+        "made": 54,
+        "ended": 48,
+        "dropped": 0,
+        "peakVoices": 54,
+        "effects": 4,
+        "voices": 6,
+        "tracks": 1,
+        "cleanupChains": 4,
+        "graphNodes": 13,
+        "needsGesture": false,
+        "state": "closed"
+      }
+    },
+    {
+      "phase": "boss",
+      "seconds": 8,
+      "sampleRate": 44100,
+      "peak": 0.0894073024392128,
+      "rms": 0.011769755498181853,
+      "clipped": 0,
+      "nonzero": 700891,
+      "stereo": 0.003495737663546546,
+      "stats": {
+        "made": 90,
+        "ended": 84,
+        "dropped": 0,
+        "peakVoices": 90,
+        "effects": 4,
+        "voices": 6,
+        "tracks": 1,
+        "cleanupChains": 4,
+        "graphNodes": 13,
+        "needsGesture": false,
+        "state": "closed"
+      }
+    }
+  ],
+  "behavior": {
+    "beforeMute": 0,
+    "afterMute": 0,
+    "clippedVolumes": {
+      "bgm": 100,
+      "sfx": 0
+    },
+    "once": 11,
+    "twice": 11,
+    "flood": {
+      "made": 33,
+      "ended": 0,
+      "dropped": 0,
+      "peakVoices": 33,
+      "effects": 10,
+      "voices": 33,
+      "tracks": 2,
+      "cleanupChains": 10,
+      "graphNodes": 14,
+      "needsGesture": false,
+      "state": "running"
+    },
+    "switching": {
+      "made": 65,
+      "ended": 25,
+      "dropped": 0,
+      "peakVoices": 40,
+      "effects": 10,
+      "voices": 40,
+      "tracks": 2,
+      "cleanupChains": 10,
+      "graphNodes": 14,
+      "needsGesture": false,
+      "state": "running"
+    },
+    "paused": {
+      "made": 65,
+      "ended": 65,
+      "dropped": 0,
+      "peakVoices": 40,
+      "effects": 10,
+      "voices": 0,
+      "tracks": 0,
+      "cleanupChains": 0,
+      "graphNodes": 12,
+      "needsGesture": true,
+      "state": "suspended"
+    },
+    "pausedMade": 65,
+    "resumed": {
+      "made": 71,
+      "ended": 65,
+      "dropped": 0,
+      "peakVoices": 40,
+      "effects": 10,
+      "voices": 6,
+      "tracks": 1,
+      "cleanupChains": 0,
+      "graphNodes": 13,
+      "needsGesture": false,
+      "state": "running"
+    },
+    "beforeDispose": 71,
+    "disposed": {
+      "made": 71,
+      "ended": 71,
+      "dropped": 0,
+      "peakVoices": 40,
+      "effects": 10,
+      "voices": 0,
+      "tracks": 0,
+      "cleanupChains": 0,
+      "graphNodes": 0,
+      "needsGesture": false,
+      "state": "running"
+    },
+    "storedVolumes": {
+      "bgm": 100,
+      "sfx": 75
+    },
+    "keys": [
+      "sndBgm",
+      "zns2:sound"
+    ],
+    "oldVolume": "9"
+  },
+  "boar": {
+    "warning": 5,
+    "duplicate": 5,
+    "charge": 4,
+    "peak": 0.0851270854473114,
+    "clipped": 0,
+    "tailPeak": 0.000003994058715761639,
+    "warningEnergy": 49.43061863735043,
+    "chargeEnergy": 27.799562564684024,
+    "rendered": {
+      "made": 9,
+      "ended": 9,
+      "dropped": 0,
+      "peakVoices": 9,
+      "effects": 2,
+      "voices": 0,
+      "tracks": 1,
+      "cleanupChains": 2,
+      "graphNodes": 13,
+      "needsGesture": false,
+      "state": "closed"
+    },
+    "disposed": {
+      "made": 9,
+      "ended": 9,
+      "dropped": 0,
+      "peakVoices": 9,
+      "effects": 2,
+      "voices": 0,
+      "tracks": 0,
+      "cleanupChains": 0,
+      "graphNodes": 0,
+      "needsGesture": false,
+      "state": "closed"
+    }
+  },
+  "movement": {
+    "cues": [
+      {
+        "kind": "step",
+        "strength": 0.55,
+        "at": 0.1
+      },
+      {
+        "kind": "step",
+        "strength": 1,
+        "at": 0.6
+      },
+      {
+        "kind": "jump",
+        "at": 1.1
+      },
+      {
+        "kind": "hop",
+        "at": 1.5
+      },
+      {
+        "kind": "land",
+        "at": 1.9
+      }
+    ],
+    "voices": [
+      4,
+      4,
+      2,
+      2,
+      2
+    ],
+    "duplicates": [
+      4,
+      4,
+      2,
+      2,
+      2
+    ],
+    "peak": 0.03296322748064995,
+    "clipped": 0,
+    "tailPeak": 5.266409743853728e-7,
+    "energy": [
+      0.05120014002180004,
+      0.16638820832732557,
+      0.5906464093770794,
+      0.145204959207001,
+      0.10165397970840508
+    ],
+    "rendered": {
+      "made": 14,
+      "ended": 14,
+      "dropped": 0,
+      "peakVoices": 14,
+      "effects": 5,
+      "voices": 0,
+      "tracks": 1,
+      "cleanupChains": 5,
+      "graphNodes": 13,
+      "needsGesture": false,
+      "state": "closed"
+    },
+    "disposed": {
+      "made": 14,
+      "ended": 14,
+      "dropped": 0,
+      "peakVoices": 14,
+      "effects": 5,
+      "voices": 0,
+      "tracks": 0,
+      "cleanupChains": 0,
+      "graphNodes": 0,
+      "needsGesture": false,
+      "state": "closed"
+    }
+  },
+  "gait": {
+    "initial": 0,
+    "crossing": 4,
+    "standing": 4,
+    "airborne": 4,
+    "down": 4,
+    "teleport": 4,
+    "pausedBacklog": 4,
+    "muted": 4,
+    "resumed": 8,
+    "paused": {
+      "made": 8,
+      "ended": 8,
+      "dropped": 0,
+      "peakVoices": 8,
+      "effects": 2,
+      "voices": 0,
+      "tracks": 0,
+      "cleanupChains": 0,
+      "graphNodes": 12,
+      "needsGesture": true,
+      "state": "suspended"
+    },
+    "afterPause": 8,
+    "disposed": {
+      "made": 8,
+      "ended": 8,
+      "dropped": 0,
+      "peakVoices": 8,
+      "effects": 2,
+      "voices": 0,
+      "tracks": 0,
+      "cleanupChains": 0,
+      "graphNodes": 0,
+      "needsGesture": true,
+      "state": "closed"
+    }
+  }
+}

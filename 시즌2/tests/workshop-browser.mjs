@@ -13,7 +13,7 @@ import {VILLAGE_SITES,walkable} from '../src/content.mjs';
 import {SEASON1_CAMERA} from '../src/camera-season1.mjs';
 
 const root=path.resolve(process.env.S2_WORKSHOP_ROOT||fileURLToPath(new URL('../../',import.meta.url)));
-const out=path.resolve(process.env.S2_WORKSHOP_OUTPUT||'/tmp/s2-005-workshop');
+const out=path.resolve(process.env.S2_WORKSHOP_OUTPUT||'/tmp/s2-007-workshop');
 const baseline=process.env.S2_WORKSHOP_BASELINE==='1';
 const entry=process.env.S2_WORKSHOP_ENTRY||'시즌2/';
 const report={baseline,entry,environment:'guarded hidden Chromium; SwiftShader; 1366x768 DPR1',

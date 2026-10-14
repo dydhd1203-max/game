@@ -74,8 +74,9 @@ try {
     const once = audio.stats().made;
     audio.event({id:'same', kind:'warn', x:0, z:0});
     const twice = audio.stats().made;
+    const floodKinds = ['shoot','arrow','ice','hit','shatter','step','jump','hop','land'];
     for (let i = 0; i < 150; i++) {
-      audio.event({id:`flood${i}`, kind:['shoot','arrow','ice','hit','shatter'][i % 5], x:0, z:0});
+      audio.event({id:`flood${i}`, kind:floodKinds[i % floodKinds.length], x:0, z:0});
     }
     const flood = audio.stats();
     for (const phase of ['forest', 'boss', 'village', 'forest', 'boss']) { audio.setScene(phase); audio.update(); }
@@ -103,7 +104,7 @@ try {
   assert.equal(behavior.beforeMute, behavior.afterMute, 'muted music allocates no voices');
   assert.equal(behavior.once, behavior.twice, 'network event duplicate is silent');
   assert(behavior.flood.voices <= 56, 'simultaneous voices bounded');
-  assert(behavior.flood.effects <= 6, 'same-type combat flood coalesced');
+  assert(behavior.flood.effects <= 10, 'same-type combat and movement flood coalesced');
   assert(behavior.switching.tracks <= 2, 'crossfade has only two scene buses');
   assert.equal(behavior.paused.voices, 0); assert.equal(behavior.paused.tracks, 0);
   assert.equal(behavior.paused.cleanupChains, 0);
@@ -152,9 +153,95 @@ try {
   assert(boar.tailPeak < 0.0001, 'charge and room return finish without a looping hoof or rumble');
   assert.equal(boar.rendered.voices, 0, 'every scheduled boar source releases on end');
   assert.equal(boar.disposed.cleanupChains, 0); assert.equal(boar.disposed.graphNodes, 0);
+
+  const movement = await page.evaluate(async () => {
+    const {createAudio} = await import('/audio.mjs');
+    const ctx = new OfflineAudioContext(2, 44100 * 4, 44100);
+    let clock = 0;
+    const audio = createAudio({context:ctx, now:() => clock, document:null, storage:null});
+    audio.setVolume('bgm', 0); audio.setVolume('sfx', 100); await audio.unlock();
+    const cues = [
+      {kind:'step', strength:0.55, at:0.1}, {kind:'step', strength:1, at:0.6},
+      {kind:'jump', at:1.1}, {kind:'hop', at:1.5}, {kind:'land', at:1.9}
+    ];
+    const voices = [], duplicates = [];
+    for (const [index, cue] of cues.entries()) {
+      clock = cue.at;
+      const before = audio.stats().made;
+      const ev = {...cue, id:`motion-${index}`, x:0, z:0};
+      audio.event(ev); voices.push(audio.stats().made - before);
+      for (let i = 0; i < 21; i++) audio.event(ev);
+      duplicates.push(audio.stats().made - before);
+    }
+    const buffer = await ctx.startRendering(), n = buffer.length;
+    const bytes = new Uint8Array(44 + n * 4), view = new DataView(bytes.buffer);
+    const str = (offset, text) => [...text].forEach((c, i) => view.setUint8(offset + i, c.charCodeAt(0)));
+    str(0, 'RIFF'); view.setUint32(4, bytes.length - 8, true); str(8, 'WAVE'); str(12, 'fmt ');
+    view.setUint32(16, 16, true); view.setUint16(20, 1, true); view.setUint16(22, 2, true);
+    view.setUint32(24, buffer.sampleRate, true); view.setUint32(28, buffer.sampleRate * 4, true);
+    view.setUint16(32, 4, true); view.setUint16(34, 16, true); str(36, 'data'); view.setUint32(40, n * 4, true);
+    let peak = 0, clipped = 0, tailPeak = 0;
+    const energy = cues.map(() => 0);
+    for (let channel = 0; channel < 2; channel++) {
+      const data = buffer.getChannelData(channel);
+      for (let i = 0; i < n; i++) {
+        const value = data[i], magnitude = Math.abs(value), seconds = i / buffer.sampleRate;
+        peak = Math.max(peak, magnitude); if (magnitude >= 0.999) clipped++;
+        if (seconds >= 3) tailPeak = Math.max(tailPeak, magnitude);
+        for (let c = 0; c < cues.length; c++) if (seconds >= cues[c].at && seconds < cues[c].at + 0.3) energy[c] += value * value;
+        view.setInt16(44 + (i * 2 + channel) * 2, Math.round(Math.max(-1, Math.min(1, value)) * 32767), true);
+      }
+    }
+    let binary = '';
+    for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+    const rendered = audio.stats(); await audio.dispose();
+    return {base64:btoa(binary), cues, voices, duplicates, peak, clipped, tailPeak, energy, rendered, disposed:audio.stats()};
+  });
+  assert.deepEqual(movement.voices, [4, 4, 2, 2, 2], 'movement cues use the bounded original S1 layers');
+  assert.deepEqual(movement.duplicates, movement.voices, '21 repeated movement packets do not replay sounds');
+  assert(movement.energy.every(value => value > 0.01), 'walk, run, jump, double jump and landing all render');
+  assert(movement.energy[1] > movement.energy[0] * 1.4, 'sprinting has a stronger footstep than walking');
+  assert(movement.peak > 0.01 && movement.peak < 0.8, 'movement cues retain output headroom at full volume');
+  assert.equal(movement.clipped, 0); assert(movement.tailPeak < 0.0001, 'movement sounds and room return finish');
+  assert.equal(movement.rendered.voices, 0); assert.equal(movement.disposed.graphNodes, 0);
+  await fs.writeFile(path.join(artifact, 'movement.wav'), Buffer.from(movement.base64, 'base64'));
+  delete movement.base64;
+
+  const gait = await page.evaluate(async () => {
+    const {createAudio} = await import('/audio.mjs');
+    const ctx = new AudioContext();
+    let clock = ctx.currentTime;
+    const audio = createAudio({context:ctx, now:() => clock, document:null, storage:null});
+    audio.setVolume('bgm', 0); await audio.unlock();
+    const p = {id:'local', x:0, z:0, gp:6.2, ground:true, down:false, hp:100, run:false};
+    const opts = {phase:'village'}, sample = () => audio.motion(p, 1/60, opts), made = () => audio.stats().made;
+    sample(); const initial = made();
+    p.x += 0.1; p.gp = 6.4; sample(); const crossing = made();
+    for (let i = 0; i < 21; i++) sample(); const standing = made();
+    p.x += 0.1; p.gp = 12.5; sample(); clock += 0.3;
+    p.x += 0.1; p.gp = 12.7; p.ground = false; sample(); const airborne = made();
+    p.ground = true; sample(); p.down = true; p.x += 0.1; p.gp = 19; sample(); const down = made();
+    p.down = false; sample(); p.x += 50; p.gp = 25.2; sample(); const teleport = made();
+    audio.motion(p, 1/60, {...opts, paused:true}); p.x += 0.1; p.gp = 31.5; sample(); const pausedBacklog = made();
+    clock += 0.3; audio.setVolume('sfx', 0);
+    p.gp = 37.6; sample(); p.gp = 37.8; p.x += 0.1; sample(); const muted = made();
+    audio.setVolume('sfx', 75); clock += 0.3;
+    p.gp = 43.9; sample(); p.gp = 44.1; p.x += 0.1; sample(); const resumed = made();
+    // A real muted/pause transition must also stop and disconnect active cues.
+    audio.setScene('village', true); const paused = audio.stats();
+    for (const kind of ['step', 'jump', 'hop', 'land']) audio.event({kind});
+    const afterPause = made();
+    await audio.dispose(); await ctx.close();
+    return {initial, crossing, standing, airborne, down, teleport, pausedBacklog, muted, resumed, paused, afterPause, disposed:audio.stats()};
+  });
+  assert.equal(gait.initial, 0); assert.equal(gait.crossing, 4, 'one full gait crossing emits one local keycap');
+  for (const key of ['standing','airborne','down','teleport','pausedBacklog','muted']) assert.equal(gait[key], 4, `${key} does not emit footsteps`);
+  assert.equal(gait.resumed, 8, 'a later valid crossing resumes with one sound, without backlog');
+  assert.equal(gait.paused.voices, 0); assert.equal(gait.paused.cleanupChains, 0);
+  assert.equal(gait.afterPause, gait.paused.made); assert.equal(gait.disposed.graphNodes, 0);
   assert.deepEqual(errors, []);
-  await fs.writeFile(path.join(artifact, 'metrics.json'), JSON.stringify({metrics, behavior, boar}, null, 2));
-  console.log(JSON.stringify({ok:true, artifacts:artifact, samples:metrics.map(({phase, peak, rms, clipped}) => ({phase, peak, rms, clipped})), boar:{warningVoices:boar.warning, chargeVoices:boar.charge, peak:boar.peak, tailPeak:boar.tailPeak}, checks:'native Web Audio rendering, stereo, clipping, volume isolation, event dedup, flood caps, crossfade, pause/resume backlog, disposal, boar cue timing and voice budget'}, null, 2));
+  await fs.writeFile(path.join(artifact, 'metrics.json'), JSON.stringify({metrics, behavior, boar, movement, gait}, null, 2));
+  console.log(JSON.stringify({ok:true, artifacts:artifact, samples:metrics.map(({phase, peak, rms, clipped}) => ({phase, peak, rms, clipped})), boar:{warningVoices:boar.warning, chargeVoices:boar.charge, peak:boar.peak, tailPeak:boar.tailPeak}, movement:{voices:movement.voices, peak:movement.peak, tailPeak:movement.tailPeak}, checks:'native Web Audio rendering, stereo, clipping, volume isolation, event dedup, flood caps, crossfade, pause/resume backlog, disposal, boar cue timing, S1 movement cues and local gait cadence'}, null, 2));
 } finally {
   await browser.close();
   await new Promise(resolve => server.close(resolve));
