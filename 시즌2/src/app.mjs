@@ -93,9 +93,9 @@ async function enter(values){
   }catch(e){network?.close();network=null;active=false;isHost=false;ui.showEntry(e.message||'입장하지 못했어요.');}
   finally{entering=false;ui.setBusy(false);}
 }
-// Keep pre-s2-007 checkpoints readable without overwriting their stored payload.
+// Read previous village saves without overwriting their stored payload.
 const checkpointKey=()=>`checkpoint:${BUILD}:${room||'solo'}`;
-const readCheckpoint=()=>storage.get(checkpointKey())||storage.get('checkpoint:'+(room||'solo'));
+const readCheckpoint=()=>storage.get(checkpointKey())||storage.get(`checkpoint:s2-007:${room||'solo'}`)||storage.get('checkpoint:'+(room||'solo'));
 function captureCheckpoint(){
   if(!isHost)return;
   // sim stores the expedition-start checkpoint for retries; retain it on mid-battle saves.
