@@ -825,7 +825,7 @@
     const sex=av.sex==='m'?'m':'f',G=root.QPFoundationGarments,mode=av.foundationOutfit==='body'||!G?'body':'dressed';
     // The garments this avatar wears (per slot, or the basic piece with a reason).
     const dress=mode==='dressed'?G.resolve({...av,sex}):null;
-    const base={...av,sex,hair:av.hair|| (sex==='m'?'short:1':'bob:1'),expression:av.expression||'bright:0'},heads=headViews(base),items=shopItems(av)+(hatArtOf(av,sex,'front')?'|hat:'+String(av.hat).split(':')[0]:''),key=heads.key+'\n'+mode+(dress?'\n'+dress.key+'\n'+dress.fallbackKey:'')+'\n'+items;
+    const base={...av,sex,hair:av.hair|| (sex==='m'?'short:1':'bob:1'),expression:av.expression||'bright:0'},heads=headViews(base),items=shopItems(av)+(hatArtOf(av,sex,'front')?'|hat:'+String(av.hat).split(':')[0]:'')+faceKey(av,sex),key=heads.key+'\n'+mode+(dress?'\n'+dress.key+'\n'+dress.fallbackKey:'')+'\n'+items;
     let t=templates.get(key);if(t){templates.delete(key);templates.set(key,t);}
     else{t=template(base,heads,sex,mode,dress,items);if(!t.pending){templates.set(key,t);if(templates.size>48)templates.delete(templates.keys().next().value);}}
     const values=['qpf-'+(++serial),String(size*32/56),String(size*62/56)];
@@ -862,6 +862,32 @@
     }
     v.append(el('image',{href:art.src,...rect(art.rect),preserveAspectRatio:'none','data-foundation-hat':art.shape}));
   }
+  // Face art (avatar-face-art.js, tools/hair/build-face.py): face parts
+  // (av.eyes, av.nose, av.mouth) and stickers (av.face) over the front and
+  // profile head paintings, in head-native units, shifted to the hair style's
+  // face (anchors: the profile face sits up to a unit apart between styles).
+  // A part first lays a cover in the wearer's skin colour over the old part;
+  // its own skin pixels are transparent, so it fits every skin tone.
+  const FACE_SLOTS=['eyes','nose','mouth','face'];
+  function faceArtOf(av,sex,view){
+    const A=root.QPFaceArt;if(!A||view==='back')return[];const vw=view==='profile'?'right':view,out=[];
+    for(const slot of FACE_SLOTS){const shape=String(av[slot]||'').split(':')[0],rec=shape&&A.items[slot+':'+shape],art=rec?.views?.[sex]?.[vw];if(art)out.push({slot,shape,kind:rec.kind,...art});}
+    return out;
+  }
+  function faceKey(av,sex){const A=root.QPFaceArt;return A?FACE_SLOTS.filter(slot=>{const shape=String(av[slot]||'').split(':')[0];return shape&&A.items[slot+':'+shape];}).map(slot=>'|'+slot+':'+String(av[slot]).split(':')[0]).join(''):'';}
+  function faceLayer(v,defs,id,base,sex,view,skin){
+    const arts=faceArtOf(base,sex,view);if(!arts.length)return;
+    const vw=view==='profile'?'right':view,off=root.QPFaceArt.anchors?.[sex]?.[vw]?.[base.hair.split(':')[0]]||[0,0];
+    const rect=r=>({x:r[0],y:r[1],width:r[2],height:r[3]}),outer=el('g',{'data-foundation-face':arts.map(a=>a.slot+':'+a.shape).join('|')}),g=el('g',{transform:`translate(${off[0]} ${off[1]})`});outer.append(g);
+    // The hair style's fringe and eyebrows stay over every face item.
+    const F=root.QPFaceArt.fringe,fringe=F?.files?.[sex]?.[vw]?.[base.hair.split(':')[0]];
+    if(fringe){const mid=id+'-face-fringe-'+view,m=el('mask',{id:mid,maskUnits:'userSpaceOnUse',x:-20,y:-30,width:72,height:100});m.append(el('rect',{x:-20,y:-30,width:72,height:100,fill:'#fff'}),el('image',{href:fringe,...rect(F.rect),preserveAspectRatio:'none'}));defs.append(m);outer.setAttribute('mask','url(#'+mid+')');}
+    for(const a of arts){
+      if(a.cover){const mid=id+'-face-'+a.slot+'-'+view,m=el('mask',{id:mid,maskUnits:'userSpaceOnUse',...rect(a.rect)});m.append(el('image',{href:a.cover,...rect(a.rect),preserveAspectRatio:'none'}));defs.append(m);g.append(el('rect',{...rect(a.rect),fill:skin,mask:'url(#'+mid+')'}));}
+      g.append(el('image',{href:a.src,...rect(a.rect),preserveAspectRatio:'none'}));
+    }
+    v.append(outer);
+  }
   function template(base,heads,sex,mode,dress,items=''){
     const id=TEMPLATE_ID;
     const svg=el('svg',{xmlns:NS,class:'qp-pixel-avatar qp-illustrated-avatar qp-foundation-avatar','data-qp-foundation':'1','data-foundation-outfit':mode,'data-qpx-sex':sex,'data-foundation-id':id,'data-foundation-skin':heads.skin,viewBox:'0 0 32 62',width:TEMPLATE_W,height:TEMPLATE_H,role:'img','aria-label':(sex==='m'?'남자':'여자')+' 기준 캐릭터',style:'display:block;overflow:visible;--qpx-viewport-scale:1.107142857;--qpx-ground-shift:2.4'});
@@ -889,6 +915,7 @@
       // dark bottom rim. A body that owns its neck must not show that second
       // neck above the shirt. Cut only the reference heads' neck attachment;
       // original face/hair PNGs and legacy wardrobe rendering stay intact.
+      faceLayer(v,defs,id,base,sex,view,heads.skin);
       hatLayer(v,defs,id,base,sex,view);
       const referenceHead=base.hair.split(':')[0]===(sex==='m'?'short':'bob');
       const cut=referenceHead?HEAD_NECK_CUT[sex][view]:'';

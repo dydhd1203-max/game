@@ -1,0 +1,39 @@
+{
+ "kind": "part",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/face-art/nose-button-m-front.png",
+    "rect": [
+     13.543,
+     21.315,
+     5.043,
+     3.923
+    ],
+    "cover": "assets/face-art/nose-button-m-front-cover.png"
+   },
+   "right": {
+    "src": "assets/face-art/nose-button-m-right.png",
+    "rect": [
+     23.165,
+     21.752,
+     2.498,
+     2.594
+    ],
+    "cover": "assets/face-art/nose-button-m-right-cover.png"
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/face-art/nose-button-f-front.png",
+    "rect": [
+     13.978,
+     22.558,
+     4.119,
+     3.214
+    ],
+    "cover": "assets/face-art/nose-button-f-front-cover.png"
+   }
+  }
+ }
+}

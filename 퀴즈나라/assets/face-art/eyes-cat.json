@@ -1,0 +1,49 @@
+{
+ "kind": "part",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/face-art/eyes-cat-m-front.png",
+    "rect": [
+     5.698,
+     16.832,
+     20.509,
+     7.957
+    ],
+    "cover": "assets/face-art/eyes-cat-m-front-cover.png"
+   },
+   "right": {
+    "src": "assets/face-art/eyes-cat-m-right.png",
+    "rect": [
+     16.151,
+     17.332,
+     8.263,
+     6.629
+    ],
+    "cover": "assets/face-art/eyes-cat-m-right-cover.png"
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/face-art/eyes-cat-f-front.png",
+    "rect": [
+     8.152,
+     18.64,
+     15.771,
+     7.232
+    ],
+    "cover": "assets/face-art/eyes-cat-f-front-cover.png"
+   },
+   "right": {
+    "src": "assets/face-art/eyes-cat-f-right.png",
+    "rect": [
+     16.348,
+     18.011,
+     6.885,
+     6.12
+    ],
+    "cover": "assets/face-art/eyes-cat-f-right-cover.png"
+   }
+  }
+ }
+}
