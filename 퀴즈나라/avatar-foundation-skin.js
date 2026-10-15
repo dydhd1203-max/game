@@ -9,7 +9,7 @@
  'use strict';
  const NS='http://www.w3.org/2000/svg',base=new URL('.',document.currentScript.src),R=root.QPFoundationReferenceData;
  const files={arm:'assets/sd-foundation-ref-arms.png',leg:'assets/sd-foundation-ref-legs.png',neck:'assets/sd-foundation-ref-neck.png'};
- const cleanFiles={arm:'assets/sd-foundation-ref-arms-clean.png',neck:'assets/sd-foundation-ref-neck-clean.png'};
+ const cleanFiles={arm:'assets/sd-foundation-ref-arms-clean.png',neck:'assets/sd-foundation-ref-neck-clean.png',leg:'assets/sd-foundation-ref-legs-under.png'};
  // The clean neck runs 8 px past the legacy rect (room under a V neck):
  // tools/garment/frozen/zones.json clean.neckRects (check-source compares).
  // The clean arms fill the legacy arm rects. f-back borrows the male neck.
@@ -61,13 +61,22 @@
  // A limb definition in sheet pixels: the painted strip, its three joints,
  // half widths at those joints and where the hand/foot end lies.
  // art 'clean': the clean arm painting (same rects and joints).
- function limbDef(type,sex,view,i,art){
+ function limbDef(type,sex,view,i,art,legUnder=false){
   const F=R.figures[sex+'-'+VIEW[view]],J=F.joints,rect=F.rects[type][i],radii=F.radii[type][i],variant=art==='clean'&&type==='arm'?'clean':'';
   const joints=type==='arm'?[J.shoulder[i],J.elbow[i],J.wrist[i]]:[J.hip[i],J.knee[i],J.ankle[i]];
-  return{rect,joints,radii,end:type==='arm'?J.hand_end:rect[1]+rect[3],k:F.k,image:variant?images.armClean:images[type],variant};
+  return{rect,joints,radii,end:type==='arm'?J.hand_end:rect[1]+rect[3],under:type==='leg'&&legUnder?LEG_UNDER_SHOE:0,k:F.k,image:variant?images.armClean:type==='leg'&&legUnder?images.legClean:images[type],variant};
  }
+ // Under pipeline shoes (r.legUnder, avatar-foundation-outfit.js) the legs
+ // come from sd-foundation-ref-legs-under.png (loaded with the clean art):
+ // the legs run on LEG_UNDER_SHOE sheet px under the basic shoe's opaque
+ // paint (tools/avatar_build/body.py legs_under_shoes, user decision
+ // 2026-10-15), so a lower opening (a loafer) shows skin, not the cut end;
+ // one extra mesh row past the rect draws the rows below it. The basic
+ // sneaker keeps the plain legs: under its sock rim, softened at 120-280 px,
+ // the run showed skin where the background had shown (R0 2026-10-15).
+ const LEG_UNDER_SHOE=8;
  const textures=new Map();
- function texture(d){const key=(d.variant?d.variant+'/':'')+d.rect.join();if(textures.has(key))return textures.get(key);const c=document.createElement('canvas');c.width=d.rect[2];c.height=d.rect[3];c.getContext('2d').drawImage(d.image,...d.rect,0,0,c.width,c.height);textures.set(key,c);return c;}
+ function texture(d){const under=d.under||0,key=(d.variant?d.variant+'/':'')+d.rect.join()+(under?'+'+under:'');if(textures.has(key))return textures.get(key);const c=document.createElement('canvas');c.width=d.rect[2];c.height=d.rect[3]+under;c.getContext('2d').drawImage(d.image,d.rect[0],d.rect[1],d.rect[2],d.rect[3]+under,0,0,c.width,c.height);textures.set(key,c);return c;}
  // The bob hides the female back neck on the sheet; the male one stands in
  // for hairstyles that show it.
  function neckFigure(sex,view){const F=R.figures[sex+'-'+VIEW[view]];return F.rects.neck?F:R.figures[(sex==='m'?'f':'m')+'-'+VIEW[view]];}
@@ -87,11 +96,11 @@
  // part: '' the whole limb; 'forearm' only the rows from the start of the
  // elbow bend to the hand's end; 'forearm-bare' the same without the hand
  // (an open gesture hand is drawn there instead).
- function painting(d,points,fold=false,part=''){const relative=points.map(p=>sub(p,points[0])),[a,b,c]=relative,u=unit(sub(b,a)),v=unit(sub(c,b)),turn=Math.acos(Math.max(-1,Math.min(1,u[0]*v[0]+u[1]*v[1]))),sharp=fold&&turn>SHARP,cacheKey=(d.variant?d.variant+'/':'')+[d.rect.join(),...relative.flat().map(x=>Math.round(x*40)),sharp?'s':'',part].join(':'),cached=limbCache.get(cacheKey);if(cached)return cached;
+ function painting(d,points,fold=false,part=''){const relative=points.map(p=>sub(p,points[0])),[a,b,c]=relative,u=unit(sub(b,a)),v=unit(sub(c,b)),turn=Math.acos(Math.max(-1,Math.min(1,u[0]*v[0]+u[1]*v[1]))),sharp=fold&&turn>SHARP,cacheKey=(d.variant?d.variant+'/':'')+[d.rect.join()+(d.under?'+'+d.under:''),...relative.flat().map(x=>Math.round(x*40)),sharp?'s':'',part].join(':'),cached=limbCache.get(cacheKey);if(cached)return cached;
   const nu=[u[1],-u[0]],nv=[v[1],-v[0]],J=d.joints,ys=[d.rect[1],J[0][1],J[1][1],J[2][1],d.end],ext=(d.end-J[2][1])*d.k,top=(J[0][1]-d.rect[1])*d.k,verts=[],cols=2;
   const l1=Math.hypot(...sub(b,a)),l2=Math.hypot(...sub(c,b)),corner=Math.min(.55,l1*.2,l2*.2),lo=ys[2]-corner/l1*(ys[2]-ys[1]),hi=ys[2]+corner/l2*(ys[3]-ys[2]);
   // Source rows of the mesh; a sharp fold adds rows through the bend.
-  const rowsY=Array.from({length:21},(_,row)=>d.rect[1]+row/20*d.rect[3]);if(sharp)for(let j=0;j<=SHARP_ROWS;j++)rowsY.push(lo+(hi-lo)*j/SHARP_ROWS);if(part==='forearm-bare')rowsY.push(ys[3]);if(part==='forearm-fist')rowsY.push(ys[3]+FIST_STUB/d.k);if(rowsY.length>21){rowsY.sort((p,q)=>p-q);for(let j=rowsY.length-1;j>0;j--)if(rowsY[j]-rowsY[j-1]<.05)rowsY.splice(j,1);}
+  const rowsY=Array.from({length:21},(_,row)=>d.rect[1]+row/20*d.rect[3]);if(d.under&&!part)rowsY.push(d.rect[1]+d.rect[3]+d.under);if(sharp)for(let j=0;j<=SHARP_ROWS;j++)rowsY.push(lo+(hi-lo)*j/SHARP_ROWS);if(part==='forearm-bare')rowsY.push(ys[3]);if(part==='forearm-fist')rowsY.push(ys[3]+FIST_STUB/d.k);if(rowsY.length>21){rowsY.sort((p,q)=>p-q);for(let j=rowsY.length-1;j>0;j--)if(rowsY[j]-rowsY[j-1]<.05)rowsY.splice(j,1);}
   // Rows a part draws: from the last row at or before the bend's start.
   const first=part?Math.max(0,rowsY.findLastIndex(y=>y<=lo+1e-6)):0,last=part==='forearm-bare'?rowsY.findIndex(y=>y>=ys[3]-1e-6):part==='forearm-fist'?rowsY.findIndex(y=>y>=ys[3]+FIST_STUB/d.k-1e-6):rowsY.length-1;
   // Sharp fold (a running or jumping forearm folded up toward the camera, so
@@ -152,7 +161,7 @@
    // paintings (avatar-foundation.js seatDrawn): repainting them every frame
    // replaced it after the first one.
    if(type==='leg'&&pose.seatArt&&part.painting)return;
-   const p=type==='arm'?pose.arms[i]:pose.legs[i],points=type==='arm'?[p.shoulder,p.elbow,p.wrist]:p.paint||[p.root,p.knee,p.ankle],def=limbDef(type,sex,view,i,art),drawn=painting(def,points,type==='arm'&&Boolean(p.fold));
+   const p=type==='arm'?pose.arms[i]:pose.legs[i],points=type==='arm'?[p.shoulder,p.elbow,p.wrist]:p.paint||[p.root,p.knee,p.ankle],def=limbDef(type,sex,view,i,art,Boolean(r.legUnder)&&clean.ready),drawn=painting(def,points,type==='arm'&&Boolean(p.fold));
    if(!part.painting){part.painting=document.createElementNS(NS,'image');part.painting.setAttribute('data-foundation-skin-paint',type);part.painting.setAttribute('filter',tint);part.painting.setAttribute('preserveAspectRatio','none');
     // An arm's sleeve-opening clip sits on a frame, so the forearm overlay can
     // reuse the bare painting above the sleeve with only its own clip.

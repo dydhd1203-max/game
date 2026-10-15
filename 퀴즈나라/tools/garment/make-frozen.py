@@ -118,6 +118,9 @@ def generate(tmp, reuse=None):
     shorts_a = layers['shorts'][..., 3] > 127
     shoes_a = layers['shoes'][..., 3] > 127
     legs_a = layers['legs'][..., 3] > 127
+    # the shoe opening is measured against the legs' run under the shoe
+    # (sd-foundation-ref-legs-under.png, drawn under pipeline shoes)
+    legs_under_a = load_rgba(os.path.join(ASSETS, 'sd-foundation-ref-legs-under.png'))[..., 3] > 127
     for key, F in data['figures'].items():
         x0c, _, x1c, _ = frozen.CELLS[key]
         cut = polyline_y(figs[key]['cut'], np.arange(x0c, x1c) + .5)
@@ -125,7 +128,7 @@ def generate(tmp, reuse=None):
         geo[key] = g
         m_top = limits.measure_top(g, top_vis, band=None, top_region=top_alpha > .5, owners=labels, neck_art=neck_art)
         m_bot = limits.measure_bottom(g, shorts_a, band=None, visible=labels == 4)
-        m_sho = limits.measure_shoes(g, shoes_a, legs_a)
+        m_sho = limits.measure_shoes(g, shoes_a, legs_under_a)
         measured[key] = {'top/short-sleeve': m_top, 'bottom/shorts': m_bot, 'shoes/low': m_sho}
         zones_pass[key] = limits.pass_zones(g, band_arm)
         for cls, res in measured[key].items():

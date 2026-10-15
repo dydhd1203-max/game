@@ -47,7 +47,8 @@ def basic_report(lim, zones, labels, layers, neck_clean):
         got = {'top/short-sleeve': limits.measure_top(g, np.isin(labels, (1, 2)), top_region=top_a, owners=labels,
                                                       neck_art=neck_clean[..., 3] > 200),
                'bottom/shorts': limits.measure_bottom(g, layers['shorts'][..., 3] > 127, visible=labels == 4),
-               'shoes/low': limits.measure_shoes(g, layers['shoes'][..., 3] > 127, layers['legs'][..., 3] > 127)}
+               'shoes/low': limits.measure_shoes(g, layers['shoes'][..., 3] > 127,
+                                                  load_rgba(os.path.join(A, 'sd-foundation-ref-legs-under.png'))[..., 3] > 127)}
         if json.loads(json.dumps(got)) != lim['basic'][key]:
             fails.append('%s: basic measurement differs from limits.json (stale frozen artifacts?)' % key)
         for cls, res in got.items():

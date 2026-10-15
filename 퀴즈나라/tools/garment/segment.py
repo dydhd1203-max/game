@@ -155,6 +155,9 @@ class Frozen:
         self.limits = json.load(open(os.path.join(FROZEN, 'limits.json'), encoding='utf-8'))
         self.data = read_data()['figures']
         self.layers = {n: load_rgba(os.path.join(ASSETS, 'sd-foundation-ref-%s.png' % n)) for n in LAYERS}
+        # the legs with their run under the shoe (drawn under pipeline shoes):
+        # the shoe opening (SHOE_LOW_OPENING) is measured against it
+        self.legs_under = load_rgba(os.path.join(ASSETS, 'sd-foundation-ref-legs-under.png'))
         self.clean = {'arms': load_rgba(os.path.join(ASSETS, 'sd-foundation-ref-arms-clean.png')),
                       'neck': load_rgba(os.path.join(ASSETS, 'sd-foundation-ref-neck-clean.png'))}
         # The head layer: the head owner's pixels and the sheet's paint above

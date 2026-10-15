@@ -58,14 +58,14 @@
     "SHOE_LOW_OPENING": {
      "foot0": {
       "atColumn": 1060,
-      "legEnd": 1040,
-      "marginPx": 3,
+      "legEnd": 1048,
+      "marginPx": 11,
       "shoeTop": 1040
      },
      "foot1": {
       "atColumn": 1130,
-      "legEnd": 1038,
-      "marginPx": 3,
+      "legEnd": 1046,
+      "marginPx": 11,
       "shoeTop": 1038
      }
     },
@@ -201,14 +201,14 @@
     "SHOE_LOW_OPENING": {
      "foot0": {
       "atColumn": 284,
-      "legEnd": 1033,
-      "marginPx": 3,
+      "legEnd": 1041,
+      "marginPx": 11,
       "shoeTop": 1033
      },
      "foot1": {
       "atColumn": 351,
-      "legEnd": 1041,
-      "marginPx": 3,
+      "legEnd": 1049,
+      "marginPx": 11,
       "shoeTop": 1041
      }
     },
@@ -323,8 +323,8 @@
     "SHOE_LOW_OPENING": {
      "foot0": {
       "atColumn": 721,
-      "legEnd": 1043,
-      "marginPx": 3,
+      "legEnd": 1051,
+      "marginPx": 11,
       "shoeTop": 1043
      }
     },
@@ -434,14 +434,14 @@
     "SHOE_LOW_OPENING": {
      "foot0": {
       "atColumn": 1060,
-      "legEnd": 519,
-      "marginPx": 3,
+      "legEnd": 527,
+      "marginPx": 11,
       "shoeTop": 519
      },
      "foot1": {
       "atColumn": 1126,
-      "legEnd": 518,
-      "marginPx": 3,
+      "legEnd": 526,
+      "marginPx": 11,
       "shoeTop": 518
      }
     },
@@ -577,14 +577,14 @@
     "SHOE_LOW_OPENING": {
      "foot0": {
       "atColumn": 280,
-      "legEnd": 508,
-      "marginPx": 3,
+      "legEnd": 516,
+      "marginPx": 11,
       "shoeTop": 508
      },
      "foot1": {
       "atColumn": 348,
-      "legEnd": 514,
-      "marginPx": 3,
+      "legEnd": 522,
+      "marginPx": 11,
       "shoeTop": 514
      }
     },
@@ -699,8 +699,8 @@
     "SHOE_LOW_OPENING": {
      "foot0": {
       "atColumn": 717,
-      "legEnd": 519,
-      "marginPx": 3,
+      "legEnd": 527,
+      "marginPx": 11,
       "shoeTop": 519
      }
     },

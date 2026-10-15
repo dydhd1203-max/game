@@ -537,6 +537,8 @@
     const r=prepare(body,wear),{profile,back}=pose,view=profile?'Profile':back?'Back':'Front',sex=body.svg.dataset.qpxSex==='m'?'m':'f',F=figure(sex,view),S=spec(sex),top=wear.top,bottom=wear.bottom,shoes=wear.shoes;
     // The arms and neck the top was fitted against (avatar-foundation-skin.js).
     body.bodyArt=top.bodyArt;
+    // Pipeline shoes (a lower opening) get the legs' run under the shoe.
+    body.legUnder=!shoes.legacy;
     // Covered calibration underwear and bare feet have no second visible copy.
     body.underlay.style.display='none';
     body.pelvis.contour.style.display='none';body.pelvis.shade.style.display='none';body.torso.contour.style.display='none';body.torso.shade.style.display='none';

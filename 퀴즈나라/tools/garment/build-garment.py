@@ -260,7 +260,7 @@ def limit_codes(ctx, segs, figs, slot):
                     bandLinePx=int(b.sum()), uncoveredPx=int((b & ~grown).sum()),
                     coverMarginPx=int(depth[b & full].min()) if (b & full).any() else 0)
         else:
-            got = LIM.measure_shoes(g, full, fz.layers['legs'][..., 3] > 127)
+            got = LIM.measure_shoes(g, full, fz.legs_under[..., 3] > 127)
         measured[key] = got
         for lim, v in got.items():
             entries = [('-', v)] if ('marginPx' in v or 'minMarginPx' in v or 'outsideNeckArtPx' in v or 'missing' in v) else list(v.items())

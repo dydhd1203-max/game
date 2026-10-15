@@ -6,7 +6,7 @@
   "tools/garment/frozen/cover-bottom.png": "9fa2a7b0dfcb2ac9c6ec5121b912628ef959109a82b96211908e2e8982d96985",
   "tools/garment/frozen/cover-torso.png": "259115c2dfbf3145c7539e24896e221b190af50d5c9caf3f53e471d997c32cdf",
   "tools/garment/frozen/hair-occlusion.png": "5910f5237a5924f31243d876c4ce36815e8a6c29331c2285de88f1176e3b470b",
-  "tools/garment/frozen/limits.json": "d9ef43b32278a3ecd20a559b5214d9686ad347fd207b5800df9272e6b8ea2272",
+  "tools/garment/frozen/limits.json": "15bfc44f0629cd6b6f51c848aa2a8932c51e705ecf56055f99ecec2ccbe73c11",
   "tools/garment/frozen/owner-map.png": "8b8d93c870cb89431bb752b8b8239dba271be6854109ed59c137df2ca43d4be6",
   "tools/garment/frozen/zones.json": "128cbea1767d9d890fd3786efd81b3c73f0702b462f5bf193c68b4fe2a9146ca"
  },
@@ -834,6 +834,7 @@
  },
  "files": {
   "assets/sd-foundation-ref-arms.png": "23044fba3d19a949444aa14f64af38b24ffc17eb2df12558e07a4abb3d30f9ac",
+  "assets/sd-foundation-ref-legs-under.png": "df8f993092850d734868eadf5402eea0a92dc37c60cbd62953e119f4ae9a5184",
   "assets/sd-foundation-ref-legs.png": "e3aef2f0ad68f50c9b1da00bae00d1e8b09427687e5129e4cb59ab8db3514678",
   "assets/sd-foundation-ref-neck.png": "4a0ed5187b2c0f6a601fa5e94aa569f645350d29e36913d17b1ed2dde469c99d"
  },

@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-15T07:43:52.910Z",
+  "builtAt": "2026-10-15T09:29:59.858Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -116,8 +116,8 @@
     },
     {
       "path": "avatar-image.js",
-      "bytes": 6477,
-      "sha256": "5ec1b0594c7c705f472b740084629efb1a647fd82e7868e5d8d0f2ee7759d6da"
+      "bytes": 6520,
+      "sha256": "475486e6323f38a885059b884e7610b579db03222052fda228d7825e56b05bd5"
     },
     {
       "path": "assets/avatar-file-data.js",
@@ -486,18 +486,18 @@
     },
     {
       "path": "avatar-foundation-garments.js",
-      "bytes": 12199,
-      "sha256": "4c8fb5f04870d38431b812be81ded49f36d88abd1e351177bc03124546011a60"
+      "bytes": 12372,
+      "sha256": "c7623df4b0ca912b2034a3d09b8c6126ac12e6d12790f1d2f4d94011e2af184a"
     },
     {
       "path": "avatar-foundation-outfit.js",
-      "bytes": 60404,
-      "sha256": "7d2eaafc72e349a54886af2f110812e3c21d2d413d31e95645bbae95f0effec2"
+      "bytes": 60511,
+      "sha256": "738b9b2e4e9bf5b31cbc28791ea3c980290b4fefe7738357ce62b45e09aad1b2"
     },
     {
       "path": "assets/avatar-file-data-foundation.js",
-      "bytes": 270351,
-      "sha256": "5c84cebfd74efda188855b52ea9b83cb3115a804f8b595594f5591ecdd1644bb"
+      "bytes": 340374,
+      "sha256": "975368340def8b231f85e46b219db0e1091eba041d7916b249eb5c1fff3e7e4e"
     },
     {
       "path": "assets/sd-foundation-ref-data.js",
@@ -525,9 +525,14 @@
       "sha256": "71ff02988d4c4b2e2935765c04bc822453ae6bebc9455c64131449483cc76b7f"
     },
     {
+      "path": "assets/sd-foundation-ref-legs-under.png",
+      "bytes": 52467,
+      "sha256": "df8f993092850d734868eadf5402eea0a92dc37c60cbd62953e119f4ae9a5184"
+    },
+    {
       "path": "avatar-foundation-skin.js",
-      "bytes": 30440,
-      "sha256": "8ed38bdd59ea5eb882e023d4e291372a74f8cb5da76e0b3f5b0d61675e8bcc63"
+      "bytes": 31401,
+      "sha256": "7f38349346321d2f84a43fc3bd3232dce502a297250a340b013c858db43f2ec4"
     },
     {
       "path": "assets/sd-foundation-ref-neck.png",
