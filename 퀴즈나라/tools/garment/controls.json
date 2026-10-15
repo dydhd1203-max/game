@@ -1,0 +1,285 @@
+[
+ {
+  "name": "R1-top-identity",
+  "slot": "top",
+  "kind": "identity",
+  "expect": "pass",
+  "role": "roundtrip"
+ },
+ {
+  "name": "R1-top-webp80",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "roundtrip"
+ },
+ {
+  "name": "R1-bottom-identity",
+  "slot": "bottom",
+  "kind": "identity",
+  "expect": "pass",
+  "role": "roundtrip"
+ },
+ {
+  "name": "R1-bottom-webp80",
+  "slot": "bottom",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "roundtrip"
+ },
+ {
+  "name": "R1-shoes-identity",
+  "slot": "shoes",
+  "kind": "identity",
+  "expect": "pass",
+  "role": "roundtrip"
+ },
+ {
+  "name": "R1-shoes-webp80",
+  "slot": "shoes",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "roundtrip"
+ },
+ {
+  "name": "P-sleeve+4",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-puff1.15",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-hem+6",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-hem-6",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": [
+   "HEM_HIGH"
+  ],
+  "role": "positive"
+ },
+ {
+  "name": "P-cuff1.15",
+  "slot": "bottom",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-shoe+4",
+  "slot": "shoes",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "C-cream",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "N-belly10",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": [
+   "HEM_HIGH"
+  ],
+  "role": "control"
+ },
+ {
+  "name": "N-neck20",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": [
+   "NECK_OPEN"
+  ],
+  "role": "control"
+ },
+ {
+  "name": "N-red",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": [
+   "COLOUR_FAR"
+  ],
+  "role": "control"
+ },
+ {
+  "name": "P-hue60",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-hue120",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-hue180",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-hue240",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-hue300",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-light+20",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-light-20",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-navy-top",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-hair-brown-top",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-sleeve-8",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-cuff-skin",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-shorts-rust",
+  "slot": "bottom",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "P-shoes-teal",
+  "slot": "shoes",
+  "kind": "webp80",
+  "expect": "pass",
+  "role": "positive"
+ },
+ {
+  "name": "N-sleeve-long",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": [
+   "SLEEVE_LONG"
+  ],
+  "role": "control"
+ },
+ {
+  "name": "N-hem-low30",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": [
+   "HEM_LOW"
+  ],
+  "role": "control"
+ },
+ {
+  "name": "N-collar-high",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": [
+   "COLLAR_HIGH"
+  ],
+  "role": "control"
+ },
+ {
+  "name": "N-shorts-short10",
+  "slot": "bottom",
+  "kind": "webp80",
+  "expect": [
+   "SHORTS_SHORT"
+  ],
+  "role": "control"
+ },
+ {
+  "name": "N-skirt",
+  "slot": "bottom",
+  "kind": "webp80",
+  "expect": [
+   "SKIRT_LIKE"
+  ],
+  "role": "control"
+ },
+ {
+  "name": "N-shoes-lifted6",
+  "slot": "shoes",
+  "kind": "webp80",
+  "expect": [
+   "SOLE_OFF_FLOOR"
+  ],
+  "role": "control"
+ },
+ {
+  "name": "N-boot",
+  "slot": "shoes",
+  "kind": "webp80",
+  "expect": [
+   "SHOE_HIGH"
+  ],
+  "role": "control"
+ },
+ {
+  "name": "N-view-recoloured",
+  "slot": "top",
+  "kind": "webp80",
+  "expect": [
+   "VIEW_INCONSISTENT"
+  ],
+  "role": "control"
+ }
+]

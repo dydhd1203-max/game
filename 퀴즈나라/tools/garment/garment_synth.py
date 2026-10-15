@@ -399,6 +399,82 @@ def skin_band(layer, key, n, edge):
     return out
 
 
+def shift_figure(layer, key, dx, dy):
+    """Figure `key`'s part of the layer moved by (dx, dy) px (negative dy is
+    up: shoes lifted off the floor)."""
+    m = figure_mask(key) & (layer[..., 3] > 0)
+    return warp_region(layer, m, lambda x, y: (x - dx, y - dy))
+
+
+def collar_raise(layer, key, n):
+    """The torso's top n px higher: rows from the chest (the armholes' lowest
+    seam point) up to the collar stretched upward (a raised collar)."""
+    fz = SG.frozen()
+    g = fz.zones[key]
+    m = figure_mask(key) & (layer[..., 3] > 0)
+    ys = np.nonzero(m.any(1))[0]
+    top = float(ys.min())
+    r0 = max(max(p[1] for p in ah['seam']) for ah in g['armholes']) if g['armholes'] else (top + ys.max()) / 2
+    k = (r0 - top) / (r0 - top + n)
+    return warp_region(layer, m, lambda x, y: (x, np.where(y < r0, r0 - (r0 - y) * k, y)))
+
+
+def shorten_shorts(layer, key, d):
+    """The shorts' legs d px shorter: rows from the crotch apex down to the
+    cuff squeezed upward."""
+    fz = SG.frozen()
+    F = fz.data[key]
+    apex = float(np.mean([j[1] for j in F['joints']['hip']]))
+    m = figure_mask(key) & (layer[..., 3] > 0)
+    bottom = float(np.nonzero(m.any(1))[0].max() + 1)
+    k = (bottom - apex) / (bottom - apex - d)
+    return warp_region(layer, m, lambda x, y: (x, np.where(y > apex, apex + (y - apex) * k, y)))
+
+
+def join_legs(layer, key):
+    """Negative-control building block: the gap between the two shorts legs
+    filled row by row with the cloth beside it (one tube: a skirt). Front and
+    back views only."""
+    x0, y0, x1, y1 = SG.CELLS[key]
+    out = layer.copy()
+    a = out[..., 3] > 127
+    for y in range(y0, y1):
+        xs = np.nonzero(a[y, x0:x1])[0]
+        if len(xs) < 2:
+            continue
+        gaps = np.nonzero(np.diff(xs) > 1)[0]
+        for gi in gaps:
+            l, r = x0 + xs[gi], x0 + xs[gi + 1]
+            if r - l > 60:
+                continue
+            col = (out[y, l, :3].astype(np.float32) + out[y, r, :3]) / 2
+            out[y, l + 1:r, :3] = col
+            out[y, l + 1:r, 3] = 255
+    return out
+
+
+def cuff_skin(layer, key, n):
+    """Positive building block: the last n px of each sleeve along its arm
+    painted skin (alpha kept), what ChatGPT sometimes draws at a cuff. The
+    pipeline must strip it; the truth is the sleeve without that band
+    (returned second)."""
+    g = SG.frozen().zones[key]
+    out, truth = layer.copy(), layer.copy()
+    skin = skin_rgb()
+    for a in g['arms']:
+        i = a['i']
+        _, S, ax, nr = _arm(key, i)
+        side = _cell_side(key, i) & (layer[..., 3] > 127)
+        yy, xx = np.nonzero(side)
+        if not len(yy):
+            continue
+        t = (xx + .5 - S[0]) * ax[0] + (yy + .5 - S[1]) * ax[1]
+        band = t > t.max() - n
+        out[yy[band], xx[band], :3] = skin
+        truth[yy[band], xx[band], 3] = 0
+    return out, truth
+
+
 def figure_mask(key):
     x0, y0, x1, y1 = SG.CELLS[key]
     m = np.zeros(SG.frozen().sheet.shape[:2], bool)

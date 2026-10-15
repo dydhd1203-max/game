@@ -1,7 +1,8 @@
 """Verify the garment pipeline (stage 3, WP6; plan verification B).
 
   python3 -B tools/garment/verify-pipeline.py --roundtrip [--positives] [--cream] [--controls] [--out DIR] [--only NAME,...]
-  python3 -B tools/garment/verify-pipeline.py --all
+  python3 -B tools/garment/verify-pipeline.py --all [--register]   the whole suite (WP8), 4 cases at a time,
+                                                                   a table in OUT/요약.md
 
 --roundtrip (R1): the basic outfit itself, once as the template sheet (1629x1086
   PNG, 'identity') and once through the ChatGPT path (1536x1024 WebP q80,
@@ -858,19 +859,95 @@ def control_cases(work):
     return cases
 
 
+def _hex(rgb):
+    return '#%02x%02x%02x' % tuple(int(round(v)) for v in rgb)
+
+
+def wp8_cases(work):
+    """The rest of the plan's synthetic suite (WP8, verification C and D) at
+    the garment level: positives that must build (product hues, a navy top
+    beside navy shorts, a hair-brown top, sleeves 8 px shorter, a skin band
+    at the cuff that must be stripped, recoloured shorts and shoes) and the
+    class-rule negatives that must fail with their code."""
+    import colorsys
+    fz = SG.frozen()
+    D = fz.drawn
+    everywhere = np.ones(D['shirt'].shape[:2], bool)
+    cases = []
+
+    def add(name, slot, prod, display=None, positive=False, expect=(), control=False, truth=None, cream=False):
+        tr = {n: (truth or prod).get(n, D[n]) for n in ('shirt', 'sleeves', 'shorts', 'shoes')}
+        path = GS.render(GS.compose(slot, prod), os.path.join(work, name + '.webp'), 'webp80')
+        pid, p = product(slot, 'synth' if positive or cream else 'control', display)
+        cases.append(dict(name=name, sheet=path, slot=slot, truth=tr, own=owner_of(slot, prod), kind='webp80', prod=p,
+                          pid=pid, positive=positive, cream=cream, expect=expect, control=control))
+
+    def top_in(rgb):
+        return {'shirt': GS.cream(D['shirt'], everywhere, rgb), 'sleeves': GS.cream(D['sleeves'], everywhere, rgb)}
+
+    # C: product hues 60..300 and +-20 lightness, a navy and a hair-brown top
+    for h in (60, 120, 180, 240, 300):
+        rgb = [255 * c for c in colorsys.hsv_to_rgb(h / 360, .55, .78)]
+        add('P-hue%d' % h, 'top', top_in(rgb), _hex(rgb), positive=True)
+    for dl, name in ((.2, 'P-light+20'), (-.2, 'P-light-20')):
+        rgb = [255 * c for c in colorsys.hsv_to_rgb(240 / 360, .55, .78 + dl * .78)]
+        add(name, 'top', top_in(rgb), _hex(rgb), positive=True)
+    navy = (40, 52, 95)
+    add('P-navy-top', 'top', top_in(navy), _hex(navy), positive=True)   # beside the boy's navy shorts
+    brown = (105, 66, 38)
+    add('P-hair-brown-top', 'top', top_in(brown), _hex(brown), positive=True)
+    # sleeves 8 px shorter (the class rule may refuse; see EXPECT)
+    add('P-sleeve-8', 'top', {'sleeves': GS.every_figure(GS.stretch_sleeves, D['sleeves'], -8)}, positive=True,
+        expect=EXPECT.get('P-sleeve-8', ()))
+    # a skin band at the cuffs: stripped by the pipeline
+    sl, tr = D['sleeves'].copy(), D['sleeves'].copy()
+    for key in SG.CELLS:
+        s2, t2 = GS.cuff_skin(sl, key, 6)
+        sl = s2; tr[..., 3] = np.minimum(tr[..., 3], t2[..., 3])
+    add('P-cuff-skin', 'top', {'sleeves': sl}, positive=True, truth={'sleeves': tr})
+    # recoloured shorts and shoes (the third synthetic record)
+    rust = (150, 80, 50)
+    add('P-shorts-rust', 'bottom', {'shorts': GS.cream(D['shorts'], everywhere, rust)}, _hex(rust), positive=True)
+    teal = (40, 130, 120)
+    add('P-shoes-teal', 'shoes', {'shoes': GS.cream(D['shoes'], everywhere, teal)}, _hex(teal), positive=True)
+    # D: class-rule negatives
+    add('N-sleeve-long', 'top', {'sleeves': GS.every_figure(GS.stretch_sleeves, D['sleeves'], 30)}, control=True, expect=('SLEEVE_LONG',))
+    add('N-hem-low30', 'top', {'shirt': GS.every_figure(GS.hem_shift, D['shirt'], 30)}, control=True, expect=('HEM_LOW',))
+    add('N-collar-high', 'top', {'shirt': GS.front_back(GS.collar_raise, D['shirt'], 10)}, control=True, expect=('COLLAR_HIGH',))
+    add('N-shorts-short10', 'bottom', {'shorts': GS.every_figure(GS.shorten_shorts, D['shorts'], 10)}, control=True, expect=('SHORTS_SHORT',))
+    add('N-skirt', 'bottom', {'shorts': GS.front_back(GS.join_legs, D['shorts'])}, control=True, expect=('SKIRT_LIKE',))
+    add('N-shoes-lifted6', 'shoes', {'shoes': GS.every_figure(GS.shift_figure, D['shoes'], 0, -6)}, control=True, expect=('SOLE_OFF_FLOOR',))
+    add('N-boot', 'shoes', {'shoes': GS.every_figure(GS.taller_shoes, D['shoes'], 40)}, control=True, expect=('SHOE_HIGH',))
+    one = GS.cream(D['shirt'], GS.figure_mask('m-right'), (200, 40, 40))
+    add('N-view-recoloured', 'top', {'shirt': one, 'sleeves': GS.cream(D['sleeves'], GS.figure_mask('m-right'), (200, 40, 40))},
+        control=True, expect=('VIEW_INCONSISTENT',))
+    return cases
+
+
+def _run(c, out):
+    r = run_case(c['name'], c['sheet'], c['slot'], c['truth'], c['own'], c['kind'], out, c['prod'], c['pid'],
+                 rgb_tol=c.get('rgb'), positive=c.get('positive', False), cream=c.get('cream', False),
+                 expect=c.get('expect', ()), control=c.get('control', False), dontcare=c.get('dontcare'))
+    r.pop('build', None)
+    return r
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--roundtrip', action='store_true')
     ap.add_argument('--positives', action='store_true')
     ap.add_argument('--cream', action='store_true')
     ap.add_argument('--controls', action='store_true')
+    ap.add_argument('--wp8', action='store_true', help='the rest of the synthetic suite (WP8)')
+    ap.add_argument('--register', action='store_true', help='also run tools/garment/test_register.py (registration suite)')
+    ap.add_argument('--procs', type=int, default=4, help='cases run at once (each build is ~1 min)')
     ap.add_argument('--all', action='store_true')
     ap.add_argument('--only', help='comma-separated case names')
     ap.add_argument('--out', default=os.path.join(ROOT, '검증', '옷', '파이프라인-검사'))
     a = ap.parse_args(argv)
     if a.all:
-        a.roundtrip = a.positives = a.cream = a.controls = True
-    if not (a.roundtrip or a.positives or a.cream or a.controls):
+        a.roundtrip = a.positives = a.cream = a.controls = a.wp8 = True
+    if not (a.roundtrip or a.positives or a.cream or a.controls or a.wp8):
         a.roundtrip = True
     out = os.path.abspath(a.out)
     work = os.path.join(out, 'sheets')
@@ -884,15 +961,24 @@ def main(argv=None):
         cases += cream_case(work)
     if a.controls:
         cases += control_cases(work)
+    if a.wp8:
+        cases += wp8_cases(work)
     if a.only:
         want = set(a.only.split(','))
         cases = [c for c in cases if c['name'] in want]
+    # the case list with its expectations, kept in the repository: a change to
+    # the suite shows in review (tools/garment/controls.json)
+    ctl = [dict(name=c['name'], slot=c['slot'], kind=c['kind'], expect=list(c.get('expect', ())) or 'pass',
+                role='control' if c.get('control') else 'positive' if c.get('positive') or c.get('cream') else 'roundtrip') for c in cases]
+    if not a.only:
+        with open(os.path.join(HERE, 'controls.json'), 'w', encoding='utf-8') as fh:
+            json.dump(ctl, fh, ensure_ascii=False, indent=1)
+    # independent cases, a few at a time (one at a time took ~40 min)
+    import multiprocessing as mp
+    with mp.get_context('fork').Pool(max(1, a.procs)) as pool:
+        done = pool.starmap(_run, [(c, out) for c in cases])
     results, bad = [], 0
-    for c in cases:
-        r = run_case(c['name'], c['sheet'], c['slot'], c['truth'], c['own'], c['kind'], out, c['prod'], c['pid'],
-                     rgb_tol=c.get('rgb'), positive=c.get('positive', False), cream=c.get('cream', False),
-                     expect=c.get('expect', ()), control=c.get('control', False), dontcare=c.get('dontcare'))
-        r.pop('build', None)
+    for r in done:
         results.append(r)
         bad += len(r['fails'])
         worst = min((v['iou'] for v in r.get('parts', {}).values()), default=None)
@@ -905,7 +991,25 @@ def main(argv=None):
     with open(os.path.join(out, '결과.json'), 'w', encoding='utf-8') as fh:
         json.dump(dict(tolerances=TOL, results=results), fh, ensure_ascii=False, indent=1,
                   default=lambda o: o.tolist() if hasattr(o, 'tolist') else str(o))
-    print('verify-pipeline: %d case(s), %d failure(s); %s' % (len(results), bad, os.path.join(out, '결과.json')))
+    reg = None
+    if a.register:
+        # the registration-level suite (WP5): layout, background, size, pose ... codes
+        import subprocess
+        p = subprocess.run([sys.executable, '-B', os.path.join(HERE, 'test_register.py'), '--out', os.path.join(out, 'register')],
+                           capture_output=True, text=True)
+        reg = (p.returncode, (p.stdout + p.stderr).strip().splitlines()[-1:] or [''])
+        bad += 1 if p.returncode else 0
+    # one table for the whole suite
+    rows = ['| 경우 | 칸 | 기대 | 결과 | 걸린 코드 | 시간 |', '|---|---|---|---|---|---|']
+    for c, r in zip(cases, results):
+        exp = ', '.join(c.get('expect', ())) or '통과'
+        rows.append('| %s | %s | %s | %s | %s | %.0f s |' % (r['name'], r['slot'], exp, '맞음' if not r['fails'] else '틀림: ' + '; '.join(r['fails'])[:120],
+                                                       ', '.join(r.get('codes', [])) or '-', r['seconds']))
+    if reg:
+        rows.append('| 원화 배치 시험(test_register.py) | - | - | %s | - | - |' % ('맞음' if reg[0] == 0 else '틀림: ' + reg[1][0][:120]))
+    with open(os.path.join(out, '요약.md'), 'w', encoding='utf-8') as fh:
+        fh.write('# 옷 파이프라인 합성 시험 요약\n\n' + '\n'.join(rows) + '\n')
+    print('verify-pipeline: %d case(s), %d failure(s); %s' % (len(results), bad, os.path.join(out, '요약.md')))
     return 1 if bad else 0
 
 
