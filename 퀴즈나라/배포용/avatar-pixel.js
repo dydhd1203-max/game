@@ -7,6 +7,10 @@
   const aliases={crop:'short',buzz:'short',longm:'long',wave:'long',afro:'curly',mohawk:'spiky'};
   const atlas={hairUrl:'assets/sd-heads-female.png',maleUrl:'assets/sd-heads-male.png',headRect:[0,0,32,40],enabled:true,style:'illustrated',columns:4,rows:3};
   const HEAD_GRID=384,HEAD_HEIGHT=480,RIG_H=56,VIEW_H=62;
+  // Paint room of a normalized head around its 32x40 frame (units): hair at
+  // the fixed face size reaches x -1..33 and 8 units above the frame (the
+  // clip frame of qpx-head-front and FRONT_HAIR_CLIP).
+  const HEAD_MARGIN={x:1.5,top:8};
   // Enlarge the connected body at its neck anchor; preserve the painted head
   // and the original shoe aspect ratio. Pose offsets share these proportions.
   const BODY_PROPORTIONS=Object.freeze({scale:1.18,verticalScale:1.35*1.18});
@@ -125,7 +129,8 @@
   function normalizedHead(tile,color,skin,expression='bright',sex=ACTIVE_SEX){
     const key=[tile,color,skin,expression,sex].join('/');if(normalizedHeads.has(key))return normalizedHeads.get(key);
     const original=sourceHeads.get(sex)?.[tile]||sourceHeads.get('f')?.[tile];if(!original)return transparent;
-    const canvas=document.createElement('canvas');canvas.width=HEAD_GRID;canvas.height=HEAD_HEIGHT;const ctx=canvas.getContext('2d');
+    const u0=HEAD_GRID/32,mx=HEAD_MARGIN.x*u0,mt=HEAD_MARGIN.top*u0;
+    const canvas=document.createElement('canvas');canvas.width=HEAD_GRID+2*mx;canvas.height=HEAD_HEIGHT+mt;const ctx=canvas.getContext('2d');ctx.translate(mx,mt);
     const recolored=document.createElement('canvas');recolored.width=HEAD_GRID;recolored.height=HEAD_GRID;const paint=recolored.getContext('2d'),out=paint.createImageData(HEAD_GRID,HEAD_GRID),d=out.data,source=original.data;
     const base=rgb(skin),iris=expression==='sparkle'?rgb('#73b9d4'):expression==='cat'?rgb('#e2b654'):null,strays=strayHair(original);
     for(let i=0;i<source.length;i+=4){const alpha=source[i+3];if(!alpha)continue;const p=i/4,r=source[i],g=source[i+1],b=source[i+2];let c=[r,g,b];
@@ -154,13 +159,27 @@
   }
   async function loadSheet(sex,url){
     const image=await window.QPAvatarImage.load(url),frames=[],anchors=[],cw=image.naturalWidth/4,ch=image.naturalHeight/3;
+    const cells=[];
     for(let tile=0;tile<12;tile++){
       const canvas=document.createElement('canvas');canvas.width=HEAD_GRID;canvas.height=HEAD_GRID;const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.drawImage(image,tile%4*cw,Math.floor(tile/4)*ch,cw,ch,0,0,HEAD_GRID,HEAD_GRID);
       const data=ctx.getImageData(0,0,HEAD_GRID,HEAD_GRID).data,stats=inspectFace(data,HEAD_HINTS[sex][tile]),[minX,minY,maxX,maxY]=stats.bounds;
-      const hint=HEAD_HINTS[sex][tile],eyeMidX=(hint.eyes[0][0]+hint.eyes[1][0])/2*HEAD_GRID/362;
-      // Asymmetric ponytails still need to fit on both sides of the centered
-      // face; total-width containment alone can cut the longer hair mass.
-      const scale=Math.min(18*HEAD_GRID/32/(stats.face.right-stats.face.left),15.35*HEAD_GRID/32/Math.max(1,eyeMidX-minX),15.35*HEAD_GRID/32/Math.max(1,maxX-eyeMidX));
+      const hint=HEAD_HINTS[sex][tile],eyeMidX=(hint.eyes[0][0]+hint.eyes[1][0])/2*HEAD_GRID/362,eyeGap=Math.abs(hint.eyes[1][0]-hint.eyes[0][0])*HEAD_GRID/362;
+      // The scale the shop's first fit gave (the face width, or the hair
+      // fitted inside 15.35 units each side of the face); kept for the
+      // default heads below.
+      const legacy=Math.min(18*HEAD_GRID/32/(stats.face.right-stats.face.left),15.35*HEAD_GRID/32/Math.max(1,eyeMidX-minX),15.35*HEAD_GRID/32/Math.max(1,maxX-eyeMidX));
+      cells.push({data,stats,hint,eyeMidX,eyeGap,minX,maxX,legacy});
+    }
+    // One face size per sex (2026-10-15 user report: the head size jumped
+    // with the hair style; the fit above shrank a face by up to 28 % when its
+    // hair was wide). Every head gets the eye gap of the sex's default head
+    // (f bob, m short: unchanged); only hair reaching past the clip frame
+    // (x -1..33, HEAD_MARGIN) is shrunk to fit (at most ~5 %: f long, twin,
+    // hime; m curlm, messy).
+    const base=cells[sex==='m'?0:1],eyeUnits=base.legacy*base.eyeGap;
+    for(let tile=0;tile<12;tile++){
+      const {data,stats,hint,eyeMidX,eyeGap,minX,maxX}=cells[tile];
+      const scale=cells[tile]===base?base.legacy:Math.min(eyeUnits/eyeGap,17*HEAD_GRID/32/Math.max(1,eyeMidX-minX),17*HEAD_GRID/32/Math.max(1,maxX-eyeMidX));
       const x=HEAD_GRID/2-eyeMidX*scale,y=28*HEAD_GRID/32-hint.chin[1]*HEAD_GRID/362*scale;
       stats.data=data;stats.geometry={x,y,scale};prepareEyePatches(stats);frames.push(stats);anchors.push(stats.eyes.map(e=>(e.x*scale+x)*32/HEAD_GRID).concat([(stats.eyes[0].y*scale+stats.eyes[1].y*scale)/2+y].map(v=>v*32/HEAD_GRID)));
     }
@@ -596,7 +615,7 @@
   function headBitmap(tile,col,expression='bright',backHair=false){
     const attrs=`data-qpx-hair-color="${col}" data-qpx-hair-skin="${SKIN}" data-qpx-expression="${expression}" data-qpx-sex="${ACTIVE_SEX}" data-qpx-tile="${tile}"`;
     const clip=backHair?'qpx-hair-behind':'qpx-head-front';
-    return `<g${backHair?' class="qpx-back-hair"':''} clip-path="url(#${clip})"><image ${attrs}${backHair?' data-qpx-tail="true"':''} href="${normalizedHead(tile,col,SKIN,expression,ACTIVE_SEX)}" x="0" y="0" width="32" height="40" preserveAspectRatio="none" style="image-rendering:auto"/></g>`;
+    return `<g${backHair?' class="qpx-back-hair"':''} clip-path="url(#${clip})"><image ${attrs}${backHair?' data-qpx-tail="true"':''} href="${normalizedHead(tile,col,SKIN,expression,ACTIVE_SEX)}" x="${-HEAD_MARGIN.x}" y="${-HEAD_MARGIN.top}" width="${32+2*HEAD_MARGIN.x}" height="${40+HEAD_MARGIN.top}" preserveAspectRatio="none" style="image-rendering:auto"/></g>`;
   }
   function eraseEye(cx,cy,tile,part){
     const side=cx===eyesFor(tile)[0]?'left':'right';

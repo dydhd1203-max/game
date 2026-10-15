@@ -112,25 +112,22 @@ def classify_head(args):
 G = 384  # avatar-pixel.js HEAD_GRID: the runtime resamples each 362 px cell to 384
 
 
-def head_native(head, cls):
-    """The runtime placement of a head painting (avatar-pixel.js loadSheet,
-    approximated: the face width is the skin class's face component, the
-    runtime's inspectFace takes its warm-pixel component): head-native units
-    (32 wide, chin at y 28, face 18 units wide) of cell pixel (x, y) are
-    (x * k + ox, y * k + oy). Returns (k, ox, oy)."""
-    face = cls == 2
-    ys, xs = np.nonzero(face)
+EYE_UNITS = {'f': 7.40, 'm': 9.32}  # avatar-pixel.js loadSheet: the default head's eye gap (f bob, m short), units
+FIT_HALF = 17.0  # ... and the half width hair may reach from the face centre (clip frame x -1..33)
+
+
+def head_native(head, cls=None):
+    """The runtime placement of a front head painting (avatar-pixel.js
+    loadSheet, 2026-10-15: one eye gap per sex, hair past x -1..33 shrinks
+    the head to fit): head-native units (32 wide, eye midpoint x 16, chin y
+    28) of cell pixel (x, y) are (x * k + ox, y * k + oy). Returns (k, ox, oy).
+    `cls` is unused (kept for callers)."""
+    sex = 'm' if head.get('sex') == 'm' else 'f'
     (ex0, ey0), (ex1, ey1) = head['eyeCenters']
-    eye_y = (ey0 + ey1) / 2
-    band = (ys > eye_y) & (ys < head['faceChinHint'][1])
-    fw = (xs[band].max() - xs[band].min() + 1) * G / CELL
+    mid = (ex0 + ex1) / 2
     ob = head['opaqueBounds']
-    mid = (ex0 + ex1) / 2 * G / CELL
-    sc = min(18 * G / 32 / fw, 15.35 * G / 32 / max(1, mid - ob[0] * G / CELL), 15.35 * G / 32 / max(1, ob[2] * G / CELL - mid))
-    x = G / 2 - mid * sc
-    y = 28 * G / 32 - head['faceChinHint'][1] * G / CELL * sc
-    k = G / CELL * sc * 32 / G
-    return k, x * 32 / G, y * 32 / G
+    k = min(EYE_UNITS[sex] / abs(ex1 - ex0), FIT_HALF / max(1, mid - ob[0]), FIT_HALF / max(1, ob[2] - mid))
+    return k, 16 - mid * k, 28 - head['faceChinHint'][1] * k
 
 
 def skull(sexes, out_dir, unit=12):
@@ -144,7 +141,7 @@ def skull(sexes, out_dir, unit=12):
         tops = []
         for hd in meta[SEXES[s]]['heads']:
             cls = np.asarray(Image.open(os.path.join(out_dir, '분류-%s-%s.png' % (s, hd['id']))))
-            k, ox, oy = head_native(hd, cls)
+            k, ox, oy = head_native(dict(hd, sex=s), cls)
             ys, xs = np.nonzero(cls > 0)
             u = ((xs * k + ox + 1) * unit).astype(int); v = ((ys * k + oy + 2) * unit).astype(int)
             ok = (u >= 0) & (u < W) & (v >= 0) & (v < H)
@@ -166,10 +163,11 @@ def skull(sexes, out_dir, unit=12):
         print(s, sorted(tops, key=lambda t: t[1]))
 
 
-SKULL = {  # front skull per sex in head-native units (centre x, centre y, rx, ry), read off 두상-<sex>.png:
-    # flat-topped styles (m crop 8.8, f long 8.0 / hime 7.6) give the top; cheeks and ears the width
-    'm': (16.0, 18.7, 9.0, 9.3),  # top 9.4: 0.6 under the flattest hair (crop 8.8)
-    'f': (16.0, 18.6, 9.6, 9.1),  # top 9.5: 0.5 under the flattest hair (twin 9.0)
+SKULL = {  # front skull per sex in head-native units (centre x, centre y, rx, ry), 2026-10-15 at the fixed face size:
+    # top 0.5-0.6 under the flattest hair (f twin 6.97, m crop 1.2), bottom at the chin (y 28), width from the
+    # cheeks at the eye line (f face half width ~8.6; m ears at x 3.8..28.1, face ~10.5) plus the hair's root
+    'm': (16.0, 14.9, 11.5, 13.1),
+    'f': (16.0, 17.75, 9.4, 10.25),
 }
 
 
@@ -187,7 +185,7 @@ def tops(sexes, out_dir, step=.5):
         d.ellipse([(cx - rx + 1) * unit, (cy - ry + 2) * unit, (cx + rx + 1) * unit, (cy + ry + 2) * unit], outline=(220, 60, 60), width=2)
         for hd in meta[SEXES[s]]['heads']:
             cls = np.asarray(Image.open(os.path.join(out_dir, '분류-%s-%s.png' % (s, hd['id']))))
-            k, ox, oy = head_native(hd, cls)
+            k, ox, oy = head_native(dict(hd, sex=s), cls)
             ys, xs = np.nonzero(cls > 0)
             U = xs * k + ox; V = ys * k + oy
             xsn = np.arange(0, 32 + 1e-6, step)
