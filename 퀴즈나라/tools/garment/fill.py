@@ -64,6 +64,12 @@ from avatar_build.frozen import CELLS
 CLEAR = 9.0  # cloth.side_outline: the new outline keeps this far outside the sewn seam
 SNAP = 1.5  # px: a measured side contour / shoulder point this close to the frozen one is the frozen one
 PROFILE_SLEEVE_U = 3.5
+# profile sleeve on the frozen geometry when the drawing keeps its lines:
+# share of the template's lines near the sleeve found in the drawing, and
+# share of the drawing's lines there the template lacks (WP8 2026-10-15:
+# recoloured positives .67-.97 / <= .09; puff .18-.29, real shirt .21-.34)
+FROZEN_AGREE_MIN = .6
+FROZEN_EXTRA_MAX = .15
 DEBUG = None  # development: a dict to receive per-figure masks of the profile torso rebuild
 F = dict(stripLR=3.0, pinhole=12, speck=12, fringe=.08)
 
@@ -367,6 +373,18 @@ LINE_DEPTH = 24.0  # a drawn line: this much darker than the brightest pixel of 
 def ridges(lum, P):
     lmax = M._max_filter(np.clip(lum, 0, 255).astype(np.uint8), 2).astype(np.float32)
     return (lmax - lum >= LINE_DEPTH) & P
+
+
+def frozen_lines(lum, tlum, basic, P):
+    """Whether the drawing keeps the basic sleeve's lines (a recoloured
+    sleeve of the basic shape): [share of the template's lines near the
+    frozen sleeve found in the drawing, share of the drawing's lines there
+    the template lacks, kept]."""
+    Z = M.dilate(basic, 6) & P
+    Rt, Ru = ridges(tlum, Z), ridges(lum, Z)
+    agree = float((Rt & M.dilate(Ru, 1)).sum()) / max(1, Rt.sum())
+    extra = float((Ru & ~M.dilate(Rt, 2)).sum()) / max(1, Ru.sum())
+    return [round(agree, 3), round(extra, 3), bool(agree >= FROZEN_AGREE_MIN and extra <= FROZEN_EXTRA_MAX)]
 
 
 def fill_holes(mask):
@@ -696,6 +714,7 @@ def split(fz, slot, key, P, lum, t_end=None, tlum=None, changed=None, cuff_shift
         # (a window minimum, tolerant to registration) reads it unchanged
         keep = ~changed & ((dsl > 0) | (fz.drawn['shirt'][y0:y1, x0:x1, 3] > 0))
         if g['view'] != 'right':
+            kept = bool(info and (info.get('frozenLines') or [0, 0, False])[2])
             parts = {}
             sleeves = np.zeros(P.shape, bool)
             cx = g['center'] - x0
@@ -711,11 +730,16 @@ def split(fz, slot, key, P, lum, t_end=None, tlum=None, changed=None, cuff_shift
                 if seams and seams.get(ah['side']):
                     dense = seams[ah['side']]
                     ah = dict(ah, seam=[list(q) for q in dense[::4]] + ([list(dense[-1])] if (len(dense) - 1) % 4 else []))
-                m = sleeve_side(g, ah, P.shape, x0, y0, mine, te) & P
-                if te is not None and lum is not None:
-                    m = sleeve_cuff_end(g, i, P, lum, m, te, x0, y0)
                 side_ = (xx < cx) if i == 0 else (xx >= cx)
-                m = (m & ~keep) | (frozen_sl & side_ & P & keep)
+                if kept:
+                    # the drawing keeps the basic sleeve's lines: the frozen
+                    # sleeve owns its cloth, as on unchanged paint
+                    m = frozen_sl & side_ & P
+                else:
+                    m = sleeve_side(g, ah, P.shape, x0, y0, mine, te) & P
+                    if te is not None and lum is not None:
+                        m = sleeve_cuff_end(g, i, P, lum, m, te, x0, y0)
+                    m = (m & ~keep) | (frozen_sl & side_ & P & keep)
                 if dt > .5 and te is not None:
                     # A cuff lower than the basic one: the frozen sleeve (with
                     # the margin of torso cloth it carries under its inner
@@ -730,6 +754,31 @@ def split(fz, slot, key, P, lum, t_end=None, tlum=None, changed=None, cuff_shift
             parts['torso'] = P & ~sleeves
             return parts
         sinfo = {}
+        if lum is not None and tlum is not None:
+            # The drawing keeps the basic sleeve's lines (a recoloured sleeve:
+            # few lines near the frozen sleeve that the template lacks): the
+            # frozen sleeve owns its cloth, carried down the arm as far as the
+            # product's cuff lies below the basic cuff, cut by the product.
+            # The drawn lines decide only for a new shape (a puff, another
+            # cap): following them across a faint recoloured outline ran into
+            # the back panel (WP8 hue/navy positives, side IoU .56-.67).
+            fl = frozen_lines(lum, tlum, basic, P)
+            sinfo['frozenAgree'] = fl[:2]
+            if fl[2]:
+                m = frozen_sl & P
+                dt = (cuff_shift or {}).get(0, 0.0)
+                te = t_end.get(0) if isinstance(t_end, dict) else t_end
+                if dt > .5 and te is not None:
+                    arm = next(a for a in g['arms'] if a['i'] == 0)
+                    _, tt, _ = arm_frame(g, 0, P.shape, x0, y0)
+                    moved = np.zeros(P.shape, bool)
+                    for d in np.arange(1.0, dt + 1.0):
+                        moved |= shift_mask(frozen_sl, d * arm['axis'][0], d * arm['axis'][1])
+                    m |= moved & P & (tt <= te + 2)
+                sinfo['frozenSleeve'] = True
+                if info is not None:
+                    info['profileSleeve'] = sinfo
+                return {'torso': P & ~m, 'sleeve0': m}
         sl = profile_sleeve_lines(fz, key, P, lum, t_end, sinfo) if lum is not None else None
         if info is not None:
             info['profileSleeve'] = sinfo
@@ -1203,6 +1252,12 @@ def build_figure(ctx, key, seg):
     info['cuffShift'] = {k: round(v, 2) for k, v in shift.items()}
     seams = {}
     if slot == 'top' and g['view'] != 'right':
+        # a drawing that keeps the basic sleeve's lines sews it where the
+        # basic is sewn: the seam search followed a faint recoloured line
+        # off the armhole (WP8 girl front, sleeve IoU .85-.94)
+        fl = frozen_lines(ctx.lum[y0:y1, x0:x1], ctx.tlum[y0:y1, x0:x1], fz.drawn['sleeves'][y0:y1, x0:x1, 3] > 127, P | (a > 0))
+        info['frozenLines'] = fl
+    if slot == 'top' and g['view'] != 'right' and not info['frozenLines'][2]:
         for ah in g['armholes']:
             dense, sm = armhole_seam(ah, ctx.lum[y0:y1, x0:x1], ctx.tlum[y0:y1, x0:x1], P | (a > 0), x0, y0)
             seams[ah['side']] = dense
