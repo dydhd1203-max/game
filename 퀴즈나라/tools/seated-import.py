@@ -108,7 +108,7 @@ def main():
             drift = [v for v, x in res.items() if x['warn']]
             note = f'맞춤 최소 {fit}, 자세 겹침 최소 {pose}' + (f' (원화 자세가 기준과 다름: {", ".join(drift)})' if drift else '')
             # a misfit on a sheet drawn in another pose is the sheet's: ask again
-            hint = retry.get('자세나 위치가 바뀌었으면', '') if drift and bad else ''
+            hint = retry.get('자세나 위치가 바뀌었으면', '') if (drift and bad) or any('shoe_move' in b for b in bad.values()) else ''
             if bad: report.append((label, 'FAIL', '검사 실패 ' + json.dumps(bad, ensure_ascii=False) + ' / ' + note, hint))
             else: report.append((label, 'ok' if not drift else 'warn', note, ''))
     print()

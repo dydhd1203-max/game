@@ -9,6 +9,7 @@ base is drawn, then the bottom, shoes and top layers over it; skin pixels
   python3 tools/seated-layers.py base                      base bodies + basic outfit
   python3 tools/seated-layers.py item SHEET SEX SLOT ID    one item sheet (SLOT top|bottom|shoes|outfit)
   python3 tools/seated-layers.py all                       base, then every item of assets/seated/items.json
+  python3 tools/seated-layers.py items bottom,outfit       those slots' items again (4 at a time; base kept)
 
 `item` adds the sheet to assets/seated/items.json, so `all` rebuilds every
 layer the same way after a change here; `base` keeps the item entries. Every
@@ -46,6 +47,29 @@ SLOTS = ('bottom', 'shoes', 'top')
 # knees otherwise passes for a shoe rim.
 SHOE_ZONE = {'f:front': (90, 725, 450, 840), 'f:side': (370, 725, 580, 840),
              'm:front': (95, 735, 440, 860), 'm:side': (330, 735, 540, 860)}
+MARGIN = 100     # px a view's box grows past the basic figure's crop
+
+
+_BOX = {}
+
+
+def crop_box(sex, view):
+    """The view's box on the reference frame: the basic figure's crop grown
+    by MARGIN on the left, right and bottom, up to 20 px from the next view
+    on the same reference sheet. The bare crop cut hanbok, robe and skirt
+    hems spread on the floor (30 layers touched its edge, 2026-10-15)."""
+    key = f'{sex}:{view}'
+    if key not in _BOX:
+        C = CB.FIGURES[key]; x0, y0, x1, y1 = C['crop']
+        a = np.asarray(Image.open(os.path.join(ROOT, C['src'])).convert('RGB')).astype(int); fg = CB.mask(a)
+        cols = np.where(fg.sum(0) > 2)[0]; own = cols[(cols >= x0) & (cols < x1)]
+        left, right = cols[cols < own.min()], cols[cols > own.max()]
+        X0 = max(0, x0 - MARGIN, (left.max() + 20) if len(left) else 0)
+        X1 = min(a.shape[1], x1 + MARGIN, (right.min() - 20) if len(right) else a.shape[1])
+        _BOX[key] = (int(X0), y0, int(X1), int(min(a.shape[0], y1 + MARGIN)))
+    return _BOX[key]
+
+
 CHANGED = 34.0   # colour distance (0-441) after a 1.5 px blur
 HOOD_UP = 60     # px a garment may rise above the chin cut
 
@@ -111,11 +135,42 @@ def slot_zone(slot, basic_lab, fg):
             ys = np.where(fg.any(1))[0]; rows = np.arange(fg.shape[0])[:, None]
             zone = np.broadcast_to(rows >= ys.min() + .8 * (ys.max() - ys.min()), fg.shape).copy()
         return zone & ~inside(3) & ~inside(1)
-    if slot == 'bottom': return ~inside(3) & ~inside(2)
-    return ~inside(2)  # top, outfit
+    # the basic sneakers are drawn over every other item: none of it takes
+    # their place (+4 px), or the sheet's own sneakers, drawn a little off,
+    # showed as a faint second outline (2026-10-15)
+    shoes = near(basic_lab == 2, 4)
+    if slot == 'bottom': return ~inside(3) & ~shoes
+    return ~shoes  # top, outfit
+
+
+def sheet_shoes(A, basic_rgb, basic_lab, r=60):
+    """Where the sheet draws the basic sneakers, one shoe at a time: the
+    offset at which each basic sneaker best matches the sheet (searched
+    within r px), and those sneaker areas moved there. Returns the offsets,
+    the moved area and the worst match (mean colour distance; a shoe hidden
+    under a long skirt matches nowhere). A hanbok sheet drawn with a shorter
+    body had its sneakers 40-60 px off; cut as hanbok, they showed as a second
+    pair (2026-10-15)."""
+    comp = components(basic_lab == 2); H, W = A.shape[:2]; moved = np.zeros((H, W), bool); offs, worst = [], 0
+    for c in range(1, comp.max() + 1):
+        S = comp == c
+        if S.sum() < 300: continue
+        ys, xs = np.where(S); y0, y1, x0, x1 = ys.min(), ys.max() + 1, xs.min(), xs.max() + 1
+        T = basic_rgb[y0:y1, x0:x1]; M = S[y0:y1, x0:x1]; best = (np.inf, 0, 0)
+        for step, rr in ((4, r), (1, 4)):  # coarse, then around the coarse best
+            cy, cx = (0, 0) if step == 4 else (best[1], best[2])
+            for dy in range(cy - rr, cy + rr + 1, step):
+                for dx in range(cx - rr, cx + rr + 1, step):
+                    if y0 + dy < 0 or x0 + dx < 0 or y1 + dy > H or x1 + dx > W: continue
+                    d = np.sqrt(((A[y0 + dy:y1 + dy, x0 + dx:x1 + dx] - T) ** 2).sum(2))[M].mean()
+                    if d < best[0]: best = (d, dy, dx)
+        d, dy, dx = best; offs.append((dx, dy)); worst = max(worst, d)
+        moved[y0 + dy:y1 + dy, x0 + dx:x1 + dx] |= M
+    return offs, moved, worst
 
 
 OTHERS = {'bottom': (3,), 'shoes': (1, 3), 'top': (2,), 'outfit': (2,)}
+SHOE_MATCH = 40  # mean colour distance under which the sheet's sneakers count as found
 BAND = 25        # px beside another kept piece where colour decides
 MIN_OWN = 400    # px of the item's own content for a view to get a layer
 
@@ -218,7 +273,7 @@ def basic_seeds(a, sex, rows, n, view, y0=0):
 
 
 def layers_for(sex, view, sheet_img, base_img, slot=None, basic_lab=None, basic_img=None, zone_lab=None):
-    C = CB.FIGURES[f'{sex}:{view}']; box = C['crop']
+    C = CB.FIGURES[f'{sex}:{view}']; box = crop_box(sex, view)
     A = rgb(sheet_img, box); Ab = rgb(blur(sheet_img), box); Bb = rgb(blur(base_img), box)
     h = A.shape[0]; rows = np.arange(h)[:, None]; top = C['cut'] - box[1]
     fg = figure(A)
@@ -256,7 +311,8 @@ def layers_for(sex, view, sheet_img, base_img, slot=None, basic_lab=None, basic_
         changed |= up; seeds[up] = k or 3
     lab = grow_inside(seeds, changed)
     if basic_lab is None and f'{sex}:{view}' in SHOE_ZONE:
-        x0, y1_, x1, y2_ = SHOE_ZONE[f'{sex}:{view}']; zone = np.zeros(lab.shape, bool); zone[y1_:y2_, x0:x1] = True
+        dx = C['crop'][0] - box[0]  # the zone is in the basic crop's pixels
+        x0, y1_, x1, y2_ = SHOE_ZONE[f'{sex}:{view}']; zone = np.zeros(lab.shape, bool); zone[y1_:y2_, x0 + dx:x1 + dx] = True
         shoe = (lab == 2) & zone; lab[(lab == 2) & ~zone] = 0
         lab = grow_inside(np.where(shoe, 0, lab), changed & ~shoe); lab[shoe] = 2
     # Close each piece: small holes (a petal or a cuff as pale as the base's
@@ -365,7 +421,7 @@ def save(name, mask, A, skin, box, U):
 
 
 def frame(sex, view):
-    C = CB.FIGURES[f'{sex}:{view}']; box = C['crop']
+    C = CB.FIGURES[f'{sex}:{view}']; box = crop_box(sex, view)
     ref = np.asarray(Image.open(os.path.join(ROOT, C['src'])).convert('RGB')).astype(int)[box[1]:box[3], box[0]:box[2]]
     floor = box[1] + int(np.where(figure(ref).any(1))[0].max()) + 1
     U = lambda px, py: [round(16 + (px - C['cx']) * C['k'], 4), round(46.05 - (floor - py) * C['k'], 4)]
@@ -418,7 +474,10 @@ def base_sheets(sex):
     return _BASES[sex]
 
 
-def item_sheets(sheet, sex, slot):
+ALIGN = os.path.join(OUT, 'align.json')
+
+
+def item_sheets(sheet, sex, slot, cached=False, save=True):
     """An item sheet placed on the reference frame, view by view: first by
     head width and lowest row (tools/seated-cut-body.py register), then moved
     to where everything that should not change (skin, hands, head, the other
@@ -427,9 +486,15 @@ def item_sheets(sheet, sex, slot):
     the floor) so its collar hid the neck, and the head alone is no better:
     ChatGPT redraws head and body in slightly different proportions
     (2026-10-15)."""
-    out = {}
+    out = {}; key = os.path.relpath(os.path.abspath(sheet), ROOT)
+    store = json.load(open(ALIGN)) if os.path.exists(ALIGN) else {}
     for view, img in CB.register(sheet, sex).items():
-        C = CB.FIGURES[f'{sex}:{view}']; box = C['crop']
+        # the checker reuses the shift the cut found (same placement, no
+        # second search)
+        if cached and key in store and view in store[key]:
+            dx, dy = store[key][view]; moved = Image.new('RGB', img.size, 'white'); moved.paste(img, (dx, dy))
+            out[view] = moved; out[view].shift = (dx, dy); continue
+        C = CB.FIGURES[f'{sex}:{view}']; box = crop_box(sex, view)
         basic = Image.open(os.path.join(ROOT, C['src'])).convert('RGB')
         blab = np.load(os.path.join(OUT, f'.{sex}-{view}-basic-lab.npy'))
         zp = os.path.join(OUT, f'.{sex}-{view}-zone-lab.npy'); zlab = np.load(zp) if os.path.exists(zp) else blab
@@ -443,7 +508,10 @@ def item_sheets(sheet, sex, slot):
         # ended a few px above the seat, showing the base's white undershorts
         keep = fgR & ~near(mine, 30) & near(mine, 120)
         # a white margin: the crop starts at the sheet's first row, and moving
-        # a sheet down was never tried (a hanbok stayed 45 px high)
+        # a sheet down was never tried (a hanbok stayed 45 px high). A size
+        # search (+-6 %) was tried for a hanbok drawn with a shorter body: it
+        # did not find it and took 90 s an item, so such a sheet is asked for
+        # again instead (verify-seated-items 'shoes').
         P = 96; x0, y0, x1, y1 = box
         big = np.pad(np.asarray(blur(img)).astype(float), ((P, P), (P, P), (0, 0)), constant_values=255)
         best = (-1, 0, 0)
@@ -455,11 +523,17 @@ def item_sheets(sheet, sex, slot):
                 if score > best[0]: best = (score, dx, dy)
         _, dx, dy = best; moved = Image.new('RGB', img.size, 'white'); moved.paste(img, (dx, dy))
         out[view] = moved; out[view].shift = (dx, dy)
+    if not cached and save:
+        store[key] = {v: list(out[v].shift) for v in out}
+        json.dump(store, open(ALIGN, 'w'), indent=1, sort_keys=True)
     return out
 
 
-def build_item(sheet, sex, slot, item):
+def build_item(sheet, sex, slot, item, write=True):
+    """Cuts one item sheet. write=False (a worker of build_items) leaves the
+    item list, layers.json and align.json alone and returns what to merge."""
     sheet = os.path.relpath(os.path.abspath(sheet), ROOT)
+    if not write: return _cut_item(sheet, sex, slot, item, False)
     man = json.load(open(MANIFEST)) if os.path.exists(MANIFEST) else []
     # a sheet sent again replaces the old one, which is removed (git keeps it)
     for m in man:
@@ -468,8 +542,12 @@ def build_item(sheet, sex, slot, item):
             os.remove(os.path.join(ROOT, m['sheet']))
     man = [m for m in man if not (m['sex'] == sex and m['item'] == item)] + [{'sex': sex, 'slot': slot, 'item': item, 'sheet': sheet}]
     json.dump(man, open(MANIFEST, 'w'), ensure_ascii=False, indent=1)
-    sheet = os.path.join(ROOT, sheet)
-    data = load_json(); bases = base_sheets(sex); items = item_sheets(sheet, sex, slot)
+    _cut_item(sheet, sex, slot, item, True)
+
+
+def _cut_item(sheet, sex, slot, item, write):
+    key = sheet; sheet = os.path.join(ROOT, sheet); rects = {}
+    data = load_json(); bases = base_sheets(sex); items = item_sheets(sheet, sex, slot, save=write)
     for view in CB.VIEWS:
         C, box, U = frame(sex, view)
         basic = Image.open(os.path.join(ROOT, C['src'])).convert('RGB')
@@ -479,6 +557,10 @@ def build_item(sheet, sex, slot, item):
         k = 3 if slot == 'outfit' else SLOTS.index(slot) + 1
         zone = slot_zone(slot, zlab, fg)
         mask = (lab[k] | (lab[1] if slot == 'outfit' else False)) & zone
+        if slot != 'shoes':
+            # the sheet's own sneakers, wherever it drew them, are not the item
+            offs, sh, d = sheet_shoes(rgb(blur(items[view]), box), rgb(blur(basic), box), blab)
+            if d < SHOE_MATCH: mask &= ~near(sh, 4)
         # Seam: where the sheet has cloth next to the item but neither the
         # item nor the kept basic pieces cover it, the base's white
         # undershirt or undershorts showed as a thin strip (a shirt hem
@@ -502,7 +584,7 @@ def build_item(sheet, sex, slot, item):
         # a dark skin tone (2026-10-15)
         Bb = rgb(blur(bases[view]), box); Ab = rgb(blur(items[view]), box)
         tint = (skin_of(A) & near(skin_light(A), 2) & near(skin_of(B), 2) & (np.sqrt(((Ab - Bb) ** 2).sum(2)) < 45)) | bare
-        data[sex][view]['layers'][item] = save(f'{sex}-{view}-{item.replace(":", "-")}', mask, A, tint, box, U)
+        data[sex][view]['layers'][item] = rects[view] = save(f'{sex}-{view}-{item.replace(":", "-")}', mask, A, tint, box, U)
         if item == BASIC.get(slot):
             # a basic piece redrawn whole (the basic tee without the shorts
             # hiding its hem): the other items' zones follow its new shape.
@@ -512,8 +594,27 @@ def build_item(sheet, sex, slot, item):
             # now 'top', 2026-10-15).
             zl = zlab.copy(); zl[zl == k] = 0; zl[mask] = k
             np.save(os.path.join(OUT, f'.{sex}-{view}-zone-lab.npy'), zl)
-        print(sex, view, item, data[sex][view]['layers'][item])
+        if write: print(sex, view, item, data[sex][view]['layers'][item])
+    if not write: return sex, item, rects, key, {v: list(items[v].shift) for v in items}
     json.dump(data, open(os.path.join(OUT, 'layers.json'), 'w'), ensure_ascii=False, indent=1)
+
+
+def _job(m):
+    return build_item(m['sheet'], m['sex'], m['slot'], m['item'], write=False)
+
+
+def build_items(man, procs=4):
+    """Cuts many item sheets in parallel (the items are independent; a
+    batch of 46 took half an hour one at a time) and merges their entries
+    into layers.json and align.json once."""
+    import multiprocessing as mp
+    with mp.get_context('fork').Pool(procs) as pool: results = pool.map(_job, man)
+    data = load_json(); store = json.load(open(ALIGN)) if os.path.exists(ALIGN) else {}
+    for sex, item, rects, key, shifts in results:
+        for view, r in rects.items(): data[sex][view]['layers'][item] = r
+        store[key] = shifts; print(sex, item, 'cut')
+    json.dump(data, open(os.path.join(OUT, 'layers.json'), 'w'), ensure_ascii=False, indent=1)
+    json.dump(store, open(ALIGN, 'w'), indent=1, sort_keys=True)
 
 
 def sync():
@@ -527,6 +628,12 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'all':
         build_base()
         man = json.load(open(MANIFEST))
-        # redrawn basic pieces first: the other items' zones read their shape
-        for m in sorted(man, key=lambda m: m['item'] != BASIC.get(m['slot'])): build_item(m['sheet'], m['sex'], m['slot'], m['item'])
+        # redrawn basic pieces first, one by one: the other items' zones read their shape
+        for m in man:
+            if m['item'] == BASIC.get(m['slot']): build_item(m['sheet'], m['sex'], m['slot'], m['item'])
+        build_items([m for m in man if m['item'] != BASIC.get(m['slot'])])
+    elif sys.argv[1] == 'items':
+        # python3 tools/seated-layers.py items bottom,outfit   only those slots (all: every item)
+        want = sys.argv[2].split(',') if len(sys.argv) > 2 else ['all']
+        build_items([m for m in json.load(open(MANIFEST)) if (want == ['all'] or m['slot'] in want) and m['item'] != BASIC.get(m['slot'])])
     sync()

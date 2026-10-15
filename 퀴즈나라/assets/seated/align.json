@@ -1,0 +1,646 @@
+{
+ "assets/pose-references/floor-sit-f-item-bottom-cargo-2026-10-15.webp": {
+  "back": [
+   0,
+   8
+  ],
+  "front": [
+   4,
+   24
+  ],
+  "side": [
+   4,
+   8
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-bottom-jean_skirt-2026-10-15.webp": {
+  "back": [
+   -4,
+   18
+  ],
+  "front": [
+   0,
+   36
+  ],
+  "side": [
+   4,
+   20
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-bottom-legging-2026-10-15.webp": {
+  "back": [
+   0,
+   2
+  ],
+  "front": [
+   -4,
+   10
+  ],
+  "side": [
+   8,
+   2
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-bottom-pleat-2026-10-15.webp": {
+  "back": [
+   12,
+   90
+  ],
+  "front": [
+   -4,
+   26
+  ],
+  "side": [
+   0,
+   6
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-bottom-star_skirt-2026-10-15.webp": {
+  "back": [
+   12,
+   90
+  ],
+  "front": [
+   0,
+   34
+  ],
+  "side": [
+   0,
+   6
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-bottom-track-2026-10-15.webp": {
+  "back": [
+   0,
+   12
+  ],
+  "front": [
+   -4,
+   14
+  ],
+  "side": [
+   4,
+   2
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-bottom-tutu-2026-10-15.webp": {
+  "back": [
+   8,
+   80
+  ],
+  "front": [
+   4,
+   26
+  ],
+  "side": [
+   -4,
+   14
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-outfit-dress-2026-10-15.webp": {
+  "back": [
+   0,
+   -10
+  ],
+  "front": [
+   0,
+   18
+  ],
+  "side": [
+   4,
+   -2
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-outfit-hanbok-2026-10-15.webp": {
+  "back": [
+   0,
+   50
+  ],
+  "front": [
+   0,
+   60
+  ],
+  "side": [
+   0,
+   40
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-outfit-overall-2026-10-15.webp": {
+  "back": [
+   4,
+   10
+  ],
+  "front": [
+   0,
+   8
+  ],
+  "side": [
+   0,
+   0
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-outfit-robe-2026-10-15.webp": {
+  "back": [
+   -4,
+   10
+  ],
+  "front": [
+   0,
+   28
+  ],
+  "side": [
+   4,
+   20
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-outfit-space-2026-10-15.webp": {
+  "back": [
+   4,
+   4
+  ],
+  "front": [
+   0,
+   20
+  ],
+  "side": [
+   8,
+   -2
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-shoes-ballet-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   0,
+   10
+  ],
+  "side": [
+   0,
+   -6
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-shoes-boots-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   4,
+   14
+  ],
+  "side": [
+   8,
+   6
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-shoes-dress-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   0,
+   -2
+  ],
+  "side": [
+   4,
+   -2
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-shoes-hitop-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   0,
+   16
+  ],
+  "side": [
+   8,
+   4
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-shoes-rain-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   0,
+   42
+  ],
+  "side": [
+   12,
+   36
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-shoes-sandal-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   0,
+   6
+  ],
+  "side": [
+   8,
+   12
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-shoes-slipper-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   0,
+   2
+  ],
+  "side": [
+   12,
+   -2
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-shoes-wing_shoes-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   4,
+   18
+  ],
+  "side": [
+   8,
+   -2
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-top-cardi-2026-10-15.webp": {
+  "back": [
+   4,
+   2
+  ],
+  "front": [
+   0,
+   20
+  ],
+  "side": [
+   0,
+   2
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-top-hood-2026-10-14.webp": {
+  "back": [
+   8,
+   2
+  ],
+  "front": [
+   0,
+   0
+  ],
+  "side": [
+   4,
+   -8
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-top-jacket-2026-10-15.webp": {
+  "back": [
+   8,
+   2
+  ],
+  "front": [
+   0,
+   -2
+  ],
+  "side": [
+   12,
+   0
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-top-knit-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   0,
+   0
+  ],
+  "side": [
+   0,
+   -2
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-top-sailor-2026-10-15.webp": {
+  "back": [
+   4,
+   12
+  ],
+  "front": [
+   -4,
+   28
+  ],
+  "side": [
+   4,
+   -2
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-top-shirt-2026-10-14.webp": {
+  "back": [
+   -4,
+   0
+  ],
+  "front": [
+   -4,
+   2
+  ],
+  "side": [
+   12,
+   2
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-top-tank-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   0,
+   0
+  ],
+  "side": [
+   0,
+   0
+  ]
+ },
+ "assets/pose-references/floor-sit-f-item-top-vest-2026-10-15.webp": {
+  "back": [
+   8,
+   6
+  ],
+  "front": [
+   0,
+   -6
+  ],
+  "side": [
+   8,
+   2
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-bottom-cargo-2026-10-15.webp": {
+  "back": [
+   0,
+   4
+  ],
+  "front": [
+   0,
+   2
+  ],
+  "side": [
+   8,
+   0
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-bottom-track-2026-10-15.webp": {
+  "back": [
+   0,
+   4
+  ],
+  "front": [
+   4,
+   0
+  ],
+  "side": [
+   4,
+   4
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-outfit-hanbok-2026-10-15.webp": {
+  "back": [
+   4,
+   50
+  ],
+  "front": [
+   4,
+   30
+  ],
+  "side": [
+   4,
+   20
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-outfit-overall-2026-10-15.webp": {
+  "back": [
+   8,
+   4
+  ],
+  "front": [
+   0,
+   4
+  ],
+  "side": [
+   8,
+   2
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-outfit-space-2026-10-15.webp": {
+  "back": [
+   -4,
+   12
+  ],
+  "front": [
+   0,
+   32
+  ],
+  "side": [
+   -8,
+   6
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-shoes-boots-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   0,
+   2
+  ],
+  "side": [
+   4,
+   8
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-shoes-dress-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   4,
+   0
+  ],
+  "side": [
+   0,
+   4
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-shoes-hitop-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   4,
+   6
+  ],
+  "side": [
+   8,
+   6
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-shoes-rain-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   0,
+   16
+  ],
+  "side": [
+   0,
+   10
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-shoes-sandal-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   0,
+   2
+  ],
+  "side": [
+   4,
+   -2
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-shoes-slipper-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   0,
+   4
+  ],
+  "side": [
+   4,
+   0
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-shoes-wing_shoes-2026-10-15.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   8,
+   10
+  ],
+  "side": [
+   0,
+   0
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-top-cardi-2026-10-14.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   4,
+   8
+  ],
+  "side": [
+   0,
+   4
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-top-hood-2026-10-14.webp": {
+  "back": [
+   -4,
+   0
+  ],
+  "front": [
+   4,
+   28
+  ],
+  "side": [
+   4,
+   4
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-top-jacket-2026-10-14.webp": {
+  "back": [
+   8,
+   10
+  ],
+  "front": [
+   4,
+   4
+  ],
+  "side": [
+   4,
+   2
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-top-knit-2026-10-14.webp": {
+  "back": [
+   0,
+   0
+  ],
+  "front": [
+   0,
+   0
+  ],
+  "side": [
+   12,
+   6
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-top-shirt-2026-10-14.webp": {
+  "back": [
+   0,
+   8
+  ],
+  "front": [
+   4,
+   12
+  ],
+  "side": [
+   8,
+   0
+  ]
+ },
+ "assets/pose-references/floor-sit-m-item-top-vest-2026-10-14.webp": {
+  "back": [
+   4,
+   0
+  ],
+  "front": [
+   4,
+   0
+  ],
+  "side": [
+   4,
+   -2
+  ]
+ }
+}
