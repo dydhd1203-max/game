@@ -37,7 +37,7 @@ const a=H.args(),id=a._[0];
 if(!id||!S.ID_RE.test(id)){console.error('usage: node tools/inspect-foundation-garments.cjs <cat:shape> [--records <dir>] [--out <dir>] [--crowd] [--only …]');process.exit(2);}
 const PARTS=['contact','tones','zoom','garment','mirror','crowd'],only=H.list(a.only,PARTS.filter(p=>p!=='crowd').concat(a.crowd?['crowd']:[]));
 const out=path.resolve(ROOT,a.out&&a.out!==true?a.out:path.join('검증/옷',S.stem(id)));fs.mkdirSync(out,{recursive:true});
-const report={id,out,startedAt:new Date().toISOString(),images:[],errors:[],worn:{},notes:['Images for direct review; automatic numbers are not an art approval.','Cloud software rendering; real devices unmeasured.']};
+const report={kind:'inspect-report',id,out,startedAt:new Date().toISOString(),images:[],errors:[],worn:{},notes:['Images for direct review; automatic numbers are not an art approval.','Cloud software rendering; real devices unmeasured.']};
 const HAIR=M.REFERENCE_HAIR,SEX_KO={m:'남',f:'여'},VIEW_KO={front:'앞',right:'오른쪽',left:'왼쪽',back:'뒤'};
 const MOTIONS=['idle','walk','run','jump','wave','nod','happy','climb','floor-sit','desk-sit'];
 const MOTION_KO={idle:'서기',walk:'걷기',run:'달리기',jump:'점프',wave:'인사',nod:'고개 인사',happy:'기뻐하기',climb:'사다리','floor-sit':'아빠다리','desk-sit':'책상 앉기'};

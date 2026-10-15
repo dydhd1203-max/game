@@ -109,7 +109,7 @@ DRAWN_PAIRS = (('sleeves', 'arms', 1), ('shirt', 'neck', 2), ('shorts', 'legs', 
 # q80 template, the geometric positives and the real top:shirt:10 sheet).
 P = dict(
     tauMin=7.0, zoneGrow=20, prodErode=3, prodDeep=4.0,
-    growLR=1.5, exposeLR=2.0, exposeNear=24, skinGateLR=3.0, skinGrow=4,
+    growLR=1.5, exposeLR=2.0, exposeSpan=.35, creamShare=.085, exposeNear=24, skinGateLR=3.0, skinGrow=4,
     lineDark=.5, lineNear=2, hairLR=2.0, hairStrong=10.0, hairSpeck=60, neighbourStrong=20.0, skinStrong=20.0,
     minIsland=20, kSkin=3, kProduct=6, kNeighbour=4, kHair=3, cuffOuter=0.0, cuffInner=0.5, hemBand=12,
 )
@@ -518,6 +518,28 @@ class Context:
         return out
 
 
+def exposure_regions(noart, isP, span):
+    """Exposed skin is a band or an opening of the garment, not a spot at its
+    side: a component stays exposed when its columns cross the middle of the
+    garment zone on its rows, or cover `span` of that zone's width. Used for
+    products with a skin-light cloth (creamShare): the shaded ends of a
+    cream shirt hem beside the hands read as skin against a navy vest and
+    cut notches into the hem (real top:vest m, 2026-10-15). A belly under a
+    short top or a lowered neckline crosses the middle. Other products keep
+    every spot (a recoloured tee's hand edge is skin, WP8 P-hue120)."""
+    lab_, comps = M.components(noart)
+    keep = np.zeros_like(noart)
+    for c in comps:
+        x0, y0, x1, y1 = c['bbox']
+        cols = np.nonzero(isP[y0:y1].any(0))[0]
+        if not len(cols):
+            continue
+        mid, width = (cols.min() + cols.max()) / 2.0, cols.max() - cols.min() + 1
+        if x0 <= mid < x1 or (x1 - x0) >= span * width:
+            keep |= lab_ == c['label']
+    return keep
+
+
 # ---------------------------------------------------------------------------
 # Segmentation of one figure
 # ---------------------------------------------------------------------------
@@ -717,6 +739,14 @@ def segment_cell(ctx, key, seams=True):
         # ... and that rim itself, squeezed between the exposure and the edge
         rim = (label == 1) & changed & ~np.isin(Bown, BODY_LABELS) & M.dilate(noart, 3) & M.dilate(edge, 3)
         noart |= rim if noart.any() else False
+        # a product with a wide cloth as light and warm as skin (the shirt of a vest): its shaded ends beside the
+        # hands are no exposure; only a band or an opening crossing the garment's middle is. Share of product
+        # pixels the skin model explains about as well (2026-10-15): real vest .10-.17, sailor .04-.13, real
+        # shirt:10 with its cream collar and cuffs .02-.07
+        cream = (label == 1) & isP & (nll['skin'] - nll['product'] < P['exposeLR'])
+        diag['creamShare'] = round(float(cream.sum()) / max(1, ((label == 1) & isP).sum()), 3)
+        if diag['creamShare'] > P['creamShare']:
+            noart = exposure_regions(noart, isP, P['exposeSpan'])
         label[noart] = 5
     diag['exposedNoArtPx'] = int(noart.sum())
     # the drawn edge carried past the band's columns: changed body pixels on

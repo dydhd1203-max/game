@@ -962,8 +962,52 @@ def plain_cloth(rgb, painted, todo, prints):
         plain = source_pl
     L = local_mean(C, plain.astype(np.float32))
     L = harmonic(L, hole, source & ~hole)
+    # wide trims are a second cloth (a shirt hem, a big collar), not a print: their colour may cross the hole
+    wide = np.zeros_like(hole)
+    core = M.erode(source & pr, 2)
+    lab_, comps = M.components(core)
+    for c in comps:
+        if c['size'] >= max(60, .015 * source.sum()):
+            wide |= lab_ == c['label']
+    wide = M.dilate(wide, 2) & source & pr
+    layered_rows(C, L, hole, source_pl | wide, own & ~wide)
     out[y0:y1, x0:x1] = L
     return out
+
+
+def layered_rows(C, L, hole, source, own, near=3):
+    """A second cloth beside the hole (the shirt hem under a vest, a two-tone
+    band): the plain fill above only knows the garment's own colour and ran
+    a tongue of it over the band (real top:vest, profile torso under the
+    arm, 2026-10-15). Per hole row whose nearest painted pixels left or
+    right are both the other cloth (or one is and the other side has no
+    paint), the row is the left-right blend of those two edge colours
+    (median of `near` px each). A row with own cloth on either side keeps
+    the smooth fill: a collar or trim beside the hole lies on top of the
+    own cloth (striped rows, real top:vest f). Edits L in place."""
+    h, w = hole.shape
+    for y in range(h):
+        xs = np.nonzero(hole[y])[0]
+        if not len(xs):
+            continue
+        runs = np.split(xs, np.nonzero(np.diff(xs) > 1)[0] + 1)
+        src = np.nonzero(source[y])[0]
+        for r in runs:
+            a, b = r[0], r[-1]
+            left, right = src[src < a][-near:], src[src > b][:near]
+            if not len(left) and not len(right):
+                continue
+            # a band crosses the hole only when every edge that exists is the other cloth
+            if any(own[y, x] for x in left) or any(own[y, x] for x in right):
+                continue
+            cl = np.median(C[y, left], axis=0) if len(left) else None
+            cr = np.median(C[y, right], axis=0) if len(right) else None
+            if cl is None:
+                cl = cr
+            if cr is None:
+                cr = cl
+            t = (r - a + 1) / float(b - a + 2)
+            L[y, r] = cl[None, :] * (1 - t[:, None]) + cr[None, :] * t[:, None]
 
 
 def rebuild(rgb, painted, target, todo, plain_only, outline=None, center=None, x0=0, y0=0, info=None):
@@ -1195,6 +1239,44 @@ def close_nicks(p, maximum=30):
     return int(todo.sum())
 
 
+def close_bays(p, zone, sheet, tee, r=5, maximum=90, near=30.0, below=.3):
+    """Small notches cut into a top's hem where it runs below the frozen tee
+    (`zone`: the template's shorts grown 2 px; a bay counts when at least
+    `below` of it lies outside the frozen tee grown 2 px, `tee`)
+    are given back, in the upload's own colour, when that colour is the
+    cloth's around them (within `near`, summed RGB of the medians): a bay
+    narrower than 2r px, at most `maximum` px (the morphological closing
+    minus the part). The ends of a cream shirt hem under a vest went
+    to the shorts in a few rows and showed as dark notches (real top:vest m,
+    2026-10-15). The drawn shape inside the tee's own zone keeps its bays
+    (the waist under the arm, WP8 R1-top-identity and -webp80); close_nicks
+    only closes enclosed holes."""
+    m = p['a'] > .5
+    bay = M.erode(M.dilate(m, r), r) & ~m & zone
+    if not bay.any():
+        return 0
+    lab_, comps = M.components(bay)
+    small = [c['label'] for c in comps if c['size'] <= maximum]
+    if not small:
+        return 0
+    todo = np.zeros_like(bay)
+    for lb in small:
+        c = lab_ == lb
+        if (c & ~tee).sum() < below * c.sum():  # mostly inside the frozen tee: the tee's own shape
+            continue
+        ring = m & M.dilate(c, 3)
+        if not ring.any():
+            continue
+        # only cloth: the upload's own colour there is the cloth around it (a real bay shows skin or shorts)
+        if np.abs(np.median(sheet[c], axis=0) - np.median(p['rgb'][ring], axis=0)).sum() < near:
+            todo |= c
+    if not todo.any():
+        return 0
+    p['rgb'] = np.where(todo[..., None], sheet, p['rgb']).astype(np.float32)
+    p['a'] = np.where(todo, 1.0, p['a']).astype(np.float32)
+    return int(todo.sum())
+
+
 def drop_specks(a, minimum):
     m = a > 25 / 255
     lab_, comps = M.components(m)
@@ -1292,6 +1374,11 @@ def build_figure(ctx, key, seg):
         p['a'], n = drop_detached(p['a'])
         info['detachedPx'] = info.get('detachedPx', 0) + n
         info['nickPx'] = info.get('nickPx', 0) + close_nicks(p)
+        if name == 'torso' and slot == 'top':
+            from segment import SLOT
+            # below the frozen tee only: the tee's own outline (its waist under the arm) is never reshaped
+            tee = M.dilate(fz.drawn['shirt'][y0:y1, x0:x1, 3] > 127, 2)
+            info['bayPx'] = close_bays(p, M.dilate(np.isin(O, SLOT['top']['neighbour']), 2), ctx.U[y0:y1, x0:x1].astype(np.float32), tee)
     total = sum(int(h_.sum()) for h_ in hidden.values())
     vis = int(P.sum())
     info['hiddenPx'] = total

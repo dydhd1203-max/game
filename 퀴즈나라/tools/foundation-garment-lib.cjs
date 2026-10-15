@@ -65,6 +65,8 @@ function loadRecordDir(dir){
     if(name.endsWith('.json')){
       let value;try{value=JSON.parse(fs.readFileSync(full,'utf8'));}catch(e){records.push({file:name,kind:'json',record:null,atlases,atlasFiles,issues:[{code:'JSON',path:'$',message:'not JSON: '+e.message}]});continue;}
       const keys=value&&typeof value==='object'&&!Array.isArray(value)?Object.keys(value):[];
+      // the inspect tool's own report (written next to the records by default) has an id but is no record
+      if(value&&value.kind==='inspect-report'){skipped.push({file:name,reason:'the report of tools/inspect-foundation-garments.cjs'});continue;}
       if(!RECORD_KEYS.some(k=>keys.includes(k))){skipped.push({file:name,reason:'JSON without any garment-record field ('+RECORD_KEYS.join(', ')+'); keys: '+(keys.slice(0,8).join(', ')||typeof value)});continue;}
       record=value;kind='json';
     }else if(name.endsWith('.js')){
