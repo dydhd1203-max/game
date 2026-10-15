@@ -71,6 +71,7 @@ def crop_box(sex, view):
 
 
 CHANGED = 34.0   # colour distance (0-441) after a 1.5 px blur
+HAIR_ROWS = 90   # px under the chin cut where hair hangs over the shoulders
 HOOD_UP = 60     # px a garment may rise above the chin cut
 
 
@@ -626,6 +627,16 @@ def _cut_item(sheet, sex, slot, item, write):
         # a dark skin tone (2026-10-15)
         Bb = rgb(blur(bases[view]), box); Ab = rgb(blur(items[view]), box)
         tint = (skin_of(A) & near(skin_light(A), 2) & near(skin_of(B), 2) & (np.sqrt(((Ab - Bb) ** 2).sum(2)) < 45)) | bare
+        # the sheet's own hair below the chin (a bob hanging behind the neck and over the shoulders) is no
+        # item's: hair-brown pieces joined to the cut row, and hair-brown pixels near the neck outside the
+        # base body; brown cloth lies on the body (2026-10-15: wisps beside the shoulders of most items)
+        rows = np.arange(A.shape[0])[:, None]; top = C['cut'] - box[1]
+        r_, g_, b_ = (A[..., i].astype(int) for i in range(3))
+        hairish = (r_ > g_) & (g_ > b_) & (r_ - b_ > 25) & (A.max(2) < 170)
+        # (and the hair's thin dark outline strokes there, which are not brown)
+        out_body = (rows < top + HAIR_ROWS) & ~near(figure(B), 4)
+        stray = out_body & (hairish | (A.max(2) < 120))
+        mask &= ~(hanging_hair(A, mask, top - 12) | near(stray, 1) & (hairish | (A.max(2) < 150)))
         data[sex][view]['layers'][item] = rects[view] = save(f'{sex}-{view}-{item.replace(":", "-")}', mask, A, tint, box, U)
         if item == BASIC.get(slot):
             # a basic piece redrawn whole (the basic tee without the shorts
