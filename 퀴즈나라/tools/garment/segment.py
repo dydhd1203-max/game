@@ -110,7 +110,7 @@ DRAWN_PAIRS = (('sleeves', 'arms', 1), ('shirt', 'neck', 2), ('shorts', 'legs', 
 P = dict(
     tauMin=7.0, zoneGrow=20, prodErode=3, prodDeep=4.0,
     growLR=1.5, exposeLR=2.0, exposeNear=24, skinGateLR=3.0, skinGrow=4,
-    lineDark=.5, lineNear=2, hairLR=2.0, hairStrong=10.0, hairSpeck=60, neighbourStrong=20.0,
+    lineDark=.5, lineNear=2, hairLR=2.0, hairStrong=10.0, hairSpeck=60, neighbourStrong=20.0, skinStrong=20.0,
     minIsland=20, kSkin=3, kProduct=6, kNeighbour=4, kHair=3, cuffOuter=0.0, cuffInner=0.5, hemBand=12,
 )
 LAB_W = np.array([.7, 1.0, 1.0], np.float32)
@@ -700,8 +700,12 @@ def segment_cell(ctx, key, seams=True):
     # product model, reaching the garment's edge (4-connected to what is not
     # product), are no garment. They are label 5 ('exposed'): the class checks
     # measure the garment without them (HEM_HIGH, NECK_OPEN), and the report
-    # counts them. A cream cloth is explained by its own product model.
-    noart = (label == 1) & isP & changed & ~np.isin(Bown, BODY_LABELS) & fg & (nll['product'] - nll['skin'] > P['exposeLR'])
+    # counts them. A cream cloth is explained by its own product model. The
+    # skin model must beat the neighbour slot's too: a dark hem's 1-2 px mixed
+    # with the girl's gold shorts button read as skin against a navy product
+    # (WP8 recoloured tops: HEM_HIGH -1 px at the centre front).
+    noart = (label == 1) & isP & changed & ~np.isin(Bown, BODY_LABELS) & fg & (nll['product'] - nll['skin'] > P['exposeLR']) & \
+        (nll['neighbour'] - nll['skin'] > P['exposeLR'])
     if noart.any():
         edge = fg & (label != 1) & ~head
         noart = M.connected_to(noart, noart & M.dilate(edge, 2))  # a 1-2 px mixed rim (WebP) may part it from the edge
@@ -751,6 +755,16 @@ def segment_cell(ctx, key, seams=True):
             below[ys[hit], xs[hit]] = True
         label[below] = 2
         diag['belowCuffPx'] = int(below.sum())
+        # 5c. the cuff seam continued past the band's ends (seam_inside) also
+        # covered the arm skin beside the cuff's inner corner: a pixel of the
+        # frozen arm art (owner arm, no sleeve over it) that this sheet's skin
+        # model explains far better than its product model is the arm (WP8
+        # recoloured tops: 8-24 px of skin kept at the girl's cuff corners,
+        # UNTINTED_SKIN). A cream cuff is not moved: the product model knows
+        # its colour, so skin never wins by this margin there.
+        corner = inside & (label == 1) & (O == 3) & (nll['product'] - nll['skin'] > P['skinStrong'])
+        label[corner] = 2
+        diag['cuffCornerSkinPx'] = int(corner.sum())
     # 6. line-art rule
     ink = ctx.ink[sl] > P['lineDark']
     painted_body = body & fg
