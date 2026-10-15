@@ -11,12 +11,12 @@ const HAIR={f:['short','bob','long','twin','pony','curly','bun','hime','part','m
 const TONES=[0,4];
 (async()=>{
   const server=await H.serve(H.fsTree(ROOT));const browser=await H.launch({args:H.RASTER_ARGS});const report={errors:[]};
-  const {page}=await L.openRuntime(browser,server.base,report,{viewport:{width:4000,height:1400}});
+  const {page}=await L.openRuntime(browser,server.base,report,{viewport:{width:4000,height:1800}});
   await L.install(page,{});
   const meta={hair:HAIR,tones:TONES,shots:[]};
   for(const sex of ['m','f'])for(const view of ['front','right','back'])for(const sk of TONES){
     const cells=HAIR[sex].map(h=>({av:{sex,sk,hair:h+':1',expression:'bright:0'},state:{action:'idle',direction:view,time:0,reducedMotion:true},size:620}));
-    const g=await page.evaluate(spec=>__fg.grid(spec),{cells,cols:6,cellW:660,cellH:680,labelW:0});
+    const g=await page.evaluate(spec=>__fg.grid(spec),{cells,cols:6,cellW:660,cellH:860,labelW:0});
     const boxes=await page.evaluate(n=>[...document.querySelectorAll('svg.qp-foundation-avatar')].filter(s=>s.getBoundingClientRect().width>0).slice(-n).map(s=>{const r=s.getBoundingClientRect();return {x:r.left+scrollX,y:r.top+scrollY,w:r.width,h:r.height};}),cells.length);
     const file=`${sex}-${view}-sk${sk}.png`;await L.capture(page,g,path.join(OUT,file));
     meta.shots.push({sex,view,sk,file,boxes});

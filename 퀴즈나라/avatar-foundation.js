@@ -864,6 +864,14 @@
     ['R','G','B'].forEach((ch,k)=>t.append(el('feFunc'+ch,{type:'table',tableValues:L.map(l=>(Math.min(255,Math.max(0,Math.round(c[k]*l/102+Math.max(0,l-160)*.38)))/255).toFixed(4)).join(' ')})));
     f.append(t);defs.append(f);
   }
+  // An ornament that sits on the hair (crown, ears, ribbon) was drawn on the
+  // default hair: it moves by how much higher or lower this style's top edge
+  // is under it (QPHairTops, the median over the ornament's columns).
+  function hairLift(base,sex,view,r){
+    const T=root.QPHairTops,vw=view==='profile'?'right':view,own=T?.tops?.[sex]?.[vw]?.[base.hair.split(':')[0]],ref=T?.tops?.[sex]?.[vw]?.[T.default[sex]];if(!own||!ref)return 0;
+    const d=[];for(let i=Math.max(0,Math.ceil(r[0]/T.step));i<=Math.min(own.length-1,Math.floor((r[0]+r[2])/T.step));i++)if(own[i]!=null&&ref[i]!=null)d.push(own[i]-ref[i]);
+    if(!d.length)return 0;d.sort((a,b)=>a-b);return +d[d.length>>1].toFixed(3);
+  }
   function hatLayer(v,defs,id,base,sex,view,hairColor){
     const art=hatArtOf(base,sex,view);if(!art)return false;
     const rect=r=>({x:r[0],y:r[1],width:r[2],height:r[3]}),hair=hatHair(base,sex,view,art);
@@ -883,7 +891,8 @@
       if(art.hideTop)m.append(el('rect',{...rect(art.hideTop),fill:'#000'}));
       defs.append(m);paint.setAttribute('mask','url(#'+id+'-hat-hide-'+view+')');
     }
-    v.append(el('image',{href:art.src,...rect(art.rect),preserveAspectRatio:'none','data-foundation-hat':art.shape}));
+    const lift=art.kind==='sit'?hairLift(base,sex,view,art.rect):0;
+    v.append(el('image',{href:art.src,...rect(art.rect),preserveAspectRatio:'none','data-foundation-hat':art.shape,...(lift?{transform:`translate(0 ${lift})`}:{})}));
     return Boolean(hair);
   }
   // Face art (avatar-face-art.js, tools/hair/build-face.py): face parts

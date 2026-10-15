@@ -22,6 +22,11 @@ And per sex, view (front, right) and hair style the fringe over the face
 colours above a line just under the eyes, eyebrows included. The face layer
 is masked by it, so a fringe and eyebrows stay over a new eye or a sticker
 (2026-10-15: an eye cover painted over the long hair's fringe).
+
+And tools/fixtures/hair-tops.json: per sex, view and hair style the hair's
+top edge y(x) in head-native units (x 0..32 every TOP_STEP), for seating an
+ornament (a crown, ears, a hairband) on each style's hair (build-hat.py puts
+it in avatar-hat-art.js).
 """
 import os, sys, json
 import numpy as np
@@ -119,7 +124,40 @@ def anchors(d, meta, hf):
         out['offsets'].setdefault(sex, {})[view] = {n: ([round(float(v), 3) for v in mid(e) - b] if e else [0, 0]) for n, e in eyes.items()}
         print('anchor', sex, view, out['offsets'][sex][view])
     out['fringe'] = fringes(d, meta, hf, out['eyes'])
+    hair_tops(d, meta, hf)
     json.dump(out, open(os.path.join(ROOT, 'tools', 'fixtures', 'face-anchor.json'), 'w'), indent=1)
+
+
+TOP_STEP = .5   # units between the measured columns
+TOP_RANGE = (-5.0, 30.0)   # head-native rows searched (above: the legs of the figure in the row above)
+
+
+def hair_tops(d, meta, hf):
+    """The topmost painted row of each head per column (skin tone 0 pictures)."""
+    out = dict(about='Per sex, view and hair style the top edge of the head painting (hair) in head-native units at '
+                     'x = 0..32 every %.1f (null: nothing painted). From tools/hair/measure-head-skin.cjs + '
+                     'fit-head-skin.py. Generated; do not edit.' % TOP_STEP, step=TOP_STEP, default=DEFAULT_HAIR, tops={})
+    xs = np.arange(0, 32 + 1e-6, TOP_STEP)
+    for s in meta['shots']:
+        if s['sk'] != meta['tones'][0]:
+            continue
+        sex, view = s['sex'], s['view']
+        img = np.asarray(Image.open(os.path.join(d, s['file'])).convert('RGB')).astype(int)
+        bg = img[2, 2]
+        paint = np.abs(img - bg).sum(-1) > 30
+        t = hf[sex][view]['frame']['toViewBox']
+        for name, box in zip(meta['hair'][sex], s['boxes']):
+            ppu = box['w'] / 32.0
+            col = []
+            for x in xs:
+                px = int(round(box['x'] + (x * t[0] + t[4]) * ppu))
+                ys = np.arange(TOP_RANGE[0], TOP_RANGE[1], .05)
+                py = np.round(box['y'] + (ys * t[3] + t[5]) * ppu).astype(int)
+                ok = (py >= 0) & (py < paint.shape[0]) & (0 <= px < paint.shape[1])
+                hit = ys[ok][paint[py[ok], px]] if ok.any() else []
+                col.append(round(float(hit[0]), 2) if len(hit) else None)
+            out['tops'].setdefault(sex, {}).setdefault(view, {})[name] = col
+    json.dump(out, open(os.path.join(ROOT, 'tools', 'fixtures', 'hair-tops.json'), 'w'))
 
 
 FRINGE_RECT = (2.0, 6.0, 28.0, 22.0)  # head-native x, y, w, h of a fringe mask (the face)

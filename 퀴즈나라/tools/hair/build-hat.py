@@ -230,6 +230,12 @@ def write_runtime(out_assets):
           '// Per hat shape: kind full (hides the hair under it) | sit (sits on the hair), and per sex and view\n'
           '// (front, right, back) the picture and, for full hats, the hair-hide mask, as head-native rects.\n'
           'window.QPHatArt=Object.freeze(' + json.dumps(allrec, ensure_ascii=False, separators=(',', ':')) + ');\n')
+    tops = os.path.join(ROOT, 'tools', 'fixtures', 'hair-tops.json')
+    if os.path.exists(tops):
+        t = json.load(open(tops))
+        js += ('// Each hair style\'s top edge per sex and view (tools/hair/fit-head-skin.py): y at x = 0..32 every step,\n'
+               '// head-native; an ornament that sits on the hair moves with it.\n'
+               'window.QPHairTops=Object.freeze(' + json.dumps(dict(step=t['step'], default=t['default'], tops=t['tops']), separators=(',', ':')) + ');\n')
     hair = os.path.join(out_assets, 'hair', 'hair.json')
     if os.path.exists(hair):
         js += ('// Hair drawn under a pulled-on hat (tools/hair/build-hat-hair.py): per sex, hair style and view the\n'
