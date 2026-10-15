@@ -1,7 +1,7 @@
 {
  "note": "Products for the ChatGPT garment kit (stage 3, WP4). The worker fills this from the shop catalogue and the design reference; the user reviews it. Keyed 'cat:shape' like the garment records. Checked against the live shop for both sexes by `node tools/garment/design-ref.cjs --verify-products` (headless ?demo=1). Used by tools/garment/prompt.cjs.",
  "fields": {
-  "class": "top/short-sleeve | bottom/shorts | shoes/low (stage 3). Other classes exist as schema only. Hats (2026-10-15): hat/full (pulled onto the head, hair above its rim hidden by the game) | hat/sit-on (an ornament seated on the hair). Face decorations (2026-10-15): face/sticker (on the facial skin, front and profile).",
+  "class": "top/short-sleeve | bottom/shorts | shoes/low (stage 3). Other classes exist as schema only. Hats (2026-10-15): hat/full (pulled onto the head, hair above its rim hidden by the game) | hat/sit-on (an ornament seated on the hair). Face decorations (2026-10-15): face/sticker (on the facial skin, front and profile). Face parts (2026-10-15): face/eyes | face/nose | face/mouth (one part changed, front and profile).",
   "sexes": "who the shop sells it to (QPGame.getCatalog().curatedItem(cat, shape, sex) is not null). A single-sex product changes only that child; the prompt says the other child stays as it is.",
   "ci": "the fixed colour index per sex (index.html CURATED_COLOURS / fixedColour).",
   "names": "the shop name per sex (curatedItem(...).name).",
@@ -502,6 +502,135 @@
      "look": "the colour and size of the red dots",
      "both": "traditional Korean wedding make-up: one small round red dot in the middle of each cheek (a little smaller than the iris), smooth circles with no outline. No dot on the forehead (the fringe covers it).",
      "back": "in the side view show one red dot on the visible cheek; the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "eyes:cat": {
+   "class": "face/eyes",
+   "status": "face part pilot E1 (planned, shared picture)",
+   "planned": true,
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "고양이 눈",
+    "f": "고양이 눈"
+   },
+   "colour": {
+    "m": "#2f8f8a",
+    "f": "#2f8f8a"
+   },
+   "display": {
+    "m": "#2f8f8a",
+    "f": "#2f8f8a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-eyes-cat-design.png",
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"210\" height=\"80\" viewBox=\"0 0 210 80\"><defs/><clipPath id=\"c1\"><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\"/></clipPath><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\" fill=\"#fff\"/><g clip-path=\"url(#c1)\"><circle cx=\"52\" cy=\"46\" r=\"15\" fill=\"#2f8f8a\"/><circle cx=\"52\" cy=\"46\" r=\"7\" fill=\"#173f3d\"/><circle cx=\"47\" cy=\"40\" r=\"4\" fill=\"#fff\"/></g><path d=\"M84 50 Q52 24 20 34 L10 25\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M30 52 Q60 66 84 50\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"2\"/><g transform=\"translate(210 0) scale(-1 1)\"><clipPath id=\"c2\"><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\"/></clipPath><path d=\"M84 50 Q60 66 30 52 Q22 46 20 34 Q52 24 84 50 Z\" fill=\"#fff\"/><g clip-path=\"url(#c2)\"><circle cx=\"52\" cy=\"46\" r=\"15\" fill=\"#2f8f8a\"/><circle cx=\"52\" cy=\"46\" r=\"7\" fill=\"#173f3d\"/><circle cx=\"47\" cy=\"40\" r=\"4\" fill=\"#fff\"/></g><path d=\"M84 50 Q52 24 20 34 L10 25\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/><path d=\"M30 52 Q60 66 84 50\" fill=\"none\" stroke=\"#3a2a28\" stroke-width=\"2\"/></g></svg>",
+   "notes": {
+    "ko": {
+     "item": "고양이 눈",
+     "look": "눈 모양(눈꼬리가 올라간 아몬드 모양)과 속눈썹",
+     "both": "두 번째 그림처럼 눈꼬리가 살짝 위로 올라간 아몬드 모양의 고양이 눈. 위 눈꺼풀 선이 굵고 눈꼬리 끝이 짧게 위로 뻗습니다. 눈동자는 크고 동그랗게, 빛 반사 점 하나. 귀엽고 장난스러운 느낌.",
+     "back": "옆모습에서는 보이는 한쪽 눈을 같은 고양이 눈 모양(옆에서 본 모양)으로 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "cat eyes",
+     "look": "the eye shape (almond, outer corners turned up) and lashes",
+     "both": "almond-shaped cat eyes with slightly upturned outer corners as in image 2: a bold upper lid line ending in a short upward flick, large round iris with one highlight; cute and playful.",
+     "back": "in the side view draw the visible eye as the same cat eye seen from the side; the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "nose:button": {
+   "class": "face/nose",
+   "status": "face part pilot N1 (planned, shared picture)",
+   "planned": true,
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "동그란 단추 코",
+    "f": "동그란 단추 코"
+   },
+   "colour": {
+    "m": "#f4b9a0",
+    "f": "#f4b9a0"
+   },
+   "display": {
+    "m": "#f4b9a0",
+    "f": "#f4b9a0"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-nose-button-design.png",
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"80\" height=\"70\" viewBox=\"0 0 80 70\"><path d=\"M24 44 Q40 18 56 44 Q40 56 24 44 Z\" fill=\"#f4b9a0\" stroke=\"#b9775f\" stroke-width=\"2.5\"/><ellipse cx=\"34\" cy=\"46\" rx=\"3\" ry=\"2.2\" fill=\"#9a5a48\"/><ellipse cx=\"46\" cy=\"46\" rx=\"3\" ry=\"2.2\" fill=\"#9a5a48\"/><ellipse cx=\"38\" cy=\"33\" rx=\"4\" ry=\"2.5\" fill=\"#fff\" opacity=\".7\"/></svg>",
+   "notes": {
+    "ko": {
+     "item": "동그란 단추 코",
+     "look": "동그란 코끝과 작은 콧구멍",
+     "both": "두 번째 그림처럼 끝이 동그랗고 살짝 도톰한 작은 단추 코. 콧구멍 두 개는 아주 작은 점으로, 코끝에 작은 빛 반사. 피부색은 얼굴과 같게 하고 코끝만 아주 살짝 발그레하게.",
+     "back": "옆모습에서는 동그란 코끝이 얼굴 옆선에서 살짝 튀어나오게 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "round button nose",
+     "look": "the round nose tip and tiny nostrils",
+     "both": "a small round button nose as in image 2: a soft rounded tip, two tiny dot nostrils, a small highlight on the tip; the same skin colour as the face with only a faint rosy tip.",
+     "back": "in the side view the round tip sticks out slightly from the face outline; the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "mouth:cat": {
+   "class": "face/mouth",
+   "status": "face part pilot L1 (planned, shared picture)",
+   "planned": true,
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "고양이 입",
+    "f": "고양이 입"
+   },
+   "colour": {
+    "m": "#8c4a52",
+    "f": "#8c4a52"
+   },
+   "display": {
+    "m": "#8c4a52",
+    "f": "#8c4a52"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-mouth-cat-design.png",
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"120\" height=\"60\" viewBox=\"0 0 120 60\"><path d=\"M20 22 Q38 50 60 26 Q82 50 100 22\" fill=\"none\" stroke=\"#8c4a52\" stroke-width=\"5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/></svg>",
+   "notes": {
+    "ko": {
+     "item": "고양이 입",
+     "look": "ω 모양의 입선",
+     "both": "두 번째 그림처럼 ω(오메가) 모양으로 가운데가 살짝 올라간 고양이 입. 가는 선 하나로 그리고, 입꼬리는 살짝 웃는 느낌. 이와 혀는 그리지 않습니다.",
+     "back": "옆모습에서는 입꼬리 쪽 ω의 반쪽이 보이게 그리고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "cat mouth",
+     "look": "the ω-shaped mouth line",
+     "both": "a cat mouth shaped like ω as in image 2, the middle slightly raised, one thin line, corners gently smiling; no teeth or tongue.",
+     "back": "in the side view show the half of the ω at the visible corner; the back view stays exactly as in image 1."
     }
    },
    "sharedPicture": true

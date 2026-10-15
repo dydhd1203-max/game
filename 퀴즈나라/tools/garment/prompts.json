@@ -213,6 +213,66 @@
    },
    "limits": [],
    "why": "Face decorations (2026-10-15 user request: bandage, bruise, gonji): the game places them on the fixed face frame (one face size per sex, 아바타-제작기준.md 머리–목 7번) between the face and the fringe, front and profile only; the template's faces are the game's head paintings."
+  },
+  "face/eyes": {
+   "ko": {
+    "slot": "눈",
+    "thing": "눈",
+    "verb": "바꿔 그려",
+    "wear": "가집니다",
+    "pose": "팔·다리 위치, 옷과 신발",
+    "keep": "눈썹, 코, 입, 머리카락",
+    "length": "{item|은} 지금 눈과 같은 자리에 그립니다. 두 눈 가운데의 위치와 두 눈 사이 거리, 눈 높이는 바꾸지 않고, 크기는 지금 눈과 비슷하게(더 커도 지금의 1.2배까지) 합니다. 눈동자 색은 지금 눈동자와 같은 청록색으로 둡니다(게임에서 눈 색을 바꿉니다). 앞모습과 오른쪽을 보는 옆모습에서 같은 모양으로 보이게 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다. 피부색, 얼굴 윤곽, 볼 홍조, 머리카락은 바꾸지 않습니다."
+   },
+   "en": {
+    "slot": "eyes",
+    "things": "eyes",
+    "pose": "arm and leg positions, clothes and shoes",
+    "keep": "the eyebrows, nose, mouth and hair",
+    "length": "Draw the {item} at the place of the current eyes: keep each eye's centre, the distance between the eyes and their height, and a similar size (at most 1.2 times the current eyes). Keep the iris the same teal as now (the game recolours it). Show the same shape in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1. Do not change the skin colour, face outline, blush or hair."
+   },
+   "limits": [],
+   "why": "Face parts (2026-10-15 user request: various eyes, noses, mouths): the game keeps one face frame per sex (fixed eye centres, 아바타-제작기준.md 머리–목 7번); blinking erases the eye area and the iris is recoloured, so eyes keep their centres and the template's iris colour."
+  },
+  "face/nose": {
+   "ko": {
+    "slot": "코",
+    "thing": "코",
+    "verb": "바꿔 그려",
+    "wear": "가집니다",
+    "pose": "팔·다리 위치, 옷과 신발",
+    "keep": "눈, 눈썹, 입, 머리카락",
+    "length": "{item|은} 지금 코와 같은 자리(두 눈 사이 아래, 입 위)에 작게 그립니다. 얼굴 크기에 어울리게, 지금 코보다 너무 크게 그리지 않습니다. 앞모습과 오른쪽을 보는 옆모습에서 같은 모양으로 보이게 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다. 피부색, 얼굴 윤곽, 볼 홍조, 머리카락은 바꾸지 않습니다. 옆모습에서는 코의 옆선이 얼굴 윤곽에 자연스럽게 이어지게 합니다."
+   },
+   "en": {
+    "slot": "noses",
+    "things": "noses",
+    "pose": "arm and leg positions, clothes and shoes",
+    "keep": "the eyes, eyebrows, mouth and hair",
+    "length": "Draw the {item} small at the place of the current nose (below between the eyes, above the mouth), suited to the face size, never much larger than now. Show the same shape in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1. Do not change the skin colour, face outline, blush or hair. In the side view the nose joins the face outline naturally."
+   },
+   "limits": [],
+   "why": "Face parts (2026-10-15): the nose sits between the fixed eye centres and the mouth; in profile it is part of the face outline."
+  },
+  "face/mouth": {
+   "ko": {
+    "slot": "입",
+    "thing": "입",
+    "verb": "바꿔 그려",
+    "wear": "가집니다",
+    "pose": "팔·다리 위치, 옷과 신발",
+    "keep": "눈, 눈썹, 코, 머리카락",
+    "length": "{item|은} 지금 입과 같은 자리(코 아래, 턱 위)에 그립니다. 너비는 지금 입의 두 배를 넘지 않게, 턱 윤곽을 넘지 않게 합니다. 앞모습과 오른쪽을 보는 옆모습에서 같은 모양으로 보이게 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다. 피부색, 얼굴 윤곽, 볼 홍조, 머리카락은 바꾸지 않습니다."
+   },
+   "en": {
+    "slot": "mouths",
+    "things": "mouths",
+    "pose": "arm and leg positions, clothes and shoes",
+    "keep": "the eyes, eyebrows, nose and hair",
+    "length": "Draw the {item} at the place of the current mouth (below the nose, above the chin), at most twice as wide as the current mouth, never past the chin outline. Show the same shape in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1. Do not change the skin colour, face outline, blush or hair."
+   },
+   "limits": [],
+   "why": "Face parts (2026-10-15): the mouth sits on the fixed face frame above the chin hint; expressions may later draw over it."
   }
  },
  "v1": {
