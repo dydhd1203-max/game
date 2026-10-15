@@ -850,17 +850,41 @@
     const shape=String(av.hat||'').split(':')[0],rec=shape&&root.QPHatArt?.[shape];
     const art=rec?.views?.[sex]?.[view==='profile'?'right':view];return art?{shape,kind:rec.kind,...art}:null;
   }
-  function hatLayer(v,defs,id,base,sex,view){
-    const art=hatArtOf(base,sex,view);if(!art)return;
-    const rect=r=>({x:r[0],y:r[1],width:r[2],height:r[3]});
+  // Hair drawn under a pulled-on hat (QPHatHair, tools/hair/build-hat-hair.py)
+  // for a style the hide mask cannot cut (twin tails, a pony tied above the
+  // rim): the game painting keeps only that style's skin, and the drawn hair,
+  // stored as luminance, is tinted like the head paintings (avatar-pixel.js
+  // tonal: colour x L/102 plus a shine over L 160) by a table filter.
+  function hatHair(base,sex,view,art){
+    const vw=view==='profile'?'right':view;return art?.kind==='full'?root.QPHatHair?.[sex]?.[base.hair.split(':')[0]]?.[vw]||null:null;
+  }
+  function hairTint(defs,fid,color){
+    const hex=String(color||'#6b4a35').replace('#',''),c=[0,2,4].map(i=>parseInt(hex.slice(i,i+2),16)||0),L=[0,32,64,96,128,160,192,224,255];
+    const f=el('filter',{id:fid,x:'-5%',y:'-5%',width:'110%',height:'110%','color-interpolation-filters':'sRGB'}),t=el('feComponentTransfer');
+    ['R','G','B'].forEach((ch,k)=>t.append(el('feFunc'+ch,{type:'table',tableValues:L.map(l=>(Math.min(255,Math.max(0,Math.round(c[k]*l/102+Math.max(0,l-160)*.38)))/255).toFixed(4)).join(' ')})));
+    f.append(t);defs.append(f);
+  }
+  function hatLayer(v,defs,id,base,sex,view,hairColor){
+    const art=hatArtOf(base,sex,view);if(!art)return false;
+    const rect=r=>({x:r[0],y:r[1],width:r[2],height:r[3]}),hair=hatHair(base,sex,view,art);
     const paint=el('g',{'data-foundation-hat-under':view});paint.append(...v.childNodes);v.append(paint);
-    if(art.hide){
+    if(hair){
+      const mid=id+'-hat-keep-'+view,m=el('mask',{id:mid,maskUnits:'userSpaceOnUse',x:-20,y:-30,width:72,height:100});
+      m.append(el('rect',{x:-20,y:-30,width:72,height:100,fill:'#000'}),el('image',{href:hair.keep.src,...rect(hair.keep.rect),preserveAspectRatio:'none'}));
+      defs.append(m);paint.setAttribute('mask','url(#'+mid+')');
+      const fid=id+'-hat-hair-tint';if(!defs.querySelector('#'+fid))hairTint(defs,fid,hairColor);
+      // The hat's own hide shape cuts it too: the drawn cap was wider than ours beside the rim.
+      const drawn=el('g',{'data-foundation-hat-hair':base.hair.split(':')[0]});drawn.append(el('image',{href:hair.src,...rect(hair.rect),preserveAspectRatio:'none',filter:'url(#'+fid+')'}));
+      if(art.hide){const hid=id+'-hat-hair-hide-'+view,h=el('mask',{id:hid,maskUnits:'userSpaceOnUse',x:-20,y:-30,width:72,height:100});h.append(el('rect',{x:-20,y:-30,width:72,height:100,fill:'#fff'}),el('image',{href:art.hide.src,...rect(art.hide.rect),preserveAspectRatio:'none'}));if(art.hideTop)h.append(el('rect',{...rect(art.hideTop),fill:'#000'}));defs.append(h);drawn.setAttribute('mask','url(#'+hid+')');}
+      v.append(drawn);
+    }else if(art.hide){
       const m=el('mask',{id:id+'-hat-hide-'+view,maskUnits:'userSpaceOnUse',x:-20,y:-30,width:72,height:100});
       m.append(el('rect',{x:-20,y:-30,width:72,height:100,fill:'#fff'}),el('image',{href:art.hide.src,...rect(art.hide.rect),preserveAspectRatio:'none'}));
       if(art.hideTop)m.append(el('rect',{...rect(art.hideTop),fill:'#000'}));
       defs.append(m);paint.setAttribute('mask','url(#'+id+'-hat-hide-'+view+')');
     }
     v.append(el('image',{href:art.src,...rect(art.rect),preserveAspectRatio:'none','data-foundation-hat':art.shape}));
+    return Boolean(hair);
   }
   // Face art (avatar-face-art.js, tools/hair/build-face.py): face parts
   // (av.eyes, av.nose, av.mouth) and stickers (av.face) over the front and
@@ -907,6 +931,7 @@
     // The front portraits also carry an old outlined neck stump down there;
     // only those traced strokes are cut, never the hanging hair itself.
     if(heads.backHair){const clip=el('clipPath',{id:id+'-hair-behind',clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:(BACK_HAIR_CLIP[sex]||'M-1 28.2H33V48.2H-1Z')+BACK_HAIR_NECK_CUT[sex],'clip-rule':'evenodd'}));defs.append(clip);const fit=VIEW_HEAD[sex].front,hair=el('g',fit?{transform:`translate(0 ${fit[1]}) translate(16 ${VIEW_HEAD_PIVOT}) scale(${fit[0]}) translate(-16 ${-VIEW_HEAD_PIVOT})`}:{});hair.append(document.createComment('qpf-head:backHair'));backHair.append(hair);}
+    const hairColor=(heads.front.match(/data-qpx-hair-color="([^"]+)"/)||[])[1];
     for(const view of ['front','profile','back']){
       const v=el('g',{'data-foundation-head-view':view}),fit=VIEW_HEAD[sex][view];
       // The painting goes in at the comment when the template is assembled.
@@ -916,7 +941,8 @@
       // neck above the shirt. Cut only the reference heads' neck attachment;
       // original face/hair PNGs and legacy wardrobe rendering stay intact.
       faceLayer(v,defs,id,base,sex,view,heads.skin);
-      hatLayer(v,defs,id,base,sex,view);
+      // Its own hair below the chin hangs behind the body in front: the hair drawn under the hat replaces it.
+      if(hatLayer(v,defs,id,base,sex,view,hairColor)&&view==='front')backHair.setAttribute('display','none');
       const referenceHead=base.hair.split(':')[0]===(sex==='m'?'short':'bob');
       const cut=referenceHead?HEAD_NECK_CUT[sex][view]:'';
       if(cut){const clip=el('clipPath',{id:id+'-head-only-'+view,clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:'M-8 -8H40V48H-8Z'+cut,'clip-rule':'evenodd'}));defs.append(clip);v.setAttribute('clip-path','url(#'+id+'-head-only-'+view+')');}

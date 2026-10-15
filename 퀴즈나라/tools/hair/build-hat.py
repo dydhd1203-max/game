@@ -209,6 +209,11 @@ def write_runtime(out_assets):
           '// Per hat shape: kind full (hides the hair under it) | sit (sits on the hair), and per sex and view\n'
           '// (front, right, back) the picture and, for full hats, the hair-hide mask, as head-native rects.\n'
           'window.QPHatArt=Object.freeze(' + json.dumps(allrec, ensure_ascii=False, separators=(',', ':')) + ');\n')
+    hair = os.path.join(out_assets, 'hair', 'hair.json')
+    if os.path.exists(hair):
+        js += ('// Hair drawn under a pulled-on hat (tools/hair/build-hat-hair.py): per sex, hair style and view the\n'
+               '// hair as luminance (tinted like the head) and the skin of the game painting it keeps.\n'
+               'window.QPHatHair=Object.freeze(' + json.dumps(json.load(open(hair)), ensure_ascii=False, separators=(',', ':')) + ');\n')
     open(os.path.join(ROOT, 'avatar-hat-art.js'), 'w').write(js)
 
 
