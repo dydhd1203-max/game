@@ -1,6 +1,10 @@
 """Hat pipeline, step 1: cut the hat out of a ChatGPT hat sheet.
 
-  python3 -B tools/hair/build-hat.py SHEET [--out DIR] [--id hat:<shape>]
+  python3 -B tools/hair/build-hat.py SHEET [--out DIR] [--id hat:<shape>] [--base tools/fixtures/hat-base]
+
+With --base the sheet was drawn on the hat kit's base picture (the game's own
+figures with room above the heads, 2026-10-15 batch) instead of the garment
+template (the pilot M1, M2): see build_base.
 
 The sheet is the garment template with a hat drawn on the six heads (hat kit,
 assets/garment-template/프롬프트.md, prompts hat/full and hat/sit-on). It is
@@ -13,6 +17,7 @@ open (the strap opening of a cap's back). Writes per figure an RGBA crop and
 its box in sheet pixels, and a contact sheet (검증/모자/<name>/).
 """
 import argparse
+import importlib.util
 import json
 import os
 import sys
@@ -77,14 +82,22 @@ def cut_figure(U, A, T, owner, box):
     # whose colour may be the hat's, stays out)
     neck = np.nonzero((owner[y0:y1, x0:x1] == R.OWNER['neck']).any(1))[0]
     low = int(ys.min() + ZONE * ((neck.min() if len(neck) else ys.max()) - ys.min()))
+    return cut_zone(u, a, t, head, low, x0, y0, box)
+
+
+def cut_zone(u, a, t, head, low, x0, y0, box, px=1.0):
+    """The hat in one figure: u the drawn figure, t the unchanged one, head its head pixels, low the
+    zone's last row; px the figure's scale against the template sheet (sizes in px scale with it)."""
+    ys, xs = np.nonzero(head)
+    side = int(round(60 * px))
     zone = np.zeros(head.shape, bool)
-    zone[:low, max(0, xs.min() - 60):xs.max() + 61] = True
+    zone[:low, max(0, xs.min() - side):xs.max() + side + 1] = True
     Ul, Tl = R.lab(u), R.lab(t)
     head_cols = kmeans(Tl[head].reshape(-1, 3)[::7], 10)
     fg = (a > .5) & zone
     novel = fg & (nearest(Ul, head_cols) > NOVEL)
     lab_, comps = M.components(novel)
-    keep = [c['label'] for c in comps if c['size'] >= SEED_MIN]
+    keep = [c['label'] for c in comps if c['size'] >= SEED_MIN * px * px]
     if not keep:
         return None
     seed = np.isin(lab_, keep)
@@ -94,22 +107,23 @@ def cut_figure(U, A, T, owner, box):
     # its own outline: dark pixels hugging the hat
     # (not the hair's own dark strands: only near-black, or dark and unlike the head's colours)
     dist_head = nearest(Ul, head_cols)
-    dark = fg & M.dilate(hat, GROW) & ((Ul[..., 0] < 25) | ((Ul[..., 0] < 45) & (dist_head > 12)))
+    dark = fg & M.dilate(hat, max(1, int(round(GROW * px)))) & ((Ul[..., 0] < 25) | ((Ul[..., 0] < 45) & (dist_head > 12)))
     hat |= dark
     # close pinholes; a hole showing hair (a cap's back opening) stays open
     filled = fill_holes(hat)
     holes = filled & ~hat
     hl, hc = M.components(holes)
     for c in hc:
-        if c['size'] <= 40:
+        if c['size'] <= 40 * px * px:
             hat |= hl == c['label']
     alpha = np.where(hat, np.clip(a, 0, 1), 0).astype(np.float32)
     opening = fill_holes(hat) & ~hat
     ys, xs = np.nonzero(hat)
     bx = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
     rgba = np.dstack([u, alpha * 255]).clip(0, 255).astype(np.uint8)[bx[1]:bx[3], bx[0]:bx[2]]
-    return dict(rgba=rgba, box=[x0 + bx[0], y0 + bx[1], x0 + bx[2], y0 + bx[3]], px=int(hat.sum()),
-                mask=hat, cell=box, hide=hide_mask(hat, opening, x0, y0))
+    return dict(rgba=rgba, box=[x0 + bx[0], y0 + bx[1], x0 + bx[2], y0 + bx[3]], px=int(hat.sum()), scale=px,
+                mask=hat, cell=box, hide=hide_mask(hat, opening, x0, y0, side=int(HIDE_SIDE * px), top=int(HIDE_TOP * px),
+                                                   soft=HIDE_SOFT * px))
 
 
 def hide_mask(hat, opening, x0, y0, side=HIDE_SIDE, top=HIDE_TOP, flare=HIDE_FLARE, soft=HIDE_SOFT):
@@ -144,7 +158,7 @@ def hide_mask(hat, opening, x0, y0, side=HIDE_SIDE, top=HIDE_TOP, flare=HIDE_FLA
     return dict(alpha=hidden.astype(np.float32), rim=rim + y0, box=[x0 + fx0, y0 + fy0, x0 + fx1, y0 + fy1])
 
 
-def keep_skin(hide, fr, key):
+def keep_skin(hide, fr, key, scale=1.0):
     """Takes the head's skin (tools/fixtures/head-skin-*.png: ears, face, nape of
     every hair style) out of the hide mask below SKIN_ABOVE px over the rim's
     edge, so the hat hides hair only. Returns the RGBA mask (black = hidden)."""
@@ -158,7 +172,7 @@ def keep_skin(hide, fr, key):
     sx = np.floor((hx - r[0]) * res).astype(int); sy = np.floor((hy - r[1]) * res).astype(int)
     ok = (sx >= 0) & (sy >= 0) & (sx < skin.shape[1]) & (sy < skin.shape[0])
     k = np.zeros((h, w)); k[ok] = skin[sy[ok], sx[ok]]
-    k[py < hide['rim'][None, :] - SKIN_ABOVE] = 0
+    k[py < hide['rim'][None, :] - SKIN_ABOVE * scale] = 0
     a = hide['alpha'] * (1 - k)
     rgba = np.zeros((h, w, 4), np.uint8); rgba[..., 3] = np.round(a * 255).astype(np.uint8)
     return rgba
@@ -171,22 +185,29 @@ def to_head(fr, box):
     return [round(x, 3), round(y, 3), round((box[2] - box[0]) * u / t[0], 3), round((box[3] - box[1]) * u / t[3], 3)]
 
 
-def export(pid, kind, figures, out_assets):
-    """assets/hat-art/<shape>-<sex>-<view>.png (+ -hide.png for pulled-on hats) and
-    their records (head-native rects) for avatar-hat-art.js."""
+def template_frames():
+    """Sheet px of the garment template -> head-native, per figure (tools/fixtures/hat-frame.json)."""
     frame = json.load(open(os.path.join(ROOT, 'tools', 'fixtures', 'hat-frame.json')))['figures']
     spec = R.garment_spec('hat', ('m', 'f'))
+    return {k: dict(frame[k], cell0=spec['cells'][k][:2]) for k in frame}
+
+
+def export(pid, kind, figures, out_assets, frames=None):
+    """assets/hat-art/<shape>-<sex>-<view>.png (+ -hide.png for pulled-on hats) and
+    their records (head-native rects) for avatar-hat-art.js. frames: sheet px -> head-native per
+    figure (default: the garment template's, template_frames)."""
+    frames = frames or template_frames()
     shape = pid.split(':')[1]
     os.makedirs(out_assets, exist_ok=True)
     rec = dict(kind=kind, views={})
     for k, f in figures.items():
         sex, view = k.split('-')
-        fr = dict(frame[k], cell0=spec['cells'][k][:2])
+        fr = frames[k]
         name = '%s-%s-%s' % (shape, sex, view)
         Image.fromarray(f['rgba']).save(os.path.join(out_assets, name + '.png'), optimize=True)
         v = dict(src='assets/hat-art/%s.png' % name, rect=to_head(fr, f['box']))
         if kind == 'full':
-            Image.fromarray(keep_skin(f['hide'], fr, k)).save(os.path.join(out_assets, name + '-hide.png'), optimize=True)
+            Image.fromarray(keep_skin(f['hide'], fr, k, f.get('scale', 1.0))).save(os.path.join(out_assets, name + '-hide.png'), optimize=True)
             v['hide'] = dict(src='assets/hat-art/%s-hide.png' % name, rect=to_head(fr, f['hide']['box']))
         if kind == 'full':
             # everything above the hide mask over its whole width (hair taller than the frame: m spiky, a pony's tip)
@@ -250,19 +271,83 @@ def build(sheet, out, pid=None, kind=None, out_assets=None):
     return report
 
 
+NECK_HN = 29.0     # head-native row taken as the neck in a base figure (the chin is about 30)
+
+
+def build_base(sheet, base_dir, out, pid=None, kind=None, out_assets=None):
+    """A hat drawn on the hat kit's base picture (make-hat-hair-base.cjs --hat: the game's own figures
+    with room above each head): the sheet is scaled to the base and shifted per figure onto it by the
+    legs (build-hat-hair.py align); the hat is cut against the base figure; sheet px map to
+    head-native units through each figure's svg box, so no template fit is needed."""
+    _hh = importlib.util.spec_from_file_location('build_hat_hair', os.path.join(HERE, 'build-hat-hair.py'))
+    HH = importlib.util.module_from_spec(_hh); _hh.loader.exec_module(HH)
+    meta = json.load(open(os.path.join(base_dir, 'base.json')))
+    base = np.asarray(Image.open(os.path.join(base_dir, 'base.png')).convert('RGB'))
+    im = Image.open(sheet).convert('RGB')
+    im = im.resize((base.shape[1], round(im.height * base.shape[1] / im.width)), Image.LANCZOS)
+    sh = np.full(base.shape, 255, np.uint8); h = min(base.shape[0], im.height); sh[:h] = np.asarray(im)[:h]
+    hf = json.load(open(os.path.join(ROOT, 'tools', 'fixtures', 'head-frame.json')))
+    tpl_u = np.mean([f['unitsPerSheetPx'] for f in json.load(open(os.path.join(ROOT, 'tools', 'fixtures', 'hat-frame.json')))['figures'].values()])
+    rows = [r.split(':')[0] for r in meta['rows']]
+    cut, frames, report, tiles = {}, {}, dict(sheet=os.path.basename(sheet), figures={}), []
+    for i, box in enumerate(meta['boxes']):
+        sex, view = rows[i // len(meta['views'])], meta['views'][i % len(meta['views'])]
+        k = '%s-%s' % (sex, view)
+        dx, dy, err = HH.align(base, sh, box)
+        moved = np.full(base.shape, 255, np.uint8)
+        ys0, ys1 = max(0, dy), min(base.shape[0], base.shape[0] + dy)
+        xs0, xs1 = max(0, dx), min(base.shape[1], base.shape[1] + dx)
+        moved[ys0 - dy:ys1 - dy, xs0 - dx:xs1 - dx] = sh[ys0:ys1, xs0:xs1]
+        ppu = box['w'] / 32.0; t = hf[sex][view]['frame']['toViewBox']
+        px = ppu * tpl_u  # this figure's px against the template sheet's
+        neck = int(box['y'] + (NECK_HN * t[3] + t[5]) * ppu)
+        x0 = max(0, int(box['x'] - 150 * px)); x1 = min(base.shape[1], int(box['x'] + box['w'] + 150 * px))
+        y0 = (i // len(meta['views'])) * (base.shape[0] // len(rows))  # the row's top: room for a tall hat
+        u = moved[y0:neck, x0:x1].astype(np.float32); tt = base[y0:neck, x0:x1].astype(np.float32)
+        head = (np.abs(tt - 255).sum(-1) > 40)
+        hy = np.nonzero(head.any(1))[0]
+        low = int(hy.min() + ZONE * (len(head) - hy.min()))
+        a = (np.abs(u - 255).sum(-1) > 30).astype(np.float32)
+        f = cut_zone(u, a, tt, head, low, x0, y0, [x0, y0, x1, neck], px)
+        report['figures'][k] = None if f is None else dict(box=f['box'], px=f['px'], shift=[dx, dy], legsError=round(err, 2))
+        frames[k] = dict(cell0=[0, 0], unitsPerSheetPx=1 / ppu, cellOrigin=[-box['x'] / ppu, -box['y'] / ppu], toViewBox=t)
+        if f is None:
+            continue
+        cut[k] = f
+        os.makedirs(out, exist_ok=True)
+        Image.fromarray(f['rgba']).save(os.path.join(out, 'hat-%s.png' % k))
+        bg = Image.new('RGBA', (f['rgba'].shape[1] + 20, f['rgba'].shape[0] + 20), (40, 52, 90, 255))
+        bg.alpha_composite(Image.fromarray(f['rgba']), (10, 10)); tiles.append(bg.convert('RGB'))
+    os.makedirs(out, exist_ok=True)
+    json.dump(report, open(os.path.join(out, '모자.json'), 'w'), ensure_ascii=False, indent=1)
+    if tiles:
+        w = sum(t.width for t in tiles) + 6 * len(tiles); hh = max(t.height for t in tiles)
+        sheet_im = Image.new('RGB', (w, hh), 'white'); x = 0
+        for t in tiles:
+            sheet_im.paste(t, (x, 0)); x += t.width + 6
+        sheet_im.save(os.path.join(out, '모자-조각.png'))
+    if pid:
+        report['record'] = export(pid, kind, cut, out_assets, frames)
+    return report
+
+
 def main(argv):
     ap = argparse.ArgumentParser()
     ap.add_argument('sheet')
     ap.add_argument('--out')
     ap.add_argument('--id', help='hat:<shape>: also export assets/hat-art/ and print the record')
+    ap.add_argument('--base', help='the sheet was drawn on the hat kit base (tools/fixtures/hat-base: make-hat-hair-base.cjs --hat)')
     a = ap.parse_args(argv)
     name = os.path.splitext(os.path.basename(a.sheet))[0]
     out = a.out or os.path.join(ROOT, '검증', '모자', name)
     kind = None
     if a.id:
         prod = json.load(open(os.path.join(ROOT, 'assets', 'garment-template', 'products.json')))['products'][a.id]
-        kind = {'hat/full': 'full', 'hat/sit-on': 'sit'}[prod['class']]
-    r = build(a.sheet, out, a.id, kind, os.path.join(ROOT, 'assets', 'hat-art'))
+        kind = {'hat/full': 'full', 'hat/sit-on': 'sit', 'hat/band': 'sit', 'hat/halo': 'sit'}[prod['class']]
+    if a.base:
+        r = build_base(a.sheet, a.base, out, a.id, kind, os.path.join(ROOT, 'assets', 'hat-art'))
+    else:
+        r = build(a.sheet, out, a.id, kind, os.path.join(ROOT, 'assets', 'hat-art'))
     print(json.dumps(r, ensure_ascii=False))
     return 0
 

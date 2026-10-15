@@ -87,7 +87,8 @@ function pageCapture({items,withPictures}){
     g.drawImage(L.c,0,h-L.c.height);g.drawImage(R.c,xr,h-R.c.height);return pair;
   }
   // A drawn reference (products.json refSvg) of a planned product the shop
-  // does not sell yet: the design idea only, rendered at 3x.
+  // does not sell yet, or of a sold one whose shop drawing misleads (nine hats
+  // the shop draws as the generic cap, 2026-10-15): the design idea only, at 3x.
   async function drawn(svg){
     const img=await load('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg));
     const w=(img.naturalWidth||img.width)*3,h=(img.naturalHeight||img.height)*3,c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);return c;
@@ -127,6 +128,8 @@ function pageCapture({items,withPictures}){
         else{const s=QPClothes.surface(cat,shape,painted,sex);canvas=s&&s.canvas;}
         row.pictures[sex]=canvas?canvas.toDataURL('image/png'):null;
       }
+      // A sold product whose shop drawing misleads (a hat the shop draws as the generic cap) carries its own drawn reference.
+      if(withPictures&&refSvg){const u=(await drawn(refSvg)).toDataURL('image/png');row.pictures={m:u,f:u};}
       out[key]=row;
     }
     return out;
