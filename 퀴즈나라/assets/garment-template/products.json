@@ -321,7 +321,8 @@
     "f": "#8fd94a"
    },
    "mirrorSafe": true,
-   "designRef": "ref-hat-cap-design.png",
+   "designRef": "ref-hat-cap-3view.png",
+   "designRefArt": "tools/hair/hat-ref.py 검증/모자/M1 (m-front m-right f-back of assets/garment-sources/hat-cap-3.png)",
    "notes": {
     "ko": {
      "item": "야구모자",

@@ -15,7 +15,8 @@
 // floor line, spaced like the avatar's ankles), hats and face decorations
 // from the shop thumbnail with its head hidden (QPAvatar.thumb, the design
 // only), and a planned product the shop does not sell yet (products.json
-// planned: true) from its drawn refSvg. Boy left, girl right; a
+// planned: true) from its drawn refSvg; a product with designRefArt keeps its
+// reference cut from returned art (tools/hair/hat-ref.py). Boy left, girl right; a
 // product whose two pictures are identical (same art and colour) or that is
 // for one sex only shows one picture. No body is drawn: ChatGPT copied the
 // old awkward arms and low shorts when the reference showed them (914c7ef).
@@ -197,6 +198,8 @@ async function run({ids=[],all=false,check=false,out=null,verifyOnly=false}={}){
       for(const {key} of items){
         const p=products.products[key];
         if(!p.designRef){result.skipped.push(key+' (no designRef: '+(p.basic?'the template already wears it':'not set')+')');continue;}
+        // A reference cut from returned art (designRefArt: how it was made) is not the shop's code shape: keep it.
+        if(p.designRefArt){result.skipped.push(key+' (art reference '+p.designRef+': '+p.designRefArt+')');continue;}
         const {pictures,shared}=picturesFor(p,rows[key]),png=compose(pictures),file=path.join(dir,p.designRef);
         const {width,height}=H.png.decode(png);
         if(Boolean(p.sharedPicture)!==shared)result.catalog.problems.push(key+': products.json sharedPicture '+Boolean(p.sharedPicture)+', the shop pictures are '+(shared?'identical':'different'));
