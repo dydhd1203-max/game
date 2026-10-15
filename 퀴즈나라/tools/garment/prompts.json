@@ -82,14 +82,14 @@
     "wear": "입습니다",
     "pose": "팔 위치",
     "keep": "반바지, 신발",
-    "length": "소매 끝은 지금 반팔 소매 끝과 같거나 아주 조금 더 길게(팔꿈치보다 위) 합니다. 지금보다 짧게 하지 않습니다. {item} 밑단은 지금 티셔츠 밑단과 같은 높이로, 반바지 허리를 덮게 내어 입습니다. 목둘레는 지금 옷깃보다 높이지도 깊게 파지도 않습니다."
+    "length": "소매 끝은 지금 반팔 소매 끝과 같거나 아주 조금 더 길게(팔꿈치보다 위) 합니다. 지금보다 짧게 하지 않습니다. {item} 밑단은 지금 티셔츠 밑단과 같은 높이로, 반바지 허리를 덮게 내어 입습니다. 앞·옆·뒤 어느 모습에서도 지금 티셔츠보다 짧게 하지 않습니다(짧은 옷이면 안에 입은 옷의 밑단이 아래로 보이게 내어 입습니다). 목둘레는 지금 옷깃보다 높이지도 깊게 파지도 않습니다."
    },
    "en": {
     "slot": "tops",
     "things": "garments",
     "pose": "arm positions",
     "keep": "shorts and shoes",
-    "length": "Sleeve ends at the same height as the current short sleeves or very slightly longer (above the elbow), never shorter. {item^} hem at the same height as the current T-shirt hem, worn over the shorts' waistband. Do not raise the neckline or cut it deeper than the current collar."
+    "length": "Sleeve ends at the same height as the current short sleeves or very slightly longer (above the elbow), never shorter. {item^} hem at the same height as the current T-shirt hem, worn over the shorts' waistband, never shorter than the current T-shirt in any view (a short garment shows the hem of what is worn under it). Do not raise the neckline or cut it deeper than the current collar."
    },
    "limits": [
     "SLEEVE_SHORT",
@@ -101,7 +101,7 @@
     "NECK_OPEN",
     "GHOST_EDGE"
    ],
-   "why": "Sleeves: the arm art above the old cuff is copied skin (SLEEVE_SHORT) and the legacy arms carry the old cuff line (REDTEAM ghost line), so a sleeve may only end at the current cuff or a little lower; a folded forearm caps it at the elbow (SLEEVE_LONG). Hem: seated breathing needs the top to overlap the shorts (HEM_HIGH) and to end above the legs (HEM_LOW). Neckline: the torso has no skin art below the neck painting (NECK_OPEN); a higher collar meets the head and the bob (COLLAR_HIGH)."
+   "why": "Sleeves: the arm art above the old cuff is copied skin (SLEEVE_SHORT) and the legacy arms carry the old cuff line (REDTEAM ghost line), so a sleeve may only end at the current cuff or a little lower; a folded forearm caps it at the elbow (SLEEVE_LONG). Hem: seated breathing needs the top to overlap the shorts (HEM_HIGH) and to end above the legs (HEM_LOW). Neckline: the torso has no skin art below the neck painting (NECK_OPEN); a higher collar meets the head and the bob (COLLAR_HIGH). Batch A (2026-10-15): ChatGPT drew the vest and sailor hems 2-5 px above the T-shirt hem (HEM_HIGH); the 'never shorter in any view' line was added."
   },
   "bottom/shorts": {
    "ko": {
