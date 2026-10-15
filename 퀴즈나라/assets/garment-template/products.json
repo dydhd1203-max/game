@@ -16,11 +16,26 @@
   "top:shirt": {
    "class": "top/short-sleeve",
    "status": "pilot (stage 4 trial item; first real ChatGPT sheet: assets/garment-sources/top-shirt-10-chatgpt-2026-10-09.webp)",
-   "sexes": ["m", "f"],
-   "ci": {"m": 10, "f": 10},
-   "names": {"m": "단정한 셔츠", "f": "카라 셔츠"},
-   "colour": {"m": "#f2dfbd", "f": "#f2dfbd"},
-   "display": {"m": "#82ace1", "f": "#f2dfbd"},
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 10,
+    "f": 10
+   },
+   "names": {
+    "m": "단정한 셔츠",
+    "f": "카라 셔츠"
+   },
+   "colour": {
+    "m": "#f2dfbd",
+    "f": "#f2dfbd"
+   },
+   "display": {
+    "m": "#82ace1",
+    "f": "#f2dfbd"
+   },
    "mirrorSafe": true,
    "designRef": "ref-shirt-10-design.png",
    "notes": {
@@ -45,11 +60,26 @@
   "bottom:cargo": {
    "class": "bottom/shorts",
    "status": "example (shorts class)",
-   "sexes": ["m", "f"],
-   "ci": {"m": 11, "f": 11},
-   "names": {"m": "카고 바지", "f": "카고 바지"},
-   "colour": {"m": "#a87352", "f": "#a87352"},
-   "display": {"m": "#a87352", "f": "#a87352"},
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 11,
+    "f": 11
+   },
+   "names": {
+    "m": "카고 바지",
+    "f": "카고 바지"
+   },
+   "colour": {
+    "m": "#a87352",
+    "f": "#a87352"
+   },
+   "display": {
+    "m": "#a87352",
+    "f": "#a87352"
+   },
    "mirrorSafe": true,
    "sharedPicture": true,
    "designRef": "ref-bottom-cargo-11-design.png",
@@ -71,11 +101,26 @@
   "shoes:dress": {
    "class": "shoes/low",
    "status": "example (low shoes class)",
-   "sexes": ["m", "f"],
-   "ci": {"m": 9, "f": 9},
-   "names": {"m": "구두", "f": "구두"},
-   "colour": {"m": "#556074", "f": "#556074"},
-   "display": {"m": "#556074", "f": "#556074"},
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 9,
+    "f": 9
+   },
+   "names": {
+    "m": "구두",
+    "f": "구두"
+   },
+   "colour": {
+    "m": "#556074",
+    "f": "#556074"
+   },
+   "display": {
+    "m": "#556074",
+    "f": "#556074"
+   },
    "mirrorSafe": true,
    "sharedPicture": true,
    "designRef": "ref-shoes-dress-9-design.png",
@@ -97,11 +142,21 @@
   "shoes:ballet": {
    "class": "shoes/low",
    "status": "example (single-sex product: girls only)",
-   "sexes": ["f"],
-   "ci": {"f": 7},
-   "names": {"f": "발레슈즈"},
-   "colour": {"f": "#ff8ad4"},
-   "display": {"f": "#ff8ad4"},
+   "sexes": [
+    "f"
+   ],
+   "ci": {
+    "f": 7
+   },
+   "names": {
+    "f": "발레슈즈"
+   },
+   "colour": {
+    "f": "#ff8ad4"
+   },
+   "display": {
+    "f": "#ff8ad4"
+   },
    "mirrorSafe": true,
    "designRef": "ref-shoes-ballet-7-design.png",
    "notes": {
@@ -119,6 +174,127 @@
      "back": "show both heels in the back view."
     }
    }
+  },
+  "top:vest": {
+   "class": "top/short-sleeve",
+   "status": "stage 5 batch A (shorts-sleeve class; vest over a short-sleeve shirt)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 9,
+    "f": 7
+   },
+   "names": {
+    "m": "클래식 조끼",
+    "f": "조끼"
+   },
+   "colour": {
+    "m": "#556074",
+    "f": "#ff8ad4"
+   },
+   "display": {
+    "m": "#314561",
+    "f": "#ff8ad4"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-top-vest-design.png",
+   "notes": {
+    "ko": {
+     "item": "조끼",
+     "look": "색·셔츠 깃·넥타이·단추·주머니·소매 끝 모양",
+     "m": "두 번째 그림 왼쪽의 남색 조끼와 그 안의 크림색 반팔 셔츠. 크림색 셔츠 깃, 빨간 넥타이, 가운데 금색 단추 세 개, 양쪽 주머니의 금색 테두리, 크림색으로 접어 올린 소매 끝.",
+     "f": "두 번째 그림 오른쪽의 분홍 조끼와 그 안의 크림색 반팔 셔츠. 크림색 셔츠 깃, 분홍 넥타이, 금색 테두리를 두른 조끼 깃과 주머니, 가운데 금색 단추, 왼쪽 가슴의 금색 별 배지와 금색 회중시계 줄, 금색 단추가 달린 크림색 소매 끝.",
+     "back": "뒷모습에는 조끼 등판과 셔츠 깃의 뒷부분이 보이게 합니다."
+    },
+    "en": {
+     "item": "vest",
+     "itemM": "vest",
+     "itemF": "vest",
+     "look": "colours, shirt collar, tie, buttons, pockets and cuffs",
+     "m": "the navy vest over a cream short-sleeve shirt from image 2 (cream shirt collar, red tie, three gold centre buttons, gold-edged pockets, rolled cream cuffs).",
+     "f": "the pink vest over a cream short-sleeve shirt from image 2 (cream shirt collar, pink tie, gold-trimmed lapels and pocket, gold centre buttons, gold star badge and gold pocket-watch chain on the chest, cream cuffs with gold buttons).",
+     "back": "show the back of the vest and the shirt collar in the back view."
+    }
+   }
+  },
+  "top:sailor": {
+   "class": "top/short-sleeve",
+   "status": "stage 5 batch A (single-sex product: girls only)",
+   "sexes": [
+    "f"
+   ],
+   "ci": {
+    "f": 5
+   },
+   "names": {
+    "f": "교복 (세라복)"
+   },
+   "colour": {
+    "f": "#5aa8ff"
+   },
+   "display": {
+    "f": "#5aa8ff"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-top-sailor-design.png",
+   "notes": {
+    "ko": {
+     "item": "세라복",
+     "look": "색·세라 깃·리본·소매 줄무늬",
+     "f": "두 번째 그림의 하늘색 반팔 세라복. 흰 줄무늬를 두른 크림색 큰 세라 깃, 가슴 앞의 크림색 큰 리본, 깃 아래 금색 꽃 장식, 흰 줄 두 개를 두른 소매 끝.",
+     "back": "뒷모습에는 세라 깃의 네모난 뒷부분과 흰 줄무늬가 보이게 합니다."
+    },
+    "en": {
+     "item": "sailor blouse",
+     "itemF": "sailor blouse",
+     "look": "colour, sailor collar, bow and cuff stripes",
+     "f": "the light-blue short-sleeve sailor blouse from image 2 (large cream sailor collar with white stripes, big cream bow at the chest, small gold flower under the collar, two white stripes on each cuff).",
+     "back": "show the square back of the sailor collar with its white stripes in the back view."
+    }
+   }
+  },
+  "shoes:wing_shoes": {
+   "class": "shoes/low",
+   "status": "stage 5 batch A (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 8,
+    "f": 8
+   },
+   "names": {
+    "m": "날개 신발",
+    "f": "날개 신발"
+   },
+   "colour": {
+    "m": "#ffffff",
+    "f": "#ffffff"
+   },
+   "display": {
+    "m": "#ffffff",
+    "f": "#ffffff"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-shoes-wing_shoes-design.png",
+   "notes": {
+    "ko": {
+     "item": "날개 신발",
+     "look": "색·작은 날개·금색 장식·밑창 모양",
+     "both": "두 번째 그림의 흰 메리제인 구두. 발등을 지나는 흰 끈과 금색 단추, 발등의 금색 보석 장식과 크림색 리본, 발목 바깥쪽의 작은 크림색 날개, 두꺼운 크림색 밑창.",
+     "back": "뒷모습에는 두 발의 뒤꿈치와 크림색 밑창, 양옆의 작은 날개가 보이게 합니다."
+    },
+    "en": {
+     "item": "winged shoes",
+     "look": "colour, small wings, gold ornaments and sole",
+     "both": "the white Mary Jane shoes from image 2 (white instep strap with a gold button, gold jewel and cream bow on the instep, a small cream wing on the outer side of each ankle, thick cream sole).",
+     "back": "show both heels, the cream soles and the small wings in the back view."
+    }
+   },
+   "sharedPicture": true
   }
  }
 }

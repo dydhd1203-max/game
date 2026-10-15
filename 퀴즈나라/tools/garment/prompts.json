@@ -46,8 +46,24 @@
   }
  },
  "children": {
-  "ko": {"m": "남자아이", "f": "여자아이", "both": "두 아이", "targetsBoth": "두 아이에게", "target": "{child}에게"},
-  "en": {"m": "boy", "f": "girl", "both": "Both children", "targetsBoth": "both children", "target": "the {child}", "line": {"m": "Boy", "f": "Girl"}}
+  "ko": {
+   "m": "남자아이",
+   "f": "여자아이",
+   "both": "두 아이",
+   "targetsBoth": "두 아이에게",
+   "target": "{child}에게"
+  },
+  "en": {
+   "m": "boy",
+   "f": "girl",
+   "both": "Both children",
+   "targetsBoth": "both children",
+   "target": "the {child}",
+   "line": {
+    "m": "Boy",
+    "f": "Girl"
+   }
+  }
  },
  "singleSex": {
   "ko": " {other}의 {slot|은} 바꾸지 않습니다.",
@@ -60,39 +76,83 @@
  "classes": {
   "top/short-sleeve": {
    "ko": {
-    "slot": "윗옷", "thing": "옷", "verb": "바꿔 입혀", "wear": "입습니다", "pose": "팔 위치", "keep": "반바지, 신발",
+    "slot": "윗옷",
+    "thing": "옷",
+    "verb": "바꿔 입혀",
+    "wear": "입습니다",
+    "pose": "팔 위치",
+    "keep": "반바지, 신발",
     "length": "소매 끝은 지금 반팔 소매 끝과 같거나 아주 조금 더 길게(팔꿈치보다 위) 합니다. 지금보다 짧게 하지 않습니다. {item} 밑단은 지금 티셔츠 밑단과 같은 높이로, 반바지 허리를 덮게 내어 입습니다. 목둘레는 지금 옷깃보다 높이지도 깊게 파지도 않습니다."
    },
    "en": {
-    "slot": "tops", "things": "garments", "pose": "arm positions", "keep": "shorts and shoes",
+    "slot": "tops",
+    "things": "garments",
+    "pose": "arm positions",
+    "keep": "shorts and shoes",
     "length": "Sleeve ends at the same height as the current short sleeves or very slightly longer (above the elbow), never shorter. {item^} hem at the same height as the current T-shirt hem, worn over the shorts' waistband. Do not raise the neckline or cut it deeper than the current collar."
    },
-   "limits": ["SLEEVE_SHORT", "SLEEVE_LONG", "HEM_HIGH", "HEM_LOW", "COLLAR_HIGH", "CAP_HIGH", "NECK_OPEN", "GHOST_EDGE"],
+   "limits": [
+    "SLEEVE_SHORT",
+    "SLEEVE_LONG",
+    "HEM_HIGH",
+    "HEM_LOW",
+    "COLLAR_HIGH",
+    "CAP_HIGH",
+    "NECK_OPEN",
+    "GHOST_EDGE"
+   ],
    "why": "Sleeves: the arm art above the old cuff is copied skin (SLEEVE_SHORT) and the legacy arms carry the old cuff line (REDTEAM ghost line), so a sleeve may only end at the current cuff or a little lower; a folded forearm caps it at the elbow (SLEEVE_LONG). Hem: seated breathing needs the top to overlap the shorts (HEM_HIGH) and to end above the legs (HEM_LOW). Neckline: the torso has no skin art below the neck painting (NECK_OPEN); a higher collar meets the head and the bob (COLLAR_HIGH)."
   },
   "bottom/shorts": {
    "ko": {
-    "slot": "반바지", "thing": "옷", "verb": "바꿔 입혀", "wear": "입습니다", "pose": "팔·다리 위치", "keep": "윗옷, 신발",
+    "slot": "반바지",
+    "thing": "옷",
+    "verb": "바꿔 입혀",
+    "wear": "입습니다",
+    "pose": "팔·다리 위치",
+    "keep": "윗옷, 신발",
     "length": "{item} 허리는 윗옷 밑단 안에 숨깁니다(윗옷은 지금처럼 밖으로 내어 입습니다). 바짓단은 지금 반바지 끝과 같거나 아주 조금 더 길게(무릎보다 위) 합니다. 지금보다 짧게 하지 않습니다. 두 다리가 따로 나뉘게 그리고, 치마처럼 이어 그리지 않습니다."
    },
    "en": {
-    "slot": "shorts", "things": "garments", "pose": "arm and leg positions", "keep": "tops and shoes",
+    "slot": "shorts",
+    "things": "garments",
+    "pose": "arm and leg positions",
+    "keep": "tops and shoes",
     "length": "The waistband stays hidden under the top's hem (the top is still worn over it). The {item} end at the same height as the current shorts or very slightly longer (above the knee), never shorter. The two legs stay separate; do not join them like a skirt."
    },
-   "limits": ["WAIST_VISIBLE", "SHORTS_SHORT", "SHORTS_LONG", "SKIRT_LIKE", "GHOST_EDGE"],
+   "limits": [
+    "WAIST_VISIBLE",
+    "SHORTS_SHORT",
+    "SHORTS_LONG",
+    "SKIRT_LIKE",
+    "GHOST_EDGE"
+   ],
    "why": "The bottom is drawn under the top (WAIST_VISIBLE). Leg art above the old cuff is copied rows and still carries the old cuff line, so the cuff may only stay or go a little lower (SHORTS_SHORT, GHOST_EDGE); seated floor tubes end before the knee (SHORTS_LONG); one mesh per leg (SKIRT_LIKE)."
   },
   "shoes/low": {
    "ko": {
-    "slot": "신발", "thing": "신발", "verb": "바꿔 신겨", "wear": "신습니다", "pose": "팔·다리 위치", "keep": "윗옷, 반바지",
-    "length": "신발 입구는 지금 신발 입구와 같거나 아주 조금 더 높게(복사뼈 아래) 합니다. 더 낮게 파지 않고, 부츠처럼 높게 올리지도 않습니다. 밑창은 지금 신발 밑창과 같은 바닥선에 둡니다. 앞모습과 뒷모습에서는 두 발이 모두 보이게 합니다."
+    "slot": "신발",
+    "thing": "신발",
+    "verb": "바꿔 신겨",
+    "wear": "신습니다",
+    "pose": "팔·다리 위치",
+    "keep": "윗옷, 반바지",
+    "length": "신발 입구는 지금 신발 입구와 같거나 아주 조금 더 높게(복사뼈 아래) 합니다. 더 낮게 파지 않고, 부츠처럼 높게 올리지도 않습니다. 밑창은 지금 신발 밑창과 같은 바닥선에 둡니다. 뒷모습의 신발도 앞모습과 같은 크기로 그리고, 더 크게 그리거나 바닥선 아래로 내리지 않습니다. 앞모습과 뒷모습에서는 두 발이 모두 보이게 합니다."
    },
    "en": {
-    "slot": "shoes", "things": "shoes", "pose": "arm and leg positions", "keep": "tops and shorts",
-    "length": "The shoe opening at the same height as the current shoes or very slightly higher (below the ankle bone): never cut lower, never as high as a boot. The soles stay on the current floor line. Show both feet in the front and back views."
+    "slot": "shoes",
+    "things": "shoes",
+    "pose": "arm and leg positions",
+    "keep": "tops and shorts",
+    "length": "The shoe opening at the same height as the current shoes or very slightly higher (below the ankle bone): never cut lower, never as high as a boot. The soles stay on the current floor line. Draw the back-view shoes the same size as the front-view shoes, never larger or below the floor line. Show both feet in the front and back views."
    },
-   "limits": ["SHOE_LOW_OPENING", "SHOE_HIGH", "SOLE_OFF_FLOOR", "SHOE_MISSING"],
-   "why": "The leg painting ends at the current shoe top (SHOE_LOW_OPENING); low shoes stay under the ankle bone (SHOE_HIGH); shoes hang from the ankle and the sole sits on the frozen floor (SOLE_OFF_FLOOR); both feet are drawn front and back (SHOE_MISSING)."
+   "limits": [
+    "SHOE_LOW_OPENING",
+    "SHOE_HIGH",
+    "SOLE_OFF_FLOOR",
+    "SHOE_MISSING"
+   ],
+   "why": "The leg painting ends at the current shoe top (SHOE_LOW_OPENING); low shoes stay under the ankle bone (SHOE_HIGH); shoes hang from the ankle and the sole sits on the frozen floor (SOLE_OFF_FLOOR); both feet are drawn front and back (SHOE_MISSING). Pilot S2/S3 (2026-10-15): ChatGPT drew the back-view shoes larger, their soles 5 px under the floor; the back-view line was added."
   }
  },
  "v1": {
