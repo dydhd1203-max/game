@@ -433,6 +433,44 @@ def load_json():
     return json.load(open(p)) if os.path.exists(p) else {}
 
 
+def hanging_hair(img, mask, cut_row, min_px=300):
+    """Hair-brown pieces of `mask` that touch its cut row (hair continuing from above the chin)."""
+    r, g, b = (img[..., i].astype(int) for i in range(3))
+    raw = mask & (r > g) & (g > b) & (r - b > 25) & (img.max(2) < 170)
+    hair = raw
+    # opened: the neckline's brown outline is a thin line joined to the hair; it stays
+    hair = CB.grow(CB.shrink(CB.shrink(CB.shrink(hair))), 3) & hair
+    lab_, n = ndlabel(hair)
+    out = np.zeros(mask.shape, bool)
+    for i in range(1, n + 1):
+        piece = lab_ == i
+        if piece.sum() >= min_px and piece[max(0, cut_row):cut_row + 3].any():
+            out |= piece
+    # and the hair's own outline round what was taken (hair-brown or dark, within 6 px)
+    band = np.zeros(mask.shape, bool); band[:max(0, cut_row + 16)] = True
+    light_skin = (r > 150) & (g > 100) & (r > g) & (g >= b)  # skin_of also takes dark hair shading as skin
+    # and the hair's own outline round what was taken (hair-brown or dark within 6 px), and anything but
+    # skin in the top 16 rows (the neck under the runtime head; hair specks and a pale anti-aliased edge
+    # stayed there as dots)
+    return (CB.grow(out, 2) | (CB.grow(out, 6) & (raw | (img.max(2) < 110))) | (band & ~light_skin)) & mask
+
+
+def ndlabel(m):
+    """4-connected labels without scipy."""
+    lab_ = np.zeros(m.shape, np.int32); n = 0
+    H, W = m.shape
+    for y0, x0 in zip(*np.nonzero(m)):
+        if lab_[y0, x0]:
+            continue
+        n += 1; stack = [(y0, x0)]; lab_[y0, x0] = n
+        while stack:
+            y, x = stack.pop()
+            for yy, xx in ((y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)):
+                if 0 <= yy < H and 0 <= xx < W and m[yy, xx] and not lab_[yy, xx]:
+                    lab_[yy, xx] = n; stack.append((yy, xx))
+    return lab_, n
+
+
 def build_base():
     data = {}
     for sex in 'mf':
@@ -446,6 +484,10 @@ def build_base():
             # neck under the runtime head)
             top = C['cut'] - box[1]; rows = np.arange(Bfull.shape[0])[:, None]
             base_mask = Bfg & (rows >= top - 12)
+            # not the reference's own hair hanging below the chin (the girl's bob behind the neck in
+            # the side view): the runtime head brings its own, and other hair styles showed this one as
+            # a dark wedge behind the neck (2026-10-15). Hair-brown pieces joined to the cut row only.
+            base_mask &= ~hanging_hair(Bfull, base_mask, top - 12)
             entry = {'seat': C['seat'], 'unit': C['k'], 'frame': U(*box[:2]) + [round((box[2] - box[0]) * C['k'], 4), round((box[3] - box[1]) * C['k'], 4)], 'layers': {}}
             entry['layers']['base'] = save(f'{sex}-{view}-base', base_mask, Bfull, skin_of(Bfull), box, U)
             sk = skin_of(A)
