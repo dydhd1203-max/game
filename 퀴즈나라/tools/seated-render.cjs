@@ -10,5 +10,9 @@ try{
  await page.waitForFunction(()=>QPFoundationSkin.atlas.ready&&QPFoundationOutfit.atlas.ready&&QPAvatar?.atlas.ready&&QPAvatarDirection?.atlas.ready&&QPAvatarDirection.atlas.backReady,null,{timeout:120000});
  const ctm=await page.evaluate(({av,dir})=>{const api=QPAvatarFoundation,d=document.createElement('div');d.id='seated-render';d.style.cssText='position:fixed;left:0;top:0;z-index:99999;background:#fff';document.body.append(d);d.innerHTML=api.render(av,640);const svg=d.firstElementChild;
   api.apply(svg,{action:'floor-sit',seatMode:'floor',direction:dir,time:0,reducedMotion:true});const m=svg.querySelector('[data-foundation-part="near-leg"]').getCTM();return[m.a,m.b,m.c,m.d,m.e,m.f];},{av:{...M.referenceAvatar(sex,0),...(items?JSON.parse(items):{})},dir});
- await page.waitForTimeout(800);await page.locator('#seated-render svg').screenshot({path:out});console.log(JSON.stringify({ctm}));
+ // The game applies a pose every frame: shoot after a later frame, not the
+ // first one (a single-frame render hid a repaint that dropped the seated
+ // picture from the second frame on, 2026-10-15).
+ await page.waitForTimeout(800);await page.evaluate(dir=>QPAvatarFoundation.apply(document.querySelector('#seated-render svg'),{action:'floor-sit',seatMode:'floor',direction:dir,time:0,reducedMotion:true}),dir);
+ await page.waitForTimeout(300);await page.locator('#seated-render svg').screenshot({path:out});console.log(JSON.stringify({ctm}));
 }finally{await browser.close();await server.close();}})();

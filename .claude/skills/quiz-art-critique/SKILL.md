@@ -16,7 +16,7 @@ Automatic checks never approve art (퀴즈나라/AGENTS.md, 아바타-제작기�
 
 ## Inputs
 
-Look at the real renders, not code: 280 px and 120 px sheets, all four directions, every motion at 8 steps, the 5 skin tones, 8× zooms on dark blue, garment-only and seated views, and the 30-avatar map at camera 0.76. If one of these is missing for the thing under review, say so as a gap; do not judge from what you didn't see.
+Look at the real renders, not code: 280 px and 120 px sheets, all four directions, every motion at 8 steps, the 5 skin tones, 8× zooms on dark blue, garment-only and seated views, and the 30-avatar map at camera 0.76. If one of these is missing for the thing under review, say so as a gap; do not judge from what you didn't see. A render made from a single `apply` is a first frame only: ask for (or make) one taken after a later frame, since the game re-applies every frame (a seated picture that vanished from the second frame on passed every single-frame sheet, 2026-10-15).
 
 ## Framework
 
@@ -33,6 +33,7 @@ Look at the real renders, not code: 280 px and 120 px sheets, all four direction
 ### 3. Surface (flat shading)
 - One or two shading steps, consistent light from the top-left; outline weight matches the body.
 - Skin inside garments must be tinted skin: at tone 4 no pale baked-skin band at collars, cuffs or shorts hems.
+- The reverse: cloth must not be tinted as skin. Pink, rust, tan and cream garments at tone 4 keep their colour (pink sleeves and rust shading once passed the skin test and were dropped or tinted).
 - No blur halos, compression blocks, or colour drift between views of the same garment.
 
 ### 4. Motion (play the 8 steps in order)

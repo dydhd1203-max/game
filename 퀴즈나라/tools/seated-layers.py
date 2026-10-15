@@ -11,7 +11,10 @@ base is drawn, then the bottom, shoes and top layers over it; skin pixels
   python3 tools/seated-layers.py all                       base, then every item of assets/seated/items.json
 
 `item` adds the sheet to assets/seated/items.json, so `all` rebuilds every
-layer the same way after a change here; `base` keeps the item entries.
+layer the same way after a change here; `base` keeps the item entries. Every
+command ends with tools/seated-sync.py (runtime table and deployment list),
+so no step is left to paste by hand. A whole batch of numbered sheets goes
+through tools/seated-import.py instead (cut, sync and check in one run).
 
 Every sheet (three seated views: front, right profile, back) is placed onto
 the basic reference frame of tools/seated-cut-body.py (register: head width,
@@ -309,6 +312,11 @@ MANIFEST = os.path.join(OUT, 'items.json')
 def build_item(sheet, sex, slot, item):
     sheet = os.path.relpath(os.path.abspath(sheet), ROOT)
     man = json.load(open(MANIFEST)) if os.path.exists(MANIFEST) else []
+    # a sheet sent again replaces the old one, which is removed (git keeps it)
+    for m in man:
+        if m['sex'] == sex and m['item'] == item and m['sheet'] != sheet and os.path.exists(os.path.join(ROOT, m['sheet'])) \
+                and not any(o['sheet'] == m['sheet'] for o in man if o is not m):
+            os.remove(os.path.join(ROOT, m['sheet']))
     man = [m for m in man if not (m['sex'] == sex and m['item'] == item)] + [{'sex': sex, 'slot': slot, 'item': item, 'sheet': sheet}]
     json.dump(man, open(MANIFEST, 'w'), ensure_ascii=False, indent=1)
     sheet = os.path.join(ROOT, sheet)
@@ -335,9 +343,15 @@ def build_item(sheet, sex, slot, item):
     json.dump(data, open(os.path.join(OUT, 'layers.json'), 'w'), ensure_ascii=False, indent=1)
 
 
+def sync():
+    s = importlib.util.spec_from_file_location('seatsync', os.path.join(HERE, 'seated-sync.py'))
+    m = importlib.util.module_from_spec(s); s.loader.exec_module(m); m.sync()
+
+
 if __name__ == '__main__':
     if sys.argv[1] == 'base': build_base()
     elif sys.argv[1] == 'item': build_item(*sys.argv[2:6])
     elif sys.argv[1] == 'all':
         build_base()
         for m in json.load(open(MANIFEST)): build_item(m['sheet'], m['sex'], m['slot'], m['item'])
+    sync()

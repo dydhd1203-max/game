@@ -20,7 +20,10 @@ part below the chin with the sheet placed on the same frame
           distance > 70), reported, not judged: the kept pieces are the
           basic outfit's, not the sheet's redrawing of them
 
-and writes one 280 px board per item (composite | sheet | differences:
+and checks that the item list, the layer table, the pictures on disk, the
+runtime table and the deployment list agree (a picture missing from the
+deployment is a 404 that leaves a seated avatar without a body). It
+writes one 280 px board per item (composite | sheet | differences:
 red holes, blue leaks, magenta tint, yellow colour) to look at. A pass here
 is not approval. Introduced 2026-10-15 after a jacket's sleeves were dropped
 as 'skin' and a pink hood lost its sleeves while every render looked whole
@@ -99,6 +102,28 @@ def check(sex, item, slot, sheet, data, outdir):
     return res
 
 
+def consistency(data, man):
+    """Problems between items.json, layers.json, the pictures, SEATED_LAYERS
+    and tools/deployment-files.cjs."""
+    bad = []; listed = {m['sex'] + ':' + m['item'] for m in man}
+    deploy = open(os.path.join(ROOT, 'tools/deployment-files.cjs')).read()
+    runtime = open(os.path.join(ROOT, 'avatar-foundation.js')).read()
+    for m in man:
+        if not os.path.exists(os.path.join(ROOT, m['sheet'])): bad.append('sheet missing: ' + m['sheet'])
+    for sex, views in data.items():
+        for view, e in views.items():
+            for m in man:
+                if m['sex'] == sex and m['item'] not in e['layers']: bad.append(f"{sex}:{m['item']} has no {view} layer")
+            for name, rect in e['layers'].items():
+                if name not in ('base',) + tuple(BASIC.values()) and sex + ':' + name not in listed: bad.append(f'{sex}:{name} ({view}) is not in items.json')
+                if not rect: continue
+                url = f"assets/seated/{sex}-{view}-{name.replace(':', '-')}.png"
+                if not os.path.exists(os.path.join(ROOT, url)): bad.append('picture missing: ' + url)
+                if "'" + url + "'" not in deploy: bad.append('not deployed: ' + url)
+                if "url:'" + url + "'" not in runtime: bad.append('not in SEATED_LAYERS: ' + url + ' (python3 tools/seated-sync.py)')
+    return bad
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     out = sys.argv[sys.argv.index('--out') + 1] if '--out' in sys.argv else os.path.join(ROOT, '검증', '앉은옷')
@@ -107,6 +132,7 @@ def main():
     data = json.load(open(os.path.join(ROOT, 'assets/seated/layers.json')))
     man = json.load(open(os.path.join(ROOT, 'assets/seated/items.json')))
     failed = False; report = {}
+    for b in consistency(data, man): print('FAIL', b); failed = True
     for m in man:
         key = f"{m['sex']}:{m['item']}"
         if args and key not in args: continue
