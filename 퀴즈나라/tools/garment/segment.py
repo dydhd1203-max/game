@@ -679,6 +679,11 @@ def segment_cell(ctx, key, seams=True):
     # 4. skin gate
     zone_skin = (M.dilate(body, P['skinGrow']) & ~foot) | (body & foot)
     gate = zone_skin & (label == 1) & (nll['product'] - nll['skin'] > P['skinGateLR'])
+    # a drawn line where the frozen garment has its own pixels is the
+    # garment's edge whatever its colour: a rust or brown cloth's outline
+    # reads like the leg's red-brown outline (WP8 rust shorts: the inner
+    # leg edge went to the legs, bottom IoU .961)
+    gate &= ~((ctx.ink[sl] > P['lineDark']) & isP)
     # 5. seams
     bands = S.bands_for(fz, slot, key, outer=P['cuffOuter'], inner=P['cuffInner']) if seams else []
     in_band = np.zeros(O.shape, bool)
