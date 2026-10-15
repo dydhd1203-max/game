@@ -106,7 +106,11 @@ def check(sex, item, slot, sheet, data, outdir):
         # the sheet draws shoes: a hanbok sheet with a shorter body showed
         # its own shoes higher up and the sneakers below (2026-10-15)
         sneak = (owner == names.index(BASIC['shoes'])) & below if slot != 'shoes' and BASIC['shoes'] in names else np.zeros_like(below)
-        ring = L.near(mine, 3) & below & (fgA | fgG) & ((owner == names.index(item)) | (owner <= 0))
+        # not the sheet's own hair hanging below the chin (no layer's: the runtime head brings its own, and
+        # the base no longer carries the reference girl's, 2026-10-15)
+        ra, ga, ba = A[..., 0].astype(int), A[..., 1].astype(int), A[..., 2].astype(int)
+        hairA = (owner <= 0) & (ra > ga) & (ga > ba) & (ra - ba > 25) & (A.max(2) < 170)
+        ring = L.near(mine, 3) & below & (fgA | fgG) & ((owner == names.index(item)) | (owner <= 0)) & ~hairA
         fit = 1 - (ring & (far | (fgA != fgG))).sum() / max(1, ring.sum())
         shoes = 1 - (sneak & far).sum() / sneak.sum() if sneak.sum() > 300 else 1.0
         # a sheet drawn with a shorter body: its sneakers far from the base's.
