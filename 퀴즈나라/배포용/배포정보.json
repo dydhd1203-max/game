@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-14T21:59:27.094Z",
+  "builtAt": "2026-10-15T00:08:03.710Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -526,8 +526,8 @@
     },
     {
       "path": "avatar-foundation-skin.js",
-      "bytes": 30184,
-      "sha256": "311d809412793881c36e482e46155e9100f8e9dd53086a96130cc946895a6af6"
+      "bytes": 30440,
+      "sha256": "8ed38bdd59ea5eb882e023d4e291372a74f8cb5da76e0b3f5b0d61675e8bcc63"
     },
     {
       "path": "assets/sd-foundation-ref-neck.png",
@@ -536,8 +536,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 111439,
-      "sha256": "ab13b439450b3db1344afa052649ed46df3cfe6c8f01dc09215c7be4df942eca"
+      "bytes": 113748,
+      "sha256": "fd9f764e29a5f5324cef5b83ae92a3d0f56698b15f6922fe55284f486caa7b91"
     },
     {
       "path": "avatar-foundation.css",
@@ -727,12 +727,12 @@
     {
       "path": "assets/seated/m-front-base.png",
       "bytes": 138110,
-      "sha256": "a7a58973568a4f9038166d360f54792e6378e21411e9c7ae783c62670537c323"
+      "sha256": "2e65bfa77f3e8e3e2c9b662290d0c00dd04797f7c88f7137628bb72e6f6498e1"
     },
     {
       "path": "assets/seated/m-front-bottom-shorts.png",
-      "bytes": 19010,
-      "sha256": "8bbfae032119f0edededede768fa856b8dc6d34199c62b15d58251d6dfdd1505"
+      "bytes": 19035,
+      "sha256": "d98de2146e7c0b5999d44c38b0f6244c9cb44b4dbff2cf131a7c71f9aff5ecb5"
     },
     {
       "path": "assets/seated/m-front-shoes-sneaker.png",
@@ -746,18 +746,43 @@
     },
     {
       "path": "assets/seated/m-front-top-hood.png",
-      "bytes": 176704,
-      "sha256": "a148b8abe5d197af7e8295b25e2ed34b4af1c6da80d8bb57aee99023700d8373"
+      "bytes": 166659,
+      "sha256": "f225b3fb1e03b48f357134961a04601fcf264e8c4bf004531179ccb4b0e4de90"
+    },
+    {
+      "path": "assets/seated/m-front-top-shirt.png",
+      "bytes": 145097,
+      "sha256": "e1ee1dbd0898683512cb2f9eae5800abcfdccd652e272d81d6e16f227c14b138"
+    },
+    {
+      "path": "assets/seated/m-front-top-vest.png",
+      "bytes": 99541,
+      "sha256": "fe426f990ef3413e88e000ef9ae34e3526b0d94ba3c79034b48e781392bb4c24"
+    },
+    {
+      "path": "assets/seated/m-front-top-cardi.png",
+      "bytes": 164973,
+      "sha256": "b27ffa083baabf940689e7baa0577b831de4b5a51623358e6facb66fd3f4396c"
+    },
+    {
+      "path": "assets/seated/m-front-top-jacket.png",
+      "bytes": 143799,
+      "sha256": "0927114658d1014d28a161337e69e8a81a7840ce8cd86ecbff47c0a34a86066b"
+    },
+    {
+      "path": "assets/seated/m-front-top-knit.png",
+      "bytes": 130339,
+      "sha256": "ed0f3f66b47e728a4322f624574409976e3a99236bb5bfdf6734615da7f62391"
     },
     {
       "path": "assets/seated/m-side-base.png",
       "bytes": 103857,
-      "sha256": "076a7262ca8dc863828366f6f6f41f9c64e7eb6f282492b95d5dc295a436972c"
+      "sha256": "c64a0b9cd69c5559bd7dd7f6f60b7da970cf357c1934ee53945accdfeaf2e83b"
     },
     {
       "path": "assets/seated/m-side-bottom-shorts.png",
-      "bytes": 23746,
-      "sha256": "159522ae82a0ef9175f0bba37e605c60b2432333a00c57dc70d9c1425f068b3f"
+      "bytes": 23759,
+      "sha256": "911acf104b50b1e54d6018d34cd26a88c11663059f224037dedf2a7a55bc2a4f"
     },
     {
       "path": "assets/seated/m-side-shoes-sneaker.png",
@@ -771,13 +796,38 @@
     },
     {
       "path": "assets/seated/m-side-top-hood.png",
-      "bytes": 123894,
-      "sha256": "3b09aebe8804560136da0a0e9062e1242b73f5db882250b87046accd6b593b10"
+      "bytes": 110613,
+      "sha256": "40760080f58136f00b1fe9bf468335ecb4d06249611250722399d6866d3ef4be"
+    },
+    {
+      "path": "assets/seated/m-side-top-shirt.png",
+      "bytes": 83091,
+      "sha256": "b5fa8e659d935fcdb4de12d918bf5212b7d6442d7ffdfea74bb734763dec193c"
+    },
+    {
+      "path": "assets/seated/m-side-top-vest.png",
+      "bytes": 71754,
+      "sha256": "615dba1088ada8605b89c142ce83d297bb0fe1b6222f12160e514e516f429e91"
+    },
+    {
+      "path": "assets/seated/m-side-top-cardi.png",
+      "bytes": 100158,
+      "sha256": "2c49d2b9db277846c9c915b66d5831c353734fa5a469d8629de93c284d6ccda8"
+    },
+    {
+      "path": "assets/seated/m-side-top-jacket.png",
+      "bytes": 101864,
+      "sha256": "7b64e0311b0f4b4882d01f354ce21af222577ff5c3272cfc98e4250e30a6039a"
+    },
+    {
+      "path": "assets/seated/m-side-top-knit.png",
+      "bytes": 138663,
+      "sha256": "07e2733ff8d9b0280b5517045f2c7808a6e27338a2d9d5d5d59f82031dd1ffdf"
     },
     {
       "path": "assets/seated/m-back-base.png",
       "bytes": 184277,
-      "sha256": "dd6b5aff3d51f0b99016338c2180d48c78c80cce7fe9aa1e375a4b815e01fdd2"
+      "sha256": "f1083beed46c84b1d8669fa62c90cf5ed5f6f4a286e4d89abf7fc6be63fe2a23"
     },
     {
       "path": "assets/seated/m-back-bottom-shorts.png",
@@ -791,8 +841,33 @@
     },
     {
       "path": "assets/seated/m-back-top-hood.png",
-      "bytes": 209266,
-      "sha256": "5caa116cd553a63dc0970c78927384204d4179d6013b2b8a7aa4e7674bac59d9"
+      "bytes": 211546,
+      "sha256": "8178124b690da63ec67c6e9dc16db1d6ab32274e719203a958d89d5c26ab5c78"
+    },
+    {
+      "path": "assets/seated/m-back-top-shirt.png",
+      "bytes": 168424,
+      "sha256": "5d265c6bd634ae44471b5eb18cbd1cc73855fd0ee1ee7276bd2c15156ca1e72f"
+    },
+    {
+      "path": "assets/seated/m-back-top-vest.png",
+      "bytes": 123835,
+      "sha256": "e3ec223ddba84d796ab13c38aa82e50cababd0656b7b50bd7145e63d874d860f"
+    },
+    {
+      "path": "assets/seated/m-back-top-cardi.png",
+      "bytes": 245170,
+      "sha256": "61fd7f161001f30eb762a4608fa72454fd1dcb4ce878711e49297478d5cb0e77"
+    },
+    {
+      "path": "assets/seated/m-back-top-jacket.png",
+      "bytes": 198205,
+      "sha256": "ef394ddbda69667cd5b250262f92e933b26988b02640840f496074642a9ec75d"
+    },
+    {
+      "path": "assets/seated/m-back-top-knit.png",
+      "bytes": 259560,
+      "sha256": "a883eb8177ebf83813d7254a4f41476f24fae4c763b458815c7f4a774a81605d"
     },
     {
       "path": "assets/seated/f-front-base.png",
@@ -801,8 +876,8 @@
     },
     {
       "path": "assets/seated/f-front-bottom-shorts.png",
-      "bytes": 27606,
-      "sha256": "a5ac0f152cf9149b320148db4aa8f3fddfb286586090955071c62269c85e70ce"
+      "bytes": 27635,
+      "sha256": "3884da23b3e2050059183a81665b99122d686b826c7fd624050cd51d9924d37f"
     },
     {
       "path": "assets/seated/f-front-shoes-sneaker.png",
@@ -811,8 +886,18 @@
     },
     {
       "path": "assets/seated/f-front-top-tee.png",
-      "bytes": 85522,
-      "sha256": "73702247b767f2af7bc38a6a4ad26407096f44aa144605368a5132a99ce55ca8"
+      "bytes": 85539,
+      "sha256": "7428a0f107e423001ec48d62b76fe6716aca2a6095539f93c3d53706a3124a25"
+    },
+    {
+      "path": "assets/seated/f-front-top-hood.png",
+      "bytes": 144677,
+      "sha256": "51d76d29775c3b2593c8d1dc963e862b89ea5bb6317b063e214e3474ee3148bb"
+    },
+    {
+      "path": "assets/seated/f-front-top-shirt.png",
+      "bytes": 140735,
+      "sha256": "c0251d438405f1ed38c5284e2cd1f8353570d6a2e9c272923f39cca53208efb0"
     },
     {
       "path": "assets/seated/f-side-base.png",
@@ -835,6 +920,16 @@
       "sha256": "d3e02f40c8c704accac359df51045538e194cd2657d59e58aa1d0e45d1ec2a70"
     },
     {
+      "path": "assets/seated/f-side-top-hood.png",
+      "bytes": 129395,
+      "sha256": "6bc5e2619e5a6897b0efd142f176ec494504e727d69a22e992ec089b07f92e0b"
+    },
+    {
+      "path": "assets/seated/f-side-top-shirt.png",
+      "bytes": 127923,
+      "sha256": "89f302dc067851e546cc73c47312943d59f694513ec2ee688df5f2cb16a49aaf"
+    },
+    {
       "path": "assets/seated/f-back-base.png",
       "bytes": 192767,
       "sha256": "8a640207846c2aa4528bbaf612af61e75f46331927f20d12807bb049bf091d02"
@@ -848,6 +943,16 @@
       "path": "assets/seated/f-back-top-tee.png",
       "bytes": 87947,
       "sha256": "52a1fe2704532d0efcb8edc03f891007dbd1689312d9976878e06c93539fc001"
+    },
+    {
+      "path": "assets/seated/f-back-top-hood.png",
+      "bytes": 232272,
+      "sha256": "93a154bdc24a93b7ed4d09085593dc6cb513c1d65badc919c34fd5d625081297"
+    },
+    {
+      "path": "assets/seated/f-back-top-shirt.png",
+      "bytes": 194830,
+      "sha256": "f2773b2397f49fcaee4cd9bad5bd6434cb035599401b8b58e28dbe24d1dfe910"
     },
     {
       "path": "assets/sd-garments-index.js",

@@ -1,0 +1,50 @@
+[
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:hood",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-hood-2026-10-14.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:shirt",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-shirt-2026-10-14.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:vest",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-vest-2026-10-14.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:cardi",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-cardi-2026-10-14.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:jacket",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-jacket-2026-10-14.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "top",
+  "item": "top:knit",
+  "sheet": "assets/pose-references/floor-sit-m-item-top-knit-2026-10-14.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "top",
+  "item": "top:hood",
+  "sheet": "assets/pose-references/floor-sit-f-item-top-hood-2026-10-14.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "top",
+  "item": "top:shirt",
+  "sheet": "assets/pose-references/floor-sit-f-item-top-shirt-2026-10-14.webp"
+ }
+]
