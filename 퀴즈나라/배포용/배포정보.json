@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-15T02:58:57.614Z",
+  "builtAt": "2026-10-15T04:43:35.073Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -536,8 +536,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 125548,
-      "sha256": "b0540481364b8058a74b85042f1f8045942902f23e18382233299788ff4b636d"
+      "bytes": 125532,
+      "sha256": "afc8a1328017e14287e2b059bdd118286e84b3f6057a076a7227621719fea5f8"
     },
     {
       "path": "avatar-foundation.css",
@@ -731,8 +731,8 @@
     },
     {
       "path": "assets/seated/m-front-bottom-shorts.png",
-      "bytes": 19348,
-      "sha256": "cbd32771f76d88637803f0acba0c7166725c94cbffa864dfea277f46ac92b6f2"
+      "bytes": 19190,
+      "sha256": "cf777cba040048dae88871666da1474589c24569a935b04c65b062a11653919a"
     },
     {
       "path": "assets/seated/m-front-shoes-sneaker.png",
@@ -741,98 +741,98 @@
     },
     {
       "path": "assets/seated/m-front-top-tee.png",
-      "bytes": 68250,
-      "sha256": "5a793bc538ca56b802201ab51ee938bbd8f2c173b988748804ecdf2fcf0e2ce5"
+      "bytes": 68465,
+      "sha256": "0365658e9111e157dc53ee14bd9f00b3e22bf469841ecd8a7860e6cd8d254562"
     },
     {
       "path": "assets/seated/m-front-top-hood.png",
-      "bytes": 152626,
-      "sha256": "7c8c0e57628b11ef52da0074fb58868a15cf69fe7f359e32040fe497dc4e9f63"
+      "bytes": 165313,
+      "sha256": "be6debf5e84be31dd35c4f2a39564883c331eef2cbb8c791918ccec440839521"
     },
     {
       "path": "assets/seated/m-front-top-shirt.png",
-      "bytes": 127586,
-      "sha256": "536fe8cc16239a83304cc5f8aed28b2a2ef4ff47856f39682a02eaba9c80c92a"
+      "bytes": 123268,
+      "sha256": "863776a4de6fc588ede2b6918e71b4024c74541a1e33104af98284226030867c"
     },
     {
       "path": "assets/seated/m-front-top-vest.png",
-      "bytes": 93964,
-      "sha256": "c6a5941e951d34b4f0b47e73b7fd26fdb561f46c9a52a72d13bd84f01780dba3"
+      "bytes": 92749,
+      "sha256": "cc6a2206e8d511909f4154c7a37b52fe2fb9eddc983ba127d439840db9edeadd"
     },
     {
       "path": "assets/seated/m-front-top-cardi.png",
-      "bytes": 149847,
-      "sha256": "b482ecc33f719a6b4a8615c1a14a79756e040ab05633e9732cd495d236da647c"
+      "bytes": 132333,
+      "sha256": "f07159fb5d9ed8edae69866591b38fb7f1acd1beec3a08ddc2dcb262dd631651"
     },
     {
       "path": "assets/seated/m-front-top-jacket.png",
-      "bytes": 133613,
-      "sha256": "38874baf10aa304145fa1b8cc849e5a8b93f605304e0405f9ac9f11a027c9f8d"
+      "bytes": 130569,
+      "sha256": "778f4ef50a80e1a9c1a2cf0df3481c376977639ac878be6257fab35f2029e644"
     },
     {
       "path": "assets/seated/m-front-top-knit.png",
-      "bytes": 125469,
-      "sha256": "a974111aa4e2de5cc82aa4eaf8764d65a37762001fa4b3f6922b0d2234b6fc04"
+      "bytes": 125496,
+      "sha256": "d10f2627cdcfb6ff99039538835ab0e42421a66b032dda73622dbd4f0e4848f9"
     },
     {
       "path": "assets/seated/m-front-bottom-track.png",
-      "bytes": 52663,
-      "sha256": "a626baeb6eeb748c32a4f6ccb3457085b29d7db16d3cbb72e3bce3bad6becf6e"
+      "bytes": 46627,
+      "sha256": "4571c26a9717d2221100a0aeb4333f87aa54d04049e685d12badfad52e54b7dc"
     },
     {
       "path": "assets/seated/m-front-bottom-cargo.png",
-      "bytes": 46423,
-      "sha256": "ab14fe2e9ca9bb5c6722b4fb148fa4290118b3b4c98d4f07e9c61c79e9ded9a4"
+      "bytes": 48750,
+      "sha256": "8bb681e0427fc3ff8bfac17887b592c364dd769dff50604858196ace8c031235"
     },
     {
       "path": "assets/seated/m-front-shoes-dress.png",
-      "bytes": 35197,
-      "sha256": "e81f46dc6fced591d80b954b7a9c9a69f4551b4dc3b28972cec0d7c945e05f7e"
+      "bytes": 33180,
+      "sha256": "d707acf51847bf09c2c6bd8ac7c27ee3e7d1dd28e7f07e95ae1c5121e507cb03"
     },
     {
       "path": "assets/seated/m-front-shoes-boots.png",
-      "bytes": 35674,
-      "sha256": "205e5515f03b000e9c8a91631b25522f9ec868914dabf5bfba1aad1dfc24bc62"
+      "bytes": 33875,
+      "sha256": "1902984271978fe699f481b770a7f8acd1b7485f3f7e78877a43074516e5dbe7"
     },
     {
       "path": "assets/seated/m-front-shoes-sandal.png",
-      "bytes": 45718,
-      "sha256": "739952fa58570bfae228fd959f443c8e6f41fc63710c451c5aa6ffcfd8752a8a"
+      "bytes": 47556,
+      "sha256": "e776097e6ece6bbab73a252188c34b08812bef89847cb9cefda68505474e4810"
     },
     {
       "path": "assets/seated/m-front-shoes-hitop.png",
-      "bytes": 49319,
-      "sha256": "a89230a087b7025f94ba016406c198374dd54162d9bf41dc24480b71e63e4109"
+      "bytes": 48812,
+      "sha256": "1dc21cae46ba11aaa4273660c7b89d4a00f2214ba7ddfeb6961a0f47a82978c8"
     },
     {
       "path": "assets/seated/m-front-shoes-rain.png",
-      "bytes": 42445,
-      "sha256": "c150f7ed82a6c8d15deb96001de8f5516e1986b68db5f8f009346caf11f42b4c"
+      "bytes": 44304,
+      "sha256": "566dc19da76b2a0fc54dceca843ec0ec3767acbc9f5a54948fb016f234e3d8c3"
     },
     {
       "path": "assets/seated/m-front-shoes-slipper.png",
-      "bytes": 40141,
-      "sha256": "e7f0acba27b792a69bc3ec2400661d2e40e58377aefac68b2c5c9dbe5f592d63"
+      "bytes": 42497,
+      "sha256": "fed1493bbc5703cb10dcb4b0f24fd945c0bb9f673d3ad22b1c5d2affe09dfd08"
     },
     {
       "path": "assets/seated/m-front-shoes-wing_shoes.png",
-      "bytes": 37260,
-      "sha256": "41442eb8966e390e38dfaedb3a083df2e01ba10dcce876c15e5e164e3572698f"
+      "bytes": 42888,
+      "sha256": "89d17814853c18650f73dd71dbf31ca614a6aa9f8ebfb1025d129531eac3cbf6"
     },
     {
       "path": "assets/seated/m-front-outfit-overall.png",
-      "bytes": 140537,
-      "sha256": "b676bfc419e20aa80bf8b4c2cf4ae99fbebf443c90b8eb17ba81a20759be9dd1"
+      "bytes": 134898,
+      "sha256": "0a77872119b943128fde9d5cdb958ef15b4e9dd9452456ae1985516d84c4d373"
     },
     {
       "path": "assets/seated/m-front-outfit-space.png",
-      "bytes": 186826,
-      "sha256": "91818a45757b3e75cf418418b8a24ca7c40974362fee6e9da149dccc02ff0d55"
+      "bytes": 186395,
+      "sha256": "e978c134fb2a570b07cec4b9826020dbefb4cce1faadb519ac258ffa67e08e8b"
     },
     {
       "path": "assets/seated/m-front-outfit-hanbok.png",
-      "bytes": 163774,
-      "sha256": "30c81ad28664a6261cfd48d157b4d51c748d28bc3c66258ee482195dcb8fe679"
+      "bytes": 164489,
+      "sha256": "bf204c7ae5e64b00660a83645e12b9d131bf2fa4d0856edae615671bea0e1c5b"
     },
     {
       "path": "assets/seated/m-side-base.png",
@@ -856,93 +856,93 @@
     },
     {
       "path": "assets/seated/m-side-top-hood.png",
-      "bytes": 105467,
-      "sha256": "ab78a3a49f68d19009f24c6bbfbcfbf03e134770e4a32fd9498a33547d18f2ed"
+      "bytes": 103937,
+      "sha256": "c58270f51ab159d7785135ef348148f07b5f1c21c025797555da8ff770b3abe3"
     },
     {
       "path": "assets/seated/m-side-top-shirt.png",
-      "bytes": 78547,
-      "sha256": "6ebc6f03c56b8bb9fa6f67d4e17436b640edf0f0d22d48ce7c8ce90a480572f2"
+      "bytes": 71047,
+      "sha256": "318a8d4473eb3634d242ed9d6d65441e70642276812b71702ebfab6775ee0b58"
     },
     {
       "path": "assets/seated/m-side-top-vest.png",
-      "bytes": 67057,
-      "sha256": "93557d8ddf5fcc6574b2781ba253774c6dd12071972f6009ec0119ab915a2a8a"
+      "bytes": 63632,
+      "sha256": "3fbbf1fa05157a61bdb1ca9004a27c51f668c9f30771d08446f11dfeb1fe2009"
     },
     {
       "path": "assets/seated/m-side-top-cardi.png",
-      "bytes": 95486,
-      "sha256": "941c5273adc3f0a2d784021443e3f142a6d9600b9dd29657d41e29c86c595739"
+      "bytes": 95670,
+      "sha256": "c5244d0a9c85f3043d3596f1d06fb1582000ff1846cbc611ce647a9ff4efed44"
     },
     {
       "path": "assets/seated/m-side-top-jacket.png",
-      "bytes": 98082,
-      "sha256": "e6bcfb3d765fa7725f1efb0945330b959765c4e6b6d9f814298d37e162e3d8f9"
+      "bytes": 93247,
+      "sha256": "0a833f855d0237431647d5ba99f881f00cb337d8ea2d1feaec7e21477c906a92"
     },
     {
       "path": "assets/seated/m-side-top-knit.png",
-      "bytes": 123356,
-      "sha256": "f8e9b4ea2d2229130817dd106c694e787501057f4e3f69be93e7f66823654841"
+      "bytes": 113989,
+      "sha256": "0ffb4881c3a7cd48040605783657354a2b743f063742d5182a7d6b40aa5b41b4"
     },
     {
       "path": "assets/seated/m-side-bottom-track.png",
-      "bytes": 47385,
-      "sha256": "9082e79b690fb1b70861d8d2f725f84cdafce6d8cc4ef95f0dd933e7b2ad9bac"
+      "bytes": 42307,
+      "sha256": "7ae505ca60ec1038f8bd4ee7fa79d26259ed9be2edab21448e07c511b58dcc1d"
     },
     {
       "path": "assets/seated/m-side-bottom-cargo.png",
-      "bytes": 53549,
-      "sha256": "952286bfd6b3e90bbd82f1f232bb9574ab4b81198ac486124c3ff3111196e652"
+      "bytes": 47177,
+      "sha256": "762c5e7d1437e0965d6649e75b855b48f34210b3d8ceb0fad38118a87eded1d6"
     },
     {
       "path": "assets/seated/m-side-shoes-dress.png",
-      "bytes": 23787,
-      "sha256": "deaf37472b0a780b2030f9ada21fefef9235909eb40742c7b0b573ea8e799595"
+      "bytes": 22935,
+      "sha256": "346a77e70de511fdcc7f517a2bedbc2296fb3efe9f2bbc4f4d4c0305825f9ca9"
     },
     {
       "path": "assets/seated/m-side-shoes-boots.png",
-      "bytes": 27647,
-      "sha256": "de19757e15556e987e8552d9b36c62e4699ee3cf5dc14d81b26628b0e19b7365"
+      "bytes": 29179,
+      "sha256": "16af4fc478c5484049ef644445cf2bfcbfc3767f054a51329b55d954d7cb1535"
     },
     {
       "path": "assets/seated/m-side-shoes-sandal.png",
-      "bytes": 28934,
-      "sha256": "1252215bbd25f736d5269be27e6fc2d58d3244ef224dec62dae8eb599fc7c5e6"
+      "bytes": 29464,
+      "sha256": "b39e0149277aa3d6ad39968531686d8475ea0d016629d08978a9610b79ead0bf"
     },
     {
       "path": "assets/seated/m-side-shoes-hitop.png",
-      "bytes": 27975,
-      "sha256": "9e852a39b2a2fbaeceab1e0ad90b511a566e2b134191c90714ef94fe343a2e0b"
+      "bytes": 28711,
+      "sha256": "683b485ba3d521b6fd2d470ab96d801e0dd3e75e0e358445c0c6e420a17c65d0"
     },
     {
       "path": "assets/seated/m-side-shoes-rain.png",
-      "bytes": 25511,
-      "sha256": "3ccae4917ee931f071ddcbe152529265be4c1ca9ffeaad6bfa36b9bfb149856b"
+      "bytes": 22773,
+      "sha256": "c45198b3263484a9a629321cc00d59cb87b2ec915a2bfeafe30b00136f04eb1b"
     },
     {
       "path": "assets/seated/m-side-shoes-slipper.png",
-      "bytes": 23109,
-      "sha256": "d22f9c043e98a426470949f6044f9ac4da79b909404471f9bbb1a09c9d9b6f51"
+      "bytes": 20729,
+      "sha256": "3c27cc8654697eef52df7af5da47d85fd9dcce158921a3c93f18044a841a2fe4"
     },
     {
       "path": "assets/seated/m-side-shoes-wing_shoes.png",
-      "bytes": 23329,
-      "sha256": "fcaea0bfeccc3da962a9e9fe0f9ed1b42022f4645ae8eb05e12f43a47df389a9"
+      "bytes": 23230,
+      "sha256": "b40e652813c973cbb1df88f53bfff1fa1a2f774c9e1d1c21bb0ff676d714f870"
     },
     {
       "path": "assets/seated/m-side-outfit-overall.png",
-      "bytes": 104758,
-      "sha256": "dc31c77b5547d750ae9dbf463f86bffa44b950b834caf92c93ad63cd935b2153"
+      "bytes": 103942,
+      "sha256": "84dacef60c5be434d474d3d3235a5146c4c120961fccb276621926f31d98bb75"
     },
     {
       "path": "assets/seated/m-side-outfit-space.png",
-      "bytes": 120430,
-      "sha256": "b60b0232c624ed08b717e79b0e062f957707ea3f83ff531a7cc51153a3c5d37c"
+      "bytes": 114946,
+      "sha256": "1c1e1cfa44f1c83f9baf7ce1cce42651b35c02760484e2c944ffad84ce191237"
     },
     {
       "path": "assets/seated/m-side-outfit-hanbok.png",
-      "bytes": 126658,
-      "sha256": "963a31e69b497d9e8f03ea689574809a7120e71464c5d08f2d4161a23d3e599c"
+      "bytes": 131613,
+      "sha256": "4938eb3ad6cf64b590fbc9191d0977918fab4de3d7b9a3e81abcd6eed16d2aa1"
     },
     {
       "path": "assets/seated/m-back-base.png",
@@ -951,68 +951,68 @@
     },
     {
       "path": "assets/seated/m-back-bottom-shorts.png",
-      "bytes": 62195,
-      "sha256": "a1a1eeef298aecdbb8563fba9adc7cde48fce411fcf6a6b751854ccb5e00f4a7"
+      "bytes": 62187,
+      "sha256": "82931fa1d8beb38cdb138c6850ccc5e1da0c373181ac8a93ffbf1f38ff9ea068"
     },
     {
       "path": "assets/seated/m-back-top-tee.png",
-      "bytes": 112124,
-      "sha256": "7b378f31f581bec58cc411f02defd393156479377542f544962ebbd12a167ad3"
+      "bytes": 112195,
+      "sha256": "6c3876619720af72e8f6c9cddfea10ff58ec5ca96bc2670a89c9de71839f60b8"
     },
     {
       "path": "assets/seated/m-back-top-hood.png",
-      "bytes": 209267,
-      "sha256": "ff77844e95fdcd239b6b7a704ca877c765a9966089f82375f66340e7c630581c"
+      "bytes": 210647,
+      "sha256": "956ef22c490b59ee3e1fd7c36626768912c047ff0527d0e219c7f891177d5445"
     },
     {
       "path": "assets/seated/m-back-top-shirt.png",
-      "bytes": 165934,
-      "sha256": "756b204902af485f8945343cf5caa0a82cd7d7943080d6b1a1fdf25f28dadc09"
+      "bytes": 171758,
+      "sha256": "1ddc4ee228375abad005e1fdcd25c469050372280d47a6a3481c4f2e515b1908"
     },
     {
       "path": "assets/seated/m-back-top-vest.png",
-      "bytes": 127299,
-      "sha256": "e1c6a4adc3a640b8af5e0f55037d20dc91a0e2e233ff4ce31e8645bc16fe7b24"
+      "bytes": 125896,
+      "sha256": "af022e765de6b5f5d74b813772c4b2b273837f9f49df79725b1cbf611ee66794"
     },
     {
       "path": "assets/seated/m-back-top-cardi.png",
-      "bytes": 243007,
-      "sha256": "a75758e8a39297f34df7cbb066d5cc486725b51c4de728c7ce379bf2fcc43ac8"
+      "bytes": 243050,
+      "sha256": "95e58b361724c1561cde72c0c2dee3576f3c18cd8539fd74ce977cf14e308d5f"
     },
     {
       "path": "assets/seated/m-back-top-jacket.png",
-      "bytes": 197175,
-      "sha256": "c4793faa5077626bbcd7db7025e07fc9bc71f34f10b18e9350ab904950f42ff0"
+      "bytes": 199810,
+      "sha256": "20abd8361b190ab78b2f2abac7af973cea465d5702647aeaca31a11d226c312c"
     },
     {
       "path": "assets/seated/m-back-top-knit.png",
-      "bytes": 254469,
-      "sha256": "51ddcf001b4cf0dd4434a91674db34a7f3bee9648606795bc37f830c4ea28cd3"
+      "bytes": 254264,
+      "sha256": "293f70b5efb045f81239cf44f01cc820214019b2ff277c29c12451823fe954f5"
     },
     {
       "path": "assets/seated/m-back-bottom-track.png",
-      "bytes": 79451,
-      "sha256": "6390d3fc35460f52502dffd6c87103c9cf10655ec3c5bd9d6b00a912cf3ff0b3"
+      "bytes": 75741,
+      "sha256": "e9b650dbda493fe8fdea3c5ae85122f5311e5ca050cff8ae20e12cf192699019"
     },
     {
       "path": "assets/seated/m-back-bottom-cargo.png",
-      "bytes": 98202,
-      "sha256": "86fcfb75ca54d8dc747cae8f1984f37563f0f9ad6b7fd8c95264ac7a336222b1"
+      "bytes": 97178,
+      "sha256": "995f3ccfa31a494cbd85a74f1215a2742837eee9982b99c13142c4022d71b3f2"
     },
     {
       "path": "assets/seated/m-back-outfit-overall.png",
-      "bytes": 277979,
-      "sha256": "fa7b756fb0d4abb9d743ce9fdfc73d5077ca05148f7853b4d31827d03eaeeabe"
+      "bytes": 277780,
+      "sha256": "f5c03a6b3dc6f6750ebcb824b9ec7d916fa2cb8b59719679de514c29e0d2eb5a"
     },
     {
       "path": "assets/seated/m-back-outfit-space.png",
-      "bytes": 230406,
-      "sha256": "37b73bcb511e6945e009d0c89841745f63010d7c2f490ca0b4f8a3c740336386"
+      "bytes": 236022,
+      "sha256": "60e6bf27d8e91f9108930ea2d08fb53a4882d3014b1572882f2a97bd16f7e1e1"
     },
     {
       "path": "assets/seated/m-back-outfit-hanbok.png",
-      "bytes": 228365,
-      "sha256": "fb20a40a3d53ea895c6b1f53e2ab86eacdc42b3719867bd5f84f0b5a4a3f5f43"
+      "bytes": 237060,
+      "sha256": "14a5d79bdf8b50f1abcbda1ae40af5c78312c8e2f0aa202b0a558a4db28d8854"
     },
     {
       "path": "assets/seated/f-front-base.png",
@@ -1021,8 +1021,8 @@
     },
     {
       "path": "assets/seated/f-front-bottom-shorts.png",
-      "bytes": 28050,
-      "sha256": "3ed99ba2e7b9ac01943c34537cbdcaa2b552e898fd9d76aad6aae15d0b22e9ad"
+      "bytes": 27473,
+      "sha256": "a5e1878fd9416761a057322fb25dbc96f825609e408fefe8f65aa7d8fd7cdc6f"
     },
     {
       "path": "assets/seated/f-front-shoes-sneaker.png",
@@ -1031,148 +1031,148 @@
     },
     {
       "path": "assets/seated/f-front-top-tee.png",
-      "bytes": 90526,
-      "sha256": "c6bc5b7383cfcb7165b8058e70d4e2632dc720cae8ae857d6ab7b404740cfd91"
+      "bytes": 93388,
+      "sha256": "813615547a2c3c14844c75b48e39ceea3b3d1a3a6a8952703fa841c002acf9f6"
     },
     {
       "path": "assets/seated/f-front-top-hood.png",
-      "bytes": 139491,
-      "sha256": "d6179f9c00f55afdd24376d81f719f59f579decaf2bbb0296a8594e0dc7f7ef4"
+      "bytes": 140600,
+      "sha256": "d88578cc1e8d86f340af8028d98374c2813f49195f43f5ca55cd43c5e8ef89c8"
     },
     {
       "path": "assets/seated/f-front-top-shirt.png",
-      "bytes": 135519,
-      "sha256": "06ad60eef91e676bd6db9dfa2898e03e9848afa1f7ca7fa9e12dc2433d794ac6"
+      "bytes": 139518,
+      "sha256": "ad3e2d6e98c20f06e907330397467cc9daa8a3043dda7d09fc3e9b5a8a28d351"
     },
     {
       "path": "assets/seated/f-front-top-vest.png",
-      "bytes": 170596,
-      "sha256": "6d8df480774dbbbec1a8953aac0f0f67530c43efee0cdeb3ceeb7906bfbc3665"
+      "bytes": 171193,
+      "sha256": "9bc74da8355ebb3c9cacbe031aab490aef8efb8ce2be1e613b2fcc113ecfcfcb"
     },
     {
       "path": "assets/seated/f-front-top-cardi.png",
-      "bytes": 180473,
-      "sha256": "b2b73833f6a5e25ad57727b7f32a9706aec746b2338aa04460a2731038103be6"
+      "bytes": 198610,
+      "sha256": "a3bc08fa3fa6ce6633266e932465676d9214a832ab7b09b23bde8da550230366"
     },
     {
       "path": "assets/seated/f-front-top-sailor.png",
-      "bytes": 156623,
-      "sha256": "1dd58104d2fe1fc25570cdb975747be6d376cc2a9b34ad435ea3281463e76bd2"
+      "bytes": 175911,
+      "sha256": "d1916290fc0785aa8a77714ea3cd6429ab60bffe38f99144578f8f639cd412a7"
     },
     {
       "path": "assets/seated/f-front-top-jacket.png",
-      "bytes": 160393,
-      "sha256": "4ab6469933c5d658f5d94a571da6617640d4a3fc958b324a3cf312f1b880e4e7"
+      "bytes": 156010,
+      "sha256": "035b590e48233a6f779986b297617a1798fc5519453fdbe7b28261200679515e"
     },
     {
       "path": "assets/seated/f-front-top-knit.png",
-      "bytes": 166594,
-      "sha256": "e69dadc26831707a7caf960286170ff8639f9677650dd40a9d85e5bd32dbd58b"
+      "bytes": 166642,
+      "sha256": "fda21f3e35d5c4550bc3d7e3142003b60bbcc7731c567636916c99f88225f696"
     },
     {
       "path": "assets/seated/f-front-top-tank.png",
-      "bytes": 109659,
-      "sha256": "4efc41da53d53ff5e5bddd33520960a52a945dbe3d7110358e9528f35796f1eb"
+      "bytes": 109784,
+      "sha256": "ad533d0c178ad1e22f6253cd4c93cb3c1e4b9a643bb2b4a0363f5eda2d19d92f"
     },
     {
       "path": "assets/seated/f-front-bottom-pleat.png",
-      "bytes": 91989,
-      "sha256": "23355c2cf07b15cfbf6aed6efe2091ffd481d51cc3d589dc4a94fa012d817e91"
+      "bytes": 108582,
+      "sha256": "87729150c7551f066fe2fbc54ce05e87bb5c0bebe2cf094baf4c74317de26ff8"
     },
     {
       "path": "assets/seated/f-front-bottom-track.png",
-      "bytes": 47568,
-      "sha256": "42ae89e04a0158f85c10e4a23c479656833254ba45ff06e939e086b5d8472491"
+      "bytes": 79272,
+      "sha256": "e7e63a3176017f56d6f381c6e114c711b4bc7f10103a7c24519f2d3a1fa7219a"
     },
     {
       "path": "assets/seated/f-front-bottom-legging.png",
-      "bytes": 91954,
-      "sha256": "f4e7edad8d81e640d59f55754179679276b2e8739af69c4a0b9189c81684e265"
+      "bytes": 99733,
+      "sha256": "cdf10b31292fb05b7b09d3ae2a803117fbc813cac094271c13b2e944e4e45c06"
     },
     {
       "path": "assets/seated/f-front-bottom-tutu.png",
-      "bytes": 106416,
-      "sha256": "5888543f498b8431f697d1674fff56d688652dabf1f2231db09ef6fccddf1906"
+      "bytes": 121809,
+      "sha256": "d4e8b09b8b92dc5f7d4c636016a6894017561e4c5b188ae1a9119e484adfa418"
     },
     {
       "path": "assets/seated/f-front-bottom-cargo.png",
-      "bytes": 68885,
-      "sha256": "3c2cab27f9fc4fd7708c91d22608e543eab2af82006c2427d169140867b05114"
+      "bytes": 101149,
+      "sha256": "34ef5f251a3d7f0a5911b6f32e6c8b8d82de406913dafe0b1ca1a6921058a9e2"
     },
     {
       "path": "assets/seated/f-front-bottom-jean_skirt.png",
-      "bytes": 90528,
-      "sha256": "bdc1e9143f112d11d33ce9b183cb94fd6e6daa6ab7f024763e6bc4ac8fd2e521"
+      "bytes": 113573,
+      "sha256": "430806df4e2fe1ad52f80d8f03cc7b1abe0325951b340dae1aeb4c9187d24bc2"
     },
     {
       "path": "assets/seated/f-front-bottom-star_skirt.png",
-      "bytes": 123174,
-      "sha256": "950362ef02b87741ee839738a93110d4acf54002b2f4be29e2f5f58a2b7318c0"
+      "bytes": 134026,
+      "sha256": "e8a5998a290e730b100aa4e896ecee679a21b5ab7a6d4e5091238082767c7f24"
     },
     {
       "path": "assets/seated/f-front-shoes-dress.png",
-      "bytes": 36036,
-      "sha256": "72b3b76a44e5423522ba9d91a00e0b297ab9bc1aa84e07beae3f6fdbe3160a36"
+      "bytes": 39361,
+      "sha256": "c80da6deef087f18fafbc21c203aa65ea9e8e771568ea4eff7d23b5311da307e"
     },
     {
       "path": "assets/seated/f-front-shoes-boots.png",
-      "bytes": 49738,
-      "sha256": "d692b5837e9a94b28f951fbb9d741796767b1e835e57f76b7604d2a96a48ada2"
+      "bytes": 53727,
+      "sha256": "abc5f72f87626fae61de2fb33f7bad17436722865f8eb6083f3a17a374f3904d"
     },
     {
       "path": "assets/seated/f-front-shoes-sandal.png",
-      "bytes": 47026,
-      "sha256": "0d68ed3b8f8c697a5d3511763f5e30ac6f964f45f0df2f3878802d6dc7ad34ce"
+      "bytes": 45843,
+      "sha256": "b53efb142978a995556d9e976224ede56cdce0a21bd94222462d124a16bcabb6"
     },
     {
       "path": "assets/seated/f-front-shoes-hitop.png",
-      "bytes": 52119,
-      "sha256": "ae02ee8701fc6ebaf48c50062edf7b08930c2b662df48ad85dc1dd1196793053"
+      "bytes": 52358,
+      "sha256": "682a5b1f02126dd19a0e6591cf69647227ce59e567a55f8687893b2e5b2536b6"
     },
     {
       "path": "assets/seated/f-front-shoes-ballet.png",
-      "bytes": 31444,
-      "sha256": "fe3d3c31d802e28f9f6f6cc3963c3a0380d2d8418819b53f6df45b1a135b1a92"
+      "bytes": 26186,
+      "sha256": "4a8cfbf57f2de5313d4adba9aee7cfdcb5e495529ff1083547f85a6ae17dc71a"
     },
     {
       "path": "assets/seated/f-front-shoes-rain.png",
-      "bytes": 48900,
-      "sha256": "31a78b1ae5f293815d852fc6fa0625064d2b38091578a1f2a9f932a7251988f9"
+      "bytes": 46267,
+      "sha256": "f8cd5e1d5bae81720cd1f0f05e8fead1e5be4bee076cb987af98e81942d9a760"
     },
     {
       "path": "assets/seated/f-front-shoes-slipper.png",
-      "bytes": 41206,
-      "sha256": "1effa8f6910d404d6e5b3a3b71617150b093a7c86c99dbf55bfadb05eb45a495"
+      "bytes": 40170,
+      "sha256": "f745edcf3fe6b64ada6e5c8e07c2a3cd3210cfd38ad90d7c198498557f7170a6"
     },
     {
       "path": "assets/seated/f-front-shoes-wing_shoes.png",
-      "bytes": 45848,
-      "sha256": "b530b34986e6252fa8944ca301af7fd1c89287d7700e0c54a0b16087b0e73af9"
+      "bytes": 45915,
+      "sha256": "7d66f1649b31b26e45f78216c981096a80dace08fbe111426d491f1c29b11b68"
     },
     {
       "path": "assets/seated/f-front-outfit-dress.png",
-      "bytes": 185799,
-      "sha256": "0b63b219644daf88679aba844e8d06fadbb9967d04b54522627a596babc8bf73"
+      "bytes": 194625,
+      "sha256": "37c132f3faaaf8253ea99087276eb3021054a103937b21888c4a692c32b87d3f"
     },
     {
       "path": "assets/seated/f-front-outfit-robe.png",
-      "bytes": 236826,
-      "sha256": "07fae019def3cd424774f2656c29884241a31f2718a547de0d21254ecf6be697"
+      "bytes": 241022,
+      "sha256": "73fb51aec15b1978456497a7e9b5313dc151e7354934f50db45aeb8079fba4e0"
     },
     {
       "path": "assets/seated/f-front-outfit-overall.png",
-      "bytes": 169636,
-      "sha256": "a7c93112ede3fd09105f50e985de90c035cab2b957af0825541412a8fba91eed"
+      "bytes": 164875,
+      "sha256": "0f60ce4d5d3526624eb91dcb5612221ea95a849aac7a1b7b7b25a06630c641e7"
     },
     {
       "path": "assets/seated/f-front-outfit-space.png",
-      "bytes": 178147,
-      "sha256": "74d186ccb26080c2ba5c501654cd632f8c9bfcb7268b37c2677a954fdd60bf1a"
+      "bytes": 192002,
+      "sha256": "9a70a2dd756cf4a4b108dd1d45cbc37b6f3962376432fd24e228ff5bf715c3fe"
     },
     {
       "path": "assets/seated/f-front-outfit-hanbok.png",
-      "bytes": 281927,
-      "sha256": "ac611324582ffa1544a2fe0282e85e68eda5c79bf58ec1dc61f6419d08012861"
+      "bytes": 272291,
+      "sha256": "b684557fd9a0db2456cf0d4c4846cb10c1ba5fa008bedafdd2aafab76832cf0c"
     },
     {
       "path": "assets/seated/f-side-base.png",
@@ -1181,8 +1181,8 @@
     },
     {
       "path": "assets/seated/f-side-bottom-shorts.png",
-      "bytes": 25323,
-      "sha256": "7417403a3e867af1d4aeffcd006f9b7531dc838e077be13967bb90653112fce0"
+      "bytes": 24671,
+      "sha256": "5c3c907c2f0cdfc0a5b16ee7c8c952cc49e8dabbb2c89b119cb4eacfc61ddb00"
     },
     {
       "path": "assets/seated/f-side-shoes-sneaker.png",
@@ -1191,148 +1191,148 @@
     },
     {
       "path": "assets/seated/f-side-top-tee.png",
-      "bytes": 57898,
-      "sha256": "568a1fb24e69b0db173ca93899733e5f4e6b9cab71e01de0ea4767c2f9e5c91a"
+      "bytes": 58907,
+      "sha256": "c3c8aeaf52ea6e96a834eb20b0a2e136325fa6470b93edb47220df7e958f0cee"
     },
     {
       "path": "assets/seated/f-side-top-hood.png",
-      "bytes": 121709,
-      "sha256": "e3b88a699b464d96f55e5048ef3cdadcfe9b11e1617f50b215405ff7f1bb6fe7"
+      "bytes": 120110,
+      "sha256": "bf170605c619099f23413f9e9455e9d9db82a882c415966fdfa46f8637b0f2c6"
     },
     {
       "path": "assets/seated/f-side-top-shirt.png",
-      "bytes": 117034,
-      "sha256": "dd0ec1ae28ef2f66ff5cebd1cae6ac8cec93e597482822fab7b9f2e2213c42b6"
+      "bytes": 107030,
+      "sha256": "679ea5f999118a6c57ab438f6434ee21b57f01456f29d41ac1f3d3e9f2f559c7"
     },
     {
       "path": "assets/seated/f-side-top-vest.png",
-      "bytes": 115627,
-      "sha256": "28826156c89444d9d03a2048bdcba0f9f27cacd40a3c32ac9113d92cf07ef8ae"
+      "bytes": 111109,
+      "sha256": "b54a7fad99179ef3da21417cbee5fe5c64f93d4c29960173a03e9589e87c88c5"
     },
     {
       "path": "assets/seated/f-side-top-cardi.png",
-      "bytes": 146717,
-      "sha256": "16be2eb54551174c33abae8568d76e0b7e473ccb9a881686c192bd2c19204486"
+      "bytes": 141191,
+      "sha256": "25d2e50a5a309b23ec1ea2c2a28ddbcc17cd209dc4613d8e0cb6c52a4d19c9c6"
     },
     {
       "path": "assets/seated/f-side-top-sailor.png",
-      "bytes": 98995,
-      "sha256": "9484c0a2354718deeb9618f1624c692bffdad5fe980ec249d984ef6b02cd25ed"
+      "bytes": 96906,
+      "sha256": "4dbc49d0fb9cecf659f4145cf4cfd299ea6a84eeb90d29f053949045d98d135e"
     },
     {
       "path": "assets/seated/f-side-top-jacket.png",
-      "bytes": 131101,
-      "sha256": "cb116344f3e31093dd94573c8e1900c76441a084cc2ab1cbe4b5d1b38fe07358"
+      "bytes": 122243,
+      "sha256": "f74d119ef82ca6da43ccae5a8f13501c5bf9d4b47ad35b3a07a6188a27f7fb5c"
     },
     {
       "path": "assets/seated/f-side-top-knit.png",
-      "bytes": 125805,
-      "sha256": "4a980d6eec903d19ecc585ea292c48d2e2b8ec37a8fb575a6f52c1bc641af1e5"
+      "bytes": 123629,
+      "sha256": "bb0cf38a38e5b5381e8ab0c1e72e1500f90405a1e5c31883880845b6d1e5a438"
     },
     {
       "path": "assets/seated/f-side-top-tank.png",
-      "bytes": 84729,
-      "sha256": "a5e920d4534ebdd4620633d15cb91e8c89c1a48bd61ff495cccdc13046273405"
+      "bytes": 84945,
+      "sha256": "9e5ce3ffd6add695c3996a157bf5bb627506886fed82ad46791fed5b27e8ff47"
     },
     {
       "path": "assets/seated/f-side-bottom-pleat.png",
-      "bytes": 77878,
-      "sha256": "54fc8701d1013ca2b0eef2e1daa8a3970687ff10ba8934724a43c19bb6993763"
+      "bytes": 81604,
+      "sha256": "bd9f10737cad08c1964ce4f640819427da924d0c1e5bb31efced615f1c9fc3bd"
     },
     {
       "path": "assets/seated/f-side-bottom-track.png",
-      "bytes": 55111,
-      "sha256": "6f0992592c5dbc70ae6392725596e45e558705b4b0584ab237eb9a1bde7f8aa7"
+      "bytes": 54717,
+      "sha256": "1acac765d5de383c1e6100c5bf27cc024c1d86773c95aa24706940c157c49078"
     },
     {
       "path": "assets/seated/f-side-bottom-legging.png",
-      "bytes": 73539,
-      "sha256": "0bef352b76813bda79e823af63c487274c5a8b98cafcb8d0cc0fe0b15965684f"
+      "bytes": 74737,
+      "sha256": "450a727b6a19e7188d173be1a913f1864ea6eedacf1bc4f71ab648ffa19d21ac"
     },
     {
       "path": "assets/seated/f-side-bottom-tutu.png",
-      "bytes": 84655,
-      "sha256": "fbe6250ec7431533154f447a2723104fd0b658e61fc2ab23e2dd7f0e454a7355"
+      "bytes": 97555,
+      "sha256": "84fe4648a5af920ce5bd726af4092d1418a7068ebc9ed49abfc495ffa36fdaab"
     },
     {
       "path": "assets/seated/f-side-bottom-cargo.png",
-      "bytes": 58133,
-      "sha256": "fdcf8a346ebcd17bfba51bbf17d54603618ffebdc966267bfb18744c0876950d"
+      "bytes": 65400,
+      "sha256": "2f45b2fbe80399565a5a1fb38b1e967b4d72fe0b0f2e34349db05e0bc5fdade3"
     },
     {
       "path": "assets/seated/f-side-bottom-jean_skirt.png",
-      "bytes": 67910,
-      "sha256": "a4a47d8cc6cc149f2c4d771690102e435bdd719a11fe1fdf0b3869d65a225413"
+      "bytes": 80790,
+      "sha256": "aec26ffb959644c6af5833cb4fa13d2b6c3195d85f28ac3aa87867f4872411d7"
     },
     {
       "path": "assets/seated/f-side-bottom-star_skirt.png",
-      "bytes": 105742,
-      "sha256": "08c1e270f5d1d03f9148071063a9a374eff83484dee70d0f172c121aa2967a3c"
+      "bytes": 108553,
+      "sha256": "276b192b61be86e3dba2253d610fdf5ac6aa574895435c66eecc99c5004ac207"
     },
     {
       "path": "assets/seated/f-side-shoes-dress.png",
-      "bytes": 21872,
-      "sha256": "32dce025d49fbd44792f5090566e2b46c44cc39bc61ffef643308654f6d9ac21"
+      "bytes": 20525,
+      "sha256": "433ea294135ec61e731417479e911ab5603e4905f4d3571cb6f6c2d7cfa52674"
     },
     {
       "path": "assets/seated/f-side-shoes-boots.png",
-      "bytes": 27551,
-      "sha256": "34a9798ae50bcaa32065a2c54b38d03637c9fd02a0c9b3a758f2413dbdd25206"
+      "bytes": 27036,
+      "sha256": "abeaa8363f067ec4a757c030faf0f47b9ee3e77d8b474ce80b7c92160e24e604"
     },
     {
       "path": "assets/seated/f-side-shoes-sandal.png",
-      "bytes": 29850,
-      "sha256": "3d7b091e6a94d21c7484e36421f46b30930b294172775d0c9dbb78bbdc7c19c3"
+      "bytes": 26737,
+      "sha256": "f739bde9aca8d5734fbe2555ef5ad0a654a5b1c95c1ac56b10c69bdc78d02253"
     },
     {
       "path": "assets/seated/f-side-shoes-hitop.png",
-      "bytes": 33082,
-      "sha256": "860d8ce0916b1fbaaea2c7f96499a85bebfaba536881d3bc3337f860fe3fa641"
+      "bytes": 30573,
+      "sha256": "cab25cdfa853a46de321f28762139723e0ac079fad119c75612e7422e4aa3070"
     },
     {
       "path": "assets/seated/f-side-shoes-ballet.png",
-      "bytes": 13433,
-      "sha256": "3efbca2169b10712fb5ee2b9da5c74757a082c1b8ef0a06bec1eb829c72df5dc"
+      "bytes": 17173,
+      "sha256": "46287c4fc9a538e02581fb120dc7a4f8a6821a6e829af2fcf18943d51531bdc6"
     },
     {
       "path": "assets/seated/f-side-shoes-rain.png",
-      "bytes": 29250,
-      "sha256": "3ca14a7bc0f7f39e3c83bcb99755e4d3c493884b84ecc8427a8c7cac044da689"
+      "bytes": 30986,
+      "sha256": "e5e3a7ef169d72205f65e0a32fb503745250042508fde8655f226b0afda3a7a4"
     },
     {
       "path": "assets/seated/f-side-shoes-slipper.png",
-      "bytes": 25295,
-      "sha256": "e4a7d66d7fa14bbf2a33268ade2693b53ddec00150f5751424978090bbfccef1"
+      "bytes": 25143,
+      "sha256": "e8002b39437f13806083bfc139a5c68f1fa2591d3a88833cb71a90057959a823"
     },
     {
       "path": "assets/seated/f-side-shoes-wing_shoes.png",
-      "bytes": 29856,
-      "sha256": "b536a9c794a39caa7581145ab883df9597f4a508873fc49687c0febc158be84b"
+      "bytes": 29423,
+      "sha256": "b22ed680bfe8c04fbbbace70be4b1a8475c6d550f965b77581f8f285872b5275"
     },
     {
       "path": "assets/seated/f-side-outfit-dress.png",
-      "bytes": 165102,
-      "sha256": "4dbcf101ea9e4a378ab59cf2e16a2289d222e43b3153a0f16138022f88db4d18"
+      "bytes": 162174,
+      "sha256": "a45bda1a5196089506f214ed999377f2b912067a268f56b78e83f8b876dad555"
     },
     {
       "path": "assets/seated/f-side-outfit-robe.png",
-      "bytes": 200432,
-      "sha256": "3f32328cbc7aa51a3d4f802997fd74b541261190ccb4c9802f01424c4826374c"
+      "bytes": 197629,
+      "sha256": "9425d71e1d8ae10ec1b8051ca87c38ebffd9a409c0582d82b67d86aff580d249"
     },
     {
       "path": "assets/seated/f-side-outfit-overall.png",
-      "bytes": 114422,
-      "sha256": "c9d67b820ca48cbe6ad415ff0d27f492a4ea11cd19cd6a75402c2d7e660ea5bd"
+      "bytes": 114211,
+      "sha256": "886e9a724ec151d1b0898ee652ad5bdbe2a288176e2ab8cd8494a1aed37f12aa"
     },
     {
       "path": "assets/seated/f-side-outfit-space.png",
-      "bytes": 119459,
-      "sha256": "c2a1a8df78ed6ee4c817c72b789f16762531402fd9932bed8f5c8a6a1b44f12e"
+      "bytes": 118216,
+      "sha256": "1eb7714ce33f9575613fafdb0c4339de531390a84a3cb49a6e2cbd34bac93f71"
     },
     {
       "path": "assets/seated/f-side-outfit-hanbok.png",
-      "bytes": 217029,
-      "sha256": "935dc14788f59ffef0d2ba6a828abfc287645053d9ca7adc58249d9136600b13"
+      "bytes": 211644,
+      "sha256": "0c4f7cdd222c069f3ea3471edb27fc357485b753301ea4544211c3730c608145"
     },
     {
       "path": "assets/seated/f-back-base.png",
@@ -1341,113 +1341,113 @@
     },
     {
       "path": "assets/seated/f-back-bottom-shorts.png",
-      "bytes": 71968,
-      "sha256": "55a139b590fb73cf9e5ba9ceab3045f59074a29ae429f8eccce7d7682779c391"
+      "bytes": 71974,
+      "sha256": "f7a4ed4ace53adb8d1fd7f700e804359a941000ec81118f8be2c4b7f8bad5d6e"
     },
     {
       "path": "assets/seated/f-back-top-tee.png",
-      "bytes": 94871,
-      "sha256": "9b959646f0655247550a56c55029917efbc7ca718e049250e21c23b161743fec"
+      "bytes": 94892,
+      "sha256": "5e3351811f6ac6669f19db508cabeda3ab4af167e27aba4ea54ed5821d4de176"
     },
     {
       "path": "assets/seated/f-back-top-hood.png",
-      "bytes": 226007,
-      "sha256": "4faa4524229c369698c0e62e415e1042a64ca0c8b940f4dee3c0a333e39c59a9"
+      "bytes": 222786,
+      "sha256": "115a34a569431253b4c4decd9fb667b4fcef1fbf724b252df470e9b77a78b62e"
     },
     {
       "path": "assets/seated/f-back-top-shirt.png",
-      "bytes": 191885,
-      "sha256": "b2308453be075849e45a7b9e37db15c90b4fe16b5f3021b83c6ba9c2dc197580"
+      "bytes": 190042,
+      "sha256": "7e30f48845147f9151d5cb5cb09e44c59aaac7a720f61766f04224059da78533"
     },
     {
       "path": "assets/seated/f-back-top-vest.png",
-      "bytes": 283366,
-      "sha256": "b9ef5715cbb45b2858808796fd175f10ae3e49a143f9c326d598c8b64d23053e"
+      "bytes": 287684,
+      "sha256": "bb717df3218588070b046a59a1a40d2ce4fd1bbabf686b284024981d14b2d9e7"
     },
     {
       "path": "assets/seated/f-back-top-cardi.png",
-      "bytes": 296683,
-      "sha256": "93ce215ae61c91c8ae955e85a85b88c1de085c68bbd7d18e6b1c9ce08ed9fe47"
+      "bytes": 295853,
+      "sha256": "df9706de230642488d69adebb7c9fbec4ce4b29c458007f340e7320102b4e1a9"
     },
     {
       "path": "assets/seated/f-back-top-sailor.png",
-      "bytes": 207559,
-      "sha256": "0a25bff81897aa92902c74983211a0338936cced9074873fbb7ae4e6e7fc8441"
+      "bytes": 206932,
+      "sha256": "614744ffb312779cb74045c41432f9a3455c988e159e5ecf130c7ecce713a45e"
     },
     {
       "path": "assets/seated/f-back-top-jacket.png",
-      "bytes": 207458,
-      "sha256": "d18df74b11e6232acc21f34c466a1f6de98bc42a0b45c9f3a959a3a2e8b166ff"
+      "bytes": 201685,
+      "sha256": "95d1d000281802b1156236c3c95e04487edaefe40a74187716f733d50e4babbe"
     },
     {
       "path": "assets/seated/f-back-top-knit.png",
-      "bytes": 271628,
-      "sha256": "26d6167e1e2dd0f7a7de0f86ad4f33179e417c5a6cfebd24ecc8a90936e5c745"
+      "bytes": 273116,
+      "sha256": "62878cff6a82180d94983f64aa7f0d135ca4b5eff4bc6d239451480acaf71b09"
     },
     {
       "path": "assets/seated/f-back-top-tank.png",
-      "bytes": 202848,
-      "sha256": "f0e0befa81b1fecfb42ade764c5a715d712aac502cec9a8f9dab1c026cebea96"
+      "bytes": 205235,
+      "sha256": "16f40bf3a10316481086d9a93d34a6c7689b9417bc28b433d638fd3be56ff9f3"
     },
     {
       "path": "assets/seated/f-back-bottom-pleat.png",
-      "bytes": 152058,
-      "sha256": "452b2db6d12442c53ca346d2bbc67240220cdcb24a95a112f9c9b63b90b43e58"
+      "bytes": 171724,
+      "sha256": "73598964c1e63498654f0c682074d8c075b98fe945a9ae9e2e163c46b5844a2a"
     },
     {
       "path": "assets/seated/f-back-bottom-track.png",
-      "bytes": 92150,
-      "sha256": "64931146674bc64a61d3860f2e84edcda7a39550263522547f047ffd9e155e97"
+      "bytes": 100603,
+      "sha256": "39a52e7d2c39060b3cb347943dc719a82a07687f21eb1dff690fb21a221fcfb9"
     },
     {
       "path": "assets/seated/f-back-bottom-legging.png",
-      "bytes": 124308,
-      "sha256": "878e63424dba099268d8ecc7454c51ae6a4ac9415e1b0f16819bdc46c0b82434"
+      "bytes": 123981,
+      "sha256": "82d45d7dd4978ea363154e92a9f1492fe699ca34c2655efe562b21d5139311ab"
     },
     {
       "path": "assets/seated/f-back-bottom-tutu.png",
-      "bytes": 191279,
-      "sha256": "2ae2b79b3c2eba5d3c1031376e623b69bf8e9c541d6e21308915f59a16793c30"
+      "bytes": 225345,
+      "sha256": "293d1474aeb5875a2b86efcae5599a88534307b01d899931b3266dd0a15e5fc1"
     },
     {
       "path": "assets/seated/f-back-bottom-cargo.png",
-      "bytes": 121656,
-      "sha256": "b7564c9dd8305a1356596be088fabd50585818a51824d81a8e2555cb6ad93587"
+      "bytes": 122897,
+      "sha256": "67c403e75dcf99057774a7187cb4bda6c9627fe6ad6f965c64ea407d6f525d02"
     },
     {
       "path": "assets/seated/f-back-bottom-jean_skirt.png",
-      "bytes": 166959,
-      "sha256": "9014754f22cafb29dec9de304c689b0f8d34b8a3c84fd4281d8e66fb77bbd86f"
+      "bytes": 171352,
+      "sha256": "3cb710f9a4cae0ad5a781879c8e7d7e95c2502598755e7d4779bab6a6934239b"
     },
     {
       "path": "assets/seated/f-back-bottom-star_skirt.png",
-      "bytes": 201000,
-      "sha256": "8ca2e039089eeb95c29a79ce76da313d59ba613200cf779123f3800abcbac209"
+      "bytes": 206464,
+      "sha256": "c24a9318e6664a4cdf5da13a0d156a44e4af5d3a6a0ed980e616a9eeba2e5d68"
     },
     {
       "path": "assets/seated/f-back-outfit-dress.png",
-      "bytes": 318846,
-      "sha256": "b193827838090a7aabaab47c22a6bd6ab6dba0a6f5cf446a2e914f6bf441cc35"
+      "bytes": 308331,
+      "sha256": "0eb98b55fffe6adb12c9263f6f75483d368de63f6851315e7ed5bd2955ac700a"
     },
     {
       "path": "assets/seated/f-back-outfit-robe.png",
-      "bytes": 311331,
-      "sha256": "91d5a50ab073f46514f0742a2a79350b097e79a03ef83d5f5fddbe8a837df484"
+      "bytes": 314611,
+      "sha256": "c546028133da604ba6a5610726017cc359b08d4c9ea266c401eed4e4be9fcd93"
     },
     {
       "path": "assets/seated/f-back-outfit-overall.png",
-      "bytes": 287699,
-      "sha256": "e787746a1cae1f1c48523e6f9046ab5222021eb8c843e73f31e660016da2da5e"
+      "bytes": 288537,
+      "sha256": "873af882de3d3b3ce4207606340338c6a218d45f78ca36dce99c95c2bd684d23"
     },
     {
       "path": "assets/seated/f-back-outfit-space.png",
-      "bytes": 232297,
-      "sha256": "83e354f869887bc0a8f39f7aa109a2db829b5816a86fd2e8bb4e009dedc90000"
+      "bytes": 227858,
+      "sha256": "537c10db3a2d3e10754c1721a70b514539cd7d2b47c342384c6a950d174f0dc0"
     },
     {
       "path": "assets/seated/f-back-outfit-hanbok.png",
-      "bytes": 481913,
-      "sha256": "3700e17c12b88a9c9d17cb7f8c1713cb163a7a15bd9d501a3bcc5994496ea62c"
+      "bytes": 463588,
+      "sha256": "2e9dd9d988ddb60dbaae5977adcb35d6d12324677b4ded27295bc4fc94ca5c9f"
     },
     {
       "path": "assets/sd-garments-index.js",

@@ -150,7 +150,9 @@ def border_rule(mask, A, slot, basic_lab, fg):
     mine = palette(A[core] if core.sum() >= 200 else A[mask]); q = (A // 16).astype(int); idx = q[..., 0] * 256 + q[..., 1] * 16 + q[..., 2]
     line = outline(A)
     for j, band in bands:
-        theirs = palette(A[shrinkm(basic_lab == j, 5) & fg])
+        # the whole piece as the sheet draws it, cuffs and trims included (a
+        # shirt's cream cuffs once came along in a pair of cargo shorts)
+        theirs = palette(A[(basic_lab == j) & fg & ~line])
         # dark pixels are not judged by colour: navy cloth, dark green cloth
         # and shading share the dark bins (a navy pair of shorts lost its
         # top beside a dark green shirt)
@@ -299,6 +301,15 @@ def layers_for(sex, view, sheet_img, base_img, slot=None, basic_lab=None, basic_
                 if j != i: others |= pieces[j]
             pieces[i] = pieces[i] | (enclosed(pieces[i]) & fg & ~skin_of(A) & ~others)
             pieces[i] = pieces[i] | (near(pieces[i], 4) & pale & fg & ~near(~fg, 4) & ~others)
+    # Beside the shirt, shorts pixels coloured like the shirt are the
+    # shirt's: growth from the shorts ran up the columns under a daisy's
+    # white petals (which read as unchanged) and cut two slots in the
+    # shirt's hem, where a skirt then showed through (2026-10-15).
+    if basic_lab is None and pieces[1].any() and pieces[3].any():
+        q = (A // 16).astype(int); idx = q[..., 0] * 256 + q[..., 1] * 16 + q[..., 2]; line = outline(A)
+        p3, p1 = palette(A[shrinkm(pieces[3], 4) & ~line]), palette(A[shrinkm(pieces[1], 4) & ~line])
+        move = pieces[1] & near(pieces[3], 25) & ~line & (A.max(2) >= 110) & (p3[idx] > 3 * p1[idx] + 1e-4)
+        pieces[3] = pieces[3] | move; pieces[1] = pieces[1] & ~move
     # A print blob (a daisy's petals and centre) belongs to the piece that
     # surrounds most of it: one on a shirt hem had half its petals in the
     # shorts piece, and a skirt then showed through the shirt (2026-10-15).
@@ -407,6 +418,46 @@ def base_sheets(sex):
     return _BASES[sex]
 
 
+def item_sheets(sheet, sex, slot):
+    """An item sheet placed on the reference frame, view by view: first by
+    head width and lowest row (tools/seated-cut-body.py register), then moved
+    to where everything that should not change (skin, hands, head, the other
+    garments: all outside the item's zone) best matches the basic drawing.
+    The lowest row alone put a hanbok sheet 45 px high (its skirt spread on
+    the floor) so its collar hid the neck, and the head alone is no better:
+    ChatGPT redraws head and body in slightly different proportions
+    (2026-10-15)."""
+    out = {}
+    for view, img in CB.register(sheet, sex).items():
+        C = CB.FIGURES[f'{sex}:{view}']; box = C['crop']
+        basic = Image.open(os.path.join(ROOT, C['src'])).convert('RGB')
+        blab = np.load(os.path.join(OUT, f'.{sex}-{view}-basic-lab.npy'))
+        zp = os.path.join(OUT, f'.{sex}-{view}-zone-lab.npy'); zlab = np.load(zp) if os.path.exists(zp) else blab
+        R = rgb(blur(basic), box); fgR = figure(rgb(basic, box))
+        # what should not change: the basic drawing away from the piece(s)
+        # this item replaces (30 px: a skirt or boots reach past the shorts
+        # or sneakers they replace)
+        mine = np.isin(blab, (1, 3) if slot == 'outfit' else (SLOTS.index(slot) + 1,))
+        # near the item only: ChatGPT redraws head and body in slightly
+        # different proportions, and a pair of shorts aligned by the head
+        # ended a few px above the seat, showing the base's white undershorts
+        keep = fgR & ~near(mine, 30) & near(mine, 120)
+        # a white margin: the crop starts at the sheet's first row, and moving
+        # a sheet down was never tried (a hanbok stayed 45 px high)
+        P = 96; x0, y0, x1, y1 = box
+        big = np.pad(np.asarray(blur(img)).astype(float), ((P, P), (P, P), (0, 0)), constant_values=255)
+        best = (-1, 0, 0)
+        for dy in range(-90, 91, 2):
+            for dx in range(-12, 13, 4):
+                ys, xs = P + y0 - dy, P + x0 - dx
+                S = big[ys:ys + (y1 - y0), xs:xs + (x1 - x0)]
+                score = (np.sqrt(((S[::2, ::2] - R[::2, ::2]) ** 2).sum(2)) < 40)[keep[::2, ::2]].mean()
+                if score > best[0]: best = (score, dx, dy)
+        _, dx, dy = best; moved = Image.new('RGB', img.size, 'white'); moved.paste(img, (dx, dy))
+        out[view] = moved; out[view].shift = (dx, dy)
+    return out
+
+
 def build_item(sheet, sex, slot, item):
     sheet = os.path.relpath(os.path.abspath(sheet), ROOT)
     man = json.load(open(MANIFEST)) if os.path.exists(MANIFEST) else []
@@ -418,7 +469,7 @@ def build_item(sheet, sex, slot, item):
     man = [m for m in man if not (m['sex'] == sex and m['item'] == item)] + [{'sex': sex, 'slot': slot, 'item': item, 'sheet': sheet}]
     json.dump(man, open(MANIFEST, 'w'), ensure_ascii=False, indent=1)
     sheet = os.path.join(ROOT, sheet)
-    data = load_json(); bases = base_sheets(sex); items = CB.register(sheet, sex)
+    data = load_json(); bases = base_sheets(sex); items = item_sheets(sheet, sex, slot)
     for view in CB.VIEWS:
         C, box, U = frame(sex, view)
         basic = Image.open(os.path.join(ROOT, C['src'])).convert('RGB')
@@ -436,7 +487,11 @@ def build_item(sheet, sex, slot, item):
         others = np.isin(zlab, [i for i in (1, 2, 3) if i != k and not (slot == 'outfit' and i == 1)])
         B = rgb(bases[view], box); white = lambda x: (x.min(2) > 200) & (x.max(2) - x.min(2) < 30)
         gap = fg & below & ~mask & ~others & white(B) & ~white(A) & ~skin_light(A) & near(mask, 8) & zone
-        mask = tidy(border_rule(mask | gap, A, slot, zlab, fg), A)
+        # the sheet's skin where the base shows its white undershirt or
+        # undershorts beside the item (a thigh below shorts drawn a little
+        # shorter): the item carries it, tinted as skin, or the white showed
+        bare = fg & below & ~mask & ~others & white(B) & skin_light(A) & near(mask, 12) & zone
+        mask = tidy(border_rule(mask | gap, A, slot, zlab, fg), A) | bare
         # a view where the item hardly shows (shoes from the back) gets no
         # layer: what little the cut found there is legs and cuffs
         moved, _ = shifted_min(rgb(blur(items[view]), box), rgb(blur(basic), box), blab)
@@ -446,7 +501,7 @@ def build_item(sheet, sex, slot, item):
         # peach tutu or a pink tank is skin coloured, and was tinted dark on
         # a dark skin tone (2026-10-15)
         Bb = rgb(blur(bases[view]), box); Ab = rgb(blur(items[view]), box)
-        tint = skin_of(A) & near(skin_light(A), 2) & near(skin_of(B), 2) & (np.sqrt(((Ab - Bb) ** 2).sum(2)) < 45)
+        tint = (skin_of(A) & near(skin_light(A), 2) & near(skin_of(B), 2) & (np.sqrt(((Ab - Bb) ** 2).sum(2)) < 45)) | bare
         data[sex][view]['layers'][item] = save(f'{sex}-{view}-{item.replace(":", "-")}', mask, A, tint, box, U)
         if item == BASIC.get(slot):
             # a basic piece redrawn whole (the basic tee without the shorts

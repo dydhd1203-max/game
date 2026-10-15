@@ -16,6 +16,9 @@ part below the chin with the sheet placed on the same frame
   holes   pixels near the item (12 px) where the sheet has cloth but the
           base's white undershirt or undershorts shows through (a missed
           piece of the item), as a share of the item layer
+  neck    share of the neck the sheet shows (skin within 40 px below the
+          chin cut) that the game shows as skin too: a collar placed too
+          high hid the neck (2026-10-15)
   pose    figure overlap (IoU) of the composite and the sheet below the
           chin: a warning only, since the kept pieces are the basic
           outfit's and ChatGPT redraws them a little differently
@@ -44,6 +47,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 spec = importlib.util.spec_from_file_location('L', os.path.join(ROOT, 'tools/seated-layers.py'))
 L = importlib.util.module_from_spec(spec); argv = sys.argv; sys.argv = ['x']; spec.loader.exec_module(L); sys.argv = argv
 CB = L.CB
+MIN_NECK = .8
 MIN_FIT, MAX_HOLES, MAX_LEAKS, MAX_TINT, WARN_POSE = .9, .015, .01, .002, .93
 BASIC = {'bottom': 'bottom:shorts', 'shoes': 'shoes:sneaker', 'top': 'top:tee'}
 
@@ -68,7 +72,7 @@ def compose(sex, view, item, slot, data):
 
 
 def check(sex, item, slot, sheet, data, outdir):
-    reg = CB.register(os.path.join(ROOT, sheet), sex); res = {}; tiles = []
+    reg = L.item_sheets(os.path.join(ROOT, sheet), sex, slot); res = {}; tiles = []
     for view in CB.VIEWS:
         C = CB.FIGURES[f'{sex}:{view}']; box = C['crop']; top = C['cut'] - box[1]
         A = L.rgb(reg[view], box); fgA = L.figure(A)
@@ -101,10 +105,15 @@ def check(sex, item, slot, sheet, data, outdir):
         sat = (G.max(2) - G.min(2)) / np.maximum(G.max(2), 1)
         wrong = tinted & ((g - b < -4) | ((sat > .6) & (G.max(2) >= 150)))
         n = max(1, mine.sum())
-        res[view] = {'fit': round(float(fit), 3), 'pose': round(float(shape), 3), 'holes': round(float(hole.sum() / n), 4), 'leaks': round(float(leak.sum() / n), 4),
+        band = (rows >= top) & (rows < top + 40)
+        neckA = band & L.skin_light(A) & fgA; neckG = L.skin_of(G) & fgG
+        # only what can reach the neck (shoes or a skirt cannot; the nape
+        # ChatGPT redraws under the hair is the basic outfit's)
+        neck = (neckA & neckG).sum() / neckA.sum() if neckA.sum() > 200 and slot in ('top', 'outfit') else 1.0
+        res[view] = {'fit': round(float(fit), 3), 'neck': round(float(neck), 3), 'pose': round(float(shape), 3), 'holes': round(float(hole.sum() / n), 4), 'leaks': round(float(leak.sum() / n), 4),
                      'tint': round(float(wrong.sum() / n), 4), 'colour': round(float(colour.sum() / max(1, (below & fgA).sum())), 3)}
         res[view]['warn'] = ['pose'] if shape < WARN_POSE else []
-        res[view]['fail'] = [k for k, bad in (('fit', fit < MIN_FIT), ('holes', res[view]['holes'] > MAX_HOLES),
+        res[view]['fail'] = [k for k, bad in (('fit', fit < MIN_FIT), ('neck', neck < MIN_NECK), ('holes', res[view]['holes'] > MAX_HOLES),
                                               ('leaks', res[view]['leaks'] > MAX_LEAKS), ('tint', res[view]['tint'] > MAX_TINT)) if bad]
         comp = Image.new('RGB', (A.shape[1], A.shape[0]), 'white'); comp.paste(Image.fromarray(out), (0, 0), Image.fromarray(out[..., 3]))
         d = np.full(A.shape, 255, np.uint8); d[fgA] = (A[fgA] * .35 + 165).astype(np.uint8)
@@ -154,7 +163,7 @@ def main():
         if args and key not in args: continue
         r = check(m['sex'], m['item'], m['slot'], m['sheet'], data, out); report[key] = r
         bad = {v: x['fail'] for v, x in r.items() if x['fail']}; failed |= bool(bad)
-        print(key, ' | '.join(f"{v} fit {x['fit']} pose {x['pose']} holes {x['holes']} leaks {x['leaks']} tint {x['tint']} colour {x['colour']}" for v, x in r.items()), 'FAIL ' + json.dumps(bad) if bad else 'ok')
+        print(key, ' | '.join(f"{v} fit {x['fit']} neck {x['neck']} pose {x['pose']} holes {x['holes']} leaks {x['leaks']} tint {x['tint']} colour {x['colour']}" for v, x in r.items()), 'FAIL ' + json.dumps(bad) if bad else 'ok')
     json.dump(report, open(os.path.join(out, 'report.json'), 'w'), indent=1)
     print('FAIL' if failed else 'PASS (still look at the 280 px boards in ' + out + ')'); sys.exit(1 if failed else 0)
 

@@ -78,18 +78,6 @@
   "sheet": "assets/pose-references/floor-sit-f-item-top-tank-2026-10-15.webp"
  },
  {
-  "sex": "m",
-  "slot": "bottom",
-  "item": "bottom:cargo",
-  "sheet": "assets/pose-references/floor-sit-m-item-bottom-cargo-2026-10-15.webp"
- },
- {
-  "sex": "f",
-  "slot": "bottom",
-  "item": "bottom:track",
-  "sheet": "assets/pose-references/floor-sit-f-item-bottom-track-2026-10-15.webp"
- },
- {
   "sex": "f",
   "slot": "bottom",
   "item": "bottom:legging",
@@ -272,7 +260,19 @@
  {
   "sex": "f",
   "slot": "bottom",
+  "item": "bottom:track",
+  "sheet": "assets/pose-references/floor-sit-f-item-bottom-track-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "bottom",
   "item": "bottom:jean_skirt",
   "sheet": "assets/pose-references/floor-sit-f-item-bottom-jean_skirt-2026-10-15.webp"
+ },
+ {
+  "sex": "m",
+  "slot": "bottom",
+  "item": "bottom:cargo",
+  "sheet": "assets/pose-references/floor-sit-m-item-bottom-cargo-2026-10-15.webp"
  }
 ]
