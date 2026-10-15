@@ -153,6 +153,46 @@
     "SHOE_MISSING"
    ],
    "why": "The leg painting ends at the current shoe top (SHOE_LOW_OPENING); low shoes stay under the ankle bone (SHOE_HIGH); shoes hang from the ankle and the sole sits on the frozen floor (SOLE_OFF_FLOOR); both feet are drawn front and back (SHOE_MISSING). Pilot S2/S3 (2026-10-15): ChatGPT drew the back-view shoes larger, their soles 5 px under the floor; the back-view line was added."
+  },
+  "hat/full": {
+   "ko": {
+    "slot": "모자",
+    "thing": "모자",
+    "verb": "씌워",
+    "wear": "씁니다",
+    "pose": "팔·다리 위치, 옷과 신발",
+    "keep": "앞머리 끝과 옆머리·뒷머리",
+    "length": "{item|은} 머리에 푹 눌러 씁니다. 머리카락 위에 떠 있거나 얹혀 보이지 않게, 모자 아래 테두리가 머리를 감싸며 이마 위(눈썹보다 조금 위)와 귀 바로 위를 지나게 합니다. 모자 아래로 나오는 앞머리 끝, 옆머리, 뒷머리는 지금 모양과 길이 그대로 두고, 모자에 덮인 머리카락이 모자 밖으로 삐져나오지 않게 합니다. 모자는 머리 둘레에 꼭 맞는 크기로, 머리보다 훨씬 크거나 작게 그리지 않습니다. 눈썹·눈·귀는 가리지 않습니다."
+   },
+   "en": {
+    "slot": "hats",
+    "things": "hats",
+    "pose": "arm and leg positions, clothes and shoes",
+    "keep": "the fringe tips, side hair and back hair below the hat",
+    "length": "The {item} is pulled down onto the head, never floating on or perched on top of the hair: its lower rim wraps the head, passing just above the eyebrows and just above the ears. The fringe tips, side hair and back hair below the hat keep their current shape and length; no hair covered by the hat sticks out of it. Size the hat to fit the head snugly, never much larger or smaller than the head. Do not cover the eyebrows, eyes or ears."
+   },
+   "limits": [],
+   "why": "Hats (2026-10-15 user decision): the game hides the hair above the hat's lower rim and keeps each hair style's hair below it, so a hat must sit on the skull (not on the hair volume) and leave the hair below its rim as drawn; the template's heads are the game's own head paintings (m short, f bob)."
+  },
+  "hat/sit-on": {
+   "ko": {
+    "slot": "머리 장식",
+    "thing": "장식",
+    "verb": "얹어",
+    "wear": "씁니다",
+    "pose": "팔·다리 위치, 옷과 신발",
+    "keep": "머리카락",
+    "length": "{item|은} 정수리의 머리카락 위에 얹되, 아래쪽이 머리카락 속에 살짝 묻혀 머리에 닿아 있게 합니다. 떠 있지 않게 하고, 머리 모양은 바꾸지 않습니다. 크기는 머리 폭의 절반쯤으로 합니다. 얼굴을 가리지 않습니다."
+   },
+   "en": {
+    "slot": "head ornaments",
+    "things": "ornaments",
+    "pose": "arm and leg positions, clothes and shoes",
+    "keep": "the hair",
+    "length": "The {item} sits on the hair at the crown of the head, its lower edge slightly sunk into the hair so it touches the head, never floating. Do not change the hair style. About half the head's width. Do not cover the face."
+   },
+   "limits": [],
+   "why": "Ornaments that sit on the hair (crown, ribbon, ears, horns): the game seats them on each hair style's top edge (tools/hair/build-heads.py tops), so they are drawn on the template's hair, not on the skull."
   }
  },
  "v1": {

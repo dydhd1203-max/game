@@ -1,7 +1,7 @@
 {
  "note": "Products for the ChatGPT garment kit (stage 3, WP4). The worker fills this from the shop catalogue and the design reference; the user reviews it. Keyed 'cat:shape' like the garment records. Checked against the live shop for both sexes by `node tools/garment/design-ref.cjs --verify-products` (headless ?demo=1). Used by tools/garment/prompt.cjs.",
  "fields": {
-  "class": "top/short-sleeve | bottom/shorts | shoes/low (stage 3). Other classes exist as schema only.",
+  "class": "top/short-sleeve | bottom/shorts | shoes/low (stage 3). Other classes exist as schema only. Hats (2026-10-15): hat/full (pulled onto the head, hair above its rim hidden by the game) | hat/sit-on (an ornament seated on the hair).",
   "sexes": "who the shop sells it to (QPGame.getCatalog().curatedItem(cat, shape, sex) is not null). A single-sex product changes only that child; the prompt says the other child stays as it is.",
   "ci": "the fixed colour index per sex (index.html CURATED_COLOURS / fixedColour).",
   "names": "the shop name per sex (curatedItem(...).name).",
@@ -292,6 +292,88 @@
      "look": "colour, small wings, gold ornaments and sole",
      "both": "the white Mary Jane shoes from image 2 (white instep strap with a gold button, gold jewel and cream bow on the instep, a small cream wing on the outer side of each ankle, thick cream sole).",
      "back": "show both heels, the cream soles and the small wings in the back view."
+    }
+   },
+   "sharedPicture": true
+  },
+  "hat:cap": {
+   "class": "hat/full",
+   "status": "hat pilot H1 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 3,
+    "f": 3
+   },
+   "names": {
+    "m": "야구모자",
+    "f": "야구모자"
+   },
+   "colour": {
+    "m": "#8fd94a",
+    "f": "#8fd94a"
+   },
+   "display": {
+    "m": "#8fd94a",
+    "f": "#8fd94a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-cap-design.png",
+   "notes": {
+    "ko": {
+     "item": "야구모자",
+     "look": "색과 모양(둥근 머리 부분과 앞 챙)",
+     "both": "두 번째 그림의 연두색 야구모자. 둥근 머리 부분, 앞으로 나온 챙, 꼭대기의 작은 단추, 머리 부분을 나누는 박음선.",
+     "back": "옆모습에서는 챙이 얼굴 쪽(오른쪽)으로 나오고, 뒷모습에서는 모자 뒤쪽의 조절 끈과 그 위 반원 구멍이 보이게 합니다."
+    },
+    "en": {
+     "item": "baseball cap",
+     "look": "colour and shape (rounded crown and front brim)",
+     "both": "the light green baseball cap from image 2: rounded crown, brim pointing forward, a small button on top, stitched panel seams.",
+     "back": "in the side view the brim points toward the face (right); in the back view show the adjustment strap at the back with the half-round opening above it."
+    }
+   },
+   "sharedPicture": true
+  },
+  "hat:crown": {
+   "class": "hat/sit-on",
+   "status": "hat pilot H1 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 2,
+    "f": 2
+   },
+   "names": {
+    "m": "왕관",
+    "f": "왕관"
+   },
+   "colour": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "display": {
+    "m": "#ffd24a",
+    "f": "#ffd24a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-hat-crown-design.png",
+   "notes": {
+    "ko": {
+     "item": "왕관",
+     "look": "색, 뾰족한 끝 모양, 보석 위치",
+     "both": "두 번째 그림의 금색 작은 왕관. 뾰족한 끝 세 개, 가운데 분홍 보석, 양옆 하늘색 보석, 아래의 밝은 금색 띠. 반짝이는 금속 느낌.",
+     "back": "옆모습에서는 왕관을 옆에서 본 모양(둥근 띠와 뾰족한 끝)으로, 뒷모습에서는 왕관의 뒤쪽 띠와 뾰족한 끝이 보이게 합니다."
+    },
+    "en": {
+     "item": "crown",
+     "look": "colour, pointed tips and jewel positions",
+     "both": "the small gold crown from image 2: three pointed tips, a pink jewel in the middle, light blue jewels at the sides, a light gold band below; shiny metal.",
+     "back": "in the side view show the crown from the side (round band and pointed tips); in the back view show the back of the band and its tips."
     }
    },
    "sharedPicture": true

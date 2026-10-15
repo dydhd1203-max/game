@@ -12,7 +12,9 @@
 // The pictures are the current shop art with no body: tops and bottoms from
 // QPClothes.surface(cat, shape, colour, sex) (the tinted shop painting), shoes
 // from QPShoes' per-foot paintings (rear rim under the front, both feet on one
-// floor line, spaced like the avatar's ankles). Boy left, girl right; a
+// floor line, spaced like the avatar's ankles), hats from the shop thumbnail
+// with its head hidden (QPAvatar.thumb('hat'), the design only: the drawn
+// shapes sat on the hair, which the new hat art replaces). Boy left, girl right; a
 // product whose two pictures are identical (same art and colour) or that is
 // for one sex only shows one picture. No body is drawn: ChatGPT copied the
 // old awkward arms and low shorts when the reference showed them (914c7ef).
@@ -82,6 +84,18 @@ function pageCapture({items,withPictures}){
     const pair=document.createElement('canvas');pair.width=Math.max(L.c.width,xr+R.c.width);pair.height=h;const g=pair.getContext('2d');
     g.drawImage(L.c,0,h-L.c.height);g.drawImage(R.c,xr,h-R.c.height);return pair;
   }
+  async function hat(shape,ci){
+    // The shop's hat drawing alone: the thumbnail's head (.qpx-hair) hidden,
+    // a frame wide enough for brims and crowns, cropped to the paint.
+    const svg=QPAvatar.thumb('hat',shape,ci,300,'m').replace(/viewBox="[^"]*"/,'viewBox="-2 -6 36 26"').replace(/width="[^"]*"/,'width="720"')
+      .replace(/height="[^"]*"/,'height="520"').replace('<defs>','<style>.qpx-hair{display:none}</style><defs>');
+    const img=await load('data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg));
+    const c=document.createElement('canvas');c.width=720;c.height=520;const g=c.getContext('2d');g.drawImage(img,0,0);
+    const d=g.getImageData(0,0,720,520).data;let x0=720,y0=520,x1=0,y1=0;
+    for(let y=0;y<520;y++)for(let x=0;x<720;x++)if(d[(y*720+x)*4+3]>8){x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x+1);y1=Math.max(y1,y+1);}
+    if(x1<=x0)return null;
+    const crop=document.createElement('canvas');crop.width=x1-x0;crop.height=y1-y0;crop.getContext('2d').drawImage(c,-x0,-y0);return crop;
+  }
   return (async()=>{
     const out={};
     for(const {key,cat,shape} of items){
@@ -92,13 +106,14 @@ function pageCapture({items,withPictures}){
         const painted=window.QPClothes.colorFor(cat,shape,sex,it.color)||it.color;
         const av={sex,sk:0,ec:0,eyes:'round',hair:sex==='m'?'short:1':'bob:1',top:'',bottom:'',shoes:'',outfit:''};av[cat]=shape+':'+it.ci;
         const holder=document.createElement('div');holder.innerHTML=QPAvatar.render(av,120);
-        const node=cat==='shoes'?holder.querySelector('[data-qpx-shoe-color]'):holder.querySelector('[data-qpx-clothes="'+cat+'"]');
+        const node=cat==='hat'?null:cat==='shoes'?holder.querySelector('[data-qpx-shoe-color]'):holder.querySelector('[data-qpx-clothes="'+cat+'"]');
         row.catalog[sex]={id:it.id,ci:it.ci,name:it.name,price:it.price,starter:C.STARTER.includes(it.id),sexes:it.sexes,
           colour:it.color,display:painted,maleOverride:sex==='m'?window.QPClothes.colorFor(cat,shape,'m')||null:null,
-          rendered:node?(cat==='shoes'?node.dataset.qpxShoeColor:node.dataset.clothColor):null};
+          rendered:cat==='hat'?painted:node?(cat==='shoes'?node.dataset.qpxShoeColor:node.dataset.clothColor):null};  // hats: drawn shapes, no colour attribute
         if(!withPictures)continue;
         let canvas;
         if(cat==='shoes')canvas=await shoes(shape,painted);
+        else if(cat==='hat')canvas=await hat(shape,it.ci);
         else{const s=QPClothes.surface(cat,shape,painted,sex);canvas=s&&s.canvas;}
         row.pictures[sex]=canvas?canvas.toDataURL('image/png'):null;
       }
