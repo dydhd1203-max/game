@@ -32,9 +32,13 @@ NOVEL = 22.0      # Lab distance from every template head colour: a new (hat) co
 SEED_MIN = 300    # px of novel colour that make a hat
 GROW = 3          # px the hat mask grows over its own outline
 ZONE = .75        # share of head top -> neck the hat may reach down to (a cap's back strap, a profile brim)
-HIDE_SIDE = 120   # px beside the hat where squeezed hair is hidden (hide_mask)
+HIDE_SIDE = 260   # px beside the hat the hair-hide mask reaches (hide_mask; a twin tail, a pony)
 HIDE_TOP = 80     # px above the hat (spiky hair above the crown)
-HIDE_RAMP = .8    # the hidden edge beside the hat rises this many px per px
+HIDE_FLARE = 1.6  # beside the hat the hidden edge drops this many px per px outward: the hair under the
+                  # rim starts as wide as the rim and widens downward, as a cap presses it (2026-10-15:
+                  # a rising edge left 'wings' of hair beside the rim)
+HIDE_SOFT = 6.0   # px of the hidden edge's soft fall-off
+SKIN_ABOVE = 10   # px above the rim's edge where the head's skin (an ear) is still kept
 
 
 def fill_holes(mask):
@@ -108,32 +112,56 @@ def cut_figure(U, A, T, owner, box):
                 mask=hat, cell=box, hide=hide_mask(hat, opening, x0, y0))
 
 
-def hide_mask(hat, opening, x0, y0, side=HIDE_SIDE, top=HIDE_TOP, ramp=HIDE_RAMP):
+def hide_mask(hat, opening, x0, y0, side=HIDE_SIDE, top=HIDE_TOP, flare=HIDE_FLARE, soft=HIDE_SOFT):
     """Where a pulled-on hat hides the wearer's own hair (any hair style):
     in the hat's columns everything down to its lower edge, the opening it
-    shows hair through (a cap's back) excepted; beside the hat a ramp that
-    rises `ramp` px per px away from it (hair squeezed under the rim, wider
-    hair still shows below). Black (hidden) on transparent, with its box in
-    sheet px."""
+    shows hair through (a cap's back) excepted; beside the hat everything
+    above an edge that drops `flare` px per px away from the hat's nearest
+    lower edge, so the hair left under the rim starts at the rim's width and
+    widens downward. Opacity (1 = hidden) with a soft edge, the rim's edge per
+    column (sheet y, for the skin kept in export) and the box in sheet px."""
     cols = np.nonzero(hat.any(0))[0]
     rows = np.nonzero(hat.any(1))[0]
     bottom = np.full(hat.shape[1], -1)
     for c in cols:
         bottom[c] = np.nonzero(hat[:, c])[0].max()
-    fx0, fx1 = max(0, cols.min() - side), min(hat.shape[1], cols.max() + 1 + side)
-    fy0, fy1 = max(0, rows.min() - top), rows.max() + 1
+    # the box may reach past the figure's cell (a twin tail): columns outside it are beside the hat
+    fx0, fx1 = cols.min() - side, cols.max() + 1 + side
+    fy0, fy1 = max(0, rows.min() - top), rows.max() + 1 + side
     yy = np.arange(fy0, fy1)[:, None]
-    edge = np.empty(fx1 - fx0)
+    edge = np.empty(fx1 - fx0); rim = np.empty(fx1 - fx0)
     for i, c in enumerate(range(fx0, fx1)):
-        if bottom[c] >= 0:
-            edge[i] = bottom[c]
+        if 0 <= c < hat.shape[1] and bottom[c] >= 0:
+            edge[i] = rim[i] = bottom[c]
         else:
             n = cols[np.argmin(np.abs(cols - c))]
-            edge[i] = bottom[n] - ramp * abs(c - n)
-    hidden = (yy <= edge[None, :]) & ~opening[fy0:fy1, fx0:fx1]
-    rgba = np.zeros(hidden.shape + (4,), np.uint8)
-    rgba[hidden, 3] = 255
-    return dict(rgba=rgba, box=[x0 + fx0, y0 + fy0, x0 + fx1, y0 + fy1])
+            rim[i] = bottom[n]; edge[i] = bottom[n] + flare * abs(c - n)
+    hidden = np.clip((edge[None, :] - yy) / soft + .5, 0, 1)
+    op = np.zeros(hidden.shape, bool)
+    cx0, cx1 = max(0, fx0), min(hat.shape[1], fx1); cy1 = min(hat.shape[0], fy1)
+    op[:cy1 - fy0, cx0 - fx0:cx1 - fx0] = opening[fy0:cy1, cx0:cx1]
+    hidden[op] = 0
+    return dict(alpha=hidden.astype(np.float32), rim=rim + y0, box=[x0 + fx0, y0 + fy0, x0 + fx1, y0 + fy1])
+
+
+def keep_skin(hide, fr, key):
+    """Takes the head's skin (tools/fixtures/head-skin-*.png: ears, face, nape of
+    every hair style) out of the hide mask below SKIN_ABOVE px over the rim's
+    edge, so the hat hides hair only. Returns the RGBA mask (black = hidden)."""
+    meta = json.load(open(os.path.join(ROOT, 'tools', 'fixtures', 'head-skin.json')))
+    skin = np.asarray(Image.open(os.path.join(ROOT, 'tools', 'fixtures', meta['maps'][key])).convert('L')) / 255.0
+    bx = hide['box']; h, w = hide['alpha'].shape
+    (cx0, cy0) = fr['cell0']; u = fr['unitsPerSheetPx']; ox, oy = fr['cellOrigin']; t = fr['toViewBox']
+    px, py = np.meshgrid(np.arange(bx[0], bx[2]) + .5, np.arange(bx[1], bx[3]) + .5)
+    hx = (ox + (px - cx0) * u - t[4]) / t[0]; hy = (oy + (py - cy0) * u - t[5]) / t[3]
+    r = meta['rect']; res = meta['res']
+    sx = np.floor((hx - r[0]) * res).astype(int); sy = np.floor((hy - r[1]) * res).astype(int)
+    ok = (sx >= 0) & (sy >= 0) & (sx < skin.shape[1]) & (sy < skin.shape[0])
+    k = np.zeros((h, w)); k[ok] = skin[sy[ok], sx[ok]]
+    k[py < hide['rim'][None, :] - SKIN_ABOVE] = 0
+    a = hide['alpha'] * (1 - k)
+    rgba = np.zeros((h, w, 4), np.uint8); rgba[..., 3] = np.round(a * 255).astype(np.uint8)
+    return rgba
 
 
 def to_head(fr, box):
@@ -158,7 +186,7 @@ def export(pid, kind, figures, out_assets):
         Image.fromarray(f['rgba']).save(os.path.join(out_assets, name + '.png'), optimize=True)
         v = dict(src='assets/hat-art/%s.png' % name, rect=to_head(fr, f['box']))
         if kind == 'full':
-            Image.fromarray(f['hide']['rgba']).save(os.path.join(out_assets, name + '-hide.png'), optimize=True)
+            Image.fromarray(keep_skin(f['hide'], fr, k)).save(os.path.join(out_assets, name + '-hide.png'), optimize=True)
             v['hide'] = dict(src='assets/hat-art/%s-hide.png' % name, rect=to_head(fr, f['hide']['box']))
         if kind == 'full':
             # everything above the hide mask over its whole width (hair taller than the frame: m spiky, a pony's tip)
