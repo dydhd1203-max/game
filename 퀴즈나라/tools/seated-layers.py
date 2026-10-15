@@ -97,6 +97,77 @@ def shifted_min(Ab, Rb, lab, r=6, step=2):
     return best, bl
 
 
+def slot_zone(slot, basic_lab, fg):
+    """Where an item of `slot` may take pixels: its own place on the body, not
+    the inside of another kept piece. ChatGPT redraws the whole sheet, so a
+    kept shirt's print comes back a little different; a pair of rain boots
+    took that shirt, hands and legs as 'new' and showed a doubled shirt
+    (2026-10-15). Outside the zone a change is redraw drift and the basic
+    piece stays."""
+    inside = lambda j: shrinkm(basic_lab == j, 5)
+    if slot == 'shoes':
+        if (basic_lab == 2).any(): zone = near(basic_lab == 2, 40)
+        else:  # the back view shows no basic shoes: the lowest fifth
+            ys = np.where(fg.any(1))[0]; rows = np.arange(fg.shape[0])[:, None]
+            zone = np.broadcast_to(rows >= ys.min() + .8 * (ys.max() - ys.min()), fg.shape).copy()
+        return zone & ~inside(3) & ~inside(1)
+    if slot == 'bottom': return ~inside(3) & ~inside(2)
+    return ~inside(2)  # top, outfit
+
+
+OTHERS = {'bottom': (3,), 'shoes': (1, 3), 'top': (2,), 'outfit': (2,)}
+BAND = 25        # px beside another kept piece where colour decides
+MIN_OWN = 400    # px of the item's own content for a view to get a layer
+
+
+def outline(A):
+    """Thin dark strokes: dark pixels not inside a dark area wider than about
+    5 px. A navy pair of track shorts is dark too, and was cut away as
+    'outline' (2026-10-15)."""
+    dark = A.max(2) < 90
+    return dark & ~near(shrinkm(dark, 2), 2)
+
+
+def palette(px):
+    """Normalised colour histogram (16 levels a channel)."""
+    q = (px // 16).astype(int); h = np.bincount(q[:, 0] * 256 + q[:, 1] * 16 + q[:, 2], minlength=4096).astype(float)
+    return h / max(1, h.sum())
+
+
+def border_rule(mask, A, slot, basic_lab, fg):
+    """Beside another kept piece, drop the pixels coloured like that piece
+    as the sheet draws it: ChatGPT drew a kept shirt a little longer and its
+    hem and print came along in a denim skirt's layer (2026-10-15). Outlines
+    stay."""
+    bands = [(j, near(basic_lab == j, BAND)) for j in OTHERS[slot] if (basic_lab == j).any()]
+    if not bands: return mask
+    # the item's colours where the basic piece of its slot was (a skirt
+    # over the shorts, boots over the sneakers); its whole layer if that
+    # place shows too little of it
+    k = (1, 3) if slot == 'outfit' else (SLOTS.index(slot) + 1,)
+    core = np.any([shrinkm(basic_lab == j, 4) for j in k], axis=0) & mask & ~skin_of(A) & (A.max(2) >= 90)
+    if mask.sum() < 200: return mask
+    mine = palette(A[core] if core.sum() >= 200 else A[mask]); q = (A // 16).astype(int); idx = q[..., 0] * 256 + q[..., 1] * 16 + q[..., 2]
+    line = outline(A)
+    for j, band in bands:
+        theirs = palette(A[shrinkm(basic_lab == j, 5) & fg])
+        # dark pixels are not judged by colour: navy cloth, dark green cloth
+        # and shading share the dark bins (a navy pair of shorts lost its
+        # top beside a dark green shirt)
+        mask = mask & ~(band & ~line & (A.max(2) >= 110) & (theirs[idx] > 2 * mine[idx] + 1e-4))
+    return mask
+
+
+def tidy(mask, A):
+    """Outlines only beside the item's own colour, and no specks. A sheet a
+    pixel or two off the base marks every outline as changed, and a pair of
+    track shorts grew along them around the whole figure (2026-10-15)."""
+    line = outline(A)
+    mask = mask & (~line | near(mask & ~line, 3))
+    comp = components(mask); sizes = np.bincount(comp.ravel())
+    return mask & (sizes[comp] >= 30) & (comp > 0)
+
+
 def grow_inside(seeds, area):
     """Multi-label geodesic growth: each pixel of `area` takes the label of
     the nearest seed (labels > 0) reachable through `area`."""
@@ -172,13 +243,14 @@ def layers_for(sex, view, sheet_img, base_img, slot=None, basic_lab=None, basic_
         # this item's slot (a top's new cloth may match the old top nearby)
         off = ~kept & (moved < 22) & (mlab > 0) & (mlab != (k or 3))
         seeds[off] = mlab[off]; kept = kept | off
-        mine = new > 60
+        zone = slot_zone(slot, basic_lab, fg)
+        mine = (new > 60) & zone
         if slot == 'outfit': seeds[mine & ~kept] = 3; seeds[mine & ~kept & (basic_lab == 1)] = 1
         else: seeds[mine & ~kept] = k
         # a garment rising above the chin (a hood): new, non-skin, non-hair
         r, g, b = A[..., 0], A[..., 1], A[..., 2]
         hair = (r > g) & (g > b) & (r - b > 25) & (A.max(2) < 170)
-        up = fg & (rows < top) & (rows >= top - HOOD_UP) & (new > 60) & ~hair & ~skin_of(A) & (A.max(2) > 110)
+        up = fg & (slot in ('top', 'outfit')) & (rows < top) & (rows >= top - HOOD_UP) & (new > 60) & ~hair & ~skin_of(A) & (A.max(2) > 110)
         changed |= up; seeds[up] = k or 3
     lab = grow_inside(seeds, changed)
     if basic_lab is None and f'{sex}:{view}' in SHOE_ZONE:
@@ -216,13 +288,29 @@ def layers_for(sex, view, sheet_img, base_img, slot=None, basic_lab=None, basic_
         if slot is None or slot == 'top': pieces[3] = pieces[3] | small
         pieces[2] = s | (enclosed(s) & fg & ~pieces[1] & ~pieces[3])
     # White prints (petals) as pale as the base's undershirt read as unchanged;
-    # a piece owns the non-skin holes it fully encloses.
+    # a piece owns the non-skin holes it fully encloses, and the pale print
+    # at its edge (a daisy on a hem: over the base's white undershirt it
+    # looked whole, over a skirt it showed blue drips, 2026-10-15).
+    pale = (A.min(2) > 190) & ~skin_of(A)
     for i in (1, 3):
         if pieces[i].any():
             others = np.zeros_like(fg)
             for j in (1, 2, 3):
                 if j != i: others |= pieces[j]
             pieces[i] = pieces[i] | (enclosed(pieces[i]) & fg & ~skin_of(A) & ~others)
+            pieces[i] = pieces[i] | (near(pieces[i], 4) & pale & fg & ~near(~fg, 4) & ~others)
+    # A print blob (a daisy's petals and centre) belongs to the piece that
+    # surrounds most of it: one on a shirt hem had half its petals in the
+    # shorts piece, and a skirt then showed through the shirt (2026-10-15).
+    if basic_lab is None and pieces[1].any() and pieces[3].any():
+        r, g, b = A[..., 0], A[..., 1], A[..., 2]
+        prints = fg & ~skin_of(A) & ((A.min(2) > 190) | ((r > 200) & (g > 150) & (b < 120))) & (pieces[1] | pieces[3] | ~(pieces[1] | pieces[2] | pieces[3]))
+        comp = components(prints)
+        for c in range(1, comp.max() + 1):
+            blob = comp == c
+            if blob.sum() > 4000: continue  # a large pale area is cloth, not a print
+            ring = near(blob, 2) & ~blob; top, bottom = (ring & pieces[3]).sum(), (ring & pieces[1]).sum()
+            if top > bottom and top > 0: pieces[3] = pieces[3] | blob; pieces[1] = pieces[1] & ~blob
     return pieces, A, fg, below
 
 
@@ -307,6 +395,14 @@ def build_base():
 
 
 MANIFEST = os.path.join(OUT, 'items.json')
+_BASES = {}
+
+
+def base_sheets(sex):
+    """The base body sheet placed on the reference frame, once per run (a
+    batch of 38 items placed it 38 times)."""
+    if sex not in _BASES: _BASES[sex] = CB.register(os.path.join(ROOT, BASE[sex]), sex)
+    return _BASES[sex]
 
 
 def build_item(sheet, sex, slot, item):
@@ -320,14 +416,15 @@ def build_item(sheet, sex, slot, item):
     man = [m for m in man if not (m['sex'] == sex and m['item'] == item)] + [{'sex': sex, 'slot': slot, 'item': item, 'sheet': sheet}]
     json.dump(man, open(MANIFEST, 'w'), ensure_ascii=False, indent=1)
     sheet = os.path.join(ROOT, sheet)
-    data = load_json(); bases = CB.register(os.path.join(ROOT, BASE[sex]), sex); items = CB.register(sheet, sex)
+    data = load_json(); bases = base_sheets(sex); items = CB.register(sheet, sex)
     for view in CB.VIEWS:
         C, box, U = frame(sex, view)
         basic = Image.open(os.path.join(ROOT, C['src'])).convert('RGB')
         blab = np.load(os.path.join(OUT, f'.{sex}-{view}-basic-lab.npy'))
         lab, A, fg, below = layers_for(sex, view, items[view], bases[view], slot, blab, basic)
         k = 3 if slot == 'outfit' else SLOTS.index(slot) + 1
-        mask = lab[k] | (lab[1] if slot == 'outfit' else False)
+        zone = slot_zone(slot, blab, fg)
+        mask = (lab[k] | (lab[1] if slot == 'outfit' else False)) & zone
         # Seam: where the sheet has cloth next to the item but neither the
         # item nor the kept basic pieces cover it, the base's white
         # undershirt or undershorts showed as a thin strip (a shirt hem
@@ -335,9 +432,18 @@ def build_item(sheet, sex, slot, item):
         # sheet's pixels there.
         others = np.isin(blab, [i for i in (1, 2, 3) if i != k and not (slot == 'outfit' and i == 1)])
         B = rgb(bases[view], box); white = lambda x: (x.min(2) > 200) & (x.max(2) - x.min(2) < 30)
-        gap = fg & below & ~mask & ~others & white(B) & ~white(A) & ~skin_light(A) & near(mask, 8)
-        mask = mask | gap
-        tint = skin_of(A) & near(skin_light(A), 2)
+        gap = fg & below & ~mask & ~others & white(B) & ~white(A) & ~skin_light(A) & near(mask, 8) & zone
+        mask = tidy(border_rule(mask | gap, A, slot, blab, fg), A)
+        # a view where the item hardly shows (shoes from the back) gets no
+        # layer: what little the cut found there is legs and cuffs
+        moved, _ = shifted_min(rgb(blur(items[view]), box), rgb(blur(basic), box), blab)
+        own = mask & (moved > 60) & ~skin_of(A) & (A.max(2) >= 90)
+        if own.sum() < MIN_OWN: mask = np.zeros_like(mask)
+        # skin only where the base body is skin too and alike in colour: a
+        # peach tutu or a pink tank is skin coloured, and was tinted dark on
+        # a dark skin tone (2026-10-15)
+        Bb = rgb(blur(bases[view]), box); Ab = rgb(blur(items[view]), box)
+        tint = skin_of(A) & near(skin_light(A), 2) & near(skin_of(B), 2) & (np.sqrt(((Ab - Bb) ** 2).sum(2)) < 45)
         data[sex][view]['layers'][item] = save(f'{sex}-{view}-{item.replace(":", "-")}', mask, A, tint, box, U)
         print(sex, view, item, data[sex][view]['layers'][item])
     json.dump(data, open(os.path.join(OUT, 'layers.json'), 'w'), ensure_ascii=False, indent=1)

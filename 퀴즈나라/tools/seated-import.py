@@ -14,7 +14,8 @@ The user returns ChatGPT sheets named by the numbers of 인계/앉은옷-요청�
   3. cuts its layer (tools/seated-layers.py item, which adds it to
      assets/seated/items.json and syncs the runtime table and deployment list),
   4. checks it against its own sheet (tools/verify-seated-items.py) and makes
-     the 280 px board,
+     the 280 px board; a sheet drawn in another pose (warn) gets the request
+     doc's sentence to send back only if the item also misfits,
 
 then prints one line per number (ok / FAIL with the reason and the request
 doc's sentence to send back to ChatGPT), the boards to look at, and the
@@ -103,12 +104,13 @@ def main():
             m = next(x for x in json.load(open('assets/seated/items.json')) if x['sex'] == r['sex'] and x['item'] == r['item'])
             res = V.check(r['sex'], r['item'], r['slot'], m['sheet'], data, out)
             bad = {v: x['fail'] for v, x in res.items() if x['fail']}
-            shape = min(x['shape'] for x in res.values())
-            if bad:
-                hint = retry.get('자세나 위치가 바뀌었으면', '') if any('shape' in b for b in bad.values()) else ''
-                report.append((label, 'FAIL', '검사 실패 ' + json.dumps(bad, ensure_ascii=False) + f' (모양 겹침 최소 {shape})', hint))
-            else:
-                report.append((label, 'ok', f'모양 겹침 최소 {shape}', ''))
+            fit = min(x['fit'] for x in res.values()); pose = min(x['pose'] for x in res.values())
+            drift = [v for v, x in res.items() if x['warn']]
+            note = f'맞춤 최소 {fit}, 자세 겹침 최소 {pose}' + (f' (원화 자세가 기준과 다름: {", ".join(drift)})' if drift else '')
+            # a misfit on a sheet drawn in another pose is the sheet's: ask again
+            hint = retry.get('자세나 위치가 바뀌었으면', '') if drift and bad else ''
+            if bad: report.append((label, 'FAIL', '검사 실패 ' + json.dumps(bad, ensure_ascii=False) + ' / ' + note, hint))
+            else: report.append((label, 'ok' if not drift else 'warn', note, ''))
     print()
     for label, st, why, hint in report:
         print(f'{st:4} {label}: {why}' + (f'\n     다시 요청: "{hint}"' if hint else ''))

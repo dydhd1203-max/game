@@ -9,10 +9,16 @@ slot and the basic outfit elsewhere) on the sheet's crop and compares the
 part below the chin with the sheet placed on the same frame
 (tools/seated-cut-body.py register):
 
-  shape   figure overlap (IoU) of the composite and the sheet
-  holes   pixels where the sheet has cloth but the base's white undershirt
-          or undershorts shows through (a missed piece of the item), as a
-          share of the item layer
+  fit     share of the item layer and a 3 px ring around it (where the item
+          or the bare base is on top) whose colour matches the sheet within
+          2 px (blurred distance <= 70): low when the item is misplaced,
+          doubled or carries pieces of another slot
+  holes   pixels near the item (12 px) where the sheet has cloth but the
+          base's white undershirt or undershorts shows through (a missed
+          piece of the item), as a share of the item layer
+  pose    figure overlap (IoU) of the composite and the sheet below the
+          chin: a warning only, since the kept pieces are the basic
+          outfit's and ChatGPT redraws them a little differently
   leaks   item pixels where the sheet is background
   tint    item pixels marked skin (alpha 254, tinted to the avatar's skin)
           that are not skin coloured: pink or rust cloth taken for skin
@@ -38,7 +44,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 spec = importlib.util.spec_from_file_location('L', os.path.join(ROOT, 'tools/seated-layers.py'))
 L = importlib.util.module_from_spec(spec); argv = sys.argv; sys.argv = ['x']; spec.loader.exec_module(L); sys.argv = argv
 CB = L.CB
-MIN_SHAPE, MAX_HOLES, MAX_LEAKS, MAX_TINT = .95, .015, .01, .002
+MIN_FIT, MAX_HOLES, MAX_LEAKS, MAX_TINT, WARN_POSE = .9, .015, .01, .002, .93
 BASIC = {'bottom': 'bottom:shorts', 'shoes': 'shoes:sneaker', 'top': 'top:tee'}
 
 
@@ -72,12 +78,19 @@ def check(sex, item, slot, sheet, data, outdir):
         white = lambda x: (x.min(2) > 200) & (x.max(2) - x.min(2) < 30)
         cloth = fgA & ~L.skin_of(A) & ~white(A) & (A.max(2) > 60)
         # the base's own pale undershirt / undershorts showing where the sheet has cloth
-        hole = below & cloth & (owner == 0) & white(G) & ~L.near(white(A), 2)
+        hole = below & cloth & (owner == 0) & white(G) & ~L.near(white(A), 2) & L.near(mine, 12)
         leak = mine & ~L.near(fgA, 2)
         tinted = mine & (out[..., 3] == 254)
         Gf = np.asarray(Image.fromarray(out[..., :3]).filter(ImageFilter.GaussianBlur(1.5))).astype(float)
         Af = L.rgb(L.blur(reg[view]), box)
-        colour = below & fgA & fgG & (np.sqrt(((Gf - Af) ** 2).sum(2)) > 70)
+        # within 2 px: placing a sheet on the base is good to a pixel or two
+        far, _ = L.shifted_min(Gf, Af, np.zeros(Af.shape[:2], np.int8), r=2, step=1); far = far > 70
+        colour = below & fgA & fgG & far
+        # what the item's layer and the bare base around it show; a kept
+        # basic piece drawn over it (a shirt over a skirt's waist) is the
+        # basic outfit's, which ChatGPT redraws its own way
+        ring = L.near(mine, 3) & below & (fgA | fgG) & ((owner == names.index(item)) | (owner <= 0))
+        fit = 1 - (ring & (far | (fgA != fgG))).sum() / max(1, ring.sum())
         # tint check on the item's own pixels: skin-marked but pink (green
         # under blue) or bright, strongly saturated cloth (rust: saturation
         # .75); the skin's shading and red-brown outline (.5) are tinted like
@@ -86,9 +99,10 @@ def check(sex, item, slot, sheet, data, outdir):
         sat = (G.max(2) - G.min(2)) / np.maximum(G.max(2), 1)
         wrong = tinted & ((g - b < -4) | ((sat > .6) & (G.max(2) >= 150)))
         n = max(1, mine.sum())
-        res[view] = {'shape': round(float(shape), 3), 'holes': round(float(hole.sum() / n), 4), 'leaks': round(float(leak.sum() / n), 4),
+        res[view] = {'fit': round(float(fit), 3), 'pose': round(float(shape), 3), 'holes': round(float(hole.sum() / n), 4), 'leaks': round(float(leak.sum() / n), 4),
                      'tint': round(float(wrong.sum() / n), 4), 'colour': round(float(colour.sum() / max(1, (below & fgA).sum())), 3)}
-        res[view]['fail'] = [k for k, bad in (('shape', shape < MIN_SHAPE), ('holes', res[view]['holes'] > MAX_HOLES),
+        res[view]['warn'] = ['pose'] if shape < WARN_POSE else []
+        res[view]['fail'] = [k for k, bad in (('fit', fit < MIN_FIT), ('holes', res[view]['holes'] > MAX_HOLES),
                                               ('leaks', res[view]['leaks'] > MAX_LEAKS), ('tint', res[view]['tint'] > MAX_TINT)) if bad]
         comp = Image.new('RGB', (A.shape[1], A.shape[0]), 'white'); comp.paste(Image.fromarray(out), (0, 0), Image.fromarray(out[..., 3]))
         d = np.full(A.shape, 255, np.uint8); d[fgA] = (A[fgA] * .35 + 165).astype(np.uint8)
@@ -138,7 +152,7 @@ def main():
         if args and key not in args: continue
         r = check(m['sex'], m['item'], m['slot'], m['sheet'], data, out); report[key] = r
         bad = {v: x['fail'] for v, x in r.items() if x['fail']}; failed |= bool(bad)
-        print(key, ' | '.join(f"{v} shape {x['shape']} holes {x['holes']} leaks {x['leaks']} tint {x['tint']} colour {x['colour']}" for v, x in r.items()), 'FAIL ' + json.dumps(bad) if bad else 'ok')
+        print(key, ' | '.join(f"{v} fit {x['fit']} pose {x['pose']} holes {x['holes']} leaks {x['leaks']} tint {x['tint']} colour {x['colour']}" for v, x in r.items()), 'FAIL ' + json.dumps(bad) if bad else 'ok')
     json.dump(report, open(os.path.join(out, 'report.json'), 'w'), indent=1)
     print('FAIL' if failed else 'PASS (still look at the 280 px boards in ' + out + ')'); sys.exit(1 if failed else 0)
 
