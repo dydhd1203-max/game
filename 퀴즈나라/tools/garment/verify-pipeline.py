@@ -875,12 +875,20 @@ def wp8_cases(work):
     everywhere = np.ones(D['shirt'].shape[:2], bool)
     cases = []
 
-    def add(name, slot, prod, display=None, positive=False, expect=(), control=False, truth=None, cream=False):
+    margin = sleeve_margin(fz)
+
+    def add(name, slot, prod, display=None, positive=False, expect=(), control=False, truth=None, cream=False, warp=None):
         tr = {n: (truth or prod).get(n, D[n]) for n in ('shirt', 'sleeves', 'shorts', 'shoes')}
         path = GS.render(GS.compose(slot, prod), os.path.join(work, name + '.webp'), 'webp80')
         pid, p = product(slot, 'synth' if positive or cream else 'control', display)
+        # a top positive: the basic sleeve's margin of torso cloth (moved by
+        # the case's own sleeve warp) is not judged, as for P-sleeve+4
+        dc = None
+        if slot == 'top' and positive:
+            m = GS.every_figure(warp[0], margin, warp[1]) if warp else margin
+            dc = {'sleeves': m[..., 3] > 127}
         cases.append(dict(name=name, sheet=path, slot=slot, truth=tr, own=owner_of(slot, prod), kind='webp80', prod=p,
-                          pid=pid, positive=positive, cream=cream, expect=expect, control=control))
+                          pid=pid, positive=positive, cream=cream, expect=expect, control=control, dontcare=dc))
 
     def top_in(rgb):
         return {'shirt': GS.cream(D['shirt'], everywhere, rgb), 'sleeves': GS.cream(D['sleeves'], everywhere, rgb)}
@@ -898,7 +906,7 @@ def wp8_cases(work):
     add('P-hair-brown-top', 'top', top_in(brown), _hex(brown), positive=True)
     # sleeves 8 px shorter (the class rule may refuse; see EXPECT)
     add('P-sleeve-8', 'top', {'sleeves': GS.every_figure(GS.stretch_sleeves, D['sleeves'], -8)}, positive=True,
-        expect=EXPECT.get('P-sleeve-8', ()))
+        expect=EXPECT.get('P-sleeve-8', ()), warp=(GS.stretch_sleeves, -8))
     # a skin band at the cuffs: stripped by the pipeline
     sl, tr = D['sleeves'].copy(), D['sleeves'].copy()
     for key in SG.CELLS:
