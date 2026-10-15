@@ -1,7 +1,7 @@
 {
  "note": "Products for the ChatGPT garment kit (stage 3, WP4). The worker fills this from the shop catalogue and the design reference; the user reviews it. Keyed 'cat:shape' like the garment records. Checked against the live shop for both sexes by `node tools/garment/design-ref.cjs --verify-products` (headless ?demo=1). Used by tools/garment/prompt.cjs.",
  "fields": {
-  "class": "top/short-sleeve | bottom/shorts | shoes/low (stage 3). Other classes exist as schema only. Hats (2026-10-15): hat/full (pulled onto the head, hair above its rim hidden by the game) | hat/sit-on (an ornament seated on the hair).",
+  "class": "top/short-sleeve | bottom/shorts | shoes/low (stage 3). Other classes exist as schema only. Hats (2026-10-15): hat/full (pulled onto the head, hair above its rim hidden by the game) | hat/sit-on (an ornament seated on the hair). Face decorations (2026-10-15): face/sticker (on the facial skin, front and profile).",
   "sexes": "who the shop sells it to (QPGame.getCatalog().curatedItem(cat, shape, sex) is not null). A single-sex product changes only that child; the prompt says the other child stays as it is.",
   "ci": "the fixed colour index per sex (index.html CURATED_COLOURS / fixedColour).",
   "names": "the shop name per sex (curatedItem(...).name).",
@@ -10,7 +10,8 @@
   "mirrorSafe": "true when the right-facing side view may be mirrored into the left view without a decoration looking wrong (no lettering, nothing on one side only that the side view shows). false adds the mirror line to the prompt.",
   "sharedPicture": "true when both sexes wear the same painting in the same colour: image 2 shows it once.",
   "designRef": "image 2 in assets/garment-template/, made by tools/garment/design-ref.cjs from the shop art (no body).",
-  "notes": "KO/EN design notes for the prompt. item: the garment noun; look: what to take from image 2; m/f (or both): the description per child; back: the back-view line."
+  "notes": "KO/EN design notes for the prompt. item: the garment noun; look: what to take from image 2; m/f (or both): the description per child; back: the back-view line.",
+  "planned": "true for a product the shop does not sell yet (requested art first): design-ref.cjs draws image 2 from refSvg and skips the catalogue check."
  },
  "products": {
   "top:shirt": {
@@ -374,6 +375,133 @@
      "look": "colour, pointed tips and jewel positions",
      "both": "the small gold crown from image 2: three pointed tips, a pink jewel in the middle, light blue jewels at the sides, a light gold band below; shiny metal.",
      "back": "in the side view show the crown from the side (round band and pointed tips); in the back view show the back of the band and its tips."
+    }
+   },
+   "sharedPicture": true
+  },
+  "face:band": {
+   "class": "face/sticker",
+   "status": "face decoration pilot F1 (shared picture)",
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 3,
+    "f": 3
+   },
+   "names": {
+    "m": "반창고",
+    "f": "반창고"
+   },
+   "colour": {
+    "m": "#c9954a",
+    "f": "#c9954a"
+   },
+   "display": {
+    "m": "#c9954a",
+    "f": "#c9954a"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-face-band-design.png",
+   "notes": {
+    "ko": {
+     "item": "반창고",
+     "look": "색과 모양",
+     "both": "두 번째 그림의 살구색 반창고 한 개. 보는 사람 기준 오른쪽 볼(아이의 왼쪽 볼), 눈 아래 볼 가운데에 살짝 비스듬히 붙입니다. 가운데 흰 패드와 양쪽 끝의 작은 숨구멍 점.",
+     "back": "옆모습에서는 보이는 볼의 같은 자리에 반창고가 보이게 하고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "adhesive bandage",
+     "look": "colour and shape",
+     "both": "the peach adhesive bandage from image 2, one piece, on the cheek on the viewer's right (the child's left cheek), in the middle of the cheek below the eye, slightly tilted; a white pad in the middle and tiny vent dots on both ends.",
+     "back": "in the side view show the bandage at the same place on the visible cheek; the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "face:bruise": {
+   "class": "face/sticker",
+   "status": "face decoration pilot F2 (planned: not in the shop yet, shared picture)",
+   "planned": true,
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "멍 자국",
+    "f": "멍 자국"
+   },
+   "colour": {
+    "m": "#8a6cb8",
+    "f": "#8a6cb8"
+   },
+   "display": {
+    "m": "#8a6cb8",
+    "f": "#8a6cb8"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-face-bruise-design.png",
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"140\" height=\"100\" viewBox=\"0 0 140 100\"><defs><radialGradient id=\"g\" cx=\"50%\" cy=\"50%\" r=\"50%\"><stop offset=\"0\" stop-color=\"#7a4f9e\" stop-opacity=\".85\"/><stop offset=\".45\" stop-color=\"#8a6cb8\" stop-opacity=\".6\"/><stop offset=\".75\" stop-color=\"#7f9fc8\" stop-opacity=\".35\"/><stop offset=\"1\" stop-color=\"#b9a07a\" stop-opacity=\"0\"/></radialGradient></defs><ellipse cx=\"70\" cy=\"50\" rx=\"44\" ry=\"32\" fill=\"url(#g)\"/></svg>",
+   "notes": {
+    "ko": {
+     "item": "멍 자국",
+     "look": "색이 번지는 모양",
+     "both": "보는 사람 기준 오른쪽 눈 아래 볼(아이의 왼쪽 볼)에 작은 멍 자국 하나. 가운데는 연한 보라, 가장자리는 푸르스름하다가 피부색으로 부드럽게 번지는 둥근 자국입니다. 테두리 선 없이 피부에 스며들게, 아프거나 무섭지 않게 가볍게 그립니다.",
+     "back": "옆모습에서는 보이는 볼의 같은 자리에 멍이 보이게 하고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "bruise",
+     "look": "its colours and soft fading",
+     "both": "one small bruise on the cheek below the eye on the viewer's right (the child's left cheek): light purple in the middle, bluish towards the edge, fading softly into the skin; round, no outline, light and not scary.",
+     "back": "in the side view show the bruise at the same place on the visible cheek; the back view stays exactly as in image 1."
+    }
+   },
+   "sharedPicture": true
+  },
+  "face:gonji": {
+   "class": "face/sticker",
+   "status": "face decoration pilot F3 (planned: not in the shop yet, shared picture)",
+   "planned": true,
+   "sexes": [
+    "m",
+    "f"
+   ],
+   "ci": {
+    "m": 0,
+    "f": 0
+   },
+   "names": {
+    "m": "연지곤지",
+    "f": "연지곤지"
+   },
+   "colour": {
+    "m": "#e2322f",
+    "f": "#e2322f"
+   },
+   "display": {
+    "m": "#e2322f",
+    "f": "#e2322f"
+   },
+   "mirrorSafe": true,
+   "designRef": "ref-face-gonji-design.png",
+   "refSvg": "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"160\" height=\"70\" viewBox=\"0 0 160 70\"><circle cx=\"40\" cy=\"35\" r=\"17\" fill=\"#e2322f\"/><circle cx=\"120\" cy=\"35\" r=\"17\" fill=\"#e2322f\"/></svg>",
+   "notes": {
+    "ko": {
+     "item": "연지곤지",
+     "look": "빨간 동그라미의 색과 크기",
+     "both": "전통 혼례 화장의 연지곤지. 양쪽 볼 가운데에 작고 동그란 빨간 점을 하나씩 찍습니다(눈동자보다 조금 작게). 테두리 선 없이 매끈한 동그라미입니다. 이마의 점은 앞머리에 가려지므로 그리지 않습니다.",
+     "back": "옆모습에서는 보이는 볼에 빨간 점 하나가 보이게 하고, 뒷모습은 그림틀 그대로 둡니다."
+    },
+    "en": {
+     "item": "yeonji-gonji (red cheek dots)",
+     "look": "the colour and size of the red dots",
+     "both": "traditional Korean wedding make-up: one small round red dot in the middle of each cheek (a little smaller than the iris), smooth circles with no outline. No dot on the forehead (the fringe covers it).",
+     "back": "in the side view show one red dot on the visible cheek; the back view stays exactly as in image 1."
     }
    },
    "sharedPicture": true

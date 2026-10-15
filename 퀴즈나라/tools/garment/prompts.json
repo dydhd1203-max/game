@@ -193,6 +193,26 @@
    },
    "limits": [],
    "why": "Ornaments that sit on the hair (crown, ribbon, ears, horns): the game seats them on each hair style's top edge (tools/hair/build-heads.py tops), so they are drawn on the template's hair, not on the skull."
+  },
+  "face/sticker": {
+   "ko": {
+    "slot": "얼굴 장식",
+    "thing": "장식",
+    "verb": "붙여",
+    "wear": "합니다",
+    "pose": "팔·다리 위치, 옷과 신발",
+    "keep": "머리카락, 눈·눈썹·코·입과 얼굴 윤곽",
+    "length": "{item|은} 얼굴 피부 위에만 작게 그리고, 위 설명의 자리에 둡니다. 눈·눈썹·코·입, 얼굴 윤곽, 머리카락은 모양과 위치를 바꾸지 않고 가리지도 않습니다. 앞머리 위에는 그리지 않습니다. 앞모습과 오른쪽을 보는 옆모습에서 같은 자리에 보이게 그리고, 얼굴이 보이지 않는 뒷모습은 그림틀 그대로 둡니다."
+   },
+   "en": {
+    "slot": "face decorations",
+    "things": "face decorations",
+    "pose": "arm and leg positions, clothes and shoes",
+    "keep": "the hair, eyes, eyebrows, nose, mouth and face outline",
+    "length": "Draw the {item} small, on the facial skin only, at the place described. Do not move, reshape or cover the eyes, eyebrows, nose, mouth, face outline or hair, and never draw on the fringe. Show it at the same place in the front view and the right-facing side view; the back view shows no face and stays exactly as in image 1."
+   },
+   "limits": [],
+   "why": "Face decorations (2026-10-15 user request: bandage, bruise, gonji): the game places them on the fixed face frame (one face size per sex, 아바타-제작기준.md 머리–목 7번) between the face and the fringe, front and profile only; the template's faces are the game's head paintings."
   }
  },
  "v1": {
