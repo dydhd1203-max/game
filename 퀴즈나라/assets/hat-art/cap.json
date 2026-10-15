@@ -1,0 +1,153 @@
+{
+ "kind": "full",
+ "views": {
+  "m": {
+   "front": {
+    "src": "assets/hat-art/cap-m-front.png",
+    "rect": [
+     3.976,
+     0.196,
+     23.214,
+     15.994
+    ],
+    "hide": {
+     "src": "assets/hat-art/cap-m-front-hide.png",
+     "rect": [
+      -3.355,
+      -0.804,
+      41.097,
+      16.994
+     ]
+    },
+    "hideTop": [
+     -3.355,
+     -20.0,
+     41.097,
+     19.596
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/cap-m-right.png",
+    "rect": [
+     5.483,
+     4.529,
+     25.269,
+     13.643
+    ],
+    "hide": {
+     "src": "assets/hat-art/cap-m-right-hide.png",
+     "rect": [
+      -0.473,
+      2.703,
+      32.667,
+      15.469
+     ]
+    },
+    "hideTop": [
+     -0.473,
+     -20.0,
+     32.667,
+     23.103
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/cap-m-back.png",
+    "rect": [
+     8.033,
+     4.488,
+     16.867,
+     15.424
+    ],
+    "hide": {
+     "src": "assets/hat-art/cap-m-back-hide.png",
+     "rect": [
+      0.366,
+      3.495,
+      30.668,
+      16.416
+     ]
+    },
+    "hideTop": [
+     0.366,
+     -20.0,
+     30.668,
+     23.895
+    ]
+   }
+  },
+  "f": {
+   "front": {
+    "src": "assets/hat-art/cap-f-front.png",
+    "rect": [
+     4.935,
+     6.534,
+     21.704,
+     12.797
+    ],
+    "hide": {
+     "src": "assets/hat-art/cap-f-front-hide.png",
+     "rect": [
+      -1.822,
+      4.896,
+      37.88,
+      14.436
+     ]
+    },
+    "hideTop": [
+     -1.822,
+     -20.0,
+     37.88,
+     25.296
+    ]
+   },
+   "right": {
+    "src": "assets/hat-art/cap-f-right.png",
+    "rect": [
+     5.123,
+     7.92,
+     23.905,
+     10.518
+    ],
+    "hide": {
+     "src": "assets/hat-art/cap-f-right-hide.png",
+     "rect": [
+      -0.901,
+      5.721,
+      32.51,
+      12.717
+     ]
+    },
+    "hideTop": [
+     -0.901,
+     -20.0,
+     32.51,
+     26.121
+    ]
+   },
+   "back": {
+    "src": "assets/hat-art/cap-f-back.png",
+    "rect": [
+     5.624,
+     7.05,
+     19.328,
+     15.054
+    ],
+    "hide": {
+     "src": "assets/hat-art/cap-f-back-hide.png",
+     "rect": [
+      -1.369,
+      5.885,
+      33.022,
+      16.22
+     ]
+    },
+    "hideTop": [
+     -1.369,
+     -20.0,
+     33.022,
+     26.285
+    ]
+   }
+  }
+ }
+}

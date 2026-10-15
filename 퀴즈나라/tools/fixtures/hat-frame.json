@@ -1,0 +1,101 @@
+{
+ "about": "Template head -> game head of each template figure (hat pipeline, 2026-10-15). sheet px p of the template (SHEET space) maps to head-native units of that view: hn = (cellOrigin + (p - cell0) * unitsPerSheetPx - toViewBox[4:6]) / toViewBox[0]. cellOrigin/unitsPerSheetPx: the template head mask (owner head) fitted onto the game's default head (m short:1, f bob:1, idle/0) rendered at 620 px, best IoU over scale and shift (tools/hair/measure-hat-frame.cjs + fit-hat-frame.py); toViewBox from tools/fixtures/head-frame.json. Generated; do not edit.",
+ "figures": {
+  "m-front": {
+   "iou": 0.9482,
+   "unitsPerSheetPx": 0.103872,
+   "cellOrigin": [
+    -2.1,
+    -0.483
+   ],
+   "toViewBox": [
+    0.935176,
+    0,
+    0,
+    0.935176,
+    1.037184,
+    0.268981
+   ]
+  },
+  "m-right": {
+   "iou": 0.9267,
+   "unitsPerSheetPx": 0.102969,
+   "cellOrigin": [
+    -1.234,
+    0.016
+   ],
+   "toViewBox": [
+    1.071712,
+    0,
+    0,
+    1.071712,
+    -0.726559,
+    -2.88088
+   ]
+  },
+  "m-back": {
+   "iou": 0.9141,
+   "unitsPerSheetPx": 0.102066,
+   "cellOrigin": [
+    -1.691,
+    -0.243
+   ],
+   "toViewBox": [
+    1.131563,
+    0,
+    0,
+    1.131563,
+    -2.105008,
+    -4.198356
+   ]
+  },
+  "f-front": {
+   "iou": 0.9392,
+   "unitsPerSheetPx": 0.095743,
+   "cellOrigin": [
+    -0.667,
+    4.782
+   ],
+   "toViewBox": [
+    0.935176,
+    0,
+    0,
+    0.935176,
+    1.037184,
+    0.203519
+   ]
+  },
+  "f-right": {
+   "iou": 0.9277,
+   "unitsPerSheetPx": 0.08942,
+   "cellOrigin": [
+    0.195,
+    6.236
+   ],
+   "toViewBox": [
+    0.935176,
+    0,
+    0,
+    0.935176,
+    1.037184,
+    0.886197
+   ]
+  },
+  "f-back": {
+   "iou": 0.9481,
+   "unitsPerSheetPx": 0.09755,
+   "cellOrigin": [
+    -1.445,
+    4.126
+   ],
+   "toViewBox": [
+    1.004379,
+    0,
+    0,
+    1.004379,
+    -0.070065,
+    -1.784479
+   ]
+  }
+ }
+}

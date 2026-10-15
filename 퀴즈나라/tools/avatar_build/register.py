@@ -81,7 +81,7 @@ CELLS = {'m-front': (150, 0, 520, 555), 'm-right': (560, 0, 900, 555), 'm-back':
 LAYOUT = [['m-front', 'm-right', 'm-back'], ['f-front', 'f-right', 'f-back']]
 COLLAR_Y = {'m': 264, 'f': 786}
 OWNER = {'background': 0, 'shirt': 1, 'sleeve': 2, 'arm': 3, 'shorts': 4, 'leg': 5, 'shoe': 6, 'neck': 7, 'head': 8}
-SLOT_OWNERS = {'top': (1, 2), 'bottom': (4,), 'shoes': (6,)}
+SLOT_OWNERS = {'top': (1, 2), 'bottom': (4,), 'shoes': (6,), 'hat': (8,)}  # hat: the head (hats, 2026-10-15)
 
 # Thresholds (plan 'registration'; provisional, calibrated on the identity
 # input, the 1536 WebP q80 template, the synthetic set and the real sheet).
@@ -670,6 +670,12 @@ def _box_init(spec, key, box):
     th = ref[3] - ref[1]
     uh = box[3] - box[1]
     s = uh / th
+    if spec.get('slot') == 'hat' and spec.get('nominalS'):
+        # a hat raises the head top: the scale is the sheet's own, the soles fix y
+        s = spec['nominalS']
+        by = box[3] - s * ref[3]
+        bx = (box[0] + box[2]) / 2 - s * (ref[0] + ref[2]) / 2
+        return s, bx + .5 * (s - 1), by + .5 * (s - 1)
     by = ((box[1] - s * ref[1]) + (box[3] - s * ref[3])) / 2
     bx = (box[0] + box[2]) / 2 - s * (ref[0] + ref[2]) / 2
     # centre-based correction (boxes are edge coordinates)
@@ -990,7 +996,13 @@ def register(path, spec=None, slot='top', sexes=('m', 'f'), keep_images=True, mi
     mt = M.matte(rgb, alpha, page)
     timing['matte'] = round(time.time() - t0, 2)
     t0 = time.time()
+    if spec['slot'] == 'hat':
+        # hats change the head region the layout check compares (order, aspect)
+        # and the figure height the box scale comes from: the sheet scale instead
+        spec = dict(spec, nominalS=nominal_transform(spec, rec['size'])[0])
     boxes, lcodes, linfo = find_layout(rgb, mt['fg'], spec)
+    if spec['slot'] == 'hat':
+        lcodes = [c for c in lcodes if c['code'] not in ('LAYOUT_ORDER', 'SQUASH')]
     timing['layout'] = round(time.time() - t0, 2)
     linfo.pop('figureLabels', None)
     res['layout'] = dict(info=linfo, boxes={k: list(v) for k, v in (boxes or {}).items()})

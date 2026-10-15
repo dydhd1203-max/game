@@ -825,7 +825,7 @@
     const sex=av.sex==='m'?'m':'f',G=root.QPFoundationGarments,mode=av.foundationOutfit==='body'||!G?'body':'dressed';
     // The garments this avatar wears (per slot, or the basic piece with a reason).
     const dress=mode==='dressed'?G.resolve({...av,sex}):null;
-    const base={...av,sex,hair:av.hair|| (sex==='m'?'short:1':'bob:1'),expression:av.expression||'bright:0'},heads=headViews(base),items=shopItems(av),key=heads.key+'\n'+mode+(dress?'\n'+dress.key+'\n'+dress.fallbackKey:'')+'\n'+items;
+    const base={...av,sex,hair:av.hair|| (sex==='m'?'short:1':'bob:1'),expression:av.expression||'bright:0'},heads=headViews(base),items=shopItems(av)+(hatArtOf(av,sex,'front')?'|hat:'+String(av.hat).split(':')[0]:''),key=heads.key+'\n'+mode+(dress?'\n'+dress.key+'\n'+dress.fallbackKey:'')+'\n'+items;
     let t=templates.get(key);if(t){templates.delete(key);templates.set(key,t);}
     else{t=template(base,heads,sex,mode,dress,items);if(!t.pending){templates.set(key,t);if(templates.size>48)templates.delete(templates.keys().next().value);}}
     const values=['qpf-'+(++serial),String(size*32/56),String(size*62/56)];
@@ -839,6 +839,28 @@
   function shopItems(av){
     const whole=String(av.outfit||'').split(':')[0],shape=(slot,basic)=>String(av[slot]||'').split(':')[0]||basic;
     return(whole?['outfit:'+whole]:['top:'+shape('top','tee'),'bottom:'+shape('bottom','shorts')]).concat('shoes:'+shape('shoes','sneaker')).join('|');
+  }
+  // Hat art (avatar-hat-art.js, tools/hair/build-hat.py): the picture over
+  // the head painting of each view, in that view's head-native units. A
+  // pulled-on hat (kind full) also masks the painting: the hair under it is
+  // hidden for every hair style, except where the hat shows hair through an
+  // opening (a cap's back); a hat that sits on the hair (kind sit) masks
+  // nothing. A hat without art is not drawn.
+  function hatArtOf(av,sex,view){
+    const shape=String(av.hat||'').split(':')[0],rec=shape&&root.QPHatArt?.[shape];
+    const art=rec?.views?.[sex]?.[view==='profile'?'right':view];return art?{shape,kind:rec.kind,...art}:null;
+  }
+  function hatLayer(v,defs,id,base,sex,view){
+    const art=hatArtOf(base,sex,view);if(!art)return;
+    const rect=r=>({x:r[0],y:r[1],width:r[2],height:r[3]});
+    const paint=el('g',{'data-foundation-hat-under':view});paint.append(...v.childNodes);v.append(paint);
+    if(art.hide){
+      const m=el('mask',{id:id+'-hat-hide-'+view,maskUnits:'userSpaceOnUse',x:-20,y:-30,width:72,height:100});
+      m.append(el('rect',{x:-20,y:-30,width:72,height:100,fill:'#fff'}),el('image',{href:art.hide.src,...rect(art.hide.rect),preserveAspectRatio:'none'}));
+      if(art.hideTop)m.append(el('rect',{...rect(art.hideTop),fill:'#000'}));
+      defs.append(m);paint.setAttribute('mask','url(#'+id+'-hat-hide-'+view+')');
+    }
+    v.append(el('image',{href:art.src,...rect(art.rect),preserveAspectRatio:'none','data-foundation-hat':art.shape}));
   }
   function template(base,heads,sex,mode,dress,items=''){
     const id=TEMPLATE_ID;
@@ -867,6 +889,7 @@
       // dark bottom rim. A body that owns its neck must not show that second
       // neck above the shirt. Cut only the reference heads' neck attachment;
       // original face/hair PNGs and legacy wardrobe rendering stay intact.
+      hatLayer(v,defs,id,base,sex,view);
       const referenceHead=base.hair.split(':')[0]===(sex==='m'?'short':'bob');
       const cut=referenceHead?HEAD_NECK_CUT[sex][view]:'';
       if(cut){const clip=el('clipPath',{id:id+'-head-only-'+view,clipPathUnits:'userSpaceOnUse'});clip.append(el('path',{d:'M-8 -8H40V48H-8Z'+cut,'clip-rule':'evenodd'}));defs.append(clip);v.setAttribute('clip-path','url(#'+id+'-head-only-'+view+')');}

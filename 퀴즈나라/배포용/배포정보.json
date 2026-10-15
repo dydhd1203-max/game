@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-15T15:11:55.266Z",
+  "builtAt": "2026-10-15T19:47:11.320Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -111,8 +111,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 217655,
-      "sha256": "bbcd01c0fc6bde600d23e65af8245d113b7e528d37a487cdb603e8719b45adf1"
+      "bytes": 217699,
+      "sha256": "ae9a7b137439a94110b43d0f20d3b4324d89079751c6304619df55bdf7b8b0a7"
     },
     {
       "path": "avatar-image.js",
@@ -541,8 +541,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 125549,
-      "sha256": "81cd3af608e2785bce64d0e58d53d036553ac7a5ce2e1957032d0f67176114a0"
+      "bytes": 127153,
+      "sha256": "51447590ca5995ae9bfbc2ce7dea2928f2423b7ec192319a7a73626d56cb1499"
     },
     {
       "path": "avatar-foundation.css",
@@ -1453,6 +1453,101 @@
       "path": "assets/seated/f-back-outfit-hanbok.png",
       "bytes": 349162,
       "sha256": "abf3610ed7e7a21be7b9ee23109df5ddc1c4c5ea2be22213daa05a04dbe5e07d"
+    },
+    {
+      "path": "avatar-hat-art.js",
+      "bytes": 2176,
+      "sha256": "a733c0c99e6aff950d34a58c529a6e35c721cdef7ddcc1f2320967f4fd84f3ee"
+    },
+    {
+      "path": "assets/hat-art/cap-m-front.png",
+      "bytes": 46216,
+      "sha256": "e91b04dc100a7dbe179791259df25dea6f3bc7dd357d7668c202e9db5d8e8e04"
+    },
+    {
+      "path": "assets/hat-art/cap-m-front-hide.png",
+      "bytes": 926,
+      "sha256": "590a60d986d5d2119793bd06ce2ec913ff9238901d7630d6ec462c849e7aa1fa"
+    },
+    {
+      "path": "assets/hat-art/cap-m-right.png",
+      "bytes": 51905,
+      "sha256": "6d8e7a5f279857f93c7837d47531a1cb7c5be6389a0c1f26c1a575bc1fe4eb86"
+    },
+    {
+      "path": "assets/hat-art/cap-m-right-hide.png",
+      "bytes": 790,
+      "sha256": "160b15d7a80d6e3ecb780e5a61e2f62de6ff61f43379238049abb7b22145cb45"
+    },
+    {
+      "path": "assets/hat-art/cap-m-back.png",
+      "bytes": 47494,
+      "sha256": "eac44604c1ff0433ee9cf86b65df39cc1b324a83438338578cb2da46d8d46a39"
+    },
+    {
+      "path": "assets/hat-art/cap-m-back-hide.png",
+      "bytes": 1037,
+      "sha256": "8d6c173e696b79c813792dd4cb76e3f7cf95eb746b381adb7d0c67586b562831"
+    },
+    {
+      "path": "assets/hat-art/cap-f-front.png",
+      "bytes": 42766,
+      "sha256": "8e5d16d7934abbf9a66e850d17fb889a07705e5545f51239c5f502c30a5abcf3"
+    },
+    {
+      "path": "assets/hat-art/cap-f-front-hide.png",
+      "bytes": 871,
+      "sha256": "e182967ad0688f3e13655e8c124ce695587362c4fd4f80e6f90de22f9262bb48"
+    },
+    {
+      "path": "assets/hat-art/cap-f-right.png",
+      "bytes": 38301,
+      "sha256": "7d7305cfcc0398dffda413d430cd6fef1ced608243c27df3a16711790c0bca3d"
+    },
+    {
+      "path": "assets/hat-art/cap-f-right-hide.png",
+      "bytes": 714,
+      "sha256": "cfd0491b40be53c5571d7ff4a6c97daa6df01ac4aaf1d7b74076de546a1197fd"
+    },
+    {
+      "path": "assets/hat-art/cap-f-back.png",
+      "bytes": 46496,
+      "sha256": "7c8d4eeda48212ada4de06eaad2600a6bbd1276e546053588c42ff39a1c6f43f"
+    },
+    {
+      "path": "assets/hat-art/cap-f-back-hide.png",
+      "bytes": 946,
+      "sha256": "cfc11631bdfc28a10e5d90120622a7aa12fda9bd92d91d13ad45f43b45133fac"
+    },
+    {
+      "path": "assets/hat-art/crown-m-front.png",
+      "bytes": 14259,
+      "sha256": "2f90ac194d0f4c96540ed14c6b2570b92d48070070d6e49a2317e7997c4736e1"
+    },
+    {
+      "path": "assets/hat-art/crown-m-right.png",
+      "bytes": 10877,
+      "sha256": "71828528c5b2a86e4d0e7aee40594d860b53c58c1934a2aa54cbba5bdf2d3dc6"
+    },
+    {
+      "path": "assets/hat-art/crown-m-back.png",
+      "bytes": 14004,
+      "sha256": "7381a6320e67484bad09dc28c90eb415ab593a6ad91f33760a3382ebb25e9aee"
+    },
+    {
+      "path": "assets/hat-art/crown-f-front.png",
+      "bytes": 13457,
+      "sha256": "d36cead0d0e2f41f242d6614fed649e80b94287ff1887e6faaa7ce441f0200a7"
+    },
+    {
+      "path": "assets/hat-art/crown-f-right.png",
+      "bytes": 9385,
+      "sha256": "cc28cae68a6d1c1698adf0eb677b8f267ed32daeac0a0c801c379338aeb771cd"
+    },
+    {
+      "path": "assets/hat-art/crown-f-back.png",
+      "bytes": 12812,
+      "sha256": "04624e8c55a10c51be26b4ede6840115938bb71de87d3cc52da654d023eba5a8"
     },
     {
       "path": "assets/sd-garments-index.js",
