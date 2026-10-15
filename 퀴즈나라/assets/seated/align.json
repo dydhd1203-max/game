@@ -114,15 +114,15 @@
  "assets/pose-references/floor-sit-f-item-outfit-hanbok-2026-10-15.webp": {
   "back": [
    0,
-   50
+   0
   ],
   "front": [
    0,
-   60
+   2
   ],
   "side": [
-   0,
-   40
+   4,
+   0
   ]
  },
  "assets/pose-references/floor-sit-f-item-outfit-overall-2026-10-15.webp": {

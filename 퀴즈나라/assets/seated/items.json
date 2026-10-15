@@ -222,12 +222,6 @@
   "sheet": "assets/pose-references/floor-sit-f-item-outfit-space-2026-10-15.webp"
  },
  {
-  "sex": "f",
-  "slot": "outfit",
-  "item": "outfit:hanbok",
-  "sheet": "assets/pose-references/floor-sit-f-item-outfit-hanbok-2026-10-15.webp"
- },
- {
   "sex": "m",
   "slot": "shoes",
   "item": "shoes:slipper",
@@ -274,5 +268,11 @@
   "slot": "bottom",
   "item": "bottom:cargo",
   "sheet": "assets/pose-references/floor-sit-m-item-bottom-cargo-2026-10-15.webp"
+ },
+ {
+  "sex": "f",
+  "slot": "outfit",
+  "item": "outfit:hanbok",
+  "sheet": "assets/pose-references/floor-sit-f-item-outfit-hanbok-2026-10-15.webp"
  }
 ]

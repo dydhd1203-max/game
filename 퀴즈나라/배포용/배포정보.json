@@ -1,7 +1,7 @@
 {
   "project": "퀴즈나라",
   "format": 1,
-  "builtAt": "2026-10-15T07:17:10.643Z",
+  "builtAt": "2026-10-15T07:43:52.910Z",
   "instructions": "Cloudflare Pages 또는 Netlify 수동 배포에는 이 배포용 폴더 전체를 올리세요. index.html만 올리지 마세요.",
   "files": [
     {
@@ -536,8 +536,8 @@
     },
     {
       "path": "avatar-foundation.js",
-      "bytes": 125547,
-      "sha256": "99b6cde10e43cc4f5c4412843d542378a47e8167cd06242af2ec724e31353284"
+      "bytes": 125549,
+      "sha256": "81cd3af608e2785bce64d0e58d53d036553ac7a5ce2e1957032d0f67176114a0"
     },
     {
       "path": "avatar-foundation.css",
@@ -1171,8 +1171,8 @@
     },
     {
       "path": "assets/seated/f-front-outfit-hanbok.png",
-      "bytes": 288585,
-      "sha256": "3244b8890fcaf44da37972cf77b73393665ffe925d0dc1fda62d9d75f91a06c8"
+      "bytes": 188499,
+      "sha256": "47022e6dccf34cf1507b7c4ac5e4bb673d4326502f7bde54c49aae92f6711394"
     },
     {
       "path": "assets/seated/f-side-base.png",
@@ -1331,8 +1331,8 @@
     },
     {
       "path": "assets/seated/f-side-outfit-hanbok.png",
-      "bytes": 214770,
-      "sha256": "9f45efbdd877986d58a2c62d36f7f9817f65a3bb2be82ec8449e0c60b8f78a91"
+      "bytes": 153597,
+      "sha256": "2b0d5f5bd60b51571073357ee1d28d2916b4e6741d75e6fc1a02a42c79819fd1"
     },
     {
       "path": "assets/seated/f-back-base.png",
@@ -1446,8 +1446,8 @@
     },
     {
       "path": "assets/seated/f-back-outfit-hanbok.png",
-      "bytes": 475861,
-      "sha256": "cc60e2f856c1c6a4f91518a75fc1afc577a70caf72b5d85b73c932082ba8e9ff"
+      "bytes": 349162,
+      "sha256": "abf3610ed7e7a21be7b9ee23109df5ddc1c4c5ea2be22213daa05a04dbe5e07d"
     },
     {
       "path": "assets/sd-garments-index.js",
