@@ -60,6 +60,7 @@ PART_SHARE = .12      # a part's piece is at least this share of its biggest pie
 STICKER_SHARE = .2    # a sticker's piece: a plaster, a dot of a pair (a hair tip, an eye-line bit are smaller)
 STICKER_GROW = 4      # px a sticker grows from its own colours over the changed pixels (its outline)
 EDGE = 6              # px inside the face edge where a sticker's piece lies (a hair tip lies on it)
+EYE_KEEP = 4          # px round the new eye where unchanged template dark pixels may be its own lid
 BROW_LINE = .45       # eye gaps above the irises where the eyebrows start
 BROW_NEAR = 14.0      # Lab distance to the template's hair colours that is an eyebrow
 FIGURES = ('m-front', 'm-right', 'f-front', 'f-right')
@@ -130,6 +131,7 @@ def cut(U, T, O, cells, slot, kind):
         face, eyes = found[k]
         sex, view = k.split('-')
         lu, lt, u = LU[y0:y1, x0:x1], LT[y0:y1, x0:x1], U[y0:y1, x0:x1]
+        t = T[y0:y1, x0:x1]
         head = O[y0:y1, x0:x1] == HEAD
         zone = M.dilate(face, 8) & head
         d = np.sqrt(((lu - lt) ** 2).sum(-1))
@@ -181,6 +183,13 @@ def cut(U, T, O, cells, slot, kind):
                 # eye picture: on a bare forehead (m slick) it showed as a brown stroke; lashes are near-black
                 hair_cols = BH.kmeans(lt[head & ~M.dilate(face, 2)].reshape(-1, 3)[::7], 8)
                 alpha = alpha * ~((BH.nearest(lu, hair_cols) < BROW_NEAR) & (lu[..., 0] > 28))
+                # the template's own fringe tips over the eye, left as they were (unchanged, dark or hair
+                # coloured in the template): the wearer's own fringe covers that place, and
+                # on a bare forehead (m slick) they showed as dark strokes (E1R, 2026-10-15)
+                tr, tg, tb = (t[..., i].astype(int) for i in range(3))
+                t_hair = ((tr > tg) & (tg > tb) & (tr - tb > 25) & (t.max(2) < 170)) | (t.max(2) < 90)
+                # (only away from the new eye: its lid can lie on the old lash, unchanged there)
+                alpha = alpha * ~(M.dilate((d < CHANGED) & t_hair, 2) & ~M.dilate(item, EYE_KEEP))  # with their pale edges
         ys, xs = np.nonzero(M.dilate(cover if cover is not None else item, 3))
         bx = (int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1)
         rgba = np.dstack([u, alpha * 255]).clip(0, 255).astype(np.uint8)[bx[1]:bx[3], bx[0]:bx[2]]

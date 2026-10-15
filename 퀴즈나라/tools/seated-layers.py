@@ -453,7 +453,15 @@ def hanging_hair(img, mask, cut_row, min_px=300):
     # and the hair's own outline round what was taken (hair-brown or dark within 6 px), and anything but
     # skin in the top 16 rows (the neck under the runtime head; hair specks and a pale anti-aliased edge
     # stayed there as dots)
-    return (CB.grow(out, 2) | (CB.grow(out, 6) & (raw | (img.max(2) < 110))) | (band & ~light_skin)) & mask
+    gone = (CB.grow(out, 2) | (CB.grow(out, 6) & (raw | (img.max(2) < 110))) | (band & ~light_skin)) & mask
+    # crumbs of the hair's outline left near the neck (dashes along the bob's edge, 2026-10-15): small
+    # non-skin pieces there
+    near_neck = np.zeros(mask.shape, bool); near_neck[:max(0, cut_row + 40)] = True
+    lab_, n = ndlabel(mask & ~gone & near_neck & ~light_skin)
+    for i in range(1, n + 1):
+        piece = lab_ == i
+        if piece.sum() < 150: gone |= piece
+    return gone
 
 
 def ndlabel(m):
@@ -470,6 +478,37 @@ def ndlabel(m):
                 if 0 <= yy < H and 0 <= xx < W and m[yy, xx] and not lab_[yy, xx]:
                     lab_[yy, xx] = n; stack.append((yy, xx))
     return lab_, n
+
+
+def strip_hair(A, B, mask, top):
+    """The sheet's own hair below the chin (the reference girl's bob hanging behind the neck and over the
+    shoulders) is no layer's: hair-brown pieces joined to the cut row, hair-brown or dark strokes near the
+    neck outside the base body, and the pale anti-aliased edges and crumbs they leave there (2026-10-15:
+    wedges and floating lines beside the shoulders of most items). The base body is the base sheet's figure
+    without its own hanging hair, or the lines where that hair was counted as body."""
+    rows = np.arange(A.shape[0])[:, None]
+    Bfg = figure(B)
+    # the base body: its skin and white undershirt below the chin, not its hair or outlines (opened, so
+    # thin strokes go), grown back over its own outline
+    rb, gb, bb = (B[..., i].astype(int) for i in range(3))
+    b_hair = (rb > gb) & (gb > bb) & (rb - bb > 25) & (B.max(2) < 170)
+    core = Bfg & (rows >= top - 12) & ~b_hair & (B.max(2) >= 120)
+    body = near(CB.grow(CB.shrink(CB.shrink(core)), 2) & core, 5)
+    r_, g_, b_ = (A[..., i].astype(int) for i in range(3))
+    hairish = (r_ > g_) & (g_ > b_) & (r_ - b_ > 25) & (A.max(2) < 170)
+    out_body = (rows < top + HAIR_ROWS) & ~body
+    stray = out_body & (hairish | (A.max(2) < 120))
+    mask = mask & ~(hanging_hair(A, mask, top - 12) | near(stray, 1) & (hairish | (A.max(2) < 150)))
+    sat = (A.max(2) - A.min(2)) / np.maximum(A.max(2), 1)
+    skinlike = (r_ > 150) & (g_ > 100) & (r_ > g_) & (g_ >= b_) & (r_ - b_ > 25)  # a neck is skin, never a stroke
+    pale = mask & out_body & (sat < .3) & (A.max(2) < 245) & ~skinlike
+    thick = CB.grow(CB.shrink(CB.shrink(pale)), 2) & pale
+    mask = mask & ~(pale & ~thick)
+    lab_, n = ndlabel(mask & out_body & ~skinlike)
+    for i in range(1, n + 1):
+        piece = lab_ == i
+        if piece.sum() < 150: mask &= ~piece
+    return mask
 
 
 def build_base():
@@ -489,11 +528,12 @@ def build_base():
             # the side view): the runtime head brings its own, and other hair styles showed this one as
             # a dark wedge behind the neck (2026-10-15). Hair-brown pieces joined to the cut row only.
             base_mask &= ~hanging_hair(Bfull, base_mask, top - 12)
+            base_mask = strip_hair(Bfull, Bfull, base_mask, top)
             entry = {'seat': C['seat'], 'unit': C['k'], 'frame': U(*box[:2]) + [round((box[2] - box[0]) * C['k'], 4), round((box[3] - box[1]) * C['k'], 4)], 'layers': {}}
             entry['layers']['base'] = save(f'{sex}-{view}-base', base_mask, Bfull, skin_of(Bfull), box, U)
             sk = skin_of(A)
             for i, slot in enumerate(SLOTS, 1):
-                entry['layers'][BASIC[slot]] = save(f'{sex}-{view}-{BASIC[slot].replace(":", "-")}', lab[i], A, sk, box, U)
+                entry['layers'][BASIC[slot]] = save(f'{sex}-{view}-{BASIC[slot].replace(":", "-")}', strip_hair(A, Bfull, lab[i], top), A, sk, box, U)
             L = np.zeros(A.shape[:2], np.int8)
             for i in (1, 2, 3): L[lab[i] & (L == 0)] = i
             np.save(os.path.join(OUT, f'.{sex}-{view}-basic-lab.npy'), L)
@@ -627,16 +667,7 @@ def _cut_item(sheet, sex, slot, item, write):
         # a dark skin tone (2026-10-15)
         Bb = rgb(blur(bases[view]), box); Ab = rgb(blur(items[view]), box)
         tint = (skin_of(A) & near(skin_light(A), 2) & near(skin_of(B), 2) & (np.sqrt(((Ab - Bb) ** 2).sum(2)) < 45)) | bare
-        # the sheet's own hair below the chin (a bob hanging behind the neck and over the shoulders) is no
-        # item's: hair-brown pieces joined to the cut row, and hair-brown pixels near the neck outside the
-        # base body; brown cloth lies on the body (2026-10-15: wisps beside the shoulders of most items)
-        rows = np.arange(A.shape[0])[:, None]; top = C['cut'] - box[1]
-        r_, g_, b_ = (A[..., i].astype(int) for i in range(3))
-        hairish = (r_ > g_) & (g_ > b_) & (r_ - b_ > 25) & (A.max(2) < 170)
-        # (and the hair's thin dark outline strokes there, which are not brown)
-        out_body = (rows < top + HAIR_ROWS) & ~near(figure(B), 4)
-        stray = out_body & (hairish | (A.max(2) < 120))
-        mask &= ~(hanging_hair(A, mask, top - 12) | near(stray, 1) & (hairish | (A.max(2) < 150)))
+        mask = strip_hair(A, B, mask, C['cut'] - box[1])
         data[sex][view]['layers'][item] = rects[view] = save(f'{sex}-{view}-{item.replace(":", "-")}', mask, A, tint, box, U)
         if item == BASIC.get(slot):
             # a basic piece redrawn whole (the basic tee without the shorts
