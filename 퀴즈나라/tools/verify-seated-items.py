@@ -52,7 +52,9 @@ def compose(sex, view, item, slot, data):
     """RGBA composite on the crop and, per pixel, the index of the layer on top."""
     C = CB.FIGURES[f'{sex}:{view}']; x0, y0, x1, y1 = C['crop']; e = data[sex][view]
     fx, fy = e['frame'][:2]; k = e['unit']
-    order = ['bottom', 'shoes', 'outfit'] if slot == 'outfit' else ['bottom', 'shoes', 'top']
+    # as avatar-foundation.js seatLayers: a one-piece takes the top's and
+    # the bottom's place (shopItems lists no bottom with an outfit)
+    order = ['shoes', 'outfit'] if slot == 'outfit' else ['bottom', 'shoes', 'top']
     names = ['base'] + [item if s == slot else BASIC[s] for s in order]
     out = np.zeros((y1 - y0, x1 - x0, 4), np.uint8); owner = np.full(out.shape[:2], -1, np.int8)
     for i, n in enumerate(names):

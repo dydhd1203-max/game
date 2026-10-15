@@ -1134,7 +1134,7 @@
   function seatLayers(direction,sex,items){
     const view=direction==='front'?'front':direction==='back'?'back':'side',rec=SEATED_LAYERS?.[sex==='f'?'f':'m']?.[view];if(!rec)return null;
     const ids=String(items||'').split('|'),slot=s=>ids.find(id=>id.startsWith(s+':')),one=slot('outfit');
-    const order=one?['bottom','shoes','outfit']:['bottom','shoes','top'],layers=[rec.layers.base];
+    const order=one?['shoes','outfit']:['bottom','shoes','top'],layers=[rec.layers.base];
     for(const s of order){const id=slot(s);if(!id||!(id in rec.layers))return null;if(rec.layers[id])layers.push(rec.layers[id]);}
     return{seat:rec.seat,frame:rec.frame,unit:rec.unit,layers,key:sex+'|'+view+'|'+order.map(slot).join('|')};
   }

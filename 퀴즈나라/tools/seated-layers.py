@@ -215,7 +215,7 @@ def basic_seeds(a, sex, rows, n, view, y0=0):
     return seeds
 
 
-def layers_for(sex, view, sheet_img, base_img, slot=None, basic_lab=None, basic_img=None):
+def layers_for(sex, view, sheet_img, base_img, slot=None, basic_lab=None, basic_img=None, zone_lab=None):
     C = CB.FIGURES[f'{sex}:{view}']; box = C['crop']
     A = rgb(sheet_img, box); Ab = rgb(blur(sheet_img), box); Bb = rgb(blur(base_img), box)
     h = A.shape[0]; rows = np.arange(h)[:, None]; top = C['cut'] - box[1]
@@ -243,7 +243,7 @@ def layers_for(sex, view, sheet_img, base_img, slot=None, basic_lab=None, basic_
         # this item's slot (a top's new cloth may match the old top nearby)
         off = ~kept & (moved < 22) & (mlab > 0) & (mlab != (k or 3))
         seeds[off] = mlab[off]; kept = kept | off
-        zone = slot_zone(slot, basic_lab, fg)
+        zone = slot_zone(slot, basic_lab if zone_lab is None else zone_lab, fg)
         mine = (new > 60) & zone
         if slot == 'outfit': seeds[mine & ~kept] = 3; seeds[mine & ~kept & (basic_lab == 1)] = 1
         else: seeds[mine & ~kept] = k
@@ -387,6 +387,8 @@ def build_base():
             L = np.zeros(A.shape[:2], np.int8)
             for i in (1, 2, 3): L[lab[i] & (L == 0)] = i
             np.save(os.path.join(OUT, f'.{sex}-{view}-basic-lab.npy'), L)
+            zp = os.path.join(OUT, f'.{sex}-{view}-zone-lab.npy')
+            if os.path.exists(zp): os.remove(zp)  # redrawn basic pieces set it again
             old = load_json().get(sex, {}).get(view, {}).get('layers', {})
             entry['layers'].update({k: v for k, v in old.items() if k not in entry['layers']})
             data.setdefault(sex, {})[view] = entry
@@ -421,19 +423,20 @@ def build_item(sheet, sex, slot, item):
         C, box, U = frame(sex, view)
         basic = Image.open(os.path.join(ROOT, C['src'])).convert('RGB')
         blab = np.load(os.path.join(OUT, f'.{sex}-{view}-basic-lab.npy'))
-        lab, A, fg, below = layers_for(sex, view, items[view], bases[view], slot, blab, basic)
+        zp = os.path.join(OUT, f'.{sex}-{view}-zone-lab.npy'); zlab = np.load(zp) if os.path.exists(zp) else blab
+        lab, A, fg, below = layers_for(sex, view, items[view], bases[view], slot, blab, basic, zlab)
         k = 3 if slot == 'outfit' else SLOTS.index(slot) + 1
-        zone = slot_zone(slot, blab, fg)
+        zone = slot_zone(slot, zlab, fg)
         mask = (lab[k] | (lab[1] if slot == 'outfit' else False)) & zone
         # Seam: where the sheet has cloth next to the item but neither the
         # item nor the kept basic pieces cover it, the base's white
         # undershirt or undershorts showed as a thin strip (a shirt hem
         # ending above the basic shorts' waistband). The item takes the
         # sheet's pixels there.
-        others = np.isin(blab, [i for i in (1, 2, 3) if i != k and not (slot == 'outfit' and i == 1)])
+        others = np.isin(zlab, [i for i in (1, 2, 3) if i != k and not (slot == 'outfit' and i == 1)])
         B = rgb(bases[view], box); white = lambda x: (x.min(2) > 200) & (x.max(2) - x.min(2) < 30)
         gap = fg & below & ~mask & ~others & white(B) & ~white(A) & ~skin_light(A) & near(mask, 8) & zone
-        mask = tidy(border_rule(mask | gap, A, slot, blab, fg), A)
+        mask = tidy(border_rule(mask | gap, A, slot, zlab, fg), A)
         # a view where the item hardly shows (shoes from the back) gets no
         # layer: what little the cut found there is legs and cuffs
         moved, _ = shifted_min(rgb(blur(items[view]), box), rgb(blur(basic), box), blab)
@@ -445,6 +448,15 @@ def build_item(sheet, sex, slot, item):
         Bb = rgb(blur(bases[view]), box); Ab = rgb(blur(items[view]), box)
         tint = skin_of(A) & near(skin_light(A), 2) & near(skin_of(B), 2) & (np.sqrt(((Ab - Bb) ** 2).sum(2)) < 45)
         data[sex][view]['layers'][item] = save(f'{sex}-{view}-{item.replace(":", "-")}', mask, A, tint, box, U)
+        if item == BASIC.get(slot):
+            # a basic piece redrawn whole (the basic tee without the shorts
+            # hiding its hem): the other items' zones follow its new shape.
+            # Only the zones: what a sheet kept is still read against the
+            # basic sheet's own pieces (using the new shape there too took a
+            # light blue skirt's middle for the old light blue shorts' place,
+            # now 'top', 2026-10-15).
+            zl = zlab.copy(); zl[zl == k] = 0; zl[mask] = k
+            np.save(os.path.join(OUT, f'.{sex}-{view}-zone-lab.npy'), zl)
         print(sex, view, item, data[sex][view]['layers'][item])
     json.dump(data, open(os.path.join(OUT, 'layers.json'), 'w'), ensure_ascii=False, indent=1)
 
@@ -459,5 +471,7 @@ if __name__ == '__main__':
     elif sys.argv[1] == 'item': build_item(*sys.argv[2:6])
     elif sys.argv[1] == 'all':
         build_base()
-        for m in json.load(open(MANIFEST)): build_item(m['sheet'], m['sex'], m['slot'], m['item'])
+        man = json.load(open(MANIFEST))
+        # redrawn basic pieces first: the other items' zones read their shape
+        for m in sorted(man, key=lambda m: m['item'] != BASIC.get(m['slot'])): build_item(m['sheet'], m['sex'], m['slot'], m['item'])
     sync()
